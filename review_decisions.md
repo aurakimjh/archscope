@@ -44,7 +44,7 @@ Decision states:
 | RD-022 | Separate profiler stack classification rules from Python code | Deferred | P3 | Runtime Expansion | Configuration-driven rules matter when non-JVM runtimes are prioritized. Current hardcoded rules are acceptable for early profiler support. | Move to configurable classification before Node.js/Python/Go/.NET stack expansion. |
 | RD-023 | Prioritize Timeline Correlation as a differentiator | Deferred | P4 | Advanced Diagnostics | Timeline correlation is strategically important but depends on stable analyzers, result contracts, and UI rendering first. | Keep in roadmap as a later differentiating feature. |
 | RD-024 | Require raw evidence for AI-assisted interpretation | Deferred | P5 | AI Interpretation | This is the correct trust model for AI interpretation, but AI-assisted analysis is not part of the immediate foundation cycle. | When AI interpretation starts, require source evidence references such as `raw_line` or `raw_block`. |
-| RD-025 | Update React and Electron versions now | Needs Decision | P3 | Dependency Management | Dependency freshness has security value, but upgrades can introduce UI/build churn. This should be decided with the desired release window and support policy. | Decide whether to upgrade during foundation work or defer to packaging hardening. |
+| RD-025 | Update React and Electron versions now | Accepted | P3 | Dependency Management | Research follow-up split the decision: Electron upgrade is accepted after Bridge PoC because Electron 31 is outside the supported major window; React 19 remains deferred unless compatibility requires it. | Track Electron upgrade under `T-023`; revisit React after Electron/tooling stabilization. |
 | RD-026 | Choose desktop-only bridge vs local HTTP server for future web portability | Accepted | P0 | Foundation Stabilization | Desktop-first integration is the current product direction. Electron IPC plus Python CLI keeps the process model simple and avoids local server lifecycle and port-management overhead. | Use Electron IPC + `child_process.execFile` for the Bridge PoC; revisit local HTTP only if web delivery becomes a near-term requirement. |
 
 ## Backlog Mapping
@@ -66,6 +66,4 @@ The executable TO-DO list is maintained in `work_status.md` under `Execution Bac
 
 ## Open Decisions
 
-| ID | Question | Default recommendation |
-|---|---|---|
-| RD-025 | Should React/Electron dependency upgrades happen during foundation stabilization? | Defer until packaging hardening unless a known vulnerability forces an earlier update. |
+No review-sourced decisions are currently open. Research-sourced decisions are tracked in `docs/research/research_decisions.md`.

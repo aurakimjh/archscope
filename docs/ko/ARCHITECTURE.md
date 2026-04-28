@@ -2,6 +2,19 @@
 
 ArchScope는 애플리케이션 아키텍처 진단 및 보고서 작성을 위한 toolkit이다. 핵심 책임은 운영 환경에서 수집한 원천 데이터를 표준화된 분석 결과와 보고서용 시각화 자료로 변환하는 것이다.
 
+## 제품 포지셔닝
+
+ArchScope는 **privacy-first local professional diagnostic workbench**로 포지셔닝한다.
+
+제품 방향은 다음 요소를 결합하는 것이다.
+
+- SaaS JVM 진단 도구의 편의성
+- 전통적인 desktop analyzer의 local/offline 보안성
+- 현대적인 report-ready visualization
+- 여러 runtime을 수용할 수 있는 표준 evidence contract
+
+ArchScope는 범용 log viewer나 full observability backend가 되는 것을 목표로 하지 않는다. Offline operational evidence를 architecture diagnosis와 report artifact로 변환하는 데 집중한다.
+
 ## 시스템 흐름
 
 ```text
@@ -147,9 +160,13 @@ analyzeCollapsedProfile({ wallPath, wallIntervalMs, elapsedSec, topN })
 5. desktop chart catalog에 chart template 추가
 6. analyzer page 또는 기존 UI 확장
 
+이 확장 모델은 SDK-like boundary를 유지해야 한다. Parser와 analyzer가 추가되어도 UI foundation을 다시 작성하거나 외부 `AnalysisResult` transport shape를 바꾸지 않아야 한다.
+
 ## Runtime Scope
 
 초기에는 JVM 진단에 집중하지만, ArchScope는 Java 전용 도구가 아니다. Node.js, Python, Go, .NET, middleware log까지 확장 가능한 runtime-neutral 구조를 유지한다.
+
+향후 JVM 및 observability input에는 JFR recording과 OpenTelemetry log record가 포함될 수 있다. 이들 input도 `AnalysisResult`로 정규화하고, 추적 가능한 raw evidence 또는 event reference를 보존해야 한다.
 
 ## Packaging 방향
 

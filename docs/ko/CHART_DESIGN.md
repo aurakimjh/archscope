@@ -48,6 +48,20 @@ ArchScope chart는 표준화된 analysis result를 기반으로 하는 report-re
 
 초기 desktop app은 TypeScript sample data에서 ECharts를 렌더링한다. Chart option builder는 React component와 분리되어 있으며, 향후 export logic에서도 같은 chart definition을 재사용할 수 있다.
 
+## ECharts 6 방향
+
+Phase 2에서는 Engine-UI Bridge PoC가 안정화된 뒤 Apache ECharts 6 도입을 평가하고 적용한다.
+
+관련 기능:
+
+- Analyst workflow를 위한 dynamic theme switching 및 dark mode
+- Latency 또는 GC pause처럼 편차가 큰 분포를 표현하기 위한 broken axis
+- Response-time 및 profiler distribution을 표현하기 위한 violin, beeswarm, range chart
+- Report generation을 위한 SVG rendering/export 개선
+- Visual churn을 최소화해야 할 경우 v5 compatibility theme 검토
+
+이 업그레이드는 단순 dependency bump가 아니라 chart-system 작업으로 다룬다. Migration 후 chart snapshot과 report export 동작을 확인해야 한다.
+
 ## i18n 방향
 
 차트 title, axis label, legend label은 UI locale과 report export locale을 기준으로 변환 가능해야 한다. Raw data value는 번역하지 않고, report-facing label만 locale resource에서 가져온다.

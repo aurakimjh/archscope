@@ -2,6 +2,19 @@
 
 ArchScope is an application architecture diagnostic and reporting toolkit. Its core responsibility is to transform raw operational evidence into normalized analysis results and report-ready visualizations.
 
+## Product Positioning
+
+ArchScope is positioned as a **privacy-first local professional diagnostic workbench**.
+
+It should combine:
+
+- the convenience of SaaS JVM diagnostic tools,
+- the local/offline safety of traditional desktop analyzers,
+- modern report-ready visualization,
+- and a normalized evidence contract that can support multiple runtimes.
+
+The product direction is not to become a general log viewer or a full observability backend. ArchScope should stay focused on turning offline operational evidence into architecture diagnosis and report artifacts.
+
 ## System Flow
 
 ```text
@@ -148,9 +161,13 @@ New diagnostic data types should follow this path:
 5. Add chart templates in the desktop chart catalog.
 6. Add UI page or extend an existing analyzer page.
 
+This extension model should remain SDK-like: parser and analyzer additions must be possible without rewriting UI foundations or changing the outer `AnalysisResult` transport shape.
+
 ## Runtime Scope
 
 Although JVM diagnostics are an early focus, ArchScope should remain runtime-neutral. The model supports Java, Node.js, Python, Go, .NET, and middleware-specific evidence.
+
+Future JVM and observability inputs may include JFR recordings and OpenTelemetry log records. These inputs should still normalize into `AnalysisResult` and preserve traceable raw evidence or event references.
 
 ## Packaging Direction
 
