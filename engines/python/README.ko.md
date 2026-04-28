@@ -1,15 +1,8 @@
 # ArchScope Python Engine
 
-Language-specific README files:
+Python engine은 raw diagnostic file을 파싱하고, record를 정규화하며, 통계를 집계한 뒤 AnalysisResult 형식의 JSON 파일을 생성합니다.
 
-- [English](./README.en.md)
-- [한국어](./README.ko.md)
-
-The Python engine parses raw diagnostic files, normalizes records, aggregates statistics, and writes AnalysisResult-style JSON files.
-
-Korean documentation is available in [README.ko.md](./README.ko.md).
-
-## Install
+## 설치
 
 ```bash
 cd engines/python
@@ -24,7 +17,7 @@ pip install -e .
 python -m archscope_engine.cli --help
 ```
 
-Access log sample:
+Access log 샘플:
 
 ```bash
 python -m archscope_engine.cli access-log analyze \
@@ -33,7 +26,7 @@ python -m archscope_engine.cli access-log analyze \
   --out ../../examples/outputs/access-log-result.json
 ```
 
-Collapsed profiler sample:
+Collapsed profiler 샘플:
 
 ```bash
 python -m archscope_engine.cli profiler analyze-collapsed \

@@ -2,22 +2,11 @@
 
 Application Architecture Diagnostic & Reporting Toolkit
 
-Language-specific README files:
-
-- [English](./README.en.md)
-- [한국어](./README.ko.md)
-
 ## What is ArchScope?
 
 ArchScope parses middleware logs, GC logs, profiler outputs, thread dumps, and exception stack traces, then converts them into report-ready statistics, charts, and diagnostic evidence.
 
 ArchScope is intended for application architects who need to turn raw operational and performance data into architecture diagnosis evidence.
-
-## Korean Overview
-
-ArchScope는 미들웨어 로그, GC 로그, 프로파일링 결과, 스택 트레이스 등을 파싱하여 애플리케이션 아키텍트가 성능 진단 보고서에 바로 사용할 수 있는 통계, 그래프, 진단 근거로 변환하는 도구입니다.
-
-한국어 README는 [README.ko.md](./README.ko.md)에서 확인할 수 있습니다.
 
 ## Key Goals
 
@@ -70,8 +59,8 @@ archscope/
 
 ## Documentation
 
-- [English documentation](docs/README.md#english)
-- [Korean documentation](docs/README.md#korean)
+- [English documentation](docs/en/README.md)
+- [Korean documentation](docs/ko/README.md)
 
 ## Development
 

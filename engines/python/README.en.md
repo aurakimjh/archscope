@@ -1,13 +1,6 @@
 # ArchScope Python Engine
 
-Language-specific README files:
-
-- [English](./README.en.md)
-- [한국어](./README.ko.md)
-
 The Python engine parses raw diagnostic files, normalizes records, aggregates statistics, and writes AnalysisResult-style JSON files.
-
-Korean documentation is available in [README.ko.md](./README.ko.md).
 
 ## Install
 
