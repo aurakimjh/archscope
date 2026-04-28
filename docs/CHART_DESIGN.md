@@ -47,3 +47,7 @@ ArchScope charts are report-ready views over normalized analysis results.
 ## Current Skeleton
 
 The initial desktop app renders ECharts from sample JSON-style data in TypeScript. The chart option builders are isolated from React components so later export logic can reuse chart definitions.
+
+## i18n Direction
+
+Chart titles, axis labels, and legend labels should be derived from locale resources. Raw metric values and evidence strings are not translated.

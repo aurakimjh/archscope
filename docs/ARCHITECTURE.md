@@ -23,6 +23,7 @@ The desktop application is built with Electron, React, TypeScript, and Apache EC
 - Chart dashboards
 - Chart Studio placeholders
 - Export Center placeholders
+- English/Korean UI locale switching
 
 The UI reads normalized analysis result JSON rather than raw log files. This keeps UI rendering independent from parser implementation details.
 
@@ -52,6 +53,7 @@ metadata
 ```
 
 Charts are rendered from normalized result fields, not raw log lines.
+User-facing labels should come from locale resources so the same normalized result can be shown in English or Korean.
 
 ## Extension Model
 

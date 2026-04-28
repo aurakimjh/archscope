@@ -1,18 +1,21 @@
 import { ChartPanel } from "../components/ChartPanel";
 import { FileDropZone } from "../components/FileDropZone";
+import { useI18n } from "../i18n/I18nProvider";
 
 export function AccessLogAnalyzerPage(): JSX.Element {
+  const { t } = useI18n();
+
   return (
     <div className="page">
       <section className="workspace-grid">
         <div className="tool-panel">
-          <h2>Access Log Analyzer</h2>
+          <h2>{t("accessLogAnalyzer")}</h2>
           <FileDropZone
-            label="Select access log file"
-            description="NGINX-like sample format is supported by the current engine MVP."
+            label={t("selectAccessLogFile")}
+            description={t("accessLogFileDescription")}
           />
           <label className="field">
-            <span>Log format</span>
+            <span>{t("logFormat")}</span>
             <select defaultValue="nginx">
               <option value="nginx">NGINX</option>
               <option value="apache">Apache</option>
@@ -23,18 +26,18 @@ export function AccessLogAnalyzerPage(): JSX.Element {
             </select>
           </label>
           <button className="primary-button" type="button">
-            Analyze
+            {t("analyze")}
           </button>
         </div>
         <div>
           <section className="summary-grid compact">
-            <MetricCard label="Total Requests" value="-" />
-            <MetricCard label="Average Response Time" value="-" />
-            <MetricCard label="p95 Response Time" value="-" />
-            <MetricCard label="Error Rate" value="-" />
+            <MetricCard label={t("totalRequests")} value="-" />
+            <MetricCard label={t("averageResponseTime")} value="-" />
+            <MetricCard label={t("p95ResponseTime")} value="-" />
+            <MetricCard label={t("errorRate")} value="-" />
           </section>
           <ChartPanel
-            title="Access Log Chart Area"
+            title={t("accessLogChartArea")}
             option={{
               xAxis: { type: "category", data: ["10:00", "10:01", "10:02"] },
               yAxis: { type: "value" },

@@ -39,6 +39,10 @@ CSV export should operate on `tables` entries or selected `series` entries.
 
 HTML export should embed chart options and normalized data for interactive review without requiring the desktop app.
 
+## Multilingual Export Direction
+
+Report-facing text should be selected from locale resources for English and Korean. Exporters should not translate raw evidence or measured values.
+
 ## PowerPoint Direction
 
 PowerPoint export is intentionally out of scope for Phase 1. Chart templates should still maintain 16:9 presets and title/subtitle metadata so future slide generation is straightforward.

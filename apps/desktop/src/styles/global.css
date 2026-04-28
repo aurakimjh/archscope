@@ -105,6 +105,25 @@ select {
   margin-bottom: 24px;
 }
 
+.locale-switcher {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.locale-switcher select {
+  min-width: 116px;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  color: #111827;
+  background: #ffffff;
+}
+
 .eyebrow {
   margin: 0 0 4px;
   color: #64748b;

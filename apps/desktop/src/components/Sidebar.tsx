@@ -1,20 +1,21 @@
 import type { PageKey } from "../App";
+import { useI18n, type MessageKey } from "../i18n/I18nProvider";
 
 type NavItem = {
   key: PageKey;
-  label: string;
+  labelKey: MessageKey;
 };
 
 const navItems: NavItem[] = [
-  { key: "dashboard", label: "Dashboard" },
-  { key: "access-log", label: "Access Log Analyzer" },
-  { key: "gc-log", label: "GC Log Analyzer" },
-  { key: "profiler", label: "Profiler Analyzer" },
-  { key: "thread-dump", label: "Thread Dump Analyzer" },
-  { key: "exception", label: "Exception Analyzer" },
-  { key: "chart-studio", label: "Chart Studio" },
-  { key: "export-center", label: "Export Center" },
-  { key: "settings", label: "Settings" },
+  { key: "dashboard", labelKey: "dashboard" },
+  { key: "access-log", labelKey: "accessLogAnalyzer" },
+  { key: "gc-log", labelKey: "gcLogAnalyzer" },
+  { key: "profiler", labelKey: "profilerAnalyzer" },
+  { key: "thread-dump", labelKey: "threadDumpAnalyzer" },
+  { key: "exception", labelKey: "exceptionAnalyzer" },
+  { key: "chart-studio", labelKey: "chartStudio" },
+  { key: "export-center", labelKey: "exportCenter" },
+  { key: "settings", labelKey: "settings" },
 ];
 
 type SidebarProps = {
@@ -23,16 +24,18 @@ type SidebarProps = {
 };
 
 export function Sidebar({ activePage, onNavigate }: SidebarProps): JSX.Element {
+  const { t } = useI18n();
+
   return (
     <aside className="sidebar">
       <div className="brand">
         <div className="brand-mark">AS</div>
         <div>
           <strong>ArchScope</strong>
-          <span>Evidence Builder</span>
+          <span>{t("brandSubtitle")}</span>
         </div>
       </div>
-      <nav className="nav-list" aria-label="Primary navigation">
+      <nav className="nav-list" aria-label={t("navLabel")}>
         {navItems.map((item) => (
           <button
             key={item.key}
@@ -40,7 +43,7 @@ export function Sidebar({ activePage, onNavigate }: SidebarProps): JSX.Element {
             className={item.key === activePage ? "nav-item active" : "nav-item"}
             onClick={() => onNavigate(item.key)}
           >
-            {item.label}
+            {t(item.labelKey)}
           </button>
         ))}
       </nav>

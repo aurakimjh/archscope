@@ -1,10 +1,17 @@
+import { useI18n } from "../i18n/I18nProvider";
 import { PlaceholderPage } from "./PlaceholderPage";
 
 export function SettingsPage(): JSX.Element {
+  const { t } = useI18n();
+
   return (
     <PlaceholderPage
-      title="Settings"
-      items={["Engine path", "Default chart theme", "Locale and report label language"]}
+      title={t("settings")}
+      items={[
+        t("enginePath"),
+        t("defaultChartTheme"),
+        t("localeAndReportLanguage"),
+      ]}
     />
   );
 }

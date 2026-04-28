@@ -9,9 +9,11 @@ import {
   statusCodeDistributionOption,
 } from "../charts/chartOptions";
 import { registerArchScopeTheme } from "../charts/echartsTheme";
+import { useI18n } from "../i18n/I18nProvider";
 
 export function DashboardPage(): JSX.Element {
   const [data, setData] = useState<SampleAnalysisResult | null>(null);
+  const { t } = useI18n();
 
   useEffect(() => {
     registerArchScopeTheme();
@@ -22,47 +24,53 @@ export function DashboardPage(): JSX.Element {
     if (!data) {
       return null;
     }
-    return {
-      requestCount: requestCountTrendOption(data),
-      p95: p95TrendOption(data),
-      status: statusCodeDistributionOption(data),
-      profiler: profilerBreakdownOption(data),
+    const labels = {
+      requestsAxis: t("requestsAxis"),
+      millisecondsAxis: t("millisecondsAxis"),
+      statusSeries: t("statusSeries"),
+      samplesAxis: t("samplesAxis"),
     };
-  }, [data]);
+    return {
+      requestCount: requestCountTrendOption(data, labels),
+      p95: p95TrendOption(data, labels),
+      status: statusCodeDistributionOption(data, labels),
+      profiler: profilerBreakdownOption(data, labels),
+    };
+  }, [data, t]);
 
   if (!data || !chartOptions) {
-    return <div className="page">Loading sample analysis result...</div>;
+    return <div className="page">{t("loadingSample")}</div>;
   }
 
   return (
     <div className="page">
       <section className="summary-grid">
-        <MetricCard label="Total Requests" value={data.summary.total_requests} />
+        <MetricCard label={t("totalRequests")} value={data.summary.total_requests} />
         <MetricCard
-          label="Average Response Time"
+          label={t("averageResponseTime")}
           value={`${data.summary.avg_response_ms} ms`}
         />
         <MetricCard
-          label="p95 Response Time"
+          label={t("p95ResponseTime")}
           value={`${data.summary.p95_response_ms} ms`}
         />
-        <MetricCard label="Error Rate" value={`${data.summary.error_rate}%`} />
+        <MetricCard label={t("errorRate")} value={`${data.summary.error_rate}%`} />
       </section>
       <section className="chart-grid">
         <ChartPanel
-          title="Request Count Trend"
+          title={t("requestCountTrend")}
           option={chartOptions.requestCount}
         />
         <ChartPanel
-          title="Response Time p95 Trend"
+          title={t("responseTimeP95Trend")}
           option={chartOptions.p95}
         />
         <ChartPanel
-          title="Status Code Distribution"
+          title={t("statusCodeDistribution")}
           option={chartOptions.status}
         />
         <ChartPanel
-          title="Profiler Component Breakdown"
+          title={t("profilerComponentBreakdown")}
           option={chartOptions.profiler}
         />
       </section>

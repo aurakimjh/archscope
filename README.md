@@ -8,6 +8,10 @@ ArchScope parses middleware logs, GC logs, profiler outputs, thread dumps, and e
 
 ArchScope is intended for application architects who need to turn raw operational and performance data into architecture diagnosis evidence.
 
+## Korean Overview
+
+ArchScope는 미들웨어 로그, GC 로그, 프로파일링 결과, 스택 트레이스 등을 파싱하여 애플리케이션 아키텍트가 성능 진단 보고서에 바로 사용할 수 있는 통계, 그래프, 진단 근거로 변환하는 도구입니다.
+
 ## Key Goals
 
 - Parse operational and performance data
@@ -16,6 +20,7 @@ ArchScope is intended for application architects who need to turn raw operationa
 - Visualize results with report-ready charts
 - Export charts and tables for architecture reports
 - Support multiple runtimes and middleware platforms
+- Support English/Korean documentation and UI labels
 
 ## Diagnostic Flow
 
@@ -56,6 +61,11 @@ archscope/
   scripts/             Development helper scripts
 ```
 
+## Documentation
+
+- [English documentation](docs/README.md#english)
+- [Korean documentation](docs/README.md#korean)
+
 ## Development
 
 ### Desktop UI
@@ -67,6 +77,7 @@ npm run dev
 ```
 
 The desktop app starts an Electron shell and loads the Vite React UI.
+The current UI includes an English/Korean language selector for navigation, dashboard labels, analyzer skeleton pages, and chart labels.
 
 ### Python Engine
 
