@@ -1,5 +1,7 @@
 # ArchScope
 
+[English](./README.md)
+
 애플리케이션 아키텍처 진단 및 보고서 작성 Toolkit
 
 ## ArchScope란?
@@ -59,8 +61,8 @@ archscope/
 
 ## 문서
 
-- [English documentation](docs/README.md#english)
-- [한국어 문서](docs/README.md#korean)
+- [English documentation](docs/en/README.md)
+- [한국어 문서](docs/ko/README.md)
 
 ## 개발
 
