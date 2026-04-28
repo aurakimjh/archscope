@@ -19,6 +19,14 @@ out/
 .env.local
 .DS_Store
 
+# Local AI agent instructions
+CLAUDE.MD
+CLAUDE.md
+GEMINI.MD
+GEMINI.md
+AGENTS.MD
+AGENTS.md
+
 # Logs
 *.log
 npm-debug.log*
