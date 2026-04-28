@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 
-import { loadSampleAnalysisResult, type SampleAnalysisResult } from "../api/analyzerClient";
+import { loadSampleAnalysisResult, type DashboardSampleResult } from "../api/analyzerClient";
 import { ChartPanel } from "../components/ChartPanel";
 import {
   p95TrendOption,
@@ -12,7 +12,7 @@ import { registerArchScopeTheme } from "../charts/echartsTheme";
 import { useI18n } from "../i18n/I18nProvider";
 
 export function DashboardPage(): JSX.Element {
-  const [data, setData] = useState<SampleAnalysisResult | null>(null);
+  const [data, setData] = useState<DashboardSampleResult | null>(null);
   const { t } = useI18n();
 
   useEffect(() => {

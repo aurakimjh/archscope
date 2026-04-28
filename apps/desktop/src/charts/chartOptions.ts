@@ -1,6 +1,6 @@
 import type { EChartsOption } from "echarts";
 
-import type { SampleAnalysisResult } from "../api/analyzerClient";
+import type { DashboardSampleResult } from "../api/analyzerClient";
 
 type ChartLabels = {
   requestsAxis: string;
@@ -10,7 +10,7 @@ type ChartLabels = {
 };
 
 export function requestCountTrendOption(
-  data: SampleAnalysisResult,
+  data: DashboardSampleResult,
   labels: ChartLabels,
 ): EChartsOption {
   const rows = data.series.requests_per_minute;
@@ -31,7 +31,7 @@ export function requestCountTrendOption(
 }
 
 export function p95TrendOption(
-  data: SampleAnalysisResult,
+  data: DashboardSampleResult,
   labels: ChartLabels,
 ): EChartsOption {
   const rows = data.series.p95_response_time_per_minute;
@@ -51,7 +51,7 @@ export function p95TrendOption(
 }
 
 export function statusCodeDistributionOption(
-  data: SampleAnalysisResult,
+  data: DashboardSampleResult,
   labels: ChartLabels,
 ): EChartsOption {
   const rows = data.series.status_code_distribution;
@@ -70,7 +70,7 @@ export function statusCodeDistributionOption(
 }
 
 export function profilerBreakdownOption(
-  data: SampleAnalysisResult,
+  data: DashboardSampleResult,
   labels: ChartLabels,
 ): EChartsOption {
   const rows = data.series.profiler_component_breakdown;
