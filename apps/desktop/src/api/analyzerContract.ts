@@ -43,6 +43,19 @@ export type AnalyzeCollapsedProfileRequest = {
   topN?: number;
 };
 
+export type SelectFileRequest = {
+  title?: string;
+  filters?: Array<{
+    name: string;
+    extensions: string[];
+  }>;
+};
+
+export type SelectFileResponse = {
+  canceled: boolean;
+  filePath?: string;
+};
+
 export type BridgeError = {
   code: string;
   message: string;
@@ -82,5 +95,6 @@ export type ArchScopeAnalyzerBridge = {
 
 export type ArchScopeRendererApi = {
   platform: string;
+  selectFile?: (request?: SelectFileRequest) => Promise<SelectFileResponse>;
   analyzer?: ArchScopeAnalyzerBridge;
 };

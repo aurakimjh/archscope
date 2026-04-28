@@ -1,9 +1,103 @@
+import type { EChartsOption } from "echarts";
+import { useMemo, useState } from "react";
+
+import {
+  getAnalyzerClient,
+  type AccessLogAnalysisResult,
+  type AccessLogFormat,
+  type AnalysisValue,
+  type BridgeError,
+} from "../api/analyzerClient";
 import { ChartPanel } from "../components/ChartPanel";
+import { DiagnosticsPanel, ErrorPanel } from "../components/AnalyzerFeedback";
 import { FileDropZone } from "../components/FileDropZone";
 import { useI18n } from "../i18n/I18nProvider";
 
+type AnalyzerState = "idle" | "ready" | "running" | "success" | "error";
+
+type SlowUrlRow = {
+  uri: string;
+  count: number;
+  avg_response_ms: number;
+};
+
 export function AccessLogAnalyzerPage(): JSX.Element {
   const { t } = useI18n();
+  const [filePath, setFilePath] = useState("");
+  const [format, setFormat] = useState<AccessLogFormat>("nginx");
+  const [state, setState] = useState<AnalyzerState>("idle");
+  const [result, setResult] = useState<AccessLogAnalysisResult | null>(null);
+  const [error, setError] = useState<BridgeError | null>(null);
+
+  const canAnalyze = Boolean(filePath) && state !== "running";
+  const summary = result?.summary;
+  const chartOption = useMemo(() => buildRequestChartOption(result, t("requestsAxis")), [
+    result,
+    t,
+  ]);
+  const slowUrls = getSlowUrlRows(result?.series.top_urls_by_avg_response_time);
+
+  async function browseFile(): Promise<void> {
+    const response = await window.archscope?.selectFile?.({
+      title: t("selectAccessLogFile"),
+      filters: [
+        { name: "Log files", extensions: ["log", "txt"] },
+        { name: "All files", extensions: ["*"] },
+      ],
+    });
+
+    if (response?.filePath) {
+      setFilePath(response.filePath);
+      setState("ready");
+      setError(null);
+    }
+  }
+
+  function handleFileInput(nextPath: string | undefined): void {
+    if (!nextPath) {
+      setError({
+        code: "FILE_PATH_UNAVAILABLE",
+        message: t("filePathUnavailable"),
+      });
+      setState("error");
+      return;
+    }
+
+    setFilePath(nextPath);
+    setState("ready");
+    setError(null);
+  }
+
+  async function analyze(): Promise<void> {
+    if (!canAnalyze) {
+      return;
+    }
+
+    setState("running");
+    setError(null);
+
+    try {
+      const response = await getAnalyzerClient().analyzeAccessLog({
+        filePath,
+        format,
+      });
+
+      if (response.ok) {
+        setResult(response.result);
+        setState("success");
+        return;
+      }
+
+      setError(response.error);
+      setState("error");
+    } catch (caught) {
+      setError({
+        code: "IPC_FAILED",
+        message: caught instanceof Error ? caught.message : String(caught),
+      });
+      setState("error");
+    }
+  }
 
   return (
     <div className="page">
@@ -13,10 +107,22 @@ export function AccessLogAnalyzerPage(): JSX.Element {
           <FileDropZone
             label={t("selectAccessLogFile")}
             description={t("accessLogFileDescription")}
+            selectedPath={filePath}
+            browseLabel={t("browseFile")}
+            onBrowse={browseFile}
+            onFileSelected={handleFileInput}
           />
           <label className="field">
             <span>{t("logFormat")}</span>
-            <select defaultValue="nginx">
+            <select
+              value={format}
+              onChange={(event) => {
+                setFormat(event.target.value as AccessLogFormat);
+                if (filePath && state === "idle") {
+                  setState("ready");
+                }
+              }}
+            >
               <option value="nginx">NGINX</option>
               <option value="apache">Apache</option>
               <option value="ohs">OHS</option>
@@ -25,23 +131,78 @@ export function AccessLogAnalyzerPage(): JSX.Element {
               <option value="custom-regex">Custom Regex</option>
             </select>
           </label>
-          <button className="primary-button" type="button">
-            {t("analyze")}
+          <button
+            className="primary-button"
+            type="button"
+            disabled={!canAnalyze}
+            onClick={() => void analyze()}
+          >
+            {state === "running" ? t("analyzing") : t("analyze")}
           </button>
+          <ErrorPanel
+            error={error}
+            labels={{ title: t("analysisError"), code: t("errorCode") }}
+          />
         </div>
         <div>
           <section className="summary-grid compact">
-            <MetricCard label={t("totalRequests")} value="-" />
-            <MetricCard label={t("averageResponseTime")} value="-" />
-            <MetricCard label={t("p95ResponseTime")} value="-" />
-            <MetricCard label={t("errorRate")} value="-" />
+            <MetricCard
+              label={t("totalRequests")}
+              value={formatNumber(summary?.total_requests)}
+            />
+            <MetricCard
+              label={t("averageResponseTime")}
+              value={formatMilliseconds(summary?.avg_response_ms)}
+            />
+            <MetricCard
+              label={t("p95ResponseTime")}
+              value={formatMilliseconds(summary?.p95_response_ms)}
+            />
+            <MetricCard
+              label={t("errorRate")}
+              value={formatPercent(summary?.error_rate)}
+            />
           </section>
-          <ChartPanel
-            title={t("accessLogChartArea")}
-            option={{
-              xAxis: { type: "category", data: ["10:00", "10:01", "10:02"] },
-              yAxis: { type: "value" },
-              series: [{ type: "bar", data: [3, 2, 1] }],
+          <ChartPanel title={t("requestCountTrend")} option={chartOption} />
+          <section className="table-panel diagnostics-panel">
+            <div className="panel-header">
+              <h2>{t("topUrlsByResponseTime")}</h2>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>{t("uri")}</th>
+                  <th>{t("count")}</th>
+                  <th>{t("responseTime")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {slowUrls.length > 0 ? (
+                  slowUrls.map((row) => (
+                    <tr key={row.uri}>
+                      <td>{row.uri}</td>
+                      <td>{row.count}</td>
+                      <td>{formatMilliseconds(row.avg_response_ms)}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </section>
+          <DiagnosticsPanel
+            metadata={result?.metadata}
+            labels={{
+              title: t("parserDiagnostics"),
+              parsedRecords: t("parsedRecords"),
+              skippedLines: t("skippedLines"),
+              encoding: t("encoding"),
+              samples: t("diagnosticSamples"),
             }}
           />
         </div>
@@ -50,11 +211,103 @@ export function AccessLogAnalyzerPage(): JSX.Element {
   );
 }
 
-function MetricCard({ label, value }: { label: string; value: string }): JSX.Element {
+function MetricCard({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}): JSX.Element {
   return (
     <div className="metric-card">
       <span>{label}</span>
       <strong>{value}</strong>
     </div>
   );
+}
+
+function buildRequestChartOption(
+  result: AccessLogAnalysisResult | null,
+  requestsAxis: string,
+): EChartsOption {
+  const rows = getTimeValueRows(result?.series.requests_per_minute);
+
+  return {
+    tooltip: { trigger: "axis" },
+    xAxis: { type: "category", data: rows.map((row) => row.time) },
+    yAxis: { type: "value", name: requestsAxis },
+    series: [
+      {
+        type: "bar",
+        name: requestsAxis,
+        data: rows.map((row) => row.value),
+      },
+    ],
+  };
+}
+
+function getTimeValueRows(value: AnalysisValue | undefined): Array<{
+  time: string;
+  value: number;
+}> {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.flatMap((item) => {
+    if (!isRecord(item)) {
+      return [];
+    }
+
+    const time = item.time;
+    const rowValue = item.value;
+
+    if (typeof time !== "string" || typeof rowValue !== "number") {
+      return [];
+    }
+
+    return [{ time, value: rowValue }];
+  });
+}
+
+function getSlowUrlRows(value: AnalysisValue | undefined): SlowUrlRow[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.flatMap((item) => {
+    if (!isRecord(item)) {
+      return [];
+    }
+
+    const uri = item.uri;
+    const count = item.count;
+    const avgResponseMs = item.avg_response_ms;
+
+    if (
+      typeof uri !== "string" ||
+      typeof count !== "number" ||
+      typeof avgResponseMs !== "number"
+    ) {
+      return [];
+    }
+
+    return [{ uri, count, avg_response_ms: avgResponseMs }];
+  });
+}
+
+function isRecord(value: AnalysisValue): value is Record<string, AnalysisValue> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function formatNumber(value: AnalysisValue | undefined): string {
+  return typeof value === "number" ? value.toLocaleString() : "-";
+}
+
+function formatMilliseconds(value: AnalysisValue | undefined): string {
+  return typeof value === "number" ? `${value.toLocaleString()} ms` : "-";
+}
+
+function formatPercent(value: AnalysisValue | undefined): string {
+  return typeof value === "number" ? `${value.toLocaleString()}%` : "-";
 }

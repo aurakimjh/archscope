@@ -1,40 +1,186 @@
+import { useState } from "react";
+
+import {
+  getAnalyzerClient,
+  type AnalysisValue,
+  type BridgeError,
+  type ProfilerCollapsedAnalysisResult,
+} from "../api/analyzerClient";
+import { DiagnosticsPanel, ErrorPanel } from "../components/AnalyzerFeedback";
 import { FileDropZone } from "../components/FileDropZone";
 import { useI18n } from "../i18n/I18nProvider";
 
+type AnalyzerState = "idle" | "ready" | "running" | "success" | "error";
+
+type TopStackRow = {
+  stack: string;
+  samples: number;
+  estimated_seconds: number;
+  sample_ratio: number;
+};
+
 export function ProfilerAnalyzerPage(): JSX.Element {
   const { t } = useI18n();
+  const [wallPath, setWallPath] = useState("");
+  const [wallIntervalMs, setWallIntervalMs] = useState(100);
+  const [elapsedSec, setElapsedSec] = useState("");
+  const [topN, setTopN] = useState(20);
+  const [state, setState] = useState<AnalyzerState>("idle");
+  const [result, setResult] = useState<ProfilerCollapsedAnalysisResult | null>(null);
+  const [error, setError] = useState<BridgeError | null>(null);
+
+  const canAnalyze = Boolean(wallPath) && wallIntervalMs > 0 && state !== "running";
+  const summary = result?.summary;
+  const topStacks = getTopStackRows(result?.tables?.top_stacks);
+
+  async function browseWallFile(): Promise<void> {
+    const response = await window.archscope?.selectFile?.({
+      title: t("selectWallCollapsedFile"),
+      filters: [
+        { name: "Collapsed stack files", extensions: ["collapsed", "txt"] },
+        { name: "All files", extensions: ["*"] },
+      ],
+    });
+
+    if (response?.filePath) {
+      setWallPath(response.filePath);
+      setState("ready");
+      setError(null);
+    }
+  }
+
+  function handleWallFileInput(nextPath: string | undefined): void {
+    if (!nextPath) {
+      setError({
+        code: "FILE_PATH_UNAVAILABLE",
+        message: t("filePathUnavailable"),
+      });
+      setState("error");
+      return;
+    }
+
+    setWallPath(nextPath);
+    setState("ready");
+    setError(null);
+  }
+
+  async function analyze(): Promise<void> {
+    if (!canAnalyze) {
+      return;
+    }
+
+    setState("running");
+    setError(null);
+
+    try {
+      const parsedElapsedSec = parseOptionalPositiveNumber(elapsedSec);
+      if (parsedElapsedSec === null || !Number.isFinite(topN) || topN <= 0) {
+        setError({
+          code: "INVALID_OPTION",
+          message: t("invalidAnalyzerOptions"),
+        });
+        setState("error");
+        return;
+      }
+
+      const response = await getAnalyzerClient().analyzeCollapsedProfile({
+        wallPath,
+        wallIntervalMs,
+        elapsedSec: parsedElapsedSec,
+        topN,
+      });
+
+      if (response.ok) {
+        setResult(response.result);
+        setState("success");
+        return;
+      }
+
+      setError(response.error);
+      setState("error");
+    } catch (caught) {
+      setError({
+        code: "IPC_FAILED",
+        message: caught instanceof Error ? caught.message : String(caught),
+      });
+      setState("error");
+    }
+  }
 
   return (
     <div className="page">
       <section className="workspace-grid">
         <div className="tool-panel">
           <h2>{t("profilerAnalyzer")}</h2>
-          <FileDropZone label={t("selectCpuCollapsedFile")} />
-          <FileDropZone label={t("selectWallCollapsedFile")} />
+          <FileDropZone
+            label={t("selectWallCollapsedFile")}
+            selectedPath={wallPath}
+            browseLabel={t("browseFile")}
+            onBrowse={browseWallFile}
+            onFileSelected={handleWallFileInput}
+          />
           <div className="input-grid">
             <label className="field">
-              <span>{t("cpuIntervalMs")}</span>
-              <input type="number" defaultValue={10} min={1} />
-            </label>
-            <label className="field">
               <span>{t("wallIntervalMs")}</span>
-              <input type="number" defaultValue={100} min={1} />
+              <input
+                type="number"
+                value={wallIntervalMs}
+                min={1}
+                onChange={(event) => setWallIntervalMs(Number(event.target.value))}
+              />
             </label>
             <label className="field">
               <span>{t("elapsedSeconds")}</span>
-              <input type="number" placeholder="1336.559" min={0} step="0.001" />
+              <input
+                type="number"
+                value={elapsedSec}
+                placeholder="1336.559"
+                min={0}
+                step="0.001"
+                onChange={(event) => setElapsedSec(event.target.value)}
+              />
+            </label>
+            <label className="field">
+              <span>{t("topN")}</span>
+              <input
+                type="number"
+                value={topN}
+                min={1}
+                onChange={(event) => setTopN(Number(event.target.value))}
+              />
             </label>
           </div>
-          <button className="primary-button" type="button">
-            {t("analyze")}
+          <button
+            className="primary-button"
+            type="button"
+            disabled={!canAnalyze}
+            onClick={() => void analyze()}
+          >
+            {state === "running" ? t("analyzing") : t("analyze")}
           </button>
+          <ErrorPanel
+            error={error}
+            labels={{ title: t("analysisError"), code: t("errorCode") }}
+          />
         </div>
         <div>
           <section className="summary-grid compact">
-            <MetricCard label={t("totalCpuSamples")} value="-" />
-            <MetricCard label={t("totalWallSamples")} value="-" />
-            <MetricCard label={t("estimatedCpuTime")} value="-" />
-            <MetricCard label={t("estimatedWallTime")} value="-" />
+            <MetricCard
+              label={t("totalWallSamples")}
+              value={formatNumber(summary?.total_samples)}
+            />
+            <MetricCard
+              label={t("wallIntervalMs")}
+              value={formatMilliseconds(summary?.interval_ms)}
+            />
+            <MetricCard
+              label={t("estimatedWallTime")}
+              value={formatSeconds(summary?.estimated_seconds)}
+            />
+            <MetricCard
+              label={t("elapsedSeconds")}
+              value={formatSeconds(summary?.elapsed_seconds)}
+            />
           </section>
           <section className="table-panel">
             <div className="panel-header">
@@ -50,26 +196,121 @@ export function ProfilerAnalyzerPage(): JSX.Element {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>{t("waitingProfilerResult")}</td>
-                  <td>-</td>
-                  <td>-</td>
-                  <td>-</td>
-                </tr>
+                {topStacks.length > 0 ? (
+                  topStacks.map((row) => (
+                    <tr key={row.stack}>
+                      <td>{row.stack}</td>
+                      <td>{row.samples.toLocaleString()}</td>
+                      <td>{formatSeconds(row.estimated_seconds)}</td>
+                      <td>{formatPercent(row.sample_ratio)}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td>{t("waitingProfilerResult")}</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </section>
+          <DiagnosticsPanel
+            metadata={result?.metadata}
+            labels={{
+              title: t("parserDiagnostics"),
+              parsedRecords: t("parsedRecords"),
+              skippedLines: t("skippedLines"),
+              encoding: t("encoding"),
+              samples: t("diagnosticSamples"),
+            }}
+          />
         </div>
       </section>
     </div>
   );
 }
 
-function MetricCard({ label, value }: { label: string; value: string }): JSX.Element {
+function MetricCard({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}): JSX.Element {
   return (
     <div className="metric-card">
       <span>{label}</span>
       <strong>{value}</strong>
     </div>
   );
+}
+
+function getTopStackRows(value: AnalysisValue | undefined): TopStackRow[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.flatMap((item) => {
+    if (!isRecord(item)) {
+      return [];
+    }
+
+    const stack = item.stack;
+    const samples = item.samples;
+    const estimatedSeconds = item.estimated_seconds;
+    const sampleRatio = item.sample_ratio;
+
+    if (
+      typeof stack !== "string" ||
+      typeof samples !== "number" ||
+      typeof estimatedSeconds !== "number" ||
+      typeof sampleRatio !== "number"
+    ) {
+      return [];
+    }
+
+    return [
+      {
+        stack,
+        samples,
+        estimated_seconds: estimatedSeconds,
+        sample_ratio: sampleRatio,
+      },
+    ];
+  });
+}
+
+function isRecord(value: AnalysisValue): value is Record<string, AnalysisValue> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function formatNumber(value: AnalysisValue | undefined): string {
+  return typeof value === "number" ? value.toLocaleString() : "-";
+}
+
+function formatMilliseconds(value: AnalysisValue | undefined): string {
+  return typeof value === "number" ? `${value.toLocaleString()} ms` : "-";
+}
+
+function formatSeconds(value: AnalysisValue | undefined): string {
+  return typeof value === "number" ? `${value.toLocaleString()} s` : "-";
+}
+
+function formatPercent(value: AnalysisValue | undefined): string {
+  return typeof value === "number" ? `${value.toLocaleString()}%` : "-";
+}
+
+function parseOptionalPositiveNumber(value: string): number | undefined | null {
+  if (!value.trim()) {
+    return undefined;
+  }
+
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    return null;
+  }
+
+  return parsed;
 }

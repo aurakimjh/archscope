@@ -262,6 +262,18 @@ h2 {
   line-height: 1.4;
 }
 
+.file-zone .selected-file {
+  overflow: hidden;
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: #334155;
+  background: #e2e8f0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .file-zone input {
   max-width: 100%;
 }
@@ -305,6 +317,45 @@ h2 {
   background: #1d4ed8;
 }
 
+.primary-button:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+.secondary-button {
+  padding: 9px 12px;
+  border: 1px solid #94a3b8;
+  border-radius: 8px;
+  color: #1f2937;
+  background: #ffffff;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.secondary-button:hover {
+  background: #f1f5f9;
+}
+
+.message-panel {
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.message-panel p {
+  margin: 6px 0;
+}
+
+.message-panel small {
+  color: #475569;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.error-panel {
+  border: 1px solid #fecaca;
+  color: #7f1d1d;
+  background: #fef2f2;
+}
+
 .table-panel {
   overflow: hidden;
   padding: 16px;
@@ -326,6 +377,45 @@ td {
 th {
   color: #475569;
   background: #f8fafc;
+}
+
+.diagnostics-panel {
+  margin-top: 18px;
+}
+
+.diagnostics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.diagnostics-grid div {
+  padding: 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.diagnostics-grid dt {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.diagnostics-grid dd {
+  margin: 4px 0 0;
+  font-weight: 800;
+}
+
+.diagnostic-samples {
+  margin-top: 14px;
+  color: #334155;
+}
+
+.diagnostic-samples ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
 }
 
 .placeholder-panel {

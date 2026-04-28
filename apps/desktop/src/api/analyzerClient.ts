@@ -25,6 +25,8 @@ export type {
   ArchScopeRendererApi,
   BridgeError,
   ProfilerCollapsedAnalysisResult,
+  SelectFileRequest,
+  SelectFileResponse,
 } from "./analyzerContract";
 
 export type DashboardSampleResult = typeof sampleAnalysisResult;
