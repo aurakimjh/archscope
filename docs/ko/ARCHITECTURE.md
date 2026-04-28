@@ -54,6 +54,88 @@ metadata
 
 차트는 raw log line이 아니라 `series`, `tables`, `summary`를 기반으로 렌더링한다.
 
+## Engine-UI Bridge
+
+초기 Engine-UI bridge는 다음 방식으로 확정한다.
+
+```text
+React Renderer
+  -> preload 노출 API
+  -> Electron IPC
+  -> Electron Main Process
+  -> child_process.execFile
+  -> Python Engine CLI
+  -> AnalysisResult JSON
+  -> ECharts renderer
+```
+
+### 결정 사항
+
+ArchScope는 desktop 통합 경로로 **Electron IPC + Python CLI child process** 방식을 사용한다.
+
+Renderer process는 Python을 직접 실행하지 않는다. Renderer는 `preload.ts`가 제한적으로 노출한 API만 호출한다. Preload 계층은 요청을 `ipcRenderer.invoke`로 main process에 전달한다. Electron main process가 process 실행을 책임지고, Python engine은 `child_process.execFile`로 호출한다. Shell execution은 사용하지 않는다.
+
+### 개발 Runtime
+
+개발 환경에서는 main process가 Python engine을 다음 중 하나로 호출할 수 있다.
+
+```text
+python -m archscope_engine.cli ...
+```
+
+또는 설치된 console script:
+
+```text
+archscope-engine ...
+```
+
+CLI는 임시 output path에 `AnalysisResult` JSON을 쓴다. Main process는 JSON 파일을 읽고 기본 shape를 검증한 뒤 renderer로 반환한다.
+
+### 패키징 Runtime
+
+패키징된 desktop build에서는 Python engine을 PyInstaller sidecar binary로 번들링하고 application resources directory에서 찾는다. 이 packaging 작업은 Bridge PoC 이후로 연기한다.
+
+### IPC Contract
+
+Renderer에 노출하는 API는 raw command line이 아니라 analyzer request 중심으로 타입을 정의한다. 초기 request shape는 다음과 같다.
+
+```text
+analyzeAccessLog({ filePath, format })
+analyzeCollapsedProfile({ wallPath, wallIntervalMs, elapsedSec, topN })
+```
+
+초기 response shape:
+
+```text
+{
+  ok: true,
+  result: AnalysisResult
+}
+```
+
+오류 response shape:
+
+```text
+{
+  ok: false,
+  error: {
+    code,
+    message,
+    detail?
+  }
+}
+```
+
+### Bridge 규칙
+
+- Shell interpolation을 피하기 위해 `exec`가 아니라 `execFile`을 사용한다.
+- 허용된 analyzer command는 Electron main process에 명시적으로 둔다.
+- File path와 analyzer option은 argument array로 전달한다.
+- 임시 JSON output은 project tree 밖에 저장한다.
+- Renderer에는 표준화된 JSON만 반환하며, stdout parsing을 data contract로 삼지 않는다.
+- `contextIsolation: true`, `nodeIntegration: false`를 유지한다.
+- Local HTTP/FastAPI 방식은 web delivery가 근시일 내 제품 목표가 될 때만 재검토한다.
+
 ## 확장 모델
 
 새 diagnostic data type은 다음 순서로 추가한다.
