@@ -20,6 +20,10 @@ Desktop UI -> Electron IPC -> Python CLI -> AnalysisResult JSON -> ECharts
 
 Engine-UI Bridge decision: Electron IPC + `child_process.execFile` invoking the Python CLI. Local HTTP/FastAPI is deferred unless web delivery becomes a near-term product goal.
 
+AnalysisResult contract hardening scope: keep the common dataclass transport model, add type-specific Python `TypedDict` and TypeScript interfaces for `access_log` and `profiler_collapsed`, and defer full Pydantic migration until after the bridge JSON flow stabilizes.
+
+Parser error handling policy: file/configuration failures are fatal; malformed record-level input is skipped by default and reported under `metadata.diagnostics`. Strict fail-fast parsing is deferred until there is an explicit option.
+
 ## Execution Backlog
 
 ### Phase 1A - Foundation Stabilization
@@ -31,16 +35,16 @@ Goal: make the current skeleton run through one real diagnostic path with explic
 | T-001 | P0 | [x] | Decide and document the Engine-UI bridge approach. Decision: Electron IPC + `child_process.execFile` invoking the Python CLI. | None | RD-001, RD-026 | Bridge design note in `docs/en/ARCHITECTURE.md` and `docs/ko/ARCHITECTURE.md` |
 | T-002 | P0 | [ ] | Define analyzer client interfaces before replacing mock data. Keep a mock client and add a real IPC client boundary. | T-001 | RD-003 | TypeScript analyzer client contract |
 | T-003 | P0 | [ ] | Build minimal Bridge PoC: select sample file, invoke Python CLI from Electron main process, return `AnalysisResult` JSON to renderer. | T-001, T-002 | RD-002 | Working UI-to-engine diagnostic path |
-| T-004 | P1 | [ ] | Improve Access Log parser malformed-line handling with skipped-line count and diagnostics metadata. | None | RD-004 | Parser behavior change plus metadata |
-| T-005 | P1 | [ ] | Improve collapsed parser malformed-line handling for lines without a valid trailing sample count. | None | RD-005 | Parser behavior change plus metadata |
+| T-004 | P1 | [ ] | Improve Access Log parser malformed-line handling with skipped-line count and diagnostics metadata. Policy is fixed in parser design docs. | None | RD-004 | Parser behavior change plus metadata |
+| T-005 | P1 | [ ] | Improve collapsed parser malformed-line handling for invalid trailing sample counts. Policy is fixed in parser design docs. | None | RD-005 | Parser behavior change plus metadata |
 | T-006 | P1 | [ ] | Add malformed access log parser tests. | T-004 | RD-017 | Parser regression tests |
 | T-007 | P1 | [ ] | Add malformed collapsed parser tests. | T-005 | RD-017 | Parser regression tests |
 | T-008 | P1 | [ ] | Add `statistics.py` edge-case tests for empty, single, repeated, negative, and percentile interpolation cases. | None | RD-016 | Utility regression tests |
 | T-009 | P1 | [ ] | Add JSON exporter write/read round-trip test. | None | RD-018 | Contract regression test |
-| T-010 | P1 | [ ] | Add type-specific Python `TypedDict` contracts for Access Log and Profiler result sections. | T-004, T-005 preferred | RD-006 | Python contract types |
+| T-010 | P1 | [ ] | Add type-specific Python `TypedDict` contracts for Access Log and Profiler result sections. Scope is fixed in data model docs. | T-004, T-005 preferred | RD-006 | Python contract types |
 | T-011 | P1 | [ ] | Align TypeScript result types with Python result contracts. | T-010 | RD-006 | UI contract types |
 | T-012 | P1 | [ ] | Document required keys for each result type in `docs/en/DATA_MODEL.md` and `docs/ko/DATA_MODEL.md`. | T-010, T-011 | RD-006 | Updated data model docs |
-| T-013 | P1 | [ ] | Add encoding, corrupt-input, and malformed-record behavior to parser design docs. | T-004, T-005 | RD-004, RD-005 | Updated parser design docs |
+| T-013 | P1 | [x] | Add encoding, corrupt-input, and malformed-record behavior to parser design docs. | None | RD-004, RD-005 | Updated `docs/en/PARSER_DESIGN.md` and `docs/ko/PARSER_DESIGN.md` |
 
 ### Phase 1B - Large File Baseline
 

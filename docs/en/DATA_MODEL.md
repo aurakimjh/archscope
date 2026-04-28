@@ -27,6 +27,112 @@ AnalysisResult
 - `charts`: Optional chart template references and rendering metadata.
 - `metadata`: Parser format, runtime, time zone, intervals, and other context.
 
+## Contract Hardening Scope
+
+The first contract-hardening pass is limited to the analyzer result types that already exist in code:
+
+- `access_log`
+- `profiler_collapsed`
+
+The common `AnalysisResult` dataclass remains the outer transport model for now. The hardening layer adds type-specific contracts for the contents of `summary`, `series`, `tables`, and `metadata`.
+
+### Included In This Scope
+
+- Python `TypedDict` definitions for Access Log and Profiler result sections.
+- Matching TypeScript interfaces for renderer and chart code.
+- Required keys, value types, and units documented in this file.
+- `schema_version` retained in `metadata` for future migration.
+
+### Excluded From This Scope
+
+- Full Pydantic model migration.
+- Runtime validation for every nested field.
+- GC log, thread dump, and exception result contracts before those analyzers are implemented.
+- Chart Studio template schema.
+- Dashboard sample data as a canonical contract. `dashboard_sample` is UI fixture data only.
+
+### Versioning Rules
+
+- Additive optional fields may be introduced under the same `schema_version`.
+- Removing or renaming required fields requires a `schema_version` bump.
+- Numeric fields must use explicit units in the key name when the unit is not obvious, for example `_ms`, `_sec`, or `_percent`.
+- Parser diagnostics should live under `metadata.diagnostics` once malformed-input handling is implemented.
+
+## Required Result Contracts
+
+### Access Log Result
+
+`type`: `access_log`
+
+Required `summary` fields:
+
+| Field | Type | Unit / meaning |
+|---|---|---|
+| `total_requests` | integer | Parsed request count |
+| `avg_response_ms` | number | Average response time in milliseconds |
+| `p95_response_ms` | number | 95th percentile response time in milliseconds |
+| `p99_response_ms` | number | 99th percentile response time in milliseconds |
+| `error_rate` | number | Percent of requests with status `>= 400` |
+
+Required `series` fields:
+
+| Field | Row shape |
+|---|---|
+| `requests_per_minute` | `{ time: string, value: number }` |
+| `avg_response_time_per_minute` | `{ time: string, value: number }` |
+| `p95_response_time_per_minute` | `{ time: string, value: number }` |
+| `status_code_distribution` | `{ status: string, count: integer }` |
+| `top_urls_by_count` | `{ uri: string, count: integer }` |
+| `top_urls_by_avg_response_time` | `{ uri: string, avg_response_ms: number, count: integer }` |
+
+Required `tables` fields:
+
+| Field | Row shape |
+|---|---|
+| `sample_records` | `{ timestamp: string, method: string, uri: string, status: integer, response_time_ms: number }` |
+
+Required `metadata` fields:
+
+| Field | Type | Meaning |
+|---|---|---|
+| `format` | string | Access log format selector |
+| `parser` | string | Parser implementation identifier |
+| `schema_version` | string | Result schema version |
+
+### Profiler Collapsed Result
+
+`type`: `profiler_collapsed`
+
+Required `summary` fields:
+
+| Field | Type | Unit / meaning |
+|---|---|---|
+| `profile_kind` | string | Profile type, initially `wall` |
+| `total_samples` | integer | Total collapsed stack sample count |
+| `interval_ms` | number | Sampling interval in milliseconds |
+| `estimated_seconds` | number | Estimated sampled time in seconds |
+| `elapsed_seconds` | number or null | Optional observed elapsed time in seconds |
+
+Required `series` fields:
+
+| Field | Row shape |
+|---|---|
+| `top_stacks` | `{ stack: string, samples: integer, estimated_seconds: number, sample_ratio: number, elapsed_ratio: number | null }` |
+| `component_breakdown` | `{ component: string, samples: integer }` |
+
+Required `tables` fields:
+
+| Field | Row shape |
+|---|---|
+| `top_stacks` | `{ stack: string, samples: integer, estimated_seconds: number, sample_ratio: number, elapsed_ratio: number | null, frames: string[] }` |
+
+Required `metadata` fields:
+
+| Field | Type | Meaning |
+|---|---|---|
+| `parser` | string | Parser implementation identifier |
+| `schema_version` | string | Result schema version |
+
 ## AccessLogRecord
 
 ```text
