@@ -41,7 +41,7 @@ Goal: make the current skeleton run through one real diagnostic path with explic
 |---|---|---|---|---|---|---|
 | T-001 | P0 | [x] | Decide and document the Engine-UI bridge approach. Decision: Electron IPC + `child_process.execFile` invoking the Python CLI. | None | RD-001, RD-026 | Bridge design note in `docs/en/ARCHITECTURE.md` and `docs/ko/ARCHITECTURE.md` |
 | T-002 | P0 | [ ] | Define analyzer client interfaces before replacing mock data. Keep a mock client and add a real IPC client boundary. | T-001 | RD-003 | TypeScript analyzer client contract |
-| T-003 | P0 | [ ] | Build minimal Bridge PoC: select sample file, invoke Python CLI from Electron main process, return `AnalysisResult` JSON to renderer. | T-001, T-002, T-030 | RD-002, RS-005 | Working UI-to-engine diagnostic path |
+| T-003 | P0 | [ ] | Build minimal Bridge PoC: select sample file, invoke Python CLI from Electron main process, return `AnalysisResult` JSON to renderer. | T-001, T-002, T-030, T-037 | RD-002, RS-005 | Working UI-to-engine diagnostic path |
 | T-004 | P1 | [ ] | Improve Access Log parser malformed-line handling with skipped-line count and diagnostics metadata. Policy is fixed in parser design docs. | T-031 | RD-004, RS-009 | Parser behavior change plus metadata |
 | T-005 | P1 | [ ] | Improve collapsed parser malformed-line handling for invalid trailing sample counts. Policy is fixed in parser design docs. | T-031 | RD-005, RS-009 | Parser behavior change plus metadata |
 | T-006 | P1 | [ ] | Add malformed access log parser tests. | T-004 | RD-017 | Parser regression tests |
@@ -53,6 +53,7 @@ Goal: make the current skeleton run through one real diagnostic path with explic
 | T-012 | P1 | [ ] | Document required keys for each result type in `docs/en/DATA_MODEL.md` and `docs/ko/DATA_MODEL.md`. | T-010, T-011 | RD-006 | Updated data model docs |
 | T-013 | P1 | [x] | Add encoding, corrupt-input, and malformed-record behavior to parser design docs. | None | RD-004, RD-005 | Updated `docs/en/PARSER_DESIGN.md` and `docs/ko/PARSER_DESIGN.md` |
 | T-030 | P0 | [ ] | Declare Python runtime dependencies and console script metadata for the engine CLI. Include `typer`, `rich`, and `archscope-engine`. | None | RS-006 | Reliable Python CLI installation path |
+| T-037 | P0 | [ ] | Define the minimal Bridge PoC UX flow while implementing: file selection/drop, analyze action, loading state, success result rendering, parser diagnostics panel, and bridge/error messages. | T-001, T-002 | User follow-up | Minimal UI flow notes captured in implementation or UI design docs |
 | T-031 | P1 | [ ] | Fix `iter_text_lines` encoding fallback so a mid-file decode failure cannot emit duplicated lines across fallback retries. | None | RS-008 | Encoding-safe line iterator plus tests |
 
 ### Phase 1B - Large File Baseline
@@ -74,7 +75,7 @@ Goal: make the UI easier to extend and prepare chart rendering for dynamic resul
 | ID | Priority | Status | Task | Depends on | Source | Output |
 |---|---|---|---|---|---|---|
 | T-018 | P2 | [ ] | Convert page rendering in `App.tsx` to a mapping table. | None | RD-013 | Cleaner page registration |
-| T-019 | P2 | [ ] | Add placeholder Analyze handlers with disabled, loading, and error states. | T-002 preferred | RD-014 | UI state skeleton |
+| T-019 | P2 | [ ] | Add placeholder Analyze handlers with disabled, loading, and error states. | T-037 | RD-014 | UI state skeleton |
 | T-020 | P2 | [ ] | Keep chart titles, legends, and axis labels i18n-ready. | T-003 preferred | RD-015 | Locale-aware chart labels |
 | T-021 | P2 | [ ] | Prepare chart templates for dynamic loading during Chart Studio work. | T-003, T-020 | RD-012 | Template extraction plan or initial structure |
 | T-033 | P2 | [ ] | Upgrade to ECharts 6 and evaluate dark mode, broken axis, custom chart, and SVG export impact. | T-003, T-020 | RS-012 | Chart upgrade plan and implementation spike |
@@ -113,7 +114,7 @@ Goal: only introduce AI interpretation with strict evidence requirements.
 
 ## Dependency Order
 
-1. `T-001 -> T-002 -> T-030 -> T-003`: bridge decision, client boundary, CLI install metadata, then end-to-end PoC.
+1. `T-001 -> T-002 -> T-030 -> T-037 -> T-003`: bridge decision, client boundary, CLI install metadata, minimal UX flow, then end-to-end PoC.
 2. `T-031 -> T-004 -> T-006` and `T-031 -> T-005 -> T-007`: encoding-safe reads, parser behavior, then tests.
 3. `T-010 -> T-011 -> T-012`: Python contracts, TypeScript contracts, then data model docs.
 4. `T-014 -> T-015 -> T-016 -> T-017`: sampling and design before streaming refactor.
