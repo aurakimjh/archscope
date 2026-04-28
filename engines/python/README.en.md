@@ -13,14 +13,16 @@ pip install -e .
 
 ## CLI
 
+After installation, use the console script:
+
 ```bash
-python -m archscope_engine.cli --help
+archscope-engine --help
 ```
 
 Access log sample:
 
 ```bash
-python -m archscope_engine.cli access-log analyze \
+archscope-engine access-log analyze \
   --file ../../examples/access-logs/sample-nginx-access.log \
   --format nginx \
   --out ../../examples/outputs/access-log-result.json
@@ -29,9 +31,11 @@ python -m archscope_engine.cli access-log analyze \
 Collapsed profiler sample:
 
 ```bash
-python -m archscope_engine.cli profiler analyze-collapsed \
+archscope-engine profiler analyze-collapsed \
   --wall ../../examples/profiler/sample-wall.collapsed \
   --wall-interval-ms 100 \
   --elapsed-sec 1336.559 \
   --out ../../examples/outputs/profiler-result.json
 ```
+
+For source-tree development before installation, `python -m archscope_engine.cli ...` remains supported.

@@ -82,13 +82,13 @@ cd engines/python
 python -m venv .venv
 source .venv/bin/activate
 pip install -e .
-python -m archscope_engine.cli --help
+archscope-engine --help
 ```
 
 Run the sample access log analysis:
 
 ```bash
-python -m archscope_engine.cli access-log analyze \
+archscope-engine access-log analyze \
   --file ../../examples/access-logs/sample-nginx-access.log \
   --format nginx \
   --out ../../examples/outputs/access-log-result.json
@@ -97,7 +97,7 @@ python -m archscope_engine.cli access-log analyze \
 Run the sample async-profiler collapsed analysis:
 
 ```bash
-python -m archscope_engine.cli profiler analyze-collapsed \
+archscope-engine profiler analyze-collapsed \
   --wall ../../examples/profiler/sample-wall.collapsed \
   --wall-interval-ms 100 \
   --elapsed-sec 1336.559 \

@@ -13,14 +13,16 @@ pip install -e .
 
 ## CLI
 
+설치 후에는 console script를 사용합니다.
+
 ```bash
-python -m archscope_engine.cli --help
+archscope-engine --help
 ```
 
 Access log 샘플:
 
 ```bash
-python -m archscope_engine.cli access-log analyze \
+archscope-engine access-log analyze \
   --file ../../examples/access-logs/sample-nginx-access.log \
   --format nginx \
   --out ../../examples/outputs/access-log-result.json
@@ -29,9 +31,11 @@ python -m archscope_engine.cli access-log analyze \
 Collapsed profiler 샘플:
 
 ```bash
-python -m archscope_engine.cli profiler analyze-collapsed \
+archscope-engine profiler analyze-collapsed \
   --wall ../../examples/profiler/sample-wall.collapsed \
   --wall-interval-ms 100 \
   --elapsed-sec 1336.559 \
   --out ../../examples/outputs/profiler-result.json
 ```
+
+설치 전 source tree 개발에서는 `python -m archscope_engine.cli ...` 경로도 계속 지원합니다.

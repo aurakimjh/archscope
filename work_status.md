@@ -1,6 +1,6 @@
 # ArchScope Work Status
 
-Last updated: 2026-04-28
+Last updated: 2026-04-29
 
 ## Review Processing Status
 
@@ -52,7 +52,7 @@ Goal: make the current skeleton run through one real diagnostic path with explic
 | T-011 | P1 | [ ] | Align TypeScript result types with Python result contracts. | T-010 | RD-006 | UI contract types |
 | T-012 | P1 | [ ] | Document required keys for each result type in `docs/en/DATA_MODEL.md` and `docs/ko/DATA_MODEL.md`. | T-010, T-011 | RD-006 | Updated data model docs |
 | T-013 | P1 | [x] | Add encoding, corrupt-input, and malformed-record behavior to parser design docs. | None | RD-004, RD-005 | Updated `docs/en/PARSER_DESIGN.md` and `docs/ko/PARSER_DESIGN.md` |
-| T-030 | P0 | [ ] | Declare Python runtime dependencies and console script metadata for the engine CLI. Include `typer`, `rich`, and `archscope-engine`. | None | RS-006 | Reliable Python CLI installation path |
+| T-030 | P0 | [x] | Declare Python runtime dependencies and console script metadata for the engine CLI. Include `typer`, `rich`, and `archscope-engine`. | None | RS-006 | Reliable Python CLI installation path |
 | T-037 | P0 | [ ] | Define the minimal Bridge PoC UX flow while implementing: file selection/drop, analyze action, loading state, success result rendering, parser diagnostics panel, and bridge/error messages. | T-001, T-002 | User follow-up | Minimal UI flow notes captured in implementation or UI design docs |
 | T-031 | P1 | [ ] | Fix `iter_text_lines` encoding fallback so a mid-file decode failure cannot emit duplicated lines across fallback retries. | None | RS-008 | Encoding-safe line iterator plus tests |
 
