@@ -2,10 +2,17 @@ from __future__ import annotations
 
 from collections import Counter
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from archscope_engine.models.analysis_result import AnalysisResult
 from archscope_engine.models.profile_stack import ProfileStack
+from archscope_engine.models.result_contracts import (
+    ParserDiagnostics as ParserDiagnosticsContract,
+    ProfilerCollapsedMetadata,
+    ProfilerCollapsedSeries,
+    ProfilerCollapsedSummary,
+    ProfilerCollapsedTables,
+)
 from archscope_engine.parsers.collapsed_parser import parse_collapsed_file_with_diagnostics
 
 
@@ -52,47 +59,55 @@ def build_collapsed_result(
         for stack, samples in stacks.most_common(top_n)
     ]
 
+    summary: ProfilerCollapsedSummary = {
+        "profile_kind": profile_kind,
+        "total_samples": total_samples,
+        "interval_ms": interval_ms,
+        "estimated_seconds": round(estimated_seconds, 3),
+        "elapsed_seconds": elapsed_sec,
+    }
+    series: ProfilerCollapsedSeries = {
+        "top_stacks": [
+            {
+                "stack": item.stack,
+                "samples": item.samples,
+                "estimated_seconds": item.estimated_seconds,
+                "sample_ratio": item.sample_ratio,
+                "elapsed_ratio": item.elapsed_ratio,
+            }
+            for item in top_stacks
+        ],
+        "component_breakdown": _component_breakdown(stacks),
+    }
+    tables: ProfilerCollapsedTables = {
+        "top_stacks": [
+            {
+                "stack": item.stack,
+                "samples": item.samples,
+                "estimated_seconds": item.estimated_seconds,
+                "sample_ratio": item.sample_ratio,
+                "elapsed_ratio": item.elapsed_ratio,
+                "frames": item.frames,
+            }
+            for item in top_stacks
+        ]
+    }
+    metadata: ProfilerCollapsedMetadata = {
+        "parser": "async_profiler_collapsed",
+        "schema_version": "0.1.0",
+        "diagnostics": cast(
+            ParserDiagnosticsContract,
+            diagnostics if diagnostics is not None else _default_diagnostics(stacks),
+        ),
+    }
+
     return AnalysisResult(
         type="profiler_collapsed",
         source_files=[str(source_file)],
-        summary={
-            "profile_kind": profile_kind,
-            "total_samples": total_samples,
-            "interval_ms": interval_ms,
-            "estimated_seconds": round(estimated_seconds, 3),
-            "elapsed_seconds": elapsed_sec,
-        },
-        series={
-            "top_stacks": [
-                {
-                    "stack": item.stack,
-                    "samples": item.samples,
-                    "estimated_seconds": item.estimated_seconds,
-                    "sample_ratio": item.sample_ratio,
-                    "elapsed_ratio": item.elapsed_ratio,
-                }
-                for item in top_stacks
-            ],
-            "component_breakdown": _component_breakdown(stacks),
-        },
-        tables={
-            "top_stacks": [
-                {
-                    "stack": item.stack,
-                    "samples": item.samples,
-                    "estimated_seconds": item.estimated_seconds,
-                    "sample_ratio": item.sample_ratio,
-                    "elapsed_ratio": item.elapsed_ratio,
-                    "frames": item.frames,
-                }
-                for item in top_stacks
-            ]
-        },
-        metadata={
-            "parser": "async_profiler_collapsed",
-            "schema_version": "0.1.0",
-            **({"diagnostics": diagnostics} if diagnostics is not None else {}),
-        },
+        summary=summary,
+        series=series,
+        tables=tables,
+        metadata=metadata,
     )
 
 
@@ -142,3 +157,14 @@ def _classify_stack(stack: str) -> str:
     if "springframework" in lowered:
         return "Spring Framework"
     return "Application"
+
+
+def _default_diagnostics(stacks: Counter[str]) -> dict[str, Any]:
+    parsed_records = len(stacks)
+    return {
+        "total_lines": parsed_records,
+        "parsed_records": parsed_records,
+        "skipped_lines": 0,
+        "skipped_by_reason": {},
+        "samples": [],
+    }

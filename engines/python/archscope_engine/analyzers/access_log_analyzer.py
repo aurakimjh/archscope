@@ -2,12 +2,19 @@ from __future__ import annotations
 
 from collections import Counter, defaultdict
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from archscope_engine.common.statistics import average, percentile
 from archscope_engine.common.time_utils import minute_bucket
 from archscope_engine.models.access_log import AccessLogRecord
 from archscope_engine.models.analysis_result import AnalysisResult
+from archscope_engine.models.result_contracts import (
+    AccessLogMetadata,
+    AccessLogSeries,
+    AccessLogSummary,
+    AccessLogTables,
+    ParserDiagnostics as ParserDiagnosticsContract,
+)
 from archscope_engine.parsers.access_log_parser import parse_access_log_with_diagnostics
 
 
@@ -74,48 +81,56 @@ def build_access_log_result(
         reverse=True,
     )[:10]
 
+    summary: AccessLogSummary = {
+        "total_requests": total,
+        "avg_response_ms": round(average(response_times), 2),
+        "p95_response_ms": round(percentile(response_times, 95), 2),
+        "p99_response_ms": round(percentile(response_times, 99), 2),
+        "error_rate": round((error_count / total * 100) if total else 0.0, 2),
+    }
+    series: AccessLogSeries = {
+        "requests_per_minute": requests_per_minute,
+        "avg_response_time_per_minute": avg_response_time_per_minute,
+        "p95_response_time_per_minute": p95_response_time_per_minute,
+        "status_code_distribution": [
+            {"status": key, "count": value}
+            for key, value in sorted(status_distribution.items())
+        ],
+        "top_urls_by_count": [
+            {"uri": uri, "count": count}
+            for uri, count in url_counts.most_common(10)
+        ],
+        "top_urls_by_avg_response_time": top_urls_by_avg_response_time,
+    }
+    tables: AccessLogTables = {
+        "sample_records": [
+            {
+                "timestamp": record.timestamp.isoformat(),
+                "method": record.method,
+                "uri": record.uri,
+                "status": record.status,
+                "response_time_ms": round(record.response_time_ms, 2),
+            }
+            for record in records[:20]
+        ]
+    }
+    metadata: AccessLogMetadata = {
+        "format": log_format,
+        "parser": "nginx_combined_with_response_time",
+        "schema_version": "0.1.0",
+        "diagnostics": cast(
+            ParserDiagnosticsContract,
+            diagnostics if diagnostics is not None else _default_diagnostics(records),
+        ),
+    }
+
     return AnalysisResult(
         type="access_log",
         source_files=[str(source_file)],
-        summary={
-            "total_requests": total,
-            "avg_response_ms": round(average(response_times), 2),
-            "p95_response_ms": round(percentile(response_times, 95), 2),
-            "p99_response_ms": round(percentile(response_times, 99), 2),
-            "error_rate": round((error_count / total * 100) if total else 0.0, 2),
-        },
-        series={
-            "requests_per_minute": requests_per_minute,
-            "avg_response_time_per_minute": avg_response_time_per_minute,
-            "p95_response_time_per_minute": p95_response_time_per_minute,
-            "status_code_distribution": [
-                {"status": key, "count": value}
-                for key, value in sorted(status_distribution.items())
-            ],
-            "top_urls_by_count": [
-                {"uri": uri, "count": count}
-                for uri, count in url_counts.most_common(10)
-            ],
-            "top_urls_by_avg_response_time": top_urls_by_avg_response_time,
-        },
-        tables={
-            "sample_records": [
-                {
-                    "timestamp": record.timestamp.isoformat(),
-                    "method": record.method,
-                    "uri": record.uri,
-                    "status": record.status,
-                    "response_time_ms": round(record.response_time_ms, 2),
-                }
-                for record in records[:20]
-            ]
-        },
-        metadata={
-            "format": log_format,
-            "parser": "nginx_combined_with_response_time",
-            "schema_version": "0.1.0",
-            **({"diagnostics": diagnostics} if diagnostics is not None else {}),
-        },
+        summary=summary,
+        series=series,
+        tables=tables,
+        metadata=metadata,
     )
 
 
@@ -129,3 +144,13 @@ def _status_family(status: int) -> str:
     if status >= 500:
         return "5xx"
     return "other"
+
+
+def _default_diagnostics(records: list[AccessLogRecord]) -> dict[str, Any]:
+    return {
+        "total_lines": len(records),
+        "parsed_records": len(records),
+        "skipped_lines": 0,
+        "skipped_by_reason": {},
+        "samples": [],
+    }
