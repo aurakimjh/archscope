@@ -4,8 +4,8 @@ Last updated: 2026-04-29
 
 ## Review Processing Status
 
-- [x] Read `docs/review/2026-04-28_Architecture_and_Implementation_Review.md`
-- [x] Read `docs/review/2026-04-28_claude_opus_architecture_review.md`
+- [x] Read `docs/review/2026-04-29_Phase1_Review_by_Gemini.md`
+- [x] Read `docs/review/2026-04-29_claude-code_phase1-review.md`
 - [x] Consolidated review findings into this TO-DO
 - [x] Created `review_decisions.md` with accepted/deferred/rejected/needs-decision classifications
 - [x] Moved processed review documents to `docs/review/done/`
@@ -55,6 +55,10 @@ Goal: make the current skeleton run through one real diagnostic path with explic
 | T-030 | P0 | [x] | Declare Python runtime dependencies and console script metadata for the engine CLI. Include `typer`, `rich`, and `archscope-engine`. | None | RS-006 | Reliable Python CLI installation path |
 | T-037 | P0 | [x] | Define the minimal Bridge PoC UX flow while implementing: file selection/drop, analyze action, loading state, success result rendering, parser diagnostics panel, and bridge/error messages. | T-001, T-002 | User follow-up | Minimal UI flow notes captured in implementation or UI design docs |
 | T-031 | P1 | [x] | Fix `iter_text_lines` encoding fallback so a mid-file decode failure cannot emit duplicated lines across fallback retries. | None | RS-008 | Encoding-safe line iterator plus tests |
+| T-038 | P1 | [ ] | Implement Generic IPC Handler (`analyzer:execute`) to unify analyzer execution paths. | T-003 | RD-027 | Generic IPC bridge in Electron main and renderer |
+| T-039 | P2 | [ ] | Introduce `Zustand` or `React Context` for centralized Analysis Session state management. | T-003, T-018 | RD-011, RD-029 | Centralized UI state store |
+| T-040 | P2 | [ ] | Refactor chart builders into a Factory Pattern in `src/charts`. | T-021 | RD-030 | Decoupled chart factory |
+| T-041 | P2 | [ ] | Capture and pipe engine stderr to UI for real-time progress and error detail feedback. | T-003 | RD-031 | Detailed error/progress feedback in UI |
 
 ### Phase 1B - Large File Baseline
 
