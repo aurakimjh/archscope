@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from "react";
 import { loadSampleAnalysisResult, type DashboardSampleResult } from "../api/analyzerClient";
 import { createChartOption } from "../charts/chartFactory";
 import { dashboardChartTemplateIds, getChartTemplate } from "../charts/chartTemplates";
-import { registerArchScopeTheme } from "../charts/echartsTheme";
 import { ChartPanel } from "../components/ChartPanel";
 import { MetricCard } from "../components/MetricCard";
 import { useI18n } from "../i18n/I18nProvider";
@@ -13,7 +12,6 @@ export function DashboardPage(): JSX.Element {
   const { t } = useI18n();
 
   useEffect(() => {
-    registerArchScopeTheme();
     void loadSampleAnalysisResult().then(setData);
   }, []);
 

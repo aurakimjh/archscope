@@ -21,10 +21,10 @@ Last updated: 2026-04-30
 
 ## Current Priority
 
-The next work cycle should close Phase 2 UI/chart foundation follow-ups before deeper Chart Studio or packaging expansion:
+The next work cycle should move into Phase 4 diagnostic design now that Phase 2 UI/chart follow-ups and Phase 3 packaging/runtime expansion are closed:
 
 ```text
-Chart factory consolidation -> chart panel sizing/accessibility -> shared i18n/formatting utilities -> Chart Studio data/persistence design
+Timeline/JFR/OTel design -> evidence-backed diagnostic correlation -> Phase 5 AI guardrail planning
 ```
 
 Engine-UI Bridge decision: Electron IPC + `child_process.execFile` invoking the Python CLI. Local HTTP/FastAPI is deferred unless web delivery becomes a near-term product goal.
@@ -108,14 +108,14 @@ Goal: close review findings that should be handled before deeper Chart Studio an
 
 | ID | Priority | Status | Task | Depends on | Source | Output |
 |---|---|---|---|---|---|---|
-| T-054 | P1 | [ ] | Route analyzer-page charts through the shared chart factory and remove local ECharts option builders. | T-021 | RD-051 | Analyzer chart factory integration |
-| T-055 | P1 | [ ] | Move ECharts theme registration from Dashboard-only setup to app initialization. | T-033 | RD-058 | App-level chart theme registration |
-| T-056 | P1 | [ ] | Replace `ChartPanel` window resize listener with scoped `ResizeObserver`. | T-033 | RD-052 | Container-aware chart resizing |
-| T-057 | P1 | [ ] | Add accessibility states for analyzer/chart feedback, including error alerts and chart busy state. | T-019, T-033 | RD-055 | Improved assistive-tech feedback |
-| T-058 | P2 | [ ] | Localize file dialog filter labels and remaining analyzer UI filter text. | T-020 | RD-056 | Locale-aware file dialog labels |
-| T-059 | P2 | [ ] | Extract duplicated UI value formatters into shared utilities. | T-044 | RD-057 | `src/utils/formatters.ts` |
-| T-060 | P2 | [ ] | Add chart option builder/factory regression tests for template output shapes. | T-021, T-054 | RD-062 | Frontend chart factory tests |
-| T-061 | P2 | [ ] | Add placeholder analyzer async unmount guard before real IPC replacement. | T-019 | RD-054 | Safer placeholder state transitions |
+| T-054 | P1 | [x] | Route analyzer-page charts through the shared chart factory and remove local ECharts option builders. | T-021 | RD-051 | Analyzer chart factory integration |
+| T-055 | P1 | [x] | Move ECharts theme registration from Dashboard-only setup to app initialization. | T-033 | RD-058 | App-level chart theme registration |
+| T-056 | P1 | [x] | Replace `ChartPanel` window resize listener with scoped `ResizeObserver`. | T-033 | RD-052 | Container-aware chart resizing |
+| T-057 | P1 | [x] | Add accessibility states for analyzer/chart feedback, including error alerts and chart busy state. | T-019, T-033 | RD-055 | Improved assistive-tech feedback |
+| T-058 | P2 | [x] | Localize file dialog filter labels and remaining analyzer UI filter text. | T-020 | RD-056 | Locale-aware file dialog labels |
+| T-059 | P2 | [x] | Extract duplicated UI value formatters into shared utilities. | T-044 | RD-057 | `src/utils/formatters.ts` |
+| T-060 | P2 | [x] | Add chart option builder/factory regression tests for template output shapes. | T-021, T-054 | RD-062 | Frontend chart factory tests |
+| T-061 | P2 | [x] | Add placeholder analyzer async unmount guard before real IPC replacement. | T-019 | RD-054 | Safer placeholder state transitions |
 
 ### Phase 3 - Packaging and Runtime Expansion
 
@@ -123,16 +123,16 @@ Goal: reduce release risk and prepare analyzer expansion after the foundation is
 
 | ID | Priority | Status | Task | Depends on | Source | Output |
 |---|---|---|---|---|---|---|
-| T-022 | P3 | [ ] | Plan early packaging spike for Electron + PyInstaller sidecar. | T-003 | RD-019 | Packaging spike plan |
-| T-024 | P3 | [ ] | Review `setuptools` ceiling and packaging metadata cleanup. | T-022 | RD-020 | Packaging metadata decision |
-| T-025 | P3 | [ ] | Decide whether to consolidate `setup.py` and `pyproject.toml`. | T-024 | RD-021 | Packaging metadata cleanup task |
-| T-026 | P3 | [ ] | Separate profiler stack classification rules from hardcoded Python logic. | T-003, T-010 | RD-022 | Configurable classification design |
-| T-027 | P3 | [ ] | Add configuration-driven classification for JVM, Node.js, Python, Go, and .NET stacks. | T-026 | RD-022 | Runtime classification configuration |
-| T-052 | P3 | [ ] | Evaluate nonce-based CSP style policy to remove `style-src 'unsafe-inline'` after UI/runtime stabilization. | T-042 | RD-046 | CSP hardening decision |
-| T-053 | P3 | [ ] | Evaluate seed-configurable bounded percentile sampling for reproducibility-sensitive analysis. | T-049 | RD-048 | Percentile sampler decision |
-| T-062 | P3 | [ ] | Generalize chart factory data typing beyond `DashboardSampleResult` for real analyzer results. | T-054 | RD-059 | Analyzer-aware chart factory contracts |
-| T-063 | P3 | [ ] | Design chart option serialization, deep-merge, and persistence for Chart Studio. | T-062 | RD-061 | Chart Studio persistence design |
-| T-064 | P3 | [ ] | Evaluate ECharts `echarts/core` tree-shaking after chart catalog expansion. | T-033, T-063 preferred | RD-053 | Bundle optimization decision |
+| T-022 | P3 | [x] | Plan early packaging spike for Electron + PyInstaller sidecar. | T-003 | RD-019 | Packaging spike plan |
+| T-024 | P3 | [x] | Review `setuptools` ceiling and packaging metadata cleanup. | T-022 | RD-020 | Packaging metadata decision |
+| T-025 | P3 | [x] | Decide whether to consolidate `setup.py` and `pyproject.toml`. | T-024 | RD-021 | Packaging metadata cleanup task |
+| T-026 | P3 | [x] | Separate profiler stack classification rules from hardcoded Python logic. | T-003, T-010 | RD-022 | Configurable classification design |
+| T-027 | P3 | [x] | Add configuration-driven classification for JVM, Node.js, Python, Go, and .NET stacks. | T-026 | RD-022 | Runtime classification configuration |
+| T-052 | P3 | [x] | Evaluate nonce-based CSP style policy to remove `style-src 'unsafe-inline'` after UI/runtime stabilization. | T-042 | RD-046 | CSP hardening decision |
+| T-053 | P3 | [x] | Evaluate seed-configurable bounded percentile sampling for reproducibility-sensitive analysis. | T-049 | RD-048 | Percentile sampler decision |
+| T-062 | P3 | [x] | Generalize chart factory data typing beyond `DashboardSampleResult` for real analyzer results. | T-054 | RD-059 | Analyzer-aware chart factory contracts |
+| T-063 | P3 | [x] | Design chart option serialization, deep-merge, and persistence for Chart Studio. | T-062 | RD-061 | Chart Studio persistence design |
+| T-064 | P3 | [x] | Evaluate ECharts `echarts/core` tree-shaking after chart catalog expansion. | T-033, T-063 preferred | RD-053 | Bundle optimization decision |
 
 ### Phase 4 - Advanced Diagnostics
 

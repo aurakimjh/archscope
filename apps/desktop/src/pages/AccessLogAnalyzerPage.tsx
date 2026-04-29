@@ -1,4 +1,3 @@
-import type { EChartsOption } from "echarts";
 import { useMemo, useState } from "react";
 
 import {
@@ -8,15 +7,24 @@ import {
   type BridgeError,
   type TopUrlAvgResponseRow,
 } from "../api/analyzerClient";
-import { ChartPanel } from "../components/ChartPanel";
+import { createChartOption } from "../charts/chartFactory";
+import type { ChartLabels } from "../charts/chartOptions";
+import { getChartTemplate } from "../charts/chartTemplates";
 import {
   DiagnosticsPanel,
   EngineMessagesPanel,
   ErrorPanel,
 } from "../components/AnalyzerFeedback";
+import { ChartPanel } from "../components/ChartPanel";
 import { FileDropZone } from "../components/FileDropZone";
 import { MetricCard } from "../components/MetricCard";
+import type { MessageKey } from "../i18n/messages";
 import { useI18n } from "../i18n/I18nProvider";
+import {
+  formatMilliseconds,
+  formatNumber,
+  formatPercent,
+} from "../utils/formatters";
 
 type AnalyzerState = "idle" | "ready" | "running" | "success" | "error";
 
@@ -40,18 +48,21 @@ export function AccessLogAnalyzerPage(): JSX.Element {
 
   const canAnalyze = Boolean(filePath) && state !== "running";
   const summary = result?.summary;
-  const chartOption = useMemo(() => buildRequestChartOption(result, t("requestsAxis")), [
-    result,
-    t,
-  ]);
+  const requestChartTemplate = getChartTemplate("AccessLog.RequestCountTrend");
+  const chartLabels = useMemo(() => createChartLabels(t), [t]);
+  const chartOption = useMemo(
+    () =>
+      createChartOption(requestChartTemplate.id, result ?? emptyAccessLogResult, chartLabels),
+    [chartLabels, requestChartTemplate.id, result],
+  );
   const slowUrls = getSlowUrlRows(result?.series.top_urls_by_avg_response_time);
 
   async function browseFile(): Promise<void> {
     const response = await window.archscope?.selectFile?.({
       title: t("selectAccessLogFile"),
       filters: [
-        { name: "Log files", extensions: ["log", "txt"] },
-        { name: "All files", extensions: ["*"] },
+        { name: t("logFilesFilter"), extensions: ["log", "txt"] },
+        { name: t("allFilesFilter"), extensions: ["*"] },
       ],
     });
 
@@ -221,7 +232,11 @@ export function AccessLogAnalyzerPage(): JSX.Element {
               value={formatPercent(summary?.error_rate)}
             />
           </section>
-          <ChartPanel title={t("requestCountTrend")} option={chartOption} />
+          <ChartPanel
+            title={t(requestChartTemplate.titleKey)}
+            option={chartOption}
+            busy={state === "running"}
+          />
           <section className="table-panel diagnostics-panel">
             <div className="panel-header">
               <h2>{t("topUrlsByResponseTime")}</h2>
@@ -268,42 +283,9 @@ export function AccessLogAnalyzerPage(): JSX.Element {
   );
 }
 
-function buildRequestChartOption(
-  result: AccessLogAnalysisResult | null,
-  requestsAxis: string,
-): EChartsOption {
-  const rows = result?.series.requests_per_minute ?? [];
-
-  return {
-    tooltip: { trigger: "axis" },
-    xAxis: { type: "category", data: rows.map((row) => row.time) },
-    yAxis: { type: "value", name: requestsAxis },
-    series: [
-      {
-        type: "bar",
-        name: requestsAxis,
-        data: rows.map((row) => row.value),
-      },
-    ],
-  };
-}
-
 function getSlowUrlRows(value: TopUrlAvgResponseRow[] | undefined): SlowUrlRow[] {
   return value ?? [];
 }
-
-function formatNumber(value: number | undefined): string {
-  return typeof value === "number" ? value.toLocaleString() : "-";
-}
-
-function formatMilliseconds(value: number | undefined): string {
-  return typeof value === "number" ? `${value.toLocaleString()} ms` : "-";
-}
-
-function formatPercent(value: number | undefined): string {
-  return typeof value === "number" ? `${value.toLocaleString()}%` : "-";
-}
-
 
 function parseOptionalPositiveInteger(value: string): number | undefined | null {
   if (!value.trim()) {
@@ -322,3 +304,54 @@ function parseOptionalPositiveInteger(value: string): number | undefined | null 
 function normalizeOptionalDateTime(value: string): string | undefined {
   return value.trim() || undefined;
 }
+
+function createChartLabels(t: (key: MessageKey) => string): ChartLabels {
+  return {
+    requestsAxis: t("requestsAxis"),
+    millisecondsAxis: t("millisecondsAxis"),
+    statusSeries: t("statusSeries"),
+    samplesAxis: t("samplesAxis"),
+    p95Series: t("p95Series"),
+  };
+}
+
+const emptyAccessLogResult: AccessLogAnalysisResult = {
+  type: "access_log",
+  source_files: [],
+  created_at: "",
+  summary: {
+    total_requests: 0,
+    avg_response_ms: 0,
+    p95_response_ms: 0,
+    p99_response_ms: 0,
+    error_rate: 0,
+  },
+  series: {
+    requests_per_minute: [],
+    avg_response_time_per_minute: [],
+    p95_response_time_per_minute: [],
+    status_code_distribution: [],
+    top_urls_by_count: [],
+    top_urls_by_avg_response_time: [],
+  },
+  tables: { sample_records: [] },
+  charts: {},
+  metadata: {
+    format: "nginx",
+    parser: "nginx_combined_with_response_time",
+    schema_version: "0.1.0",
+    diagnostics: {
+      total_lines: 0,
+      parsed_records: 0,
+      skipped_lines: 0,
+      skipped_by_reason: {},
+      samples: [],
+    },
+    analysis_options: {
+      max_lines: null,
+      start_time: null,
+      end_time: null,
+    },
+    findings: [],
+  },
+};

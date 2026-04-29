@@ -365,6 +365,12 @@ h2 {
   background: #fef2f2;
 }
 
+.info-panel {
+  border: 1px solid #bfdbfe;
+  color: #1e3a8a;
+  background: #eff6ff;
+}
+
 .table-panel {
   overflow: hidden;
   padding: 16px;

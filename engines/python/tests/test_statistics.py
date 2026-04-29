@@ -35,3 +35,17 @@ def test_bounded_percentile_keeps_sample_count_under_limit() -> None:
     assert stats.count == 20
     assert stats.sample_size == 5
     assert stats.percentile(95) > 0
+
+
+def test_bounded_percentile_seed_changes_deterministic_sample_stream() -> None:
+    first = BoundedPercentile(max_samples=5, seed=1)
+    second = BoundedPercentile(max_samples=5, seed=2)
+    repeated = BoundedPercentile(max_samples=5, seed=1)
+
+    for value in range(20):
+        first.add(float(value))
+        second.add(float(value))
+        repeated.add(float(value))
+
+    assert first.percentile(25) != second.percentile(25)
+    assert first.percentile(25) == repeated.percentile(25)

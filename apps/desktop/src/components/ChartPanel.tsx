@@ -7,6 +7,7 @@ type ChartPanelProps = {
   option: EChartsOption;
   renderer?: "canvas" | "svg";
   theme?: "archscope" | "archscope-dark";
+  busy?: boolean;
 };
 
 export function ChartPanel({
@@ -14,6 +15,7 @@ export function ChartPanel({
   option,
   renderer = "canvas",
   theme = "archscope",
+  busy = false,
 }: ChartPanelProps): JSX.Element {
   const chartRef = useRef<HTMLDivElement | null>(null);
 
@@ -25,17 +27,17 @@ export function ChartPanel({
     const chart = echarts.init(chartRef.current, theme, { renderer });
     chart.setOption(option);
 
-    const resize = (): void => chart.resize();
-    window.addEventListener("resize", resize);
+    const resizeObserver = new ResizeObserver(() => chart.resize());
+    resizeObserver.observe(chartRef.current);
 
     return () => {
-      window.removeEventListener("resize", resize);
+      resizeObserver.disconnect();
       chart.dispose();
     };
   }, [option, renderer, theme]);
 
   return (
-    <section className="chart-panel" aria-label={title}>
+    <section className="chart-panel" aria-busy={busy} aria-label={title}>
       <div className="panel-header">
         <h2>{title}</h2>
       </div>

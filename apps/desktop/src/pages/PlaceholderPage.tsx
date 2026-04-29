@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import type { BridgeError, SelectFileRequest } from "../api/analyzerClient";
 import { ErrorPanel } from "../components/AnalyzerFeedback";
@@ -28,6 +28,14 @@ export function PlaceholderPage({
   const [filePath, setFilePath] = useState("");
   const [state, setState] = useState<AnalyzerState>("idle");
   const [error, setError] = useState<BridgeError | null>(null);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   if (analyzer) {
     const canAnalyze = Boolean(filePath) && state !== "running";
@@ -106,6 +114,10 @@ export function PlaceholderPage({
     setState("running");
     setError(null);
     await Promise.resolve();
+    if (!mountedRef.current) {
+      return;
+    }
+
     setError({
       code: "ANALYZER_NOT_IMPLEMENTED",
       message: t("analyzerNotImplemented"),

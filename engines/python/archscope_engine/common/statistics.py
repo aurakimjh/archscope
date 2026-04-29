@@ -25,6 +25,7 @@ def percentile(values: list[float], percent: float) -> float:
 @dataclass
 class BoundedPercentile:
     max_samples: int = 10_000
+    seed: int = 12_345
     count: int = 0
     _samples: list[float] = field(default_factory=list)
 
@@ -37,7 +38,7 @@ class BoundedPercentile:
             self._samples.append(value)
             return
 
-        replace_at = _deterministic_reservoir_index(self.count)
+        replace_at = _deterministic_reservoir_index(self.count, self.seed)
         if replace_at < self.max_samples:
             self._samples[replace_at] = value
 
@@ -49,5 +50,5 @@ class BoundedPercentile:
         return len(self._samples)
 
 
-def _deterministic_reservoir_index(count: int) -> int:
-    return ((count * 1_103_515_245) + 12_345) % count
+def _deterministic_reservoir_index(count: int, seed: int) -> int:
+    return ((count * 1_103_515_245) + seed) % count

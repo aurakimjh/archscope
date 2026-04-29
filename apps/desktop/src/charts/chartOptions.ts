@@ -1,6 +1,10 @@
 import type { EChartsOption } from "echarts";
 
-import type { DashboardSampleResult } from "../api/analyzerClient";
+import type {
+  ComponentBreakdownRow,
+  StatusCodeDistributionRow,
+  TimeValuePoint,
+} from "../api/analyzerClient";
 
 export type ChartLabels = {
   requestsAxis: string;
@@ -10,8 +14,33 @@ export type ChartLabels = {
   p95Series: string;
 };
 
+export type RequestCountChartData = {
+  series: {
+    requests_per_minute: TimeValuePoint[];
+  };
+};
+
+export type P95ChartData = {
+  series: {
+    p95_response_time_per_minute: TimeValuePoint[];
+  };
+};
+
+export type StatusDistributionChartData = {
+  series: {
+    status_code_distribution: StatusCodeDistributionRow[];
+  };
+};
+
+export type ProfilerBreakdownChartData = {
+  series: {
+    component_breakdown?: ComponentBreakdownRow[];
+    profiler_component_breakdown?: ComponentBreakdownRow[];
+  };
+};
+
 export function requestCountTrendOption(
-  data: DashboardSampleResult,
+  data: RequestCountChartData,
   labels: ChartLabels,
 ): EChartsOption {
   const rows = data.series.requests_per_minute;
@@ -32,7 +61,7 @@ export function requestCountTrendOption(
 }
 
 export function p95TrendOption(
-  data: DashboardSampleResult,
+  data: P95ChartData,
   labels: ChartLabels,
 ): EChartsOption {
   const rows = data.series.p95_response_time_per_minute;
@@ -52,7 +81,7 @@ export function p95TrendOption(
 }
 
 export function statusCodeDistributionOption(
-  data: DashboardSampleResult,
+  data: StatusDistributionChartData,
   labels: ChartLabels,
 ): EChartsOption {
   const rows = data.series.status_code_distribution;
@@ -71,10 +100,11 @@ export function statusCodeDistributionOption(
 }
 
 export function profilerBreakdownOption(
-  data: DashboardSampleResult,
+  data: ProfilerBreakdownChartData,
   labels: ChartLabels,
 ): EChartsOption {
-  const rows = data.series.profiler_component_breakdown;
+  const rows =
+    data.series.component_breakdown ?? data.series.profiler_component_breakdown ?? [];
   return {
     tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
     grid: { left: 126, right: 24, top: 28, bottom: 36 },

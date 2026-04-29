@@ -1,6 +1,10 @@
 import type { EChartsOption } from "echarts";
 
-import type { DashboardSampleResult } from "../api/analyzerClient";
+import type {
+  AccessLogAnalysisResult,
+  DashboardSampleResult,
+  ProfilerCollapsedAnalysisResult,
+} from "../api/analyzerClient";
 import type { ChartTemplateId } from "./chartTemplates";
 import {
   p95TrendOption,
@@ -8,24 +12,30 @@ import {
   requestCountTrendOption,
   statusCodeDistributionOption,
   type ChartLabels,
+  type P95ChartData,
+  type ProfilerBreakdownChartData,
+  type RequestCountChartData,
+  type StatusDistributionChartData,
 } from "./chartOptions";
 
-type ChartFactory = (
-  data: DashboardSampleResult,
-  labels: ChartLabels,
-) => EChartsOption;
-
-const chartFactories: Record<ChartTemplateId, ChartFactory> = {
-  "AccessLog.RequestCountTrend": requestCountTrendOption,
-  "AccessLog.ResponseTimeP95Trend": p95TrendOption,
-  "AccessLog.StatusCodeDistribution": statusCodeDistributionOption,
-  "Profiler.ComponentBreakdown": profilerBreakdownOption,
-};
+export type ChartData =
+  | DashboardSampleResult
+  | AccessLogAnalysisResult
+  | ProfilerCollapsedAnalysisResult;
 
 export function createChartOption(
   templateId: ChartTemplateId,
-  data: DashboardSampleResult,
+  data: ChartData,
   labels: ChartLabels,
 ): EChartsOption {
-  return chartFactories[templateId](data, labels);
+  switch (templateId) {
+    case "AccessLog.RequestCountTrend":
+      return requestCountTrendOption(data as RequestCountChartData, labels);
+    case "AccessLog.ResponseTimeP95Trend":
+      return p95TrendOption(data as P95ChartData, labels);
+    case "AccessLog.StatusCodeDistribution":
+      return statusCodeDistributionOption(data as StatusDistributionChartData, labels);
+    case "Profiler.ComponentBreakdown":
+      return profilerBreakdownOption(data as ProfilerBreakdownChartData, labels);
+  }
 }

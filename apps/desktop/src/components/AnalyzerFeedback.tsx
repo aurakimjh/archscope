@@ -29,7 +29,7 @@ export function ErrorPanel({ error, labels }: ErrorPanelProps): JSX.Element | nu
   }
 
   return (
-    <section className="message-panel error-panel">
+    <section className="message-panel error-panel" role="alert">
       <strong>{labels.title}</strong>
       <p>{error.message}</p>
       <small>
@@ -49,7 +49,7 @@ export function EngineMessagesPanel({
   }
 
   return (
-    <section className="message-panel">
+    <section className="message-panel info-panel" aria-live="polite">
       <strong>{title}</strong>
       <pre>{messages.join("\n")}</pre>
     </section>

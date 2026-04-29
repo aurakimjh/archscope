@@ -10,8 +10,8 @@ export function GcLogAnalyzerPage(): JSX.Element {
       analyzer={{
         fileLabel: t("selectGcLogFile"),
         fileFilters: [
-          { name: "Log files", extensions: ["log", "txt"] },
-          { name: "All files", extensions: ["*"] },
+          { name: t("logFilesFilter"), extensions: ["log", "txt"] },
+          { name: t("allFilesFilter"), extensions: ["*"] },
         ],
       }}
       items={[

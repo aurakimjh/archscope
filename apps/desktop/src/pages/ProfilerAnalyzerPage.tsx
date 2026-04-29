@@ -14,6 +14,12 @@ import {
 import { FileDropZone } from "../components/FileDropZone";
 import { MetricCard } from "../components/MetricCard";
 import { useI18n } from "../i18n/I18nProvider";
+import {
+  formatMilliseconds,
+  formatNumber,
+  formatPercent,
+  formatSeconds,
+} from "../utils/formatters";
 
 type AnalyzerState = "idle" | "ready" | "running" | "success" | "error";
 
@@ -43,8 +49,8 @@ export function ProfilerAnalyzerPage(): JSX.Element {
     const response = await window.archscope?.selectFile?.({
       title: t("selectWallCollapsedFile"),
       filters: [
-        { name: "Collapsed stack files", extensions: ["collapsed", "txt"] },
-        { name: "All files", extensions: ["*"] },
+        { name: t("collapsedStackFilesFilter"), extensions: ["collapsed", "txt"] },
+        { name: t("allFilesFilter"), extensions: ["*"] },
       ],
     });
 
@@ -247,22 +253,6 @@ export function ProfilerAnalyzerPage(): JSX.Element {
 
 function getTopStackRows(value: ProfilerTopStackTableRow[] | undefined): TopStackRow[] {
   return value ?? [];
-}
-
-function formatNumber(value: number | undefined): string {
-  return typeof value === "number" ? value.toLocaleString() : "-";
-}
-
-function formatMilliseconds(value: number | undefined): string {
-  return typeof value === "number" ? `${value.toLocaleString()} ms` : "-";
-}
-
-function formatSeconds(value: number | null | undefined): string {
-  return typeof value === "number" ? `${value.toLocaleString()} s` : "-";
-}
-
-function formatPercent(value: number | undefined): string {
-  return typeof value === "number" ? `${value.toLocaleString()}%` : "-";
 }
 
 function parseOptionalPositiveNumber(value: string): number | undefined | null {

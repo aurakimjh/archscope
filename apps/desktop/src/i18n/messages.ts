@@ -106,6 +106,10 @@ export const messages = {
     statusSeries: "Status",
     samplesAxis: "Samples",
     p95Series: "p95",
+    logFilesFilter: "Log files",
+    allFilesFilter: "All files",
+    collapsedStackFilesFilter: "Collapsed stack files",
+    threadDumpFilesFilter: "Thread dump files",
   },
   ko: {
     appTagline: "애플리케이션 아키텍처 진단 도구",
@@ -205,6 +209,10 @@ export const messages = {
     statusSeries: "상태",
     samplesAxis: "샘플",
     p95Series: "p95",
+    logFilesFilter: "Log 파일",
+    allFilesFilter: "모든 파일",
+    collapsedStackFilesFilter: "Collapsed stack 파일",
+    threadDumpFilesFilter: "Thread dump 파일",
   },
 } as const;
 
