@@ -30,6 +30,7 @@ export function DashboardPage(): JSX.Element {
       millisecondsAxis: t("millisecondsAxis"),
       statusSeries: t("statusSeries"),
       samplesAxis: t("samplesAxis"),
+      p95Series: t("p95Series"),
     };
     return {
       requestCount: requestCountTrendOption(data, labels),

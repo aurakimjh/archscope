@@ -10,6 +10,8 @@ This document records acceptance decisions for review findings extracted from:
 - `docs/review/done/2026-04-28_claude_opus_architecture_review.md`
 - `docs/review/done/2026-04-29_Phase1_Review_by_Gemini.md`
 - `docs/review/done/2026-04-29_claude-code_phase1-review.md`
+- `docs/review/done/2026-04-29_Phase2_Hygiene_Review_by_Gemini.md`
+- `docs/review/done/2026-04-29_claude-code_phase2-readiness-followup.md`
 
 Decision states:
 
@@ -65,6 +67,13 @@ Decision states:
 | RD-041 | Add structured local logging for engine and Electron main process | Deferred | P2 | Observability | Parser diagnostics are strong, but runtime logs would help debugging. This is useful after the bridge/progress path stabilizes. | Consider Python JSON logging and Electron main-process local logs during bridge UX work. |
 | RD-042 | Restrict file path scope for analyzer inputs | Deferred | P3 | Security Hardening | `execFile` avoids shell injection and current desktop file selection is local, but symlink/path-scope controls may matter for packaged or enterprise deployments. | Reassess during packaging and enterprise policy work. |
 | RD-043 | Evaluate JSON Schema or generated contracts as single source of truth | Deferred | P2 | Contract Hardening | Manual Python TypedDict and TypeScript contracts are acceptable with two analyzers, but drift risk grows with analyzer count. | Evaluate schema/codegen after type-specific contracts are exercised by more result types. |
+| RD-044 | Document bounded percentile sampling behavior and limits | Accepted | P2 | Large File Strategy | Phase 2 Readiness introduced deterministic bounded sampling for percentiles. The memory benefit and approximate/input-order-sensitive behavior should be visible in parser design docs. | Add English and Korean `PARSER_DESIGN.md` notes for bounded percentile sampling. |
+| RD-045 | Surface captured engine messages in analyzer UI feedback | Accepted | P2 | UI Structure | The bridge captures `engine_messages`, but Phase 2 analyzer UX should decide where to show them alongside disabled/loading/error states. | Fold engine-message display into T-019 analyzer feedback work. |
+| RD-046 | Replace CSP `style-src 'unsafe-inline'` with nonce-based policy | Deferred | P3 | Security Hardening | Production CSP already blocks unsafe script execution. Removing inline styles is useful but should follow UI/runtime stabilization because React/ECharts styling needs compatibility testing. | Reassess nonce-based style CSP during packaging/security hardening. |
+| RD-047 | Add CI lint and coverage reporting | Deferred | P2 | Infrastructure | CI now runs Python tests and desktop builds. Lint and coverage reporting are valuable but require choosing project lint/coverage tools and should not block Phase 2 entry. | Add a follow-up CI quality task after lint/coverage tools are selected. |
+| RD-048 | Add seed-configurable percentile sampling | Deferred | P3 | Large File Strategy | Current deterministic sampler is reproducible for the same input. Seed injection may be useful for statistical validation but is not required for current analyzer output. | Reassess if percentile sampling needs multiple deterministic sample streams or user-visible reproducibility controls. |
+| RD-049 | Verify CLI E2E dependencies run in CI | Accepted | P1 | Test Coverage | `typer` and `rich` are runtime dependencies in `setup.cfg`, so `pip install -e ".[dev]"` installs them together with pytest. Existing packaging tests also assert both runtime dependencies. | No new task; keep CLI E2E tests guarded for local environments without installed runtime dependencies. |
+| RD-050 | Replace diagnostics method reference with lambda | Rejected | P2 | Code Clarity | `diagnostics.to_dict` is a bound zero-argument method and matches the callable type. The review explicitly recommends keeping the current behavior unless readability becomes a problem. | No action. |
 
 ## Backlog Mapping
 
@@ -86,6 +95,11 @@ The executable TO-DO list is maintained in `work_status.md` under `Execution Bac
 | RD-027, RD-031, RD-038, RD-039 | T-038, T-041, T-048, T-047 | Bridge scalability, progress feedback, runtime validation, and CLI integration tests. |
 | RD-028 | T-049 | Remaining large-file percentile memory risk after Phase 1B streaming baseline. |
 | RD-033 to RD-037 | T-042 to T-046 | Phase 2 readiness stop-line and hygiene work from Claude review. |
+| RD-044 | T-050 | Bounded percentile sampling documentation. |
+| RD-045 | T-019 | Analyzer UI state work should include captured engine-message feedback. |
+| RD-046 | T-052 | Future nonce-based CSP hardening. |
+| RD-047 | T-051 | Future CI lint/coverage reporting. |
+| RD-048 | T-053 | Future percentile sampler seed/configuration evaluation. |
 
 ## Open Decisions
 

@@ -93,10 +93,12 @@ Goal: make the UI easier to extend and prepare chart rendering for dynamic resul
 
 | ID | Priority | Status | Task | Depends on | Source | Output |
 |---|---|---|---|---|---|---|
-| T-019 | P2 | [ ] | Add placeholder Analyze handlers with disabled, loading, and error states. | T-037 | RD-014 | UI state skeleton |
-| T-020 | P2 | [ ] | Keep chart titles, legends, and axis labels i18n-ready. | T-003 preferred | RD-015 | Locale-aware chart labels |
+| T-050 | P2 | [x] | Document bounded percentile sampling behavior and limitations in parser design docs. | T-049 | RD-044 | Updated `docs/en/PARSER_DESIGN.md` and `docs/ko/PARSER_DESIGN.md` |
+| T-019 | P2 | [x] | Add placeholder Analyze handlers with disabled, loading, error, and engine-message feedback states. | T-037, T-041 | RD-014, RD-045 | UI state skeleton |
+| T-020 | P2 | [x] | Keep chart titles, legends, and axis labels i18n-ready. | T-003 preferred | RD-015 | Locale-aware chart labels |
 | T-021 | P2 | [ ] | Prepare chart templates and chart-option factory extraction for dynamic loading during Chart Studio work. | T-003, T-020 | RD-012, RD-030 | Template extraction plan or initial chart factory |
 | T-033 | P2 | [ ] | Upgrade to ECharts 6 and evaluate dark mode, broken axis, custom chart, and SVG export impact. | T-003, T-020 | RS-012 | Chart upgrade plan and implementation spike |
+| T-051 | P2 | [ ] | Add CI lint and coverage reporting after Python/TypeScript tooling choices are settled. | T-045 | RD-047 | CI quality reporting |
 
 ### Phase 3 - Packaging and Runtime Expansion
 
@@ -109,6 +111,8 @@ Goal: reduce release risk and prepare analyzer expansion after the foundation is
 | T-025 | P3 | [ ] | Decide whether to consolidate `setup.py` and `pyproject.toml`. | T-024 | RD-021 | Packaging metadata cleanup task |
 | T-026 | P3 | [ ] | Separate profiler stack classification rules from hardcoded Python logic. | T-003, T-010 | RD-022 | Configurable classification design |
 | T-027 | P3 | [ ] | Add configuration-driven classification for JVM, Node.js, Python, Go, and .NET stacks. | T-026 | RD-022 | Runtime classification configuration |
+| T-052 | P3 | [ ] | Evaluate nonce-based CSP style policy to remove `style-src 'unsafe-inline'` after UI/runtime stabilization. | T-042 | RD-046 | CSP hardening decision |
+| T-053 | P3 | [ ] | Evaluate seed-configurable bounded percentile sampling for reproducibility-sensitive analysis. | T-049 | RD-048 | Percentile sampler decision |
 
 ### Phase 4 - Advanced Diagnostics
 
@@ -138,7 +142,9 @@ Goal: only introduce AI interpretation with strict evidence requirements.
 5. `T-023 -> T-042`: resolve Electron support and CSP before broad Phase 2 UI expansion.
 6. `T-043 -> T-046 -> T-045 -> T-047`: consolidate diagnostics, separate analyzer tests, then automate them in CI and add CLI integration coverage.
 7. `T-048 -> T-038 -> T-041`: strengthen IPC result validation, then generalize analyzer execution and improve progress/error feedback.
-8. `T-003 -> T-022`: only plan packaging spike after the actual bridge path exists.
+8. `T-049 -> T-050`: document bounded percentile sampling tradeoffs after the memory-bound implementation lands.
+9. `T-019 -> T-020 -> T-021 -> T-033`: start Phase 2 UI state work, keep chart text localized, then extract chart factories and evaluate ECharts 6.
+10. `T-003 -> T-022`: only plan packaging spike after the actual bridge path exists.
 
 ## Active Decision Queue
 

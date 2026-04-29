@@ -190,6 +190,10 @@ The access-log analyzer should consume parser records as an iterator and update 
 
 The analyzer must not build a full `list[AccessLogRecord]` for the main analysis path. Exact percentile calculation may still keep response-time sample arrays in Phase 1B; replacing those with approximate sketches is a later large-file optimization.
 
+### Percentile Sampling
+
+Access-log summary and per-minute percentile values use a bounded deterministic sample rather than an unbounded response-time array. This keeps percentile memory use fixed for large files while preserving reproducible results for the same input. Because the sampler is approximate and input-order sensitive, percentile values should be interpreted as operational estimates rather than exact statistical truth for highly ordered or adversarial inputs.
+
 ### Access Log Findings
 
 Access-log findings are bounded structured observations under `metadata.findings`. Initial rules:

@@ -7,6 +7,13 @@ export function ThreadDumpAnalyzerPage(): JSX.Element {
   return (
     <PlaceholderPage
       title={t("threadDumpAnalyzer")}
+      analyzer={{
+        fileLabel: t("selectThreadDumpFile"),
+        fileFilters: [
+          { name: "Thread dump files", extensions: ["txt", "log", "dump"] },
+          { name: "All files", extensions: ["*"] },
+        ],
+      }}
       items={[
         t("threadStateDistribution"),
         t("blockedThreadGrouping"),

@@ -7,6 +7,13 @@ export function GcLogAnalyzerPage(): JSX.Element {
   return (
     <PlaceholderPage
       title={t("gcLogAnalyzer")}
+      analyzer={{
+        fileLabel: t("selectGcLogFile"),
+        fileFilters: [
+          { name: "Log files", extensions: ["log", "txt"] },
+          { name: "All files", extensions: ["*"] },
+        ],
+      }}
       items={[
         t("gcPauseTimeline"),
         t("heapUsageTrend"),

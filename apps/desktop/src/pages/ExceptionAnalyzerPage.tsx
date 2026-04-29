@@ -7,6 +7,13 @@ export function ExceptionAnalyzerPage(): JSX.Element {
   return (
     <PlaceholderPage
       title={t("exceptionAnalyzer")}
+      analyzer={{
+        fileLabel: t("selectExceptionFile"),
+        fileFilters: [
+          { name: "Log files", extensions: ["log", "txt"] },
+          { name: "All files", extensions: ["*"] },
+        ],
+      }}
       items={[
         t("exceptionTrend"),
         t("rootCauseGrouping"),

@@ -7,6 +7,7 @@ type ChartLabels = {
   millisecondsAxis: string;
   statusSeries: string;
   samplesAxis: string;
+  p95Series: string;
 };
 
 export function requestCountTrendOption(
@@ -43,7 +44,7 @@ export function p95TrendOption(
       {
         type: "line",
         smooth: true,
-        name: "p95",
+        name: labels.p95Series,
         data: rows.map((row) => row.value),
       },
     ],

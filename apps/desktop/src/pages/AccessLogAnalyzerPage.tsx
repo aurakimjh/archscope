@@ -9,7 +9,11 @@ import {
   type TopUrlAvgResponseRow,
 } from "../api/analyzerClient";
 import { ChartPanel } from "../components/ChartPanel";
-import { DiagnosticsPanel, ErrorPanel } from "../components/AnalyzerFeedback";
+import {
+  DiagnosticsPanel,
+  EngineMessagesPanel,
+  ErrorPanel,
+} from "../components/AnalyzerFeedback";
 import { FileDropZone } from "../components/FileDropZone";
 import { MetricCard } from "../components/MetricCard";
 import { useI18n } from "../i18n/I18nProvider";
@@ -32,6 +36,7 @@ export function AccessLogAnalyzerPage(): JSX.Element {
   const [state, setState] = useState<AnalyzerState>("idle");
   const [result, setResult] = useState<AccessLogAnalysisResult | null>(null);
   const [error, setError] = useState<BridgeError | null>(null);
+  const [engineMessages, setEngineMessages] = useState<string[]>([]);
 
   const canAnalyze = Boolean(filePath) && state !== "running";
   const summary = result?.summary;
@@ -54,6 +59,7 @@ export function AccessLogAnalyzerPage(): JSX.Element {
       setFilePath(response.filePath);
       setState("ready");
       setError(null);
+      setEngineMessages([]);
     }
   }
 
@@ -70,6 +76,7 @@ export function AccessLogAnalyzerPage(): JSX.Element {
     setFilePath(nextPath);
     setState("ready");
     setError(null);
+    setEngineMessages([]);
   }
 
   async function analyze(): Promise<void> {
@@ -79,6 +86,7 @@ export function AccessLogAnalyzerPage(): JSX.Element {
 
     setState("running");
     setError(null);
+    setEngineMessages([]);
 
     try {
       const parsedMaxLines = parseOptionalPositiveInteger(maxLines);
@@ -101,6 +109,7 @@ export function AccessLogAnalyzerPage(): JSX.Element {
 
       if (response.ok) {
         setResult(response.result);
+        setEngineMessages(response.engine_messages ?? []);
         setState("success");
         return;
       }
@@ -187,6 +196,10 @@ export function AccessLogAnalyzerPage(): JSX.Element {
           <ErrorPanel
             error={error}
             labels={{ title: t("analysisError"), code: t("errorCode") }}
+          />
+          <EngineMessagesPanel
+            messages={engineMessages}
+            title={t("engineMessages")}
           />
         </div>
         <div>

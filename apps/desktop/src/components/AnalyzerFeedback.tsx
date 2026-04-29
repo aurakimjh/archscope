@@ -18,6 +18,11 @@ type DiagnosticsPanelProps = {
   };
 };
 
+type EngineMessagesPanelProps = {
+  messages: string[];
+  title: string;
+};
+
 export function ErrorPanel({ error, labels }: ErrorPanelProps): JSX.Element | null {
   if (!error) {
     return null;
@@ -31,6 +36,22 @@ export function ErrorPanel({ error, labels }: ErrorPanelProps): JSX.Element | nu
         {labels.code}: {error.code}
       </small>
       {error.detail && <pre>{error.detail}</pre>}
+    </section>
+  );
+}
+
+export function EngineMessagesPanel({
+  messages,
+  title,
+}: EngineMessagesPanelProps): JSX.Element | null {
+  if (messages.length === 0) {
+    return null;
+  }
+
+  return (
+    <section className="message-panel">
+      <strong>{title}</strong>
+      <pre>{messages.join("\n")}</pre>
     </section>
   );
 }
