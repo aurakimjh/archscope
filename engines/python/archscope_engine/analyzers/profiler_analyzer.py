@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from collections import Counter
 from pathlib import Path
+from typing import Any
 
 from archscope_engine.models.analysis_result import AnalysisResult
 from archscope_engine.models.profile_stack import ProfileStack
-from archscope_engine.parsers.collapsed_parser import parse_collapsed_file
+from archscope_engine.parsers.collapsed_parser import parse_collapsed_file_with_diagnostics
 
 
 def analyze_collapsed_profile(
@@ -15,14 +16,15 @@ def analyze_collapsed_profile(
     top_n: int = 20,
     profile_kind: str = "wall",
 ) -> AnalysisResult:
-    stacks = parse_collapsed_file(path)
+    parse_result = parse_collapsed_file_with_diagnostics(path)
     return build_collapsed_result(
-        stacks=stacks,
+        stacks=parse_result.stacks,
         source_file=path,
         interval_ms=interval_ms,
         elapsed_sec=elapsed_sec,
         top_n=top_n,
         profile_kind=profile_kind,
+        diagnostics=parse_result.diagnostics,
     )
 
 
@@ -33,6 +35,7 @@ def build_collapsed_result(
     elapsed_sec: float | None,
     top_n: int = 20,
     profile_kind: str = "wall",
+    diagnostics: dict[str, Any] | None = None,
 ) -> AnalysisResult:
     total_samples = sum(stacks.values())
     interval_seconds = interval_ms / 1000
@@ -88,6 +91,7 @@ def build_collapsed_result(
         metadata={
             "parser": "async_profiler_collapsed",
             "schema_version": "0.1.0",
+            **({"diagnostics": diagnostics} if diagnostics is not None else {}),
         },
     )
 
