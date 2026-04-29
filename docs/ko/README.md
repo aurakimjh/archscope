@@ -11,6 +11,7 @@
 - [런타임 분류](./RUNTIME_CLASSIFICATION.md)
 - [패키징 계획](./PACKAGING_PLAN.md)
 - [고급 진단 설계](./ADVANCED_DIAGNOSTICS.md)
+- [AI 보조 해석 설계](./AI_INTERPRETATION.md)
 - [Bridge PoC UX Flow](./BRIDGE_POC_UX_FLOW.md)
 - [보고서 Export 설계](./REPORT_EXPORT_DESIGN.md)
 

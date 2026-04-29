@@ -25,10 +25,10 @@ Last updated: 2026-04-30
 
 ## Current Priority
 
-The next work cycle should close Phase 4 review follow-ups before Phase 5 AI interpretation design:
+The next work cycle should move from design hardening into implementation planning for advanced diagnostics and report automation:
 
 ```text
-advanced diagnostics vision -> timestamp/join policy -> JFR PoC -> JFR/OTel streaming/privacy -> schema compatibility
+OTel log parser implementation -> timeline correlation analyzer MVP -> JFR raw command bridge -> report/AI UI integration
 ```
 
 Engine-UI Bridge decision: Electron IPC + `child_process.execFile` invoking the Python CLI. Local HTTP/FastAPI is deferred unless web delivery becomes a near-term product goal.
@@ -169,15 +169,15 @@ Goal: close Phase 4 review findings that must be resolved before AI-assisted int
 
 | ID | Priority | Status | Task | Depends on | Source | Output |
 |---|---|---|---|---|---|---|
-| T-073 | P1 | [ ] | Strengthen advanced-diagnostics integrated vision, target scenario, market differentiation, and implementation triggers. | T-028, T-034, T-035 | RD-076 | Updated `ADVANCED_DIAGNOSTICS.md` vision section |
-| T-074 | P1 | [ ] | Define common timestamp normalization, timeline input contract, join-key hierarchy, clock-drift tolerance, confidence, and thread evidence fields. | T-073 preferred | RD-077, RD-078, RD-079, RD-088 | Correlation contract hardening |
-| T-075 | P1 | [ ] | Build a minimal JFR parser PoC from `jfr print --json` output to a draft `jfr_recording` `AnalysisResult`. | T-074 preferred | RD-080 | JFR command bridge validation |
-| T-076 | P1 | [ ] | Add JFR parser alternatives, licensing, JDK command prerequisite, and recording/parser JDK compatibility matrix. | T-034 | RD-081 | JFR spike decision matrix |
-| T-077 | P2 | [ ] | Expand JFR event model for `jdk.CPUTimeSample`, sampled/exact event semantics, and stack-frame representation. | T-076 preferred | RD-082 | JFR event model update |
-| T-078 | P2 | [ ] | Define large-file streaming/filtering strategy for JFR and OTel inputs, including event filters, stack-depth, time range, and top-N limits. | T-075 preferred | RD-083 | Bounded advanced-input processing plan |
-| T-079 | P2 | [ ] | Add OTel privacy/evidence retention policy, spec baseline, and OTel Profiles reevaluation trigger. | T-035 | RD-084, RD-085 | OTel evidence policy update |
-| T-080 | P2 | [ ] | Strengthen UI/runtime schema-version compatibility warnings for new `AnalysisResult` types. | T-048, T-074 preferred | RD-087 | Schema-version warning path |
-| T-081 | P3 | [ ] | Design a multi-lane ECharts timeline visualization for `timeline_correlation` results. | T-074 preferred | RD-086 | Correlation chart design |
+| T-073 | P1 | [x] | Strengthen advanced-diagnostics integrated vision, target scenario, market differentiation, and implementation triggers. | T-028, T-034, T-035 | RD-076 | Updated `ADVANCED_DIAGNOSTICS.md` vision section |
+| T-074 | P1 | [x] | Define common timestamp normalization, timeline input contract, join-key hierarchy, clock-drift tolerance, confidence, and thread evidence fields. | T-073 preferred | RD-077, RD-078, RD-079, RD-088 | Correlation contract hardening |
+| T-075 | P1 | [x] | Build a minimal JFR parser PoC from `jfr print --json` output to a draft `jfr_recording` `AnalysisResult`. | T-074 preferred | RD-080 | JFR command bridge validation |
+| T-076 | P1 | [x] | Add JFR parser alternatives, licensing, JDK command prerequisite, and recording/parser JDK compatibility matrix. | T-034 | RD-081 | JFR spike decision matrix |
+| T-077 | P2 | [x] | Expand JFR event model for `jdk.CPUTimeSample`, sampled/exact event semantics, and stack-frame representation. | T-076 preferred | RD-082 | JFR event model update |
+| T-078 | P2 | [x] | Define large-file streaming/filtering strategy for JFR and OTel inputs, including event filters, stack-depth, time range, and top-N limits. | T-075 preferred | RD-083 | Bounded advanced-input processing plan |
+| T-079 | P2 | [x] | Add OTel privacy/evidence retention policy, spec baseline, and OTel Profiles reevaluation trigger. | T-035 | RD-084, RD-085 | OTel evidence policy update |
+| T-080 | P2 | [x] | Strengthen UI/runtime schema-version compatibility warnings for new `AnalysisResult` types. | T-048, T-074 preferred | RD-087 | Schema-version warning path |
+| T-081 | P3 | [x] | Design a multi-lane ECharts timeline visualization for `timeline_correlation` results. | T-074 preferred | RD-086 | Correlation chart design |
 
 ### Phase 5 - AI-Assisted Interpretation
 
@@ -185,8 +185,8 @@ Goal: only introduce AI interpretation with strict evidence requirements.
 
 | ID | Priority | Status | Task | Depends on | Source | Output |
 |---|---|---|---|---|---|---|
-| T-029 | P5 | [ ] | Require raw evidence references such as `raw_line` or `raw_block` for AI-assisted interpretation. | Stable report data model, Phase 5 start | RD-024 | AI interpretation guardrail |
-| T-036 | P5 | [ ] | Design optional local LLM/Ollama interpretation layer with explicit evidence references and AI-generated labeling. | T-029, T-028 | RS-016 | Local AI interpretation design |
+| T-029 | P5 | [x] | Require raw evidence references such as `raw_line` or `raw_block` for AI-assisted interpretation. | Stable report data model, Phase 5 start | RD-024 | AI interpretation guardrail |
+| T-036 | P5 | [x] | Design optional local LLM/Ollama interpretation layer with explicit evidence references and AI-generated labeling. | T-029, T-028 | RS-016 | Local AI interpretation design |
 
 ## Dependency Order
 

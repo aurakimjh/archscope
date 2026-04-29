@@ -255,3 +255,4 @@ raw_block
 - Runtime-specific fields should live under `metadata` unless they are broadly reusable.
 - Analyzer sampling and filter settings should be echoed under `metadata.analysis_options`.
 - Report-grade interpretations should be expressed as bounded structured findings, not prose-only blobs.
+- AI-assisted interpretations must include non-empty `evidence_refs` that point to existing raw evidence such as `raw_line`, `raw_block`, `raw_preview`, or `evidence_ref` rows.

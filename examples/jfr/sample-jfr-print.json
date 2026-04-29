@@ -1,0 +1,49 @@
+{
+  "recording": {
+    "events": [
+      {
+        "type": "jdk.CPUTimeSample",
+        "values": {
+          "startTime": "2026-04-30T01:00:00.123456789Z",
+          "eventThread": {
+            "javaName": "http-nio-8080-exec-7"
+          },
+          "stackTrace": {
+            "frames": [
+              {
+                "method": {
+                  "type": {
+                    "name": "com.example.checkout.PaymentService"
+                  },
+                  "name": "authorize"
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "jdk.GCPhasePause",
+        "values": {
+          "startTime": "2026-04-30T01:00:01.000000000Z",
+          "duration": "42.5 ms",
+          "eventThread": {
+            "javaName": "VM Thread"
+          },
+          "name": "Pause Young"
+        }
+      },
+      {
+        "type": "jdk.ThreadPark",
+        "values": {
+          "startTime": "2026-04-30T01:00:02.000000000Z",
+          "duration": "12 ms",
+          "eventThread": {
+            "javaName": "worker-1"
+          },
+          "message": "Thread parked waiting for condition"
+        }
+      }
+    ]
+  }
+}

@@ -11,6 +11,7 @@ This directory contains the English design documents for ArchScope.
 - [Runtime Classification](./RUNTIME_CLASSIFICATION.md)
 - [Packaging Plan](./PACKAGING_PLAN.md)
 - [Advanced Diagnostics](./ADVANCED_DIAGNOSTICS.md)
+- [AI-Assisted Interpretation](./AI_INTERPRETATION.md)
 - [Bridge PoC UX Flow](./BRIDGE_POC_UX_FLOW.md)
 - [Report Export Design](./REPORT_EXPORT_DESIGN.md)
 

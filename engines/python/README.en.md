@@ -39,3 +39,11 @@ archscope-engine profiler analyze-collapsed \
 ```
 
 For source-tree development before installation, `python -m archscope_engine.cli ...` remains supported.
+
+JFR command-bridge PoC input:
+
+```bash
+archscope-engine jfr analyze-json \
+  --file ../../examples/jfr/sample-jfr-print.json \
+  --out ../../examples/outputs/jfr-result.json
+```

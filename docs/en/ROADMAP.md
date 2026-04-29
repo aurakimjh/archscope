@@ -59,5 +59,5 @@
 - HTML report generation
 - PowerPoint export
 - Executive summary generator
-- AI-assisted interpretation, optional
-- Optional local LLM/Ollama interpretation with evidence references
+- AI-assisted interpretation, optional and evidence-bound
+- Optional local LLM/Ollama interpretation with validated evidence references

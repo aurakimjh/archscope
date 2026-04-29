@@ -35,6 +35,7 @@ type EngineProcessResponse =
   | { ok: false; error: { code: string; message: string; detail?: string } };
 
 type AnalysisResultValidator<T extends AnalysisResult> = (value: unknown) => value is T;
+type SupportedResultType = "access_log" | "profiler_collapsed" | "jfr_recording";
 
 const PACKAGED_CSP = [
   "default-src 'self'",
@@ -57,6 +58,12 @@ const DEVELOPMENT_CSP = [
   "object-src 'none'",
   "base-uri 'none'",
 ].join("; ");
+
+const SUPPORTED_SCHEMA_VERSIONS: Record<SupportedResultType, string> = {
+  access_log: "0.1.0",
+  profiler_collapsed: "0.1.0",
+  jfr_recording: "0.1.0",
+};
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -289,7 +296,7 @@ async function runAnalyzer<T extends AnalysisResult>(
     return {
       ok: true,
       result: parsed,
-      engine_messages: result.messages.length > 0 ? result.messages : undefined,
+      engine_messages: appendSchemaCompatibilityMessages(result.messages, parsed),
     };
   } catch (error) {
     return failure(
@@ -406,6 +413,40 @@ function isAnalysisResult(value: unknown): value is AnalysisResult {
     isPlainObject(candidate.charts) &&
     isPlainObject(candidate.metadata)
   );
+}
+
+function appendSchemaCompatibilityMessages(
+  messages: string[],
+  result: AnalysisResult,
+): string[] | undefined {
+  const schemaMessages = schemaCompatibilityMessages(result);
+  const combined = [...messages, ...schemaMessages];
+  return combined.length > 0 ? combined : undefined;
+}
+
+function schemaCompatibilityMessages(result: AnalysisResult): string[] {
+  const type = result.type as SupportedResultType;
+  const expectedVersion = SUPPORTED_SCHEMA_VERSIONS[type];
+  if (!expectedVersion) {
+    return [
+      `Warning: unsupported AnalysisResult type '${result.type}' returned by engine.`,
+    ];
+  }
+
+  const schemaVersion = result.metadata.schema_version;
+  if (typeof schemaVersion !== "string") {
+    return [
+      `Warning: ${result.type} result is missing metadata.schema_version.`,
+    ];
+  }
+
+  if (schemaVersion !== expectedVersion) {
+    return [
+      `Warning: ${result.type} schema_version ${schemaVersion} differs from supported ${expectedVersion}.`,
+    ];
+  }
+
+  return [];
 }
 
 function isAccessLogAnalysisResult(value: unknown): value is AccessLogAnalysisResult {

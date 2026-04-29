@@ -8,6 +8,7 @@ import typer
 from rich.console import Console
 
 from archscope_engine.analyzers.access_log_analyzer import analyze_access_log
+from archscope_engine.analyzers.jfr_analyzer import analyze_jfr_print_json
 from archscope_engine.analyzers.profiler_analyzer import analyze_collapsed_profile
 from archscope_engine.exporters.json_exporter import write_json_result
 
@@ -19,6 +20,7 @@ app = typer.Typer(
 )
 access_log_app = typer.Typer(help="Access log analysis commands.")
 profiler_app = typer.Typer(help="Profiler analysis commands.")
+jfr_app = typer.Typer(help="JFR recording analysis commands.")
 
 
 @access_log_app.command("analyze")
@@ -65,8 +67,21 @@ def profiler_analyze_collapsed(
     console.print(f"Wrote profiler result: {out}")
 
 
+@jfr_app.command("analyze-json")
+def jfr_analyze_json(
+    file: Path = typer.Option(..., "--file", exists=True, readable=True),
+    out: Path = typer.Option(..., "--out"),
+    top_n: int = typer.Option(20, "--top-n"),
+) -> None:
+    """Analyze JSON emitted by `jfr print --json`."""
+    result = analyze_jfr_print_json(path=file, top_n=top_n)
+    write_json_result(result, out)
+    console.print(f"Wrote JFR result: {out}")
+
+
 app.add_typer(access_log_app, name="access-log")
 app.add_typer(profiler_app, name="profiler")
+app.add_typer(jfr_app, name="jfr")
 
 
 def main() -> None:

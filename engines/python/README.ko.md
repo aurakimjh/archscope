@@ -39,3 +39,11 @@ archscope-engine profiler analyze-collapsed \
 ```
 
 설치 전 source tree 개발에서는 `python -m archscope_engine.cli ...` 경로도 계속 지원합니다.
+
+JFR command-bridge PoC 입력:
+
+```bash
+archscope-engine jfr analyze-json \
+  --file ../../examples/jfr/sample-jfr-print.json \
+  --out ../../examples/outputs/jfr-result.json
+```

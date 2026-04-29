@@ -255,3 +255,4 @@ raw_block
 - Runtime-specific field는 범용성이 낮으면 `metadata`에 둔다.
 - Analyzer sampling 및 filter setting은 `metadata.analysis_options` 아래에 echo한다.
 - 보고서용 interpretation은 prose-only blob이 아니라 bounded structured finding으로 표현한다.
+- AI-assisted interpretation은 기존 raw evidence를 가리키는 non-empty `evidence_refs`를 포함해야 한다. Evidence는 `raw_line`, `raw_block`, `raw_preview`, `evidence_ref` row 중 하나로 추적 가능해야 한다.

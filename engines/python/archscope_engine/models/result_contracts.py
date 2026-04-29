@@ -128,3 +128,48 @@ class ProfilerCollapsedMetadata(TypedDict):
     parser: str
     schema_version: str
     diagnostics: ParserDiagnostics
+
+
+class JfrRecordingSummary(TypedDict):
+    event_count: int
+    duration_ms: float
+    gc_pause_total_ms: float
+    blocked_thread_events: int
+
+
+class JfrEventOverTimeRow(TypedDict):
+    time: str
+    event_type: str
+    count: int
+
+
+class JfrPauseEventRow(TypedDict):
+    time: str
+    duration_ms: float | None
+    event_type: str
+    thread: str | None
+    sampling_type: str
+
+
+class JfrNotableEventRow(JfrPauseEventRow):
+    message: str
+    frames: list[str]
+    evidence_ref: str
+    raw_preview: str
+
+
+class JfrRecordingSeries(TypedDict):
+    events_over_time: list[JfrEventOverTimeRow]
+    pause_events: list[JfrPauseEventRow]
+
+
+class JfrRecordingTables(TypedDict):
+    notable_events: list[JfrNotableEventRow]
+
+
+class JfrRecordingMetadata(TypedDict):
+    parser: str
+    schema_version: str
+    jfr_command_version: str
+    event_filters: list[str]
+    poc: bool
