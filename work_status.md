@@ -4,8 +4,8 @@ Last updated: 2026-04-29
 
 ## Review Processing Status
 
-- [x] Read `docs/review/2026-04-29_Phase1_Review_by_Gemini.md`
-- [x] Read `docs/review/2026-04-29_claude-code_phase1-review.md`
+- [x] Read `docs/review/done/2026-04-29_Phase1_Review_by_Gemini.md`
+- [x] Read `docs/review/done/2026-04-29_claude-code_phase1-review.md`
 - [x] Consolidated review findings into this TO-DO
 - [x] Created `review_decisions.md` with accepted/deferred/rejected/needs-decision classifications
 - [x] Moved processed review documents to `docs/review/done/`
@@ -19,15 +19,15 @@ Last updated: 2026-04-29
 
 ## Current Priority
 
-The next work cycle should focus on turning the current skeleton into a minimally integrated diagnostic flow:
+The next work cycle should close Phase 1 review stop-line items before broad Phase 2 feature expansion:
 
 ```text
-Desktop UI -> Electron IPC -> Python CLI -> AnalysisResult JSON -> ECharts
+Electron 33+ -> CSP -> shared diagnostics/UI cleanup -> CI and test separation -> Phase 2 UI/chart expansion
 ```
 
 Engine-UI Bridge decision: Electron IPC + `child_process.execFile` invoking the Python CLI. Local HTTP/FastAPI is deferred unless web delivery becomes a near-term product goal.
 
-AnalysisResult contract hardening scope: keep the common dataclass transport model, add type-specific Python `TypedDict` and TypeScript interfaces for `access_log` and `profiler_collapsed`, and defer full Pydantic migration until after the bridge JSON flow stabilizes.
+AnalysisResult contract hardening scope: keep the common dataclass transport model and type-specific Python/TypeScript contracts. Strengthen shallow IPC runtime validation before adding many more result types; defer full Pydantic/Zod/schema generation until contract drift becomes a practical risk.
 
 Parser error handling policy: file/configuration failures are fatal; malformed record-level input is skipped by default and reported under `metadata.diagnostics`. Strict fail-fast parsing is deferred until there is an explicit option.
 
@@ -55,10 +55,6 @@ Goal: make the current skeleton run through one real diagnostic path with explic
 | T-030 | P0 | [x] | Declare Python runtime dependencies and console script metadata for the engine CLI. Include `typer`, `rich`, and `archscope-engine`. | None | RS-006 | Reliable Python CLI installation path |
 | T-037 | P0 | [x] | Define the minimal Bridge PoC UX flow while implementing: file selection/drop, analyze action, loading state, success result rendering, parser diagnostics panel, and bridge/error messages. | T-001, T-002 | User follow-up | Minimal UI flow notes captured in implementation or UI design docs |
 | T-031 | P1 | [x] | Fix `iter_text_lines` encoding fallback so a mid-file decode failure cannot emit duplicated lines across fallback retries. | None | RS-008 | Encoding-safe line iterator plus tests |
-| T-038 | P1 | [ ] | Implement Generic IPC Handler (`analyzer:execute`) to unify analyzer execution paths. | T-003 | RD-027 | Generic IPC bridge in Electron main and renderer |
-| T-039 | P2 | [ ] | Introduce `Zustand` or `React Context` for centralized Analysis Session state management. | T-003, T-018 | RD-011, RD-029 | Centralized UI state store |
-| T-040 | P2 | [ ] | Refactor chart builders into a Factory Pattern in `src/charts`. | T-021 | RD-030 | Decoupled chart factory |
-| T-041 | P2 | [ ] | Capture and pipe engine stderr to UI for real-time progress and error detail feedback. | T-003 | RD-031 | Detailed error/progress feedback in UI |
 
 ### Phase 1B - Large File Baseline
 
@@ -72,16 +68,34 @@ Goal: define and implement low-risk controls for large input files before deeper
 | T-017 | P2 | [x] | Refactor access log analyzer toward streaming aggregation. | T-016 | RD-009 | Memory-bounded analyzer path |
 | T-032 | P2 | [x] | Add Access Log diagnostic rules beyond raw chart metrics, including status-code findings and slow URL interpretation. | T-004, T-010 | RS-017 | Report-grade access log findings |
 
+### Phase 2 Readiness - Stop-line and Hygiene
+
+Goal: close Phase 1 review findings that should be handled before broad Phase 2 feature expansion.
+
+| ID | Priority | Status | Task | Depends on | Source | Output |
+|---|---|---|---|---|---|---|
+| T-023 | P0 | [ ] | Upgrade Electron to 33+ to address EOL security concerns before Phase 2 UI expansion. | T-003 | RD-025, RD-032 | Desktop dependency security upgrade |
+| T-042 | P0 | [ ] | Implement Content Security Policy (CSP) to harden the renderer process. | T-023 preferred | RD-033 | Electron renderer security hardening |
+| T-043 | P1 | [ ] | Consolidate duplicated `ParserDiagnostics` into `archscope_engine.common.diagnostics`. | None | RD-034 | Shared parser diagnostics utility |
+| T-044 | P1 | [ ] | Extract duplicated `MetricCard` implementations into a shared component in `src/components`. | None | RD-035 | Shared metric card component |
+| T-018 | P1 | [ ] | Convert page rendering in `App.tsx` to a mapping table. | None | RD-013 | Cleaner page registration |
+| T-046 | P1 | [ ] | Separate analyzer logic tests from parser tests for better modularity. | T-043 preferred | RD-037 | Analyzer-focused regression tests |
+| T-045 | P1 | [ ] | Set up GitHub Actions CI for automated Python tests and desktop build/type checks. | T-046 preferred | RD-036 | CI workflow |
+| T-047 | P1 | [ ] | Add CLI end-to-end integration tests for analyzer commands and JSON output. | T-030, T-045 preferred | RD-039 | CLI contract regression tests |
+| T-048 | P2 | [ ] | Strengthen runtime `AnalysisResult` validation at the Electron IPC boundary. | T-010, T-011 | RD-038 | Safer engine-output validation |
+| T-038 | P2 | [ ] | Implement Generic IPC Handler (`analyzer:execute`) to unify analyzer execution paths. | T-048 preferred | RD-027 | Generic IPC bridge in Electron main and renderer |
+| T-041 | P2 | [ ] | Capture and pipe engine stderr/progress detail to UI feedback. | T-038 preferred | RD-031 | Detailed error/progress feedback in UI |
+| T-049 | P2 | [ ] | Replace remaining unbounded exact percentile arrays with bounded or approximate percentile aggregation. | T-014, T-017 | RD-028 | Reduced large-file memory pressure |
+
 ### Phase 2 - Report-Ready UI and Charts
 
 Goal: make the UI easier to extend and prepare chart rendering for dynamic result data.
 
 | ID | Priority | Status | Task | Depends on | Source | Output |
 |---|---|---|---|---|---|---|
-| T-018 | P2 | [ ] | Convert page rendering in `App.tsx` to a mapping table. | None | RD-013 | Cleaner page registration |
 | T-019 | P2 | [ ] | Add placeholder Analyze handlers with disabled, loading, and error states. | T-037 | RD-014 | UI state skeleton |
 | T-020 | P2 | [ ] | Keep chart titles, legends, and axis labels i18n-ready. | T-003 preferred | RD-015 | Locale-aware chart labels |
-| T-021 | P2 | [ ] | Prepare chart templates for dynamic loading during Chart Studio work. | T-003, T-020 | RD-012 | Template extraction plan or initial structure |
+| T-021 | P2 | [ ] | Prepare chart templates and chart-option factory extraction for dynamic loading during Chart Studio work. | T-003, T-020 | RD-012, RD-030 | Template extraction plan or initial chart factory |
 | T-033 | P2 | [ ] | Upgrade to ECharts 6 and evaluate dark mode, broken axis, custom chart, and SVG export impact. | T-003, T-020 | RS-012 | Chart upgrade plan and implementation spike |
 
 ### Phase 3 - Packaging and Runtime Expansion
@@ -91,16 +105,10 @@ Goal: reduce release risk and prepare analyzer expansion after the foundation is
 | ID | Priority | Status | Task | Depends on | Source | Output |
 |---|---|---|---|---|---|---|
 | T-022 | P3 | [ ] | Plan early packaging spike for Electron + PyInstaller sidecar. | T-003 | RD-019 | Packaging spike plan |
-| T-023 | P0 | [ ] | Upgrade Electron to 33+ (Stop-the-line) to address EOL security concerns. | T-003, T-022 preferred | RD-025, RD-032 | Desktop dependency security upgrade |
 | T-024 | P3 | [ ] | Review `setuptools` ceiling and packaging metadata cleanup. | T-022 | RD-020 | Packaging metadata decision |
 | T-025 | P3 | [ ] | Decide whether to consolidate `setup.py` and `pyproject.toml`. | T-024 | RD-021 | Packaging metadata cleanup task |
 | T-026 | P3 | [ ] | Separate profiler stack classification rules from hardcoded Python logic. | T-003, T-010 | RD-022 | Configurable classification design |
 | T-027 | P3 | [ ] | Add configuration-driven classification for JVM, Node.js, Python, Go, and .NET stacks. | T-026 | RD-022 | Runtime classification configuration |
-| T-042 | P1 | [ ] | Implement Content Security Policy (CSP) to harden the renderer process. | None | RD-033 | Security hardening |
-| T-043 | P1 | [ ] | Consolidate `ParserDiagnostics` into `archscope_engine.common.diagnostics`. | None | RD-034 | DRY refactoring for parsers |
-| T-044 | P1 | [ ] | Extract `MetricCard` into a shared component in `src/components`. | None | RD-035 | DRY refactoring for UI |
-| T-045 | P1 | [ ] | Set up GitHub Actions CI for automated testing and linting. | None | RD-036 | Infrastructure setup |
-| T-046 | P1 | [ ] | Separate Analyzer logic tests from Parser tests for better modularity. | None | RD-037 | Test coverage improvement |
 
 ### Phase 4 - Advanced Diagnostics
 
@@ -127,7 +135,10 @@ Goal: only introduce AI interpretation with strict evidence requirements.
 2. `T-031 -> T-004 -> T-006` and `T-031 -> T-005 -> T-007`: encoding-safe reads, parser behavior, then tests.
 3. `T-010 -> T-011 -> T-012`: Python contracts, TypeScript contracts, then data model docs.
 4. `T-014 -> T-015 -> T-016 -> T-017`: sampling and design before streaming refactor.
-5. `T-003 -> T-022`: only plan packaging spike after the actual bridge path exists.
+5. `T-023 -> T-042`: resolve Electron support and CSP before broad Phase 2 UI expansion.
+6. `T-043 -> T-046 -> T-045 -> T-047`: consolidate diagnostics, separate analyzer tests, then automate them in CI and add CLI integration coverage.
+7. `T-048 -> T-038 -> T-041`: strengthen IPC result validation, then generalize analyzer execution and improve progress/error feedback.
+8. `T-003 -> T-022`: only plan packaging spike after the actual bridge path exists.
 
 ## Active Decision Queue
 

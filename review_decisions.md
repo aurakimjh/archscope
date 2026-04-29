@@ -1,6 +1,6 @@
 # ArchScope Review Decisions
 
-Last updated: 2026-04-28
+Last updated: 2026-04-29
 
 ## Scope
 
@@ -8,6 +8,8 @@ This document records acceptance decisions for review findings extracted from:
 
 - `docs/review/done/2026-04-28_Architecture_and_Implementation_Review.md`
 - `docs/review/done/2026-04-28_claude_opus_architecture_review.md`
+- `docs/review/done/2026-04-29_Phase1_Review_by_Gemini.md`
+- `docs/review/done/2026-04-29_claude-code_phase1-review.md`
 
 Decision states:
 
@@ -46,17 +48,23 @@ Decision states:
 | RD-024 | Require raw evidence for AI-assisted interpretation | Deferred | P5 | AI Interpretation | This is the correct trust model for AI interpretation, but AI-assisted analysis is not part of the immediate foundation cycle. | When AI interpretation starts, require source evidence references such as `raw_line` or `raw_block`. |
 | RD-025 | Update React and Electron versions now | Accepted | P3 | Dependency Management | Research follow-up split the decision: Electron upgrade is accepted after Bridge PoC because Electron 31 is outside the supported major window; React 19 remains deferred unless compatibility requires it. | Track Electron upgrade under `T-023`; revisit React after Electron/tooling stabilization. |
 | RD-026 | Choose desktop-only bridge vs local HTTP server for future web portability | Accepted | P0 | Foundation Stabilization | Desktop-first integration is the current product direction. Electron IPC plus Python CLI keeps the process model simple and avoids local server lifecycle and port-management overhead. | Use Electron IPC + `child_process.execFile` for the Bridge PoC; revisit local HTTP only if web delivery becomes a near-term requirement. |
-| RD-027 | Implement Generic IPC Handler (`analyzer:execute`) | Accepted | P1 | Phase 2 Expansion | Reducing IPC handler bloat and making it easier to add new analyzers without modifying Electron main process significantly. | Refactor `main.ts` and `analyzerClient.ts` to use a generic execution path. |
-| RD-028 | Introduce Streaming Aggregator pattern in Python | Accepted | P2 | Large File Strategy | Prevents OOM by avoiding full list accumulation for statistics like response times. | Refactor `access_log_analyzer.py` to use incremental/online aggregation logic. |
-| RD-029 | Centralize UI Analysis Session state | Accepted | P2 | UI Expansion | Managing analysis results and loading states in a central store (Zustand/Context) for better consistency across pages. | Implement a central store for analyzer state. |
-| RD-030 | Decouple Chart Builders into Factory Pattern | Accepted | P2 | UI Structure | Improving maintainability of chart logic and preparing for dynamic template loading. | Move chart option builders to a dedicated factory or service. |
-| RD-031 | Add real-time stderr/progress feedback to UI | Accepted | P2 | Foundation Stabilization | Improving UX by showing what the engine is doing and providing better error details. | Capture and pipe engine stderr to UI. |
+| RD-027 | Implement Generic IPC Handler (`analyzer:execute`) | Accepted | P2 | Phase 2 Expansion | The current per-analyzer IPC channels are fine for Phase 1, but will create main-process churn as analyzer count grows. This should be done before adding several new analyzers, not retroactively listed under Phase 1A. | Refactor `main.ts`, preload, and analyzer client to use a generic execution path while preserving typed request/response contracts. |
+| RD-028 | Introduce more memory-bounded aggregation for large access logs | Accepted | P2 | Large File Strategy | Phase 1B removed full `AccessLogRecord` materialization, but exact percentile arrays still grow with input size. The remaining memory risk should be tracked separately from the completed streaming refactor. | Replace exact unbounded percentile arrays with a bounded or approximate percentile strategy after current streaming baseline. |
+| RD-029 | Centralize UI Analysis Session state | Deferred | P3 | UI Expansion | Current per-page state is still manageable. Introducing Zustand/Context now would add framework weight before cross-page analysis sharing exists. | Reassess when analysis sessions need to be shared across pages, persisted, or replayed. |
+| RD-030 | Decouple Chart Builders into Factory Pattern | Accepted | P2 | UI Structure | Chart logic will become harder to maintain as result types grow. This overlaps with the existing chart-template preparation task and should be merged there instead of creating duplicate backlog. | Fold chart factory extraction into the chart-template/chart readiness work. |
+| RD-031 | Add real-time stderr/progress feedback to UI | Accepted | P2 | Bridge UX | Phase 1 returns final JSON and coarse errors. Longer analyses need better progress/error detail, but this follows security and hygiene stop-line items. | Capture engine stderr and progress detail through the bridge and expose it in UI feedback. |
 | RD-032 | Upgrade Electron to 33+ (Stop-the-line) | Accepted | P0 | Foundation Stabilization | Electron 31 is EOL. Security and Chromium patches are critical for a production-grade tool. | Upgrade Electron and verify compatibility. |
 | RD-033 | Implement Content Security Policy (CSP) | Accepted | P1 | Foundation Stabilization | Preventing XSS and other injection attacks by restricting script and style loading. | Configure CSP in Electron main process. |
 | RD-034 | Consolidate `ParserDiagnostics` into `common/diagnostics.py` | Accepted | P1 | Phase 2 Expansion | DRY principle: the same diagnostics logic is duplicated across multiple parsers. | Move shared diagnostics logic to a common module. |
 | RD-035 | Extract `MetricCard` into a shared component | Accepted | P1 | Phase 2 Expansion | DRY principle: the component is duplicated across multiple pages. | Create `src/components/MetricCard.tsx`. |
 | RD-036 | Add GitHub Actions CI for automated testing | Accepted | P1 | Infrastructure | Ensuring tests and linting run on every PR to prevent regressions. | Set up `.github/workflows/ci.yml`. |
 | RD-037 | Separate Analyzer tests from Parser tests | Accepted | P1 | Test Coverage | Ensuring modular test coverage for aggregation logic independent of file parsing. | Create `tests/test_access_log_analyzer.py` etc. |
+| RD-038 | Strengthen runtime `AnalysisResult` validation at the IPC boundary | Accepted | P2 | Contract Hardening | `isAnalysisResult` currently checks only a shallow subset of required fields. Phase 2 can start with a manual guard before evaluating Zod or generated schemas. | Validate `tables`, `metadata`, `created_at`, and type-specific required sections before returning engine output to the renderer. |
+| RD-039 | Add CLI end-to-end integration tests | Accepted | P1 | Test Coverage | The Electron bridge depends on the CLI output path, but current tests mainly cover Python functions and packaging metadata. | Add tests for `archscope-engine access-log analyze ... --out ...` and profiler output round trip using installed/test entry points. |
+| RD-040 | Add frontend regression tests for contract-driven UI paths | Deferred | P2 | UI Test Coverage | UI test coverage is valuable, but the project has no frontend test harness yet. It should follow CI and security hardening rather than block immediate Phase 2 readiness. | Reassess after CI is in place; start with component/contract rendering tests for diagnostics and analyzer pages. |
+| RD-041 | Add structured local logging for engine and Electron main process | Deferred | P2 | Observability | Parser diagnostics are strong, but runtime logs would help debugging. This is useful after the bridge/progress path stabilizes. | Consider Python JSON logging and Electron main-process local logs during bridge UX work. |
+| RD-042 | Restrict file path scope for analyzer inputs | Deferred | P3 | Security Hardening | `execFile` avoids shell injection and current desktop file selection is local, but symlink/path-scope controls may matter for packaged or enterprise deployments. | Reassess during packaging and enterprise policy work. |
+| RD-043 | Evaluate JSON Schema or generated contracts as single source of truth | Deferred | P2 | Contract Hardening | Manual Python TypedDict and TypeScript contracts are acceptable with two analyzers, but drift risk grows with analyzer count. | Evaluate schema/codegen after type-specific contracts are exercised by more result types. |
 
 ## Backlog Mapping
 
@@ -68,12 +76,16 @@ The executable TO-DO list is maintained in `work_status.md` under `Execution Bac
 | RD-004, RD-005, RD-017 | T-004 to T-007, T-013 | Parser malformed-input handling, parser tests, and parser docs. |
 | RD-006 | T-010 to T-012 | Python and TypeScript result contracts plus data model docs. |
 | RD-016, RD-018 | T-008, T-009 | Statistics and JSON exporter regression tests. |
-| RD-008, RD-009, RD-010 | T-014 to T-017 | Sampling, streaming strategy docs, streaming design, and later refactor. |
-| RD-012, RD-013, RD-014, RD-015 | T-018 to T-021 | UI structure and chart readiness work. |
-| RD-019, RD-020, RD-021, RD-025 | T-022 to T-025 | Packaging and dependency-management work. |
+| RD-008, RD-009, RD-010 | T-014 to T-017 | Sampling, streaming strategy docs, streaming design, and streaming baseline refactor. |
+| RD-012, RD-013, RD-014, RD-015, RD-030 | T-018 to T-021 | UI structure and chart readiness work. |
+| RD-019, RD-020, RD-021 | T-022, T-024, T-025 | Packaging and packaging-metadata cleanup work. |
+| RD-025, RD-032 | T-023 | Electron support/security upgrade. |
 | RD-022 | T-026, T-027 | Runtime classification expansion. |
 | RD-023 | T-028 | Timeline correlation retained as later advanced diagnostics. |
 | RD-024 | T-029 | AI interpretation evidence guardrail. |
+| RD-027, RD-031, RD-038, RD-039 | T-038, T-041, T-048, T-047 | Bridge scalability, progress feedback, runtime validation, and CLI integration tests. |
+| RD-028 | T-049 | Remaining large-file percentile memory risk after Phase 1B streaming baseline. |
+| RD-033 to RD-037 | T-042 to T-046 | Phase 2 readiness stop-line and hygiene work from Claude review. |
 
 ## Open Decisions
 
