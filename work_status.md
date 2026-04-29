@@ -8,6 +8,8 @@ Last updated: 2026-04-30
 - [x] Read `docs/review/done/2026-04-29_claude-code_phase1-review.md`
 - [x] Read `docs/review/done/2026-04-29_UI_Chart_Architecture_Review_by_Gemini.md`
 - [x] Read `docs/review/done/2026-04-30_claude-code_ui-chart-foundation-review.md`
+- [x] Read `docs/review/done/2026-04-30_Phase3_Packaging_Expansion_Review_by_Gemini.md`
+- [x] Read `docs/review/done/2026-04-30_claude-code_phase3-packaging-runtime-review.md`
 - [x] Consolidated review findings into this TO-DO
 - [x] Created `review_decisions.md` with accepted/deferred/rejected/needs-decision classifications
 - [x] Moved processed review documents to `docs/review/done/`
@@ -21,10 +23,10 @@ Last updated: 2026-04-30
 
 ## Current Priority
 
-The next work cycle should move into Phase 4 diagnostic design now that Phase 2 UI/chart follow-ups and Phase 3 packaging/runtime expansion are closed:
+The next work cycle should close Phase 3 review follow-ups before deeper Phase 4 diagnostic design:
 
 ```text
-Timeline/JFR/OTel design -> evidence-backed diagnostic correlation -> Phase 5 AI guardrail planning
+classification regression tests -> packaging metadata cleanup -> sampler seed constraint -> sidecar lifecycle hardening -> classification config loader
 ```
 
 Engine-UI Bridge decision: Electron IPC + `child_process.execFile` invoking the Python CLI. Local HTTP/FastAPI is deferred unless web delivery becomes a near-term product goal.
@@ -134,6 +136,21 @@ Goal: reduce release risk and prepare analyzer expansion after the foundation is
 | T-063 | P3 | [x] | Design chart option serialization, deep-merge, and persistence for Chart Studio. | T-062 | RD-061 | Chart Studio persistence design |
 | T-064 | P3 | [x] | Evaluate ECharts `echarts/core` tree-shaking after chart catalog expansion. | T-033, T-063 preferred | RD-053 | Bundle optimization decision |
 
+### Phase 3 Follow-up - Packaging/Runtime Review Hardening
+
+Goal: close Phase 3 review findings that reduce packaging, runtime-classification, and sampler edge-case risk before Phase 4 diagnostics expand.
+
+| ID | Priority | Status | Task | Depends on | Source | Output |
+|---|---|---|---|---|---|---|
+| T-065 | P1 | [ ] | Add profiler classification regression tests for Application fallback, first-match rule ordering, and case-insensitive matching. | T-026, T-027 | RD-069, RD-070, RD-071 | Runtime classification edge-case tests |
+| T-066 | P1 | [ ] | Fix Python package `long_description` metadata by adding an engine README or removing the missing file reference. | T-024, T-025 | RD-074 | Packaging metadata cleanup |
+| T-067 | P2 | [ ] | Validate or document `BoundedPercentile.seed` constraints, including the degenerate `seed=0` case. | T-053 | RD-072 | Sampler validation/docs plus tests |
+| T-068 | P2 | [ ] | Tighten broad profiler classification tokens and document rule-author specificity/ordering constraints. | T-065 | RD-067, RD-068 | Safer classification rules and guidance |
+| T-070 | P2 | [ ] | Add Electron analyzer sidecar lifecycle cleanup so active Python child processes are terminated on app/process exit. | T-038, T-041 | RD-065 | Orphan-process prevention |
+| T-069 | P3 | [ ] | Add external runtime classification config loader and packaged resource plan for PyInstaller sidecar builds. | T-068, T-070 preferred | RD-064 | Config-driven runtime classification path |
+| T-071 | P3 | [ ] | Run an ECharts nonce CSP compatibility spike before replacing `style-src 'unsafe-inline'`. | T-052, T-063 preferred | RD-066 | CSP nonce compatibility decision |
+| T-072 | P3 | [ ] | Add an explicit Linux deferred/out-of-scope note to the packaging spike plan. | T-022 | RD-075 | Packaging scope clarification |
+
 ### Phase 4 - Advanced Diagnostics
 
 Goal: add higher-value diagnostic correlation after analyzer contracts and UI integration are stable.
@@ -167,6 +184,9 @@ Goal: only introduce AI interpretation with strict evidence requirements.
 10. `T-054 -> T-055 -> T-056 -> T-057 -> T-058 -> T-059 -> T-060 -> T-061`: close UI/chart foundation review follow-ups before deeper Chart Studio work.
 11. `T-054 -> T-062 -> T-063 -> T-064`: generalize chart factory contracts, then design Chart Studio persistence and revisit bundle optimization.
 12. `T-003 -> T-022`: only plan packaging spike after the actual bridge path exists.
+13. `T-065 -> T-068 -> T-069`: lock down classification edge cases, refine rule specificity, then add external config loading.
+14. `T-066 -> T-067 -> T-070`: close independent packaging metadata, sampler, and sidecar lifecycle hardening before broader Phase 4 work.
+15. `T-071`: revisit nonce CSP only after packaged renderer and chart export behavior are stable.
 
 ## Active Decision Queue
 

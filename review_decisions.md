@@ -14,6 +14,8 @@ This document records acceptance decisions for review findings extracted from:
 - `docs/review/done/2026-04-29_claude-code_phase2-readiness-followup.md`
 - `docs/review/done/2026-04-29_UI_Chart_Architecture_Review_by_Gemini.md`
 - `docs/review/done/2026-04-30_claude-code_ui-chart-foundation-review.md`
+- `docs/review/done/2026-04-30_Phase3_Packaging_Expansion_Review_by_Gemini.md`
+- `docs/review/done/2026-04-30_claude-code_phase3-packaging-runtime-review.md`
 
 Decision states:
 
@@ -89,6 +91,18 @@ Decision states:
 | RD-061 | Add chart option serialization and persistence design | Accepted | P3 | Chart Studio | Chart Studio needs to save edited options and replay them. The current pure builders are a good base but do not define persistence shape. | Design option serialization, deep-merge, and persistence during Chart Studio implementation. |
 | RD-062 | Add chart option builder regression tests | Accepted | P2 | Chart Test Coverage | Chart option builders are pure functions and can be tested cheaply. This will reduce regressions as factory coverage expands. | Add tests for chart factory/template output shapes after analyzer-page factory consolidation. |
 | RD-063 | Add app-locale-aware number/date formatting | Deferred | P3 | UI i18n | `toLocaleString()` follows browser locale rather than app locale. This matters for report export but does not block current UI/chart foundation. | Revisit when report export locale controls are implemented. |
+| RD-064 | Load profiler classification rules from external config | Accepted | P3 | Runtime Expansion | The extracted `StackClassificationRule` model and injection point are a good base, but the final configuration-driven goal needs a packaged config resource after sidecar packaging is exercised. | Add a config loader and package-resource plan for runtime classification rules. |
+| RD-065 | Manage Python sidecar child-process lifecycle explicitly | Accepted | P1 | Packaging Runtime Hardening | `execFile` gives fault isolation, but packaged desktop shutdown paths should avoid orphaned analyzer processes. | Track active analyzer child processes and terminate them on app/process exit. |
+| RD-066 | Spike ECharts nonce CSP compatibility | Deferred | P3 | Security Hardening | Removing `style-src 'unsafe-inline'` is still desirable, but React, Vite, ECharts tooltip/theme behavior, and packaged renderer output must be verified before changing policy. | Run a small compatibility spike before replacing the style CSP policy. |
+| RD-067 | Tighten broad profiler classification tokens | Accepted | P2 | Runtime Classification | Broad tokens such as `socket`, `http`, and `system.` can over-match application frames. This should be refined before classification drives user-facing conclusions. | Review rule ordering and token specificity with regression tests. |
+| RD-068 | Document rule-author specificity constraints | Accepted | P2 | Runtime Classification | Future external rules need guidance on first-match ordering and token specificity to avoid fragile classifications. | Add rule-author guidance to runtime classification docs or config schema notes. |
+| RD-069 | Add profiler classification fallback test | Accepted | P1 | Test Coverage | The `Application` fallback is the common no-match path and should be locked down. | Add a regression test for stacks that match no runtime rule. |
+| RD-070 | Add profiler classification rule-ordering test | Accepted | P2 | Test Coverage | First-match-wins behavior is documented but not covered by tests. | Add an overlapping Spring rule test that proves specific rules win before broader rules. |
+| RD-071 | Add case-insensitive profiler classification test | Accepted | P2 | Test Coverage | The implementation lowercases stacks, but a regression test should protect this behavior. | Add a case-variant runtime classification test. |
+| RD-072 | Validate or document bounded percentile seed constraints | Accepted | P2 | Sampling Correctness | `seed=0` can create a degenerate replacement stream. The sampler should either reject it or document the limitation explicitly. | Add `seed > 0` validation or a documented constraint plus tests. |
+| RD-073 | Keep future phase commits scoped by concern | Accepted | P3 | Commit Hygiene | The Phase 3 implementation commit was valid but mixed Phase 2 hardening and Phase 3 expansion, reducing future bisect precision. | Use separate commits for review follow-ups and new phase implementation when practical. |
+| RD-074 | Fix Python package long-description README gap | Accepted | P2 | Packaging Metadata | `setup.cfg` references `README.md`, but the Python engine package directory does not contain one. This can affect source distribution or packaging checks. | Add a minimal `engines/python/README.md` or remove the `long_description` reference. |
+| RD-075 | Explicitly defer Linux packaging in the spike plan | Accepted | P3 | Packaging Plan | The current packaging plan sequences macOS then Windows but does not state Linux scope. A one-line deferral avoids ambiguity. | Add Linux out-of-scope/deferred wording to the packaging plan. |
 
 ## Backlog Mapping
 
@@ -120,6 +134,15 @@ The executable TO-DO list is maintained in `work_status.md` under `Execution Bac
 | RD-059, RD-061 | T-062, T-063 | Chart Studio factory data and persistence work. |
 | RD-060 | Deferred | Dynamic registration only when user-defined templates are in scope. |
 | RD-063 | Deferred | App-locale-aware formatters during report export locale work. |
+| RD-064 | T-069 | Runtime classification config loader and packaged resource plan. |
+| RD-065 | T-070 | Analyzer sidecar lifecycle and orphan-process cleanup. |
+| RD-066 | T-071 | ECharts nonce CSP compatibility spike before stricter style policy. |
+| RD-067, RD-068 | T-068 | Runtime classification rule specificity and authoring constraints. |
+| RD-069, RD-070, RD-071 | T-065 | Profiler classification fallback, ordering, and case-insensitive regression tests. |
+| RD-072 | T-067 | Bounded percentile seed validation or documented constraint. |
+| RD-073 | Process note | Keep future commits scoped by concern where practical. |
+| RD-074 | T-066 | Python package README/long-description cleanup. |
+| RD-075 | T-072 | Linux packaging scope note in packaging plan. |
 
 ## Open Decisions
 
