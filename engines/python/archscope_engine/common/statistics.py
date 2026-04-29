@@ -29,10 +29,13 @@ class BoundedPercentile:
     count: int = 0
     _samples: list[float] = field(default_factory=list)
 
-    def add(self, value: float) -> None:
+    def __post_init__(self) -> None:
         if self.max_samples <= 0:
             raise ValueError("max_samples must be a positive integer.")
+        if self.seed <= 0:
+            raise ValueError("seed must be a positive integer.")
 
+    def add(self, value: float) -> None:
         self.count += 1
         if len(self._samples) < self.max_samples:
             self._samples.append(value)

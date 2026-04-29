@@ -49,3 +49,12 @@ def test_bounded_percentile_seed_changes_deterministic_sample_stream() -> None:
 
     assert first.percentile(25) != second.percentile(25)
     assert first.percentile(25) == repeated.percentile(25)
+
+
+def test_bounded_percentile_rejects_invalid_seed() -> None:
+    try:
+        BoundedPercentile(max_samples=5, seed=0)
+    except ValueError as error:
+        assert str(error) == "seed must be a positive integer."
+    else:
+        raise AssertionError("Expected BoundedPercentile to reject seed=0")

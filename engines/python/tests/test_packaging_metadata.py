@@ -18,6 +18,16 @@ def test_runtime_dependencies_are_declared() -> None:
     assert "rich>=13,<15" in requirements
 
 
+def test_long_description_file_exists() -> None:
+    root = Path(__file__).parents[1]
+    config = configparser.ConfigParser()
+    config.read(root / "setup.cfg")
+
+    long_description = config["metadata"]["long_description"]
+    assert long_description.startswith("file: ")
+    assert (root / long_description.removeprefix("file: ").strip()).is_file()
+
+
 def test_console_script_is_declared() -> None:
     config = configparser.ConfigParser()
     config.read(Path(__file__).parents[1] / "setup.cfg")

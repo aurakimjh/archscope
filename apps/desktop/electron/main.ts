@@ -1,5 +1,5 @@
 import { app, BrowserWindow, dialog, ipcMain, session } from "electron";
-import { execFile } from "node:child_process";
+import { execFile, type ChildProcess } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { mkdir, readFile, rm, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -22,6 +22,7 @@ import type {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, "../../..");
+const activeEngineProcesses = new Set<ChildProcess>();
 
 type EngineInvocation = {
   file: string;
@@ -96,6 +97,9 @@ app.on("window-all-closed", () => {
     app.quit();
   }
 });
+
+app.on("before-quit", terminateActiveEngineProcesses);
+process.on("exit", terminateActiveEngineProcesses);
 
 function registerIpcHandlers(): void {
   ipcMain.handle(
@@ -302,7 +306,7 @@ function execEngine(args: string[]): Promise<EngineProcessResponse> {
   const invocation = resolveEngineInvocation();
 
   return new Promise((resolve) => {
-    execFile(
+    const child = execFile(
       invocation.file,
       [...invocation.argsPrefix, ...args],
       {
@@ -327,7 +331,21 @@ function execEngine(args: string[]): Promise<EngineProcessResponse> {
         resolve({ ok: true, messages: splitEngineMessages([stderr, stdout]) });
       },
     );
+
+    activeEngineProcesses.add(child);
+    child.once("exit", () => {
+      activeEngineProcesses.delete(child);
+    });
   });
+}
+
+function terminateActiveEngineProcesses(): void {
+  for (const child of activeEngineProcesses) {
+    if (child.exitCode === null && !child.killed) {
+      child.kill();
+    }
+    activeEngineProcesses.delete(child);
+  }
 }
 
 function resolveEngineInvocation(): EngineInvocation {

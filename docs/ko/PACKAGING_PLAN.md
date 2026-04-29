@@ -19,6 +19,8 @@ Phase 3 spike의 목표 구조는 다음과 같다.
 4. malformed-line diagnostics와 engine stderr detail이 UI까지 전달되는지 검증한다.
 5. macOS path와 signing 가정이 정리된 뒤 Windows에서 반복 검증한다.
 
+Linux packaging은 macOS와 Windows sidecar path가 검증될 때까지 defer한다.
+
 ## Metadata 결정
 
 낮은 `setuptools<64` 상한은 현대적인 bounded range로 올린다. 전체 metadata를 `pyproject.toml`로 통합하는 작업은 PyInstaller, editable development install, 향후 wheel publishing 요구가 packaging spike에서 확인된 뒤 진행한다.
@@ -34,3 +36,5 @@ Phase 3 spike의 목표 구조는 다음과 같다.
 Production CSP는 이미 unsafe script execution을 차단한다. `style-src 'unsafe-inline'` 제거에는 style injection nonce 전파와 React, Vite output, ECharts tooltip/theme 호환성 검증이 필요하다.
 
 결정: Phase 3 packaging 중에는 현재 style policy를 유지한다. Packaged renderer 동작과 chart export flow가 안정화된 뒤 nonce 기반 style CSP를 재검토한다.
+
+Phase 3 follow-up spike 결과: 로컬 ECharts 6 및 zrender package source에서는 문서화된 `nonce` 또는 `csp.nonce` 초기화 옵션을 확인하지 못했다. 다음 CSP hardening 시도는 policy 변경 전에 packaged renderer smoke test를 수행하고, chart tooltip/theme rendering이 유지되는 경우에만 unsafe inline style 제거를 우선한다.

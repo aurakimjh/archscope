@@ -43,6 +43,9 @@
 
 ## Phase 4: Multi-runtime and Observability Inputs
 
+- Timeline correlation `AnalysisResult` design
+- JFR recording parser design using the JDK `jfr` command spike path
+- OpenTelemetry log input design with trace/span context mapping
 - Node.js log and stack analyzer
 - Python traceback analyzer
 - Go panic/goroutine analyzer

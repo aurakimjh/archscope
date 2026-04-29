@@ -19,6 +19,8 @@ The Phase 3 spike uses this target shape:
 4. Verify malformed-line diagnostics and engine stderr detail still reach the UI.
 5. Repeat on Windows after macOS path and signing assumptions are known.
 
+Linux packaging is deferred until the macOS and Windows sidecar paths are validated.
+
 ## Metadata Decision
 
 The low `setuptools<64` ceiling has been raised to a modern bounded range. Full metadata consolidation into `pyproject.toml` is deferred until the packaging spike proves which metadata source is best for PyInstaller, editable development installs, and future wheel publishing.
@@ -34,3 +36,5 @@ For now:
 Production CSP already blocks unsafe script execution. Removing `style-src 'unsafe-inline'` would require nonce propagation for style injection and compatibility checks with React, Vite output, and ECharts tooltips/themes.
 
 Decision: keep the current style policy during Phase 3 packaging. Revisit nonce-based style CSP after packaged renderer behavior and chart export flows are stable.
+
+Phase 3 follow-up spike result: local ECharts 6 and zrender package sources do not expose a documented `nonce` or `csp.nonce` initialization option. The next CSP hardening attempt should use a packaged-renderer smoke test before changing policy, and should prefer removing unsafe inline style only when chart tooltip/theme rendering remains intact.

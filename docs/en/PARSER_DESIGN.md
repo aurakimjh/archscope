@@ -194,6 +194,8 @@ The analyzer must not build a full `list[AccessLogRecord]` for the main analysis
 
 Access-log summary and per-minute percentile values use a bounded deterministic sample rather than an unbounded response-time array. This keeps percentile memory use fixed for large files while preserving reproducible results for the same input. Because the sampler is approximate and input-order sensitive, percentile values should be interpreted as operational estimates rather than exact statistical truth for highly ordered or adversarial inputs.
 
+The sampler seed must be a positive integer. `seed=0` is rejected because it degenerates the deterministic replacement stream and can repeatedly target the same reservoir slot.
+
 ### Access Log Findings
 
 Access-log findings are bounded structured observations under `metadata.findings`. Initial rules:
