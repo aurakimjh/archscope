@@ -40,6 +40,9 @@ export const messages = {
     accessLogFileDescription:
       "NGINX-like sample format is supported by the current engine MVP.",
     logFormat: "Log format",
+    maxLines: "Max lines",
+    startTime: "Start time",
+    endTime: "End time",
     analyze: "Analyze",
     analyzing: "Analyzing...",
     browseFile: "Browse",
@@ -130,6 +133,9 @@ export const messages = {
     accessLogFileDescription:
       "현재 엔진 MVP는 NGINX 유사 샘플 포맷을 지원합니다.",
     logFormat: "로그 포맷",
+    maxLines: "최대 라인 수",
+    startTime: "시작 시각",
+    endTime: "종료 시각",
     analyze: "분석",
     analyzing: "분석 중...",
     browseFile: "찾아보기",

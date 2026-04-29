@@ -127,18 +127,30 @@ async function analyzeAccessLog(
     return failure("INVALID_OPTION", "Access log file and format are required.");
   }
 
+  if (
+    request.maxLines !== undefined &&
+    (!Number.isInteger(request.maxLines) || request.maxLines <= 0)
+  ) {
+    return failure("INVALID_OPTION", "Max lines must be a positive integer.");
+  }
+
   const readable = await isReadableFile(request.filePath);
   if (!readable) {
     return failure("FILE_NOT_FOUND", "Selected access log file is not readable.", request.filePath);
   }
 
   return runAnalyzer<AccessLogAnalysisResult>([
-    "access-log",
-    "analyze",
-    "--file",
-    request.filePath,
-    "--format",
-    request.format,
+    ...[
+      "access-log",
+      "analyze",
+      "--file",
+      request.filePath,
+      "--format",
+      request.format,
+    ],
+    ...(request.maxLines !== undefined ? ["--max-lines", String(request.maxLines)] : []),
+    ...(request.startTime ? ["--start-time", request.startTime] : []),
+    ...(request.endTime ? ["--end-time", request.endTime] : []),
   ]);
 }
 

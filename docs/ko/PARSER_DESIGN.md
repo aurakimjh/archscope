@@ -152,3 +152,51 @@ metadata.diagnostics = {
 - 모든 configured encoding으로 decode에 실패하면 fatal이다.
 - Decode는 되었지만 의미적으로 잘못된 record는 non-fatal로 skip하고 diagnostics에 보고한다.
 - 향후 binary/corruption detector를 추가할 수 있지만, parser diagnostics를 대체하지 않는다.
+
+## Large File Baseline
+
+Phase 1B baseline은 parser와 analyzer 책임을 분리하면서 access-log 분석에서 전체 record materialization을 피한다.
+
+### Sampling Options
+
+Access-log analysis는 다음 optional control을 받는다.
+
+| Option | Policy |
+|---|---|
+| `max_lines` | 이 수만큼 physical source line을 읽은 뒤 중단한다. positive integer여야 한다. |
+| `start_time` | parsed record timestamp가 이 ISO 8601 datetime 이상인 record만 포함한다. |
+| `end_time` | parsed record timestamp가 이 ISO 8601 datetime 이하인 record만 포함한다. |
+
+Rules:
+
+- `max_lines`는 configured limit을 넘는 line을 parse하기 전에 적용한다.
+- Time filter는 malformed line에 trustworthy timestamp가 없으므로 line parse 성공 후 적용한다.
+- `metadata.diagnostics.total_lines`는 읽은 physical line 수를 나타내며, `max_lines`가 있으면 그 값으로 bounded된다.
+- `metadata.diagnostics.parsed_records`는 time filtering 이후 analyzer aggregation에 포함된 valid record 수를 나타낸다.
+- 적용된 option은 `metadata.analysis_options` 아래에 echo해야 한다.
+
+### Streaming Aggregation
+
+Access-log analyzer는 parser record iterator를 소비하며 aggregation state를 incremental하게 update해야 한다.
+
+- total request count
+- error count
+- summary percentile 계산용 response-time sample
+- per-minute request counter와 response-time sample
+- status-family counter
+- URL request counter
+- average latency ranking용 URL response-time total 및 count
+- table output용 bounded sample records
+
+Analyzer의 main analysis path는 전체 `list[AccessLogRecord]`를 만들지 않아야 한다. Phase 1B에서는 exact percentile 계산을 위해 response-time sample array를 유지할 수 있으며, 이를 approximate sketch로 대체하는 일은 이후 large-file optimization으로 둔다.
+
+### Access Log Findings
+
+Access-log finding은 `metadata.findings` 아래의 bounded structured observation이다. 초기 rule은 다음과 같다.
+
+- error rate가 10% 이상이면 `HIGH_ERROR_RATE`.
+- error rate가 5% 이상이면 `ELEVATED_ERROR_RATE`.
+- 하나 이상의 `5xx` response가 있으면 `SERVER_ERRORS_PRESENT`.
+- 가장 느린 URL 평균 응답 시간이 1000 ms 이상이면 `SLOW_URL_AVERAGE`.
+
+Finding은 stable `code`, `severity`, 짧은 `message`, 작은 structured `evidence`를 포함해야 한다.

@@ -11,6 +11,8 @@ import type {
 
 export type {
   AccessLogAnalysisResult,
+  AccessLogAnalysisOptions,
+  AccessLogFinding,
   AccessLogFormat,
   AccessLogMetadata,
   AccessLogSampleRecordRow,

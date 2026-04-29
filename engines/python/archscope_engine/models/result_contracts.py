@@ -47,6 +47,19 @@ class TopUrlAvgResponseRow(TypedDict):
     count: int
 
 
+class AccessLogFinding(TypedDict):
+    severity: str
+    code: str
+    message: str
+    evidence: dict[str, str | int | float]
+
+
+class AccessLogAnalysisOptions(TypedDict):
+    max_lines: int | None
+    start_time: str | None
+    end_time: str | None
+
+
 class AccessLogSeries(TypedDict):
     requests_per_minute: list[TimeValuePoint]
     avg_response_time_per_minute: list[TimeValuePoint]
@@ -73,6 +86,8 @@ class AccessLogMetadata(TypedDict):
     parser: str
     schema_version: str
     diagnostics: ParserDiagnostics
+    analysis_options: AccessLogAnalysisOptions
+    findings: list[AccessLogFinding]
 
 
 class ProfilerCollapsedSummary(TypedDict):

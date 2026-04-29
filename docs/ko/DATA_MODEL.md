@@ -99,6 +99,25 @@ AnalysisResult
 | `parser` | string | Parser implementation identifier |
 | `schema_version` | string | Result schema version |
 | `diagnostics` | `ParserDiagnostics` | Parser line count와 skipped record sample |
+| `analysis_options` | `AccessLogAnalysisOptions` | 적용된 sampling 및 time-range option |
+| `findings` | array of `AccessLogFinding` | 보고서 지향 access-log observation |
+
+`AccessLogAnalysisOptions` 필수 fields:
+
+| Field | Type | 의미 |
+|---|---|---|
+| `max_lines` | integer or null | source file에서 읽을 최대 physical line 수 |
+| `start_time` | string or null | inclusive ISO 8601 lower timestamp bound |
+| `end_time` | string or null | inclusive ISO 8601 upper timestamp bound |
+
+`AccessLogFinding` 필수 fields:
+
+| Field | Type | 의미 |
+|---|---|---|
+| `severity` | string | `warning`, `critical` 같은 finding severity |
+| `code` | string | stable finding code |
+| `message` | string | 사람이 읽을 수 있는 finding summary |
+| `evidence` | object | finding을 뒷받침하는 작은 structured value |
 
 ### Profiler Collapsed Result
 
@@ -234,3 +253,5 @@ raw_block
 - Analyzer는 숫자 필드에 명확한 unit을 사용한다.
 - Chart input은 parser-specific object가 아니라 `series`와 `tables`를 사용한다.
 - Runtime-specific field는 범용성이 낮으면 `metadata`에 둔다.
+- Analyzer sampling 및 filter setting은 `metadata.analysis_options` 아래에 echo한다.
+- 보고서용 interpretation은 prose-only blob이 아니라 bounded structured finding으로 표현한다.

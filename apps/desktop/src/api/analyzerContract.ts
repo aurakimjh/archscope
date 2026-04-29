@@ -68,6 +68,19 @@ export type TopUrlAvgResponseRow = {
   count: number;
 };
 
+export type AccessLogFinding = {
+  severity: string;
+  code: string;
+  message: string;
+  evidence: Record<string, string | number>;
+};
+
+export type AccessLogAnalysisOptions = {
+  max_lines: number | null;
+  start_time: string | null;
+  end_time: string | null;
+};
+
 export type AccessLogSeries = {
   requests_per_minute: TimeValuePoint[];
   avg_response_time_per_minute: TimeValuePoint[];
@@ -94,6 +107,8 @@ export type AccessLogMetadata = {
   parser: string;
   schema_version: string;
   diagnostics: ParserDiagnostics;
+  analysis_options: AccessLogAnalysisOptions;
+  findings: AccessLogFinding[];
 };
 
 export type ProfilerCollapsedSummary = {
@@ -147,6 +162,9 @@ export type AccessLogFormat =
 export type AnalyzeAccessLogRequest = {
   filePath: string;
   format: AccessLogFormat;
+  maxLines?: number;
+  startTime?: string;
+  endTime?: string;
 };
 
 export type AnalyzeCollapsedProfileRequest = {

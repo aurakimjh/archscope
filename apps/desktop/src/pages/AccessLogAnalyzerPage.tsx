@@ -25,6 +25,9 @@ export function AccessLogAnalyzerPage(): JSX.Element {
   const { t } = useI18n();
   const [filePath, setFilePath] = useState("");
   const [format, setFormat] = useState<AccessLogFormat>("nginx");
+  const [maxLines, setMaxLines] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
   const [state, setState] = useState<AnalyzerState>("idle");
   const [result, setResult] = useState<AccessLogAnalysisResult | null>(null);
   const [error, setError] = useState<BridgeError | null>(null);
@@ -77,9 +80,22 @@ export function AccessLogAnalyzerPage(): JSX.Element {
     setError(null);
 
     try {
+      const parsedMaxLines = parseOptionalPositiveInteger(maxLines);
+      if (parsedMaxLines === null) {
+        setError({
+          code: "INVALID_OPTION",
+          message: t("invalidAnalyzerOptions"),
+        });
+        setState("error");
+        return;
+      }
+
       const response = await getAnalyzerClient().analyzeAccessLog({
         filePath,
         format,
+        maxLines: parsedMaxLines,
+        startTime: normalizeOptionalDateTime(startTime),
+        endTime: normalizeOptionalDateTime(endTime),
       });
 
       if (response.ok) {
@@ -131,6 +147,34 @@ export function AccessLogAnalyzerPage(): JSX.Element {
               <option value="custom-regex">Custom Regex</option>
             </select>
           </label>
+          <div className="input-grid">
+            <label className="field">
+              <span>{t("maxLines")}</span>
+              <input
+                type="number"
+                value={maxLines}
+                min={1}
+                placeholder="100000"
+                onChange={(event) => setMaxLines(event.target.value)}
+              />
+            </label>
+            <label className="field">
+              <span>{t("startTime")}</span>
+              <input
+                type="datetime-local"
+                value={startTime}
+                onChange={(event) => setStartTime(event.target.value)}
+              />
+            </label>
+            <label className="field">
+              <span>{t("endTime")}</span>
+              <input
+                type="datetime-local"
+                value={endTime}
+                onChange={(event) => setEndTime(event.target.value)}
+              />
+            </label>
+          </div>
           <button
             className="primary-button"
             type="button"
@@ -259,4 +303,23 @@ function formatMilliseconds(value: number | undefined): string {
 
 function formatPercent(value: number | undefined): string {
   return typeof value === "number" ? `${value.toLocaleString()}%` : "-";
+}
+
+
+function parseOptionalPositiveInteger(value: string): number | undefined | null {
+  if (!value.trim()) {
+    return undefined;
+  }
+
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    return null;
+  }
+
+  return parsed;
+}
+
+
+function normalizeOptionalDateTime(value: string): string | undefined {
+  return value.trim() || undefined;
 }

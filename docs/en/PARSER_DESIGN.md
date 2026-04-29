@@ -152,3 +152,51 @@ Rules:
 - Decoding failure after all configured encodings is fatal.
 - Decoded but semantically invalid records are non-fatal and reported as skipped records.
 - A future binary/corruption detector may add warnings, but it should not replace parser diagnostics.
+
+## Large File Baseline
+
+The Phase 1B baseline keeps parser and analyzer responsibilities separated while avoiding full record materialization for access-log analysis.
+
+### Sampling Options
+
+Access-log analysis accepts these optional controls:
+
+| Option | Policy |
+|---|---|
+| `max_lines` | Stop reading after this many physical source lines. Must be a positive integer. |
+| `start_time` | Include only parsed records whose timestamp is greater than or equal to this ISO 8601 datetime. |
+| `end_time` | Include only parsed records whose timestamp is less than or equal to this ISO 8601 datetime. |
+
+Rules:
+
+- `max_lines` is applied before parsing a line beyond the configured limit.
+- Time filters are applied after a line is parsed successfully because malformed lines have no trustworthy timestamp.
+- `metadata.diagnostics.total_lines` counts physical lines read, bounded by `max_lines` when provided.
+- `metadata.diagnostics.parsed_records` counts valid records included in analyzer aggregation after time filtering.
+- Applied options must be echoed under `metadata.analysis_options`.
+
+### Streaming Aggregation
+
+The access-log analyzer should consume parser records as an iterator and update aggregation state incrementally:
+
+- total request count
+- error count
+- response-time samples for summary percentiles
+- per-minute request counters and response-time samples
+- status-family counters
+- URL request counters
+- URL response-time totals and counts for average latency ranking
+- bounded sample records for table output
+
+The analyzer must not build a full `list[AccessLogRecord]` for the main analysis path. Exact percentile calculation may still keep response-time sample arrays in Phase 1B; replacing those with approximate sketches is a later large-file optimization.
+
+### Access Log Findings
+
+Access-log findings are bounded structured observations under `metadata.findings`. Initial rules:
+
+- `HIGH_ERROR_RATE` when error rate is at or above 10%.
+- `ELEVATED_ERROR_RATE` when error rate is at or above 5%.
+- `SERVER_ERRORS_PRESENT` when one or more `5xx` responses are present.
+- `SLOW_URL_AVERAGE` when the slowest average URL response time is at or above 1000 ms.
+
+Findings must include a stable `code`, `severity`, short `message`, and small structured `evidence`.

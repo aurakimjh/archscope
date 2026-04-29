@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+from datetime import datetime
 from math import isfinite
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable
 
 from archscope_engine.common.file_utils import iter_text_lines
 from archscope_engine.common.time_utils import parse_nginx_timestamp
@@ -70,27 +71,72 @@ class AccessLogParseResult:
     diagnostics: dict[str, Any]
 
 
-def parse_access_log(path: Path, log_format: str = "nginx") -> list[AccessLogRecord]:
-    return parse_access_log_with_diagnostics(path, log_format).records
+def parse_access_log(
+    path: Path,
+    log_format: str = "nginx",
+    max_lines: int | None = None,
+    start_time: datetime | None = None,
+    end_time: datetime | None = None,
+) -> list[AccessLogRecord]:
+    return parse_access_log_with_diagnostics(
+        path,
+        log_format,
+        max_lines=max_lines,
+        start_time=start_time,
+        end_time=end_time,
+    ).records
 
 
 def parse_access_log_with_diagnostics(
-    path: Path, log_format: str = "nginx"
+    path: Path,
+    log_format: str = "nginx",
+    max_lines: int | None = None,
+    start_time: datetime | None = None,
+    end_time: datetime | None = None,
 ) -> AccessLogParseResult:
+    records: list[AccessLogRecord] = []
+    diagnostics = ParserDiagnostics()
+    for record in iter_access_log_records_with_diagnostics(
+        path,
+        log_format,
+        diagnostics=diagnostics,
+        max_lines=max_lines,
+        start_time=start_time,
+        end_time=end_time,
+    ):
+        records.append(record)
+
+    return AccessLogParseResult(records=records, diagnostics=diagnostics.to_dict())
+
+
+def iter_access_log_records_with_diagnostics(
+    path: Path,
+    log_format: str = "nginx",
+    *,
+    diagnostics: ParserDiagnostics,
+    max_lines: int | None = None,
+    start_time: datetime | None = None,
+    end_time: datetime | None = None,
+) -> Iterable[AccessLogRecord]:
     if log_format.lower() != "nginx":
         raise ValueError("Only nginx format is implemented in the skeleton parser.")
 
-    records: list[AccessLogRecord] = []
-    diagnostics = ParserDiagnostics()
+    if max_lines is not None and max_lines <= 0:
+        raise ValueError("max_lines must be a positive integer.")
 
     for line_number, line in enumerate(iter_text_lines(path), start=1):
+        if max_lines is not None and line_number > max_lines:
+            break
+
         diagnostics.total_lines += 1
         if not line.strip():
             continue
         record, error = _parse_nginx_access_line(line)
         if record is not None:
-            records.append(record)
+            if not _is_in_time_range(record.timestamp, start_time, end_time):
+                continue
             diagnostics.parsed_records += 1
+            yield record
             continue
 
         if error is None:
@@ -102,8 +148,6 @@ def parse_access_log_with_diagnostics(
             message=message,
             raw_line=line,
         )
-
-    return AccessLogParseResult(records=records, diagnostics=diagnostics.to_dict())
 
 
 def parse_nginx_access_line(line: str) -> AccessLogRecord | None:
@@ -155,3 +199,28 @@ def _parse_nginx_access_line(
         ),
         None,
     )
+
+
+def _is_in_time_range(
+    value: datetime,
+    start_time: datetime | None,
+    end_time: datetime | None,
+) -> bool:
+    normalized_start = _align_boundary_timezone(value, start_time)
+    normalized_end = _align_boundary_timezone(value, end_time)
+    if normalized_start is not None and value < normalized_start:
+        return False
+    if normalized_end is not None and value > normalized_end:
+        return False
+    return True
+
+
+def _align_boundary_timezone(
+    value: datetime,
+    boundary: datetime | None,
+) -> datetime | None:
+    if boundary is None:
+        return None
+    if boundary.tzinfo is None and value.tzinfo is not None:
+        return boundary.replace(tzinfo=value.tzinfo)
+    return boundary

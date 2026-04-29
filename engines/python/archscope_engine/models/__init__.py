@@ -3,6 +3,8 @@ from archscope_engine.models.analysis_result import AnalysisResult
 from archscope_engine.models.gc_event import GcEvent
 from archscope_engine.models.profile_stack import ProfileStack
 from archscope_engine.models.result_contracts import (
+    AccessLogAnalysisOptions,
+    AccessLogFinding,
     AccessLogMetadata,
     AccessLogSeries,
     AccessLogSummary,
@@ -17,6 +19,8 @@ from archscope_engine.models.thread_dump import ExceptionRecord, ThreadDumpRecor
 
 __all__ = [
     "AccessLogRecord",
+    "AccessLogAnalysisOptions",
+    "AccessLogFinding",
     "AccessLogMetadata",
     "AccessLogSeries",
     "AccessLogSummary",

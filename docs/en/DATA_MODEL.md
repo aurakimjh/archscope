@@ -99,6 +99,25 @@ Required `metadata` fields:
 | `parser` | string | Parser implementation identifier |
 | `schema_version` | string | Result schema version |
 | `diagnostics` | `ParserDiagnostics` | Parser line counts and skipped-record samples |
+| `analysis_options` | `AccessLogAnalysisOptions` | Applied sampling and time-range options |
+| `findings` | array of `AccessLogFinding` | Report-oriented access-log observations |
+
+`AccessLogAnalysisOptions` required fields:
+
+| Field | Type | Meaning |
+|---|---|---|
+| `max_lines` | integer or null | Maximum physical lines read from the source file |
+| `start_time` | string or null | Inclusive ISO 8601 lower timestamp bound |
+| `end_time` | string or null | Inclusive ISO 8601 upper timestamp bound |
+
+`AccessLogFinding` required fields:
+
+| Field | Type | Meaning |
+|---|---|---|
+| `severity` | string | Finding severity such as `warning` or `critical` |
+| `code` | string | Stable finding code |
+| `message` | string | Human-readable finding summary |
+| `evidence` | object | Small structured values supporting the finding |
 
 ### Profiler Collapsed Result
 
@@ -234,3 +253,5 @@ raw_block
 - Analyzers produce numeric fields with explicit units.
 - Chart inputs come from `series` and `tables`, not parser-specific objects.
 - Runtime-specific fields should live under `metadata` unless they are broadly reusable.
+- Analyzer sampling and filter settings should be echoed under `metadata.analysis_options`.
+- Report-grade interpretations should be expressed as bounded structured findings, not prose-only blobs.
