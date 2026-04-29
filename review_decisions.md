@@ -1,6 +1,6 @@
 # ArchScope Review Decisions
 
-Last updated: 2026-04-29
+Last updated: 2026-04-30
 
 ## Scope
 
@@ -12,6 +12,8 @@ This document records acceptance decisions for review findings extracted from:
 - `docs/review/done/2026-04-29_claude-code_phase1-review.md`
 - `docs/review/done/2026-04-29_Phase2_Hygiene_Review_by_Gemini.md`
 - `docs/review/done/2026-04-29_claude-code_phase2-readiness-followup.md`
+- `docs/review/done/2026-04-29_UI_Chart_Architecture_Review_by_Gemini.md`
+- `docs/review/done/2026-04-30_claude-code_ui-chart-foundation-review.md`
 
 Decision states:
 
@@ -74,6 +76,19 @@ Decision states:
 | RD-048 | Add seed-configurable percentile sampling | Deferred | P3 | Large File Strategy | Current deterministic sampler is reproducible for the same input. Seed injection may be useful for statistical validation but is not required for current analyzer output. | Reassess if percentile sampling needs multiple deterministic sample streams or user-visible reproducibility controls. |
 | RD-049 | Verify CLI E2E dependencies run in CI | Accepted | P1 | Test Coverage | `typer` and `rich` are runtime dependencies in `setup.cfg`, so `pip install -e ".[dev]"` installs them together with pytest. Existing packaging tests also assert both runtime dependencies. | No new task; keep CLI E2E tests guarded for local environments without installed runtime dependencies. |
 | RD-050 | Replace diagnostics method reference with lambda | Rejected | P2 | Code Clarity | `diagnostics.to_dict` is a bound zero-argument method and matches the callable type. The review explicitly recommends keeping the current behavior unless readability becomes a problem. | No action. |
+| RD-051 | Route analyzer-page charts through the chart factory | Accepted | P2 | Chart Foundation Hardening | Dashboard charts now use the factory, but Access Log analyzer still has a local option builder. Keeping all chart surfaces on one factory path reduces drift before Chart Studio. | Add analyzer-page chart templates/factories and remove local ECharts option builders. |
+| RD-052 | Use `ResizeObserver` for chart container sizing | Accepted | P2 | Chart Foundation Hardening | Window resize handlers work but miss container-only layout changes. `ResizeObserver` is a better default for reusable chart panels and Chart Studio previews. | Replace global resize listener in `ChartPanel` with a scoped observer. |
+| RD-053 | Tree-shake ECharts imports through `echarts/core` | Deferred | P3 | Bundle Optimization | The large bundle warning is real, but manual ECharts module registration adds churn while chart types are still few. It should follow Chart Studio shape and export needs. | Revisit once the chart catalog expands and bundle size becomes a release concern. |
+| RD-054 | Guard placeholder async state transitions after unmount | Accepted | P2 | UI State Hardening | Placeholder async behavior is currently trivial, but the pattern will become real IPC calls. Adding a mounted guard prevents future setState-after-unmount regressions. | Add mount guard or abort pattern to placeholder analyzer flow. |
+| RD-055 | Improve analyzer/chart accessibility states | Accepted | P2 | UI Accessibility | Error feedback and chart panels should expose dynamic status to assistive tech. `role=\"alert\"` and `aria-busy` are low-cost improvements. | Add alert role for errors and busy state support for chart/analyzer surfaces. |
+| RD-056 | Localize file dialog filter labels | Accepted | P2 | UI i18n | Chart labels are localized, but file dialog filter labels remain hard-coded English. Moving them into locale resources keeps UI text policy consistent. | Add locale keys for file filters and use them in analyzer pages. |
+| RD-057 | Extract shared UI value formatters | Accepted | P2 | UI Structure | `formatNumber`, `formatMilliseconds`, and `formatPercent` are duplicated across analyzer pages and will be reused by Chart Studio. | Move common formatters to `src/utils/formatters.ts`. |
+| RD-058 | Register ECharts themes at app initialization | Accepted | P2 | Chart Foundation Hardening | `registerArchScopeTheme()` currently runs from `DashboardPage`, so future chart pages can render before theme registration. App-level registration is safer. | Move theme registration to `App.tsx` or the app entrypoint. |
+| RD-059 | Generalize chart factory data typing for analyzer results | Accepted | P3 | Chart Studio | The current factory is dashboard-sample oriented. Chart Studio will need access-log, profiler, and future analyzer result inputs. | Introduce typed or generic factory data mapping during Chart Studio work. |
+| RD-060 | Add dynamic chart factory registration API | Deferred | P3 | Chart Studio | Runtime registration is useful for user-defined/custom charts, but static registration is sufficient for the current curated chart catalog. | Reassess when user-defined Chart Studio templates are implemented. |
+| RD-061 | Add chart option serialization and persistence design | Accepted | P3 | Chart Studio | Chart Studio needs to save edited options and replay them. The current pure builders are a good base but do not define persistence shape. | Design option serialization, deep-merge, and persistence during Chart Studio implementation. |
+| RD-062 | Add chart option builder regression tests | Accepted | P2 | Chart Test Coverage | Chart option builders are pure functions and can be tested cheaply. This will reduce regressions as factory coverage expands. | Add tests for chart factory/template output shapes after analyzer-page factory consolidation. |
+| RD-063 | Add app-locale-aware number/date formatting | Deferred | P3 | UI i18n | `toLocaleString()` follows browser locale rather than app locale. This matters for report export but does not block current UI/chart foundation. | Revisit when report export locale controls are implemented. |
 
 ## Backlog Mapping
 
@@ -100,6 +115,11 @@ The executable TO-DO list is maintained in `work_status.md` under `Execution Bac
 | RD-046 | T-052 | Future nonce-based CSP hardening. |
 | RD-047 | T-051 | Future CI lint/coverage reporting. |
 | RD-048 | T-053 | Future percentile sampler seed/configuration evaluation. |
+| RD-051, RD-052, RD-054, RD-055, RD-056, RD-057, RD-058, RD-062 | T-054 to T-061 | Phase 2 UI/chart foundation hardening before deeper Chart Studio work. |
+| RD-053 | T-064 | ECharts tree-shaking and bundle optimization deferred until chart catalog grows. |
+| RD-059, RD-061 | T-062, T-063 | Chart Studio factory data and persistence work. |
+| RD-060 | Deferred | Dynamic registration only when user-defined templates are in scope. |
+| RD-063 | Deferred | App-locale-aware formatters during report export locale work. |
 
 ## Open Decisions
 

@@ -1,11 +1,13 @@
 # ArchScope Work Status
 
-Last updated: 2026-04-29
+Last updated: 2026-04-30
 
 ## Review Processing Status
 
 - [x] Read `docs/review/done/2026-04-29_Phase1_Review_by_Gemini.md`
 - [x] Read `docs/review/done/2026-04-29_claude-code_phase1-review.md`
+- [x] Read `docs/review/done/2026-04-29_UI_Chart_Architecture_Review_by_Gemini.md`
+- [x] Read `docs/review/done/2026-04-30_claude-code_ui-chart-foundation-review.md`
 - [x] Consolidated review findings into this TO-DO
 - [x] Created `review_decisions.md` with accepted/deferred/rejected/needs-decision classifications
 - [x] Moved processed review documents to `docs/review/done/`
@@ -19,10 +21,10 @@ Last updated: 2026-04-29
 
 ## Current Priority
 
-The next work cycle should close Phase 1 review stop-line items before broad Phase 2 feature expansion:
+The next work cycle should close Phase 2 UI/chart foundation follow-ups before deeper Chart Studio or packaging expansion:
 
 ```text
-Electron 33+ -> CSP -> shared diagnostics/UI cleanup -> CI and test separation -> Phase 2 UI/chart expansion
+Chart factory consolidation -> chart panel sizing/accessibility -> shared i18n/formatting utilities -> Chart Studio data/persistence design
 ```
 
 Engine-UI Bridge decision: Electron IPC + `child_process.execFile` invoking the Python CLI. Local HTTP/FastAPI is deferred unless web delivery becomes a near-term product goal.
@@ -100,6 +102,21 @@ Goal: make the UI easier to extend and prepare chart rendering for dynamic resul
 | T-033 | P2 | [x] | Upgrade to ECharts 6 and evaluate dark mode, broken axis, custom chart, and SVG export impact. | T-003, T-020 | RS-012 | Chart upgrade plan and implementation spike |
 | T-051 | P2 | [x] | Add CI lint and coverage reporting after Python/TypeScript tooling choices are settled. | T-045 | RD-047 | CI quality reporting |
 
+### Phase 2 Follow-up - UI/Chart Foundation Hardening
+
+Goal: close review findings that should be handled before deeper Chart Studio and analyzer UI expansion.
+
+| ID | Priority | Status | Task | Depends on | Source | Output |
+|---|---|---|---|---|---|---|
+| T-054 | P1 | [ ] | Route analyzer-page charts through the shared chart factory and remove local ECharts option builders. | T-021 | RD-051 | Analyzer chart factory integration |
+| T-055 | P1 | [ ] | Move ECharts theme registration from Dashboard-only setup to app initialization. | T-033 | RD-058 | App-level chart theme registration |
+| T-056 | P1 | [ ] | Replace `ChartPanel` window resize listener with scoped `ResizeObserver`. | T-033 | RD-052 | Container-aware chart resizing |
+| T-057 | P1 | [ ] | Add accessibility states for analyzer/chart feedback, including error alerts and chart busy state. | T-019, T-033 | RD-055 | Improved assistive-tech feedback |
+| T-058 | P2 | [ ] | Localize file dialog filter labels and remaining analyzer UI filter text. | T-020 | RD-056 | Locale-aware file dialog labels |
+| T-059 | P2 | [ ] | Extract duplicated UI value formatters into shared utilities. | T-044 | RD-057 | `src/utils/formatters.ts` |
+| T-060 | P2 | [ ] | Add chart option builder/factory regression tests for template output shapes. | T-021, T-054 | RD-062 | Frontend chart factory tests |
+| T-061 | P2 | [ ] | Add placeholder analyzer async unmount guard before real IPC replacement. | T-019 | RD-054 | Safer placeholder state transitions |
+
 ### Phase 3 - Packaging and Runtime Expansion
 
 Goal: reduce release risk and prepare analyzer expansion after the foundation is stable.
@@ -113,6 +130,9 @@ Goal: reduce release risk and prepare analyzer expansion after the foundation is
 | T-027 | P3 | [ ] | Add configuration-driven classification for JVM, Node.js, Python, Go, and .NET stacks. | T-026 | RD-022 | Runtime classification configuration |
 | T-052 | P3 | [ ] | Evaluate nonce-based CSP style policy to remove `style-src 'unsafe-inline'` after UI/runtime stabilization. | T-042 | RD-046 | CSP hardening decision |
 | T-053 | P3 | [ ] | Evaluate seed-configurable bounded percentile sampling for reproducibility-sensitive analysis. | T-049 | RD-048 | Percentile sampler decision |
+| T-062 | P3 | [ ] | Generalize chart factory data typing beyond `DashboardSampleResult` for real analyzer results. | T-054 | RD-059 | Analyzer-aware chart factory contracts |
+| T-063 | P3 | [ ] | Design chart option serialization, deep-merge, and persistence for Chart Studio. | T-062 | RD-061 | Chart Studio persistence design |
+| T-064 | P3 | [ ] | Evaluate ECharts `echarts/core` tree-shaking after chart catalog expansion. | T-033, T-063 preferred | RD-053 | Bundle optimization decision |
 
 ### Phase 4 - Advanced Diagnostics
 
@@ -144,7 +164,9 @@ Goal: only introduce AI interpretation with strict evidence requirements.
 7. `T-048 -> T-038 -> T-041`: strengthen IPC result validation, then generalize analyzer execution and improve progress/error feedback.
 8. `T-049 -> T-050`: document bounded percentile sampling tradeoffs after the memory-bound implementation lands.
 9. `T-019 -> T-020 -> T-021 -> T-033`: start Phase 2 UI state work, keep chart text localized, then extract chart factories and evaluate ECharts 6.
-10. `T-003 -> T-022`: only plan packaging spike after the actual bridge path exists.
+10. `T-054 -> T-055 -> T-056 -> T-057 -> T-058 -> T-059 -> T-060 -> T-061`: close UI/chart foundation review follow-ups before deeper Chart Studio work.
+11. `T-054 -> T-062 -> T-063 -> T-064`: generalize chart factory contracts, then design Chart Studio persistence and revisit bundle optimization.
+12. `T-003 -> T-022`: only plan packaging spike after the actual bridge path exists.
 
 ## Active Decision Queue
 
