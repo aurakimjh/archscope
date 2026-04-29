@@ -16,6 +16,8 @@ This document records acceptance decisions for review findings extracted from:
 - `docs/review/done/2026-04-30_claude-code_ui-chart-foundation-review.md`
 - `docs/review/done/2026-04-30_Phase3_Packaging_Expansion_Review_by_Gemini.md`
 - `docs/review/done/2026-04-30_claude-code_phase3-packaging-runtime-review.md`
+- `docs/review/done/2026-04-30_Phase4_Advanced_Diagnostics_Review_by_Gemini.md`
+- `docs/review/done/2026-04-30_claude-code_phase4-advanced-diagnostics-review.md`
 
 Decision states:
 
@@ -103,6 +105,20 @@ Decision states:
 | RD-073 | Keep future phase commits scoped by concern | Accepted | P3 | Commit Hygiene | The Phase 3 implementation commit was valid but mixed Phase 2 hardening and Phase 3 expansion, reducing future bisect precision. | Use separate commits for review follow-ups and new phase implementation when practical. |
 | RD-074 | Fix Python package long-description README gap | Accepted | P2 | Packaging Metadata | `setup.cfg` references `README.md`, but the Python engine package directory does not contain one. This can affect source distribution or packaging checks. | Add a minimal `engines/python/README.md` or remove the `long_description` reference. |
 | RD-075 | Explicitly defer Linux packaging in the spike plan | Accepted | P3 | Packaging Plan | The current packaging plan sequences macOS then Windows but does not state Linux scope. A one-line deferral avoids ambiguity. | Add Linux out-of-scope/deferred wording to the packaging plan. |
+| RD-076 | Document the integrated advanced-diagnostics differentiation thesis | Accepted | P1 | Advanced Diagnostics | Phase 4 currently states that timeline correlation is a differentiator but does not explain the target user, competitive gap, or combined JFR + OTel + evidence timeline scenario. | Add integrated vision, market position, target scenarios, and implementation triggers to `ADVANCED_DIAGNOSTICS.md`. |
+| RD-077 | Define common timestamp normalization for correlation inputs | Accepted | P1 | Advanced Diagnostics | Timeline correlation cannot be implemented reliably while access logs, JFR, OTel, and profiler data use incompatible or undefined time representations. | Define ISO 8601 UTC normalization, precision handling, source timezone policy, and optional nanosecond preservation. |
+| RD-078 | Define timeline correlation join-key hierarchy and clock-drift tolerance | Accepted | P1 | Advanced Diagnostics | JFR and OTel do not share `trace_id` by default, so correlation needs explicit deterministic and heuristic join rules. | Document trace/span exact joins, timestamp+thread approximate joins, range-based inference, confidence, and `clock_drift_ms`. |
+| RD-079 | Align timeline correlation shape with confidence and thread evidence | Accepted | P2 | Advanced Diagnostics | The design requires confidence marking but the proposed `correlated_events` shape omits confidence and thread fields needed for JFR correlation. | Add `confidence`, `thread_id`, and `thread_name` where appropriate in timeline shapes. |
+| RD-080 | Run a minimal JFR parser PoC before declaring the spike complete | Accepted | P1 | Advanced Diagnostics | A spike should validate a real command path. The current JFR design is plausible but not backed by code that parses `jfr print --json` into `AnalysisResult`. | Add a JFR PoC task using actual or fixture `jfr` JSON and a minimal Python normalization path. |
+| RD-081 | Add JFR parser alternatives, licensing, and JDK compatibility matrix | Accepted | P1 | Advanced Diagnostics | The JDK CLI direction is likely pragmatic, but the decision lacks comparison against Java API, Go parser, and pure-Python options plus JDK redistribution/version assumptions. | Add alternatives matrix covering license, parser JDK version, recording JDK range, Python integration, and performance tradeoffs. |
+| RD-082 | Expand JFR event model coverage for CPU-time samples and stack frames | Accepted | P2 | Advanced Diagnostics | JFR event priorities should include newer CPU-time profiling events and should distinguish sampled from exact events while preserving stack frames. | Add `jdk.CPUTimeSample`, `sampling_type`, and `frames`/stack representation to the JFR design. |
+| RD-083 | Define large-file streaming and filtering strategy for JFR and OTel inputs | Accepted | P2 | Advanced Diagnostics | `jfr print --json` and OTel logs can be large enough to make whole-file JSON loading unsafe. | Document event filters, stack-depth limits, streaming JSON parsing, max-lines/time-range controls, and top-N limits. |
+| RD-084 | Define OTel sensitive-data and evidence-retention policy | Accepted | P2 | Advanced Diagnostics | OTel `Body` and `Attributes` may include PII, secrets, or customer data. ArchScope should not blindly persist full raw payloads in result JSON. | Add evidence retention, redaction/masking, raw preview, and opt-in full body handling guidance. |
+| RD-085 | Track OTel spec version and OTel Profiles reevaluation trigger | Accepted | P3 | Advanced Diagnostics | The OTel logs mapping is sound, but the design should record the spec baseline and a future trigger for Profiles once it matures. | Add spec baseline date/version and a deferred OTel Profiles reevaluation note. |
+| RD-086 | Design a multi-lane timeline visualization for correlated events | Accepted | P3 | UI Charting | Timeline correlation needs a chart pattern that can compare multiple source lanes without collapsing evidence semantics. | Add a chart design task for ECharts multi-lane timeline/correlation layout. |
+| RD-087 | Strengthen UI schema-version compatibility warnings | Accepted | P2 | Contract Hardening | More result types increase drift risk; the UI should warn when result schema versions are unsupported or unexpected. | Extend IPC/UI validation to surface schema-version compatibility warnings. |
+| RD-088 | Define the timeline correlation input interface | Accepted | P2 | Advanced Diagnostics | A meta-analyzer needs a clear input contract: result JSON files, in-memory results, or mixed source paths. | Specify initial correlation input as multiple `AnalysisResult` JSON files or typed result objects before implementation. |
+| RD-089 | Use ADR-style structure for future advanced diagnostics decisions | Deferred | P3 | Documentation Hygiene | Context/Decision/Alternatives/Consequences would improve traceability, but it should not block current backlog processing. | Use ADR-style sections for future high-impact diagnostics decisions when practical. |
 
 ## Backlog Mapping
 
@@ -143,6 +159,16 @@ The executable TO-DO list is maintained in `work_status.md` under `Execution Bac
 | RD-073 | Process note | Keep future commits scoped by concern where practical. |
 | RD-074 | T-066 | Python package README/long-description cleanup. |
 | RD-075 | T-072 | Linux packaging scope note in packaging plan. |
+| RD-076 | T-073 | Integrated advanced-diagnostics vision and differentiation thesis. |
+| RD-077, RD-078, RD-079, RD-088 | T-074 | Common timestamp policy, join-key hierarchy, confidence/thread fields, and correlation input contract. |
+| RD-080 | T-075 | Minimal JFR parser PoC. |
+| RD-081 | T-076 | JFR alternatives, license, and JDK compatibility matrix. |
+| RD-082 | T-077 | JFR event model expansion for CPU-time, sampled/exact, and stack frames. |
+| RD-083 | T-078 | JFR/OTel streaming, filtering, and bounded output strategy. |
+| RD-084, RD-085 | T-079 | OTel privacy/evidence policy plus spec baseline and profiles reevaluation trigger. |
+| RD-087 | T-080 | Schema-version compatibility warnings. |
+| RD-086 | T-081 | Multi-lane timeline visualization design. |
+| RD-089 | Deferred | ADR-style structure for future high-impact diagnostics decisions. |
 
 ## Open Decisions
 

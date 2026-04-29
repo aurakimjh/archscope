@@ -10,6 +10,8 @@ Last updated: 2026-04-30
 - [x] Read `docs/review/done/2026-04-30_claude-code_ui-chart-foundation-review.md`
 - [x] Read `docs/review/done/2026-04-30_Phase3_Packaging_Expansion_Review_by_Gemini.md`
 - [x] Read `docs/review/done/2026-04-30_claude-code_phase3-packaging-runtime-review.md`
+- [x] Read `docs/review/done/2026-04-30_Phase4_Advanced_Diagnostics_Review_by_Gemini.md`
+- [x] Read `docs/review/done/2026-04-30_claude-code_phase4-advanced-diagnostics-review.md`
 - [x] Consolidated review findings into this TO-DO
 - [x] Created `review_decisions.md` with accepted/deferred/rejected/needs-decision classifications
 - [x] Moved processed review documents to `docs/review/done/`
@@ -23,10 +25,10 @@ Last updated: 2026-04-30
 
 ## Current Priority
 
-The next work cycle should move into Phase 5 evidence guardrails and optional AI interpretation design after Phase 3 follow-ups and Phase 4 diagnostic design:
+The next work cycle should close Phase 4 review follow-ups before Phase 5 AI interpretation design:
 
 ```text
-AI evidence references -> local LLM interpretation design -> report automation boundaries
+advanced diagnostics vision -> timestamp/join policy -> JFR PoC -> JFR/OTel streaming/privacy -> schema compatibility
 ```
 
 Engine-UI Bridge decision: Electron IPC + `child_process.execFile` invoking the Python CLI. Local HTTP/FastAPI is deferred unless web delivery becomes a near-term product goal.
@@ -161,6 +163,22 @@ Goal: add higher-value diagnostic correlation after analyzer contracts and UI in
 | T-034 | P4 | [x] | Add JFR recording parser design spike, including parser library feasibility and AnalysisResult shape. | GC/thread parser direction, T-010 | RS-013 | JFR parser design decision |
 | T-035 | P4 | [x] | Add OpenTelemetry log input design, including trace/span context mapping for future correlation. | T-010, T-028 preferred | RS-014 | OTel input design decision |
 
+### Phase 4 Follow-up - Advanced Diagnostics Review Hardening
+
+Goal: close Phase 4 review findings that must be resolved before AI-assisted interpretation or implementation-heavy advanced diagnostics work.
+
+| ID | Priority | Status | Task | Depends on | Source | Output |
+|---|---|---|---|---|---|---|
+| T-073 | P1 | [ ] | Strengthen advanced-diagnostics integrated vision, target scenario, market differentiation, and implementation triggers. | T-028, T-034, T-035 | RD-076 | Updated `ADVANCED_DIAGNOSTICS.md` vision section |
+| T-074 | P1 | [ ] | Define common timestamp normalization, timeline input contract, join-key hierarchy, clock-drift tolerance, confidence, and thread evidence fields. | T-073 preferred | RD-077, RD-078, RD-079, RD-088 | Correlation contract hardening |
+| T-075 | P1 | [ ] | Build a minimal JFR parser PoC from `jfr print --json` output to a draft `jfr_recording` `AnalysisResult`. | T-074 preferred | RD-080 | JFR command bridge validation |
+| T-076 | P1 | [ ] | Add JFR parser alternatives, licensing, JDK command prerequisite, and recording/parser JDK compatibility matrix. | T-034 | RD-081 | JFR spike decision matrix |
+| T-077 | P2 | [ ] | Expand JFR event model for `jdk.CPUTimeSample`, sampled/exact event semantics, and stack-frame representation. | T-076 preferred | RD-082 | JFR event model update |
+| T-078 | P2 | [ ] | Define large-file streaming/filtering strategy for JFR and OTel inputs, including event filters, stack-depth, time range, and top-N limits. | T-075 preferred | RD-083 | Bounded advanced-input processing plan |
+| T-079 | P2 | [ ] | Add OTel privacy/evidence retention policy, spec baseline, and OTel Profiles reevaluation trigger. | T-035 | RD-084, RD-085 | OTel evidence policy update |
+| T-080 | P2 | [ ] | Strengthen UI/runtime schema-version compatibility warnings for new `AnalysisResult` types. | T-048, T-074 preferred | RD-087 | Schema-version warning path |
+| T-081 | P3 | [ ] | Design a multi-lane ECharts timeline visualization for `timeline_correlation` results. | T-074 preferred | RD-086 | Correlation chart design |
+
 ### Phase 5 - AI-Assisted Interpretation
 
 Goal: only introduce AI interpretation with strict evidence requirements.
@@ -187,6 +205,9 @@ Goal: only introduce AI interpretation with strict evidence requirements.
 13. `T-065 -> T-068 -> T-069`: lock down classification edge cases, refine rule specificity, then add external config loading.
 14. `T-066 -> T-067 -> T-070`: close independent packaging metadata, sampler, and sidecar lifecycle hardening before broader Phase 4 work.
 15. `T-071`: revisit nonce CSP only after packaged renderer and chart export behavior are stable.
+16. `T-073 -> T-074 -> T-075`: clarify the advanced-diagnostics thesis, harden correlation contracts, then validate the JFR command bridge.
+17. `T-076 -> T-077 -> T-078`: document JFR parser tradeoffs, update event modeling, then define bounded advanced-input processing.
+18. `T-079 -> T-080 -> T-081`: close OTel evidence policy, schema compatibility warnings, and timeline visualization design before Phase 5 AI work.
 
 ## Active Decision Queue
 
