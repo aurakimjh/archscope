@@ -2,23 +2,30 @@ from __future__ import annotations
 
 from collections import Counter, defaultdict
 from pathlib import Path
+from typing import Any
 
 from archscope_engine.common.statistics import average, percentile
 from archscope_engine.common.time_utils import minute_bucket
 from archscope_engine.models.access_log import AccessLogRecord
 from archscope_engine.models.analysis_result import AnalysisResult
-from archscope_engine.parsers.access_log_parser import parse_access_log
+from archscope_engine.parsers.access_log_parser import parse_access_log_with_diagnostics
 
 
 def analyze_access_log(path: Path, log_format: str = "nginx") -> AnalysisResult:
-    records = parse_access_log(path, log_format)
-    return build_access_log_result(records, source_file=path, log_format=log_format)
+    parse_result = parse_access_log_with_diagnostics(path, log_format)
+    return build_access_log_result(
+        parse_result.records,
+        source_file=path,
+        log_format=log_format,
+        diagnostics=parse_result.diagnostics,
+    )
 
 
 def build_access_log_result(
     records: list[AccessLogRecord],
     source_file: Path,
     log_format: str,
+    diagnostics: dict[str, Any] | None = None,
 ) -> AnalysisResult:
     response_times = [record.response_time_ms for record in records]
     error_count = sum(1 for record in records if record.status >= 400)
@@ -107,6 +114,7 @@ def build_access_log_result(
             "format": log_format,
             "parser": "nginx_combined_with_response_time",
             "schema_version": "0.1.0",
+            **({"diagnostics": diagnostics} if diagnostics is not None else {}),
         },
     )
 

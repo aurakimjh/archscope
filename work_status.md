@@ -42,9 +42,9 @@ Goal: make the current skeleton run through one real diagnostic path with explic
 | T-001 | P0 | [x] | Decide and document the Engine-UI bridge approach. Decision: Electron IPC + `child_process.execFile` invoking the Python CLI. | None | RD-001, RD-026 | Bridge design note in `docs/en/ARCHITECTURE.md` and `docs/ko/ARCHITECTURE.md` |
 | T-002 | P0 | [x] | Define analyzer client interfaces before replacing mock data. Keep a mock client and add a real IPC client boundary. | T-001 | RD-003 | TypeScript analyzer client contract |
 | T-003 | P0 | [x] | Build minimal Bridge PoC: select sample file, invoke Python CLI from Electron main process, return `AnalysisResult` JSON to renderer. | T-001, T-002, T-030, T-037 | RD-002, RS-005 | Working UI-to-engine diagnostic path |
-| T-004 | P1 | [ ] | Improve Access Log parser malformed-line handling with skipped-line count and diagnostics metadata. Policy is fixed in parser design docs. | T-031 | RD-004, RS-009 | Parser behavior change plus metadata |
+| T-004 | P1 | [x] | Improve Access Log parser malformed-line handling with skipped-line count and diagnostics metadata. Policy is fixed in parser design docs. | T-031 | RD-004, RS-009 | Parser behavior change plus metadata |
 | T-005 | P1 | [ ] | Improve collapsed parser malformed-line handling for invalid trailing sample counts. Policy is fixed in parser design docs. | T-031 | RD-005, RS-009 | Parser behavior change plus metadata |
-| T-006 | P1 | [ ] | Add malformed access log parser tests. | T-004 | RD-017 | Parser regression tests |
+| T-006 | P1 | [x] | Add malformed access log parser tests. | T-004 | RD-017 | Parser regression tests |
 | T-007 | P1 | [ ] | Add malformed collapsed parser tests. | T-005 | RD-017 | Parser regression tests |
 | T-008 | P1 | [ ] | Add `statistics.py` edge-case tests for empty, single, repeated, negative, and percentile interpolation cases. | None | RD-016 | Utility regression tests |
 | T-009 | P1 | [ ] | Add JSON exporter write/read round-trip test. | None | RD-018 | Contract regression test |
