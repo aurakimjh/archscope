@@ -91,11 +91,16 @@ Goal: reduce release risk and prepare analyzer expansion after the foundation is
 | ID | Priority | Status | Task | Depends on | Source | Output |
 |---|---|---|---|---|---|---|
 | T-022 | P3 | [ ] | Plan early packaging spike for Electron + PyInstaller sidecar. | T-003 | RD-019 | Packaging spike plan |
-| T-023 | P3 | [ ] | Upgrade Electron to a supported major version after Bridge PoC validation. React upgrade remains deferred unless required by compatibility. | T-003, T-022 preferred | RD-025, RS-011 | Desktop dependency security upgrade |
+| T-023 | P0 | [ ] | Upgrade Electron to 33+ (Stop-the-line) to address EOL security concerns. | T-003, T-022 preferred | RD-025, RD-032 | Desktop dependency security upgrade |
 | T-024 | P3 | [ ] | Review `setuptools` ceiling and packaging metadata cleanup. | T-022 | RD-020 | Packaging metadata decision |
 | T-025 | P3 | [ ] | Decide whether to consolidate `setup.py` and `pyproject.toml`. | T-024 | RD-021 | Packaging metadata cleanup task |
 | T-026 | P3 | [ ] | Separate profiler stack classification rules from hardcoded Python logic. | T-003, T-010 | RD-022 | Configurable classification design |
 | T-027 | P3 | [ ] | Add configuration-driven classification for JVM, Node.js, Python, Go, and .NET stacks. | T-026 | RD-022 | Runtime classification configuration |
+| T-042 | P1 | [ ] | Implement Content Security Policy (CSP) to harden the renderer process. | None | RD-033 | Security hardening |
+| T-043 | P1 | [ ] | Consolidate `ParserDiagnostics` into `archscope_engine.common.diagnostics`. | None | RD-034 | DRY refactoring for parsers |
+| T-044 | P1 | [ ] | Extract `MetricCard` into a shared component in `src/components`. | None | RD-035 | DRY refactoring for UI |
+| T-045 | P1 | [ ] | Set up GitHub Actions CI for automated testing and linting. | None | RD-036 | Infrastructure setup |
+| T-046 | P1 | [ ] | Separate Analyzer logic tests from Parser tests for better modularity. | None | RD-037 | Test coverage improvement |
 
 ### Phase 4 - Advanced Diagnostics
 
