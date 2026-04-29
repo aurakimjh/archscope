@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain } from "electron";
+import { app, BrowserWindow, dialog, ipcMain, session } from "electron";
 import { execFile } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { mkdir, readFile, rm, stat } from "node:fs/promises";
@@ -10,6 +10,8 @@ import type {
   AccessLogAnalysisResult,
   AnalyzeAccessLogRequest,
   AnalyzeCollapsedProfileRequest,
+  AnalyzerExecuteRequest,
+  AnalyzerExecutionResult,
   AnalyzerResponse,
   AnalysisResult,
   ProfilerCollapsedAnalysisResult,
@@ -28,8 +30,32 @@ type EngineInvocation = {
 };
 
 type EngineProcessResponse =
-  | { ok: true }
+  | { ok: true; messages: string[] }
   | { ok: false; error: { code: string; message: string; detail?: string } };
+
+type AnalysisResultValidator<T extends AnalysisResult> = (value: unknown) => value is T;
+
+const PACKAGED_CSP = [
+  "default-src 'self'",
+  "script-src 'self'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data:",
+  "font-src 'self'",
+  "connect-src 'self'",
+  "object-src 'none'",
+  "base-uri 'none'",
+].join("; ");
+
+const DEVELOPMENT_CSP = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-eval'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data:",
+  "font-src 'self'",
+  "connect-src 'self' http://127.0.0.1:5173 ws://127.0.0.1:5173",
+  "object-src 'none'",
+  "base-uri 'none'",
+].join("; ");
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -54,6 +80,7 @@ function createWindow(): void {
 }
 
 app.whenReady().then(() => {
+  registerContentSecurityPolicy();
   registerIpcHandlers();
   createWindow();
 
@@ -92,27 +119,13 @@ function registerIpcHandlers(): void {
   );
 
   ipcMain.handle(
-    "analyzer:access-log:analyze",
+    "analyzer:execute",
     async (
       _event,
-      request: AnalyzeAccessLogRequest,
-    ): Promise<AnalyzerResponse<AccessLogAnalysisResult>> => {
+      request: AnalyzerExecuteRequest,
+    ): Promise<AnalyzerResponse<AnalyzerExecutionResult>> => {
       try {
-        return await analyzeAccessLog(request);
-      } catch (error) {
-        return ipcFailed(error);
-      }
-    },
-  );
-
-  ipcMain.handle(
-    "analyzer:profiler:analyze-collapsed",
-    async (
-      _event,
-      request: AnalyzeCollapsedProfileRequest,
-    ): Promise<AnalyzerResponse<ProfilerCollapsedAnalysisResult>> => {
-      try {
-        return await analyzeCollapsedProfile(request);
+        return await executeAnalyzer(request);
       } catch (error) {
         return ipcFailed(error);
       }
@@ -120,10 +133,48 @@ function registerIpcHandlers(): void {
   );
 }
 
+function registerContentSecurityPolicy(): void {
+  const policy = app.isPackaged ? PACKAGED_CSP : DEVELOPMENT_CSP;
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        "Content-Security-Policy": [policy],
+      },
+    });
+  });
+}
+
+async function executeAnalyzer(
+  request: AnalyzerExecuteRequest,
+): Promise<AnalyzerResponse<AnalyzerExecutionResult>> {
+  if (!request || typeof request !== "object") {
+    return failure("INVALID_OPTION", "Analyzer execution request is required.");
+  }
+
+  switch (request.type) {
+    case "access_log":
+      return analyzeAccessLog(request.params);
+    case "profiler_collapsed":
+      return analyzeCollapsedProfile(request.params);
+    default:
+      return failure("INVALID_OPTION", "Unsupported analyzer execution type.");
+  }
+}
+
 async function analyzeAccessLog(
   request: AnalyzeAccessLogRequest,
 ): Promise<AnalyzerResponse<AccessLogAnalysisResult>> {
-  if (!request.filePath || !request.format) {
+  if (!request || typeof request !== "object") {
+    return failure("INVALID_OPTION", "Access log analyzer request is required.");
+  }
+
+  if (
+    typeof request.filePath !== "string" ||
+    !request.filePath ||
+    typeof request.format !== "string" ||
+    !request.format
+  ) {
     return failure("INVALID_OPTION", "Access log file and format are required.");
   }
 
@@ -139,8 +190,8 @@ async function analyzeAccessLog(
     return failure("FILE_NOT_FOUND", "Selected access log file is not readable.", request.filePath);
   }
 
-  return runAnalyzer<AccessLogAnalysisResult>([
-    ...[
+  return runAnalyzer<AccessLogAnalysisResult>(
+    [
       "access-log",
       "analyze",
       "--file",
@@ -148,16 +199,27 @@ async function analyzeAccessLog(
       "--format",
       request.format,
     ],
-    ...(request.maxLines !== undefined ? ["--max-lines", String(request.maxLines)] : []),
-    ...(request.startTime ? ["--start-time", request.startTime] : []),
-    ...(request.endTime ? ["--end-time", request.endTime] : []),
-  ]);
+    isAccessLogAnalysisResult,
+    "Python engine did not produce valid access log AnalysisResult JSON.",
+    request.maxLines !== undefined ? ["--max-lines", String(request.maxLines)] : [],
+    request.startTime ? ["--start-time", request.startTime] : [],
+    request.endTime ? ["--end-time", request.endTime] : [],
+  );
 }
 
 async function analyzeCollapsedProfile(
   request: AnalyzeCollapsedProfileRequest,
 ): Promise<AnalyzerResponse<ProfilerCollapsedAnalysisResult>> {
-  if (!request.wallPath || request.wallIntervalMs <= 0) {
+  if (!request || typeof request !== "object") {
+    return failure("INVALID_OPTION", "Profiler analyzer request is required.");
+  }
+
+  if (
+    typeof request.wallPath !== "string" ||
+    !request.wallPath ||
+    typeof request.wallIntervalMs !== "number" ||
+    request.wallIntervalMs <= 0
+  ) {
     return failure("INVALID_OPTION", "Wall collapsed file and positive interval are required.");
   }
 
@@ -183,11 +245,18 @@ async function analyzeCollapsedProfile(
     args.push("--top-n", String(request.topN));
   }
 
-  return runAnalyzer<ProfilerCollapsedAnalysisResult>(args);
+  return runAnalyzer<ProfilerCollapsedAnalysisResult>(
+    args,
+    isProfilerCollapsedAnalysisResult,
+    "Python engine did not produce valid profiler AnalysisResult JSON.",
+  );
 }
 
 async function runAnalyzer<T extends AnalysisResult>(
   analyzerArgs: string[],
+  validateResult: AnalysisResultValidator<T>,
+  invalidOutputMessage: string,
+  ...extraArgs: string[][]
 ): Promise<AnalyzerResponse<T>> {
   const tempDir = path.join(tmpdir(), `archscope-${randomUUID()}`);
   const outputPath = path.join(tempDir, "analysis-result.json");
@@ -195,7 +264,7 @@ async function runAnalyzer<T extends AnalysisResult>(
   await mkdir(tempDir, { recursive: true });
 
   try {
-    const engineArgs = [...analyzerArgs, "--out", outputPath];
+    const engineArgs = [...analyzerArgs, ...extraArgs.flat(), "--out", outputPath];
     const result = await execEngine(engineArgs);
 
     if (!result.ok) {
@@ -205,17 +274,18 @@ async function runAnalyzer<T extends AnalysisResult>(
     const rawJson = await readFile(outputPath, "utf8");
     const parsed = JSON.parse(rawJson) as unknown;
 
-    if (!isAnalysisResult(parsed)) {
+    if (!validateResult(parsed)) {
       return failure(
         "ENGINE_OUTPUT_INVALID",
-        "Python engine did not produce valid AnalysisResult JSON.",
+        invalidOutputMessage,
         rawJson.slice(0, 1000),
       );
     }
 
     return {
       ok: true,
-      result: parsed as T,
+      result: parsed,
+      engine_messages: result.messages.length > 0 ? result.messages : undefined,
     };
   } catch (error) {
     return failure(
@@ -243,17 +313,18 @@ function execEngine(args: string[]): Promise<EngineProcessResponse> {
       },
       (error, stdout, stderr) => {
         if (error) {
-          resolve(
-            failure(
-              "ENGINE_EXITED",
-              "Python engine failed while analyzing the selected file.",
-              compactDetail([errorToDetail(error), stderr, stdout]),
-            ),
-          );
+          resolve({
+            ok: false,
+            error: {
+              code: "ENGINE_EXITED",
+              message: "Python engine failed while analyzing the selected file.",
+              detail: compactDetail([errorToDetail(error), stderr, stdout]),
+            },
+          });
           return;
         }
 
-        resolve({ ok: true });
+        resolve({ ok: true, messages: splitEngineMessages([stderr, stdout]) });
       },
     );
   });
@@ -308,14 +379,66 @@ function isAnalysisResult(value: unknown): value is AnalysisResult {
   const candidate = value as Record<string, unknown>;
   return (
     typeof candidate.type === "string" &&
+    typeof candidate.created_at === "string" &&
     Array.isArray(candidate.source_files) &&
+    candidate.source_files.every((sourceFile) => typeof sourceFile === "string") &&
     isPlainObject(candidate.summary) &&
-    isPlainObject(candidate.series)
+    isPlainObject(candidate.series) &&
+    isPlainObject(candidate.tables) &&
+    isPlainObject(candidate.charts) &&
+    isPlainObject(candidate.metadata)
+  );
+}
+
+function isAccessLogAnalysisResult(value: unknown): value is AccessLogAnalysisResult {
+  if (!isAnalysisResult(value) || value.type !== "access_log") {
+    return false;
+  }
+
+  return (
+    hasNumber(value.summary, "total_requests") &&
+    hasNumber(value.summary, "avg_response_ms") &&
+    hasNumber(value.summary, "p95_response_ms") &&
+    hasNumber(value.summary, "p99_response_ms") &&
+    hasNumber(value.summary, "error_rate") &&
+    Array.isArray(value.series.requests_per_minute) &&
+    Array.isArray(value.series.avg_response_time_per_minute) &&
+    Array.isArray(value.series.p95_response_time_per_minute) &&
+    Array.isArray(value.series.status_code_distribution) &&
+    Array.isArray(value.series.top_urls_by_count) &&
+    Array.isArray(value.series.top_urls_by_avg_response_time) &&
+    Array.isArray(value.tables.sample_records) &&
+    isPlainObject(value.metadata.diagnostics)
+  );
+}
+
+function isProfilerCollapsedAnalysisResult(
+  value: unknown,
+): value is ProfilerCollapsedAnalysisResult {
+  if (!isAnalysisResult(value) || value.type !== "profiler_collapsed") {
+    return false;
+  }
+
+  return (
+    typeof value.summary.profile_kind === "string" &&
+    hasNumber(value.summary, "total_samples") &&
+    hasNumber(value.summary, "interval_ms") &&
+    hasNumber(value.summary, "estimated_seconds") &&
+    (typeof value.summary.elapsed_seconds === "number" ||
+      value.summary.elapsed_seconds === null) &&
+    Array.isArray(value.series.top_stacks) &&
+    Array.isArray(value.series.component_breakdown) &&
+    Array.isArray(value.tables.top_stacks) &&
+    isPlainObject(value.metadata.diagnostics)
   );
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function hasNumber(value: Record<string, unknown>, key: string): boolean {
+  return typeof value[key] === "number" && Number.isFinite(value[key]);
 }
 
 function failure<T extends AnalysisResult>(
@@ -352,4 +475,12 @@ function compactDetail(parts: Array<string | undefined>): string | undefined {
     .join("\n");
 
   return detail || undefined;
+}
+
+function splitEngineMessages(parts: Array<string | undefined>): string[] {
+  return parts
+    .flatMap((part) => part?.split(/\r?\n/) ?? [])
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
+    .slice(-20);
 }

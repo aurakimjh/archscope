@@ -22,20 +22,25 @@ export type PageKey =
   | "export-center"
   | "settings";
 
+const pageComponents: Record<PageKey, () => JSX.Element> = {
+  dashboard: DashboardPage,
+  "access-log": AccessLogAnalyzerPage,
+  "gc-log": GcLogAnalyzerPage,
+  profiler: ProfilerAnalyzerPage,
+  "thread-dump": ThreadDumpAnalyzerPage,
+  exception: ExceptionAnalyzerPage,
+  "chart-studio": ChartStudioPage,
+  "export-center": ExportCenterPage,
+  settings: SettingsPage,
+};
+
 export function App(): JSX.Element {
   const [activePage, setActivePage] = useState<PageKey>("dashboard");
+  const PageComponent = pageComponents[activePage];
 
   return (
     <Layout activePage={activePage} onNavigate={setActivePage}>
-      {activePage === "dashboard" && <DashboardPage />}
-      {activePage === "access-log" && <AccessLogAnalyzerPage />}
-      {activePage === "gc-log" && <GcLogAnalyzerPage />}
-      {activePage === "profiler" && <ProfilerAnalyzerPage />}
-      {activePage === "thread-dump" && <ThreadDumpAnalyzerPage />}
-      {activePage === "exception" && <ExceptionAnalyzerPage />}
-      {activePage === "chart-studio" && <ChartStudioPage />}
-      {activePage === "export-center" && <ExportCenterPage />}
-      {activePage === "settings" && <SettingsPage />}
+      <PageComponent />
     </Layout>
   );
 }

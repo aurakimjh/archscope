@@ -3,6 +3,8 @@ import type {
   AccessLogAnalysisResult,
   AnalyzeAccessLogRequest,
   AnalyzeCollapsedProfileRequest,
+  AnalyzerExecuteRequest,
+  AnalyzerExecutionResult,
   AnalyzerResponse,
   ArchScopeAnalyzerBridge as AnalyzerBridge,
   ProfilerCollapsedAnalysisResult,
@@ -25,6 +27,8 @@ export type {
   AnalysisValue,
   AnalyzeAccessLogRequest,
   AnalyzeCollapsedProfileRequest,
+  AnalyzerExecuteRequest,
+  AnalyzerExecutionResult,
   AnalyzerFailure,
   AnalyzerResponse,
   AnalyzerSuccess,
@@ -54,6 +58,9 @@ export type SampleAnalysisResult = DashboardSampleResult;
 
 export type AnalyzerClient = {
   loadDashboardSample(): Promise<DashboardSampleResult>;
+  execute(
+    request: AnalyzerExecuteRequest,
+  ): Promise<AnalyzerResponse<AnalyzerExecutionResult>>;
   analyzeAccessLog(
     request: AnalyzeAccessLogRequest,
   ): Promise<AnalyzerResponse<AccessLogAnalysisResult>>;
@@ -76,11 +83,17 @@ export const mockAnalyzerClient: AnalyzerClient = {
       "Profiler analysis is not connected to the engine yet.",
     );
   },
+  async execute() {
+    return notImplemented<AnalyzerExecutionResult>(
+      "Analyzer execution is not connected to the engine yet.",
+    );
+  },
 };
 
 export function createIpcAnalyzerClient(bridge: AnalyzerBridge): AnalyzerClient {
   return {
     loadDashboardSample: mockAnalyzerClient.loadDashboardSample,
+    execute: bridge.execute,
     analyzeAccessLog: bridge.analyzeAccessLog,
     analyzeCollapsedProfile: bridge.analyzeCollapsedProfile,
   };

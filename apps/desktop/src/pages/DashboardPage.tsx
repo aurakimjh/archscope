@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { loadSampleAnalysisResult, type DashboardSampleResult } from "../api/analyzerClient";
 import { ChartPanel } from "../components/ChartPanel";
+import { MetricCard } from "../components/MetricCard";
 import {
   p95TrendOption,
   profilerBreakdownOption,
@@ -74,21 +75,6 @@ export function DashboardPage(): JSX.Element {
           option={chartOptions.profiler}
         />
       </section>
-    </div>
-  );
-}
-
-function MetricCard({
-  label,
-  value,
-}: {
-  label: string;
-  value: string | number;
-}): JSX.Element {
-  return (
-    <div className="metric-card">
-      <span>{label}</span>
-      <strong>{value}</strong>
     </div>
   );
 }

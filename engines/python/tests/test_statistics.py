@@ -1,4 +1,4 @@
-from archscope_engine.common.statistics import average, percentile
+from archscope_engine.common.statistics import BoundedPercentile, average, percentile
 
 
 def test_average_returns_zero_for_empty_values() -> None:
@@ -24,3 +24,14 @@ def test_percentile_handles_single_repeated_and_negative_values() -> None:
 def test_percentile_interpolates_between_ordered_values() -> None:
     assert percentile([10.0, 20.0, 30.0, 40.0], 25) == 17.5
     assert percentile([10.0, 20.0, 30.0, 40.0], 95) == 38.5
+
+
+def test_bounded_percentile_keeps_sample_count_under_limit() -> None:
+    stats = BoundedPercentile(max_samples=5)
+
+    for value in range(20):
+        stats.add(float(value))
+
+    assert stats.count == 20
+    assert stats.sample_size == 5
+    assert stats.percentile(95) > 0

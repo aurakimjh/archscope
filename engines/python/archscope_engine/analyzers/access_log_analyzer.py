@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 from collections import Counter, defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Iterable, cast
 
-from archscope_engine.common.statistics import average, percentile
+from archscope_engine.common.diagnostics import ParserDiagnostics
+from archscope_engine.common.statistics import BoundedPercentile
 from archscope_engine.common.time_utils import minute_bucket
 from archscope_engine.models.access_log import AccessLogRecord
 from archscope_engine.models.analysis_result import AnalysisResult
@@ -20,10 +21,31 @@ from archscope_engine.models.result_contracts import (
     AccessLogTables,
     ParserDiagnostics as ParserDiagnosticsContract,
 )
-from archscope_engine.parsers.access_log_parser import (
-    ParserDiagnostics,
-    iter_access_log_records_with_diagnostics,
-)
+from archscope_engine.parsers.access_log_parser import iter_access_log_records_with_diagnostics
+
+PERCENTILE_SAMPLE_LIMIT = 10_000
+
+
+@dataclass
+class ResponseTimeStats:
+    total_ms: float = 0.0
+    count: int = 0
+    percentiles: BoundedPercentile = field(
+        default_factory=lambda: BoundedPercentile(PERCENTILE_SAMPLE_LIMIT)
+    )
+
+    def add(self, value_ms: float) -> None:
+        self.total_ms += value_ms
+        self.count += 1
+        self.percentiles.add(value_ms)
+
+    def average(self) -> float:
+        if self.count == 0:
+            return 0.0
+        return self.total_ms / self.count
+
+    def percentile(self, percent: float) -> float:
+        return self.percentiles.percentile(percent)
 
 
 @dataclass(frozen=True)
@@ -71,12 +93,12 @@ def build_access_log_result(
     diagnostics: dict[str, Any] | Callable[[], dict[str, Any]] | None = None,
     options: AccessLogAnalyzerOptions | None = None,
 ) -> AnalysisResult:
-    response_times: list[float] = []
+    response_times = ResponseTimeStats()
     error_count = 0
     total = 0
 
     requests_by_minute: Counter[str] = Counter()
-    response_times_by_minute: dict[str, list[float]] = defaultdict(list)
+    response_times_by_minute: dict[str, ResponseTimeStats] = defaultdict(ResponseTimeStats)
     status_distribution: Counter[str] = Counter()
     url_counts: Counter[str] = Counter()
     url_response_totals: dict[str, float] = defaultdict(float)
@@ -84,13 +106,13 @@ def build_access_log_result(
 
     for record in records:
         total += 1
-        response_times.append(record.response_time_ms)
+        response_times.add(record.response_time_ms)
         if record.status >= 400:
             error_count += 1
 
         minute = minute_bucket(record.timestamp)
         requests_by_minute[minute] += 1
-        response_times_by_minute[minute].append(record.response_time_ms)
+        response_times_by_minute[minute].add(record.response_time_ms)
         status_distribution[_status_family(record.status)] += 1
         url_counts[record.uri] += 1
         url_response_totals[record.uri] += record.response_time_ms
@@ -113,16 +135,16 @@ def build_access_log_result(
     avg_response_time_per_minute = [
         {
             "time": minute,
-            "value": round(average(values), 2),
+            "value": round(stats.average(), 2),
         }
-        for minute, values in sorted(response_times_by_minute.items())
+        for minute, stats in sorted(response_times_by_minute.items())
     ]
     p95_response_time_per_minute = [
         {
             "time": minute,
-            "value": round(percentile(values, 95), 2),
+            "value": round(stats.percentile(95), 2),
         }
-        for minute, values in sorted(response_times_by_minute.items())
+        for minute, stats in sorted(response_times_by_minute.items())
     ]
 
     top_urls_by_avg_response_time = sorted(
@@ -140,9 +162,9 @@ def build_access_log_result(
 
     summary: AccessLogSummary = {
         "total_requests": total,
-        "avg_response_ms": round(average(response_times), 2),
-        "p95_response_ms": round(percentile(response_times, 95), 2),
-        "p99_response_ms": round(percentile(response_times, 99), 2),
+        "avg_response_ms": round(response_times.average(), 2),
+        "p95_response_ms": round(response_times.percentile(95), 2),
+        "p99_response_ms": round(response_times.percentile(99), 2),
         "error_rate": round((error_count / total * 100) if total else 0.0, 2),
     }
     series: AccessLogSeries = {

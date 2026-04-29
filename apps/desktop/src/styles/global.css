@@ -350,6 +350,15 @@ h2 {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
+.message-panel pre {
+  max-height: 180px;
+  overflow: auto;
+  margin: 10px 0 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 12px;
+}
+
 .error-panel {
   border: 1px solid #fecaca;
   color: #7f1d1d;

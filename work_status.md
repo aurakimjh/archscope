@@ -74,18 +74,18 @@ Goal: close Phase 1 review findings that should be handled before broad Phase 2 
 
 | ID | Priority | Status | Task | Depends on | Source | Output |
 |---|---|---|---|---|---|---|
-| T-023 | P0 | [ ] | Upgrade Electron to 33+ to address EOL security concerns before Phase 2 UI expansion. | T-003 | RD-025, RD-032 | Desktop dependency security upgrade |
-| T-042 | P0 | [ ] | Implement Content Security Policy (CSP) to harden the renderer process. | T-023 preferred | RD-033 | Electron renderer security hardening |
-| T-043 | P1 | [ ] | Consolidate duplicated `ParserDiagnostics` into `archscope_engine.common.diagnostics`. | None | RD-034 | Shared parser diagnostics utility |
-| T-044 | P1 | [ ] | Extract duplicated `MetricCard` implementations into a shared component in `src/components`. | None | RD-035 | Shared metric card component |
-| T-018 | P1 | [ ] | Convert page rendering in `App.tsx` to a mapping table. | None | RD-013 | Cleaner page registration |
-| T-046 | P1 | [ ] | Separate analyzer logic tests from parser tests for better modularity. | T-043 preferred | RD-037 | Analyzer-focused regression tests |
-| T-045 | P1 | [ ] | Set up GitHub Actions CI for automated Python tests and desktop build/type checks. | T-046 preferred | RD-036 | CI workflow |
-| T-047 | P1 | [ ] | Add CLI end-to-end integration tests for analyzer commands and JSON output. | T-030, T-045 preferred | RD-039 | CLI contract regression tests |
-| T-048 | P2 | [ ] | Strengthen runtime `AnalysisResult` validation at the Electron IPC boundary. | T-010, T-011 | RD-038 | Safer engine-output validation |
-| T-038 | P2 | [ ] | Implement Generic IPC Handler (`analyzer:execute`) to unify analyzer execution paths. | T-048 preferred | RD-027 | Generic IPC bridge in Electron main and renderer |
-| T-041 | P2 | [ ] | Capture and pipe engine stderr/progress detail to UI feedback. | T-038 preferred | RD-031 | Detailed error/progress feedback in UI |
-| T-049 | P2 | [ ] | Replace remaining unbounded exact percentile arrays with bounded or approximate percentile aggregation. | T-014, T-017 | RD-028 | Reduced large-file memory pressure |
+| T-023 | P0 | [x] | Upgrade Electron to 33+ to address EOL security concerns before Phase 2 UI expansion. | T-003 | RD-025, RD-032 | Desktop dependency security upgrade |
+| T-042 | P0 | [x] | Implement Content Security Policy (CSP) to harden the renderer process. | T-023 preferred | RD-033 | Electron renderer security hardening |
+| T-043 | P1 | [x] | Consolidate duplicated `ParserDiagnostics` into `archscope_engine.common.diagnostics`. | None | RD-034 | Shared parser diagnostics utility |
+| T-044 | P1 | [x] | Extract duplicated `MetricCard` implementations into a shared component in `src/components`. | None | RD-035 | Shared metric card component |
+| T-018 | P1 | [x] | Convert page rendering in `App.tsx` to a mapping table. | None | RD-013 | Cleaner page registration |
+| T-046 | P1 | [x] | Separate analyzer logic tests from parser tests for better modularity. | T-043 preferred | RD-037 | Analyzer-focused regression tests |
+| T-045 | P1 | [x] | Set up GitHub Actions CI for automated Python tests and desktop build/type checks. | T-046 preferred | RD-036 | CI workflow |
+| T-047 | P1 | [x] | Add CLI end-to-end integration tests for analyzer commands and JSON output. | T-030, T-045 preferred | RD-039 | CLI contract regression tests |
+| T-048 | P2 | [x] | Strengthen runtime `AnalysisResult` validation at the Electron IPC boundary. | T-010, T-011 | RD-038 | Safer engine-output validation |
+| T-038 | P2 | [x] | Implement Generic IPC Handler (`analyzer:execute`) to unify analyzer execution paths. | T-048 preferred | RD-027 | Generic IPC bridge in Electron main and renderer |
+| T-041 | P2 | [x] | Capture and pipe engine stderr/progress detail to UI feedback. | T-038 preferred | RD-031 | Detailed error/progress feedback in UI |
+| T-049 | P2 | [x] | Replace remaining unbounded exact percentile arrays with bounded or approximate percentile aggregation. | T-014, T-017 | RD-028 | Reduced large-file memory pressure |
 
 ### Phase 2 - Report-Ready UI and Charts
 

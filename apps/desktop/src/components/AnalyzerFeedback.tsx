@@ -30,6 +30,7 @@ export function ErrorPanel({ error, labels }: ErrorPanelProps): JSX.Element | nu
       <small>
         {labels.code}: {error.code}
       </small>
+      {error.detail && <pre>{error.detail}</pre>}
     </section>
   );
 }

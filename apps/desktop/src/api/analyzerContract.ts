@@ -174,6 +174,20 @@ export type AnalyzeCollapsedProfileRequest = {
   topN?: number;
 };
 
+export type AnalyzerExecuteRequest =
+  | {
+      type: "access_log";
+      params: AnalyzeAccessLogRequest;
+    }
+  | {
+      type: "profiler_collapsed";
+      params: AnalyzeCollapsedProfileRequest;
+    };
+
+export type AnalyzerExecutionResult =
+  | AccessLogAnalysisResult
+  | ProfilerCollapsedAnalysisResult;
+
 export type SelectFileRequest = {
   title?: string;
   filters?: Array<{
@@ -196,6 +210,7 @@ export type BridgeError = {
 export type AnalyzerSuccess<T extends AnalysisResult = AnalysisResult> = {
   ok: true;
   result: T;
+  engine_messages?: string[];
 };
 
 export type AnalyzerFailure = {
@@ -226,6 +241,9 @@ export type ProfilerCollapsedAnalysisResult = AnalysisResult<
 >;
 
 export type ArchScopeAnalyzerBridge = {
+  execute(
+    request: AnalyzerExecuteRequest,
+  ): Promise<AnalyzerResponse<AnalyzerExecutionResult>>;
   analyzeAccessLog(
     request: AnalyzeAccessLogRequest,
   ): Promise<AnalyzerResponse<AccessLogAnalysisResult>>;

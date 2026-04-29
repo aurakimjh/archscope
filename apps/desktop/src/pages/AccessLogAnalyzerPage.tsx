@@ -11,6 +11,7 @@ import {
 import { ChartPanel } from "../components/ChartPanel";
 import { DiagnosticsPanel, ErrorPanel } from "../components/AnalyzerFeedback";
 import { FileDropZone } from "../components/FileDropZone";
+import { MetricCard } from "../components/MetricCard";
 import { useI18n } from "../i18n/I18nProvider";
 
 type AnalyzerState = "idle" | "ready" | "running" | "success" | "error";
@@ -250,21 +251,6 @@ export function AccessLogAnalyzerPage(): JSX.Element {
           />
         </div>
       </section>
-    </div>
-  );
-}
-
-function MetricCard({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}): JSX.Element {
-  return (
-    <div className="metric-card">
-      <span>{label}</span>
-      <strong>{value}</strong>
     </div>
   );
 }
