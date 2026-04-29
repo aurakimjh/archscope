@@ -1,4 +1,4 @@
-import type { AnalysisObject, AnalysisValue, BridgeError } from "../api/analyzerClient";
+import type { AnalysisValue, BridgeError, ParserDiagnostics } from "../api/analyzerClient";
 
 type ErrorPanelProps = {
   error: BridgeError | null;
@@ -9,12 +9,11 @@ type ErrorPanelProps = {
 };
 
 type DiagnosticsPanelProps = {
-  metadata?: AnalysisObject;
+  diagnostics?: ParserDiagnostics;
   labels: {
     title: string;
     parsedRecords: string;
     skippedLines: string;
-    encoding: string;
     samples: string;
   };
 };
@@ -36,19 +35,16 @@ export function ErrorPanel({ error, labels }: ErrorPanelProps): JSX.Element | nu
 }
 
 export function DiagnosticsPanel({
-  metadata,
+  diagnostics,
   labels,
 }: DiagnosticsPanelProps): JSX.Element | null {
-  const diagnostics = asRecord(metadata?.diagnostics);
-
   if (!diagnostics) {
     return null;
   }
 
   const parsedRecords = diagnostics.parsed_records;
   const skippedLines = diagnostics.skipped_lines;
-  const encoding = diagnostics.encoding;
-  const samples = Array.isArray(diagnostics.samples) ? diagnostics.samples : [];
+  const samples = diagnostics.samples;
 
   return (
     <section className="table-panel diagnostics-panel">
@@ -64,31 +60,21 @@ export function DiagnosticsPanel({
           <dt>{labels.skippedLines}</dt>
           <dd>{formatValue(skippedLines)}</dd>
         </div>
-        <div>
-          <dt>{labels.encoding}</dt>
-          <dd>{formatValue(encoding)}</dd>
-        </div>
       </dl>
       {samples.length > 0 && (
         <div className="diagnostic-samples">
           <strong>{labels.samples}</strong>
           <ul>
             {samples.slice(0, 5).map((sample, index) => (
-              <li key={`${index}-${formatValue(sample)}`}>{formatValue(sample)}</li>
+              <li key={`${sample.line_number}-${index}`}>
+                {sample.line_number}: {sample.reason} - {sample.raw_preview}
+              </li>
             ))}
           </ul>
         </div>
       )}
     </section>
   );
-}
-
-function asRecord(value: AnalysisValue | undefined): AnalysisObject | undefined {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return undefined;
-  }
-
-  return value;
 }
 
 function formatValue(value: AnalysisValue | undefined): string {

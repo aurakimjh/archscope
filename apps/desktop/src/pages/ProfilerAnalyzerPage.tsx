@@ -2,9 +2,9 @@ import { useState } from "react";
 
 import {
   getAnalyzerClient,
-  type AnalysisValue,
   type BridgeError,
   type ProfilerCollapsedAnalysisResult,
+  type ProfilerTopStackTableRow,
 } from "../api/analyzerClient";
 import { DiagnosticsPanel, ErrorPanel } from "../components/AnalyzerFeedback";
 import { FileDropZone } from "../components/FileDropZone";
@@ -31,7 +31,7 @@ export function ProfilerAnalyzerPage(): JSX.Element {
 
   const canAnalyze = Boolean(wallPath) && wallIntervalMs > 0 && state !== "running";
   const summary = result?.summary;
-  const topStacks = getTopStackRows(result?.tables?.top_stacks);
+  const topStacks = getTopStackRows(result?.tables.top_stacks);
 
   async function browseWallFile(): Promise<void> {
     const response = await window.archscope?.selectFile?.({
@@ -217,12 +217,11 @@ export function ProfilerAnalyzerPage(): JSX.Element {
             </table>
           </section>
           <DiagnosticsPanel
-            metadata={result?.metadata}
+            diagnostics={result?.metadata.diagnostics}
             labels={{
               title: t("parserDiagnostics"),
               parsedRecords: t("parsedRecords"),
               skippedLines: t("skippedLines"),
-              encoding: t("encoding"),
               samples: t("diagnosticSamples"),
             }}
           />
@@ -247,58 +246,23 @@ function MetricCard({
   );
 }
 
-function getTopStackRows(value: AnalysisValue | undefined): TopStackRow[] {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-
-  return value.flatMap((item) => {
-    if (!isRecord(item)) {
-      return [];
-    }
-
-    const stack = item.stack;
-    const samples = item.samples;
-    const estimatedSeconds = item.estimated_seconds;
-    const sampleRatio = item.sample_ratio;
-
-    if (
-      typeof stack !== "string" ||
-      typeof samples !== "number" ||
-      typeof estimatedSeconds !== "number" ||
-      typeof sampleRatio !== "number"
-    ) {
-      return [];
-    }
-
-    return [
-      {
-        stack,
-        samples,
-        estimated_seconds: estimatedSeconds,
-        sample_ratio: sampleRatio,
-      },
-    ];
-  });
+function getTopStackRows(value: ProfilerTopStackTableRow[] | undefined): TopStackRow[] {
+  return value ?? [];
 }
 
-function isRecord(value: AnalysisValue): value is Record<string, AnalysisValue> {
-  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
-}
-
-function formatNumber(value: AnalysisValue | undefined): string {
+function formatNumber(value: number | undefined): string {
   return typeof value === "number" ? value.toLocaleString() : "-";
 }
 
-function formatMilliseconds(value: AnalysisValue | undefined): string {
+function formatMilliseconds(value: number | undefined): string {
   return typeof value === "number" ? `${value.toLocaleString()} ms` : "-";
 }
 
-function formatSeconds(value: AnalysisValue | undefined): string {
+function formatSeconds(value: number | null | undefined): string {
   return typeof value === "number" ? `${value.toLocaleString()} s` : "-";
 }
 
-function formatPercent(value: AnalysisValue | undefined): string {
+function formatPercent(value: number | undefined): string {
   return typeof value === "number" ? `${value.toLocaleString()}%` : "-";
 }
 

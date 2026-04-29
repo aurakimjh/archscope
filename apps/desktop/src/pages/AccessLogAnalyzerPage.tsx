@@ -5,8 +5,8 @@ import {
   getAnalyzerClient,
   type AccessLogAnalysisResult,
   type AccessLogFormat,
-  type AnalysisValue,
   type BridgeError,
+  type TopUrlAvgResponseRow,
 } from "../api/analyzerClient";
 import { ChartPanel } from "../components/ChartPanel";
 import { DiagnosticsPanel, ErrorPanel } from "../components/AnalyzerFeedback";
@@ -196,12 +196,11 @@ export function AccessLogAnalyzerPage(): JSX.Element {
             </table>
           </section>
           <DiagnosticsPanel
-            metadata={result?.metadata}
+            diagnostics={result?.metadata.diagnostics}
             labels={{
               title: t("parserDiagnostics"),
               parsedRecords: t("parsedRecords"),
               skippedLines: t("skippedLines"),
-              encoding: t("encoding"),
               samples: t("diagnosticSamples"),
             }}
           />
@@ -230,7 +229,7 @@ function buildRequestChartOption(
   result: AccessLogAnalysisResult | null,
   requestsAxis: string,
 ): EChartsOption {
-  const rows = getTimeValueRows(result?.series.requests_per_minute);
+  const rows = result?.series.requests_per_minute ?? [];
 
   return {
     tooltip: { trigger: "axis" },
@@ -246,68 +245,18 @@ function buildRequestChartOption(
   };
 }
 
-function getTimeValueRows(value: AnalysisValue | undefined): Array<{
-  time: string;
-  value: number;
-}> {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-
-  return value.flatMap((item) => {
-    if (!isRecord(item)) {
-      return [];
-    }
-
-    const time = item.time;
-    const rowValue = item.value;
-
-    if (typeof time !== "string" || typeof rowValue !== "number") {
-      return [];
-    }
-
-    return [{ time, value: rowValue }];
-  });
+function getSlowUrlRows(value: TopUrlAvgResponseRow[] | undefined): SlowUrlRow[] {
+  return value ?? [];
 }
 
-function getSlowUrlRows(value: AnalysisValue | undefined): SlowUrlRow[] {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-
-  return value.flatMap((item) => {
-    if (!isRecord(item)) {
-      return [];
-    }
-
-    const uri = item.uri;
-    const count = item.count;
-    const avgResponseMs = item.avg_response_ms;
-
-    if (
-      typeof uri !== "string" ||
-      typeof count !== "number" ||
-      typeof avgResponseMs !== "number"
-    ) {
-      return [];
-    }
-
-    return [{ uri, count, avg_response_ms: avgResponseMs }];
-  });
-}
-
-function isRecord(value: AnalysisValue): value is Record<string, AnalysisValue> {
-  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
-}
-
-function formatNumber(value: AnalysisValue | undefined): string {
+function formatNumber(value: number | undefined): string {
   return typeof value === "number" ? value.toLocaleString() : "-";
 }
 
-function formatMilliseconds(value: AnalysisValue | undefined): string {
+function formatMilliseconds(value: number | undefined): string {
   return typeof value === "number" ? `${value.toLocaleString()} ms` : "-";
 }
 
-function formatPercent(value: AnalysisValue | undefined): string {
+function formatPercent(value: number | undefined): string {
   return typeof value === "number" ? `${value.toLocaleString()}%` : "-";
 }

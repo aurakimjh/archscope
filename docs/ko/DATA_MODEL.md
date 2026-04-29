@@ -56,7 +56,7 @@ AnalysisResult
 - Optional field 추가는 동일 `schema_version`에서 허용한다.
 - Required field 제거 또는 rename은 `schema_version` bump가 필요하다.
 - Numeric field는 unit이 명확하지 않으면 key에 `_ms`, `_sec`, `_percent` 같은 unit suffix를 둔다.
-- Malformed-input 처리가 구현되면 parser diagnostics는 `metadata.diagnostics` 아래에 둔다.
+- Malformed-input 처리를 지원하는 parser의 diagnostics는 `metadata.diagnostics` 아래에 둔다.
 
 ## 필수 Result Contract
 
@@ -98,6 +98,7 @@ AnalysisResult
 | `format` | string | Access log format selector |
 | `parser` | string | Parser implementation identifier |
 | `schema_version` | string | Result schema version |
+| `diagnostics` | `ParserDiagnostics` | Parser line count와 skipped record sample |
 
 ### Profiler Collapsed Result
 
@@ -132,6 +133,28 @@ AnalysisResult
 |---|---|---|
 | `parser` | string | Parser implementation identifier |
 | `schema_version` | string | Result schema version |
+| `diagnostics` | `ParserDiagnostics` | Parser line count와 skipped record sample |
+
+### ParserDiagnostics
+
+필수 fields:
+
+| Field | Type | 의미 |
+|---|---|---|
+| `total_lines` | integer | source file에서 읽은 physical line 수 |
+| `parsed_records` | integer | parser가 수용한 valid non-blank record 수 |
+| `skipped_lines` | integer | parser가 skip한 malformed non-blank record 수 |
+| `skipped_by_reason` | object mapping string to integer | reason code별 skipped record count |
+| `samples` | array of `DiagnosticSample` | skipped record의 bounded example |
+
+`DiagnosticSample` 필수 fields:
+
+| Field | Type | 의미 |
+|---|---|---|
+| `line_number` | integer | 1-based source line number |
+| `reason` | string | `NO_FORMAT_MATCH` 같은 stable reason code |
+| `message` | string | 사람이 읽을 수 있는 parser message |
+| `raw_preview` | string | truncated raw input preview, 현재 200 characters로 제한 |
 
 ## AccessLogRecord
 

@@ -56,7 +56,7 @@ The common `AnalysisResult` dataclass remains the outer transport model for now.
 - Additive optional fields may be introduced under the same `schema_version`.
 - Removing or renaming required fields requires a `schema_version` bump.
 - Numeric fields must use explicit units in the key name when the unit is not obvious, for example `_ms`, `_sec`, or `_percent`.
-- Parser diagnostics should live under `metadata.diagnostics` once malformed-input handling is implemented.
+- Parser diagnostics live under `metadata.diagnostics` for parsers that support malformed-input handling.
 
 ## Required Result Contracts
 
@@ -98,6 +98,7 @@ Required `metadata` fields:
 | `format` | string | Access log format selector |
 | `parser` | string | Parser implementation identifier |
 | `schema_version` | string | Result schema version |
+| `diagnostics` | `ParserDiagnostics` | Parser line counts and skipped-record samples |
 
 ### Profiler Collapsed Result
 
@@ -132,6 +133,28 @@ Required `metadata` fields:
 |---|---|---|
 | `parser` | string | Parser implementation identifier |
 | `schema_version` | string | Result schema version |
+| `diagnostics` | `ParserDiagnostics` | Parser line counts and skipped-record samples |
+
+### ParserDiagnostics
+
+Required fields:
+
+| Field | Type | Meaning |
+|---|---|---|
+| `total_lines` | integer | Physical lines read from the source file |
+| `parsed_records` | integer | Valid non-blank records accepted by the parser |
+| `skipped_lines` | integer | Malformed non-blank records skipped by the parser |
+| `skipped_by_reason` | object mapping string to integer | Skipped record counts by reason code |
+| `samples` | array of `DiagnosticSample` | Bounded examples of skipped records |
+
+`DiagnosticSample` required fields:
+
+| Field | Type | Meaning |
+|---|---|---|
+| `line_number` | integer | 1-based source line number |
+| `reason` | string | Stable reason code, such as `NO_FORMAT_MATCH` |
+| `message` | string | Human-readable parser message |
+| `raw_preview` | string | Truncated raw input preview, currently capped at 200 characters |
 
 ## AccessLogRecord
 
