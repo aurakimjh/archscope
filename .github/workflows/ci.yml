@@ -22,8 +22,10 @@ jobs:
           python-version: "3.11"
       - name: Install engine
         run: python -m pip install -e ".[dev]"
+      - name: Lint
+        run: python -m ruff check .
       - name: Run tests
-        run: python -m pytest tests
+        run: python -m pytest tests --cov=archscope_engine --cov-report=term-missing
 
   desktop:
     name: Desktop Build
@@ -42,5 +44,7 @@ jobs:
           cache-dependency-path: apps/desktop/package-lock.json
       - name: Install dependencies
         run: npm ci
+      - name: Lint
+        run: npm run lint
       - name: Build
         run: npm run build

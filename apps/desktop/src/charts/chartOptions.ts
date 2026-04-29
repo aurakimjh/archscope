@@ -2,7 +2,7 @@ import type { EChartsOption } from "echarts";
 
 import type { DashboardSampleResult } from "../api/analyzerClient";
 
-type ChartLabels = {
+export type ChartLabels = {
   requestsAxis: string;
   millisecondsAxis: string;
   statusSeries: string;

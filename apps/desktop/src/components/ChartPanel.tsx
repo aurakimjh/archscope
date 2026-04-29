@@ -5,9 +5,16 @@ import { useEffect, useRef } from "react";
 type ChartPanelProps = {
   title: string;
   option: EChartsOption;
+  renderer?: "canvas" | "svg";
+  theme?: "archscope" | "archscope-dark";
 };
 
-export function ChartPanel({ title, option }: ChartPanelProps): JSX.Element {
+export function ChartPanel({
+  title,
+  option,
+  renderer = "canvas",
+  theme = "archscope",
+}: ChartPanelProps): JSX.Element {
   const chartRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -15,7 +22,7 @@ export function ChartPanel({ title, option }: ChartPanelProps): JSX.Element {
       return undefined;
     }
 
-    const chart = echarts.init(chartRef.current, "archscope");
+    const chart = echarts.init(chartRef.current, theme, { renderer });
     chart.setOption(option);
 
     const resize = (): void => chart.resize();
@@ -25,7 +32,7 @@ export function ChartPanel({ title, option }: ChartPanelProps): JSX.Element {
       window.removeEventListener("resize", resize);
       chart.dispose();
     };
-  }, [option]);
+  }, [option, renderer, theme]);
 
   return (
     <section className="chart-panel" aria-label={title}>

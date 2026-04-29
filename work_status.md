@@ -96,9 +96,9 @@ Goal: make the UI easier to extend and prepare chart rendering for dynamic resul
 | T-050 | P2 | [x] | Document bounded percentile sampling behavior and limitations in parser design docs. | T-049 | RD-044 | Updated `docs/en/PARSER_DESIGN.md` and `docs/ko/PARSER_DESIGN.md` |
 | T-019 | P2 | [x] | Add placeholder Analyze handlers with disabled, loading, error, and engine-message feedback states. | T-037, T-041 | RD-014, RD-045 | UI state skeleton |
 | T-020 | P2 | [x] | Keep chart titles, legends, and axis labels i18n-ready. | T-003 preferred | RD-015 | Locale-aware chart labels |
-| T-021 | P2 | [ ] | Prepare chart templates and chart-option factory extraction for dynamic loading during Chart Studio work. | T-003, T-020 | RD-012, RD-030 | Template extraction plan or initial chart factory |
-| T-033 | P2 | [ ] | Upgrade to ECharts 6 and evaluate dark mode, broken axis, custom chart, and SVG export impact. | T-003, T-020 | RS-012 | Chart upgrade plan and implementation spike |
-| T-051 | P2 | [ ] | Add CI lint and coverage reporting after Python/TypeScript tooling choices are settled. | T-045 | RD-047 | CI quality reporting |
+| T-021 | P2 | [x] | Prepare chart templates and chart-option factory extraction for dynamic loading during Chart Studio work. | T-003, T-020 | RD-012, RD-030 | Template extraction plan or initial chart factory |
+| T-033 | P2 | [x] | Upgrade to ECharts 6 and evaluate dark mode, broken axis, custom chart, and SVG export impact. | T-003, T-020 | RS-012 | Chart upgrade plan and implementation spike |
+| T-051 | P2 | [x] | Add CI lint and coverage reporting after Python/TypeScript tooling choices are settled. | T-045 | RD-047 | CI quality reporting |
 
 ### Phase 3 - Packaging and Runtime Expansion
 

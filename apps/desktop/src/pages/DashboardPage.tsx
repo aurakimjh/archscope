@@ -1,15 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { loadSampleAnalysisResult, type DashboardSampleResult } from "../api/analyzerClient";
+import { createChartOption } from "../charts/chartFactory";
+import { dashboardChartTemplateIds, getChartTemplate } from "../charts/chartTemplates";
+import { registerArchScopeTheme } from "../charts/echartsTheme";
 import { ChartPanel } from "../components/ChartPanel";
 import { MetricCard } from "../components/MetricCard";
-import {
-  p95TrendOption,
-  profilerBreakdownOption,
-  requestCountTrendOption,
-  statusCodeDistributionOption,
-} from "../charts/chartOptions";
-import { registerArchScopeTheme } from "../charts/echartsTheme";
 import { useI18n } from "../i18n/I18nProvider";
 
 export function DashboardPage(): JSX.Element {
@@ -32,12 +28,14 @@ export function DashboardPage(): JSX.Element {
       samplesAxis: t("samplesAxis"),
       p95Series: t("p95Series"),
     };
-    return {
-      requestCount: requestCountTrendOption(data, labels),
-      p95: p95TrendOption(data, labels),
-      status: statusCodeDistributionOption(data, labels),
-      profiler: profilerBreakdownOption(data, labels),
-    };
+    return dashboardChartTemplateIds.map((templateId) => {
+      const template = getChartTemplate(templateId);
+      return {
+        id: template.id,
+        title: t(template.titleKey),
+        option: createChartOption(template.id, data, labels),
+      };
+    });
   }, [data, t]);
 
   if (!data || !chartOptions) {
@@ -59,22 +57,9 @@ export function DashboardPage(): JSX.Element {
         <MetricCard label={t("errorRate")} value={`${data.summary.error_rate}%`} />
       </section>
       <section className="chart-grid">
-        <ChartPanel
-          title={t("requestCountTrend")}
-          option={chartOptions.requestCount}
-        />
-        <ChartPanel
-          title={t("responseTimeP95Trend")}
-          option={chartOptions.p95}
-        />
-        <ChartPanel
-          title={t("statusCodeDistribution")}
-          option={chartOptions.status}
-        />
-        <ChartPanel
-          title={t("profilerComponentBreakdown")}
-          option={chartOptions.profiler}
-        />
+        {chartOptions.map((chart) => (
+          <ChartPanel key={chart.id} title={chart.title} option={chart.option} />
+        ))}
       </section>
     </div>
   );

@@ -9,21 +9,25 @@
     "dev": "concurrently -k \"vite --host 127.0.0.1\" \"wait-on http://127.0.0.1:5173 && npm run build:electron && electron .\"",
     "build": "tsc --noEmit && vite build && npm run build:electron",
     "build:electron": "tsc -p tsconfig.electron.json",
+    "lint": "eslint . --max-warnings=0",
     "preview": "vite preview"
   },
   "dependencies": {
-    "echarts": "^5.5.1",
+    "echarts": "^6.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "^20.14.10",
     "@types/react": "^18.2.79",
     "@types/react-dom": "^18.2.25",
     "@vitejs/plugin-react": "^6.0.1",
     "concurrently": "^8.2.2",
     "electron": "^41.3.0",
+    "eslint": "^10.2.1",
     "typescript": "^5.5.3",
+    "typescript-eslint": "^8.59.1",
     "vite": "^8.0.10",
     "wait-on": "^7.2.0"
   }
