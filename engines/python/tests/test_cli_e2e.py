@@ -166,6 +166,8 @@ def test_demo_site_cli_generates_scenario_bundle(tmp_path) -> None:
             "run",
             "--manifest-root",
             str(demo_root),
+            "--data-source",
+            "synthetic",
             "--scenario",
             "parser-debug-cases",
             "--out",
@@ -182,8 +184,45 @@ def test_demo_site_cli_generates_scenario_bundle(tmp_path) -> None:
     assert completed.returncode == 0
     assert (bundle_dir / "index.html").exists()
     assert summary["scenario"] == "parser-debug-cases"
+    assert summary["summary"]["analyzer_outputs"] == 2
+    assert summary["analysis_summaries"]
     assert summary["skipped_line_report"]
     assert "SKIPPED_LINES" in completed.stdout
+
+
+def test_demo_site_cli_compares_non_access_log_baseline_outputs(tmp_path) -> None:
+    demo_root = Path(__file__).parents[4] / "projects-assets/test-data/demo-site"
+    if not demo_root.exists():
+        pytest.skip("projects-assets demo-site data is not available")
+    output_root = tmp_path / "demo-bundles"
+
+    subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "archscope_engine.cli",
+            "demo-site",
+            "run",
+            "--manifest-root",
+            str(demo_root),
+            "--data-source",
+            "synthetic",
+            "--scenario",
+            "gc-pressure",
+            "--out",
+            str(output_root),
+            "--no-pptx",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    bundle_dir = output_root / "synthetic" / "gc-pressure"
+    summary = json.loads((bundle_dir / "run-summary.json").read_text(encoding="utf-8"))
+    assert (bundle_dir / "normal-baseline-vs-access_log.json").exists()
+    assert (bundle_dir / "normal-baseline-vs-gc_log.json").exists()
+    assert summary["summary"]["comparison_reports"] == 4
 
 
 def test_profiler_jennifer_csv_cli_writes_analysis_result_json(tmp_path) -> None:

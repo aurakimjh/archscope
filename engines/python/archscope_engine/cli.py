@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from datetime import datetime
+from html import escape
 from pathlib import Path
 from typing import Callable, Optional
 
@@ -635,9 +636,22 @@ def demo_site_run(
         help="Scenario name to run. May be provided multiple times.",
     ),
     no_pptx: bool = typer.Option(False, "--no-pptx", help="Skip PowerPoint report output."),
+    data_source: Optional[str] = typer.Option(
+        None,
+        "--data-source",
+        help="Run only manifests under the selected data source: real or synthetic.",
+    ),
 ) -> None:
     """Run ArchScope analyzers for demo-site manifests and write report bundles."""
     manifests = discover_demo_manifests(manifest_root)
+    if data_source is not None:
+        if data_source not in {"real", "synthetic"}:
+            raise typer.BadParameter("--data-source must be real or synthetic.")
+        manifests = [
+            path
+            for path in manifests
+            if _manifest_data_source(path) == data_source
+        ]
     if scenario:
         requested = set(scenario)
         manifests = [
@@ -709,17 +723,53 @@ def _manifest_scenario(path: Path) -> str:
     return str(payload.get("scenario") or path.parent.name)
 
 
+def _manifest_data_source(path: Path) -> str:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        payload = {}
+    data_source = payload.get("data_source")
+    if data_source in {"real", "synthetic"}:
+        return str(data_source)
+    if "real" in path.parts:
+        return "real"
+    if "synthetic" in path.parts:
+        return "synthetic"
+    return "unknown"
+
+
 def _write_demo_root_index(index_path: Path, runs: list) -> None:
+    total_outputs = sum(len(run.json_paths) for run in runs)
+    total_failed = sum(len(run.failed_runs) for run in runs)
+    total_skipped_lines = sum(
+        analyzer_run.skipped_lines
+        for run in runs
+        for analyzer_run in run.runs
+    )
+    total_reference_files = sum(len(run.reference_files) for run in runs)
     rows = "\n".join(
         "<tr>"
-        f"<td>{run.data_source}</td>"
-        f"<td>{run.scenario}</td>"
+        f"<td>{escape(run.data_source)}</td>"
+        f"<td>{escape(run.scenario)}</td>"
         f"<td>{len(run.json_paths)}</td>"
         f"<td>{len(run.failed_runs)}</td>"
-        f"<td><a href=\"{run.index_path.relative_to(index_path.parent)}\">index.html</a></td>"
+        f"<td>{sum(analyzer_run.skipped_lines for analyzer_run in run.runs)}</td>"
+        f"<td>{len(run.reference_files)}</td>"
+        f"<td><a href=\"{escape(str(run.index_path.relative_to(index_path.parent)))}\">"
+        "index.html</a></td>"
         "</tr>"
         for run in runs
         if run.index_path is not None
+    )
+    cards = "".join(
+        f"<div><span>{label}</span><strong>{value}</strong></div>"
+        for label, value in {
+            "Scenarios": len(runs),
+            "Analyzer outputs": total_outputs,
+            "Failed analyzers": total_failed,
+            "Skipped lines": total_skipped_lines,
+            "Reference files": total_reference_files,
+        }.items()
     )
     index_path.parent.mkdir(parents=True, exist_ok=True)
     index_path.write_text(
@@ -728,13 +778,21 @@ def _write_demo_root_index(index_path: Path, runs: list) -> None:
                 "<!doctype html>",
                 '<html lang="en"><head><meta charset="utf-8">',
                 "<title>ArchScope Demo Site Bundles</title>",
-                "<style>body{max-width:960px;margin:32px auto;font-family:Arial,sans-serif}"
+                "<style>body{max-width:1080px;margin:32px auto;font-family:Arial,sans-serif}"
+                ".summary-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}"
+                ".summary-grid div{padding:12px;border:1px solid #dbe3ef;background:#f8fafc}"
+                ".summary-grid span{display:block;color:#64748b;font-size:12px;font-weight:700}"
+                ".summary-grid strong{display:block;margin-top:6px;font-size:22px}"
                 "table{width:100%;border-collapse:collapse}"
-                "th,td{padding:10px;border-bottom:1px solid #ddd;text-align:left}</style>",
+                "th,td{padding:10px;border-bottom:1px solid #ddd;text-align:left}"
+                "th{background:#eef2f7}</style>",
                 "</head><body>",
                 "<h1>ArchScope Demo Site Bundles</h1>",
+                f"<div class=\"summary-grid\">{cards}</div>",
+                "<h2>Scenario Bundles</h2>",
                 "<table><thead><tr><th>Data source</th><th>Scenario</th>"
-                "<th>JSON outputs</th><th>Failed</th><th>Bundle</th></tr></thead>",
+                "<th>JSON outputs</th><th>Failed</th><th>Skipped lines</th>"
+                "<th>Reference files</th><th>Bundle</th></tr></thead>",
                 f"<tbody>{rows}</tbody></table>",
                 "</body></html>",
             ]

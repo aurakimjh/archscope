@@ -443,12 +443,54 @@ export type DemoRunRequest = {
   manifestRoot: string;
   outputRoot?: string;
   scenario?: string;
+  dataSource?: "real" | "synthetic";
+};
+
+export type DemoOutputArtifact = {
+  kind: "json" | "html" | "pptx" | "index" | "summary" | "comparison";
+  label: string;
+  path: string;
+  exportable: boolean;
+};
+
+export type DemoReferenceFile = {
+  file: string;
+  description?: string;
+  path: string;
+};
+
+export type DemoRunScenarioResult = {
+  scenario: string;
+  dataSource: "real" | "synthetic" | "unknown";
+  bundleIndexPath: string;
+  summaryPath: string;
+  summary: {
+    analyzerOutputs: number;
+    failedAnalyzers: number;
+    skippedLines: number;
+    referenceFiles: number;
+    findingCount: number;
+    comparisonReports: number;
+  };
+  artifacts: DemoOutputArtifact[];
+  referenceFiles: DemoReferenceFile[];
+  failedAnalyzers: Array<{
+    file: string;
+    analyzerType: string;
+    error?: string;
+  }>;
+  skippedLineReport: Array<{
+    file: string;
+    analyzerType: string;
+    skippedLines: number;
+  }>;
 };
 
 export type DemoRunSuccess = {
   ok: true;
   outputPaths: string[];
   exportInputPaths: string[];
+  scenarios: DemoRunScenarioResult[];
   engine_messages?: string[];
 };
 
@@ -517,6 +559,7 @@ export type ArchScopeExportBridge = {
 export type ArchScopeDemoBridge = {
   list(manifestRoot?: string): Promise<DemoListResponse>;
   run(request: DemoRunRequest): Promise<DemoRunResponse>;
+  openPath(path: string): Promise<{ ok: true } | { ok: false; error: BridgeError }>;
 };
 
 export type ArchScopeRendererApi = {

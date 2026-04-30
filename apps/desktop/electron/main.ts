@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, session } from "electron";
+import { app, BrowserWindow, dialog, ipcMain, session, shell } from "electron";
 import { execFile, type ChildProcess } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { mkdir, readdir, readFile, rm, stat } from "node:fs/promises";
@@ -16,8 +16,11 @@ import type {
   AnalyzerResponse,
   AnalysisResult,
   DemoListResponse,
+  DemoOutputArtifact,
+  DemoReferenceFile,
   DemoRunRequest,
   DemoRunResponse,
+  DemoRunScenarioResult,
   DemoScenarioManifest,
   ExceptionStackAnalysisResult,
   ExportExecuteRequest,
@@ -211,6 +214,23 @@ function registerIpcHandlers(): void {
       } catch (error) {
         return demoFailure("DEMO_RUN_FAILED", "Demo data execution failed.", error);
       }
+    },
+  );
+
+  ipcMain.handle(
+    "file:open",
+    async (_event, targetPath: string) => {
+      if (typeof targetPath !== "string" || !targetPath) {
+        return exportFailure("INVALID_OPTION", "A file path is required.");
+      }
+      if (!(await isReadablePath(targetPath))) {
+        return exportFailure("FILE_NOT_FOUND", "The requested path is not readable.", targetPath);
+      }
+      const errorMessage = await shell.openPath(targetPath);
+      if (errorMessage) {
+        return exportFailure("OPEN_FAILED", "Could not open the requested path.", errorMessage);
+      }
+      return { ok: true };
     },
   );
 }
@@ -461,6 +481,9 @@ async function runDemoScenario(request: DemoRunRequest): Promise<DemoRunResponse
   if (typeof request.scenario === "string" && request.scenario) {
     args.push("--scenario", request.scenario);
   }
+  if (request.dataSource === "real" || request.dataSource === "synthetic") {
+    args.push("--data-source", request.dataSource);
+  }
   const result = await execEngine(args);
   if (!result.ok) {
     return result;
@@ -468,7 +491,9 @@ async function runDemoScenario(request: DemoRunRequest): Promise<DemoRunResponse
   const scenarios = await listDemoScenarios(request.manifestRoot);
   const selectedScenarios = scenarios.ok
     ? scenarios.scenarios.filter(
-        (scenario) => !request.scenario || scenario.scenario === request.scenario,
+        (scenario) =>
+          (!request.scenario || scenario.scenario === request.scenario) &&
+          (!request.dataSource || scenario.dataSource === request.dataSource),
       )
     : [];
   const outputPaths = [
@@ -477,17 +502,22 @@ async function runDemoScenario(request: DemoRunRequest): Promise<DemoRunResponse
       path.join(outputRoot, scenario.dataSource, scenario.scenario, "index.html"),
     ),
   ];
-  const exportInputPaths = (
+  const scenarioResults = (
     await Promise.all(
       selectedScenarios.map((scenario) =>
-        firstJsonOutput(path.join(outputRoot, scenario.dataSource, scenario.scenario)),
+        readDemoRunScenarioResult(outputRoot, scenario),
       ),
     )
-  ).filter((item): item is string => Boolean(item));
+  ).filter((item): item is DemoRunScenarioResult => Boolean(item));
+  const exportInputPaths = scenarioResults
+    .flatMap((scenario) => scenario.artifacts)
+    .filter((artifact) => artifact.exportable)
+    .map((artifact) => artifact.path);
   return {
     ok: true,
     outputPaths,
     exportInputPaths,
+    scenarios: scenarioResults,
     engine_messages: result.messages.length > 0 ? result.messages : undefined,
   };
 }
@@ -769,6 +799,176 @@ async function firstJsonOutput(outputDir: string): Promise<string | null> {
   } catch {
     return null;
   }
+}
+
+async function readDemoRunScenarioResult(
+  outputRoot: string,
+  scenario: DemoScenarioManifest,
+): Promise<DemoRunScenarioResult | null> {
+  const scenarioDir = path.join(outputRoot, scenario.dataSource, scenario.scenario);
+  const summaryPath = path.join(scenarioDir, "run-summary.json");
+  try {
+    const payload = JSON.parse(await readFile(summaryPath, "utf8")) as Record<string, unknown>;
+    const summary = isPlainObject(payload.summary) ? payload.summary : {};
+    return {
+      scenario: scenario.scenario,
+      dataSource: scenario.dataSource,
+      bundleIndexPath: path.join(scenarioDir, "index.html"),
+      summaryPath,
+      summary: {
+        analyzerOutputs: numberValue(summary.analyzer_outputs),
+        failedAnalyzers: numberValue(summary.failed_analyzers),
+        skippedLines: numberValue(summary.skipped_lines),
+        referenceFiles: numberValue(summary.reference_files),
+        findingCount: numberValue(summary.finding_count),
+        comparisonReports: numberValue(summary.comparison_reports),
+      },
+      artifacts: artifactsFromRunSummary(payload, scenarioDir),
+      referenceFiles: referenceFilesFromRunSummary(payload),
+      failedAnalyzers: failedAnalyzersFromRunSummary(payload),
+      skippedLineReport: skippedLinesFromRunSummary(payload),
+    };
+  } catch {
+    const fallbackJson = await firstJsonOutput(scenarioDir);
+    return {
+      scenario: scenario.scenario,
+      dataSource: scenario.dataSource,
+      bundleIndexPath: path.join(scenarioDir, "index.html"),
+      summaryPath,
+      summary: {
+        analyzerOutputs: fallbackJson ? 1 : 0,
+        failedAnalyzers: 0,
+        skippedLines: 0,
+        referenceFiles: 0,
+        findingCount: 0,
+        comparisonReports: 0,
+      },
+      artifacts: fallbackJson
+        ? [{ kind: "json", label: path.basename(fallbackJson), path: fallbackJson, exportable: true }]
+        : [],
+      referenceFiles: [],
+      failedAnalyzers: [],
+      skippedLineReport: [],
+    };
+  }
+}
+
+function artifactsFromRunSummary(
+  payload: Record<string, unknown>,
+  scenarioDir: string,
+): DemoOutputArtifact[] {
+  const artifacts: DemoOutputArtifact[] = [
+    {
+      kind: "index",
+      label: "index.html",
+      path: path.join(scenarioDir, "index.html"),
+      exportable: false,
+    },
+    {
+      kind: "summary",
+      label: "run-summary.json",
+      path: path.join(scenarioDir, "run-summary.json"),
+      exportable: false,
+    },
+  ];
+  const analyzerRuns = Array.isArray(payload.analyzer_runs) ? payload.analyzer_runs : [];
+  for (const item of analyzerRuns) {
+    if (!isPlainObject(item)) {
+      continue;
+    }
+    const file = typeof item.file === "string" ? item.file : "analyzer result";
+    const analyzerType = typeof item.analyzer_type === "string" ? item.analyzer_type : "";
+    for (const [key, kind] of [
+      ["json_path", "json"],
+      ["html_path", "html"],
+      ["pptx_path", "pptx"],
+    ] as const) {
+      const outputPath = item[key];
+      if (typeof outputPath === "string" && outputPath) {
+        artifacts.push({
+          kind,
+          label: `${file} ${analyzerType} ${kind.toUpperCase()}`,
+          path: outputPath,
+          exportable: kind === "json",
+        });
+      }
+    }
+  }
+  const comparisonPaths = Array.isArray(payload.comparison_paths) ? payload.comparison_paths : [];
+  for (const item of comparisonPaths) {
+    if (typeof item !== "string") {
+      continue;
+    }
+    artifacts.push({
+      kind: "comparison",
+      label: path.basename(item),
+      path: item,
+      exportable: item.endsWith(".json"),
+    });
+  }
+  return artifacts;
+}
+
+function referenceFilesFromRunSummary(payload: Record<string, unknown>): DemoReferenceFile[] {
+  const referenceFiles = Array.isArray(payload.reference_files) ? payload.reference_files : [];
+  return referenceFiles.flatMap((item): DemoReferenceFile[] => {
+    if (!isPlainObject(item) || typeof item.file !== "string" || typeof item.path !== "string") {
+      return [];
+    }
+    return [
+      {
+        file: item.file,
+        path: item.path,
+        description: typeof item.description === "string" ? item.description : undefined,
+      },
+    ];
+  });
+}
+
+function failedAnalyzersFromRunSummary(
+  payload: Record<string, unknown>,
+): DemoRunScenarioResult["failedAnalyzers"] {
+  const failedAnalyzers = Array.isArray(payload.failed_analyzers)
+    ? payload.failed_analyzers
+    : [];
+  return failedAnalyzers.flatMap((item) => {
+    if (!isPlainObject(item) || typeof item.file !== "string") {
+      return [];
+    }
+    return [
+      {
+        file: item.file,
+        analyzerType:
+          typeof item.analyzer_type === "string" ? item.analyzer_type : "unknown",
+        error: typeof item.error === "string" ? item.error : undefined,
+      },
+    ];
+  });
+}
+
+function skippedLinesFromRunSummary(
+  payload: Record<string, unknown>,
+): DemoRunScenarioResult["skippedLineReport"] {
+  const skippedLines = Array.isArray(payload.skipped_line_report)
+    ? payload.skipped_line_report
+    : [];
+  return skippedLines.flatMap((item) => {
+    if (!isPlainObject(item) || typeof item.file !== "string") {
+      return [];
+    }
+    return [
+      {
+        file: item.file,
+        analyzerType:
+          typeof item.analyzer_type === "string" ? item.analyzer_type : "unknown",
+        skippedLines: numberValue(item.skipped_lines),
+      },
+    ];
+  });
+}
+
+function numberValue(value: unknown): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : 0;
 }
 
 function defaultDemoSiteRoot(): string {

@@ -36,5 +36,6 @@ contextBridge.exposeInMainWorld("archscope", {
   demo: {
     list: (manifestRoot?: string) => ipcRenderer.invoke("demo:list", manifestRoot),
     run: (request: DemoRunRequest) => ipcRenderer.invoke("demo:run", request),
+    openPath: (targetPath: string) => ipcRenderer.invoke("file:open", targetPath),
   },
 });

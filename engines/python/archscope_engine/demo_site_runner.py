@@ -66,6 +66,7 @@ class DemoScenarioRun:
     output_dir: Path
     runs: list[DemoAnalyzerRun] = field(default_factory=list)
     skipped_files: list[dict[str, Any]] = field(default_factory=list)
+    reference_files: list[dict[str, Any]] = field(default_factory=list)
     comparison_paths: list[Path] = field(default_factory=list)
     index_path: Path | None = None
 
@@ -99,6 +100,7 @@ def run_demo_site_manifest(
 
     runs: list[DemoAnalyzerRun] = []
     skipped_files: list[dict[str, Any]] = []
+    reference_files: list[dict[str, Any]] = []
     for index, file_entry in enumerate(_manifest_files(manifest), start=1):
         effective_entry = {
             **_dict(manifest.get("recommended_archscope_options")),
@@ -116,11 +118,12 @@ def run_demo_site_manifest(
             )
             continue
         if analyzer_type == "reference_only":
-            skipped_files.append(
+            reference_files.append(
                 {
                     "file": relative_file,
                     "analyzer_type": analyzer_type,
-                    "reason": "reference_only",
+                    "description": file_entry.get("description"),
+                    "path": str(manifest_path.parent / relative_file),
                 }
             )
             continue
@@ -184,6 +187,7 @@ def run_demo_site_manifest(
             manifest_path,
             runs,
             skipped_files,
+            reference_files,
             comparison_paths,
         ),
         summary_path,
@@ -196,6 +200,7 @@ def run_demo_site_manifest(
             manifest=manifest,
             runs=runs,
             skipped_files=skipped_files,
+            reference_files=reference_files,
             comparison_paths=comparison_paths,
         ),
         encoding="utf-8",
@@ -207,6 +212,7 @@ def run_demo_site_manifest(
         output_dir=scenario_output_dir,
         runs=runs,
         skipped_files=skipped_files,
+        reference_files=reference_files,
         comparison_paths=comparison_paths,
         index_path=index_path,
     )
@@ -219,8 +225,17 @@ def render_demo_index(
     manifest: dict[str, Any],
     runs: list[DemoAnalyzerRun],
     skipped_files: list[dict[str, Any]],
+    reference_files: list[dict[str, Any]],
     comparison_paths: list[Path],
 ) -> str:
+    analysis_summaries = _analysis_summaries(runs)
+    summary_cards = _summary_cards(
+        runs=runs,
+        skipped_files=skipped_files,
+        reference_files=reference_files,
+        analysis_summaries=analysis_summaries,
+    )
+    summary_rows = _analysis_summary_rows(analysis_summaries)
     rows = "\n".join(_run_row(run) for run in runs) or (
         '<tr><td colspan="7">No analyzer outputs.</td></tr>'
     )
@@ -232,6 +247,14 @@ def render_demo_index(
         "</tr>"
         for item in skipped_files
     ) or '<tr><td colspan="3">No skipped manifest files.</td></tr>'
+    reference_rows = "\n".join(
+        "<tr>"
+        f"<td>{escape(str(item.get('file', '')))}</td>"
+        f"<td>{escape(str(item.get('description', '')))}</td>"
+        f"<td>{escape(str(item.get('path', '')))}</td>"
+        "</tr>"
+        for item in reference_files
+    ) or '<tr><td colspan="3">No reference-only files.</td></tr>'
     comparison_items = "\n".join(
         f'<li><a href="{escape(path.name)}">{escape(path.name)}</a></li>'
         for path in comparison_paths
@@ -259,6 +282,12 @@ def render_demo_index(
             f"  <h1>{escape(scenario)}</h1>",
             f"  <p class=\"meta\">Data source: {escape(data_source)}</p>",
             f"  <p>{description}</p>",
+            "  <h2>Scenario Executive Summary</h2>",
+            f"  <div class=\"summary-grid\">{summary_cards}</div>",
+            "  <h2>Analyzer Result Summary</h2>",
+            "  <table><thead><tr><th>Analyzer</th><th>File</th><th>Key metrics</th>"
+            "<th>Findings</th><th>Skipped lines</th></tr></thead>",
+            f"  <tbody>{summary_rows}</tbody></table>",
             "  <h2>Analyzer Outputs</h2>",
             "  <table><thead><tr><th>File</th><th>Analyzer</th><th>Status</th>"
             "<th>Skipped lines</th><th>JSON</th><th>HTML</th><th>PPTX</th></tr></thead>",
@@ -266,6 +295,9 @@ def render_demo_index(
             "  <h2>Manifest Files Not Analyzed</h2>",
             "  <table><thead><tr><th>File</th><th>Analyzer</th><th>Reason</th></tr></thead>",
             f"  <tbody>{skipped_rows}</tbody></table>",
+            "  <h2>Correlation Context</h2>",
+            "  <table><thead><tr><th>File</th><th>Description</th><th>Path</th></tr></thead>",
+            f"  <tbody>{reference_rows}</tbody></table>",
             "  <h2>Baseline Comparison</h2>",
             f"  <ul>{comparison_items}</ul>",
             "  <h2>Expected Signals</h2>",
@@ -367,38 +399,40 @@ def _write_baseline_comparison(
         baseline_manifest_path,
     )
     before_dir = output_root / baseline_data_source / "normal-baseline"
-    before_json = _first_result_json(before_dir, "access_log")
-    if before_json is None:
+    before_json_by_analyzer = _result_json_by_analyzer(before_dir)
+    if not before_json_by_analyzer:
         baseline_run = run_demo_site_manifest(
             baseline_manifest_path,
             output_root,
             baseline_manifest_path=None,
             write_pptx=False,
         )
-        before_json = _first_result_json(baseline_run.output_dir, "access_log")
-    after_json = next(
-        (
-            path
-            for path in after_json_paths
-            if path is not None and path.name.endswith("access_log.json")
-        ),
-        None,
-    )
-    if before_json is None or after_json is None:
-        return []
-    diff_json = scenario_output_dir / "normal-baseline-vs-scenario.json"
-    diff_html = scenario_output_dir / "normal-baseline-vs-scenario.html"
-    comparison = build_comparison_report(
-        before_json,
-        after_json,
-        label=f"normal-baseline vs {scenario}",
-    )
-    write_json_result(comparison, diff_json)
-    diff_html.write_text(
-        render_html_report(comparison.to_dict(), source_path=diff_json),
-        encoding="utf-8",
-    )
-    return [diff_json, diff_html]
+        before_json_by_analyzer = _result_json_by_analyzer(baseline_run.output_dir)
+
+    comparison_paths: list[Path] = []
+    after_json_by_analyzer = {
+        _analyzer_type_from_output_path(path): path
+        for path in after_json_paths
+        if _analyzer_type_from_output_path(path)
+    }
+    for analyzer_type, after_json in sorted(after_json_by_analyzer.items()):
+        before_json = before_json_by_analyzer.get(analyzer_type)
+        if before_json is None:
+            continue
+        diff_json = scenario_output_dir / f"normal-baseline-vs-{analyzer_type}.json"
+        diff_html = scenario_output_dir / f"normal-baseline-vs-{analyzer_type}.html"
+        comparison = build_comparison_report(
+            before_json,
+            after_json,
+            label=f"normal-baseline vs {scenario} ({analyzer_type})",
+        )
+        write_json_result(comparison, diff_json)
+        diff_html.write_text(
+            render_html_report(comparison.to_dict(), source_path=diff_json),
+            encoding="utf-8",
+        )
+        comparison_paths.extend([diff_json, diff_html])
+    return comparison_paths
 
 
 def _first_result_json(output_dir: Path, analyzer_type: str) -> Path | None:
@@ -411,12 +445,26 @@ def _scenario_summary(
     manifest_path: Path,
     runs: list[DemoAnalyzerRun],
     skipped_files: list[dict[str, Any]],
+    reference_files: list[dict[str, Any]],
     comparison_paths: list[Path],
 ) -> dict[str, Any]:
+    analysis_summaries = _analysis_summaries(runs)
     return {
         "scenario": manifest.get("scenario") or manifest_path.parent.name,
         "data_source": _data_source(manifest, manifest_path),
         "manifest": str(manifest_path),
+        "summary": {
+            "analyzer_outputs": len([run for run in runs if not run.failed]),
+            "failed_analyzers": len([run for run in runs if run.failed]),
+            "skipped_lines": sum(run.skipped_lines for run in runs),
+            "reference_files": len(reference_files),
+            "finding_count": sum(
+                int(summary.get("finding_count") or 0)
+                for summary in analysis_summaries
+            ),
+            "comparison_reports": len(comparison_paths),
+        },
+        "analysis_summaries": analysis_summaries,
         "analyzer_runs": [
             {
                 "file": run.file,
@@ -432,6 +480,7 @@ def _scenario_summary(
             for run in runs
         ],
         "skipped_files": skipped_files,
+        "reference_files": reference_files,
         "comparison_paths": [str(path) for path in comparison_paths],
         "failed_analyzers": [
             {
@@ -476,10 +525,10 @@ def _command_for_entry(
         command.extend(["--wall", str(source_path)])
         if "wall_interval_ms" in file_entry:
             command.extend(["--wall-interval-ms", str(file_entry["wall_interval_ms"])])
-    if analyzer_type == "profiler_collapsed" and "elapsed_sec" in file_entry:
-        command.extend(["--elapsed-sec", str(file_entry["elapsed_sec"])])
     else:
         command.extend(["--file", str(source_path)])
+    if analyzer_type == "profiler_collapsed" and "elapsed_sec" in file_entry:
+        command.extend(["--elapsed-sec", str(file_entry["elapsed_sec"])])
     if file_entry.get("format") and analyzer_type == "access_log":
         command.extend(["--format", str(file_entry["format"])])
     if file_entry.get("top_n"):
@@ -514,6 +563,144 @@ def _link(path: Path | None) -> str:
 
 def _read_manifest(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _analysis_summaries(runs: list[DemoAnalyzerRun]) -> list[dict[str, Any]]:
+    summaries: list[dict[str, Any]] = []
+    for run in runs:
+        if run.json_path is None or run.failed:
+            continue
+        try:
+            payload = json.loads(run.json_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        metadata = _dict(payload.get("metadata"))
+        diagnostics = _dict(metadata.get("diagnostics"))
+        findings = metadata.get("findings")
+        summaries.append(
+            {
+                "file": run.file,
+                "analyzer_type": run.analyzer_type,
+                "result_type": payload.get("type"),
+                "json_path": str(run.json_path),
+                "html_path": str(run.html_path) if run.html_path else None,
+                "pptx_path": str(run.pptx_path) if run.pptx_path else None,
+                "key_metrics": _key_metrics(_dict(payload.get("summary"))),
+                "finding_count": len(findings) if isinstance(findings, list) else 0,
+                "top_findings": [
+                    _finding_label(finding)
+                    for finding in findings[:5]
+                    if isinstance(finding, dict)
+                ]
+                if isinstance(findings, list)
+                else [],
+                "skipped_lines": _int(diagnostics.get("skipped_lines")),
+            }
+        )
+    return summaries
+
+
+def _key_metrics(summary: dict[str, Any]) -> dict[str, Any]:
+    preferred_keys = [
+        "total_requests",
+        "error_rate",
+        "p95_response_ms",
+        "total_records",
+        "unique_traces",
+        "failed_traces",
+        "total_samples",
+        "estimated_seconds",
+        "total_events",
+        "max_pause_ms",
+        "total_threads",
+        "blocked_threads",
+        "total_exceptions",
+        "unique_exception_types",
+    ]
+    metrics = {
+        key: summary[key]
+        for key in preferred_keys
+        if key in summary and not isinstance(summary[key], (dict, list))
+    }
+    if metrics:
+        return metrics
+    return {
+        key: value
+        for key, value in list(summary.items())[:5]
+        if not isinstance(value, (dict, list))
+    }
+
+
+def _finding_label(finding: dict[str, Any]) -> str:
+    code = finding.get("code")
+    severity = finding.get("severity")
+    message = finding.get("message")
+    parts = [str(item) for item in (severity, code, message) if item]
+    return " - ".join(parts)
+
+
+def _summary_cards(
+    *,
+    runs: list[DemoAnalyzerRun],
+    skipped_files: list[dict[str, Any]],
+    reference_files: list[dict[str, Any]],
+    analysis_summaries: list[dict[str, Any]],
+) -> str:
+    cards = {
+        "Analyzer outputs": len([run for run in runs if not run.failed]),
+        "Failed analyzers": len([run for run in runs if run.failed]),
+        "Skipped lines": sum(run.skipped_lines for run in runs),
+        "Finding count": sum(int(item.get("finding_count") or 0) for item in analysis_summaries),
+        "Skipped manifest files": len(skipped_files),
+        "Reference files": len(reference_files),
+    }
+    return "".join(
+        f"<div><span>{escape(label)}</span><strong>{escape(str(value))}</strong></div>"
+        for label, value in cards.items()
+    )
+
+
+def _analysis_summary_rows(summaries: list[dict[str, Any]]) -> str:
+    if not summaries:
+        return '<tr><td colspan="5">No analyzer summaries.</td></tr>'
+    rows: list[str] = []
+    for summary in summaries:
+        metrics = ", ".join(
+            f"{key}: {value}" for key, value in _dict(summary.get("key_metrics")).items()
+        )
+        findings = summary.get("top_findings")
+        finding_text = (
+            "; ".join(str(item) for item in findings)
+            if isinstance(findings, list)
+            else ""
+        )
+        rows.append(
+            "<tr>"
+            f"<td>{escape(str(summary.get('analyzer_type', '')))}</td>"
+            f"<td>{escape(str(summary.get('file', '')))}</td>"
+            f"<td>{escape(metrics)}</td>"
+            f"<td>{escape(finding_text or str(summary.get('finding_count', 0)))}</td>"
+            f"<td>{escape(str(summary.get('skipped_lines', 0)))}</td>"
+            "</tr>"
+        )
+    return "\n".join(rows)
+
+
+def _result_json_by_analyzer(output_dir: Path) -> dict[str, Path]:
+    return {
+        analyzer_type: path
+        for path in sorted(output_dir.glob("*.json"))
+        if (analyzer_type := _analyzer_type_from_output_path(path))
+    }
+
+
+def _analyzer_type_from_output_path(path: Path) -> str | None:
+    if path.name.startswith("normal-baseline-vs-") or path.name == "run-summary.json":
+        return None
+    for analyzer_type in sorted(ANALYZER_TYPE_COMMANDS, key=len, reverse=True):
+        if path.name.endswith(f"-{analyzer_type}.json"):
+            return analyzer_type
+    return None
 
 
 def _manifest_files(manifest: dict[str, Any]) -> list[dict[str, Any]]:
@@ -554,6 +741,10 @@ def _index_stylesheet() -> str:
 body{max-width:1180px;margin:32px auto;padding:0 24px;color:#111827;background:#f8fafc}
 body{font-family:Inter,Arial,sans-serif}
 h1{margin-bottom:4px}h2{margin-top:28px}.meta{color:#475569;font-weight:700}
+.summary-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+.summary-grid div{padding:12px;border:1px solid #dbe3ef;background:#fff}
+.summary-grid span{display:block;color:#64748b;font-size:12px;font-weight:700}
+.summary-grid strong{display:block;margin-top:6px;font-size:22px}
 table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #dbe3ef}
 th,td{padding:10px 12px;border-bottom:1px solid #e5e7eb;text-align:left;vertical-align:top}
 th{color:#334155;background:#eef2f7}a{color:#1d4ed8;font-weight:700}
