@@ -16,6 +16,8 @@ import type {
   AnalyzerResponse,
   AnalysisResult,
   ExceptionStackAnalysisResult,
+  ExportExecuteRequest,
+  ExportResponse,
   GcLogAnalysisResult,
   ProfilerCollapsedAnalysisResult,
   SelectFileRequest,
@@ -152,6 +154,17 @@ function registerIpcHandlers(): void {
         return await executeAnalyzer(request);
       } catch (error) {
         return ipcFailed(error);
+      }
+    },
+  );
+
+  ipcMain.handle(
+    "export:execute",
+    async (_event, request: ExportExecuteRequest): Promise<ExportResponse> => {
+      try {
+        return await executeExport(request);
+      } catch (error) {
+        return exportFailure("IPC_FAILED", "Export IPC request failed.", errorToDetail(error));
       }
     },
   );
@@ -331,6 +344,95 @@ async function analyzeJvmFile<T extends AnalysisResult>(
   return runAnalyzer<T>(args, validateResult, invalidOutputMessage);
 }
 
+async function executeExport(request: ExportExecuteRequest): Promise<ExportResponse> {
+  if (!request || typeof request !== "object") {
+    return exportFailure("INVALID_OPTION", "Export request is required.");
+  }
+
+  switch (request.format) {
+    case "html":
+      return exportSingleFile(request.inputPath, "html");
+    case "pptx":
+      return exportSingleFile(request.inputPath, "pptx");
+    case "diff":
+      return exportDiff(request.beforePath, request.afterPath);
+    default:
+      return exportFailure("INVALID_OPTION", "Unsupported export format.");
+  }
+}
+
+async function exportSingleFile(
+  inputPath: string,
+  format: "html" | "pptx",
+): Promise<ExportResponse> {
+  if (typeof inputPath !== "string" || !inputPath) {
+    return exportFailure("INVALID_OPTION", "Input JSON path is required.");
+  }
+  if (!(await isReadableFile(inputPath))) {
+    return exportFailure("FILE_NOT_FOUND", "Selected JSON file is not readable.", inputPath);
+  }
+
+  const outputPath = siblingOutputPath(inputPath, format);
+  const command =
+    format === "html"
+      ? ["report", "html", "--input", inputPath, "--out", outputPath]
+      : ["report", "pptx", "--input", inputPath, "--out", outputPath];
+  const result = await execEngine(command);
+  if (!result.ok) {
+    return result;
+  }
+  return {
+    ok: true,
+    outputPaths: [outputPath],
+    engine_messages: result.messages.length > 0 ? result.messages : undefined,
+  };
+}
+
+async function exportDiff(
+  beforePath: string,
+  afterPath: string,
+): Promise<ExportResponse> {
+  if (
+    typeof beforePath !== "string" ||
+    !beforePath ||
+    typeof afterPath !== "string" ||
+    !afterPath
+  ) {
+    return exportFailure("INVALID_OPTION", "Before and after JSON paths are required.");
+  }
+  if (!(await isReadableFile(beforePath))) {
+    return exportFailure("FILE_NOT_FOUND", "Before JSON file is not readable.", beforePath);
+  }
+  if (!(await isReadableFile(afterPath))) {
+    return exportFailure("FILE_NOT_FOUND", "After JSON file is not readable.", afterPath);
+  }
+
+  const outputBase = `${baseNameWithoutExt(beforePath)}-vs-${baseNameWithoutExt(afterPath)}`;
+  const outputDir = path.dirname(afterPath);
+  const jsonOutput = path.join(outputDir, `${outputBase}-diff.json`);
+  const htmlOutput = path.join(outputDir, `${outputBase}-diff.html`);
+  const result = await execEngine([
+    "report",
+    "diff",
+    "--before",
+    beforePath,
+    "--after",
+    afterPath,
+    "--out",
+    jsonOutput,
+    "--html-out",
+    htmlOutput,
+  ]);
+  if (!result.ok) {
+    return result;
+  }
+  return {
+    ok: true,
+    outputPaths: [jsonOutput, htmlOutput],
+    engine_messages: result.messages.length > 0 ? result.messages : undefined,
+  };
+}
+
 async function runAnalyzer<T extends AnalysisResult>(
   analyzerArgs: string[],
   validateResult: AnalysisResultValidator<T>,
@@ -474,6 +576,15 @@ async function isReadableFile(filePath: string): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+function siblingOutputPath(inputPath: string, extension: "html" | "pptx"): string {
+  return path.join(path.dirname(inputPath), `${baseNameWithoutExt(inputPath)}.${extension}`);
+}
+
+function baseNameWithoutExt(filePath: string): string {
+  const parsed = path.parse(filePath);
+  return parsed.name || "archscope-report";
 }
 
 function isAnalysisResult(value: unknown): value is AnalysisResult {
@@ -695,6 +806,21 @@ function failure<T extends AnalysisResult>(
   message: string,
   detail?: string,
 ): AnalyzerResponse<T> {
+  return {
+    ok: false,
+    error: {
+      code,
+      message,
+      detail,
+    },
+  };
+}
+
+function exportFailure(
+  code: string,
+  message: string,
+  detail?: string,
+): ExportResponse {
   return {
     ok: false,
     error: {

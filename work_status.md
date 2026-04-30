@@ -31,7 +31,7 @@ Last updated: 2026-04-30
 The latest feature cycle started the next roadmap layer across report automation, Chart Studio, and multi-runtime diagnostics:
 
 ```text
-AnalysisResult/debug JSON -> portable HTML/PPTX/diff report
+AnalysisResult/debug JSON -> portable HTML/PPTX/diff report -> Export Center IPC/UI
 Chart template registry -> editable Chart Studio preview
 Node/Python/Go/.NET-IIS/OTel sample artifacts -> parser/analyzer/CLI MVPs
 ```
@@ -306,6 +306,8 @@ Scope exclusions for this cycle: PowerPoint export, before/after report diff, fu
 | T-148 | P2 | [x] | Add OpenTelemetry JSONL log parser/analyzer/CLI MVP with trace, service, severity, and cross-service trace grouping. | T-043, T-079 | User follow-up | `otel_logs` result and `otel analyze` CLI |
 | T-149 | P2 | [x] | Add OTel sample JSONL fixture and regression tests for analyzer and CLI behavior. | T-148 | User follow-up | `examples/otel/sample-otel-logs.jsonl` and tests |
 | T-150 | P2 | [x] | Update README and English/Korean report/parser/data/roadmap docs for report diff, PPTX, static flamegraph HTML, and OTel JSONL MVP. | T-145 through T-149 | User follow-up | Documentation updates |
+| T-151 | P1 | [x] | Connect Export Center to the Python report CLI through Electron IPC for HTML, before/after diff, and PPTX exports. | T-136, T-145, T-146 | User follow-up | `export:execute` bridge |
+| T-152 | P1 | [x] | Replace Export Center placeholder with JSON selection, export execution, generated path display, engine messages, and error states. | T-151 | User follow-up | Functional Export Center UI |
 
 ## Dependency Order
 
@@ -343,6 +345,7 @@ Scope exclusions for this cycle: PowerPoint export, before/after report diff, fu
 32. `T-138/T-139/T-140/T-141 -> T-142 -> T-143 -> T-144`: add multi-runtime parser/analyzer MVPs, sample artifacts, tests, and docs.
 33. `T-145/T-146/T-147 -> T-150`: close the next report automation follow-ups with diff, PPTX, and static flamegraph HTML coverage.
 34. `T-148 -> T-149 -> T-150`: add the first OTel analyzer path, fixture coverage, and docs before deeper trace/span correlation work.
+35. `T-136/T-145/T-146 -> T-151 -> T-152`: expose the report automation CLI paths through the desktop Export Center.
 
 ## Active Decision Queue
 

@@ -4,6 +4,7 @@ import type {
   AnalyzeAccessLogRequest,
   AnalyzeCollapsedProfileRequest,
   AnalyzerExecuteRequest,
+  ExportExecuteRequest,
   SelectFileRequest,
 } from "../src/api/analyzerContract.js";
 
@@ -24,5 +25,9 @@ contextBridge.exposeInMainWorld("archscope", {
         type: "profiler_collapsed",
         params: request,
       }),
+  },
+  exporter: {
+    execute: (request: ExportExecuteRequest) =>
+      ipcRenderer.invoke("export:execute", request),
   },
 });

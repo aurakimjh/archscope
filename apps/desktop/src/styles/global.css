@@ -662,3 +662,40 @@ th {
   white-space: pre-wrap;
   word-break: break-word;
 }
+
+.export-center-grid {
+  grid-template-columns: 360px minmax(0, 1fr);
+}
+
+.export-path-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.export-path-picker > span {
+  color: #334155;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.export-path-picker .selected-file,
+.output-path-list li {
+  overflow-wrap: anywhere;
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: #334155;
+  background: #e2e8f0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.output-path-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}

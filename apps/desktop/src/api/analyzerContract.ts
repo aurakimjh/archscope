@@ -385,6 +385,36 @@ export type SelectFileResponse = {
   filePath?: string;
 };
 
+export type ExportFormat = "html" | "diff" | "pptx";
+
+export type ExportExecuteRequest =
+  | {
+      format: "html";
+      inputPath: string;
+    }
+  | {
+      format: "pptx";
+      inputPath: string;
+    }
+  | {
+      format: "diff";
+      beforePath: string;
+      afterPath: string;
+    };
+
+export type ExportSuccess = {
+  ok: true;
+  outputPaths: string[];
+  engine_messages?: string[];
+};
+
+export type ExportFailure = {
+  ok: false;
+  error: BridgeError;
+};
+
+export type ExportResponse = ExportSuccess | ExportFailure;
+
 export type BridgeError = {
   code: string;
   message: string;
@@ -436,10 +466,15 @@ export type ArchScopeAnalyzerBridge = {
   ): Promise<AnalyzerResponse<ProfilerCollapsedAnalysisResult>>;
 };
 
+export type ArchScopeExportBridge = {
+  execute(request: ExportExecuteRequest): Promise<ExportResponse>;
+};
+
 export type ArchScopeRendererApi = {
   platform: string;
   selectFile?: (request?: SelectFileRequest) => Promise<SelectFileResponse>;
   analyzer?: ArchScopeAnalyzerBridge;
+  exporter?: ArchScopeExportBridge;
 };
 
 export function isInterpretationResult(value: unknown): value is InterpretationResult {
