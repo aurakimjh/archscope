@@ -87,9 +87,47 @@ archscope-debug-{analyzer_type}-{timestamp}.json
 
 ### 저장 위치
 
-1. 기본값: 입력 파일과 같은 디렉터리에 저장
+1. 기본값: ArchScope 실행 위치 하위 `archscope-debug/` 디렉터리에 저장
 2. CLI 옵션 `--debug-log-dir <path>`로 변경 가능
-3. Electron 앱에서는 사용자 데이터 디렉터리(`userData/debug/`)에 저장
+3. Electron portable 앱에서는 실행 파일 위치 기준 `archscope-debug/`
+4. 개발 모드에서는 repository root 또는 current working directory 기준 `archscope-debug/`
+5. 입력 파일 디렉터리에는 기본 저장하지 않음
+
+Portable 실행 파일을 현장에서 그대로 전달/회수하는 운영 방식을 우선한다. 디버그 로그도 실행 파일 옆에 남아야 사용자가 원본 운영 로그 위치를 건드리지 않고 `archscope-debug/` 폴더만 압축해 전달할 수 있다.
+
+### 민감정보 마스킹 원칙
+
+디버그 로그는 현장 밖으로 전달될 가능성이 높으므로 **redaction은 기본 활성화**한다. 단, 파서 수정에 필요한 구조 정보는 보존해야 한다.
+
+보존해야 하는 정보:
+
+- 라인/row/event 번호
+- 오류 reason code와 message
+- parser/analyzer type, parser option, failed pattern 이름
+- 구분자, quote, bracket, field 순서, field 개수
+- timestamp 형식, HTTP method, status, byte/latency 숫자 형식
+- captured group 이름과 성공/실패 위치
+- 값의 type, 길이, shape 정보
+
+마스킹해야 하는 정보:
+
+- Authorization, Cookie, Set-Cookie, API key, token, secret, password
+- URL query string 값
+- 이메일, 전화번호, 주민/계정/고객 식별자로 보이는 긴 숫자열
+- 내부 호스트명, absolute source path의 사용자/조직 디렉터리
+- exception message 안의 credential-like value
+
+권장 redaction 방식:
+
+```text
+원본 값 자체는 숨기되, 파서가 실패한 이유를 알 수 있도록 token shape를 남긴다.
+예: Authorization: Bearer abc... -> Authorization: Bearer <TOKEN len=43>
+예: /api/orders?customerId=12345&token=abc -> /api/orders?customerId=<NUMBER len=5>&token=<TOKEN len=3>
+예: user@example.com -> <EMAIL>
+예: /Users/acme/prod/access.log -> <PATH>/access.log
+```
+
+마스킹된 raw context는 실제 원문과 byte-for-byte 동일하지 않다. 따라서 디버그 로그에는 `redacted: true`, `redaction_version`, `redaction_summary`, `field_shapes`를 함께 기록한다. 정규식 재현이 필요한 경우에는 원문 대신 **구조화된 field shape**를 기준으로 테스트 케이스를 만든다.
 
 ---
 
@@ -108,7 +146,8 @@ archscope-debug-{analyzer_type}-{timestamp}.json
   // ── 2. 실행 컨텍스트 ──
   "context": {
     "analyzer_type": "access_log",
-    "source_file": "/var/log/nginx/access.log",
+    "source_file": "<PATH>/access.log",
+    "source_file_name": "access.log",
     "file_size_bytes": 1048576,
     "encoding_detected": "utf-8",
     "parser": "nginx_access_log",
@@ -117,6 +156,20 @@ archscope-debug-{analyzer_type}-{timestamp}.json
       "max_lines": 100000,
       "start_time": null,
       "end_time": null
+    },
+    "debug_log_dir": "./archscope-debug"
+  },
+
+  // ── 2-1. 마스킹 정보 ──
+  "redaction": {
+    "enabled": true,
+    "redaction_version": "0.1.0",
+    "raw_context_redacted": true,
+    "summary": {
+      "URL_QUERY_VALUE": 12,
+      "TOKEN": 3,
+      "EMAIL": 1,
+      "ABSOLUTE_PATH": 1
     }
   },
 
@@ -146,9 +199,15 @@ archscope-debug-{analyzer_type}-{timestamp}.json
         {
           "line_number": 42,
           "raw_context": {
-            "before": "192.168.1.1 - - [30/Apr/2026:14:30:00 +0900] \"GET /api/health HTTP/1.1\" 200 15 0.001",
+            "before": "<IPV4> - - [30/Apr/2026:14:30:00 +0900] \"GET /api/health HTTP/1.1\" 200 15 0.001",
             "target": "이 라인은 완전히 다른 포맷입니다 — Apache combined 형식",
-            "after": "192.168.1.2 - - [30/Apr/2026:14:30:01 +0900] \"POST /api/data HTTP/1.1\" 201 42 0.023"
+            "after": "<IPV4> - - [30/Apr/2026:14:30:01 +0900] \"POST /api/data HTTP/1.1\" 201 42 0.023"
+          },
+          "field_shapes": {
+            "target_token_count": 8,
+            "quote_count": 0,
+            "bracket_count": 0,
+            "looks_like": "plain_text_or_unexpected_format"
           },
           "partial_match": null,
           "message": "Line does not match nginx access log format."
@@ -157,8 +216,14 @@ archscope-debug-{analyzer_type}-{timestamp}.json
           "line_number": 1337,
           "raw_context": {
             "before": "...",
-            "target": "10.0.0.1 - admin [30/Apr/2026:14:30:05 +0900] \"GET /status HTTP/2\" 200 512 \"-\" \"curl/8.1\" rt=0.002",
+            "target": "<IPV4> - <USER> [30/Apr/2026:14:30:05 +0900] \"GET /status HTTP/2\" 200 512 \"-\" \"curl/8.1\" rt=0.002",
             "after": "..."
+          },
+          "field_shapes": {
+            "target_token_count": 11,
+            "quote_count": 6,
+            "bracket_count": 2,
+            "suffix_shape": "key=value"
           },
           "partial_match": {
             "matched_up_to": "status",
@@ -176,8 +241,12 @@ archscope-debug-{analyzer_type}-{timestamp}.json
           "line_number": 88,
           "raw_context": {
             "before": "...",
-            "target": "10.0.0.5 - - [2026-04-30 14:30:00] \"GET / HTTP/1.1\" 200 1024 0.005",
+            "target": "<IPV4> - - [2026-04-30 14:30:00] \"GET / HTTP/1.1\" 200 1024 0.005",
             "after": "..."
+          },
+          "field_shapes": {
+            "timestamp_shape": "yyyy-MM-dd HH:mm:ss",
+            "request_shape": "METHOD PATH PROTOCOL"
           },
           "partial_match": {
             "matched_up_to": "timestamp_raw",
@@ -222,6 +291,7 @@ archscope-debug-{analyzer_type}-{timestamp}.json
 | 파일 | 변경 내용 |
 |---|---|
 | `common/diagnostics.py` | 디버그 로그 수집기 확장: 전후 라인 컨텍스트, 부분 매치 정보, 예외 수집 |
+| `common/redaction.py` | 디버그 로그용 민감정보 마스킹: token, cookie, query value, email, absolute path, long identifier |
 | 모든 파서 (`parsers/*.py`) | 실패 시 부분 매치 정보 반환 (어디까지 매치되었는가) |
 | `jfr_parser.py` | ParserDiagnostics 통합 (현재 미통합) |
 | `analyzers/*.py` | 디버그 로그 생성 트리거, 예외 캐치 및 수집 |
@@ -234,6 +304,7 @@ archscope-debug-{analyzer_type}-{timestamp}.json
 - 기존 파서 동작(skip 정책)은 변경하지 않음
 - UI 변경 없음 (이 작업은 엔진 레이어)
 - 원본 로그 파일 전체 복사 없음
+- 마스킹되지 않은 원문 raw context 저장 없음
 
 ---
 
@@ -255,6 +326,8 @@ raw_context = {
 ```
 
 각 라인은 **500자**까지 기록. raw_preview(200자)보다 넉넉하게.
+
+raw context는 저장 직전에 redaction을 통과한다. Redaction은 quote, bracket, whitespace, delimiter를 최대한 보존해야 하며, 민감값만 `<TOKEN len=...>` 같은 placeholder로 대체한다. 이 방식이면 원문을 보지 않아도 “필드가 하나 더 있다”, “query suffix가 있다”, “timestamp shape가 다르다” 같은 parser 수정 단서를 유지할 수 있다.
 
 ### D-2: 오류 유형별 샘플 수 제한
 
@@ -304,6 +377,39 @@ partial_match = {
 - 각 샘플의 raw_context 500자 × 3줄 = 1,500자
 - 전체 파일 크기 상한: **1MB** — 초과 시 오래된 샘플부터 제거
 
+### D-7: 마스킹과 분석 가능성의 균형
+
+마스킹은 값의 의미를 지우되, 파싱 오류 분석에 필요한 구조를 지우면 안 된다.
+
+| 항목 | 저장 방식 | 이유 |
+|---|---|---|
+| HTTP method/status/bytes/latency | 원문 유지 | 포맷 판별과 numeric parse 실패 분석에 필요 |
+| timestamp | 원문 유지 | timestamp parser 수정에 필요 |
+| URL path | path segment는 유지하되 식별자 segment는 shape로 치환 | route shape 분석에 필요 |
+| URL query value | value만 `<QUERY_VALUE type=... len=...>`로 치환 | query delimiter/parameter 존재 여부는 필요 |
+| Authorization/Cookie/token | 전체 secret value 치환 | 보안 위험이 큼 |
+| IP/host/user/email | 기본 치환 | 현장 식별자 노출 방지 |
+| exception type/stack frame | 원문 유지 | parser/analyzer 수정에 필요 |
+| exception message | credential-like token만 치환 | 원인 분석 문맥 보존 |
+
+예시:
+
+```text
+원본:
+10.0.0.1 - admin [30/Apr/2026:14:30:05 +0900] "GET /api/order/12345?token=abcd HTTP/2" 200 512 "-" "curl/8.1" rt=0.002
+
+저장:
+<IPV4> - <USER> [30/Apr/2026:14:30:05 +0900] "GET /api/order/<NUMBER len=5>?token=<TOKEN len=4> HTTP/2" 200 512 "-" "curl/8.1" rt=0.002
+
+field_shapes:
+{
+  "path_shape": "/api/order/<NUMBER>",
+  "query_keys": ["token"],
+  "request_shape": "METHOD PATH_WITH_QUERY PROTOCOL",
+  "suffix_shape": "key=value"
+}
+```
+
 ---
 
 ## 구현 순서
@@ -320,6 +426,7 @@ class DebugLogCollector:
     def add_parse_error(self, *, line_number, reason, message, raw_context, partial_match=None): ...
     def add_exception(self, *, phase, line_number, exception, raw_context): ...
     def set_context(self, *, analyzer_type, source_file, parser, parser_options): ...
+    def set_redaction(self, *, enabled=True, redaction_version="0.1.0"): ...
     def write(self, path: Path) -> None: ...
     def should_write(self) -> bool: ...
 ```
@@ -332,6 +439,8 @@ class DebugLogCollector:
 
 - 전후 라인 컨텍스트를 전달하기 위해 파서가 이전/다음 라인에 접근할 수 있어야 함
 - `iter_text_lines` 또는 파서 루프에서 sliding window(크기 3) 유지
+- raw context 저장 전 `common/redaction.py`를 반드시 통과
+- parser별로 가능한 경우 `field_shapes`와 `partial_match`를 함께 기록
 
 ### Step 3: JFR 파서 진단 통합
 
@@ -369,6 +478,9 @@ archscope-engine access-log analyze --file /var/log/access.log --out result.json
 | 다양한 오류 유형이 각각 구분되어 기록 | `errors_by_type` 키 확인 |
 | 유형당 샘플 5건 제한 | 6건째부터 무시 |
 | 전후 라인 컨텍스트 정확성 | before/target/after 라인 번호 매칭 |
+| 민감정보 기본 마스킹 | token, cookie, query value, email, absolute path가 원문으로 남지 않음 |
+| 분석 가능 구조 보존 | delimiter, quote, timestamp, status, numeric shape, field count가 유지됨 |
+| portable 저장 위치 | 기본 debug log path가 실행 위치 하위 `archscope-debug/`인지 확인 |
 | 예외 발생 시 traceback 기록 | `exceptions` 배열 확인 |
 | 1MB 크기 제한 | 대용량 오류 파일에서 파일 크기 검증 |
 | JFR 파서 진단 통합 | JFR 분석 시 디버그 로그 생성 확인 |
@@ -381,6 +493,7 @@ archscope-engine access-log analyze --file /var/log/access.log --out result.json
 - UI에서 디버그 로그를 열거나 시각화하는 기능
 - 디버그 로그를 원격으로 전송하는 기능
 - 원본 로그 파일의 복사/첨부
+- 사용자가 명시적으로 요청하지 않은 unredacted debug log 생성
 - 기존 `ParserDiagnostics` 구조 변경 (하위 호환 유지)
 - AI 해석 관련 디버그 로그 (Phase 5 별도)
 
@@ -389,6 +502,8 @@ archscope-engine access-log analyze --file /var/log/access.log --out result.json
 ## 성공 기준
 
 1. **개발자가 디버그 로그 파일 하나만 받으면**, 어떤 파서에서, 어떤 오류 유형이, 몇 건 발생했고, 대표적으로 어떤 라인이 실패했는지 30초 안에 파악할 수 있다
-2. 정상 분석 시 **성능 영향 없음** — 디버그 로그 파일을 쓰지 않으므로
-3. 오류 발생 시 **성능 영향 미미** — 오류당 전후 라인 캡처와 JSON 직렬화 비용만 추가
-4. 기존 `AnalysisResult.metadata.diagnostics`와 **하위 호환** 유지
+2. 디버그 로그는 portable 실행 위치 하위 `archscope-debug/`에 남아 현장에서 폴더째 회수할 수 있다
+3. 디버그 로그에는 민감 원문이 남지 않지만, 파서 수정에 필요한 구조 정보와 실패 위치는 보존된다
+4. 정상 분석 시 **성능 영향 최소화** — collector가 필요할 때만 context capture와 JSON 직렬화를 수행한다
+5. 오류 발생 시 **성능 영향 미미** — 오류당 전후 라인 캡처와 JSON 직렬화 비용만 추가
+6. 기존 `AnalysisResult.metadata.diagnostics`와 **하위 호환** 유지
