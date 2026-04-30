@@ -247,6 +247,57 @@ signature
 raw_block
 ```
 
+## AI Interpretation Contract
+
+AI interpretation does not replace `AnalysisResult`. It is a separate `InterpretationResult` linked back to a source result.
+
+```text
+InterpretationResult
+  schema_version
+  provider
+  model
+  prompt_version
+  source_result_type
+  source_schema_version
+  generated_at
+  findings
+  disabled
+```
+
+`AiFinding` required fields:
+
+| Field | Type | Meaning |
+|---|---|---|
+| `id` | string | Stable finding id |
+| `label` | string | Short title |
+| `severity` | string | `info`, `warning`, or `critical` |
+| `generated_by` | string | Must be `ai` |
+| `model` | string | Local model name |
+| `summary` | string | User-facing interpretation |
+| `reasoning` | string | Short reasoning bound to evidence |
+| `evidence_refs` | array of string | Non-empty canonical evidence references |
+| `evidence_quotes` | object | Optional exact evidence substrings keyed by `evidence_ref` |
+| `confidence` | number | Model confidence from `0` to `1`; initial display threshold is `0.3` |
+| `limitations` | array of string | Missing evidence or uncertainty |
+
+Canonical `evidence_ref` grammar:
+
+```text
+{source_type}:{entity_type}:{identifier}
+```
+
+Registered namespaces:
+
+| Source | Entities |
+|---|---|
+| `access_log` | `record`, `finding` |
+| `profiler` | `stack`, `frame`, `finding` |
+| `jfr` | `event` |
+| `otel` | `log`, `span`, `event` |
+| `timeline` | `event`, `correlation` |
+
+AI output must pass runtime validation before it is shown. Validation includes non-empty references, grammar and namespace checks, reference presence in the source evidence registry, confidence threshold, and quote-to-source matching when quotes are provided.
+
 ## Design Rules
 
 - Parsers preserve raw evidence where practical through `raw_line` or `raw_block`.

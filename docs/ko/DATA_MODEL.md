@@ -247,6 +247,57 @@ signature
 raw_block
 ```
 
+## AI Interpretation Contract
+
+AI interpretation은 `AnalysisResult`를 대체하지 않는다. Source result에 연결된 별도 `InterpretationResult`로 취급한다.
+
+```text
+InterpretationResult
+  schema_version
+  provider
+  model
+  prompt_version
+  source_result_type
+  source_schema_version
+  generated_at
+  findings
+  disabled
+```
+
+`AiFinding` 필수 fields:
+
+| Field | Type | 의미 |
+|---|---|---|
+| `id` | string | stable finding id |
+| `label` | string | 짧은 제목 |
+| `severity` | string | `info`, `warning`, `critical` 중 하나 |
+| `generated_by` | string | 반드시 `ai` |
+| `model` | string | local model name |
+| `summary` | string | 사용자에게 표시할 interpretation |
+| `reasoning` | string | evidence에 묶인 짧은 reasoning |
+| `evidence_refs` | array of string | 비어 있지 않은 canonical evidence reference |
+| `evidence_quotes` | object | 선택 사항. `evidence_ref`별 exact evidence substring |
+| `confidence` | number | `0`부터 `1`까지의 model confidence. 초기 표시 threshold는 `0.3` |
+| `limitations` | array of string | missing evidence 또는 uncertainty |
+
+Canonical `evidence_ref` 문법:
+
+```text
+{source_type}:{entity_type}:{identifier}
+```
+
+등록된 namespace:
+
+| Source | Entities |
+|---|---|
+| `access_log` | `record`, `finding` |
+| `profiler` | `stack`, `frame`, `finding` |
+| `jfr` | `event` |
+| `otel` | `log`, `span`, `event` |
+| `timeline` | `event`, `correlation` |
+
+AI output은 표시 전에 runtime validation을 통과해야 한다. Validation은 non-empty reference, grammar 및 namespace 검사, source evidence registry 내 reference 존재 여부, confidence threshold, quote-to-source matching을 포함한다.
+
 ## 설계 원칙
 
 - Parser는 가능한 경우 `raw_line` 또는 `raw_block`으로 원본 근거를 보존한다.

@@ -151,6 +151,45 @@ export type ProfilerCollapsedMetadata = {
   diagnostics: ParserDiagnostics;
 };
 
+export type AiSeverity = "info" | "warning" | "critical";
+
+export type AiFinding = {
+  id: string;
+  label: string;
+  severity: AiSeverity;
+  generated_by: "ai";
+  model: string;
+  summary: string;
+  reasoning: string;
+  evidence_refs: string[];
+  evidence_quotes?: Record<string, string>;
+  confidence: number;
+  limitations: string[];
+};
+
+export type InterpretationResult = {
+  schema_version: "0.1.0";
+  provider: string;
+  model: string;
+  prompt_version: string;
+  source_result_type: string;
+  source_schema_version: string;
+  generated_at: string;
+  findings: AiFinding[];
+  disabled: boolean;
+};
+
+export type AiInterpretationSettings = {
+  enabled: boolean;
+  provider: "ollama";
+  baseUrl: string;
+  model: string;
+  timeoutSeconds: number;
+  maxConcurrency: 1;
+  logPrompts: false;
+  logResponses: false;
+};
+
 export type AccessLogFormat =
   | "nginx"
   | "apache"
@@ -257,3 +296,59 @@ export type ArchScopeRendererApi = {
   selectFile?: (request?: SelectFileRequest) => Promise<SelectFileResponse>;
   analyzer?: ArchScopeAnalyzerBridge;
 };
+
+export function isInterpretationResult(value: unknown): value is InterpretationResult {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return false;
+  }
+
+  const candidate = value as Record<string, unknown>;
+  return (
+    candidate.schema_version === "0.1.0" &&
+    typeof candidate.provider === "string" &&
+    typeof candidate.model === "string" &&
+    typeof candidate.prompt_version === "string" &&
+    typeof candidate.source_result_type === "string" &&
+    typeof candidate.source_schema_version === "string" &&
+    typeof candidate.generated_at === "string" &&
+    typeof candidate.disabled === "boolean" &&
+    Array.isArray(candidate.findings) &&
+    candidate.findings.every(isAiFinding)
+  );
+}
+
+export function isAiFinding(value: unknown): value is AiFinding {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return false;
+  }
+
+  const candidate = value as Record<string, unknown>;
+  return (
+    typeof candidate.id === "string" &&
+    typeof candidate.label === "string" &&
+    ["info", "warning", "critical"].includes(String(candidate.severity)) &&
+    candidate.generated_by === "ai" &&
+    typeof candidate.model === "string" &&
+    typeof candidate.summary === "string" &&
+    typeof candidate.reasoning === "string" &&
+    Array.isArray(candidate.evidence_refs) &&
+    candidate.evidence_refs.length > 0 &&
+    candidate.evidence_refs.every((ref) => typeof ref === "string" && ref.trim()) &&
+    typeof candidate.confidence === "number" &&
+    candidate.confidence >= 0 &&
+    candidate.confidence <= 1 &&
+    Array.isArray(candidate.limitations) &&
+    candidate.limitations.every((item) => typeof item === "string") &&
+    isOptionalStringRecord(candidate.evidence_quotes)
+  );
+}
+
+function isOptionalStringRecord(value: unknown): boolean {
+  if (value === undefined) {
+    return true;
+  }
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return false;
+  }
+  return Object.values(value).every((item) => typeof item === "string");
+}

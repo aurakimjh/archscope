@@ -173,3 +173,36 @@ class JfrRecordingMetadata(TypedDict):
     jfr_command_version: str
     event_filters: list[str]
     poc: bool
+
+
+class EvidenceRefParts(TypedDict):
+    source_type: str
+    entity_type: str
+    identifier: str
+
+
+class AiFinding(TypedDict, total=False):
+    id: str
+    label: str
+    severity: str
+    generated_by: str
+    model: str
+    summary: str
+    reasoning: str
+    evidence_refs: list[str]
+    evidence_quotes: dict[str, str]
+    confidence: float
+    limitations: list[str]
+    primary_category: str
+
+
+class InterpretationResult(TypedDict):
+    schema_version: str
+    provider: str
+    model: str
+    prompt_version: str
+    source_result_type: str
+    source_schema_version: str
+    generated_at: str
+    findings: list[AiFinding]
+    disabled: bool

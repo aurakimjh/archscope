@@ -425,28 +425,35 @@ function appendSchemaCompatibilityMessages(
 }
 
 function schemaCompatibilityMessages(result: AnalysisResult): string[] {
+  const messages: string[] = [];
   const type = result.type as SupportedResultType;
   const expectedVersion = SUPPORTED_SCHEMA_VERSIONS[type];
   if (!expectedVersion) {
-    return [
+    messages.push(
       `Warning: unsupported AnalysisResult type '${result.type}' returned by engine.`,
-    ];
+    );
+    return messages;
   }
 
   const schemaVersion = result.metadata.schema_version;
   if (typeof schemaVersion !== "string") {
-    return [
+    messages.push(
       `Warning: ${result.type} result is missing metadata.schema_version.`,
-    ];
-  }
-
-  if (schemaVersion !== expectedVersion) {
-    return [
+    );
+  } else if (schemaVersion !== expectedVersion) {
+    messages.push(
       `Warning: ${result.type} schema_version ${schemaVersion} differs from supported ${expectedVersion}.`,
-    ];
+    );
   }
 
-  return [];
+  const aiInterpretation = result.metadata.ai_interpretation;
+  if (aiInterpretation !== undefined && !isInterpretationResultPayload(aiInterpretation)) {
+    messages.push(
+      "Warning: metadata.ai_interpretation is present but does not match the supported AI interpretation contract.",
+    );
+  }
+
+  return messages;
 }
 
 function isAccessLogAnalysisResult(value: unknown): value is AccessLogAnalysisResult {
@@ -498,6 +505,61 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 
 function hasNumber(value: Record<string, unknown>, key: string): boolean {
   return typeof value[key] === "number" && Number.isFinite(value[key]);
+}
+
+function isInterpretationResultPayload(value: unknown): boolean {
+  if (!isPlainObject(value)) {
+    return false;
+  }
+
+  return (
+    value.schema_version === "0.1.0" &&
+    typeof value.provider === "string" &&
+    typeof value.model === "string" &&
+    typeof value.prompt_version === "string" &&
+    typeof value.source_result_type === "string" &&
+    typeof value.source_schema_version === "string" &&
+    typeof value.generated_at === "string" &&
+    typeof value.disabled === "boolean" &&
+    Array.isArray(value.findings) &&
+    value.findings.every(isAiFindingPayload)
+  );
+}
+
+function isAiFindingPayload(value: unknown): boolean {
+  if (!isPlainObject(value)) {
+    return false;
+  }
+
+  return (
+    typeof value.id === "string" &&
+    typeof value.label === "string" &&
+    ["info", "warning", "critical"].includes(String(value.severity)) &&
+    value.generated_by === "ai" &&
+    typeof value.model === "string" &&
+    typeof value.summary === "string" &&
+    typeof value.reasoning === "string" &&
+    Array.isArray(value.evidence_refs) &&
+    value.evidence_refs.length > 0 &&
+    value.evidence_refs.every((ref) => typeof ref === "string" && ref.trim()) &&
+    typeof value.confidence === "number" &&
+    Number.isFinite(value.confidence) &&
+    value.confidence >= 0 &&
+    value.confidence <= 1 &&
+    Array.isArray(value.limitations) &&
+    value.limitations.every((item) => typeof item === "string") &&
+    isOptionalStringRecord(value.evidence_quotes)
+  );
+}
+
+function isOptionalStringRecord(value: unknown): boolean {
+  if (value === undefined) {
+    return true;
+  }
+  if (!isPlainObject(value)) {
+    return false;
+  }
+  return Object.values(value).every((item) => typeof item === "string");
 }
 
 function failure<T extends AnalysisResult>(

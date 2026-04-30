@@ -46,6 +46,7 @@ Python engine은 parsing, normalization, aggregation, export를 담당한다.
 
 - `parsers`: source file을 typed record로 변환
 - `analyzers`: summary, series, table 구조로 집계
+- `ai_interpretation`: evidence-bound AI guardrail, prompt construction, local runtime policy, validation
 - `models`: 표준 데이터 모델 dataclass
 - `exporters`: JSON, CSV, HTML 및 향후 export 형식 처리
 - `common`: 파일, 시간, 통계 유틸리티
@@ -66,6 +67,23 @@ metadata
 ```
 
 차트는 raw log line이 아니라 `series`, `tables`, `summary`를 기반으로 렌더링한다.
+
+### AI Interpretation Boundary
+
+AI-assisted interpretation은 optional downstream layer이다. 기존 `AnalysisResult` evidence를 소비해 별도 `InterpretationResult`를 생성한다. Deterministic analyzer finding을 변경하거나 정상 분석에 필수 dependency가 되면 안 된다.
+
+Boundary:
+
+```text
+AnalysisResult
+  -> EvidenceRegistry / EvidenceSelector
+  -> PromptBuilder
+  -> optional LocalLlmClient
+  -> AiFindingValidator
+  -> Report/UI provenance panel
+```
+
+Local LLM policy는 localhost-only, disabled by default, prompt/response logging off by default이다. Electron은 AI interpretation contract를 검증한 뒤에만 `metadata.ai_interpretation`을 표시할 수 있다.
 
 ## Engine-UI Bridge
 

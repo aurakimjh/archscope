@@ -61,3 +61,4 @@
 - Executive summary generator
 - AI-assisted interpretation, optional and evidence-bound
 - 검증된 evidence reference를 포함한 optional local LLM/Ollama interpretation
+- AI interpretation hardening: canonical `evidence_ref` 문법, `InterpretationResult` contract, runtime validator, prompt-injection defense, local-only runtime policy, provenance UI, evaluation gate

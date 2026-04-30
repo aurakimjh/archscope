@@ -1,4 +1,10 @@
-import type { AnalysisValue, BridgeError, ParserDiagnostics } from "../api/analyzerClient";
+import type {
+  AiFinding,
+  AnalysisValue,
+  BridgeError,
+  InterpretationResult,
+  ParserDiagnostics,
+} from "../api/analyzerClient";
 
 type ErrorPanelProps = {
   error: BridgeError | null;
@@ -21,6 +27,18 @@ type DiagnosticsPanelProps = {
 type EngineMessagesPanelProps = {
   messages: string[];
   title: string;
+};
+
+type AiFindingsPanelProps = {
+  interpretation?: InterpretationResult | null;
+  labels: {
+    title: string;
+    disabled: string;
+    generatedBy: string;
+    confidence: string;
+    evidence: string;
+    limitations: string;
+  };
 };
 
 export function ErrorPanel({ error, labels }: ErrorPanelProps): JSX.Element | null {
@@ -96,6 +114,84 @@ export function DiagnosticsPanel({
         </div>
       )}
     </section>
+  );
+}
+
+export function AiFindingsPanel({
+  interpretation,
+  labels,
+}: AiFindingsPanelProps): JSX.Element | null {
+  if (!interpretation) {
+    return null;
+  }
+
+  if (interpretation.disabled) {
+    return (
+      <section className="message-panel info-panel" aria-live="polite">
+        <strong>{labels.title}</strong>
+        <p>{labels.disabled}</p>
+      </section>
+    );
+  }
+
+  return (
+    <section className="table-panel ai-findings-panel" aria-label={labels.title}>
+      <div className="panel-header">
+        <h2>{labels.title}</h2>
+        <span className="ai-badge">
+          {labels.generatedBy}: {interpretation.provider} / {interpretation.model}
+        </span>
+      </div>
+      <div className="ai-finding-list">
+        {interpretation.findings.map((finding) => (
+          <AiFindingItem key={finding.id} finding={finding} labels={labels} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function AiFindingItem({
+  finding,
+  labels,
+}: {
+  finding: AiFinding;
+  labels: AiFindingsPanelProps["labels"];
+}): JSX.Element {
+  return (
+    <article className={`ai-finding severity-${finding.severity}`}>
+      <div className="ai-finding-header">
+        <strong>{finding.label}</strong>
+        <span>
+          {labels.confidence}: {Math.round(finding.confidence * 100)}%
+        </span>
+      </div>
+      <p>{finding.summary}</p>
+      <small>{finding.reasoning}</small>
+      <details>
+        <summary>{labels.evidence}</summary>
+        <ul>
+          {finding.evidence_refs.map((ref) => (
+            <li key={ref}>
+              <code>{ref}</code>
+              {finding.evidence_quotes?.[ref] && (
+                <blockquote>{finding.evidence_quotes[ref]}</blockquote>
+              )}
+            </li>
+          ))}
+        </ul>
+      </details>
+      {finding.limitations.length > 0 && (
+        <details>
+          <summary>{labels.limitations}</summary>
+          <ul>
+            {finding.limitations.map((limitation) => (
+              <li key={limitation}>{limitation}</li>
+            ))}
+          </ul>
+        </details>
+      )}
+    </article>
   );
 }
 

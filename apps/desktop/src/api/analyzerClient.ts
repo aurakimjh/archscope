@@ -21,6 +21,9 @@ export type {
   AccessLogSeries,
   AccessLogSummary,
   AccessLogTables,
+  AiFinding,
+  AiInterpretationSettings,
+  AiSeverity,
   AnalysisObject,
   AnalysisPrimitive,
   AnalysisResult,
@@ -37,6 +40,7 @@ export type {
   BridgeError,
   ComponentBreakdownRow,
   DiagnosticSample,
+  InterpretationResult,
   ParserDiagnostics,
   ProfilerCollapsedAnalysisResult,
   ProfilerCollapsedMetadata,
@@ -51,6 +55,11 @@ export type {
   TimeValuePoint,
   TopUrlAvgResponseRow,
   TopUrlCountRow,
+} from "./analyzerContract";
+
+export {
+  isAiFinding,
+  isInterpretationResult,
 } from "./analyzerContract";
 
 export type DashboardSampleResult = typeof sampleAnalysisResult;

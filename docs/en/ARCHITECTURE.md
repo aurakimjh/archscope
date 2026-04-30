@@ -46,6 +46,7 @@ The Python engine owns parsing, normalization, aggregation, and export. It is or
 
 - `parsers`: Convert source files into typed records.
 - `analyzers`: Aggregate records into summary, series, and table structures.
+- `ai_interpretation`: Evidence-bound AI guardrails, prompt construction, local runtime policy, and validation.
 - `models`: Shared dataclasses for normalized data.
 - `exporters`: Write normalized results to JSON, CSV, HTML, and future formats.
 - `common`: Shared file, time, and statistics utilities.
@@ -67,6 +68,23 @@ metadata
 
 Charts are rendered from normalized result fields, not raw log lines.
 User-facing labels should come from locale resources so the same normalized result can be shown in English or Korean.
+
+### AI Interpretation Boundary
+
+AI-assisted interpretation is an optional downstream layer. It consumes existing `AnalysisResult` evidence and produces a separate `InterpretationResult`. It must not mutate deterministic analyzer findings or become required for normal analysis.
+
+The boundary is:
+
+```text
+AnalysisResult
+  -> EvidenceRegistry / EvidenceSelector
+  -> PromptBuilder
+  -> optional LocalLlmClient
+  -> AiFindingValidator
+  -> Report/UI provenance panel
+```
+
+The local LLM policy is localhost-only, disabled by default, and prompt/response logging is off by default. Electron may show `metadata.ai_interpretation` only after it validates the AI interpretation contract.
 
 ## Engine-UI Bridge
 
