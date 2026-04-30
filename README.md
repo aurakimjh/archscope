@@ -96,6 +96,17 @@ archscope-engine access-log analyze \
   --out ../../examples/outputs/access-log-result.json
 ```
 
+Parser debug logs are generated automatically when malformed records are skipped. They are redacted by default and can be forced or redirected:
+
+```bash
+archscope-engine access-log analyze \
+  --file ../../examples/access-logs/sample-nginx-access.log \
+  --format nginx \
+  --out ../../examples/outputs/access-log-result.json \
+  --debug-log \
+  --debug-log-dir ./archscope-debug
+```
+
 Run the sample async-profiler collapsed analysis:
 
 ```bash
@@ -154,6 +165,7 @@ This repository currently contains the foundation only:
 - Jennifer APM flamegraph CSV import
 - Profiler flamegraph drill-down and execution breakdown
 - JVM GC log, thread dump, and exception stack analyzer MVPs
+- Portable redacted parser debug logs for field parser fixes
 - JSON result export
 
 Packaging, PowerPoint export, full HTML flamegraph export, and broad large-file optimization remain later-phase work.

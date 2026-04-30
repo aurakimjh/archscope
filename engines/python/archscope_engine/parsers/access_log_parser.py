@@ -8,7 +8,12 @@ from pathlib import Path
 from typing import Any, Iterable
 
 from archscope_engine.common.diagnostics import ParserDiagnostics, ParseError
-from archscope_engine.common.file_utils import iter_text_lines
+from archscope_engine.common.debug_log import DebugLogCollector, infer_field_shapes
+from archscope_engine.common.file_utils import (
+    TextLineContext,
+    iter_text_lines,
+    iter_text_lines_with_context,
+)
 from archscope_engine.common.time_utils import parse_nginx_timestamp
 from archscope_engine.models.access_log import AccessLogRecord
 
@@ -72,6 +77,7 @@ def iter_access_log_records_with_diagnostics(
     max_lines: int | None = None,
     start_time: datetime | None = None,
     end_time: datetime | None = None,
+    debug_log: DebugLogCollector | None = None,
 ) -> Iterable[AccessLogRecord]:
     if log_format.lower() != "nginx":
         raise ValueError("Only nginx format is implemented in the skeleton parser.")
@@ -79,7 +85,14 @@ def iter_access_log_records_with_diagnostics(
     if max_lines is not None and max_lines <= 0:
         raise ValueError("max_lines must be a positive integer.")
 
-    for line_number, line in enumerate(iter_text_lines(path), start=1):
+    line_iterable = (
+        iter_text_lines_with_context(path)
+        if debug_log is not None
+        else _line_contexts_without_neighbors(path)
+    )
+    for context in line_iterable:
+        line_number = context.line_number
+        line = context.target
         if max_lines is not None and line_number > max_lines:
             break
 
@@ -103,6 +116,20 @@ def iter_access_log_records_with_diagnostics(
             message=message,
             raw_line=line,
         )
+        if debug_log is not None:
+            debug_log.add_parse_error(
+                line_number=line_number,
+                reason=reason,
+                message=message,
+                raw_context={
+                    "before": context.before,
+                    "target": line,
+                    "after": context.after,
+                },
+                partial_match=_partial_match(line, reason),
+                failed_pattern="NGINX_WITH_RESPONSE_TIME",
+                field_shapes=infer_field_shapes(line),
+            )
 
 
 def parse_nginx_access_line(line: str) -> AccessLogRecord | None:
@@ -154,6 +181,36 @@ def _parse_nginx_access_line(
         ),
         None,
     )
+
+
+def _partial_match(line: str, reason: str) -> dict[str, Any] | None:
+    match = NGINX_WITH_RESPONSE_TIME.match(line)
+    if match is None:
+        return None
+    groups = match.groupdict()
+    if reason == "INVALID_TIMESTAMP":
+        return {
+            "matched_up_to": "timestamp",
+            "captured_value": groups.get("timestamp"),
+        }
+    if reason == "INVALID_NUMBER":
+        return {
+            "matched_up_to": "request",
+            "status": groups.get("status"),
+            "bytes_sent": groups.get("bytes_sent"),
+            "response_time_sec": groups.get("response_time_sec"),
+        }
+    return None
+
+
+def _line_contexts_without_neighbors(path: Path):
+    for line_number, line in enumerate(iter_text_lines(path), start=1):
+        yield TextLineContext(
+            line_number=line_number,
+            before=None,
+            target=line,
+            after=None,
+        )
 
 
 def _is_in_time_range(

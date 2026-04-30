@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from archscope_engine.common.debug_log import DebugLogCollector, infer_field_shapes
 from archscope_engine.common.diagnostics import ParserDiagnostics
 from archscope_engine.common.file_utils import iter_text_lines
 from archscope_engine.models.thread_dump import ThreadDumpRecord
@@ -17,6 +18,7 @@ def parse_thread_dump(
     path: Path,
     *,
     diagnostics: ParserDiagnostics | None = None,
+    debug_log: DebugLogCollector | None = None,
 ) -> list[ThreadDumpRecord]:
     own_diagnostics = diagnostics or ParserDiagnostics()
     blocks: list[tuple[int, list[str]]] = []
@@ -33,12 +35,22 @@ def parse_thread_dump(
         elif current:
             current.append(line)
         elif line.strip():
+            previous_line = None
             own_diagnostics.add_skipped(
                 line_number=line_number,
                 reason="OUTSIDE_THREAD_BLOCK",
                 message="Line was outside a supported Java thread block.",
                 raw_line=line,
             )
+            if debug_log is not None:
+                debug_log.add_parse_error(
+                    line_number=line_number,
+                    reason="OUTSIDE_THREAD_BLOCK",
+                    message="Line was outside a supported Java thread block.",
+                    raw_context={"before": previous_line, "target": line, "after": None},
+                    failed_pattern="JAVA_THREAD_QUOTED_BLOCK",
+                    field_shapes=infer_field_shapes(line),
+                )
 
     if current:
         blocks.append((current_start, current))
@@ -53,6 +65,19 @@ def parse_thread_dump(
                 message="Thread block was missing a quoted header.",
                 raw_line="\n".join(block),
             )
+            if debug_log is not None:
+                debug_log.add_parse_error(
+                    line_number=line_number,
+                    reason="INVALID_THREAD_BLOCK",
+                    message="Thread block was missing a quoted header.",
+                    raw_context={
+                        "before": None,
+                        "target": "\n".join(block),
+                        "after": None,
+                    },
+                    failed_pattern="JAVA_THREAD_QUOTED_BLOCK",
+                    field_shapes={"block_line_count": len(block)},
+                )
             continue
         records.append(record)
         own_diagnostics.parsed_records += 1

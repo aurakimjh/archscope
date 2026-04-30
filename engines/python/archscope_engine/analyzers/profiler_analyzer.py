@@ -4,6 +4,8 @@ from collections import Counter
 from pathlib import Path
 from typing import Any, cast
 
+from archscope_engine.common.debug_log import DebugLogCollector
+from archscope_engine.common.file_utils import detect_text_encoding
 from archscope_engine.models.analysis_result import AnalysisResult
 from archscope_engine.models.flamegraph import FlameNode, flame_node_from_dict
 from archscope_engine.models.profile_stack import ProfileStack
@@ -39,8 +41,11 @@ def analyze_collapsed_profile(
     classification_rules: tuple[
         StackClassificationRule, ...
     ] = DEFAULT_STACK_CLASSIFICATION_RULES,
+    debug_log: DebugLogCollector | None = None,
 ) -> AnalysisResult:
-    parse_result = parse_collapsed_file_with_diagnostics(path)
+    if debug_log is not None:
+        debug_log.encoding_detected = detect_text_encoding(path)
+    parse_result = parse_collapsed_file_with_diagnostics(path, debug_log=debug_log)
     return build_collapsed_result(
         stacks=parse_result.stacks,
         source_file=path,
@@ -58,8 +63,11 @@ def analyze_jennifer_csv_profile(
     interval_ms: float = 100,
     elapsed_sec: float | None = None,
     top_n: int = 20,
+    debug_log: DebugLogCollector | None = None,
 ) -> AnalysisResult:
-    parse_result = parse_jennifer_flamegraph_csv(path)
+    if debug_log is not None:
+        debug_log.encoding_detected = "utf-8-sig"
+    parse_result = parse_jennifer_flamegraph_csv(path, debug_log=debug_log)
     root = parse_result.root
     return _build_flamegraph_result(
         root=root,
@@ -79,12 +87,14 @@ def drilldown_collapsed_profile(
     filters: list[DrilldownFilter],
     elapsed_sec: float | None = None,
     top_n: int = 20,
+    debug_log: DebugLogCollector | None = None,
 ) -> AnalysisResult:
     result = analyze_collapsed_profile(
         path=path,
         interval_ms=interval_ms,
         elapsed_sec=elapsed_sec,
         top_n=top_n,
+        debug_log=debug_log,
     )
     return _drilldown_from_result(result, filters, interval_ms, elapsed_sec, top_n)
 
@@ -95,12 +105,14 @@ def drilldown_jennifer_csv_profile(
     interval_ms: float = 100,
     elapsed_sec: float | None = None,
     top_n: int = 20,
+    debug_log: DebugLogCollector | None = None,
 ) -> AnalysisResult:
     result = analyze_jennifer_csv_profile(
         path=path,
         interval_ms=interval_ms,
         elapsed_sec=elapsed_sec,
         top_n=top_n,
+        debug_log=debug_log,
     )
     return _drilldown_from_result(result, filters, interval_ms, elapsed_sec, top_n)
 
@@ -111,6 +123,7 @@ def breakdown_collapsed_profile(
     filters: list[DrilldownFilter] | None = None,
     elapsed_sec: float | None = None,
     top_n: int = 20,
+    debug_log: DebugLogCollector | None = None,
 ) -> AnalysisResult:
     filters = filters or []
     return drilldown_collapsed_profile(
@@ -119,6 +132,7 @@ def breakdown_collapsed_profile(
         filters=filters,
         elapsed_sec=elapsed_sec,
         top_n=top_n,
+        debug_log=debug_log,
     )
 
 
@@ -128,6 +142,7 @@ def breakdown_jennifer_csv_profile(
     interval_ms: float = 100,
     elapsed_sec: float | None = None,
     top_n: int = 20,
+    debug_log: DebugLogCollector | None = None,
 ) -> AnalysisResult:
     return drilldown_jennifer_csv_profile(
         path=path,
@@ -135,6 +150,7 @@ def breakdown_jennifer_csv_profile(
         interval_ms=interval_ms,
         elapsed_sec=elapsed_sec,
         top_n=top_n,
+        debug_log=debug_log,
     )
 
 

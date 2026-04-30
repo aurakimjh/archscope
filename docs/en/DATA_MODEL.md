@@ -59,6 +59,7 @@ The common `AnalysisResult` dataclass remains the outer transport model for now.
 - Removing or renaming required fields requires a `schema_version` bump.
 - Numeric fields must use explicit units in the key name when the unit is not obvious, for example `_ms`, `_sec`, or `_percent`.
 - Parser diagnostics live under `metadata.diagnostics` for parsers that support malformed-input handling.
+- Portable parser debug logs are separate JSON artifacts, not nested `AnalysisResult` fields. They may include redacted raw context, `field_shapes`, partial match data, and traceback data for parser development.
 
 ## Required Result Contracts
 

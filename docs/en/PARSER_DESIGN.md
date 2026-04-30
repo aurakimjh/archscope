@@ -161,6 +161,18 @@ Rules:
 - Diagnostics must not include full large log records when a short preview is enough.
 - Parser implementations may keep richer internal diagnostics, but `metadata.diagnostics` is the stable external contract.
 
+### Portable Parser Debug Logs
+
+Parser diagnostics are intentionally compact because they travel inside `AnalysisResult`. For field parser fixes, the engine can also write a separate debug JSON file under `archscope-debug/` in the ArchScope execution directory.
+
+Rules:
+
+- Debug logs are written automatically when skipped records or parser exceptions are captured, and can be forced with `--debug-log`.
+- `--debug-log-dir` overrides the default portable output directory.
+- Raw context is redacted by default. Tokens, cookies, query values, emails, long identifiers, IP/user/host identifiers, and absolute paths are masked.
+- Redaction must preserve parser evidence: delimiters, quotes, brackets, timestamp shape, numeric shape, field count, failed pattern names, partial match data, and `field_shapes`.
+- The debug log is a developer artifact; `metadata.diagnostics` remains the stable UI/result contract.
+
 ### Access Log Policy
 
 - Empty or whitespace-only lines are ignored.

@@ -190,3 +190,83 @@ def test_jvm_analyzer_clis_write_analysis_result_json(tmp_path) -> None:
         assert completed.returncode == 0
         assert payload["type"] == result_type
         assert payload["summary"][summary_key] > 0
+
+
+def test_access_log_cli_writes_debug_log_for_malformed_records(tmp_path) -> None:
+    sample = tmp_path / "access.log"
+    output = tmp_path / "access-result.json"
+    debug_dir = tmp_path / "debug"
+    sample.write_text(
+        "\n".join(
+            [
+                '127.0.0.1 - - [27/Apr/2026:10:00:01 +0900] '
+                '"GET /ok HTTP/1.1" 200 123 "-" "curl/8.1" 0.001',
+                '10.0.0.1 - admin [27/Apr/2026:10:00:01 +0900] '
+                '"GET /api/order/12345?token=abcd HTTP/2" 200 512 "-" "curl/8.1" rt=0.002',
+                '127.0.0.1 - - [27/Apr/2026:10:00:02 +0900] '
+                '"GET /after HTTP/1.1" 200 123 "-" "curl/8.1" 0.001',
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "archscope_engine.cli",
+            "access-log",
+            "analyze",
+            "--file",
+            str(sample),
+            "--format",
+            "nginx",
+            "--out",
+            str(output),
+            "--debug-log-dir",
+            str(debug_dir),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    debug_logs = list(debug_dir.glob("archscope-debug-access_log-*.json"))
+    assert len(debug_logs) == 1
+    payload = json.loads(debug_logs[0].read_text(encoding="utf-8"))
+    target = payload["errors_by_type"]["INVALID_NUMBER"]["samples"][0]["raw_context"]["target"]
+    assert payload["summary"]["verdict"] == "PARTIAL_SUCCESS"
+    assert "abcd" not in target
+    assert "<TOKEN len=4>" in target
+
+
+def test_jfr_cli_writes_debug_log_on_fatal_parser_error(tmp_path) -> None:
+    sample = tmp_path / "bad-jfr.json"
+    output = tmp_path / "jfr-result.json"
+    debug_dir = tmp_path / "debug"
+    sample.write_text('{"recording": ', encoding="utf-8")
+
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "archscope_engine.cli",
+            "jfr",
+            "analyze-json",
+            "--file",
+            str(sample),
+            "--out",
+            str(output),
+            "--debug-log-dir",
+            str(debug_dir),
+        ],
+        capture_output=True,
+        text=True,
+    )
+
+    assert completed.returncode != 0
+    debug_logs = list(debug_dir.glob("archscope-debug-jfr_recording-*.json"))
+    assert len(debug_logs) == 1
+    payload = json.loads(debug_logs[0].read_text(encoding="utf-8"))
+    assert payload["summary"]["verdict"] == "FATAL_ERROR"
+    assert payload["exceptions"][0]["exception_type"] == "JSONDecodeError"

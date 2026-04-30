@@ -343,7 +343,14 @@ async function runAnalyzer<T extends AnalysisResult>(
   await mkdir(tempDir, { recursive: true });
 
   try {
-    const engineArgs = [...analyzerArgs, ...extraArgs.flat(), "--out", outputPath];
+    const engineArgs = [
+      ...analyzerArgs,
+      ...extraArgs.flat(),
+      "--debug-log-dir",
+      resolveDebugLogDir(),
+      "--out",
+      outputPath,
+    ];
     const result = await execEngine(engineArgs);
 
     if (!result.ok) {
@@ -453,6 +460,11 @@ function resolveEngineInvocation(): EngineInvocation {
     argsPrefix: [],
     cwd: repoRoot,
   };
+}
+
+function resolveDebugLogDir(): string {
+  const baseDir = app.isPackaged ? path.dirname(process.execPath) : repoRoot;
+  return path.join(baseDir, "archscope-debug");
 }
 
 async function isReadableFile(filePath: string): Promise<boolean> {

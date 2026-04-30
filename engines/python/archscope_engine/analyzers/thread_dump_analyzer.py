@@ -4,15 +4,24 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
+from archscope_engine.common.debug_log import DebugLogCollector
 from archscope_engine.common.diagnostics import ParserDiagnostics
+from archscope_engine.common.file_utils import detect_text_encoding
 from archscope_engine.models.analysis_result import AnalysisResult
 from archscope_engine.models.thread_dump import ThreadDumpRecord
 from archscope_engine.parsers.thread_dump_parser import parse_thread_dump
 
 
-def analyze_thread_dump(path: Path, *, top_n: int = 20) -> AnalysisResult:
+def analyze_thread_dump(
+    path: Path,
+    *,
+    top_n: int = 20,
+    debug_log: DebugLogCollector | None = None,
+) -> AnalysisResult:
     diagnostics = ParserDiagnostics()
-    records = parse_thread_dump(path, diagnostics=diagnostics)
+    if debug_log is not None:
+        debug_log.encoding_detected = detect_text_encoding(path)
+    records = parse_thread_dump(path, diagnostics=diagnostics, debug_log=debug_log)
     return build_thread_dump_result(
         records,
         source_file=path,

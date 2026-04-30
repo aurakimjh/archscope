@@ -28,7 +28,7 @@ Last updated: 2026-04-30
 
 ## Current Priority
 
-The next feature work cycle should add portable parser debug logs so field users can send one redacted JSON file that is sufficient for parser fixes:
+The latest completed feature work cycle added portable parser debug logs so field users can send one redacted JSON file that is sufficient for parser fixes:
 
 ```text
 DebugLogCollector -> redaction + field shapes -> parser integration -> JFR diagnostics -> CLI/Electron portable output path -> tests/docs
@@ -266,18 +266,18 @@ Scope decisions:
 
 | ID | Priority | Status | Task | Depends on | Source | Output |
 |---|---|---|---|---|---|---|
-| T-122 | P0 | [ ] | Implement `common/debug_log.py` with `DebugLogCollector`, portable filename generation, verdict calculation, per-error-type sample limits, 1 MB cap, environment/context metadata, and JSON writing. | T-043, T-121 | `docs/work-instructions/parser-debug-log.md` | Debug log collector core |
-| T-123 | P0 | [ ] | Implement `common/redaction.py` for default-on masking of tokens, cookies, query values, emails, long identifiers, IP/host/user identifiers, and absolute paths while preserving parseable structure. | T-122 | User follow-up | Redaction engine and tests |
-| T-124 | P0 | [ ] | Add field-shape extraction helpers for line, URL, CSV row, and JFR JSON contexts so masked logs still preserve parser-fix evidence. | T-123 | User follow-up | `field_shapes` support |
-| T-125 | P1 | [ ] | Expose text encoding detection metadata from `file_utils` without breaking existing `iter_text_lines` callers. | T-122 | Work-instruction review | Encoding metadata API |
-| T-126 | P1 | [ ] | Integrate debug log collection into access log and collapsed parsers, including before/target/after context, failed pattern names, partial match where available, and redaction. | T-122, T-123, T-124, T-125 | Work-instruction review | Access/collapsed debug logs |
-| T-127 | P1 | [ ] | Integrate debug log collection into GC, thread dump, exception, and Jennifer CSV parsers with parser-specific line/row context and field shapes. | T-126 | Work-instruction review | JVM/Jennifer debug logs |
-| T-128 | P1 | [ ] | Add `ParserDiagnostics` and debug log support to JFR JSON parsing using JSON path/event index context instead of only raising `ValueError`. | T-122, T-124 | Work-instruction review | JFR diagnostics/debug logs |
-| T-129 | P1 | [ ] | Add analyzer-level exception capture so fatal and partial parser failures record traceback, phase, context, and `FATAL_ERROR` verdict consistently. | T-122, T-126, T-128 | Work-instruction review | Exception-aware debug logs |
-| T-130 | P1 | [ ] | Add CLI options `--debug-log` and `--debug-log-dir` across analyzer commands, with default output under execution-directory `archscope-debug/`. | T-122, T-129 | Work-instruction review | CLI debug log controls |
-| T-131 | P2 | [ ] | Wire Electron portable debug-log directory handling through `main.ts`, using executable directory in packaged mode and repo/cwd in development mode. | T-130, T-038 | User follow-up | Portable desktop debug path |
-| T-132 | P1 | [ ] | Add regression tests for clean/no-file behavior, forced clean debug log, per-type sample limit, context accuracy, redaction, field-shape preservation, file-size cap, JFR diagnostics, and filename pattern. | T-122 through T-131 | Work-instruction review | Debug log test suite |
-| T-133 | P2 | [ ] | Update README and English/Korean parser/data/architecture docs for portable redacted parser debug logs. | T-132 | Work-instruction review | Documentation updates |
+| T-122 | P0 | [x] | Implement `common/debug_log.py` with `DebugLogCollector`, portable filename generation, verdict calculation, per-error-type sample limits, 1 MB cap, environment/context metadata, and JSON writing. | T-043, T-121 | `docs/work-instructions/parser-debug-log.md` | Debug log collector core |
+| T-123 | P0 | [x] | Implement `common/redaction.py` for default-on masking of tokens, cookies, query values, emails, long identifiers, IP/host/user identifiers, and absolute paths while preserving parseable structure. | T-122 | User follow-up | Redaction engine and tests |
+| T-124 | P0 | [x] | Add field-shape extraction helpers for line, URL, CSV row, and JFR JSON contexts so masked logs still preserve parser-fix evidence. | T-123 | User follow-up | `field_shapes` support |
+| T-125 | P1 | [x] | Expose text encoding detection metadata from `file_utils` without breaking existing `iter_text_lines` callers. | T-122 | Work-instruction review | Encoding metadata API |
+| T-126 | P1 | [x] | Integrate debug log collection into access log and collapsed parsers, including before/target/after context, failed pattern names, partial match where available, and redaction. | T-122, T-123, T-124, T-125 | Work-instruction review | Access/collapsed debug logs |
+| T-127 | P1 | [x] | Integrate debug log collection into GC, thread dump, exception, and Jennifer CSV parsers with parser-specific line/row context and field shapes. | T-126 | Work-instruction review | JVM/Jennifer debug logs |
+| T-128 | P1 | [x] | Add `ParserDiagnostics` and debug log support to JFR JSON parsing using JSON path/event index context instead of only raising `ValueError`. | T-122, T-124 | Work-instruction review | JFR diagnostics/debug logs |
+| T-129 | P1 | [x] | Add analyzer-level exception capture so fatal and partial parser failures record traceback, phase, context, and `FATAL_ERROR` verdict consistently. | T-122, T-126, T-128 | Work-instruction review | Exception-aware debug logs |
+| T-130 | P1 | [x] | Add CLI options `--debug-log` and `--debug-log-dir` across analyzer commands, with default output under execution-directory `archscope-debug/`. | T-122, T-129 | Work-instruction review | CLI debug log controls |
+| T-131 | P2 | [x] | Wire Electron portable debug-log directory handling through `main.ts`, using executable directory in packaged mode and repo/cwd in development mode. | T-130, T-038 | User follow-up | Portable desktop debug path |
+| T-132 | P1 | [x] | Add regression tests for clean/no-file behavior, forced clean debug log, per-type sample limit, context accuracy, redaction, field-shape preservation, file-size cap, JFR diagnostics, and filename pattern. | T-122 through T-131 | Work-instruction review | Debug log test suite |
+| T-133 | P2 | [x] | Update README and English/Korean parser/data/architecture docs for portable redacted parser debug logs. | T-132 | Work-instruction review | Documentation updates |
 
 ## Dependency Order
 

@@ -161,6 +161,18 @@ metadata.diagnostics = {
 - 짧은 preview로 충분한 경우 대용량 log record 전문을 diagnostics에 넣지 않는다.
 - Parser 내부에서는 더 풍부한 diagnostics를 보유할 수 있지만, 외부 contract는 `metadata.diagnostics`를 기준으로 한다.
 
+### Portable Parser Debug Logs
+
+Parser diagnostics는 `AnalysisResult` 안에 들어가므로 의도적으로 작게 유지한다. 현장에서 parser 수정을 위한 증거가 필요하면 engine은 ArchScope 실행 위치 하위 `archscope-debug/`에 별도 debug JSON 파일을 쓸 수 있다.
+
+규칙:
+
+- skipped record 또는 parser exception이 수집되면 debug log를 자동 생성하며, `--debug-log`로 강제 생성할 수 있다.
+- `--debug-log-dir`로 기본 portable 출력 위치를 바꿀 수 있다.
+- raw context는 기본 redaction을 적용한다. token, cookie, query value, email, 긴 식별자, IP/user/host 식별자, absolute path는 마스킹한다.
+- Redaction은 parser evidence를 보존해야 한다. delimiter, quote, bracket, timestamp shape, numeric shape, field count, failed pattern name, partial match data, `field_shapes`는 남긴다.
+- Debug log는 개발자용 artifact이며, UI/result의 안정 contract는 계속 `metadata.diagnostics`다.
+
 ### Access Log Policy
 
 - Empty 또는 whitespace-only line은 무시한다.

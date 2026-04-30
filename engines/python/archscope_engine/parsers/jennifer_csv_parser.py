@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from archscope_engine.common.debug_log import DebugLogCollector
 from archscope_engine.common.diagnostics import ParserDiagnostics
 from archscope_engine.models.flamegraph import FlameNode
 
@@ -24,7 +25,11 @@ class JenniferCsvParseResult:
     diagnostics: dict[str, Any]
 
 
-def parse_jennifer_flamegraph_csv(path: Path) -> JenniferCsvParseResult:
+def parse_jennifer_flamegraph_csv(
+    path: Path,
+    *,
+    debug_log: DebugLogCollector | None = None,
+) -> JenniferCsvParseResult:
     diagnostics = ParserDiagnostics()
     with path.open("r", encoding="utf-8-sig", newline="") as handle:
         reader = csv.DictReader(handle)
@@ -39,12 +44,27 @@ def parse_jennifer_flamegraph_csv(path: Path) -> JenniferCsvParseResult:
                 sample_count = int(float(_required(row, columns, "sample_count")))
                 ratio = float(_optional(row, columns, "ratio") or 0.0)
             except (KeyError, ValueError) as exc:
+                raw_row = str(row)
                 diagnostics.add_skipped(
                     line_number=line_number,
                     reason="INVALID_JENNIFER_ROW",
                     message=str(exc),
-                    raw_line=str(row),
+                    raw_line=raw_row,
                 )
+                if debug_log is not None:
+                    debug_log.add_parse_error(
+                        line_number=line_number,
+                        reason="INVALID_JENNIFER_ROW",
+                        message=str(exc),
+                        raw_context={"before": None, "target": raw_row, "after": None},
+                        failed_pattern="JENNIFER_FLAMEGRAPH_CSV_COLUMNS",
+                        field_shapes={
+                            "csv_columns": list(row.keys()),
+                            "non_empty_columns": [
+                                key for key, value in row.items() if str(value).strip()
+                            ],
+                        },
+                    )
                 continue
 
             rows[key] = {

@@ -51,6 +51,8 @@ Python engine은 parsing, normalization, aggregation, export를 담당한다.
 - `exporters`: JSON, CSV, HTML 및 향후 export 형식 처리
 - `common`: 파일, 시간, 통계 유틸리티
 
+Parser debug log는 engine이 별도로 생성하는 개발자용 artifact다. `AnalysisResult` transport contract에는 포함하지 않는다. Portable desktop 실행에서는 Electron이 실행 파일 위치 하위 debug-log directory를 전달하므로, 현장 사용자는 원본 log directory를 건드리지 않고 `archscope-debug/` 폴더만 전달할 수 있다. Debug log는 기본 redaction을 적용하며 field shape와 partial-match metadata로 parser 수정 근거를 보존한다.
+
 ### Result Contract
 
 모든 analyzer는 AnalysisResult 형태의 JSON을 생성한다.

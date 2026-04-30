@@ -101,7 +101,9 @@ def is_allowed_namespace(ref: EvidenceRef) -> bool:
 def collect_evidence(result: AnalysisResult | dict[str, Any]) -> EvidenceRegistry:
     payload = result.to_dict() if isinstance(result, AnalysisResult) else result
     source_files = payload.get("source_files", [])
-    default_source_file = source_files[0] if source_files and isinstance(source_files[0], str) else None
+    default_source_file = (
+        source_files[0] if source_files and isinstance(source_files[0], str) else None
+    )
     items = _collect_from_value(payload, default_source_file)
     return EvidenceRegistry(items)
 

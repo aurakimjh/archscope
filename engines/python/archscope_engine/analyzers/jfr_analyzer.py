@@ -4,6 +4,8 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
+from archscope_engine.common.debug_log import DebugLogCollector
+from archscope_engine.common.diagnostics import ParserDiagnostics
 from archscope_engine.models.analysis_result import AnalysisResult
 from archscope_engine.parsers.jfr_parser import JfrEvent, parse_jfr_print_json
 
@@ -20,8 +22,15 @@ DEFAULT_EVENT_FILTERS = [
 ]
 
 
-def analyze_jfr_print_json(path: Path, top_n: int = 20) -> AnalysisResult:
-    events = parse_jfr_print_json(path)
+def analyze_jfr_print_json(
+    path: Path,
+    top_n: int = 20,
+    debug_log: DebugLogCollector | None = None,
+) -> AnalysisResult:
+    diagnostics = ParserDiagnostics()
+    if debug_log is not None:
+        debug_log.encoding_detected = "utf-8"
+    events = parse_jfr_print_json(path, diagnostics=diagnostics, debug_log=debug_log)
     pause_events = [
         event
         for event in events
@@ -62,6 +71,7 @@ def analyze_jfr_print_json(path: Path, top_n: int = 20) -> AnalysisResult:
             "jfr_command_version": "external",
             "event_filters": DEFAULT_EVENT_FILTERS,
             "poc": True,
+            "diagnostics": diagnostics.to_dict(),
         },
     )
 

@@ -6,7 +6,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Iterable, cast
 
+from archscope_engine.common.debug_log import DebugLogCollector
 from archscope_engine.common.diagnostics import ParserDiagnostics
+from archscope_engine.common.file_utils import detect_text_encoding
 from archscope_engine.common.statistics import BoundedPercentile
 from archscope_engine.common.time_utils import minute_bucket
 from archscope_engine.models.access_log import AccessLogRecord
@@ -62,6 +64,7 @@ def analyze_access_log(
     max_lines: int | None = None,
     start_time: datetime | None = None,
     end_time: datetime | None = None,
+    debug_log: DebugLogCollector | None = None,
 ) -> AnalysisResult:
     options = AccessLogAnalyzerOptions(
         max_lines=max_lines,
@@ -69,6 +72,8 @@ def analyze_access_log(
         end_time=end_time,
     )
     diagnostics = ParserDiagnostics()
+    if debug_log is not None:
+        debug_log.encoding_detected = detect_text_encoding(path)
     records = iter_access_log_records_with_diagnostics(
         path,
         log_format,
@@ -76,6 +81,7 @@ def analyze_access_log(
         max_lines=options.max_lines,
         start_time=options.start_time,
         end_time=options.end_time,
+        debug_log=debug_log,
     )
     return build_access_log_result(
         records,

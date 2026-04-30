@@ -96,6 +96,17 @@ archscope-engine access-log analyze \
   --out ../../examples/outputs/access-log-result.json
 ```
 
+Malformed record가 skip되면 parser debug log가 자동 생성됩니다. Debug log는 기본 redaction을 적용하며, 강제 생성 또는 저장 위치 지정도 가능합니다.
+
+```bash
+archscope-engine access-log analyze \
+  --file ../../examples/access-logs/sample-nginx-access.log \
+  --format nginx \
+  --out ../../examples/outputs/access-log-result.json \
+  --debug-log \
+  --debug-log-dir ./archscope-debug
+```
+
 async-profiler collapsed 샘플 분석:
 
 ```bash
@@ -154,6 +165,7 @@ archscope-engine exception analyze \
 - Jennifer APM flamegraph CSV import
 - Profiler flamegraph drill-down 및 execution breakdown
 - JVM GC log, thread dump, exception stack analyzer MVP
+- 현장 parser 수정을 위한 portable redacted parser debug log
 - JSON result export
 
 Packaging, PowerPoint export, full HTML flamegraph export, 광범위한 large-file optimization은 이후 phase 작업으로 남겨둡니다.

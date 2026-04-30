@@ -3,8 +3,13 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from archscope_engine.common.debug_log import DebugLogCollector, infer_field_shapes
 from archscope_engine.common.diagnostics import ParserDiagnostics
-from archscope_engine.common.file_utils import iter_text_lines
+from archscope_engine.common.file_utils import (
+    TextLineContext,
+    iter_text_lines,
+    iter_text_lines_with_context,
+)
 from archscope_engine.models.gc_event import GcEvent
 
 
@@ -22,11 +27,19 @@ def parse_gc_log(
     path: Path,
     *,
     diagnostics: ParserDiagnostics | None = None,
+    debug_log: DebugLogCollector | None = None,
 ) -> list[GcEvent]:
     events: list[GcEvent] = []
     own_diagnostics = diagnostics or ParserDiagnostics()
 
-    for line_number, line in enumerate(iter_text_lines(path), start=1):
+    line_iterable = (
+        iter_text_lines_with_context(path)
+        if debug_log is not None
+        else _line_contexts_without_neighbors(path)
+    )
+    for context in line_iterable:
+        line_number = context.line_number
+        line = context.target
         own_diagnostics.total_lines += 1
         if not line.strip():
             continue
@@ -39,6 +52,19 @@ def parse_gc_log(
                 message="Line did not match the supported HotSpot unified GC format.",
                 raw_line=line,
             )
+            if debug_log is not None:
+                debug_log.add_parse_error(
+                    line_number=line_number,
+                    reason="NO_GC_FORMAT_MATCH",
+                    message="Line did not match the supported HotSpot unified GC format.",
+                    raw_context={
+                        "before": context.before,
+                        "target": line,
+                        "after": context.after,
+                    },
+                    failed_pattern="HOTSPOT_UNIFIED_GC_PAUSE",
+                    field_shapes=infer_field_shapes(line),
+                )
             continue
 
         events.append(event)
@@ -105,3 +131,13 @@ def _to_mb(value: str | None, unit: str | None) -> float | None:
     if unit == "G":
         return round(numeric * 1024, 3)
     return numeric
+
+
+def _line_contexts_without_neighbors(path: Path):
+    for line_number, line in enumerate(iter_text_lines(path), start=1):
+        yield TextLineContext(
+            line_number=line_number,
+            before=None,
+            target=line,
+            after=None,
+        )

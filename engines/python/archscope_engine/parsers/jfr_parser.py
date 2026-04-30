@@ -1,8 +1,12 @@
 from __future__ import annotations
 
 import json
+from json import JSONDecodeError
 from pathlib import Path
 from typing import Any, TypedDict
+
+from archscope_engine.common.debug_log import DebugLogCollector
+from archscope_engine.common.diagnostics import ParserDiagnostics
 
 
 class JfrEvent(TypedDict):
@@ -15,18 +19,89 @@ class JfrEvent(TypedDict):
     raw_preview: str
 
 
-def parse_jfr_print_json(path: Path) -> list[JfrEvent]:
+def parse_jfr_print_json(
+    path: Path,
+    *,
+    diagnostics: ParserDiagnostics | None = None,
+    debug_log: DebugLogCollector | None = None,
+) -> list[JfrEvent]:
     """Parse JSON produced by `jfr print --json`.
 
     This is a minimal PoC parser for the command-bridge path. It intentionally
     accepts the common `{"recording": {"events": [...]}}` shape and a plain
     top-level events array so tests can run without a local JDK.
     """
-    with path.open("r", encoding="utf-8") as file:
-        payload = json.load(file)
+    own_diagnostics = diagnostics or ParserDiagnostics()
+    try:
+        with path.open("r", encoding="utf-8") as file:
+            payload = json.load(file)
+    except JSONDecodeError as exc:
+        own_diagnostics.total_lines = 1
+        own_diagnostics.add_skipped(
+            line_number=exc.lineno,
+            reason="INVALID_JFR_JSON",
+            message=exc.msg,
+            raw_line=f"line={exc.lineno} col={exc.colno}",
+        )
+        if debug_log is not None:
+            debug_log.add_parse_error(
+                line_number=exc.lineno,
+                reason="INVALID_JFR_JSON",
+                message=exc.msg,
+                raw_context={
+                    "before": None,
+                    "target": f"line={exc.lineno} col={exc.colno}",
+                    "after": None,
+                },
+                failed_pattern="JFR_PRINT_JSON",
+                field_shapes={"json_error_position": {"line": exc.lineno, "column": exc.colno}},
+            )
+        raise
 
-    events = _extract_events(payload)
-    return [_to_jfr_event(event) for event in events if isinstance(event, dict)]
+    try:
+        events = _extract_events(payload)
+    except ValueError as exc:
+        own_diagnostics.total_lines = 1
+        own_diagnostics.add_skipped(
+            line_number=1,
+            reason="INVALID_JFR_SHAPE",
+            message=str(exc),
+            raw_line=_preview_json(payload),
+        )
+        if debug_log is not None:
+            debug_log.add_parse_error(
+                line_number=1,
+                reason="INVALID_JFR_SHAPE",
+                message=str(exc),
+                raw_context={"before": None, "target": _preview_json(payload), "after": None},
+                failed_pattern="JFR_EVENTS_ARRAY",
+                field_shapes={"json_top_level_type": type(payload).__name__},
+            )
+        raise
+
+    parsed: list[JfrEvent] = []
+    own_diagnostics.total_lines = len(events)
+    for index, event in enumerate(events, start=1):
+        if not isinstance(event, dict):
+            own_diagnostics.add_skipped(
+                line_number=index,
+                reason="INVALID_JFR_EVENT",
+                message="JFR event entry must be an object.",
+                raw_line=_preview_json(event),
+            )
+            if debug_log is not None:
+                debug_log.add_parse_error(
+                    line_number=index,
+                    reason="INVALID_JFR_EVENT",
+                    message="JFR event entry must be an object.",
+                    raw_context={"before": None, "target": _preview_json(event), "after": None},
+                    failed_pattern="JFR_EVENT_OBJECT",
+                    field_shapes={"json_path": f"events[{index - 1}]"},
+                )
+            continue
+        parsed.append(_to_jfr_event(event))
+        own_diagnostics.parsed_records += 1
+    return parsed
 
 
 def _extract_events(payload: object) -> list[object]:
@@ -126,3 +201,10 @@ def _duration_to_ms(value: object) -> float | None:
 
 def _string_value(value: object) -> str | None:
     return value if isinstance(value, str) and value else None
+
+
+def _preview_json(value: object) -> str:
+    try:
+        return json.dumps(value, ensure_ascii=False, sort_keys=True)[:500]
+    except TypeError:
+        return repr(value)[:500]

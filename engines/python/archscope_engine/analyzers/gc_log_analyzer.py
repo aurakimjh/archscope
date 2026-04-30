@@ -5,15 +5,24 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
+from archscope_engine.common.debug_log import DebugLogCollector
 from archscope_engine.common.diagnostics import ParserDiagnostics
+from archscope_engine.common.file_utils import detect_text_encoding
 from archscope_engine.models.analysis_result import AnalysisResult
 from archscope_engine.models.gc_event import GcEvent
 from archscope_engine.parsers.gc_log_parser import parse_gc_log
 
 
-def analyze_gc_log(path: Path, *, top_n: int = 20) -> AnalysisResult:
+def analyze_gc_log(
+    path: Path,
+    *,
+    top_n: int = 20,
+    debug_log: DebugLogCollector | None = None,
+) -> AnalysisResult:
     diagnostics = ParserDiagnostics()
-    events = parse_gc_log(path, diagnostics=diagnostics)
+    if debug_log is not None:
+        debug_log.encoding_detected = detect_text_encoding(path)
+    events = parse_gc_log(path, diagnostics=diagnostics, debug_log=debug_log)
     return build_gc_log_result(
         events,
         source_file=path,
