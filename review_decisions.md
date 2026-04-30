@@ -18,6 +18,9 @@ This document records acceptance decisions for review findings extracted from:
 - `docs/review/done/2026-04-30_claude-code_phase3-packaging-runtime-review.md`
 - `docs/review/done/2026-04-30_Phase4_Advanced_Diagnostics_Review_by_Gemini.md`
 - `docs/review/done/2026-04-30_claude-code_phase4-advanced-diagnostics-review.md`
+- `docs/review/done/2026-04-30_claude-code_phase5-ai-interpretation-review.md`
+- `docs/review/done/2026-04-30_Phase5_AI_Interpretation_Review_by_Gemini.md`
+- `docs/review/done/2026-04-30_Phase5_AI_Interpretation_Independent_Review_by_Gemini.md`
 
 Decision states:
 
@@ -119,6 +122,17 @@ Decision states:
 | RD-087 | Strengthen UI schema-version compatibility warnings | Accepted | P2 | Contract Hardening | More result types increase drift risk; the UI should warn when result schema versions are unsupported or unexpected. | Extend IPC/UI validation to surface schema-version compatibility warnings. |
 | RD-088 | Define the timeline correlation input interface | Accepted | P2 | Advanced Diagnostics | A meta-analyzer needs a clear input contract: result JSON files, in-memory results, or mixed source paths. | Specify initial correlation input as multiple `AnalysisResult` JSON files or typed result objects before implementation. |
 | RD-089 | Use ADR-style structure for future advanced diagnostics decisions | Deferred | P3 | Documentation Hygiene | Context/Decision/Alternatives/Consequences would improve traceability, but it should not block current backlog processing. | Use ADR-style sections for future high-impact diagnostics decisions when practical. |
+| RD-090 | Define canonical `evidence_ref` grammar and registry | Accepted | P1 | AI Interpretation Hardening | AI validation cannot be reliable while each analyzer invents references independently. A common grammar and analyzer namespace registry are prerequisites for reference integrity checks. | Define `{source_type}:{entity_type}:{identifier}` rules, allowed namespaces, and analyzer-owned reference registration guidance. |
+| RD-091 | Define AI finding contracts and transport model | Accepted | P1 | AI Interpretation Hardening | The reviews agree that `AiFinding` and `InterpretationResult` are currently prose-only. Python, TypeScript, and IPC validation need one transport decision before AI output can cross process boundaries. | Add Python `TypedDict`, TypeScript interfaces, and decide whether AI findings live in `AnalysisResult.metadata` or a separate interpretation result. |
+| RD-092 | Implement AI evidence guardrail validator before LLM calls | Accepted | P1 | AI Interpretation Hardening | Policy-only guardrails are insufficient. The system must reject missing, blank, fabricated, or content-mismatched evidence before anything reaches reports or UI. | Implement `AiFindingValidator` with non-empty refs, registry/range checks, raw quote matching, failure behavior, and tests. |
+| RD-093 | Add prompt injection defenses to AI interpretation design and code | Accepted | P1 | AI Interpretation Security | Logs, OTel bodies, and event messages can contain attacker-controlled instructions. Prompt construction must structurally separate instructions from evidence data. | Add `PromptBuilder` rules for delimited data blocks, data-as-data instructions, suspicious instruction handling, and regression tests. |
+| RD-094 | Make AI provenance and evidence visible in the UI | Accepted | P1 | AI Interpretation UX | Users must distinguish deterministic findings from AI interpretation, and AI must remain fully disableable. Otherwise hallucinations can be mistaken for official analyzer output. | Add AI labels, separate rendering, evidence expand/collapse, confidence display, and an off switch that prevents LLM calls. |
+| RD-095 | Design versioned prompt and evidence selection pipeline | Accepted | P2 | AI Interpretation Implementation | Prompt quality, token budgets, language behavior, and bounded evidence selection will determine local LLM quality and reliability. These should not be hardcoded ad hoc. | Define versioned prompt templates, `EvidenceSelector` limits, token/excerpt budgets, and English/Korean response strategy. |
+| RD-096 | Define local LLM runtime policy and graceful fallback | Accepted | P2 | AI Interpretation Runtime | Optional local AI must not block core analysis or degrade the desktop app when Ollama is unavailable or slow. | Add availability checks, localhost URL validation, timeouts, concurrency limits, worker/process isolation, and disabled-state fallback. |
+| RD-097 | Document local model, hardware, and packaging decisions | Accepted | P2 | AI Interpretation Runtime | Ollama and model selection affect package size, performance, and support expectations. Bundling models would conflict with the optional-first design. | Treat Ollama/models as user-installed dependencies, document recommended models, minimum hardware, model metadata/hash capture, and packaging impact. |
+| RD-098 | Add AI interpretation evaluation pipeline | Accepted | P2 | AI Interpretation Quality | AI behavior can regress silently when models, prompts, or evidence shapes change. Evidence validity alone is not enough to measure diagnostic quality. | Create a golden diagnostics dataset, evidence-integrity checks, hallucination/relevance metrics, and model/prompt regression gates. |
+| RD-099 | Define AI output confidence, partial failure, and retry policy | Accepted | P2 | AI Interpretation Quality | The design has `confidence`, but no display threshold or invalid-output handling. Users need predictable behavior for low-confidence or partly invalid findings. | Define confidence thresholds, partial finding rejection, retry limits, schema failure handling, and UI display rules. |
+| RD-100 | Apply privacy and logging policy to LLM inputs and outputs | Accepted | P2 | AI Interpretation Security | OTel privacy policy exists, but LLM prompts may still receive or retain sensitive excerpts. Local does not mean risk-free. | Apply redaction before prompt construction, disable prompt/response logging by default, and document debug-log safeguards. |
 
 ## Backlog Mapping
 
@@ -169,6 +183,7 @@ The executable TO-DO list is maintained in `work_status.md` under `Execution Bac
 | RD-087 | T-080 | Schema-version compatibility warnings. |
 | RD-086 | T-081 | Multi-lane timeline visualization design. |
 | RD-089 | Deferred | ADR-style structure for future high-impact diagnostics decisions. |
+| RD-090 to RD-100 | T-082 to T-092 | Phase 5 AI interpretation hardening before any real LLM integration. |
 
 ## Open Decisions
 

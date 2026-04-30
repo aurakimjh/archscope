@@ -12,6 +12,9 @@ Last updated: 2026-04-30
 - [x] Read `docs/review/done/2026-04-30_claude-code_phase3-packaging-runtime-review.md`
 - [x] Read `docs/review/done/2026-04-30_Phase4_Advanced_Diagnostics_Review_by_Gemini.md`
 - [x] Read `docs/review/done/2026-04-30_claude-code_phase4-advanced-diagnostics-review.md`
+- [x] Read `docs/review/done/2026-04-30_claude-code_phase5-ai-interpretation-review.md`
+- [x] Read `docs/review/done/2026-04-30_Phase5_AI_Interpretation_Review_by_Gemini.md`
+- [x] Read `docs/review/done/2026-04-30_Phase5_AI_Interpretation_Independent_Review_by_Gemini.md`
 - [x] Consolidated review findings into this TO-DO
 - [x] Created `review_decisions.md` with accepted/deferred/rejected/needs-decision classifications
 - [x] Moved processed review documents to `docs/review/done/`
@@ -25,10 +28,10 @@ Last updated: 2026-04-30
 
 ## Current Priority
 
-The next work cycle should move from design hardening into implementation planning for advanced diagnostics and report automation:
+The next feature work cycle should expand Profiler Analyzer flamegraph analysis without rebuilding the whole solution:
 
 ```text
-OTel log parser implementation -> timeline correlation analyzer MVP -> JFR raw command bridge -> report/AI UI integration
+common FlameNode contract -> Jennifer CSV import + collapsed stack flame tree -> multi-stage drill-down -> execution breakdown -> UI charts/docs/tests
 ```
 
 Engine-UI Bridge decision: Electron IPC + `child_process.execFile` invoking the Python CLI. Local HTTP/FastAPI is deferred unless web delivery becomes a near-term product goal.
@@ -188,6 +191,55 @@ Goal: only introduce AI interpretation with strict evidence requirements.
 | T-029 | P5 | [x] | Require raw evidence references such as `raw_line` or `raw_block` for AI-assisted interpretation. | Stable report data model, Phase 5 start | RD-024 | AI interpretation guardrail |
 | T-036 | P5 | [x] | Design optional local LLM/Ollama interpretation layer with explicit evidence references and AI-generated labeling. | T-029, T-028 | RS-016 | Local AI interpretation design |
 
+### Phase 5 Follow-up - AI Interpretation Hardening
+
+Goal: convert Phase 5 policy guardrails into enforceable contracts, validators, security controls, and UI behavior before any production LLM path is added.
+
+| ID | Priority | Status | Task | Depends on | Source | Output |
+|---|---|---|---|---|---|---|
+| T-082 | P1 | [ ] | Define canonical `evidence_ref` grammar and registry across Access Log, Profiler, JFR, OTel, and timeline correlation outputs. | T-029, T-074 preferred | RD-090 | Reference grammar and analyzer namespace rules |
+| T-083 | P1 | [ ] | Define AI Finding and `InterpretationResult` contracts in Python and TypeScript, including the transport model and IPC validation path. | T-082, T-048 | RD-091 | Typed contracts plus IPC/schema compatibility updates |
+| T-084 | P1 | [ ] | Implement `AiFindingValidator` before LLM calls, with non-empty evidence refs, registry/range checks, quote/content matching, invalid-output rejection, and tests. | T-082, T-083 | RD-092 | Enforced AI evidence guardrail |
+| T-085 | P1 | [ ] | Add prompt-injection defense to AI interpretation: structural separation of system instructions and evidence data, data-as-data rules, suspicious instruction handling, and tests. | T-084 preferred | RD-093 | Prompt-injection mitigation design and implementation |
+| T-086 | P1 | [ ] | Add AI provenance UI guardrails: distinct AI labeling, deterministic-vs-AI separation, evidence expand/collapse, confidence display, and a disable switch that prevents LLM calls. | T-083, T-084 | RD-094 | User-visible AI provenance and disable path |
+| T-087 | P2 | [ ] | Design versioned `PromptBuilder` and `EvidenceSelector` pipeline with bounded excerpts, token budgets, template versioning, and English/Korean response strategy. | T-082, T-085 preferred | RD-095 | Prompt/evidence selection contract |
+| T-088 | P2 | [ ] | Define local LLM runtime policy: Ollama availability checks, localhost-only URL validation, timeouts, concurrency limits, worker/process isolation, and graceful fallback. | T-087 | RD-096 | Optional local LLM runtime controls |
+| T-089 | P2 | [ ] | Document local model, hardware, and packaging decisions: user-installed Ollama/models, no bundled model payloads, recommended model shortlist, minimum hardware, and model metadata/hash capture. | T-088 | RD-097 | Local AI runtime support guide |
+| T-090 | P2 | [ ] | Build AI interpretation evaluation pipeline with golden diagnostic scenarios, evidence-integrity checks, hallucination/relevance metrics, and model/prompt regression gates. | T-084, T-087 | RD-098 | AI quality regression framework |
+| T-091 | P2 | [ ] | Define AI output confidence, partial failure, retry, and invalid-schema handling policy for reports and UI display. | T-083, T-084 | RD-099 | Predictable AI output handling rules |
+| T-092 | P2 | [ ] | Apply privacy and logging policy to LLM inputs and outputs, including OTel redaction before prompt construction and disabled prompt/response logging by default. | T-079, T-087, T-088 | RD-100 | LLM privacy and retention safeguards |
+
+### Profiler Feature Expansion - Flamegraph Drill-down and Execution Breakdown
+
+Goal: add profiler flamegraph drill-down, Jennifer APM CSV import, and execution breakdown analysis as modular additions on top of the existing parser/analyzer/exporter/UI boundaries.
+
+Scope exclusions for this feature cycle: PowerPoint export, full HTML flamegraph export, AI interpretation, and large-file optimization.
+
+| ID | Priority | Status | Task | Depends on | Source | Output |
+|---|---|---|---|---|---|---|
+| T-093 | P0 | [ ] | Define a common `FlameNode` data model and profiler flamegraph result contract with `id`, `parentId`, `name`, `samples`, `ratio`, `category`, `color`, `children`, and `path`. | T-010, T-011 | User feature request | Shared Python/TypeScript flame tree contract |
+| T-094 | P0 | [ ] | Convert existing collapsed stack profiler output into the common flame tree model without breaking existing profiler summaries. | T-093 | User feature request | Collapsed stack to `FlameNode` conversion |
+| T-095 | P0 | [ ] | Implement Jennifer APM flamegraph CSV parser with expected columns, practical aliases, key/parent tree reconstruction, multiple-root virtual root handling, and diagnostics for malformed rows. | T-093 | User feature request | Jennifer CSV parser and tree builder |
+| T-096 | P1 | [ ] | Add Jennifer sample input at `examples/profiler/sample-jennifer-flame.csv`. | T-095 | User feature request | Representative Jennifer CSV fixture |
+| T-097 | P1 | [ ] | Add CLI command `python -m archscope_engine.cli profiler analyze-jennifer-csv` returning an `AnalysisResult` compatible with profiler drill-down and breakdown. | T-095, T-096 | User feature request | Jennifer CSV CLI analyzer path |
+| T-098 | P0 | [ ] | Implement multi-stage flamegraph drill-down engine with immutable stages, per-stage data, metrics, flamegraph, top stacks, and top child frames. | T-093, T-094, T-095 preferred | User feature request | Reusable drill-down stage engine |
+| T-099 | P0 | [ ] | Support drill-down filter types: include text, exclude text, regex include, and regex exclude with validation and user-facing error metadata. | T-098 | User feature request | Filter predicate implementation |
+| T-100 | P0 | [ ] | Support drill-down match modes: anywhere, ordered, and subtree. | T-098, T-099 | User feature request | Match-mode implementation |
+| T-101 | P1 | [ ] | Support drill-down view modes: preserve full path and re-root at matched frame. | T-098, T-100 | User feature request | View-mode tree projection |
+| T-102 | P1 | [ ] | Calculate drill-down stage metrics: matched samples, estimated seconds, total ratio, parent-stage ratio, and elapsed ratio. | T-098 | User feature request | Stage metric calculator |
+| T-103 | P1 | [ ] | Add CLI command `python -m archscope_engine.cli profiler drilldown` for applying drill-down filters to collapsed-stack or Jennifer CSV profiler inputs. | T-097, T-098, T-102 | User feature request | Drill-down CLI command |
+| T-104 | P0 | [ ] | Implement priority-based execution breakdown classifier with required detailed categories and default stack/frame matching rules. | T-093, T-094 | User feature request | Category classifier and rule table |
+| T-105 | P1 | [ ] | Add simplified Executive View label mapping: SQL / DB, External Call, Network / I/O Wait, Application Method, Lock / Pool Wait, JVM / GC, and Others. | T-104 | User feature request | Executive category rollup |
+| T-106 | P1 | [ ] | Support `primary_category` and `wait_reason` when stacks match both external-call and network/wait categories. | T-104 | User feature request | Multi-signal classification output |
+| T-107 | P1 | [ ] | Calculate per-category breakdown metrics: samples, estimated seconds, total ratio, parent-stage ratio, elapsed ratio, top methods, and top stacks. | T-102, T-104, T-106 | User feature request | Breakdown aggregation engine |
+| T-108 | P1 | [ ] | Recalculate execution breakdown whenever the current drill-down stage changes. | T-098, T-107 | User feature request | Stage-aware breakdown integration |
+| T-109 | P1 | [ ] | Add CLI command `python -m archscope_engine.cli profiler breakdown` for collapsed-stack and Jennifer CSV profiler inputs, including optional current-stage/filter arguments. | T-103, T-107 | User feature request | Breakdown CLI command |
+| T-110 | P1 | [ ] | Update Profiler Analyzer UI for iterative drill-down: filter builder, stage creation, breadcrumb navigation `All > filter1 > filter2`, per-stage flamegraph rendering, metrics, top stacks, and top child frames. | T-098, T-102, T-103 preferred | User feature request | Multi-stage drill-down UI |
+| T-111 | P1 | [ ] | Add execution breakdown UI tied to the selected stage with donut chart, horizontal bar chart, and category top stack table. | T-108, T-110 | User feature request | Breakdown charts and table |
+| T-112 | P1 | [ ] | Add regression tests for Jennifer CSV parser tree reconstruction, collapsed stack to flame tree conversion, multi-stage drill-down, ordered match, and re-root mode. | T-094, T-095, T-098, T-100, T-101 | User feature request | Profiler drill-down parser/engine tests |
+| T-113 | P1 | [ ] | Add execution breakdown tests for SQL, HTTP external call, network wait, Hikari pool wait, and unknown classification. | T-104, T-106, T-107 | User feature request | Breakdown classifier tests |
+| T-114 | P2 | [ ] | Update documentation for the new profiler features in root README plus English/Korean architecture, parser design, chart design, data model, and roadmap docs while preserving language-specific documentation. | T-093 through T-113 | User feature request | Updated README and docs |
+
 ## Dependency Order
 
 1. `T-001 -> T-002 -> T-030 -> T-037 -> T-003`: bridge decision, client boundary, CLI install metadata, minimal UX flow, then end-to-end PoC.
@@ -208,6 +260,16 @@ Goal: only introduce AI interpretation with strict evidence requirements.
 16. `T-073 -> T-074 -> T-075`: clarify the advanced-diagnostics thesis, harden correlation contracts, then validate the JFR command bridge.
 17. `T-076 -> T-077 -> T-078`: document JFR parser tradeoffs, update event modeling, then define bounded advanced-input processing.
 18. `T-079 -> T-080 -> T-081`: close OTel evidence policy, schema compatibility warnings, and timeline visualization design before Phase 5 AI work.
+19. `T-082 -> T-083 -> T-084`: define evidence references, AI contracts, and the validator before any LLM call path.
+20. `T-084 -> T-085 -> T-087 -> T-088`: enforce evidence validity, defend prompt construction, then add local LLM runtime controls.
+21. `T-083 -> T-086` and `T-084 -> T-091`: make AI provenance visible and define low-confidence/invalid-output behavior.
+22. `T-084 -> T-090`: build AI evaluation only after validator semantics are testable.
+23. `T-079 -> T-092`: extend OTel privacy policy into LLM prompt and logging safeguards.
+24. `T-093 -> T-094` and `T-093 -> T-095 -> T-097`: define the common flame tree contract, then normalize collapsed-stack and Jennifer CSV inputs into it.
+25. `T-093 -> T-098 -> T-099 -> T-100 -> T-101 -> T-102 -> T-103`: build drill-down engine semantics before exposing the CLI.
+26. `T-093 -> T-104 -> T-105 -> T-106 -> T-107 -> T-108 -> T-109`: build execution classification and stage-aware aggregation before the breakdown CLI.
+27. `T-098 -> T-110 -> T-111`: wire UI drill-down first, then add stage-aware breakdown charts.
+28. `T-094/T-095/T-098/T-104 -> T-112/T-113 -> T-114`: lock behavior with tests before final documentation updates.
 
 ## Active Decision Queue
 
