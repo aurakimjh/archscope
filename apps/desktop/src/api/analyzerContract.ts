@@ -132,9 +132,59 @@ export type ComponentBreakdownRow = {
   samples: number;
 };
 
+export type BreakdownTopItem = {
+  name: string;
+  samples: number;
+};
+
+export type ExecutionBreakdownRow = {
+  category: string;
+  executive_label: string;
+  primary_category: string;
+  wait_reason: string | null;
+  samples: number;
+  estimated_seconds: number;
+  total_ratio: number;
+  parent_stage_ratio: number;
+  elapsed_ratio: number | null;
+  top_methods: BreakdownTopItem[];
+  top_stacks: BreakdownTopItem[];
+};
+
+export type FlameNode = {
+  id: string;
+  parentId: string | null;
+  name: string;
+  samples: number;
+  ratio: number;
+  category: string | null;
+  color: string | null;
+  children: FlameNode[];
+  path: string[];
+};
+
+export type DrilldownStage = {
+  index: number;
+  label: string;
+  breadcrumb: string[];
+  filter: Record<string, AnalysisValue> | null;
+  metrics: {
+    total_samples: number;
+    matched_samples: number;
+    estimated_seconds: number;
+    total_ratio: number;
+    parent_stage_ratio: number;
+    elapsed_ratio: number | null;
+  };
+  flamegraph: FlameNode;
+  top_stacks: Array<Record<string, AnalysisValue>>;
+  top_child_frames: Array<Record<string, AnalysisValue>>;
+};
+
 export type ProfilerCollapsedSeries = {
   top_stacks: ProfilerTopStackSeriesRow[];
   component_breakdown: ComponentBreakdownRow[];
+  execution_breakdown?: ExecutionBreakdownRow[];
 };
 
 export type ProfilerTopStackTableRow = ProfilerTopStackSeriesRow & {
@@ -143,6 +193,16 @@ export type ProfilerTopStackTableRow = ProfilerTopStackSeriesRow & {
 
 export type ProfilerCollapsedTables = {
   top_stacks: ProfilerTopStackTableRow[];
+  top_child_frames?: Array<{
+    frame: string;
+    samples: number;
+    ratio: number;
+  }>;
+};
+
+export type ProfilerCharts = {
+  flamegraph?: FlameNode;
+  drilldown_stages?: DrilldownStage[];
 };
 
 export type ProfilerCollapsedMetadata = {
@@ -275,7 +335,7 @@ export type ProfilerCollapsedAnalysisResult = AnalysisResult<
   ProfilerCollapsedSummary,
   ProfilerCollapsedSeries,
   ProfilerCollapsedTables,
-  AnalysisObject,
+  ProfilerCharts,
   ProfilerCollapsedMetadata
 >;
 

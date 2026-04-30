@@ -68,6 +68,8 @@ metadata
 
 차트는 raw log line이 아니라 `series`, `tables`, `summary`를 기반으로 렌더링한다.
 
+Profiler analysis는 `charts.flamegraph` 아래에 공통 `FlameNode` tree contract를 추가한다. async-profiler collapsed stack과 Jennifer APM flamegraph CSV는 모두 이 tree로 정규화한 뒤 drill-down stage와 execution breakdown에서 재사용한다.
+
 ### AI Interpretation Boundary
 
 AI-assisted interpretation은 optional downstream layer이다. 기존 `AnalysisResult` evidence를 소비해 별도 `InterpretationResult`를 생성한다. Deterministic analyzer finding을 변경하거나 정상 분석에 필수 dependency가 되면 안 된다.

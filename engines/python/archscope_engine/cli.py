@@ -9,7 +9,15 @@ from rich.console import Console
 
 from archscope_engine.analyzers.access_log_analyzer import analyze_access_log
 from archscope_engine.analyzers.jfr_analyzer import analyze_jfr_print_json
-from archscope_engine.analyzers.profiler_analyzer import analyze_collapsed_profile
+from archscope_engine.analyzers.profiler_analyzer import (
+    analyze_collapsed_profile,
+    analyze_jennifer_csv_profile,
+    breakdown_collapsed_profile,
+    breakdown_jennifer_csv_profile,
+    drilldown_collapsed_profile,
+    drilldown_jennifer_csv_profile,
+)
+from archscope_engine.analyzers.profiler_drilldown import DrilldownFilter
 from archscope_engine.exporters.json_exporter import write_json_result
 
 console = Console()
@@ -65,6 +73,129 @@ def profiler_analyze_collapsed(
     )
     write_json_result(result, out)
     console.print(f"Wrote profiler result: {out}")
+
+
+@profiler_app.command("analyze-jennifer-csv")
+def profiler_analyze_jennifer_csv(
+    file: Path = typer.Option(..., "--file", exists=True, readable=True),
+    out: Path = typer.Option(..., "--out"),
+    interval_ms: float = typer.Option(100, "--interval-ms"),
+    elapsed_sec: Optional[float] = typer.Option(None, "--elapsed-sec"),
+    top_n: int = typer.Option(20, "--top-n"),
+) -> None:
+    """Analyze a Jennifer APM flamegraph CSV file."""
+    result = analyze_jennifer_csv_profile(
+        path=file,
+        interval_ms=interval_ms,
+        elapsed_sec=elapsed_sec,
+        top_n=top_n,
+    )
+    write_json_result(result, out)
+    console.print(f"Wrote Jennifer profiler result: {out}")
+
+
+@profiler_app.command("drilldown")
+def profiler_drilldown(
+    wall: Optional[Path] = typer.Option(None, "--wall", exists=True, readable=True),
+    jennifer_csv: Optional[Path] = typer.Option(
+        None,
+        "--jennifer-csv",
+        exists=True,
+        readable=True,
+    ),
+    out: Path = typer.Option(..., "--out"),
+    filter_pattern: list[str] = typer.Option([], "--filter"),
+    filter_type: str = typer.Option("include_text", "--filter-type"),
+    match_mode: str = typer.Option("anywhere", "--match-mode"),
+    view_mode: str = typer.Option("preserve_full_path", "--view-mode"),
+    wall_interval_ms: float = typer.Option(100, "--wall-interval-ms"),
+    elapsed_sec: Optional[float] = typer.Option(None, "--elapsed-sec"),
+    top_n: int = typer.Option(20, "--top-n"),
+) -> None:
+    """Apply one or more profiler flamegraph drill-down filters."""
+    filters = [
+        DrilldownFilter(
+            pattern=pattern,
+            filter_type=filter_type,  # type: ignore[arg-type]
+            match_mode=match_mode,  # type: ignore[arg-type]
+            view_mode=view_mode,  # type: ignore[arg-type]
+        )
+        for pattern in filter_pattern
+    ]
+    if wall is None and jennifer_csv is None:
+        raise typer.BadParameter("Either --wall or --jennifer-csv is required.")
+    if wall is not None and jennifer_csv is not None:
+        raise typer.BadParameter("Use only one input: --wall or --jennifer-csv.")
+    if jennifer_csv is not None:
+        result = drilldown_jennifer_csv_profile(
+            path=jennifer_csv,
+            interval_ms=wall_interval_ms,
+            filters=filters,
+            elapsed_sec=elapsed_sec,
+            top_n=top_n,
+        )
+    else:
+        result = drilldown_collapsed_profile(
+            path=wall,
+            interval_ms=wall_interval_ms,
+            filters=filters,
+            elapsed_sec=elapsed_sec,
+            top_n=top_n,
+        )
+    write_json_result(result, out)
+    console.print(f"Wrote profiler drill-down result: {out}")
+
+
+@profiler_app.command("breakdown")
+def profiler_breakdown(
+    wall: Optional[Path] = typer.Option(None, "--wall", exists=True, readable=True),
+    jennifer_csv: Optional[Path] = typer.Option(
+        None,
+        "--jennifer-csv",
+        exists=True,
+        readable=True,
+    ),
+    out: Path = typer.Option(..., "--out"),
+    filter_pattern: list[str] = typer.Option([], "--filter"),
+    filter_type: str = typer.Option("include_text", "--filter-type"),
+    match_mode: str = typer.Option("anywhere", "--match-mode"),
+    view_mode: str = typer.Option("preserve_full_path", "--view-mode"),
+    wall_interval_ms: float = typer.Option(100, "--wall-interval-ms"),
+    elapsed_sec: Optional[float] = typer.Option(None, "--elapsed-sec"),
+    top_n: int = typer.Option(20, "--top-n"),
+) -> None:
+    """Calculate execution breakdown for a profiler input and optional filters."""
+    filters = [
+        DrilldownFilter(
+            pattern=pattern,
+            filter_type=filter_type,  # type: ignore[arg-type]
+            match_mode=match_mode,  # type: ignore[arg-type]
+            view_mode=view_mode,  # type: ignore[arg-type]
+        )
+        for pattern in filter_pattern
+    ]
+    if wall is None and jennifer_csv is None:
+        raise typer.BadParameter("Either --wall or --jennifer-csv is required.")
+    if wall is not None and jennifer_csv is not None:
+        raise typer.BadParameter("Use only one input: --wall or --jennifer-csv.")
+    if jennifer_csv is not None:
+        result = breakdown_jennifer_csv_profile(
+            path=jennifer_csv,
+            interval_ms=wall_interval_ms,
+            filters=filters,
+            elapsed_sec=elapsed_sec,
+            top_n=top_n,
+        )
+    else:
+        result = breakdown_collapsed_profile(
+            path=wall,
+            interval_ms=wall_interval_ms,
+            filters=filters,
+            elapsed_sec=elapsed_sec,
+            top_n=top_n,
+        )
+    write_json_result(result, out)
+    console.print(f"Wrote profiler breakdown result: {out}")
 
 
 @jfr_app.command("analyze-json")

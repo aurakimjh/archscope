@@ -49,6 +49,32 @@ Rules:
 - Estimated seconds are derived from `samples * interval_ms / 1000`.
 - Top N stacks are sorted by sample count.
 
+Collapsed stacks are also converted into the common `FlameNode` tree contract so drill-down and execution breakdown can work on a tree rather than only on flat top-stack rows.
+
+## Jennifer APM Flamegraph CSV Parser
+
+Jennifer APM flamegraph CSV import expects these canonical columns:
+
+```text
+key,parent_key,method_name,ratio,sample_count,color_category
+```
+
+Common aliases such as `id`, `parent_id`, `method`, `name`, `samples`, `count`, and `category` are accepted where practical. The parser reconstructs a tree from `key` and `parent_key` and maps rows to the shared `FlameNode` model:
+
+```text
+id
+parentId
+name
+samples
+ratio
+category
+color
+children
+path
+```
+
+If the CSV contains multiple root nodes, ArchScope creates a virtual `All` root. Malformed CSV rows are skipped and reported through `metadata.diagnostics` with `INVALID_JENNIFER_ROW`.
+
 ## Placeholder Parsers
 
 GC logs, thread dumps, and exception stack traces have placeholder modules in the initial skeleton. They should follow the same parser and analyzer separation.

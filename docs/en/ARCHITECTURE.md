@@ -69,6 +69,8 @@ metadata
 Charts are rendered from normalized result fields, not raw log lines.
 User-facing labels should come from locale resources so the same normalized result can be shown in English or Korean.
 
+Profiler analysis adds a common `FlameNode` tree contract under `charts.flamegraph`. Both async-profiler collapsed stacks and Jennifer APM flamegraph CSV are normalized into this tree, then reused by drill-down stages and execution breakdown.
+
 ### AI Interpretation Boundary
 
 AI-assisted interpretation is an optional downstream layer. It consumes existing `AnalysisResult` evidence and produces a separate `InterpretationResult`. It must not mutate deterministic analyzer findings or become required for normal analysis.

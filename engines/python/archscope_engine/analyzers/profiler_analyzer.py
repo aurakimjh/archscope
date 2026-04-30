@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any, cast
 
 from archscope_engine.models.analysis_result import AnalysisResult
+from archscope_engine.models.flamegraph import FlameNode, flame_node_from_dict
 from archscope_engine.models.profile_stack import ProfileStack
 from archscope_engine.models.result_contracts import (
     ParserDiagnostics as ParserDiagnosticsContract,
@@ -19,6 +20,14 @@ from archscope_engine.analyzers.profile_classification import (
     classify_stack,
 )
 from archscope_engine.parsers.collapsed_parser import parse_collapsed_file_with_diagnostics
+from archscope_engine.parsers.jennifer_csv_parser import parse_jennifer_flamegraph_csv
+from archscope_engine.analyzers.flamegraph_builder import build_flame_tree_from_collapsed
+from archscope_engine.analyzers.profiler_breakdown import build_execution_breakdown
+from archscope_engine.analyzers.profiler_drilldown import (
+    DrilldownFilter,
+    build_drilldown_stages,
+    create_root_stage,
+)
 
 
 def analyze_collapsed_profile(
@@ -41,6 +50,91 @@ def analyze_collapsed_profile(
         profile_kind=profile_kind,
         diagnostics=parse_result.diagnostics,
         classification_rules=classification_rules,
+    )
+
+
+def analyze_jennifer_csv_profile(
+    path: Path,
+    interval_ms: float = 100,
+    elapsed_sec: float | None = None,
+    top_n: int = 20,
+) -> AnalysisResult:
+    parse_result = parse_jennifer_flamegraph_csv(path)
+    root = parse_result.root
+    return _build_flamegraph_result(
+        root=root,
+        source_file=path,
+        parser="jennifer_flamegraph_csv",
+        profile_kind="wall",
+        interval_ms=interval_ms,
+        elapsed_sec=elapsed_sec,
+        top_n=top_n,
+        diagnostics=parse_result.diagnostics,
+    )
+
+
+def drilldown_collapsed_profile(
+    path: Path,
+    interval_ms: float,
+    filters: list[DrilldownFilter],
+    elapsed_sec: float | None = None,
+    top_n: int = 20,
+) -> AnalysisResult:
+    result = analyze_collapsed_profile(
+        path=path,
+        interval_ms=interval_ms,
+        elapsed_sec=elapsed_sec,
+        top_n=top_n,
+    )
+    return _drilldown_from_result(result, filters, interval_ms, elapsed_sec, top_n)
+
+
+def drilldown_jennifer_csv_profile(
+    path: Path,
+    filters: list[DrilldownFilter],
+    interval_ms: float = 100,
+    elapsed_sec: float | None = None,
+    top_n: int = 20,
+) -> AnalysisResult:
+    result = analyze_jennifer_csv_profile(
+        path=path,
+        interval_ms=interval_ms,
+        elapsed_sec=elapsed_sec,
+        top_n=top_n,
+    )
+    return _drilldown_from_result(result, filters, interval_ms, elapsed_sec, top_n)
+
+
+def breakdown_collapsed_profile(
+    path: Path,
+    interval_ms: float,
+    filters: list[DrilldownFilter] | None = None,
+    elapsed_sec: float | None = None,
+    top_n: int = 20,
+) -> AnalysisResult:
+    filters = filters or []
+    return drilldown_collapsed_profile(
+        path=path,
+        interval_ms=interval_ms,
+        filters=filters,
+        elapsed_sec=elapsed_sec,
+        top_n=top_n,
+    )
+
+
+def breakdown_jennifer_csv_profile(
+    path: Path,
+    filters: list[DrilldownFilter] | None = None,
+    interval_ms: float = 100,
+    elapsed_sec: float | None = None,
+    top_n: int = 20,
+) -> AnalysisResult:
+    return drilldown_jennifer_csv_profile(
+        path=path,
+        filters=filters or [],
+        interval_ms=interval_ms,
+        elapsed_sec=elapsed_sec,
+        top_n=top_n,
     )
 
 
@@ -105,6 +199,24 @@ def build_collapsed_result(
             for item in top_stacks
         ]
     }
+    flamegraph = build_flame_tree_from_collapsed(stacks)
+    root_stage = create_root_stage(
+        flamegraph,
+        interval_ms=interval_ms,
+        elapsed_sec=elapsed_sec,
+        top_n=top_n,
+    )
+    series["execution_breakdown"] = build_execution_breakdown(
+        flamegraph,
+        interval_ms=interval_ms,
+        elapsed_sec=elapsed_sec,
+        top_n=top_n,
+    )
+    tables["top_child_frames"] = root_stage.top_child_frames
+    charts = {
+        "flamegraph": flamegraph.to_dict(),
+        "drilldown_stages": [root_stage.to_dict()],
+    }
     metadata: ProfilerCollapsedMetadata = {
         "parser": "async_profiler_collapsed",
         "schema_version": "0.1.0",
@@ -120,8 +232,137 @@ def build_collapsed_result(
         summary=summary,
         series=series,
         tables=tables,
+        charts=charts,
         metadata=metadata,
     )
+
+
+def _build_flamegraph_result(
+    *,
+    root: FlameNode,
+    source_file: Path,
+    parser: str,
+    profile_kind: str,
+    interval_ms: float,
+    elapsed_sec: float | None,
+    top_n: int,
+    diagnostics: dict[str, Any],
+) -> AnalysisResult:
+    total_samples = root.samples
+    estimated_seconds = total_samples * (interval_ms / 1000)
+    root_stage = create_root_stage(
+        root,
+        interval_ms=interval_ms,
+        elapsed_sec=elapsed_sec,
+        top_n=top_n,
+    )
+    return AnalysisResult(
+        type="profiler_collapsed",
+        source_files=[str(source_file)],
+        summary={
+            "profile_kind": profile_kind,
+            "total_samples": total_samples,
+            "interval_ms": interval_ms,
+            "estimated_seconds": round(estimated_seconds, 3),
+            "elapsed_seconds": elapsed_sec,
+        },
+        series={
+            "top_stacks": [
+                {
+                    "stack": item["stack"],
+                    "samples": item["samples"],
+                    "estimated_seconds": round(item["samples"] * (interval_ms / 1000), 3),
+                    "sample_ratio": item["sample_ratio"],
+                    "elapsed_ratio": (
+                        round(item["samples"] * (interval_ms / 1000) / elapsed_sec * 100, 2)
+                        if elapsed_sec and elapsed_sec > 0
+                        else None
+                    ),
+                }
+                for item in root_stage.top_stacks
+            ],
+            "component_breakdown": [],
+            "execution_breakdown": build_execution_breakdown(
+                root,
+                interval_ms=interval_ms,
+                elapsed_sec=elapsed_sec,
+                top_n=top_n,
+            ),
+        },
+        tables={
+            "top_stacks": [
+                {
+                    "stack": item["stack"],
+                    "samples": item["samples"],
+                    "estimated_seconds": round(item["samples"] * (interval_ms / 1000), 3),
+                    "sample_ratio": item["sample_ratio"],
+                    "elapsed_ratio": (
+                        round(item["samples"] * (interval_ms / 1000) / elapsed_sec * 100, 2)
+                        if elapsed_sec and elapsed_sec > 0
+                        else None
+                    ),
+                    "frames": str(item["stack"]).split(";"),
+                }
+                for item in root_stage.top_stacks
+            ],
+            "top_child_frames": root_stage.top_child_frames,
+        },
+        charts={
+            "flamegraph": root.to_dict(),
+            "drilldown_stages": [root_stage.to_dict()],
+        },
+        metadata={
+            "parser": parser,
+            "schema_version": "0.1.0",
+            "diagnostics": diagnostics,
+        },
+    )
+
+
+def _drilldown_from_result(
+    result: AnalysisResult,
+    filters: list[DrilldownFilter],
+    interval_ms: float,
+    elapsed_sec: float | None,
+    top_n: int,
+) -> AnalysisResult:
+    root = flame_node_from_dict(result.charts["flamegraph"])
+    stages = build_drilldown_stages(
+        root,
+        filters,
+        interval_ms=interval_ms,
+        elapsed_sec=elapsed_sec,
+        top_n=top_n,
+    )
+    current = stages[-1]
+    result.charts["drilldown_stages"] = [stage.to_dict() for stage in stages]
+    result.charts["flamegraph"] = current.flamegraph.to_dict()
+    result.series["execution_breakdown"] = build_execution_breakdown(
+        current.flamegraph,
+        interval_ms=interval_ms,
+        elapsed_sec=elapsed_sec,
+        total_samples=stages[0].flamegraph.samples,
+        parent_samples=stages[-2].flamegraph.samples if len(stages) > 1 else None,
+        top_n=top_n,
+    )
+    result.tables["top_stacks"] = [
+        {
+            "stack": item["stack"],
+            "samples": item["samples"],
+            "estimated_seconds": round(item["samples"] * (interval_ms / 1000), 3),
+            "sample_ratio": item["sample_ratio"],
+            "elapsed_ratio": (
+                round(item["samples"] * (interval_ms / 1000) / elapsed_sec * 100, 2)
+                if elapsed_sec and elapsed_sec > 0
+                else None
+            ),
+            "frames": str(item["stack"]).split(";"),
+        }
+        for item in current.top_stacks
+    ]
+    result.tables["top_child_frames"] = current.top_child_frames
+    result.metadata["drilldown_current_stage"] = current.to_dict()
+    return result
 
 
 def _to_profile_stack(

@@ -106,6 +106,28 @@ archscope-engine profiler analyze-collapsed \
   --out ../../examples/outputs/profiler-result.json
 ```
 
+Jennifer APM flamegraph CSV 샘플 분석:
+
+```bash
+archscope-engine profiler analyze-jennifer-csv \
+  --file ../../examples/profiler/sample-jennifer-flame.csv \
+  --out ../../examples/outputs/profiler-jennifer-result.json
+```
+
+Profiler drill-down 및 execution breakdown:
+
+```bash
+archscope-engine profiler drilldown \
+  --wall ../../examples/profiler/sample-wall.collapsed \
+  --filter oracle.jdbc \
+  --out ../../examples/outputs/profiler-drilldown-result.json
+
+archscope-engine profiler breakdown \
+  --wall ../../examples/profiler/sample-wall.collapsed \
+  --filter RestTemplate \
+  --out ../../examples/outputs/profiler-breakdown-result.json
+```
+
 ## 현재 범위
 
 현재 repository는 foundation 단계입니다.
@@ -117,6 +139,8 @@ archscope-engine profiler analyze-collapsed \
 - Python engine skeleton
 - Minimal NGINX-like access log parser
 - Minimal async-profiler collapsed parser
+- Jennifer APM flamegraph CSV import
+- Profiler flamegraph drill-down 및 execution breakdown
 - JSON result export
 
 GC log, thread dump, exception analysis, packaging, PowerPoint export, large-file optimization은 이후 phase에서 구현합니다.

@@ -111,17 +111,56 @@ class ComponentBreakdownRow(TypedDict):
     samples: int
 
 
-class ProfilerCollapsedSeries(TypedDict):
+class BreakdownTopItem(TypedDict):
+    name: str
+    samples: int
+
+
+class ExecutionBreakdownRow(TypedDict):
+    category: str
+    executive_label: str
+    primary_category: str
+    wait_reason: str | None
+    samples: int
+    estimated_seconds: float
+    total_ratio: float
+    parent_stage_ratio: float
+    elapsed_ratio: float | None
+    top_methods: list[BreakdownTopItem]
+    top_stacks: list[BreakdownTopItem]
+
+
+class FlameNodeContract(TypedDict):
+    id: str
+    parentId: str | None
+    name: str
+    samples: int
+    ratio: float
+    category: str | None
+    color: str | None
+    children: list["FlameNodeContract"]
+    path: list[str]
+
+
+class ProfilerCollapsedSeries(TypedDict, total=False):
     top_stacks: list[ProfilerTopStackSeriesRow]
     component_breakdown: list[ComponentBreakdownRow]
+    execution_breakdown: list[ExecutionBreakdownRow]
 
 
 class ProfilerTopStackTableRow(ProfilerTopStackSeriesRow):
     frames: list[str]
 
 
-class ProfilerCollapsedTables(TypedDict):
+class TopChildFrameRow(TypedDict):
+    frame: str
+    samples: int
+    ratio: float
+
+
+class ProfilerCollapsedTables(TypedDict, total=False):
     top_stacks: list[ProfilerTopStackTableRow]
+    top_child_frames: list[TopChildFrameRow]
 
 
 class ProfilerCollapsedMetadata(TypedDict):

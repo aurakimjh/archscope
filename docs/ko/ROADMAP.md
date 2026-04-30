@@ -28,6 +28,7 @@
 - CSV export
 - Access log advanced statistics
 - Raw chart를 넘어선 Access Log diagnostic findings
+- Profiler flamegraph drill-down, Jennifer CSV import, execution breakdown
 - Custom regex parser
 - Report label language toggle
 

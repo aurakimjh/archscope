@@ -49,6 +49,32 @@ frame1;frame2;frame3 123
 - estimated seconds는 `samples * interval_ms / 1000`으로 계산한다.
 - Top N stack은 sample count 기준 내림차순으로 정렬한다.
 
+Collapsed stack은 공통 `FlameNode` tree contract로도 변환한다. 이를 통해 drill-down과 execution breakdown이 flat top-stack row가 아니라 동일한 tree model을 기준으로 동작한다.
+
+## Jennifer APM Flamegraph CSV Parser
+
+Jennifer APM flamegraph CSV import는 다음 canonical column을 기대한다.
+
+```text
+key,parent_key,method_name,ratio,sample_count,color_category
+```
+
+실무에서 자주 쓰는 `id`, `parent_id`, `method`, `name`, `samples`, `count`, `category` 같은 alias는 가능한 범위에서 허용한다. Parser는 `key`와 `parent_key`로 tree를 재구성하고 각 row를 공통 `FlameNode` model로 매핑한다.
+
+```text
+id
+parentId
+name
+samples
+ratio
+category
+color
+children
+path
+```
+
+CSV에 root가 여러 개 있으면 ArchScope는 virtual `All` root를 만든다. Malformed CSV row는 skip하고 `metadata.diagnostics`에 `INVALID_JENNIFER_ROW`로 보고한다.
+
 ## Placeholder Parsers
 
 GC log, thread dump, exception stack trace parser는 초기 skeleton에서 placeholder로 둔다. 이후에도 parser와 analyzer 책임 분리를 유지한다.

@@ -433,6 +433,98 @@ th {
   padding-left: 18px;
 }
 
+.drilldown-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 4px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.button-row {
+  display: flex;
+  gap: 10px;
+}
+
+.drilldown-panel {
+  margin-bottom: 18px;
+}
+
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.breadcrumb span {
+  padding: 6px 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.breadcrumb span + span::before {
+  content: ">";
+  margin-right: 8px;
+  color: #64748b;
+}
+
+.flame-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 420px;
+  overflow: auto;
+  padding: 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.flame-node-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.flame-node-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 24px;
+  font-size: 12px;
+}
+
+.flame-node-label span {
+  overflow: hidden;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.flame-node-label small {
+  flex: 0 0 auto;
+  color: #64748b;
+}
+
+.flame-node-track {
+  height: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e2e8f0;
+}
+
+.flame-node-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: #2563eb;
+}
+
 .ai-findings-panel {
   margin-top: 18px;
 }

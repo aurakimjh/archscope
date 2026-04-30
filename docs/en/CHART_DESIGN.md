@@ -41,6 +41,9 @@ ArchScope charts are report-ready views over normalized analysis results.
 - `GC.HeapUsageTrend`
 - `Profiler.CpuWallBreakdown`
 - `Profiler.TopStacks`
+- `Profiler.FlamegraphDrilldown`
+- `Profiler.ExecutionBreakdownDonut`
+- `Profiler.ExecutionBreakdownBars`
 - `ThreadDump.ThreadStateDistribution`
 - `Exception.ExceptionTrend`
 
@@ -79,3 +82,17 @@ Migration notes:
 ## i18n Direction
 
 Chart titles, axis labels, and legend labels should be derived from locale resources. Raw metric values and evidence strings are not translated.
+
+## Profiler Drill-down Charts
+
+Profiler Analyzer now renders multi-stage flamegraph drill-down from the common `FlameNode` contract. Each stage keeps its own flamegraph, metrics, top stacks, top child frames, and execution breakdown.
+
+The drill-down UI supports:
+
+- breadcrumb navigation from `All` through applied filters;
+- include/exclude text and regex filters;
+- anywhere, ordered, and subtree match modes;
+- preserve-full-path and re-root-at-matched-frame view modes;
+- stage metrics for matched samples, estimated seconds, total ratio, parent-stage ratio, and elapsed ratio.
+
+Execution breakdown is shown with a donut chart, a horizontal bar chart, and a category top stack table. It is recalculated from the selected drill-down stage.

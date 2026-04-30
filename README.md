@@ -106,6 +106,28 @@ archscope-engine profiler analyze-collapsed \
   --out ../../examples/outputs/profiler-result.json
 ```
 
+Run the sample Jennifer APM flamegraph CSV analysis:
+
+```bash
+archscope-engine profiler analyze-jennifer-csv \
+  --file ../../examples/profiler/sample-jennifer-flame.csv \
+  --out ../../examples/outputs/profiler-jennifer-result.json
+```
+
+Profiler drill-down and execution breakdown are available through:
+
+```bash
+archscope-engine profiler drilldown \
+  --wall ../../examples/profiler/sample-wall.collapsed \
+  --filter oracle.jdbc \
+  --out ../../examples/outputs/profiler-drilldown-result.json
+
+archscope-engine profiler breakdown \
+  --wall ../../examples/profiler/sample-wall.collapsed \
+  --filter RestTemplate \
+  --out ../../examples/outputs/profiler-breakdown-result.json
+```
+
 ## Current Scope
 
 This repository currently contains the foundation only:
@@ -117,6 +139,8 @@ This repository currently contains the foundation only:
 - Python engine skeleton
 - Minimal NGINX-like access log parser
 - Minimal async-profiler collapsed parser
+- Jennifer APM flamegraph CSV import
+- Profiler flamegraph drill-down and execution breakdown
 - JSON result export
 
 GC log, thread dump, exception analysis, packaging, PowerPoint export, and large-file optimization are intentionally left for later phases.

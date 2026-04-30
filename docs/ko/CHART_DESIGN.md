@@ -41,6 +41,9 @@ ArchScope chart는 표준화된 analysis result를 기반으로 하는 report-re
 - `GC.HeapUsageTrend`
 - `Profiler.CpuWallBreakdown`
 - `Profiler.TopStacks`
+- `Profiler.FlamegraphDrilldown`
+- `Profiler.ExecutionBreakdownDonut`
+- `Profiler.ExecutionBreakdownBars`
 - `ThreadDump.ThreadStateDistribution`
 - `Exception.ExceptionTrend`
 
@@ -79,3 +82,17 @@ Migration note:
 ## i18n 방향
 
 차트 title, axis label, legend label은 UI locale과 report export locale을 기준으로 변환 가능해야 한다. Raw data value는 번역하지 않고, report-facing label만 locale resource에서 가져온다.
+
+## Profiler Drill-down Charts
+
+Profiler Analyzer는 공통 `FlameNode` contract를 기반으로 multi-stage flamegraph drill-down을 렌더링한다. 각 stage는 자체 flamegraph, metrics, top stacks, top child frames, execution breakdown을 가진다.
+
+Drill-down UI는 다음을 지원한다.
+
+- `All`에서 적용된 filter까지 이어지는 breadcrumb navigation
+- include/exclude text 및 regex filter
+- anywhere, ordered, subtree match mode
+- preserve-full-path 및 re-root-at-matched-frame view mode
+- matched samples, estimated seconds, total ratio, parent-stage ratio, elapsed ratio stage metric
+
+Execution breakdown은 donut chart, horizontal bar chart, category top stack table로 표시한다. Breakdown은 선택된 drill-down stage 기준으로 다시 계산한다.

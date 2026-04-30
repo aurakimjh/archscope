@@ -139,12 +139,53 @@ AnalysisResult
 |---|---|
 | `top_stacks` | `{ stack: string, samples: integer, estimated_seconds: number, sample_ratio: number, elapsed_ratio: number | null }` |
 | `component_breakdown` | `{ component: string, samples: integer }` |
+| `execution_breakdown` | optional `{ category, executive_label, primary_category, wait_reason, samples, estimated_seconds, total_ratio, parent_stage_ratio, elapsed_ratio, top_methods, top_stacks }` |
 
 필수 `tables` fields:
 
 | Field | Row shape |
 |---|---|
 | `top_stacks` | `{ stack: string, samples: integer, estimated_seconds: number, sample_ratio: number, elapsed_ratio: number | null, frames: string[] }` |
+| `top_child_frames` | optional `{ frame: string, samples: integer, ratio: number }` |
+
+Optional `charts` fields:
+
+| Field | Shape |
+|---|---|
+| `flamegraph` | `FlameNode` |
+| `drilldown_stages` | drill-down stage object array |
+
+`FlameNode` shape:
+
+```text
+{
+  id: string,
+  parentId: string | null,
+  name: string,
+  samples: integer,
+  ratio: number,
+  category: string | null,
+  color: string | null,
+  children: FlameNode[],
+  path: string[]
+}
+```
+
+Execution breakdown categories:
+
+```text
+SQL_DATABASE
+EXTERNAL_API_HTTP
+NETWORK_IO_WAIT
+APPLICATION_LOGIC
+FRAMEWORK_MIDDLEWARE
+LOCK_SYNCHRONIZATION_WAIT
+CONNECTION_POOL_WAIT
+FILE_IO
+GC_JVM_RUNTIME
+IDLE_BACKGROUND
+UNKNOWN
+```
 
 필수 `metadata` fields:
 
