@@ -20,7 +20,10 @@ from archscope_engine.ai_interpretation.prompting import (
 from archscope_engine.ai_interpretation.runtime import (
     LocalLlmAvailability,
     LocalLlmConfig,
+    LocalLlmClient,
+    LocalLlmExecutionError,
     LocalLlmPolicyError,
+    OllamaClient,
     validate_local_llm_config,
 )
 from archscope_engine.ai_interpretation.validation import (
@@ -39,8 +42,11 @@ __all__ = [
     "EvidenceSelector",
     "InterpretationEvaluation",
     "LocalLlmAvailability",
+    "LocalLlmClient",
     "LocalLlmConfig",
+    "LocalLlmExecutionError",
     "LocalLlmPolicyError",
+    "OllamaClient",
     "PromptBuilder",
     "PromptPayload",
     "ValidationIssue",

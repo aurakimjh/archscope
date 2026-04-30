@@ -15,6 +15,7 @@ Last updated: 2026-05-01
 - [x] Read `docs/review/done/2026-04-30_claude-code_phase5-ai-interpretation-review.md`
 - [x] Read `docs/review/done/2026-04-30_Phase5_AI_Interpretation_Review_by_Gemini.md`
 - [x] Read `docs/review/done/2026-04-30_Phase5_AI_Interpretation_Independent_Review_by_Gemini.md`
+- [x] Read `docs/review/done/2026-05-01_Phase5_AI_Interpretation_Review_by_Gemini.md`
 - [x] Consolidated review findings into this TO-DO
 - [x] Created `review_decisions.md` with accepted/deferred/rejected/needs-decision classifications
 - [x] Moved processed review documents to `docs/review/done/`
@@ -210,6 +211,10 @@ Goal: convert Phase 5 policy guardrails into enforceable contracts, validators, 
 | T-090 | P2 | [x] | Build AI interpretation evaluation pipeline with golden diagnostic scenarios, evidence-integrity checks, hallucination/relevance metrics, and model/prompt regression gates. | T-084, T-087 | RD-098 | AI quality regression framework |
 | T-091 | P2 | [x] | Define AI output confidence, partial failure, retry, and invalid-schema handling policy for reports and UI display. | T-083, T-084 | RD-099 | Predictable AI output handling rules |
 | T-092 | P2 | [x] | Apply privacy and logging policy to LLM inputs and outputs, including OTel redaction before prompt construction and disabled prompt/response logging by default. | T-079, T-087, T-088 | RD-100 | LLM privacy and retention safeguards |
+| T-163 | P1 | [x] | Implement a concrete `LocalLlmClient`/`OllamaClient` execution boundary with localhost policy validation, timeout-bound `/api/generate` calls, JSON envelope normalization, and `AiFindingValidator` enforcement. | T-083, T-084, T-087, T-088 | RD-101 | Executable local LLM client path |
+| T-164 | P1 | [x] | Add a non-blocking `execute_async()` wrapper for local LLM execution so UI/worker callers can avoid blocking their main loop. | T-163 | RD-102 | Async local AI execution contract |
+| T-165 | P2 | [ ] | Externalize prompt templates by model/version once more than one local model profile is actively supported. | T-087, T-163 | RD-103 | Versioned prompt-template configuration |
+| T-166 | P3 | [ ] | Add language-optimized system prompt variants for English/Korean if model evaluation shows response-language drift. | T-087, T-090, T-165 preferred | RD-104 | Multilingual prompt-template strategy |
 
 ### Profiler Feature Expansion - Flamegraph Drill-down and Execution Breakdown
 
@@ -353,21 +358,23 @@ mapping in the shared asset repository.
 21. `T-083 -> T-086` and `T-084 -> T-091`: make AI provenance visible and define low-confidence/invalid-output behavior.
 22. `T-084 -> T-090`: build AI evaluation only after validator semantics are testable.
 23. `T-079 -> T-092`: extend OTel privacy policy into LLM prompt and logging safeguards.
-24. `T-093 -> T-094` and `T-093 -> T-095 -> T-097`: define the common flame tree contract, then normalize collapsed-stack and Jennifer CSV inputs into it.
-25. `T-093 -> T-098 -> T-099 -> T-100 -> T-101 -> T-102 -> T-103`: build drill-down engine semantics before exposing the CLI.
-26. `T-093 -> T-104 -> T-105 -> T-106 -> T-107 -> T-108 -> T-109`: build execution classification and stage-aware aggregation before the breakdown CLI.
-27. `T-098 -> T-110 -> T-111`: wire UI drill-down first, then add stage-aware breakdown charts.
-28. `T-094/T-095/T-098/T-104 -> T-112/T-113 -> T-114`: lock behavior with tests before final documentation updates.
-29. `T-115/T-116/T-117 -> T-118 -> T-119 -> T-120 -> T-121`: implement JVM parsers/analyzers, expose them through CLI/UI, then lock behavior with samples, tests, and docs.
-30. `T-122 -> T-123 -> T-124 -> T-125 -> T-126 -> T-127 -> T-128 -> T-129 -> T-130 -> T-131 -> T-132 -> T-133`: build portable redacted parser debug logs, integrate parsers/CLI/Electron, then lock behavior with tests and docs.
-31. `T-134 -> T-135 -> T-136` and `T-137`: add the first report automation and Chart Studio slices after result/debug contracts are stable.
-32. `T-138/T-139/T-140/T-141 -> T-142 -> T-143 -> T-144`: add multi-runtime parser/analyzer MVPs, sample artifacts, tests, and docs.
-33. `T-145/T-146/T-147 -> T-150`: close the next report automation follow-ups with diff, PPTX, and static flamegraph HTML coverage.
-34. `T-148 -> T-149 -> T-150`: add the first OTel analyzer path, fixture coverage, and docs before deeper trace/span correlation work.
-35. `T-136/T-145/T-146 -> T-151 -> T-152`: expose the report automation CLI paths through the desktop Export Center.
-36. `T-153 -> T-154 -> T-155 -> T-156 -> T-157`: run shared demo-site manifests through CLI/UI and keep command mapping single-sourced in `projects-assets`.
-37. `T-148 -> T-158 -> T-159`: move OTel from lightweight grouping to parent-span service paths, failure propagation, and manifest expectation checks.
-38. `T-156 -> T-160 -> T-162`: support larger demo runs now, then add automated Electron smoke coverage after the harness exists.
+24. `T-083/T-084/T-087/T-088 -> T-163 -> T-164`: add the executable local LLM client only after contracts, validation, prompt construction, and runtime policy are in place.
+25. `T-087/T-090/T-163 -> T-165 -> T-166`: externalize model/language prompt templates after the first executable path and evaluation signals exist.
+26. `T-093 -> T-094` and `T-093 -> T-095 -> T-097`: define the common flame tree contract, then normalize collapsed-stack and Jennifer CSV inputs into it.
+27. `T-093 -> T-098 -> T-099 -> T-100 -> T-101 -> T-102 -> T-103`: build drill-down engine semantics before exposing the CLI.
+28. `T-093 -> T-104 -> T-105 -> T-106 -> T-107 -> T-108 -> T-109`: build execution classification and stage-aware aggregation before the breakdown CLI.
+29. `T-098 -> T-110 -> T-111`: wire UI drill-down first, then add stage-aware breakdown charts.
+30. `T-094/T-095/T-098/T-104 -> T-112/T-113 -> T-114`: lock behavior with tests before final documentation updates.
+31. `T-115/T-116/T-117 -> T-118 -> T-119 -> T-120 -> T-121`: implement JVM parsers/analyzers, expose them through CLI/UI, then lock behavior with samples, tests, and docs.
+32. `T-122 -> T-123 -> T-124 -> T-125 -> T-126 -> T-127 -> T-128 -> T-129 -> T-130 -> T-131 -> T-132 -> T-133`: build portable redacted parser debug logs, integrate parsers/CLI/Electron, then lock behavior with tests and docs.
+33. `T-134 -> T-135 -> T-136` and `T-137`: add the first report automation and Chart Studio slices after result/debug contracts are stable.
+34. `T-138/T-139/T-140/T-141 -> T-142 -> T-143 -> T-144`: add multi-runtime parser/analyzer MVPs, sample artifacts, tests, and docs.
+35. `T-145/T-146/T-147 -> T-150`: close the next report automation follow-ups with diff, PPTX, and static flamegraph HTML coverage.
+36. `T-148 -> T-149 -> T-150`: add the first OTel analyzer path, fixture coverage, and docs before deeper trace/span correlation work.
+37. `T-136/T-145/T-146 -> T-151 -> T-152`: expose the report automation CLI paths through the desktop Export Center.
+38. `T-153 -> T-154 -> T-155 -> T-156 -> T-157`: run shared demo-site manifests through CLI/UI and keep command mapping single-sourced in `projects-assets`.
+39. `T-148 -> T-158 -> T-159`: move OTel from lightweight grouping to parent-span service paths, failure propagation, and manifest expectation checks.
+40. `T-156 -> T-160 -> T-162`: support larger demo runs now, then add automated Electron smoke coverage after the harness exists.
 
 ## Active Decision Queue
 

@@ -1,3 +1,6 @@
+import asyncio
+import json
+
 from archscope_engine.ai_interpretation.evaluation import evaluate_interpretation
 from archscope_engine.ai_interpretation.evidence import (
     EvidenceRegistry,
@@ -5,9 +8,11 @@ from archscope_engine.ai_interpretation.evidence import (
     parse_evidence_ref,
 )
 from archscope_engine.ai_interpretation.prompting import EvidenceSelector, PromptBuilder
+import archscope_engine.ai_interpretation.runtime as runtime
 from archscope_engine.ai_interpretation.runtime import (
     LocalLlmConfig,
     LocalLlmPolicyError,
+    OllamaClient,
     validate_local_llm_config,
 )
 from archscope_engine.ai_interpretation.validation import (
@@ -141,6 +146,7 @@ def test_local_llm_policy_rejects_non_localhost_and_prompt_logging() -> None:
     for config in (
         LocalLlmConfig(enabled=True, base_url="https://localhost:11434"),
         LocalLlmConfig(enabled=True, base_url="http://example.com:11434"),
+        LocalLlmConfig(enabled=True, provider="openai"),
         LocalLlmConfig(enabled=True, log_prompts=True),
     ):
         try:
@@ -149,6 +155,137 @@ def test_local_llm_policy_rejects_non_localhost_and_prompt_logging() -> None:
             pass
         else:
             raise AssertionError("Expected unsafe local LLM config to be rejected.")
+
+
+def test_ollama_client_posts_prompt_and_validates_response(monkeypatch) -> None:
+    result = _jfr_result()
+    registry = collect_evidence(result)
+    prompt = PromptBuilder(response_language="en").build(
+        result,
+        EvidenceSelector(max_items=5).select(registry),
+    )
+    response_body = {
+        "response": json.dumps(
+            {
+                "schema_version": "9.9.9",
+                "provider": "remote",
+                "model": "remote-model",
+                "findings": [
+                    {
+                        "id": "ai-1",
+                        "label": "GC pause",
+                        "severity": "warning",
+                        "generated_by": "ai",
+                        "model": "qwen2.5-coder:7b",
+                        "summary": "A long GC pause is visible.",
+                        "reasoning": "The event includes a 120 ms GC duration.",
+                        "evidence_refs": ["jfr:event:1"],
+                        "evidence_quotes": {"jfr:event:1": "120 ms"},
+                        "confidence": 0.8,
+                        "limitations": [],
+                    }
+                ]
+            }
+        )
+    }
+    requests = []
+
+    class FakeResponse:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, traceback):
+            return None
+
+        def read(self):
+            return json.dumps(response_body).encode("utf-8")
+
+    def fake_urlopen(request, timeout):
+        requests.append((request, timeout))
+        return FakeResponse()
+
+    monkeypatch.setattr(runtime, "urlopen", fake_urlopen)
+
+    client = OllamaClient(LocalLlmConfig(enabled=True, timeout_seconds=7))
+    interpretation = client.execute(prompt, source_result=result, registry=registry)
+
+    assert interpretation["provider"] == "ollama"
+    assert interpretation["schema_version"] == "0.1.0"
+    assert interpretation["model"] == "qwen2.5-coder:7b"
+    assert interpretation["prompt_version"] == "ai-interpretation-v1"
+    assert interpretation["findings"][0]["evidence_refs"] == ["jfr:event:1"]
+    assert requests[0][0].full_url == "http://localhost:11434/api/generate"
+    assert requests[0][1] == 7
+    posted = json.loads(requests[0][0].data.decode("utf-8"))
+    assert posted["stream"] is False
+    assert posted["format"] == "json"
+    assert posted["system"] == prompt.system
+    assert posted["prompt"] == prompt.user
+
+
+def test_ollama_client_async_uses_same_validation(monkeypatch) -> None:
+    result = _jfr_result()
+    registry = collect_evidence(result)
+    prompt = PromptBuilder(response_language="en").build(
+        result,
+        EvidenceSelector(max_items=5).select(registry),
+    )
+    response_body = {
+        "response": json.dumps(
+            {
+                "findings": [
+                    {
+                        "id": "ai-1",
+                        "label": "GC pause",
+                        "severity": "warning",
+                        "generated_by": "ai",
+                        "model": "qwen2.5-coder:7b",
+                        "summary": "A long GC pause is visible.",
+                        "reasoning": "The event includes a 120 ms GC duration.",
+                        "evidence_refs": ["jfr:event:1"],
+                        "evidence_quotes": {"jfr:event:1": "120 ms"},
+                        "confidence": 0.8,
+                        "limitations": [],
+                    }
+                ]
+            }
+        )
+    }
+
+    class FakeResponse:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, traceback):
+            return None
+
+        def read(self):
+            return json.dumps(response_body).encode("utf-8")
+
+    monkeypatch.setattr(runtime, "urlopen", lambda request, timeout: FakeResponse())
+
+    client = OllamaClient(LocalLlmConfig(enabled=True))
+    interpretation = asyncio.run(
+        client.execute_async(prompt, source_result=result, registry=registry)
+    )
+
+    assert interpretation["findings"][0]["confidence"] == 0.8
+
+
+def test_ollama_client_disabled_returns_empty_interpretation() -> None:
+    result = _jfr_result()
+    registry = collect_evidence(result)
+    prompt = PromptBuilder(response_language="en").build(
+        result,
+        EvidenceSelector(max_items=5).select(registry),
+    )
+
+    client = OllamaClient(LocalLlmConfig(enabled=False))
+    interpretation = client.execute(prompt, source_result=result, registry=registry)
+
+    assert interpretation["disabled"] is True
+    assert interpretation["findings"] == []
+    assert interpretation["disabled_reason"] == "AI interpretation is disabled."
 
 
 def test_interpretation_evaluation_reports_evidence_integrity() -> None:

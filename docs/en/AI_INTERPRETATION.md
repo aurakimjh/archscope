@@ -68,6 +68,9 @@ The first implementation includes code-level guardrails under `archscope_engine.
 - `AiFindingValidator` rejects blank, malformed, unsupported, unknown, low-confidence, or quote-mismatched findings.
 - `EvidenceSelector` bounds evidence count and character budgets before prompt construction.
 - `PromptBuilder` separates system instructions from untrusted diagnostic data inside a delimited JSON block.
+- `LocalLlmClient` defines the execution boundary for optional local inference.
+- `OllamaClient` calls Ollama's local `/api/generate` endpoint with timeout-bound JSON requests, normalizes the interpretation envelope, and validates the result before returning it.
+- `LocalLlmClient.execute_async()` provides a non-blocking wrapper for UI or worker callers that should not block their main loop during local inference.
 - Prompt and response logging are disabled by default.
 
 Low-confidence output is rejected below the initial threshold of `0.3`. Partial invalid responses are treated conservatively: invalid findings are not displayed, and a validation failure should be surfaced as an engine/UI message.
@@ -80,8 +83,8 @@ Process:
 
 1. Select bounded evidence rows from `AnalysisResult.tables` and `metadata.findings`.
 2. Build a prompt with result metadata, normalized metrics, and evidence excerpts.
-3. Ask the local model for structured JSON following the AI finding shape.
-4. Validate JSON shape and non-empty evidence references.
+3. Ask the local model for structured JSON following the AI finding shape through `OllamaClient`.
+4. Normalize the response into `InterpretationResult`, then validate JSON shape and non-empty evidence references.
 5. Display AI output separately from deterministic findings.
 
 Provider boundary:

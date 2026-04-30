@@ -68,6 +68,9 @@ AI interpretation은 `AnalysisResult`를 대체하지 않고 별도 `Interpretat
 - `AiFindingValidator`는 blank, malformed, unsupported, unknown, low-confidence, quote-mismatched finding을 거부한다.
 - `EvidenceSelector`는 prompt construction 전 evidence 개수와 문자 수를 제한한다.
 - `PromptBuilder`는 system instruction과 untrusted diagnostic data를 delimited JSON block으로 분리한다.
+- `LocalLlmClient`는 optional local inference의 실행 경계를 정의한다.
+- `OllamaClient`는 Ollama local `/api/generate` endpoint를 timeout-bound JSON request로 호출하고, interpretation envelope를 정규화한 뒤 결과를 검증해서 반환한다.
+- `LocalLlmClient.execute_async()`는 local inference 중 UI 또는 worker caller의 main loop가 block되지 않도록 non-blocking wrapper를 제공한다.
 - Prompt 및 response logging은 기본 비활성화한다.
 
 초기 low-confidence threshold는 `0.3`이다. Partial invalid response는 보수적으로 처리한다. Invalid finding은 표시하지 않으며 validation failure는 engine/UI message로 노출해야 한다.
@@ -80,8 +83,8 @@ Process:
 
 1. `AnalysisResult.tables`와 `metadata.findings`에서 bounded evidence row를 선택한다.
 2. Result metadata, normalized metric, evidence excerpt로 prompt를 만든다.
-3. Local model에 AI finding shape를 따르는 structured JSON을 요청한다.
-4. JSON shape와 non-empty evidence reference를 검증한다.
+3. `OllamaClient`를 통해 local model에 AI finding shape를 따르는 structured JSON을 요청한다.
+4. 응답을 `InterpretationResult`로 정규화한 뒤 JSON shape와 non-empty evidence reference를 검증한다.
 5. AI output은 deterministic finding과 분리해서 표시한다.
 
 Provider boundary:

@@ -1,6 +1,6 @@
 # ArchScope Review Decisions
 
-Last updated: 2026-04-30
+Last updated: 2026-05-01
 
 ## Scope
 
@@ -21,6 +21,7 @@ This document records acceptance decisions for review findings extracted from:
 - `docs/review/done/2026-04-30_claude-code_phase5-ai-interpretation-review.md`
 - `docs/review/done/2026-04-30_Phase5_AI_Interpretation_Review_by_Gemini.md`
 - `docs/review/done/2026-04-30_Phase5_AI_Interpretation_Independent_Review_by_Gemini.md`
+- `docs/review/done/2026-05-01_Phase5_AI_Interpretation_Review_by_Gemini.md`
 
 Decision states:
 
@@ -133,6 +134,10 @@ Decision states:
 | RD-098 | Add AI interpretation evaluation pipeline | Accepted | P2 | AI Interpretation Quality | AI behavior can regress silently when models, prompts, or evidence shapes change. Evidence validity alone is not enough to measure diagnostic quality. | Create a golden diagnostics dataset, evidence-integrity checks, hallucination/relevance metrics, and model/prompt regression gates. |
 | RD-099 | Define AI output confidence, partial failure, and retry policy | Accepted | P2 | AI Interpretation Quality | The design has `confidence`, but no display threshold or invalid-output handling. Users need predictable behavior for low-confidence or partly invalid findings. | Define confidence thresholds, partial finding rejection, retry limits, schema failure handling, and UI display rules. |
 | RD-100 | Apply privacy and logging policy to LLM inputs and outputs | Accepted | P2 | AI Interpretation Security | OTel privacy policy exists, but LLM prompts may still receive or retain sensitive excerpts. Local does not mean risk-free. | Apply redaction before prompt construction, disable prompt/response logging by default, and document debug-log safeguards. |
+| RD-101 | Implement concrete `LocalLlmClient`/`OllamaClient` execution | Accepted | P1 | AI Interpretation Runtime | The 2026-05-01 review correctly identifies that guardrails exist but the local model execution boundary was still missing. A concrete client is now safe because evidence selection, prompt construction, policy validation, and output validation already exist. | Add timeout-bound Ollama `/api/generate` execution, JSON envelope normalization, and validator enforcement. |
+| RD-102 | Add non-blocking AI execution path | Accepted | P1 | AI Interpretation Runtime | UI and worker callers should not block their main loop while local inference runs. The first step can be an async wrapper around the validated synchronous client while preserving process isolation options for later desktop wiring. | Add `execute_async()` on the local LLM client boundary. |
+| RD-103 | Externalize prompt templates by model/version | Deferred | P2 | AI Interpretation Prompting | The prompt is already versioned, but only one local model profile is currently supported. Moving templates to YAML now would add configuration surface before there is a real need to tune multiple models. | Track a follow-up for versioned prompt-template configuration once additional model profiles are supported. |
+| RD-104 | Add language-specific system prompt variants | Deferred | P3 | AI Interpretation i18n | `response_language` is present and tests cover Korean output instruction. Fully localized system prompts should be driven by evaluation evidence of language drift, not added speculatively. | Revisit after AI evaluation shows English/Korean prompt-template gaps. |
 
 ## Backlog Mapping
 
@@ -184,6 +189,8 @@ The executable TO-DO list is maintained in `work_status.md` under `Execution Bac
 | RD-086 | T-081 | Multi-lane timeline visualization design. |
 | RD-089 | Deferred | ADR-style structure for future high-impact diagnostics decisions. |
 | RD-090 to RD-100 | T-082 to T-092 | Phase 5 AI interpretation hardening before any real LLM integration. |
+| RD-101, RD-102 | T-163, T-164 | Concrete local LLM execution client and async wrapper. |
+| RD-103, RD-104 | T-165, T-166 | Deferred prompt-template externalization and multilingual prompt variants. |
 
 ## Open Decisions
 
