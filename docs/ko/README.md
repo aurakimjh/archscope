@@ -14,5 +14,6 @@
 - [AI 보조 해석 설계](./AI_INTERPRETATION.md)
 - [Bridge PoC UX Flow](./BRIDGE_POC_UX_FLOW.md)
 - [보고서 Export 설계](./REPORT_EXPORT_DESIGN.md)
+- [Demo-site 데이터 실행 흐름](./DEMO_SITE_DATA.md)
 
 영문 문서는 [`../en`](../en/README.md)에서 확인할 수 있습니다.

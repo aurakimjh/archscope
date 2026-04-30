@@ -100,12 +100,16 @@ These parsers are intended for small diagnostic artifacts and demo scenarios. Th
 
 The OpenTelemetry MVP accepts line-delimited JSON log records. It supports common
 field aliases such as `trace_id`/`traceId`, `span_id`/`spanId`,
-`severity_text`/`severityText`, `service_name`/`service.name`, and `body`.
+`parent_span_id`/`parentSpanId`, `severity_text`/`severityText`,
+`service_name`/`service.name`, and `body`.
 
 The analyzer groups records by trace, service, and severity, then reports traces
-that appear across more than one service as a lightweight correlation signal.
-Full OTel resource/logs envelope ingestion and span timing correlation remain
-future work.
+that appear across more than one service as a lightweight correlation signal. If
+parent span IDs are present, service paths are reconstructed from the span tree;
+otherwise the analyzer falls back to timestamp order. Failed traces report the
+first failing service, downstream services that appear after the failure, and a
+failure-propagation finding when applicable. Full OTel resource/logs envelope
+ingestion and span timing correlation remain future work.
 
 ## Error Handling
 

@@ -35,11 +35,8 @@ from archscope_engine.exporters.html_exporter import render_html_report, write_h
 from archscope_engine.exporters.json_exporter import write_json_result
 from archscope_engine.exporters.pptx_exporter import write_pptx_report
 from archscope_engine.exporters.report_diff import build_comparison_report
-from archscope_engine.demo_site_runner import (
-    ANALYZER_TYPE_COMMANDS,
-    discover_demo_manifests,
-    run_demo_site_manifest,
-)
+from archscope_engine.demo_site_mapping import load_analyzer_type_mappings
+from archscope_engine.demo_site_runner import discover_demo_manifests, run_demo_site_manifest
 from archscope_engine.models.analysis_result import AnalysisResult
 
 console = Console()
@@ -614,10 +611,23 @@ def report_pptx(
 
 
 @demo_site_app.command("mapping")
-def demo_site_mapping() -> None:
+def demo_site_mapping(
+    manifest_root: Optional[Path] = typer.Option(
+        None,
+        "--manifest-root",
+        help="Demo-site root used to locate analyzer_type_mapping.json.",
+    ),
+) -> None:
     """Print the manifest analyzer_type to ArchScope CLI command mapping."""
-    for analyzer_type, command in sorted(ANALYZER_TYPE_COMMANDS.items()):
-        console.print(f"{analyzer_type} -> {' '.join(command)}")
+    mappings = load_analyzer_type_mappings(manifest_root or _default_demo_site_root())
+    for analyzer_type, mapping in sorted(mappings.items()):
+        command = " ".join(mapping.command) if mapping.command is not None else "(reference only)"
+        console.print(f"{analyzer_type} -> {command}")
+        for format_name, override in sorted(mapping.format_overrides.items()):
+            override_command = (
+                " ".join(override.command) if override.command is not None else "(reference only)"
+            )
+            console.print(f"  format={format_name} -> {override_command}")
 
 
 @demo_site_app.command("run")
@@ -721,6 +731,18 @@ def _manifest_scenario(path: Path) -> str:
     except Exception:
         return path.parent.name
     return str(payload.get("scenario") or path.parent.name)
+
+
+def _default_demo_site_root() -> Path:
+    candidates = [
+        Path("../projects-assets/test-data/demo-site"),
+        Path("../../../projects-assets/test-data/demo-site"),
+        Path.cwd() / "../projects-assets/test-data/demo-site",
+    ]
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    return Path("../projects-assets/test-data/demo-site")
 
 
 def _manifest_data_source(path: Path) -> str:

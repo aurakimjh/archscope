@@ -273,6 +273,8 @@ Required `summary` fields:
 | `unique_traces` | integer | Distinct non-empty trace IDs |
 | `unique_services` | integer | Distinct non-empty service names |
 | `cross_service_traces` | integer | Traces seen in more than one service |
+| `failed_traces` | integer | Traces that contain an error signal |
+| `failure_propagation_traces` | integer | Failed traces with downstream service activity after the first failure |
 | `error_records` | integer | Records with error-level severity |
 
 Required `series` fields:
@@ -289,6 +291,11 @@ Required `tables` fields:
 |---|---|
 | `records` | `{ timestamp, trace_id, span_id, service_name, severity, body }` |
 | `cross_service_traces` | `{ trace_id: string, services: string[] }` |
+| `trace_service_paths` | `{ trace_id, service_path, service_count, record_count, has_error, max_severity }` |
+| `trace_failures` | `{ trace_id, services, first_failing_service, error_services, error_count, first_error }` |
+| `service_failure_propagation` | `{ trace_id, service_path, first_failing_service, downstream_services, downstream_service_count, first_error }` |
+| `trace_span_topology` | `{ trace_id, span_id, parent_span_id, service, child_count, has_error }` |
+| `service_trace_matrix` | `{ trace_id, service, record_count }` |
 
 ### Comparison Report Result
 

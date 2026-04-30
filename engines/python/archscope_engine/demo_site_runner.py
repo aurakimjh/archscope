@@ -26,23 +26,13 @@ from archscope_engine.exporters.html_exporter import render_html_report, write_h
 from archscope_engine.exporters.json_exporter import write_json_result
 from archscope_engine.exporters.pptx_exporter import write_pptx_report
 from archscope_engine.exporters.report_diff import build_comparison_report
+from archscope_engine.demo_site_mapping import (
+    AnalyzerTypeMapping,
+    command_for_mapping,
+    input_option_for_mapping,
+    load_analyzer_type_mappings,
+)
 from archscope_engine.models.analysis_result import AnalysisResult
-
-
-ANALYZER_TYPE_COMMANDS: dict[str, tuple[str, ...]] = {
-    "access_log": ("access-log", "analyze"),
-    "profiler_collapsed": ("profiler", "analyze-collapsed"),
-    "jfr_recording": ("jfr", "analyze-json"),
-    "gc_log": ("gc-log", "analyze"),
-    "thread_dump": ("thread-dump", "analyze"),
-    "exception": ("exception", "analyze"),
-    "exception_stack": ("exception", "analyze"),
-    "nodejs_stack": ("nodejs", "analyze"),
-    "python_traceback": ("python-traceback", "analyze"),
-    "go_panic": ("go-panic", "analyze"),
-    "dotnet_exception_iis": ("dotnet", "analyze"),
-    "otel_logs": ("otel", "analyze"),
-}
 
 
 @dataclass(frozen=True)
@@ -97,6 +87,7 @@ def run_demo_site_manifest(
     data_source = _data_source(manifest, manifest_path)
     scenario_output_dir = output_root / data_source / scenario
     scenario_output_dir.mkdir(parents=True, exist_ok=True)
+    analyzer_mappings = load_analyzer_type_mappings(manifest_path)
 
     runs: list[DemoAnalyzerRun] = []
     skipped_files: list[dict[str, Any]] = []
@@ -117,7 +108,8 @@ def run_demo_site_manifest(
                 }
             )
             continue
-        if analyzer_type == "reference_only":
+        mapping = analyzer_mappings.get(analyzer_type)
+        if mapping is not None and mapping.command is None:
             reference_files.append(
                 {
                     "file": relative_file,
@@ -127,7 +119,7 @@ def run_demo_site_manifest(
                 }
             )
             continue
-        if analyzer_type not in ANALYZER_TYPE_COMMANDS:
+        if mapping is None:
             skipped_files.append(
                 {
                     "file": relative_file,
@@ -142,7 +134,7 @@ def run_demo_site_manifest(
         json_path = scenario_output_dir / f"{output_base}.json"
         html_path = scenario_output_dir / f"{output_base}.html"
         pptx_path = scenario_output_dir / f"{output_base}.pptx" if write_pptx else None
-        command = _command_for_entry(effective_entry, source_path, json_path)
+        command = _command_for_entry(effective_entry, source_path, json_path, mapping)
         try:
             result = _analyze_file(effective_entry, source_path)
             _annotate_demo_metadata(result, manifest, effective_entry, manifest_path)
@@ -366,6 +358,8 @@ def _annotate_demo_metadata(
         "expected_categories": manifest.get("expected_categories"),
         "expected_key_signals": manifest.get("expected_key_signals"),
     }
+    if result.type == "otel_logs":
+        _annotate_otel_manifest_validation(result, manifest)
     if (
         result.type == "access_log"
         and data_source == "real"
@@ -382,6 +376,104 @@ def _annotate_demo_metadata(
                     "evidence": {"error_rate": result.summary.get("error_rate")},
                 }
             )
+
+
+def _annotate_otel_manifest_validation(
+    result: AnalysisResult,
+    manifest: dict[str, Any],
+) -> None:
+    expected = _dict(manifest.get("expected_key_signals"))
+    if not expected:
+        return
+    expected_services = expected.get("services")
+    actual_services = {
+        str(row.get("service"))
+        for row in result.series.get("service_distribution", [])
+        if isinstance(row, dict) and row.get("service") not in {None, "(unknown)"}
+    }
+    validation: dict[str, Any] = {}
+    findings = result.metadata.setdefault("findings", [])
+    if not isinstance(findings, list):
+        findings = []
+        result.metadata["findings"] = findings
+    if isinstance(expected_services, list):
+        expected_service_set = {str(service) for service in expected_services}
+        missing_services = sorted(expected_service_set - actual_services)
+        validation["expected_services"] = sorted(expected_service_set)
+        validation["actual_services"] = sorted(actual_services)
+        validation["missing_services"] = missing_services
+        if missing_services:
+            findings.append(
+                {
+                    "severity": "warning",
+                    "code": "OTEL_EXPECTED_SERVICE_MISSING",
+                    "message": "Manifest expected services that were not observed in OTel logs.",
+                    "evidence": {"missing_services": ", ".join(missing_services)},
+                }
+            )
+    _validate_expected_count(
+        result,
+        findings,
+        validation,
+        expected=expected,
+        expected_key="traces",
+        actual_key="unique_traces",
+        finding_code="OTEL_EXPECTED_TRACE_COUNT_MISMATCH",
+    )
+    _validate_expected_count(
+        result,
+        findings,
+        validation,
+        expected=expected,
+        expected_key="failed_traces",
+        actual_key="failed_traces",
+        finding_code="OTEL_EXPECTED_FAILED_TRACE_COUNT_MISMATCH",
+    )
+    if "successful_traces" in expected:
+        expected_successful = expected.get("successful_traces")
+        actual_successful = int(result.summary.get("unique_traces") or 0) - int(
+            result.summary.get("failed_traces") or 0
+        )
+        validation["expected_successful_traces"] = expected_successful
+        validation["actual_successful_traces"] = actual_successful
+        if isinstance(expected_successful, int) and expected_successful != actual_successful:
+            findings.append(
+                {
+                    "severity": "warning",
+                    "code": "OTEL_EXPECTED_SUCCESSFUL_TRACE_COUNT_MISMATCH",
+                    "message": "Manifest expected successful trace count differs from analysis.",
+                    "evidence": {
+                        "expected": expected_successful,
+                        "actual": actual_successful,
+                    },
+                }
+            )
+    result.metadata["demo_site"]["manifest_validation"] = validation
+
+
+def _validate_expected_count(
+    result: AnalysisResult,
+    findings: list[Any],
+    validation: dict[str, Any],
+    *,
+    expected: dict[str, Any],
+    expected_key: str,
+    actual_key: str,
+    finding_code: str,
+) -> None:
+    expected_value = expected.get(expected_key)
+    actual_value = result.summary.get(actual_key)
+    validation[f"expected_{expected_key}"] = expected_value
+    validation[f"actual_{actual_key}"] = actual_value
+    if isinstance(expected_value, int) and expected_value != actual_value:
+        findings.append(
+            {
+                "severity": "warning",
+                "code": finding_code,
+                "message": "Manifest expected count differs from OTel analysis.",
+                "evidence": {"expected": expected_value, "actual": actual_value},
+            }
+        )
 
 
 def _write_baseline_comparison(
@@ -411,9 +503,9 @@ def _write_baseline_comparison(
 
     comparison_paths: list[Path] = []
     after_json_by_analyzer = {
-        _analyzer_type_from_output_path(path): path
+        _analyzer_type_from_result_json(path): path
         for path in after_json_paths
-        if _analyzer_type_from_output_path(path)
+        if _analyzer_type_from_result_json(path)
     }
     for analyzer_type, after_json in sorted(after_json_by_analyzer.items()):
         before_json = before_json_by_analyzer.get(analyzer_type)
@@ -507,26 +599,22 @@ def _command_for_entry(
     file_entry: dict[str, Any],
     source_path: Path,
     output_path: Path,
+    mapping: AnalyzerTypeMapping,
 ) -> list[str]:
     analyzer_type = str(file_entry["analyzer_type"])
-    command = list(ANALYZER_TYPE_COMMANDS[analyzer_type])
-    is_jennifer = (
-        analyzer_type == "profiler_collapsed"
-        and (
-            file_entry.get("format") == "jennifer_csv"
-            or source_path.suffix.lower() == ".csv"
-        )
-    )
-    if is_jennifer:
-        command = ["profiler", "analyze-jennifer-csv", "--file", str(source_path)]
-        if "interval_ms" in file_entry:
-            command.extend(["--interval-ms", str(file_entry["interval_ms"])])
-    elif analyzer_type == "profiler_collapsed":
-        command.extend(["--wall", str(source_path)])
+    file_format = _effective_mapping_format(file_entry, source_path)
+    command_tuple = command_for_mapping(mapping, file_format=file_format)
+    input_option = input_option_for_mapping(mapping, file_format=file_format)
+    if command_tuple is None or input_option is None:
+        raise ValueError(f"Analyzer type is not executable: {analyzer_type}")
+    command = list(command_tuple)
+    command.extend([input_option, str(source_path)])
+    if analyzer_type == "profiler_collapsed" and input_option == "--wall":
         if "wall_interval_ms" in file_entry:
             command.extend(["--wall-interval-ms", str(file_entry["wall_interval_ms"])])
-    else:
-        command.extend(["--file", str(source_path)])
+    if analyzer_type == "profiler_collapsed" and input_option == "--file":
+        if "interval_ms" in file_entry:
+            command.extend(["--interval-ms", str(file_entry["interval_ms"])])
     if analyzer_type == "profiler_collapsed" and "elapsed_sec" in file_entry:
         command.extend(["--elapsed-sec", str(file_entry["elapsed_sec"])])
     if file_entry.get("format") and analyzer_type == "access_log":
@@ -687,19 +775,33 @@ def _analysis_summary_rows(summaries: list[dict[str, Any]]) -> str:
 
 
 def _result_json_by_analyzer(output_dir: Path) -> dict[str, Path]:
-    return {
-        analyzer_type: path
-        for path in sorted(output_dir.glob("*.json"))
-        if (analyzer_type := _analyzer_type_from_output_path(path))
-    }
+    results: dict[str, Path] = {}
+    for path in sorted(output_dir.glob("*.json")):
+        analyzer_type = _analyzer_type_from_result_json(path)
+        if analyzer_type is not None:
+            results[analyzer_type] = path
+    return results
 
 
-def _analyzer_type_from_output_path(path: Path) -> str | None:
+def _analyzer_type_from_result_json(path: Path) -> str | None:
     if path.name.startswith("normal-baseline-vs-") or path.name == "run-summary.json":
         return None
-    for analyzer_type in sorted(ANALYZER_TYPE_COMMANDS, key=len, reverse=True):
-        if path.name.endswith(f"-{analyzer_type}.json"):
-            return analyzer_type
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    metadata = _dict(payload.get("metadata"))
+    demo_site = _dict(metadata.get("demo_site"))
+    analyzer_type = demo_site.get("manifest_analyzer_type")
+    return analyzer_type if isinstance(analyzer_type, str) else None
+
+
+def _effective_mapping_format(file_entry: dict[str, Any], source_path: Path) -> str | None:
+    entry_format = file_entry.get("format")
+    if isinstance(entry_format, str):
+        return entry_format
+    if source_path.suffix.lower() == ".csv":
+        return "jennifer_csv"
     return None
 
 

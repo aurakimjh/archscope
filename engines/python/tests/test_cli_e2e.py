@@ -190,6 +190,30 @@ def test_demo_site_cli_generates_scenario_bundle(tmp_path) -> None:
     assert "SKIPPED_LINES" in completed.stdout
 
 
+def test_demo_site_mapping_cli_reads_asset_mapping() -> None:
+    demo_root = Path(__file__).parents[4] / "projects-assets/test-data/demo-site"
+    if not demo_root.exists():
+        pytest.skip("projects-assets demo-site data is not available")
+
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "archscope_engine.cli",
+            "demo-site",
+            "mapping",
+            "--manifest-root",
+            str(demo_root),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    assert "access_log -> access-log analyze" in completed.stdout
+    assert "format=jennifer_csv -> profiler analyze-jennifer-csv" in completed.stdout
+
+
 def test_demo_site_cli_compares_non_access_log_baseline_outputs(tmp_path) -> None:
     demo_root = Path(__file__).parents[4] / "projects-assets/test-data/demo-site"
     if not demo_root.exists():

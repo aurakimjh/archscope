@@ -53,7 +53,8 @@
 - Go panic/goroutine analyzer
 - .NET exception/IIS analyzer
 - OpenTelemetry JSONL log analyzer 및 cross-service trace correlation MVP
-- OpenTelemetry log input 및 더 깊은 trace context mapping
+- OpenTelemetry parent-span service path 분석 및 failure propagation
+- 더 넓은 OpenTelemetry envelope ingestion 및 span timing correlation
 - Access log, GC, profiler, thread, JFR, OTel evidence를 아우르는 cross-evidence timeline correlation
 
 ## Phase 5: Report Automation

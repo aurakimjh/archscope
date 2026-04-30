@@ -273,6 +273,8 @@ UNKNOWN
 | `unique_traces` | integer | Distinct non-empty trace ID 수 |
 | `unique_services` | integer | Distinct non-empty service name 수 |
 | `cross_service_traces` | integer | 둘 이상의 service에서 관찰된 trace 수 |
+| `failed_traces` | integer | Error signal이 포함된 trace 수 |
+| `failure_propagation_traces` | integer | 첫 실패 이후 downstream service 활동이 이어진 failed trace 수 |
 | `error_records` | integer | Error-level severity record 수 |
 
 필수 `series` fields:
@@ -289,6 +291,11 @@ UNKNOWN
 |---|---|
 | `records` | `{ timestamp, trace_id, span_id, service_name, severity, body }` |
 | `cross_service_traces` | `{ trace_id: string, services: string[] }` |
+| `trace_service_paths` | `{ trace_id, service_path, service_count, record_count, has_error, max_severity }` |
+| `trace_failures` | `{ trace_id, services, first_failing_service, error_services, error_count, first_error }` |
+| `service_failure_propagation` | `{ trace_id, service_path, first_failing_service, downstream_services, downstream_service_count, first_error }` |
+| `trace_span_topology` | `{ trace_id, span_id, parent_span_id, service, child_count, has_error }` |
+| `service_trace_matrix` | `{ trace_id, service, record_count }` |
 
 ### Comparison Report Result
 

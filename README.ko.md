@@ -193,6 +193,29 @@ archscope-engine otel analyze \
   --out ../../examples/outputs/otel-logs-result.json
 ```
 
+### Demo-site Report Bundle
+
+공유 demo-site manifest는 `../projects-assets/test-data/demo-site`에 둡니다.
+ArchScope는 해당 asset 저장소에서 manifest와 analyzer type mapping을 읽고,
+생성 결과는 로컬 출력 디렉터리에 기록합니다.
+
+```bash
+./scripts/run-demo-site-data.sh
+
+python -m archscope_engine.cli demo-site run \
+  --manifest-root ../projects-assets/test-data/demo-site \
+  --data-source synthetic \
+  --scenario gc-pressure \
+  --out /tmp/archscope-demo-bundles
+```
+
+각 시나리오 bundle에는 `run-summary.json`, `index.html`, analyzer
+JSON/HTML/PPTX 출력, 같은 `analyzer_type` baseline이 있는 경우 comparison
+report가 포함됩니다. Canonical manifest mapping은
+`../projects-assets/test-data/demo-site/analyzer_type_mapping.json`이며,
+`python -m archscope_engine.cli demo-site mapping --manifest-root ...` 명령으로
+확인할 수 있습니다.
+
 ## 현재 범위
 
 현재 repository는 foundation 단계입니다.
@@ -216,8 +239,9 @@ archscope-engine otel analyze \
 - Minimal PowerPoint report export
 - Profiler result JSON용 static HTML flamegraph rendering
 - 제목, renderer, theme, option JSON을 조정하는 Chart Studio template preview
+- 공유 manifest 기반 Demo Data Center 및 demo-site report bundle 생성
 
-Packaging polish, interactive HTML chart bundle, 더 깊은 OTel trace context mapping, 광범위한 large-file optimization은 이후 phase 작업으로 남겨둡니다.
+Packaging polish, Playwright/Electron UI smoke 자동화, 광범위한 large-file optimization은 이후 phase 작업으로 남겨둡니다.
 
 ## License
 

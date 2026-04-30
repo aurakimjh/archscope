@@ -484,7 +484,7 @@ async function runDemoScenario(request: DemoRunRequest): Promise<DemoRunResponse
   if (request.dataSource === "real" || request.dataSource === "synthetic") {
     args.push("--data-source", request.dataSource);
   }
-  const result = await execEngine(args);
+  const result = await execEngine(args, 300_000);
   if (!result.ok) {
     return result;
   }
@@ -647,7 +647,7 @@ async function runAnalyzer<T extends AnalysisResult>(
   }
 }
 
-function execEngine(args: string[]): Promise<EngineProcessResponse> {
+function execEngine(args: string[], timeoutMs = 60_000): Promise<EngineProcessResponse> {
   const invocation = resolveEngineInvocation();
 
   return new Promise((resolve) => {
@@ -657,7 +657,7 @@ function execEngine(args: string[]): Promise<EngineProcessResponse> {
       {
         cwd: invocation.cwd,
         env: process.env,
-        timeout: 60_000,
+        timeout: timeoutMs,
         maxBuffer: 1024 * 1024 * 4,
       },
       (error, stdout, stderr) => {

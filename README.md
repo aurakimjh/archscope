@@ -193,6 +193,28 @@ archscope-engine otel analyze \
   --out ../../examples/outputs/otel-logs-result.json
 ```
 
+### Demo-Site Report Bundles
+
+Shared demo-site manifests live in `../projects-assets/test-data/demo-site`.
+ArchScope reads the manifest and analyzer type mapping from that asset
+repository, then writes generated bundles locally:
+
+```bash
+./scripts/run-demo-site-data.sh
+
+python -m archscope_engine.cli demo-site run \
+  --manifest-root ../projects-assets/test-data/demo-site \
+  --data-source synthetic \
+  --scenario gc-pressure \
+  --out /tmp/archscope-demo-bundles
+```
+
+Each scenario bundle contains `run-summary.json`, `index.html`, analyzer
+JSON/HTML/PPTX outputs, and baseline comparison reports where matching
+`analyzer_type` outputs exist. The canonical manifest mapping is
+`../projects-assets/test-data/demo-site/analyzer_type_mapping.json`; inspect it
+with `python -m archscope_engine.cli demo-site mapping --manifest-root ...`.
+
 ## Current Scope
 
 This repository currently contains the foundation only:
@@ -216,8 +238,9 @@ This repository currently contains the foundation only:
 - Minimal PowerPoint report export
 - Static HTML flamegraph rendering for profiler result JSON
 - Chart Studio template preview with title, renderer, theme, and option JSON controls
+- Demo Data Center and demo-site report bundle generation from shared manifests
 
-Packaging polish, interactive HTML chart bundles, deeper OTel trace context mapping, and broad large-file optimization remain later-phase work.
+Packaging polish, Playwright/Electron UI smoke automation, and broad large-file optimization remain later-phase work.
 
 ## License
 

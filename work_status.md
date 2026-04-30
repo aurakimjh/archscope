@@ -1,6 +1,6 @@
 # ArchScope Work Status
 
-Last updated: 2026-04-30
+Last updated: 2026-05-01
 
 ## Review Processing Status
 
@@ -309,6 +309,25 @@ Scope exclusions for this cycle: PowerPoint export, before/after report diff, fu
 | T-151 | P1 | [x] | Connect Export Center to the Python report CLI through Electron IPC for HTML, before/after diff, and PPTX exports. | T-136, T-145, T-146 | User follow-up | `export:execute` bridge |
 | T-152 | P1 | [x] | Replace Export Center placeholder with JSON selection, export execution, generated path display, engine messages, and error states. | T-151 | User follow-up | Functional Export Center UI |
 
+### Demo-Site Data Center and Report Bundles
+
+Goal: make the shared `projects-assets/test-data/demo-site` corpus executable from
+the CLI and desktop UI, while keeping reusable demo manifests and analyzer
+mapping in the shared asset repository.
+
+| ID | Priority | Status | Task | Depends on | Source | Output |
+|---|---|---|---|---|---|---|
+| T-153 | P1 | [x] | Add demo-site manifest runner that reads scenario manifests and writes per-scenario JSON/HTML/PPTX bundles. | T-136, T-146, T-148 | User follow-up | `demo-site run` CLI and `scripts/run-demo-site-data.sh` |
+| T-154 | P1 | [x] | Generate scenario and root `index.html` files with analyzer output summary, skipped line report, failed analyzer report, reference-only files, and expected signals. | T-153 | User follow-up | Portable demo bundle indexes |
+| T-155 | P1 | [x] | Generate normal-baseline comparison reports for every matching analyzer type, not only access logs. | T-145, T-153 | User follow-up | `normal-baseline-vs-<analyzer_type>` outputs |
+| T-156 | P1 | [x] | Add Demo Data Center UI for manifest root selection, real/synthetic filters, all-scenario execution, artifact opening, Export Center handoff, failed/skipped summaries, and reference-only context. | T-153, T-151 | User follow-up | Desktop demo execution flow |
+| T-157 | P1 | [x] | Single-source demo `analyzer_type` command mapping by reading `projects-assets/test-data/demo-site/analyzer_type_mapping.json` at runtime. | T-153 | User follow-up | `demo_site_mapping.py` loader and `demo-site mapping` CLI |
+| T-158 | P1 | [x] | Strengthen OTel cross-service analysis with parent-span service paths, first failing service, downstream propagation, and propagation findings. | T-148 | User follow-up | OTel parent-span path and failure propagation tables |
+| T-159 | P2 | [x] | Compare OTel demo analysis against manifest expected services and trace counts, and emit mismatch findings. | T-153, T-158 | User follow-up | Demo manifest validation metadata |
+| T-160 | P2 | [x] | Increase desktop demo-site run timeout for larger scenario batches and keep running-state feedback in the UI. | T-156 | User follow-up | 5-minute demo runner IPC timeout |
+| T-161 | P2 | [x] | Document demo-site CLI/UI workflow, output structure, analyzer mapping source, OTel behavior, and remaining manual UI verification. | T-153 through T-160 | User follow-up | README and English/Korean docs |
+| T-162 | P2 | [ ] | Add Playwright/Electron smoke automation for Demo Data Center after a UI test harness is introduced. | T-156 | User follow-up | Deferred automated UI smoke test |
+
 ## Dependency Order
 
 1. `T-001 -> T-002 -> T-030 -> T-037 -> T-003`: bridge decision, client boundary, CLI install metadata, minimal UX flow, then end-to-end PoC.
@@ -346,6 +365,9 @@ Scope exclusions for this cycle: PowerPoint export, before/after report diff, fu
 33. `T-145/T-146/T-147 -> T-150`: close the next report automation follow-ups with diff, PPTX, and static flamegraph HTML coverage.
 34. `T-148 -> T-149 -> T-150`: add the first OTel analyzer path, fixture coverage, and docs before deeper trace/span correlation work.
 35. `T-136/T-145/T-146 -> T-151 -> T-152`: expose the report automation CLI paths through the desktop Export Center.
+36. `T-153 -> T-154 -> T-155 -> T-156 -> T-157`: run shared demo-site manifests through CLI/UI and keep command mapping single-sourced in `projects-assets`.
+37. `T-148 -> T-158 -> T-159`: move OTel from lightweight grouping to parent-span service paths, failure propagation, and manifest expectation checks.
+38. `T-156 -> T-160 -> T-162`: support larger demo runs now, then add automated Electron smoke coverage after the harness exists.
 
 ## Active Decision Queue
 
@@ -371,3 +393,5 @@ When new review documents are placed in `docs/review/`:
 - `docs/research/research_decisions.md` is the source of truth for research acceptance decisions.
 - `CLAUDE.MD`, `GEMINI.MD`, and `AGENTS.MD` are local AI working instruction files and must not be committed.
 - Demo-site test log data (6 scenarios) is maintained in `projects-assets/test-data/demo-site/`, not in this repository. See `projects-assets/ASSET_INDEX.md` for the full catalog.
+- Demo-site analyzer type mapping is canonical in `projects-assets/test-data/demo-site/analyzer_type_mapping.json` and is read by ArchScope at runtime.
+- Manual UI verification remaining before the next review: launch the Electron app, run Demo Data Center for one synthetic and one real scenario, open generated artifacts, and send at least one JSON result to Export Center.

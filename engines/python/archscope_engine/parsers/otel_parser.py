@@ -55,6 +55,7 @@ def _record_from_payload(payload: Any, *, raw_line: str) -> OTelLogRecord | None
         return None
     trace_id = _string_value(payload, "trace_id", "traceId", "traceid")
     span_id = _string_value(payload, "span_id", "spanId", "spanid")
+    parent_span_id = _parent_span_id(payload)
     body = _body_value(payload.get("body") or payload.get("message"))
     if trace_id is None and span_id is None and body is None:
         return None
@@ -62,6 +63,7 @@ def _record_from_payload(payload: Any, *, raw_line: str) -> OTelLogRecord | None
         timestamp=_string_value(payload, "timestamp", "time", "observed_time"),
         trace_id=trace_id,
         span_id=span_id,
+        parent_span_id=parent_span_id,
         service_name=_service_name(payload),
         severity=(
             _string_value(payload, "severity_text", "severityText", "level")
@@ -84,6 +86,28 @@ def _service_name(payload: dict[str, Any]) -> str | None:
     attributes = payload.get("attributes")
     if isinstance(attributes, dict):
         return _string_value(attributes, "service.name", "service_name")
+    return None
+
+
+def _parent_span_id(payload: dict[str, Any]) -> str | None:
+    direct = _string_value(
+        payload,
+        "parent_span_id",
+        "parentSpanId",
+        "parent_spanid",
+        "parentSpanID",
+    )
+    if direct:
+        return direct
+    attributes = payload.get("attributes")
+    if isinstance(attributes, dict):
+        return _string_value(
+            attributes,
+            "parent_span_id",
+            "parentSpanId",
+            "parent.span_id",
+            "parentSpanID",
+        )
     return None
 
 
