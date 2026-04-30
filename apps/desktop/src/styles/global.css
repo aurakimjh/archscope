@@ -667,6 +667,36 @@ th {
   grid-template-columns: 360px minmax(0, 1fr);
 }
 
+.demo-data-grid {
+  grid-template-columns: 400px minmax(0, 1fr);
+}
+
+.demo-scenario-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid #dbe3ef;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.demo-scenario-summary strong {
+  color: #111827;
+}
+
+.demo-scenario-summary small {
+  color: #475569;
+  line-height: 1.4;
+}
+
+.demo-scenario-summary span {
+  overflow-wrap: anywhere;
+  color: #334155;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+}
+
 .export-path-picker {
   display: flex;
   flex-direction: column;

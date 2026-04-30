@@ -110,6 +110,20 @@ def test_analyze_access_log_reports_status_and_slow_url_findings(tmp_path) -> No
     }
 
 
+def test_analyze_access_log_reports_non_standard_http_status(tmp_path) -> None:
+    path = tmp_path / "access.log"
+    path.write_text(nginx_line(status="999"), encoding="utf-8")
+
+    result = analyze_access_log(path)
+
+    finding = next(
+        item
+        for item in result.metadata["findings"]
+        if item["code"] == "NON_STANDARD_HTTP_STATUS"
+    )
+    assert finding["evidence"] == {"statuses": "999", "count": 1}
+
+
 def test_analyze_access_log_handles_more_records_than_percentile_sample_limit(tmp_path) -> None:
     path = tmp_path / "access.log"
     path.write_text(

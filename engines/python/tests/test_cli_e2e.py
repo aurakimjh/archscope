@@ -151,6 +151,41 @@ def test_report_diff_and_pptx_clis_write_outputs(tmp_path) -> None:
     assert pptx_output.read_bytes().startswith(b"PK")
 
 
+def test_demo_site_cli_generates_scenario_bundle(tmp_path) -> None:
+    demo_root = Path(__file__).parents[4] / "projects-assets/test-data/demo-site"
+    if not demo_root.exists():
+        pytest.skip("projects-assets demo-site data is not available")
+    output_root = tmp_path / "demo-bundles"
+
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "archscope_engine.cli",
+            "demo-site",
+            "run",
+            "--manifest-root",
+            str(demo_root),
+            "--scenario",
+            "parser-debug-cases",
+            "--out",
+            str(output_root),
+            "--no-pptx",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    bundle_dir = output_root / "synthetic" / "parser-debug-cases"
+    summary = json.loads((bundle_dir / "run-summary.json").read_text(encoding="utf-8"))
+    assert completed.returncode == 0
+    assert (bundle_dir / "index.html").exists()
+    assert summary["scenario"] == "parser-debug-cases"
+    assert summary["skipped_line_report"]
+    assert "SKIPPED_LINES" in completed.stdout
+
+
 def test_profiler_jennifer_csv_cli_writes_analysis_result_json(tmp_path) -> None:
     sample = Path(__file__).parents[3] / "examples/profiler/sample-jennifer-flame.csv"
     output = tmp_path / "jennifer-result.json"

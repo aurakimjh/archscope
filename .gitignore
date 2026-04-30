@@ -16,6 +16,7 @@ dist-electron/
 build/
 release/
 out/
+demo-site-report-bundles/
 
 # Local environment
 .env

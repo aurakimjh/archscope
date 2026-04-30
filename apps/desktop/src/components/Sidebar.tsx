@@ -14,6 +14,7 @@ const navItems: NavItem[] = [
   { key: "thread-dump", labelKey: "threadDumpAnalyzer" },
   { key: "exception", labelKey: "exceptionAnalyzer" },
   { key: "chart-studio", labelKey: "chartStudio" },
+  { key: "demo-data", labelKey: "demoDataCenter" },
   { key: "export-center", labelKey: "exportCenter" },
   { key: "settings", labelKey: "settings" },
 ];

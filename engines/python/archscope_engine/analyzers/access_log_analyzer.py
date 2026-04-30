@@ -106,6 +106,7 @@ def build_access_log_result(
     requests_by_minute: Counter[str] = Counter()
     response_times_by_minute: dict[str, ResponseTimeStats] = defaultdict(ResponseTimeStats)
     status_distribution: Counter[str] = Counter()
+    non_standard_statuses: Counter[int] = Counter()
     url_counts: Counter[str] = Counter()
     url_response_totals: dict[str, float] = defaultdict(float)
     sample_records: list[AccessLogSampleRecordRow] = []
@@ -120,6 +121,8 @@ def build_access_log_result(
         requests_by_minute[minute] += 1
         response_times_by_minute[minute].add(record.response_time_ms)
         status_distribution[_status_family(record.status)] += 1
+        if record.status < 100 or record.status > 599:
+            non_standard_statuses[record.status] += 1
         url_counts[record.uri] += 1
         url_response_totals[record.uri] += record.response_time_ms
 
@@ -190,7 +193,7 @@ def build_access_log_result(
     tables: AccessLogTables = {"sample_records": sample_records}
     diagnostics_payload = diagnostics() if callable(diagnostics) else diagnostics
     analysis_options = _analysis_options_to_dict(options)
-    findings = _build_access_log_findings(summary, series)
+    findings = _build_access_log_findings(summary, series, non_standard_statuses)
     metadata: AccessLogMetadata = {
         "format": log_format,
         "parser": "nginx_combined_with_response_time",
@@ -254,6 +257,7 @@ def _analysis_options_to_dict(
 def _build_access_log_findings(
     summary: AccessLogSummary,
     series: AccessLogSeries,
+    non_standard_statuses: Counter[int],
 ) -> list[AccessLogFinding]:
     findings: list[AccessLogFinding] = []
     error_rate = summary["error_rate"]
@@ -291,6 +295,20 @@ def _build_access_log_findings(
                 "code": "SERVER_ERRORS_PRESENT",
                 "message": "One or more server-side errors were observed.",
                 "evidence": {"status": "5xx", "count": server_errors},
+            }
+        )
+
+    if non_standard_statuses:
+        statuses = ", ".join(str(status) for status in sorted(non_standard_statuses))
+        findings.append(
+            {
+                "severity": "warning",
+                "code": "NON_STANDARD_HTTP_STATUS",
+                "message": "One or more non-standard HTTP status codes were observed.",
+                "evidence": {
+                    "statuses": statuses,
+                    "count": sum(non_standard_statuses.values()),
+                },
             }
         )
 

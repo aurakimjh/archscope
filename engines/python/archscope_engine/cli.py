@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from datetime import datetime
 from pathlib import Path
 from typing import Callable, Optional
@@ -33,6 +34,11 @@ from archscope_engine.exporters.html_exporter import render_html_report, write_h
 from archscope_engine.exporters.json_exporter import write_json_result
 from archscope_engine.exporters.pptx_exporter import write_pptx_report
 from archscope_engine.exporters.report_diff import build_comparison_report
+from archscope_engine.demo_site_runner import (
+    ANALYZER_TYPE_COMMANDS,
+    discover_demo_manifests,
+    run_demo_site_manifest,
+)
 from archscope_engine.models.analysis_result import AnalysisResult
 
 console = Console()
@@ -53,6 +59,7 @@ go_panic_app = typer.Typer(help="Go panic and goroutine analysis commands.")
 dotnet_app = typer.Typer(help=".NET exception and IIS log analysis commands.")
 otel_app = typer.Typer(help="OpenTelemetry input analysis commands.")
 report_app = typer.Typer(help="Report export commands.")
+demo_site_app = typer.Typer(help="Demo-site manifest runner commands.")
 
 
 @access_log_app.command("analyze")
@@ -605,6 +612,80 @@ def report_pptx(
     console.print(f"Wrote PowerPoint report: {out}")
 
 
+@demo_site_app.command("mapping")
+def demo_site_mapping() -> None:
+    """Print the manifest analyzer_type to ArchScope CLI command mapping."""
+    for analyzer_type, command in sorted(ANALYZER_TYPE_COMMANDS.items()):
+        console.print(f"{analyzer_type} -> {' '.join(command)}")
+
+
+@demo_site_app.command("run")
+def demo_site_run(
+    manifest_root: Path = typer.Option(
+        ...,
+        "--manifest-root",
+        exists=True,
+        readable=True,
+        help="Demo-site root directory or a single scenario manifest.json.",
+    ),
+    out: Path = typer.Option(..., "--out", help="Report bundle output directory."),
+    scenario: list[str] = typer.Option(
+        [],
+        "--scenario",
+        help="Scenario name to run. May be provided multiple times.",
+    ),
+    no_pptx: bool = typer.Option(False, "--no-pptx", help="Skip PowerPoint report output."),
+) -> None:
+    """Run ArchScope analyzers for demo-site manifests and write report bundles."""
+    manifests = discover_demo_manifests(manifest_root)
+    if scenario:
+        requested = set(scenario)
+        manifests = [
+            path
+            for path in manifests
+            if path.parent.name in requested or _manifest_scenario(path) in requested
+        ]
+    if not manifests:
+        raise typer.BadParameter("No demo-site manifests matched the request.")
+
+    baseline_manifest = next(
+        (path for path in manifests if _manifest_scenario(path) == "normal-baseline"),
+        None,
+    )
+    if baseline_manifest is None and manifest_root.is_dir():
+        baseline_candidate = manifest_root / "synthetic" / "normal-baseline" / "manifest.json"
+        baseline_manifest = baseline_candidate if baseline_candidate.exists() else None
+
+    runs = []
+    for manifest_path in manifests:
+        run = run_demo_site_manifest(
+            manifest_path,
+            out,
+            baseline_manifest_path=baseline_manifest,
+            write_pptx=not no_pptx,
+        )
+        runs.append(run)
+        console.print(
+            f"Wrote demo bundle: {run.output_dir} "
+            f"({len(run.json_paths)} JSON, {len(run.failed_runs)} failed)"
+        )
+        for failed in run.failed_runs:
+            console.print(
+                f"[red]FAILED[/red] {run.scenario}/{failed.file} "
+                f"({failed.analyzer_type}): {failed.error}"
+            )
+        for analyzer_run in run.runs:
+            if analyzer_run.skipped_lines > 0:
+                console.print(
+                    f"[yellow]SKIPPED_LINES[/yellow] {run.scenario}/{analyzer_run.file} "
+                    f"({analyzer_run.analyzer_type}): {analyzer_run.skipped_lines}"
+                )
+
+    index_path = out / "index.html"
+    _write_demo_root_index(index_path, runs)
+    console.print(f"Wrote demo-site index: {index_path}")
+
+
 app.add_typer(access_log_app, name="access-log")
 app.add_typer(profiler_app, name="profiler")
 app.add_typer(jfr_app, name="jfr")
@@ -617,6 +698,49 @@ app.add_typer(go_panic_app, name="go-panic")
 app.add_typer(dotnet_app, name="dotnet")
 app.add_typer(otel_app, name="otel")
 app.add_typer(report_app, name="report")
+app.add_typer(demo_site_app, name="demo-site")
+
+
+def _manifest_scenario(path: Path) -> str:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return path.parent.name
+    return str(payload.get("scenario") or path.parent.name)
+
+
+def _write_demo_root_index(index_path: Path, runs: list) -> None:
+    rows = "\n".join(
+        "<tr>"
+        f"<td>{run.data_source}</td>"
+        f"<td>{run.scenario}</td>"
+        f"<td>{len(run.json_paths)}</td>"
+        f"<td>{len(run.failed_runs)}</td>"
+        f"<td><a href=\"{run.index_path.relative_to(index_path.parent)}\">index.html</a></td>"
+        "</tr>"
+        for run in runs
+        if run.index_path is not None
+    )
+    index_path.parent.mkdir(parents=True, exist_ok=True)
+    index_path.write_text(
+        "\n".join(
+            [
+                "<!doctype html>",
+                '<html lang="en"><head><meta charset="utf-8">',
+                "<title>ArchScope Demo Site Bundles</title>",
+                "<style>body{max-width:960px;margin:32px auto;font-family:Arial,sans-serif}"
+                "table{width:100%;border-collapse:collapse}"
+                "th,td{padding:10px;border-bottom:1px solid #ddd;text-align:left}</style>",
+                "</head><body>",
+                "<h1>ArchScope Demo Site Bundles</h1>",
+                "<table><thead><tr><th>Data source</th><th>Scenario</th>"
+                "<th>JSON outputs</th><th>Failed</th><th>Bundle</th></tr></thead>",
+                f"<tbody>{rows}</tbody></table>",
+                "</body></html>",
+            ]
+        ),
+        encoding="utf-8",
+    )
 
 
 def main() -> None:

@@ -41,19 +41,25 @@ def build_otel_result(
     service_counts = Counter(record.service_name or "(unknown)" for record in records)
     severity_counts = Counter(record.severity for record in records)
     trace_services: dict[str, set[str]] = defaultdict(set)
+    trace_records: dict[str, list[OTelLogRecord]] = defaultdict(list)
     for record in records:
         if record.trace_id and record.service_name:
             trace_services[record.trace_id].add(record.service_name)
+        if record.trace_id:
+            trace_records[record.trace_id].append(record)
     cross_service_traces = {
         trace_id: services
         for trace_id, services in trace_services.items()
         if len(services) > 1
     }
+    trace_paths = _trace_paths(trace_records)
+    trace_failures = _trace_failures(trace_records)
     summary = {
         "total_records": len(records),
         "unique_traces": len([key for key in trace_counts if key != "(no-trace)"]),
         "unique_services": len([key for key in service_counts if key != "(unknown)"]),
         "cross_service_traces": len(cross_service_traces),
+        "failed_traces": len(trace_failures),
         "error_records": sum(
             count
             for severity, count in severity_counts.items()
@@ -90,6 +96,9 @@ def build_otel_result(
             {"trace_id": trace_id, "services": sorted(services)}
             for trace_id, services in sorted(cross_service_traces.items())[:top_n]
         ],
+        "trace_service_paths": trace_paths[:top_n],
+        "trace_failures": trace_failures[:top_n],
+        "service_trace_matrix": _service_trace_matrix(trace_records, top_n=top_n),
     }
     return AnalysisResult(
         type="otel_logs",
@@ -126,4 +135,119 @@ def _findings(summary: dict[str, int]) -> list[dict[str, Any]]:
                 "evidence": {"cross_service_traces": summary["cross_service_traces"]},
             }
         )
+    if summary["failed_traces"] > 0:
+        findings.append(
+            {
+                "severity": "warning",
+                "code": "OTEL_FAILED_TRACE",
+                "message": "At least one distributed trace contains an error signal.",
+                "evidence": {"failed_traces": summary["failed_traces"]},
+            }
+        )
     return findings
+
+
+def _trace_paths(
+    trace_records: dict[str, list[OTelLogRecord]],
+) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for trace_id, records in sorted(trace_records.items()):
+        services = _ordered_services(records)
+        severities = [record.severity for record in records]
+        rows.append(
+            {
+                "trace_id": trace_id,
+                "service_path": " -> ".join(services),
+                "service_count": len(services),
+                "record_count": len(records),
+                "has_error": any(_is_error_record(record) for record in records),
+                "max_severity": _max_severity(severities),
+            }
+        )
+    return rows
+
+
+def _trace_failures(
+    trace_records: dict[str, list[OTelLogRecord]],
+) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for trace_id, records in sorted(trace_records.items()):
+        error_records = [record for record in records if _is_error_record(record)]
+        if not error_records:
+            continue
+        rows.append(
+            {
+                "trace_id": trace_id,
+                "services": " -> ".join(_ordered_services(records)),
+                "error_services": ", ".join(
+                    sorted(
+                        {
+                            record.service_name or "(unknown)"
+                            for record in error_records
+                        }
+                    )
+                ),
+                "error_count": len(error_records),
+                "first_error": error_records[0].body,
+            }
+        )
+    return rows
+
+
+def _service_trace_matrix(
+    trace_records: dict[str, list[OTelLogRecord]],
+    *,
+    top_n: int,
+) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for trace_id, records in sorted(trace_records.items())[:top_n]:
+        counts = Counter(record.service_name or "(unknown)" for record in records)
+        for service, count in sorted(counts.items()):
+            rows.append(
+                {
+                    "trace_id": trace_id,
+                    "service": service,
+                    "record_count": count,
+                }
+            )
+    return rows
+
+
+def _ordered_services(records: list[OTelLogRecord]) -> list[str]:
+    services: list[str] = []
+    for record in sorted(records, key=lambda item: item.timestamp or ""):
+        service_name = record.service_name or "(unknown)"
+        if not services or services[-1] != service_name:
+            services.append(service_name)
+    return services
+
+
+def _is_error_record(record: OTelLogRecord) -> bool:
+    severity = record.severity.upper()
+    body = record.body.lower()
+    return severity in {"ERROR", "FATAL", "CRITICAL"} or any(
+        token in body
+        for token in (
+            "error",
+            "exception",
+            "failed",
+            "failure",
+            "timeout",
+            "insufficient_stock",
+            "gateway_timeout",
+        )
+    )
+
+
+def _max_severity(severities: list[str]) -> str:
+    rank = {
+        "UNSPECIFIED": 0,
+        "DEBUG": 1,
+        "INFO": 2,
+        "WARN": 3,
+        "WARNING": 3,
+        "ERROR": 4,
+        "FATAL": 5,
+        "CRITICAL": 5,
+    }
+    return max(severities or ["UNSPECIFIED"], key=lambda value: rank.get(value.upper(), 0))

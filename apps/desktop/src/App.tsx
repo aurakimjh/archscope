@@ -4,6 +4,7 @@ import { Layout } from "./components/Layout";
 import { AccessLogAnalyzerPage } from "./pages/AccessLogAnalyzerPage";
 import { ChartStudioPage } from "./pages/ChartStudioPage";
 import { DashboardPage } from "./pages/DashboardPage";
+import { DemoDataCenterPage } from "./pages/DemoDataCenterPage";
 import { ExceptionAnalyzerPage } from "./pages/ExceptionAnalyzerPage";
 import { ExportCenterPage } from "./pages/ExportCenterPage";
 import { GcLogAnalyzerPage } from "./pages/GcLogAnalyzerPage";
@@ -19,10 +20,13 @@ export type PageKey =
   | "thread-dump"
   | "exception"
   | "chart-studio"
+  | "demo-data"
   | "export-center"
   | "settings";
 
-const pageComponents: Record<PageKey, () => JSX.Element> = {
+type SimplePageKey = Exclude<PageKey, "demo-data" | "export-center">;
+
+const pageComponents: Record<SimplePageKey, () => JSX.Element> = {
   dashboard: DashboardPage,
   "access-log": AccessLogAnalyzerPage,
   "gc-log": GcLogAnalyzerPage,
@@ -30,17 +34,33 @@ const pageComponents: Record<PageKey, () => JSX.Element> = {
   "thread-dump": ThreadDumpAnalyzerPage,
   exception: ExceptionAnalyzerPage,
   "chart-studio": ChartStudioPage,
-  "export-center": ExportCenterPage,
   settings: SettingsPage,
 };
 
 export function App(): JSX.Element {
   const [activePage, setActivePage] = useState<PageKey>("dashboard");
-  const PageComponent = pageComponents[activePage];
+  const [exportInputPath, setExportInputPath] = useState("");
+
+  function openExportCenter(inputPath: string): void {
+    setExportInputPath(inputPath);
+    setActivePage("export-center");
+  }
+
+  const pageContent =
+    activePage === "demo-data" ? (
+      <DemoDataCenterPage onOpenExportCenter={openExportCenter} />
+    ) : activePage === "export-center" ? (
+      <ExportCenterPage initialInputPath={exportInputPath} />
+    ) : (
+      (() => {
+        const PageComponent = pageComponents[activePage];
+        return <PageComponent />;
+      })()
+    );
 
   return (
     <Layout activePage={activePage} onNavigate={setActivePage}>
-      <PageComponent />
+      {pageContent}
     </Layout>
   );
 }

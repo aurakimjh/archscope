@@ -385,6 +385,11 @@ export type SelectFileResponse = {
   filePath?: string;
 };
 
+export type SelectDirectoryResponse = {
+  canceled: boolean;
+  directoryPath?: string;
+};
+
 export type ExportFormat = "html" | "diff" | "pptx";
 
 export type ExportExecuteRequest =
@@ -414,6 +419,45 @@ export type ExportFailure = {
 };
 
 export type ExportResponse = ExportSuccess | ExportFailure;
+
+export type DemoScenarioManifest = {
+  scenario: string;
+  dataSource: "real" | "synthetic" | "unknown";
+  manifestPath: string;
+  description: string;
+  analyzers: string[];
+};
+
+export type DemoListResponse =
+  | {
+      ok: true;
+      manifestRoot: string;
+      scenarios: DemoScenarioManifest[];
+    }
+  | {
+      ok: false;
+      error: BridgeError;
+    };
+
+export type DemoRunRequest = {
+  manifestRoot: string;
+  outputRoot?: string;
+  scenario?: string;
+};
+
+export type DemoRunSuccess = {
+  ok: true;
+  outputPaths: string[];
+  exportInputPaths: string[];
+  engine_messages?: string[];
+};
+
+export type DemoRunFailure = {
+  ok: false;
+  error: BridgeError;
+};
+
+export type DemoRunResponse = DemoRunSuccess | DemoRunFailure;
 
 export type BridgeError = {
   code: string;
@@ -470,11 +514,18 @@ export type ArchScopeExportBridge = {
   execute(request: ExportExecuteRequest): Promise<ExportResponse>;
 };
 
+export type ArchScopeDemoBridge = {
+  list(manifestRoot?: string): Promise<DemoListResponse>;
+  run(request: DemoRunRequest): Promise<DemoRunResponse>;
+};
+
 export type ArchScopeRendererApi = {
   platform: string;
   selectFile?: (request?: SelectFileRequest) => Promise<SelectFileResponse>;
+  selectDirectory?: (request?: { title?: string }) => Promise<SelectDirectoryResponse>;
   analyzer?: ArchScopeAnalyzerBridge;
   exporter?: ArchScopeExportBridge;
+  demo?: ArchScopeDemoBridge;
 };
 
 export function isInterpretationResult(value: unknown): value is InterpretationResult {

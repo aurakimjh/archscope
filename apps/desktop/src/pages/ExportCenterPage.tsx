@@ -1,11 +1,15 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import type { ExportFormat, ExportResponse } from "../api/analyzerClient";
 import { useI18n } from "../i18n/I18nProvider";
 
 type ExportMode = ExportFormat;
 
-export function ExportCenterPage(): JSX.Element {
+export function ExportCenterPage({
+  initialInputPath = "",
+}: {
+  initialInputPath?: string;
+}): JSX.Element {
   const { t } = useI18n();
   const [mode, setMode] = useState<ExportMode>("html");
   const [inputPath, setInputPath] = useState("");
@@ -13,6 +17,14 @@ export function ExportCenterPage(): JSX.Element {
   const [afterPath, setAfterPath] = useState("");
   const [isExporting, setIsExporting] = useState(false);
   const [response, setResponse] = useState<ExportResponse | null>(null);
+
+  useEffect(() => {
+    if (initialInputPath) {
+      setMode("html");
+      setInputPath(initialInputPath);
+      setResponse(null);
+    }
+  }, [initialInputPath]);
 
   const canExport = useMemo(() => {
     if (isExporting || !window.archscope?.exporter) {

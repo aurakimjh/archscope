@@ -4,6 +4,7 @@ import type {
   AnalyzeAccessLogRequest,
   AnalyzeCollapsedProfileRequest,
   AnalyzerExecuteRequest,
+  DemoRunRequest,
   ExportExecuteRequest,
   SelectFileRequest,
 } from "../src/api/analyzerContract.js";
@@ -12,6 +13,8 @@ contextBridge.exposeInMainWorld("archscope", {
   platform: process.platform,
   selectFile: (request?: SelectFileRequest) =>
     ipcRenderer.invoke("dialog:select-file", request),
+  selectDirectory: (request?: { title?: string }) =>
+    ipcRenderer.invoke("dialog:select-directory", request),
   analyzer: {
     execute: (request: AnalyzerExecuteRequest) =>
       ipcRenderer.invoke("analyzer:execute", request),
@@ -29,5 +32,9 @@ contextBridge.exposeInMainWorld("archscope", {
   exporter: {
     execute: (request: ExportExecuteRequest) =>
       ipcRenderer.invoke("export:execute", request),
+  },
+  demo: {
+    list: (manifestRoot?: string) => ipcRenderer.invoke("demo:list", manifestRoot),
+    run: (request: DemoRunRequest) => ipcRenderer.invoke("demo:run", request),
   },
 });

@@ -1,7 +1,7 @@
 import { app, BrowserWindow, dialog, ipcMain, session } from "electron";
 import { execFile, type ChildProcess } from "node:child_process";
 import { randomUUID } from "node:crypto";
-import { mkdir, readFile, rm, stat } from "node:fs/promises";
+import { mkdir, readdir, readFile, rm, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -15,6 +15,10 @@ import type {
   AnalyzerExecutionResult,
   AnalyzerResponse,
   AnalysisResult,
+  DemoListResponse,
+  DemoRunRequest,
+  DemoRunResponse,
+  DemoScenarioManifest,
   ExceptionStackAnalysisResult,
   ExportExecuteRequest,
   ExportResponse,
@@ -145,6 +149,25 @@ function registerIpcHandlers(): void {
   );
 
   ipcMain.handle(
+    "dialog:select-directory",
+    async (_event, request?: { title?: string }) => {
+      const result = await dialog.showOpenDialog({
+        title: request?.title,
+        properties: ["openDirectory"],
+      });
+
+      if (result.canceled || result.filePaths.length === 0) {
+        return { canceled: true };
+      }
+
+      return {
+        canceled: false,
+        directoryPath: result.filePaths[0],
+      };
+    },
+  );
+
+  ipcMain.handle(
     "analyzer:execute",
     async (
       _event,
@@ -165,6 +188,28 @@ function registerIpcHandlers(): void {
         return await executeExport(request);
       } catch (error) {
         return exportFailure("IPC_FAILED", "Export IPC request failed.", errorToDetail(error));
+      }
+    },
+  );
+
+  ipcMain.handle(
+    "demo:list",
+    async (_event, manifestRoot?: string): Promise<DemoListResponse> => {
+      try {
+        return await listDemoScenarios(manifestRoot || defaultDemoSiteRoot());
+      } catch (error) {
+        return demoFailure("DEMO_LIST_FAILED", "Demo manifest list failed.", error);
+      }
+    },
+  );
+
+  ipcMain.handle(
+    "demo:run",
+    async (_event, request: DemoRunRequest): Promise<DemoRunResponse> => {
+      try {
+        return await runDemoScenario(request);
+      } catch (error) {
+        return demoFailure("DEMO_RUN_FAILED", "Demo data execution failed.", error);
       }
     },
   );
@@ -359,6 +404,92 @@ async function executeExport(request: ExportExecuteRequest): Promise<ExportRespo
     default:
       return exportFailure("INVALID_OPTION", "Unsupported export format.");
   }
+}
+
+async function listDemoScenarios(manifestRoot: string): Promise<DemoListResponse> {
+  if (typeof manifestRoot !== "string" || !manifestRoot) {
+    return demoFailure("INVALID_OPTION", "Demo manifest root is required.");
+  }
+  const readable = await isReadablePath(manifestRoot);
+  if (!readable) {
+    return demoFailure("FILE_NOT_FOUND", "Demo manifest root is not readable.", manifestRoot);
+  }
+  const manifestPaths = await discoverManifestPaths(manifestRoot);
+  const scenarios = await Promise.all(
+    manifestPaths.map(async (manifestPath): Promise<DemoScenarioManifest> => {
+      const payload = JSON.parse(await readFile(manifestPath, "utf8")) as Record<string, unknown>;
+      const files = Array.isArray(payload.files) ? payload.files : [];
+      const analyzers = files
+        .map((item) => {
+          if (!item || typeof item !== "object") {
+            return null;
+          }
+          const analyzerType = (item as Record<string, unknown>).analyzer_type;
+          return typeof analyzerType === "string" ? analyzerType : null;
+        })
+        .filter((item): item is string => Boolean(item));
+      return {
+        scenario: typeof payload.scenario === "string" ? payload.scenario : path.basename(path.dirname(manifestPath)),
+        dataSource: dataSourceForManifest(payload, manifestPath),
+        manifestPath,
+        description: typeof payload.description === "string" ? payload.description : "",
+        analyzers,
+      };
+    }),
+  );
+  return {
+    ok: true,
+    manifestRoot,
+    scenarios: scenarios.sort((left, right) =>
+      `${left.dataSource}/${left.scenario}`.localeCompare(`${right.dataSource}/${right.scenario}`),
+    ),
+  };
+}
+
+async function runDemoScenario(request: DemoRunRequest): Promise<DemoRunResponse> {
+  if (!request || typeof request !== "object") {
+    return demoFailure("INVALID_OPTION", "Demo run request is required.");
+  }
+  if (typeof request.manifestRoot !== "string" || !request.manifestRoot) {
+    return demoFailure("INVALID_OPTION", "Demo manifest root is required.");
+  }
+  const outputRoot =
+    typeof request.outputRoot === "string" && request.outputRoot
+      ? request.outputRoot
+      : path.join(repoRoot, "demo-site-report-bundles");
+  const args = ["demo-site", "run", "--manifest-root", request.manifestRoot, "--out", outputRoot];
+  if (typeof request.scenario === "string" && request.scenario) {
+    args.push("--scenario", request.scenario);
+  }
+  const result = await execEngine(args);
+  if (!result.ok) {
+    return result;
+  }
+  const scenarios = await listDemoScenarios(request.manifestRoot);
+  const selectedScenarios = scenarios.ok
+    ? scenarios.scenarios.filter(
+        (scenario) => !request.scenario || scenario.scenario === request.scenario,
+      )
+    : [];
+  const outputPaths = [
+    path.join(outputRoot, "index.html"),
+    ...selectedScenarios.map((scenario) =>
+      path.join(outputRoot, scenario.dataSource, scenario.scenario, "index.html"),
+    ),
+  ];
+  const exportInputPaths = (
+    await Promise.all(
+      selectedScenarios.map((scenario) =>
+        firstJsonOutput(path.join(outputRoot, scenario.dataSource, scenario.scenario)),
+      ),
+    )
+  ).filter((item): item is string => Boolean(item));
+  return {
+    ok: true,
+    outputPaths,
+    exportInputPaths,
+    engine_messages: result.messages.length > 0 ? result.messages : undefined,
+  };
 }
 
 async function exportSingleFile(
@@ -576,6 +707,72 @@ async function isReadableFile(filePath: string): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+async function isReadablePath(filePath: string): Promise<boolean> {
+  try {
+    await stat(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function discoverManifestPaths(manifestRoot: string): Promise<string[]> {
+  const rootStat = await stat(manifestRoot);
+  if (rootStat.isFile()) {
+    return [manifestRoot];
+  }
+  const manifestPaths: string[] = [];
+  for (const sourceEntry of await readdir(manifestRoot, { withFileTypes: true })) {
+    if (!sourceEntry.isDirectory()) {
+      continue;
+    }
+    const sourceDir = path.join(manifestRoot, sourceEntry.name);
+    for (const scenarioEntry of await readdir(sourceDir, { withFileTypes: true })) {
+      if (!scenarioEntry.isDirectory()) {
+        continue;
+      }
+      const manifestPath = path.join(sourceDir, scenarioEntry.name, "manifest.json");
+      if (await isReadableFile(manifestPath)) {
+        manifestPaths.push(manifestPath);
+      }
+    }
+  }
+  return manifestPaths;
+}
+
+function dataSourceForManifest(
+  payload: Record<string, unknown>,
+  manifestPath: string,
+): "real" | "synthetic" | "unknown" {
+  if (payload.data_source === "real" || payload.data_source === "synthetic") {
+    return payload.data_source;
+  }
+  const segments = manifestPath.split(path.sep);
+  if (segments.includes("real")) {
+    return "real";
+  }
+  if (segments.includes("synthetic")) {
+    return "synthetic";
+  }
+  return "unknown";
+}
+
+async function firstJsonOutput(outputDir: string): Promise<string | null> {
+  try {
+    const entries = await readdir(outputDir);
+    const match = entries
+      .filter((entry) => entry.endsWith(".json") && entry !== "run-summary.json")
+      .sort()[0];
+    return match ? path.join(outputDir, match) : null;
+  } catch {
+    return null;
+  }
+}
+
+function defaultDemoSiteRoot(): string {
+  return path.join(repoRoot, "..", "projects-assets", "test-data", "demo-site");
 }
 
 function siblingOutputPath(inputPath: string, extension: "html" | "pptx"): string {
@@ -827,6 +1024,21 @@ function exportFailure(
       code,
       message,
       detail,
+    },
+  };
+}
+
+function demoFailure(
+  code: string,
+  message: string,
+  detail?: unknown,
+): DemoListResponse & DemoRunResponse {
+  return {
+    ok: false,
+    error: {
+      code,
+      message,
+      detail: detail === undefined ? undefined : errorToDetail(detail),
     },
   };
 }

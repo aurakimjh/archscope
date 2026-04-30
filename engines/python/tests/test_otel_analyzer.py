@@ -21,6 +21,9 @@ def test_otel_jsonl_analyzer_builds_trace_correlation() -> None:
     assert result["summary"]["unique_traces"] == 2
     assert result["summary"]["cross_service_traces"] == 1
     assert result["summary"]["error_records"] == 2
+    assert result["summary"]["failed_traces"] == 1
+    assert result["tables"]["trace_service_paths"]
+    assert result["tables"]["trace_failures"][0]["error_count"] == 2
 
 
 def test_otel_cli_writes_analysis_result_json(tmp_path) -> None:
