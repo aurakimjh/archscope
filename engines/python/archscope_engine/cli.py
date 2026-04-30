@@ -21,7 +21,14 @@ from archscope_engine.analyzers.profiler_analyzer import (
     drilldown_jennifer_csv_profile,
 )
 from archscope_engine.analyzers.profiler_drilldown import DrilldownFilter
+from archscope_engine.analyzers.runtime_analyzer import (
+    analyze_dotnet_exception_iis,
+    analyze_go_panic,
+    analyze_nodejs_stack,
+    analyze_python_traceback,
+)
 from archscope_engine.analyzers.thread_dump_analyzer import analyze_thread_dump
+from archscope_engine.exporters.html_exporter import write_html_report
 from archscope_engine.exporters.json_exporter import write_json_result
 from archscope_engine.models.analysis_result import AnalysisResult
 
@@ -37,6 +44,11 @@ jfr_app = typer.Typer(help="JFR recording analysis commands.")
 gc_log_app = typer.Typer(help="GC log analysis commands.")
 thread_dump_app = typer.Typer(help="Java thread dump analysis commands.")
 exception_app = typer.Typer(help="Java exception stack analysis commands.")
+nodejs_app = typer.Typer(help="Node.js log and stack analysis commands.")
+python_traceback_app = typer.Typer(help="Python traceback analysis commands.")
+go_panic_app = typer.Typer(help="Go panic and goroutine analysis commands.")
+dotnet_app = typer.Typer(help=".NET exception and IIS log analysis commands.")
+report_app = typer.Typer(help="Report export commands.")
 
 
 @access_log_app.command("analyze")
@@ -405,12 +417,138 @@ def exception_analyze(
     )
 
 
+@nodejs_app.command("analyze")
+def nodejs_analyze(
+    file: Path = typer.Option(..., "--file", exists=True, readable=True),
+    out: Path = typer.Option(..., "--out"),
+    top_n: int = typer.Option(20, "--top-n"),
+    debug_log: bool = typer.Option(False, "--debug-log"),
+    debug_log_dir: Optional[Path] = typer.Option(None, "--debug-log-dir"),
+) -> None:
+    """Analyze Node.js error stack traces."""
+    collector = _debug_collector(
+        analyzer_type="nodejs_stack",
+        source_file=file,
+        parser="nodejs_stack_trace",
+        parser_options={"top_n": top_n},
+        debug_log=debug_log,
+        debug_log_dir=debug_log_dir,
+    )
+    _write_result_with_debug(
+        out,
+        collector,
+        lambda: analyze_nodejs_stack(path=file, top_n=top_n, debug_log=collector),
+        "Node.js stack",
+    )
+
+
+@python_traceback_app.command("analyze")
+def python_traceback_analyze(
+    file: Path = typer.Option(..., "--file", exists=True, readable=True),
+    out: Path = typer.Option(..., "--out"),
+    top_n: int = typer.Option(20, "--top-n"),
+    debug_log: bool = typer.Option(False, "--debug-log"),
+    debug_log_dir: Optional[Path] = typer.Option(None, "--debug-log-dir"),
+) -> None:
+    """Analyze Python traceback blocks."""
+    collector = _debug_collector(
+        analyzer_type="python_traceback",
+        source_file=file,
+        parser="python_traceback",
+        parser_options={"top_n": top_n},
+        debug_log=debug_log,
+        debug_log_dir=debug_log_dir,
+    )
+    _write_result_with_debug(
+        out,
+        collector,
+        lambda: analyze_python_traceback(path=file, top_n=top_n, debug_log=collector),
+        "Python traceback",
+    )
+
+
+@go_panic_app.command("analyze")
+def go_panic_analyze(
+    file: Path = typer.Option(..., "--file", exists=True, readable=True),
+    out: Path = typer.Option(..., "--out"),
+    top_n: int = typer.Option(20, "--top-n"),
+    debug_log: bool = typer.Option(False, "--debug-log"),
+    debug_log_dir: Optional[Path] = typer.Option(None, "--debug-log-dir"),
+) -> None:
+    """Analyze Go panic and goroutine dumps."""
+    collector = _debug_collector(
+        analyzer_type="go_panic",
+        source_file=file,
+        parser="go_panic_goroutine",
+        parser_options={"top_n": top_n},
+        debug_log=debug_log,
+        debug_log_dir=debug_log_dir,
+    )
+    _write_result_with_debug(
+        out,
+        collector,
+        lambda: analyze_go_panic(path=file, top_n=top_n, debug_log=collector),
+        "Go panic",
+    )
+
+
+@dotnet_app.command("analyze")
+def dotnet_analyze(
+    file: Path = typer.Option(..., "--file", exists=True, readable=True),
+    out: Path = typer.Option(..., "--out"),
+    top_n: int = typer.Option(20, "--top-n"),
+    debug_log: bool = typer.Option(False, "--debug-log"),
+    debug_log_dir: Optional[Path] = typer.Option(None, "--debug-log-dir"),
+) -> None:
+    """Analyze .NET exception stack traces and IIS W3C access logs."""
+    collector = _debug_collector(
+        analyzer_type="dotnet_exception_iis",
+        source_file=file,
+        parser="dotnet_exception_iis_w3c",
+        parser_options={"top_n": top_n},
+        debug_log=debug_log,
+        debug_log_dir=debug_log_dir,
+    )
+    _write_result_with_debug(
+        out,
+        collector,
+        lambda: analyze_dotnet_exception_iis(
+            path=file,
+            top_n=top_n,
+            debug_log=collector,
+        ),
+        ".NET/IIS",
+    )
+
+
+@report_app.command("html")
+def report_html(
+    input: Path = typer.Option(
+        ...,
+        "--input",
+        exists=True,
+        readable=True,
+        help="AnalysisResult JSON or parser debug JSON input.",
+    ),
+    out: Path = typer.Option(..., "--out", help="HTML report output path."),
+    title: Optional[str] = typer.Option(None, "--title"),
+) -> None:
+    """Render an AnalysisResult or parser debug JSON file as a portable HTML report."""
+    write_html_report(input, out, title=title)
+    console.print(f"Wrote HTML report: {out}")
+
+
 app.add_typer(access_log_app, name="access-log")
 app.add_typer(profiler_app, name="profiler")
 app.add_typer(jfr_app, name="jfr")
 app.add_typer(gc_log_app, name="gc-log")
 app.add_typer(thread_dump_app, name="thread-dump")
 app.add_typer(exception_app, name="exception")
+app.add_typer(nodejs_app, name="nodejs")
+app.add_typer(python_traceback_app, name="python-traceback")
+app.add_typer(go_panic_app, name="go-panic")
+app.add_typer(dotnet_app, name="dotnet")
+app.add_typer(report_app, name="report")
 
 
 def main() -> None:

@@ -36,6 +36,10 @@ AnalysisResult
 - `gc_log`
 - `thread_dump`
 - `exception_stack`
+- `nodejs_stack`
+- `python_traceback`
+- `go_panic`
+- `dotnet_exception_iis`
 
 공통 `AnalysisResult` dataclass는 당분간 외부 transport model로 유지한다. 계약 강화 계층은 `summary`, `series`, `tables`, `metadata` 내부에 들어가는 type별 필수 key를 정의하는 방식으로 적용한다.
 
@@ -218,6 +222,42 @@ UNKNOWN
 | `reason` | string | `NO_FORMAT_MATCH` 같은 stable reason code |
 | `message` | string | 사람이 읽을 수 있는 parser message |
 | `raw_preview` | string | truncated raw input preview, 현재 200 characters로 제한 |
+
+### Multi-runtime Stack Results
+
+`nodejs_stack`, `python_traceback`, `go_panic`은 같은 stack-oriented result shape를 사용한다.
+
+필수 `summary` fields:
+
+| Field | Type | 의미 |
+|---|---|---|
+| `total_records` | integer | Parsed stack 또는 runtime block 수 |
+| `unique_record_types` | integer | Distinct error/panic/goroutine type 수 |
+| `unique_signatures` | integer | Distinct normalized stack signature 수 |
+| `top_record_type` | string or null | 가장 많이 나온 record type |
+
+필수 `series` fields:
+
+| Field | Row shape |
+|---|---|
+| `record_type_distribution` | `{ record_type: string, count: integer }` |
+| `top_stack_signatures` | `{ signature: string, count: integer }` |
+
+필수 `tables` fields:
+
+| Field | Row shape |
+|---|---|
+| `records` | `{ runtime, record_type, headline, message, signature, top_frame, stack }` |
+
+`dotnet_exception_iis`는 위 stack series/table에 IIS access summary를 추가한다.
+
+| Field | Location | 의미 |
+|---|---|---|
+| `iis_requests` | `summary` | Parsed IIS W3C request count |
+| `iis_error_requests` | `summary` | status `>= 500`인 IIS request 수 |
+| `max_iis_time_taken_ms` | `summary` | 최대 `time-taken` 값 |
+| `iis_status_distribution` | `series` | Status-class distribution |
+| `iis_slowest_urls` | `series` | 가장 느린 IIS URI rows |
 
 ## AccessLogRecord
 

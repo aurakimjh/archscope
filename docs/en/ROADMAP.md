@@ -26,6 +26,7 @@
 - Broken-axis and distribution chart options
 - PNG/SVG export
 - CSV export
+- Chart Studio template preview/edit MVP
 - Access log advanced statistics
 - Access log diagnostic findings beyond raw charts
 - Profiler flamegraph drill-down, Jennifer CSV import, and execution breakdown
@@ -58,6 +59,7 @@
 
 - Before/after diff
 - HTML report generation
+- Portable static HTML report MVP for `AnalysisResult` and parser debug JSON
 - PowerPoint export
 - Executive summary generator
 - AI-assisted interpretation, optional and evidence-bound

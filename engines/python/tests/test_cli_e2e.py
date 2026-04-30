@@ -69,6 +69,33 @@ def test_profiler_cli_writes_analysis_result_json(tmp_path) -> None:
     assert payload["summary"]["total_samples"] == 32629
 
 
+def test_report_html_cli_writes_portable_html(tmp_path) -> None:
+    sample = Path(__file__).parents[3] / "examples/outputs/access-log-result.json"
+    output = tmp_path / "report.html"
+
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "archscope_engine.cli",
+            "report",
+            "html",
+            "--input",
+            str(sample),
+            "--out",
+            str(output),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    html = output.read_text(encoding="utf-8")
+    assert completed.returncode == 0
+    assert "ArchScope Analysis Report - access_log" in html
+    assert "Wrote HTML report" in completed.stdout
+
+
 def test_profiler_jennifer_csv_cli_writes_analysis_result_json(tmp_path) -> None:
     sample = Path(__file__).parents[3] / "examples/profiler/sample-jennifer-flame.csv"
     output = tmp_path / "jennifer-result.json"

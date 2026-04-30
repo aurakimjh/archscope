@@ -85,6 +85,17 @@ GC logs, thread dumps, and exception stack traces follow the same parser and ana
 
 Malformed record-level input is skipped and reported under `metadata.diagnostics`.
 
+## Multi-runtime Parsers
+
+The first multi-runtime analyzer MVP keeps the same tolerant parser contract:
+
+- Node.js parser supports `Error`/`TypeError`/custom `*Error` blocks with `at ...` stack frames.
+- Python parser supports standard `Traceback (most recent call last):` blocks and terminal exception lines.
+- Go parser supports `panic:` headers and `goroutine N [state]:` blocks with function frames.
+- .NET parser supports `*Exception` stack blocks and IIS W3C access lines with `#Fields:` metadata.
+
+These parsers are intended for small diagnostic artifacts and demo scenarios. They do not replace full structured log ingestion or OpenTelemetry correlation.
+
 ## Error Handling
 
 Parser error handling is fixed around this principle:

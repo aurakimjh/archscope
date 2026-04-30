@@ -36,6 +36,10 @@ The first contract-hardening pass is limited to the analyzer result types that a
 - `gc_log`
 - `thread_dump`
 - `exception_stack`
+- `nodejs_stack`
+- `python_traceback`
+- `go_panic`
+- `dotnet_exception_iis`
 
 The common `AnalysisResult` dataclass remains the outer transport model for now. The hardening layer adds type-specific contracts for the contents of `summary`, `series`, `tables`, and `metadata`.
 
@@ -218,6 +222,42 @@ Required fields:
 | `reason` | string | Stable reason code, such as `NO_FORMAT_MATCH` |
 | `message` | string | Human-readable parser message |
 | `raw_preview` | string | Truncated raw input preview, currently capped at 200 characters |
+
+### Multi-runtime Stack Results
+
+`nodejs_stack`, `python_traceback`, and `go_panic` use the same stack-oriented result shape.
+
+Required `summary` fields:
+
+| Field | Type | Meaning |
+|---|---|---|
+| `total_records` | integer | Parsed stack or runtime blocks |
+| `unique_record_types` | integer | Distinct error/panic/goroutine types |
+| `unique_signatures` | integer | Distinct normalized stack signatures |
+| `top_record_type` | string or null | Most frequent record type |
+
+Required `series` fields:
+
+| Field | Row shape |
+|---|---|
+| `record_type_distribution` | `{ record_type: string, count: integer }` |
+| `top_stack_signatures` | `{ signature: string, count: integer }` |
+
+Required `tables` fields:
+
+| Field | Row shape |
+|---|---|
+| `records` | `{ runtime, record_type, headline, message, signature, top_frame, stack }` |
+
+`dotnet_exception_iis` extends the same stack series/tables with IIS access summaries:
+
+| Field | Location | Meaning |
+|---|---|---|
+| `iis_requests` | `summary` | Parsed IIS W3C request count |
+| `iis_error_requests` | `summary` | IIS requests with status `>= 500` |
+| `max_iis_time_taken_ms` | `summary` | Maximum `time-taken` value |
+| `iis_status_distribution` | `series` | Status-class distribution |
+| `iis_slowest_urls` | `series` | Slowest IIS URI rows |
 
 ## AccessLogRecord
 

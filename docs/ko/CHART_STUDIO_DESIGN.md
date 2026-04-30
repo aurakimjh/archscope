@@ -13,6 +13,19 @@ Chart factory는 dashboard fixture data와 실제 analyzer result type을 받을
 - `profiler_collapsed` result
 - contract가 정의된 뒤의 GC/thread/exception result
 
+## 구현된 MVP
+
+현재 Chart Studio 화면은 shared chart template registry와 factory를 사용해 실제 template preview workflow를 제공한다.
+
+- catalog에서 chart template 선택
+- panel title 편집
+- template이 지원하는 경우 Canvas/SVG renderer 전환
+- ArchScope light/dark theme 전환
+- 생성된 ECharts option JSON 확인
+- template에 정의된 export preset metadata 확인
+
+이 방식은 source analyzer data와 presentation setting을 분리하고 arbitrary JSON을 chart builder에 직접 전달하지 않는다.
+
 ## Option Persistence
 
 Persisted chart setting은 생성된 ECharts option 전체가 아니라 사용자의 의도를 저장해야 한다.

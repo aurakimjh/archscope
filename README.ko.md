@@ -151,6 +151,34 @@ archscope-engine exception analyze \
   --out ../../examples/outputs/exception-result.json
 ```
 
+`AnalysisResult` JSON 또는 parser debug JSON으로 portable HTML report 생성:
+
+```bash
+archscope-engine report html \
+  --input ../../examples/outputs/access-log-result.json \
+  --out ../../examples/outputs/access-log-report.html
+```
+
+Multi-runtime analyzer MVP 명령:
+
+```bash
+archscope-engine nodejs analyze \
+  --file ../../examples/runtime/sample-nodejs-stack.txt \
+  --out ../../examples/outputs/nodejs-stack-result.json
+
+archscope-engine python-traceback analyze \
+  --file ../../examples/runtime/sample-python-traceback.txt \
+  --out ../../examples/outputs/python-traceback-result.json
+
+archscope-engine go-panic analyze \
+  --file ../../examples/runtime/sample-go-panic.txt \
+  --out ../../examples/outputs/go-panic-result.json
+
+archscope-engine dotnet analyze \
+  --file ../../examples/runtime/sample-dotnet-iis.txt \
+  --out ../../examples/outputs/dotnet-iis-result.json
+```
+
 ## 현재 범위
 
 현재 repository는 foundation 단계입니다.
@@ -165,10 +193,13 @@ archscope-engine exception analyze \
 - Jennifer APM flamegraph CSV import
 - Profiler flamegraph drill-down 및 execution breakdown
 - JVM GC log, thread dump, exception stack analyzer MVP
+- Node.js, Python traceback, Go panic/goroutine, .NET/IIS analyzer MVP
 - 현장 parser 수정을 위한 portable redacted parser debug log
 - JSON result export
+- 결과/debug JSON 기반 portable HTML report export
+- 제목, renderer, theme, option JSON을 조정하는 Chart Studio template preview
 
-Packaging, PowerPoint export, full HTML flamegraph export, 광범위한 large-file optimization은 이후 phase 작업으로 남겨둡니다.
+Packaging, PowerPoint export, before/after comparison, full HTML flamegraph export, 광범위한 large-file optimization은 이후 phase 작업으로 남겨둡니다.
 
 ## License
 

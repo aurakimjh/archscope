@@ -37,7 +37,18 @@ CSV export는 `tables` entry 또는 선택된 `series` entry를 대상으로 한
 
 ## HTML Export
 
-HTML export는 chart option과 normalized data를 포함하여 desktop app 없이도 interactive review가 가능해야 한다.
+첫 HTML report MVP는 portable static HTML을 생성한다. 입력은 다음 두 가지를 지원한다.
+
+- summary, findings, diagnostics, series, tables, chart data preview를 포함한 normalized `AnalysisResult` JSON
+- redacted context, verdict, parser error group, exception metadata, hint를 포함한 parser debug JSON
+
+CLI:
+
+```text
+python -m archscope_engine.cli report html --input result.json --out report.html
+```
+
+Interactive chart bundle과 full HTML flamegraph export는 별도 후속 작업으로 남긴다.
 
 ## 다국어 Export 방향
 

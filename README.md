@@ -151,6 +151,34 @@ archscope-engine exception analyze \
   --out ../../examples/outputs/exception-result.json
 ```
 
+Generate a portable HTML report from any `AnalysisResult` JSON or parser debug JSON:
+
+```bash
+archscope-engine report html \
+  --input ../../examples/outputs/access-log-result.json \
+  --out ../../examples/outputs/access-log-report.html
+```
+
+Multi-runtime analyzer MVP commands:
+
+```bash
+archscope-engine nodejs analyze \
+  --file ../../examples/runtime/sample-nodejs-stack.txt \
+  --out ../../examples/outputs/nodejs-stack-result.json
+
+archscope-engine python-traceback analyze \
+  --file ../../examples/runtime/sample-python-traceback.txt \
+  --out ../../examples/outputs/python-traceback-result.json
+
+archscope-engine go-panic analyze \
+  --file ../../examples/runtime/sample-go-panic.txt \
+  --out ../../examples/outputs/go-panic-result.json
+
+archscope-engine dotnet analyze \
+  --file ../../examples/runtime/sample-dotnet-iis.txt \
+  --out ../../examples/outputs/dotnet-iis-result.json
+```
+
 ## Current Scope
 
 This repository currently contains the foundation only:
@@ -165,10 +193,13 @@ This repository currently contains the foundation only:
 - Jennifer APM flamegraph CSV import
 - Profiler flamegraph drill-down and execution breakdown
 - JVM GC log, thread dump, and exception stack analyzer MVPs
+- Node.js, Python traceback, Go panic/goroutine, and .NET/IIS analyzer MVPs
 - Portable redacted parser debug logs for field parser fixes
 - JSON result export
+- Portable HTML report export from result/debug JSON
+- Chart Studio template preview with title, renderer, theme, and option JSON controls
 
-Packaging, PowerPoint export, full HTML flamegraph export, and broad large-file optimization remain later-phase work.
+Packaging, PowerPoint export, before/after comparison, full HTML flamegraph export, and broad large-file optimization remain later-phase work.
 
 ## License
 

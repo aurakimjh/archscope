@@ -28,10 +28,12 @@ Last updated: 2026-04-30
 
 ## Current Priority
 
-The latest completed feature work cycle added portable parser debug logs so field users can send one redacted JSON file that is sufficient for parser fixes:
+The latest feature cycle started the next roadmap layer across report automation, Chart Studio, and multi-runtime diagnostics:
 
 ```text
-DebugLogCollector -> redaction + field shapes -> parser integration -> JFR diagnostics -> CLI/Electron portable output path -> tests/docs
+AnalysisResult/debug JSON -> portable HTML report
+Chart template registry -> editable Chart Studio preview
+Node/Python/Go/.NET-IIS sample artifacts -> parser/analyzer/CLI MVPs
 ```
 
 Engine-UI Bridge decision: Electron IPC + `child_process.execFile` invoking the Python CLI. Local HTTP/FastAPI is deferred unless web delivery becomes a near-term product goal.
@@ -279,6 +281,26 @@ Scope decisions:
 | T-132 | P1 | [x] | Add regression tests for clean/no-file behavior, forced clean debug log, per-type sample limit, context accuracy, redaction, field-shape preservation, file-size cap, JFR diagnostics, and filename pattern. | T-122 through T-131 | Work-instruction review | Debug log test suite |
 | T-133 | P2 | [x] | Update README and English/Korean parser/data/architecture docs for portable redacted parser debug logs. | T-132 | Work-instruction review | Documentation updates |
 
+### Report Automation, Chart Studio, and Multi-runtime MVPs
+
+Goal: add the first useful slices of the remaining roadmap without rebuilding the architecture: static HTML report export, a usable Chart Studio template preview screen, and small parser/analyzer/CLI paths for non-JVM runtimes.
+
+Scope exclusions for this cycle: PowerPoint export, before/after report diff, full interactive HTML flamegraph export, OpenTelemetry correlation, large-file optimization, and production-grade structured log ingestion.
+
+| ID | Priority | Status | Task | Depends on | Source | Output |
+|---|---|---|---|---|---|---|
+| T-134 | P1 | [x] | Implement a static HTML report exporter that renders `AnalysisResult` JSON summary, findings, diagnostics, series, tables, and chart data previews. | T-009, T-121, T-133 | User follow-up | `html_exporter.py` |
+| T-135 | P1 | [x] | Allow parser debug JSON to render through the same HTML report path with verdict, redaction state, parse error groups, samples, exceptions, and hints. | T-122, T-134 | User follow-up | Parser-debug HTML report support |
+| T-136 | P1 | [x] | Add CLI command `python -m archscope_engine.cli report html --input ... --out ...`. | T-134, T-135 | User follow-up | Report HTML CLI |
+| T-137 | P2 | [x] | Replace the Chart Studio placeholder with a template catalog preview that supports title override, renderer selection, theme selection, export preset metadata, and ECharts option JSON inspection. | T-021, T-054, T-055 | User follow-up | Usable Chart Studio MVP |
+| T-138 | P2 | [x] | Add Node.js stack parser/analyzer/CLI MVP for `Error`/`TypeError` style stack blocks. | T-043, T-121 | User follow-up | `nodejs_stack` result |
+| T-139 | P2 | [x] | Add Python traceback parser/analyzer/CLI MVP for standard traceback blocks. | T-043, T-121 | User follow-up | `python_traceback` result |
+| T-140 | P2 | [x] | Add Go panic/goroutine parser/analyzer/CLI MVP. | T-043, T-121 | User follow-up | `go_panic` result |
+| T-141 | P2 | [x] | Add .NET exception and IIS W3C parser/analyzer/CLI MVP. | T-043, T-121 | User follow-up | `dotnet_exception_iis` result |
+| T-142 | P2 | [x] | Add sample runtime artifacts for Node.js, Python, Go, and .NET/IIS. | T-138 through T-141 | User follow-up | `examples/runtime/*` fixtures |
+| T-143 | P1 | [x] | Add regression tests for HTML export, runtime analyzers, and CLI output. | T-134 through T-142 | User follow-up | Python test coverage |
+| T-144 | P2 | [x] | Update README and English/Korean report, chart, parser, data model, and roadmap docs. | T-143 | User follow-up | Documentation updates |
+
 ## Dependency Order
 
 1. `T-001 -> T-002 -> T-030 -> T-037 -> T-003`: bridge decision, client boundary, CLI install metadata, minimal UX flow, then end-to-end PoC.
@@ -311,6 +333,8 @@ Scope decisions:
 28. `T-094/T-095/T-098/T-104 -> T-112/T-113 -> T-114`: lock behavior with tests before final documentation updates.
 29. `T-115/T-116/T-117 -> T-118 -> T-119 -> T-120 -> T-121`: implement JVM parsers/analyzers, expose them through CLI/UI, then lock behavior with samples, tests, and docs.
 30. `T-122 -> T-123 -> T-124 -> T-125 -> T-126 -> T-127 -> T-128 -> T-129 -> T-130 -> T-131 -> T-132 -> T-133`: build portable redacted parser debug logs, integrate parsers/CLI/Electron, then lock behavior with tests and docs.
+31. `T-134 -> T-135 -> T-136` and `T-137`: add the first report automation and Chart Studio slices after result/debug contracts are stable.
+32. `T-138/T-139/T-140/T-141 -> T-142 -> T-143 -> T-144`: add multi-runtime parser/analyzer MVPs, sample artifacts, tests, and docs.
 
 ## Active Decision Queue
 

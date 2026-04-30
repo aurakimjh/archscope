@@ -85,6 +85,17 @@ GC log, thread dump, exception stack trace parser는 access log 및 profiler inp
 
 Record-level malformed input은 skip하고 `metadata.diagnostics` 아래에 보고한다.
 
+## Multi-runtime Parsers
+
+첫 multi-runtime analyzer MVP도 동일한 tolerant parser contract를 따른다.
+
+- Node.js parser는 `Error`, `TypeError`, custom `*Error` block과 `at ...` stack frame을 지원한다.
+- Python parser는 표준 `Traceback (most recent call last):` block과 마지막 exception line을 지원한다.
+- Go parser는 `panic:` header와 `goroutine N [state]:` block 및 function frame을 지원한다.
+- .NET parser는 `*Exception` stack block과 `#Fields:` metadata가 있는 IIS W3C access line을 지원한다.
+
+이 parser들은 작은 diagnostic artifact와 demo scenario용 MVP다. Full structured log ingestion이나 OpenTelemetry correlation을 대체하지 않는다.
+
 ## Error Handling
 
 Parser error handling은 다음 원칙으로 확정한다.

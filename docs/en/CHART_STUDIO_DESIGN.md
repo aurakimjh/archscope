@@ -13,6 +13,19 @@ Near-term data sources:
 - `profiler_collapsed` results
 - future GC/thread/exception results after their contracts are defined
 
+## Implemented MVP
+
+The current Chart Studio screen uses the shared chart template registry and factory to provide a usable template preview workflow:
+
+- select a chart template from the catalog
+- edit the panel title
+- switch between Canvas and SVG renderers when supported by the template
+- switch between light and dark ArchScope themes
+- inspect generated ECharts option JSON
+- view available export preset metadata from the template
+
+This keeps presentation settings separate from source analyzer data and avoids passing arbitrary JSON into chart builders.
+
 ## Option Persistence
 
 Persisted chart settings should store user intent, not a full generated ECharts option blob.

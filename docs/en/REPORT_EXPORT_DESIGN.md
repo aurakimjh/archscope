@@ -37,7 +37,18 @@ CSV export should operate on `tables` entries or selected `series` entries.
 
 ## HTML Export
 
-HTML export should embed chart options and normalized data for interactive review without requiring the desktop app.
+The first HTML report MVP is intentionally portable and static. It renders either:
+
+- a normalized `AnalysisResult` JSON file, including summary, findings, diagnostics, series, tables, and chart data previews
+- a parser debug JSON file, including redacted context, verdict, parser error groups, exception metadata, and hints
+
+CLI:
+
+```text
+python -m archscope_engine.cli report html --input result.json --out report.html
+```
+
+Interactive chart bundles and full HTML flamegraph export remain separate follow-up work.
 
 ## Multilingual Export Direction
 
