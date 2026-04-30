@@ -359,3 +359,4 @@ When new review documents are placed in `docs/review/`:
 - `review_decisions.md` is the source of truth for review acceptance decisions.
 - `docs/research/research_decisions.md` is the source of truth for research acceptance decisions.
 - `CLAUDE.MD`, `GEMINI.MD`, and `AGENTS.MD` are local AI working instruction files and must not be committed.
+- Demo-site test log data (6 scenarios) is maintained in `projects-assets/test-data/demo-site/`, not in this repository. See `projects-assets/ASSET_INDEX.md` for the full catalog.
