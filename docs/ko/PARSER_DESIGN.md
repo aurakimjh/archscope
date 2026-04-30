@@ -75,9 +75,15 @@ path
 
 CSV에 root가 여러 개 있으면 ArchScope는 virtual `All` root를 만든다. Malformed CSV row는 skip하고 `metadata.diagnostics`에 `INVALID_JENNIFER_ROW`로 보고한다.
 
-## Placeholder Parsers
+## JVM Parsers
 
-GC log, thread dump, exception stack trace parser는 초기 skeleton에서 placeholder로 둔다. 이후에도 parser와 analyzer 책임 분리를 유지한다.
+GC log, thread dump, exception stack trace parser는 access log 및 profiler input과 동일하게 parser/analyzer 책임 분리를 따른다.
+
+- GC parser는 HotSpot unified GC pause line을 지원하고 timestamp, GC type, cause, pause, heap before/after/committed 값을 추출한다.
+- Thread dump parser는 Java quoted thread block에서 `java.lang.Thread.State`, stack frame, thread id, 기본 lock evidence를 추출한다.
+- Exception parser는 optional ISO timestamp, nested `Caused by` root cause, stack frame, stable stack signature가 있는 Java exception stack block을 지원한다.
+
+Record-level malformed input은 skip하고 `metadata.diagnostics` 아래에 보고한다.
 
 ## Error Handling
 

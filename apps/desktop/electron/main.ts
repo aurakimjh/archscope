@@ -10,13 +10,17 @@ import type {
   AccessLogAnalysisResult,
   AnalyzeAccessLogRequest,
   AnalyzeCollapsedProfileRequest,
+  AnalyzeFileRequest,
   AnalyzerExecuteRequest,
   AnalyzerExecutionResult,
   AnalyzerResponse,
   AnalysisResult,
+  ExceptionStackAnalysisResult,
+  GcLogAnalysisResult,
   ProfilerCollapsedAnalysisResult,
   SelectFileRequest,
   SelectFileResponse,
+  ThreadDumpAnalysisResult,
 } from "../src/api/analyzerContract.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -35,7 +39,13 @@ type EngineProcessResponse =
   | { ok: false; error: { code: string; message: string; detail?: string } };
 
 type AnalysisResultValidator<T extends AnalysisResult> = (value: unknown) => value is T;
-type SupportedResultType = "access_log" | "profiler_collapsed" | "jfr_recording";
+type SupportedResultType =
+  | "access_log"
+  | "profiler_collapsed"
+  | "jfr_recording"
+  | "gc_log"
+  | "thread_dump"
+  | "exception_stack";
 
 const PACKAGED_CSP = [
   "default-src 'self'",
@@ -63,6 +73,9 @@ const SUPPORTED_SCHEMA_VERSIONS: Record<SupportedResultType, string> = {
   access_log: "0.1.0",
   profiler_collapsed: "0.1.0",
   jfr_recording: "0.1.0",
+  gc_log: "0.1.0",
+  thread_dump: "0.1.0",
+  exception_stack: "0.1.0",
 };
 
 function createWindow(): void {
@@ -168,6 +181,27 @@ async function executeAnalyzer(
       return analyzeAccessLog(request.params);
     case "profiler_collapsed":
       return analyzeCollapsedProfile(request.params);
+    case "gc_log":
+      return analyzeJvmFile(
+        request.params,
+        ["gc-log", "analyze"],
+        isGcLogAnalysisResult,
+        "Python engine did not produce valid GC log AnalysisResult JSON.",
+      );
+    case "thread_dump":
+      return analyzeJvmFile(
+        request.params,
+        ["thread-dump", "analyze"],
+        isThreadDumpAnalysisResult,
+        "Python engine did not produce valid thread dump AnalysisResult JSON.",
+      );
+    case "exception_stack":
+      return analyzeJvmFile(
+        request.params,
+        ["exception", "analyze"],
+        isExceptionStackAnalysisResult,
+        "Python engine did not produce valid exception AnalysisResult JSON.",
+      );
     default:
       return failure("INVALID_OPTION", "Unsupported analyzer execution type.");
   }
@@ -261,6 +295,40 @@ async function analyzeCollapsedProfile(
     isProfilerCollapsedAnalysisResult,
     "Python engine did not produce valid profiler AnalysisResult JSON.",
   );
+}
+
+async function analyzeJvmFile<T extends AnalysisResult>(
+  request: AnalyzeFileRequest,
+  commandPrefix: string[],
+  validateResult: AnalysisResultValidator<T>,
+  invalidOutputMessage: string,
+): Promise<AnalyzerResponse<T>> {
+  if (!request || typeof request !== "object") {
+    return failure("INVALID_OPTION", "Analyzer request is required.");
+  }
+
+  if (typeof request.filePath !== "string" || !request.filePath) {
+    return failure("INVALID_OPTION", "Analyzer file path is required.");
+  }
+
+  if (
+    request.topN !== undefined &&
+    (!Number.isInteger(request.topN) || request.topN <= 0)
+  ) {
+    return failure("INVALID_OPTION", "Top N must be a positive integer.");
+  }
+
+  const readable = await isReadableFile(request.filePath);
+  if (!readable) {
+    return failure("FILE_NOT_FOUND", "Selected file is not readable.", request.filePath);
+  }
+
+  const args = [...commandPrefix, "--file", request.filePath];
+  if (request.topN !== undefined) {
+    args.push("--top-n", String(request.topN));
+  }
+
+  return runAnalyzer<T>(args, validateResult, invalidOutputMessage);
 }
 
 async function runAnalyzer<T extends AnalysisResult>(
@@ -495,6 +563,54 @@ function isProfilerCollapsedAnalysisResult(
     Array.isArray(value.series.top_stacks) &&
     Array.isArray(value.series.component_breakdown) &&
     Array.isArray(value.tables.top_stacks) &&
+    isPlainObject(value.metadata.diagnostics)
+  );
+}
+
+function isGcLogAnalysisResult(value: unknown): value is GcLogAnalysisResult {
+  if (!isAnalysisResult(value) || value.type !== "gc_log") {
+    return false;
+  }
+
+  return (
+    hasNumber(value.summary, "total_events") &&
+    hasNumber(value.summary, "total_pause_ms") &&
+    hasNumber(value.summary, "avg_pause_ms") &&
+    hasNumber(value.summary, "max_pause_ms") &&
+    hasNumber(value.summary, "young_gc_count") &&
+    hasNumber(value.summary, "full_gc_count") &&
+    isPlainObject(value.metadata.diagnostics)
+  );
+}
+
+function isThreadDumpAnalysisResult(value: unknown): value is ThreadDumpAnalysisResult {
+  if (!isAnalysisResult(value) || value.type !== "thread_dump") {
+    return false;
+  }
+
+  return (
+    hasNumber(value.summary, "total_threads") &&
+    hasNumber(value.summary, "runnable_threads") &&
+    hasNumber(value.summary, "blocked_threads") &&
+    hasNumber(value.summary, "waiting_threads") &&
+    hasNumber(value.summary, "threads_with_locks") &&
+    isPlainObject(value.metadata.diagnostics)
+  );
+}
+
+function isExceptionStackAnalysisResult(
+  value: unknown,
+): value is ExceptionStackAnalysisResult {
+  if (!isAnalysisResult(value) || value.type !== "exception_stack") {
+    return false;
+  }
+
+  return (
+    hasNumber(value.summary, "total_exceptions") &&
+    hasNumber(value.summary, "unique_exception_types") &&
+    hasNumber(value.summary, "unique_signatures") &&
+    (typeof value.summary.top_exception_type === "string" ||
+      value.summary.top_exception_type === null) &&
     isPlainObject(value.metadata.diagnostics)
   );
 }

@@ -143,3 +143,50 @@ def test_profiler_drilldown_and_breakdown_cli_write_json(tmp_path) -> None:
     breakdown_payload = json.loads(breakdown_output.read_text(encoding="utf-8"))
     assert len(drilldown_payload["charts"]["drilldown_stages"]) == 2
     assert "execution_breakdown" in breakdown_payload["series"]
+
+
+def test_jvm_analyzer_clis_write_analysis_result_json(tmp_path) -> None:
+    repo_root = Path(__file__).parents[3]
+    cases = [
+        (
+            ["gc-log", "analyze"],
+            repo_root / "examples/gc-logs/sample-hotspot-gc.log",
+            "gc_log",
+            "total_events",
+        ),
+        (
+            ["thread-dump", "analyze"],
+            repo_root / "examples/thread-dumps/sample-java-thread-dump.txt",
+            "thread_dump",
+            "total_threads",
+        ),
+        (
+            ["exception", "analyze"],
+            repo_root / "examples/exceptions/sample-java-exception.txt",
+            "exception_stack",
+            "total_exceptions",
+        ),
+    ]
+
+    for command, sample, result_type, summary_key in cases:
+        output = tmp_path / f"{result_type}.json"
+        completed = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "archscope_engine.cli",
+                *command,
+                "--file",
+                str(sample),
+                "--out",
+                str(output),
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+
+        payload = json.loads(output.read_text(encoding="utf-8"))
+        assert completed.returncode == 0
+        assert payload["type"] == result_type
+        assert payload["summary"][summary_key] > 0

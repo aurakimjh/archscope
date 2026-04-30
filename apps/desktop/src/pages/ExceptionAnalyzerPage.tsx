@@ -9,6 +9,7 @@ export function ExceptionAnalyzerPage(): JSX.Element {
       title={t("exceptionAnalyzer")}
       analyzer={{
         fileLabel: t("selectExceptionFile"),
+        executionType: "exception_stack",
         fileFilters: [
           { name: t("logFilesFilter"), extensions: ["log", "txt"] },
           { name: t("allFilesFilter"), extensions: ["*"] },

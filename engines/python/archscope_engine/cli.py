@@ -8,6 +8,8 @@ import typer
 from rich.console import Console
 
 from archscope_engine.analyzers.access_log_analyzer import analyze_access_log
+from archscope_engine.analyzers.exception_analyzer import analyze_exception_stack
+from archscope_engine.analyzers.gc_log_analyzer import analyze_gc_log
 from archscope_engine.analyzers.jfr_analyzer import analyze_jfr_print_json
 from archscope_engine.analyzers.profiler_analyzer import (
     analyze_collapsed_profile,
@@ -18,6 +20,7 @@ from archscope_engine.analyzers.profiler_analyzer import (
     drilldown_jennifer_csv_profile,
 )
 from archscope_engine.analyzers.profiler_drilldown import DrilldownFilter
+from archscope_engine.analyzers.thread_dump_analyzer import analyze_thread_dump
 from archscope_engine.exporters.json_exporter import write_json_result
 
 console = Console()
@@ -29,6 +32,9 @@ app = typer.Typer(
 access_log_app = typer.Typer(help="Access log analysis commands.")
 profiler_app = typer.Typer(help="Profiler analysis commands.")
 jfr_app = typer.Typer(help="JFR recording analysis commands.")
+gc_log_app = typer.Typer(help="GC log analysis commands.")
+thread_dump_app = typer.Typer(help="Java thread dump analysis commands.")
+exception_app = typer.Typer(help="Java exception stack analysis commands.")
 
 
 @access_log_app.command("analyze")
@@ -210,9 +216,48 @@ def jfr_analyze_json(
     console.print(f"Wrote JFR result: {out}")
 
 
+@gc_log_app.command("analyze")
+def gc_log_analyze(
+    file: Path = typer.Option(..., "--file", exists=True, readable=True),
+    out: Path = typer.Option(..., "--out"),
+    top_n: int = typer.Option(20, "--top-n"),
+) -> None:
+    """Analyze a HotSpot unified GC log."""
+    result = analyze_gc_log(path=file, top_n=top_n)
+    write_json_result(result, out)
+    console.print(f"Wrote GC log result: {out}")
+
+
+@thread_dump_app.command("analyze")
+def thread_dump_analyze(
+    file: Path = typer.Option(..., "--file", exists=True, readable=True),
+    out: Path = typer.Option(..., "--out"),
+    top_n: int = typer.Option(20, "--top-n"),
+) -> None:
+    """Analyze a Java thread dump text file."""
+    result = analyze_thread_dump(path=file, top_n=top_n)
+    write_json_result(result, out)
+    console.print(f"Wrote thread dump result: {out}")
+
+
+@exception_app.command("analyze")
+def exception_analyze(
+    file: Path = typer.Option(..., "--file", exists=True, readable=True),
+    out: Path = typer.Option(..., "--out"),
+    top_n: int = typer.Option(20, "--top-n"),
+) -> None:
+    """Analyze Java exception stack traces."""
+    result = analyze_exception_stack(path=file, top_n=top_n)
+    write_json_result(result, out)
+    console.print(f"Wrote exception result: {out}")
+
+
 app.add_typer(access_log_app, name="access-log")
 app.add_typer(profiler_app, name="profiler")
 app.add_typer(jfr_app, name="jfr")
+app.add_typer(gc_log_app, name="gc-log")
+app.add_typer(thread_dump_app, name="thread-dump")
+app.add_typer(exception_app, name="exception")
 
 
 def main() -> None:

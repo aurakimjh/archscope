@@ -1,7 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 
-import type { BridgeError, SelectFileRequest } from "../api/analyzerClient";
-import { ErrorPanel } from "../components/AnalyzerFeedback";
+import {
+  getAnalyzerClient,
+  type AnalysisResult,
+  type AnalysisValue,
+  type BridgeError,
+  type ParserDiagnostics,
+  type SelectFileRequest,
+} from "../api/analyzerClient";
+import {
+  DiagnosticsPanel,
+  EngineMessagesPanel,
+  ErrorPanel,
+} from "../components/AnalyzerFeedback";
 import { FileDropZone } from "../components/FileDropZone";
 import { useI18n } from "../i18n/I18nProvider";
 
@@ -11,6 +22,7 @@ type PlaceholderAnalyzerProps = {
   fileLabel: string;
   fileDescription?: string;
   fileFilters?: SelectFileRequest["filters"];
+  executionType?: "gc_log" | "thread_dump" | "exception_stack";
 };
 
 type PlaceholderPageProps = {
@@ -28,6 +40,8 @@ export function PlaceholderPage({
   const [filePath, setFilePath] = useState("");
   const [state, setState] = useState<AnalyzerState>("idle");
   const [error, setError] = useState<BridgeError | null>(null);
+  const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [engineMessages, setEngineMessages] = useState<string[]>([]);
   const mountedRef = useRef(true);
 
   useEffect(() => {
@@ -66,7 +80,19 @@ export function PlaceholderPage({
               labels={{ title: t("analysisError"), code: t("errorCode") }}
             />
           </div>
-          <PlaceholderSummary title={title} items={items} />
+          <div className="page">
+            <PlaceholderSummary title={title} items={items} result={result} />
+            <DiagnosticsPanel
+              diagnostics={result?.metadata.diagnostics as ParserDiagnostics | undefined}
+              labels={{
+                title: t("parserDiagnostics"),
+                parsedRecords: t("parsedRecords"),
+                skippedLines: t("skippedLines"),
+                samples: t("diagnosticSamples"),
+              }}
+            />
+            <EngineMessagesPanel messages={engineMessages} title={t("engineMessages")} />
+          </div>
         </section>
       </div>
     );
@@ -104,24 +130,49 @@ export function PlaceholderPage({
     setFilePath(nextPath);
     setState("ready");
     setError(null);
+    setResult(null);
+    setEngineMessages([]);
   }
 
   async function analyzePlaceholder(): Promise<void> {
-    if (!filePath || state === "running") {
+    if (!analyzer || !filePath || state === "running") {
       return;
     }
 
     setState("running");
     setError(null);
+    setEngineMessages([]);
     await Promise.resolve();
     if (!mountedRef.current) {
       return;
     }
 
-    setError({
-      code: "ANALYZER_NOT_IMPLEMENTED",
-      message: t("analyzerNotImplemented"),
+    if (!analyzer.executionType) {
+      setError({
+        code: "ANALYZER_NOT_IMPLEMENTED",
+        message: t("analyzerNotImplemented"),
+      });
+      setState("error");
+      return;
+    }
+
+    const response = await getAnalyzerClient().execute({
+      type: analyzer.executionType,
+      params: { filePath, topN: 20 },
     });
+
+    if (!mountedRef.current) {
+      return;
+    }
+
+    if (response.ok) {
+      setResult(response.result);
+      setEngineMessages(response.engine_messages ?? []);
+      setState("ready");
+      return;
+    }
+
+    setError(response.error);
     setState("error");
   }
 }
@@ -129,18 +180,87 @@ export function PlaceholderPage({
 function PlaceholderSummary({
   title,
   items,
+  result,
 }: {
   title: string;
   items: string[];
+  result?: AnalysisResult | null;
 }): JSX.Element {
   return (
     <section className="placeholder-panel">
       <h2>{title}</h2>
-      <div className="placeholder-list">
-        {items.map((item) => (
-          <span key={item}>{item}</span>
-        ))}
-      </div>
+      {result ? (
+        <ResultPreview result={result} />
+      ) : (
+        <div className="placeholder-list">
+          {items.map((item) => (
+            <span key={item}>{item}</span>
+          ))}
+        </div>
+      )}
     </section>
   );
+}
+
+function ResultPreview({ result }: { result: AnalysisResult }): JSX.Element {
+  const summaryEntries = Object.entries(result.summary).slice(0, 8);
+  const firstTable = Object.values(result.tables).find(Array.isArray);
+  const rows = Array.isArray(firstTable) ? firstTable.slice(0, 5) : [];
+
+  return (
+    <div className="placeholder-result">
+      <dl className="diagnostics-grid">
+        {summaryEntries.map(([key, value]) => (
+          <div key={key}>
+            <dt>{labelize(key)}</dt>
+            <dd>{formatValue(value)}</dd>
+          </div>
+        ))}
+      </dl>
+      {rows.length > 0 && (
+        <table>
+          <thead>
+            <tr>
+              {Object.keys(rows[0] as Record<string, AnalysisValue>)
+                .slice(0, 5)
+                .map((key) => (
+                  <th key={key}>{labelize(key)}</th>
+                ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, index) => {
+              const rowObject = row as Record<string, AnalysisValue>;
+              return (
+                <tr key={index}>
+                  {Object.keys(rowObject)
+                    .slice(0, 5)
+                    .map((key) => (
+                      <td key={key}>{formatValue(rowObject[key])}</td>
+                    ))}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+}
+
+function labelize(value: string): string {
+  return value.replace(/_/g, " ");
+}
+
+function formatValue(value: AnalysisValue | undefined): string {
+  if (value === undefined || value === null) {
+    return "-";
+  }
+  if (typeof value === "number") {
+    return Number.isInteger(value) ? String(value) : value.toFixed(2);
+  }
+  if (typeof value === "object") {
+    return JSON.stringify(value);
+  }
+  return String(value);
 }

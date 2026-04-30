@@ -9,6 +9,7 @@ export function GcLogAnalyzerPage(): JSX.Element {
       title={t("gcLogAnalyzer")}
       analyzer={{
         fileLabel: t("selectGcLogFile"),
+        executionType: "gc_log",
         fileFilters: [
           { name: t("logFilesFilter"), extensions: ["log", "txt"] },
           { name: t("allFilesFilter"), extensions: ["*"] },

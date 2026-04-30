@@ -33,6 +33,9 @@ AnalysisResult
 
 - `access_log`
 - `profiler_collapsed`
+- `gc_log`
+- `thread_dump`
+- `exception_stack`
 
 공통 `AnalysisResult` dataclass는 당분간 외부 transport model로 유지한다. 계약 강화 계층은 `summary`, `series`, `tables`, `metadata` 내부에 들어가는 type별 필수 key를 정의하는 방식으로 적용한다.
 
@@ -47,7 +50,6 @@ AnalysisResult
 
 - Pydantic model 전면 전환
 - 모든 nested field에 대한 runtime validation
-- GC log, thread dump, exception analyzer 구현 전 해당 result contract 확정
 - Chart Studio template schema
 - Dashboard sample data를 canonical contract로 취급하는 것. `dashboard_sample`은 UI fixture data로만 본다.
 
@@ -250,6 +252,43 @@ metaspace_before_mb
 metaspace_after_mb
 raw_line
 ```
+
+## JVM Analyzer Result Contract
+
+JVM analyzer MVP는 additive `AnalysisResult` contract를 사용하며 `metadata.schema_version = "0.1.0"`과 `metadata.diagnostics` parser diagnostics를 유지한다.
+
+### GC Log Result
+
+`type`: `gc_log`
+
+필수 `summary` fields:
+
+| Field | Type | Unit / 의미 |
+|---|---|---|
+| `total_events` | number | parsed GC event 수 |
+| `total_pause_ms` | number | 전체 GC pause 시간 |
+| `avg_pause_ms` | number | 평균 pause |
+| `max_pause_ms` | number | 최대 pause |
+| `young_gc_count` | number | young GC event 수 |
+| `full_gc_count` | number | full GC event 수 |
+
+필수 series keys: `pause_timeline`, `heap_after_mb`, `gc_type_breakdown`, `cause_breakdown`.
+
+### Thread Dump Result
+
+`type`: `thread_dump`
+
+필수 `summary` fields: `total_threads`, `runnable_threads`, `blocked_threads`, `waiting_threads`, `threads_with_locks`.
+
+필수 series keys: `state_distribution`, `category_distribution`, `top_stack_signatures`.
+
+### Exception Stack Result
+
+`type`: `exception_stack`
+
+필수 `summary` fields: `total_exceptions`, `unique_exception_types`, `unique_signatures`, `top_exception_type`.
+
+필수 series keys: `exception_type_distribution`, `root_cause_distribution`, `top_stack_signatures`.
 
 ## ProfileStack
 

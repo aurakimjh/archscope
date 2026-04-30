@@ -28,10 +28,10 @@ Last updated: 2026-04-30
 
 ## Current Priority
 
-The next feature work cycle should expand Profiler Analyzer flamegraph analysis without rebuilding the whole solution:
+The current feature work cycle turns the remaining JVM analyzer placeholders into MVP engine/UI paths:
 
 ```text
-common FlameNode contract -> Jennifer CSV import + collapsed stack flame tree -> multi-stage drill-down -> execution breakdown -> UI charts/docs/tests
+HotSpot GC parser/analyzer -> Java thread dump parser/analyzer -> Java exception stack parser/analyzer -> CLI/Electron/UI wiring -> samples/docs/tests
 ```
 
 Engine-UI Bridge decision: Electron IPC + `child_process.execFile` invoking the Python CLI. Local HTTP/FastAPI is deferred unless web delivery becomes a near-term product goal.
@@ -240,6 +240,20 @@ Scope exclusions for this feature cycle: PowerPoint export, full HTML flamegraph
 | T-113 | P1 | [x] | Add execution breakdown tests for SQL, HTTP external call, network wait, Hikari pool wait, and unknown classification. | T-104, T-106, T-107 | User feature request | Breakdown classifier tests |
 | T-114 | P2 | [x] | Update documentation for the new profiler features in root README plus English/Korean architecture, parser design, chart design, data model, and roadmap docs while preserving language-specific documentation. | T-093 through T-113 | User feature request | Updated README and docs |
 
+### JVM Analyzer MVP Expansion
+
+Goal: replace the remaining GC log, thread dump, and exception analyzer placeholders with small but real parser/analyzer/CLI/UI paths while preserving parser/analyzer separation and the common `AnalysisResult` contract.
+
+| ID | Priority | Status | Task | Depends on | Source | Output |
+|---|---|---|---|---|---|---|
+| T-115 | P1 | [x] | Implement HotSpot unified GC log parser and `gc_log` analyzer result with pause, heap, cause/type breakdowns, diagnostics, and findings. | T-012 | User follow-up | GC parser/analyzer MVP |
+| T-116 | P1 | [x] | Implement Java thread dump parser and `thread_dump` analyzer result with state/category distributions, lock evidence, stack signatures, diagnostics, and findings. | T-012 | User follow-up | Thread dump parser/analyzer MVP |
+| T-117 | P1 | [x] | Implement Java exception stack parser and `exception_stack` analyzer result with type/root-cause/signature aggregation, diagnostics, and findings. | T-012 | User follow-up | Exception parser/analyzer MVP |
+| T-118 | P1 | [x] | Add CLI commands for JVM analyzers: `gc-log analyze`, `thread-dump analyze`, and `exception analyze`. | T-115, T-116, T-117 | User follow-up | CLI analyzer paths |
+| T-119 | P2 | [x] | Wire JVM analyzer result types through TypeScript contracts, Electron IPC validation, and existing analyzer UI pages. | T-118, T-048 | User follow-up | Desktop analyzer connectivity |
+| T-120 | P2 | [x] | Add sample inputs and regression tests for JVM parser/analyzer behavior. | T-115, T-116, T-117 | User follow-up | JVM samples and tests |
+| T-121 | P2 | [x] | Update README, parser design, data model, roadmap, and work status docs for JVM analyzer MVP scope. | T-115 through T-120 | User follow-up | Updated English/Korean docs |
+
 ## Dependency Order
 
 1. `T-001 -> T-002 -> T-030 -> T-037 -> T-003`: bridge decision, client boundary, CLI install metadata, minimal UX flow, then end-to-end PoC.
@@ -270,6 +284,7 @@ Scope exclusions for this feature cycle: PowerPoint export, full HTML flamegraph
 26. `T-093 -> T-104 -> T-105 -> T-106 -> T-107 -> T-108 -> T-109`: build execution classification and stage-aware aggregation before the breakdown CLI.
 27. `T-098 -> T-110 -> T-111`: wire UI drill-down first, then add stage-aware breakdown charts.
 28. `T-094/T-095/T-098/T-104 -> T-112/T-113 -> T-114`: lock behavior with tests before final documentation updates.
+29. `T-115/T-116/T-117 -> T-118 -> T-119 -> T-120 -> T-121`: implement JVM parsers/analyzers, expose them through CLI/UI, then lock behavior with samples, tests, and docs.
 
 ## Active Decision Queue
 

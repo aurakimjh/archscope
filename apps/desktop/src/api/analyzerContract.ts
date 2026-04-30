@@ -211,6 +211,71 @@ export type ProfilerCollapsedMetadata = {
   diagnostics: ParserDiagnostics;
 };
 
+export type JvmFinding = {
+  severity: string;
+  code: string;
+  message: string;
+  evidence: Record<string, string | number | boolean | null>;
+};
+
+export type JvmAnalyzerMetadata = {
+  parser: string;
+  schema_version: string;
+  diagnostics: ParserDiagnostics;
+  findings: JvmFinding[];
+};
+
+export type GcLogSummary = {
+  total_events: number;
+  total_pause_ms: number;
+  avg_pause_ms: number;
+  max_pause_ms: number;
+  young_gc_count: number;
+  full_gc_count: number;
+};
+
+export type GcLogAnalysisResult = AnalysisResult<
+  "gc_log",
+  GcLogSummary,
+  AnalysisObject,
+  AnalysisObject,
+  AnalysisObject,
+  JvmAnalyzerMetadata
+>;
+
+export type ThreadDumpSummary = {
+  total_threads: number;
+  runnable_threads: number;
+  blocked_threads: number;
+  waiting_threads: number;
+  threads_with_locks: number;
+};
+
+export type ThreadDumpAnalysisResult = AnalysisResult<
+  "thread_dump",
+  ThreadDumpSummary,
+  AnalysisObject,
+  AnalysisObject,
+  AnalysisObject,
+  JvmAnalyzerMetadata
+>;
+
+export type ExceptionStackSummary = {
+  total_exceptions: number;
+  unique_exception_types: number;
+  unique_signatures: number;
+  top_exception_type: string | null;
+};
+
+export type ExceptionStackAnalysisResult = AnalysisResult<
+  "exception_stack",
+  ExceptionStackSummary,
+  AnalysisObject,
+  AnalysisObject,
+  AnalysisObject,
+  JvmAnalyzerMetadata
+>;
+
 export type AiSeverity = "info" | "warning" | "critical";
 
 export type AiFinding = {
@@ -273,6 +338,11 @@ export type AnalyzeCollapsedProfileRequest = {
   topN?: number;
 };
 
+export type AnalyzeFileRequest = {
+  filePath: string;
+  topN?: number;
+};
+
 export type AnalyzerExecuteRequest =
   | {
       type: "access_log";
@@ -281,11 +351,26 @@ export type AnalyzerExecuteRequest =
   | {
       type: "profiler_collapsed";
       params: AnalyzeCollapsedProfileRequest;
+    }
+  | {
+      type: "gc_log";
+      params: AnalyzeFileRequest;
+    }
+  | {
+      type: "thread_dump";
+      params: AnalyzeFileRequest;
+    }
+  | {
+      type: "exception_stack";
+      params: AnalyzeFileRequest;
     };
 
 export type AnalyzerExecutionResult =
   | AccessLogAnalysisResult
-  | ProfilerCollapsedAnalysisResult;
+  | ProfilerCollapsedAnalysisResult
+  | GcLogAnalysisResult
+  | ThreadDumpAnalysisResult
+  | ExceptionStackAnalysisResult;
 
 export type SelectFileRequest = {
   title?: string;

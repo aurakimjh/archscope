@@ -126,6 +126,18 @@ archscope-engine profiler breakdown \
   --wall ../../examples/profiler/sample-wall.collapsed \
   --filter RestTemplate \
   --out ../../examples/outputs/profiler-breakdown-result.json
+
+archscope-engine gc-log analyze \
+  --file ../../examples/gc-logs/sample-hotspot-gc.log \
+  --out ../../examples/outputs/gc-log-result.json
+
+archscope-engine thread-dump analyze \
+  --file ../../examples/thread-dumps/sample-java-thread-dump.txt \
+  --out ../../examples/outputs/thread-dump-result.json
+
+archscope-engine exception analyze \
+  --file ../../examples/exceptions/sample-java-exception.txt \
+  --out ../../examples/outputs/exception-result.json
 ```
 
 ## Current Scope
@@ -141,9 +153,10 @@ This repository currently contains the foundation only:
 - Minimal async-profiler collapsed parser
 - Jennifer APM flamegraph CSV import
 - Profiler flamegraph drill-down and execution breakdown
+- JVM GC log, thread dump, and exception stack analyzer MVPs
 - JSON result export
 
-GC log, thread dump, exception analysis, packaging, PowerPoint export, and large-file optimization are intentionally left for later phases.
+Packaging, PowerPoint export, full HTML flamegraph export, and broad large-file optimization remain later-phase work.
 
 ## License
 

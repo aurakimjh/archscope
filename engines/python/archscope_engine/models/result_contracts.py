@@ -214,6 +214,44 @@ class JfrRecordingMetadata(TypedDict):
     poc: bool
 
 
+class JvmFinding(TypedDict):
+    severity: str
+    code: str
+    message: str
+    evidence: dict[str, str | int | float | bool | None]
+
+
+class JvmAnalyzerMetadata(TypedDict):
+    parser: str
+    schema_version: str
+    diagnostics: ParserDiagnostics
+    findings: list[JvmFinding]
+
+
+class GcLogSummary(TypedDict):
+    total_events: int
+    total_pause_ms: float
+    avg_pause_ms: float
+    max_pause_ms: float
+    young_gc_count: int
+    full_gc_count: int
+
+
+class ThreadDumpSummary(TypedDict):
+    total_threads: int
+    runnable_threads: int
+    blocked_threads: int
+    waiting_threads: int
+    threads_with_locks: int
+
+
+class ExceptionStackSummary(TypedDict):
+    total_exceptions: int
+    unique_exception_types: int
+    unique_signatures: int
+    top_exception_type: str | None
+
+
 class EvidenceRefParts(TypedDict):
     source_type: str
     entity_type: str

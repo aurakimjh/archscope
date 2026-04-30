@@ -33,6 +33,9 @@ The first contract-hardening pass is limited to the analyzer result types that a
 
 - `access_log`
 - `profiler_collapsed`
+- `gc_log`
+- `thread_dump`
+- `exception_stack`
 
 The common `AnalysisResult` dataclass remains the outer transport model for now. The hardening layer adds type-specific contracts for the contents of `summary`, `series`, `tables`, and `metadata`.
 
@@ -47,7 +50,6 @@ The common `AnalysisResult` dataclass remains the outer transport model for now.
 
 - Full Pydantic model migration.
 - Runtime validation for every nested field.
-- GC log, thread dump, and exception result contracts before those analyzers are implemented.
 - Chart Studio template schema.
 - Dashboard sample data as a canonical contract. `dashboard_sample` is UI fixture data only.
 
@@ -250,6 +252,43 @@ metaspace_before_mb
 metaspace_after_mb
 raw_line
 ```
+
+## JVM Analyzer Result Contracts
+
+JVM analyzer MVPs use additive `AnalysisResult` contracts with `metadata.schema_version = "0.1.0"` and parser diagnostics under `metadata.diagnostics`.
+
+### GC Log Result
+
+`type`: `gc_log`
+
+Required `summary` fields:
+
+| Field | Type | Unit / meaning |
+|---|---|---|
+| `total_events` | number | parsed GC events |
+| `total_pause_ms` | number | total GC pause time |
+| `avg_pause_ms` | number | average parsed pause |
+| `max_pause_ms` | number | maximum parsed pause |
+| `young_gc_count` | number | young GC events |
+| `full_gc_count` | number | full GC events |
+
+Required series keys: `pause_timeline`, `heap_after_mb`, `gc_type_breakdown`, `cause_breakdown`.
+
+### Thread Dump Result
+
+`type`: `thread_dump`
+
+Required `summary` fields: `total_threads`, `runnable_threads`, `blocked_threads`, `waiting_threads`, `threads_with_locks`.
+
+Required series keys: `state_distribution`, `category_distribution`, `top_stack_signatures`.
+
+### Exception Stack Result
+
+`type`: `exception_stack`
+
+Required `summary` fields: `total_exceptions`, `unique_exception_types`, `unique_signatures`, `top_exception_type`.
+
+Required series keys: `exception_type_distribution`, `root_cause_distribution`, `top_stack_signatures`.
 
 ## ProfileStack
 

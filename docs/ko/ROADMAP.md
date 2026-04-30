@@ -34,9 +34,9 @@
 
 ## Phase 3: JVM Diagnostics and Distribution
 
-- GC log analyzer
-- Java thread dump analyzer
-- Java exception analyzer
+- GC log analyzer MVP
+- Java thread dump analyzer MVP
+- Java exception analyzer MVP
 - JFR recording parser 설계 및 feasibility spike
 - Timeline correlation
 - Electron supported-version upgrade

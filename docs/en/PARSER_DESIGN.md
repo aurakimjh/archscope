@@ -75,9 +75,15 @@ path
 
 If the CSV contains multiple root nodes, ArchScope creates a virtual `All` root. Malformed CSV rows are skipped and reported through `metadata.diagnostics` with `INVALID_JENNIFER_ROW`.
 
-## Placeholder Parsers
+## JVM Parsers
 
-GC logs, thread dumps, and exception stack traces have placeholder modules in the initial skeleton. They should follow the same parser and analyzer separation.
+GC logs, thread dumps, and exception stack traces follow the same parser and analyzer separation as access logs and profiler inputs.
+
+- GC parser supports HotSpot unified GC pause lines and extracts timestamp, GC type, cause, pause, and heap before/after/committed values.
+- Thread dump parser supports Java quoted thread blocks with `java.lang.Thread.State`, stack frames, thread ids, and basic lock evidence.
+- Exception parser supports Java exception stack blocks with optional ISO timestamps, nested `Caused by` root causes, stack frames, and stable stack signatures.
+
+Malformed record-level input is skipped and reported under `metadata.diagnostics`.
 
 ## Error Handling
 

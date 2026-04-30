@@ -9,6 +9,7 @@ export function ThreadDumpAnalyzerPage(): JSX.Element {
       title={t("threadDumpAnalyzer")}
       analyzer={{
         fileLabel: t("selectThreadDumpFile"),
+        executionType: "thread_dump",
         fileFilters: [
           { name: t("threadDumpFilesFilter"), extensions: ["txt", "log", "dump"] },
           { name: t("allFilesFilter"), extensions: ["*"] },

@@ -126,6 +126,18 @@ archscope-engine profiler breakdown \
   --wall ../../examples/profiler/sample-wall.collapsed \
   --filter RestTemplate \
   --out ../../examples/outputs/profiler-breakdown-result.json
+
+archscope-engine gc-log analyze \
+  --file ../../examples/gc-logs/sample-hotspot-gc.log \
+  --out ../../examples/outputs/gc-log-result.json
+
+archscope-engine thread-dump analyze \
+  --file ../../examples/thread-dumps/sample-java-thread-dump.txt \
+  --out ../../examples/outputs/thread-dump-result.json
+
+archscope-engine exception analyze \
+  --file ../../examples/exceptions/sample-java-exception.txt \
+  --out ../../examples/outputs/exception-result.json
 ```
 
 ## 현재 범위
@@ -141,9 +153,10 @@ archscope-engine profiler breakdown \
 - Minimal async-profiler collapsed parser
 - Jennifer APM flamegraph CSV import
 - Profiler flamegraph drill-down 및 execution breakdown
+- JVM GC log, thread dump, exception stack analyzer MVP
 - JSON result export
 
-GC log, thread dump, exception analysis, packaging, PowerPoint export, large-file optimization은 이후 phase에서 구현합니다.
+Packaging, PowerPoint export, full HTML flamegraph export, 광범위한 large-file optimization은 이후 phase 작업으로 남겨둡니다.
 
 ## License
 
