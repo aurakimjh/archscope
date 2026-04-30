@@ -48,7 +48,32 @@ CLI:
 python -m archscope_engine.cli report html --input result.json --out report.html
 ```
 
-Interactive chart bundles and full HTML flamegraph export remain separate follow-up work.
+Profiler result JSON now receives a static HTML flamegraph section when `charts.flamegraph`
+is present. It is intended for report review and evidence sharing, not as a full
+interactive flamegraph profiler UI.
+
+## Before/After Diff
+
+The first comparison report is a deterministic `comparison_report` `AnalysisResult`.
+It compares numeric `summary` fields and finding counts:
+
+```text
+python -m archscope_engine.cli report diff --before before.json --after after.json --out diff.json
+```
+
+`--html-out` can render the comparison through the same static HTML report exporter.
+
+## PowerPoint Export
+
+The minimal PowerPoint exporter writes a `.pptx` package directly from an
+`AnalysisResult` JSON file:
+
+```text
+python -m archscope_engine.cli report pptx --input result.json --out report.pptx
+```
+
+The MVP includes title, source metadata, summary metrics, and findings slides.
+Chart image embedding and slide-level theme editing remain later work.
 
 ## Multilingual Export Direction
 

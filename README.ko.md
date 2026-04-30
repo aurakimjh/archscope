@@ -157,6 +157,16 @@ archscope-engine exception analyze \
 archscope-engine report html \
   --input ../../examples/outputs/access-log-result.json \
   --out ../../examples/outputs/access-log-report.html
+
+archscope-engine report diff \
+  --before ../../examples/outputs/access-log-result.json \
+  --after ../../examples/outputs/access-log-result.json \
+  --out ../../examples/outputs/access-log-diff.json \
+  --html-out ../../examples/outputs/access-log-diff.html
+
+archscope-engine report pptx \
+  --input ../../examples/outputs/access-log-result.json \
+  --out ../../examples/outputs/access-log-report.pptx
 ```
 
 Multi-runtime analyzer MVP 명령:
@@ -177,6 +187,10 @@ archscope-engine go-panic analyze \
 archscope-engine dotnet analyze \
   --file ../../examples/runtime/sample-dotnet-iis.txt \
   --out ../../examples/outputs/dotnet-iis-result.json
+
+archscope-engine otel analyze \
+  --file ../../examples/otel/sample-otel-logs.jsonl \
+  --out ../../examples/outputs/otel-logs-result.json
 ```
 
 ## 현재 범위
@@ -194,12 +208,16 @@ archscope-engine dotnet analyze \
 - Profiler flamegraph drill-down 및 execution breakdown
 - JVM GC log, thread dump, exception stack analyzer MVP
 - Node.js, Python traceback, Go panic/goroutine, .NET/IIS analyzer MVP
+- OpenTelemetry JSONL log analyzer 및 cross-service trace correlation MVP
 - 현장 parser 수정을 위한 portable redacted parser debug log
 - JSON result export
 - 결과/debug JSON 기반 portable HTML report export
+- Before/after comparison result export
+- Minimal PowerPoint report export
+- Profiler result JSON용 static HTML flamegraph rendering
 - 제목, renderer, theme, option JSON을 조정하는 Chart Studio template preview
 
-Packaging, PowerPoint export, before/after comparison, full HTML flamegraph export, 광범위한 large-file optimization은 이후 phase 작업으로 남겨둡니다.
+Packaging polish, interactive HTML chart bundle, 더 깊은 OTel trace context mapping, 광범위한 large-file optimization은 이후 phase 작업으로 남겨둡니다.
 
 ## License
 

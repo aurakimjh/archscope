@@ -48,7 +48,27 @@ CLI:
 python -m archscope_engine.cli report html --input result.json --out report.html
 ```
 
-Interactive chart bundle과 full HTML flamegraph export는 별도 후속 작업으로 남긴다.
+`charts.flamegraph`가 있는 profiler result JSON은 static HTML flamegraph section으로 렌더링한다. 이는 report review와 evidence sharing을 위한 기능이며, profiler UI 수준의 full interactive flamegraph는 아니다.
+
+## Before/After Diff
+
+첫 comparison report는 deterministic `comparison_report` `AnalysisResult`다. Numeric `summary` field와 finding count를 비교한다.
+
+```text
+python -m archscope_engine.cli report diff --before before.json --after after.json --out diff.json
+```
+
+`--html-out`을 사용하면 같은 static HTML report exporter로 comparison HTML도 생성한다.
+
+## PowerPoint Export
+
+Minimal PowerPoint exporter는 `AnalysisResult` JSON에서 `.pptx` package를 직접 생성한다.
+
+```text
+python -m archscope_engine.cli report pptx --input result.json --out report.pptx
+```
+
+MVP는 title, source metadata, summary metrics, findings slide를 포함한다. Chart image embedding과 slide-level theme editing은 후속 작업으로 남긴다.
 
 ## 다국어 Export 방향
 

@@ -12,6 +12,7 @@ from archscope_engine.analyzers.access_log_analyzer import analyze_access_log
 from archscope_engine.analyzers.exception_analyzer import analyze_exception_stack
 from archscope_engine.analyzers.gc_log_analyzer import analyze_gc_log
 from archscope_engine.analyzers.jfr_analyzer import analyze_jfr_print_json
+from archscope_engine.analyzers.otel_analyzer import analyze_otel_jsonl
 from archscope_engine.analyzers.profiler_analyzer import (
     analyze_collapsed_profile,
     analyze_jennifer_csv_profile,
@@ -28,8 +29,10 @@ from archscope_engine.analyzers.runtime_analyzer import (
     analyze_python_traceback,
 )
 from archscope_engine.analyzers.thread_dump_analyzer import analyze_thread_dump
-from archscope_engine.exporters.html_exporter import write_html_report
+from archscope_engine.exporters.html_exporter import render_html_report, write_html_report
 from archscope_engine.exporters.json_exporter import write_json_result
+from archscope_engine.exporters.pptx_exporter import write_pptx_report
+from archscope_engine.exporters.report_diff import build_comparison_report
 from archscope_engine.models.analysis_result import AnalysisResult
 
 console = Console()
@@ -48,6 +51,7 @@ nodejs_app = typer.Typer(help="Node.js log and stack analysis commands.")
 python_traceback_app = typer.Typer(help="Python traceback analysis commands.")
 go_panic_app = typer.Typer(help="Go panic and goroutine analysis commands.")
 dotnet_app = typer.Typer(help=".NET exception and IIS log analysis commands.")
+otel_app = typer.Typer(help="OpenTelemetry input analysis commands.")
 report_app = typer.Typer(help="Report export commands.")
 
 
@@ -521,6 +525,31 @@ def dotnet_analyze(
     )
 
 
+@otel_app.command("analyze")
+def otel_analyze(
+    file: Path = typer.Option(..., "--file", exists=True, readable=True),
+    out: Path = typer.Option(..., "--out"),
+    top_n: int = typer.Option(20, "--top-n"),
+    debug_log: bool = typer.Option(False, "--debug-log"),
+    debug_log_dir: Optional[Path] = typer.Option(None, "--debug-log-dir"),
+) -> None:
+    """Analyze line-delimited OpenTelemetry JSON logs."""
+    collector = _debug_collector(
+        analyzer_type="otel_logs",
+        source_file=file,
+        parser="otel_jsonl",
+        parser_options={"top_n": top_n},
+        debug_log=debug_log,
+        debug_log_dir=debug_log_dir,
+    )
+    _write_result_with_debug(
+        out,
+        collector,
+        lambda: analyze_otel_jsonl(path=file, top_n=top_n, debug_log=collector),
+        "OpenTelemetry logs",
+    )
+
+
 @report_app.command("html")
 def report_html(
     input: Path = typer.Option(
@@ -538,6 +567,44 @@ def report_html(
     console.print(f"Wrote HTML report: {out}")
 
 
+@report_app.command("diff")
+def report_diff(
+    before: Path = typer.Option(..., "--before", exists=True, readable=True),
+    after: Path = typer.Option(..., "--after", exists=True, readable=True),
+    out: Path = typer.Option(..., "--out"),
+    label: Optional[str] = typer.Option(None, "--label"),
+    html_out: Optional[Path] = typer.Option(None, "--html-out"),
+) -> None:
+    """Create a before/after comparison AnalysisResult JSON."""
+    result = build_comparison_report(before, after, label=label)
+    write_json_result(result, out)
+    console.print(f"Wrote comparison result: {out}")
+    if html_out is not None:
+        html_out.parent.mkdir(parents=True, exist_ok=True)
+        html_out.write_text(
+            render_html_report(result.to_dict(), source_path=out),
+            encoding="utf-8",
+        )
+        console.print(f"Wrote comparison HTML report: {html_out}")
+
+
+@report_app.command("pptx")
+def report_pptx(
+    input: Path = typer.Option(
+        ...,
+        "--input",
+        exists=True,
+        readable=True,
+        help="AnalysisResult JSON input.",
+    ),
+    out: Path = typer.Option(..., "--out", help="PowerPoint .pptx output path."),
+    title: Optional[str] = typer.Option(None, "--title"),
+) -> None:
+    """Render an AnalysisResult JSON file as a minimal PowerPoint deck."""
+    write_pptx_report(input, out, title=title)
+    console.print(f"Wrote PowerPoint report: {out}")
+
+
 app.add_typer(access_log_app, name="access-log")
 app.add_typer(profiler_app, name="profiler")
 app.add_typer(jfr_app, name="jfr")
@@ -548,6 +615,7 @@ app.add_typer(nodejs_app, name="nodejs")
 app.add_typer(python_traceback_app, name="python-traceback")
 app.add_typer(go_panic_app, name="go-panic")
 app.add_typer(dotnet_app, name="dotnet")
+app.add_typer(otel_app, name="otel")
 app.add_typer(report_app, name="report")
 
 

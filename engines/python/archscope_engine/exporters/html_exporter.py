@@ -88,6 +88,9 @@ def _render_analysis_result(
     parts.extend(_render_series_and_tables(payload))
 
     charts = _dict(payload.get("charts"))
+    flamegraph = charts.get("flamegraph")
+    if isinstance(flamegraph, dict):
+        parts.append(_section("Flamegraph", _render_flamegraph(flamegraph)))
     if charts:
         parts.append(_section("Chart Data", _render_json_preview(charts)))
 
@@ -168,6 +171,46 @@ def _render_debug_errors(errors_by_type: dict[str, Any]) -> str:
     return "\n".join(blocks)
 
 
+def _render_flamegraph(root: dict[str, Any]) -> str:
+    total_samples = _number(root.get("samples")) or 1
+    return (
+        '<div class="flamegraph" role="tree">'
+        + _render_flame_node(root, total_samples=total_samples, depth=0)
+        + "</div>"
+    )
+
+
+def _render_flame_node(
+    node: dict[str, Any],
+    *,
+    total_samples: float,
+    depth: int,
+) -> str:
+    children = node.get("children")
+    child_nodes = (
+        [child for child in children if isinstance(child, dict)]
+        if isinstance(children, list)
+        else []
+    )
+    samples = _number(node.get("samples")) or 0
+    ratio = max(0.5, min(100.0, (samples / total_samples) * 100)) if total_samples else 0
+    name = escape(str(node.get("name", "(unknown)")))
+    sample_text = escape(str(node.get("samples", 0)))
+    child_html = "".join(
+        _render_flame_node(child, total_samples=total_samples, depth=depth + 1)
+        for child in child_nodes
+    )
+    row = (
+        f'<div class="flame-row" style="margin-left:{depth * 14}px">'
+        f'<div class="flame-bar" style="width:{ratio:.2f}%">'
+        f"<span>{name}</span><small>{sample_text}</small>"
+        "</div></div>"
+    )
+    if not child_html:
+        return row
+    return f"<details open><summary>{row}</summary>{child_html}</details>"
+
+
 def _render_key_values(values: dict[str, Any]) -> str:
     if not values:
         return "<p>No data.</p>"
@@ -245,6 +288,12 @@ def _format_cell(value: Any) -> str:
     return escape(str(value))
 
 
+def _number(value: Any) -> float | None:
+    if isinstance(value, (int, float)):
+        return float(value)
+    return None
+
+
 def _is_debug_log(payload: dict[str, Any]) -> bool:
     return "errors_by_type" in payload and "context" in payload and "environment" in payload
 
@@ -320,6 +369,29 @@ def _stylesheet() -> str:
             "  white-space: pre-wrap;",
             "  overflow-wrap: anywhere;",
             "}",
+            ".flamegraph {",
+            "  overflow-x: auto;",
+            "  padding: 10px;",
+            "  border: 1px solid #e2e8f0;",
+            "  border-radius: 8px;",
+            "  background: #f8fafc;",
+            "}",
+            ".flamegraph details { margin: 0; }",
+            ".flamegraph summary { display: block; cursor: pointer; }",
+            ".flame-row { min-width: 760px; padding: 2px 0; }",
+            ".flame-bar {",
+            "  display: flex;",
+            "  min-width: 28px;",
+            "  justify-content: space-between;",
+            "  gap: 8px;",
+            "  padding: 4px 8px;",
+            "  border-radius: 4px;",
+            "  color: #fff;",
+            "  background: #2563eb;",
+            "  font-size: 12px;",
+            "}",
+            ".flame-bar span { overflow: hidden; text-overflow: ellipsis; }",
+            ".flame-bar small { flex: 0 0 auto; opacity: 0.85; }",
             ".muted { color: #64748b; font-weight: 500; }",
         ]
     )

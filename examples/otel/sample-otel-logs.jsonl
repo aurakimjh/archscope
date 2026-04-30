@@ -1,0 +1,4 @@
+{"timestamp":"2026-04-27T10:00:01+09:00","trace_id":"4bf92f3577b34da6a3ce929d0e0e4736","span_id":"00f067aa0ba902b7","service_name":"demo-api","severity_text":"INFO","body":"GET /api/orders/1001 started"}
+{"timestamp":"2026-04-27T10:00:02+09:00","trace_id":"4bf92f3577b34da6a3ce929d0e0e4736","span_id":"10f067aa0ba902b8","service_name":"demo-payment","severity_text":"ERROR","body":"payment provider timeout"}
+{"timestamp":"2026-04-27T10:00:03+09:00","trace_id":"4bf92f3577b34da6a3ce929d0e0e4736","span_id":"20f067aa0ba902b9","service_name":"demo-api","severity_text":"ERROR","body":"POST /api/payment returned 500"}
+{"timestamp":"2026-04-27T10:01:12+09:00","trace_id":"8af92f3577b34da6a3ce929d0e0e4711","span_id":"30f067aa0ba902ba","service_name":"demo-api","severity_text":"WARN","body":"order lookup slow"}

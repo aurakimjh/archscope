@@ -157,6 +157,16 @@ Generate a portable HTML report from any `AnalysisResult` JSON or parser debug J
 archscope-engine report html \
   --input ../../examples/outputs/access-log-result.json \
   --out ../../examples/outputs/access-log-report.html
+
+archscope-engine report diff \
+  --before ../../examples/outputs/access-log-result.json \
+  --after ../../examples/outputs/access-log-result.json \
+  --out ../../examples/outputs/access-log-diff.json \
+  --html-out ../../examples/outputs/access-log-diff.html
+
+archscope-engine report pptx \
+  --input ../../examples/outputs/access-log-result.json \
+  --out ../../examples/outputs/access-log-report.pptx
 ```
 
 Multi-runtime analyzer MVP commands:
@@ -177,6 +187,10 @@ archscope-engine go-panic analyze \
 archscope-engine dotnet analyze \
   --file ../../examples/runtime/sample-dotnet-iis.txt \
   --out ../../examples/outputs/dotnet-iis-result.json
+
+archscope-engine otel analyze \
+  --file ../../examples/otel/sample-otel-logs.jsonl \
+  --out ../../examples/outputs/otel-logs-result.json
 ```
 
 ## Current Scope
@@ -194,12 +208,16 @@ This repository currently contains the foundation only:
 - Profiler flamegraph drill-down and execution breakdown
 - JVM GC log, thread dump, and exception stack analyzer MVPs
 - Node.js, Python traceback, Go panic/goroutine, and .NET/IIS analyzer MVPs
+- OpenTelemetry JSONL log analyzer and cross-service trace correlation MVP
 - Portable redacted parser debug logs for field parser fixes
 - JSON result export
 - Portable HTML report export from result/debug JSON
+- Before/after comparison result export
+- Minimal PowerPoint report export
+- Static HTML flamegraph rendering for profiler result JSON
 - Chart Studio template preview with title, renderer, theme, and option JSON controls
 
-Packaging, PowerPoint export, before/after comparison, full HTML flamegraph export, and broad large-file optimization remain later-phase work.
+Packaging polish, interactive HTML chart bundles, deeper OTel trace context mapping, and broad large-file optimization remain later-phase work.
 
 ## License
 

@@ -40,6 +40,8 @@ The first contract-hardening pass is limited to the analyzer result types that a
 - `python_traceback`
 - `go_panic`
 - `dotnet_exception_iis`
+- `otel_logs`
+- `comparison_report`
 
 The common `AnalysisResult` dataclass remains the outer transport model for now. The hardening layer adds type-specific contracts for the contents of `summary`, `series`, `tables`, and `metadata`.
 
@@ -258,6 +260,60 @@ Required `tables` fields:
 | `max_iis_time_taken_ms` | `summary` | Maximum `time-taken` value |
 | `iis_status_distribution` | `series` | Status-class distribution |
 | `iis_slowest_urls` | `series` | Slowest IIS URI rows |
+
+### OpenTelemetry Logs Result
+
+`type`: `otel_logs`
+
+Required `summary` fields:
+
+| Field | Type | Meaning |
+|---|---|---|
+| `total_records` | integer | Parsed OTel JSONL log records |
+| `unique_traces` | integer | Distinct non-empty trace IDs |
+| `unique_services` | integer | Distinct non-empty service names |
+| `cross_service_traces` | integer | Traces seen in more than one service |
+| `error_records` | integer | Records with error-level severity |
+
+Required `series` fields:
+
+| Field | Row shape |
+|---|---|
+| `severity_distribution` | `{ severity: string, count: integer }` |
+| `service_distribution` | `{ service: string, count: integer }` |
+| `top_traces` | `{ trace_id: string, count: integer }` |
+
+Required `tables` fields:
+
+| Field | Row shape |
+|---|---|
+| `records` | `{ timestamp, trace_id, span_id, service_name, severity, body }` |
+| `cross_service_traces` | `{ trace_id: string, services: string[] }` |
+
+### Comparison Report Result
+
+`type`: `comparison_report`
+
+`comparison_report` compares two existing `AnalysisResult` JSON files without
+re-parsing raw evidence.
+
+Required `summary` fields:
+
+| Field | Type | Meaning |
+|---|---|---|
+| `before_type` | string | Before result type |
+| `after_type` | string | After result type |
+| `changed_metrics` | integer | Numeric summary fields with non-zero delta |
+| `before_findings` | integer | Finding count in before result |
+| `after_findings` | integer | Finding count in after result |
+| `finding_delta` | integer | After finding count minus before finding count |
+
+Required `series` fields:
+
+| Field | Row shape |
+|---|---|
+| `summary_metric_deltas` | `{ metric, before, after, delta, change_percent }` |
+| `finding_count_comparison` | `{ side, finding_count }` |
 
 ## AccessLogRecord
 

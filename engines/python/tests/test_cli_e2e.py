@@ -96,6 +96,61 @@ def test_report_html_cli_writes_portable_html(tmp_path) -> None:
     assert "Wrote HTML report" in completed.stdout
 
 
+def test_report_diff_and_pptx_clis_write_outputs(tmp_path) -> None:
+    sample = Path(__file__).parents[3] / "examples/outputs/access-log-result.json"
+    after = tmp_path / "after.json"
+    payload = json.loads(sample.read_text(encoding="utf-8"))
+    payload["summary"]["total_requests"] = payload["summary"]["total_requests"] + 2
+    after.write_text(json.dumps(payload), encoding="utf-8")
+    diff_output = tmp_path / "diff.json"
+    html_output = tmp_path / "diff.html"
+    pptx_output = tmp_path / "report.pptx"
+
+    diff_completed = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "archscope_engine.cli",
+            "report",
+            "diff",
+            "--before",
+            str(sample),
+            "--after",
+            str(after),
+            "--out",
+            str(diff_output),
+            "--html-out",
+            str(html_output),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    pptx_completed = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "archscope_engine.cli",
+            "report",
+            "pptx",
+            "--input",
+            str(sample),
+            "--out",
+            str(pptx_output),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    diff_payload = json.loads(diff_output.read_text(encoding="utf-8"))
+    assert diff_completed.returncode == 0
+    assert pptx_completed.returncode == 0
+    assert diff_payload["type"] == "comparison_report"
+    assert html_output.exists()
+    assert pptx_output.read_bytes().startswith(b"PK")
+
+
 def test_profiler_jennifer_csv_cli_writes_analysis_result_json(tmp_path) -> None:
     sample = Path(__file__).parents[3] / "examples/profiler/sample-jennifer-flame.csv"
     output = tmp_path / "jennifer-result.json"

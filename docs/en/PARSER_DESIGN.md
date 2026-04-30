@@ -96,6 +96,17 @@ The first multi-runtime analyzer MVP keeps the same tolerant parser contract:
 
 These parsers are intended for small diagnostic artifacts and demo scenarios. They do not replace full structured log ingestion or OpenTelemetry correlation.
 
+## OpenTelemetry JSONL Parser
+
+The OpenTelemetry MVP accepts line-delimited JSON log records. It supports common
+field aliases such as `trace_id`/`traceId`, `span_id`/`spanId`,
+`severity_text`/`severityText`, `service_name`/`service.name`, and `body`.
+
+The analyzer groups records by trace, service, and severity, then reports traces
+that appear across more than one service as a lightweight correlation signal.
+Full OTel resource/logs envelope ingestion and span timing correlation remain
+future work.
+
 ## Error Handling
 
 Parser error handling is fixed around this principle:

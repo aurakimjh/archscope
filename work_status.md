@@ -31,9 +31,9 @@ Last updated: 2026-04-30
 The latest feature cycle started the next roadmap layer across report automation, Chart Studio, and multi-runtime diagnostics:
 
 ```text
-AnalysisResult/debug JSON -> portable HTML report
+AnalysisResult/debug JSON -> portable HTML/PPTX/diff report
 Chart template registry -> editable Chart Studio preview
-Node/Python/Go/.NET-IIS sample artifacts -> parser/analyzer/CLI MVPs
+Node/Python/Go/.NET-IIS/OTel sample artifacts -> parser/analyzer/CLI MVPs
 ```
 
 Engine-UI Bridge decision: Electron IPC + `child_process.execFile` invoking the Python CLI. Local HTTP/FastAPI is deferred unless web delivery becomes a near-term product goal.
@@ -300,6 +300,12 @@ Scope exclusions for this cycle: PowerPoint export, before/after report diff, fu
 | T-142 | P2 | [x] | Add sample runtime artifacts for Node.js, Python, Go, and .NET/IIS. | T-138 through T-141 | User follow-up | `examples/runtime/*` fixtures |
 | T-143 | P1 | [x] | Add regression tests for HTML export, runtime analyzers, and CLI output. | T-134 through T-142 | User follow-up | Python test coverage |
 | T-144 | P2 | [x] | Update README and English/Korean report, chart, parser, data model, and roadmap docs. | T-143 | User follow-up | Documentation updates |
+| T-145 | P1 | [x] | Add before/after comparison report generation that compares numeric summary metrics and finding counts without re-parsing raw evidence. | T-134 | User follow-up | `comparison_report` result and `report diff` CLI |
+| T-146 | P1 | [x] | Add minimal PowerPoint `.pptx` export from `AnalysisResult` JSON with title, source metadata, summary metrics, and findings slides. | T-134 | User follow-up | `report pptx` CLI |
+| T-147 | P1 | [x] | Render profiler `charts.flamegraph` as a static HTML flamegraph section in the report exporter. | T-134, T-093 | User follow-up | Static flamegraph HTML export |
+| T-148 | P2 | [x] | Add OpenTelemetry JSONL log parser/analyzer/CLI MVP with trace, service, severity, and cross-service trace grouping. | T-043, T-079 | User follow-up | `otel_logs` result and `otel analyze` CLI |
+| T-149 | P2 | [x] | Add OTel sample JSONL fixture and regression tests for analyzer and CLI behavior. | T-148 | User follow-up | `examples/otel/sample-otel-logs.jsonl` and tests |
+| T-150 | P2 | [x] | Update README and English/Korean report/parser/data/roadmap docs for report diff, PPTX, static flamegraph HTML, and OTel JSONL MVP. | T-145 through T-149 | User follow-up | Documentation updates |
 
 ## Dependency Order
 
@@ -335,6 +341,8 @@ Scope exclusions for this cycle: PowerPoint export, before/after report diff, fu
 30. `T-122 -> T-123 -> T-124 -> T-125 -> T-126 -> T-127 -> T-128 -> T-129 -> T-130 -> T-131 -> T-132 -> T-133`: build portable redacted parser debug logs, integrate parsers/CLI/Electron, then lock behavior with tests and docs.
 31. `T-134 -> T-135 -> T-136` and `T-137`: add the first report automation and Chart Studio slices after result/debug contracts are stable.
 32. `T-138/T-139/T-140/T-141 -> T-142 -> T-143 -> T-144`: add multi-runtime parser/analyzer MVPs, sample artifacts, tests, and docs.
+33. `T-145/T-146/T-147 -> T-150`: close the next report automation follow-ups with diff, PPTX, and static flamegraph HTML coverage.
+34. `T-148 -> T-149 -> T-150`: add the first OTel analyzer path, fixture coverage, and docs before deeper trace/span correlation work.
 
 ## Active Decision Queue
 

@@ -52,7 +52,8 @@
 - Python traceback analyzer
 - Go panic/goroutine analyzer
 - .NET exception/IIS analyzer
-- OpenTelemetry log input and trace context mapping
+- OpenTelemetry JSONL log analyzer and cross-service trace correlation MVP
+- OpenTelemetry log input and deeper trace context mapping
 - Cross-evidence timeline correlation across access logs, GC, profiler, thread, JFR, and OTel evidence
 
 ## Phase 5: Report Automation
@@ -60,7 +61,9 @@
 - Before/after diff
 - HTML report generation
 - Portable static HTML report MVP for `AnalysisResult` and parser debug JSON
+- Static HTML flamegraph rendering for profiler result JSON
 - PowerPoint export
+- Minimal PowerPoint `.pptx` report MVP
 - Executive summary generator
 - AI-assisted interpretation, optional and evidence-bound
 - Optional local LLM/Ollama interpretation with validated evidence references

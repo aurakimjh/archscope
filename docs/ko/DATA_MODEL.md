@@ -40,6 +40,8 @@ AnalysisResult
 - `python_traceback`
 - `go_panic`
 - `dotnet_exception_iis`
+- `otel_logs`
+- `comparison_report`
 
 공통 `AnalysisResult` dataclass는 당분간 외부 transport model로 유지한다. 계약 강화 계층은 `summary`, `series`, `tables`, `metadata` 내부에 들어가는 type별 필수 key를 정의하는 방식으로 적용한다.
 
@@ -258,6 +260,59 @@ UNKNOWN
 | `max_iis_time_taken_ms` | `summary` | 최대 `time-taken` 값 |
 | `iis_status_distribution` | `series` | Status-class distribution |
 | `iis_slowest_urls` | `series` | 가장 느린 IIS URI rows |
+
+### OpenTelemetry Logs Result
+
+`type`: `otel_logs`
+
+필수 `summary` fields:
+
+| Field | Type | 의미 |
+|---|---|---|
+| `total_records` | integer | Parsed OTel JSONL log record 수 |
+| `unique_traces` | integer | Distinct non-empty trace ID 수 |
+| `unique_services` | integer | Distinct non-empty service name 수 |
+| `cross_service_traces` | integer | 둘 이상의 service에서 관찰된 trace 수 |
+| `error_records` | integer | Error-level severity record 수 |
+
+필수 `series` fields:
+
+| Field | Row shape |
+|---|---|
+| `severity_distribution` | `{ severity: string, count: integer }` |
+| `service_distribution` | `{ service: string, count: integer }` |
+| `top_traces` | `{ trace_id: string, count: integer }` |
+
+필수 `tables` fields:
+
+| Field | Row shape |
+|---|---|
+| `records` | `{ timestamp, trace_id, span_id, service_name, severity, body }` |
+| `cross_service_traces` | `{ trace_id: string, services: string[] }` |
+
+### Comparison Report Result
+
+`type`: `comparison_report`
+
+`comparison_report`는 raw evidence를 다시 parse하지 않고 기존 `AnalysisResult` JSON 2개를 비교한다.
+
+필수 `summary` fields:
+
+| Field | Type | 의미 |
+|---|---|---|
+| `before_type` | string | Before result type |
+| `after_type` | string | After result type |
+| `changed_metrics` | integer | Delta가 0이 아닌 numeric summary field 수 |
+| `before_findings` | integer | Before result finding count |
+| `after_findings` | integer | After result finding count |
+| `finding_delta` | integer | After finding count minus before finding count |
+
+필수 `series` fields:
+
+| Field | Row shape |
+|---|---|
+| `summary_metric_deltas` | `{ metric, before, after, delta, change_percent }` |
+| `finding_count_comparison` | `{ side, finding_count }` |
 
 ## AccessLogRecord
 
