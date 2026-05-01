@@ -351,34 +351,55 @@ def _drilldown_from_result(
         top_n=top_n,
     )
     current = stages[-1]
-    result.charts["drilldown_stages"] = [stage.to_dict() for stage in stages]
-    result.charts["flamegraph"] = current.flamegraph.to_dict()
-    result.series["execution_breakdown"] = build_execution_breakdown(
-        current.flamegraph,
-        interval_ms=interval_ms,
-        elapsed_sec=elapsed_sec,
-        total_samples=stages[0].flamegraph.samples,
-        parent_samples=stages[-2].flamegraph.samples if len(stages) > 1 else None,
-        top_n=top_n,
+    charts = {
+        **result.charts,
+        "drilldown_stages": [stage.to_dict() for stage in stages],
+        "flamegraph": current.flamegraph.to_dict(),
+    }
+    series = {
+        **result.series,
+        "execution_breakdown": build_execution_breakdown(
+            current.flamegraph,
+            interval_ms=interval_ms,
+            elapsed_sec=elapsed_sec,
+            total_samples=stages[0].flamegraph.samples,
+            parent_samples=stages[-2].flamegraph.samples if len(stages) > 1 else None,
+            top_n=top_n,
+        ),
+    }
+    tables = {
+        **result.tables,
+        "top_stacks": [
+            {
+                "stack": item["stack"],
+                "samples": item["samples"],
+                "estimated_seconds": round(item["samples"] * (interval_ms / 1000), 3),
+                "sample_ratio": item["sample_ratio"],
+                "elapsed_ratio": (
+                    round(item["samples"] * (interval_ms / 1000) / elapsed_sec * 100, 2)
+                    if elapsed_sec and elapsed_sec > 0
+                    else None
+                ),
+                "frames": str(item["stack"]).split(";"),
+            }
+            for item in current.top_stacks
+        ],
+        "top_child_frames": current.top_child_frames,
+    }
+    metadata = {
+        **result.metadata,
+        "drilldown_current_stage": current.to_dict(),
+    }
+    return AnalysisResult(
+        type=result.type,
+        source_files=list(result.source_files),
+        summary=dict(result.summary),
+        series=series,
+        tables=tables,
+        charts=charts,
+        metadata=metadata,
+        created_at=result.created_at,
     )
-    result.tables["top_stacks"] = [
-        {
-            "stack": item["stack"],
-            "samples": item["samples"],
-            "estimated_seconds": round(item["samples"] * (interval_ms / 1000), 3),
-            "sample_ratio": item["sample_ratio"],
-            "elapsed_ratio": (
-                round(item["samples"] * (interval_ms / 1000) / elapsed_sec * 100, 2)
-                if elapsed_sec and elapsed_sec > 0
-                else None
-            ),
-            "frames": str(item["stack"]).split(";"),
-        }
-        for item in current.top_stacks
-    ]
-    result.tables["top_child_frames"] = current.top_child_frames
-    result.metadata["drilldown_current_stage"] = current.to_dict()
-    return result
 
 
 def _to_profile_stack(

@@ -58,3 +58,26 @@ def test_bounded_percentile_rejects_invalid_seed() -> None:
         assert str(error) == "seed must be a positive integer."
     else:
         raise AssertionError("Expected BoundedPercentile to reject seed=0")
+
+
+def test_bounded_percentile_large_input_represents_full_distribution() -> None:
+    stats = BoundedPercentile(max_samples=1000, seed=12_345)
+
+    for value in range(100_000):
+        stats.add(float(value))
+
+    assert stats.count == 100_000
+    assert stats.sample_size == 1000
+    assert 45_000 < stats.percentile(50) < 55_000
+    assert 90_000 < stats.percentile(95) < 99_000
+
+
+def test_bounded_percentile_cache_is_invalidated_by_new_samples() -> None:
+    stats = BoundedPercentile(max_samples=10)
+    for value in range(10):
+        stats.add(float(value))
+
+    assert stats.percentile(50) == 4.5
+    stats.add(100.0)
+
+    assert stats.percentile(95) >= 8.0

@@ -16,6 +16,7 @@ Last updated: 2026-05-01
 - [x] Read `docs/review/done/2026-04-30_Phase5_AI_Interpretation_Review_by_Gemini.md`
 - [x] Read `docs/review/done/2026-04-30_Phase5_AI_Interpretation_Independent_Review_by_Gemini.md`
 - [x] Read `docs/review/done/2026-05-01_Phase5_AI_Interpretation_Review_by_Gemini.md`
+- [x] Read `docs/review/done/2026-05-01_claude-code_archscope-final-review.md`
 - [x] Consolidated review findings into this TO-DO
 - [x] Created `review_decisions.md` with accepted/deferred/rejected/needs-decision classifications
 - [x] Moved processed review documents to `docs/review/done/`
@@ -333,6 +334,26 @@ mapping in the shared asset repository.
 | T-161 | P2 | [x] | Document demo-site CLI/UI workflow, output structure, analyzer mapping source, OTel behavior, and remaining manual UI verification. | T-153 through T-160 | User follow-up | README and English/Korean docs |
 | T-162 | P2 | [ ] | Add Playwright/Electron smoke automation for Demo Data Center after a UI test harness is introduced. | T-156 | User follow-up | Deferred automated UI smoke test |
 
+### Final Performance, Defect, and Algorithm Review Hardening
+
+Goal: close the high-risk items from the 2026-05-01 final review before deeper optimization work. The review was based on commit `2e1a0ae`; AI client findings already closed by later commits are not duplicated here.
+
+| ID | Priority | Status | Task | Depends on | Source | Output |
+|---|---|---|---|---|---|---|
+| T-167 | P0 | [x] | Fix `BoundedPercentile` reservoir sampling so large inputs continue to be represented after the reservoir fills, add sorted percentile cache, and add large-distribution regression tests. | T-049 | RD-105, RD-108, RD-115 | Correct Algorithm R sampling plus tests |
+| T-168 | P0 | [x] | Stop profiler drill-down from mutating the source `AnalysisResult`; return a new result with copied result sections and preserve `created_at`. | T-098 | RD-106 | Immutable drill-down result handling plus regression test |
+| T-169 | P0 | [x] | Add baseline performance measurement infrastructure for core Python analyzers, including a dependency-free benchmark script and English/Korean profiling guide. | None | RD-107 | `benchmarks/core_benchmark.py` and performance docs |
+| T-170 | P1 | [ ] | Remove the double file-read path in text encoding detection while preserving debug-log encoding metadata. | T-125, T-169 | RD-111 | Single-pass or bounded-probe text line iteration |
+| T-171 | P1 | [ ] | Add ReDoS protection for user-provided profiler drill-down regular expressions. | T-098, T-169 | RD-112 | Regex length/timeout or safe-regex engine guard |
+| T-172 | P1 | [ ] | Detect and report OTel span parent cycles and self-parent links without dropping trace topology evidence silently. | T-158 | RD-113 | OTel topology diagnostics and tests |
+| T-173 | P1 | [ ] | Refactor GC log analysis toward streaming aggregation for large logs while preserving existing summary, series, table, and findings output. | T-115, T-167 | RD-109 | Memory-bounded GC analyzer path |
+| T-174 | P2 | [ ] | Replace access-log URL full sorting with heap/top-k `Counter.most_common()` semantics. | T-169 | RD-116 | Lower-cost URL top-N aggregation |
+| T-175 | P2 | [ ] | Add ECharts large-data options and split `ChartPanel` initialization from option updates to avoid unnecessary chart reinitialization. | T-137, T-169 | RD-119, RD-120 | Large-chart rendering optimization |
+| T-176 | P2 | [ ] | Tighten OTel `_is_error_record` classification to reduce body-keyword false positives. | T-158 | RD-122 | More accurate OTel error statistics |
+| T-177 | P2 | [ ] | Cache repeated profiler stack classification work where profiles contain repeated stack keys. | T-104, T-169 | RD-125 | Lower-cost component breakdown |
+| T-178 | P2 | [ ] | Add CI benchmark publishing/regression alerts after local benchmark output stabilizes. | T-169 | RD-107 | Performance regression visibility in CI |
+| T-179 | P2 | [ ] | Add analyzer cancellation support from UI through Electron process control. | T-038, T-070 | RD-114 | User-visible cancel path |
+
 ## Dependency Order
 
 1. `T-001 -> T-002 -> T-030 -> T-037 -> T-003`: bridge decision, client boundary, CLI install metadata, minimal UX flow, then end-to-end PoC.
@@ -375,6 +396,11 @@ mapping in the shared asset repository.
 38. `T-153 -> T-154 -> T-155 -> T-156 -> T-157`: run shared demo-site manifests through CLI/UI and keep command mapping single-sourced in `projects-assets`.
 39. `T-148 -> T-158 -> T-159`: move OTel from lightweight grouping to parent-span service paths, failure propagation, and manifest expectation checks.
 40. `T-156 -> T-160 -> T-162`: support larger demo runs now, then add automated Electron smoke coverage after the harness exists.
+41. `T-167 -> T-170/T-173/T-174`: fix percentile correctness before further parser/analyzer performance work.
+42. `T-168 -> T-177`: preserve result immutability before adding cache-oriented profiler optimizations.
+43. `T-169 -> T-178`: establish local benchmark output before adding CI performance gates.
+44. `T-098 -> T-171` and `T-158 -> T-172/T-176`: harden user regex and OTel topology/error classification edge cases.
+45. `T-038/T-070 -> T-179`: add analyzer cancellation after the generic IPC bridge and sidecar cleanup path are stable.
 
 ## Active Decision Queue
 

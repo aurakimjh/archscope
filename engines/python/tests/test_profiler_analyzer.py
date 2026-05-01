@@ -1,6 +1,10 @@
 from pathlib import Path
 
-from archscope_engine.analyzers.profiler_analyzer import analyze_collapsed_profile
+from archscope_engine.analyzers.profiler_analyzer import (
+    _drilldown_from_result,
+    analyze_collapsed_profile,
+)
+from archscope_engine.analyzers.profiler_drilldown import DrilldownFilter
 from archscope_engine.analyzers.profile_classification import (
     StackClassificationRule,
     classify_stack,
@@ -90,3 +94,28 @@ def test_analyze_collapsed_profile_accepts_classification_rules(tmp_path) -> Non
     assert result.series["component_breakdown"] == [
         {"component": "Vendor Runtime", "samples": 3}
     ]
+
+
+def test_drilldown_from_result_does_not_mutate_source_result(tmp_path) -> None:
+    profile = tmp_path / "wall.collapsed"
+    profile.write_text(
+        "com.example.Controller;com.example.Service;com.example.Dao 10\n"
+        "com.example.Controller;com.example.Cache 5\n",
+        encoding="utf-8",
+    )
+    result = analyze_collapsed_profile(profile, interval_ms=100, top_n=10)
+    original = result.to_dict()
+
+    drilled = _drilldown_from_result(
+        result,
+        [DrilldownFilter(pattern="Dao")],
+        interval_ms=100,
+        elapsed_sec=None,
+        top_n=10,
+    )
+
+    assert result.to_dict() == original
+    assert drilled is not result
+    assert len(result.charts["drilldown_stages"]) == 1
+    assert len(drilled.charts["drilldown_stages"]) == 2
+    assert drilled.metadata["drilldown_current_stage"]["label"] == "include_text:Dao"

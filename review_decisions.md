@@ -22,6 +22,7 @@ This document records acceptance decisions for review findings extracted from:
 - `docs/review/done/2026-04-30_Phase5_AI_Interpretation_Review_by_Gemini.md`
 - `docs/review/done/2026-04-30_Phase5_AI_Interpretation_Independent_Review_by_Gemini.md`
 - `docs/review/done/2026-05-01_Phase5_AI_Interpretation_Review_by_Gemini.md`
+- `docs/review/done/2026-05-01_claude-code_archscope-final-review.md`
 
 Decision states:
 
@@ -138,6 +139,31 @@ Decision states:
 | RD-102 | Add non-blocking AI execution path | Accepted | P1 | AI Interpretation Runtime | UI and worker callers should not block their main loop while local inference runs. The first step can be an async wrapper around the validated synchronous client while preserving process isolation options for later desktop wiring. | Add `execute_async()` on the local LLM client boundary. |
 | RD-103 | Externalize prompt templates by model/version | Deferred | P2 | AI Interpretation Prompting | The prompt is already versioned, but only one local model profile is currently supported. Moving templates to YAML now would add configuration surface before there is a real need to tune multiple models. | Track a follow-up for versioned prompt-template configuration once additional model profiles are supported. |
 | RD-104 | Add language-specific system prompt variants | Deferred | P3 | AI Interpretation i18n | `response_language` is present and tests cover Korean output instruction. Fully localized system prompts should be driven by evaluation evidence of language drift, not added speculatively. | Revisit after AI evaluation shows English/Korean prompt-template gaps. |
+| RD-105 | Fix reservoir sampling mathematical defect | Accepted | P0 | Algorithm Correctness | The deterministic index collapsed to `seed % count`, freezing the reservoir for large inputs. Percentile output could ignore most late records. | Replace with deterministic Algorithm R and add large-distribution tests. |
+| RD-106 | Preserve `AnalysisResult` immutability in profiler drill-down | Accepted | P0 | Defect Hardening | Mutating nested dicts inside a frozen dataclass violates the transport contract and blocks safe caching. | Return a new `AnalysisResult` from drill-down instead of mutating the source result. |
+| RD-107 | Add performance measurement infrastructure | Accepted | P0 | Performance | The review correctly identifies that optimization work lacks a measurement baseline. Full CI gating is larger, but a local benchmark and profiling guide should exist immediately. | Add dependency-free Python benchmark script and EN/KO performance guide; defer CI alerting as a follow-up. |
+| RD-108 | Cache sorted percentile samples | Accepted | P1 | Algorithm Performance | Repeated p95/p99 calls sort the same sample set multiple times. This is cheap to fix with cache invalidation on `add()`. | Cache sorted reservoir samples for repeated percentile queries. |
+| RD-109 | Stream GC log analyzer aggregation | Accepted | P1 | Memory Bound | GC analyzer currently accumulates all events and can grow linearly with very large logs. | Refactor toward streaming counters and bounded percentile stats. |
+| RD-110 | Convert per-invocation Python subprocess to long-running sidecar | Deferred | P2 | Runtime Performance | The spawn overhead is real, but the current CLI subprocess model is simpler and robust. A persistent protocol should follow benchmark evidence and cancellation/progress design. | Revisit after local benchmarks and demo-run timings show process spawn is material. |
+| RD-111 | Remove double file reading during encoding detection | Accepted | P1 | I/O Performance | Reading full files for encoding detection before parsing wastes I/O on large logs. | Use bounded probing or integrated iteration while preserving debug metadata. |
+| RD-112 | Add ReDoS protection for user drill-down regex | Accepted | P1 | Defect Hardening | User-provided regex can hang the analyzer process until timeout. | Add length/timeout/safe-engine guard and tests. |
+| RD-113 | Detect OTel span topology cycles | Accepted | P1 | Defect Hardening | Existing visited-set logic prevents infinite recursion but does not surface corrupt parent relationships. | Detect cycles/self-parent links and emit diagnostics/findings. |
+| RD-114 | Add analyzer cancellation | Deferred | P2 | UX / Process Control | Cancellation is useful, but it crosses UI, IPC, and process lifecycle surfaces. It should follow current sidecar cleanup and bridge stability. | Add cancel button and process termination path as a planned follow-up. |
+| RD-115 | Add large-input `BoundedPercentile` tests | Accepted | P1 | Test Coverage | Small tests missed the reservoir sampling defect. Large-distribution tests are required for sampling algorithms. | Add 100K-record distribution coverage. |
+| RD-116 | Use top-k URL aggregation instead of full sorting | Accepted | P2 | Algorithm Performance | Access-log top URL output only needs top-N; full sorting is unnecessary. | Use `Counter.most_common()` or heap-based top-k. |
+| RD-117 | Avoid flamegraph dict-to-tree reconstruction | Deferred | P3 | Profiler Performance | The extra conversion is measurable but requires a broader result-object or drill-down data-shape change. | Revisit after result immutability and benchmark baselines are stable. |
+| RD-118 | Optimize JSON serialization path | Deferred | P3 | Runtime Performance | Pretty JSON and temp-file transport are not proven bottlenecks yet and aid debugging. | Reassess if benchmarked result sizes or export paths exceed practical thresholds. |
+| RD-119 | Add ECharts large-data rendering options | Accepted | P2 | UI Performance | Large time-series charts can drop frames without ECharts sampling/progressive options. | Add chart large-data options where result size warrants it. |
+| RD-120 | Prevent unnecessary `ChartPanel` reinitialization | Accepted | P2 | UI Performance | Reinitializing ECharts on option changes is avoidable and can be costly. | Split chart initialization from option updates. |
+| RD-121 | Add Electron integration tests | Deferred | P3 | Test Coverage | Valuable but requires a UI/Electron test harness. This overlaps with existing deferred Playwright/Electron smoke automation. | Fold into Electron smoke-test harness work. |
+| RD-122 | Reduce OTel error keyword false positives | Accepted | P2 | Diagnostic Correctness | Body keyword matching can classify normal messages as errors. | Prefer severity and tighten fallback keyword matching. |
+| RD-123 | Add progress streaming | Deferred | P3 | UX / Runtime | Progress requires a streaming protocol or long-running sidecar design. It should be grouped with cancellation and sidecar protocol work. | Revisit after process-control follow-ups. |
+| RD-124 | Remove CSP `unsafe-inline` | Deferred | P3 | Security Hardening | Already tracked as a later nonce compatibility spike; not part of this performance/defect correction batch. | Keep existing CSP nonce compatibility task. |
+| RD-125 | Cache repeated profiler stack classification | Accepted | P2 | Algorithm Performance | Profiles can contain repeated stack keys; classification is deterministic and cacheable. | Cache stack classification during component breakdown. |
+| RD-126 | Use IPC MessagePort for large results | Deferred | P3 | Runtime Performance | Current result sizes do not justify changing IPC transport. | Reevaluate if result payloads regularly exceed 10 MB. |
+| RD-127 | Replace percentile sampling with T-Digest | Deferred | P3 | Algorithm Design | Algorithm R plus cached sorting fixes the current correctness issue without adding dependencies. | Reevaluate for real-time streaming analysis. |
+| RD-128 | Rewrite Python engine in Rust/Go | Rejected | P3 | Architecture | A language rewrite is not justified without measured Python bottlenecks. | No action until profiling proves Python itself is the limiting factor. |
+| RD-129 | Adopt Zod/generated IPC schema validation | Deferred | P3 | Contract Hardening | Manual guards are working; schema generation should wait for concrete contract drift pain. | Revisit if IPC mismatch defects recur. |
 
 ## Backlog Mapping
 
@@ -191,6 +217,15 @@ The executable TO-DO list is maintained in `work_status.md` under `Execution Bac
 | RD-090 to RD-100 | T-082 to T-092 | Phase 5 AI interpretation hardening before any real LLM integration. |
 | RD-101, RD-102 | T-163, T-164 | Concrete local LLM execution client and async wrapper. |
 | RD-103, RD-104 | T-165, T-166 | Deferred prompt-template externalization and multilingual prompt variants. |
+| RD-105, RD-108, RD-115 | T-167 | Reservoir sampling correctness, sorted-cache optimization, and large-input tests. |
+| RD-106 | T-168 | Profiler drill-down result immutability. |
+| RD-107 | T-169, T-178 | Local benchmark/profiling foundation now; CI benchmark publishing later. |
+| RD-109, RD-111, RD-112, RD-113 | T-170 to T-173 | P1 parser/analyzer hardening from the final review. |
+| RD-116, RD-119, RD-120, RD-122, RD-125 | T-174 to T-177 | P2 algorithm/UI/diagnostic optimization follow-ups. |
+| RD-114 | T-179 | Analyzer cancellation through UI/IPC/process control. |
+| RD-110, RD-117, RD-118, RD-121, RD-123, RD-126, RD-127, RD-129 | Deferred | Larger runtime/protocol/schema/test-harness changes need benchmark evidence or harness readiness. |
+| RD-124 | T-071 | Existing nonce CSP compatibility spike remains the right tracking item. |
+| RD-128 | Rejected | No language rewrite without measured bottleneck evidence. |
 
 ## Open Decisions
 
