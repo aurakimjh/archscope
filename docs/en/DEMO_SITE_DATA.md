@@ -85,9 +85,10 @@ Demo-site runs use a longer Electron engine timeout than single-file analyzer
 actions so full scenario runs have room to finish. The UI remains in a running
 state until the engine returns; streaming progress events are still deferred.
 
-Manual UI verification still requires launching the Electron app and clicking
-through the flow because the repository does not include a Playwright/Electron
-test harness yet.
+The desktop package includes a Playwright/Electron smoke test for the Demo Data
+Center. It runs with an `ARCHSCOPE_E2E_DEMO_STUB=1` Electron main-process fixture
+so CI can verify navigation, run-result rendering, and Export Center handoff
+without depending on external demo-site files.
 
 ## OpenTelemetry Scenario Checks
 

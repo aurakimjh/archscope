@@ -67,7 +67,7 @@ The first implementation includes code-level guardrails under `archscope_engine.
 - `EvidenceRegistry` collects canonical evidence references from analyzer output.
 - `AiFindingValidator` rejects blank, malformed, unsupported, unknown, low-confidence, or quote-mismatched findings.
 - `EvidenceSelector` bounds evidence count and character budgets before prompt construction.
-- `PromptBuilder` separates system instructions from untrusted diagnostic data inside a delimited JSON block.
+- `PromptBuilder` loads packaged prompt templates from `archscope_engine.config/prompt_templates.json`, selects a model profile and English/Korean language variant, and separates system instructions from untrusted diagnostic data inside a delimited JSON block.
 - `LocalLlmClient` defines the execution boundary for optional local inference.
 - `OllamaClient` calls Ollama's local `/api/generate` endpoint with timeout-bound JSON requests, normalizes the interpretation envelope, and validates the result before returning it.
 - `LocalLlmClient.execute_async()` provides a non-blocking wrapper for UI or worker callers that should not block their main loop during local inference.

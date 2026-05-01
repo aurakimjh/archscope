@@ -63,5 +63,7 @@ jobs:
         run: npm run lint
       - name: Test
         run: npm test
+      - name: E2E smoke
+        run: xvfb-run -a npm run test:e2e
       - name: Build
         run: npm run build

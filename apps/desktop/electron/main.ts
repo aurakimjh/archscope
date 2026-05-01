@@ -34,7 +34,8 @@ import type {
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const repoRoot = path.resolve(__dirname, "../../..");
+const desktopRoot = path.resolve(__dirname, "../..");
+const repoRoot = path.resolve(desktopRoot, "../..");
 const activeEngineProcesses = new Set<ChildProcess>();
 const activeAnalyzerProcesses = new Map<string, ChildProcess>();
 const canceledAnalyzerRequests = new Set<string>();
@@ -106,11 +107,12 @@ function createWindow(): void {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
       nodeIntegration: false,
+      sandbox: false,
     },
   });
 
-  if (app.isPackaged) {
-    mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
+  if (app.isPackaged || process.env.ARCHSCOPE_E2E_RENDERER_DIST === "1") {
+    mainWindow.loadFile(path.join(desktopRoot, "dist/index.html"));
   } else {
     mainWindow.loadURL("http://127.0.0.1:5173");
   }
@@ -219,6 +221,9 @@ function registerIpcHandlers(): void {
     "demo:list",
     async (_event, manifestRoot?: string): Promise<DemoListResponse> => {
       try {
+        if (isE2eDemoStubEnabled()) {
+          return e2eDemoListResponse(manifestRoot || "e2e-demo-root");
+        }
         return await listDemoScenarios(manifestRoot || defaultDemoSiteRoot());
       } catch (error) {
         return demoFailure("DEMO_LIST_FAILED", "Demo manifest list failed.", error);
@@ -230,6 +235,9 @@ function registerIpcHandlers(): void {
     "demo:run",
     async (_event, request: DemoRunRequest): Promise<DemoRunResponse> => {
       try {
+        if (isE2eDemoStubEnabled()) {
+          return e2eDemoRunResponse();
+        }
         return await runDemoScenario(request);
       } catch (error) {
         return demoFailure("DEMO_RUN_FAILED", "Demo data execution failed.", error);
@@ -1028,6 +1036,69 @@ function numberValue(value: unknown): number {
 
 function defaultDemoSiteRoot(): string {
   return path.join(repoRoot, "..", "projects-assets", "test-data", "demo-site");
+}
+
+function isE2eDemoStubEnabled(): boolean {
+  return process.env.ARCHSCOPE_E2E_DEMO_STUB === "1";
+}
+
+function e2eDemoListResponse(manifestRoot: string): DemoListResponse {
+  return {
+    ok: true,
+    manifestRoot,
+    scenarios: [
+      {
+        scenario: "e2e-smoke",
+        dataSource: "synthetic",
+        manifestPath: "/tmp/archscope-e2e/manifest.json",
+        description: "E2E smoke fixture for Demo Data Center.",
+        analyzers: ["access_log"],
+      },
+    ],
+  };
+}
+
+function e2eDemoRunResponse(): DemoRunResponse {
+  const jsonPath = "/tmp/archscope-e2e/access-log-result.json";
+  return {
+    ok: true,
+    outputPaths: ["/tmp/archscope-e2e/index.html"],
+    exportInputPaths: [jsonPath],
+    engine_messages: ["E2E demo stub completed."],
+    scenarios: [
+      {
+        scenario: "e2e-smoke",
+        dataSource: "synthetic",
+        bundleIndexPath: "/tmp/archscope-e2e/index.html",
+        summaryPath: "/tmp/archscope-e2e/run-summary.json",
+        summary: {
+          analyzerOutputs: 1,
+          failedAnalyzers: 0,
+          skippedLines: 0,
+          referenceFiles: 1,
+          findingCount: 1,
+          comparisonReports: 0,
+        },
+        artifacts: [
+          {
+            kind: "json",
+            label: "access-log-result.json",
+            path: jsonPath,
+            exportable: true,
+          },
+        ],
+        referenceFiles: [
+          {
+            file: "access.log",
+            path: "/tmp/archscope-e2e/access.log",
+            description: "Synthetic access log fixture.",
+          },
+        ],
+        failedAnalyzers: [],
+        skippedLineReport: [],
+      },
+    ],
+  };
 }
 
 function siblingOutputPath(inputPath: string, extension: "html" | "pptx"): string {

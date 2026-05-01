@@ -241,7 +241,7 @@ report가 포함됩니다. Canonical manifest mapping은
 - 제목, renderer, theme, option JSON을 조정하는 Chart Studio template preview
 - 공유 manifest 기반 Demo Data Center 및 demo-site report bundle 생성
 
-Packaging polish, Playwright/Electron UI smoke 자동화, 광범위한 large-file optimization은 이후 phase 작업으로 남겨둡니다.
+Packaging polish와 광범위한 large-file optimization은 이후 phase 작업으로 남겨둡니다. Desktop package에는 Demo Data Center flow를 확인하는 Playwright/Electron smoke check가 포함되어 있습니다.
 
 ## License
 

@@ -240,7 +240,7 @@ This repository currently contains the foundation only:
 - Chart Studio template preview with title, renderer, theme, and option JSON controls
 - Demo Data Center and demo-site report bundle generation from shared manifests
 
-Packaging polish, Playwright/Electron UI smoke automation, and broad large-file optimization remain later-phase work.
+Packaging polish and broad large-file optimization remain later-phase work. The desktop package now includes a Playwright/Electron smoke check for the Demo Data Center flow.
 
 ## License
 

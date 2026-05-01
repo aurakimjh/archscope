@@ -84,8 +84,10 @@ Demo-site 실행은 단일 파일 analyzer보다 긴 Electron engine timeout을 
 전체 시나리오 실행이 완료될 시간을 확보합니다. UI는 engine이 반환될 때까지
 running 상태를 유지합니다. Streaming progress event는 아직 후속 작업입니다.
 
-Electron 앱을 실제로 띄워 클릭하는 수동 UI 검증은 아직 남아 있습니다. 현재
-저장소에는 Playwright/Electron 테스트 harness가 포함되어 있지 않습니다.
+Desktop package에는 Demo Data Center용 Playwright/Electron smoke test가
+포함되어 있습니다. 이 테스트는 `ARCHSCOPE_E2E_DEMO_STUB=1` Electron main-process
+fixture로 실행되므로 CI가 외부 demo-site 파일에 의존하지 않고 navigation,
+run-result rendering, Export Center handoff를 검증할 수 있습니다.
 
 ## OpenTelemetry 시나리오 검증
 

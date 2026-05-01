@@ -214,8 +214,8 @@ Goal: convert Phase 5 policy guardrails into enforceable contracts, validators, 
 | T-092 | P2 | [x] | Apply privacy and logging policy to LLM inputs and outputs, including OTel redaction before prompt construction and disabled prompt/response logging by default. | T-079, T-087, T-088 | RD-100 | LLM privacy and retention safeguards |
 | T-163 | P1 | [x] | Implement a concrete `LocalLlmClient`/`OllamaClient` execution boundary with localhost policy validation, timeout-bound `/api/generate` calls, JSON envelope normalization, and `AiFindingValidator` enforcement. | T-083, T-084, T-087, T-088 | RD-101 | Executable local LLM client path |
 | T-164 | P1 | [x] | Add a non-blocking `execute_async()` wrapper for local LLM execution so UI/worker callers can avoid blocking their main loop. | T-163 | RD-102 | Async local AI execution contract |
-| T-165 | P2 | [ ] | Externalize prompt templates by model/version once more than one local model profile is actively supported. | T-087, T-163 | RD-103 | Versioned prompt-template configuration |
-| T-166 | P3 | [ ] | Add language-optimized system prompt variants for English/Korean if model evaluation shows response-language drift. | T-087, T-090, T-165 preferred | RD-104 | Multilingual prompt-template strategy |
+| T-165 | P2 | [x] | Externalize prompt templates by model/version once more than one local model profile is actively supported. | T-087, T-163 | RD-103 | Versioned prompt-template configuration |
+| T-166 | P3 | [x] | Add language-optimized system prompt variants for English/Korean if model evaluation shows response-language drift. | T-087, T-090, T-165 preferred | RD-104 | Multilingual prompt-template strategy |
 
 ### Profiler Feature Expansion - Flamegraph Drill-down and Execution Breakdown
 
@@ -332,7 +332,7 @@ mapping in the shared asset repository.
 | T-159 | P2 | [x] | Compare OTel demo analysis against manifest expected services and trace counts, and emit mismatch findings. | T-153, T-158 | User follow-up | Demo manifest validation metadata |
 | T-160 | P2 | [x] | Increase desktop demo-site run timeout for larger scenario batches and keep running-state feedback in the UI. | T-156 | User follow-up | 5-minute demo runner IPC timeout |
 | T-161 | P2 | [x] | Document demo-site CLI/UI workflow, output structure, analyzer mapping source, OTel behavior, and remaining manual UI verification. | T-153 through T-160 | User follow-up | README and English/Korean docs |
-| T-162 | P2 | [ ] | Add Playwright/Electron smoke automation for Demo Data Center after a UI test harness is introduced. | T-156 | User follow-up | Deferred automated UI smoke test |
+| T-162 | P2 | [x] | Add Playwright/Electron smoke automation for Demo Data Center after a UI test harness is introduced. | T-156 | User follow-up | Deferred automated UI smoke test |
 
 ### Final Performance, Defect, and Algorithm Review Hardening
 
@@ -427,4 +427,4 @@ When new review documents are placed in `docs/review/`:
 - `CLAUDE.MD`, `GEMINI.MD`, and `AGENTS.MD` are local AI working instruction files and must not be committed.
 - Demo-site test log data (6 scenarios) is maintained in `projects-assets/test-data/demo-site/`, not in this repository. See `projects-assets/ASSET_INDEX.md` for the full catalog.
 - Demo-site analyzer type mapping is canonical in `projects-assets/test-data/demo-site/analyzer_type_mapping.json` and is read by ArchScope at runtime.
-- Manual UI verification remaining before the next review: launch the Electron app, run Demo Data Center for one synthetic and one real scenario, open generated artifacts, and send at least one JSON result to Export Center.
+- Automated UI smoke coverage exists for Demo Data Center navigation, stubbed run-result rendering, and Export Center handoff. Manual verification before the next review should still cover at least one real shared demo-site scenario and generated artifact opening.

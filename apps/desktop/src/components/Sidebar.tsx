@@ -41,6 +41,7 @@ export function Sidebar({ activePage, onNavigate }: SidebarProps): JSX.Element {
           <button
             key={item.key}
             type="button"
+            data-testid={`nav-${item.key}`}
             className={item.key === activePage ? "nav-item active" : "nav-item"}
             onClick={() => onNavigate(item.key)}
           >

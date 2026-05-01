@@ -177,6 +177,7 @@ export function DemoDataCenterPage({
           <button
             className="primary-button"
             type="button"
+            data-testid="demo-run-button"
             disabled={!canRun}
             onClick={() => void runScenario()}
           >
@@ -400,6 +401,7 @@ function ArtifactTable({
                   <button
                     className="secondary-button"
                     type="button"
+                    data-testid="demo-send-export"
                     onClick={() => onOpenExportCenter(artifact.path)}
                   >
                     {t("sendToExportCenter")}
