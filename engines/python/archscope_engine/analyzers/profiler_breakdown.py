@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import Counter, defaultdict
 from dataclasses import dataclass
+from functools import lru_cache
 from typing import Iterable
 
 from archscope_engine.analyzers.flamegraph_builder import extract_leaf_paths
@@ -148,6 +149,19 @@ class StackClassification:
 
 
 def classify_execution_stack(frames: Iterable[str]) -> StackClassification:
+    return _classify_execution_stack_cached(tuple(frames))
+
+
+def clear_execution_stack_classification_cache() -> None:
+    _classify_execution_stack_cached.cache_clear()
+
+
+@lru_cache(maxsize=4096)
+def _classify_execution_stack_cached(frames: tuple[str, ...]) -> StackClassification:
+    return _classify_execution_stack_uncached(frames)
+
+
+def _classify_execution_stack_uncached(frames: tuple[str, ...]) -> StackClassification:
     frame_text = ";".join(frames)
     lower_stack = frame_text.casefold()
     matched: list[str] = []

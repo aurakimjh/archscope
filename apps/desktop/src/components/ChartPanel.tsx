@@ -18,6 +18,9 @@ export function ChartPanel({
   busy = false,
 }: ChartPanelProps): JSX.Element {
   const chartRef = useRef<HTMLDivElement | null>(null);
+  const chartInstanceRef = useRef<echarts.ECharts | null>(null);
+  const optionRef = useRef(option);
+  optionRef.current = option;
 
   useEffect(() => {
     if (!chartRef.current) {
@@ -25,7 +28,8 @@ export function ChartPanel({
     }
 
     const chart = echarts.init(chartRef.current, theme, { renderer });
-    chart.setOption(option);
+    chartInstanceRef.current = chart;
+    chart.setOption(optionRef.current, { notMerge: true, lazyUpdate: true });
 
     const resizeObserver = new ResizeObserver(() => chart.resize());
     resizeObserver.observe(chartRef.current);
@@ -33,8 +37,18 @@ export function ChartPanel({
     return () => {
       resizeObserver.disconnect();
       chart.dispose();
+      if (chartInstanceRef.current === chart) {
+        chartInstanceRef.current = null;
+      }
     };
-  }, [option, renderer, theme]);
+  }, [renderer, theme]);
+
+  useEffect(() => {
+    chartInstanceRef.current?.setOption(option, {
+      notMerge: true,
+      lazyUpdate: true,
+    });
+  }, [option]);
 
   return (
     <section className="chart-panel" aria-busy={busy} aria-label={title}>

@@ -608,12 +608,15 @@ function breakdownDonutOption(rows: ExecutionBreakdownRow[]): EChartsOption {
 }
 
 function breakdownBarOption(rows: ExecutionBreakdownRow[]): EChartsOption {
+  const largeOptions = rows.length >= 1_000
+    ? { large: true, progressive: 800, progressiveThreshold: 2_000 }
+    : {};
   return {
     tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
     grid: { left: 144, right: 24, top: 24, bottom: 36 },
     xAxis: { type: "value" },
     yAxis: { type: "category", data: rows.map((row) => row.executive_label) },
-    series: [{ type: "bar", data: rows.map((row) => row.samples) }],
+    series: [{ type: "bar", data: rows.map((row) => row.samples), ...largeOptions }],
   };
 }
 

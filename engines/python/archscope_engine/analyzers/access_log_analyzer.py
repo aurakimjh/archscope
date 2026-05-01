@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime
+from heapq import nlargest
 from pathlib import Path
 from typing import Any, Callable, Iterable, cast
 
@@ -26,6 +27,7 @@ from archscope_engine.models.result_contracts import (
 from archscope_engine.parsers.access_log_parser import iter_access_log_records_with_diagnostics
 
 PERCENTILE_SAMPLE_LIMIT = 10_000
+TOP_URL_LIMIT = 10
 
 
 @dataclass
@@ -156,7 +158,9 @@ def build_access_log_result(
         for minute, stats in sorted(response_times_by_minute.items())
     ]
 
-    top_urls_by_avg_response_time = sorted(
+    top_url_counts = url_counts.most_common(TOP_URL_LIMIT)
+    top_urls_by_avg_response_time = nlargest(
+        TOP_URL_LIMIT,
         (
             {
                 "uri": uri,
@@ -166,8 +170,7 @@ def build_access_log_result(
             for uri, count in url_counts.items()
         ),
         key=lambda item: item["avg_response_ms"],
-        reverse=True,
-    )[:10]
+    )
 
     summary: AccessLogSummary = {
         "total_requests": total,
@@ -186,7 +189,7 @@ def build_access_log_result(
         ],
         "top_urls_by_count": [
             {"uri": uri, "count": count}
-            for uri, count in url_counts.most_common(10)
+            for uri, count in top_url_counts
         ],
         "top_urls_by_avg_response_time": top_urls_by_avg_response_time,
     }

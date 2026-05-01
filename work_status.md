@@ -347,10 +347,10 @@ Goal: close the high-risk items from the 2026-05-01 final review before deeper o
 | T-171 | P1 | [x] | Add ReDoS protection for user-provided profiler drill-down regular expressions. | T-098, T-169 | RD-112 | Regex length/timeout or safe-regex engine guard |
 | T-172 | P1 | [x] | Detect and report OTel span parent cycles and self-parent links without dropping trace topology evidence silently. | T-158 | RD-113 | OTel topology diagnostics and tests |
 | T-173 | P1 | [x] | Refactor GC log analysis toward streaming aggregation for large logs while preserving existing summary, series, table, and findings output. | T-115, T-167 | RD-109 | Memory-bounded GC analyzer path |
-| T-174 | P2 | [ ] | Replace access-log URL full sorting with heap/top-k `Counter.most_common()` semantics. | T-169 | RD-116 | Lower-cost URL top-N aggregation |
-| T-175 | P2 | [ ] | Add ECharts large-data options and split `ChartPanel` initialization from option updates to avoid unnecessary chart reinitialization. | T-137, T-169 | RD-119, RD-120 | Large-chart rendering optimization |
-| T-176 | P2 | [ ] | Tighten OTel `_is_error_record` classification to reduce body-keyword false positives. | T-158 | RD-122 | More accurate OTel error statistics |
-| T-177 | P2 | [ ] | Cache repeated profiler stack classification work where profiles contain repeated stack keys. | T-104, T-169 | RD-125 | Lower-cost component breakdown |
+| T-174 | P2 | [x] | Replace access-log URL full sorting with heap/top-k `Counter.most_common()` semantics. | T-169 | RD-116 | Lower-cost URL top-N aggregation |
+| T-175 | P2 | [x] | Add ECharts large-data options and split `ChartPanel` initialization from option updates to avoid unnecessary chart reinitialization. | T-137, T-169 | RD-119, RD-120 | Large-chart rendering optimization |
+| T-176 | P2 | [x] | Tighten OTel `_is_error_record` classification to reduce body-keyword false positives. | T-158 | RD-122 | More accurate OTel error statistics |
+| T-177 | P2 | [x] | Cache repeated profiler stack classification work where profiles contain repeated stack keys. | T-104, T-169 | RD-125 | Lower-cost component breakdown |
 | T-178 | P2 | [ ] | Add CI benchmark publishing/regression alerts after local benchmark output stabilizes. | T-169 | RD-107 | Performance regression visibility in CI |
 | T-179 | P2 | [ ] | Add analyzer cancellation support from UI through Electron process control. | T-038, T-070 | RD-114 | User-visible cancel path |
 

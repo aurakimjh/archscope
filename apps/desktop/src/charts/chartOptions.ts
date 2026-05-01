@@ -6,6 +6,11 @@ import type {
   TimeValuePoint,
 } from "../api/analyzerClient";
 
+const LARGE_LINE_THRESHOLD = 2_000;
+const LARGE_BAR_THRESHOLD = 1_000;
+const PROGRESSIVE_CHUNK_SIZE = 800;
+const PROGRESSIVE_THRESHOLD = 2_000;
+
 export type ChartLabels = {
   requestsAxis: string;
   millisecondsAxis: string;
@@ -44,6 +49,7 @@ export function requestCountTrendOption(
   labels: ChartLabels,
 ): EChartsOption {
   const rows = data.series.requests_per_minute;
+  const largeOptions = lineLargeDataOptions(rows.length);
   return {
     tooltip: { trigger: "axis" },
     xAxis: { type: "category", data: rows.map((row) => row.time) },
@@ -55,6 +61,7 @@ export function requestCountTrendOption(
         areaStyle: {},
         name: labels.requestsAxis,
         data: rows.map((row) => row.value),
+        ...largeOptions,
       },
     ],
   };
@@ -65,6 +72,7 @@ export function p95TrendOption(
   labels: ChartLabels,
 ): EChartsOption {
   const rows = data.series.p95_response_time_per_minute;
+  const largeOptions = lineLargeDataOptions(rows.length);
   return {
     tooltip: { trigger: "axis" },
     xAxis: { type: "category", data: rows.map((row) => row.time) },
@@ -75,6 +83,7 @@ export function p95TrendOption(
         smooth: true,
         name: labels.p95Series,
         data: rows.map((row) => row.value),
+        ...largeOptions,
       },
     ],
   };
@@ -105,6 +114,7 @@ export function profilerBreakdownOption(
 ): EChartsOption {
   const rows =
     data.series.component_breakdown ?? data.series.profiler_component_breakdown ?? [];
+  const largeOptions = barLargeDataOptions(rows.length);
   return {
     tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
     grid: { left: 126, right: 24, top: 28, bottom: 36 },
@@ -118,7 +128,31 @@ export function profilerBreakdownOption(
         type: "bar",
         name: labels.samplesAxis,
         data: rows.map((row) => row.samples),
+        ...largeOptions,
       },
     ],
+  };
+}
+
+function lineLargeDataOptions(rowCount: number): Record<string, unknown> {
+  if (rowCount < LARGE_LINE_THRESHOLD) {
+    return {};
+  }
+  return {
+    large: true,
+    sampling: "lttb",
+    progressive: PROGRESSIVE_CHUNK_SIZE,
+    progressiveThreshold: PROGRESSIVE_THRESHOLD,
+  };
+}
+
+function barLargeDataOptions(rowCount: number): Record<string, unknown> {
+  if (rowCount < LARGE_BAR_THRESHOLD) {
+    return {};
+  }
+  return {
+    large: true,
+    progressive: PROGRESSIVE_CHUNK_SIZE,
+    progressiveThreshold: PROGRESSIVE_THRESHOLD,
   };
 }

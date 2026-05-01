@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import Counter, defaultdict
 from pathlib import Path
+import re
 from typing import Any
 
 from archscope_engine.common.debug_log import DebugLogCollector
@@ -496,20 +497,25 @@ def _record_sort_key(record: OTelLogRecord) -> tuple[str, str]:
 
 
 def _is_error_record(record: OTelLogRecord) -> bool:
-    severity = record.severity.upper()
-    body = record.body.lower()
-    return severity in {"ERROR", "FATAL", "CRITICAL"} or any(
-        token in body
-        for token in (
-            "error",
-            "exception",
-            "failed",
-            "failure",
-            "timeout",
-            "insufficient_stock",
-            "gateway_timeout",
-        )
-    )
+    severity = record.severity.strip().upper()
+    if severity in {"ERROR", "FATAL", "CRITICAL"}:
+        return True
+    if severity in {"TRACE", "DEBUG", "INFO", "NOTICE", "WARN", "WARNING"}:
+        return False
+
+    body = record.body.casefold()
+    return any(pattern.search(body) for pattern in _BODY_ERROR_PATTERNS)
+
+
+_BODY_ERROR_PATTERNS = (
+    re.compile(r"\berror\b"),
+    re.compile(r"\bexception\b"),
+    re.compile(r"\bfailed\b"),
+    re.compile(r"\bfailure\b"),
+    re.compile(r"\btimeout\b"),
+    re.compile(r"\binsufficient_stock\b"),
+    re.compile(r"\bgateway_timeout\b"),
+)
 
 
 def _max_severity(severities: list[str]) -> str:

@@ -41,6 +41,31 @@ describe("chart factory", () => {
     ]);
   });
 
+  it("adds large-data options to high-cardinality line charts", () => {
+    const option = createChartOption(
+      "AccessLog.RequestCountTrend",
+      {
+        ...accessLogResult,
+        series: {
+          ...accessLogResult.series,
+          requests_per_minute: Array.from({ length: 2_000 }, (_, index) => ({
+            time: `10:${index}`,
+            value: index,
+          })),
+        },
+      },
+      labels,
+    );
+    const series = option.series as Array<Record<string, unknown>>;
+
+    expect(series[0]).toMatchObject({
+      large: true,
+      sampling: "lttb",
+      progressive: 800,
+      progressiveThreshold: 2_000,
+    });
+  });
+
   it("creates profiler component chart options from real analyzer data", () => {
     const option = createChartOption(
       "Profiler.ComponentBreakdown",
@@ -58,6 +83,30 @@ describe("chart factory", () => {
         data: [10],
       }),
     ]);
+  });
+
+  it("adds large-data options to high-cardinality bar charts", () => {
+    const option = createChartOption(
+      "Profiler.ComponentBreakdown",
+      {
+        ...profilerResult,
+        series: {
+          ...profilerResult.series,
+          component_breakdown: Array.from({ length: 1_000 }, (_, index) => ({
+            component: `Component ${index}`,
+            samples: index + 1,
+          })),
+        },
+      },
+      labels,
+    );
+    const series = option.series as Array<Record<string, unknown>>;
+
+    expect(series[0]).toMatchObject({
+      large: true,
+      progressive: 800,
+      progressiveThreshold: 2_000,
+    });
   });
 
   it("keeps every template connected to a dashboard catalog entry or factory id", () => {

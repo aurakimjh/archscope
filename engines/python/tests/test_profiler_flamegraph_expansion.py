@@ -1,6 +1,7 @@
 from collections import Counter
 from pathlib import Path
 
+from archscope_engine.analyzers import profiler_breakdown
 from archscope_engine.analyzers.flamegraph_builder import build_flame_tree_from_collapsed
 from archscope_engine.analyzers.profiler_breakdown import (
     build_execution_breakdown,
@@ -153,3 +154,31 @@ def test_execution_breakdown_tracks_wait_reason_for_external_network_wait() -> N
     assert rows[0]["category"] == "EXTERNAL_API_HTTP"
     assert rows[0]["wait_reason"] == "NETWORK_IO_WAIT"
     assert rows[0]["samples"] == 7
+
+
+def test_execution_stack_classification_reuses_cache(monkeypatch) -> None:
+    profiler_breakdown.clear_execution_stack_classification_cache()
+    calls = 0
+    original = profiler_breakdown._classify_execution_stack_uncached
+
+    def counted(frames: tuple[str, ...]):
+        nonlocal calls
+        calls += 1
+        return original(frames)
+
+    monkeypatch.setattr(
+        profiler_breakdown,
+        "_classify_execution_stack_uncached",
+        counted,
+    )
+
+    frames = ("com.example.Service", "RestTemplate.exchange")
+
+    assert profiler_breakdown.classify_execution_stack(frames).primary_category == (
+        "EXTERNAL_API_HTTP"
+    )
+    assert profiler_breakdown.classify_execution_stack(frames).primary_category == (
+        "EXTERNAL_API_HTTP"
+    )
+    assert calls == 1
+    profiler_breakdown.clear_execution_stack_classification_cache()

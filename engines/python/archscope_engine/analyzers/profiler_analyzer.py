@@ -169,6 +169,7 @@ def build_collapsed_result(
     total_samples = sum(stacks.values())
     interval_seconds = interval_ms / 1000
     estimated_seconds = total_samples * interval_seconds
+    stack_classification_cache: dict[str, str] = {}
 
     top_stacks = [
         _to_profile_stack(
@@ -178,6 +179,7 @@ def build_collapsed_result(
             interval_seconds=interval_seconds,
             elapsed_sec=elapsed_sec,
             classification_rules=classification_rules,
+            classification_cache=stack_classification_cache,
         )
         for stack, samples in stacks.most_common(top_n)
     ]
@@ -200,7 +202,11 @@ def build_collapsed_result(
             }
             for item in top_stacks
         ],
-        "component_breakdown": _component_breakdown(stacks, classification_rules),
+        "component_breakdown": _component_breakdown(
+            stacks,
+            classification_rules,
+            stack_classification_cache,
+        ),
     }
     tables: ProfilerCollapsedTables = {
         "top_stacks": [
@@ -409,6 +415,7 @@ def _to_profile_stack(
     interval_seconds: float,
     elapsed_sec: float | None,
     classification_rules: tuple[StackClassificationRule, ...],
+    classification_cache: dict[str, str],
 ) -> ProfileStack:
     estimated_seconds = samples * interval_seconds
     sample_ratio = (samples / total_samples * 100) if total_samples else 0.0
@@ -424,21 +431,40 @@ def _to_profile_stack(
         estimated_seconds=round(estimated_seconds, 3),
         sample_ratio=round(sample_ratio, 2),
         elapsed_ratio=round(elapsed_ratio, 2) if elapsed_ratio is not None else None,
-        category=classify_stack(stack, classification_rules),
+        category=_classify_stack_cached(
+            stack,
+            classification_rules,
+            classification_cache,
+        ),
     )
 
 
 def _component_breakdown(
     stacks: Counter[str],
     classification_rules: tuple[StackClassificationRule, ...],
+    classification_cache: dict[str, str] | None = None,
 ) -> list[dict[str, int | str]]:
     components: Counter[str] = Counter()
+    cache = classification_cache if classification_cache is not None else {}
     for stack, samples in stacks.items():
-        components[classify_stack(stack, classification_rules)] += samples
+        components[_classify_stack_cached(stack, classification_rules, cache)] += samples
     return [
         {"component": component, "samples": samples}
         for component, samples in components.most_common()
     ]
+
+
+def _classify_stack_cached(
+    stack: str,
+    classification_rules: tuple[StackClassificationRule, ...],
+    classification_cache: dict[str, str],
+) -> str:
+    cached = classification_cache.get(stack)
+    if cached is not None:
+        return cached
+    classified = classify_stack(stack, classification_rules)
+    classification_cache[stack] = classified
+    return classified
 
 
 def _default_diagnostics(stacks: Counter[str]) -> dict[str, Any]:
