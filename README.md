@@ -242,6 +242,8 @@ This repository currently contains the foundation only:
 
 Packaging polish and broad large-file optimization remain later-phase work. The desktop package now includes a Playwright/Electron smoke check for the Demo Data Center flow.
 
+Current implementation work for this project is closed at the present scope. There are no active `T-xxx` backlog items in `work_status.md`; future work should start only from newly submitted review documents, explicit roadmap reopening, or verification/documentation maintenance.
+
 ## License
 
 MIT License

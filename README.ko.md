@@ -243,6 +243,8 @@ report가 포함됩니다. Canonical manifest mapping은
 
 Packaging polish와 광범위한 large-file optimization은 이후 phase 작업으로 남겨둡니다. Desktop package에는 Demo Data Center flow를 확인하는 Playwright/Electron smoke check가 포함되어 있습니다.
 
+현재 범위의 구현 작업은 여기서 종료합니다. `work_status.md` 기준 활성 `T-xxx` backlog는 없으며, 이후 작업은 새 review 문서, 명시적인 roadmap 재개, 검증/문서 최신성 유지가 있을 때만 시작합니다.
+
 ## License
 
 MIT License

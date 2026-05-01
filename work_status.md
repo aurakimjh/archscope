@@ -30,6 +30,8 @@ Last updated: 2026-05-01
 
 ## Current Priority
 
+Project closure state: the current ArchScope implementation cycle is complete. There are no active incomplete `T-xxx` backlog items in this file, and project work is paused at the current scope. Future changes should be opened only from new review documents, explicit roadmap decisions, or verification/documentation maintenance.
+
 The latest feature cycle started the next roadmap layer across report automation, Chart Studio, and multi-runtime diagnostics:
 
 ```text
