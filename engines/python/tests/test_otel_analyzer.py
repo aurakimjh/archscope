@@ -7,9 +7,6 @@ import pytest
 
 from archscope_engine.analyzers.otel_analyzer import analyze_otel_jsonl
 
-pytest.importorskip("typer")
-pytest.importorskip("rich")
-
 
 def test_otel_jsonl_analyzer_builds_trace_correlation() -> None:
     sample = Path(__file__).parents[3] / "examples/otel/sample-otel-logs.jsonl"
@@ -82,7 +79,64 @@ def test_otel_analyzer_uses_parent_span_path_and_failure_propagation(tmp_path) -
     assert "OTEL_FAILURE_PROPAGATION" in finding_codes
 
 
+def test_otel_analyzer_reports_span_parent_cycles(tmp_path) -> None:
+    sample = tmp_path / "otel-cycle.jsonl"
+    sample.write_text(
+        "\n".join(
+            [
+                json.dumps(
+                    {
+                        "timestamp": "2026-04-30T10:00:00Z",
+                        "trace_id": "trace-cycle",
+                        "span_id": "span-a",
+                        "parent_span_id": "span-b",
+                        "service_name": "gateway",
+                        "severity_text": "INFO",
+                        "body": "request started",
+                    }
+                ),
+                json.dumps(
+                    {
+                        "timestamp": "2026-04-30T10:00:01Z",
+                        "trace_id": "trace-cycle",
+                        "span_id": "span-b",
+                        "parent_span_id": "span-a",
+                        "service_name": "order",
+                        "severity_text": "INFO",
+                        "body": "order started",
+                    }
+                ),
+                json.dumps(
+                    {
+                        "timestamp": "2026-04-30T10:00:02Z",
+                        "trace_id": "trace-self",
+                        "span_id": "span-self",
+                        "parent_span_id": "span-self",
+                        "service_name": "payment",
+                        "severity_text": "INFO",
+                        "body": "self parent",
+                    }
+                ),
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    result = analyze_otel_jsonl(sample).to_dict()
+
+    assert result["summary"]["span_topology_warnings"] == 2
+    reasons = {
+        row["reason"] for row in result["tables"]["span_topology_warnings"]
+    }
+    assert reasons == {"PARENT_CYCLE", "SELF_PARENT"}
+    finding_codes = {finding["code"] for finding in result["metadata"]["findings"]}
+    assert "OTEL_SPAN_TOPOLOGY_INCONSISTENT" in finding_codes
+
+
 def test_otel_cli_writes_analysis_result_json(tmp_path) -> None:
+    pytest.importorskip("typer")
+    pytest.importorskip("rich")
+
     sample = Path(__file__).parents[3] / "examples/otel/sample-otel-logs.jsonl"
     output = tmp_path / "otel-result.json"
 

@@ -15,6 +15,10 @@ from archscope_engine.models.flamegraph import FlameNode
 FilterType = Literal["include_text", "exclude_text", "regex_include", "regex_exclude"]
 MatchMode = Literal["anywhere", "ordered", "subtree"]
 ViewMode = Literal["preserve_full_path", "reroot_at_match"]
+MAX_REGEX_PATTERN_LENGTH = 500
+NESTED_QUANTIFIER_PATTERN = re.compile(
+    r"\((?:[^()\\]|\\.)*[+*](?:[^()\\]|\\.)*\)\s*(?:[+*]|\{\d+(?:,\d*)?\})"
+)
 
 
 @dataclass(frozen=True)
@@ -222,8 +226,16 @@ def _first_matching_frame(path: list[str], filter_spec: DrilldownFilter) -> int 
 
 def _frame_matches(frame: str, pattern: str, filter_spec: DrilldownFilter) -> bool:
     if filter_spec.filter_type in {"regex_include", "regex_exclude"}:
+        if _is_unsafe_regex_pattern(pattern):
+            return False
         try:
             return re.search(pattern, frame) is not None
         except re.error:
             return False
     return pattern.casefold() in frame.casefold()
+
+
+def _is_unsafe_regex_pattern(pattern: str) -> bool:
+    if len(pattern) > MAX_REGEX_PATTERN_LENGTH:
+        return True
+    return NESTED_QUANTIFIER_PATTERN.search(pattern) is not None

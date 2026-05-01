@@ -55,6 +55,7 @@ def build_otel_result(
     trace_paths = _trace_paths(trace_records)
     trace_failures = _trace_failures(trace_records)
     failure_propagation = _failure_propagation(trace_records)
+    topology_warnings = _span_topology_warnings(trace_records)
     summary = {
         "total_records": len(records),
         "unique_traces": len([key for key in trace_counts if key != "(no-trace)"]),
@@ -62,6 +63,7 @@ def build_otel_result(
         "cross_service_traces": len(cross_service_traces),
         "failed_traces": len(trace_failures),
         "failure_propagation_traces": len(failure_propagation),
+        "span_topology_warnings": len(topology_warnings),
         "error_records": sum(
             count
             for severity, count in severity_counts.items()
@@ -103,6 +105,7 @@ def build_otel_result(
         "trace_failures": trace_failures[:top_n],
         "service_failure_propagation": failure_propagation[:top_n],
         "trace_span_topology": _trace_span_topology(trace_records, top_n=top_n),
+        "span_topology_warnings": topology_warnings[:top_n],
         "service_trace_matrix": _service_trace_matrix(trace_records, top_n=top_n),
     }
     return AnalysisResult(
@@ -159,6 +162,17 @@ def _findings(summary: dict[str, int]) -> list[dict[str, Any]]:
                 ),
                 "evidence": {
                     "failure_propagation_traces": summary["failure_propagation_traces"]
+                },
+            }
+        )
+    if summary.get("span_topology_warnings", 0) > 0:
+        findings.append(
+            {
+                "severity": "warning",
+                "code": "OTEL_SPAN_TOPOLOGY_INCONSISTENT",
+                "message": "OpenTelemetry span parent relationships include cycles.",
+                "evidence": {
+                    "span_topology_warnings": summary["span_topology_warnings"]
                 },
             }
         )
@@ -295,6 +309,68 @@ def _trace_span_topology(
                 }
             )
     return rows
+
+
+def _span_topology_warnings(
+    trace_records: dict[str, list[OTelLogRecord]],
+) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for trace_id, records in sorted(trace_records.items()):
+        span_records = _span_representatives(records)
+        for span_id, record in sorted(span_records.items()):
+            if record.parent_span_id == span_id:
+                rows.append(
+                    {
+                        "trace_id": trace_id,
+                        "span_id": span_id,
+                        "parent_span_id": record.parent_span_id,
+                        "reason": "SELF_PARENT",
+                    }
+                )
+
+        visiting: set[str] = set()
+        visited: set[str] = set()
+        reported_cycles: set[tuple[str, ...]] = set()
+
+        def visit(span_id: str, path: list[str]) -> None:
+            if span_id in visited:
+                return
+            if span_id in visiting:
+                cycle_start = path.index(span_id)
+                cycle = tuple(path[cycle_start:])
+                normalized = _normalize_cycle(cycle)
+                if normalized not in reported_cycles:
+                    reported_cycles.add(normalized)
+                    rows.append(
+                        {
+                            "trace_id": trace_id,
+                            "span_id": span_id,
+                            "parent_span_id": span_records[span_id].parent_span_id,
+                            "reason": "PARENT_CYCLE",
+                            "cycle": " -> ".join(cycle),
+                        }
+                    )
+                return
+
+            visiting.add(span_id)
+            parent_id = span_records[span_id].parent_span_id
+            if parent_id in span_records and parent_id != span_id:
+                visit(parent_id, [*path, parent_id])
+            visiting.remove(span_id)
+            visited.add(span_id)
+
+        for span_id in sorted(span_records):
+            visit(span_id, [span_id])
+    return rows
+
+
+def _normalize_cycle(cycle: tuple[str, ...]) -> tuple[str, ...]:
+    unique_cycle = cycle[:-1] if len(cycle) > 1 and cycle[0] == cycle[-1] else cycle
+    rotations = [
+        unique_cycle[index:] + unique_cycle[:index]
+        for index in range(len(unique_cycle))
+    ]
+    return min(rotations)
 
 
 def _ordered_services(records: list[OTelLogRecord]) -> list[str]:

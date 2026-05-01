@@ -1,4 +1,4 @@
-from archscope_engine.common.file_utils import iter_text_lines
+from archscope_engine.common.file_utils import detect_text_encoding, iter_text_lines
 
 
 def test_iter_text_lines_does_not_duplicate_lines_after_fallback(tmp_path) -> None:
@@ -16,3 +16,23 @@ def test_iter_text_lines_reads_utf8_lines(tmp_path) -> None:
     path.write_text("alpha\nbeta\n", encoding="utf-8")
 
     assert list(iter_text_lines(path)) == ["alpha", "beta"]
+
+
+def test_detect_text_encoding_uses_bounded_probe(tmp_path) -> None:
+    path = tmp_path / "late-invalid.log"
+    path.write_bytes(b"alpha\nbeta\n" + "안녕\n".encode("cp949"))
+
+    assert detect_text_encoding(path, probe_bytes=8) == "utf-8"
+    assert detect_text_encoding(path) == "cp949"
+
+
+def test_detect_text_encoding_rejects_invalid_probe_size(tmp_path) -> None:
+    path = tmp_path / "utf8.log"
+    path.write_text("alpha\n", encoding="utf-8")
+
+    try:
+        detect_text_encoding(path, probe_bytes=0)
+    except ValueError as error:
+        assert str(error) == "probe_bytes must be a positive integer."
+    else:
+        raise AssertionError("Expected invalid probe size to be rejected.")

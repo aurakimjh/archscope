@@ -78,6 +78,27 @@ def test_multi_stage_drilldown_include_then_exclude() -> None:
     assert stage2.metrics["parent_stage_ratio"] == 62.5
 
 
+def test_drilldown_regex_filter_rejects_nested_quantifier_pattern() -> None:
+    tree = build_flame_tree_from_collapsed(
+        Counter(
+            {
+                "root;service;aaaaaaaaaaaaaaaaaaaa": 5,
+                "root;service;bbbbbbbbbbbbbbbbbbbb": 3,
+            }
+        )
+    )
+    stage0 = create_root_stage(tree, interval_ms=100, elapsed_sec=None)
+
+    stage1 = apply_drilldown_filter(
+        stage0,
+        DrilldownFilter(pattern="(a+)+b", filter_type="regex_include"),
+        interval_ms=100,
+        elapsed_sec=None,
+    )
+
+    assert stage1.metrics["matched_samples"] == 0
+
+
 def test_ordered_match_and_reroot_mode() -> None:
     tree = build_flame_tree_from_collapsed(
         Counter(

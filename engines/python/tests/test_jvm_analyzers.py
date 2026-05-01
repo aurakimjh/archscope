@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from archscope_engine.analyzers.exception_analyzer import analyze_exception_stack
-from archscope_engine.analyzers.gc_log_analyzer import analyze_gc_log
+from archscope_engine.analyzers.gc_log_analyzer import analyze_gc_log, build_gc_log_result
 from archscope_engine.analyzers.thread_dump_analyzer import analyze_thread_dump
 from archscope_engine.common.diagnostics import ParserDiagnostics
 from archscope_engine.parsers.exception_parser import parse_exception_stack
@@ -36,6 +36,21 @@ def test_gc_log_analyzer_returns_analysis_result() -> None:
         "LONG_GC_PAUSE",
         "FULL_GC_PRESENT",
     }
+
+
+def test_gc_log_result_builder_accepts_event_iterable() -> None:
+    sample = Path(__file__).parents[3] / "examples/gc-logs/sample-hotspot-gc.log"
+    events = parse_gc_log(sample)
+
+    result = build_gc_log_result(
+        (event for event in events),
+        source_file=sample,
+        diagnostics={"parsed_records": len(events)},
+    )
+
+    assert result.summary["total_events"] == 2
+    assert len(result.series["pause_timeline"]) == 2
+    assert len(result.tables["events"]) == 2
 
 
 def test_thread_dump_parser_and_analyzer(tmp_path) -> None:

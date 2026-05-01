@@ -16,14 +16,18 @@ class TextLineContext:
 def detect_text_encoding(
     path: Path,
     encodings: tuple[str, ...] = ("utf-8", "utf-8-sig", "cp949", "latin-1"),
+    probe_bytes: int = 1_048_576,
 ) -> str:
+    if probe_bytes <= 0:
+        raise ValueError("probe_bytes must be a positive integer.")
+
+    with path.open("rb") as handle:
+        data = handle.read(probe_bytes)
     last_error: UnicodeDecodeError | None = None
 
     for encoding in encodings:
         try:
-            with path.open("r", encoding=encoding) as handle:
-                while handle.read(8192):
-                    pass
+            data.decode(encoding)
             return encoding
         except UnicodeDecodeError as exc:
             last_error = exc
@@ -34,18 +38,21 @@ def detect_text_encoding(
     raise ValueError("no encodings configured")
 
 
-def iter_text_lines(path: Path) -> Iterable[str]:
+def iter_text_lines(path: Path, encoding: str | None = None) -> Iterable[str]:
     """Yield text lines using a small encoding fallback chain."""
-    encoding = detect_text_encoding(path)
+    detected_encoding = encoding or detect_text_encoding(path)
 
-    with path.open("r", encoding=encoding) as handle:
+    with path.open("r", encoding=detected_encoding) as handle:
         for line in handle:
             yield line.rstrip("\n")
 
 
-def iter_text_lines_with_context(path: Path) -> Iterable[TextLineContext]:
+def iter_text_lines_with_context(
+    path: Path,
+    encoding: str | None = None,
+) -> Iterable[TextLineContext]:
     """Yield lines with one-line before/after context without materializing the file."""
-    iterator = iter(iter_text_lines(path))
+    iterator = iter(iter_text_lines(path, encoding=encoding))
     previous: str | None = None
     try:
         current = next(iterator)

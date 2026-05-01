@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
+from typing import Iterable
 
 from archscope_engine.common.debug_log import DebugLogCollector, infer_field_shapes
 from archscope_engine.common.diagnostics import ParserDiagnostics
@@ -29,9 +30,22 @@ def parse_gc_log(
     diagnostics: ParserDiagnostics | None = None,
     debug_log: DebugLogCollector | None = None,
 ) -> list[GcEvent]:
-    events: list[GcEvent] = []
     own_diagnostics = diagnostics or ParserDiagnostics()
+    return list(
+        iter_gc_log_events_with_diagnostics(
+            path,
+            diagnostics=own_diagnostics,
+            debug_log=debug_log,
+        )
+    )
 
+
+def iter_gc_log_events_with_diagnostics(
+    path: Path,
+    *,
+    diagnostics: ParserDiagnostics,
+    debug_log: DebugLogCollector | None = None,
+) -> Iterable[GcEvent]:
     line_iterable = (
         iter_text_lines_with_context(path)
         if debug_log is not None
@@ -40,13 +54,13 @@ def parse_gc_log(
     for context in line_iterable:
         line_number = context.line_number
         line = context.target
-        own_diagnostics.total_lines += 1
+        diagnostics.total_lines += 1
         if not line.strip():
             continue
 
         event = _parse_unified_gc_line(line)
         if event is None:
-            own_diagnostics.add_skipped(
+            diagnostics.add_skipped(
                 line_number=line_number,
                 reason="NO_GC_FORMAT_MATCH",
                 message="Line did not match the supported HotSpot unified GC format.",
@@ -67,10 +81,8 @@ def parse_gc_log(
                 )
             continue
 
-        events.append(event)
-        own_diagnostics.parsed_records += 1
-
-    return events
+        yield event
+        diagnostics.parsed_records += 1
 
 
 def _parse_unified_gc_line(line: str) -> GcEvent | None:

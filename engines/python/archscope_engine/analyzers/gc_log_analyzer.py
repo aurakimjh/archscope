@@ -3,14 +3,14 @@ from __future__ import annotations
 from collections import Counter
 from dataclasses import asdict
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable
 
 from archscope_engine.common.debug_log import DebugLogCollector
 from archscope_engine.common.diagnostics import ParserDiagnostics
 from archscope_engine.common.file_utils import detect_text_encoding
 from archscope_engine.models.analysis_result import AnalysisResult
 from archscope_engine.models.gc_event import GcEvent
-from archscope_engine.parsers.gc_log_parser import parse_gc_log
+from archscope_engine.parsers.gc_log_parser import iter_gc_log_events_with_diagnostics
 
 
 def analyze_gc_log(
@@ -22,32 +22,71 @@ def analyze_gc_log(
     diagnostics = ParserDiagnostics()
     if debug_log is not None:
         debug_log.encoding_detected = detect_text_encoding(path)
-    events = parse_gc_log(path, diagnostics=diagnostics, debug_log=debug_log)
     return build_gc_log_result(
-        events,
+        iter_gc_log_events_with_diagnostics(
+            path,
+            diagnostics=diagnostics,
+            debug_log=debug_log,
+        ),
         source_file=path,
-        diagnostics=diagnostics.to_dict(),
+        diagnostics=diagnostics,
         top_n=top_n,
     )
 
 
 def build_gc_log_result(
-    events: list[GcEvent],
+    events: Iterable[GcEvent],
     *,
     source_file: Path,
-    diagnostics: dict[str, Any],
+    diagnostics: dict[str, Any] | ParserDiagnostics,
     top_n: int = 20,
 ) -> AnalysisResult:
-    pauses = [event.pause_ms for event in events if event.pause_ms is not None]
-    total_pause = sum(pauses)
-    type_counts = Counter(event.gc_type or "UNKNOWN" for event in events)
-    cause_counts = Counter(event.cause or "UNKNOWN" for event in events)
+    total_events = 0
+    pause_count = 0
+    total_pause = 0.0
+    max_pause = 0.0
+    type_counts: Counter[str] = Counter()
+    cause_counts: Counter[str] = Counter()
+    pause_timeline = []
+    heap_after_mb = []
+    event_rows = []
+
+    for index, event in enumerate(events):
+        total_events += 1
+        type_counts[event.gc_type or "UNKNOWN"] += 1
+        cause_counts[event.cause or "UNKNOWN"] += 1
+        pause_ms = event.pause_ms
+        if pause_ms is not None:
+            pause_count += 1
+            total_pause += pause_ms
+            max_pause = max(max_pause, pause_ms)
+        pause_timeline.append(
+            {
+                "time": _event_time(event, index),
+                "value": round(pause_ms or 0.0, 3),
+                "gc_type": event.gc_type or "UNKNOWN",
+            }
+        )
+        if event.heap_after_mb is not None:
+            heap_after_mb.append(
+                {
+                    "time": _event_time(event, index),
+                    "value": event.heap_after_mb,
+                }
+            )
+        if len(event_rows) < top_n:
+            event_rows.append(
+                {
+                    **asdict(event),
+                    "timestamp": event.timestamp.isoformat() if event.timestamp else None,
+                }
+            )
 
     summary = {
-        "total_events": len(events),
+        "total_events": total_events,
         "total_pause_ms": round(total_pause, 3),
-        "avg_pause_ms": round(total_pause / len(pauses), 3) if pauses else 0.0,
-        "max_pause_ms": round(max(pauses), 3) if pauses else 0.0,
+        "avg_pause_ms": round(total_pause / pause_count, 3) if pause_count else 0.0,
+        "max_pause_ms": round(max_pause, 3) if pause_count else 0.0,
         "young_gc_count": sum(
             count for gc_type, count in type_counts.items() if "Young" in gc_type
         ),
@@ -56,22 +95,8 @@ def build_gc_log_result(
         ),
     }
     series = {
-        "pause_timeline": [
-            {
-                "time": _event_time(event, index),
-                "value": round(event.pause_ms or 0.0, 3),
-                "gc_type": event.gc_type or "UNKNOWN",
-            }
-            for index, event in enumerate(events)
-        ],
-        "heap_after_mb": [
-            {
-                "time": _event_time(event, index),
-                "value": event.heap_after_mb,
-            }
-            for index, event in enumerate(events)
-            if event.heap_after_mb is not None
-        ],
+        "pause_timeline": pause_timeline,
+        "heap_after_mb": heap_after_mb,
         "gc_type_breakdown": [
             {"gc_type": key, "count": value}
             for key, value in type_counts.most_common()
@@ -82,18 +107,15 @@ def build_gc_log_result(
         ],
     }
     tables = {
-        "events": [
-            {
-                **asdict(event),
-                "timestamp": event.timestamp.isoformat() if event.timestamp else None,
-            }
-            for event in events[:top_n]
-        ]
+        "events": event_rows,
     }
+    diagnostics_payload = (
+        diagnostics.to_dict() if isinstance(diagnostics, ParserDiagnostics) else diagnostics
+    )
     metadata = {
         "parser": "hotspot_unified_gc_log",
         "schema_version": "0.1.0",
-        "diagnostics": diagnostics,
+        "diagnostics": diagnostics_payload,
         "findings": _build_findings(summary),
     }
     return AnalysisResult(
