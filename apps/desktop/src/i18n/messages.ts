@@ -46,6 +46,8 @@ export const messages = {
     endTime: "End time",
     analyze: "Analyze",
     analyzing: "Analyzing...",
+    cancelAnalysis: "Cancel",
+    analysisCanceled: "Analysis canceled.",
     browseFile: "Browse",
     selectedFile: "Selected file",
     filePathUnavailable:
@@ -227,6 +229,8 @@ export const messages = {
     endTime: "종료 시각",
     analyze: "분석",
     analyzing: "분석 중...",
+    cancelAnalysis: "취소",
+    analysisCanceled: "분석이 취소되었습니다.",
     browseFile: "찾아보기",
     selectedFile: "선택된 파일",
     filePathUnavailable:

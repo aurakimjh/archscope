@@ -1,6 +1,7 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import {
+  createAnalyzerRequestId,
   getAnalyzerClient,
   type AccessLogAnalysisResult,
   type AccessLogFormat,
@@ -45,6 +46,7 @@ export function AccessLogAnalyzerPage(): JSX.Element {
   const [result, setResult] = useState<AccessLogAnalysisResult | null>(null);
   const [error, setError] = useState<BridgeError | null>(null);
   const [engineMessages, setEngineMessages] = useState<string[]>([]);
+  const currentRequestIdRef = useRef<string | null>(null);
 
   const canAnalyze = Boolean(filePath) && state !== "running";
   const summary = result?.summary;
@@ -98,6 +100,8 @@ export function AccessLogAnalyzerPage(): JSX.Element {
     setState("running");
     setError(null);
     setEngineMessages([]);
+    const requestId = createAnalyzerRequestId();
+    currentRequestIdRef.current = requestId;
 
     try {
       const parsedMaxLines = parseOptionalPositiveInteger(maxLines);
@@ -111,6 +115,7 @@ export function AccessLogAnalyzerPage(): JSX.Element {
       }
 
       const response = await getAnalyzerClient().analyzeAccessLog({
+        requestId,
         filePath,
         format,
         maxLines: parsedMaxLines,
@@ -118,10 +123,21 @@ export function AccessLogAnalyzerPage(): JSX.Element {
         endTime: normalizeOptionalDateTime(endTime),
       });
 
+      if (currentRequestIdRef.current !== requestId) {
+        return;
+      }
+      currentRequestIdRef.current = null;
+
       if (response.ok) {
         setResult(response.result);
         setEngineMessages(response.engine_messages ?? []);
         setState("success");
+        return;
+      }
+
+      if (response.error.code === "ENGINE_CANCELED") {
+        setEngineMessages([t("analysisCanceled")]);
+        setState("ready");
         return;
       }
 
@@ -132,6 +148,22 @@ export function AccessLogAnalyzerPage(): JSX.Element {
         code: "IPC_FAILED",
         message: caught instanceof Error ? caught.message : String(caught),
       });
+      setState("error");
+    } finally {
+      if (currentRequestIdRef.current === requestId) {
+        currentRequestIdRef.current = null;
+      }
+    }
+  }
+
+  async function cancelAnalysis(): Promise<void> {
+    const requestId = currentRequestIdRef.current;
+    if (!requestId) {
+      return;
+    }
+    const response = await getAnalyzerClient().cancel(requestId);
+    if (!response.ok) {
+      setError(response.error);
       setState("error");
     }
   }
@@ -196,14 +228,24 @@ export function AccessLogAnalyzerPage(): JSX.Element {
               />
             </label>
           </div>
-          <button
-            className="primary-button"
-            type="button"
-            disabled={!canAnalyze}
-            onClick={() => void analyze()}
-          >
-            {state === "running" ? t("analyzing") : t("analyze")}
-          </button>
+          <div className="button-row">
+            <button
+              className="primary-button"
+              type="button"
+              disabled={!canAnalyze}
+              onClick={() => void analyze()}
+            >
+              {state === "running" ? t("analyzing") : t("analyze")}
+            </button>
+            <button
+              className="secondary-button"
+              type="button"
+              disabled={state !== "running"}
+              onClick={() => void cancelAnalysis()}
+            >
+              {t("cancelAnalysis")}
+            </button>
+          </div>
           <ErrorPanel
             error={error}
             labels={{ title: t("analysisError"), code: t("errorCode") }}

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import {
+  createAnalyzerRequestId,
   getAnalyzerClient,
   type AnalysisResult,
   type AnalysisValue,
@@ -43,6 +44,7 @@ export function PlaceholderPage({
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [engineMessages, setEngineMessages] = useState<string[]>([]);
   const mountedRef = useRef(true);
+  const currentRequestIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -67,14 +69,24 @@ export function PlaceholderPage({
               onBrowse={() => void browseFile(analyzer)}
               onFileSelected={handleFileInput}
             />
-            <button
-              className="primary-button"
-              type="button"
-              disabled={!canAnalyze}
-              onClick={() => void analyzePlaceholder()}
-            >
-              {state === "running" ? t("analyzing") : t("analyze")}
-            </button>
+            <div className="button-row">
+              <button
+                className="primary-button"
+                type="button"
+                disabled={!canAnalyze}
+                onClick={() => void analyzePlaceholder()}
+              >
+                {state === "running" ? t("analyzing") : t("analyze")}
+              </button>
+              <button
+                className="secondary-button"
+                type="button"
+                disabled={state !== "running"}
+                onClick={() => void cancelAnalysis()}
+              >
+                {t("cancelAnalysis")}
+              </button>
+            </div>
             <ErrorPanel
               error={error}
               labels={{ title: t("analysisError"), code: t("errorCode") }}
@@ -142,38 +154,72 @@ export function PlaceholderPage({
     setState("running");
     setError(null);
     setEngineMessages([]);
-    await Promise.resolve();
-    if (!mountedRef.current) {
-      return;
-    }
+    const requestId = createAnalyzerRequestId();
+    currentRequestIdRef.current = requestId;
+    try {
+      await Promise.resolve();
+      if (!mountedRef.current) {
+        return;
+      }
 
-    if (!analyzer.executionType) {
+      if (!analyzer.executionType) {
+        setError({
+          code: "ANALYZER_NOT_IMPLEMENTED",
+          message: t("analyzerNotImplemented"),
+        });
+        setState("error");
+        return;
+      }
+
+      const response = await getAnalyzerClient().execute({
+        requestId,
+        type: analyzer.executionType,
+        params: { requestId, filePath, topN: 20 },
+      });
+
+      if (!mountedRef.current || currentRequestIdRef.current !== requestId) {
+        return;
+      }
+      currentRequestIdRef.current = null;
+
+      if (response.ok) {
+        setResult(response.result);
+        setEngineMessages(response.engine_messages ?? []);
+        setState("ready");
+        return;
+      }
+
+      if (response.error.code === "ENGINE_CANCELED") {
+        setEngineMessages([t("analysisCanceled")]);
+        setState("ready");
+        return;
+      }
+
+      setError(response.error);
+      setState("error");
+    } catch (caught) {
       setError({
-        code: "ANALYZER_NOT_IMPLEMENTED",
-        message: t("analyzerNotImplemented"),
+        code: "IPC_FAILED",
+        message: caught instanceof Error ? caught.message : String(caught),
       });
       setState("error");
+    } finally {
+      if (currentRequestIdRef.current === requestId) {
+        currentRequestIdRef.current = null;
+      }
+    }
+  }
+
+  async function cancelAnalysis(): Promise<void> {
+    const requestId = currentRequestIdRef.current;
+    if (!requestId) {
       return;
     }
-
-    const response = await getAnalyzerClient().execute({
-      type: analyzer.executionType,
-      params: { filePath, topN: 20 },
-    });
-
-    if (!mountedRef.current) {
-      return;
+    const response = await getAnalyzerClient().cancel(requestId);
+    if (!response.ok) {
+      setError(response.error);
+      setState("error");
     }
-
-    if (response.ok) {
-      setResult(response.result);
-      setEngineMessages(response.engine_messages ?? []);
-      setState("ready");
-      return;
-    }
-
-    setError(response.error);
-    setState("error");
   }
 }
 

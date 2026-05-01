@@ -324,6 +324,7 @@ export type AccessLogFormat =
   | "custom-regex";
 
 export type AnalyzeAccessLogRequest = {
+  requestId?: string;
   filePath: string;
   format: AccessLogFormat;
   maxLines?: number;
@@ -332,6 +333,7 @@ export type AnalyzeAccessLogRequest = {
 };
 
 export type AnalyzeCollapsedProfileRequest = {
+  requestId?: string;
   wallPath: string;
   wallIntervalMs: number;
   elapsedSec?: number;
@@ -339,11 +341,14 @@ export type AnalyzeCollapsedProfileRequest = {
 };
 
 export type AnalyzeFileRequest = {
+  requestId?: string;
   filePath: string;
   topN?: number;
 };
 
-export type AnalyzerExecuteRequest =
+export type AnalyzerExecuteRequest = {
+  requestId?: string;
+} & (
   | {
       type: "access_log";
       params: AnalyzeAccessLogRequest;
@@ -363,7 +368,8 @@ export type AnalyzerExecuteRequest =
   | {
       type: "exception_stack";
       params: AnalyzeFileRequest;
-    };
+    }
+);
 
 export type AnalyzerExecutionResult =
   | AccessLogAnalysisResult
@@ -544,6 +550,7 @@ export type ArchScopeAnalyzerBridge = {
   execute(
     request: AnalyzerExecuteRequest,
   ): Promise<AnalyzerResponse<AnalyzerExecutionResult>>;
+  cancel(requestId: string): Promise<AnalyzerCancelResponse>;
   analyzeAccessLog(
     request: AnalyzeAccessLogRequest,
   ): Promise<AnalyzerResponse<AccessLogAnalysisResult>>;
@@ -551,6 +558,10 @@ export type ArchScopeAnalyzerBridge = {
     request: AnalyzeCollapsedProfileRequest,
   ): Promise<AnalyzerResponse<ProfilerCollapsedAnalysisResult>>;
 };
+
+export type AnalyzerCancelResponse =
+  | { ok: true; canceled: boolean }
+  | { ok: false; error: BridgeError };
 
 export type ArchScopeExportBridge = {
   execute(request: ExportExecuteRequest): Promise<ExportResponse>;

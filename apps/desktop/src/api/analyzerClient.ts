@@ -5,6 +5,7 @@ import type {
   AnalyzeCollapsedProfileRequest,
   AnalyzerExecuteRequest,
   AnalyzerExecutionResult,
+  AnalyzerCancelResponse,
   AnalyzerResponse,
   ArchScopeAnalyzerBridge as AnalyzerBridge,
   ProfilerCollapsedAnalysisResult,
@@ -31,6 +32,7 @@ export type {
   AnalyzeAccessLogRequest,
   AnalyzeCollapsedProfileRequest,
   AnalyzeFileRequest,
+  AnalyzerCancelResponse,
   AnalyzerExecuteRequest,
   AnalyzerExecutionResult,
   AnalyzerFailure,
@@ -99,6 +101,7 @@ export type AnalyzerClient = {
   execute(
     request: AnalyzerExecuteRequest,
   ): Promise<AnalyzerResponse<AnalyzerExecutionResult>>;
+  cancel(requestId: string): Promise<AnalyzerCancelResponse>;
   analyzeAccessLog(
     request: AnalyzeAccessLogRequest,
   ): Promise<AnalyzerResponse<AccessLogAnalysisResult>>;
@@ -126,15 +129,32 @@ export const mockAnalyzerClient: AnalyzerClient = {
       "Analyzer execution is not connected to the engine yet.",
     );
   },
+  async cancel() {
+    return {
+      ok: false,
+      error: {
+        code: "ANALYZER_NOT_CONNECTED",
+        message: "Analyzer cancellation is not connected to the engine yet.",
+      },
+    };
+  },
 };
 
 export function createIpcAnalyzerClient(bridge: AnalyzerBridge): AnalyzerClient {
   return {
     loadDashboardSample: mockAnalyzerClient.loadDashboardSample,
     execute: bridge.execute,
+    cancel: bridge.cancel,
     analyzeAccessLog: bridge.analyzeAccessLog,
     analyzeCollapsedProfile: bridge.analyzeCollapsedProfile,
   };
+}
+
+export function createAnalyzerRequestId(): string {
+  return (
+    globalThis.crypto?.randomUUID?.() ??
+    `analysis-${Date.now()}-${Math.random().toString(16).slice(2)}`
+  );
 }
 
 export function getAnalyzerClient(): AnalyzerClient {

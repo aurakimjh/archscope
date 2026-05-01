@@ -26,6 +26,21 @@ jobs:
         run: python -m ruff check .
       - name: Run tests
         run: python -m pytest tests --cov=archscope_engine --cov-report=term-missing
+      - name: Run core benchmarks
+        run: python benchmarks/core_benchmark.py --rows 10000 --repeat 3 --json > benchmark-results.json
+      - name: Publish benchmark summary
+        run: |
+          python benchmarks/ci_benchmark_report.py \
+            --input benchmark-results.json \
+            --summary-out benchmark-summary.md
+          cat benchmark-summary.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload benchmark artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-core-benchmarks
+          path: |
+            engines/python/benchmark-results.json
+            engines/python/benchmark-summary.md
 
   desktop:
     name: Desktop Build

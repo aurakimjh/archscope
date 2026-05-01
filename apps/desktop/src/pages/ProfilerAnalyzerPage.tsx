@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { EChartsOption } from "echarts";
 
 import {
+  createAnalyzerRequestId,
   getAnalyzerClient,
   type BridgeError,
   type ExecutionBreakdownRow,
@@ -66,6 +67,7 @@ export function ProfilerAnalyzerPage(): JSX.Element {
   const [viewMode, setViewMode] = useState<ViewMode>("preserve_full_path");
   const [error, setError] = useState<BridgeError | null>(null);
   const [engineMessages, setEngineMessages] = useState<string[]>([]);
+  const currentRequestIdRef = useRef<string | null>(null);
 
   const canAnalyze = Boolean(wallPath) && wallIntervalMs > 0 && state !== "running";
   const summary = result?.summary;
@@ -118,6 +120,8 @@ export function ProfilerAnalyzerPage(): JSX.Element {
     setState("running");
     setError(null);
     setEngineMessages([]);
+    const requestId = createAnalyzerRequestId();
+    currentRequestIdRef.current = requestId;
 
     try {
       const parsedElapsedSec = parseOptionalPositiveNumber(elapsedSec);
@@ -131,17 +135,29 @@ export function ProfilerAnalyzerPage(): JSX.Element {
       }
 
       const response = await getAnalyzerClient().analyzeCollapsedProfile({
+        requestId,
         wallPath,
         wallIntervalMs,
         elapsedSec: parsedElapsedSec,
         topN,
       });
 
+      if (currentRequestIdRef.current !== requestId) {
+        return;
+      }
+      currentRequestIdRef.current = null;
+
       if (response.ok) {
         setResult(response.result);
         setStages(createInitialStages(response.result));
         setEngineMessages(response.engine_messages ?? []);
         setState("success");
+        return;
+      }
+
+      if (response.error.code === "ENGINE_CANCELED") {
+        setEngineMessages([t("analysisCanceled")]);
+        setState("ready");
         return;
       }
 
@@ -152,6 +168,22 @@ export function ProfilerAnalyzerPage(): JSX.Element {
         code: "IPC_FAILED",
         message: caught instanceof Error ? caught.message : String(caught),
       });
+      setState("error");
+    } finally {
+      if (currentRequestIdRef.current === requestId) {
+        currentRequestIdRef.current = null;
+      }
+    }
+  }
+
+  async function cancelAnalysis(): Promise<void> {
+    const requestId = currentRequestIdRef.current;
+    if (!requestId) {
+      return;
+    }
+    const response = await getAnalyzerClient().cancel(requestId);
+    if (!response.ok) {
+      setError(response.error);
       setState("error");
     }
   }
@@ -222,14 +254,24 @@ export function ProfilerAnalyzerPage(): JSX.Element {
               />
             </label>
           </div>
-          <button
-            className="primary-button"
-            type="button"
-            disabled={!canAnalyze}
-            onClick={() => void analyze()}
-          >
-            {state === "running" ? t("analyzing") : t("analyze")}
-          </button>
+          <div className="button-row">
+            <button
+              className="primary-button"
+              type="button"
+              disabled={!canAnalyze}
+              onClick={() => void analyze()}
+            >
+              {state === "running" ? t("analyzing") : t("analyze")}
+            </button>
+            <button
+              className="secondary-button"
+              type="button"
+              disabled={state !== "running"}
+              onClick={() => void cancelAnalysis()}
+            >
+              {t("cancelAnalysis")}
+            </button>
+          </div>
           <ErrorPanel
             error={error}
             labels={{ title: t("analysisError"), code: t("errorCode") }}

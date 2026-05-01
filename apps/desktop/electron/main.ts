@@ -36,6 +36,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, "../../..");
 const activeEngineProcesses = new Set<ChildProcess>();
+const activeAnalyzerProcesses = new Map<string, ChildProcess>();
+const canceledAnalyzerRequests = new Set<string>();
 
 type EngineInvocation = {
   file: string;
@@ -46,6 +48,11 @@ type EngineInvocation = {
 type EngineProcessResponse =
   | { ok: true; messages: string[] }
   | { ok: false; error: { code: string; message: string; detail?: string } };
+
+type EngineRunOptions = {
+  timeoutMs?: number;
+  requestId?: string;
+};
 
 type AnalysisResultValidator<T extends AnalysisResult> = (value: unknown) => value is T;
 type SupportedResultType =
@@ -184,6 +191,19 @@ function registerIpcHandlers(): void {
     },
   );
 
+  ipcMain.handle("analyzer:cancel", async (_event, requestId: string) => {
+    if (typeof requestId !== "string" || !requestId) {
+      return failure("INVALID_OPTION", "Analyzer request id is required.");
+    }
+    const child = activeAnalyzerProcesses.get(requestId);
+    if (!child || child.exitCode !== null || child.killed) {
+      return { ok: true, canceled: false };
+    }
+    canceledAnalyzerRequests.add(requestId);
+    child.kill();
+    return { ok: true, canceled: true };
+  });
+
   ipcMain.handle(
     "export:execute",
     async (_event, request: ExportExecuteRequest): Promise<ExportResponse> => {
@@ -256,15 +276,16 @@ async function executeAnalyzer(
 
   switch (request.type) {
     case "access_log":
-      return analyzeAccessLog(request.params);
+      return analyzeAccessLog(request.params, request.requestId);
     case "profiler_collapsed":
-      return analyzeCollapsedProfile(request.params);
+      return analyzeCollapsedProfile(request.params, request.requestId);
     case "gc_log":
       return analyzeJvmFile(
         request.params,
         ["gc-log", "analyze"],
         isGcLogAnalysisResult,
         "Python engine did not produce valid GC log AnalysisResult JSON.",
+        request.requestId,
       );
     case "thread_dump":
       return analyzeJvmFile(
@@ -272,6 +293,7 @@ async function executeAnalyzer(
         ["thread-dump", "analyze"],
         isThreadDumpAnalysisResult,
         "Python engine did not produce valid thread dump AnalysisResult JSON.",
+        request.requestId,
       );
     case "exception_stack":
       return analyzeJvmFile(
@@ -279,6 +301,7 @@ async function executeAnalyzer(
         ["exception", "analyze"],
         isExceptionStackAnalysisResult,
         "Python engine did not produce valid exception AnalysisResult JSON.",
+        request.requestId,
       );
     default:
       return failure("INVALID_OPTION", "Unsupported analyzer execution type.");
@@ -287,6 +310,7 @@ async function executeAnalyzer(
 
 async function analyzeAccessLog(
   request: AnalyzeAccessLogRequest,
+  requestId?: string,
 ): Promise<AnalyzerResponse<AccessLogAnalysisResult>> {
   if (!request || typeof request !== "object") {
     return failure("INVALID_OPTION", "Access log analyzer request is required.");
@@ -324,6 +348,7 @@ async function analyzeAccessLog(
     ],
     isAccessLogAnalysisResult,
     "Python engine did not produce valid access log AnalysisResult JSON.",
+    { requestId },
     request.maxLines !== undefined ? ["--max-lines", String(request.maxLines)] : [],
     request.startTime ? ["--start-time", request.startTime] : [],
     request.endTime ? ["--end-time", request.endTime] : [],
@@ -332,6 +357,7 @@ async function analyzeAccessLog(
 
 async function analyzeCollapsedProfile(
   request: AnalyzeCollapsedProfileRequest,
+  requestId?: string,
 ): Promise<AnalyzerResponse<ProfilerCollapsedAnalysisResult>> {
   if (!request || typeof request !== "object") {
     return failure("INVALID_OPTION", "Profiler analyzer request is required.");
@@ -372,6 +398,7 @@ async function analyzeCollapsedProfile(
     args,
     isProfilerCollapsedAnalysisResult,
     "Python engine did not produce valid profiler AnalysisResult JSON.",
+    { requestId },
   );
 }
 
@@ -380,6 +407,7 @@ async function analyzeJvmFile<T extends AnalysisResult>(
   commandPrefix: string[],
   validateResult: AnalysisResultValidator<T>,
   invalidOutputMessage: string,
+  requestId?: string,
 ): Promise<AnalyzerResponse<T>> {
   if (!request || typeof request !== "object") {
     return failure("INVALID_OPTION", "Analyzer request is required.");
@@ -406,7 +434,7 @@ async function analyzeJvmFile<T extends AnalysisResult>(
     args.push("--top-n", String(request.topN));
   }
 
-  return runAnalyzer<T>(args, validateResult, invalidOutputMessage);
+  return runAnalyzer<T>(args, validateResult, invalidOutputMessage, { requestId });
 }
 
 async function executeExport(request: ExportExecuteRequest): Promise<ExportResponse> {
@@ -484,7 +512,7 @@ async function runDemoScenario(request: DemoRunRequest): Promise<DemoRunResponse
   if (request.dataSource === "real" || request.dataSource === "synthetic") {
     args.push("--data-source", request.dataSource);
   }
-  const result = await execEngine(args, 300_000);
+  const result = await execEngine(args, { timeoutMs: 300_000 });
   if (!result.ok) {
     return result;
   }
@@ -598,6 +626,7 @@ async function runAnalyzer<T extends AnalysisResult>(
   analyzerArgs: string[],
   validateResult: AnalysisResultValidator<T>,
   invalidOutputMessage: string,
+  options: EngineRunOptions = {},
   ...extraArgs: string[][]
 ): Promise<AnalyzerResponse<T>> {
   const tempDir = path.join(tmpdir(), `archscope-${randomUUID()}`);
@@ -614,7 +643,7 @@ async function runAnalyzer<T extends AnalysisResult>(
       "--out",
       outputPath,
     ];
-    const result = await execEngine(engineArgs);
+    const result = await execEngine(engineArgs, options);
 
     if (!result.ok) {
       return result;
@@ -647,8 +676,13 @@ async function runAnalyzer<T extends AnalysisResult>(
   }
 }
 
-function execEngine(args: string[], timeoutMs = 60_000): Promise<EngineProcessResponse> {
+function execEngine(
+  args: string[],
+  options: EngineRunOptions = {},
+): Promise<EngineProcessResponse> {
   const invocation = resolveEngineInvocation();
+  const timeoutMs = options.timeoutMs ?? 60_000;
+  const requestId = options.requestId;
 
   return new Promise((resolve) => {
     const child = execFile(
@@ -661,7 +695,20 @@ function execEngine(args: string[], timeoutMs = 60_000): Promise<EngineProcessRe
         maxBuffer: 1024 * 1024 * 4,
       },
       (error, stdout, stderr) => {
+        if (requestId) {
+          activeAnalyzerProcesses.delete(requestId);
+        }
         if (error) {
+          if (requestId && canceledAnalyzerRequests.delete(requestId)) {
+            resolve({
+              ok: false,
+              error: {
+                code: "ENGINE_CANCELED",
+                message: "Analyzer execution was canceled.",
+              },
+            });
+            return;
+          }
           resolve({
             ok: false,
             error: {
@@ -678,8 +725,14 @@ function execEngine(args: string[], timeoutMs = 60_000): Promise<EngineProcessRe
     );
 
     activeEngineProcesses.add(child);
+    if (requestId) {
+      activeAnalyzerProcesses.set(requestId, child);
+    }
     child.once("exit", () => {
       activeEngineProcesses.delete(child);
+      if (requestId) {
+        activeAnalyzerProcesses.delete(requestId);
+      }
     });
   });
 }
@@ -691,6 +744,8 @@ function terminateActiveEngineProcesses(): void {
     }
     activeEngineProcesses.delete(child);
   }
+  activeAnalyzerProcesses.clear();
+  canceledAnalyzerRequests.clear();
 }
 
 function resolveEngineInvocation(): EngineInvocation {

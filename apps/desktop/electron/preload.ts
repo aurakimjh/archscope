@@ -18,14 +18,17 @@ contextBridge.exposeInMainWorld("archscope", {
   analyzer: {
     execute: (request: AnalyzerExecuteRequest) =>
       ipcRenderer.invoke("analyzer:execute", request),
+    cancel: (requestId: string) => ipcRenderer.invoke("analyzer:cancel", requestId),
     analyzeAccessLog: (request: AnalyzeAccessLogRequest) =>
       ipcRenderer.invoke("analyzer:execute", {
         type: "access_log",
+        requestId: request.requestId,
         params: request,
       }),
     analyzeCollapsedProfile: (request: AnalyzeCollapsedProfileRequest) =>
       ipcRenderer.invoke("analyzer:execute", {
         type: "profiler_collapsed",
+        requestId: request.requestId,
         params: request,
       }),
   },
