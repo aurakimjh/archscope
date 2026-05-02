@@ -767,6 +767,17 @@ function resolveEngineInvocation(): EngineInvocation {
     };
   }
 
+  if (app.isPackaged) {
+    const engineBinary = process.platform === "win32"
+      ? path.join(process.resourcesPath, "engine", "archscope-engine.exe")
+      : path.join(process.resourcesPath, "engine", "archscope-engine");
+    return {
+      file: engineBinary,
+      argsPrefix: [],
+      cwd: path.dirname(process.execPath),
+    };
+  }
+
   if (process.platform === "win32") {
     return {
       file: "powershell.exe",
