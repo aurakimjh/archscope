@@ -41,4 +41,8 @@ contextBridge.exposeInMainWorld("archscope", {
     run: (request: DemoRunRequest) => ipcRenderer.invoke("demo:run", request),
     openPath: (targetPath: string) => ipcRenderer.invoke("file:open", targetPath),
   },
+  settings: {
+    get: () => ipcRenderer.invoke("settings:get"),
+    set: (settings: Record<string, unknown>) => ipcRenderer.invoke("settings:set", settings),
+  },
 });

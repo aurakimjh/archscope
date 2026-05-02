@@ -1,7 +1,7 @@
 import { app, BrowserWindow, dialog, ipcMain, session, shell } from "electron";
 import { execFile, type ChildProcess } from "node:child_process";
 import { randomUUID } from "node:crypto";
-import { mkdir, readdir, readFile, rm, stat } from "node:fs/promises";
+import { mkdir, readdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -39,6 +39,42 @@ const repoRoot = path.resolve(desktopRoot, "../..");
 const activeEngineProcesses = new Set<ChildProcess>();
 const activeAnalyzerProcesses = new Map<string, ChildProcess>();
 const canceledAnalyzerRequests = new Set<string>();
+
+type AppSettings = {
+  enginePath: string;
+  chartTheme: "light" | "dark";
+  locale: "en" | "ko";
+};
+
+const DEFAULT_SETTINGS: AppSettings = {
+  enginePath: "",
+  chartTheme: "light",
+  locale: "en",
+};
+
+let cachedSettings: AppSettings = { ...DEFAULT_SETTINGS };
+
+function settingsFilePath(): string {
+  return path.join(app.getPath("userData"), "settings.json");
+}
+
+async function loadSettings(): Promise<AppSettings> {
+  try {
+    const raw = await readFile(settingsFilePath(), "utf-8");
+    const parsed = JSON.parse(raw) as Partial<AppSettings>;
+    cachedSettings = { ...DEFAULT_SETTINGS, ...parsed };
+  } catch {
+    cachedSettings = { ...DEFAULT_SETTINGS };
+  }
+  return cachedSettings;
+}
+
+async function saveSettings(settings: AppSettings): Promise<void> {
+  const dir = path.dirname(settingsFilePath());
+  await mkdir(dir, { recursive: true });
+  await writeFile(settingsFilePath(), JSON.stringify(settings, null, 2), "utf-8");
+  cachedSettings = settings;
+}
 
 type EngineInvocation = {
   file: string;
@@ -118,7 +154,8 @@ function createWindow(): void {
   }
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  await loadSettings();
   registerContentSecurityPolicy();
   registerIpcHandlers();
   createWindow();
@@ -261,6 +298,15 @@ function registerIpcHandlers(): void {
       return { ok: true };
     },
   );
+
+  ipcMain.handle("settings:get", async () => {
+    return loadSettings();
+  });
+
+  ipcMain.handle("settings:set", async (_event, settings: AppSettings) => {
+    await saveSettings(settings);
+    return { ok: true };
+  });
 }
 
 function registerContentSecurityPolicy(): void {
@@ -757,13 +803,13 @@ function terminateActiveEngineProcesses(): void {
 }
 
 function resolveEngineInvocation(): EngineInvocation {
-  const configuredCommand = process.env.ARCHSCOPE_ENGINE_COMMAND;
+  const configuredCommand = process.env.ARCHSCOPE_ENGINE_COMMAND || cachedSettings.enginePath;
 
   if (configuredCommand) {
     return {
       file: configuredCommand,
       argsPrefix: [],
-      cwd: repoRoot,
+      cwd: app.isPackaged ? path.dirname(process.execPath) : repoRoot,
     };
   }
 

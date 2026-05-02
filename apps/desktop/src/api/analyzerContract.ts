@@ -573,6 +573,17 @@ export type ArchScopeDemoBridge = {
   openPath(path: string): Promise<{ ok: true } | { ok: false; error: BridgeError }>;
 };
 
+export type AppSettings = {
+  enginePath: string;
+  chartTheme: "light" | "dark";
+  locale: "en" | "ko";
+};
+
+export type ArchScopeSettingsBridge = {
+  get: () => Promise<AppSettings>;
+  set: (settings: AppSettings) => Promise<{ ok: boolean }>;
+};
+
 export type ArchScopeRendererApi = {
   platform: string;
   selectFile?: (request?: SelectFileRequest) => Promise<SelectFileResponse>;
@@ -580,6 +591,7 @@ export type ArchScopeRendererApi = {
   analyzer?: ArchScopeAnalyzerBridge;
   exporter?: ArchScopeExportBridge;
   demo?: ArchScopeDemoBridge;
+  settings?: ArchScopeSettingsBridge;
 };
 
 export function isInterpretationResult(value: unknown): value is InterpretationResult {
