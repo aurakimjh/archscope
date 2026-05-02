@@ -113,6 +113,20 @@ Bridge error는 `BridgeError` contract를 따른다.
 
 UI는 `message`를 primary text로 표시하고, support/debugging을 위해 `code`도 보이게 한다. `detail`은 해당 UI가 생기면 compact expandable 영역에 표시할 수 있다.
 
+## 성능 기대치
+
+| 분석 유형 | 입력 크�� | 기대 응답 시간 | 비고 |
+|-----------|-----------|----------------|------|
+| Access Log | 10,000 줄 | < 2초 | 파일 읽기 + 파싱 + 집계 + JSON 쓰기 + IPC 반환 |
+| Access Log | 100,000 줄 | < 5초 | streaming aggregation |
+| Collapsed Profiler | 10,000 스택 | < 2초 | flamegraph tree 구축 포함 |
+| Collapsed Profiler | 100,000 스택 | < 5초 | drilldown + breakdown |
+
+사용자 체감 기준:
+- 2초 이내: 즉각적 응답으로 느껴짐
+- 2~5초: "분석 중..." 상태 표시가 적절함
+- 5초 초과: Cancel 버튼 활용 안내, max_lines 옵션 제안
+
 ## T-003 구현 참고
 
 - File selection은 renderer에 두되, Python 실행은 Electron main process에서만 한다.

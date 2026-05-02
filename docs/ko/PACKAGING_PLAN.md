@@ -21,6 +21,76 @@ Phase 3 spike의 목표 구조는 다음과 같다.
 
 Linux packaging은 macOS와 Windows sidecar path가 검증될 때까지 defer한다.
 
+## PyInstaller Sidecar 빌드 방법
+
+### macOS
+
+```bash
+cd engines/python
+pip install pyinstaller
+
+pyinstaller \
+  --name archscope-engine \
+  --onedir \
+  --noconfirm \
+  --add-data "archscope_engine/config:archscope_engine/config" \
+  --hidden-import archscope_engine.parsers \
+  --hidden-import archscope_engine.analyzers \
+  --hidden-import archscope_engine.exporters \
+  archscope_engine/cli.py
+
+# 결과: dist/archscope-engine/archscope-engine (실행 파일)
+```
+
+### Windows
+
+```powershell
+cd engines\python
+pip install pyinstaller
+
+pyinstaller `
+  --name archscope-engine `
+  --onedir `
+  --noconfirm `
+  --add-data "archscope_engine\config;archscope_engine\config" `
+  --hidden-import archscope_engine.parsers `
+  --hidden-import archscope_engine.analyzers `
+  --hidden-import archscope_engine.exporters `
+  archscope_engine\cli.py
+
+# 결과: dist\archscope-engine\archscope-engine.exe
+```
+
+### 빌드 결과 검증
+
+```bash
+# sidecar가 정상 동작하는지 확인
+./dist/archscope-engine/archscope-engine --help
+./dist/archscope-engine/archscope-engine access-log analyze \
+  --file ../../examples/access-logs/sample-nginx-access.log \
+  --format nginx \
+  --out /tmp/test-result.json
+```
+
+## macOS 코드 서명 및 공증 (Notarization)
+
+배포용 빌드에서는 macOS Gatekeeper를 통과하기 위해 코드 서명과 공증이 필요하다.
+
+```bash
+# 1. Electron app 서명 (electron-builder가 처리)
+# package.json의 build.mac 설정에 identity 지정
+
+# 2. PyInstaller sidecar 서명
+codesign --deep --force --options runtime \
+  --sign "Developer ID Application: Your Name (TEAMID)" \
+  dist/archscope-engine/archscope-engine
+
+# 3. 공증 (notarization)
+# electron-builder의 afterSign hook에서 app 전체를 notarize
+```
+
+Windows에서는 Authenticode 코드 서명 인증서를 사용한다. 구체적인 CI 파이프라인 구성은 signing infrastructure가 확보된 뒤 결정한다.
+
 ## Metadata 결정
 
 낮은 `setuptools<64` 상한은 현대적인 bounded range로 올린다. 전체 metadata를 `pyproject.toml`로 통합하는 작업은 PyInstaller, editable development install, 향후 wheel publishing 요구가 packaging spike에서 확인된 뒤 진행한다.

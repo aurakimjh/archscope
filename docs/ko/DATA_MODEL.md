@@ -16,6 +16,149 @@ AnalysisResult
   metadata
 ```
 
+### TypeScript Interface
+
+```typescript
+interface AnalysisResult {
+  type: AnalyzerType;
+  source_files: string[];
+  created_at: string;  // ISO 8601
+  summary: Record<string, number | string | null>;
+  series: Record<string, SeriesRow[]>;
+  tables: Record<string, TableRow[]>;
+  charts?: ChartData;
+  metadata: ResultMetadata;
+}
+
+type AnalyzerType =
+  | "access_log"
+  | "profiler_collapsed"
+  | "gc_log"
+  | "thread_dump"
+  | "exception_stack"
+  | "nodejs_stack"
+  | "python_traceback"
+  | "go_panic"
+  | "dotnet_exception_iis"
+  | "otel_logs"
+  | "comparison_report";
+
+interface ResultMetadata {
+  format?: string;
+  parser: string;
+  schema_version: string;
+  diagnostics: ParserDiagnostics;
+  analysis_options?: Record<string, unknown>;
+  findings?: Finding[];
+  ai_interpretation?: InterpretationResult;
+}
+
+interface ParserDiagnostics {
+  total_lines: number;
+  parsed_records: number;
+  skipped_lines: number;
+  skipped_by_reason: Record<string, number>;
+  samples: DiagnosticSample[];
+}
+
+interface DiagnosticSample {
+  line_number: number;
+  reason: string;
+  message: string;
+  raw_preview: string;
+}
+```
+
+### Python Dataclass
+
+```python
+from dataclasses import dataclass, field
+from typing import Any
+
+@dataclass
+class AnalysisResult:
+    type: str
+    source_files: list[str]
+    created_at: str
+    summary: dict[str, Any]
+    series: dict[str, list[dict[str, Any]]]
+    tables: dict[str, list[dict[str, Any]]]
+    metadata: dict[str, Any]
+    charts: dict[str, Any] = field(default_factory=dict)
+```
+
+### 샘플 출력 (Access Log)
+
+```json
+{
+  "type": "access_log",
+  "source_files": ["/data/logs/nginx-access.log"],
+  "created_at": "2026-04-30T10:30:00Z",
+  "summary": {
+    "total_requests": 15234,
+    "avg_response_ms": 42.5,
+    "p95_response_ms": 187.3,
+    "p99_response_ms": 523.1,
+    "error_rate": 2.3
+  },
+  "series": {
+    "requests_per_minute": [
+      {"time": "2026-04-30T10:00:00Z", "value": 312},
+      {"time": "2026-04-30T10:01:00Z", "value": 298}
+    ],
+    "status_code_distribution": [
+      {"status": "2xx", "count": 14882},
+      {"status": "4xx", "count": 287},
+      {"status": "5xx", "count": 65}
+    ]
+  },
+  "tables": {
+    "sample_records": [
+      {
+        "timestamp": "2026-04-30T10:00:01Z",
+        "method": "GET",
+        "uri": "/api/orders/1001",
+        "status": 200,
+        "response_time_ms": 45.2
+      }
+    ]
+  },
+  "charts": {},
+  "metadata": {
+    "format": "nginx",
+    "parser": "archscope_access_log_parser",
+    "schema_version": "0.1.0",
+    "diagnostics": {
+      "total_lines": 15300,
+      "parsed_records": 15234,
+      "skipped_lines": 66,
+      "skipped_by_reason": {"NO_FORMAT_MATCH": 66},
+      "samples": [
+        {
+          "line_number": 42,
+          "reason": "NO_FORMAT_MATCH",
+          "message": "Line does not match nginx combined format",
+          "raw_preview": "# This is a comment line..."
+        }
+      ]
+    },
+    "analysis_options": {
+      "max_lines": null,
+      "start_time": null,
+      "end_time": null
+    },
+    "findings": [
+      {
+        "severity": "warning",
+        "code": "ELEVATED_ERROR_RATE",
+        "message": "Error rate is 2.3%, above 5% warning threshold consideration",
+        "evidence": {"error_rate": 2.3, "threshold": 5.0}
+      }
+    ]
+  }
+}
+```
+
 ### 필드 목적
 
 - `type`: `access_log`, `profiler_collapsed` 같은 진단 결과 유형

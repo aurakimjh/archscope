@@ -115,6 +115,43 @@ Correlation confidence:
 
 초기 feasibility path는 native parser를 바로 채택하지 않고 JDK `jfr` command를 external parser bridge로 사용하는 것이다. 최소 PoC는 `jfr print --json`이 낸 JSON을 입력으로 받아 draft `jfr_recording` result로 정규화한다. Raw `.jfr` 실행은 local JDK discovery와 packaging behavior가 안정화된 뒤 추가한다.
 
+### JFR 명령 예시
+
+```bash
+# Recording 요약 확인
+jfr summary recording.jfr
+
+# 특정 event를 JSON으로 출력
+jfr print --json \
+  --events "jdk.ExecutionSample,jdk.GarbageCollection,jdk.GCPhasePause" \
+  --stack-depth 64 \
+  recording.jfr > jfr-output.json
+
+# CPU time sample (JDK 25+)
+jfr print --json \
+  --events "jdk.CPUTimeSample" \
+  --stack-depth 128 \
+  recording.jfr > jfr-cpu-time.json
+
+# I/O latency event만 추출
+jfr print --json \
+  --events "jdk.SocketRead,jdk.SocketWrite,jdk.FileRead,jdk.FileWrite" \
+  recording.jfr > jfr-io.json
+```
+
+### ArchScope에서의 JFR 분석 흐름
+
+```bash
+# 1. JDK jfr 명령으로 JSON 변환 (사용자가 수행)
+jfr print --json --events "jdk.ExecutionSample,jdk.GarbageCollection" \
+  --stack-depth 64 recording.jfr > /tmp/jfr-print.json
+
+# 2. ArchScope로 정규화된 분석 결과 생성
+archscope-engine jfr analyze-json \
+  --file /tmp/jfr-print.json \
+  --out /tmp/jfr-result.json
+```
+
 Parser alternatives:
 
 | Option | Strength | Risk / cost | Initial decision |
