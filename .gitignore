@@ -25,6 +25,9 @@ demo-site-report-bundles/
 .env.local
 .DS_Store
 
+# Local test data (large log files, not committed)
+test-data/
+
 # Local AI agent instructions
 CLAUDE.MD
 CLAUDE.md
