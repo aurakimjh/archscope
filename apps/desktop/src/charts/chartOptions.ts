@@ -4,6 +4,7 @@ import type {
   ComponentBreakdownRow,
   GcCauseBreakdownRow,
   GcHeapPoint,
+  GcPauseHistogramBucket,
   GcPauseTimelinePoint,
   GcTypeBreakdownRow,
   StatusCodeDistributionRow,
@@ -27,6 +28,11 @@ export type GcChartLabels = {
   pauseMs: string;
   heapMb: string;
   gcType: string;
+  heapBefore: string;
+  heapAfter: string;
+  youngAfter: string;
+  cause: string;
+  events: string;
 };
 
 const GC_TYPE_COLORS: Record<string, string> = {
@@ -72,6 +78,26 @@ export type GcTypeBreakdownChartData = {
   series: {
     gc_type_breakdown: GcTypeBreakdownRow[];
     cause_breakdown?: GcCauseBreakdownRow[];
+  };
+};
+
+export type GcCauseBreakdownChartData = {
+  series: {
+    cause_breakdown: GcCauseBreakdownRow[];
+  };
+};
+
+export type GcHeapBeforeAfterChartData = {
+  series: {
+    heap_before_mb: GcHeapPoint[];
+    heap_after_mb: GcHeapPoint[];
+    young_after_mb?: GcHeapPoint[];
+  };
+};
+
+export type GcPauseHistogramChartData = {
+  series: {
+    pause_histogram: GcPauseHistogramBucket[];
   };
 };
 
@@ -217,7 +243,11 @@ export function gcPauseTimelineOption(
       },
     },
     legend: { bottom: 0, type: "scroll", data: gcTypes },
-    grid: { top: 28, right: 16, bottom: 56, left: 60 },
+    grid: { top: 28, right: 16, bottom: 80, left: 60 },
+    dataZoom: [
+      { type: "inside", xAxisIndex: 0 },
+      { type: "slider", xAxisIndex: 0, height: 18, bottom: 28 },
+    ],
     xAxis: {
       type: "category",
       data: rows.map((_, i) => i),
@@ -256,7 +286,11 @@ export function gcHeapTrendOption(
       valueFormatter: (val: unknown) =>
         typeof val === "number" ? `${val.toFixed(1)} MB` : "-",
     },
-    grid: { top: 28, right: 16, bottom: 24, left: 68 },
+    grid: { top: 28, right: 16, bottom: 56, left: 68 },
+    dataZoom: [
+      { type: "inside", xAxisIndex: 0 },
+      { type: "slider", xAxisIndex: 0, height: 18, bottom: 8 },
+    ],
     xAxis: { type: "category", data: rows.map((_, i) => i), axisLabel: { show: false } },
     yAxis: {
       type: "value",
@@ -276,6 +310,145 @@ export function gcHeapTrendOption(
       },
     ],
   };
+}
+
+export function gcHeapBeforeAfterOption(
+  data: GcHeapBeforeAfterChartData,
+  labels: GcChartLabels,
+): EChartsOption {
+  const beforeRows = data.series?.heap_before_mb ?? [];
+  const afterRows = data.series?.heap_after_mb ?? [];
+  const youngRows = data.series?.young_after_mb ?? [];
+  const baseRows = beforeRows.length >= afterRows.length ? beforeRows : afterRows;
+  if (!baseRows.length) return {};
+  const len = baseRows.length;
+
+  const series: NonNullable<EChartsOption["series"]> = [];
+  if (beforeRows.length) {
+    series.push({
+      type: "line",
+      smooth: false,
+      symbol: "none",
+      color: "#fa8c16",
+      name: labels.heapBefore,
+      data: beforeRows.map((r) => r.value),
+      ...lineLargeDataOptions(beforeRows.length),
+    });
+  }
+  if (afterRows.length) {
+    series.push({
+      type: "line",
+      smooth: false,
+      symbol: "none",
+      color: "#1890ff",
+      name: labels.heapAfter,
+      data: afterRows.map((r) => r.value),
+      ...lineLargeDataOptions(afterRows.length),
+    });
+  }
+  if (youngRows.length) {
+    series.push({
+      type: "line",
+      smooth: false,
+      symbol: "none",
+      color: "#52c41a",
+      name: labels.youngAfter,
+      data: youngRows.map((r) => r.value),
+      ...lineLargeDataOptions(youngRows.length),
+    });
+  }
+
+  return {
+    tooltip: {
+      trigger: "axis",
+      valueFormatter: (val: unknown) =>
+        typeof val === "number" ? `${val.toFixed(1)} MB` : "-",
+    },
+    legend: { bottom: 0, type: "scroll" },
+    grid: { top: 28, right: 16, bottom: 80, left: 68 },
+    dataZoom: [
+      { type: "inside", xAxisIndex: 0 },
+      { type: "slider", xAxisIndex: 0, height: 18, bottom: 32 },
+    ],
+    xAxis: {
+      type: "category",
+      data: Array.from({ length: len }, (_, i) => String(i)),
+      axisLabel: { show: false },
+    },
+    yAxis: {
+      type: "value",
+      name: labels.heapMb,
+      axisLabel: { formatter: (v: number) => `${v} MB` },
+    },
+    series,
+  };
+}
+
+export function gcCauseDistributionOption(
+  data: GcCauseBreakdownChartData,
+  labels: GcChartLabels,
+): EChartsOption {
+  const rows = data.series?.cause_breakdown ?? [];
+  if (!rows.length) return {};
+
+  return {
+    tooltip: { trigger: "item", formatter: "{b}: {c} ({d}%)" },
+    legend: { bottom: 0, type: "scroll" },
+    series: [
+      {
+        type: "pie",
+        radius: ["45%", "70%"],
+        name: labels.cause,
+        label: { show: false },
+        emphasis: { label: { show: true, fontWeight: "bold" } },
+        data: rows.map((r) => ({ name: r.cause, value: r.count })),
+      },
+    ],
+  };
+}
+
+export function gcPauseHistogramOption(
+  data: GcPauseHistogramChartData,
+  labels: GcChartLabels,
+): EChartsOption {
+  const rows = data.series?.pause_histogram ?? [];
+  if (!rows.length) return {};
+
+  return {
+    tooltip: {
+      trigger: "axis",
+      axisPointer: { type: "shadow" },
+      formatter: (params: unknown) => {
+        const items = params as { axisValue: string; value: number }[];
+        if (!items.length) return "";
+        return `<b>${items[0].axisValue}</b><br/>${labels.events}: <b>${items[0].value}</b>`;
+      },
+    },
+    grid: { top: 28, right: 16, bottom: 36, left: 60 },
+    xAxis: {
+      type: "category",
+      data: rows.map((r) => r.bucket),
+      name: labels.pauseMs,
+    },
+    yAxis: { type: "value", name: labels.events, minInterval: 1 },
+    series: [
+      {
+        type: "bar",
+        name: labels.events,
+        data: rows.map((r) => ({
+          value: r.count,
+          itemStyle: { color: histogramBucketColor(r.min_ms) },
+        })),
+      },
+    ],
+  };
+}
+
+function histogramBucketColor(minMs: number): string {
+  if (minMs < 10) return "#52c41a";
+  if (minMs < 100) return "#faad14";
+  if (minMs < 1_000) return "#fa8c16";
+  return "#f5222d";
 }
 
 export function gcTypeDistributionOption(

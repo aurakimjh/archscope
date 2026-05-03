@@ -71,6 +71,7 @@ export type {
   GcLogSeries,
   GcLogSummary,
   GcLogTables,
+  GcPauseHistogramBucket,
   GcPauseTimelinePoint,
   GcTypeBreakdownRow,
   InterpretationResult,

@@ -6,7 +6,10 @@ export type ChartTemplateId =
   | "AccessLog.StatusCodeDistribution"
   | "GcLog.PauseTimeline"
   | "GcLog.HeapTrend"
+  | "GcLog.HeapBeforeAfter"
   | "GcLog.TypeDistribution"
+  | "GcLog.CauseDistribution"
+  | "GcLog.PauseHistogram"
   | "Profiler.ComponentBreakdown";
 
 export type ChartTemplate = {
@@ -78,11 +81,44 @@ export const chartTemplates: ChartTemplate[] = [
     exportFormats: ["png", "svg", "html"],
   },
   {
+    id: "GcLog.HeapBeforeAfter",
+    resultType: "gc_log",
+    chartKind: "line",
+    titleKey: "heapBeforeAfter",
+    axisLabelKeys: ["heapMbAxis"],
+    legendLabelKeys: [],
+    supportedRenderers: ["canvas", "svg"],
+    supportsDarkMode: true,
+    exportFormats: ["png", "svg", "html"],
+  },
+  {
     id: "GcLog.TypeDistribution",
     resultType: "gc_log",
     chartKind: "donut",
     titleKey: "gcTypeDistribution",
     axisLabelKeys: [],
+    legendLabelKeys: [],
+    supportedRenderers: ["canvas", "svg"],
+    supportsDarkMode: true,
+    exportFormats: ["png", "svg", "html"],
+  },
+  {
+    id: "GcLog.CauseDistribution",
+    resultType: "gc_log",
+    chartKind: "donut",
+    titleKey: "gcCauseDistribution",
+    axisLabelKeys: [],
+    legendLabelKeys: [],
+    supportedRenderers: ["canvas", "svg"],
+    supportsDarkMode: true,
+    exportFormats: ["png", "svg", "html"],
+  },
+  {
+    id: "GcLog.PauseHistogram",
+    resultType: "gc_log",
+    chartKind: "bar",
+    titleKey: "gcPauseHistogram",
+    axisLabelKeys: ["pauseMsAxis"],
     legendLabelKeys: [],
     supportedRenderers: ["canvas", "svg"],
     supportsDarkMode: true,

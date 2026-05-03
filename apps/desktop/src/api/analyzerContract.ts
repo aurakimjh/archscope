@@ -230,8 +230,20 @@ export type GcLogSummary = {
   total_pause_ms: number;
   avg_pause_ms: number;
   max_pause_ms: number;
+  p50_pause_ms: number;
+  p95_pause_ms: number;
+  p99_pause_ms: number;
+  throughput_percent: number;
+  wall_time_sec: number;
   young_gc_count: number;
   full_gc_count: number;
+};
+
+export type GcPauseHistogramBucket = {
+  bucket: string;
+  min_ms: number;
+  max_ms: number | null;
+  count: number;
 };
 
 export type GcPauseTimelinePoint = {
@@ -271,6 +283,9 @@ export type GcEventRow = {
 export type GcLogSeries = {
   pause_timeline: GcPauseTimelinePoint[];
   heap_after_mb: GcHeapPoint[];
+  heap_before_mb: GcHeapPoint[];
+  young_after_mb: GcHeapPoint[];
+  pause_histogram: GcPauseHistogramBucket[];
   gc_type_breakdown: GcTypeBreakdownRow[];
   cause_breakdown: GcCauseBreakdownRow[];
 };

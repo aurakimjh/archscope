@@ -21,7 +21,7 @@ import { FileDropZone } from "../components/FileDropZone";
 import { MetricCard } from "../components/MetricCard";
 import type { MessageKey } from "../i18n/messages";
 import { useI18n } from "../i18n/I18nProvider";
-import { formatMilliseconds, formatNumber } from "../utils/formatters";
+import { formatMilliseconds, formatNumber, formatPercent } from "../utils/formatters";
 
 type AnalyzerState = "idle" | "ready" | "running" | "success" | "error";
 
@@ -42,20 +42,30 @@ export function GcLogAnalyzerPage(): JSX.Element {
   const gcChartLabels = useMemo(() => createGcChartLabels(t), [t]);
 
   const pauseTimelineTemplate = getChartTemplate("GcLog.PauseTimeline");
-  const heapTrendTemplate = getChartTemplate("GcLog.HeapTrend");
+  const pauseHistogramTemplate = getChartTemplate("GcLog.PauseHistogram");
+  const heapBeforeAfterTemplate = getChartTemplate("GcLog.HeapBeforeAfter");
   const typeDistTemplate = getChartTemplate("GcLog.TypeDistribution");
+  const causeDistTemplate = getChartTemplate("GcLog.CauseDistribution");
 
   const pauseTimelineOption = useMemo(
     () => createChartOption(pauseTimelineTemplate.id, result ?? emptyGcResult, gcChartLabels),
     [gcChartLabels, pauseTimelineTemplate.id, result],
   );
-  const heapTrendOption = useMemo(
-    () => createChartOption(heapTrendTemplate.id, result ?? emptyGcResult, gcChartLabels),
-    [gcChartLabels, heapTrendTemplate.id, result],
+  const pauseHistogramOption = useMemo(
+    () => createChartOption(pauseHistogramTemplate.id, result ?? emptyGcResult, gcChartLabels),
+    [gcChartLabels, pauseHistogramTemplate.id, result],
+  );
+  const heapBeforeAfterOption = useMemo(
+    () => createChartOption(heapBeforeAfterTemplate.id, result ?? emptyGcResult, gcChartLabels),
+    [gcChartLabels, heapBeforeAfterTemplate.id, result],
   );
   const typeDistOption = useMemo(
     () => createChartOption(typeDistTemplate.id, result ?? emptyGcResult, gcChartLabels),
     [gcChartLabels, typeDistTemplate.id, result],
+  );
+  const causeDistOption = useMemo(
+    () => createChartOption(causeDistTemplate.id, result ?? emptyGcResult, gcChartLabels),
+    [gcChartLabels, causeDistTemplate.id, result],
   );
 
   const eventRows = getTopEventRows(result?.tables?.events);
@@ -202,16 +212,36 @@ export function GcLogAnalyzerPage(): JSX.Element {
         <div>
           <section className="summary-grid compact">
             <MetricCard
+              label={t("throughputPercent")}
+              value={formatPercent(summary?.throughput_percent)}
+            />
+            <MetricCard
               label={t("totalEvents")}
               value={formatNumber(summary?.total_events)}
+            />
+            <MetricCard
+              label={t("p50PauseMs")}
+              value={formatMilliseconds(summary?.p50_pause_ms)}
+            />
+            <MetricCard
+              label={t("p95PauseMs")}
+              value={formatMilliseconds(summary?.p95_pause_ms)}
+            />
+            <MetricCard
+              label={t("p99PauseMs")}
+              value={formatMilliseconds(summary?.p99_pause_ms)}
+            />
+            <MetricCard
+              label={t("maxPauseMs")}
+              value={formatMilliseconds(summary?.max_pause_ms)}
             />
             <MetricCard
               label={t("avgPauseMs")}
               value={formatMilliseconds(summary?.avg_pause_ms)}
             />
             <MetricCard
-              label={t("maxPauseMs")}
-              value={formatMilliseconds(summary?.max_pause_ms)}
+              label={t("totalPauseMs")}
+              value={formatMilliseconds(summary?.total_pause_ms)}
             />
             <MetricCard
               label={t("youngGcCount")}
@@ -221,10 +251,6 @@ export function GcLogAnalyzerPage(): JSX.Element {
               label={t("fullGcCount")}
               value={formatNumber(summary?.full_gc_count)}
             />
-            <MetricCard
-              label={t("totalPauseMs")}
-              value={formatMilliseconds(summary?.total_pause_ms)}
-            />
           </section>
           <ChartPanel
             title={t(pauseTimelineTemplate.titleKey)}
@@ -232,13 +258,23 @@ export function GcLogAnalyzerPage(): JSX.Element {
             busy={state === "running"}
           />
           <ChartPanel
-            title={t(heapTrendTemplate.titleKey)}
-            option={heapTrendOption}
+            title={t(pauseHistogramTemplate.titleKey)}
+            option={pauseHistogramOption}
+            busy={state === "running"}
+          />
+          <ChartPanel
+            title={t(heapBeforeAfterTemplate.titleKey)}
+            option={heapBeforeAfterOption}
             busy={state === "running"}
           />
           <ChartPanel
             title={t(typeDistTemplate.titleKey)}
             option={typeDistOption}
+            busy={state === "running"}
+          />
+          <ChartPanel
+            title={t(causeDistTemplate.titleKey)}
+            option={causeDistOption}
             busy={state === "running"}
           />
           <section className="table-panel diagnostics-panel">
@@ -316,6 +352,11 @@ function createGcChartLabels(t: (key: MessageKey) => string): GcChartLabels {
     pauseMs: t("pauseMsAxis"),
     heapMb: t("heapMbAxis"),
     gcType: t("gcTypeLabel"),
+    heapBefore: t("heapBeforeMb"),
+    heapAfter: t("heapAfterMb"),
+    youngAfter: t("youngAfterMb"),
+    cause: t("gcCauseLabel"),
+    events: t("eventsLabel"),
   };
 }
 
@@ -328,12 +369,20 @@ const emptyGcResult: GcLogAnalysisResult = {
     total_pause_ms: 0,
     avg_pause_ms: 0,
     max_pause_ms: 0,
+    p50_pause_ms: 0,
+    p95_pause_ms: 0,
+    p99_pause_ms: 0,
+    throughput_percent: 0,
+    wall_time_sec: 0,
     young_gc_count: 0,
     full_gc_count: 0,
   },
   series: {
     pause_timeline: [],
     heap_after_mb: [],
+    heap_before_mb: [],
+    young_after_mb: [],
+    pause_histogram: [],
     gc_type_breakdown: [],
     cause_breakdown: [],
   },

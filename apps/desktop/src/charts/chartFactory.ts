@@ -8,7 +8,10 @@ import type {
 } from "../api/analyzerClient";
 import type { ChartTemplateId } from "./chartTemplates";
 import {
+  gcCauseDistributionOption,
+  gcHeapBeforeAfterOption,
   gcHeapTrendOption,
+  gcPauseHistogramOption,
   gcPauseTimelineOption,
   gcTypeDistributionOption,
   p95TrendOption,
@@ -16,8 +19,11 @@ import {
   requestCountTrendOption,
   statusCodeDistributionOption,
   type ChartLabels,
+  type GcCauseBreakdownChartData,
   type GcChartLabels,
+  type GcHeapBeforeAfterChartData,
   type GcHeapChartData,
+  type GcPauseHistogramChartData,
   type GcPauseTimelineChartData,
   type GcTypeBreakdownChartData,
   type P95ChartData,
@@ -48,8 +54,14 @@ export function createChartOption(
       return gcPauseTimelineOption(data as GcPauseTimelineChartData, labels as GcChartLabels);
     case "GcLog.HeapTrend":
       return gcHeapTrendOption(data as GcHeapChartData, labels as GcChartLabels);
+    case "GcLog.HeapBeforeAfter":
+      return gcHeapBeforeAfterOption(data as GcHeapBeforeAfterChartData, labels as GcChartLabels);
     case "GcLog.TypeDistribution":
       return gcTypeDistributionOption(data as GcTypeBreakdownChartData, labels as GcChartLabels);
+    case "GcLog.CauseDistribution":
+      return gcCauseDistributionOption(data as GcCauseBreakdownChartData, labels as GcChartLabels);
+    case "GcLog.PauseHistogram":
+      return gcPauseHistogramOption(data as GcPauseHistogramChartData, labels as GcChartLabels);
     case "Profiler.ComponentBreakdown":
       return profilerBreakdownOption(data as ProfilerBreakdownChartData, labels as ChartLabels);
   }

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import bisect
 from collections import Counter
 from dataclasses import asdict
 from pathlib import Path
@@ -13,6 +14,18 @@ from archscope_engine.models.gc_event import GcEvent
 from archscope_engine.parsers.gc_log_parser import (
     detect_gc_log_format,
     iter_gc_log_events_with_diagnostics,
+)
+
+_HISTOGRAM_BUCKETS_MS: tuple[tuple[str, float, float], ...] = (
+    ("<1ms", 0.0, 1.0),
+    ("1-5ms", 1.0, 5.0),
+    ("5-10ms", 5.0, 10.0),
+    ("10-50ms", 10.0, 50.0),
+    ("50-100ms", 50.0, 100.0),
+    ("100-500ms", 100.0, 500.0),
+    ("500ms-1s", 500.0, 1_000.0),
+    ("1-5s", 1_000.0, 5_000.0),
+    (">=5s", 5_000.0, float("inf")),
 )
 
 _PARSER_NAMES = {
@@ -58,11 +71,16 @@ def build_gc_log_result(
     pause_count = 0
     total_pause = 0.0
     max_pause = 0.0
+    pauses_ms: list[float] = []
     type_counts: Counter[str] = Counter()
     cause_counts: Counter[str] = Counter()
     pause_timeline = []
     heap_after_mb = []
+    heap_before_mb = []
+    young_after_mb = []
     event_rows = []
+    first_uptime_sec: float | None = None
+    last_uptime_sec: float | None = None
 
     for index, event in enumerate(events):
         total_events += 1
@@ -73,20 +91,25 @@ def build_gc_log_result(
             pause_count += 1
             total_pause += pause_ms
             max_pause = max(max_pause, pause_ms)
+            pauses_ms.append(pause_ms)
+        if event.uptime_sec is not None:
+            if first_uptime_sec is None:
+                first_uptime_sec = event.uptime_sec
+            last_uptime_sec = event.uptime_sec
+        time_label = _event_time(event, index)
         pause_timeline.append(
             {
-                "time": _event_time(event, index),
+                "time": time_label,
                 "value": round(pause_ms or 0.0, 3),
                 "gc_type": event.gc_type or "UNKNOWN",
             }
         )
         if event.heap_after_mb is not None:
-            heap_after_mb.append(
-                {
-                    "time": _event_time(event, index),
-                    "value": event.heap_after_mb,
-                }
-            )
+            heap_after_mb.append({"time": time_label, "value": event.heap_after_mb})
+        if event.heap_before_mb is not None:
+            heap_before_mb.append({"time": time_label, "value": event.heap_before_mb})
+        if event.young_after_mb is not None:
+            young_after_mb.append({"time": time_label, "value": event.young_after_mb})
         if len(event_rows) < top_n:
             event_rows.append(
                 {
@@ -95,11 +118,20 @@ def build_gc_log_result(
                 }
             )
 
+    wall_time_sec = _compute_wall_time_sec(first_uptime_sec, last_uptime_sec)
+    throughput_percent = _compute_throughput_percent(total_pause, wall_time_sec)
+    p50, p95, p99 = _compute_percentiles(pauses_ms)
+
     summary = {
         "total_events": total_events,
         "total_pause_ms": round(total_pause, 3),
         "avg_pause_ms": round(total_pause / pause_count, 3) if pause_count else 0.0,
         "max_pause_ms": round(max_pause, 3) if pause_count else 0.0,
+        "p50_pause_ms": p50,
+        "p95_pause_ms": p95,
+        "p99_pause_ms": p99,
+        "throughput_percent": throughput_percent,
+        "wall_time_sec": round(wall_time_sec, 3) if wall_time_sec is not None else 0.0,
         "young_gc_count": sum(
             count for gc_type, count in type_counts.items() if "Young" in gc_type
         ),
@@ -110,6 +142,9 @@ def build_gc_log_result(
     series = {
         "pause_timeline": pause_timeline,
         "heap_after_mb": heap_after_mb,
+        "heap_before_mb": heap_before_mb,
+        "young_after_mb": young_after_mb,
+        "pause_histogram": _build_pause_histogram(pauses_ms),
         "gc_type_breakdown": [
             {"gc_type": key, "count": value}
             for key, value in type_counts.most_common()
@@ -150,6 +185,73 @@ def _event_time(event: GcEvent, index: int) -> str:
     return str(index)
 
 
+def _compute_wall_time_sec(
+    first_uptime_sec: float | None, last_uptime_sec: float | None
+) -> float | None:
+    if first_uptime_sec is None or last_uptime_sec is None:
+        return None
+    span = last_uptime_sec - first_uptime_sec
+    return span if span > 0 else None
+
+
+def _compute_throughput_percent(total_pause_ms: float, wall_time_sec: float | None) -> float:
+    if wall_time_sec is None or wall_time_sec <= 0:
+        return 0.0
+    pause_sec = total_pause_ms / 1000.0
+    if pause_sec >= wall_time_sec:
+        return 0.0
+    return round((1.0 - pause_sec / wall_time_sec) * 100.0, 3)
+
+
+def _compute_percentiles(pauses_ms: list[float]) -> tuple[float, float, float]:
+    if not pauses_ms:
+        return 0.0, 0.0, 0.0
+    sorted_pauses = sorted(pauses_ms)
+    return (
+        round(_percentile(sorted_pauses, 50), 3),
+        round(_percentile(sorted_pauses, 95), 3),
+        round(_percentile(sorted_pauses, 99), 3),
+    )
+
+
+def _percentile(sorted_values: list[float], percent: float) -> float:
+    if not sorted_values:
+        return 0.0
+    if len(sorted_values) == 1:
+        return sorted_values[0]
+    rank = (percent / 100.0) * (len(sorted_values) - 1)
+    lo = int(rank)
+    hi = min(lo + 1, len(sorted_values) - 1)
+    weight = rank - lo
+    return sorted_values[lo] * (1.0 - weight) + sorted_values[hi] * weight
+
+
+def _build_pause_histogram(pauses_ms: list[float]) -> list[dict[str, Any]]:
+    if not pauses_ms:
+        return [
+            {"bucket": label, "min_ms": lo, "max_ms": hi if hi != float("inf") else None, "count": 0}
+            for label, lo, hi in _HISTOGRAM_BUCKETS_MS
+        ]
+    sorted_pauses = sorted(pauses_ms)
+    buckets: list[dict[str, Any]] = []
+    for label, lo, hi in _HISTOGRAM_BUCKETS_MS:
+        left = bisect.bisect_left(sorted_pauses, lo)
+        right = (
+            len(sorted_pauses)
+            if hi == float("inf")
+            else bisect.bisect_left(sorted_pauses, hi)
+        )
+        buckets.append(
+            {
+                "bucket": label,
+                "min_ms": lo,
+                "max_ms": hi if hi != float("inf") else None,
+                "count": max(0, right - left),
+            }
+        )
+    return buckets
+
+
 def _build_findings(summary: dict[str, Any]) -> list[dict[str, Any]]:
     findings: list[dict[str, Any]] = []
     if summary["max_pause_ms"] >= 100:
@@ -168,6 +270,26 @@ def _build_findings(summary: dict[str, Any]) -> list[dict[str, Any]]:
                 "code": "FULL_GC_PRESENT",
                 "message": "Full GC activity was detected.",
                 "evidence": {"full_gc_count": summary["full_gc_count"]},
+            }
+        )
+    throughput = summary.get("throughput_percent", 0.0)
+    if summary.get("wall_time_sec", 0.0) > 0 and throughput < 95.0:
+        findings.append(
+            {
+                "severity": "warning",
+                "code": "LOW_GC_THROUGHPUT",
+                "message": "GC throughput is below 95% — application is spending significant time in GC.",
+                "evidence": {"throughput_percent": throughput},
+            }
+        )
+    p99 = summary.get("p99_pause_ms", 0.0)
+    if p99 >= 200.0:
+        findings.append(
+            {
+                "severity": "warning",
+                "code": "HIGH_P99_PAUSE",
+                "message": "p99 GC pause exceeds 200 ms — latency-sensitive workloads may be impacted.",
+                "evidence": {"p99_pause_ms": p99},
             }
         )
     return findings
