@@ -8,6 +8,7 @@ import { DemoDataCenterPage } from "./pages/DemoDataCenterPage";
 import { ExceptionAnalyzerPage } from "./pages/ExceptionAnalyzerPage";
 import { ExportCenterPage } from "./pages/ExportCenterPage";
 import { GcLogAnalyzerPage } from "./pages/GcLogAnalyzerPage";
+import { JfrAnalyzerPage } from "./pages/JfrAnalyzerPage";
 import { ProfilerAnalyzerPage } from "./pages/ProfilerAnalyzerPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { ThreadDumpAnalyzerPage } from "./pages/ThreadDumpAnalyzerPage";
@@ -19,6 +20,7 @@ export type PageKey =
   | "profiler"
   | "thread-dump"
   | "exception"
+  | "jfr"
   | "chart-studio"
   | "demo-data"
   | "export-center"
@@ -33,6 +35,7 @@ const pageComponents: Record<SimplePageKey, () => JSX.Element> = {
   profiler: ProfilerAnalyzerPage,
   "thread-dump": ThreadDumpAnalyzerPage,
   exception: ExceptionAnalyzerPage,
+  jfr: JfrAnalyzerPage,
   "chart-studio": ChartStudioPage,
   settings: SettingsPage,
 };

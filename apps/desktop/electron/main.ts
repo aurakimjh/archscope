@@ -26,6 +26,7 @@ import type {
   ExportExecuteRequest,
   ExportResponse,
   GcLogAnalysisResult,
+  JfrAnalysisResult,
   ProfilerCollapsedAnalysisResult,
   SelectFileRequest,
   SelectFileResponse,
@@ -357,9 +358,21 @@ async function executeAnalyzer(
         "Python engine did not produce valid exception AnalysisResult JSON.",
         request.requestId,
       );
+    case "jfr_recording":
+      return analyzeJvmFile(
+        request.params,
+        ["jfr", "analyze-json"],
+        isJfrRecordingAnalysisResult,
+        "Python engine did not produce valid JFR AnalysisResult JSON.",
+        request.requestId,
+      );
     default:
       return failure("INVALID_OPTION", "Unsupported analyzer execution type.");
   }
+}
+
+function isJfrRecordingAnalysisResult(value: unknown): value is JfrAnalysisResult {
+  return isAnalysisResult(value) && value.type === "jfr_recording";
 }
 
 async function analyzeAccessLog(
@@ -431,14 +444,24 @@ async function analyzeCollapsedProfile(
     return failure("FILE_NOT_FOUND", "Selected wall collapsed file is not readable.", request.wallPath);
   }
 
-  const args = [
-    "profiler",
-    "analyze-collapsed",
-    "--wall",
-    request.wallPath,
-    "--wall-interval-ms",
-    String(request.wallIntervalMs),
-  ];
+  const isJenniferCsv = request.profileFormat === "jennifer_csv";
+  const args = isJenniferCsv
+    ? [
+        "profiler",
+        "analyze-jennifer-csv",
+        "--file",
+        request.wallPath,
+        "--interval-ms",
+        String(request.wallIntervalMs),
+      ]
+    : [
+        "profiler",
+        "analyze-collapsed",
+        "--wall",
+        request.wallPath,
+        "--wall-interval-ms",
+        String(request.wallIntervalMs),
+      ];
 
   if (request.elapsedSec !== undefined) {
     args.push("--elapsed-sec", String(request.elapsedSec));
@@ -448,7 +471,7 @@ async function analyzeCollapsedProfile(
     args.push("--top-n", String(request.topN));
   }
 
-  if (typeof request.profileKind === "string" && request.profileKind) {
+  if (!isJenniferCsv && typeof request.profileKind === "string" && request.profileKind) {
     args.push("--profile-kind", request.profileKind);
   }
 
@@ -502,11 +525,11 @@ async function executeExport(request: ExportExecuteRequest): Promise<ExportRespo
 
   switch (request.format) {
     case "html":
-      return exportSingleFile(request.inputPath, "html");
+      return exportSingleFile(request.inputPath, "html", request.title);
     case "pptx":
-      return exportSingleFile(request.inputPath, "pptx");
+      return exportSingleFile(request.inputPath, "pptx", request.title);
     case "diff":
-      return exportDiff(request.beforePath, request.afterPath);
+      return exportDiff(request.beforePath, request.afterPath, request.label);
     default:
       return exportFailure("INVALID_OPTION", "Unsupported export format.");
   }
@@ -611,6 +634,7 @@ async function runDemoScenario(request: DemoRunRequest): Promise<DemoRunResponse
 async function exportSingleFile(
   inputPath: string,
   format: "html" | "pptx",
+  title?: string,
 ): Promise<ExportResponse> {
   if (typeof inputPath !== "string" || !inputPath) {
     return exportFailure("INVALID_OPTION", "Input JSON path is required.");
@@ -624,6 +648,9 @@ async function exportSingleFile(
     format === "html"
       ? ["report", "html", "--input", inputPath, "--out", outputPath]
       : ["report", "pptx", "--input", inputPath, "--out", outputPath];
+  if (typeof title === "string" && title.trim()) {
+    command.push("--title", title.trim());
+  }
   const result = await execEngine(command);
   if (!result.ok) {
     return result;
@@ -638,6 +665,7 @@ async function exportSingleFile(
 async function exportDiff(
   beforePath: string,
   afterPath: string,
+  label?: string,
 ): Promise<ExportResponse> {
   if (
     typeof beforePath !== "string" ||
@@ -658,7 +686,7 @@ async function exportDiff(
   const outputDir = path.dirname(afterPath);
   const jsonOutput = path.join(outputDir, `${outputBase}-diff.json`);
   const htmlOutput = path.join(outputDir, `${outputBase}-diff.html`);
-  const result = await execEngine([
+  const diffArgs = [
     "report",
     "diff",
     "--before",
@@ -669,7 +697,11 @@ async function exportDiff(
     jsonOutput,
     "--html-out",
     htmlOutput,
-  ]);
+  ];
+  if (typeof label === "string" && label.trim()) {
+    diffArgs.push("--label", label.trim());
+  }
+  const result = await execEngine(diffArgs);
   if (!result.ok) {
     return result;
   }

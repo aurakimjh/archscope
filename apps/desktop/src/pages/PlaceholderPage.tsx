@@ -23,7 +23,7 @@ type PlaceholderAnalyzerProps = {
   fileLabel: string;
   fileDescription?: string;
   fileFilters?: SelectFileRequest["filters"];
-  executionType?: "gc_log" | "thread_dump" | "exception_stack";
+  executionType?: "gc_log" | "thread_dump" | "exception_stack" | "jfr_recording";
 };
 
 type PlaceholderPageProps = {
@@ -39,6 +39,7 @@ export function PlaceholderPage({
 }: PlaceholderPageProps): JSX.Element {
   const { t } = useI18n();
   const [filePath, setFilePath] = useState("");
+  const [topN, setTopN] = useState(20);
   const [state, setState] = useState<AnalyzerState>("idle");
   const [error, setError] = useState<BridgeError | null>(null);
   const [result, setResult] = useState<AnalysisResult | null>(null);
@@ -69,6 +70,15 @@ export function PlaceholderPage({
               onBrowse={() => void browseFile(analyzer)}
               onFileSelected={handleFileInput}
             />
+            <label className="field">
+              <span>{t("topN")}</span>
+              <input
+                type="number"
+                value={topN}
+                min={1}
+                onChange={(event) => setTopN(Number(event.target.value))}
+              />
+            </label>
             <div className="button-row">
               <button
                 className="primary-button"
@@ -174,7 +184,7 @@ export function PlaceholderPage({
       const response = await getAnalyzerClient().execute({
         requestId,
         type: analyzer.executionType,
-        params: { requestId, filePath, topN: 20 },
+        params: { requestId, filePath, topN },
       });
 
       if (!mountedRef.current || currentRequestIdRef.current !== requestId) {

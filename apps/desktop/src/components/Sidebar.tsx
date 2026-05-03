@@ -14,6 +14,7 @@ const navItems: NavItem[] = [
   { key: "profiler", labelKey: "profilerAnalyzer", icon: "M13 10V3L4 14h7v7l9-11h-7z" },
   { key: "thread-dump", labelKey: "threadDumpAnalyzer", icon: "M4 6h16M4 12h16M4 18h7" },
   { key: "exception", labelKey: "exceptionAnalyzer", icon: "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" },
+  { key: "jfr", labelKey: "jfrAnalyzer", icon: "M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" },
   { key: "chart-studio", labelKey: "chartStudio", icon: "M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" },
   { key: "demo-data", labelKey: "demoDataCenter", icon: "M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" },
   { key: "export-center", labelKey: "exportCenter", icon: "M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" },

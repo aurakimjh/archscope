@@ -31,6 +31,7 @@ type FilterType = "include_text" | "exclude_text" | "regex_include" | "regex_exc
 type MatchMode = "anywhere" | "ordered" | "subtree";
 type ViewMode = "preserve_full_path" | "reroot_at_match";
 type ProfileKind = "wall" | "cpu" | "lock";
+type ProfileFormat = "collapsed" | "jennifer_csv";
 
 type TopStackRow = {
   stack: string;
@@ -60,6 +61,7 @@ export function ProfilerAnalyzerPage(): JSX.Element {
   const [elapsedSec, setElapsedSec] = useState("");
   const [topN, setTopN] = useState(20);
   const [profileKind, setProfileKind] = useState<ProfileKind>("wall");
+  const [profileFormat, setProfileFormat] = useState<ProfileFormat>("collapsed");
   const [state, setState] = useState<AnalyzerState>("idle");
   const [result, setResult] = useState<ProfilerCollapsedAnalysisResult | null>(null);
   const [stages, setStages] = useState<DrilldownStageView[]>([]);
@@ -78,12 +80,18 @@ export function ProfilerAnalyzerPage(): JSX.Element {
   const breakdownRows = currentStage?.breakdown ?? result?.series.execution_breakdown ?? [];
 
   async function browseWallFile(): Promise<void> {
+    const isJenniferCsv = profileFormat === "jennifer_csv";
     const response = await window.archscope?.selectFile?.({
-      title: t("selectWallCollapsedFile"),
-      filters: [
-        { name: t("collapsedStackFilesFilter"), extensions: ["collapsed", "txt"] },
-        { name: t("allFilesFilter"), extensions: ["*"] },
-      ],
+      title: isJenniferCsv ? t("selectJenniferCsvFile") : t("selectWallCollapsedFile"),
+      filters: isJenniferCsv
+        ? [
+            { name: t("csvFilesFilter"), extensions: ["csv"] },
+            { name: t("allFilesFilter"), extensions: ["*"] },
+          ]
+        : [
+            { name: t("collapsedStackFilesFilter"), extensions: ["collapsed", "txt"] },
+            { name: t("allFilesFilter"), extensions: ["*"] },
+          ],
     });
 
     if (response?.filePath) {
@@ -143,6 +151,7 @@ export function ProfilerAnalyzerPage(): JSX.Element {
         elapsedSec: parsedElapsedSec,
         topN,
         profileKind,
+        profileFormat,
       });
 
       if (currentRequestIdRef.current !== requestId) {
@@ -220,7 +229,15 @@ export function ProfilerAnalyzerPage(): JSX.Element {
         <div className="tool-panel">
           <h2>{t("profilerAnalyzer")}</h2>
           <FileDropZone
-            label={profileKind === "cpu" ? t("selectCpuCollapsedFile") : profileKind === "lock" ? t("selectLockCollapsedFile") : t("selectWallCollapsedFile")}
+            label={
+              profileFormat === "jennifer_csv"
+                ? t("selectJenniferCsvFile")
+                : profileKind === "cpu"
+                ? t("selectCpuCollapsedFile")
+                : profileKind === "lock"
+                ? t("selectLockCollapsedFile")
+                : t("selectWallCollapsedFile")
+            }
             selectedPath={wallPath}
             browseLabel={t("browseFile")}
             onBrowse={browseWallFile}
@@ -228,16 +245,28 @@ export function ProfilerAnalyzerPage(): JSX.Element {
           />
           <div className="input-grid">
             <label className="field">
-              <span>{t("profileKind")}</span>
+              <span>{t("profileFormat")}</span>
               <select
-                value={profileKind}
-                onChange={(event) => setProfileKind(event.target.value as ProfileKind)}
+                value={profileFormat}
+                onChange={(event) => setProfileFormat(event.target.value as ProfileFormat)}
               >
-                <option value="wall">{t("profileKindWall")}</option>
-                <option value="cpu">{t("profileKindCpu")}</option>
-                <option value="lock">{t("profileKindLock")}</option>
+                <option value="collapsed">{t("profileFormatCollapsed")}</option>
+                <option value="jennifer_csv">{t("profileFormatJenniferCsv")}</option>
               </select>
             </label>
+            {profileFormat === "collapsed" && (
+              <label className="field">
+                <span>{t("profileKind")}</span>
+                <select
+                  value={profileKind}
+                  onChange={(event) => setProfileKind(event.target.value as ProfileKind)}
+                >
+                  <option value="wall">{t("profileKindWall")}</option>
+                  <option value="cpu">{t("profileKindCpu")}</option>
+                  <option value="lock">{t("profileKindLock")}</option>
+                </select>
+              </label>
+            )}
             <label className="field">
               <span>{profileKind === "cpu" ? t("cpuIntervalMs") : profileKind === "lock" ? t("lockIntervalMs") : t("wallIntervalMs")}</span>
               <input

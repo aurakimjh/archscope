@@ -15,6 +15,8 @@ export function ExportCenterPage({
   const [inputPath, setInputPath] = useState("");
   const [beforePath, setBeforePath] = useState("");
   const [afterPath, setAfterPath] = useState("");
+  const [reportTitle, setReportTitle] = useState("");
+  const [diffLabel, setDiffLabel] = useState("");
   const [isExporting, setIsExporting] = useState(false);
   const [response, setResponse] = useState<ExportResponse | null>(null);
 
@@ -67,10 +69,12 @@ export function ExportCenterPage({
               format: "diff",
               beforePath,
               afterPath,
+              label: diffLabel || undefined,
             })
           : await window.archscope.exporter.execute({
               format: mode,
               inputPath,
+              title: reportTitle || undefined,
             });
       setResponse(result);
     } finally {
@@ -110,13 +114,33 @@ export function ExportCenterPage({
                 path={afterPath}
                 onBrowse={() => void chooseJson("after")}
               />
+              <label className="field">
+                <span>{t("diffLabel")}</span>
+                <input
+                  type="text"
+                  value={diffLabel}
+                  placeholder={t("diffLabelPlaceholder")}
+                  onChange={(event) => setDiffLabel(event.target.value)}
+                />
+              </label>
             </>
           ) : (
-            <JsonPathPicker
-              label={t("inputJson")}
-              path={inputPath}
-              onBrowse={() => void chooseJson("input")}
-            />
+            <>
+              <JsonPathPicker
+                label={t("inputJson")}
+                path={inputPath}
+                onBrowse={() => void chooseJson("input")}
+              />
+              <label className="field">
+                <span>{t("reportTitle")}</span>
+                <input
+                  type="text"
+                  value={reportTitle}
+                  placeholder={t("reportTitlePlaceholder")}
+                  onChange={(event) => setReportTitle(event.target.value)}
+                />
+              </label>
+            </>
           )}
 
           <button

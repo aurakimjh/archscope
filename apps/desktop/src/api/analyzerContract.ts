@@ -333,6 +333,7 @@ export type AnalyzeAccessLogRequest = {
 };
 
 export type ProfileKind = "wall" | "cpu" | "lock";
+export type ProfileFormat = "collapsed" | "jennifer_csv";
 
 export type AnalyzeCollapsedProfileRequest = {
   requestId?: string;
@@ -341,6 +342,7 @@ export type AnalyzeCollapsedProfileRequest = {
   elapsedSec?: number;
   topN?: number;
   profileKind?: ProfileKind;
+  profileFormat?: ProfileFormat;
 };
 
 export type AnalyzeFileRequest = {
@@ -372,14 +374,21 @@ export type AnalyzerExecuteRequest = {
       type: "exception_stack";
       params: AnalyzeFileRequest;
     }
+  | {
+      type: "jfr_recording";
+      params: AnalyzeFileRequest;
+    }
 );
+
+export type JfrAnalysisResult = AnalysisResult<"jfr_recording">;
 
 export type AnalyzerExecutionResult =
   | AccessLogAnalysisResult
   | ProfilerCollapsedAnalysisResult
   | GcLogAnalysisResult
   | ThreadDumpAnalysisResult
-  | ExceptionStackAnalysisResult;
+  | ExceptionStackAnalysisResult
+  | JfrAnalysisResult;
 
 export type SelectFileRequest = {
   title?: string;
@@ -405,15 +414,18 @@ export type ExportExecuteRequest =
   | {
       format: "html";
       inputPath: string;
+      title?: string;
     }
   | {
       format: "pptx";
       inputPath: string;
+      title?: string;
     }
   | {
       format: "diff";
       beforePath: string;
       afterPath: string;
+      label?: string;
     };
 
 export type ExportSuccess = {
