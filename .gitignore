@@ -40,6 +40,8 @@ CODEX.md
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+# Keep curated sample/test log files
+!examples/**/*.log
 
 # Generated sample outputs are useful during development, but keep placeholders.
 examples/outputs/*.tmp.json

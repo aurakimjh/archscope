@@ -10,7 +10,17 @@ from archscope_engine.common.diagnostics import ParserDiagnostics
 from archscope_engine.common.file_utils import detect_text_encoding
 from archscope_engine.models.analysis_result import AnalysisResult
 from archscope_engine.models.gc_event import GcEvent
-from archscope_engine.parsers.gc_log_parser import iter_gc_log_events_with_diagnostics
+from archscope_engine.parsers.gc_log_parser import (
+    detect_gc_log_format,
+    iter_gc_log_events_with_diagnostics,
+)
+
+_PARSER_NAMES = {
+    "unified": "hotspot_unified_gc_log",
+    "g1_legacy": "hotspot_g1_legacy_gc_log",
+    "legacy": "hotspot_legacy_gc_log",
+    "unknown": "hotspot_unified_gc_log",
+}
 
 
 def analyze_gc_log(
@@ -20,6 +30,7 @@ def analyze_gc_log(
     debug_log: DebugLogCollector | None = None,
 ) -> AnalysisResult:
     diagnostics = ParserDiagnostics()
+    gc_format = detect_gc_log_format(path)
     if debug_log is not None:
         debug_log.encoding_detected = detect_text_encoding(path)
     return build_gc_log_result(
@@ -31,6 +42,7 @@ def analyze_gc_log(
         source_file=path,
         diagnostics=diagnostics,
         top_n=top_n,
+        gc_format=gc_format,
     )
 
 
@@ -40,6 +52,7 @@ def build_gc_log_result(
     source_file: Path,
     diagnostics: dict[str, Any] | ParserDiagnostics,
     top_n: int = 20,
+    gc_format: str = "unknown",
 ) -> AnalysisResult:
     total_events = 0
     pause_count = 0
@@ -113,7 +126,8 @@ def build_gc_log_result(
         diagnostics.to_dict() if isinstance(diagnostics, ParserDiagnostics) else diagnostics
     )
     metadata = {
-        "parser": "hotspot_unified_gc_log",
+        "parser": _PARSER_NAMES.get(gc_format, "hotspot_unified_gc_log"),
+        "gc_format": gc_format,
         "schema_version": "0.1.0",
         "diagnostics": diagnostics_payload,
         "findings": _build_findings(summary),
