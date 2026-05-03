@@ -4,6 +4,7 @@ import { loadSampleAnalysisResult, type DashboardSampleResult } from "../api/ana
 import { createChartOption } from "../charts/chartFactory";
 import { dashboardChartTemplateIds, getChartTemplate } from "../charts/chartTemplates";
 import { ChartPanel } from "../components/ChartPanel";
+import { SkeletonCard, SkeletonChart } from "../components/LoadingStates";
 import { MetricCard } from "../components/MetricCard";
 import { useI18n } from "../i18n/I18nProvider";
 
@@ -37,7 +38,22 @@ export function DashboardPage(): JSX.Element {
   }, [data, t]);
 
   if (!data || !chartOptions) {
-    return <div className="page">{t("loadingSample")}</div>;
+    return (
+      <div className="page">
+        <section className="summary-grid">
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+        </section>
+        <section className="chart-grid">
+          <SkeletonChart />
+          <SkeletonChart />
+          <SkeletonChart />
+          <SkeletonChart />
+        </section>
+      </div>
+    );
   }
 
   return (

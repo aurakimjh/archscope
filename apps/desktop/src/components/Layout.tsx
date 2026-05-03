@@ -43,13 +43,6 @@ export function Layout({
               ))}
             </select>
           </label>
-          <div className="pipeline">
-            <span>{t("pipelineRawData")}</span>
-            <span>{t("pipelineParsing")}</span>
-            <span>{t("pipelineAnalysis")}</span>
-            <span>{t("pipelineVisualization")}</span>
-            <span>{t("pipelineExport")}</span>
-          </div>
         </header>
         {children}
       </main>
