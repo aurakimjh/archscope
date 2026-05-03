@@ -8,6 +8,7 @@ import type {
 } from "../api/analyzerClient";
 import type { ChartTemplateId } from "./chartTemplates";
 import {
+  gcAllocationRateOption,
   gcCauseDistributionOption,
   gcHeapBeforeAfterOption,
   gcHeapTrendOption,
@@ -19,6 +20,7 @@ import {
   requestCountTrendOption,
   statusCodeDistributionOption,
   type ChartLabels,
+  type GcAllocationRateChartData,
   type GcCauseBreakdownChartData,
   type GcChartLabels,
   type GcHeapBeforeAfterChartData,
@@ -62,6 +64,8 @@ export function createChartOption(
       return gcCauseDistributionOption(data as GcCauseBreakdownChartData, labels as GcChartLabels);
     case "GcLog.PauseHistogram":
       return gcPauseHistogramOption(data as GcPauseHistogramChartData, labels as GcChartLabels);
+    case "GcLog.AllocationRate":
+      return gcAllocationRateOption(data as GcAllocationRateChartData, labels as GcChartLabels);
     case "Profiler.ComponentBreakdown":
       return profilerBreakdownOption(data as ProfilerBreakdownChartData, labels as ChartLabels);
   }

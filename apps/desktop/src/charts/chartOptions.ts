@@ -6,6 +6,7 @@ import type {
   GcHeapPoint,
   GcPauseHistogramBucket,
   GcPauseTimelinePoint,
+  GcRatePoint,
   GcTypeBreakdownRow,
   StatusCodeDistributionRow,
   TimeValuePoint,
@@ -33,6 +34,9 @@ export type GcChartLabels = {
   youngAfter: string;
   cause: string;
   events: string;
+  mbPerSec: string;
+  allocationRate: string;
+  promotionRate: string;
 };
 
 const GC_TYPE_COLORS: Record<string, string> = {
@@ -98,6 +102,13 @@ export type GcHeapBeforeAfterChartData = {
 export type GcPauseHistogramChartData = {
   series: {
     pause_histogram: GcPauseHistogramBucket[];
+  };
+};
+
+export type GcAllocationRateChartData = {
+  series: {
+    allocation_rate_mb_per_sec: GcRatePoint[];
+    promotion_rate_mb_per_sec: GcRatePoint[];
   };
 };
 
@@ -449,6 +460,67 @@ function histogramBucketColor(minMs: number): string {
   if (minMs < 100) return "#faad14";
   if (minMs < 1_000) return "#fa8c16";
   return "#f5222d";
+}
+
+export function gcAllocationRateOption(
+  data: GcAllocationRateChartData,
+  labels: GcChartLabels,
+): EChartsOption {
+  const allocRows = data.series?.allocation_rate_mb_per_sec ?? [];
+  const promoRows = data.series?.promotion_rate_mb_per_sec ?? [];
+  const baseRows = allocRows.length >= promoRows.length ? allocRows : promoRows;
+  if (!baseRows.length) return {};
+  const len = baseRows.length;
+
+  const series: NonNullable<EChartsOption["series"]> = [];
+  if (allocRows.length) {
+    series.push({
+      type: "line",
+      smooth: false,
+      symbol: "none",
+      color: "#1890ff",
+      name: labels.allocationRate,
+      areaStyle: { opacity: 0.15 },
+      data: allocRows.map((r) => r.value),
+      ...lineLargeDataOptions(allocRows.length),
+    });
+  }
+  if (promoRows.length) {
+    series.push({
+      type: "line",
+      smooth: false,
+      symbol: "none",
+      color: "#fa541c",
+      name: labels.promotionRate,
+      data: promoRows.map((r) => r.value),
+      ...lineLargeDataOptions(promoRows.length),
+    });
+  }
+
+  return {
+    tooltip: {
+      trigger: "axis",
+      valueFormatter: (val: unknown) =>
+        typeof val === "number" ? `${val.toFixed(2)} MB/s` : "-",
+    },
+    legend: { bottom: 0, type: "scroll" },
+    grid: { top: 28, right: 16, bottom: 80, left: 68 },
+    dataZoom: [
+      { type: "inside", xAxisIndex: 0 },
+      { type: "slider", xAxisIndex: 0, height: 18, bottom: 32 },
+    ],
+    xAxis: {
+      type: "category",
+      data: Array.from({ length: len }, (_, i) => String(i)),
+      axisLabel: { show: false },
+    },
+    yAxis: {
+      type: "value",
+      name: labels.mbPerSec,
+      axisLabel: { formatter: (v: number) => `${v}` },
+    },
+    series,
+  };
 }
 
 export function gcTypeDistributionOption(

@@ -78,9 +78,17 @@ def build_gc_log_result(
     heap_after_mb = []
     heap_before_mb = []
     young_after_mb = []
+    allocation_rate_timeline: list[dict[str, Any]] = []
+    promotion_rate_timeline: list[dict[str, Any]] = []
+    allocation_rates: list[float] = []
+    promotion_rates: list[float] = []
     event_rows = []
     first_uptime_sec: float | None = None
     last_uptime_sec: float | None = None
+    prev_event: GcEvent | None = None
+    humongous_count = 0
+    cmf_count = 0
+    promotion_failure_count = 0
 
     for index, event in enumerate(events):
         total_events += 1
@@ -110,6 +118,23 @@ def build_gc_log_result(
             heap_before_mb.append({"time": time_label, "value": event.heap_before_mb})
         if event.young_after_mb is not None:
             young_after_mb.append({"time": time_label, "value": event.young_after_mb})
+
+        alloc_rate = _allocation_rate_mb_per_sec(prev_event, event)
+        if alloc_rate is not None:
+            allocation_rate_timeline.append({"time": time_label, "value": alloc_rate})
+            allocation_rates.append(alloc_rate)
+        promo_rate = _promotion_rate_mb_per_sec(prev_event, event)
+        if promo_rate is not None:
+            promotion_rate_timeline.append({"time": time_label, "value": promo_rate})
+            promotion_rates.append(promo_rate)
+
+        if _is_humongous(event):
+            humongous_count += 1
+        if _is_concurrent_mode_failure(event):
+            cmf_count += 1
+        if _is_promotion_failure(event):
+            promotion_failure_count += 1
+
         if len(event_rows) < top_n:
             event_rows.append(
                 {
@@ -117,6 +142,7 @@ def build_gc_log_result(
                     "timestamp": event.timestamp.isoformat() if event.timestamp else None,
                 }
             )
+        prev_event = event
 
     wall_time_sec = _compute_wall_time_sec(first_uptime_sec, last_uptime_sec)
     throughput_percent = _compute_throughput_percent(total_pause, wall_time_sec)
@@ -138,6 +164,11 @@ def build_gc_log_result(
         "full_gc_count": sum(
             count for gc_type, count in type_counts.items() if "Full" in gc_type
         ),
+        "avg_allocation_rate_mb_per_sec": _avg(allocation_rates),
+        "avg_promotion_rate_mb_per_sec": _avg(promotion_rates),
+        "humongous_allocation_count": humongous_count,
+        "concurrent_mode_failure_count": cmf_count,
+        "promotion_failure_count": promotion_failure_count,
     }
     series = {
         "pause_timeline": pause_timeline,
@@ -145,6 +176,8 @@ def build_gc_log_result(
         "heap_before_mb": heap_before_mb,
         "young_after_mb": young_after_mb,
         "pause_histogram": _build_pause_histogram(pauses_ms),
+        "allocation_rate_mb_per_sec": allocation_rate_timeline,
+        "promotion_rate_mb_per_sec": promotion_rate_timeline,
         "gc_type_breakdown": [
             {"gc_type": key, "count": value}
             for key, value in type_counts.most_common()
@@ -226,6 +259,77 @@ def _percentile(sorted_values: list[float], percent: float) -> float:
     return sorted_values[lo] * (1.0 - weight) + sorted_values[hi] * weight
 
 
+def _avg(values: list[float]) -> float:
+    if not values:
+        return 0.0
+    return round(sum(values) / len(values), 3)
+
+
+def _allocation_rate_mb_per_sec(prev: GcEvent | None, curr: GcEvent) -> float | None:
+    if prev is None:
+        return None
+    if prev.uptime_sec is None or curr.uptime_sec is None:
+        return None
+    dt = curr.uptime_sec - prev.uptime_sec
+    if dt <= 0:
+        return None
+    if prev.heap_after_mb is None or curr.heap_before_mb is None:
+        return None
+    allocated = curr.heap_before_mb - prev.heap_after_mb
+    if allocated < 0:
+        return None
+    return round(allocated / dt, 3)
+
+
+def _promotion_rate_mb_per_sec(prev: GcEvent | None, curr: GcEvent) -> float | None:
+    if prev is None:
+        return None
+    if prev.uptime_sec is None or curr.uptime_sec is None:
+        return None
+    dt = curr.uptime_sec - prev.uptime_sec
+    if dt <= 0:
+        return None
+    prev_old = _old_gen_after_mb(prev)
+    curr_old = _old_gen_after_mb(curr)
+    if prev_old is None or curr_old is None:
+        return None
+    promoted = curr_old - prev_old
+    if promoted < 0:
+        return None
+    return round(promoted / dt, 3)
+
+
+def _old_gen_after_mb(event: GcEvent) -> float | None:
+    if event.old_after_mb is not None:
+        return event.old_after_mb
+    if event.heap_after_mb is not None and event.young_after_mb is not None:
+        return max(0.0, event.heap_after_mb - event.young_after_mb)
+    return None
+
+
+def _is_humongous(event: GcEvent) -> bool:
+    cause = (event.cause or "").lower()
+    raw = (event.raw_line or "").lower()
+    return "humongous" in cause or "humongous" in raw
+
+
+def _is_concurrent_mode_failure(event: GcEvent) -> bool:
+    gc_type = (event.gc_type or "").lower()
+    cause = (event.cause or "").lower()
+    raw = (event.raw_line or "").lower()
+    if "to-space exhausted" in gc_type or "to-space overflow" in gc_type:
+        return True
+    if "concurrent mode failure" in cause or "concurrent mode failure" in raw:
+        return True
+    return False
+
+
+def _is_promotion_failure(event: GcEvent) -> bool:
+    cause = (event.cause or "").lower()
+    raw = (event.raw_line or "").lower()
+    return "promotion failed" in cause or "promotion failed" in raw
+
+
 def _build_pause_histogram(pauses_ms: list[float]) -> list[dict[str, Any]]:
     if not pauses_ms:
         return [
@@ -290,6 +394,45 @@ def _build_findings(summary: dict[str, Any]) -> list[dict[str, Any]]:
                 "code": "HIGH_P99_PAUSE",
                 "message": "p99 GC pause exceeds 200 ms — latency-sensitive workloads may be impacted.",
                 "evidence": {"p99_pause_ms": p99},
+            }
+        )
+    humongous = summary.get("humongous_allocation_count", 0)
+    if humongous > 0:
+        findings.append(
+            {
+                "severity": "warning",
+                "code": "HUMONGOUS_ALLOCATION",
+                "message": (
+                    "G1 humongous allocations detected. Consider increasing -XX:G1HeapRegionSize "
+                    "or refactoring the allocation site to use smaller objects."
+                ),
+                "evidence": {"humongous_allocation_count": humongous},
+            }
+        )
+    cmf = summary.get("concurrent_mode_failure_count", 0)
+    if cmf > 0:
+        findings.append(
+            {
+                "severity": "critical",
+                "code": "CONCURRENT_MODE_FAILURE",
+                "message": (
+                    "Concurrent mode failure / to-space exhausted detected — "
+                    "concurrent collector could not keep up with allocations, causing a Full GC."
+                ),
+                "evidence": {"concurrent_mode_failure_count": cmf},
+            }
+        )
+    promotion_failure = summary.get("promotion_failure_count", 0)
+    if promotion_failure > 0:
+        findings.append(
+            {
+                "severity": "critical",
+                "code": "PROMOTION_FAILURE",
+                "message": (
+                    "Promotion failure detected — old generation cannot accommodate promoted objects. "
+                    "Increase old gen size or reduce allocation pressure."
+                ),
+                "evidence": {"promotion_failure_count": promotion_failure},
             }
         )
     return findings

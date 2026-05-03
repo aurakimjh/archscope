@@ -44,6 +44,7 @@ export function GcLogAnalyzerPage(): JSX.Element {
   const pauseTimelineTemplate = getChartTemplate("GcLog.PauseTimeline");
   const pauseHistogramTemplate = getChartTemplate("GcLog.PauseHistogram");
   const heapBeforeAfterTemplate = getChartTemplate("GcLog.HeapBeforeAfter");
+  const allocationRateTemplate = getChartTemplate("GcLog.AllocationRate");
   const typeDistTemplate = getChartTemplate("GcLog.TypeDistribution");
   const causeDistTemplate = getChartTemplate("GcLog.CauseDistribution");
 
@@ -58,6 +59,10 @@ export function GcLogAnalyzerPage(): JSX.Element {
   const heapBeforeAfterOption = useMemo(
     () => createChartOption(heapBeforeAfterTemplate.id, result ?? emptyGcResult, gcChartLabels),
     [gcChartLabels, heapBeforeAfterTemplate.id, result],
+  );
+  const allocationRateOption = useMemo(
+    () => createChartOption(allocationRateTemplate.id, result ?? emptyGcResult, gcChartLabels),
+    [gcChartLabels, allocationRateTemplate.id, result],
   );
   const typeDistOption = useMemo(
     () => createChartOption(typeDistTemplate.id, result ?? emptyGcResult, gcChartLabels),
@@ -251,6 +256,26 @@ export function GcLogAnalyzerPage(): JSX.Element {
               label={t("fullGcCount")}
               value={formatNumber(summary?.full_gc_count)}
             />
+            <MetricCard
+              label={t("avgAllocationRate")}
+              value={formatMbPerSec(summary?.avg_allocation_rate_mb_per_sec)}
+            />
+            <MetricCard
+              label={t("avgPromotionRate")}
+              value={formatMbPerSec(summary?.avg_promotion_rate_mb_per_sec)}
+            />
+            <MetricCard
+              label={t("humongousAllocationCount")}
+              value={formatNumber(summary?.humongous_allocation_count)}
+            />
+            <MetricCard
+              label={t("concurrentModeFailureCount")}
+              value={formatNumber(summary?.concurrent_mode_failure_count)}
+            />
+            <MetricCard
+              label={t("promotionFailureCount")}
+              value={formatNumber(summary?.promotion_failure_count)}
+            />
           </section>
           <ChartPanel
             title={t(pauseTimelineTemplate.titleKey)}
@@ -265,6 +290,11 @@ export function GcLogAnalyzerPage(): JSX.Element {
           <ChartPanel
             title={t(heapBeforeAfterTemplate.titleKey)}
             option={heapBeforeAfterOption}
+            busy={state === "running"}
+          />
+          <ChartPanel
+            title={t(allocationRateTemplate.titleKey)}
+            option={allocationRateOption}
             busy={state === "running"}
           />
           <ChartPanel
@@ -357,7 +387,14 @@ function createGcChartLabels(t: (key: MessageKey) => string): GcChartLabels {
     youngAfter: t("youngAfterMb"),
     cause: t("gcCauseLabel"),
     events: t("eventsLabel"),
+    mbPerSec: t("mbPerSecAxis"),
+    allocationRate: t("allocationRateLabel"),
+    promotionRate: t("promotionRateLabel"),
   };
+}
+
+function formatMbPerSec(value: number | null | undefined): string {
+  return typeof value === "number" ? `${value.toLocaleString()} MB/s` : "-";
 }
 
 const emptyGcResult: GcLogAnalysisResult = {
@@ -376,6 +413,11 @@ const emptyGcResult: GcLogAnalysisResult = {
     wall_time_sec: 0,
     young_gc_count: 0,
     full_gc_count: 0,
+    avg_allocation_rate_mb_per_sec: 0,
+    avg_promotion_rate_mb_per_sec: 0,
+    humongous_allocation_count: 0,
+    concurrent_mode_failure_count: 0,
+    promotion_failure_count: 0,
   },
   series: {
     pause_timeline: [],
@@ -383,6 +425,8 @@ const emptyGcResult: GcLogAnalysisResult = {
     heap_before_mb: [],
     young_after_mb: [],
     pause_histogram: [],
+    allocation_rate_mb_per_sec: [],
+    promotion_rate_mb_per_sec: [],
     gc_type_breakdown: [],
     cause_breakdown: [],
   },

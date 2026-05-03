@@ -73,6 +73,7 @@ export type {
   GcLogTables,
   GcPauseHistogramBucket,
   GcPauseTimelinePoint,
+  GcRatePoint,
   GcTypeBreakdownRow,
   InterpretationResult,
   JvmAnalyzerMetadata,

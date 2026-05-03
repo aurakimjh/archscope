@@ -237,6 +237,11 @@ export type GcLogSummary = {
   wall_time_sec: number;
   young_gc_count: number;
   full_gc_count: number;
+  avg_allocation_rate_mb_per_sec: number;
+  avg_promotion_rate_mb_per_sec: number;
+  humongous_allocation_count: number;
+  concurrent_mode_failure_count: number;
+  promotion_failure_count: number;
 };
 
 export type GcPauseHistogramBucket = {
@@ -280,12 +285,19 @@ export type GcEventRow = {
   young_after_mb: number | null;
 };
 
+export type GcRatePoint = {
+  time: string;
+  value: number;
+};
+
 export type GcLogSeries = {
   pause_timeline: GcPauseTimelinePoint[];
   heap_after_mb: GcHeapPoint[];
   heap_before_mb: GcHeapPoint[];
   young_after_mb: GcHeapPoint[];
   pause_histogram: GcPauseHistogramBucket[];
+  allocation_rate_mb_per_sec: GcRatePoint[];
+  promotion_rate_mb_per_sec: GcRatePoint[];
   gc_type_breakdown: GcTypeBreakdownRow[];
   cause_breakdown: GcCauseBreakdownRow[];
 };

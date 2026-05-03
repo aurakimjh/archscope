@@ -10,6 +10,7 @@ export type ChartTemplateId =
   | "GcLog.TypeDistribution"
   | "GcLog.CauseDistribution"
   | "GcLog.PauseHistogram"
+  | "GcLog.AllocationRate"
   | "Profiler.ComponentBreakdown";
 
 export type ChartTemplate = {
@@ -119,6 +120,17 @@ export const chartTemplates: ChartTemplate[] = [
     chartKind: "bar",
     titleKey: "gcPauseHistogram",
     axisLabelKeys: ["pauseMsAxis"],
+    legendLabelKeys: [],
+    supportedRenderers: ["canvas", "svg"],
+    supportsDarkMode: true,
+    exportFormats: ["png", "svg", "html"],
+  },
+  {
+    id: "GcLog.AllocationRate",
+    resultType: "gc_log",
+    chartKind: "line",
+    titleKey: "gcAllocationRate",
+    axisLabelKeys: ["mbPerSecAxis"],
     legendLabelKeys: [],
     supportedRenderers: ["canvas", "svg"],
     supportsDarkMode: true,
