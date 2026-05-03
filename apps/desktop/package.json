@@ -47,7 +47,8 @@
       "target": [
         { "target": "nsis", "arch": ["x64"] },
         { "target": "zip", "arch": ["x64"] }
-      ]
+      ],
+      "artifactName": "${productName}-${version}-Windows-${arch}.${ext}"
     },
     "linux": {
       "target": [
@@ -59,7 +60,8 @@
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
-    }
+    },
+    "compression": "maximum"
   },
   "dependencies": {
     "echarts": "^6.0.0",

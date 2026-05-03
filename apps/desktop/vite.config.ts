@@ -4,6 +4,20 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   base: "./",
   plugins: [react()],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("node_modules/echarts") || id.includes("node_modules/zrender")) {
+            return "echarts";
+          }
+          if (id.includes("node_modules/react")) {
+            return "react";
+          }
+        },
+      },
+    },
+  },
   test: {
     exclude: ["e2e/**", "node_modules/**", "dist/**", "dist-electron/**"],
   },

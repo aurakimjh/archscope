@@ -1,0 +1,92 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  release-windows:
+    name: Windows (x64)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Build Python engine (Windows)
+        working-directory: engines/python
+        run: |
+          python -m venv .venv-build
+          .\.venv-build\Scripts\python.exe -m pip install --upgrade pip -q
+          .\.venv-build\Scripts\pip.exe install pyinstaller -q
+          .\.venv-build\Scripts\pip.exe install -e "." -q
+          .\.venv-build\Scripts\python.exe -m PyInstaller archscope-engine.spec --distpath dist --workpath build --noconfirm
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/desktop/package-lock.json
+
+      - name: Install npm dependencies
+        working-directory: apps/desktop
+        run: npm ci
+
+      - name: Package (Windows)
+        working-directory: apps/desktop
+        run: npm run dist:win
+
+      - name: Upload Windows artifacts
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            apps/desktop/release/*.exe
+            apps/desktop/release/*.zip
+
+  release-mac:
+    name: macOS (Universal)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Build Python engine (macOS)
+        working-directory: engines/python
+        run: |
+          python -m venv .venv-build
+          .venv-build/bin/python -m pip install --upgrade pip -q
+          .venv-build/bin/pip install pyinstaller -q
+          .venv-build/bin/pip install -e "." -q
+          .venv-build/bin/python -m PyInstaller archscope-engine.spec --distpath dist --workpath build --noconfirm
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/desktop/package-lock.json
+
+      - name: Install npm dependencies
+        working-directory: apps/desktop
+        run: npm ci
+
+      - name: Package (macOS)
+        working-directory: apps/desktop
+        run: npm run dist:mac
+
+      - name: Upload macOS artifacts
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            apps/desktop/release/*.dmg
+            apps/desktop/release/*.zip
