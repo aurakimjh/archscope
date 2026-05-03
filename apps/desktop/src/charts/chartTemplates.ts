@@ -4,11 +4,14 @@ export type ChartTemplateId =
   | "AccessLog.RequestCountTrend"
   | "AccessLog.ResponseTimeP95Trend"
   | "AccessLog.StatusCodeDistribution"
+  | "GcLog.PauseTimeline"
+  | "GcLog.HeapTrend"
+  | "GcLog.TypeDistribution"
   | "Profiler.ComponentBreakdown";
 
 export type ChartTemplate = {
   id: ChartTemplateId;
-  resultType: "access_log" | "dashboard_sample" | "profiler_collapsed";
+  resultType: "access_log" | "gc_log" | "dashboard_sample" | "profiler_collapsed";
   chartKind: "line" | "bar" | "donut" | "horizontal_bar";
   titleKey: MessageKey;
   axisLabelKeys: MessageKey[];
@@ -48,6 +51,39 @@ export const chartTemplates: ChartTemplate[] = [
     titleKey: "statusCodeDistribution",
     axisLabelKeys: [],
     legendLabelKeys: ["statusSeries"],
+    supportedRenderers: ["canvas", "svg"],
+    supportsDarkMode: true,
+    exportFormats: ["png", "svg", "html"],
+  },
+  {
+    id: "GcLog.PauseTimeline",
+    resultType: "gc_log",
+    chartKind: "bar",
+    titleKey: "gcPauseTimeline",
+    axisLabelKeys: ["pauseMsAxis"],
+    legendLabelKeys: [],
+    supportedRenderers: ["canvas", "svg"],
+    supportsDarkMode: true,
+    exportFormats: ["png", "svg", "html"],
+  },
+  {
+    id: "GcLog.HeapTrend",
+    resultType: "gc_log",
+    chartKind: "line",
+    titleKey: "heapUsageTrend",
+    axisLabelKeys: ["heapMbAxis"],
+    legendLabelKeys: [],
+    supportedRenderers: ["canvas", "svg"],
+    supportsDarkMode: true,
+    exportFormats: ["png", "svg", "html"],
+  },
+  {
+    id: "GcLog.TypeDistribution",
+    resultType: "gc_log",
+    chartKind: "donut",
+    titleKey: "gcTypeDistribution",
+    axisLabelKeys: [],
+    legendLabelKeys: [],
     supportedRenderers: ["canvas", "svg"],
     supportsDarkMode: true,
     exportFormats: ["png", "svg", "html"],

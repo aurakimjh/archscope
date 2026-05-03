@@ -234,13 +234,62 @@ export type GcLogSummary = {
   full_gc_count: number;
 };
 
+export type GcPauseTimelinePoint = {
+  time: string;
+  value: number;
+  gc_type: string;
+};
+
+export type GcHeapPoint = {
+  time: string;
+  value: number;
+};
+
+export type GcTypeBreakdownRow = {
+  gc_type: string;
+  count: number;
+};
+
+export type GcCauseBreakdownRow = {
+  cause: string;
+  count: number;
+};
+
+export type GcEventRow = {
+  timestamp: string | null;
+  uptime_sec: number | null;
+  gc_type: string | null;
+  cause: string | null;
+  pause_ms: number | null;
+  heap_before_mb: number | null;
+  heap_after_mb: number | null;
+  heap_committed_mb: number | null;
+  young_before_mb: number | null;
+  young_after_mb: number | null;
+};
+
+export type GcLogSeries = {
+  pause_timeline: GcPauseTimelinePoint[];
+  heap_after_mb: GcHeapPoint[];
+  gc_type_breakdown: GcTypeBreakdownRow[];
+  cause_breakdown: GcCauseBreakdownRow[];
+};
+
+export type GcLogTables = {
+  events: GcEventRow[];
+};
+
+export type GcLogMetadata = JvmAnalyzerMetadata & {
+  gc_format?: string;
+};
+
 export type GcLogAnalysisResult = AnalysisResult<
   "gc_log",
   GcLogSummary,
+  GcLogSeries,
+  GcLogTables,
   AnalysisObject,
-  AnalysisObject,
-  AnalysisObject,
-  JvmAnalyzerMetadata
+  GcLogMetadata
 >;
 
 export type ThreadDumpSummary = {

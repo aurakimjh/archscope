@@ -2,6 +2,10 @@ import type { EChartsOption } from "echarts";
 
 import type {
   ComponentBreakdownRow,
+  GcCauseBreakdownRow,
+  GcHeapPoint,
+  GcPauseTimelinePoint,
+  GcTypeBreakdownRow,
   StatusCodeDistributionRow,
   TimeValuePoint,
 } from "../api/analyzerClient";
@@ -17,6 +21,58 @@ export type ChartLabels = {
   statusSeries: string;
   samplesAxis: string;
   p95Series: string;
+};
+
+export type GcChartLabels = {
+  pauseMs: string;
+  heapMb: string;
+  gcType: string;
+};
+
+const GC_TYPE_COLORS: Record<string, string> = {
+  "G1 Young": "#52c41a",
+  "G1 Mixed": "#fa8c16",
+  "G1 Remark": "#1890ff",
+  "G1 Cleanup": "#13c2c2",
+  "G1 Young (initial-mark)": "#a0d911",
+  "G1 Young (to-space exhausted)": "#ff4d4f",
+  "G1 Young (to-space overflow)": "#ff7a45",
+  "Pause Young": "#52c41a",
+  "Pause Mixed": "#fa8c16",
+  "Pause Full": "#f5222d",
+  "Pause Initial Mark": "#a0d911",
+  "Full GC": "#f5222d",
+  "Full GC (Parallel)": "#cf1322",
+  "Full GC (CMS)": "#d4380d",
+  "Young GC": "#52c41a",
+  "Young GC (Serial)": "#73d13d",
+  "Young GC (Parallel)": "#95de64",
+  "Young GC (CMS)": "#b7eb8f",
+  "G1 Partial": "#ffc53d",
+  UNKNOWN: "#8c8c8c",
+};
+
+function gcTypeColor(gcType: string): string {
+  return GC_TYPE_COLORS[gcType] ?? GC_TYPE_COLORS["UNKNOWN"];
+}
+
+export type GcPauseTimelineChartData = {
+  series: {
+    pause_timeline: GcPauseTimelinePoint[];
+  };
+};
+
+export type GcHeapChartData = {
+  series: {
+    heap_after_mb: GcHeapPoint[];
+  };
+};
+
+export type GcTypeBreakdownChartData = {
+  series: {
+    gc_type_breakdown: GcTypeBreakdownRow[];
+    cause_breakdown?: GcCauseBreakdownRow[];
+  };
 };
 
 export type RequestCountChartData = {
@@ -129,6 +185,121 @@ export function profilerBreakdownOption(
         name: labels.samplesAxis,
         data: rows.map((row) => row.samples),
         ...largeOptions,
+      },
+    ],
+  };
+}
+
+export function gcPauseTimelineOption(
+  data: GcPauseTimelineChartData,
+  labels: GcChartLabels,
+): EChartsOption {
+  const rows = data.series?.pause_timeline ?? [];
+  if (!rows.length) return {};
+
+  const gcTypes = [...new Set(rows.map((r) => r.gc_type))].sort();
+  const isLarge = rows.length > 600;
+  const barMaxWidth = isLarge ? 2 : 6;
+  const labelInterval = Math.max(0, Math.floor(rows.length / 8) - 1);
+
+  return {
+    tooltip: {
+      trigger: "axis",
+      axisPointer: { type: "shadow" },
+      formatter: (params: unknown) => {
+        const items = params as { axisValue: string; seriesName: string; value: number | null }[];
+        const active = items.filter((p) => p.value != null && p.value > 0);
+        if (!active.length) return "";
+        const idx = Number(active[0].axisValue);
+        const time = rows[idx]?.time ?? "";
+        const header = `<b>Event ${idx}</b><br/>${time}<br/>`;
+        return header + active.map((p) => `${p.seriesName}: <b>${p.value?.toFixed(1)} ms</b>`).join("<br/>");
+      },
+    },
+    legend: { bottom: 0, type: "scroll", data: gcTypes },
+    grid: { top: 28, right: 16, bottom: 56, left: 60 },
+    xAxis: {
+      type: "category",
+      data: rows.map((_, i) => i),
+      axisLabel: {
+        interval: labelInterval,
+        formatter: (val: string) => {
+          const idx = Number(val);
+          const t = rows[idx]?.time ?? "";
+          const m = t.match(/T(\d{2}:\d{2})/);
+          return m ? m[1] : val;
+        },
+      },
+    },
+    yAxis: { type: "value", name: labels.pauseMs, minInterval: 1 },
+    series: gcTypes.map((gcType) => ({
+      type: "bar",
+      name: gcType,
+      barMaxWidth,
+      color: gcTypeColor(gcType),
+      emphasis: { focus: "series" },
+      data: rows.map((r) => (r.gc_type === gcType ? r.value : null)),
+    })),
+  };
+}
+
+export function gcHeapTrendOption(
+  data: GcHeapChartData,
+  labels: GcChartLabels,
+): EChartsOption {
+  const rows = data.series?.heap_after_mb ?? [];
+  if (!rows.length) return {};
+
+  return {
+    tooltip: {
+      trigger: "axis",
+      valueFormatter: (val: unknown) =>
+        typeof val === "number" ? `${val.toFixed(1)} MB` : "-",
+    },
+    grid: { top: 28, right: 16, bottom: 24, left: 68 },
+    xAxis: { type: "category", data: rows.map((_, i) => i), axisLabel: { show: false } },
+    yAxis: {
+      type: "value",
+      name: labels.heapMb,
+      axisLabel: { formatter: (v: number) => `${v} MB` },
+    },
+    series: [
+      {
+        type: "line",
+        smooth: false,
+        areaStyle: { opacity: 0.2 },
+        symbol: "none",
+        color: "#1890ff",
+        name: labels.heapMb,
+        data: rows.map((r) => r.value),
+        ...lineLargeDataOptions(rows.length),
+      },
+    ],
+  };
+}
+
+export function gcTypeDistributionOption(
+  data: GcTypeBreakdownChartData,
+  labels: GcChartLabels,
+): EChartsOption {
+  const rows = data.series?.gc_type_breakdown ?? [];
+  if (!rows.length) return {};
+
+  return {
+    tooltip: { trigger: "item", formatter: "{b}: {c} ({d}%)" },
+    legend: { bottom: 0, type: "scroll" },
+    series: [
+      {
+        type: "pie",
+        radius: ["45%", "70%"],
+        name: labels.gcType,
+        label: { show: false },
+        emphasis: { label: { show: true, fontWeight: "bold" } },
+        data: rows.map((r) => ({
+          name: r.gc_type,
+          value: r.count,
+          itemStyle: { color: gcTypeColor(r.gc_type) },
+        })),
       },
     ],
   };

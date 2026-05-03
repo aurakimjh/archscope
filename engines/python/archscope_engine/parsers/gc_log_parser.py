@@ -28,13 +28,20 @@ UNIFIED_GC_RE = re.compile(
 
 # ─── JDK 8 G1GC Legacy ────────────────────────────────────────────────────────
 
-# Matches: [optional datestamp: ] uptime: [GC pause/remark/cleanup ..., secs]
-# Uses greedy .+ so nested brackets in remark are consumed before matching final ", secs]"
+# Matches: [optional datestamp: ] uptime: [optional #gcid: ] [GC pause/remark/cleanup ..., secs]
+# Uses greedy .* so nested brackets in remark are consumed before matching final ", secs]"
 _G1_PAUSE_RE = re.compile(
     r"^(?:(?P<datestamp>\d{4}-\d{2}-\d{2}T[\d:.]+[+-]\d{4}):\s+)?"
     r"(?P<uptime>[\d.,]+):\s+"
-    r"\[(?P<label>GC\s+(?:pause|remark|cleanup).+),\s+"
+    r"(?:#\d+:\s+)?"  # optional GC ID from -XX:+PrintGCID (JDK 8)
+    r"\[(?P<label>GC\s+(?:pause|remark|cleanup).*),\s+"
     r"(?P<pause>[\d.]+)\s+secs\]\s*$"
+)
+
+# Inline heap sizes embedded in single-line G1 event label (without -XX:+PrintHeapAtGC)
+# e.g. "GC pause (young) 4096K->3936K(16M)"
+_G1_INLINE_HEAP_RE = re.compile(
+    r"\s+([\d.]+)([KMG])\s*->\s*([\d.]+)([KMG])\(([\d.]+)([KMG])\)\s*$"
 )
 
 # Matches: [Eden: before(cap)->after(cap) Survivors: before->after Heap: before(cap)->after(cap)]
@@ -262,10 +269,11 @@ def _iter_g1_legacy(
             if pending is not None:
                 yield _build_g1_event(pending)
                 diagnostics.parsed_records += 1
+            label = m.group("label").rstrip(",").strip()
             pending = {
                 "datestamp": m.group("datestamp"),
                 "uptime": m.group("uptime"),
-                "label": m.group("label"),
+                "label": label,
                 "pause_ms": float(m.group("pause")) * 1000.0,
                 "raw_line": line,
             }
@@ -275,6 +283,15 @@ def _iter_g1_legacy(
                 pending["heap_before_mb"] = _to_mb(cm.group(1), cm.group(2))
                 pending["heap_after_mb"] = _to_mb(cm.group(3), cm.group(4))
                 pending["heap_committed_mb"] = _to_mb(cm.group(5), cm.group(6))
+            else:
+                # Single-line G1 format (without -XX:+PrintHeapAtGC):
+                # "GC pause (young) 4096K->3936K(16M)" — heap embedded in label
+                hm = _G1_INLINE_HEAP_RE.search(label)
+                if hm:
+                    pending["heap_before_mb"] = _to_mb(hm.group(1), hm.group(2))
+                    pending["heap_after_mb"] = _to_mb(hm.group(3), hm.group(4))
+                    pending["heap_committed_mb"] = _to_mb(hm.group(5), hm.group(6))
+                    pending["label"] = label[: hm.start()].rstrip()
             continue
 
         # All other lines (heap block headers, worker detail lines, JVM headers): skip.
@@ -360,18 +377,18 @@ def _iter_legacy(
         if pm is None:
             continue
 
-        hm = _LEGACY_HEAP_RE.search(line)
-        if hm is None:
+        # Use the LAST heap transition on the line (inner per-gen matches come first,
+        # outer total heap match comes last in nested-bracket format).
+        all_heap_matches = list(_LEGACY_HEAP_RE.finditer(line))
+        if not all_heap_matches:
             continue
+        hm = all_heap_matches[-1]
 
         label = pm.group("label").strip()
         uptime_raw = pm.group("uptime")
         uptime = float(uptime_raw.replace(",", ".")) if uptime_raw else None
 
-        is_full = "Full" in label
-        cause_match = re.search(r"\(([^)]+)\)", label)
-        cause = cause_match.group(1) if cause_match else None
-        gc_type = "Full GC" if is_full else "Young GC"
+        gc_type, cause = _detect_legacy_gc_type(line, label)
 
         yield GcEvent(
             timestamp=_parse_legacy_timestamp(pm.group("datestamp")),
@@ -391,6 +408,32 @@ def _iter_legacy(
             raw_line=line,
         )
         diagnostics.parsed_records += 1
+
+
+def _detect_legacy_gc_type(line: str, label: str) -> tuple[str, str | None]:
+    is_full = "Full GC" in line or label.startswith("Full")
+    cause_m = re.search(r"\(([^)]+)\)", label)
+    cause = cause_m.group(1) if cause_m else None
+
+    if is_full:
+        if "PSYoungGen" in line or "ParOldGen" in line:
+            return "Full GC (Parallel)", cause
+        if "CMS" in line:
+            return "Full GC (CMS)", cause
+        return "Full GC", cause
+
+    if "DefNew" in line:
+        return "Young GC (Serial)", cause
+    if "ParNew" in line:
+        return "Young GC (CMS)", cause
+    if "PSYoungGen" in line:
+        return "Young GC (Parallel)", cause
+    if "CMS-initial-mark" in line:
+        return "CMS Initial Mark", cause
+    if "CMS-remark" in line:
+        return "CMS Remark", cause
+
+    return "Young GC", cause
 
 
 # ═════════════════════════════════════════════════════════════════════════════
