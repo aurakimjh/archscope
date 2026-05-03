@@ -1,0 +1,158 @@
+import type { EChartsOption } from "echarts";
+
+import type {
+  ComponentBreakdownRow,
+  StatusCodeDistributionRow,
+  TimeValuePoint,
+} from "../api/analyzerClient";
+
+const LARGE_LINE_THRESHOLD = 2_000;
+const LARGE_BAR_THRESHOLD = 1_000;
+const PROGRESSIVE_CHUNK_SIZE = 800;
+const PROGRESSIVE_THRESHOLD = 2_000;
+
+export type ChartLabels = {
+  requestsAxis: string;
+  millisecondsAxis: string;
+  statusSeries: string;
+  samplesAxis: string;
+  p95Series: string;
+};
+
+export type RequestCountChartData = {
+  series: {
+    requests_per_minute: TimeValuePoint[];
+  };
+};
+
+export type P95ChartData = {
+  series: {
+    p95_response_time_per_minute: TimeValuePoint[];
+  };
+};
+
+export type StatusDistributionChartData = {
+  series: {
+    status_code_distribution: StatusCodeDistributionRow[];
+  };
+};
+
+export type ProfilerBreakdownChartData = {
+  series: {
+    component_breakdown?: ComponentBreakdownRow[];
+    profiler_component_breakdown?: ComponentBreakdownRow[];
+  };
+};
+
+export function requestCountTrendOption(
+  data: RequestCountChartData,
+  labels: ChartLabels,
+): EChartsOption {
+  const rows = data.series.requests_per_minute;
+  const largeOptions = lineLargeDataOptions(rows.length);
+  return {
+    tooltip: { trigger: "axis" },
+    xAxis: { type: "category", data: rows.map((row) => row.time) },
+    yAxis: { type: "value", name: labels.requestsAxis },
+    series: [
+      {
+        type: "line",
+        smooth: true,
+        areaStyle: {},
+        name: labels.requestsAxis,
+        data: rows.map((row) => row.value),
+        ...largeOptions,
+      },
+    ],
+  };
+}
+
+export function p95TrendOption(
+  data: P95ChartData,
+  labels: ChartLabels,
+): EChartsOption {
+  const rows = data.series.p95_response_time_per_minute;
+  const largeOptions = lineLargeDataOptions(rows.length);
+  return {
+    tooltip: { trigger: "axis" },
+    xAxis: { type: "category", data: rows.map((row) => row.time) },
+    yAxis: { type: "value", name: labels.millisecondsAxis },
+    series: [
+      {
+        type: "line",
+        smooth: true,
+        name: labels.p95Series,
+        data: rows.map((row) => row.value),
+        ...largeOptions,
+      },
+    ],
+  };
+}
+
+export function statusCodeDistributionOption(
+  data: StatusDistributionChartData,
+  labels: ChartLabels,
+): EChartsOption {
+  const rows = data.series.status_code_distribution;
+  return {
+    tooltip: { trigger: "item" },
+    legend: { bottom: 0 },
+    series: [
+      {
+        type: "pie",
+        radius: ["48%", "72%"],
+        name: labels.statusSeries,
+        data: rows.map((row) => ({ name: row.status, value: row.count })),
+      },
+    ],
+  };
+}
+
+export function profilerBreakdownOption(
+  data: ProfilerBreakdownChartData,
+  labels: ChartLabels,
+): EChartsOption {
+  const rows =
+    data.series.component_breakdown ?? data.series.profiler_component_breakdown ?? [];
+  const largeOptions = barLargeDataOptions(rows.length);
+  return {
+    tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
+    grid: { left: 126, right: 24, top: 28, bottom: 36 },
+    xAxis: { type: "value", name: labels.samplesAxis },
+    yAxis: {
+      type: "category",
+      data: rows.map((row) => row.component),
+    },
+    series: [
+      {
+        type: "bar",
+        name: labels.samplesAxis,
+        data: rows.map((row) => row.samples),
+        ...largeOptions,
+      },
+    ],
+  };
+}
+
+function lineLargeDataOptions(rowCount: number): Record<string, unknown> {
+  if (rowCount < LARGE_LINE_THRESHOLD) {
+    return {};
+  }
+  return {
+    large: true,
+    sampling: "lttb",
+    progressive: PROGRESSIVE_CHUNK_SIZE,
+    progressiveThreshold: PROGRESSIVE_THRESHOLD,
+  };
+}
+
+function barLargeDataOptions(rowCount: number): Record<string, unknown> {
+  if (rowCount < LARGE_BAR_THRESHOLD) {
+    return {};
+  }
+  return {
+    large: true,
+    progressive: PROGRESSIVE_CHUNK_SIZE,
+    progressiveThreshold: PROGRESSIVE_THRESHOLD,
+  };
+}

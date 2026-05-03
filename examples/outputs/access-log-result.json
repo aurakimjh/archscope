@@ -1,0 +1,173 @@
+{
+  "type": "access_log",
+  "source_files": [
+    "../../examples/access-logs/sample-nginx-access.log"
+  ],
+  "summary": {
+    "total_requests": 6,
+    "avg_response_ms": 648.67,
+    "p95_response_ms": 1932.5,
+    "p99_response_ms": 2226.5,
+    "error_rate": 33.33
+  },
+  "series": {
+    "requests_per_minute": [
+      {
+        "time": "2026-04-27T10:00:00+0900",
+        "value": 3
+      },
+      {
+        "time": "2026-04-27T10:01:00+0900",
+        "value": 2
+      },
+      {
+        "time": "2026-04-27T10:02:00+0900",
+        "value": 1
+      }
+    ],
+    "avg_response_time_per_minute": [
+      {
+        "time": "2026-04-27T10:00:00+0900",
+        "value": 877.67
+      },
+      {
+        "time": "2026-04-27T10:01:00+0900",
+        "value": 214.5
+      },
+      {
+        "time": "2026-04-27T10:02:00+0900",
+        "value": 830.0
+      }
+    ],
+    "p95_response_time_per_minute": [
+      {
+        "time": "2026-04-27T10:00:00+0900",
+        "value": 2091.0
+      },
+      {
+        "time": "2026-04-27T10:01:00+0900",
+        "value": 327.45
+      },
+      {
+        "time": "2026-04-27T10:02:00+0900",
+        "value": 830.0
+      }
+    ],
+    "status_code_distribution": [
+      {
+        "status": "2xx",
+        "count": 4
+      },
+      {
+        "status": "4xx",
+        "count": 1
+      },
+      {
+        "status": "5xx",
+        "count": 1
+      }
+    ],
+    "top_urls_by_count": [
+      {
+        "uri": "/api/payment",
+        "count": 2
+      },
+      {
+        "uri": "/api/orders/1001",
+        "count": 1
+      },
+      {
+        "uri": "/api/orders/1002",
+        "count": 1
+      },
+      {
+        "uri": "/api/products",
+        "count": 1
+      },
+      {
+        "uri": "/api/orders/1003",
+        "count": 1
+      }
+    ],
+    "top_urls_by_avg_response_time": [
+      {
+        "uri": "/api/payment",
+        "avg_response_ms": 1565.0,
+        "count": 2
+      },
+      {
+        "uri": "/api/orders/1003",
+        "avg_response_ms": 340.0,
+        "count": 1
+      },
+      {
+        "uri": "/api/orders/1002",
+        "avg_response_ms": 210.0,
+        "count": 1
+      },
+      {
+        "uri": "/api/orders/1001",
+        "avg_response_ms": 123.0,
+        "count": 1
+      },
+      {
+        "uri": "/api/products",
+        "avg_response_ms": 89.0,
+        "count": 1
+      }
+    ]
+  },
+  "tables": {
+    "sample_records": [
+      {
+        "timestamp": "2026-04-27T10:00:01+09:00",
+        "method": "GET",
+        "uri": "/api/orders/1001",
+        "status": 200,
+        "response_time_ms": 123.0
+      },
+      {
+        "timestamp": "2026-04-27T10:00:02+09:00",
+        "method": "GET",
+        "uri": "/api/orders/1002",
+        "status": 200,
+        "response_time_ms": 210.0
+      },
+      {
+        "timestamp": "2026-04-27T10:00:03+09:00",
+        "method": "POST",
+        "uri": "/api/payment",
+        "status": 500,
+        "response_time_ms": 2300.0
+      },
+      {
+        "timestamp": "2026-04-27T10:01:03+09:00",
+        "method": "GET",
+        "uri": "/api/products",
+        "status": 200,
+        "response_time_ms": 89.0
+      },
+      {
+        "timestamp": "2026-04-27T10:01:12+09:00",
+        "method": "GET",
+        "uri": "/api/orders/1003",
+        "status": 404,
+        "response_time_ms": 340.0
+      },
+      {
+        "timestamp": "2026-04-27T10:02:30+09:00",
+        "method": "POST",
+        "uri": "/api/payment",
+        "status": 200,
+        "response_time_ms": 830.0
+      }
+    ]
+  },
+  "charts": {},
+  "metadata": {
+    "format": "nginx",
+    "parser": "nginx_combined_with_response_time",
+    "schema_version": "0.1.0"
+  },
+  "created_at": "2026-04-28T13:11:41.566133+00:00"
+}

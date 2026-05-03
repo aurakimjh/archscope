@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/srv/demo-site/app/api/orders.py", line 21, in get_order
+    return repository.load_order(order_id)
+  File "/srv/demo-site/app/repository.py", line 58, in load_order
+    cursor.execute(sql, params)
+TimeoutError: database query exceeded timeout
+
+Traceback (most recent call last):
+  File "/srv/demo-site/app/tasks.py", line 44, in run_job
+    parse_payload(payload)
+  File "/srv/demo-site/app/parser.py", line 12, in parse_payload
+    return json.loads(payload)
+ValueError: invalid payload

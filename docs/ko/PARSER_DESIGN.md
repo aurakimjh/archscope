@@ -1,0 +1,338 @@
+# 파서 설계
+
+Parser는 raw file을 typed record로 변환한다. Chart rendering이나 report formatting 책임은 갖지 않는다.
+
+## 책임
+
+- encoding fallback을 사용해 파일 읽기
+- line-oriented 또는 block-oriented evidence parsing
+- traceability를 위해 raw input fragment 보존
+- typed record 또는 parser diagnostic 반환
+- 향후 대용량 파일 처리를 위한 streaming pattern 유지
+
+## Access Log Parser
+
+초기 지원 대상은 response time field를 포함한 NGINX combined 유사 format이다.
+
+```text
+127.0.0.1 - - [27/Apr/2026:10:00:01 +0900] "GET /api/orders/1001 HTTP/1.1" 200 1234 "-" "Mozilla/5.0" 0.123
+```
+
+Parser는 다음 필드를 추출한다.
+
+- timestamp
+- method
+- uri
+- status
+- bytes sent
+- referer
+- user agent
+- response time in milliseconds
+- raw line
+
+향후 Apache, OHS, WebLogic, Tomcat, custom regex pattern을 지원한다.
+
+## Collapsed Profiler Parser
+
+초기 지원 대상은 async-profiler collapsed output이다.
+
+```text
+frame1;frame2;frame3 123
+```
+
+규칙:
+
+- 마지막 필드는 sample count로 읽는다.
+- stack string은 마지막 sample count 앞의 전체 문자열이다.
+- 동일 stack은 sample count를 합산한다.
+- total samples를 계산한다.
+- estimated seconds는 `samples * interval_ms / 1000`으로 계산한다.
+- Top N stack은 sample count 기준 내림차순으로 정렬한다.
+
+Collapsed stack은 공통 `FlameNode` tree contract로도 변환한다. 이를 통해 drill-down과 execution breakdown이 flat top-stack row가 아니라 동일한 tree model을 기준으로 동작한다.
+
+## Jennifer APM Flamegraph CSV Parser
+
+Jennifer APM flamegraph CSV import는 다음 canonical column을 기대한다.
+
+```text
+key,parent_key,method_name,ratio,sample_count,color_category
+```
+
+실무에서 자주 쓰는 `id`, `parent_id`, `method`, `name`, `samples`, `count`, `category` 같은 alias는 가능한 범위에서 허용한다. Parser는 `key`와 `parent_key`로 tree를 재구성하고 각 row를 공통 `FlameNode` model로 매핑한다.
+
+```text
+id
+parentId
+name
+samples
+ratio
+category
+color
+children
+path
+```
+
+CSV에 root가 여러 개 있으면 ArchScope는 virtual `All` root를 만든다. Malformed CSV row는 skip하고 `metadata.diagnostics`에 `INVALID_JENNIFER_ROW`로 보고한다.
+
+## JVM Parsers
+
+GC log, thread dump, exception stack trace parser는 access log 및 profiler input과 동일하게 parser/analyzer 책임 분리를 따른다.
+
+- GC parser는 HotSpot unified GC pause line을 지원하고 timestamp, GC type, cause, pause, heap before/after/committed 값을 추출한다.
+- Thread dump parser는 Java quoted thread block에서 `java.lang.Thread.State`, stack frame, thread id, 기본 lock evidence를 추출한다.
+- Exception parser는 optional ISO timestamp, nested `Caused by` root cause, stack frame, stable stack signature가 있는 Java exception stack block을 지원한다.
+
+Record-level malformed input은 skip하고 `metadata.diagnostics` 아래에 보고한다.
+
+## Multi-runtime Parsers
+
+첫 multi-runtime analyzer MVP도 동일한 tolerant parser contract를 따른다.
+
+- Node.js parser는 `Error`, `TypeError`, custom `*Error` block과 `at ...` stack frame을 지원한다.
+- Python parser는 표준 `Traceback (most recent call last):` block과 마지막 exception line을 지원한다.
+- Go parser는 `panic:` header와 `goroutine N [state]:` block 및 function frame을 지원한다.
+- .NET parser는 `*Exception` stack block과 `#Fields:` metadata가 있는 IIS W3C access line을 지원한다.
+
+이 parser들은 작은 diagnostic artifact와 demo scenario용 MVP다. Full structured log ingestion이나 OpenTelemetry correlation을 대체하지 않는다.
+
+## OpenTelemetry JSONL Parser
+
+OpenTelemetry MVP는 line-delimited JSON log record를 입력으로 받는다. `trace_id`/`traceId`, `span_id`/`spanId`, `parent_span_id`/`parentSpanId`, `severity_text`/`severityText`, `service_name`/`service.name`, `body` 같은 일반적인 field alias를 지원한다.
+
+Analyzer는 trace, service, severity 기준으로 record를 그룹화하고, 둘 이상의 service에 나타나는 trace를 lightweight correlation signal로 보고한다. Parent span ID가 있으면 span tree로 service path를 재구성하고, 없으면 timestamp 순서로 fallback한다. Failed trace는 첫 실패 service, 실패 이후 downstream service, failure propagation finding을 보고한다. Full OTel resource/logs envelope ingestion과 span timing correlation은 향후 작업이다.
+
+## Error Handling
+
+Parser error handling은 다음 원칙으로 확정한다.
+
+```text
+File-level 또는 configuration-level 실패는 fatal로 처리한다.
+Record-level malformed input은 기본적으로 non-fatal로 처리하고 diagnostics에 보고한다.
+```
+
+### 기본 Mode
+
+기본 parser mode는 tolerant로 둔다. 운영 로그에서는 일부 line이 깨졌다는 이유로 전체 대용량 파일 분석을 중단하면 실무 가치가 떨어지기 때문이다.
+
+- Blank line은 무시하며 diagnostics에 포함하지 않는다.
+- Malformed record는 skip한다.
+- Skipped record 수를 집계한다.
+- Skipped record sample은 제한된 개수만 `metadata.diagnostics`에 기록한다.
+- 0건 이상 파싱 가능한 경우 analyzer output은 유효한 결과로 반환한다.
+- Strict fail-fast behavior는 이후 명시적 option으로 추가할 수 있지만 Phase 1 기본값은 아니다.
+
+### Fatal Errors
+
+분석을 신뢰성 있게 진행할 수 없는 조건은 run 실패로 처리한다.
+
+| Condition | Policy | Example error code |
+|---|---|---|
+| Input file이 없거나 읽을 수 없음 | Fatal | `FILE_NOT_READABLE` |
+| 지원하지 않는 parser format | Fatal | `UNSUPPORTED_FORMAT` |
+| Encoding fallback chain으로 decode 불가 | Fatal | `ENCODING_ERROR` |
+| Required analyzer option이 잘못됨 | Fatal | `INVALID_OPTION` |
+| Output path에 쓸 수 없음 | Exporter/CLI layer에서 fatal | `OUTPUT_WRITE_ERROR` |
+| 예상하지 못한 internal exception | Fatal | `INTERNAL_ERROR` |
+
+### Non-Fatal Record Errors
+
+Record-level error는 skip하고 diagnostics에 보고한다.
+
+| Parser | Malformed condition | Policy | Reason code |
+|---|---|---|---|
+| Access Log | 선택한 log format과 line이 맞지 않음 | Skip | `NO_FORMAT_MATCH` |
+| Access Log | Timestamp parse 실패 | Skip | `INVALID_TIMESTAMP` |
+| Access Log | Numeric field 변환 실패 | Skip | `INVALID_NUMBER` |
+| Collapsed Profiler | Trailing sample count가 없음 | Skip | `MISSING_SAMPLE_COUNT` |
+| Collapsed Profiler | Sample count가 integer가 아님 | Skip | `INVALID_SAMPLE_COUNT` |
+| Collapsed Profiler | Sample count가 음수 | Skip | `NEGATIVE_SAMPLE_COUNT` |
+
+### Diagnostics Shape
+
+Parser diagnostics는 `AnalysisResult.metadata.diagnostics` 아래에 기록한다.
+
+초기 shape:
+
+```text
+metadata.diagnostics = {
+  total_lines: number,
+  parsed_records: number,
+  skipped_lines: number,
+  skipped_by_reason: Record<string, number>,
+  samples: [
+    {
+      line_number: number,
+      reason: string,
+      message: string,
+      raw_preview: string
+    }
+  ]
+}
+```
+
+규칙:
+
+- `samples`는 제한한다. 초기값은 20건이다.
+- `raw_preview`는 잘라서 기록한다. 초기값은 200자이다.
+- 짧은 preview로 충분한 경우 대용량 log record 전문을 diagnostics에 넣지 않는다.
+- Parser 내부에서는 더 풍부한 diagnostics를 보유할 수 있지만, 외부 contract는 `metadata.diagnostics`를 기준으로 한다.
+
+### Portable Parser Debug Logs
+
+Parser diagnostics는 `AnalysisResult` 안에 들어가므로 의도적으로 작게 유지한다. 현장에서 parser 수정을 위한 증거가 필요하면 engine은 ArchScope 실행 위치 하위 `archscope-debug/`에 별도 debug JSON 파일을 쓸 수 있다.
+
+규칙:
+
+- skipped record 또는 parser exception이 수집되면 debug log를 자동 생성하며, `--debug-log`로 강제 생성할 수 있다.
+- `--debug-log-dir`로 기본 portable 출력 위치를 바꿀 수 있다.
+- raw context는 기본 redaction을 적용한다. token, cookie, query value, email, 긴 식별자, IP/user/host 식별자, absolute path는 마스킹한다.
+- Redaction은 parser evidence를 보존해야 한다. delimiter, quote, bracket, timestamp shape, numeric shape, field count, failed pattern name, partial match data, `field_shapes`는 남긴다.
+- Debug log는 개발자용 artifact이며, UI/result의 안정 contract는 계속 `metadata.diagnostics`다.
+
+### Access Log Policy
+
+- Empty 또는 whitespace-only line은 무시한다.
+- 설정된 format과 맞지 않는 line은 `NO_FORMAT_MATCH`로 skip한다.
+- Timestamp, status, bytes, response-time 값이 잘못된 line은 구체적인 reason code로 skip한다.
+- `metadata.diagnostics.parsed_records`는 analyzer aggregation에 포함된 record 수와 같아야 한다.
+- `metadata.diagnostics.skipped_lines`에는 blank ignored line을 포함하지 않는다.
+
+### Collapsed Profiler Policy
+
+- Empty 또는 whitespace-only line은 무시한다.
+- Stack과 trailing integer sample count가 없는 line은 skip한다.
+- Negative sample count는 fatal이 아니라 skip으로 처리한다.
+- 유효한 duplicate stack은 기존처럼 sample count를 합산한다.
+- `metadata.diagnostics.parsed_records`는 stack merge 전 유효 collapsed line 수를 의미한다.
+
+### Encoding And Corrupt Input
+
+`iter_text_lines`는 `utf-8`, `utf-8-sig`, `cp949`, `latin-1` 순서의 fallback chain을 사용한다. `latin-1`은 모든 byte sequence를 decode할 수 있으므로, 일부 corrupt byte sequence는 decode failure가 아니라 malformed record로 parser layer에 도달할 수 있다. 정책은 다음과 같다.
+
+- 모든 configured encoding으로 decode에 실패하면 fatal이다.
+- Decode는 되었지만 의미적으로 잘못된 record는 non-fatal로 skip하고 diagnostics에 보고한다.
+- 향후 binary/corruption detector를 추가할 수 있지만, parser diagnostics를 대체하지 않는다.
+
+## 새 Parser 구현 가이드
+
+새 parser를 추가할 때는 다음 패턴을 따른다.
+
+### 기본 구조 (Python 예시)
+
+```python
+from typing import Generator, Tuple
+from archscope_engine.common.file_utils import iter_text_lines
+from archscope_engine.common.diagnostics import DiagnosticsCollector
+
+def iter_records(
+    file_path: str,
+    diagnostics: DiagnosticsCollector,
+) -> Generator[MyRecord, None, None]:
+    """Streaming parser: 한 번에 하나의 record를 yield한다."""
+    for line_number, line in iter_text_lines(file_path):
+        record = _try_parse_line(line)
+        if record is None:
+            diagnostics.skip(
+                line_number=line_number,
+                reason="NO_FORMAT_MATCH",
+                message="Line does not match expected format",
+                raw_preview=line[:200],
+            )
+            continue
+        yield record
+```
+
+### 핵심 원칙
+
+1. **Generator 패턴 사용**: `list`로 전체를 모으지 않고 `yield`로 한 건씩 반환
+2. **DiagnosticsCollector 사용**: skip된 레코드는 반드시 reason code와 함께 기록
+3. **encoding fallback 위임**: `iter_text_lines`가 처리하므로 parser에서 직접 인코딩을 관리하지 않음
+4. **raw_preview 보존**: 최대 200자까지의 원본 텍스트를 진단용으로 보존
+
+### Sampling 알고리즘 (Reservoir Sampling)
+
+대용량 파일에서 percentile 계산용 샘플을 bounded 크기로 유지하는 방식:
+
+```python
+import random
+
+class BoundedReservoir:
+    """Deterministic reservoir sampler for bounded percentile estimation."""
+
+    def __init__(self, capacity: int, seed: int = 42):
+        assert seed > 0, "seed=0 causes degenerate replacement stream"
+        self._capacity = capacity
+        self._rng = random.Random(seed)
+        self._items: list[float] = []
+        self._count = 0
+
+    def add(self, value: float) -> None:
+        self._count += 1
+        if len(self._items) < self._capacity:
+            self._items.append(value)
+        else:
+            # Vitter's Algorithm R
+            j = self._rng.randint(0, self._count - 1)
+            if j < self._capacity:
+                self._items[j] = value
+
+    def sorted_samples(self) -> list[float]:
+        return sorted(self._items)
+```
+
+이 sampler는 `max_lines` 제한 없이도 메모리 사용량을 `capacity` 크기로 고정한다.
+
+## Large File Baseline
+
+Phase 1B baseline은 parser와 analyzer 책임을 분리하면서 access-log 분석에서 전체 record materialization을 피한다.
+
+### Sampling Options
+
+Access-log analysis는 다음 optional control을 받는다.
+
+| Option | Policy |
+|---|---|
+| `max_lines` | 이 수만큼 physical source line을 읽은 뒤 중단한다. positive integer여야 한다. |
+| `start_time` | parsed record timestamp가 이 ISO 8601 datetime 이상인 record만 포함한다. |
+| `end_time` | parsed record timestamp가 이 ISO 8601 datetime 이하인 record만 포함한다. |
+
+Rules:
+
+- `max_lines`는 configured limit을 넘는 line을 parse하기 전에 적용한다.
+- Time filter는 malformed line에 trustworthy timestamp가 없으므로 line parse 성공 후 적용한다.
+- `metadata.diagnostics.total_lines`는 읽은 physical line 수를 나타내며, `max_lines`가 있으면 그 값으로 bounded된다.
+- `metadata.diagnostics.parsed_records`는 time filtering 이후 analyzer aggregation에 포함된 valid record 수를 나타낸다.
+- 적용된 option은 `metadata.analysis_options` 아래에 echo해야 한다.
+
+### Streaming Aggregation
+
+Access-log analyzer는 parser record iterator를 소비하며 aggregation state를 incremental하게 update해야 한다.
+
+- total request count
+- error count
+- summary percentile 계산용 response-time sample
+- per-minute request counter와 response-time sample
+- status-family counter
+- URL request counter
+- average latency ranking용 URL response-time total 및 count
+- table output용 bounded sample records
+
+Analyzer의 main analysis path는 전체 `list[AccessLogRecord]`를 만들지 않아야 한다. Phase 1B에서는 exact percentile 계산을 위해 response-time sample array를 유지할 수 있으며, 이를 approximate sketch로 대체하는 일은 이후 large-file optimization으로 둔다.
+
+### Percentile Sampling
+
+Access-log summary와 per-minute percentile 값은 unbounded response-time array가 아니라 bounded deterministic sample을 사용한다. 이 방식은 대용량 파일에서도 percentile 계산용 메모리를 고정된 크기로 유지하고, 같은 입력에 대해 재현 가능한 결과를 만든다. 다만 sampler는 근사 방식이며 입력 순서의 영향을 받을 수 있으므로, 매우 정렬된 입력이나 의도적으로 편향된 입력에서는 percentile 값을 exact statistic이 아니라 운영 판단용 estimate로 해석해야 한다.
+
+Sampler seed는 positive integer여야 한다. `seed=0`은 deterministic replacement stream이 퇴화하여 같은 reservoir slot을 반복적으로 선택할 수 있으므로 거부한다.
+
+### Access Log Findings
+
+Access-log finding은 `metadata.findings` 아래의 bounded structured observation이다. 초기 rule은 다음과 같다.
+
+- error rate가 10% 이상이면 `HIGH_ERROR_RATE`.
+- error rate가 5% 이상이면 `ELEVATED_ERROR_RATE`.
+- 하나 이상의 `5xx` response가 있으면 `SERVER_ERRORS_PRESENT`.
+- 가장 느린 URL 평균 응답 시간이 1000 ms 이상이면 `SLOW_URL_AVERAGE`.
+
+Finding은 stable `code`, `severity`, 짧은 `message`, 작은 structured `evidence`를 포함해야 한다.

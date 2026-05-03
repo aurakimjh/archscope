@@ -1,0 +1,44 @@
+{
+  "type": "dashboard_sample",
+  "source_files": [
+    "examples/access-logs/sample-nginx-access.log",
+    "examples/profiler/sample-wall.collapsed"
+  ],
+  "created_at": "2026-04-27T10:10:00+09:00",
+  "summary": {
+    "total_requests": 6,
+    "avg_response_ms": 648.67,
+    "p95_response_ms": 2300.0,
+    "error_rate": 33.33,
+    "total_wall_samples": 32629
+  },
+  "series": {
+    "requests_per_minute": [
+      { "time": "10:00", "value": 3 },
+      { "time": "10:01", "value": 2 },
+      { "time": "10:02", "value": 1 }
+    ],
+    "p95_response_time_per_minute": [
+      { "time": "10:00", "value": 2300 },
+      { "time": "10:01", "value": 340 },
+      { "time": "10:02", "value": 830 }
+    ],
+    "status_code_distribution": [
+      { "status": "2xx", "count": 4 },
+      { "status": "4xx", "count": 1 },
+      { "status": "5xx", "count": 1 }
+    ],
+    "profiler_component_breakdown": [
+      { "component": "HTTP Client", "samples": 13522 },
+      { "component": "Oracle JDBC", "samples": 12478 },
+      { "component": "Spring Batch", "samples": 5971 },
+      { "component": "Spring Context", "samples": 658 }
+    ]
+  },
+  "tables": {},
+  "charts": {},
+  "metadata": {
+    "schema_version": "0.1.0",
+    "note": "Static sample data for the desktop dashboard skeleton."
+  }
+}

@@ -1,0 +1,10 @@
+"http-nio-8080-exec-1" #31 prio=5 os_prio=31 tid=0x0000000123 nid=0x6103 waiting for monitor entry
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at com.example.orders.OrderService.find(OrderService.java:42)
+        - waiting to lock <0x000000076b4c8e10>
+        at com.example.orders.OrderController.get(OrderController.java:18)
+
+"HikariPool-1 housekeeper" #32 prio=5 os_prio=31 tid=0x0000000456 nid=0x6203 waiting on condition
+   java.lang.Thread.State: TIMED_WAITING (parking)
+        at jdk.internal.misc.Unsafe.park(Native Method)
+        at java.util.concurrent.locks.LockSupport.parkNanos(LockSupport.java:252)

@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+test-results/
+
+# Build output
+dist/
+dist-electron/
+build/
+release/
+out/
+demo-site-report-bundles/
+
+# Local environment
+.env
+.env.local
+.DS_Store
+
+# Local AI agent instructions
+CLAUDE.MD
+CLAUDE.md
+GEMINI.MD
+GEMINI.md
+AGENTS.MD
+AGENTS.md
+CODEX.MD
+CODEX.md
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Generated sample outputs are useful during development, but keep placeholders.
+examples/outputs/*.tmp.json

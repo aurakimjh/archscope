@@ -1,0 +1,5 @@
+org.springframework.boot.SpringApplication.run;org.springframework.boot.SpringApplication.callRunners;org.springframework.batch.core.Job.execute 5971
+org.springframework.boot.SpringApplication.run;org.springframework.boot.SpringApplication.refreshContext;org.springframework.context.support.AbstractApplicationContext.refresh 658
+org.apache.http.impl.client.InternalHttpClient.doExecute;java.net.SocketInputStream.socketRead 13282
+oracle.jdbc.driver.T4CPreparedStatement.executeForRows;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1 12478
+org.apache.http.impl.client.InternalHttpClient.doExecute;java.net.SocketInputStream.socketRead 240

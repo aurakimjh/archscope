@@ -1,0 +1,49 @@
+[
+  {
+    "label": "Oracle JDBC",
+    "contains": ["oracle.jdbc"]
+  },
+  {
+    "label": "Spring Batch",
+    "contains": ["springframework.batch"]
+  },
+  {
+    "label": "Spring Framework",
+    "contains": ["springframework"]
+  },
+  {
+    "label": "Node.js",
+    "contains": ["node:", "node_modules", "v8::", "uv_"]
+  },
+  {
+    "label": "Python",
+    "contains": ["python", "site-packages", ".py:"]
+  },
+  {
+    "label": "Go",
+    "contains": ["runtime.", "goroutine", ".go:"]
+  },
+  {
+    "label": "ASP.NET / .NET",
+    "contains": ["system.web", "system.net", "microsoft.", ".dll"]
+  },
+  {
+    "label": "HTTP / Network",
+    "contains": [
+      "java.net.socket",
+      "java.net.http",
+      "sun.nio.ch.socketchannel",
+      "okhttp3.",
+      "org.apache.http.",
+      "http.client",
+      "urllib3.",
+      "requests.sessions",
+      "net/http",
+      "system.net.http"
+    ]
+  },
+  {
+    "label": "JVM",
+    "contains": ["java.", "javax.", "jdk.", "sun."]
+  }
+]

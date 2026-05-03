@@ -1,0 +1,13 @@
+panic: runtime error: invalid memory address or nil pointer dereference
+
+goroutine 42 [running]:
+main.(*OrderService).Load(0x0, 0xc00018c000)
+	/app/orders/service.go:42 +0x45
+main.handleOrder(0xc00018c000)
+	/app/orders/handler.go:21 +0x84
+net/http.HandlerFunc.ServeHTTP(0x104ea50, 0x1072cc0, 0xc00018c000)
+	/usr/local/go/src/net/http/server.go:2136 +0x2f
+
+goroutine 18 [IO wait]:
+internal/poll.runtime_pollWait(0x102a8, 0x72)
+	/usr/local/go/src/runtime/netpoll.go:343 +0x85

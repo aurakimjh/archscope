@@ -1,0 +1,8 @@
+key,parent_key,method_name,ratio,sample_count,color_category
+root,,com.example.checkout.CheckoutController.checkout,100,100,application
+svc,root,com.example.checkout.CheckoutService.placeOrder,80,80,application
+sql,svc,oracle.jdbc.driver.OraclePreparedStatement.executeQuery,45,45,sql
+http,svc,org.springframework.web.client.RestTemplate.exchange,25,25,http
+socket,http,java.net.SocketInputStream.socketRead,20,20,network
+pool,svc,com.zaxxer.hikari.pool.HikariPool.getConnection,10,10,pool
+background,,java.lang.Thread.sleep,15,15,idle

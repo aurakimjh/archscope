@@ -1,0 +1,9 @@
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at DemoSite.OrderController.Get(String id) in C:\demo-site\Controllers\OrderController.cs:line 37
+   at DemoSite.Middleware.CorrelationMiddleware.Invoke(HttpContext context)
+
+#Software: Microsoft Internet Information Services 10.0
+#Fields: date time cs-method cs-uri-stem sc-status time-taken
+2026-04-27 10:00:01 GET /api/orders/1001 200 123
+2026-04-27 10:00:03 POST /api/payment 500 2300
+2026-04-27 10:01:12 GET /api/orders/1003 404 340
