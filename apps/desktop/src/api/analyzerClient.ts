@@ -93,7 +93,13 @@ export {
   isInterpretationResult,
 } from "./analyzerContract";
 
-export type DashboardSampleResult = typeof sampleAnalysisResult;
+export type DashboardSampleResult = {
+  type: string;
+  summary: Record<string, number>;
+  series: Record<string, readonly unknown[]>;
+  tables?: Record<string, unknown[]>;
+  metadata?: Record<string, unknown>;
+};
 export type SampleAnalysisResult = DashboardSampleResult;
 
 export type AnalyzerClient = {

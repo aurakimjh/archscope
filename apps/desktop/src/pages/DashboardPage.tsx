@@ -1,25 +1,32 @@
 import { useEffect, useMemo, useState } from "react";
 
-import { loadSampleAnalysisResult, type DashboardSampleResult } from "../api/analyzerClient";
+import type { DashboardSampleResult } from "../api/analyzerClient";
 import { createChartOption } from "../charts/chartFactory";
 import { dashboardChartTemplateIds, getChartTemplate } from "../charts/chartTemplates";
 import { ChartPanel } from "../components/ChartPanel";
-import { SkeletonCard, SkeletonChart } from "../components/LoadingStates";
+import { EmptyState } from "../components/LoadingStates";
 import { MetricCard } from "../components/MetricCard";
 import { useI18n } from "../i18n/I18nProvider";
+
+const DASHBOARD_STORAGE_KEY = "archscope.dashboard.lastResult";
 
 export function DashboardPage(): JSX.Element {
   const [data, setData] = useState<DashboardSampleResult | null>(null);
   const { t } = useI18n();
 
   useEffect(() => {
-    void loadSampleAnalysisResult().then(setData);
+    const saved = window.localStorage.getItem(DASHBOARD_STORAGE_KEY);
+    if (saved) {
+      try {
+        setData(JSON.parse(saved) as DashboardSampleResult);
+      } catch {
+        // ignore
+      }
+    }
   }, []);
 
   const chartOptions = useMemo(() => {
-    if (!data) {
-      return null;
-    }
+    if (!data) return null;
     const labels = {
       requestsAxis: t("requestsAxis"),
       millisecondsAxis: t("millisecondsAxis"),
@@ -40,18 +47,10 @@ export function DashboardPage(): JSX.Element {
   if (!data || !chartOptions) {
     return (
       <div className="page">
-        <section className="summary-grid">
-          <SkeletonCard />
-          <SkeletonCard />
-          <SkeletonCard />
-          <SkeletonCard />
-        </section>
-        <section className="chart-grid">
-          <SkeletonChart />
-          <SkeletonChart />
-          <SkeletonChart />
-          <SkeletonChart />
-        </section>
+        <EmptyState
+          icon="chart"
+          message={t("dashboardEmpty")}
+        />
       </div>
     );
   }
@@ -77,4 +76,12 @@ export function DashboardPage(): JSX.Element {
       </section>
     </div>
   );
+}
+
+export function saveDashboardResult(result: DashboardSampleResult): void {
+  try {
+    window.localStorage.setItem(DASHBOARD_STORAGE_KEY, JSON.stringify(result));
+  } catch {
+    // storage full, ignore
+  }
 }

@@ -8,6 +8,7 @@ import {
   type BridgeError,
   type TopUrlAvgResponseRow,
 } from "../api/analyzerClient";
+import { saveDashboardResult } from "./DashboardPage";
 import { createChartOption } from "../charts/chartFactory";
 import type { ChartLabels } from "../charts/chartOptions";
 import { getChartTemplate } from "../charts/chartTemplates";
@@ -132,6 +133,7 @@ export function AccessLogAnalyzerPage(): JSX.Element {
         setResult(response.result);
         setEngineMessages(response.engine_messages ?? []);
         setState("success");
+        saveDashboardResult(response.result);
         return;
       }
 
