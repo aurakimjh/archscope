@@ -448,6 +448,10 @@ async function analyzeCollapsedProfile(
     args.push("--top-n", String(request.topN));
   }
 
+  if (typeof request.profileKind === "string" && request.profileKind) {
+    args.push("--profile-kind", request.profileKind);
+  }
+
   return runAnalyzer<ProfilerCollapsedAnalysisResult>(
     args,
     isProfilerCollapsedAnalysisResult,

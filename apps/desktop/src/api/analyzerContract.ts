@@ -332,12 +332,15 @@ export type AnalyzeAccessLogRequest = {
   endTime?: string;
 };
 
+export type ProfileKind = "wall" | "cpu" | "lock";
+
 export type AnalyzeCollapsedProfileRequest = {
   requestId?: string;
   wallPath: string;
   wallIntervalMs: number;
   elapsedSec?: number;
   topN?: number;
+  profileKind?: ProfileKind;
 };
 
 export type AnalyzeFileRequest = {

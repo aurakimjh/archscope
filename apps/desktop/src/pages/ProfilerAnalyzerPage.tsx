@@ -30,6 +30,7 @@ type AnalyzerState = "idle" | "ready" | "running" | "success" | "error";
 type FilterType = "include_text" | "exclude_text" | "regex_include" | "regex_exclude";
 type MatchMode = "anywhere" | "ordered" | "subtree";
 type ViewMode = "preserve_full_path" | "reroot_at_match";
+type ProfileKind = "wall" | "cpu" | "lock";
 
 type TopStackRow = {
   stack: string;
@@ -58,6 +59,7 @@ export function ProfilerAnalyzerPage(): JSX.Element {
   const [wallIntervalMs, setWallIntervalMs] = useState(100);
   const [elapsedSec, setElapsedSec] = useState("");
   const [topN, setTopN] = useState(20);
+  const [profileKind, setProfileKind] = useState<ProfileKind>("wall");
   const [state, setState] = useState<AnalyzerState>("idle");
   const [result, setResult] = useState<ProfilerCollapsedAnalysisResult | null>(null);
   const [stages, setStages] = useState<DrilldownStageView[]>([]);
@@ -140,6 +142,7 @@ export function ProfilerAnalyzerPage(): JSX.Element {
         wallIntervalMs,
         elapsedSec: parsedElapsedSec,
         topN,
+        profileKind,
       });
 
       if (currentRequestIdRef.current !== requestId) {
@@ -217,7 +220,7 @@ export function ProfilerAnalyzerPage(): JSX.Element {
         <div className="tool-panel">
           <h2>{t("profilerAnalyzer")}</h2>
           <FileDropZone
-            label={t("selectWallCollapsedFile")}
+            label={profileKind === "cpu" ? t("selectCpuCollapsedFile") : profileKind === "lock" ? t("selectLockCollapsedFile") : t("selectWallCollapsedFile")}
             selectedPath={wallPath}
             browseLabel={t("browseFile")}
             onBrowse={browseWallFile}
@@ -225,7 +228,18 @@ export function ProfilerAnalyzerPage(): JSX.Element {
           />
           <div className="input-grid">
             <label className="field">
-              <span>{t("wallIntervalMs")}</span>
+              <span>{t("profileKind")}</span>
+              <select
+                value={profileKind}
+                onChange={(event) => setProfileKind(event.target.value as ProfileKind)}
+              >
+                <option value="wall">{t("profileKindWall")}</option>
+                <option value="cpu">{t("profileKindCpu")}</option>
+                <option value="lock">{t("profileKindLock")}</option>
+              </select>
+            </label>
+            <label className="field">
+              <span>{profileKind === "cpu" ? t("cpuIntervalMs") : profileKind === "lock" ? t("lockIntervalMs") : t("wallIntervalMs")}</span>
               <input
                 type="number"
                 value={wallIntervalMs}
@@ -347,15 +361,15 @@ export function ProfilerAnalyzerPage(): JSX.Element {
         <div>
           <section className="summary-grid compact">
             <MetricCard
-              label={t("totalWallSamples")}
+              label={profileKind === "cpu" ? t("totalCpuSamples") : profileKind === "lock" ? t("totalLockSamples") : t("totalWallSamples")}
               value={formatNumber(summary?.total_samples)}
             />
             <MetricCard
-              label={t("wallIntervalMs")}
+              label={profileKind === "cpu" ? t("cpuIntervalMs") : profileKind === "lock" ? t("lockIntervalMs") : t("wallIntervalMs")}
               value={formatMilliseconds(summary?.interval_ms)}
             />
             <MetricCard
-              label={t("estimatedWallTime")}
+              label={profileKind === "cpu" ? t("estimatedCpuTime") : profileKind === "lock" ? t("estimatedLockTime") : t("estimatedWallTime")}
               value={formatSeconds(summary?.estimated_seconds)}
             />
             <MetricCard

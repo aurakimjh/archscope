@@ -110,10 +110,17 @@ def profiler_analyze_collapsed(
     elapsed_sec: Optional[float] = typer.Option(None, "--elapsed-sec"),
     out: Path = typer.Option(..., "--out"),
     top_n: int = typer.Option(20, "--top-n"),
+    profile_kind: str = typer.Option(
+        "wall",
+        "--profile-kind",
+        help="Profile capture mode: wall, cpu, or lock.",
+    ),
     debug_log: bool = typer.Option(False, "--debug-log"),
     debug_log_dir: Optional[Path] = typer.Option(None, "--debug-log-dir"),
 ) -> None:
-    """Analyze an async-profiler wall-clock collapsed file."""
+    """Analyze an async-profiler collapsed stack file (wall/cpu/lock)."""
+    if profile_kind not in {"wall", "cpu", "lock"}:
+        raise typer.BadParameter("--profile-kind must be one of: wall, cpu, lock.")
     collector = _debug_collector(
         analyzer_type="profiler_collapsed",
         source_file=wall,
@@ -122,6 +129,7 @@ def profiler_analyze_collapsed(
             "wall_interval_ms": wall_interval_ms,
             "elapsed_sec": elapsed_sec,
             "top_n": top_n,
+            "profile_kind": profile_kind,
         },
         debug_log=debug_log,
         debug_log_dir=debug_log_dir,
@@ -134,7 +142,7 @@ def profiler_analyze_collapsed(
             interval_ms=wall_interval_ms,
             elapsed_sec=elapsed_sec,
             top_n=top_n,
-            profile_kind="wall",
+            profile_kind=profile_kind,
             debug_log=collector,
         ),
         "profiler",
