@@ -747,7 +747,7 @@ def _safe_load_json(path: Path) -> dict[str, Any]:
 
 
 def create_app(static_dir: Optional[Path] = None, *, dev_cors: bool = True) -> FastAPI:
-    app = FastAPI(title="ArchScope", version="0.2.0-alpha")
+    app = FastAPI(title="ArchScope", version="0.2.0-beta")
 
     if dev_cors:
         app.add_middleware(
@@ -762,7 +762,7 @@ def create_app(static_dir: Optional[Path] = None, *, dev_cors: bool = True) -> F
 
     @app.get("/api/health")
     def health() -> dict[str, Any]:
-        return {"ok": True, "service": "archscope", "version": "0.2.0-alpha"}
+        return {"ok": True, "service": "archscope", "version": "0.2.0-beta"}
 
     @app.get("/api/settings")
     def settings_get() -> dict[str, Any]:
@@ -836,7 +836,7 @@ def create_app(static_dir: Optional[Path] = None, *, dev_cors: bool = True) -> F
 
     @app.get("/api/version")
     def version() -> dict[str, Any]:
-        return {"name": "archscope-engine", "version": "0.2.0-alpha"}
+        return {"name": "archscope-engine", "version": "0.2.0-beta"}
 
     resolved_static = _resolve_static_dir(static_dir)
     if resolved_static is not None:

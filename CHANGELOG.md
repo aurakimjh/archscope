@@ -4,6 +4,13 @@ All notable changes to ArchScope are tracked here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0-beta] — 2026-05-04
+
+Promotion of the 0.2.0-alpha line to beta. Same feature surface — no
+behavior changes, no API changes. Version label propagated through the
+Python engine, FastAPI server, React UI, and Electron desktop bundle so
+shipped binaries advertise the new tag.
+
 ## [0.2.0-alpha] — 2026-05-04
 
 The 0.2.0-alpha release retires the Electron desktop shell, introduces a
@@ -196,4 +203,5 @@ Initial closed-development tag covering the original Electron + React
 desktop application with the Phase 1–3 backlog (T-001…T-179).
 Superseded by 0.2.0-alpha; no longer publicly distributed.
 
+[0.2.0-beta]: https://github.com/aurakimjh/archscope/releases/tag/v0.2.0-beta
 [0.2.0-alpha]: https://github.com/aurakimjh/archscope/releases/tag/v0.2.0-alpha
