@@ -1,4 +1,5 @@
-import { useRef, useState } from "react";
+import { Camera, Loader2, Play, Square } from "lucide-react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import type { EChartsOption } from "echarts";
 
 import {
@@ -9,22 +10,31 @@ import {
   type FlameNode,
   type ProfilerCollapsedAnalysisResult,
   type ProfilerTopStackTableRow,
-} from "../api/analyzerClient";
-import { ChartPanel } from "../components/ChartPanel";
+} from "@/api/analyzerClient";
 import {
   DiagnosticsPanel,
   EngineMessagesPanel,
   ErrorPanel,
-} from "../components/AnalyzerFeedback";
-import { FileDropZone } from "../components/FileDropZone";
-import { MetricCard } from "../components/MetricCard";
-import { useI18n } from "../i18n/I18nProvider";
+} from "@/components/AnalyzerFeedback";
+import { ChartPanel } from "@/components/ChartPanel";
+import { FileDock, type FileDockSelection } from "@/components/FileDock";
+import { MetricCard } from "@/components/MetricCard";
+import {
+  D3FlameGraph,
+  type FlameGraphNode,
+} from "@/components/charts/D3FlameGraph";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useI18n } from "@/i18n/I18nProvider";
+import { exportChartsInContainer } from "@/lib/batchExport";
 import {
   formatMilliseconds,
   formatNumber,
   formatPercent,
   formatSeconds,
-} from "../utils/formatters";
+} from "@/utils/formatters";
 
 type AnalyzerState = "idle" | "ready" | "running" | "success" | "error";
 type FilterType = "include_text" | "exclude_text" | "regex_include" | "regex_exclude";
@@ -32,13 +42,6 @@ type MatchMode = "anywhere" | "ordered" | "subtree";
 type ViewMode = "preserve_full_path" | "reroot_at_match";
 type ProfileKind = "wall" | "cpu" | "lock";
 type ProfileFormat = "collapsed" | "jennifer_csv";
-
-type TopStackRow = {
-  stack: string;
-  samples: number;
-  estimated_seconds: number;
-  sample_ratio: number;
-};
 
 type DrilldownStageView = {
   label: string;
@@ -56,7 +59,7 @@ type DrilldownStageView = {
 
 export function ProfilerAnalyzerPage(): JSX.Element {
   const { t } = useI18n();
-  const [wallPath, setWallPath] = useState("");
+  const [selectedFile, setSelectedFile] = useState<FileDockSelection | null>(null);
   const [wallIntervalMs, setWallIntervalMs] = useState(100);
   const [elapsedSec, setElapsedSec] = useState("");
   const [topN, setTopN] = useState(20);
@@ -71,61 +74,46 @@ export function ProfilerAnalyzerPage(): JSX.Element {
   const [viewMode, setViewMode] = useState<ViewMode>("preserve_full_path");
   const [error, setError] = useState<BridgeError | null>(null);
   const [engineMessages, setEngineMessages] = useState<string[]>([]);
+  const [savingAll, setSavingAll] = useState(false);
   const currentRequestIdRef = useRef<string | null>(null);
+  const chartsContainerRef = useRef<HTMLDivElement | null>(null);
 
+  const wallPath = selectedFile?.filePath ?? "";
   const canAnalyze = Boolean(wallPath) && wallIntervalMs > 0 && state !== "running";
   const summary = result?.summary;
-  const topStacks = getTopStackRows(result?.tables.top_stacks);
+  const topStacks = result?.tables.top_stacks ?? [];
   const currentStage = stages[stages.length - 1];
   const breakdownRows = currentStage?.breakdown ?? result?.series.execution_breakdown ?? [];
+  const flameRoot = useMemo(
+    () => (currentStage ? toFlameGraphNode(currentStage.flamegraph) : null),
+    [currentStage],
+  );
 
-  async function browseWallFile(): Promise<void> {
-    const isJenniferCsv = profileFormat === "jennifer_csv";
-    const response = await window.archscope?.selectFile?.({
-      title: isJenniferCsv ? t("selectJenniferCsvFile") : t("selectWallCollapsedFile"),
-      filters: isJenniferCsv
-        ? [
-            { name: t("csvFilesFilter"), extensions: ["csv"] },
-            { name: t("allFilesFilter"), extensions: ["*"] },
-          ]
-        : [
-            { name: t("collapsedStackFilesFilter"), extensions: ["collapsed", "txt"] },
-            { name: t("allFilesFilter"), extensions: ["*"] },
-          ],
-    });
+  const fileLabel = useMemo(() => {
+    if (profileFormat === "jennifer_csv") return t("selectJenniferCsvFile");
+    if (profileKind === "cpu") return t("selectCpuCollapsedFile");
+    if (profileKind === "lock") return t("selectLockCollapsedFile");
+    return t("selectWallCollapsedFile");
+  }, [profileFormat, profileKind, t]);
 
-    if (response?.filePath) {
-      setWallPath(response.filePath);
-      setResult(null);
-      setStages([]);
-      setState("ready");
-      setError(null);
-      setEngineMessages([]);
-    }
-  }
-
-  function handleWallFileInput(nextPath: string | undefined): void {
-    if (!nextPath) {
-      setError({
-        code: "FILE_PATH_UNAVAILABLE",
-        message: t("filePathUnavailable"),
-      });
-      setState("error");
-      return;
-    }
-
-    setWallPath(nextPath);
+  const handleFileSelected = useCallback((file: FileDockSelection) => {
+    setSelectedFile(file);
     setResult(null);
     setStages([]);
     setState("ready");
     setError(null);
     setEngineMessages([]);
-  }
+  }, []);
+
+  const handleClearFile = useCallback(() => {
+    setSelectedFile(null);
+    setResult(null);
+    setStages([]);
+    if (state !== "running") setState("idle");
+  }, [state]);
 
   async function analyze(): Promise<void> {
-    if (!canAnalyze) {
-      return;
-    }
+    if (!canAnalyze) return;
 
     setState("running");
     setError(null);
@@ -154,9 +142,7 @@ export function ProfilerAnalyzerPage(): JSX.Element {
         profileFormat,
       });
 
-      if (currentRequestIdRef.current !== requestId) {
-        return;
-      }
+      if (currentRequestIdRef.current !== requestId) return;
       currentRequestIdRef.current = null;
 
       if (response.ok) {
@@ -190,9 +176,7 @@ export function ProfilerAnalyzerPage(): JSX.Element {
 
   async function cancelAnalysis(): Promise<void> {
     const requestId = currentRequestIdRef.current;
-    if (!requestId) {
-      return;
-    }
+    if (!requestId) return;
     const response = await getAnalyzerClient().cancel(requestId);
     if (!response.ok) {
       setError(response.error);
@@ -202,9 +186,7 @@ export function ProfilerAnalyzerPage(): JSX.Element {
 
   function applyFilter(): void {
     const pattern = filterPattern.trim();
-    if (!pattern || !currentStage) {
-      return;
-    }
+    if (!pattern || !currentStage) return;
     const next = applyStageFilter(currentStage, {
       pattern,
       filterType,
@@ -218,187 +200,209 @@ export function ProfilerAnalyzerPage(): JSX.Element {
   }
 
   function resetDrilldown(): void {
-    if (result) {
-      setStages(createInitialStages(result));
+    if (result) setStages(createInitialStages(result));
+  }
+
+  async function handleSaveAllCharts(): Promise<void> {
+    const container = chartsContainerRef.current;
+    if (!container || savingAll) return;
+    setSavingAll(true);
+    try {
+      await exportChartsInContainer(container, {
+        format: "png",
+        multiplier: 2,
+        prefix: "profiler",
+      });
+    } catch (caught) {
+      setError({
+        code: "EXPORT_FAILED",
+        message: caught instanceof Error ? caught.message : String(caught),
+      });
+    } finally {
+      setSavingAll(false);
     }
   }
 
   return (
-    <div className="page">
-      <section className="workspace-grid">
-        <div className="tool-panel">
-          <h2>{t("profilerAnalyzer")}</h2>
-          <FileDropZone
-            label={
-              profileFormat === "jennifer_csv"
-                ? t("selectJenniferCsvFile")
-                : profileKind === "cpu"
-                ? t("selectCpuCollapsedFile")
-                : profileKind === "lock"
-                ? t("selectLockCollapsedFile")
-                : t("selectWallCollapsedFile")
-            }
-            selectedPath={wallPath}
-            browseLabel={t("browseFile")}
-            onBrowse={browseWallFile}
-            onFileSelected={handleWallFileInput}
-          />
-          <div className="input-grid">
-            <label className="field">
-              <span>{t("profileFormat")}</span>
-              <select
-                value={profileFormat}
-                onChange={(event) => setProfileFormat(event.target.value as ProfileFormat)}
-              >
-                <option value="collapsed">{t("profileFormatCollapsed")}</option>
-                <option value="jennifer_csv">{t("profileFormatJenniferCsv")}</option>
-              </select>
-            </label>
-            {profileFormat === "collapsed" && (
-              <label className="field">
-                <span>{t("profileKind")}</span>
-                <select
-                  value={profileKind}
-                  onChange={(event) => setProfileKind(event.target.value as ProfileKind)}
-                >
-                  <option value="wall">{t("profileKindWall")}</option>
-                  <option value="cpu">{t("profileKindCpu")}</option>
-                  <option value="lock">{t("profileKindLock")}</option>
-                </select>
-              </label>
-            )}
-            <label className="field">
-              <span>{profileKind === "cpu" ? t("cpuIntervalMs") : profileKind === "lock" ? t("lockIntervalMs") : t("wallIntervalMs")}</span>
-              <input
-                type="number"
-                value={wallIntervalMs}
-                min={1}
-                onChange={(event) => setWallIntervalMs(Number(event.target.value))}
-              />
-            </label>
-            <label className="field">
-              <span>{t("elapsedSeconds")}</span>
-              <input
-                type="number"
-                value={elapsedSec}
-                placeholder="1336.559"
-                min={0}
-                step="0.001"
-                onChange={(event) => setElapsedSec(event.target.value)}
-              />
-            </label>
-            <label className="field">
-              <span>{t("topN")}</span>
-              <input
-                type="number"
-                value={topN}
-                min={1}
-                onChange={(event) => setTopN(Number(event.target.value))}
-              />
-            </label>
-          </div>
-          <div className="button-row">
-            <button
-              className="primary-button"
+    <div className="flex flex-col gap-5">
+      <FileDock
+        label={fileLabel}
+        description={t("dropOrBrowseProfiler")}
+        accept={profileFormat === "jennifer_csv" ? ".csv" : ".collapsed,.txt"}
+        selected={selectedFile}
+        onSelect={handleFileSelected}
+        onClear={handleClearFile}
+        browseLabel={t("browseFile")}
+        rightSlot={
+          <div className="flex items-center gap-2">
+            <Button
               type="button"
+              size="sm"
               disabled={!canAnalyze}
               onClick={() => void analyze()}
             >
-              {state === "running" ? t("analyzing") : t("analyze")}
-            </button>
-            <button
-              className="secondary-button"
-              type="button"
-              disabled={state !== "running"}
-              onClick={() => void cancelAnalysis()}
-            >
-              {t("cancelAnalysis")}
-            </button>
+              {state === "running" ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  {t("analyzing")}
+                </>
+              ) : (
+                <>
+                  <Play className="h-3.5 w-3.5" />
+                  {t("analyze")}
+                </>
+              )}
+            </Button>
+            {state === "running" && (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => void cancelAnalysis()}
+              >
+                <Square className="h-3.5 w-3.5" />
+                {t("cancelAnalysis")}
+              </Button>
+            )}
           </div>
-          <ErrorPanel
-            error={error}
-            labels={{ title: t("analysisError"), code: t("errorCode") }}
-          />
-          <EngineMessagesPanel
-            messages={engineMessages}
-            title={t("engineMessages")}
-          />
-          <section className="drilldown-controls">
-            <h2>{t("flamegraphDrilldown")}</h2>
-            <label className="field">
-              <span>{t("drilldownFilter")}</span>
-              <input
-                type="text"
-                value={filterPattern}
-                placeholder="oracle.jdbc"
-                onChange={(event) => setFilterPattern(event.target.value)}
-              />
-            </label>
-            <label className="field">
-              <span>{t("filterType")}</span>
+        }
+      />
+
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm">{t("analyzerOptions")}</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 gap-3 md:grid-cols-3 xl:grid-cols-5">
+          <label className="flex flex-col gap-1.5 text-xs">
+            <span className="font-medium text-foreground/80">{t("profileFormat")}</span>
+            <select
+              className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
+              value={profileFormat}
+              onChange={(event) => setProfileFormat(event.target.value as ProfileFormat)}
+            >
+              <option value="collapsed">{t("profileFormatCollapsed")}</option>
+              <option value="jennifer_csv">{t("profileFormatJenniferCsv")}</option>
+            </select>
+          </label>
+          {profileFormat === "collapsed" && (
+            <label className="flex flex-col gap-1.5 text-xs">
+              <span className="font-medium text-foreground/80">{t("profileKind")}</span>
               <select
-                value={filterType}
-                onChange={(event) => setFilterType(event.target.value as FilterType)}
+                className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
+                value={profileKind}
+                onChange={(event) => setProfileKind(event.target.value as ProfileKind)}
               >
-                <option value="include_text">include text</option>
-                <option value="exclude_text">exclude text</option>
-                <option value="regex_include">regex include</option>
-                <option value="regex_exclude">regex exclude</option>
+                <option value="wall">{t("profileKindWall")}</option>
+                <option value="cpu">{t("profileKindCpu")}</option>
+                <option value="lock">{t("profileKindLock")}</option>
               </select>
             </label>
-            <label className="field">
-              <span>{t("matchMode")}</span>
-              <select
-                value={matchMode}
-                onChange={(event) => setMatchMode(event.target.value as MatchMode)}
-              >
-                <option value="anywhere">anywhere</option>
-                <option value="ordered">ordered</option>
-                <option value="subtree">subtree</option>
-              </select>
-            </label>
-            <label className="field">
-              <span>{t("viewMode")}</span>
-              <select
-                value={viewMode}
-                onChange={(event) => setViewMode(event.target.value as ViewMode)}
-              >
-                <option value="preserve_full_path">preserve full path</option>
-                <option value="reroot_at_match">re-root at matched frame</option>
-              </select>
-            </label>
-            <div className="button-row">
-              <button
-                className="secondary-button"
-                type="button"
-                disabled={!currentStage || !filterPattern.trim()}
-                onClick={applyFilter}
-              >
-                {t("applyFilter")}
-              </button>
-              <button
-                className="secondary-button"
-                type="button"
-                disabled={stages.length <= 1}
-                onClick={resetDrilldown}
-              >
-                {t("resetDrilldown")}
-              </button>
-            </div>
-          </section>
+          )}
+          <label className="flex flex-col gap-1.5 text-xs">
+            <span className="font-medium text-foreground/80">
+              {profileKind === "cpu"
+                ? t("cpuIntervalMs")
+                : profileKind === "lock"
+                ? t("lockIntervalMs")
+                : t("wallIntervalMs")}
+            </span>
+            <Input
+              type="number"
+              min={1}
+              value={wallIntervalMs}
+              onChange={(event) => setWallIntervalMs(Number(event.target.value))}
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 text-xs">
+            <span className="font-medium text-foreground/80">{t("elapsedSeconds")}</span>
+            <Input
+              type="number"
+              min={0}
+              step="0.001"
+              placeholder="1336.559"
+              value={elapsedSec}
+              onChange={(event) => setElapsedSec(event.target.value)}
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 text-xs">
+            <span className="font-medium text-foreground/80">{t("topN")}</span>
+            <Input
+              type="number"
+              min={1}
+              value={topN}
+              onChange={(event) => setTopN(Number(event.target.value))}
+            />
+          </label>
+        </CardContent>
+      </Card>
+
+      <ErrorPanel
+        error={error}
+        labels={{ title: t("analysisError"), code: t("errorCode") }}
+      />
+      <EngineMessagesPanel messages={engineMessages} title={t("engineMessages")} />
+
+      <Tabs defaultValue="summary" className="w-full">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <TabsList>
+            <TabsTrigger value="summary">{t("tabSummary")}</TabsTrigger>
+            <TabsTrigger value="flame">{t("tabFlame")}</TabsTrigger>
+            <TabsTrigger value="drilldown">{t("tabDrilldown")}</TabsTrigger>
+            <TabsTrigger value="breakdown">{t("tabBreakdown")}</TabsTrigger>
+            <TabsTrigger value="top-stacks">{t("tabTopStacks")}</TabsTrigger>
+            <TabsTrigger value="diagnostics">{t("tabDiagnostics")}</TabsTrigger>
+          </TabsList>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={!result || savingAll}
+            onClick={() => void handleSaveAllCharts()}
+          >
+            {savingAll ? (
+              <>
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                {t("saveAllChartsBusy")}
+              </>
+            ) : (
+              <>
+                <Camera className="h-3.5 w-3.5" />
+                {t("saveAllCharts")}
+              </>
+            )}
+          </Button>
         </div>
-        <div>
-          <section className="summary-grid compact">
+
+        <TabsContent value="summary" className="mt-4">
+          <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <MetricCard
-              label={profileKind === "cpu" ? t("totalCpuSamples") : profileKind === "lock" ? t("totalLockSamples") : t("totalWallSamples")}
+              label={
+                profileKind === "cpu"
+                  ? t("totalCpuSamples")
+                  : profileKind === "lock"
+                  ? t("totalLockSamples")
+                  : t("totalWallSamples")
+              }
               value={formatNumber(summary?.total_samples)}
             />
             <MetricCard
-              label={profileKind === "cpu" ? t("cpuIntervalMs") : profileKind === "lock" ? t("lockIntervalMs") : t("wallIntervalMs")}
+              label={
+                profileKind === "cpu"
+                  ? t("cpuIntervalMs")
+                  : profileKind === "lock"
+                  ? t("lockIntervalMs")
+                  : t("wallIntervalMs")
+              }
               value={formatMilliseconds(summary?.interval_ms)}
             />
             <MetricCard
-              label={profileKind === "cpu" ? t("estimatedCpuTime") : profileKind === "lock" ? t("estimatedLockTime") : t("estimatedWallTime")}
+              label={
+                profileKind === "cpu"
+                  ? t("estimatedCpuTime")
+                  : profileKind === "lock"
+                  ? t("estimatedLockTime")
+                  : t("estimatedWallTime")
+              }
               value={formatSeconds(summary?.estimated_seconds)}
             />
             <MetricCard
@@ -407,90 +411,199 @@ export function ProfilerAnalyzerPage(): JSX.Element {
             />
           </section>
           {currentStage && (
-            <>
-              <section className="table-panel drilldown-panel">
-                <div className="panel-header">
-                  <h2>{t("stageMetrics")}</h2>
-                </div>
-                <div className="breadcrumb">
+            <section className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <MetricCard
+                label={t("matchedSamples")}
+                value={formatNumber(currentStage.metrics.matched_samples)}
+              />
+              <MetricCard
+                label={t("estimatedSeconds")}
+                value={formatSeconds(currentStage.metrics.estimated_seconds)}
+              />
+              <MetricCard
+                label={t("totalRatio")}
+                value={formatPercent(currentStage.metrics.total_ratio)}
+              />
+              <MetricCard
+                label={t("parentStageRatio")}
+                value={formatPercent(currentStage.metrics.parent_stage_ratio)}
+              />
+            </section>
+          )}
+        </TabsContent>
+
+        <TabsContent value="flame" className="mt-4">
+          <div ref={chartsContainerRef} className="grid gap-4">
+            <D3FlameGraph
+              title={t("flameGraph")}
+              exportName="profiler-flamegraph"
+              data={flameRoot}
+              emptyLabel={t("flameGraphEmpty")}
+            />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="drilldown" className="mt-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm">{t("flamegraphDrilldown")}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {currentStage && currentStage.breadcrumb.length > 0 && (
+                <div className="flex flex-wrap items-center gap-1 rounded-md border border-border bg-muted/30 px-3 py-2 text-xs">
+                  <span className="text-muted-foreground">
+                    {t("drilldownStageBreadcrumb")}:
+                  </span>
                   {currentStage.breadcrumb.map((item, index) => (
-                    <span key={`${item}-${index}`}>{item}</span>
+                    <span key={`${item}-${index}`} className="rounded bg-background px-1.5 py-0.5 font-mono">
+                      {item}
+                    </span>
                   ))}
                 </div>
-                <section className="summary-grid compact">
-                  <MetricCard
-                    label={t("matchedSamples")}
-                    value={formatNumber(currentStage.metrics.matched_samples)}
+              )}
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+                <label className="flex flex-col gap-1.5 text-xs">
+                  <span className="font-medium text-foreground/80">{t("drilldownFilter")}</span>
+                  <Input
+                    type="text"
+                    placeholder="oracle.jdbc"
+                    value={filterPattern}
+                    onChange={(event) => setFilterPattern(event.target.value)}
                   />
-                  <MetricCard
-                    label={t("estimatedSeconds")}
-                    value={formatSeconds(currentStage.metrics.estimated_seconds)}
-                  />
-                  <MetricCard
-                    label={t("totalRatio")}
-                    value={formatPercent(currentStage.metrics.total_ratio)}
-                  />
-                  <MetricCard
-                    label={t("parentStageRatio")}
-                    value={formatPercent(currentStage.metrics.parent_stage_ratio)}
-                  />
-                </section>
-                <FlameTreeView root={currentStage.flamegraph} />
-              </section>
-              <section className="chart-grid">
-                <ChartPanel
-                  title={t("breakdownDonut")}
-                  option={breakdownDonutOption(breakdownRows)}
-                />
-                <ChartPanel
-                  title={t("breakdownBars")}
-                  option={breakdownBarOption(breakdownRows)}
-                />
-              </section>
-              <BreakdownTable rows={breakdownRows} labels={{
+                </label>
+                <label className="flex flex-col gap-1.5 text-xs">
+                  <span className="font-medium text-foreground/80">{t("filterType")}</span>
+                  <select
+                    className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
+                    value={filterType}
+                    onChange={(event) => setFilterType(event.target.value as FilterType)}
+                  >
+                    <option value="include_text">include text</option>
+                    <option value="exclude_text">exclude text</option>
+                    <option value="regex_include">regex include</option>
+                    <option value="regex_exclude">regex exclude</option>
+                  </select>
+                </label>
+                <label className="flex flex-col gap-1.5 text-xs">
+                  <span className="font-medium text-foreground/80">{t("matchMode")}</span>
+                  <select
+                    className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
+                    value={matchMode}
+                    onChange={(event) => setMatchMode(event.target.value as MatchMode)}
+                  >
+                    <option value="anywhere">anywhere</option>
+                    <option value="ordered">ordered</option>
+                    <option value="subtree">subtree</option>
+                  </select>
+                </label>
+                <label className="flex flex-col gap-1.5 text-xs">
+                  <span className="font-medium text-foreground/80">{t("viewMode")}</span>
+                  <select
+                    className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
+                    value={viewMode}
+                    onChange={(event) => setViewMode(event.target.value as ViewMode)}
+                  >
+                    <option value="preserve_full_path">preserve full path</option>
+                    <option value="reroot_at_match">re-root at matched frame</option>
+                  </select>
+                </label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  disabled={!currentStage || !filterPattern.trim()}
+                  onClick={applyFilter}
+                >
+                  {t("applyFilter")}
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  disabled={stages.length <= 1}
+                  onClick={resetDrilldown}
+                >
+                  {t("resetDrilldown")}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="breakdown" className="mt-4">
+          <div className="grid gap-4 lg:grid-cols-2">
+            <ChartPanel
+              title={t("breakdownDonut")}
+              option={breakdownDonutOption(breakdownRows)}
+            />
+            <ChartPanel
+              title={t("breakdownBars")}
+              option={breakdownBarOption(breakdownRows)}
+            />
+          </div>
+          <div className="mt-4">
+            <BreakdownTable
+              rows={breakdownRows}
+              labels={{
                 title: t("categoryTopStacks"),
                 category: t("category"),
                 samples: t("samples"),
                 ratio: t("ratio"),
                 waitReason: t("waitReason"),
                 topMethods: t("topMethods"),
-              }} />
-            </>
-          )}
-          <section className="table-panel">
-            <div className="panel-header">
-              <h2>{t("topStackTable")}</h2>
-            </div>
-            <table>
-              <thead>
-                <tr>
-                  <th>{t("stack")}</th>
-                  <th>{t("samples")}</th>
-                  <th>{t("estimatedSeconds")}</th>
-                  <th>{t("ratio")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {topStacks.length > 0 ? (
-                  topStacks.map((row) => (
-                    <tr key={row.stack}>
-                      <td>{row.stack}</td>
-                      <td>{row.samples.toLocaleString()}</td>
-                      <td>{formatSeconds(row.estimated_seconds)}</td>
-                      <td>{formatPercent(row.sample_ratio)}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td>{t("waitingProfilerResult")}</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
+              }}
+            />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="top-stacks" className="mt-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm">{t("topStackTable")}</CardTitle>
+            </CardHeader>
+            <CardContent className="overflow-x-auto p-0">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
+                    <th className="px-4 py-2 text-left font-medium">{t("stack")}</th>
+                    <th className="px-4 py-2 text-right font-medium">{t("samples")}</th>
+                    <th className="px-4 py-2 text-right font-medium">
+                      {t("estimatedSeconds")}
+                    </th>
+                    <th className="px-4 py-2 text-right font-medium">{t("ratio")}</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </section>
+                </thead>
+                <tbody>
+                  {topStacks.length > 0 ? (
+                    topStacks.map((row: ProfilerTopStackTableRow) => (
+                      <tr key={row.stack} className="border-b border-border last:border-0">
+                        <td className="px-4 py-2 font-mono text-xs">{row.stack}</td>
+                        <td className="px-4 py-2 text-right tabular-nums">
+                          {row.samples.toLocaleString()}
+                        </td>
+                        <td className="px-4 py-2 text-right tabular-nums">
+                          {formatSeconds(row.estimated_seconds)}
+                        </td>
+                        <td className="px-4 py-2 text-right tabular-nums">
+                          {formatPercent(row.sample_ratio)}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td className="px-4 py-3 text-muted-foreground" colSpan={4}>
+                        {t("waitingProfilerResult")}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="diagnostics" className="mt-4">
           <DiagnosticsPanel
             diagnostics={result?.metadata.diagnostics}
             labels={{
@@ -500,26 +613,26 @@ export function ProfilerAnalyzerPage(): JSX.Element {
               samples: t("diagnosticSamples"),
             }}
           />
-        </div>
-      </section>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
 
-function getTopStackRows(value: ProfilerTopStackTableRow[] | undefined): TopStackRow[] {
-  return value ?? [];
+function toFlameGraphNode(node: FlameNode): FlameGraphNode {
+  return {
+    name: node.name,
+    value: node.samples,
+    category: node.category,
+    color: node.color,
+    children: node.children?.length ? node.children.map(toFlameGraphNode) : null,
+  };
 }
 
 function parseOptionalPositiveNumber(value: string): number | undefined | null {
-  if (!value.trim()) {
-    return undefined;
-  }
-
+  if (!value.trim()) return undefined;
   const parsed = Number(value);
-  if (!Number.isFinite(parsed) || parsed < 0) {
-    return null;
-  }
-
+  if (!Number.isFinite(parsed) || parsed < 0) return null;
   return parsed;
 }
 
@@ -527,9 +640,7 @@ function createInitialStages(
   result: ProfilerCollapsedAnalysisResult,
 ): DrilldownStageView[] {
   const flamegraph = result.charts.flamegraph;
-  if (!flamegraph) {
-    return [];
-  }
+  if (!flamegraph) return [];
   return [
     {
       label: "All",
@@ -541,7 +652,7 @@ function createInitialStages(
         total_ratio: 100,
         parent_stage_ratio: 100,
         elapsed_ratio: result.summary.elapsed_seconds
-          ? result.summary.estimated_seconds / result.summary.elapsed_seconds * 100
+          ? (result.summary.estimated_seconds / result.summary.elapsed_seconds) * 100
           : null,
       },
       breakdown: result.series.execution_breakdown ?? [],
@@ -565,9 +676,7 @@ function applyStageFilter(
     const matchIndex = matchedIndex(leaf.path, options.pattern, options.filterType, options.matchMode);
     const matched = matchIndex >= 0;
     const include = options.filterType.includes("exclude") ? !matched : matched;
-    if (!include) {
-      return [];
-    }
+    if (!include) return [];
     const path =
       options.viewMode === "reroot_at_match" &&
       matchIndex >= 0 &&
@@ -585,52 +694,18 @@ function applyStageFilter(
     metrics: {
       matched_samples: flamegraph.samples,
       estimated_seconds: estimatedSeconds,
-      total_ratio: stage.breadcrumb.length === 1
-        ? flamegraph.ratio
-        : flamegraph.samples / Math.max(rootSamples(stage), 1) * 100,
-      parent_stage_ratio: flamegraph.samples / Math.max(stage.flamegraph.samples, 1) * 100,
-      elapsed_ratio: options.elapsedSec ? estimatedSeconds / options.elapsedSec * 100 : null,
+      total_ratio:
+        stage.breadcrumb.length === 1
+          ? flamegraph.ratio
+          : (flamegraph.samples / Math.max(rootSamples(stage), 1)) * 100,
+      parent_stage_ratio:
+        (flamegraph.samples / Math.max(stage.flamegraph.samples, 1)) * 100,
+      elapsed_ratio: options.elapsedSec
+        ? (estimatedSeconds / options.elapsedSec) * 100
+        : null,
     },
     breakdown: buildBreakdown(flamegraph, options.intervalMs, options.elapsedSec),
   };
-}
-
-function FlameTreeView({ root }: { root: FlameNode }): JSX.Element {
-  return (
-    <div className="flame-tree">
-      {root.children.slice(0, 16).map((child) => (
-        <FlameNodeBar key={child.id} node={child} depth={0} total={Math.max(root.samples, 1)} />
-      ))}
-    </div>
-  );
-}
-
-function FlameNodeBar({
-  node,
-  depth,
-  total,
-}: {
-  node: FlameNode;
-  depth: number;
-  total: number;
-}): JSX.Element {
-  return (
-    <div className="flame-node-row" style={{ paddingLeft: depth * 14 }}>
-      <div className="flame-node-label">
-        <span>{node.name}</span>
-        <small>{formatNumber(node.samples)} / {formatPercent(node.samples / total * 100)}</small>
-      </div>
-      <div className="flame-node-track">
-        <div
-          className="flame-node-fill"
-          style={{ width: `${Math.max(node.samples / total * 100, 1)}%` }}
-        />
-      </div>
-      {node.children.slice(0, 8).map((child) => (
-        <FlameNodeBar key={child.id} node={child} depth={depth + 1} total={total} />
-      ))}
-    </div>
-  );
 }
 
 function BreakdownTable({
@@ -648,33 +723,51 @@ function BreakdownTable({
   };
 }): JSX.Element {
   return (
-    <section className="table-panel">
-      <div className="panel-header">
-        <h2>{labels.title}</h2>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>{labels.category}</th>
-            <th>{labels.samples}</th>
-            <th>{labels.ratio}</th>
-            <th>{labels.waitReason}</th>
-            <th>{labels.topMethods}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <tr key={row.category}>
-              <td>{row.executive_label}</td>
-              <td>{formatNumber(row.samples)}</td>
-              <td>{formatPercent(row.total_ratio)}</td>
-              <td>{row.wait_reason ?? "-"}</td>
-              <td>{row.top_methods.map((item) => item.name).join(", ") || "-"}</td>
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm">{labels.title}</CardTitle>
+      </CardHeader>
+      <CardContent className="overflow-x-auto p-0">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
+              <th className="px-4 py-2 text-left font-medium">{labels.category}</th>
+              <th className="px-4 py-2 text-right font-medium">{labels.samples}</th>
+              <th className="px-4 py-2 text-right font-medium">{labels.ratio}</th>
+              <th className="px-4 py-2 text-left font-medium">{labels.waitReason}</th>
+              <th className="px-4 py-2 text-left font-medium">{labels.topMethods}</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </section>
+          </thead>
+          <tbody>
+            {rows.length > 0 ? (
+              rows.map((row) => (
+                <tr key={row.category} className="border-b border-border last:border-0">
+                  <td className="px-4 py-2">{row.executive_label}</td>
+                  <td className="px-4 py-2 text-right tabular-nums">
+                    {formatNumber(row.samples)}
+                  </td>
+                  <td className="px-4 py-2 text-right tabular-nums">
+                    {formatPercent(row.total_ratio)}
+                  </td>
+                  <td className="px-4 py-2 text-xs text-muted-foreground">
+                    {row.wait_reason ?? "-"}
+                  </td>
+                  <td className="px-4 py-2 text-xs">
+                    {row.top_methods.map((item) => item.name).join(", ") || "-"}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td className="px-4 py-3 text-muted-foreground" colSpan={5}>
+                  —
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -693,9 +786,10 @@ function breakdownDonutOption(rows: ExecutionBreakdownRow[]): EChartsOption {
 }
 
 function breakdownBarOption(rows: ExecutionBreakdownRow[]): EChartsOption {
-  const largeOptions = rows.length >= 1_000
-    ? { large: true, progressive: 800, progressiveThreshold: 2_000 }
-    : {};
+  const largeOptions =
+    rows.length >= 1_000
+      ? { large: true, progressive: 800, progressiveThreshold: 2_000 }
+      : {};
   return {
     tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
     grid: { left: 144, right: 24, top: 24, bottom: 36 },
@@ -751,7 +845,7 @@ function buildTree(leaves: Array<{ path: string[]; samples: number }>, label: st
 }
 
 function assignRatios(node: FlameNode, total: number): void {
-  node.ratio = node.samples / total * 100;
+  node.ratio = (node.samples / total) * 100;
   node.children.sort((a, b) => b.samples - a.samples);
   node.children.forEach((child) => assignRatios(child, total));
 }
@@ -763,18 +857,17 @@ function matchedIndex(
   matchMode: MatchMode,
 ): number {
   if (matchMode === "ordered") {
-    const terms = pattern.split(/[>;]/).map((term) => term.trim()).filter(Boolean);
+    const terms = pattern
+      .split(/[>;]/)
+      .map((term) => term.trim())
+      .filter(Boolean);
     let termIndex = 0;
     let startIndex = -1;
     for (let index = 0; index < path.length; index += 1) {
       if (frameMatches(path[index], terms[termIndex], filterType)) {
-        if (startIndex < 0) {
-          startIndex = index;
-        }
+        if (startIndex < 0) startIndex = index;
         termIndex += 1;
-        if (termIndex === terms.length) {
-          return startIndex;
-        }
+        if (termIndex === terms.length) return startIndex;
       }
     }
     return -1;
@@ -816,10 +909,12 @@ function buildBreakdown(
     };
     existing.samples += leaf.samples;
     existing.estimated_seconds = existing.samples * (intervalMs / 1000);
-    existing.total_ratio = existing.samples / Math.max(root.samples, 1) * 100;
+    existing.total_ratio = (existing.samples / Math.max(root.samples, 1)) * 100;
     existing.parent_stage_ratio = existing.total_ratio;
-    existing.elapsed_ratio = elapsedSec ? existing.estimated_seconds / elapsedSec * 100 : null;
-    existing.top_methods = [{ name: leaf.path[leaf.path.length - 1] ?? "-", samples: leaf.samples }];
+    existing.elapsed_ratio = elapsedSec ? (existing.estimated_seconds / elapsedSec) * 100 : null;
+    existing.top_methods = [
+      { name: leaf.path[leaf.path.length - 1] ?? "-", samples: leaf.samples },
+    ];
     existing.top_stacks = [{ name: leaf.path.join(";"), samples: leaf.samples }];
     categories.set(classification.category, existing);
   }
@@ -837,7 +932,11 @@ function classifyFrames(path: string[]): { category: string; label: string; wait
     return { category: "SQL_DATABASE", label: "SQL / DB", waitReason: hasNetwork ? "NETWORK_IO_WAIT" : null };
   }
   if (hasHttp) {
-    return { category: "EXTERNAL_API_HTTP", label: "External Call", waitReason: hasNetwork ? "NETWORK_IO_WAIT" : null };
+    return {
+      category: "EXTERNAL_API_HTTP",
+      label: "External Call",
+      waitReason: hasNetwork ? "NETWORK_IO_WAIT" : null,
+    };
   }
   if (hasNetwork) {
     return { category: "NETWORK_IO_WAIT", label: "Network / I/O Wait", waitReason: null };
