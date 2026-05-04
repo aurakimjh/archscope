@@ -34,6 +34,19 @@ _BLOCKED_STATES: frozenset[ThreadState] = frozenset(
     {ThreadState.BLOCKED, ThreadState.LOCK_WAIT}
 )
 
+# Wait categories surfaced by the per-language enrichment plugins
+# (T-195/T-197/T-199/T-201). A thread that stays in any of these for
+# `threshold` consecutive dumps gets a LATENCY_SECTION_DETECTED finding.
+# `LOCK_WAIT` is intentionally absent here — the dedicated
+# `PERSISTENT_BLOCKED_THREAD` finding (T-191) already covers it, and
+# folding both findings into one would dilute the lock-contention
+# signal.
+_LATENCY_WAIT_CATEGORIES: tuple[ThreadState, ...] = (
+    ThreadState.NETWORK_WAIT,
+    ThreadState.IO_WAIT,
+    ThreadState.CHANNEL_WAIT,
+)
+
 
 @dataclass(frozen=True)
 class ThreadObservation:
@@ -103,12 +116,15 @@ def analyze_multi_thread_dumps(
     formats = sorted({bundle.source_format for bundle in bundles})
 
     long_running, persistent_blocked = _build_findings(timelines, threshold=threshold)
+    latency_sections = _build_latency_sections(timelines, threshold=threshold)
     long_running.sort(key=lambda finding: finding["dumps"], reverse=True)
     persistent_blocked.sort(key=lambda finding: finding["dumps"], reverse=True)
+    latency_sections.sort(key=lambda finding: finding["dumps"], reverse=True)
 
     findings_payload = _findings_payload(
         long_running=long_running,
         persistent_blocked=persistent_blocked,
+        latency_sections=latency_sections,
         threshold=threshold,
     )
 
@@ -122,6 +138,7 @@ def analyze_multi_thread_dumps(
         ),
         "long_running_threads": len(long_running),
         "persistent_blocked_threads": len(persistent_blocked),
+        "latency_sections": len(latency_sections),
         "consecutive_dump_threshold": threshold,
     }
     series = {
@@ -142,6 +159,7 @@ def analyze_multi_thread_dumps(
     tables = {
         "long_running_stacks": long_running[:top_n],
         "persistent_blocked_threads": persistent_blocked[:top_n],
+        "latency_sections": latency_sections[:top_n],
         "dumps": [
             {
                 "dump_index": bundle.dump_index,
@@ -269,6 +287,7 @@ def _findings_payload(
     *,
     long_running: list[dict[str, Any]],
     persistent_blocked: list[dict[str, Any]],
+    latency_sections: list[dict[str, Any]],
     threshold: int,
 ) -> list[dict[str, Any]]:
     findings: list[dict[str, Any]] = []
@@ -298,7 +317,90 @@ def _findings_payload(
                 "thresholds": {"consecutive_dumps": threshold},
             }
         )
+    for entry in latency_sections:
+        findings.append(
+            {
+                "severity": "warning",
+                "code": "LATENCY_SECTION_DETECTED",
+                "message": (
+                    f"Thread {entry['thread_name']!r} stayed in {entry['wait_category']} "
+                    f"for {entry['dumps']} consecutive dumps."
+                ),
+                "evidence": entry,
+                "thresholds": {"consecutive_dumps": threshold},
+            }
+        )
     return findings
+
+
+# ---------------------------------------------------------------------------
+# T-203 — Cross-language LATENCY_SECTION_DETECTED finding
+# ---------------------------------------------------------------------------
+
+
+def _build_latency_sections(
+    timelines: dict[str, ThreadTimeline],
+    *,
+    threshold: int,
+) -> list[dict[str, Any]]:
+    """Detect threads that linger in a single wait category across dumps.
+
+    Walks each thread's observation timeline once per category in
+    :data:`_LATENCY_WAIT_CATEGORIES`, records the longest consecutive run,
+    and emits one entry per (thread, category) pair that hits the
+    threshold. Stack signatures are collected so the UI can reconstruct
+    the latency hot spot.
+
+    Language-agnostic: the per-language enrichment plugins are responsible
+    for promoting RUNNABLE/UNKNOWN states into ``NETWORK_WAIT``,
+    ``IO_WAIT``, or ``CHANNEL_WAIT``; this analyzer only consumes the
+    normalized :class:`ThreadState` enum.
+    """
+    out: list[dict[str, Any]] = []
+    for timeline in timelines.values():
+        sorted_obs = sorted(timeline.observations, key=lambda o: o.dump_index)
+        for category in _LATENCY_WAIT_CATEGORIES:
+            longest_run = 0
+            current_run = 0
+            current_signatures: list[str] = []
+            best_signatures: list[str] = []
+            best_first_index: int | None = None
+            current_first_index: int | None = None
+            prev_index: int | None = None
+            for obs in sorted_obs:
+                in_category = obs.state is category
+                consecutive = (
+                    in_category
+                    and prev_index is not None
+                    and obs.dump_index == prev_index + 1
+                )
+                if in_category and not consecutive:
+                    current_run = 1
+                    current_signatures = [obs.stack_signature]
+                    current_first_index = obs.dump_index
+                elif in_category and consecutive:
+                    current_run += 1
+                    current_signatures.append(obs.stack_signature)
+                else:
+                    current_run = 0
+                    current_signatures = []
+                    current_first_index = None
+                if current_run > longest_run:
+                    longest_run = current_run
+                    best_signatures = list(current_signatures)
+                    best_first_index = current_first_index
+                prev_index = obs.dump_index
+            if longest_run >= threshold and best_first_index is not None:
+                out.append(
+                    {
+                        "thread_name": timeline.thread_name,
+                        "wait_category": category.value,
+                        "dumps": longest_run,
+                        "first_dump_index": best_first_index,
+                        "stack_signatures": sorted(set(best_signatures)),
+                    }
+                )
+    return out
 
 
 def _state_distribution_per_dump(
