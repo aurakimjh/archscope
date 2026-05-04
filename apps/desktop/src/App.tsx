@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { Layout } from "./components/Layout";
+import { AppShell } from "./components/layout/AppShell";
 import { AccessLogAnalyzerPage } from "./pages/AccessLogAnalyzerPage";
 import { ChartStudioPage } from "./pages/ChartStudioPage";
 import { DashboardPage } from "./pages/DashboardPage";
@@ -62,8 +62,8 @@ export function App(): JSX.Element {
     );
 
   return (
-    <Layout activePage={activePage} onNavigate={setActivePage}>
+    <AppShell activePage={activePage} onNavigate={setActivePage}>
       {pageContent}
-    </Layout>
+    </AppShell>
   );
 }
