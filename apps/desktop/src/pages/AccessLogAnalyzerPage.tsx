@@ -1,4 +1,5 @@
-import { useMemo, useRef, useState } from "react";
+import { Camera, Loader2, Play, Square } from "lucide-react";
+import { useCallback, useMemo, useRef, useState } from "react";
 
 import {
   createAnalyzerRequestId,
@@ -7,26 +8,30 @@ import {
   type AccessLogFormat,
   type BridgeError,
   type TopUrlAvgResponseRow,
-} from "../api/analyzerClient";
-import { saveDashboardResult } from "./DashboardPage";
-import { createChartOption } from "../charts/chartFactory";
-import type { ChartLabels } from "../charts/chartOptions";
-import { getChartTemplate } from "../charts/chartTemplates";
+} from "@/api/analyzerClient";
+import { ChartPanel } from "@/components/ChartPanel";
+import { FileDock, type FileDockSelection } from "@/components/FileDock";
+import { MetricCard } from "@/components/MetricCard";
 import {
   DiagnosticsPanel,
   EngineMessagesPanel,
   ErrorPanel,
-} from "../components/AnalyzerFeedback";
-import { ChartPanel } from "../components/ChartPanel";
-import { FileDropZone } from "../components/FileDropZone";
-import { MetricCard } from "../components/MetricCard";
-import type { MessageKey } from "../i18n/messages";
-import { useI18n } from "../i18n/I18nProvider";
+} from "@/components/AnalyzerFeedback";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useI18n, type MessageKey } from "@/i18n/I18nProvider";
+import { exportChartsInContainer } from "@/lib/batchExport";
+import { createChartOption } from "@/charts/chartFactory";
+import type { ChartLabels } from "@/charts/chartOptions";
+import { getChartTemplate } from "@/charts/chartTemplates";
+import { saveDashboardResult } from "@/pages/DashboardPage";
 import {
   formatMilliseconds,
   formatNumber,
   formatPercent,
-} from "../utils/formatters";
+} from "@/utils/formatters";
 
 type AnalyzerState = "idle" | "ready" | "running" | "success" | "error";
 
@@ -38,7 +43,7 @@ type SlowUrlRow = {
 
 export function AccessLogAnalyzerPage(): JSX.Element {
   const { t } = useI18n();
-  const [filePath, setFilePath] = useState("");
+  const [selectedFile, setSelectedFile] = useState<FileDockSelection | null>(null);
   const [format, setFormat] = useState<AccessLogFormat>("nginx");
   const [maxLines, setMaxLines] = useState("");
   const [startTime, setStartTime] = useState("");
@@ -47,10 +52,14 @@ export function AccessLogAnalyzerPage(): JSX.Element {
   const [result, setResult] = useState<AccessLogAnalysisResult | null>(null);
   const [error, setError] = useState<BridgeError | null>(null);
   const [engineMessages, setEngineMessages] = useState<string[]>([]);
+  const [savingAll, setSavingAll] = useState(false);
   const currentRequestIdRef = useRef<string | null>(null);
+  const chartsContainerRef = useRef<HTMLDivElement | null>(null);
 
+  const filePath = selectedFile?.filePath ?? "";
   const canAnalyze = Boolean(filePath) && state !== "running";
   const summary = result?.summary;
+
   const requestChartTemplate = getChartTemplate("AccessLog.RequestCountTrend");
   const chartLabels = useMemo(() => createChartLabels(t), [t]);
   const chartOption = useMemo(
@@ -60,43 +69,20 @@ export function AccessLogAnalyzerPage(): JSX.Element {
   );
   const slowUrls = getSlowUrlRows(result?.series.top_urls_by_avg_response_time);
 
-  async function browseFile(): Promise<void> {
-    const response = await window.archscope?.selectFile?.({
-      title: t("selectAccessLogFile"),
-      filters: [
-        { name: t("logFilesFilter"), extensions: ["log", "txt"] },
-        { name: t("allFilesFilter"), extensions: ["*"] },
-      ],
-    });
-
-    if (response?.filePath) {
-      setFilePath(response.filePath);
-      setState("ready");
-      setError(null);
-      setEngineMessages([]);
-    }
-  }
-
-  function handleFileInput(nextPath: string | undefined): void {
-    if (!nextPath) {
-      setError({
-        code: "FILE_PATH_UNAVAILABLE",
-        message: t("filePathUnavailable"),
-      });
-      setState("error");
-      return;
-    }
-
-    setFilePath(nextPath);
+  const handleFileSelected = useCallback((file: FileDockSelection) => {
+    setSelectedFile(file);
     setState("ready");
     setError(null);
     setEngineMessages([]);
-  }
+  }, []);
+
+  const handleClearFile = useCallback(() => {
+    setSelectedFile(null);
+    if (state !== "running") setState("idle");
+  }, [state]);
 
   async function analyze(): Promise<void> {
-    if (!canAnalyze) {
-      return;
-    }
+    if (!canAnalyze) return;
 
     setState("running");
     setError(null);
@@ -124,9 +110,7 @@ export function AccessLogAnalyzerPage(): JSX.Element {
         endTime: normalizeOptionalDateTime(endTime),
       });
 
-      if (currentRequestIdRef.current !== requestId) {
-        return;
-      }
+      if (currentRequestIdRef.current !== requestId) return;
       currentRequestIdRef.current = null;
 
       if (response.ok) {
@@ -160,9 +144,7 @@ export function AccessLogAnalyzerPage(): JSX.Element {
 
   async function cancelAnalysis(): Promise<void> {
     const requestId = currentRequestIdRef.current;
-    if (!requestId) {
-      return;
-    }
+    if (!requestId) return;
     const response = await getAnalyzerClient().cancel(requestId);
     if (!response.ok) {
       setError(response.error);
@@ -170,28 +152,84 @@ export function AccessLogAnalyzerPage(): JSX.Element {
     }
   }
 
+  async function handleSaveAllCharts(): Promise<void> {
+    const container = chartsContainerRef.current;
+    if (!container || savingAll) return;
+    setSavingAll(true);
+    try {
+      await exportChartsInContainer(container, {
+        format: "png",
+        multiplier: 2,
+        prefix: "access-log",
+      });
+    } catch (caught) {
+      setError({
+        code: "EXPORT_FAILED",
+        message: caught instanceof Error ? caught.message : String(caught),
+      });
+    } finally {
+      setSavingAll(false);
+    }
+  }
+
   return (
-    <div className="page">
-      <section className="workspace-grid">
-        <div className="tool-panel">
-          <h2>{t("accessLogAnalyzer")}</h2>
-          <FileDropZone
-            label={t("selectAccessLogFile")}
-            description={t("accessLogFileDescription")}
-            selectedPath={filePath}
-            browseLabel={t("browseFile")}
-            onBrowse={browseFile}
-            onFileSelected={handleFileInput}
-          />
-          <label className="field">
-            <span>{t("logFormat")}</span>
+    <div className="flex flex-col gap-5">
+      <FileDock
+        label={t("selectAccessLogFile")}
+        description={t("dropOrBrowseAccessLog")}
+        accept=".log,.txt,.gz"
+        selected={selectedFile}
+        onSelect={handleFileSelected}
+        onClear={handleClearFile}
+        browseLabel={t("browseFile")}
+        rightSlot={
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              size="sm"
+              disabled={!canAnalyze}
+              onClick={() => void analyze()}
+            >
+              {state === "running" ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  {t("analyzing")}
+                </>
+              ) : (
+                <>
+                  <Play className="h-3.5 w-3.5" />
+                  {t("analyze")}
+                </>
+              )}
+            </Button>
+            {state === "running" && (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => void cancelAnalysis()}
+              >
+                <Square className="h-3.5 w-3.5" />
+                {t("cancelAnalysis")}
+              </Button>
+            )}
+          </div>
+        }
+      />
+
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm">{t("analyzerOptions")}</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 gap-3 md:grid-cols-4">
+          <label className="flex flex-col gap-1.5 text-xs">
+            <span className="font-medium text-foreground/80">{t("logFormat")}</span>
             <select
+              className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
               value={format}
               onChange={(event) => {
                 setFormat(event.target.value as AccessLogFormat);
-                if (filePath && state === "idle") {
-                  setState("ready");
-                }
+                if (filePath && state === "idle") setState("ready");
               }}
             >
               <option value="nginx">NGINX</option>
@@ -202,63 +240,72 @@ export function AccessLogAnalyzerPage(): JSX.Element {
               <option value="custom-regex">Custom Regex</option>
             </select>
           </label>
-          <div className="input-grid">
-            <label className="field">
-              <span>{t("maxLines")}</span>
-              <input
-                type="number"
-                value={maxLines}
-                min={1}
-                placeholder="100000"
-                onChange={(event) => setMaxLines(event.target.value)}
-              />
-            </label>
-            <label className="field">
-              <span>{t("startTime")}</span>
-              <input
-                type="datetime-local"
-                value={startTime}
-                onChange={(event) => setStartTime(event.target.value)}
-              />
-            </label>
-            <label className="field">
-              <span>{t("endTime")}</span>
-              <input
-                type="datetime-local"
-                value={endTime}
-                onChange={(event) => setEndTime(event.target.value)}
-              />
-            </label>
-          </div>
-          <div className="button-row">
-            <button
-              className="primary-button"
-              type="button"
-              disabled={!canAnalyze}
-              onClick={() => void analyze()}
-            >
-              {state === "running" ? t("analyzing") : t("analyze")}
-            </button>
-            <button
-              className="secondary-button"
-              type="button"
-              disabled={state !== "running"}
-              onClick={() => void cancelAnalysis()}
-            >
-              {t("cancelAnalysis")}
-            </button>
-          </div>
-          <ErrorPanel
-            error={error}
-            labels={{ title: t("analysisError"), code: t("errorCode") }}
-          />
-          <EngineMessagesPanel
-            messages={engineMessages}
-            title={t("engineMessages")}
-          />
+          <label className="flex flex-col gap-1.5 text-xs">
+            <span className="font-medium text-foreground/80">{t("maxLines")}</span>
+            <Input
+              type="number"
+              min={1}
+              placeholder="100000"
+              value={maxLines}
+              onChange={(event) => setMaxLines(event.target.value)}
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 text-xs">
+            <span className="font-medium text-foreground/80">{t("startTime")}</span>
+            <Input
+              type="datetime-local"
+              value={startTime}
+              onChange={(event) => setStartTime(event.target.value)}
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 text-xs">
+            <span className="font-medium text-foreground/80">{t("endTime")}</span>
+            <Input
+              type="datetime-local"
+              value={endTime}
+              onChange={(event) => setEndTime(event.target.value)}
+            />
+          </label>
+        </CardContent>
+      </Card>
+
+      <ErrorPanel
+        error={error}
+        labels={{ title: t("analysisError"), code: t("errorCode") }}
+      />
+      <EngineMessagesPanel messages={engineMessages} title={t("engineMessages")} />
+
+      <Tabs defaultValue="summary" className="w-full">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <TabsList>
+            <TabsTrigger value="summary">{t("tabSummary")}</TabsTrigger>
+            <TabsTrigger value="charts">{t("tabCharts")}</TabsTrigger>
+            <TabsTrigger value="top-urls">{t("tabTopUrls")}</TabsTrigger>
+            <TabsTrigger value="diagnostics">{t("tabDiagnostics")}</TabsTrigger>
+          </TabsList>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={!result || savingAll}
+            onClick={() => void handleSaveAllCharts()}
+          >
+            {savingAll ? (
+              <>
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                {t("saveAllChartsBusy")}
+              </>
+            ) : (
+              <>
+                <Camera className="h-3.5 w-3.5" />
+                {t("saveAllCharts")}
+              </>
+            )}
+          </Button>
         </div>
-        <div>
-          <section className="summary-grid compact">
+
+        <TabsContent value="summary" className="mt-4">
+          <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <MetricCard
               label={t("totalRequests")}
               value={formatNumber(summary?.total_requests)}
@@ -276,42 +323,57 @@ export function AccessLogAnalyzerPage(): JSX.Element {
               value={formatPercent(summary?.error_rate)}
             />
           </section>
-          <ChartPanel
-            title={t(requestChartTemplate.titleKey)}
-            option={chartOption}
-            busy={state === "running"}
-          />
-          <section className="table-panel diagnostics-panel">
-            <div className="panel-header">
-              <h2>{t("topUrlsByResponseTime")}</h2>
-            </div>
-            <table>
-              <thead>
-                <tr>
-                  <th>{t("uri")}</th>
-                  <th>{t("count")}</th>
-                  <th>{t("responseTime")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {slowUrls.length > 0 ? (
-                  slowUrls.map((row) => (
-                    <tr key={row.uri}>
-                      <td>{row.uri}</td>
-                      <td>{row.count}</td>
-                      <td>{formatMilliseconds(row.avg_response_ms)}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
+        </TabsContent>
+
+        <TabsContent value="charts" className="mt-4">
+          <div ref={chartsContainerRef} className="grid gap-4">
+            <ChartPanel
+              title={t(requestChartTemplate.titleKey)}
+              option={chartOption}
+              busy={state === "running"}
+            />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="top-urls" className="mt-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm">{t("topUrlsByResponseTime")}</CardTitle>
+            </CardHeader>
+            <CardContent className="overflow-x-auto p-0">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
+                    <th className="px-4 py-2 text-left font-medium">{t("uri")}</th>
+                    <th className="px-4 py-2 text-right font-medium">{t("count")}</th>
+                    <th className="px-4 py-2 text-right font-medium">{t("responseTime")}</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </section>
+                </thead>
+                <tbody>
+                  {slowUrls.length > 0 ? (
+                    slowUrls.map((row) => (
+                      <tr key={row.uri} className="border-b border-border last:border-0">
+                        <td className="px-4 py-2 font-mono text-xs">{row.uri}</td>
+                        <td className="px-4 py-2 text-right tabular-nums">{row.count}</td>
+                        <td className="px-4 py-2 text-right tabular-nums">
+                          {formatMilliseconds(row.avg_response_ms)}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td className="px-4 py-3 text-muted-foreground" colSpan={3}>
+                        —
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="diagnostics" className="mt-4">
           <DiagnosticsPanel
             diagnostics={result?.metadata.diagnostics}
             labels={{
@@ -321,8 +383,8 @@ export function AccessLogAnalyzerPage(): JSX.Element {
               samples: t("diagnosticSamples"),
             }}
           />
-        </div>
-      </section>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
@@ -332,18 +394,11 @@ function getSlowUrlRows(value: TopUrlAvgResponseRow[] | undefined): SlowUrlRow[]
 }
 
 function parseOptionalPositiveInteger(value: string): number | undefined | null {
-  if (!value.trim()) {
-    return undefined;
-  }
-
+  if (!value.trim()) return undefined;
   const parsed = Number(value);
-  if (!Number.isInteger(parsed) || parsed <= 0) {
-    return null;
-  }
-
+  if (!Number.isInteger(parsed) || parsed <= 0) return null;
   return parsed;
 }
-
 
 function normalizeOptionalDateTime(value: string): string | undefined {
   return value.trim() || undefined;

@@ -162,6 +162,8 @@ export function ChartPanel({
         className="chart-panel"
         aria-busy={busy}
         aria-label={title}
+        data-chart-export-name={title}
+        data-chart-export-target=""
       >
         <div className="panel-header">
           <h2>{title}</h2>

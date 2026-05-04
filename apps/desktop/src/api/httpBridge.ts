@@ -7,6 +7,8 @@
  * call through HTTP. The renderer code keeps using `window.archscope.*`
  * unchanged.
  */
+import { uploadFile as uploadFileViaApi } from "@/lib/uploadFile";
+
 import type {
   AnalyzeAccessLogRequest,
   AnalyzeCollapsedProfileRequest,
@@ -90,25 +92,12 @@ function pickFile(accept: string): Promise<File | null> {
   });
 }
 
-async function uploadFile(file: File): Promise<string> {
-  const form = new FormData();
-  form.append("file", file, file.name);
-  const result = await callJson<{ ok: boolean; filePath: string }>("/upload", {
-    method: "POST",
-    body: form,
-  });
-  if (!result?.ok || !result.filePath) {
-    throw new Error("Upload failed");
-  }
-  return result.filePath;
-}
-
 async function selectFile(request?: SelectFileRequest): Promise<SelectFileResponse> {
   const file = await pickFile(extensionsFromFilters(request?.filters));
   if (!file) return { canceled: true };
   try {
-    const filePath = await uploadFile(file);
-    return { canceled: false, filePath };
+    const uploaded = await uploadFileViaApi(file);
+    return { canceled: false, filePath: uploaded.filePath };
   } catch (error) {
     console.error("[archscope] selectFile upload failed", error);
     return { canceled: true };
