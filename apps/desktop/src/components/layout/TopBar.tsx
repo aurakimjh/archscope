@@ -1,4 +1,4 @@
-import { Languages, Moon, PanelLeft, Search, Settings as SettingsIcon, Sun } from "lucide-react";
+import { Languages, Moon, Search, Settings as SettingsIcon, Sun } from "lucide-react";
 
 import type { PageKey } from "@/App";
 import { useTheme } from "@/components/theme-provider";
@@ -19,25 +19,15 @@ import { localeLabels, locales, useI18n, type Locale } from "@/i18n/I18nProvider
 import { cn } from "@/lib/utils";
 
 type TopBarProps = {
-  onToggleSidebar: () => void;
   onNavigate: (page: PageKey) => void;
 };
 
-export function TopBar({ onToggleSidebar, onNavigate }: TopBarProps): JSX.Element {
+export function TopBar({ onNavigate }: TopBarProps): JSX.Element {
   const { theme, setTheme, resolvedTheme } = useTheme();
   const { locale, setLocale, t } = useI18n();
 
   return (
     <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-      <Button
-        variant="ghost"
-        size="icon"
-        aria-label="Toggle sidebar"
-        onClick={onToggleSidebar}
-      >
-        <PanelLeft />
-      </Button>
-
       <div className="flex items-center gap-2">
         <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-[11px] font-semibold text-primary-foreground">
           AS

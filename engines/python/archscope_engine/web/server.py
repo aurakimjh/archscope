@@ -783,8 +783,16 @@ def create_app(static_dir: Optional[Path] = None, *, dev_cors: bool = True) -> F
         target_dir = upload_root() / uuid.uuid4().hex
         target_dir.mkdir(parents=True, exist_ok=True)
         target_path = target_dir / original
+
+        # Read in chunks to avoid blocking the event loop on large files.
+        chunk_size = 1024 * 1024  # 1 MiB
         with target_path.open("wb") as out:
-            shutil.copyfileobj(file.file, out)
+            while True:
+                chunk = await file.read(chunk_size)
+                if not chunk:
+                    break
+                out.write(chunk)
+
         return {"ok": True, "filePath": str(target_path), "originalName": original}
 
     @app.post("/api/analyzer/execute")

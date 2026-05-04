@@ -96,7 +96,7 @@ export function AppSidebar({
         )}
         aria-label={t("navLabel")}
       >
-        <div className="flex h-12 items-center justify-between gap-2 border-b border-sidebar-border px-2.5">
+        <div className="flex h-14 items-center justify-between gap-2 border-b border-sidebar-border px-2.5">
           <span
             className={cn(
               "text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/60 transition-opacity",

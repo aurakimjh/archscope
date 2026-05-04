@@ -342,6 +342,10 @@ export const messages = {
     aiConfidence: "Confidence",
     aiEvidence: "Evidence",
     aiLimitations: "Limitations",
+    engineOfflineTitle: "Engine not running",
+    engineOfflineMessage: "Cannot connect to the ArchScope engine at {url}. Start the engine first, then reload.",
+    engineOfflineHint: "Run: archscope-engine serve",
+    engineReconnected: "Engine connected",
   },
   ko: {
     appTagline: "애플리케이션 아키텍처 진단 도구",
@@ -677,6 +681,10 @@ export const messages = {
     aiConfidence: "신뢰도",
     aiEvidence: "근거",
     aiLimitations: "제약 사항",
+    engineOfflineTitle: "엔진 미실행",
+    engineOfflineMessage: "ArchScope 엔진({url})에 연결할 수 없습니다. 엔진을 먼저 실행한 후 새로고침하세요.",
+    engineOfflineHint: "실행: archscope-engine serve",
+    engineReconnected: "엔진 연결됨",
   },
 } as const;
 
