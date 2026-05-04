@@ -22,6 +22,7 @@ from archscope_engine.analyzers.access_log_analyzer import analyze_access_log
 from archscope_engine.analyzers.exception_analyzer import analyze_exception_stack
 from archscope_engine.analyzers.gc_log_analyzer import analyze_gc_log
 from archscope_engine.analyzers.jfr_analyzer import analyze_jfr_print_json
+from archscope_engine.analyzers.lock_contention_analyzer import analyze_lock_contention
 from archscope_engine.analyzers.multi_thread_analyzer import analyze_multi_thread_dumps
 from archscope_engine.analyzers.thread_dump_to_collapsed import write_collapsed_file
 from archscope_engine.analyzers.profiler_analyzer import (
@@ -253,6 +254,9 @@ def _execute_analyzer(payload: dict[str, Any]) -> dict[str, Any]:
     if request_type == "thread_dump_to_collapsed":
         return _execute_thread_dump_to_collapsed(params)
 
+    if request_type == "thread_dump_locks":
+        return _execute_thread_dump_locks(params)
+
     if request_type == "exception_stack":
         path, err = _require_existing_file(params.get("filePath"), "Exception stack file")
         if err:
@@ -321,6 +325,43 @@ def _execute_thread_dump_to_collapsed(params: dict[str, Any]) -> dict[str, Any]:
             "inputCount": len(paths),
         },
     }
+
+
+def _execute_thread_dump_locks(params: dict[str, Any]) -> dict[str, Any]:
+    raw_paths = params.get("filePaths")
+    if not isinstance(raw_paths, list) or not raw_paths:
+        return _failure(
+            "INVALID_OPTION",
+            "Lock contention request requires a non-empty 'filePaths' array.",
+        )
+    paths: list[Path] = []
+    for entry in raw_paths:
+        if not isinstance(entry, str) or not entry:
+            return _failure("INVALID_OPTION", "Every filePaths entry must be a string.")
+        candidate = Path(entry)
+        if not candidate.is_file():
+            return _failure(
+                "FILE_NOT_FOUND", "Thread-dump file is not readable.", str(candidate)
+            )
+        paths.append(candidate)
+
+    top_n = int(params.get("topN") or 20)
+    format_override = params.get("format")
+    if format_override is not None and not isinstance(format_override, str):
+        return _failure("INVALID_OPTION", "format override must be a string when set.")
+
+    try:
+        bundles = THREAD_DUMP_REGISTRY.parse_many(
+            paths, format_override=format_override or None
+        )
+    except UnknownFormatError as exc:
+        return _failure("UNKNOWN_THREAD_DUMP_FORMAT", str(exc), exc.head_preview[:200])
+    except MixedFormatError as exc:
+        return _failure("MIXED_THREAD_DUMP_FORMATS", str(exc))
+    except Exception as exc:  # noqa: BLE001
+        return _failure("ENGINE_FAILED", "Lock contention parsing failed.", repr(exc))
+
+    return _wrap_analyzer(lambda: analyze_lock_contention(bundles, top_n=top_n))
 
 
 def _execute_thread_dump_multi(params: dict[str, Any]) -> dict[str, Any]:

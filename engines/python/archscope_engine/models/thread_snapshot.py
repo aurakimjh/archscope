@@ -85,6 +85,24 @@ class ThreadState(str, Enum):
 
 
 @dataclass(frozen=True)
+class LockHandle:
+    """Identifier for a single monitor / lock object.
+
+    JVM jstack exposes lock identity as ``<0x000000076ab62208>`` plus an
+    optional class hint (``a java.util.concurrent.locks.ReentrantLock``).
+    Other runtimes (Go / Python / Node.js / .NET) typically do not print
+    a per-object ID, so ``lock_class`` may be the only populated field
+    for those plugins, or both fields may be empty.
+    """
+
+    lock_id: str
+    lock_class: str | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        return {"lock_id": self.lock_id, "lock_class": self.lock_class}
+
+
+@dataclass(frozen=True)
 class StackFrame:
     """A single normalized stack frame.
 
@@ -137,6 +155,11 @@ class ThreadSnapshot:
     metadata: dict[str, Any] = field(default_factory=dict)
     language: str | None = None
     source_format: str | None = None
+    # T-218: structured lock context. Older parsers leave these empty;
+    # the multi-language correlator + lock-contention analyzer only fire
+    # on bundles that have at least one populated entry.
+    lock_holds: list[LockHandle] = field(default_factory=list)
+    lock_waiting: LockHandle | None = None
 
     def stack_signature(self, depth: int = 5) -> str:
         """Compact representation of the top ``depth`` frames.
@@ -161,6 +184,8 @@ class ThreadSnapshot:
             "metadata": dict(self.metadata),
             "language": self.language,
             "source_format": self.source_format,
+            "lock_holds": [hold.to_dict() for hold in self.lock_holds],
+            "lock_waiting": self.lock_waiting.to_dict() if self.lock_waiting else None,
         }
 
 

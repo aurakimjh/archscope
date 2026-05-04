@@ -117,14 +117,22 @@ def analyze_multi_thread_dumps(
 
     long_running, persistent_blocked = _build_findings(timelines, threshold=threshold)
     latency_sections = _build_latency_sections(timelines, threshold=threshold)
+    growing_locks = _build_growing_lock_findings(bundles, threshold=threshold)
     long_running.sort(key=lambda finding: finding["dumps"], reverse=True)
     persistent_blocked.sort(key=lambda finding: finding["dumps"], reverse=True)
     latency_sections.sort(key=lambda finding: finding["dumps"], reverse=True)
+    growing_locks.sort(
+        key=lambda finding: (
+            -int(finding["max_waiters"]),
+            -int(finding["consecutive_dumps"]),
+        )
+    )
 
     findings_payload = _findings_payload(
         long_running=long_running,
         persistent_blocked=persistent_blocked,
         latency_sections=latency_sections,
+        growing_locks=growing_locks,
         threshold=threshold,
     )
 
@@ -139,6 +147,7 @@ def analyze_multi_thread_dumps(
         "long_running_threads": len(long_running),
         "persistent_blocked_threads": len(persistent_blocked),
         "latency_sections": len(latency_sections),
+        "growing_lock_contention": len(growing_locks),
         "consecutive_dump_threshold": threshold,
     }
     series = {
@@ -160,6 +169,7 @@ def analyze_multi_thread_dumps(
         "long_running_stacks": long_running[:top_n],
         "persistent_blocked_threads": persistent_blocked[:top_n],
         "latency_sections": latency_sections[:top_n],
+        "growing_lock_contention": growing_locks[:top_n],
         "dumps": [
             {
                 "dump_index": bundle.dump_index,
@@ -288,6 +298,7 @@ def _findings_payload(
     long_running: list[dict[str, Any]],
     persistent_blocked: list[dict[str, Any]],
     latency_sections: list[dict[str, Any]],
+    growing_locks: list[dict[str, Any]],
     threshold: int,
 ) -> list[dict[str, Any]]:
     findings: list[dict[str, Any]] = []
@@ -330,6 +341,90 @@ def _findings_payload(
                 "thresholds": {"consecutive_dumps": threshold},
             }
         )
+    for entry in growing_locks:
+        findings.append(
+            {
+                "severity": "warning",
+                "code": "GROWING_LOCK_CONTENTION",
+                "message": (
+                    f"Lock {entry['lock_id']} waiter count grew strictly across "
+                    f"{entry['consecutive_dumps']} consecutive dumps "
+                    f"(max waiters: {entry['max_waiters']})."
+                ),
+                "evidence": entry,
+                "thresholds": {"consecutive_dumps": threshold},
+            }
+        )
+    return findings
+
+
+def _build_growing_lock_findings(
+    bundles: Sequence[ThreadDumpBundle],
+    *,
+    threshold: int,
+) -> list[dict[str, Any]]:
+    """Detect locks whose waiter count strictly increases across consecutive dumps.
+
+    Builds a per-lock waiter-count vector keyed by ``dump_index`` and
+    looks for runs of length ``≥ threshold`` where every step increases
+    the waiter count. The Java jstack parser is the only one that
+    populates ``lock_waiting`` today, so non-Java bundles produce no
+    findings — exactly as intended.
+    """
+    waiters_by_lock: dict[str, dict[int, int]] = {}
+    classes_by_lock: dict[str, str | None] = {}
+    for bundle in bundles:
+        per_dump_counts: dict[str, set[str]] = {}
+        per_dump_classes: dict[str, str | None] = {}
+        for snapshot in bundle.snapshots:
+            waiting = snapshot.lock_waiting
+            if waiting is None:
+                continue
+            per_dump_counts.setdefault(waiting.lock_id, set()).add(snapshot.thread_name)
+            per_dump_classes.setdefault(waiting.lock_id, waiting.lock_class)
+        for lock_id, names in per_dump_counts.items():
+            waiters_by_lock.setdefault(lock_id, {})[bundle.dump_index] = len(names)
+            classes_by_lock.setdefault(lock_id, per_dump_classes.get(lock_id))
+
+    findings: list[dict[str, Any]] = []
+    for lock_id, per_dump in waiters_by_lock.items():
+        ordered_indices = sorted(per_dump.keys())
+        if len(ordered_indices) < threshold:
+            continue
+        # Walk the dump-index timeline; track the longest run with
+        # strictly increasing waiter count and consecutive dump indexes.
+        longest_run = 0
+        longest_max = 0
+        current_run = 0
+        current_max = 0
+        prev_index: int | None = None
+        prev_count: int | None = None
+        for index in ordered_indices:
+            count = per_dump[index]
+            if (
+                prev_index is not None
+                and index == prev_index + 1
+                and prev_count is not None
+                and count > prev_count
+            ):
+                current_run += 1
+            else:
+                current_run = 1
+            current_max = max(current_max, count)
+            if current_run > longest_run:
+                longest_run = current_run
+                longest_max = current_max
+            prev_index = index
+            prev_count = count
+        if longest_run >= threshold:
+            findings.append(
+                {
+                    "lock_id": lock_id,
+                    "lock_class": classes_by_lock.get(lock_id),
+                    "consecutive_dumps": longest_run,
+                    "max_waiters": longest_max,
+                }
+            )
     return findings
 
 

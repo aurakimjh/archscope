@@ -462,12 +462,23 @@ export type AnalyzerExecuteRequest = {
       type: "thread_dump_multi";
       params: AnalyzeMultiThreadDumpRequest;
     }
+  | {
+      type: "thread_dump_locks";
+      params: AnalyzeLockContentionRequest;
+    }
 );
 
 export type AnalyzeMultiThreadDumpRequest = {
   requestId?: string;
   filePaths: string[];
   consecutiveThreshold?: number;
+  format?: string;
+  topN?: number;
+};
+
+export type AnalyzeLockContentionRequest = {
+  requestId?: string;
+  filePaths: string[];
   format?: string;
   topN?: number;
 };

@@ -32,6 +32,7 @@ from archscope_engine.analyzers.runtime_analyzer import (
     analyze_nodejs_stack,
     analyze_python_traceback,
 )
+from archscope_engine.analyzers.lock_contention_analyzer import analyze_lock_contention
 from archscope_engine.analyzers.multi_thread_analyzer import analyze_multi_thread_dumps
 from archscope_engine.analyzers.thread_dump_analyzer import analyze_thread_dump
 from archscope_engine.analyzers.thread_dump_to_collapsed import write_collapsed_file
@@ -547,6 +548,37 @@ def thread_dump_to_collapsed(
     )
     console.print(
         f"Wrote collapsed file: {written} ({unique_stacks} unique stacks)"
+    )
+
+
+@thread_dump_app.command("analyze-locks")
+def thread_dump_analyze_locks(
+    inputs: list[Path] = typer.Option(
+        ...,
+        "--input",
+        exists=True,
+        readable=True,
+        help="One or more thread-dump files (repeat the flag).",
+    ),
+    out: Path = typer.Option(..., "--out"),
+    format: Optional[str] = typer.Option(
+        None,
+        "--format",
+        help=(
+            "Force a specific source format (e.g. java_jstack). "
+            "When omitted, each file is auto-detected via header sniffing."
+        ),
+    ),
+    top_n: int = typer.Option(20, "--top-n"),
+) -> None:
+    """Analyze lock owner/waiter relationships across one or more thread dumps."""
+    bundles = THREAD_DUMP_REGISTRY.parse_many(inputs, format_override=format)
+    result = analyze_lock_contention(bundles, top_n=top_n)
+    write_json_result(result, out)
+    console.print(
+        f"Wrote lock contention result: {out} "
+        f"({result.summary['contended_locks']} contended locks, "
+        f"{result.summary['deadlocks_detected']} deadlocks)"
     )
 
 

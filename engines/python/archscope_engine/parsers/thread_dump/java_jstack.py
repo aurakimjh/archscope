@@ -21,6 +21,7 @@ from pathlib import Path
 
 from archscope_engine.models.thread_dump import ThreadDumpRecord
 from archscope_engine.models.thread_snapshot import (
+    LockHandle,
     StackFrame,
     ThreadDumpBundle,
     ThreadSnapshot,
@@ -73,6 +74,15 @@ class JavaJstackParserPlugin:
         # specific waiting state so the multi-dump correlator does not
         # mistake a parked I/O thread for a hot CPU thread.
         state = _infer_java_state(state, frames)
+        # T-219: pull lock IDs out of the raw block. `lock_info` (legacy
+        # string field) keeps its byte-for-byte content; the new
+        # `lock_holds`/`lock_waiting` fields carry the structured view.
+        lock_holds, lock_waiting = _extract_lock_handles(record.raw_block)
+        if lock_waiting is not None and state in (
+            ThreadState.RUNNABLE,
+            ThreadState.UNKNOWN,
+        ):
+            state = ThreadState.LOCK_WAIT
         return ThreadSnapshot(
             snapshot_id=f"java::{index}::{record.thread_name}",
             thread_name=record.thread_name,
@@ -84,6 +94,8 @@ class JavaJstackParserPlugin:
             metadata={"raw_block": record.raw_block},
             language=self.language,
             source_format=self.format_id,
+            lock_holds=lock_holds,
+            lock_waiting=lock_waiting,
         )
 
 
@@ -209,6 +221,75 @@ def _infer_java_state(state: ThreadState, frames: list[StackFrame]) -> ThreadSta
     if _IO_WAIT_PATTERNS.search(text):
         return ThreadState.IO_WAIT
     return state
+
+
+# ---------------------------------------------------------------------------
+# T-219: Lock-handle extraction
+# ---------------------------------------------------------------------------
+
+# `- locked <0x000000076ab62208> (a java.util.concurrent.locks.ReentrantLock$NonfairSync)`
+_LOCKED_RE = re.compile(
+    r"-\s+locked\s+<(?P<id>0x[0-9a-fA-F]+)>(?:\s+\(a\s+(?P<cls>[^)]+)\))?"
+)
+# `- waiting to lock <0x...> (a Foo)` and `- waiting on <0x...> (a Foo)`
+# (the latter form is what `Object.wait()` produces).
+_WAITING_TO_LOCK_RE = re.compile(
+    r"-\s+waiting to lock\s+<(?P<id>0x[0-9a-fA-F]+)>(?:\s+\(a\s+(?P<cls>[^)]+)\))?"
+)
+_WAITING_ON_RE = re.compile(
+    r"-\s+waiting on\s+<(?P<id>0x[0-9a-fA-F]+)>(?:\s+\(a\s+(?P<cls>[^)]+)\))?"
+)
+# `- parking to wait for <0x...> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)`
+_PARKING_RE = re.compile(
+    r"-\s+parking to wait for\s+<(?P<id>0x[0-9a-fA-F]+)>(?:\s+\(a\s+(?P<cls>[^)]+)\))?"
+)
+
+
+def _extract_lock_handles(raw_block: str) -> tuple[list[LockHandle], LockHandle | None]:
+    """Pull lock IDs out of a raw jstack block.
+
+    Returns ``(lock_holds, lock_waiting)`` — multiple `locked` lines may
+    appear (re-entrant or nested locks); the first matching wait line
+    wins. Lock IDs that show up as both `locked` and `waiting to lock`
+    on the same thread are treated as held (the thread already owns the
+    monitor and is re-entering it).
+    """
+    holds: list[LockHandle] = []
+    seen_ids: set[str] = set()
+    waiting: LockHandle | None = None
+    for raw_line in raw_block.splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+
+        for pattern in (_WAITING_TO_LOCK_RE, _WAITING_ON_RE, _PARKING_RE):
+            match = pattern.match(line)
+            if match and waiting is None:
+                waiting = LockHandle(
+                    lock_id=match.group("id"),
+                    lock_class=match.group("cls"),
+                )
+                break
+
+        locked_match = _LOCKED_RE.match(line)
+        if locked_match:
+            lock_id = locked_match.group("id")
+            if lock_id in seen_ids:
+                continue
+            seen_ids.add(lock_id)
+            holds.append(
+                LockHandle(
+                    lock_id=lock_id,
+                    lock_class=locked_match.group("cls"),
+                )
+            )
+
+    if waiting is not None and waiting.lock_id in seen_ids:
+        # The thread already holds this monitor — treat as a re-entrant
+        # acquire instead of a contention point.
+        waiting = None
+
+    return holds, waiting
 
 
 # Auto-register so callers that just `import archscope_engine.parsers.thread_dump`
