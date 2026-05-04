@@ -1,12 +1,24 @@
+import { Check, RotateCcw, Save, Settings2, Sun, Moon, Monitor } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
-import type { AppSettings } from "../api/analyzerContract";
-import { useI18n, localeLabels, locales, type Locale } from "../i18n/I18nProvider";
+import type { AppSettings } from "@/api/analyzerContract";
+import { useTheme, type Theme } from "@/components/theme-provider";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  localeLabels,
+  locales,
+  useI18n,
+  type Locale,
+} from "@/i18n/I18nProvider";
+import { cn } from "@/lib/utils";
 
 type SaveStatus = "idle" | "saved" | "error";
 
 export function SettingsPage(): JSX.Element {
   const { t, locale, setLocale } = useI18n();
+  const { theme, setTheme } = useTheme();
   const [enginePath, setEnginePath] = useState("");
   const [chartTheme, setChartTheme] = useState<"light" | "dark">("light");
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
@@ -26,21 +38,13 @@ export function SettingsPage(): JSX.Element {
   }
 
   const handleSave = useCallback(async () => {
-    const settings: AppSettings = {
-      enginePath,
-      chartTheme,
-      locale,
-    };
+    const settings: AppSettings = { enginePath, chartTheme, locale };
     const response = await window.archscope?.settings?.set(settings);
-    if (response?.ok) {
-      setSaveStatus("saved");
-    } else {
-      setSaveStatus("error");
-    }
+    setSaveStatus(response?.ok ? "saved" : "error");
     setTimeout(() => setSaveStatus("idle"), 2000);
   }, [enginePath, chartTheme, locale]);
 
-  async function handleBrowseEngine(): Promise<void> {
+  const handleBrowseEngine = useCallback(async () => {
     const response = await window.archscope?.selectFile?.({
       title: t("enginePath"),
       filters: [{ name: t("allFilesFilter"), extensions: ["*"] }],
@@ -48,7 +52,7 @@ export function SettingsPage(): JSX.Element {
     if (response && !response.canceled && response.filePath) {
       setEnginePath(response.filePath);
     }
-  }
+  }, [t]);
 
   function handleReset(): void {
     setEnginePath("");
@@ -57,89 +61,137 @@ export function SettingsPage(): JSX.Element {
   }
 
   if (!loaded) {
-    return <div className="page"><p>Loading...</p></div>;
+    return (
+      <Card className="border-dashed">
+        <CardContent className="flex items-center justify-center py-16 text-sm text-muted-foreground">
+          Loading...
+        </CardContent>
+      </Card>
+    );
   }
 
-  return (
-    <div className="page">
-      <section className="settings-panel">
-        <h2>{t("settings")}</h2>
+  const themeButtons: Array<{ id: Theme; label: string; icon: JSX.Element }> = [
+    { id: "light", label: t("themeLight"), icon: <Sun className="h-3.5 w-3.5" /> },
+    { id: "dark", label: t("themeDark"), icon: <Moon className="h-3.5 w-3.5" /> },
+    { id: "system", label: t("themeSystem"), icon: <Monitor className="h-3.5 w-3.5" /> },
+  ];
 
-        <div className="settings-group">
-          <label className="settings-label">{t("enginePath")}</label>
-          <p className="settings-description">{t("enginePathDescription")}</p>
-          <div className="settings-row">
-            <input
+  return (
+    <div className="flex max-w-3xl flex-col gap-5">
+      <div className="flex items-center gap-2">
+        <Settings2 className="h-5 w-5 text-muted-foreground" />
+        <h1 className="text-xl font-semibold tracking-tight">{t("settings")}</h1>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm">{t("enginePath")}</CardTitle>
+          <CardDescription>{t("enginePathDescription")}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap items-center gap-2">
+            <Input
               type="text"
-              className="settings-input"
-              value={enginePath}
+              className="flex-1 min-w-[240px]"
               placeholder={t("bundledEngine")}
-              onChange={(e) => setEnginePath(e.target.value)}
+              value={enginePath}
+              onChange={(event) => setEnginePath(event.target.value)}
             />
-            <button
+            <Button
               type="button"
-              className="secondary-button"
+              variant="secondary"
+              size="sm"
               onClick={() => void handleBrowseEngine()}
             >
               {t("browseEngine")}
-            </button>
+            </Button>
           </div>
-        </div>
+        </CardContent>
+      </Card>
 
-        <div className="settings-group">
-          <label className="settings-label">{t("defaultChartTheme")}</label>
-          <div className="settings-row">
-            <select
-              className="settings-select"
-              value={chartTheme}
-              onChange={(e) => setChartTheme(e.target.value as "light" | "dark")}
-            >
-              <option value="light">{t("lightTheme")}</option>
-              <option value="dark">{t("darkTheme")}</option>
-            </select>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm">{t("themeLabel")}</CardTitle>
+          <CardDescription>
+            {t("themeSystem")} / {t("themeLight")} / {t("themeDark")}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="inline-flex rounded-md border border-border bg-muted/30 p-1">
+            {themeButtons.map((option) => (
+              <button
+                key={option.id}
+                type="button"
+                onClick={() => setTheme(option.id)}
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded px-3 py-1 text-xs font-medium transition-colors",
+                  theme === option.id
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {option.icon}
+                {option.label}
+              </button>
+            ))}
           </div>
-        </div>
+        </CardContent>
+      </Card>
 
-        <div className="settings-group">
-          <label className="settings-label">{t("localeAndReportLanguage")}</label>
-          <div className="settings-row">
-            <select
-              className="settings-select"
-              value={locale}
-              onChange={(e) => setLocale(e.target.value as Locale)}
-            >
-              {locales.map((loc) => (
-                <option key={loc} value={loc}>
-                  {localeLabels[loc]}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        <div className="settings-actions">
-          <button
-            type="button"
-            className="primary-button"
-            onClick={() => void handleSave()}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm">{t("defaultChartTheme")}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <select
+            className="h-9 w-full max-w-xs rounded-md border border-input bg-transparent px-3 text-sm"
+            value={chartTheme}
+            onChange={(event) => setChartTheme(event.target.value as "light" | "dark")}
           >
-            {t("saveSettings")}
-          </button>
-          <button
-            type="button"
-            className="secondary-button"
-            onClick={handleReset}
+            <option value="light">{t("lightTheme")}</option>
+            <option value="dark">{t("darkTheme")}</option>
+          </select>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm">{t("localeAndReportLanguage")}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <select
+            className="h-9 w-full max-w-xs rounded-md border border-input bg-transparent px-3 text-sm"
+            value={locale}
+            onChange={(event) => setLocale(event.target.value as Locale)}
           >
-            {t("resetToDefault")}
-          </button>
-          {saveStatus === "saved" && (
-            <span className="settings-status success">{t("settingsSaved")}</span>
-          )}
-          {saveStatus === "error" && (
-            <span className="settings-status error">{t("settingsSaveError")}</span>
-          )}
-        </div>
-      </section>
+            {locales.map((loc) => (
+              <option key={loc} value={loc}>
+                {localeLabels[loc]}
+              </option>
+            ))}
+          </select>
+        </CardContent>
+      </Card>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <Button type="button" onClick={() => void handleSave()}>
+          <Save className="h-3.5 w-3.5" />
+          {t("saveSettings")}
+        </Button>
+        <Button type="button" variant="outline" onClick={handleReset}>
+          <RotateCcw className="h-3.5 w-3.5" />
+          {t("resetToDefault")}
+        </Button>
+        {saveStatus === "saved" && (
+          <span className="inline-flex items-center gap-1 text-sm text-emerald-600 dark:text-emerald-400">
+            <Check className="h-3.5 w-3.5" />
+            {t("settingsSaved")}
+          </span>
+        )}
+        {saveStatus === "error" && (
+          <span className="text-sm text-destructive">{t("settingsSaveError")}</span>
+        )}
+      </div>
     </div>
   );
 }
