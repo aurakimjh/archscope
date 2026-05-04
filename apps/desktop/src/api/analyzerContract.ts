@@ -458,7 +458,19 @@ export type AnalyzerExecuteRequest = {
       type: "jfr_recording";
       params: AnalyzeFileRequest;
     }
+  | {
+      type: "thread_dump_multi";
+      params: AnalyzeMultiThreadDumpRequest;
+    }
 );
+
+export type AnalyzeMultiThreadDumpRequest = {
+  requestId?: string;
+  filePaths: string[];
+  consecutiveThreshold?: number;
+  format?: string;
+  topN?: number;
+};
 
 export type JfrAnalysisResult = AnalysisResult<"jfr_recording">;
 

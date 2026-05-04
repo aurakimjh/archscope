@@ -32,7 +32,9 @@ from archscope_engine.analyzers.runtime_analyzer import (
     analyze_nodejs_stack,
     analyze_python_traceback,
 )
+from archscope_engine.analyzers.multi_thread_analyzer import analyze_multi_thread_dumps
 from archscope_engine.analyzers.thread_dump_analyzer import analyze_thread_dump
+from archscope_engine.parsers.thread_dump import DEFAULT_REGISTRY as THREAD_DUMP_REGISTRY
 from archscope_engine.exporters.html_exporter import render_html_report, write_html_report
 from archscope_engine.exporters.json_exporter import write_json_result
 from archscope_engine.exporters.pptx_exporter import write_pptx_report
@@ -508,6 +510,45 @@ def gc_log_analyze(
         collector,
         lambda: analyze_gc_log(path=file, top_n=top_n, debug_log=collector),
         "GC log",
+    )
+
+
+@thread_dump_app.command("analyze-multi")
+def thread_dump_analyze_multi(
+    inputs: list[Path] = typer.Option(
+        ...,
+        "--input",
+        exists=True,
+        readable=True,
+        help="One or more thread-dump files (repeat the flag).",
+    ),
+    out: Path = typer.Option(..., "--out"),
+    format: Optional[str] = typer.Option(
+        None,
+        "--format",
+        help=(
+            "Force a specific source format (e.g. java_jstack). "
+            "When omitted, each file is auto-detected via header sniffing."
+        ),
+    ),
+    threshold: int = typer.Option(
+        3,
+        "--consecutive-threshold",
+        help="Consecutive-dump count required to fire LONG_RUNNING / PERSISTENT_BLOCKED findings.",
+    ),
+    top_n: int = typer.Option(20, "--top-n"),
+) -> None:
+    """Correlate threads across multiple dumps and emit a thread_dump_multi result."""
+    if threshold < 1:
+        raise typer.BadParameter("--consecutive-threshold must be >= 1.")
+    bundles = THREAD_DUMP_REGISTRY.parse_many(inputs, format_override=format)
+    result = analyze_multi_thread_dumps(bundles, threshold=threshold, top_n=top_n)
+    write_json_result(result, out)
+    console.print(
+        f"Wrote multi-dump result: {out} "
+        f"({result.summary['total_dumps']} dumps, "
+        f"{result.summary['unique_threads']} threads, "
+        f"{len(result.metadata['findings'])} findings)"
     )
 
 
