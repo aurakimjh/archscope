@@ -2,7 +2,7 @@
   "name": "archscope-desktop",
   "version": "0.2.0-alpha",
   "private": true,
-  "description": "ArchScope Electron desktop shell — wraps the shared React frontend with native IPC.",
+  "description": "ArchScope Electron desktop shell — wraps the shared React frontend with a bundled Python engine.",
   "main": "dist-electron/main.js",
   "type": "module",
   "scripts": {
@@ -10,6 +10,7 @@
     "electron:dev": "tsc -p tsconfig.electron.json && electron .",
     "build": "npm --prefix ../frontend run build && tsc -p tsconfig.electron.json && electron-builder",
     "build:dir": "npm --prefix ../frontend run build && tsc -p tsconfig.electron.json && electron-builder --dir",
+    "build:all": "bash ../../scripts/build-desktop.sh",
     "lint": "tsc -p tsconfig.electron.json --noEmit"
   },
   "dependencies": {},
@@ -34,6 +35,11 @@
         "from": "../frontend/dist",
         "to": "frontend",
         "filter": ["**/*"]
+      },
+      {
+        "from": "../../engines/python/dist/archscope-engine",
+        "to": "engine",
+        "filter": ["**/*"]
       }
     ],
     "mac": {
@@ -46,6 +52,10 @@
     "linux": {
       "target": ["AppImage", "tar.gz"],
       "category": "Development"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
     }
   }
 }

@@ -43,26 +43,52 @@ function frontendURL(): string {
 let engineProcess: ChildProcess | null = null;
 let enginePort = 8765;
 
+function findBundledEngine(): string | null {
+  // In a packaged build, the engine binary lives in resources/engine/.
+  // PyInstaller onedir: resources/engine/archscope-engine[.exe]
+  // PyInstaller onefile: resources/engine/archscope-engine[.exe]
+  const ext = process.platform === "win32" ? ".exe" : "";
+  const candidates = [
+    // Packaged app
+    path.join(process.resourcesPath ?? "", "engine", `archscope-engine${ext}`),
+    // Onedir layout — binary is inside the directory
+    path.join(process.resourcesPath ?? "", "engine", "archscope-engine", `archscope-engine${ext}`),
+    // Dev: look relative to the repo root
+    path.join(__dirname, "..", "..", "..", "engines", "python", "dist", "archscope-engine", `archscope-engine${ext}`),
+    path.join(__dirname, "..", "..", "..", "engines", "python", "dist", `archscope-engine${ext}`),
+  ];
+
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) {
+      console.log(`[archscope] Found bundled engine at: ${candidate}`);
+      return candidate;
+    }
+  }
+  return null;
+}
+
 function findEngineCommand(): string[] | null {
-  // 1. archscope-engine on PATH
-  // 2. python -m archscope_engine.cli
+  // Priority 1: Bundled binary (no Python required)
+  const bundled = findBundledEngine();
+  if (bundled) {
+    return [bundled];
+  }
+
+  // Priority 2: archscope-engine on PATH (pip-installed)
   try {
     const { execSync } = require("node:child_process") as typeof import("node:child_process");
     execSync("archscope-engine --version", { stdio: "ignore" });
     return ["archscope-engine"];
   } catch { /* not found */ }
 
-  try {
-    const { execSync } = require("node:child_process") as typeof import("node:child_process");
-    execSync("python -c \"import archscope_engine\"", { stdio: "ignore" });
-    return ["python", "-m", "archscope_engine.cli"];
-  } catch { /* not found */ }
-
-  try {
-    const { execSync } = require("node:child_process") as typeof import("node:child_process");
-    execSync("python3 -c \"import archscope_engine\"", { stdio: "ignore" });
-    return ["python3", "-m", "archscope_engine.cli"];
-  } catch { /* not found */ }
+  // Priority 3: python -m archscope_engine.cli
+  for (const pythonCmd of ["python", "python3"]) {
+    try {
+      const { execSync } = require("node:child_process") as typeof import("node:child_process");
+      execSync(`${pythonCmd} -c "import archscope_engine"`, { stdio: "ignore" });
+      return [pythonCmd, "-m", "archscope_engine.cli"];
+    } catch { /* not found */ }
+  }
 
   return null;
 }
