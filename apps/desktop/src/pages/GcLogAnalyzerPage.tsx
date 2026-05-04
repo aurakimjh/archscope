@@ -1,4 +1,5 @@
-import { useMemo, useRef, useState } from "react";
+import { Camera, Loader2, Play, Square } from "lucide-react";
+import { useCallback, useMemo, useRef, useState } from "react";
 
 import {
   createAnalyzerRequestId,
@@ -6,22 +7,31 @@ import {
   type BridgeError,
   type GcEventRow,
   type GcLogAnalysisResult,
-} from "../api/analyzerClient";
-import { saveDashboardResult } from "./DashboardPage";
-import { createChartOption } from "../charts/chartFactory";
-import type { GcChartLabels } from "../charts/chartOptions";
-import { getChartTemplate } from "../charts/chartTemplates";
+} from "@/api/analyzerClient";
 import {
   DiagnosticsPanel,
   EngineMessagesPanel,
   ErrorPanel,
-} from "../components/AnalyzerFeedback";
-import { ChartPanel } from "../components/ChartPanel";
-import { FileDropZone } from "../components/FileDropZone";
-import { MetricCard } from "../components/MetricCard";
-import type { MessageKey } from "../i18n/messages";
-import { useI18n } from "../i18n/I18nProvider";
-import { formatMilliseconds, formatNumber, formatPercent } from "../utils/formatters";
+} from "@/components/AnalyzerFeedback";
+import { FileDock, type FileDockSelection } from "@/components/FileDock";
+import { MetricCard } from "@/components/MetricCard";
+import { D3BarChart, type BarDatum } from "@/components/charts/D3BarChart";
+import {
+  D3TimelineChart,
+  type TimelineEvent,
+  type TimelineSeries,
+} from "@/components/charts/D3TimelineChart";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useI18n } from "@/i18n/I18nProvider";
+import { exportChartsInContainer } from "@/lib/batchExport";
+import { saveDashboardResult } from "@/pages/DashboardPage";
+import {
+  formatMilliseconds,
+  formatNumber,
+  formatPercent,
+} from "@/utils/formatters";
 
 type AnalyzerState = "idle" | "ready" | "running" | "success" | "error";
 
@@ -29,90 +39,114 @@ const MAX_EVENT_ROWS = 200;
 
 export function GcLogAnalyzerPage(): JSX.Element {
   const { t } = useI18n();
-  const [filePath, setFilePath] = useState("");
+  const [selectedFile, setSelectedFile] = useState<FileDockSelection | null>(null);
   const [state, setState] = useState<AnalyzerState>("idle");
   const [result, setResult] = useState<GcLogAnalysisResult | null>(null);
   const [error, setError] = useState<BridgeError | null>(null);
   const [engineMessages, setEngineMessages] = useState<string[]>([]);
+  const [savingAll, setSavingAll] = useState(false);
   const currentRequestIdRef = useRef<string | null>(null);
+  const chartsContainerRef = useRef<HTMLDivElement | null>(null);
 
+  const filePath = selectedFile?.filePath ?? "";
   const canAnalyze = Boolean(filePath) && state !== "running";
   const summary = result?.summary;
-
-  const gcChartLabels = useMemo(() => createGcChartLabels(t), [t]);
-
-  const pauseTimelineTemplate = getChartTemplate("GcLog.PauseTimeline");
-  const pauseHistogramTemplate = getChartTemplate("GcLog.PauseHistogram");
-  const heapBeforeAfterTemplate = getChartTemplate("GcLog.HeapBeforeAfter");
-  const allocationRateTemplate = getChartTemplate("GcLog.AllocationRate");
-  const typeDistTemplate = getChartTemplate("GcLog.TypeDistribution");
-  const causeDistTemplate = getChartTemplate("GcLog.CauseDistribution");
-
-  const pauseTimelineOption = useMemo(
-    () => createChartOption(pauseTimelineTemplate.id, result ?? emptyGcResult, gcChartLabels),
-    [gcChartLabels, pauseTimelineTemplate.id, result],
-  );
-  const pauseHistogramOption = useMemo(
-    () => createChartOption(pauseHistogramTemplate.id, result ?? emptyGcResult, gcChartLabels),
-    [gcChartLabels, pauseHistogramTemplate.id, result],
-  );
-  const heapBeforeAfterOption = useMemo(
-    () => createChartOption(heapBeforeAfterTemplate.id, result ?? emptyGcResult, gcChartLabels),
-    [gcChartLabels, heapBeforeAfterTemplate.id, result],
-  );
-  const allocationRateOption = useMemo(
-    () => createChartOption(allocationRateTemplate.id, result ?? emptyGcResult, gcChartLabels),
-    [gcChartLabels, allocationRateTemplate.id, result],
-  );
-  const typeDistOption = useMemo(
-    () => createChartOption(typeDistTemplate.id, result ?? emptyGcResult, gcChartLabels),
-    [gcChartLabels, typeDistTemplate.id, result],
-  );
-  const causeDistOption = useMemo(
-    () => createChartOption(causeDistTemplate.id, result ?? emptyGcResult, gcChartLabels),
-    [gcChartLabels, causeDistTemplate.id, result],
-  );
-
-  const eventRows = getTopEventRows(result?.tables?.events);
+  const eventRows = result?.tables?.events?.slice(0, MAX_EVENT_ROWS) ?? [];
   const findings = result?.metadata?.findings ?? [];
 
-  async function browseFile(): Promise<void> {
-    const response = await window.archscope?.selectFile?.({
-      title: t("selectGcLogFile"),
-      filters: [
-        { name: t("logFilesFilter"), extensions: ["log", "txt"] },
-        { name: t("allFilesFilter"), extensions: ["*"] },
-      ],
-    });
+  const pauseSeries = useMemo<TimelineSeries[]>(() => {
+    const series = result?.series.pause_timeline ?? [];
+    return [
+      {
+        id: "pause_ms",
+        label: t("pauseMsAxis"),
+        color: "#ef4444",
+        data: series.map((p) => ({ time: p.time, value: p.value })),
+        showPoints: series.length <= 200,
+      },
+    ];
+  }, [result, t]);
 
-    if (response?.filePath) {
-      setFilePath(response.filePath);
-      setState("ready");
-      setError(null);
-      setEngineMessages([]);
-    }
-  }
+  const fullGcEvents = useMemo<TimelineEvent[]>(() => {
+    return (result?.tables?.events ?? [])
+      .filter((row) => row.gc_type && /full/i.test(row.gc_type) && row.timestamp)
+      .map((row) => ({
+        time: row.timestamp as string,
+        label: t("fullGcMarker"),
+        color: "#f97316",
+      }));
+  }, [result, t]);
 
-  function handleFileInput(nextPath: string | undefined): void {
-    if (!nextPath) {
-      setError({
-        code: "FILE_PATH_UNAVAILABLE",
-        message: t("filePathUnavailable"),
-      });
-      setState("error");
-      return;
-    }
+  const heapSeries = useMemo<TimelineSeries[]>(() => {
+    const before = result?.series.heap_before_mb ?? [];
+    const after = result?.series.heap_after_mb ?? [];
+    return [
+      {
+        id: "heap_before",
+        label: t("heapBeforeMb"),
+        color: "#0ea5e9",
+        area: true,
+        data: before.map((p) => ({ time: p.time, value: p.value })),
+      },
+      {
+        id: "heap_after",
+        label: t("heapAfterMb"),
+        color: "#14b8a6",
+        data: after.map((p) => ({ time: p.time, value: p.value })),
+      },
+    ];
+  }, [result, t]);
 
-    setFilePath(nextPath);
+  const allocationSeries = useMemo<TimelineSeries[]>(() => {
+    const alloc = result?.series.allocation_rate_mb_per_sec ?? [];
+    const prom = result?.series.promotion_rate_mb_per_sec ?? [];
+    return [
+      {
+        id: "alloc",
+        label: t("allocationRateLabel"),
+        color: "#6366f1",
+        area: true,
+        data: alloc.map((p) => ({ time: p.time, value: p.value })),
+      },
+      {
+        id: "prom",
+        label: t("promotionRateLabel"),
+        color: "#a855f7",
+        data: prom.map((p) => ({ time: p.time, value: p.value })),
+      },
+    ];
+  }, [result, t]);
+
+  const typeBars = useMemo<BarDatum[]>(() => {
+    return (result?.series.gc_type_breakdown ?? []).map((row) => ({
+      id: row.gc_type,
+      label: row.gc_type,
+      value: row.count,
+    }));
+  }, [result]);
+
+  const causeBars = useMemo<BarDatum[]>(() => {
+    return (result?.series.cause_breakdown ?? []).map((row) => ({
+      id: row.cause,
+      label: row.cause,
+      value: row.count,
+    }));
+  }, [result]);
+
+  const handleFileSelected = useCallback((file: FileDockSelection) => {
+    setSelectedFile(file);
     setState("ready");
     setError(null);
     setEngineMessages([]);
-  }
+  }, []);
+
+  const handleClearFile = useCallback(() => {
+    setSelectedFile(null);
+    if (state !== "running") setState("idle");
+  }, [state]);
 
   async function analyze(): Promise<void> {
-    if (!canAnalyze) {
-      return;
-    }
+    if (!canAnalyze) return;
 
     setState("running");
     setError(null);
@@ -127,9 +161,7 @@ export function GcLogAnalyzerPage(): JSX.Element {
         params: { filePath },
       });
 
-      if (currentRequestIdRef.current !== requestId) {
-        return;
-      }
+      if (currentRequestIdRef.current !== requestId) return;
       currentRequestIdRef.current = null;
 
       if (response.ok) {
@@ -164,9 +196,7 @@ export function GcLogAnalyzerPage(): JSX.Element {
 
   async function cancelAnalysis(): Promise<void> {
     const requestId = currentRequestIdRef.current;
-    if (!requestId) {
-      return;
-    }
+    if (!requestId) return;
     const response = await getAnalyzerClient().cancel(requestId);
     if (!response.ok) {
       setError(response.error);
@@ -174,76 +204,120 @@ export function GcLogAnalyzerPage(): JSX.Element {
     }
   }
 
+  async function handleSaveAllCharts(): Promise<void> {
+    const container = chartsContainerRef.current;
+    if (!container || savingAll) return;
+    setSavingAll(true);
+    try {
+      await exportChartsInContainer(container, {
+        format: "png",
+        multiplier: 2,
+        prefix: "gc-log",
+      });
+    } catch (caught) {
+      setError({
+        code: "EXPORT_FAILED",
+        message: caught instanceof Error ? caught.message : String(caught),
+      });
+    } finally {
+      setSavingAll(false);
+    }
+  }
+
   return (
-    <div className="page">
-      <section className="workspace-grid">
-        <div className="tool-panel">
-          <h2>{t("gcLogAnalyzer")}</h2>
-          <FileDropZone
-            label={t("selectGcLogFile")}
-            description={t("gcLogFileDescription")}
-            selectedPath={filePath}
-            browseLabel={t("browseFile")}
-            onBrowse={browseFile}
-            onFileSelected={handleFileInput}
-          />
-          <div className="button-row">
-            <button
-              className="primary-button"
+    <div className="flex flex-col gap-5">
+      <FileDock
+        label={t("selectGcLogFile")}
+        description={t("dropOrBrowseGcLog")}
+        accept=".log,.txt,.gz"
+        selected={selectedFile}
+        onSelect={handleFileSelected}
+        onClear={handleClearFile}
+        browseLabel={t("browseFile")}
+        rightSlot={
+          <div className="flex items-center gap-2">
+            <Button
               type="button"
+              size="sm"
               disabled={!canAnalyze}
               onClick={() => void analyze()}
             >
-              {state === "running" ? t("analyzing") : t("analyze")}
-            </button>
-            <button
-              className="secondary-button"
-              type="button"
-              disabled={state !== "running"}
-              onClick={() => void cancelAnalysis()}
-            >
-              {t("cancelAnalysis")}
-            </button>
+              {state === "running" ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  {t("analyzing")}
+                </>
+              ) : (
+                <>
+                  <Play className="h-3.5 w-3.5" />
+                  {t("analyze")}
+                </>
+              )}
+            </Button>
+            {state === "running" && (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => void cancelAnalysis()}
+              >
+                <Square className="h-3.5 w-3.5" />
+                {t("cancelAnalysis")}
+              </Button>
+            )}
           </div>
-          <ErrorPanel
-            error={error}
-            labels={{ title: t("analysisError"), code: t("errorCode") }}
-          />
-          <EngineMessagesPanel
-            messages={engineMessages}
-            title={t("engineMessages")}
-          />
+        }
+      />
+
+      <ErrorPanel
+        error={error}
+        labels={{ title: t("analysisError"), code: t("errorCode") }}
+      />
+      <EngineMessagesPanel messages={engineMessages} title={t("engineMessages")} />
+
+      <Tabs defaultValue="summary" className="w-full">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <TabsList>
+            <TabsTrigger value="summary">{t("tabSummary")}</TabsTrigger>
+            <TabsTrigger value="pauses">{t("tabPauses")}</TabsTrigger>
+            <TabsTrigger value="heap">{t("tabHeap")}</TabsTrigger>
+            <TabsTrigger value="breakdown">{t("tabBreakdown")}</TabsTrigger>
+            <TabsTrigger value="events">{t("tabEvents")}</TabsTrigger>
+            <TabsTrigger value="diagnostics">{t("tabDiagnostics")}</TabsTrigger>
+          </TabsList>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={!result || savingAll}
+            onClick={() => void handleSaveAllCharts()}
+          >
+            {savingAll ? (
+              <>
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                {t("saveAllChartsBusy")}
+              </>
+            ) : (
+              <>
+                <Camera className="h-3.5 w-3.5" />
+                {t("saveAllCharts")}
+              </>
+            )}
+          </Button>
         </div>
-        <div>
-          <section className="summary-grid compact">
+
+        <TabsContent value="summary" className="mt-4">
+          <section className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
             <MetricCard
               label={t("throughputPercent")}
               value={formatPercent(summary?.throughput_percent)}
             />
-            <MetricCard
-              label={t("totalEvents")}
-              value={formatNumber(summary?.total_events)}
-            />
-            <MetricCard
-              label={t("p50PauseMs")}
-              value={formatMilliseconds(summary?.p50_pause_ms)}
-            />
-            <MetricCard
-              label={t("p95PauseMs")}
-              value={formatMilliseconds(summary?.p95_pause_ms)}
-            />
-            <MetricCard
-              label={t("p99PauseMs")}
-              value={formatMilliseconds(summary?.p99_pause_ms)}
-            />
-            <MetricCard
-              label={t("maxPauseMs")}
-              value={formatMilliseconds(summary?.max_pause_ms)}
-            />
-            <MetricCard
-              label={t("avgPauseMs")}
-              value={formatMilliseconds(summary?.avg_pause_ms)}
-            />
+            <MetricCard label={t("totalEvents")} value={formatNumber(summary?.total_events)} />
+            <MetricCard label={t("p50PauseMs")} value={formatMilliseconds(summary?.p50_pause_ms)} />
+            <MetricCard label={t("p95PauseMs")} value={formatMilliseconds(summary?.p95_pause_ms)} />
+            <MetricCard label={t("p99PauseMs")} value={formatMilliseconds(summary?.p99_pause_ms)} />
+            <MetricCard label={t("maxPauseMs")} value={formatMilliseconds(summary?.max_pause_ms)} />
+            <MetricCard label={t("avgPauseMs")} value={formatMilliseconds(summary?.avg_pause_ms)} />
             <MetricCard
               label={t("totalPauseMs")}
               value={formatMilliseconds(summary?.total_pause_ms)}
@@ -252,10 +326,7 @@ export function GcLogAnalyzerPage(): JSX.Element {
               label={t("youngGcCount")}
               value={formatNumber(summary?.young_gc_count)}
             />
-            <MetricCard
-              label={t("fullGcCount")}
-              value={formatNumber(summary?.full_gc_count)}
-            />
+            <MetricCard label={t("fullGcCount")} value={formatNumber(summary?.full_gc_count)} />
             <MetricCard
               label={t("avgAllocationRate")}
               value={formatMbPerSec(summary?.avg_allocation_rate_mb_per_sec)}
@@ -277,87 +348,117 @@ export function GcLogAnalyzerPage(): JSX.Element {
               value={formatNumber(summary?.promotion_failure_count)}
             />
           </section>
-          <ChartPanel
-            title={t(pauseTimelineTemplate.titleKey)}
-            option={pauseTimelineOption}
-            busy={state === "running"}
-          />
-          <ChartPanel
-            title={t(pauseHistogramTemplate.titleKey)}
-            option={pauseHistogramOption}
-            busy={state === "running"}
-          />
-          <ChartPanel
-            title={t(heapBeforeAfterTemplate.titleKey)}
-            option={heapBeforeAfterOption}
-            busy={state === "running"}
-          />
-          <ChartPanel
-            title={t(allocationRateTemplate.titleKey)}
-            option={allocationRateOption}
-            busy={state === "running"}
-          />
-          <ChartPanel
-            title={t(typeDistTemplate.titleKey)}
-            option={typeDistOption}
-            busy={state === "running"}
-          />
-          <ChartPanel
-            title={t(causeDistTemplate.titleKey)}
-            option={causeDistOption}
-            busy={state === "running"}
-          />
-          <section className="table-panel diagnostics-panel">
-            <div className="panel-header">
-              <h2>{t("gcEventTable")}</h2>
-            </div>
-            <table>
-              <thead>
-                <tr>
-                  <th>{t("timestampLabel")}</th>
-                  <th>{t("uptimeSec")}</th>
-                  <th>{t("gcTypeLabel")}</th>
-                  <th>{t("gcCauseLabel")}</th>
-                  <th>{t("pauseMsAxis")}</th>
-                  <th>{t("heapBeforeMb")}</th>
-                  <th>{t("heapAfterMb")}</th>
-                  <th>{t("heapCommittedMb")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {eventRows.length > 0 ? (
-                  eventRows.map((row, idx) => (
-                    <tr key={idx}>
-                      <td>{row.timestamp ?? "-"}</td>
-                      <td>{row.uptime_sec != null ? row.uptime_sec.toFixed(3) : "-"}</td>
-                      <td>{row.gc_type ?? "-"}</td>
-                      <td>{row.cause ?? "-"}</td>
-                      <td>{row.pause_ms != null ? row.pause_ms.toFixed(2) : "-"}</td>
-                      <td>{row.heap_before_mb != null ? row.heap_before_mb.toFixed(1) : "-"}</td>
-                      <td>{row.heap_after_mb != null ? row.heap_after_mb.toFixed(1) : "-"}</td>
-                      <td>{row.heap_committed_mb != null ? row.heap_committed_mb.toFixed(1) : "-"}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={8}>-</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </section>
           {findings.length > 0 && (
-            <section className="table-panel diagnostics-panel">
-              <div className="panel-header">
-                <h2>{t("findings")}</h2>
-              </div>
-              <ul className="findings-list">
+            <Card className="mt-4">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm">{t("findings")}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-1 pt-0 text-sm">
                 {findings.map((f, idx) => (
-                  <li key={idx}>[{f.severity}] {f.message}</li>
+                  <p key={idx} className="leading-relaxed">
+                    <span className="mr-2 inline-block rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase">
+                      {f.severity}
+                    </span>
+                    {f.message}
+                  </p>
                 ))}
-              </ul>
-            </section>
+              </CardContent>
+            </Card>
           )}
+        </TabsContent>
+
+        <TabsContent value="pauses" className="mt-4">
+          <div ref={chartsContainerRef} className="grid gap-4">
+            <D3TimelineChart
+              title={t("gcPauseTimeline")}
+              exportName="gc-pause-timeline"
+              series={pauseSeries}
+              events={fullGcEvents}
+              yLabel={t("pauseMsAxis")}
+              height={280}
+            />
+            <D3TimelineChart
+              title={t("allocationRateLabel")}
+              exportName="gc-allocation-rate"
+              series={allocationSeries}
+              yLabel="MB/s"
+              height={240}
+            />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="heap" className="mt-4">
+          <div className="grid gap-4">
+            <D3TimelineChart
+              title={t("gcHeapUsage")}
+              exportName="gc-heap-usage"
+              series={heapSeries}
+              events={fullGcEvents}
+              yLabel={t("heapMbAxis")}
+              height={280}
+            />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="breakdown" className="mt-4">
+          <div className="grid gap-4 lg:grid-cols-2">
+            <D3BarChart
+              title={t("collectorCauseBreakdown")}
+              exportName="gc-type-breakdown"
+              data={typeBars}
+              orientation="horizontal"
+              sort
+              height={Math.max(180, typeBars.length * 28 + 40)}
+            />
+            <D3BarChart
+              title={t("gcCauseLabel")}
+              exportName="gc-cause-breakdown"
+              data={causeBars}
+              orientation="horizontal"
+              sort
+              height={Math.max(180, causeBars.length * 28 + 40)}
+            />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="events" className="mt-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm">{t("gcEventTable")}</CardTitle>
+            </CardHeader>
+            <CardContent className="overflow-x-auto p-0">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
+                    <th className="px-3 py-2 text-left font-medium">{t("timestampLabel")}</th>
+                    <th className="px-3 py-2 text-right font-medium">{t("uptimeSec")}</th>
+                    <th className="px-3 py-2 text-left font-medium">{t("gcTypeLabel")}</th>
+                    <th className="px-3 py-2 text-left font-medium">{t("gcCauseLabel")}</th>
+                    <th className="px-3 py-2 text-right font-medium">{t("pauseMsAxis")}</th>
+                    <th className="px-3 py-2 text-right font-medium">{t("heapBeforeMb")}</th>
+                    <th className="px-3 py-2 text-right font-medium">{t("heapAfterMb")}</th>
+                    <th className="px-3 py-2 text-right font-medium">{t("heapCommittedMb")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {eventRows.length > 0 ? (
+                    eventRows.map((row, idx) => (
+                      <EventRowItem key={idx} row={row} />
+                    ))
+                  ) : (
+                    <tr>
+                      <td className="px-3 py-3 text-muted-foreground" colSpan={8}>
+                        —
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="diagnostics" className="mt-4">
           <DiagnosticsPanel
             diagnostics={result?.metadata?.diagnostics}
             labels={{
@@ -367,81 +468,37 @@ export function GcLogAnalyzerPage(): JSX.Element {
               samples: t("diagnosticSamples"),
             }}
           />
-        </div>
-      </section>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
 
-function getTopEventRows(rows: GcEventRow[] | undefined): GcEventRow[] {
-  return rows?.slice(0, MAX_EVENT_ROWS) ?? [];
-}
-
-function createGcChartLabels(t: (key: MessageKey) => string): GcChartLabels {
-  return {
-    pauseMs: t("pauseMsAxis"),
-    heapMb: t("heapMbAxis"),
-    gcType: t("gcTypeLabel"),
-    heapBefore: t("heapBeforeMb"),
-    heapAfter: t("heapAfterMb"),
-    youngAfter: t("youngAfterMb"),
-    cause: t("gcCauseLabel"),
-    events: t("eventsLabel"),
-    mbPerSec: t("mbPerSecAxis"),
-    allocationRate: t("allocationRateLabel"),
-    promotionRate: t("promotionRateLabel"),
-  };
+function EventRowItem({ row }: { row: GcEventRow }): JSX.Element {
+  return (
+    <tr className="border-b border-border last:border-0">
+      <td className="px-3 py-2 font-mono text-xs">{row.timestamp ?? "-"}</td>
+      <td className="px-3 py-2 text-right tabular-nums">
+        {row.uptime_sec != null ? row.uptime_sec.toFixed(3) : "-"}
+      </td>
+      <td className="px-3 py-2">{row.gc_type ?? "-"}</td>
+      <td className="px-3 py-2 text-xs text-muted-foreground">{row.cause ?? "-"}</td>
+      <td className="px-3 py-2 text-right tabular-nums">
+        {row.pause_ms != null ? row.pause_ms.toFixed(2) : "-"}
+      </td>
+      <td className="px-3 py-2 text-right tabular-nums">
+        {row.heap_before_mb != null ? row.heap_before_mb.toFixed(1) : "-"}
+      </td>
+      <td className="px-3 py-2 text-right tabular-nums">
+        {row.heap_after_mb != null ? row.heap_after_mb.toFixed(1) : "-"}
+      </td>
+      <td className="px-3 py-2 text-right tabular-nums">
+        {row.heap_committed_mb != null ? row.heap_committed_mb.toFixed(1) : "-"}
+      </td>
+    </tr>
+  );
 }
 
 function formatMbPerSec(value: number | null | undefined): string {
   return typeof value === "number" ? `${value.toLocaleString()} MB/s` : "-";
 }
-
-const emptyGcResult: GcLogAnalysisResult = {
-  type: "gc_log",
-  source_files: [],
-  created_at: "",
-  summary: {
-    total_events: 0,
-    total_pause_ms: 0,
-    avg_pause_ms: 0,
-    max_pause_ms: 0,
-    p50_pause_ms: 0,
-    p95_pause_ms: 0,
-    p99_pause_ms: 0,
-    throughput_percent: 0,
-    wall_time_sec: 0,
-    young_gc_count: 0,
-    full_gc_count: 0,
-    avg_allocation_rate_mb_per_sec: 0,
-    avg_promotion_rate_mb_per_sec: 0,
-    humongous_allocation_count: 0,
-    concurrent_mode_failure_count: 0,
-    promotion_failure_count: 0,
-  },
-  series: {
-    pause_timeline: [],
-    heap_after_mb: [],
-    heap_before_mb: [],
-    young_after_mb: [],
-    pause_histogram: [],
-    allocation_rate_mb_per_sec: [],
-    promotion_rate_mb_per_sec: [],
-    gc_type_breakdown: [],
-    cause_breakdown: [],
-  },
-  tables: { events: [] },
-  charts: {},
-  metadata: {
-    parser: "",
-    schema_version: "0.1.0",
-    diagnostics: {
-      total_lines: 0,
-      parsed_records: 0,
-      skipped_lines: 0,
-      skipped_by_reason: {},
-      samples: [],
-    },
-    findings: [],
-  },
-};
