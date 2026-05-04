@@ -1,249 +1,170 @@
 # ArchScope
 
-[한국어](./README.ko.md)
+[한국어](./README.ko.md) · [English](./README.en.md)
 
-Application Architecture Diagnostic & Reporting Toolkit
+> Application Architecture Diagnostic & Reporting Toolkit — runs locally
+> in your browser, ships report-ready visualizations, never sends your
+> data anywhere.
 
-## What is ArchScope?
+ArchScope ingests middleware logs, GC logs, profiler outputs, and
+thread dumps from any of five runtimes (Java, Go, Python, Node.js,
+.NET), turns them into normalized analysis results, and renders
+interactive charts you can save straight into an architecture report.
 
-ArchScope parses middleware logs, GC logs, profiler outputs, thread dumps, and exception stack traces, then converts them into report-ready statistics, charts, and diagnostic evidence.
+## Quick start
 
-ArchScope is intended for application architects who need to turn raw operational and performance data into architecture diagnosis evidence.
+```bash
+# 1. Python engine + web server
+cd engines/python
+python -m venv .venv
+source .venv/bin/activate          # or .venv\Scripts\activate on Windows
+pip install -e .
 
-## Key Goals
+# 2. Build the React UI once and serve it
+cd ../..
+./scripts/serve-web.sh             # macOS / Linux
+# Equivalent: npm --prefix apps/desktop run build && \
+#             archscope-engine serve --static-dir apps/desktop/dist
 
-- Parse operational and performance data
-- Normalize raw data into common models
-- Generate statistics and aggregations
-- Visualize results with report-ready charts
-- Export charts and tables for architecture reports
-- Support multiple runtimes and middleware platforms
-- Support English/Korean documentation and UI labels
-
-## Diagnostic Flow
-
-```text
-Raw Data -> Parsing -> Analysis / Aggregation -> Visualization -> Report-ready Export
+# 3. Open http://127.0.0.1:8765 in your browser.
 ```
 
-ArchScope is not just a log viewer. It is designed as an Architecture Evidence Builder.
+For UI-side hot-reload during development:
 
-## Initial Modules
+```bash
+# Terminal 1 — auto-reloading FastAPI engine
+archscope-engine serve --reload
 
-- Access Log Analyzer
-- GC Log Analyzer
-- Profiler Analyzer
-- Thread Dump Analyzer
-- Exception Analyzer
-- Chart Studio
-- Export Center
+# Terminal 2 — Vite dev server (proxies /api → :8765)
+cd apps/desktop && npm install && npm run dev
 
-## Tech Stack
+# Open http://127.0.0.1:5173
+```
 
-- Electron
-- React
-- TypeScript
-- Apache ECharts
-- Python
-- Typer
-- pandas, optional
+## Highlights
 
-## Repository Layout
+| Area | What you get |
+| --- | --- |
+| **Profiler** | async-profiler `collapsed`, FlameGraph.pl/async-profiler **SVG**, async-profiler **HTML**, Jennifer APM CSV — drill-down, breakdown, and either crisp SVG or fast Canvas flamegraphs (auto-switches at ≥4 000 nodes) |
+| **GC log** | Pause + heap timelines with **wheel/drag zoom and brush selection**, per-window stats (count / avg / p95 / max), per-collector comparison tab, area-fill on heap_before, Full-GC event markers with hover payloads |
+| **Thread dumps** | Six auto-detected formats — `java_jstack`, `go_goroutine`, `python_pyspy`, `python_faulthandler`, `nodejs_diagnostic_report`, `dotnet_clrstack` — with per-language frame normalization (CGLIB/AOP, Express layer aliases, async state machines, …) and a multi-dump correlator that fires **`LONG_RUNNING_THREAD`**, **`PERSISTENT_BLOCKED_THREAD`**, and **`LATENCY_SECTION_DETECTED`** findings |
+| **Thread → flamegraph** | Batch-converts hundreds of dumps into a FlameGraph-compatible collapsed file (CLI + HTTP), feed straight into the Canvas flamegraph |
+| **Image export** | PNG 1×/2×/3×, JPEG 2×, SVG vector — per chart and **"Save all charts"** batch export per page |
+| **UI** | Tailwind v4 + shadcn/ui shell, slim top bar, collapsible sidebar, light/dark/system theme, Korean ↔ English labels |
+
+## Architecture
+
+```text
+┌────────────────────────────────────────────────────────────────┐
+│  Browser (React + Tailwind v4 + shadcn/ui + D3 + ECharts)      │
+│                                                                │
+│   • AppShell (TopBar + Sidebar + Tabs)                         │
+│   • Pages: Dashboard / Access Log / Profiler / GC / Threads /  │
+│     Exception / JFR / Demo / Export / Chart Studio / Settings  │
+│   • Charts: D3 Flame / Canvas Flame / D3 Timeline / D3 Bar /   │
+│     ECharts (legacy)                                           │
+└──────────────────────────┬─────────────────────────────────────┘
+                           │  fetch /api/...
+                           ▼
+┌────────────────────────────────────────────────────────────────┐
+│  FastAPI engine (`archscope-engine serve`)                     │
+│                                                                │
+│   • /api/upload          multipart → server-side temp path     │
+│   • /api/analyzer/execute     dispatcher (10+ analyzer types)  │
+│   • /api/export/execute       HTML / PPTX / diff exports       │
+│   • /api/demo/...             demo bundles                     │
+│   • /api/files                stream artifacts back            │
+│   • /api/settings             persisted under ~/.archscope/    │
+│   • Static React build        served at /                      │
+└──────────────────────────┬─────────────────────────────────────┘
+                           │  in-process call
+                           ▼
+┌────────────────────────────────────────────────────────────────┐
+│  archscope_engine (pure Python — no Electron, no subprocess)   │
+│                                                                │
+│   parsers/  →  per-format parsers                              │
+│       access_log, collapsed, jennifer_csv,                     │
+│       svg_flamegraph, html_profiler,                           │
+│       gc_log, jfr, exception, otel,                            │
+│       thread_dump/{java_jstack, go_goroutine, python_dump,     │
+│                     nodejs_report, dotnet_clrstack, registry}  │
+│                                                                │
+│   analyzers/  →  per-domain analyzers                          │
+│       access_log, profiler (collapsed / SVG / HTML / Jennifer),│
+│       gc_log, jfr, thread_dump, multi_thread_analyzer,         │
+│       thread_dump_to_collapsed, exception, runtime, otel       │
+│                                                                │
+│   exporters/  →  json, html, pptx, report_diff                 │
+│   models/     →  AnalysisResult contract, FlameNode,           │
+│                  ThreadSnapshot, StackFrame, ThreadState       │
+└────────────────────────────────────────────────────────────────┘
+```
+
+The browser never imports a parser; the React app only renders normalized
+`AnalysisResult` JSON received from FastAPI. Everything (parsing,
+enrichment, multi-dump correlation, exports) runs locally in Python —
+no data leaves the machine.
+
+## CLI overview
+
+```bash
+archscope-engine serve [--host 127.0.0.1 --port 8765 --reload]
+
+# Profiler
+archscope-engine profiler analyze-collapsed --wall flame.collapsed --out result.json
+archscope-engine profiler analyze-flamegraph-svg --file flame.svg --out result.json
+archscope-engine profiler analyze-flamegraph-html --file flame.html --out result.json
+archscope-engine profiler analyze-jennifer-csv --file flame.csv --out result.json
+
+# GC, JFR, exception, access log, etc.
+archscope-engine gc-log analyze --file gc.log --out result.json
+archscope-engine jfr analyze-json --file jfr.json --out result.json
+archscope-engine access-log analyze --file access.log --format nginx --out result.json
+
+# Thread dumps (Java/Go/Python/Node.js/.NET — auto-detected)
+archscope-engine thread-dump analyze --file dump.txt --out result.json
+archscope-engine thread-dump analyze-multi \
+    --input d1.txt --input d2.txt --input d3.txt \
+    --out multi.json [--consecutive-threshold 3] [--format <id>]
+archscope-engine thread-dump to-collapsed \
+    --input d1.txt --input d2.txt --output flame.collapsed [--format <id>]
+
+# Reports
+archscope-engine report html  --input result.json --out report.html
+archscope-engine report pptx  --input result.json --out report.pptx
+archscope-engine report diff  --before before.json --after after.json --out diff.json --html-out diff.html
+```
+
+## Repository layout
 
 ```text
 archscope/
-  apps/desktop/        Electron + React desktop skeleton
-  engines/python/      Python parser and analysis engine
-  docs/                Product and architecture design documents
-  examples/            Sample input data and generated outputs
-  scripts/             Development helper scripts
+  apps/desktop/          React + Vite + Tailwind v4 frontend
+                         (served as a static bundle by FastAPI)
+  engines/python/        archscope_engine package + FastAPI server
+  scripts/               serve-web.sh, run-engine.sh, demo runners
+  docs/{en,ko}/          Architecture, parser, user guide, …
+  examples/              Sample inputs + generated outputs
 ```
 
 ## Documentation
 
-- [English documentation](docs/en/README.md)
-- [Korean documentation](docs/ko/README.md)
+- [English documentation index](docs/en/README.md)
+- [Korean documentation index](docs/ko/README.md)
+- User guide — [English](docs/en/USER_GUIDE.md) · [한국어](docs/ko/USER_GUIDE.md)
+- Multi-language thread dumps — [English](docs/en/MULTI_LANGUAGE_THREADS.md) · [한국어](docs/ko/MULTI_LANGUAGE_THREADS.md)
+- Architecture — [English](docs/en/ARCHITECTURE.md) · [한국어](docs/ko/ARCHITECTURE.md)
 
-## Development
+## Local privacy guarantee
 
-### Desktop UI
-
-```bash
-cd apps/desktop
-npm install
-npm run dev
-```
-
-The desktop app starts an Electron shell and loads the Vite React UI.
-The current UI includes an English/Korean language selector for navigation, dashboard labels, analyzer skeleton pages, and chart labels.
-
-### Python Engine
-
-```bash
-cd engines/python
-python -m venv .venv
-source .venv/bin/activate
-pip install -e .
-archscope-engine --help
-```
-
-Run the sample access log analysis:
-
-```bash
-archscope-engine access-log analyze \
-  --file ../../examples/access-logs/sample-nginx-access.log \
-  --format nginx \
-  --out ../../examples/outputs/access-log-result.json
-```
-
-Parser debug logs are generated automatically when malformed records are skipped. They are redacted by default and can be forced or redirected:
-
-```bash
-archscope-engine access-log analyze \
-  --file ../../examples/access-logs/sample-nginx-access.log \
-  --format nginx \
-  --out ../../examples/outputs/access-log-result.json \
-  --debug-log \
-  --debug-log-dir ./archscope-debug
-```
-
-Run the sample async-profiler collapsed analysis:
-
-```bash
-archscope-engine profiler analyze-collapsed \
-  --wall ../../examples/profiler/sample-wall.collapsed \
-  --wall-interval-ms 100 \
-  --elapsed-sec 1336.559 \
-  --out ../../examples/outputs/profiler-result.json
-```
-
-Run the sample Jennifer APM flamegraph CSV analysis:
-
-```bash
-archscope-engine profiler analyze-jennifer-csv \
-  --file ../../examples/profiler/sample-jennifer-flame.csv \
-  --out ../../examples/outputs/profiler-jennifer-result.json
-```
-
-Profiler drill-down and execution breakdown are available through:
-
-```bash
-archscope-engine profiler drilldown \
-  --wall ../../examples/profiler/sample-wall.collapsed \
-  --filter oracle.jdbc \
-  --out ../../examples/outputs/profiler-drilldown-result.json
-
-archscope-engine profiler breakdown \
-  --wall ../../examples/profiler/sample-wall.collapsed \
-  --filter RestTemplate \
-  --out ../../examples/outputs/profiler-breakdown-result.json
-
-archscope-engine gc-log analyze \
-  --file ../../examples/gc-logs/sample-hotspot-gc.log \
-  --out ../../examples/outputs/gc-log-result.json
-
-archscope-engine thread-dump analyze \
-  --file ../../examples/thread-dumps/sample-java-thread-dump.txt \
-  --out ../../examples/outputs/thread-dump-result.json
-
-archscope-engine exception analyze \
-  --file ../../examples/exceptions/sample-java-exception.txt \
-  --out ../../examples/outputs/exception-result.json
-```
-
-Generate a portable HTML report from any `AnalysisResult` JSON or parser debug JSON:
-
-```bash
-archscope-engine report html \
-  --input ../../examples/outputs/access-log-result.json \
-  --out ../../examples/outputs/access-log-report.html
-
-archscope-engine report diff \
-  --before ../../examples/outputs/access-log-result.json \
-  --after ../../examples/outputs/access-log-result.json \
-  --out ../../examples/outputs/access-log-diff.json \
-  --html-out ../../examples/outputs/access-log-diff.html
-
-archscope-engine report pptx \
-  --input ../../examples/outputs/access-log-result.json \
-  --out ../../examples/outputs/access-log-report.pptx
-```
-
-Multi-runtime analyzer MVP commands:
-
-```bash
-archscope-engine nodejs analyze \
-  --file ../../examples/runtime/sample-nodejs-stack.txt \
-  --out ../../examples/outputs/nodejs-stack-result.json
-
-archscope-engine python-traceback analyze \
-  --file ../../examples/runtime/sample-python-traceback.txt \
-  --out ../../examples/outputs/python-traceback-result.json
-
-archscope-engine go-panic analyze \
-  --file ../../examples/runtime/sample-go-panic.txt \
-  --out ../../examples/outputs/go-panic-result.json
-
-archscope-engine dotnet analyze \
-  --file ../../examples/runtime/sample-dotnet-iis.txt \
-  --out ../../examples/outputs/dotnet-iis-result.json
-
-archscope-engine otel analyze \
-  --file ../../examples/otel/sample-otel-logs.jsonl \
-  --out ../../examples/outputs/otel-logs-result.json
-```
-
-### Demo-Site Report Bundles
-
-Shared demo-site manifests live in `../projects-assets/test-data/demo-site`.
-ArchScope reads the manifest and analyzer type mapping from that asset
-repository, then writes generated bundles locally:
-
-```bash
-./scripts/run-demo-site-data.sh
-
-python -m archscope_engine.cli demo-site run \
-  --manifest-root ../projects-assets/test-data/demo-site \
-  --data-source synthetic \
-  --scenario gc-pressure \
-  --out /tmp/archscope-demo-bundles
-```
-
-Each scenario bundle contains `run-summary.json`, `index.html`, analyzer
-JSON/HTML/PPTX outputs, and baseline comparison reports where matching
-`analyzer_type` outputs exist. The canonical manifest mapping is
-`../projects-assets/test-data/demo-site/analyzer_type_mapping.json`; inspect it
-with `python -m archscope_engine.cli demo-site mapping --manifest-root ...`.
-
-## Current Scope
-
-This repository currently contains the foundation only:
-
-- Public repository skeleton
-- Design documents
-- Electron + React + TypeScript UI skeleton
-- ECharts sample dashboard
-- Python engine skeleton
-- Minimal NGINX-like access log parser
-- Minimal async-profiler collapsed parser
-- Jennifer APM flamegraph CSV import
-- Profiler flamegraph drill-down and execution breakdown
-- JVM GC log, thread dump, and exception stack analyzer MVPs
-- Node.js, Python traceback, Go panic/goroutine, and .NET/IIS analyzer MVPs
-- OpenTelemetry JSONL log analyzer and cross-service trace correlation MVP
-- Portable redacted parser debug logs for field parser fixes
-- JSON result export
-- Portable HTML report export from result/debug JSON
-- Before/after comparison result export
-- Minimal PowerPoint report export
-- Static HTML flamegraph rendering for profiler result JSON
-- Chart Studio template preview with title, renderer, theme, and option JSON controls
-- Demo Data Center and demo-site report bundle generation from shared manifests
-
-Packaging polish and broad large-file optimization remain later-phase work. The desktop package now includes a Playwright/Electron smoke check for the Demo Data Center flow.
-
-Current implementation work for this project is closed at the present scope. There are no active `T-xxx` backlog items in `work_status.md`; future work should start only from newly submitted review documents, explicit roadmap reopening, or verification/documentation maintenance.
+ArchScope is local-first. Every parser, every analyzer, and every
+exporter runs in the Python process you started with
+`archscope-engine serve`. The only external dependency the FastAPI
+server has is the network stack to bind `127.0.0.1`. No telemetry,
+no remote LLM call (the optional AI interpretation requires a local
+Ollama runtime), no third-party SaaS. Uploaded files live under
+`~/.archscope/uploads/` and can be deleted at any time.
 
 ## License
 
-MIT License
+MIT — see [LICENSE](./LICENSE).

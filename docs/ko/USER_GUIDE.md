@@ -1,855 +1,521 @@
-# ArchScope 사용자 가이드
+# ArchScope 사용자 가이드 (한국어)
 
-이 문서는 ArchScope Desktop Application의 사용자를 위한 종합 가이드입니다.
+[English](../en/USER_GUIDE.md)
+
+ArchScope의 모든 페이지와 CLI 명령을 단계별로 설명합니다. 1분 안에
+시작하고 싶으면 [최상위 README](../../README.md)의 빠른 시작을 보세요.
 
 ---
 
 ## 목차
 
-1. [ArchScope 소개](#archscope-소개)
-2. [설치 및 실행](#설치-및-실행)
-3. [화면 구성 개요](#화면-구성-개요)
-4. [Dashboard](#dashboard)
-5. [Access Log Analyzer](#access-log-analyzer)
-6. [Profiler Analyzer](#profiler-analyzer)
-7. [GC Log Analyzer](#gc-log-analyzer)
-8. [Thread Dump Analyzer](#thread-dump-analyzer)
-9. [Exception Analyzer](#exception-analyzer)
-10. [Chart Studio](#chart-studio)
-11. [Demo Data Center](#demo-data-center)
-12. [Export Center](#export-center)
-13. [Settings](#settings)
-14. [공통 기능](#공통-기능)
-15. [문제 해결](#문제-해결)
-
----
-
-## ArchScope 소개
-
-### 이 도구는 무엇인가요?
-
-ArchScope는 애플리케이션 운영 데이터(access log, GC log, profiler output, thread dump, exception stack trace 등)를 분석하여 아키텍처 진단 근거로 변환하는 Desktop 도구입니다.
-
-### 누구를 위한 도구인가요?
-
-- **애플리케이션 아키텍트**: 운영 데이터를 보고서용 진단 근거로 정리해야 하는 분
-- **성능 엔지니어**: 병목 구간 분석과 시각화가 필요한 분
-- **개발팀 리더**: 시스템 상태를 팀에 공유할 보고서를 만들어야 하는 분
-
-### 핵심 가치
-
-- **오프라인 동작**: 모든 분석이 로컬에서 수행되며, 외부 서버로 데이터를 전송하지 않습니다
-- **보고서 중심**: 단순 조회가 아니라, 바로 보고서에 넣을 수 있는 차트와 표를 생성합니다
-- **다중 런타임**: Java/JVM뿐 아니라 Node.js, Python, Go, .NET 스택도 분석합니다
-
-### 진단 흐름
-
-```
-원천 데이터 → 파싱 → 분석/집계 → 시각화 → 보고서 Export
-```
-
-ArchScope는 이 전체 흐름을 하나의 도구 안에서 처리합니다.
+1. [설치 및 실행](#설치-및-실행)
+2. [UI 둘러보기](#ui-둘러보기)
+3. [Dashboard](#dashboard)
+4. [Access Log Analyzer](#access-log-analyzer)
+5. [Profiler Analyzer](#profiler-analyzer)
+6. [GC Log Analyzer](#gc-log-analyzer)
+7. [Thread Dump Analyzer](#thread-dump-analyzer)
+8. [Exception / JFR Analyzer](#exception--jfr-analyzer)
+9. [Demo Data Center](#demo-data-center)
+10. [Export Center](#export-center)
+11. [Chart Studio](#chart-studio)
+12. [Settings](#settings)
+13. [이미지 내보내기 & "모든 차트 저장"](#이미지-내보내기--모든-차트-저장)
+14. [Thread → Flamegraph 변환](#thread--flamegraph-변환)
+15. [CLI 레퍼런스](#cli-레퍼런스)
+16. [트러블슈팅 FAQ](#트러블슈팅-faq)
 
 ---
 
 ## 설치 및 실행
 
-### 시스템 요구사항
+### 요구사항
 
-| 항목 | 요구사항 |
-|------|----------|
-| OS | macOS 12+, Windows 10+ |
-| Python | 3.10 이상 |
-| Node.js | 18 이상 (개발 환경) |
-| 메모리 | 8GB 이상 권장 |
-| 디스크 | 500MB 이상 여유 공간 |
+| 항목 | 값 |
+| --- | --- |
+| OS | macOS / Linux / Windows |
+| Python | 3.9 이상 |
+| Node.js | 18+ (UI를 소스에서 빌드할 때만) |
+| RAM | 최소 4 GB, 대규모 플레임그래프는 8 GB 권장 |
+| Disk | ~500 MB |
 
-### 설치 방법
-
-#### 방법 1: 패키징된 Desktop App (향후 배포)
-
-패키징된 앱은 별도 설치 없이 실행 파일을 더블클릭하여 시작합니다. Python engine이 sidecar binary로 포함되어 있어 추가 설정이 필요하지 않습니다.
-
-#### 방법 2: 개발 환경에서 실행
+### 엔진 설치
 
 ```bash
-# 1. Python Engine 설치
 cd engines/python
 python -m venv .venv
-source .venv/bin/activate    # macOS/Linux
-# .venv\Scripts\activate     # Windows
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -e .
-
-# 2. Desktop UI 실행
-cd apps/desktop
-npm install
-npm run dev
 ```
 
-### 첫 실행 확인
+`pip install -e .`이 `archscope-engine` 콘솔 스크립트를 등록하고
+FastAPI / uvicorn / defusedxml / Typer / python-multipart를 설치합니다.
 
-앱을 실행하면 좌측 사이드바와 함께 Dashboard 화면이 표시됩니다. 상단 파이프라인 다이어그램(Raw Data → Parsing → Analysis → Visualization → Export)이 보이면 정상 실행된 것입니다.
+### UI 빌드 + 서버 기동
+
+저장소에 한 번에 처리하는 헬퍼가 있습니다:
+
+```bash
+./scripts/serve-web.sh             # macOS / Linux
+```
+
+수동 실행:
+
+```bash
+cd apps/desktop
+npm install
+npm run build                      # apps/desktop/dist 생성
+cd ../..
+archscope-engine serve --static-dir apps/desktop/dist
+```
+
+브라우저에서 `http://127.0.0.1:8765` 접속. 기본 바인딩은
+`127.0.0.1`이며 LAN에 노출하려면 `--host 0.0.0.0`을 명시해야 합니다.
+
+### 핫 리로드 개발 루프
+
+```bash
+# 터미널 1 — 엔진 자동 리로드
+archscope-engine serve --reload
+
+# 터미널 2 — Vite dev 서버 (/api → :8765 프록시)
+cd apps/desktop && npm run dev     # http://127.0.0.1:5173
+```
 
 ---
 
-## 화면 구성 개요
+## UI 둘러보기
 
-### 전체 레이아웃
-
-ArchScope의 화면은 크게 세 영역으로 나뉩니다.
-
-```
-┌─────────────────────────────────────────────────────┐
-│                    상단 바 (TopBar)                    │
-├──────────┬──────────────────────────────────────────┤
-│          │                                          │
-│  사이드바  │              메인 컨텐츠                   │
-│ (Sidebar)│            (Main Panel)                  │
-│          │                                          │
-│          │                                          │
-└──────────┴──────────────────────────────────────────┘
+```text
+┌────────────────────────────────────────────────────────┐
+│  TopBar — 브랜드 · 검색 · 테마 · 언어 · 설정              │
+├────────────┬───────────────────────────────────────────┤
+│ Sidebar    │  메인 콘텐츠                                │
+│ (접기 가능)│  ┌─────────────────────────────────────┐  │
+│            │  │ Sticky FileDock (드래그 & 드롭)      │  │
+│            │  ├─────────────────────────────────────┤  │
+│            │  │ Tabs (페이지별)                      │  │
+│            │  │   summary / charts / tables / …     │  │
+│            │  └─────────────────────────────────────┘  │
+└────────────┴───────────────────────────────────────────┘
 ```
 
-### 상단 바 (TopBar)
+- **TopBar** — light/dark/system 테마(영구), 언어 토글(English / 한국어),
+  설정 단축버튼.
+- **Sidebar** — 접기 가능한 아이콘 레일. 접힘 상태는 `localStorage`에
+  저장. 섹션: Analyzers, Workspace, Settings.
+- **FileDock** — 모든 분석기 페이지 상단의 sticky 업로드 카드. 파일을
+  드래그하거나 "Browse" 클릭. 업로드된 파일은 `~/.archscope/uploads/`
+  에 저장되고, 분석기는 그 서버 측 경로를 받아서 동작합니다.
+- **Tabs** — 결과를 Summary / Charts / 도메인별 / Diagnostics 등으로
+  분할해서 한 페이지가 무한 스크롤되지 않게 합니다.
 
-- **ArchScope 로고**: 앱 이름과 브랜드 표시
-- **파이프라인 다이어그램**: 현재 진단 흐름을 시각적으로 보여줍니다
-- **언어 전환**: English / 한국어 전환 드롭다운
-
-### 사이드바 (Sidebar)
-
-좌측 280px 너비의 네비게이션 패널입니다. 아래 메뉴를 순서대로 포함합니다:
-
-| 메뉴 | 설명 |
-|------|------|
-| Dashboard | 분석 결과 요약 대시보드 |
-| Access Log | 웹 서버 접근 로그 분석 |
-| Profiler | CPU/Wall 프로파일 분석 |
-| GC Log | JVM GC 로그 분석 |
-| Thread Dump | 스레드 덤프 분석 |
-| Exception | 예외 스택 분석 |
-| Chart Studio | 차트 템플릿 미리보기 |
-| Demo Data Center | 데모 시나리오 실행 |
-| Export Center | 보고서 내보내기 |
-| Settings | 설정 |
-
-### 메인 패널 (Main Panel)
-
-선택한 메뉴에 따라 해당 기능의 화면이 표시됩니다. Analyzer 페이지들은 공통적으로 두 영역으로 나뉩니다:
-
-- **왼쪽 도구 패널 (Tool Panel)**: 파일 선택, 옵션 설정, 실행 버튼
-- **오른쪽 결과 패널 (Results Panel)**: 메트릭 카드, 차트, 테이블
+대부분의 페이지에는 TabsList 우측에 **"모든 차트 저장"** 버튼이
+있습니다 — [이미지 내보내기](#이미지-내보내기--모든-차트-저장) 참고.
 
 ---
 
 ## Dashboard
 
-### 화면 설명
+마지막으로 실행한 분석 결과(`saveDashboardResult`를 호출하는 모든
+분석기)를 기억하고 access-log 메트릭 카드와 표준 차트 패널을 보여
+줍니다.
 
-Dashboard는 ArchScope를 실행했을 때 가장 먼저 보이는 화면입니다. 샘플 분석 결과를 사용하여 주요 지표와 차트를 한눈에 보여줍니다.
-
-### 표시 항목
-
-#### 메트릭 카드 (4개)
-
-| 카드 | 설명 |
-|------|------|
-| Total Requests | 분석된 총 요청 수 |
-| Avg Response Time | 평균 응답 시간 (ms) |
-| p95 Response Time | 95 퍼센타일 응답 시간 (ms) |
-| Error Rate | 에러 비율 (%) |
-
-#### 차트
-
-- **요청 수 추이**: 시간별 요청량 변화를 라인 차트로 표시
-- **응답 시간 추이**: 시간별 평균/p95 응답 시간 추이
-- **상태 코드 분포**: HTTP 상태 코드별 비율 (파이 차트 또는 바 차트)
-
-### 사용법
-
-Dashboard는 별도 조작 없이 자동으로 샘플 데이터를 로드합니다. 실제 분석을 수행하려면 좌측 사이드바에서 원하는 Analyzer를 선택하세요.
+- **빈 상태** — 분석을 한 번도 안 돌렸으면 "분석 결과 없음" 안내.
+  분석기 한 번 실행하고 다시 오세요.
+- **모든 차트 저장** — 한 번 클릭으로 Dashboard의 모든 차트를 2× PNG로
+  일괄 저장.
 
 ---
 
 ## Access Log Analyzer
 
-### 화면 설명
+### 입력
 
-웹 서버(NGINX, Apache, OHS, WebLogic, Tomcat 등)의 접근 로그를 분석하여 요청 통계, 응답 시간 분포, 에러율을 산출합니다.
+`.log` / `.txt` 액세스 로그를 FileDock에 드롭. **Analyzer options**
+카드에서 포맷 선택:
 
-### 지원 로그 형식
+- `nginx`(기본), `apache`, `ohs`, `weblogic`, `tomcat`,
+  `custom-regex`(폴백 파서, 느림).
 
-| 형식 | 설명 |
-|------|------|
-| nginx | NGINX combined/custom log format |
-| apache | Apache combined log format |
-| ohs | Oracle HTTP Server log format |
-| weblogic | WebLogic access log format |
-| tomcat | Tomcat access log format |
-| custom_regex | 사용자 정의 정규식 패턴 |
+선택 옵션:
 
-### 사용법 (단계별)
+- **Max lines** — 빠른 테스트용 N라인 샘플링.
+- **Start time / End time** — ISO `datetime-local`. 엔진이 그 범위로
+  분석을 좁힙니다.
 
-#### 1단계: 파일 선택
+**Analyze** 클릭. 실행 중이면 **Cancel** 버튼이 보입니다.
 
-- **드래그 앤 드롭**: 분석할 로그 파일을 파일 드롭 영역으로 끌어다 놓습니다
-- **또는 찾아보기**: "Browse" 버튼을 클릭하여 파일 선택 대화상자에서 파일을 선택합니다
+### 탭
 
-파일이 선택되면 드롭 영역에 파일 경로가 표시됩니다.
-
-#### 2단계: 옵션 설정
-
-| 옵션 | 필수 | 기본값 | 설명 |
-|------|------|--------|------|
-| Log Format | 예 | nginx | 분석할 로그의 형식 |
-| Max Lines | 아니오 | 전체 | 분석할 최대 줄 수 (대용량 파일 시 유용) |
-| Start Time | 아니오 | - | 분석 시작 시각 필터 |
-| End Time | 아니오 | - | 분석 종료 시각 필터 |
-
-**팁**: 수백MB 이상의 대용량 파일은 Max Lines를 설정하여 먼저 샘플 분석한 뒤, 필요시 전체 분석을 수행하세요.
-
-#### 3단계: 분석 실행
-
-- 파일과 Log Format이 모두 설정되면 **"Analyze"** 버튼이 활성화됩니다
-- 버튼을 클릭하면 분석이 시작됩니다
-- 분석 중에는 "Analyzing..." 상태가 표시되며, **"Cancel"** 버튼으로 중단할 수 있습니다
-
-#### 4단계: 결과 확인
-
-분석이 완료되면 오른쪽 결과 패널에 다음이 표시됩니다:
-
-**메트릭 카드:**
-- Total Requests: 총 요청 수
-- Avg Response Time: 평균 응답 시간
-- p95 Response Time: 95 퍼센타일 응답 시간
-- Error Rate: HTTP 4xx/5xx 에러 비율
-
-**차트:**
-- 시간대별 요청 수 추이 (라인 차트)
-
-**테이블:**
-- Top URLs by Response Time: 응답 시간 기준 상위 URL 목록
-  - URI: 요청 URL 경로
-  - Count: 해당 URL의 요청 횟수
-  - Response Time: 평균 응답 시간
-
-**진단 정보 (Diagnostics Panel):**
-- Total Lines: 파일의 전체 줄 수
-- Parsed Records: 정상 파싱된 레코드 수
-- Skipped Lines: 건너뛴 비정상 줄 수
-- Samples: 건너뛴 줄의 예시 (있는 경우)
-
-**엔진 메시지 (Engine Messages Panel):**
-- 분석 엔진에서 전달하는 정보성 메시지
-
-### 결과 해석 가이드
-
-- **Skipped Lines가 많은 경우**: Log Format 설정이 실제 파일 형식과 맞는지 확인하세요
-- **Error Rate가 높은 경우**: 특정 시간대에 에러가 집중되었는지 차트에서 확인하세요
-- **p95가 평균보다 크게 높은 경우**: 일부 요청에서 심각한 지연이 발생하고 있습니다. Top URLs 테이블에서 원인 URL을 확인하세요
+| 탭 | 내용 |
+| --- | --- |
+| Summary | 전체 요청 수 · avg / p95 응답 · 오류율 메트릭 카드. |
+| Charts | Request count trend (ECharts 패널 — D3 차트와 동일한 이미지 export 드롭다운 지원). |
+| Top URLs | 가장 느린 URI 정렬 테이블 (URI · count · avg ms). |
+| Diagnostics | 파서 진단 — 스킵된 라인 수와 일부 실패 샘플(custom format 디버깅용). |
 
 ---
 
 ## Profiler Analyzer
 
-### 화면 설명
+### 입력
 
-CPU 또는 Wall-clock 프로파일러(async-profiler 등)의 collapsed stack 출력을 분석하여 Flamegraph, 상위 스택, 실행 시간 분포를 보여줍니다.
+**Profile format** 셀렉터로 파서 선택:
 
-### 지원 입력 형식
+| `profileFormat` | 받는 형식 | 언제 |
+| --- | --- | --- |
+| `collapsed` | `*.collapsed`, `*.txt` | async-profiler `-o collapsed`, perf `stackcollapse-perf.pl`, jstack 변환 결과(아래 [Thread → Flamegraph](#thread--flamegraph-변환) 참고). |
+| `jennifer_csv` | `*.csv` | Jennifer APM 플레임그래프 CSV. |
+| `flamegraph_svg` | `*.svg` | FlameGraph.pl 또는 async-profiler `-o svg`. |
+| `flamegraph_html` | `*.html`, `*.htm` | async-profiler self-contained HTML(인라인 SVG 또는 임베디드 JS 트리). |
 
-- **Collapsed Stack**: async-profiler의 collapsed 형식 출력 (`-o collapsed`)
-- **Jennifer APM CSV**: Jennifer APM에서 내보낸 flamegraph CSV (별도 메뉴)
+포맷을 바꾸면 FileDock의 `accept`도 자동 전환되어 OS 파일 선택창이
+관련 확장자만 보여줍니다.
 
-### 사용법 (단계별)
+`collapsed` 입력의 경우 **Profile kind**가 `wall` / `cpu` / `lock`
+중 하나를 선택합니다(라벨과 finding에만 영향, 파싱은 동일).
 
-#### 1단계: 파일 선택
+기타 옵션:
 
-Wall-clock collapsed stack 파일을 드래그 앤 드롭하거나 "Browse"로 선택합니다.
+- **Interval (ms)** — 샘플 간격(샘플 → 시간 변환에 사용).
+- **Elapsed seconds** — wall-clock 윈도우 길이, 선택.
+- **Top N** — breakdown에 표시할 상위 스택 개수.
 
-#### 2단계: 옵션 설정
+### 탭
 
-| 옵션 | 필수 | 기본값 | 설명 |
-|------|------|--------|------|
-| Wall Interval (ms) | 예 | 100 | 프로파일링 샘플링 간격 (밀리초) |
-| Elapsed Seconds | 아니오 | - | 프로파일링 총 소요 시간 (초) |
-| Top N | 아니오 | 20 | 상위 N개 스택 표시 |
-| Filter Pattern | 아니오 | - | 스택 필터링 텍스트/정규식 |
-| Filter Type | 아니오 | include_text | 필터 적용 방식 |
-| Match Mode | 아니오 | anywhere | 매칭 모드 |
-| View Mode | 아니오 | preserve_full_path | 결과 표시 방식 |
+| 탭 | 내용 |
+| --- | --- |
+| Summary | 총 샘플 · interval · 추정 CPU/Wall 시간 + drill-down stage 메트릭(matched samples / estimated seconds / total ratio / parent stage ratio). |
+| Flame Graph | 인터랙티브 플레임그래프. **SVG 렌더러**가 기본이며, 트리가 **4 000 노드**를 넘으면 자동으로 **Canvas 렌더러**로 전환되어 변환된 thread-dump 번들도 부드럽게 동작. 프레임 클릭 → 줌인. 루트가 아니면 "Reset zoom" 표시. 호버 → sample count + ratio + category 툴팁. |
+| Drill-down | 스택 프레임 필터(`include_text` / `exclude_text` / `regex_include` / `regex_exclude`), 매칭 모드(`anywhere` / `ordered` / `subtree`), 뷰 모드(`preserve_full_path` / `reroot_at_match`). Apply로 stage push, Reset으로 원본 트리 복원. 현재 스테이지 breadcrumb 상단 표시. |
+| Breakdown | ECharts 도넛 + 막대 — execution 카테고리 분포(SQL / external API / network I/O / connection-pool wait / 기타). 카테고리별 top 메소드 테이블. |
+| Top Stacks | top N 스택 정렬 테이블(samples · estimated seconds · ratio). |
+| Diagnostics | 파서 진단. |
 
-**Filter Type 옵션:**
+### 플레임그래프 저장
 
-| 값 | 설명 |
-|----|------|
-| include_text | 지정 텍스트를 포함하는 스택만 표시 |
-| exclude_text | 지정 텍스트를 제외한 스택 표시 |
-| regex_include | 정규식에 매칭되는 스택만 표시 |
-| regex_exclude | 정규식에 매칭되는 스택 제외 |
-
-**Match Mode 옵션:**
-
-| 값 | 설명 |
-|----|------|
-| anywhere | 스택 어디에서든 패턴이 나타나면 매칭 |
-| ordered | 패턴이 순서대로 나타나야 매칭 |
-| subtree | 패턴 이하 서브트리만 추출 |
-
-**View Mode 옵션:**
-
-| 값 | 설명 |
-|----|------|
-| preserve_full_path | 전체 콜 스택 경로 유지 |
-| reroot_at_match | 매칭 지점을 루트로 재설정 |
-
-#### 3단계: 분석 실행
-
-파일과 Wall Interval이 설정되면 "Analyze" 버튼이 활성화됩니다. 클릭하여 실행합니다.
-
-#### 4단계: 결과 확인
-
-**메트릭 카드:**
-- Total Samples: 전체 샘플 수
-- Estimated Time: 추정 실행 시간
-
-**Flamegraph:**
-- 스택 프레임의 실행 시간 분포를 시각화합니다
-- 각 프레임 위에 마우스를 올리면 상세 정보를 볼 수 있습니다
-- 프레임을 클릭하면 해당 서브트리로 드릴다운합니다
-
-**Top Stacks 테이블:**
-- 실행 시간이 가장 긴 상위 스택 프레임 목록
-
-**Execution Breakdown 테이블:**
-- 런타임 분류별 실행 시간 분포 (예: JDBC, Spring, JVM Internal 등)
-
-### Flamegraph 드릴다운 사용법
-
-1. Flamegraph에서 관심 있는 프레임을 클릭합니다
-2. 해당 프레임이 루트가 되어 하위 콜 스택이 확대됩니다
-3. 상단 브레드크럼을 클릭하면 이전 레벨로 돌아갑니다
-4. 필터를 적용하면 특정 패키지/클래스만 포커싱할 수 있습니다
-
-### 결과 해석 가이드
-
-- **넓은 프레임**: 해당 메서드에서 많은 시간을 소비하고 있음을 의미합니다
-- **깊은 스택**: 콜 체인이 깊을수록 추적이 복잡해질 수 있습니다
-- **Execution Breakdown에서 특정 분류 비율이 높은 경우**: 해당 영역이 병목 후보입니다
-  - JDBC 비율 높음 → DB 쿼리 최적화 검토
-  - Network/HTTP 비율 높음 → 외부 호출 지연 점검
-  - GC 비율 높음 → 메모리 설정 검토
+- **SVG 렌더러** — 차트 프레임 "Save image" 드롭다운에서
+  PNG 1×/2×/3×, JPEG 2×, SVG 벡터 선택.
+- **Canvas 렌더러** — 별도 **"Save PNG"** 버튼이 추가됨.
+  `canvas.toDataURL()`로 현재 device pixel ratio에 맞춘 픽셀 퍼펙트
+  스냅샷. 표준 드롭다운(PNG/JPEG/SVG via `html-to-image`)도 그대로
+  동작.
 
 ---
 
 ## GC Log Analyzer
 
-### 화면 설명
+### 입력
 
-JVM Garbage Collection 로그를 분석하여 GC pause 시간 추이, 힙 사용량, Collector 원인별 분류를 제공합니다.
+`*.log` / `*.txt` / `*.gz` HotSpot unified GC 로그를 FileDock에
+드롭하고 **Analyze**. 엔진이 pause / heap / allocation / promotion
+타임라인과 collector별 카운트를 추출합니다.
 
-### 지원 입력 형식
+### 탭
 
-- HotSpot GC log (JDK 8 이상의 `-Xlog:gc*` 또는 `-verbose:gc` 형식)
-
-### 사용법 (단계별)
-
-#### 1단계: 파일 선택
-
-GC 로그 파일을 드래그 앤 드롭하거나 "Browse"로 선택합니다.
-
-#### 2단계: 분석 실행
-
-파일이 선택되면 "Analyze" 버튼이 활성화됩니다. 클릭하여 분석을 시작합니다.
-
-#### 3단계: 결과 확인
-
-**주요 분석 항목:**
-- GC pause 시간 타임라인
-- 힙 사용량 추이 (Before/After GC)
-- Collector 유형 및 원인별 분류
-- Full GC 발생 빈도
-
-### 결과 해석 가이드
-
-- **Pause 시간이 점진적으로 증가**: 메모리 누수 또는 힙 크기 부족 가능성
-- **Full GC 빈번**: Old Generation 크기 확대 또는 메모리 누수 점검 필요
-- **특정 시각에 GC pause 집중**: 해당 시간대의 트래픽 또는 배치 작업 확인
+| 탭 | 내용 |
+| --- | --- |
+| Summary | 15-stat 메트릭 그리드(throughput, p50/p95/p99/max/avg/total pause, young/full GC count, allocation/promotion rate, humongous count, concurrent-mode failures, promotion failures) + findings 카드. |
+| GC Pauses | **인터랙티브 타임라인**: 휠/드래그 줌(1× – 80×) + 하단 **브러시 선택 밴드**. 브러시하면 4-stat 선택 요약 카드(events in window / avg / p95 / max pause) 표시. Full-GC 이벤트는 주황 점선으로 표시되고 ~6 px 이내 호버 시 `cause`, `pause_ms`, `heap_before_mb`, `heap_after_mb`, `heap_committed_mb` 페이로드 노출. 줌하면 차트 헤더에 **Reset zoom** 표시. 아래 allocation 타임라인은 `allocation`에 area fill, `promotion`은 라인. |
+| Heap Usage | Heap-before(area) + Heap-after(line), 동일한 Full-GC 이벤트 마커. |
+| Algorithm comparison | 프론트엔드 집계 테이블 — `gc_type`별 pause 통계(count / avg / p95 / max / total ms) + 두 개의 horizontal D3 bar chart(avg + max). G1Young / G1Mixed / FullGC / ZGC / Shenandoah 비교에 유용. |
+| Breakdown | `gc_type_breakdown` / `cause_breakdown` D3 horizontal bar. |
+| Events | 최대 200개 이벤트 shadcn 테이블(timestamp · uptime · type · cause · pause · heaps). |
+| Diagnostics | 파서 진단. |
 
 ---
 
 ## Thread Dump Analyzer
 
-### 화면 설명
+ArchScope에서 유일한 "멀티 파일" 분석기입니다.
 
-Java Thread Dump를 분석하여 스레드 상태 분포, 블로킹 스레드 그룹, 스택 시그니처를 분류합니다.
+### 파일 추가
 
-### 지원 입력 형식
+Sticky FileDock이 **추가 도구**처럼 동작 — 업로드 성공할 때마다 아래
+누적 리스트에 행이 추가됩니다. 각 행은 인덱스, 원본 파일명, 업로드
+크기, `X` 제거 버튼.
 
-- `jstack` 출력 또는 동등한 JVM thread dump 텍스트
+지원되는 모든 런타임(Java, Go, Python, Node.js, .NET) 파일을 섞어도
+됩니다. 파서 레지스트리가 첫 4 KB를 sniff. 두 파일이 다른 포맷으로
+인식되면 `MIXED_THREAD_DUMP_FORMATS`로 즉시 실패. 강제로 한 파서를
+적용하려면 **Format override** 입력에 `format_id`를 입력
+(예: `java_jstack`) — 자동 감지 우회.
 
-### 사용법 (단계별)
+**Consecutive-dump threshold** 입력(기본 `3`)은 persistence finding
+임계치를 조절합니다.
 
-#### 1단계: 파일 선택
+**Correlate dumps** 클릭으로 멀티 덤프 분석 실행.
 
-Thread dump 파일을 드래그 앤 드롭하거나 "Browse"로 선택합니다.
+### 탭
 
-#### 2단계: 분석 실행
+| 탭 | 내용 |
+| --- | --- |
+| Findings | 6-stat summary 카드(total dumps / unique threads / long-running / persistent blocked / latency sections / threshold) + 심각도별 색상 finding 카드. **`LONG_RUNNING_THREAD`** / **`PERSISTENT_BLOCKED_THREAD`** 전체 테이블. |
+| Charts | D3 vertical bar — 덤프별 쓰레드 수. D3 horizontal sorted bar — 모든 덤프에 걸친 top 쓰레드 출현 빈도. |
+| Per dump | 덤프별 상태 분포 테이블. |
+| Threads | 쓰레드명별 출현 덤프 수 정렬 테이블. |
 
-파일이 선택되면 "Analyze" 버튼이 활성화됩니다. 클릭하여 분석을 시작합니다.
+Findings 카탈로그:
 
-#### 3단계: 결과 확인
+- **`LONG_RUNNING_THREAD`** *(warning)* — 같은 쓰레드명이 같은 RUNNABLE
+  스택을 ≥ N 연속 덤프 동안 유지.
+- **`PERSISTENT_BLOCKED_THREAD`** *(critical)* — BLOCKED / LOCK_WAIT
+  상태로 ≥ N 연속 덤프 동안 유지.
+- **`LATENCY_SECTION_DETECTED`** *(warning)* — `NETWORK_WAIT`,
+  `IO_WAIT`, `CHANNEL_WAIT` 중 하나로 ≥ N 연속 덤프 동안 유지.
+  Wait 카테고리는 언어별 enrichment 플러그인이 채움(예:
+  `EPoll.epollWait` → `NETWORK_WAIT`, `gopark` → `CHANNEL_WAIT`,
+  `Monitor.Enter` → `LOCK_WAIT`).
 
-**주요 분석 항목:**
-- 스레드 상태 분포 (RUNNABLE, WAITING, BLOCKED, TIMED_WAITING)
-- 블로킹 스레드 그룹 (같은 락을 대기하는 스레드 묶음)
-- 스택 시그니처 분석 (빈도 높은 콜 스택 패턴)
-
-### 결과 해석 가이드
-
-- **BLOCKED 스레드 다수**: 락 경합(Lock Contention) 문제. 어떤 리소스를 대기 중인지 확인
-- **WAITING 스레드 과다**: 커넥션 풀 고갈 또는 큐 대기 확인
-- **동일 스택 시그니처 반복**: 해당 코드 경로가 병목 후보
-
----
-
-## Exception Analyzer
-
-### 화면 설명
-
-Java 예외 스택 트레이스를 분석하여 예외 발생 추이, 근본 원인 그룹, 스택 시그니처를 분류합니다.
-
-### 지원 입력 형식
-
-- Java 예외 스택 트레이스 (표준 `printStackTrace()` 형식)
-
-### 사용법 (단계별)
-
-#### 1단계: 파일 선택
-
-예외 로그 파일을 드래그 앤 드롭하거나 "Browse"로 선택합니다.
-
-#### 2단계: 분석 실행
-
-파일이 선택되면 "Analyze" 버튼이 활성화됩니다. 클릭하여 분석을 시작합니다.
-
-#### 3단계: 결과 확인
-
-**주요 분석 항목:**
-- 예외 유형별 발생 빈도 추이
-- 근본 원인(Root Cause) 그룹
-- 스택 시그니처 테이블
-
-### 결과 해석 가이드
-
-- **특정 예외 급증**: 배포 또는 설정 변경 시점과 대조하세요
-- **NullPointerException 반복**: 방어 코드 또는 입력 검증 누락 확인
-- **동일 Root Cause 그룹**: 하나의 수정으로 여러 예외를 해결할 수 있는 기회
+언어별 enrichment 매트릭스와 감지 시그니처는
+[`MULTI_LANGUAGE_THREADS.md`](MULTI_LANGUAGE_THREADS.md) 참고.
 
 ---
 
-## Chart Studio
+## Exception / JFR Analyzer
 
-### 화면 설명
+두 분석기 모두 **PlaceholderPage** 셸 위에서 실행됩니다 — 무거운
+분석기들과 동일한 FileDock + Tabs 패턴을 가지지만 표면이 더
+간단합니다.
 
-Chart Studio는 ArchScope의 차트 템플릿을 미리보기하고 설정을 조정할 수 있는 개발/검토 도구입니다. 실제 분석 결과를 사용하기 전에 차트의 외형과 구성을 확인하는 데 활용합니다.
+- **Exception** — Java exception stack 파일(`*.txt` / `*.log`) 드롭.
+  요약 메트릭, 이벤트 스타일 테이블 미리보기, 파서 진단.
+- **JFR** — `jfr print --json recording.jfr`의 JSON 출력 드롭.
+  이벤트 분포, top 실행 샘플, GC pause 요약.
 
-### 사용법 (단계별)
-
-#### 1단계: 차트 템플릿 선택
-
-상단 드롭다운에서 사용 가능한 차트 템플릿을 선택합니다. 템플릿은 분석 유형별로 분류되어 있습니다.
-
-#### 2단계: 설정 조정
-
-| 설정 | 설명 |
-|------|------|
-| Custom Title | 차트 제목 커스터마이즈 |
-| Renderer | Canvas (성능 우선) 또는 SVG (선명도 우선) 선택 |
-| Theme | Light 또는 Dark 테마 전환 |
-
-#### 3단계: 미리보기 확인
-
-- 중앙에 차트 미리보기가 실시간으로 렌더링됩니다
-- 설정을 변경할 때마다 차트가 즉시 업데이트됩니다
-
-#### 4단계: Option JSON 확인
-
-- 하단에 생성된 ECharts option JSON을 확인할 수 있습니다
-- 이 JSON은 보고서 커스터마이징이나 디버깅에 참고할 수 있습니다
-
-### 활용 팁
-
-- **보고서 준비 시**: Light/Dark 테마를 전환하여 발표 환경에 맞는 차트 스타일을 확인하세요
-- **인쇄용**: SVG renderer를 선택하면 확대해도 선명한 출력물을 얻을 수 있습니다
-- **프레젠테이션용**: Canvas renderer가 렌더링 성능이 좋습니다
+업로드 + 분석 흐름은 다른 페이지와 동일합니다.
 
 ---
 
 ## Demo Data Center
 
-### 화면 설명
+본인 로그가 없으면 번들 fixture
+(`projects-assets/test-data/demo-site/`)를 실행할 수 있습니다.
 
-Demo Data Center는 미리 정의된 시나리오를 실행하여 ArchScope의 전체 분석 흐름을 체험할 수 있는 기능입니다. 테스트 데이터를 사용하여 분석 → 시각화 → 보고서 생성의 전 과정을 확인합니다.
+- 매니페스트 root 경로를 입력 또는 디렉토리 선택.
+- **All / synthetic / real** 데이터 소스 필터.
+- 단일 시나리오 드롭다운(선택).
+- **Run demo data** 클릭.
 
-### 사용법 (단계별)
-
-#### 1단계: Manifest Root 선택
-
-"Browse" 버튼을 클릭하여 demo-site manifest가 있는 디렉터리를 선택합니다.
-
-기본 위치: `projects-assets/test-data/demo-site`
-
-#### 2단계: 데이터 소스 필터
-
-| 필터 | 설명 |
-|------|------|
-| All | 모든 시나리오 표시 |
-| Synthetic | 합성(생성된) 테스트 데이터만 표시 |
-| Real | 실제 샘플 데이터만 표시 |
-
-#### 3단계: 시나리오 선택
-
-드롭다운에서 실행할 시나리오를 선택합니다. 각 시나리오는 특정 진단 상황을 시뮬레이션합니다 (예: GC 압력, 느린 쿼리, 높은 에러율 등).
-
-#### 4단계: 실행
-
-"Run demo data" 버튼을 클릭하면 선택된 시나리오가 실행됩니다.
-
-#### 5단계: 결과 확인
-
-실행 완료 후 다음 정보가 표시됩니다:
-
-**요약 메트릭:**
-- Analyzer Outputs: 생성된 분석 결과 수
-- Failed Analyzers: 실패한 분석기 수
-- Skipped Lines: 건너뛴 줄 수
-- Reference Files: 참조 파일 수
-- Findings: 발견된 항목 수
-
-**시나리오 결과 (확장 가능):**
-- **Artifact 테이블**: 생성된 분석 파일 목록
-  - "Open" 버튼: 시스템 뷰어에서 파일 열기
-  - "Send to Export Center" 버튼: Export Center로 파일 전달
-- **실패 목록**: 분석에 실패한 항목 (있는 경우)
-- **Skipped Lines**: 건너뛴 비정상 줄 수
-- **참조 파일**: 시나리오에 포함된 참고 자료
-
-### 활용 팁
-
-- ArchScope를 처음 사용하는 경우, Demo Data Center에서 시나리오를 실행하여 각 Analyzer의 출력을 미리 확인하세요
-- "Send to Export Center"를 활용하면 데모 결과를 바로 보고서로 변환할 수 있습니다
+결과 카드에 집계 통계 + 시나리오별 상세 카드와 artifact 테이블 표시.
+JSON artifact의 **Send to Export Center**로 Export Center에 자동
+주입.
 
 ---
 
 ## Export Center
 
-### 화면 설명
+완성된 `AnalysisResult` JSON을 최종 보고서로 렌더링:
 
-Export Center는 분석 결과(AnalysisResult JSON)를 다양한 형식의 보고서 파일로 변환합니다.
+| 포맷 | 결과 |
+| --- | --- |
+| `html` | 단일 파일 portable HTML 보고서(차트 + 테이블 + findings). |
+| `pptx` | 요약 + 핵심 차트가 들어간 minimal PowerPoint 덱. |
+| `diff` | Before-after 비교 — JSON diff와 HTML diff 동시 출력. |
 
-### 지원 Export 형식
+포맷 선택 → JSON 파일 browse → (옵션) 제목 / diff label 입력 →
+**Run export**. 결과 패널에 엔진이 작성한 모든 파일 표시.
 
-| 형식 | 설명 | 입력 |
-|------|------|------|
-| HTML Report | 인터랙티브 HTML 보고서 | JSON 1개 |
-| Before/After Diff | 개선 전후 비교 보고서 | JSON 2개 (Before, After) |
-| PowerPoint | 발표용 PPTX 슬라이드 | JSON 1개 |
+---
 
-### 사용법 (단계별)
+## Chart Studio
 
-#### 1단계: Export 형식 선택
+내장 차트 템플릿을 샘플 `AnalysisResult`로 미리보고 편집:
 
-상단 드롭다운에서 원하는 Export 형식을 선택합니다.
-
-#### 2단계: 입력 파일 선택
-
-선택한 형식에 따라 입력 UI가 변경됩니다:
-
-**HTML Report / PowerPoint:**
-- "Browse" 버튼으로 분석 결과 JSON 파일 1개를 선택합니다
-
-**Before/After Diff:**
-- Before JSON: 개선 전 분석 결과 파일
-- After JSON: 개선 후 분석 결과 파일
-
-#### 3단계: Export 실행
-
-"Export" 버튼을 클릭하면 보고서 생성이 시작됩니다.
-
-#### 4단계: 결과 확인
-
-생성 완료 후:
-- **출력 파일 경로**: 생성된 보고서 파일의 위치가 표시됩니다
-- **엔진 메시지**: 변환 과정의 정보성 메시지
-- **에러 정보**: 실패 시 상세 에러 내용
-
-### Export 형식별 상세
-
-#### HTML Report
-
-- 단일 HTML 파일로 생성됩니다 (외부 의존성 없음)
-- 브라우저에서 바로 열어 확인할 수 있습니다
-- 포함 내용: summary, findings, diagnostics, series 차트, tables, chart data preview
-- Profiler 결과의 경우 static HTML flamegraph가 포함됩니다
-
-#### Before/After Diff
-
-- 두 분석 결과의 주요 지표를 비교합니다
-- numeric summary field와 finding count의 변화를 보여줍니다
-- `--html-out` 옵션 사용 시 비교 HTML도 함께 생성됩니다
-
-#### PowerPoint
-
-- `.pptx` 형식으로 생성됩니다
-- 포함 슬라이드: 제목, source metadata, summary metrics, findings
-- 발표 자료에 바로 활용할 수 있습니다
-
-### 활용 팁
-
-- **정기 보고 시**: HTML Report로 빠르게 공유 가능한 보고서를 생성하세요
-- **성능 개선 보고 시**: Before/After Diff로 개선 효과를 명확히 보여주세요
-- **경영진 보고 시**: PowerPoint로 요약 슬라이드를 자동 생성하세요
+- 엔진이 제공하는 모든 차트 레이아웃 확인.
+- 템플릿별 SVG vs canvas 렌더러 토글.
+- 인라인 ECharts option JSON 편집(Edit → Apply / Reset).
+- **Load JSON** — 디스크의 분석기 JSON을 선택해서 현재 템플릿 다시
+  렌더링. 파일은 `/api/files?path=...`로 가져옴.
 
 ---
 
 ## Settings
 
-### 화면 설명
-
-Settings 화면에서는 ArchScope의 전반적인 동작을 설정합니다.
-
-### 설정 항목 (향후 제공)
-
-| 항목 | 설명 |
-|------|------|
-| Engine Path | Python engine 실행 파일 경로 |
-| Default Chart Theme | 기본 차트 테마 (Light/Dark) |
-| Locale | UI 및 보고서 기본 언어 (English/Korean) |
+- **Engine path** — 비워두면 번들 엔진 사용. 별도
+  `archscope-engine` 바이너리를 운영할 때만 입력.
+- **Theme** — 3-button 선택(Light / Dark / System), 글로벌
+  ThemeProvider와 연동, `localStorage`에 저장.
+- **Default chart theme** — ECharts 패널의 light/dark 기본값.
+- **Locale** — English 또는 한국어(저장됨).
+- **Save settings** → `~/.archscope/settings.json`에 저장.
+  **Reset to default**는 클라이언트 측만 초기화 — 저장하려면 Save 클릭.
 
 ---
 
-## 공통 기능
+## 이미지 내보내기 & "모든 차트 저장"
 
-### 파일 드롭 영역 (FileDropZone)
+### 차트별 export
 
-모든 Analyzer 화면에서 공통으로 사용되는 파일 입력 컴포넌트입니다.
+모든 차트 프레임(D3 + ECharts + Canvas)의 헤더 우측에 다운로드 아이콘.
+드롭다운 매트릭스:
 
-**사용 방법:**
-1. 파일을 마우스로 드래그하여 점선 영역 위에 놓습니다
-2. 또는 "Browse" 버튼을 클릭하여 파일 탐색기에서 선택합니다
-3. 파일이 선택되면 경로가 표시되며, 다른 파일을 다시 드롭하면 교체됩니다
+| Preset | Format | Pixel ratio | Notes |
+| --- | --- | --- | --- |
+| `PNG · 1x` | PNG | 1 × | 가장 작음, 화면 해상도. |
+| `PNG · 2x` | PNG | 2 × | 슬라이드 덱 기본. |
+| `PNG · 3x` | PNG | 3 × | 인쇄 해상도. |
+| `JPEG · 2x` | JPEG | 2 × | PNG보다 작음, 이메일에 유용. |
+| `SVG (vector)` | SVG | n/a | 진짜 벡터 — Figma / Illustrator 편집에 최적. ECharts 패널과 D3-SVG 차트는 native SVG로 렌더, Canvas 차트는 `html-to-image`로 SVG 래스터화. |
 
-### 언어 전환
+Canvas 플레임그래프는 추가로 **"Save PNG"** 버튼 — native
+`canvas.toDataURL()` 경로로 가장 빠르고 device pixel ratio에 맞춘
+픽셀 퍼펙트.
 
-- 상단 바 우측의 언어 드롭다운으로 English ↔ 한국어를 전환합니다
-- 전환 시 모든 UI 라벨, 플레이스홀더, 에러 메시지가 즉시 변경됩니다
-- 분석 결과의 데이터 값은 변경되지 않습니다
+### 일괄 export
 
-### 분석 취소
-
-- 분석 진행 중 "Cancel" 버튼이 나타납니다
-- 클릭하면 진행 중인 분석을 즉시 중단합니다
-- 이전 결과는 유지되며, 새로운 분석을 다시 실행할 수 있습니다
-
-### 상태 표시
-
-모든 Analyzer 화면은 동일한 상태 모델을 따릅니다:
-
-| 상태 | UI 표시 | 설명 |
-|------|---------|------|
-| Idle | 빈 결과 영역, Analyze 비활성화 | 아직 분석 시작 전 |
-| Ready | Analyze 활성화 | 필수 입력이 모두 설정됨 |
-| Running | 로딩 표시, Cancel 활성화 | 분석 진행 중 |
-| Success | 메트릭, 차트, 테이블 표시 | 분석 완료 |
-| Error | 에러 패널 표시 | 분석 실패 |
-
-### 에러 메시지
-
-에러 발생 시 다음 정보가 표시됩니다:
-
-| 필드 | 설명 |
-|------|------|
-| Code | 에러 코드 (기술 지원 시 참조) |
-| Message | 사용자 친화적 에러 설명 |
-| Detail | 상세 에러 정보 (확장하여 확인) |
-
-**주요 에러 코드:**
-
-| 코드 | 의미 | 대처 방법 |
-|------|------|-----------|
-| FILE_NOT_FOUND | 파일을 찾을 수 없음 | 파일 경로와 존재 여부 확인 |
-| INVALID_OPTION | 옵션 값이 잘못됨 | 필수 옵션 확인 (형식, 간격 등) |
-| ENGINE_EXITED | 분석 엔진 비정상 종료 | Python engine 설치 상태 확인 |
-| ENGINE_OUTPUT_INVALID | 엔진 출력 형식 오류 | 입력 파일 형식이 올바른지 확인 |
-| IPC_FAILED | 엔진 통신 실패 | 앱 재시작 후 재시도 |
-| ANALYZER_NOT_CONNECTED | 분석 엔진 미연결 | 앱 재시작 또는 Engine Path 확인 |
+대부분의 분석기 페이지에 TabsList 옆 **"모든 차트 저장"** 버튼.
+클릭하면 현재 페이지의 모든 차트를 2× PNG로 작성하고 페이지별
+파일명 prefix(`gc-log-…`, `profiler-…`, `thread-dump-multi-…`,
+`access-log-…`) 적용.
 
 ---
 
-## 문제 해결
+## Thread → Flamegraph 변환
 
-### 자주 묻는 질문
+장기간 인시던트를 플레임그래프로 보고 싶으면 덤프를 collapsed로
+배치 변환:
 
-#### Q: 분석 결과에 Skipped Lines가 많이 나옵니다
-
-**A:** 로그 형식(Log Format) 설정이 실제 파일과 맞지 않을 가능성이 높습니다.
-- 파일의 첫 몇 줄을 텍스트 에디터로 열어 형식을 확인하세요
-- NGINX와 Apache는 유사하지만 미묘한 차이가 있습니다
-- 표준 형식에 맞지 않으면 `custom_regex` 옵션을 고려하세요
-
-#### Q: 분석이 오래 걸립니다
-
-**A:** 대용량 파일의 경우:
-- Max Lines 옵션을 설정하여 샘플 분석을 먼저 수행하세요 (예: 100000)
-- Start Time / End Time 필터로 관심 구간만 분석하세요
-- 수GB 파일은 사전에 필요한 시간대만 추출하는 것을 권장합니다
-
-#### Q: Flamegraph가 표시되지 않습니다
-
-**A:**
-- 입력 파일이 collapsed stack 형식인지 확인하세요 (각 줄이 `스택;프레임;프레임 샘플수` 형식)
-- Wall Interval 값이 양수인지 확인하세요
-- 파일 인코딩이 UTF-8인지 확인하세요
-
-#### Q: Export에 실패합니다
-
-**A:**
-- 입력 JSON이 유효한 AnalysisResult 형식인지 확인하세요
-- 출력 경로에 쓰기 권한이 있는지 확인하세요
-- 디스크 여유 공간을 확인하세요
-
-#### Q: 앱이 시작되지 않습니다
-
-**A:**
-- (개발 환경) `npm install`이 완료되었는지 확인하세요
-- (개발 환경) Python engine이 설치되어 있는지 확인하세요: `archscope-engine --help`
-- macOS에서 "개발자를 확인할 수 없음" 경고가 뜨면: 시스템 설정 > 개인 정보 보호 및 보안에서 허용하세요
-
-### Parser Debug Log 활용
-
-분석 결과에 문제가 있을 때 parser debug log를 활용할 수 있습니다.
-
-**Debug log란?**
-- 파싱 과정에서 건너뛴 줄의 원인과 맥락을 기록한 파일입니다
-- 개인정보는 기본 redaction이 적용되어 안전하게 공유할 수 있습니다
-- 기술 지원 시 이 파일을 전달하면 문제 진단에 도움이 됩니다
-
-**CLI에서 생성하기:**
 ```bash
-archscope-engine access-log analyze \
-  --file your-log-file.log \
-  --format nginx \
-  --out result.json \
-  --debug-log \
-  --debug-log-dir ./archscope-debug
+archscope-engine thread-dump to-collapsed \
+    --input dump-2025-05-04T10-00.txt \
+    --input dump-2025-05-04T10-05.txt \
+    --input dump-2025-05-04T10-10.txt \
+    --output incident-2025-05-04.collapsed \
+    [--format <plugin-id>] \
+    [--no-thread-name]
 ```
 
-생성된 `archscope-debug/` 폴더를 기술 지원팀에 전달하세요.
+변환기 동작:
 
----
+1. 파서 레지스트리 사용(Java / Go / Python / Node.js / .NET 자동 감지;
+   `--format`으로 강제).
+2. 모든 언어별 enrichment 적용 — CGLIB / Express layer alias /
+   async state machine / 프레임워크 래퍼 정규화.
+3. 스택을 root-left로 뒤집음(collapsed convention).
+4. 같은 스택을 가진 다른 쓰레드가 합쳐지지 않게, sanitize된 쓰레드명을
+   합성 root frame으로 prepend(`--no-thread-name`으로 끄기).
+5. 모든 입력 파일에 걸쳐 동일 스택 자동 집계.
 
-## 부록: CLI 명령 참조
-
-Desktop UI 외에 CLI(Command Line Interface)로도 모든 분석을 실행할 수 있습니다.
-
-### Access Log 분석
-
-```bash
-archscope-engine access-log analyze \
-  --file <로그파일경로> \
-  --format <nginx|apache|ohs|weblogic|tomcat|custom_regex> \
-  --out <출력JSON경로>
-```
-
-### Profiler 분석
+결과를 다시 프로파일러로:
 
 ```bash
-# Collapsed stack 분석
 archscope-engine profiler analyze-collapsed \
-  --wall <collapsed파일경로> \
-  --wall-interval-ms <샘플링간격> \
-  --elapsed-sec <총소요시간> \
-  --out <출력JSON경로>
-
-# Jennifer APM CSV 분석
-archscope-engine profiler analyze-jennifer-csv \
-  --file <CSV파일경로> \
-  --out <출력JSON경로>
-
-# 드릴다운
-archscope-engine profiler drilldown \
-  --wall <collapsed파일경로> \
-  --filter <필터패턴> \
-  --out <출력JSON경로>
-
-# Execution Breakdown
-archscope-engine profiler breakdown \
-  --wall <collapsed파일경로> \
-  --filter <필터패턴> \
-  --out <출력JSON경로>
+    --wall incident-2025-05-04.collapsed \
+    --wall-interval-ms 1 \
+    --out incident-flame.json
 ```
 
-### GC Log 분석
+웹 UI는 동일 변환을 `POST /api/analyzer/execute`의
+`type: "thread_dump_to_collapsed"`로 노출.
+응답은 `~/.archscope/uploads/collapsed/`에 작성된 `outputPath`와
+총 `uniqueStacks`를 포함합니다.
+
+---
+
+## CLI 레퍼런스
 
 ```bash
-archscope-engine gc-log analyze \
-  --file <GC로그경로> \
-  --out <출력JSON경로>
+# ---------- 웹 서버 ----------
+archscope-engine serve [--host 127.0.0.1] [--port 8765]
+                       [--static-dir apps/desktop/dist] [--reload]
+                       [--no-dev-cors]
+
+# ---------- access log ----------
+archscope-engine access-log analyze --file <log> --format <name> --out <result.json>
+    [--max-lines N] [--start-time ISO] [--end-time ISO]
+
+# ---------- profiler ----------
+archscope-engine profiler analyze-collapsed --wall <collapsed> --out <result.json>
+    [--wall-interval-ms 100] [--elapsed-sec N] [--top-n 20] [--profile-kind wall|cpu|lock]
+archscope-engine profiler analyze-flamegraph-svg  --file <svg>  --out <result.json>
+archscope-engine profiler analyze-flamegraph-html --file <html> --out <result.json>
+archscope-engine profiler analyze-jennifer-csv    --file <csv>  --out <result.json>
+archscope-engine profiler drilldown   ...           # --help 참고
+archscope-engine profiler breakdown   ...
+
+# ---------- GC ----------
+archscope-engine gc-log analyze --file <gc.log> --out <result.json> [--top-n 20]
+
+# ---------- JFR ----------
+archscope-engine jfr analyze-json --file <jfr.json> --out <result.json> [--top-n 20]
+
+# ---------- thread dump ----------
+archscope-engine thread-dump analyze       --file <dump> --out <result.json>
+archscope-engine thread-dump analyze-multi --input <f> --input <f> ... --out <multi.json>
+    [--format <plugin-id>] [--consecutive-threshold 3] [--top-n 20]
+archscope-engine thread-dump to-collapsed  --input <f> --input <f> ... --output <collapsed>
+    [--format <plugin-id>] [--no-thread-name]
+
+# ---------- exception / language stacks ----------
+archscope-engine exception        analyze --file <ex>    --out <result.json>
+archscope-engine nodejs           analyze --file <stack> --out <result.json>
+archscope-engine python-traceback analyze --file <stack> --out <result.json>
+archscope-engine go-panic         analyze --file <stack> --out <result.json>
+archscope-engine dotnet           analyze --file <stack> --out <result.json>
+
+# ---------- OpenTelemetry ----------
+archscope-engine otel analyze --file <events.jsonl> --out <result.json>
+
+# ---------- 보고서 ----------
+archscope-engine report html --input <result.json> --out <report.html> [--title "..."]
+archscope-engine report pptx --input <result.json> --out <report.pptx> [--title "..."]
+archscope-engine report diff --before <before.json> --after <after.json>
+                             --out <diff.json> [--label "..."] [--html-out <diff.html>]
+
+# ---------- demo bundles ----------
+archscope-engine demo-site mapping [--manifest-root <dir>]
+archscope-engine demo-site run     --manifest-root <dir> --out <bundle-dir>
+                                   [--scenario name] [--data-source real|synthetic] [--no-pptx]
 ```
 
-### Thread Dump 분석
+`archscope-engine --help`로 모든 명령 확인. 각 서브커맨드도 `--help`
+지원.
 
-```bash
-archscope-engine thread-dump analyze \
-  --file <덤프파일경로> \
-  --out <출력JSON경로>
-```
+---
 
-### Exception 분석
+## 트러블슈팅 FAQ
 
-```bash
-archscope-engine exception analyze \
-  --file <예외로그경로> \
-  --out <출력JSON경로>
-```
+**브라우저가 "ArchScope API is running" 메시지만 보여줘요.**
+React 빌드 없이 엔진을 시작했습니다.
+`./scripts/serve-web.sh`를 쓰거나, `npm --prefix apps/desktop run
+build`를 한 번 실행한 뒤 `archscope-engine serve --static-dir
+apps/desktop/dist`로 기동하세요. dev 루프(`archscope-engine serve
+--reload` + `npm run dev`)는 UI를 `:5173`에서 엽니다.
 
-### 보고서 생성
+**Thread dump 업로드 시 `UNKNOWN_THREAD_DUMP_FORMAT`.**
+첫 4 KB가 어떤 등록된 파서와도 매칭되지 않았습니다. 덤프 자체가 아닌
+주변 로그 파일을 올렸는지 확인. 헤더가 잘려 있으면 Thread Dump
+페이지의 **Format override**에 `format_id`를 입력
+(예: `java_jstack`).
 
-```bash
-# HTML 보고서
-archscope-engine report html \
-  --input <분석결과JSON> \
-  --out <출력HTML경로>
+**멀티 덤프 분석 시 `MIXED_THREAD_DUMP_FORMATS`.**
+업로드한 두 파일이 다른 파서로 인식됨. 한 파일을 제거하거나 모든
+파일에 같은 파서를 강제하려면 **Format override** 입력.
 
-# Before/After 비교
-archscope-engine report diff \
-  --before <이전JSON> \
-  --after <이후JSON> \
-  --out <비교결과JSON경로> \
-  --html-out <비교HTML경로>
+**SVG 렌더러로도 플레임그래프가 느려요.**
+데이터를 thread-dump 스타일 번들로 변환(`thread-dump to-collapsed`
+실행) 후 `flamegraph collapsed`로 분석하세요. 4 000 노드 이상이면
+페이지가 자동으로 Canvas로 전환됩니다.
 
-# PowerPoint
-archscope-engine report pptx \
-  --input <분석결과JSON> \
-  --out <출력PPTX경로>
-```
+**이미지 export가 빈 PNG를 다운로드합니다.**
+차트가 렌더링을 끝내기 전이었습니다. 데이터가 안정될 때까지(차트는
+`ResizeObserver` 사용) 기다린 후 다시 시도. 매우 큰 Canvas
+플레임그래프는 전용 **Save PNG** 버튼 사용을 권장 —
+`canvas.toDataURL()`을 직접 사용하므로 `html-to-image` rasterize를
+우회.
 
-### Multi-Runtime 분석
+**다크 테마에서 레거시 ECharts 패널이 깨져 보입니다.**
+**Settings → Default chart theme**에서 ECharts 테마 전환. ECharts
+패널은 글로벌 테마를 자동으로 따르지 않습니다 — 새 D3 차트만 자동
+적용.
 
-```bash
-# Node.js
-archscope-engine nodejs analyze --file <파일> --out <출력>
+**업로드 파일은 어디에 저장되나요?**
+`~/.archscope/uploads/<uuid>/<original-name>`. 언제든 디렉토리 삭제
+가능. 다음 업로드 때 ArchScope가 다시 만듭니다.
 
-# Python Traceback
-archscope-engine python-traceback analyze --file <파일> --out <출력>
-
-# Go Panic
-archscope-engine go-panic analyze --file <파일> --out <출력>
-
-# .NET/IIS
-archscope-engine dotnet analyze --file <파일> --out <출력>
-
-# OpenTelemetry
-archscope-engine otel analyze --file <파일> --out <출력>
-```
+**LAN의 동료가 엔진에 접근하게 하려면?**
+`--host 0.0.0.0` 전달. 엔진에 인증이 없으니 신뢰할 수 있는 네트워크
+에서만 사용. 공개 인터넷에 절대 두지 마세요.
