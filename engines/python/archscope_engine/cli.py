@@ -17,6 +17,8 @@ from archscope_engine.analyzers.jfr_analyzer import analyze_jfr_print_json
 from archscope_engine.analyzers.otel_analyzer import analyze_otel_jsonl
 from archscope_engine.analyzers.profiler_analyzer import (
     analyze_collapsed_profile,
+    analyze_flamegraph_html_profile,
+    analyze_flamegraph_svg_profile,
     analyze_jennifer_csv_profile,
     breakdown_collapsed_profile,
     breakdown_jennifer_csv_profile,
@@ -179,6 +181,98 @@ def profiler_analyze_collapsed(
             debug_log=collector,
         ),
         "profiler",
+    )
+
+
+@profiler_app.command("analyze-flamegraph-svg")
+def profiler_analyze_flamegraph_svg(
+    file: Path = typer.Option(..., "--file", exists=True, readable=True),
+    out: Path = typer.Option(..., "--out"),
+    interval_ms: float = typer.Option(100, "--interval-ms"),
+    elapsed_sec: Optional[float] = typer.Option(None, "--elapsed-sec"),
+    top_n: int = typer.Option(20, "--top-n"),
+    profile_kind: str = typer.Option(
+        "wall",
+        "--profile-kind",
+        help="Profile capture mode: wall, cpu, or lock.",
+    ),
+    debug_log: bool = typer.Option(False, "--debug-log"),
+    debug_log_dir: Optional[Path] = typer.Option(None, "--debug-log-dir"),
+) -> None:
+    """Analyze a FlameGraph.pl/async-profiler-style SVG flamegraph file."""
+    if profile_kind not in {"wall", "cpu", "lock"}:
+        raise typer.BadParameter("--profile-kind must be one of: wall, cpu, lock.")
+    collector = _debug_collector(
+        analyzer_type="profiler_collapsed",
+        source_file=file,
+        parser="flamegraph_svg",
+        parser_options={
+            "interval_ms": interval_ms,
+            "elapsed_sec": elapsed_sec,
+            "top_n": top_n,
+            "profile_kind": profile_kind,
+        },
+        debug_log=debug_log,
+        debug_log_dir=debug_log_dir,
+    )
+    _write_result_with_debug(
+        out,
+        collector,
+        lambda: analyze_flamegraph_svg_profile(
+            path=file,
+            interval_ms=interval_ms,
+            elapsed_sec=elapsed_sec,
+            top_n=top_n,
+            profile_kind=profile_kind,
+            debug_log=collector,
+        ),
+        "flamegraph SVG",
+    )
+
+
+@profiler_app.command("analyze-flamegraph-html")
+def profiler_analyze_flamegraph_html(
+    file: Path = typer.Option(..., "--file", exists=True, readable=True),
+    out: Path = typer.Option(..., "--out"),
+    interval_ms: float = typer.Option(100, "--interval-ms"),
+    elapsed_sec: Optional[float] = typer.Option(None, "--elapsed-sec"),
+    top_n: int = typer.Option(20, "--top-n"),
+    profile_kind: str = typer.Option(
+        "wall",
+        "--profile-kind",
+        help="Profile capture mode: wall, cpu, or lock.",
+    ),
+    debug_log: bool = typer.Option(False, "--debug-log"),
+    debug_log_dir: Optional[Path] = typer.Option(None, "--debug-log-dir"),
+) -> None:
+    """Analyze an HTML-wrapped flamegraph (inline SVG or async-profiler JS)."""
+    if profile_kind not in {"wall", "cpu", "lock"}:
+        raise typer.BadParameter("--profile-kind must be one of: wall, cpu, lock.")
+    collector = _debug_collector(
+        analyzer_type="profiler_collapsed",
+        source_file=file,
+        parser="flamegraph_html",
+        parser_options={
+            "interval_ms": interval_ms,
+            "elapsed_sec": elapsed_sec,
+            "top_n": top_n,
+            "profile_kind": profile_kind,
+        },
+        debug_log=debug_log,
+        debug_log_dir=debug_log_dir,
+    )
+    _write_result_with_debug(
+        out,
+        collector,
+        lambda: analyze_flamegraph_html_profile(
+            path=file,
+            interval_ms=interval_ms,
+            elapsed_sec=elapsed_sec,
+            top_n=top_n,
+            profile_kind=profile_kind,
+            debug_log=collector,
+        ),
+        "flamegraph HTML",
     )
 
 

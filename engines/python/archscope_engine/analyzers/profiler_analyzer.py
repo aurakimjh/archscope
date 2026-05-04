@@ -22,7 +22,9 @@ from archscope_engine.analyzers.profile_classification import (
     classify_stack,
 )
 from archscope_engine.parsers.collapsed_parser import parse_collapsed_file_with_diagnostics
+from archscope_engine.parsers.html_profiler_parser import parse_html_profiler
 from archscope_engine.parsers.jennifer_csv_parser import parse_jennifer_flamegraph_csv
+from archscope_engine.parsers.svg_flamegraph_parser import parse_svg_flamegraph
 from archscope_engine.analyzers.flamegraph_builder import build_flame_tree_from_collapsed
 from archscope_engine.analyzers.profiler_breakdown import build_execution_breakdown
 from archscope_engine.analyzers.profiler_drilldown import (
@@ -56,6 +58,73 @@ def analyze_collapsed_profile(
         diagnostics=parse_result.diagnostics,
         classification_rules=classification_rules,
     )
+
+
+def analyze_flamegraph_svg_profile(
+    path: Path,
+    interval_ms: float = 100,
+    elapsed_sec: float | None = None,
+    top_n: int = 20,
+    profile_kind: str = "wall",
+    classification_rules: tuple[
+        StackClassificationRule, ...
+    ] = DEFAULT_STACK_CLASSIFICATION_RULES,
+    debug_log: DebugLogCollector | None = None,
+) -> AnalysisResult:
+    """Analyze a FlameGraph.pl/async-profiler-style SVG flamegraph file.
+
+    The SVG is converted to collapsed-format stacks and then fed through
+    the existing collapsed pipeline so drill-down/breakdown remain
+    available without duplicating analyzer logic.
+    """
+    if debug_log is not None:
+        debug_log.encoding_detected = detect_text_encoding(path)
+    parse_result = parse_svg_flamegraph(path)
+    diagnostics = dict(parse_result.diagnostics)
+    result = build_collapsed_result(
+        stacks=parse_result.stacks,
+        source_file=path,
+        interval_ms=interval_ms,
+        elapsed_sec=elapsed_sec,
+        top_n=top_n,
+        profile_kind=profile_kind,
+        diagnostics=diagnostics,
+        classification_rules=classification_rules,
+    )
+    result.metadata["parser"] = "flamegraph_svg"
+    return result
+
+
+def analyze_flamegraph_html_profile(
+    path: Path,
+    interval_ms: float = 100,
+    elapsed_sec: float | None = None,
+    top_n: int = 20,
+    profile_kind: str = "wall",
+    classification_rules: tuple[
+        StackClassificationRule, ...
+    ] = DEFAULT_STACK_CLASSIFICATION_RULES,
+    debug_log: DebugLogCollector | None = None,
+) -> AnalysisResult:
+    """Analyze an HTML-wrapped flamegraph (inline SVG or async-profiler JS)."""
+    if debug_log is not None:
+        debug_log.encoding_detected = detect_text_encoding(path)
+    parse_result = parse_html_profiler(path)
+    diagnostics = dict(parse_result.diagnostics)
+    diagnostics["detected_format"] = parse_result.detected_format
+    result = build_collapsed_result(
+        stacks=parse_result.stacks,
+        source_file=path,
+        interval_ms=interval_ms,
+        elapsed_sec=elapsed_sec,
+        top_n=top_n,
+        profile_kind=profile_kind,
+        diagnostics=diagnostics,
+        classification_rules=classification_rules,
+    )
+    result.metadata["parser"] = "flamegraph_html"
+    result.metadata["detected_html_format"] = parse_result.detected_format
+    return result
 
 
 def analyze_jennifer_csv_profile(

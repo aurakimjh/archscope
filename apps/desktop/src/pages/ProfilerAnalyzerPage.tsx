@@ -11,6 +11,7 @@ import {
   type ProfilerCollapsedAnalysisResult,
   type ProfilerTopStackTableRow,
 } from "@/api/analyzerClient";
+import type { ProfileFormat, ProfileKind } from "@/api/analyzerContract";
 import {
   DiagnosticsPanel,
   EngineMessagesPanel,
@@ -40,8 +41,6 @@ type AnalyzerState = "idle" | "ready" | "running" | "success" | "error";
 type FilterType = "include_text" | "exclude_text" | "regex_include" | "regex_exclude";
 type MatchMode = "anywhere" | "ordered" | "subtree";
 type ViewMode = "preserve_full_path" | "reroot_at_match";
-type ProfileKind = "wall" | "cpu" | "lock";
-type ProfileFormat = "collapsed" | "jennifer_csv";
 
 type DrilldownStageView = {
   label: string;
@@ -91,10 +90,19 @@ export function ProfilerAnalyzerPage(): JSX.Element {
 
   const fileLabel = useMemo(() => {
     if (profileFormat === "jennifer_csv") return t("selectJenniferCsvFile");
+    if (profileFormat === "flamegraph_svg") return t("profileFormatFlamegraphSvg");
+    if (profileFormat === "flamegraph_html") return t("profileFormatFlamegraphHtml");
     if (profileKind === "cpu") return t("selectCpuCollapsedFile");
     if (profileKind === "lock") return t("selectLockCollapsedFile");
     return t("selectWallCollapsedFile");
   }, [profileFormat, profileKind, t]);
+
+  const fileAccept = useMemo(() => {
+    if (profileFormat === "jennifer_csv") return ".csv";
+    if (profileFormat === "flamegraph_svg") return ".svg";
+    if (profileFormat === "flamegraph_html") return ".html,.htm";
+    return ".collapsed,.txt";
+  }, [profileFormat]);
 
   const handleFileSelected = useCallback((file: FileDockSelection) => {
     setSelectedFile(file);
@@ -228,7 +236,7 @@ export function ProfilerAnalyzerPage(): JSX.Element {
       <FileDock
         label={fileLabel}
         description={t("dropOrBrowseProfiler")}
-        accept={profileFormat === "jennifer_csv" ? ".csv" : ".collapsed,.txt"}
+        accept={fileAccept}
         selected={selectedFile}
         onSelect={handleFileSelected}
         onClear={handleClearFile}
@@ -282,6 +290,8 @@ export function ProfilerAnalyzerPage(): JSX.Element {
             >
               <option value="collapsed">{t("profileFormatCollapsed")}</option>
               <option value="jennifer_csv">{t("profileFormatJenniferCsv")}</option>
+              <option value="flamegraph_svg">{t("profileFormatFlamegraphSvg")}</option>
+              <option value="flamegraph_html">{t("profileFormatFlamegraphHtml")}</option>
             </select>
           </label>
           {profileFormat === "collapsed" && (

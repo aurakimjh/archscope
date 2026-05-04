@@ -409,7 +409,11 @@ export type AnalyzeAccessLogRequest = {
 };
 
 export type ProfileKind = "wall" | "cpu" | "lock";
-export type ProfileFormat = "collapsed" | "jennifer_csv";
+export type ProfileFormat =
+  | "collapsed"
+  | "jennifer_csv"
+  | "flamegraph_svg"
+  | "flamegraph_html";
 
 export type AnalyzeCollapsedProfileRequest = {
   requestId?: string;

@@ -24,6 +24,8 @@ from archscope_engine.analyzers.gc_log_analyzer import analyze_gc_log
 from archscope_engine.analyzers.jfr_analyzer import analyze_jfr_print_json
 from archscope_engine.analyzers.profiler_analyzer import (
     analyze_collapsed_profile,
+    analyze_flamegraph_html_profile,
+    analyze_flamegraph_svg_profile,
     analyze_jennifer_csv_profile,
 )
 from archscope_engine.analyzers.thread_dump_analyzer import analyze_thread_dump
@@ -177,23 +179,46 @@ def _execute_analyzer(payload: dict[str, Any]) -> dict[str, Any]:
             return _failure("INVALID_OPTION", "Wall interval must be positive.")
         elapsed = params.get("elapsedSec")
         top_n = params.get("topN") or 20
-        if params.get("profileFormat") == "jennifer_csv":
+        profile_format = params.get("profileFormat") or "collapsed"
+        elapsed_arg = elapsed if isinstance(elapsed, (int, float)) else None
+        profile_kind = params.get("profileKind") or "wall"
+        if profile_kind not in {"wall", "cpu", "lock"}:
+            return _failure("INVALID_OPTION", "profileKind must be wall/cpu/lock.")
+
+        if profile_format == "jennifer_csv":
             return _wrap_analyzer(
                 lambda: analyze_jennifer_csv_profile(
                     path=wall_path,
                     interval_ms=float(interval_ms),
-                    elapsed_sec=elapsed if isinstance(elapsed, (int, float)) else None,
+                    elapsed_sec=elapsed_arg,
                     top_n=int(top_n),
                 )
             )
-        profile_kind = params.get("profileKind") or "wall"
-        if profile_kind not in {"wall", "cpu", "lock"}:
-            return _failure("INVALID_OPTION", "profileKind must be wall/cpu/lock.")
+        if profile_format == "flamegraph_svg":
+            return _wrap_analyzer(
+                lambda: analyze_flamegraph_svg_profile(
+                    path=wall_path,
+                    interval_ms=float(interval_ms),
+                    elapsed_sec=elapsed_arg,
+                    top_n=int(top_n),
+                    profile_kind=profile_kind,
+                )
+            )
+        if profile_format == "flamegraph_html":
+            return _wrap_analyzer(
+                lambda: analyze_flamegraph_html_profile(
+                    path=wall_path,
+                    interval_ms=float(interval_ms),
+                    elapsed_sec=elapsed_arg,
+                    top_n=int(top_n),
+                    profile_kind=profile_kind,
+                )
+            )
         return _wrap_analyzer(
             lambda: analyze_collapsed_profile(
                 path=wall_path,
                 interval_ms=float(interval_ms),
-                elapsed_sec=elapsed if isinstance(elapsed, (int, float)) else None,
+                elapsed_sec=elapsed_arg,
                 top_n=int(top_n),
                 profile_kind=profile_kind,
             )
