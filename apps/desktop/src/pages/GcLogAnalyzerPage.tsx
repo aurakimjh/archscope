@@ -19,6 +19,7 @@ import { D3BarChart, type BarDatum } from "@/components/charts/D3BarChart";
 import {
   D3TimelineChart,
   type TimelineEvent,
+  type TimelineSelection,
   type TimelineSeries,
 } from "@/components/charts/D3TimelineChart";
 import { Button } from "@/components/ui/button";
@@ -45,6 +46,7 @@ export function GcLogAnalyzerPage(): JSX.Element {
   const [error, setError] = useState<BridgeError | null>(null);
   const [engineMessages, setEngineMessages] = useState<string[]>([]);
   const [savingAll, setSavingAll] = useState(false);
+  const [selection, setSelection] = useState<TimelineSelection | null>(null);
   const currentRequestIdRef = useRef<string | null>(null);
   const chartsContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -72,10 +74,92 @@ export function GcLogAnalyzerPage(): JSX.Element {
       .filter((row) => row.gc_type && /full/i.test(row.gc_type) && row.timestamp)
       .map((row) => ({
         time: row.timestamp as string,
-        label: t("fullGcMarker"),
+        label: `${t("fullGcMarker")} (${row.gc_type})`,
         color: "#f97316",
+        payload: {
+          cause: row.cause ?? "—",
+          pause_ms: row.pause_ms != null ? row.pause_ms.toFixed(2) : "—",
+          heap_before_mb: row.heap_before_mb != null ? row.heap_before_mb.toFixed(1) : "—",
+          heap_after_mb: row.heap_after_mb != null ? row.heap_after_mb.toFixed(1) : "—",
+          heap_committed_mb:
+            row.heap_committed_mb != null ? row.heap_committed_mb.toFixed(1) : "—",
+        },
       }));
   }, [result, t]);
+
+  const allEvents = result?.tables?.events ?? [];
+
+  // Aggregate stats for the brushed window over the pause timeline series.
+  const selectionSummary = useMemo(() => {
+    if (!selection || allEvents.length === 0) return null;
+    const startMs = selection.start.getTime();
+    const endMs = selection.end.getTime();
+    const inWindow = allEvents.filter((row) => {
+      if (!row.timestamp) return false;
+      const ts = new Date(row.timestamp).getTime();
+      return Number.isFinite(ts) && ts >= startMs && ts <= endMs;
+    });
+    if (inWindow.length === 0) return { count: 0, avg: 0, max: 0, p95: 0 };
+    const pauses = inWindow
+      .map((row) => row.pause_ms ?? 0)
+      .filter((value) => Number.isFinite(value)) as number[];
+    pauses.sort((a, b) => a - b);
+    const sum = pauses.reduce((acc, value) => acc + value, 0);
+    const avg = pauses.length > 0 ? sum / pauses.length : 0;
+    const max = pauses.length > 0 ? pauses[pauses.length - 1] : 0;
+    const p95Index = Math.max(0, Math.ceil(pauses.length * 0.95) - 1);
+    const p95 = pauses[p95Index] ?? 0;
+    return { count: inWindow.length, avg, max, p95 };
+  }, [selection, allEvents]);
+
+  // T-215: aggregate pause statistics per GC collector type from the events table.
+  const algorithmRows = useMemo(() => {
+    const buckets = new Map<string, number[]>();
+    for (const row of allEvents) {
+      if (!row.gc_type || row.pause_ms == null || !Number.isFinite(row.pause_ms)) continue;
+      const list = buckets.get(row.gc_type) ?? [];
+      list.push(row.pause_ms);
+      buckets.set(row.gc_type, list);
+    }
+    return Array.from(buckets.entries())
+      .map(([gcType, pauses]) => {
+        pauses.sort((a, b) => a - b);
+        const sum = pauses.reduce((acc, value) => acc + value, 0);
+        const avg = sum / pauses.length;
+        const max = pauses[pauses.length - 1];
+        const p95Index = Math.max(0, Math.ceil(pauses.length * 0.95) - 1);
+        const p95 = pauses[p95Index];
+        return {
+          gc_type: gcType,
+          count: pauses.length,
+          avg_ms: avg,
+          p95_ms: p95,
+          max_ms: max,
+          total_ms: sum,
+        };
+      })
+      .sort((a, b) => b.total_ms - a.total_ms);
+  }, [allEvents]);
+
+  const algorithmAvgBars = useMemo<BarDatum[]>(
+    () =>
+      algorithmRows.map((row) => ({
+        id: `${row.gc_type}-avg`,
+        label: row.gc_type,
+        value: Number(row.avg_ms.toFixed(2)),
+      })),
+    [algorithmRows],
+  );
+
+  const algorithmMaxBars = useMemo<BarDatum[]>(
+    () =>
+      algorithmRows.map((row) => ({
+        id: `${row.gc_type}-max`,
+        label: row.gc_type,
+        value: Number(row.max_ms.toFixed(2)),
+      })),
+    [algorithmRows],
+  );
 
   const heapSeries = useMemo<TimelineSeries[]>(() => {
     const before = result?.series.heap_before_mb ?? [];
@@ -281,6 +365,7 @@ export function GcLogAnalyzerPage(): JSX.Element {
             <TabsTrigger value="summary">{t("tabSummary")}</TabsTrigger>
             <TabsTrigger value="pauses">{t("tabPauses")}</TabsTrigger>
             <TabsTrigger value="heap">{t("tabHeap")}</TabsTrigger>
+            <TabsTrigger value="algorithm">{t("tabAlgorithmComparison")}</TabsTrigger>
             <TabsTrigger value="breakdown">{t("tabBreakdown")}</TabsTrigger>
             <TabsTrigger value="events">{t("tabEvents")}</TabsTrigger>
             <TabsTrigger value="diagnostics">{t("tabDiagnostics")}</TabsTrigger>
@@ -375,8 +460,43 @@ export function GcLogAnalyzerPage(): JSX.Element {
               series={pauseSeries}
               events={fullGcEvents}
               yLabel={t("pauseMsAxis")}
-              height={280}
+              height={300}
+              interactive
+              onSelectionChange={setSelection}
             />
+            {selection && selectionSummary && (
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm">{t("selectionSummary")}</CardTitle>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSelection(null)}
+                  >
+                    {t("clearSelection")}
+                  </Button>
+                </CardHeader>
+                <CardContent className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                  <SelectionStat
+                    label={t("eventsInSelection")}
+                    value={selectionSummary.count.toLocaleString()}
+                  />
+                  <SelectionStat
+                    label={t("avgPauseInSelection")}
+                    value={`${selectionSummary.avg.toFixed(2)} ms`}
+                  />
+                  <SelectionStat
+                    label={t("p95PauseInSelection")}
+                    value={`${selectionSummary.p95.toFixed(2)} ms`}
+                  />
+                  <SelectionStat
+                    label={t("maxPauseInSelection")}
+                    value={`${selectionSummary.max.toFixed(2)} ms`}
+                  />
+                </CardContent>
+              </Card>
+            )}
             <D3TimelineChart
               title={t("allocationRateLabel")}
               exportName="gc-allocation-rate"
@@ -397,6 +517,86 @@ export function GcLogAnalyzerPage(): JSX.Element {
               yLabel={t("heapMbAxis")}
               height={280}
             />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="algorithm" className="mt-4">
+          <div className="grid gap-4">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm">
+                  {t("gcAlgorithmComparisonTitle")}
+                </CardTitle>
+                <p className="text-xs text-muted-foreground">
+                  {t("gcAlgorithmComparisonHint")}
+                </p>
+              </CardHeader>
+              <CardContent className="overflow-x-auto p-0">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
+                      <th className="px-3 py-2 text-left font-medium">{t("gcTypeLabel")}</th>
+                      <th className="px-3 py-2 text-right font-medium">count</th>
+                      <th className="px-3 py-2 text-right font-medium">avg ms</th>
+                      <th className="px-3 py-2 text-right font-medium">p95 ms</th>
+                      <th className="px-3 py-2 text-right font-medium">max ms</th>
+                      <th className="px-3 py-2 text-right font-medium">total ms</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {algorithmRows.length === 0 ? (
+                      <tr>
+                        <td className="px-3 py-3 text-muted-foreground" colSpan={6}>
+                          —
+                        </td>
+                      </tr>
+                    ) : (
+                      algorithmRows.map((row) => (
+                        <tr
+                          key={row.gc_type}
+                          className="border-b border-border last:border-0"
+                        >
+                          <td className="px-3 py-2 font-mono text-xs">{row.gc_type}</td>
+                          <td className="px-3 py-2 text-right tabular-nums">
+                            {row.count}
+                          </td>
+                          <td className="px-3 py-2 text-right tabular-nums">
+                            {row.avg_ms.toFixed(2)}
+                          </td>
+                          <td className="px-3 py-2 text-right tabular-nums">
+                            {row.p95_ms.toFixed(2)}
+                          </td>
+                          <td className="px-3 py-2 text-right tabular-nums">
+                            {row.max_ms.toFixed(2)}
+                          </td>
+                          <td className="px-3 py-2 text-right tabular-nums">
+                            {row.total_ms.toFixed(2)}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </CardContent>
+            </Card>
+            <div className="grid gap-4 lg:grid-cols-2">
+              <D3BarChart
+                title="avg pause (ms) by collector"
+                exportName="gc-algorithm-avg-pause"
+                data={algorithmAvgBars}
+                orientation="horizontal"
+                sort
+                height={Math.max(180, algorithmAvgBars.length * 28 + 40)}
+              />
+              <D3BarChart
+                title="max pause (ms) by collector"
+                exportName="gc-algorithm-max-pause"
+                data={algorithmMaxBars}
+                orientation="horizontal"
+                sort
+                height={Math.max(180, algorithmMaxBars.length * 28 + 40)}
+              />
+            </div>
           </div>
         </TabsContent>
 
@@ -501,4 +701,21 @@ function EventRowItem({ row }: { row: GcEventRow }): JSX.Element {
 
 function formatMbPerSec(value: number | null | undefined): string {
   return typeof value === "number" ? `${value.toLocaleString()} MB/s` : "-";
+}
+
+function SelectionStat({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}): JSX.Element {
+  return (
+    <div className="rounded-md border border-border bg-muted/30 px-3 py-2">
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+        {label}
+      </p>
+      <p className="mt-0.5 text-sm font-semibold tabular-nums">{value}</p>
+    </div>
+  );
 }

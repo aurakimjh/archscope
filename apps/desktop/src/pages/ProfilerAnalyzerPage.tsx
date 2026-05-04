@@ -20,6 +20,7 @@ import {
 import { ChartPanel } from "@/components/ChartPanel";
 import { FileDock, type FileDockSelection } from "@/components/FileDock";
 import { MetricCard } from "@/components/MetricCard";
+import { CanvasFlameGraph } from "@/components/charts/CanvasFlameGraph";
 import {
   D3FlameGraph,
   type FlameGraphNode,
@@ -87,6 +88,14 @@ export function ProfilerAnalyzerPage(): JSX.Element {
     () => (currentStage ? toFlameGraphNode(currentStage.flamegraph) : null),
     [currentStage],
   );
+  const flameNodeCount = useMemo(
+    () => (flameRoot ? countFlameNodes(flameRoot) : 0),
+    [flameRoot],
+  );
+  // T-217: SVG handles small-to-medium trees with crisp text; switch to
+  // the Canvas painter when the tree gets large enough that hit-testing
+  // and text layout in SVG starts to drag.
+  const useCanvasFlame = flameNodeCount >= 4000;
 
   const fileLabel = useMemo(() => {
     if (profileFormat === "jennifer_csv") return t("selectJenniferCsvFile");
@@ -444,12 +453,21 @@ export function ProfilerAnalyzerPage(): JSX.Element {
 
         <TabsContent value="flame" className="mt-4">
           <div ref={chartsContainerRef} className="grid gap-4">
-            <D3FlameGraph
-              title={t("flameGraph")}
-              exportName="profiler-flamegraph"
-              data={flameRoot}
-              emptyLabel={t("flameGraphEmpty")}
-            />
+            {useCanvasFlame ? (
+              <CanvasFlameGraph
+                title={t("flameGraph")}
+                exportName="profiler-flamegraph"
+                data={flameRoot}
+                emptyLabel={t("flameGraphEmpty")}
+              />
+            ) : (
+              <D3FlameGraph
+                title={t("flameGraph")}
+                exportName="profiler-flamegraph"
+                data={flameRoot}
+                emptyLabel={t("flameGraphEmpty")}
+              />
+            )}
           </div>
         </TabsContent>
 
@@ -637,6 +655,14 @@ function toFlameGraphNode(node: FlameNode): FlameGraphNode {
     color: node.color,
     children: node.children?.length ? node.children.map(toFlameGraphNode) : null,
   };
+}
+
+function countFlameNodes(node: FlameGraphNode): number {
+  let count = 1;
+  if (node.children) {
+    for (const child of node.children) count += countFlameNodes(child);
+  }
+  return count;
 }
 
 function parseOptionalPositiveNumber(value: string): number | undefined | null {

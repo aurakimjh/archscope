@@ -34,6 +34,7 @@ from archscope_engine.analyzers.runtime_analyzer import (
 )
 from archscope_engine.analyzers.multi_thread_analyzer import analyze_multi_thread_dumps
 from archscope_engine.analyzers.thread_dump_analyzer import analyze_thread_dump
+from archscope_engine.analyzers.thread_dump_to_collapsed import write_collapsed_file
 from archscope_engine.parsers.thread_dump import DEFAULT_REGISTRY as THREAD_DUMP_REGISTRY
 from archscope_engine.exporters.html_exporter import render_html_report, write_html_report
 from archscope_engine.exporters.json_exporter import write_json_result
@@ -510,6 +511,42 @@ def gc_log_analyze(
         collector,
         lambda: analyze_gc_log(path=file, top_n=top_n, debug_log=collector),
         "GC log",
+    )
+
+
+@thread_dump_app.command("to-collapsed")
+def thread_dump_to_collapsed(
+    inputs: list[Path] = typer.Option(
+        ...,
+        "--input",
+        exists=True,
+        readable=True,
+        help="One or more thread-dump files (repeat the flag).",
+    ),
+    output: Path = typer.Option(..., "--output"),
+    format: Optional[str] = typer.Option(
+        None,
+        "--format",
+        help=(
+            "Force a specific source format (e.g. java_jstack). "
+            "When omitted, each file is auto-detected via header sniffing."
+        ),
+    ),
+    no_thread_name: bool = typer.Option(
+        False,
+        "--no-thread-name",
+        help="Do not prepend the thread name as the synthetic root frame.",
+    ),
+) -> None:
+    """Convert one or more thread dumps into a FlameGraph-compatible collapsed file."""
+    written, unique_stacks = write_collapsed_file(
+        inputs,
+        output,
+        format_override=format,
+        include_thread_name=not no_thread_name,
+    )
+    console.print(
+        f"Wrote collapsed file: {written} ({unique_stacks} unique stacks)"
     )
 
 
