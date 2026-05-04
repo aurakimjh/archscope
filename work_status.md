@@ -1,6 +1,6 @@
 # ArchScope Work Status
 
-Last updated: 2026-05-01
+Last updated: 2026-05-04
 
 ## Review Processing Status
 
@@ -30,7 +30,7 @@ Last updated: 2026-05-01
 
 ## Current Priority
 
-Project closure state: the current ArchScope implementation cycle is complete. There are no active incomplete `T-xxx` backlog items in this file, and project work is paused at the current scope. Future changes should be opened only from new review documents, explicit roadmap decisions, or verification/documentation maintenance.
+Active cycle (2026-05-04): user-driven UI cleanup, profiler input expansion, multi-dump thread analysis, and aitop-tools algorithm integration. See "User-Driven UI/Feature Improvements and aitop Algorithm Integration" section below (T-180 onward). Prior `T-001`–`T-179` backlog is complete.
 
 The latest feature cycle started the next roadmap layer across report automation, Chart Studio, and multi-runtime diagnostics:
 
@@ -356,6 +356,40 @@ Goal: close the high-risk items from the 2026-05-01 final review before deeper o
 | T-178 | P2 | [x] | Add CI benchmark publishing/regression alerts after local benchmark output stabilizes. | T-169 | RD-107 | Performance regression visibility in CI |
 | T-179 | P2 | [x] | Add analyzer cancellation support from UI through Electron process control. | T-038, T-070 | RD-114 | User-visible cancel path |
 
+### User-Driven UI/Feature Improvements and aitop Algorithm Integration
+
+Goal: trim wasted top-bar space, move language switching closer to navigation, drop the sandbox-incompatible native file `<input>`, expand the profiler analyzer to consume async-profiler/FlameGraph SVG and HTML inputs, add multi-dump thread analysis, and port reusable algorithms from `aitop/10. projects/aitop-tools/` (Java) into the Python engine.
+
+Reference source tree for ported algorithms (read-only research input — do not import Java sources directly, port behavior into `archscope_engine`):
+
+- Thread dump preprocessing and latency tagging — `aitop/10. projects/aitop-tools/src/main/java/com/lgcns/aitop/tools/thread/ThreadDumpAnalyzerTools.java` (`convertToCollapsedFormat`, `cleanProxyClassNames`, `analyzeLatencySections`, `epollWait→WAITING`/`socketAccept→NETWORK` state inference).
+- Stack collapse to flame tree — same file, plus `aitop-tools/src/main/java/com/lgcns/aitop/tools/thread/flamegraph/{FlameGraphGenerator,FlameGraphSVGGenerator,StackCollapseParser}.java`.
+- Heap dump analysis (Eclipse MAT) — `aitop-tools/src/main/java/com/lgcns/aitop/tools/heap/{HeapAnalyzer,HeapDumpAnalyzerTools,HeapAnalyzerMain}.java` (top-N retained-size dominator scan, GC-root shortest path, in-path thread stack extraction).
+
+Scope exclusions for this cycle: bundling Eclipse MAT into the Python engine; Playwright iTop+ automation (`Itop*Analyzer.java` is automation, not analysis — out of scope); PowerPoint expansion of new outputs.
+
+| ID | Priority | Status | Task | Depends on | Source | Output |
+|---|---|---|---|---|---|---|
+| T-180 | P1 | [ ] | Remove the `main-panel > header.topbar` block in `apps/desktop/src/components/Layout.tsx` (the `appTagline` eyebrow + `ArchScope` `h1` + `.locale-switcher`) so the right pane reclaims the wasted top space. Keep `t("appTagline")` and `t("language")` keys for reuse from the sidebar. | None | User feature request | Right pane no longer renders the duplicated brand and locale strip |
+| T-181 | P1 | [ ] | Move the locale `<select>` into `apps/desktop/src/components/Sidebar.tsx` (e.g. above or below `nav-list`) so language switching lives with navigation in the left panel. Preserve existing `useI18n`, `locales`, `localeLabels` wiring; add a sidebar-scoped CSS class instead of reusing `.locale-switcher`. | T-180 | User feature request | Sidebar-hosted language switcher |
+| T-182 | P1 | [ ] | In `apps/desktop/src/components/FileDropZone.tsx`, remove the always-rendered `<input type="file">` element (Electron sandbox does not expose `File.path` reliably) and rely on drag-and-drop plus the existing `onBrowse` "찾아보기" button which calls `window.archscope.selectFile`. Adjust `FileDropZoneProps` to drop the unused HTML input path and keep the drop-target affordance. | None | User feature request | Single, sandbox-safe file selection path |
+| T-183 | P2 | [ ] | Audit every analyzer page (`ProfilerAnalyzerPage`, `AccessLogAnalyzerPage`, `GcLogAnalyzerPage`, `ExceptionAnalyzerPage`, `JfrAnalyzerPage`, `ExportCenterPage`, `DemoDataCenterPage`, `PlaceholderPage`) after T-182 to ensure they no longer assume the removed `<input type="file">` and that browse/drop both still set the same path state. | T-182 | User feature request | Sandbox-safe analyzer file selection across pages |
+| T-184 | P1 | [ ] | Add `parsers/profiler_svg_parser.py` that ingests FlameGraph.pl/async-profiler-style SVG (rect-per-frame with `<title>function (samples samples, p%)</title>`) and reconstructs a `FlameNode` tree compatible with `T-093`. Use stdlib `xml.etree.ElementTree` + `ParserDiagnostics`; fail gracefully on non-FlameGraph SVGs. | T-093, T-094 | User feature request | SVG flamegraph → `FlameNode` |
+| T-185 | P1 | [ ] | Add `parsers/profiler_html_parser.py` that detects the two common HTML flamegraph variants — async-profiler self-contained HTML (embedded `var levels = [...]` / collapsed-stack data) and inline-SVG-wrapped HTML — and routes to the SVG parser or to a JS-array extractor. Skip arbitrary HTML and emit `UNSUPPORTED_HTML_FORMAT` diagnostics. | T-184 | User feature request | HTML flamegraph → `FlameNode` |
+| T-186 | P1 | [ ] | Extend `analyzers/profiler_analyzer.py` and the `profiler analyze-*` CLI surface with new `profile_format` values `flamegraph_svg` and `flamegraph_html` that reuse `T-098/T-104` drill-down and breakdown after parser conversion. Preserve the existing collapsed/Jennifer code paths. | T-184, T-185, T-098, T-104 | User feature request | Profiler analyzer accepts SVG/HTML inputs |
+| T-187 | P1 | [ ] | Wire the new profile formats into `ProfilerAnalyzerPage.tsx`: add `flamegraph_svg`/`flamegraph_html` options to the existing `profileFormat` select (lines ~248-256), update `browseWallFile` filter list (extensions `svg` and `html`), and surface `UNSUPPORTED_HTML_FORMAT` engine diagnostics through `EngineMessagesPanel`. | T-186 | User feature request | UI exposes SVG/HTML profiler inputs |
+| T-188 | P0 | [ ] | Define a `MultiThreadDumpRecord`/`MultiThreadDumpResult` contract that ties N timestamped `ThreadDumpRecord` lists from one process by stack signature + thread name. Add `parsers/thread_dump_parser.py` helper to read N files in chronological order and tag each record with `dump_index` and `dump_label`. | T-116 | User feature request | Multi-dump record contract |
+| T-189 | P0 | [ ] | Implement multi-dump correlation in `analyzers/thread_dump_analyzer.py`: for each `(thread_name, stack_signature)` group, compute occurrence count across dumps, persistent-state runs (e.g. RUNNABLE for ≥3 consecutive dumps → long-running candidate; BLOCKED across all dumps → stuck-lock candidate). Emit findings `LONG_RUNNING_THREAD`, `PERSISTENT_BLOCKED_THREAD`. | T-188 | User feature request | Long-running / stuck thread detection |
+| T-190 | P1 | [ ] | Add CLI command `python -m archscope_engine.cli thread-dump analyze-multi --input <file1> --input <file2> ...` that returns a single `AnalysisResult` (type `thread_dump_multi`) with per-thread persistence table, top long-running stacks, and a state-transition timeline series. | T-188, T-189 | User feature request | Multi-dump CLI |
+| T-191 | P1 | [ ] | Replace `ThreadDumpAnalyzerPage` placeholder with a real page: support multi-file selection (drag many files / repeat browse), order-by-mtime toggle, render persistence table, long-running/stuck findings, and per-thread state timeline. Reuse `AnalyzerFeedback` panels. | T-190 | User feature request | Multi-dump UI |
+| T-192 | P2 | [ ] | Port aitop's `convertToCollapsedFormat` and `cleanProxyClassNames` (Spring AOP `$$EnhancerByCGLIB$$<hex>`, `$$FastClassByCGLIB$$<hex>`, `$$Proxy<digits>`, `Accessor<digits>`) into a Python helper used by the multi-dump analyzer and the existing single-dump analyzer to stabilize stack signatures. Reference: `ThreadDumpAnalyzerTools.java:556-617`. | T-188 | aitop-tools | Stable AOP-aware signatures |
+| T-193 | P2 | [ ] | Port aitop's state inference rules (`epollWait`/`EPoll.wait` → `WAITING`, `socketAccept`/`Socket.*accept0`/`socketRead0` → `NETWORK`) into the Python parser as a derived `category` enrichment, without overwriting JVM-reported `state`. Reference: `ThreadDumpAnalyzerTools.java:478-487`. | T-116, T-188 | aitop-tools | Network-aware thread categorization |
+| T-194 | P2 | [ ] | Port aitop's `analyzeLatencySections` filter (WAITING/BLOCKED/NETWORK/epollWait/socketAccept/socketRead) into a single-dump finding generator that surfaces top-N latency-suspect stacks with sample counts. Reference: `ThreadDumpAnalyzerTools.java:653-667`. | T-193 | aitop-tools | `LATENCY_SECTION_DETECTED` finding |
+| T-195 | P3 | [ ] | Design heap dump analyzer scope: ArchScope currently has no heap dump path. Decide between (a) sidecar to a system-installed `mat`/`jmap`-based tool, (b) a minimal HPROF reader limited to class histogram + top-N retained roots, or (c) deferral. Capture decision in `docs/en/ARCHITECTURE.md` and `docs/ko/ARCHITECTURE.md`. Reference algorithms in `HeapAnalyzer.java:113-249` (top-N retained, GC-root shortest path, thread-in-path detection). | None | aitop-tools | Heap dump scope decision |
+| T-196 | P3 | [ ] | If T-195 picks the minimal HPROF path, implement `parsers/heap_dump_parser.py` for HPROF class-histogram + dominator-tree top-N retained objects (no Eclipse MAT dependency). Otherwise document the deferral and link the ItopHeapAnalyzer Playwright path as the operator workaround. | T-195 | aitop-tools | Heap dump MVP or documented deferral |
+| T-197 | P2 | [ ] | Add regression tests: SVG/HTML flame-tree parser fixtures (one async-profiler HTML, one FlameGraph.pl SVG, one unsupported HTML), a 3-dump multi-thread fixture exercising `LONG_RUNNING_THREAD` + `PERSISTENT_BLOCKED_THREAD`, AOP-proxy stack normalization, and `epollWait`/`socketAccept` category enrichment. | T-187, T-191, T-194 | User feature request | Profiler/thread-dump regression coverage |
+| T-198 | P2 | [ ] | Update README plus `docs/en/{ARCHITECTURE,DATA_MODEL,PARSER_DESIGN,ROADMAP}.md` and `docs/ko/...` with the new profiler input formats, multi-dump thread analysis, AOP normalization, latency tagging, and the heap dump scope decision. | T-187, T-191, T-194, T-195, T-197 | User feature request | Documentation updates |
+
 ## Dependency Order
 
 1. `T-001 -> T-002 -> T-030 -> T-037 -> T-003`: bridge decision, client boundary, CLI install metadata, minimal UX flow, then end-to-end PoC.
@@ -403,12 +437,21 @@ Goal: close the high-risk items from the 2026-05-01 final review before deeper o
 43. `T-169 -> T-178`: establish local benchmark output before adding CI performance gates.
 44. `T-098 -> T-171` and `T-158 -> T-172/T-176`: harden user regex and OTel topology/error classification edge cases.
 45. `T-038/T-070 -> T-179`: add analyzer cancellation after the generic IPC bridge and sidecar cleanup path are stable.
+46. `T-180 -> T-181`: drop the right-pane top bar before relocating the language switcher into the sidebar so layout reflows once.
+47. `T-182 -> T-183`: remove the sandbox-incompatible `<input type="file">` first, then sweep analyzer pages for assumptions that depended on it.
+48. `T-184 -> T-185 -> T-186 -> T-187`: SVG flame parser → HTML detector reusing it → analyzer/CLI integration → UI exposure.
+49. `T-188 -> T-189 -> T-190 -> T-191`: multi-dump record contract → correlation findings → CLI surface → UI page.
+50. `T-188 -> T-192/T-193 -> T-194`: stabilize stack signatures (AOP cleanup) and state inference before deriving the latency-section finding.
+51. `T-195 -> T-196`: scope/decision precedes any heap dump implementation work.
+52. `T-187/T-191/T-194 -> T-197 -> T-198`: lock new profiler/thread/heap behavior with tests before docs.
 
 ## Active Decision Queue
 
 | Decision | Required before | Default |
 |---|---|---|
 | React 19 upgrade timing | After T-023 | Defer unless Electron/tooling compatibility requires it. |
+| Heap dump analyzer scope (none vs. minimal HPROF vs. external MAT sidecar) | T-195 / T-196 | Default to minimal HPROF (class histogram + top-N retained, no Eclipse MAT dependency) unless review surfaces a hard blocker. |
+| HTML flamegraph format coverage | T-185 | Support async-profiler self-contained HTML and inline-SVG-wrapped HTML; emit `UNSUPPORTED_HTML_FORMAT` for the rest rather than guessing. |
 
 ## Workflow For New Review Documents
 
