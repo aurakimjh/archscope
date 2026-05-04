@@ -1,110 +1,72 @@
 # 패키징 계획
 
-ArchScope 패키징은 desktop shell과 Python engine을 독립적으로 검증 가능하게 유지하면서, 사용자에게는 하나의 desktop application으로 제공하는 것을 목표로 한다.
+ArchScope는 데스크톱 바이너리가 아니라 **로컬 웹 애플리케이션**으로
+배포됩니다. 현재 모델에는 Electron 셸도, PyInstaller sidecar도
+없습니다. Electron 시대의 원래 계획은 historical note로 문서 하단에
+보존됩니다.
 
-## Packaging Spike 범위
+## 현재 배포 모델
 
-Phase 3 spike의 목표 구조는 다음과 같다.
-
-- Electron이 renderer와 main process를 패키징한다.
-- Python engine은 PyInstaller sidecar executable로 빌드한다.
-- Electron은 개발 환경과 같은 CLI contract로 sidecar를 호출한다. 즉 analyzer command argument와 `--out` 경로를 사용한다.
-- 패키징 후에도 UI와 engine 사이의 경계는 `AnalysisResult` JSON으로 유지한다.
-
-## Spike 체크리스트
-
-1. macOS에서 PyInstaller로 Python engine sidecar를 먼저 빌드한다.
-2. packaged app resource path에 sidecar 위치를 연결한다.
-3. packaged sidecar 경로로 `access-log analyze`와 `profiler analyze-collapsed`를 검증한다.
-4. malformed-line diagnostics와 engine stderr detail이 UI까지 전달되는지 검증한다.
-5. macOS path와 signing 가정이 정리된 뒤 Windows에서 반복 검증한다.
-
-Linux packaging은 macOS와 Windows sidecar path가 검증될 때까지 defer한다.
-
-## PyInstaller Sidecar 빌드 방법
-
-### macOS
+엔드 유저는 엔진을 설치하고 단일 Python 프로세스로 React UI를
+서빙합니다.
 
 ```bash
 cd engines/python
-pip install pyinstaller
+python -m venv .venv && source .venv/bin/activate
+pip install -e .                       # `archscope-engine` 등록
 
-pyinstaller \
-  --name archscope-engine \
-  --onedir \
-  --noconfirm \
-  --add-data "archscope_engine/config:archscope_engine/config" \
-  --hidden-import archscope_engine.parsers \
-  --hidden-import archscope_engine.analyzers \
-  --hidden-import archscope_engine.exporters \
-  archscope_engine/cli.py
-
-# 결과: dist/archscope-engine/archscope-engine (실행 파일)
+cd ../..
+./scripts/serve-web.sh                 # apps/desktop/dist 빌드 + 서빙
+# 브라우저에서 http://127.0.0.1:8765
 ```
 
-### Windows
+구성:
 
-```powershell
-cd engines\python
-pip install pyinstaller
+- **Python 엔진** — `archscope-engine` 배포(엔트리는
+  `engines/python/setup.cfg`). Typer + FastAPI + uvicorn +
+  defusedxml + python-multipart를 설치하고 `archscope-engine` 콘솔
+  스크립트를 노출. PyPI 휠 발행 + `pip install archscope-engine`은
+  다음 단계(아래 Open items 참고).
+- **React UI** — Vite가 `apps/desktop/dist`로 정적 번들 생성.
+  `archscope-engine serve --static-dir apps/desktop/dist`(또는
+  헬퍼 스크립트)가 `/`에서 번들 서빙.
+- **플랫폼 바이너리 없음** — `.dmg` / `.msi` / `.deb` 없음. 사용자는
+  Python ≥ 3.9이 있는 환경에서 엔진을 실행. 과거 세 가지 우려사항
+  (Electron 버전 업그레이드, electron-builder 서명, PyInstaller
+  sidecar 경로)을 단일 공급망으로 통합.
 
-pyinstaller `
-  --name archscope-engine `
-  --onedir `
-  --noconfirm `
-  --add-data "archscope_engine\config;archscope_engine\config" `
-  --hidden-import archscope_engine.parsers `
-  --hidden-import archscope_engine.analyzers `
-  --hidden-import archscope_engine.exporters `
-  archscope_engine\cli.py
+사용자 데이터는 `~/.archscope/`(uploads, settings)에 저장되며 로컬
+머신을 떠나지 않음. 엔진은 기본적으로 `127.0.0.1`에 바인딩.
 
-# 결과: dist\archscope-engine\archscope-engine.exe
-```
+## CSP 정책
 
-### 빌드 결과 검증
+이제 잠가야 할 Electron 렌더러가 없습니다. 브라우저는 FastAPI에서
+React 번들을 로드하고 같은 origin의 `fetch('/api/...')`로 다시 통신.
+프로덕션 빌드에서는 `unsafe-eval` 불필요. 인라인 스타일은 ECharts
+tooltip 테마에서만 발생.
 
-```bash
-# sidecar가 정상 동작하는지 확인
-./dist/archscope-engine/archscope-engine --help
-./dist/archscope-engine/archscope-engine access-log analyze \
-  --file ../../examples/access-logs/sample-nginx-access.log \
-  --format nginx \
-  --out /tmp/test-result.json
-```
+## Open items
 
-## macOS 코드 서명 및 공증 (Notarization)
+다음 패키징 단계 — 아직 미구현:
 
-배포용 빌드에서는 macOS Gatekeeper를 통과하기 위해 코드 서명과 공증이 필요하다.
+1. **PyPI에 버전된 wheel 발행** — 사용자가 저장소 클론 없이
+   `pip install archscope-engine`으로 실행 가능하게.
+2. **wheel에 React `dist/` 번들 포함** — Node.js 툴체인 없이 설치
+   가능하게. wheel이 정적 파일을 함께 배포하고, `--static-dir`
+   생략 시 엔진이 패키지 디렉토리에서 자동 해석.
+3. **선택적 standalone 런타임** — `uv tool install
+   archscope-engine` 레시피로 virtualenv 관리 없이 단일 명령으로
+   CLI + 웹 서버 획득.
+4. **Docker 이미지** — 신뢰할 수 있는 사내 호스트에서 팀 전체가
+   `archscope-engine serve --host 0.0.0.0`로 사용.
 
-```bash
-# 1. Electron app 서명 (electron-builder가 처리)
-# package.json의 build.mac 설정에 identity 지정
+## Historical: Electron + PyInstaller spike (2026-Q1)
 
-# 2. PyInstaller sidecar 서명
-codesign --deep --force --options runtime \
-  --sign "Developer ID Application: Your Name (TEAMID)" \
-  dist/archscope-engine/archscope-engine
-
-# 3. 공증 (notarization)
-# electron-builder의 afterSign hook에서 app 전체를 notarize
-```
-
-Windows에서는 Authenticode 코드 서명 인증서를 사용한다. 구체적인 CI 파이프라인 구성은 signing infrastructure가 확보된 뒤 결정한다.
-
-## Metadata 결정
-
-낮은 `setuptools<64` 상한은 현대적인 bounded range로 올린다. 전체 metadata를 `pyproject.toml`로 통합하는 작업은 PyInstaller, editable development install, 향후 wheel publishing 요구가 packaging spike에서 확인된 뒤 진행한다.
-
-현재 결정:
-
-- `setup.cfg`는 package metadata, dependency, extra, entry point의 source로 유지한다.
-- `setup.py`는 최소 compatibility shim으로 유지한다.
-- `pyproject.toml`은 build-system requirement와 tool configuration을 담당한다.
-
-## CSP Nonce 평가
-
-Production CSP는 이미 unsafe script execution을 차단한다. `style-src 'unsafe-inline'` 제거에는 style injection nonce 전파와 React, Vite output, ECharts tooltip/theme 호환성 검증이 필요하다.
-
-결정: Phase 3 packaging 중에는 현재 style policy를 유지한다. Packaged renderer 동작과 chart export flow가 안정화된 뒤 nonce 기반 style CSP를 재검토한다.
-
-Phase 3 follow-up spike 결과: 로컬 ECharts 6 및 zrender package source에서는 문서화된 `nonce` 또는 `csp.nonce` 초기화 옵션을 확인하지 못했다. 다음 CSP hardening 시도는 policy 변경 전에 packaged renderer smoke test를 수행하고, chart tooltip/theme rendering이 유지되는 경우에만 unsafe inline style 제거를 우선한다.
+원래 패키징 계획은 Electron 위에 PyInstaller sidecar를 쌓는 형태
+였습니다. **Phase 1 (Web pivot, T-206 … T-209)**에서 세 가지 이유로
+폐기됨: Electron 번들 인스톨러가 운영 사용자에게 너무 컸고,
+PyInstaller sidecar가 디버깅 표면을 중복으로 만들었으며, Electron
+IPC contract가 FastAPI HTTP 경계로 깔끔하게 처리되는 오버헤드를
+추가했음. 위의 현재 형태가 그 계획을 전면 교체. 폐기된 구현은
+`apps/desktop/electron/`(Phase 1에서 삭제)에 살았으며 spike
+artifact는 더 이상 빌드 파이프라인에서 도달 불가.

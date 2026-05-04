@@ -80,14 +80,14 @@ Demo Data Center는 다음 흐름을 지원합니다.
 - JSON 출력을 Export Center로 전달
 - 실패 analyzer, skipped line, finding, reference-only context 요약 표시
 
-Demo-site 실행은 단일 파일 analyzer보다 긴 Electron engine timeout을 사용하므로
-전체 시나리오 실행이 완료될 시간을 확보합니다. UI는 engine이 반환될 때까지
-running 상태를 유지합니다. Streaming progress event는 아직 후속 작업입니다.
+전체 시나리오 실행은 FastAPI 요청 핸들러를 engine 반환 시까지 블로킹
+합니다. UI는 응답이 도착할 때까지 running 상태를 유지하며, streaming
+progress event는 아직 후속 작업입니다.
 
-Desktop package에는 Demo Data Center용 Playwright/Electron smoke test가
-포함되어 있습니다. 이 테스트는 `ARCHSCOPE_E2E_DEMO_STUB=1` Electron main-process
-fixture로 실행되므로 CI가 외부 demo-site 파일에 의존하지 않고 navigation,
-run-result rendering, Export Center handoff를 검증할 수 있습니다.
+레거시 Electron 전용 Playwright smoke test는 Phase 1에서 desktop shell
+이 폐기될 때 함께 제거되었습니다. Demo Data Center에 대한 동등한 web
+smoke test는 별도로 추적 중이며, 같은 `ARCHSCOPE_E2E_DEMO_STUB=1`
+서버 측 fixture 경로를 사용할 예정입니다.
 
 ## OpenTelemetry 시나리오 검증
 

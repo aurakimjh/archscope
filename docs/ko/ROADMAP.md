@@ -10,7 +10,7 @@
 - Sample charts
 - JSON result format
 - English/Korean documentation and UI i18n foundation
-- Electron IPC와 Python CLI 기반 Engine-UI Bridge PoC
+- Engine-UI 브릿지 — 초기에는 Electron IPC + Python CLI 기반 PoC. 2026-05 웹 전환(T-206..T-209)에서 FastAPI HTTP 경계(`/api/...`) + in-process 분석기 dispatch로 교체
 - Python runtime dependency 및 CLI entry point 명시
 - Malformed record용 parser diagnostics
 - Encoding fallback correctness
@@ -40,8 +40,7 @@
 - Java exception analyzer MVP
 - JFR recording parser 설계 및 feasibility spike
 - Timeline correlation
-- Electron supported-version upgrade
-- Electron + PyInstaller packaging spike
+- *(2026-05 웹 전환에서 폐기)* Electron 버전 업그레이드 및 Electron + PyInstaller 패키징 spike — `pip install -e .` + `archscope-engine serve --static-dir`로 교체. [PACKAGING_PLAN](./PACKAGING_PLAN.md) 참고.
 
 ## Phase 4: Multi-runtime and Observability Inputs
 

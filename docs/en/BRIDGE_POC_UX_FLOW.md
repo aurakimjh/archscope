@@ -1,122 +1,99 @@
-# Bridge PoC UX Flow
+# Engine ↔ UI Bridge
 
-This document fixes the minimum user experience for the first Engine-UI Bridge PoC.
+This document captured the original Electron-IPC bridge experiment.
+Phase 1 (T-206 … T-209) replaced that bridge with an HTTP boundary
+between the FastAPI engine and the React UI. The historical Electron
+notes are at the bottom for context.
 
-The goal is to prove this path:
-
-```text
-select local file -> invoke analyzer -> receive AnalysisResult JSON -> render summary/charts/tables
-```
-
-The PoC should feel like a working diagnostic path, not a final analyzer workspace.
-
-## Scope
-
-The first PoC covers:
-
-- Access Log analysis through `analyzeAccessLog({ filePath, format })`
-- Collapsed profiler analysis through `analyzeCollapsedProfile({ wallPath, wallIntervalMs, elapsedSec, topN })`
-- loading, success, parser diagnostics, and bridge error states
-
-It does not cover:
-
-- multi-file correlation
-- chart editing
-- report export
-- persisted analysis history
-- custom parser configuration UI
-
-## Access Log Flow
-
-1. The user selects or drops one access log file.
-2. The user selects a log format. The default is `nginx`.
-3. The Analyze button becomes enabled only when a file path and format are present.
-4. On Analyze, the renderer calls `AnalyzerClient.analyzeAccessLog`.
-5. While the request is pending, the file control and format control remain visible, and the Analyze button shows a loading state.
-6. On success, the page renders the returned `AnalysisResult` summary, chart-ready series, and parser diagnostics.
-7. On failure, the page keeps the selected file and options visible and shows a bridge error message near the action area.
-
-## Profiler Flow
-
-1. The user selects or drops one wall-clock collapsed stack file.
-2. The user sets `wallIntervalMs`. The default is `100`.
-3. The user may set `elapsedSec` and `topN`. The default `topN` is `20`.
-4. The Analyze button becomes enabled only when a wall file path and positive interval are present.
-5. On Analyze, the renderer calls `AnalyzerClient.analyzeCollapsedProfile`.
-6. While the request is pending, controls remain visible and the Analyze button shows a loading state.
-7. On success, the page renders summary metrics and the top stack table from the returned `AnalysisResult`.
-8. On failure, the page keeps the selected file and options visible and shows a bridge error message near the action area.
-
-## UI State Model
-
-Analyzer pages should use these states:
-
-| State | Meaning | Primary UI |
-|---|---|---|
-| `idle` | No analysis has started. | Empty metrics, empty chart/table area, disabled Analyze until required inputs exist. |
-| `ready` | Required inputs are present. | Analyze enabled. |
-| `running` | IPC request is pending. | Analyze disabled with loading text, previous result retained until a new success replaces it. |
-| `success` | Analyzer returned `ok: true`. | Summary, series, tables, and diagnostics rendered from `result`. |
-| `error` | Analyzer returned `ok: false` or IPC threw. | Error panel with stable code and human-readable message. |
-
-The renderer should not parse stdout or infer success from process exit text. The `AnalyzerResponse` contract is the UI boundary.
-
-## Success Rendering
-
-Success rendering should prefer normalized `AnalysisResult` fields:
-
-- summary cards from `result.summary`
-- trend charts from `result.series`
-- top-N or detail tables from `result.tables`
-- optional chart templates from `result.charts`
-- diagnostics from `result.metadata.diagnostics`
-
-If a field is missing in the first PoC result, the affected panel should show an empty state instead of failing the whole page.
-
-## Diagnostics Panel
-
-The parser diagnostics panel is shown when `result.metadata.diagnostics` exists.
-
-Minimum fields to support:
-
-| Field | Display |
-|---|---|
-| `parsed_records` | Number of records included in aggregation. |
-| `skipped_lines` | Number of malformed non-blank records skipped. |
-| `encoding` | Encoding used to read the source file, when available. |
-| `samples` | Bounded malformed-record examples, when available. |
-
-Diagnostics are informational on a successful run. A result with skipped records can still be successful.
-
-## Error Messages
-
-Bridge errors should follow the `BridgeError` contract:
+## Current bridge model
 
 ```text
-{
-  code,
-  message,
-  detail?
-}
+Browser (React)
+   │  window.archscope.* — same surface as the legacy IPC
+   │      (selectFile / analyzer / exporter / demo / settings)
+   │  src/api/httpBridge.ts mounts each call onto fetch('/api/...')
+   ▼
+FastAPI server (`archscope-engine serve`)
+   • POST /api/upload                  multipart upload (uploads land
+                                       under ~/.archscope/uploads/)
+   • POST /api/analyzer/execute        single dispatcher (per type)
+   • POST /api/analyzer/cancel         no-op (single-process)
+   • POST /api/export/execute          html / pptx / diff
+   • GET  /api/demo/list / POST /api/demo/run
+   • GET  /api/files?path=…            stream local artifacts back
+   • GET/PUT /api/settings             ~/.archscope/settings.json
+   • GET  /                            static React build (--static-dir)
+   ▼
+archscope_engine package
+   • analyzers called in-process — no subprocess, no Typer round-trip
+   • Returns the AnalysisResult JSON envelope unchanged
 ```
 
-Initial error code categories:
+### Why HTTP
 
-| Code | When |
-|---|---|
-| `ANALYZER_NOT_CONNECTED` | Mock client or IPC bridge is not connected. |
-| `FILE_NOT_FOUND` | Selected file path no longer exists or is not readable. |
-| `INVALID_OPTION` | Required analyzer option is missing or invalid. |
-| `ENGINE_EXITED` | Python CLI returned a non-zero exit code. |
-| `ENGINE_OUTPUT_INVALID` | CLI finished but did not produce valid `AnalysisResult` JSON. |
-| `IPC_FAILED` | IPC invocation failed before a normalized bridge response was returned. |
+- A browser can't speak Electron IPC, so the web pivot needed a
+  language-neutral boundary anyway.
+- One transport for both the local UI and any future LAN deployment
+  (`--host 0.0.0.0`).
+- The FastAPI process owns the analyzer modules directly, so each
+  call stays in-process and avoids the previous subprocess fan-out.
 
-The UI should show `message` as the primary text and keep `code` visible for support/debugging. `detail` may be shown in a compact expandable area once that UI exists.
+### File selection contract
 
-## Implementation Notes For T-003
+The UI exposes `window.archscope.selectFile(...)` exactly as the
+Electron renderer used to. Under the hood:
 
-- Keep file selection in the renderer, but execute Python only in the Electron main process.
-- Pass typed request objects from renderer to preload to IPC.
-- The main process should call the Python CLI with `execFile`, write output JSON to a temporary path, read the JSON, and return `AnalyzerResponse`.
-- Do not expose raw command strings to the renderer.
-- Do not make stdout parsing part of the data contract.
+1. The bridge spawns a hidden `<input type="file">` and resolves to the
+   chosen `File` (or `{ canceled: true }` if the user dismisses).
+2. The file is `multipart/form-data` POSTed to `/api/upload`.
+3. The server stores it under `~/.archscope/uploads/<uuid>/<orig>` and
+   returns `{ filePath, originalName, size }`.
+4. The UI hands the server-side `filePath` to whichever analyzer
+   request needs it (e.g. `params.filePath` on `/api/analyzer/execute`).
+
+Per-analyzer pages can also instantiate the `FileDock` component
+directly to bypass `selectFile` entirely; both paths land at the same
+`/api/upload` endpoint.
+
+### Cancellation
+
+`/api/analyzer/cancel` exists but is a no-op in the current
+single-process engine — every analyzer runs synchronously inside the
+FastAPI request handler. The `archscope-engine serve --reload` dev
+loop relies on uvicorn's auto-reload to pick up code changes; long
+analyzer runs simply complete before the next request returns.
+
+### Errors
+
+The dispatcher returns structured errors with `code` + `message` plus
+optional `detail`. The known codes used by the UI:
+
+- `INVALID_OPTION` — request body is malformed.
+- `FILE_NOT_FOUND` — the `filePath` no longer exists (uploads can be
+  cleaned up under `~/.archscope/uploads/`).
+- `UNKNOWN_THREAD_DUMP_FORMAT` — no plugin matched the head bytes of
+  a thread-dump input.
+- `MIXED_THREAD_DUMP_FORMATS` — multi-dump request resolved to more
+  than one format. Pass `format` to override.
+- `ENGINE_FAILED` — generic catch-all (the analyzer raised). The
+  exception is preserved in `detail`.
+- `ENGINE_OUTPUT_INVALID` (legacy CLI path) — kept for compatibility
+  with the previous subprocess JSON contract.
+
+## Historical: Electron IPC bridge (2026-Q1)
+
+The original PoC let the React renderer call into the Electron main
+process via IPC; the main process then `execFile`'d
+`archscope-engine` as a subprocess and parsed its JSON output. Three
+issues drove the move to HTTP in Phase 1:
+
+1. The Electron sandbox blocked direct file-path access from the
+   renderer, requiring an IPC handshake for every file selection.
+2. The subprocess fan-out duplicated parser failure context across
+   the engine, the IPC channel, and the renderer logger.
+3. Bundle size — Electron + PyInstaller installer was several
+   hundred MB before any user data; the FastAPI + Vite bundle is one
+   pip install + one Vite build.
+
+The retired Electron main / preload code lived in
+`apps/desktop/electron/` and was deleted in Phase 1.

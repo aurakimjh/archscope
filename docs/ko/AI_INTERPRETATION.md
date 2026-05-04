@@ -58,7 +58,7 @@ AI interpretation은 `AnalysisResult`를 대체하지 않고 별도 `Interpretat
 }
 ```
 
-향후 analyzer result가 `metadata.ai_interpretation`에 AI output을 포함하면 Electron IPC boundary는 동일한 contract를 검증하고 불일치 시 compatibility warning을 표시해야 한다.
+향후 analyzer result가 `metadata.ai_interpretation`에 AI output을 포함하면 FastAPI ↔ React HTTP 경계는 동일한 contract를 검증하고 불일치 시 compatibility warning을 표시해야 한다.
 
 ## Runtime Enforcement
 

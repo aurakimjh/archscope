@@ -1,40 +1,74 @@
 # Packaging Plan
 
-ArchScope packaging should keep the desktop shell and Python engine independently verifiable while producing a single user-facing desktop application.
+ArchScope is delivered as a **local web application**, not as a desktop
+binary. There is no Electron shell and no PyInstaller sidecar in the
+current shipping model. The historical Electron-era plan is preserved
+at the bottom of this document for context.
 
-## Packaging Spike Scope
+## Current shipping model
 
-The Phase 3 spike uses this target shape:
+End users install the engine and serve the bundled React UI from a
+single Python process:
 
-- Electron packages the renderer and main process.
-- The Python engine is built as a PyInstaller sidecar executable.
-- Electron invokes the sidecar with the same CLI contract used by development: analyzer command arguments plus `--out`.
-- Packaged builds must preserve `AnalysisResult` JSON as the boundary between UI and engine.
+```bash
+cd engines/python
+python -m venv .venv && source .venv/bin/activate
+pip install -e .                       # registers `archscope-engine`
 
-## Spike Checklist
+cd ../..
+./scripts/serve-web.sh                 # builds apps/desktop/dist + serves
+# Open http://127.0.0.1:8765
+```
 
-1. Build the Python engine sidecar with PyInstaller on macOS first.
-2. Add a packaged app resource path for the sidecar.
-3. Verify `access-log analyze` and `profiler analyze-collapsed` through the packaged sidecar.
-4. Verify malformed-line diagnostics and engine stderr detail still reach the UI.
-5. Repeat on Windows after macOS path and signing assumptions are known.
+Components:
 
-Linux packaging is deferred until the macOS and Windows sidecar paths are validated.
+- **Python engine** — the `archscope-engine` distribution (defined by
+  `engines/python/setup.cfg`). Installs Typer + FastAPI + uvicorn +
+  defusedxml + python-multipart and exposes the `archscope-engine`
+  console script. Wheel publishing and `pip install archscope-engine`
+  from PyPI is the next step (see open items below).
+- **React UI** — Vite produces a static bundle into
+  `apps/desktop/dist`. `archscope-engine serve --static-dir
+  apps/desktop/dist` (or the helper script) serves the bundle at `/`.
+- **No platform binary** — there is no `.dmg`, `.msi`, or `.deb`. The
+  user runs the engine from any Python ≥ 3.9. This collapses three
+  past concerns (Electron version upgrades, electron-builder signing,
+  PyInstaller sidecar paths) into a single supply chain.
 
-## Metadata Decision
+User data lives under `~/.archscope/` (uploads, settings) and stays on
+the local machine. The engine binds `127.0.0.1` by default.
 
-The low `setuptools<64` ceiling has been raised to a modern bounded range. Full metadata consolidation into `pyproject.toml` is deferred until the packaging spike proves which metadata source is best for PyInstaller, editable development installs, and future wheel publishing.
+## CSP policy
 
-For now:
+There is no Electron renderer to lock down anymore. The browser loads
+the React bundle from FastAPI and talks back to the same origin via
+`fetch('/api/...')`. No `unsafe-eval` is needed in production builds;
+the only inline style still emitted comes from ECharts tooltip themes.
 
-- `setup.cfg` remains the source of package metadata, dependencies, extras, and entry points.
-- `setup.py` remains the minimal compatibility shim.
-- `pyproject.toml` owns build-system requirements plus tool configuration.
+## Open items
 
-## CSP Nonce Evaluation
+These are the next packaging steps but are not yet implemented:
 
-Production CSP already blocks unsafe script execution. Removing `style-src 'unsafe-inline'` would require nonce propagation for style injection and compatibility checks with React, Vite output, and ECharts tooltips/themes.
+1. **Publish a versioned wheel to PyPI** so end users can run
+   `pip install archscope-engine` without cloning the repository.
+2. **Bundle the React `dist/` with the wheel** so the install does not
+   require a Node.js toolchain. The wheel ships static files; the
+   engine auto-resolves them from the package directory if
+   `--static-dir` is omitted.
+3. **Optional standalone runtime** — an `uv tool install
+   archscope-engine` recipe so a user gets the CLI + web server from a
+   single command without managing a virtualenv.
+4. **Docker image** — `archscope-engine serve --host 0.0.0.0` for team
+   use on a trusted internal host.
 
-Decision: keep the current style policy during Phase 3 packaging. Revisit nonce-based style CSP after packaged renderer behavior and chart export flows are stable.
+## Historical: Electron + PyInstaller spike (2026-Q1)
 
-Phase 3 follow-up spike result: local ECharts 6 and zrender package sources do not expose a documented `nonce` or `csp.nonce` initialization option. The next CSP hardening attempt should use a packaged-renderer smoke test before changing policy, and should prefer removing unsafe inline style only when chart tooltip/theme rendering remains intact.
+The original packaging plan stacked Electron over a PyInstaller
+sidecar. That direction was abandoned in **Phase 1 (Web pivot, T-206
+… T-209)** for three reasons: the Electron-bundled installer was too
+large for the operations users we ship to, the PyInstaller sidecar
+duplicated debugging surface, and the Electron IPC contract added
+overhead the FastAPI HTTP boundary handles cleanly. The current shape
+above replaces that plan in full. The retired implementation lived in
+`apps/desktop/electron/` (deleted in Phase 1) and the spike artifacts
+are no longer reachable from the build pipeline.

@@ -2,6 +2,13 @@
 
 This directory contains the English design documents for ArchScope.
 
+User-facing guides:
+
+- [User Guide](./USER_GUIDE.md) — install, run, every page, every CLI command, troubleshooting.
+- [Multi-language Thread Dumps](./MULTI_LANGUAGE_THREADS.md) — six-format support matrix and per-language enrichment rules.
+
+Engineering / design references:
+
 - [Architecture](./ARCHITECTURE.md)
 - [Roadmap](./ROADMAP.md)
 - [Data Model](./DATA_MODEL.md)

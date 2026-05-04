@@ -1,136 +1,98 @@
-# Bridge PoC UX Flow
+# 엔진 ↔ UI 브릿지
 
-이 문서는 첫 Engine-UI Bridge PoC의 최소 사용자 경험을 고정한다.
+이 문서는 원래 Electron-IPC 브릿지 실험을 기록했습니다. Phase 1
+(T-206 … T-209)에서 그 브릿지를 FastAPI 엔진과 React UI 사이의 HTTP
+경계로 교체했습니다. Electron 시대 노트는 historical context로
+하단에 보존됩니다.
 
-목표는 다음 경로를 증명하는 것이다.
-
-```text
-local file 선택 -> analyzer 호출 -> AnalysisResult JSON 수신 -> summary/chart/table 렌더링
-```
-
-PoC는 최종 analyzer workspace가 아니라 실제로 동작하는 최소 진단 경로처럼 느껴져야 한다.
-
-## 범위
-
-첫 PoC에 포함하는 범위:
-
-- `analyzeAccessLog({ filePath, format })` 기반 Access Log 분석
-- `analyzeCollapsedProfile({ wallPath, wallIntervalMs, elapsedSec, topN })` 기반 collapsed profiler 분석
-- loading, success, parser diagnostics, bridge error 상태
-
-포함하지 않는 범위:
-
-- 여러 파일 간 correlation
-- chart editing
-- report export
-- persisted analysis history
-- custom parser configuration UI
-
-## Access Log Flow
-
-1. 사용자가 access log 파일 하나를 선택하거나 drop한다.
-2. 사용자가 log format을 선택한다. 기본값은 `nginx`다.
-3. File path와 format이 모두 있을 때만 Analyze button이 활성화된다.
-4. Analyze 실행 시 renderer는 `AnalyzerClient.analyzeAccessLog`를 호출한다.
-5. 요청이 진행 중일 때도 file control과 format control은 보이며, Analyze button은 loading 상태를 표시한다.
-6. 성공하면 반환된 `AnalysisResult`의 summary, chart-ready series, parser diagnostics를 렌더링한다.
-7. 실패하면 선택된 file과 option은 유지하고 action 영역 근처에 bridge error message를 표시한다.
-
-## Profiler Flow
-
-1. 사용자가 wall-clock collapsed stack file 하나를 선택하거나 drop한다.
-2. 사용자가 `wallIntervalMs`를 설정한다. 기본값은 `100`이다.
-3. 사용자는 `elapsedSec`, `topN`을 선택적으로 설정할 수 있다. `topN` 기본값은 `20`이다.
-4. Wall file path와 양수 interval이 있을 때만 Analyze button이 활성화된다.
-5. Analyze 실행 시 renderer는 `AnalyzerClient.analyzeCollapsedProfile`을 호출한다.
-6. 요청이 진행 중일 때도 control은 보이며, Analyze button은 loading 상태를 표시한다.
-7. 성공하면 반환된 `AnalysisResult`에서 summary metric과 top stack table을 렌더링한다.
-8. 실패하면 선택된 file과 option은 유지하고 action 영역 근처에 bridge error message를 표시한다.
-
-## UI State Model
-
-Analyzer page는 다음 상태를 사용한다.
-
-| State | 의미 | 주요 UI |
-|---|---|---|
-| `idle` | 아직 분석을 시작하지 않음 | 빈 metric, 빈 chart/table 영역, 필수 입력 전 Analyze 비활성화 |
-| `ready` | 필수 입력이 있음 | Analyze 활성화 |
-| `running` | IPC 요청 진행 중 | Analyze 비활성화 및 loading text 표시, 이전 결과는 새 성공 결과가 오기 전까지 유지 |
-| `success` | Analyzer가 `ok: true` 반환 | `result`에서 summary, series, tables, diagnostics 렌더링 |
-| `error` | Analyzer가 `ok: false` 반환하거나 IPC 예외 발생 | 안정적인 code와 사용자용 message를 가진 error panel 표시 |
-
-Renderer는 stdout을 파싱하거나 process exit text로 성공 여부를 추론하지 않는다. UI boundary는 `AnalyzerResponse` contract다.
-
-## Success Rendering
-
-Success rendering은 표준화된 `AnalysisResult` field를 우선 사용한다.
-
-- `result.summary`에서 summary card 렌더링
-- `result.series`에서 trend chart 렌더링
-- `result.tables`에서 top-N 또는 detail table 렌더링
-- `result.charts`에서 optional chart template 사용
-- `result.metadata.diagnostics`에서 diagnostics 렌더링
-
-첫 PoC result에서 특정 field가 빠져 있으면 전체 page를 실패시키지 않고 해당 panel만 empty state를 표시한다.
-
-## Diagnostics Panel
-
-`result.metadata.diagnostics`가 있으면 parser diagnostics panel을 표시한다.
-
-최소 지원 field:
-
-| Field | 표시 방식 |
-|---|---|
-| `parsed_records` | Aggregation에 포함된 record 수 |
-| `skipped_lines` | Skip된 malformed non-blank record 수 |
-| `encoding` | 사용한 source file encoding, 제공된 경우 |
-| `samples` | 제한된 malformed-record 예시, 제공된 경우 |
-
-Diagnostics는 성공한 run에서 정보성으로 표시한다. Skipped record가 있는 결과도 성공일 수 있다.
-
-## Error Messages
-
-Bridge error는 `BridgeError` contract를 따른다.
+## 현재 브릿지 모델
 
 ```text
-{
-  code,
-  message,
-  detail?
-}
+브라우저 (React)
+   │  window.archscope.* — 레거시 IPC와 동일 표면
+   │      (selectFile / analyzer / exporter / demo / settings)
+   │  src/api/httpBridge.ts가 각 호출을 fetch('/api/...')에 매핑
+   ▼
+FastAPI 서버 (`archscope-engine serve`)
+   • POST /api/upload                  multipart 업로드
+                                       (~/.archscope/uploads/에 저장)
+   • POST /api/analyzer/execute        단일 dispatcher (type별)
+   • POST /api/analyzer/cancel         단일 프로세스 — no-op
+   • POST /api/export/execute          html / pptx / diff
+   • GET  /api/demo/list / POST /api/demo/run
+   • GET  /api/files?path=…            로컬 artifact 스트리밍
+   • GET/PUT /api/settings             ~/.archscope/settings.json
+   • GET  /                            정적 React 빌드 (--static-dir)
+   ▼
+archscope_engine 패키지
+   • 분석기를 in-process 호출 — 서브프로세스/Typer 라운드트립 없음
+   • AnalysisResult JSON envelope을 그대로 반환
 ```
 
-초기 error code category:
+### 왜 HTTP인가
 
-| Code | 사용 시점 |
-|---|---|
-| `ANALYZER_NOT_CONNECTED` | Mock client 또는 IPC bridge가 연결되지 않음 |
-| `FILE_NOT_FOUND` | 선택된 file path가 더 이상 존재하지 않거나 읽을 수 없음 |
-| `INVALID_OPTION` | 필수 analyzer option이 없거나 잘못됨 |
-| `ENGINE_EXITED` | Python CLI가 non-zero exit code를 반환 |
-| `ENGINE_OUTPUT_INVALID` | CLI가 종료됐지만 유효한 `AnalysisResult` JSON을 만들지 못함 |
-| `IPC_FAILED` | 정규화된 bridge response가 반환되기 전 IPC invocation 실패 |
+- 브라우저는 Electron IPC를 말할 수 없으므로 웹 전환 시 어차피
+  언어 중립적인 경계가 필요했음.
+- 로컬 UI와 향후 LAN 배포(`--host 0.0.0.0`) 모두에 단일 전송 계층.
+- FastAPI 프로세스가 분석기 모듈을 직접 소유하므로 모든 호출이
+  in-process로 머무르고, 이전 서브프로세스 분기를 회피.
 
-UI는 `message`를 primary text로 표시하고, support/debugging을 위해 `code`도 보이게 한다. `detail`은 해당 UI가 생기면 compact expandable 영역에 표시할 수 있다.
+### 파일 선택 contract
 
-## 성능 기대치
+UI는 Electron 렌더러가 사용하던 그대로 `window.archscope.selectFile(...)`
+을 노출합니다. 내부 동작:
 
-| 분석 유형 | 입력 크�� | 기대 응답 시간 | 비고 |
-|-----------|-----------|----------------|------|
-| Access Log | 10,000 줄 | < 2초 | 파일 읽기 + 파싱 + 집계 + JSON 쓰기 + IPC 반환 |
-| Access Log | 100,000 줄 | < 5초 | streaming aggregation |
-| Collapsed Profiler | 10,000 스택 | < 2초 | flamegraph tree 구축 포함 |
-| Collapsed Profiler | 100,000 스택 | < 5초 | drilldown + breakdown |
+1. 브릿지가 hidden `<input type="file">`을 생성하고, 사용자가 선택한
+   `File`로 resolve(취소 시 `{ canceled: true }`).
+2. 파일을 `multipart/form-data`로 `/api/upload`에 POST.
+3. 서버가 `~/.archscope/uploads/<uuid>/<orig>`에 저장 후
+   `{ filePath, originalName, size }` 반환.
+4. UI는 서버 측 `filePath`를 필요한 분석기 요청
+   (예: `/api/analyzer/execute`의 `params.filePath`)에 전달.
 
-사용자 체감 기준:
-- 2초 이내: 즉각적 응답으로 느껴짐
-- 2~5초: "분석 중..." 상태 표시가 적절함
-- 5초 초과: Cancel 버튼 활용 안내, max_lines 옵션 제안
+분석기 페이지가 `selectFile`을 우회하고 직접 `FileDock` 컴포넌트를
+인스턴스화할 수도 있습니다. 두 경로 모두 같은 `/api/upload`로
+귀결됩니다.
 
-## T-003 구현 참고
+### 취소
 
-- File selection은 renderer에 두되, Python 실행은 Electron main process에서만 한다.
-- Renderer에서 preload와 IPC로 typed request object를 전달한다.
-- Main process는 Python CLI를 `execFile`로 호출하고, output JSON을 temporary path에 쓰게 한 뒤 JSON을 읽어 `AnalyzerResponse`로 반환한다.
-- Renderer에 raw command string을 노출하지 않는다.
-- Stdout parsing을 data contract로 삼지 않는다.
+`/api/analyzer/cancel`은 존재하지만 현재 단일 프로세스 엔진에서는
+no-op — 모든 분석기는 FastAPI 요청 핸들러 안에서 동기 실행됩니다.
+`archscope-engine serve --reload` 개발 루프는 uvicorn auto-reload에
+의존하므로 코드 변경을 즉시 반영합니다. 긴 분석 실행은 다음 요청이
+반환되기 전에 자연스럽게 완료됩니다.
+
+### 오류
+
+Dispatcher는 구조화된 오류(`code` + `message`, 선택 `detail`)를
+반환합니다. UI가 사용하는 알려진 코드:
+
+- `INVALID_OPTION` — 요청 body가 malformed.
+- `FILE_NOT_FOUND` — `filePath`가 더 이상 존재하지 않음
+  (`~/.archscope/uploads/` 정리 가능).
+- `UNKNOWN_THREAD_DUMP_FORMAT` — thread dump의 첫 바이트가 어떤
+  플러그인과도 매칭되지 않음.
+- `MIXED_THREAD_DUMP_FORMATS` — 멀티 덤프 요청이 둘 이상의 포맷으로
+  resolve. `format`으로 강제.
+- `ENGINE_FAILED` — generic catch-all(분석기가 throw). 예외는
+  `detail`에 보존.
+- `ENGINE_OUTPUT_INVALID` (레거시 CLI 경로) — 이전 서브프로세스
+  JSON contract와의 호환성 유지.
+
+## Historical: Electron IPC 브릿지 (2026-Q1)
+
+원래 PoC는 React 렌더러가 Electron main process로 IPC 호출을 보내고,
+main process가 `archscope-engine`을 서브프로세스로 `execFile`해서
+JSON 출력을 파싱하는 방식이었습니다. Phase 1에서 HTTP로 이동한 세
+가지 이유:
+
+1. Electron sandbox가 렌더러의 직접 파일 경로 접근을 차단해 모든
+   파일 선택마다 IPC 핸드셰이크 필요.
+2. 서브프로세스 분기가 엔진/IPC 채널/렌더러 로거 셋에 걸쳐 파서
+   실패 컨텍스트를 중복.
+3. 번들 크기 — Electron + PyInstaller 인스톨러는 사용자 데이터
+   없이도 수백 MB. FastAPI + Vite 번들은 pip install 한 번 + Vite
+   build 한 번.
+
+폐기된 Electron main / preload 코드는 `apps/desktop/electron/`에
+살았으며 Phase 1에서 삭제되었습니다.

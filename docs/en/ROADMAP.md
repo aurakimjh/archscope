@@ -10,7 +10,7 @@
 - Sample charts
 - JSON result format
 - English/Korean documentation and UI i18n foundation
-- Engine-UI Bridge PoC with Electron IPC and Python CLI
+- Engine-UI bridge — initially Electron IPC + Python CLI; replaced in the 2026-05 web pivot (T-206..T-209) with a FastAPI HTTP boundary (`/api/...`) + in-process analyzer dispatch
 - Explicit Python runtime dependencies and CLI entry point
 - Parser diagnostics for malformed records
 - Encoding fallback correctness

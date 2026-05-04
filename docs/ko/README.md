@@ -14,11 +14,12 @@
 
 ## 사용자 문서
 
-- [**사용자 가이드**](./USER_GUIDE.md) — Desktop App 화면별 상세 사용법
+- [**사용자 가이드**](./USER_GUIDE.md) — 설치, 실행, 페이지별 + CLI별 상세 사용법, 트러블슈팅
+- [멀티 언어 Thread Dump 프레임워크](./MULTI_LANGUAGE_THREADS.md) — 6개 포맷 + 언어별 enrichment 매트릭스
 
 ## 설계 문서
 
-- [아키텍처](./ARCHITECTURE.md) — 시스템 구성, 컴포넌트 경계, IPC 설계
+- [아키텍처](./ARCHITECTURE.md) — 시스템 구성, 컴포넌트 경계, FastAPI HTTP 경로 설계
 - [데이터 모델](./DATA_MODEL.md) — AnalysisResult 공통 contract, TypeScript/Python 타입 정의
 - [파서 설계](./PARSER_DESIGN.md) — Parser 책임, 에러 처리, 대용량 파일 전략
 - [차트 설계](./CHART_DESIGN.md) — Chart template, factory 패턴, 성능 가이드라인
@@ -31,7 +32,7 @@
 ## 운영 문서
 
 - [로드맵](./ROADMAP.md) — Phase별 개발 계획
-- [패키징 계획](./PACKAGING_PLAN.md) — PyInstaller sidecar, Electron 빌드, 코드 서명
+- [패키징 계획](./PACKAGING_PLAN.md) — 현재 배포 모델(`pip install -e .` + FastAPI 정적 서빙), Electron + PyInstaller 시도의 historical note
 - [성능 측정](./PERFORMANCE.md) — 벤치마크, 프로파일링, 메모리 측정
 
 ## UX / 기능 문서

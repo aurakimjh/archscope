@@ -70,7 +70,7 @@ Examples:
 | `jfr_recording` | `jfr analyze-json` |
 | `otel_logs` | `otel analyze` |
 
-## Desktop UI
+## Web UI
 
 Demo Data Center supports:
 
@@ -81,14 +81,13 @@ Demo Data Center supports:
 - sending JSON outputs to Export Center
 - showing failed analyzer, skipped line, finding, and reference-only context summaries
 
-Demo-site runs use a longer Electron engine timeout than single-file analyzer
-actions so full scenario runs have room to finish. The UI remains in a running
-state until the engine returns; streaming progress events are still deferred.
-
-The desktop package includes a Playwright/Electron smoke test for the Demo Data
-Center. It runs with an `ARCHSCOPE_E2E_DEMO_STUB=1` Electron main-process fixture
-so CI can verify navigation, run-result rendering, and Export Center handoff
-without depending on external demo-site files.
+The full scenario run blocks the FastAPI request handler until the engine
+returns. The UI keeps the page in a running state until the response
+arrives; streaming progress events are still deferred. The legacy
+Electron-only Playwright smoke test was removed when the desktop shell
+was retired in Phase 1; an equivalent web smoke test covering the Demo
+Data Center is tracked separately and will use the same
+`ARCHSCOPE_E2E_DEMO_STUB=1` server-side fixture path.
 
 ## OpenTelemetry Scenario Checks
 

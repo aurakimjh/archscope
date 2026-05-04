@@ -58,7 +58,7 @@ AI interpretation is transported as a separate `InterpretationResult`, not as a 
 }
 ```
 
-If an analyzer result later embeds AI output under `metadata.ai_interpretation`, the Electron IPC boundary must validate this same contract and surface compatibility warnings when it does not match.
+If an analyzer result later embeds AI output under `metadata.ai_interpretation`, the FastAPI ↔ React HTTP boundary must validate this same contract and surface compatibility warnings when it does not match.
 
 ## Runtime Enforcement
 
