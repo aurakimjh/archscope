@@ -58,6 +58,39 @@ dotnet_app = typer.Typer(help=".NET exception and IIS log analysis commands.")
 otel_app = typer.Typer(help="OpenTelemetry input analysis commands.")
 report_app = typer.Typer(help="Report export commands.")
 demo_site_app = typer.Typer(help="Demo-site manifest runner commands.")
+serve_app = typer.Typer(help="Run the ArchScope HTTP/web server.")
+
+
+@serve_app.callback(invoke_without_command=True)
+def serve(
+    host: str = typer.Option("127.0.0.1", "--host"),
+    port: int = typer.Option(8765, "--port"),
+    static_dir: Optional[Path] = typer.Option(
+        None,
+        "--static-dir",
+        help="Path to the built React app (defaults to apps/desktop/dist if found).",
+    ),
+    no_dev_cors: bool = typer.Option(
+        False,
+        "--no-dev-cors",
+        help="Disable the development CORS allow-list for the Vite origin.",
+    ),
+    reload: bool = typer.Option(
+        False,
+        "--reload",
+        help="Enable uvicorn auto-reload for development.",
+    ),
+) -> None:
+    """Start the FastAPI server that exposes the engine and serves the web UI."""
+    from archscope_engine.web import run as run_web_server
+
+    run_web_server(
+        host=host,
+        port=port,
+        static_dir=static_dir,
+        dev_cors=not no_dev_cors,
+        reload=reload,
+    )
 
 
 @access_log_app.command("analyze")
@@ -731,6 +764,7 @@ app.add_typer(dotnet_app, name="dotnet")
 app.add_typer(otel_app, name="otel")
 app.add_typer(report_app, name="report")
 app.add_typer(demo_site_app, name="demo-site")
+app.add_typer(serve_app, name="serve")
 
 
 def _manifest_scenario(path: Path) -> str:
