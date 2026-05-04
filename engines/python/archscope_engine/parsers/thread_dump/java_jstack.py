@@ -1,13 +1,22 @@
-"""Java/JVM jstack adapter (T-190).
+"""Java/JVM jstack adapter (T-190) + Java-only enrichment (T-194/T-195).
 
-Wraps the existing :func:`archscope_engine.parsers.thread_dump_parser.parse_thread_dump`
-into a :class:`ParserPlugin` so the new multi-dump pipeline can consume
-JVM dumps without rewriting the proven parser. The single-dump analyzer
-keeps using the original parser unchanged for byte-for-byte parity.
+* T-190 wraps the legacy single-dump jstack parser into a registry plugin
+  so the multi-dump pipeline can ingest JVM dumps unchanged.
+* T-194 normalizes CGLIB/JDK-proxy/Accessor synthetic class suffixes so
+  the same logical call site collapses to a single stack signature
+  regardless of which proxy hash showed up in this snapshot.
+* T-195 promotes RUNNABLE threads stuck in epoll/socket to ``NETWORK_WAIT``
+  and threads stuck in classic file I/O to ``IO_WAIT``. Never touches
+  BLOCKED/WAITING/TIMED_WAITING so the runtime's own state takes priority.
+
+Both enrichment steps run only on Java frames (``StackFrame.language ==
+"java"``) so the registry can mix this plugin with Go/Python/etc. parsers
+without cross-contamination.
 """
 from __future__ import annotations
 
 import re
+from dataclasses import replace
 from pathlib import Path
 
 from archscope_engine.models.thread_dump import ThreadDumpRecord
@@ -40,7 +49,10 @@ class JavaJstackParserPlugin:
 
     def parse(self, path: Path) -> ThreadDumpBundle:
         records = parse_thread_dump(Path(path))
-        snapshots = [self._record_to_snapshot(record, index) for index, record in enumerate(records)]
+        snapshots = [
+            self._record_to_snapshot(record, index)
+            for index, record in enumerate(records)
+        ]
         return ThreadDumpBundle(
             snapshots=snapshots,
             source_file=str(path),
@@ -55,6 +67,12 @@ class JavaJstackParserPlugin:
             # state line is sometimes missing — fall back to the lock hint.
             state = ThreadState.LOCK_WAIT
         frames = [_frame_from_jstack(line) for line in record.stack]
+        # T-194: collapse CGLIB/proxy hash variants into a stable identifier.
+        frames = [_normalize_proxy_frame(frame) for frame in frames]
+        # T-195: promote RUNNABLE epoll/socket/file-IO threads to a more
+        # specific waiting state so the multi-dump correlator does not
+        # mistake a parked I/O thread for a hot CPU thread.
+        state = _infer_java_state(state, frames)
         return ThreadSnapshot(
             snapshot_id=f"java::{index}::{record.thread_name}",
             thread_name=record.thread_name,
@@ -104,6 +122,93 @@ def _frame_from_jstack(line: str) -> StackFrame:
         line=line_part,
         language="java",
     )
+
+
+# ---------------------------------------------------------------------------
+# T-194: aitop's `cleanProxyClassNames` (Java/Spring AOP-aware)
+# ---------------------------------------------------------------------------
+
+# Patterns that strip the dynamic suffix while keeping the rest of the
+# qualified identifier intact. Order matters — the longest-prefix variants
+# must be tried before the shorter ones.
+_PROXY_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
+    (re.compile(r"\$\$EnhancerByCGLIB\$\$[\w$]+"), ""),
+    (re.compile(r"\$\$FastClassByCGLIB\$\$[\w$]+"), ""),
+    (re.compile(r"(\$\$Proxy)\d+"), r"\1"),
+    (re.compile(r"(GeneratedMethodAccessor)\d+"), r"\1"),
+    (re.compile(r"(GeneratedConstructorAccessor)\d+"), r"\1"),
+    # Generic "Accessor<digits>" catch-all for SerializedLambda, JDK proxy
+    # accessor classes, etc. (must come after the specific Generated*
+    # patterns so we don't strip the prefix twice).
+    (re.compile(r"(Accessor)\d+"), r"\1"),
+)
+
+
+def _normalize_proxy_text(text: str) -> str:
+    for pattern, replacement in _PROXY_PATTERNS:
+        text = pattern.sub(replacement, text)
+    # Collapse the leftover ".." / leading-dot artifacts when EnhancerByCGLIB
+    # was strip-replaced with an empty string in the middle of an identifier.
+    text = re.sub(r"\.{2,}", ".", text)
+    return text.strip(".")
+
+
+def _normalize_proxy_frame(frame: StackFrame) -> StackFrame:
+    if frame.language != "java":
+        return frame
+    new_function = _normalize_proxy_text(frame.function)
+    new_module = _normalize_proxy_text(frame.module) if frame.module else None
+    if new_function == frame.function and new_module == frame.module:
+        return frame
+    return replace(frame, function=new_function, module=new_module)
+
+
+# ---------------------------------------------------------------------------
+# T-195: Java network/IO state inference
+# ---------------------------------------------------------------------------
+
+_NETWORK_WAIT_PATTERNS = re.compile(
+    r"(?:"
+    r"epollWait|EPoll(?:Selector)?\.wait|EPollArrayWrapper\.poll|"
+    r"socketAccept|Socket\.\w*accept0|NioSocketImpl\.accept|"
+    r"socketRead0|SocketInputStream\.socketRead|"
+    r"NioSocketImpl\.read|SocketChannelImpl\.read|"
+    r"SocketDispatcher\.read|sun\.nio\.ch\.\w+Selector\.\w*poll|"
+    r"netty\.\w+EventLoop\.\w*select|netty\.channel\.nio\.NioEventLoop\.run"
+    r")"
+)
+_IO_WAIT_PATTERNS = re.compile(
+    r"(?:"
+    r"FileInputStream\.read|FileInputStream\.readBytes|"
+    r"FileChannelImpl\.read|FileChannelImpl\.transferFrom|"
+    r"RandomAccessFile\.read|RandomAccessFile\.readBytes|"
+    r"BufferedReader\.readLine|FileDispatcherImpl\.\w+|"
+    r"java\.io\.FileInputStream\.read"
+    r")"
+)
+
+
+def _infer_java_state(state: ThreadState, frames: list[StackFrame]) -> ThreadState:
+    """Promote RUNNABLE threads to the more specific NETWORK_WAIT/IO_WAIT
+    states when the top frame indicates the thread is parked in I/O.
+
+    The runtime-reported state always wins for non-RUNNABLE threads — a
+    BLOCKED thread stays BLOCKED even if its top frame happens to look
+    like a socket read.
+    """
+    if state is not ThreadState.RUNNABLE or not frames:
+        return state
+    top = frames[0]
+    text_parts: list[str] = []
+    if top.module:
+        text_parts.append(f"{top.module}.{top.function}")
+    text_parts.append(top.function)
+    text = " ".join(text_parts)
+    if _NETWORK_WAIT_PATTERNS.search(text):
+        return ThreadState.NETWORK_WAIT
+    if _IO_WAIT_PATTERNS.search(text):
+        return ThreadState.IO_WAIT
+    return state
 
 
 # Auto-register so callers that just `import archscope_engine.parsers.thread_dump`
