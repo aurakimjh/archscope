@@ -1,7 +1,7 @@
 """FastAPI server that exposes the ArchScope engine over HTTP.
 
 Phase 1 of the Electron→Web pivot. The endpoints mirror the IPC contract that
-``apps/desktop/electron/main.ts`` previously implemented so the React frontend
+``apps/desktop/electron/main.ts`` (now in ``apps/desktop``) previously implemented so the React frontend
 can keep using the same shapes via an HTTP bridge instead of ``window.archscope``.
 """
 from __future__ import annotations
@@ -140,8 +140,8 @@ def _resolve_static_dir(explicit: Optional[Path]) -> Optional[Path]:
     here = Path(__file__).resolve()
     # engines/python/archscope_engine/web/server.py → repo root is parents[4]
     candidates = [
-        here.parents[4] / "apps" / "desktop" / "dist",
-        Path.cwd() / "apps" / "desktop" / "dist",
+        here.parents[4] / "apps" / "frontend" / "dist",
+        Path.cwd() / "apps" / "frontend" / "dist",
     ]
     for candidate in candidates:
         if candidate.is_dir():
@@ -853,7 +853,7 @@ def create_app(static_dir: Optional[Path] = None, *, dev_cors: bool = True) -> F
                     "ok": True,
                     "message": (
                         "ArchScope API is running. Build the React app "
-                        "(apps/desktop) or run Vite on :5173 to use the UI."
+                        "(apps/frontend) or run Vite on :5173 to use the UI."
                     ),
                 }
             )

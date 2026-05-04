@@ -6,11 +6,11 @@ set -euo pipefail
 #
 # Usage:
 #   scripts/serve-web.sh              # build + serve on 127.0.0.1:8765
-#   scripts/serve-web.sh --no-build   # serve only (uses existing apps/desktop/dist)
+#   scripts/serve-web.sh --no-build   # serve only (uses existing apps/frontend/dist)
 #   scripts/serve-web.sh --port 9000
 
 repo_root="$(cd "$(dirname "$0")/.." && pwd)"
-desktop_dir="$repo_root/apps/desktop"
+desktop_dir="$repo_root/apps/frontend"
 engine_dir="$repo_root/engines/python"
 
 skip_build=0

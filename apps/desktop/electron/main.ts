@@ -1,0 +1,320 @@
+/**
+ * ArchScope — Electron main process.
+ *
+ * Responsibilities:
+ *  1. Create the BrowserWindow and load the React frontend.
+ *  2. Spawn (or connect to) the Python archscope-engine.
+ *  3. Expose the ArchScopeRendererApi contract via IPC so the renderer
+ *     can call native dialogs, the engine, etc.
+ */
+import { spawn, type ChildProcess } from "node:child_process";
+import { existsSync } from "node:fs";
+import { readFile, writeFile, mkdir } from "node:fs/promises";
+import path from "node:path";
+import {
+  app,
+  BrowserWindow,
+  dialog,
+  ipcMain,
+  shell,
+  type OpenDialogOptions,
+} from "electron";
+
+// ---------------------------------------------------------------------------
+// Paths
+// ---------------------------------------------------------------------------
+
+const IS_DEV = !app.isPackaged;
+const ARCHSCOPE_HOME = path.join(app.getPath("home"), ".archscope");
+const SETTINGS_PATH = path.join(ARCHSCOPE_HOME, "settings.json");
+
+function frontendURL(): string {
+  if (IS_DEV) {
+    return process.env.ARCHSCOPE_DEV_URL ?? "http://127.0.0.1:5173";
+  }
+  const resourceDir = path.join(process.resourcesPath, "frontend");
+  return `file://${path.join(resourceDir, "index.html")}`;
+}
+
+// ---------------------------------------------------------------------------
+// Engine process management
+// ---------------------------------------------------------------------------
+
+let engineProcess: ChildProcess | null = null;
+let enginePort = 8765;
+
+function findEngineCommand(): string[] | null {
+  // 1. archscope-engine on PATH
+  // 2. python -m archscope_engine.cli
+  try {
+    const { execSync } = require("node:child_process") as typeof import("node:child_process");
+    execSync("archscope-engine --version", { stdio: "ignore" });
+    return ["archscope-engine"];
+  } catch { /* not found */ }
+
+  try {
+    const { execSync } = require("node:child_process") as typeof import("node:child_process");
+    execSync("python -c \"import archscope_engine\"", { stdio: "ignore" });
+    return ["python", "-m", "archscope_engine.cli"];
+  } catch { /* not found */ }
+
+  try {
+    const { execSync } = require("node:child_process") as typeof import("node:child_process");
+    execSync("python3 -c \"import archscope_engine\"", { stdio: "ignore" });
+    return ["python3", "-m", "archscope_engine.cli"];
+  } catch { /* not found */ }
+
+  return null;
+}
+
+async function startEngine(): Promise<boolean> {
+  const cmd = findEngineCommand();
+  if (!cmd) {
+    console.warn("[archscope] Engine not found — running in UI-only mode.");
+    return false;
+  }
+
+  const args = [...cmd.slice(1), "serve", "--port", String(enginePort)];
+  const bin = cmd[0];
+
+  console.log(`[archscope] Starting engine: ${bin} ${args.join(" ")}`);
+
+  engineProcess = spawn(bin, args, {
+    stdio: ["ignore", "pipe", "pipe"],
+    env: { ...process.env },
+  });
+
+  engineProcess.stdout?.on("data", (chunk: Buffer) => {
+    process.stdout.write(`[engine] ${chunk.toString()}`);
+  });
+  engineProcess.stderr?.on("data", (chunk: Buffer) => {
+    process.stderr.write(`[engine] ${chunk.toString()}`);
+  });
+  engineProcess.on("exit", (code) => {
+    console.log(`[archscope] Engine exited with code ${code}`);
+    engineProcess = null;
+  });
+
+  // Wait until the engine is reachable.
+  for (let i = 0; i < 30; i++) {
+    await new Promise((r) => setTimeout(r, 500));
+    try {
+      const res = await fetch(`http://127.0.0.1:${enginePort}/api/version`);
+      if (res.ok) return true;
+    } catch { /* retry */ }
+  }
+  console.warn("[archscope] Engine did not become ready within 15 s.");
+  return false;
+}
+
+function stopEngine(): void {
+  if (engineProcess) {
+    engineProcess.kill();
+    engineProcess = null;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Engine HTTP helper
+// ---------------------------------------------------------------------------
+
+async function engineJson<T>(urlPath: string, init?: RequestInit): Promise<T> {
+  const base = `http://127.0.0.1:${enginePort}`;
+  const headers: Record<string, string> = { Accept: "application/json" };
+  if (init?.body && typeof init.body === "string") {
+    headers["Content-Type"] = "application/json";
+  }
+  const res = await fetch(`${base}${urlPath}`, { ...init, headers: { ...headers, ...(init?.headers as Record<string, string> ?? {}) } });
+  return res.json() as Promise<T>;
+}
+
+// ---------------------------------------------------------------------------
+// Settings helpers
+// ---------------------------------------------------------------------------
+
+const DEFAULT_SETTINGS = {
+  enginePath: "",
+  chartTheme: "light",
+  locale: "en",
+};
+
+async function loadSettings(): Promise<Record<string, unknown>> {
+  try {
+    const raw = await readFile(SETTINGS_PATH, "utf-8");
+    return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
+  } catch {
+    return { ...DEFAULT_SETTINGS };
+  }
+}
+
+async function saveSettings(settings: Record<string, unknown>): Promise<void> {
+  await mkdir(ARCHSCOPE_HOME, { recursive: true });
+  await writeFile(SETTINGS_PATH, JSON.stringify(settings, null, 2), "utf-8");
+}
+
+// ---------------------------------------------------------------------------
+// IPC handlers — these mirror the ArchScopeRendererApi contract
+// ---------------------------------------------------------------------------
+
+function registerIpcHandlers(): void {
+  // --- File dialogs ---
+  ipcMain.handle("archscope:selectFile", async (_event, request?) => {
+    const filters: Electron.FileFilter[] = [];
+    if (request?.filters) {
+      for (const f of request.filters) {
+        filters.push({ name: f.name ?? "Files", extensions: f.extensions ?? ["*"] });
+      }
+    }
+    const opts: OpenDialogOptions = {
+      properties: ["openFile"],
+      filters: filters.length > 0 ? filters : undefined,
+    };
+    const result = await dialog.showOpenDialog(opts);
+    if (result.canceled || result.filePaths.length === 0) {
+      return { canceled: true };
+    }
+    return { canceled: false, filePath: result.filePaths[0] };
+  });
+
+  ipcMain.handle("archscope:selectDirectory", async (_event, request?) => {
+    const opts: OpenDialogOptions = {
+      properties: ["openDirectory"],
+      title: request?.title,
+    };
+    const result = await dialog.showOpenDialog(opts);
+    if (result.canceled || result.filePaths.length === 0) {
+      return { canceled: true };
+    }
+    return { canceled: false, directoryPath: result.filePaths[0] };
+  });
+
+  // --- Analyzer ---
+  ipcMain.handle("archscope:analyzer:execute", async (_event, request) => {
+    return engineJson("/api/analyzer/execute", {
+      method: "POST",
+      body: JSON.stringify(request),
+    });
+  });
+
+  ipcMain.handle("archscope:analyzer:cancel", async (_event, body) => {
+    return engineJson("/api/analyzer/cancel", {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+  });
+
+  ipcMain.handle("archscope:analyzer:analyzeAccessLog", async (_event, request) => {
+    return engineJson("/api/analyzer/execute", {
+      method: "POST",
+      body: JSON.stringify({ type: "access_log", requestId: request.requestId, params: request }),
+    });
+  });
+
+  ipcMain.handle("archscope:analyzer:analyzeCollapsedProfile", async (_event, request) => {
+    return engineJson("/api/analyzer/execute", {
+      method: "POST",
+      body: JSON.stringify({ type: "profiler_collapsed", requestId: request.requestId, params: request }),
+    });
+  });
+
+  // --- Exporter ---
+  ipcMain.handle("archscope:exporter:execute", async (_event, request) => {
+    return engineJson("/api/export/execute", {
+      method: "POST",
+      body: JSON.stringify(request),
+    });
+  });
+
+  // --- Demo ---
+  ipcMain.handle("archscope:demo:list", async (_event, manifestRoot?) => {
+    const query = manifestRoot ? `?manifestRoot=${encodeURIComponent(manifestRoot)}` : "";
+    return engineJson(`/api/demo/list${query}`);
+  });
+
+  ipcMain.handle("archscope:demo:run", async (_event, request) => {
+    return engineJson("/api/demo/run", {
+      method: "POST",
+      body: JSON.stringify(request),
+    });
+  });
+
+  ipcMain.handle("archscope:demo:openPath", async (_event, filePath: string) => {
+    try {
+      await shell.openPath(filePath);
+      return { ok: true };
+    } catch (error) {
+      return { ok: false, error: { code: "OPEN_FAILED", message: String(error) } };
+    }
+  });
+
+  // --- Settings ---
+  ipcMain.handle("archscope:settings:get", async () => {
+    return loadSettings();
+  });
+
+  ipcMain.handle("archscope:settings:set", async (_event, settings) => {
+    const merged = { ...(await loadSettings()), ...settings };
+    await saveSettings(merged);
+    return { ok: true };
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Window creation
+// ---------------------------------------------------------------------------
+
+function createMainWindow(): BrowserWindow {
+  const win = new BrowserWindow({
+    width: 1440,
+    height: 900,
+    minWidth: 1024,
+    minHeight: 600,
+    title: "ArchScope",
+    webPreferences: {
+      preload: path.join(__dirname, "preload.js"),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: false,
+    },
+  });
+
+  const url = frontendURL();
+  if (url.startsWith("http")) {
+    win.loadURL(url);
+  } else {
+    win.loadFile(url.replace("file://", ""));
+  }
+
+  if (IS_DEV) {
+    win.webContents.openDevTools({ mode: "detach" });
+  }
+
+  return win;
+}
+
+// ---------------------------------------------------------------------------
+// App lifecycle
+// ---------------------------------------------------------------------------
+
+app.whenReady().then(async () => {
+  registerIpcHandlers();
+  await startEngine();
+  createMainWindow();
+
+  app.on("activate", () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createMainWindow();
+    }
+  });
+});
+
+app.on("window-all-closed", () => {
+  stopEngine();
+  if (process.platform !== "darwin") {
+    app.quit();
+  }
+});
+
+app.on("before-quit", () => {
+  stopEngine();
+});

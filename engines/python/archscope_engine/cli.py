@@ -74,7 +74,7 @@ def serve(
     static_dir: Optional[Path] = typer.Option(
         None,
         "--static-dir",
-        help="Path to the built React app (defaults to apps/desktop/dist if found).",
+        help="Path to the built React app (defaults to apps/frontend/dist if found).",
     ),
     no_dev_cors: bool = typer.Option(
         False,
