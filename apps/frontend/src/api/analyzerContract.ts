@@ -460,6 +460,52 @@ export type AnalyzeFileRequest = {
   topN?: number;
 };
 
+export type JfrAnalysisMode =
+  | "all"
+  | "cpu"
+  | "wall"
+  | "alloc"
+  | "lock"
+  | "gc"
+  | "exception"
+  | "io"
+  | "nativemem";
+
+export type AnalyzeJfrRecordingRequest = {
+  requestId?: string;
+  filePath: string;
+  topN?: number;
+  /** Subset of JFR event types to analyze. Defaults to "all". */
+  mode?: JfrAnalysisMode;
+  /** ISO 8601 timestamp, HH:MM:SS, or relative offset (+30s, -2m, 500ms). */
+  fromTime?: string;
+  /** Same accepted formats as fromTime. */
+  toTime?: string;
+  /** Filter ExecutionSample events by Java thread state (RUNNABLE, BLOCKED, etc). */
+  state?: string;
+  /** Drop events with duration < this many milliseconds. */
+  minDurationMs?: number;
+};
+
+export type ProfilerDiffInputFormat =
+  | "collapsed"
+  | "flamegraph_svg"
+  | "flamegraph_html"
+  | "jennifer_csv";
+
+export type AnalyzeProfilerDiffRequest = {
+  requestId?: string;
+  baselinePath: string;
+  targetPath: string;
+  baselineFormat?: ProfilerDiffInputFormat;
+  targetFormat?: ProfilerDiffInputFormat;
+  /** When true (default) each side is normalized to a unit total before
+   *  subtracting so radically different sample counts don't dominate. */
+  normalize?: boolean;
+};
+
+export type ProfilerDiffAnalysisResult = AnalysisResult<"profiler_diff">;
+
 export type AnalyzerExecuteRequest = {
   requestId?: string;
 } & (
@@ -485,7 +531,11 @@ export type AnalyzerExecuteRequest = {
     }
   | {
       type: "jfr_recording";
-      params: AnalyzeFileRequest;
+      params: AnalyzeJfrRecordingRequest;
+    }
+  | {
+      type: "profiler_diff";
+      params: AnalyzeProfilerDiffRequest;
     }
   | {
       type: "thread_dump_multi";
@@ -517,6 +567,7 @@ export type JfrAnalysisResult = AnalysisResult<"jfr_recording">;
 export type AnalyzerExecutionResult =
   | AccessLogAnalysisResult
   | ProfilerCollapsedAnalysisResult
+  | ProfilerDiffAnalysisResult
   | GcLogAnalysisResult
   | ThreadDumpAnalysisResult
   | ExceptionStackAnalysisResult

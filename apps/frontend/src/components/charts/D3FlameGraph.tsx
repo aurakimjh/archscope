@@ -11,7 +11,21 @@ export type FlameGraphNode = {
   category?: string | null;
   color?: string | null;
   children?: FlameGraphNode[] | null;
+  /** Free-form payload propagated from the engine (e.g. profiler_diff
+   *  stores ``{a, b, delta}`` here for divergent coloring). */
+  metadata?: Record<string, unknown> | null;
 };
+
+export type FlameDisplayOptions = {
+  /** Show ``Class`` instead of ``com.example.Class`` (last `.` segment). */
+  simplifyNames?: boolean;
+  /** Strip lambda invocation hex: ``Foo$$Lambda+0x.../543`` → ``Foo$$Lambda``. */
+  normalizeLambdas?: boolean;
+  /** Display ``java.lang.String`` instead of ``java/lang/String``. */
+  dottedNames?: boolean;
+};
+
+export type FlameColorMode = "default" | "diff";
 
 export type D3FlameGraphProps = {
   /** Translated chart title used by the wrapping card. */
@@ -28,6 +42,18 @@ export type D3FlameGraphProps = {
   maxDepth?: number;
   /** Empty-state copy. */
   emptyLabel?: string;
+  /** Coloring strategy: ``default`` uses per-node hash, ``diff`` colors by
+   *  ``metadata.delta`` (red = increased, blue = decreased). */
+  colorMode?: FlameColorMode;
+  /** Optional regex highlighting matched frames (kept colorful, others dimmed). */
+  highlightPattern?: string;
+  /** Toggles for label cosmetic transformations. */
+  displayOptions?: FlameDisplayOptions;
+  /** Render as an icicle (root at top, leaves at bottom flipped). */
+  inverted?: boolean;
+  /** Hide frames whose width is < ``minWidthPercent`` of the chart width.
+   *  E.g. ``0.5`` skips noise that occupies less than half a percent. */
+  minWidthPercent?: number;
 };
 
 const FALLBACK_PALETTE = [
@@ -64,15 +90,99 @@ function cloneSafe(node: FlameGraphNode | null | undefined): FlameGraphNode | nu
     value: node.value,
     category: node.category ?? null,
     color: node.color ?? null,
+    metadata: node.metadata ?? null,
     children: Array.isArray(node.children)
       ? node.children.map((child) => cloneSafe(child)).filter((c): c is FlameGraphNode => Boolean(c))
       : null,
   };
 }
 
+const LAMBDA_HEX_RE = /(\$\$Lambda)(?:\+0x[0-9a-fA-F]+)?(?:[\/.][0-9]+)?/g;
+
+export function applyDisplayOptions(
+  name: string,
+  options: FlameDisplayOptions | undefined,
+): string {
+  if (!options) return name;
+  let label = name;
+  if (options.dottedNames) label = label.replace(/\//g, ".");
+  if (options.normalizeLambdas) label = label.replace(LAMBDA_HEX_RE, "$1");
+  if (options.simplifyNames) {
+    // Try to keep the last `Class.method(...)` segment when present.
+    const parenIdx = label.indexOf("(");
+    const head = parenIdx >= 0 ? label.slice(0, parenIdx) : label;
+    const tail = parenIdx >= 0 ? label.slice(parenIdx) : "";
+    const lastDot = head.lastIndexOf(".");
+    if (lastDot >= 0) {
+      const before = head.slice(0, lastDot);
+      const method = head.slice(lastDot + 1);
+      const classDot = before.lastIndexOf(".");
+      const className = classDot >= 0 ? before.slice(classDot + 1) : before;
+      label = `${className}.${method}${tail}`;
+    }
+  }
+  return label;
+}
+
+/** Walk a flame tree and find the maximum |delta| present, used to scale
+ *  the diff color ramp. */
+function maxAbsDelta(root: FlameGraphNode | null): number {
+  if (!root) return 0;
+  let max = 0;
+  const stack: FlameGraphNode[] = [root];
+  while (stack.length) {
+    const node = stack.pop()!;
+    const delta = (node.metadata?.delta as number | undefined) ?? 0;
+    const abs = Math.abs(delta);
+    if (abs > max) max = abs;
+    if (Array.isArray(node.children)) {
+      for (const child of node.children) stack.push(child);
+    }
+  }
+  return max;
+}
+
+function diffColor(delta: number, scale: number): string {
+  if (!Number.isFinite(delta) || scale <= 0) return "#9ca3af"; // gray
+  const intensity = Math.min(1, Math.abs(delta) / scale);
+  // Two divergent gradients: red (worse) and blue (better).
+  if (Math.abs(delta) < scale * 0.02) return "#9ca3af";
+  if (delta > 0) {
+    // red: from #fee2e2 to #b91c1c
+    return interpolateHex("#fee2e2", "#b91c1c", intensity);
+  }
+  return interpolateHex("#dbeafe", "#1d4ed8", intensity);
+}
+
+function interpolateHex(a: string, b: string, t: number): string {
+  const ar = parseInt(a.slice(1, 3), 16);
+  const ag = parseInt(a.slice(3, 5), 16);
+  const ab = parseInt(a.slice(5, 7), 16);
+  const br = parseInt(b.slice(1, 3), 16);
+  const bg = parseInt(b.slice(3, 5), 16);
+  const bb = parseInt(b.slice(5, 7), 16);
+  const r = Math.round(ar + (br - ar) * t);
+  const g = Math.round(ag + (bg - ag) * t);
+  const bl = Math.round(ab + (bb - ab) * t);
+  return `#${[r, g, bl].map((v) => v.toString(16).padStart(2, "0")).join("")}`;
+}
+
 export const D3FlameGraph = forwardRef<D3ChartFrameHandle, D3FlameGraphProps>(
   function D3FlameGraph(
-    { title, description, exportName, data, rowHeight = 22, maxDepth = 60, emptyLabel = "No data" },
+    {
+      title,
+      description,
+      exportName,
+      data,
+      rowHeight = 22,
+      maxDepth = 60,
+      emptyLabel = "No data",
+      colorMode = "default",
+      highlightPattern,
+      displayOptions,
+      inverted = false,
+      minWidthPercent = 0,
+    },
     ref,
   ) {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -87,6 +197,7 @@ export const D3FlameGraph = forwardRef<D3ChartFrameHandle, D3FlameGraphProps>(
       value: number;
       ratio: number;
       category: string | null;
+      metadata: Record<string, unknown> | null;
     } | null>(null);
     const { resolvedTheme } = useTheme();
 
@@ -146,8 +257,26 @@ export const D3FlameGraph = forwardRef<D3ChartFrameHandle, D3FlameGraphProps>(
       return { partitioned, focused, xScale, yScale, totalHeight: visibleHeight };
     }, [root, width, rowHeight, maxDepth, focusPath]);
 
+    const diffScale = useMemo(
+      () => (colorMode === "diff" ? maxAbsDelta(root) : 0),
+      [colorMode, root],
+    );
+
+    const highlightRe = useMemo(() => {
+      if (!highlightPattern) return null;
+      try {
+        return new RegExp(highlightPattern, "i");
+      } catch {
+        return null;
+      }
+    }, [highlightPattern]);
+
     function colorFor(node: d3.HierarchyNode<FlameGraphNode>): string {
       const datum = node.data;
+      if (colorMode === "diff") {
+        const delta = (datum.metadata?.delta as number | undefined) ?? 0;
+        return diffColor(delta, diffScale);
+      }
       if (typeof datum.color === "string" && datum.color) return datum.color;
       if (typeof datum.category === "string" && datum.category) {
         return hashColor(datum.category);
@@ -222,14 +351,23 @@ export const D3FlameGraph = forwardRef<D3ChartFrameHandle, D3FlameGraphProps>(
                   if (node === layoutResult.partitioned) return null;
                   const x = layoutResult.xScale(node.x0);
                   const x1 = layoutResult.xScale(node.x1);
-                  const y = layoutResult.yScale(node.y0);
+                  const rawY = layoutResult.yScale(node.y0);
                   const w = Math.max(0, x1 - x);
                   const h = Math.max(0, node.y1 - node.y0 - 1);
+                  // Min-width filter: skip frames smaller than the user's threshold.
+                  if (minWidthPercent > 0 && width > 0 && w / width * 100 < minWidthPercent) {
+                    return null;
+                  }
                   if (w < 0.5) return null;
-                  if (y < 0) return null;
+                  if (rawY < 0) return null;
+                  const totalH = layoutResult.totalHeight;
+                  const y = inverted ? totalH - rawY - (h + 1) : rawY;
                   const fill = colorFor(node);
                   const ratio = nodeRatio(node);
-                  const label = node.data.name || "";
+                  const rawLabel = node.data.name || "";
+                  const label = applyDisplayOptions(rawLabel, displayOptions);
+                  const matched = highlightRe ? highlightRe.test(rawLabel) : false;
+                  const dimmed = highlightRe !== null && !matched;
                   return (
                     <g
                       key={
@@ -250,6 +388,7 @@ export const D3FlameGraph = forwardRef<D3ChartFrameHandle, D3FlameGraphProps>(
                             value: node.value as number,
                             ratio,
                             category: node.data.category ?? null,
+                            metadata: node.data.metadata ?? null,
                           });
                         }
                       }}
@@ -265,13 +404,20 @@ export const D3FlameGraph = forwardRef<D3ChartFrameHandle, D3FlameGraphProps>(
                       }}
                       onMouseLeave={() => setTooltip(null)}
                       className="cursor-pointer"
+                      opacity={dimmed ? 0.25 : 1}
                     >
                       <rect
                         width={w}
                         height={h}
                         fill={fill}
-                        stroke={resolvedTheme === "dark" ? "#1f2937" : "#ffffff"}
-                        strokeWidth={0.5}
+                        stroke={
+                          matched
+                            ? "#fbbf24"
+                            : resolvedTheme === "dark"
+                            ? "#1f2937"
+                            : "#ffffff"
+                        }
+                        strokeWidth={matched ? 1.5 : 0.5}
                         rx={2}
                       />
                       {w > 28 && (
@@ -305,10 +451,19 @@ export const D3FlameGraph = forwardRef<D3ChartFrameHandle, D3FlameGraphProps>(
               <p className="font-mono text-[11px] leading-tight break-all">
                 {tooltip.name}
               </p>
-              <p className="mt-1 text-[10px] text-muted-foreground tabular-nums">
-                {tooltip.value.toLocaleString()} samples · {(tooltip.ratio * 100).toFixed(2)}%
-                {tooltip.category ? ` · ${tooltip.category}` : ""}
-              </p>
+              {colorMode === "diff" && tooltip.metadata ? (
+                <p className="mt-1 text-[10px] text-muted-foreground tabular-nums">
+                  baseline {Number(tooltip.metadata.a ?? 0).toFixed(4)} · target{" "}
+                  {Number(tooltip.metadata.b ?? 0).toFixed(4)} · Δ{" "}
+                  {(Number(tooltip.metadata.delta ?? 0) >= 0 ? "+" : "") +
+                    Number(tooltip.metadata.delta ?? 0).toFixed(4)}
+                </p>
+              ) : (
+                <p className="mt-1 text-[10px] text-muted-foreground tabular-nums">
+                  {tooltip.value.toLocaleString()} samples · {(tooltip.ratio * 100).toFixed(2)}%
+                  {tooltip.category ? ` · ${tooltip.category}` : ""}
+                </p>
+              )}
             </div>
           )}
         </div>

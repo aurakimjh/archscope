@@ -26,6 +26,7 @@ import {
   D3FlameGraph,
   type FlameGraphNode,
 } from "@/components/charts/D3FlameGraph";
+import { FlameTreeTable } from "@/components/charts/FlameTreeTable";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -100,6 +101,34 @@ export function ProfilerAnalyzerPage(): JSX.Element {
   const [error, setError] = useState<BridgeError | null>(null);
   const [engineMessages, setEngineMessages] = useState<string[]>([]);
   const [savingAll, setSavingAll] = useState(false);
+
+  // Display toolbar (shared between flame and diff tabs).
+  const [highlightPattern, setHighlightPattern] = useState("");
+  const [simplifyNames, setSimplifyNames] = useState(false);
+  const [normalizeLambdas, setNormalizeLambdas] = useState(false);
+  const [dottedNames, setDottedNames] = useState(false);
+  const [inverted, setInverted] = useState(false);
+  const [minWidthPercent, setMinWidthPercent] = useState(0);
+  const displayOptions = useMemo(
+    () => ({ simplifyNames, normalizeLambdas, dottedNames }),
+    [simplifyNames, normalizeLambdas, dottedNames],
+  );
+
+  // Differential profiler state.
+  const [baselineFile, setBaselineFile] = useState<FileDockSelection | null>(null);
+  const [targetFile, setTargetFile] = useState<FileDockSelection | null>(null);
+  const [baselineFormat, setBaselineFormat] = useState<ProfileFormat>("collapsed");
+  const [targetFormat, setTargetFormat] = useState<ProfileFormat>("collapsed");
+  const [normalize, setNormalize] = useState(true);
+  const [diffResult, setDiffResult] = useState<{
+    flame: FlameGraphNode | null;
+    summary: Record<string, unknown>;
+    biggestIncreases: Array<Record<string, unknown>>;
+    biggestDecreases: Array<Record<string, unknown>>;
+  } | null>(null);
+  const [diffState, setDiffState] = useState<AnalyzerState>("idle");
+  const [diffError, setDiffError] = useState<BridgeError | null>(null);
+
   const currentRequestIdRef = useRef<string | null>(null);
   const chartsContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -263,6 +292,83 @@ export function ProfilerAnalyzerPage(): JSX.Element {
     if (result) setStages(createInitialStages(result));
   }
 
+  const [exportingPprof, setExportingPprof] = useState(false);
+
+  async function exportPprof(): Promise<void> {
+    if (!selectedFile?.filePath || exportingPprof) return;
+    setExportingPprof(true);
+    try {
+      const baseUrl = (window as { archscope?: { engineUrl?: string } }).archscope?.engineUrl ?? "";
+      const url = `${baseUrl.replace(/\/$/, "")}/api/profiler/export-pprof`;
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ filePath: selectedFile.filePath, format: profileFormat }),
+      });
+      if (!response.ok) throw new Error(`export failed: ${response.status}`);
+      const blob = await response.blob();
+      const downloadName =
+        (selectedFile.originalName ?? "profile").replace(/\.[^.]+$/, "") + ".pb.gz";
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = downloadName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(a.href);
+    } catch (caught) {
+      setError({
+        code: "EXPORT_FAILED",
+        message: caught instanceof Error ? caught.message : String(caught),
+      });
+    } finally {
+      setExportingPprof(false);
+    }
+  }
+
+  async function runDiff(): Promise<void> {
+    const baselinePath = baselineFile?.filePath ?? "";
+    const targetPath = targetFile?.filePath ?? "";
+    if (!baselinePath || !targetPath) return;
+    setDiffState("running");
+    setDiffError(null);
+    const requestId = createAnalyzerRequestId();
+    try {
+      const response = await getAnalyzerClient().execute({
+        requestId,
+        type: "profiler_diff",
+        params: {
+          requestId,
+          baselinePath,
+          targetPath,
+          baselineFormat,
+          targetFormat,
+          normalize,
+        },
+      });
+      if (response.ok) {
+        const r = response.result as { charts?: { flamegraph?: unknown }; summary: Record<string, unknown>; tables: Record<string, unknown> };
+        const flame = (r.charts?.flamegraph as FlameNode | undefined) ?? null;
+        setDiffResult({
+          flame: flame ? toDiffFlameGraphNode(flame) : null,
+          summary: (r.summary as Record<string, unknown>) ?? {},
+          biggestIncreases: ((r.tables?.biggest_increases as Array<Record<string, unknown>>) ?? []),
+          biggestDecreases: ((r.tables?.biggest_decreases as Array<Record<string, unknown>>) ?? []),
+        });
+        setDiffState("success");
+      } else {
+        setDiffError(response.error);
+        setDiffState("error");
+      }
+    } catch (caught) {
+      setDiffError({
+        code: "IPC_FAILED",
+        message: caught instanceof Error ? caught.message : String(caught),
+      });
+      setDiffState("error");
+    }
+  }
+
   async function handleSaveAllCharts(): Promise<void> {
     const container = chartsContainerRef.current;
     if (!container || savingAll) return;
@@ -409,6 +515,8 @@ export function ProfilerAnalyzerPage(): JSX.Element {
           <TabsList>
             <TabsTrigger value="summary">{t("tabSummary")}</TabsTrigger>
             <TabsTrigger value="flame">{t("tabFlame")}</TabsTrigger>
+            <TabsTrigger value="tree">{t("tabProfilerTree")}</TabsTrigger>
+            <TabsTrigger value="diff">{t("tabProfilerDiff")}</TabsTrigger>
             <TabsTrigger value="drilldown">{t("tabDrilldown")}</TabsTrigger>
             <TabsTrigger value="timeline">{t("tabTimelineAnalysis")}</TabsTrigger>
             <TabsTrigger value="breakdown">{t("tabBreakdown")}</TabsTrigger>
@@ -497,6 +605,39 @@ export function ProfilerAnalyzerPage(): JSX.Element {
 
         <TabsContent value="flame" className="mt-4">
           <div ref={chartsContainerRef} className="grid gap-4">
+            <div className="flex justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={!flameRoot || exportingPprof || !selectedFile?.filePath}
+                onClick={() => void exportPprof()}
+              >
+                {exportingPprof ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    {t("flameExportPprofBusy")}
+                  </>
+                ) : (
+                  t("flameExportPprof")
+                )}
+              </Button>
+            </div>
+            <FlameDisplayToolbar
+              t={t}
+              highlightPattern={highlightPattern}
+              onHighlightChange={setHighlightPattern}
+              simplifyNames={simplifyNames}
+              onSimplifyChange={setSimplifyNames}
+              normalizeLambdas={normalizeLambdas}
+              onNormalizeLambdasChange={setNormalizeLambdas}
+              dottedNames={dottedNames}
+              onDottedChange={setDottedNames}
+              inverted={inverted}
+              onInvertedChange={setInverted}
+              minWidthPercent={minWidthPercent}
+              onMinWidthChange={setMinWidthPercent}
+            />
             {useCanvasFlame ? (
               <CanvasFlameGraph
                 title={t("flameGraph")}
@@ -510,9 +651,81 @@ export function ProfilerAnalyzerPage(): JSX.Element {
                 exportName="profiler-flamegraph"
                 data={flameRoot}
                 emptyLabel={t("flameGraphEmpty")}
+                highlightPattern={highlightPattern || undefined}
+                displayOptions={displayOptions}
+                inverted={inverted}
+                minWidthPercent={minWidthPercent}
               />
             )}
           </div>
+        </TabsContent>
+
+        <TabsContent value="tree" className="mt-4">
+          <div className="grid gap-4">
+            <FlameDisplayToolbar
+              t={t}
+              highlightPattern={highlightPattern}
+              onHighlightChange={setHighlightPattern}
+              simplifyNames={simplifyNames}
+              onSimplifyChange={setSimplifyNames}
+              normalizeLambdas={normalizeLambdas}
+              onNormalizeLambdasChange={setNormalizeLambdas}
+              dottedNames={dottedNames}
+              onDottedChange={setDottedNames}
+              inverted={inverted}
+              onInvertedChange={setInverted}
+              minWidthPercent={minWidthPercent}
+              onMinWidthChange={setMinWidthPercent}
+            />
+            <p className="text-xs text-muted-foreground">{t("profilerTreeHint")}</p>
+            <FlameTreeTable
+              data={flameRoot}
+              emptyLabel={t("flameGraphEmpty")}
+              highlightPattern={highlightPattern || undefined}
+              displayOptions={displayOptions}
+              labels={{
+                frame: t("profilerTreeFrame"),
+                samples: t("profilerTreeSamples"),
+                self: t("profilerTreeSelf"),
+                ratio: t("profilerTreeRatio"),
+              }}
+            />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="diff" className="mt-4">
+          <ProfilerDiffSection
+            t={t}
+            baselineFile={baselineFile}
+            onBaselineSelected={setBaselineFile}
+            onBaselineCleared={() => setBaselineFile(null)}
+            baselineFormat={baselineFormat}
+            onBaselineFormatChange={setBaselineFormat}
+            targetFile={targetFile}
+            onTargetSelected={setTargetFile}
+            onTargetCleared={() => setTargetFile(null)}
+            targetFormat={targetFormat}
+            onTargetFormatChange={setTargetFormat}
+            normalize={normalize}
+            onNormalizeChange={setNormalize}
+            diffState={diffState}
+            diffError={diffError}
+            diffResult={diffResult}
+            onRun={() => void runDiff()}
+            highlightPattern={highlightPattern}
+            displayOptions={displayOptions}
+            onHighlightChange={setHighlightPattern}
+            simplifyNames={simplifyNames}
+            onSimplifyChange={setSimplifyNames}
+            normalizeLambdas={normalizeLambdas}
+            onNormalizeLambdasChange={setNormalizeLambdas}
+            dottedNames={dottedNames}
+            onDottedChange={setDottedNames}
+            inverted={inverted}
+            onInvertedChange={setInverted}
+            minWidthPercent={minWidthPercent}
+            onMinWidthChange={setMinWidthPercent}
+          />
         </TabsContent>
 
         <TabsContent value="drilldown" className="mt-4">
@@ -720,6 +933,20 @@ function toFlameGraphNode(node: FlameNode): FlameGraphNode {
     category: node.category,
     color: node.color,
     children: node.children?.length ? node.children.map(toFlameGraphNode) : null,
+  };
+}
+
+/** Like ``toFlameGraphNode`` but preserves the per-node metadata (a/b/delta)
+ *  that the diff analyzer attaches. */
+function toDiffFlameGraphNode(node: FlameNode | (FlameNode & { metadata?: Record<string, unknown> })): FlameGraphNode {
+  const metadata = (node as { metadata?: Record<string, unknown> }).metadata;
+  return {
+    name: node.name,
+    value: node.samples,
+    category: node.category,
+    color: node.color,
+    metadata: metadata ?? null,
+    children: node.children?.length ? node.children.map(toDiffFlameGraphNode) : null,
   };
 }
 
@@ -1355,4 +1582,355 @@ function rootSamples(stage: DrilldownStageView): number {
   return stage.metrics.total_ratio > 0
     ? stage.flamegraph.samples / (stage.metrics.total_ratio / 100)
     : stage.flamegraph.samples;
+}
+
+type FlameDisplayToolbarProps = {
+  t: (key: MessageKey) => string;
+  highlightPattern: string;
+  onHighlightChange: (value: string) => void;
+  simplifyNames: boolean;
+  onSimplifyChange: (value: boolean) => void;
+  normalizeLambdas: boolean;
+  onNormalizeLambdasChange: (value: boolean) => void;
+  dottedNames: boolean;
+  onDottedChange: (value: boolean) => void;
+  inverted: boolean;
+  onInvertedChange: (value: boolean) => void;
+  minWidthPercent: number;
+  onMinWidthChange: (value: number) => void;
+};
+
+function FlameDisplayToolbar({
+  t,
+  highlightPattern,
+  onHighlightChange,
+  simplifyNames,
+  onSimplifyChange,
+  normalizeLambdas,
+  onNormalizeLambdasChange,
+  dottedNames,
+  onDottedChange,
+  inverted,
+  onInvertedChange,
+  minWidthPercent,
+  onMinWidthChange,
+}: FlameDisplayToolbarProps): JSX.Element {
+  return (
+    <Card className="p-3">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
+        <span className="font-medium text-foreground/80">{t("flameDisplayOptions")}</span>
+        <label className="flex items-center gap-2">
+          <span className="text-muted-foreground">{t("flameHighlightLabel")}</span>
+          <Input
+            type="search"
+            placeholder={t("flameHighlightHint")}
+            className="h-7 w-64 text-xs"
+            value={highlightPattern}
+            onChange={(e) => onHighlightChange(e.target.value)}
+          />
+        </label>
+        <label className="flex cursor-pointer items-center gap-1.5">
+          <input
+            type="checkbox"
+            checked={simplifyNames}
+            onChange={(e) => onSimplifyChange(e.target.checked)}
+          />
+          {t("flameSimplifyNames")}
+        </label>
+        <label className="flex cursor-pointer items-center gap-1.5">
+          <input
+            type="checkbox"
+            checked={normalizeLambdas}
+            onChange={(e) => onNormalizeLambdasChange(e.target.checked)}
+          />
+          {t("flameNormalizeLambdas")}
+        </label>
+        <label className="flex cursor-pointer items-center gap-1.5">
+          <input
+            type="checkbox"
+            checked={dottedNames}
+            onChange={(e) => onDottedChange(e.target.checked)}
+          />
+          {t("flameDottedNames")}
+        </label>
+        <label className="flex cursor-pointer items-center gap-1.5">
+          <input
+            type="checkbox"
+            checked={inverted}
+            onChange={(e) => onInvertedChange(e.target.checked)}
+          />
+          {t("flameInverted")}
+        </label>
+        <label className="flex items-center gap-1.5">
+          <span className="text-muted-foreground">{t("flameMinWidth")}</span>
+          <select
+            className="h-7 rounded-md border border-border bg-background px-2 text-xs"
+            value={minWidthPercent}
+            onChange={(e) => onMinWidthChange(Number(e.target.value))}
+          >
+            <option value={0}>0%</option>
+            <option value={0.1}>0.1%</option>
+            <option value={0.5}>0.5%</option>
+            <option value={1}>1%</option>
+            <option value={2}>2%</option>
+            <option value={5}>5%</option>
+          </select>
+        </label>
+      </div>
+    </Card>
+  );
+}
+
+type ProfilerDiffSectionProps = FlameDisplayToolbarProps & {
+  baselineFile: FileDockSelection | null;
+  onBaselineSelected: (file: FileDockSelection) => void;
+  onBaselineCleared: () => void;
+  baselineFormat: ProfileFormat;
+  onBaselineFormatChange: (value: ProfileFormat) => void;
+  targetFile: FileDockSelection | null;
+  onTargetSelected: (file: FileDockSelection) => void;
+  onTargetCleared: () => void;
+  targetFormat: ProfileFormat;
+  onTargetFormatChange: (value: ProfileFormat) => void;
+  normalize: boolean;
+  onNormalizeChange: (value: boolean) => void;
+  diffState: AnalyzerState;
+  diffError: BridgeError | null;
+  diffResult: {
+    flame: FlameGraphNode | null;
+    summary: Record<string, unknown>;
+    biggestIncreases: Array<Record<string, unknown>>;
+    biggestDecreases: Array<Record<string, unknown>>;
+  } | null;
+  onRun: () => void;
+  displayOptions: { simplifyNames: boolean; normalizeLambdas: boolean; dottedNames: boolean };
+};
+
+function ProfilerDiffSection(props: ProfilerDiffSectionProps): JSX.Element {
+  const {
+    t,
+    baselineFile,
+    onBaselineSelected,
+    onBaselineCleared,
+    baselineFormat,
+    onBaselineFormatChange,
+    targetFile,
+    onTargetSelected,
+    onTargetCleared,
+    targetFormat,
+    onTargetFormatChange,
+    normalize,
+    onNormalizeChange,
+    diffState,
+    diffError,
+    diffResult,
+    onRun,
+    highlightPattern,
+    displayOptions,
+  } = props;
+
+  const canRun =
+    Boolean(baselineFile?.filePath) &&
+    Boolean(targetFile?.filePath) &&
+    diffState !== "running";
+
+  return (
+    <div className="grid gap-4">
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm">{t("profilerDiffTitle")}</CardTitle>
+          <p className="text-xs text-muted-foreground">{t("profilerDiffDescription")}</p>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 gap-3 md:grid-cols-2">
+          <div className="space-y-2">
+            <FileDock
+              label={t("profilerDiffBaseline")}
+              selected={baselineFile}
+              onSelect={onBaselineSelected}
+              onClear={onBaselineCleared}
+              browseLabel={t("browseFile")}
+              accept=".collapsed,.txt,.svg,.html,.csv"
+            />
+            <label className="flex items-center gap-2 text-xs">
+              <span className="text-muted-foreground">{t("profilerDiffFormat")}</span>
+              <select
+                className="h-8 rounded-md border border-border bg-background px-2 text-sm"
+                value={baselineFormat}
+                onChange={(e) => onBaselineFormatChange(e.target.value as ProfileFormat)}
+              >
+                <option value="collapsed">collapsed</option>
+                <option value="flamegraph_svg">flamegraph_svg</option>
+                <option value="flamegraph_html">flamegraph_html</option>
+                <option value="jennifer_csv">jennifer_csv</option>
+              </select>
+            </label>
+          </div>
+          <div className="space-y-2">
+            <FileDock
+              label={t("profilerDiffTarget")}
+              selected={targetFile}
+              onSelect={onTargetSelected}
+              onClear={onTargetCleared}
+              browseLabel={t("browseFile")}
+              accept=".collapsed,.txt,.svg,.html,.csv"
+            />
+            <label className="flex items-center gap-2 text-xs">
+              <span className="text-muted-foreground">{t("profilerDiffFormat")}</span>
+              <select
+                className="h-8 rounded-md border border-border bg-background px-2 text-sm"
+                value={targetFormat}
+                onChange={(e) => onTargetFormatChange(e.target.value as ProfileFormat)}
+              >
+                <option value="collapsed">collapsed</option>
+                <option value="flamegraph_svg">flamegraph_svg</option>
+                <option value="flamegraph_html">flamegraph_html</option>
+                <option value="jennifer_csv">jennifer_csv</option>
+              </select>
+            </label>
+          </div>
+        </CardContent>
+        <CardContent className="flex flex-wrap items-center gap-3 pt-0">
+          <label className="flex cursor-pointer items-center gap-1.5 text-xs">
+            <input
+              type="checkbox"
+              checked={normalize}
+              onChange={(e) => onNormalizeChange(e.target.checked)}
+            />
+            {t("profilerDiffNormalize")}
+          </label>
+          <Button type="button" size="sm" disabled={!canRun} onClick={onRun}>
+            {diffState === "running" ? (
+              <>
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                {t("analyzing")}
+              </>
+            ) : (
+              <>
+                <Play className="h-3.5 w-3.5" />
+                {t("profilerDiffRun")}
+              </>
+            )}
+          </Button>
+        </CardContent>
+      </Card>
+
+      <ErrorPanel
+        error={diffError}
+        labels={{ title: t("analysisError"), code: t("errorCode") }}
+      />
+
+      <FlameDisplayToolbar
+        t={t}
+        highlightPattern={highlightPattern}
+        onHighlightChange={props.onHighlightChange}
+        simplifyNames={props.simplifyNames}
+        onSimplifyChange={props.onSimplifyChange}
+        normalizeLambdas={props.normalizeLambdas}
+        onNormalizeLambdasChange={props.onNormalizeLambdasChange}
+        dottedNames={props.dottedNames}
+        onDottedChange={props.onDottedChange}
+        inverted={props.inverted}
+        onInvertedChange={props.onInvertedChange}
+        minWidthPercent={props.minWidthPercent}
+        onMinWidthChange={props.onMinWidthChange}
+      />
+
+      {diffResult?.flame ? (
+        <D3FlameGraph
+          title={t("profilerDiffTitle")}
+          exportName="profiler-diff-flamegraph"
+          data={diffResult.flame}
+          emptyLabel={t("flameGraphEmpty")}
+          colorMode="diff"
+          highlightPattern={highlightPattern || undefined}
+          displayOptions={displayOptions}
+          inverted={props.inverted}
+          minWidthPercent={props.minWidthPercent}
+        />
+      ) : null}
+
+      {diffResult ? (
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+          <DiffTable
+            title={t("profilerDiffBiggestIncreases")}
+            rows={diffResult.biggestIncreases}
+            t={t}
+            sign="positive"
+          />
+          <DiffTable
+            title={t("profilerDiffBiggestDecreases")}
+            rows={diffResult.biggestDecreases}
+            t={t}
+            sign="negative"
+          />
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function DiffTable({
+  title,
+  rows,
+  t,
+  sign,
+}: {
+  title: string;
+  rows: Array<Record<string, unknown>>;
+  t: (key: MessageKey) => string;
+  sign: "positive" | "negative";
+}): JSX.Element {
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm">{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="overflow-x-auto p-0">
+        {rows.length === 0 ? (
+          <p className="px-6 py-6 text-center text-sm text-muted-foreground">—</p>
+        ) : (
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="border-b border-border bg-muted/40 text-[10px] uppercase tracking-wider text-muted-foreground">
+                <th className="px-3 py-2 text-left font-medium">{t("profilerDiffStack")}</th>
+                <th className="w-[80px] px-3 py-2 text-right font-medium">
+                  {t("profilerDiffBaselineValue")}
+                </th>
+                <th className="w-[80px] px-3 py-2 text-right font-medium">
+                  {t("profilerDiffTargetValue")}
+                </th>
+                <th className="w-[80px] px-3 py-2 text-right font-medium">
+                  {t("profilerDiffDelta")}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.slice(0, 15).map((row, index) => {
+                const stack = String(row.stack ?? "");
+                const baseline = Number(row.baseline ?? 0);
+                const target = Number(row.target ?? 0);
+                const delta = Number(row.delta ?? 0);
+                return (
+                  <tr key={`${stack}-${index}`} className="border-b border-border last:border-0">
+                    <td className="max-w-[420px] truncate px-3 py-2 font-mono" title={stack}>
+                      {stack}
+                    </td>
+                    <td className="px-3 py-2 text-right tabular-nums">{baseline.toFixed(4)}</td>
+                    <td className="px-3 py-2 text-right tabular-nums">{target.toFixed(4)}</td>
+                    <td
+                      className={`px-3 py-2 text-right font-semibold tabular-nums ${
+                        sign === "positive" ? "text-rose-600 dark:text-rose-400" : "text-sky-600 dark:text-sky-400"
+                      }`}
+                    >
+                      {(delta >= 0 ? "+" : "") + delta.toFixed(4)}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
+      </CardContent>
+    </Card>
+  );
 }

@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import shutil
 import uuid
+from collections import Counter
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Optional
@@ -31,6 +32,13 @@ from archscope_engine.analyzers.profiler_analyzer import (
     analyze_flamegraph_svg_profile,
     analyze_jennifer_csv_profile,
 )
+from archscope_engine.analyzers.native_memory_analyzer import analyze_native_memory
+from archscope_engine.analyzers.profiler_diff import analyze_profiler_diff
+from archscope_engine.analyzers.flamegraph_builder import build_flame_tree_from_collapsed
+from archscope_engine.parsers.collapsed_parser import parse_collapsed_file_with_diagnostics
+from archscope_engine.parsers.html_profiler_parser import parse_html_profiler
+from archscope_engine.parsers.jennifer_csv_parser import parse_jennifer_flamegraph_csv
+from archscope_engine.parsers.svg_flamegraph_parser import parse_svg_flamegraph
 from archscope_engine.analyzers.thread_dump_analyzer import analyze_thread_dump
 from archscope_engine.parsers.thread_dump import (
     DEFAULT_REGISTRY as THREAD_DUMP_REGISTRY,
@@ -43,6 +51,7 @@ from archscope_engine.demo_site_runner import (
 )
 from archscope_engine.exporters.html_exporter import render_html_report, write_html_report
 from archscope_engine.exporters.json_exporter import write_json_result
+from archscope_engine.exporters.pprof_exporter import encode_pprof_gzipped
 from archscope_engine.exporters.pptx_exporter import write_pptx_report
 from archscope_engine.exporters.report_diff import build_comparison_report
 from archscope_engine.models.analysis_result import AnalysisResult
@@ -90,6 +99,46 @@ def save_settings(settings: dict[str, Any]) -> None:
 # ---------------------------------------------------------------------------
 # Response helpers
 # ---------------------------------------------------------------------------
+
+
+def _stacks_for_format(path: Path, fmt: str) -> Counter[str]:
+    """Load the file at *path* using the parser implied by *fmt* and return
+    collapsed-style stack counts. Shared between the diff and pprof export
+    routes."""
+    if fmt == "collapsed":
+        return parse_collapsed_file_with_diagnostics(path).stacks
+    if fmt == "flamegraph_svg":
+        return _stacks_from_paths(parse_svg_flamegraph(path).stacks)
+    if fmt == "flamegraph_html":
+        return _stacks_from_paths(parse_html_profiler(path).stacks)
+    if fmt == "jennifer_csv":
+        return _stacks_from_flamegraph(parse_jennifer_flamegraph_csv(path).root)
+    raise ValueError(f"Unsupported profile format: {fmt!r}")
+
+
+def _stacks_from_paths(paths: list[tuple[list[str], int]]) -> Counter[str]:
+    """Aggregate ``[(path_frames, samples), ...]`` into a collapsed-style
+    ``Counter[stack_string]`` so the diff analyzer can consume any input
+    format uniformly."""
+    out: Counter[str] = Counter()
+    for path, samples in paths:
+        if not path or samples <= 0:
+            continue
+        out[";".join(path)] += int(samples)
+    return out
+
+
+def _stacks_from_flamegraph(root: Any) -> Counter[str]:
+    """Walk a FlameNode tree and emit one (path, exclusive_samples) row
+    per leaf so it can be diffed."""
+    from archscope_engine.analyzers.flamegraph_builder import iter_leaf_paths
+
+    out: Counter[str] = Counter()
+    for path, samples in iter_leaf_paths(root):
+        if not path or samples <= 0:
+            continue
+        out[";".join(path)] += int(samples)
+    return out
 
 
 def _failure(code: str, message: str, detail: str | None = None) -> dict[str, Any]:
@@ -232,6 +281,58 @@ def _execute_analyzer(payload: dict[str, Any]) -> dict[str, Any]:
             )
         )
 
+    if request_type == "native_memory":
+        path, err = _require_existing_file(params.get("filePath"), "JFR file (.jfr or .json)")
+        if err:
+            return err
+        leak_only = params.get("leakOnly")
+        tail_raw = params.get("tailRatio")
+        tail_ratio = float(tail_raw) if isinstance(tail_raw, (int, float)) else 0.10
+        return _wrap_analyzer(
+            lambda: analyze_native_memory(
+                path=path,
+                leak_only=bool(leak_only) if leak_only is not None else True,
+                tail_ratio=tail_ratio,
+            )
+        )
+
+    if request_type == "profiler_diff":
+        baseline_path, err = _require_existing_file(
+            params.get("baselinePath"), "Baseline profile file"
+        )
+        if err:
+            return err
+        target_path, err = _require_existing_file(
+            params.get("targetPath"), "Target profile file"
+        )
+        if err:
+            return err
+        baseline_format = params.get("baselineFormat") or "collapsed"
+        target_format = params.get("targetFormat") or "collapsed"
+        normalize = params.get("normalize")
+        normalize_arg = bool(normalize) if normalize is not None else True
+
+        def _load(path: Path, fmt: str) -> Counter[str]:
+            if fmt == "collapsed":
+                return parse_collapsed_file_with_diagnostics(path).stacks
+            if fmt == "flamegraph_svg":
+                return _stacks_from_paths(parse_svg_flamegraph(path).stacks)
+            if fmt == "flamegraph_html":
+                return _stacks_from_paths(parse_html_profiler(path).stacks)
+            if fmt == "jennifer_csv":
+                return _stacks_from_flamegraph(parse_jennifer_flamegraph_csv(path).root)
+            raise ValueError(f"Unsupported profile format for diff: {fmt!r}")
+
+        return _wrap_analyzer(
+            lambda: analyze_profiler_diff(
+                _load(baseline_path, baseline_format),
+                _load(target_path, target_format),
+                baseline_path=baseline_path,
+                target_path=target_path,
+                normalize=normalize_arg,
+            )
+        )
+
     if request_type == "gc_log":
         path, err = _require_existing_file(params.get("filePath"), "GC log file")
         if err:
@@ -266,11 +367,37 @@ def _execute_analyzer(payload: dict[str, Any]) -> dict[str, Any]:
         )
 
     if request_type == "jfr_recording":
-        path, err = _require_existing_file(params.get("filePath"), "JFR JSON file")
+        path, err = _require_existing_file(params.get("filePath"), "JFR file (.jfr or .json)")
         if err:
             return err
+        mode_param = params.get("mode") or "all"
+        if not isinstance(mode_param, str):
+            return _failure("INVALID_OPTION", "mode must be a string.")
+        from_time = params.get("fromTime")
+        to_time = params.get("toTime")
+        if from_time is not None and not isinstance(from_time, str):
+            return _failure("INVALID_OPTION", "fromTime must be a string.")
+        if to_time is not None and not isinstance(to_time, str):
+            return _failure("INVALID_OPTION", "toTime must be a string.")
+        state_param = params.get("state")
+        if state_param is not None and not isinstance(state_param, str):
+            return _failure("INVALID_OPTION", "state must be a string.")
+        min_duration_raw = params.get("minDurationMs")
+        min_duration: float | None = None
+        if min_duration_raw is not None:
+            if not isinstance(min_duration_raw, (int, float)):
+                return _failure("INVALID_OPTION", "minDurationMs must be a number.")
+            min_duration = float(min_duration_raw)
         return _wrap_analyzer(
-            lambda: analyze_jfr_print_json(path=path, top_n=int(params.get("topN") or 20))
+            lambda: analyze_jfr_print_json(
+                path=path,
+                top_n=int(params.get("topN") or 20),
+                mode=mode_param,
+                from_time=from_time or None,
+                to_time=to_time or None,
+                state=state_param or None,
+                min_duration_ms=min_duration,
+            )
         )
 
     return _failure("INVALID_OPTION", f"Unsupported analyzer type: {request_type!r}.")
@@ -820,6 +947,39 @@ def create_app(static_dir: Optional[Path] = None, *, dev_cors: bool = True) -> F
         if not isinstance(body, dict):
             return _failure("INVALID_OPTION", "Export request must be an object.")
         return _execute_export(body)
+
+    @app.post("/api/profiler/export-pprof")
+    async def profiler_export_pprof(request: Request) -> Any:
+        """Encode a profile (collapsed/SVG/HTML/Jennifer CSV) as pprof bytes.
+
+        Returns ``application/x-profile`` (gzipped pprof) so the browser
+        downloads ``profile.pb.gz`` directly. Works with Pyroscope,
+        Speedscope, ``go tool pprof``, ``pprof.dev``, etc.
+        """
+        body = await request.json()
+        if not isinstance(body, dict):
+            raise HTTPException(status_code=400, detail="Body must be an object.")
+        file_path = body.get("filePath")
+        if not isinstance(file_path, str) or not file_path:
+            raise HTTPException(status_code=400, detail="filePath is required.")
+        path = Path(file_path)
+        if not path.is_file():
+            raise HTTPException(status_code=404, detail=f"Not a file: {path}")
+        fmt = body.get("format") or "collapsed"
+        try:
+            stacks = _stacks_for_format(path, fmt)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+        flame = build_flame_tree_from_collapsed(stacks)
+        payload = encode_pprof_gzipped(flame, sample_type="samples", sample_unit="count")
+        download_name = path.stem + ".pb.gz"
+        from fastapi.responses import Response
+
+        return Response(
+            content=payload,
+            media_type="application/x-profile",
+            headers={"Content-Disposition": f'attachment; filename="{download_name}"'},
+        )
 
     @app.get("/api/demo/list")
     def demo_list(manifestRoot: str = Query(..., description="Demo manifest root path")) -> dict[str, Any]:

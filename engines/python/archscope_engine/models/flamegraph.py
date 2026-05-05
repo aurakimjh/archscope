@@ -15,6 +15,11 @@ class FlameNode:
     color: str | None = None
     children: list["FlameNode"] = field(default_factory=list)
     path: list[str] = field(default_factory=list)
+    # Free-form per-node payload — populated by specialized analyzers
+    # (e.g. profiler_diff stores ``{"a": int, "b": int, "delta": int,
+    # "delta_ratio": float}``). Default trees leave it None to avoid
+    # bloating the JSON wire format.
+    metadata: dict[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         root = _node_to_dict_shallow(self)
@@ -45,7 +50,7 @@ def flame_node_from_dict(value: dict[str, Any]) -> FlameNode:
 
 
 def _node_to_dict_shallow(node: FlameNode) -> dict[str, Any]:
-    return {
+    payload: dict[str, Any] = {
         "id": node.id,
         "parentId": node.parent_id,
         "name": node.name,
@@ -56,9 +61,13 @@ def _node_to_dict_shallow(node: FlameNode) -> dict[str, Any]:
         "children": [],
         "path": node.path,
     }
+    if node.metadata is not None:
+        payload["metadata"] = node.metadata
+    return payload
 
 
 def _node_from_dict_shallow(value: dict[str, Any]) -> FlameNode:
+    metadata = value.get("metadata")
     return FlameNode(
         id=str(value["id"]),
         parent_id=value.get("parentId"),
@@ -68,4 +77,5 @@ def _node_from_dict_shallow(value: dict[str, Any]) -> FlameNode:
         category=value.get("category"),
         color=value.get("color"),
         path=[str(part) for part in value.get("path", [])],
+        metadata=metadata if isinstance(metadata, dict) else None,
     )

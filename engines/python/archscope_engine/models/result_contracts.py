@@ -168,11 +168,18 @@ class FlameNodeContract(TypedDict):
     path: list[str]
 
 
+class ProfilerThreadRow(TypedDict):
+    name: str
+    samples: int
+    ratio: float
+
+
 class ProfilerCollapsedSeries(TypedDict, total=False):
     top_stacks: list[ProfilerTopStackSeriesRow]
     component_breakdown: list[ComponentBreakdownRow]
     execution_breakdown: list[ExecutionBreakdownRow]
     timeline_analysis: list[TimelineAnalysisRow]
+    threads: list[ProfilerThreadRow]
 
 
 class ProfilerTopStackTableRow(ProfilerTopStackSeriesRow):

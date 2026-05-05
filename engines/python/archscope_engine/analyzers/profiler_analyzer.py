@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from collections import Counter
 from pathlib import Path
 from typing import Any, cast
@@ -277,6 +278,7 @@ def build_collapsed_result(
             classification_rules,
             stack_classification_cache,
         ),
+        "threads": _detect_threads(stacks, total_samples),
     }
     tables: ProfilerCollapsedTables = {
         "top_stacks": [
@@ -562,6 +564,41 @@ def _classify_stack_cached(
     classified = classify_stack(stack, classification_rules)
     classification_cache[stack] = classified
     return classified
+
+
+_THREAD_PREFIX_RE = re.compile(r"^\[([^\]]+)\]")
+
+
+def _detect_threads(stacks: Counter[str], total_samples: int) -> list[dict[str, Any]]:
+    """Detect per-thread profiling output (async-profiler ``-t`` mode) and
+    summarize sample distribution per thread.
+
+    Returns ``[]`` when stacks don't look thread-prefixed so the UI can hide
+    the per-thread tools instead of showing meaningless rows.
+    """
+    if total_samples <= 0 or not stacks:
+        return []
+    counts: Counter[str] = Counter()
+    matched = 0
+    for stack, samples in stacks.items():
+        first = stack.split(";", 1)[0] if stack else ""
+        m = _THREAD_PREFIX_RE.match(first)
+        if m:
+            counts[m.group(1)] += samples
+            matched += samples
+    # Per-thread mode only when ≥80% of samples carry a thread prefix.
+    if matched / total_samples < 0.8:
+        return []
+    rows: list[dict[str, Any]] = []
+    for name, samples in counts.most_common():
+        rows.append(
+            {
+                "name": name,
+                "samples": samples,
+                "ratio": round(samples / total_samples, 6),
+            }
+        )
+    return rows
 
 
 def _default_diagnostics(stacks: Counter[str]) -> dict[str, Any]:

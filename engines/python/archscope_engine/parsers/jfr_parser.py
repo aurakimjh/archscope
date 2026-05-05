@@ -14,6 +14,9 @@ class JfrEvent(TypedDict):
     time: str
     duration_ms: float | None
     thread: str | None
+    state: str | None
+    address: int | None
+    size: int | None
     message: str
     frames: list[str]
     raw_preview: str
@@ -129,15 +132,45 @@ def _to_jfr_event(event: dict[str, Any]) -> JfrEvent:
     frames = _extract_frames(values.get("stackTrace"))
     message = _string_value(values.get("message")) or _string_value(values.get("name"))
 
+    state_value = values.get("state")
+    if isinstance(state_value, dict):
+        state = _string_value(state_value.get("name"))
+    else:
+        state = _string_value(state_value)
+    address = _to_int(values.get("address"))
+    size = _to_int(values.get("size") or values.get("allocationSize") or values.get("bytes"))
     return {
         "event_type": event_type or "unknown",
         "time": time or "",
         "duration_ms": duration_ms,
         "thread": thread,
+        "state": state,
+        "address": address,
+        "size": size,
         "message": message or "",
         "frames": frames,
         "raw_preview": json.dumps(event, ensure_ascii=False, sort_keys=True)[:500],
     }
+
+
+def _to_int(value: object) -> int | None:
+    if isinstance(value, bool):  # bool is subclass of int — exclude.
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float):
+        return int(value)
+    if isinstance(value, str):
+        text = value.strip()
+        if not text:
+            return None
+        try:
+            if text.startswith("0x") or text.startswith("0X"):
+                return int(text, 16)
+            return int(text)
+        except ValueError:
+            return None
+    return None
 
 
 def _extract_thread(value: object) -> str | None:
