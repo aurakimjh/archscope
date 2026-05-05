@@ -11,6 +11,9 @@
     "build": "npm --prefix ../frontend run build && tsc -p tsconfig.electron.json && electron-builder",
     "build:dir": "npm --prefix ../frontend run build && tsc -p tsconfig.electron.json && electron-builder --dir",
     "build:all": "bash ../../scripts/build-desktop.sh",
+    "dist:win": "npm --prefix ../frontend run build && tsc -p tsconfig.electron.json && electron-builder --win",
+    "dist:mac": "npm --prefix ../frontend run build && tsc -p tsconfig.electron.json && electron-builder --mac",
+    "dist:linux": "npm --prefix ../frontend run build && tsc -p tsconfig.electron.json && electron-builder --linux",
     "lint": "tsc -p tsconfig.electron.json --noEmit"
   },
   "dependencies": {},
