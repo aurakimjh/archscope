@@ -1,0 +1,157 @@
+package profiler
+
+import (
+	"sort"
+	"strings"
+)
+
+type mutableNode struct {
+	ID       string
+	ParentID *string
+	Name     string
+	Samples  int
+	Path     []string
+	Children map[string]*mutableNode
+}
+
+func buildFlameTree(stacks map[string]int) FlameNode {
+	total := 0
+	for _, samples := range stacks {
+		if samples > 0 {
+			total += samples
+		}
+	}
+	root := &mutableNode{
+		ID:       "root",
+		Name:     "All",
+		Samples:  total,
+		Children: map[string]*mutableNode{},
+	}
+	for stack, samples := range stacks {
+		if samples <= 0 {
+			continue
+		}
+		current := root
+		path := []string{}
+		for _, frame := range splitStack(stack) {
+			path = append(path, frame)
+			child := current.Children[frame]
+			if child == nil {
+				parentID := current.ID
+				child = &mutableNode{
+					ID:       nodeID(path),
+					ParentID: &parentID,
+					Name:     frame,
+					Path:     append([]string(nil), path...),
+					Children: map[string]*mutableNode{},
+				}
+				current.Children[frame] = child
+			}
+			child.Samples += samples
+			current = child
+		}
+	}
+	return freezeNode(root, max(total, 1))
+}
+
+func freezeNode(node *mutableNode, total int) FlameNode {
+	children := make([]*mutableNode, 0, len(node.Children))
+	for _, child := range node.Children {
+		children = append(children, child)
+	}
+	sort.Slice(children, func(i, j int) bool {
+		if children[i].Samples == children[j].Samples {
+			return children[i].Name < children[j].Name
+		}
+		return children[i].Samples > children[j].Samples
+	})
+	out := FlameNode{
+		ID:       node.ID,
+		ParentID: node.ParentID,
+		Name:     node.Name,
+		Samples:  node.Samples,
+		Ratio:    ratio(node.Samples, total, 4),
+		Children: make([]FlameNode, 0, len(children)),
+		Path:     append([]string(nil), node.Path...),
+	}
+	for _, child := range children {
+		out.Children = append(out.Children, freezeNode(child, total))
+	}
+	return out
+}
+
+func iterLeafPaths(root FlameNode) []leafPath {
+	out := []leafPath{}
+	var walk func(node FlameNode)
+	walk = func(node FlameNode) {
+		childTotal := 0
+		for _, child := range node.Children {
+			childTotal += child.Samples
+		}
+		exclusive := node.Samples - childTotal
+		if len(node.Path) > 0 && exclusive > 0 {
+			out = append(out, leafPath{Path: append([]string(nil), node.Path...), Samples: exclusive})
+		}
+		if len(node.Children) == 0 && len(node.Path) > 0 && node.Samples > 0 && exclusive <= 0 {
+			out = append(out, leafPath{Path: append([]string(nil), node.Path...), Samples: node.Samples})
+		}
+		for _, child := range node.Children {
+			walk(child)
+		}
+	}
+	walk(root)
+	return out
+}
+
+func topStacksFromTree(root FlameNode, limit int) []TopItem {
+	leaves := iterLeafPaths(root)
+	sort.Slice(leaves, func(i, j int) bool {
+		if leaves[i].Samples == leaves[j].Samples {
+			return joinPath(leaves[i].Path) < joinPath(leaves[j].Path)
+		}
+		return leaves[i].Samples > leaves[j].Samples
+	})
+	if limit > 0 && len(leaves) > limit {
+		leaves = leaves[:limit]
+	}
+	out := make([]TopItem, 0, len(leaves))
+	for _, leaf := range leaves {
+		out = append(out, TopItem{Name: joinPath(leaf.Path), Samples: leaf.Samples})
+	}
+	return out
+}
+
+func topChildFrames(root FlameNode, limit int) []TopChildFrameRow {
+	children := append([]FlameNode(nil), root.Children...)
+	sort.Slice(children, func(i, j int) bool {
+		if children[i].Samples == children[j].Samples {
+			return children[i].Name < children[j].Name
+		}
+		return children[i].Samples > children[j].Samples
+	})
+	if limit > 0 && len(children) > limit {
+		children = children[:limit]
+	}
+	out := make([]TopChildFrameRow, 0, len(children))
+	for _, child := range children {
+		out = append(out, TopChildFrameRow{Frame: child.Name, Samples: child.Samples, Ratio: child.Ratio})
+	}
+	return out
+}
+
+func nodeID(path []string) string {
+	parts := make([]string, 0, len(path))
+	for _, item := range path {
+		parts = append(parts, slug(item))
+	}
+	return "frame:" + strings.Join(parts, "/")
+}
+
+func slug(value string) string {
+	replacer := strings.NewReplacer("\\", "_", "/", "_", ";", "_", " ", "_")
+	out := replacer.Replace(value)
+	if len(out) > 160 {
+		return out[:160]
+	}
+	return out
+}

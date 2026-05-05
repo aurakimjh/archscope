@@ -477,6 +477,18 @@ Goal: make profiler timeline analysis usable for batch-job scoped investigations
 |---|---|---|---|---|---|---|
 | T-237 | P1 | [x] | Implemented a profiler timeline base-method option. `timelineBaseMethod` / `--timeline-base-method` matches stacks containing the configured method, re-roots each matched stack at the base frame, uses matched samples as the 100% denominator, preserves whole-profile context through `metadata.timeline_scope.base_ratio_of_total` and per-row `total_ratio`, and emits `TIMELINE_BASE_METHOD_NOT_FOUND` when no stack matches. Wired through CLI, FastAPI, TypeScript request/result contracts, and the Profiler timeline UI. | T-104, T-186, T-187 | User feature request | Batch-job scoped profiler timeline |
 
+### Go/Fyne Native Profiler Follow-up
+
+Goal: validate a lightweight native desktop direction for the profiler-first product slice. Keep the current Python/React implementation intact while a Go profiler core and future Fyne UI prove size, speed, and feature parity.
+
+| ID | Priority | Status | Task | Depends on | Source | Output |
+|---|---|---|---|---|---|---|
+| T-238 | P0 | [x] | Created `apps/profiler-native` as the Go/Fyne-native profiler app workspace and implemented the dependency-light Go CLI/core POC for collapsed profiler analysis, including flamegraph expansion, execution breakdown, parser diagnostics, and timeline base-method scope output for comparison against Python before adding Fyne widgets. | T-237 | User feature request | Go profiler POC workspace |
+| T-239 | P1 | [ ] | Port profiler feature parity to Go: FlameGraph SVG/HTML inputs, Jennifer CSV, drill-down filters, execution breakdown, timeline base method, profiler diff, pprof export, parser diagnostics, and JSON contract compatibility with the Python `profiler_collapsed` / `profiler_diff` results. | T-238 | User feature request | Go profiler analyzer feature parity |
+| T-240 | P1 | [ ] | Build the Fyne profiler desktop UI over the Go core: file picker, profile-format options, interval/elapsed/top-N/base-method controls, summary metrics, flamegraph canvas, tree/table view, timeline composition, breakdown, diff, and export actions. | T-239 preferred | User feature request | Native profiler desktop app |
+| T-241 | P2 | [ ] | Add golden parity tests and size/performance benchmarks comparing Python profiler outputs to Go outputs across collapsed/SVG/HTML/Jennifer samples. Track binary size, startup time, analysis throughput, and memory use. | T-239, T-240 | User feature request | Go-vs-Python profiler validation |
+| T-242 | P2 | [ ] | Decide whether `apps/profiler-native` remains inside the monorepo or becomes a standalone profiler product/repo after feature parity and packaging results are known. | T-241 | User feature request | Product/repo boundary decision |
+
 ## Dependency Order
 
 1. `T-001 -> T-002 -> T-030 -> T-037 -> T-003`: bridge decision, client boundary, CLI install metadata, minimal UX flow, then end-to-end PoC.
