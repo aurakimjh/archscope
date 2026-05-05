@@ -26,6 +26,9 @@ export type FileDockProps = {
   description?: string;
   /** Comma-separated `accept` value for the underlying input. */
   accept?: string;
+  /** Allow selecting / dropping more than one file at a time. The same
+   *  ``onSelect`` callback fires once per uploaded file. */
+  multiple?: boolean;
   /** Currently selected file (controlled). */
   selected?: FileDockSelection | null;
   /** Called once the upload completes successfully. */
@@ -63,6 +66,7 @@ export function FileDock({
   label,
   description,
   accept,
+  multiple = false,
   selected,
   onSelect,
   onClear,
@@ -86,16 +90,22 @@ export function FileDock({
     }
   }, [selected]);
 
-  const handleFile = useCallback(
-    async (file: File | null | undefined) => {
-      if (!file) return;
+  const handleFiles = useCallback(
+    async (fileList: FileList | File[] | null | undefined) => {
+      if (!fileList) return;
+      const files = Array.from(fileList);
+      if (files.length === 0) return;
       setError(null);
       setIsUploading(true);
       try {
-        const result = await uploadFile(file);
-        onSelect(result);
-      } catch (caught) {
-        setError(caught instanceof Error ? caught.message : String(caught));
+        for (const file of files) {
+          try {
+            const result = await uploadFile(file);
+            onSelect(result);
+          } catch (caught) {
+            setError(caught instanceof Error ? caught.message : String(caught));
+          }
+        }
       } finally {
         setIsUploading(false);
       }
@@ -105,11 +115,10 @@ export function FileDock({
 
   const onInputChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.currentTarget.files?.[0];
-      void handleFile(file ?? null);
+      void handleFiles(event.currentTarget.files);
       event.currentTarget.value = "";
     },
-    [handleFile],
+    [handleFiles],
   );
 
   const onDragEnter = useCallback((event: DragEvent<HTMLDivElement>) => {
@@ -141,10 +150,9 @@ export function FileDock({
       event.stopPropagation();
       dragCounterRef.current = 0;
       setIsDragOver(false);
-      const file = event.dataTransfer.files?.[0];
-      void handleFile(file ?? null);
+      void handleFiles(event.dataTransfer.files);
     },
-    [handleFile],
+    [handleFiles],
   );
 
   return (
@@ -220,6 +228,7 @@ export function FileDock({
               ref={inputRef}
               type="file"
               accept={accept}
+              multiple={multiple}
               className="hidden"
               onChange={onInputChange}
             />

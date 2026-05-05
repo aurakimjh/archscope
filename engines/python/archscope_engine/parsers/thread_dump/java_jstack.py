@@ -40,6 +40,14 @@ from archscope_engine.parsers.thread_dump_parser import (
 #   - A quoted-name line followed by `nid=0x...` (matches every jstack ever)
 _FULL_THREAD_HEADER = re.compile(r"Full thread dump\b", re.IGNORECASE)
 _JSTACK_NID_LINE = re.compile(r'^"[^"]+".*\bnid=0x[0-9a-fA-F]+', re.MULTILINE)
+# Loose detector for jstack-like dumps that omit the "Full thread dump"
+# banner and ``nid=`` field — common in JDK 21+ test/demo generators.
+# Two consecutive "Name" header lines anchor the format reliably without
+# colliding with single-line stack snippets.
+_JSTACK_LOOSE_HEADER = re.compile(
+    r'^"[^"]+"\s+#\d+\s+prio=\d+(?:\s+\w+)*\s+tid=\S+\s+(?:RUNNABLE|BLOCKED|WAITING|TIMED_WAITING|NEW|TERMINATED)',
+    re.MULTILINE,
+)
 _THREAD_BLOCK_HEADER = re.compile(r'^"[^"]+"')
 _CLASS_HISTOGRAM_LIMIT_ENV = "ARCHSCOPE_CLASS_HISTOGRAM_ROW_LIMIT"
 _DEFAULT_CLASS_HISTOGRAM_ROW_LIMIT = 500
@@ -63,7 +71,13 @@ class JavaJstackParserPlugin:
     def can_parse(self, head: str) -> bool:
         if _FULL_THREAD_HEADER.search(head):
             return True
-        return bool(_JSTACK_NID_LINE.search(head))
+        if _JSTACK_NID_LINE.search(head):
+            return True
+        # Loose match: at least two header rows of the form
+        # ``"Name" #id prio=n tid=… STATE``. Two rows guard against
+        # accidental collision with quoted strings in unrelated logs.
+        loose_hits = list(_JSTACK_LOOSE_HEADER.finditer(head))
+        return len(loose_hits) >= 2
 
     def parse(
         self,

@@ -353,7 +353,8 @@ export function ThreadDumpAnalyzerPage(): JSX.Element {
       <FileDock
         label={t("addThreadDumpFile")}
         description={t("dropOrBrowseThreadDump")}
-        accept=".txt,.log,.dump"
+        accept=".txt,.log,.dump,.json"
+        multiple
         selected={pending}
         onSelect={handleFileSelected}
         onClear={() => setPending(null)}

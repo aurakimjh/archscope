@@ -245,4 +245,97 @@ def _infer_js_state(state: ThreadState, payload: dict[str, Any]) -> ThreadState:
     return state
 
 
+# ---------------------------------------------------------------------------
+# Plain "Sample #N" trace bundle (e.g. ``--prof-process`` style output or
+# simple test fixtures that emit one ``Error`` block per sampling point)
+# ---------------------------------------------------------------------------
+
+_NODEJS_SAMPLE_HEADER_RE = re.compile(r"^Sample\s+#(?P<index>\d+)\s*$", re.MULTILINE)
+_NODEJS_SAMPLE_FRAME_RE = re.compile(
+    r"^\s+at\s+(?P<func>[^()]+?)\s+\((?P<file>[^)]+):(?P<line>\d+):(?P<col>\d+)\)\s*$"
+)
+
+
+class NodejsSampleTraceParserPlugin:
+    """Parser for simple ``Sample #N\\nError\\n  at ...`` text traces.
+
+    Each ``Sample #N`` block becomes one snapshot — the format is common
+    for periodic CPU samples emitted by Node's ``--prof`` or ad-hoc
+    diagnostic scripts. Lacks the full ``process.report`` payload but
+    is more than sufficient for stack signature analysis.
+    """
+
+    format_id: str = "nodejs_sample_trace"
+    language: str = "javascript"
+
+    def can_parse(self, head: str) -> bool:
+        return bool(_NODEJS_SAMPLE_HEADER_RE.search(head))
+
+    def parse(self, path: Path) -> ThreadDumpBundle:
+        text = Path(path).read_text(encoding="utf-8", errors="replace")
+        snapshots: list[ThreadSnapshot] = []
+        current_index: int | None = None
+        current_frames: list[StackFrame] = []
+        sample_index = 0
+        for raw_line in text.splitlines():
+            line = raw_line.rstrip("\r")
+            header_match = _NODEJS_SAMPLE_HEADER_RE.match(line)
+            if header_match:
+                if current_index is not None:
+                    snapshots.append(
+                        _make_nodejs_sample_snapshot(
+                            current_index, current_frames, sample_index
+                        )
+                    )
+                    sample_index += 1
+                current_index = int(header_match.group("index"))
+                current_frames = []
+                continue
+            if current_index is None:
+                continue
+            frame_match = _NODEJS_SAMPLE_FRAME_RE.match(line)
+            if frame_match:
+                try:
+                    line_no = int(frame_match.group("line"))
+                except ValueError:
+                    line_no = None
+                current_frames.append(
+                    StackFrame(
+                        function=frame_match.group("func").strip(),
+                        file=frame_match.group("file"),
+                        line=line_no,
+                        language="javascript",
+                    )
+                )
+        if current_index is not None:
+            snapshots.append(
+                _make_nodejs_sample_snapshot(
+                    current_index, current_frames, sample_index
+                )
+            )
+        return ThreadDumpBundle(
+            snapshots=snapshots,
+            source_file=str(path),
+            source_format=self.format_id,
+            language=self.language,
+        )
+
+
+def _make_nodejs_sample_snapshot(
+    sample_id: int, frames: list[StackFrame], snapshot_idx: int
+) -> ThreadSnapshot:
+    return ThreadSnapshot(
+        snapshot_id=f"nodejs::{snapshot_idx}::sample-{sample_id}",
+        thread_name=f"sample-{sample_id}",
+        thread_id=str(sample_id),
+        state=ThreadState.RUNNABLE,
+        category=None,
+        stack_frames=frames,
+        metadata={"sample_index": sample_id},
+        language="javascript",
+        source_format="nodejs_sample_trace",
+    )
+
+
 DEFAULT_REGISTRY.register(NodejsDiagnosticReportParserPlugin())
+DEFAULT_REGISTRY.register(NodejsSampleTraceParserPlugin())

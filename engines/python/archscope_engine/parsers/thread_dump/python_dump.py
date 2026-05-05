@@ -194,6 +194,86 @@ class PythonFaulthandlerParserPlugin:
 
 
 # ---------------------------------------------------------------------------
+# Plain ``traceback.format_stack`` text (``Thread ID: <n>`` header)
+# ---------------------------------------------------------------------------
+
+_PY_TRACEBACK_HEADER_RE = re.compile(
+    r"^Thread\s+ID:\s*(?P<tid>\d+)\s*$",
+    re.MULTILINE,
+)
+# Frames look like ``  File "/abs/path.py", line 21, in <module>`` followed
+# by an optional indented source line.
+_PY_TRACEBACK_FRAME_RE = re.compile(
+    r'^\s+File\s+"(?P<file>[^"]+)",\s+line\s+(?P<line>\d+),\s+in\s+(?P<func>.+?)\s*$'
+)
+
+
+class PythonTracebackParserPlugin:
+    """Parser for ``traceback.format_stack()``-style dumps prefixed by
+    ``Thread ID: <n>``. Used by simple test fixtures that don't depend
+    on py-spy or faulthandler.
+    """
+
+    format_id: str = "python_traceback"
+    language: str = "python"
+
+    def can_parse(self, head: str) -> bool:
+        return bool(_PY_TRACEBACK_HEADER_RE.search(head))
+
+    def parse(self, path: Path) -> ThreadDumpBundle:
+        text = Path(path).read_text(encoding="utf-8", errors="replace")
+        snapshots: list[ThreadSnapshot] = []
+        current: ThreadSnapshot | None = None
+        thread_index = 0
+        for raw_line in text.splitlines():
+            line = raw_line.rstrip("\r")
+            header_match = _PY_TRACEBACK_HEADER_RE.match(line)
+            if header_match:
+                if current is not None:
+                    snapshots.append(_finalize_python_snapshot(current))
+                tid = header_match.group("tid")
+                current = ThreadSnapshot(
+                    snapshot_id=f"python::{thread_index}::{tid}",
+                    thread_name=f"thread-{tid}",
+                    thread_id=tid,
+                    state=ThreadState.UNKNOWN,
+                    category=None,
+                    stack_frames=[],
+                    metadata={"trace_order": "oldest_first"},
+                    language="python",
+                    source_format=self.format_id,
+                )
+                thread_index += 1
+                continue
+            if current is None:
+                continue
+            frame_match = _PY_TRACEBACK_FRAME_RE.match(line)
+            if frame_match:
+                try:
+                    line_no = int(frame_match.group("line"))
+                except ValueError:
+                    line_no = None
+                current.stack_frames.append(
+                    StackFrame(
+                        function=frame_match.group("func"),
+                        file=frame_match.group("file"),
+                        line=line_no,
+                        language="python",
+                    )
+                )
+
+        if current is not None:
+            snapshots.append(_finalize_python_snapshot(current))
+
+        return ThreadDumpBundle(
+            snapshots=snapshots,
+            source_file=str(path),
+            source_format=self.format_id,
+            language=self.language,
+        )
+
+
+# ---------------------------------------------------------------------------
 # T-199 — Python framework cleanup + state inference
 # ---------------------------------------------------------------------------
 
@@ -306,6 +386,7 @@ def _finalize_python_snapshot(snapshot: ThreadSnapshot) -> ThreadSnapshot:
 __all__ = [
     "PythonFaulthandlerParserPlugin",
     "PythonPySpyParserPlugin",
+    "PythonTracebackParserPlugin",
     "_finalize_python_snapshot",
     "_infer_python_state",
     "_strip_python_boilerplate",
@@ -315,3 +396,4 @@ _replace_unused = replace  # noqa: F841 — re-exported via implicit dataclass u
 
 DEFAULT_REGISTRY.register(PythonPySpyParserPlugin())
 DEFAULT_REGISTRY.register(PythonFaulthandlerParserPlugin())
+DEFAULT_REGISTRY.register(PythonTracebackParserPlugin())

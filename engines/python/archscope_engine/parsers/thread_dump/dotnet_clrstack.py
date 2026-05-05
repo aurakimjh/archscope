@@ -220,4 +220,81 @@ def _infer_dotnet_state(state: ThreadState, frames: list[StackFrame]) -> ThreadS
     return state
 
 
+# ---------------------------------------------------------------------------
+# Plain ``Environment.StackTrace`` text (single-thread, no header)
+# ---------------------------------------------------------------------------
+
+_DOTNET_STACK_FRAME_RE = re.compile(
+    r"^\s+at\s+(?P<call>[\w.<>+`\[\]]+(?:\([^)]*\))?)"
+    r"(?:\s+in\s+(?P<file>[^:]+):line\s+(?P<line>\d+))?\s*$"
+)
+
+
+class DotnetEnvironmentStackTraceParserPlugin:
+    """Parser for ad-hoc ``Environment.StackTrace`` snapshots that lack
+    the ``OS Thread Id:`` header. Each file is treated as a single
+    snapshot whose frames are the stack at capture time.
+    """
+
+    format_id: str = "dotnet_environment_stacktrace"
+    language: str = "dotnet"
+
+    def can_parse(self, head: str) -> bool:
+        # Match if head contains `at System.Environment.get_StackTrace`
+        # (the most reliable single-line signature of this format), or
+        # at least two ``   at <Type>.<Method>(...) [in path:line N]``
+        # frames where types look CLR-flavored (PascalCase namespaces).
+        if "Environment.get_StackTrace" in head:
+            return True
+        clr_hits = re.findall(
+            r"^\s+at\s+[A-Z][\w.<>+]+\.[A-Za-z_<][\w<>+]*\(",
+            head,
+            re.MULTILINE,
+        )
+        return len(clr_hits) >= 2
+
+    def parse(self, path: Path) -> ThreadDumpBundle:
+        text = Path(path).read_text(encoding="utf-8", errors="replace")
+        frames: list[StackFrame] = []
+        for raw_line in text.splitlines():
+            line = raw_line.rstrip("\r")
+            match = _DOTNET_STACK_FRAME_RE.match(line)
+            if not match:
+                continue
+            try:
+                line_no = int(match.group("line")) if match.group("line") else None
+            except ValueError:
+                line_no = None
+            call = match.group("call").strip()
+            frames.append(
+                _normalize_dotnet_frame(
+                    StackFrame(
+                        function=call,
+                        file=match.group("file"),
+                        line=line_no,
+                        language="dotnet",
+                    )
+                )
+            )
+        state = _infer_dotnet_state(ThreadState.RUNNABLE, frames)
+        snapshot = ThreadSnapshot(
+            snapshot_id=f"dotnet::0::main",
+            thread_name="main",
+            thread_id="0",
+            state=state,
+            category=state.value,
+            stack_frames=frames,
+            metadata={"format_variant": "environment_stacktrace"},
+            language="dotnet",
+            source_format=self.format_id,
+        )
+        return ThreadDumpBundle(
+            snapshots=[snapshot] if frames else [],
+            source_file=str(path),
+            source_format=self.format_id,
+            language=self.language,
+        )
+
+
 DEFAULT_REGISTRY.register(DotnetClrstackParserPlugin())
+DEFAULT_REGISTRY.register(DotnetEnvironmentStackTraceParserPlugin())

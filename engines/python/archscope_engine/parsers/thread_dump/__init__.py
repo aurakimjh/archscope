@@ -8,6 +8,7 @@ registry, and one plugin per supported runtime.
 """
 from archscope_engine.parsers.thread_dump.dotnet_clrstack import (
     DotnetClrstackParserPlugin,
+    DotnetEnvironmentStackTraceParserPlugin,
 )
 from archscope_engine.parsers.thread_dump.go_goroutine import GoGoroutineParserPlugin
 from archscope_engine.parsers.thread_dump.java_jcmd_json import (
@@ -16,10 +17,12 @@ from archscope_engine.parsers.thread_dump.java_jcmd_json import (
 from archscope_engine.parsers.thread_dump.java_jstack import JavaJstackParserPlugin
 from archscope_engine.parsers.thread_dump.nodejs_report import (
     NodejsDiagnosticReportParserPlugin,
+    NodejsSampleTraceParserPlugin,
 )
 from archscope_engine.parsers.thread_dump.python_dump import (
     PythonFaulthandlerParserPlugin,
     PythonPySpyParserPlugin,
+    PythonTracebackParserPlugin,
 )
 from archscope_engine.parsers.thread_dump.registry import (
     DEFAULT_REGISTRY,
@@ -32,14 +35,17 @@ from archscope_engine.parsers.thread_dump.registry import (
 __all__ = [
     "DEFAULT_REGISTRY",
     "DotnetClrstackParserPlugin",
+    "DotnetEnvironmentStackTraceParserPlugin",
     "GoGoroutineParserPlugin",
     "JavaJcmdJsonParserPlugin",
     "JavaJstackParserPlugin",
     "MixedFormatError",
     "NodejsDiagnosticReportParserPlugin",
+    "NodejsSampleTraceParserPlugin",
     "ParserRegistry",
     "PythonFaulthandlerParserPlugin",
     "PythonPySpyParserPlugin",
+    "PythonTracebackParserPlugin",
     "ThreadDumpParserPlugin",
     "UnknownFormatError",
 ]
