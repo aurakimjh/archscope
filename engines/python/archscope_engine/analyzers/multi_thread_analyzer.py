@@ -129,6 +129,7 @@ def analyze_multi_thread_dumps(
     )
     jvm_tables = _jvm_metadata_tables(bundles, top_n=top_n)
     jvm_findings = _jvm_metadata_findings(jvm_tables, top_n=top_n)
+    heuristic_findings = _build_heuristic_findings(bundles)
 
     findings_payload = _findings_payload(
         long_running=long_running,
@@ -136,6 +137,7 @@ def analyze_multi_thread_dumps(
         latency_sections=latency_sections,
         growing_locks=growing_locks,
         jvm_metadata_findings=jvm_findings,
+        heuristic_findings=heuristic_findings,
         threshold=threshold,
     )
 
@@ -306,6 +308,122 @@ def _build_findings(
     return long_running, persistent_blocked
 
 
+# ---------------------------------------------------------------------------
+# Heuristic findings (TDA-inspired ratio-based hot-spot detection)
+# ---------------------------------------------------------------------------
+
+# Tunables. Inspired by ``tda/parser/Analyzer.java`` thresholds, but
+# expressed as ratios so they apply across runtimes.
+_CONGESTION_WAITING_RATIO = 0.10
+_EXTERNAL_RESOURCE_SLEEPING_RATIO = 0.25
+_GC_PAUSE_UNOWNED_BLOCK_RATIO = 0.50
+
+
+def _build_heuristic_findings(
+    bundles: Sequence[ThreadDumpBundle],
+) -> list[dict[str, Any]]:
+    """Per-bundle ratio findings — congestion, external-resource wait,
+    and likely-GC-pause. These are coarse signals to give a non-expert
+    user an immediate "is this dump healthy?" indication.
+    """
+    findings: list[dict[str, Any]] = []
+    for index, bundle in enumerate(bundles):
+        snapshots = list(bundle.snapshots)
+        total = len(snapshots)
+        if total == 0:
+            continue
+
+        waiting = sum(
+            1
+            for s in snapshots
+            if s.state in {ThreadState.WAITING, ThreadState.LOCK_WAIT, ThreadState.BLOCKED}
+        )
+        sleeping = sum(
+            1 for s in snapshots if s.state in {ThreadState.TIMED_WAITING}
+        )
+        # "Threads blocked on a lock that no application thread is holding"
+        # — the JVM/OS owns those monitors, classically a GC pause sign.
+        held_locks: set[str] = set()
+        for s in snapshots:
+            for handle in s.lock_holds:
+                if getattr(handle, "lock_id", None):
+                    held_locks.add(handle.lock_id)
+        unowned_blocked = 0
+        for s in snapshots:
+            if s.state not in {ThreadState.BLOCKED, ThreadState.LOCK_WAIT}:
+                continue
+            target = s.lock_waiting
+            if target is None:
+                continue
+            target_id = getattr(target, "lock_id", None)
+            if target_id and target_id not in held_locks:
+                unowned_blocked += 1
+
+        waiting_ratio = waiting / total
+        sleeping_ratio = sleeping / total
+        unowned_ratio = unowned_blocked / total
+
+        if waiting_ratio > _CONGESTION_WAITING_RATIO:
+            findings.append(
+                {
+                    "severity": "warning",
+                    "code": "THREAD_CONGESTION_DETECTED",
+                    "message": (
+                        f"Dump #{index}: {waiting_ratio * 100:.1f}% of threads are waiting "
+                        f"for a monitor — possible congestion or upstream deadlock."
+                    ),
+                    "evidence": {
+                        "dump_index": index,
+                        "source_file": bundle.source_file,
+                        "waiting_threads": waiting,
+                        "total_threads": total,
+                        "waiting_ratio": round(waiting_ratio, 4),
+                    },
+                    "thresholds": {"waiting_ratio": _CONGESTION_WAITING_RATIO},
+                }
+            )
+        if sleeping_ratio > _EXTERNAL_RESOURCE_SLEEPING_RATIO:
+            findings.append(
+                {
+                    "severity": "info",
+                    "code": "EXTERNAL_RESOURCE_WAIT_HIGH",
+                    "message": (
+                        f"Dump #{index}: {sleeping_ratio * 100:.1f}% of threads are sleeping "
+                        f"on a monitor — likely waiting on an external resource (DB, network, "
+                        f"or idle worker pool)."
+                    ),
+                    "evidence": {
+                        "dump_index": index,
+                        "source_file": bundle.source_file,
+                        "sleeping_threads": sleeping,
+                        "total_threads": total,
+                        "sleeping_ratio": round(sleeping_ratio, 4),
+                    },
+                    "thresholds": {"sleeping_ratio": _EXTERNAL_RESOURCE_SLEEPING_RATIO},
+                }
+            )
+        if unowned_ratio > _GC_PAUSE_UNOWNED_BLOCK_RATIO:
+            findings.append(
+                {
+                    "severity": "warning",
+                    "code": "LIKELY_GC_PAUSE_DETECTED",
+                    "message": (
+                        f"Dump #{index}: {unowned_ratio * 100:.1f}% of threads are blocked "
+                        f"on monitors with no application owner — strongly suggests a GC pause."
+                    ),
+                    "evidence": {
+                        "dump_index": index,
+                        "source_file": bundle.source_file,
+                        "unowned_blocked_threads": unowned_blocked,
+                        "total_threads": total,
+                        "unowned_block_ratio": round(unowned_ratio, 4),
+                    },
+                    "thresholds": {"unowned_block_ratio": _GC_PAUSE_UNOWNED_BLOCK_RATIO},
+                }
+            )
+    return findings
+
+
 def _findings_payload(
     *,
     long_running: list[dict[str, Any]],
@@ -313,9 +431,12 @@ def _findings_payload(
     latency_sections: list[dict[str, Any]],
     growing_locks: list[dict[str, Any]],
     jvm_metadata_findings: list[dict[str, Any]],
+    heuristic_findings: list[dict[str, Any]] | None = None,
     threshold: int,
 ) -> list[dict[str, Any]]:
     findings: list[dict[str, Any]] = []
+    if heuristic_findings:
+        findings.extend(heuristic_findings)
     for entry in long_running:
         findings.append(
             {

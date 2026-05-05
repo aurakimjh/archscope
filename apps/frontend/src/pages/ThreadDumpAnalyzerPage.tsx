@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useI18n } from "@/i18n/I18nProvider";
+import { useI18n, type MessageKey } from "@/i18n/I18nProvider";
 import { exportChartsInContainer } from "@/lib/batchExport";
 import { cn } from "@/lib/utils";
 
@@ -63,9 +63,46 @@ type ThreadDumpMultiSummary = {
   unique_threads: number;
   long_running_threads: number;
   persistent_blocked_threads: number;
+  latency_sections?: number;
+  growing_lock_contention?: number;
+  virtual_thread_carrier_pinning?: number;
+  smr_unresolved_threads?: number;
+  native_method_threads?: number;
+  class_histogram_classes?: number;
   languages_detected: string[];
   source_formats: string[];
   consecutive_dump_threshold: number;
+};
+
+type CarrierPinningRow = {
+  dump_index: number;
+  thread_name: string;
+  source_file?: string;
+  candidate_method?: string | null;
+  top_frame?: string | null;
+  reason?: string | null;
+};
+
+type SmrUnresolvedRow = {
+  dump_index: number;
+  source_file?: string;
+  section_line?: number;
+  line?: string;
+};
+
+type NativeMethodRow = {
+  dump_index: number;
+  thread_name: string;
+  source_file?: string;
+  native_method?: string;
+};
+
+type ClassHistogramRow = {
+  rank?: number;
+  class_name: string;
+  instances?: number;
+  bytes?: number;
+  source_file?: string;
 };
 
 type StatePerDumpRow = {
@@ -282,6 +319,18 @@ export function ThreadDumpAnalyzerPage(): JSX.Element {
   const threadPersistence = (result?.series?.thread_persistence as
     | ThreadPersistenceRow[]
     | undefined) ?? [];
+  const carrierPinning = (result?.tables?.virtual_thread_carrier_pinning as
+    | CarrierPinningRow[]
+    | undefined) ?? [];
+  const smrUnresolved = (result?.tables?.smr_unresolved_threads as
+    | SmrUnresolvedRow[]
+    | undefined) ?? [];
+  const nativeMethodThreads = (result?.tables?.native_method_threads as
+    | NativeMethodRow[]
+    | undefined) ?? [];
+  const classHistogram = (result?.tables?.class_histogram_top_classes as
+    | ClassHistogramRow[]
+    | undefined) ?? [];
 
   const threadsPerDumpBars = useMemo<BarDatum[]>(() => {
     return dumpsTable.map((row) => ({
@@ -421,6 +470,10 @@ export function ThreadDumpAnalyzerPage(): JSX.Element {
       <EngineMessagesPanel messages={engineMessages} title={t("engineMessages")} />
 
       {result && summary && (
+        <ThreadDumpOverview t={t} summary={summary} />
+      )}
+
+      {result && summary && (
         <Tabs defaultValue="findings" className="w-full">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <TabsList>
@@ -429,6 +482,7 @@ export function ThreadDumpAnalyzerPage(): JSX.Element {
               <TabsTrigger value="per-dump">{t("tabPerDump")}</TabsTrigger>
               <TabsTrigger value="threads">{t("tabThreads")}</TabsTrigger>
               <TabsTrigger value="locks">{t("tabLockContention")}</TabsTrigger>
+              <TabsTrigger value="jvm">{t("threadDumpJvmTabsTitle")}</TabsTrigger>
             </TabsList>
             <Button
               type="button"
@@ -672,6 +726,16 @@ export function ThreadDumpAnalyzerPage(): JSX.Element {
               </CardContent>
             </Card>
           </TabsContent>
+
+          <TabsContent value="jvm" className="mt-4">
+            <JvmSignalsTabs
+              t={t}
+              carrierPinning={carrierPinning}
+              smrUnresolved={smrUnresolved}
+              nativeMethodThreads={nativeMethodThreads}
+              classHistogram={classHistogram}
+            />
+          </TabsContent>
         </Tabs>
       )}
 
@@ -900,4 +964,266 @@ function FindingTable<Row>({
       </CardContent>
     </Card>
   );
+}
+
+function ThreadDumpOverview({
+  t,
+  summary,
+}: {
+  t: (key: MessageKey) => string;
+  summary: ThreadDumpMultiSummary;
+}): JSX.Element {
+  const cells: Array<[string, string | number]> = [
+    [t("threadDumpOverviewTotalDumps"), summary.total_dumps],
+    [t("threadDumpOverviewUniqueThreads"), summary.unique_threads],
+    [t("longRunningThreadsLabel"), summary.long_running_threads],
+    [t("persistentBlockedThreadsLabel"), summary.persistent_blocked_threads],
+    [t("threadDumpOverviewVirtualPinning"), summary.virtual_thread_carrier_pinning ?? 0],
+    [t("threadDumpOverviewSmrUnresolved"), summary.smr_unresolved_threads ?? 0],
+    [t("threadDumpOverviewNativeMethods"), summary.native_method_threads ?? 0],
+    [t("threadDumpOverviewHistogramClasses"), summary.class_histogram_classes ?? 0],
+  ];
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm">{t("threadDumpOverviewTitle")}</CardTitle>
+      </CardHeader>
+      <CardContent className="grid grid-cols-2 gap-3 sm:grid-cols-4 xl:grid-cols-8">
+        {cells.map(([label, value]) => (
+          <div
+            key={label}
+            className="min-w-0 overflow-hidden rounded-md border border-border bg-muted/30 px-3 py-2 text-xs"
+          >
+            <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              {label}
+            </div>
+            <div className="mt-1 truncate text-sm tabular-nums" title={String(value)}>
+              {typeof value === "number" ? value.toLocaleString() : value}
+            </div>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  );
+}
+
+type JvmSignalsTabsProps = {
+  t: (key: MessageKey) => string;
+  carrierPinning: CarrierPinningRow[];
+  smrUnresolved: SmrUnresolvedRow[];
+  nativeMethodThreads: NativeMethodRow[];
+  classHistogram: ClassHistogramRow[];
+};
+
+function JvmSignalsTabs({
+  t,
+  carrierPinning,
+  smrUnresolved,
+  nativeMethodThreads,
+  classHistogram,
+}: JvmSignalsTabsProps): JSX.Element {
+  return (
+    <Tabs defaultValue="pinning" className="w-full">
+      <TabsList>
+        <TabsTrigger value="pinning">
+          {t("threadDumpCarrierPinningTab")} ({carrierPinning.length})
+        </TabsTrigger>
+        <TabsTrigger value="smr">
+          {t("threadDumpSmrTab")} ({smrUnresolved.length})
+        </TabsTrigger>
+        <TabsTrigger value="native">
+          {t("threadDumpNativeMethodTab")} ({nativeMethodThreads.length})
+        </TabsTrigger>
+        <TabsTrigger value="histogram">
+          {t("threadDumpHistogramTab")} ({classHistogram.length})
+        </TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="pinning" className="mt-4">
+        <Card>
+          <CardContent className="p-0">
+            {carrierPinning.length === 0 ? (
+              <p className="px-6 py-6 text-center text-sm text-muted-foreground">
+                {t("threadDumpCarrierPinningEmpty")}
+              </p>
+            ) : (
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-border bg-muted/40 text-[10px] uppercase tracking-wider text-muted-foreground">
+                    <th className="w-[60px] px-3 py-2 text-left font-medium">
+                      {t("threadDumpDumpIndex")}
+                    </th>
+                    <th className="px-3 py-2 text-left font-medium">
+                      {t("threadDumpThreadName")}
+                    </th>
+                    <th className="px-3 py-2 text-left font-medium">
+                      {t("threadDumpCandidateMethod")}
+                    </th>
+                    <th className="px-3 py-2 text-left font-medium">
+                      {t("threadDumpTopFrame")}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {carrierPinning.map((row, idx) => (
+                    <tr
+                      key={`${row.thread_name}-${row.dump_index}-${idx}`}
+                      className="border-b border-border last:border-0"
+                    >
+                      <td className="px-3 py-2 tabular-nums">{row.dump_index}</td>
+                      <td className="max-w-[260px] truncate px-3 py-2 font-mono" title={row.thread_name}>
+                        {row.thread_name}
+                      </td>
+                      <td className="max-w-[280px] truncate px-3 py-2 font-mono" title={row.candidate_method ?? ""}>
+                        {row.candidate_method ?? "—"}
+                      </td>
+                      <td className="max-w-[400px] truncate px-3 py-2 font-mono" title={row.top_frame ?? ""}>
+                        {row.top_frame ?? "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      <TabsContent value="smr" className="mt-4">
+        <Card>
+          <CardContent className="p-0">
+            {smrUnresolved.length === 0 ? (
+              <p className="px-6 py-6 text-center text-sm text-muted-foreground">
+                {t("threadDumpSmrEmpty")}
+              </p>
+            ) : (
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-border bg-muted/40 text-[10px] uppercase tracking-wider text-muted-foreground">
+                    <th className="w-[60px] px-3 py-2 text-left font-medium">
+                      {t("threadDumpDumpIndex")}
+                    </th>
+                    <th className="px-3 py-2 text-left font-medium">
+                      {t("threadDumpRawLine")}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {smrUnresolved.map((row, idx) => (
+                    <tr
+                      key={`${row.dump_index}-${idx}`}
+                      className="border-b border-border last:border-0"
+                    >
+                      <td className="px-3 py-2 tabular-nums">{row.dump_index}</td>
+                      <td className="px-3 py-2 font-mono" title={row.line}>
+                        {row.line ?? "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      <TabsContent value="native" className="mt-4">
+        <Card>
+          <CardContent className="p-0">
+            {nativeMethodThreads.length === 0 ? (
+              <p className="px-6 py-6 text-center text-sm text-muted-foreground">
+                {t("threadDumpNativeMethodEmpty")}
+              </p>
+            ) : (
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-border bg-muted/40 text-[10px] uppercase tracking-wider text-muted-foreground">
+                    <th className="w-[60px] px-3 py-2 text-left font-medium">
+                      {t("threadDumpDumpIndex")}
+                    </th>
+                    <th className="px-3 py-2 text-left font-medium">
+                      {t("threadDumpThreadName")}
+                    </th>
+                    <th className="px-3 py-2 text-left font-medium">
+                      {t("threadDumpTopFrame")}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {nativeMethodThreads.map((row, idx) => (
+                    <tr
+                      key={`${row.thread_name}-${row.dump_index}-${idx}`}
+                      className="border-b border-border last:border-0"
+                    >
+                      <td className="px-3 py-2 tabular-nums">{row.dump_index}</td>
+                      <td className="max-w-[260px] truncate px-3 py-2 font-mono" title={row.thread_name}>
+                        {row.thread_name}
+                      </td>
+                      <td className="px-3 py-2 font-mono" title={row.native_method ?? ""}>
+                        {row.native_method ?? "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      <TabsContent value="histogram" className="mt-4">
+        <Card>
+          <CardContent className="p-0">
+            {classHistogram.length === 0 ? (
+              <p className="px-6 py-6 text-center text-sm text-muted-foreground">
+                {t("threadDumpHistogramEmpty")}
+              </p>
+            ) : (
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-border bg-muted/40 text-[10px] uppercase tracking-wider text-muted-foreground">
+                    <th className="px-3 py-2 text-left font-medium">
+                      {t("threadDumpHistogramClass")}
+                    </th>
+                    <th className="w-[120px] px-3 py-2 text-right font-medium">
+                      {t("threadDumpHistogramInstances")}
+                    </th>
+                    <th className="w-[140px] px-3 py-2 text-right font-medium">
+                      {t("threadDumpHistogramBytes")}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {classHistogram.slice(0, 50).map((row, idx) => (
+                    <tr
+                      key={`${row.class_name}-${idx}`}
+                      className="border-b border-border last:border-0"
+                    >
+                      <td className="max-w-[480px] truncate px-3 py-2 font-mono" title={row.class_name}>
+                        {row.class_name}
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums">
+                        {(row.instances ?? 0).toLocaleString()}
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums">
+                        {formatThreadDumpBytes(row.bytes ?? 0)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </CardContent>
+        </Card>
+      </TabsContent>
+    </Tabs>
+  );
+}
+
+function formatThreadDumpBytes(value: number): string {
+  if (!Number.isFinite(value) || value <= 0) return "—";
+  if (value < 1024) return `${value} B`;
+  if (value < 1024 * 1024) return `${(value / 1024).toFixed(1)} KB`;
+  if (value < 1024 * 1024 * 1024) return `${(value / 1024 / 1024).toFixed(1)} MB`;
+  return `${(value / 1024 / 1024 / 1024).toFixed(2)} GB`;
 }

@@ -287,6 +287,9 @@ def _section_metadata(
     )
     if class_histogram:
         metadata["class_histogram"] = class_histogram
+    heap_block = _parse_g1_heap_block(section.raw_lines)
+    if heap_block:
+        metadata["jvm_heap_block"] = heap_block
     return metadata
 
 
@@ -470,6 +473,71 @@ def _first_non_jdk_frame(frames: list[StackFrame]) -> str | None:
         ):
             return rendered
     return None
+
+
+_G1_HEAP_TOTAL_RE = re.compile(
+    r"garbage-first heap\s+total\s+(?P<total_kb>\d+)K,\s*used\s+(?P<used_kb>\d+)K"
+)
+_G1_REGION_RE = re.compile(
+    r"region\s+size\s+(?P<region_kb>\d+)K,\s*(?P<young>\d+)\s+young\s*\((?P<young_kb>\d+)K\),\s*(?P<survivors>\d+)\s+survivors\s*\((?P<survivors_kb>\d+)K\)"
+)
+_METASPACE_RE = re.compile(
+    r"^\s*Metaspace\s+used\s+(?P<used_kb>\d+)K,\s*capacity\s+(?P<capacity_kb>\d+)K,\s*committed\s+(?P<committed_kb>\d+)K,\s*reserved\s+(?P<reserved_kb>\d+)K"
+)
+
+
+def _parse_g1_heap_block(lines: list[str]) -> dict[str, object] | None:
+    """Extract the ``{Heap before GC ...}`` block JDK 8 G1 frequently
+    embeds at the top of jstack-style multi-dump files.
+
+    Returns ``None`` when no recognizable heap block is found. Sizes are
+    surfaced in MB so the UI doesn't have to convert.
+    """
+    found: dict[str, object] = {}
+    in_block = False
+    block_start_line: int | None = None
+    for offset, line in enumerate(lines, start=1):
+        stripped = line.strip()
+        # JDK 8 G1 marker: "{Heap before GC invocations=..."
+        if stripped.startswith("{Heap"):
+            in_block = True
+            block_start_line = offset
+            found.setdefault("phase", "before_gc" if "before" in stripped.lower() else "after_gc")
+            continue
+        if not in_block:
+            # Some dumps include the heap header without the {Heap marker.
+            # Match "garbage-first heap" anywhere in the leading lines.
+            if "garbage-first heap" in line.lower() and offset < 50:
+                in_block = True
+                block_start_line = offset
+        if not in_block:
+            continue
+
+        m = _G1_HEAP_TOTAL_RE.search(line)
+        if m:
+            found["heap_total_mb"] = round(int(m.group("total_kb")) / 1024.0, 2)
+            found["heap_used_mb"] = round(int(m.group("used_kb")) / 1024.0, 2)
+        m = _G1_REGION_RE.search(line)
+        if m:
+            found["region_size_mb"] = round(int(m.group("region_kb")) / 1024.0, 2)
+            found["young_regions"] = int(m.group("young"))
+            found["young_used_mb"] = round(int(m.group("young_kb")) / 1024.0, 2)
+            found["survivor_regions"] = int(m.group("survivors"))
+            found["survivor_used_mb"] = round(int(m.group("survivors_kb")) / 1024.0, 2)
+        m = _METASPACE_RE.match(line)
+        if m:
+            found["metaspace_used_mb"] = round(int(m.group("used_kb")) / 1024.0, 2)
+            found["metaspace_committed_mb"] = round(int(m.group("committed_kb")) / 1024.0, 2)
+            found["metaspace_reserved_mb"] = round(int(m.group("reserved_kb")) / 1024.0, 2)
+
+        # Block ends with "}" or after a thread "Foo" quote-line takes over.
+        if stripped == "}" or stripped.startswith('"'):
+            break
+    if not found.get("heap_total_mb") and not found.get("metaspace_used_mb"):
+        return None
+    if block_start_line is not None:
+        found["section_start_line"] = block_start_line
+    return found
 
 
 def _parse_smr_diagnostics(lines: list[str]) -> dict[str, object] | None:
