@@ -35,9 +35,15 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-          cache-dependency-path: apps/desktop/package-lock.json
+          cache-dependency-path: |
+            apps/desktop/package-lock.json
+            apps/frontend/package-lock.json
 
-      - name: Install npm dependencies
+      - name: Install frontend npm dependencies
+        working-directory: apps/frontend
+        run: npm ci
+
+      - name: Install desktop npm dependencies
         working-directory: apps/desktop
         run: npm ci
 
@@ -77,9 +83,15 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-          cache-dependency-path: apps/desktop/package-lock.json
+          cache-dependency-path: |
+            apps/desktop/package-lock.json
+            apps/frontend/package-lock.json
 
-      - name: Install npm dependencies
+      - name: Install frontend npm dependencies
+        working-directory: apps/frontend
+        run: npm ci
+
+      - name: Install desktop npm dependencies
         working-directory: apps/desktop
         run: npm ci
 
