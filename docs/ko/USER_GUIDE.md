@@ -190,6 +190,7 @@ cd apps/desktop && npm run dev     # http://127.0.0.1:5173
 | Summary | 총 샘플 · interval · 추정 CPU/Wall 시간 + drill-down stage 메트릭(matched samples / estimated seconds / total ratio / parent stage ratio). |
 | Flame Graph | 인터랙티브 플레임그래프. **SVG 렌더러**가 기본이며, 트리가 **4 000 노드**를 넘으면 자동으로 **Canvas 렌더러**로 전환되어 변환된 thread-dump 번들도 부드럽게 동작. 프레임 클릭 → 줌인. 루트가 아니면 "Reset zoom" 표시. 호버 → sample count + ratio + category 툴팁. |
 | Drill-down | 스택 프레임 필터(`include_text` / `exclude_text` / `regex_include` / `regex_exclude`), 매칭 모드(`anywhere` / `ordered` / `subtree`), 뷰 모드(`preserve_full_path` / `reroot_at_match`). Apply로 stage push, Reset으로 원본 트리 복원. 현재 스테이지 breadcrumb 상단 표시. |
+| 타임라인 분석 | 플레임그래프 샘플을 기동/프레임워크, 내부 메소드, SQL, DB 네트워크 대기, 외부 호출, 외부 호출 네트워크 대기, 풀 대기, 락 대기 등 수행시간 구성으로 변환한 stacked chart와 근거 테이블. 실제 timestamp 순서가 아니라 sample 기반 구성 분석입니다. |
 | Breakdown | ECharts 도넛 + 막대 — execution 카테고리 분포(SQL / external API / network I/O / connection-pool wait / 기타). 카테고리별 top 메소드 테이블. |
 | Top Stacks | top N 스택 정렬 테이블(samples · estimated seconds · ratio). |
 | Diagnostics | 파서 진단. |

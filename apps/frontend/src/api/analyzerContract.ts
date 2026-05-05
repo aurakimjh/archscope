@@ -157,6 +157,26 @@ export type ExecutionBreakdownRow = {
   top_stacks: BreakdownTopItem[];
 };
 
+export type TimelineChainRow = {
+  chain: string;
+  samples: number;
+  frames: string[];
+};
+
+export type TimelineAnalysisRow = {
+  index: number;
+  segment: string;
+  label: string;
+  samples: number;
+  estimated_seconds: number;
+  stage_ratio: number;
+  total_ratio: number;
+  elapsed_ratio: number | null;
+  top_methods: BreakdownTopItem[];
+  method_chains: TimelineChainRow[];
+  top_stacks: BreakdownTopItem[];
+};
+
 export type FlameNode = {
   id: string;
   parentId: string | null;
@@ -192,6 +212,7 @@ export type ProfilerCollapsedSeries = {
   top_stacks: ProfilerTopStackSeriesRow[];
   component_breakdown: ComponentBreakdownRow[];
   execution_breakdown?: ExecutionBreakdownRow[];
+  timeline_analysis?: TimelineAnalysisRow[];
 };
 
 export type ProfilerTopStackTableRow = ProfilerTopStackSeriesRow & {
@@ -205,6 +226,7 @@ export type ProfilerCollapsedTables = {
     samples: number;
     ratio: number;
   }>;
+  timeline_analysis?: TimelineAnalysisRow[];
 };
 
 export type ProfilerCharts = {

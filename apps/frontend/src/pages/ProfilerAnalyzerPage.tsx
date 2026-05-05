@@ -10,6 +10,7 @@ import {
   type FlameNode,
   type ProfilerCollapsedAnalysisResult,
   type ProfilerTopStackTableRow,
+  type TimelineAnalysisRow,
 } from "@/api/analyzerClient";
 import type { ProfileFormat, ProfileKind } from "@/api/analyzerContract";
 import {
@@ -29,7 +30,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useI18n } from "@/i18n/I18nProvider";
+import { useI18n, type MessageKey } from "@/i18n/I18nProvider";
 import { exportChartsInContainer } from "@/lib/batchExport";
 import {
   formatMilliseconds,
@@ -56,6 +57,30 @@ type DrilldownStageView = {
   };
   breakdown: ExecutionBreakdownRow[];
 };
+
+type TimelineAccumulator = {
+  segment: string;
+  label: string;
+  samples: number;
+  methods: Map<string, number>;
+  chains: Map<string, number>;
+  stacks: Map<string, number>;
+};
+
+const TIMELINE_ORDER = [
+  "STARTUP_FRAMEWORK",
+  "INTERNAL_METHOD",
+  "SQL_EXECUTION",
+  "DB_NETWORK_WAIT",
+  "EXTERNAL_CALL",
+  "EXTERNAL_NETWORK_WAIT",
+  "CONNECTION_POOL_WAIT",
+  "LOCK_SYNCHRONIZATION_WAIT",
+  "NETWORK_IO_WAIT",
+  "FILE_IO",
+  "JVM_GC_RUNTIME",
+  "UNKNOWN",
+] as const;
 
 export function ProfilerAnalyzerPage(): JSX.Element {
   const { t } = useI18n();
@@ -84,6 +109,20 @@ export function ProfilerAnalyzerPage(): JSX.Element {
   const topStacks = result?.tables.top_stacks ?? [];
   const currentStage = stages[stages.length - 1];
   const breakdownRows = currentStage?.breakdown ?? result?.series.execution_breakdown ?? [];
+  const parsedElapsedForDerived = useMemo(
+    () => parseOptionalPositiveNumber(elapsedSec),
+    [elapsedSec],
+  );
+  const timelineRows = useMemo(() => {
+    if (currentStage) {
+      return buildTimeline(
+        currentStage.flamegraph,
+        wallIntervalMs,
+        parsedElapsedForDerived ?? undefined,
+      );
+    }
+    return result?.series.timeline_analysis ?? [];
+  }, [currentStage, parsedElapsedForDerived, result?.series.timeline_analysis, wallIntervalMs]);
   const flameRoot = useMemo(
     () => (currentStage ? toFlameGraphNode(currentStage.flamegraph) : null),
     [currentStage],
@@ -96,6 +135,10 @@ export function ProfilerAnalyzerPage(): JSX.Element {
   // the Canvas painter when the tree gets large enough that hit-testing
   // and text layout in SVG starts to drag.
   const useCanvasFlame = flameNodeCount >= 4000;
+  const timelineLabel = useCallback(
+    (segment: string, fallback?: string) => timelineSegmentLabel(segment, t, fallback),
+    [t],
+  );
 
   const fileLabel = useMemo(() => {
     if (profileFormat === "jennifer_csv") return t("selectJenniferCsvFile");
@@ -367,6 +410,7 @@ export function ProfilerAnalyzerPage(): JSX.Element {
             <TabsTrigger value="summary">{t("tabSummary")}</TabsTrigger>
             <TabsTrigger value="flame">{t("tabFlame")}</TabsTrigger>
             <TabsTrigger value="drilldown">{t("tabDrilldown")}</TabsTrigger>
+            <TabsTrigger value="timeline">{t("tabTimelineAnalysis")}</TabsTrigger>
             <TabsTrigger value="breakdown">{t("tabBreakdown")}</TabsTrigger>
             <TabsTrigger value="top-stacks">{t("tabTopStacks")}</TabsTrigger>
             <TabsTrigger value="diagnostics">{t("tabDiagnostics")}</TabsTrigger>
@@ -579,6 +623,28 @@ export function ProfilerAnalyzerPage(): JSX.Element {
                 samples: t("samples"),
                 ratio: t("ratio"),
                 waitReason: t("waitReason"),
+                topMethods: t("topMethods"),
+              }}
+            />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="timeline" className="mt-4">
+          <div className="grid gap-4">
+            <ChartPanel
+              title={t("timelineCompositionChart")}
+              option={timelineCompositionOption(timelineRows, timelineLabel)}
+            />
+            <TimelineTable
+              rows={timelineRows}
+              labelForSegment={timelineLabel}
+              labels={{
+                title: t("timelineEvidenceTable"),
+                segment: t("timelineSegment"),
+                samples: t("samples"),
+                estimatedSeconds: t("estimatedSeconds"),
+                ratio: t("ratio"),
+                methodChain: t("timelineMethodChain"),
                 topMethods: t("topMethods"),
               }}
             />
@@ -807,6 +873,80 @@ function BreakdownTable({
   );
 }
 
+function TimelineTable({
+  rows,
+  labelForSegment,
+  labels,
+}: {
+  rows: TimelineAnalysisRow[];
+  labelForSegment: (segment: string, fallback?: string) => string;
+  labels: {
+    title: string;
+    segment: string;
+    samples: string;
+    estimatedSeconds: string;
+    ratio: string;
+    methodChain: string;
+    topMethods: string;
+  };
+}): JSX.Element {
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm">{labels.title}</CardTitle>
+      </CardHeader>
+      <CardContent className="overflow-x-auto p-0">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
+              <th className="px-4 py-2 text-left font-medium">{labels.segment}</th>
+              <th className="px-4 py-2 text-right font-medium">{labels.samples}</th>
+              <th className="px-4 py-2 text-right font-medium">
+                {labels.estimatedSeconds}
+              </th>
+              <th className="px-4 py-2 text-right font-medium">{labels.ratio}</th>
+              <th className="px-4 py-2 text-left font-medium">{labels.methodChain}</th>
+              <th className="px-4 py-2 text-left font-medium">{labels.topMethods}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.length > 0 ? (
+              rows.map((row) => (
+                <tr key={row.segment} className="border-b border-border last:border-0">
+                  <td className="px-4 py-2">
+                    {labelForSegment(row.segment, row.label)}
+                  </td>
+                  <td className="px-4 py-2 text-right tabular-nums">
+                    {formatNumber(row.samples)}
+                  </td>
+                  <td className="px-4 py-2 text-right tabular-nums">
+                    {formatSeconds(row.estimated_seconds)}
+                  </td>
+                  <td className="px-4 py-2 text-right tabular-nums">
+                    {formatPercent(row.stage_ratio)}
+                  </td>
+                  <td className="max-w-[520px] px-4 py-2 font-mono text-xs">
+                    {row.method_chains[0]?.chain ?? "-"}
+                  </td>
+                  <td className="px-4 py-2 text-xs">
+                    {row.top_methods.map((item) => item.name).join(", ") || "-"}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td className="px-4 py-3 text-muted-foreground" colSpan={6}>
+                  —
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </CardContent>
+    </Card>
+  );
+}
+
 function breakdownDonutOption(rows: ExecutionBreakdownRow[]): EChartsOption {
   return {
     tooltip: { trigger: "item" },
@@ -835,11 +975,48 @@ function breakdownBarOption(rows: ExecutionBreakdownRow[]): EChartsOption {
   };
 }
 
+function timelineCompositionOption(
+  rows: TimelineAnalysisRow[],
+  labelForSegment: (segment: string, fallback?: string) => string,
+): EChartsOption {
+  return {
+    tooltip: {
+      trigger: "item",
+      valueFormatter: (value) => `${Number(value).toFixed(2)}%`,
+    },
+    legend: { bottom: 0 },
+    grid: { left: 24, right: 24, top: 24, bottom: 64 },
+    xAxis: {
+      type: "value",
+      max: 100,
+      axisLabel: { formatter: "{value}%" },
+    },
+    yAxis: { type: "category", data: [""] },
+    series: rows.map((row) => ({
+      name: labelForSegment(row.segment, row.label),
+      type: "bar",
+      stack: "timeline",
+      data: [row.stage_ratio],
+      emphasis: { focus: "series" },
+    })),
+  };
+}
+
 function extractLeaves(root: FlameNode): Array<{ path: string[]; samples: number }> {
-  if (root.children.length === 0 && root.path.length > 0) {
-    return [{ path: root.path, samples: root.samples }];
+  const leaves: Array<{ path: string[]; samples: number }> = [];
+  const stack = [root];
+  while (stack.length > 0) {
+    const node = stack.pop();
+    if (!node) continue;
+    if (node.children.length === 0 && node.path.length > 0) {
+      leaves.push({ path: node.path, samples: node.samples });
+      continue;
+    }
+    for (let index = node.children.length - 1; index >= 0; index -= 1) {
+      stack.push(node.children[index]);
+    }
   }
-  return root.children.flatMap(extractLeaves);
+  return leaves;
 }
 
 function buildTree(leaves: Array<{ path: string[]; samples: number }>, label: string): FlameNode {
@@ -957,12 +1134,206 @@ function buildBreakdown(
   return [...categories.values()].sort((a, b) => b.samples - a.samples);
 }
 
+function buildTimeline(
+  root: FlameNode,
+  intervalMs: number,
+  elapsedSec?: number,
+): TimelineAnalysisRow[] {
+  const accumulators = new Map<string, TimelineAccumulator>();
+  for (const leaf of extractLeaves(root)) {
+    const segment = timelineSegment(leaf.path);
+    const existing = accumulators.get(segment) ?? {
+      segment,
+      label: timelineDefaultLabel(segment),
+      samples: 0,
+      methods: new Map<string, number>(),
+      chains: new Map<string, number>(),
+      stacks: new Map<string, number>(),
+    };
+    existing.samples += leaf.samples;
+    incrementMap(existing.methods, leaf.path[leaf.path.length - 1] ?? "(no-frame)", leaf.samples);
+    incrementMap(existing.chains, timelineMethodChain(leaf.path, segment), leaf.samples);
+    incrementMap(existing.stacks, leaf.path.join(";"), leaf.samples);
+    accumulators.set(segment, existing);
+  }
+
+  const stageTotal = Math.max(root.samples, 1);
+  return TIMELINE_ORDER.flatMap((segment, index) => {
+    const item = accumulators.get(segment);
+    if (!item || item.samples <= 0) return [];
+    const estimatedSeconds = item.samples * (intervalMs / 1000);
+    return [
+      {
+        index,
+        segment,
+        label: item.label,
+        samples: item.samples,
+        estimated_seconds: estimatedSeconds,
+        stage_ratio: (item.samples / stageTotal) * 100,
+        total_ratio: (item.samples / stageTotal) * 100,
+        elapsed_ratio: elapsedSec ? (estimatedSeconds / elapsedSec) * 100 : null,
+        top_methods: topMapRows(item.methods, 5),
+        method_chains: topChainRows(item.chains, 5),
+        top_stacks: topMapRows(item.stacks, 5),
+      },
+    ];
+  });
+}
+
+function timelineSegment(path: string[]): string {
+  const classification = classifyFrames(path);
+  if (classification.category === "SQL_DATABASE" && classification.waitReason === "NETWORK_IO_WAIT") {
+    return "DB_NETWORK_WAIT";
+  }
+  if (classification.category === "EXTERNAL_API_HTTP" && classification.waitReason === "NETWORK_IO_WAIT") {
+    return "EXTERNAL_NETWORK_WAIT";
+  }
+  if (classification.category === "SQL_DATABASE") return "SQL_EXECUTION";
+  if (classification.category === "EXTERNAL_API_HTTP") return "EXTERNAL_CALL";
+  if (classification.category === "CONNECTION_POOL_WAIT") return "CONNECTION_POOL_WAIT";
+  if (classification.category === "LOCK_SYNCHRONIZATION_WAIT") {
+    return "LOCK_SYNCHRONIZATION_WAIT";
+  }
+  if (classification.category === "NETWORK_IO_WAIT") return "NETWORK_IO_WAIT";
+  if (looksLikeStartup(path)) return "STARTUP_FRAMEWORK";
+  if (looksLikeInternalMethod(path)) return "INTERNAL_METHOD";
+  return "UNKNOWN";
+}
+
+function looksLikeStartup(path: string[]): boolean {
+  const stack = path.join(";").toLowerCase();
+  return /springapplication\.run|joblauncher|commandlinejobrunner|simplejoblauncher|batchapplication|\.main|application\.run/.test(stack);
+}
+
+function looksLikeInternalMethod(path: string[]): boolean {
+  const stack = path.join(";").toLowerCase();
+  return /(^|;)com\.|(^|;)org\.|service|controller|processor|writer|reader|tasklet|job/.test(stack);
+}
+
+function timelineMethodChain(path: string[], segment: string): string {
+  const frames = selectTimelineFrames(path, segment);
+  return frames.length > 0 ? frames.join(" -> ") : "(no-frame)";
+}
+
+function selectTimelineFrames(path: string[], segment: string): string[] {
+  if (path.length <= 6) return path;
+  const tokens = timelineFrameTokens(segment);
+  if (tokens.length > 0) {
+    const selected = path.filter((frame) =>
+      tokens.some((token) => frame.toLowerCase().includes(token)),
+    );
+    if (selected.length > 0) return selected.slice(0, 6);
+  }
+  return path.slice(-6);
+}
+
+function timelineFrameTokens(segment: string): string[] {
+  if (segment === "SQL_EXECUTION" || segment === "DB_NETWORK_WAIT") {
+    return [
+      "oracle.jdbc",
+      "java.sql",
+      "t4cpreparedstatement",
+      "t4cmarengine",
+      "executequery",
+      "executeupdate",
+      "socketinputstream.socketread",
+    ];
+  }
+  if (segment === "EXTERNAL_CALL" || segment === "EXTERNAL_NETWORK_WAIT") {
+    return [
+      "resttemplate",
+      "webclient",
+      "httpclient",
+      "okhttp",
+      "urlconnection",
+      "mainclientexec",
+      "socketinputstream.socketread",
+    ];
+  }
+  if (segment === "CONNECTION_POOL_WAIT") {
+    return ["hikaripool.getconnection", "concurrentbag", "synchronousqueue"];
+  }
+  if (segment === "LOCK_SYNCHRONIZATION_WAIT") {
+    return ["locksupport.park", "unsafe.park", "object.wait", "future.get"];
+  }
+  return [];
+}
+
+function incrementMap(map: Map<string, number>, key: string, value: number): void {
+  map.set(key, (map.get(key) ?? 0) + value);
+}
+
+function topMapRows(map: Map<string, number>, limit: number): Array<{ name: string; samples: number }> {
+  return [...map.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit)
+    .map(([name, samples]) => ({ name, samples }));
+}
+
+function topChainRows(
+  map: Map<string, number>,
+  limit: number,
+): TimelineAnalysisRow["method_chains"] {
+  return [...map.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit)
+    .map(([chain, samples]) => ({
+      chain,
+      samples,
+      frames: chain === "(no-frame)" ? [] : chain.split(" -> "),
+    }));
+}
+
+function timelineDefaultLabel(segment: string): string {
+  const labels: Record<string, string> = {
+    STARTUP_FRAMEWORK: "Startup / framework",
+    INTERNAL_METHOD: "Internal method",
+    SQL_EXECUTION: "SQL execution",
+    DB_NETWORK_WAIT: "DB network wait",
+    EXTERNAL_CALL: "External call",
+    EXTERNAL_NETWORK_WAIT: "External network wait",
+    CONNECTION_POOL_WAIT: "Connection pool wait",
+    LOCK_SYNCHRONIZATION_WAIT: "Lock / synchronization wait",
+    NETWORK_IO_WAIT: "Network / I/O wait",
+    FILE_IO: "File I/O",
+    JVM_GC_RUNTIME: "JVM / GC runtime",
+    UNKNOWN: "Unclassified",
+  };
+  return labels[segment] ?? segment;
+}
+
+function timelineSegmentLabel(
+  segment: string,
+  t: (key: MessageKey) => string,
+  fallback?: string,
+): string {
+  const keys: Record<string, MessageKey> = {
+    STARTUP_FRAMEWORK: "timelineSegmentStartup",
+    INTERNAL_METHOD: "timelineSegmentInternal",
+    SQL_EXECUTION: "timelineSegmentSql",
+    DB_NETWORK_WAIT: "timelineSegmentDbNetwork",
+    EXTERNAL_CALL: "timelineSegmentExternal",
+    EXTERNAL_NETWORK_WAIT: "timelineSegmentExternalNetwork",
+    CONNECTION_POOL_WAIT: "timelineSegmentPoolWait",
+    LOCK_SYNCHRONIZATION_WAIT: "timelineSegmentLockWait",
+    NETWORK_IO_WAIT: "timelineSegmentNetworkWait",
+    FILE_IO: "timelineSegmentFileIo",
+    JVM_GC_RUNTIME: "timelineSegmentJvm",
+    UNKNOWN: "timelineSegmentUnknown",
+  };
+  const key = keys[segment];
+  return key ? t(key) : fallback ?? segment;
+}
+
 function classifyFrames(path: string[]): { category: string; label: string; waitReason: string | null } {
   const stack = path.join(";").toLowerCase();
   const hasHttp = /resttemplate|webclient|httpclient|okhttp|urlconnection|axios|fetch|requests\.|urllib|net\/http/.test(stack);
   const hasNetwork = /socketinputstream\.socketread|niosocketimpl|socketchannelimpl\.read|socketdispatcher\.read|epollwait|poll|recv|read0/.test(stack);
   if (/hikaripool\.getconnection|concurrentbag|synchronousqueue|datasource\.getconnection/.test(stack)) {
     return { category: "CONNECTION_POOL_WAIT", label: "Lock / Pool Wait", waitReason: null };
+  }
+  if (/locksupport\.park|unsafe\.park|object\.wait|countdownlatch\.await|future\.get/.test(stack)) {
+    return { category: "LOCK_SYNCHRONIZATION_WAIT", label: "Lock / Pool Wait", waitReason: null };
   }
   if (/oracle\.jdbc|java\.sql|javax\.sql|executequery|executeupdate|resultset|com\.mysql|org\.postgresql/.test(stack)) {
     return { category: "SQL_DATABASE", label: "SQL / DB", waitReason: hasNetwork ? "NETWORK_IO_WAIT" : null };

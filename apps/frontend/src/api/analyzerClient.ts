@@ -93,6 +93,8 @@ export type {
   StatusCodeDistributionRow,
   ThreadDumpAnalysisResult,
   ThreadDumpSummary,
+  TimelineAnalysisRow,
+  TimelineChainRow,
   TimeValuePoint,
   TopUrlAvgResponseRow,
   TopUrlCountRow,

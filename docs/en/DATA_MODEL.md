@@ -149,6 +149,7 @@ Required `series` fields:
 | `top_stacks` | `{ stack: string, samples: integer, estimated_seconds: number, sample_ratio: number, elapsed_ratio: number | null }` |
 | `component_breakdown` | `{ component: string, samples: integer }` |
 | `execution_breakdown` | optional `{ category, executive_label, primary_category, wait_reason, samples, estimated_seconds, total_ratio, parent_stage_ratio, elapsed_ratio, top_methods, top_stacks }` |
+| `timeline_analysis` | optional `{ index, segment, label, samples, estimated_seconds, stage_ratio, total_ratio, elapsed_ratio, top_methods, method_chains, top_stacks }` |
 
 Required `tables` fields:
 
@@ -156,6 +157,7 @@ Required `tables` fields:
 |---|---|
 | `top_stacks` | `{ stack: string, samples: integer, estimated_seconds: number, sample_ratio: number, elapsed_ratio: number | null, frames: string[] }` |
 | `top_child_frames` | optional `{ frame: string, samples: integer, ratio: number }` |
+| `timeline_analysis` | optional same row shape as `series.timeline_analysis` |
 
 Optional `charts` fields:
 
@@ -195,6 +197,27 @@ GC_JVM_RUNTIME
 IDLE_BACKGROUND
 UNKNOWN
 ```
+
+Timeline analysis segments:
+
+```text
+STARTUP_FRAMEWORK
+INTERNAL_METHOD
+SQL_EXECUTION
+DB_NETWORK_WAIT
+EXTERNAL_CALL
+EXTERNAL_NETWORK_WAIT
+CONNECTION_POOL_WAIT
+LOCK_SYNCHRONIZATION_WAIT
+NETWORK_IO_WAIT
+FILE_IO
+JVM_GC_RUNTIME
+UNKNOWN
+```
+
+`timeline_analysis` is a flamegraph sample composition view. It converts
+samples to estimated seconds with the configured sampling interval, but it is
+not a timestamp-ordered trace.
 
 Required `metadata` fields:
 

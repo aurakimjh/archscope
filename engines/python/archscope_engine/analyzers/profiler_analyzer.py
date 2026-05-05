@@ -27,6 +27,7 @@ from archscope_engine.parsers.jennifer_csv_parser import parse_jennifer_flamegra
 from archscope_engine.parsers.svg_flamegraph_parser import parse_svg_flamegraph
 from archscope_engine.analyzers.flamegraph_builder import build_flame_tree_from_collapsed
 from archscope_engine.analyzers.profiler_breakdown import build_execution_breakdown
+from archscope_engine.analyzers.profiler_timeline import build_timeline_analysis
 from archscope_engine.analyzers.profiler_drilldown import (
     DrilldownFilter,
     build_drilldown_stages,
@@ -303,7 +304,14 @@ def build_collapsed_result(
         elapsed_sec=elapsed_sec,
         top_n=top_n,
     )
+    series["timeline_analysis"] = build_timeline_analysis(
+        flamegraph,
+        interval_ms=interval_ms,
+        elapsed_sec=elapsed_sec,
+        top_n=top_n,
+    )
     tables["top_child_frames"] = root_stage.top_child_frames
+    tables["timeline_analysis"] = series["timeline_analysis"]
     charts = {
         "flamegraph": flamegraph.to_dict(),
         "drilldown_stages": [root_stage.to_dict()],
@@ -379,6 +387,12 @@ def _build_flamegraph_result(
                 elapsed_sec=elapsed_sec,
                 top_n=top_n,
             ),
+            "timeline_analysis": build_timeline_analysis(
+                root,
+                interval_ms=interval_ms,
+                elapsed_sec=elapsed_sec,
+                top_n=top_n,
+            ),
         },
         tables={
             "top_stacks": [
@@ -397,6 +411,12 @@ def _build_flamegraph_result(
                 for item in root_stage.top_stacks
             ],
             "top_child_frames": root_stage.top_child_frames,
+            "timeline_analysis": build_timeline_analysis(
+                root,
+                interval_ms=interval_ms,
+                elapsed_sec=elapsed_sec,
+                top_n=top_n,
+            ),
         },
         charts={
             "flamegraph": root.to_dict(),
@@ -441,6 +461,13 @@ def _drilldown_from_result(
             parent_samples=stages[-2].flamegraph.samples if len(stages) > 1 else None,
             top_n=top_n,
         ),
+        "timeline_analysis": build_timeline_analysis(
+            current.flamegraph,
+            interval_ms=interval_ms,
+            elapsed_sec=elapsed_sec,
+            total_samples=stages[0].flamegraph.samples,
+            top_n=top_n,
+        ),
     }
     tables = {
         **result.tables,
@@ -460,6 +487,7 @@ def _drilldown_from_result(
             for item in current.top_stacks
         ],
         "top_child_frames": current.top_child_frames,
+        "timeline_analysis": series["timeline_analysis"],
     }
     metadata = {
         **result.metadata,

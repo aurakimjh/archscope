@@ -292,6 +292,7 @@ class AnalysisResult:
 | `top_stacks` | `{ stack: string, samples: integer, estimated_seconds: number, sample_ratio: number, elapsed_ratio: number | null }` |
 | `component_breakdown` | `{ component: string, samples: integer }` |
 | `execution_breakdown` | optional `{ category, executive_label, primary_category, wait_reason, samples, estimated_seconds, total_ratio, parent_stage_ratio, elapsed_ratio, top_methods, top_stacks }` |
+| `timeline_analysis` | optional `{ index, segment, label, samples, estimated_seconds, stage_ratio, total_ratio, elapsed_ratio, top_methods, method_chains, top_stacks }` |
 
 필수 `tables` fields:
 
@@ -299,6 +300,7 @@ class AnalysisResult:
 |---|---|
 | `top_stacks` | `{ stack: string, samples: integer, estimated_seconds: number, sample_ratio: number, elapsed_ratio: number | null, frames: string[] }` |
 | `top_child_frames` | optional `{ frame: string, samples: integer, ratio: number }` |
+| `timeline_analysis` | optional. `series.timeline_analysis`와 같은 row shape |
 
 Optional `charts` fields:
 
@@ -338,6 +340,27 @@ GC_JVM_RUNTIME
 IDLE_BACKGROUND
 UNKNOWN
 ```
+
+Timeline analysis segments:
+
+```text
+STARTUP_FRAMEWORK
+INTERNAL_METHOD
+SQL_EXECUTION
+DB_NETWORK_WAIT
+EXTERNAL_CALL
+EXTERNAL_NETWORK_WAIT
+CONNECTION_POOL_WAIT
+LOCK_SYNCHRONIZATION_WAIT
+NETWORK_IO_WAIT
+FILE_IO
+JVM_GC_RUNTIME
+UNKNOWN
+```
+
+`timeline_analysis`는 플레임그래프 샘플 기반 수행시간 구성 뷰다. 설정된
+sampling interval로 sample을 estimated seconds로 변환하지만, 실제 timestamp
+순서가 있는 trace는 아니다.
 
 필수 `metadata` fields:
 
