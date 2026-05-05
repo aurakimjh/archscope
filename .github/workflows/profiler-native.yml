@@ -90,9 +90,9 @@ jobs:
             --interval-ms 100 --elapsed-sec 1336.559 \
             --top-n 20 \
             --out /tmp/parity/go.json
-          python -m archscope_engine.cli profiler analyze \
-            --collapsed ../../examples/profiler/sample-wall.collapsed \
-            --interval-ms 100 --elapsed-sec 1336.559 \
+          python -m archscope_engine.cli profiler analyze-collapsed \
+            --wall ../../examples/profiler/sample-wall.collapsed \
+            --wall-interval-ms 100 --elapsed-sec 1336.559 \
             --top-n 20 \
             --out /tmp/parity/python.json
           # Compare invariants — totals, parser names, top stack samples.
