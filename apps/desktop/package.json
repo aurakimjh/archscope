@@ -1,6 +1,6 @@
 {
   "name": "archscope-desktop",
-  "version": "0.2.0-beta",
+  "version": "0.2.0-rc1",
   "private": true,
   "description": "ArchScope Electron desktop shell — wraps the shared React frontend with a bundled Python engine.",
   "main": "dist-electron/main.js",

@@ -196,7 +196,7 @@ export function AppSidebar({
               collapsed && "hidden",
             )}
           >
-            v0.2.0-beta · web
+            v0.2.0-rc1 · web
           </p>
         </div>
       </aside>

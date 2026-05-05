@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.0-rc1] — 2026-05-05
+
 The post-0.2.0-beta cycle landed a major analyzer overhaul: profiler
 gained JFR-first-class ingest, differential analysis, wall-clock heatmap,
 pprof export, native-memory leak detection, tree view, and per-thread

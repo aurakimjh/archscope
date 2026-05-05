@@ -1,6 +1,6 @@
 {
   "name": "archscope-frontend",
-  "version": "0.2.0-beta",
+  "version": "0.2.0-rc1",
   "private": true,
   "description": "ArchScope React frontend — shared by both the web and Electron builds.",
   "type": "module",
