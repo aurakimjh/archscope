@@ -201,7 +201,6 @@ export const CanvasFlameGraph = forwardRef<D3ChartFrameHandle, CanvasFlameGraphP
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, width, visibleHeight);
       const strokeColor = resolvedTheme === "dark" ? "#1f2937" : "#ffffff";
-      const totalRoot = (root!.value as number) || 1;
       const rects: RenderRect[] = [];
 
       ctx.font = '11px ui-monospace, SFMono-Regular, Menlo, monospace';

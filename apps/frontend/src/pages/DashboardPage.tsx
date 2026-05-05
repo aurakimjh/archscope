@@ -5,7 +5,7 @@ import type { DashboardSampleResult } from "@/api/analyzerClient";
 import { ChartPanel } from "@/components/ChartPanel";
 import { MetricCard } from "@/components/MetricCard";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { useI18n } from "@/i18n/I18nProvider";
 import { exportChartsInContainer } from "@/lib/batchExport";
 import { createChartOption } from "@/charts/chartFactory";

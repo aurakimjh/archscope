@@ -6,7 +6,7 @@ from typing import Literal
 
 from archscope_engine.analyzers.flamegraph_builder import (
     build_flame_tree_from_paths,
-    extract_leaf_paths,
+    iter_leaf_paths,
     top_child_frames,
     top_stacks_from_tree,
 )
@@ -27,6 +27,7 @@ class DrilldownFilter:
     filter_type: FilterType = "include_text"
     match_mode: MatchMode = "anywhere"
     view_mode: ViewMode = "preserve_full_path"
+    case_sensitive: bool = False
     label: str | None = None
 
     @property
@@ -40,10 +41,11 @@ class DrilldownStage:
     label: str
     breadcrumb: list[str]
     flamegraph: FlameNode
-    metrics: dict[str, float | int | None]
+    metrics: dict[str, float | int | str | None]
     top_stacks: list[dict[str, int | str | float]]
     top_child_frames: list[dict[str, int | str | float]]
     filter: DrilldownFilter | None = None
+    diagnostics: dict[str, str] | None = None
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -55,6 +57,7 @@ class DrilldownStage:
             "flamegraph": self.flamegraph.to_dict(),
             "top_stacks": self.top_stacks,
             "top_child_frames": self.top_child_frames,
+            "diagnostics": self.diagnostics,
         }
 
 
@@ -87,27 +90,28 @@ def apply_drilldown_filter(
     elapsed_sec: float | None,
     top_n: int = 20,
 ) -> DrilldownStage:
-    filtered_paths: list[tuple[list[str], int]] = []
-    for path, samples in extract_leaf_paths(parent.flamegraph):
-        matched_index = _matched_index(path, filter_spec)
-        include = matched_index is not None
-        if filter_spec.filter_type in {"exclude_text", "regex_exclude"}:
-            include = not include
-        if not include:
-            continue
-
-        if (
-            filter_spec.view_mode == "reroot_at_match"
-            and matched_index is not None
-            and filter_spec.filter_type in {"include_text", "regex_include"}
-        ):
-            next_path = path[matched_index:]
-        else:
-            next_path = path
-        filtered_paths.append((next_path, samples))
+    compiled, error = _compile_filter(filter_spec)
+    if error is not None:
+        next_root = build_flame_tree_from_paths(
+            (),
+            root_name=filter_spec.display_label,
+        )
+        return _stage(
+            index=parent.index + 1,
+            label=filter_spec.display_label,
+            breadcrumb=[*parent.breadcrumb, filter_spec.display_label],
+            root=next_root,
+            filter_spec=filter_spec,
+            parent_samples=parent.flamegraph.samples,
+            total_samples=parent.metrics["total_samples"],
+            interval_ms=interval_ms,
+            elapsed_sec=elapsed_sec,
+            top_n=top_n,
+            diagnostics=error,
+        )
 
     next_root = build_flame_tree_from_paths(
-        filtered_paths,
+        _iter_filtered_paths(parent.flamegraph, filter_spec, compiled),
         root_name=filter_spec.display_label,
     )
     return _stage(
@@ -121,6 +125,7 @@ def apply_drilldown_filter(
         interval_ms=interval_ms,
         elapsed_sec=elapsed_sec,
         top_n=top_n,
+        diagnostics=None,
     )
 
 
@@ -165,6 +170,7 @@ def _stage(
     interval_ms: float,
     elapsed_sec: float | None,
     top_n: int,
+    diagnostics: dict[str, str] | None = None,
 ) -> DrilldownStage:
     interval_seconds = interval_ms / 1000
     estimated_seconds = root.samples * interval_seconds
@@ -190,25 +196,58 @@ def _stage(
         },
         top_stacks=top_stacks_from_tree(root, top_n),
         top_child_frames=top_child_frames(root, top_n),
+        diagnostics=diagnostics,
     )
 
 
-def _matched_index(path: list[str], filter_spec: DrilldownFilter) -> int | None:
+def _iter_filtered_paths(
+    root: FlameNode,
+    filter_spec: DrilldownFilter,
+    compiled: re.Pattern[str] | None,
+):
+    for path, samples in iter_leaf_paths(root):
+        matched_index = _matched_index(path, filter_spec, compiled)
+        include = matched_index is not None
+        if filter_spec.filter_type in {"exclude_text", "regex_exclude"}:
+            include = not include
+        if not include:
+            continue
+
+        if (
+            filter_spec.view_mode == "reroot_at_match"
+            and matched_index is not None
+            and filter_spec.filter_type in {"include_text", "regex_include"}
+        ):
+            next_path = path[matched_index:]
+        else:
+            next_path = path
+        yield next_path, samples
+
+
+def _matched_index(
+    path: list[str],
+    filter_spec: DrilldownFilter,
+    compiled: re.Pattern[str] | None,
+) -> int | None:
     if filter_spec.match_mode == "ordered":
-        return _ordered_match_index(path, filter_spec)
+        return _ordered_match_index(path, filter_spec, compiled)
     if filter_spec.match_mode == "subtree":
-        return _first_matching_frame(path, filter_spec)
-    return _first_matching_frame(path, filter_spec)
+        return _first_matching_frame(path, filter_spec, compiled)
+    return _first_matching_frame(path, filter_spec, compiled)
 
 
-def _ordered_match_index(path: list[str], filter_spec: DrilldownFilter) -> int | None:
+def _ordered_match_index(
+    path: list[str],
+    filter_spec: DrilldownFilter,
+    compiled: re.Pattern[str] | None,
+) -> int | None:
     terms = [term.strip() for term in re.split(r"[>;]", filter_spec.pattern) if term.strip()]
     if not terms:
         return None
     start_index: int | None = None
     term_index = 0
     for frame_index, frame in enumerate(path):
-        if _frame_matches(frame, terms[term_index], filter_spec):
+        if _frame_matches(frame, terms[term_index], filter_spec, compiled):
             if start_index is None:
                 start_index = frame_index
             term_index += 1
@@ -217,22 +256,65 @@ def _ordered_match_index(path: list[str], filter_spec: DrilldownFilter) -> int |
     return None
 
 
-def _first_matching_frame(path: list[str], filter_spec: DrilldownFilter) -> int | None:
+def _first_matching_frame(
+    path: list[str],
+    filter_spec: DrilldownFilter,
+    compiled: re.Pattern[str] | None,
+) -> int | None:
     for index, frame in enumerate(path):
-        if _frame_matches(frame, filter_spec.pattern, filter_spec):
+        if _frame_matches(frame, filter_spec.pattern, filter_spec, compiled):
             return index
     return None
 
 
-def _frame_matches(frame: str, pattern: str, filter_spec: DrilldownFilter) -> bool:
+def _frame_matches(
+    frame: str,
+    pattern: str,
+    filter_spec: DrilldownFilter,
+    compiled: re.Pattern[str] | None,
+) -> bool:
     if filter_spec.filter_type in {"regex_include", "regex_exclude"}:
-        if _is_unsafe_regex_pattern(pattern):
-            return False
-        try:
-            return re.search(pattern, frame) is not None
-        except re.error:
-            return False
+        pattern_to_use = compiled
+        if filter_spec.match_mode == "ordered":
+            pattern_to_use, error = _compile_regex(pattern, filter_spec)
+            if error is not None:
+                return False
+        return pattern_to_use.search(frame) is not None if pattern_to_use is not None else False
+    if filter_spec.case_sensitive:
+        return pattern in frame
     return pattern.casefold() in frame.casefold()
+
+
+def _compile_filter(
+    filter_spec: DrilldownFilter,
+) -> tuple[re.Pattern[str] | None, dict[str, str] | None]:
+    if filter_spec.filter_type not in {"regex_include", "regex_exclude"}:
+        return None, None
+    if filter_spec.match_mode == "ordered":
+        return None, None
+    return _compile_regex(filter_spec.pattern, filter_spec)
+
+
+def _compile_regex(
+    pattern: str,
+    filter_spec: DrilldownFilter,
+) -> tuple[re.Pattern[str] | None, dict[str, str] | None]:
+    if _is_unsafe_regex_pattern(pattern):
+        return None, {
+            "reason": "UNSAFE_REGEX",
+            "message": (
+                "Regex pattern is too long or contains a nested quantifier pattern "
+                "that is disabled for parser safety."
+            ),
+        }
+    flags = 0 if filter_spec.case_sensitive else re.IGNORECASE
+    try:
+        return re.compile(pattern, flags), None
+    except re.error as exc:
+        return None, {
+            "reason": "INVALID_REGEX",
+            "message": f"Invalid regex pattern: {exc}",
+        }
 
 
 def _is_unsafe_regex_pattern(pattern: str) -> bool:

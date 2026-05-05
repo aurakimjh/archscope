@@ -10,10 +10,12 @@ python3 benchmarks/core_benchmark.py --rows 10000 --repeat 5 --json
 ```
 
 The baseline benchmark generates temporary synthetic access-log and collapsed
-profiler inputs, then measures:
+profiler/Jennifer inputs, then measures:
 
 - `access_log_analyzer`
 - `profiler_collapsed_analyzer`
+- `jennifer_csv_analyzer`
+- `execution_breakdown_classifier`
 
 Use the JSON output in automation or before/after comparisons. The first
 benchmark pass is a warm-up and is not included in reported timings.

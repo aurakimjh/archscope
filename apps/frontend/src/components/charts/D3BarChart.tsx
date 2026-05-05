@@ -105,7 +105,7 @@ export const D3BarChart = forwardRef<D3ChartFrameHandle, D3BarChartProps>(
       const innerWidth = Math.max(0, width - margin.left - margin.right);
       const innerHeight = Math.max(0, height - margin.top - margin.bottom);
 
-      let valueMin = Math.min(0, d3.min(sorted, (d) => d.value) ?? 0);
+      const valueMin = Math.min(0, d3.min(sorted, (d) => d.value) ?? 0);
       let valueMax = d3.max(sorted, (d) => d.value) ?? 0;
       if (valueMin === valueMax) {
         valueMax += 1;

@@ -11,11 +11,17 @@ class DiagnosticSample(TypedDict):
 
 
 class ParserDiagnostics(TypedDict):
+    source_file: str | None
+    format: str | None
     total_lines: int
     parsed_records: int
     skipped_lines: int
     skipped_by_reason: dict[str, int]
     samples: list[DiagnosticSample]
+    warning_count: int
+    error_count: int
+    warnings: list[DiagnosticSample]
+    errors: list[DiagnosticSample]
 
 
 class AccessLogSummary(TypedDict):

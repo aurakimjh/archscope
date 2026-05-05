@@ -32,11 +32,17 @@ export type DiagnosticSample = {
 };
 
 export type ParserDiagnostics = {
+  source_file?: string | null;
+  format?: string | null;
   total_lines: number;
   parsed_records: number;
   skipped_lines: number;
   skipped_by_reason: Record<string, number>;
   samples: DiagnosticSample[];
+  warning_count?: number;
+  error_count?: number;
+  warnings?: DiagnosticSample[];
+  errors?: DiagnosticSample[];
 };
 
 export type AccessLogSummary = {
@@ -179,6 +185,7 @@ export type DrilldownStage = {
   flamegraph: FlameNode;
   top_stacks: Array<Record<string, AnalysisValue>>;
   top_child_frames: Array<Record<string, AnalysisValue>>;
+  diagnostics?: Record<string, AnalysisValue> | null;
 };
 
 export type ProfilerCollapsedSeries = {

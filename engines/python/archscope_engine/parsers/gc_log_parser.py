@@ -153,6 +153,7 @@ def iter_gc_log_events_with_diagnostics(
     debug_log: DebugLogCollector | None = None,
 ) -> Iterable[GcEvent]:
     fmt = detect_gc_log_format(path)
+    diagnostics.set_context(source_file=str(path), format=fmt)
     if fmt == "g1_legacy":
         yield from _iter_g1_legacy(path, diagnostics=diagnostics, debug_log=debug_log)
     elif fmt == "legacy":
@@ -200,11 +201,12 @@ def _iter_unified(
 
         event = _parse_unified_gc_line(line)
         if event is None:
-            diagnostics.add_skipped(
+            diagnostics.add_warning(
                 line_number=line_number,
                 reason="NO_GC_FORMAT_MATCH",
                 message="Line did not match the supported HotSpot unified GC format.",
                 raw_line=line,
+                skipped=True,
             )
             if debug_log is not None:
                 debug_log.add_parse_error(
@@ -232,6 +234,18 @@ def _iter_unified(
     if pending_event is not None:
         yield pending_event
         diagnostics.parsed_records += 1
+    elif diagnostics.total_lines == 0:
+        diagnostics.add_warning(
+            line_number=0,
+            reason="EMPTY_FILE",
+            message="GC log file is empty.",
+        )
+    elif diagnostics.parsed_records == 0:
+        diagnostics.add_warning(
+            line_number=0,
+            reason="NO_SUPPORTED_GC_EVENTS",
+            message="No supported GC pause events were parsed.",
+        )
 
 
 def _parse_unified_gc_line(line: str) -> GcEvent | None:
@@ -349,6 +363,18 @@ def _iter_g1_legacy(
     if pending is not None:
         yield _build_g1_event(pending)
         diagnostics.parsed_records += 1
+    elif diagnostics.total_lines == 0:
+        diagnostics.add_warning(
+            line_number=0,
+            reason="EMPTY_FILE",
+            message="GC log file is empty.",
+        )
+    elif diagnostics.parsed_records == 0:
+        diagnostics.add_warning(
+            line_number=0,
+            reason="NO_SUPPORTED_GC_EVENTS",
+            message="No supported G1 legacy GC events were parsed.",
+        )
 
 
 def _build_g1_event(data: dict) -> GcEvent:
@@ -458,6 +484,19 @@ def _iter_legacy(
             raw_line=line,
         )
         diagnostics.parsed_records += 1
+
+    if diagnostics.total_lines == 0:
+        diagnostics.add_warning(
+            line_number=0,
+            reason="EMPTY_FILE",
+            message="GC log file is empty.",
+        )
+    elif diagnostics.parsed_records == 0:
+        diagnostics.add_warning(
+            line_number=0,
+            reason="NO_SUPPORTED_GC_EVENTS",
+            message="No supported legacy GC events were parsed.",
+        )
 
 
 def _detect_legacy_gc_type(line: str, label: str) -> tuple[str, str | None]:

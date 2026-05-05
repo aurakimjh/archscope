@@ -10,6 +10,8 @@ from typing import Any
 DEFAULT_THRESHOLDS_MS = {
     "access_log_analyzer": 5_000.0,
     "profiler_collapsed_analyzer": 1_000.0,
+    "jennifer_csv_analyzer": 2_000.0,
+    "execution_breakdown_classifier": 1_000.0,
 }
 
 

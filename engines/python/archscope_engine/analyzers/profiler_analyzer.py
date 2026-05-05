@@ -539,9 +539,15 @@ def _classify_stack_cached(
 def _default_diagnostics(stacks: Counter[str]) -> dict[str, Any]:
     parsed_records = len(stacks)
     return {
+        "source_file": None,
+        "format": "async_profiler_collapsed",
         "total_lines": parsed_records,
         "parsed_records": parsed_records,
         "skipped_lines": 0,
         "skipped_by_reason": {},
         "samples": [],
+        "warning_count": 0,
+        "error_count": 0,
+        "warnings": [],
+        "errors": [],
     }

@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from functools import lru_cache
 from typing import Iterable
 
-from archscope_engine.analyzers.flamegraph_builder import extract_leaf_paths
+from archscope_engine.analyzers.flamegraph_builder import iter_leaf_paths
 from archscope_engine.models.flamegraph import FlameNode
 
 EXECUTIVE_LABELS = {
@@ -156,7 +156,7 @@ def clear_execution_stack_classification_cache() -> None:
     _classify_execution_stack_cached.cache_clear()
 
 
-@lru_cache(maxsize=4096)
+@lru_cache(maxsize=65536)
 def _classify_execution_stack_cached(frames: tuple[str, ...]) -> StackClassification:
     return _classify_execution_stack_uncached(frames)
 
@@ -201,7 +201,7 @@ def build_execution_breakdown(
     category_stacks: dict[str, Counter[str]] = defaultdict(Counter)
     category_wait_reason: dict[str, Counter[str]] = defaultdict(Counter)
 
-    for path, samples in extract_leaf_paths(root):
+    for path, samples in iter_leaf_paths(root):
         classification = classify_execution_stack(path)
         category = classification.primary_category
         category_samples[category] += samples

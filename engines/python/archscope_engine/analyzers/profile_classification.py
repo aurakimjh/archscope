@@ -51,9 +51,9 @@ def classify_stack(
     rules: Sequence[StackClassificationRule] | None = None,
 ) -> str:
     active_rules = rules if rules is not None else DEFAULT_STACK_CLASSIFICATION_RULES
-    lowered = stack.lower()
+    lowered = stack.casefold()
     for rule in active_rules:
-        if any(token in lowered for token in rule.contains):
+        if any(token.casefold() in lowered for token in rule.contains):
             return rule.label
     return "Application"
 

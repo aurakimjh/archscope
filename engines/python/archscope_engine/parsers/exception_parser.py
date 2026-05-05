@@ -24,7 +24,8 @@ def parse_exception_stack(
     debug_log: DebugLogCollector | None = None,
 ) -> list[ExceptionRecord]:
     own_diagnostics = diagnostics or ParserDiagnostics()
-    blocks: list[tuple[int, list[str]]] = []
+    own_diagnostics.set_context(source_file=str(path), format="java_exception_stack")
+    records: list[ExceptionRecord] = []
     current: list[str] = []
     current_start = 0
 
@@ -33,7 +34,13 @@ def parse_exception_stack(
         stripped = line.strip()
         if EXCEPTION_LINE_RE.match(stripped) and not stripped.startswith("Caused by:"):
             if current:
-                blocks.append((current_start, current))
+                _append_exception_record(
+                    records,
+                    current,
+                    line_number=current_start,
+                    diagnostics=own_diagnostics,
+                    debug_log=debug_log,
+                )
             current = [stripped]
             current_start = line_number
         elif current and (
@@ -60,36 +67,62 @@ def parse_exception_stack(
                 )
 
     if current:
-        blocks.append((current_start, current))
+        _append_exception_record(
+            records,
+            current,
+            line_number=current_start,
+            diagnostics=own_diagnostics,
+            debug_log=debug_log,
+        )
 
-    records: list[ExceptionRecord] = []
-    for line_number, block in blocks:
-        record = _parse_exception_block(block)
-        if record is None:
-            own_diagnostics.add_skipped(
+    if own_diagnostics.total_lines == 0:
+        own_diagnostics.add_warning(
+            line_number=0,
+            reason="EMPTY_FILE",
+            message="Exception stack file is empty.",
+        )
+    elif own_diagnostics.parsed_records == 0:
+        own_diagnostics.add_warning(
+            line_number=0,
+            reason="NO_EXCEPTION_BLOCKS",
+            message="No supported Java exception blocks were parsed.",
+        )
+
+    return records
+
+
+def _append_exception_record(
+    records: list[ExceptionRecord],
+    block: list[str],
+    *,
+    line_number: int,
+    diagnostics: ParserDiagnostics,
+    debug_log: DebugLogCollector | None,
+) -> None:
+    record = _parse_exception_block(block)
+    if record is None:
+        diagnostics.add_skipped(
+            line_number=line_number,
+            reason="INVALID_EXCEPTION_BLOCK",
+            message="Exception block was missing a supported exception header.",
+            raw_line="\n".join(block),
+        )
+        if debug_log is not None:
+            debug_log.add_parse_error(
                 line_number=line_number,
                 reason="INVALID_EXCEPTION_BLOCK",
                 message="Exception block was missing a supported exception header.",
-                raw_line="\n".join(block),
+                raw_context={
+                    "before": None,
+                    "target": "\n".join(block),
+                    "after": None,
+                },
+                failed_pattern="JAVA_EXCEPTION_HEADER",
+                field_shapes={"block_line_count": len(block)},
             )
-            if debug_log is not None:
-                debug_log.add_parse_error(
-                    line_number=line_number,
-                    reason="INVALID_EXCEPTION_BLOCK",
-                    message="Exception block was missing a supported exception header.",
-                    raw_context={
-                        "before": None,
-                        "target": "\n".join(block),
-                        "after": None,
-                    },
-                    failed_pattern="JAVA_EXCEPTION_HEADER",
-                    field_shapes={"block_line_count": len(block)},
-                )
-            continue
-        records.append(record)
-        own_diagnostics.parsed_records += 1
-
-    return records
+        return
+    records.append(record)
+    diagnostics.parsed_records += 1
 
 
 def _parse_exception_block(block: list[str]) -> ExceptionRecord | None:

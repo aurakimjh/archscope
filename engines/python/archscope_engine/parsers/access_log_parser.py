@@ -24,6 +24,26 @@ NGINX_WITH_RESPONSE_TIME = re.compile(
     r'"(?P<referer>[^"]*)" "(?P<user_agent>[^"]*)" '
     r"(?P<response_time_sec>\S+)$"
 )
+COMBINED_ACCESS_LOG = re.compile(
+    r'^(?P<client_ip>\S+) \S+ \S+ \[(?P<timestamp>[^\]]+)\] '
+    r'"(?P<method>\S+) (?P<uri>\S+) (?P<protocol>[^"]+)" '
+    r"(?P<status>\S+) (?P<bytes_sent>\S+) "
+    r'"(?P<referer>[^"]*)" "(?P<user_agent>[^"]*)"$'
+)
+COMMON_ACCESS_LOG = re.compile(
+    r'^(?P<client_ip>\S+) \S+ \S+ \[(?P<timestamp>[^\]]+)\] '
+    r'"(?P<method>\S+) (?P<uri>\S+) (?P<protocol>[^"]+)" '
+    r"(?P<status>\S+) (?P<bytes_sent>\S+)$"
+)
+SUPPORTED_LOG_FORMATS = {
+    "nginx",
+    "apache",
+    "common",
+    "combined",
+    "ohs",
+    "weblogic",
+    "tomcat",
+}
 
 @dataclass(frozen=True)
 class AccessLogParseResult:
@@ -37,6 +57,7 @@ def parse_access_log(
     max_lines: int | None = None,
     start_time: datetime | None = None,
     end_time: datetime | None = None,
+    strict: bool = False,
 ) -> list[AccessLogRecord]:
     return parse_access_log_with_diagnostics(
         path,
@@ -44,6 +65,7 @@ def parse_access_log(
         max_lines=max_lines,
         start_time=start_time,
         end_time=end_time,
+        strict=strict,
     ).records
 
 
@@ -53,9 +75,10 @@ def parse_access_log_with_diagnostics(
     max_lines: int | None = None,
     start_time: datetime | None = None,
     end_time: datetime | None = None,
+    strict: bool = False,
 ) -> AccessLogParseResult:
     records: list[AccessLogRecord] = []
-    diagnostics = ParserDiagnostics()
+    diagnostics = ParserDiagnostics(source_file=str(path), format=log_format)
     for record in iter_access_log_records_with_diagnostics(
         path,
         log_format,
@@ -63,9 +86,16 @@ def parse_access_log_with_diagnostics(
         max_lines=max_lines,
         start_time=start_time,
         end_time=end_time,
+        strict=strict,
     ):
         records.append(record)
 
+    if diagnostics.total_lines == 0:
+        diagnostics.add_warning(
+            line_number=0,
+            reason="EMPTY_FILE",
+            message="Access log file is empty.",
+        )
     return AccessLogParseResult(records=records, diagnostics=diagnostics.to_dict())
 
 
@@ -78,9 +108,15 @@ def iter_access_log_records_with_diagnostics(
     start_time: datetime | None = None,
     end_time: datetime | None = None,
     debug_log: DebugLogCollector | None = None,
+    strict: bool = False,
 ) -> Iterable[AccessLogRecord]:
-    if log_format.lower() != "nginx":
-        raise ValueError("Only nginx format is implemented in the skeleton parser.")
+    normalized_format = log_format.lower()
+    if normalized_format not in SUPPORTED_LOG_FORMATS:
+        raise ValueError(
+            "Unsupported access log format. Supported formats: "
+            + ", ".join(sorted(SUPPORTED_LOG_FORMATS))
+        )
+    diagnostics.set_context(source_file=str(path), format=normalized_format)
 
     if max_lines is not None and max_lines <= 0:
         raise ValueError("max_lines must be a positive integer.")
@@ -130,6 +166,8 @@ def iter_access_log_records_with_diagnostics(
                 failed_pattern="NGINX_WITH_RESPONSE_TIME",
                 field_shapes=infer_field_shapes(line),
             )
+        if strict:
+            raise ValueError(f"{path}:{line_number}: {reason}: {message}")
 
 
 def parse_nginx_access_line(line: str) -> AccessLogRecord | None:
@@ -141,8 +179,15 @@ def _parse_nginx_access_line(
     line: str,
 ) -> tuple[AccessLogRecord | None, ParseError | None]:
     match = NGINX_WITH_RESPONSE_TIME.match(line)
+    has_response_time = True
     if match is None:
-        return None, ("NO_FORMAT_MATCH", "Line does not match nginx access log format.")
+        match = COMBINED_ACCESS_LOG.match(line)
+        has_response_time = False
+    if match is None:
+        match = COMMON_ACCESS_LOG.match(line)
+        has_response_time = False
+    if match is None:
+        return None, ("NO_FORMAT_MATCH", "Line does not match supported access log formats.")
 
     groups = match.groupdict()
     try:
@@ -153,7 +198,9 @@ def _parse_nginx_access_line(
     try:
         status = int(groups["status"])
         bytes_sent = 0 if groups["bytes_sent"] == "-" else int(groups["bytes_sent"])
-        response_time_ms = float(groups["response_time_sec"]) * 1000
+        response_time_ms = (
+            float(groups["response_time_sec"]) * 1000 if has_response_time else 0.0
+        )
     except ValueError:
         return None, ("INVALID_NUMBER", "Numeric field could not be parsed.")
 
@@ -175,8 +222,8 @@ def _parse_nginx_access_line(
             response_time_ms=response_time_ms,
             bytes_sent=bytes_sent,
             client_ip=groups["client_ip"],
-            user_agent=groups["user_agent"],
-            referer=groups["referer"],
+            user_agent=groups.get("user_agent") or "",
+            referer=groups.get("referer") or "",
             raw_line=line,
         ),
         None,

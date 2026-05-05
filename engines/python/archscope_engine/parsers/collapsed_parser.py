@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import Counter
 from dataclasses import dataclass
+from math import isfinite
 from pathlib import Path
 from typing import Any
 
@@ -19,13 +20,18 @@ def parse_collapsed_file(path: Path) -> Counter[str]:
     return parse_collapsed_file_with_diagnostics(path).stacks
 
 
+def parse_collapsed_files(paths: list[Path] | tuple[Path, ...]) -> Counter[str]:
+    return parse_collapsed_files_with_diagnostics(paths).stacks
+
+
 def parse_collapsed_file_with_diagnostics(
     path: Path,
     *,
     debug_log: DebugLogCollector | None = None,
+    strict: bool = False,
 ) -> CollapsedParseResult:
     stacks: Counter[str] = Counter()
-    diagnostics = ParserDiagnostics()
+    diagnostics = ParserDiagnostics(source_file=str(path), format="async_profiler_collapsed")
 
     line_iterable = (
         iter_text_lines_with_context(path)
@@ -65,13 +71,46 @@ def parse_collapsed_file_with_diagnostics(
                     failed_pattern="COLLAPSED_STACK_WITH_SAMPLE_COUNT",
                     field_shapes=infer_field_shapes(stripped),
                 )
+            if strict:
+                raise ValueError(f"{path}:{line_number}: {reason}: {message}")
             continue
 
         stack, samples = parsed
-        stacks[stack] += samples
+        if samples > 0:
+            stacks[stack] += samples
         diagnostics.parsed_records += 1
 
+    if diagnostics.total_lines == 0:
+        diagnostics.add_warning(
+            line_number=0,
+            reason="EMPTY_FILE",
+            message="Collapsed profiler file is empty.",
+        )
+    elif diagnostics.parsed_records == 0:
+        diagnostics.add_warning(
+            line_number=0,
+            reason="NO_VALID_RECORDS",
+            message="No valid collapsed profiler records were parsed.",
+        )
+
     return CollapsedParseResult(stacks=stacks, diagnostics=diagnostics.to_dict())
+
+
+def parse_collapsed_files_with_diagnostics(
+    paths: list[Path] | tuple[Path, ...],
+    *,
+    strict: bool = False,
+) -> CollapsedParseResult:
+    stacks: Counter[str] = Counter()
+    merged = ParserDiagnostics(
+        source_file=";".join(str(path) for path in paths),
+        format="async_profiler_collapsed",
+    )
+    for path in paths:
+        result = parse_collapsed_file_with_diagnostics(path, strict=strict)
+        stacks.update(result.stacks)
+        _merge_diagnostics(merged, result.diagnostics)
+    return CollapsedParseResult(stacks=stacks, diagnostics=merged.to_dict())
 
 
 def parse_collapsed_line(line: str) -> tuple[str, int]:
@@ -100,15 +139,54 @@ def _parse_collapsed_line(line: str) -> tuple[tuple[str, int] | None, ParseError
             "Line must contain a stack and trailing sample count.",
         )
 
-    try:
-        samples = int(sample_text)
-    except ValueError:
-        return None, ("INVALID_SAMPLE_COUNT", "Sample count must be an integer.")
+    samples, sample_error = _parse_sample_count(sample_text)
+    if sample_error is not None:
+        return None, sample_error
 
     if samples < 0:
         return None, ("NEGATIVE_SAMPLE_COUNT", "Sample count must be non-negative.")
 
     return (stack, samples), None
+
+
+def _parse_sample_count(sample_text: str) -> tuple[int, ParseError | None]:
+    try:
+        return int(sample_text), None
+    except ValueError:
+        pass
+
+    try:
+        numeric = float(sample_text)
+    except ValueError:
+        return 0, ("INVALID_SAMPLE_COUNT", "Sample count must be an integer.")
+
+    if not isfinite(numeric):
+        return 0, ("INVALID_SAMPLE_COUNT", "Sample count must be finite.")
+    if not numeric.is_integer():
+        return 0, (
+            "INVALID_SAMPLE_COUNT",
+            "Sample count must be a whole number.",
+        )
+    return int(numeric), None
+
+
+def _merge_diagnostics(target: ParserDiagnostics, source: dict[str, Any]) -> None:
+    target.total_lines += int(source.get("total_lines") or 0)
+    target.parsed_records += int(source.get("parsed_records") or 0)
+    target.skipped_lines += int(source.get("skipped_lines") or 0)
+    target.warning_count += int(source.get("warning_count") or 0)
+    target.error_count += int(source.get("error_count") or 0)
+    for reason, count in dict(source.get("skipped_by_reason") or {}).items():
+        target.skipped_by_reason[str(reason)] = (
+            target.skipped_by_reason.get(str(reason), 0) + int(count)
+        )
+    for key in ("samples", "warnings", "errors"):
+        target_list = getattr(target, key)
+        for item in list(source.get(key) or []):
+            if len(target_list) >= 100:
+                break
+            if isinstance(item, dict):
+                target_list.append(dict(item))
 
 
 def _partial_match(line: str, reason: str) -> dict[str, Any] | None:

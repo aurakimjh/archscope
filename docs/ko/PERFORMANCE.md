@@ -9,11 +9,13 @@ python3 benchmarks/core_benchmark.py --rows 10000 --repeat 5
 python3 benchmarks/core_benchmark.py --rows 10000 --repeat 5 --json
 ```
 
-기본 벤치마크는 임시 synthetic access log와 collapsed profiler 입력을
-생성한 뒤 다음 경로를 측정한다.
+기본 벤치마크는 임시 synthetic access log, collapsed profiler, Jennifer CSV
+입력을 생성한 뒤 다음 경로를 측정한다.
 
 - `access_log_analyzer`
 - `profiler_collapsed_analyzer`
+- `jennifer_csv_analyzer`
+- `execution_breakdown_classifier`
 
 자동화나 before/after 비교에는 JSON 출력을 사용한다. 첫 번째 실행은
 warm-up으로 처리하며 보고 시간에는 포함하지 않는다.

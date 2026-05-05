@@ -235,11 +235,17 @@ def _status_family(status: int) -> str:
 
 def _default_diagnostics(total: int) -> dict[str, Any]:
     return {
+        "source_file": None,
+        "format": "nginx",
         "total_lines": total,
         "parsed_records": total,
         "skipped_lines": 0,
         "skipped_by_reason": {},
         "samples": [],
+        "warning_count": 0,
+        "error_count": 0,
+        "warnings": [],
+        "errors": [],
     }
 
 

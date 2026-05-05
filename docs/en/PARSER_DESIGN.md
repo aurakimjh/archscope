@@ -12,7 +12,8 @@ Parsers convert raw files into typed records. They should not own chart renderin
 
 ## Access Log Parser
 
-Initial support targets an NGINX combined-like format with a response time field:
+Initial support targets NGINX combined-like logs with a response time field, and
+tolerates common/combined access-log rows without response-time data:
 
 ```text
 127.0.0.1 - - [27/Apr/2026:10:00:01 +0900] "GET /api/orders/1001 HTTP/1.1" 200 1234 "-" "Mozilla/5.0" 0.123
@@ -30,7 +31,10 @@ The parser extracts:
 - response time in milliseconds
 - raw line
 
-Future formats include Apache, OHS, WebLogic, Tomcat, and custom regex patterns.
+When a common/combined row has no response-time field, ArchScope keeps the
+request/status evidence and records response time as `0.0` because the source
+format does not provide latency. Apache/OHS/WebLogic/Tomcat format selectors
+currently share the common/combined parsing path.
 
 ## Collapsed Profiler Parser
 
@@ -44,6 +48,8 @@ Rules:
 
 - Last field is sample count.
 - Stack string is everything before the final sample count.
+- Integral numeric sample fields such as `1000` and `1e3` are accepted; negative,
+  non-finite, or fractional sample counts are rejected.
 - Duplicate stacks are merged by summing samples.
 - Total samples are calculated across merged stacks.
 - Estimated seconds are derived from `samples * interval_ms / 1000`.
@@ -73,7 +79,15 @@ children
 path
 ```
 
-If the CSV contains multiple root nodes, ArchScope creates a virtual `All` root. Malformed CSV rows are skipped and reported through `metadata.diagnostics` with `INVALID_JENNIFER_ROW`.
+The reader tries `utf-8-sig`, `utf-8`, `cp949`, and the platform preferred
+encoding. If the CSV contains multiple root nodes, ArchScope creates a virtual
+`All` root. Missing parents are reported and treated as roots in tolerant mode;
+duplicate keys and parent cycles are reported and safely skipped or detached.
+
+Jennifer `sample_count` values are treated as inclusive node samples. Tree
+rendering preserves those inclusive values, while top-stack and execution
+breakdown calculations use non-overlapping exclusive paths so category totals do
+not double-count parent and child samples.
 
 ## JVM Parsers
 
@@ -129,7 +143,8 @@ The default parser mode is tolerant. This is the right default for operational e
 - Skipped records are counted.
 - A bounded sample of skipped records is reported in `metadata.diagnostics`.
 - Analyzer output remains valid if at least zero records can be parsed.
-- Strict fail-fast behavior may be added later as an explicit option, but it is not the Phase 1 default.
+- Parsers that expose `strict=True` fail fast on malformed records; the default
+  remains tolerant/non-strict.
 
 ### Fatal Errors
 
@@ -165,10 +180,14 @@ Initial shape:
 
 ```text
 metadata.diagnostics = {
+  source_file: string | null,
+  format: string | null,
   total_lines: number,
   parsed_records: number,
   skipped_lines: number,
   skipped_by_reason: Record<string, number>,
+  warning_count: number,
+  error_count: number,
   samples: [
     {
       line_number: number,
@@ -176,13 +195,15 @@ metadata.diagnostics = {
       message: string,
       raw_preview: string
     }
-  ]
+  ],
+  warnings: DiagnosticSample[],
+  errors: DiagnosticSample[]
 }
 ```
 
 Rules:
 
-- `samples` should be bounded, initially 20 records.
+- `samples`, `warnings`, and `errors` are bounded, currently 100 records each.
 - `raw_preview` should be truncated, initially 200 characters.
 - Diagnostics must not include full large log records when a short preview is enough.
 - Parser implementations may keep richer internal diagnostics, but `metadata.diagnostics` is the stable external contract.
@@ -204,14 +225,18 @@ Rules:
 - Empty or whitespace-only lines are ignored.
 - Lines that do not match the configured format are skipped with `NO_FORMAT_MATCH`.
 - Bad timestamp, status, bytes, or response-time values are skipped with a specific reason code.
+- Common/combined rows without a response-time field are parsed with
+  `response_time_ms=0.0`.
 - `metadata.diagnostics.parsed_records` must equal the number of records included in analyzer aggregation.
 - `metadata.diagnostics.skipped_lines` must not include blank ignored lines.
 
 ### Collapsed Profiler Policy
 
 - Empty or whitespace-only lines are ignored.
-- Lines without a stack plus trailing integer sample count are skipped.
+- Lines without a stack plus trailing whole-number sample count are skipped.
 - Negative sample counts are skipped, not fatal.
+- Zero sample counts are counted as parsed records but do not create flamegraph
+  samples.
 - Duplicate valid stacks continue to be merged by summing samples.
 - `metadata.diagnostics.parsed_records` should represent valid collapsed lines before stack merging.
 

@@ -17,20 +17,48 @@ class FlameNode:
     path: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
-        return {
-            "id": self.id,
-            "parentId": self.parent_id,
-            "name": self.name,
-            "samples": self.samples,
-            "ratio": self.ratio,
-            "category": self.category,
-            "color": self.color,
-            "children": [child.to_dict() for child in self.children],
-            "path": self.path,
-        }
+        root = _node_to_dict_shallow(self)
+        stack: list[tuple[FlameNode, dict[str, Any]]] = [(self, root)]
+        while stack:
+            node, payload = stack.pop()
+            children_payload: list[dict[str, Any]] = []
+            payload["children"] = children_payload
+            for child in node.children:
+                child_payload = _node_to_dict_shallow(child)
+                children_payload.append(child_payload)
+                stack.append((child, child_payload))
+        return root
 
 
 def flame_node_from_dict(value: dict[str, Any]) -> FlameNode:
+    root = _node_from_dict_shallow(value)
+    stack: list[tuple[FlameNode, dict[str, Any]]] = [(root, value)]
+    while stack:
+        node, payload = stack.pop()
+        for child_value in payload.get("children", []):
+            if not isinstance(child_value, dict):
+                continue
+            child = _node_from_dict_shallow(child_value)
+            node.children.append(child)
+            stack.append((child, child_value))
+    return root
+
+
+def _node_to_dict_shallow(node: FlameNode) -> dict[str, Any]:
+    return {
+        "id": node.id,
+        "parentId": node.parent_id,
+        "name": node.name,
+        "samples": node.samples,
+        "ratio": node.ratio,
+        "category": node.category,
+        "color": node.color,
+        "children": [],
+        "path": node.path,
+    }
+
+
+def _node_from_dict_shallow(value: dict[str, Any]) -> FlameNode:
     return FlameNode(
         id=str(value["id"]),
         parent_id=value.get("parentId"),
@@ -40,9 +68,4 @@ def flame_node_from_dict(value: dict[str, Any]) -> FlameNode:
         category=value.get("category"),
         color=value.get("color"),
         path=[str(part) for part in value.get("path", [])],
-        children=[
-            flame_node_from_dict(child)
-            for child in value.get("children", [])
-            if isinstance(child, dict)
-        ],
     )

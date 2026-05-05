@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from collections import Counter
 from dataclasses import dataclass, field
+from heapq import nlargest
+from typing import Iterable, Iterator
 
 from archscope_engine.models.flamegraph import FlameNode
 
@@ -50,7 +52,7 @@ def build_flame_tree_from_collapsed(stacks: Counter[str]) -> FlameNode:
 
 
 def build_flame_tree_from_paths(
-    paths: list[tuple[list[str], int]],
+    paths: Iterable[tuple[list[str], int]],
     *,
     root_name: str = "All",
 ) -> FlameNode:
@@ -64,17 +66,29 @@ def build_flame_tree_from_paths(
 
 
 def extract_leaf_paths(root: FlameNode) -> list[tuple[list[str], int]]:
-    leaves: list[tuple[list[str], int]] = []
+    return list(iter_leaf_paths(root))
 
-    def visit(node: FlameNode) -> None:
-        if not node.children and node.path:
-            leaves.append((node.path, node.samples))
-            return
-        for child in node.children:
-            visit(child)
 
-    visit(root)
-    return leaves
+def iter_leaf_paths(root: FlameNode) -> Iterator[tuple[list[str], int]]:
+    """Yield non-overlapping stack paths.
+
+    Collapsed stacks have zero exclusive samples on intermediate nodes, so this
+    behaves like a leaf iterator. Jennifer CSV rows are inclusive; yielding
+    positive exclusive samples for internal nodes avoids double-counting while
+    preserving self-time attributed to an intermediate frame.
+    """
+    stack = [root]
+    while stack:
+        node = stack.pop()
+        child_total = sum(child.samples for child in node.children)
+        exclusive_samples = node.samples - child_total
+        if node.path and exclusive_samples > 0:
+            yield node.path, exclusive_samples
+        if not node.children and node.path and node.samples > 0:
+            if exclusive_samples <= 0:
+                yield node.path, node.samples
+        for child in reversed(node.children):
+            stack.append(child)
 
 
 def top_child_frames(root: FlameNode, limit: int = 10) -> list[dict[str, int | str | float]]:
@@ -84,12 +98,12 @@ def top_child_frames(root: FlameNode, limit: int = 10) -> list[dict[str, int | s
             "samples": child.samples,
             "ratio": child.ratio,
         }
-        for child in sorted(root.children, key=lambda item: item.samples, reverse=True)[:limit]
+        for child in nlargest(limit, root.children, key=lambda item: item.samples)
     ]
 
 
 def top_stacks_from_tree(root: FlameNode, limit: int = 20) -> list[dict[str, int | str | float]]:
-    leaves = sorted(extract_leaf_paths(root), key=lambda item: item[1], reverse=True)[:limit]
+    leaves = nlargest(limit, iter_leaf_paths(root), key=lambda item: item[1])
     total = max(root.samples, 1)
     return [
         {
@@ -102,21 +116,38 @@ def top_stacks_from_tree(root: FlameNode, limit: int = 20) -> list[dict[str, int
 
 
 def _freeze_node(node: _MutableFlameNode, total_samples: int) -> FlameNode:
-    frozen = FlameNode(
-        id=node.id,
-        parent_id=node.parent_id,
-        name=node.name,
-        samples=node.samples,
-        ratio=round(node.samples / total_samples * 100, 4) if total_samples else 0.0,
-        category=node.category,
-        color=node.color,
-        path=node.path,
-    )
-    frozen.children = [
-        _freeze_node(child, total_samples)
-        for child in sorted(node.children.values(), key=lambda item: item.samples, reverse=True)
-    ]
-    return frozen
+    frozen_by_node_id: dict[int, FlameNode] = {}
+    stack: list[tuple[_MutableFlameNode, bool]] = [(node, False)]
+    while stack:
+        current, visited = stack.pop()
+        if not visited:
+            stack.append((current, True))
+            for child in current.children.values():
+                stack.append((child, False))
+            continue
+
+        frozen = FlameNode(
+            id=current.id,
+            parent_id=current.parent_id,
+            name=current.name,
+            samples=current.samples,
+            ratio=round(current.samples / total_samples * 100, 4)
+            if total_samples
+            else 0.0,
+            category=current.category,
+            color=current.color,
+            path=current.path,
+        )
+        frozen.children = [
+            frozen_by_node_id[id(child)]
+            for child in sorted(
+                current.children.values(),
+                key=lambda item: item.samples,
+                reverse=True,
+            )
+        ]
+        frozen_by_node_id[id(current)] = frozen
+    return frozen_by_node_id[id(node)]
 
 
 def _node_id(path: list[str]) -> str:

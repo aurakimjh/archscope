@@ -21,7 +21,8 @@ def parse_thread_dump(
     debug_log: DebugLogCollector | None = None,
 ) -> list[ThreadDumpRecord]:
     own_diagnostics = diagnostics or ParserDiagnostics()
-    blocks: list[tuple[int, list[str]]] = []
+    own_diagnostics.set_context(source_file=str(path), format="java_thread_dump")
+    records: list[ThreadDumpRecord] = []
     current: list[str] = []
     current_start = 0
 
@@ -29,7 +30,13 @@ def parse_thread_dump(
         own_diagnostics.total_lines += 1
         if THREAD_HEADER_RE.match(line):
             if current:
-                blocks.append((current_start, current))
+                _append_thread_record(
+                    records,
+                    current,
+                    line_number=current_start,
+                    diagnostics=own_diagnostics,
+                    debug_log=debug_log,
+                )
             current = [line]
             current_start = line_number
         elif current:
@@ -53,36 +60,62 @@ def parse_thread_dump(
                 )
 
     if current:
-        blocks.append((current_start, current))
+        _append_thread_record(
+            records,
+            current,
+            line_number=current_start,
+            diagnostics=own_diagnostics,
+            debug_log=debug_log,
+        )
 
-    records: list[ThreadDumpRecord] = []
-    for line_number, block in blocks:
-        record = _parse_thread_block(block)
-        if record is None:
-            own_diagnostics.add_skipped(
+    if own_diagnostics.total_lines == 0:
+        own_diagnostics.add_warning(
+            line_number=0,
+            reason="EMPTY_FILE",
+            message="Thread dump file is empty.",
+        )
+    elif own_diagnostics.parsed_records == 0:
+        own_diagnostics.add_warning(
+            line_number=0,
+            reason="NO_THREAD_BLOCKS",
+            message="No supported Java thread blocks were parsed.",
+        )
+
+    return records
+
+
+def _append_thread_record(
+    records: list[ThreadDumpRecord],
+    block: list[str],
+    *,
+    line_number: int,
+    diagnostics: ParserDiagnostics,
+    debug_log: DebugLogCollector | None,
+) -> None:
+    record = _parse_thread_block(block)
+    if record is None:
+        diagnostics.add_skipped(
+            line_number=line_number,
+            reason="INVALID_THREAD_BLOCK",
+            message="Thread block was missing a quoted header.",
+            raw_line="\n".join(block),
+        )
+        if debug_log is not None:
+            debug_log.add_parse_error(
                 line_number=line_number,
                 reason="INVALID_THREAD_BLOCK",
                 message="Thread block was missing a quoted header.",
-                raw_line="\n".join(block),
+                raw_context={
+                    "before": None,
+                    "target": "\n".join(block),
+                    "after": None,
+                },
+                failed_pattern="JAVA_THREAD_QUOTED_BLOCK",
+                field_shapes={"block_line_count": len(block)},
             )
-            if debug_log is not None:
-                debug_log.add_parse_error(
-                    line_number=line_number,
-                    reason="INVALID_THREAD_BLOCK",
-                    message="Thread block was missing a quoted header.",
-                    raw_context={
-                        "before": None,
-                        "target": "\n".join(block),
-                        "after": None,
-                    },
-                    failed_pattern="JAVA_THREAD_QUOTED_BLOCK",
-                    field_shapes={"block_line_count": len(block)},
-                )
-            continue
-        records.append(record)
-        own_diagnostics.parsed_records += 1
-
-    return records
+        return
+    records.append(record)
+    diagnostics.parsed_records += 1
 
 
 def _parse_thread_block(block: list[str]) -> ThreadDumpRecord | None:
