@@ -20,8 +20,10 @@ export type {
   AccessLogMetadata,
   AccessLogSampleRecordRow,
   AccessLogSeries,
+  AccessLogStatusCodeRow,
   AccessLogSummary,
   AccessLogTables,
+  AccessLogUrlStatRow,
   AiFinding,
   AiInterpretationSettings,
   AiSeverity,
@@ -113,7 +115,7 @@ export {
 
 export type DashboardSampleResult = {
   type: string;
-  summary: Record<string, number>;
+  summary: Record<string, unknown>;
   series: Record<string, readonly unknown[]>;
   tables?: Record<string, unknown[]>;
   metadata?: Record<string, unknown>;

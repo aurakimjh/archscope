@@ -48,9 +48,26 @@ export type ParserDiagnostics = {
 export type AccessLogSummary = {
   total_requests: number;
   avg_response_ms: number;
+  p50_response_ms?: number;
+  p90_response_ms?: number;
   p95_response_ms: number;
   p99_response_ms: number;
   error_rate: number;
+  error_count?: number;
+  total_bytes?: number;
+  wall_time_sec?: number;
+  avg_requests_per_sec?: number;
+  avg_bytes_per_sec?: number;
+  static_count?: number;
+  api_count?: number;
+  static_bytes?: number;
+  api_bytes?: number;
+  static_avg_response_ms?: number;
+  api_avg_response_ms?: number;
+  api_p95_response_ms?: number;
+  earliest_timestamp?: string | null;
+  latest_timestamp?: string | null;
+  unique_uris?: number;
 };
 
 export type TimeValuePoint = {
@@ -87,13 +104,77 @@ export type AccessLogAnalysisOptions = {
   end_time: string | null;
 };
 
+export type StatusClassPerMinuteRow = {
+  time: string;
+  "2xx": number;
+  "3xx": number;
+  "4xx": number;
+  "5xx": number;
+  other: number;
+};
+
+export type ErrorRatePerMinuteRow = {
+  time: string;
+  value: number;
+  errors: number;
+  total: number;
+};
+
+export type ThroughputPerMinuteRow = {
+  time: string;
+  requests_per_sec: number;
+  bytes_per_sec: number;
+};
+
+export type MethodDistributionRow = {
+  method: string;
+  count: number;
+};
+
+export type RequestClassificationRow = {
+  classification: string;
+  count: number;
+};
+
 export type AccessLogSeries = {
   requests_per_minute: TimeValuePoint[];
   avg_response_time_per_minute: TimeValuePoint[];
+  p50_response_time_per_minute?: TimeValuePoint[];
+  p90_response_time_per_minute?: TimeValuePoint[];
   p95_response_time_per_minute: TimeValuePoint[];
+  p99_response_time_per_minute?: TimeValuePoint[];
+  status_class_per_minute?: StatusClassPerMinuteRow[];
+  error_rate_per_minute?: ErrorRatePerMinuteRow[];
+  bytes_per_minute?: TimeValuePoint[];
+  throughput_per_minute?: ThroughputPerMinuteRow[];
   status_code_distribution: StatusCodeDistributionRow[];
+  method_distribution?: MethodDistributionRow[];
+  request_classification?: RequestClassificationRow[];
   top_urls_by_count: TopUrlCountRow[];
   top_urls_by_avg_response_time: TopUrlAvgResponseRow[];
+};
+
+export type AccessLogUrlStatRow = {
+  uri: string;
+  method?: string;
+  classification?: "static" | "api" | string;
+  count: number;
+  avg_response_ms: number;
+  p50_response_ms?: number;
+  p90_response_ms?: number;
+  p95_response_ms: number;
+  p99_response_ms?: number;
+  total_bytes?: number;
+  error_count?: number;
+  status_2xx?: number;
+  status_3xx?: number;
+  status_4xx?: number;
+  status_5xx?: number;
+};
+
+export type AccessLogStatusCodeRow = {
+  status: number;
+  count: number;
 };
 
 export type AccessLogSampleRecordRow = {
@@ -106,6 +187,13 @@ export type AccessLogSampleRecordRow = {
 
 export type AccessLogTables = {
   sample_records: AccessLogSampleRecordRow[];
+  url_stats?: AccessLogUrlStatRow[];
+  top_urls_by_count?: AccessLogUrlStatRow[];
+  top_urls_by_avg_response_time?: AccessLogUrlStatRow[];
+  top_urls_by_p95_response_time?: AccessLogUrlStatRow[];
+  top_urls_by_bytes?: AccessLogUrlStatRow[];
+  top_urls_by_errors?: AccessLogUrlStatRow[];
+  top_status_codes?: AccessLogStatusCodeRow[];
 };
 
 export type AccessLogMetadata = {

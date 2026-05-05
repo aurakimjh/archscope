@@ -24,12 +24,29 @@ class ParserDiagnostics(TypedDict):
     errors: list[DiagnosticSample]
 
 
-class AccessLogSummary(TypedDict):
+class AccessLogSummary(TypedDict, total=False):
     total_requests: int
     avg_response_ms: float
+    p50_response_ms: float
+    p90_response_ms: float
     p95_response_ms: float
     p99_response_ms: float
     error_rate: float
+    error_count: int
+    total_bytes: int
+    wall_time_sec: float
+    avg_requests_per_sec: float
+    avg_bytes_per_sec: float
+    static_count: int
+    api_count: int
+    static_bytes: int
+    api_bytes: int
+    static_avg_response_ms: float
+    api_avg_response_ms: float
+    api_p95_response_ms: float
+    earliest_timestamp: str | None
+    latest_timestamp: str | None
+    unique_uris: int
 
 
 class TimeValuePoint(TypedDict):
@@ -66,11 +83,20 @@ class AccessLogAnalysisOptions(TypedDict):
     end_time: str | None
 
 
-class AccessLogSeries(TypedDict):
+class AccessLogSeries(TypedDict, total=False):
     requests_per_minute: list[TimeValuePoint]
     avg_response_time_per_minute: list[TimeValuePoint]
+    p50_response_time_per_minute: list[TimeValuePoint]
+    p90_response_time_per_minute: list[TimeValuePoint]
     p95_response_time_per_minute: list[TimeValuePoint]
+    p99_response_time_per_minute: list[TimeValuePoint]
+    status_class_per_minute: list[dict[str, str | int]]
+    error_rate_per_minute: list[dict[str, str | int | float]]
+    bytes_per_minute: list[TimeValuePoint]
+    throughput_per_minute: list[dict[str, str | int | float]]
     status_code_distribution: list[StatusCodeDistributionRow]
+    method_distribution: list[dict[str, str | int]]
+    request_classification: list[dict[str, str | int]]
     top_urls_by_count: list[TopUrlCountRow]
     top_urls_by_avg_response_time: list[TopUrlAvgResponseRow]
 
@@ -83,8 +109,38 @@ class AccessLogSampleRecordRow(TypedDict):
     response_time_ms: float
 
 
-class AccessLogTables(TypedDict):
+class AccessLogUrlStatRow(TypedDict, total=False):
+    uri: str
+    method: str
+    classification: str
+    count: int
+    avg_response_ms: float
+    p50_response_ms: float
+    p90_response_ms: float
+    p95_response_ms: float
+    p99_response_ms: float
+    total_bytes: int
+    error_count: int
+    status_2xx: int
+    status_3xx: int
+    status_4xx: int
+    status_5xx: int
+
+
+class AccessLogStatusCodeRow(TypedDict):
+    status: int
+    count: int
+
+
+class AccessLogTables(TypedDict, total=False):
     sample_records: list[AccessLogSampleRecordRow]
+    url_stats: list[AccessLogUrlStatRow]
+    top_urls_by_count: list[AccessLogUrlStatRow]
+    top_urls_by_avg_response_time: list[AccessLogUrlStatRow]
+    top_urls_by_p95_response_time: list[AccessLogUrlStatRow]
+    top_urls_by_bytes: list[AccessLogUrlStatRow]
+    top_urls_by_errors: list[AccessLogUrlStatRow]
+    top_status_codes: list[AccessLogStatusCodeRow]
 
 
 class AccessLogMetadata(TypedDict):

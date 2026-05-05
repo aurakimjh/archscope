@@ -126,16 +126,22 @@ export function DashboardPage(): JSX.Element {
       </div>
 
       <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <MetricCard label={t("totalRequests")} value={data.summary.total_requests} />
+        <MetricCard
+          label={t("totalRequests")}
+          value={String(data.summary.total_requests ?? "—")}
+        />
         <MetricCard
           label={t("averageResponseTime")}
-          value={`${data.summary.avg_response_ms} ms`}
+          value={`${data.summary.avg_response_ms ?? "—"} ms`}
         />
         <MetricCard
           label={t("p95ResponseTime")}
-          value={`${data.summary.p95_response_ms} ms`}
+          value={`${data.summary.p95_response_ms ?? "—"} ms`}
         />
-        <MetricCard label={t("errorRate")} value={`${data.summary.error_rate}%`} />
+        <MetricCard
+          label={t("errorRate")}
+          value={`${data.summary.error_rate ?? "—"}%`}
+        />
       </section>
 
       <section

@@ -6,6 +6,8 @@ import {
   getAnalyzerClient,
   type AccessLogAnalysisResult,
   type AccessLogFormat,
+  type AccessLogStatusCodeRow,
+  type AccessLogUrlStatRow,
   type BridgeError,
   type TopUrlAvgResponseRow,
 } from "@/api/analyzerClient";
@@ -280,7 +282,8 @@ export function AccessLogAnalyzerPage(): JSX.Element {
           <TabsList>
             <TabsTrigger value="summary">{t("tabSummary")}</TabsTrigger>
             <TabsTrigger value="charts">{t("tabCharts")}</TabsTrigger>
-            <TabsTrigger value="top-urls">{t("tabTopUrls")}</TabsTrigger>
+            <TabsTrigger value="urls">{t("accessLogUrlsTab")}</TabsTrigger>
+            <TabsTrigger value="status">{t("accessLogStatusTab")}</TabsTrigger>
             <TabsTrigger value="diagnostics">{t("tabDiagnostics")}</TabsTrigger>
           </TabsList>
           <Button
@@ -305,22 +308,54 @@ export function AccessLogAnalyzerPage(): JSX.Element {
         </div>
 
         <TabsContent value="summary" className="mt-4">
-          <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
             <MetricCard
               label={t("totalRequests")}
               value={formatNumber(summary?.total_requests)}
+            />
+            <MetricCard
+              label={t("errorRate")}
+              value={formatPercent(summary?.error_rate)}
             />
             <MetricCard
               label={t("averageResponseTime")}
               value={formatMilliseconds(summary?.avg_response_ms)}
             />
             <MetricCard
+              label={t("accessLogP50")}
+              value={formatMilliseconds(summary?.p50_response_ms)}
+            />
+            <MetricCard
+              label={t("accessLogP90")}
+              value={formatMilliseconds(summary?.p90_response_ms)}
+            />
+            <MetricCard
               label={t("p95ResponseTime")}
               value={formatMilliseconds(summary?.p95_response_ms)}
             />
             <MetricCard
-              label={t("errorRate")}
-              value={formatPercent(summary?.error_rate)}
+              label={t("accessLogP99")}
+              value={formatMilliseconds(summary?.p99_response_ms)}
+            />
+            <MetricCard
+              label={t("accessLogTotalBytes")}
+              value={formatBytesShort(summary?.total_bytes)}
+            />
+            <MetricCard
+              label={t("accessLogAvgRps")}
+              value={`${formatNumber(summary?.avg_requests_per_sec)} req/s`}
+            />
+            <MetricCard
+              label={t("accessLogAvgThroughput")}
+              value={`${formatBytesShort(summary?.avg_bytes_per_sec)}/s`}
+            />
+            <MetricCard
+              label={t("accessLogStaticCount")}
+              value={formatNumber(summary?.static_count)}
+            />
+            <MetricCard
+              label={t("accessLogApiCount")}
+              value={formatNumber(summary?.api_count)}
             />
           </section>
         </TabsContent>
@@ -335,42 +370,12 @@ export function AccessLogAnalyzerPage(): JSX.Element {
           </div>
         </TabsContent>
 
-        <TabsContent value="top-urls" className="mt-4">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm">{t("topUrlsByResponseTime")}</CardTitle>
-            </CardHeader>
-            <CardContent className="overflow-x-auto p-0">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
-                    <th className="px-4 py-2 text-left font-medium">{t("uri")}</th>
-                    <th className="px-4 py-2 text-right font-medium">{t("count")}</th>
-                    <th className="px-4 py-2 text-right font-medium">{t("responseTime")}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {slowUrls.length > 0 ? (
-                    slowUrls.map((row) => (
-                      <tr key={row.uri} className="border-b border-border last:border-0">
-                        <td className="px-4 py-2 font-mono text-xs">{row.uri}</td>
-                        <td className="px-4 py-2 text-right tabular-nums">{row.count}</td>
-                        <td className="px-4 py-2 text-right tabular-nums">
-                          {formatMilliseconds(row.avg_response_ms)}
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td className="px-4 py-3 text-muted-foreground" colSpan={3}>
-                        —
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </CardContent>
-          </Card>
+        <TabsContent value="urls" className="mt-4">
+          <UrlStatsPanel t={t} result={result} />
+        </TabsContent>
+
+        <TabsContent value="status" className="mt-4">
+          <StatusBreakdownPanel t={t} result={result} />
         </TabsContent>
 
         <TabsContent value="diagnostics" className="mt-4">
@@ -454,3 +459,319 @@ const emptyAccessLogResult: AccessLogAnalysisResult = {
     findings: [],
   },
 };
+
+function formatBytesShort(value: number | undefined | null): string {
+  if (value == null || !Number.isFinite(value) || value <= 0) return "—";
+  const v = Number(value);
+  if (v < 1024) return `${v} B`;
+  if (v < 1024 * 1024) return `${(v / 1024).toFixed(1)} KB`;
+  if (v < 1024 * 1024 * 1024) return `${(v / 1024 / 1024).toFixed(1)} MB`;
+  return `${(v / 1024 / 1024 / 1024).toFixed(2)} GB`;
+}
+
+type UrlSortKey =
+  | "count"
+  | "avg_response_ms"
+  | "p95_response_ms"
+  | "total_bytes"
+  | "error_count";
+
+const URL_SORT_KEYS: Array<{ key: UrlSortKey; labelKey: MessageKey }> = [
+  { key: "count", labelKey: "accessLogSortCount" },
+  { key: "avg_response_ms", labelKey: "accessLogSortAvg" },
+  { key: "p95_response_ms", labelKey: "accessLogSortP95" },
+  { key: "total_bytes", labelKey: "accessLogSortBytes" },
+  { key: "error_count", labelKey: "accessLogSortErrors" },
+];
+
+function UrlStatsPanel({
+  t,
+  result,
+}: {
+  t: (key: MessageKey) => string;
+  result: AccessLogAnalysisResult | null;
+}): JSX.Element {
+  const allUrls = result?.tables?.url_stats ?? [];
+  const [sortKey, setSortKey] = useState<UrlSortKey>("count");
+  const [classFilter, setClassFilter] = useState<"all" | "static" | "api">("all");
+
+  const sorted = useMemo(() => {
+    const filtered =
+      classFilter === "all"
+        ? allUrls
+        : allUrls.filter((row) => row.classification === classFilter);
+    return [...filtered].sort(
+      (a, b) => Number(b[sortKey] ?? 0) - Number(a[sortKey] ?? 0),
+    );
+  }, [allUrls, sortKey, classFilter]);
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+        <CardTitle className="text-sm">{t("accessLogUrlsTab")}</CardTitle>
+        <div className="flex items-center gap-2 text-xs">
+          <select
+            className="h-7 rounded-md border border-border bg-background px-2 text-xs"
+            value={classFilter}
+            onChange={(e) => setClassFilter(e.target.value as typeof classFilter)}
+          >
+            <option value="all">{t("accessLogClassAll")}</option>
+            <option value="api">{t("accessLogClassApi")}</option>
+            <option value="static">{t("accessLogClassStatic")}</option>
+          </select>
+          <span className="text-muted-foreground">{t("accessLogSortBy")}</span>
+          <select
+            className="h-7 rounded-md border border-border bg-background px-2 text-xs"
+            value={sortKey}
+            onChange={(e) => setSortKey(e.target.value as UrlSortKey)}
+          >
+            {URL_SORT_KEYS.map((entry) => (
+              <option key={entry.key} value={entry.key}>
+                {t(entry.labelKey)}
+              </option>
+            ))}
+          </select>
+        </div>
+      </CardHeader>
+      <CardContent className="overflow-x-auto p-0">
+        {sorted.length === 0 ? (
+          <p className="px-6 py-6 text-center text-sm text-muted-foreground">—</p>
+        ) : (
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="border-b border-border bg-muted/40 text-[10px] uppercase tracking-wider text-muted-foreground">
+                <th className="px-3 py-2 text-left font-medium">{t("accessLogColMethod")}</th>
+                <th className="px-3 py-2 text-left font-medium">{t("uri")}</th>
+                <th className="w-[60px] px-3 py-2 text-left font-medium">
+                  {t("accessLogColClass")}
+                </th>
+                <th className="w-[70px] px-3 py-2 text-right font-medium">{t("count")}</th>
+                <th className="w-[80px] px-3 py-2 text-right font-medium">{t("accessLogColAvg")}</th>
+                <th className="w-[80px] px-3 py-2 text-right font-medium">{t("accessLogColP95")}</th>
+                <th className="w-[80px] px-3 py-2 text-right font-medium">
+                  {t("accessLogColBytes")}
+                </th>
+                <th className="w-[80px] px-3 py-2 text-right font-medium">
+                  {t("accessLogColErrors")}
+                </th>
+                <th className="w-[160px] px-3 py-2 text-right font-medium">
+                  {t("accessLogColStatusMix")}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {sorted.slice(0, 100).map((row) => (
+                <tr
+                  key={`${row.method ?? ""}-${row.uri}`}
+                  className="border-b border-border last:border-0"
+                >
+                  <td className="px-3 py-1.5 font-mono text-[11px] text-muted-foreground">
+                    {row.method || "—"}
+                  </td>
+                  <td className="max-w-[420px] truncate px-3 py-1.5 font-mono" title={row.uri}>
+                    {row.uri}
+                  </td>
+                  <td className="px-3 py-1.5">
+                    <span
+                      className={
+                        row.classification === "static"
+                          ? "rounded bg-sky-500/15 px-1.5 py-0.5 text-[10px] font-medium text-sky-700 dark:text-sky-300"
+                          : "rounded bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-emerald-300"
+                      }
+                    >
+                      {row.classification ?? "api"}
+                    </span>
+                  </td>
+                  <td className="px-3 py-1.5 text-right tabular-nums">
+                    {row.count.toLocaleString()}
+                  </td>
+                  <td className="px-3 py-1.5 text-right tabular-nums">
+                    {formatMilliseconds(row.avg_response_ms)}
+                  </td>
+                  <td className="px-3 py-1.5 text-right tabular-nums">
+                    {formatMilliseconds(row.p95_response_ms)}
+                  </td>
+                  <td className="px-3 py-1.5 text-right tabular-nums">
+                    {formatBytesShort(row.total_bytes)}
+                  </td>
+                  <td
+                    className={`px-3 py-1.5 text-right tabular-nums ${
+                      (row.error_count ?? 0) > 0
+                        ? "font-semibold text-rose-600 dark:text-rose-400"
+                        : ""
+                    }`}
+                  >
+                    {row.error_count ?? 0}
+                  </td>
+                  <td className="px-3 py-1.5 text-right text-[10px] tabular-nums text-muted-foreground">
+                    {(row.status_2xx ?? 0)}·{(row.status_3xx ?? 0)}·
+                    <span className="text-amber-600 dark:text-amber-400">
+                      {row.status_4xx ?? 0}
+                    </span>
+                    ·
+                    <span className="text-rose-600 dark:text-rose-400">
+                      {row.status_5xx ?? 0}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function StatusBreakdownPanel({
+  t,
+  result,
+}: {
+  t: (key: MessageKey) => string;
+  result: AccessLogAnalysisResult | null;
+}): JSX.Element {
+  const codes = (result?.tables?.top_status_codes ?? []) as AccessLogStatusCodeRow[];
+  const families = result?.series?.status_code_distribution ?? [];
+  const errorPerMin = result?.series?.error_rate_per_minute ?? [];
+  const statusOverTime = result?.series?.status_class_per_minute ?? [];
+  const peakError = errorPerMin.length
+    ? errorPerMin.reduce((acc, row) => (row.value > acc.value ? row : acc), errorPerMin[0])
+    : null;
+  return (
+    <div className="grid gap-4">
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm">{t("accessLogStatusFamiliesTitle")}</CardTitle>
+        </CardHeader>
+        <CardContent className="overflow-x-auto p-0">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="border-b border-border bg-muted/40 text-[10px] uppercase tracking-wider text-muted-foreground">
+                <th className="px-3 py-2 text-left font-medium">
+                  {t("accessLogColStatusFamily")}
+                </th>
+                <th className="w-[120px] px-3 py-2 text-right font-medium">{t("count")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {families.map((row) => (
+                <tr key={row.status} className="border-b border-border last:border-0">
+                  <td
+                    className={`px-3 py-1.5 font-mono ${
+                      row.status === "5xx"
+                        ? "text-rose-600 dark:text-rose-400"
+                        : row.status === "4xx"
+                        ? "text-amber-600 dark:text-amber-400"
+                        : ""
+                    }`}
+                  >
+                    {row.status}
+                  </td>
+                  <td className="px-3 py-1.5 text-right tabular-nums">
+                    {row.count.toLocaleString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm">{t("accessLogStatusCodesTitle")}</CardTitle>
+        </CardHeader>
+        <CardContent className="overflow-x-auto p-0">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="border-b border-border bg-muted/40 text-[10px] uppercase tracking-wider text-muted-foreground">
+                <th className="px-3 py-2 text-left font-medium">{t("accessLogColStatusCode")}</th>
+                <th className="w-[120px] px-3 py-2 text-right font-medium">{t("count")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {codes.map((row) => (
+                <tr key={row.status} className="border-b border-border last:border-0">
+                  <td
+                    className={`px-3 py-1.5 font-mono ${
+                      row.status >= 500
+                        ? "text-rose-600 dark:text-rose-400"
+                        : row.status >= 400
+                        ? "text-amber-600 dark:text-amber-400"
+                        : ""
+                    }`}
+                  >
+                    {row.status}
+                  </td>
+                  <td className="px-3 py-1.5 text-right tabular-nums">
+                    {row.count.toLocaleString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm">{t("accessLogErrorTimelineTitle")}</CardTitle>
+          {peakError && peakError.value > 0 ? (
+            <p className="text-xs text-muted-foreground">
+              {t("accessLogPeakErrorAt")
+                .replace("{minute}", peakError.time)
+                .replace("{rate}", String(peakError.value))
+                .replace("{errors}", String(peakError.errors))
+                .replace("{total}", String(peakError.total))}
+            </p>
+          ) : null}
+        </CardHeader>
+        <CardContent className="overflow-x-auto p-0">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="border-b border-border bg-muted/40 text-[10px] uppercase tracking-wider text-muted-foreground">
+                <th className="px-3 py-2 text-left font-medium">{t("accessLogColMinute")}</th>
+                <th className="w-[80px] px-3 py-2 text-right font-medium">2xx</th>
+                <th className="w-[80px] px-3 py-2 text-right font-medium">3xx</th>
+                <th className="w-[80px] px-3 py-2 text-right font-medium">4xx</th>
+                <th className="w-[80px] px-3 py-2 text-right font-medium">5xx</th>
+                <th className="w-[100px] px-3 py-2 text-right font-medium">
+                  {t("accessLogColErrorRate")}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {statusOverTime.slice(-60).map((row, idx) => {
+                const errorRate = errorPerMin.find((e) => e.time === row.time);
+                const total =
+                  row["2xx"] + row["3xx"] + row["4xx"] + row["5xx"] + row.other;
+                const rate = errorRate?.value ?? 0;
+                return (
+                  <tr
+                    key={`${row.time}-${idx}`}
+                    className={`border-b border-border last:border-0 ${
+                      rate >= 50 ? "bg-rose-100/40 dark:bg-rose-900/20" : ""
+                    }`}
+                  >
+                    <td className="px-3 py-1 font-mono text-[11px]">{row.time}</td>
+                    <td className="px-3 py-1 text-right tabular-nums">{row["2xx"]}</td>
+                    <td className="px-3 py-1 text-right tabular-nums">{row["3xx"]}</td>
+                    <td className="px-3 py-1 text-right tabular-nums text-amber-600 dark:text-amber-400">
+                      {row["4xx"]}
+                    </td>
+                    <td className="px-3 py-1 text-right tabular-nums text-rose-600 dark:text-rose-400">
+                      {row["5xx"]}
+                    </td>
+                    <td className="px-3 py-1 text-right tabular-nums">
+                      {rate.toFixed(1)}% ({total})
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
