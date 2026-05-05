@@ -1,0 +1,206 @@
+name: Profiler Native (Wails v3)
+
+on:
+  pull_request:
+    paths:
+      - "apps/profiler-native/**"
+      - "examples/profiler/**"
+      - ".github/workflows/profiler-native.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/profiler-native/**"
+      - "examples/profiler/**"
+      - ".github/workflows/profiler-native.yml"
+
+defaults:
+  run:
+    working-directory: apps/profiler-native
+
+jobs:
+  go-test:
+    name: go test (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-14, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+          cache: true
+          cache-dependency-path: apps/profiler-native/go.sum
+
+      - name: go vet
+        run: go vet ./...
+
+      - name: go build
+        run: go build ./...
+
+      - name: go test
+        run: go test ./internal/... -race -count=1
+
+      - name: go bench (smoke)
+        run: go test -bench=. -run=^$ -benchtime=1x ./internal/...
+
+  python-go-parity:
+    name: Python ↔ Go parity (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-14]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+          cache: true
+          cache-dependency-path: apps/profiler-native/go.sum
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python engine
+        run: python -m pip install -e ".[dev]"
+        working-directory: engines/python
+
+      - name: Build Go CLI
+        run: go build -o bin/archscope-profiler ./cmd/archscope-profiler
+
+      - name: Run Go vs Python parity check
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/parity
+          # Same fixture, two pipelines, two JSON outputs.
+          ./bin/archscope-profiler \
+            --collapsed ../../examples/profiler/sample-wall.collapsed \
+            --interval-ms 100 --elapsed-sec 1336.559 \
+            --top-n 20 \
+            --out /tmp/parity/go.json
+          python -m archscope_engine.cli profiler analyze \
+            --collapsed ../../examples/profiler/sample-wall.collapsed \
+            --interval-ms 100 --elapsed-sec 1336.559 \
+            --top-n 20 \
+            --out /tmp/parity/python.json
+          # Compare invariants — totals, parser names, top stack samples.
+          python <<'PY'
+          import json
+          go = json.load(open("/tmp/parity/go.json"))
+          py = json.load(open("/tmp/parity/python.json"))
+
+          def check(label, a, b):
+              if a != b:
+                  raise SystemExit(f"parity drift on {label}: go={a} py={b}")
+
+          check("type", go["type"], py["type"])
+          check("summary.total_samples",
+                go["summary"]["total_samples"],
+                py["summary"]["total_samples"])
+          check("summary.profile_kind",
+                go["summary"]["profile_kind"],
+                py["summary"]["profile_kind"])
+          check("metadata.parser",
+                go["metadata"]["parser"],
+                py["metadata"]["parser"])
+          # Top stack must match by stack identity (top 1).
+          check("series.top_stacks[0].stack",
+                go["series"]["top_stacks"][0]["stack"],
+                py["series"]["top_stacks"][0]["stack"])
+          check("series.top_stacks[0].samples",
+                go["series"]["top_stacks"][0]["samples"],
+                py["series"]["top_stacks"][0]["samples"])
+          print("OK — Go and Python agree on the collapsed fixture.")
+          PY
+
+  package:
+    name: wails3 package (${{ matrix.os }})
+    needs: go-test
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-14
+            label: darwin-arm64
+            artifact: archscope-profiler-darwin-arm64
+            artifact-glob: |
+              apps/profiler-native/cmd/archscope-profiler-app/bin/archscope-profiler
+              apps/profiler-native/cmd/archscope-profiler-app/bin/archscope-profiler.app/**
+          - os: macos-13
+            label: darwin-amd64
+            artifact: archscope-profiler-darwin-amd64
+            artifact-glob: |
+              apps/profiler-native/cmd/archscope-profiler-app/bin/archscope-profiler
+              apps/profiler-native/cmd/archscope-profiler-app/bin/archscope-profiler.app/**
+          - os: windows-latest
+            label: windows-amd64
+            artifact: archscope-profiler-windows-amd64
+            artifact-glob: |
+              apps/profiler-native/cmd/archscope-profiler-app/bin/*.exe
+          - os: ubuntu-latest
+            label: linux-amd64
+            artifact: archscope-profiler-linux-amd64
+            artifact-glob: |
+              apps/profiler-native/cmd/archscope-profiler-app/bin/*
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+          cache: true
+          cache-dependency-path: apps/profiler-native/go.sum
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Wails CLI
+        run: go install github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0-alpha.84
+
+      - name: Linux WebKitGTK runtime headers
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev
+
+      - name: Install Task runner (macOS / Linux)
+        if: matrix.os != 'windows-latest'
+        run: |
+          curl -sL https://taskfile.dev/install.sh | sh -s -- -d -b /usr/local/bin
+
+      - name: Install Task runner (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          choco install go-task --no-progress -y
+
+      - name: Frontend deps
+        run: npm install
+        working-directory: apps/profiler-native/cmd/archscope-profiler-app/frontend
+
+      - name: Wails package
+        run: task package
+        working-directory: apps/profiler-native/cmd/archscope-profiler-app
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.artifact-glob }}
+          if-no-files-found: warn
