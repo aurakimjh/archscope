@@ -14,6 +14,10 @@ import {
   ErrorPanel,
 } from "@/components/AnalyzerFeedback";
 import { FileDock, type FileDockSelection } from "@/components/FileDock";
+import {
+  D3FlameGraph,
+  type FlameGraphNode,
+} from "@/components/charts/D3FlameGraph";
 import { D3HeatmapStrip, type HeatmapBucket } from "@/components/charts/D3HeatmapStrip";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -92,6 +96,19 @@ export function JfrAnalyzerPage(): JSX.Element {
   const [error, setError] = useState<BridgeError | null>(null);
   const [result, setResult] = useState<JfrAnalysisResult | null>(null);
   const [engineMessages, setEngineMessages] = useState<string[]>([]);
+
+  // Native memory analysis runs against the same JFR file but uses a
+  // different analyzer endpoint, so it has its own state.
+  const [nativeMemLeakOnly, setNativeMemLeakOnly] = useState(true);
+  const [nativeMemTailRatio, setNativeMemTailRatio] = useState(0.10);
+  const [nativeMemState, setNativeMemState] = useState<AnalyzerState>("idle");
+  const [nativeMemError, setNativeMemError] = useState<BridgeError | null>(null);
+  const [nativeMemResult, setNativeMemResult] = useState<{
+    summary: Record<string, unknown>;
+    topSites: Array<{ stack: string; bytes: number }>;
+    flame: FlameGraphNode | null;
+  } | null>(null);
+
   const currentRequestIdRef = useRef<string | null>(null);
 
   const filePath = selectedFile?.filePath ?? "";
@@ -170,6 +187,48 @@ export function JfrAnalyzerPage(): JSX.Element {
     if (!response.ok) {
       setError(response.error);
       setState("error");
+    }
+  }
+
+  async function runNativeMemory(): Promise<void> {
+    if (!filePath || nativeMemState === "running") return;
+    setNativeMemState("running");
+    setNativeMemError(null);
+    const requestId = createAnalyzerRequestId();
+    try {
+      const response = await getAnalyzerClient().execute({
+        requestId,
+        type: "native_memory",
+        params: {
+          requestId,
+          filePath,
+          leakOnly: nativeMemLeakOnly,
+          tailRatio: nativeMemTailRatio,
+        },
+      });
+      if (response.ok) {
+        const r = response.result as {
+          summary: Record<string, unknown>;
+          tables: Record<string, unknown>;
+          charts?: { flamegraph?: unknown };
+        };
+        const flameNode = r.charts?.flamegraph as RawFlameNode | undefined;
+        setNativeMemResult({
+          summary: r.summary ?? {},
+          topSites: ((r.tables?.top_call_sites as Array<{ stack: string; bytes: number }>) ?? []),
+          flame: flameNode ? toFlameGraphFromEngine(flameNode) : null,
+        });
+        setNativeMemState("success");
+      } else {
+        setNativeMemError(response.error);
+        setNativeMemState("error");
+      }
+    } catch (caught) {
+      setNativeMemError({
+        code: "IPC_FAILED",
+        message: caught instanceof Error ? caught.message : String(caught),
+      });
+      setNativeMemState("error");
     }
   }
 
@@ -343,6 +402,7 @@ export function JfrAnalyzerPage(): JSX.Element {
         <TabsList>
           <TabsTrigger value="events">{t("tabEvents")}</TabsTrigger>
           <TabsTrigger value="heatmap">{t("jfrHeatmap")}</TabsTrigger>
+          <TabsTrigger value="nativemem">{t("jfrNativeMemTab")}</TabsTrigger>
           <TabsTrigger value="breakdown">{t("jfrEventTypeBreakdown")}</TabsTrigger>
           <TabsTrigger value="diagnostics">{t("tabDiagnostics")}</TabsTrigger>
         </TabsList>
@@ -440,6 +500,135 @@ export function JfrAnalyzerPage(): JSX.Element {
           </Card>
         </TabsContent>
 
+        <TabsContent value="nativemem" className="mt-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm">{t("jfrNativeMemTitle")}</CardTitle>
+              <p className="text-xs text-muted-foreground">{t("jfrNativeMemDesc")}</p>
+            </CardHeader>
+            <CardContent className="flex flex-wrap items-center gap-3 text-xs">
+              <label className="flex cursor-pointer items-center gap-1.5">
+                <input
+                  type="checkbox"
+                  checked={nativeMemLeakOnly}
+                  onChange={(e) => setNativeMemLeakOnly(e.target.checked)}
+                />
+                {t("jfrNativeMemLeakOnly")}
+              </label>
+              <label className="flex items-center gap-2">
+                <span className="text-muted-foreground">{t("jfrNativeMemTailRatio")}</span>
+                <select
+                  className="h-7 rounded-md border border-border bg-background px-2 text-xs"
+                  value={String(nativeMemTailRatio)}
+                  onChange={(e) => setNativeMemTailRatio(Number(e.target.value))}
+                >
+                  <option value="0">0%</option>
+                  <option value="0.05">5%</option>
+                  <option value="0.1">10%</option>
+                  <option value="0.2">20%</option>
+                  <option value="0.3">30%</option>
+                </select>
+                <span className="text-[10px] text-muted-foreground">{t("jfrNativeMemTailHint")}</span>
+              </label>
+              <Button
+                type="button"
+                size="sm"
+                disabled={!filePath || nativeMemState === "running"}
+                onClick={() => void runNativeMemory()}
+              >
+                {nativeMemState === "running" ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    {t("analyzing")}
+                  </>
+                ) : (
+                  <>
+                    <Play className="h-3.5 w-3.5" />
+                    {t("jfrNativeMemRun")}
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+
+          <ErrorPanel
+            error={nativeMemError}
+            labels={{ title: t("analysisError"), code: t("errorCode") }}
+          />
+
+          {nativeMemResult ? (
+            <div className="mt-4 grid gap-4">
+              <section className="grid grid-cols-2 gap-3 md:grid-cols-5">
+                <Metric
+                  label={t("jfrNativeMemAllocCount")}
+                  value={nativeMemResult.summary.alloc_event_count as number}
+                />
+                <Metric
+                  label={t("jfrNativeMemFreeCount")}
+                  value={nativeMemResult.summary.free_event_count as number}
+                />
+                <Metric
+                  label={t("jfrNativeMemAllocBytes")}
+                  value={formatBytes(nativeMemResult.summary.alloc_bytes_total as number)}
+                />
+                <Metric
+                  label={t("jfrNativeMemUnfreedCount")}
+                  value={nativeMemResult.summary.unfreed_event_count as number}
+                />
+                <Metric
+                  label={t("jfrNativeMemUnfreedBytes")}
+                  value={formatBytes(nativeMemResult.summary.unfreed_bytes_total as number)}
+                />
+              </section>
+
+              {nativeMemResult.flame ? (
+                <D3FlameGraph
+                  title={t("jfrNativeMemTitle")}
+                  exportName="native-memory-flamegraph"
+                  data={nativeMemResult.flame}
+                  emptyLabel="—"
+                />
+              ) : null}
+
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm">{t("jfrNativeMemTopSites")}</CardTitle>
+                </CardHeader>
+                <CardContent className="overflow-x-auto p-0">
+                  {nativeMemResult.topSites.length === 0 ? (
+                    <p className="px-6 py-6 text-center text-sm text-muted-foreground">—</p>
+                  ) : (
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="border-b border-border bg-muted/40 text-[10px] uppercase tracking-wider text-muted-foreground">
+                          <th className="px-3 py-2 text-left font-medium">
+                            {t("jfrNativeMemSiteStack")}
+                          </th>
+                          <th className="w-[120px] px-3 py-2 text-right font-medium">
+                            {t("jfrNativeMemSiteBytes")}
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {nativeMemResult.topSites.slice(0, 20).map((row, idx) => (
+                          <tr key={`${row.stack}-${idx}`} className="border-b border-border last:border-0">
+                            <td className="max-w-[480px] truncate px-3 py-2 font-mono" title={row.stack}>
+                              {row.stack}
+                            </td>
+                            <td className="px-3 py-2 text-right tabular-nums">
+                              {formatBytes(row.bytes)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          ) : null}
+        </TabsContent>
+
         <TabsContent value="breakdown" className="mt-4">
           <Card>
             <CardHeader className="pb-3">
@@ -517,4 +706,35 @@ function Metric({
       </div>
     </div>
   );
+}
+
+type RawFlameNode = {
+  name: string;
+  samples: number;
+  category?: string | null;
+  color?: string | null;
+  metadata?: Record<string, unknown> | null;
+  children?: RawFlameNode[] | null;
+};
+
+function toFlameGraphFromEngine(node: RawFlameNode): FlameGraphNode {
+  return {
+    name: node.name,
+    value: node.samples,
+    category: node.category ?? null,
+    color: node.color ?? null,
+    metadata: node.metadata ?? null,
+    children: Array.isArray(node.children)
+      ? node.children.map(toFlameGraphFromEngine)
+      : null,
+  };
+}
+
+function formatBytes(value: number | undefined): string {
+  if (value == null || !Number.isFinite(value)) return "—";
+  const v = Number(value);
+  if (v < 1024) return `${v} B`;
+  if (v < 1024 * 1024) return `${(v / 1024).toFixed(1)} KB`;
+  if (v < 1024 * 1024 * 1024) return `${(v / 1024 / 1024).toFixed(1)} MB`;
+  return `${(v / 1024 / 1024 / 1024).toFixed(2)} GB`;
 }

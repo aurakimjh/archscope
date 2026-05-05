@@ -506,6 +506,18 @@ export type AnalyzeProfilerDiffRequest = {
 
 export type ProfilerDiffAnalysisResult = AnalysisResult<"profiler_diff">;
 
+export type AnalyzeNativeMemoryRequest = {
+  requestId?: string;
+  filePath: string;
+  /** When true (default) only allocations without a matching free are reported. */
+  leakOnly?: boolean;
+  /** Drop allocations from the last N% of the recording (default 0.10).
+   *  Set to 0 to disable the tail filter. */
+  tailRatio?: number;
+};
+
+export type NativeMemoryAnalysisResult = AnalysisResult<"native_memory">;
+
 export type AnalyzerExecuteRequest = {
   requestId?: string;
 } & (
@@ -538,6 +550,10 @@ export type AnalyzerExecuteRequest = {
       params: AnalyzeProfilerDiffRequest;
     }
   | {
+      type: "native_memory";
+      params: AnalyzeNativeMemoryRequest;
+    }
+  | {
       type: "thread_dump_multi";
       params: AnalyzeMultiThreadDumpRequest;
     }
@@ -568,6 +584,7 @@ export type AnalyzerExecutionResult =
   | AccessLogAnalysisResult
   | ProfilerCollapsedAnalysisResult
   | ProfilerDiffAnalysisResult
+  | NativeMemoryAnalysisResult
   | GcLogAnalysisResult
   | ThreadDumpAnalysisResult
   | ExceptionStackAnalysisResult

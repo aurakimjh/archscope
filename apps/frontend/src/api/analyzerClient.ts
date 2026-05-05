@@ -81,6 +81,7 @@ export type {
   JvmAnalyzerMetadata,
   JvmFinding,
   ParserDiagnostics,
+  NativeMemoryAnalysisResult,
   ProfilerCollapsedAnalysisResult,
   ProfilerCollapsedMetadata,
   ProfilerDiffAnalysisResult,

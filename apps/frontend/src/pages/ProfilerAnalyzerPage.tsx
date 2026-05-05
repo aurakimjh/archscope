@@ -103,6 +103,30 @@ export function ProfilerAnalyzerPage(): JSX.Element {
   const [savingAll, setSavingAll] = useState(false);
 
   // Display toolbar (shared between flame and diff tabs).
+  const [recentFiles, setRecentFiles] = useState<RecentFileEntry[]>(() =>
+    loadRecentFiles(),
+  );
+  const recordRecentFile = useCallback(
+    (file: FileDockSelection | null, format: ProfileFormat) => {
+      if (!file?.filePath) return;
+      setRecentFiles((prev) => {
+        const next: RecentFileEntry[] = [
+          {
+            path: file.filePath!,
+            originalName: file.originalName ?? file.filePath!,
+            size: file.size ?? 0,
+            format,
+            addedAt: Date.now(),
+          },
+          ...prev.filter((entry) => entry.path !== file.filePath),
+        ].slice(0, 10);
+        saveRecentFiles(next);
+        return next;
+      });
+    },
+    [],
+  );
+
   const [highlightPattern, setHighlightPattern] = useState("");
   const [simplifyNames, setSimplifyNames] = useState(false);
   const [normalizeLambdas, setNormalizeLambdas] = useState(false);
@@ -152,10 +176,26 @@ export function ProfilerAnalyzerPage(): JSX.Element {
     }
     return result?.series.timeline_analysis ?? [];
   }, [currentStage, parsedElapsedForDerived, result?.series.timeline_analysis, wallIntervalMs]);
-  const flameRoot = useMemo(
-    () => (currentStage ? toFlameGraphNode(currentStage.flamegraph) : null),
-    [currentStage],
-  );
+  const [selectedThread, setSelectedThread] = useState<string | null>(null);
+  const detectedThreads = (result?.series as { threads?: Array<{ name: string; samples: number; ratio: number }> } | undefined)?.threads ?? [];
+
+  const flameRoot = useMemo(() => {
+    if (!currentStage) return null;
+    const full = toFlameGraphNode(currentStage.flamegraph);
+    if (!selectedThread) return full;
+    const target = `[${selectedThread}]`;
+    const child = (full.children ?? []).find((c) => c.name === target);
+    if (!child) return full;
+    // Reroot at the chosen thread so the flame shows just its stacks. The
+    // sample/ratio math still works since FlameGraphNode treats `value` as
+    // total of leaves under the displayed root.
+    return {
+      ...full,
+      name: target,
+      value: child.value,
+      children: child.children ?? null,
+    } as FlameGraphNode;
+  }, [currentStage, selectedThread]);
   const flameNodeCount = useMemo(
     () => (flameRoot ? countFlameNodes(flameRoot) : 0),
     [flameRoot],
@@ -239,6 +279,7 @@ export function ProfilerAnalyzerPage(): JSX.Element {
         setStages(createInitialStages(response.result));
         setEngineMessages(response.engine_messages ?? []);
         setState("success");
+        recordRecentFile(selectedFile, profileFormat);
         return;
       }
 
@@ -605,6 +646,14 @@ export function ProfilerAnalyzerPage(): JSX.Element {
 
         <TabsContent value="flame" className="mt-4">
           <div ref={chartsContainerRef} className="grid gap-4">
+            {detectedThreads.length > 0 ? (
+              <ThreadFilter
+                t={t}
+                threads={detectedThreads}
+                selected={selectedThread}
+                onChange={setSelectedThread}
+              />
+            ) : null}
             <div className="flex justify-end">
               <Button
                 type="button"
@@ -662,6 +711,14 @@ export function ProfilerAnalyzerPage(): JSX.Element {
 
         <TabsContent value="tree" className="mt-4">
           <div className="grid gap-4">
+            {detectedThreads.length > 0 ? (
+              <ThreadFilter
+                t={t}
+                threads={detectedThreads}
+                selected={selectedThread}
+                onChange={setSelectedThread}
+              />
+            ) : null}
             <FlameDisplayToolbar
               t={t}
               highlightPattern={highlightPattern}
@@ -712,6 +769,27 @@ export function ProfilerAnalyzerPage(): JSX.Element {
             diffError={diffError}
             diffResult={diffResult}
             onRun={() => void runDiff()}
+            recentFiles={recentFiles}
+            onClearRecent={() => {
+              clearRecentFiles();
+              setRecentFiles([]);
+            }}
+            onPickBaseline={(entry) => {
+              setBaselineFile({
+                filePath: entry.path,
+                originalName: entry.originalName,
+                size: entry.size,
+              });
+              setBaselineFormat(entry.format);
+            }}
+            onPickTarget={(entry) => {
+              setTargetFile({
+                filePath: entry.path,
+                originalName: entry.originalName,
+                size: entry.size,
+              });
+              setTargetFormat(entry.format);
+            }}
             highlightPattern={highlightPattern}
             displayOptions={displayOptions}
             onHighlightChange={setHighlightPattern}
@@ -1584,6 +1662,154 @@ function rootSamples(stage: DrilldownStageView): number {
     : stage.flamegraph.samples;
 }
 
+const RECENT_FILES_KEY = "archscope.profiler.recentFiles";
+const MAX_RECENT_FILES = 10;
+
+type RecentFileEntry = {
+  path: string;
+  originalName: string;
+  size: number;
+  format: ProfileFormat;
+  addedAt: number;
+};
+
+function loadRecentFiles(): RecentFileEntry[] {
+  try {
+    const raw = window.localStorage.getItem(RECENT_FILES_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter(
+        (entry): entry is RecentFileEntry =>
+          entry &&
+          typeof entry.path === "string" &&
+          typeof entry.originalName === "string" &&
+          typeof entry.size === "number" &&
+          typeof entry.format === "string" &&
+          typeof entry.addedAt === "number",
+      )
+      .slice(0, MAX_RECENT_FILES);
+  } catch {
+    return [];
+  }
+}
+
+function saveRecentFiles(entries: RecentFileEntry[]): void {
+  try {
+    window.localStorage.setItem(RECENT_FILES_KEY, JSON.stringify(entries));
+  } catch {
+    /* quota or access errors — accept silently. */
+  }
+}
+
+function clearRecentFiles(): void {
+  try {
+    window.localStorage.removeItem(RECENT_FILES_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
+type RecentFilesPanelProps = {
+  t: (key: MessageKey) => string;
+  files: RecentFileEntry[];
+  onClear: () => void;
+  onPickBaseline: (entry: RecentFileEntry) => void;
+  onPickTarget: (entry: RecentFileEntry) => void;
+};
+
+function RecentFilesPanel({
+  t,
+  files,
+  onClear,
+  onPickBaseline,
+  onPickTarget,
+}: RecentFilesPanelProps): JSX.Element {
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+        <div>
+          <CardTitle className="text-sm">{t("profilerSessionsTitle")}</CardTitle>
+          <p className="text-xs text-muted-foreground">{t("profilerSessionsHint")}</p>
+        </div>
+        {files.length > 0 ? (
+          <Button type="button" variant="outline" size="sm" onClick={onClear}>
+            {t("profilerSessionsClear")}
+          </Button>
+        ) : null}
+      </CardHeader>
+      <CardContent className="p-0">
+        {files.length === 0 ? (
+          <p className="px-6 py-4 text-center text-xs text-muted-foreground">
+            {t("profilerSessionsEmpty")}
+          </p>
+        ) : (
+          <ul className="divide-y divide-border">
+            {files.map((entry) => (
+              <li
+                key={entry.path}
+                className="cursor-pointer px-4 py-2 text-xs hover:bg-muted/40"
+                title={entry.path}
+                onClick={(e) => {
+                  if (e.shiftKey) onPickTarget(entry);
+                  else onPickBaseline(entry);
+                }}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <span className="truncate font-mono text-[11px]">{entry.originalName}</span>
+                  <span className="shrink-0 text-[10px] uppercase text-muted-foreground">
+                    {entry.format}
+                  </span>
+                </div>
+                <div className="mt-0.5 flex items-center justify-between text-[10px] text-muted-foreground">
+                  <span className="truncate">{entry.path}</span>
+                  <span className="ml-2 shrink-0 tabular-nums">
+                    {(entry.size / 1024).toFixed(1)} KB ·{" "}
+                    {new Date(entry.addedAt).toLocaleString()}
+                  </span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+type ThreadFilterProps = {
+  t: (key: MessageKey) => string;
+  threads: Array<{ name: string; samples: number; ratio: number }>;
+  selected: string | null;
+  onChange: (value: string | null) => void;
+};
+
+function ThreadFilter({ t, threads, selected, onChange }: ThreadFilterProps): JSX.Element {
+  return (
+    <Card className="p-3">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs">
+        <span className="font-medium text-foreground/80">{t("profilerThreadFilterLabel")}</span>
+        <select
+          className="h-7 max-w-[420px] rounded-md border border-border bg-background px-2 text-xs"
+          value={selected ?? ""}
+          onChange={(e) => onChange(e.target.value || null)}
+        >
+          <option value="">
+            {t("profilerThreadFilterAll")} (
+            {t("profilerThreadFilterDetected").replace("{n}", String(threads.length))})
+          </option>
+          {threads.slice(0, 100).map((th) => (
+            <option key={th.name} value={th.name}>
+              {th.name} — {(th.ratio * 100).toFixed(2)}%
+            </option>
+          ))}
+        </select>
+      </div>
+    </Card>
+  );
+}
+
 type FlameDisplayToolbarProps = {
   t: (key: MessageKey) => string;
   highlightPattern: string;
@@ -1704,6 +1930,10 @@ type ProfilerDiffSectionProps = FlameDisplayToolbarProps & {
   } | null;
   onRun: () => void;
   displayOptions: { simplifyNames: boolean; normalizeLambdas: boolean; dottedNames: boolean };
+  recentFiles: RecentFileEntry[];
+  onClearRecent: () => void;
+  onPickBaseline: (entry: RecentFileEntry) => void;
+  onPickTarget: (entry: RecentFileEntry) => void;
 };
 
 function ProfilerDiffSection(props: ProfilerDiffSectionProps): JSX.Element {
@@ -1736,6 +1966,14 @@ function ProfilerDiffSection(props: ProfilerDiffSectionProps): JSX.Element {
 
   return (
     <div className="grid gap-4">
+      <RecentFilesPanel
+        t={t}
+        files={props.recentFiles}
+        onClear={props.onClearRecent}
+        onPickBaseline={props.onPickBaseline}
+        onPickTarget={props.onPickTarget}
+      />
+
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-sm">{t("profilerDiffTitle")}</CardTitle>
