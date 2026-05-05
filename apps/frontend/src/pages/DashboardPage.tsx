@@ -9,7 +9,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useI18n } from "@/i18n/I18nProvider";
 import { exportChartsInContainer } from "@/lib/batchExport";
 import { createChartOption } from "@/charts/chartFactory";
-import { dashboardChartTemplateIds, getChartTemplate } from "@/charts/chartTemplates";
+import {
+  dashboardChartTemplateIds,
+  getChartTemplate,
+  type ChartTemplateId,
+} from "@/charts/chartTemplates";
 
 const DASHBOARD_STORAGE_KEY = "archscope.dashboard.lastResult";
 
@@ -38,14 +42,27 @@ export function DashboardPage(): JSX.Element {
       samplesAxis: t("samplesAxis"),
       p95Series: t("p95Series"),
     };
-    return dashboardChartTemplateIds.map((templateId) => {
+    const dataType = (data as { type?: string }).type;
+    const dashboardSupportedTypes = new Set<string>(
+      dashboardChartTemplateIds.map((id) => getChartTemplate(id).resultType),
+    );
+    if (dataType && !dashboardSupportedTypes.has(dataType)) {
+      return null;
+    }
+    const built: { id: ChartTemplateId; title: string; option: ReturnType<typeof createChartOption> }[] = [];
+    for (const templateId of dashboardChartTemplateIds) {
       const template = getChartTemplate(templateId);
-      return {
-        id: template.id,
-        title: t(template.titleKey),
-        option: createChartOption(template.id, data, labels),
-      };
-    });
+      try {
+        built.push({
+          id: template.id,
+          title: t(template.titleKey),
+          option: createChartOption(template.id, data, labels),
+        });
+      } catch (err) {
+        console.warn(`[dashboard] skipping chart ${templateId}:`, err);
+      }
+    }
+    return built.length > 0 ? built : null;
   }, [data, t]);
 
   const handleSaveAllCharts = useCallback(async () => {

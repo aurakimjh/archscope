@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
 from typing import Generator, Iterable
@@ -18,12 +19,24 @@ from archscope_engine.models.gc_event import GcEvent
 # ─── JDK 9+ Unified GC Log ────────────────────────────────────────────────────
 
 UNIFIED_GC_RE = re.compile(
-    r"^\[(?P<timestamp>[^\]]+)\].*?GC\(\d+\)\s+"
+    r"^\[(?P<timestamp>[^\]]+)\].*?GC\((?P<gc_id>\d+)\)\s+"
     r"(?P<label>.*?)\s+"
     r"(?P<before>\d+(?:\.\d+)?)(?P<before_unit>[KMG])->"
     r"(?P<after>\d+(?:\.\d+)?)(?P<after_unit>[KMG])"
     r"(?:\((?P<committed>\d+(?:\.\d+)?)(?P<committed_unit>[KMG])\))?\s+"
     r"(?P<pause>\d+(?:\.\d+)?)ms"
+)
+
+# Metaspace info on a separate unified-format line, e.g.
+# [2.345s][info][gc,metaspace] GC(0) Metaspace: 12345K(15345K)->12345K(15345K)
+# or
+# [2.345s][info][gc,metaspace] GC(0) Metaspace: 12M->12M(15M)
+_UNIFIED_METASPACE_RE = re.compile(
+    r"GC\((?P<gc_id>\d+)\)\s+Metaspace:\s+"
+    r"(?P<before>\d+(?:\.\d+)?)(?P<before_unit>[KMG])"
+    r"(?:\([^)]+\))?->"
+    r"(?P<after>\d+(?:\.\d+)?)(?P<after_unit>[KMG])"
+    r"(?:\((?P<committed>\d+(?:\.\d+)?)(?P<committed_unit>[KMG])\))?"
 )
 
 # ─── JDK 8 G1GC Legacy ────────────────────────────────────────────────────────
@@ -49,6 +62,11 @@ _G1_MEMORY_RE = re.compile(
     r"\[Eden:\s*([\d.]+)([BKMG])\([^)]+\)->([\d.]+)([BKMG])\([^)]+\)\s+"
     r"Survivors:\s*([\d.]+)([BKMG])->([\d.]+)([BKMG])\s+"
     r"Heap:\s*([\d.]+)([BKMG])\(([\d.]+)([BKMG])\)->([\d.]+)([BKMG])\(([\d.]+)([BKMG])\)"
+)
+
+# Matches: [Metaspace: 12345K->12345K(15345K)] (G1 legacy multi-line format)
+_G1_METASPACE_RE = re.compile(
+    r"\[Metaspace:\s*([\d.]+)([BKMG])->([\d.]+)([BKMG])\(([\d.]+)([BKMG])\)\]"
 )
 
 # Matches heap sizes embedded in GC cleanup label: "GC cleanup 75M->25M(103M)"
@@ -158,11 +176,26 @@ def _iter_unified(
         if debug_log is not None
         else _line_contexts_without_neighbors(path)
     )
+    # Buffer the most recent pause event so a later metaspace line for the
+    # same GC(id) can be merged in before yielding.
+    pending_event: GcEvent | None = None
+    pending_gc_id: int | None = None
     for context in line_iterable:
         line_number = context.line_number
         line = context.target
         diagnostics.total_lines += 1
         if not line.strip():
+            continue
+
+        # Metaspace companion line: attach to the buffered event if its GC(id) matches.
+        meta = _UNIFIED_METASPACE_RE.search(line)
+        if meta is not None:
+            if pending_event is not None and pending_gc_id == int(meta.group("gc_id")):
+                pending_event = replace(
+                    pending_event,
+                    metaspace_before_mb=_to_mb(meta.group("before"), meta.group("before_unit")),
+                    metaspace_after_mb=_to_mb(meta.group("after"), meta.group("after_unit")),
+                )
             continue
 
         event = _parse_unified_gc_line(line)
@@ -188,7 +221,16 @@ def _iter_unified(
                 )
             continue
 
-        yield event
+        # New pause event — flush any prior buffered event first.
+        if pending_event is not None:
+            yield pending_event
+            diagnostics.parsed_records += 1
+        pending_event = event
+        pause_match = UNIFIED_GC_RE.search(line)
+        pending_gc_id = int(pause_match.group("gc_id")) if pause_match else None
+
+    if pending_event is not None:
+        yield pending_event
         diagnostics.parsed_records += 1
 
 
@@ -263,6 +305,14 @@ def _iter_g1_legacy(
             pending["young_after_mb"] = _safe_add(_to_mb(g[2], g[3]), _to_mb(g[6], g[7]))
             continue
 
+        # Metaspace detail line follows the heap memory line in G1 legacy logs.
+        mm = _G1_METASPACE_RE.search(line)
+        if mm and pending is not None:
+            mg = mm.groups()
+            pending["metaspace_before_mb"] = _to_mb(mg[0], mg[1])
+            pending["metaspace_after_mb"] = _to_mb(mg[2], mg[3])
+            continue
+
         # GC pause / remark / cleanup event line
         m = _G1_PAUSE_RE.match(line)
         if m:
@@ -318,8 +368,8 @@ def _build_g1_event(data: dict) -> GcEvent:
         young_after_mb=data.get("young_after_mb"),
         old_before_mb=None,
         old_after_mb=None,
-        metaspace_before_mb=None,
-        metaspace_after_mb=None,
+        metaspace_before_mb=data.get("metaspace_before_mb"),
+        metaspace_after_mb=data.get("metaspace_after_mb"),
         raw_line=data["raw_line"],
     )
 

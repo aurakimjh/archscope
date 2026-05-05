@@ -25,7 +25,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useI18n } from "@/i18n/I18nProvider";
+import { useI18n, type MessageKey } from "@/i18n/I18nProvider";
 import { exportChartsInContainer } from "@/lib/batchExport";
 import { saveDashboardResult } from "@/pages/DashboardPage";
 import {
@@ -161,25 +161,79 @@ export function GcLogAnalyzerPage(): JSX.Element {
     [algorithmRows],
   );
 
+  type HeapSeriesId =
+    | "heap_before"
+    | "heap_after"
+    | "heap_committed"
+    | "young_before"
+    | "young_after"
+    | "old_before"
+    | "old_after"
+    | "metaspace_before"
+    | "metaspace_after";
+
+  const HEAP_SERIES_DEFS = useMemo<
+    Array<{ id: HeapSeriesId; field: string; label: string; color: string; area?: boolean }>
+  >(
+    () => [
+      { id: "heap_committed", field: "heap_committed_mb", label: t("gcHeapCommitted"), color: "#64748b" },
+      { id: "heap_before", field: "heap_before_mb", label: t("gcHeapTotalBefore"), color: "#0ea5e9", area: true },
+      { id: "heap_after", field: "heap_after_mb", label: t("gcHeapTotalAfter"), color: "#14b8a6" },
+      { id: "young_before", field: "young_before_mb", label: t("gcHeapYoungBefore"), color: "#22c55e" },
+      { id: "young_after", field: "young_after_mb", label: t("gcHeapYoungAfter"), color: "#84cc16" },
+      { id: "old_before", field: "old_before_mb", label: t("gcHeapOldBefore"), color: "#f59e0b" },
+      { id: "old_after", field: "old_after_mb", label: t("gcHeapOldAfter"), color: "#a855f7" },
+      { id: "metaspace_before", field: "metaspace_before_mb", label: t("gcHeapMetaspaceBefore"), color: "#ec4899" },
+      { id: "metaspace_after", field: "metaspace_after_mb", label: t("gcHeapMetaspaceAfter"), color: "#d946ef" },
+    ],
+    [t],
+  );
+
+  const [visibleHeapSeries, setVisibleHeapSeries] = useState<Set<HeapSeriesId>>(
+    () => new Set<HeapSeriesId>(["heap_committed", "heap_before", "heap_after"]),
+  );
+  const [showPauseOverlay, setShowPauseOverlay] = useState(false);
+
+  const heapSeriesAvailability = useMemo<Record<HeapSeriesId, boolean>>(() => {
+    const series = (result?.series ?? {}) as Record<string, Array<{ time: string; value: number }> | undefined>;
+    const out = {} as Record<HeapSeriesId, boolean>;
+    for (const def of HEAP_SERIES_DEFS) {
+      out[def.id] = (series[def.field]?.length ?? 0) > 0;
+    }
+    return out;
+  }, [result, HEAP_SERIES_DEFS]);
+
   const heapSeries = useMemo<TimelineSeries[]>(() => {
-    const before = result?.series.heap_before_mb ?? [];
-    const after = result?.series.heap_after_mb ?? [];
+    const series = (result?.series ?? {}) as Record<string, Array<{ time: string; value: number }> | undefined>;
+    const out: TimelineSeries[] = [];
+    for (const def of HEAP_SERIES_DEFS) {
+      if (!visibleHeapSeries.has(def.id)) continue;
+      const points = series[def.field] ?? [];
+      if (points.length === 0) continue;
+      out.push({
+        id: def.id,
+        label: def.label,
+        color: def.color,
+        area: def.area,
+        data: points.map((p) => ({ time: p.time, value: p.value })),
+      });
+    }
+    return out;
+  }, [result, visibleHeapSeries, HEAP_SERIES_DEFS]);
+
+  const heapPauseOverlay = useMemo<TimelineSeries[] | undefined>(() => {
+    if (!showPauseOverlay) return undefined;
+    const points = result?.series.pause_timeline ?? [];
+    if (points.length === 0) return undefined;
     return [
       {
-        id: "heap_before",
-        label: t("heapBeforeMb"),
-        color: "#0ea5e9",
-        area: true,
-        data: before.map((p) => ({ time: p.time, value: p.value })),
-      },
-      {
-        id: "heap_after",
-        label: t("heapAfterMb"),
-        color: "#14b8a6",
-        data: after.map((p) => ({ time: p.time, value: p.value })),
+        id: "pause_ms_overlay",
+        label: t("pauseMsAxis"),
+        color: "#ef4444",
+        data: points.map((p) => ({ time: p.time, value: p.value })),
       },
     ];
-  }, [result, t]);
+  }, [showPauseOverlay, result, t]);
 
   const allocationSeries = useMemo<TimelineSeries[]>(() => {
     const alloc = result?.series.allocation_rate_mb_per_sec ?? [];
@@ -359,9 +413,10 @@ export function GcLogAnalyzerPage(): JSX.Element {
       />
       <EngineMessagesPanel messages={engineMessages} title={t("engineMessages")} />
 
-      <Tabs defaultValue="summary" className="w-full">
+      <Tabs defaultValue="jvm" className="w-full">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <TabsList>
+            <TabsTrigger value="jvm">{t("tabJvmInfo")}</TabsTrigger>
             <TabsTrigger value="summary">{t("tabSummary")}</TabsTrigger>
             <TabsTrigger value="pauses">{t("tabPauses")}</TabsTrigger>
             <TabsTrigger value="heap">{t("tabHeap")}</TabsTrigger>
@@ -390,6 +445,13 @@ export function GcLogAnalyzerPage(): JSX.Element {
             )}
           </Button>
         </div>
+
+        <TabsContent value="jvm" className="mt-4">
+          <JvmInfoPanel
+            info={(result?.metadata as { jvm_info?: JvmInfoData } | undefined)?.jvm_info}
+            t={t}
+          />
+        </TabsContent>
 
         <TabsContent value="summary" className="mt-4">
           <section className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
@@ -509,13 +571,75 @@ export function GcLogAnalyzerPage(): JSX.Element {
 
         <TabsContent value="heap" className="mt-4">
           <div className="grid gap-4">
+            <Card className="p-3">
+              <div className="flex flex-col gap-2.5 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-foreground/80">{t("gcHeapSeriesPick")}</span>
+                  <label className="flex cursor-pointer select-none items-center gap-1.5">
+                    <input
+                      type="checkbox"
+                      className="h-3.5 w-3.5"
+                      checked={showPauseOverlay}
+                      onChange={(event) => setShowPauseOverlay(event.target.checked)}
+                    />
+                    <span
+                      className="inline-block h-2 w-3 rounded-sm"
+                      style={{ background: "#ef4444" }}
+                      aria-hidden
+                    />
+                    <span>{t("gcHeapPauseOverlay")}</span>
+                  </label>
+                </div>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 sm:grid-cols-3 lg:grid-cols-5">
+                  {HEAP_SERIES_DEFS.map((def) => {
+                    const enabled = heapSeriesAvailability[def.id];
+                    const checked = visibleHeapSeries.has(def.id);
+                    return (
+                      <label
+                        key={def.id}
+                        className={`flex min-w-0 items-center gap-1.5 select-none ${
+                          enabled ? "cursor-pointer" : "cursor-not-allowed opacity-40"
+                        }`}
+                        title={enabled ? def.label : `${def.label} (—)`}
+                      >
+                        <input
+                          type="checkbox"
+                          className="h-3.5 w-3.5 shrink-0"
+                          style={{ accentColor: def.color }}
+                          disabled={!enabled}
+                          checked={checked && enabled}
+                          onChange={(event) => {
+                            setVisibleHeapSeries((prev) => {
+                              const next = new Set(prev);
+                              if (event.target.checked) next.add(def.id);
+                              else next.delete(def.id);
+                              return next;
+                            });
+                          }}
+                        />
+                        <span
+                          className="inline-block h-2 w-3 shrink-0 rounded-sm"
+                          style={{ background: def.color }}
+                          aria-hidden
+                        />
+                        <span className="truncate">{def.label}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            </Card>
             <D3TimelineChart
               title={t("gcHeapUsage")}
               exportName="gc-heap-usage"
               series={heapSeries}
+              seriesRight={heapPauseOverlay}
               events={fullGcEvents}
               yLabel={t("heapMbAxis")}
-              height={280}
+              yLabelRight={t("pauseMsAxis")}
+              height={320}
+              interactive
+              onSelectionChange={setSelection}
             />
           </div>
         </TabsContent>
@@ -718,4 +842,213 @@ function SelectionStat({
       <p className="mt-0.5 text-sm font-semibold tabular-nums">{value}</p>
     </div>
   );
+}
+
+type JvmInfoData = {
+  vm_banner?: string;
+  vm_version?: string;
+  vm_build?: string;
+  platform?: string;
+  collector?: string;
+  cpus_total?: number;
+  cpus_available?: number;
+  memory_mb?: number;
+  page_size_kb?: number;
+  heap_min_mb?: number;
+  heap_initial_mb?: number;
+  heap_max_mb?: number;
+  heap_region_size_mb?: number;
+  parallel_workers?: number;
+  concurrent_workers?: number;
+  concurrent_refinement_workers?: number;
+  large_pages?: string;
+  numa?: string;
+  compressed_oops?: string;
+  pre_touch?: string;
+  periodic_gc?: string;
+  command_line?: string;
+  raw_lines?: string[];
+};
+
+function JvmInfoPanel({
+  info,
+  t,
+}: {
+  info: JvmInfoData | undefined;
+  t: (key: MessageKey) => string;
+}): JSX.Element {
+  const [copied, setCopied] = useState(false);
+
+  if (!info || !Object.keys(info).length) {
+    return (
+      <Card>
+        <CardContent className="py-10 text-center text-sm text-muted-foreground">
+          {t("jvmInfoEmpty")}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const cpus =
+    typeof info.cpus_total === "number"
+      ? info.cpus_available != null && info.cpus_available !== info.cpus_total
+        ? `${info.cpus_total} (avail ${info.cpus_available})`
+        : `${info.cpus_total}`
+      : null;
+
+  const workerWarning =
+    typeof info.cpus_total === "number" &&
+    typeof info.parallel_workers === "number" &&
+    info.parallel_workers < info.cpus_total
+      ? t("jvmInfoWorkerWarning")
+          .replace("{n}", String(info.parallel_workers))
+          .replace("{cpus}", String(info.cpus_total))
+      : null;
+
+  const runtimeFields: Array<[string, string | null]> = [
+    [t("jvmInfoCollector"), info.collector ?? null],
+    [t("jvmInfoVersion"), info.vm_version ?? null],
+    [t("jvmInfoVmBuild"), info.vm_build ?? null],
+    [t("jvmInfoPlatform"), info.platform ?? null],
+  ];
+  const systemFields: Array<[string, string | null]> = [
+    [t("jvmInfoCpus"), cpus],
+    [t("jvmInfoMemory"), formatMb(info.memory_mb)],
+    [t("jvmInfoPageSize"), info.page_size_kb != null ? `${info.page_size_kb} KB` : null],
+  ];
+  const heapFields: Array<[string, string | null]> = [
+    [t("jvmInfoHeapMin"), formatMb(info.heap_min_mb)],
+    [t("jvmInfoHeapInitial"), formatMb(info.heap_initial_mb)],
+    [t("jvmInfoHeapMax"), formatMb(info.heap_max_mb)],
+    [t("jvmInfoHeapRegion"), formatMb(info.heap_region_size_mb)],
+  ];
+  const workerFields: Array<[string, string | null]> = [
+    [
+      t("jvmInfoParallelWorkers"),
+      info.parallel_workers != null ? String(info.parallel_workers) : null,
+    ],
+    [
+      t("jvmInfoConcurrentWorkers"),
+      info.concurrent_workers != null ? String(info.concurrent_workers) : null,
+    ],
+    [
+      t("jvmInfoConcurrentRefinement"),
+      info.concurrent_refinement_workers != null
+        ? String(info.concurrent_refinement_workers)
+        : null,
+    ],
+  ];
+  const flagFields: Array<[string, string | null]> = [
+    [t("jvmInfoLargePages"), info.large_pages ?? null],
+    [t("jvmInfoNuma"), info.numa ?? null],
+    [t("jvmInfoCompressedOops"), info.compressed_oops ?? null],
+    [t("jvmInfoPreTouch"), info.pre_touch ?? null],
+    [t("jvmInfoPeriodicGc"), info.periodic_gc ?? null],
+  ];
+
+  const handleCopy = async () => {
+    if (!info.command_line) return;
+    try {
+      await navigator.clipboard.writeText(info.command_line);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1500);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-4">
+      {workerWarning && (
+        <div className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-200">
+          ⚠ {workerWarning}
+        </div>
+      )}
+
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm">{t("jvmInfoTitle")}</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <JvmInfoSection title={t("jvmInfoSectionRuntime")} fields={runtimeFields} />
+          <JvmInfoSection title={t("jvmInfoSectionSystem")} fields={systemFields} />
+          <JvmInfoSection title={t("jvmInfoSectionHeap")} fields={heapFields} />
+          <JvmInfoSection title={t("jvmInfoSectionWorkers")} fields={workerFields} />
+          <JvmInfoSection title={t("jvmInfoSectionFlags")} fields={flagFields} />
+        </CardContent>
+      </Card>
+
+      {info.command_line && (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm">{t("jvmInfoSectionCommandLine")}</CardTitle>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-7 text-xs"
+              onClick={() => void handleCopy()}
+            >
+              {copied ? t("jvmInfoCopied") : t("jvmInfoCopyCommandLine")}
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <pre className="overflow-auto whitespace-pre-wrap break-all rounded-md border border-border bg-muted/40 p-3 font-mono text-[11px] leading-relaxed">
+              {info.command_line.split(/\s+(?=-)/).join("\n")}
+            </pre>
+          </CardContent>
+        </Card>
+      )}
+
+      {info.raw_lines && info.raw_lines.length > 0 && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm">{t("jvmInfoSectionRaw")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <pre className="max-h-72 overflow-auto whitespace-pre rounded-md border border-border bg-muted/40 p-3 font-mono text-[11px] leading-relaxed">
+              {info.raw_lines.join("\n")}
+            </pre>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}
+
+function JvmInfoSection({
+  title,
+  fields,
+}: {
+  title: string;
+  fields: Array<[string, string | null]>;
+}): JSX.Element | null {
+  const visible = fields.filter(([, v]) => v != null && v !== "");
+  if (visible.length === 0) return null;
+  return (
+    <section>
+      <h3 className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+        {title}
+      </h3>
+      <dl className="space-y-1 text-xs">
+        {visible.map(([label, value]) => (
+          <div key={label} className="flex items-baseline justify-between gap-3">
+            <dt className="shrink-0 text-muted-foreground">{label}</dt>
+            <dd className="min-w-0 truncate text-right tabular-nums" title={value ?? ""}>
+              {value}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
+}
+
+function formatMb(mb: number | null | undefined): string | null {
+  if (mb == null) return null;
+  if (mb >= 1024) {
+    const gb = mb / 1024;
+    return `${gb.toLocaleString(undefined, { maximumFractionDigits: 2 })} GB`;
+  }
+  return `${mb.toLocaleString(undefined, { maximumFractionDigits: 2 })} MB`;
 }

@@ -45,12 +45,16 @@ export type D3TimelineChartProps = {
   exportName?: string;
   /** Multiple line series share an x axis (time) and y axis (linear). */
   series: TimelineSeries[];
+  /** Optional secondary series rendered against an independent right-side y axis. */
+  seriesRight?: TimelineSeries[];
   /** Optional vertical event markers (e.g. GC events). */
   events?: TimelineEvent[];
   /** Pixel height for the SVG plot area. */
   height?: number;
   /** Y axis label rendered next to the axis. */
   yLabel?: string;
+  /** Right-axis label (when seriesRight is non-empty). */
+  yLabelRight?: string;
   /** Empty-state copy. */
   emptyLabel?: string;
   /** Enable wheel/drag zoom + brush selection. */
@@ -60,12 +64,43 @@ export type D3TimelineChartProps = {
 };
 
 const DEFAULT_COLORS = ["#6366f1", "#06b6d4", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
-const BRUSH_HEIGHT = 32;
+/** Cap rendered points per series. Anything beyond this is downsampled with
+ *  a min/max-per-bucket strategy that preserves spikes and valleys. */
+const MAX_POINTS_PER_SERIES = 2000;
 
 function toDate(value: Date | number | string): Date {
   if (value instanceof Date) return value;
   if (typeof value === "number") return new Date(value);
   return new Date(value);
+}
+
+/** Downsample a sorted-by-time series to at most `maxPoints` points while
+ *  preserving extreme values inside each bucket. Linear pass, no allocation
+ *  beyond the output. */
+function decimatePoints(
+  points: Array<{ time: Date; value: number }>,
+  maxPoints: number,
+): Array<{ time: Date; value: number }> {
+  if (points.length <= maxPoints) return points;
+  const bucketSize = Math.ceil(points.length / Math.max(1, Math.floor(maxPoints / 2)));
+  const out: Array<{ time: Date; value: number }> = [];
+  for (let i = 0; i < points.length; i += bucketSize) {
+    const end = Math.min(i + bucketSize, points.length);
+    let minIdx = i;
+    let maxIdx = i;
+    for (let j = i + 1; j < end; j += 1) {
+      if (points[j].value < points[minIdx].value) minIdx = j;
+      if (points[j].value > points[maxIdx].value) maxIdx = j;
+    }
+    if (minIdx === maxIdx) {
+      out.push(points[minIdx]);
+    } else if (minIdx < maxIdx) {
+      out.push(points[minIdx], points[maxIdx]);
+    } else {
+      out.push(points[maxIdx], points[minIdx]);
+    }
+  }
+  return out;
 }
 
 export const D3TimelineChart = forwardRef<D3ChartFrameHandle, D3TimelineChartProps>(
@@ -75,9 +110,11 @@ export const D3TimelineChart = forwardRef<D3ChartFrameHandle, D3TimelineChartPro
       description,
       exportName,
       series,
+      seriesRight,
       events,
       height = 240,
       yLabel,
+      yLabelRight,
       emptyLabel = "No data",
       interactive = false,
       onSelectionChange,
@@ -87,7 +124,6 @@ export const D3TimelineChart = forwardRef<D3ChartFrameHandle, D3TimelineChartPro
     const containerRef = useRef<HTMLDivElement | null>(null);
     const svgRef = useRef<SVGSVGElement | null>(null);
     const zoomLayerRef = useRef<SVGRectElement | null>(null);
-    const brushLayerRef = useRef<SVGGElement | null>(null);
     const frameRef = useRef<D3ChartFrameHandle | null>(null);
     const [width, setWidth] = useState(0);
     const [hover, setHover] = useState<{
@@ -126,30 +162,51 @@ export const D3TimelineChart = forwardRef<D3ChartFrameHandle, D3TimelineChartPro
 
     const baseLayout = useMemo(() => {
       if (!series.length || width <= 0) return null;
-      const brushReserve = interactive ? BRUSH_HEIGHT + 8 : 0;
-      const margin = { top: 10, right: 16, bottom: 26 + brushReserve, left: 48 };
+      const hasRight = (seriesRight?.length ?? 0) > 0;
+      const margin = {
+        top: 10,
+        right: hasRight ? 56 : 16,
+        bottom: 36,
+        left: 48,
+      };
       const innerWidth = Math.max(0, width - margin.left - margin.right);
       const innerHeight = Math.max(0, height - margin.top - margin.bottom);
 
       const allTimes: Date[] = [];
       let yMin = Number.POSITIVE_INFINITY;
       let yMax = Number.NEGATIVE_INFINITY;
-      const normSeries = series.map((s, idx) => {
-        const points = s.data
-          .map((p) => ({ time: toDate(p.time), value: p.value }))
-          .filter((p) => Number.isFinite(p.value) && !Number.isNaN(p.time.getTime()))
-          .sort((a, b) => a.time.getTime() - b.time.getTime());
-        for (const p of points) {
-          allTimes.push(p.time);
+      const normalizeAxis = (input: TimelineSeries[], offset: number) =>
+        input.map((s, idx) => {
+          const sorted = s.data
+            .map((p) => ({ time: toDate(p.time), value: p.value }))
+            .filter((p) => Number.isFinite(p.value) && !Number.isNaN(p.time.getTime()))
+            .sort((a, b) => a.time.getTime() - b.time.getTime());
+          const points = decimatePoints(sorted, MAX_POINTS_PER_SERIES);
+          for (const p of points) allTimes.push(p.time);
+          return {
+            ...s,
+            color: s.color ?? DEFAULT_COLORS[(offset + idx) % DEFAULT_COLORS.length],
+            points,
+          };
+        });
+      const normSeries = normalizeAxis(series, 0);
+      for (const s of normSeries) {
+        for (const p of s.points) {
           if (p.value < yMin) yMin = p.value;
           if (p.value > yMax) yMax = p.value;
         }
-        return {
-          ...s,
-          color: s.color ?? DEFAULT_COLORS[idx % DEFAULT_COLORS.length],
-          points,
-        };
-      });
+      }
+      const normSeriesRight = hasRight
+        ? normalizeAxis(seriesRight as TimelineSeries[], series.length)
+        : [];
+      let yMinR = Number.POSITIVE_INFINITY;
+      let yMaxR = Number.NEGATIVE_INFINITY;
+      for (const s of normSeriesRight) {
+        for (const p of s.points) {
+          if (p.value < yMinR) yMinR = p.value;
+          if (p.value > yMaxR) yMaxR = p.value;
+        }
+      }
 
       if (allTimes.length === 0) return null;
 
@@ -171,29 +228,49 @@ export const D3TimelineChart = forwardRef<D3ChartFrameHandle, D3TimelineChartPro
       if (yMin > 0) yMin = 0;
       const y = d3.scaleLinear().domain([yMin, yMax]).range([innerHeight, 0]).nice();
 
+      let yRight: d3.ScaleLinear<number, number> | null = null;
+      if (hasRight && Number.isFinite(yMinR) && Number.isFinite(yMaxR)) {
+        if (yMinR === yMaxR) {
+          yMinR -= 1;
+          yMaxR += 1;
+        }
+        if (yMinR > 0) yMinR = 0;
+        yRight = d3.scaleLinear().domain([yMinR, yMaxR]).range([innerHeight, 0]).nice();
+      }
+
       return {
         margin,
-        brushReserve,
         innerWidth,
         innerHeight,
         baseX,
         y,
+        yRight,
         yMinNice: y.domain()[0],
         normSeries,
+        normSeriesRight,
         xExtent,
       };
-    }, [series, width, height, interactive]);
+    }, [series, seriesRight, width, height, interactive]);
 
     const layout = useMemo(() => {
       if (!baseLayout) return null;
       const x = interactive
         ? transform.rescaleX(baseLayout.baseX)
         : baseLayout.baseX;
+      // Pick a tick format based on the *visible* (post-zoom) range so labels
+      // become more granular as the user zooms in.
+      const visibleDomain = x.domain() as [Date, Date];
+      const visibleSpanMs = visibleDomain[1].getTime() - visibleDomain[0].getTime();
+      const dayMs = 86_400_000;
+      const minuteMs = 60_000;
       const tickFormatBase = d3.timeFormat(
-        (baseLayout.xExtent[1].getTime() - baseLayout.xExtent[0].getTime()) >
-          1000 * 60 * 60 * 24
+        visibleSpanMs > dayMs
           ? "%m-%d %H:%M"
-          : "%H:%M:%S",
+          : visibleSpanMs > 10 * minuteMs
+          ? "%H:%M"
+          : visibleSpanMs > 30_000
+          ? "%H:%M:%S"
+          : "%H:%M:%S.%L",
       );
       const xTicks = x
         .ticks(Math.max(2, Math.min(8, Math.floor(baseLayout.innerWidth / 100))))
@@ -222,6 +299,27 @@ export const D3TimelineChart = forwardRef<D3ChartFrameHandle, D3TimelineChartPro
         areaPath: s.area && s.points.length > 0 ? area(s.points) ?? "" : "",
       }));
 
+      const yRight = baseLayout.yRight;
+      const lineRight = yRight
+        ? d3
+            .line<{ time: Date; value: number }>()
+            .x((p) => x(p.time))
+            .y((p) => yRight(p.value))
+            .curve(d3.curveMonotoneX)
+        : null;
+      const yRightTicks = yRight
+        ? yRight
+            .ticks(Math.max(2, Math.min(6, Math.floor(baseLayout.innerHeight / 40))))
+            .map((t) => ({
+              y: yRight(t as number),
+              label: d3.format(",.2~s")(t as number),
+            }))
+        : [];
+      const seriesRightOut = baseLayout.normSeriesRight.map((s) => ({
+        ...s,
+        path: s.points.length > 0 && lineRight ? lineRight(s.points) ?? "" : "",
+      }));
+
       const eventsOut = (events ?? [])
         .map((event) => {
           const t = toDate(event.time);
@@ -241,17 +339,31 @@ export const D3TimelineChart = forwardRef<D3ChartFrameHandle, D3TimelineChartPro
         x,
         xTicks,
         yTicks,
+        yRightTicks,
         seriesOut,
+        seriesRightOut,
         eventsOut,
         bisectTime: d3.bisector<{ time: Date; value: number }, Date>((d) => d.time)
           .left,
       };
     }, [baseLayout, transform, interactive, events]);
 
-    // Bind d3-zoom on the transparent overlay rect once layout is ready.
+    // Bind d3-zoom (wheel + double-click only) on the transparent overlay rect.
+    // Filter out drag events so the brush layer above can handle them and draw
+    // a visible selection rectangle. Coalesce zoom updates with rAF so we
+    // re-render at most once per frame.
     useEffect(() => {
       if (!interactive || !layout || !zoomLayerRef.current) return undefined;
       const overlay = d3.select(zoomLayerRef.current);
+      let pending: d3.ZoomTransform | null = null;
+      let rafId: number | null = null;
+      const flush = () => {
+        if (pending) {
+          setTransform(pending);
+          pending = null;
+        }
+        rafId = null;
+      };
       const zoomBehavior = d3
         .zoom<SVGRectElement, unknown>()
         .scaleExtent([1, 80])
@@ -263,47 +375,54 @@ export const D3TimelineChart = forwardRef<D3ChartFrameHandle, D3TimelineChartPro
           [0, -Infinity],
           [layout.innerWidth, Infinity],
         ])
+        .filter((event) => event.type === "wheel" || event.type === "dblclick")
         .on("zoom", (event) => {
-          setTransform(event.transform);
+          pending = event.transform;
+          if (rafId === null) {
+            rafId = window.requestAnimationFrame(flush);
+          }
         });
       overlay.call(zoomBehavior);
+      // Sync external transform changes (e.g. brush-zoom) into the behavior
+      // so subsequent wheel events build on the right starting transform.
+      overlay.call(zoomBehavior.transform, transform);
       return () => {
         overlay.on(".zoom", null);
+        if (rafId !== null) window.cancelAnimationFrame(rafId);
       };
-    }, [interactive, layout]);
+    }, [interactive, layout, transform]);
 
-    // Bind d3-brushX on a dedicated <g> below the plot area.
-    useEffect(() => {
-      if (!interactive || !layout || !brushLayerRef.current || !onSelectionChange) {
-        return undefined;
-      }
-      const brushGroup = d3.select(brushLayerRef.current);
-      const brush = d3
-        .brushX<unknown>()
-        .extent([
-          [0, 0],
-          [layout.innerWidth, BRUSH_HEIGHT],
-        ])
-        .on("end", (event) => {
-          if (!event.sourceEvent) return; // ignore programmatic clears
-          if (!event.selection) {
-            onSelectionChange(null);
-            return;
-          }
-          const [x0, x1] = event.selection as [number, number];
-          const start = layout.x.invert(x0);
-          const end = layout.x.invert(x1);
-          onSelectionChange({ start, end });
-        });
-      brushGroup
-        .call(brush)
-        .selectAll(".overlay")
-        .attr("fill", "transparent");
-      return () => {
-        brushGroup.on(".brush", null);
-        brushGroup.selectAll("*").remove();
-      };
-    }, [interactive, layout, onSelectionChange]);
+    // React-managed brush selection: dragging on the plot draws a visible
+    // semi-transparent rectangle, and on release we programmatically zoom
+    // into the selected time range. Avoids d3-brush's overlay rect which
+    // would block the hover tooltip layer above.
+    const dragStartRef = useRef<number | null>(null);
+    const [dragRect, setDragRect] = useState<{ x0: number; x1: number } | null>(null);
+
+    const finalizeDrag = useCallback(
+      (rect: { x0: number; x1: number } | null) => {
+        dragStartRef.current = null;
+        setDragRect(null);
+        if (!rect || !layout || !baseLayout) return;
+        const x0 = Math.min(rect.x0, rect.x1);
+        const x1 = Math.max(rect.x0, rect.x1);
+        if (x1 - x0 < 4) return; // click — ignore
+        const start = layout.x.invert(x0);
+        const end = layout.x.invert(x1);
+        onSelectionChange?.({ start, end });
+        const baseRange = baseLayout.baseX.range();
+        const baseSpan = baseRange[1] - baseRange[0];
+        if (baseSpan <= 0) return;
+        const sx0 = baseLayout.baseX(start);
+        const sx1 = baseLayout.baseX(end);
+        const span = sx1 - sx0;
+        if (span <= 0) return;
+        const newK = Math.min(80, Math.max(1, baseSpan / span));
+        const newX = -sx0 * newK;
+        setTransform(d3.zoomIdentity.translate(newX, 0).scale(newK));
+      },
+      [layout, baseLayout, onSelectionChange],
+    );
 
     const axisColor = resolvedTheme === "dark" ? "#475569" : "#cbd5e1";
     const labelColor = resolvedTheme === "dark" ? "#94a3b8" : "#64748b";
@@ -321,30 +440,41 @@ export const D3TimelineChart = forwardRef<D3ChartFrameHandle, D3TimelineChartPro
           return;
         }
         const time = layout.x.invert(localX);
-        const rows = layout.seriesOut
-          .map((s) => {
-            if (s.points.length === 0) return null;
-            const idx = layout.bisectTime(s.points, time);
-            const before = s.points[Math.max(0, idx - 1)];
-            const after = s.points[Math.min(s.points.length - 1, idx)];
-            const closest =
-              !before
-                ? after
-                : !after
-                ? before
-                : Math.abs(before.time.getTime() - time.getTime()) <
-                  Math.abs(after.time.getTime() - time.getTime())
-                ? before
-                : after;
-            if (!closest) return null;
-            return {
-              id: s.id,
-              label: s.label,
-              value: closest.value,
-              color: s.color,
-            };
-          })
-          .filter((r): r is NonNullable<typeof r> => Boolean(r));
+        type RowSource = {
+          id: string;
+          label: string;
+          color: string;
+          points: Array<{ time: Date; value: number }>;
+        };
+        const collectRows = (source: RowSource[]) =>
+          source
+            .map((s) => {
+              if (s.points.length === 0) return null;
+              const idx = layout.bisectTime(s.points, time);
+              const before = s.points[Math.max(0, idx - 1)];
+              const after = s.points[Math.min(s.points.length - 1, idx)];
+              const closest =
+                !before
+                  ? after
+                  : !after
+                  ? before
+                  : Math.abs(before.time.getTime() - time.getTime()) <
+                    Math.abs(after.time.getTime() - time.getTime())
+                  ? before
+                  : after;
+              if (!closest) return null;
+              return {
+                id: s.id,
+                label: s.label,
+                value: closest.value,
+                color: s.color,
+              };
+            })
+            .filter((r): r is NonNullable<typeof r> => Boolean(r));
+        const rows = [
+          ...collectRows(layout.seriesOut),
+          ...collectRows(layout.seriesRightOut ?? []),
+        ];
 
         // Pick the closest event marker (within 6px) so the popup can
         // surface its payload (cause, before/after heap, ...).
@@ -368,9 +498,41 @@ export const D3TimelineChart = forwardRef<D3ChartFrameHandle, D3TimelineChartPro
             event: nearestEvent?.event,
           });
         }
+        // Update the live drag rectangle while the user is brushing.
+        if (dragStartRef.current !== null) {
+          setDragRect({ x0: dragStartRef.current, x1: localX });
+        }
       },
       [layout],
     );
+
+    const handleMouseDown = useCallback(
+      (event: React.MouseEvent<SVGRectElement>) => {
+        if (!interactive || !layout) return;
+        if (event.button !== 0) return; // left button only
+        const svgRect = (
+          event.currentTarget.ownerSVGElement as SVGSVGElement
+        ).getBoundingClientRect();
+        const localX = event.clientX - svgRect.left - layout.margin.left;
+        if (localX < 0 || localX > layout.innerWidth) return;
+        dragStartRef.current = localX;
+        setDragRect({ x0: localX, x1: localX });
+        event.preventDefault();
+      },
+      [interactive, layout],
+    );
+
+    const handleMouseUp = useCallback(() => {
+      if (dragStartRef.current === null) return;
+      finalizeDrag(dragRect);
+    }, [dragRect, finalizeDrag]);
+
+    const handleMouseLeave = useCallback(() => {
+      setHover(null);
+      if (dragStartRef.current !== null) {
+        finalizeDrag(dragRect);
+      }
+    }, [dragRect, finalizeDrag]);
 
     const handleResetZoom = useCallback(() => {
       if (!interactive || !zoomLayerRef.current) return;
@@ -438,6 +600,28 @@ export const D3TimelineChart = forwardRef<D3ChartFrameHandle, D3TimelineChartPro
                     </text>
                   </g>
                 ))}
+                {layout.yRightTicks?.map((tick) => (
+                  <g
+                    key={`yr-${tick.label}-${tick.y}`}
+                    transform={`translate(${layout.innerWidth}, ${tick.y})`}
+                  >
+                    <text x={8} dy="0.32em" textAnchor="start" fill={labelColor} fontSize={10}>
+                      {tick.label}
+                    </text>
+                  </g>
+                ))}
+                {yLabelRight && layout.yRight && (
+                  <text
+                    transform="rotate(-90)"
+                    x={-layout.innerHeight / 2}
+                    y={layout.innerWidth + 44}
+                    textAnchor="middle"
+                    fill={labelColor}
+                    fontSize={10}
+                  >
+                    {yLabelRight}
+                  </text>
+                )}
                 {layout.xTicks.map((tick) => (
                   <g
                     key={`x-${tick.label}-${tick.x}`}
@@ -494,6 +678,19 @@ export const D3TimelineChart = forwardRef<D3ChartFrameHandle, D3TimelineChartPro
                         ))}
                     </g>
                   ))}
+                  {layout.seriesRightOut?.map((s) => (
+                    <g key={`r-${s.id}`}>
+                      {s.path && (
+                        <path
+                          d={s.path}
+                          fill="none"
+                          stroke={s.color}
+                          strokeWidth={1.4}
+                          strokeDasharray="4 3"
+                        />
+                      )}
+                    </g>
+                  ))}
                 </g>
 
                 <rect
@@ -503,7 +700,9 @@ export const D3TimelineChart = forwardRef<D3ChartFrameHandle, D3TimelineChartPro
                   fill="transparent"
                   cursor={interactive ? "crosshair" : "default"}
                   onMouseMove={handleMove}
-                  onMouseLeave={() => setHover(null)}
+                  onMouseDown={handleMouseDown}
+                  onMouseUp={handleMouseUp}
+                  onMouseLeave={handleMouseLeave}
                 />
 
                 {hover && (
@@ -518,16 +717,23 @@ export const D3TimelineChart = forwardRef<D3ChartFrameHandle, D3TimelineChartPro
                   />
                 )}
 
-                {interactive && (
-                  <g
-                    ref={brushLayerRef}
-                    transform={`translate(0, ${layout.innerHeight + 8})`}
+                {dragRect && (
+                  <rect
+                    x={Math.min(dragRect.x0, dragRect.x1)}
+                    y={0}
+                    width={Math.abs(dragRect.x1 - dragRect.x0)}
+                    height={layout.innerHeight}
+                    fill="#6366f1"
+                    fillOpacity={0.18}
+                    stroke="#6366f1"
+                    strokeWidth={1}
+                    pointerEvents="none"
                   />
                 )}
               </g>
 
-              <g transform={`translate(${layout.margin.left}, ${height - layout.brushReserve - 6})`}>
-                {layout.seriesOut.map((s, idx) => (
+              <g transform={`translate(${layout.margin.left}, ${height - 8})`}>
+                {[...layout.seriesOut, ...(layout.seriesRightOut ?? [])].map((s, idx) => (
                   <g key={`legend-${s.id}`} transform={`translate(${idx * 120}, 0)`}>
                     <rect width={10} height={2} y={-3} fill={s.color} />
                     <text x={14} y={0} fontSize={10} fill={labelColor}>

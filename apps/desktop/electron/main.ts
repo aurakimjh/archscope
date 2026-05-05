@@ -7,10 +7,11 @@
  *  3. Expose the ArchScopeRendererApi contract via IPC so the renderer
  *     can call native dialogs, the engine, etc.
  */
-import { spawn, type ChildProcess } from "node:child_process";
+import { spawn, execSync, type ChildProcess } from "node:child_process";
 import { existsSync } from "node:fs";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   app,
   BrowserWindow,
@@ -19,6 +20,9 @@ import {
   shell,
   type OpenDialogOptions,
 } from "electron";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // ---------------------------------------------------------------------------
 // Paths
@@ -76,15 +80,13 @@ function findEngineCommand(): string[] | null {
 
   // Priority 2: archscope-engine on PATH (pip-installed)
   try {
-    const { execSync } = require("node:child_process") as typeof import("node:child_process");
-    execSync("archscope-engine --version", { stdio: "ignore" });
+    execSync("archscope-engine --help", { stdio: "ignore" });
     return ["archscope-engine"];
   } catch { /* not found */ }
 
   // Priority 3: python -m archscope_engine.cli
   for (const pythonCmd of ["python", "python3"]) {
     try {
-      const { execSync } = require("node:child_process") as typeof import("node:child_process");
       execSync(`${pythonCmd} -c "import archscope_engine"`, { stdio: "ignore" });
       return [pythonCmd, "-m", "archscope_engine.cli"];
     } catch { /* not found */ }
@@ -311,7 +313,24 @@ function createMainWindow(): BrowserWindow {
     win.loadFile(url.replace("file://", ""));
   }
 
-  if (IS_DEV) {
+  // Lock the page zoom factor to 1.0. Without this Electron's default
+  // Ctrl+(+/-/0) and Ctrl/Cmd+wheel handlers would scale the entire window —
+  // including chart axis labels — and conflict with the chart's own zoom.
+  win.webContents.on("did-finish-load", () => {
+    win.webContents.setZoomFactor(1.0);
+  });
+  win.webContents.on("zoom-changed", () => {
+    win.webContents.setZoomFactor(1.0);
+  });
+  win.webContents.on("before-input-event", (event, input) => {
+    const isAccel = input.control || input.meta;
+    if (!isAccel) return;
+    if (input.key === "+" || input.key === "-" || input.key === "=" || input.key === "0") {
+      event.preventDefault();
+    }
+  });
+
+  if (IS_DEV || process.env.ARCHSCOPE_DEVTOOLS === "1") {
     win.webContents.openDevTools({ mode: "detach" });
   }
 

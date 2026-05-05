@@ -1,3 +1,5 @@
+import { getApiBase } from "@/api/apiBase";
+
 /** Upload a File to the FastAPI engine and resolve its server-side path. */
 export type UploadedFile = {
   filePath: string;
@@ -8,7 +10,7 @@ export type UploadedFile = {
 export async function uploadFile(file: File): Promise<UploadedFile> {
   const form = new FormData();
   form.append("file", file, file.name);
-  const response = await fetch("/api/upload", {
+  const response = await fetch(`${getApiBase()}/upload`, {
     method: "POST",
     body: form,
   });

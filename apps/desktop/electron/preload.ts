@@ -13,6 +13,7 @@ import { contextBridge, ipcRenderer } from "electron";
  */
 const archscope = {
   platform: "electron" as const,
+  engineUrl: "http://127.0.0.1:8765",
 
   selectFile: (request?: unknown) =>
     ipcRenderer.invoke("archscope:selectFile", request),

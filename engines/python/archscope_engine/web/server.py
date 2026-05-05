@@ -752,7 +752,7 @@ def create_app(static_dir: Optional[Path] = None, *, dev_cors: bool = True) -> F
     if dev_cors:
         app.add_middleware(
             CORSMiddleware,
-            allow_origins=["http://127.0.0.1:5173", "http://localhost:5173"],
+            allow_origins=["*"],
             allow_credentials=False,
             allow_methods=["*"],
             allow_headers=["*"],

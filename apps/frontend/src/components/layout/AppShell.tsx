@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
 import type { PageKey } from "@/App";
+import { getApiBase } from "@/api/apiBase";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { TopBar } from "@/components/layout/TopBar";
 import { useI18n } from "@/i18n/I18nProvider";
 
 const STORAGE_KEY = "archscope.sidebar.collapsed";
-const HEALTH_URL = "/api/version";
 const HEALTH_INTERVAL_MS = 8_000;
 
 function readInitialCollapsed(): boolean {
@@ -22,7 +22,7 @@ function useEngineHealth(): EngineStatus {
 
   const check = useCallback(async () => {
     try {
-      const res = await fetch(HEALTH_URL, { method: "GET", signal: AbortSignal.timeout(4_000) });
+      const res = await fetch(`${getApiBase()}/version`, { method: "GET", signal: AbortSignal.timeout(4_000) });
       if (res.ok) {
         setStatus("online");
       } else {

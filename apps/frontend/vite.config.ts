@@ -19,21 +19,7 @@ export default defineConfig({
     },
   },
   build: {
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (id.includes("node_modules/echarts") || id.includes("node_modules/zrender")) {
-            return "echarts";
-          }
-          if (id.includes("node_modules/recharts") || id.includes("node_modules/d3")) {
-            return "charts";
-          }
-          if (id.includes("node_modules/react")) {
-            return "react";
-          }
-        },
-      },
-    },
+    chunkSizeWarningLimit: 1500,
   },
   test: {
     exclude: ["e2e/**", "node_modules/**", "dist/**"],

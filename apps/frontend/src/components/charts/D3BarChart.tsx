@@ -7,6 +7,9 @@ import { useTheme } from "@/components/theme-provider";
 export type BarDatum = {
   id?: string;
   label: string;
+  /** Optional full label shown in the hover tooltip when the visible label is
+   *  truncated (e.g. simple class name visible, full FQN on hover). */
+  fullLabel?: string;
   value: number;
   color?: string;
 };
@@ -214,7 +217,7 @@ function VerticalBars({
           <g key={id} transform={`translate(${x}, 0)`}>
             <rect width={w} y={top} height={h} fill={colorFor(d, idx)} rx={3}>
               <title>
-                {d.label}: {d.value.toLocaleString()}
+                {d.fullLabel ?? d.label}: {d.value.toLocaleString()}
               </title>
             </rect>
             <text
@@ -225,6 +228,7 @@ function VerticalBars({
               fill={labelColor}
             >
               {clipText(d.label, w)}
+              <title>{d.fullLabel ?? d.label}</title>
             </text>
           </g>
         );
@@ -278,7 +282,7 @@ function HorizontalBars({
           <g key={id} transform={`translate(0, ${y})`}>
             <rect x={left} y={0} width={w} height={h} fill={colorFor(d, idx)} rx={3}>
               <title>
-                {d.label}: {d.value.toLocaleString()}
+                {d.fullLabel ?? d.label}: {d.value.toLocaleString()}
               </title>
             </rect>
             <text
@@ -290,6 +294,7 @@ function HorizontalBars({
               fill={labelColor}
             >
               {clipText(d.label, layout.margin.left - 16)}
+              <title>{d.fullLabel ?? d.label}</title>
             </text>
             <text x={left + w + 6} y={h / 2} dy="0.32em" fontSize={10} fill={labelColor}>
               {d3.format(",.2~s")(d.value)}

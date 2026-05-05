@@ -380,11 +380,7 @@ export function ThreadDumpAnalyzerPage(): JSX.Element {
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          {files.length === 0 ? (
-            <div className="px-6 pb-6 text-sm text-muted-foreground">
-              {t("multiDumpEmpty")}
-            </div>
-          ) : (
+          {files.length === 0 ? null : (
             <ul className="divide-y divide-border">
               {files.map((file, index) => (
                 <li

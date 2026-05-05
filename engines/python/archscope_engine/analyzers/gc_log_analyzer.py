@@ -11,6 +11,7 @@ from archscope_engine.common.diagnostics import ParserDiagnostics
 from archscope_engine.common.file_utils import detect_text_encoding
 from archscope_engine.models.analysis_result import AnalysisResult
 from archscope_engine.models.gc_event import GcEvent
+from archscope_engine.parsers.gc_log_header import extract_jvm_header
 from archscope_engine.parsers.gc_log_parser import (
     detect_gc_log_format,
     iter_gc_log_events_with_diagnostics,
@@ -46,6 +47,7 @@ def analyze_gc_log(
     gc_format = detect_gc_log_format(path)
     if debug_log is not None:
         debug_log.encoding_detected = detect_text_encoding(path)
+    jvm_info = extract_jvm_header(path)
     return build_gc_log_result(
         iter_gc_log_events_with_diagnostics(
             path,
@@ -56,6 +58,7 @@ def analyze_gc_log(
         diagnostics=diagnostics,
         top_n=top_n,
         gc_format=gc_format,
+        jvm_info=jvm_info,
     )
 
 
@@ -66,6 +69,7 @@ def build_gc_log_result(
     diagnostics: dict[str, Any] | ParserDiagnostics,
     top_n: int = 20,
     gc_format: str = "unknown",
+    jvm_info: dict[str, Any] | None = None,
 ) -> AnalysisResult:
     total_events = 0
     pause_count = 0
@@ -77,7 +81,13 @@ def build_gc_log_result(
     pause_timeline = []
     heap_after_mb = []
     heap_before_mb = []
+    heap_committed_mb = []
+    young_before_mb = []
     young_after_mb = []
+    old_before_mb = []
+    old_after_mb = []
+    metaspace_before_mb = []
+    metaspace_after_mb = []
     allocation_rate_timeline: list[dict[str, Any]] = []
     promotion_rate_timeline: list[dict[str, Any]] = []
     allocation_rates: list[float] = []
@@ -116,8 +126,26 @@ def build_gc_log_result(
             heap_after_mb.append({"time": time_label, "value": event.heap_after_mb})
         if event.heap_before_mb is not None:
             heap_before_mb.append({"time": time_label, "value": event.heap_before_mb})
+        if event.heap_committed_mb is not None:
+            heap_committed_mb.append({"time": time_label, "value": event.heap_committed_mb})
+        if event.young_before_mb is not None:
+            young_before_mb.append({"time": time_label, "value": event.young_before_mb})
         if event.young_after_mb is not None:
             young_after_mb.append({"time": time_label, "value": event.young_after_mb})
+        old_before_value = event.old_before_mb
+        if old_before_value is None and event.heap_before_mb is not None and event.young_before_mb is not None:
+            old_before_value = max(0.0, event.heap_before_mb - event.young_before_mb)
+        if old_before_value is not None:
+            old_before_mb.append({"time": time_label, "value": old_before_value})
+        old_after_value = event.old_after_mb
+        if old_after_value is None and event.heap_after_mb is not None and event.young_after_mb is not None:
+            old_after_value = max(0.0, event.heap_after_mb - event.young_after_mb)
+        if old_after_value is not None:
+            old_after_mb.append({"time": time_label, "value": old_after_value})
+        if event.metaspace_before_mb is not None:
+            metaspace_before_mb.append({"time": time_label, "value": event.metaspace_before_mb})
+        if event.metaspace_after_mb is not None:
+            metaspace_after_mb.append({"time": time_label, "value": event.metaspace_after_mb})
 
         alloc_rate = _allocation_rate_mb_per_sec(prev_event, event)
         if alloc_rate is not None:
@@ -174,7 +202,13 @@ def build_gc_log_result(
         "pause_timeline": pause_timeline,
         "heap_after_mb": heap_after_mb,
         "heap_before_mb": heap_before_mb,
+        "heap_committed_mb": heap_committed_mb,
+        "young_before_mb": young_before_mb,
         "young_after_mb": young_after_mb,
+        "old_before_mb": old_before_mb,
+        "old_after_mb": old_after_mb,
+        "metaspace_before_mb": metaspace_before_mb,
+        "metaspace_after_mb": metaspace_after_mb,
         "pause_histogram": _build_pause_histogram(pauses_ms),
         "allocation_rate_mb_per_sec": allocation_rate_timeline,
         "promotion_rate_mb_per_sec": promotion_rate_timeline,
@@ -193,13 +227,15 @@ def build_gc_log_result(
     diagnostics_payload = (
         diagnostics.to_dict() if isinstance(diagnostics, ParserDiagnostics) else diagnostics
     )
-    metadata = {
+    metadata: dict[str, Any] = {
         "parser": _PARSER_NAMES.get(gc_format, "hotspot_unified_gc_log"),
         "gc_format": gc_format,
         "schema_version": "0.1.0",
         "diagnostics": diagnostics_payload,
         "findings": _build_findings(summary),
     }
+    if jvm_info:
+        metadata["jvm_info"] = jvm_info
     return AnalysisResult(
         type="gc_log",
         source_files=[str(source_file)],
