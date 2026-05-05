@@ -51,6 +51,9 @@ type Metadata struct {
 	SchemaVersion string            `json:"schema_version"`
 	Diagnostics   ParserDiagnostics `json:"diagnostics"`
 	TimelineScope TimelineScope     `json:"timeline_scope"`
+	// Profiler-diff–specific payload. Empty for ordinary profiler results.
+	DiffSummary map[string]any `json:"diff_summary,omitempty"`
+	DiffTables  map[string]any `json:"diff_tables,omitempty"`
 }
 
 type ParserDiagnostics struct {

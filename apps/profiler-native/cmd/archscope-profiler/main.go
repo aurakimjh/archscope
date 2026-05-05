@@ -11,6 +11,9 @@ import (
 
 func main() {
 	collapsed := flag.String("collapsed", "", "Path to an async-profiler collapsed stack file.")
+	jenniferCSV := flag.String("jennifer-csv", "", "Path to a Jennifer APM flamegraph CSV file.")
+	flamegraphSVG := flag.String("flamegraph-svg", "", "Path to a FlameGraph.pl/async-profiler SVG flamegraph.")
+	flamegraphHTML := flag.String("flamegraph-html", "", "Path to an async-profiler HTML / inline-SVG-wrapped HTML flamegraph.")
 	out := flag.String("out", "", "Optional output JSON path. Defaults to stdout.")
 	intervalMS := flag.Float64("interval-ms", 100, "Sample interval in milliseconds.")
 	elapsedSec := flag.Float64("elapsed-sec", -1, "Optional elapsed seconds. Negative means unset.")
@@ -19,8 +22,24 @@ func main() {
 	timelineBaseMethod := flag.String("timeline-base-method", "", "Optional base method for timeline analysis.")
 	flag.Parse()
 
-	if *collapsed == "" {
-		fail("--collapsed is required")
+	inputs := 0
+	if *collapsed != "" {
+		inputs++
+	}
+	if *jenniferCSV != "" {
+		inputs++
+	}
+	if *flamegraphSVG != "" {
+		inputs++
+	}
+	if *flamegraphHTML != "" {
+		inputs++
+	}
+	if inputs == 0 {
+		fail("one of --collapsed / --jennifer-csv / --flamegraph-svg / --flamegraph-html is required")
+	}
+	if inputs > 1 {
+		fail("--collapsed, --jennifer-csv, --flamegraph-svg, --flamegraph-html are mutually exclusive")
 	}
 	if *intervalMS <= 0 {
 		fail("--interval-ms must be positive")
@@ -36,13 +55,27 @@ func main() {
 	if *elapsedSec >= 0 {
 		elapsed = elapsedSec
 	}
-	result, err := profiler.AnalyzeCollapsedFile(*collapsed, profiler.Options{
+	options := profiler.Options{
 		IntervalMS:         *intervalMS,
 		ElapsedSec:         elapsed,
 		TopN:               *topN,
 		ProfileKind:        *profileKind,
 		TimelineBaseMethod: *timelineBaseMethod,
-	})
+	}
+	var (
+		result profiler.AnalysisResult
+		err    error
+	)
+	switch {
+	case *jenniferCSV != "":
+		result, err = profiler.AnalyzeJenniferFile(*jenniferCSV, options)
+	case *flamegraphSVG != "":
+		result, err = profiler.AnalyzeFlamegraphSVGFile(*flamegraphSVG, options)
+	case *flamegraphHTML != "":
+		result, err = profiler.AnalyzeFlamegraphHTMLFile(*flamegraphHTML, options)
+	default:
+		result, err = profiler.AnalyzeCollapsedFile(*collapsed, options)
+	}
 	if err != nil {
 		fail(err.Error())
 	}

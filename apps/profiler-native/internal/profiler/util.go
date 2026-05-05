@@ -2,6 +2,7 @@ package profiler
 
 import (
 	"math"
+	"os"
 	"sort"
 	"strings"
 )
@@ -81,4 +82,8 @@ func stringPtr(value string) *string {
 
 func floatPtr(value float64) *float64 {
 	return &value
+}
+
+func readAllUTF8(path string) ([]byte, error) {
+	return os.ReadFile(path)
 }

@@ -23,6 +23,138 @@ func AnalyzeCollapsedFile(path string, options Options) (AnalysisResult, error) 
 	return AnalyzeCollapsedStacks(stacks, path, diagnostics, options), nil
 }
 
+func AnalyzeFlamegraphHTMLFile(path string, options Options) (AnalysisResult, error) {
+	if options.IntervalMS <= 0 {
+		options.IntervalMS = 100
+	}
+	if options.TopN <= 0 {
+		options.TopN = 20
+	}
+	if strings.TrimSpace(options.ProfileKind) == "" {
+		options.ProfileKind = "wall"
+	}
+	parseResult, err := ParseHtmlProfilerFile(path)
+	if err != nil {
+		return AnalysisResult{}, err
+	}
+	result := AnalyzeCollapsedStacks(parseResult.Stacks, path, parseResult.Diagnostics, options)
+	result.Type = "profiler_collapsed"
+	result.Metadata.Parser = "flamegraph_html"
+	result.Metadata.SchemaVersion = "0.1.0"
+	return result, nil
+}
+
+func AnalyzeFlamegraphSVGFile(path string, options Options) (AnalysisResult, error) {
+	if options.IntervalMS <= 0 {
+		options.IntervalMS = 100
+	}
+	if options.TopN <= 0 {
+		options.TopN = 20
+	}
+	if strings.TrimSpace(options.ProfileKind) == "" {
+		options.ProfileKind = "wall"
+	}
+	parseResult, err := ParseSvgFlamegraphFile(path)
+	if err != nil {
+		return AnalysisResult{}, err
+	}
+	result := AnalyzeCollapsedStacks(parseResult.Stacks, path, parseResult.Diagnostics, options)
+	result.Type = "profiler_collapsed"
+	result.Metadata.Parser = "flamegraph_svg"
+	return result, nil
+}
+
+func AnalyzeJenniferFile(path string, options Options) (AnalysisResult, error) {
+	if options.IntervalMS <= 0 {
+		options.IntervalMS = 100
+	}
+	if options.TopN <= 0 {
+		options.TopN = 20
+	}
+	if strings.TrimSpace(options.ProfileKind) == "" {
+		options.ProfileKind = "wall"
+	}
+	parseResult, err := ParseJenniferFlamegraphCSV(path)
+	if err != nil {
+		return AnalysisResult{}, err
+	}
+	return AnalyzeJenniferTree(parseResult.Root, path, parseResult.Diagnostics, options), nil
+}
+
+func AnalyzeJenniferTree(root FlameNode, sourceFile string, diagnostics ParserDiagnostics, options Options) AnalysisResult {
+	totalSamples := root.Samples
+	intervalSeconds := options.IntervalMS / 1000
+	estimatedSeconds := round(float64(totalSamples)*intervalSeconds, 3)
+	stacks := stacksFromTree(root)
+	timelineRows, timelineScope := buildTimeline(root, options, totalSamples)
+	topSeries, topTables := topStacksFromCollapsed(stacks, totalSamples, intervalSeconds, options)
+	rootTopStacks := topStacksFromTree(root, options.TopN)
+	rootStage := DrilldownStage{
+		Index:      0,
+		Label:      "All",
+		Breadcrumb: []string{"All"},
+		Filter:     nil,
+		Metrics: map[string]any{
+			"total_samples":      totalSamples,
+			"matched_samples":    root.Samples,
+			"estimated_seconds":  estimatedSeconds,
+			"total_ratio":        100.0,
+			"parent_stage_ratio": 100.0,
+			"elapsed_ratio":      elapsedRatio(estimatedSeconds, options.ElapsedSec, 4),
+		},
+		Flamegraph:     root,
+		TopStacks:      rootTopStacks,
+		TopChildFrames: topChildFrames(root, options.TopN),
+		Diagnostics:    nil,
+	}
+	return AnalysisResult{
+		Type:        "profiler_jennifer",
+		SourceFiles: []string{sourceFile},
+		CreatedAt:   time.Now().UTC().Format(time.RFC3339Nano),
+		Summary: Summary{
+			ProfileKind:      options.ProfileKind,
+			TotalSamples:     totalSamples,
+			IntervalMS:       options.IntervalMS,
+			EstimatedSeconds: estimatedSeconds,
+			ElapsedSeconds:   options.ElapsedSec,
+		},
+		Series: Series{
+			TopStacks:          topSeries,
+			ComponentBreakdown: componentBreakdown(stacks),
+			ExecutionBreakdown: buildExecutionBreakdown(root, options, totalSamples, max(root.Samples, 1)),
+			TimelineAnalysis:   timelineRows,
+			Threads:            detectThreads(stacks, totalSamples),
+		},
+		Tables: Tables{
+			TopStacks:        topTables,
+			TopChildFrames:   rootStage.TopChildFrames,
+			TimelineAnalysis: timelineRows,
+		},
+		Charts: Charts{
+			Flamegraph:      root,
+			DrilldownStages: []DrilldownStage{rootStage},
+		},
+		Metadata: Metadata{
+			Parser:        "jennifer_flamegraph_csv",
+			SchemaVersion: "0.1.0",
+			Diagnostics:   diagnostics,
+			TimelineScope: timelineScope,
+		},
+	}
+}
+
+func stacksFromTree(root FlameNode) map[string]int {
+	stacks := map[string]int{}
+	leaves := iterLeafPaths(root)
+	for _, leaf := range leaves {
+		if len(leaf.Path) == 0 || leaf.Samples <= 0 {
+			continue
+		}
+		stacks[joinPath(leaf.Path)] += leaf.Samples
+	}
+	return stacks
+}
+
 func AnalyzeCollapsedStacks(stacks map[string]int, sourceFile string, diagnostics ParserDiagnostics, options Options) AnalysisResult {
 	totalSamples := 0
 	for _, samples := range stacks {
