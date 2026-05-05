@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Name=Probe
+Comment=A probe application
+# The Exec line includes %u to pass the URL to the application
+Exec=/usr/local/bin/probe %u
+Terminal=false
+Type=Application
+Icon=probe
+Categories=Utility;
+StartupWMClass=probe
+
+ 

@@ -19,6 +19,9 @@ build/
 release/
 out/
 demo-site-report-bundles/
+# Wails v3 keeps its template config under build/ — treat that subtree as source.
+!apps/profiler-native/cmd/archscope-profiler-app/build/
+!apps/profiler-native/cmd/archscope-profiler-app/build/**
 
 # Local environment
 .env
