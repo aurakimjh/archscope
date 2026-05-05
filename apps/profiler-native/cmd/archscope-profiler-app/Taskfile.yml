@@ -58,3 +58,25 @@ tasks:
     summary: Builds and runs the Docker image
     cmds:
       - task: common:run:docker
+
+  package:darwin:
+    summary: Builds the macOS .app bundle (host arch only — see notes for cross-arch)
+    cmds:
+      - task: darwin:package
+
+  package:windows:
+    summary: Builds the Windows .exe (cross-compile via docker on non-Windows hosts)
+    cmds:
+      - task: windows:package
+
+  package:linux:
+    summary: Builds the Linux distributable (AppImage by default)
+    cmds:
+      - task: linux:package
+
+  package:all:
+    summary: Builds packages for darwin / windows / linux. Requires Docker for non-host targets.
+    cmds:
+      - task: package:darwin
+      - task: package:windows
+      - task: package:linux
