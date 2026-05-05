@@ -23,8 +23,8 @@ pip install -e .
 # 2. Build the React UI once and serve it
 cd ../..
 ./scripts/serve-web.sh             # macOS / Linux
-# Equivalent: npm --prefix apps/desktop run build && \
-#             archscope-engine serve --static-dir apps/desktop/dist
+# Equivalent: npm --prefix apps/frontend run build && \
+#             archscope-engine serve --static-dir apps/frontend/dist
 
 # 3. Open http://127.0.0.1:8765 in your browser.
 ```
@@ -36,21 +36,29 @@ For UI-side hot-reload during development:
 archscope-engine serve --reload
 
 # Terminal 2 — Vite dev server (proxies /api → :8765)
-cd apps/desktop && npm install && npm run dev
+cd apps/frontend && npm install && npm run dev
 
 # Open http://127.0.0.1:5173
 ```
+
+A native Windows installer (NSIS) and portable zip are produced from
+the same React + FastAPI codebase via Electron, with the Python engine
+PyInstaller-bundled inside the package. Latest binaries live on the
+[GitHub releases page](https://github.com/aurakimjh/archscope/releases).
 
 ## Highlights
 
 | Area | What you get |
 | --- | --- |
-| **Profiler** | async-profiler `collapsed`, FlameGraph.pl/async-profiler **SVG**, async-profiler **HTML**, Jennifer APM CSV — drill-down, breakdown, and either crisp SVG or fast Canvas flamegraphs (auto-switches at ≥4 000 nodes) |
-| **GC log** | Pause + heap timelines with **wheel/drag zoom and brush selection**, per-window stats (count / avg / p95 / max), per-collector comparison tab, area-fill on heap_before, Full-GC event markers with hover payloads |
-| **Thread dumps** | Six auto-detected formats — `java_jstack`, `go_goroutine`, `python_pyspy`, `python_faulthandler`, `nodejs_diagnostic_report`, `dotnet_clrstack` — with per-language frame normalization (CGLIB/AOP, Express layer aliases, async state machines, …) and a multi-dump correlator that fires **`LONG_RUNNING_THREAD`**, **`PERSISTENT_BLOCKED_THREAD`**, and **`LATENCY_SECTION_DETECTED`** findings |
+| **Profiler** | async-profiler `collapsed`, FlameGraph.pl/async-profiler **SVG**, async-profiler **HTML**, Jennifer APM CSV. Drill-down, execution-breakdown, timeline-segment analysis, **diff flame** (red = slower / blue = faster), **icicle** (inverted) view, **min-width** simplification, **per-thread** filter, **tree view** sortable table, **pprof export** (gzipped, ready for Pyroscope / Speedscope / `go tool pprof`), and either crisp SVG or fast Canvas flamegraphs (auto-switches at ≥ 4 000 nodes) |
+| **JFR recording** | **Binary `.jfr` auto-converted** via the JDK `jfr` CLI (PATH / JAVA_HOME / `ARCHSCOPE_JFR_CLI`); JSON output also accepted. Multi-event mode filter (`cpu` / `wall` / `alloc` / `lock` / `gc` / `exception` / `io` / `nativemem`), time-range filter (`+30s`, ISO, HH:MM:SS), thread-state filter, min-duration filter. **Wall-clock heatmap** (drag to set From/To), **native-memory leak detection** with tail-ratio cutoff |
+| **GC log** | **JVM Info card** (Version, CPUs, Memory, Heap Min/Initial/Max/Region, Parallel/Concurrent workers, CommandLine flags, Worker-vs-CPU mismatch warning). Pause + heap timelines with **drag-rectangle zoom and brush selection**, per-window stats, per-collector comparison tab, **9 toggleable heap series** (Heap before/after/committed, Young, Old, Metaspace) with optional Pause overlay on a right axis, point decimation for large logs |
+| **Access log** | 22-metric summary including p50/p90/p95/p99, throughput (req/s + bytes/s), static-vs-API split. Per-minute series for percentile timeline, status-class breakdown, error rate, throughput. **Sortable URL stats table** (count / avg / p95 / total bytes / errors with API-only / static-only filter and per-row 2·3·4·5xx mix). **Errors-over-time** view with peak-error highlighting |
+| **Thread dumps** | Auto-detected formats across 5 runtimes (Java jstack + jcmd JSON, Go goroutine, Python py-spy / faulthandler / traceback, Node.js diagnostic report / sample trace, .NET clrstack / Environment.StackTrace). **Multi-file picker** (drop a folder of dumps in one shot). Per-language frame normalization, multi-dump correlator: **`LONG_RUNNING_THREAD`**, **`PERSISTENT_BLOCKED_THREAD`**, **`LATENCY_SECTION_DETECTED`**, **`GROWING_LOCK_CONTENTION`**, **`THREAD_CONGESTION_DETECTED`**, **`EXTERNAL_RESOURCE_WAIT_HIGH`**, **`LIKELY_GC_PAUSE_DETECTED`**. **Lock-contention** owner/waiter graph + DFS deadlock detection. **JVM signals** tab (Carrier-pinning / SMR-Zombies / Native methods / Class histogram), Dump overview card |
+| **Exception logs** | Dedicated page with paginated + filterable event table, click-row Sheet popup with full message + signature + stack. Top types (simple class names, full FQN on hover), top stack signatures |
 | **Thread → flamegraph** | Batch-converts hundreds of dumps into a FlameGraph-compatible collapsed file (CLI + HTTP), feed straight into the Canvas flamegraph |
-| **Image export** | PNG 1×/2×/3×, JPEG 2×, SVG vector — per chart and **"Save all charts"** batch export per page |
-| **UI** | Tailwind v4 + shadcn/ui shell, slim top bar, collapsible sidebar, light/dark/system theme, Korean ↔ English labels |
+| **Image export** | PNG 1×/2×/3×, JPEG 2×, SVG vector — per chart and **"Save all charts"** batch export per page. **pprof export** for profilers |
+| **UI** | Tailwind v4 + shadcn/ui shell, **Pretendard Variable** font (Korean + English), slim top bar, collapsible sidebar, light/dark/system theme, Korean ↔ English labels. Locked page zoom + hardened against legacy localStorage data |
 
 ## Architecture
 
@@ -85,18 +93,23 @@ cd apps/desktop && npm install && npm run dev
 │   parsers/  →  per-format parsers                              │
 │       access_log, collapsed, jennifer_csv,                     │
 │       svg_flamegraph, html_profiler,                           │
-│       gc_log, jfr, exception, otel,                            │
-│       thread_dump/{java_jstack, go_goroutine, python_dump,     │
-│                     nodejs_report, dotnet_clrstack, registry}  │
+│       gc_log + gc_log_header, jfr_recording, jfr_parser,       │
+│       exception, otel,                                         │
+│       thread_dump/{java_jstack, java_jcmd_json, go_goroutine,  │
+│                     python_dump, nodejs_report,                │
+│                     dotnet_clrstack, registry}                 │
 │                                                                │
 │   analyzers/  →  per-domain analyzers                          │
 │       access_log, profiler (collapsed / SVG / HTML / Jennifer),│
+│       profiler_diff, native_memory_analyzer,                   │
 │       gc_log, jfr, thread_dump, multi_thread_analyzer,         │
-│       thread_dump_to_collapsed, exception, runtime, otel       │
+│       lock_contention_analyzer, thread_dump_to_collapsed,      │
+│       exception, runtime, otel                                 │
 │                                                                │
-│   exporters/  →  json, html, pptx, report_diff                 │
-│   models/     →  AnalysisResult contract, FlameNode,           │
-│                  ThreadSnapshot, StackFrame, ThreadState       │
+│   exporters/  →  json, html, pptx, pprof, report_diff          │
+│   models/     →  AnalysisResult contract, FlameNode (with      │
+│                  optional metadata for diff), ThreadSnapshot,  │
+│                  StackFrame, ThreadState, GcEvent              │
 └────────────────────────────────────────────────────────────────┘
 ```
 
@@ -139,10 +152,15 @@ archscope-engine report diff  --before before.json --after after.json --out diff
 
 ```text
 archscope/
-  apps/desktop/          React + Vite + Tailwind v4 frontend
-                         (served as a static bundle by FastAPI)
-  engines/python/        archscope_engine package + FastAPI server
-  scripts/               serve-web.sh, run-engine.sh, demo runners
+  apps/frontend/         React + Vite + Tailwind v4 + Pretendard
+                         (served as a static bundle by FastAPI, also
+                         packaged inside Electron desktop)
+  apps/desktop/          Electron shell — wraps the engine binary +
+                         frontend bundle into a native installer/zip
+  engines/python/        archscope_engine package + FastAPI server +
+                         PyInstaller spec for native bundling
+  scripts/               serve-web.sh, run-engine.sh, build-desktop,
+                         demo runners
   docs/{en,ko}/          Architecture, parser, user guide, …
   examples/              Sample inputs + generated outputs
 ```

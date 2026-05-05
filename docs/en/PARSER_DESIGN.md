@@ -93,15 +93,42 @@ not double-count parent and child samples.
 
 GC logs, thread dumps, and exception stack traces follow the same parser and analyzer separation as access logs and profiler inputs.
 
-- GC parser supports HotSpot unified GC pause lines and extracts timestamp, GC type, cause, pause, and heap before/after/committed values.
-- Thread dump parser supports Java quoted thread blocks with `java.lang.Thread.State`, stack frames, thread ids, and basic lock evidence.
-- Exception parser supports Java exception stack blocks with optional ISO timestamps, nested `Caused by` root causes, stack frames, and stable stack signatures.
+- **GC parser** (`gc_log_parser.py`) supports HotSpot unified GC pause lines and extracts timestamp, GC type, cause, pause, and heap before/after/committed values for Eden/Survivor/Old/Metaspace regions.
+- **GC log header parser** (`gc_log_header.py`) reads the `OpenJDK ... VM` banner and `CommandLine flags:` line, plus the `[gc,init]` block (CPU count, memory, heap min/initial/max/region size, parallel/concurrent worker counts, NUMA, pre-touch). The result becomes the **JVM Info** card at the top of the GC log analyzer.
+- **JFR recording parser** (`jfr_recording.py`) detects the binary `FLR\0` magic and shells out to the JDK `jfr` CLI (`ARCHSCOPE_JFR_CLI` → `JAVA_HOME/bin/jfr` → PATH) with `print --json`. The existing JSON path (`jfr_parser.py`) is unchanged. The parser also accepts mode/time-range/state filters before aggregation.
+- **Thread dump parser registry** (`thread_dump/registry.py`) exposes a plugin contract `(format_id, can_parse(head: str) -> bool, parse(path) -> ThreadDumpBundle)`. The registry probes the first 4 KB of every input, dispatches to the matching plugin, and decodes UTF-16 / BOM-encoded inputs transparently. Mixing formats inside one multi-dump request raises `MixedFormatError` unless `format_override` is set.
+- **Exception parser** supports Java exception stack blocks with optional ISO timestamps, nested `Caused by` root causes, stack frames, and stable stack signatures.
 
 Malformed record-level input is skipped and reported under `metadata.diagnostics`.
 
-## Multi-runtime Parsers
+## Multi-runtime Thread-dump Plugins
 
-The first multi-runtime analyzer MVP keeps the same tolerant parser contract:
+The thread-dump registry currently ships with **9 plugin variants**:
+
+| Format ID                       | Runtime          | Detection signature |
+| ------------------------------- | ---------------- | ------------------- |
+| `java_jstack`                   | JVM              | `Full thread dump …` header **or** quoted-name + `nid=0x…` **or** quoted-name + state line (JDK 21+ no-`nid` form) |
+| `java_jcmd_json`                | JVM              | JSON object containing `"threadDump"` |
+| `go_goroutine`                  | Go               | `^goroutine \d+ \[\w` (covers `runtime.Stack`, panic, debug.Stack) |
+| `python_pyspy`                  | Python (py-spy)  | `Process N:` + `Python vX.Y` |
+| `python_faulthandler`           | Python (stdlib)  | `Thread 0xHEX (most recent call first):` |
+| `python_traceback`              | Python (custom)  | `Thread ID: <n>` + `File "...", line N, in func` |
+| `nodejs_diagnostic_report`      | Node.js (12+)    | JSON with `"header"` + `"javascriptStack"` |
+| `nodejs_sample_trace`           | Node.js          | `Sample #N` + `Error` + `at fn(file:line:col)` |
+| `dotnet_clrstack`               | .NET             | `OS Thread Id: 0xHEX` + `Child SP / IP / Call Site` |
+| `dotnet_environment_stacktrace` | .NET             | `at Type.Method() in path:line N` |
+
+Each plugin runs a language-only post-pass that promotes `RUNNABLE` /
+`UNKNOWN` states into the more specific `NETWORK_WAIT` / `IO_WAIT` /
+`LOCK_WAIT` / `CHANNEL_WAIT` categories so the multi-dump correlator
+can build language-agnostic findings. See
+[`MULTI_LANGUAGE_THREADS.md`](MULTI_LANGUAGE_THREADS.md) for the full
+matrix.
+
+## Multi-runtime Stack Parsers (single-shot)
+
+Used for one-off exception/panic artifacts on the **single-stack**
+analyzer pages — distinct from the thread-dump pipeline above:
 
 - Node.js parser supports `Error`/`TypeError`/custom `*Error` blocks with `at ...` stack frames.
 - Python parser supports standard `Traceback (most recent call last):` blocks and terminal exception lines.

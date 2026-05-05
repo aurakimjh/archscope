@@ -514,3 +514,105 @@ AI output must pass runtime validation before it is shown. Validation includes n
 - Analyzer sampling and filter settings should be echoed under `metadata.analysis_options`.
 - Report-grade interpretations should be expressed as bounded structured findings, not prose-only blobs.
 - AI-assisted interpretations must include non-empty `evidence_refs` that point to existing raw evidence such as `raw_line`, `raw_block`, `raw_preview`, or `evidence_ref` rows.
+
+## Schema 0.2.0 — additive changes
+
+`schema_version` was bumped from `0.1.0` to `0.2.0` after the
+post-`0.2.0-beta` analyzer overhauls. All existing 0.1.0 fields remain
+present and required; the changes below are additive.
+
+### Access log (`type: "access_log"`)
+
+New `summary` fields (all optional for forward compatibility but
+emitted by the current analyzer):
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `p50_response_ms` / `p90_response_ms` | number | Additional response-time percentiles |
+| `total_bytes` | integer | Sum of response sizes |
+| `avg_requests_per_second` | number | Throughput (req/s) over the analyzed window |
+| `avg_throughput_bps` | number | Throughput in bytes/s |
+| `static_request_count` / `api_request_count` | integer | Static-vs-API split by extension and well-known asset paths |
+
+New `series` rows:
+
+- `percentile_response_time_per_minute` — `{ time, p50, p90, p95, p99 }`
+- `throughput_per_minute` — `{ time, requests_per_second, bytes_per_second }`
+- `status_class_per_minute` — `{ time, c2xx, c3xx, c4xx, c5xx, error_rate }`
+
+New `tables` rows:
+
+- `url_stats` — `{ method, uri, classification, count, avg_ms, p95_ms, total_bytes, error_count, status_mix: {c2xx, c3xx, c4xx, c5xx} }`
+- `top_status_codes` — `{ status: integer, count: integer }`
+
+New findings: `SLOW_URL_P95` (warning, p95 ≥ 1 s with ≥ 5 samples) and
+`ERROR_BURST_DETECTED` (warning, single-minute error rate ≥ 50 % with
+≥ 5 requests).
+
+### GC log (`type: "gc_log"`)
+
+New `metadata.jvm_info` object (extracted by `gc_log_header.py`):
+
+```text
+metadata.jvm_info = {
+  version: string | null,
+  cpus_total: integer | null,
+  cpus_available: integer | null,
+  memory_mb: integer | null,
+  heap_min_mb / heap_initial_mb / heap_max_mb / heap_region_mb: number | null,
+  parallel_workers / concurrent_workers / refinement_workers: integer | null,
+  compressed_oops: boolean | null,
+  numa: boolean | null,
+  pre_touch: boolean | null,
+  periodic_gc: boolean | null,
+  command_line_flags: string[],     # one flag per element
+  raw_header_lines: string[],       # bounded copy
+  worker_cpu_mismatch: boolean
+}
+```
+
+New optional `series` rows: `young_heap_before_per_event`,
+`young_heap_after_per_event`, `old_heap_before_per_event`,
+`old_heap_after_per_event`, `metaspace_before_per_event`,
+`metaspace_after_per_event`. The existing `heap_before_per_event` /
+`heap_after_per_event` / `heap_committed_per_event` rows are unchanged.
+
+### Profiler (`type: "profiler_collapsed"` and friends)
+
+- `charts.flamegraph_root` — `FlameNode` may carry an optional
+  `metadata: { a, b, delta }` populated by `profiler_diff` (samples in
+  baseline, target, and signed delta). UIs without diff awareness can
+  ignore the field.
+- `metadata.threads` — array of `{ name, samples, ratio }` populated
+  when a `[Thread]` prefix carries ≥ 80 % of all samples (async-profiler
+  `-t` collapsed). Used by the **Filter by thread** dropdown.
+- New analyzer types: `profiler_diff` (returns a flame tree with the
+  `{a, b, delta}` metadata plus `tables.gainers` / `tables.losers`)
+  and `profiler_export_pprof` (returns `{ outputPath, sizeBytes }`
+  pointing at the gzipped pprof file under `~/.archscope/uploads/`).
+
+### JFR (`type: "jfr_recording"`)
+
+- `metadata.event_modes`, `metadata.time_from`, `metadata.time_to`,
+  `metadata.thread_state`, `metadata.min_duration_ms` — analyzer
+  options echoed in metadata so the UI can render the active filters.
+- `series.thread_density_per_bucket` — wall-clock heatmap data
+  `{ time, count }`.
+- New optional sub-result `tables.native_memory_leaks` —
+  `{ stack_signature, alloc_count, alloc_bytes, free_bytes, tail_ratio }`
+  produced by `native_memory_analyzer.py` when nativemem events are
+  present.
+
+### Thread dump multi (`type: "thread_dump_multi"`)
+
+- `metadata.findings` may now include any of the codes listed under
+  the Phase 6 roadmap section: `LONG_RUNNING_THREAD`,
+  `PERSISTENT_BLOCKED_THREAD`, `LATENCY_SECTION_DETECTED`,
+  `GROWING_LOCK_CONTENTION`, `THREAD_CONGESTION_DETECTED`,
+  `EXTERNAL_RESOURCE_WAIT_HIGH`, `LIKELY_GC_PAUSE_DETECTED`,
+  `VIRTUAL_THREAD_CARRIER_PINNING`, `SMR_UNRESOLVED_THREAD`.
+- New `tables.lock_graph` — `{ lock_addr, owner, waiters: string[] }`.
+- New `tables.deadlock_cycles` — `{ cycle: string[] }` (DFS over the
+  lock graph).
+- New `tables.dump_overview` — one row per dump with thread counts,
+  state distribution, and the resolved parser plugin id.

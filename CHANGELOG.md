@@ -4,6 +4,194 @@ All notable changes to ArchScope are tracked here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+The post-0.2.0-beta cycle landed a major analyzer overhaul: profiler
+gained JFR-first-class ingest, differential analysis, wall-clock heatmap,
+pprof export, native-memory leak detection, tree view, and per-thread
+isolation. Thread-dump analysis adopted the TDA-inspired feature set
+(virtual-thread carrier-pinning, SMR/zombie threads, class histogram,
+JCmd JSON, native-method threads, heuristic findings, embedded G1 heap
+block) and accepts more dump variants. Access-log analysis was
+overhauled with per-minute percentile timeline, throughput, static-vs-API
+classification, and a sortable per-URL stats table. Windows desktop
+build now ships a working binary with Pretendard typography, locked
+page zoom, and a host of UX fixes.
+
+### Windows desktop hardening
+
+- Fixed the v0.2.0-beta Electron build that wouldn't open: `__dirname`
+  / `require()` ESM polyfills in `electron/main.ts`, preload now
+  exposes `archscope.engineUrl` so renderer requests resolve under
+  `file://`, and FastAPI CORS is permissive enough for the Electron
+  origin.
+- Locked page zoom factor to `1.0` and intercepts Ctrl+(+/-/0) so OS
+  zoom no longer scales the chart axes.
+- Bundled **Pretendard Variable** font (~2 MB woff2) so Korean +
+  English text renders identically on every machine instead of falling
+  back to Malgun Gothic.
+- Multi-file selection added to `FileDock` (opt-in via `multiple`);
+  Thread Dump page accepts an entire folder of dumps in a single drop.
+
+### Profiler — JFR first-class (M1)
+
+- New `parsers/jfr_recording.py` auto-detects binary `.jfr` (FLR\0
+  magic) and shells out to the JDK `jfr` CLI (PATH, `JAVA_HOME`, or
+  `ARCHSCOPE_JFR_CLI`); legacy `jfr print --json` path unchanged.
+- Multi-event mode filter (`cpu` / `wall` / `alloc` / `lock` / `gc` /
+  `exception` / `io` / `nativemem` / `all`) chooses which JFR event
+  types the analyzer keeps. Available modes are auto-detected from
+  the recording so the UI dims modes with no data.
+- Time-range filter (ISO 8601, `HH:MM:SS`, or relative `+30s` / `-2m`
+  / `500ms`) anchored to the recording start/end.
+- Thread-state filter (`RUNNABLE`, `BLOCKED`, etc.) and minimum
+  duration filter — useful for `MethodTrace ≥ N ms` style queries.
+- Wall-clock heatmap strip: adaptive bucket size (0.5 s … 30 min)
+  based on recording duration. Frontend `D3HeatmapStrip` renders the
+  grid and lets the user drag to set From/To inputs.
+
+### Profiler — differential (M2)
+
+- New `analyzers/profiler_diff.py`. Walks two collapsed / SVG / HTML /
+  Jennifer-CSV inputs into a unified flame tree where each node carries
+  `metadata = {a, b, delta, delta_ratio}`. Optional total-normalization
+  so different sample counts don't dominate. Result includes
+  `biggest_increases` / `biggest_decreases` tables.
+- `D3FlameGraph` learned `colorMode="diff"` (red/blue divergent
+  gradient on `metadata.delta`), `highlightPattern` (regex outline +
+  dim non-matches), and display options (`simplifyNames`,
+  `normalizeLambdas`, `dottedNames`).
+- ProfilerAnalyzerPage gained a **Diff** tab with two FileDocks +
+  format selectors, normalize toggle, the diff flame, and colored
+  gain/loss tables.
+
+### Profiler — wall-clock anomaly explorer (M3)
+
+- `D3FlameGraph` `inverted` (icicle layout, leaves at top) and
+  `minWidthPercent` (skip frames below X% of width) for visual
+  simplification of huge profiles.
+- Engine: per-thread detection on collapsed `-t` output (≥ 80% of
+  stacks carrying a `[Thread]` prefix triggers
+  `series.threads = [{name, samples, ratio}]`).
+- ProfilerAnalyzerPage `ThreadFilter` dropdown re-roots the displayed
+  flame on a single thread's bracket subtree without a server round-trip.
+
+### Profiler — export, tree view, native-memory (M4)
+
+- `exporters/pprof_exporter.py` — hand-rolled minimal protobuf encoder.
+  `POST /api/profiler/export-pprof` streams a gzipped pprof; the UI's
+  **Export pprof** button downloads `*.pb.gz` ready for Pyroscope /
+  Speedscope / `go tool pprof`.
+- `FlameTreeTable` component: hierarchical expandable view of the
+  flame tree sorted by samples desc with self / inclusive / percent
+  columns. Honors the same display + highlight options. Surfaced as
+  a new **Tree** tab on the profiler page.
+- `analyzers/native_memory_analyzer.py` pairs JFR
+  `NativeMemoryAllocation` / `NativeMemoryFree` events by address and
+  reports unfreed allocations as a byte-weighted flame; `tail_ratio`
+  option (default 10%) ignores allocations made in the last N% of the
+  recording. JfrAnalyzerPage gains a **Native memory** tab.
+- ProfilerAnalyzerPage diff tab now persists the last 10 analyzed
+  files to `localStorage` and shows a **Recent profile files** panel
+  (click = baseline, Shift+click = target) for continuous-session
+  workflows.
+
+### Thread dump — TDA-inspired hardening
+
+- Java jstack parser: virtual-thread carrier-pinning detection
+  (`Carrying virtual thread` + non-`VirtualThread.run`/`ForkJoinPool`
+  application frames) and SMR (Safe Memory Reclamation) diagnostics —
+  unresolved/zombie thread markers surface as findings.
+- New `parsers/thread_dump/java_jcmd_json.py` — parses `jcmd <pid>
+  Thread.dump_to_file -format=json` output.
+- Class histogram parsing (`-XX:+PrintClassHistogram` rows in the
+  trailing block); top-N classes exposed as a table.
+- Loose detection variants accepted: jstack output without `Full
+  thread dump` banner or `nid=` field (JDK 21+); plain
+  `traceback.format_stack` text (`Thread ID: <n>`); Node.js
+  `Sample #N\Error\  at fn(file:line:col)`; CLR
+  `Environment.StackTrace` snapshots without `OS Thread Id:`.
+- New heuristic findings (multi_thread_analyzer):
+  `THREAD_CONGESTION_DETECTED` (>10% WAITING/LOCK_WAIT/BLOCKED),
+  `EXTERNAL_RESOURCE_WAIT_HIGH` (>25% TIMED_WAITING),
+  `LIKELY_GC_PAUSE_DETECTED` (>50% blocked on monitors with no app
+  owner). Plus `VIRTUAL_THREAD_CARRIER_PINNING` and
+  `SMR_UNRESOLVED_THREAD` per detected entry.
+- Native-method thread roll-up
+  (`tables.native_method_threads`) and embedded G1 heap block parser
+  (`{Heap before GC ...}` → `metadata.jvm_heap_block` with heap total /
+  used / region / young / metaspace).
+- ThreadDumpAnalyzerPage gains a **Dump overview** card (8 metrics)
+  and a **JVM signals** tab with sub-tabs for Carrier pinning / SMR /
+  Native methods / Class histogram.
+- UTF-16 / BOM detection added to `common/file_utils.py`.
+
+### Access log — analyzer overhaul
+
+- Summary expanded from 5 to 22 fields: p50 / p90 / p99 latency,
+  total bytes, wall time, avg req/s, avg bytes/s,
+  static_count / api_count / static_bytes / api_bytes /
+  static_avg_response_ms / api_avg_response_ms /
+  api_p95_response_ms, recording bounds, unique URI count.
+- New time series: `p50/p90/p99_response_time_per_minute`,
+  `status_class_per_minute` (2xx/3xx/4xx/5xx/other),
+  `error_rate_per_minute`, `bytes_per_minute`,
+  `throughput_per_minute` (req/s + bytes/s), `method_distribution`,
+  `request_classification`.
+- New per-URL `url_stats` table: count / avg / p50 / p90 / p95 / p99 /
+  total bytes / error count / per-status mix; multiple "top N"
+  derivative tables (count, avg, p95, bytes, errors).
+- Static-vs-API classification by file extension
+  (`.js/.css/.png/.jpg/.woff2/...`) and well-known asset paths
+  (`/static/`, `/assets/`, `/dist/`, `/img/`, ...).
+- New findings: `SLOW_URL_P95` (≥ 1 s p95 with ≥ 5 samples — replaces
+  `SLOW_URL_AVERAGE`); `ERROR_BURST_DETECTED` (a single minute ≥ 50%
+  error rate with ≥ 5 requests). Schema bumped to 0.2.0.
+- Frontend AccessLogAnalyzerPage: 12-metric summary, **URLs** tab
+  (sortable by count / avg / p95 / total bytes / errors with
+  static / api / all filter and per-row 2·3·4·5xx mix), **Status &
+  errors** tab (status families, top status codes, per-minute error
+  timeline highlighting any minute ≥ 50% error rate).
+
+### GC log — analyzer deep-dive
+
+- New `gc_log_header.py` extracts JVM/system metadata from the
+  recording header: Version, CPUs, Memory, Heap min/initial/max/region,
+  Parallel/Concurrent workers, Compressed Oops, Periodic GC,
+  CommandLine flags. Surfaced via a new **JVM Info** tab (set as
+  default).
+- Heap chart: 7 toggleable series (Heap before/after, Heap committed,
+  Young before/after, Old before/after, Metaspace before/after);
+  optional Pause overlay on a right-axis; data-availability check
+  greys out series with no data.
+- `D3TimelineChart`: drag-to-zoom-rectangle on the plot, wheel in/out,
+  double-click reset, point decimation (max 2 000 per series),
+  rAF-throttled transform updates, dynamic x-axis tick format.
+- Engine emits new GC series (`young_before_mb`, `old_before/after_mb`
+  derived from `heap - young`, `heap_committed_mb`,
+  `metaspace_before/after_mb` via unified-format metaspace line
+  buffering and G1-legacy `[Metaspace: ...]` parsing).
+
+### Exception analyzer
+
+- New dedicated page replacing the generic placeholder. Paginated +
+  filterable event table, click-row Sheet popup with full message,
+  signature, stack, and metadata. Top-types chart shows simple class
+  names (`NullPointerException`) with full FQN on hover; summary
+  card no longer overflows on long FQNs.
+- Top stack signatures table with click-to-detail Sheet.
+
+### UI / UX
+
+- "Diagnostics" tab renamed **Parser Report** / **파서 리포트** so
+  users don't expect analytical insight from a parser-coverage panel.
+- Font system: `font-sans` resolves to Pretendard Variable in both the
+  Tailwind v4 `@theme` block and the design-system `--font-sans`,
+  guaranteeing consistent rendering in Electron's Chromium.
+- DashboardPage hardened against shape-mismatched legacy data (filters
+  out non-`access_log`/`profiler_collapsed` types so a stale GC result
+  no longer crashes the dashboard).
+
 ## [0.2.0-beta] — 2026-05-04
 
 Promotion of the 0.2.0-alpha line to beta. Same feature surface — no

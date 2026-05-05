@@ -17,7 +17,7 @@ ArchScope web app. If you only have a minute, the
 5. [Profiler Analyzer](#profiler-analyzer)
 6. [GC Log Analyzer](#gc-log-analyzer)
 7. [Thread Dump Analyzer](#thread-dump-analyzer)
-8. [Exception / JFR analyzers](#exception--jfr-analyzers)
+8. [Exception Analyzer](#exception-analyzer) · [JFR Analyzer](#jfr-analyzer)
 9. [Demo Data Center](#demo-data-center)
 10. [Export Center](#export-center)
 11. [Chart Studio](#chart-studio)
@@ -36,10 +36,16 @@ ArchScope web app. If you only have a minute, the
 | Item | Required |
 | --- | --- |
 | OS | macOS / Linux / Windows |
-| Python | 3.9 or newer |
+| Python | 3.9 or newer (only when running the engine from source) |
 | Node.js | 18+ (only when building the UI from source) |
+| JDK | 11+ on PATH (optional — only needed for binary `.jfr` ingestion) |
 | RAM | 4 GB minimum, 8 GB recommended for large flamegraphs |
 | Disk | ~500 MB |
+
+ArchScope also ships a Windows installer (NSIS) and portable zip with
+the Python engine PyInstaller-bundled inside, so end users on Windows
+don't need to install Python, Node, or build anything. The "from
+source" steps below remain the standard developer flow.
 
 ### Install the engine
 
@@ -64,11 +70,11 @@ The repository ships with a helper that does both:
 Equivalent manual steps:
 
 ```bash
-cd apps/desktop
+cd apps/frontend
 npm install
-npm run build                      # produces apps/desktop/dist
+npm run build                      # produces apps/frontend/dist
 cd ../..
-archscope-engine serve --static-dir apps/desktop/dist
+archscope-engine serve --static-dir apps/frontend/dist
 ```
 
 Open `http://127.0.0.1:8765`. ArchScope binds `127.0.0.1` by default;
@@ -82,7 +88,7 @@ trusted network.
 archscope-engine serve --reload
 
 # Terminal 2 — Vite dev server (proxies /api → :8765)
-cd apps/desktop && npm run dev     # http://127.0.0.1:5173
+cd apps/frontend && npm run dev     # http://127.0.0.1:5173
 ```
 
 ---
@@ -158,10 +164,15 @@ Click **Analyze**; **Cancel** appears while the run is in flight.
 
 | Tab | What's there |
 | --- | --- |
-| Summary | Total requests · avg / p95 response · error rate metric cards. |
+| Summary | 12-metric grid: total requests, error rate, avg + **p50 / p90 / p95 / p99** response time, total bytes, avg req/s, avg throughput (bytes/s), static request count, API request count. |
 | Charts | Request-count trend (ECharts panel — supports the same image-export dropdown as D3 charts). |
-| Top URLs | Sorted shadcn table of the slowest URIs (URI · count · avg ms). |
-| Diagnostics | Parser diagnostics — counts of skipped lines and a sample of failed lines for debugging custom formats. |
+| URLs | **Sortable** per-URL stats table backed by `url_stats`. Pick the sort axis (count / avg response / p95 response / total bytes / errors), filter by classification (all / API only / static only). Each row shows method, URI, classification badge, count, avg ms, p95 ms, total bytes, error count, and a per-row `2·3·4·5xx` mix. |
+| Status & errors | Status families table, top status codes (full code, not just family), and a **per-minute timeline** of 2xx/3xx/4xx/5xx counts + error rate. Any minute with ≥ 50% error rate is highlighted in rose; the card header surfaces the peak ("Peak: 75% errors at 14:23 (15/20 requests)") so you can pinpoint when failures started. |
+| Parser Report | Parser diagnostics — counts of skipped lines and a sample of failed lines for debugging custom formats. |
+
+The analyzer also emits new findings: `SLOW_URL_P95` (≥ 1 s p95 with ≥ 5
+samples) and `ERROR_BURST_DETECTED` (a single minute crossing 50% error
+rate with ≥ 5 requests).
 
 ---
 
@@ -195,12 +206,14 @@ Other knobs:
 | Tab | What's there |
 | --- | --- |
 | Summary | Total samples · interval · estimated CPU/wall time + drill-down stage metrics (matched samples / estimated seconds / total ratio / parent stage ratio). |
-| Flame Graph | The interactive flamegraph. **SVG renderer** is the default; once the tree exceeds **4 000 nodes** the page automatically swaps to the **Canvas renderer** so converted thread-dump bundles stay smooth. Click a frame to zoom in; "Reset zoom" appears when you're not at the root. Hover any frame for a tooltip with sample count + ratio + category. |
-| Drill-down | Stack-frame filters with `include_text` / `exclude_text` / `regex_include` / `regex_exclude`, three match modes (`anywhere` / `ordered` / `subtree`), and two view modes (`preserve_full_path` / `reroot_at_match`). Apply to push a new stage; Reset returns to the original tree. The current stage's drill-down breadcrumb appears at the top. |
+| Flame Graph | The interactive flamegraph with the **Display toolbar** above it (highlight regex, simple class names, normalize lambdas, dotted package, **Icicle** inverted view, **Min width** %). When the tree carries thread brackets (async-profiler `-t`), a **Filter by thread** dropdown re-roots the flame on a single thread without a server round-trip. Above the chart, the **Export pprof** button downloads a gzipped pprof file ready for Pyroscope / Speedscope / `go tool pprof`. SVG renderer by default; ≥ 4 000 nodes auto-switch to Canvas. Click a frame to zoom in; double-click resets. Hover for sample count + ratio + category. |
+| **Tree** | Hierarchical expandable table of the same flame data, sorted by samples desc. Columns: Frame · Samples · Self · % of total. Honors the same display + highlight options as the flame graph. |
+| **Diff** | Two FileDocks (Baseline / Target) + format selectors per side + Normalize toggle. After running, shows a divergent-color flame (red = increased, blue = decreased) and two tables: "Biggest increases" (slower) and "Biggest decreases" (faster). The diff tab also lists the **Recent profile files** (last 10 analyzed files persisted to localStorage) — click to set baseline, Shift+click to set target, for continuous-session workflows. |
+| Drill-down | Stack-frame filters with `include_text` / `exclude_text` / `regex_include` / `regex_exclude`, three match modes (`anywhere` / `ordered` / `subtree`), and two view modes (`preserve_full_path` / `reroot_at_match`). Apply to push a new stage; Reset returns to the original tree. |
 | Timeline Analysis | Stacked composition and evidence table that converts flamegraph samples into an estimated execution composition: startup/framework, internal methods, SQL, DB network wait, external call, external network wait, pool wait, lock wait, and other waits. It is sample-based composition, not timestamp-ordered tracing. |
 | Breakdown | ECharts donut + bar showing how samples distribute across "execution categories" (SQL / external API / network I/O / connection-pool wait / others). The breakdown table shows the top method per category. |
 | Top Stacks | Sorted table of the top N stacks (samples · estimated seconds · ratio). |
-| Diagnostics | Parser diagnostics. |
+| Parser Report | Parser diagnostics. |
 
 ### Saving the flamegraph
 
@@ -210,6 +223,8 @@ Other knobs:
   `canvas.toDataURL()` for a pixel-perfect snapshot at the current
   device pixel ratio. The standard dropdown (PNG/JPEG/SVG via
   `html-to-image`) still works.
+- **Export pprof** — downloads `*.pb.gz` (gzipped Google pprof binary)
+  for use with `go tool pprof`, Pyroscope, Speedscope, or `pprof.dev`.
 
 ---
 
@@ -225,36 +240,44 @@ allocation / promotion timelines plus per-collector counts.
 
 | Tab | What's there |
 | --- | --- |
+| **JVM Info** (default) | JVM and system metadata extracted from the recording header: Version, CPUs (total/available), Memory, Heap Min/Initial/Max/Region size, Parallel/Concurrent/Concurrent-refinement workers, Compressed Oops, NUMA, Pre-touch, Periodic GC. The full **CommandLine flags** are shown verbatim (one flag per line, with a **Copy** button) and the raw header lines are preserved for capture. A **worker-vs-CPU mismatch warning** banner highlights configurations like "GC workers limited to 1 on a 9-CPU host". |
 | Summary | 15-stat metric grid (throughput, p50/p95/p99/max/avg/total pause, young/full GC count, allocation/promotion rate, humongous count, concurrent-mode failures, promotion failures) plus a findings card. |
-| GC Pauses | **Interactive timeline** with wheel/drag zoom (1× – 80×) and a **brush selection band** below the plot. Brushing populates a 4-stat selection summary card (events in window / avg / p95 / max pause). Full-GC events appear as orange dashed verticals — hover within ~6 px of one to see its `cause`, `pause_ms`, `heap_before_mb`, `heap_after_mb`, `heap_committed_mb`. The **Reset zoom** button appears in the chart frame once you start zooming. The allocation-rate timeline below uses an area fill on `allocation` with a line for `promotion`. |
-| Heap Usage | Heap-before (area) + Heap-after (line), with the same Full-GC event markers. |
+| GC Pauses | **Interactive timeline** — drag inside the plot to draw a visible blue selection rectangle and zoom into that range; wheel zooms in/out; double-click resets. Brushing populates a 4-stat selection summary (events in window / avg / p95 / max pause). Full-GC events are orange dashed verticals (hover for `cause`, `pause_ms`, before/after/committed heap). Point decimation (max 2 000 per series) keeps huge logs interactive. |
+| Heap Usage | **9 toggleable series** (Heap before/after/committed, Young before/after, Old before/after, Metaspace before/after) with optional **Pause overlay on a right axis**. Series with no data in the recording are greyed out automatically. Same drag-zoom / wheel-zoom as the Pauses tab. |
 | Algorithm comparison | Frontend-aggregated table of pause stats per `gc_type` (count / avg / p95 / max / total ms) plus two horizontal D3 bar charts (avg + max). Lets you compare G1Young / G1Mixed / FullGC / ZGC / Shenandoah collectors side by side. |
 | Breakdown | D3 horizontal bars for `gc_type_breakdown` and `cause_breakdown`. |
 | Events | Up to 200 events shown in a shadcn table (timestamp · uptime · type · cause · pause · heaps). |
-| Diagnostics | Parser diagnostics. |
+| Parser Report | Parser diagnostics. |
 
 ---
 
 ## Thread Dump Analyzer
 
-The thread-dump page is the only "multi-file" analyzer in ArchScope.
+The thread-dump page is the only "multi-file" analyzer in ArchScope and
+the most heavily TDA-inspired one.
 
 ### Adding files
 
-The sticky FileDock acts as an **adder**: each successful upload appends
-to the cumulative file list shown right below. Each row carries a
-numeric index, the original file name, the upload size, and an `X`
-button to remove it.
+The FileDock supports **multi-file selection** — `Ctrl/Shift+Click` in
+the OS picker, drag-drop a folder of dumps, or repeat the upload to
+append. Each successful upload appends to the cumulative file list
+right below. Each row carries a numeric index, the original file name,
+the upload size, and an `X` button to remove it.
 
 You can mix files from any supported runtime (Java, Go, Python, Node.js,
-.NET) — the parser registry sniffs the first 4 KB of every file. If two
-files resolve to different formats the request fails fast with
+.NET). The parser registry sniffs the first 4 KB of every file and
+matches across **9 plugin variants** (`java_jstack`, `java_jcmd_json`,
+`go_goroutine`, `python_pyspy`, `python_faulthandler`,
+`python_traceback`, `nodejs_diagnostic_report`, `nodejs_sample_trace`,
+`dotnet_clrstack`, `dotnet_environment_stacktrace`). If two files
+resolve to different formats the request fails fast with
 `MIXED_THREAD_DUMP_FORMATS`. To force one parser, type its `format_id`
 into the **Format override** input (e.g. `java_jstack`) — auto-detection
-is skipped.
+is skipped. UTF-16 / BOM-encoded dumps are detected and decoded on the
+fly.
 
 The **Consecutive-dump threshold** input (default `3`) controls when the
-correlator emits the persistence findings.
+correlator emits persistence findings.
 
 Click **Correlate dumps** to run the multi-dump analyzer.
 
@@ -262,12 +285,15 @@ Click **Correlate dumps** to run the multi-dump analyzer.
 
 | Tab | What's there |
 | --- | --- |
-| Findings | 6-stat summary card (total dumps / unique threads / long-running / persistent blocked / latency sections / threshold) plus severity-colored cards for every finding. The full **`LONG_RUNNING_THREAD`** and **`PERSISTENT_BLOCKED_THREAD`** tables appear below. |
-| Charts | D3 vertical bar chart: thread count per dump. D3 horizontal sorted bar chart: top threads by observation count across all dumps. |
+| **Overview** | Dump-level metadata card (count / time span / unique thread name / total observations / dominant runtime / parser format) and a quick distribution of states aggregated across all dumps. |
+| Findings | Severity-colored cards for every finding (see catalog below). Full `LONG_RUNNING_THREAD` and `PERSISTENT_BLOCKED_THREAD` tables appear below the cards. |
+| Charts | D3 vertical bar chart of thread count per dump + D3 horizontal sorted bar chart of top threads by observation count. |
 | Per dump | Per-dump state distribution table. |
 | Threads | Sorted table of every thread name and how many dumps it appeared in. |
+| **Lock contention** | Owner / waiter graph (one node per `lock_addr`) plus the **deadlock cycles** detected by DFS over the wait graph. |
+| **JVM signals** | Four sub-tabs that surface JVM/runtime-specific evidence: **Carrier-pinning** (virtual-thread carriers blocked on monitors), **SMR / Zombies** (SafeMemoryReclamation un-resolved threads), **Native methods** (top JNI frames per thread), **Class histogram** (most-referenced classes per dump if jcmd JSON is included). |
 
-The findings catalog:
+### Findings catalog
 
 - **`LONG_RUNNING_THREAD`** *(warning)* — a thread name kept the same
   RUNNABLE stack for ≥ N consecutive dumps.
@@ -275,30 +301,88 @@ The findings catalog:
   BLOCKED / LOCK_WAIT for ≥ N consecutive dumps.
 - **`LATENCY_SECTION_DETECTED`** *(warning)* — a thread stayed in
   `NETWORK_WAIT`, `IO_WAIT`, or `CHANNEL_WAIT` for ≥ N consecutive
-  dumps. The wait categories are populated by the per-language
-  enrichment plugins (e.g. `EPoll.epollWait` → `NETWORK_WAIT`,
-  `gopark` → `CHANNEL_WAIT`, `Monitor.Enter` → `LOCK_WAIT`).
+  dumps. Wait categories come from per-language enrichment
+  (`EPoll.epollWait` → `NETWORK_WAIT`, `gopark` → `CHANNEL_WAIT`,
+  `Monitor.Enter` → `LOCK_WAIT`, …).
+- **`GROWING_LOCK_CONTENTION`** *(warning)* — the same lock address
+  attracted strictly more waiters across consecutive dumps.
+- **`THREAD_CONGESTION_DETECTED`** *(warning)* — runnable thread count
+  exceeds CPU count by an order of magnitude in a single dump.
+- **`EXTERNAL_RESOURCE_WAIT_HIGH`** *(warning)* — > 30% of threads sit
+  in `NETWORK_WAIT` / `IO_WAIT` simultaneously.
+- **`LIKELY_GC_PAUSE_DETECTED`** *(warning)* — most threads are
+  RUNNABLE and a VM internal thread (`VM Thread` / `GC task thread`)
+  carries a GC frame.
+- **`VIRTUAL_THREAD_CARRIER_PINNING`** *(warning)* — Loom carrier
+  thread is pinned because the virtual thread holds a monitor.
+- **`SMR_UNRESOLVED_THREAD`** *(warning)* — `_threads` SMR list still
+  references a thread that doesn't appear in this dump.
 
-For the full per-language enrichment matrix and the detection
-signatures, see
-[`MULTI_LANGUAGE_THREADS.md`](MULTI_LANGUAGE_THREADS.md).
+For the full per-language enrichment matrix and detection signatures,
+see [`MULTI_LANGUAGE_THREADS.md`](MULTI_LANGUAGE_THREADS.md).
 
 ---
 
-## Exception / JFR analyzers
+## Exception Analyzer
 
-Both exception-stack and JFR analyzers run on the **PlaceholderPage**
-shell — they share the same FileDock + Tabs treatment as the heavier
-analyzers but with a smaller surface:
+A dedicated full page (no longer the placeholder shell). Drop a Java
+exception stack file (`*.txt` / `*.log`) and ArchScope produces:
 
-- **Exception** — drops a Java exception stack file (`*.txt` / `*.log`),
-  produces summary metrics, an event-style table preview, and parser
-  diagnostics.
-- **JFR** — drops the JSON output of `jfr print --json recording.jfr`
-  and surfaces event distribution, top execution samples, and GC pause
-  summary.
+- **Summary metrics** — total events, unique types, unique signatures,
+  first/last seen timestamps.
+- **Top types** — bar chart + table of exception class counts. The
+  table shows the **simple class name** (e.g. `NullPointerException`)
+  with the full FQN on hover, so deep packages don't blow up the
+  layout.
+- **Top stack signatures** — top 10 normalized stack signatures across
+  all events.
+- **Events table** — paginated + filterable (search box matches
+  message, type, or signature). Clicking a row opens a `Sheet` popup
+  with the full message, signature, and stack trace, formatted for
+  copy-paste into an issue tracker.
+- **Parser Report** — diagnostics from the parser.
 
-Inputs go through the same upload + analyze flow as the other pages.
+The page is bounded vertically — long event lists paginate instead of
+extending the page indefinitely.
+
+---
+
+## JFR Analyzer
+
+Drop a binary `.jfr` recording **or** the JSON output of
+`jfr print --json recording.jfr`. ArchScope detects the binary header
+(`FLR\0`) and auto-runs the JDK `jfr` CLI to convert it on the fly.
+The CLI is resolved in this order:
+
+1. `ARCHSCOPE_JFR_CLI` env var (full path to `jfr` / `jfr.exe`).
+2. `JAVA_HOME/bin/jfr`.
+3. `jfr` on the system `PATH`.
+
+If no CLI is found, the analyzer reports a clean error suggesting JDK
+11+ as a prerequisite.
+
+### Filters (URL-style query params on the analyzer call)
+
+| Param | Value | Effect |
+| --- | --- | --- |
+| `event_modes` | comma-separated `cpu` / `wall` / `alloc` / `lock` / `gc` / `exception` / `io` / `nativemem` | Limit which event categories are aggregated. |
+| `time_from` / `time_to` | ISO timestamp, `HH:MM:SS`, relative (`+30s`, `-2m`, `500ms`) | Window the recording. |
+| `thread_state` | comma-separated states | Only count samples in those states (`RUNNABLE`, `BLOCKED`, `WAITING`, …). |
+| `min_duration_ms` | number | Drop events below the threshold. |
+
+The page exposes these as form inputs at the top.
+
+### Tabs
+
+| Tab | What's there |
+| --- | --- |
+| Summary | Event count, distinct event types, time span, top thread by samples. |
+| Event distribution | D3 horizontal bar chart of event-type counts. |
+| Top samples | Top 50 execution samples (thread / state / sample count / top frame). |
+| **Heatmap** | 1D wall-clock density strip — drag a region to populate `time_from` / `time_to` for the next analyze run. |
+| GC summary | If `gc` events are included, pause percentile summary. |
+| **Native memory** | If native-memory events are present, alloc/free pairing — sites whose allocations are not matched by frees within the recording are flagged with a tail-ratio cutoff. Byte-weighted flame view available. |
+| Parser Report | Parser diagnostics. |
 
 ---
 
@@ -441,7 +525,7 @@ total `uniqueStacks`.
 ```bash
 # ---------- web server ----------
 archscope-engine serve [--host 127.0.0.1] [--port 8765]
-                       [--static-dir apps/desktop/dist] [--reload]
+                       [--static-dir apps/frontend/dist] [--reload]
                        [--no-dev-cors]
 
 # ---------- access log ----------
@@ -454,6 +538,9 @@ archscope-engine profiler analyze-collapsed --wall <collapsed> --out <result.jso
 archscope-engine profiler analyze-flamegraph-svg  --file <svg>  --out <result.json>
 archscope-engine profiler analyze-flamegraph-html --file <html> --out <result.json>
 archscope-engine profiler analyze-jennifer-csv    --file <csv>  --out <result.json>
+archscope-engine profiler diff   --baseline <r1.json> --target <r2.json> --out <diff.json>
+                                  [--normalize] [--top-n 50]
+archscope-engine profiler export-pprof --input <result.json> --output <profile.pb.gz>
 archscope-engine profiler drilldown   ...           # see --help
 archscope-engine profiler breakdown   ...
 
@@ -461,6 +548,10 @@ archscope-engine profiler breakdown   ...
 archscope-engine gc-log analyze --file <gc.log> --out <result.json> [--top-n 20]
 
 # ---------- JFR ----------
+archscope-engine jfr analyze      --file <jfr|jfr.json> --out <result.json>
+    [--event-modes cpu,wall,alloc,lock,gc,exception,io,nativemem]
+    [--time-from <ts>] [--time-to <ts>] [--thread-state RUNNABLE,BLOCKED,...]
+    [--min-duration-ms N] [--top-n 20]
 archscope-engine jfr analyze-json --file <jfr.json> --out <result.json> [--top-n 20]
 
 # ---------- thread dump ----------
@@ -501,8 +592,8 @@ supports `--help` for its own flags.
 
 **The browser opens to "ArchScope API is running" instead of the UI.**
 You started the engine without a built React bundle. Either run
-`./scripts/serve-web.sh`, or run `npm --prefix apps/desktop run build`
-once and pass `--static-dir apps/desktop/dist` to `archscope-engine
+`./scripts/serve-web.sh`, or run `npm --prefix apps/frontend run build`
+once and pass `--static-dir apps/frontend/dist` to `archscope-engine
 serve`. The dev loop (`archscope-engine serve --reload` plus `npm run
 dev`) opens the UI on `:5173` instead.
 
@@ -521,7 +612,16 @@ applied to every file.
 **The flamegraph is sluggish even with the SVG renderer.**
 Switch the data into a thread-dump-style bundle (run
 `thread-dump to-collapsed`) and feed that as `flamegraph collapsed`.
-With ≥ 4 000 nodes the page automatically renders via Canvas.
+With ≥ 4 000 nodes the page automatically renders via Canvas. As an
+extra simplification, raise **Min width** in the display toolbar to
+e.g. 0.5 % so frames below that ratio collapse into a `…` aggregator.
+
+**Binary `.jfr` analyzer reports `JFR_CLI_NOT_FOUND`.**
+ArchScope shells out to the JDK `jfr` CLI to convert `.jfr` →
+events JSON. Install JDK 11+, set `JAVA_HOME` (so `JAVA_HOME/bin/jfr`
+resolves), or point `ARCHSCOPE_JFR_CLI` directly at the executable.
+Alternatively, pre-convert with `jfr print --json recording.jfr > out.json`
+and analyze that JSON instead.
 
 **Image export downloads a blank PNG.**
 The chart hadn't finished rendering. Wait until the data settles

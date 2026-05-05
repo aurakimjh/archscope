@@ -60,32 +60,47 @@ Raw Data
 │   parsers/                                                     │
 │     access_log_parser, collapsed_parser, jennifer_csv_parser,  │
 │     svg_flamegraph_parser, html_profiler_parser,               │
-│     gc_log_parser, jfr_parser, exception_parser, otel_parser,  │
+│     gc_log_parser + gc_log_header (JVM Info 추출),              │
+│     jfr_recording (바이너리 `.jfr` → JSON, JDK `jfr` CLI),      │
+│     jfr_parser (기존 JSON 경로),                                │
+│     exception_parser, otel_parser,                             │
 │     thread_dump/                                               │
 │       registry.py     ← format-id, can_parse(head), parse(path)│
-│       java_jstack.py  ← + AOP / 네트워크 IO enrichment          │
+│       java_jstack.py  ← + AOP / IO enrichment + JDK 21+ no-`nid│
+│       java_jcmd_json.py ← jcmd JSON.thread_dump_to_file        │
 │       go_goroutine.py ← + 프레임워크 정리 + 상태 추론           │
-│       python_dump.py  ← py-spy + faulthandler + enrichment     │
+│       python_dump.py  ← py-spy / faulthandler                  │
+│       python_traceback.py ← Thread ID + File "...", line N     │
 │       nodejs_report.py← diagnostic-report JSON + libuv state   │
+│       nodejs_sample_trace.py ← Sample # + at fn(file:line:col) │
 │       dotnet_clrstack ← + async state machine 정리             │
+│       dotnet_environment_stacktrace ← Environment.StackTrace   │
 │                                                                │
 │   analyzers/                                                   │
 │     access_log_analyzer, profiler_analyzer (collapsed/SVG/     │
-│     HTML/Jennifer), gc_log_analyzer, jfr_analyzer,             │
+│     HTML/Jennifer), profiler_diff (빨강=느려짐 / 파랑=빨라짐),  │
+│     native_memory_analyzer (alloc/free 페어링),                 │
+│     gc_log_analyzer, jfr_analyzer,                             │
 │     thread_dump_analyzer (단일 덤프, JVM 전용),                 │
 │     multi_thread_analyzer (LONG_RUNNING_THREAD,                │
-│         PERSISTENT_BLOCKED_THREAD, LATENCY_SECTION_DETECTED),  │
+│         PERSISTENT_BLOCKED_THREAD, LATENCY_SECTION_DETECTED,   │
+│         GROWING_LOCK_CONTENTION, THREAD_CONGESTION_DETECTED,   │
+│         EXTERNAL_RESOURCE_WAIT_HIGH, LIKELY_GC_PAUSE_DETECTED, │
+│         VIRTUAL_THREAD_CARRIER_PINNING, SMR_UNRESOLVED_THREAD),│
+│     lock_contention_analyzer (owner/waiter 그래프 + DFS 데드락),│
 │     thread_dump_to_collapsed,                                  │
 │     exception_analyzer, runtime_analyzer, otel_analyzer,       │
 │     ai_interpretation, profiler_breakdown, profiler_drilldown  │
 │                                                                │
 │   exporters/                                                   │
-│     json_exporter, html_exporter, pptx_exporter, report_diff   │
+│     json_exporter, html_exporter, pptx_exporter, report_diff,  │
+│     pprof_exporter (자체 minimal protobuf, 의존성 없음)         │
 │                                                                │
 │   models/                                                      │
 │     AnalysisResult (전송 boundary 단일),                        │
-│     FlameNode, ThreadSnapshot + ThreadDumpBundle + ThreadState,│
-│     StackFrame, ExceptionRecord, …                             │
+│     FlameNode (diff용 metadata: {a, b, delta}),                 │
+│     ThreadSnapshot + ThreadDumpBundle + ThreadState,           │
+│     StackFrame, ExceptionRecord, GcEvent, …                    │
 │                                                                │
 │   web/server.py     ← FastAPI factory + analyzer dispatcher    │
 │   cli.py            ← Typer 명령 (분석기별 + serve)             │
@@ -94,13 +109,15 @@ Raw Data
 
 ## 컴포넌트
 
-### 브라우저 앱 (`apps/desktop/`)
+### 브라우저 앱 (`apps/frontend/`)
 
 React 18 — FastAPI가 정적 번들로 서빙(개발 시에는 Vite dev 서버).
-`httpBridge`(`src/api/httpBridge.ts`)가 레거시 Electron 빌드와 동일한
-`window.archscope.*` 표면을 노출하지만, 모든 호출이 FastAPI 엔진에
-대한 `fetch()`로 변환됩니다. 페이지는 절대로 파서를 import하지 않으며
-오직 정규화된 `AnalysisResult` JSON만 렌더합니다.
+같은 번들이 `apps/desktop/`의 Electron 셸 안에도 패키징되어 `file://`
+로 로드되며, `apiBase` 헬퍼가 번들된 엔진(`127.0.0.1:8765`)으로
+라우팅합니다. `httpBridge`(`src/api/httpBridge.ts`)가 레거시 Electron
+빌드와 동일한 `window.archscope.*` 표면을 노출하지만, 모든 호출이
+FastAPI 엔진에 대한 `fetch()`로 변환됩니다. 페이지는 절대로 파서를
+import하지 않으며 오직 정규화된 `AnalysisResult` JSON만 렌더합니다.
 
 차트 계층 분리:
 
@@ -122,11 +139,14 @@ React 18 — FastAPI가 정적 번들로 서빙(개발 시에는 Vite dev 서버
 - `/api/upload` — multipart, `~/.archscope/uploads/<uuid>/`에 저장,
   이후 분석기 호출이 사용할 서버 측 경로 반환.
 - `/api/analyzer/execute` — `type` 기반 단일 dispatcher
-  (`access_log`, `profiler_collapsed`, `gc_log`, `thread_dump`,
-  `thread_dump_multi`, `thread_dump_to_collapsed`, `exception_stack`,
-  `jfr_recording`, `flamegraph_svg`, `flamegraph_html`).
+  (`access_log`, `profiler_collapsed`, `profiler_diff`,
+  `profiler_export_pprof`, `gc_log`, `thread_dump`, `thread_dump_multi`,
+  `thread_dump_to_collapsed`, `exception_stack`, `jfr_recording`,
+  `flamegraph_svg`, `flamegraph_html`).
   분석기를 **in-process**로 호출(서브프로세스 없음)하고 전체
-  `AnalysisResult` JSON 반환.
+  `AnalysisResult` JSON 반환. 엔진은 `127.0.0.1`에 바인딩되고 번들된
+  Electron 빌드는 UI를 `file://`에서 로드하기 때문에 CORS는
+  `allow_origins=["*"]`로 풀어둡니다.
 - `/api/export/execute` — HTML / PPTX / before-after diff export.
 - `/api/demo/list`, `/api/demo/run` — demo-site fixture runner.
 - `/api/files?path=…` — 임의 로컬 파일 스트리밍(UI가 export된 보고서/
@@ -171,7 +191,7 @@ AnalysisResult {
   charts:  dict              # raw 차트 데이터 (예: flamegraph 트리)
   metadata: {
     parser: str,
-    schema_version: "0.1.0",
+    schema_version: "0.2.0",
     diagnostics: ParserDiagnostics,
     findings?: list[Finding],
     drilldown_current_stage?: …,
@@ -190,7 +210,9 @@ AnalysisResult {
 | `~/.archscope/uploads/<uuid>/<orig>` | 업로드 엔드포인트 | multipart 업로드 — 분석기 dispatch 입력 |
 | `~/.archscope/uploads/collapsed/<uuid>.collapsed` | thread→flamegraph 변환기 | 서버 측 변환 출력 |
 | `~/.archscope/settings.json` | 설정 엔드포인트 | engine path / chart theme / locale |
-| `<repo>/apps/desktop/dist/` | Vite | `--static-dir`이 서빙하는 React 빌드 |
+| `<repo>/apps/frontend/dist/` | Vite | `--static-dir`이 서빙하는 React 빌드 (Electron 셸 안에도 동일하게 번들) |
+| `<repo>/apps/desktop/dist/` | electron-builder | NSIS 인스톨러 + 포터블 zip 출력 |
+| `<repo>/engines/python/dist/` | PyInstaller | Electron 패키지에 임베드되는 `archscope-engine` 단일 바이너리 |
 | `<repo>/archscope-debug/` | 파서 debug log | 지원용 redacted 파싱 오류 컨텍스트 |
 
 ## 의도적인 범위 밖

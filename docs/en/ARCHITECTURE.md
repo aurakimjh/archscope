@@ -61,32 +61,47 @@ Raw Data
 │   parsers/                                                     │
 │     access_log_parser, collapsed_parser, jennifer_csv_parser,  │
 │     svg_flamegraph_parser, html_profiler_parser,               │
-│     gc_log_parser, jfr_parser, exception_parser, otel_parser,  │
+│     gc_log_parser + gc_log_header (JVM Info),                  │
+│     jfr_recording (binary `.jfr` → JSON via JDK `jfr` CLI),    │
+│     jfr_parser (existing JSON path),                           │
+│     exception_parser, otel_parser,                             │
 │     thread_dump/                                               │
 │       registry.py     ← format-id, can_parse(head), parse(path)│
-│       java_jstack.py  ← + AOP / network-IO enrichment          │
+│       java_jstack.py  ← + AOP / network-IO + JDK 21+ no-`nid`  │
+│       java_jcmd_json.py ← jcmd JSON.thread_dump_to_file        │
 │       go_goroutine.py ← + framework cleanup + state inference  │
-│       python_dump.py  ← py-spy + faulthandler + enrichment     │
+│       python_dump.py  ← py-spy / faulthandler                  │
+│       python_traceback.py ← Thread ID + File "...", line N     │
 │       nodejs_report.py← diagnostic-report JSON + libuv state   │
+│       nodejs_sample_trace.py ← Sample # + at fn(file:line:col) │
 │       dotnet_clrstack ← + async state machine cleanup          │
+│       dotnet_environment_stacktrace ← Environment.StackTrace   │
 │                                                                │
 │   analyzers/                                                   │
 │     access_log_analyzer, profiler_analyzer (collapsed/SVG/     │
-│     HTML/Jennifer), gc_log_analyzer, jfr_analyzer,             │
+│     HTML/Jennifer), profiler_diff (red=slower / blue=faster),  │
+│     native_memory_analyzer (alloc/free pairing),               │
+│     gc_log_analyzer, jfr_analyzer,                             │
 │     thread_dump_analyzer (single-dump, JVM only),              │
 │     multi_thread_analyzer (LONG_RUNNING_THREAD,                │
-│         PERSISTENT_BLOCKED_THREAD, LATENCY_SECTION_DETECTED),  │
+│         PERSISTENT_BLOCKED_THREAD, LATENCY_SECTION_DETECTED,   │
+│         GROWING_LOCK_CONTENTION, THREAD_CONGESTION_DETECTED,   │
+│         EXTERNAL_RESOURCE_WAIT_HIGH, LIKELY_GC_PAUSE_DETECTED, │
+│         VIRTUAL_THREAD_CARRIER_PINNING, SMR_UNRESOLVED_THREAD),│
+│     lock_contention_analyzer (owner/waiter graph, DFS deadlock),│
 │     thread_dump_to_collapsed,                                  │
 │     exception_analyzer, runtime_analyzer, otel_analyzer,       │
 │     ai_interpretation, profiler_breakdown, profiler_drilldown  │
 │                                                                │
 │   exporters/                                                   │
-│     json_exporter, html_exporter, pptx_exporter, report_diff   │
+│     json_exporter, html_exporter, pptx_exporter, report_diff,  │
+│     pprof_exporter (hand-rolled minimal protobuf, no deps)     │
 │                                                                │
 │   models/                                                      │
 │     AnalysisResult contract (single transport boundary),       │
-│     FlameNode, ThreadSnapshot + ThreadDumpBundle + ThreadState,│
-│     StackFrame, ExceptionRecord, …                             │
+│     FlameNode (with optional metadata: {a, b, delta} for diff),│
+│     ThreadSnapshot + ThreadDumpBundle + ThreadState,           │
+│     StackFrame, ExceptionRecord, GcEvent, …                    │
 │                                                                │
 │   web/server.py     ← FastAPI factory + analyzer dispatcher    │
 │   cli.py            ← Typer commands (one per analyzer + serve)│
@@ -95,10 +110,13 @@ Raw Data
 
 ## Components
 
-### Browser app (`apps/desktop/`)
+### Browser app (`apps/frontend/`)
 
 React 18 served as a static bundle by FastAPI (or by Vite dev server
-during development). The `httpBridge` (`src/api/httpBridge.ts`) mounts
+during development). The same bundle is also packaged inside the
+Electron desktop shell at `apps/desktop/`, where it is loaded via
+`file://` and an `apiBase` helper that resolves to the bundled engine
+at `127.0.0.1:8765`. The `httpBridge` (`src/api/httpBridge.ts`) mounts
 the same `window.archscope.*` surface the legacy Electron build used,
 but every call is now an `fetch()` against the FastAPI engine. Pages
 never import a parser; they only render normalized `AnalysisResult`
@@ -126,11 +144,14 @@ shadcn/ui token sheet (light/dark CSS variables).
 - `/api/upload` — multipart, writes to `~/.archscope/uploads/<uuid>/`
   and returns the server-side path that subsequent analyzer calls use.
 - `/api/analyzer/execute` — single dispatcher that switches on `type`
-  (`access_log`, `profiler_collapsed`, `gc_log`, `thread_dump`,
-  `thread_dump_multi`, `thread_dump_to_collapsed`, `exception_stack`,
-  `jfr_recording`, `flamegraph_svg`, `flamegraph_html`).
+  (`access_log`, `profiler_collapsed`, `profiler_diff`,
+  `profiler_export_pprof`, `gc_log`, `thread_dump`, `thread_dump_multi`,
+  `thread_dump_to_collapsed`, `exception_stack`, `jfr_recording`,
+  `flamegraph_svg`, `flamegraph_html`).
   Calls the analyzer **in-process** (no subprocess) and returns the
-  full `AnalysisResult` JSON.
+  full `AnalysisResult` JSON. CORS is wide-open
+  (`allow_origins=["*"]`) since the engine binds `127.0.0.1` and the
+  bundled Electron build loads the UI from `file://`.
 - `/api/export/execute` — HTML / PPTX / before-after diff exports.
 - `/api/demo/list` and `/api/demo/run` — demo-site fixture runner.
 - `/api/files?path=…` — streams arbitrary local files back so the UI
@@ -180,7 +201,7 @@ AnalysisResult {
   charts:  dict              # raw chart data (e.g. flamegraph trees)
   metadata: {
     parser: str,
-    schema_version: "0.1.0",
+    schema_version: "0.2.0",
     diagnostics: ParserDiagnostics,
     findings?: list[Finding],
     drilldown_current_stage?: …,
@@ -199,7 +220,9 @@ the contract — no UI plumbing per analyzer.
 | `~/.archscope/uploads/<uuid>/<orig>` | upload endpoint | multipart uploads — input for analyzer dispatch |
 | `~/.archscope/uploads/collapsed/<uuid>.collapsed` | thread→flamegraph converter | server-side conversion output |
 | `~/.archscope/settings.json` | settings endpoint | engine path / chart theme / locale |
-| `<repo>/apps/desktop/dist/` | Vite | static React build served by `--static-dir` |
+| `<repo>/apps/frontend/dist/` | Vite | static React build served by `--static-dir` (also bundled inside Electron) |
+| `<repo>/apps/desktop/dist/` | electron-builder | NSIS installer + portable zip output |
+| `<repo>/engines/python/dist/` | PyInstaller | `archscope-engine` single-binary embedded in the Electron package |
 | `<repo>/archscope-debug/` | parser debug logs | redacted parse-error context for support |
 
 ## What is intentionally out of scope

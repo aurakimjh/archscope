@@ -656,3 +656,101 @@ AI output은 표시 전에 runtime validation을 통과해야 한다. Validation
 - Analyzer sampling 및 filter setting은 `metadata.analysis_options` 아래에 echo한다.
 - 보고서용 interpretation은 prose-only blob이 아니라 bounded structured finding으로 표현한다.
 - AI-assisted interpretation은 기존 raw evidence를 가리키는 non-empty `evidence_refs`를 포함해야 한다. Evidence는 `raw_line`, `raw_block`, `raw_preview`, `evidence_ref` row 중 하나로 추적 가능해야 한다.
+
+## Schema 0.2.0 — additive 변경
+
+`0.2.0-beta` 이후의 분석기 개편으로 `schema_version`은 `0.1.0`에서
+`0.2.0`으로 올랐다. 기존 0.1.0 필드는 모두 그대로 존재하고 required
+유지; 아래 변경은 모두 additive다.
+
+### Access log (`type: "access_log"`)
+
+새 `summary` 필드(forward compatibility를 위해 모두 optional이지만
+현재 분석기가 emit한다):
+
+| Field | Type | 의미 |
+| --- | --- | --- |
+| `p50_response_ms` / `p90_response_ms` | number | 응답시간 percentile 추가 |
+| `total_bytes` | integer | 응답 크기 합 |
+| `avg_requests_per_second` | number | 분석 윈도우 throughput (req/s) |
+| `avg_throughput_bps` | number | bytes/s throughput |
+| `static_request_count` / `api_request_count` | integer | 확장자/asset 경로 기준 정적/API 분류 |
+
+새 `series` row:
+
+- `percentile_response_time_per_minute` — `{ time, p50, p90, p95, p99 }`
+- `throughput_per_minute` — `{ time, requests_per_second, bytes_per_second }`
+- `status_class_per_minute` — `{ time, c2xx, c3xx, c4xx, c5xx, error_rate }`
+
+새 `tables` row:
+
+- `url_stats` — `{ method, uri, classification, count, avg_ms, p95_ms, total_bytes, error_count, status_mix: {c2xx, c3xx, c4xx, c5xx} }`
+- `top_status_codes` — `{ status: integer, count: integer }`
+
+새 finding: `SLOW_URL_P95`(warning, p95 ≥ 1 s, 샘플 ≥ 5),
+`ERROR_BURST_DETECTED`(warning, 분당 오류율 ≥ 50%, 요청 ≥ 5).
+
+### GC log (`type: "gc_log"`)
+
+새 `metadata.jvm_info` 객체(`gc_log_header.py`가 추출):
+
+```text
+metadata.jvm_info = {
+  version: string | null,
+  cpus_total: integer | null,
+  cpus_available: integer | null,
+  memory_mb: integer | null,
+  heap_min_mb / heap_initial_mb / heap_max_mb / heap_region_mb: number | null,
+  parallel_workers / concurrent_workers / refinement_workers: integer | null,
+  compressed_oops: boolean | null,
+  numa: boolean | null,
+  pre_touch: boolean | null,
+  periodic_gc: boolean | null,
+  command_line_flags: string[],     # 플래그당 한 요소
+  raw_header_lines: string[],       # bounded copy
+  worker_cpu_mismatch: boolean
+}
+```
+
+새 optional `series` row: `young_heap_before_per_event`,
+`young_heap_after_per_event`, `old_heap_before_per_event`,
+`old_heap_after_per_event`, `metaspace_before_per_event`,
+`metaspace_after_per_event`. 기존 `heap_before_per_event` /
+`heap_after_per_event` / `heap_committed_per_event`는 그대로.
+
+### Profiler (`type: "profiler_collapsed"` 등)
+
+- `charts.flamegraph_root` — `FlameNode`는 `profiler_diff`가 채우는
+  optional `metadata: { a, b, delta }`(baseline 샘플, target 샘플,
+  부호 있는 delta)를 가질 수 있다. diff 인지 없는 UI는 무시 가능.
+- `metadata.threads` — `[Thread]` prefix가 전체 샘플의 ≥ 80%를
+  포함할 때(async-profiler `-t` collapsed) 채워지는
+  `{ name, samples, ratio }` 배열. **Filter by thread** 드롭다운이 사용.
+- 새 분석기 type: `profiler_diff`(`{a, b, delta}` metadata가 들어 있는
+  flame tree와 `tables.gainers` / `tables.losers` 반환),
+  `profiler_export_pprof`(`~/.archscope/uploads/`의 gzipped pprof
+  파일을 가리키는 `{ outputPath, sizeBytes }` 반환).
+
+### JFR (`type: "jfr_recording"`)
+
+- `metadata.event_modes`, `metadata.time_from`, `metadata.time_to`,
+  `metadata.thread_state`, `metadata.min_duration_ms` — UI가 활성
+  필터를 렌더할 수 있도록 metadata에 echo.
+- `series.thread_density_per_bucket` — wall-clock 히트맵 데이터
+  `{ time, count }`.
+- 새 optional sub-result `tables.native_memory_leaks` —
+  `{ stack_signature, alloc_count, alloc_bytes, free_bytes, tail_ratio }`
+  로 nativemem 이벤트가 있을 때 `native_memory_analyzer.py`가 생성.
+
+### Thread dump multi (`type: "thread_dump_multi"`)
+
+- `metadata.findings`는 Phase 6 로드맵에 명시된 코드들을 모두 포함
+  가능: `LONG_RUNNING_THREAD`, `PERSISTENT_BLOCKED_THREAD`,
+  `LATENCY_SECTION_DETECTED`, `GROWING_LOCK_CONTENTION`,
+  `THREAD_CONGESTION_DETECTED`, `EXTERNAL_RESOURCE_WAIT_HIGH`,
+  `LIKELY_GC_PAUSE_DETECTED`, `VIRTUAL_THREAD_CARRIER_PINNING`,
+  `SMR_UNRESOLVED_THREAD`.
+- 새 `tables.lock_graph` — `{ lock_addr, owner, waiters: string[] }`.
+- 새 `tables.deadlock_cycles` — `{ cycle: string[] }` (lock graph DFS).
+- 새 `tables.dump_overview` — 덤프당 한 행: 쓰레드 수, 상태 분포,
+  resolved parser plugin id.

@@ -93,15 +93,41 @@ sample을 중복 집계하지 않도록 non-overlapping exclusive path를 사용
 
 GC log, thread dump, exception stack trace parser는 access log 및 profiler input과 동일하게 parser/analyzer 책임 분리를 따른다.
 
-- GC parser는 HotSpot unified GC pause line을 지원하고 timestamp, GC type, cause, pause, heap before/after/committed 값을 추출한다.
-- Thread dump parser는 Java quoted thread block에서 `java.lang.Thread.State`, stack frame, thread id, 기본 lock evidence를 추출한다.
-- Exception parser는 optional ISO timestamp, nested `Caused by` root cause, stack frame, stable stack signature가 있는 Java exception stack block을 지원한다.
+- **GC parser** (`gc_log_parser.py`)는 HotSpot unified GC pause line을 지원하며 timestamp, GC type, cause, pause, Eden/Survivor/Old/Metaspace 영역의 heap before/after/committed 값을 추출한다.
+- **GC log header parser** (`gc_log_header.py`)는 `OpenJDK ... VM` 배너와 `CommandLine flags:` 라인, 그리고 `[gc,init]` 블록(CPU 수, 메모리, heap min/initial/max/region size, parallel/concurrent worker 수, NUMA, pre-touch)을 읽어들인다. 결과는 GC log 분석기 상단의 **JVM Info** 카드를 채운다.
+- **JFR recording parser** (`jfr_recording.py`)는 바이너리 `FLR\0` 매직을 감지하고 JDK `jfr` CLI를 호출(`ARCHSCOPE_JFR_CLI` → `JAVA_HOME/bin/jfr` → PATH)하여 `print --json`을 수행한다. 기존 JSON 경로(`jfr_parser.py`)는 그대로 유지된다. 집계 전에 모드/시간 범위/상태 필터도 받는다.
+- **Thread dump parser registry** (`thread_dump/registry.py`)는 plugin contract `(format_id, can_parse(head: str) -> bool, parse(path) -> ThreadDumpBundle)`을 노출한다. 레지스트리는 모든 입력의 첫 4 KB를 검사해 매칭 플러그인으로 dispatch하고, UTF-16 / BOM 인코딩 입력을 자동 디코딩한다. 단일 멀티 덤프 요청 안에서 포맷이 섞이면 `format_override`가 없는 한 `MixedFormatError`로 즉시 거부한다.
+- **Exception parser**는 optional ISO timestamp, nested `Caused by` root cause, stack frame, stable stack signature가 있는 Java exception stack block을 지원한다.
 
 Record-level malformed input은 skip하고 `metadata.diagnostics` 아래에 보고한다.
 
-## Multi-runtime Parsers
+## Multi-runtime Thread-dump 플러그인
 
-첫 multi-runtime analyzer MVP도 동일한 tolerant parser contract를 따른다.
+Thread-dump 레지스트리는 현재 **9개 플러그인 변형**을 제공한다.
+
+| Format ID                       | 런타임           | 자동 감지 시그니처 |
+| ------------------------------- | ---------------- | ------------------ |
+| `java_jstack`                   | JVM              | `Full thread dump …` 헤더 **또는** quoted-name + `nid=0x…` **또는** quoted-name + state 라인 (JDK 21+ no-`nid`) |
+| `java_jcmd_json`                | JVM              | `"threadDump"`를 포함한 JSON 객체 |
+| `go_goroutine`                  | Go               | `^goroutine \d+ \[\w` (`runtime.Stack`, panic, debug.Stack) |
+| `python_pyspy`                  | Python (py-spy)  | `Process N:` + `Python vX.Y` |
+| `python_faulthandler`           | Python (stdlib)  | `Thread 0xHEX (most recent call first):` |
+| `python_traceback`              | Python (custom)  | `Thread ID: <n>` + `File "...", line N, in func` |
+| `nodejs_diagnostic_report`      | Node.js (12+)    | `"header"` + `"javascriptStack"`을 가진 JSON 객체 |
+| `nodejs_sample_trace`           | Node.js          | `Sample #N` + `Error` + `at fn(file:line:col)` |
+| `dotnet_clrstack`               | .NET             | `OS Thread Id: 0xHEX` + `Child SP / IP / Call Site` |
+| `dotnet_environment_stacktrace` | .NET             | `at Type.Method() in path:line N` |
+
+각 플러그인은 자기 언어 한정 후처리에서 `RUNNABLE` / `UNKNOWN` 상태를
+보다 구체적인 `NETWORK_WAIT` / `IO_WAIT` / `LOCK_WAIT` /
+`CHANNEL_WAIT`로 승격해 멀티 덤프 상관 분석기가 언어 비의존 finding을
+만들 수 있게 한다. 전체 매트릭스는
+[`MULTI_LANGUAGE_THREADS.md`](MULTI_LANGUAGE_THREADS.md) 참고.
+
+## Multi-runtime Single-stack Parsers
+
+단일 예외/패닉 artifact용 — 위의 thread-dump 파이프라인과 별개의
+**single-stack** 분석기 페이지에서 사용된다.
 
 - Node.js parser는 `Error`, `TypeError`, custom `*Error` block과 `at ...` stack frame을 지원한다.
 - Python parser는 표준 `Traceback (most recent call last):` block과 마지막 exception line을 지원한다.

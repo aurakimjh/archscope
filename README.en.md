@@ -12,13 +12,15 @@ sending anything to a third-party SaaS.
 
 | Domain | Capabilities |
 | --- | --- |
-| **Profiler** | async-profiler `collapsed` / Jennifer APM CSV / FlameGraph.pl & async-profiler **SVG** / async-profiler **HTML** with inline-SVG and JS-tree fallbacks; flame drill-down + breakdown; SVG flamegraph for normal sizes, **Canvas flamegraph auto-engaged at ≥4 000 nodes** for converted thread-dump bundles. |
-| **GC log** | Pause + heap timelines with **wheel/drag zoom and brush**; per-window count / avg / p95 / max; per-collector comparison tab (G1/ZGC/Shenandoah/Parallel/Serial/CMS); Full-GC event markers with hover payloads (cause, before/after/committed heap, pause). |
-| **Thread dumps** | Six auto-detected formats (`java_jstack`, `go_goroutine`, `python_pyspy`, `python_faulthandler`, `nodejs_diagnostic_report`, `dotnet_clrstack`); per-language frame normalization (CGLIB / Express layer aliases / async state machines / `gin.HandlerFunc.func1` / starlette wrappers …); multi-dump correlator emitting `LONG_RUNNING_THREAD`, `PERSISTENT_BLOCKED_THREAD`, `LATENCY_SECTION_DETECTED`. |
-| **Thread → flamegraph** | Batch-converts hundreds of dumps from any combination of supported runtimes into a FlameGraph-compatible collapsed file (CLI + HTTP) — feeds straight into the Canvas flamegraph or the standard collapsed pipeline. |
-| **Other analyzers** | Access log (NGINX / Apache / OHS / WebLogic / Tomcat / custom regex), JVM exception, JFR (`jfr print --json`), OTel JSONL. |
-| **Reports** | HTML / PowerPoint / before-after diff exports per AnalysisResult; per-chart image export (PNG 1×/2×/3×, JPEG 2×, SVG vector); **"Save all charts"** batch export per analyzer page. |
-| **UI** | Tailwind v4 + shadcn/ui shell, slim top bar, collapsible sidebar, light/dark/system theme, Korean ↔ English labels, sticky FileDock with drag-and-drop upload. |
+| **Profiler** | async-profiler `collapsed` / Jennifer APM CSV / FlameGraph.pl & async-profiler **SVG** / async-profiler **HTML** with inline-SVG and JS-tree fallbacks. **Differential flame** (red = slower, blue = faster), **icicle** (inverted) view, **min-width** simplification, **per-thread filter** for `-t` collapsed, **tree-view** sortable table, **pprof export** (gzipped) ready for Pyroscope / Speedscope / `go tool pprof`. SVG flamegraph for normal sizes, Canvas flamegraph auto-engaged at ≥ 4 000 nodes. |
+| **JFR recording** | Binary `.jfr` auto-converted via the JDK `jfr` CLI (PATH / `JAVA_HOME` / `ARCHSCOPE_JFR_CLI`); legacy JSON path also accepted. **Multi-event mode** (`cpu` / `wall` / `alloc` / `lock` / `gc` / `exception` / `io` / `nativemem`), **time-range filter** (ISO / HH:MM:SS / `+30s` / `-2m` / `500ms`), **thread-state filter**, **min-duration** filter. **Wall-clock heatmap** (drag to set From/To). **Native-memory leak detection** with tail-ratio cutoff. |
+| **GC log** | **JVM Info** card (Version / CPUs / Memory / Heap Min/Initial/Max / Region size / Parallel & Concurrent workers / Compressed Oops / CommandLine flags) with worker-vs-CPU mismatch warning. Pause + heap timelines with **drag-rectangle zoom** and brush; per-window count / avg / p95 / max; per-collector comparison tab; **9 toggleable heap series** (Heap before/after/committed, Young, Old, Metaspace) with optional Pause overlay on a right axis; point decimation for huge logs. |
+| **Access log** | 22-metric summary: total / errors / **p50 / p90 / p95 / p99**, **throughput** (req/s, bytes/s), **static-vs-API** split. Per-minute series for percentile timeline, status-class breakdown, error rate, throughput. **Sortable URL stats table** (count / avg / p95 / total bytes / errors with API-only / static-only filter and per-row 2·3·4·5xx mix). **Errors over time** view that highlights any minute ≥ 50% error rate. |
+| **Thread dumps** | Auto-detected across 5 runtimes — `java_jstack` (incl. JDK 21+ no-`nid` variant), `java_jcmd_json`, `go_goroutine`, `python_pyspy` / `python_faulthandler` / `python_traceback`, `nodejs_diagnostic_report` / `nodejs_sample_trace`, `dotnet_clrstack` / `dotnet_environment_stacktrace`. **Multi-file picker** (drop a folder of dumps in one shot). Per-language frame normalization. Multi-dump correlator findings: `LONG_RUNNING_THREAD`, `PERSISTENT_BLOCKED_THREAD`, `LATENCY_SECTION_DETECTED`, `GROWING_LOCK_CONTENTION`, `THREAD_CONGESTION_DETECTED`, `EXTERNAL_RESOURCE_WAIT_HIGH`, `LIKELY_GC_PAUSE_DETECTED`, `VIRTUAL_THREAD_CARRIER_PINNING`, `SMR_UNRESOLVED_THREAD`. **Lock-contention** owner/waiter graph + DFS deadlock detection. **JVM signals** tab (Carrier-pinning / SMR / Native methods / Class histogram). UTF-16 / BOM detection. |
+| **Exception logs** | Dedicated page with paginated + filterable event table; click-row Sheet popup with full message, signature, stack. Top types (simple class names, full FQN on hover), top stack signatures. |
+| **Thread → flamegraph** | Batch-converts hundreds of dumps from any combination of supported runtimes into a FlameGraph-compatible collapsed file (CLI + HTTP). |
+| **Reports** | HTML / PowerPoint / before-after diff exports per AnalysisResult; per-chart image export (PNG 1×/2×/3×, JPEG 2×, SVG vector); **"Save all charts"** batch export. **pprof** for profilers. |
+| **UI** | Tailwind v4 + shadcn/ui shell, **Pretendard Variable** font, slim top bar, collapsible sidebar, light/dark/system theme, Korean ↔ English labels, FileDock with drag-and-drop multi-file upload. |
 
 ## Tech stack
 
@@ -37,7 +39,7 @@ pip install -e .
 
 # 2. Build UI + start the server (single command helper)
 cd ../..
-./scripts/serve-web.sh             # builds apps/desktop/dist + starts the server
+./scripts/serve-web.sh             # builds apps/frontend/dist + starts the server
 
 # 3. Open http://127.0.0.1:8765
 ```
@@ -49,7 +51,7 @@ Development loop with UI hot-reload:
 archscope-engine serve --reload
 
 # Terminal 2 — Vite dev server (proxies /api → :8765)
-cd apps/desktop && npm install && npm run dev
+cd apps/frontend && npm install && npm run dev
 # open http://127.0.0.1:5173
 ```
 
@@ -58,7 +60,7 @@ cd apps/desktop && npm install && npm run dev
 ```bash
 # Web server
 archscope-engine serve [--host 127.0.0.1 --port 8765 --reload \
-                        --static-dir apps/desktop/dist --no-dev-cors]
+                        --static-dir apps/frontend/dist --no-dev-cors]
 
 # Profiler
 archscope-engine profiler analyze-collapsed       --wall flame.collapsed --out result.json

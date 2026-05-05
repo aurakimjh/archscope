@@ -7,15 +7,18 @@ that do not depend on JVM-specific frame names.
 
 ## Supported formats
 
-| Format ID                    | Runtime           | Detection signature                                                |
-| ---------------------------- | ----------------- | ------------------------------------------------------------------ |
-| `java_jstack`                | JVM               | `Full thread dump …` header **or** quoted-name + `nid=0x…`         |
-| `java_jcmd_json`             | JVM               | JSON object containing `"threadDump"`                              |
-| `go_goroutine`               | Go                | `^goroutine \d+ \[\w` (covers `runtime.Stack`, panic, debug.Stack) |
-| `python_pyspy`               | Python (py-spy)   | `Process N:` followed by `Python vX.Y`                             |
-| `python_faulthandler`        | Python (stdlib)   | `Thread 0xHEX (most recent call first):`                           |
-| `nodejs_diagnostic_report`   | Node.js (12+)     | JSON object with `"header"` + `"javascriptStack"`                  |
-| `dotnet_clrstack`            | .NET              | `OS Thread Id: 0xHEX` blocks with `Child SP / IP / Call Site`      |
+| Format ID                       | Runtime           | Detection signature                                                |
+| ------------------------------- | ----------------- | ------------------------------------------------------------------ |
+| `java_jstack`                   | JVM               | `Full thread dump …` header **or** quoted-name + `nid=0x…` **or** quoted-name + state line (JDK 21+ no-`nid` variant) |
+| `java_jcmd_json`                | JVM               | JSON object containing `"threadDump"`                              |
+| `go_goroutine`                  | Go                | `^goroutine \d+ \[\w` (covers `runtime.Stack`, panic, debug.Stack) |
+| `python_pyspy`                  | Python (py-spy)   | `Process N:` followed by `Python vX.Y`                             |
+| `python_faulthandler`           | Python (stdlib)   | `Thread 0xHEX (most recent call first):`                           |
+| `python_traceback`              | Python (custom)   | `Thread ID: <n>` block + `File "...", line N, in func`             |
+| `nodejs_diagnostic_report`      | Node.js (12+)     | JSON object with `"header"` + `"javascriptStack"`                  |
+| `nodejs_sample_trace`           | Node.js           | `Sample #N` blocks + `Error` + `at fn(file:line:col)`              |
+| `dotnet_clrstack`               | .NET              | `OS Thread Id: 0xHEX` blocks with `Child SP / IP / Call Site`      |
+| `dotnet_environment_stacktrace` | .NET              | `at Type.Method() in path:line N` (Environment.StackTrace form)    |
 
 The registry probes the **first 4 KB** of every input. When two formats
 might match the same head, we register the most specific plugin first;
@@ -82,22 +85,43 @@ findings.
 
 `analyzers/multi_thread_analyzer.analyze_multi_thread_dumps()` consumes
 an ordered list of `ThreadDumpBundle` objects and emits an
-`AnalysisResult(type="thread_dump_multi")` with these core findings:
+`AnalysisResult(type="thread_dump_multi")` (`schema_version: "0.2.0"`)
+with these core findings:
+
+### Persistence (cross-dump)
 
 - **`LONG_RUNNING_THREAD`** *(warning)* — a thread name keeps the same
   stack signature in `RUNNABLE` for ≥ N consecutive dumps (default
   threshold = 3).
 - **`PERSISTENT_BLOCKED_THREAD`** *(critical)* — a thread stays
   `BLOCKED` or `LOCK_WAIT` for ≥ N consecutive dumps.
-- **`LATENCY_SECTION_DETECTED`** *(warning, T-203)* — a thread stays in
+- **`LATENCY_SECTION_DETECTED`** *(warning)* — a thread stays in
   `NETWORK_WAIT`, `IO_WAIT`, or `CHANNEL_WAIT` for ≥ N consecutive
   dumps. Language-agnostic: relies only on the `ThreadState` populated
   by the per-language enrichment plugins. `LOCK_WAIT` is intentionally
   excluded because `PERSISTENT_BLOCKED_THREAD` already owns that
   signal.
+- **`GROWING_LOCK_CONTENTION`** *(warning)* — the same lock address
+  attracts strictly more waiters across consecutive dumps; uses the
+  per-dump `lock_addr → waiters` graph built by
+  `lock_contention_analyzer`.
 
-Java/JVM-specific metadata may add optional findings and tables without
-changing the language-agnostic model:
+### Snapshot heuristics (single-dump)
+
+These run on every dump and surface even before the persistence
+threshold is met:
+
+- **`THREAD_CONGESTION_DETECTED`** *(warning)* — runnable thread count
+  exceeds the available CPU count by an order of magnitude in a single
+  dump. Suggests synchronous request fan-in.
+- **`EXTERNAL_RESOURCE_WAIT_HIGH`** *(warning)* — > 30 % of threads sit
+  in `NETWORK_WAIT` / `IO_WAIT` simultaneously. Suggests an upstream
+  service or DB stall.
+- **`LIKELY_GC_PAUSE_DETECTED`** *(warning)* — most threads are
+  RUNNABLE and a VM-internal thread (`VM Thread` / `GC task thread`)
+  carries a GC frame. Heuristic — confirm against the GC log.
+
+### JVM-specific (Java only, optional)
 
 - **`VIRTUAL_THREAD_CARRIER_PINNING`** *(warning)* — a Java dump includes
   virtual-thread carrier or pinning markers; evidence includes the dump
@@ -105,18 +129,25 @@ changing the language-agnostic model:
 - **`SMR_UNRESOLVED_THREAD`** *(warning)* — `Threads class SMR info`
   contains unresolved or zombie thread evidence. Raw evidence is bounded
   in bundle metadata.
-- Supporting tables: `native_method_threads` and
-  `class_histogram_top_classes`. The class histogram parser handles text
-  `num  #instances  #bytes  class name` blocks only; it does not parse
-  HPROF heap dumps. Parser metadata keeps up to 500 histogram rows by
-  default. Increase it with CLI `--class-histogram-limit N`, HTTP
-  `classHistogramLimit`, or environment variable
-  `ARCHSCOPE_CLASS_HISTOGRAM_ROW_LIMIT`.
 
-Monitor semantics are split for Java jstack locks:
-`lock_entry_wait`, `object_wait`, and `parking_condition_wait`.
-Pure `Object.wait()` sleep is not reported as a lock-contention hotspot
-unless there is true lock-entry wait evidence.
+Supporting tables: `native_method_threads` and
+`class_histogram_top_classes`. The class histogram parser handles text
+`num  #instances  #bytes  class name` blocks only; it does not parse
+HPROF heap dumps. Parser metadata keeps up to 500 histogram rows by
+default. Increase it with CLI `--class-histogram-limit N`, HTTP
+`classHistogramLimit`, or environment variable
+`ARCHSCOPE_CLASS_HISTOGRAM_ROW_LIMIT`.
+
+### Lock-contention graph
+
+`lock_contention_analyzer.build_lock_graph()` runs alongside the
+correlator. It builds a directed graph from each `lock_addr` to its
+waiters, then runs a DFS to detect cycles — exposed in the UI's
+**Lock contention** tab as a graph + list of deadlock cycles. Java
+jstack monitor semantics are split into `lock_entry_wait`,
+`object_wait`, and `parking_condition_wait`. Pure `Object.wait()`
+sleep is not reported as a lock-contention hotspot unless there is
+true lock-entry wait evidence.
 
 Virtual-thread scale note: parser and multi-dump analysis are designed
 as linear passes over thread snapshots. Synthetic validation on this
