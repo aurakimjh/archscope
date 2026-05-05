@@ -55,22 +55,57 @@ def build_timeline_analysis(
     elapsed_sec: float | None,
     total_samples: int | None = None,
     top_n: int = 5,
+    timeline_base_method: str | None = None,
 ) -> list[dict[str, object]]:
-    stage_total = root.samples
-    original_total = total_samples if total_samples is not None else stage_total
+    rows, _scope = build_timeline_analysis_with_scope(
+        root,
+        interval_ms=interval_ms,
+        elapsed_sec=elapsed_sec,
+        total_samples=total_samples,
+        top_n=top_n,
+        timeline_base_method=timeline_base_method,
+    )
+    return rows
+
+
+def build_timeline_analysis_with_scope(
+    root: FlameNode,
+    *,
+    interval_ms: float,
+    elapsed_sec: float | None,
+    total_samples: int | None = None,
+    top_n: int = 5,
+    timeline_base_method: str | None = None,
+) -> tuple[list[dict[str, object]], dict[str, object]]:
+    base_method = _normalize_base_method(timeline_base_method)
+    original_total = total_samples if total_samples is not None else root.samples
     interval_seconds = interval_ms / 1000
     segment_samples: Counter[str] = Counter()
     segment_methods: dict[str, Counter[str]] = defaultdict(Counter)
     segment_chains: dict[str, Counter[str]] = defaultdict(Counter)
     segment_stacks: dict[str, Counter[str]] = defaultdict(Counter)
+    stage_total = 0 if base_method else root.samples
 
     for path, samples in iter_leaf_paths(root):
-        segment = _timeline_segment(path)
+        scoped_path = _timeline_path_for_scope(path, base_method)
+        if scoped_path is None:
+            continue
+        if base_method:
+            stage_total += samples
+        segment = _timeline_segment(scoped_path)
         segment_samples[segment] += samples
-        if path:
-            segment_methods[segment][_method_name(path)] += samples
-            segment_chains[segment][_method_chain(path, segment)] += samples
-            segment_stacks[segment][";".join(path)] += samples
+        if scoped_path:
+            segment_methods[segment][_method_name(scoped_path)] += samples
+            segment_chains[segment][_method_chain(scoped_path, segment)] += samples
+            segment_stacks[segment][";".join(scoped_path)] += samples
+
+    scope = _timeline_scope(
+        base_method=base_method,
+        stage_total=stage_total,
+        original_total=original_total,
+    )
+    if base_method and stage_total <= 0:
+        return [], scope
 
     rows: list[dict[str, object]] = []
     for index, segment in enumerate(SEGMENT_ORDER):
@@ -99,7 +134,64 @@ def build_timeline_analysis(
                 "top_stacks": _top_counter(segment_stacks[segment], top_n),
             }
         )
-    return rows
+    return rows, scope
+
+
+def _normalize_base_method(value: str | None) -> str | None:
+    if value is None:
+        return None
+    stripped = value.strip()
+    return stripped or None
+
+
+def _timeline_path_for_scope(
+    path: list[str],
+    base_method: str | None,
+) -> list[str] | None:
+    if not base_method:
+        return path
+    matched_index = _base_method_index(path, base_method)
+    if matched_index is None:
+        return None
+    return path[matched_index:]
+
+
+def _base_method_index(path: list[str], base_method: str) -> int | None:
+    needle = base_method.casefold()
+    for index, frame in enumerate(path):
+        if needle in frame.casefold():
+            return index
+    return None
+
+
+def _timeline_scope(
+    *,
+    base_method: str | None,
+    stage_total: int,
+    original_total: int,
+) -> dict[str, object]:
+    warnings: list[dict[str, str]] = []
+    if base_method and stage_total <= 0:
+        warnings.append(
+            {
+                "code": "TIMELINE_BASE_METHOD_NOT_FOUND",
+                "message": (
+                    "No profiler stack matched the configured timeline base method."
+                ),
+            }
+        )
+    return {
+        "mode": "base_method" if base_method else "full_profile",
+        "base_method": base_method,
+        "match_mode": "frame_contains_case_insensitive",
+        "view_mode": "reroot_at_base_frame" if base_method else "preserve_full_path",
+        "base_samples": stage_total,
+        "total_samples": original_total,
+        "base_ratio_of_total": round(stage_total / original_total * 100, 4)
+        if original_total
+        else None,
+        "warnings": warnings,
+    }
 
 
 def _timeline_segment(path: list[str]) -> str:

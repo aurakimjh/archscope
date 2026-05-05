@@ -90,6 +90,7 @@ export type {
   ProfilerCollapsedSummary,
   ProfilerCollapsedTables,
   ProfilerCharts,
+  ProfilerTimelineScope,
   ProfilerTopStackSeriesRow,
   ProfilerTopStackTableRow,
   SelectFileRequest,

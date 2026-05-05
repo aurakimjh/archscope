@@ -156,6 +156,22 @@ class TimelineAnalysisRow(TypedDict):
     top_stacks: list[BreakdownTopItem]
 
 
+class ProfilerTimelineWarning(TypedDict):
+    code: str
+    message: str
+
+
+class ProfilerTimelineScope(TypedDict):
+    mode: str
+    base_method: str | None
+    match_mode: str
+    view_mode: str
+    base_samples: int
+    total_samples: int
+    base_ratio_of_total: float | None
+    warnings: list[ProfilerTimelineWarning]
+
+
 class FlameNodeContract(TypedDict):
     id: str
     parentId: str | None
@@ -202,6 +218,7 @@ class ProfilerCollapsedMetadata(TypedDict):
     parser: str
     schema_version: str
     diagnostics: ParserDiagnostics
+    timeline_scope: ProfilerTimelineScope
 
 
 class JfrRecordingSummary(TypedDict):

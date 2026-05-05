@@ -241,6 +241,14 @@ def _execute_analyzer(payload: dict[str, Any]) -> dict[str, Any]:
         profile_kind = params.get("profileKind") or "wall"
         if profile_kind not in {"wall", "cpu", "lock"}:
             return _failure("INVALID_OPTION", "profileKind must be wall/cpu/lock.")
+        timeline_base_raw = params.get("timelineBaseMethod")
+        if timeline_base_raw is not None and not isinstance(timeline_base_raw, str):
+            return _failure("INVALID_OPTION", "timelineBaseMethod must be a string.")
+        timeline_base_method = (
+            timeline_base_raw.strip()
+            if isinstance(timeline_base_raw, str) and timeline_base_raw.strip()
+            else None
+        )
 
         if profile_format == "jennifer_csv":
             return _wrap_analyzer(
@@ -249,6 +257,7 @@ def _execute_analyzer(payload: dict[str, Any]) -> dict[str, Any]:
                     interval_ms=float(interval_ms),
                     elapsed_sec=elapsed_arg,
                     top_n=int(top_n),
+                    timeline_base_method=timeline_base_method,
                 )
             )
         if profile_format == "flamegraph_svg":
@@ -259,6 +268,7 @@ def _execute_analyzer(payload: dict[str, Any]) -> dict[str, Any]:
                     elapsed_sec=elapsed_arg,
                     top_n=int(top_n),
                     profile_kind=profile_kind,
+                    timeline_base_method=timeline_base_method,
                 )
             )
         if profile_format == "flamegraph_html":
@@ -269,6 +279,7 @@ def _execute_analyzer(payload: dict[str, Any]) -> dict[str, Any]:
                     elapsed_sec=elapsed_arg,
                     top_n=int(top_n),
                     profile_kind=profile_kind,
+                    timeline_base_method=timeline_base_method,
                 )
             )
         return _wrap_analyzer(
@@ -278,6 +289,7 @@ def _execute_analyzer(payload: dict[str, Any]) -> dict[str, Any]:
                 elapsed_sec=elapsed_arg,
                 top_n=int(top_n),
                 profile_kind=profile_kind,
+                timeline_base_method=timeline_base_method,
             )
         )
 

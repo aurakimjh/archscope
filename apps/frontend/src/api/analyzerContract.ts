@@ -177,6 +177,20 @@ export type TimelineAnalysisRow = {
   top_stacks: BreakdownTopItem[];
 };
 
+export type ProfilerTimelineScope = {
+  mode: "full_profile" | "base_method" | string;
+  base_method: string | null;
+  match_mode: string;
+  view_mode: string;
+  base_samples: number;
+  total_samples: number;
+  base_ratio_of_total: number | null;
+  warnings: Array<{
+    code: string;
+    message: string;
+  }>;
+};
+
 export type FlameNode = {
   id: string;
   parentId: string | null;
@@ -238,6 +252,7 @@ export type ProfilerCollapsedMetadata = {
   parser: string;
   schema_version: string;
   diagnostics: ParserDiagnostics;
+  timeline_scope?: ProfilerTimelineScope;
 };
 
 export type JvmFinding = {
@@ -452,6 +467,7 @@ export type AnalyzeCollapsedProfileRequest = {
   topN?: number;
   profileKind?: ProfileKind;
   profileFormat?: ProfileFormat;
+  timelineBaseMethod?: string;
 };
 
 export type AnalyzeFileRequest = {

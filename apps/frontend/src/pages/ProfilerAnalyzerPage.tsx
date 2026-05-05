@@ -9,6 +9,7 @@ import {
   type ExecutionBreakdownRow,
   type FlameNode,
   type ProfilerCollapsedAnalysisResult,
+  type ProfilerTimelineScope,
   type ProfilerTopStackTableRow,
   type TimelineAnalysisRow,
 } from "@/api/analyzerClient";
@@ -68,6 +69,11 @@ type TimelineAccumulator = {
   stacks: Map<string, number>;
 };
 
+type TimelineAnalysisView = {
+  rows: TimelineAnalysisRow[];
+  scope: ProfilerTimelineScope | null;
+};
+
 const TIMELINE_ORDER = [
   "STARTUP_FRAMEWORK",
   "INTERNAL_METHOD",
@@ -91,6 +97,7 @@ export function ProfilerAnalyzerPage(): JSX.Element {
   const [topN, setTopN] = useState(20);
   const [profileKind, setProfileKind] = useState<ProfileKind>("wall");
   const [profileFormat, setProfileFormat] = useState<ProfileFormat>("collapsed");
+  const [timelineBaseMethod, setTimelineBaseMethod] = useState("");
   const [state, setState] = useState<AnalyzerState>("idle");
   const [result, setResult] = useState<ProfilerCollapsedAnalysisResult | null>(null);
   const [stages, setStages] = useState<DrilldownStageView[]>([]);
@@ -166,16 +173,30 @@ export function ProfilerAnalyzerPage(): JSX.Element {
     () => parseOptionalPositiveNumber(elapsedSec),
     [elapsedSec],
   );
-  const timelineRows = useMemo(() => {
+  const timelineAnalysis = useMemo<TimelineAnalysisView>(() => {
     if (currentStage) {
       return buildTimeline(
         currentStage.flamegraph,
         wallIntervalMs,
         parsedElapsedForDerived ?? undefined,
+        timelineBaseMethod,
+        rootSamples(currentStage),
       );
     }
-    return result?.series.timeline_analysis ?? [];
-  }, [currentStage, parsedElapsedForDerived, result?.series.timeline_analysis, wallIntervalMs]);
+    return {
+      rows: result?.series.timeline_analysis ?? [],
+      scope: result?.metadata.timeline_scope ?? null,
+    };
+  }, [
+    currentStage,
+    parsedElapsedForDerived,
+    result?.metadata.timeline_scope,
+    result?.series.timeline_analysis,
+    timelineBaseMethod,
+    wallIntervalMs,
+  ]);
+  const timelineRows = timelineAnalysis.rows;
+  const timelineScope = timelineAnalysis.scope;
   const [selectedThread, setSelectedThread] = useState<string | null>(null);
   const detectedThreads = (result?.series as { threads?: Array<{ name: string; samples: number; ratio: number }> } | undefined)?.threads ?? [];
 
@@ -269,6 +290,7 @@ export function ProfilerAnalyzerPage(): JSX.Element {
         topN,
         profileKind,
         profileFormat,
+        timelineBaseMethod: timelineBaseMethod.trim() || undefined,
       });
 
       if (currentRequestIdRef.current !== requestId) return;
@@ -479,7 +501,7 @@ export function ProfilerAnalyzerPage(): JSX.Element {
         <CardHeader className="pb-3">
           <CardTitle className="text-sm">{t("analyzerOptions")}</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 gap-3 md:grid-cols-3 xl:grid-cols-5">
+        <CardContent className="grid grid-cols-1 gap-3 md:grid-cols-3 xl:grid-cols-6">
           <label className="flex flex-col gap-1.5 text-xs">
             <span className="font-medium text-foreground/80">{t("profileFormat")}</span>
             <select
@@ -540,6 +562,17 @@ export function ProfilerAnalyzerPage(): JSX.Element {
               min={1}
               value={topN}
               onChange={(event) => setTopN(Number(event.target.value))}
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 text-xs md:col-span-2 xl:col-span-2">
+            <span className="font-medium text-foreground/80">
+              {t("timelineBaseMethod")}
+            </span>
+            <Input
+              type="text"
+              placeholder={t("timelineBaseMethodPlaceholder")}
+              value={timelineBaseMethod}
+              onChange={(event) => setTimelineBaseMethod(event.target.value)}
             />
           </label>
         </CardContent>
@@ -922,6 +955,9 @@ export function ProfilerAnalyzerPage(): JSX.Element {
 
         <TabsContent value="timeline" className="mt-4">
           <div className="grid gap-4">
+            {timelineScope?.mode === "base_method" ? (
+              <TimelineScopeCard scope={timelineScope} t={t} />
+            ) : null}
             <ChartPanel
               title={t("timelineCompositionChart")}
               option={timelineCompositionOption(timelineRows, timelineLabel)}
@@ -1252,6 +1288,36 @@ function TimelineTable({
   );
 }
 
+function TimelineScopeCard({
+  scope,
+  t,
+}: {
+  scope: ProfilerTimelineScope;
+  t: (key: MessageKey) => string;
+}): JSX.Element {
+  return (
+    <Card className="p-3">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
+        <span className="font-medium text-foreground/80">
+          {t("timelineBaseScope")}
+        </span>
+        <span className="font-mono text-foreground">
+          {scope.base_method ?? "-"}
+        </span>
+        <span className="text-muted-foreground">
+          {formatNumber(scope.base_samples)} {t("samples")} /{" "}
+          {formatPercent(scope.base_ratio_of_total)} {t("totalRatio")}
+        </span>
+        {scope.warnings.map((warning) => (
+          <span key={warning.code} className="text-destructive">
+            {warning.code}: {warning.message}
+          </span>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
 function breakdownDonutOption(rows: ExecutionBreakdownRow[]): EChartsOption {
   return {
     tooltip: { trigger: "item" },
@@ -1443,10 +1509,18 @@ function buildTimeline(
   root: FlameNode,
   intervalMs: number,
   elapsedSec?: number,
-): TimelineAnalysisRow[] {
+  timelineBaseMethod?: string,
+  totalSamples?: number,
+): TimelineAnalysisView {
   const accumulators = new Map<string, TimelineAccumulator>();
+  const baseMethod = timelineBaseMethod?.trim() ?? "";
+  let stageTotal = baseMethod ? 0 : root.samples;
+  const originalTotal = totalSamples ?? root.samples;
   for (const leaf of extractLeaves(root)) {
-    const segment = timelineSegment(leaf.path);
+    const scopedPath = timelineScopedPath(leaf.path, baseMethod);
+    if (!scopedPath) continue;
+    if (baseMethod) stageTotal += leaf.samples;
+    const segment = timelineSegment(scopedPath);
     const existing = accumulators.get(segment) ?? {
       segment,
       label: timelineDefaultLabel(segment),
@@ -1456,14 +1530,20 @@ function buildTimeline(
       stacks: new Map<string, number>(),
     };
     existing.samples += leaf.samples;
-    incrementMap(existing.methods, leaf.path[leaf.path.length - 1] ?? "(no-frame)", leaf.samples);
-    incrementMap(existing.chains, timelineMethodChain(leaf.path, segment), leaf.samples);
-    incrementMap(existing.stacks, leaf.path.join(";"), leaf.samples);
+    incrementMap(existing.methods, scopedPath[scopedPath.length - 1] ?? "(no-frame)", leaf.samples);
+    incrementMap(existing.chains, timelineMethodChain(scopedPath, segment), leaf.samples);
+    incrementMap(existing.stacks, scopedPath.join(";"), leaf.samples);
     accumulators.set(segment, existing);
   }
 
-  const stageTotal = Math.max(root.samples, 1);
-  return TIMELINE_ORDER.flatMap((segment, index) => {
+  const scope = timelineScope(baseMethod, stageTotal, originalTotal);
+  if (baseMethod && stageTotal <= 0) {
+    return { rows: [], scope };
+  }
+
+  const stageDenominator = Math.max(stageTotal, 1);
+  const totalDenominator = Math.max(originalTotal, 1);
+  const rows = TIMELINE_ORDER.flatMap((segment, index) => {
     const item = accumulators.get(segment);
     if (!item || item.samples <= 0) return [];
     const estimatedSeconds = item.samples * (intervalMs / 1000);
@@ -1474,8 +1554,8 @@ function buildTimeline(
         label: item.label,
         samples: item.samples,
         estimated_seconds: estimatedSeconds,
-        stage_ratio: (item.samples / stageTotal) * 100,
-        total_ratio: (item.samples / stageTotal) * 100,
+        stage_ratio: (item.samples / stageDenominator) * 100,
+        total_ratio: (item.samples / totalDenominator) * 100,
         elapsed_ratio: elapsedSec ? (estimatedSeconds / elapsedSec) * 100 : null,
         top_methods: topMapRows(item.methods, 5),
         method_chains: topChainRows(item.chains, 5),
@@ -1483,6 +1563,41 @@ function buildTimeline(
       },
     ];
   });
+  return { rows, scope };
+}
+
+function timelineScopedPath(path: string[], baseMethod: string): string[] | null {
+  if (!baseMethod) return path;
+  const needle = baseMethod.toLowerCase();
+  const matchIndex = path.findIndex((frame) => frame.toLowerCase().includes(needle));
+  if (matchIndex < 0) return null;
+  return path.slice(matchIndex);
+}
+
+function timelineScope(
+  baseMethod: string,
+  baseSamples: number,
+  totalSamples: number,
+): ProfilerTimelineScope {
+  const warnings =
+    baseMethod && baseSamples <= 0
+      ? [
+          {
+            code: "TIMELINE_BASE_METHOD_NOT_FOUND",
+            message: "No profiler stack matched the configured timeline base method.",
+          },
+        ]
+      : [];
+  return {
+    mode: baseMethod ? "base_method" : "full_profile",
+    base_method: baseMethod || null,
+    match_mode: "frame_contains_case_insensitive",
+    view_mode: baseMethod ? "reroot_at_base_frame" : "preserve_full_path",
+    base_samples: baseSamples,
+    total_samples: totalSamples,
+    base_ratio_of_total: totalSamples > 0 ? (baseSamples / totalSamples) * 100 : null,
+    warnings,
+  };
 }
 
 function timelineSegment(path: string[]): string {

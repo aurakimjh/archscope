@@ -469,6 +469,14 @@ Recommended implementation ownership:
 | T-235 | P3 | [ ] | Add incomplete text class-histogram diagnostics for truncated histogram blocks. Current parser extracts bounded class rows and totals when present, but does not yet emit a dedicated incomplete-block warning. | T-230 | Implementation follow-up | Better histogram parser diagnostics |
 | T-236 | P2 | [ ] | Add UI/HTTP payload controls for very large virtual-thread dumps. Backend synthetic benchmark handled 10k virtual threads in ~0.7s and 50k in ~4.1s parse+analyze, but frontend tables should still use pagination/virtualization and avoid requesting full snapshot/raw evidence payloads by default. | T-224, T-227 | User scalability follow-up | Safer large virtual-thread UX |
 
+### Profiler Batch Timeline Follow-up
+
+Goal: make profiler timeline analysis usable for batch-job scoped investigations where whole-profile sample ratios include idle threads, scheduler loops, framework launchers, or other business workloads.
+
+| ID | Priority | Status | Task | Depends on | Source | Output |
+|---|---|---|---|---|---|---|
+| T-237 | P1 | [x] | Implemented a profiler timeline base-method option. `timelineBaseMethod` / `--timeline-base-method` matches stacks containing the configured method, re-roots each matched stack at the base frame, uses matched samples as the 100% denominator, preserves whole-profile context through `metadata.timeline_scope.base_ratio_of_total` and per-row `total_ratio`, and emits `TIMELINE_BASE_METHOD_NOT_FOUND` when no stack matches. Wired through CLI, FastAPI, TypeScript request/result contracts, and the Profiler timeline UI. | T-104, T-186, T-187 | User feature request | Batch-job scoped profiler timeline |
+
 ## Dependency Order
 
 1. `T-001 -> T-002 -> T-030 -> T-037 -> T-003`: bridge decision, client boundary, CLI install metadata, minimal UX flow, then end-to-end PoC.

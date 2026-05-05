@@ -55,6 +55,8 @@ def test_profiler_cli_writes_analysis_result_json(tmp_path) -> None:
             "100",
             "--elapsed-sec",
             "1336.559",
+            "--timeline-base-method",
+            "Job.execute",
             "--out",
             str(output),
         ],
@@ -67,6 +69,7 @@ def test_profiler_cli_writes_analysis_result_json(tmp_path) -> None:
     assert completed.returncode == 0
     assert payload["type"] == "profiler_collapsed"
     assert payload["summary"]["total_samples"] == 32629
+    assert payload["metadata"]["timeline_scope"]["base_samples"] == 5971
 
 
 def test_report_html_cli_writes_portable_html(tmp_path) -> None:

@@ -28,7 +28,9 @@ from archscope_engine.parsers.jennifer_csv_parser import parse_jennifer_flamegra
 from archscope_engine.parsers.svg_flamegraph_parser import parse_svg_flamegraph
 from archscope_engine.analyzers.flamegraph_builder import build_flame_tree_from_collapsed
 from archscope_engine.analyzers.profiler_breakdown import build_execution_breakdown
-from archscope_engine.analyzers.profiler_timeline import build_timeline_analysis
+from archscope_engine.analyzers.profiler_timeline import (
+    build_timeline_analysis_with_scope,
+)
 from archscope_engine.analyzers.profiler_drilldown import (
     DrilldownFilter,
     build_drilldown_stages,
@@ -42,6 +44,7 @@ def analyze_collapsed_profile(
     elapsed_sec: float | None = None,
     top_n: int = 20,
     profile_kind: str = "wall",
+    timeline_base_method: str | None = None,
     classification_rules: tuple[
         StackClassificationRule, ...
     ] = DEFAULT_STACK_CLASSIFICATION_RULES,
@@ -57,6 +60,7 @@ def analyze_collapsed_profile(
         elapsed_sec=elapsed_sec,
         top_n=top_n,
         profile_kind=profile_kind,
+        timeline_base_method=timeline_base_method,
         diagnostics=parse_result.diagnostics,
         classification_rules=classification_rules,
     )
@@ -68,6 +72,7 @@ def analyze_flamegraph_svg_profile(
     elapsed_sec: float | None = None,
     top_n: int = 20,
     profile_kind: str = "wall",
+    timeline_base_method: str | None = None,
     classification_rules: tuple[
         StackClassificationRule, ...
     ] = DEFAULT_STACK_CLASSIFICATION_RULES,
@@ -90,6 +95,7 @@ def analyze_flamegraph_svg_profile(
         elapsed_sec=elapsed_sec,
         top_n=top_n,
         profile_kind=profile_kind,
+        timeline_base_method=timeline_base_method,
         diagnostics=diagnostics,
         classification_rules=classification_rules,
     )
@@ -103,6 +109,7 @@ def analyze_flamegraph_html_profile(
     elapsed_sec: float | None = None,
     top_n: int = 20,
     profile_kind: str = "wall",
+    timeline_base_method: str | None = None,
     classification_rules: tuple[
         StackClassificationRule, ...
     ] = DEFAULT_STACK_CLASSIFICATION_RULES,
@@ -121,6 +128,7 @@ def analyze_flamegraph_html_profile(
         elapsed_sec=elapsed_sec,
         top_n=top_n,
         profile_kind=profile_kind,
+        timeline_base_method=timeline_base_method,
         diagnostics=diagnostics,
         classification_rules=classification_rules,
     )
@@ -134,6 +142,7 @@ def analyze_jennifer_csv_profile(
     interval_ms: float = 100,
     elapsed_sec: float | None = None,
     top_n: int = 20,
+    timeline_base_method: str | None = None,
     debug_log: DebugLogCollector | None = None,
 ) -> AnalysisResult:
     if debug_log is not None:
@@ -148,6 +157,7 @@ def analyze_jennifer_csv_profile(
         interval_ms=interval_ms,
         elapsed_sec=elapsed_sec,
         top_n=top_n,
+        timeline_base_method=timeline_base_method,
         diagnostics=parse_result.diagnostics,
     )
 
@@ -158,6 +168,7 @@ def drilldown_collapsed_profile(
     filters: list[DrilldownFilter],
     elapsed_sec: float | None = None,
     top_n: int = 20,
+    timeline_base_method: str | None = None,
     debug_log: DebugLogCollector | None = None,
 ) -> AnalysisResult:
     result = analyze_collapsed_profile(
@@ -165,9 +176,17 @@ def drilldown_collapsed_profile(
         interval_ms=interval_ms,
         elapsed_sec=elapsed_sec,
         top_n=top_n,
+        timeline_base_method=timeline_base_method,
         debug_log=debug_log,
     )
-    return _drilldown_from_result(result, filters, interval_ms, elapsed_sec, top_n)
+    return _drilldown_from_result(
+        result,
+        filters,
+        interval_ms,
+        elapsed_sec,
+        top_n,
+        timeline_base_method=timeline_base_method,
+    )
 
 
 def drilldown_jennifer_csv_profile(
@@ -176,6 +195,7 @@ def drilldown_jennifer_csv_profile(
     interval_ms: float = 100,
     elapsed_sec: float | None = None,
     top_n: int = 20,
+    timeline_base_method: str | None = None,
     debug_log: DebugLogCollector | None = None,
 ) -> AnalysisResult:
     result = analyze_jennifer_csv_profile(
@@ -183,9 +203,17 @@ def drilldown_jennifer_csv_profile(
         interval_ms=interval_ms,
         elapsed_sec=elapsed_sec,
         top_n=top_n,
+        timeline_base_method=timeline_base_method,
         debug_log=debug_log,
     )
-    return _drilldown_from_result(result, filters, interval_ms, elapsed_sec, top_n)
+    return _drilldown_from_result(
+        result,
+        filters,
+        interval_ms,
+        elapsed_sec,
+        top_n,
+        timeline_base_method=timeline_base_method,
+    )
 
 
 def breakdown_collapsed_profile(
@@ -194,6 +222,7 @@ def breakdown_collapsed_profile(
     filters: list[DrilldownFilter] | None = None,
     elapsed_sec: float | None = None,
     top_n: int = 20,
+    timeline_base_method: str | None = None,
     debug_log: DebugLogCollector | None = None,
 ) -> AnalysisResult:
     filters = filters or []
@@ -203,6 +232,7 @@ def breakdown_collapsed_profile(
         filters=filters,
         elapsed_sec=elapsed_sec,
         top_n=top_n,
+        timeline_base_method=timeline_base_method,
         debug_log=debug_log,
     )
 
@@ -213,6 +243,7 @@ def breakdown_jennifer_csv_profile(
     interval_ms: float = 100,
     elapsed_sec: float | None = None,
     top_n: int = 20,
+    timeline_base_method: str | None = None,
     debug_log: DebugLogCollector | None = None,
 ) -> AnalysisResult:
     return drilldown_jennifer_csv_profile(
@@ -221,6 +252,7 @@ def breakdown_jennifer_csv_profile(
         interval_ms=interval_ms,
         elapsed_sec=elapsed_sec,
         top_n=top_n,
+        timeline_base_method=timeline_base_method,
         debug_log=debug_log,
     )
 
@@ -233,6 +265,7 @@ def build_collapsed_result(
     top_n: int = 20,
     profile_kind: str = "wall",
     diagnostics: dict[str, Any] | None = None,
+    timeline_base_method: str | None = None,
     classification_rules: tuple[
         StackClassificationRule, ...
     ] = DEFAULT_STACK_CLASSIFICATION_RULES,
@@ -306,12 +339,14 @@ def build_collapsed_result(
         elapsed_sec=elapsed_sec,
         top_n=top_n,
     )
-    series["timeline_analysis"] = build_timeline_analysis(
+    timeline_analysis, timeline_scope = build_timeline_analysis_with_scope(
         flamegraph,
         interval_ms=interval_ms,
         elapsed_sec=elapsed_sec,
         top_n=top_n,
+        timeline_base_method=timeline_base_method,
     )
+    series["timeline_analysis"] = timeline_analysis
     tables["top_child_frames"] = root_stage.top_child_frames
     tables["timeline_analysis"] = series["timeline_analysis"]
     charts = {
@@ -325,6 +360,7 @@ def build_collapsed_result(
             ParserDiagnosticsContract,
             diagnostics if diagnostics is not None else _default_diagnostics(stacks),
         ),
+        "timeline_scope": timeline_scope,
     }
 
     return AnalysisResult(
@@ -347,6 +383,7 @@ def _build_flamegraph_result(
     interval_ms: float,
     elapsed_sec: float | None,
     top_n: int,
+    timeline_base_method: str | None,
     diagnostics: dict[str, Any],
 ) -> AnalysisResult:
     total_samples = root.samples
@@ -356,6 +393,13 @@ def _build_flamegraph_result(
         interval_ms=interval_ms,
         elapsed_sec=elapsed_sec,
         top_n=top_n,
+    )
+    timeline_analysis, timeline_scope = build_timeline_analysis_with_scope(
+        root,
+        interval_ms=interval_ms,
+        elapsed_sec=elapsed_sec,
+        top_n=top_n,
+        timeline_base_method=timeline_base_method,
     )
     return AnalysisResult(
         type="profiler_collapsed",
@@ -389,12 +433,7 @@ def _build_flamegraph_result(
                 elapsed_sec=elapsed_sec,
                 top_n=top_n,
             ),
-            "timeline_analysis": build_timeline_analysis(
-                root,
-                interval_ms=interval_ms,
-                elapsed_sec=elapsed_sec,
-                top_n=top_n,
-            ),
+            "timeline_analysis": timeline_analysis,
         },
         tables={
             "top_stacks": [
@@ -413,12 +452,7 @@ def _build_flamegraph_result(
                 for item in root_stage.top_stacks
             ],
             "top_child_frames": root_stage.top_child_frames,
-            "timeline_analysis": build_timeline_analysis(
-                root,
-                interval_ms=interval_ms,
-                elapsed_sec=elapsed_sec,
-                top_n=top_n,
-            ),
+            "timeline_analysis": timeline_analysis,
         },
         charts={
             "flamegraph": root.to_dict(),
@@ -428,6 +462,7 @@ def _build_flamegraph_result(
             "parser": parser,
             "schema_version": "0.1.0",
             "diagnostics": diagnostics,
+            "timeline_scope": timeline_scope,
         },
     )
 
@@ -438,6 +473,7 @@ def _drilldown_from_result(
     interval_ms: float,
     elapsed_sec: float | None,
     top_n: int,
+    timeline_base_method: str | None = None,
 ) -> AnalysisResult:
     root = flame_node_from_dict(result.charts["flamegraph"])
     stages = build_drilldown_stages(
@@ -448,6 +484,14 @@ def _drilldown_from_result(
         top_n=top_n,
     )
     current = stages[-1]
+    timeline_analysis, timeline_scope = build_timeline_analysis_with_scope(
+        current.flamegraph,
+        interval_ms=interval_ms,
+        elapsed_sec=elapsed_sec,
+        total_samples=stages[0].flamegraph.samples,
+        top_n=top_n,
+        timeline_base_method=timeline_base_method,
+    )
     charts = {
         **result.charts,
         "drilldown_stages": [stage.to_dict() for stage in stages],
@@ -463,13 +507,7 @@ def _drilldown_from_result(
             parent_samples=stages[-2].flamegraph.samples if len(stages) > 1 else None,
             top_n=top_n,
         ),
-        "timeline_analysis": build_timeline_analysis(
-            current.flamegraph,
-            interval_ms=interval_ms,
-            elapsed_sec=elapsed_sec,
-            total_samples=stages[0].flamegraph.samples,
-            top_n=top_n,
-        ),
+        "timeline_analysis": timeline_analysis,
     }
     tables = {
         **result.tables,
@@ -494,6 +532,7 @@ def _drilldown_from_result(
     metadata = {
         **result.metadata,
         "drilldown_current_stage": current.to_dict(),
+        "timeline_scope": timeline_scope,
     }
     return AnalysisResult(
         type=result.type,

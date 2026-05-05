@@ -14,6 +14,7 @@ from archscope_engine.models.result_contracts import (
     ProfilerCollapsedSeries,
     ProfilerCollapsedSummary,
     ProfilerCollapsedTables,
+    ProfilerTimelineScope,
 )
 from archscope_engine.models.thread_dump import ExceptionRecord, ThreadDumpRecord
 
@@ -34,5 +35,6 @@ __all__ = [
     "ProfilerCollapsedSeries",
     "ProfilerCollapsedSummary",
     "ProfilerCollapsedTables",
+    "ProfilerTimelineScope",
     "ThreadDumpRecord",
 ]
