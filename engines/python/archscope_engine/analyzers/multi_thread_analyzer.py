@@ -127,12 +127,15 @@ def analyze_multi_thread_dumps(
             -int(finding["consecutive_dumps"]),
         )
     )
+    jvm_tables = _jvm_metadata_tables(bundles, top_n=top_n)
+    jvm_findings = _jvm_metadata_findings(jvm_tables, top_n=top_n)
 
     findings_payload = _findings_payload(
         long_running=long_running,
         persistent_blocked=persistent_blocked,
         latency_sections=latency_sections,
         growing_locks=growing_locks,
+        jvm_metadata_findings=jvm_findings,
         threshold=threshold,
     )
 
@@ -148,6 +151,12 @@ def analyze_multi_thread_dumps(
         "persistent_blocked_threads": len(persistent_blocked),
         "latency_sections": len(latency_sections),
         "growing_lock_contention": len(growing_locks),
+        "virtual_thread_carrier_pinning": len(
+            jvm_tables["virtual_thread_carrier_pinning"]
+        ),
+        "smr_unresolved_threads": len(jvm_tables["smr_unresolved_threads"]),
+        "native_method_threads": len(jvm_tables["native_method_threads"]),
+        "class_histogram_classes": len(jvm_tables["class_histogram_top_classes"]),
         "consecutive_dump_threshold": threshold,
     }
     series = {
@@ -178,9 +187,13 @@ def analyze_multi_thread_dumps(
                 "source_format": bundle.source_format,
                 "language": bundle.language,
                 "thread_count": len(bundle.snapshots),
+                "start_line": bundle.metadata.get("start_line"),
+                "end_line": bundle.metadata.get("end_line"),
+                "raw_timestamp": bundle.metadata.get("raw_timestamp"),
             }
             for bundle in bundles
         ],
+        **jvm_tables,
     }
     metadata = {
         "parser": "thread_dump_multi",
@@ -299,6 +312,7 @@ def _findings_payload(
     persistent_blocked: list[dict[str, Any]],
     latency_sections: list[dict[str, Any]],
     growing_locks: list[dict[str, Any]],
+    jvm_metadata_findings: list[dict[str, Any]],
     threshold: int,
 ) -> list[dict[str, Any]]:
     findings: list[dict[str, Any]] = []
@@ -355,6 +369,7 @@ def _findings_payload(
                 "thresholds": {"consecutive_dumps": threshold},
             }
         )
+    findings.extend(jvm_metadata_findings)
     return findings
 
 
@@ -379,6 +394,8 @@ def _build_growing_lock_findings(
         for snapshot in bundle.snapshots:
             waiting = snapshot.lock_waiting
             if waiting is None:
+                continue
+            if waiting.wait_mode in {"object_wait", "parking_condition_wait"}:
                 continue
             per_dump_counts.setdefault(waiting.lock_id, set()).add(snapshot.thread_name)
             per_dump_classes.setdefault(waiting.lock_id, waiting.lock_class)
@@ -425,6 +442,122 @@ def _build_growing_lock_findings(
                     "max_waiters": longest_max,
                 }
             )
+    return findings
+
+
+# ---------------------------------------------------------------------------
+# Optional JVM metadata tables
+# ---------------------------------------------------------------------------
+
+
+def _jvm_metadata_tables(
+    bundles: Sequence[ThreadDumpBundle],
+    *,
+    top_n: int,
+) -> dict[str, list[dict[str, Any]]]:
+    carrier_pinning: list[dict[str, Any]] = []
+    smr_unresolved: list[dict[str, Any]] = []
+    native_methods: list[dict[str, Any]] = []
+    histogram_rows: list[dict[str, Any]] = []
+
+    for bundle in bundles:
+        for snapshot in bundle.snapshots:
+            pinning = snapshot.metadata.get("carrier_pinning")
+            if isinstance(pinning, dict):
+                carrier_pinning.append(
+                    {
+                        "dump_index": bundle.dump_index,
+                        "dump_label": bundle.dump_label,
+                        "thread_name": snapshot.thread_name,
+                        "thread_id": snapshot.thread_id,
+                        "state": snapshot.state.value,
+                        "candidate_method": pinning.get("candidate_method"),
+                        "top_frame": pinning.get("top_frame"),
+                        "reason": pinning.get("reason"),
+                    }
+                )
+            native_method = snapshot.metadata.get("native_method")
+            if isinstance(native_method, str):
+                native_methods.append(
+                    {
+                        "dump_index": bundle.dump_index,
+                        "dump_label": bundle.dump_label,
+                        "thread_name": snapshot.thread_name,
+                        "thread_id": snapshot.thread_id,
+                        "state": snapshot.state.value,
+                        "native_method": native_method,
+                        "stack_signature": snapshot.stack_signature(),
+                    }
+                )
+
+        smr = bundle.metadata.get("smr")
+        if isinstance(smr, dict):
+            for entry in smr.get("unresolved", []):
+                if not isinstance(entry, dict):
+                    continue
+                smr_unresolved.append(
+                    {
+                        "dump_index": bundle.dump_index,
+                        "dump_label": bundle.dump_label,
+                        "section_line": entry.get("section_line"),
+                        "line": entry.get("line"),
+                    }
+                )
+
+        histogram = bundle.metadata.get("class_histogram")
+        if isinstance(histogram, dict):
+            for entry in histogram.get("classes", []):
+                if not isinstance(entry, dict):
+                    continue
+                histogram_rows.append(
+                    {
+                        "dump_index": bundle.dump_index,
+                        "dump_label": bundle.dump_label,
+                        "rank": entry.get("rank"),
+                        "class_name": entry.get("class_name"),
+                        "instances": entry.get("instances"),
+                        "bytes": entry.get("bytes"),
+                    }
+                )
+
+    histogram_rows.sort(key=lambda row: -int(row.get("bytes") or 0))
+    native_methods.sort(key=lambda row: (row["dump_index"], str(row["thread_name"])))
+    carrier_pinning.sort(key=lambda row: (row["dump_index"], str(row["thread_name"])))
+    return {
+        "virtual_thread_carrier_pinning": carrier_pinning[:top_n],
+        "smr_unresolved_threads": smr_unresolved[:top_n],
+        "native_method_threads": native_methods[:top_n],
+        "class_histogram_top_classes": histogram_rows[:top_n],
+    }
+
+
+def _jvm_metadata_findings(
+    jvm_tables: dict[str, list[dict[str, Any]]],
+    *,
+    top_n: int,
+) -> list[dict[str, Any]]:
+    findings: list[dict[str, Any]] = []
+    for entry in jvm_tables.get("virtual_thread_carrier_pinning", [])[:top_n]:
+        findings.append(
+            {
+                "severity": "warning",
+                "code": "VIRTUAL_THREAD_CARRIER_PINNING",
+                "message": (
+                    f"Thread {entry['thread_name']!r} contains a virtual-thread "
+                    "carrier/pinning marker."
+                ),
+                "evidence": entry,
+            }
+        )
+    for entry in jvm_tables.get("smr_unresolved_threads", [])[:top_n]:
+        findings.append(
+            {
+                "severity": "warning",
+                "code": "SMR_UNRESOLVED_THREAD",
+                "message": "JVM SMR diagnostics include an unresolved/zombie thread marker.",
+                "evidence": entry,
+            }
+        )
     return findings
 
 

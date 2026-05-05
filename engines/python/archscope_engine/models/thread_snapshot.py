@@ -97,9 +97,13 @@ class LockHandle:
 
     lock_id: str
     lock_class: str | None = None
+    wait_mode: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
-        return {"lock_id": self.lock_id, "lock_class": self.lock_class}
+        payload = {"lock_id": self.lock_id, "lock_class": self.lock_class}
+        if self.wait_mode:
+            payload["wait_mode"] = self.wait_mode
+        return payload
 
 
 @dataclass(frozen=True)

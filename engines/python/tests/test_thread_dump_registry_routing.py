@@ -14,6 +14,7 @@ from archscope_engine.parsers.thread_dump import (
     DEFAULT_REGISTRY,
     DotnetClrstackParserPlugin,
     GoGoroutineParserPlugin,
+    JavaJcmdJsonParserPlugin,
     JavaJstackParserPlugin,
     NodejsDiagnosticReportParserPlugin,
     PythonFaulthandlerParserPlugin,
@@ -42,6 +43,18 @@ from archscope_engine.parsers.thread_dump import (
             "Fatal Python error\nThread 0x00007f12 (most recent call first):\n"
             '  File "/app/x.py", line 1 in main\n',
             "python_faulthandler",
+        ),
+        (
+            json.dumps(
+                {
+                    "threadDump": {
+                        "threadContainers": [
+                            {"threads": [{"name": "main", "state": "RUNNABLE"}]}
+                        ]
+                    }
+                }
+            ),
+            "java_jcmd_json",
         ),
         (
             json.dumps(
@@ -81,6 +94,7 @@ def test_default_registry_has_all_expected_plugins() -> None:
     formats = {plugin.format_id for plugin in DEFAULT_REGISTRY.plugins}
     assert formats == {
         "java_jstack",
+        "java_jcmd_json",
         "go_goroutine",
         "python_pyspy",
         "python_faulthandler",
@@ -93,6 +107,7 @@ def test_default_registry_picks_each_plugin_class() -> None:
     """Make sure we can fetch each plugin instance back by format id."""
     by_id = {plugin.format_id: plugin for plugin in DEFAULT_REGISTRY.plugins}
     assert isinstance(by_id["java_jstack"], JavaJstackParserPlugin)
+    assert isinstance(by_id["java_jcmd_json"], JavaJcmdJsonParserPlugin)
     assert isinstance(by_id["go_goroutine"], GoGoroutineParserPlugin)
     assert isinstance(by_id["python_pyspy"], PythonPySpyParserPlugin)
     assert isinstance(by_id["python_faulthandler"], PythonFaulthandlerParserPlugin)

@@ -10,6 +10,7 @@ that do not depend on JVM-specific frame names.
 | Format ID                    | Runtime           | Detection signature                                                |
 | ---------------------------- | ----------------- | ------------------------------------------------------------------ |
 | `java_jstack`                | JVM               | `Full thread dump …` header **or** quoted-name + `nid=0x…`         |
+| `java_jcmd_json`             | JVM               | JSON object containing `"threadDump"`                              |
 | `go_goroutine`               | Go                | `^goroutine \d+ \[\w` (covers `runtime.Stack`, panic, debug.Stack) |
 | `python_pyspy`               | Python (py-spy)   | `Process N:` followed by `Python vX.Y`                             |
 | `python_faulthandler`        | Python (stdlib)   | `Thread 0xHEX (most recent call first):`                           |
@@ -22,6 +23,13 @@ if none match, the registry raises `UnknownFormatError`. Operators can
 override detection with `--format` (CLI) or the `format` field on the
 HTTP request — useful when a headerless dump fragment was extracted from
 a larger log.
+
+For `java_jstack`, one physical file may contain multiple `Full thread
+dump` sections. The registry expands those sections into ordered
+`ThreadDumpBundle` entries with sequential `dump_index`, labels such as
+`server.log#1`, and bounded source metadata (`start_line`, `end_line`,
+best-effort `raw_timestamp`). UTF-16 BOM and null-byte based UTF-16LE/BE
+sniffing is supported before format detection.
 
 A multi-dump request fails fast with `MixedFormatError` when its files
 resolve to more than one format. Forcing `--format` skips the check
@@ -37,7 +45,7 @@ Every plugin emits the same three records:
 - **`ThreadSnapshot`** — `snapshot_id`, `thread_name`, `thread_id`,
   `state`, `category`, `stack_frames`, `lock_info`, `metadata`,
   `language`, `source_format`.
-- **`ThreadDumpBundle`** — all snapshots from a single dump file plus
+- **`ThreadDumpBundle`** — all snapshots from one logical dump plus
   `dump_index`, `dump_label`, `captured_at`, `metadata`.
 
 The legacy single-dump `ThreadDumpRecord` (in `models/thread_dump.py`)
@@ -74,7 +82,7 @@ findings.
 
 `analyzers/multi_thread_analyzer.analyze_multi_thread_dumps()` consumes
 an ordered list of `ThreadDumpBundle` objects and emits an
-`AnalysisResult(type="thread_dump_multi")` with three findings:
+`AnalysisResult(type="thread_dump_multi")` with these core findings:
 
 - **`LONG_RUNNING_THREAD`** *(warning)* — a thread name keeps the same
   stack signature in `RUNNABLE` for ≥ N consecutive dumps (default
@@ -87,6 +95,34 @@ an ordered list of `ThreadDumpBundle` objects and emits an
   by the per-language enrichment plugins. `LOCK_WAIT` is intentionally
   excluded because `PERSISTENT_BLOCKED_THREAD` already owns that
   signal.
+
+Java/JVM-specific metadata may add optional findings and tables without
+changing the language-agnostic model:
+
+- **`VIRTUAL_THREAD_CARRIER_PINNING`** *(warning)* — a Java dump includes
+  virtual-thread carrier or pinning markers; evidence includes the dump
+  index, carrier thread, top frame, and first non-JDK candidate frame.
+- **`SMR_UNRESOLVED_THREAD`** *(warning)* — `Threads class SMR info`
+  contains unresolved or zombie thread evidence. Raw evidence is bounded
+  in bundle metadata.
+- Supporting tables: `native_method_threads` and
+  `class_histogram_top_classes`. The class histogram parser handles text
+  `num  #instances  #bytes  class name` blocks only; it does not parse
+  HPROF heap dumps. Parser metadata keeps up to 500 histogram rows by
+  default. Increase it with CLI `--class-histogram-limit N`, HTTP
+  `classHistogramLimit`, or environment variable
+  `ARCHSCOPE_CLASS_HISTOGRAM_ROW_LIMIT`.
+
+Monitor semantics are split for Java jstack locks:
+`lock_entry_wait`, `object_wait`, and `parking_condition_wait`.
+Pure `Object.wait()` sleep is not reported as a lock-contention hotspot
+unless there is true lock-entry wait evidence.
+
+Virtual-thread scale note: parser and multi-dump analysis are designed
+as linear passes over thread snapshots. Synthetic validation on this
+workstation completed 10,000 virtual-thread snapshots in about 0.7s and
+50,000 in about 4.1s for parse+analyze. UI rendering and JSON payload
+size should still stay behind `topN`/table limits for very large dumps.
 
 Tunable via `--consecutive-threshold` (CLI) or `consecutiveThreshold`
 (HTTP). Findings are also reflected on the `summary` (counts) and

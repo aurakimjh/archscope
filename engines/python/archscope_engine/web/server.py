@@ -383,6 +383,9 @@ def _execute_thread_dump_multi(params: dict[str, Any]) -> dict[str, Any]:
         paths.append(candidate)
 
     top_n = int(params.get("topN") or 20)
+    class_histogram_limit = int(params.get("classHistogramLimit") or 500)
+    if class_histogram_limit < 1:
+        return _failure("INVALID_OPTION", "classHistogramLimit must be >= 1.")
     threshold = int(params.get("consecutiveThreshold") or 3)
     if threshold < 1:
         return _failure("INVALID_OPTION", "consecutiveThreshold must be >= 1.")
@@ -392,7 +395,9 @@ def _execute_thread_dump_multi(params: dict[str, Any]) -> dict[str, Any]:
 
     try:
         bundles = THREAD_DUMP_REGISTRY.parse_many(
-            paths, format_override=format_override or None
+            paths,
+            format_override=format_override or None,
+            parser_options={"class_histogram_limit": class_histogram_limit},
         )
     except UnknownFormatError as exc:
         return _failure("UNKNOWN_THREAD_DUMP_FORMAT", str(exc), exc.head_preview[:200])

@@ -53,6 +53,7 @@ def analyze_lock_contention(
     lock_class_by_id: dict[str, str | None] = {}
     owners_by_lock: dict[str, list[str]] = defaultdict(list)
     waiters_by_lock: dict[str, list[str]] = defaultdict(list)
+    wait_modes_by_lock: dict[str, list[str]] = defaultdict(list)
     threads_with_locks = 0
     threads_waiting = 0
 
@@ -66,15 +67,23 @@ def analyze_lock_contention(
             _remember_class(lock_class_by_id, hold)
         if snapshot.lock_waiting is not None:
             waiters_by_lock[snapshot.lock_waiting.lock_id].append(snapshot.thread_name)
+            wait_modes_by_lock[snapshot.lock_waiting.lock_id].append(
+                snapshot.lock_waiting.wait_mode or "unknown_lock_wait"
+            )
             _remember_class(lock_class_by_id, snapshot.lock_waiting)
 
     contention_rows = _contention_table(
         owners_by_lock=owners_by_lock,
         waiters_by_lock=waiters_by_lock,
+        wait_modes_by_lock=wait_modes_by_lock,
         lock_class_by_id=lock_class_by_id,
         snapshots_by_name={s.thread_name: s for s in snapshots},
     )
-    hotspots = [row for row in contention_rows if row["waiter_count"] > 0]
+    hotspots = [
+        row
+        for row in contention_rows
+        if row["waiter_count"] > 0 and row["contention_candidate"]
+    ]
     deadlocks = _detect_deadlocks(snapshots)
     findings = _build_findings(hotspots[:top_n], deadlocks)
 
@@ -153,6 +162,7 @@ def _contention_table(
     *,
     owners_by_lock: dict[str, list[str]],
     waiters_by_lock: dict[str, list[str]],
+    wait_modes_by_lock: dict[str, list[str]],
     lock_class_by_id: dict[str, str | None],
     snapshots_by_name: dict[str, ThreadSnapshot],
 ) -> list[dict[str, object]]:
@@ -163,6 +173,11 @@ def _contention_table(
     for lock_id in all_lock_ids:
         owners = owners_by_lock.get(lock_id, [])
         waiters = waiters_by_lock.get(lock_id, [])
+        wait_mode_counts = dict(Counter(wait_modes_by_lock.get(lock_id, [])))
+        contention_candidate = any(
+            mode not in {"object_wait", "parking_condition_wait"}
+            for mode in wait_mode_counts
+        )
         # Pick the most-frequent owner name in case the same lock is
         # reported by multiple snapshots (e.g. a multi-dump union).
         owner_name = (
@@ -182,6 +197,8 @@ def _contention_table(
                 "owner_stack_signature": owner_signature,
                 "owner_count": len(set(owners)),
                 "waiter_count": len(set(waiters)),
+                "wait_mode_counts": wait_mode_counts,
+                "contention_candidate": contention_candidate,
                 "top_waiters": _top_n_names(waiters, limit=5),
                 "all_waiters": sorted(set(waiters)),
             }
@@ -220,6 +237,8 @@ def _detect_deadlocks(snapshots: Iterable[ThreadSnapshot]) -> list[dict[str, obj
     waits_for: dict[str, str] = {}
     for snapshot in snapshots_list:
         if snapshot.lock_waiting is None:
+            continue
+        if snapshot.lock_waiting.wait_mode in {"object_wait", "parking_condition_wait"}:
             continue
         owner = holders_by_lock.get(snapshot.lock_waiting.lock_id)
         if owner and owner != snapshot.thread_name:

@@ -20,6 +20,8 @@ from archscope_engine.analyzers.profiler_analyzer import (
     analyze_jennifer_csv_profile,
 )
 from archscope_engine.analyzers.profiler_breakdown import build_execution_breakdown
+from archscope_engine.analyzers.multi_thread_analyzer import analyze_multi_thread_dumps
+from archscope_engine.parsers.thread_dump import DEFAULT_REGISTRY as THREAD_DUMP_REGISTRY
 
 
 @dataclass(frozen=True)
@@ -48,9 +50,11 @@ def main() -> None:
         access_log = root / "access.log"
         collapsed_profile = root / "profile.collapsed"
         jennifer_csv = root / "jennifer.csv"
+        thread_dump = root / "virtual-thread-dump.txt"
         _write_access_log(access_log, args.rows)
         _write_collapsed_profile(collapsed_profile, args.rows)
         _write_jennifer_csv(jennifer_csv, args.rows)
+        _write_virtual_thread_dump(thread_dump, args.rows)
         breakdown_tree = _build_breakdown_tree(args.rows)
 
         cases = [
@@ -80,6 +84,19 @@ def main() -> None:
                     breakdown_tree,
                     interval_ms=100,
                     elapsed_sec=None,
+                ),
+            ),
+            _benchmark(
+                "thread_dump_virtual_threads_parse_analyze",
+                args.rows,
+                args.repeat,
+                lambda: analyze_multi_thread_dumps(
+                    THREAD_DUMP_REGISTRY.parse_many(
+                        [thread_dump],
+                        parser_options={"class_histogram_limit": 20},
+                    ),
+                    threshold=2,
+                    top_n=20,
                 ),
             ),
         ]
@@ -168,6 +185,21 @@ def _write_jennifer_csv(path: Path, rows: int) -> None:
                     f"{root_key}_{child_index},{root_key},{method},10,1,{color}\n"
                 )
                 written += 1
+
+
+def _write_virtual_thread_dump(path: Path, rows: int) -> None:
+    with path.open("w", encoding="utf-8") as handle:
+        handle.write("Full thread dump OpenJDK 64-Bit Server VM (21.0.1 mixed mode):\n\n")
+        for index in range(rows):
+            handle.write(
+                f'"VirtualThread[# {index}]/runnable@ForkJoinPool-1-worker-{index % 32}" '
+                f"# {index} prio=5 tid=0x{index + 1:08x} nid=0x{index + 1:08x} runnable\n"
+            )
+            handle.write("   java.lang.Thread.State: RUNNABLE\n")
+            handle.write("\tat java.lang.VirtualThread.run(VirtualThread.java:329)\n")
+            handle.write(
+                f"\tat com.example.batch.Step{index % 100}.execute(Step{index % 100}.java:42)\n\n"
+            )
 
 
 def _build_breakdown_tree(rows: int):

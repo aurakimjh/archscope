@@ -16,9 +16,11 @@ without cross-contamination.
 from __future__ import annotations
 
 import re
-from dataclasses import replace
+import os
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 
+from archscope_engine.common.file_utils import iter_text_lines
 from archscope_engine.models.thread_dump import ThreadDumpRecord
 from archscope_engine.models.thread_snapshot import (
     LockHandle,
@@ -28,13 +30,28 @@ from archscope_engine.models.thread_snapshot import (
     ThreadState,
 )
 from archscope_engine.parsers.thread_dump.registry import DEFAULT_REGISTRY
-from archscope_engine.parsers.thread_dump_parser import parse_thread_dump
+from archscope_engine.parsers.thread_dump_parser import (
+    parse_thread_block,
+    parse_thread_dump,
+)
 
 # Heuristics for detecting jstack output:
 #   - The classic header `Full thread dump OpenJDK ...`
 #   - A quoted-name line followed by `nid=0x...` (matches every jstack ever)
 _FULL_THREAD_HEADER = re.compile(r"Full thread dump\b", re.IGNORECASE)
 _JSTACK_NID_LINE = re.compile(r'^"[^"]+".*\bnid=0x[0-9a-fA-F]+', re.MULTILINE)
+_THREAD_BLOCK_HEADER = re.compile(r'^"[^"]+"')
+_CLASS_HISTOGRAM_LIMIT_ENV = "ARCHSCOPE_CLASS_HISTOGRAM_ROW_LIMIT"
+_DEFAULT_CLASS_HISTOGRAM_ROW_LIMIT = 500
+
+
+@dataclass
+class _JstackSection:
+    records: list[ThreadDumpRecord] = field(default_factory=list)
+    raw_lines: list[str] = field(default_factory=list)
+    start_line: int = 0
+    end_line: int = 0
+    raw_timestamp: str | None = None
 
 
 class JavaJstackParserPlugin:
@@ -48,8 +65,14 @@ class JavaJstackParserPlugin:
             return True
         return bool(_JSTACK_NID_LINE.search(head))
 
-    def parse(self, path: Path) -> ThreadDumpBundle:
+    def parse(
+        self,
+        path: Path,
+        *,
+        class_histogram_limit: int | None = None,
+    ) -> ThreadDumpBundle:
         records = parse_thread_dump(Path(path))
+        row_limit = _class_histogram_row_limit(class_histogram_limit)
         snapshots = [
             self._record_to_snapshot(record, index)
             for index, record in enumerate(records)
@@ -59,14 +82,52 @@ class JavaJstackParserPlugin:
             source_file=str(path),
             source_format=self.format_id,
             language=self.language,
+            metadata={"class_histogram_row_limit": row_limit},
         )
 
-    def _record_to_snapshot(self, record: ThreadDumpRecord, index: int) -> ThreadSnapshot:
+    def parse_all(
+        self,
+        path: Path,
+        *,
+        class_histogram_limit: int | None = None,
+    ) -> list[ThreadDumpBundle]:
+        row_limit = _class_histogram_row_limit(class_histogram_limit)
+        sections = _split_jstack_sections(Path(path))
+        if not sections:
+            return [self.parse(path, class_histogram_limit=row_limit)]
+
+        bundles: list[ThreadDumpBundle] = []
+        for section_index, section in enumerate(sections):
+            snapshots = [
+                self._record_to_snapshot(
+                    record,
+                    index,
+                    section_index=section_index,
+                )
+                for index, record in enumerate(section.records)
+            ]
+            bundles.append(
+                ThreadDumpBundle(
+                    snapshots=snapshots,
+                    source_file=str(path),
+                    source_format=self.format_id,
+                    language=self.language,
+                    metadata=_section_metadata(
+                        section,
+                        class_histogram_limit=row_limit,
+                    ),
+                )
+            )
+        return bundles
+
+    def _record_to_snapshot(
+        self,
+        record: ThreadDumpRecord,
+        index: int,
+        *,
+        section_index: int = 0,
+    ) -> ThreadSnapshot:
         state = ThreadState.coerce(record.state)
-        if state is ThreadState.UNKNOWN and record.lock_info:
-            # jstack reports threads parked on a lock as WAITING but the
-            # state line is sometimes missing — fall back to the lock hint.
-            state = ThreadState.LOCK_WAIT
         frames = [_frame_from_jstack(line) for line in record.stack]
         # T-194: collapse CGLIB/proxy hash variants into a stable identifier.
         frames = [_normalize_proxy_frame(frame) for frame in frames]
@@ -78,20 +139,34 @@ class JavaJstackParserPlugin:
         # string field) keeps its byte-for-byte content; the new
         # `lock_holds`/`lock_waiting` fields carry the structured view.
         lock_holds, lock_waiting = _extract_lock_handles(record.raw_block)
-        if lock_waiting is not None and state in (
-            ThreadState.RUNNABLE,
-            ThreadState.UNKNOWN,
+        if (
+            lock_waiting is not None
+            and lock_waiting.wait_mode == "lock_entry_wait"
+            and state in (ThreadState.RUNNABLE, ThreadState.UNKNOWN)
         ):
             state = ThreadState.LOCK_WAIT
+        elif lock_waiting is not None and state is ThreadState.UNKNOWN:
+            state = ThreadState.WAITING
+        metadata: dict[str, object] = {"raw_block": record.raw_block}
+        if _is_virtual_thread(record):
+            metadata["is_virtual_thread"] = True
+        native_method = _native_method(record)
+        if native_method:
+            metadata["native_method"] = native_method
+        carrier_pinning = _carrier_pinning(record.raw_block, frames)
+        if carrier_pinning:
+            metadata["carrier_pinning"] = carrier_pinning
+        if lock_waiting is not None and lock_waiting.wait_mode:
+            metadata["monitor_wait_mode"] = lock_waiting.wait_mode
         return ThreadSnapshot(
-            snapshot_id=f"java::{index}::{record.thread_name}",
+            snapshot_id=f"java::{section_index}::{index}::{record.thread_name}",
             thread_name=record.thread_name,
             thread_id=record.thread_id,
             state=state,
             category=record.category,
             stack_frames=frames,
             lock_info=record.lock_info,
-            metadata={"raw_block": record.raw_block},
+            metadata=metadata,
             language=self.language,
             source_format=self.format_id,
             lock_holds=lock_holds,
@@ -99,8 +174,124 @@ class JavaJstackParserPlugin:
         )
 
 
+def _split_jstack_sections(path: Path) -> list[_JstackSection]:
+    """Split a text file that may contain repeated JVM thread dumps."""
+    sections: list[_JstackSection] = []
+    current_section: _JstackSection | None = None
+    current_block: list[str] = []
+    prefix_lines: list[str] = []
+    recent_lines: list[str] = []
+
+    def flush_block() -> None:
+        nonlocal current_block
+        if current_section is None or not current_block:
+            current_block = []
+            return
+        record = parse_thread_block(current_block)
+        if record is not None:
+            current_section.records.append(record)
+        current_block = []
+
+    def flush_section() -> None:
+        nonlocal current_section
+        if current_section is None:
+            return
+        flush_block()
+        if current_section.records:
+            sections.append(current_section)
+        current_section = None
+
+    def start_section(
+        line_number: int,
+        timestamp_lines: list[str] | None = None,
+    ) -> None:
+        nonlocal current_section
+        current_section = _JstackSection(
+            start_line=line_number,
+            end_line=line_number,
+            raw_timestamp=_extract_raw_timestamp(timestamp_lines or prefix_lines),
+        )
+
+    def remember(line: str) -> None:
+        nonlocal recent_lines
+        if line.strip():
+            recent_lines = (recent_lines + [line])[-8:]
+
+    for line_number, line in enumerate(iter_text_lines(path), start=1):
+        is_full_header = bool(_FULL_THREAD_HEADER.search(line))
+        is_thread_header = bool(_THREAD_BLOCK_HEADER.match(line))
+
+        if is_full_header:
+            timestamp_lines = list(recent_lines)
+            flush_section()
+            start_section(line_number, timestamp_lines)
+            current_section.raw_lines.append(line)
+            current_section.end_line = line_number
+            prefix_lines = []
+            remember(line)
+            continue
+
+        if current_section is None:
+            if is_thread_header:
+                start_section(line_number)
+                current_block = [line]
+                current_section.raw_lines.append(line)
+                current_section.end_line = line_number
+                remember(line)
+            elif line.strip():
+                prefix_lines = (prefix_lines + [line])[-8:]
+                remember(line)
+            continue
+
+        current_section.raw_lines.append(line)
+        current_section.end_line = line_number
+        if is_thread_header:
+            flush_block()
+            current_block = [line]
+        elif current_block:
+            current_block.append(line)
+        remember(line)
+
+    flush_section()
+    return sections
+
+
+def _extract_raw_timestamp(lines: list[str]) -> str | None:
+    for line in reversed(lines):
+        text = line.strip()
+        if not text:
+            continue
+        if re.search(r"\d{4}[-/]\d{2}[-/]\d{2}|\d{2}:\d{2}:\d{2}", text):
+            return text
+    return None
+
+
+def _section_metadata(
+    section: _JstackSection,
+    *,
+    class_histogram_limit: int,
+) -> dict[str, object]:
+    metadata: dict[str, object] = {
+        "start_line": section.start_line,
+        "end_line": section.end_line,
+        "class_histogram_row_limit": class_histogram_limit,
+    }
+    if section.raw_timestamp:
+        metadata["raw_timestamp"] = section.raw_timestamp
+    smr = _parse_smr_diagnostics(section.raw_lines)
+    if smr:
+        metadata["smr"] = smr
+    class_histogram = _parse_text_class_histogram(
+        section.raw_lines,
+        row_limit=class_histogram_limit,
+    )
+    if class_histogram:
+        metadata["class_histogram"] = class_histogram
+    return metadata
+
+
 _JAVA_FRAME_RE = re.compile(
-    r"^(?P<qualified>[\w$.<>]+)\((?P<location>[^)]*)\)\s*$"
+    r"^(?P<qualified>[\w$./<>]+)\((?P<location>[^)]*)\)\s*$"
 )
 
 
@@ -111,6 +302,8 @@ def _frame_from_jstack(line: str) -> StackFrame:
     if not match:
         return StackFrame(function=text, language="java")
     qualified = match.group("qualified")
+    if "/" in qualified:
+        _, _, qualified = qualified.partition("/")
     location = match.group("location") or ""
     if "." in qualified:
         module, _, function = qualified.rpartition(".")
@@ -224,6 +417,149 @@ def _infer_java_state(state: ThreadState, frames: list[StackFrame]) -> ThreadSta
 
 
 # ---------------------------------------------------------------------------
+# JVM-specific metadata enrichment
+# ---------------------------------------------------------------------------
+
+_CLASS_HISTOGRAM_ROW_RE = re.compile(
+    r"^\s*(?P<rank>\d+):\s+(?P<instances>\d+)\s+(?P<bytes>\d+)\s+(?P<class_name>.+?)\s*$"
+)
+_CLASS_HISTOGRAM_TOTAL_RE = re.compile(
+    r"^\s*Total\s+(?P<instances>\d+)\s+(?P<bytes>\d+)\s*$",
+    re.IGNORECASE,
+)
+def _is_virtual_thread(record: ThreadDumpRecord) -> bool:
+    text = f"{record.thread_name}\n{record.raw_block}".lower()
+    return "virtualthread" in text or "virtual thread" in text
+
+
+def _native_method(record: ThreadDumpRecord) -> str | None:
+    for frame in record.stack:
+        if "(Native Method)" in frame:
+            return frame.strip()
+    return None
+
+
+def _carrier_pinning(
+    raw_block: str,
+    frames: list[StackFrame],
+) -> dict[str, object] | None:
+    text = raw_block.lower()
+    if "virtual" not in text or ("carrier" not in text and "pinn" not in text):
+        return None
+    top_frame = frames[0].render() if frames else None
+    candidate = _first_non_jdk_frame(frames)
+    return {
+        "top_frame": top_frame,
+        "candidate_method": candidate or top_frame,
+        "reason": "virtual_thread_carrier_or_pinning_marker",
+    }
+
+
+def _first_non_jdk_frame(frames: list[StackFrame]) -> str | None:
+    for frame in frames:
+        rendered = frame.render()
+        if not rendered.startswith(
+            (
+                "java.",
+                "javax.",
+                "jdk.",
+                "sun.",
+                "com.sun.",
+                "java.base.",
+            )
+        ):
+            return rendered
+    return None
+
+
+def _parse_smr_diagnostics(lines: list[str]) -> dict[str, object] | None:
+    unresolved: list[dict[str, object]] = []
+    in_smr_block = False
+    remaining = 0
+    for offset, line in enumerate(lines, start=1):
+        lower = line.lower()
+        if "smr" in lower and "thread" in lower:
+            in_smr_block = True
+            remaining = 80
+        if not in_smr_block:
+            continue
+        if "unresolved" in lower or "zombie" in lower:
+            unresolved.append({"section_line": offset, "line": line.strip()})
+        remaining -= 1
+        if remaining <= 0:
+            in_smr_block = False
+    if not unresolved:
+        return None
+    return {
+        "unresolved_count": len(unresolved),
+        "unresolved": unresolved,
+    }
+
+
+def _class_histogram_row_limit(value: int | None = None) -> int:
+    raw: object = value
+    if raw is None:
+        raw = os.environ.get(_CLASS_HISTOGRAM_LIMIT_ENV)
+    if raw in (None, ""):
+        return _DEFAULT_CLASS_HISTOGRAM_ROW_LIMIT
+    try:
+        limit = int(raw)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(
+            f"{_CLASS_HISTOGRAM_LIMIT_ENV} / class_histogram_limit must be a "
+            "positive integer."
+        ) from exc
+    if limit <= 0:
+        raise ValueError(
+            f"{_CLASS_HISTOGRAM_LIMIT_ENV} / class_histogram_limit must be a "
+            "positive integer."
+        )
+    return limit
+
+
+def _parse_text_class_histogram(
+    lines: list[str],
+    *,
+    row_limit: int,
+) -> dict[str, object] | None:
+    classes: list[dict[str, object]] = []
+    total_instances: int | None = None
+    total_bytes: int | None = None
+    total_rows = 0
+    for line in lines:
+        row = _CLASS_HISTOGRAM_ROW_RE.match(line)
+        if row:
+            total_rows += 1
+            if len(classes) < row_limit:
+                classes.append(
+                    {
+                        "rank": int(row.group("rank")),
+                        "instances": int(row.group("instances")),
+                        "bytes": int(row.group("bytes")),
+                        "class_name": row.group("class_name").strip(),
+                    }
+                )
+            continue
+        total = _CLASS_HISTOGRAM_TOTAL_RE.match(line)
+        if total:
+            total_instances = int(total.group("instances"))
+            total_bytes = int(total.group("bytes"))
+    if not classes:
+        return None
+    payload: dict[str, object] = {
+        "classes": classes,
+        "row_limit": row_limit,
+        "total_rows": total_rows,
+        "truncated": total_rows > row_limit,
+    }
+    if total_instances is not None:
+        payload["total_instances"] = total_instances
+    if total_bytes is not None:
+        payload["total_bytes"] = total_bytes
+    return payload
+
+
+# ---------------------------------------------------------------------------
 # T-219: Lock-handle extraction
 # ---------------------------------------------------------------------------
 
@@ -262,12 +598,17 @@ def _extract_lock_handles(raw_block: str) -> tuple[list[LockHandle], LockHandle 
         if not line:
             continue
 
-        for pattern in (_WAITING_TO_LOCK_RE, _WAITING_ON_RE, _PARKING_RE):
+        for pattern, wait_mode in (
+            (_WAITING_TO_LOCK_RE, "lock_entry_wait"),
+            (_WAITING_ON_RE, "object_wait"),
+            (_PARKING_RE, "parking_condition_wait"),
+        ):
             match = pattern.match(line)
             if match and waiting is None:
                 waiting = LockHandle(
                     lock_id=match.group("id"),
                     lock_class=match.group("cls"),
+                    wait_mode=wait_mode,
                 )
                 break
 
@@ -281,6 +622,7 @@ def _extract_lock_handles(raw_block: str) -> tuple[list[LockHandle], LockHandle 
                 LockHandle(
                     lock_id=lock_id,
                     lock_class=locked_match.group("cls"),
+                    wait_mode="locked_owner",
                 )
             )
 

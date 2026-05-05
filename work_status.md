@@ -1,6 +1,6 @@
 # ArchScope Work Status
 
-Last updated: 2026-05-04
+Last updated: 2026-05-05
 
 ## Review Processing Status
 
@@ -30,7 +30,7 @@ Last updated: 2026-05-04
 
 ## Current Priority
 
-Active cycle (2026-05-04, revised): pivot from Electron desktop to a browser-served web app first, redesign the UI on the new web shell, expand the profiler to FlameGraph SVG/HTML inputs, build a language-agnostic multi-dump thread-analysis framework with Java/Go/Python/Node.js/.NET parsers, and add interactive GC timeline plus thread-dump→flamegraph conversion. See "Web Platform Migration, UI Redesign, Multi-Language Diagnostics Expansion, and Diagnostics Polish" section below (T-180 onward, with T-206–T-217 added in this revision). Prior `T-001`–`T-179` backlog is complete. **Execution order is enforced to avoid double-work**: Phase 1 (T-206–T-209) lands before any UI rebuild; the original Electron-era cleanups T-180–T-183 are intentionally subsumed by the Phase 2 redesign (T-210–T-213) and must not be implemented separately.
+Active cycle (2026-05-05, revised): pivot from Electron desktop to a browser-served web app first, redesign the UI on the new web shell, expand the profiler to FlameGraph SVG/HTML inputs, build a language-agnostic multi-dump thread-analysis framework with Java/Go/Python/Node.js/.NET parsers, add interactive GC timeline plus thread-dump→flamegraph conversion, and harden JVM thread-dump behavior using selected TDA-main algorithms. See "Web Platform Migration, UI Redesign, Multi-Language Diagnostics Expansion, and Diagnostics Polish" plus "TDA-main JVM Thread Dump Hardening Follow-up" below (T-180 onward; T-224–T-233 added in this revision). Prior `T-001`–`T-179` backlog is complete. **Execution order is enforced to avoid double-work**: Phase 1 (T-206–T-209) lands before any UI rebuild; the original Electron-era cleanups T-180–T-183 are intentionally subsumed by the Phase 2 redesign (T-210–T-213) and must not be implemented separately.
 
 The latest feature cycle started the next roadmap layer across report automation, Chart Studio, and multi-runtime diagnostics:
 
@@ -436,6 +436,39 @@ The platform pivot lands **before** any UI rebuild because retouching Electron-e
 | T-222 | P1 | [x] | CLI: `archscope-engine thread-dump analyze-locks --input <f> [--input <f> ...] --out <result.json> [--format <id>] [--top-n N]` — uses the parser registry like the other multi-input commands and prints a one-line `(N contended locks, M deadlocks)` summary on success. FastAPI: `/api/analyzer/execute` now dispatches `type:"thread_dump_locks"` (`filePaths`, `format`, `topN`); errors map to `UNKNOWN_THREAD_DUMP_FORMAT` / `MIXED_THREAD_DUMP_FORMATS` / `ENGINE_FAILED` exactly like the existing thread-dump endpoints. | T-220, T-221 | User feature request | Lock-contention CLI + web |
 | T-223 | P2 | [x] | New "Lock Contention" tab on `ThreadDumpAnalyzerPage` (auto-fetched in parallel with `thread_dump_multi` after **Correlate dumps**). Per-lock shadcn table (`lock_id`, `lock_class`, owner, waiter count, top waiter names). Horizontal `D3BarChart` ranking top contended locks. Dedicated red severity card for each `DEADLOCK_DETECTED` cycle rendered as `T1 → T2 → T3 → T1` plus per-edge lock evidence. `analyzerContract.ts` extended with `AnalyzeLockContentionRequest`; en/ko strings added. | T-222 | User feature request | Lock contention UI |
 
+### TDA-main JVM Thread Dump Hardening Follow-up
+
+Goal: port the useful JVM thread-dump algorithms discovered in `C:\workspace\tda-main` into ArchScope without importing Java sources directly. Keep the existing parser/analyzer/UI separation and the language-agnostic thread-dump framework; only add JVM-specific behavior behind the Java parser plugin or Java-only analyzers.
+
+Scope exclusions:
+
+- Do not port TDA Swing UI, FlatLaf, VisualVM plugin, JConsole plugin, macOS packaging, or TDA's MCP server.
+- Do not add HPROF heap-dump analysis in this cycle. Text class histograms from `jcmd`/`PrintClassHistogram` are allowed because they are lightweight log records, not heap-dump parsing.
+- Do not replace ArchScope's multi-dump correlation algorithm with TDA's first-dump exact-content comparison; ArchScope's timeline/run-length approach remains canonical.
+
+Recommended implementation ownership:
+
+- Backend/parser owner: T-224 through T-226. These touch file sniffing, encoding, parser registry, and Java parser plugin boundaries.
+- JVM diagnostics owner: T-227 through T-231. These require JVM-specific semantics for virtual threads, SMR, native methods, and monitor states.
+- Test/docs owner: T-232 and T-233 after the parser/diagnostic contracts settle.
+- Frontend owner only after backend schemas are stable; most items should first land as CLI/FastAPI result data, then UI tables/cards can be added in a small follow-up.
+
+| ID | Priority | Status | Task | Depends on | Source | Output |
+|---|---|---|---|---|---|---|
+| T-224 | P0 | [x] | Add single-file JVM multi-dump splitting. A single large log containing multiple `Full thread dump` sections should produce ordered `ThreadDumpBundle` entries with `dump_index`, `dump_label`, source file, start line, and best-effort timestamp. The existing multi-dump analyzer should accept these extracted bundles the same way it accepts multiple files. Include tests with representative Java 8/11/21 multi-dump logs. | T-188, T-189, T-190, T-191 | `tda-main` `SunJDKParser` / `AbstractDumpParser` behavior | One log file -> ordered dump timeline |
+| T-225 | P0 | [x] | Add UTF-16 BOM/null-byte text detection for JVM thread dumps and registry sniffing. Extend common text encoding detection and `_read_head()` so UTF-16LE/BE thread dumps can be detected before parser selection, while preserving existing `utf-8`, `utf-8-sig`, `cp949`, and `latin-1` fallback behavior. | T-125, T-170, T-189, T-224 preferred | `tda-main` `DumpParserFactory.detectCharset()` | UTF-16 Java dump support plus tests |
+| T-226 | P1 | [x] | Add a Java `jcmd Thread.dump_to_file -format=json` parser plugin. Detect JSON objects containing `threadDump`, parse `time`, `threadContainers[].threads[]`, `name`, `tid`, stack frames, and any available state/native metadata. Emit clear diagnostics for missing `threadDump`, malformed JSON, and unsupported JSON variants. | T-188, T-189 | `tda-main` `JCmdJSONParser` | `java_jcmd_json` parser plugin |
+| T-227 | P1 | [x] | Add JVM virtual-thread and carrier-thread pinning enrichment. Detect virtual thread headers, `VirtualThread[#...]`, `Carrying virtual thread`, carrier thread relationships, and carrier stacks stuck in application code. Emit a deterministic `VIRTUAL_THREAD_CARRIER_PINNING` finding/table with thread name, carrier evidence, top application frame, and dump index. | T-190, T-224, T-226 preferred | `tda-main` `SunJDKParser` / `Analyzer` | Java virtual-thread diagnostics |
+| T-228 | P1 | [x] | Add SMR info parsing and unresolved/zombie thread diagnostics. Parse `Threads class SMR info`, map SMR addresses back to parsed Java thread `tid` values where possible, and emit `SMR_UNRESOLVED_THREAD` evidence for addresses that cannot be resolved. Preserve raw SMR evidence in bounded metadata. | T-190, T-224, T-225 | `tda-main` `ThreadDumpInfo` SMR resolution | SMR table and unresolved-thread findings |
+| T-229 | P1 | [x] | Add Native Method thread extraction. Build a `native_method_threads` table for Java threads whose stack contains `Native Method`, including thread name, native method text, top Java frame, state, dump index, and source file. Use this table as supporting evidence for network/file wait findings without overriding existing state semantics. | T-190, T-224 | `tda-main` MCP `get_native_threads()` | Native-method evidence table |
+| T-230 | P2 | [x] | Add JVM text class-histogram parser/analyzer for `num   #instances    #bytes  class name` blocks. Extract class name, instance count, bytes, totals, configurable row limit, truncation metadata, and top classes by bytes/instances. Keep HPROF heap dumps out of scope. | T-224, T-225 preferred | `tda-main` `parseNextClassHistogram()` | Lightweight class-histogram result |
+| T-231 | P2 | [x] | Refine Java monitor semantics beyond generic lock IDs. Preserve existing `lock_holds` / `lock_waiting`, but classify wait mode as `lock_entry_wait`, `object_wait`, `parking_condition_wait`, or `locked_owner` based on `waiting to lock`, `waiting on`, `parking to wait`, and `locked` lines. Avoid treating pure `Object.wait()` sleep as lock contention when there is no owner evidence. | T-218, T-219, T-220, T-224 | `tda-main` `MonitorMap` | More accurate Java monitor/wait classification |
+| T-232 | P2 | [x] | Add fixture-backed regression coverage from minimized TDA samples. Cover Java 8/11/21 text dumps, UTF-16 dumps, jcmd JSON dumps, carrier pinning, SMR unresolved addresses, native method rows, multi-dump log splitting, monitor semantics, and class histogram parsing. Do not vendor the full TDA project; copy or synthesize minimal fixtures only. | T-224 through T-231 | `tda-main` test resources | JVM hardening regression suite |
+| T-233 | P2 | [x] | Update English/Korean docs for the JVM hardening scope: single-file multi-dump behavior, UTF-16 support, jcmd JSON support, virtual-thread/carrier findings, SMR caveats, Native Method evidence, monitor semantic labels, and the text-histogram vs HPROF boundary. | T-224 through T-232 | User follow-up | Updated parser/user/data-model docs |
+| T-234 | P2 | [ ] | Improve SMR address-to-thread resolution with real-world JDK 8/11/17/21 fixtures. Current implementation preserves bounded unresolved/zombie raw evidence and emits findings; exact JavaThread address to parsed `nid`/`tid` matching remains heuristic and should be validated against more dump variants. | T-228 | Implementation follow-up | Higher-confidence SMR correlation |
+| T-235 | P3 | [ ] | Add incomplete text class-histogram diagnostics for truncated histogram blocks. Current parser extracts bounded class rows and totals when present, but does not yet emit a dedicated incomplete-block warning. | T-230 | Implementation follow-up | Better histogram parser diagnostics |
+| T-236 | P2 | [ ] | Add UI/HTTP payload controls for very large virtual-thread dumps. Backend synthetic benchmark handled 10k virtual threads in ~0.7s and 50k in ~4.1s parse+analyze, but frontend tables should still use pagination/virtualization and avoid requesting full snapshot/raw evidence payloads by default. | T-224, T-227 | User scalability follow-up | Safer large virtual-thread UX |
+
 ## Dependency Order
 
 1. `T-001 -> T-002 -> T-030 -> T-037 -> T-003`: bridge decision, client boundary, CLI install metadata, minimal UX flow, then end-to-end PoC.
@@ -515,6 +548,12 @@ The platform pivot lands **before** any UI rebuild because retouching Electron-e
 58. `{T-115, T-173, T-212} -> T-214 -> T-215`: GC interactive timeline and algorithm comparison build on the existing GC analyzer plus the Phase 2 shell.
 59. `T-194 -> T-216 -> T-217`: thread-dump→collapsed batch converter piggybacks on the Java parser plugin; Canvas/WebGL flamegraph rendering arrives after the converter and the Phase 2 shell exist (`T-187`/`T-212` co-deps).
 
+**Phase 7 — TDA-main JVM hardening follow-up:**
+
+60. `T-188/T-189/T-190/T-191 -> T-224 -> T-225`: split single-file JVM multi-dump logs first, then extend encoding/sniffing so UTF-16 dumps enter the same path.
+61. `T-188/T-189 -> T-226` and `T-224 -> {T-227, T-228, T-229, T-230, T-231}`: add jcmd JSON as another Java parser plugin, then layer JVM-only diagnostics on the normalized dump timeline.
+62. `{T-224, T-225, T-226, T-227, T-228, T-229, T-230, T-231} -> T-232 -> T-233`: lock the TDA-derived behavior with minimized fixtures before updating user-facing docs.
+
 ## Active Decision Queue
 
 | Decision | Required before | Default |
@@ -529,6 +568,9 @@ The platform pivot lands **before** any UI rebuild because retouching Electron-e
 | Phase ordering — UI cleanups vs. platform pivot | T-180–T-183 | Do not implement T-180–T-183 separately. They are subsumed by Phase 2 (T-210–T-213) on the new web shell to avoid the same migration twice. |
 | Design system choice | T-212 | Tailwind CSS + shadcn/ui (or equivalent headless component library if a spike surfaces a blocker). |
 | Web app directory rename | T-207 | Rename `apps/desktop/` to `apps/web-ui/` (or equivalent) so the directory name reflects the post-Electron role. |
+| TDA-main code reuse boundary | T-224 | Port behavior and algorithms into ArchScope Python code; do not copy Java source or UI/plugin packaging code directly. |
+| Single-file vs multi-file thread-dump bundle semantics | T-224 | Treat a single log with multiple dumps as the same ordered timeline model used by multi-file correlation. Preserve source file and start-line metadata per extracted dump. |
+| JVM text histogram vs heap dump scope | T-230 | Support lightweight text class histograms only. HPROF heap dump parsing and MAT integration remain out of scope. |
 
 ## Workflow For New Review Documents
 

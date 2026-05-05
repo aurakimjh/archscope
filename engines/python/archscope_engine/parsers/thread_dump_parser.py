@@ -92,7 +92,7 @@ def _append_thread_record(
     diagnostics: ParserDiagnostics,
     debug_log: DebugLogCollector | None,
 ) -> None:
-    record = _parse_thread_block(block)
+    record = parse_thread_block(block)
     if record is None:
         diagnostics.add_skipped(
             line_number=line_number,
@@ -118,7 +118,14 @@ def _append_thread_record(
     diagnostics.parsed_records += 1
 
 
-def _parse_thread_block(block: list[str]) -> ThreadDumpRecord | None:
+def parse_thread_block(block: list[str]) -> ThreadDumpRecord | None:
+    """Parse one quoted JVM thread block.
+
+    Exposed for the plugin-based parser so it can split a single physical
+    file into multiple logical dumps without duplicating block parsing.
+    """
+    if not block:
+        return None
     header = THREAD_HEADER_RE.match(block[0])
     if header is None:
         return None
@@ -136,9 +143,12 @@ def _parse_thread_block(block: list[str]) -> ThreadDumpRecord | None:
             stack.append(stripped[3:])
         elif any(
             token in stripped
-            for token in ("waiting to lock", "locked", "parking to wait")
+            for token in ("waiting to lock", "waiting on", "locked", "parking to wait")
         ):
             lock_info = stripped
+
+    if state is None:
+        state = _state_from_header(header.group("rest"))
 
     tid_match = TID_RE.search(block[0])
     return ThreadDumpRecord(
@@ -150,6 +160,23 @@ def _parse_thread_block(block: list[str]) -> ThreadDumpRecord | None:
         category=_category_for_state(state),
         raw_block="\n".join(block),
     )
+
+
+def _parse_thread_block(block: list[str]) -> ThreadDumpRecord | None:
+    return parse_thread_block(block)
+
+
+def _state_from_header(rest: str) -> str | None:
+    text = rest.lower()
+    if "waiting for monitor entry" in text or " blocked" in text:
+        return "BLOCKED"
+    if "timed_waiting" in text or "timed waiting" in text:
+        return "TIMED_WAITING"
+    if "waiting on condition" in text or "parking" in text or "object.wait" in text:
+        return "WAITING"
+    if "runnable" in text or "running" in text:
+        return "RUNNABLE"
+    return None
 
 
 def _category_for_state(state: str | None) -> str:

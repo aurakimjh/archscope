@@ -26,6 +26,22 @@ def test_detect_text_encoding_uses_bounded_probe(tmp_path) -> None:
     assert detect_text_encoding(path) == "cp949"
 
 
+def test_detect_text_encoding_handles_utf16le_bom(tmp_path) -> None:
+    path = tmp_path / "jstack-utf16le.txt"
+    path.write_text("Full thread dump\n", encoding="utf-16")
+
+    assert detect_text_encoding(path) == "utf-16"
+    assert list(iter_text_lines(path)) == ["Full thread dump"]
+
+
+def test_detect_text_encoding_handles_utf16le_without_bom(tmp_path) -> None:
+    path = tmp_path / "jstack-utf16le-nobom.txt"
+    path.write_bytes("Full thread dump\n".encode("utf-16-le"))
+
+    assert detect_text_encoding(path) == "utf-16-le"
+    assert list(iter_text_lines(path)) == ["Full thread dump"]
+
+
 def test_detect_text_encoding_rejects_invalid_probe_size(tmp_path) -> None:
     path = tmp_path / "utf8.log"
     path.write_text("alpha\n", encoding="utf-8")

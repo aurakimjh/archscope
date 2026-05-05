@@ -606,11 +606,25 @@ def thread_dump_analyze_multi(
         help="Consecutive-dump count required to fire LONG_RUNNING / PERSISTENT_BLOCKED findings.",
     ),
     top_n: int = typer.Option(20, "--top-n"),
+    class_histogram_limit: int = typer.Option(
+        500,
+        "--class-histogram-limit",
+        help=(
+            "Maximum JVM text class-histogram rows to keep in parser metadata. "
+            "Only applies to java_jstack inputs."
+        ),
+    ),
 ) -> None:
     """Correlate threads across multiple dumps and emit a thread_dump_multi result."""
     if threshold < 1:
         raise typer.BadParameter("--consecutive-threshold must be >= 1.")
-    bundles = THREAD_DUMP_REGISTRY.parse_many(inputs, format_override=format)
+    if class_histogram_limit < 1:
+        raise typer.BadParameter("--class-histogram-limit must be >= 1.")
+    bundles = THREAD_DUMP_REGISTRY.parse_many(
+        inputs,
+        format_override=format,
+        parser_options={"class_histogram_limit": class_histogram_limit},
+    )
     result = analyze_multi_thread_dumps(bundles, threshold=threshold, top_n=top_n)
     write_json_result(result, out)
     console.print(

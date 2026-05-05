@@ -10,6 +10,9 @@ from archscope_engine.parsers.thread_dump.dotnet_clrstack import (
     DotnetClrstackParserPlugin,
 )
 from archscope_engine.parsers.thread_dump.go_goroutine import GoGoroutineParserPlugin
+from archscope_engine.parsers.thread_dump.java_jcmd_json import (
+    JavaJcmdJsonParserPlugin,
+)
 from archscope_engine.parsers.thread_dump.java_jstack import JavaJstackParserPlugin
 from archscope_engine.parsers.thread_dump.nodejs_report import (
     NodejsDiagnosticReportParserPlugin,
@@ -30,6 +33,7 @@ __all__ = [
     "DEFAULT_REGISTRY",
     "DotnetClrstackParserPlugin",
     "GoGoroutineParserPlugin",
+    "JavaJcmdJsonParserPlugin",
     "JavaJstackParserPlugin",
     "MixedFormatError",
     "NodejsDiagnosticReportParserPlugin",

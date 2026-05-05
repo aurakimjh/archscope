@@ -23,6 +23,36 @@ def detect_text_encoding(
 
     with path.open("rb") as handle:
         data = handle.read(probe_bytes)
+    return detect_text_encoding_from_bytes(data, encodings=encodings)
+
+
+def detect_text_encoding_from_bytes(
+    data: bytes,
+    encodings: tuple[str, ...] = ("utf-8", "utf-8-sig", "cp949", "latin-1"),
+) -> str:
+    """Best-effort text encoding detection for parser head/probe bytes.
+
+    Some JVM tools on Windows produce UTF-16 text dumps. Relying only on
+    UTF-8/cp949/latin-1 makes the parser fail format detection because
+    the header becomes ``F\0u\0l\0l...``. BOM and null-byte heuristics are
+    cheap and keep this utility dependency-free.
+    """
+    if data.startswith((b"\xff\xfe", b"\xfe\xff")):
+        return "utf-16"
+    if data.startswith(b"\xef\xbb\xbf"):
+        return "utf-8-sig"
+
+    sample = data[:4096]
+    if sample:
+        even_nulls = sample[0::2].count(0)
+        odd_nulls = sample[1::2].count(0)
+        even_len = max(1, len(sample[0::2]))
+        odd_len = max(1, len(sample[1::2]))
+        if odd_nulls / odd_len > 0.30 and even_nulls / even_len < 0.05:
+            return "utf-16-le"
+        if even_nulls / even_len > 0.30 and odd_nulls / odd_len < 0.05:
+            return "utf-16-be"
+
     last_error: UnicodeDecodeError | None = None
 
     for encoding in encodings:
