@@ -81,9 +81,22 @@ CI runs `go test ./...` for this module under
 
 ## What's next
 
-- T-350 .. T-360 — net/http web server + cobra CLI.
+After the **2026-05-07 desktop-only pivot**, this module's role narrows
+to "pure Go library + thin CLI". T-350 (net/http server) and T-351
+(embed.FS for HTTP-served React) were rejected and dropped — the
+desktop binary (`apps/profiler-native`) is the single user-facing
+artifact and consumes engine-native via Wails service bindings.
+
+- T-350' — Wails service bindings exposing every analyzer/exporter to
+  the desktop UI.
+- T-351' — extend the Wails frontend with all analyzer pages
+  currently in `apps/frontend/`.
+- T-352 — frontend cleanup (lift shared components into a workspace
+  package, then delete or archive `apps/frontend/`).
+- T-360 — headless Cobra CLI for CI / scripting / parity gate.
 - T-370 — AI interpretation (optional, off by default).
 - T-380 — demo-site runner.
-- T-390 .. T-392 — full-engine parity gate, single-binary release.
+- T-390..T-392 — full-engine parity gate, single Wails desktop
+  binary release, Python retirement decision.
 
 See `work_status.md` for the full Tier-0..Tier-9 fan-out.
