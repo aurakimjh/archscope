@@ -111,6 +111,10 @@ jobs:
       - name: Build Go CLI
         run: go build -o bin/archscope-profiler ./cmd/archscope-profiler
 
+      - name: Build engine-native CLI
+        working-directory: apps/engine-native
+        run: go build -o bin/archscope-engine ./cmd/archscope-engine
+
       - name: Run Go vs Python parity check
         shell: bash
         run: |
@@ -155,6 +159,82 @@ jobs:
                 go["series"]["top_stacks"][0]["samples"],
                 py["series"]["top_stacks"][0]["samples"])
           print("OK — Go and Python agree on the collapsed fixture.")
+          PY
+
+      - name: Run access-log parity check
+        working-directory: apps/engine-native
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/parity
+          ./bin/archscope-engine accesslog \
+            --in ../../examples/access-logs/sample-nginx-access.log \
+            --format nginx \
+            --out /tmp/parity/access-go.json
+          python -c "
+          import json
+          from pathlib import Path
+          from archscope_engine.analyzers.access_log_analyzer import analyze_access_log
+          result = analyze_access_log(Path('../../examples/access-logs/sample-nginx-access.log'))
+          payload = {
+              'type': result.type,
+              'summary': result.summary,
+              'metadata': result.metadata,
+              'series_keys': sorted(result.series.keys()),
+              'tables_keys': sorted(result.tables.keys()),
+              'requests_per_minute_len': len(result.series['requests_per_minute']),
+          }
+          with open('/tmp/parity/access-py.json', 'w') as f:
+              json.dump(payload, f, default=str)
+          "
+          python <<'PY'
+          import json
+          go = json.load(open("/tmp/parity/access-go.json"))
+          py = json.load(open("/tmp/parity/access-py.json"))
+
+          def check(label, a, b):
+              if a != b:
+                  raise SystemExit(f"parity drift on {label}: go={a!r} py={b!r}")
+
+          check("type", go["type"], py["type"])
+          # Summary invariants — these are the headline numbers users see.
+          for key in (
+              "total_requests", "error_count", "error_rate", "total_bytes",
+              "unique_uris", "static_count", "api_count",
+              "earliest_timestamp", "latest_timestamp",
+              "avg_response_ms", "p50_response_ms", "p90_response_ms",
+              "p95_response_ms", "p99_response_ms",
+              "wall_time_sec", "avg_requests_per_sec", "avg_bytes_per_sec",
+              "static_bytes", "api_bytes",
+              "static_avg_response_ms", "api_avg_response_ms", "api_p95_response_ms",
+          ):
+              check(f"summary.{key}", go["summary"][key], py["summary"][key])
+          # Metadata identity.
+          check("metadata.parser", go["metadata"]["parser"], py["metadata"]["parser"])
+          check("metadata.format", go["metadata"]["format"], py["metadata"]["format"])
+          check("metadata.schema_version",
+                go["metadata"]["schema_version"], py["metadata"]["schema_version"])
+          # Diagnostics (Go always sets total_lines / parsed_records).
+          check("diagnostics.total_lines",
+                go["metadata"]["diagnostics"]["total_lines"],
+                py["metadata"]["diagnostics"]["total_lines"])
+          check("diagnostics.parsed_records",
+                go["metadata"]["diagnostics"]["parsed_records"],
+                py["metadata"]["diagnostics"]["parsed_records"])
+          # Findings — set comparison only (order is not part of the contract).
+          go_codes = sorted(f["code"] for f in go["metadata"]["findings"])
+          py_codes = sorted(f["code"] for f in py["metadata"]["findings"])
+          check("metadata.findings (codes)", go_codes, py_codes)
+          # Series + tables shape — keys must agree even though values diverge
+          # on per-minute reservoir samples once inputs exceed 10k records.
+          check("series keys",
+                sorted(go["series"].keys()), py["series_keys"])
+          check("tables keys",
+                sorted(go["tables"].keys()), py["tables_keys"])
+          check("series.requests_per_minute length",
+                len(go["series"]["requests_per_minute"]),
+                py["requests_per_minute_len"])
+          print("OK — Go and Python agree on the access-log fixture.")
           PY
 
   package:

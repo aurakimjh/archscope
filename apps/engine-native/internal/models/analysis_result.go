@@ -12,6 +12,7 @@
 package models
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/diagnostics"
@@ -92,4 +93,29 @@ func (r *AnalysisResult) AddFinding(severity, code, message string, evidence map
 		row["evidence"] = evidence
 	}
 	r.Metadata.Findings = append(r.Metadata.Findings, row)
+}
+
+// MarshalJSON merges the typed fields with `Extra` so analyzer-specific
+// keys (access_log: format / analysis_options; profiler:
+// timeline_scope; etc.) appear at the same level as `parser` /
+// `schema_version`, matching the Python `metadata` dict shape.
+//
+// Extra never overrides typed fields — if the analyzer accidentally
+// writes "parser" into Extra, the typed Parser still wins.
+func (m Metadata) MarshalJSON() ([]byte, error) {
+	out := make(map[string]any, len(m.Extra)+4)
+	for k, v := range m.Extra {
+		out[k] = v
+	}
+	out["parser"] = m.Parser
+	out["schema_version"] = m.SchemaVersion
+	if m.Diagnostics != nil {
+		out["diagnostics"] = m.Diagnostics
+	}
+	findings := m.Findings
+	if findings == nil {
+		findings = []map[string]any{}
+	}
+	out["findings"] = findings
+	return json.Marshal(out)
 }

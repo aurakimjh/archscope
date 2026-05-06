@@ -23,9 +23,16 @@ apps/engine-native/
 │  ├ statistics/         Average / Percentile / BoundedPercentile
 │  ├ textio/             Encoding-safe text iterator
 │  │                     (utf-8-sig / utf-8 / cp949 / utf-16-LE/BE / latin-1)
+│  ├ timeutil/           ParseNginxTimestamp / MinuteBucket (T-310)
+│  ├ parsers/
+│  │  └ accesslog/       Access log parser — 3 regex variants (T-310)
+│  ├ analyzers/
+│  │  └ accesslog/       22-metric summary + percentile timeline + findings (T-330)
 │  └ common/             RedactText / DebugLog (lifted from profiler-native)
 └ cmd/
-   └ archscope-engine/   (T-360) CLI entry point — empty until subcommands land
+   └ archscope-engine/   CLI entry point — `accesslog` subcommand wired
+                         for the parity gate; full Cobra surface lands
+                         under T-360
 ```
 
 `internal/` is module-private; cross-app sharing happens through a
@@ -45,10 +52,11 @@ CI runs `go test ./...` for this module under
 
 ## What's next
 
-- T-310 .. T-315 — single-format parsers (access_log, exception,
+- T-311 .. T-315 — remaining single-format parsers (exception,
   gc_log, otel, jfr, runtime stack parsers).
 - T-320 .. T-326 — thread-dump registry + 6 language plugins.
-- T-330 .. T-339 — analyzers.
+- T-331 .. T-339 — remaining analyzers (gc_log, jfr, exception,
+  otel, thread_dump, multi-thread, lock contention).
 - T-340 .. T-344 — exporters (JSON / HTML / PPTX / CSV / report
   diff).
 - T-350 .. T-360 — net/http web server + cobra CLI.
