@@ -27,6 +27,7 @@ import { loadDefaults } from "./state/defaults";
 import { DiffPage } from "./pages/DiffPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { AccessLogAnalyzerPage } from "./pages/AccessLogAnalyzerPage";
+import { ExceptionAnalyzerPage } from "./pages/ExceptionAnalyzerPage";
 
 function adaptFlameNode(node: FlameNode | null | undefined): FlameGraphNode | null {
   if (!node) return null;
@@ -698,6 +699,7 @@ function App() {
 
           {active === "diff" && <DiffPage />}
           {active === "access_log" && <AccessLogAnalyzerPage />}
+          {active === "exception" && <ExceptionAnalyzerPage />}
           {active === "settings" && <SettingsPage />}
         </div>
       </div>

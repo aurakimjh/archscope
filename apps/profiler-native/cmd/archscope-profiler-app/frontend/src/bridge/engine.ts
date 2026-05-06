@@ -29,6 +29,7 @@ import type {
   EngineAsyncResponse,
   EngineDiffRequest,
   ExceptionRequest,
+  ExceptionStackAnalysisResult,
   ExportCSVRequest,
   ExportHTMLRequest,
   ExportJSONRequest,
@@ -80,8 +81,8 @@ export function analyzeNativeMemory(
 
 export function analyzeException(
   req: ExceptionRequest,
-): CancellablePromise<AnalysisResult> {
-  return call<AnalysisResult>("AnalyzeException", req);
+): CancellablePromise<ExceptionStackAnalysisResult> {
+  return call<ExceptionStackAnalysisResult>("AnalyzeException", req);
 }
 
 export function analyzeRuntimeStack(
