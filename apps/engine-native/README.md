@@ -18,6 +18,7 @@ once both apps reference them in lockstep.
 apps/engine-native/
 ├ internal/
 │  ├ models/             AnalysisResult envelope + Metadata
+│  │                     ThreadState / StackFrame / ThreadSnapshot / ThreadDumpBundle (T-302)
 │  ├ diagnostics/        ParserDiagnostics builder (matches Python JSON)
 │  ├ statistics/         Average / Percentile / BoundedPercentile
 │  ├ textio/             Encoding-safe text iterator
@@ -44,8 +45,6 @@ CI runs `go test ./...` for this module under
 
 ## What's next
 
-- T-302 — `ThreadSnapshot` / `ThreadDumpBundle` / `StackFrame` /
-  `ThreadState` lifted from profiler-native into `internal/models`.
 - T-310 .. T-315 — single-format parsers (access_log, exception,
   gc_log, otel, jfr, runtime stack parsers).
 - T-320 .. T-326 — thread-dump registry + 6 language plugins.
