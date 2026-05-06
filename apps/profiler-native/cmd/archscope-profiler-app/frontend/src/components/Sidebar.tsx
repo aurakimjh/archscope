@@ -10,6 +10,7 @@ export type NavKey =
   | "access_log"
   | "gc_log"
   | "jfr"
+  | "exception"
   | "settings";
 
 const NAV_ICONS: Record<NavKey, string> = {
@@ -18,6 +19,7 @@ const NAV_ICONS: Record<NavKey, string> = {
   access_log: "🌐",
   gc_log: "♻",
   jfr: "🎙",
+  exception: "⚠",
   settings: "⚙",
 };
 
@@ -50,6 +52,7 @@ export function Sidebar({ active, onNavigate }: SidebarProps) {
     { key: "access_log", label: t("navAccessLog") },
     { key: "gc_log", label: t("navGcLog") },
     { key: "jfr", label: t("navJfr") },
+    { key: "exception", label: t("navException") },
     { key: "settings", label: t("navSettings") },
   ];
 

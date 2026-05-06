@@ -584,6 +584,88 @@ export type NativeMemoryAnalysisResult = AnalysisResult<
 >;
 
 // ──────────────────────────────────────────────────────────────────
+// Exception (exception_stack) typed shapes
+// ──────────────────────────────────────────────────────────────────
+//
+// Mirrors apps/engine-native/internal/analyzers/exception.Build:
+//   - summary: total_exceptions / unique_exception_types /
+//     unique_signatures / top_exception_type
+//   - series : exception_type_distribution, root_cause_distribution,
+//     top_stack_signatures
+//   - tables : exceptions[]  (timestamp, language, exception_type,
+//     message, root_cause, signature, top_frame, stack)
+//
+// Findings emitted by `_build_findings`:
+//   REPEATED_EXCEPTION_SIGNATURE — top signature seen > 1 time
+//   ROOT_CAUSE_PRESENT          — any record carries a root_cause
+
+export type ExceptionStackSummary = {
+  total_exceptions: number;
+  unique_exception_types: number;
+  unique_signatures: number;
+  top_exception_type: string | null;
+};
+
+export type ExceptionTypeDistributionRow = {
+  exception_type: string;
+  count: number;
+};
+
+export type ExceptionRootCauseDistributionRow = {
+  root_cause: string;
+  count: number;
+};
+
+export type ExceptionSignatureRow = {
+  signature: string;
+  count: number;
+};
+
+export type ExceptionStackSeries = {
+  exception_type_distribution: ExceptionTypeDistributionRow[];
+  root_cause_distribution: ExceptionRootCauseDistributionRow[];
+  top_stack_signatures: ExceptionSignatureRow[];
+};
+
+export type ExceptionEventRow = {
+  timestamp: string | null;
+  language: string | null;
+  exception_type: string | null;
+  message: string | null;
+  root_cause: string | null;
+  signature: string | null;
+  top_frame: string | null;
+  stack: string[] | null;
+};
+
+export type ExceptionStackTables = {
+  exceptions: ExceptionEventRow[];
+};
+
+export type ExceptionFinding = {
+  severity: string;
+  code: string;
+  message: string;
+  evidence: Record<string, string | number>;
+};
+
+export type ExceptionStackMetadata = {
+  parser: string;
+  schema_version: string;
+  diagnostics: ParserDiagnostics;
+  findings: ExceptionFinding[];
+};
+
+export type ExceptionStackAnalysisResult = AnalysisResult<
+  "exception_stack",
+  ExceptionStackSummary,
+  ExceptionStackSeries,
+  ExceptionStackTables,
+  AnalysisObject,
+  ExceptionStackMetadata
+>;
+
+// ──────────────────────────────────────────────────────────────────
 // Engine request shapes — must mirror engineservice.go field tags.
 // ──────────────────────────────────────────────────────────────────
 
