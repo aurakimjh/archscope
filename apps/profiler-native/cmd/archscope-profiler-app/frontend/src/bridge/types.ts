@@ -243,6 +243,187 @@ export type AccessLogAnalysisResult = AnalysisResult<
 >;
 
 // ──────────────────────────────────────────────────────────────────
+// JFR typed shapes (T-351'-Phase-2 — JFR analyzer + native memory).
+//
+// The Go engine emits two AnalysisResults for the same .jfr/.json
+// file depending on which entry point the renderer calls:
+//   - AnalyzeJfr           → type "jfr_recording"
+//   - AnalyzeNativeMemory  → type "native_memory"
+//
+// Both modes live on a single page (JfrAnalyzerPage); the types below
+// sit side-by-side so the renderer can switch on `result.type`.
+//
+// Mirrors apps/engine-native/internal/analyzers/jfr/{analyzer,native_memory}.go.
+// ──────────────────────────────────────────────────────────────────
+
+export type JfrAnalysisMode =
+  | "all"
+  | "cpu"
+  | "wall"
+  | "alloc"
+  | "lock"
+  | "gc"
+  | "exception"
+  | "io"
+  | "nativemem";
+
+export type JfrSummary = {
+  event_count?: number;
+  event_count_total?: number;
+  duration_ms?: number;
+  gc_pause_total_ms?: number;
+  blocked_thread_events?: number;
+  selected_mode?: string;
+};
+
+export type JfrFilterWindow = {
+  from?: string | null;
+  to?: string | null;
+  effective_start?: string | null;
+  effective_end?: string | null;
+};
+
+export type JfrMetadata = {
+  schema_version?: string;
+  parser?: string;
+  diagnostics?: ParserDiagnostics;
+  selected_mode?: string;
+  available_modes?: string[];
+  supported_modes?: string[];
+  available_states?: string[];
+  selected_state?: string | null;
+  min_duration_ms?: number | null;
+  filter_window?: JfrFilterWindow;
+  source_format?: string;
+  jfr_cli?: string | null;
+  jfr_command_version?: string;
+};
+
+export type JfrEventTypeRow = {
+  event_type: string;
+  count: number;
+};
+
+export type JfrEventOverTimeRow = {
+  time: string;
+  event_type: string;
+  count: number;
+};
+
+export type JfrPauseEventRow = {
+  time: string;
+  duration_ms: number | null;
+  event_type: string;
+  thread: string | null;
+  sampling_type: string;
+};
+
+export type JfrHeatmapBucket = {
+  index: number;
+  time: string;
+  count: number;
+};
+
+export type JfrHeatmapStrip = {
+  bucket_seconds: number;
+  start_time: string | null;
+  end_time: string | null;
+  max_count: number;
+  buckets: JfrHeatmapBucket[];
+};
+
+export type JfrNotableEventRow = {
+  time?: string;
+  event_type?: string;
+  duration_ms?: number | null;
+  thread?: string | null;
+  message?: string;
+  frames?: string[];
+  sampling_type?: string;
+  evidence_ref?: string;
+  raw_preview?: string;
+};
+
+export type JfrSeries = {
+  events_over_time?: JfrEventOverTimeRow[];
+  pause_events?: JfrPauseEventRow[];
+  events_by_type?: JfrEventTypeRow[];
+  heatmap_strip?: JfrHeatmapStrip;
+};
+
+export type JfrTables = {
+  notable_events?: JfrNotableEventRow[];
+};
+
+export type JfrAnalysisResult = AnalysisResult<
+  "jfr_recording",
+  JfrSummary,
+  JfrSeries,
+  JfrTables,
+  AnalysisObject,
+  JfrMetadata
+>;
+
+// ── Native memory ────────────────────────────────────────────────
+
+export type NativeMemorySummary = {
+  alloc_event_count?: number;
+  free_event_count?: number;
+  alloc_bytes_total?: number;
+  free_bytes_total?: number;
+  unfreed_event_count?: number;
+  unfreed_bytes_total?: number;
+  tail_ratio?: number;
+  tail_cutoff?: string | null;
+  leak_only?: boolean;
+};
+
+export type NativeMemoryCallSiteRow = {
+  stack: string;
+  bytes: number;
+};
+
+export type NativeMemoryTables = {
+  top_call_sites?: NativeMemoryCallSiteRow[];
+};
+
+// FlameNode mirrors the engine's flamegraph_builder shape — see
+// apps/engine-native/internal/analyzers/jfr/native_memory.go::freezeNode.
+export type NativeMemoryFlameNode = {
+  id: string;
+  parentId: string | null;
+  name: string;
+  samples: number;
+  ratio: number;
+  category: string | null;
+  color: string | null;
+  path: string[];
+  children: NativeMemoryFlameNode[];
+};
+
+export type NativeMemoryCharts = {
+  flamegraph?: NativeMemoryFlameNode;
+};
+
+export type NativeMemoryMetadata = {
+  schema_version?: string;
+  parser?: string;
+  diagnostics?: ParserDiagnostics;
+  unit?: string;
+  source_format?: string;
+  jfr_cli?: string | null;
+};
+
+export type NativeMemoryAnalysisResult = AnalysisResult<
+  "native_memory",
+  NativeMemorySummary,
+  AnalysisObject,
+  NativeMemoryTables,
+  NativeMemoryCharts,
+  NativeMemoryMetadata
+>;
+
+// ──────────────────────────────────────────────────────────────────
 // Engine request shapes — must mirror engineservice.go field tags.
 // ──────────────────────────────────────────────────────────────────
 
