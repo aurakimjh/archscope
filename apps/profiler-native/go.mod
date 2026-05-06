@@ -3,10 +3,13 @@ module github.com/aurakimjh/archscope/apps/profiler-native
 go 1.25.0
 
 require (
+	github.com/aurakimjh/archscope/apps/engine-native v0.0.0-00010101000000-000000000000
 	github.com/google/pprof v0.0.0-20260402051712-545e8a4df936
 	github.com/wailsapp/wails/v3 v3.0.0-alpha.84
 	golang.org/x/text v0.36.0
 )
+
+replace github.com/aurakimjh/archscope/apps/engine-native => ../engine-native
 
 require (
 	dario.cat/mergo v1.0.2 // indirect

@@ -16,6 +16,13 @@ func init() {
 	application.RegisterEvent[AnalyzeDoneEvent]("analyze:done")
 	application.RegisterEvent[AnalyzeErrorEvent]("analyze:error")
 	application.RegisterEvent[AnalyzeCancelledEvent]("analyze:cancelled")
+
+	// Engine-side typed events (multithread / lockcontention async paths).
+	// Same pattern as the profiler events above so the renderer can
+	// listen with the generated EngineDoneEvent etc. interfaces.
+	application.RegisterEvent[EngineDoneEvent]("engine:done")
+	application.RegisterEvent[EngineErrorEvent]("engine:error")
+	application.RegisterEvent[EngineCancelledEvent]("engine:cancelled")
 }
 
 func main() {
@@ -24,6 +31,7 @@ func main() {
 		Description: "Native profiler-first slice of ArchScope",
 		Services: []application.Service{
 			application.NewService(&ProfilerService{}),
+			application.NewService(&EngineService{}),
 		},
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(assets),

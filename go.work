@@ -1,0 +1,4 @@
+go 1.25.0
+
+use ./apps/engine-native
+use ./apps/profiler-native
