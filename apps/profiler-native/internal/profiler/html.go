@@ -23,7 +23,7 @@ type HtmlProfilerParseResult struct {
 	DetectedFormat string
 }
 
-func ParseHtmlProfilerText(text string) HtmlProfilerParseResult {
+func ParseHtmlProfilerText(text string, debugLog *DebugLog) HtmlProfilerParseResult {
 	diagnostics := ParserDiagnostics{
 		Format:          "flamegraph_html",
 		SkippedByReason: map[string]int{},
@@ -35,6 +35,7 @@ func ParseHtmlProfilerText(text string) HtmlProfilerParseResult {
 		svgResult := ParseSvgFlamegraphText(match)
 		if len(svgResult.Stacks) > 0 {
 			merged := mergeSvgDiagnostics(diagnostics, svgResult.Diagnostics)
+			debugLog.SetTotals(merged.TotalLines, merged.ParsedRecords, merged.SkippedLines)
 			return HtmlProfilerParseResult{
 				Stacks:         svgResult.Stacks,
 				Diagnostics:    merged,
@@ -45,13 +46,14 @@ func ParseHtmlProfilerText(text string) HtmlProfilerParseResult {
 
 	// 2) async-profiler embedded JS tree.
 	if match := htmlAsyncProfilerRootRE.FindStringSubmatch(text); match != nil {
-		stacks := stacksFromAsyncProfilerJS(match[1], &diagnostics)
+		stacks := stacksFromAsyncProfilerJS(match[1], &diagnostics, debugLog)
 		if len(stacks) > 0 {
 			parsed := 0
 			for _, count := range stacks {
 				parsed += count
 			}
 			diagnostics.ParsedRecords = parsed
+			debugLog.SetTotals(diagnostics.TotalLines, diagnostics.ParsedRecords, diagnostics.SkippedLines)
 			return HtmlProfilerParseResult{
 				Stacks:         stacks,
 				Diagnostics:    diagnostics,
@@ -64,9 +66,9 @@ func ParseHtmlProfilerText(text string) HtmlProfilerParseResult {
 	if len(preview) > 200 {
 		preview = preview[:200]
 	}
-	addDiagnosticError(&diagnostics, 0, "UNSUPPORTED_HTML_FORMAT",
-		"HTML payload does not contain an inline <svg> flamegraph nor a recognized async-profiler JS data block.",
-		preview)
+	msg := "HTML payload does not contain an inline <svg> flamegraph nor a recognized async-profiler JS data block."
+	addDiagnosticError(&diagnostics, 0, "UNSUPPORTED_HTML_FORMAT", msg, preview)
+	debugLog.AddParseError(0, "UNSUPPORTED_HTML_FORMAT", msg, "htmlSvgBlockRE|htmlAsyncProfilerRootRE", map[string]string{"target": preview}, nil)
 	return HtmlProfilerParseResult{
 		Stacks:         map[string]int{},
 		Diagnostics:    diagnostics,
@@ -74,12 +76,12 @@ func ParseHtmlProfilerText(text string) HtmlProfilerParseResult {
 	}
 }
 
-func ParseHtmlProfilerFile(path string) (HtmlProfilerParseResult, error) {
+func ParseHtmlProfilerFile(path string, debugLog *DebugLog) (HtmlProfilerParseResult, error) {
 	bytes, err := readAllUTF8(path)
 	if err != nil {
 		return HtmlProfilerParseResult{}, err
 	}
-	result := ParseHtmlProfilerText(string(bytes))
+	result := ParseHtmlProfilerText(string(bytes), debugLog)
 	source := path
 	result.Diagnostics.SourceFile = &source
 	return result, nil
@@ -105,7 +107,7 @@ func mergeSvgDiagnostics(host ParserDiagnostics, svg ParserDiagnostics) ParserDi
 	return host
 }
 
-func stacksFromAsyncProfilerJS(jsText string, diagnostics *ParserDiagnostics) map[string]int {
+func stacksFromAsyncProfilerJS(jsText string, diagnostics *ParserDiagnostics, debugLog *DebugLog) map[string]int {
 	normalized := htmlJsKeyRE.ReplaceAllString(jsText, `$1"$2":`)
 	var root any
 	if err := json.Unmarshal([]byte(normalized), &root); err != nil {
@@ -114,6 +116,7 @@ func stacksFromAsyncProfilerJS(jsText string, diagnostics *ParserDiagnostics) ma
 			preview = preview[:200]
 		}
 		addDiagnosticError(diagnostics, 0, "INVALID_ASYNC_PROFILER_JSON", err.Error(), preview)
+		debugLog.AddParseError(0, "INVALID_ASYNC_PROFILER_JSON", err.Error(), "json.Unmarshal", map[string]string{"target": preview}, nil)
 		return nil
 	}
 	stacks := map[string]int{}

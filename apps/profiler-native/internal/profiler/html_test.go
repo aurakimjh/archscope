@@ -45,7 +45,7 @@ var root = {name:"all", samples:10, children:[
 `
 
 func TestHtmlProfilerInlineSvg(t *testing.T) {
-	result := ParseHtmlProfilerText(inlineSvgHTML)
+	result := ParseHtmlProfilerText(inlineSvgHTML, nil)
 	if result.DetectedFormat != "inline_svg" {
 		t.Fatalf("detected_format = %q, want inline_svg", result.DetectedFormat)
 	}
@@ -58,7 +58,7 @@ func TestHtmlProfilerInlineSvg(t *testing.T) {
 }
 
 func TestHtmlProfilerAsyncProfilerJS(t *testing.T) {
-	result := ParseHtmlProfilerText(asyncProfilerHTML)
+	result := ParseHtmlProfilerText(asyncProfilerHTML, nil)
 	if result.DetectedFormat != "async_profiler_js" {
 		t.Fatalf("detected_format = %q, want async_profiler_js", result.DetectedFormat)
 	}
@@ -79,7 +79,7 @@ var root = {name:"all", samples:10, children:[
   {name:"worker", samples:3, children:[]}
 ]};
 </script></body></html>`
-	result := ParseHtmlProfilerText(html)
+	result := ParseHtmlProfilerText(html, nil)
 	if result.DetectedFormat != "async_profiler_js" {
 		t.Fatalf("detected_format = %q, want async_profiler_js", result.DetectedFormat)
 	}
@@ -93,7 +93,7 @@ var root = {name:"all", samples:10, children:[
 
 func TestHtmlProfilerUnsupportedFormat(t *testing.T) {
 	html := `<html><body><h1>random page</h1></body></html>`
-	result := ParseHtmlProfilerText(html)
+	result := ParseHtmlProfilerText(html, nil)
 	if result.DetectedFormat != "unsupported" {
 		t.Fatalf("detected_format = %q, want unsupported", result.DetectedFormat)
 	}
@@ -107,7 +107,7 @@ func TestHtmlProfilerFromDisk(t *testing.T) {
 	if err := os.WriteFile(path, []byte(asyncProfilerHTML), 0o644); err != nil {
 		t.Fatalf("write: %v", err)
 	}
-	result, err := ParseHtmlProfilerFile(path)
+	result, err := ParseHtmlProfilerFile(path, nil)
 	if err != nil {
 		t.Fatalf("parse: %v", err)
 	}

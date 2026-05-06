@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func AnalyzeCollapsedFile(path string, options Options) (AnalysisResult, error) {
+func normalizeOptions(options *Options) {
 	if options.IntervalMS <= 0 {
 		options.IntervalMS = 100
 	}
@@ -16,24 +16,34 @@ func AnalyzeCollapsedFile(path string, options Options) (AnalysisResult, error) 
 	if strings.TrimSpace(options.ProfileKind) == "" {
 		options.ProfileKind = "wall"
 	}
+}
+
+// writeDebugLogIfNeeded writes the debug log to disk when content was collected.
+func writeDebugLogIfNeeded(options Options) {
+	dl := options.DebugLog
+	if dl == nil || !dl.HasContent() {
+		return
+	}
+	dl.WriteJSON(options.DebugLogDir) //nolint:errcheck
+}
+
+func AnalyzeCollapsedFile(path string, options Options) (AnalysisResult, error) {
+	normalizeOptions(&options)
 	stacks, diagnostics, err := ParseCollapsedFile(path)
 	if err != nil {
 		return AnalysisResult{}, err
 	}
-	return AnalyzeCollapsedStacks(stacks, path, diagnostics, options), nil
+	result := AnalyzeCollapsedStacks(stacks, path, diagnostics, options)
+	writeDebugLogIfNeeded(options)
+	return result, nil
 }
 
 func AnalyzeFlamegraphHTMLFile(path string, options Options) (AnalysisResult, error) {
-	if options.IntervalMS <= 0 {
-		options.IntervalMS = 100
+	normalizeOptions(&options)
+	if options.DebugLog != nil {
+		options.DebugLog.SetEncodingDetected("utf-8")
 	}
-	if options.TopN <= 0 {
-		options.TopN = 20
-	}
-	if strings.TrimSpace(options.ProfileKind) == "" {
-		options.ProfileKind = "wall"
-	}
-	parseResult, err := ParseHtmlProfilerFile(path)
+	parseResult, err := ParseHtmlProfilerFile(path, options.DebugLog)
 	if err != nil {
 		return AnalysisResult{}, err
 	}
@@ -41,44 +51,35 @@ func AnalyzeFlamegraphHTMLFile(path string, options Options) (AnalysisResult, er
 	result.Type = "profiler_collapsed"
 	result.Metadata.Parser = "flamegraph_html"
 	result.Metadata.SchemaVersion = "0.1.0"
+	writeDebugLogIfNeeded(options)
 	return result, nil
 }
 
 func AnalyzeFlamegraphSVGFile(path string, options Options) (AnalysisResult, error) {
-	if options.IntervalMS <= 0 {
-		options.IntervalMS = 100
+	normalizeOptions(&options)
+	if options.DebugLog != nil {
+		options.DebugLog.SetEncodingDetected("utf-8")
 	}
-	if options.TopN <= 0 {
-		options.TopN = 20
-	}
-	if strings.TrimSpace(options.ProfileKind) == "" {
-		options.ProfileKind = "wall"
-	}
-	parseResult, err := ParseSvgFlamegraphFile(path)
+	parseResult, err := ParseSvgFlamegraphFile(path, options.DebugLog)
 	if err != nil {
 		return AnalysisResult{}, err
 	}
 	result := AnalyzeCollapsedStacks(parseResult.Stacks, path, parseResult.Diagnostics, options)
 	result.Type = "profiler_collapsed"
 	result.Metadata.Parser = "flamegraph_svg"
+	writeDebugLogIfNeeded(options)
 	return result, nil
 }
 
 func AnalyzeJenniferFile(path string, options Options) (AnalysisResult, error) {
-	if options.IntervalMS <= 0 {
-		options.IntervalMS = 100
-	}
-	if options.TopN <= 0 {
-		options.TopN = 20
-	}
-	if strings.TrimSpace(options.ProfileKind) == "" {
-		options.ProfileKind = "wall"
-	}
-	parseResult, err := ParseJenniferFlamegraphCSV(path)
+	normalizeOptions(&options)
+	parseResult, err := ParseJenniferFlamegraphCSV(path, options.DebugLog)
 	if err != nil {
 		return AnalysisResult{}, err
 	}
-	return AnalyzeJenniferTree(parseResult.Root, path, parseResult.Diagnostics, options), nil
+	result := AnalyzeJenniferTree(parseResult.Root, path, parseResult.Diagnostics, options)
+	writeDebugLogIfNeeded(options)
+	return result, nil
 }
 
 func AnalyzeJenniferTree(root FlameNode, sourceFile string, diagnostics ParserDiagnostics, options Options) AnalysisResult {

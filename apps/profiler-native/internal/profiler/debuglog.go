@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"sort"
 	"strings"
 	"time"
 )
+
+const maxContextChars = 500
 
 // DebugLog captures a portable, redacted parser failure log that a field user
 // can ship as a single artifact without sharing the original input.
@@ -19,9 +22,14 @@ import (
 // redact-by-default policy. Verdict / encoding metadata is decided at write
 // time so callers don't have to know the policy.
 type DebugLog struct {
+	analyzerType     string
 	parser           string
 	sourceFile       string
 	encodingDetected string
+	parserOptions    map[string]any
+	totalLines       int
+	parsedRecords    int
+	skippedLines     int
 	parseErrors      []DebugLogError
 	exceptions       []DebugLogException
 	hints            []string
@@ -54,10 +62,12 @@ type DebugLogException struct {
 // NewDebugLog constructs a collector. `parser` should match the parser name
 // recorded under `metadata.parser` in the AnalysisResult so the log can be
 // correlated with the analyzer output.
-func NewDebugLog(parser, sourceFile string) *DebugLog {
+func NewDebugLog(analyzerType, parser, sourceFile string) *DebugLog {
 	return &DebugLog{
+		analyzerType:     analyzerType,
 		parser:           parser,
 		sourceFile:       sourceFile,
+		parserOptions:    map[string]any{},
 		parseErrors:      []DebugLogError{},
 		exceptions:       []DebugLogException{},
 		hints:            []string{},
@@ -74,6 +84,24 @@ func (l *DebugLog) SetEncodingDetected(encoding string) {
 		return
 	}
 	l.encodingDetected = encoding
+}
+
+// SetTotals records the final parsing totals for the summary section.
+func (l *DebugLog) SetTotals(totalLines, parsedRecords, skippedLines int) {
+	if l == nil {
+		return
+	}
+	l.totalLines = totalLines
+	l.parsedRecords = parsedRecords
+	l.skippedLines = skippedLines
+}
+
+// SetParserOptions records the parser option snapshot.
+func (l *DebugLog) SetParserOptions(opts map[string]any) {
+	if l == nil || opts == nil {
+		return
+	}
+	l.parserOptions = opts
 }
 
 // AddHint adds a free-form developer hint shown next to the verdict.
@@ -102,10 +130,24 @@ func (l *DebugLog) AddParseError(lineNumber int, reason, message, failedPattern 
 		return
 	}
 	redactedContext := map[string]string{}
-	for key, value := range rawContext {
-		result := RedactText(value)
+	for _, key := range []string{"before", "target", "after"} {
+		value, ok := rawContext[key]
+		if !ok {
+			continue
+		}
+		clipped := value
+		if len(clipped) > maxContextChars {
+			clipped = clipped[:maxContextChars]
+		}
+		result := RedactText(clipped)
 		redactedContext[key] = result.Text
 		l.redactionSummary = MergeRedactionSummaries(l.redactionSummary, result.Summary)
+	}
+	if fieldShapes == nil {
+		target := rawContext["target"]
+		if target != "" {
+			fieldShapes = InferFieldShapes(target)
+		}
 	}
 	l.parseErrors = append(l.parseErrors, DebugLogError{
 		LineNumber:    lineNumber,
@@ -137,8 +179,9 @@ func (l *DebugLog) HasContent() bool {
 	return len(l.parseErrors) > 0 || len(l.exceptions) > 0
 }
 
-// Verdict ranks the log: FATAL_ERROR if exceptions exist, PARSE_ISSUES if
-// parse errors are present, CLEAN otherwise.
+// Verdict ranks the log using the same policy as Python:
+// FATAL_ERROR if exceptions, MAJORITY_FAILED if ≥50% skipped,
+// PARTIAL_SUCCESS if any skipped, CLEAN otherwise.
 func (l *DebugLog) Verdict() string {
 	if l == nil {
 		return "CLEAN"
@@ -146,10 +189,18 @@ func (l *DebugLog) Verdict() string {
 	if len(l.exceptions) > 0 {
 		return "FATAL_ERROR"
 	}
-	if len(l.parseErrors) > 0 {
-		return "PARSE_ISSUES"
+	skipped := l.skippedLines
+	if skipped <= 0 {
+		// Fall back to counting parse errors if SetTotals wasn't called.
+		skipped = len(l.parseErrors)
 	}
-	return "CLEAN"
+	if skipped <= 0 {
+		return "CLEAN"
+	}
+	if l.totalLines > 0 && float64(skipped)/float64(l.totalLines) >= 0.5 {
+		return "MAJORITY_FAILED"
+	}
+	return "PARTIAL_SUCCESS"
 }
 
 // PortableFilename returns a deterministic file name suitable for shipping.
@@ -216,42 +267,214 @@ func (l *DebugLog) WriteJSON(dir string) (string, error) {
 }
 
 func (l *DebugLog) payload(truncated bool) map[string]any {
-	parseErrors := l.parseErrors
-	if truncated && len(parseErrors) > l.maxSamplesByType*4 {
-		parseErrors = parseErrors[len(parseErrors)-l.maxSamplesByType*4:]
+	// Group parse errors by reason, matching Python's errors_by_type shape.
+	type errorEntry struct {
+		Count         int              `json:"count"`
+		Description   string           `json:"description"`
+		FailedPattern string           `json:"failed_pattern,omitempty"`
+		Samples       []DebugLogError  `json:"samples"`
 	}
-	reasons := map[string]int{}
-	for _, err := range parseErrors {
-		reasons[err.Reason]++
+	errorsByType := map[string]*errorEntry{}
+	for _, err := range l.parseErrors {
+		entry, ok := errorsByType[err.Reason]
+		if !ok {
+			entry = &errorEntry{Description: err.Message, FailedPattern: err.FailedPattern}
+			errorsByType[err.Reason] = entry
+		}
+		entry.Count++
+		if entry.FailedPattern == "" && err.FailedPattern != "" {
+			entry.FailedPattern = err.FailedPattern
+		}
+		if truncated && len(entry.Samples) >= l.maxSamplesByType {
+			continue
+		}
+		if len(entry.Samples) < l.maxSamplesByType {
+			entry.Samples = append(entry.Samples, err)
+		}
 	}
-	type reasonRow struct {
-		Reason string `json:"reason"`
-		Count  int    `json:"count"`
+	// Sorted by reason for deterministic output.
+	sortedReasons := make([]string, 0, len(errorsByType))
+	for reason := range errorsByType {
+		sortedReasons = append(sortedReasons, reason)
 	}
-	rows := []reasonRow{}
-	for reason, count := range reasons {
-		rows = append(rows, reasonRow{Reason: reason, Count: count})
+	sort.Strings(sortedReasons)
+	orderedErrorsByType := map[string]any{}
+	errorTypeCounts := map[string]int{}
+	for _, reason := range sortedReasons {
+		entry := errorsByType[reason]
+		errorTypeCounts[reason] = entry.Count
+		cleaned := map[string]any{
+			"count":       entry.Count,
+			"description": entry.Description,
+			"samples":     entry.Samples,
+		}
+		if entry.FailedPattern != "" {
+			cleaned["failed_pattern"] = entry.FailedPattern
+		}
+		orderedErrorsByType[reason] = cleaned
 	}
-	sort.Slice(rows, func(i, j int) bool { return rows[i].Count > rows[j].Count })
+
+	skipped := l.skippedLines
+	if skipped <= 0 {
+		for _, entry := range errorsByType {
+			skipped += entry.Count
+		}
+	}
+	skipRate := 0.0
+	if l.totalLines > 0 {
+		skipRate = float64(skipped) / float64(l.totalLines) * 100
+		skipRate = float64(int(skipRate*100)) / 100 // round to 2 decimals
+	}
+
+	redactedSourceFile := RedactText(l.sourceFile).Text
+	sourceFileName := filepath.Base(l.sourceFile)
+
+	var fileSize *int64
+	if info, err := os.Stat(l.sourceFile); err == nil {
+		s := info.Size()
+		fileSize = &s
+	}
+
 	return map[string]any{
-		"version":           "0.1.0",
-		"verdict":           l.Verdict(),
-		"truncated":         truncated,
-		"parser":            l.parser,
-		"source_file":       sanitizeFilenameComponent(filepath.Base(l.sourceFile)),
-		"encoding_detected": l.encodingDetected,
-		"started_at":        l.startedAt.Format(time.RFC3339),
-		"finished_at":       time.Now().UTC().Format(time.RFC3339),
 		"environment": map[string]string{
-			"go_version": runtime.Version(),
-			"goos":       runtime.GOOS,
-			"goarch":     runtime.GOARCH,
+			"archscope_version": "go-native",
+			"go_version":        runtime.Version(),
+			"os":                runtime.GOOS + "/" + runtime.GOARCH,
+			"timestamp":         time.Now().UTC().Format(time.RFC3339),
 		},
-		"redaction_version": RedactionVersion,
-		"redaction_summary": l.redactionSummary,
-		"reason_summary":    rows,
-		"parse_errors":      parseErrors,
-		"exceptions":        l.exceptions,
-		"hints":             l.hints,
+		"context": map[string]any{
+			"analyzer_type":    l.analyzerType,
+			"source_file":      redactedSourceFile,
+			"source_file_name": sourceFileName,
+			"file_size_bytes":  fileSize,
+			"encoding_detected": l.encodingDetected,
+			"parser":            l.parser,
+			"parser_options":    l.parserOptions,
+		},
+		"redaction": map[string]any{
+			"enabled":              true,
+			"redaction_version":    RedactionVersion,
+			"raw_context_redacted": true,
+			"summary":              l.redactionSummary,
+		},
+		"summary": map[string]any{
+			"total_lines":      l.totalLines,
+			"parsed_ok":        l.parsedRecords,
+			"skipped":          skipped,
+			"skip_rate_percent": skipRate,
+			"error_types":      errorTypeCounts,
+			"exceptions":       len(l.exceptions),
+			"verdict":          l.Verdict(),
+		},
+		"errors_by_type": orderedErrorsByType,
+		"exceptions":     l.exceptions,
+		"hints":          l.buildHints(skipped, errorTypeCounts),
+		"truncated":      truncated,
 	}
+}
+
+// buildHints generates developer hints matching Python's _build_hints.
+func (l *DebugLog) buildHints(skipped int, errorTypes map[string]int) []string {
+	hints := append([]string{}, l.hints...)
+	totalErrors := 0
+	for _, count := range errorTypes {
+		totalErrors += count
+	}
+	if totalErrors > 0 {
+		noFormat := errorTypes["NO_FORMAT_MATCH"]
+		if float64(noFormat)/float64(totalErrors) >= 0.8 {
+			hints = append(hints, "NO_FORMAT_MATCH dominates. The input may not match the selected parser format.")
+		}
+		if errorTypes["INVALID_TIMESTAMP"] > 0 {
+			hints = append(hints, "INVALID_TIMESTAMP is present. Check timestamp shape and parser time format.")
+		}
+	}
+	if l.totalLines > 0 && float64(skipped)/float64(l.totalLines) >= 0.5 {
+		hints = append(hints, "More than half of parsed lines failed. The file may use an unsupported format.")
+	}
+	if len(l.exceptions) > 0 {
+		hints = append(hints, "Parser or analyzer exception captured. Inspect traceback and phase.")
+	}
+	return hints
+}
+
+// InferFieldShapes extracts structural metadata from a raw text line,
+// matching Python's infer_field_shapes for cross-engine parity.
+func InferFieldShapes(text string) map[string]any {
+	shapes := map[string]any{
+		"target_token_count": len(strings.Fields(text)),
+		"quote_count":        strings.Count(text, "\""),
+		"bracket_count":      strings.Count(text, "[") + strings.Count(text, "]"),
+	}
+	// Suffix key=value detection.
+	if idx := strings.LastIndex(text, " "); idx >= 0 {
+		suffix := text[idx+1:]
+		if strings.Contains(suffix, "=") {
+			shapes["suffix_shape"] = "key=value"
+		}
+	}
+	// Request shape detection.
+	if reqShape := extractRequestShape(text); reqShape != nil {
+		for k, v := range reqShape {
+			shapes[k] = v
+		}
+	}
+	// Timestamp shape detection.
+	if ts := detectTimestampShape(text); ts != "" {
+		shapes["timestamp_shape"] = ts
+	}
+	return shapes
+}
+
+var (
+	requestShapeRE      = regexp.MustCompile(`"(?P<method>[A-Z]+)\s+(?P<path>\S+)\s+(?P<protocol>[^"]+)"`)
+	timestampNginxRE    = regexp.MustCompile(`\[\d{2}/[A-Za-z]{3}/\d{4}:\d{2}:\d{2}:\d{2} [+-]\d{4}\]`)
+	timestampBracketRE  = regexp.MustCompile(`\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\]`)
+	timestampISO8601RE  = regexp.MustCompile(`\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}`)
+	pathNumberRE        = regexp.MustCompile(`/\d+`)
+)
+
+func extractRequestShape(text string) map[string]any {
+	match := requestShapeRE.FindStringSubmatch(text)
+	if match == nil {
+		return nil
+	}
+	path := match[2]
+	queryKeys := []string{}
+	if idx := strings.Index(path, "?"); idx >= 0 {
+		query := path[idx+1:]
+		for _, part := range strings.Split(query, "&") {
+			if part == "" {
+				continue
+			}
+			kv := strings.SplitN(part, "=", 2)
+			queryKeys = append(queryKeys, kv[0])
+		}
+	}
+	result := map[string]any{}
+	if len(queryKeys) > 0 {
+		result["request_shape"] = "METHOD PATH_WITH_QUERY PROTOCOL"
+	} else {
+		result["request_shape"] = "METHOD PATH PROTOCOL"
+	}
+	purePath := path
+	if idx := strings.Index(purePath, "?"); idx >= 0 {
+		purePath = purePath[:idx]
+	}
+	result["path_shape"] = pathNumberRE.ReplaceAllString(purePath, "/<NUMBER>")
+	result["query_keys"] = queryKeys
+	return result
+}
+
+func detectTimestampShape(text string) string {
+	if timestampNginxRE.MatchString(text) {
+		return "dd/Mon/yyyy:HH:mm:ss Z"
+	}
+	if timestampBracketRE.MatchString(text) {
+		return "yyyy-MM-dd HH:mm:ss"
+	}
+	if timestampISO8601RE.MatchString(text) {
+		return "ISO-8601"
+	}
+	return ""
 }

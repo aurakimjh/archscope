@@ -6,6 +6,8 @@ type Options struct {
 	TopN               int
 	ProfileKind        string
 	TimelineBaseMethod string
+	DebugLog           *DebugLog
+	DebugLogDir        string
 }
 
 type AnalysisResult struct {

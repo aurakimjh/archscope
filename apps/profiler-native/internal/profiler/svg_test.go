@@ -124,7 +124,7 @@ func TestSvgFlamegraphFromDisk(t *testing.T) {
 	if err := os.WriteFile(path, []byte(brendanSVG), 0o644); err != nil {
 		t.Fatalf("write: %v", err)
 	}
-	result, err := ParseSvgFlamegraphFile(path)
+	result, err := ParseSvgFlamegraphFile(path, nil)
 	if err != nil {
 		t.Fatalf("parse: %v", err)
 	}

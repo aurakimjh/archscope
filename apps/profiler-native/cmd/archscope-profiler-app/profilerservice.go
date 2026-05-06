@@ -74,19 +74,19 @@ func (s *ProfilerService) Diff(req DiffRequest) (profiler.AnalysisResult, error)
 func (s *ProfilerService) loadStacks(path, format string) (map[string]int, error) {
 	switch strings.ToLower(strings.TrimSpace(format)) {
 	case "jennifer", "jennifer_csv", "jennifer-csv":
-		result, err := profiler.ParseJenniferFlamegraphCSV(path)
+		result, err := profiler.ParseJenniferFlamegraphCSV(path, nil)
 		if err != nil {
 			return nil, err
 		}
 		return stacksFromFlameNode(result.Root), nil
 	case "flamegraph_svg", "svg":
-		result, err := profiler.ParseSvgFlamegraphFile(path)
+		result, err := profiler.ParseSvgFlamegraphFile(path, nil)
 		if err != nil {
 			return nil, err
 		}
 		return result.Stacks, nil
 	case "flamegraph_html", "html":
-		result, err := profiler.ParseHtmlProfilerFile(path)
+		result, err := profiler.ParseHtmlProfilerFile(path, nil)
 		if err != nil {
 			return nil, err
 		}

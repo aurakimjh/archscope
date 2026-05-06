@@ -33,7 +33,7 @@ type SvgFlamegraphParseResult struct {
 	Diagnostics ParserDiagnostics
 }
 
-func ParseSvgFlamegraphFile(path string) (SvgFlamegraphParseResult, error) {
+func ParseSvgFlamegraphFile(path string, debugLog *DebugLog) (SvgFlamegraphParseResult, error) {
 	source := path
 	diagnostics := ParserDiagnostics{
 		SourceFile:      &source,
@@ -44,7 +44,7 @@ func ParseSvgFlamegraphFile(path string) (SvgFlamegraphParseResult, error) {
 	if err != nil {
 		return SvgFlamegraphParseResult{Diagnostics: diagnostics}, err
 	}
-	return parseSvgFlamegraphBytes(bytes, diagnostics), nil
+	return parseSvgFlamegraphBytes(bytes, diagnostics, debugLog), nil
 }
 
 func ParseSvgFlamegraphText(text string) SvgFlamegraphParseResult {
@@ -52,17 +52,18 @@ func ParseSvgFlamegraphText(text string) SvgFlamegraphParseResult {
 		Format:          "flamegraph_svg",
 		SkippedByReason: map[string]int{},
 	}
-	return parseSvgFlamegraphBytes([]byte(text), diagnostics)
+	return parseSvgFlamegraphBytes([]byte(text), diagnostics, nil)
 }
 
-func parseSvgFlamegraphBytes(payload []byte, diagnostics ParserDiagnostics) SvgFlamegraphParseResult {
-	rects, err := extractSvgRects(payload, &diagnostics)
+func parseSvgFlamegraphBytes(payload []byte, diagnostics ParserDiagnostics, debugLog *DebugLog) SvgFlamegraphParseResult {
+	rects, err := extractSvgRects(payload, &diagnostics, debugLog)
 	if err != nil {
 		preview := string(payload)
 		if len(preview) > 200 {
 			preview = preview[:200]
 		}
 		addDiagnosticError(&diagnostics, 0, "INVALID_SVG", err.Error(), preview)
+		debugLog.AddParseError(0, "INVALID_SVG", err.Error(), "", map[string]string{"target": preview}, nil)
 		return SvgFlamegraphParseResult{Stacks: map[string]int{}, Diagnostics: diagnostics}
 	}
 	if len(rects) == 0 {
@@ -76,10 +77,11 @@ func parseSvgFlamegraphBytes(payload []byte, diagnostics ParserDiagnostics) SvgF
 		parsed += count
 	}
 	diagnostics.ParsedRecords = parsed
+	debugLog.SetTotals(diagnostics.TotalLines, diagnostics.ParsedRecords, diagnostics.SkippedLines)
 	return SvgFlamegraphParseResult{Stacks: stacks, Diagnostics: diagnostics}
 }
 
-func extractSvgRects(payload []byte, diagnostics *ParserDiagnostics) ([]svgRect, error) {
+func extractSvgRects(payload []byte, diagnostics *ParserDiagnostics, debugLog *DebugLog) ([]svgRect, error) {
 	type pendingGroup struct {
 		title    string
 		hasTitle bool
@@ -114,7 +116,7 @@ func extractSvgRects(payload []byte, diagnostics *ParserDiagnostics) ([]svgRect,
 				}
 			case "rect":
 				if len(stack) > 0 {
-					rect, ok := parseSvgRectAttrs(t.Attr, stack[len(stack)-1].title, diagnostics)
+					rect, ok := parseSvgRectAttrs(t.Attr, stack[len(stack)-1].title, diagnostics, debugLog)
 					if ok {
 						copy := rect
 						stack[len(stack)-1].rect = &copy
@@ -137,16 +139,18 @@ func extractSvgRects(payload []byte, diagnostics *ParserDiagnostics) ([]svgRect,
 					if len(preview) > 80 {
 						preview = preview[:80]
 					}
-					addDiagnosticError(diagnostics, 0, "UNPARSEABLE_TITLE",
-						"Title does not match name(N samples) pattern: "+preview, top.title)
+					msg := "Title does not match name(N samples) pattern: " + preview
+					addDiagnosticError(diagnostics, 0, "UNPARSEABLE_TITLE", msg, top.title)
+					debugLog.AddParseError(0, "UNPARSEABLE_TITLE", msg, "svgTitleRE", map[string]string{"target": top.title}, nil)
 					continue
 				}
 				name := strings.TrimSpace(match[1])
 				samplesText := strings.ReplaceAll(strings.ReplaceAll(match[2], ",", ""), " ", "")
 				samples, err := strconv.Atoi(samplesText)
 				if err != nil {
-					addDiagnosticError(diagnostics, 0, "INVALID_SAMPLE_COUNT",
-						fmt.Sprintf("Sample count is not an integer: %q", samplesText), top.title)
+					msg := fmt.Sprintf("Sample count is not an integer: %q", samplesText)
+					addDiagnosticError(diagnostics, 0, "INVALID_SAMPLE_COUNT", msg, top.title)
+					debugLog.AddParseError(0, "INVALID_SAMPLE_COUNT", msg, "svgTitleRE", map[string]string{"target": top.title}, nil)
 					continue
 				}
 				if samples <= 0 {
@@ -161,7 +165,7 @@ func extractSvgRects(payload []byte, diagnostics *ParserDiagnostics) ([]svgRect,
 	return rects, nil
 }
 
-func parseSvgRectAttrs(attrs []xml.Attr, title string, diagnostics *ParserDiagnostics) (svgRect, bool) {
+func parseSvgRectAttrs(attrs []xml.Attr, title string, diagnostics *ParserDiagnostics, debugLog *DebugLog) (svgRect, bool) {
 	out := svgRect{}
 	parsed := map[string]bool{}
 	for _, attr := range attrs {
@@ -173,7 +177,9 @@ func parseSvgRectAttrs(attrs []xml.Attr, title string, diagnostics *ParserDiagno
 				if len(preview) > 200 {
 					preview = preview[:200]
 				}
-				addDiagnosticError(diagnostics, 0, "INVALID_RECT_GEOMETRY", "Could not parse rect x attribute.", preview)
+				msg := "Could not parse rect x attribute."
+				addDiagnosticError(diagnostics, 0, "INVALID_RECT_GEOMETRY", msg, preview)
+				debugLog.AddParseError(0, "INVALID_RECT_GEOMETRY", msg, "", map[string]string{"target": preview}, nil)
 				return out, false
 			}
 			out.X = value
@@ -181,7 +187,9 @@ func parseSvgRectAttrs(attrs []xml.Attr, title string, diagnostics *ParserDiagno
 		case "y":
 			value, err := strconv.ParseFloat(attr.Value, 64)
 			if err != nil {
-				addDiagnosticError(diagnostics, 0, "INVALID_RECT_GEOMETRY", "Could not parse rect y attribute.", title)
+				msg := "Could not parse rect y attribute."
+				addDiagnosticError(diagnostics, 0, "INVALID_RECT_GEOMETRY", msg, title)
+				debugLog.AddParseError(0, "INVALID_RECT_GEOMETRY", msg, "", map[string]string{"target": title}, nil)
 				return out, false
 			}
 			out.Y = value
@@ -189,7 +197,9 @@ func parseSvgRectAttrs(attrs []xml.Attr, title string, diagnostics *ParserDiagno
 		case "width":
 			value, err := strconv.ParseFloat(attr.Value, 64)
 			if err != nil {
-				addDiagnosticError(diagnostics, 0, "INVALID_RECT_GEOMETRY", "Could not parse rect width attribute.", title)
+				msg := "Could not parse rect width attribute."
+				addDiagnosticError(diagnostics, 0, "INVALID_RECT_GEOMETRY", msg, title)
+				debugLog.AddParseError(0, "INVALID_RECT_GEOMETRY", msg, "", map[string]string{"target": title}, nil)
 				return out, false
 			}
 			out.Width = value
@@ -197,7 +207,9 @@ func parseSvgRectAttrs(attrs []xml.Attr, title string, diagnostics *ParserDiagno
 		case "height":
 			value, err := strconv.ParseFloat(attr.Value, 64)
 			if err != nil {
-				addDiagnosticError(diagnostics, 0, "INVALID_RECT_GEOMETRY", "Could not parse rect height attribute.", title)
+				msg := "Could not parse rect height attribute."
+				addDiagnosticError(diagnostics, 0, "INVALID_RECT_GEOMETRY", msg, title)
+				debugLog.AddParseError(0, "INVALID_RECT_GEOMETRY", msg, "", map[string]string{"target": title}, nil)
 				return out, false
 			}
 			out.Height = value

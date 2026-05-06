@@ -20,6 +20,8 @@ func main() {
 	topN := flag.Int("top-n", 20, "Number of top rows to emit.")
 	profileKind := flag.String("profile-kind", "wall", "Profile capture mode: wall, cpu, or lock.")
 	timelineBaseMethod := flag.String("timeline-base-method", "", "Optional base method for timeline analysis.")
+	debugLog := flag.Bool("debug-log", false, "Write a portable debug log on parse errors.")
+	debugLogDir := flag.String("debug-log-dir", "", "Directory for debug log output (default: ./archscope-debug/).")
 	flag.Parse()
 
 	inputs := 0
@@ -55,12 +57,33 @@ func main() {
 	if *elapsedSec >= 0 {
 		elapsed = elapsedSec
 	}
+
+	// Determine analyzer type and source file for debug log.
+	var analyzerType, sourceFile, parserName string
+	switch {
+	case *jenniferCSV != "":
+		analyzerType, sourceFile, parserName = "profiler_jennifer", *jenniferCSV, "jennifer_flamegraph_csv"
+	case *flamegraphSVG != "":
+		analyzerType, sourceFile, parserName = "profiler_collapsed", *flamegraphSVG, "flamegraph_svg"
+	case *flamegraphHTML != "":
+		analyzerType, sourceFile, parserName = "profiler_collapsed", *flamegraphHTML, "flamegraph_html"
+	default:
+		analyzerType, sourceFile, parserName = "profiler_collapsed", *collapsed, "async_profiler_collapsed"
+	}
+
+	var dl *profiler.DebugLog
+	if *debugLog {
+		dl = profiler.NewDebugLog(analyzerType, parserName, sourceFile)
+	}
+
 	options := profiler.Options{
 		IntervalMS:         *intervalMS,
 		ElapsedSec:         elapsed,
 		TopN:               *topN,
 		ProfileKind:        *profileKind,
 		TimelineBaseMethod: *timelineBaseMethod,
+		DebugLog:           dl,
+		DebugLogDir:        *debugLogDir,
 	}
 	var (
 		result profiler.AnalysisResult

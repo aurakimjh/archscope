@@ -31,7 +31,7 @@ var jenniferColumnAliases = map[string][]string{
 
 var jenniferRequiredColumns = []string{"key", "method_name", "sample_count"}
 
-func ParseJenniferFlamegraphCSV(path string) (JenniferCsvParseResult, error) {
+func ParseJenniferFlamegraphCSV(path string, debugLog *DebugLog) (JenniferCsvParseResult, error) {
 	source := path
 	diagnostics := ParserDiagnostics{
 		SourceFile:      &source,
@@ -50,11 +50,12 @@ func ParseJenniferFlamegraphCSV(path string) (JenniferCsvParseResult, error) {
 		return JenniferCsvParseResult{Root: root, Diagnostics: diagnostics}, nil
 	}
 
-	rows := readJenniferRows(raw, &diagnostics)
+	rows := readJenniferRows(raw, &diagnostics, debugLog)
 	root := buildJenniferTree(rows, &diagnostics)
 	if diagnostics.ParsedRecords == 0 {
 		addDiagnosticWarning(&diagnostics, 0, "NO_VALID_RECORDS", "No valid Jennifer CSV rows were parsed.", "")
 	}
+	debugLog.SetTotals(diagnostics.TotalLines, diagnostics.ParsedRecords, diagnostics.SkippedLines)
 	return JenniferCsvParseResult{Root: root, Diagnostics: diagnostics}, nil
 }
 
@@ -67,7 +68,7 @@ type jenniferRow struct {
 	ColorCategory string
 }
 
-func readJenniferRows(raw []byte, diagnostics *ParserDiagnostics) map[string]*jenniferRow {
+func readJenniferRows(raw []byte, diagnostics *ParserDiagnostics, debugLog *DebugLog) map[string]*jenniferRow {
 	for index, encoding := range jenniferEncodingCandidates() {
 		text, ok := decodeJenniferBytes(raw, encoding)
 		if !ok {
@@ -77,8 +78,9 @@ func readJenniferRows(raw []byte, diagnostics *ParserDiagnostics) map[string]*je
 			}
 			continue
 		}
+		debugLog.SetEncodingDetected(encoding)
 		checkpoint := snapshotDiagnostics(diagnostics)
-		rows, parseErr := parseJenniferCSVText(text, diagnostics)
+		rows, parseErr := parseJenniferCSVText(text, diagnostics, debugLog)
 		if parseErr != nil {
 			restoreDiagnostics(diagnostics, checkpoint)
 			addDiagnosticWarning(diagnostics, 0, "ENCODING_FALLBACK",
@@ -87,8 +89,9 @@ func readJenniferRows(raw []byte, diagnostics *ParserDiagnostics) map[string]*je
 		}
 		return rows
 	}
-	addDiagnosticError(diagnostics, 0, "ENCODING_ERROR",
-		"Could not decode Jennifer CSV with supported encodings: "+strings.Join(jenniferEncodingCandidates(), ", ")+".", "")
+	msg := "Could not decode Jennifer CSV with supported encodings: " + strings.Join(jenniferEncodingCandidates(), ", ") + "."
+	addDiagnosticError(diagnostics, 0, "ENCODING_ERROR", msg, "")
+	debugLog.AddParseError(0, "ENCODING_ERROR", msg, "", nil, nil)
 	return nil
 }
 
@@ -162,7 +165,7 @@ func restoreDiagnostics(diagnostics *ParserDiagnostics, checkpoint diagnosticsCh
 	diagnostics.ErrorCount = len(diagnostics.Errors)
 }
 
-func parseJenniferCSVText(text string, diagnostics *ParserDiagnostics) (map[string]*jenniferRow, error) {
+func parseJenniferCSVText(text string, diagnostics *ParserDiagnostics, debugLog *DebugLog) (map[string]*jenniferRow, error) {
 	reader := csv.NewReader(strings.NewReader(text))
 	reader.FieldsPerRecord = -1
 	reader.TrimLeadingSpace = false
@@ -183,7 +186,9 @@ func parseJenniferCSVText(text string, diagnostics *ParserDiagnostics) (map[stri
 	if len(missing) > 0 {
 		message := fmt.Sprintf("Missing required Jennifer CSV columns: %s. Found columns: %s.",
 			strings.Join(missing, ", "), strings.Join(header, ", "))
-		addDiagnosticError(diagnostics, 1, "MISSING_REQUIRED_COLUMNS", message, strings.Join(header, ","))
+		raw := strings.Join(header, ",")
+		addDiagnosticError(diagnostics, 1, "MISSING_REQUIRED_COLUMNS", message, raw)
+		debugLog.AddParseError(1, "MISSING_REQUIRED_COLUMNS", message, "", map[string]string{"target": raw}, nil)
 		return map[string]*jenniferRow{}, nil
 	}
 	rows := map[string]*jenniferRow{}
@@ -200,12 +205,16 @@ func parseJenniferCSVText(text string, diagnostics *ParserDiagnostics) (map[stri
 		diagnostics.TotalLines++
 		row, parseErr := parseJenniferRecord(record, header, columns)
 		if parseErr != nil {
-			addDiagnosticError(diagnostics, lineNumber, "INVALID_JENNIFER_ROW", parseErr.Error(), strings.Join(record, ","))
+			raw := strings.Join(record, ",")
+			addDiagnosticError(diagnostics, lineNumber, "INVALID_JENNIFER_ROW", parseErr.Error(), raw)
+			debugLog.AddParseError(lineNumber, "INVALID_JENNIFER_ROW", parseErr.Error(), "", map[string]string{"target": raw}, nil)
 			continue
 		}
 		if existing := rows[row.Key]; existing != nil {
-			addDiagnosticError(diagnostics, lineNumber, "DUPLICATE_KEY",
-				fmt.Sprintf("Duplicate Jennifer CSV key: %s", row.Key), strings.Join(record, ","))
+			raw := strings.Join(record, ",")
+			msg := fmt.Sprintf("Duplicate Jennifer CSV key: %s", row.Key)
+			addDiagnosticError(diagnostics, lineNumber, "DUPLICATE_KEY", msg, raw)
+			debugLog.AddParseError(lineNumber, "DUPLICATE_KEY", msg, "", map[string]string{"target": raw}, nil)
 			continue
 		}
 		rows[row.Key] = row

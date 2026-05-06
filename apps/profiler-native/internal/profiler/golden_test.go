@@ -103,7 +103,7 @@ func TestGoldenSvgRoundTripMatchesCollapsed(t *testing.T) {
 func TestGoldenHtmlAsyncProfilerJSMatchesSvg(t *testing.T) {
 	// Same logical tree, two different inputs (async-profiler embedded JS
 	// vs Brendan SVG): Go must produce the same collapsed stacks.
-	html := ParseHtmlProfilerText(asyncProfilerHTML)
+	html := ParseHtmlProfilerText(asyncProfilerHTML, nil)
 	svg := ParseSvgFlamegraphText(brendanSVG)
 	for key, expected := range svg.Stacks {
 		if html.Stacks[key] != expected {

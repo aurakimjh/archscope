@@ -11,7 +11,7 @@ import (
 
 func TestJenniferCSVReconstructsTreeWithVirtualRoot(t *testing.T) {
 	sample := filepath.Join("..", "..", "..", "..", "examples", "profiler", "sample-jennifer-flame.csv")
-	result, err := ParseJenniferFlamegraphCSV(sample)
+	result, err := ParseJenniferFlamegraphCSV(sample, nil)
 	if err != nil {
 		t.Fatalf("parse failed: %v", err)
 	}
@@ -43,7 +43,7 @@ func TestJenniferCSVReportsDuplicateKey(t *testing.T) {
 	path := writeTempCSV(t, "key,parent_key,method_name,ratio,sample_count\n"+
 		"root,,Root,100,10\n"+
 		"root,,Duplicate,100,5\n")
-	result, err := ParseJenniferFlamegraphCSV(path)
+	result, err := ParseJenniferFlamegraphCSV(path, nil)
 	if err != nil {
 		t.Fatalf("parse failed: %v", err)
 	}
@@ -61,7 +61,7 @@ func TestJenniferCSVReportsDuplicateKey(t *testing.T) {
 func TestJenniferCSVReportsMissingParentAsWarning(t *testing.T) {
 	path := writeTempCSV(t, "key,parent_key,method_name,ratio,sample_count\n"+
 		"child,missing,Child,100,5\n")
-	result, err := ParseJenniferFlamegraphCSV(path)
+	result, err := ParseJenniferFlamegraphCSV(path, nil)
 	if err != nil {
 		t.Fatalf("parse failed: %v", err)
 	}
@@ -87,7 +87,7 @@ func TestJenniferCSVBreaksParentCycles(t *testing.T) {
 	path := writeTempCSV(t, "key,parent_key,method_name,ratio,sample_count\n"+
 		"a,b,A,50,5\n"+
 		"b,a,B,50,5\n")
-	result, err := ParseJenniferFlamegraphCSV(path)
+	result, err := ParseJenniferFlamegraphCSV(path, nil)
 	if err != nil {
 		t.Fatalf("parse failed: %v", err)
 	}
@@ -108,7 +108,7 @@ func TestJenniferCSVBreaksParentCycles(t *testing.T) {
 
 func TestJenniferCSVMissingRequiredColumns(t *testing.T) {
 	path := writeTempCSV(t, "key,parent_key,method_name\nroot,,Root\n")
-	result, err := ParseJenniferFlamegraphCSV(path)
+	result, err := ParseJenniferFlamegraphCSV(path, nil)
 	if err != nil {
 		t.Fatalf("parse failed: %v", err)
 	}
@@ -130,7 +130,7 @@ func TestJenniferCSVCp949Fallback(t *testing.T) {
 	if err := os.WriteFile(path, encoded, 0o644); err != nil {
 		t.Fatalf("write: %v", err)
 	}
-	result, err := ParseJenniferFlamegraphCSV(path)
+	result, err := ParseJenniferFlamegraphCSV(path, nil)
 	if err != nil {
 		t.Fatalf("parse failed: %v", err)
 	}
@@ -153,7 +153,7 @@ func TestJenniferCSVUTF8WithBOM(t *testing.T) {
 	if err := os.WriteFile(path, body, 0o644); err != nil {
 		t.Fatalf("write: %v", err)
 	}
-	result, err := ParseJenniferFlamegraphCSV(path)
+	result, err := ParseJenniferFlamegraphCSV(path, nil)
 	if err != nil {
 		t.Fatalf("parse failed: %v", err)
 	}
@@ -171,7 +171,7 @@ func TestJenniferCSVRatioPercentSuffix(t *testing.T) {
 	path := writeTempCSV(t, "key,parent_key,method_name,ratio,sample_count\n"+
 		"root,,Root,100%,12\n"+
 		"child,root,Child,75 %,9\n")
-	result, err := ParseJenniferFlamegraphCSV(path)
+	result, err := ParseJenniferFlamegraphCSV(path, nil)
 	if err != nil {
 		t.Fatalf("parse failed: %v", err)
 	}
@@ -185,7 +185,7 @@ func TestJenniferCSVRatioPercentSuffix(t *testing.T) {
 
 func TestJenniferCSVEmptyFile(t *testing.T) {
 	path := writeTempCSV(t, "")
-	result, err := ParseJenniferFlamegraphCSV(path)
+	result, err := ParseJenniferFlamegraphCSV(path, nil)
 	if err != nil {
 		t.Fatalf("parse failed: %v", err)
 	}
@@ -204,7 +204,7 @@ func TestJenniferCSVEmptyFile(t *testing.T) {
 func TestJenniferCSVColumnAliasResolution(t *testing.T) {
 	path := writeTempCSV(t, "id,parent,method,percent,samples,category\n"+
 		"root,,Root,100,8,application\n")
-	result, err := ParseJenniferFlamegraphCSV(path)
+	result, err := ParseJenniferFlamegraphCSV(path, nil)
 	if err != nil {
 		t.Fatalf("parse failed: %v", err)
 	}
@@ -224,7 +224,7 @@ func TestJenniferCSVChildSamplesExceedParentWarning(t *testing.T) {
 		"a,,Parent,100,5\n"+
 		"b,a,ChildOne,50,4\n"+
 		"c,a,ChildTwo,50,4\n")
-	result, err := ParseJenniferFlamegraphCSV(path)
+	result, err := ParseJenniferFlamegraphCSV(path, nil)
 	if err != nil {
 		t.Fatalf("parse failed: %v", err)
 	}
