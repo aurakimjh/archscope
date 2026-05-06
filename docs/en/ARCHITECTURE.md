@@ -5,6 +5,84 @@ reporting toolkit. Its core responsibility is to turn raw operational
 evidence into normalized `AnalysisResult` JSON and report-ready
 visualizations — without sending data to any third-party service.
 
+## Web platform pivot — design decisions (T-206)
+
+Decided **2026-05-06**. **Supersedes T-001** (the original "Electron +
+`child_process.execFile` IPC" decision). Locks in the directional choices
+that the rest of Phase 1 (T-207–T-209) builds on.
+
+### Runtime
+
+- **FastAPI + uvicorn**, in-process analyzer dispatch (no subprocess).
+  Each analyzer is invoked as a normal Python function call; isolating
+  it inside a subprocess is rejected because the engine is already
+  in-language and the IPC boundary T-001 introduced provided no
+  durability win.
+- Programmatic `archscope serve` console entry point (T-208) starts
+  uvicorn on `127.0.0.1:8765` by default and opens the system browser
+  on first start.
+
+### Transport
+
+| Channel | Carries | Why |
+|---|---|---|
+| **HTTP** (`/api/...`) | Analyzer execute, settings, file dialog, exports, demo runner, file streaming. | Synchronous request/response is the simplest fit for analyzer dispatch and matches the existing client surface in `apps/frontend/src/api/`. |
+| **WebSocket** (`/ws/progress`) | Engine progress events, cancellation signals, parser-debug-log streaming. | Long-running analyzers (multi-dump correlation, large GC logs) need to push intermediate state without polling, and the renderer needs a fire-and-forget cancel that's symmetric with the existing Wails track (T-240f). Single-process cancel uses the same task-registry pattern: server keys cancel channels by request id and emits `progress` / `done` / `cancelled` JSON frames. |
+
+### File selection
+
+- **Default — server-side absolute paths via `POST /api/files/select`.**
+  The server pops an OS file dialog (the engine binds `127.0.0.1` so
+  this is local-only by definition) and returns the absolute path;
+  subsequent analyzer calls reference that path directly. Avoids the
+  multipart upload round-trip for the common case where the user is on
+  the same machine as the engine.
+- **Fallback — browser multipart upload via `POST /api/upload`.** Already
+  implemented; writes to `~/.archscope/uploads/<uuid>/<orig>`. Kicks in
+  when the engine is reachable from a non-localhost origin or when the
+  browser sandbox blocks the dialog endpoint.
+
+### Packaging (T-208 directional)
+
+- Single top-level Python distribution `archscope` exposing an
+  `archscope` console script. The script wraps uvicorn so
+  `pip install archscope && archscope serve` is the entire install path.
+- The built React bundle from `apps/frontend/dist/` ships as wheel
+  package data, resolved at runtime through `importlib.resources` —
+  no copy step at install time, no separate static-file env var.
+- The existing Electron desktop shell (`apps/desktop/`) is retired in
+  T-207; its files are removed and the React shell is consolidated
+  into `apps/frontend/`. The Wails v3 native profiler at
+  `apps/profiler-native/` is unaffected (it's a separate track —
+  decision recorded under T-242).
+
+### CSP / CORS posture
+
+- **CORS** — `allow_origins=["http://127.0.0.1:5173"]` for the Vite dev
+  server. Production serves the React bundle from the same FastAPI
+  origin so CORS is effectively unused at runtime. `--no-dev-cors`
+  disables the dev allowlist entirely for hardened deployment.
+- **CSP** — `default-src 'self'; img-src 'self' data:;
+  style-src 'self' 'unsafe-inline'; script-src 'self';
+  connect-src 'self' ws://127.0.0.1:8765`. The `connect-src` ws://
+  entry is what the renderer needs to subscribe to `/ws/progress`.
+  `style-src 'unsafe-inline'` stays for shadcn/ui CSS variables;
+  nonce-based hardening is tracked separately under T-052/T-071.
+
+### Apps directory layout (post-T-207)
+
+```text
+apps/
+├ frontend/         # React shell — single source of truth for the web UI
+├ profiler-native/  # Wails v3 native profiler (decided 2026-05-05, T-240a)
+└ desktop/          # Removed by T-207
+```
+
+The historical `apps/desktop/electron/`, `tsconfig.electron.json`,
+`electron-builder` config, `release/`, and `dist-electron/` are
+deleted. The new top-level `archscope` Python distribution
+(package data + console script) lands at the repo root via T-208.
+
 ## Product positioning
 
 ArchScope is positioned as a **privacy-first local professional

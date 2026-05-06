@@ -5,6 +5,78 @@ toolkit입니다. 핵심 책임은 운영 데이터를 정규화된 `AnalysisRes
 JSON과 보고서용 시각화로 변환하는 것이며, 외부 SaaS로 데이터를 보내지
 않습니다.
 
+## 웹 플랫폼 pivot — 디자인 결정 (T-206)
+
+**2026-05-06** 결정. **T-001** ("Electron + `child_process.execFile`
+IPC")의 결정을 **supersede**. Phase 1의 나머지 작업(T-207–T-209)이 따르는
+방향성 잠금.
+
+### 런타임
+
+- **FastAPI + uvicorn**, 분석기를 in-process로 dispatch (subprocess
+  사용 안 함). 분석기는 일반 Python 함수 호출로 실행되며, T-001이 도입한
+  IPC 경계는 같은 언어 안에 있는 엔진에 별다른 안정성 이득을 주지
+  못했기에 거부함.
+- 프로그래매틱 `archscope serve` 콘솔 진입점 (T-208)이 기본 `127.0.0.1:8765`에서
+  uvicorn을 시작하고 첫 시작 시 시스템 브라우저를 엽니다.
+
+### 전송
+
+| 채널 | 운반 대상 | 이유 |
+|---|---|---|
+| **HTTP** (`/api/...`) | 분석기 실행, 설정, 파일 다이얼로그, 내보내기, 데모 실행, 파일 스트리밍. | 동기 요청/응답이 분석기 dispatch에 가장 단순한 fit이며 `apps/frontend/src/api/`의 기존 클라이언트 surface와 일치. |
+| **WebSocket** (`/ws/progress`) | 엔진 진행률 이벤트, 취소 시그널, 파서 디버그 로그 스트리밍. | 시간이 오래 걸리는 분석기(멀티 덤프 상관, 대형 GC 로그)는 폴링 없이 중간 상태를 push해야 하고, 렌더러는 Wails 트랙(T-240f)과 대칭인 fire-and-forget 취소를 필요로 함. 단일 프로세스 취소도 동일한 task-registry 패턴 사용: 서버는 request id 키로 취소 채널을 매핑하고 `progress` / `done` / `cancelled` JSON 프레임을 emit. |
+
+### 파일 선택
+
+- **기본 — `POST /api/files/select`로 서버 측 절대 경로.**
+  서버가 OS 파일 다이얼로그를 띄움 (엔진은 `127.0.0.1` bind 이므로 정의상
+  로컬 전용)이며 절대 경로를 반환; 후속 분석기 호출은 그 경로를 직접
+  참조. 같은 머신에서 사용하는 일반 케이스에서 multipart 업로드 왕복을
+  회피.
+- **폴백 — `POST /api/upload`로 브라우저 multipart 업로드.** 이미 구현됨;
+  `~/.archscope/uploads/<uuid>/<orig>`에 작성. 엔진이 비-localhost 출처에서
+  접근되거나 브라우저 sandbox가 다이얼로그 엔드포인트를 차단할 때 활성화.
+
+### 패키징 (T-208 방향성)
+
+- 단일 최상위 Python distribution `archscope`이 `archscope` 콘솔 스크립트를
+  노출. 스크립트가 uvicorn을 wrap하므로
+  `pip install archscope && archscope serve`가 전체 설치 경로.
+- `apps/frontend/dist/`의 빌드된 React 번들은 wheel 패키지 데이터로 출하되며
+  런타임에 `importlib.resources`로 해소 — 설치 시 복사 단계 없음, 별도
+  static-file env var 없음.
+- 기존 Electron 데스크톱 셸(`apps/desktop/`)은 T-207에서 폐기; 파일이
+  삭제되고 React 셸은 `apps/frontend/`로 통합. `apps/profiler-native/`의
+  Wails v3 네이티브 프로파일러는 영향 없음 (별도 트랙 — T-242에 결정 기록).
+
+### CSP / CORS 방침
+
+- **CORS** — Vite 개발 서버용으로 `allow_origins=["http://127.0.0.1:5173"]`.
+  프로덕션은 동일 FastAPI 출처에서 React 번들을 서빙하므로 런타임에 CORS는
+  사실상 사용되지 않음. `--no-dev-cors`로 dev allowlist를 완전 비활성화
+  가능 (강화 배포 시).
+- **CSP** — `default-src 'self'; img-src 'self' data:;
+  style-src 'self' 'unsafe-inline'; script-src 'self';
+  connect-src 'self' ws://127.0.0.1:8765`. `connect-src`의 ws:// 엔트리가
+  렌더러의 `/ws/progress` 구독에 필요. `style-src 'unsafe-inline'`은
+  shadcn/ui CSS 변수 때문에 유지; nonce 기반 강화는 T-052/T-071에서 별도
+  추적.
+
+### Apps 디렉토리 레이아웃 (T-207 이후)
+
+```text
+apps/
+├ frontend/         # React 셸 — 웹 UI의 단일 소스
+├ profiler-native/  # Wails v3 네이티브 프로파일러 (2026-05-05 결정, T-240a)
+└ desktop/          # T-207에서 제거
+```
+
+기존 `apps/desktop/electron/`, `tsconfig.electron.json`,
+`electron-builder` 설정, `release/`, `dist-electron/`은 삭제. 새 최상위
+`archscope` Python distribution(패키지 데이터 + 콘솔 스크립트)은 T-208을
+통해 리포 루트에 배치.
+
 ## 제품 위상
 
 ArchScope의 위상은 **프라이버시 우선 로컬 전용 진단 워크벤치**입니다.
