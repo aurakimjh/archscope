@@ -237,6 +237,429 @@ jobs:
           print("OK — Go and Python agree on the access-log fixture.")
           PY
 
+      # ─── T-390 parity coverage ─────────────────────────────────────
+      # One step per analyzer surface, mirroring the access-log shape:
+      # build Go side via the engine CLI, build Python side via the
+      # engine module, and assert the headline invariants. Findings are
+      # compared as sorted code-sets only (order is not part of the
+      # contract). See work_status.md T-390 for context.
+
+      - name: Run gc-log parity check
+        working-directory: apps/engine-native
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/parity
+          ./bin/archscope-engine gclog \
+            --in ../../examples/gc-logs/sample-hotspot-gc.log \
+            --out /tmp/parity/gclog-go.json
+          python -m archscope_engine.cli gc-log analyze \
+            --file ../../examples/gc-logs/sample-hotspot-gc.log \
+            --out /tmp/parity/gclog-py.json
+          python <<'PY'
+          import json
+          go = json.load(open("/tmp/parity/gclog-go.json"))
+          py = json.load(open("/tmp/parity/gclog-py.json"))
+          def check(label, a, b):
+              if a != b:
+                  raise SystemExit(f"parity drift on {label}: go={a!r} py={b!r}")
+          check("type", go["type"], py["type"])
+          check("metadata.parser", go["metadata"]["parser"], py["metadata"]["parser"])
+          for key in (
+              "total_events", "total_pause_ms", "avg_pause_ms", "max_pause_ms",
+              "p50_pause_ms", "p95_pause_ms", "p99_pause_ms",
+              "throughput_percent", "wall_time_sec",
+              "young_gc_count", "full_gc_count",
+              "humongous_allocation_count", "concurrent_mode_failure_count",
+              "promotion_failure_count",
+          ):
+              check(f"summary.{key}", go["summary"][key], py["summary"][key])
+          check("series keys", sorted(go["series"].keys()), sorted(py["series"].keys()))
+          check("tables keys", sorted(go["tables"].keys()), sorted(py["tables"].keys()))
+          check("series.pause_timeline length",
+                len(go["series"]["pause_timeline"]),
+                len(py["series"]["pause_timeline"]))
+          go_codes = sorted(f["code"] for f in go["metadata"]["findings"])
+          py_codes = sorted(f["code"] for f in py["metadata"]["findings"])
+          check("metadata.findings (codes)", go_codes, py_codes)
+          print("OK — Go and Python agree on the gc-log fixture.")
+          PY
+
+      - name: Run jfr parity check
+        working-directory: apps/engine-native
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/parity
+          ./bin/archscope-engine jfr \
+            --in ../../examples/jfr/sample-jfr-print.json \
+            --out /tmp/parity/jfr-go.json
+          python -m archscope_engine.cli jfr analyze-json \
+            --file ../../examples/jfr/sample-jfr-print.json \
+            --out /tmp/parity/jfr-py.json
+          python <<'PY'
+          import json
+          go = json.load(open("/tmp/parity/jfr-go.json"))
+          py = json.load(open("/tmp/parity/jfr-py.json"))
+          def check(label, a, b):
+              if a != b:
+                  raise SystemExit(f"parity drift on {label}: go={a!r} py={b!r}")
+          check("type", go["type"], py["type"])
+          check("metadata.parser", go["metadata"]["parser"], py["metadata"]["parser"])
+          for key in (
+              "event_count", "event_count_total", "duration_ms",
+              "gc_pause_total_ms", "blocked_thread_events", "selected_mode",
+          ):
+              check(f"summary.{key}", go["summary"][key], py["summary"][key])
+          check("series keys", sorted(go["series"].keys()), sorted(py["series"].keys()))
+          check("tables keys", sorted(go["tables"].keys()), sorted(py["tables"].keys()))
+          # JFR Python emitter does not currently produce findings; its
+          # parity is the empty-list case. Compare as a set anyway so a
+          # future divergence surfaces.
+          go_codes = sorted(f["code"] for f in go["metadata"].get("findings", []))
+          py_codes = sorted(f["code"] for f in py["metadata"].get("findings", []))
+          check("metadata.findings (codes)", go_codes, py_codes)
+          print("OK — Go and Python agree on the jfr fixture.")
+          PY
+
+      - name: Run exception parity check
+        working-directory: apps/engine-native
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/parity
+          ./bin/archscope-engine exception \
+            --in ../../examples/exceptions/sample-java-exception.txt \
+            --out /tmp/parity/exception-go.json
+          python -m archscope_engine.cli exception analyze \
+            --file ../../examples/exceptions/sample-java-exception.txt \
+            --out /tmp/parity/exception-py.json
+          python <<'PY'
+          import json
+          go = json.load(open("/tmp/parity/exception-go.json"))
+          py = json.load(open("/tmp/parity/exception-py.json"))
+          def check(label, a, b):
+              if a != b:
+                  raise SystemExit(f"parity drift on {label}: go={a!r} py={b!r}")
+          check("type", go["type"], py["type"])
+          check("metadata.parser", go["metadata"]["parser"], py["metadata"]["parser"])
+          for key in (
+              "total_exceptions", "unique_exception_types",
+              "unique_signatures", "top_exception_type",
+          ):
+              check(f"summary.{key}", go["summary"][key], py["summary"][key])
+          check("series keys", sorted(go["series"].keys()), sorted(py["series"].keys()))
+          check("tables keys", sorted(go["tables"].keys()), sorted(py["tables"].keys()))
+          go_codes = sorted(f["code"] for f in go["metadata"]["findings"])
+          py_codes = sorted(f["code"] for f in py["metadata"]["findings"])
+          check("metadata.findings (codes)", go_codes, py_codes)
+          print("OK — Go and Python agree on the exception fixture.")
+          PY
+
+      - name: Run otel parity check
+        working-directory: apps/engine-native
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/parity
+          ./bin/archscope-engine otel \
+            --in ../../examples/otel/sample-otel-logs.jsonl \
+            --out /tmp/parity/otel-go.json
+          python -m archscope_engine.cli otel analyze \
+            --file ../../examples/otel/sample-otel-logs.jsonl \
+            --out /tmp/parity/otel-py.json
+          python <<'PY'
+          import json
+          go = json.load(open("/tmp/parity/otel-go.json"))
+          py = json.load(open("/tmp/parity/otel-py.json"))
+          def check(label, a, b):
+              if a != b:
+                  raise SystemExit(f"parity drift on {label}: go={a!r} py={b!r}")
+          check("type", go["type"], py["type"])
+          check("metadata.parser", go["metadata"]["parser"], py["metadata"]["parser"])
+          for key in (
+              "total_records", "unique_traces", "unique_services",
+              "cross_service_traces", "failed_traces",
+              "failure_propagation_traces", "span_topology_warnings",
+              "error_records",
+          ):
+              check(f"summary.{key}", go["summary"][key], py["summary"][key])
+          check("series keys", sorted(go["series"].keys()), sorted(py["series"].keys()))
+          check("tables keys", sorted(go["tables"].keys()), sorted(py["tables"].keys()))
+          go_codes = sorted(f["code"] for f in go["metadata"]["findings"])
+          py_codes = sorted(f["code"] for f in py["metadata"]["findings"])
+          check("metadata.findings (codes)", go_codes, py_codes)
+          print("OK — Go and Python agree on the otel fixture.")
+          PY
+
+      - name: Run thread-dump parity check
+        working-directory: apps/engine-native
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/parity
+          ./bin/archscope-engine threaddump \
+            --in ../../examples/thread-dumps/sample-java-thread-dump.txt \
+            --out /tmp/parity/threaddump-go.json
+          python -m archscope_engine.cli thread-dump analyze \
+            --file ../../examples/thread-dumps/sample-java-thread-dump.txt \
+            --out /tmp/parity/threaddump-py.json
+          python <<'PY'
+          import json
+          go = json.load(open("/tmp/parity/threaddump-go.json"))
+          py = json.load(open("/tmp/parity/threaddump-py.json"))
+          def check(label, a, b):
+              if a != b:
+                  raise SystemExit(f"parity drift on {label}: go={a!r} py={b!r}")
+          check("type", go["type"], py["type"])
+          check("metadata.parser", go["metadata"]["parser"], py["metadata"]["parser"])
+          for key in (
+              "total_threads", "runnable_threads", "blocked_threads",
+              "waiting_threads", "threads_with_locks",
+          ):
+              check(f"summary.{key}", go["summary"][key], py["summary"][key])
+          check("series keys", sorted(go["series"].keys()), sorted(py["series"].keys()))
+          check("tables keys", sorted(go["tables"].keys()), sorted(py["tables"].keys()))
+          go_codes = sorted(f["code"] for f in go["metadata"]["findings"])
+          py_codes = sorted(f["code"] for f in py["metadata"]["findings"])
+          check("metadata.findings (codes)", go_codes, py_codes)
+          print("OK — Go and Python agree on the thread-dump fixture.")
+          PY
+
+      - name: Run runtime (nodejs) parity check
+        working-directory: apps/engine-native
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/parity
+          ./bin/archscope-engine runtime --variant nodejs \
+            --in ../../examples/runtime/sample-nodejs-stack.txt \
+            --out /tmp/parity/runtime-nodejs-go.json
+          python -m archscope_engine.cli nodejs analyze \
+            --file ../../examples/runtime/sample-nodejs-stack.txt \
+            --out /tmp/parity/runtime-nodejs-py.json
+          python <<'PY'
+          import json
+          go = json.load(open("/tmp/parity/runtime-nodejs-go.json"))
+          py = json.load(open("/tmp/parity/runtime-nodejs-py.json"))
+          def check(label, a, b):
+              if a != b:
+                  raise SystemExit(f"parity drift on {label}: go={a!r} py={b!r}")
+          check("type", go["type"], py["type"])
+          check("metadata.parser", go["metadata"]["parser"], py["metadata"]["parser"])
+          for key in ("total_records", "unique_record_types", "unique_signatures", "top_record_type"):
+              check(f"summary.{key}", go["summary"][key], py["summary"][key])
+          check("series keys", sorted(go["series"].keys()), sorted(py["series"].keys()))
+          check("tables keys", sorted(go["tables"].keys()), sorted(py["tables"].keys()))
+          go_codes = sorted(f["code"] for f in go["metadata"]["findings"])
+          py_codes = sorted(f["code"] for f in py["metadata"]["findings"])
+          check("metadata.findings (codes)", go_codes, py_codes)
+          print("OK — Go and Python agree on the nodejs fixture.")
+          PY
+
+      - name: Run runtime (python) parity check
+        working-directory: apps/engine-native
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/parity
+          ./bin/archscope-engine runtime --variant python \
+            --in ../../examples/runtime/sample-python-traceback.txt \
+            --out /tmp/parity/runtime-python-go.json
+          python -m archscope_engine.cli python-traceback analyze \
+            --file ../../examples/runtime/sample-python-traceback.txt \
+            --out /tmp/parity/runtime-python-py.json
+          python <<'PY'
+          import json
+          go = json.load(open("/tmp/parity/runtime-python-go.json"))
+          py = json.load(open("/tmp/parity/runtime-python-py.json"))
+          def check(label, a, b):
+              if a != b:
+                  raise SystemExit(f"parity drift on {label}: go={a!r} py={b!r}")
+          check("type", go["type"], py["type"])
+          check("metadata.parser", go["metadata"]["parser"], py["metadata"]["parser"])
+          for key in ("total_records", "unique_record_types", "unique_signatures", "top_record_type"):
+              check(f"summary.{key}", go["summary"][key], py["summary"][key])
+          check("series keys", sorted(go["series"].keys()), sorted(py["series"].keys()))
+          check("tables keys", sorted(go["tables"].keys()), sorted(py["tables"].keys()))
+          go_codes = sorted(f["code"] for f in go["metadata"]["findings"])
+          py_codes = sorted(f["code"] for f in py["metadata"]["findings"])
+          check("metadata.findings (codes)", go_codes, py_codes)
+          print("OK — Go and Python agree on the python-traceback fixture.")
+          PY
+
+      - name: Run runtime (go) parity check
+        working-directory: apps/engine-native
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/parity
+          ./bin/archscope-engine runtime --variant go \
+            --in ../../examples/runtime/sample-go-panic.txt \
+            --out /tmp/parity/runtime-go-go.json
+          python -m archscope_engine.cli go-panic analyze \
+            --file ../../examples/runtime/sample-go-panic.txt \
+            --out /tmp/parity/runtime-go-py.json
+          python <<'PY'
+          import json
+          go = json.load(open("/tmp/parity/runtime-go-go.json"))
+          py = json.load(open("/tmp/parity/runtime-go-py.json"))
+          def check(label, a, b):
+              if a != b:
+                  raise SystemExit(f"parity drift on {label}: go={a!r} py={b!r}")
+          check("type", go["type"], py["type"])
+          check("metadata.parser", go["metadata"]["parser"], py["metadata"]["parser"])
+          for key in ("total_records", "unique_record_types", "unique_signatures", "top_record_type"):
+              check(f"summary.{key}", go["summary"][key], py["summary"][key])
+          check("series keys", sorted(go["series"].keys()), sorted(py["series"].keys()))
+          check("tables keys", sorted(go["tables"].keys()), sorted(py["tables"].keys()))
+          go_codes = sorted(f["code"] for f in go["metadata"]["findings"])
+          py_codes = sorted(f["code"] for f in py["metadata"]["findings"])
+          check("metadata.findings (codes)", go_codes, py_codes)
+          print("OK — Go and Python agree on the go-panic fixture.")
+          PY
+
+      - name: Run runtime (dotnet) parity check
+        working-directory: apps/engine-native
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/parity
+          ./bin/archscope-engine runtime --variant dotnet \
+            --in ../../examples/runtime/sample-dotnet-iis.txt \
+            --out /tmp/parity/runtime-dotnet-go.json
+          python -m archscope_engine.cli dotnet analyze \
+            --file ../../examples/runtime/sample-dotnet-iis.txt \
+            --out /tmp/parity/runtime-dotnet-py.json
+          python <<'PY'
+          import json
+          go = json.load(open("/tmp/parity/runtime-dotnet-go.json"))
+          py = json.load(open("/tmp/parity/runtime-dotnet-py.json"))
+          def check(label, a, b):
+              if a != b:
+                  raise SystemExit(f"parity drift on {label}: go={a!r} py={b!r}")
+          check("type", go["type"], py["type"])
+          check("metadata.parser", go["metadata"]["parser"], py["metadata"]["parser"])
+          for key in (
+              "total_exceptions", "unique_signatures", "iis_requests",
+              "iis_error_requests", "max_iis_time_taken_ms",
+          ):
+              check(f"summary.{key}", go["summary"][key], py["summary"][key])
+          check("series keys", sorted(go["series"].keys()), sorted(py["series"].keys()))
+          check("tables keys", sorted(go["tables"].keys()), sorted(py["tables"].keys()))
+          go_codes = sorted(f["code"] for f in go["metadata"]["findings"])
+          py_codes = sorted(f["code"] for f in py["metadata"]["findings"])
+          check("metadata.findings (codes)", go_codes, py_codes)
+          print("OK — Go and Python agree on the dotnet-iis fixture.")
+          PY
+
+      - name: Run multi-thread parity check
+        working-directory: apps/engine-native
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/parity
+          ./bin/archscope-engine multithread \
+            --in ../../examples/thread-dumps/sample-java-thread-dump.txt \
+            --out /tmp/parity/multi-go.json
+          python -m archscope_engine.cli thread-dump analyze-multi \
+            --input ../../examples/thread-dumps/sample-java-thread-dump.txt \
+            --out /tmp/parity/multi-py.json
+          python <<'PY'
+          import json
+          go = json.load(open("/tmp/parity/multi-go.json"))
+          py = json.load(open("/tmp/parity/multi-py.json"))
+          def check(label, a, b):
+              if a != b:
+                  raise SystemExit(f"parity drift on {label}: go={a!r} py={b!r}")
+          check("type", go["type"], py["type"])
+          check("metadata.parser", go["metadata"]["parser"], py["metadata"]["parser"])
+          for key in (
+              "total_dumps", "unique_threads", "total_thread_observations",
+              "long_running_threads", "persistent_blocked_threads",
+              "latency_sections", "growing_lock_contention",
+              "consecutive_dump_threshold",
+          ):
+              check(f"summary.{key}", go["summary"][key], py["summary"][key])
+          check("series keys", sorted(go["series"].keys()), sorted(py["series"].keys()))
+          check("tables keys", sorted(go["tables"].keys()), sorted(py["tables"].keys()))
+          go_codes = sorted(f["code"] for f in go["metadata"]["findings"])
+          py_codes = sorted(f["code"] for f in py["metadata"]["findings"])
+          check("metadata.findings (codes)", go_codes, py_codes)
+          print("OK — Go and Python agree on the multi-thread fixture.")
+          PY
+
+      - name: Run lock-contention parity check
+        working-directory: apps/engine-native
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/parity
+          ./bin/archscope-engine lockcontention \
+            --in ../../examples/thread-dumps/sample-java-thread-dump.txt \
+            --out /tmp/parity/locks-go.json
+          python -m archscope_engine.cli thread-dump analyze-locks \
+            --input ../../examples/thread-dumps/sample-java-thread-dump.txt \
+            --out /tmp/parity/locks-py.json
+          python <<'PY'
+          import json
+          go = json.load(open("/tmp/parity/locks-go.json"))
+          py = json.load(open("/tmp/parity/locks-py.json"))
+          def check(label, a, b):
+              if a != b:
+                  raise SystemExit(f"parity drift on {label}: go={a!r} py={b!r}")
+          check("type", go["type"], py["type"])
+          check("metadata.parser", go["metadata"]["parser"], py["metadata"]["parser"])
+          for key in (
+              "total_dumps", "total_thread_snapshots",
+              "threads_with_locks", "threads_waiting_on_lock",
+              "unique_locks", "contended_locks", "deadlocks_detected",
+          ):
+              check(f"summary.{key}", go["summary"][key], py["summary"][key])
+          check("series keys", sorted(go["series"].keys()), sorted(py["series"].keys()))
+          check("tables keys", sorted(go["tables"].keys()), sorted(py["tables"].keys()))
+          go_codes = sorted(f["code"] for f in go["metadata"]["findings"])
+          py_codes = sorted(f["code"] for f in py["metadata"]["findings"])
+          check("metadata.findings (codes)", go_codes, py_codes)
+          print("OK — Go and Python agree on the lock-contention fixture.")
+          PY
+
+      - name: Run thread-dump-collapsed parity check
+        working-directory: apps/engine-native
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/parity
+          # Go side emits the stack -> count map as JSON; Python side
+          # writes the FlameGraph "<stack> <count>" text format. We
+          # convert both to the same {stack: count} shape and compare.
+          ./bin/archscope-engine collapsed \
+            --in ../../examples/thread-dumps/sample-java-thread-dump.txt \
+            --out /tmp/parity/collapsed-go.json
+          python -m archscope_engine.cli thread-dump to-collapsed \
+            --input ../../examples/thread-dumps/sample-java-thread-dump.txt \
+            --output /tmp/parity/collapsed-py.txt
+          python <<'PY'
+          import json
+          go = json.load(open("/tmp/parity/collapsed-go.json"))
+          py = {}
+          for line in open("/tmp/parity/collapsed-py.txt"):
+              line = line.rstrip("\n")
+              if not line:
+                  continue
+              # FlameGraph format: `<stack> <count>` — split on the LAST
+              # whitespace so stack frames containing spaces stay intact.
+              stack, _, count = line.rpartition(" ")
+              py[stack] = int(count)
+          if go != py:
+              extra_go = {k: v for k, v in go.items() if py.get(k) != v}
+              extra_py = {k: v for k, v in py.items() if go.get(k) != v}
+              raise SystemExit(
+                  f"parity drift on collapsed: go-only={extra_go} py-only={extra_py}"
+              )
+          print("OK — Go and Python agree on the thread-dump-collapsed fixture.")
+          PY
+
   package:
     name: wails3 package (${{ matrix.os }})
     needs: go-test
