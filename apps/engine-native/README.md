@@ -51,6 +51,12 @@ apps/engine-native/
 │  │  ├ lockcontention/         Owner/waiter graph + DFS deadlock detector (T-337)
 │  │  ├ threaddumpcollapsed/    Bundle → flamegraph collapsed format (T-338)
 │  │  └ profileclassification/  Config-driven runtime classification rules (T-339)
+│  ├ exporters/
+│  │  ├ json/                   round-trip-stable JSON writer (T-340)
+│  │  ├ html/                   single-file portable HTML report (T-341)
+│  │  ├ pptx/                   hand-rolled OOXML PPTX (T-342)
+│  │  ├ csv/                    summary/series flattening (T-343)
+│  │  └ reportdiff/             before/after comparison (T-344)
 │  └ common/             RedactText / DebugLog (lifted from profiler-native)
 └ cmd/
    └ archscope-engine/   CLI entry point — `accesslog` subcommand wired
@@ -75,8 +81,9 @@ CI runs `go test ./...` for this module under
 
 ## What's next
 
-- T-340 .. T-344 — exporters (JSON / HTML / PPTX / CSV / report
-  diff).
 - T-350 .. T-360 — net/http web server + cobra CLI.
+- T-370 — AI interpretation (optional, off by default).
+- T-380 — demo-site runner.
+- T-390 .. T-392 — full-engine parity gate, single-binary release.
 
 See `work_status.md` for the full Tier-0..Tier-9 fan-out.
