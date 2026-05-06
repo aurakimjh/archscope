@@ -22,10 +22,11 @@ ArchScope web app. If you only have a minute, the
 10. [Export Center](#export-center)
 11. [Chart Studio](#chart-studio)
 12. [Settings](#settings)
-13. [Image export & "Save all charts"](#image-export--save-all-charts)
-14. [Thread → flamegraph conversion](#thread--flamegraph-conversion)
-15. [CLI reference](#cli-reference)
-16. [Troubleshooting FAQ](#troubleshooting-faq)
+13. [AI Interpretation (Optional)](#ai-interpretation-optional)
+14. [Image export & "Save all charts"](#image-export--save-all-charts)
+15. [Thread → flamegraph conversion](#thread--flamegraph-conversion)
+16. [CLI reference](#cli-reference)
+17. [Troubleshooting FAQ](#troubleshooting-faq)
 
 ---
 
@@ -446,6 +447,90 @@ Lets you preview every built-in chart template against a sample
 
 ---
 
+## AI Interpretation (Optional)
+
+ArchScope can optionally use a **local LLM** to produce AI-assisted
+findings on top of the deterministic analysis. AI output is always
+evidence-bound and displayed separately from rule-based findings. No
+cloud API call is required — the feature runs entirely on your machine
+via [Ollama](https://ollama.com/).
+
+### Installing Ollama
+
+#### Windows
+
+1. Download the Windows installer from <https://ollama.com/download/windows>.
+2. Run `OllamaSetup.exe` and follow the wizard. Ollama is installed as
+   a background service and starts automatically.
+3. Open **PowerShell** or **Command Prompt** and verify:
+
+   ```powershell
+   ollama --version
+   ```
+
+> **Note:** Ollama on Windows requires Windows 10 version 22H2 or
+> newer. A GPU with updated drivers is recommended for reasonable
+> inference speed, but CPU-only mode also works (slower).
+
+#### macOS
+
+```bash
+brew install ollama            # Homebrew
+# — or download the .dmg from https://ollama.com/download/mac
+ollama serve                   # starts the local server (if not using the app)
+```
+
+#### Linux
+
+```bash
+curl -fsSL https://ollama.com/install.sh | sh
+systemctl start ollama         # or: ollama serve
+```
+
+### Pulling the recommended model
+
+ArchScope suggests `qwen2.5-coder:7b` as a starter model (requires
+~5 GB disk, 16 GB RAM recommended):
+
+```bash
+ollama pull qwen2.5-coder:7b
+```
+
+You can use any Ollama-compatible model. To change the model, set
+`ai.model` in `~/.archscope/settings.json` or update it in the
+Settings page when AI settings are exposed in the UI.
+
+### Verifying the connection
+
+After Ollama is running, ArchScope auto-detects it at
+`http://localhost:11434`. Run any analyzer — if a local model is
+available, the results page shows an **AI Interpretation** panel below
+the deterministic findings. If Ollama is not running or the model is
+not pulled, AI interpretation is silently disabled and the rest of the
+analysis works normally.
+
+### Windows-specific tips
+
+- **Firewall:** Ollama binds `127.0.0.1:11434` by default. No
+  inbound firewall rule is needed unless you changed the bind address.
+- **GPU acceleration:** Ollama auto-detects NVIDIA (CUDA) and AMD
+  (ROCm) GPUs on Windows. Make sure you have the latest GPU driver
+  installed. If GPU is not detected, inference runs on CPU.
+- **Running as a service:** The Windows installer registers Ollama as
+  a startup service. You can manage it from **Task Manager → Startup
+  apps** or via `sc stop ollama` / `sc start ollama` in an
+  administrator prompt.
+- **Proxy / air-gapped environments:** If the machine has no internet
+  access, you can copy model files from another machine. Pull the
+  model on an internet-connected machine, then copy the
+  `%USERPROFILE%\.ollama\models` directory to the air-gapped host.
+
+For the full AI interpretation design (evidence requirements, prompt
+structure, validation rules), see
+[`AI_INTERPRETATION.md`](AI_INTERPRETATION.md).
+
+---
+
 ## Image export & "Save all charts"
 
 ### Per-chart export
@@ -633,6 +718,23 @@ flamegraphs, prefer the dedicated **Save PNG** button — it uses
 Toggle the ECharts theme in **Settings → Default chart theme**. The
 ECharts panels do not pick up the global theme automatically; only the
 new D3 charts do.
+
+**AI interpretation panel does not appear after analysis.**
+Ollama is either not running or the configured model is not pulled.
+Open a terminal and run `ollama list` to check available models. If
+the list is empty, run `ollama pull qwen2.5-coder:7b`. On Windows,
+check that the Ollama service is running in Task Manager or start it
+with `ollama serve` in PowerShell. ArchScope checks
+`http://localhost:11434` — if Ollama is bound to a different address,
+update `ai.provider_url` in `~/.archscope/settings.json`.
+
+**AI interpretation is very slow on Windows.**
+If Ollama is running in CPU-only mode (no GPU detected), a 7B model
+can take 30+ seconds per interpretation. Install the latest NVIDIA or
+AMD GPU driver so Ollama can offload to the GPU. Alternatively, use a
+smaller model such as `qwen2.5-coder:3b` (less accurate but faster).
+You can also increase the timeout in `~/.archscope/settings.json` by
+setting `ai.timeout_seconds` to a higher value (default: 30).
 
 **Where do my uploads live?**
 `~/.archscope/uploads/<uuid>/<original-name>`. Delete the directory
