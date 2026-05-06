@@ -4,11 +4,12 @@ import { useI18n } from "../i18n/I18nProvider";
 
 const STORAGE_KEY = "archscope.profiler.sidebar.collapsed";
 
-export type NavKey = "profiler" | "diff" | "settings";
+export type NavKey = "profiler" | "diff" | "access_log" | "settings";
 
 const NAV_ICONS: Record<NavKey, string> = {
   profiler: "🔥",
   diff: "Δ",
+  access_log: "🌐",
   settings: "⚙",
 };
 
@@ -38,6 +39,7 @@ export function Sidebar({ active, onNavigate }: SidebarProps) {
   const items: { key: NavKey; label: string }[] = [
     { key: "profiler", label: t("navProfiler") },
     { key: "diff", label: t("navDiff") },
+    { key: "access_log", label: t("navAccessLog") },
     { key: "settings", label: t("navSettings") },
   ];
 
