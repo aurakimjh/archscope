@@ -243,6 +243,281 @@ export type AccessLogAnalysisResult = AnalysisResult<
 >;
 
 // ──────────────────────────────────────────────────────────────────
+// ThreadDump typed shapes (T-351'-Phase-2 — single + multi + locks).
+//
+// Three engine analyzers feed the ThreadDumpAnalyzerPage:
+//   - threaddump.Build       → type "thread_dump"      (sync, JVM jstack)
+//   - multithread.Analyze    → type "thread_dump_multi"(async, N dumps)
+//   - lockcontention.Analyze → type "lock_contention"  (async, N dumps)
+//
+// We keep three result types side-by-side; the renderer chooses the
+// shape per mode (single / multi / locks). Cross-mode summary fields
+// like `dumps`, `findings`, and `diagnostics` are repeated rather than
+// hoisted because each analyzer's emit shape is independently testable
+// against its Go side.
+//
+// Mirrors apps/engine-native/internal/analyzers/{threaddump,multithread,
+// lockcontention}/analyzer.go.
+// ──────────────────────────────────────────────────────────────────
+
+// — Single dump —
+export type ThreadDumpStateRow = {
+  state: string;
+  count: number;
+};
+
+export type ThreadDumpCategoryRow = {
+  category: string;
+  count: number;
+};
+
+export type ThreadDumpSignatureRow = {
+  signature: string;
+  count: number;
+};
+
+export type ThreadDumpThreadRow = {
+  name?: string;
+  thread_name?: string;
+  state?: string;
+  category?: string | null;
+  top_frame?: string | null;
+  lock_info?: string | null;
+  stack_signature?: string;
+  frames?: string[];
+};
+
+export type ThreadDumpFinding = {
+  severity: "info" | "warning" | "critical" | string;
+  code: string;
+  message: string;
+  evidence?: Record<string, AnalysisValue>;
+};
+
+export type ThreadDumpSingleSummary = {
+  total_threads: number;
+  runnable_threads: number;
+  blocked_threads: number;
+  waiting_threads: number;
+  threads_with_locks: number;
+};
+
+export type ThreadDumpSingleSeries = {
+  state_distribution: ThreadDumpStateRow[];
+  category_distribution: ThreadDumpCategoryRow[];
+  top_stack_signatures: ThreadDumpSignatureRow[];
+};
+
+export type ThreadDumpSingleTables = {
+  threads: ThreadDumpThreadRow[];
+};
+
+export type ThreadDumpSingleMetadata = {
+  schema_version?: string;
+  parser?: string;
+  diagnostics: ParserDiagnostics;
+  findings?: ThreadDumpFinding[];
+};
+
+export type ThreadDumpSingleResult = AnalysisResult<
+  "thread_dump",
+  ThreadDumpSingleSummary,
+  ThreadDumpSingleSeries,
+  ThreadDumpSingleTables,
+  AnalysisObject,
+  ThreadDumpSingleMetadata
+>;
+
+// — Multi-dump correlation —
+export type ThreadDumpMultiSummary = {
+  total_dumps: number;
+  unique_threads: number;
+  total_thread_observations?: number;
+  long_running_threads: number;
+  persistent_blocked_threads: number;
+  latency_sections?: number;
+  growing_lock_contention?: number;
+  virtual_thread_carrier_pinning?: number;
+  smr_unresolved_threads?: number;
+  native_method_threads?: number;
+  class_histogram_classes?: number;
+  class_histogram_incomplete?: number;
+  languages_detected: string[];
+  source_formats: string[];
+  consecutive_dump_threshold: number;
+};
+
+export type LongRunningStackRow = {
+  thread_name: string;
+  stack_signature: string;
+  dumps: number;
+  first_dump_index: number;
+};
+
+export type PersistentBlockedRow = {
+  thread_name: string;
+  dumps: number;
+  first_dump_index: number;
+  stack_signatures?: string[];
+};
+
+export type StatePerDumpRow = {
+  dump_index: number;
+  dump_label: string | null;
+  counts: Record<string, number>;
+};
+
+export type ThreadPersistenceRow = {
+  thread_name: string;
+  observed_in_dumps: number;
+};
+
+export type DumpRow = {
+  dump_index: number;
+  dump_label: string | null;
+  source_file: string;
+  source_format: string;
+  language: string;
+  thread_count: number;
+};
+
+export type CarrierPinningRow = {
+  dump_index: number;
+  thread_name: string;
+  source_file?: string;
+  candidate_method?: string | null;
+  top_frame?: string | null;
+  reason?: string | null;
+};
+
+export type SmrUnresolvedRow = {
+  dump_index: number;
+  source_file?: string;
+  section_line?: number;
+  line?: string;
+};
+
+export type NativeMethodRow = {
+  dump_index: number;
+  thread_name: string;
+  source_file?: string;
+  native_method?: string;
+  top_frame?: string | null;
+};
+
+export type ClassHistogramRow = {
+  rank?: number;
+  class_name: string;
+  instances?: number;
+  bytes?: number;
+  source_file?: string;
+};
+
+export type ThreadDumpMultiSeries = {
+  thread_persistence?: ThreadPersistenceRow[];
+  state_distribution_per_dump?: StatePerDumpRow[];
+  state_transition_timeline?: AnalysisObject[];
+};
+
+export type ThreadDumpMultiTables = {
+  long_running_stacks?: LongRunningStackRow[];
+  persistent_blocked_threads?: PersistentBlockedRow[];
+  latency_sections?: AnalysisObject[];
+  growing_lock_contention?: AnalysisObject[];
+  dumps?: DumpRow[];
+  virtual_thread_carrier_pinning?: CarrierPinningRow[];
+  smr_unresolved_threads?: SmrUnresolvedRow[];
+  native_method_threads?: NativeMethodRow[];
+  class_histogram_top_classes?: ClassHistogramRow[];
+  class_histogram_incomplete?: AnalysisObject[];
+};
+
+export type ThreadDumpMultiMetadata = {
+  schema_version?: string;
+  parser?: string;
+  diagnostics: ParserDiagnostics;
+  findings?: ThreadDumpFinding[];
+};
+
+export type ThreadDumpMultiResult = AnalysisResult<
+  "thread_dump_multi",
+  ThreadDumpMultiSummary,
+  ThreadDumpMultiSeries,
+  ThreadDumpMultiTables,
+  AnalysisObject,
+  ThreadDumpMultiMetadata
+>;
+
+// — Lock contention —
+export type LockContentionRow = {
+  lock_id: string;
+  lock_class: string | null;
+  owner_thread: string | null;
+  owner_stack_signature?: string | null;
+  owner_count: number;
+  waiter_count: number;
+  top_waiters: string[];
+  all_waiters?: string[];
+  contention_candidate?: boolean;
+};
+
+export type DeadlockEdge = {
+  from_thread: string;
+  to_thread: string;
+  lock_id: string | null;
+  lock_class: string | null;
+};
+
+export type DeadlockChain = {
+  threads: string[];
+  edges: DeadlockEdge[];
+};
+
+export type LockContentionSummary = {
+  total_dumps: number;
+  total_thread_snapshots?: number;
+  threads_with_locks: number;
+  threads_waiting_on_lock: number;
+  unique_locks: number;
+  contended_locks: number;
+  deadlocks_detected: number;
+  languages_detected?: string[];
+  source_formats?: string[];
+};
+
+export type LockContentionRankingRow = {
+  lock_id: string;
+  lock_class: string | null;
+  waiter_count: number;
+};
+
+export type LockContentionSeries = {
+  contention_ranking?: LockContentionRankingRow[];
+};
+
+export type LockContentionTables = {
+  locks?: LockContentionRow[];
+  deadlock_chains?: DeadlockChain[];
+  dumps?: DumpRow[];
+};
+
+export type LockContentionMetadata = {
+  schema_version?: string;
+  parser?: string;
+  diagnostics: ParserDiagnostics;
+  findings?: ThreadDumpFinding[];
+};
+
+export type LockContentionResult = AnalysisResult<
+  "lock_contention",
+  LockContentionSummary,
+  LockContentionSeries,
+  LockContentionTables,
+  AnalysisObject,
+  LockContentionMetadata
+>;
+
+// ──────────────────────────────────────────────────────────────────
 // Engine request shapes — must mirror engineservice.go field tags.
 // ──────────────────────────────────────────────────────────────────
 
