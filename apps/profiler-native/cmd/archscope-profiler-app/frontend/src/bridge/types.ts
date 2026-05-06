@@ -243,6 +243,166 @@ export type AccessLogAnalysisResult = AnalysisResult<
 >;
 
 // ──────────────────────────────────────────────────────────────────
+// GcLog typed shapes (T-351'-Phase-2)
+//
+// Lifted from `apps/frontend/src/api/analyzerContract.ts` and aligned
+// with what the engine emits in
+// `apps/engine-native/internal/analyzers/gclog/analyzer.go`:
+//   - summary keys come from the analyzer's Summary builder.
+//   - series keys hang off Result.Series (pause_timeline,
+//     heap_*_mb, allocation/promotion rate, gc_type/cause breakdown).
+//   - tables.events carries one row per parsed GC event.
+//   - metadata extends the JVM analyzer envelope
+//     (parser/schema_version/diagnostics/findings) with the optional
+//     gc_format and jvm_info blocks.
+// ──────────────────────────────────────────────────────────────────
+
+export type JvmFinding = {
+  severity: string;
+  code: string;
+  message: string;
+  evidence: Record<string, string | number | boolean | null>;
+};
+
+export type JvmAnalyzerMetadata = {
+  parser: string;
+  schema_version: string;
+  diagnostics: ParserDiagnostics;
+  findings: JvmFinding[];
+};
+
+export type GcLogSummary = {
+  total_events: number;
+  total_pause_ms: number;
+  avg_pause_ms: number;
+  max_pause_ms: number;
+  p50_pause_ms: number;
+  p95_pause_ms: number;
+  p99_pause_ms: number;
+  throughput_percent: number;
+  wall_time_sec: number;
+  young_gc_count: number;
+  full_gc_count: number;
+  avg_allocation_rate_mb_per_sec: number;
+  avg_promotion_rate_mb_per_sec: number;
+  humongous_allocation_count: number;
+  concurrent_mode_failure_count: number;
+  promotion_failure_count: number;
+};
+
+export type GcPauseHistogramBucket = {
+  bucket: string;
+  min_ms: number;
+  max_ms: number | null;
+  count: number;
+};
+
+export type GcPauseTimelinePoint = {
+  time: string;
+  value: number;
+  gc_type: string;
+};
+
+export type GcHeapPoint = {
+  time: string;
+  value: number;
+};
+
+export type GcRatePoint = {
+  time: string;
+  value: number;
+};
+
+export type GcTypeBreakdownRow = {
+  gc_type: string;
+  count: number;
+};
+
+export type GcCauseBreakdownRow = {
+  cause: string;
+  count: number;
+};
+
+export type GcEventRow = {
+  timestamp: string | null;
+  uptime_sec: number | null;
+  gc_type: string | null;
+  cause: string | null;
+  pause_ms: number | null;
+  heap_before_mb: number | null;
+  heap_after_mb: number | null;
+  heap_committed_mb: number | null;
+  young_before_mb: number | null;
+  young_after_mb: number | null;
+  old_before_mb?: number | null;
+  old_after_mb?: number | null;
+  metaspace_before_mb?: number | null;
+  metaspace_after_mb?: number | null;
+};
+
+export type GcLogSeries = {
+  pause_timeline: GcPauseTimelinePoint[];
+  heap_after_mb: GcHeapPoint[];
+  heap_before_mb: GcHeapPoint[];
+  heap_committed_mb?: GcHeapPoint[];
+  young_before_mb?: GcHeapPoint[];
+  young_after_mb: GcHeapPoint[];
+  old_before_mb?: GcHeapPoint[];
+  old_after_mb?: GcHeapPoint[];
+  metaspace_before_mb?: GcHeapPoint[];
+  metaspace_after_mb?: GcHeapPoint[];
+  pause_histogram: GcPauseHistogramBucket[];
+  allocation_rate_mb_per_sec: GcRatePoint[];
+  promotion_rate_mb_per_sec: GcRatePoint[];
+  gc_type_breakdown: GcTypeBreakdownRow[];
+  cause_breakdown: GcCauseBreakdownRow[];
+};
+
+export type GcLogTables = {
+  events: GcEventRow[];
+};
+
+export type GcJvmInfo = {
+  vm_banner?: string;
+  vm_version?: string;
+  vm_build?: string;
+  platform?: string;
+  collector?: string;
+  cpus_total?: number;
+  cpus_available?: number;
+  memory_mb?: number;
+  page_size_kb?: number;
+  heap_min_mb?: number;
+  heap_initial_mb?: number;
+  heap_max_mb?: number;
+  heap_region_size_mb?: number;
+  parallel_workers?: number;
+  concurrent_workers?: number;
+  concurrent_refinement_workers?: number;
+  large_pages?: string;
+  numa?: string;
+  compressed_oops?: string;
+  pre_touch?: string;
+  periodic_gc?: string;
+  command_line?: string;
+  raw_lines?: string[];
+};
+
+export type GcLogMetadata = JvmAnalyzerMetadata & {
+  gc_format?: string;
+  jvm_info?: GcJvmInfo;
+};
+
+export type GcLogAnalysisResult = AnalysisResult<
+  "gc_log",
+  GcLogSummary,
+  GcLogSeries,
+  GcLogTables,
+  AnalysisObject,
+  GcLogMetadata
+>;
+
+// ──────────────────────────────────────────────────────────────────
 // Engine request shapes — must mirror engineservice.go field tags.
 // ──────────────────────────────────────────────────────────────────
 
