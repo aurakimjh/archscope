@@ -14,32 +14,38 @@ interactive charts you can save straight into an architecture report.
 ## Quick start
 
 ```bash
-# 1. Python engine + web server
-cd engines/python
-python -m venv .venv
-source .venv/bin/activate          # or .venv\Scripts\activate on Windows
-pip install -e .
+# Install once, run anywhere — single wheel ships the engine + UI.
+pip install archscope
+archscope serve
+# Opens http://127.0.0.1:8765 in your default browser. Ctrl+C to stop.
+```
 
-# 2. Build the React UI once and serve it
-cd ../..
-./scripts/serve-web.sh             # macOS / Linux
-# Equivalent: npm --prefix apps/frontend run build && \
-#             archscope-engine serve --static-dir apps/frontend/dist
+The `archscope` console script (T-208) wraps `uvicorn` and serves the
+React bundle that's shipped as wheel package data. Every analyzer
+subcommand is also reachable through it (`archscope profiler analyze-…`,
+`archscope thread-dump analyze-multi`, etc.) — see `archscope --help`.
 
-# 3. Open http://127.0.0.1:8765 in your browser.
+To build the wheel from source (e.g. before `pip install`):
+
+```bash
+./scripts/build-archscope-wheel.sh
+pip install engines/python/dist/archscope-*.whl
 ```
 
 For UI-side hot-reload during development:
 
 ```bash
 # Terminal 1 — auto-reloading FastAPI engine
-archscope-engine serve --reload
+archscope serve --reload --no-browser
 
 # Terminal 2 — Vite dev server (proxies /api → :8765)
 cd apps/frontend && npm install && npm run dev
 
 # Open http://127.0.0.1:5173
 ```
+
+The legacy `archscope-engine` console script is still installed for
+backward compatibility; both binaries point at the same Typer app.
 
 The Electron desktop shell that previously wrapped the same codebase
 was retired in T-207; ArchScope now ships exclusively as a Python wheel

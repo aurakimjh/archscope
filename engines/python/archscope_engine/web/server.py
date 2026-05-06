@@ -7,6 +7,7 @@ can keep using the same shapes via an HTTP bridge instead of ``window.archscope`
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import uuid
 from collections import Counter
@@ -185,8 +186,32 @@ def _wrap_analyzer(thunk: Callable[[], AnalysisResult]) -> dict[str, Any]:
 
 
 def _resolve_static_dir(explicit: Optional[Path]) -> Optional[Path]:
+    """Locate the built React bundle for the FastAPI server to serve.
+
+    Resolution order:
+
+    1. Explicit ``--static-dir`` argument from the CLI / programmatic call.
+    2. ``ARCHSCOPE_STATIC_DIR`` env var (set by reload mode).
+    3. **Wheel-bundled assets** at ``archscope_engine/web/static/`` —
+       this is what T-208 ships in the ``archscope`` wheel via the
+       ``[options.package_data]`` entry. Resolved through
+       ``importlib.resources`` so it works inside zipapps too.
+    4. Dev-tree fallback ``apps/frontend/dist`` from the repo root or
+       the current working directory.
+    """
     if explicit is not None:
         return explicit if explicit.is_dir() else None
+
+    env_value = os.environ.get("ARCHSCOPE_STATIC_DIR")
+    if env_value:
+        env_path = Path(env_value)
+        if env_path.is_dir():
+            return env_path
+
+    bundled = _wheel_bundled_static()
+    if bundled is not None:
+        return bundled
+
     here = Path(__file__).resolve()
     # engines/python/archscope_engine/web/server.py → repo root is parents[4]
     candidates = [
@@ -197,6 +222,27 @@ def _resolve_static_dir(explicit: Optional[Path]) -> Optional[Path]:
         if candidate.is_dir():
             return candidate
     return None
+
+
+def _wheel_bundled_static() -> Optional[Path]:
+    """Return the wheel-bundled ``static`` directory if it ships any HTML."""
+    try:
+        from importlib.resources import files as _resource_files
+    except ImportError:  # pragma: no cover — Python < 3.9
+        return None
+    try:
+        bundle = _resource_files("archscope_engine.web").joinpath("static")
+    except (ModuleNotFoundError, FileNotFoundError):
+        return None
+    try:
+        index_html = bundle.joinpath("index.html")
+        if not index_html.is_file():
+            return None
+        path_str = str(bundle)
+    except (FileNotFoundError, AttributeError):
+        return None
+    candidate = Path(path_str)
+    return candidate if candidate.is_dir() else None
 
 
 # ---------------------------------------------------------------------------

@@ -23,6 +23,13 @@ demo-site-report-bundles/
 !apps/profiler-native/cmd/archscope-profiler-app/build/
 !apps/profiler-native/cmd/archscope-profiler-app/build/**
 
+# T-208: archscope wheel ships the React bundle as package data; the build
+# script populates this directory at wheel-build time. The .gitkeep stays
+# tracked, but the React build artifacts that the script copies in are
+# generated and must not be committed.
+engines/python/archscope_engine/web/static/*
+!engines/python/archscope_engine/web/static/.gitkeep
+
 # Local environment
 .env
 .env.local

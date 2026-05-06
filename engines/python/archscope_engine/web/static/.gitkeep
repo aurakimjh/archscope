@@ -1,0 +1,3 @@
+This directory is populated at build time with the React bundle from
+apps/frontend/dist (see scripts/build-archscope-wheel.sh). It is empty
+in the repository on purpose; only the wheel ships the actual assets.
