@@ -34,8 +34,10 @@ import type {
   ExportJSONRequest,
   ExportPPTXRequest,
   GcLogRequest,
+  JfrAnalysisResult,
   JfrRequest,
   LockContentionRequest,
+  NativeMemoryAnalysisResult,
   MultiThreadRequest,
   OtelRequest,
   RuntimeRequest,
@@ -68,14 +70,14 @@ export function analyzeGcLog(
 
 export function analyzeJfr(
   req: JfrRequest,
-): CancellablePromise<AnalysisResult> {
-  return call<AnalysisResult>("AnalyzeJfr", req);
+): CancellablePromise<JfrAnalysisResult> {
+  return call<JfrAnalysisResult>("AnalyzeJfr", req);
 }
 
 export function analyzeNativeMemory(
   req: JfrRequest,
-): CancellablePromise<AnalysisResult> {
-  return call<AnalysisResult>("AnalyzeNativeMemory", req);
+): CancellablePromise<NativeMemoryAnalysisResult> {
+  return call<NativeMemoryAnalysisResult>("AnalyzeNativeMemory", req);
 }
 
 export function analyzeException(

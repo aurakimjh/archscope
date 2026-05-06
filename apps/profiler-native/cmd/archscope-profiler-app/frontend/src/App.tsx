@@ -28,6 +28,7 @@ import { DiffPage } from "./pages/DiffPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { AccessLogAnalyzerPage } from "./pages/AccessLogAnalyzerPage";
 import { GcLogAnalyzerPage } from "./pages/GcLogAnalyzerPage";
+import { JfrAnalyzerPage } from "./pages/JfrAnalyzerPage";
 
 function adaptFlameNode(node: FlameNode | null | undefined): FlameGraphNode | null {
   if (!node) return null;
@@ -700,6 +701,7 @@ function App() {
           {active === "diff" && <DiffPage />}
           {active === "access_log" && <AccessLogAnalyzerPage />}
           {active === "gc_log" && <GcLogAnalyzerPage />}
+          {active === "jfr" && <JfrAnalyzerPage />}
           {active === "settings" && <SettingsPage />}
         </div>
       </div>

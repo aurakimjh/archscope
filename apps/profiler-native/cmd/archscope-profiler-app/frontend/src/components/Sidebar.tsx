@@ -9,6 +9,7 @@ export type NavKey =
   | "diff"
   | "access_log"
   | "gc_log"
+  | "jfr"
   | "settings";
 
 const NAV_ICONS: Record<NavKey, string> = {
@@ -16,6 +17,7 @@ const NAV_ICONS: Record<NavKey, string> = {
   diff: "Δ",
   access_log: "🌐",
   gc_log: "♻",
+  jfr: "🎙",
   settings: "⚙",
 };
 
@@ -47,6 +49,7 @@ export function Sidebar({ active, onNavigate }: SidebarProps) {
     { key: "diff", label: t("navDiff") },
     { key: "access_log", label: t("navAccessLog") },
     { key: "gc_log", label: t("navGcLog") },
+    { key: "jfr", label: t("navJfr") },
     { key: "settings", label: t("navSettings") },
   ];
 
