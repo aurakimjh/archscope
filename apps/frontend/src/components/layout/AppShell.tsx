@@ -65,6 +65,23 @@ export function AppShell({
     window.localStorage.setItem(STORAGE_KEY, collapsed ? "1" : "0");
   }, [collapsed]);
 
+  // Cmd/Ctrl+B toggles the sidebar — VS Code convention. Skip when the
+  // user is typing in a text-like input so we don't hijack `b` keys.
+  useEffect(() => {
+    const handler = (event: KeyboardEvent) => {
+      if (event.key.toLowerCase() !== "b") return;
+      const meta = event.metaKey || event.ctrlKey;
+      if (!meta || event.altKey) return;
+      const target = event.target as HTMLElement | null;
+      const tag = target?.tagName?.toLowerCase();
+      if (tag === "input" || tag === "textarea" || target?.isContentEditable) return;
+      event.preventDefault();
+      setCollapsed((prev) => !prev);
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
+
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-background text-foreground">
       <AppSidebar
