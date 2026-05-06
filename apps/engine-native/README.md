@@ -31,6 +31,14 @@ apps/engine-native/
 │  │  ├ otel/            OTel JSONL trace/span parser (T-313)
 │  │  ├ jfr/             JFR JSON parser + .jfr→JSON via `jfr` JDK CLI (T-314)
 │  │  └ runtimestack/    .NET / Go panic / Node.js / Python traceback (T-315)
+│  ├ threaddump/         Plugin interface + Registry + 4KB head sniff (T-320)
+│  │  └ plugins/
+│  │     ├ javajstack/      jstack + AOP cleanup + state inference + SMR + virtual threads + class histogram + monitors (T-321)
+│  │     ├ javajcmdjson/    Java jcmd JSON output (T-322)
+│  │     ├ gogoroutine/     Go goroutine dump + framework cleanup (T-323)
+│  │     ├ pythondump/      py-spy + faulthandler + Python traceback (T-324)
+│  │     ├ nodejsreport/    Node.js diagnostic-report + sample-trace (T-325)
+│  │     └ dotnetclrstack/  WinDbg clrstack + .NET environment stacktrace (T-326)
 │  ├ analyzers/
 │  │  └ accesslog/       22-metric summary + percentile timeline + findings (T-330)
 │  └ common/             RedactText / DebugLog (lifted from profiler-native)
@@ -57,7 +65,6 @@ CI runs `go test ./...` for this module under
 
 ## What's next
 
-- T-320 .. T-326 — thread-dump registry + 6 language plugins.
 - T-331 .. T-339 — remaining analyzers (gc_log, jfr, exception,
   otel, thread_dump, multi-thread, lock contention).
 - T-340 .. T-344 — exporters (JSON / HTML / PPTX / CSV / report
