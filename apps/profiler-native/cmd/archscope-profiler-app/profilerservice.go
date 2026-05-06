@@ -3,13 +3,92 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
+	"sync"
+	"sync/atomic"
+	"time"
 
 	"github.com/aurakimjh/archscope/apps/profiler-native/internal/profiler"
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
+// taskRegistry tracks in-flight analyze/diff/export tasks so the renderer
+// can cancel a long-running call. The collapsed/Jennifer/SVG/HTML analyzers
+// are CPU-bound and synchronous internally — cancellation is honored as
+// "discard the result and emit cancelled" rather than tearing down the
+// goroutine mid-flight, which is acceptable here because the work is in
+// the µs–ms range and the goroutine exits naturally a moment later.
+type taskRegistry struct {
+	mu    sync.Mutex
+	tasks map[string]chan struct{}
+}
+
+func newTaskRegistry() *taskRegistry {
+	return &taskRegistry{tasks: map[string]chan struct{}{}}
+}
+
+func (r *taskRegistry) add(taskID string) chan struct{} {
+	ch := make(chan struct{})
+	r.mu.Lock()
+	r.tasks[taskID] = ch
+	r.mu.Unlock()
+	return ch
+}
+
+func (r *taskRegistry) remove(taskID string) {
+	r.mu.Lock()
+	delete(r.tasks, taskID)
+	r.mu.Unlock()
+}
+
+func (r *taskRegistry) cancel(taskID string) bool {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	ch, ok := r.tasks[taskID]
+	if !ok {
+		return false
+	}
+	select {
+	case <-ch:
+		// already cancelled
+	default:
+		close(ch)
+	}
+	return true
+}
+
+var globalTasks = newTaskRegistry()
+var taskCounter atomic.Uint64
+
+func newTaskID(prefix string) string {
+	n := taskCounter.Add(1)
+	return prefix + "-" + strconv.FormatInt(time.Now().UnixNano(), 36) + "-" + strconv.FormatUint(n, 36)
+}
+
 type ProfilerService struct{}
+
+// AnalyzeAsyncResponse is returned to the renderer immediately. The actual
+// AnalysisResult arrives later via the `analyze:done` event keyed by taskId.
+type AnalyzeAsyncResponse struct {
+	TaskID string `json:"taskId"`
+}
+
+// AnalyzeDoneEvent / AnalyzeErrorEvent / AnalyzeCancelledEvent are emitted
+// over Wails Event so the renderer doesn't have to poll.
+type AnalyzeDoneEvent struct {
+	TaskID string                   `json:"taskId"`
+	Result profiler.AnalysisResult  `json:"result"`
+}
+
+type AnalyzeErrorEvent struct {
+	TaskID  string `json:"taskId"`
+	Message string `json:"message"`
+}
+
+type AnalyzeCancelledEvent struct {
+	TaskID string `json:"taskId"`
+}
 
 type AnalyzeRequest struct {
 	Path               string  `json:"path"`
@@ -19,6 +98,19 @@ type AnalyzeRequest struct {
 	TopN               int     `json:"topN"`
 	ProfileKind        string  `json:"profileKind"`
 	TimelineBaseMethod string  `json:"timelineBaseMethod"`
+	// DebugLog opts the renderer into the portable parser debug log
+	// (T-239g). When true and the parse encounters issues, a JSON file is
+	// written under DebugLogDir (default: <cwd>/archscope-debug/) and its
+	// path is returned in the result metadata.
+	DebugLog    bool   `json:"debugLog,omitempty"`
+	DebugLogDir string `json:"debugLogDir,omitempty"`
+}
+
+// DebugLogResult is the response shape for ProfilerService.WriteDebugLog.
+type DebugLogResult struct {
+	OutputPath string `json:"outputPath"`
+	Verdict    string `json:"verdict"`
+	Verdicts   string `json:"verdicts,omitempty"`
 }
 
 func (s *ProfilerService) Analyze(req AnalyzeRequest) (profiler.AnalysisResult, error) {
@@ -27,6 +119,50 @@ func (s *ProfilerService) Analyze(req AnalyzeRequest) (profiler.AnalysisResult, 
 		return profiler.AnalysisResult{}, err
 	}
 	return s.runAnalyze(req, options)
+}
+
+// AnalyzeAsync starts a non-blocking analysis. Returns a taskId immediately;
+// the renderer listens for `analyze:done` / `analyze:error` /
+// `analyze:cancelled` events keyed by that taskId.
+func (s *ProfilerService) AnalyzeAsync(req AnalyzeRequest) (AnalyzeAsyncResponse, error) {
+	options, err := s.optionsFromRequest(req)
+	if err != nil {
+		return AnalyzeAsyncResponse{}, err
+	}
+	taskID := newTaskID("analyze")
+	cancelCh := globalTasks.add(taskID)
+
+	go func() {
+		defer globalTasks.remove(taskID)
+		result, runErr := s.runAnalyze(req, options)
+
+		select {
+		case <-cancelCh:
+			emitEvent("analyze:cancelled", AnalyzeCancelledEvent{TaskID: taskID})
+		default:
+			if runErr != nil {
+				emitEvent("analyze:error", AnalyzeErrorEvent{TaskID: taskID, Message: runErr.Error()})
+				return
+			}
+			emitEvent("analyze:done", AnalyzeDoneEvent{TaskID: taskID, Result: result})
+		}
+	}()
+
+	return AnalyzeAsyncResponse{TaskID: taskID}, nil
+}
+
+// Cancel signals a previously started AnalyzeAsync to discard its result.
+// Returns true if the task existed; false if it had already finished.
+func (s *ProfilerService) Cancel(taskID string) bool {
+	return globalTasks.cancel(taskID)
+}
+
+func emitEvent(name string, data any) {
+	app := application.Get()
+	if app == nil {
+		return
+	}
+	app.Event.Emit(name, data)
 }
 
 type DrilldownRequest struct {
@@ -158,12 +294,60 @@ func (s *ProfilerService) optionsFromRequest(req AnalyzeRequest) (profiler.Optio
 		TopN:               req.TopN,
 		ProfileKind:        req.ProfileKind,
 		TimelineBaseMethod: req.TimelineBaseMethod,
+		DebugLogDir:        req.DebugLogDir,
 	}
 	if req.ElapsedSec >= 0 {
 		elapsed := req.ElapsedSec
 		options.ElapsedSec = &elapsed
 	}
+	if req.DebugLog {
+		analyzerType, parserName := s.debugLogContext(req)
+		options.DebugLog = profiler.NewDebugLog(analyzerType, parserName, req.Path)
+	}
 	return options, nil
+}
+
+func (s *ProfilerService) debugLogContext(req AnalyzeRequest) (string, string) {
+	switch strings.ToLower(strings.TrimSpace(req.Format)) {
+	case "jennifer", "jennifer_csv", "jennifer-csv":
+		return "profiler_jennifer", "jennifer_flamegraph_csv"
+	case "flamegraph_svg", "svg":
+		return "profiler_collapsed", "flamegraph_svg"
+	case "flamegraph_html", "html":
+		return "profiler_collapsed", "flamegraph_html"
+	default:
+		return "profiler_collapsed", "async_profiler_collapsed"
+	}
+}
+
+// WriteDebugLog runs an analysis with the debug log enabled and returns the
+// saved JSON path. Renderer uses this from the Diagnostics tab.
+func (s *ProfilerService) WriteDebugLog(req AnalyzeRequest) (DebugLogResult, error) {
+	req.DebugLog = true
+	options, err := s.optionsFromRequest(req)
+	if err != nil {
+		return DebugLogResult{}, err
+	}
+	if _, runErr := s.runAnalyze(req, options); runErr != nil {
+		// Capture the error in the debug log even when the analyzer fails
+		// outright so the user has something to ship.
+		if options.DebugLog != nil {
+			options.DebugLog.AddException("analyze", runErr.Error(), "")
+		} else {
+			return DebugLogResult{}, runErr
+		}
+	}
+	if options.DebugLog == nil {
+		return DebugLogResult{}, fmt.Errorf("debug log was not initialized")
+	}
+	if !options.DebugLog.HasContent() {
+		return DebugLogResult{Verdict: options.DebugLog.Verdict()}, nil
+	}
+	path, err := options.DebugLog.WriteJSON(options.DebugLogDir)
+	if err != nil {
+		return DebugLogResult{}, err
+	}
+	return DebugLogResult{OutputPath: path, Verdict: options.DebugLog.Verdict()}, nil
 }
 
 func (s *ProfilerService) runAnalyze(req AnalyzeRequest, options profiler.Options) (profiler.AnalysisResult, error) {

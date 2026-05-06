@@ -9,6 +9,110 @@ import { Create as $Create } from "@wailsio/runtime";
 // @ts-ignore: Unused imports
 import * as profiler$0 from "../../internal/profiler/models.js";
 
+/**
+ * AnalyzeAsyncResponse is returned to the renderer immediately. The actual
+ * AnalysisResult arrives later via the `analyze:done` event keyed by taskId.
+ */
+export class AnalyzeAsyncResponse {
+    "taskId": string;
+
+    /** Creates a new AnalyzeAsyncResponse instance. */
+    constructor($$source: Partial<AnalyzeAsyncResponse> = {}) {
+        if (!("taskId" in $$source)) {
+            this["taskId"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new AnalyzeAsyncResponse instance from a string or object.
+     */
+    static createFrom($$source: any = {}): AnalyzeAsyncResponse {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new AnalyzeAsyncResponse($$parsedSource as Partial<AnalyzeAsyncResponse>);
+    }
+}
+
+export class AnalyzeCancelledEvent {
+    "taskId": string;
+
+    /** Creates a new AnalyzeCancelledEvent instance. */
+    constructor($$source: Partial<AnalyzeCancelledEvent> = {}) {
+        if (!("taskId" in $$source)) {
+            this["taskId"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new AnalyzeCancelledEvent instance from a string or object.
+     */
+    static createFrom($$source: any = {}): AnalyzeCancelledEvent {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new AnalyzeCancelledEvent($$parsedSource as Partial<AnalyzeCancelledEvent>);
+    }
+}
+
+/**
+ * AnalyzeDoneEvent / AnalyzeErrorEvent / AnalyzeCancelledEvent are emitted
+ * over Wails Event so the renderer doesn't have to poll.
+ */
+export class AnalyzeDoneEvent {
+    "taskId": string;
+    "result": profiler$0.AnalysisResult;
+
+    /** Creates a new AnalyzeDoneEvent instance. */
+    constructor($$source: Partial<AnalyzeDoneEvent> = {}) {
+        if (!("taskId" in $$source)) {
+            this["taskId"] = "";
+        }
+        if (!("result" in $$source)) {
+            this["result"] = (new profiler$0.AnalysisResult());
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new AnalyzeDoneEvent instance from a string or object.
+     */
+    static createFrom($$source: any = {}): AnalyzeDoneEvent {
+        const $$createField1_0 = $$createType0;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("result" in $$parsedSource) {
+            $$parsedSource["result"] = $$createField1_0($$parsedSource["result"]);
+        }
+        return new AnalyzeDoneEvent($$parsedSource as Partial<AnalyzeDoneEvent>);
+    }
+}
+
+export class AnalyzeErrorEvent {
+    "taskId": string;
+    "message": string;
+
+    /** Creates a new AnalyzeErrorEvent instance. */
+    constructor($$source: Partial<AnalyzeErrorEvent> = {}) {
+        if (!("taskId" in $$source)) {
+            this["taskId"] = "";
+        }
+        if (!("message" in $$source)) {
+            this["message"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new AnalyzeErrorEvent instance from a string or object.
+     */
+    static createFrom($$source: any = {}): AnalyzeErrorEvent {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new AnalyzeErrorEvent($$parsedSource as Partial<AnalyzeErrorEvent>);
+    }
+}
+
 export class AnalyzeRequest {
     "path": string;
     "format": string;
@@ -17,6 +121,15 @@ export class AnalyzeRequest {
     "topN": number;
     "profileKind": string;
     "timelineBaseMethod": string;
+
+    /**
+     * DebugLog opts the renderer into the portable parser debug log
+     * (T-239g). When true and the parse encounters issues, a JSON file is
+     * written under DebugLogDir (default: <cwd>/archscope-debug/) and its
+     * path is returned in the result metadata.
+     */
+    "debugLog"?: boolean;
+    "debugLogDir"?: string;
 
     /** Creates a new AnalyzeRequest instance. */
     constructor($$source: Partial<AnalyzeRequest> = {}) {
@@ -51,6 +164,35 @@ export class AnalyzeRequest {
     static createFrom($$source: any = {}): AnalyzeRequest {
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         return new AnalyzeRequest($$parsedSource as Partial<AnalyzeRequest>);
+    }
+}
+
+/**
+ * DebugLogResult is the response shape for ProfilerService.WriteDebugLog.
+ */
+export class DebugLogResult {
+    "outputPath": string;
+    "verdict": string;
+    "verdicts"?: string;
+
+    /** Creates a new DebugLogResult instance. */
+    constructor($$source: Partial<DebugLogResult> = {}) {
+        if (!("outputPath" in $$source)) {
+            this["outputPath"] = "";
+        }
+        if (!("verdict" in $$source)) {
+            this["verdict"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new DebugLogResult instance from a string or object.
+     */
+    static createFrom($$source: any = {}): DebugLogResult {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new DebugLogResult($$parsedSource as Partial<DebugLogResult>);
     }
 }
 
@@ -107,6 +249,15 @@ export class DrilldownRequest {
     "topN": number;
     "profileKind": string;
     "timelineBaseMethod": string;
+
+    /**
+     * DebugLog opts the renderer into the portable parser debug log
+     * (T-239g). When true and the parse encounters issues, a JSON file is
+     * written under DebugLogDir (default: <cwd>/archscope-debug/) and its
+     * path is returned in the result metadata.
+     */
+    "debugLog"?: boolean;
+    "debugLogDir"?: string;
     "filters": profiler$0.DrilldownFilter[];
 
     /** Creates a new DrilldownRequest instance. */
@@ -143,10 +294,10 @@ export class DrilldownRequest {
      * Creates a new DrilldownRequest instance from a string or object.
      */
     static createFrom($$source: any = {}): DrilldownRequest {
-        const $$createField7_0 = $$createType1;
+        const $$createField9_0 = $$createType2;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("filters" in $$parsedSource) {
-            $$parsedSource["filters"] = $$createField7_0($$parsedSource["filters"]);
+            $$parsedSource["filters"] = $$createField9_0($$parsedSource["filters"]);
         }
         return new DrilldownRequest($$parsedSource as Partial<DrilldownRequest>);
     }
@@ -160,6 +311,15 @@ export class ExportPprofRequest {
     "topN": number;
     "profileKind": string;
     "timelineBaseMethod": string;
+
+    /**
+     * DebugLog opts the renderer into the portable parser debug log
+     * (T-239g). When true and the parse encounters issues, a JSON file is
+     * written under DebugLogDir (default: <cwd>/archscope-debug/) and its
+     * path is returned in the result metadata.
+     */
+    "debugLog"?: boolean;
+    "debugLogDir"?: string;
     "outputPath": string;
 
     /** Creates a new ExportPprofRequest instance. */
@@ -227,5 +387,6 @@ export class ExportPprofResponse {
 }
 
 // Private type creation functions
-const $$createType0 = profiler$0.DrilldownFilter.createFrom;
-const $$createType1 = $Create.Array($$createType0);
+const $$createType0 = profiler$0.AnalysisResult.createFrom;
+const $$createType1 = profiler$0.DrilldownFilter.createFrom;
+const $$createType2 = $Create.Array($$createType1);

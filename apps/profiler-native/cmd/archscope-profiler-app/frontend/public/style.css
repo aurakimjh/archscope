@@ -948,6 +948,27 @@ button.ghost:hover {
   gap: 18px;
 }
 
+.diagnostics-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.diagnostics-notice {
+  font-size: 11px;
+  font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+  word-break: break-all;
+}
+
+.diagnostics-notice.success {
+  color: var(--success);
+}
+
+.diagnostics-notice.error {
+  color: var(--danger);
+}
+
 .diagnostics-block h3 {
   margin: 0 0 8px;
   font-size: 12px;

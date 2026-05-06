@@ -153,6 +153,10 @@ export const messages = {
     settingsAboutBody: "ArchScope Profiler — native Wails v3 build of the ArchScope profiler-first slice.",
     save: "Save",
     saved: "Saved",
+    saveDebugLog: "Save debug log",
+    debugLogSaved: "Debug log saved to",
+    debugLogClean: "Debug log clean — no parser issues to ship.",
+    debugLogVerdict: "Verdict",
   },
   ko: {
     appTitle: "ArchScope Profiler",
@@ -290,6 +294,10 @@ export const messages = {
     settingsAboutBody: "ArchScope Profiler — ArchScope 프로파일러 슬라이스의 Wails v3 네이티브 빌드.",
     save: "저장",
     saved: "저장됨",
+    saveDebugLog: "디버그 로그 저장",
+    debugLogSaved: "디버그 로그 저장 위치",
+    debugLogClean: "디버그 로그가 깨끗합니다 — 보고할 파서 문제가 없습니다.",
+    debugLogVerdict: "판정",
   },
 } as const satisfies Record<Locale, Record<string, string>>;
 

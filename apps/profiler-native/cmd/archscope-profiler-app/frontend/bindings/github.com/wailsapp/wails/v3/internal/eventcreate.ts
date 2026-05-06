@@ -6,4 +6,21 @@
 // @ts-ignore: Unused imports
 import { Create as $Create } from "@wailsio/runtime";
 
-Object.freeze($Create.Events);
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
+import * as main$0 from "../../../../aurakimjh/archscope/apps/profiler-native/cmd/archscope-profiler-app/models.js";
+
+function configure() {
+    Object.freeze(Object.assign($Create.Events, {
+        "analyze:cancelled": $$createType0,
+        "analyze:done": $$createType1,
+        "analyze:error": $$createType2,
+    }));
+}
+
+// Private type creation functions
+const $$createType0 = main$0.AnalyzeCancelledEvent.createFrom;
+const $$createType1 = main$0.AnalyzeDoneEvent.createFrom;
+const $$createType2 = main$0.AnalyzeErrorEvent.createFrom;
+
+configure();

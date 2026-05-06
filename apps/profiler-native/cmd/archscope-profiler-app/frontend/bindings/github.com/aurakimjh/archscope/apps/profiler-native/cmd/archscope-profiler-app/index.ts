@@ -7,7 +7,12 @@ export {
 };
 
 export {
+    AnalyzeAsyncResponse,
+    AnalyzeCancelledEvent,
+    AnalyzeDoneEvent,
+    AnalyzeErrorEvent,
     AnalyzeRequest,
+    DebugLogResult,
     DiffRequest,
     DrilldownRequest,
     ExportPprofRequest,

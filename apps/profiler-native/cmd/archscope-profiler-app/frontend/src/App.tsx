@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Events } from "@wailsio/runtime";
 
 import {
   ProfilerService,
@@ -21,6 +22,7 @@ import { Tabs, type TabSpec } from "./components/Tabs";
 import { DropZone } from "./components/DropZone";
 import { Sidebar, type NavKey } from "./components/Sidebar";
 import { useRecentFiles } from "./hooks/useRecentFiles";
+import { useShortcuts } from "./hooks/useShortcuts";
 import { loadDefaults } from "./state/defaults";
 import { DiffPage } from "./pages/DiffPage";
 import { SettingsPage } from "./pages/SettingsPage";
@@ -79,6 +81,40 @@ function App() {
   const [error, setError] = useState<string>("");
   const [optionsOpen, setOptionsOpen] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<TabKey>("summary");
+  const activeTaskRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const offDone = Events.On("analyze:done", (event: any) => {
+      const data = event?.data ?? event;
+      if (!data || data.taskId !== activeTaskRef.current) return;
+      activeTaskRef.current = null;
+      setResult(data.result);
+      setActiveTab("summary");
+      setOptionsOpen(false);
+      setAnalyzing(false);
+      if (path) recent.push(path);
+    });
+    const offError = Events.On("analyze:error", (event: any) => {
+      const data = event?.data ?? event;
+      if (!data || data.taskId !== activeTaskRef.current) return;
+      activeTaskRef.current = null;
+      setError(data.message ?? "analysis failed");
+      setResult(null);
+      setAnalyzing(false);
+    });
+    const offCancelled = Events.On("analyze:cancelled", (event: any) => {
+      const data = event?.data ?? event;
+      if (!data || data.taskId !== activeTaskRef.current) return;
+      activeTaskRef.current = null;
+      setAnalyzing(false);
+    });
+    return () => {
+      offDone?.();
+      offError?.();
+      offCancelled?.();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [path]);
 
   const handlePathChange = (newPath: string) => {
     setPath(newPath);
@@ -109,15 +145,45 @@ function App() {
         profileKind,
         timelineBaseMethod,
       });
-      const res = await ProfilerService.Analyze(request);
-      setResult(res);
-      setActiveTab("summary");
-      setOptionsOpen(false);
-      recent.push(path);
+      const response = await ProfilerService.AnalyzeAsync(request);
+      activeTaskRef.current = response.taskId;
+      // The result lands via the analyze:done / analyze:error events.
     } catch (err: any) {
       setError(String(err?.message ?? err));
       setResult(null);
+      setAnalyzing(false);
+    }
+  };
+
+  const tabKeys: TabKey[] = ["summary", "flamegraph", "charts", "drilldown", "diagnostics"];
+  useShortcuts({
+    onOpen: () => {
+      if (active === "profiler" && !analyzing) handlePickFile();
+    },
+    onAnalyze: () => {
+      if (active === "profiler" && !analyzing && path) handleAnalyze();
+    },
+    onCancel: () => {
+      if (analyzing) handleCancel();
+    },
+    onSettings: () => setActive("settings"),
+    onTab: (n) => {
+      if (active !== "profiler" || !result) return;
+      const key = tabKeys[n - 1];
+      if (key) setActiveTab(key);
+    },
+  });
+
+  const handleCancel = async () => {
+    const taskId = activeTaskRef.current;
+    if (!taskId) return;
+    try {
+      await ProfilerService.Cancel(taskId);
+    } catch {
+      // The cancel hook is best-effort; even if the server rejects we still
+      // tear down the spinner because the user already asked to stop.
     } finally {
+      activeTaskRef.current = null;
       setAnalyzing(false);
     }
   };
@@ -451,6 +517,9 @@ function App() {
                   <div className="loading-overlay">
                     <span className="spinner large" aria-hidden="true" />
                     <p>{t("analyzing")}</p>
+                    <button type="button" className="ghost" onClick={handleCancel}>
+                      {t("cancel")}
+                    </button>
                   </div>
                 )}
 
@@ -616,7 +685,10 @@ function App() {
                 {result && activeTab === "diagnostics" && (
                   <section className="card">
                     <h2>{t("diagnosticsTitle")}</h2>
-                    <DiagnosticsPanel diagnostics={diagnostics} />
+                    <DiagnosticsPanel
+                      diagnostics={diagnostics}
+                      baseRequest={drilldownBase}
+                    />
                   </section>
                 )}
               </main>

@@ -1,12 +1,40 @@
+import { useState } from "react";
+
 import type { ParserDiagnostics, DiagnosticSample } from "../../bindings/github.com/aurakimjh/archscope/apps/profiler-native/internal/profiler/models";
+import { ProfilerService, AnalyzeRequest } from "../../bindings/github.com/aurakimjh/archscope/apps/profiler-native/cmd/archscope-profiler-app";
 import { useI18n } from "../i18n/I18nProvider";
 
 export type DiagnosticsPanelProps = {
   diagnostics?: ParserDiagnostics | null;
+  baseRequest?: AnalyzeRequest | null;
 };
 
-export function DiagnosticsPanel({ diagnostics }: DiagnosticsPanelProps) {
+export function DiagnosticsPanel({ diagnostics, baseRequest }: DiagnosticsPanelProps) {
   const { t } = useI18n();
+  const [saving, setSaving] = useState(false);
+  const [savedNotice, setSavedNotice] = useState<string>("");
+  const [error, setError] = useState<string>("");
+
+  const handleSaveDebugLog = async () => {
+    if (!baseRequest) return;
+    setSaving(true);
+    setSavedNotice("");
+    setError("");
+    try {
+      const result = await ProfilerService.WriteDebugLog(
+        new AnalyzeRequest({ ...baseRequest, debugLog: true } as any),
+      );
+      if (!result.outputPath) {
+        setSavedNotice(t("debugLogClean"));
+      } else {
+        setSavedNotice(`${t("debugLogSaved")} ${result.outputPath} (${t("debugLogVerdict")}: ${result.verdict})`);
+      }
+    } catch (err: any) {
+      setError(String(err?.message ?? err));
+    } finally {
+      setSaving(false);
+    }
+  };
   if (!diagnostics) {
     return <p className="muted">{t("diagnosticsEmpty")}</p>;
   }
@@ -18,6 +46,20 @@ export function DiagnosticsPanel({ diagnostics }: DiagnosticsPanelProps) {
 
   return (
     <div className="diagnostics-detail">
+      {baseRequest && (
+        <div className="diagnostics-actions">
+          <button
+            type="button"
+            className="ghost"
+            onClick={handleSaveDebugLog}
+            disabled={saving}
+          >
+            {saving ? <><span className="spinner" aria-hidden="true" />…</> : t("saveDebugLog")}
+          </button>
+          {savedNotice && <span className="diagnostics-notice success">{savedNotice}</span>}
+          {error && <span className="diagnostics-notice error">{error}</span>}
+        </div>
+      )}
       <div className="metric-grid">
         <Metric label={t("parsedRecords")} value={diagnostics.parsed_records.toLocaleString()} />
         <Metric label={t("skippedLines")} value={diagnostics.skipped_lines.toLocaleString()} />

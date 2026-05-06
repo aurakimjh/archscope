@@ -10,6 +10,14 @@ import (
 //go:embed all:frontend/dist
 var assets embed.FS
 
+func init() {
+	// Register typed events so the binding generator can produce strongly
+	// typed JS handlers and the renderer doesn't have to guess payloads.
+	application.RegisterEvent[AnalyzeDoneEvent]("analyze:done")
+	application.RegisterEvent[AnalyzeErrorEvent]("analyze:error")
+	application.RegisterEvent[AnalyzeCancelledEvent]("analyze:cancelled")
+}
+
 func main() {
 	app := application.New(application.Options{
 		Name:        "ArchScope Profiler",

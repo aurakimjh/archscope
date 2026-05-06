@@ -19,6 +19,25 @@ export function Analyze(req: $models.AnalyzeRequest): $CancellablePromise<profil
     });
 }
 
+/**
+ * AnalyzeAsync starts a non-blocking analysis. Returns a taskId immediately;
+ * the renderer listens for `analyze:done` / `analyze:error` /
+ * `analyze:cancelled` events keyed by that taskId.
+ */
+export function AnalyzeAsync(req: $models.AnalyzeRequest): $CancellablePromise<$models.AnalyzeAsyncResponse> {
+    return $Call.ByID(1198804148, req).then(($result: any) => {
+        return $$createType1($result);
+    });
+}
+
+/**
+ * Cancel signals a previously started AnalyzeAsync to discard its result.
+ * Returns true if the task existed; false if it had already finished.
+ */
+export function Cancel(taskID: string): $CancellablePromise<boolean> {
+    return $Call.ByID(2907751950, taskID);
+}
+
 export function Diff(req: $models.DiffRequest): $CancellablePromise<profiler$0.AnalysisResult> {
     return $Call.ByID(3785065275, req).then(($result: any) => {
         return $$createType0($result);
@@ -27,13 +46,13 @@ export function Diff(req: $models.DiffRequest): $CancellablePromise<profiler$0.A
 
 export function Drilldown(req: $models.DrilldownRequest): $CancellablePromise<profiler$0.DrilldownStage[]> {
     return $Call.ByID(1083076133, req).then(($result: any) => {
-        return $$createType2($result);
+        return $$createType3($result);
     });
 }
 
 export function ExportPprof(req: $models.ExportPprofRequest): $CancellablePromise<$models.ExportPprofResponse> {
     return $Call.ByID(3897807737, req).then(($result: any) => {
-        return $$createType3($result);
+        return $$createType4($result);
     });
 }
 
@@ -45,8 +64,20 @@ export function PickProfileFile(): $CancellablePromise<string> {
     return $Call.ByID(3229459112);
 }
 
+/**
+ * WriteDebugLog runs an analysis with the debug log enabled and returns the
+ * saved JSON path. Renderer uses this from the Diagnostics tab.
+ */
+export function WriteDebugLog(req: $models.AnalyzeRequest): $CancellablePromise<$models.DebugLogResult> {
+    return $Call.ByID(45456632, req).then(($result: any) => {
+        return $$createType5($result);
+    });
+}
+
 // Private type creation functions
 const $$createType0 = profiler$0.AnalysisResult.createFrom;
-const $$createType1 = profiler$0.DrilldownStage.createFrom;
-const $$createType2 = $Create.Array($$createType1);
-const $$createType3 = $models.ExportPprofResponse.createFrom;
+const $$createType1 = $models.AnalyzeAsyncResponse.createFrom;
+const $$createType2 = profiler$0.DrilldownStage.createFrom;
+const $$createType3 = $Create.Array($$createType2);
+const $$createType4 = $models.ExportPprofResponse.createFrom;
+const $$createType5 = $models.DebugLogResult.createFrom;
