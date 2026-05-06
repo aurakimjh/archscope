@@ -196,6 +196,15 @@ func IterTextLinesWithContext(path, encoding string) ([]TextLineContext, error) 
 	return out, nil
 }
 
+// DecodeBytes decodes raw bytes into a UTF-8 Go string using the given
+// encoding label (utf-8 / utf-8-sig / cp949 / utf-16-le / utf-16-be /
+// latin-1). Public wrapper around the internal decoder so consumers
+// like the thread-dump registry can decode a 4KB head sample without
+// re-reading the file.
+func DecodeBytes(data []byte, encoding string) (string, error) {
+	return decodeBytes(data, encoding)
+}
+
 func tryDecode(encoding string, data []byte) error {
 	_, err := decodeBytes(data, encoding)
 	return err
