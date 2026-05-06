@@ -21,6 +21,7 @@ import {
   ErrorPanel,
 } from "@/components/AnalyzerFeedback";
 import { FileDock, type FileDockSelection } from "@/components/FileDock";
+import { usePagedRows } from "@/lib/usePagedRows";
 import { D3BarChart, type BarDatum } from "@/components/charts/D3BarChart";
 import { Button } from "@/components/ui/button";
 import {
@@ -331,6 +332,10 @@ export function ThreadDumpAnalyzerPage(): JSX.Element {
   const classHistogram = (result?.tables?.class_histogram_top_classes as
     | ClassHistogramRow[]
     | undefined) ?? [];
+
+  // T-236 — JVM-signals row pagination lives inside the JvmSignalsTabs
+  // component below. Mounting `usePagedRows` here would force a
+  // re-mount on every render of this parent.
 
   const threadsPerDumpBars = useMemo<BarDatum[]>(() => {
     return dumpsTable.map((row) => ({
@@ -1023,6 +1028,12 @@ function JvmSignalsTabs({
   nativeMethodThreads,
   classHistogram,
 }: JvmSignalsTabsProps): JSX.Element {
+  // T-236: 50 000-virtual-thread dumps were rendering every row at
+  // once. Cap each table at 50 visible rows and expose a "Load more"
+  // button that adds 100 at a time.
+  const carrierPaged = usePagedRows(carrierPinning);
+  const smrPaged = usePagedRows(smrUnresolved);
+  const nativeMethodsPaged = usePagedRows(nativeMethodThreads);
   return (
     <Tabs defaultValue="pinning" className="w-full">
       <TabsList>
@@ -1066,7 +1077,7 @@ function JvmSignalsTabs({
                   </tr>
                 </thead>
                 <tbody>
-                  {carrierPinning.map((row, idx) => (
+                  {carrierPaged.visibleRows.map((row, idx) => (
                     <tr
                       key={`${row.thread_name}-${row.dump_index}-${idx}`}
                       className="border-b border-border last:border-0"
@@ -1086,6 +1097,7 @@ function JvmSignalsTabs({
                 </tbody>
               </table>
             )}
+            <PaginationFooter paged={carrierPaged} t={t} />
           </CardContent>
         </Card>
       </TabsContent>
@@ -1110,7 +1122,7 @@ function JvmSignalsTabs({
                   </tr>
                 </thead>
                 <tbody>
-                  {smrUnresolved.map((row, idx) => (
+                  {smrPaged.visibleRows.map((row, idx) => (
                     <tr
                       key={`${row.dump_index}-${idx}`}
                       className="border-b border-border last:border-0"
@@ -1124,6 +1136,7 @@ function JvmSignalsTabs({
                 </tbody>
               </table>
             )}
+            <PaginationFooter paged={smrPaged} t={t} />
           </CardContent>
         </Card>
       </TabsContent>
@@ -1151,7 +1164,7 @@ function JvmSignalsTabs({
                   </tr>
                 </thead>
                 <tbody>
-                  {nativeMethodThreads.map((row, idx) => (
+                  {nativeMethodsPaged.visibleRows.map((row, idx) => (
                     <tr
                       key={`${row.thread_name}-${row.dump_index}-${idx}`}
                       className="border-b border-border last:border-0"
@@ -1168,6 +1181,7 @@ function JvmSignalsTabs({
                 </tbody>
               </table>
             )}
+            <PaginationFooter paged={nativeMethodsPaged} t={t} />
           </CardContent>
         </Card>
       </TabsContent>
@@ -1227,4 +1241,32 @@ function formatThreadDumpBytes(value: number): string {
   if (value < 1024 * 1024) return `${(value / 1024).toFixed(1)} KB`;
   if (value < 1024 * 1024 * 1024) return `${(value / 1024 / 1024).toFixed(1)} MB`;
   return `${(value / 1024 / 1024 / 1024).toFixed(2)} GB`;
+}
+
+function PaginationFooter<T>({
+  paged,
+  t,
+}: {
+  paged: ReturnType<typeof usePagedRows<T>>;
+  t: (key: import("@/i18n/I18nProvider").MessageKey) => string;
+}): JSX.Element | null {
+  if (paged.totalCount === 0) return null;
+  return (
+    <div className="flex items-center justify-between gap-3 border-t border-border px-3 py-2 text-[11px] text-muted-foreground">
+      <span>
+        {t("threadDumpPagedShowing")
+          .replace("{visible}", paged.visibleCount.toLocaleString())
+          .replace("{total}", paged.totalCount.toLocaleString())}
+      </span>
+      {paged.hasMore && (
+        <button
+          type="button"
+          onClick={paged.loadMore}
+          className="rounded-md border border-border px-2 py-1 text-[11px] font-medium text-foreground hover:bg-accent hover:text-accent-foreground"
+        >
+          {t("threadDumpPagedLoadMore")}
+        </button>
+      )}
+    </div>
+  );
 }

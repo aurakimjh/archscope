@@ -106,8 +106,17 @@ def analyze_multi_thread_dumps(
     *,
     threshold: int = CONSECUTIVE_DUMPS_THRESHOLD,
     top_n: int = 20,
+    include_raw_snapshots: bool = False,
 ) -> AnalysisResult:
-    """Correlate threads across an ordered list of thread-dump bundles."""
+    """Correlate threads across an ordered list of thread-dump bundles.
+
+    T-236 — when ``include_raw_snapshots`` is False (default), the
+    response intentionally omits per-thread snapshot blobs (``frames``,
+    ``raw_block``, ``stack_signature`` cache, etc.) so a 50 000-thread
+    dump returns ~kB of structured findings rather than ~MB of
+    serialized stacks. Renderers that want the full raw evidence pass
+    ``include_raw_snapshots=True`` and accept the bigger payload.
+    """
     if not bundles:
         raise ValueError("analyze_multi_thread_dumps requires at least one bundle.")
 
@@ -159,6 +168,7 @@ def analyze_multi_thread_dumps(
         "smr_unresolved_threads": len(jvm_tables["smr_unresolved_threads"]),
         "native_method_threads": len(jvm_tables["native_method_threads"]),
         "class_histogram_classes": len(jvm_tables["class_histogram_top_classes"]),
+        "class_histogram_incomplete": len(jvm_tables["class_histogram_incomplete"]),
         "consecutive_dump_threshold": threshold,
     }
     series = {
@@ -580,6 +590,7 @@ def _jvm_metadata_tables(
     smr_unresolved: list[dict[str, Any]] = []
     native_methods: list[dict[str, Any]] = []
     histogram_rows: list[dict[str, Any]] = []
+    histogram_incomplete: list[dict[str, Any]] = []
 
     for bundle in bundles:
         for snapshot in bundle.snapshots:
@@ -622,6 +633,27 @@ def _jvm_metadata_tables(
                         "dump_label": bundle.dump_label,
                         "section_line": entry.get("section_line"),
                         "line": entry.get("line"),
+                        "kind": "tagged",
+                    }
+                )
+            # T-234: addresses that don't match a parsed thread tid count
+            # as unresolved even when the JVM didn't tag them with the
+            # literal "zombie" / "unresolved" word — JDK 8/11 SMR
+            # sections frequently omit it.
+            for entry in smr.get("addresses_unresolved", []):
+                if not isinstance(entry, dict):
+                    continue
+                if entry.get("tagged_unresolved"):
+                    # Already surfaced through `smr.unresolved` above.
+                    continue
+                smr_unresolved.append(
+                    {
+                        "dump_index": bundle.dump_index,
+                        "dump_label": bundle.dump_label,
+                        "section_line": entry.get("section_line"),
+                        "line": f"address={entry.get('address')}",
+                        "address": entry.get("address"),
+                        "kind": "address_unresolved",
                     }
                 )
 
@@ -640,6 +672,20 @@ def _jvm_metadata_tables(
                         "bytes": entry.get("bytes"),
                     }
                 )
+            # T-235: surface incomplete histogram blocks to the analyzer
+            # so the renderer can warn the operator that their dump was
+            # truncated mid-write.
+            if histogram.get("incomplete"):
+                histogram_incomplete.append(
+                    {
+                        "dump_index": bundle.dump_index,
+                        "dump_label": bundle.dump_label,
+                        "reason": histogram.get("incomplete_reason"),
+                        "partial_tail_line": histogram.get("partial_tail_line"),
+                        "last_rank": histogram.get("last_rank"),
+                        "total_rows": histogram.get("total_rows"),
+                    }
+                )
 
     histogram_rows.sort(key=lambda row: -int(row.get("bytes") or 0))
     native_methods.sort(key=lambda row: (row["dump_index"], str(row["thread_name"])))
@@ -649,6 +695,7 @@ def _jvm_metadata_tables(
         "smr_unresolved_threads": smr_unresolved[:top_n],
         "native_method_threads": native_methods[:top_n],
         "class_histogram_top_classes": histogram_rows[:top_n],
+        "class_histogram_incomplete": histogram_incomplete[:top_n],
     }
 
 
@@ -676,6 +723,19 @@ def _jvm_metadata_findings(
                 "severity": "warning",
                 "code": "SMR_UNRESOLVED_THREAD",
                 "message": "JVM SMR diagnostics include an unresolved/zombie thread marker.",
+                "evidence": entry,
+            }
+        )
+    # T-235: incomplete class-histogram blocks (truncated dump source).
+    for entry in jvm_tables.get("class_histogram_incomplete", [])[:top_n]:
+        findings.append(
+            {
+                "severity": "warning",
+                "code": "INCOMPLETE_HISTOGRAM",
+                "message": (
+                    entry.get("reason")
+                    or "Class histogram block is incomplete (likely truncated source)."
+                ),
                 "evidence": entry,
             }
         )

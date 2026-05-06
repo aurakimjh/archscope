@@ -239,3 +239,204 @@ def test_object_wait_is_not_reported_as_lock_contention(tmp_path: Path) -> None:
     assert result.summary["threads_waiting_on_lock"] == 1
     assert result.summary["contended_locks"] == 0
     assert result.metadata["findings"] == []
+
+
+def test_smr_resolves_addresses_against_parsed_thread_tids(tmp_path: Path) -> None:
+    """T-234 — JDK 17/21 style SMR with explicit `=>0x...` rows.
+
+    The current thread is tagged with `=>` and matches a parsed thread
+    record's tid; another address in the iteration list does not match
+    any thread record. The post-processor should split the SMR section
+    into ``resolved=1`` and ``addresses_unresolved=1`` regardless of
+    whether the JVM tagged the address with the "zombie" word.
+    """
+    path = tmp_path / "smr-jdk21.txt"
+    path.write_text(
+        textwrap.dedent(
+            """\
+            Full thread dump OpenJDK 64-Bit Server VM (21.0.1 mixed mode):
+
+            "main" #1 prio=5 os_prio=0 tid=0x000000001234abcd nid=0x0001 runnable
+               java.lang.Thread.State: RUNNABLE
+            \tat com.acme.Main.run(Main.java:1)
+
+            Threads class SMR info:
+            _java_thread_list=0x00007f8a0001a000, length=2
+            =>0x000000001234abcd
+              0x00007f8a0099ee01
+            """
+        ),
+        encoding="utf-8",
+    )
+    bundles = DEFAULT_REGISTRY.parse_many([path])
+    assert len(bundles) == 1
+    smr = bundles[0].metadata["smr"]
+
+    assert smr["length"] == 2
+    assert smr["resolved_count"] == 1
+    assert smr["resolved"][0]["thread_name"] == "main"
+    assert smr["addresses_unresolved_count"] == 1
+    assert smr["addresses_unresolved"][0]["address"] == "0x7f8a0099ee01"
+
+
+def test_smr_jdk8_style_without_zombie_marker(tmp_path: Path) -> None:
+    """T-234 — JDK 8 SMR sections rarely tag addresses as `zombie`.
+
+    Plain SMR address rows; the JVM bookkeeping line
+    (`_java_thread_list=…`) is filtered out by the parser, so only the
+    actual thread address rows count. Only the first matches a parsed
+    thread tid — the downstream multi-thread analyzer should still
+    flag the unmatched address as unresolved (``kind`` =
+    ``address_unresolved``).
+    """
+    path = tmp_path / "smr-jdk8.txt"
+    path.write_text(
+        textwrap.dedent(
+            """\
+            Full thread dump OpenJDK 64-Bit Server VM (1.8.0_412 mixed mode):
+
+            "main" #1 prio=5 os_prio=0 tid=0x00007fff10001000 nid=0x100 runnable
+               java.lang.Thread.State: RUNNABLE
+            \tat com.acme.Main.run(Main.java:1)
+
+            Threads class SMR info:
+            _java_thread_list=0x00007fff10000000, length=2
+              0x00007fff10001000
+              0x00007fff10002000
+            """
+        ),
+        encoding="utf-8",
+    )
+    bundles = DEFAULT_REGISTRY.parse_many([path])
+    smr = bundles[0].metadata["smr"]
+    assert smr["resolved_count"] == 1
+    addresses = {entry["address"] for entry in smr["addresses_unresolved"]}
+    assert "0x7fff10002000" in addresses
+    # The `_java_thread_list=` bookkeeping line is filtered out so the
+    # SMR header itself doesn't inflate the unresolved counter.
+    assert "0x7fff10000000" not in addresses
+
+    result = analyze_multi_thread_dumps(bundles)
+    kinds = {row.get("kind") for row in result.tables["smr_unresolved_threads"]}
+    assert "address_unresolved" in kinds
+    findings = [f["code"] for f in result.metadata["findings"]]
+    assert "SMR_UNRESOLVED_THREAD" in findings
+
+
+def test_smr_zombie_marker_still_recognised(tmp_path: Path) -> None:
+    """T-234 — explicit `unresolved zombie` keeps its tagged kind.
+
+    Regression guard for the original behaviour: if the JVM tags a row
+    with the literal `zombie`/`unresolved` word, the
+    `smr_unresolved_threads` table records it with ``kind=tagged`` and
+    the existing finding still fires.
+    """
+    path = tmp_path / "smr-zombie.txt"
+    path.write_text(
+        textwrap.dedent(
+            """\
+            Full thread dump OpenJDK 64-Bit Server VM (17.0.5 mixed mode):
+
+            "main" #1 prio=5 os_prio=0 tid=0x0001 nid=0x0001 runnable
+               java.lang.Thread.State: RUNNABLE
+            \tat com.acme.Main.run(Main.java:1)
+
+            Threads class SMR info:
+              unresolved zombie thread 0x000000001234abcd
+            """
+        ),
+        encoding="utf-8",
+    )
+    bundles = DEFAULT_REGISTRY.parse_many([path])
+    result = analyze_multi_thread_dumps(bundles)
+
+    table = result.tables["smr_unresolved_threads"]
+    assert any(row.get("kind") == "tagged" for row in table)
+    findings = [f["code"] for f in result.metadata["findings"]]
+    assert "SMR_UNRESOLVED_THREAD" in findings
+
+
+def test_class_histogram_incomplete_partial_row(tmp_path: Path) -> None:
+    """T-235 — histogram cut off mid-row should emit INCOMPLETE_HISTOGRAM."""
+    path = tmp_path / "histogram-partial.txt"
+    path.write_text(
+        textwrap.dedent(
+            """\
+            Full thread dump OpenJDK 64-Bit Server VM (21.0.1 mixed mode):
+
+            "main" #1 prio=5 os_prio=0 tid=0x0001 nid=0x0001 runnable
+               java.lang.Thread.State: RUNNABLE
+            \tat com.acme.Main.run(Main.java:1)
+
+             num     #instances         #bytes  class name
+            -------------------------------------------------------
+               1:           100           2400  java.lang.String
+               2:            50           1200
+            """
+        ),
+        encoding="utf-8",
+    )
+    bundles = DEFAULT_REGISTRY.parse_many([path])
+    assert bundles[0].metadata["class_histogram"]["incomplete"] is True
+    assert bundles[0].metadata["class_histogram"]["partial_tail_line"] == "2:            50           1200"
+
+    result = analyze_multi_thread_dumps(bundles)
+    assert result.summary["class_histogram_incomplete"] == 1
+    findings = [f["code"] for f in result.metadata["findings"]]
+    assert "INCOMPLETE_HISTOGRAM" in findings
+
+
+def test_class_histogram_missing_total_marks_incomplete(tmp_path: Path) -> None:
+    """T-235 — histogram with rows but no `Total` line is treated as cut off."""
+    path = tmp_path / "histogram-no-total.txt"
+    path.write_text(
+        textwrap.dedent(
+            """\
+            Full thread dump OpenJDK 64-Bit Server VM (21.0.1 mixed mode):
+
+            "main" #1 prio=5 os_prio=0 tid=0x0001 nid=0x0001 runnable
+               java.lang.Thread.State: RUNNABLE
+            \tat com.acme.Main.run(Main.java:1)
+
+             num     #instances         #bytes  class name
+            -------------------------------------------------------
+               1:           100           2400  java.lang.String
+               2:            50           1200  com.acme.Order
+            """
+        ),
+        encoding="utf-8",
+    )
+    bundles = DEFAULT_REGISTRY.parse_many([path])
+    histogram = bundles[0].metadata["class_histogram"]
+    assert histogram["incomplete"] is True
+    assert "Total" in histogram["incomplete_reason"] or "total" in histogram["incomplete_reason"].lower()
+
+
+def test_class_histogram_complete_block_is_not_flagged(tmp_path: Path) -> None:
+    """T-235 — a histogram with a normal `Total` line is NOT flagged."""
+    path = tmp_path / "histogram-complete.txt"
+    path.write_text(
+        textwrap.dedent(
+            """\
+            Full thread dump OpenJDK 64-Bit Server VM (21.0.1 mixed mode):
+
+            "main" #1 prio=5 os_prio=0 tid=0x0001 nid=0x0001 runnable
+               java.lang.Thread.State: RUNNABLE
+            \tat com.acme.Main.run(Main.java:1)
+
+             num     #instances         #bytes  class name
+            -------------------------------------------------------
+               1:           100           2400  java.lang.String
+               2:            50           1200  com.acme.Order
+            Total           150           3600
+            """
+        ),
+        encoding="utf-8",
+    )
+    bundles = DEFAULT_REGISTRY.parse_many([path])
+    histogram = bundles[0].metadata["class_histogram"]
+    assert histogram["incomplete"] is False
+
+    result = analyze_multi_thread_dumps(bundles)
+    findings = [f["code"] for f in result.metadata["findings"]]
+    assert "INCOMPLETE_HISTOGRAM" not in findings

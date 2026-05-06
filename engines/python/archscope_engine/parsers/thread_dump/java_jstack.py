@@ -120,16 +120,23 @@ class JavaJstackParserPlugin:
                 )
                 for index, record in enumerate(section.records)
             ]
+            metadata = _section_metadata(
+                section,
+                class_histogram_limit=row_limit,
+            )
+            # T-234: cross-reference SMR addresses with parsed thread tids
+            # so resolved/unresolved counts reflect real matches, not just
+            # the literal "zombie" / "unresolved" markers.
+            smr = metadata.get("smr")
+            if isinstance(smr, dict):
+                metadata["smr"] = _post_process_smr(smr, section.records)
             bundles.append(
                 ThreadDumpBundle(
                     snapshots=snapshots,
                     source_file=str(path),
                     source_format=self.format_id,
                     language=self.language,
-                    metadata=_section_metadata(
-                        section,
-                        class_histogram_limit=row_limit,
-                    ),
+                    metadata=metadata,
                 )
             )
         return bundles
@@ -554,28 +561,163 @@ def _parse_g1_heap_block(lines: list[str]) -> dict[str, object] | None:
     return found
 
 
+_SMR_HEX_RE = re.compile(r"\b0x[0-9a-fA-F]{6,16}\b")
+_SMR_LENGTH_RE = re.compile(r"\blength\s*=\s*(\d+)", re.IGNORECASE)
+
+
 def _parse_smr_diagnostics(lines: list[str]) -> dict[str, object] | None:
+    """Parse the ``Threads class SMR info`` section.
+
+    Returns a dict carrying:
+
+    * ``unresolved`` — explicitly tagged unresolved/zombie lines
+    * ``addresses`` — every hex address mentioned inside the SMR block,
+      preserved in source order with whether the line was tagged
+      unresolved
+    * ``length`` — the ``length=N`` value from the SMR header when
+      present (= JVM's view of the active thread count at dump time)
+
+    The downstream ``_post_process_smr`` step cross-references each
+    address against the parsed thread records' ``tid`` so the multi-dump
+    analyzer can report a real ``resolved``/``unresolved`` split instead
+    of just the explicit zombie markers.
+    """
     unresolved: list[dict[str, object]] = []
+    addresses: list[dict[str, object]] = []
     in_smr_block = False
     remaining = 0
+    section_start: int | None = None
+    length: int | None = None
+
     for offset, line in enumerate(lines, start=1):
         lower = line.lower()
         if "smr" in lower and "thread" in lower:
             in_smr_block = True
             remaining = 80
+            if section_start is None:
+                section_start = offset
         if not in_smr_block:
             continue
-        if "unresolved" in lower or "zombie" in lower:
+        is_unresolved_line = "unresolved" in lower or "zombie" in lower
+        if is_unresolved_line:
             unresolved.append({"section_line": offset, "line": line.strip()})
+        if length is None:
+            match_len = _SMR_LENGTH_RE.search(line)
+            if match_len:
+                try:
+                    length = int(match_len.group(1))
+                except ValueError:
+                    length = None
+        # The SMR header lines (`_java_thread_list=0x…`,
+        # `_java_thread_list_alloc_count=…`, `elements=…`) embed JVM
+        # bookkeeping addresses that are NOT JavaThread pointers — they
+        # would otherwise inflate the unresolved counter even on a
+        # perfectly clean dump. Skip those lines for hex extraction.
+        if "_java_thread_list" in lower or "elements=" in lower:
+            remaining -= 1
+            if remaining <= 0:
+                in_smr_block = False
+            continue
+        for hex_match in _SMR_HEX_RE.finditer(line):
+            addresses.append(
+                {
+                    "section_line": offset,
+                    "address": _normalize_smr_address(hex_match.group(0)),
+                    "tagged_unresolved": is_unresolved_line,
+                }
+            )
         remaining -= 1
         if remaining <= 0:
             in_smr_block = False
-    if not unresolved:
+
+    if not unresolved and not addresses:
         return None
-    return {
+    payload: dict[str, object] = {
         "unresolved_count": len(unresolved),
         "unresolved": unresolved,
+        "addresses": addresses,
     }
+    if length is not None:
+        payload["length"] = length
+    if section_start is not None:
+        payload["section_start"] = section_start
+    return payload
+
+
+def _normalize_smr_address(value: str) -> str:
+    """Lower-case + strip leading-zeros so cross-engine comparisons match."""
+    if not value.startswith("0x") and not value.startswith("0X"):
+        return value
+    body = value[2:].lstrip("0").lower()
+    if not body:
+        body = "0"
+    return f"0x{body}"
+
+
+def _post_process_smr(
+    smr: dict[str, object] | None,
+    thread_records: "list[ThreadDumpRecord]",
+) -> dict[str, object] | None:
+    """Cross-reference SMR addresses with parsed thread tids.
+
+    For every address recorded in :func:`_parse_smr_diagnostics`,
+    decide whether it matches a known thread record's ``tid`` (and if
+    so, attach ``resolved_thread_name`` / ``nid``). Addresses that
+    don't match any thread are kept under ``addresses_unresolved`` so
+    the downstream analyzer can emit ``SMR_UNRESOLVED_THREAD`` findings
+    even when the JVM didn't tag them with the literal "zombie" word
+    (JDK 8/11 SMR sections frequently omit that word).
+    """
+    if not smr:
+        return smr
+    addresses = smr.get("addresses")
+    if not isinstance(addresses, list) or not addresses:
+        return smr
+
+    tid_index: dict[str, "ThreadDumpRecord"] = {}
+    for record in thread_records:
+        if record.thread_id:
+            tid_index[_normalize_smr_address(record.thread_id)] = record
+
+    resolved: list[dict[str, object]] = []
+    unresolved_addresses: list[dict[str, object]] = []
+    seen: set[str] = set()
+    for entry in addresses:
+        if not isinstance(entry, dict):
+            continue
+        address = entry.get("address")
+        if not isinstance(address, str):
+            continue
+        if address in seen:
+            # Many SMR sections list the same address twice (e.g.
+            # ``=>0x...`` for "current thread" plus the row in the
+            # iteration block). Count it once.
+            continue
+        seen.add(address)
+        record = tid_index.get(address)
+        if record is not None:
+            resolved.append(
+                {
+                    "section_line": entry.get("section_line"),
+                    "address": address,
+                    "thread_name": record.thread_name,
+                    "thread_id": record.thread_id,
+                }
+            )
+        else:
+            unresolved_addresses.append(
+                {
+                    "section_line": entry.get("section_line"),
+                    "address": address,
+                    "tagged_unresolved": bool(entry.get("tagged_unresolved")),
+                }
+            )
+
+    smr["resolved"] = resolved
+    smr["addresses_unresolved"] = unresolved_addresses
+    smr["resolved_count"] = len(resolved)
+    smr["addresses_unresolved_count"] = len(unresolved_addresses)
+    return smr
 
 
 def _class_histogram_row_limit(value: int | None = None) -> int:
@@ -599,41 +741,102 @@ def _class_histogram_row_limit(value: int | None = None) -> int:
     return limit
 
 
+_CLASS_HISTOGRAM_HEADER_RE = re.compile(
+    r"^\s*num\s+#instances\s+#bytes\s+class\s+name", re.IGNORECASE
+)
+# A line that starts the histogram block but where the row regex did not
+# match — e.g. an over-truncated final row missing the class column.
+_CLASS_HISTOGRAM_PARTIAL_ROW_RE = re.compile(
+    r"^\s*\d+:\s+\d+(?:\s+\d+)?\s*$"
+)
+
+
 def _parse_text_class_histogram(
     lines: list[str],
     *,
     row_limit: int,
 ) -> dict[str, object] | None:
+    """Extract a JVM text class histogram block.
+
+    Emits a structured warning (``incomplete=True`` + ``incomplete_reason``)
+    when the block is truncated mid-row or stops before the ``Total`` line —
+    which the JVM normally always emits — so the analyzer can surface it
+    as an `INCOMPLETE_HISTOGRAM` finding (T-235).
+    """
     classes: list[dict[str, object]] = []
     total_instances: int | None = None
     total_bytes: int | None = None
     total_rows = 0
+    saw_header = False
+    last_rank: int | None = None
+    partial_tail_line: str | None = None
+
     for line in lines:
+        if _CLASS_HISTOGRAM_HEADER_RE.match(line):
+            saw_header = True
+            continue
         row = _CLASS_HISTOGRAM_ROW_RE.match(line)
         if row:
             total_rows += 1
+            last_rank = int(row.group("rank"))
+            partial_tail_line = None
             if len(classes) < row_limit:
                 classes.append(
                     {
-                        "rank": int(row.group("rank")),
+                        "rank": last_rank,
                         "instances": int(row.group("instances")),
                         "bytes": int(row.group("bytes")),
                         "class_name": row.group("class_name").strip(),
                     }
                 )
             continue
+        # Track the *last* trailing line that looks like a partial row —
+        # `12345:  6789` without the class column. JVM never emits this on
+        # its own; seeing it strongly implies the dump was cut off.
+        if saw_header and _CLASS_HISTOGRAM_PARTIAL_ROW_RE.match(line):
+            partial_tail_line = line.strip()
+            continue
         total = _CLASS_HISTOGRAM_TOTAL_RE.match(line)
         if total:
             total_instances = int(total.group("instances"))
             total_bytes = int(total.group("bytes"))
-    if not classes:
+    if not classes and not saw_header:
         return None
+
+    incomplete = False
+    incomplete_reason: str | None = None
+    if partial_tail_line is not None:
+        incomplete = True
+        incomplete_reason = (
+            "Histogram ends with a partial row that is missing the class "
+            "name column — the source was likely truncated mid-write."
+        )
+    elif saw_header and total_instances is None and total_bytes is None and classes:
+        incomplete = True
+        incomplete_reason = (
+            "Histogram has class rows but no `Total` summary line — the "
+            "JVM always emits one, so the source is likely truncated."
+        )
+    elif saw_header and not classes:
+        incomplete = True
+        incomplete_reason = (
+            "Histogram header was seen but no class rows or totals were "
+            "parsed — the section is empty or its rows are malformed."
+        )
+
     payload: dict[str, object] = {
         "classes": classes,
         "row_limit": row_limit,
         "total_rows": total_rows,
         "truncated": total_rows > row_limit,
+        "incomplete": incomplete,
     }
+    if incomplete_reason is not None:
+        payload["incomplete_reason"] = incomplete_reason
+    if partial_tail_line is not None:
+        payload["partial_tail_line"] = partial_tail_line
+    if last_rank is not None:
+        payload["last_rank"] = last_rank
     if total_instances is not None:
         payload["total_instances"] = total_instances
     if total_bytes is not None:
