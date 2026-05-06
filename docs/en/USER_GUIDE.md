@@ -27,6 +27,7 @@ ArchScope web app. If you only have a minute, the
 15. [Thread → flamegraph conversion](#thread--flamegraph-conversion)
 16. [CLI reference](#cli-reference)
 17. [Troubleshooting FAQ](#troubleshooting-faq)
+18. [Browser support matrix (T-209)](#browser-support-matrix-t-209)
 
 ---
 
@@ -743,3 +744,108 @@ whenever you want; ArchScope re-creates it on the next upload.
 **How do I expose the engine to my coworkers on the LAN?**
 Pass `--host 0.0.0.0`. Be aware: the engine has no auth — only do this
 on a trusted network. Never put it on the open internet.
+
+---
+
+## Browser support matrix (T-209)
+
+ArchScope is a localhost web app. After T-207/T-208, it serves the
+React UI from FastAPI, so the browser running the UI also has to honor
+the contract decided in T-206 (`POST /api/files/select`,
+`WebSocket /ws/progress`, drag-drop with `File.path` fallback, ECharts +
+D3 rendering, image export via `html-to-image` / `canvas.toDataURL`).
+This section is the **smoke matrix** the project signs off on for each
+release; rows marked `☐` have not yet been verified on that browser.
+
+### Test setup
+
+1. Install the wheel: `pip install archscope`
+   (or build from source: `./scripts/build-archscope-wheel.sh`).
+2. Start the server: `archscope serve`. It opens
+   `http://127.0.0.1:8765` in the default browser.
+3. Repeat the manual checks below in each target browser. Open
+   `archscope serve --no-browser` so you can paste the URL into the
+   specific browser instead of relying on the OS default.
+4. Record the result by changing `☐ Not tested` to `✅ OK`,
+   `⚠️ <caveat>`, or `❌ <bug + linked issue>`.
+
+The fixtures used for analyzer end-to-end checks live under
+`examples/profiler/`, `examples/access-log/`, and
+`examples/thread-dump/`. Any reasonably small file works.
+
+### Target browsers
+
+| Engine | Latest channel target | Min version |
+|---|---|---|
+| Chromium (Chrome / Edge / Opera / Brave / Arc) | latest stable | 120 |
+| WebKit (Safari, macOS / iOS) | latest stable | Safari 17.4 / iOS Safari 17.4 |
+| Gecko (Firefox / Firefox ESR) | latest stable | 122 |
+
+Older versions are not actively tested. The lower bound is set by ECharts
+6 + the modern ESM bundle Vite 5 produces.
+
+### Verification matrix
+
+Each cell records the result on a fresh profile/session. `☐ Not tested`
+means a release is blocked from claiming support on that browser until
+someone fills it in.
+
+| Check | Chrome | Edge | Firefox | Safari |
+|---|---|---|---|---|
+| Static UI loads at `/` (no console errors) | ☐ Not tested | ☐ Not tested | ☐ Not tested | ☐ Not tested |
+| File picker (`Pick file` button → server-side path) | ☐ Not tested | ☐ Not tested | ☐ Not tested | ☐ Not tested |
+| Drag-and-drop a file onto the drop zone | ☐ Not tested | ☐ Not tested | ☐ Not tested | ☐ Not tested |
+| Multipart upload fallback (`/api/upload`) | ☐ Not tested | ☐ Not tested | ☐ Not tested | ☐ Not tested |
+| Run one analyzer end-to-end (Profiler collapsed) | ☐ Not tested | ☐ Not tested | ☐ Not tested | ☐ Not tested |
+| Tab navigation (Summary / Flamegraph / Charts / Drill-down / Diagnostics) | ☐ Not tested | ☐ Not tested | ☐ Not tested | ☐ Not tested |
+| WebSocket `/ws/progress` connects + receives `ready` | ☐ Not tested | ☐ Not tested | ☐ Not tested | ☐ Not tested |
+| Cancel button signals `analyze:cancelled` | ☐ Not tested | ☐ Not tested | ☐ Not tested | ☐ Not tested |
+| ECharts panel renders (Access Log request rate) | ☐ Not tested | ☐ Not tested | ☐ Not tested | ☐ Not tested |
+| D3 SVG flamegraph (small profile) | ☐ Not tested | ☐ Not tested | ☐ Not tested | ☐ Not tested |
+| Canvas flamegraph auto-switch (≥4 000 nodes) | ☐ Not tested | ☐ Not tested | ☐ Not tested | ☐ Not tested |
+| D3 timeline + bar charts | ☐ Not tested | ☐ Not tested | ☐ Not tested | ☐ Not tested |
+| Save image PNG 1× / 2× / 3× | ☐ Not tested | ☐ Not tested | ☐ Not tested | ☐ Not tested |
+| Save image JPEG 2× | ☐ Not tested | ☐ Not tested | ☐ Not tested | ☐ Not tested |
+| Save image SVG (vector) | ☐ Not tested | ☐ Not tested | ☐ Not tested | ☐ Not tested |
+| "Save all charts" batch export | ☐ Not tested | ☐ Not tested | ☐ Not tested | ☐ Not tested |
+| pprof `.pb.gz` download | ☐ Not tested | ☐ Not tested | ☐ Not tested | ☐ Not tested |
+| HTML report download (Export Center) | ☐ Not tested | ☐ Not tested | ☐ Not tested | ☐ Not tested |
+| PPTX report download (Export Center) | ☐ Not tested | ☐ Not tested | ☐ Not tested | ☐ Not tested |
+| Locale switch en ↔ ko | ☐ Not tested | ☐ Not tested | ☐ Not tested | ☐ Not tested |
+| Theme toggle light / dark / system | ☐ Not tested | ☐ Not tested | ☐ Not tested | ☐ Not tested |
+| Sidebar collapse + persistence | ☐ Not tested | ☐ Not tested | ☐ Not tested | ☐ Not tested |
+| Keyboard shortcuts (`/` for search, etc.) | ☐ Not tested | ☐ Not tested | ☐ Not tested | ☐ Not tested |
+| Settings page persists across reload | ☐ Not tested | ☐ Not tested | ☐ Not tested | ☐ Not tested |
+| Demo Data Center runs a scenario | ☐ Not tested | ☐ Not tested | ☐ Not tested | ☐ Not tested |
+
+### Known browser caveats
+
+This section is filled in as bugs surface. Each entry should link the
+issue, the affected browser/version, the workaround (if any), and the
+fix-or-defer disposition.
+
+- **Chrome** — *(none recorded yet)*
+- **Edge** — *(none recorded yet)*
+- **Firefox** — *(none recorded yet)*
+- **Safari** — *(none recorded yet)*
+
+### How to record a result
+
+The matrix above lives in `docs/en/USER_GUIDE.md` and `docs/ko/USER_GUIDE.md`.
+When a row passes:
+
+1. Edit the cell to `✅ OK` plus the version you tested
+   (e.g. `✅ Chrome 134`).
+2. Commit the doc edit on the same PR that fixes the underlying bug,
+   or as a standalone documentation commit if no code changed.
+
+When a row fails:
+
+1. File an issue and edit the cell to
+   `❌ #<issue> — short reason`.
+2. Add a "Known browser caveats" entry above with the workaround.
+
+A release is allowed to ship with `⚠️` rows (caveat noted) but not with
+`❌` rows on Chrome / Edge / Safari. Firefox `❌` rows are documented
+but do not block the release because the project tier-1 platforms are
+the macOS-default Safari and the cross-platform Chromium family.

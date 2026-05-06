@@ -165,9 +165,10 @@ archscope/
   apps/profiler-native/  Wails v3 native profiler track (separate
                          desktop binary, profiler-only — see
                          docs/{en,ko}/PROFILER_NATIVE.md)
-  engines/python/        archscope_engine package + FastAPI server
-                         (T-208 will produce a top-level `archscope`
-                         wheel with the React bundle as package data)
+  engines/python/        archscope_engine package + FastAPI server.
+                         The unified `archscope` wheel (T-208) is built
+                         here via scripts/build-archscope-wheel.sh and
+                         ships with the React bundle as package data.
   scripts/               serve-web.sh, run-engine.sh, demo runners
   docs/{en,ko}/          Architecture, parser, user guide, …
   examples/              Sample inputs + generated outputs
@@ -178,6 +179,7 @@ archscope/
 - [English documentation index](docs/en/README.md)
 - [Korean documentation index](docs/ko/README.md)
 - User guide — [English](docs/en/USER_GUIDE.md) · [한국어](docs/ko/USER_GUIDE.md)
+  (includes the [browser support matrix (T-209)](docs/en/USER_GUIDE.md#browser-support-matrix-t-209))
 - Multi-language thread dumps — [English](docs/en/MULTI_LANGUAGE_THREADS.md) · [한국어](docs/ko/MULTI_LANGUAGE_THREADS.md)
 - Architecture — [English](docs/en/ARCHITECTURE.md) · [한국어](docs/ko/ARCHITECTURE.md)
 
