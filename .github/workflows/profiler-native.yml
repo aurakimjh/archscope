@@ -167,7 +167,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p /tmp/parity
-          ./bin/archscope-engine accesslog \
+          ./bin/archscope-engine access-log analyze \
             --in ../../examples/access-logs/sample-nginx-access.log \
             --format nginx \
             --out /tmp/parity/access-go.json
@@ -250,7 +250,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p /tmp/parity
-          ./bin/archscope-engine gclog \
+          ./bin/archscope-engine gc-log analyze \
             --in ../../examples/gc-logs/sample-hotspot-gc.log \
             --out /tmp/parity/gclog-go.json
           python -m archscope_engine.cli gc-log analyze \
@@ -291,7 +291,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p /tmp/parity
-          ./bin/archscope-engine jfr \
+          ./bin/archscope-engine jfr analyze-json \
             --in ../../examples/jfr/sample-jfr-print.json \
             --out /tmp/parity/jfr-go.json
           python -m archscope_engine.cli jfr analyze-json \
@@ -328,7 +328,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p /tmp/parity
-          ./bin/archscope-engine exception \
+          ./bin/archscope-engine exception analyze \
             --in ../../examples/exceptions/sample-java-exception.txt \
             --out /tmp/parity/exception-go.json
           python -m archscope_engine.cli exception analyze \
@@ -362,7 +362,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p /tmp/parity
-          ./bin/archscope-engine otel \
+          ./bin/archscope-engine otel analyze \
             --in ../../examples/otel/sample-otel-logs.jsonl \
             --out /tmp/parity/otel-go.json
           python -m archscope_engine.cli otel analyze \
@@ -398,7 +398,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p /tmp/parity
-          ./bin/archscope-engine threaddump \
+          ./bin/archscope-engine thread-dump analyze \
             --in ../../examples/thread-dumps/sample-java-thread-dump.txt \
             --out /tmp/parity/threaddump-go.json
           python -m archscope_engine.cli thread-dump analyze \
@@ -432,7 +432,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p /tmp/parity
-          ./bin/archscope-engine runtime --variant nodejs \
+          ./bin/archscope-engine nodejs analyze \
             --in ../../examples/runtime/sample-nodejs-stack.txt \
             --out /tmp/parity/runtime-nodejs-go.json
           python -m archscope_engine.cli nodejs analyze \
@@ -463,7 +463,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p /tmp/parity
-          ./bin/archscope-engine runtime --variant python \
+          ./bin/archscope-engine python-traceback analyze \
             --in ../../examples/runtime/sample-python-traceback.txt \
             --out /tmp/parity/runtime-python-go.json
           python -m archscope_engine.cli python-traceback analyze \
@@ -494,7 +494,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p /tmp/parity
-          ./bin/archscope-engine runtime --variant go \
+          ./bin/archscope-engine go-panic analyze \
             --in ../../examples/runtime/sample-go-panic.txt \
             --out /tmp/parity/runtime-go-go.json
           python -m archscope_engine.cli go-panic analyze \
@@ -525,7 +525,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p /tmp/parity
-          ./bin/archscope-engine runtime --variant dotnet \
+          ./bin/archscope-engine dotnet analyze \
             --in ../../examples/runtime/sample-dotnet-iis.txt \
             --out /tmp/parity/runtime-dotnet-go.json
           python -m archscope_engine.cli dotnet analyze \
@@ -559,7 +559,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p /tmp/parity
-          ./bin/archscope-engine multithread \
+          ./bin/archscope-engine thread-dump analyze-multi \
             --in ../../examples/thread-dumps/sample-java-thread-dump.txt \
             --out /tmp/parity/multi-go.json
           python -m archscope_engine.cli thread-dump analyze-multi \
@@ -595,7 +595,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p /tmp/parity
-          ./bin/archscope-engine lockcontention \
+          ./bin/archscope-engine thread-dump analyze-locks \
             --in ../../examples/thread-dumps/sample-java-thread-dump.txt \
             --out /tmp/parity/locks-go.json
           python -m archscope_engine.cli thread-dump analyze-locks \
@@ -633,7 +633,7 @@ jobs:
           # Go side emits the stack -> count map as JSON; Python side
           # writes the FlameGraph "<stack> <count>" text format. We
           # convert both to the same {stack: count} shape and compare.
-          ./bin/archscope-engine collapsed \
+          ./bin/archscope-engine thread-dump to-collapsed \
             --in ../../examples/thread-dumps/sample-java-thread-dump.txt \
             --out /tmp/parity/collapsed-go.json
           python -m archscope_engine.cli thread-dump to-collapsed \

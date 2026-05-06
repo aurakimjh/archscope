@@ -6,6 +6,10 @@
 // catches Python ↔ Go drift, this catches "Go subcommand silently
 // stopped emitting JSON" without needing to run the full parity job
 // locally.
+//
+// T-360 renamed every subcommand to mirror the typer surface (see
+// cmd/archscope-engine/main.go); the cases below use the new Cobra
+// names verbatim.
 package main
 
 import (
@@ -87,63 +91,63 @@ func TestCLISubcommands(t *testing.T) {
 		wantType string
 	}{
 		{
-			name:     "accesslog",
-			args:     []string{"accesslog", "--in", join("access-logs", "sample-nginx-access.log"), "--format", "nginx"},
+			name:     "access-log",
+			args:     []string{"access-log", "analyze", "--in", join("access-logs", "sample-nginx-access.log"), "--format", "nginx"},
 			wantType: "access_log",
 		},
 		{
-			name:     "gclog",
-			args:     []string{"gclog", "--in", join("gc-logs", "sample-hotspot-gc.log")},
+			name:     "gc-log",
+			args:     []string{"gc-log", "analyze", "--in", join("gc-logs", "sample-hotspot-gc.log")},
 			wantType: "gc_log",
 		},
 		{
 			name:     "jfr",
-			args:     []string{"jfr", "--in", join("jfr", "sample-jfr-print.json")},
+			args:     []string{"jfr", "analyze-json", "--in", join("jfr", "sample-jfr-print.json")},
 			wantType: "jfr_recording",
 		},
 		{
 			name:     "exception",
-			args:     []string{"exception", "--in", join("exceptions", "sample-java-exception.txt")},
+			args:     []string{"exception", "analyze", "--in", join("exceptions", "sample-java-exception.txt")},
 			wantType: "exception_stack",
 		},
 		{
 			name:     "otel",
-			args:     []string{"otel", "--in", join("otel", "sample-otel-logs.jsonl")},
+			args:     []string{"otel", "analyze", "--in", join("otel", "sample-otel-logs.jsonl")},
 			wantType: "otel_logs",
 		},
 		{
-			name:     "threaddump",
-			args:     []string{"threaddump", "--in", join("thread-dumps", "sample-java-thread-dump.txt")},
+			name:     "thread-dump",
+			args:     []string{"thread-dump", "analyze", "--in", join("thread-dumps", "sample-java-thread-dump.txt")},
 			wantType: "thread_dump",
 		},
 		{
-			name:     "runtime-nodejs",
-			args:     []string{"runtime", "--variant", "nodejs", "--in", join("runtime", "sample-nodejs-stack.txt")},
+			name:     "nodejs",
+			args:     []string{"nodejs", "analyze", "--in", join("runtime", "sample-nodejs-stack.txt")},
 			wantType: "nodejs_stack",
 		},
 		{
-			name:     "runtime-python",
-			args:     []string{"runtime", "--variant", "python", "--in", join("runtime", "sample-python-traceback.txt")},
+			name:     "python-traceback",
+			args:     []string{"python-traceback", "analyze", "--in", join("runtime", "sample-python-traceback.txt")},
 			wantType: "python_traceback",
 		},
 		{
-			name:     "runtime-go",
-			args:     []string{"runtime", "--variant", "go", "--in", join("runtime", "sample-go-panic.txt")},
+			name:     "go-panic",
+			args:     []string{"go-panic", "analyze", "--in", join("runtime", "sample-go-panic.txt")},
 			wantType: "go_panic",
 		},
 		{
-			name:     "runtime-dotnet",
-			args:     []string{"runtime", "--variant", "dotnet", "--in", join("runtime", "sample-dotnet-iis.txt")},
+			name:     "dotnet",
+			args:     []string{"dotnet", "analyze", "--in", join("runtime", "sample-dotnet-iis.txt")},
 			wantType: "dotnet_exception_iis",
 		},
 		{
-			name:     "multithread",
-			args:     []string{"multithread", "--in", join("thread-dumps", "sample-java-thread-dump.txt")},
+			name:     "thread-dump-analyze-multi",
+			args:     []string{"thread-dump", "analyze-multi", "--in", join("thread-dumps", "sample-java-thread-dump.txt")},
 			wantType: "thread_dump_multi",
 		},
 		{
-			name:     "lockcontention",
-			args:     []string{"lockcontention", "--in", join("thread-dumps", "sample-java-thread-dump.txt")},
+			name:     "thread-dump-analyze-locks",
+			args:     []string{"thread-dump", "analyze-locks", "--in", join("thread-dumps", "sample-java-thread-dump.txt")},
 			wantType: "thread_dump_locks",
 		},
 	}
@@ -170,18 +174,18 @@ func TestCLISubcommands(t *testing.T) {
 	}
 }
 
-// TestCLICollapsed exercises the collapsed subcommand, which emits
-// `map[string]int` instead of an AnalysisResult envelope. We assert
-// every key has the form `frame;...` and every value is a positive
-// integer.
-func TestCLICollapsed(t *testing.T) {
+// TestCLIThreadDumpToCollapsed exercises the `thread-dump to-collapsed`
+// subcommand, which emits `map[string]int` instead of an
+// AnalysisResult envelope. We assert every key has the form
+// `frame;...` and every value is a positive integer.
+func TestCLIThreadDumpToCollapsed(t *testing.T) {
 	bin := buildBinary(t)
 	root := fixturesRoot(t)
-	cmd := exec.Command(bin, "collapsed", "--in",
+	cmd := exec.Command(bin, "thread-dump", "to-collapsed", "--in",
 		filepath.Join(root, "thread-dumps", "sample-java-thread-dump.txt"))
 	out, err := cmd.Output()
 	if err != nil {
-		t.Fatalf("collapsed: %v", err)
+		t.Fatalf("thread-dump to-collapsed: %v", err)
 	}
 	var payload map[string]int
 	if err := json.Unmarshal(out, &payload); err != nil {
