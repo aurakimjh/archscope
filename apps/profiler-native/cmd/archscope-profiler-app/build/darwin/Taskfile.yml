@@ -162,6 +162,77 @@ tasks:
     cmds:
       - 'echo "Skipping codesign (not available on {{OS}}). Sign the .app on macOS before distribution."'
 
+  codesign:developer:
+    summary: |
+      Codesign with Developer ID + hardened runtime + entitlements
+      ready for notarization. Requires env:
+        DEVELOPER_ID — "Developer ID Application: Your Name (TEAMID)"
+      Optional env:
+        ENTITLEMENTS — path to entitlements.plist (defaults to none)
+    cmds:
+      - |
+        if [ -z "${DEVELOPER_ID:-}" ]; then
+          echo "DEVELOPER_ID env not set; falling back to ad-hoc."
+          exec task codesign:adhoc
+        fi
+        ENT_FLAG=""
+        if [ -n "${ENTITLEMENTS:-}" ] && [ -f "${ENTITLEMENTS}" ]; then
+          ENT_FLAG="--entitlements ${ENTITLEMENTS}"
+        fi
+        codesign --force --deep --options runtime --timestamp \
+          ${ENT_FLAG} \
+          --sign "${DEVELOPER_ID}" \
+          "{{.BIN_DIR}}/{{.APP_NAME}}.app"
+        codesign --verify --deep --strict --verbose=2 "{{.BIN_DIR}}/{{.APP_NAME}}.app"
+
+  notarize:
+    summary: |
+      Submit the .app to Apple notarization (waits for the result and staples).
+      Requires the .app to be Developer-ID signed (run codesign:developer first).
+      Requires env:
+        KEYCHAIN_PROFILE — `xcrun notarytool store-credentials` profile name
+      Or:
+        APPLE_ID, APPLE_TEAM_ID, APPLE_APP_SPECIFIC_PASSWORD
+    cmds:
+      - |
+        APP="{{.BIN_DIR}}/{{.APP_NAME}}.app"
+        ZIP="{{.BIN_DIR}}/{{.APP_NAME}}-notarize.zip"
+        ditto -c -k --keepParent "$APP" "$ZIP"
+        if [ -n "${KEYCHAIN_PROFILE:-}" ]; then
+          xcrun notarytool submit "$ZIP" --keychain-profile "${KEYCHAIN_PROFILE}" --wait
+        else
+          xcrun notarytool submit "$ZIP" \
+            --apple-id "${APPLE_ID:?APPLE_ID required}" \
+            --team-id "${APPLE_TEAM_ID:?APPLE_TEAM_ID required}" \
+            --password "${APPLE_APP_SPECIFIC_PASSWORD:?APPLE_APP_SPECIFIC_PASSWORD required}" \
+            --wait
+        fi
+        xcrun stapler staple "$APP"
+        rm -f "$ZIP"
+
+  package:dmg:
+    summary: |
+      Creates a .dmg installer from the existing .app bundle.
+      Run package first (which produces .app), then package:dmg.
+      DMG is created via stdlib hdiutil — no third-party deps.
+    cmds:
+      - |
+        APP="{{.BIN_DIR}}/{{.APP_NAME}}.app"
+        DMG="{{.BIN_DIR}}/{{.APP_NAME}}-{{.ARCH | default ARCH}}.dmg"
+        STAGING="{{.BIN_DIR}}/.dmg-staging"
+        if [ ! -d "$APP" ]; then
+          echo "Error: $APP not found. Run task package first."
+          exit 1
+        fi
+        rm -rf "$STAGING" "$DMG"
+        mkdir -p "$STAGING"
+        cp -R "$APP" "$STAGING/"
+        ln -s /Applications "$STAGING/Applications"
+        hdiutil create -volname "{{.APP_NAME}}" -srcfolder "$STAGING" \
+          -ov -format UDZO "$DMG"
+        rm -rf "$STAGING"
+        echo "Created $DMG ($(du -h "$DMG" | cut -f1))"
+
   run:
     cmds:
       - mkdir -p "{{.BIN_DIR}}/{{.APP_NAME}}.dev.app/Contents/MacOS"

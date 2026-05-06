@@ -1,13 +1,10 @@
 [Desktop Entry]
 Version=1.0
-Name=Probe
-Comment=A probe application
-# The Exec line includes %u to pass the URL to the application
-Exec=/usr/local/bin/probe %u
+Name=ArchScope Profiler
+Comment=Native profiler + analyzer desktop
+Exec=/usr/local/bin/archscope-profiler %u
 Terminal=false
 Type=Application
-Icon=probe
-Categories=Utility;
-StartupWMClass=probe
-
- 
+Icon=archscope-profiler
+Categories=Development;Utility;
+StartupWMClass=archscope-profiler

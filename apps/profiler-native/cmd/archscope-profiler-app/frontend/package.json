@@ -1,7 +1,7 @@
 {
-  "name": "react-ts-latest",
+  "name": "archscope-profiler-frontend",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.3.0-rc1",
   "type": "module",
   "scripts": {
     "dev": "vite",

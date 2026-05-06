@@ -3,26 +3,26 @@
 #
 # The lines below are called `modelines`. See `:help modeline`
 
-name: "probe"
+name: "archscope-profiler"
 arch: ${GOARCH}
 platform: "linux"
-version: "0.1.0"
+version: "0.3.0-rc1"
 section: "default"
 priority: "extra"
 maintainer: ${GIT_COMMITTER_NAME} <${GIT_COMMITTER_EMAIL}>
-description: "A probe application"
+description: "ArchScope native profiler + analyzer desktop"
 vendor: "ArchScope"
-homepage: "https://wails.io"
+homepage: "https://github.com/aurakimjh/archscope"
 license: "MIT"
 release: "1"
 
 contents:
-  - src: "./bin/probe"
-    dst: "/usr/local/bin/probe"
+  - src: "./bin/archscope-profiler"
+    dst: "/usr/local/bin/archscope-profiler"
   - src: "./build/appicon.png"
-    dst: "/usr/share/icons/hicolor/128x128/apps/probe.png"
-  - src: "./build/linux/probe.desktop"
-    dst: "/usr/share/applications/probe.desktop"
+    dst: "/usr/share/icons/hicolor/128x128/apps/archscope-profiler.png"
+  - src: "./build/linux/archscope-profiler.desktop"
+    dst: "/usr/share/applications/archscope-profiler.desktop"
 
 # Default dependencies for Debian 12/Ubuntu 22.04+ with WebKit 4.1
 depends:
