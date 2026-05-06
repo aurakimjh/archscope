@@ -40,7 +40,16 @@ apps/engine-native/
 │  │     ├ nodejsreport/    Node.js diagnostic-report + sample-trace (T-325)
 │  │     └ dotnetclrstack/  WinDbg clrstack + .NET environment stacktrace (T-326)
 │  ├ analyzers/
-│  │  └ accesslog/       22-metric summary + percentile timeline + findings (T-330)
+│  │  ├ accesslog/              22-metric summary + percentile timeline + findings (T-330)
+│  │  ├ gclog/                  pause/heap series + JVM Info card + 7 findings (T-331)
+│  │  ├ jfr/                    JFR + native memory analyzer + heatmap (T-332)
+│  │  ├ exception/              Java exception type/root-cause aggregation (T-333)
+│  │  ├ runtime/                Runtime stack trace findings + IIS / .NET (T-333)
+│  │  ├ otel/                   Service-path DAG + failure propagation (T-334)
+│  │  ├ threaddump/             Single-dump JVM state distribution (T-335)
+│  │  ├ multithread/            Multi-dump correlation + 10 findings (T-336)
+│  │  ├ threaddumpcollapsed/    Bundle → flamegraph collapsed format (T-338)
+│  │  └ profileclassification/  Config-driven runtime classification rules (T-339)
 │  └ common/             RedactText / DebugLog (lifted from profiler-native)
 └ cmd/
    └ archscope-engine/   CLI entry point — `accesslog` subcommand wired
@@ -65,8 +74,7 @@ CI runs `go test ./...` for this module under
 
 ## What's next
 
-- T-331 .. T-339 — remaining analyzers (gc_log, jfr, exception,
-  otel, thread_dump, multi-thread, lock contention).
+- T-337 — lock contention analyzer (depends on T-336).
 - T-340 .. T-344 — exporters (JSON / HTML / PPTX / CSV / report
   diff).
 - T-350 .. T-360 — net/http web server + cobra CLI.
