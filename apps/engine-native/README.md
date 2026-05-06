@@ -48,6 +48,7 @@ apps/engine-native/
 │  │  ├ otel/                   Service-path DAG + failure propagation (T-334)
 │  │  ├ threaddump/             Single-dump JVM state distribution (T-335)
 │  │  ├ multithread/            Multi-dump correlation + 10 findings (T-336)
+│  │  ├ lockcontention/         Owner/waiter graph + DFS deadlock detector (T-337)
 │  │  ├ threaddumpcollapsed/    Bundle → flamegraph collapsed format (T-338)
 │  │  └ profileclassification/  Config-driven runtime classification rules (T-339)
 │  └ common/             RedactText / DebugLog (lifted from profiler-native)
@@ -74,7 +75,6 @@ CI runs `go test ./...` for this module under
 
 ## What's next
 
-- T-337 — lock contention analyzer (depends on T-336).
 - T-340 .. T-344 — exporters (JSON / HTML / PPTX / CSV / report
   diff).
 - T-350 .. T-360 — net/http web server + cobra CLI.
