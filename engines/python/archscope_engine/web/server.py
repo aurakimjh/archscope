@@ -14,11 +14,12 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Optional
 
-from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
+from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
+from archscope_engine.web.progress import progress_registry
 from archscope_engine.analyzers.access_log_analyzer import analyze_access_log
 from archscope_engine.analyzers.exception_analyzer import analyze_exception_stack
 from archscope_engine.analyzers.gc_log_analyzer import analyze_gc_log
@@ -948,10 +949,93 @@ def create_app(static_dir: Optional[Path] = None, *, dev_cors: bool = True) -> F
 
     @app.post("/api/analyzer/cancel")
     async def analyzer_cancel(request: Request) -> dict[str, Any]:
-        # In-process analyzers are not interruptible in Phase 1; report no-op.
+        # T-206: cancellation is task-id keyed; the registry owns the
+        # actual signal so the synchronous in-process analyzer can opt
+        # in once we add a check-pulse helper. Returns whether the
+        # taskId was found in the registry, for renderer feedback.
         body = await request.json() if request.headers.get("content-length") else {}
-        del body
-        return {"ok": True, "canceled": False}
+        task_id = body.get("taskId") if isinstance(body, dict) else None
+        if not task_id:
+            return {"ok": True, "canceled": False, "reason": "no taskId"}
+        canceled = progress_registry.cancel(task_id)
+        return {"ok": True, "canceled": canceled}
+
+    @app.post("/api/files/select")
+    async def files_select(request: Request) -> dict[str, Any]:
+        """T-206 file-selection contract — server-side absolute path resolver.
+
+        The renderer surfaces a path picker (browser File System Access API
+        when available, manual absolute-path input otherwise) and POSTs the
+        candidate here for normalization + existence check; the engine then
+        returns a canonical absolute path that subsequent analyzer requests
+        reference. Avoids the multipart-upload round-trip for the common
+        case of a localhost engine. The browser-upload fallback at
+        ``POST /api/upload`` stays available for non-localhost deployments.
+        """
+        body = await request.json()
+        if not isinstance(body, dict):
+            raise HTTPException(status_code=400, detail="Body must be an object.")
+        candidate = body.get("path")
+        if not isinstance(candidate, str) or not candidate.strip():
+            raise HTTPException(status_code=400, detail="path is required.")
+        resolved = Path(candidate).expanduser().resolve()
+        if not resolved.exists():
+            raise HTTPException(status_code=404, detail=f"Path does not exist: {resolved}")
+        if not resolved.is_file():
+            raise HTTPException(status_code=400, detail=f"Path is not a file: {resolved}")
+        return {
+            "ok": True,
+            "path": str(resolved),
+            "size": resolved.stat().st_size,
+            "name": resolved.name,
+        }
+
+    @app.websocket("/ws/progress")
+    async def ws_progress(websocket: WebSocket) -> None:
+        """T-206 progress + cancellation channel.
+
+        Renderer protocol::
+
+            {"op": "subscribe", "taskId": "..."}    # opt in to a task
+            {"op": "cancel",    "taskId": "..."}    # request cancellation
+
+        Engine -> renderer frames::
+
+            {"event": "ready",     "taskId": "<id>"}
+            {"event": "progress",  "taskId": "<id>", "stage": "...", "ratio": 0.42}
+            {"event": "done",      "taskId": "<id>"}
+            {"event": "cancelled", "taskId": "<id>"}
+            {"event": "error",     "taskId": "<id>", "message": "..."}
+
+        Symmetric with the Wails track's ``analyze:done|error|cancelled``
+        events (T-240f) so the same renderer hook can serve both shells.
+        Phase 1 analyzers are synchronous in-process and finish in ms; the
+        WebSocket exists so longer-running analyzers (multi-dump
+        correlation, large GC logs) can stream progress without polling.
+        """
+        await websocket.accept()
+        connection_id = uuid.uuid4().hex
+        progress_registry.attach(connection_id, websocket)
+        try:
+            await websocket.send_json({"event": "ready", "connectionId": connection_id})
+            while True:
+                message = await websocket.receive_json()
+                if not isinstance(message, dict):
+                    continue
+                op = message.get("op")
+                task_id = message.get("taskId")
+                if op == "subscribe" and task_id:
+                    progress_registry.subscribe(connection_id, str(task_id))
+                elif op == "cancel" and task_id:
+                    canceled = progress_registry.cancel(str(task_id))
+                    await websocket.send_json(
+                        {"event": "cancel-ack", "taskId": task_id, "canceled": canceled},
+                    )
+        except WebSocketDisconnect:
+            progress_registry.detach(connection_id)
+        except Exception:  # noqa: BLE001 — ensure registry cleanup on any failure
+            progress_registry.detach(connection_id)
+            raise
 
     @app.post("/api/export/execute")
     async def export_execute(request: Request) -> dict[str, Any]:

@@ -41,10 +41,12 @@ cd apps/frontend && npm install && npm run dev
 # Open http://127.0.0.1:5173
 ```
 
-A native Windows installer (NSIS) and portable zip are produced from
-the same React + FastAPI codebase via Electron, with the Python engine
-PyInstaller-bundled inside the package. Latest binaries live on the
-[GitHub releases page](https://github.com/aurakimjh/archscope/releases).
+The Electron desktop shell that previously wrapped the same codebase
+was retired in T-207; ArchScope now ships exclusively as a Python wheel
+that serves the React bundle from FastAPI on `127.0.0.1`. A native
+desktop track lives separately in `apps/profiler-native/` (Wails v3,
+profiler-only). Latest binaries land on the [GitHub releases
+page](https://github.com/aurakimjh/archscope/releases).
 
 ## Highlights
 
@@ -88,7 +90,7 @@ PyInstaller-bundled inside the package. Latest binaries live on the
                            │  in-process call
                            ▼
 ┌────────────────────────────────────────────────────────────────┐
-│  archscope_engine (pure Python — no Electron, no subprocess)   │
+│  archscope_engine (pure Python, in-process — no subprocess)    │
 │                                                                │
 │   parsers/  →  per-format parsers                              │
 │       access_log, collapsed, jennifer_csv,                     │
@@ -153,14 +155,14 @@ archscope-engine report diff  --before before.json --after after.json --out diff
 ```text
 archscope/
   apps/frontend/         React + Vite + Tailwind v4 + Pretendard
-                         (served as a static bundle by FastAPI, also
-                         packaged inside Electron desktop)
-  apps/desktop/          Electron shell — wraps the engine binary +
-                         frontend bundle into a native installer/zip
-  engines/python/        archscope_engine package + FastAPI server +
-                         PyInstaller spec for native bundling
-  scripts/               serve-web.sh, run-engine.sh, build-desktop,
-                         demo runners
+                         (served as a static bundle by FastAPI)
+  apps/profiler-native/  Wails v3 native profiler track (separate
+                         desktop binary, profiler-only — see
+                         docs/{en,ko}/PROFILER_NATIVE.md)
+  engines/python/        archscope_engine package + FastAPI server
+                         (T-208 will produce a top-level `archscope`
+                         wheel with the React bundle as package data)
+  scripts/               serve-web.sh, run-engine.sh, demo runners
   docs/{en,ko}/          Architecture, parser, user guide, …
   examples/              Sample inputs + generated outputs
 ```

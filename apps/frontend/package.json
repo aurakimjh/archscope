@@ -2,7 +2,7 @@
   "name": "archscope-frontend",
   "version": "0.2.0-rc1",
   "private": true,
-  "description": "ArchScope React frontend — shared by both the web and Electron builds.",
+  "description": "ArchScope React frontend — served by the FastAPI engine over HTTP/WebSocket (Electron shell retired in T-207).",
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
