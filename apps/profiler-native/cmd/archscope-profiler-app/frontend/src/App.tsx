@@ -30,6 +30,7 @@ import { AccessLogAnalyzerPage } from "./pages/AccessLogAnalyzerPage";
 import { GcLogAnalyzerPage } from "./pages/GcLogAnalyzerPage";
 import { JfrAnalyzerPage } from "./pages/JfrAnalyzerPage";
 import { ExceptionAnalyzerPage } from "./pages/ExceptionAnalyzerPage";
+import { ThreadDumpAnalyzerPage } from "./pages/ThreadDumpAnalyzerPage";
 
 function adaptFlameNode(node: FlameNode | null | undefined): FlameGraphNode | null {
   if (!node) return null;
@@ -704,6 +705,7 @@ function App() {
           {active === "gc_log" && <GcLogAnalyzerPage />}
           {active === "jfr" && <JfrAnalyzerPage />}
           {active === "exception" && <ExceptionAnalyzerPage />}
+          {active === "thread_dump" && <ThreadDumpAnalyzerPage />}
           {active === "settings" && <SettingsPage />}
         </div>
       </div>
