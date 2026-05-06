@@ -25,7 +25,12 @@ apps/engine-native/
 │  │                     (utf-8-sig / utf-8 / cp949 / utf-16-LE/BE / latin-1)
 │  ├ timeutil/           ParseNginxTimestamp / MinuteBucket (T-310)
 │  ├ parsers/
-│  │  └ accesslog/       Access log parser — 3 regex variants (T-310)
+│  │  ├ accesslog/       Access log parser — 3 regex variants (T-310)
+│  │  ├ exception/       Java stack trace + cause chain (T-311)
+│  │  ├ gclog/           HotSpot unified / G1 legacy GC log + JVM info card (T-312)
+│  │  ├ otel/            OTel JSONL trace/span parser (T-313)
+│  │  ├ jfr/             JFR JSON parser + .jfr→JSON via `jfr` JDK CLI (T-314)
+│  │  └ runtimestack/    .NET / Go panic / Node.js / Python traceback (T-315)
 │  ├ analyzers/
 │  │  └ accesslog/       22-metric summary + percentile timeline + findings (T-330)
 │  └ common/             RedactText / DebugLog (lifted from profiler-native)
@@ -52,8 +57,6 @@ CI runs `go test ./...` for this module under
 
 ## What's next
 
-- T-311 .. T-315 — remaining single-format parsers (exception,
-  gc_log, otel, jfr, runtime stack parsers).
 - T-320 .. T-326 — thread-dump registry + 6 language plugins.
 - T-331 .. T-339 — remaining analyzers (gc_log, jfr, exception,
   otel, thread_dump, multi-thread, lock contention).
