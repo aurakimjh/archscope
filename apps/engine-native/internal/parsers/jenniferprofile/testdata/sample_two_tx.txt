@@ -1,0 +1,70 @@
+---------------------------------------------------------------------------------------------------------------------
+Total Transaction : 2
+---------------------------------------------------------------------------------------------------------------------
+
+
+
+TXID : 922846047875413046                                        DOMAIN (ID) : 상품 (11181)
+START_TIME : 2026-05-07 08:38:24 279                             INSTANCE (ID) : pgf-svc-djg4gjdgggg-wszldf (10121)
+COLLECTION_TIME : 2026-05-07 08:38:24 279                        BUSINESS (ID) :
+END_TIME : 2026-05-07 08:38:24 279                               ERROR :
+RESPONSE_TIME : 84                                               CLIENT_IP : 192.168.0.0
+SQL_TIME : 57                                                    CLIENT_ID : 0
+SQL COUNT :  5                                                   USER_ID :
+EXTERNAL_CALL_TIME : 173                                         GUID : 2026050908316771PCMONLxtz8x0000001
+FETCH_TIME : 20                                                  USER_AGENT : Apache-HttpCleint/5.4.2 (Java/21.07)
+CPU_TIME : 23                                                    HTTP_STATUS_CODE : 200
+FRONT_APP_ID :                                                   FRONT_PAGE_ID :
+APPLICATION : /prod/common/rule/testrule
+
+---------------------------------------------------------------------------------------------------------------------
+[ No.][ START_TIME ][  GAP][CPU_T]
+---------------------------------------------------------------------------------------------------------------------
+[0000][16:10:52 608][    0][    0] START
+[0001][16:10:52 608][    0][     ] [Current Thread] http-nio-8080-exec-4995 [5829443]
+[0002][16:10:52 608][    0][     ] java.sql.Connection org.apache.jsp.getConnection() [1,478 ms]
+[0011][16:10:54 086][    0][    0] SQL-EXECUTE (1863008807) [1 ms]
+                                   select 1 from dual
+[0012][16:10:54 086][    0][    0] SQL-EXECUTE-UPDATE [2,503 ms]
+                                   begin ? JAVA_XA.xa_start_new (1,?,?,60,67715345): end;
+[0013][16:10:54 086][    0][    0] SQL-EXECUTE-UPDATE [2,503 ms]
+                                INSERT INTO JOBS ...
+                                param:[id,title,dev]
+[0014][16:10:54 086][    0][    0] SQL-EXECUTE-QUERY [2,503 ms]
+                                 SELECT a, b, c FROM ZZZ
+[0015][16:10:54 086][    0][    0] FETCH [1/1] [20 ms]
+[0016][16:10:54 086][    0][    0] EXTERNAL_CALL [HTTP] APACHE_HTTP_CLIENT_V5 ( url=/dev/common/rule/testrule) [173ms]
+[0017][16:10:54 086][    0][    0] SOCEKT_OSTREAM Socket[addr=cla.app.svc.cluster.local/192.168.0.0,port=80,localport=44275]
+[0018][16:10:54 086][    0][    0] SOCEKT_ISTREAM Socket[addr=cla.app.svc.cluster.local/192.168.0.0,port=80,localport=44275]
+[0019][16:10:54 086][    173][    0] APACHE_HTTP_CLIENT_V5_INFO ( url=/dev/common/rule/testrule, response=200 OKHTTP/1.1)
+[0020][16:10:54 086][    0][    0] SQL-EXECUTE (1863008807) [1 ms]
+                                   begin ? JAVA_XA.xa_end_new (1,?,?,67715345): end;
+[0021][16:10:54 086][    0][    0] SQL-EXECUTE (1863008807) [1 ms]
+                                   begin ? JAVA_XA.xa_prepare_new (1,?,?): end;
+[    ][16:10:52 608][    0][    0] END
+---------------------------------------------------------------------------------------------------------------------
+                TOTAL[  25][  23]
+
+
+
+TXID : 922846047875413047                                        DOMAIN (ID) : 결제 (11182)
+START_TIME : 2026-05-07 08:38:25 100                             INSTANCE (ID) : pay-svc-aaaa (10122)
+COLLECTION_TIME : 2026-05-07 08:38:25 100                        BUSINESS (ID) :
+END_TIME : 2026-05-07 08:38:25 184                               ERROR :
+RESPONSE_TIME : 84                                               CLIENT_IP : 192.168.0.0
+SQL_TIME : 0                                                     CLIENT_ID : 0
+SQL COUNT :  0                                                   USER_ID :
+EXTERNAL_CALL_TIME : 0                                           GUID : 2026050908316771PCMONLxtz8x0000001
+FETCH_TIME : 0                                                   USER_AGENT : Apache-HttpCleint/5.4.2 (Java/21.07)
+CPU_TIME : 4                                                     HTTP_STATUS_CODE : 200
+FRONT_APP_ID :                                                   FRONT_PAGE_ID :
+APPLICATION : /dev/common/rule/testrule
+
+---------------------------------------------------------------------------------------------------------------------
+[ No.][ START_TIME ][  GAP][CPU_T]
+---------------------------------------------------------------------------------------------------------------------
+[0000][16:10:53 000][    0][    0] START
+[0001][16:10:53 000][    0][    0] void javax.servlet.http.HttpServlet.service(...) [84 ms]
+[    ][16:10:53 084][    0][    0] END
+---------------------------------------------------------------------------------------------------------------------
+                TOTAL[  84][   4]

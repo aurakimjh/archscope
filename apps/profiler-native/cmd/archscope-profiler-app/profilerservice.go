@@ -422,6 +422,7 @@ func (s *ProfilerService) PickProfileFile() (string, error) {
 	}
 	dialog := app.Dialog.OpenFile().
 		SetTitle("Select profiler input").
+		AddFilter("All profiler inputs", "*.collapsed;*.txt;*.csv;*.svg;*.html;*.htm").
 		AddFilter("Collapsed stacks", "*.collapsed;*.txt").
 		AddFilter("Jennifer flamegraph CSV", "*.csv").
 		AddFilter("FlameGraph SVG", "*.svg").

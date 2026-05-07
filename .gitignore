@@ -19,9 +19,17 @@ build/
 release/
 out/
 demo-site-report-bundles/
+bin/
 apps/engine-native/bin/
 apps/profiler-native/bin/
 apps/profiler-native/cmd/archscope-profiler-app/bin/
+# Local Go binaries dropped at module root during dev builds.
+apps/engine-native/*.exe
+apps/profiler-native/*.exe
+# Stray npm artifact in the engine-native Go module — not used.
+apps/engine-native/package-lock.json
+# Claude Code session state.
+.claude/
 # Wails v3 keeps its template config under build/ — treat that subtree as source.
 !apps/profiler-native/cmd/archscope-profiler-app/build/
 !apps/profiler-native/cmd/archscope-profiler-app/build/**

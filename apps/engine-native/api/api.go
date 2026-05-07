@@ -33,6 +33,7 @@ import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/accesslog"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/exception"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/gclog"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/jenniferprofile"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/jfr"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/lockcontention"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/multithread"
@@ -146,6 +147,17 @@ type OtelOptions = otel.Options
 
 // AnalyzeOtel wraps otel.Analyze.
 var AnalyzeOtel = otel.Analyze
+
+// ── Jennifer Profile (MSA timeline) ─────────────────────────────────
+
+// JenniferProfileOptions mirrors jenniferprofile.Options.
+type JenniferProfileOptions = jenniferprofile.Options
+
+// AnalyzeJenniferProfile wraps jenniferprofile.AnalyzeFile (single).
+var AnalyzeJenniferProfile = jenniferprofile.AnalyzeFile
+
+// AnalyzeJenniferProfiles wraps jenniferprofile.AnalyzeFiles (multi).
+var AnalyzeJenniferProfiles = jenniferprofile.AnalyzeFiles
 
 // ── Thread-dump (single file, Java jstack only) ─────────────────────
 

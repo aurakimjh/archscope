@@ -12,6 +12,7 @@ export type NavKey =
   | "jfr"
   | "exception"
   | "thread_dump"
+  | "msa_profile"
   | "settings";
 
 const NAV_ICONS: Record<NavKey, string> = {
@@ -22,6 +23,7 @@ const NAV_ICONS: Record<NavKey, string> = {
   jfr: "🎙",
   exception: "⚠",
   thread_dump: "🧵",
+  msa_profile: "🕸",
   settings: "⚙",
 };
 
@@ -56,6 +58,7 @@ export function Sidebar({ active, onNavigate }: SidebarProps) {
     { key: "jfr", label: t("navJfr") },
     { key: "exception", label: t("navException") },
     { key: "thread_dump", label: t("navThreadDump") },
+    { key: "msa_profile", label: t("navMsaProfile") },
     { key: "settings", label: t("navSettings") },
   ];
 
@@ -63,12 +66,6 @@ export function Sidebar({ active, onNavigate }: SidebarProps) {
     <aside className={collapsed ? "sidebar collapsed" : "sidebar"} aria-label={t("nav")}>
       <div className="sidebar-brand">
         <div className="sidebar-mark" aria-hidden="true">A</div>
-        {!collapsed && (
-          <div className="sidebar-brand-text">
-            <span className="eyebrow">{t("eyebrow")}</span>
-            <span className="brand-name">ArchScope</span>
-          </div>
-        )}
       </div>
       <nav className="sidebar-nav">
         {items.map((item) => (

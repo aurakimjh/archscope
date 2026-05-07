@@ -109,6 +109,16 @@ type OtelRequest struct {
 	TopN int    `json:"topN,omitempty"`
 }
 
+// JenniferProfileRequest accepts a single Path or repeatable Paths
+// for multi-file batches. FallbackCorrelationToTxid mirrors the
+// CLI flag of the same name.
+type JenniferProfileRequest struct {
+	Path                      string   `json:"path,omitempty"`
+	Paths                     []string `json:"paths,omitempty"`
+	FallbackCorrelationToTxid bool     `json:"fallbackCorrelationToTxid,omitempty"`
+	HeaderBodyToleranceMs     int      `json:"headerBodyToleranceMs,omitempty"`
+}
+
 // ThreadDumpRequest mirrors threaddump.Options + a Path.
 type ThreadDumpRequest struct {
 	Path string `json:"path"`
@@ -311,6 +321,27 @@ func (s *EngineService) AnalyzeOtel(req OtelRequest) (engineapi.AnalysisResult, 
 		return engineapi.AnalysisResult{}, fmt.Errorf("path is required")
 	}
 	return engineapi.AnalyzeOtel(req.Path, engineapi.OtelOptions{TopN: req.TopN})
+}
+
+// AnalyzeJenniferProfile wraps engineapi.AnalyzeJenniferProfile/s.
+// Either Path (single) or Paths (batch) must be provided; if both
+// are set, Paths wins.
+func (s *EngineService) AnalyzeJenniferProfile(req JenniferProfileRequest) (engineapi.AnalysisResult, error) {
+	paths := req.Paths
+	if len(paths) == 0 && strings.TrimSpace(req.Path) != "" {
+		paths = []string{req.Path}
+	}
+	if len(paths) == 0 {
+		return engineapi.AnalysisResult{}, fmt.Errorf("path is required")
+	}
+	opts := engineapi.JenniferProfileOptions{
+		FallbackCorrelationToTxid: req.FallbackCorrelationToTxid,
+		HeaderBodyToleranceMs:     req.HeaderBodyToleranceMs,
+	}
+	if len(paths) == 1 {
+		return engineapi.AnalyzeJenniferProfile(paths[0], opts)
+	}
+	return engineapi.AnalyzeJenniferProfiles(paths, opts)
 }
 
 // AnalyzeThreadDump wraps engineapi.AnalyzeThreadDump (single Java

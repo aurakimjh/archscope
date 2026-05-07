@@ -99,6 +99,22 @@ export function analyzeOtel(
   return call<AnalysisResult>("AnalyzeOtel", req);
 }
 
+// JenniferProfileRequest matches the Go-side struct; either Path
+// (single) or Paths (batch) is required. FallbackCorrelationToTxid
+// mirrors the CLI flag of the same name.
+export type JenniferProfileRequest = {
+  path?: string;
+  paths?: string[];
+  fallbackCorrelationToTxid?: boolean;
+  headerBodyToleranceMs?: number;
+};
+
+export function analyzeJenniferProfile(
+  req: JenniferProfileRequest,
+): CancellablePromise<AnalysisResult> {
+  return call<AnalysisResult>("AnalyzeJenniferProfile", req);
+}
+
 export function analyzeThreadDump(
   req: ThreadDumpRequest,
 ): CancellablePromise<AnalysisResult> {
@@ -182,6 +198,7 @@ export const engine = {
   analyzeException,
   analyzeRuntimeStack,
   analyzeOtel,
+  analyzeJenniferProfile,
   analyzeThreadDump,
   analyzeMultiThread,
   analyzeLockContention,
