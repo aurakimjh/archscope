@@ -14,6 +14,7 @@ package main
 
 import (
 	"encoding/json"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
@@ -210,4 +211,41 @@ func mapKeys(m map[string]any) []string {
 		out = append(out, k)
 	}
 	return out
+}
+
+// TestCLIDemoSiteList exercises `demo-site list` against a tmp-dir
+// manifest set, asserting the binary outputs one path per line in
+// lexical order.
+func TestCLIDemoSiteList(t *testing.T) {
+	bin := buildBinary(t)
+	tmp := t.TempDir()
+
+	// Two manifests under <root>/<data_source>/<scenario>/manifest.json —
+	// matches the glob the runner uses.
+	for _, sub := range []string{"a-scenario", "b-scenario"} {
+		dir := filepath.Join(tmp, "synthetic", sub)
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(dir, "manifest.json"), []byte("{}"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	cmd := exec.Command(bin, "demo-site", "list", "--manifests", tmp)
+	out, err := cmd.Output()
+	if err != nil {
+		stderr := ""
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			stderr = string(exitErr.Stderr)
+		}
+		t.Fatalf("demo-site list: %v\nstderr: %s", err, stderr)
+	}
+	lines := strings.Split(strings.TrimSpace(string(out)), "\n")
+	if len(lines) != 2 {
+		t.Fatalf("got %d lines; want 2; output=%q", len(lines), string(out))
+	}
+	if !strings.Contains(lines[0], "a-scenario") || !strings.Contains(lines[1], "b-scenario") {
+		t.Fatalf("lines not in lex order: %v", lines)
+	}
 }
