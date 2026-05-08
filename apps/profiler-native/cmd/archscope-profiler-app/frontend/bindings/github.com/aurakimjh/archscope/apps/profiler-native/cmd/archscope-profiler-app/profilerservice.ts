@@ -22,7 +22,10 @@ export function Analyze(req: $models.AnalyzeRequest): $CancellablePromise<profil
 /**
  * AnalyzeAsync starts a non-blocking analysis. Returns a taskId immediately;
  * the renderer listens for `analyze:done` / `analyze:error` /
- * `analyze:cancelled` events keyed by that taskId.
+ * `analyze:cancelled` events keyed by that taskId. The progress log is
+ * opened synchronously so its path is present in the response, giving
+ * the renderer something to show even if the OS kills the process
+ * before the result event arrives.
  */
 export function AnalyzeAsync(req: $models.AnalyzeRequest): $CancellablePromise<$models.AnalyzeAsyncResponse> {
     return $Call.ByID(1198804148, req).then(($result: any) => {

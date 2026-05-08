@@ -50,9 +50,13 @@ export class AccessLogRequest {
 /**
  * AnalyzeAsyncResponse is returned to the renderer immediately. The actual
  * AnalysisResult arrives later via the `analyze:done` event keyed by taskId.
+ * ProgressLogPath is the on-disk progress log path that the analyzer is
+ * already writing to — surfaced right away so the renderer can show it
+ * even when the OS kills the process before the result event lands.
  */
 export class AnalyzeAsyncResponse {
     "taskId": string;
+    "progressLogPath"?: string;
 
     /** Creates a new AnalyzeAsyncResponse instance. */
     constructor($$source: Partial<AnalyzeAsyncResponse> = {}) {
@@ -129,6 +133,7 @@ export class AnalyzeDoneEvent {
 export class AnalyzeErrorEvent {
     "taskId": string;
     "message": string;
+    "progressLogPath"?: string;
 
     /** Creates a new AnalyzeErrorEvent instance. */
     constructor($$source: Partial<AnalyzeErrorEvent> = {}) {
@@ -171,10 +176,19 @@ export class AnalyzeRequest {
 
     /**
      * Memory guards for very large collapsed/wall inputs. Empty/zero
-     * triggers analyzer defaults (250k unique stacks, depth 256).
+     * triggers analyzer defaults (100k unique stacks, depth 128, 4 GB
+     * soft RSS ceiling).
      */
     "maxUniqueStacks"?: number;
     "maxStackDepth"?: number;
+    "maxRssMb"?: number;
+
+    /**
+     * ProgressLogDir overrides where the analyzer writes its
+     * streaming progress log. Empty → next to the executable
+     * (archscope-logs/), with cwd / temp-dir fallbacks.
+     */
+    "progressLogDir"?: string;
 
     /**
      * TimelineCategories carries user-supplied additional method
@@ -215,10 +229,10 @@ export class AnalyzeRequest {
      * Creates a new AnalyzeRequest instance from a string or object.
      */
     static createFrom($$source: any = {}): AnalyzeRequest {
-        const $$createField11_0 = $$createType2;
+        const $$createField13_0 = $$createType2;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("timelineCategories" in $$parsedSource) {
-            $$parsedSource["timelineCategories"] = $$createField11_0($$parsedSource["timelineCategories"]);
+            $$parsedSource["timelineCategories"] = $$createField13_0($$parsedSource["timelineCategories"]);
         }
         return new AnalyzeRequest($$parsedSource as Partial<AnalyzeRequest>);
     }
@@ -437,10 +451,19 @@ export class DrilldownRequest {
 
     /**
      * Memory guards for very large collapsed/wall inputs. Empty/zero
-     * triggers analyzer defaults (250k unique stacks, depth 256).
+     * triggers analyzer defaults (100k unique stacks, depth 128, 4 GB
+     * soft RSS ceiling).
      */
     "maxUniqueStacks"?: number;
     "maxStackDepth"?: number;
+    "maxRssMb"?: number;
+
+    /**
+     * ProgressLogDir overrides where the analyzer writes its
+     * streaming progress log. Empty → next to the executable
+     * (archscope-logs/), with cwd / temp-dir fallbacks.
+     */
+    "progressLogDir"?: string;
 
     /**
      * TimelineCategories carries user-supplied additional method
@@ -485,14 +508,14 @@ export class DrilldownRequest {
      * Creates a new DrilldownRequest instance from a string or object.
      */
     static createFrom($$source: any = {}): DrilldownRequest {
-        const $$createField11_0 = $$createType2;
-        const $$createField12_0 = $$createType5;
+        const $$createField13_0 = $$createType2;
+        const $$createField14_0 = $$createType5;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("timelineCategories" in $$parsedSource) {
-            $$parsedSource["timelineCategories"] = $$createField11_0($$parsedSource["timelineCategories"]);
+            $$parsedSource["timelineCategories"] = $$createField13_0($$parsedSource["timelineCategories"]);
         }
         if ("filters" in $$parsedSource) {
-            $$parsedSource["filters"] = $$createField12_0($$parsedSource["filters"]);
+            $$parsedSource["filters"] = $$createField14_0($$parsedSource["filters"]);
         }
         return new DrilldownRequest($$parsedSource as Partial<DrilldownRequest>);
     }
@@ -800,10 +823,19 @@ export class ExportPprofRequest {
 
     /**
      * Memory guards for very large collapsed/wall inputs. Empty/zero
-     * triggers analyzer defaults (250k unique stacks, depth 256).
+     * triggers analyzer defaults (100k unique stacks, depth 128, 4 GB
+     * soft RSS ceiling).
      */
     "maxUniqueStacks"?: number;
     "maxStackDepth"?: number;
+    "maxRssMb"?: number;
+
+    /**
+     * ProgressLogDir overrides where the analyzer writes its
+     * streaming progress log. Empty → next to the executable
+     * (archscope-logs/), with cwd / temp-dir fallbacks.
+     */
+    "progressLogDir"?: string;
 
     /**
      * TimelineCategories carries user-supplied additional method
@@ -848,10 +880,10 @@ export class ExportPprofRequest {
      * Creates a new ExportPprofRequest instance from a string or object.
      */
     static createFrom($$source: any = {}): ExportPprofRequest {
-        const $$createField11_0 = $$createType2;
+        const $$createField13_0 = $$createType2;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("timelineCategories" in $$parsedSource) {
-            $$parsedSource["timelineCategories"] = $$createField11_0($$parsedSource["timelineCategories"]);
+            $$parsedSource["timelineCategories"] = $$createField13_0($$parsedSource["timelineCategories"]);
         }
         return new ExportPprofRequest($$parsedSource as Partial<ExportPprofRequest>);
     }

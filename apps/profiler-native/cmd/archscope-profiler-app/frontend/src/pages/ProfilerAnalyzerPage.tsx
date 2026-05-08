@@ -159,6 +159,8 @@ export function ProfilerAnalyzerPage(): JSX.Element {
   // rebuild when the defaults still aren't enough.
   const [maxUniqueStacks, setMaxUniqueStacks] = useState<number>(0);
   const [maxStackDepth, setMaxStackDepth] = useState<number>(0);
+  const [maxRssMb, setMaxRssMb] = useState<number>(0);
+  const [progressLogDir, setProgressLogDir] = useState<string>("");
   const [timelineCategories, setTimelineCategories] = useState<CategoryRules>(
     {},
   );
@@ -173,6 +175,11 @@ export function ProfilerAnalyzerPage(): JSX.Element {
   const [exportNotice, setExportNotice] = useState<string>("");
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string>("");
+  // progressLogNotice surfaces the on-disk progress-log path the
+  // moment AnalyzeAsync returns. Sticks around through the entire
+  // analysis so a crash / OS-kill leaves the user with a pointer
+  // they can hand to support without relying on stderr.
+  const [progressLogNotice, setProgressLogNotice] = useState<string>("");
   const [activeTab, setActiveTab] = useState<string>("summary");
   const activeTaskRef = useRef<string | null>(null);
 
@@ -199,6 +206,8 @@ export function ProfilerAnalyzerPage(): JSX.Element {
             timelineBaseMethod,
             maxUniqueStacks,
             maxStackDepth,
+            maxRssMb,
+            progressLogDir,
             timelineCategories,
           },
         });
@@ -209,6 +218,9 @@ export function ProfilerAnalyzerPage(): JSX.Element {
       if (!data || data.taskId !== activeTaskRef.current) return;
       activeTaskRef.current = null;
       setError(data.message ?? "analysis failed");
+      if (data.progressLogPath) {
+        setProgressLogNotice(`진행 로그: ${data.progressLogPath}`);
+      }
       setResult(null);
       setAnalyzing(false);
     });
@@ -252,6 +264,8 @@ export function ProfilerAnalyzerPage(): JSX.Element {
     if (typeof meta.timelineBaseMethod === "string") setTimelineBaseMethod(meta.timelineBaseMethod);
     if (typeof meta.maxUniqueStacks === "number") setMaxUniqueStacks(meta.maxUniqueStacks);
     if (typeof meta.maxStackDepth === "number") setMaxStackDepth(meta.maxStackDepth);
+    if (typeof meta.maxRssMb === "number") setMaxRssMb(meta.maxRssMb);
+    if (typeof meta.progressLogDir === "string") setProgressLogDir(meta.progressLogDir);
     if (meta.timelineCategories && typeof meta.timelineCategories === "object") {
       setTimelineCategories(meta.timelineCategories as CategoryRules);
     }
@@ -283,10 +297,18 @@ export function ProfilerAnalyzerPage(): JSX.Element {
         timelineBaseMethod,
         maxUniqueStacks,
         maxStackDepth,
+        maxRssMb,
+        progressLogDir,
         timelineCategories,
       } as any);
       const response = await ProfilerService.AnalyzeAsync(request);
       activeTaskRef.current = response.taskId;
+      const logPath = (response as any).progressLogPath;
+      if (logPath) {
+        setProgressLogNotice(`진행 로그: ${logPath}`);
+      } else {
+        setProgressLogNotice("");
+      }
     } catch (err: any) {
       setError(String(err?.message ?? err));
       setResult(null);
@@ -374,6 +396,8 @@ export function ProfilerAnalyzerPage(): JSX.Element {
         timelineBaseMethod,
         maxUniqueStacks,
         maxStackDepth,
+        maxRssMb,
+        progressLogDir,
         timelineCategories,
       } as any)
     : null;
@@ -570,7 +594,7 @@ export function ProfilerAnalyzerPage(): JSX.Element {
             <Input
               type="number"
               min={0}
-              placeholder="0 = default (250000)"
+              placeholder="0 = default (100000)"
               value={maxUniqueStacks || ""}
               onChange={(e) => setMaxUniqueStacks(Number(e.target.value) || 0)}
               disabled={analyzing}
@@ -583,9 +607,37 @@ export function ProfilerAnalyzerPage(): JSX.Element {
             <Input
               type="number"
               min={0}
-              placeholder="0 = default (256)"
+              placeholder="0 = default (128)"
               value={maxStackDepth || ""}
               onChange={(e) => setMaxStackDepth(Number(e.target.value) || 0)}
+              disabled={analyzing}
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 text-xs">
+            <span className="font-medium text-foreground/80">
+              최대 RSS (MB) <span className="text-muted-foreground">(기본: 4096)</span>
+            </span>
+            <Input
+              type="number"
+              min={0}
+              placeholder="0 = default (4096 MB)"
+              value={maxRssMb || ""}
+              onChange={(e) => setMaxRssMb(Number(e.target.value) || 0)}
+              disabled={analyzing}
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 text-xs sm:col-span-2">
+            <span className="font-medium text-foreground/80">
+              진행 로그 디렉터리{" "}
+              <span className="text-muted-foreground">
+                (기본: 실행파일 옆 archscope-logs/)
+              </span>
+            </span>
+            <Input
+              type="text"
+              placeholder="예: D:\\analysis-logs (비우면 실행파일 옆 archscope-logs/)"
+              value={progressLogDir}
+              onChange={(e) => setProgressLogDir(e.target.value)}
               disabled={analyzing}
             />
           </label>
@@ -617,6 +669,14 @@ export function ProfilerAnalyzerPage(): JSX.Element {
       {exportNotice && (
         <div className="rounded-md border border-primary/30 bg-primary/5 p-3 text-sm text-foreground">
           {exportNotice}
+        </div>
+      )}
+      {progressLogNotice && (
+        <div className="rounded-md border border-sky-500/30 bg-sky-500/5 p-2.5 text-xs text-foreground">
+          <code className="font-mono">{progressLogNotice}</code>
+          <span className="ml-2 text-muted-foreground">
+            (분석 중 OS가 프로세스를 종료해도 이 파일에 진행 단계가 남습니다)
+          </span>
         </div>
       )}
 

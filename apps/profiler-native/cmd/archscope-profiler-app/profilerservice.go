@@ -70,8 +70,12 @@ type ProfilerService struct{}
 
 // AnalyzeAsyncResponse is returned to the renderer immediately. The actual
 // AnalysisResult arrives later via the `analyze:done` event keyed by taskId.
+// ProgressLogPath is the on-disk progress log path that the analyzer is
+// already writing to — surfaced right away so the renderer can show it
+// even when the OS kills the process before the result event lands.
 type AnalyzeAsyncResponse struct {
-	TaskID string `json:"taskId"`
+	TaskID          string `json:"taskId"`
+	ProgressLogPath string `json:"progressLogPath,omitempty"`
 }
 
 // AnalyzeDoneEvent / AnalyzeErrorEvent / AnalyzeCancelledEvent are emitted
@@ -82,8 +86,9 @@ type AnalyzeDoneEvent struct {
 }
 
 type AnalyzeErrorEvent struct {
-	TaskID  string `json:"taskId"`
-	Message string `json:"message"`
+	TaskID          string `json:"taskId"`
+	Message         string `json:"message"`
+	ProgressLogPath string `json:"progressLogPath,omitempty"`
 }
 
 type AnalyzeCancelledEvent struct {
@@ -105,9 +110,15 @@ type AnalyzeRequest struct {
 	DebugLog    bool   `json:"debugLog,omitempty"`
 	DebugLogDir string `json:"debugLogDir,omitempty"`
 	// Memory guards for very large collapsed/wall inputs. Empty/zero
-	// triggers analyzer defaults (250k unique stacks, depth 256).
+	// triggers analyzer defaults (100k unique stacks, depth 128, 4 GB
+	// soft RSS ceiling).
 	MaxUniqueStacks int `json:"maxUniqueStacks,omitempty"`
 	MaxStackDepth   int `json:"maxStackDepth,omitempty"`
+	MaxRSSMB        int `json:"maxRssMb,omitempty"`
+	// ProgressLogDir overrides where the analyzer writes its
+	// streaming progress log. Empty → next to the executable
+	// (archscope-logs/), with cwd / temp-dir fallbacks.
+	ProgressLogDir string `json:"progressLogDir,omitempty"`
 	// TimelineCategories carries user-supplied additional method
 	// patterns per timeline segment. Keys are segment IDs (e.g.
 	// "EXTERNAL_CALL", "SQL_EXECUTION", "INTERNAL_METHOD"); values
@@ -132,17 +143,35 @@ func (s *ProfilerService) Analyze(req AnalyzeRequest) (profiler.AnalysisResult, 
 
 // AnalyzeAsync starts a non-blocking analysis. Returns a taskId immediately;
 // the renderer listens for `analyze:done` / `analyze:error` /
-// `analyze:cancelled` events keyed by that taskId.
+// `analyze:cancelled` events keyed by that taskId. The progress log is
+// opened synchronously so its path is present in the response, giving
+// the renderer something to show even if the OS kills the process
+// before the result event arrives.
 func (s *ProfilerService) AnalyzeAsync(req AnalyzeRequest) (AnalyzeAsyncResponse, error) {
 	options, err := s.optionsFromRequest(req)
 	if err != nil {
 		return AnalyzeAsyncResponse{}, err
 	}
+	// Pre-open the progress log so we can return the path
+	// immediately. The analyzer reuses this log instead of opening
+	// its own on the auto-attach code path.
+	if options.ProgressLog == nil {
+		if pl, plErr := profiler.OpenProgressLog(options.ProgressLogDir, req.Path); plErr == nil {
+			options.ProgressLog = pl
+		}
+	}
 	taskID := newTaskID("analyze")
 	cancelCh := globalTasks.add(taskID)
+	logPath := ""
+	if options.ProgressLog != nil {
+		logPath = options.ProgressLog.Path()
+	}
 
 	go func() {
 		defer globalTasks.remove(taskID)
+		if options.ProgressLog != nil {
+			defer options.ProgressLog.Close()
+		}
 		result, runErr := s.runAnalyze(req, options)
 
 		select {
@@ -150,14 +179,18 @@ func (s *ProfilerService) AnalyzeAsync(req AnalyzeRequest) (AnalyzeAsyncResponse
 			emitEvent("analyze:cancelled", AnalyzeCancelledEvent{TaskID: taskID})
 		default:
 			if runErr != nil {
-				emitEvent("analyze:error", AnalyzeErrorEvent{TaskID: taskID, Message: runErr.Error()})
+				emitEvent("analyze:error", AnalyzeErrorEvent{
+					TaskID:          taskID,
+					Message:         runErr.Error(),
+					ProgressLogPath: logPath,
+				})
 				return
 			}
 			emitEvent("analyze:done", AnalyzeDoneEvent{TaskID: taskID, Result: result})
 		}
 	}()
 
-	return AnalyzeAsyncResponse{TaskID: taskID}, nil
+	return AnalyzeAsyncResponse{TaskID: taskID, ProgressLogPath: logPath}, nil
 }
 
 // Cancel signals a previously started AnalyzeAsync to discard its result.
@@ -306,7 +339,9 @@ func (s *ProfilerService) optionsFromRequest(req AnalyzeRequest) (profiler.Optio
 		DebugLogDir:        req.DebugLogDir,
 		MaxUniqueStacks:    req.MaxUniqueStacks,
 		MaxStackDepth:      req.MaxStackDepth,
+		MaxRSSMB:           req.MaxRSSMB,
 		TimelineCategories: req.TimelineCategories,
+		ProgressLogDir:     req.ProgressLogDir,
 	}
 	if req.ElapsedSec >= 0 {
 		elapsed := req.ElapsedSec

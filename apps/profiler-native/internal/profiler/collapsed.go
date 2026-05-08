@@ -30,10 +30,21 @@ var (
 // the renderer doesn't pass explicit values. They're tuned so a
 // 70MB wall profile fits in ~1-2GB working-set rather than the
 // 8-12GB the previous unbounded path consumed.
+// Defaults tightened after the 60 MB / 6 GB OOM regression. The old
+// limits (250k stacks × depth 256) made it possible for tree
+// construction to spawn ~10M nodes whose Path slices alone consumed
+// 6+ GB. Halving each axis caps tree size at ~1.5M nodes, which
+// fits comfortably under 1 GB even on the worst inputs while still
+// covering >99% of useful samples on real wall profiles.
 const (
 	defaultCollapsedScannerBuffer = 1024 * 1024 * 64 // 64 MB per line cap
-	defaultMaxUniqueStacks        = 250_000
-	defaultMaxStackDepth          = 256
+	defaultMaxUniqueStacks        = 100_000
+	defaultMaxStackDepth          = 128
+	// defaultMaxRSSMB is the soft RSS ceiling. The analyzer aborts
+	// with a friendly error rather than letting the OS issue a hard
+	// SIGKILL when alloc crosses this — we lose the result but the
+	// progress log is fully flushed so the user knows what happened.
+	defaultMaxRSSMB = 4096 // 4 GB
 )
 
 // ParseCollapsedFile is the back-compat entry that uses default
@@ -76,15 +87,19 @@ func ParseCollapsedFileWithOptions(path string, opts Options) (map[string]int, P
 	scanner := bufio.NewScanner(file)
 	scanner.Buffer(make([]byte, 1024), defaultCollapsedScannerBuffer)
 
-	// Tick cadence: every 250k lines OR when 64 MB more bytes have
-	// been processed since the last tick. The collapsed parser is
-	// I/O-bound for large files, so the tick adds <1% overhead while
-	// giving users a heartbeat they can `tail -f` from disk.
-	const tickEveryLines = 250_000
-	const tickEveryBytes = 64 * 1024 * 1024
+	// Tick cadence (revised after the 60 MB / 6 GB regression): we
+	// want a heartbeat well before the first 64 MB chunk completes
+	// because OOM kills tend to fire mid-build. Tighter cadence:
+	// every 50k lines OR every 4 MB OR every 750 ms — whichever
+	// hits first. The overhead is negligible compared to a missing
+	// log on a 6 GB OOM.
+	const tickEveryLines = 50_000
+	const tickEveryBytes = 4 * 1024 * 1024
+	const tickEveryMs = 750
 	bytesProcessed := int64(0)
 	bytesAtLastTick := int64(0)
 	startTime := timeNow()
+	lastTickAt := startTime
 
 	lineNumber := 0
 	for scanner.Scan() {
@@ -132,8 +147,13 @@ func ParseCollapsedFileWithOptions(path string, opts Options) (map[string]int, P
 		diagnostics.ParsedRecords++
 
 		if pl != nil {
-			if lineNumber%tickEveryLines == 0 || bytesProcessed-bytesAtLastTick >= tickEveryBytes {
+			now := timeNow()
+			elapsedSinceTick := now.Sub(lastTickAt).Milliseconds()
+			if lineNumber%tickEveryLines == 0 ||
+				bytesProcessed-bytesAtLastTick >= tickEveryBytes ||
+				elapsedSinceTick >= tickEveryMs {
 				bytesAtLastTick = bytesProcessed
+				lastTickAt = now
 				elapsed := timeSince(startTime)
 				rate := float64(bytesProcessed) / elapsed.Seconds() / (1024 * 1024)
 				pl.Tick("parse line=%d bytes=%d/%dMB unique=%d dropped=%d depth_max=%d rate=%.1fMB/s",

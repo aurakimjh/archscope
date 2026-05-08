@@ -32,8 +32,14 @@ type Options struct {
 	// ProgressLogDir is consulted by AnalyzeCollapsedFile when
 	// ProgressLog is nil; the analyzer auto-opens a log under this
 	// directory so users get coverage without explicit wiring. Empty
-	// → fall back to <os.TempDir>/archscope-progress.
+	// → fall back to the executable's directory, then cwd, then
+	// <os.TempDir>/archscope-logs.
 	ProgressLogDir string
+	// MaxRSSMB is the soft memory ceiling. The analyzer samples
+	// runtime.MemStats during tree build; once Alloc exceeds the
+	// limit it aborts with an error rather than letting the OS
+	// SIGKILL the process. 0 / negative falls back to defaultMaxRSSMB.
+	MaxRSSMB int
 }
 
 type AnalysisResult struct {

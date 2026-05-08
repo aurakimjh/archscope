@@ -2,10 +2,41 @@ package profiler
 
 import (
 	"fmt"
+	"runtime"
 	"sort"
 	"strings"
 	"time"
 )
+
+// rssMB returns current Alloc in MiB after a GC pass. The GC is
+// cheap relative to the analyses we run it around, and it makes the
+// MemStats reading reflect retained (not garbage) memory.
+func rssMB() uint64 {
+	runtime.GC()
+	var ms runtime.MemStats
+	runtime.ReadMemStats(&ms)
+	return ms.Alloc / (1024 * 1024)
+}
+
+// checkRSSLimit returns a friendly error when current Alloc has
+// crossed the configured ceiling. We deliberately fail closed — the
+// alternative is an OS-level SIGKILL that leaves no usable artifact.
+func checkRSSLimit(options Options, phase string) error {
+	limit := options.MaxRSSMB
+	if limit <= 0 {
+		limit = defaultMaxRSSMB
+	}
+	used := rssMB()
+	if options.ProgressLog != nil {
+		options.ProgressLog.Tick("rss-check phase=%s used=%dMB limit=%dMB", phase, used, limit)
+	}
+	if used >= uint64(limit) {
+		return fmt.Errorf("memory ceiling reached during %s: %d MB allocated, limit %d MB. "+
+			"Tighten MaxUniqueStacks / MaxStackDepth in the analyzer options or raise MaxRSSMB",
+			phase, used, limit)
+	}
+	return nil
+}
 
 func normalizeOptions(options *Options) {
 	if options.IntervalMS <= 0 {
@@ -50,8 +81,18 @@ func AnalyzeCollapsedFile(path string, options Options) (AnalysisResult, error) 
 	if err != nil {
 		return AnalysisResult{}, err
 	}
+	if rssErr := checkRSSLimit(options, "post-parse"); rssErr != nil {
+		pl.Phase("rss-abort", rssErr.Error())
+		return AnalysisResult{}, rssErr
+	}
 	pl.Phase("analyze-start", fmt.Sprintf("stacks=%d", len(stacks)))
 	result := AnalyzeCollapsedStacks(stacks, path, diagnostics, options)
+	if rssErr := checkRSSLimit(options, "post-analyze"); rssErr != nil {
+		pl.Phase("rss-warning", rssErr.Error())
+		// Don't abort here — analysis already produced a result we can
+		// hand back. The phase line above is the breadcrumb for the
+		// user; renderer should treat large results carefully.
+	}
 	pl.Phase("analyze-end")
 	writeDebugLogIfNeeded(options)
 	if pl != nil {
@@ -189,7 +230,7 @@ func AnalyzeCollapsedStacks(stacks map[string]int, sourceFile string, diagnostic
 	intervalSeconds := options.IntervalMS / 1000
 	estimatedSeconds := round(float64(totalSamples)*intervalSeconds, 3)
 	pl.Phase("build-flamegraph-start", fmt.Sprintf("stacks=%d total_samples=%d", len(stacks), totalSamples))
-	flamegraph := buildFlameTree(stacks)
+	flamegraph := buildFlameTreeWithLog(stacks, pl)
 	pl.Phase("build-flamegraph-end", fmt.Sprintf("nodes_root=%d", len(flamegraph.Children)))
 	pl.Mem("post-flamegraph")
 	pl.Phase("timeline-start")

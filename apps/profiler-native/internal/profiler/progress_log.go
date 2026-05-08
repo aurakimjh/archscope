@@ -36,15 +36,31 @@ type ProgressLog struct {
 }
 
 // OpenProgressLog opens (or creates, append-mode) a log file under
-// `dir`. When dir is empty, falls back to a temp directory under
-// `<os.TempDir>/archscope-progress`. Source is the file being
-// analyzed; it's recorded in the log header for context.
+// `dir`. When dir is empty, the default search order is:
+//
+//  1. `<dir-of-current-exe>/archscope-logs/` — easiest place for the
+//     user to find ("right next to the .exe I just ran"). On Windows
+//     this lands in the install / dev folder; on macOS it's inside
+//     the .app bundle's MacOS directory.
+//  2. `<cwd>/archscope-logs/` — fallback when os.Executable() fails
+//     (rare).
+//  3. `<os.TempDir>/archscope-logs/` — last resort.
+//
+// We also print the log path to stderr the moment the file is
+// created so a user with a console attached sees it before any
+// crash; the same path is mirrored back to the renderer through
+// AnalysisResult.Metadata.ProgressLogPath.
 func OpenProgressLog(dir, source string) (*ProgressLog, error) {
 	if dir == "" {
-		dir = filepath.Join(os.TempDir(), "archscope-progress")
+		dir = defaultProgressLogDir()
 	}
 	if err := os.MkdirAll(dir, 0o755); err != nil {
-		return nil, err
+		// If the chosen dir refuses (read-only mount, sandbox), fall
+		// through to the temp dir so the user always gets *some* log.
+		dir = filepath.Join(os.TempDir(), "archscope-logs")
+		if err2 := os.MkdirAll(dir, 0o755); err2 != nil {
+			return nil, err2
+		}
 	}
 	stamp := time.Now().Format("20060102-150405")
 	base := filepath.Base(source)
@@ -63,7 +79,26 @@ func OpenProgressLog(dir, source string) (*ProgressLog, error) {
 	pl.writeRaw(fmt.Sprintf("    source    : %s\n", source))
 	pl.writeRaw(fmt.Sprintf("    pid       : %d\n", os.Getpid()))
 	pl.writeRaw(fmt.Sprintf("    go runtime: %s %s/%s\n", runtime.Version(), runtime.GOOS, runtime.GOARCH))
+	// Announce the path on stderr so a console-attached user sees it
+	// before the analysis even starts. This is cheap insurance for
+	// the case where the OS kills the process before the renderer
+	// gets the result back.
+	fmt.Fprintf(os.Stderr, "[archscope] progress log: %s\n", path)
 	return pl, nil
+}
+
+// defaultProgressLogDir picks the most discoverable location.
+func defaultProgressLogDir() string {
+	if exe, err := os.Executable(); err == nil {
+		// `os.Executable` may return a symlink — Windows packagers
+		// don't symlink so this is fine; on Linux .desktop launchers
+		// it's still the real binary path.
+		return filepath.Join(filepath.Dir(exe), "archscope-logs")
+	}
+	if cwd, err := os.Getwd(); err == nil {
+		return filepath.Join(cwd, "archscope-logs")
+	}
+	return filepath.Join(os.TempDir(), "archscope-logs")
 }
 
 // Path returns the on-disk path so callers can surface it back to
