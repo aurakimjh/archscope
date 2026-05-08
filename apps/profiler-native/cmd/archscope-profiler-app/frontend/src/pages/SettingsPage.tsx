@@ -127,9 +127,9 @@ export function SettingsPage() {
         ) : (
           <>
             <ul className="recent-list">
-              {entries.map((path) => (
-                <li key={path} title={path}>
-                  <code>{path}</code>
+              {entries.map((entry) => (
+                <li key={entry.path} title={entry.path}>
+                  <code>{entry.path}</code>
                 </li>
               ))}
             </ul>

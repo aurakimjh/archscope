@@ -6,7 +6,7 @@
 // charting (CanvasFlameGraph, HorizontalBarChart, DrilldownPanel) so we ship
 // a consistent profiler page without porting every web sub-component.
 
-import { Loader2, Play, Square } from "lucide-react";
+import { Loader2, Play, Settings, Square } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Events } from "@wailsio/runtime";
 
@@ -49,6 +49,8 @@ import {
   TabsList,
   TabsTrigger,
 } from "../components/ui/tabs";
+import { RecentFilesPanel } from "../components/RecentFilesPanel";
+import { SlideOverPanel } from "../components/SlideOverPanel";
 import { useRecentFiles } from "../hooks/useRecentFiles";
 import { useShortcuts } from "../hooks/useShortcuts";
 import { useI18n } from "../i18n/I18nProvider";
@@ -139,7 +141,10 @@ function adaptFlameNode(node: FlameNode | null | undefined): FlameGraphNode | nu
 
 export function ProfilerAnalyzerPage(): JSX.Element {
   const { t } = useI18n();
-  const recent = useRecentFiles();
+  // Profiler-scoped recent-files history. The category keeps it
+  // separate from the GC / Jennifer pages so users see only the
+  // files they analyzed on this page.
+  const recent = useRecentFiles({ category: "profiler" });
   const defaults = useMemo(loadDefaults, []);
 
   const [selected, setSelected] = useState<FileDockSelection | null>(null);
@@ -157,6 +162,11 @@ export function ProfilerAnalyzerPage(): JSX.Element {
   const [timelineCategories, setTimelineCategories] = useState<CategoryRules>(
     {},
   );
+  // Slide-over for the analyzer options. Opening this is now the
+  // primary affordance for tweaking knobs — the inline options card
+  // would have pushed the recent-files / FileDock chrome out of view
+  // on smaller windows.
+  const [optionsOpen, setOptionsOpen] = useState<boolean>(false);
 
   const [analyzing, setAnalyzing] = useState<boolean>(false);
   const [exporting, setExporting] = useState<boolean>(false);
@@ -176,7 +186,23 @@ export function ProfilerAnalyzerPage(): JSX.Element {
       setResult(data.result);
       setActiveTab("summary");
       setAnalyzing(false);
-      if (path) recent.push(path);
+      if (path) {
+        recent.push({
+          path,
+          analyzer: "profiler",
+          meta: {
+            format,
+            profileKind,
+            intervalMs,
+            elapsedSec,
+            topN,
+            timelineBaseMethod,
+            maxUniqueStacks,
+            maxStackDepth,
+            timelineCategories,
+          },
+        });
+      }
     });
     const offError = Events.On("analyze:error", (event: any) => {
       const data = event?.data ?? event;
@@ -203,6 +229,32 @@ export function ProfilerAnalyzerPage(): JSX.Element {
   const handleSelect = (file: FileDockSelection) => {
     setSelected(file);
     setFormat(detectFormat(file.filePath));
+    setError("");
+    setExportNotice("");
+  };
+
+  // handleRecentSelect restores the file path AND the analyzer
+  // options that were active when the entry was last analyzed —
+  // this is the "fast re-analysis" UX, so users don't have to
+  // re-tune intervalMs/topN/etc on every revisit.
+  const handleRecentSelect = (entry: { path: string; name?: string; meta?: Record<string, unknown> }) => {
+    setSelected({
+      filePath: entry.path,
+      originalName: entry.name ?? entry.path,
+    } as FileDockSelection);
+    setFormat(detectFormat(entry.path));
+    const meta = entry.meta ?? {};
+    if (typeof meta.format === "string") setFormat(meta.format as ProfileFormat);
+    if (typeof meta.profileKind === "string") setProfileKind(meta.profileKind as ProfileKind);
+    if (typeof meta.intervalMs === "number") setIntervalMs(meta.intervalMs);
+    if (typeof meta.elapsedSec === "string") setElapsedSec(meta.elapsedSec);
+    if (typeof meta.topN === "number") setTopN(meta.topN);
+    if (typeof meta.timelineBaseMethod === "string") setTimelineBaseMethod(meta.timelineBaseMethod);
+    if (typeof meta.maxUniqueStacks === "number") setMaxUniqueStacks(meta.maxUniqueStacks);
+    if (typeof meta.maxStackDepth === "number") setMaxStackDepth(meta.maxStackDepth);
+    if (meta.timelineCategories && typeof meta.timelineCategories === "object") {
+      setTimelineCategories(meta.timelineCategories as CategoryRules);
+    }
     setError("");
     setExportNotice("");
   };
@@ -368,6 +420,15 @@ export function ProfilerAnalyzerPage(): JSX.Element {
             <Button
               type="button"
               size="sm"
+              variant="outline"
+              onClick={() => setOptionsOpen(true)}
+            >
+              <Settings className="h-3.5 w-3.5" />
+              {t("analyzerOptions")}
+            </Button>
+            <Button
+              type="button"
+              size="sm"
               disabled={!canAnalyze}
               onClick={() => void handleAnalyze()}
             >
@@ -398,11 +459,21 @@ export function ProfilerAnalyzerPage(): JSX.Element {
         }
       />
 
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm">{t("analyzerOptions")}</CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 gap-3 md:grid-cols-3 xl:grid-cols-6">
+      <RecentFilesPanel
+        entries={recent.entries}
+        onSelect={handleRecentSelect}
+        onRemove={recent.remove}
+        onClear={recent.clear}
+      />
+
+      <SlideOverPanel
+        open={optionsOpen}
+        onClose={() => setOptionsOpen(false)}
+        title={t("analyzerOptions")}
+        width={560}
+      >
+      <Card className="border-0 shadow-none">
+        <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2 px-0">
           <label className="flex flex-col gap-1.5 text-xs">
             <span className="font-medium text-foreground/80">{t("format")}</span>
             <select
@@ -436,11 +507,12 @@ export function ProfilerAnalyzerPage(): JSX.Element {
           )}
           <label className="flex flex-col gap-1.5 text-xs">
             <span className="font-medium text-foreground/80">
-              {t("intervalMs")}
+              {t("intervalMs")} <span className="text-muted-foreground">(기본: 100)</span>
             </span>
             <Input
               type="number"
               min={1}
+              placeholder="100"
               value={intervalMs}
               onChange={(e) => setIntervalMs(Number(e.target.value) || 100)}
               disabled={analyzing}
@@ -448,42 +520,45 @@ export function ProfilerAnalyzerPage(): JSX.Element {
           </label>
           <label className="flex flex-col gap-1.5 text-xs">
             <span className="font-medium text-foreground/80">
-              {t("elapsedSec")}
+              {t("elapsedSec")} <span className="text-muted-foreground">(기본: 자동)</span>
             </span>
             <Input
               type="text"
-              placeholder="—"
+              placeholder="비워두면 샘플 수 × interval"
               value={elapsedSec}
               onChange={(e) => setElapsedSec(e.target.value)}
               disabled={analyzing}
             />
           </label>
           <label className="flex flex-col gap-1.5 text-xs">
-            <span className="font-medium text-foreground/80">{t("topN")}</span>
+            <span className="font-medium text-foreground/80">
+              {t("topN")} <span className="text-muted-foreground">(기본: 20)</span>
+            </span>
             <Input
               type="number"
               min={1}
               max={100}
+              placeholder="20"
               value={topN}
               onChange={(e) => setTopN(Number(e.target.value) || 20)}
               disabled={analyzing}
             />
           </label>
-          <label className="flex flex-col gap-1.5 text-xs md:col-span-2 xl:col-span-1">
+          <label className="flex flex-col gap-1.5 text-xs sm:col-span-2">
             <span className="font-medium text-foreground/80">
-              {t("timelineBaseMethod")}
+              {t("timelineBaseMethod")} <span className="text-muted-foreground">(기본: 미설정)</span>
             </span>
             <Input
               type="text"
-              placeholder="—"
+              placeholder="예: SpringBootApplication.run"
               value={timelineBaseMethod}
               onChange={(e) => setTimelineBaseMethod(e.target.value)}
               disabled={analyzing}
             />
           </label>
         </CardContent>
-        <CardContent className="grid grid-cols-1 gap-3 md:grid-cols-3 border-t border-border pt-3">
-          <label className="flex flex-col gap-1.5 text-xs md:col-span-3">
+        <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2 border-t border-border pt-3 px-0">
+          <label className="flex flex-col gap-1.5 text-xs sm:col-span-2">
             <span className="font-semibold text-foreground/80">
               {t("memoryGuards")}
             </span>
@@ -515,7 +590,7 @@ export function ProfilerAnalyzerPage(): JSX.Element {
             />
           </label>
         </CardContent>
-        <CardContent className="border-t border-border pt-3">
+        <CardContent className="border-t border-border pt-3 px-0">
           <p className="mb-2 text-xs font-semibold text-foreground/80">
             {t("customCategoriesTitle")}
           </p>
@@ -528,6 +603,7 @@ export function ProfilerAnalyzerPage(): JSX.Element {
           />
         </CardContent>
       </Card>
+      </SlideOverPanel>
 
       {error && (
         <div

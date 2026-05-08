@@ -16,10 +16,12 @@ import {
 } from "@/components/AnalyzerFeedback";
 import { ChartPanel } from "@/components/ChartPanel";
 import { MetricCard } from "@/components/MetricCard";
+import { RecentFilesPanel } from "@/components/RecentFilesPanel";
 import {
   WailsFileDock,
   type FileDockSelection,
 } from "@/components/WailsFileDock";
+import { useRecentFiles } from "@/hooks/useRecentFiles";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -33,9 +35,12 @@ import {
   allocationRateOption,
   causeBreakdownOption,
   gcTypeBreakdownOption,
+  heapSeriesAvailability,
+  heapSeriesDefs,
   heapUsageOption,
   pauseTimelineOption,
   type GcChartLabels,
+  type HeapSeriesId,
 } from "@/charts/gcLogCharts";
 import { useI18n, type MessageKey } from "@/i18n/I18nProvider";
 import {
@@ -96,7 +101,13 @@ export function GcLogAnalyzerPage(): JSX.Element {
       heapBefore: t("gcHeapBefore"),
       heapAfter: t("gcHeapAfter"),
       heapCommitted: t("gcHeapCommitted"),
-      youngAfter: t("gcHeapYoungAfter"),
+      heapYoungBefore: t("gcHeapYoungBefore"),
+      heapYoungAfter: t("gcHeapYoungAfter"),
+      heapOldBefore: t("gcHeapOldBefore"),
+      heapOldAfter: t("gcHeapOldAfter"),
+      heapMetaspaceBefore: t("gcHeapMetaspaceBefore"),
+      heapMetaspaceAfter: t("gcHeapMetaspaceAfter"),
+      heapPauseOverlay: t("gcHeapPauseOverlay"),
       rateAxis: t("rateMbPerSecAxis"),
       allocSeries: t("allocationRateLabel"),
       promSeries: t("promotionRateLabel"),
@@ -105,13 +116,27 @@ export function GcLogAnalyzerPage(): JSX.Element {
     [t],
   );
 
+  // Heap series toggles + pause overlay state. Defaults match the
+  // web page so users get heap_committed / before / after on first
+  // open, then can drill into young / old / metaspace as needed.
+  const [visibleHeapSeries, setVisibleHeapSeries] = useState<Set<HeapSeriesId>>(
+    () => new Set<HeapSeriesId>(["heap_committed", "heap_before", "heap_after"]),
+  );
+  const [showPauseOverlay, setShowPauseOverlay] = useState(false);
+
+  const heapAvailability = useMemo(
+    () => heapSeriesAvailability(result, chartLabels),
+    [chartLabels, result],
+  );
+  const heapDefs = useMemo(() => heapSeriesDefs(chartLabels), [chartLabels]);
+
   const pauseOption = useMemo(
     () => pauseTimelineOption(result, chartLabels),
     [chartLabels, result],
   );
   const heapOption = useMemo(
-    () => heapUsageOption(result, chartLabels),
-    [chartLabels, result],
+    () => heapUsageOption(result, chartLabels, visibleHeapSeries, showPauseOverlay),
+    [chartLabels, result, visibleHeapSeries, showPauseOverlay],
   );
   const allocOption = useMemo(
     () => allocationRateOption(result, chartLabels),
@@ -126,6 +151,10 @@ export function GcLogAnalyzerPage(): JSX.Element {
     [chartLabels, result],
   );
 
+  // Per-analyzer recent-files history, persisted via localStorage.
+  // The "gc" category keeps the GC list separate from profiler/jennifer.
+  const recent = useRecentFiles({ category: "gc" });
+
   const handleFileSelected = useCallback((file: FileDockSelection) => {
     setSelectedFile(file);
     setState("ready");
@@ -137,6 +166,26 @@ export function GcLogAnalyzerPage(): JSX.Element {
     setSelectedFile(null);
     if (state !== "running") setState("idle");
   }, [state]);
+
+  const handleRecentSelect = useCallback(
+    (entry: { path: string; name?: string; meta?: Record<string, unknown> }) => {
+      setSelectedFile({
+        filePath: entry.path,
+        originalName: entry.name ?? entry.path,
+      } as FileDockSelection);
+      // Restore prior options when the entry remembers them — this is
+      // the "fast re-analysis" UX so users don't have to re-enter the
+      // same maxLines / topN / strict toggle every time.
+      const meta = entry.meta ?? {};
+      if (typeof meta.maxLines === "string") setMaxLines(meta.maxLines);
+      if (typeof meta.topN === "string") setTopN(meta.topN);
+      if (typeof meta.strict === "boolean") setStrict(meta.strict);
+      setState("ready");
+      setError(null);
+      setEngineMessages([]);
+    },
+    [],
+  );
 
   const analyze = useCallback(async () => {
     if (!canAnalyze) return;
@@ -171,6 +220,13 @@ export function GcLogAnalyzerPage(): JSX.Element {
       // GcLog shape now that the engine guarantees `type === "gc_log"`.
       setResult(response as unknown as GcLogAnalysisResult);
       setState("success");
+      if (filePath) {
+        recent.push({
+          path: filePath,
+          analyzer: "gc",
+          meta: { maxLines, topN, strict },
+        });
+      }
     } catch (caught) {
       if (inflightRef.current !== token) return;
       inflightRef.current = null;
@@ -178,7 +234,7 @@ export function GcLogAnalyzerPage(): JSX.Element {
       setError({ code: "ENGINE_FAILED", message });
       setState("error");
     }
-  }, [canAnalyze, filePath, maxLines, strict, t, topN]);
+  }, [canAnalyze, filePath, maxLines, strict, t, topN, recent]);
 
   const cancelAnalysis = useCallback(() => {
     // GcLog runs synchronously — no engine-side cancel hook. We just
@@ -239,6 +295,13 @@ export function GcLogAnalyzerPage(): JSX.Element {
         }
       />
 
+      <RecentFilesPanel
+        entries={recent.entries}
+        onSelect={handleRecentSelect}
+        onRemove={recent.remove}
+        onClear={recent.clear}
+      />
+
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-sm">{t("analyzerOptions")}</CardTitle>
@@ -251,7 +314,7 @@ export function GcLogAnalyzerPage(): JSX.Element {
             <Input
               type="number"
               min={1}
-              placeholder="100000"
+              placeholder="100000 (기본: 무제한)"
               value={maxLines}
               onChange={(event) => setMaxLines(event.target.value)}
             />
@@ -405,11 +468,71 @@ export function GcLogAnalyzerPage(): JSX.Element {
         </TabsContent>
 
         <TabsContent value="heap" className="mt-4">
+          <Card className="mb-3 p-3">
+            <div className="flex flex-col gap-2.5 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="font-medium text-foreground/80">
+                  {t("gcHeapSeriesPick")}
+                </span>
+                <label className="flex cursor-pointer select-none items-center gap-1.5">
+                  <input
+                    type="checkbox"
+                    className="h-3.5 w-3.5"
+                    checked={showPauseOverlay}
+                    onChange={(e) => setShowPauseOverlay(e.target.checked)}
+                  />
+                  <span
+                    className="inline-block h-2 w-3 rounded-sm"
+                    style={{ background: "#ef4444" }}
+                    aria-hidden
+                  />
+                  <span>{t("gcHeapPauseOverlay")}</span>
+                </label>
+              </div>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 sm:grid-cols-3 lg:grid-cols-5">
+                {heapDefs.map((def) => {
+                  const enabled = heapAvailability[def.id];
+                  const checked = visibleHeapSeries.has(def.id);
+                  return (
+                    <label
+                      key={def.id}
+                      className={`flex min-w-0 items-center gap-1.5 select-none ${
+                        enabled ? "cursor-pointer" : "cursor-not-allowed opacity-40"
+                      }`}
+                      title={enabled ? def.label : `${def.label} (—)`}
+                    >
+                      <input
+                        type="checkbox"
+                        className="h-3.5 w-3.5 shrink-0"
+                        style={{ accentColor: def.color }}
+                        disabled={!enabled}
+                        checked={checked && enabled}
+                        onChange={(e) => {
+                          setVisibleHeapSeries((prev) => {
+                            const next = new Set(prev);
+                            if (e.target.checked) next.add(def.id);
+                            else next.delete(def.id);
+                            return next;
+                          });
+                        }}
+                      />
+                      <span
+                        className="inline-block h-2 w-3 shrink-0 rounded-sm"
+                        style={{ background: def.color }}
+                        aria-hidden
+                      />
+                      <span className="truncate">{def.label}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+          </Card>
           <ChartPanel
             title={t("gcHeapUsage")}
             option={heapOption}
             busy={state === "running"}
-            height={360}
+            height={400}
           />
         </TabsContent>
 

@@ -4,7 +4,7 @@
 // cards + per-profile table + file errors. MSA call-graph / network
 // gap / signature stats land in MVP2-MVP3.
 
-import { Loader2, Play, X } from "lucide-react";
+import { Loader2, Play, Settings, X } from "lucide-react";
 import { useCallback, useState } from "react";
 import { Dialogs } from "@wailsio/runtime";
 
@@ -18,6 +18,9 @@ import {
 } from "../components/CustomCategoriesEditor";
 import { MsaStackedBar } from "../components/MsaStackedBar";
 import { MetricCard } from "../components/MetricCard";
+import { RecentFilesPanel } from "../components/RecentFilesPanel";
+import { SlideOverPanel } from "../components/SlideOverPanel";
+import { useRecentFiles } from "../hooks/useRecentFiles";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import {
@@ -108,6 +111,11 @@ export function JenniferProfilePage(): JSX.Element {
   const [eventCategoryPatterns, setEventCategoryPatterns] =
     useState<CategoryRules>({});
   const [activeTab, setActiveTab] = useState<string>("summary");
+  // Jennifer-scoped recent-files history. The UI lets users add
+  // multiple files at once, so a "recent" entry restores the full
+  // selection vector (paths array + analyzer options).
+  const recent = useRecentFiles({ category: "jennifer" });
+  const [optionsOpen, setOptionsOpen] = useState<boolean>(false);
 
   const handlePick = useCallback(async () => {
     setError("");
@@ -178,6 +186,27 @@ export function JenniferProfilePage(): JSX.Element {
       } as any);
       setResult(res);
       setActiveTab("summary");
+      // Jennifer is multi-file by design — the recent entry stores
+      // the first file as the keyed path and stashes the full list +
+      // analyzer toggles in meta so a one-click reload re-creates the
+      // exact selection.
+      const firstPath = selected[0]?.filePath;
+      if (firstPath) {
+        recent.push({
+          path: firstPath,
+          analyzer: "jennifer",
+          name: selected.length > 1
+            ? `${selected[0].originalName} +${selected.length - 1}`
+            : selected[0].originalName,
+          meta: {
+            paths: selected.map((s) => s.filePath),
+            originalNames: selected.map((s) => s.originalName),
+            fallbackToTxid,
+            networkPrepPatterns: prepCombined,
+            eventCategoryPatterns: otherCategories,
+          },
+        });
+      }
     } catch (err: any) {
       setError(String(err?.message ?? err));
       setResult(null);
@@ -193,6 +222,40 @@ export function JenniferProfilePage(): JSX.Element {
   const guidGroups: any[] = result?.series?.guid_groups ?? [];
   const msaEdges: any[] = result?.tables?.msa_edges ?? [];
   const signatureStats: any[] = result?.series?.signature_statistics ?? [];
+
+  const handleRecentSelect = (entry: {
+    path: string;
+    name?: string;
+    meta?: Record<string, unknown>;
+  }) => {
+    const meta = entry.meta ?? {};
+    // Jennifer entries can carry an entire batch — restore the full
+    // path list when present, fall back to the keyed single path.
+    const paths = Array.isArray(meta.paths)
+      ? (meta.paths as string[])
+      : [entry.path];
+    const names = Array.isArray(meta.originalNames)
+      ? (meta.originalNames as string[])
+      : paths.map((p) => p.split(/[\\/]/).pop() ?? p);
+    setSelected(
+      paths.map((p, idx) => ({
+        filePath: p,
+        originalName: names[idx] ?? p,
+      })),
+    );
+    if (typeof meta.fallbackToTxid === "boolean") {
+      setFallbackToTxid(meta.fallbackToTxid);
+    }
+    if (
+      meta.eventCategoryPatterns &&
+      typeof meta.eventCategoryPatterns === "object"
+    ) {
+      setEventCategoryPatterns(
+        meta.eventCategoryPatterns as CategoryRules,
+      );
+    }
+    setError("");
+  };
 
   return (
     <main className="flex flex-col gap-5 p-5 overflow-y-auto">
@@ -238,27 +301,59 @@ export function JenniferProfilePage(): JSX.Element {
                 </>
               )}
             </Button>
-            <label className="ml-3 flex items-center gap-1.5 text-xs">
-              <input
-                type="checkbox"
-                checked={fallbackToTxid}
-                onChange={(e) => setFallbackToTxid(e.target.checked)}
-              />
-              fallback correlation = TXID
-            </label>
-          </div>
-          <div>
-            <p className="mb-2 text-xs font-semibold text-foreground/80">
-              MSA 이벤트 분류 패턴 (METHOD/UNKNOWN 라인 추가 분류)
-            </p>
-            <CustomCategoriesEditor
-              segments={MSA_EVENT_SEGMENTS}
-              presets={MSA_EVENT_PRESETS}
-              value={eventCategoryPatterns}
-              onChange={setEventCategoryPatterns}
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => setOptionsOpen(true)}
               disabled={analyzing}
-            />
+            >
+              <Settings className="h-3.5 w-3.5" />
+              옵션
+            </Button>
           </div>
+          <SlideOverPanel
+            open={optionsOpen}
+            onClose={() => setOptionsOpen(false)}
+            title="Jennifer 분석 옵션"
+            width={560}
+          >
+            <div className="flex flex-col gap-4 text-sm">
+              <label className="flex items-center gap-1.5 text-xs">
+                <input
+                  type="checkbox"
+                  checked={fallbackToTxid}
+                  onChange={(e) => setFallbackToTxid(e.target.checked)}
+                />
+                fallback correlation = TXID
+                <span className="text-muted-foreground">
+                  (기본: 꺼짐 — GUID 누락 시에만 켜세요)
+                </span>
+              </label>
+              <div>
+                <p className="mb-2 text-xs font-semibold text-foreground/80">
+                  MSA 이벤트 분류 패턴 (METHOD/UNKNOWN 라인 추가 분류)
+                </p>
+                <p className="mb-2 text-[11px] text-muted-foreground">
+                  기본값: NETWORK_PREP_METHOD = "IntegrationUtil.sendToService".
+                  나머지 카테고리는 비어있음 — 빌트인 분류만 사용.
+                </p>
+                <CustomCategoriesEditor
+                  segments={MSA_EVENT_SEGMENTS}
+                  presets={MSA_EVENT_PRESETS}
+                  value={eventCategoryPatterns}
+                  onChange={setEventCategoryPatterns}
+                  disabled={analyzing}
+                />
+              </div>
+            </div>
+          </SlideOverPanel>
+          <RecentFilesPanel
+            entries={recent.entries}
+            onSelect={handleRecentSelect}
+            onRemove={recent.remove}
+            onClear={recent.clear}
+          />
           {selected.length > 0 && (
             <ul className="flex flex-col gap-1 rounded-md border border-border bg-muted/30 p-2">
               {selected.map((s) => (

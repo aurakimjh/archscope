@@ -16,10 +16,13 @@ import {
   ErrorPanel,
 } from "@/components/AnalyzerFeedback";
 import { MetricCard } from "@/components/MetricCard";
+import { RecentFilesPanel } from "@/components/RecentFilesPanel";
+import { SlideOverPanel } from "@/components/SlideOverPanel";
 import {
   WailsFileDock,
   type FileDockSelection,
 } from "@/components/WailsFileDock";
+import { useRecentFiles } from "@/hooks/useRecentFiles";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -73,6 +76,8 @@ export function ExceptionAnalyzerPage(): JSX.Element {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState<number>(10);
   const [activeEventKey, setActiveEventKey] = useState<string | null>(null);
+  // Exception-scoped recent-files history.
+  const recent = useRecentFiles({ category: "exception" });
   const [activeSignature, setActiveSignature] =
     useState<ExceptionSignatureRow | null>(null);
 
@@ -135,6 +140,13 @@ export function ExceptionAnalyzerPage(): JSX.Element {
       inflightRef.current = null;
       setResult(response);
       setState("success");
+      if (filePath) {
+        recent.push({
+          path: filePath,
+          analyzer: "exception",
+          meta: { topN },
+        });
+      }
     } catch (caught) {
       if (inflightRef.current !== token) return;
       inflightRef.current = null;
@@ -142,7 +154,22 @@ export function ExceptionAnalyzerPage(): JSX.Element {
       setError({ code: "ENGINE_FAILED", message });
       setState("error");
     }
-  }, [canAnalyze, filePath, t, topN]);
+  }, [canAnalyze, filePath, recent, t, topN]);
+
+  const handleRecentSelect = useCallback(
+    (entry: { path: string; name?: string; meta?: Record<string, unknown> }) => {
+      setSelectedFile({
+        filePath: entry.path,
+        originalName: entry.name ?? entry.path,
+      } as FileDockSelection);
+      const meta = entry.meta ?? {};
+      if (typeof meta.topN === "number") setTopN(meta.topN);
+      setState("ready");
+      setError(null);
+      setEngineMessages([]);
+    },
+    [],
+  );
 
   const cancelAnalysis = useCallback(() => {
     // The synchronous Exception analyzer doesn't expose a cancel hook;
@@ -246,16 +273,26 @@ export function ExceptionAnalyzerPage(): JSX.Element {
         }
       />
 
+      <RecentFilesPanel
+        entries={recent.entries}
+        onSelect={handleRecentSelect}
+        onRemove={recent.remove}
+        onClear={recent.clear}
+      />
+
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-sm">{t("analyzerOptions")}</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 gap-3 md:grid-cols-3">
           <label className="flex flex-col gap-1.5 text-xs">
-            <span className="font-medium text-foreground/80">{t("topN")}</span>
+            <span className="font-medium text-foreground/80">
+              {t("topN")} <span className="text-muted-foreground">({DEFAULT_TOP_N})</span>
+            </span>
             <Input
               type="number"
               min={1}
+              placeholder={`${DEFAULT_TOP_N}`}
               value={topN}
               onChange={(event) =>
                 setTopN(Number(event.target.value) || DEFAULT_TOP_N)
@@ -390,22 +427,30 @@ export function ExceptionAnalyzerPage(): JSX.Element {
             )}
           </Card>
 
-          {activeEvent && (
-            <EventDetailCard
-              event={activeEvent}
-              onClose={() => setActiveEventKey(null)}
-              labels={{
-                title: t("exceptionEventDetails"),
-                close: t("exceptionCloseDetails"),
-                time: t("exceptionEventTime"),
-                language: t("exceptionEventLanguage"),
-                message: t("exceptionEventMessage"),
-                rootCause: t("exceptionEventRootCause"),
-                signature: t("exceptionEventSignature"),
-                stack: t("exceptionEventStack"),
-              }}
-            />
-          )}
+          <SlideOverPanel
+            open={Boolean(activeEvent)}
+            onClose={() => setActiveEventKey(null)}
+            title={t("exceptionEventDetails")}
+            width={560}
+          >
+            {activeEvent && (
+              <EventDetailCard
+                event={activeEvent}
+                onClose={() => setActiveEventKey(null)}
+                hideHeader
+                labels={{
+                  title: t("exceptionEventDetails"),
+                  close: t("exceptionCloseDetails"),
+                  time: t("exceptionEventTime"),
+                  language: t("exceptionEventLanguage"),
+                  message: t("exceptionEventMessage"),
+                  rootCause: t("exceptionEventRootCause"),
+                  signature: t("exceptionEventSignature"),
+                  stack: t("exceptionEventStack"),
+                }}
+              />
+            )}
+          </SlideOverPanel>
         </TabsContent>
 
         <TabsContent value="types" className="mt-4">
@@ -773,6 +818,9 @@ function BarTable({
 type EventDetailCardProps = {
   event: ExceptionEventRow;
   onClose: () => void;
+  /** Skip the inline header — used when the panel is hosted inside a
+   *  SlideOverPanel that already provides its own title bar. */
+  hideHeader?: boolean;
   labels: {
     title: string;
     close: string;
@@ -788,8 +836,41 @@ type EventDetailCardProps = {
 function EventDetailCard({
   event,
   onClose,
+  hideHeader,
   labels,
 }: EventDetailCardProps): JSX.Element {
+  if (hideHeader) {
+    return (
+      <div className="flex flex-col gap-3 text-sm">
+        <div className="text-xs text-muted-foreground">
+          <div className="font-mono">{formatTime(event.timestamp) || "—"}</div>
+          {event.exception_type && (
+            <div className="mt-0.5 font-semibold text-foreground">
+              {event.exception_type}
+            </div>
+          )}
+          {event.language && (
+            <div className="mt-0.5 uppercase">{event.language}</div>
+          )}
+        </div>
+        <DetailField label={labels.message} value={event.message} mono />
+        <DetailField label={labels.rootCause} value={event.root_cause} />
+        <DetailField label={labels.signature} value={event.signature} mono />
+        <section>
+          <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            {labels.stack}
+          </div>
+          {event.stack && event.stack.length > 0 ? (
+            <pre className="overflow-auto rounded-md border border-border bg-muted/40 p-3 font-mono text-[11px] leading-relaxed">
+              {event.stack.join("\n")}
+            </pre>
+          ) : (
+            <p className="text-xs text-muted-foreground">—</p>
+          )}
+        </section>
+      </div>
+    );
+  }
   return (
     <Card>
       <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-3">
