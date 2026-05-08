@@ -87,6 +87,13 @@ func AnalyzeCollapsedFile(path string, options Options) (AnalysisResult, error) 
 	}
 	pl.Phase("analyze-start", fmt.Sprintf("stacks=%d", len(stacks)))
 	result := AnalyzeCollapsedStacks(stacks, path, diagnostics, options)
+	// Drop the stacks map — the analyzer no longer needs it and the
+	// upcoming JSON encode allocates aggressively. Releasing this
+	// reference lets the next runtime.GC() pass reclaim ~ hundreds of
+	// MB on big inputs.
+	stacks = nil
+	runtime.GC()
+	pl.Mem("post-analyze-gc")
 	if rssErr := checkRSSLimit(options, "post-analyze"); rssErr != nil {
 		pl.Phase("rss-warning", rssErr.Error())
 		// Don't abort here — analysis already produced a result we can
@@ -276,13 +283,20 @@ func AnalyzeCollapsedStacks(stacks map[string]int, sourceFile string, diagnostic
 	}
 	if maxNodes > 0 {
 		pl.Phase("prune-start", fmt.Sprintf("max_nodes=%d", maxNodes))
-		_, dropped := pruneFlamegraph(&flamegraph, maxNodes)
+		kept, dropped := pruneFlamegraph(&flamegraph, maxNodes)
 		if dropped > 0 {
-			pl.Phase("prune-end", fmt.Sprintf("dropped=%d kept=%d", dropped, countNodes(flamegraph)))
+			pl.Phase("prune-end", fmt.Sprintf("kept=%d dropped=%d", kept, dropped))
 		} else {
 			pl.Phase("prune-end", "no pruning needed")
 		}
 	}
+	// Force a GC pass: build/freeze allocates aggressively (mutableNode
+	// tree, intermediate slices), and Go's collector won't run on its
+	// own until the next allocation pressure point — which on the
+	// post-analyze IPC path is the JSON encoder allocating hundreds of
+	// MB of buffers. Reclaiming now keeps the encode-time peak low.
+	runtime.GC()
+	pl.Mem("post-prune")
 	// rootStage.Flamegraph deliberately holds an EMPTY FlameNode so
 	// the result doesn't double-encode the tree (Charts.Flamegraph is
 	// the single source of truth). The renderer's drilldown stages

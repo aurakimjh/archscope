@@ -143,77 +143,106 @@ func countNodes(root FlameNode) int {
 	return n
 }
 
-// pruneFlamegraph collapses the tail of each level's children when
-// the total node count exceeds `maxNodes`. The tail is replaced with
-// a single synthetic "...other (N nodes)" sibling whose Samples is
-// the sum of the dropped children — that way the visual flame graph
-// stays balanced and the user still sees how much aggregate weight
-// was hidden. Pruning only fires for very large trees (typically
-// 1M+ nodes); ordinary inputs pass through unchanged.
+// pruneFlamegraph caps the total node count of the tree by allocating
+// a per-subtree node budget proportional to that subtree's samples
+// share. The previous per-level cap (256 children) was insufficient
+// because deep trees still had 256^depth potential — a 60 MB wall
+// profile easily reached 1 M nodes after a "best effort" prune.
 //
-// We keep the topK children per level by descending Samples; the
-// list is already sorted by freezeNode so we just slice. Recurses
-// into kept children so deeper subtrees also get pruned.
+// Algorithm (greedy budget propagation):
+//   - Each call receives a remaining `budget`. The node itself
+//     consumes 1; the rest is split among children proportionally
+//     to child.samples / sum(child.samples).
+//   - Children whose allocation rounds to 0 are dropped; their
+//     samples are merged into a single "…other (N frames)" sibling.
+//   - Recursion uses the actual nodes-kept count so the next sibling
+//     still has accurate remaining budget.
+//
+// The function returns the actual kept-node count so callers can log
+// before/after for the progress trace.
 func pruneFlamegraph(root *FlameNode, maxNodes int) (kept int, dropped int) {
 	if root == nil {
 		return 0, 0
 	}
-	total := countNodes(*root)
-	if maxNodes <= 0 || total <= maxNodes {
-		return total, 0
+	if maxNodes <= 0 {
+		return countNodes(*root), 0
 	}
-	// Per-level cap derived from maxNodes; each kept node's children
-	// are similarly capped. log scale because a uniform cap would
-	// either flood depth-1 or starve depth-N. The exponent 1.4 was
-	// chosen empirically on a 1.5M-node test tree to land near
-	// maxNodes after one pass.
-	perLevelCap := perLevelCapFor(maxNodes, total)
-	dropped = pruneSubtree(root, perLevelCap)
-	return countNodes(*root), dropped
+	before := countNodes(*root)
+	if before <= maxNodes {
+		return before, 0
+	}
+	pruneBudget(root, maxNodes)
+	after := countNodes(*root)
+	return after, before - after
 }
 
-func perLevelCapFor(maxNodes, total int) int {
-	if total <= 0 || maxNodes <= 0 {
-		return 50
+// pruneBudget consumes `budget` nodes (including this one). Recurses
+// into children with allocations derived from samples share; drops
+// children that don't fit. Returns the number of kept nodes in the
+// subtree (1 for self plus all kept descendants).
+func pruneBudget(node *FlameNode, budget int) int {
+	if budget <= 1 {
+		node.Children = nil
+		return 1
 	}
-	cap := maxNodes / 100
-	if cap < 32 {
-		return 32
+	if len(node.Children) == 0 {
+		return 1
 	}
-	if cap > 256 {
-		return 256
-	}
-	return cap
-}
-
-func pruneSubtree(node *FlameNode, perLevelCap int) int {
-	if node == nil || len(node.Children) == 0 {
-		return 0
-	}
-	dropped := 0
-	if len(node.Children) > perLevelCap {
-		tailSamples := 0
-		tailCount := 0
-		for i := perLevelCap; i < len(node.Children); i++ {
-			tailSamples += node.Children[i].Samples
-			tailCount += 1 + countChildrenDeep(node.Children[i])
-		}
-		dropped += tailCount
-		kept := node.Children[:perLevelCap]
-		if tailSamples > 0 {
-			kept = append(kept, FlameNode{
-				ID:      node.ID + "/...other",
-				Name:    fmt.Sprintf("…other (%d frames)", len(node.Children)-perLevelCap),
-				Samples: tailSamples,
-				Ratio:   float64(tailSamples) / float64(maxInt(node.Samples, 1)),
-			})
-		}
-		node.Children = kept
-	}
+	totalChildSamples := 0
 	for i := range node.Children {
-		dropped += pruneSubtree(&node.Children[i], perLevelCap)
+		totalChildSamples += node.Children[i].Samples
 	}
-	return dropped
+	if totalChildSamples <= 0 {
+		node.Children = nil
+		return 1
+	}
+	remaining := budget - 1
+	used := 1
+
+	kept := node.Children[:0]
+	droppedSamples := 0
+	droppedCount := 0
+
+	for i := range node.Children {
+		c := node.Children[i]
+		if remaining <= 0 {
+			droppedSamples += c.Samples
+			droppedCount += 1 + countChildrenDeep(c)
+			continue
+		}
+		// Proportional share — but every kept child needs at least 1.
+		ratio := float64(c.Samples) / float64(totalChildSamples)
+		alloc := int(float64(budget-1) * ratio)
+		if alloc < 1 {
+			alloc = 1
+		}
+		if alloc > remaining {
+			alloc = remaining
+		}
+		// One last guard: very small children (alloc would round to 0
+		// in the budget but we forced 1) still drop if there's no
+		// remaining budget for at least themselves.
+		if alloc < 1 {
+			droppedSamples += c.Samples
+			droppedCount += 1 + countChildrenDeep(c)
+			continue
+		}
+		actual := pruneBudget(&c, alloc)
+		kept = append(kept, c)
+		remaining -= actual
+		used += actual
+	}
+	if droppedSamples > 0 && remaining >= 1 {
+		kept = append(kept, FlameNode{
+			ID:      node.ID + "/...other",
+			Name:    fmt.Sprintf("…other (%d frames)", droppedCount),
+			Samples: droppedSamples,
+			Ratio:   float64(droppedSamples) / float64(maxInt(node.Samples, 1)),
+		})
+		used += 1
+	}
+	node.Children = kept
+	return used
 }
 
 func countChildrenDeep(node FlameNode) int {
