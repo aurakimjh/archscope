@@ -1,3 +1,32 @@
+// [한글] body_parser.go — 본문 이벤트 라인 + START/END/TOTAL 파싱.
+//
+// 이벤트 라인 grammar (§9.1)
+//   `[NNNN][HH:MM:SS NNN][NNNN][NNNN] message`
+//
+//   • NNNN     : 4자리 이벤트 번호. END 라인은 `[    ]` (공백).
+//   • HH:MM:SS NNN : 시각 + 밀리초.
+//   • [NNNN]   : GAP (이전 이벤트로부터의 시간차, ms).
+//   • [NNNN]   : CPU_T (이 이벤트의 CPU 시간, ms).
+//   • message  : 자유 텍스트 (이벤트 메시지).
+//
+// 정규식 3종
+//   eventLineRE       : 위 grammar 매칭.
+//   elapsedTrailingRE : 메시지 끝의 `[NNN ms]` 추출.
+//   totalLineRE       : `TOTAL [NNN] [NNN]` 매칭.
+//
+// 비-grammar 라인 처리 (§9.3)
+//   SQL 본문, 파라미터 dump 등 grammar 에 안 맞는 라인은 가장 최근
+//   이벤트의 DetailLines 에 추가. 따라서 한 이벤트가 여러 줄 보충
+//   설명을 가질 수 있음.
+//
+// START/END 이벤트 추출
+//   START 의 시간을 BodyStartTime 으로 보관 — startOffsetMs 계산의
+//   기준점. END 가 누락되면 (잘린 export) HasEnd=false → validator 가
+//   warning 보고.
+//
+// TOTAL 라인
+//   TotalGapMs / TotalCPUMs 추출. 누락 시 HasTotal=false. 분석기 측은
+//   header 의 메트릭과 비교해 검증.
 package jenniferprofile
 
 import (

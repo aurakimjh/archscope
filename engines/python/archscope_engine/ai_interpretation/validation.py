@@ -1,3 +1,9 @@
+"""AI response validator (evidence-bound finding sanity check)."""
+# [한글] validation — AI 응답 finding 검증.
+# AI 가 만든 finding 마다 evidence_ref 가 EvidenceRegistry 에 등록된
+# ID 인지, severity 가 VALID_SEVERITIES (info/warning/critical) 안인지,
+# allowed namespace 인지 검증. 위반 시 AiFindingValidationError 또는
+# ValidationIssue 리스트 반환. 거짓/환각 finding 차단의 마지막 게이트.
 from __future__ import annotations
 
 from dataclasses import dataclass

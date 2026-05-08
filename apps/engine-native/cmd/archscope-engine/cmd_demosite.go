@@ -11,6 +11,45 @@
 //
 // JSON-only manifests; YAML support was intentionally dropped from the
 // Go port (see internal/demosite/mapping.go for rationale).
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] `demo-site` 명령 그룹 — T-380 으로 도입된 매니페스트 기반
+// 데모 러너의 CLI 표면입니다.
+//
+// 데모 러너의 목적
+//   examples/demo-site/ 아래의 시나리오 매니페스트(JSON)를 읽고,
+//   각 시나리오의 입력 파일들을 알맞은 분석기로 통과시킨 뒤, 결과
+//   JSON/HTML/PPTX 와 시나리오 인덱스 페이지를 한 번에 만들어 줍니다.
+//   목표:
+//     • 신기능 추가 시 "현실적인" 입력으로 회귀 검증.
+//     • 발표/보고서용 시각자료를 동일 명령으로 재현 가능.
+//     • Python 데모 러너와 출력물을 1:1 비교(parity).
+//
+// 3개 리프 명령
+//   list     : 디렉터리 아래 *‌/*‌/manifest.json 을 글롭으로 모아 출력.
+//   run      : 단일 매니페스트를 실행 — 결과 JSON 을 stdout 으로 emit.
+//   run-all  : 디렉터리 전체 매니페스트를 순회 실행 후 최상위
+//              index.html 을 생성(시나리오 인덱스의 인덱스).
+//
+// 분석기 매핑
+//   매니페스트의 each entry 에는 `analyzer` 필드가 있고, 이 문자열을
+//   실제 분석기 함수에 매핑하는 표가 analyzer_type_mapping.json 에
+//   있습니다. --mapping 으로 명시하지 않으면 매니페스트 디렉터리에서
+//   parent 를 거슬러 올라가며 자동 발견합니다.
+//
+// JSON 전용
+//   Python 러너는 YAML/JSON 둘 다 지원하지만, Go 포트는 stdlib 만
+//   유지하기 위해 YAML 을 의도적으로 빼고 JSON 만 받습니다. YAML 은
+//   `yq -o=json input.yaml > input.json` 으로 사전 변환해서 사용.
+//
+// PPTX 옵션
+//   --no-pptx 로 PPTX 생성을 건너뛸 수 있음. CI 에서 그래픽 라이브러리
+//   미설치 환경의 빌드 시간을 줄일 때 유용합니다.
+//
+// 구조 메모
+//   각 리프 명령을 익명 블록 `{ ... }` 으로 감싸 둔 이유:
+//   클로저 캡처 변수(in/out/manifests 등)들이 서로 다른 명령 사이에
+//   섞이지 않도록 스코프 격리하기 위함입니다.
 package main
 
 import (

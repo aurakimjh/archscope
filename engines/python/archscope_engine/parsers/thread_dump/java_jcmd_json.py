@@ -4,6 +4,39 @@ JDK tooling can emit a structured JSON thread dump. This plugin keeps it
 separate from the text jstack parser so Java-specific shape assumptions
 do not leak into the multi-language registry.
 """
+# ─────────────────────────────────────────────────────────────────────
+# [한글] thread_dump/java_jcmd_json — `jcmd Thread.dump_to_file
+# -format=json` 출력의 파서.
+#
+# 입력 형식
+#   `jcmd <pid> Thread.dump_to_file -format=json /tmp/dump.json` 결과.
+#   각 스레드를 객체로 가지고, virtual thread / carrier 정보 포함
+#   (JDK 21+).
+#
+# JDK 버전 간 키 이름 차이 (alias 처리)
+#   같은 의미를 다른 키로 쓰는 경우가 많음 — alias 표 순차 시도:
+#     thread name : `name` / `threadName`
+#     thread id   : `tid` / `nid` / `threadId`
+#     stack array : `stack` / `stackTrace` / `frames`
+#     state       : `state` / `threadState`
+#     virtual?    : `virtual` / `isVirtual`
+#
+# 처리 흐름
+#   1) JSON 전체를 dict 로 디코드.
+#   2) 최상위에서 threads 배열 위치를 alias 시도로 찾음.
+#   3) 각 스레드 객체의 필드를 alias 표로 추출 → ThreadSnapshot.
+#   4) state 는 ThreadState.coerce 로 정규화.
+#   5) frame 객체 (선택적 file/line/method) → StackFrame.
+#   6) 스택이 단순 string 배열인 legacy 변종도 허용.
+#
+# java_jstack 헬퍼 재사용
+#   _frame_from_jstack / _carrier_pinning / _extract_lock_handles 를
+#   import — JSON 파싱 후에도 같은 enrichment 정책 적용 가능.
+#
+# Go engine-native parity
+#   apps/engine-native/internal/threaddump/plugins/javajcmdjson/parser.go
+#   와 byte 동일. alias 매핑 표 / 정규화 결과 / metadata 키 모두 동기화.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import json

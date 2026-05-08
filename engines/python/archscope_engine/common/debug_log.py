@@ -1,3 +1,26 @@
+"""Per-line debug log collector with redaction."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] debug_log — 분석/파싱 진단 컬렉터.
+#
+# 책임/목적
+#   parser/analyzer 가 라인 단위로 발생한 사건 (skip / warning /
+#   error / 파싱 실패 사례) 을 누적 → 사용자에게 별도 debug JSON
+#   파일로 노출. raw 라인은 redaction 모듈을 통해 PII 마스킹.
+#
+# 카운팅 정책
+#   - 같은 error_type 당 최대 MAX_SAMPLES_PER_ERROR_TYPE (=5) 샘플만
+#     보관, 이후엔 카운트만 증가.
+#   - context 발췌는 MAX_CONTEXT_CHARS (=500) 로 절단.
+#   - 전체 debug JSON 직렬화 결과가 MAX_DEBUG_LOG_BYTES (=1MB) 넘으면
+#     truncated marker 와 함께 잘라서 반환.
+#
+# 환경 메타
+#   __version__, platform.platform(), encoding_detected, REDACTION_VERSION
+#   을 함께 기록 → 재현/지원 디버깅에 사용.
+#
+# parity: 메시지 키 이름, 한 사례당 샘플 cap, byte cap 이 Go 측
+# internal/diagnostics / internal/common/debuglog 와 동일.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import json

@@ -1,3 +1,11 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] MetricCard.tsx — 라벨 + 큰 숫자 단일 메트릭 카드.
+//
+// 책임/목적: AnalysisResult.summary 의 단일 키(예: total_threads,
+// avg_pause_ms 등)를 큼직하게 보여주는 작은 카드 유닛. Tailwind 클래스
+// 만 사용해 web 측 .metric-card 글로벌 CSS 와 의도적으로 분리됨 —
+// Wails 셸의 CSS variable 기반 테마와 충돌하지 않도록 self-contained.
+// ─────────────────────────────────────────────────────────────────────
 import { cn } from "@/lib/utils";
 
 // Lifted in spirit from apps/frontend/src/components/MetricCard.tsx but

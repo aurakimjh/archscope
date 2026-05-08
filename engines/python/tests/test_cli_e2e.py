@@ -1,3 +1,35 @@
+# ─────────────────────────────────────────────────────────────────────
+# [한글] test_cli_e2e — Typer CLI(`python -m archscope_engine.cli`)의
+# end-to-end smoke 테스트. subprocess 로 진입점을 직접 실행해 명령어
+# 이름, 옵션, 종료 코드, 출력 JSON/HTML/PPTX 의 shape 까지 검증.
+#
+# 검증 대상 (subprocess 실행 시나리오)
+#   • access-log analyze       : nginx 샘플 → type/summary/total_requests.
+#   • profiler analyze-collapsed / drilldown / breakdown
+#                              : timeline_scope, drilldown_stages,
+#                                execution_breakdown 결과 shape.
+#   • profiler analyze-jennifer-csv : Jennifer flame CSV 변환 + charts.
+#   • report html / diff / pptx : 포터블 HTML 본문, comparison_report
+#                                JSON, PPTX magic("PK") 시작.
+#   • demo-site run / mapping  : 시나리오 번들(run-summary.json),
+#                                index.html, comparison_reports 카운트.
+#   • gc-log / thread-dump / exception analyze : 공통 summary 키 검증.
+#   • access-log debug log     : raw_context 의 토큰 redaction
+#                                ("<TOKEN len=4>") 보존, verdict
+#                                PARTIAL_SUCCESS.
+#   • jfr analyze-json fatal   : 파싱 fatal 시 returncode != 0,
+#                                debug log JSON 의 verdict FATAL_ERROR.
+#
+# fixture 정책
+#   • examples/* 의 실제 sample 파일 사용. 부재 시 pytest.skip.
+#   • projects-assets/test-data/demo-site 가 있어야 demo-site 테스트가
+#     실행됨. asset 저장소 미체크아웃 환경에서는 skip.
+#
+# parity 주의 (Python ↔ Go 비교 가능한 부분)
+#   Go engine-native 의 cmd/archscope-engine/main_test.go 와 명령어
+#   이름, 옵션 플래그, 출력 JSON 의 type/summary 키, debug log
+#   schema(verdict, errors_by_type) 까지 완전 동일해야 함.
+# ─────────────────────────────────────────────────────────────────────
 import json
 import subprocess
 import sys

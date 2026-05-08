@@ -1,3 +1,23 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] pages/JfrAnalyzerPage.tsx — JFR(JDK Flight Recorder) 분석기 페이지.
+//
+// 책임/목적:
+//   - .jfr 또는 jfr-extract JSON 파일을 받아 두 가지 모드로 분석:
+//       (a) engine.analyzeJfr(req)         → JfrAnalysisResult
+//                                            (type "jfr_recording")
+//       (b) engine.analyzeNativeMemory(req) → NativeMemoryAnalysisResult
+//                                            (type "native_memory")
+//   - JFR 모드에서는 events_over_time / pause_events / events_by_type /
+//     heatmap_strip / notable_events 를 차트와 표로 렌더.
+//   - Native memory 모드에서는 charts.flamegraph 의 NativeMemoryFlameNode
+//     트리를 CanvasFlameGraph 로 렌더(미해제 메모리 콜사이트 시각화).
+//
+// 다루는 결과 형식: JfrAnalysisResult / NativeMemoryAnalysisResult —
+// 같은 페이지에서 mode 스위치로 두 분석 경로를 선택.
+//
+// 데이터 흐름: 사용자 mode 선택 → 해당 engine.* 호출 → 결과 type 으로
+// switch (`result.type === "native_memory"`) → 적절한 view 렌더.
+// ─────────────────────────────────────────────────────────────────────
 import { Loader2, Play, Square } from "lucide-react";
 import { useCallback, useMemo, useRef, useState } from "react";
 

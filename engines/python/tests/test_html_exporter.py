@@ -1,3 +1,21 @@
+# ─────────────────────────────────────────────────────────────────────
+# [한글] test_html_exporter — HTML 보고서 exporter 회귀 테스트.
+#
+# 검증 대상
+#   • 자기 충족 HTML: 외부 자산 참조 0개, 인라인 CSS 만 사용.
+#   • 사용자 입력 escape: <script> 가 들어가도 &lt;script&gt; 로 변환 (XSS 안전).
+#   • 한글 raw 보존.
+#   • Findings 섹션은 metadata.findings 가 비어있지 않을 때만 렌더.
+#   • Summary / Tables / Series 정상 렌더.
+#
+# pytest.importorskip
+#   typer/rich 가 설치되지 않은 환경에서는 테스트 자체를 skip — CLI 의
+#   부수 의존성이 누락되어도 본 모듈 단독 테스트는 가능하게.
+#
+# parity 주의
+#   Go engine-native (apps/engine-native/internal/exporters/html) 의
+#   출력과 같은 시각적/구조적 결과 produce 해야 함.
+# ─────────────────────────────────────────────────────────────────────
 import json
 from pathlib import Path
 

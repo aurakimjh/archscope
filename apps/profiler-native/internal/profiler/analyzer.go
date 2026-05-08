@@ -1,3 +1,38 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] analyzer — profiler 패키지의 외부 진입점, 입력 형식별 분석 진입점.
+//
+// 책임/목적
+//   - profiler 입력 4가지 형식(collapsed text / flamegraph HTML / SVG /
+//     Jennifer CSV) 을 받아 단일 AnalysisResult (Type="profiler_collapsed"
+//     또는 "profiler_jennifer") 형태로 반환.
+//   - 분석 단계 (flame tree / timeline / breakdown / topN / drilldown
+//     root stage / debug log) 를 한 곳에서 조립.
+//
+// 진입 함수
+//   - AnalyzeCollapsedFile        : "frame1;frame2 12345" 형식 텍스트
+//   - AnalyzeFlamegraphHTMLFile   : async-profiler / perf HTML
+//   - AnalyzeFlamegraphSVGFile    : flamegraph.pl SVG
+//   - AnalyzeJenniferFile         : Jennifer APM CSV
+//
+// 공통 흐름
+//   1) normalizeOptions: IntervalMS=100, TopN=20, ProfileKind="wall" 기본값.
+//   2) 형식별 parser → (stacks 또는 root, diagnostics) 산출.
+//   3) AnalyzeCollapsedStacks 또는 AnalyzeJenniferTree 가 공통 조립:
+//      flame tree 빌드 → timeline → topStacks → execution breakdown →
+//      component breakdown → threads → drilldown root stage → metadata.
+//   4) writeDebugLogIfNeeded 로 디버그 로그를 disk 에 기록.
+//
+// 트리키한 부분
+//   • Jennifer 는 입력 자체가 트리라 buildFlameTree 를 호출하지 않고
+//     parser 가 만든 root 를 그대로 사용. 다른 형식은 collapsed map 부터
+//     buildFlameTree 로 트리화.
+//   • detectThreads 는 stack key 의 첫 frame 이 "[threadName]" 패턴이면
+//     thread 별 samples 합산. 80% 이상의 stack 이 이 패턴일 때만 thread
+//     분석을 활성화 (false-positive 회피).
+//   • Type/Parser 는 형식별로 덮어쓴다. HTML 은 Type="profiler_collapsed"
+//     + Parser="flamegraph_html" 로 일관 처리.
+// ─────────────────────────────────────────────────────────────────────
+
 package profiler
 
 import (
@@ -11,6 +46,9 @@ import (
 // rssMB returns current Alloc in MiB after a GC pass. The GC is
 // cheap relative to the analyses we run it around, and it makes the
 // MemStats reading reflect retained (not garbage) memory.
+//
+// [한글] rssMB — runtime.GC() 직후의 Alloc 크기를 MiB 로 보고.
+// GC 한 번 돌리고 측정하므로 garbage 가 빠진 retained 메모리만 잡힘.
 func rssMB() uint64 {
 	runtime.GC()
 	var ms runtime.MemStats
@@ -21,6 +59,11 @@ func rssMB() uint64 {
 // checkRSSLimit returns a friendly error when current Alloc has
 // crossed the configured ceiling. We deliberately fail closed — the
 // alternative is an OS-level SIGKILL that leaves no usable artifact.
+//
+// [한글] checkRSSLimit — 메모리 ceiling 초과 시 친절한 에러 반환.
+// fail-closed 정책 — 그냥 두면 OS SIGKILL 로 아무 산출물 없이 죽음.
+// 사용자에게 MaxUniqueStacks/MaxStackDepth 조정 또는 MaxRSSMB 상향
+// 가이드를 메시지에 포함.
 func checkRSSLimit(options Options, phase string) error {
 	limit := options.MaxRSSMB
 	if limit <= 0 {
@@ -38,6 +81,8 @@ func checkRSSLimit(options Options, phase string) error {
 	return nil
 }
 
+// [한글] normalizeOptions — 옵션의 비어있는/잘못된 필드에 default 적용.
+// IntervalMS<=0 → 100ms (10Hz), TopN<=0 → 20, ProfileKind 빈 문자열 → "wall".
 func normalizeOptions(options *Options) {
 	if options.IntervalMS <= 0 {
 		options.IntervalMS = 100
@@ -59,6 +104,9 @@ func writeDebugLogIfNeeded(options Options) {
 	dl.WriteJSON(options.DebugLogDir) //nolint:errcheck
 }
 
+// [한글] AnalyzeCollapsedFile — collapsed text 입력 진입점.
+// "frame1;frame2;...;leaf 12345\n" 형식. ParseCollapsedFile 로 stack map
+// 추출 후 AnalyzeCollapsedStacks 에 위임.
 func AnalyzeCollapsedFile(path string, options Options) (AnalysisResult, error) {
 	normalizeOptions(&options)
 
@@ -108,6 +156,9 @@ func AnalyzeCollapsedFile(path string, options Options) (AnalysisResult, error) 
 	return result, nil
 }
 
+// [한글] AnalyzeFlamegraphHTMLFile — HTML 입력 진입점.
+// ParseHtmlProfilerFile (inline SVG / async-profiler JS) 로 stack 추출 후
+// AnalyzeCollapsedStacks 에 위임. Type="profiler_collapsed" + Parser="flamegraph_html".
 func AnalyzeFlamegraphHTMLFile(path string, options Options) (AnalysisResult, error) {
 	normalizeOptions(&options)
 	if options.DebugLog != nil {
@@ -125,6 +176,9 @@ func AnalyzeFlamegraphHTMLFile(path string, options Options) (AnalysisResult, er
 	return result, nil
 }
 
+// [한글] AnalyzeFlamegraphSVGFile — SVG 입력 진입점.
+// ParseSvgFlamegraphFile (XML 트리에서 rect+title 추출) 로 stack 추출 후
+// AnalyzeCollapsedStacks 에 위임. Type="profiler_collapsed" + Parser="flamegraph_svg".
 func AnalyzeFlamegraphSVGFile(path string, options Options) (AnalysisResult, error) {
 	normalizeOptions(&options)
 	if options.DebugLog != nil {
@@ -141,6 +195,9 @@ func AnalyzeFlamegraphSVGFile(path string, options Options) (AnalysisResult, err
 	return result, nil
 }
 
+// [한글] AnalyzeJenniferFile — Jennifer CSV 입력 진입점.
+// ParseJenniferFlamegraphCSV 가 이미 트리(FlameNode root) 를 만들어 주므로
+// AnalyzeJenniferTree 에 그대로 위임. Type="profiler_jennifer".
 func AnalyzeJenniferFile(path string, options Options) (AnalysisResult, error) {
 	normalizeOptions(&options)
 	parseResult, err := ParseJenniferFlamegraphCSV(path, options.DebugLog)
@@ -152,6 +209,10 @@ func AnalyzeJenniferFile(path string, options Options) (AnalysisResult, error) {
 	return result, nil
 }
 
+// [한글] AnalyzeJenniferTree — Jennifer 입력에 특화된 분석 조립.
+// AnalyzeCollapsedStacks 와 거의 동일하지만 buildFlameTree 호출 없이
+// 입력 root 를 그대로 사용. component breakdown 을 위해 stacksFromTree 로
+// leaf path 를 collapsed map 으로 역추출해 사용.
 func AnalyzeJenniferTree(root FlameNode, sourceFile string, diagnostics ParserDiagnostics, options Options) AnalysisResult {
 	totalSamples := root.Samples
 	intervalSeconds := options.IntervalMS / 1000
@@ -236,6 +297,10 @@ func stacksFromTree(root FlameNode) map[string]int {
 	return stacks
 }
 
+// [한글] AnalyzeCollapsedStacks — 4개 입력 모두 결국 거치는 공통 분석 조립.
+// stacks 합계로 totalSamples, buildFlameTree 로 트리, buildTimeline / topStacks /
+// breakdown / threads / drilldown root stage 를 모두 채워 AnalysisResult 반환.
+// 호출 전후로 Type/Parser 를 호출자가 덮어쓰는 것이 정상 (HTML/SVG 케이스).
 func AnalyzeCollapsedStacks(stacks map[string]int, sourceFile string, diagnostics ParserDiagnostics, options Options) AnalysisResult {
 	pl := options.ProgressLog
 	totalSamples := 0
@@ -391,6 +456,9 @@ func topStacksFromCollapsed(stacks map[string]int, totalSamples int, intervalSec
 	return series, tables
 }
 
+// [한글] detectThreads — stack 의 첫 frame 이 "[threadName]" 형식이면 thread 별 합산.
+// Java/Spring Boot async-profiler 의 thread-prefix 옵션 결과를 인식.
+// 매치된 stack 의 sample 합계가 전체의 80% 미만이면 false-positive 로 간주해 빈 리스트.
 func detectThreads(stacks map[string]int, totalSamples int) []ThreadRow {
 	if totalSamples <= 0 {
 		return []ThreadRow{}

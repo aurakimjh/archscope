@@ -1,3 +1,34 @@
+# ─────────────────────────────────────────────────────────────────────
+# [한글] exception_parser — Java 예외 스택 그룹화 파서.
+#
+# 입력
+#   임의의 텍스트 파일. 보통 애플리케이션 로그에서 grep 으로 추출한
+#   stack trace 모음.
+#
+# 그룹화 규칙
+#   1) Header 감지 (EXCEPTION_LINE_RE): `<TS>? <FQCN>: <message>`.
+#      Exception/Error/Throwable 로 끝나는 클래스명만 매칭.
+#   2) 그 다음 `    at <frame>` 라인을 같은 record stack 에 누적.
+#   3) `Caused by: <FQCN>: <message>` 라인 → 가장 최근 record 의
+#      RootCause 로 등록 (cause stack 은 무시).
+#   4) 새 header → 새 record 시작.
+#   5) 빈 줄/관련 없는 라인은 무시.
+#
+# Signature 산출
+#   ExceptionType + 첫 stack frame → 짧은 dedup 키.
+#   분석기의 REPEATED_EXCEPTION_SIGNATURE finding 의 그룹 키.
+#
+# skip / warning 사유 (Go parity)
+#   SKIP_NO_HEADER         : header regex 가 한 번도 매칭되지 않음.
+#   SKIP_BAD_TIMESTAMP     : header 의 timestamp 파싱 실패.
+#   WARN_TRUNCATED_STACK   : MaxLines / EOF 로 잘림.
+#   parser_error_handling  : strict=False 에서는 skip 사유만 카운트하고
+#                            진행. strict=True 에서는 첫 skip = fatal.
+#
+# Go engine-native parity
+#   apps/engine-native/internal/parsers/exception/parser.go 와 byte 동일.
+#   regex 패턴, sample 표 정렬, message 형식 모두 동기화.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import re

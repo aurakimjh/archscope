@@ -17,6 +17,29 @@ Three layers:
   carrying provenance (dump index, captured timestamp, originating file,
   detected source format).
 """
+# ─────────────────────────────────────────────────────────────────────
+# [한글] thread_snapshot — 다언어 thread-dump 정규화 모델.
+#
+# 3계층 구조
+#   1) ThreadState(Enum): 모든 런타임의 thread state 를 11개 표준
+#      값으로 통합. RUNNABLE / BLOCKED / WAITING / TIMED_WAITING /
+#      NETWORK_WAIT / IO_WAIT / LOCK_WAIT / CHANNEL_WAIT / DEAD /
+#      NEW / UNKNOWN. coerce() 가 별칭 흡수.
+#   2) StackFrame: 하나의 스택 프레임. function/file/line/module/
+#      language 등을 보존.
+#   3) ThreadSnapshot: 한 시점 한 스레드 (name/id/state/stack_frames/
+#      lock_holds/lock_waiting/metadata/language/source_format).
+#   4) ThreadDumpBundle: 한 파일 단위 (snapshots+source_file+
+#      source_format+language+dump_index+dump_label+metadata).
+#
+# 분석기 입력
+#   multi_thread_analyzer / lock_contention_analyzer 가 ThreadDumpBundle
+#   리스트를 입력으로 받아 finding 을 산출. 분석기는 절대 language 별
+#   특수 분기를 하지 않으며, 모든 언어 특수 처리는 parser plugin 이
+#   ThreadState 표준 enum 으로 변환한 뒤 넘겨준다.
+#
+# parity: Go engine-native internal/models/thread_*.go 와 byte 일치.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 from dataclasses import dataclass, field

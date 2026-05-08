@@ -1,3 +1,22 @@
+"""Go runtime panic + goroutine dump parser."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] go_panic_parser — Go 런타임 패닉/goroutine 덤프 파서.
+#
+# 입력 형식
+#   `panic: <msg>` 라인이 panic block 시작.
+#   `goroutine N [state]:` 라인이 goroutine block 시작.
+#   각 block 안에는 `func.name(args)` + 다음 줄에 `\tfile:line +0xNN`
+#   pair 가 반복.
+#
+# 알고리즘
+#   1) 라인 단위로 panic / goroutine block 경계 인식.
+#   2) block 안에서 GO_FUNC_RE 패턴 매칭한 라인은 stack frame.
+#   3) 한 block = 한 RuntimeStackRecord (kind="panic"|"goroutine").
+#   4) state ("running", "chan receive", "IO wait" 등) 도 보존.
+#
+# parity: PANIC_RE / GOROUTINE_RE / GO_FUNC_RE 정규식, kind 라벨이
+# Go engine-native internal/parsers/runtimestack/gopanic.go 와 동일.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import re

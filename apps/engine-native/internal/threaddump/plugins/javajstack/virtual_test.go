@@ -1,3 +1,12 @@
+// [한글] virtual_test.go — virtual thread carrier pinning 감지 회귀
+// 테스트 (T-227).
+//
+// 검증 대상
+//   • virtual / carrier 라벨 매칭.
+//   • synchronized 진입 + blocking I/O 조합이면 pinning 후보.
+//   • metadata["carrier_pinning"] 의 candidate_method, top_frame,
+//     reason 정확히 채워짐.
+//   • non-virtual thread 는 영향 없음.
 package javajstack
 
 import (

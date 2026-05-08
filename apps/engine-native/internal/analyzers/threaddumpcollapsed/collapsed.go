@@ -18,6 +18,35 @@
 // registry pipeline is exposed elsewhere, so we operate on
 // []models.ThreadDumpBundle directly. Callers that want
 // the file-IO wrapper use WriteCollapsed.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] threaddumpcollapsed — thread dump → FlameGraph collapsed
+// 변환기.
+//
+// 출력 형식 (Brendan Gregg flamegraph.pl 표준)
+//   frame_root;frame_mid;frame_leaf <count>
+//
+//   예) java.lang.Thread.run;com.foo.Worker.process;com.foo.Db.query 3
+//
+//   같은 frame 시퀀스를 가진 스레드가 N개면 한 줄로 합쳐짐.
+//
+// 알고리즘
+//   1) 모든 bundle 의 모든 snapshot 을 순회.
+//   2) IncludeThreadName == true 면 thread name 을 root frame 으로
+//      prepend(스레드별 색상 구분에 유리).
+//   3) frame.Render() 결과를 ";" 로 join 한 문자열을 키로 한 카운터
+//      누적.
+//   4) Convert 는 map[string]int 반환(parity gate 용 머신리더블),
+//      WriteCollapsed 는 사람이 읽는 텍스트 파일을 작성.
+//
+// IncludeThreadName trade-off
+//   • true 라면 같은 스택을 두 thread name 이 따로 카운트 → 색상 구분.
+//   • false 라면 같은 코드 경로면 합쳐짐 → 통계가 두꺼워져 더 많은
+//     호출경로를 한눈에. 큰 덤프 분석에 유용.
+//
+// 다언어 안전성
+//   plugin 이 채운 frame.Render() 만 사용. Java/Go/Python/Node.js/.NET
+//   어떤 언어든 같은 변환기로 처리.
 package threaddumpcollapsed
 
 import (

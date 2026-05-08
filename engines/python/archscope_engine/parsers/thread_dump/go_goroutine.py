@@ -16,6 +16,28 @@ correlator should not treat as "running": ``netpoll``/``netpollBlock``
 ``semacquire`` / mutex → LOCK_WAIT. Framework cleanup strips wrapper
 methods that obscure the real call site.
 """
+# ─────────────────────────────────────────────────────────────────────
+# [한글] go_goroutine — Go goroutine 덤프 파서 플러그인.
+#
+# 입력 형식
+#   `goroutine N [state, age]:` 헤더 + 다음 라인부터 (func, file:line)
+#   pair 가 반복되는 frame 블록. `created by ...` 마커도 가능.
+#
+# 알고리즘
+#   1) can_parse: head 안에 _GOROUTINE_HEADER_RE 매칭 발견.
+#   2) 라인 단위 dispatch — 헤더로 새 ThreadSnapshot 시작, 빈 라인으로 flush.
+#   3) state 라벨 ("chan receive" 등) 을 Go 고유 상태 → ThreadState
+#      enum 으로 매핑 (T-197):
+#        netpoll/netpollBlock     → NETWORK_WAIT
+#        chan receive/send/select → CHANNEL_WAIT
+#        semacquire/sync.*Mutex   → LOCK_WAIT
+#        runnable/running         → RUNNABLE
+#        IO wait (file 처리)      → IO_WAIT
+#   4) 프레임의 file 경로/line 정보 보존, function 이름 정규화.
+#
+# parity: 정규식, state 매핑 테이블, frame normalization 이 Go 측
+# internal/threaddump/plugins/gogoroutine 와 동일.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import re

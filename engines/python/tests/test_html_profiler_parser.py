@@ -1,3 +1,14 @@
+# ─────────────────────────────────────────────────────────────────────
+# [한글] test_html_profiler_parser — HTML wrapper flamegraph 파서 테스트.
+#
+# 검증 대상
+#   • inline-SVG HTML: <svg>...</svg> 추출 후 SVG 파서로 위임 → 정상
+#     collapsed Counter 산출.
+#   • async-profiler 2.x+ self-contained HTML: JS 변수 (`var root = ...`,
+#     `levels = [...]`) 추출 → JSON 평탄화 → collapsed Counter.
+#   • 미지원 HTML (random report/SPA shell) → UNSUPPORTED_HTML_FORMAT.
+#   • XSS / XXE 안전 (defusedxml).
+# ─────────────────────────────────────────────────────────────────────
 from collections import Counter
 
 from archscope_engine.parsers.html_profiler_parser import parse_html_profiler_text

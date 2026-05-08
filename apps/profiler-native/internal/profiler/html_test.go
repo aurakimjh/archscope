@@ -1,3 +1,7 @@
+// [한글] html_test — HTML 입력의 두 형식(인라인 SVG / async-profiler JS)
+// 정확 인식, 형식 미인식 시 UNSUPPORTED_HTML_FORMAT 진단, JS data block 의
+// 키 별칭(samples/value/v, name/title/frame, children/c) 처리 등 검증.
+
 package profiler
 
 import (

@@ -1,3 +1,14 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] analyzer_test — AnalyzeCollapsedStacks 의 timeline base-method 동작 검증.
+//
+// 두 케이스를 cover:
+//   1) BaseMethod 매치되는 경우 — base 부터 재루팅한 stack 만 timeline 에
+//      포함, base 외부의 startup segment 가 제외, base ratio/segment 비율이
+//      재루팅된 분모로 계산되는지 확인.
+//   2) BaseMethod 매치되지 않는 경우 — timeline 빈 배열 + scope.warnings
+//      에 TIMELINE_BASE_METHOD_NOT_FOUND 코드 포함.
+// ─────────────────────────────────────────────────────────────────────
+
 package profiler
 
 import "testing"

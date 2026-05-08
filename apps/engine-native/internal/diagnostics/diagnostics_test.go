@@ -1,3 +1,11 @@
+// [한글] diagnostics 회귀 테스트.
+//
+// 검증 대상
+//   • Sample/Warning/Error 100개 cap 동작.
+//   • RawPreviewLimit 200 byte truncation.
+//   • Reasons map 의 카운트 정확.
+//   • JSON 직렬화 shape 가 Python parity 와 일치.
+//   • New() / AddSkip() / AddWarning() 등 API 의 기본 동작.
 package diagnostics
 
 import (

@@ -1,3 +1,12 @@
+// [한글] gclog parser 회귀 테스트.
+//
+// 검증 대상
+//   • DetectFormat: Unified / G1Legacy / Legacy 자동 감지.
+//   • Unified: pause + heap before/after + young/old + metaspace 추출.
+//   • Legacy multi-line: 여러 줄 buffer 가 한 record 로 emit.
+//   • Cause 문자열 (System.gc, Allocation Failure 등) 정상 추출.
+//   • Collector 라벨 (G1/Parallel/CMS/ZGC/Shenandoah) 식별.
+//   • MaxLines / Strict 동작.
 package gclog
 
 import (

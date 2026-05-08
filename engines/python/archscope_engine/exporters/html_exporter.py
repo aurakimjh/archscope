@@ -1,3 +1,20 @@
+"""Self-contained HTML report exporter."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] html_exporter — AnalysisResult JSON → 자기완결 HTML 리포트.
+#
+# 책임/목적
+#   분석 결과 JSON (AnalysisResult.to_dict()) 또는 parser debug JSON
+#   파일을 한 개의 HTML 파일로 렌더. 외부 리소스 의존 없이 단독 열람
+#   가능 (이메일 첨부/공유 용이).
+#
+# 알고리즘
+#   1) 입력 JSON 의 shape 자동 판별 (분석 결과 vs debug log).
+#   2) 헤더 + body section 들 (summary / series / tables / metadata)
+#      생성. 표는 <table>, 차트 데이터는 inline JSON으로.
+#   3) HTML escape 로 XSS 차단.
+#
+# parity: Go engine-native internal/exporters/html 와 동일 레이아웃.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import json

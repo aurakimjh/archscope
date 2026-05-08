@@ -1,3 +1,15 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] charts/accessLogCharts.ts — AccessLog ECharts 옵션 빌더.
+//
+// 책임/목적:
+//   - requestCountTrendOption : 분당 요청 수 line + area chart 옵션.
+//   - p95TrendOption          : 분당 p95 응답시간 라인 차트 옵션.
+//   - 입력은 EngineService 가 반환한 AccessLogAnalysisResult.series 의
+//     time/value 포인트 배열. 60 개 미만이면 마커(showSymbol) 표시.
+//
+// 의존성 주의: ECharts 옵션 객체만 생성하고 실제 렌더는 ChartPanel 이
+// 담당 — 옵션과 렌더 분리로 메모이제이션과 테스트가 쉬워집니다.
+// ─────────────────────────────────────────────────────────────────────
 import type { EChartsOption } from "echarts";
 
 import type { AccessLogAnalysisResult } from "@/bridge/types";

@@ -1,3 +1,20 @@
+// [한글] lockcontention 분석기 회귀 테스트.
+//
+// 핵심 시나리오
+//   • 빈 bundles → ErrNoBundles.
+//   • single contended lock → tables.lock_contention 1행 +
+//     LOCK_CONTENTION_HOTSPOT finding.
+//   • 2-thread classic deadlock (T1: hold L1 wait L2, T2: hold L2 wait L1)
+//     → DEADLOCK_DETECTED finding 1개(canonical rotation 으로 1번만).
+//   • 3-thread cycle → 마찬가지로 1개.
+//   • cooperative wait (object_wait / parking_condition_wait) 은
+//     contention 표에서도 deadlock graph 에서도 모두 제외.
+//   • lock_class 가 비어있어도 message 가 "unknown class" 로 안전하게
+//     생성.
+//
+// fixture
+//   javaSnapshot : 한 줄에 한 스냅샷을 만드는 helper. lock_holds /
+//   lock_waiting 은 각 테스트가 명시적으로 채움.
 package lockcontention
 
 import (

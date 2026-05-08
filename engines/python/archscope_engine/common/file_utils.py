@@ -1,3 +1,17 @@
+"""Text encoding detection + line iteration utilities."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] file_utils — 입력 파일 읽기 보조.
+#
+# 주요 함수
+#   - detect_text_encoding: 파일 앞 1MB 를 보고 utf-8 / utf-8-sig /
+#     cp949 / latin-1 순으로 시도. 한국 윈도우 텍스트 (cp949) 호환.
+#   - detect_text_encoding_from_bytes: 메모리 byte 버퍼 변종.
+#   - iter_text_lines: 라인 단위 iterator (자동 인코딩 감지).
+#   - iter_text_lines_with_context: TextLineContext (이전/현재/다음
+#     라인 묶음) 를 반환 — 진단 샘플 표시에 사용.
+#
+# parity: 인코딩 시도 순서, 1MB probe 가 Go 측 internal/textio 와 동일.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 from dataclasses import dataclass

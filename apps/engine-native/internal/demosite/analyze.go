@@ -14,6 +14,36 @@
 // Jennifer CSV is the one profiler shape we DO have via
 // `internal/analyzers/jenniferprofile`; we route it through that
 // analyzer so the demo runner can still process Jennifer fixtures.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] demosite/analyze.go — 매니페스트의 analyzer_type → 실제 분석기
+// 함수 dispatch + 메타데이터 주석.
+//
+// dispatch 표 (대표적 매핑)
+//   access_log              → analyzers/accesslog.Analyze
+//   gc_log                  → analyzers/gclog.Analyze
+//   thread_dump             → analyzers/threaddump.Analyze (단일)
+//   thread_dump_multi       → analyzers/multithread.Analyze
+//   thread_dump_locks       → analyzers/lockcontention.Analyze
+//   exception_stack         → analyzers/exception.Analyze
+//   jfr_recording           → analyzers/jfr.Analyze
+//   native_memory           → analyzers/jfr.AnalyzeNativeMemory
+//   nodejs_stack/python_traceback/go_panic/dotnet → analyzers/runtime.*
+//   otel_logs               → analyzers/otel.Analyze
+//   jennifer_profile        → analyzers/jenniferprofile.AnalyzeFiles
+//
+// profiler 예외 처리
+//   profiler_collapsed / flamegraph_svg / flamegraph_html 등은
+//   engine-native 에 미포함 — typed error 반환. runner 가 failed run
+//   으로 기록하고 다음 파일로 진행.
+//
+// 메타데이터 주석
+//   _annotate_demo_metadata 가 결과에 다음 주석 추가:
+//     metadata.demo.source       : 매니페스트 entry source.
+//     metadata.demo.scenario     : 시나리오 이름.
+//     metadata.demo.data_source  : 데이터 출처.
+//     metadata.demo.label        : 사람이 보는 라벨.
+//   index.html 가 이 메타로 카드/표를 그릴 때 사용.
 package demosite
 
 import (

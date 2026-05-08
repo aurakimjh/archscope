@@ -1,3 +1,10 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] components/ui/card.tsx — shadcn/ui Card 묶음.
+//
+// 책임/목적: Card / Header / Title / Description / Content / Footer
+// 6 개 forwardRef 컴포넌트를 묶어 div 기반 카드 레이아웃 패턴 제공.
+// 모든 분석기 페이지의 메트릭/차트 카드의 시각 일관성을 책임.
+// ─────────────────────────────────────────────────────────────────────
 import * as React from "react";
 
 import { cn } from "@/lib/utils";

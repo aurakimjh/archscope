@@ -1,3 +1,25 @@
+"""Prompt template loader + evidence-aware prompt builder."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] prompting — AI 프롬프트 빌더.
+#
+# 책임/목적
+#   분석 결과 + EvidenceRegistry 로부터 LLM 프롬프트 생성. 토큰 한도
+#   대비 가장 의미있는 evidence 항목을 선택 (EvidenceSelector) 후
+#   템플릿에 채워 PromptPayload 반환.
+#
+# 보안
+#   - SUSPICIOUS_INSTRUCTION_PATTERN: prompt injection 시도 ("ignore
+#     previous instructions" 등) 검출 → 자동 제거/거부.
+#   - redact_sensitive_text: 모든 evidence 텍스트가 redaction 통과.
+#
+# 템플릿
+#   archscope_engine/config/prompt_templates.json 에 언어별 템플릿
+#   ({"en": ..., "ko": ...}) 보관. select_language_template / select_
+#   prompt_template 로 매칭.
+#
+# parity: PROMPT_VERSION ("ai-interpretation-v1"), 템플릿 키 이름이
+# Go engine-native 와 동일 (Go 측 미포팅, 향후 정의시 그대로 사용).
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 from dataclasses import dataclass

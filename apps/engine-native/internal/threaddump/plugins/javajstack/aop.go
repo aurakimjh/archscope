@@ -1,3 +1,28 @@
+// [한글] aop.go — Java 의 AOP/Proxy synthetic 접미사 정리 (T-194).
+//
+// 문제
+//   Spring CGLIB / JDK Dynamic Proxy / accessor synthetic class 는
+//   런타임에 클래스명에 해시를 붙여 매번 다른 이름으로 등장:
+//     OrderService$$EnhancerBySpringCGLIB$$abc123def
+//     OrderService$$EnhancerByCGLIB$$xyz789ghi
+//     com.foo.Bar$$Lambda$42/0x000000800120cda0
+//
+//   같은 비즈니스 로직을 가리키는 frame 이 매번 다른 이름이 되어
+//   stack signature 가 폭발 → multi-dump correlator 의 dedup 무력화.
+//
+// 정리 규칙 (정규식)
+//   `$$EnhancerBy(Spring)?CGLIB$$<hash>` 제거.
+//   `$$Lambda$N/0x...` → `$$Lambda` (해시만 제거, 식별자는 유지).
+//   `$Proxy<N>$$...` 제거.
+//   accessor `$1`, `$$$0` 등 synthetic 접미사 제거.
+//
+// 적용 대상
+//   StackFrame.Module / Function 만. 다른 런타임 frame 은 정규식이
+//   매칭되지 않아 no-op 통과.
+//
+// 효과
+//   같은 위치를 가리키는 N개 변형 frame 이 한 stack signature 로
+//   collapse → multi-dump finding 에서 정확한 그룹화 가능.
 package javajstack
 
 import (

@@ -1,4 +1,23 @@
 // `exception` group — mirrors typer's exception_app surface.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] `exception` 명령 그룹 — Java 예외 스택 분석기.
+//
+// 입력 형태
+//   다중 예외가 포함된 평문 텍스트 파일. 일반적으로 애플리케이션
+//   로그에서 grep 으로 추출한 stack trace 모음.
+//
+// 처리 흐름
+//   1) --in 검증.
+//   2) exception.Options 를 채움:
+//        • TopN     : 결과 테이블의 상위 N 행. 0 이면 분석기 기본값.
+//        • MaxLines : 매우 큰 파일에서의 조기 종료 가드.
+//        • Strict   : 일반적으로 파서는 잘못된 라인을 skip 하고
+//          metadata.diagnostics 에 카운트만 기록하지만, --strict 가
+//          켜지면 첫 skip 이 fatal 에러로 즉시 보고됩니다.
+//          (CI 의 회귀 차단 용도.)
+//   3) exception.Analyze → AnalysisResult.
+//   4) writeJSONResult 로 출력.
 package main
 
 import (

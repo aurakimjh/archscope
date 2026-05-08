@@ -1,3 +1,9 @@
+"""HotSpot GC log event dataclass."""
+# [한글] gc_event.GcEvent — HotSpot JVM GC 로그 한 이벤트.
+# parser 가 unified/G1-legacy/legacy 세 형식 어느 것이든 같은 record
+# 로 정규화. 필드는 모두 Optional — 형식별로 일부 정보가 없을 수 있음.
+# 시간 필드: timestamp (절대시각) / uptime_sec (JVM 시작 후 경과).
+# parity: Go engine-native internal/models 의 GcEvent 와 동일.
 from __future__ import annotations
 
 from dataclasses import dataclass

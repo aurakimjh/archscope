@@ -1,3 +1,16 @@
+# ─────────────────────────────────────────────────────────────────────
+# [한글] test_json_exporter — JSON exporter 회귀 테스트.
+#
+# 검증 대상
+#   • write_json_result: 부모 디렉토리 자동 생성 (mkdir -p) + 2-space
+#     indent + trailing newline.
+#   • AnalysisResult round-trip: write → read → 같은 데이터.
+#   • UTF-8 raw 출력 (ensure_ascii=False 동치) — 한글이 escape 없이 보존.
+#
+# parity 주의
+#   Go engine-native (apps/engine-native/internal/exporters/json) 와
+#   byte 단위 일치. 같은 입력에 대한 출력 파일이 두 엔진에서 같아야 함.
+# ─────────────────────────────────────────────────────────────────────
 import json
 
 from archscope_engine.exporters.json_exporter import write_json_result

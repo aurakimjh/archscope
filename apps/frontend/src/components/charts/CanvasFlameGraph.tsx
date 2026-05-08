@@ -1,3 +1,20 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] CanvasFlameGraph.tsx — Canvas 2D 로 렌더하는 대형 플레임 그래프.
+//
+// 책임/목적:
+//   - D3FlameGraph 와 동일한 d3-hierarchy/d3-partition 레이아웃을
+//     사용하지만, 사각형 페인팅을 SVG → Canvas 로 옮겨 노드 수가 매우
+//     많을 때도 성능을 유지(T-217).
+//   - 호버/클릭 인터랙션은 hit-test 를 직접 구현(canvas 좌표 → 노드).
+//
+// 사용 시점:
+//   - 노드 수 ≥ 10k 또는 사용자 환경이 저사양일 때 D3FlameGraph 대신.
+//   - 페이지에서 "lightweight/heavy" 토글로 전환하는 식으로 사용.
+//
+// 주의:
+//   - PNG export 는 canvas.toDataURL 을 그대로 사용(downloadDataUrl).
+//   - SVG export 는 본 컴포넌트에서 미지원(필요하면 D3FlameGraph 사용).
+// ─────────────────────────────────────────────────────────────────────
 import * as d3 from "d3";
 import {
   forwardRef,

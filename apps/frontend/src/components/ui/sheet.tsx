@@ -1,3 +1,8 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] ui/sheet.tsx — shadcn/ui Sheet(좌/우/상/하에서 슬라이드되는 dialog).
+//   ExceptionAnalyzerPage 의 stack trace 상세 보기 등 우측 drawer 패턴에
+//   사용. Radix Dialog 위에 cva variant 로 방향만 추가한 형태.
+// ─────────────────────────────────────────────────────────────────────
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { cva, type VariantProps } from "class-variance-authority";
 import { X } from "lucide-react";

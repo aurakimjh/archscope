@@ -1,3 +1,16 @@
+// [한글] models/analysis_result_test.go — AnalysisResult envelope 의
+// 직렬화 contract 회귀 테스트.
+//
+// 검증 포인트
+//   1) New() 가 빈 컨테이너를 채워서 marshal 결과가 null 이 아닌 [] / {}
+//      로 출력되는지 (UI 의 옵셔널 체이닝 안전성 보장).
+//   2) type/parser/schema_version/findings 등 필수 키가 모두 존재.
+//   3) created_at 이 RFC3339(Nano) 형식의 비어있지 않은 문자열인지.
+//
+// 왜 byte 단위 substring 검사인가?
+//   key 순서/공백에 의존하지 않고도 핵심 contract 만 검증하기 위함.
+//   Go map 의 marshal 순서는 비결정적이지만 키 자체는 결정적이므로
+//   substring 매칭이 적합.
 package models
 
 import (

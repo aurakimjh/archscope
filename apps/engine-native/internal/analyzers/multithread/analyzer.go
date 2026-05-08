@@ -18,6 +18,67 @@
 //
 // The analyzer never imports runtime-specific helpers; per-language
 // enrichment (state coercion, lock metadata) is the parser plugin's job.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] multithread 분석기 — archscope 의 가장 복잡한 분석기.
+//
+// 입력
+//   ordered ThreadDumpBundle slice. 각 bundle 은 한 시점의 스냅샷.
+//   bundles[0] → bundles[N-1] 로 시간 흐름 가정.
+//
+// 출력
+//   AnalysisResult{type: "thread_dump_multi"}.
+//
+// 알고리즘 개요 (Python 원본과 1:1 동등)
+//
+//   STEP 1. Timeline 구축
+//     스레드 식별자(thread name) → 관측 list[obs(dumpIndex,state,sig)]
+//     로 collapse. 같은 이름이 여러 덤프에 나타나면 한 timeline 안에
+//     누적되어 "이 스레드가 시간상 어떤 상태를 거쳤는가" 가 된다.
+//
+//   STEP 2. Persistence findings (LONG_RUNNING / PERSISTENT_BLOCKED /
+//                                 LATENCY_SECTION)
+//     timeline 별로 "연속 N개 덤프(threshold)에서 동일 상태이며 같은
+//     stack signature" 인 구간을 찾고, 가장 긴 run 의 길이를 dumps
+//     필드로 보고. RUNNABLE 은 long_running, BLOCKED/LOCK_WAIT 는
+//     persistent_blocked, NETWORK/IO/CHANNEL_WAIT 는 latency_sections.
+//
+//   STEP 3. Growing lock contention
+//     lock_id 별 waiter count 가 strict 증가하면서 N 덤프 이상 지속
+//     되면 finding. 락 대기열이 누적되는 패턴을 잡는다.
+//
+//   STEP 4. Heuristic findings (전체 비율 기반)
+//     각 bundle 단위로:
+//       waiting/total > 10%   → THREAD_CONGESTION_DETECTED
+//       timed_waiting/total > 25% → EXTERNAL_RESOURCE_WAIT_HIGH
+//       blocked-on-unowned-monitor > 50% → LIKELY_GC_PAUSE_DETECTED
+//
+//   STEP 5. JVM 메타 (Java 전용 enrichment)
+//     virtual thread carrier pinning, SMR unresolved, native methods,
+//     class histogram. 파서가 bundle.Metadata 에 미리 채워둔 값을
+//     그대로 표/findings 로 노출. 이 로직은 java jstack 플러그인에
+//     의존하지만, 파서가 없으면 빈 슬라이스가 되어 분석은 안전하게 통과.
+//
+//   STEP 6. 정렬 & top-N cap
+//     모든 표는 dumps DESC (또는 max_waiters DESC, consecutive DESC)
+//     로 정렬 후 topN 으로 자른다.
+//
+//   STEP 7. 응답 조립
+//     summary(개수 위주) / series(타임라인) / tables(상세 표) /
+//     metadata(diagnostics + findings) 채워서 반환.
+//
+// 다언어 지원의 비결
+//   분석기는 ThreadState enum 만 본다. Java 의 jstack 별칭이든
+//   Go 의 chan receive 든, 파서가 ThreadState.* 로 정규화한 뒤 넘겨주
+//   기 때문에 분석기는 단 한 번도 "이게 Java 인가" 따위를 묻지 않는다.
+//
+// 주의 / 트리키한 부분
+//   • formatThreadName 은 Python repr 의 기본 quoting 을 흉내 — 메시지
+//     문자열의 byte-level 일치를 위해 필요.
+//   • timeline 의 thread name 은 충돌 가능 → 동명 스레드는 합쳐짐.
+//     Python 도 같은 결합 정책이며 실세계에서 thread name 이 unique
+//     한 환경(WAS 풀 등)에서 의미를 가짐.
+//   • IncludeRawSnapshots 는 파이썬 패리티용 placeholder 로 현재 미사용.
 package multithread
 
 import (
@@ -69,6 +130,23 @@ var ErrNoBundles = errors.New("multithread: analyze requires at least one bundle
 
 // Analyze correlates threads across `bundles` and returns the populated
 // AnalysisResult. Mirrors `analyze_multi_thread_dumps`.
+//
+// [한글] 메인 진입점. 호출 흐름:
+//   1) bundles 비어 있으면 ErrNoBundles 즉시 반환(원래 Python 의
+//      ValueError 를 Go 에러로 매핑).
+//   2) Threshold/TopN 의 0 또는 음수 입력을 canonical 기본값으로 채움.
+//   3) buildTimelines (correlator.go) 가 timeline 맵 생성.
+//   4) buildPersistenceFindings / buildLatencySections /
+//      buildGrowingLockFindings 가 findings 행 생성.
+//   5) 각 행을 dumps DESC 로 정렬 (Python 의 후처리 sort 와 동일).
+//   6) buildJVMMetadataTables / buildJVMMetadataFindings 로 Java 전용
+//      메타 표 + finding 보강.
+//   7) buildHeuristicFindings 로 비율 기반 finding 추가.
+//   8) assembleFindings 가 모든 finding 을 하나의 list 로 합치고
+//      severity·priority 기반 정렬.
+//   9) summary/series/tables/metadata 를 한꺼번에 채우고 반환.
+//
+// 모든 표는 limitRows(rows, topN) 로 잘려 응답이 너무 무거워지지 않게.
 func Analyze(bundles []models.ThreadDumpBundle, opts Options) (models.AnalysisResult, error) {
 	if len(bundles) == 0 {
 		return models.AnalysisResult{}, ErrNoBundles

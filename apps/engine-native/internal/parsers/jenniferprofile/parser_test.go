@@ -1,3 +1,15 @@
+// [한글] jenniferprofile parser 회귀 테스트.
+//
+// 검증 대상
+//   • Acceptance #1 : `Total Transaction : 2` 파일 + 2개 TXID 블록 →
+//     2개 profile.
+//   • 헤더 2-column 파싱: KEY:VALUE pair 가 좌/우 칼럼에 모두 분포.
+//   • (ID) 접미사: `DOMAIN (ID): 주문 (1234)` → DomainID=1234.
+//   • 본문 이벤트 분류 (SQL/2PC/FETCH/EXTERNAL_CALL/CONNECTION_ACQUIRE).
+//   • DetailLines: grammar 미매칭 라인이 직전 이벤트 보충설명에 추가.
+//   • §10 검증: TXID/GUID/APPLICATION 누락 시 Errors 에 항목 추가.
+//   • FallbackCorrelationToTxid 옵션의 GUID 누락 격하 효과.
+//   • SOCEKT 오타도 SOCKET 으로 분류됨.
 package jenniferprofile
 
 import (

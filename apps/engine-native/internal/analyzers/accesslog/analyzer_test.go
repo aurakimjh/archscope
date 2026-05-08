@@ -1,3 +1,19 @@
+// [한글] accesslog 분석기 회귀 테스트.
+//
+// 핵심 검증 포인트
+//   • Fixture 파일에 대한 summary 22 메트릭 parity (Python 결과와
+//     byte 단위 일치).
+//   • 시계열 9종이 분당 시간순으로 정렬되어 있는지.
+//   • static / api 분류가 확장자/경로 기반으로 올바르게 동작.
+//   • findings: HIGH_ERROR_RATE / SERVER_ERRORS_PRESENT /
+//     NON_STANDARD_HTTP_STATUS / SLOW_URL_P95 / ERROR_BURST_DETECTED.
+//   • Top-N 표 5종(by_count/by_avg/by_p95/by_bytes/by_errors).
+//   • Diagnostics 의 totalLines/parsedRecords/skippedRecords 합산.
+//
+// 헬퍼
+//   nginxLine 은 nginx combined 포맷을 1라인 만드는 fixture builder.
+//   각 인자가 빈 문자열이면 기본값(2026-04-27 10:00:01, /api/orders/1001,
+//   200, 0.123) 으로 채워져 테스트 본문이 짧게 유지됨.
 package accesslog
 
 import (

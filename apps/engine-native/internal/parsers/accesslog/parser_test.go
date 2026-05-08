@@ -1,3 +1,12 @@
+// [한글] accesslog parser 회귀 테스트.
+//
+// 검증 대상
+//   • nginx / combined / common 3개 regex 가 우선순위대로 시도.
+//   • 시간 파싱 (`27/Apr/2026:10:00:01 +0900`) 의 timezone 정확.
+//   • 정상 미매칭 라인은 skip + diagnostics.SkippedRecords 증가.
+//   • Strict=true 면 첫 skip 이 fatal error.
+//   • MaxLines / StartTime / EndTime 필터.
+//   • UTF-8 BOM / 다양한 line ending(\r\n) 처리.
 package accesslog
 
 import (

@@ -1,3 +1,22 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] theme-provider.tsx — light/dark/system 테마를 관리하는 React
+//   Context Provider(shadcn 가 권장하는 단순 구현).
+//
+// 책임/목적:
+//   - 사용자 선택을 localStorage("archscope.theme") 에 영속화.
+//   - "system" 인 경우 prefers-color-scheme media query 로 OS 테마 추적.
+//   - resolved 테마(light/dark) 가 바뀌면 <html> 에 .dark 클래스 + data-theme
+//     속성을 토글해 Tailwind v4 의 dark variant 와 CSS 변수를 활성화.
+//
+// 데이터 흐름:
+//   App 부트스트랩 → ThemeProvider → useTheme() 으로 자식 컴포넌트가
+//   theme/resolvedTheme/setTheme 접근.
+//
+// 주의:
+//   - SSR 환경(typeof window === "undefined") 에서 안전한 fallback 제공.
+//   - 컨텍스트 외부에서 useTheme() 호출 시 throw — 마운트 누락을 빠르게
+//     발견하기 위함.
+// ─────────────────────────────────────────────────────────────────────
 import {
   createContext,
   useContext,

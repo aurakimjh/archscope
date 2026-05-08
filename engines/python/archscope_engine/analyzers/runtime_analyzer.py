@@ -1,3 +1,31 @@
+"""Runtime stack analyzer (Node.js / Python / Go panic / .NET / IIS)."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] runtime_analyzer — 런타임 별 스택/예외 텍스트 분석기.
+#
+# 책임/목적
+#   언어별 stack/traceback 텍스트를 받아 RuntimeStackRecord 리스트로
+#   파싱하고, 같은 형태의 AnalysisResult 를 산출. Node.js, Python,
+#   Go panic, .NET 예외(+ IIS access log) 4가지 입력을 지원.
+#
+# 알고리즘 흐름
+#   1) 언어별 parser 호출 → RuntimeStackRecord 리스트.
+#   2) error_type / source 분포 Counter, top stack signature 산출.
+#   3) .NET 의 경우 IIS access log 도 함께 파싱하고 status/slow URL
+#      bucketing 추가.
+#   4) finding 산출 (CRITICAL_EXCEPTION_PRESENT 등).
+#   5) AnalysisResult 조립.
+#
+# 주요 함수
+#   - analyze_nodejs_stack / analyze_python_traceback /
+#     analyze_go_panic / analyze_dotnet_exception_iis: 언어별 진입점.
+#   - _build_stack_result: 공통 빌더.
+#   - _stack_payload / _status_bucket: 보조.
+#
+# parity 주의사항 (Go engine-native 와 byte 단위 일치)
+#   - parser 이름 ("nodejs_stack_trace", "python_traceback",
+#     "go_panic_goroutine", "dotnet_exception_iis"), result type 이름
+#     이 Go 측 internal/analyzers/runtime 와 동일.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 from collections import Counter

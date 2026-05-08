@@ -1,3 +1,10 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] ui/button.tsx — shadcn/ui 의 표준 Button 컴포넌트(보일러플레이트).
+//   class-variance-authority(cva) 로 variant/size 를 선언하고, asChild
+//   prop 으로 Radix Slot 패턴을 지원합니다. 테마 토큰(예: ring-ring,
+//   bg-primary) 은 Tailwind v4 + shadcn theme 변수에 의존합니다.
+//   원본 shadcn 가이드 그대로이므로 직접 수정은 지양 — 새 variant 추가만.
+// ─────────────────────────────────────────────────────────────────────
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";

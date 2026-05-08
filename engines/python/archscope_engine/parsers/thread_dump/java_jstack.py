@@ -13,6 +13,35 @@ Both enrichment steps run only on Java frames (``StackFrame.language ==
 "java"``) so the registry can mix this plugin with Go/Python/etc. parsers
 without cross-contamination.
 """
+# ─────────────────────────────────────────────────────────────────────
+# [한글] java_jstack — Java jstack 텍스트 → ThreadDumpBundle 플러그인.
+#
+# 책임/목적 (가장 복잡한 plugin)
+#   jstack 의 풍부한 정보 — locks held, lock waiting, monitor info,
+#   AOP/CGLIB proxy frame, JVM 가상 thread carrier pinning, SMR
+#   diagnostics, class histogram, native method 등 — 을 모두 추출
+#   해 ThreadDumpBundle.metadata 까지 채운다. 다른 분석기 (lock
+#   contention, multi-thread) 가 이 메타에 의존.
+#
+# 알고리즘 단계
+#   1) can_parse: head 4KB 안에서 "Full thread dump" / nid=0x...
+#      / loose header 셋 중 하나라도 매칭 시 인정.
+#   2) parse_thread_dump (legacy) → ThreadDumpRecord 리스트.
+#   3) record → ThreadSnapshot 변환 (StackFrame.language="java").
+#   4) AOP 프록시 정규화 (T-194): CGLIB$$abc 같은 hash suffix 제거.
+#   5) state 추론 (T-195): RUNNABLE 인데 epoll/socket frame 이면
+#      NETWORK_WAIT, file I/O frame 이면 IO_WAIT 로 승격.
+#   6) virtual thread carrier pinning marker, SMR section, class
+#      histogram 등을 metadata 에 보존.
+#
+# 감지 정규식
+#   - _FULL_THREAD_HEADER : 표준 "Full thread dump" 헤더.
+#   - _JSTACK_NID_LINE    : nid=0x... 토큰 (가장 신뢰).
+#   - _JSTACK_LOOSE_HEADER: 헤더 없는 JDK 21+ test 형식.
+#
+# parity: 모든 정규식, AOP normalize 토큰 집합, state inference 룰이
+# Go engine-native internal/threaddump/plugins/javajstack 와 1:1 동등.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import re

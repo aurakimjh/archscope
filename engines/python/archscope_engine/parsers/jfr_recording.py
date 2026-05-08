@@ -19,6 +19,31 @@ varints. Until we ship a native Python reader, we shell out to the JDK's
 When no CLI is found we raise a structured ``JfrCliMissingError`` so the API
 layer can surface a clear instruction to the user instead of a stack trace.
 """
+# ─────────────────────────────────────────────────────────────────────
+# [한글] jfr_recording — 바이너리 .jfr → JSON 변환 브리지.
+#
+# 동작
+//   1) 입력 파일의 첫 4 byte 가 `FLR\x00` (jfrMagic) → 바이너리.
+//   2) 그 외 → JSON 으로 간주, 그대로 통과.
+//   3) 바이너리면 JDK `jfr` CLI 를 subprocess 로 호출:
+//        jfr print --json <recording.jfr>
+//      Stdout 을 임시 JSON 파일로 저장 후 jfr_parser 로 위임.
+//
+// jfr CLI 탐색 우선순위
+//   ARCHSCOPE_JFR_CLI 환경변수 → PATH 의 `jfr` → JAVA_HOME/bin/jfr.
+//   하나도 없으면 JfrCliMissingError 발생 — API 레이어가 사용자에게
+//   친절한 안내 메시지로 변환.
+//
+// timeout
+//   현재 timeout 없이 실행 (Python subprocess.run 기본). 큰 .jfr 도
+//   처리 가능. 향후 CI 에서 hang 방지가 필요하면 context-aware 변형
+//   도입.
+//
+// Go engine-native parity
+//   apps/engine-native/internal/parsers/jfr/recording.go 와 동일한 동작.
+//   argv 형식, 환경변수 이름, 에러 메시지 모두 일치 (parity gate 의
+//   stderr 비교가 안정적이도록).
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import json

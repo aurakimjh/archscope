@@ -1,3 +1,13 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] pages/SettingsPage.tsx — 앱 설정 페이지.
+//
+// 책임/목적: locale(en/ko), theme(light/dark/system), 프로파일러
+// 기본값(intervalMs/topN/profileKind), 최근 파일 목록(LRU) 을 표시하고
+// 변경/초기화 가능. 모든 설정은 localStorage 에 영속 저장.
+//
+// 의존성 주의: 본 페이지에서는 EngineService / ProfilerService 호출
+// 없음 — 클라이언트 사이드 설정만 다룹니다.
+// ─────────────────────────────────────────────────────────────────────
 import { useEffect, useState } from "react";
 
 import { useI18n } from "../i18n/I18nProvider";

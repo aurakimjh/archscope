@@ -1,3 +1,41 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] pages/ThreadDumpAnalyzerPage.tsx — 스레드 덤프 통합 분석기 페이지.
+//
+// 책임/목적:
+//   - 단일/다중 스레드 덤프(Java jstack, jcmd JSON, Python py-spy,
+//     Node.js report, Go pprof, .NET clrstack) 입력을 받아 세 가지
+//     분석 모드로 호출:
+//       (1) engine.analyzeThreadDump   → ThreadDumpSingleResult
+//                                         (sync, type "thread_dump")
+//       (2) engine.analyzeMultiThread  → ThreadDumpMultiResult
+//                                         (async, type "thread_dump_multi")
+//       (3) engine.analyzeLockContention → LockContentionResult
+//                                         (async, type "lock_contention")
+//
+//   - 비동기 모드는 EngineService 가 emit 하는 Wails 이벤트
+//     (engine:done / engine:error / engine:cancelled) 를 listen 하여
+//     결과/에러/취소를 받아 처리. cancelEngineTask(taskId) 로 중단 가능.
+//
+// 다루는 결과 형식:
+//   - 단일 덤프: ThreadDumpSingleResult — state/category/signature 분포 +
+//     thread 목록.
+//   - 다중 덤프: ThreadDumpMultiResult — long-running 스택, persistent
+//     blocked, virtual thread carrier pinning, SMR unresolved,
+//     class histogram 등 멀티 덤프 상관 분석.
+//   - Lock contention: LockContentionResult — lock 별 owner/waiter +
+//     deadlock chains.
+//
+// 데이터 흐름 (async path):
+//   engine.analyzeMultiThread(req) → { taskId } 즉시 반환
+//   Events.On("engine:done")  → 결과 setResult.
+//   Events.On("engine:error") → setError.
+//   Events.On("engine:cancelled") → idle 상태로 리셋.
+//   Cancel button → engine.cancelEngineTask(taskId).
+//
+// 의존성 주의: @wailsio/runtime Events 구독은 컴포넌트 unmount 시
+// off() 처리 필요(메모리 누수 방지). taskId 는 useRef 로 보관해 stale
+// closure 문제를 회피.
+// ─────────────────────────────────────────────────────────────────────
 import {
   AlertTriangle,
   FileText,

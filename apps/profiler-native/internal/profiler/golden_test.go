@@ -1,3 +1,9 @@
+// [한글] golden_test — examples/profiler/* fixture 에 대한 parity 회귀 방지.
+// Python 엔진과 같은 fixture 를 같은 토털/세그먼트/카운트로 분석하는지를 핀.
+// 실제 Python 측 결과는 engines/python/tests/test_*.py 가 검증하며, 양측이
+// drift 되면 여기 또는 Python 쪽 한 곳이 깨져 즉시 발견 가능.
+// fixture 변경 시 Python 으로 재생성 후 golden 값 갱신 필요.
+
 package profiler
 
 import (

@@ -1,3 +1,21 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] JfrAnalyzerPage.tsx — JFR(JDK Flight Recorder) 파일 분석 페이지.
+//
+// 책임/목적:
+//   - JFR 분석 모드(JfrAnalysisMode: cpu/native_memory/...) 를 선택해
+//     analyzer.execute({type:"jfr", mode, ...}) 호출.
+//   - 결과는 D3FlameGraph(샘플 기반 stack), D3HeatmapStrip(시간대별
+//     이벤트 밀도), 모드별 요약 카드/표 로 시각화.
+//
+// 데이터 흐름:
+//   FileDock → execute({mode}) → JfrAnalysisResult
+//   → charts.flame / series.heatmap / tables.allocations 등.
+//
+// 사용 series/tables/charts 키:
+//   - charts.flame: FlameGraphNode 트리.
+//   - series.heatmap_buckets: 시간 bucket × 카테고리 밀도.
+//   - tables.allocations / native_memory / etc(모드에 따라).
+// ─────────────────────────────────────────────────────────────────────
 import { Loader2, Play, Square } from "lucide-react";
 import { useCallback, useMemo, useRef, useState } from "react";
 

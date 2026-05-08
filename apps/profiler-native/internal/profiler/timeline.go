@@ -1,3 +1,43 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] timeline — flame tree 를 12개 의미 segment 로 나눈 timeline 표.
+//
+// 책임/목적
+//   profiler 결과를 "execution timeline" 형태로 변환한다. 각 leaf path 를
+//   classify.go 의 카테고리에서 한 단계 더 추상화된 12개 segment
+//   (STARTUP_FRAMEWORK / INTERNAL_METHOD / SQL_EXECUTION / ... ) 로
+//   매핑하고 segment 별 samples 를 합산해 실행 타임라인을 만든다.
+//
+// 알고리즘 흐름
+//   STEP 1. timelineScopedPath (옵션)
+//     options.TimelineBaseMethod 가 지정되면 path 에서 그 베이스 메서드가
+//     처음 나타나는 곳부터 잘라 부분 트리 분석. 매치 없으면 skip.
+//   STEP 2. timelineSegment 매핑
+//     classifyFrames 결과(PrimaryCategory + WaitReason) 를 보고 12개
+//     segment 중 하나로 매핑. SQL+NETWORK_IO_WAIT → DB_NETWORK_WAIT
+//     같은 복합 룰 포함. 매치 안되면 STARTUP_FRAMEWORK heuristic 또는 UNKNOWN.
+//   STEP 3. segment 별 누적
+//     samples / 메서드 분포 / 메서드 체인 / 스택 분포를 모두 누적.
+//     체인은 selectChainFrames 가 segment 별 토큰 매칭으로 6개 frame 선별.
+//   STEP 4. 정렬
+//     timelineOrder 슬라이스 순서를 그대로 유지(시간/추상화 순). 빈 segment 는 skip.
+//
+// 주요 함수
+//   - buildTimeline           : 진입점 (rows + scope)
+//   - timelineScopedPath      : base method 기반 path 자르기
+//   - timelineScope           : scope metadata (base ratio, warning)
+//   - timelineSegment         : path → segment 매핑
+//   - methodChain / selectChainFrames / segmentTokens : 체인 표현 생성
+//   - topChainRows            : chain counter → TimelineChainRow
+//   - sortedSegmentsBySamples : helper (samples DESC + name ASC)
+//
+// 트리키한 부분
+//   • baseMethod 매치는 case-insensitive substring → 사용자가 짧은 토큰만
+//     입력해도 동작. mode = "base_method" 로 reroot view.
+//   • selectChainFrames 의 segmentTokens 는 매우 도메인 친화적인 휴리스틱.
+//     실제 운영 코드의 stack trace 패턴 분석을 통해 도출됨.
+//   • timelineOrder 의 순서는 UI 표시 순서와 직결되므로 절대 변경 금지.
+// ─────────────────────────────────────────────────────────────────────
+
 package profiler
 
 import (
@@ -5,6 +45,7 @@ import (
 	"strings"
 )
 
+// [한글] timelineOrder — 표시 순서 (시간 순/추상화 정도 고려).
 var timelineOrder = []string{
 	"STARTUP_FRAMEWORK",
 	"INTERNAL_METHOD",
@@ -44,6 +85,10 @@ type timelineAccumulator struct {
 	Stacks  map[string]int
 }
 
+// [한글] buildTimeline — flame tree → timeline 표 + scope.
+// stageTotal 은 base method 가 있으면 매치된 leaf 합, 없으면 root.Samples.
+// originalTotal 은 전체 비율 산정을 위한 분모. base method 가 있는데
+// 매치 0 이면 빈 [] + scope.warning 반환.
 func buildTimeline(root FlameNode, options Options, originalTotal int) ([]TimelineRow, TimelineScope) {
 	baseMethod := strings.TrimSpace(options.TimelineBaseMethod)
 	stageTotal := root.Samples
@@ -181,6 +226,11 @@ func timelineScope(baseMethod string, baseSamples int, totalSamples int) Timelin
 	}
 }
 
+// [한글] timelineSegment — path → 12개 segment 중 하나로 매핑.
+// classify 카테고리 + WaitReason 조합을 기반으로 결정. SQL/EXTERNAL +
+// NETWORK_IO_WAIT 조합은 별도 segment 로 분리해 "쿼리 실행 vs DB 대기",
+// "외부 호출 vs 외부 응답 대기" 를 구분 가능하게 한다.
+// looksLikeStartup 은 startup 휴리스틱 (Spring Boot 부팅 등).
 func timelineSegment(path []string) string {
 	classification := classifyFrames(path)
 	primary := classification.PrimaryCategory
@@ -257,6 +307,11 @@ func selectChainFrames(path []string, segment string) []string {
 	return path[len(path)-6:]
 }
 
+// [한글] segmentTokens — 각 segment 별 "이 frame 은 그 segment 의 핵심
+// frame 이다" 를 식별하기 위한 lowercased token 리스트. 6개 frame chain
+// 을 추출할 때 의미 없는 framework boilerplate 를 걷어내고 핵심 호출만
+// 남기기 위한 도메인 휴리스틱. JDBC/HTTP/Connection Pool/Lock 4개 카테
+// 고리에 대해 정의되어 있고 그 외 segment 는 path 의 마지막 6개 frame.
 func segmentTokens(segment string) []string {
 	switch segment {
 	case "SQL_EXECUTION", "DB_NETWORK_WAIT":

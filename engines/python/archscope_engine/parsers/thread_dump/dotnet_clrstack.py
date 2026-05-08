@@ -18,6 +18,25 @@ We capture each block as a :class:`ThreadSnapshot` with
 record the sync-block-table marker (when present) under ``metadata`` for
 downstream lock analysis.
 """
+# ─────────────────────────────────────────────────────────────────────
+# [한글] dotnet_clrstack — .NET WinDbg/SOS clrstack 파서.
+#
+# 두 가지 plugin
+#   - DotnetClrstackParserPlugin: `dotnet-dump analyze` clrstack 출력.
+#     "OS Thread Id: 0xXXX (N)" 헤더 + "Child SP IP Call Site" 컬럼
+#     헤더 + frame 라인.
+#   - DotnetEnvironmentStackTraceParserPlugin: .NET Exception.
+#     GetEnvironmentStackTrace 출력 (managed thread만).
+#
+# .NET 고유 enrichment
+#   - async state machine wrapper (`MoveNext()`, `<>g__N|N`) 정규화
+#     → 같은 논리 호출 사이트가 같은 signature 로 모이도록.
+#   - System.Threading.Monitor.Enter → LOCK_WAIT.
+#   - sync-block-table marker 가 있으면 metadata 에 보존.
+#
+# parity: 정규식, async wrapper 정규화 룰이 Go 측
+# internal/threaddump/plugins/dotnetclrstack 와 동일.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import re

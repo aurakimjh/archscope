@@ -1,3 +1,35 @@
+# ─────────────────────────────────────────────────────────────────────
+# [한글] test_lock_contention — Phase 7 락 경합 분석 회귀 테스트
+# (T-218 / T-219 / T-220 / T-221).
+#
+# 검증 대상
+#   • T-218: ThreadSnapshot 의 lock_holds / lock_waiting 필드 default
+#     값과 to_dict 직렬화 (lock_id / lock_class 키 형태).
+#   • T-219: Java jstack 파서가 다음 4 종 패턴에서 LockHandle 추출:
+#       - "- locked <id> (a Class)"     (소유 락, 다중 가능)
+#       - "- waiting to lock <id>"      (BLOCKED on monitor)
+#       - "- parking to wait for <id>"  (LockSupport.park 류)
+#       - "- waiting on <id>"           (Object.wait 류)
+#   • T-220: analyze_lock_contention —
+#       - LOCK_CONTENTION_HOTSPOT : waiter 수 기반 정렬, evidence 에
+#         lock_id / waiter_count / owner_thread 포함.
+#       - DEADLOCK_DETECTED       : 2-thread / 3-thread 사이클 감지.
+#       - 비경합 / 빈 입력         : finding 없음 / ValueError.
+#       - multi-bundle union      : 여러 dump 의 waiter 합산.
+#   • T-221: analyze_multi_thread_dumps 의 GROWING_LOCK_CONTENTION —
+#     waiter 수가 단조증가할 때만 발화 (평탄 시 미발화).
+#
+# fixture 정책
+#   _DUMP_WITH_LOCKS 는 4 종 락 패턴을 한 dump 안에 모은 textwrap.dedent
+#   inline string. tmp_path 에 파일을 만들어 JavaJstackParserPlugin 으로
+#   직접 파싱(IO 경로 검증). _java_snapshot / _bundle 헬퍼는 합성 입력용.
+#
+# parity 주의 (Python ↔ Go 비교 가능한 부분)
+#   Go engine-native 의 internal/analyzers/lockcontention 와 finding
+#   code, evidence 필드명, summary 키, 사이클 탐지 알고리즘 결과가
+#   byte 단위 동일해야 함. _DUMP_WITH_LOCKS 의 락 ID 16진 표기와
+#   class 추출 정규식도 동기화 대상.
+# ─────────────────────────────────────────────────────────────────────
 """Tests for Phase 7 lock-contention analysis (T-218 / T-219 / T-220 / T-221)."""
 from __future__ import annotations
 
@@ -192,6 +224,8 @@ def test_lock_contention_hotspot_ranks_by_waiter_count() -> None:
 
 
 def test_lock_contention_detects_two_thread_deadlock() -> None:
+    # [한글] 2-thread 데드락(고전 ABBA): 사이클 탐지가 양 thread 모두를
+    #        evidence.threads 에 정렬된 형태로 포함하는지 검증.
     a = LockHandle("0xA", "com.example.A")
     b = LockHandle("0xB", "com.example.B")
     # T1 holds A, waits for B; T2 holds B, waits for A.
@@ -277,6 +311,8 @@ def test_lock_contention_unions_multiple_bundles() -> None:
 
 
 def test_multi_dump_growing_lock_contention_fires_when_waiters_increase() -> None:
+    # [한글] dump 0→1→2 동안 동일 락의 waiter 수가 1→2→3 으로 증가하면
+    #        threshold=3 일 때 GROWING_LOCK_CONTENTION 1 회 발화.
     pool = LockHandle("0xPOOL")
     bundles = []
     for index, waiter_names in enumerate([["w1"], ["w1", "w2"], ["w1", "w2", "w3"]]):

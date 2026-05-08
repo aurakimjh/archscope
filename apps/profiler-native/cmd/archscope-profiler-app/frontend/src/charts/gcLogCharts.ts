@@ -1,3 +1,20 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] charts/gcLogCharts.ts — GC log 분석 결과 ECharts 옵션 빌더.
+//
+// 책임/목적: GcLogAnalysisResult 의 series/tables 를 받아 5 종 차트
+// 옵션을 생성:
+//   - pauseTimelineOption    : pause 타임라인 + Full GC markPoint(핀).
+//   - heapUsageOption        : heap before/after/committed/young after
+//                              4-line 차트 (legend 토글로 시리즈 가시성).
+//   - allocationRateOption   : 할당률(allocation) + 승격률(promotion)
+//                              MB/s 시계열.
+//   - gcTypeBreakdownOption  : GC type 별 카운트 가로 막대.
+//   - causeBreakdownOption   : 원인(cause) 별 카운트 가로 막대.
+//
+// 의존성 주의: web 셸의 D3 기반 차트가 제공하던 brushing/풀스크린/PNG
+// 내보내기는 의도적으로 제외 (bundle 크기 트레이드오프). 추후 Save-All-
+// Charts batch exporter 와 함께 복원 예정.
+// ─────────────────────────────────────────────────────────────────────
 import type { EChartsOption } from "echarts";
 
 import type { GcLogAnalysisResult } from "@/bridge/types";

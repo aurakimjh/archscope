@@ -5,6 +5,30 @@
 //
 // Foundation for the other Tier-4 exporters (HTML / PPTX / CSV /
 // report-diff) that all need to load & re-emit AnalysisResult JSON.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] json exporter — AnalysisResult 의 라운드트립 안정 직렬화.
+//
+// 출력 형식
+//   • 2-space indent.
+//   • 끝에 한 줄 띄움 (\n).
+//   • 비-ASCII 문자(한글 등) 은 escape 하지 않고 raw UTF-8.
+//
+// 왜 이 형식인가?
+//   • diff/git/editor 친화적 — indent 와 trailing newline 이 깔끔한
+//     diff 를 만들어 줌.
+//   • Python `ensure_ascii=False` 와 자동 동치 — Go `encoding/json` 의
+//     기본 동작이 raw UTF-8.
+//   • parity gate 가 두 엔진 출력을 비교할 때 노이즈 0.
+//
+// 다른 exporter 의 토대
+//   T-340 의 exporter 표면 (Write / Marshal) 을 처음 정의한 곳.
+//   HTML / PPTX / CSV / report-diff 가 모두 이 스타일을 그대로 모방
+//   (alias swap 가능).
+//
+// 디렉토리 자동 생성
+//   Write 가 부모 디렉토리를 mkdir -p 처리 — 보고서를 처음 생성하는
+//   경로에서 ENOENT 로 실패하지 않도록.
 package json
 
 import (

@@ -1,3 +1,14 @@
+// [한글] html exporter 회귀 테스트.
+//
+// 검증 대상
+//   • 자기 충족: 출력 HTML 안에 외부 자산 참조(<img src=>, <link href=>)
+//     가 0개 — 인라인 CSS 와 텍스트만.
+//   • 사용자 입력 escape: `<script>` 가 들어가도 `&lt;script&gt;` 로
+//     escape (XSS 안전).
+//   • UTF-8 한글이 raw 로 보존.
+//   • Findings 섹션이 있을 때만 렌더, 없으면 생략.
+//   • Summary / Tables / Series 의 정상 렌더링.
+//   • Marshal 과 Write 가 같은 byte 출력.
 package html
 
 import (

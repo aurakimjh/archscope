@@ -15,6 +15,24 @@ Anything else (random HTML reports, SPA shells, etc.) is reported as
 ``UNSUPPORTED_HTML_FORMAT`` so the caller can surface the issue without
 guessing.
 """
+# ─────────────────────────────────────────────────────────────────────
+# [한글] html_profiler_parser — HTML 형식 flamegraph 입력 파서.
+#
+# 두 가지 HTML 변종을 모두 처리:
+#   1) inline-SVG HTML: flamegraph.pl --html 출력. <svg>...</svg>
+#      블록을 찾아 svg_flamegraph_parser 로 위임.
+#   2) async-profiler 2.x+ self-contained HTML: 본문에 JS 변수
+#      `var root = {...}` 또는 `levels = [...]` 형태의 callee tree
+#      가 들어 있음. tolerant regex 로 JSON 추출 → JSON 파싱 →
+#      재귀 평탄화로 collapsed Counter 생성.
+#
+# 미지원 입력
+#   임의 HTML 리포트, SPA shell 등은 UNSUPPORTED_HTML_FORMAT 으로
+#   reporting (caller 가 적절한 메시지 노출).
+#
+# parity: SVG 위임 경로는 Go 측과 동일. async-profiler JSON 구조의
+# 키 ("name"/"samples"/"children") 는 변경 시 양쪽 동시 갱신 필요.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import json

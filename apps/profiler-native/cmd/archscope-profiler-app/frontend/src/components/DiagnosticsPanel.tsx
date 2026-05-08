@@ -1,3 +1,20 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] DiagnosticsPanel.tsx — 파서 진단(Parser Diagnostics) 상세 패널.
+//
+// 책임/목적:
+//   - ParserDiagnostics(파싱 라인 수, skip 사유 분포, 경고/에러 샘플)
+//     을 표 + 메트릭 카드 + 샘플 리스트로 렌더.
+//   - "Save Debug Log" 버튼: ProfilerService.WriteDebugLog 를 호출해
+//     debug 모드로 재분석하고 결과를 디스크에 저장. baseRequest 가
+//     주어졌을 때만 활성화 — 같은 입력으로 재현 가능해야 디버깅에 의미.
+//
+// 데이터 흐름 (Go ProfilerService ↔ React):
+//   사용자 클릭 → ProfilerService.WriteDebugLog(AnalyzeRequest) Wails IPC
+//   → Go 가 debug 로그 파일을 disk 에 쓰고 outputPath/verdict 반환.
+//
+// 의존성 주의: Wails CLI 가 자동 생성한 bindings (../../bindings/...)
+// 를 직접 import — task generate:bindings 후에만 path 가 유효합니다.
+// ─────────────────────────────────────────────────────────────────────
 import { useState } from "react";
 
 import type { ParserDiagnostics, DiagnosticSample } from "../../bindings/github.com/aurakimjh/archscope/apps/profiler-native/internal/profiler/models";

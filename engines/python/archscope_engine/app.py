@@ -14,6 +14,11 @@ subcommand the existing ``archscope-engine`` already has, and overrides
 ``serve`` with a UX-friendly variant (open the browser by default,
 auto-resolve the bundled React static dir).
 """
+# [한글] app — 사용자용 `archscope` 콘솔 스크립트.
+# archscope_engine.cli 의 Typer app 을 그대로 노출하면서 serve 만
+# UX 좋게 재정의 (기본 host=127.0.0.1, port=8765, 자동 브라우저 오픈,
+# bundled React 정적 디렉토리 자동 탐색). pip install archscope 로
+# 설치하면 archscope-engine / archscope 두 binary 모두 동작.
 from __future__ import annotations
 
 import os

@@ -1,3 +1,27 @@
+// [한글] common/debuglog.go — 파서 실패 시 사용자가 한 파일로 첨부할
+// 수 있는 redacted 디버그 로그.
+//
+// 동기
+//   고객사 운영 환경에서 파싱 실패가 났을 때, 원본 입력 파일을 그대로
+//   첨부하면 자격 증명/개인정보 누출 위험. ArchScope 는 같은 정보를
+//   redaction 한 형태로 한 JSON 파일에 모아 첨부 가능하게 함.
+//
+// 핵심 정책
+//   • Per-error-type 샘플 cap : 같은 에러가 수만 건 발생해도 type 별로
+//     상한 (DebugLog 내부 상수) 까지만 샘플 보관.
+//   • 1 MiB 출력 cap : 디버그 로그 자체가 너무 커지지 않도록.
+//   • Redact-by-default : Authorization / Cookie / URL / email / 절대
+//     경로 / IP 등을 자동 마스킹 (redaction.go 와 협업).
+//   • Verdict / encoding 메타 : 입력 파일의 인코딩 추정 결과 + 처리
+//     verdict (success/skip/fail) 를 자동 기록.
+//
+// 출력 위치
+//   호출자가 path 를 지정. 일반적으로 `<repo>/archscope-debug/` 아래
+//   timestamp 가 붙은 파일.
+//
+// Python 동치
+//   archscope_engine.common.debug_log.DebugLogCollector. JSON shape
+//   까지 동일 — 두 엔진의 디버그 로그를 같은 viewer 로 열 수 있도록.
 package common
 
 import (

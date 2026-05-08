@@ -1,3 +1,30 @@
+# ─────────────────────────────────────────────────────────────────────
+# [한글] thread_dump/python_dump — Python 3종 thread dump 파서.
+#
+# 3종 변종을 별도 plugin 으로 분리한 이유
+#   세 형식 외관이 비슷하지만 헤더/프레임 grammar 가 다름. 한 plugin
+#   안에서 분기하면 can_parse 가 부정확. 각 변종이 자기 can_parse 를
+#   가지도록 분리.
+#
+# 변종별 형식
+#   1) py-spy: `Process 12345:` + `Thread N (state): "name"` + 들여쓰기
+#      한 `func (file:line)` 프레임.
+#   2) faulthandler: `Thread 0x... (most recent call first):` +
+#      `File "/path", line N in func`.
+#   3) traceback: `Thread ID: N` + `File "/path", line N, in func`.
+#
+# 공통 enrichment (T-199)
+#   세 변종 모두 같은 후처리 함수를 통과:
+#     • Django/FastAPI/Flask middleware wrapper 제거.
+#     • select.* / socket.recv / asyncio sleep 패턴 → NETWORK_WAIT /
+#       IO_WAIT / TIMED_WAITING 격상.
+#     • py-spy 의 idle/sleeping → TIMED_WAITING.
+#
+# Go engine-native parity
+#   apps/engine-native/internal/threaddump/plugins/pythondump/ 에
+#   같은 동작이 한 패키지로 구현. 정규식, 사유 코드, enrichment 표
+#   모두 byte 단위 일치.
+# ─────────────────────────────────────────────────────────────────────
 """Python thread-dump parsers (T-198) + Python-only enrichment (T-199).
 
 Two flavors of Python dump are common in production:
@@ -20,6 +47,26 @@ they share a single enrichment pass that normalizes Django/FastAPI/Flask
 middleware wrappers and promotes ``select.*`` / ``socket.recv`` / async
 sleep frames to the appropriate :class:`ThreadState`.
 """
+# ─────────────────────────────────────────────────────────────────────
+# [한글] python_dump — Python thread-dump 파서 플러그인 묶음.
+#
+# 3가지 plugin
+#   - PythonPySpyParserPlugin: `py-spy dump` 출력. "Process N:" 배너 +
+#     "Thread N (state): name" + 들여쓰기 frame 블록.
+#   - PythonFaulthandlerParserPlugin: faulthandler.dump_traceback /
+#     SIGSEGV 크래시 dump. "Thread 0xNNN (most recent call first):"
+#     + 들여쓰기 "File ..., line N in func" 블록.
+#   - PythonTracebackParserPlugin: 일반 traceback.print_stack() 출력.
+#
+# Python 고유 enrichment (T-199)
+#   - asyncio loop / coroutine wrapper frame 정규화.
+#   - select.select / socket.recv / poll → NETWORK_WAIT 승격.
+#   - threading.Lock.acquire / Condition.wait → LOCK_WAIT.
+#   - asyncio.sleep / time.sleep → TIMED_WAITING.
+#
+# parity: state 라벨 매핑, frame 정규화 토큰이 Go 측
+# internal/threaddump/plugins/pythondump 와 동일.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import re

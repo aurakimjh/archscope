@@ -1,3 +1,15 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] D3HeatmapStrip.tsx — 1D 시간축 위의 이벤트 밀도(strip) 시각화.
+//
+// 책임/목적:
+//   - JFR/프로파일러 결과의 시간 bucket 별 카운트를 가로 띠 형태의 heatmap
+//     으로 표시(고해상도 timeline 의 미리보기 용).
+//   - 호버 시 해당 bucket 의 시각/카운트 툴팁.
+//   - bucket 너비는 컨테이너 폭에 맞춰 동적 계산.
+//
+// 데이터 흐름:
+//   부모 → HeatmapBucket[] (index/time/count) + bucketSeconds → strip.
+// ─────────────────────────────────────────────────────────────────────
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useTheme } from "@/components/theme-provider";

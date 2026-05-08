@@ -22,6 +22,27 @@ worker pool's native pthreads. We map JS frames into
 ``language="native"`` so the JS-only enrichment plugin (T-201) can target
 just JS frames.
 """
+# ─────────────────────────────────────────────────────────────────────
+# [한글] nodejs_report — Node.js diagnostic report 파서 플러그인.
+#
+# 두 가지 plugin
+#   - NodejsDiagnosticReportParserPlugin: process.report.writeReport()
+#     출력 (JSON). javascriptStack + nativeStack + libuv 핸들 포함.
+#   - NodejsSampleTraceParserPlugin: --inspect 와 함께 sample trace.
+#
+# Node 특성 처리
+#   메인 thread 1개 + libuv worker pthread 풀. JS frame 은
+#   StackFrame(language="javascript"), libuv 등 native frame 은
+#   language="native" 로 분리해 enrichment 가 JS 만 건드리도록 함.
+#
+# JS 전용 enrichment (T-201)
+#   - Express/Fastify middleware wrapper 정규화.
+#   - epoll_wait / uv_run / read → NETWORK_WAIT.
+#   - libuv tcp/udp 핸들 정보를 metadata 로 보존.
+#
+# parity: JSON 키 ("javascriptStack", "nativeStack", "libuv"),
+# state 매핑이 Go 측 internal/threaddump/plugins/nodejsreport 와 동일.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import json

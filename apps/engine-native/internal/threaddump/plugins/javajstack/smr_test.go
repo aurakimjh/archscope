@@ -1,3 +1,13 @@
+// [한글] smr_test.go — SMR diagnostics 추출 회귀 테스트
+// (T-228 / T-234).
+//
+// 검증 대상
+//   • "Threads class SMR info:" 블록 인식.
+//   • _java_thread_list= 의 address 리스트 추출.
+//   • _to_delete: 의 unresolved address 추출.
+//   • 본 dump 의 thread tid 와 cross-reference.
+//   • 매치 안 되는 address 는 SMR_UNRESOLVED_THREAD finding 의 evidence.
+//   • bundle.Metadata["smr"] 구조의 정확성.
 package javajstack
 
 import "testing"

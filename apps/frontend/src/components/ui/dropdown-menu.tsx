@@ -1,3 +1,8 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] ui/dropdown-menu.tsx — shadcn/ui DropdownMenu(Radix 기반) wrapper.
+//   라디오/체크박스/서브메뉴까지 포함된 풀 세트. TopBar/ChartPanel 등에서
+//   메뉴 트리거로 사용합니다. shadcn 가이드 그대로이므로 직접 수정 지양.
+// ─────────────────────────────────────────────────────────────────────
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 import { Check, ChevronRight, Circle } from "lucide-react";
 import * as React from "react";

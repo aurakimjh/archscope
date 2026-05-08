@@ -1,3 +1,13 @@
+"""Bounded percentile via reservoir sampling."""
+# [한글] statistics — 스트리밍 통계 헬퍼.
+# average / percentile: 단순 list 기반 평균/백분위.
+# BoundedPercentile: Vitter 알고리즘 R 변형 reservoir sampling.
+#   - max_samples 까지 채우고, 이후엔 N 개째 들어오는 값을 1/N 확률로
+#     reservoir 의 임의 슬롯에 교체. percentile 호출 시 reservoir 만
+#     정렬해 근사값 반환. 메모리 사용 일정 → 수억 개 요청 처리 가능.
+#   - seed 고정 (12_345) 으로 결과 재현성 보장.
+# parity: BoundedPercentile 의 max_samples (10_000), seed (12_345),
+# 알고리즘이 Go engine-native internal/statistics 와 동일.
 from __future__ import annotations
 
 from dataclasses import dataclass, field

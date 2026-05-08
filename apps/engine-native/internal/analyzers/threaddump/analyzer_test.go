@@ -1,3 +1,11 @@
+// [한글] threaddump 단일 분석기 회귀 테스트.
+//
+// 핵심 시나리오
+//   • RUNNABLE 다수 + BLOCKED 1건 → BLOCKED_THREADS_PRESENT finding.
+//   • WAITING 비율 > 50% → WAITING_THREADS_DOMINATE finding.
+//   • State 가 비어있는 thread → "UNKNOWN" 로 분류.
+//   • top_stack_signatures 가 빈도순 정렬.
+//   • per-thread 표(tables.threads) 가 입력 순서를 보존.
 package threaddump
 
 import (

@@ -1,3 +1,8 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] ui/tooltip.tsx — shadcn/ui Tooltip(Radix). delayDuration 은
+//   사용처에서 TooltipProvider 로 지정. ChartPanel/AppSidebar 등 아이콘
+//   버튼에 hover 라벨을 부착할 때 사용.
+// ─────────────────────────────────────────────────────────────────────
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import * as React from "react";
 

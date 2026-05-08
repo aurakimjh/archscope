@@ -9,6 +9,31 @@
 // Go port stdlib-only avoids pulling in a YAML dependency for a single
 // fixture form. If a future user ships a YAML mapping, they can
 // convert it with `yq -o=json` before invoking the Go runner.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] demosite/mapping.go — analyzer_type ↔ CLI command 매핑 표
+// 로더.
+//
+// analyzer_type_mapping.json 의 역할
+//   매니페스트가 사용하는 추상 라벨(analyzer_type)을 실제 CLI 명령으로
+//   변환하는 사전. 예시:
+//     "access_log"        → ["access-log", "analyze"]
+//     "thread_dump_multi" → ["thread-dump", "analyze-multi"]
+//     "jennifer_profile"  → ["jennifer-profile", "analyze"]
+//
+// 자동 발견 (auto-discovery)
+//   매니페스트 디렉토리에서 parent 를 거슬러 올라가며
+//   analyzer_type_mapping.json 을 찾음. 매번 path 명시할 필요 없도록
+//   편의 제공. --mapping 으로 명시하면 자동 발견 skip.
+//
+// reference_doc 패턴
+//   AnalyzerTypeMapping.Command 가 nil 인 entry 는 "이건 분석 대상이
+//   아니라 참고 문서" 라는 표시. 매니페스트 안에서 사용자에게 추가 컨텍스트
+//   를 제공하는 README 같은 파일을 가리킬 때 사용.
+//
+// JSON-only 제약
+//   stdlib 만 유지하기 위해 YAML 미지원. demo fixture 의 canonical
+//   포맷은 JSON. 사용자가 YAML 을 가지고 있다면 `yq -o=json` 으로 변환.
 package demosite
 
 import (

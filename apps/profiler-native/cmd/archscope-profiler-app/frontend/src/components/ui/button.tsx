@@ -1,3 +1,11 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] components/ui/button.tsx — shadcn/ui Button 컴포넌트.
+//
+// 책임/목적: web 셸(apps/frontend) 의 Button 과 동일한 surface(API/
+// variant/size) 를 제공해 포팅된 페이지를 변경 없이 컴파일 가능하게 함.
+// class-variance-authority(cva) 로 variant×size 조합 클래스 합성.
+// asChild=true 시 Radix Slot 으로 자식 엘리먼트에 prop 위임.
+// ─────────────────────────────────────────────────────────────────────
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";

@@ -1,3 +1,18 @@
+# ─────────────────────────────────────────────────────────────────────
+# [한글] test_statistics — 통계 헬퍼 회귀 테스트.
+#
+# 검증 대상
+#   • average: 빈/단일/반복/음수 입력 → NaN/panic 없이 안정 동작.
+#   • percentile: 0/50/100 경계 + 두 값 사이 linear interpolation.
+#   • BoundedPercentile (reservoir sampling):
+#       - capacity 미만 입력 → 정확한 sort 결과.
+#       - capacity 초과 → 안정적 추정.
+#       - 같은 seed → 같은 결과 (deterministic).
+#
+# parity 주의
+#   Go engine-native (internal/statistics) 와 같은 알고리즘 + 같은
+#   seed (12_345). reservoir 가 가득 차지 않은 입력에서는 byte 단위 일치.
+# ─────────────────────────────────────────────────────────────────────
 from archscope_engine.common.statistics import BoundedPercentile, average, percentile
 
 

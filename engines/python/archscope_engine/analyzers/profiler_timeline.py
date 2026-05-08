@@ -1,3 +1,23 @@
+"""Timeline view of profiler stacks with execution-segment ordering."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] profiler_timeline — 프로파일 스택을 "실행 세그먼트" 시간선으로.
+#
+# 책임/목적
+#   FlameNode 트리에서 leaf path 를 뽑아 각 path 를 실행 세그먼트
+#   (STARTUP_FRAMEWORK / SQL_EXECUTION / DB_NETWORK_WAIT 등) 로 매핑
+#   하고, SEGMENT_ORDER 의 정렬에 따라 한 줄로 펼쳐 시각화 전용
+#   timeline 행을 만든다.
+#
+# 알고리즘
+#   1) leaf path 별 classify_execution_stack 호출 → 세그먼트 ID.
+#   2) timeline_base_method 이 주어지면 그 method 가 path 안에 있는
+#      leaf 만 scope 로 좁힘 (하나의 트랜잭션을 fokus).
+#   3) 세그먼트별 sample 누적 → 시간 (interval_ms × samples) 환산.
+#   4) SEGMENT_ORDER 순서로 행 정렬.
+#
+# parity 주의사항: SEGMENT_ORDER 와 SEGMENT_LABELS, STARTUP_TOKENS
+# 매핑이 Go engine-native 와 동일. 시간 단위는 ms.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 from collections import Counter, defaultdict

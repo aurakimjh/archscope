@@ -1,3 +1,13 @@
+// [한글] statistics 회귀 테스트.
+//
+// 검증 대상
+//   • Average: 빈/단일/중복/음수 값.
+//   • Percentile: p=0 / 50 / 100 경계, 두 값 사이 보간.
+//   • BoundedPercentile:
+//       - capacity 미만 입력 → 정확한 sort 결과.
+//       - capacity 초과 → reservoir 가 안정적 추정.
+//       - 같은 seed → 같은 결과 (deterministic).
+//   • Edge cases: NaN/Inf 입력에 panic 안 함.
 package statistics
 
 import (

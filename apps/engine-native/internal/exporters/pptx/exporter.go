@@ -23,6 +23,39 @@
 //     source_files lines)
 //  2. Summary metrics (up to 10 `summary` map entries)
 //  3. Findings (only when metadata.findings is non-empty; up to 6)
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] pptx exporter — 손수 만든 최소 OOXML PowerPoint 작성기.
+//
+// 왜 손수 작성하는가?
+//   unioffice 같은 third-party 라이브러리는 수십 MB 의존성을 끌고 옵니다.
+//   데스크톱 바이너리 사이즈 < 12 MB 목표(T-391) 를 지키려면 외부 의존
+//   금지. 다행히 PPTX 는 zip + 정형 XML 의 합성이라, archive/zip +
+//   string template 만으로 PowerPoint 가 열 수 있는 최소 형태를 만들
+//   수 있음.
+//
+// 정확히 어떤 XML 만 emit 하는가?
+//   PowerPoint 는 비어있어도 안 되고, 형식이 어긋나도 안 되는 까다로운
+//   포맷입니다. 위 주석에 나열된 8종 XML part 가 PowerPoint 가 "텍스트
+//   슬라이드 N장" 을 그리는 데 필요한 절대 최소.
+//
+// 의도적으로 빼는 것
+//   • 차트 (chart parts)         — 보고서엔 텍스트로 충분.
+//   • 이미지 (media parts)       — 데이터 보안 차원에서도 텍스트만.
+//   • 애니메이션 / transition    — 정적 텍스트 보고서 컨셉.
+//   • 노트 (notesSlide)          — 발표용 개인 메모는 사용자 책임.
+//
+// 슬라이드 구성 (Python `_slides_for_payload` 동치)
+//   1) Title 슬라이드: 보고서 제목 + result.type + created_at +
+//      source_files (한 줄씩).
+//   2) Summary 슬라이드: summary map 의 첫 10개 키 (key: value).
+//   3) Findings 슬라이드: metadata.findings 가 있을 때만, 최대 6개
+//      (severity / code / message).
+//
+// XSS-equivalent 안전 (XML escape)
+//   사용자 텍스트가 XML attribute / element body 에 들어가기 전에
+//   xmlEscape 로 처리. `<`/`>`/`&`/`"`/`'` 가 모두 escape 되어 깨진
+//   XML 로 PowerPoint 가 거부하지 않도록.
 package pptx
 
 import (

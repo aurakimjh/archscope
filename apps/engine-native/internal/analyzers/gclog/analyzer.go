@@ -8,6 +8,54 @@
 // thresholds (LONG_GC_PAUSE / FULL_GC_PRESENT / LOW_GC_THROUGHPUT /
 // HIGH_P99_PAUSE / HUMONGOUS_ALLOCATION / CONCURRENT_MODE_FAILURE /
 // PROMOTION_FAILURE).
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] gclog 분석기 — HotSpot Unified GC 로그(JDK 9+ -Xlog:gc) +
+// 레거시 G1/CMS 로그까지 처리.
+//
+// 입력
+//   parsers/gclog.ParseFile() 가 만든 []Event. 각 Event 는 한 GC
+//   사이클의 시작 + (옵션) heap before/after + pause 시간 + 원인 + GC
+//   유형(Young/Old/Mixed/Full/...) + 컬렉터 라벨로 정규화됨.
+//
+// 출력
+//   AnalysisResult{type: "gc_log"} —
+//     • summary: 총 이벤트 / pause 통계 / heap 통계 / GC throughput.
+//     • series: pause/heap 시계열 (분석기→차트 직결).
+//     • tables: 가장 긴 pause N개, 컬렉터별 비교, pause 히스토그램,
+//       cause 분포.
+//     • metadata.jvm_info: 헤더 추출(버전/CPU/Heap Min/Max/플래그/
+//       워커 수). 워커 vs CPU 미스매치 경고 포함.
+//
+// 알고리즘 흐름
+//   1) DetectFormat: 첫 수 KB 를 sniff 해 FormatUnified / G1Legacy /
+//      Legacy 중 하나로 판단. parser 와 분석기는 같은 format 문자열을
+//      공유해 metadata.parser 도 일관됨.
+//   2) ExtractHeader: JVM Info 블록(시작 ~수 KB) 만 따로 추출 —
+//      라이트한 별도 파서. 본 파싱이 0 이벤트로 실패해도 JVM Info 는
+//      살아남도록 분리.
+//   3) ParseFile: 본 이벤트 라인 파싱 + diagnostics 수집(skip count).
+//   4) Build: 한 번의 이벤트 순회로 다음을 동시에 채움
+//        • pause 통계: count/total/max/p50/p90/p95/p99 (sort 기반).
+//        • pause 히스토그램: 9개 bucket(<1ms ~ ≥5s).
+//        • 시계열: pauseTimeline + heap before/after/committed +
+//          young/old before/after + metaspace.
+//        • cause + type counter: orderedCounter (insertion-order
+//          stable) — exception 분석기와 같은 패턴.
+//        • 컬렉터별 비교: collector → {count, totalPause, maxPause}.
+//   5) buildFindings (별도 파일):
+//        LONG_GC_PAUSE          : pause ≥ 1초인 이벤트 발생
+//        FULL_GC_PRESENT        : Full GC 발생
+//        HIGH_P99_PAUSE         : p99 ≥ 500ms
+//        LOW_GC_THROUGHPUT      : (1 - sum(pause)/wall) < 95%
+//        HUMONGOUS_ALLOCATION   : G1 Humongous 패턴 감지
+//        CONCURRENT_MODE_FAILURE: CMS 의 concurrent mode failure
+//        PROMOTION_FAILURE      : promotion failure
+//
+// parity 주의
+//   • _HISTOGRAM_BUCKETS_MS 는 Python 과 byte 동일.
+//   • parserNames 매핑이 결과의 metadata.parser 결정 — Python 과 일치.
+//   • orderedCounter 는 insertion-order 기반 정렬로 JSON 안정성.
 package gclog
 
 import (

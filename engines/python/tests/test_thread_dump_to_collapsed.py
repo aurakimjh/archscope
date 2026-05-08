@@ -1,4 +1,15 @@
 """Tests for the thread-dump → collapsed-format batch converter (T-216)."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] test_thread_dump_to_collapsed — thread dump → FlameGraph
+# collapsed 변환기 회귀 테스트 (T-216).
+#
+# 검증 대상
+#   • 같은 frame 시퀀스의 여러 스레드 → 한 collapsed 라인 + count 합산.
+#   • include_thread_name=True/False 의 출력 차이 (root frame 으로
+#     thread name prepend 여부).
+#   • 다언어(Java/Go/Python/Node.js/.NET) snapshot 모두 같은 변환기로 처리.
+#   • collapsed 결과는 FlameGraph.pl 표준 형식 ("root;mid;leaf <count>").
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 from collections import Counter

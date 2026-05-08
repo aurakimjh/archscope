@@ -6,6 +6,25 @@
 //   go run install_deps.go                      # Interactive mode
 //   TASK_FORCE_YES=true go run install_deps.go  # Auto-accept prompts
 //   CI=true go run install_deps.go              # CI mode (auto-accept)
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] install_deps (iOS) — 아이폰 빌드 의존성 점검 스크립트.
+//
+// 책임/목적
+//   Wails iOS 빌드 전에 다음을 점검: Xcode 설치, xcode-select 가 Xcode.app
+//   을 가리키는지(CommandLineTools 만 가리키는 케이스 거부), iOS SDK +
+//   UIKit.framework 존재, iOS Simulator runtime 1개 이상 설치, iPhone
+//   simulator device 1개 이상 존재.
+//
+// 인터랙티브 vs 비인터랙티브
+//   - CI=true 또는 TASK_FORCE_YES=true 면 모든 prompt 를 자동 yes 처리.
+//   - 그 외에는 stdin 으로 사용자 입력 받음.
+//
+// 자동 복구
+//   xcode-select 경로가 잘못된 경우 sudo xcode-select -s 명령을, iPhone
+//   simulator 가 없으면 xcrun simctl create 로 iPhone 15 Pro 생성을 제안.
+//   사용자가 거절하면 수동 명령만 안내. 실행 실패는 exit(1).
+// ─────────────────────────────────────────────────────────────────────
 
 package main
 

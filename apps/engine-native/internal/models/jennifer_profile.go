@@ -1,3 +1,45 @@
+// [한글] models/jennifer_profile.go — Jennifer APM Profile Export 의
+// 모든 도메인 모델 정의.
+//
+// 데이터 모델 계층 (위에서 아래로 응집)
+//
+//   1) JenniferTransactionProfile
+//      - 한 파일의 한 TXID 블록 = 하나의 트랜잭션 호출 트리.
+//      - Header(메타) + Body(이벤트 표) + Errors/Warnings.
+//
+//   2) JenniferProfileHeader
+//      - 2-column key:value 섹션. APM 의 사전 집계 메트릭 + 메타.
+//      - Extra 가 있어 신규 컬럼이 추가되어도 파서가 깨지지 않음.
+//
+//   3) JenniferProfileBody / JenniferProfileEvent
+//      - START / END / TOTAL 사이의 이벤트 표.
+//      - EventType 분류기가 우선순위 규칙으로 라벨 부여
+//        (PROFILE_START, EXTERNAL_CALL, SQL_EXECUTE_*, FETCH, ...).
+//
+//   4) GUID 그룹 (MVP2)
+//      - JenniferGuidGroup : 같은 GUID 를 공유하는 트랜잭션 묶음.
+//      - JenniferExternalCallEdge : caller→callee 외부호출 1건.
+//      - 매칭 점수/이상 케이스(UNMATCHED, AMBIGUOUS, SCORE_TOO_LOW)
+//        를 통해 MSA 호출 그래프를 복원.
+//
+//   5) Timeline Signature 통계 (MVP3)
+//      - JenniferTimelineSignature : GUID 와 무관한 호출 구조 지문.
+//      - JenniferSignatureStats / JenniferEdgeStats / JenniferMetricStats
+//        : 같은 시그니처를 가진 트랜잭션들의 분포 통계
+//          (count/min/avg/p50/p90/p95/p99/max/stddev).
+//
+//   6) Parallelism / Body Metrics (MVP4)
+//      - JenniferProfileParallelism : 외부호출이 직렬/병렬/혼합인지,
+//        wall-clock 대비 cumulative 비율(parallelism_ratio).
+//      - JenniferGuidMetrics / JenniferBodyMetrics : roll-up 메트릭.
+//
+// 포인터 vs 비포인터
+//   값이 "보고되지 않음" 과 "0" 을 구분해야 하면 포인터(*int).
+//   누적 합계처럼 0 이 의미를 가지면 비포인터(int).
+//
+// JSON omitempty 정책
+//   값이 0/빈문자/빈슬라이스일 때 키를 생략해야 하면 omitempty.
+//   대시보드가 항상 키 존재를 가정하는 필드(예: events) 는 비포함.
 package models
 
 // JenniferTransactionProfile is one TXID block of a Jennifer Profile

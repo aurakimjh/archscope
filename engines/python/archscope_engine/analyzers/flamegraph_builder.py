@@ -1,3 +1,27 @@
+"""Flame tree builder for collapsed-stack profiles."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] flamegraph_builder — collapsed 스택을 트리(FlameNode) 로 변환.
+#
+# 책임/목적
+#   "frame1;frame2;frame3" 형식의 collapsed 스택 카운터를 받아
+#   부모-자식 트리 구조 FlameNode 를 만든다. profiler_analyzer 가
+#   이 트리를 series.flamegraph 로 노출.
+#
+# 알고리즘
+#   1) 모든 스택을 순회하며 ";" 로 분리, 각 prefix 마다 trie 구축.
+#   2) 노드의 samples 는 자기 + 자손 합계 (inclusive).
+#   3) freeze 단계에서 ratio (전체 대비 %), 정렬 (samples 내림차순)
+#      적용 후 immutable FlameNode 트리 반환.
+#
+# 주요 함수
+#   - build_flame_tree_from_collapsed: collapsed Counter → FlameNode.
+#   - build_flame_tree_from_paths: (path, samples) 튜플 시퀀스 입력.
+#   - iter_leaf_paths: 트리에서 leaf path 들을 반환 (drilldown 용).
+#   - top_child_frames / top_stacks_from_tree: 표 형태 추출.
+#
+# parity 주의사항: ";" 구분자, frame 정렬 키 (samples desc), node id
+# slug 규칙 ("/"·";"·공백 → "_", 160자 cap) 이 Go 측 동일.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 from collections import Counter

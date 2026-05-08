@@ -1,3 +1,27 @@
+"""Evidence registry — verifiable references AI is allowed to cite."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] evidence — AI 가 참조 가능한 검증 가능한 단서 레지스트리.
+#
+# 책임/목적
+#   AnalysisResult 에서 (source_type, entity_type, identifier) 형식
+#   의 evidence_ref 가 가능한 항목을 수집. AI 응답이 이 레지스트리
+#   에 등록되지 않은 ref 를 만들면 validation 단계에서 거부.
+#
+# evidence_ref 형식
+#   "access_log:record:R-12345"
+#   "profiler:stack:S-7"
+#   "jfr:event:E-100"
+#   "otel:log:L-22"
+#   "timeline:correlation:C-3"
+# (소문자 source_type : 소문자 entity_type : 영숫자 ID)
+#
+# 허용 namespace
+#   ALLOWED_EVIDENCE_NAMESPACES dict 가 source_type → {entity_type}
+#   pair 의 화이트리스트.
+#
+# 텍스트 필드 우선순위 (TEXT_EVIDENCE_FIELDS) — raw_line, raw_block,
+# raw_preview, body_preview, message, summary, stack 순.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 from dataclasses import dataclass

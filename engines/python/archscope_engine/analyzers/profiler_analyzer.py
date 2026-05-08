@@ -1,3 +1,33 @@
+"""Collapsed-stack profile analyzer (CPU/wall/alloc/lock)."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] profiler_analyzer — collapsed 스택 프로파일 분석기.
+#
+# 책임/목적
+#   async-profiler 의 collapsed 형식, FlameGraph SVG, HTML profiler,
+#   Jennifer CSV 등 다양한 입력 포맷을 통합하여 profiler_collapsed
+#   타입의 AnalysisResult 를 만든다.
+#
+# 알고리즘 흐름
+#   1) 입력 형식별 parser 호출 → ProfileStack 리스트 (frames + samples).
+#   2) classify_stack 으로 각 스택을 KIND (cpu/io/lock/gc/...) 분류.
+#   3) build_flame_tree_from_collapsed → 트리(FlameNode) 구축.
+#   4) Method (function) 별 self/total samples 집계, top_n 메소드 표.
+#   5) build_execution_breakdown — 실행 구간 분해.
+#   6) build_timeline_analysis_with_scope — base_method 기준 타임라인.
+#   7) build_drilldown_stages — drilldown 트리.
+#   8) finding 산출 (HOT_METHOD, SAMPLED_LOCK_CONTENTION 등).
+#
+# 주요 함수
+#   - analyze_collapsed_profile: collapsed 입력 진입점.
+#   - analyze_flamegraph_svg_profile / analyze_html_profile / 등.
+#   - build_collapsed_result: 공용 빌더 (모든 진입점이 위임).
+#   - _build_findings: 임계 기반 finding.
+#
+# parity 주의사항 (Go engine-native 와 byte 단위 일치)
+#   - profile_kind, classification rule, sample 단위(intervalMs) 환산식
+#     이 Go 측 internal/analyzers/profile* 와 동일.
+#   - method 식별자 정규화, frame 구분자 (";") 와 정렬 키.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import re
@@ -257,6 +287,16 @@ def breakdown_jennifer_csv_profile(
     )
 
 
+# [한글] build_collapsed_result — 모든 입력 진입점이 공유하는 빌더.
+# 매개변수:
+#   stacks            — Counter[str], collapsed 스택 라인 → 샘플 수.
+#   interval_ms       — 샘플링 주기 (estimated_seconds 환산용).
+#   elapsed_sec       — 옵션, 전체 측정 시간 (elapsed_ratio 산출).
+#   profile_kind      — "wall" / "cpu" / "alloc" / "lock".
+#   classification_rules — 스택 → KIND 분류 룰.
+# 흐름: 상위 top_n 스택 → ProfileStack 객체 → component breakdown
+#        → flame tree → drilldown / timeline / breakdown 부속 분석 →
+#        AnalysisResult 조립.
 def build_collapsed_result(
     stacks: Counter[str],
     source_file: Path,

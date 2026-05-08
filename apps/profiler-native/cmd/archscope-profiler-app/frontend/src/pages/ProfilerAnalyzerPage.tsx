@@ -1,3 +1,21 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] pages/ProfilerAnalyzerPage.tsx — 메인 프로파일러 분석 페이지.
+//
+// 책임/목적:
+//   - collapsed stack / Jennifer flamegraph CSV / FlameGraph SVG 등 다양한
+//     포맷의 프로파일을 받아 ProfilerService.Analyze(AnalyzeRequest) 호출
+//     → AnalysisResult + FlameNode 트리 수신.
+//   - 결과를 CanvasFlameGraph(전체 트리), HorizontalBarChart(execution
+//     breakdown / timeline segments), DrilldownPanel(필터 누적) 으로 렌더.
+//   - ExportPprofRequest 로 pprof 형식 내보내기 지원.
+//
+// 다루는 결과 형식: AnalysisResult + FlameNode 트리 (Wails bindings 의
+// internal/profiler/models 타입). web 셸의 거대한 ProfilerAnalyzerPage
+// (2k+ LOC) 를 셸 친화적으로 슬림 다운한 버전.
+//
+// 데이터 흐름: ProfilerService.Analyze → 결과 setResult.
+// 또한 @wailsio/runtime Events 를 listen 해 비동기 진행도/이벤트 수신.
+// ─────────────────────────────────────────────────────────────────────
 // Wails port of apps/frontend/src/pages/ProfilerAnalyzerPage.tsx.
 //
 // The web original drives 2k+ lines of correlation, drilldown, diff and tree

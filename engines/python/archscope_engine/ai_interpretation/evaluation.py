@@ -1,3 +1,9 @@
+"""Interpretation evaluation metrics."""
+# [한글] evaluation — AI 해석 품질 평가 메트릭.
+# evaluate_interpretation: 검증 결과로부터 finding_count, valid 여부,
+# evidence_integrity_ratio (전체 finding 중 evidence_ref 가 유효한 비율),
+# issue_codes 리스트를 InterpretationEvaluation 으로 묶어 반환. CLI/UI 가
+# AI 결과의 신뢰도를 사용자에게 노출할 때 사용.
 from __future__ import annotations
 
 from dataclasses import dataclass

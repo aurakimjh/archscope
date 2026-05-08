@@ -5,6 +5,35 @@
 // Rather than depending on a 3rd-party stats library, we keep the
 // surface tiny so the cross-engine parity job (T-244 / T-390) can
 // compare numbers byte-for-byte against the Python implementation.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] statistics 패키지 — 분석기가 공유하는 작은 통계 헬퍼.
+//
+// 3개 핵심 도구
+//   1) Average(values []float64) float64
+//        빈 입력은 0 반환 (NaN/panic 안 함). Python 측 동치.
+//
+//   2) Percentile(values []float64, p float64) float64
+//        sort 후 linear interpolation 으로 p-percentile 계산.
+//        시간복잡도 O(n log n) — 작은 표본 (수백 ~ 수천) 에 적합.
+//
+//   3) BoundedPercentile (Reservoir sampling)
+//        대용량 입력에서 메모리 상한을 두고 percentile 추정.
+//        • capacity (e.g. 10_000) + seed.
+//        • Add(v) 마다 reservoir 가 가득 찼으면 무작위 교체.
+//        • Percentile(p) 가 호출될 때 reservoir 만 sort 해 추정.
+//        • capacity 미만 입력에서는 sort 결과가 정확 (Python 과 동일).
+//
+// T-049 정책 (bounded percentile)
+//   대용량 access log / GC log 에서 unbounded array 가 메모리를 폭주
+//   시키는 문제를 reservoir 로 해결. 정확도-메모리 trade-off 가
+//   PARSER_DESIGN.md 에 문서화되어 있음.
+//
+// RNG 차이
+//   Python 은 Mersenne Twister, Go 는 PCG (math/rand/v2) 를 사용.
+//   reservoir 가 가득 차지 않으면 결과가 byte 단위로 일치, 가득 찬
+//   이후의 추정값은 두 RNG 차이로 약간 다를 수 있음 (parity gate 도
+//   같은 seed 로 동일 입력에서만 비교).
 package statistics
 
 import (

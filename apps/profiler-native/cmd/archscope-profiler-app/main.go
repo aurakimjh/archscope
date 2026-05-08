@@ -1,3 +1,26 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] archscope-profiler-app — Wails3 데스크톱 셸 진입점.
+//
+// 책임/목적
+//   profiler-native 의 데스크톱 앱(Wails v3) 진입점. frontend(React/Vite
+//   빌드 산출물) 를 embed 하고, ProfilerService/EngineService 두 서비스를
+//   등록해 renderer 에서 비동기 분석 호출이 가능하도록 한다.
+//
+// 핵심 구성
+//   - //go:embed all:frontend/dist : 프론트엔드 정적 자산 임베드
+//   - RegisterEvent[T]              : 타입드 이벤트 등록 (generated JS handler)
+//   - ProfilerService / EngineService : 분석 서비스 두 개를 노출
+//
+// 등록 이벤트
+//   profiler 측 — analyze:done / analyze:error / analyze:cancelled
+//   engine 측   — engine:done  / engine:error  / engine:cancelled
+//   (multithread / lockcontention 분석은 비동기 경로라 같은 패턴 적용.)
+//
+// 윈도우 옵션
+//   1280x800 디폴트, 다크 배경(#0F172A), Mac 타이틀바 hidden-inset, 마지막
+//   윈도우 종료 시 앱 종료. URL="/" 는 React Router 의 root.
+// ─────────────────────────────────────────────────────────────────────
+
 package main
 
 import (
@@ -10,6 +33,8 @@ import (
 //go:embed all:frontend/dist
 var assets embed.FS
 
+// [한글] init — 패키지 로드 시 frontend 와 주고받을 typed event 6개 등록.
+// Wails 바인딩 생성기가 이 정보를 보고 강타입 JS 핸들러를 만든다.
 func init() {
 	// Register typed events so the binding generator can produce strongly
 	// typed JS handlers and the renderer doesn't have to guess payloads.
@@ -25,6 +50,8 @@ func init() {
 	application.RegisterEvent[EngineCancelledEvent]("engine:cancelled")
 }
 
+// [한글] main — Wails 앱 인스턴스 생성, 서비스/윈도우/asset 설정 후 Run.
+// Run 은 GUI 이벤트 루프 진입. 에러 시 즉시 log.Fatal.
 func main() {
 	app := application.New(application.Options{
 		Name:        "ArchScope Profiler",

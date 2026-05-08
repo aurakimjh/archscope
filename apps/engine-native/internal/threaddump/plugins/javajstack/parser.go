@@ -25,6 +25,42 @@
 //
 // Enrichment runs only on Java frames so the registry can mix this
 // plugin with Go/Python/etc. parsers without cross-contamination.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] javajstack — JVM jstack 출력 파서. 가장 풍부한 기능 세트.
+//
+// 8개 파일 분리 구조
+//   parser.go          : 진입점 + Plugin 인터페이스 구현 (이 파일).
+//   blocks.go          : "Full thread dump" 블록 단위 분할 (multi-dump
+//                        지원 — 한 파일에 여러 캡처가 있을 때).
+//   aop.go             : CGLIB / JDK Proxy / accessor synthetic 접미사
+//                        제거 (T-194). `OrderService$$EnhancerByCGLIB`
+//                        → `OrderService`.
+//   state_inference.go : RUNNABLE 인데 stack 이 epoll/socket 이면
+//                        NETWORK_WAIT, FileChannel.read 이면 IO_WAIT
+//                        로 격상 (T-195).
+//   monitors.go        : `locked <0x...>`, `waiting to lock <0x...>`,
+//                        `waiting on <0x...>`, `parking to wait for
+//                        <0x...>` 라인에서 LockHandle 추출
+//                        (T-219 / T-231).
+//   virtual.go         : virtual thread carrier pinning 블록 감지 +
+//                        marker metadata 부여 (T-227).
+//   smr.go             : "Threads class SMR info:" 진단 블록 파싱.
+//                        unresolved/zombie thread 식별 (T-228 / T-234).
+//   histogram.go       : optional class histogram 블록 파싱.
+//                        ARCHSCOPE_CLASS_HISTOGRAM_ROW_LIMIT 적용
+//                        (T-230 / T-235). 잘린 블록은 incomplete 마킹.
+//
+// MultiBundlePlugin 구현
+//   ParseMany 가 한 파일 안의 여러 "Full thread dump" 캡처를 별도
+//   bundle 로 확장. 시간 흐름이 한 파일 안에 있는 경우 multi-dump
+//   correlator 가 그대로 활용.
+//
+// enrichment 의 격리
+//   모든 enrichment 함수는 frame.Module 또는 Function 의 Java naming
+//   convention 을 가정. 다른 런타임 frame 이 들어오면 정규식이 안 맞아
+//   no-op 으로 통과 — 등록된 plugin 들이 서로 cross-contamination 없이
+//   동작.
 package javajstack
 
 import (

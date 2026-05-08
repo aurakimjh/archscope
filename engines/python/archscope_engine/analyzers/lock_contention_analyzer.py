@@ -15,6 +15,35 @@ Java jstack today is the only parser that fills the
 in practice. Other runtimes simply yield empty fields and the
 contention table comes back empty — no special-casing required.
 """
+# ─────────────────────────────────────────────────────────────────────
+# [한글] lock_contention_analyzer — 락 점유/대기 분석기.
+#
+# 책임/목적
+#   하나 이상의 ThreadDumpBundle 을 받아 락 점유 owner/대기 waiter
+#   관계를 추출, 대기열 길이 기준 contention 랭킹과 deadlock chain
+#   (waits-for 그래프의 cycle) 을 보고.
+#
+# 알고리즘 흐름
+#   1) 모든 snapshot 의 lock_holds / lock_waiting 수집.
+#   2) lock_id → owners[], waiters[] 매핑.
+#   3) contention_table: owner stack signature, 상위 대기자 이름,
+#      contention_candidate 플래그 채워서 정렬.
+#   4) deadlock 검출: thread 가 owner 인 lock 을 다른 thread 가
+#      기다리고 → 그 thread 가 또 다른 lock owner... 로 cycle 형성
+#      여부를 DFS 로 확인. 결정적 정렬을 위해 thread_name 사전순.
+#   5) finding (LOCK_CONTENTION_HOTSPOT, DEADLOCK_DETECTED) 산출.
+#
+# 주요 함수
+#   - analyze_lock_contention: 진입점 (단일 bundle 또는 시퀀스).
+#   - _contention_table: lock 별 행 생성.
+#   - _detect_deadlocks: waits-for 그래프 cycle DFS.
+#   - _build_findings: 임계 기반 finding.
+#
+# parity 주의사항 (Go engine-native 와 byte 단위 일치)
+#   - lock_id / lock_class 정규화 형식, top waiter name 정렬, cycle
+#     의 시작 thread (사전순 최소) 가 Go 측과 동일.
+#   - finding code/message, top_n 기본값(20).
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 from collections import Counter, defaultdict
@@ -39,6 +68,10 @@ def analyze_lock_contention(
     (each thread is treated as one observation). For per-dump trend
     analysis use :func:`analyze_multi_thread_dumps` instead.
     """
+    # [한글] analyze_lock_contention — 진입점.
+    # 단일 bundle 또는 시퀀스를 받아 락 점유/대기 분석.
+    # 여러 덤프를 입력하면 모든 snapshot 을 union 하여 평탄화 처리.
+    # 시간축 기반 트렌드는 analyze_multi_thread_dumps 가 담당.
     if isinstance(bundles, ThreadDumpBundle):
         bundle_list: list[ThreadDumpBundle] = [bundles]
     else:

@@ -1,3 +1,35 @@
+# ─────────────────────────────────────────────────────────────────────
+# [한글] otel_parser — OpenTelemetry JSONL 로그/스팬 파서.
+#
+# 입력 형식
+#   라인 단위 JSON. 각 라인이 독립된 JSON 객체이며 한 로그/스팬을 표현.
+#   OTel exporter 마다 키 이름이 다양하게 emit 되므로 alias 허용 정책:
+#   snake_case / camelCase / 도트 표기 모두 인식.
+#
+# alias 매핑 예
+#   service name : `service.name` / `serviceName` /
+#                  `resource.service.name` /
+#                  `resource.attributes.service.name`.
+#   parent span  : `parent_span_id` / `parentSpanId` / `parent_id`.
+#   trace/span   : `trace_id` / `traceId`, `span_id` / `spanId`.
+#
+# body 값 형태
+#   문자열, 원시 타입(bool/int/float), 또는 dict (stringValue / str /
+#   value / text). dict 인 경우 위 키를 순서대로 시도해 첫 매치 사용.
+#
+# Python str() semantics
+#   bool → "True"/"False" (대문자), int → "123" (소수점 없음).
+#   parity gate 에서 stderr/JSON 비교가 안전하도록 byte 단위 일치.
+#
+# skip 사유
+#   INVALID_OTEL_JSON   : 라인이 JSON 으로 파싱 불가.
+#   INVALID_OTEL_RECORD : JSON 은 OK 인데 trace_id 등 필수 필드 누락.
+#   둘 다 라인 단위 skip → diagnostics 에 카운트, 분석 진행.
+#
+# Go engine-native parity
+#   apps/engine-native/internal/parsers/otel/parser.go 와 byte 동일.
+#   alias 매핑 표, skip 사유 코드, body 추출 우선순위 모두 동기화.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import json

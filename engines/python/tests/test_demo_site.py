@@ -1,3 +1,34 @@
+# ─────────────────────────────────────────────────────────────────────
+# [한글] test_demo_site — demo_site_mapping / demo_site_runner 회귀 테스트.
+#
+# 검증 대상
+#   • AnalyzerTypeMapping 로딩(`analyzer_type_mapping.json`):
+#       - 정상 구조 파싱(command tuple, input_option, format_overrides,
+#         note 필드).
+#       - "mappings" 키 누락 시 ValueError.
+#       - 부모 디렉토리를 거슬러 올라가는 lookup(`find_analyzer_type_mapping`).
+#       - 못 찾으면 FileNotFoundError.
+#   • command_for_mapping / input_option_for_mapping :
+#       - 기본 command/option 반환.
+#       - file_format 인자가 들어오면 format_overrides 의 값을 우선.
+#   • discover_demo_manifests :
+#       - 디렉토리 입력 시 nested manifest.json 모두 탐색.
+#       - 파일 입력 시 단일 파일 그대로 반환.
+#   • run_demo_site_manifest (E2E):
+#       - 실제 examples/access-logs/sample-nginx-access.log 사본을 만들어
+#         access_log 분석을 실행하고 JSON 결과의 type / summary 검증.
+#       - 알 수 없는 analyzer_type 또는 빈 file 은 skipped_files 로 격리.
+#   • DemoScenarioRun.failed_runs / json_paths 프로퍼티.
+#
+# fixture 정책
+#   tmp_path 에 manifest 와 mapping JSON 을 inline 으로 작성. E2E 케이스는
+#   sample 파일 부재 시 pytest.skip 으로 우회 (CI 환경 분산 대응).
+#
+# parity 주의 (Python ↔ Go 비교 가능한 부분)
+#   Go engine-native 의 internal/demosite 와 mapping 파일 schema, command
+#   tuple 변환, override 우선순위 규칙이 동일해야 함. JSON 결과의
+#   `type` / `summary.total_requests` 도 양 엔진 동일.
+# ─────────────────────────────────────────────────────────────────────
 """Tests for demo_site_mapping and demo_site_runner modules."""
 
 import json

@@ -24,8 +24,9 @@ profiler output, thread dump, exception stack, JFR recording)를
 ## 기술 스택
 
 - **프론트엔드** — React 18 + Vite 8 + TypeScript + Tailwind v4 + shadcn/ui(Radix 기반) + lucide 아이콘. 차트는 D3(timeline / bar / flamegraph + Canvas flamegraph)와 ECharts(레거시 패널). 이미지 export는 `html-to-image`와 native `canvas.toDataURL()`.
-- **백엔드** — FastAPI 0.110+ + uvicorn(단일 in-process Python). React 빌드는 `/`에서 정적 서빙, analyzer dispatcher는 `/api/analyzer/execute`.
-- **엔진** — Pure Python(`archscope-engine`, Python ≥ 3.9), Typer CLI, defusedxml(XXE 안전 SVG 파싱), python-multipart 업로드. 서브프로세스 분기 없이 in-process 호출.
+- **Python 백엔드 (현재 출시 중)** — FastAPI 0.110+ + uvicorn(단일 in-process Python). React 빌드는 `/`에서 정적 서빙, analyzer dispatcher는 `/api/analyzer/execute`.
+- **Python 엔진** — Pure Python(`archscope-engine`, Python ≥ 3.9), Typer CLI, defusedxml(XXE 안전 SVG 파싱), python-multipart 업로드. 서브프로세스 분기 없이 in-process 호출.
+- **Go 엔진 (Tier-5 데스크톱 pivot)** — `apps/engine-native/`에 Python 엔진과 동등한 기능을 가진 Go 라이브러리(파서/분석기/exporter/thread-dump 플러그인 전체). Wails 데스크톱 바이너리(`apps/profiler-native/`)에 임베드되어 단일 네이티브 바이너리로 출하됩니다. parity gate가 매 PR마다 Python ↔ Go 결과를 비교합니다.
 
 ## 빠른 시작
 

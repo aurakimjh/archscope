@@ -1,3 +1,8 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] ui/tabs.tsx — shadcn/ui Tabs(Radix 기반). 모든 분석 페이지가
+//   "Summary / Charts / Events / Diagnostics" 의 4-tab 패턴을 채택할 때
+//   사용. data-[state=active] selector 로 활성 탭 스타일을 토글합니다.
+// ─────────────────────────────────────────────────────────────────────
 import * as TabsPrimitive from "@radix-ui/react-tabs";
 import * as React from "react";
 

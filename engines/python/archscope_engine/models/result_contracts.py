@@ -1,3 +1,29 @@
+"""TypedDict contracts for analyzer summary/series/tables/metadata."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] result_contracts — 분석기 응답 구조의 타입 보증.
+#
+# 책임/목적
+#   AnalysisResult.summary / series / tables / metadata 에 들어가는
+#   dict 의 shape 을 TypedDict 로 명시. 분석기 ↔ exporter ↔ frontend
+#   세 곳이 같은 키 이름을 쓰도록 강제.
+#
+# 핵심 contract
+#   - ParserDiagnostics: parser 가 채우는 진단 정보 (skipped_by_reason,
+#     samples, warnings, errors 등).
+#   - DiagnosticSample: 진단 샘플 한 줄.
+#   - AccessLogSummary / Series / Tables / Metadata / Finding /
+#     SampleRecordRow / AnalysisOptions: 액세스 로그 분석기 응답.
+#   - ProfilerCollapsedSummary / Series / Tables / Metadata /
+#     TimelineScope: 프로파일 분석기 응답.
+#   - 그 외 도메인의 contract 추가 시 같은 패턴으로.
+#
+# 사용
+#   분석기 코드는 cast(SomeContract, payload) 또는 명시적 빌드로
+#   정확성 보장. mypy 가 typo 잡음. JSON 직렬화 자체에는 영향 없음.
+#
+# parity: 키 이름이 Go engine-native 의 struct json tag 와 동일.
+# 변경 시 양쪽 동시 갱신 필요.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 from typing import TypedDict

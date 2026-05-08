@@ -1,3 +1,24 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] CanvasFlameGraph.tsx — HTML5 Canvas 기반 플레임그래프 렌더러.
+//
+// 책임/목적:
+//   - 트리 형태 FlameGraphNode (name, value, children, category, color)
+//     를 받아 d3-hierarchy 의 partition 레이아웃으로 사각형 배치를
+//     계산한 뒤, Canvas 2D context 에 직접 painter 호출로 그립니다.
+//   - 줌-인/줌-아웃: 사각형 클릭 시 focusPath 에 자식 인덱스를 push
+//     해서 해당 노드를 화면 폭(0..width) 으로 확대 렌더 (focused.x0/x1
+//     기준 xScale 재계산).
+//   - 호버 시 tooltip(이름/샘플수/비율/카테고리) 표시, "Save PNG"
+//     버튼으로 캔버스를 PNG dataURL 로 저장.
+//
+// 데이터 형식: NativeMemory flamegraph (NativeMemoryFlameNode) 또는
+// 일반적인 FlameNode 트리. 본 컴포넌트는 d.value (자기 비중) +
+// d.children (재귀) 만 보고 그리므로 어떤 분석기 결과라도 호환됩니다.
+//
+// 의존성 주의: d3-hierarchy / d3-partition 만 사용 (d3 selection 미사용).
+// devicePixelRatio 보정으로 retina 화면에서 또렷하게 그립니다 — 잊지
+// 말고 ctx.setTransform(dpr, 0, 0, dpr, 0, 0) 적용 후 그릴 것.
+// ─────────────────────────────────────────────────────────────────────
 // Canvas-rendered flamegraph for the native profiler app.
 //
 // Ported from apps/frontend/src/components/charts/CanvasFlameGraph.tsx (T-217)

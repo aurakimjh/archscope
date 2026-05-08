@@ -1,3 +1,20 @@
+// [한글] findings.go — lock contention 분석 결과의 finding 빌더.
+//
+// 입력
+//   hotspots : 이미 top-N 으로 잘린 contention 표(waiter count DESC).
+//   deadlocks: graph.go 의 detectDeadlocks 결과(canonical cycle).
+//
+// finding 형식
+//   각 finding 은 표준 envelope {severity, code, message, evidence}.
+//   message 의 형식은 Python 과 byte 동일(parity).
+//     LOCK_CONTENTION_HOTSPOT (warning):
+//       "Lock <id> (<class>) has <N> waiters; owner: <name>."
+//     DEADLOCK_DETECTED (critical):
+//       "Deadlock detected: <T1> → <T2> → ... → <T1>."
+//
+// 알 수 없는 필드 처리
+//   lock_class 가 비어있으면 "unknown class", owner 이름이 비어있으면
+//   "unknown" 로 채워 message 가 깨지지 않도록.
 package lockcontention
 
 import (

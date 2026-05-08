@@ -1,3 +1,11 @@
+// [한글] state inference 회귀 테스트 (T-195).
+//
+// 검증 대상
+//   • RUNNABLE + epoll/SocketChannel.read → NETWORK_WAIT.
+//   • RUNNABLE + FileChannel.read / FileInputStream → IO_WAIT.
+//   • 다른 상태(BLOCKED/WAITING 등) 는 절대 변경되지 않음.
+//   • 격상이 일어났음을 metadata 에 기록.
+//   • Top frame 만 검사 (deeper frames 가 같은 패턴이어도 영향 없음).
 package javajstack
 
 import (

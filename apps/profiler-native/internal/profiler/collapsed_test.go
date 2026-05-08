@@ -1,3 +1,7 @@
+// [한글] collapsed_test — ParseCollapsedFile 의 정상/에러 라인 처리 검증.
+// 동일 stack 의 중복 라인은 누적되어 sample 합산되는지, INVALID_SAMPLE_COUNT
+// (whitespace 만 있는 라인) / NEGATIVE_SAMPLE_COUNT 진단이 정확히 카운트되는지 확인.
+
 package profiler
 
 import (

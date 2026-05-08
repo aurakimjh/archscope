@@ -1,3 +1,25 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] pages/AccessLogAnalyzerPage.tsx — Access Log 분석기 페이지.
+//
+// 책임/목적:
+//   - WailsFileDock 으로 OS 네이티브 파일 선택/드롭 → engine.analyzeAccessLog
+//     호출 → AccessLogAnalysisResult (type "access_log") 수신.
+//   - 결과를 Summary metric cards + Tabs(차트/표/진단) 로 렌더.
+//     ChartPanel 에 ECharts 옵션을 전달해 분당 요청 수 / p95 응답시간
+//     등을 시각화.
+//
+// 다루는 결과 형식: AccessLogAnalysisResult (Go side
+// internal/analyzers/accesslog 의 출력) — summary, series, tables,
+// metadata.diagnostics, metadata.findings 모두 활용.
+//
+// 데이터 흐름 (Go EngineService ↔ React):
+//   handleAnalyze → engine.analyzeAccessLog(req) → CancellablePromise.
+//   AbortController 대용으로 promise 인스턴스를 ref 에 보관하고
+//   사용자 취소 시 cancel() 호출. 결과는 setResult 로 보관.
+//
+// 의존성 주의: shadcn Tabs(@/components/ui/tabs) 사용 — Radix 기반.
+// ECharts 는 ChartPanel 내부에서 init/dispose 처리.
+// ─────────────────────────────────────────────────────────────────────
 import { Loader2, Play, Square } from "lucide-react";
 import { useCallback, useMemo, useRef, useState } from "react";
 

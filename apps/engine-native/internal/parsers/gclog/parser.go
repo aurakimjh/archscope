@@ -7,6 +7,43 @@
 // Serial / Parallel / CMS legacy (single-line). The format is
 // auto-detected by sampling the first 8 KiB and surfaced through the
 // shared diagnostics builder so renderers can group reports.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] gclog parser — HotSpot GC 로그 파서 (3개 포맷 자동 감지).
+//
+// 지원 포맷
+//   FormatUnified  : JDK 9+ -Xlog:gc unified 포맷.
+//                    `[2026-04-27T10:00:00+0900][info][gc] GC(123) Pause
+//                     Young ... 25.000ms` 형태.
+//   FormatG1Legacy : JDK 8 G1 legacy. 멀티라인 + datestamp 프리픽스.
+//   FormatLegacy   : JDK 4-8 Serial/Parallel/CMS legacy. 단일 라인.
+//   FormatUnknown  : 자동 감지 실패 — Unified 로 fallback.
+//
+// 자동 감지 (DetectFormat)
+//   첫 8 KiB 를 sampling 후 정규식으로 포맷 시그니처 판단. 헤더의
+//   `[gc]` 태그 유무, datestamp 프리픽스 여부, GC ID `GC(123)` 패턴
+//   등을 종합.
+//
+// Event 의 의미
+//   한 GC 사이클 = 1 Event. 필드:
+//     Timestamp / GCID / Cause / Type(Young/Old/Mixed/Full) /
+//     Collector(G1/CMS/Parallel/Serial/ZGC/Shenandoah) /
+//     PauseMS / HeapBeforeMB / HeapAfterMB / HeapCommittedMB /
+//     YoungBefore/After / OldBefore/After / Metaspace.
+//
+// 핵심 알고리즘
+//   1) 라인을 stream 으로 읽음 (textio.LineIterator — 인코딩 폴백).
+//   2) 포맷별 정규식 dispatch.
+//   3) Unified 포맷은 multi-line phase 가 있을 수 있으나 현재 구현은
+//      "Pause" 라인 1개에 모든 메트릭을 모음(Python 측과 동일).
+//   4) Legacy / G1Legacy 는 multi-line 을 buffer 에 모았다가 한 record
+//      로 emit.
+//   5) MaxLines / Strict 옵션은 다른 파서와 동일 의미.
+//
+// 분리된 header.go
+//   JVM Info(버전 / CPU / heap min/max / 워커 수 / CommandLine flags)
+//   는 본문 파싱과 독립적으로 추출됨. 본 파싱이 0 record 로 실패해도
+//   JVM Info 는 살아남아 사용자에게 환경을 알려줄 수 있도록 분리.
 package gclog
 
 

@@ -1,3 +1,21 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] D3BarChart.tsx — d3 기반 막대 차트(가로/세로 모두 지원).
+//
+// 책임/목적:
+//   - ECharts 가 무겁거나 인터랙션이 부족한 케이스(예: thread state 분포,
+//     예외 타입 카운트, GC 원인 breakdown) 를 위해 자체 SVG 렌더 차트.
+//   - sort 옵션(value desc), 색상 커스텀, 호버 툴팁(긴 라벨은 fullLabel)
+//     을 지원.
+//   - D3ChartFrame 으로 감싸 export(PNG/SVG) 와 리사이즈를 표준화.
+//
+// 데이터 흐름:
+//   부모 → BarDatum[] (id/label/value/color) → D3BarChart → SVG.
+//
+// UI/주의:
+//   - useTheme() 에서 dark 인지 체크해 axis/text 색을 토글.
+//   - height 는 고정 px. 가로형(horizontal) 의 경우 데이터 행 수에 비례
+//     해 부모가 계산해 넘기도록(예: rows*28 + 40).
+// ─────────────────────────────────────────────────────────────────────
 import * as d3 from "d3";
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 

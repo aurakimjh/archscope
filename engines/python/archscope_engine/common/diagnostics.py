@@ -1,3 +1,25 @@
+"""Parser diagnostics counter (skip reasons + samples)."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] diagnostics — 파서가 채우는 진단 카운터.
+#
+# 책임/목적
+#   parser 가 라인 단위로 처리하면서 skip / warning / error 가 발생할
+#   때마다 자동 누적. analyzer 가 metadata.diagnostics 로 노출 →
+#   사용자가 "내 파일이 얼마나 잘 파싱됐는가" 를 확인할 수 있게 함.
+#
+# 카운트 항목
+#   - total_lines: 전체 입력 라인 수.
+#   - parsed_records: 정상 record 로 변환된 수.
+#   - skipped_lines + skipped_by_reason[reason]: 스킵 + 사유별 카운트.
+#   - warning_count / error_count: 경고/에러 누적.
+#   - samples / warnings / errors: 사례 샘플 (각 100개 cap).
+#
+# 상수
+#   MAX_DIAGNOSTIC_SAMPLES (100): 샘플 수집 cap.
+#   RAW_PREVIEW_LIMIT (200): 한 샘플의 raw_preview 길이 cap.
+#
+# parity: Go engine-native internal/diagnostics 와 동일 카운트 / cap.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 from dataclasses import dataclass, field

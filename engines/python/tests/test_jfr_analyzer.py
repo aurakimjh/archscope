@@ -1,3 +1,24 @@
+# ─────────────────────────────────────────────────────────────────────
+# [한글] test_jfr_analyzer — JFR `jfr print --json` POC 회귀 테스트.
+#
+# 검증 대상
+#   • parse_jfr_print_json : event_type / frames / duration_ms 추출.
+#   • analyze_jfr_print_json : summary(event_count, gc_pause_total_ms,
+#     blocked_thread_events) + tables.notable_events 의 evidence_ref
+#     포맷("jfr:event:<idx>") + metadata.schema_version / poc 플래그.
+#   • CLI subprocess(`python -m archscope_engine.cli jfr analyze-json`)
+#     로 출력 JSON 파일 생성 — return code 0, 동일 type/summary 보존.
+#
+# fixture 정책
+#   examples/jfr/sample-jfr-print.json 실제 sample 을 사용. CLI 테스트는
+#   subprocess 격리(독립 프로세스)로 cli entrypoint 의 import 안전성도
+#   간접 검증.
+#
+# parity 주의 (Python ↔ Go 비교 가능한 부분)
+#   Go engine-native 의 internal/parsers/jfr & internal/analyzers/jfr
+#   와 evidence_ref 형식, summary 키 이름이 동일해야 함. schema_version
+#   "0.1.0" + poc=True 도 양쪽 동일.
+# ─────────────────────────────────────────────────────────────────────
 import json
 import subprocess
 import sys

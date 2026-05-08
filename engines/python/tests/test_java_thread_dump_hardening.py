@@ -1,3 +1,48 @@
+# ─────────────────────────────────────────────────────────────────────
+# [한글] test_java_thread_dump_hardening — Java jstack 파서/분석기 hardening 회귀.
+#
+# 검증 대상
+#   • Multi-section 파일 분리:
+#       - "2026-... \nFull thread dump..." 가 두 번 등장하면 dump_index
+#         0/1, dump_label "<file>#1"/"#2", raw_timestamp 보존.
+#   • UTF-16 인코딩 jstack 자동 감지 (인코딩 헬퍼 통합).
+#   • Java jcmd JSON 라우팅:
+#       - threadDump.threadContainers[*].threads[*] 구조 인식,
+#         language="java", source_format="java_jcmd_json",
+#         captured_at 보존, top frame socketRead0 → NETWORK_WAIT promote.
+#       - threadDump 미존재 시 "missing required 'threadDump' object"
+#         ValueError.
+#   • Virtual thread carrier pinning (T-228):
+#       - "Carrying virtual thread #N" + parkOnCarrierThread →
+#         summary.virtual_thread_carrier_pinning, candidate_method 보존,
+#         finding VIRTUAL_THREAD_CARRIER_PINNING.
+#   • SMR / Native / Class histogram metadata:
+#       - SMR "unresolved zombie thread <addr>" 인식.
+#       - native method top frame 추출 → tables.native_method_threads.
+#       - class histogram 파싱 → tables.class_histogram_top_classes,
+#         class_histogram_limit 옵션으로 truncated=True 토글.
+#   • Object.wait 는 lock contention 으로 분류하지 않음 (wait_mode =
+#     "object_wait", 분석기 finding 미발화).
+#   • SMR address 해석 (T-234) 3 패턴:
+#       - JDK 17/21 `=>0x...` 라인 + 길이=2 → resolved=1, 미매칭=1.
+#       - JDK 8 plain address 리스트 → `_java_thread_list=` 헤더 필터링,
+#         미매칭은 kind=address_unresolved 로 분류.
+#       - 명시적 zombie 태그는 kind=tagged 로 보존.
+#   • Class histogram incomplete (T-235) 3 케이스:
+#       - 마지막 row 가 partial → incomplete=True, partial_tail_line.
+#       - Total 라인 누락 → incomplete=True, reason 에 "Total"/"total".
+#       - 정상 Total 포함 → incomplete=False, finding 미발화.
+#
+# fixture 정책
+#   _SINGLE_DUMP textwrap.dedent inline. 다양한 dump variant 를 각
+#   테스트마다 tmp_path 에 생성.
+#
+# parity 주의 (Python ↔ Go 비교 가능한 부분)
+#   Go 측 internal/threaddump/plugins/javajstack + jvm tooling 와 finding
+#   코드(VIRTUAL_THREAD_CARRIER_PINNING / SMR_UNRESOLVED_THREAD /
+#   INCOMPLETE_HISTOGRAM), evidence 필드명, kind 분류(`address_unresolved`
+#   vs `tagged`)가 byte 단위 동일해야 함.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import json

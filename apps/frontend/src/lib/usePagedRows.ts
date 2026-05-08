@@ -1,3 +1,17 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] lib/usePagedRows.ts — "처음 N개 보여주기 + 더 보기" 페이지네이션
+//   훅(가상화 없이도 큰 리스트를 안전하게 렌더하기 위한 단순 가드).
+//
+// 책임/목적:
+//   - 가상 스크롤(react-virtual 등)은 의외로 무거우며, 본 앱의 UX 목표는
+//     "수만 행이라도 즉시 폭발하지 않고, 사용자가 더 보기로 점진 확장".
+//   - rows 배열 참조가 바뀌면(=새 분석 결과) 자동으로 initial 슬라이스로
+//     리셋해 사용자가 항상 상단부터 보게 합니다.
+//
+// 사용처:
+//   - ThreadDumpAnalyzerPage(virtual thread / class histogram 등 거대 표).
+//   - 일반 분석 페이지의 "이벤트 목록" 표.
+// ─────────────────────────────────────────────────────────────────────
 // usePagedRows — small helper for "show first N, load more" pagination.
 //
 // T-236 — virtual-thread dumps with 10k+ rows would otherwise force the

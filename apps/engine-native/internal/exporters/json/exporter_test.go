@@ -1,3 +1,13 @@
+// [한글] json exporter 회귀 테스트.
+//
+// 검증 대상
+//   • 2-space indent + trailing newline.
+//   • UTF-8 raw (한글 escape 안 됨).
+//   • 부모 디렉토리 자동 생성 (mkdir -p).
+//   • 라운드트립: Marshal → Unmarshal → 같은 데이터.
+//   • Marshal 과 Write 가 같은 byte 출력.
+//   • Python `json.dumps(..., ensure_ascii=False, indent=2)` 와 byte
+//     단위 일치 (parity).
 package json
 
 import (

@@ -19,6 +19,53 @@
 // independent of the main JFR analyzer. They share the JFR parser,
 // the time helpers in this file, and the diagnostics envelope, which
 // is exactly what the same package gives us.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] jfr 분석기 — JDK Flight Recorder JSON 출력 분석기.
+//
+// 입력
+//   parsers/jfr.ParseFile() 가 만든 []Event. 입력 형식은
+//   `jfr print --json recording.jfr` 의 출력. 바이너리 .jfr 자체는
+//   Go 측에서 직접 파싱하지 않음 — JDK 의존을 끊기 위함.
+//
+// 출력 (analyze)
+//   AnalysisResult{type: "jfr_recording"}
+//     • summary: total_events / by_mode 카운트 / 시간 범위.
+//     • series: events_over_time / pause_events (GC/safepoint) /
+//               events_by_type (top-N) / heatmap_strip (wall-clock).
+//     • tables: notable_events (최장 지속 / 최대 alloc 등 상위 N).
+//     • metadata: selected_mode / available_modes / filter_window.
+//
+// mode 필터 (--mode)
+//   각 mode 는 Python MODE_EVENT_TYPES 와 byte 동일한 event-type
+//   집합:
+//     cpu        : ExecutionSample / NativeMethodSample / MethodTrace ...
+//     wall       : (cpu 와 동일 — 캡처 시 sampling rate 만 다름)
+//     alloc      : ObjectAllocationInNewTLAB / OutsideTLAB / SampledObjectAllocation
+//     lock       : JavaMonitorEnter / Wait / ThreadPark
+//     gc         : GarbageCollection / Pause / Phase
+//     exception  : ThrowableConstructor / ExceptionStatistics
+//     io         : FileRead / FileWrite / SocketRead / SocketWrite
+//     nativemem  : NativeMemoryAllocation / NativeMemoryFree
+//     all        : 모든 mode 합집합.
+//
+// 시간 필터 (--from / --to)
+//   parseTimeFilter 가 ISO 8601 / HH:MM[:SS] / 상대표기(+30s/-2m/500ms)
+//   를 모두 처리. 상대 표기는 레코딩 시작/끝을 anchor 로 변환.
+//
+// 알고리즘 흐름 (Analyze)
+//   1) parsers/jfr.ParseFile → []Event.
+//   2) 시간 윈도우 + mode 필터 적용 — 통과한 이벤트만 스트림.
+//   3) 한 번 순회로 events_over_time(분당 카운트) +
+//      events_by_type(top-N) + pause_events(GC) + notable_events
+//      (지속시간 또는 alloc bytes 상위 N) + heatmap_strip 동시 채움.
+//   4) heatmap_strip : wall-clock 0~100% 구간을 분당 또는 1초 bucket
+//      으로 stride. UI 의 "drag-to-set" 히트맵에 직결.
+//   5) summary / metadata 채워서 반환.
+//
+// 결정론
+//   sortedKeys / topN sort 모두 명시적 정렬. event-type 동률은
+//   사전순.
 package jfr
 
 import (

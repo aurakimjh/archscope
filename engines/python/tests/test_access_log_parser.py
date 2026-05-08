@@ -1,3 +1,28 @@
+# ─────────────────────────────────────────────────────────────────────
+# [한글] test_access_log_parser — access_log_parser 단위 회귀 테스트.
+#
+# 검증 대상
+#   • parse_nginx_access_line : nginx-combined-with-response-time 라인의
+#     method/uri/status/response_time_ms (sec → ms 변환) 정확도.
+#   • parse_access_log_with_diagnostics — diagnostics 의 모든 필드:
+#       - source_file / format("nginx") / warning_count / error_count.
+#       - errors == samples (참조 일치).
+#       - skipped_by_reason 카운트:
+#           INVALID_TIMESTAMP / INVALID_NUMBER / NO_FORMAT_MATCH.
+#       - samples 배열은 line_number / reason / message / raw_preview
+#         4 필드를 정확히 그 순서로 보존.
+#   • common(log_format="common") 분기: bytes "-" → 0, response_time
+#     필드 없을 때 0.0 으로 fallback.
+#   • strict=True : 첫 NO_FORMAT_MATCH 라인에서 ValueError("NO_FORMAT_MATCH").
+#
+# fixture 정책
+#   nginx_line() 헬퍼로 정상 라인 1 종 + 비정상 timestamp / number /
+#   format 케이스를 같은 파일에 묶어 multi-error 분기까지 확인.
+#
+# parity 주의 (Python ↔ Go 비교 가능한 부분)
+#   Go 측 internal/parsers/accesslog/parser_test.go 와 입력 라인 / skip
+#   reason 코드 / sample 필드명 / strict mode 메시지 byte 단위 동일.
+# ─────────────────────────────────────────────────────────────────────
 import pytest
 
 from archscope_engine.parsers.access_log_parser import (

@@ -1,3 +1,10 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] LoadingStates.tsx — 로딩/빈 상태에 쓰는 공용 작은 컴포넌트들.
+//   - SkeletonCard / SkeletonChart: 데이터 도착 전 placeholder.
+//   - LoadingSpinner: 가벼운 로딩 표시.
+//   - EmptyState: "아무 결과도 없음" 안내(아이콘 + 메시지).
+//   .skeleton/.empty-state 등 클래스는 styles/global.css 정의.
+// ─────────────────────────────────────────────────────────────────────
 export function SkeletonCard(): JSX.Element {
   return <div className="skeleton skeleton-card" />;
 }

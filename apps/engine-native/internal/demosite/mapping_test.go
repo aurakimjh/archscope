@@ -1,5 +1,15 @@
 // Tests mirroring engines/python/tests/test_demo_site.py
 // (TestAnalyzerTypeMapping). Same fixtures, JSON form only.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] mapping_test — analyzer_type_mapping.json 로더 회귀 테스트.
+//
+// 검증 대상
+//   • JSON 로더가 매핑 표를 정확히 파싱.
+//   • Command 가 nil 인 reference_doc entry 처리.
+//   • 매니페스트 디렉토리에서 parent 자동 발견.
+//   • --mapping override 가 자동 발견 skip.
+//   • 깨진 JSON / 누락 키 시 적절한 에러.
 package demosite
 
 import (

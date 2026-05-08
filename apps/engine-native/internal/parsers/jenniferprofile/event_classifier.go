@@ -1,3 +1,34 @@
+// [한글] event_classifier.go — 이벤트 메시지 → JenniferEventType 분류.
+//
+// 분류 우선순위 (높은 순)
+//   1) PROFILE_START / END / TOTAL  : 본문 경계.
+//   2) EXTERNAL_CALL                : `EXTERNAL_CALL [proto] client (url=...)`
+//                                      의 url 까지 추출.
+//   3) EXTERNAL_CALL_INFO           : INFO 헤더만(시간 측정 X).
+//   4) FETCH                        : `FETCH [N/M] [T ms]` — 행 수 + 시간.
+//   5) TWO_PC_*                     : XA START/END/PREPARE/COMMIT/ROLLBACK
+//                                      6종.
+//   6) CHECK_QUERY                  : DB 쿼리 검사 phase.
+//   7) SQL_EXECUTE_QUERY/UPDATE/...  : 실제 SQL 실행 (READ/WRITE 구분).
+//   8) CONNECTION_ACQUIRE           : getConnection / PoolingDataSource.*
+//                                      여러 패턴.
+//   9) SOCKET                        : `SOCKET_OSTREAM` / `SOCEKT_ISTREAM`
+//                                      (오타 SOCEKT 도 허용 — Jennifer
+//                                      실제 출력에 존재).
+//   10) METHOD                       : 일반 메서드 호출.
+//   11) UNKNOWN                      : 위 어느 것에도 매칭 안 됨.
+//
+// 이렇게 우선순위 기반으로 분류해야 EXTERNAL_CALL 안에 SQL 같은 키워드
+// 가 섞여도 EXTERNAL_CALL 로 정확히 라벨링됨 (예: SQL_EXECUTE 가 url
+// 안 path 에 등장하는 케이스).
+//
+// 추출 부가 필드
+//   EXTERNAL_CALL : protocol, client, url 분리 보관.
+//   FETCH        : current/cumulative rows + elapsed ms.
+//
+// 비고: SOCEKT 오타
+//   Jennifer 의 실제 export 에 `SOCEKT_OSTREAM` 오타가 등장 — 정정하지
+//   말고 원본 그대로 인식해야 누락 없이 분류됨.
 package jenniferprofile
 
 import (

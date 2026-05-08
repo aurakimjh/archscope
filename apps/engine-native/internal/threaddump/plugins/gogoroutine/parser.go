@@ -15,6 +15,40 @@
 // netpoll/netpollBlock → NETWORK_WAIT, selectgo / chan ops →
 // CHANNEL_WAIT, semacquire / mutex → LOCK_WAIT. Framework cleanup
 // strips wrapper methods that obscure the real call site.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] gogoroutine plugin — Go 의 goroutine dump 파서.
+//
+// 입력 출처
+//   • runtime/debug.Stack()
+//   • runtime.Stack (panic / SIGQUIT)
+//   • GODEBUG=schedtrace
+//
+// goroutine 블록 형식
+//   goroutine 17 [chan receive, 5 minutes]:
+//     main.worker(0xc0000a8000)
+//         /app/main.go:88 +0x55
+//     created by main.start
+//         /app/main.go:10 +0x33
+//
+//   • 헤더: `goroutine <id> [<state>, <duration>?]:`
+//   • frame 라인 1 (unindented): `func(args)`.
+//   • frame 라인 2 (indented):   `\t/file.go:line +0xNN`.
+//   • optional `created by <func>` + 같은 형식의 frame.
+//
+// 상태 추론 (T-197) — multi-dump correlator 가 "이 goroutine 이 일하는
+// 중인가" 를 잘 판단하도록, Go 의 raw 상태를 정규 ThreadState 로 격상:
+//   netpoll / netpollBlock     → NETWORK_WAIT
+//   chan receive / chan send / select / selectgo → CHANNEL_WAIT
+//   semacquire / sync.Mutex.Lock → LOCK_WAIT
+//   IO wait                    → IO_WAIT
+//   running / runnable          → RUNNABLE
+//   기타                        → CoerceThreadState 표 통과.
+//
+// Framework cleanup
+//   `net/http.(*ServeMux).ServeHTTP` 같은 wrapper 가 길게 stack 을
+//   덮어 실 비즈니스 코드가 안 보이는 경우, 알려진 framework wrapper
+//   를 frame 슬라이스에서 제거 (raw_block 에는 보존).
 package gogoroutine
 
 import (

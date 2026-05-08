@@ -1,3 +1,36 @@
+// [한글] msa_parallelism.go — §16.7 외부호출 병렬도 분석.
+//
+// 핵심 질문
+//   "한 트랜잭션의 EXTERNAL_CALL 들이 직렬(SEQUENTIAL) / 병렬(PARALLEL)
+//    / 혼합(MIXED) / 없음(NONE) 중 무엇이었는가?"
+//
+// 자료구조
+//   interval = [start, end) ms (body START 이벤트 기준 오프셋).
+//
+// 알고리즘 단계
+//   1) extractExternalCallIntervals : 한 profile 의 모든 EXTERNAL_CALL
+//      이벤트의 startOffset/elapsed 로 interval 슬라이스 생성.
+//      offset 정보가 없으면 skip(누락 케이스 안전 처리).
+//
+//   2) wall-clock 시간 = 모든 interval 의 union 길이(겹친 부분은
+//      한 번만 카운트). 누적 시간(cumulative) 과 비교해 ratio 산출.
+//
+//   3) parallelism_ratio = 1 - wall_clock / cumulative.
+//      0 = 완전 직렬, 1 에 가까울수록 강한 병렬.
+//
+//   4) max_concurrency = 임의 시점의 동시 실행 호출 최대 개수
+//      (sweep-line 알고리즘 — start 이벤트 +1, end 이벤트 -1).
+//
+//   5) ExecutionMode 결정:
+//        • NONE       : EXTERNAL_CALL 0건.
+//        • SEQUENTIAL : max_concurrency == 1.
+//        • PARALLEL   : 모든 호출이 겹침 (cumulative > wall_clock 큼).
+//        • MIXED      : 일부 겹치고 일부 직렬.
+//
+// MVP4 의 핵심 산출물
+//   profile_parallelism 표 + GUID 그룹 단위 max_external_call_concurrency
+//   + group_execution_mode. 보고서가 "병렬 호출이 줄어들 여지가 있는가?"
+//   를 묻는 의사결정에 직접 사용됩니다.
 package jenniferprofile
 
 import (

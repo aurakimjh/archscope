@@ -1,3 +1,24 @@
+"""Demo-site scenario batch runner (analyzer-type mapping + exports)."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] demo_site_runner — Demo Data Center 시나리오 일괄 실행기.
+#
+# 책임/목적
+#   projects-assets/test-data/demo-site 안의 시나리오들을 발견하고,
+#   각 시나리오 → analyzer_type 매핑에 따라 적절한 분석기 호출 →
+#   JSON / HTML / PPTX export 까지 한 번에 수행. CLI 와 프론트엔드의
+#   Demo Data Center 페이지가 이 모듈을 사용.
+#
+# 알고리즘 흐름
+#   1) 시나리오 디렉토리/메타파일 스캔.
+#   2) load_analyzer_type_mappings 로 mapping.json 로드.
+#   3) 각 시나리오의 analyzer_type/format 에 맞는 분석기 함수 dispatch.
+#   4) 결과 AnalysisResult 저장 (json) → optional html/pptx export.
+#   5) summary 인덱스 생성 (어느 시나리오가 어떤 analyzer 를 호출했고
+#      파일 어디에 저장됐는지).
+#
+# parity: 시나리오 디렉토리 layout, mapping json 구조, analyzer dispatch
+# 키 이름이 Go engine-native internal/demosite 와 동일.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import json

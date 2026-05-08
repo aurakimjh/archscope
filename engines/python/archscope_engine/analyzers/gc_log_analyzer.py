@@ -1,3 +1,33 @@
+"""HotSpot JVM GC log analyzer (unified / G1 legacy / serial legacy)."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] gc_log_analyzer — HotSpot GC 로그 분석기.
+#
+# 책임/목적
+#   HotSpot JVM 의 세 가지 GC 로그 포맷 — unified (-Xlog:gc*),
+#   G1 legacy, serial/parallel legacy — 을 받아 GcEvent 리스트로
+#   집계하고 pause 분포, heap usage 시계열, allocation/promotion
+#   rate, finding (long pause / promotion failure / humongous /
+#   concurrent mode failure 등) 을 산출.
+#
+# 알고리즘 흐름
+#   1) detect_gc_log_format → 포맷 감별
+#   2) iter_gc_log_events_with_diagnostics → GcEvent 스트림
+#   3) 이벤트 별 pause/heap/yong/old/metaspace/cause/type 집계
+#   4) histogram bucket (0/1/5/10/50/100/500/1000/5000ms) 으로 cap
+#   5) allocation_rate / promotion_rate 계산 (이전 이벤트 대비 delta)
+#   6) finding 산출 — long pause, humongous, CMF, promotion failure
+#   7) AnalysisResult 조립
+#
+# 주요 함수
+#   - analyze_gc_log: 파일 입력 진입점.
+#   - build_gc_log_result: 이벤트 스트림 → AnalysisResult.
+#   - _event_time / _percentile / _build_findings 등 보조.
+#
+# parity 주의사항 (Go engine-native 와 byte 단위 일치)
+#   - histogram bucket label / 경계값, finding 메시지, parser 이름
+#     ("hotspot_unified_gc_log" 등) 이 Go 측과 1:1 동등.
+#   - top_n 기본값(20), 시계열 배열 키 이름이 동일.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import bisect
@@ -37,6 +67,8 @@ _PARSER_NAMES = {
 }
 
 
+# [한글] analyze_gc_log — 파일 경로를 받는 진입점.
+# 포맷 감별 후 build_gc_log_result 위임.
 def analyze_gc_log(
     path: Path,
     *,
@@ -62,6 +94,10 @@ def analyze_gc_log(
     )
 
 
+# [한글] build_gc_log_result — 이벤트 스트림 → AnalysisResult.
+# 한 번의 패스로 type/cause/pause/heap/young/old/metaspace 집계.
+# allocation_rate 는 이전 이벤트와의 (heap_after, uptime) delta 기반.
+# percentile/평균/총합 계산 후 시계열과 finding 채워서 반환.
 def build_gc_log_result(
     events: Iterable[GcEvent],
     *,
@@ -392,6 +428,15 @@ def _build_pause_histogram(pauses_ms: list[float]) -> list[dict[str, Any]]:
     return buckets
 
 
+# [한글] _build_findings — summary 통계 임계치를 보고 finding 산출.
+# 임계치 (Go engine-native 와 동일):
+#   max_pause >= 100ms        → LONG_GC_PAUSE (warning)
+#   full_gc > 0               → FULL_GC_PRESENT (warning)
+#   throughput < 95% (and wall>0) → LOW_GC_THROUGHPUT (warning)
+#   p99 >= 200ms              → HIGH_P99_PAUSE (warning)
+#   humongous > 0             → HUMONGOUS_ALLOCATION (warning)
+#   CMF > 0                   → CONCURRENT_MODE_FAILURE (critical)
+#   promotion_failure > 0     → PROMOTION_FAILURE (critical)
 def _build_findings(summary: dict[str, Any]) -> list[dict[str, Any]]:
     findings: list[dict[str, Any]] = []
     if summary["max_pause_ms"] >= 100:

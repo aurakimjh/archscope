@@ -1,3 +1,7 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] ui/separator.tsx — shadcn/ui Separator(가로/세로 1px 라인).
+//   사이드바 그룹 구분, 헤더 토큰 사이 분리 등에 사용.
+// ─────────────────────────────────────────────────────────────────────
 import * as SeparatorPrimitive from "@radix-ui/react-separator";
 import * as React from "react";
 

@@ -1,3 +1,28 @@
+// [한글] msa.go — §13-§18 MSA 그룹핑 파이프라인의 본체.
+//
+// 입력
+//   buildGuidGroups 가 받는 jenniferFileBucket 슬라이스는 모든 파일에서
+//   파싱된 트랜잭션 프로파일들을 한 데 모은 형태.
+//
+// 처리 흐름
+//   1) Bucket 형성 — correlation key(GUID 또는 옵션 fallback 시 TXID)
+//      별로 profile 묶음. 빈 key 는 skip(상위 분석기가 diagnostic 으로
+//      보고).
+//   2) 각 bucket 에 대해 §15 caller-callee 매칭 (msa_match.go).
+//   3) §16 network gap 계산 (raw / adjusted).
+//   4) §17 root profile 추론 (들어오는 외부호출 매치가 없는 profile).
+//   5) §18 call graph 구축 — DAG 형태의 (caller_txid → callee_txid)
+//      엣지 리스트.
+//   6) §16.7 parallelism (msa_parallelism.go) 호출.
+//   7) §10 group validation status 결정 — 어느 한 profile 이라도 FULL
+//      validation 실패면 GROUP_FAILED.
+//
+// 결정론
+//   bucket 출력 순서는 keyOrder 에 보존된 입력 순서. parity gate 가
+//   바이트 단위로 비교 가능하도록 정렬은 명시적 sort 만 사용.
+//
+// 결과
+//   []models.JenniferGuidGroup — 분석기의 tables.guid_groups 로 직결.
 package jenniferprofile
 
 import (

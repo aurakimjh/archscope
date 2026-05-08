@@ -4,6 +4,28 @@ Phase 1 of the Electron→Web pivot. The endpoints mirror the IPC contract that
 ``apps/desktop/electron/main.ts`` (now in ``apps/desktop``) previously implemented so the React frontend
 can keep using the same shapes via an HTTP bridge instead of ``window.archscope``.
 """
+# ─────────────────────────────────────────────────────────────────────
+# [한글] web/server — FastAPI HTTP 서버 (분석 엔진 외부 노출).
+#
+# 책임/목적
+#   archscope serve 가 띄우는 HTTP 서버. 모든 분석기를 endpoint 로
+#   노출하고, frontend 는 fetch/WebSocket 로 호출. Electron IPC 시절의
+#   shape (window.archscope.*) 와 1:1 호환.
+#
+# 주요 endpoint 그룹
+#   - /api/analyzers/*: 도메인별 분석 (access-log/gc-log/thread-dump/
+#     jfr/profiler/exception/otel/runtime).
+#   - /api/upload: 임시 파일 업로드.
+#   - /api/export/*: HTML/PPTX/JSON/CSV/pprof export.
+#   - /ws/progress: 진행률 WebSocket 스트림.
+#   - /api/analyzer/cancel: 취소 요청.
+#   - /api/ai/*: AI interpretation (evidence-bound).
+#   - 정적 자산 / SPA 라우팅 fallback.
+#
+# 동시성
+#   분석은 동기 in-process. 진행률은 progress_registry 의 threading
+#   기반 dict + WebSocket fan-out.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import json

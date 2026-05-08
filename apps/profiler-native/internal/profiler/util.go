@@ -1,3 +1,23 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] util — profiler 패키지 공용 helper 함수 모음.
+//
+// 트리비얼한 helper 들이라 함수별 한글 주석 없이 헤더 블록 설명으로 갈음.
+//
+//   - round(value, places)    : 4/6 자리 round (math.Round 기반)
+//   - ratio(part, total, p)   : 백분율 계산. total<=0 면 0.
+//   - elapsedRatio            : seconds / *elapsed * 100. elapsed nil 이면 nil.
+//   - splitStack(stack)       : ";" split + trim + 빈 frame drop
+//   - joinPath(path)          : ";" join
+//   - topCounter(counter, n)  : counter map → samples DESC 정렬 + topN cap
+//   - increment(counter, k, n): counter[k] += n
+//   - safePreview(value)      : trim + 최대 160자 자르기 (raw_preview용)
+//   - stringPtr / floatPtr    : 포인터 helper (option/nullable JSON 표현)
+//   - readAllUTF8(path)       : os.ReadFile thin wrapper
+//
+// 모든 round/ratio 결과의 자릿수는 Python 원본과 byte-level 동등이어야
+// 한다. 임의로 places 를 바꾸면 frontend snapshot 이 깨진다.
+// ─────────────────────────────────────────────────────────────────────
+
 package profiler
 
 import (

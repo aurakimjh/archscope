@@ -1,3 +1,22 @@
+// [한글] models/thread_snapshot.go — 단일 덤프 내의 스레드 1개를
+// 표현하는 ThreadSnapshot 와, 한 덤프 파일 전체를 표현하는
+// ThreadDumpBundle 의 정의.
+//
+// 데이터 흐름
+//   파일 → 플러그인.Parse() → ThreadDumpBundle{Snapshots: []ThreadSnapshot}
+//                          → multi/lock 분석기 입력
+//
+// 핵심 의도
+//   • 모든 런타임의 dump 출력이 ThreadDumpBundle 한 형태로 동질화.
+//   • 분석기는 더이상 "Java 인지 Go 인지" 분기하지 않음. 단지
+//     ThreadState enum + StackFrame slice + LockHandle slice 만 본다.
+//   • 외부에서 식별할 수 있는 메타 정보(SourceFormat, Language) 는
+//     bundle 레벨로 빼두어 finding 메시지에 출처를 남길 수 있게 함.
+//
+// StackSignature 의 역할
+//   상위 N개 프레임을 " | " 로 join 한 문자열은 멀티-덤프 분석에서
+//   "같은 스레드의 같은 위치" 를 찾는 dedup 키로 사용됩니다.
+//   PERSISTENT_BLOCKED_THREAD 등의 finding 이 이 시그니처로 그룹.
 package models
 
 import (
@@ -50,6 +69,19 @@ const DefaultStackSignatureDepth = 5
 //
 // `depth <= 0` is treated like Python's `depth=5` default, which is
 // also what `stack_signature()` uses when called without args.
+//
+// [한글] 알고리즘
+//   1) depth <= 0 → DefaultStackSignatureDepth(=5).
+//   2) 스택이 비어있으면 고정 문자열 "(no-stack)" 반환 — 통계 표에
+//      "스택 없음" 도 한 그룹으로 묶이도록.
+//   3) 상위 depth 개 프레임에 대해 frame.Render() 를 모아서 " | " 로
+//      join. depth 가 실제 프레임 수보다 크면 자동 clamp.
+//
+// 시그니처가 짧은 이유
+//   전체 스택을 키로 쓰면 그룹이 너무 많아져 finding 의 신호가 약해
+//   집니다. 상위 5 프레임만 봐도 "같은 위치에서 멈춘 스레드" 는 거의
+//   같은 그룹으로 묶이고, 그 아래 프레임 차이는 dashboard 의 detail
+//   화면에서 보면 됩니다.
 func (s ThreadSnapshot) StackSignature(depth int) string {
 	if depth <= 0 {
 		depth = DefaultStackSignatureDepth

@@ -1,3 +1,27 @@
+"""Legacy single-file Java jstack thread-dump parser."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] thread_dump_parser — legacy 단일 Java jstack 파서.
+#
+# 책임/목적
+#   하나의 Java jstack 파일을 ThreadDumpRecord 리스트로 변환. 다중
+#   런타임/플러그인 등록 시스템은 parsers/thread_dump/ 패키지가 담당
+#   하며, 이 모듈은 thread_dump_analyzer 가 사용하는 단순 경로.
+#
+# 입력 형식 (jstack)
+#   `"thread_name" #N daemon prio=... tid=0xABC nid=0xDEF state` 헤더 +
+#   다음 줄에 `   java.lang.Thread.State: STATE` + 들여쓰기된 stack frame.
+#   빈 라인이 record 구분자.
+#
+# 알고리즘
+#   1) THREAD_HEADER_RE 매칭으로 record 시작.
+#   2) record 안에서 TID_RE / STATE_RE 매칭으로 메타 추출.
+#   3) "  at ..." 같은 들여쓰기 라인은 stack frame 으로 누적.
+#   4) lock/monitor 정보 라인 ("- locked", "- waiting on") 도 캡처.
+#
+# parity: 정규식 / record 키가 Go 측 internal/parsers/threaddump
+# (또는 javajstack 플러그인) 과 동일. legacy 경로지만 frontend 호환
+# 위해 유지.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import re

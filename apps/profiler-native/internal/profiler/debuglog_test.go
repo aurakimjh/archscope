@@ -1,3 +1,7 @@
+// [한글] debuglog_test — DebugLog 컬렉터의 verdict 정책, portable 파일명,
+// per-error-type sample cap, 1MiB 페이로드 capping, RawContext redaction,
+// InferFieldShapes 추론 등 핵심 동작을 종합 검증.
+
 package profiler
 
 import (

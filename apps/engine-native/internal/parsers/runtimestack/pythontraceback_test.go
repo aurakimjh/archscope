@@ -1,3 +1,12 @@
+// [한글] python traceback parser 회귀 테스트.
+//
+// 검증 대상
+//   • `Traceback (most recent call last):` 헤더로 블록 시작.
+//   • `File "...", line N, in func` 형태 frame 정확 추출.
+//   • 마지막 ExceptionType: message 라인을 종결 라인으로 인식.
+//   • 컨텍스트 메시지가 끼어있어도 마지막 매칭이 우선.
+//   • 다중 traceback (여러 블록) 분리.
+//   • rstrip 만 적용해 들여쓰기 정보가 보존되는지.
 package runtimestack
 
 import (

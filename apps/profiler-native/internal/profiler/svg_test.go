@@ -1,3 +1,8 @@
+// [한글] svg_test — Brendan Gregg flamegraph.pl SVG 파싱 검증.
+// title 정규식 매칭(name + N samples), row 추정(min height / 16),
+// reverse direction (root row 가 0 인 경우 vs 마지막 row 인 경우),
+// X 중심점 기반 부모 매칭으로 leaf → root 경로 복원 검증.
+
 package profiler
 
 import (

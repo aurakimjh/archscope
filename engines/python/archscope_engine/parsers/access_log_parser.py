@@ -1,3 +1,37 @@
+# ─────────────────────────────────────────────────────────────────────
+# [한글] access_log_parser — HTTP 액세스 로그(nginx/Apache/IIS) 파서.
+#
+# 책임
+#   nginx-combined / combined / common 3종 정규식을 우선순위대로 시도해
+#   AccessLogRecord 슬라이스로 변환. 분석은 access_log_analyzer 가 담당.
+#
+# 지원 포맷
+#   1) nginx-combined-with-response-time:
+#      `127.0.0.1 - - [ts] "METHOD URI HTTP/1.1" status bytes "ref" "ua" rtsec`
+#   2) combined: 끝의 응답시간이 없는 형태.
+#   3) common: referer/user-agent 도 없는 가장 단순한 형태.
+#
+# 라인 단위 dispatch
+#   같은 파일에 여러 형식이 섞여도 라인 단위로 가능한 한 많이 살림.
+#
+# 라인 손상 정책 (T-013 / parser_error_handling)
+#   • 정상 미매칭     : skip + diagnostics.skipped_records++
+#   • status 비숫자  : skip + 별도 reason 카운트
+#   • 응답시간 NaN/<0: 0 으로 강제 + warning
+#   • Strict=True   : 첫 skip 이 fatal error
+#
+# 옵션
+#   max_lines / start_time / end_time : 분석기 옵션과 동일 의미.
+#
+# Go engine-native parity
+#   apps/engine-native/internal/parsers/accesslog/parser.go 와 byte 단위
+#   동일 record 산출. regex 우선순위, skip 사유 코드, sample 수집 cap
+#   까지 모두 동기화.
+#
+# 시간 파싱
+#   nginx 형식 `27/Apr/2026:10:00:01 +0900` 을 timezone-aware datetime
+#   으로 변환 — common.time_utils.parse_nginx_timestamp 가 처리.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import re

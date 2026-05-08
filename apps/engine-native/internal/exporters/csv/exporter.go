@@ -24,6 +24,45 @@
 // Encoding follows RFC 4180 via `encoding/csv`: CRLF line endings,
 // quoted fields when they contain commas / quotes / newlines, doubled
 // internal quotes. UTF-8 throughout.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] csv exporter — AnalysisResult 의 summary + series 를
+// 스프레드시트용 CSV 로 평탄화.
+//
+// 흥미로운 사실
+//   Python 측은 NotImplementedError stub. T-343 work_status 에 명시된
+//   요구를 Go 가 실제로 처음 구현. parity gate 가 비교할 Python 출력이
+//   없어 본 패키지의 출력 형식이 곧 contract.
+//
+// 두 가지 모드
+//   1) 단일 파일 (Write/Marshal):
+//        # summary
+//        key1,value1
+//        ...
+//        # series:foo
+//        col1,col2,col3
+//        ...
+//      엑셀에서 "텍스트 가져오기" 로 열면 섹션 헤더 라인이 같이
+//      들어가지만, gnuplot / pandas 처럼 코멘트 라인을 무시하는 도구
+//      에서는 자동으로 분리됨.
+//   2) 디렉토리 (WriteAll):
+//        summary.csv         — 단일 표.
+//        series_<key>.csv   — series 의 각 키별 한 파일.
+//      엑셀 등 "한 파일 = 한 시트" 도구 친화적.
+//
+// 인코딩
+//   stdlib `encoding/csv` 사용 → RFC 4180 자동 준수.
+//   • CRLF 줄바꿈.
+//   • 콤마/따옴표/줄바꿈 포함 필드는 자동 quote.
+//   • 내부 따옴표는 `""` 로 escape.
+//   • UTF-8 그대로 (BOM 없음).
+//
+// 평탄화 알고리즘
+//   summary       : 사전순 키 정렬 후 (key, value) 한 줄씩.
+//   series 항목   : 객체 배열이면 첫 객체에서 column 추출 후 데이터 행
+//                   기록. 스칼라 배열이면 단일 column "value".
+//   nested object : JSON 직렬화 결과를 한 셀에 그대로 넣음 (정보 손실
+//                   방지).
 package csv
 
 import (

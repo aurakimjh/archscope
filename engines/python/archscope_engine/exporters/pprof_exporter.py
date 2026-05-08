@@ -17,6 +17,23 @@ Wire-format primer:
 The encoder produces a byte string; callers may gzip it (``.pb.gz`` is the
 canonical extension) — pprof's CLI auto-detects gzip.
 """
+# ─────────────────────────────────────────────────────────────────────
+# [한글] pprof_exporter — Google pprof (.pb.gz) 인코더 (수동 protobuf).
+#
+# 책임/목적
+#   FlameNode 트리를 pprof profile.proto 형식으로 직렬화. `go tool
+#   pprof`, Pyroscope, Speedscope 등 외부 도구 호환.
+#
+# 구현 특이점
+#   protobuf 런타임 의존 없이 수동 인코딩 — wire_type 0 (varint),
+#   wire_type 2 (length-delimited) 두 가지만 사용. LEB128 varint 직접 구현.
+#
+# 출력
+#   raw bytes. 호출 측이 .pb.gz 로 gzip 권장 (pprof CLI auto-detect).
+#
+# parity: profile.proto field number / 인코딩 규칙은 Google 표준이라
+# 자동 일치. Go engine-native 도 같은 spec 따라감.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import gzip

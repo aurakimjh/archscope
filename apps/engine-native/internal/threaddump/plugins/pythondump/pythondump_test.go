@@ -1,3 +1,19 @@
+// [한글] pythondump 3종 plugin 회귀 테스트.
+//
+// 검증 대상 (변종별)
+//   • py-spy:
+//       - `Process N:` + `Thread N (state): "name"` 헤더 인식.
+//       - frame 형식 `func (file:line)` 정확 파싱.
+//       - state 별 ThreadState 매핑.
+//   • faulthandler:
+//       - `Thread 0x... (most recent call first):` 헤더.
+//       - `File "...", line N in func` 형식 frame.
+//   • traceback:
+//       - `Thread ID: N` 헤더.
+//       - `File "...", line N, in func` 형식 frame.
+//   • 공통 enrichment: middleware wrapper 제거 + select/socket/asyncio
+//     state 추론.
+//   • CanParse 가 변종 간 충돌 없이 정확히 sniff.
 package pythondump
 
 import (

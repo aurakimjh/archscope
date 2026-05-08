@@ -1,3 +1,25 @@
+"""Single thread-dump analyzer (legacy Java jstack)."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] thread_dump_analyzer — 단일 Java jstack 덤프 분석기.
+#
+# 책임/목적
+#   하나의 Java jstack 텍스트 파일을 받아 thread_dump 타입의
+#   AnalysisResult 를 만든다. 다중 덤프 분석은 multi_thread_analyzer
+#   가 담당하며, 이 모듈은 보편적인 단일-덤프 요약 (state 분포,
+#   카테고리 분포, 상위 stack signature) 만 제공.
+#
+# 알고리즘 흐름
+#   parse_thread_dump → ThreadDumpRecord 리스트 →
+#   Counter 로 state/category/signature 분포 산출 →
+#   simple finding(blocked_threads_present, waiting_threads_dominate) →
+#   AnalysisResult 조립.
+#
+# 주요 함수
+#   - analyze_thread_dump: 파일 경로 입력 진입점.
+#   - build_thread_dump_result: 파싱 결과로부터 AnalysisResult 조립.
+#   - _stack_signature: 상위 3 프레임 합쳐 signature 생성.
+#   - _build_findings: blocked/waiting 비율 기반 finding.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 from collections import Counter

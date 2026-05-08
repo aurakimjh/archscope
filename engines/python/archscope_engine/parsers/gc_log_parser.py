@@ -1,3 +1,40 @@
+# ─────────────────────────────────────────────────────────────────────
+# [한글] gc_log_parser — HotSpot GC 로그 파서 (3개 포맷 자동 감지).
+#
+# 지원 포맷
+#   • Unified  : JDK 9+ `-Xlog:gc*` 통합 포맷.
+#                `[ts][info][gc] GC(123) Pause Young ... 25.000ms`
+#   • G1Legacy : JDK 8 G1 multi-line legacy.
+#   • Legacy   : JDK 4-8 Serial/Parallel/CMS legacy.
+#   • Unknown  : 자동 감지 실패 시 Unified 로 fallback.
+#
+# 자동 감지 (detect_gc_log_format)
+#   첫 ~8 KiB 를 sampling 하고 정규식으로 시그니처 판단:
+#     [gc] 태그 유무, datestamp 프리픽스, GC ID `GC(123)` 패턴 등.
+#
+# Event 의 의미
+#   한 GC 사이클 = 1 GcEvent. 필드:
+#     timestamp / gc_id / cause / type(Young/Old/Mixed/Full/...) /
+#     collector(G1/CMS/Parallel/Serial/ZGC/Shenandoah) /
+#     pause_ms / heap_before_mb / heap_after_mb / heap_committed_mb /
+#     young/old before/after / metaspace.
+#
+# 핵심 알고리즘
+#   1) iter_text_lines 로 인코딩 안전 라인 stream.
+#   2) 포맷별 정규식 dispatch.
+#   3) Unified 는 multi-line phase (Metaspace 줄 등) 가 있을 수 있어
+#      _UNIFIED_METASPACE_RE 로 직전 이벤트에 보강.
+#   4) Legacy / G1Legacy 는 multi-line buffer 누적 후 한 record emit.
+#   5) max_lines / strict 옵션 적용.
+#
+# Go engine-native parity
+#   apps/engine-native/internal/parsers/gclog/parser.go 와 byte 동일.
+#   format 식별 문자열, GcEvent 키 이름, sort 키, 단위 변환 모두 동기화.
+#
+# 헤더 파서와 분리
+#   JVM Info 헤더 (버전/CPU/Heap min-max/워커 수/CommandLine flags) 추출은
+#   gc_log_header.py 가 담당. 본 파서가 0건이어도 헤더는 살아남도록.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import re

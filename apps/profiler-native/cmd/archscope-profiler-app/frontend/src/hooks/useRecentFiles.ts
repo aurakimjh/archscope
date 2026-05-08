@@ -13,6 +13,24 @@
 // `analyzedAt` (for sort + display), and an opaque `meta` map so
 // pages can stash analyzer-specific options (intervalMs, format,
 // fallbackToTxid, etc.) without changing this hook every time.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] hooks/useRecentFiles.ts — 최근 파일 경로 LocalStorage 훅.
+//
+// 책임/목적: 분석한 파일 경로를 최대 8개까지 LRU 순서로 카테고리별
+// 보관하고 localStorage 에 동기화. push() 호출 시 동일 경로가 있으면
+// 제거 후 맨 앞에 삽입(중복 제거 + 최신 우선). storage 이벤트를 listen
+// 해 다른 창/탭에서의 변경도 자동 반영.
+//
+// 카테고리 구조: `archscope.profiler.recentFiles.<category>` 키로
+// 분석기별 분리. category 없는 default bucket 은 레거시 단일 리스트를
+// 유지해 기존 Settings/Profiler 소비자가 마이그레이션 없이 동작.
+//
+// 메타데이터 보관: analyzer (어떤 페이지가 처리하는지), analyzedAt
+// (정렬/표시), meta map (분석기별 옵션 — intervalMs, format,
+// fallbackToTxid 등) 을 저장해 "히스토리 클릭 → 동일 파라미터로 즉시
+// 재분석" UX 가능.
+// ─────────────────────────────────────────────────────────────────────
 
 import { useCallback, useEffect, useState } from "react";
 

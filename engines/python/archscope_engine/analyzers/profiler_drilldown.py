@@ -1,3 +1,30 @@
+"""Iterative drilldown stage builder for profiler flame trees."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] profiler_drilldown — 단계적 필터 적용 drilldown 빌더.
+#
+# 책임/목적
+#   FlameNode 트리에 일련의 DrilldownFilter (포함/제외/정규식) 을
+#   적용해 단계별로 좁혀가며 새 트리/메트릭/top stacks/top child
+#   frames 를 산출. UI 가 brush-and-zoom 식 탐색을 할 때 사용.
+#
+# 알고리즘
+#   1) leaf path 추출.
+#   2) 단계별 필터 적용:
+#        include_text  — frame 명에 텍스트 포함하는 path 만 유지.
+#        exclude_text  — 포함하는 path 제외.
+#        regex_include / regex_exclude — 동일하지만 패턴 정규식.
+#      match_mode (anywhere/ordered/subtree) 와 view_mode
+#      (preserve_full_path / reroot_at_match) 가 path 변환을 결정.
+#   3) 새 path 셋으로 build_flame_tree_from_paths 로 새 트리 구축.
+#   4) DrilldownStage 객체에 필터/메트릭/top* 모두 채워서 누적.
+#
+# 안전장치
+#   MAX_REGEX_PATTERN_LENGTH=500, NESTED_QUANTIFIER_PATTERN 으로
+#   ReDoS 가능 패턴 거부.
+#
+# parity 주의사항: filter_type / match_mode / view_mode 라벨 문자열,
+# breadcrumb 누적 형식, top_n 기본값 (10/20) 이 Go 측과 동일.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 from dataclasses import dataclass

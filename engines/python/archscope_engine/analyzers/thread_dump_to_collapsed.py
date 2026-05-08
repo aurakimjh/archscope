@@ -16,6 +16,24 @@ plugin, so AOP-proxy normalization and per-runtime state inference are
 applied automatically before stacks are flattened — no JVM-specific
 post-processing here.
 """
+# ─────────────────────────────────────────────────────────────────────
+# [한글] thread_dump_to_collapsed — 다중 언어 thread-dump → collapsed.
+#
+# 책임/목적
+#   다수의 thread-dump 파일 (Java/Go/Python/Node.js/.NET 혼합 OK) 을
+#   파싱하고 collapsed (FlameGraph.pl 호환) 형식의 Counter[str] 로
+#   변환. profiler analyze-collapsed 의 입력이 된다.
+#
+# 변환 규칙
+#   - 한 ThreadSnapshot 당 한 줄, sample 수 = 1.
+#   - frame 순서: collapsed 관습에 따라 root → leaf 로 reverse.
+#   - include_thread_name=True 시 가장 왼쪽에 thread name 을 합성
+#     프레임으로 prepend (aitop 호환).
+#   - sanitize: ";" 와 newline 은 "_" / 공백으로 치환.
+#
+# parity 주의사항: ";" 구분자, root-leaf 순서, sanitize 규칙이
+# Go engine-native 의 internal/analyzers/threaddumpcollapsed 와 동일.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 from collections import Counter

@@ -1,3 +1,11 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] Tabs.tsx — Radix/shadcn 의존성 없는 가벼운 탭 스트립.
+//
+// 책임/목적: TabSpec[] 와 active key 를 받아 role="tablist" 시멘틱과
+// 함께 버튼 그룹 렌더. 페이지 내부에서 분석 결과의 sub-view (예:
+// flamegraph / breakdown / drilldown / diagnostics) 를 전환하는 데 사용.
+// 같은 워크스페이스의 web 셸(apps/frontend) 시각 언어와 동일하게 유지.
+// ─────────────────────────────────────────────────────────────────────
 // Lightweight tab strip — no shadcn/Radix dependency. Mirrors the visual
 // language of the Phase 2 web shell (`apps/frontend`) so users feel at
 // home moving between the two.

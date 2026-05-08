@@ -1,3 +1,18 @@
+// [한글] gclog 분석기 회귀 테스트.
+//
+// 핵심 검증 포인트
+//   • 실제 fixture 파일(examples/gc-logs/*.log) 의 summary/series/tables
+//     이 Python 결과와 byte 단위 일치(parity).
+//   • JVM Info 추출: 버전 / CPU / heap min/max / parallel·concurrent
+//     워커 수가 jvm_info 블록에 포함.
+//   • 워커 vs CPU 미스매치 경고가 워커 수 > CPU 일 때 발생.
+//   • findings: LONG_GC_PAUSE, FULL_GC_PRESENT, HIGH_P99_PAUSE,
+//     HUMONGOUS_ALLOCATION 등이 fixture 에 따라 재현.
+//   • 9개 pause histogram bucket 의 카운트 합 == total pause events.
+//
+// repoFixture
+//   `go test` 의 cwd 가 어디든 fixture 를 찾도록 wd 에서 8단계 위까지
+//   순회하며 examples/ 디렉터리를 anchor. 경로 의존성 제거.
 package gclog
 
 import (

@@ -1,3 +1,28 @@
+// [한글] common/redaction.go — 디버그 로그/보고서 에서 사용할 redaction
+// 정책 구현.
+//
+// 정책 버전 (RedactionVersion = "0.1.0")
+//   Python 측의 redaction 정책 버전과 일치. 디버그 로그 헤더에 버전이
+//   기록되어, 정책 변경 후 옛 로그를 다시 보더라도 어떤 룰로 마스킹된
+//   결과인지 즉시 식별 가능.
+//
+// 마스킹 카테고리 (적용 순서대로)
+//   1) Authorization 헤더 — `Authorization: Bearer <tok>`,
+//                            `Authorization: Basic <b64>` 의 토큰 부분.
+//   2) Cookie / Set-Cookie 값.
+//   3) http(s) URL 의 query string + 자체 경로.
+//   4) 이메일 주소.
+//   5) 절대 경로 (/Users/, /home/, /var/, /opt/, /srv/, /app/, /data/).
+//
+// 출력
+//   RedactionResult{Text: string, Summary: map[string]int}
+//   - Text    : 마스킹 적용된 텍스트.
+//   - Summary : 카테고리별 적중 횟수. 디버그 로그에 노이즈 없이 추적
+//               가능한 통계 포함.
+//
+// 비-적용 대상
+//   IP/MAC 주소, 주민번호 같은 한국 개인정보 — 현재 정책에는 미포함.
+//   필요 시 별도 룰로 확장 가능 (RedactionVersion bump 필수).
 package common
 
 import (

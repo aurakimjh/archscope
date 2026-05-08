@@ -1,3 +1,8 @@
+// [한글] redaction_test — RedactText 8단계 정책 각각 검증.
+// Authorization Bearer, Cookie, URL query string + key 별 분류, 이메일,
+// 절대 경로 leaf-keep, IPv4, path 내 숫자, 8자리 이상 long number 모두
+// "<TOKEN len=N>" / "<COOKIE>" / "<EMAIL>" 등 placeholder 로 byte-level 동등 치환되는지.
+
 package profiler
 
 import (

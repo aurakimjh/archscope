@@ -1,3 +1,19 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] install_deps (Android) — 안드로이드 빌드 의존성 점검 스크립트.
+//
+// 책임/목적
+//   Wails Android 빌드를 시도하기 전에 로컬 환경에 다음 항목이 갖춰졌는지
+//   점검: Go 설치, ANDROID_HOME(또는 ANDROID_SDK_ROOT), adb, emulator,
+//   ANDROID_NDK_HOME, Java, 최소 1개 이상 AVD. 누락된 항목은 친절한
+//   안내 메시지로 알려준다 (Android Studio + SDK Manager 설치 가이드).
+//
+// 종료 코드
+//   - 0 : 모든 의존성 OK
+//   - 1 : 누락 항목 존재. stderr 가 아닌 stdout 에 안내 후 exit(1).
+//
+// 트리비얼 helper(checkCommand) 는 헤더 블록 설명으로 갈음.
+// ─────────────────────────────────────────────────────────────────────
+
 package main
 
 import (
@@ -9,6 +25,7 @@ import (
 	"strings"
 )
 
+// [한글] main — 의존성 점검 결과를 콘솔에 보고하고, 누락 시 exit(1).
 func main() {
 	fmt.Println("Checking Android development dependencies...")
 	fmt.Println()

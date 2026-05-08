@@ -1,3 +1,15 @@
+# ─────────────────────────────────────────────────────────────────────
+# [한글] test_file_utils — common/file_utils 의 인코딩/라인 iterator
+# 회귀 테스트.
+#
+# 검증 대상
+#   • detect_text_encoding: BOM / UTF-16 NUL 비율 / cp949 fallback /
+#     utf-8 / latin-1 체인.
+#   • iter_text_lines: T-031 회귀 — mid-file decode 실패 후 fallback
+#     재시도 시 라인 중복 emit 안 됨.
+#   • 큰 파일에서 메모리 안전 (line stream).
+#   • UTF-16 BOM (FEFF/FFFE) + UTF-8-sig (EFBBBF) 처리.
+# ─────────────────────────────────────────────────────────────────────
 from archscope_engine.common.file_utils import detect_text_encoding, iter_text_lines
 
 

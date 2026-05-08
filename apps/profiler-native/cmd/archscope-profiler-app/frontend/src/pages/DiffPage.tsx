@@ -1,3 +1,21 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] pages/DiffPage.tsx — 두 프로파일 결과 비교(Diff) 페이지.
+//
+// 책임/목적:
+//   - 두 입력 파일(before/after) 을 받아 ProfilerService.Diff(DiffRequest)
+//     호출 → 비교용 AnalysisResult 수신 → 차이(delta) 정보가 담긴
+//     flamegraph 를 색상으로 시각화.
+//   - 색상 의미: 빨강(regression: delta > 0), 초록(improvement: delta < 0),
+//     회색(unchanged) — divergent palette 로 즉각적인 시각 신호 제공.
+//
+// 다루는 결과 형식: AnalysisResult (FlameNode metadata.delta 포함).
+// detectFormat 으로 파일 확장자(csv/svg/html/collapsed) 를 자동 감지.
+//
+// 데이터 흐름: Wails ProfilerService binding → Go diff analyzer →
+// FlameNode 트리 + delta metadata → CanvasFlameGraph 렌더.
+//
+// 의존성 주의: Wails 자동 생성 bindings 모듈을 직접 import.
+// ─────────────────────────────────────────────────────────────────────
 import { useMemo, useState } from "react";
 
 import {

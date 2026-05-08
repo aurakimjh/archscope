@@ -1,3 +1,34 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] analyzerContract.ts — 프론트와 엔진(파이썬/Go) 사이의 IPC/HTTP
+//   계약을 TypeScript 타입으로 명세한 단일 출처(single source of truth).
+//
+// 책임/목적:
+//   - AnalysisResult<TType, TSummary, TSeries, TTables, TCharts, TMetadata>
+//     공통 컨트랙트: 모든 분석기 결과는 type/source_files/created_at +
+//     summary/series/tables/charts/metadata 다섯 슬롯을 갖습니다.
+//   - 각 분석기(액세스 로그, GC 로그, JFR, 프로파일러, 스레드덤프, 예외,
+//     데모 러너 등)별 specialization 타입 정의.
+//   - ArchScopeRendererApi: `window.archscope` 가 노출해야 하는 메서드
+//     집합(analyzer/exporter/demo/settings/selectFile/selectDirectory).
+//   - AnalyzerResponse<T> = AnalyzerSuccess<T> | AnalyzerFailure 의
+//     discriminated union 으로, 호출 측은 `.ok` 만으로 분기 가능.
+//
+// 데이터 흐름/계약 주의:
+//   - 키 이름은 Python/Go 엔진의 dataclass/struct JSON 태그와 byte 단위로
+//     일치해야 합니다(예: `total_requests`, `avg_response_ms` snake_case).
+//   - parser_diagnostics, ai_findings 같은 cross-cutting 슬롯은 metadata
+//     안에 담는 컨벤션 — 새 키를 추가할 때는 엔진 측 직렬화도 함께 갱신.
+//   - 본 파일은 "타입 only". 실제 호출 로직은 analyzerClient.ts /
+//     httpBridge.ts 가 담당. 타입 변경 시 그쪽도 review 필요.
+//
+// 파일 구조(아래 순서대로):
+//   1) AnalysisPrimitive / AnalysisValue / AnalysisObject — 재귀 JSON 타입.
+//   2) 공통 AnalysisResult 와 ParserDiagnostics.
+//   3) 액세스 로그 → GC 로그 → 프로파일러 → JFR → 예외 → 스레드덤프 →
+//      데모 러너 → 익스포터 순으로 도메인별 타입.
+//   4) AI interpretation / settings / 데모 매니페스트.
+//   5) 마지막으로 AnalyzerBridge / ArchScopeRendererApi(IPC 표면).
+// ─────────────────────────────────────────────────────────────────────
 export type AnalysisPrimitive = string | number | boolean | null;
 export type AnalysisValue =
   | AnalysisPrimitive

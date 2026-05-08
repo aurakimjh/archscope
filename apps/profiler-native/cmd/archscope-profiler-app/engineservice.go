@@ -1,3 +1,40 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] engineservice — Wails 데스크톱 앱의 EngineService 바인딩.
+//
+// 책임/목적
+//   apps/engine-native 패키지의 분석기/exporter 들을 Wails renderer 에
+//   노출. profiler-native 데스크톱 앱은 profiler 분석뿐 아니라 access log,
+//   GC log, JFR, exception, runtime stack, jennifer profile, OTel,
+//   threaddump 같은 engine-native 분석도 같은 UI 에서 제공한다.
+//
+// Sync vs Async 정책
+//   - 단일 파일 + 단순 분석(accesslog, gclog, exception 등): 동기 호출.
+//     호출 즉시 AnalysisResult 반환. ms 단위라 round-trip 오버헤드보다 빠름.
+//   - 다중 파일 / N-way correlation(multithread, lockcontention): 비동기.
+//     EngineAsyncResponse{TaskID} 즉시 반환 → goroutine 에서 분석 후
+//     engine:done / engine:error / engine:cancelled 이벤트 emit.
+//
+// 등록 메서드 (예시)
+//   AnalyzeAccessLog / AnalyzeGcLog / AnalyzeException / AnalyzeRuntimeStack /
+//   AnalyzeJfr / AnalyzeNativeMemory / AnalyzeJennifer / AnalyzeOtel /
+//   AnalyzeMultithreadAsync / AnalyzeLockContentionAsync / Cancel
+//   (실제 메서드 목록은 본 파일 아래에서 직접 확인).
+//
+// Request 타입
+//   - AccessLogRequest / GcLogRequest / ExceptionRequest / JfrRequest /
+//     JenniferRequest / OtelRequest / RuntimeStackRequest /
+//     MultithreadRequest / LockContentionRequest
+//   - 각 Request 는 engine-native 의 Options 와 1:1 매핑되며, RFC3339
+//     문자열로 들어온 시간 필드는 time.Parse 로 변환.
+//
+// 트리키한 부분
+//   • RFC3339 빈 문자열은 zero time 으로 매핑되어 옵션에서 nil 처리됨.
+//   • 비동기 분석은 같은 globalTasks 레지스트리를 공유 (ProfilerService 와
+//     공동) — taskID prefix 로 어떤 종류의 작업인지 구분.
+//   • engineapi.AnalysisResult 는 profiler 와는 별개의 envelope 이지만 JSON
+//     shape 컨트랙트는 동일 (Type / Summary / Series / Tables / Charts / Metadata).
+// ─────────────────────────────────────────────────────────────────────
+
 package main
 
 import (
@@ -380,6 +417,11 @@ func (s *EngineService) ClassifyStack(req ClassifyRequest) ClassifyResult {
 // engine plugin registry and runs the multithread correlator. Async
 // because plugin sniffing + N-way correlation can run for hundreds of
 // ms on real-world dumps.
+//
+// [한글] AnalyzeMultiThread — 비동기 multithread 분석.
+// 1) plugin registry 로 형식 자동 인식 + ParseMany 로 ThreadDumpBundle 추출
+// 2) AnalyzeMultiThread (장시간 N-way correlation) 실행
+// 3) cancellation 신호 우선, 정상이면 engine:done, 에러면 engine:error.
 func (s *EngineService) AnalyzeMultiThread(req MultiThreadRequest) (EngineAsyncResponse, error) {
 	if len(req.Paths) == 0 {
 		return EngineAsyncResponse{}, fmt.Errorf("paths is required")
@@ -440,6 +482,10 @@ func (s *EngineService) CancelEngineTask(taskID string) bool {
 
 // emitOrCancel honours a cancellation signal that arrived during the
 // goroutine's runtime. Mirrors the pattern in ProfilerService.AnalyzeAsync.
+//
+// [한글] emitOrCancel — 분석 종료 시점에 cancel 신호 우선 검사.
+// cancel 되었으면 engine:cancelled, 에러면 engine:error, 정상은 engine:done.
+// channel 의 select default branch 가 race condition 없이 우선순위를 결정.
 func emitOrCancel(taskID string, cancelCh chan struct{}, result engineapi.AnalysisResult, err error) {
 	select {
 	case <-cancelCh:

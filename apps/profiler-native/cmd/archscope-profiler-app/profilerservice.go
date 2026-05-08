@@ -1,3 +1,40 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] profilerservice — Wails 데스크톱 앱의 ProfilerService 바인딩.
+//
+// 책임/목적
+//   renderer (React) 가 호출할 수 있도록 profiler 분석 4종(Analyze /
+//   AnalyzeAsync / Diff / Drilldown), 옵션 모음(WriteDebugLog,
+//   ExportPprof, PickProfileFile, PickPprofOutput, Cancel) 을 노출.
+//
+// 주요 구성
+//   - taskRegistry  : taskID → cancel channel 매핑. AnalyzeAsync 가 등록.
+//                     Cancel(taskID) 가 channel close 로 신호.
+//                     실제 cancellation 정책: 작업이 µs–ms 수준이라 mid-flight
+//                     중단 대신 "결과 폐기 + cancelled 이벤트 발행" 방식.
+//   - newTaskID     : "<prefix>-<unix nano base36>-<counter base36>"
+//   - emitEvent     : Wails Event 시스템 thin wrapper
+//   - AnalyzeRequest / DiffRequest / DrilldownRequest / ExportPprofRequest:
+//     renderer ↔ Go 사이의 JSON 컨트랙트 (TypeScript 측 타입과 1:1)
+//
+// Async 흐름
+//   AnalyzeAsync(req) → taskID 즉시 반환 → goroutine 에서 runAnalyze →
+//   cancel 신호 있으면 "analyze:cancelled", 에러면 "analyze:error",
+//   정상이면 "analyze:done" + AnalysisResult 페이로드 emit.
+//
+// Diff 입력 정규화
+//   loadStacks 가 입력 형식 별로 다른 parser 를 호출해 모두 stack map 으로
+//   통일. Jennifer 는 트리 입력이라 stacksFromFlameNode 로 leaf 별 exclusive
+//   sample 을 수집해 collapsed map 으로 환산.
+//
+// 트리키한 부분
+//   • Cancel 은 channel 이미 close 된 경우에도 idempotent (select default).
+//   • PickPprofOutput / PickProfileFile 은 Wails dialog 호출. application.
+//     Get() 이 nil 이면 (테스트 등) 에러 반환.
+//   • ExportPprof 는 outputPath 가 비어있으면 dialog 로 사용자에게 직접 묻고,
+//     dialog 취소 시 "export cancelled" 에러로 응답.
+//   • optionsFromRequest 가 ElapsedSec<0 인 경우 nil 로 만들어 주의.
+// ─────────────────────────────────────────────────────────────────────
+
 package main
 
 import (
@@ -134,6 +171,8 @@ type DebugLogResult struct {
 	Verdicts   string `json:"verdicts,omitempty"`
 }
 
+// [한글] Analyze — 동기 분석. 호출 즉시 결과 반환. 결과가 작은 경우 또는
+// 호출자가 progress 가 필요 없는 경우에 사용. 큰 입력은 AnalyzeAsync 추천.
 func (s *ProfilerService) Analyze(req AnalyzeRequest) (profiler.AnalysisResult, error) {
 	options, err := s.optionsFromRequest(req)
 	if err != nil {
@@ -233,6 +272,9 @@ type ExportPprofResponse struct {
 	Bytes      int    `json:"bytes"`
 }
 
+// [한글] Diff — baseline/target 두 파일을 비교 분석.
+// 형식별 parser → stack map 통일 → AnalyzeProfilerDiff 호출.
+// Normalize=true 면 양쪽을 자기 합계로 정규화(권장 default).
 func (s *ProfilerService) Diff(req DiffRequest) (profiler.AnalysisResult, error) {
 	if strings.TrimSpace(req.BaselinePath) == "" || strings.TrimSpace(req.TargetPath) == "" {
 		return profiler.AnalysisResult{}, fmt.Errorf("both baselinePath and targetPath are required")
@@ -314,6 +356,8 @@ func stacksFromFlameNode(root profiler.FlameNode) map[string]int {
 	return stacks
 }
 
+// [한글] Drilldown — 분석 + drilldown 필터 시퀀스 적용. 결과 stages 반환.
+// 보통 분석은 한 번 캐시해두는 게 효율적이지만, 단순화를 위해 매 호출마다 재분석.
 func (s *ProfilerService) Drilldown(req DrilldownRequest) ([]profiler.DrilldownStage, error) {
 	options, err := s.optionsFromRequest(req.AnalyzeRequest)
 	if err != nil {
@@ -371,6 +415,10 @@ func (s *ProfilerService) debugLogContext(req AnalyzeRequest) (string, string) {
 
 // WriteDebugLog runs an analysis with the debug log enabled and returns the
 // saved JSON path. Renderer uses this from the Diagnostics tab.
+//
+// [한글] WriteDebugLog — debug log 강제 ON 으로 분석 실행 후 JSON 파일 기록.
+// 분석 자체가 실패해도 exception 을 debug log 에 추가 후 (가능하면) 기록.
+// 진단할 내용이 없으면 outputPath 비운 채 verdict 만 반환.
 func (s *ProfilerService) WriteDebugLog(req AnalyzeRequest) (DebugLogResult, error) {
 	req.DebugLog = true
 	options, err := s.optionsFromRequest(req)
@@ -414,6 +462,9 @@ func (s *ProfilerService) runAnalyze(req AnalyzeRequest, options profiler.Option
 	}
 }
 
+// [한글] ExportPprof — collapsed map 을 pprof.gz 로 export.
+// outputPath 비어있으면 SaveFile dialog 로 사용자에게 묻고, 취소 시 에러.
+// intervalMs<=0 면 100ms 디폴트.
 func (s *ProfilerService) ExportPprof(req ExportPprofRequest) (ExportPprofResponse, error) {
 	if strings.TrimSpace(req.Path) == "" {
 		return ExportPprofResponse{}, fmt.Errorf("path is required")

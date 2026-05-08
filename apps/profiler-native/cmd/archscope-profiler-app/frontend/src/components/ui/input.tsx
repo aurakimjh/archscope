@@ -1,3 +1,10 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] components/ui/input.tsx — shadcn/ui Input 컴포넌트.
+//
+// 책임/목적: HTMLInputElement 를 forwardRef 로 래핑하고 표준 input 클래스
+// 셋(테두리/포커스링/disabled 스타일)을 적용. 페이지에서 file path,
+// 숫자, 검색어 등 텍스트 입력 모두에 공통 사용.
+// ─────────────────────────────────────────────────────────────────────
 import * as React from "react";
 
 import { cn } from "@/lib/utils";

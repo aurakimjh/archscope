@@ -1,3 +1,29 @@
+// [한글] splitter.go — 파일 → "Total Transaction" + N개 TXID 블록.
+//
+// 입력 파일 구조 (§7.1)
+//   Total Transaction : N
+//   ----- 구분선 -----
+//   TXID : <id1>
+//   ... 헤더(2-column) ...
+//   [No.] [START_TIME] [GAP] [CPU_T]   ← body header 라인
+//   ... 이벤트 라인들 ...
+//   TOTAL [...]
+//   ----- 구분선 -----
+//   TXID : <id2>
+//   ...
+//
+// splitter 알고리즘
+//   1) parseTotalTransaction : 첫 부분에서 `Total Transaction : N`
+//      파싱 (콤마 천단위 구분 허용). 누락은 warning, 분석은 계속.
+//   2) txidLineRE 로 모든 `TXID : ...` 라인을 찾아 시작 인덱스 수집.
+//   3) 각 TXID 시작 ~ 다음 TXID 시작(또는 EOF) 까지를 한 블록으로 분할.
+//   4) 블록의 body header 위치(`[No.][START_TIME][GAP][CPU_T]`) 를
+//      찾아 헤더부 / 본문부 분리.
+//
+// 정규식
+//   totalTransactionRE : 천단위 콤마 허용.
+//   txidLineRE         : 멀티라인 모드, ^TXID : 로 시작하는 라인.
+//   bodyHeaderLineRE   : ^[No.][START_TIME][GAP][CPU_T]$ 정확 매칭.
 package jenniferprofile
 
 import (

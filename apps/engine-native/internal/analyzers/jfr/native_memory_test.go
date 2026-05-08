@@ -1,3 +1,16 @@
+// [한글] native memory leak 분석기 회귀 테스트.
+//
+// 핵심 시나리오
+//   • leak only : alloc 3건 + free 1건(addr=2) → 매칭되지 않은 addr=1,3
+//     이 leak 으로 보고.
+//   • tail_ratio 컷오프 : 끝부분 N% 의 alloc 은 "아직 free 가능" 으로
+//     배제 — 짧은 레코딩에서 false-positive 줄임.
+//   • alloc 모드 : 모든 alloc 이 카운트(free 무시).
+//   • flame tree samples 단위 == bytes 검증.
+//   • size 누락 alloc 은 1 byte fallback 적용.
+//
+// helper
+//   ptrInt64 는 int64 포인터 단축 — 테스트 입력의 nullable 필드 채우기.
 package jfr
 
 import (

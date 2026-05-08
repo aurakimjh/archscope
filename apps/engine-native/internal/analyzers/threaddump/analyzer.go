@@ -15,6 +15,28 @@
 // State is the canonical enum and Category is a *string. Empty/nil
 // state or category fall back to "UNKNOWN" — same fallback Python
 // does when record.state / record.category is None.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] threaddump 분석기 — 단일 Java jstack 덤프 분석기 (JVM 전용).
+//
+// multithread 분석기와의 차이
+//   • 본 패키지는 단일 dump → 한 시점의 스냅샷 분석.
+//   • multithread 분석기는 여러 dump → 시간 흐름 + 상관 분석.
+//   • 본 패키지는 JVM jstack 만 입력. 다른 런타임은 multithread 의
+//     자동 감지 경로 사용.
+//
+// 출력 envelope (type: "thread_dump")
+//   • summary: total_threads, RUNNABLE/BLOCKED/WAITING/... 비율.
+//   • series: state_distribution / category_distribution.
+//   • tables.threads : per-thread 행 (top frame, lock info, full stack).
+//   • tables.top_stack_signatures : 가장 흔한 signature 상위 N.
+//   • findings:
+//        BLOCKED_THREADS_PRESENT      : BLOCKED 1개 이상.
+//        WAITING_THREADS_DOMINATE     : WAITING/total > 50%.
+//
+// fallback 정책
+//   State 가 빈 enum / Category 가 nil → "UNKNOWN" 로 표시. Python 측
+//   과 동일.
 package threaddump
 
 import (

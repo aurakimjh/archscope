@@ -1,3 +1,29 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] GcLogAnalyzerPage.tsx — JVM GC 로그(G1/CMS/ZGC 등) 분석 페이지.
+//
+// 책임/목적:
+//   - 파일 선택 → analyzer.execute({type:"gc_log", ...}) 호출.
+//   - GcLogAnalysisResult 를 받아 KPI 카드(평균 pause, throughput 등),
+//     D3 timeline(GC 이벤트 분포), D3 bar chart(원인별/타입별 breakdown),
+//     이벤트 테이블을 렌더.
+//   - timeline 의 selection(드래그 영역) 으로 특정 시간대만 필터링한
+//     보조 차트/표를 제공합니다.
+//
+// 데이터 흐름:
+//   FileDock → analyzer.execute → GcLogAnalysisResult
+//   → series.heap_timeline / pause_timeline / pause_histogram 등
+//   → D3* 차트, MetricCard, SortableTable.
+//
+// 사용 series/tables/charts 키:
+//   - series.gc_pause_timeline / heap_timeline / pause_histogram /
+//     gc_rate.
+//   - tables.events / cause_breakdown / type_breakdown.
+//   - 자세한 컬럼은 analyzerContract.GcLog* 타입 참조.
+//
+// 차트 라이브러리:
+//   - D3BarChart / D3TimelineChart 는 d3 + 자체 React 래퍼.
+//     ECharts 와 달리 SVG 기반이고, 줌/브러시 인터랙션이 강합니다.
+// ─────────────────────────────────────────────────────────────────────
 import { Camera, Loader2, Play, Square } from "lucide-react";
 import { useCallback, useMemo, useRef, useState } from "react";
 

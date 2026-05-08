@@ -25,8 +25,9 @@ sending anything to a third-party SaaS.
 ## Tech stack
 
 - **Frontend** — React 18 + Vite 8 + TypeScript + Tailwind v4 + shadcn/ui (Radix-based) + lucide icons. Charts: D3 (timeline / bar / flamegraph + Canvas flamegraph) and ECharts (legacy panels). Image export via `html-to-image` + native `canvas.toDataURL()`.
-- **Backend** — FastAPI 0.110+ + uvicorn (single in-process Python). Static React build is served at `/` and the analyzer dispatcher lives at `/api/analyzer/execute`.
-- **Engine** — Pure Python (`archscope-engine`, Python ≥ 3.9), Typer CLI, defusedxml (XXE-safe SVG parsing), python-multipart for uploads. No subprocess fan-out — analyzers are called in-process.
+- **Python backend (currently shipping)** — FastAPI 0.110+ + uvicorn (single in-process Python). Static React build is served at `/` and the analyzer dispatcher lives at `/api/analyzer/execute`.
+- **Python engine** — Pure Python (`archscope-engine`, Python ≥ 3.9), Typer CLI, defusedxml (XXE-safe SVG parsing), python-multipart for uploads. No subprocess fan-out — analyzers are called in-process.
+- **Go engine (Tier-5 desktop pivot)** — `apps/engine-native/` ships a Go library with full Python feature parity (parsers, analyzers, exporters, thread-dump plugins). It is embedded inside the Wails desktop binary (`apps/profiler-native/`) so the desktop release is a single native executable. The parity gate compares Python ↔ Go outputs on every PR.
 
 ## Quick start
 

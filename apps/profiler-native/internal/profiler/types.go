@@ -1,5 +1,42 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] types — profiler 패키지 공통 타입 정의 + AnalysisResult 컨트랙트.
+//
+// 책임/목적
+//   profiler 분석 파이프라인 전반에서 공유되는 입출력 타입을 한 곳에 모음.
+//   AnalysisResult 가 외부와의 표준 컨트랙트(JSON shape) 이며 engine-native
+//   의 다른 분석기와 같은 envelope (Type / SourceFiles / Summary / Series /
+//   Tables / Charts / Metadata) 을 따른다.
+//
+// 핵심 타입
+//   - Options              : 분석 입력 옵션 (interval, topN, profile kind,
+//                            timeline base method, debug log)
+//   - AnalysisResult       : 외부 표준 결과 envelope
+//   - Summary              : 총 sample / interval / 추정 시간
+//   - Series / Tables      : top stacks / breakdown / timeline rows
+//   - Charts               : flame graph + drilldown stages
+//   - Metadata             : parser / schema_version / diagnostics /
+//                            timeline_scope (+ profiler_diff 전용 필드들)
+//   - ParserDiagnostics    : 파싱 통계 + 경고/오류 sample
+//   - DiagnosticSample     : 단일 진단 row
+//   - FlameNode            : flame tree 의 노드 (UI 직접 렌더 가능 형태)
+//   - DrilldownStage       : 드릴다운 한 단계 결과
+//   - TimelineRow / Scope  : timeline 표 + scope metadata
+//   - ExecutionBreakdownRow: execution breakdown 표 row
+//   - leafPath             : 내부 helper (iterLeafPaths 결과)
+//
+// 트리키한 부분
+//   • Metadata.DiffSummary / DiffTables 는 profiler_diff 전용 — 일반
+//     profiler 분석에서는 omitempty 로 빠진다 (공통 envelope 유지).
+//   • FlameNode.Metadata 는 any 타입. profiler_diff 가 {a,b,delta} 부착,
+//     일반 profiler 는 nil. 이로써 UI 코드 경로가 단일.
+//   • JSON 태그 이름은 Python 측과 byte-level 동등. 변경 시 frontend 가 깨짐.
+// ─────────────────────────────────────────────────────────────────────
+
 package profiler
 
+// [한글] Options — 분석 진입 함수에 전달되는 옵션 묶음.
+// IntervalMS<=0 / TopN<=0 / ProfileKind="" 면 normalizeOptions 에서 default 로
+// 채워짐. ElapsedSec 가 nil 이면 elapsed_ratio 컬럼이 nil 로 남음.
 type Options struct {
 	IntervalMS         float64
 	ElapsedSec         *float64
@@ -48,6 +85,9 @@ type Options struct {
 	MaxFlamegraphNodes int
 }
 
+// [한글] AnalysisResult — 외부 표준 결과 envelope.
+// engine-native 의 다른 분석기와 동일한 6개 필드 (Type / SourceFiles /
+// CreatedAt / Summary / Series / Tables / Charts / Metadata) 로 통일.
 type AnalysisResult struct {
 	Type        string   `json:"type"`
 	SourceFiles []string `json:"source_files"`
@@ -207,6 +247,9 @@ type TimelineWarning struct {
 	Message string `json:"message"`
 }
 
+// [한글] FlameNode — flame tree 노드. UI 가 그대로 렌더 가능한 형태.
+// Children 은 sample DESC 정렬되어 직렬화. Metadata 는 profiler_diff 등
+// 부가 정보 부착 슬롯 (일반 분석에서는 nil).
 type FlameNode struct {
 	ID       string      `json:"id"`
 	ParentID *string     `json:"parentId"`

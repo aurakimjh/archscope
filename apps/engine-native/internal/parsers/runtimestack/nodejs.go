@@ -4,6 +4,34 @@
 // (and optional `Caused by:` chain entries). Blocks are accreted by
 // header detection — anything else inside a live block is appended,
 // stray lines outside a block are reported.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] nodejs stack parser — Node.js 에러 스택 트레이스 파서.
+//
+// 입력 패턴
+//   2026-04-27T10:00:00.000Z TypeError: Cannot read property 'foo' of undefined
+//       at Object.<anonymous> (/app/index.js:42:13)
+//       at Module._compile (internal/modules/cjs/loader.js:1:1)
+//   Caused by: ReferenceError: bar is not defined
+//       at ...
+//
+// header 정규식 nodeErrorRE
+//   • optional ISO timestamp prefix.
+//   • TypeName : "Error" 또는 "Exception" 으로 끝나는 식별자.
+//     (TypeError, RangeError, ReferenceError, SyntaxError, ...)
+//   • 선택적 `: message`.
+//
+// 처리 흐름
+//   1) header 매칭 → 이전 블록 flush + 새 블록 시작.
+//   2) 이후의 `at ...` 라인을 stack 에 누적.
+//   3) `Caused by:` 라인이 오면 RootCause 로 등록(분석기에서 활용).
+//   4) live 블록 외부의 무관한 라인은 NO_NODEJS_ERROR_HEADER 사유로
+//      diagnostics 카운트.
+//
+// frame 정규화
+//   `at <name> (<file>:<line>:<col>)` 또는 `at <file>:<line>:<col>`
+//   둘 다 인식. file:line:col 까지 보존해 dashboard 의 detail 표에
+//   직결.
 package runtimestack
 
 import (

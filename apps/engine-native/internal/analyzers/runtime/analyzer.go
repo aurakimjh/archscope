@@ -12,6 +12,38 @@
 // output is different (`runtimestack.RuntimeStackRecord` vs
 // `parsers/exception.Record`), and (3) the result envelopes diverge
 // (this analyzer emits four `type` literals, exception emits one).
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] runtime 분석기 — Node.js / Python / Go panic / .NET 의
+// 런타임 스택 분석기.
+//
+// 4개 진입점 함수
+//   AnalyzeNodejsStack       → result.type = "nodejs_stack"
+//   AnalyzePythonTraceback   → result.type = "python_traceback"
+//   AnalyzeGoPanic           → result.type = "go_panic"
+//   AnalyzeDotnetExceptionIIS→ result.type = "dotnet_exception_iis"
+//
+// 공통 분석 흐름
+//   1) parsers/runtimestack 에서 RuntimeStackRecord 슬라이스 받음.
+//   2) 한 번 순회로:
+//        • signatureCounts (top-N) — 중복 stack signature 식별.
+//        • language / kind 별 분포 카운트.
+//        • stackless record 카운트 — stack 비어있는 record 가 N건 이상.
+//   3) tables.records 에 첫 N개 상세 레코드 보존(시간순).
+//   4) 공통 finding:
+//        REPEATED_RUNTIME_STACK_SIGNATURE : 가장 많은 signature count > 1.
+//        STACKLESS_RUNTIME_RECORDS        : stack 없는 record 가 ≥ 1.
+//
+// .NET 전용 추가 로직
+//   IIS access record 가 같은 스트림에 섞여 들어옴.
+//     IIS_5XX_PRESENT          : IIS access 로그에 5xx 응답 1건 이상.
+//     DOTNET_EXCEPTIONS_PRESENT: 예외 record 1건 이상.
+//   분석기는 record.kind 로 IIS / exception 을 구분해 분기.
+//
+// 왜 한 패키지인가?
+//   네 런타임의 finding 규칙과 출력 모양이 90% 동일 — record kind 와
+//   메시지 라벨만 다름. 4개 패키지로 쪼개면 회귀 시 4곳을 동시에
+//   고쳐야 하므로 한 패키지로 통합 + 진입점 함수만 4개.
 package runtime
 
 import (

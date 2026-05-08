@@ -1,3 +1,15 @@
+// [한글] jfr 분석기 회귀 테스트.
+//
+// 검증 대상
+//   • mode 별 필터 결과(cpu/wall/alloc/lock/gc/exception/io/nativemem).
+//   • 시간 윈도우 필터(ISO/HH:MM/relative).
+//   • events_over_time / heatmap_strip 의 시간 bucket 정확성.
+//   • notable_events top-N 정렬.
+//   • metadata.selected_mode / available_modes 가 입력에 따라 변동.
+//
+// fixture 정책
+//   examples/jfr/sample-jfr-print.json 은 Python 테스트도 같이 사용 —
+//   같은 입력에 대한 Python ↔ Go 결과 일치를 parity gate 가 자동 검증.
 package jfr
 
 import (

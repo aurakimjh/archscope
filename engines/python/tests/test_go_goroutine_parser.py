@@ -1,4 +1,19 @@
 """Tests for the Go goroutine-dump parser plugin (T-196 / T-197)."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] test_go_goroutine_parser — Go goroutine 덤프 파서 회귀.
+#
+# 검증 대상
+#   • goroutine 헤더 + frame + `created by` 블록 분리.
+#   • _infer_go_state: chan receive/send → CHANNEL_WAIT, netpoll →
+#     NETWORK_WAIT, semacquire → LOCK_WAIT, IO wait → IO_WAIT.
+#   • _normalize_go_frame: framework wrapper 정리.
+#   • frame 추출은 unindented `func(args)` 만; `\tfile:line` 는 무시.
+#   • 빈 줄 / 다음 헤더로 블록 종료.
+#
+# parity 주의
+#   Go engine-native plugins/gogoroutine/parser.go 와 byte 동일.
+#   상태 추론 표, framework cleanup 룰 모두 일치.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 from archscope_engine.models.thread_snapshot import StackFrame, ThreadState

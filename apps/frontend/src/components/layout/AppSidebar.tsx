@@ -1,3 +1,16 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] AppSidebar.tsx — 좌측 네비게이션 사이드바.
+//
+// 책임/목적:
+//   - PageKey 별로 lucide 아이콘 + 라벨(i18n) 을 노출하고 클릭 시
+//     onNavigate(key) 호출.
+//   - collapsed 모드(아이콘만 표시) 와 expanded 모드 토글.
+//   - 활성 페이지 강조(shadcn variant + Tailwind 배경 토큰).
+//
+// UI:
+//   - shadcn Tooltip 으로 collapsed 시 라벨을 hover 표시.
+//   - Separator 로 그룹 구분(분석기 그룹 vs 도구 그룹 vs 설정).
+// ─────────────────────────────────────────────────────────────────────
 import {
   AlertTriangle,
   BarChart3,

@@ -1,3 +1,48 @@
+# ─────────────────────────────────────────────────────────────────────
+# [한글] test_ai_interpretation — Evidence 기반 AI 해석 가드레일 회귀.
+#
+# 검증 대상
+#   • Evidence 모듈
+#       - parse_evidence_ref: "<source>:<entity>:<id>" canonical grammar
+#         enforce, 잘못된 문자열은 None.
+#       - collect_evidence: AnalysisResult.tables.notable_events 등에서
+#         EvidenceRegistry 자동 구축, 텍스트 직렬화에 frame 포함.
+#   • AiFindingValidator
+#       - 정상 grounded 응답: evidence_refs 보존.
+#       - 미등록 evidence_ref → EVIDENCE_REF_UNKNOWN 거부.
+#       - confidence 너무 낮음 → CONFIDENCE_TOO_LOW.
+#       - quote substring 미일치 → EVIDENCE_QUOTE_MISMATCH.
+#   • PromptBuilder
+#       - 진단 데이터를 <diagnostic_data> 블록 안에 격리, "데이터로만
+#         취급" 한국어 가드라인 + [REDACTED] 치환.
+#       - prompt injection 의심 ref 는 selection.suspicious_instruction_refs
+#         에 노출, logging_allowed=False 강제.
+#       - model_profile + language 조합으로 packaged template 선택,
+#         미존재 시 영어/기본 prompt 로 fallback.
+#   • parse_prompt_templates: <diagnostic_data> placeholder 누락 시
+#     ValueError("invalid user").
+#   • LocalLlmConfig 정책 (validate_local_llm_config):
+#       - non-localhost / non-http / openai provider / log_prompts=True
+#         네 케이스 모두 LocalLlmPolicyError.
+#   • OllamaClient
+#       - sync(execute) / async(execute_async) 둘 다 동일 응답 검증.
+#       - POST 요청 URL = http://localhost:11434/api/generate, body 의
+#         stream=False / format=json / system / prompt 보존.
+#       - schema_version, model, prompt_version 강제 덮어쓰기.
+#       - enabled=False → disabled=True / findings=[] / disabled_reason.
+#   • evaluate_interpretation: 잘못된 응답에서도 finding_count /
+#     evidence_integrity_ratio / issue_codes 메트릭 계산.
+#
+# fixture 정책
+#   _jfr_result() / _valid_interpretation() 헬퍼로 standard sample.
+#   monkeypatch + FakeResponse 로 urllib.request.urlopen 모킹 (실제 LLM
+#   호출 없이 client 검증).
+#
+# parity 주의
+#   본 모듈은 Python 단독 — Go 측에는 동일 AI interpretation pipeline 이
+#   아직 없음. 단, evidence_ref grammar / schema_version "0.1.0" 등은
+#   향후 Go 포팅 시 그대로 동기화 대상.
+# ─────────────────────────────────────────────────────────────────────
 import asyncio
 import json
 

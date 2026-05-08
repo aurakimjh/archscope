@@ -1,3 +1,38 @@
+# ─────────────────────────────────────────────────────────────────────
+# [한글] jennifer_csv_parser — Jennifer APM CSV (legacy 경로) 파서.
+#
+# 입력 형태
+#   Jennifer APM 의 옛 export 형식. CSV 형태로 노드별 정보를 row 1개씩.
+#   한 노드 = (key, parent_key, method_name, ratio, sample_count, color_category)
+#   처럼 표현. parent_key 가 nil 인 행이 root.
+#
+# 컬럼 alias 처리 (COLUMN_ALIASES)
+#   같은 의미를 다른 이름으로 사용하는 사례가 많아 alias 표로 흡수:
+#     key         : key / id / node_key / node_id
+#     parent_key  : parent_key / parent / parent_id / parentKey
+#     method_name : method_name / method / name / frame / methodName
+#     ratio       : ratio / percent / percentage
+//     sample_count: sample_count / samples / sample / count / sampleCount
+//     color_category: color_category / category / colorCategory
+//
+//   첫 행을 헤더로 인식하고 alias 표로 매핑 — 매핑 실패한 컬럼은 무시.
+//
+// 필수 컬럼 (REQUIRED_COLUMNS)
+//   key / method_name / sample_count 만 있으면 최소 동작 가능.
+//   누락 시 즉시 fatal error.
+//
+// 인코딩 폴백 (ENCODING_FALLBACKS)
+//   utf-8-sig → utf-8 → cp949 순으로 시도. 한국 윈도우에서 export
+//   된 파일이 cp949 일 수 있어 fallback 필수.
+//
+// 산출물 (FlameNode)
+//   parent_key / key 관계로 트리 구축. flamegraph 분석기가 그대로 활용.
+//
+// Go 측 미포팅
+//   Jennifer profile (export 텍스트) 와는 다른 별개 path. Go 측은
+//   현재 analyzers/jenniferprofile (텍스트 포맷) 만 처리, CSV 변종은
+//   포팅 안 됨 (legacy / 사용 빈도 낮음).
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import csv

@@ -11,6 +11,34 @@
 //      byte, so a 30%+ ratio at the right parity wins.
 //   3. Try-decode fallback in order utf-8, utf-8-sig, cp949,
 //      latin-1 — latin-1 always succeeds so the chain never raises.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] textio 패키지 — 인코딩 안전 텍스트 라인 iterator.
+//
+// 왜 필요한가?
+//   ArchScope 의 입력은 다양한 환경에서 옴:
+//     • Linux / macOS 의 UTF-8 (대부분).
+//     • UTF-8-sig (BOM 포함) — Windows 에서 "ANSI" 로 저장한 파일이
+//       그대로 BOM 가지고 들어옴.
+//     • CP949 — 한국 Windows 의 일부 도구가 출력하는 텍스트.
+//     • UTF-16 (BE/LE) — 일부 JVM thread dump exporter (Windows 환경)
+//       가 UTF-16 으로 출력. NUL 바이트가 양 옆마다 등장.
+//   파서가 매번 인코딩을 따지지 않도록 textio 가 흡수.
+//
+// 인코딩 감지 알고리즘 (Python 동치)
+//   1) BOM 검사: 처음 2~3 byte 가 BOM 이면 즉시 결정.
+//   2) NUL 비율: 짝수/홀수 위치별 NUL 비율 → 30% 이상이면 UTF-16
+//      (LE/BE 구별).
+//   3) Try-decode 체인: utf-8 → utf-8-sig → cp949 → latin-1.
+//      latin-1 은 항상 성공하므로 체인이 절대 실패하지 않음.
+//
+// 라인 iterator
+//   bufio.Scanner 기반. 큰 파일에 메모리 안전한 라인 스트림 제공.
+//   파서는 ParseFile / ParseString / ReadHead 헬퍼만 호출.
+//
+// 회귀 안전망
+//   T-031 fix: mid-file decode 실패 시 fallback 재시도가 라인을 중복
+//   emit 하지 않도록 보장 (옛날 버그 회귀 방지).
 package textio
 
 import (

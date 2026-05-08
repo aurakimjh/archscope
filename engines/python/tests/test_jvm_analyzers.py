@@ -1,3 +1,28 @@
+# ─────────────────────────────────────────────────────────────────────
+# [한글] test_jvm_analyzers — JVM 도메인 4 종 파서/분석기 회귀 테스트.
+#
+# 검증 대상
+#   • gc_log_parser : HotSpot Unified GC 로그(`Pause Young`,
+#     `Pause Full`)에서 gc_type / cause / pause_ms 추출.
+#   • gc_log_analyzer : LONG_GC_PAUSE, FULL_GC_PRESENT finding 생성과
+#     summary(total_events / full_gc_count) 산출.
+#   • build_gc_log_result : iterable(event generator)도 받아들여
+#     동일 결과를 만드는지 확인.
+#   • thread_dump_parser/analyzer : BLOCKED + TIMED_WAITING 혼합 dump
+#     에서 카테고리·summary 카운트·BLOCKED_THREADS_PRESENT finding 검증.
+#   • exception_parser/analyzer : Caused by chain 추출, 동일 signature
+#     반복 시 REPEATED_EXCEPTION_SIGNATURE / ROOT_CAUSE_PRESENT 동시 출력.
+#
+# fixture 정책
+#   • GC 로그는 examples/gc-logs/sample-hotspot-gc.log 의 실제 샘플 사용
+#     (Path(__file__).parents[3] 기반).
+#   • thread dump / exception 로그는 inline string 으로 tmp_path 에 작성.
+#
+# parity 주의 (Python ↔ Go 비교 가능한 부분)
+#   Go engine-native 의 gclog/threaddump/exception analyzer 와 finding
+#   code 와 summary 키가 byte 단위 동일해야 함. 본 테스트가 깨지면
+#   양쪽 동기화 점검 필요.
+# ─────────────────────────────────────────────────────────────────────
 from pathlib import Path
 
 from archscope_engine.analyzers.exception_analyzer import analyze_exception_stack

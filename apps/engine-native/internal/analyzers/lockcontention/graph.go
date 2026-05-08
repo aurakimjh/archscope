@@ -1,3 +1,30 @@
+// [한글] graph.go — waits-for 그래프 + DFS 사이클 탐지.
+//
+// 그래프 의미
+//   노드 = 스레드 이름.
+//   엣지 = "스레드 X 가 보유한 락 L 을, 스레드 Y 가 대기" → Y → X.
+//   사이클이 있으면 데드락.
+//
+// 알고리즘 핵심
+//   1) holdersByLock : lock_id → owner thread name 맵 구성.
+//      여러 덤프 union 에서 같은 lock 이 여러 번 등장할 수 있으나
+//      first-seen 으로 결정 — owner 변경의 의미는 multi-dump 가 아닌
+//      single-dump 시점이므로 안전.
+//   2) 각 스레드의 LockWaiting 을 보고 owner 를 찾아 엣지 생성.
+//      cooperativeWaitModes 인 wait 은 엣지 만들지 않음(데드락 아님).
+//   3) 3색 DFS:
+//        color 0 = 미탐색
+//        color 1 = 현재 DFS 스택 위
+//        color 2 = 탐색 완료
+//      DFS 중에 color 1 노드를 만나면 거기서부터 끝까지가 사이클.
+//   4) canonical rotation:
+//        사이클의 모든 회전을 만들어 사전순 최소를 선택.
+//        예) [B, C, A] 와 [A, B, C] 는 같은 사이클 → 둘 다 [A, B, C]
+//        로 정규화. seen 집합으로 dedup.
+//
+// 결정론
+//   순회 시작 노드는 thread name 사전순. 사이클 dedup 도 canonical
+//   문자열 비교 — Python 결과와 사이클 list / 순서 모두 일치.
 package lockcontention
 
 import (

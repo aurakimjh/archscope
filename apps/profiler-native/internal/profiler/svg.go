@@ -1,3 +1,43 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] svg — Brendan Gregg flamegraph.pl 가 만든 SVG flame graph 파싱.
+//
+// 책임/목적
+//   "name (12,345 samples, 0.78%)" 형태 title 을 가진 SVG flame graph
+//   파일을 읽어 collapsed stack map 으로 복원한다. 이 형식은 텍스트
+//   collapsed 가 사라진 상황에서도 시각화 산출물로부터 데이터를 복원하기
+//   위한 대안 입력 경로.
+//
+// 알고리즘 흐름 (트리키함)
+//   STEP 1. SVG 파싱
+//     XML 디코더로 <g><title>...</title><rect .../></g> 묶음을 추출.
+//     Go encoding/xml 은 외부 엔티티를 확장하지 않아 XXE-safe (Python 측은
+//     defusedxml 로 동일 보호). 한 group 의 title 과 rect 를 묶어 svgRect 생성.
+//   STEP 2. Title 정규식 매칭
+//     "name (N samples, ...)" 패턴 추출. 매치 실패는 UNPARSEABLE_TITLE
+//     진단으로 skip. samples 정수 변환 실패는 INVALID_SAMPLE_COUNT.
+//   STEP 3. Row 추정
+//     모든 rect 의 height 중 최소값(또는 16) 을 row height 로 가정.
+//     rect.y / rowHeight 의 round-half-even (Python round() 호환) 로 row 번호.
+//   STEP 4. Root row / leaf 찾기
+//     가장 width 가 큰 rect 의 row 를 root row. 한 row 위쪽으로 가면 자식,
+//     아래로 가면 부모인지(또는 그 반대) 는 row index 가 0 인지 max 인지로 결정.
+//     자식 rect 가 X-overlap 으로 없는 rect 가 leaf.
+//   STEP 5. Leaf → Root 경로 복원
+//     leaf 의 X 중심(centerX) 이 부모 row 의 어떤 rect 의 [X, X+Width] 에
+//     포함되는지로 부모를 찾고, root row 까지 위로 올라가며 path 누적.
+//     그 path 를 ";" 로 join 한 stack key 에 leaf.Samples 누적.
+//
+// 트리키한 부분
+//   • flamegraph.pl 의 좌표계는 "위쪽이 leaf, 아래쪽이 root" 가 보통이지만
+//     반대 방향(반전 flame) 도 있어 root row 가 0 이면 "leaves 가 +1
+//     쪽"으로, 아니면 "leaves 가 -1 쪽" 으로 자동 판별.
+//   • roundHalfEven 은 Python round() 의 banker's rounding 을 명시적으로
+//     구현 — int(y/h) 사용 시 floating point edge case 에서 row 번호가
+//     달라져 stack 복원이 깨질 수 있음. byte-level parity 를 위해 필요.
+//   • parent 매칭은 X 중심점이 [parent.X, parent.X+parent.Width] 안에 있는
+//     첫 rect. 이 휴리스틱은 flamegraph.pl 의 layout 가정에서 안전.
+// ─────────────────────────────────────────────────────────────────────
+
 package profiler
 
 import (
@@ -81,6 +121,9 @@ func parseSvgFlamegraphBytes(payload []byte, diagnostics ParserDiagnostics, debu
 	return SvgFlamegraphParseResult{Stacks: stacks, Diagnostics: diagnostics}
 }
 
+// [한글] extractSvgRects — SVG XML 을 순회하며 <g><title>+<rect> 묶음을 svgRect 로.
+// pendingGroup 스택으로 중첩 <g> 처리, </g> 시점에 title + rect 가 모두 채워졌으면
+// title 정규식 파싱하여 sample count 추출. width<=0 / height<=0 / sample<=0 은 skip.
 func extractSvgRects(payload []byte, diagnostics *ParserDiagnostics, debugLog *DebugLog) ([]svgRect, error) {
 	type pendingGroup struct {
 		title    string
@@ -222,6 +265,11 @@ func parseSvgRectAttrs(attrs []xml.Attr, title string, diagnostics *ParserDiagno
 	return out, true
 }
 
+// [한글] stacksFromSvgRects — rect 리스트를 collapsed stack map 으로.
+// 1) row height 추정 (최소 height 또는 16), 2) 각 rect 를 row 별로 그룹핑
+// 후 X 정렬, 3) widest rect 의 row 가 root row, 4) leaf 는 자식 rect 가
+// 없는 rect, 5) 각 leaf 에서 X 중심점으로 부모 rect 를 찾아 root 까지 path
+// 복원, 6) reverse 후 ";" join 하여 stacks[key] += leaf.Samples.
 func stacksFromSvgRects(rects []svgRect) map[string]int {
 	if len(rects) == 0 {
 		return map[string]int{}

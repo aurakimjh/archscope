@@ -1,3 +1,21 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] i18n/messages.ts — 모든 UI 라벨의 다국어 사전.
+//
+// 책임/목적:
+//   - locales(현재 en/ko) × MessageKey 의 평면 사전.
+//   - 키마다 영어/한국어 두 줄 번역. 새 키 추가 시 두 로케일 모두 채워야
+//     TypeScript 의 record 타입이 컴파일을 통과합니다.
+//   - localeLabels 는 사용자에게 "English/한국어" 같은 라벨을 표시할 때 사용.
+//
+// 사용처:
+//   - I18nProvider 가 messages[locale][key] lookup 을 useI18n().t 로 노출.
+//   - 페이지 컴포넌트는 키만 알고 호출(예: t("requestCountTrend")).
+//
+// 새 키 추가 절차:
+//   1) MessageKey 가 record 의 keyof 로부터 자동 유도되므로 en/ko 두 곳에
+//      동일한 키를 추가.
+//   2) 사용처에서 t("새키") 호출.
+// ─────────────────────────────────────────────────────────────────────
 export const locales = ["en", "ko"] as const;
 
 export type Locale = (typeof locales)[number];

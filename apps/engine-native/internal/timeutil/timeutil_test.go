@@ -1,3 +1,11 @@
+// [한글] timeutil 회귀 테스트.
+//
+// 검증 대상
+//   • ParseNginxTimestamp: `27/Apr/2026:10:00:01 +0900` 정확 파싱
+//     + timezone 보존.
+//   • MinuteBucket: 같은 분의 다양한 초/밀리초 → 같은 키.
+//   • 다른 timezone → 다른 키 (오프셋 포함).
+//   • Python `%z` 와 동일 (콜론 없는 `-0700`) 형식 출력 검증.
 package timeutil
 
 import (

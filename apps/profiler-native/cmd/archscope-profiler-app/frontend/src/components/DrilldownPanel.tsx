@@ -1,3 +1,28 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] DrilldownPanel.tsx — 프로파일러 드릴다운(필터 누적) 패널.
+//
+// 책임/목적:
+//   - 사용자가 입력한 프레임 패턴(텍스트/정규식 + include/exclude)을
+//     필터 chip 으로 누적 적용 → ProfilerService.Drilldown 호출 →
+//     stage 별 flamegraph + breadcrumb + 매칭 통계를 받아 화면에 표시.
+//   - 필터 추가/제거 시마다 누적 필터 배열로 재호출(중간 stage 캐시 X)
+//     → Go 측이 매번 전체 파이프라인을 재실행. 단순하지만 idempotent.
+//
+// 데이터 흐름 (Go ProfilerService ↔ React):
+//   사용자 → handleAdd → DrilldownRequest({...baseRequest, filters})
+//   → Wails IPC → ProfilerService.Drilldown(request) → DrilldownStage[]
+//   → setStages → 마지막 stage 의 flamegraph 를 CanvasFlameGraph 로 렌더.
+//
+// 주요 모드:
+//   - filterType : include_text / exclude_text / regex_include / regex_exclude
+//   - matchMode  : anywhere / ordered / subtree
+//   - viewMode   : preserve_full_path / reroot_at_match (매칭 위치를
+//                   루트로 재설정할지 전체 호출 경로 보존할지 선택)
+//
+// 의존성 주의: Wails 자동 생성 bindings 의 DrilldownFilter 클래스를
+// `new DrilldownFilter({...})` 형태로 인스턴스화 해야 직렬화 시
+// Go 측 struct 와 매칭됩니다 (단순 object literal 은 unmarshal 실패 가능).
+// ─────────────────────────────────────────────────────────────────────
 import { useMemo, useState } from "react";
 
 import { useI18n } from "../i18n/I18nProvider";

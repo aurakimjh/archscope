@@ -1,3 +1,21 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] WailsFileDock.tsx — Wails 네이티브 파일 선택/드롭 도크.
+//
+// 책임/목적:
+//   - 클릭 → Wails Dialogs.OpenFile(네이티브 OS 파일 선택 다이얼로그).
+//   - 드래그&드롭 → Wails v3 가 File 객체에 패치한 `path` 속성으로
+//     절대 경로를 즉시 획득. 일반 브라우저 환경에서는 path 가 없으므로
+//     안전하게 noop 처리(에러 표시).
+//   - 선택된 파일은 `{ filePath, originalName, size }` 형태로 onSelect.
+//
+// 데이터 흐름: web 셸의 FileDock 은 multipart 업로드를 사용하지만
+// 데스크톱 빌드는 절대경로만 EngineService 에 전달 → 분석기가 디스크에서
+// 직접 읽음. (large file 도 메모리 복사 없이 빠르게 처리.)
+//
+// 의존성 주의: lucide-react 아이콘, shadcn/ui Card+Button, @wailsio/runtime
+// Dialogs API 를 동시에 사용. 셸이 Wails v3 가 아닌 일반 브라우저에서
+// 실행되면 Dialogs.OpenFile 이 동작하지 않으므로 데스크톱 전용입니다.
+// ─────────────────────────────────────────────────────────────────────
 import { File as FileIcon, Loader2, Upload, X } from "lucide-react";
 import {
   useCallback,

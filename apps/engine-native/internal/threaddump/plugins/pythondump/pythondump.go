@@ -18,6 +18,36 @@
 // strips Django/FastAPI/Flask middleware wrappers and promotes
 // ``select.*`` / ``socket.recv`` / async sleep frames to the proper
 // ThreadState.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] pythondump plugin — Python 3종 thread dump 파서.
+//
+// 3종 변종을 별도 plugin 으로 분리한 이유
+//   세 형식이 외관이 비슷해 보이지만 헤더 / 프레임 grammar 가 다름.
+//   하나의 plugin 안에서 분기하면 CanParse 가 부정확해질 수 있어,
+//   각 변종이 자기 CanParse 를 가지도록 plugin 을 3개로 분리.
+//
+// 변종별 형식
+//   1) py-spy (`py-spy dump --pid <pid>`):
+//        Process 12345:
+//        Thread 12345 (idle): "MainThread"
+//          time.sleep (file.py:10)
+//          run (file.py:20)
+//
+//   2) faulthandler (`faulthandler.dump_traceback`, SIGSEGV crash):
+//        Thread 0x7f1234 (most recent call first):
+//          File "/path/file.py", line N in func
+//
+//   3) traceback (`traceback.format_stack` 결과를 직접 출력):
+//        Thread ID: 12345
+//          File "/path/file.py", line N, in func
+//
+// 공통 enrichment (T-199)
+//   세 변종 모두 같은 후처리 함수를 통과:
+//     • Django/FastAPI/Flask middleware wrapper 제거 (`@require_*` 등).
+//     • select.* / socket.recv / asyncio sleep 패턴 인식 → 적절한
+//       ThreadState (NETWORK_WAIT / IO_WAIT / TIMED_WAITING).
+//     • py-spy idle/sleeping → TIMED_WAITING.
 package pythondump
 
 import (

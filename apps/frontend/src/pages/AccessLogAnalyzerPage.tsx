@@ -1,3 +1,28 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] AccessLogAnalyzerPage.tsx — 액세스 로그(아파치/Nginx 형식 등)
+//   파일을 업로드/선택해 분석 엔진에 보내고 결과를 차트 + 표로 표시.
+//
+// 책임/목적:
+//   - 사용자가 FileDock 으로 파일을 고르면 analyzer.analyzeAccessLog 호출.
+//   - 결과(AccessLogAnalysisResult) 의 summary/series/tables 를 차트와 표로
+//     렌더하고, 분석 결과를 DashboardPage 의 localStorage 에도 저장
+//     (saveDashboardResult) 해 다음 진입 시 복구되도록 합니다.
+//   - 진행 중에는 cancel 버튼으로 analyzer.cancel(requestId) 호출 가능.
+//
+// 데이터 흐름:
+//   FileDock(선택 파일) → analyzer.analyzeAccessLog(request)
+//   → AccessLogAnalysisResult → useMemo(차트 옵션) + 표 행
+//   → ChartPanel / SortableTable / MetricCard.
+//
+// 사용 series/tables/charts 키:
+//   - series.timeline_response_ms / timeline_throughput / etc.
+//   - tables.status_codes / top_urls / slow_urls.
+//   - 자세한 키는 analyzerContract.AccessLog* 타입 참조.
+//
+// UI:
+//   - shadcn Tabs/Card/Input + lucide 아이콘.
+//   - Tailwind v4 토큰을 통해 다크/라이트 자동 대응.
+// ─────────────────────────────────────────────────────────────────────
 import { Camera, Loader2, Play, Square } from "lucide-react";
 import { useCallback, useMemo, useRef, useState } from "react";
 

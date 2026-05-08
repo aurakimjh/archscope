@@ -5,6 +5,34 @@
 // the unindented `func(args)` lines that follow each header (the
 // trailing `\tfile.go:NN +0xNN` line is intentionally ignored — Python
 // strips it via `not line.startswith("\\t")` after the strip()).
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] go panic parser — Go 의 panic + goroutine 덤프 파서.
+//
+// 입력 패턴 (Go runtime 출력)
+//   panic: <message>
+//
+//   goroutine 1 [running]:
+//   main.process(0xc0000840a0)
+//   	/app/main.go:42 +0x1a
+//   main.main()
+//   	/app/main.go:10 +0x1a
+//
+//   goroutine 17 [chan receive]:
+//   ...
+//
+// 그룹화 알고리즘
+//   1) goPanicRE : `^panic:\s*(.+)$` → 한 panic 시작.
+//   2) goGoroutineRE : `^goroutine N [state]:$` → 한 goroutine 시작.
+//   3) 빈 줄 또는 다음 header 가 오기 전까지 line 을 누적.
+//   4) 라인 단위로 `func(args)` 패턴(unindented) 만 frame 으로 채택.
+//      들여쓰기된 `\t/path/file.go:NN +0xNN` 라인은 의도적으로 무시
+//      (Python 측이 .startswith("\t") 로 거름).
+//
+// 왜 file:line 라인을 무시하는가?
+//   • frame 의 함수 이름이 dedup 키로 충분 (signature 산출 동일).
+//   • 보고서에 file:line 까지 보이면 분석 노이즈가 늘어남.
+//   • 같은 코드가 다른 build 에서 line shift 되면 finding 이 분리됨.
 package runtimestack
 
 import (

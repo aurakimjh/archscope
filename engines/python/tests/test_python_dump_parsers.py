@@ -1,4 +1,24 @@
 """Tests for Python py-spy / faulthandler parsers (T-198 / T-199)."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] test_python_dump_parsers — Python 3종 thread dump plugin 회귀.
+#
+# 검증 대상 (변종별)
+#   • py-spy: `Process N:` + `Thread N (state): "name"` + 들여쓰기
+#     `func (file:line)` 프레임.
+#   • faulthandler: `Thread 0x... (most recent call first):` +
+#     `File "/path", line N in func`.
+#   • traceback: `Thread ID: N` + `File "/path", line N, in func`.
+#
+# 공통 enrichment (T-199)
+#   • _infer_python_state: select.* / socket.recv / asyncio sleep
+#     → NETWORK_WAIT / IO_WAIT / TIMED_WAITING.
+#   • Django/FastAPI/Flask middleware wrapper 정리.
+#   • py-spy 의 idle/sleeping → TIMED_WAITING.
+#
+# can_parse 충돌
+#   세 plugin 의 can_parse 가 변종 간 sniff 정확 — JSON / 텍스트 머리
+#   몇 줄로 정확히 구별.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 from archscope_engine.models.thread_snapshot import StackFrame, ThreadState

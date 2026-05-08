@@ -9,6 +9,36 @@
 // Note: unlike the other runtimes, Python uses `line.rstrip()` so the
 // `File ...` indentation survives into the block and the file regex
 // can anchor on `^\s*File`.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] python traceback parser — Python Traceback 블록 파서.
+//
+// 입력 패턴
+//   Traceback (most recent call last):
+//     File "/app/main.py", line 42, in process
+//       raise ValueError("bad input") from e
+//   ValueError: bad input
+//
+// 처리 흐름 (다른 런타임과 다른 점)
+//   1) `Traceback (most recent call last):` 리터럴 헤더로 블록 시작.
+//   2) 이후 `File "...", line N, in func` 형태 frame 라인을 누적.
+//      들여쓰기(`  File "..."`) 가 의미가 있어 rstrip 만 적용 — strip
+//      안 함.
+//   3) 블록의 마지막 라인이 보통 `<TypeName>: <message>` — 단, Python
+//      이 종종 traceback 사이에 context message 를 emit 하므로,
+//      블록을 끝에서부터 거꾸로 스캔해 마지막 매칭(승자) 사용.
+//
+// frame 정규식
+//   `^\s*File "(?P<file>[^"]+)", line (?P<line>\d+), in (?P<func>\S+)`
+//   파이프 등에서 잘려도 정상 매칭되도록 file/line/func 만 캡처.
+//
+// 다중 traceback
+//   같은 파일에 여러 traceback 이 있으면 헤더 등장마다 블록 분리.
+//   각 블록이 1개 RuntimeStackRecord.
+//
+// chained exceptions ("During handling of the above exception, ...")
+//   현재는 별도 record 로 처리하지 않고 같은 블록 안에 텍스트로 보존.
+//   분석기 측이 필요시 raw_block 에서 추출 가능.
 package runtimestack
 
 import (

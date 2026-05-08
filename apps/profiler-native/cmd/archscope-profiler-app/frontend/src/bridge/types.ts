@@ -1,3 +1,28 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] bridge/types.ts — Go EngineService 요청/응답 와이어 형식의
+// TypeScript 미러.
+//
+// 책임/목적:
+//   - Go side `engineapi.AnalysisResult` 봉투 + 각 분석기별 typed
+//     summary/series/tables/charts/metadata 를 TS 타입으로 정의.
+//   - request 타입(AccessLogRequest, JfrRequest, MultiThreadRequest 등)은
+//     `engineservice.go` 의 struct field tag 와 byte 단위로 일치해야
+//     Wails JSON marshaling 이 깨지지 않습니다 (camelCase 키).
+//
+// 주요 타입군:
+//   - 공통 envelope     : AnalysisResult<T>, ParserDiagnostics, BridgeError
+//   - AccessLog         : AccessLogAnalysisResult (type "access_log")
+//   - GcLog             : GcLogAnalysisResult     (type "gc_log")
+//   - JFR / NativeMem   : JfrAnalysisResult / NativeMemoryAnalysisResult
+//                          (type "jfr_recording" / "native_memory")
+//   - Exception         : ExceptionStackAnalysisResult (type "exception_stack")
+//   - ThreadDump 3종    : ThreadDumpSingleResult / MultiResult /
+//                          LockContentionResult
+//
+// 의존성 주의: 이 파일은 런타임 코드를 포함하지 않습니다 — 모두 type 만.
+// 따라서 .d.ts 는 아니지만 사실상 contract 정의 파일이며,
+// engine 측 struct 변경 시 PR 에서 반드시 동기화해야 합니다 (parity gate).
+// ─────────────────────────────────────────────────────────────────────
 // TypeScript types that mirror the engine-side request structs and the
 // `engineapi.AnalysisResult` envelope. Lifted from
 // `apps/frontend/src/api/analyzerContract.ts` and pruned to the shapes

@@ -1,3 +1,19 @@
+# ─────────────────────────────────────────────────────────────────────
+# [한글] test_profiler_flamegraph_expansion — flamegraph 확장 + execution
+# breakdown 회귀.
+#
+# 검증 대상
+#   • build_flame_tree_from_collapsed: collapsed Counter → 계층 FlameNode 트리.
+#   • build_execution_breakdown: stack 별 도메인 라벨 분포 (User /
+#     JVM Internal / Spring / Database / Network / GC 등).
+#   • classify_execution_stack: 단일 stack → execution 카테고리 매핑
+#     (룰 기반 + cascade 우선순위).
+//   • UI 의 "Execution Breakdown" 도넛/바 차트가 사용하는 series.
+//
+// breakdown 분류 우선순위
+//   가장 구체적인 framework / runtime → 더 일반적인 카테고리. 예를
+//   들어 Spring 매칭은 JVM Internal 보다 우선.
+# ─────────────────────────────────────────────────────────────────────
 from collections import Counter
 from pathlib import Path
 

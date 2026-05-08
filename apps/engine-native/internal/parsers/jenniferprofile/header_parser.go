@@ -1,3 +1,29 @@
+// [한글] header_parser.go — 2-column key:value 헤더 파싱.
+//
+// 헤더 구조 (어려운 점)
+//   Jennifer 헤더는 한 라인에 KEY 가 두 개 들어있는 2-column 형태:
+//
+//     APPLICATION : 상품-주문        DOMAIN (ID)         : 주문 (1234)
+//     SQL_TIME    : 123              EXTERNAL_CALL_TIME  : 456
+//
+//   문제점:
+//     • column 사이 공백 수가 일정하지 않음 (alignment padding).
+//     • 일부 키는 `KEY (ID)` 형태 — 공백을 split key 로 쓸 수 없음.
+//     • 일부 값은 빈 문자열인데 정규형의 padding 만 있음.
+//
+// 해결 방법 (keyMarkerRE)
+//   `KEY :` 패턴 자체를 정규식으로 찾아서 그 시작 위치들로 라인을
+//   slice. 두 marker 사이가 한 column 의 KEY+VALUE.
+//   공백 split 으로는 이런 형식을 풀 수 없음 (절대 시도 금지).
+//
+// (ID) 접미사 처리
+//   `DOMAIN (ID)` 같은 키는 KEY="DOMAIN", 별도 sibling field "_id" 에
+//   괄호 안 숫자를 보관. JenniferProfileHeader 의 DomainID 등으로 매핑.
+//
+// 알 수 없는 키
+//   typed field 에 매핑되지 않은 키는 Header.Extra map 에 보존 —
+//   Jennifer 가 신규 컬럼을 추가해도 파서가 깨지지 않도록 forward-
+//   compatible.
 package jenniferprofile
 
 import (

@@ -1,3 +1,22 @@
+// [한글] multithread analyzer 회귀 테스트.
+//
+// 핵심 검증 포인트
+//   • 빈 bundles → ErrNoBundles.
+//   • 정상 bundles → AnalysisResult contract (type/summary/series/
+//     tables/metadata 모두 채워짐).
+//   • LONG_RUNNING_THREAD: 같은 RUNNABLE stack 이 N 연속 덤프 →
+//     finding + tables.long_running_stacks 행 발생.
+//   • PERSISTENT_BLOCKED_THREAD / LATENCY_SECTION_DETECTED /
+//     GROWING_LOCK_CONTENTION 도 같은 패턴으로 검증.
+//   • 다언어 fixture(Java/Go/Python) 가 같은 분석기에서 동일하게 처리.
+//   • Heuristic finding (THREAD_CONGESTION 등) 의 비율 임계점.
+//   • JVM 메타 finding (Carrier-pinning / SMR / Native method /
+//     INCOMPLETE_HISTOGRAM).
+//
+// fixture helper
+//   javaSnapshot / goSnapshot / pythonSnapshot 등으로 한 줄에 한 스냅샷
+//   을 만들 수 있게 함. 테스트는 명시적 입력 → 명시적 출력으로 흐름이
+//   짧고 예측 가능하게 유지.
 package multithread
 
 import (

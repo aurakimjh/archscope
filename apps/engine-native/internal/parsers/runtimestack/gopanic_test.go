@@ -1,3 +1,11 @@
+// [한글] go panic parser 회귀 테스트.
+//
+// 검증 대상
+//   • panic 헤더 1개 + 여러 goroutine 블록 → 정확한 record 분리.
+//   • goroutine state ("running", "chan receive", "select" 등) 보존.
+//   • unindented func() 라인만 frame 으로 채택, file:line 라인은 무시.
+//   • Caller goroutine (panic 발생) 가 첫 번째 record 가 되는지.
+//   • 빈 줄 또는 다음 헤더로 블록 종료.
 package runtimestack
 
 import (

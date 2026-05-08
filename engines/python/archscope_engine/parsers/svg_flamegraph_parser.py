@@ -22,6 +22,35 @@ can ingest them unchanged.
 
 XXE attacks on the input are blocked by ``defusedxml``.
 """
+# ─────────────────────────────────────────────────────────────────────
+# [한글] svg_flamegraph_parser — SVG flamegraph → collapsed Counter.
+#
+# 처리 알고리즘 (요약)
+//   1) defusedxml 로 SVG 파싱 (XXE 안전).
+//   2) <g class="func_g"> 또는 <g> 안의 <rect> + <title> 쌍을 모두 수집.
+//   3) y 좌표로 row(=depth) 그룹화, x/width 로 가로 위치.
+//   4) 가장 넓은 rect 가 위에 있으면 icicle (root top), 아래면 default
+//      (root bottom) 으로 orientation 자동 판별.
+//   5) 각 leaf rect 에 대해 root 방향으로 부모를 따라가며 frame 이름 수집.
+//   6) "frame1;frame2;...;leaf" 형태 stack 문자열 + sample count 를
+//      Counter 에 누적.
+//
+// XXE 차단
+//   defusedxml 의 ElementTree 사용 → external entity / DTD 처리 거부.
+//   사용자 SVG 가 악의적이라도 안전.
+//
+// title 텍스트 정규식
+//   `(<frame> (<n> samples, <pct>%, ...))` 형태에서 <frame> + <n>
+//   추출. samples 숫자에 콤마(`12,345`) 가 들어와도 처리.
+//
+// 후속 분석
+//   결과 Counter 는 collapsed_parser 산출물과 동일 형식 →
+//   build_collapsed_result 가 그대로 받아 분석기 입력으로 사용.
+//
+// Go 측
+//   svg flamegraph 분석은 현재 Go engine-native 미포팅 (cmd_profiler.go
+//   stub). 데스크톱 셸 (apps/profiler-native) 이 직접 흡수 예정.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import re

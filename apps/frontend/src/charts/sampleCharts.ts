@@ -1,3 +1,16 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] sampleCharts.ts — 엔진 미연결 상태에서 대시보드/차트 스튜디오가
+//   사용하는 정적인 샘플 분석 결과(dashboard_sample 타입).
+//
+// 책임/목적:
+//   - 첫 진입 사용자가 "내 데이터가 없어도 차트 모양과 동작을 볼 수 있게"
+//     하기 위한 데모 데이터.
+//   - 키 구조는 실제 분석 결과(AnalysisResult) 와 호환되도록 의도적으로
+//     동일한 컬럼 이름(snake_case) 을 사용합니다.
+//
+// 사용처:
+//   - mockAnalyzerClient.loadDashboardSample, ChartStudioPage 의 기본 데이터.
+// ─────────────────────────────────────────────────────────────────────
 export const sampleAnalysisResult = {
   type: "dashboard_sample",
   summary: {

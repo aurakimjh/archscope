@@ -2,6 +2,36 @@
 // `python-traceback`, `go-panic`, `dotnet`), all wrapping
 // internal/analyzers/runtime with a different variant. Mirrors typer's
 // nodejs_app / python_traceback_app / go_panic_app / dotnet_app.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] runtime 계열 4개 명령 그룹 (nodejs / python-traceback /
+// go-panic / dotnet) 의 공유 정의 파일.
+//
+// 왜 한 파일에 모았는가?
+//   네 분석기는 입력 형식만 다를 뿐 플래그 세트와 핸들러 모양이 거의
+//   동일합니다(--in / --top-n / --max-lines / --strict / --out).
+//   이런 "동일 모양·다른 분석기" 를 4번 복사하면 회귀 시 4곳을 모두
+//   고쳐야 합니다. 이 파일은 다음 두 도구로 그 중복을 제거합니다.
+//
+//     1) runtimeAnalyzeFunc 타입 alias
+//        path 와 runtime.Options 만 받아 AnalysisResult 를 반환하는
+//        모든 분석기 진입점이 만족하는 함수 시그니처.
+//
+//     2) addRuntimeGroup helper
+//        그룹 이름·도움말·예제·플래그 도움말과, 위 시그니처를 만족하는
+//        분석기 함수 1개를 받아서 cobra group + analyze 리프 명령을
+//        한 번에 만들어 rootCmd 에 부착합니다.
+//
+// 분석기 매핑
+//   nodejs           → runtime.AnalyzeNodejsStack
+//   python-traceback → runtime.AnalyzePythonTraceback
+//   go-panic         → runtime.AnalyzeGoPanic
+//   dotnet           → runtime.AnalyzeDotnetExceptionIIS
+//                      (DOTNET 그룹은 IIS W3C access log 도 같이 처리)
+//
+// 새 런타임 추가 시
+//   internal/analyzers/runtime 에 분석기 함수 추가 후, init() 에서
+//   addRuntimeGroup 한 줄만 더하면 끝납니다.
 package main
 
 import (

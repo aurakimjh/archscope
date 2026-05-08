@@ -1,3 +1,14 @@
+// [한글] dotnetclrstack plugin 회귀 테스트.
+//
+// 검증 대상
+//   • WinDbg `!clrstack` 형식: `OS Thread Id: 0xABCD (12)` 헤더 +
+//     frame 추출 + thread 분리.
+//   • Sync Block Owner Info 섹션을 bundle.Metadata 에 verbatim 보존.
+//   • Environment.StackTrace 형식: 단일 thread 처리.
+//   • async state machine 정리: `<Foo>d__N.MoveNext()` → `Foo`.
+//   • 상태 추론: Monitor.Enter → LOCK_WAIT, Socket.Receive →
+//     NETWORK_WAIT, FileStream.Read → IO_WAIT, Thread.Sleep →
+//     TIMED_WAITING.
 package dotnetclrstack
 
 import (

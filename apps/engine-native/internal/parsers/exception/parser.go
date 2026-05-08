@@ -11,6 +11,37 @@
 // See engines/python/archscope_engine/parsers/exception_parser.py for
 // the reference implementation. We mirror its skip / warning reasons
 // verbatim so the T-244 / T-390 cross-engine parity gate keeps passing.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] exception parser — Java 예외 스택 그룹화 파서.
+//
+// 입력
+//   임의의 텍스트 파일. 보통 애플리케이션 로그에서 grep 으로 추출한
+//   stack trace 모음, 또는 서버가 출력한 raw 에러 로그.
+//
+// 그룹화 규칙
+//   1) Header 감지 (regex): `<TS>? <FQCN>: <message>` 형태의 라인.
+//      예) `2026-04-27T10:00:00 java.lang.IllegalStateException: failed`
+//   2) 그 다음의 `    at <frame>` 라인들을 같은 record 의 stack 에 누적.
+//   3) `Caused by: <FQCN>: <message>` 라인을 만나면 가장 최근 record 의
+//      RootCause 로 등록. cause 의 stack 은 무시(가독성).
+//   4) 새 header 라인을 만나면 새 record 시작.
+//   5) 빈 줄/관련 없는 라인은 무시.
+//
+// signature 산출
+//   ExceptionType + 첫 stack frame 으로 짧은 키 생성. 같은 위치에서
+//   계속 발생하는 동일 예외를 한 그룹으로 묶기 위함. 분석기의
+//   REPEATED_EXCEPTION_SIGNATURE finding 의 dedup 키.
+//
+// skip/warning reason
+//   diagnostics.SkippedRecords 카운트와 함께 reason 을 기록:
+//     SKIP_NO_HEADER       : header regex 가 한 번도 매칭되지 않음.
+//     SKIP_BAD_TIMESTAMP   : header 의 타임스탬프 파싱 실패.
+//     WARN_TRUNCATED_STACK : MaxLines 초과 또는 EOF 로 잘림.
+//   Python 측과 byte 단위 동일 (parity gate 검증).
+//
+// Strict 모드
+//   첫 skip 이 fatal — CI 에서 회귀를 즉시 차단할 때 사용.
 package exception
 
 import (

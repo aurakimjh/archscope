@@ -4,6 +4,30 @@ For each language we feed the same head bytes that the runtime would
 emit and assert that ``DEFAULT_REGISTRY`` picks exactly the matching
 plugin — no overlap between Java/Go/Python/Node.js/.NET headers.
 """
+# ─────────────────────────────────────────────────────────────────────
+# [한글] test_thread_dump_registry_routing — registry 자동 감지 sanity
+# 체크 (T-189 contract).
+#
+# 검증 대상
+#   각 런타임이 emit 하는 시그니처 head bytes 를 입력으로 줄 때
+#   DEFAULT_REGISTRY 가 정확히 해당 plugin 을 채택. 5개 런타임 (Java/
+#   Go/Python/Node.js/.NET) 사이에 head 시그니처 중복 / 모호성이 없는지
+#   테이블로 검증.
+#
+# 5개 런타임 시그니처 (head 4 KB)
+#   • java_jstack: `Full thread dump OpenJDK 64-Bit Server VM`
+#   • java_jcmd_json: `{"recording": ` 또는 `{"threads": [`
+#   • go_goroutine: `goroutine 1 [running]:`
+#   • python_dump: `Process 12345:` (py-spy) 또는
+#                  `Thread 0x7f...` (faulthandler)
+#   • nodejs_diagnostic_report: `{"header": {"event":`
+#   • dotnet_clrstack: `OS Thread Id: 0x...`
+#
+# parity 주의
+#   Go engine-native registry (apps/engine-native/internal/threaddump/)
+#   도 같은 시그니처 표 + 같은 우선순위. 이 테스트가 통과 == 두 엔진의
+#   감지 결과 동등.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import json

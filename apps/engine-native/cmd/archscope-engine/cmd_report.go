@@ -6,6 +6,32 @@
 // All exporters' Write helpers accept `any` (they normalise via
 // internal toMap), so we load the AnalysisResult JSON as a generic
 // map[string]any and pass it through.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] `report` 명령 그룹 — exporter 패키지를 CLI 표면으로 노출.
+//
+// 책임
+//   분석은 일절 하지 않습니다. 이미 디스크에 저장된 AnalysisResult JSON
+//   파일 1개(또는 diff 의 경우 2개)를 입력으로 받아서, 다른 형식의
+//   보고서 산출물로 렌더링하는 역할만 담당합니다.
+//
+// 5개 리프 명령
+//   html  : 자기 충족적 단일 HTML 보고서 (외부 자산 0개).
+//   pptx  : 슬라이드 1장당 한 섹션이 들어가는 PowerPoint 덱.
+//   csv   : 섹션 헤더가 포함된 단일 CSV(엑셀에서 그대로 열리는 형태).
+//   json  : 들여쓰기가 정규화된 JSON(diff 도구의 노이즈 줄이기용).
+//   diff  : --before / --after 두 결과를 비교한 comparison_report 산출.
+//
+// 데이터 흐름
+//   readJSONFile(in) → map[string]any → exporter.Write(out, map).
+//   exporter 내부의 toMap helper 가 임의의 JSON 호환 입력을 정규화하므로
+//   AnalysisResult 의 임의 확장 필드(metadata.* 등)도 그대로 전달됩니다.
+//
+// JSON 라운드트립의 효용
+//   `report json --in result.json --out result.indented.json` 를 양쪽
+//   엔진(Python/Go)에서 돌리면, parity gate 가 두 엔진의 결과를
+//   "공백·키 순서 노이즈 없이" 비교할 수 있습니다 — 회귀 위치를 찾기
+//   훨씬 쉽게 만들어 주는 파이프라인 설계입니다.
 package main
 
 import (

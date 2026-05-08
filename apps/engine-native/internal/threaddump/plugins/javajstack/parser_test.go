@@ -1,3 +1,14 @@
+// [한글] javajstack parser 회귀 테스트.
+//
+// 검증 대상
+//   • 단일 dump 의 thread 개수 / state 분포 / stack frame.
+//   • multi-dump 파일의 블록 분리 (ParseMany).
+//   • timestamp 추출 (블록 직전 라인이 timestamp 형태).
+//   • Java state 격상 (RUNNABLE → NETWORK_WAIT 등).
+//   • LockHandle 추출 (4가지 wait_mode).
+//   • carrier pinning marker 추출.
+//   • SMR / class histogram block 추출.
+//   • CGLIB / Lambda / Proxy 정리 후 stack signature 안정화.
 package javajstack
 
 import (

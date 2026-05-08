@@ -11,6 +11,38 @@ extension + common asset directories — enough to give the user separate
 headline numbers for "page weight" vs "service traffic" without requiring
 infrastructure-specific configuration.
 """
+# ─────────────────────────────────────────────────────────────────────
+# [한글] access_log_analyzer — HTTP access log 분석기.
+#
+# 책임/목적
+#   parser 가 흘려준 AccessLogRecord 스트림을 받아 access_log 타입의
+#   AnalysisResult 를 만든다. 최소 단위는 분(minute) 버킷이며,
+#   - per-minute latency (avg/p50/p90/p95/p99)
+#   - per-minute status class (2xx/3xx/4xx/5xx) 분포
+#   - per-URL 통계 (count, latency, error count, 상태 mix)
+#   - top_n URL/IP/UA/Referrer/Endpoint
+#   - finding (error rate spike, slow endpoint, anomaly traffic 등)
+#   를 산출.
+#
+# 알고리즘 흐름
+#   1) URI 분류 (static vs api) — 파일 확장자/경로 힌트 정규식.
+#   2) ResponseTimeStats / BoundedPercentile 로 분당/URL/전체 latency
+#      의 reservoir sampling 기반 percentile 계산.
+#   3) Counter 로 status class, host, UA, IP, referrer 집계.
+#   4) per-minute aggregate 를 dict 로 만들고 시계열 산출.
+#   5) top_n 으로 cap 후 series/tables/findings 채워서 반환.
+#
+# 주요 함수/클래스
+#   - analyze_access_log: 진입점 (파일 경로).
+#   - build_access_log_result: 레코드 스트림 → AnalysisResult.
+#   - ResponseTimeStats / _UrlStats / _MinuteBucket: 누적 통계 컨테이너.
+#   - _classify_request: static vs api URL 분류 휴리스틱.
+#   - _build_findings_v2: 임계 기반 finding 산출.
+#
+# parity 주의사항 (Go engine-native 와 byte 단위 일치)
+#   - PERCENTILE_SAMPLE_LIMIT(10_000), TOP_URL_LIMIT(20) 상수 동일.
+#   - finding code/message, status class label, JSON 키 이름이 동일.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import re
@@ -126,6 +158,10 @@ class AccessLogAnalyzerOptions:
 # ── Public entry points ─────────────────────────────────────────────────────
 
 
+# [한글] analyze_access_log — 파일 경로 진입점.
+# 파일 경로와 log_format(nginx/apache 등) 을 받아 parser 를 가동하고
+# 결과를 build_access_log_result 로 위임. start/end 시간 필터와
+# max_lines 제약을 옵션으로 지원.
 def analyze_access_log(
     path: Path,
     log_format: str = "nginx",
@@ -161,6 +197,11 @@ def analyze_access_log(
     )
 
 
+# [한글] build_access_log_result — 레코드 스트림 → AnalysisResult.
+# 한 번의 패스로 전체/static/api 분리 통계, 분당 시계열, URL 별
+# 통계, top URL/IP/UA, status/method 분포를 모두 계산.
+# percentile 은 reservoir sampling 기반 BoundedPercentile 을 써서
+# 메모리 사용을 일정 상한으로 제한.
 def build_access_log_result(
     records: Iterable[AccessLogRecord],
     source_file: Path,
@@ -503,6 +544,14 @@ def _analysis_options_to_dict(
     }
 
 
+# [한글] _build_access_log_findings — 통계 기반 finding 산출.
+# 임계치 (Go engine-native 와 동일):
+#   error_rate >= 10% → HIGH_ERROR_RATE (critical)
+#   5% <= error_rate < 10% → ELEVATED_ERROR_RATE (warning)
+#   5xx > 0 → SERVER_ERRORS_PRESENT (warning)
+#   비표준 HTTP status → NON_STANDARD_HTTP_STATUS (warning)
+#   p95 latency >= 1000ms 인 URL (count >= 5) → SLOW_URL_P95 (warning)
+#   분당 error_rate >= 50% (req >= 5) → ERROR_BURST_DETECTED (critical)
 def _build_access_log_findings(
     summary: dict[str, Any],
     status_distribution: Counter[str],

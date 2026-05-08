@@ -1,3 +1,28 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] ProfilerAnalyzerPage.tsx — async-profiler / Jennifer 등의 collapsed
+//   stack 프로파일을 분석하는 페이지.
+//
+// 책임/목적:
+//   - collapsed/.jfr/.html/.csv 등 다양한 입력 포맷을 지원(ProfileFormat).
+//   - analyzer.analyzeCollapsedProfile 또는 generic analyzer.execute 호출.
+//   - 결과는 Top stacks 테이블, Flame graph(D3 + Canvas 두 가지 렌더러),
+//     timeline analysis(시간대별 분포) 등으로 시각화.
+//
+// 데이터 흐름:
+//   FileDock → execute → ProfilerCollapsedAnalysisResult
+//   → series.timeline_* / charts.flame_root(FlameNode 트리)
+//   → CanvasFlameGraph / D3FlameGraph / FlameTreeTable.
+//
+// 사용 series/tables/charts 키:
+//   - charts.flame_root: FlameNode 재귀 트리.
+//   - tables.top_stacks / execution_breakdown / timeline_analysis.
+//   - series.cpu_timeline / sample_timeline 등(스코프에 따라 변동).
+//
+// FlameGraph 렌더러 선택:
+//   - D3FlameGraph: SVG, 초경량, hover/zoom 인터랙션.
+//   - CanvasFlameGraph: Canvas, 노드 수가 큰 경우(>10k) 우선.
+//   - 페이지 내 토글로 전환합니다(상태가 큰 트리도 부드럽게 그리도록).
+// ─────────────────────────────────────────────────────────────────────
 import { Camera, Loader2, Play, Square } from "lucide-react";
 import { useCallback, useMemo, useRef, useState } from "react";
 import type { EChartsOption } from "echarts";

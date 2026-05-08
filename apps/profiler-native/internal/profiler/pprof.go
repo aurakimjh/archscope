@@ -1,3 +1,27 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] pprof — collapsed stack map 을 Google pprof.proto 로 export.
+//
+// 책임/목적
+//   profiler 결과(map[stackKey]samples) 를 표준 pprof 바이너리 형식으로
+//   저장한다. 결과 파일은 `go tool pprof`, speedscope, pprof.me 등 다양한
+//   생태계 툴에서 그대로 열 수 있다. Python 측 exporter 와 같은 wire 포맷.
+//
+// 변환 규칙
+//   - SampleType: ("samples","count") 가 디폴트. intervalMs>0 이면 추가
+//     SampleType("duration","milliseconds") 를 붙여 시간 단위 차트도 가능.
+//   - PeriodType: intervalMs>0 일 때 ("wall","milliseconds") + Period.
+//   - Function/Location: frame 이름 단위 dedupe (functions / locations map).
+//     pprof 는 ID 1 부터 시작.
+//   - Sample.Location: pprof 는 leaf-first 순서를 요구하므로 collapsed
+//     (root-first) 를 reverse 해서 넣는다.
+//
+// 트리키한 부분
+//   • prof.Write 는 자동 gzip 압축. 호출부는 .gz 따로 처리할 필요 없음.
+//   • collapsed 빈 frame 은 trim 후 drop (Python 동작과 동일).
+//   • CheckValid 는 location/function ID 무결성 검증. 우리 빌더가 단조
+//     증가 ID 를 보장하므로 보통 성공하지만 sanity check 로 호출.
+// ─────────────────────────────────────────────────────────────────────
+
 package profiler
 
 import (
@@ -16,6 +40,11 @@ import (
 //
 // `unit` defaults to "samples" when empty; `intervalMs` is multiplied into
 // each sample so a `cpu`-style profile is annotated with realistic time.
+//
+// [한ст] ExportToPprof — collapsed map → pprof.gz 변환.
+// 매개변수: stacks(필수), outPath(필수), sampleType("samples" 디폴트),
+// unit("count" 디폴트), intervalMs(>0 이면 duration 정보 추가).
+// 빈 outPath 면 에러. 0 이하 sample 은 skip.
 func ExportToPprof(stacks map[string]int, outPath string, sampleType, unit string, intervalMs float64) error {
 	if outPath == "" {
 		return fmt.Errorf("outPath is required")

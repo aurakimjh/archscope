@@ -1,3 +1,28 @@
+"""Stack frame classification rules (runtime/library detection)."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] profile_classification — 스택 프레임 라벨 분류기.
+#
+# 책임/목적
+#   collapsed 스택 한 라인을 받아 "어떤 라이브러리/런타임" 인지
+#   라벨링 (예: "Oracle JDBC", "Spring Framework", "Node.js" 등).
+#   profiler_analyzer 가 component_breakdown 을 만들 때 사용.
+#
+# 알고리즘
+#   1) 룰 리스트 (label, contains[token...]) 를 순서대로 검사.
+#   2) stack 문자열을 casefold() 후, contains 의 토큰 중 하나라도
+#      포함되면 그 label 반환. 첫 매칭 우선.
+#   3) 어떤 룰에도 안 걸리면 "Application".
+#
+# 주요 함수
+#   - classify_stack: 단일 분류.
+#   - load_stack_classification_rules / load_packaged_*: JSON 룰 로드.
+#   - parse_stack_classification_rules: dict → tuple 검증/변환.
+#
+# parity 주의사항: 기본 룰은 archscope_engine/config/
+# runtime_classification_rules.json 에 있고 Go engine-native 의
+# internal/analyzers/profileclassification 와 동일 데이터.
+# 룰 순서가 결과에 영향 (Spring Batch 가 Spring Framework 보다 먼저).
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import json

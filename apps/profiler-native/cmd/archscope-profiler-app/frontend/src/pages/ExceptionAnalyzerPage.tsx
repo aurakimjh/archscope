@@ -1,3 +1,25 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] pages/ExceptionAnalyzerPage.tsx — Exception/StackTrace 분석기 페이지.
+//
+// 책임/목적:
+//   - 예외 로그(자바 stacktrace, Python traceback, Node.js Error 등)
+//     파일을 받아 engine.analyzeException 호출 → ExceptionStackAnalysisResult
+//     (type "exception_stack") 수신.
+//   - Summary metric (총 예외 수, unique exception types, unique signatures,
+//     top exception type) + 분포(exception_type/root_cause) +
+//     상위 stack signatures + 표(exceptions) + findings 패널 렌더.
+//
+// 다루는 결과 형식: ExceptionStackAnalysisResult — series 에는
+// exception_type_distribution / root_cause_distribution /
+// top_stack_signatures, tables.exceptions 에는 개별 이벤트 (timestamp,
+// exception_type, message, root_cause, signature, top_frame, stack[]).
+//
+// 데이터 흐름: engine.analyzeException(req) → CancellablePromise
+// → 결과 setResult → search box 입력에 따라 client-side 필터링.
+//
+// 의존성 주의: shadcn Tabs 사용. 검색 박스는 client-side 필터로
+// 서버 재호출 없이 즉시 반응.
+// ─────────────────────────────────────────────────────────────────────
 import { Loader2, Play, Search, Square, X } from "lucide-react";
 import { useCallback, useMemo, useRef, useState } from "react";
 

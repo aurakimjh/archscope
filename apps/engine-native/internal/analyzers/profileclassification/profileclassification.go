@@ -28,6 +28,35 @@
 // list expressed as a Go literal — kept around for callers that
 // want to bypass the JSON path entirely (e.g. tests, embedded
 // builds that strip resources).
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] profileclassification — collapsed stack 문자열에 런타임/
+// 프레임워크 라벨을 부여하는 룰 기반 분류기.
+//
+// 동작 원리
+//   1) ClassifyStack(stack, rules) 가 stack 문자열을 받음.
+//   2) rules 가 nil 이면 DefaultRules(=embed 된 JSON 파싱 결과) 사용.
+//   3) rules 를 순서대로 스캔. 각 rule 의 tokens 중 하나라도 stack
+//      에 case-insensitive 로 substring 매칭되면 그 rule 의 label 채택.
+//   4) 모두 미스 → "Application" fallback.
+//
+// 룰 정의
+//   {label: "Spring Framework", tokens: ["org.springframework", ...]}
+//   같은 형태. 룰 순서가 우선순위 — 더 구체적인 프레임워크가 위에.
+//
+// 왜 embed 인가?
+//   Python 측은 importlib.resources 로 패키지 내부 JSON 을 읽지만
+//   Go 데스크톱 바이너리는 외부 파일 의존을 끊어야 함. 같은 JSON 을
+//   embed 해 cwd 와 무관하게 동일 룰 적용 — parity 보장.
+//
+// 외부 변경 지원
+//   LoadRules(path) 로 사용자 JSON 을 직접 주입 가능. 기본 룰을 그대로
+//   쓰는 일반 케이스에서는 nil 만 전달하면 됨.
+//
+// BuiltinRules
+//   embed 가 실패하거나 일부러 임베드를 빼는 빌드(strip)에서도
+//   분류기가 동작하도록, 같은 룰을 Go 리터럴로 한 번 더 정의해 둠.
+//   리터럴과 JSON 의 동기화는 회귀 테스트가 검증.
 package profileclassification
 
 import (

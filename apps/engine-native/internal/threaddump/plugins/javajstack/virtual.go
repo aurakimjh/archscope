@@ -1,3 +1,28 @@
+// [한글] virtual.go — JDK 21+ virtual thread 의 carrier pinning 마커
+// 감지 (T-227).
+//
+// Virtual Thread carrier pinning 이란?
+//   JDK 21 의 virtual thread (Project Loom) 는 platform thread (carrier)
+//   위에서 mount/unmount 되며 동작합니다. 그러나 synchronized 블록
+//   안이나 native 메서드 안에서 blocking I/O 를 수행하면 unmount 가
+//   안 되고 carrier 를 점유하는 "pinning" 이 발생 — virtual thread 의
+//   확장성 이점이 사라짐.
+//
+// jstack 출력의 단서
+//   "carrier" 키워드 또는 "Continuation" / "VirtualThread" 관련 frame.
+//   특히 synchronized 안의 blocking 호출이 boundary frame 으로 노출됨.
+//
+// 감지 알고리즘
+//   1) 스레드 헤더에 virtual / carrier 라벨 매칭 시도.
+//   2) stack 안에 java.util.concurrent.locks 또는 synchronized 진입
+//      frame 이 있고 그 위에 blocking I/O frame 이 있으면 pinning
+//      후보로 마킹.
+//   3) snapshot.Metadata["carrier_pinning"] 에 candidate_method,
+//      top_frame, reason 을 기록.
+//
+// 분석기 사용처
+//   multithread 분석기의 jvmTables.carrierPinning 표 + finding
+//   VIRTUAL_THREAD_CARRIER_PINNING 의 evidence 로 사용.
 package javajstack
 
 import (

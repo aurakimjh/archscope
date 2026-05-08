@@ -1,3 +1,27 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] ChartPanel.tsx — ECharts 인스턴스를 React 라이프사이클에 맞춰
+//   감싸 주는 표준 차트 패널 컴포넌트(헤더/툴바/풀스크린/이미지 저장).
+//
+// 책임/목적:
+//   - props.option(EChartsOption) 을 받아 echarts.init → setOption.
+//   - ResizeObserver 로 부모 크기 변화에 자동 리사이즈.
+//   - 헤더 툴바: 테마 토글, 이미지 저장(여러 프리셋), 커스터마이저(legend/
+//     색상/배경), 풀스크린 모달.
+//   - 이미지 저장은 png/svg 의 경우 echarts 의 getDataURL 을 우선 사용,
+//     그 외(예: jpeg @2x) 는 lib/exportImage 로 DOM 캡처.
+//   - data-chart-export-name 속성을 두어 batchExport 가 컨테이너 내
+//     모든 ChartPanel 을 일괄 export 할 수 있도록 마킹.
+//
+// 데이터 흐름:
+//   page → option/title → ChartPanel → ECharts canvas/svg.
+//   사용자 toolbar 액션 → 로컬 state 만 변경(부모로 콜백 X).
+//
+// 의존성/주의:
+//   - echarts 인스턴스는 컴포넌트 unmount 또는 renderer/theme 변경 시
+//     dispose 후 재생성 — 누수 방지를 위해 cleanup 함수 정확히 유지.
+//   - shadcn DropdownMenu/Tooltip + Tailwind v4. .chart-panel 등의
+//     클래스는 styles/global.css 에서 정의됩니다.
+// ─────────────────────────────────────────────────────────────────────
 import * as echarts from "echarts";
 import type { EChartsOption } from "echarts";
 import { Download, Maximize2, Moon, Palette, Sun, X } from "lucide-react";

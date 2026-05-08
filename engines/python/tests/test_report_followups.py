@@ -1,3 +1,18 @@
+# ─────────────────────────────────────────────────────────────────────
+# [한글] test_report_followups — 보고서 exporter 의 후속 회귀 테스트.
+#
+# 검증 대상
+#   • HTML / PPTX / before-after diff 보고서가 정상 생성.
+#   • PPTX 가 zip 으로 열렸을 때 8개 필수 OOXML part 포함.
+#   • build_comparison_report: 두 AnalysisResult 의 metric_deltas
+#     계산 정확.
+#   • findings 카운트가 비교 보고서의 summary 에 정확히 반영.
+#   • 한글 텍스트가 모든 산출물에서 raw UTF-8 로 보존.
+#
+# 통합 시나리오
+#   분석 → JSON → exporter → 다른 형식 보고서 라운드트립이 깨지지 않는지
+#   end-to-end 로 묶어서 회귀 차단.
+# ─────────────────────────────────────────────────────────────────────
 import json
 import zipfile
 from pathlib import Path

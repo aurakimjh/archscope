@@ -14,6 +14,47 @@ The analyzer never imports Java-specific helpers; runtime-specific
 enrichment is the parser plugin's job (Phase 5 follow-ups T-194/T-195
 for Java, etc.).
 """
+# ─────────────────────────────────────────────────────────────────────
+# [한글] multi_thread_analyzer — 다중 thread-dump 상관 분석기.
+#
+# 책임/목적
+#   순서가 보장된 ThreadDumpBundle 리스트를 받아 시간 흐름에 따라
+#   각 스레드의 상태/스택 추이를 누적, 다음 10개의 finding 을 산출
+#   한다. 언어 비종속(Java, Go, .NET, Node, Python 모두 동일 코드 경로).
+#
+#     - LONG_RUNNING_THREAD              (동일 스택으로 N개 덤프 RUNNABLE)
+#     - PERSISTENT_BLOCKED_THREAD        (BLOCKED/LOCK_WAIT N개 덤프 지속)
+#     - LATENCY_SECTION_DETECTED         (NETWORK/IO/CHANNEL_WAIT 지속)
+#     - GROWING_LOCK_CONTENTION          (lock waiter 수 strictly 증가)
+#     - THREAD_CONGESTION_DETECTED       (전체 중 waiting 비율 > 10%)
+#     - EXTERNAL_RESOURCE_WAIT_HIGH      (timed_waiting 비율 > 25%)
+#     - LIKELY_GC_PAUSE_DETECTED         (unowned monitor blocked > 50%)
+#     - VIRTUAL_THREAD_CARRIER_PINNING   (JVM 가상 스레드 carrier pinning)
+#     - SMR_UNRESOLVED_THREAD            (JVM SMR diagnostics zombie)
+#     - INCOMPLETE_HISTOGRAM             (잘린 class histogram block)
+#
+# 알고리즘 흐름
+#   1) timeline 구축: thread_name → list[(dump_index, state, signature)]
+#   2) persistence: 같은 시그니처가 연속 N 덤프 등장하면 finding
+#   3) growing lock: lock_id → waiter count 가 단조 증가
+#   4) heuristic: bundle 단위 비율 임계치 검사
+#   5) JVM 메타: 파서가 metadata 에 채운 값 표/findings 노출
+#   6) 정렬 후 top_n 으로 cut, AnalysisResult 조립
+#
+# 주요 함수/클래스
+#   - analyze_multi_thread_dumps: 진입점. AnalysisResult 반환.
+#   - ThreadObservation / ThreadTimeline: 한 스레드의 시간선.
+#   - _build_findings / _build_latency_sections / _build_growing_lock_findings
+#   - _build_heuristic_findings: 전체 비율 기반 finding.
+#   - _jvm_metadata_tables / _jvm_metadata_findings: JVM 전용 메타 추출.
+#
+# parity 주의사항 (Go engine-native 와 byte 단위 일치)
+#   - finding 메시지 문자열, sort key 순서, JSON 키 이름이 Go 측
+#     internal/analyzers/multithread/ 와 1:1 동등해야 함.
+#   - threshold 기본값(3), top_n 기본값(20), 비율 임계치(0.10/0.25/0.50)
+#     모두 Go 측 상수와 동일하게 유지.
+#   - sort: dumps DESC, growing locks 는 (-max_waiters, -consecutive).
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 from collections import Counter, defaultdict
@@ -117,6 +158,15 @@ def analyze_multi_thread_dumps(
     serialized stacks. Renderers that want the full raw evidence pass
     ``include_raw_snapshots=True`` and accept the bigger payload.
     """
+    # [한글] analyze_multi_thread_dumps — 진입점.
+    # 입력: 시간 정렬된 ThreadDumpBundle 시퀀스.
+    # 흐름: timeline 구축 → 각 finding 산출 → 정렬/top_n 적용 →
+    #       summary/series/tables/metadata 채워서 AnalysisResult 반환.
+    # 매개변수:
+    #   threshold — 연속 덤프 N 개 임계 (기본 3, T-191).
+    #   top_n     — 표 cap (기본 20).
+    #   include_raw_snapshots — False(기본) 시 메모리 절약 위해 raw
+    #                            스택을 응답에서 제외 (T-236).
     if not bundles:
         raise ValueError("analyze_multi_thread_dumps requires at least one bundle.")
 
@@ -250,6 +300,10 @@ def _signature_from_snapshot(snapshot: ThreadSnapshot) -> str:
     return snapshot.stack_signature()
 
 
+# [한글] _build_findings — long_running / persistent_blocked finding 산출.
+# 알고리즘: timeline 별로 RUNNABLE 관측을 모아 "동일 시그니처 연속 N개"
+# run 을 찾아 long_running 으로, BLOCKED/LOCK_WAIT 가 연속 N개 이상이면
+# persistent_blocked 으로 보고. 매개변수 threshold 는 기본 3.
 def _build_findings(
     timelines: dict[str, ThreadTimeline],
     *,
@@ -336,6 +390,13 @@ def _build_heuristic_findings(
     and likely-GC-pause. These are coarse signals to give a non-expert
     user an immediate "is this dump healthy?" indication.
     """
+    # [한글] _build_heuristic_findings — bundle 단위 비율 기반 finding.
+    # 임계치 (Go engine-native 와 동일):
+    #   waiting/total > 10% → THREAD_CONGESTION_DETECTED (warning)
+    #   timed_waiting/total > 25% → EXTERNAL_RESOURCE_WAIT_HIGH (info)
+    #   unowned_blocked/total > 50% → LIKELY_GC_PAUSE_DETECTED (warning)
+    # unowned_blocked: BLOCKED/LOCK_WAIT 인데 그 락의 owner 가 어떤
+    # 애플리케이션 스레드도 아닌 경우 (JVM/OS 가 잡은 monitor → GC pause).
     findings: list[dict[str, Any]] = []
     for index, bundle in enumerate(bundles):
         snapshots = list(bundle.snapshots)
@@ -517,6 +578,12 @@ def _build_growing_lock_findings(
     populates ``lock_waiting`` today, so non-Java bundles produce no
     findings — exactly as intended.
     """
+    # [한글] _build_growing_lock_findings — 락 대기열이 strictly 단조
+    # 증가하는 lock_id 를 GROWING_LOCK_CONTENTION 으로 보고.
+    # 입력: bundle 시퀀스. 락 대기 정보(lock_waiting) 는 Java jstack 만
+    # 채우므로 다른 언어 bundle 에서는 빈 결과가 자연스럽게 나옴.
+    # 알고리즘: lock_id → {dump_index: waiter 수} 벡터를 만들고, 연속
+    # dump_index 에서 strict 증가하는 최장 run 을 찾는다 (run ≥ threshold).
     waiters_by_lock: dict[str, dict[int, int]] = {}
     classes_by_lock: dict[str, str | None] = {}
     for bundle in bundles:
@@ -765,6 +832,10 @@ def _build_latency_sections(
     ``IO_WAIT``, or ``CHANNEL_WAIT``; this analyzer only consumes the
     normalized :class:`ThreadState` enum.
     """
+    # [한글] _build_latency_sections — NETWORK/IO/CHANNEL_WAIT 카테고리에
+    # 연속 N 덤프 머무는 스레드를 LATENCY_SECTION_DETECTED 후보로 추출.
+    # category 별 최장 run 만 보고. LOCK_WAIT 는 의도적으로 제외 —
+    # PERSISTENT_BLOCKED_THREAD 와 중복되어 신호가 희석되기 때문.
     out: list[dict[str, Any]] = []
     for timeline in timelines.values():
         sorted_obs = sorted(timeline.observations, key=lambda o: o.dump_index)

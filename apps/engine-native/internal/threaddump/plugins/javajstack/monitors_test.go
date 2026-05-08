@@ -1,3 +1,12 @@
+// [한글] monitors_test.go — T-231 monitor handle 추출 회귀 테스트.
+//
+// 검증 대상
+//   • `- locked <0x...>` → LockHolds 추가.
+//   • `- waiting to lock <0x...>` → LockWaiting (wait_mode="monitor_wait").
+//   • `- waiting on <0x...>` → LockWaiting (wait_mode="object_wait").
+//   • `- parking to wait for <0x...>` → LockWaiting (wait_mode="parking_*").
+//   • `(a <FQCN>)` 의 클래스명 추출.
+//   • wait_mode 값이 cooperative wait 식별에 정확히 사용.
 package javajstack
 
 import "testing"

@@ -18,6 +18,41 @@
 // Format-id parity (`nodejs_diagnostic_report`, `nodejs_sample_trace`)
 // is preserved with the Python plugin so the registry detection +
 // FormatOverride wiring keeps working unchanged across the two engines.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] nodejsreport plugin — Node.js thread dump 파서 (2종).
+//
+// 1) DiagnosticReportPlugin
+//    입력: Node.js 12+ 의 `process.report.writeReport()` JSON.
+//    내용: 메인 JS 스레드의 콜스택 + 활성 libuv 핸들 + 환경 정보.
+//
+//    추출 규칙:
+//      • main JS 스레드 → 1 snapshot (language="javascript").
+//      • native worker-pool stack 존재 → 추가 snapshot (language="native").
+//        JS 전용 enricher 가 native frame 을 건드리지 않도록 분리.
+//      • 활성 libuv 핸들 종류 분포로 메인 스레드 상태 추론:
+//          tcp/udp/named-pipe 우세 → NETWORK_WAIT
+//          fs/file 우세           → IO_WAIT
+//          timer 우세             → TIMED_WAITING
+//          모두 0                 → RUNNABLE (본래 상태 유지)
+//
+// 2) SampleTracePlugin
+//    입력: `--prof` 또는 ad-hoc sampler 가 출력하는 텍스트.
+//    형식:
+//      Sample #1
+//      Error
+//        at funcA (file.js:10:5)
+//        at funcB (file.js:20:5)
+//
+//      Sample #2
+//      ...
+//
+//    각 Sample 블록 → 1 snapshot. thread name = "Sample #N".
+//
+// 두 plugin 분리 이유
+//   format detection 이 충돌하지 않도록. JSON 시그니처 (`{` 시작) vs
+//   "Sample #" 텍스트 시그니처는 매우 다르므로 각자 명확한 CanParse
+//   가능.
 package nodejsreport
 
 import (

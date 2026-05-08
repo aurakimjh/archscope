@@ -1,3 +1,17 @@
+# ─────────────────────────────────────────────────────────────────────
+# [한글] test_otel_analyzer — OTel 분석기 회귀.
+#
+# 검증 대상
+#   • analyze_otel_jsonl: OTelLogRecord 슬라이스 → AnalysisResult
+#     (type="otel_logs") + service paths / failure propagation rows.
+#   • 5종 finding:
+#     OTEL_ERROR_RECORDS_PRESENT / OTEL_CROSS_SERVICE_TRACE /
+#     OTEL_FAILED_TRACE / OTEL_FAILURE_PROPAGATION /
+#     OTEL_SPAN_TOPOLOGY_INCONSISTENT.
+#   • SELF_PARENT / PARENT_CYCLE 케이스: span topology 이상 finding.
+#   • CLI subprocess 통합: `python -m archscope_engine.cli otel analyze`
+#     → 같은 결과 JSON.
+# ─────────────────────────────────────────────────────────────────────
 import json
 import subprocess
 import sys

@@ -1,3 +1,11 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] components/ui/tabs.tsx — shadcn/ui Tabs (Radix Tabs 래퍼).
+//
+// 책임/목적: Radix Tabs primitive 4 종(Root/List/Trigger/Content)에
+// shadcn 스타일 클래스를 입혀 재export. components/Tabs.tsx 와 다른
+// 점은 Radix 의 키보드 네비게이션/접근성 보장(arrow keys, ARIA) 을
+// 그대로 활용한다는 것.
+// ─────────────────────────────────────────────────────────────────────
 import * as TabsPrimitive from "@radix-ui/react-tabs";
 import * as React from "react";
 

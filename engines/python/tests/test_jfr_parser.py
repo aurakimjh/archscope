@@ -1,4 +1,20 @@
 """Tests for JFR JSON parser covering edge cases and event extraction."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] test_jfr_parser — `jfr print --json` 파서 회귀.
+#
+# 검증 대상
+#   • 3가지 입력 형태 모두 같은 Event 리스트로 통일:
+#     {"recording": {"events": [...]}} / {"events": [...]} / [...].
+#   • _to_jfr_event: event_type / time / duration_ms / thread / state /
+#     address / size / message / frames / raw_preview 정확 추출.
+#   • _duration_to_ms: "12.5ms" / 12500000 (ns) 등 다양한 형식 모두 ms float.
+#   • _format_frame: frame 객체 → 1-line 문자열 정규화.
+#   • skip 사유: INVALID_JFR_JSON / INVALID_JFR_SHAPE / INVALID_JFR_EVENT.
+#   • raw_preview 가 500 byte 로 절단.
+#
+# parity 주의
+#   Go engine-native parsers/jfr/parser.go 와 byte 동일.
+# ─────────────────────────────────────────────────────────────────────
 
 import json
 from pathlib import Path

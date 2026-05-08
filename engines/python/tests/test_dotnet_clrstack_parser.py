@@ -1,3 +1,30 @@
+# ─────────────────────────────────────────────────────────────────────
+# [한글] test_dotnet_clrstack_parser — .NET dotnet-dump clrstack 출력
+# 파서 plugin 회귀 테스트 (T-202).
+#
+# 검증 대상
+#   • can_parse: "OS Thread Id: 0x..." + "Child SP" 헤더 시그니처 매치,
+#     Java jstack 텍스트는 reject.
+#   • parse: thread_id 16진(`0x1a4`), thread_name = managed id ("1"),
+#     language="dotnet", source_format="dotnet_clrstack" 보존.
+#   • 상태 추론(_infer_dotnet_state):
+#       - top frame Monitor.Enter      → LOCK_WAIT.
+#       - 무관한 비즈니스 frame        → RUNNABLE 유지.
+#   • Async state machine 정규화(_normalize_dotnet_frame):
+#       - `<DoWorkAsync>d__0.MoveNext()` → module 에 "DoWorkAsync" 보존,
+#         "<" 제거, function "MoveNext" 유지.
+#       - local function 합성명 `<Outer>g__Inner|3_0` → "Outer.Inner".
+#   • sync_block_owner_info metadata 가 dump trailer 의 SyncBlock 라인을
+#     리스트로 보존.
+#
+# fixture 정책
+#   _DOTNET_DUMP 는 2 thread + sync block trailer 한 dump 안에 inline.
+#
+# parity 주의 (Python ↔ Go 비교 가능한 부분)
+#   Go engine-native 의 internal/threaddump/plugins/dotnetclrstack 와
+#   thread_id / thread_name / language / source_format 필드, 정규화
+#   결과 module 문자열, 상태 추론 우선순위가 byte 단위 동일해야 함.
+# ─────────────────────────────────────────────────────────────────────
 """Tests for the .NET dotnet-dump clrstack parser plugin (T-202)."""
 from __future__ import annotations
 

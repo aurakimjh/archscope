@@ -1,3 +1,34 @@
+// [한글] smr.go — JVM 의 "Threads class SMR info" 진단 블록 파싱
+// (T-228 / T-234).
+//
+// SMR (Safe Memory Reclamation) info 란?
+//   JDK 가 thread list 의 안전 회수를 위해 발급하는 진단 출력.
+//   잘못 정리된 스레드 (zombie) 또는 미해결 주소가 표시되면 JVM 자체의
+//   메모리 정합성 위험 신호.
+//
+// jstack 의 출력 위치
+//   thread dump 끝부분에 다음 형태로 등장:
+//
+//     Threads class SMR info:
+//     _java_thread_list=<addr>, length=N, elements=[<addr1>, <addr2>, ...]
+//     _to_delete: <addr...> (unresolved)
+//
+// 파싱 규칙
+//   1) "Threads class SMR info:" 라인을 anchor 로 블록 시작 식별.
+//   2) `_java_thread_list=` 의 addresses 추출 → 정상 list.
+//   3) `_to_delete:` 의 addresses → unresolved/zombie 후보.
+//   4) 각 address 가 본 dump 의 thread tid 와 매치되는지 cross-reference.
+//   5) 매치되지 않는 address 는 SMR_UNRESOLVED_THREAD finding 의 evidence.
+//
+// 결과 저장 위치
+//   bundle.Metadata["smr"] = {
+//     unresolved: [...] (tagged_unresolved=true 인 항목),
+//     addresses_unresolved: [...] (cross-reference 실패한 address 형태),
+//   }
+//
+// 분석기 사용
+//   multithread.jvmTables.smrUnresolved 가 위 metadata 를 그대로 표로
+//   변환. SMR_UNRESOLVED_THREAD finding 1행/항목.
 package javajstack
 
 import (

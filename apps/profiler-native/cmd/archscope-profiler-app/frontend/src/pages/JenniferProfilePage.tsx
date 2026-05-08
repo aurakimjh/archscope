@@ -1,3 +1,21 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] pages/JenniferProfilePage.tsx — Jennifer 프로파일 분석기 페이지(MVP1).
+//
+// 책임/목적:
+//   - Jennifer profile export(.csv 다중 선택) 을 받아
+//     engine.analyzeJenniferProfile 호출 → AnalysisResult 수신.
+//   - Summary metric cards + per-profile 표 + 파일별 에러 리스트 렌더.
+//   - 다중 파일 호출 시 fallbackCorrelationToTxid / headerBodyToleranceMs
+//     같은 옵션 plumbing 도 이 페이지에서 보유.
+//
+// 다루는 결과 형식: AnalysisResult (Jennifer profile 전용 — analyzer
+// type = "jennifer_profile" 등). MSA call-graph / network gap /
+// signature stats 등 고급 표시는 MVP2-MVP3 에서 추가 예정.
+//
+// 데이터 흐름: Wails Dialogs.OpenFile (multiple=true) → paths[] →
+// engine.analyzeJenniferProfile({ paths, fallbackCorrelationToTxid,
+// headerBodyToleranceMs }) → 결과 렌더.
+// ─────────────────────────────────────────────────────────────────────
 // MVP1 Jennifer Profile Export analyzer page.
 //
 // Surface: file pick (multiple) → Analyze → render Summary metric

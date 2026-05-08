@@ -6,6 +6,34 @@
 //                                       [--start-time RFC3339]
 //                                       [--end-time RFC3339]
 //                                       [--out <path>]
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] `access-log` 명령 그룹.
+//
+// 책임 범위
+//   • Python typer 의 access_log_app 표면을 그대로 모방한 Cobra group.
+//   • 현재 리프 명령은 `analyze` 1개. 향후 `summary`, `top-urls` 등이
+//     추가될 가능성을 고려해 group 형태로 유지.
+//
+// 처리 흐름 (analyze)
+//   1) 사용자 플래그 검증 — `--in` 은 필수. 없으면 즉시 에러.
+//   2) accesslog.Options 구성:
+//        • MaxLines : 0 이면 무제한, 양수면 N 라인에서 조기 종료(대용량
+//          로그 sampling 용. T-014 에서 도입).
+//        • StartTime/EndTime : helpers.parseTimeFlag 가 빈 문자열을
+//          nil 로 변환해 주므로 분석기는 단순 nil 체크만 수행.
+//   3) accesslog.Analyze(in, format, opts) 호출 — 파싱과 통계 생성을
+//      모두 끝낸 AnalysisResult 를 반환.
+//   4) writeJSONResult 로 indent JSON 직렬화 후 stdout 또는 파일 출력.
+//
+// 포맷 처리
+//   • format 의 기본값은 "nginx"(combined). IIS/Apache 등은 사용자가
+//     명시적으로 지정. 분석기 내부에서 라인 정규식이 분기됩니다.
+//
+// 에러 정책
+//   • 파일 자체가 없거나 권한 문제 = 치명적(엔진이 즉시 에러).
+//   • 라인 단위 파싱 실패 = 건너뛰고 metadata.diagnostics 에 카운트.
+//     Python parser_error_handling policy 와 동일.
 package main
 
 import (

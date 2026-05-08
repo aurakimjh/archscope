@@ -1,3 +1,27 @@
+"""Java/.NET style exception stack analyzer."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] exception_analyzer — Java/JVM 예외 스택 텍스트 분석기.
+#
+# 책임/목적
+#   JVM "Caused by:" 체인이 포함된 예외 스택 트레이스 텍스트를
+#   ExceptionRecord 리스트로 파싱하고 exception_stack 타입의
+#   AnalysisResult 산출.
+#
+# 알고리즘 흐름
+#   1) parse_exception_stack → ExceptionRecord 리스트.
+#   2) exception_type / root_cause / signature 분포 Counter.
+#   3) finding 산출 — 동일 signature 가 두 번 이상이면
+#      REPEATED_EXCEPTION_SIGNATURE, root_cause 가 있으면
+#      ROOT_CAUSE_PRESENT.
+#
+# 주요 함수
+#   - analyze_exception_stack: 진입점.
+#   - build_exception_stack_result: 빌더.
+#   - _build_findings: finding 산출.
+#
+# parity 주의사항: parser 이름 "java_exception_stack", finding code,
+# signature 정규화가 Go 측 internal/analyzers/exception 와 동일.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 from collections import Counter

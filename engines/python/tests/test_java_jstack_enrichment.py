@@ -1,4 +1,21 @@
 """Regression tests for Java jstack post-parse enrichment (T-194 / T-195)."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] test_java_jstack_enrichment — Java jstack post-parse enrichment
+# 회귀 (T-194 / T-195).
+#
+# 검증 대상
+#   • _normalize_proxy_frame (T-194): CGLIB / JDK Proxy / accessor synthetic
+#     접미사 제거. 같은 비즈니스 로직 frame 이 매번 다른 hash 를 달고
+#     나타나도 한 stack signature 로 collapse.
+#       예) `OrderService$$EnhancerByCGLIB$$abc123` → `OrderService`
+#   • _infer_java_state (T-195): RUNNABLE 인데 epoll/socket → NETWORK_WAIT,
+#     FileChannel.read → IO_WAIT 격상. 다른 상태 (BLOCKED/WAITING/
+#     TIMED_WAITING) 는 절대 변경 안 함 — 런타임 상태 우선.
+#
+# parity 주의
+#   Go engine-native plugins/javajstack/aop.go + state_inference.go 와
+#   byte 동일한 정규화 결과 + 동일 상태 매핑.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 from archscope_engine.models.thread_snapshot import StackFrame, ThreadState

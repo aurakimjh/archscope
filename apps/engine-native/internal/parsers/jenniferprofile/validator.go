@@ -1,3 +1,29 @@
+// [한글] validator.go — §10 FULL-Profile 검증기.
+//
+// 책임
+//   각 transaction profile 의 강제 필드 누락을 검출해 Errors/Warnings
+//   에 추가. STRICT_MODE (기본값) 에서는 Errors 가 1개라도 있으면
+//   분석기가 그 profile 을 "GROUP_FAILED" 로 표시.
+//
+// 검사 항목
+//   MISSING_TXID         : TXID 누락.
+//   MISSING_GUID         : GUID 누락 (FallbackCorrelationToTxid=false 시).
+//   MISSING_APPLICATION  : Application 누락.
+//   MISSING_START_TIME   : 헤더의 START_TIME 누락.
+//   MISSING_END_TIME     : 헤더의 END_TIME 누락.
+//   MISSING_BODY_HEADER  : `[No.][START_TIME][GAP][CPU_T]` 라인 없음.
+//   MISSING_BODY_START   : 본문에 START 이벤트 없음.
+//   MISSING_BODY_END     : 본문에 END 이벤트 없음 (잘린 export 신호).
+//   MISSING_BODY_TOTAL   : TOTAL 라인 없음.
+//   HEADER_BODY_MISMATCH : 헤더의 사전 집계와 본문 합 차이 > tolerance.
+//
+// 비-치명적 warning
+//   • NEGATIVE_NETWORK_GAP_ADJUSTED : §16.2 음수 갭 조정.
+//   • PARSE_AMBIGUITY_*             : 분류기에서 확신 없는 경우.
+//
+// FallbackCorrelationToTxid
+//   true 이면 GUID 누락이 fatal 이 아닌 (TXID 로 대체) — 구버전 export
+//   호환용.
 package jenniferprofile
 
 import (

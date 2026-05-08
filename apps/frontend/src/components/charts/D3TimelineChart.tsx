@@ -1,3 +1,21 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] D3TimelineChart.tsx — 다중 시리즈를 가진 시간축 차트(line/area).
+//
+// 책임/목적:
+//   - GC 로그/프로파일러 등의 시계열을 line/area 로 표시하고, brush 로
+//     특정 시간대를 선택하면 onSelectionChange 로 부모에게 전달해
+//     아래쪽 보조 차트/표를 필터링할 수 있게 합니다.
+//   - 줌/팬(d3-zoom), 호버 툴팁, "리셋" 버튼(전체 보기 복귀) 제공.
+//   - 시리즈마다 색을 지정 가능하며, useTheme 으로 다크 모드 자동 대응.
+//
+// 데이터 흐름:
+//   부모 → TimelineSeries[] + events(개별 이벤트 마커) → 차트 →
+//   사용자 brush → onSelectionChange 콜백.
+//
+// 주의:
+//   - x 축은 Date/number/string 모두 받고 d3.scaleTime 으로 정규화.
+//   - 매우 긴 시리즈는 Canvas 기반으로 마이그레이션 검토 필요(현재 SVG).
+// ─────────────────────────────────────────────────────────────────────
 import * as d3 from "d3";
 import { RotateCcw } from "lucide-react";
 import {

@@ -1,3 +1,23 @@
+"""ASP.NET / IIS exception + W3C access log parser."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] dotnet_parser — .NET 예외 스택 + IIS W3C 액세스 로그 파서.
+#
+# 책임/목적
+#   하나의 텍스트 파일에 (1) ASP.NET 예외 스택과 (2) IIS W3C 형식
+#   액세스 로그가 섞여 있을 수 있다는 가정으로 두 종류 record 를
+#   동시 추출. RuntimeStackRecord, IisAccessRecord 의 두 리스트 반환.
+#
+# 알고리즘
+#   1) 라인 단위 dispatch.
+#   2) `*Exception:` 으로 시작하는 라인이 만나면 새 exception 시작.
+#      이후 들여쓰기 라인들은 스택 프레임으로 누적, 빈 라인 만나면 flush.
+#   3) `#Fields: ...` 헤더 라인을 만나면 IIS 필드 컬럼명 캡처. 그 후
+#      공백 구분 토큰 라인을 IisAccessRecord 로 매핑.
+#   4) skip 사유는 diagnostics 에 기록.
+#
+# parity 주의사항: DOTNET_EXCEPTION_RE 패턴, IIS #Fields prefix,
+# 컬럼 이름 정규화가 Go 측 internal/parsers/runtimestack/dotnet.go 와 동일.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import re

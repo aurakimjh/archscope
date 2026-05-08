@@ -1,3 +1,21 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] D3FlameGraph.tsx — d3-hierarchy + d3-zoom 기반 SVG 플레임 그래프.
+//
+// 책임/목적:
+//   - 프로파일러/JFR 결과의 stack 트리(FlameGraphNode) 를 시각화.
+//   - 클릭 시 zoom-in (해당 서브트리만 확대), 호버 시 툴팁,
+//     이름 단순화 옵션(simplifyNames/normalizeLambdas/dottedNames) 등
+//     실용적인 인터랙션을 제공.
+//   - 카테고리 색상 또는 metadata.delta 기반 divergent 컬러로 채색.
+//
+// 데이터 흐름:
+//   부모 → FlameGraphNode 트리 → d3.hierarchy → d3.partition →
+//   SVG <rect> 들 + 텍스트 라벨.
+//
+// 성능 주의:
+//   - 노드 수가 매우 많을 때(>10k) 는 CanvasFlameGraph 사용을 권장.
+//   - SVG 는 인터랙션이 자연스럽지만 DOM 노드 수에 비례해 느려짐.
+// ─────────────────────────────────────────────────────────────────────
 import * as d3 from "d3";
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 

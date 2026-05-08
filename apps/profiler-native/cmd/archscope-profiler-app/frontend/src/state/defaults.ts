@@ -1,3 +1,12 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] state/defaults.ts — 프로파일러 기본값 영속화.
+//
+// 책임/목적: intervalMs (샘플 간격), topN (상위 N행), profileKind
+// (wall/cpu/lock) 3 개 기본값을 localStorage 에 저장/로드. 잘못된
+// 타입이나 비정상 값은 FALLBACK_DEFAULTS 로 교체해 페이지가 항상
+// 안정된 초기 상태로 시작하도록 합니다.
+// ProfilerAnalyzerPage 와 SettingsPage 가 공유.
+// ─────────────────────────────────────────────────────────────────────
 // Persistent profiler defaults — used by both Profiler page and Settings page.
 
 const STORAGE_KEY = "archscope.profiler.defaults";

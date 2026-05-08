@@ -1,3 +1,14 @@
+// [한글] otel parser 회귀 테스트.
+//
+// 검증 대상
+//   • snake_case / camelCase / 도트 표기 alias 가 모두 같은 Record
+//     필드로 매핑.
+//   • body 가 dict 이면 stringValue → str → value → text 순으로 시도.
+//   • body 가 bool/int/float → Python str() 호환 표현.
+//   • resource.attributes 안의 service.name 도 인식.
+//   • INVALID_OTEL_JSON / INVALID_OTEL_RECORD 사유의 라인 단위 skip.
+//   • parent_span_id 가 자기 자신과 같으면 그대로 통과 (분석기가
+//     SELF_PARENT finding 으로 처리).
 package otel
 
 import (

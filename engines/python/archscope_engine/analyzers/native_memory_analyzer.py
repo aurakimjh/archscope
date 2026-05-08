@@ -19,6 +19,30 @@ The flame tree counts ``size`` (bytes) when available, falling back to
 the existing flamegraph renderer just works — display labels can show
 units via ``metadata.unit``.
 """
+# ─────────────────────────────────────────────────────────────────────
+# [한글] native_memory_analyzer — JFR `nativemem` 이벤트 누수 분석기.
+#
+# 책임/목적
+#   async-profiler 의 nativemem 모드가 기록한 NativeMemoryAllocation /
+#   NativeMemoryFree 이벤트를 짝지어 "할당했지만 풀지 않은" 콜 사이트
+#   를 찾는다 = native memory leak.
+#
+# 알고리즘
+#   1) JFR 이벤트 스트림에서 ALLOC/FREE 분리 (address 키).
+#   2) leak 모드: ALLOC - FREE = 살아있는 allocation. 기록 끝
+#      tail_ratio (기본 10%) 구간 allocation 은 noise 로 제외.
+#   3) alloc 모드: 모든 allocation 누적 (hot-spot 용).
+#   4) call site → (count, bytes) 집계 후 flame tree 구축.
+#   5) 결과는 size(bytes) 단위, metadata.unit 으로 표기.
+#
+# 주요 함수
+#   - analyze_native_memory: 진입점.
+#   - _build_leak_result / _build_alloc_result: 모드별 빌더.
+#
+# parity 주의사항: ALLOC/FREE 이벤트 type 집합, tail_ratio 기본값
+# (0.1), unit 라벨 ("bytes") 이 Go 측 internal/analyzers/jfr/
+# native_memory.go 와 동일.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 from collections import Counter

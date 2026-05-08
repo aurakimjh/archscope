@@ -5,6 +5,48 @@ toolkit입니다. 핵심 책임은 운영 데이터를 정규화된 `AnalysisRes
 JSON과 보고서용 시각화로 변환하는 것이며, 외부 SaaS로 데이터를 보내지
 않습니다.
 
+## 두 개의 엔진 트랙 (현재 상태)
+
+ArchScope는 현재 **두 개의 엔진 구현이 병렬로 존재**합니다. 양쪽 모두
+같은 `AnalysisResult` JSON envelope을 emit하며,
+`.github/workflows/profiler-native.yml`의 parity gate가 모든 PR에서
+나란히 실행해 결과를 비교합니다.
+
+| 트랙 | 위치 | 상태 | 배포 |
+| --- | --- | --- | --- |
+| **Python (레거시 / 현재 출시 중)** | `engines/python/archscope_engine/` | 16개 파서 + 7개 thread-dump 플러그인 + 18개 분석기 + 6개 exporter 모두 완료 | `pip install archscope` wheel — React UI를 패키지 데이터로 번들, FastAPI를 `127.0.0.1:8765`에서 기동 |
+| **Go (Tier-5 데스크톱 pivot)** | `apps/engine-native/` | Tier 1–4 + Cobra CLI(T-360) + 데모 러너(T-380) 완료; 라이브러리 전용 — HTTP 서버 없음 | Wails 데스크톱 바이너리(`apps/profiler-native/`)에 링크되어 사용; parity gate / CI용 Cobra CLI 제공 |
+
+Go 트랙은 **목표 최종 상태**로 자리매김되어 있습니다 — 단일 Wails
+데스크톱 바이너리(T-391, raw 사이즈 < 12 MB 목표)가 1차 릴리스
+산출물입니다. Python wheel은 여전히 출시되며 `pip install archscope`
+사용자가 따르는 경로입니다. T-352(프론트엔드 정리)와 T-209(브라우저
+지원 매트릭스)는 T-392에서 Python wheel을 retire할 때까지 보류 중
+입니다.
+
+```text
+                    AnalysisResult JSON contract
+                              ▲
+        ┌─────────────────────┴─────────────────────┐
+        │                                           │
+┌───────────────────────────┐         ┌─────────────────────────────────┐
+│ engines/python/           │         │ apps/engine-native/             │
+│   archscope_engine/       │         │   internal/parsers/             │
+│   (FastAPI, in-process)   │         │   internal/analyzers/           │
+│                           │         │   internal/exporters/           │
+│   사용처:                  │         │   internal/threaddump/plugins/  │
+│   • pip install archscope │         │                                 │
+│   • archscope serve       │         │   사용처:                       │
+│   • CI parity gate        │         │   • apps/profiler-native        │
+│                           │         │     (Wails 데스크톱 바이너리)    │
+│                           │         │   • cmd/archscope-engine        │
+│                           │         │     (parity gate용 Cobra CLI)   │
+└───────────────────────────┘         └─────────────────────────────────┘
+```
+
+이 문서의 나머지 부분은 두 트랙을 모두 설명합니다. 한 쪽에만 적용되는
+섹션은 별도로 표시했습니다.
+
 ## 웹 플랫폼 pivot — 디자인 결정 (T-206)
 
 **2026-05-06** 결정. **T-001** ("Electron + `child_process.execFile`
@@ -63,19 +105,55 @@ IPC")의 결정을 **supersede**. Phase 1의 나머지 작업(T-207–T-209)이 
   shadcn/ui CSS 변수 때문에 유지; nonce 기반 강화는 T-052/T-071에서 별도
   추적.
 
-### Apps 디렉토리 레이아웃 (T-207 이후)
+### Apps 디렉토리 레이아웃 (현재)
 
 ```text
 apps/
-├ frontend/         # React 셸 — 웹 UI의 단일 소스
-├ profiler-native/  # Wails v3 네이티브 프로파일러 (2026-05-05 결정, T-240a)
-└ desktop/          # T-207에서 제거
+├ frontend/         # React 셸 — Python wheel과 Wails 데스크톱 바이너리
+│                   # 양쪽에서 모두 서빙됨
+├ profiler-native/  # Wails v3 데스크톱 바이너리 (Tier-5 릴리스 산출물)
+└ engine-native/    # Go 라이브러리 + Cobra CLI (Python 전체 parity, T-301..T-380)
 ```
 
-기존 `apps/desktop/electron/`, `tsconfig.electron.json`,
-`electron-builder` 설정, `release/`, `dist-electron/`은 삭제. 새 최상위
+`apps/desktop/`(Electron)은 T-207에서 제거되었습니다. 새 최상위
 `archscope` Python distribution(패키지 데이터 + 콘솔 스크립트)은 T-208을
-통해 리포 루트에 배치.
+통해 리포 루트에 배치되어 있습니다. `apps/engine-native/`의 Go 트랙은
+T-301..T-392 변환을 통해 추가되었으며 Wails 데스크톱 바이너리와 parity
+gate에서 쓰는 Cobra CLI 양쪽이 소비합니다.
+
+### Go engine-native 모듈 레이아웃
+
+```text
+apps/engine-native/
+├ cmd/archscope-engine/         # typer 표면을 미러링한 Cobra CLI (T-360)
+│   ├ main.go                   # rootCmd + 플러그인 부수효과 등록
+│   ├ cmd_accesslog.go          # typer group 단위로 cmd_*.go 파일 1개
+│   ├ cmd_demosite.go           # 데모 러너 (T-380)
+│   ├ cmd_gclog.go, cmd_jfr.go, ...
+│   └ helpers.go                # writeJSONResult, parseTimeFlag, readJSONFile
+├ api/                          # 외부 Go 모듈을 위한 공개 re-export 파사드
+│   └ api.go                    # internal/* 위에 type alias — Wails가 사용
+├ internal/
+│   ├ parsers/{accesslog,exception,gclog,jenniferprofile,jfr,otel,runtimestack}/
+│   ├ analyzers/{accesslog,exception,gclog,jenniferprofile,jfr,
+│   │            lockcontention,multithread,otel,profileclassification,
+│   │            runtime,threaddump,threaddumpcollapsed}/
+│   ├ exporters/{csv,html,json,pptx,reportdiff}/
+│   ├ threaddump/plugins/{javajstack,javajcmdjson,gogoroutine,
+│   │                     pythondump,nodejsreport,dotnetclrstack}/
+│   ├ models/                   # AnalysisResult, ThreadSnapshot, StackFrame, ...
+│   ├ common/, diagnostics/, statistics/, textio/, timeutil/
+│   └ demosite/                 # 포팅된 데모 러너 (T-380)
+└ bin/                          # 빌드된 바이너리 (gitignored)
+```
+
+`api/` 패키지가 별도로 존재하는 이유는 `internal/`이 외부 Go 모듈에서
+import 불가능하기 때문입니다. `apps/profiler-native/cmd/archscope-profiler-app/`
+의 Wails 서비스 바인딩은 `internal/*` 대신 `api`를 import합니다. 각
+analyzer의 `Options`는 호출 지점이 모호해지지 않도록 type prefix를 붙여
+re-export됩니다 (`AccessLogOptions`, `JfrOptions`, …). `AnalysisResult`,
+`ThreadDumpBundle`, 모델 타입들은 모두가 참조하는 공용어이므로 원래
+이름을 유지합니다.
 
 ## 제품 위상
 
@@ -102,6 +180,8 @@ Raw Data
 
 ## 런타임 토폴로지
 
+### Python 트랙 — `pip install archscope`
+
 ```text
 ┌────────────────────────────────────────────────────────────────┐
 │  브라우저 (React 18 + Vite + Tailwind v4 + shadcn/ui)           │
@@ -114,14 +194,15 @@ Raw Data
                            │  fetch /api/...
                            ▼
 ┌────────────────────────────────────────────────────────────────┐
-│  FastAPI 서버 (`archscope-engine serve`)                       │
+│  FastAPI 서버 (`archscope serve` / `archscope-engine serve`)   │
 │   • POST /api/upload                  multipart 업로드          │
 │   • POST /api/analyzer/execute        dispatcher (type별)      │
-│   • POST /api/analyzer/cancel         단일 프로세스 — no-op     │
+│   • POST /api/analyzer/cancel         task registry로 시그널    │
 │   • POST /api/export/execute          html / pptx / diff       │
 │   • GET  /api/demo/list, POST /api/demo/run                    │
 │   • GET  /api/files?path=…            artifact 스트리밍         │
 │   • GET/PUT /api/settings             ~/.archscope/settings    │
+│   • WS   /ws/progress                 progress + cancel + 로그  │
 │   • GET  /                            정적 React 빌드           │
 └──────────────────────────┬─────────────────────────────────────┘
                            │  in-process 호출 (서브프로세스 없음)
@@ -176,6 +257,73 @@ Raw Data
 │                                                                │
 │   web/server.py     ← FastAPI factory + analyzer dispatcher    │
 │   cli.py            ← Typer 명령 (분석기별 + serve)             │
+└────────────────────────────────────────────────────────────────┘
+```
+
+### Go 트랙 — Wails 데스크톱 바이너리 (Tier-5)
+
+Go 트랙은 라이브러리 전용입니다 — **HTTP 서버가 없습니다**. 데스크톱
+바이너리가 React 번들을 직접 임베드하고, 분석기는 네트워크 왕복이 아닌
+Wails 서비스 메서드를 통해 바인딩됩니다. Cobra CLI
+(`apps/engine-native/cmd/archscope-engine/`)는 parity gate와 CI에서
+사용하는 헤드리스 카운터파트로, `serve` 서브커맨드는 포함되지 않습니다.
+
+```text
+┌────────────────────────────────────────────────────────────────┐
+│  Wails 데스크톱 바이너리 (apps/profiler-native/)                 │
+│   • 네이티브 윈도우 — 별도 브라우저 불필요                      │
+│   • 임베드된 React 번들 (web과 같은 소스 트리)                   │
+│   • Wails IPC로 바인딩된 서비스 메서드:                         │
+│       EngineService.Analyze*  → api/api.go re-export 호출       │
+│       ProfilerService.*       → flamegraph / drilldown / diff   │
+│   • FastAPI WS progress 경로와 대칭인 task registry              │
+└──────────────────────────┬─────────────────────────────────────┘
+                           │  in-process Go 호출 (IPC 없음)
+                           ▼
+┌────────────────────────────────────────────────────────────────┐
+│  apps/engine-native/api  (re-export 파사드)                    │
+│   • AnalysisResult       — model alias                         │
+│   • AnalyzeAccessLog,    AnalyzeException,                     │
+│     AnalyzeGcLog,        AnalyzeJfr,                           │
+│     AnalyzeMultiThread,  AnalyzeLockContention,                │
+│     AnalyzeOTel,         AnalyzeRuntimeStack,                  │
+│     AnalyzeJenniferProfile, ConvertToCollapsed, ...            │
+│   • Threaddump DefaultRegistry (자동 등록 플러그인)             │
+└──────────────────────────┬─────────────────────────────────────┘
+                           │  internal 패키지 접근                 │
+                           ▼
+┌────────────────────────────────────────────────────────────────┐
+│  apps/engine-native/internal/                                  │
+│                                                                │
+│   parsers/                                                     │
+│     accesslog/, exception/, gclog/, jenniferprofile/,          │
+│     jfr/, otel/, runtimestack/                                 │
+│                                                                │
+│   analyzers/                                                   │
+│     accesslog/, exception/, gclog/, jenniferprofile/, jfr/,    │
+│     lockcontention/ (owner/waiter 그래프 + DFS 데드락),         │
+│     multithread/    (LONG_RUNNING_THREAD,                      │
+│                      PERSISTENT_BLOCKED_THREAD, …),            │
+│     otel/, profileclassification/, runtime/, threaddump/,      │
+│     threaddumpcollapsed/                                       │
+│                                                                │
+│   threaddump/plugins/                                          │
+│     javajstack/      ← + AOP / network-IO + JDK 21+ no-`nid`   │
+│     javajcmdjson/    ← jcmd JSON.thread_dump_to_file           │
+│     gogoroutine/     ← + 프레임워크 정리 + 상태 추론             │
+│     pythondump/      ← py-spy / faulthandler / traceback       │
+│     nodejsreport/    ← diagnostic-report JSON + libuv 상태      │
+│     dotnetclrstack/  ← + async state machine 정리              │
+│                                                                │
+│   exporters/                                                   │
+│     json/, html/, pptx/, csv/, reportdiff/                     │
+│                                                                │
+│   models/                                                      │
+│     AnalysisResult, ThreadSnapshot, ThreadDumpBundle,          │
+│     StackFrame, ThreadState                                    │
+│                                                                │
+│   common/, diagnostics/, statistics/, textio/, timeutil/,      │
+│   demosite/                                                    │
 └────────────────────────────────────────────────────────────────┘
 ```
 

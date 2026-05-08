@@ -7,6 +7,29 @@
 // directory; if missing, we run the baseline manifest first to
 // populate it. Then for each analyzer_type we produce a
 // `before/after` diff JSON + HTML pair via the reportdiff exporter.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] demosite/baseline.go — "정상 시나리오 vs 비정상 시나리오"
+// before/after 비교 로직.
+//
+// 시나리오
+//   특정 시나리오(예: "high-error-burst") 가 baseline manifest
+//   ("normal-baseline") 를 명시하면, ArchScope 는 정상 시나리오의 결과
+//   대비 어느 메트릭이 얼마나 변했는지 자동 비교 보고서를 생성.
+//
+// 처리 흐름
+//   1) <output_root>/<data_source>/normal-baseline/ 디렉토리 확인.
+//   2) 없으면 baseline manifest 를 먼저 실행해 채움 (PPTX 생성은 skip
+//      해 시간 단축).
+//   3) 현재 시나리오의 분석 결과 JSON 들을 analyzer_type 별로 모음.
+//   4) baseline 의 동일 analyzer_type JSON 과 짝지어 reportdiff
+//      exporter 로 diff 생성.
+//   5) <scenario>/diff/<analyzer>.{json,html} 작성.
+//
+// matched/missing 처리
+//   현재 시나리오에는 있는데 baseline 에 없는 analyzer_type 은 diff
+//   불가 → run-summary 에 missing-baseline 으로 기록.
+//   반대 (baseline 만 있는 analyzer) 도 같은 방식.
 package demosite
 
 import (

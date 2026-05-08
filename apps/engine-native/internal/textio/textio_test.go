@@ -1,3 +1,13 @@
+// [한글] textio 회귀 테스트.
+//
+// 검증 대상
+//   • UTF-8 / UTF-8-sig / CP949 / UTF-16 (BE/LE) 자동 감지.
+//   • BOM 처리 (UTF-16 의 FEFF/FFFE, UTF-8-sig 의 EFBBBF).
+//   • NUL 비율 휴리스틱 (홀/짝 30% 임계).
+//   • Try-decode 체인 (UTF-8 → UTF-8-sig → CP949 → latin-1).
+//   • T-031 회귀: mid-file decode 실패 후 fallback 재시도가 라인 중복
+//     emit 하지 않음.
+//   • 큰 파일에서의 메모리 안전 (bufio.Scanner 기반 stream).
 package textio
 
 import (

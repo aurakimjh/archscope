@@ -1,3 +1,28 @@
+# ─────────────────────────────────────────────────────────────────────
+# [한글] test_access_log_analyzer — analyze_access_log 통합 회귀 테스트.
+#
+# 검증 대상
+#   • examples/access-logs/sample-nginx-access.log → total_requests=6,
+#     error_rate=33.33 (정밀도 2 자리).
+#   • diagnostics 메타데이터: total_lines / parsed_records /
+#     skipped_lines / skipped_by_reason 카운트.
+#   • analysis_options.max_lines : truncation 시 옵션 보존 + 라인 수.
+#   • start_time/end_time 시간 범위 필터링과 series.top_urls_by_count.
+#   • finding code 셋:
+#       - HIGH_ERROR_RATE / SERVER_ERRORS_PRESENT / SLOW_URL_AVERAGE.
+#       - NON_STANDARD_HTTP_STATUS evidence shape (statuses, count).
+#   • 10,000 라인 초과 시 percentile sample 한계 너머에서도 p95 산출.
+#
+# fixture 정책
+#   nginx_line(...) 헬퍼가 status / uri / response_time_sec / timestamp
+#   파라미터화된 nginx-combined 라인을 생성. 실제 sample 1 종 + 합성 다종.
+#
+# parity 주의 (Python ↔ Go 비교 가능한 부분)
+#   Go 측 internal/analyzers/accesslog/analyzer_test.go 와 동일 입력에
+#   동일 finding code/메시지/evidence 가 나와야 함. error_rate
+#   소수점 처리(round 2), p95 계산 알고리즘도 byte 단위 동일.
+# ─────────────────────────────────────────────────────────────────────
+"""Tests for access_log_analyzer (analyzers/access_log_analyzer.py)."""
 from datetime import datetime
 from pathlib import Path
 

@@ -1,3 +1,17 @@
+// [한글] profileclassification 회귀 테스트.
+//
+// 핵심 시나리오
+//   • DefaultRules 로 대표적인 stack 문자열들이 올바른 라벨을 얻음.
+//     예: org.springframework.* → "Spring Framework",
+//         java.lang.* → "JVM",
+//         node:internal/* → "Node.js".
+//   • 빈 stack / 매칭 없음 → "Application" fallback.
+//   • 사용자 JSON 룰 주입 (LoadRules) 가 같은 결과 reproduce.
+//   • BuiltinRules 와 embedded JSON 의 룰 set 이 일치(동기화 검증).
+//
+// fixture 정책
+//   Python tests/test_profiler_analyzer.py 와 같은 stack 입력을 사용해
+//   parity 비교가 가능하도록 함.
 package profileclassification
 
 import (

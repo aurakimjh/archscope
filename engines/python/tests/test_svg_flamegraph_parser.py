@@ -1,3 +1,15 @@
+# ─────────────────────────────────────────────────────────────────────
+# [한글] test_svg_flamegraph_parser — FlameGraph.pl/async-profiler SVG
+# 파서 회귀 테스트.
+#
+# 검증 대상
+#   • Brendan Gregg FlameGraph.pl SVG: <g class="func_g"> + <title>
+#     "name (N samples, P%, ...)" 형태 인식 + leaf 추출.
+#   • async-profiler -o svg: 동일 구조.
+#   • icicle (역방향 — root top) 출력의 orientation 자동 판별.
+#   • 결과 stack key "f1;f2;...;leaf" + count 의 collapsed Counter.
+#   • XXE / 외부 entity 차단 (defusedxml).
+# ─────────────────────────────────────────────────────────────────────
 from collections import Counter
 
 from archscope_engine.parsers.svg_flamegraph_parser import (

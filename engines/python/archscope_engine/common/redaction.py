@@ -1,3 +1,28 @@
+"""Free-text PII / secret redaction for shareable reports."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] redaction — 공유 가능한 리포트용 PII / 시크릿 마스킹.
+#
+# 책임/목적
+#   raw 로그 라인이나 사용자 노출 메시지에서 민감 정보 (Authorization
+#   토큰, 쿠키 값, 이메일 주소, 절대 파일 경로, IP, URL query 값,
+#   long random number 등) 를 패턴 기반으로 redact.
+#
+# 알고리즘
+#   redact_text() 가 9개 redactor 를 순차 적용. 각 단계에서 매칭 횟수를
+#   summary[reason] 에 기록. 결과 텍스트와 카운터를 RedactionResult 로 반환.
+#
+# 적용 대상
+#   - "Authorization: Bearer xyz..." → "[redacted-bearer]"
+#   - "Cookie: session=...;" → "[redacted-cookie]"
+#   - URL query string ?token=secret → ?token=[redacted]
+#   - email@domain.tld → [redacted-email]
+#   - 절대 경로 "/Users/..." → [redacted-path]
+#   - IPv4 "192.168.1.1" → [redacted-ip]
+#   - 경로 안 N자리 숫자 / long number → [redacted-num]
+#
+# parity: REDACTION_VERSION ("0.1.0"), 패턴 / placeholder 문자열이
+# Go engine-native internal/common/redaction 와 동일.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import re

@@ -1,3 +1,41 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] flamegraph — collapsed stack map 을 트리(FlameNode)로 변환.
+//
+// 책임/목적
+//   profiler 의 핵심 데이터 구조인 "flame tree" 를 만든다.
+//   입력: map[stackKey]samples 형태의 collapsed stack 카운터
+//         (stackKey 예: "frame1;frame2;leaf")
+//   출력: FlameNode (재귀 트리). 각 노드는 ID/ParentID/Name/Samples/
+//         Ratio/Path/Children 을 갖는다.
+//
+// 알고리즘 흐름
+//   1. mutableNode 트리(map 기반)로 누적
+//      - 각 collapsed key 를 ";" 로 split → 프레임 시퀀스
+//      - 루트부터 한 프레임씩 내려가며 children map 으로 인덱싱
+//      - 동일 child 가 이미 있으면 Samples 누적 (inclusive count)
+//   2. freezeNode 로 immutable FlameNode 트리화
+//      - children 을 Samples DESC, 동률이면 Name ASC 정렬
+//      - 각 노드의 Ratio = Samples / total * 100 (소수 4자리 round)
+//   3. iterLeafPaths 는 분석 단계에서 사용 — 각 leaf 의 exclusive
+//      sample count 를 계산해 breakdown/topN 등을 지원.
+//
+// 주요 타입/함수
+//   - mutableNode  : 빌드 단계의 in-place mutable 트리
+//   - buildFlameTree : 외부 진입점 (stacks → FlameNode)
+//   - freezeNode   : mutable → immutable 변환 + 정렬 + ratio 계산
+//   - iterLeafPaths: 트리에서 leaf path 추출 (exclusive samples)
+//   - topStacksFromTree / topChildFrames : 표 데이터 산출
+//   - nodeID / slug : DOM-safe ID 생성 (160자 cap, 특수문자 치환)
+//
+// 트리키한 부분
+//   • Samples 는 inclusive (해당 노드 + 하위 트리 합). exclusive 는
+//     iterLeafPaths 에서 (parent.Samples - sum(child.Samples)) 로 계산.
+//   • iterLeafPaths 는 "중간 노드도 exclusive>0 이면 leaf 로 취급"
+//     하는 점이 트리키. 한 stack 이 다른 stack 의 prefix 인 경우를 처리.
+//   • slug 는 단순 치환만 한다. URL-safe 가 아닌 DOM-id-safe 이므로
+//     Python 측과 byte 단위로 일치해야 한다.
+// ─────────────────────────────────────────────────────────────────────
+
 package profiler
 
 import (
@@ -12,6 +50,14 @@ import (
 // avg-50-frame paths). The path is now reconstructed during
 // freezeNode from the recursion stack, which costs nothing extra
 // because freezeNode already walks parent→child top-down.
+//
+// [한글] mutableNode — 트리 빌드 단계에서만 쓰이는 mutable 표현.
+// children 을 map 으로 들고 있어 O(1) 인덱싱이 가능. freezeNode 단계
+// 에서 sorted slice 기반 FlameNode 로 변환.
+//
+// 메모리 회귀 주의: 과거에는 노드별 Path []string 복제본을 들고 있어
+// 60MB+ wall 입력 (1M+ 노드 × 50프레임 경로) 에서 multi-GB 폭주 발생.
+// 현재는 freezeNode 의 재귀 스택에서 path 재구성하므로 추가 비용 0.
 type mutableNode struct {
 	ID       string
 	ParentID *string
@@ -32,6 +78,13 @@ type mutableNode struct {
 //   - mutableNode.Path is cloned via slices.Clone-equivalent because
 //     freezeNode shares it directly with the FlameNode and the path
 //     buffer above keeps mutating.
+//
+// [한글] buildFlameTree — collapsed stack 카운터를 FlameNode 트리로.
+// 매개변수 stacks: map[";"-joined frame sequence]samples.
+// 동작: 음수/0 sample 은 무시. 각 stack 을 ";" split 하여 trie 형태로
+// 누적, freezeNode 로 정렬·ratio 계산까지 끝낸 immutable 트리 반환.
+// 400 MB+ wall profile 의 hot path 이므로 path slice hoisting 등
+// allocation 최소화 패턴 적용.
 func buildFlameTree(stacks map[string]int) FlameNode {
 	return buildFlameTreeWithLog(stacks, nil)
 }
@@ -100,6 +153,13 @@ func buildFlameTreeWithLog(stacks map[string]int, pl *ProgressLog) FlameNode {
 // memory during build on deep stacks. Each FlameNode receives its
 // own freshly cloned Path because consumers (iterLeafPaths,
 // timeline classifier) retain it across the result lifetime.
+//
+// [한글] freezeNode — mutableNode 재귀 → FlameNode 재귀 변환.
+// children 을 Samples DESC (동률이면 Name ASC) 로 정렬해 deterministic
+// 한 결과를 보장하고, 각 노드의 Ratio 를 total 대비 백분율 계산.
+// total=0 가 되면 ratio 가 NaN 이 되므로 호출부에서 max(total,1) 로 보호.
+// path slice 는 재귀 스택에서 재구성하여 mutableNode 당 저장 비용 0
+// (deep stack 에서 ~50% 메모리 절감).
 func freezeNode(node *mutableNode, total int, pathBuf []string) FlameNode {
 	children := make([]*mutableNode, 0, len(node.Children))
 	for _, child := range node.Children {
@@ -135,6 +195,9 @@ func freezeNode(node *mutableNode, total int, pathBuf []string) FlameNode {
 
 // countNodes walks the frozen tree and returns the total number of
 // nodes. Cheap (O(N)) and useful for the IPC-payload sanity check.
+//
+// [한글] countNodes — 트리 전체 노드 수 O(N) 카운트. IPC payload 크기
+// sanity check 와 pruneFlamegraph 의 before/after 비교에 사용.
 func countNodes(root FlameNode) int {
 	n := 1
 	for i := range root.Children {
@@ -160,6 +223,14 @@ func countNodes(root FlameNode) int {
 //
 // The function returns the actual kept-node count so callers can log
 // before/after for the progress trace.
+//
+// [한글] pruneFlamegraph — 트리 노드 수를 maxNodes 이하로 제한.
+// 알고리즘: greedy budget propagation. 각 subtree 가 자기 sample 비율
+// 만큼의 budget 을 받음. 옛 per-level cap (256 children) 은 deep tree
+// 에서 256^depth 폭주를 못 막았음 — 60MB wall profile 이 best-effort
+// prune 후에도 1M 노드 도달. budget 기반 알고리즘은 총 노드 수가 진짜로
+// maxNodes 이하임을 보장. 잘려나간 노드들은 "…other (N frames)" 하나로
+// merge 해 사용자가 무엇이 잘렸는지 인식 가능.
 func pruneFlamegraph(root *FlameNode, maxNodes int) (kept int, dropped int) {
 	if root == nil {
 		return 0, 0
@@ -180,6 +251,11 @@ func pruneFlamegraph(root *FlameNode, maxNodes int) (kept int, dropped int) {
 // into children with allocations derived from samples share; drops
 // children that don't fit. Returns the number of kept nodes in the
 // subtree (1 for self plus all kept descendants).
+//
+// [한글] pruneBudget — budget 노드 (자기 포함) 를 소비하고 keep 수 반환.
+// children 에게 sample 비율로 budget 분배, 매 child 는 최소 1 보장.
+// 못 들어간 children 은 droppedSamples 에 누적되고 마지막에 한 "…other"
+// sibling 으로 merge.
 func pruneBudget(node *FlameNode, budget int) int {
 	if budget <= 1 {
 		node.Children = nil
@@ -260,6 +336,11 @@ func maxInt(a, b int) int {
 	return b
 }
 
+// [한글] iterLeafPaths — 트리에서 leaf path 들을 exclusive sample 단위로.
+// 한 stack 이 다른 stack 의 prefix 인 경우(예: "A;B" 가 "A;B;C" 의 부분
+// 집합) 도 처리하기 위해, 중간 노드라도 exclusive>0 이면 leaf 로 보고.
+// 진짜 자식이 없는 leaf 는 (예외적으로 exclusive<=0 인 케이스 포함) 자기
+// Samples 를 그대로 사용. 결과는 breakdown/top stacks 계산의 기반.
 func iterLeafPaths(root FlameNode) []leafPath {
 	out := []leafPath{}
 	var walk func(node FlameNode)
@@ -324,6 +405,10 @@ func topChildFrames(root FlameNode, limit int) []TopChildFrameRow {
 	return out
 }
 
+// [한글] nodeID / slug — DOM 에서 사용할 노드 식별자 생성.
+// path 의 각 frame 을 slug 처리한 뒤 "/" 로 join 하고 "frame:" prefix.
+// slug 는 백슬래시/슬래시/세미콜론/공백을 "_" 로 치환하고 160자에서 잘라
+// HTML id 로 안전하게 쓸 수 있는 형태를 만든다. Python 측과 byte 단위 동등.
 func nodeID(path []string) string {
 	parts := make([]string, 0, len(path))
 	for _, item := range path {

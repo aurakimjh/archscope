@@ -27,6 +27,50 @@
 // at the call site. AnalysisResult and the bundle / model types are
 // re-exported under their original names because they're the lingua
 // franca everyone refers to.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] api 패키지 — engine-native 의 분석기/익스포터를 외부 Go 모듈
+// 에 노출하기 위한 얇은 re-export 파사드.
+//
+// 존재 이유: Go 의 internal/ 규칙
+//   apps/engine-native/internal/* 에 있는 모든 패키지는 같은 모듈 내부
+//   에서만 import 가 허용됩니다. 그런데 Wails 데스크톱 셸 모듈은
+//   apps/profiler-native/ 에 별개의 Go 모듈로 존재하므로, 그 곳에서
+//   engine-native/internal/analyzers/* 를 직접 import 하면 컴파일러가
+//   거부합니다.
+//
+//   해결 후보 비교
+//     A) internal 규칙을 풀어 모든 helper 까지 외부에 노출
+//        → 워크스페이스 내 어떤 모듈이든 helper 까지 잡아 쓸 수 있게
+//          되어 캡슐화가 무너짐. 거부.
+//     B) 분석기 코드를 데스크톱 모듈에 복사
+//        → 두 곳을 동기화해야 하는 회귀 폭탄. 거부.
+//     C) (채택) 데스크톱 셸이 실제로 부르는 심볼만 type alias /
+//        var 할당 으로 다시 노출하는 얇은 파사드.
+//        → 로직 0줄, 추가 의존성 0개, 파일 1개로 표면 통제 가능.
+//
+// 노출 규칙
+//   • 모델 타입(AnalysisResult, ThreadDumpBundle, ParseOptions 등)은
+//     원래 이름 유지 — 이미 "공용어" 이므로 prefix 가 오히려 혼란.
+//   • Options 구조체는 prefix 부여 (AccessLogOptions, JfrOptions, ...)
+//     — 호출 지점에서 어떤 분석기의 옵션인지 즉시 구별 가능.
+//   • 함수는 var alias 로 노출 (var AnalyzeAccessLog = accesslog.Analyze).
+//     이렇게 하면 시그니처가 변경되었을 때 컴파일 에러로 즉시 표면화.
+//
+// 부수효과 import (`_` blank import)
+//   threaddump 플러그인은 자기 자신을 enginethreaddump.DefaultRegistry
+//   에 등록하는 init() 만 가지고 있습니다. 데스크톱 셸이 ParseMany /
+//   ParseOne 을 호출할 때 모든 포맷을 인식할 수 있으려면 이 init()
+//   들이 실행되어야 합니다. 따라서 6개 플러그인을 모두 _ import 해서
+//   "api 만 import 해도 모든 플러그인이 자동 등록" 되도록 만듭니다.
+//
+// 카테고리별 표면 (아래 섹션 헤더 참조)
+//   • Shared types
+//   • Access log / Exception / GC log / JFR / Runtime / OTel
+//   • Jennifer Profile (MSA)
+//   • Thread-dump (single + multi + lock + collapsed 변환)
+//   • Stack classification
+//   • Exporters (JSON / HTML / PPTX / CSV / Comparison)
 package api
 
 import (

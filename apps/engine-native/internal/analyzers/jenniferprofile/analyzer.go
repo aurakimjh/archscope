@@ -6,6 +6,43 @@
 //
 // MSA grouping (GUID-level call matching, network gap, signature
 // stats, parallelism) is layered on top in MVP2-MVP4.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] jenniferprofile 분석기 — Jennifer APM Profile Export 의
+// 트랜잭션 프로파일 분석기. 8개 .go 파일로 분리:
+//
+//   • analyzer.go         : 진입점 + Build (이 파일).
+//   • aggregator.go       : 본문 이벤트 → 비용 ledger 합산.
+//   • msa.go              : §13-§18 GUID 그룹핑 파이프라인.
+//   • msa_match.go        : caller-callee 매칭 알고리즘 + 점수.
+//   • msa_parallelism.go  : §16.7 외부호출 병렬도 분석.
+//   • msa_stats.go        : §19-§21 timeline signature 분포 통계.
+//   • html_report.go      : 자기 충족 HTML 보고서 렌더러.
+//
+// MVP 단계
+//   MVP1 : per-profile metrics + header/body validation (이 파일).
+//   MVP2 : GUID 단위 MSA 그룹핑 + EXTERNAL_CALL caller↔callee 매칭 +
+//          NETWORK_GAP 계산.
+//   MVP3 : Timeline Signature 통계(같은 호출 구조의 분포).
+//   MVP4 : 외부호출 병렬도(parallelism) + HTML 보고서.
+//
+// 알고리즘 흐름 (Build)
+//   1) 각 FileResult 의 모든 profile 을 순회하면서:
+//        • AggregateBody : SQL/FETCH/2PC/EXTERNAL_CALL/CONNECTION_ACQUIRE
+//          누적 합 산출.
+//        • header vs body 검증 : header 의 사전 집계 메트릭과 body
+//          합이 tolerance(기본 1ms) 안에 들어오는지. 벗어나면 warning.
+//        • profileRows + rowsBySource 누적.
+//   2) buildGuidGroups (msa.go) : 같은 correlation key (GUID 또는
+//      TXID 폴백) 를 가진 profile 을 묶고, caller-callee 매칭/network
+//      gap 계산.
+//   3) 결과 envelope 채움 — summary(총수/오류/경고), tables(profile/
+//      group), series(필요 시), metadata(diagnostics, errors, warnings).
+//
+// parity 주의
+//   • header_body_tolerance_ms 의 0 입력은 기본값(1ms) 으로 fallback —
+//     Python 의 None 처리와 동치.
+//   • orderedCounter / sort 정렬 키가 Python 과 byte 동일.
 package jenniferprofile
 
 import (

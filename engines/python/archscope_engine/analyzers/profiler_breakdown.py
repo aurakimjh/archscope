@@ -1,3 +1,25 @@
+"""Execution-component breakdown for profiler results."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] profiler_breakdown — 프로파일 스택 → "어디서 시간을 쓰는가"
+# 비즈니스 친화적 카테고리로 합산.
+#
+# 책임/목적
+#   FlameNode 트리를 받아 leaf path 마다 RULES 로 카테고리를 매핑하고
+#   (SQL_DATABASE / EXTERNAL_API_HTTP / NETWORK_IO_WAIT /
+#   APPLICATION_LOGIC / FRAMEWORK_MIDDLEWARE / LOCK_SYNCHRONIZATION_WAIT
+#   / CONNECTION_POOL_WAIT / FILE_IO / GC_JVM_RUNTIME / IDLE_BACKGROUND
+#   / UNKNOWN), 다시 비전공자용 라벨 (EXECUTIVE_LABELS) 로 합쳐
+#   final breakdown 표 산출.
+#
+# 알고리즘
+#   1) iter_leaf_paths 로 leaf 별 (path, samples).
+#   2) path 의 frame 을 위→아래 순으로 보며 RULES 의 토큰 매칭.
+#      첫 매칭 카테고리로 결정. 매칭 실패 시 "UNKNOWN".
+#   3) 카테고리별 samples 누적 후 EXECUTIVE_LABELS 로 합산.
+#
+# parity 주의사항: RULES 순서/토큰 집합, EXECUTIVE_LABELS 매핑이
+# Go engine-native 와 동일해야 합산값이 일치.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 from collections import Counter, defaultdict

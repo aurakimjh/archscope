@@ -1,3 +1,14 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] ChartPanel.tsx — ECharts 차트를 카드 컨테이너로 감싼 컴포넌트.
+//
+// 책임/목적: title + EChartsOption 을 받아 카드 헤더 + chart container
+// 로 렌더. 마운트 시 echarts.init, ResizeObserver 로 컨테이너 크기 변화
+// 추적, unmount 시 dispose 로 메모리 누수 방지.
+//
+// 의존성 주의: web 버전(ChartPanel.tsx) 의 SVG/PNG 내보내기, 풀스크린,
+// 테마 토글 같은 추가 기능은 Phase-2 에서 별도 batch exporter 와 함께
+// 도입 예정이라 본 슬림 버전에는 포함하지 않습니다.
+// ─────────────────────────────────────────────────────────────────────
 import * as echarts from "echarts";
 import type { EChartsOption } from "echarts";
 import { useEffect, useRef } from "react";

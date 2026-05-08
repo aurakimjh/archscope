@@ -19,6 +19,39 @@
 //	OTEL_FAILED_TRACE
 //	OTEL_FAILURE_PROPAGATION
 //	OTEL_SPAN_TOPOLOGY_INCONSISTENT
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] otel 분석기 — OpenTelemetry JSONL 로그 분석.
+//
+// 입력
+//   parsers/otel.ParseFile() 의 라인 단위 LogRecord. timestamp,
+//   severity, service.name, trace_id, span_id, parent_span_id, body 등.
+//
+// 출력 envelope (type: "otel_logs")
+//   • summary: total_records / unique_traces / unique_services /
+//     error_count.
+//   • series: severity / service / trace 분포(top-N).
+//   • tables.service_paths : trace 별 부모-자식 DAG 순회로 만든 서비스
+//     호출 경로(예: order → user → inventory).
+//   • tables.failure_propagation : trace 안에서 첫 error 이후 거친
+//     downstream 서비스들.
+//   • findings: 5종(아래).
+//
+// 주요 알고리즘
+//   1) trace_id 별로 LogRecord 를 그룹화.
+//   2) parent_span_id 가 있는 record 는 DAG 엣지로 사용.
+//        SELF_PARENT      : parent == self → finding 1건.
+//        PARENT_CYCLE     : 사이클 발견    → finding 1건.
+//   3) 부모 엣지가 없는 trace 는 timestamp ASC 로 정렬한 뒤 service
+//      변경점 기준으로 경로 합성 (fallback heuristic).
+//   4) 첫 error severity 발견 후의 service 변경 = failure propagation.
+//
+// findings
+//   OTEL_ERROR_RECORDS_PRESENT   : error severity 1건 이상.
+//   OTEL_CROSS_SERVICE_TRACE     : 단일 trace 가 ≥2 service 를 거침.
+//   OTEL_FAILED_TRACE            : trace 안에 error 가 포함.
+//   OTEL_FAILURE_PROPAGATION     : 에러가 downstream 서비스로 전파됨.
+//   OTEL_SPAN_TOPOLOGY_INCONSISTENT : SELF_PARENT 또는 PARENT_CYCLE.
 package otel
 
 import (

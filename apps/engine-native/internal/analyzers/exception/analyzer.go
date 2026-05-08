@@ -17,6 +17,43 @@
 //     runtime-specific types).
 //   - Splitting matches the existing parser layout (one package per
 //     domain) and keeps the analyzer surface small enough to read.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] exception 분석기 — Java 예외 스택 트레이스 분석기.
+//
+// 입력
+//   parsers/exception.ParseFile() 가 만든 []Record. 각 Record 는 한
+//   예외 블록 = type + message + stack(string slice) + root_cause +
+//   signature(top-5 frame join) 로 정규화된 상태.
+//
+// 출력
+//   AnalysisResult{type: "exception_stack"} —
+//     • summary 4개: total_exceptions, unique_exception_types,
+//       unique_signatures, top_exception_type
+//     • series 3개: exception_type / root_cause / signature 분포
+//       (각 top-N)
+//     • tables.exceptions: 처음 N행의 상세(타임스탬프, 메시지,
+//       root_cause, top frame, 전체 stack)
+//     • findings: REPEATED_EXCEPTION_SIGNATURE / ROOT_CAUSE_PRESENT
+//
+// 알고리즘 흐름
+//   1) 한 번 순회로 typeCounts / rootCounts / signatureCounts 누적
+//      (orderedCounter 가 Python Counter 의 insertion-order 정렬
+//      semantics 를 그대로 재현 — JSON parity 안전).
+//   2) summary / series 채움. top_exception_type 은 가장 빈도 높은 타입.
+//   3) tables.exceptions 는 입력 순서 그대로 첫 N행만(빈도순 아님 —
+//      실제 발생 순서를 보여주는 detail 표).
+//   4) buildFindings:
+//        REPEATED_EXCEPTION_SIGNATURE : 가장 흔한 signature count > 1
+//                                       (warning)
+//        ROOT_CAUSE_PRESENT           : root_cause 보유 record 1개 이상
+//                                       (info)
+//
+// orderedCounter 가 별도로 존재하는 이유
+//   Go map 순회는 비결정 — 같은 빈도 entries 의 출력 순서가 매 실행
+//   다르면 parity gate 가 깨집니다. CPython Counter.most_common 은
+//   동률에 dict insertion order 를 적용하는데, 우리는 그것을 명시적
+//   `pos` 필드 + stable sort 조합으로 재현합니다.
 package exception
 
 import (

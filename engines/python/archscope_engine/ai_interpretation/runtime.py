@@ -1,3 +1,21 @@
+"""Local LLM client (Ollama) with policy guardrails."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] runtime — 로컬 LLM 호출 wrapper (Ollama).
+#
+# 책임/목적
+#   prompt 를 받아 로컬에 실행 중인 Ollama 인스턴스에 HTTP API 로
+#   요청, 결과 텍스트 + 메타데이터 반환. 외부 클라우드 호출 금지
+#   (LocalLlmPolicyError) — host 가 localhost / 127.0.0.1 / 사설망
+#   일 때만 통과.
+#
+# 정책 클래스
+#   - LocalLlmPolicyError : 정책 위반 (외부 host 등) 시.
+#   - LocalLlmExecutionError : 실행 실패 (timeout, 5xx, 파싱 실패).
+#
+# 가용성 점검
+#   LocalLlmAvailability: Ollama 가 켜져 있고 모델이 설치돼 있는지.
+#   CLI 가 시작 시 호출해 사용자에게 친절한 오류 메시지를 노출.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 from abc import ABC, abstractmethod

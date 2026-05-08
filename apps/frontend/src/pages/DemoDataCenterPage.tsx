@@ -1,3 +1,23 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] DemoDataCenterPage.tsx — 사전 정의된 데모 시나리오 매니페스트를
+//   조회/실행하고, 산출물을 ExportCenter 로 보낼 수 있는 허브 페이지.
+//
+// 책임/목적:
+//   - window.archscope.demo.list(manifestRoot) 로 매니페스트 목록 로드.
+//   - 사용자가 시나리오를 고르면 demo.run(request) 으로 엔진을 실행하고,
+//     산출 파일 목록(DemoOutputArtifact) 을 표시.
+//   - "Open" 버튼 → demo.openPath(path) 로 파일/폴더 열기.
+//   - "Send to Export" 버튼 → onOpenExportCenter(inputPath) 콜백으로
+//     상위 App 컴포넌트에 알리고 ExportCenter 로 페이지 전환.
+//
+// 데이터 흐름:
+//   demo.list → DemoScenarioManifest[] → 사용자 선택 → demo.run
+//   → DemoRunResponse → outputs/refs 표시.
+//
+// 의존성:
+//   - shadcn Card/Button 만 사용. 차트/표 라이브러리는 미사용.
+//   - i18n(useI18n) 으로 라벨 처리.
+// ─────────────────────────────────────────────────────────────────────
 import {
   ExternalLink,
   FileText,
@@ -19,6 +39,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useI18n } from "@/i18n/I18nProvider";
 
+// [한글] DemoDataCenterPageProps — 부모(App.tsx) 가 페이지 전환 콜백을
+//   주입할 때 사용하는 props. 데모 산출물 → ExportCenter 흐름의 핵심.
 type DemoDataCenterPageProps = {
   onOpenExportCenter: (inputPath: string) => void;
 };

@@ -1,3 +1,11 @@
+"""Demo-site analyzer type mapping loader."""
+# [한글] demo_site_mapping — Demo Data Center 분석기 타입 매핑 로더.
+# projects-assets/test-data/demo-site/analyzer_type_mapping.json 을
+# 읽어 AnalyzerTypeMapping (analyzer_type, command tuple, input_option,
+# format_overrides 서브맵, note) 를 반환. demo_site_runner 와 frontend
+# 가 이 매핑으로 시나리오별로 어떤 CLI 명령을 호출할지 결정.
+# parity: JSON 키, 매핑 의미가 Go engine-native 의 internal/demosite/
+# mapping.go 와 동일.
 from __future__ import annotations
 
 import json

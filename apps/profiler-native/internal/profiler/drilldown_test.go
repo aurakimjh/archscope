@@ -1,3 +1,8 @@
+// [한글] drilldown_test — DrilldownFilter / ApplyDrilldownFilter / 필터 컴파일 검증.
+// include_text / exclude_text / regex_include / regex_exclude 4개 FilterType,
+// anywhere / ordered / subtree 3개 MatchMode, preserve_full_path /
+// reroot_at_match 2개 ViewMode, 그리고 unsafe regex 거부(UNSAFE_REGEX) 케이스를 모두 확인.
+
 package profiler
 
 import (

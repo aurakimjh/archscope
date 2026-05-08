@@ -1,3 +1,31 @@
+"""JFR (Java Flight Recorder) analyzer."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] jfr_analyzer — JFR (.jfr) 분석기.
+#
+# 책임/목적
+#   `jfr print --json` 또는 raw .jfr 파일에서 JfrEvent 스트림을
+#   읽어 jfr 타입의 AnalysisResult 를 만든다. mode (cpu/wall/alloc/
+#   lock/gc/exception/io/nativemem/all) 별로 이벤트 필터링 후
+#   집계, 시계열, finding 산출.
+#
+# 알고리즘 흐름
+#   1) parse_jfr_recording 또는 JSON 파서로 JfrEvent 스트림.
+#   2) MODE_EVENT_TYPES 셋으로 이벤트 type 필터.
+#   3) 이벤트 카운트, GC pause 분포, allocation 분포, lock contention
+#      통계, exception 분포, IO 통계 등을 모드별로 산출.
+#   4) finding 산출 (LONG_GC_PAUSE, HIGH_ALLOCATION_PRESSURE 등).
+#   5) AnalysisResult 조립.
+#
+# 주요 함수/상수
+#   - MODE_EVENT_TYPES: 모드 → 이벤트 type frozenset 매핑.
+#   - analyze_jfr_print_json: JSON 입력 진입점.
+#   - analyze_jfr_recording: 바이너리 jfr 파일 진입점.
+#   - build_jfr_result: 이벤트 → AnalysisResult.
+#
+# parity 주의사항 (Go engine-native 와 byte 단위 일치)
+#   - SCHEMA_VERSION ("0.2.0"), MODE_EVENT_TYPES 의 type 이름 집합,
+#     finding code/message 가 Go internal/analyzers/jfr 와 동일.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import re
@@ -130,6 +158,13 @@ def analyze_jfr_print_json(
         relative offsets (``+30s``, ``-2m``, ``500ms``) interpreted from the
         recording's start (``+``) or end (``-``) timestamp.
     """
+    # [한글] analyze_jfr_print_json — JFR 분석 진입점.
+    # 이름은 legacy 호환을 위해 유지되었지만, 실제로는 binary .jfr
+    # 파일도 JDK `jfr` CLI 를 통해 자동 처리한다.
+    # 흐름: parse_jfr_recording → mode/window/state/min_duration 필터 →
+    #        notable / pause 이벤트 정렬 → AnalysisResult 조립.
+    # 트리거: jfr CLI 부재 시 JfrCliMissingError 가 ValueError 로 승격
+    #          되어 FastAPI 가 INVALID_OPTION 으로 응답.
     diagnostics = ParserDiagnostics()
     if debug_log is not None:
         debug_log.encoding_detected = "utf-8"

@@ -1,3 +1,37 @@
+# ─────────────────────────────────────────────────────────────────────
+# [한글] test_phase5_regression — Phase 5 멀티 언어 thread-dump
+# 프레임워크의 시스템 회귀 테스트 (T-203 / T-204).
+#
+# 검증 대상
+#   • 6 종 plugin 자동 탐지 (java_jstack, go_goroutine, python_pyspy,
+#     python_faulthandler, nodejs_diagnostic_report, dotnet_clrstack)
+#     — 각 fixture body 가 올바른 source_format 으로 routing.
+#   • Mixed-language 가드: 서로 다른 언어 dump 를 같이 넣으면
+#     MixedFormatError. format_override 로는 강제 단일 plugin 동작.
+#   • 3-dump 상관 분석: 6 개 언어 각각 3 dump 시 long_running /
+#     persistent_blocked / latency_sections 중 최소 1 개 finding 발생.
+#   • Java fixture : EPoll.epollWait 가 NETWORK_WAIT 로 enrich,
+#     blocked-worker 는 PERSISTENT_BLOCKED_THREAD 로 분류.
+#   • Go fixture   : `chan receive` 는 CHANNEL_WAIT 카테고리의
+#     LATENCY_SECTION_DETECTED.
+#   • Synthetic timeline (T-203):
+#       - NETWORK_WAIT 3 연속 → 1 finding (dumps=3, thread_name 보존).
+#       - run break(상태 전환) → finding 미발생.
+#       - LOCK_WAIT 는 PERSISTENT_BLOCKED 와 중복 신호 방지로 latency
+#         finding 에서 제외.
+#       - NETWORK_WAIT + IO_WAIT 동시 → 카테고리별 독립 finding.
+#       - tables.latency_sections 에 thread_name / wait_category 보존.
+#
+# fixture 정책
+#   _write_three(tmp_path, name, body) 가 동일 body 를 3 파일로 복제
+#   생성하여 정적 dump 시퀀스에서도 correlator threshold(≥3) 를 만족
+#   시키도록 함. 각 언어 fixture 는 textwrap.dedent inline string.
+#
+# parity 주의 (Python ↔ Go 비교 가능한 부분)
+#   Go engine-native 의 internal/threaddump/registry + plugins/* 와
+#   plugin id, MixedFormatError 메시지, finding code, evidence 필드명
+#   (wait_category, dumps, thread_name) 가 byte 단위 동일해야 함.
+# ─────────────────────────────────────────────────────────────────────
 """End-to-end Phase 5 regression coverage (T-203 / T-204).
 
 This module exercises the multi-language thread-dump framework as a

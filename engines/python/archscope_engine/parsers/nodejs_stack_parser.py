@@ -1,3 +1,20 @@
+"""Node.js V8 stack trace parser."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] nodejs_stack_parser — Node.js / V8 스택 트레이스 파서.
+#
+# 입력 형식 (V8 표준)
+#   `[<timestamp>] <ErrorType>: <message>` 헤더 + 들여쓰기 된
+#   `    at <func> (<file>:<line>:<col>)` frame 라인 반복.
+#
+# 알고리즘
+#   1) 라인 단위 dispatch.
+#   2) NODE_ERROR_RE 패턴 매칭으로 block 시작, 빈 라인까지 누적.
+#   3) "    at " 로 시작하는 라인을 frame 으로 분리.
+#   4) timestamp prefix 가 있으면 isoformat 으로 보존.
+#
+# parity: NODE_ERROR_RE 패턴, "    at " 접두 인식이 Go 측
+# internal/parsers/runtimestack/nodejs.go 와 동일.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import re

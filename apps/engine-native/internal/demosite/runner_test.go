@@ -1,6 +1,20 @@
 // Tests mirroring engines/python/tests/test_demo_site.py
 // (TestDemoSiteRunner). Same fixtures + the sample nginx access log
 // from <repo>/examples/access-logs/sample-nginx-access.log.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] runner_test — demo runner 회귀 테스트.
+//
+// 검증 대상
+//   • RunDemoSiteManifest: 매니페스트 1개 실행 후 출력 파일 존재.
+//   • 각 files[] entry 가 올바른 분석기로 dispatch.
+//   • 분석 실패 시 run-summary 의 failed run 으로 기록 (시나리오 자체는
+//     실패하지 않음).
+//   • WritePPTX=false 일 때 PPTX 파일 생성 안 됨.
+//   • baseline 매니페스트 명시 시 diff 디렉토리 + 보고서 생성.
+//   • 최상위 index.html (run-all) 가 모든 시나리오를 링크.
+//   • profiler_collapsed analyzer_type → "not supported in engine-native"
+//     로 graceful skip.
 package demosite
 
 import (

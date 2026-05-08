@@ -1,3 +1,24 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] PlaceholderPage.tsx — 도메인 전용 페이지가 아직 만들어지지 않은
+//   분석기를 위한 범용 분석 페이지(공통 분석 흐름의 reference 구현).
+//
+// 책임/목적:
+//   - executionType(gc_log/thread_dump/exception_stack/jfr_recording) 별로
+//     accept 확장자, drop hint, export prefix 만 다르게 매핑.
+//   - 분석 흐름은 모든 페이지가 공유하는 캐노니컬한 형태:
+//     "FileDock 선택 → execute → 결과 → Summary/Charts/Events/Diagnostics
+//     탭" 의 4-tab 레이아웃.
+//   - thread_dump 의 경우 summary 의 thread state 카운트만 D3BarChart 로
+//     자동 그려 줍니다.
+//
+// 사용 series/tables/charts 키:
+//   - 일반 분석기와 동일하게 result.summary / tables 를 generic 하게 표시.
+//   - tables 는 첫 번째 array 만 미리보기(상위 25행, 8컬럼).
+//
+// 의존성:
+//   - 모든 *AnalyzerPage 가 이 컴포넌트의 동작 패턴을 따릅니다.
+//     반대로 새 도메인 페이지를 만들 때 이 파일을 보고 시작하면 됩니다.
+// ─────────────────────────────────────────────────────────────────────
 import { Camera, Loader2, Play, Square } from "lucide-react";
 import { useCallback, useMemo, useRef, useState } from "react";
 

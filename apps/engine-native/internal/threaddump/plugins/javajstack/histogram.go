@@ -1,3 +1,43 @@
+// [한글] histogram.go — class histogram 블록 파싱 (T-230 / T-235).
+//
+// class histogram 이란?
+//   `jcmd <pid> GC.class_histogram` 또는 `jstack -F` 출력 끝부분에
+//   동봉되는 클래스별 인스턴스 수 + 바이트 수 표:
+//
+//     num     #instances         #bytes  class name
+//     ----------------------------------------------
+//        1:        12345        9876543  [B
+//        2:         5678         234567  java.lang.String
+//        ...
+//
+// 파싱 규칙
+//   1) 헤더 라인 (num/instances/bytes/class name) 으로 블록 식별.
+//   2) `   1:    12345    9876543  [B` 형태 라인을 차례로 수집.
+//   3) `Total` 라인에서 종료.
+//
+// row limit 환경변수
+//   ARCHSCOPE_CLASS_HISTOGRAM_ROW_LIMIT (기본 100). 값이 너무 크면
+//   결과 JSON 이 무거워지므로 상한.
+//
+// incomplete 마킹
+//   파일이 truncate 된 상태로 끝나거나 Total 라인이 없으면
+//   incomplete=true + reason 기록 → analyzer 가 INCOMPLETE_HISTOGRAM
+//   finding 으로 사용자에게 알림.
+//
+// 결과 저장 위치
+//   bundle.Metadata["class_histogram"] = {
+//     classes: [{rank, class_name, instances, bytes}, ...],
+//     incomplete: bool,
+//     incomplete_reason: string,
+//     partial_tail_line: string,
+//     last_rank: int,
+//     total_rows: int,
+//   }
+//
+// 분석기 사용
+//   multithread.jvmTables.histogramRows : bytes DESC 정렬.
+//   multithread.jvmTables.histogramIncomplete + INCOMPLETE_HISTOGRAM
+//   finding.
 package javajstack
 
 import (

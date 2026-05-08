@@ -1,4 +1,20 @@
 """Tests for the Node.js diagnostic-report parser plugin (T-200 / T-201)."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] test_nodejs_report_parser — Node.js 진단 보고서/sample trace
+# plugin 회귀 테스트 (T-200 / T-201).
+#
+# 검증 대상
+#   • DiagnosticReportPlugin: process.report.writeReport() JSON 입력 →
+#     main JS 스레드(language="javascript") + native worker pool
+#     (language="native") 으로 분리.
+#   • libuv 핸들 종류별 메인 스레드 상태 추론:
+#       tcp/udp/named-pipe 우세 → NETWORK_WAIT
+#       fs/file 우세           → IO_WAIT
+#       timer 우세             → TIMED_WAITING
+#   • SampleTracePlugin: `--prof` 또는 ad-hoc sampler 텍스트의 Sample
+#     블록 단위 분리.
+#   • can_parse 가 JSON vs 텍스트 시그니처를 충돌 없이 sniff.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import json

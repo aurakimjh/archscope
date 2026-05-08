@@ -1,3 +1,8 @@
+// [한글] jennifer_test — ParseJenniferFlamegraphCSV 의 다양한 케이스 검증.
+// 정상 트리(virtual root + 실제 root), CP949 / utf-8-sig 인코딩 fallback,
+// 사이클(PARENT_CYCLE) / 부모 누락(MISSING_PARENT) / 자식 합 초과
+// (CHILD_SAMPLES_EXCEED_PARENT) 진단, 중복 키 거부, 컬럼 alias 매핑 등.
+
 package profiler
 
 import (

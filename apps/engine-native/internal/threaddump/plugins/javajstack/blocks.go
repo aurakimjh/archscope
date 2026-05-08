@@ -1,3 +1,27 @@
+// [한글] blocks.go — jstack 파일을 "Full thread dump" 블록 단위로 분할.
+//
+// 입력 형식
+//   한 파일에 여러 캡처가 누적된 경우가 흔합니다. 운영자가 시간차로
+//   `kill -3` 또는 `jstack -F` 를 반복 실행해 같은 파일에 append:
+//
+//     2026-04-27 10:00:00
+//     Full thread dump OpenJDK 64-Bit Server VM (...)
+//     "main" #1 prio=5 ...
+//
+//     2026-04-27 10:00:30
+//     Full thread dump OpenJDK 64-Bit Server VM (...)
+//     "main" #1 prio=5 ...
+//
+// 알고리즘
+//   1) `Full thread dump` 라인 위치를 모두 찾음.
+//   2) 각 위치를 한 블록의 시작점으로 사용.
+//   3) 직전 라인이 timestamp 형태면 captured_at 으로 추출.
+//   4) 다음 헤더 또는 EOF 까지가 한 블록의 본문.
+//   5) 블록별로 ParseSingleBundle 을 호출해 ThreadDumpBundle 생성.
+//
+// MultiBundlePlugin 인터페이스
+//   ParseMany 가 위 알고리즘으로 N개 bundle 반환 → multi-dump
+//   correlator 가 한 파일에서도 시간 흐름 분석 가능.
 package javajstack
 
 import (

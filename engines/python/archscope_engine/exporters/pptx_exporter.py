@@ -1,3 +1,20 @@
+"""PowerPoint (.pptx) report exporter (executive summary)."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] pptx_exporter — AnalysisResult → PowerPoint 리포트.
+#
+# 책임/목적
+#   임원 보고용 .pptx 파일 생성. python-pptx 의존 없이 zip+XML 직접
+#   조립 (ECMA-376 OOXML). 16:9 슬라이드 (13_333_500 × 7_500_000 EMU).
+#
+# 슬라이드 구성
+#   1) 표지 (제목/부제목).
+#   2) 요약 (summary 카드).
+#   3) findings (severity 색상 코드).
+#   4) 시리즈/표 (도메인별 자동 선택).
+#
+# parity: Go engine-native internal/exporters/pptx 와 슬라이드 구조
+# 동일.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 # ruff: noqa: E501

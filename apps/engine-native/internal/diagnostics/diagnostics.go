@@ -4,6 +4,31 @@
 // sample lists. Same JSON shape as the Python implementation so
 // cross-engine debug logs stay diff-able through the T-244 / T-390
 // parity gate.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] diagnostics 패키지 — 모든 파서가 공유하는 ParserDiagnostics
+// 빌더.
+//
+// 책임
+//   "라인 단위 파싱이 끝났을 때 무엇을 보고할 것인가" 의 표준화.
+//   • TotalLines       : 본 파일에서 실제로 읽은 라인 수.
+//   • ParsedRecords    : 정상 record 로 변환된 수.
+//   • SkippedRecords   : skip 사유 발생 수.
+//   • Warnings         : 비치명적 경고 발생 수.
+//   • Reasons          : 사유 코드별 카운트 (e.g. INVALID_OTEL_JSON: 5).
+//   • Samples/Warnings/Errors : sample 라인 (cap MaxDiagnosticSamples=100).
+//
+// 두 가지 cap
+//   MaxDiagnosticSamples (100)  : 동일 사유가 수만 건 발생해도 sample
+//                                  은 100개까지만 보관.
+//   RawPreviewLimit       (200)  : sample 의 raw 라인 preview 는 200
+//                                  byte 까지만 (큰 라인이 응답을 부풀
+//                                  리는 것 방지).
+//
+// 분석기에서의 활용
+//   metadata.diagnostics 에 그대로 직렬화. UI 의 diagnostics 패널이
+//   사유별 카운트 + 샘플 라인을 표시 → 사용자가 "이 파일은 N% 만
+//   파싱됐고 이런 사유로 skip 됐다" 를 파악 가능.
 package diagnostics
 
 import "strings"

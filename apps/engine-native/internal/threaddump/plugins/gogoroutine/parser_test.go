@@ -1,5 +1,17 @@
 // Tests for the Go goroutine-dump parser plugin (T-323). Mirrors the
 // Python suite at engines/python/tests/test_go_goroutine_parser.py.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] gogoroutine plugin 회귀 테스트.
+//
+// 검증 대상
+//   • goroutine 헤더 + `created by` 블록 분리.
+//   • state 추론: chan receive → CHANNEL_WAIT, netpoll → NETWORK_WAIT,
+//     semacquire → LOCK_WAIT, IO wait → IO_WAIT, running → RUNNABLE.
+//   • frame 추출: `func(args)` 줄만, `\tfile:line` 줄은 무시.
+//   • `created by` 블록의 frame 도 함께 추출.
+//   • framework wrapper 정리.
+//   • 빈 줄 / EOF 로 블록 종료.
 package gogoroutine
 
 import (

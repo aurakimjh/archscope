@@ -1,3 +1,24 @@
+// [한글] signatures.go — Java jstack 의 부가 메타(가상스레드 carrier
+// pinning, SMR diagnostics, native method, class histogram) 을
+// 다언어 분석기 안에 끼워 넣기 위한 빌더.
+//
+// 왜 multithread 안에 있나?
+//   파서는 이미 bundle.Metadata 와 snapshot.Metadata 에 raw payload
+//   를 채워 두었습니다. 분석기는 그것을 읽어 표(tables.*) 와 finding
+//   리스트를 만들 뿐 — 실제 파싱은 javajstack 플러그인 책임입니다.
+//   그래서 이 파일은 "Java 가 아니어도 안전" — 메타가 비어 있으면
+//   빈 슬라이스를 반환합니다.
+//
+// 정렬 규칙 (Python 과 byte 단위 일치)
+//   • carrierPinning  : (dump_index ASC, thread_name ASC)
+//   • smrUnresolved   : 발견 순서 그대로(Python iteration order)
+//   • nativeMethods   : (dump_index ASC, thread_name ASC)
+//   • histogramRows   : bytes DESC (가장 큰 클래스가 위)
+//   • histogramIncomplete : 발견 순서
+//
+// findings 변환
+//   각 표 항목 1행 = finding 1개 (단, top-N 컷). severity 는 모두
+//   "warning". message 문자열은 Python 과 동일.
 package multithread
 
 import (

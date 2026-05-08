@@ -1,3 +1,23 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] chartTemplates.ts — 모든 차트 템플릿의 메타데이터 카탈로그.
+//
+// 책임/목적:
+//   - ChartTemplateId 별로 어떤 분석 결과 타입(resultType), 어떤 차트
+//     종류(chartKind: line/bar/donut/...), 어떤 i18n 라벨 키, 어떤
+//     렌더러/export 포맷을 지원하는지 한 곳에 선언.
+//   - DashboardPage 가 보여줄 템플릿 목록(dashboardChartTemplateIds),
+//     ChartStudioPage 가 셀렉트로 노출할 전체 템플릿 목록,
+//     chartFactory 의 createChartOption switch 와 항상 동기화 유지.
+//
+// 데이터 흐름:
+//   chartTemplates → getChartTemplate(id) → 페이지가 렌더 결정에 사용
+//   → createChartOption(id, data, labels) 로 EChartsOption 생성.
+//
+// 주의:
+//   - resultType 키는 분석 결과의 type 필드 값과 byte 단위 일치해야 합니다
+//     (DashboardPage 의 dashboardSupportedTypes 체크가 이 값을 사용).
+//   - 새 템플릿 추가 시 chartFactory.ts 의 switch 도 함께 업데이트.
+// ─────────────────────────────────────────────────────────────────────
 import type { MessageKey } from "../i18n/messages";
 
 export type ChartTemplateId =

@@ -1,3 +1,21 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] FileDock.tsx — 모든 분석 페이지에서 공통으로 사용하는 파일 선택
+//   + 드래그 앤 드롭 dock(고정 위치) 컴포넌트.
+//
+// 책임/목적:
+//   - 파일 선택/드롭 → uploadFile() → 서버측 임시 경로(filePath) 확보.
+//   - 업로드 완료 시 onSelect 콜백으로 부모에게 결과 전달.
+//   - 진행 중 spinner, 다중 파일 지원(multiple), 우측 슬롯에 분석/취소
+//     버튼을 넣을 수 있도록 rightSlot props 노출.
+//
+// 데이터 흐름:
+//   사용자 드롭/선택 → uploadFile(File) → FileDockSelection
+//   → onSelect 콜백 → 부모 페이지가 분석 호출에 활용.
+//
+// UI:
+//   - shadcn Card + lucide 아이콘. drag overlay 는 Tailwind 로 스타일.
+//   - controlled prop(selected) 가 있으면 부모 state 를 우선.
+// ─────────────────────────────────────────────────────────────────────
 import { File as FileIcon, Loader2, Upload, X } from "lucide-react";
 import {
   useCallback,

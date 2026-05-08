@@ -1,3 +1,8 @@
+// [한글] bench_test — 실제 sample 입력에 대한 분석 벤치마크.
+// examples/profiler 의 sample-wall.collapsed / Jennifer CSV 등을 입력으로
+// AnalyzeCollapsedFile / AnalyzeJenniferFile 의 처리량을 추적해 회귀 방지.
+// go test -bench=. -benchmem 으로 실행.
+
 package profiler
 
 import (

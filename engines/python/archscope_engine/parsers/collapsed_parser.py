@@ -1,3 +1,35 @@
+# ─────────────────────────────────────────────────────────────────────
+# [한글] collapsed_parser — async-profiler / FlameGraph "collapsed" 형식.
+#
+# 입력 형식 (Brendan Gregg flamegraph.pl 표준)
+#   frame_root;frame_mid;frame_leaf <count>
+#
+#   예) java.lang.Thread.run;com.foo.Worker.process;com.foo.Db.query 3
+#
+# 처리 결과
+#   Counter[str] — 키 = ";" 로 join 된 stack 문자열, 값 = sample count.
+#   collapsed 입력은 이미 "같은 stack 은 한 줄로 합쳐진 상태" 이므로,
+#   파서는 단순 line → (stack, count) 매핑만 수행.
+#
+# 손상 라인 정책 (T-005 / parser_error_handling)
+#   • count 가 정수가 아니면 skip + diagnostics 카운트.
+#   • count 가 음수/inf 이면 skip.
+#   • 빈 stack 라인은 skip.
+#   • 정상 라인 형식: stack 토큰 + 1개 이상 공백 + 정수.
+#
+# 다중 파일 (parse_collapsed_files)
+#   여러 collapsed 파일을 하나의 Counter 로 union — 같은 stack 의
+#   count 가 합산. 시간차 measurement 의 누적 분석에 사용.
+#
+# Diagnostics 변종 (parse_collapsed_file_with_diagnostics)
+#   skip 라인 정보가 필요한 호출자(분석기/CLI)는 이 변종 사용.
+#   순수 Counter 만 필요한 경우 parse_collapsed_file 사용.
+#
+# Go engine-native parity
+#   Go 측 collapsed 처리는 (현재) 분석기 단계에서 하지 않고
+#   threaddumpcollapsed (변환기) 만 존재. 향후 collapsed 분석기 포팅
+#   시 이 파서를 byte 단위 일치 기준점으로 사용.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 from collections import Counter

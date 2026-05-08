@@ -1,3 +1,13 @@
+// [한글] gclog header 추출 회귀 테스트.
+//
+// 검증 대상
+//   • VM banner 파싱 (OpenJDK/Oracle/Azul/Adoptium).
+//   • Platform 라인 추출.
+//   • Heap min/initial/max/region size 추출 (단위 변환 포함).
+//   • Parallel/Concurrent worker 수.
+//   • CommandLine flags 의 전체 문자열 보존.
+//   • 포인터 필드 (CPUsTotal 등) 가 누락 라인에서 nil 유지.
+//   • ToMap 이 nil 필드를 출력에서 제외.
 package gclog
 
 import (

@@ -1,3 +1,14 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] Sidebar.tsx — 좌측 분석기 네비게이션 사이드바.
+//
+// 책임/목적: 9 개 분석기/유틸 페이지(profiler / diff / access_log /
+// gc_log / jfr / exception / thread_dump / msa_profile / settings)
+// 사이를 전환할 수 있는 네비게이션 버튼 묶음. collapsed(접힘) 여부는
+// localStorage 에 저장해 다음 실행에도 유지됩니다.
+//
+// 의존성 주의: NAV_ICONS 의 이모지는 단순한 시각 마커로, 접힌 상태
+// (collapsed=true) 에서는 라벨 대신 이 이모지만 노출됩니다.
+// ─────────────────────────────────────────────────────────────────────
 import { useEffect, useState } from "react";
 
 import { useI18n } from "../i18n/I18nProvider";

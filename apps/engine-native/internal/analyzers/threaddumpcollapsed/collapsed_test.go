@@ -1,3 +1,12 @@
+// [한글] threaddumpcollapsed 회귀 테스트.
+//
+// 핵심 시나리오
+//   • 같은 프레임 시퀀스를 가진 두 스레드 → 한 라인 + count=2.
+//   • IncludeThreadName=true / false 의 출력 차이.
+//   • 다언어(Java/Go/Python) snapshot 이 같은 변환기로 처리.
+//   • WriteCollapsed 가 디스크 파일에 정확한 텍스트 형식으로 출력.
+//   • 빈 stack 의 snapshot 은 안전하게 skip(또는 thread name 만으로
+//     한 줄).
 package threaddumpcollapsed
 
 import (

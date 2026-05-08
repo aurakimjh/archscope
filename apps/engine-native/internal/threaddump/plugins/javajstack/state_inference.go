@@ -1,3 +1,25 @@
+// [한글] state_inference.go — RUNNABLE 인데 사실은 IO/네트워크 대기인
+// 스레드 식별 (T-195).
+//
+// 배경
+//   Java 의 RUNNABLE 상태는 "OS 가 스케줄링해도 되는 상태" 일 뿐,
+//   실제로는 epoll_wait / socket recv / file read 같은 OS 수준 IO 에서
+//   block 되어 있을 수 있음. multi-dump correlator 가 이런 스레드를
+//   "일하는 중" 으로 보면 LATENCY_SECTION_DETECTED 같은 finding 을
+//   놓침.
+//
+// 격상 규칙 (frame 시그니처 기반)
+//   sun.nio.ch.EPoll.wait                → NETWORK_WAIT
+//   sun.nio.ch.SocketChannelImpl.read     → NETWORK_WAIT
+//   java.net.SocketInputStream.read       → NETWORK_WAIT
+//   sun.nio.ch.FileChannelImpl.read       → IO_WAIT
+//   java.io.FileInputStream.read          → IO_WAIT
+//   ...
+//
+// 격상 정책
+//   • RUNNABLE 만 격상 — 다른 상태는 절대 변경 안 함 (런타임이 더 정확).
+//   • Top frame 만 검사 — wait/read 는 가장 깊은 frame 에 위치.
+//   • 격상이 일어났음을 metadata 에 기록 (디버깅 추적용).
 package javajstack
 
 import (

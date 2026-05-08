@@ -1,4 +1,16 @@
 """Tests for OTel JSONL parser covering edge cases and field alias resolution."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] test_otel_parser — OpenTelemetry JSONL 파서 회귀.
+#
+# 검증 대상
+#   • alias 매핑: snake_case / camelCase / 도트 표기가 같은 필드로 매핑.
+#   • body 가 dict 이면 stringValue → str → value → text 순으로 시도.
+#   • body 가 bool/int/float → Python str() 결과 형식 (parity 의 핵심).
+#   • resource.attributes 안의 service.name 도 인식.
+#   • INVALID_OTEL_JSON / INVALID_OTEL_RECORD 사유 별 라인 단위 skip.
+#   • parent_span_id == self_span_id 같은 비정상 형태도 그대로 통과
+#     (분석기에서 SELF_PARENT 로 finding 발생).
+# ─────────────────────────────────────────────────────────────────────
 
 import json
 from pathlib import Path

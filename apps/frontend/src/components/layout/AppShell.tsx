@@ -1,3 +1,21 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] AppShell.tsx — 사이드바 + 상단바 + 메인 영역으로 구성된 앱 프레임.
+//
+// 책임/목적:
+//   - AppSidebar(좌) + TopBar(상) + main(자식 페이지) 의 3-region 레이아웃.
+//   - 사이드바 collapse 상태를 localStorage 에 영속화.
+//   - 단축키(Cmd/Ctrl+B) 로 사이드바 토글(VS Code 컨벤션) — input/textarea
+//     포커스 중에는 hijack 하지 않도록 가드.
+//   - 엔진 헬스 체크(useEngineHealth): 8초마다 /api/version 을 GET 하여
+//     online/offline 표시. offline 일 때 상단에 가이드 배너 노출.
+//
+// 데이터 흐름:
+//   부모(App) → activePage/onNavigate props → 사이드바 → 페이지 전환.
+//
+// 의존성:
+//   - shadcn 사이드바/탑바 패턴, Tailwind v4.
+//   - getApiBase() 로 health check URL 구성(브라우저/Electron 모드 통합).
+// ─────────────────────────────────────────────────────────────────────
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
 import type { PageKey } from "@/App";

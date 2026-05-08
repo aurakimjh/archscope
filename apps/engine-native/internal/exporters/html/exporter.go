@@ -21,6 +21,38 @@
 //
 // This keeps parity with the Python renderer while still routing every
 // untrusted string through a stdlib escaper.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] html exporter — AnalysisResult 를 단일 자기 충족 HTML 보고서로.
+//
+// 설계 원칙
+//   • 단일 파일 — 외부 자산 0개 (이미지/JS/CSS 파일 없음).
+//   • CSS 는 `assets/report.css` 를 //go:embed 로 임베드하여 head 안에
+//     인라인 삽입. 보고서를 어디로 옮겨도 그대로 보임.
+//   • 모든 사용자 입력은 html.EscapeString 으로 escape — XSS 안전.
+//   • Python 측 `html.escape` 와 byte 동일한 출력.
+//
+// 두 단계 렌더링 (왜 두 단계인가?)
+//   1) htmlBuilder 가 "이미 escape 된" body 를 string 으로 합성.
+//   2) html/template 의 page shell 이 그 body 를 `template.HTML` 로
+//      받아서 출력 (이미 escape 되었으므로 double-escape 방지).
+//
+//   인라인 CSS 와 page title 등 정적 부분은 template 의 자동 escape 를
+//   타고, 동적 데이터는 builder 가 명시적으로 escape 함 — 두 보안
+//   기제를 모두 활용.
+//
+// 출력 단면
+//   • 헤더: 보고서 제목 + 메타(분석기 type, created_at, source_files).
+//   • Summary 카드: summary map 의 key/value 표.
+//   • Findings 섹션: severity 색상 강조 + message + evidence dump.
+//   • Tables 섹션: 각 표를 HTML <table> 로.
+//   • Series 섹션: 시계열은 텍스트 형태로 fallback (차트 라이브러리
+//     없는 보고서는 데이터를 보여주는 것이 우선).
+//
+// Public surface
+//   Write(path, payload)   : 파일에 작성 (디렉토리 자동 생성).
+//   Marshal(payload)       : []byte 반환 (메모리 상에서 후처리할 때).
+//   둘 다 JSON exporter 와 같은 시그니처 → 호출 측 alias swap 가능.
 package html
 
 import (

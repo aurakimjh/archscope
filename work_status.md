@@ -703,6 +703,560 @@ When new review documents are placed in `docs/review/`:
 5. Move processed review documents into `docs/review/done/`.
 6. Keep AI-local instruction files out of git by using `.gitignore`.
 
+## Korean Comment Annotation Progress (한글 주석 작업 추적)
+
+작업 시작: 2026-05-08. 사용자 요청 — 모든 소스코드(테스트 포함)에
+영문 주석을 유지한 채 한글 주석을 추가, 알고리즘과 흐름을 자세히
+기술. 코드 동작은 변경하지 않음. 관련 문서도 함께 현행화.
+
+### 작업 정책 (다음 세션이 그대로 이어받을 수 있도록 명시)
+
+- 영문 주석은 유지하고 그 위/아래에 `[한글]` prefix 의 설명 블록을 추가.
+- 코드 변경 금지(주석 추가 외).
+- 파일별 표준 형식:
+    1. 패키지/파일 헤더 한글 블록(목적, 책임, 알고리즘 흐름, 트리키
+       포인트, parity 주의사항).
+    2. 주요 타입/함수 위에 `[한글]` 인라인 설명(알고리즘, 매개변수
+       의미, 반환값, 트리거 케이스).
+    3. 트리비얼 getter/setter 는 헤더 블록의 설명으로 갈음.
+- Python parity 가 있는 모듈은 "Python 측과 byte 단위로 일치해야 하는
+  부분" 을 명시(messages, sort key, JSON shape).
+
+### 진행 표 (체크박스로 추적)
+
+#### Phase A — 핵심 문서 현행화 (완료)
+
+- [x] `docs/en/ARCHITECTURE.md` — 두 엔진 트랙(Python wheel + Go
+      engine-native), Tier-5 데스크톱 토폴로지, Apps 디렉토리, Go
+      engine-native 모듈 레이아웃 추가.
+- [x] `docs/ko/ARCHITECTURE.md` — 동일 변경 한국어판.
+- [x] `README.md` — 두 트랙 동시 출시 사실 + 저장소 레이아웃 갱신.
+- [x] `README.en.md` / `README.ko.md` — Tech stack 에 Go 엔진 추가.
+
+#### Phase B-1 — Go engine-native 한글 주석 (진행 중)
+
+세부 파일 트래커. 완료 = 패키지/파일 헤더 한글 블록 + 주요 함수
+한글 주석까지. 헤더만 = 헤더 블록만 추가, 함수별은 다음 패스.
+
+- [x] `cmd/archscope-engine/main.go`
+- [x] `cmd/archscope-engine/helpers.go`
+- [x] `cmd/archscope-engine/cmd_accesslog.go`
+- [x] `cmd/archscope-engine/cmd_demosite.go`
+- [x] `cmd/archscope-engine/cmd_exception.go`
+- [x] `cmd/archscope-engine/cmd_gclog.go`
+- [x] `cmd/archscope-engine/cmd_jenniferprofile.go`
+- [x] `cmd/archscope-engine/cmd_jfr.go`
+- [x] `cmd/archscope-engine/cmd_otel.go`
+- [x] `cmd/archscope-engine/cmd_profiler.go`
+- [x] `cmd/archscope-engine/cmd_report.go`
+- [x] `cmd/archscope-engine/cmd_runtime.go`
+- [x] `cmd/archscope-engine/cmd_threaddump.go`
+- [x] `cmd/archscope-engine/main_test.go`
+- [x] `api/api.go`
+- [x] `internal/models/analysis_result.go`
+- [x] `internal/models/analysis_result_test.go`
+- [x] `internal/models/stack_frame.go`
+- [x] `internal/models/thread_state.go`
+- [x] `internal/models/thread_snapshot.go`
+- [x] `internal/models/thread_snapshot_test.go`
+- [x] `internal/models/jennifer_profile.go`
+- [x] `internal/analyzers/multithread/analyzer.go`
+- [x] `internal/analyzers/multithread/correlator.go`
+- [x] `internal/analyzers/multithread/findings.go`
+- [x] `internal/analyzers/multithread/signatures.go`
+- [x] `internal/analyzers/multithread/analyzer_test.go`
+- [x] `internal/analyzers/accesslog/analyzer.go`
+- [x] `internal/analyzers/accesslog/analyzer_test.go`
+- [x] `internal/analyzers/exception/analyzer.go`
+- [x] `internal/analyzers/exception/analyzer_test.go`
+- [x] `internal/analyzers/gclog/analyzer.go`
+- [x] `internal/analyzers/gclog/analyzer_test.go`
+- [x] `internal/analyzers/jenniferprofile/analyzer.go`
+- [x] `internal/analyzers/jenniferprofile/aggregator.go`
+- [x] `internal/analyzers/jenniferprofile/msa.go`
+- [x] `internal/analyzers/jenniferprofile/msa_match.go`
+- [x] `internal/analyzers/jenniferprofile/msa_parallelism.go`
+- [x] `internal/analyzers/jenniferprofile/msa_stats.go`
+- [x] `internal/analyzers/jenniferprofile/html_report.go`
+- [x] `internal/analyzers/jenniferprofile/analyzer_test.go`
+- [x] `internal/analyzers/jfr/analyzer.go`
+- [x] `internal/analyzers/jfr/native_memory.go`
+- [x] `internal/analyzers/jfr/analyzer_test.go`
+- [x] `internal/analyzers/jfr/native_memory_test.go`
+- [x] `internal/analyzers/lockcontention/analyzer.go`
+- [x] `internal/analyzers/lockcontention/findings.go`
+- [x] `internal/analyzers/lockcontention/graph.go`
+- [x] `internal/analyzers/lockcontention/analyzer_test.go`
+- [x] `internal/analyzers/otel/analyzer.go`
+- [x] `internal/analyzers/otel/analyzer_test.go`
+- [x] `internal/analyzers/profileclassification/profileclassification.go`
+- [x] `internal/analyzers/profileclassification/profileclassification_test.go`
+- [x] `internal/analyzers/runtime/analyzer.go`
+- [x] `internal/analyzers/runtime/analyzer_test.go`
+- [x] `internal/analyzers/threaddump/analyzer.go`
+- [x] `internal/analyzers/threaddump/analyzer_test.go`
+- [x] `internal/analyzers/threaddumpcollapsed/collapsed.go`
+- [x] `internal/analyzers/threaddumpcollapsed/collapsed_test.go`
+
+**B-1 진행률 (분석기 11개 패키지 모두 완료)**.
+
+#### Phase B-1 — parsers 진행 표 (진행 중)
+
+- [x] `internal/parsers/accesslog/parser.go`
+- [x] `internal/parsers/accesslog/parser_test.go`
+- [x] `internal/parsers/exception/parser.go`
+- [x] `internal/parsers/exception/parser_test.go`
+- [x] `internal/parsers/gclog/parser.go`
+- [x] `internal/parsers/gclog/parser_test.go`
+- [x] `internal/parsers/gclog/header.go`
+- [x] `internal/parsers/gclog/header_test.go`
+- [x] `internal/parsers/jenniferprofile/parser.go`
+- [x] `internal/parsers/jenniferprofile/splitter.go`
+- [x] `internal/parsers/jenniferprofile/header_parser.go`
+- [x] `internal/parsers/jenniferprofile/body_parser.go`
+- [x] `internal/parsers/jenniferprofile/event_classifier.go`
+- [x] `internal/parsers/jenniferprofile/validator.go`
+- [x] `internal/parsers/jenniferprofile/parser_test.go`
+
+- [x] `internal/parsers/jfr/parser.go` + `parser_test.go`
+- [x] `internal/parsers/jfr/recording.go` + `recording_test.go`
+- [x] `internal/parsers/otel/parser.go` + `parser_test.go`
+- [x] `internal/parsers/runtimestack/types.go`
+- [x] `internal/parsers/runtimestack/dotnet.go` + `dotnet_test.go`
+- [x] `internal/parsers/runtimestack/gopanic.go` + `gopanic_test.go`
+- [x] `internal/parsers/runtimestack/nodejs.go` + `nodejs_test.go`
+- [x] `internal/parsers/runtimestack/pythontraceback.go` + `pythontraceback_test.go`
+
+**parsers 7개 패키지 모두 완료**.
+
+#### Phase B-1 — exporters / threaddump 진행 표 (완료)
+
+- [x] `internal/exporters/csv/exporter.go` + `exporter_test.go`
+- [x] `internal/exporters/html/exporter.go` + `exporter_test.go`
+- [x] `internal/exporters/json/exporter.go` + `exporter_test.go`
+- [x] `internal/exporters/pptx/exporter.go` + `exporter_test.go`
+- [x] `internal/exporters/reportdiff/exporter.go` + `exporter_test.go`
+- [x] `internal/threaddump/registry.go` + `registry_test.go`
+- [x] `internal/threaddump/plugins/gogoroutine/parser.go` + `parser_test.go`
+- [x] `internal/threaddump/plugins/pythondump/pythondump.go` + `pythondump_test.go`
+- [x] `internal/threaddump/plugins/nodejsreport/parser.go` + `parser_test.go`
+- [x] `internal/threaddump/plugins/dotnetclrstack/plugin.go` + `plugin_test.go` + `plugin_iface_test.go`
+- [x] `internal/threaddump/plugins/javajcmdjson/parser.go` + `parser_test.go` + `helpers.go`
+- [x] `internal/threaddump/plugins/javajstack/parser.go` + `parser_test.go`
+- [x] `internal/threaddump/plugins/javajstack/blocks.go`
+- [x] `internal/threaddump/plugins/javajstack/aop.go` + `aop_test.go`
+- [x] `internal/threaddump/plugins/javajstack/state_inference.go` + `state_inference_test.go`
+- [x] `internal/threaddump/plugins/javajstack/monitors.go` + `monitors_test.go`
+- [x] `internal/threaddump/plugins/javajstack/virtual.go` + `virtual_test.go`
+- [x] `internal/threaddump/plugins/javajstack/smr.go` + `smr_test.go`
+- [x] `internal/threaddump/plugins/javajstack/histogram.go` + `histogram_test.go`
+
+**exporters 5개 + threaddump registry + plugin 6개 모두 완료**.
+
+#### Phase B-1 — common / demosite / diagnostics / statistics / textio / timeutil (완료)
+
+- [x] `internal/common/debuglog.go`
+- [x] `internal/common/redaction.go`
+- [x] `internal/demosite/runner.go`
+- [x] `internal/demosite/analyze.go`
+- [x] `internal/demosite/baseline.go`
+- [x] `internal/demosite/index.go`
+- [x] `internal/demosite/mapping.go`
+- [x] `internal/demosite/mapping_test.go`
+- [x] `internal/demosite/runner_test.go`
+- [x] `internal/diagnostics/diagnostics.go`
+- [x] `internal/diagnostics/diagnostics_test.go`
+- [x] `internal/statistics/statistics.go`
+- [x] `internal/statistics/statistics_test.go`
+- [x] `internal/textio/textio.go`
+- [x] `internal/textio/textio_test.go`
+- [x] `internal/timeutil/timeutil.go`
+- [x] `internal/timeutil/timeutil_test.go`
+
+**Phase B-1 (Go engine-native) 완료** — cmd 14 + api 1 + models 7 + analyzers 32 + parsers 16 + exporters 10 + threaddump 30 + common/demosite/diagnostics/statistics/textio/timeutil 17 = **약 127 파일 처리 완료**.
+
+#### 병렬 진행 중인 다른 Phase (백그라운드 에이전트 + 메인 세션)
+
+다음 phase 들이 동시 진행 중 / 완료:
+- Phase B-2 (Go profiler-native) — 백그라운드 에이전트 (진행 중)
+- Phase B-3 (Python analyzers) — 백그라운드 에이전트 (진행 중)
+- **Phase B-4 (Python parsers) — ✅ 완료 (25개 파일 — 메인 세션 + 에이전트 협업)**
+- Phase B-5 ~ B-6 (Python others / tests) — 백그라운드 에이전트 (B-3 끝낸 뒤 진행)
+- Phase B-7 (apps/frontend) — 백그라운드 에이전트 (진행 중)
+- **Phase B-8 (Profiler 데스크톱 frontend) — ✅ 완료 (40개 파일 처리, 에이전트가 1세션에 마침)**
+
+각 에이전트가 자신의 Phase 섹션 아래에 체크박스를 추가합니다. 충돌 방지: 각자 다른 디렉토리 작업 + 다른 work_status 섹션만 갱신.
+
+#### Phase B-4 — Python parsers (완료)
+
+25개 파일 모두 [한글] 헤더 블록 추가 완료:
+
+상위 17개 파일 (parsers/):
+`__init__.py`, `access_log_parser.py`, `collapsed_parser.py`,
+`dotnet_parser.py`, `exception_parser.py`, `gc_log_header.py`,
+`gc_log_parser.py`, `go_panic_parser.py`, `html_profiler_parser.py`,
+`jennifer_csv_parser.py`, `jfr_parser.py`, `jfr_recording.py`,
+`nodejs_stack_parser.py`, `otel_parser.py`, `python_traceback_parser.py`,
+`svg_flamegraph_parser.py`, `thread_dump_parser.py`.
+
+thread_dump/ 8개 파일:
+`__init__.py`, `registry.py`, `java_jstack.py`, `java_jcmd_json.py`,
+`go_goroutine.py`, `python_dump.py`, `nodejs_report.py`,
+`dotnet_clrstack.py`.
+
+#### Phase B-2 — Go profiler-native 한글 주석 (진행 중)
+
+대상: `apps/profiler-native/cmd/archscope-profiler-app/*.go`,
+`apps/profiler-native/cmd/archscope-profiler/main.go`,
+`apps/profiler-native/internal/profiler/*.go` (분석/exporter/redaction/
+flamegraph/diff/drilldown/breakdown/jennifer/svg/html/timeline/util/
+classify/types — 약 39 파일).
+
+#### Phase B-2 — Go profiler-native 진행 표 (진행 중)
+
+세부 파일 트래커. 완료 = 패키지/파일 헤더 한글 블록 + 주요 함수
+한글 주석까지. 헤더만 = 헤더 블록만 추가, 함수별은 다음 패스.
+
+- [x] `internal/profiler/breakdown.go`
+- [x] `internal/profiler/flamegraph.go`
+- [x] `internal/profiler/diff.go`
+- [x] `internal/profiler/diff_test.go`
+- [x] `internal/profiler/drilldown.go`
+- [x] `internal/profiler/drilldown_test.go`
+- [x] `internal/profiler/jennifer.go`
+- [x] `internal/profiler/jennifer_test.go`
+- [x] `internal/profiler/timeline.go`
+- [x] `internal/profiler/classify.go`
+- [x] `internal/profiler/html.go`
+- [x] `internal/profiler/html_test.go`
+- [x] `internal/profiler/svg.go`
+- [x] `internal/profiler/svg_test.go`
+- [x] `internal/profiler/analyzer.go`
+- [x] `internal/profiler/analyzer_test.go`
+- [x] `internal/profiler/collapsed.go`
+- [x] `internal/profiler/collapsed_test.go`
+- [x] `internal/profiler/pprof.go`
+- [x] `internal/profiler/pprof_test.go`
+- [x] `internal/profiler/redaction.go`
+- [x] `internal/profiler/redaction_test.go`
+- [x] `internal/profiler/debuglog.go`
+- [x] `internal/profiler/debuglog_test.go`
+- [x] `internal/profiler/types.go`
+- [x] `internal/profiler/util.go`
+- [x] `internal/profiler/bench_test.go`
+- [x] `internal/profiler/golden_test.go`
+- [x] `cmd/archscope-profiler/main.go`
+- [x] `cmd/archscope-profiler-app/main.go`
+- [x] `cmd/archscope-profiler-app/engineservice.go`
+- [x] `cmd/archscope-profiler-app/engineservice_test.go` (이미 작업 완료된 상태였음)
+- [x] `cmd/archscope-profiler-app/profilerservice.go`
+- [x] `cmd/archscope-profiler-app/build/android/main_android.go`
+- [x] `cmd/archscope-profiler-app/build/android/scripts/deps/install_deps.go`
+- [x] `cmd/archscope-profiler-app/build/ios/main_ios.go`
+- [x] `cmd/archscope-profiler-app/build/ios/app_options_default.go`
+- [x] `cmd/archscope-profiler-app/build/ios/app_options_ios.go`
+- [x] `cmd/archscope-profiler-app/build/ios/scripts/deps/install_deps.go`
+
+**B-2 진행률: 39/39 파일 완료**. 다음 세션 진입점은 남은 engine-native 영역
+(common / demosite / diagnostics / statistics / textio / timeutil) 또는
+Phase B-3+ 의 남은 항목 중 우선순위에 따라 선택.
+
+#### Phase B-3 — Python analyzers (완료)
+
+대상: `engines/python/archscope_engine/analyzers/*.py` (19 파일).
+
+- [x] `engines/python/archscope_engine/analyzers/__init__.py`
+- [x] `engines/python/archscope_engine/analyzers/multi_thread_analyzer.py`
+- [x] `engines/python/archscope_engine/analyzers/thread_dump_analyzer.py`
+- [x] `engines/python/archscope_engine/analyzers/gc_log_analyzer.py`
+- [x] `engines/python/archscope_engine/analyzers/access_log_analyzer.py`
+- [x] `engines/python/archscope_engine/analyzers/jfr_analyzer.py`
+- [x] `engines/python/archscope_engine/analyzers/otel_analyzer.py`
+- [x] `engines/python/archscope_engine/analyzers/lock_contention_analyzer.py`
+- [x] `engines/python/archscope_engine/analyzers/profiler_analyzer.py`
+- [x] `engines/python/archscope_engine/analyzers/runtime_analyzer.py`
+- [x] `engines/python/archscope_engine/analyzers/exception_analyzer.py`
+- [x] `engines/python/archscope_engine/analyzers/profile_classification.py`
+- [x] `engines/python/archscope_engine/analyzers/flamegraph_builder.py`
+- [x] `engines/python/archscope_engine/analyzers/native_memory_analyzer.py`
+- [x] `engines/python/archscope_engine/analyzers/profiler_breakdown.py`
+- [x] `engines/python/archscope_engine/analyzers/profiler_diff.py`
+- [x] `engines/python/archscope_engine/analyzers/profiler_drilldown.py`
+- [x] `engines/python/archscope_engine/analyzers/profiler_timeline.py`
+- [x] `engines/python/archscope_engine/analyzers/thread_dump_to_collapsed.py`
+
+**B-3 진행률 (analyzers 19/19 파일 완료)**.
+
+#### Phase B-4 — Python parsers (완료)
+
+대상: `engines/python/archscope_engine/parsers/*.py` (top-level 17개) +
+`parsers/thread_dump/*.py` (8개) = 25 파일.
+
+기존에 일부 파일은 이미 한글 헤더 블록이 있었음 (access_log_parser,
+collapsed_parser, exception_parser, gc_log_parser, gc_log_header,
+jfr_parser, jfr_recording, otel_parser, jennifer_csv_parser,
+svg_flamegraph_parser, parsers/__init__.py, thread_dump/java_jcmd_json).
+이번 세션에서 누락된 13 개에 헤더 블록 추가.
+
+- [x] `engines/python/archscope_engine/parsers/__init__.py`
+- [x] `engines/python/archscope_engine/parsers/access_log_parser.py`
+- [x] `engines/python/archscope_engine/parsers/collapsed_parser.py`
+- [x] `engines/python/archscope_engine/parsers/dotnet_parser.py`
+- [x] `engines/python/archscope_engine/parsers/exception_parser.py`
+- [x] `engines/python/archscope_engine/parsers/gc_log_header.py`
+- [x] `engines/python/archscope_engine/parsers/gc_log_parser.py`
+- [x] `engines/python/archscope_engine/parsers/go_panic_parser.py`
+- [x] `engines/python/archscope_engine/parsers/html_profiler_parser.py`
+- [x] `engines/python/archscope_engine/parsers/jennifer_csv_parser.py`
+- [x] `engines/python/archscope_engine/parsers/jfr_parser.py`
+- [x] `engines/python/archscope_engine/parsers/jfr_recording.py`
+- [x] `engines/python/archscope_engine/parsers/nodejs_stack_parser.py`
+- [x] `engines/python/archscope_engine/parsers/otel_parser.py`
+- [x] `engines/python/archscope_engine/parsers/python_traceback_parser.py`
+- [x] `engines/python/archscope_engine/parsers/svg_flamegraph_parser.py`
+- [x] `engines/python/archscope_engine/parsers/thread_dump_parser.py`
+- [x] `engines/python/archscope_engine/parsers/thread_dump/__init__.py`
+- [x] `engines/python/archscope_engine/parsers/thread_dump/registry.py`
+- [x] `engines/python/archscope_engine/parsers/thread_dump/java_jstack.py`
+- [x] `engines/python/archscope_engine/parsers/thread_dump/java_jcmd_json.py`
+- [x] `engines/python/archscope_engine/parsers/thread_dump/go_goroutine.py`
+- [x] `engines/python/archscope_engine/parsers/thread_dump/python_dump.py`
+- [x] `engines/python/archscope_engine/parsers/thread_dump/dotnet_clrstack.py`
+- [x] `engines/python/archscope_engine/parsers/thread_dump/nodejs_report.py`
+
+**B-4 진행률 (parsers 25/25 파일 헤더 한글 블록 완료)**.
+
+#### Phase B-5 — Python 기타 모듈 (완료)
+
+대상: models / exporters / common / ai_interpretation / web / config /
+cli.py / app.py / demo_site_*.py / `__init__.py`.
+
+이번 세션에서 헤더 한글 블록 추가. 사전에 일부 파일이 이미 한글을
+가지고 있었음 (config/__init__.py, ai_interpretation/privacy.py,
+__init__.py).
+
+- [x] `engines/python/archscope_engine/__init__.py`
+- [x] `engines/python/archscope_engine/cli.py`
+- [x] `engines/python/archscope_engine/app.py`
+- [x] `engines/python/archscope_engine/demo_site_mapping.py`
+- [x] `engines/python/archscope_engine/demo_site_runner.py`
+- [x] `engines/python/archscope_engine/models/__init__.py`
+- [x] `engines/python/archscope_engine/models/access_log.py`
+- [x] `engines/python/archscope_engine/models/analysis_result.py`
+- [x] `engines/python/archscope_engine/models/flamegraph.py`
+- [x] `engines/python/archscope_engine/models/gc_event.py`
+- [x] `engines/python/archscope_engine/models/otel.py`
+- [x] `engines/python/archscope_engine/models/profile_stack.py`
+- [x] `engines/python/archscope_engine/models/result_contracts.py`
+- [x] `engines/python/archscope_engine/models/runtime_stack.py`
+- [x] `engines/python/archscope_engine/models/thread_dump.py`
+- [x] `engines/python/archscope_engine/models/thread_snapshot.py`
+- [x] `engines/python/archscope_engine/exporters/__init__.py`
+- [x] `engines/python/archscope_engine/exporters/json_exporter.py`
+- [x] `engines/python/archscope_engine/exporters/csv_exporter.py`
+- [x] `engines/python/archscope_engine/exporters/html_exporter.py`
+- [x] `engines/python/archscope_engine/exporters/pptx_exporter.py`
+- [x] `engines/python/archscope_engine/exporters/pprof_exporter.py`
+- [x] `engines/python/archscope_engine/exporters/report_diff.py`
+- [x] `engines/python/archscope_engine/common/__init__.py`
+- [x] `engines/python/archscope_engine/common/diagnostics.py`
+- [x] `engines/python/archscope_engine/common/debug_log.py`
+- [x] `engines/python/archscope_engine/common/file_utils.py`
+- [x] `engines/python/archscope_engine/common/redaction.py`
+- [x] `engines/python/archscope_engine/common/statistics.py`
+- [x] `engines/python/archscope_engine/common/time_utils.py`
+- [x] `engines/python/archscope_engine/ai_interpretation/__init__.py`
+- [x] `engines/python/archscope_engine/ai_interpretation/evidence.py`
+- [x] `engines/python/archscope_engine/ai_interpretation/prompting.py`
+- [x] `engines/python/archscope_engine/ai_interpretation/runtime.py`
+- [x] `engines/python/archscope_engine/ai_interpretation/validation.py`
+- [x] `engines/python/archscope_engine/ai_interpretation/evaluation.py`
+- [x] `engines/python/archscope_engine/ai_interpretation/privacy.py`
+- [x] `engines/python/archscope_engine/web/__init__.py`
+- [x] `engines/python/archscope_engine/web/server.py`
+- [x] `engines/python/archscope_engine/web/progress.py`
+- [x] `engines/python/archscope_engine/config/__init__.py`
+
+**B-5 진행률 (40/40 파일 헤더 한글 블록 완료)**.
+
+#### Phase B-6 — Python tests (완료)
+
+대상: `engines/python/tests/test_*.py` (35 파일). 사전에 일부는 이미 한글
+헤더 블록을 보유 (json_exporter, multi_thread_framework, jvm_analyzers,
+file_utils, jfr_parser 등). 이번 세션에서 누락된 다음 파일에 헤더 블록 추가.
+
+- [x] `engines/python/tests/test_access_log_analyzer.py`
+- [x] `engines/python/tests/test_access_log_parser.py`
+- [x] `engines/python/tests/test_ai_interpretation.py`
+- [x] `engines/python/tests/test_cli_e2e.py`
+- [x] `engines/python/tests/test_collapsed_parser.py`
+- [x] `engines/python/tests/test_demo_site.py`
+- [x] `engines/python/tests/test_dotnet_clrstack_parser.py`
+- [x] `engines/python/tests/test_java_thread_dump_hardening.py`
+
+나머지 (test_file_utils.py, test_go_goroutine_parser.py, test_html_exporter.py,
+test_html_profiler_parser.py, test_java_jstack_enrichment.py, test_jfr_analyzer.py,
+test_jfr_parser.py, test_json_exporter.py, test_jvm_analyzers.py,
+test_lock_contention.py, test_multi_thread_framework.py, test_nodejs_report_parser.py,
+test_otel_analyzer.py, test_otel_parser.py, test_packaging_metadata.py,
+test_parser_debug_log.py, test_phase5_regression.py, test_profiler_analyzer.py,
+test_profiler_flamegraph_expansion.py, test_profiler_timeline.py,
+test_python_dump_parsers.py, test_report_followups.py, test_runtime_analyzers.py,
+test_statistics.py, test_svg_flamegraph_parser.py,
+test_thread_dump_registry_routing.py, test_thread_dump_to_collapsed.py)
+는 이전 세션에서 이미 헤더 한글 블록 보유.
+
+**B-6 진행률 (35/35 파일 헤더 한글 블록 완료)**.
+
+#### Phase B-7 — Frontend (apps/frontend) (1차 완료)
+
+대상: `apps/frontend/src/**/*.{ts,tsx}` + 루트 config (총 62 src + 3 config).
+
+작업 정책: 영문 주석/JSDoc 유지, 파일 헤더 [한글] 블록 추가
+(파일명 — 한 줄 요약, 책임/목적, 데이터 흐름, 사용 series/tables/charts
+키, shadcn/Tailwind/d3/echarts 의존성 주의사항). 큰 파일은 헤더 + 핵심
+함수/컴포넌트/타입 위 한 줄 [한글] 코멘트만 추가, 라인 단위 주해는
+다음 패스에 위임. 코드 변경 일절 없음.
+
+이번 세션 처리(헤더 블록 추가):
+
+- [x] `src/App.tsx`, `src/main.tsx`, `src/global.d.ts`
+- [x] `src/api/apiBase.ts`
+- [x] `src/api/httpBridge.ts` (+ callJson/pickFile/createHttpBridge/installHttpBridge 한 줄 코멘트)
+- [x] `src/api/analyzerClient.ts` (+ 주요 export 별 한 줄 코멘트)
+- [x] `src/api/analyzerContract.ts` (헤더만; 970 라인 타입 정의)
+- [x] `src/pages/DashboardPage.tsx` (+ 진입 함수/상수 코멘트)
+- [x] `src/pages/AccessLogAnalyzerPage.tsx`
+- [x] `src/pages/GcLogAnalyzerPage.tsx`
+- [x] `src/pages/ProfilerAnalyzerPage.tsx`
+- [x] `src/pages/ThreadDumpAnalyzerPage.tsx`
+- [x] `src/pages/ExceptionAnalyzerPage.tsx`
+- [x] `src/pages/JfrAnalyzerPage.tsx`
+- [x] `src/pages/DemoDataCenterPage.tsx`
+- [x] `src/pages/ExportCenterPage.tsx`
+- [x] `src/pages/ChartStudioPage.tsx`
+- [x] `src/pages/SettingsPage.tsx`
+- [x] `src/pages/PlaceholderPage.tsx`
+- [x] `src/components/FileDock.tsx`
+- [x] `src/components/ChartPanel.tsx`
+- [x] `src/components/AnalyzerFeedback.tsx`
+- [x] `src/components/MetricCard.tsx`
+- [x] `src/components/FileDropZone.tsx`
+- [x] `src/components/SortableTable.tsx`
+- [x] `src/components/LoadingStates.tsx`
+- [x] `src/components/theme-provider.tsx`
+- [x] `src/components/ChartCustomizer.tsx`
+- [x] `src/components/charts/D3BarChart.tsx`
+- [x] `src/components/charts/D3ChartFrame.tsx`
+- [x] `src/components/charts/D3FlameGraph.tsx`
+- [x] `src/components/charts/CanvasFlameGraph.tsx`
+- [x] `src/components/charts/D3HeatmapStrip.tsx`
+- [x] `src/components/charts/D3TimelineChart.tsx`
+- [x] `src/components/charts/FlameTreeTable.tsx`
+- [x] `src/components/layout/AppShell.tsx`
+- [x] `src/components/layout/AppSidebar.tsx`
+- [x] `src/components/layout/TopBar.tsx`
+- [x] `src/components/ui/{button,card,dropdown-menu,input,separator,sheet,tabs,tooltip}.tsx`
+      (shadcn 표준 8 파일, 짧은 헤더만)
+- [x] `src/charts/chartFactory.ts`
+- [x] `src/charts/chartTemplates.ts`
+- [x] `src/charts/chartOptions.ts`
+- [x] `src/charts/echartsTheme.ts`
+- [x] `src/charts/sampleCharts.ts`
+- [x] `src/charts/chartFactory.test.ts`
+- [x] `src/lib/{utils,uploadFile,exportImage,batchExport,usePagedRows}.ts`
+- [x] `src/utils/formatters.ts`
+- [x] `src/i18n/{I18nProvider.tsx,messages.ts}`
+- [x] `vite.config.ts`, `eslint.config.js`, `playwright.config.ts`
+
+이번 세션 추가 안 된 영역(다음 진입점):
+
+- 페이지/컴포넌트의 주요 함수/effect 단위 줄 단위 한글 주해(현재는 파일
+  헤더 + 일부 핵심 진입점만). 예: AccessLog/GcLog/Profiler/JFR 등 분석
+  페이지의 useMemo 차트 옵션 빌드 로직, 결과 정규화 헬퍼.
+- analyzerContract.ts 의 도메인 타입 그룹 단위(액세스 로그 / GC / JFR /
+  ...) 위 한글 섹션 코멘트.
+- chartOptions.ts 의 빌더 함수별 한 줄 코멘트.
+- e2e 테스트 (`apps/frontend/e2e/*.spec.ts`) — 본 세션 범위 외(테스트
+  범위가 .ts 가 아닌 e2e/ 였음).
+
+세션 파일 수: 약 50 개(헤더 블록), 그 중 8 개에 핵심 함수/컴포넌트/상수
+한 줄 한글 코멘트도 추가.
+
+#### Phase B-8 — Profiler 데스크톱 frontend (완료)
+
+대상: `apps/profiler-native/cmd/archscope-profiler-app/frontend/src/**/*.{ts,tsx}`
+(39 파일) + `vite.config.ts`.
+
+작업 정책: 영문 주석/JSDoc 유지, 파일 헤더 한글 블록 추가
+(파일명 — 한 줄 요약, 책임/목적, 데이터 흐름 Go EngineService↔React,
+주요 컴포넌트/함수, Wails IPC / shadcn / D3 등 의존성 주의사항).
+코드 변경 금지.
+
+진행 표 (체크박스):
+
+- [x] `src/main.tsx`
+- [x] `src/vite-env.d.ts`
+- [x] `src/App.tsx`
+- [x] `src/bridge/engine.ts`
+- [x] `src/bridge/types.ts`
+- [x] `src/charts/accessLogCharts.ts`
+- [x] `src/charts/gcLogCharts.ts`
+- [x] `src/components/AnalyzerFeedback.tsx`
+- [x] `src/components/CanvasFlameGraph.tsx`
+- [x] `src/components/ChartPanel.tsx`
+- [x] `src/components/DiagnosticsPanel.tsx`
+- [x] `src/components/DrilldownPanel.tsx`
+- [x] `src/components/DropZone.tsx`
+- [x] `src/components/HorizontalBarChart.tsx`
+- [x] `src/components/MetricCard.tsx`
+- [x] `src/components/Sidebar.tsx`
+- [x] `src/components/Tabs.tsx`
+- [x] `src/components/WailsFileDock.tsx`
+- [x] `src/components/ui/button.tsx`
+- [x] `src/components/ui/card.tsx`
+- [x] `src/components/ui/input.tsx`
+- [x] `src/components/ui/tabs.tsx`
+- [x] `src/hooks/useRecentFiles.ts`
+- [x] `src/hooks/useShortcuts.ts`
+- [x] `src/i18n/I18nProvider.tsx`
+- [x] `src/i18n/messages.ts`
+- [x] `src/lib/utils.ts`
+- [x] `src/state/defaults.ts`
+- [x] `src/theme/ThemeProvider.tsx`
+- [x] `src/utils/formatters.ts`
+- [x] `src/pages/AccessLogAnalyzerPage.tsx`
+- [x] `src/pages/DiffPage.tsx`
+- [x] `src/pages/ExceptionAnalyzerPage.tsx`
+- [x] `src/pages/GcLogAnalyzerPage.tsx`
+- [x] `src/pages/JenniferProfilePage.tsx`
+- [x] `src/pages/JfrAnalyzerPage.tsx`
+- [x] `src/pages/ProfilerAnalyzerPage.tsx`
+- [x] `src/pages/SettingsPage.tsx`
+- [x] `src/pages/ThreadDumpAnalyzerPage.tsx`
+- [x] `vite.config.ts`
+
+**B-8 진행률: 40/40 파일 (100%) — Phase B-8 완료 (1 세션 처리)**.
+
+처리 노트 (다음 세션을 위해):
+- 모든 39 개 .ts/.tsx + vite.config.ts 에 표준 한글 파일 헤더 블록 추가.
+  영문 JSDoc/주석은 절대 삭제하지 않고 위/아래에만 한글 블록 추가.
+- pages/* 는 LOC 가 큰 파일들(150~1800 LOC, 합계 ~7,145 LOC) 이라
+  현재 패스에서는 파일 헤더 블록만 추가했고, 페이지 내부의 주요 함수
+  (handleAnalyze / handleCancel / 결과 어댑터 / Wails Events 구독 등) 에
+  인라인 한글 주석을 보강하는 것은 다음 세션의 후속 작업으로 남겨둠.
+- bridge/engine.ts 와 bridge/types.ts 는 Go EngineService 와의 contract
+  파일이므로 헤더에 데이터 흐름과 parity 주의사항을 비교적 자세히 기술.
+- ThreadDumpAnalyzerPage.tsx 는 동기/비동기 3 종 분석 모드를 모두
+  다루므로 헤더에서 Wails Events 채널(engine:done/error/cancelled)
+  사용 패턴을 명시적으로 기록.
+
+### 다음 세션 진입 안내
+
+- 이 섹션의 체크박스를 보고 다음 미완료 파일부터 시작.
+- 한 세션당 약 30~40 파일 처리가 한계(컨텍스트 윈도우 기준).
+- 처리할 때마다 이 표의 체크박스를 갱신해 주세요.
+
 ## Notes
 
 - `docs/review/done/` is an archive of processed reviews.

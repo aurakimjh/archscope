@@ -1,3 +1,45 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] debuglog — parser 실패를 portable 한 단일 JSON 로그로 수집.
+//
+// 책임/목적
+//   parser 가 어디서 어떻게 실패했는지를 사용자가 원본 데이터를 공유하지
+//   않고도 보낼 수 있도록 redacted 단일 JSON 으로 모은다. Python 측
+//   archscope_engine.common.debug_log.DebugLogCollector 와 동일한 JSON
+//   shape, 같은 sample cap (per-error-type 5건), 같은 1MiB output cap.
+//
+// 수집되는 정보
+//   - environment: archscope_version / go_version / os / timestamp
+//   - context    : analyzer_type / source_file (redacted) / file_size /
+//                  encoding_detected / parser / parser_options
+//   - redaction  : enabled / version / summary (카테고리별 redact 횟수)
+//   - summary    : total_lines / parsed_ok / skipped / skip_rate /
+//                  error_types / exceptions / verdict
+//   - errors_by_type : reason 별 count + description + samples (cap 5)
+//   - exceptions : fatal exception 들의 phase/message/traceback
+//   - hints      : 자동 진단 힌트 (NO_FORMAT_MATCH 80%↑, 50%↑ skip 등)
+//
+// Verdict 판정 정책 (Python 과 동일)
+//   - exception 있음     → FATAL_ERROR
+//   - skipped >= 50%     → MAJORITY_FAILED
+//   - skipped > 0        → PARTIAL_SUCCESS
+//   - 그 외              → CLEAN
+//
+// 추가 메타
+//   - InferFieldShapes : 한 라인의 토큰 수, quote 수, bracket 수,
+//     suffix=key=value 여부, request shape (method/path/protocol),
+//     timestamp shape (Nginx/Bracket/ISO-8601) 추론. 진단의 "왜 실패
+//     했나" 단서로 활용. Python 측과 같은 키 이름 + 값 사용.
+//
+// 트리키한 부분
+//   • per-error-type cap 은 truncated 모드에서도 5개 유지. 원본 raw 가
+//     커서 전체 payload 가 1MiB 넘으면 oldest 부터 drop.
+//   • errorsByType 출력 순서는 reason ASC sort (deterministic).
+//   • RawContext 는 redact + 500자 절단 후 저장. token/cookie/url 등
+//     민감 정보가 byte-level redact 적용된 값만 디스크로 나간다.
+//   • PortableFilename 은 "archscope-debug-<parser>-<UTC stamp>.json".
+//     filename component 는 [a-zA-Z0-9_-] 외 모두 "_" 로 치환.
+// ─────────────────────────────────────────────────────────────────────
+
 package profiler
 
 import (
@@ -12,6 +54,7 @@ import (
 	"time"
 )
 
+// [한글] maxContextChars — RawContext 한 필드(before/target/after)의 최대 길이.
 const maxContextChars = 500
 
 // DebugLog captures a portable, redacted parser failure log that a field user
@@ -116,6 +159,11 @@ func (l *DebugLog) AddHint(hint string) {
 // `before`, `target`, `after` strings; each is redacted in place. The total
 // per-`reason` sample count is capped at `maxSamplesByType` so a failing
 // 100k-line input does not bloat the log.
+//
+// [한글] AddParseError — row-level 파싱 실패 1건 기록.
+// 같은 reason 으로 이미 5건 쌓였으면 추가 기록 없이 즉시 반환 (cap).
+// rawContext 의 before/target/after 는 각각 500자 절단 + RedactText 적용.
+// fieldShapes 가 비어있으면 target 으로부터 InferFieldShapes 자동 추론.
 func (l *DebugLog) AddParseError(lineNumber int, reason, message, failedPattern string, rawContext map[string]string, fieldShapes map[string]any) {
 	if l == nil {
 		return
@@ -231,6 +279,10 @@ func sanitizeFilenameComponent(value string) string {
 // final output path. The payload is JSON-encoded and capped at `maxBytes`;
 // when the cap kicks in the most recent samples are kept and `truncated:
 // true` is emitted in the metadata.
+//
+// [한글] WriteJSON — payload(비truncate) 직렬화 → maxBytes(1MiB) 초과면
+// truncated payload 로 재직렬화 → 0644 로 디스크 기록. 디렉토리 자동 생성.
+// 반환값은 실제 기록된 파일 경로 (filename 은 PortableFilename).
 func (l *DebugLog) WriteJSON(dir string) (string, error) {
 	if l == nil {
 		return "", fmt.Errorf("debug log not initialized")
@@ -400,6 +452,11 @@ func (l *DebugLog) buildHints(skipped int, errorTypes map[string]int) []string {
 
 // InferFieldShapes extracts structural metadata from a raw text line,
 // matching Python's infer_field_shapes for cross-engine parity.
+//
+// [한글] InferFieldShapes — raw 라인 한 줄에서 구조적 단서 추출.
+// 토큰 수, quote/bracket 카운트, suffix=key=value 패턴, request shape
+// (method/path/protocol), timestamp shape 등을 추론해 진단의 "왜 실패
+// 했나" 단서로 사용. Python 측 infer_field_shapes 와 byte-level 동등.
 func InferFieldShapes(text string) map[string]any {
 	shapes := map[string]any{
 		"target_token_count": len(strings.Fields(text)),

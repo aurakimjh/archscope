@@ -1,3 +1,33 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] collapsed — async-profiler "collapsed" 텍스트 파서.
+//
+// 책임/목적
+//   async-profiler / perf-script | flamegraph 의 stack-collapsed.pl 등이
+//   생산하는 표준 collapsed 텍스트를 stack map 으로 파싱.
+//   line 형식: "frame1;frame2;...;leaf <whitespace> 12345" (마지막 토큰이 sample count).
+//
+// 알고리즘 흐름
+//   1) 파일을 line 단위 스캔 (16MB buffer).
+//   2) 빈 라인 skip.
+//   3) parseCollapsedLine: 마지막 whitespace 위치를 찾아 stack/count 분리.
+//   4) count 가 정수 / >0 / 음수 아님을 검증.
+//   5) stacks[stack] += samples. 동일 stack 의 중복 라인은 누적.
+//
+// 진단 분류
+//   - MISSING_SAMPLE_COUNT  : whitespace 없는 라인 (수치 없음)
+//   - MISSING_STACK         : stack 부분이 비어있음
+//   - INVALID_SAMPLE_COUNT  : 마지막 토큰이 정수가 아님
+//   - NEGATIVE_SAMPLE_COUNT : 음수 sample
+//   - ZERO_SAMPLE_COUNT     : 0 sample (Python 동작과 동일하게 reject)
+//   - EMPTY_FILE / NO_VALID_RECORDS : 파일 단위 경고
+//
+// 주의 / 트리키한 부분
+//   • lastWhitespace 는 Unicode whitespace 까지 인식 (Python str.rsplit
+//     기본 동작과 동일). ASCII 한정이 아님에 유의.
+//   • addDiagnosticError / addDiagnosticWarning 는 svg.go / html.go /
+//     jennifer.go 에서도 공유하는 진단 누적 helper.
+// ─────────────────────────────────────────────────────────────────────
+
 package profiler
 
 import (
@@ -36,6 +66,18 @@ var (
 // 6+ GB. Halving each axis caps tree size at ~1.5M nodes, which
 // fits comfortably under 1 GB even on the worst inputs while still
 // covering >99% of useful samples on real wall profiles.
+//
+// [한글] 메모리 가드 상수 모음.
+//   • defaultCollapsedScannerBuffer (64 MB) : 한 라인 최대 길이.
+//     Spring/Hibernate 의 매우 깊은 stack 한 줄이 1MB 를 넘는 경우
+//     있어 넉넉히.
+//   • defaultMaxUniqueStacks (100k) / MaxStackDepth (128) :
+//     70MB wall profile 가 ~1-2GB working-set 에 들어가도록 조정한 cap.
+//   • defaultMaxRSSMB (4GB) : soft RSS ceiling. 초과 시 친절한 에러
+//     반환 + progress log flush — OS SIGKILL 보다 사용자 경험이 좋음.
+//   • defaultMaxFlamegraphNodes (100k) : 렌더러 payload cap. 100k
+//     노드 트리는 gzip 시 ~5 MB, canvas 가 끊김 없이 렌더 가능.
+//     <0 설정 시 pruning 끔.
 const (
 	defaultCollapsedScannerBuffer = 1024 * 1024 * 64 // 64 MB per line cap
 	defaultMaxUniqueStacks        = 100_000
@@ -56,6 +98,11 @@ const (
 // ParseCollapsedFile is the back-compat entry that uses default
 // memory guards. Callers that want to override the caps should use
 // ParseCollapsedFileWithOptions.
+//
+// [한글] ParseCollapsedFile — collapsed text 파일을 stack map 으로.
+// 진단(diagnostics) 에 라인 통계와 skip 사유 누적, 빈 파일/파싱 0건
+// 경고도 부착. 메모리 가드를 default 값으로 적용한 wrapper —
+// override 가 필요하면 ParseCollapsedFileWithOptions 사용.
 func ParseCollapsedFile(path string) (map[string]int, ParserDiagnostics, error) {
 	return ParseCollapsedFileWithOptions(path, Options{})
 }
@@ -195,6 +242,10 @@ func ParseCollapsedFileWithOptions(path string, opts Options) (map[string]int, P
 // stack. We preserve the leaf side because the timeline classifier
 // keys off the deepest frame; a leading "...truncated..." marker
 // makes the truncation visible in top-stacks tables.
+//
+// [한글] truncateStackDepth — stack 의 가장 깊은 keep 개 프레임만 유지.
+// 잎쪽을 보존하는 이유: timeline 분류기가 가장 깊은 프레임을 키로 사용.
+// 잘렸음을 알리는 "...truncated;" 헤드 마커로 사용자가 잘림을 인식 가능.
 func truncateStackDepth(stack string, keep int) string {
 	parts := strings.Split(stack, ";")
 	if len(parts) <= keep {
@@ -204,6 +255,8 @@ func truncateStackDepth(stack string, keep int) string {
 	return "...truncated;" + strings.Join(tail, ";")
 }
 
+// [한글] parseCollapsedLine — 한 라인 검증 및 (stack, samples) 분리.
+// 반환 (stack, samples, reason, message). reason!="" 면 진단 사유.
 func parseCollapsedLine(line string) (string, int, string, string) {
 	index := lastWhitespace(line)
 	if index < 0 {

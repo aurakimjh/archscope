@@ -1,3 +1,20 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] ExceptionAnalyzerPage.tsx — 예외(Stack trace) 로그 분석 페이지.
+//
+// 책임/목적:
+//   - 로그 파일에서 다양한 언어/런타임의 stack trace 를 추출/그룹핑.
+//   - 결과는 예외 타입별 카운트(D3 bar), 검색 가능한 표, 클릭하면 상세
+//     stack 을 우측 Sheet(shadcn) 에 표시.
+//
+// 데이터 흐름:
+//   FileDock → execute → ExceptionStackAnalysisResult
+//   → tables.summaries / tables.samples → 표 + Sheet drawer.
+//
+// 사용 series/tables/charts 키:
+//   - series.type_distribution(예외 타입별 카운트).
+//   - tables.summaries(예외별 요약), tables.samples(개별 sample).
+//   - metadata.parser_diagnostics(skipped lines / warnings).
+// ─────────────────────────────────────────────────────────────────────
 import { Loader2, Play, Search, Square } from "lucide-react";
 import { useCallback, useMemo, useRef, useState } from "react";
 

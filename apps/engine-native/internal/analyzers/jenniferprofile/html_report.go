@@ -1,3 +1,27 @@
+// [한글] html_report.go — Jennifer 분석 결과의 단일 HTML 보고서 렌더러.
+//
+// 설계 원칙 (MVP4 §23.3)
+//   • 자기 충족적(self-contained) — 외부 자산 0개. 인라인 CSS, 외부
+//     이미지/스크립트 미사용. 한 파일을 어디로 옮겨도 그대로 보임.
+//   • 모던 브라우저(Chromium/WebKit/Firefox) 어디서나 같은 모양으로
+//     렌더되도록 단순한 HTML4-호환 마크업 + 적당한 flex 레이아웃.
+//   • 사용자 입력은 모두 html.EscapeString 으로 escape — 응답 시간
+//     마이크로 단위는 안전한 숫자이지만 URL 같은 자유 텍스트가 섞이는
+//     섹션이 있으므로 일괄 적용.
+//
+// 보고서 구성 (RenderHTMLReport)
+//   1) 헤더 — "ArchScope — Jennifer MSA Timeline Report" + 생성 시각.
+//   2) Summary section — 파일 수 / 총 프로파일 / 오류·경고.
+//   3) File summary — 입력 파일별 메트릭.
+//   4) Signature statistics — 같은 호출 구조를 묶은 분포 통계 표.
+//   5) Top slow root response — 응답이 느린 root 트랜잭션.
+//   6) Top network gap edges — 외부호출 네트워크 갭 큰 엣지.
+//   7) Top SQL execute / Top fetch — DB 비용 큰 항목.
+//   8) Parallelism table — 외부호출 병렬도 분포.
+//
+// 데이터 source
+//   AnalysisResult 의 series/tables 만 본다 — 분석 결과를 다시 계산하지
+//   않음. 즉 분석기 → JSON → HTML 어디 단계에서 끊어도 결과가 일관.
 package jenniferprofile
 
 import (

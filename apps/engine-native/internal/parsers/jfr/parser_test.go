@@ -1,3 +1,15 @@
+// [한글] jfr parser 회귀 테스트.
+//
+// 검증 대상
+//   • 3종 입력 형태 모두 같은 Event 슬라이스로 통일:
+//     {"recording":{"events":[...]}} / {"events":[...]} / [...].
+//   • 깨진 JSON → ReasonInvalidJFRJSON 카운트 + 에러.
+//   • events 배열 누락 → ReasonInvalidJFRShape.
+//   • 한 이벤트 객체가 event_type 누락 등 → ReasonInvalidJFREvent
+//     (전체 실패가 아닌 라인 단위 skip).
+//   • duration_ms / address / size 파싱 (문자열 "12.5ms" 도 허용).
+//   • frames 가공 형식 일관성.
+//   • raw_preview 가 500 byte 로 잘림.
 package jfr
 
 import (

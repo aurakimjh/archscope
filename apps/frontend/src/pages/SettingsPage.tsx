@@ -1,3 +1,19 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] SettingsPage.tsx — 엔진 경로/테마/로케일 등 앱 전역 설정 페이지.
+//
+// 책임/목적:
+//   - window.archscope.settings.get/set 으로 설정을 영속화.
+//   - 테마(light/dark/system) 는 ThemeProvider 와 양방향 동기화.
+//   - 로케일은 I18nProvider 의 setLocale 과 양방향 동기화.
+//
+// 데이터 흐름:
+//   마운트 → settings.get → 폼 채우기.
+//   사용자 입력 → 로컬 state → "Save" 클릭 → settings.set → 토스트 상태.
+//
+// UI:
+//   - shadcn Card/Input/Button + lucide 아이콘.
+//   - 테마 토글은 segmented control 스타일(직접 className 으로 구성).
+// ─────────────────────────────────────────────────────────────────────
 import { Check, RotateCcw, Save, Settings2, Sun, Moon, Monitor } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 

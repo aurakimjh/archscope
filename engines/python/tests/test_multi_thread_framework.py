@@ -1,3 +1,32 @@
+# ─────────────────────────────────────────────────────────────────────
+# [한글] test_multi_thread_framework — 다국어 thread-dump 프레임워크
+# 회귀 테스트 (T-188 / T-189 / T-190 / T-191).
+#
+# 검증 대상
+#   • T-188: ThreadState alias coercion, ThreadSnapshot.stack_signature
+#     (top-frame 기반 모듈+함수 결합 문자열).
+#   • T-189: ParserRegistry — Java jstack 플러그인 자동 탐지/등록,
+#     unknown format / mixed format 예외.
+#   • T-190: JavaJstackParserPlugin.can_parse 휴리스틱 (full thread
+#     dump header / quoted nid only / 잡음 텍스트 reject).
+#   • T-191: analyze_multi_thread_dumps — 다중 dump 상관 분석.
+#       - 3 연속 RUNNABLE → LONG_RUNNING_THREAD finding.
+#       - 3 연속 BLOCKED  → PERSISTENT_BLOCKED_THREAD finding.
+#       - run break(상태 전환) 시 finding 미발생.
+#       - state_distribution_per_dump 시계열 누적.
+#       - 빈 bundle → ValueError.
+#
+# fixture 정책
+#   _JSTACK_SAMPLE 은 inline string fixture. tmp_path 에 파일을 만들고
+#   registry/플러그인이 직접 파싱하도록 하여 IO 경로까지 검증.
+#   _bundle / _java_snapshot 헬퍼는 correlator 입력을 최소 형태로 조립.
+#
+# parity 주의 (Python ↔ Go 비교 가능한 부분)
+#   Go engine-native 의 internal/analyzers/multithread/analyzer_test.go
+#   와 finding code (LONG_RUNNING_THREAD / PERSISTENT_BLOCKED_THREAD),
+#   summary 키, state_distribution_per_dump shape 가 byte 단위 동일해야
+#   한다. 본 테스트가 회귀 시 양쪽을 함께 점검할 것.
+# ─────────────────────────────────────────────────────────────────────
 """Regression tests for the multi-language thread-dump framework
 (T-188 / T-189 / T-190 / T-191).
 """
@@ -191,6 +220,8 @@ def _java_snapshot(name: str, state: ThreadState, stack: list[str]) -> ThreadSna
 
 
 def test_multi_analyzer_emits_long_running_for_three_consecutive_runnable() -> None:
+    # [한글] 동일 이름 thread 가 3 dump 연속 RUNNABLE 이면 long-running
+    #        finding 발생. summary 의 카운트와 codes 리스트 동시 검증.
     bundles = [
         _bundle(
             i,
@@ -224,6 +255,8 @@ def test_multi_analyzer_emits_persistent_blocked_for_three_consecutive_blocked()
 
 
 def test_multi_analyzer_skips_when_run_breaks() -> None:
+    # [한글] dump-1 에서 WAITING 으로 전환되면 RUNNABLE 연속이 끊겨
+    #        long-running 으로 잡히지 않아야 함을 검증.
     bundles = [
         _bundle(
             0,

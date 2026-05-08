@@ -1,3 +1,27 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] chartOptions.ts — 도메인별 ECharts 옵션 빌더 함수 모음.
+//
+// 책임/목적:
+//   - 분석 결과(예: GcLogAnalysisResult.series.heap_timeline) 의 작은 조각
+//     을 받아 ECharts 가 바로 setOption 할 수 있는 EChartsOption 객체로
+//     변환합니다(line/bar/donut/histogram 등).
+//   - 큰 데이터셋에서 progressive rendering 을 활성화하기 위한 임계값
+//     상수(LARGE_*_THRESHOLD, PROGRESSIVE_*) 를 한 곳에서 관리.
+//
+// 데이터 흐름:
+//   chartFactory.createChartOption → 각 빌더(예: gcPauseTimelineOption)
+//   → EChartsOption → ChartPanel 에 전달.
+//
+// 사용 series/tables/charts 키:
+//   - 빌더마다 입력 타입(예: GcPauseTimelinePoint[]) 이 다르므로 호출
+//     측은 분석 결과의 어떤 슬롯을 슬라이스해 넘길지 선택해야 합니다.
+//   - 각 빌더 함수의 시그니처와 chartFactory 의 switch case 가 진입점.
+//
+// 주의:
+//   - 빌더는 순수 함수 — props 를 변형하지 않고 새 객체를 반환합니다.
+//   - i18n 라벨(ChartLabels/GcChartLabels) 은 옵션 안의 텍스트 로 들어가며,
+//     동적 변경이 필요하면 ChartPanel 이 setOption 으로 다시 적용합니다.
+// ─────────────────────────────────────────────────────────────────────
 import type { EChartsOption } from "echarts";
 
 import type {

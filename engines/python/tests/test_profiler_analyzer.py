@@ -1,3 +1,15 @@
+# ─────────────────────────────────────────────────────────────────────
+# [한글] test_profiler_analyzer — collapsed-stack profiler 분석기 회귀.
+#
+# 검증 대상
+#   • analyze_collapsed_profile: collapsed Counter 입력 → AnalysisResult
+#     (type="profiler_collapsed") 와 flamegraph 트리.
+#   • _drilldown_from_result: 분석 결과에 DrilldownFilter 적용 → 일부
+#     하위트리만 표시되도록 재구성.
+#   • profile_classification: stack 라벨링 ("JVM"/"Node.js"/"Spring" 등)
+#     이 정확히 적용.
+#   • UI 페이지 전환 (전체 보기 / drilldown 보기) 시나리오 회귀.
+# ─────────────────────────────────────────────────────────────────────
 from pathlib import Path
 
 from archscope_engine.analyzers.profiler_analyzer import (

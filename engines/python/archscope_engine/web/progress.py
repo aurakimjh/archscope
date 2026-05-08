@@ -19,6 +19,12 @@ threading lock around two maps:
   poll ``progress_registry.is_cancelled(task_id)`` (or just rely on the
   return value of ``cancel(task_id)`` for renderer feedback today).
 """
+# [한글] web/progress — task-id 기반 진행률/취소 레지스트리.
+# WebSocket /ws/progress 와 POST /api/analyzer/cancel 의 백엔드.
+# threading.Lock + 두 dict (connections, cancellations) 만으로 단순
+# 구성. multi-tab 동시 구독 OK. analyzer 가 is_cancelled(task_id) 로
+# 협조적 취소 가능 (현재 분석기는 동기 in-process 이므로 registry 는
+# UI hook 용 contract 역할).
 from __future__ import annotations
 
 import asyncio

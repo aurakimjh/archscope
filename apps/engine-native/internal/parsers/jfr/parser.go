@@ -16,6 +16,35 @@
 //
 // Reasons surfaced through diagnostics are kept verbatim from Python so
 // cross-engine parity holds (T-244 / T-390 gate).
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] jfr parser — `jfr print --json` 출력을 Event 슬라이스로 변환.
+//
+// 파일 분리
+//   parser.go    : JSON ingest 와 per-event 필드 추출 (이 파일).
+//   recording.go : 바이너리 .jfr → JSON 변환을 위한 JDK `jfr` CLI 브리지.
+//
+// 지원 입력 형태 (관용적)
+//   1) {"recording": {"events": [...]}}   ← JDK 의 wrapper 형태.
+//   2) {"events": [...]}                   ← top-level events 객체.
+//   3) [...]                               ← 이벤트 배열 직접.
+//   3가지 모두를 받아서 같은 Event 슬라이스로 통일. 사용자가 `jfr print
+//   --json` 결과를 그대로 던지든, jq 로 한 단계 풀고 던지든 동작.
+//
+// Event 의 의미
+//   pointer 필드 (DurationMS / Thread / State / Address / Size) 는
+//   Python `Optional[T]` 의 동치 — JSON 직렬화 시 누락 값을 null 로.
+//   Frames 는 `_format_frame` 으로 가공된 1-line 문자열 슬라이스
+//   (모듈/클래스/메서드/파일/라인 일관 형식).
+//
+// skip/error 사유 (Python verbatim)
+//   ReasonInvalidJFRJSON  : JSON 자체가 깨짐 (UnmarshalError).
+//   ReasonInvalidJFRShape : JSON 은 OK 인데 events 배열이 안 보임.
+//   ReasonInvalidJFREvent : 한 이벤트 객체 형태 이상 (event_type 누락 등).
+//
+// rawPreviewLimit
+//   diagnostics 샘플에 첨부할 raw JSON preview 의 최대 byte 수 (500).
+//   Python `[:500]` 슬라이스와 동일.
 package jfr
 
 import (

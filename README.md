@@ -48,10 +48,22 @@ The legacy `archscope-engine` console script is still installed for
 backward compatibility; both binaries point at the same Typer app.
 
 The Electron desktop shell that previously wrapped the same codebase
-was retired in T-207; ArchScope now ships exclusively as a Python wheel
-that serves the React bundle from FastAPI on `127.0.0.1`. A native
-desktop track lives separately in `apps/profiler-native/` (Wails v3,
-profiler-only). Latest binaries land on the [GitHub releases
+was retired in T-207. ArchScope now exists as **two parallel engine
+implementations** that emit the same `AnalysisResult` JSON:
+
+- **Python (current shipping)** — `pip install archscope` →
+  `archscope serve` boots FastAPI on `127.0.0.1:8765` and serves the
+  React bundle bundled inside the wheel.
+- **Go (Tier-5 desktop pivot — target end-state)** — the
+  `apps/engine-native/` library has full Python feature parity (Tiers
+  1–4 + Cobra CLI T-360 + demo runner T-380). It is consumed by the
+  Wails desktop binary at `apps/profiler-native/` (single binary,
+  target raw size < 12 MB, T-391) and exposed headlessly via
+  `cmd/archscope-engine` for the parity gate / CI.
+
+Both tracks are tested side-by-side by the parity gate at
+`.github/workflows/profiler-native.yml`. Latest desktop binaries land
+on the [GitHub releases
 page](https://github.com/aurakimjh/archscope/releases).
 
 ## Highlights
@@ -161,10 +173,15 @@ archscope-engine report diff  --before before.json --after after.json --out diff
 ```text
 archscope/
   apps/frontend/         React + Vite + Tailwind v4 + Pretendard
-                         (served as a static bundle by FastAPI)
-  apps/profiler-native/  Wails v3 native profiler track (separate
-                         desktop binary, profiler-only — see
+                         (served as a static bundle by FastAPI and
+                         embedded inside the Wails desktop binary)
+  apps/profiler-native/  Wails v3 desktop binary (Tier-5 release
+                         artifact — single native binary, profiler +
+                         all engine analyzers — see
                          docs/{en,ko}/PROFILER_NATIVE.md)
+  apps/engine-native/    Go engine library + Cobra CLI. Full parity
+                         with the Python engine; consumed by the
+                         Wails desktop binary and the CI parity gate.
   engines/python/        archscope_engine package + FastAPI server.
                          The unified `archscope` wheel (T-208) is built
                          here via scripts/build-archscope-wheel.sh and

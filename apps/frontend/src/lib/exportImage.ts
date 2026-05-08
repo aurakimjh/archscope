@@ -1,3 +1,18 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] lib/exportImage.ts — 차트/카드 DOM 을 PNG/JPEG/SVG 로 export 하는
+//   공용 헬퍼와 프리셋 정의.
+//
+// 책임/목적:
+//   - ECharts 인스턴스가 있으면 native getDataURL(이미지 품질 최고)을 우선.
+//   - SVG/Canvas 혼합 D3 차트는 html-to-image 로 DOM 캡처(toPng/toJpeg/toSvg).
+//   - downloadDataUrl 로 a[download] 트릭을 사용해 즉시 저장 다이얼로그.
+//
+// 데이터 흐름:
+//   ChartPanel/D3ChartFrame → exportNodeImage(node, options) → 다운로드.
+//
+// 프리셋(saveImagePresets):
+//   - PNG @1x, PNG @2x(고해상도), SVG, JPEG 등의 기본 포맷을 메뉴에 노출.
+// ─────────────────────────────────────────────────────────────────────
 /**
  * Image-export helpers for the chart system.
  *

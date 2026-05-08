@@ -1,3 +1,16 @@
+// [한글] pptx exporter 회귀 테스트.
+//
+// 검증 대상
+//   • zip 안에 8종 필수 part 가 모두 존재.
+//   • [Content_Types].xml 의 Override 가 모든 slide 를 포함.
+//   • slide XML 의 텍스트 escape ( `&` `<` `>` `"` `'` ).
+//   • Title / Summary / Findings 슬라이드 순서 보존.
+//   • Findings 가 0건이면 Findings 슬라이드 생략.
+//   • PowerPoint 호환성을 위한 namespace + 스키마 일치.
+//   • 한글 텍스트가 정상적으로 보존.
+//
+// PowerPoint 자체로 열어보지는 않고, zip 구조 + XML schema 검증으로
+// "PowerPoint 가 거부할 만한 형태" 를 회귀 차단.
 package pptx
 
 import (

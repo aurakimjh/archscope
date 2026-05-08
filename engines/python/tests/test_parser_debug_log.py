@@ -1,3 +1,17 @@
+# ─────────────────────────────────────────────────────────────────────
+# [한글] test_parser_debug_log — DebugLogCollector + redaction 회귀.
+#
+# 검증 대상
+#   • DebugLogCollector: 파서 실패 샘플 수집 (cap MaxDiagnosticSamples=100).
+#   • redact_text: Authorization/Cookie/URL/email/path 자동 마스킹.
+#   • access_log 분석기와 통합: skip 라인이 redacted 형태로 디버그 로그에
+#     포함.
+#   • 1 MiB 출력 cap 적용.
+#
+# parity 주의
+#   Go engine-native common/debuglog.go 의 RedactionVersion (0.1.0) 와
+#   같은 정책. 두 엔진의 디버그 로그를 같은 viewer 가 열 수 있도록.
+# ─────────────────────────────────────────────────────────────────────
 import json
 from pathlib import Path
 

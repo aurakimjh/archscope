@@ -1,3 +1,14 @@
+// [한글] reportdiff exporter 회귀 테스트.
+//
+// 검증 대상
+//   • 두 AnalysisResult 의 summary 비교 → metric_deltas 정확.
+//   • 숫자 메트릭의 delta = after - before.
+//   • 비숫자(문자열) 는 같음/다름 비교.
+//   • before/after 한쪽에만 있는 키 → added/removed 마킹.
+//   • findings 카운트가 summary 에 정확히 반영.
+//   • BuildComparisonReport 가 디스크 두 파일을 읽어 같은 결과 produce.
+//   • Marshal/Write 의 출력 = JSON exporter 와 같은 byte 형식.
+//   • float NaN / Inf 안전 처리 (math.IsNaN/IsInf 체크).
 package reportdiff
 
 import (

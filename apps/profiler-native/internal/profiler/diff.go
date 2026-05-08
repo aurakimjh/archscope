@@ -1,3 +1,40 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] diff — 두 profiler 결과(baseline vs target) 비교 분석.
+//
+// 책임/목적
+//   같은 애플리케이션의 두 시점/버전 profiler 결과를 한 화면에서
+//   비교한다. flame tree 의 각 노드에 baseline(a) / target(b) / delta
+//   값을 동시에 부착해 어디서 좋아졌고 나빠졌는지 한눈에 보이게.
+//
+// 알고리즘 흐름
+//   1. baseTotal/targetTotal 계산 → Normalize=true 면 각 사이드를
+//      자기 합계로 나눠 ratio(0~1) 로 변환 (target 이 더 길게 돌았다고
+//      해서 시각적으로 baseline 을 압도하지 않도록).
+//   2. diffNode trie 에 baseline 은 A 채널, target 은 B 채널로 누적.
+//   3. freezeDiff 로 immutable FlameNode 트리화 — 정렬 기준은
+//      max(A,B) DESC. 노드별 metadata={a,b,delta} 부착.
+//      샘플 수는 Python 호환을 위해 max(A,B) * 1_000_000 정수화.
+//   4. 모든 노드 path 를 평탄화한 뒤 delta DESC/ASC 로 두 번 정렬해
+//      biggest_increases / biggest_decreases 표 (각 30개 cap).
+//   5. summary 에 baseline_total/target_total/normalized/common/added/
+//      removed counts + max_increase/max_decrease 정보 채움.
+//
+// 주요 함수
+//   - BuildDiffFlameTree    : 핵심 진입점, FlameNode + parts 반환
+//   - freezeDiff            : mutable diffNode → immutable FlameNode
+//   - rowToMap              : diff row 직렬화 (delta_ratio 계산 포함)
+//   - AnalyzeProfilerDiff   : AnalysisResult 형태로 wrapping
+//   - withDiffPayload       : 공통 AnalysisResult 에 diff 전용 필드 부착
+//
+// 트리키한 부분
+//   • Normalize 모드에서 sample 수가 ratio(<1) 이지만 FlameNode.Samples
+//     는 int 라 정밀도 보존을 위해 *1_000_000 후 round.
+//   • freezeDiff 의 root 보정: 입력 시 Path=[] 인 root 는 자식 합으로
+//     A/B 를 보정해야 정확한 delta 를 가진다.
+//   • delta_ratio 계산은 baseline=0 이고 delta>0 이면 +∞ 로 마킹.
+//   • Python 측 BiggestIncreases/Decreases 는 delta 0 인 노드는 break.
+// ─────────────────────────────────────────────────────────────────────
+
 package profiler
 
 import (
@@ -8,6 +45,9 @@ import (
 )
 
 // DiffOptions controls profiler diff behaviour.
+//
+// [한글] Normalize=true 면 양쪽 합계로 나눠 ratio(0~1) 비교, false 면
+// raw sample 비교. 보통 비교 시 길이가 다르면 true 가 디폴트.
 type DiffOptions struct {
 	Normalize bool
 }
@@ -35,6 +75,11 @@ type diffRow struct {
 // baseline.
 //
 // The returned `FlameNode` carries per-node `metadata = { a, b, delta }`.
+//
+// [한글] BuildDiffFlameTree — 두 stack map 의 비교 트리 + summary/tables.
+// 반환 (flameRoot, parts) 에서 parts["summary"], parts["tables"] 가
+// 비교 표 데이터. flameRoot 의 각 노드 metadata 는 {a,b,delta} 를 들고 있어
+// UI 에서 색칠할 때 사용.
 func BuildDiffFlameTree(baseline, target map[string]int, options DiffOptions) (FlameNode, map[string]any) {
 	var baseTotal, targetTotal int
 	for _, v := range baseline {
@@ -162,6 +207,11 @@ func BuildDiffFlameTree(baseline, target map[string]int, options DiffOptions) (F
 	return flameRoot, parts
 }
 
+// [한글] freezeDiff — diffNode 재귀를 FlameNode 재귀로 변환하면서 flat
+// (모든 path 평탄화 리스트) 도 동시에 누적. 정렬 키는 max(A,B) DESC.
+// root(Path=[]) 인 경우 자식 합으로 A/B 보정 (부모는 자식 누적치를 가져야
+// 정확한 delta 가 나오기 때문). FlameNode.Samples 는 max(A,B)*1e6 으로
+// 정수화해 ratio 가 매우 작은 경우에도 정밀도 보존.
 func freezeDiff(node *diffNode, flat *[]diffRow) (FlameNode, float64) {
 	children := make([]*diffNode, 0, len(node.Children))
 	for _, child := range node.Children {
@@ -250,6 +300,12 @@ func rowToMap(row diffRow) map[string]any {
 
 // AnalyzeProfilerDiff produces a `profiler_diff` AnalysisResult from the two
 // stack maps.
+//
+// [한글] AnalyzeProfilerDiff — diff 트리/표를 공통 AnalysisResult 형식
+// 으로 wrapping. Type="profiler_diff", parser="profiler_diff",
+// metadata.diff_summary/diff_tables 에 비교 전용 데이터 부착.
+// 다른 분석기와 동일한 AnalysisResult 컨트랙트를 유지해 export/UI 가
+// 동일 코드 경로로 처리할 수 있게 한다.
 func AnalyzeProfilerDiff(baseline, target map[string]int, baselinePath, targetPath string, options DiffOptions) AnalysisResult {
 	flameRoot, parts := BuildDiffFlameTree(baseline, target, options)
 	summary := parts["summary"].(map[string]any)

@@ -14,6 +14,40 @@
 // classification (SQL / Check Query / 2PC / Fetch / External Call).
 // MSA grouping, network-gap, signature stats, parallelism are layered
 // on top in MVP2-MVP4.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] jenniferprofile parser — Jennifer APM Profile Export 파서.
+//
+// 7개 파일로 분리
+//   parser.go           : 공개 진입점 ParseFile / ParseString.
+//   splitter.go         : 파일을 Total Transaction 안내 + N개 TXID
+//                         블록으로 분할.
+//   header_parser.go    : 2-column key:value 헤더 파싱.
+//   body_parser.go      : 본문 이벤트 라인 + START/END/TOTAL 파싱.
+//   event_classifier.go : 이벤트 우선순위 기반 분류 (SQL / 2PC /
+//                         FETCH / EXTERNAL_CALL / METHOD ...).
+//   validator.go        : §10 FULL-Profile 검증 (TXID/GUID/Application
+//                         /TIME 필드 누락 검출).
+//
+// 처리 흐름
+//   1) ParseFile : textio.ReadAll 로 파일 전체 읽음 (인코딩 폴백).
+//   2) splitTotalAndBlocks : `Total Transaction : N` 와 N개 TXID
+//      블록으로 분할.
+//   3) 각 블록에 대해:
+//        a) parseHeader : 2-column key:value → JenniferProfileHeader.
+//        b) parseBody   : 본문 이벤트 라인 → JenniferProfileBody.
+//        c) classifyEvents : 이벤트 메시지를 우선순위 규칙으로 분류.
+//        d) validateFullProfile : §10 강제 필드 검증.
+//   4) 결과를 JenniferTransactionProfile + FileResult 로 반환.
+//
+// STRICT_MODE 기본값
+//   §10 위반 = profile.Errors. STRICT_MODE 에서는 분석기가 그 GUID
+//   그룹을 실패로 표시. 호출자가 비활성화하면 warning 으로 격하.
+//
+// MSA 단계 분리
+//   본 파서는 MVP1 — 단일 트랜잭션 단위 파싱까지만. GUID 그룹핑 /
+//   caller-callee 매칭 / 시그니처 통계 / 병렬도는 분석기 (analyzers/
+//   jenniferprofile) 가 처리.
 package jenniferprofile
 
 import (

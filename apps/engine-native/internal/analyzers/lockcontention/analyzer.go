@@ -14,6 +14,37 @@
 // lock_holds/lock_waiting fields, so this analyzer is JVM-driven in
 // practice. Other runtimes simply yield empty fields and the contention
 // table comes back empty.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] lockcontention 분석기 — JVM 락 경합 + 데드락 분석기.
+//
+// 입력
+//   1개 이상의 ThreadDumpBundle. 각 snapshot 의 LockHolds / LockWaiting
+//   필드를 사용. 비-Java 런타임은 이 필드가 비어있어 결과 표가 빈
+//   상태로 정상 통과.
+//
+// 출력 envelope (type: "thread_dump_locks")
+//   • tables.lock_contention : lock_id 별 (owner, waiter count, top
+//     waiter names, owner stack signature) 표.
+//   • findings:
+//        LOCK_CONTENTION_HOTSPOT (warning) — waiter 가 1명 이상인
+//          contended lock 마다 한 finding.
+//        DEADLOCK_DETECTED (critical) — DFS 사이클 각 한 번씩.
+//
+// cooperativeWaitModes
+//   object_wait / parking_condition_wait 는 Object.wait() 또는
+//   Condition.await() 로 인한 cooperative wait 이지 락 경합이 아닙니다.
+//   따라서 contention candidate 와 deadlock graph 양쪽에서 모두 제외.
+//
+// 데드락 탐지 (graph.go 참조)
+//   waits-for 그래프 = "스레드 A 가 스레드 B 가 보유한 락을 대기" 면
+//   A → B 엣지. 3색 DFS 로 사이클 탐지(0=미탐색, 1=현재 스택, 2=완료).
+//   사이클을 canonical(lex 최소 rotation) 로 정규화해 동일 사이클이
+//   진입점만 다르게 중복 보고되지 않도록 함.
+//
+// parity 주의
+//   message 문자열 / sort key / cooperative 제외 규칙이 Python 과
+//   byte 단위 동일.
 package lockcontention
 
 import (

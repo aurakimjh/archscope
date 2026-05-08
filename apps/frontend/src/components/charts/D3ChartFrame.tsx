@@ -1,3 +1,19 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] D3ChartFrame.tsx — D3 기반 차트들의 공통 프레임(헤더/툴바/카드).
+//
+// 책임/목적:
+//   - D3BarChart / D3TimelineChart / D3FlameGraph / D3HeatmapStrip 등
+//     모든 D3 차트가 동일한 카드 레이아웃과 이미지 저장 UX 를 갖도록
+//     공통 wrapper 를 제공.
+//   - 자식이 그릴 SVG 영역과 toolbar 를 nested로 두고, exportNodeImage
+//     로 카드 전체를 캡처해 PNG/SVG 다운로드.
+//   - data-chart-export-name 속성을 부여해 batchExport 가 모든 D3 차트
+//     를 일괄 export 할 수 있게 마킹.
+//
+// UI:
+//   - shadcn Card/Button/DropdownMenu + Tailwind v4 토큰.
+//   - useImperativeHandle 로 부모가 ref 를 통해 export 를 트리거할 수 있게.
+// ─────────────────────────────────────────────────────────────────────
 import { Download } from "lucide-react";
 import {
   forwardRef,

@@ -1,3 +1,11 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] HorizontalBarChart.tsx — 의존성 없는 가벼운 가로 막대 차트.
+//
+// 책임/목적: BarRow[] 를 받아 div 기반 막대 트랙을 렌더. d3-scale 없이
+// 단순 (value / max) * 100% 비율로 폭 계산. timeline segment 와
+// execution breakdown 양쪽에서 재사용되도록 데이터 모양을 일부러 좁게
+// 잡았습니다 (label + value + 선택적 ratio).
+// ─────────────────────────────────────────────────────────────────────
 // Lightweight SVG horizontal-bar chart. No d3 dependency — we already pay
 // for d3-hierarchy in the flamegraph but not d3-scale/d3-axis here. The
 // data shape is intentionally narrow so it serves both the timeline view

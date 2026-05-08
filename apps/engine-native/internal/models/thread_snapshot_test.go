@@ -1,3 +1,15 @@
+// [한글] models/thread_snapshot_test.go — ThreadState 정규화 표와
+// ThreadSnapshot/ThreadDumpBundle 직렬화 contract 회귀 테스트.
+//
+// 핵심 케이스
+//   • Java/Go/Python 의 raw 상태 문자열이 정규화 enum 으로 들어오는지.
+//   • 빈 문자열·미지의 문자열은 UNKNOWN 으로 떨어지는지.
+//   • StackSignature 가 빈 스택일 때 "(no-stack)" 를 반환하는지.
+//   • Bundle 직렬화 시 빈 컨테이너가 null 이 아닌 [] / {} 로 출력되는지.
+//
+// 별칭 표가 회귀하면 multi-thread 분석기의 finding 전체가 깨지므로
+// 이 테스트가 중요합니다 — Python coerce 표와 1:1 동기화가 깨지면
+// parity gate 가 즉시 빨간 불을 켭니다.
 package models
 
 import (

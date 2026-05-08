@@ -1,3 +1,9 @@
+// [한글] pprof_test — ExportToPprof 의 정상 출력 검증.
+// 출력 파일이 gzip 압축된 pprof.proto 인지, sample/location/function ID 가
+// 1 부터 단조증가하는지, sample 의 location 순서가 leaf-first 인지(collapsed
+// 입력의 root-first 와 반대), intervalMs>0 일 때 duration sample type
+// 추가 부착이 동작하는지 등을 확인.
+
 package profiler
 
 import (

@@ -1,3 +1,16 @@
+// [한글] otel 분석기 회귀 테스트.
+//
+// 핵심 시나리오
+//   • parent_span_id DAG 정상 케이스: service 호출 경로가 올바르게
+//     복원됨.
+//   • SELF_PARENT 케이스: span 의 parent 가 자기 자신 → finding 1건.
+//   • PARENT_CYCLE 케이스: A→B→A 형태 → finding 1건.
+//   • 부모 엣지 없는 trace: timestamp 폴백으로 service 변경점 기반
+//     경로 합성.
+//   • cross-service trace: 단일 trace_id 가 여러 service 를 거침 →
+//     OTEL_CROSS_SERVICE_TRACE finding.
+//   • 에러 전파: 첫 error 이후 downstream service 가 등장 →
+//     OTEL_FAILURE_PROPAGATION 행 + finding.
 package otel
 
 import (

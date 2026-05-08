@@ -5,6 +5,36 @@
 // `#Fields:` resets state and captures the field schema, normal lines
 // are decoded against the IIS schema if one is active, and stray
 // content is reported as `UNSUPPORTED_DOTNET_OR_IIS_LINE`.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] dotnet parser — .NET 예외 + IIS W3C access 혼합 스트림.
+//
+// 입력 형태 (실세계 케이스)
+//   IIS 환경의 .NET 애플리케이션 로그는 종종 access log 와 예외 dump
+//   가 같은 파일에 섞여 있습니다. 운영자가 grep 등으로 한 케이스만
+//   추출하기 어려운 경우가 많아, 본 파서는 한 입력으로 둘 다 처리.
+//
+// 라인 단위 dispatch 알고리즘
+//   1) `<TypeName>Exception: message` 매칭 → 새 예외 블록 시작.
+//      이전 블록이 있다면 flush 후 시작.
+//   2) `#Fields: <col1> <col2> ...` 지시어 만나면 IIS 스키마 캡처
+//      (필드 순서 저장). 진행중이던 예외 블록은 flush.
+//   3) IIS 스키마가 활성 상태에서 정상 라인이 오면 IIS access record
+//      로 디코드 (스페이스 split).
+//   4) 예외 블록이 활성이면 `at <method> in <file>:line N` 같은 frame
+//      라인을 stack 에 누적.
+//   5) 어디에도 안 맞는 라인은 UNSUPPORTED_DOTNET_OR_IIS_LINE 사유로
+//      diagnostics 에 기록 후 skip.
+//
+// dotnetExceptionRE
+//   타입명은 반드시 "Exception" 으로 끝나야 함 (예: NullReference
+//   Exception, InvalidOperationException). message 는 `:` 뒤의 임의
+//   텍스트.
+//
+// async state machine 정리
+//   .NET 의 async 메서드 stack frame 은 컴파일러가 `<MethodName>d__N`
+//   형태로 mangle 하므로, 분석기 측에서 가독성 개선용 정리 처리.
+//   파서 단계는 raw 보존.
 package runtimestack
 
 import (

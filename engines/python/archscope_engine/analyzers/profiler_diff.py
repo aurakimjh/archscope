@@ -11,6 +11,25 @@ when ``normalize=True`` (default), so a 10× longer target run does not
 visually drown out the baseline. Set ``normalize=False`` to diff raw
 sample counts.
 """
+# ─────────────────────────────────────────────────────────────────────
+# [한글] profiler_diff — 두 collapsed 프로파일의 differential flame graph.
+#
+# 책임/목적
+#   baseline 과 target 두 Counter[str] 를 받아 각 노드에 (a, b, delta,
+#   delta_ratio) 를 들고 있는 통합 트리(FlameNode) 산출. 프론트엔드는
+#   이를 빨강/파랑 발산 팔레트로 렌더링.
+#
+# 알고리즘
+#   1) base_total / target_total 산출. normalize=True 면 각각 1/total
+#      로 스케일링하여 비교 대상의 길이 차이를 제거.
+#   2) baseline 과 target 의 모든 (frame_path) 를 union 하여 trie 누적.
+#      a/b 에 각각 스케일된 samples 를 더함.
+#   3) FlameNode 로 freeze 시 metadata 에 (a, b, delta, delta_ratio)
+#      포함. delta = b - a, delta_ratio = delta / max(a, ε).
+#
+# parity 주의사항: SCHEMA_VERSION ("0.1.0"), normalize 기본값 True,
+# 정렬 키 (|delta| desc), metadata 키 이름이 Go 측과 동일.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 from collections import Counter, defaultdict

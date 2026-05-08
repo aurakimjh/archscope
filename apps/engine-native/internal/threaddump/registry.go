@@ -13,6 +13,44 @@
 // (T-191) meaningless. The caller can opt out by passing an explicit
 // FormatOverride — the override is honored uniformly and the
 // mixed-format check is skipped.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] threaddump registry — 5개 런타임의 thread dump 형식을 자동
+// 감지해 알맞은 plugin 으로 dispatch.
+//
+// 핵심 자료구조
+//   Plugin 인터페이스:
+//     FormatID()  : 안정 식별자 (예: "java_jstack"). FormatOverride
+//                   값과 ThreadDumpBundle.SourceFormat 에 사용.
+//     Language()  : 런타임 라벨 ("java"/"go"/"python"/"nodejs"/"dotnet").
+//     CanParse(head string) bool : 첫 4 KB head 만 보고 처리 가능 여부
+//                                  판단 (값싸야 함 — regex/substring sniff).
+//     Parse(path) -> ThreadDumpBundle : 전체 파일 파싱.
+//
+// 자동 감지 알고리즘
+//   1) 입력 파일의 첫 4 KB 를 textio.ReadHead 로 디코드.
+//      (UTF-16 BOM, 인코딩 폴백 처리도 textio 가 흡수)
+//   2) 등록된 plugin 들에게 CanParse(head) 를 순서대로 묻고, 첫 true
+//      반환 plugin 으로 dispatch.
+//   3) 모두 false → "unknown source format" 에러.
+//
+// FormatOverride 정책
+//   사용자가 FormatOverride 를 명시하면 head sniff 를 건너뛰고 강제
+//   dispatch. 멀티 덤프에서 mixed-format 검사도 함께 skip — 의도한
+//   override 라는 가정.
+//
+// MixedFormatError
+//   ParseMany 가 두 파일의 SourceFormat 이 서로 다르면 즉시 에러 반환.
+//   서로 다른 런타임의 덤프를 시간순으로 묶으면 persistence finding
+//   이 의미가 없어짐 (T-191) — 명시적 override 가 없는 한 거부.
+//
+// DefaultRegistry
+//   패키지 레벨 싱글톤. 각 plugin 의 init() 가 자신을 등록.
+//   "api 또는 cmd 가 plugin 을 _ import 하면 자동 등록" 모델.
+//
+// DetectHeadBytes (4096)
+//   Python DETECT_HEAD_BYTES 와 동일. 각 런타임의 시그니처 라인은
+//   파일 처음 ~수 KB 안에 들어옴 — 이 정도면 충분히 식별 가능.
 package threaddump
 
 import (

@@ -11,6 +11,37 @@
 // `stack` vs `stackTrace` vs `frames`, ...) so the plugin walks the
 // payload as `map[string]any` and probes a small set of candidate keys
 // for each field.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] javajcmdjson plugin — `jcmd Thread.dump_to_file -format=json`
+// 출력의 파서.
+//
+// 입력 형식
+//   `jcmd <pid> Thread.dump_to_file -format=json /tmp/dump.json` 의
+//   결과. 각 스레드를 객체로 가지고, virtual thread / carrier 정보를
+//   포함 (JDK 21+).
+//
+// JDK 버전 간 키 이름 차이
+//   같은 의미를 다른 키로 쓰는 경우가 많아서 파서는 alias 후보를
+//   순차적으로 시도하는 방식으로 동작:
+//     thread name : `name` / `threadName`
+//     thread id   : `tid` / `nid` / `threadId`
+//     stack array : `stack` / `stackTrace` / `frames`
+//     state       : `state` / `threadState`
+//     virtual?    : `virtual` / `isVirtual`
+//
+// 처리 흐름
+//   1) JSON 전체를 map[string]any 로 디코드.
+//   2) 최상위에서 threads 배열 위치를 alias 시도로 찾음.
+//   3) 각 스레드 객체의 필드를 alias 표로 추출 → ThreadSnapshot.
+//   4) state 는 CoerceThreadState 로 정규화.
+//   5) frame 객체 (선택적 file/line/method) → StackFrame.
+//   6) 스택이 단순 string 배열인 경우도 허용 (legacy 변종).
+//
+// jstack text 파서와 분리된 이유
+//   JSON shape 가정이 text grammar 에 새지 않게. registry 가 head 4 KB
+//   만 보고 sniff 하므로 JSON 시그니처 (`{` 또는 `[`) 와 jstack 의
+//   "Full thread dump" 시그니처를 명확히 구별.
 package javajcmdjson
 
 import (

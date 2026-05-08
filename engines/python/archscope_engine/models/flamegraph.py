@@ -1,3 +1,11 @@
+"""Flame graph tree node."""
+# [한글] flamegraph.FlameNode — flame graph 트리 노드 (가변).
+# 필드: id (frame:slug 경로), parent_id, name (frame 이름),
+# samples (inclusive 카운트), ratio (전체 대비 %), category, color,
+# children (자식 노드 리스트), path (root → 자기까지 frame 이름들),
+# metadata (분석기별 자유 페이로드 — diff 분석기가 a/b/delta 저장).
+# JSON 직렬화시 키 이름은 camelCase (parentId 등) 로 frontend 호환.
+# parity: Go internal/models 의 FlameNode 와 JSON 키 byte 일치.
 from __future__ import annotations
 
 from dataclasses import dataclass, field

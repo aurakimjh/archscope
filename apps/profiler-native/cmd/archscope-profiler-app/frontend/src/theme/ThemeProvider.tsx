@@ -1,3 +1,17 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] theme/ThemeProvider.tsx — 라이트/다크/시스템 테마 Context.
+//
+// 책임/목적:
+//   - theme(설정값) 와 resolvedTheme(실제 적용된 light|dark) 분리:
+//     theme="system" 일 때 prefers-color-scheme 미디어쿼리를 listen 해
+//     resolvedTheme 을 동적으로 바꿉니다.
+//   - resolved 변경 시 documentElement 에 .dark 클래스와 data-theme
+//     속성을 토글 → Tailwind dark variant 와 CSS variable 토큰 분기.
+//
+// 의존성 주의: localStorage 키는 'archscope.profiler.theme' 로
+// 네임스페이스되어 web 셸과 충돌하지 않습니다 (두 앱이 같은 머신에서
+// 실행되어도 독립 설정 유지).
+// ─────────────────────────────────────────────────────────────────────
 // Theme provider mirrored from apps/frontend/src/components/theme-provider.tsx.
 // Storage key is namespaced to the native app so toggling here does not
 // stomp the web app's preference if both run on the same machine.

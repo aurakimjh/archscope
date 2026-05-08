@@ -19,6 +19,45 @@
 // same async-state-machine + local-function name normalization the
 // Python implementation does, and use frame-aware state inference
 // (Monitor.* → LOCK_WAIT, Socket.* → NETWORK_WAIT, …).
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] dotnetclrstack plugin — .NET CLR stack 파서 (2종).
+//
+// 1) WinDbg / dotnet-dump `!clrstack` 리스팅
+//    형식:
+//      OS Thread Id: 0xABCD (12)
+//      Child SP IP Call Site
+//      000000ABC SomeMethod()
+//      000000ABD AnotherMethod()
+//      ...
+//
+//      OS Thread Id: 0xABCE (13)
+//      ...
+//
+//      Sync Block Owner Info:
+//      ...                    ← 락 owner 정보 (lock contention 분석에 사용)
+//
+//    추출:
+//      • 각 OS Thread Id 헤더 → 1 snapshot.
+//      • 각 frame 라인 → StackFrame.
+//      • Sync Block Owner Info 섹션 → bundle.Metadata 에 verbatim 보존.
+//
+// 2) Environment.StackTrace 스냅샷
+//    형식: 헤더 없이 frame 리스트 직접.
+//    추출: 파일 전체 = 단일 thread, frame 리스트 그대로.
+//
+// async state machine 정리
+//   .NET 의 async 메서드 stack 은 컴파일러가
+//   `<MethodName>d__N.MoveNext()` 형태로 mangle. 이 plugin 은 정규화해
+//   사용자 입장에서 의미 있는 메서드 이름만 보이도록:
+//     `Foo.<BarAsync>d__5.MoveNext()` → `Foo.BarAsync` (async)
+//     `<>c__DisplayClass3.<Foo>b__0()` → `Foo (lambda)`
+//
+// 상태 추론 (frame 기반)
+//   Monitor.Enter / Wait / Pulse* → LOCK_WAIT
+//   Socket.Receive / Send / Connect → NETWORK_WAIT
+//   FileStream.Read / Write          → IO_WAIT
+//   Thread.Sleep / Task.Delay        → TIMED_WAITING
 package dotnetclrstack
 
 import (

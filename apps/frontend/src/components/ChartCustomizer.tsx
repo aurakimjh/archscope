@@ -1,3 +1,20 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] ChartCustomizer.tsx — ChartPanel 우측 toolbar 의 "팔레트" 버튼을
+//   누르면 펼쳐지는 차트 옵션 편집 패널.
+//
+// 책임/목적:
+//   - legend 위치, 배경색, 타이틀 폰트 크기, 시리즈 색상 팔레트(최대 7개)
+//     를 사용자에게 제공해 차트를 즉시 커스터마이즈.
+//   - 변경 시 onChange 로 부모에게 ChartCustomOptions 객체를 통째로 전달.
+//
+// 데이터 흐름:
+//   ChartPanel(부모) → options(현재 상태) → ChartCustomizer
+//   → 사용자 입력 → setLocal + onChange → ChartPanel 의 mergedOption.
+//
+// UI:
+//   - 자체 .chart-customizer 클래스(global.css)로 dropdown 스타일.
+//   - shadcn 컴포넌트 미사용 — 단순한 raw HTML + 클래스 기반.
+// ─────────────────────────────────────────────────────────────────────
 import { useState } from "react";
 
 export type ChartCustomOptions = {

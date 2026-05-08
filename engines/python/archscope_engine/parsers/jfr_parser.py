@@ -1,3 +1,35 @@
+# ─────────────────────────────────────────────────────────────────────
+# [한글] jfr_parser — `jfr print --json` JSON 출력의 파서.
+#
+# 입력 형태 (3가지 모두 관용 처리)
+#   1) `{"recording": {"events": [...]}}`  — JDK 의 wrapper 형태.
+#   2) `{"events": [...]}`                  — top-level events 객체.
+#   3) `[...]`                              — 이벤트 배열 직접.
+#
+# JfrEvent TypedDict
+#   event_type / time / duration_ms / thread / state / address / size /
+#   message / frames / raw_preview.
+#   pointer-equivalent 는 Optional[T] 로 표현 — 누락은 None.
+#
+# 처리 흐름
+#   1) 파일 읽기 → JSON 파싱.
+#   2) shape 추출 (events 배열 위치 결정).
+#   3) 각 이벤트를 _to_jfr_event 로 정규화:
+#        • _extract_thread     : thread 필드 alias 통합.
+#        • _format_frame       : frame 객체를 1-line 문자열로 가공.
+#        • _duration_to_ms     : "12.5ms" 또는 12500000 (ns) 등 다양한
+#                                input 을 ms float 로 통일.
+#        • _to_int / _string_value : 타입 변환 + alias 처리.
+#   4) 정상 이벤트만 list 로 누적.
+#   5) skip 사유 (INVALID_JFR_JSON / SHAPE / EVENT) 는 diagnostics 카운트.
+#
+# raw_preview 한계
+#   각 이벤트의 raw JSON preview 는 500 byte 까지만 보존 (응답 부풀음 방지).
+#
+# Go engine-native parity
+#   apps/engine-native/internal/parsers/jfr/parser.go 와 byte 단위 일치.
+#   skip 사유 이름, JfrEvent 키 순서, alias 매핑 표 모두 동일.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import json

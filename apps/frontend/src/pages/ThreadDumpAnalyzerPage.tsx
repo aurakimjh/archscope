@@ -1,3 +1,26 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] ThreadDumpAnalyzerPage.tsx — JVM/JCmd/.NET/Node/Python 등
+//   다양한 thread dump 포맷을 분석하는 페이지.
+//
+// 책임/목적:
+//   - 파일 선택 → analyzer.execute({type:"thread_dump", ...}) 호출.
+//   - threaddump 패키지(엔진 측) 가 자동 포맷 감지 후 통합 결과로 반환.
+//   - 결과는 thread state 분포(D3 bar chart), top blocked threads,
+//     상태별 thread 목록(페이지네이션) 등으로 시각화.
+//
+// 데이터 흐름:
+//   FileDock → execute → AnalysisResult
+//   → series.state_distribution / tables.threads → D3BarChart / 표.
+//
+// 사용 series/tables/charts 키:
+//   - series.state_distribution(THREAD_STATE 별 카운트).
+//   - tables.threads(개별 thread 행: name/state/stack 등).
+//   - 자세한 키는 analyzerContract.ThreadDump* 타입 참조.
+//
+// 페이지네이션:
+//   - usePagedRows hook 으로 큰 thread 리스트(수천 줄) 를 페이지 단위로
+//     렌더해 DOM 노드 폭증을 막습니다.
+// ─────────────────────────────────────────────────────────────────────
 import {
   AlertTriangle,
   Camera,

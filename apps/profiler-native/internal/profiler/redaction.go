@@ -1,3 +1,33 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] redaction — debug log / 진단 sample 의 민감정보 마스킹.
+//
+// 책임/목적
+//   parser/analyzer 가 진단 sample 에 raw 입력을 일부 포함시키므로
+//   토큰/쿠키/URL/이메일/경로/IP/긴 숫자 같은 잠재적 민감 정보를 안전한
+//   placeholder 로 치환한다. Python 측 archscope_engine.common.redaction
+//   과 동일한 정책 + 동일한 placeholder 형식 (cross-engine debug log 참조용).
+//
+// 마스킹 규칙 (적용 순서)
+//   1) Authorization: Bearer/Basic <TOKEN> → "<TOKEN len=N>"
+//   2) Cookie / Set-Cookie 값 → "<COOKIE len=N>"
+//   3) URL query string → key 별 분류 후 "<TOKEN|NUMBER|QUERY_VALUE len=N>"
+//      (key 에 token/secret/password/key/auth 들어있으면 TOKEN, 전부 숫자
+//      면 NUMBER, 그 외 QUERY_VALUE)
+//   4) 이메일 → "<EMAIL>"
+//   5) 절대 경로 (/Users /home /var /opt /srv /app /data) → "<PATH>/leaf"
+//   6) IPv4 → "<IPV4>"
+//   7) /숫자4자리이상 (path 내) → "/<NUMBER len=N>"
+//   8) 8자리 이상 숫자 → "<NUMBER len=N>"
+//
+// 트리키한 부분
+//   • placeholder 의 "len=N" 은 byte length 이며 Python 측과 동일.
+//   • redactPathNumbers 는 lookahead 가 흉내 내기 어려워 trailing 1글자를
+//     보존하는 트릭 사용 (Python 정규식 동작 모사).
+//   • url.Values 의 iteration 순서가 비결정적이라 keys 정렬 후 출력해
+//     redacted URL 의 byte-level parity 를 보장.
+//   • RedactionVersion 상수는 Python 정책 버전과 매칭되어야 함 (현재 0.1.0).
+// ─────────────────────────────────────────────────────────────────────
+
 package profiler
 
 import (
@@ -36,6 +66,9 @@ var (
 //
 // Mirrors `archscope_engine.common.redaction.redact_text` so cross-engine
 // debug logs use the same placeholder shape.
+//
+// [한글] RedactText — 8단계 정규식 치환을 순차 적용하며 summary 카운터에
+// 카테고리별 발생 횟수 누적. 빈 문자열은 즉시 반환. 정책 순서는 Python 과 동일.
 func RedactText(value string) RedactionResult {
 	if value == "" {
 		return RedactionResult{Text: "", Summary: map[string]int{}}

@@ -1,3 +1,13 @@
+// [한글] exception parser 회귀 테스트.
+//
+// 검증 대상
+//   • 단일 예외 + at-frame 시퀀스 → 1 record.
+//   • Caused by chain → RootCause 채워짐 (cause stack 은 무시).
+//   • 동일 예외가 두 번 등장 → 2 record + 동일 signature.
+//   • 새 header 가 등장하면 이전 record 가 close.
+//   • SKIP_NO_HEADER / SKIP_BAD_TIMESTAMP / WARN_TRUNCATED_STACK 의
+//     diagnostics 카운트.
+//   • Strict 모드의 fatal 변환.
 package exception
 
 import (

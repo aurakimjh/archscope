@@ -1,3 +1,14 @@
+# ─────────────────────────────────────────────────────────────────────
+# [한글] test_runtime_analyzers — 4개 런타임 stack 분석기 회귀 테스트.
+#
+# 검증 대상
+#   • analyze_nodejs_stack / analyze_python_traceback / analyze_go_panic /
+#     analyze_dotnet_exception_iis 4개 진입점 모두 fixture 입력으로
+#     올바른 result.type + summary 산출.
+#   • REPEATED_RUNTIME_STACK_SIGNATURE / STACKLESS_RUNTIME_RECORDS finding.
+#   • .NET 만의 IIS_5XX_PRESENT / DOTNET_EXCEPTIONS_PRESENT.
+#   • CLI subprocess 통합 테스트 (`python -m archscope_engine.cli ...`).
+# ─────────────────────────────────────────────────────────────────────
 import json
 import subprocess
 import sys

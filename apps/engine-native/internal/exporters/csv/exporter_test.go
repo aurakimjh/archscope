@@ -1,3 +1,14 @@
+// [한글] csv exporter 회귀 테스트.
+//
+// 검증 대상
+//   • Single-CSV 모드 (Write/Marshal):
+//       - `# summary` 섹션 헤더가 정확히 출력.
+//       - `# series:<key>` 헤더가 series 항목별로 한 번씩 출력.
+//   • Directory 모드 (WriteAll):
+//       - summary.csv 와 series_*.csv 가 디렉토리에 생성.
+//   • RFC 4180 준수: CRLF / 따옴표 escape / 콤마 포함 필드 quote.
+//   • UTF-8 한글이 raw 로 보존 (BOM 없음).
+//   • nested object 값은 JSON 문자열로 한 셀에 보존.
 package csv
 
 import (

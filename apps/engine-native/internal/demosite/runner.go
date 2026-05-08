@@ -16,6 +16,38 @@
 // directly. YAML manifests are not supported in the Go port — convert
 // with `yq -o=json` before invoking. The Python runner accepts both,
 // but the canonical demo manifests in the repo are JSON.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] demosite/runner.go — 매니페스트 기반 데모 시나리오 오케스트레이터.
+//
+// 처리 흐름
+//   1) JSON 매니페스트 로드.
+//   2) files[] 의 각 entry 마다:
+//        a) analyzer_type 으로 분석기 dispatch (analyze.go).
+//        b) AnalysisResult 를 JSON 으로 출력 디렉토리에 기록.
+//        c) HTML 보고서 생성.
+//        d) WritePPTX=true 이면 PPTX 도 생성.
+//   3) baseline 매니페스트가 지정되었으면 before/after diff 추가.
+//   4) run-summary.json + index.html 생성.
+//
+// 출력 경로 규칙
+//   <output_root>/<data_source>/<scenario>/
+//     ├ <analyzer-output>.json
+//     ├ <analyzer-output>.html
+//     ├ <analyzer-output>.pptx
+//     ├ run-summary.json
+//     └ index.html
+//
+// 옵션
+//   • BaselineManifestPath : "normal-baseline" 디렉토리에 베이스라인이
+//     없으면 먼저 실행해 채운 뒤 비교.
+//   • WritePPTX=false : PPTX 생성 skip — CI 의 빠른 반복 / baseline 실행에 유용.
+//   • MappingPath : analyzer_type_mapping.json 경로 명시. 없으면 매니페스트
+//     디렉토리에서 parent 거슬러 자동 발견.
+//
+// 에러 정책
+//   파일별 분석 실패는 catch + run-summary 에 failed run 으로 기록 — 전체 시나리오
+//   실패시키지 않음 (Python orchestrator 의 per-file try/except 동치).
 package demosite
 
 import (

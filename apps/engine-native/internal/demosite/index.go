@@ -7,6 +7,30 @@
 // `html.escape`. We do the same with `strings.Builder` + html.Escape
 // from the stdlib so every dynamic value passes through one escaper —
 // no template engine in this file. The CSS is inlined verbatim.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] demosite/index.go — 데모 시나리오 결과의 인덱스 HTML 렌더러.
+//
+// 두 종류 인덱스
+//   1) 시나리오별 index.html (한 매니페스트 1개): 그 시나리오의 모든
+//      분석 결과 카드/표 + diff 링크.
+//   2) 최상위 index.html (run-all): 모든 시나리오를 모은 메타 인덱스.
+//
+// 페이지 구성
+//   • 헤더: 데이터 소스 + 시나리오 이름 + 생성 시각.
+//   • Summary cards: total runs, failed, total findings, severity 분포.
+//   • Per-run table: 분석기 type, 입력 파일, 결과 링크 (json/html/pptx),
+//     주요 메트릭 (responsetime / pause / threads / ...).
+//   • Findings 영역: severity 별 색상 강조.
+//   • diff 섹션 (baseline 비교 시): before/after 메트릭 변화량.
+//
+// 자기 충족
+//   외부 자산 0개. CSS 인라인. 모든 동적 값은 html.EscapeString 통과 —
+//   XSS 안전. 보고서를 어디로 옮겨도 그대로 보임.
+//
+// 보안
+//   demo fixture 는 sanitized 되어 있지만, 만약 사용자가 자기 매니페스트
+//   를 만들고 raw 파일 이름에 HTML 을 넣어도 escape 되어 안전.
 package demosite
 
 import (

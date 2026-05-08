@@ -1,3 +1,21 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] ExportCenterPage.tsx — 분석 결과를 다양한 포맷(HTML/PPTX/CSV/
+//   JSON/report-diff) 으로 내보내는 페이지.
+//
+// 책임/목적:
+//   - 사용자가 입력 경로(분석 결과 JSON 또는 디렉토리), 출력 모드,
+//     보고서 제목 등을 폼으로 입력 → exporter.execute(request) 호출.
+//   - 응답(ExportResponse) 의 ok/error 분기 후 산출물 경로 표시.
+//   - report-diff 모드는 before/after 두 경로 + diff 라벨 추가 입력.
+//
+// 데이터 흐름:
+//   form 입력 → ExportExecuteRequest → window.archscope.exporter.execute
+//   → ExportResponse → 결과 카드.
+//
+// 사용 의존성:
+//   - shadcn Card/Input/Button 만 사용. 차트는 미사용.
+//   - i18n 라벨, lucide 아이콘.
+// ─────────────────────────────────────────────────────────────────────
 import { Download, FileText, Loader2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 

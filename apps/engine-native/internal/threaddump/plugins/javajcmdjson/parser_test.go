@@ -1,3 +1,13 @@
+// [한글] javajcmdjson plugin 회귀 테스트.
+//
+// 검증 대상
+//   • alias 처리: name/threadName, tid/nid/threadId, stack/stackTrace/
+//     frames 등 다양한 키 이름이 같은 필드로 매핑.
+//   • thread state 정규화 (CoerceThreadState 표 통과).
+//   • frame 객체 (file/line/method) → StackFrame 변환.
+//   • frame 이 string 배열인 legacy 변종도 처리.
+//   • virtual thread / carrier 마커 인식 (JDK 21+).
+//   • 깨진 JSON / 필수 필드 누락 시 적절한 에러.
 package javajcmdjson
 
 import (

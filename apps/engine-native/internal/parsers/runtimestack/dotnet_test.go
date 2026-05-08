@@ -1,3 +1,12 @@
+// [한글] dotnet parser 회귀 테스트.
+//
+// 검증 대상
+//   • .NET 예외 헤더 + at-frame 시퀀스 → 1 RuntimeStackRecord.
+//   • IIS `#Fields:` 지시어 → 스키마 캡처.
+//   • IIS access 라인 → IisAccessRecord (status / time-taken 추출).
+//   • 예외와 IIS 가 혼합된 입력에서 둘 다 정상 추출.
+//   • UNSUPPORTED_DOTNET_OR_IIS_LINE 사유의 라인 단위 skip.
+//   • 새 예외 헤더가 등장하면 이전 블록 자동 flush.
 package runtimestack
 
 import (

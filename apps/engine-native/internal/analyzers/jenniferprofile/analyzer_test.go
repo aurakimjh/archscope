@@ -1,3 +1,22 @@
+// [한글] jenniferprofile 분석기 회귀 테스트.
+//
+// 검증 대상
+//   • MVP1: per-profile body metrics + header/body validation.
+//   • MVP2: GUID 그룹핑 + caller↔callee 매칭(점수/동률/저점수).
+//   • MVP2: NETWORK_GAP raw / adjusted (음수 보정 §16.2).
+//   • MVP3: Timeline Signature stats (canonical + hash).
+//   • MVP4: parallelism (NONE/SEQUENTIAL/PARALLEL/MIXED) + max_concurrency.
+//   • MVP4: HTML 보고서 self-contained 검증.
+//
+// fixture 전략
+//   • 큰 케이스 : `parsers/jenniferprofile/testdata/sample_two_tx.txt`
+//     (실제 형식의 샘플; Python 측과 공유).
+//   • 매처 edge case : buildTwoProfileFixture (인라인 fixture builder)
+//     로 점수 동률, 음수 갭 등을 명시적으로 만든다.
+//
+// 헬퍼 alias
+//   callerElapsedMs / calleeResponseMs 는 단위 ms 의 의미를 호출 지점
+//   에 명시하기 위한 named int — 값을 헷갈리지 않게 함.
 package jenniferprofile
 
 import (

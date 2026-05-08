@@ -9,6 +9,35 @@
 // desirable (CI / API tier) callers may wrap with a context-bearing
 // variant later; for now we keep the Python behaviour verbatim so the
 // migration is observable.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] recording.go — 바이너리 .jfr → JSON 변환을 위한 JDK `jfr` CLI
+// 브리지.
+//
+// 입력 형태 분기
+//   사용자는 다음 중 하나를 던질 수 있음:
+//     • `recording.jfr`     : 바이너리 (FLR\x00 시그니처).
+//     • `recording.json`    : 이미 변환된 JSON.
+//   ConvertIfNeeded 는 첫 4 bytes 의 시그니처(jfrMagic) 로 둘을 구분.
+//   JSON 이면 그대로 통과, 바이너리면 jfr CLI 호출 후 임시파일에
+//   JSON 작성.
+//
+// jfr CLI 탐색 우선순위
+//   1) ARCHSCOPE_JFR_CLI 환경 변수 (사용자 명시 경로).
+//   2) PATH 의 `jfr` (또는 Windows 의 `jfr.exe`).
+//   3) JAVA_HOME/bin/jfr.
+//   하나도 없으면 CLIMissingError 반환 — 사용자에게 친절한 안내 메시지.
+//
+// 명령 형태
+//   `<jfr> print --json <recording.jfr>`. Python 측과 argv 동일.
+//   Stdout 이 JSON, stderr 는 진단 메시지. timeout 미지정 (Python 측과
+//   동일) — CI 에서 timeout 이 필요하면 future context-aware 변형 도입.
+//
+// 안전 정책
+//   • 입력 파일 경로는 절대 경로로 정규화 후 전달 (cwd 의존성 제거).
+//   • CLI 출력은 메모리 캡처 후 임시 파일에 저장 — 큰 .jfr (수백 MB)
+//     도 처리 가능하도록 stream 이 아닌 buffered 모드.
+//   • 임시 파일은 호출자가 닫기 전 삭제하지 않도록 path 만 반환.
 package jfr
 
 import (

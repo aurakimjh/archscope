@@ -1,3 +1,30 @@
+// [한글] javajcmdjson helpers — Python jstack 모듈의 private 헬퍼들을
+// 이 패키지에 임시로 두는 곳.
+//
+// Python 측의 다음 5개 함수에 대응:
+//   _frame_from_jstack     : raw frame 라인을 StackFrame 으로 정규화.
+//   _normalize_proxy_frame : Spring CGLIB 등 proxy class 이름 정리.
+//   _infer_java_state      : frame 시그니처 기반 상태 추론.
+//   _extract_lock_handles  : `- locked <0x...>` / `- waiting on <0x...>`
+//                            라인에서 LockHandle 추출.
+//   _carrier_pinning       : virtual thread carrier pinning 마커 감지.
+//
+// 왜 helpers 가 이 패키지에 있는가?
+//   javajstack plugin (별도 디렉토리) 이 같은 헬퍼를 필요로 하는데,
+//   Go 의 internal/ 규칙 때문에 둘이 패키지를 공유하기 어렵습니다.
+//   현재는 javajcmdjson 에 두고 있고, 두 plugin 이 모두 안정화되면
+//   상위 공유 패키지로 hoist 할 예정 (T-321 sibling 작업).
+//
+// state 추론 규칙
+//   sun.nio.ch.SocketChannelImpl.read → NETWORK_WAIT
+//   java.io.FileInputStream.read       → IO_WAIT
+//   java.lang.Object.wait              → WAITING (object_wait)
+//   java.util.concurrent.locks.LockSupport.park → WAITING (parking_*)
+//   etc.
+//
+// proxy 정규화
+//   Spring CGLIB 가 만든 `OrderService$$EnhancerBySpringCGLIB$$abc123` 같은
+//   wrapper class 를 `OrderService` 로 정리 — 분석에 노이즈가 안 되도록.
 package javajcmdjson
 
 import (

@@ -1,3 +1,28 @@
+// [한글] monitors.go — jstack 의 monitor/lock 관련 라인에서 LockHandle
+// 추출 (T-219 / T-231).
+//
+// jstack 의 4가지 lock 라인 형태
+//   - locked <0x000000076ab62208> (a com.foo.Service)
+//   - waiting to lock <0x000000076ab62208> (a com.foo.Service)
+//   - waiting on <0x000000076ab62208> (a com.foo.Service)
+//   - parking to wait for  <0x000000076ab62208> (a c.f.LockSupport)
+//
+// 추출 결과
+//   • locked              → snapshot.LockHolds 에 LockHandle 추가.
+//   • waiting to lock     → snapshot.LockWaiting (wait_mode="monitor_wait").
+//   • waiting on          → snapshot.LockWaiting (wait_mode="object_wait").
+//   • parking to wait for → snapshot.LockWaiting (wait_mode="parking_*").
+//
+// wait_mode 가 중요한 이유
+//   lock_contention 분석기와 multithread 분석기는 "object_wait" 와
+//   "parking_condition_wait" 를 cooperative wait 으로 간주해 contention
+//   집계에서 제외. wait_mode 가 정확하지 않으면 false-positive deadlock
+//   finding 발생.
+//
+// LockHandle 의 구성
+//   LockID    : `<0x...>` 의 hex 주소.
+//   LockClass : `(a <FQCN>)` 의 클래스명.
+//   WaitMode  : 위 4종 중 하나 (locked 인 경우 빈 문자열).
 package javajstack
 
 import (

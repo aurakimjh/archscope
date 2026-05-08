@@ -1,3 +1,51 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] jennifer — Jennifer APM 의 flame graph CSV 입력을 FlameNode 로.
+//
+// 책임/목적
+//   국내에서 많이 쓰이는 Jennifer 5.x 가 export 한 "flamegraph.csv"
+//   (parent_key/key/method_name/sample_count/ratio 컬럼) 를 읽어
+//   profiler 공통 FlameNode 트리로 변환한다. 다른 collapsed 입력과
+//   달리 Jennifer 는 이미 "트리 구조" 형태로 노출되므로 (parent_key
+//   reference) 빌드 알고리즘이 다르다.
+//
+// 알고리즘 흐름
+//   STEP 1. Encoding probe
+//     utf-8-sig → utf-8 → cp949 (EUC-KR) 순으로 시도. Jennifer 는 한국
+//     사용자 환경에서 cp949 로 export 되는 경우가 흔해 fallback 필수.
+//   STEP 2. Header column 매핑
+//     resolveJenniferColumns: alias 표(jenniferColumnAliases) 로 다양한
+//     컬럼명 변형을 canonical 이름(key/parent_key/...)으로 매핑.
+//     필수 컬럼(key, method_name, sample_count) 누락 시 진단 + 빈 결과.
+//   STEP 3. Row parsing
+//     parseJenniferRecord: sample_count(>=0 정수), ratio(빈 문자열 OK,
+//     %는 trim, 음수 불허) 검증. 중복 key 는 진단 후 첫 row 만 채택.
+//   STEP 4. Tree 빌드
+//     parent_key reference 로 부모-자식 그래프 구성.
+//     - 사이클 감지(findJenniferCycleKeys): 사이클 노드는 parent 분리
+//       후 root 로 강등하고 PARENT_CYCLE 진단(이건 row-level 이 아니라
+//       skipped count 에서 다시 빼낸다).
+//     - 부모 누락(MISSING_PARENT): 해당 row 를 root 로 강등 + 경고.
+//     - children 정렬: SampleCount DESC → Key ASC (deterministic).
+//   STEP 5. Ratio 계산
+//     하나의 root 만 있으면 그 root.SampleCount 가 분모, 여러 root 면
+//     virtual "All" root 를 만들고 합계가 분모. ratio 는 소수 4자리.
+//   STEP 6. 검증/Path 채우기
+//     validateInclusiveSamples: 자식 합 > 부모 면 CHILD_SAMPLES_EXCEED
+//     _PARENT 경고 (Jennifer 자체 데이터 결함 케이스).
+//     assignJenniferPaths: 각 노드의 Path 배열 채움. virtual root 인
+//     경우 root.Path 는 [] (FlameNode 컨벤션).
+//
+// 트리키한 부분
+//   • Encoding fallback 은 try/restore 패턴 — 시도 전 진단 스냅샷, 실패
+//     하면 롤백하여 다음 인코딩 시도. 진단의 idempotency 를 위해 필요.
+//   • PARENT_CYCLE 은 structural 오류라 Python 도 skipped_lines 에 안
+//     세고, undoSkipForReason 으로 카운터 복원.
+//   • virtual root 는 자식 합산을 root samples 로 들고 ratio=100, 단일
+//     root 인 경우는 자기 sample_count 가 분모 (Python 동작과 일치).
+//   • assignJenniferPaths 는 stack 기반 순회로 깊은 트리에서도 stack
+//     overflow 를 피한다.
+// ─────────────────────────────────────────────────────────────────────
+
 package profiler
 
 import (
@@ -31,6 +79,10 @@ var jenniferColumnAliases = map[string][]string{
 
 var jenniferRequiredColumns = []string{"key", "method_name", "sample_count"}
 
+// [한글] ParseJenniferFlamegraphCSV — 외부 진입점.
+// path 의 CSV 파일을 읽어 (FlameNode, ParserDiagnostics) 반환.
+// 빈 파일이면 EMPTY_FILE 경고와 빈 트리 반환. 인코딩 추정 실패는 ENCODING_ERROR.
+// 한 row 라도 파싱 못하면 NO_VALID_RECORDS 경고 추가.
 func ParseJenniferFlamegraphCSV(path string, debugLog *DebugLog) (JenniferCsvParseResult, error) {
 	source := path
 	diagnostics := ParserDiagnostics{
@@ -68,6 +120,9 @@ type jenniferRow struct {
 	ColorCategory string
 }
 
+// [한글] readJenniferRows — 인코딩 fallback 루프.
+// utf-8-sig → utf-8 → cp949 순으로 시도, 실패하면 진단 롤백 후 다음.
+// 모든 인코딩 실패 시 ENCODING_ERROR 진단 + nil 반환.
 func readJenniferRows(raw []byte, diagnostics *ParserDiagnostics, debugLog *DebugLog) map[string]*jenniferRow {
 	for index, encoding := range jenniferEncodingCandidates() {
 		text, ok := decodeJenniferBytes(raw, encoding)
@@ -165,6 +220,10 @@ func restoreDiagnostics(diagnostics *ParserDiagnostics, checkpoint diagnosticsCh
 	diagnostics.ErrorCount = len(diagnostics.Errors)
 }
 
+// [한글] parseJenniferCSVText — text → map[key]*jenniferRow.
+// 헤더에서 필수 컬럼(key/method_name/sample_count) 매핑이 안 되면
+// MISSING_REQUIRED_COLUMNS 후 빈 map 반환. 각 row 는 parseJenniferRecord
+// 로 검증, 실패는 INVALID_JENNIFER_ROW, 중복 키는 DUPLICATE_KEY 진단.
 func parseJenniferCSVText(text string, diagnostics *ParserDiagnostics, debugLog *DebugLog) (map[string]*jenniferRow, error) {
 	reader := csv.NewReader(strings.NewReader(text))
 	reader.FieldsPerRecord = -1
@@ -317,6 +376,13 @@ func parseJenniferRatio(text string) (float64, error) {
 	return value, nil
 }
 
+// [한글] buildJenniferTree — parsed row map 으로 FlameNode 트리 빌드.
+// 1) parent_key reference 그래프 구성, 2) 사이클 노드는 root 로 강등 +
+// PARENT_CYCLE 진단(structural 이라 skipped_lines 에서 제외), 3) 부모
+// 누락 노드는 MISSING_PARENT 경고 후 root 로 강등, 4) 자식 정렬은
+// SampleCount DESC → Key ASC, 5) virtual root 가 필요한 경우 "All" 합성,
+// 6) ratio 분모 결정 (단일 root 면 그 root 의 sample_count, 아니면 합계),
+// 7) freeze 재귀로 FlameNode 생성, 8) 검증 + Path 채움.
 func buildJenniferTree(rows map[string]*jenniferRow, diagnostics *ParserDiagnostics) FlameNode {
 	if len(rows) == 0 {
 		empty := FlameNode{
@@ -506,6 +572,10 @@ func assignJenniferPaths(root *FlameNode, includeRootPath bool) {
 	}
 }
 
+// [한글] findJenniferCycleKeys — parent_key 그래프에서 사이클 검출.
+// 각 미방문 노드를 시작점으로 따라가며 path/pathIndex 로 사이클 진입을
+// 감지, 사이클에 속한 노드들은 set 으로 모음. 깊이가 큰 그래프에서도
+// O(N) 한 번 순회 + visited 캐싱으로 끝나도록 설계.
 func findJenniferCycleKeys(parentByKey map[string]string) []string {
 	cycle := map[string]bool{}
 	visited := map[string]bool{}

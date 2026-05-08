@@ -1,3 +1,33 @@
+"""Typer-based CLI: `archscope-engine <subcommand>`."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] cli — 외부 사용자가 가장 많이 만나는 진입점.
+#
+# 책임/목적
+#   Typer 기반 sub-command 트리. 각 분석기마다 1개 이상의 명령:
+#     - access-log            : 액세스 로그 분석.
+#     - gc-log                : GC 로그 분석.
+#     - thread-dump / multi   : 단일/다중 thread dump.
+#     - jfr                   : JFR recording.
+#     - profiler analyze /
+#       drilldown / breakdown : collapsed/Jennifer/SVG/HTML 프로파일.
+#     - exception / runtime   : 예외/런타임 stack.
+#     - otel-jsonl            : OTLP JSONL.
+#     - lock-contention       : 락 점유 분석.
+#     - thread-dump-to-collapsed : 변환기.
+#     - report-diff / export  : 비교/포맷 export.
+#     - serve                 : FastAPI 서버 기동.
+#
+# 옵션 패턴
+#   각 명령은 입력 파일/디렉토리 + --top-n / --output / --format /
+#   --debug-log-dir 등 공통 옵션을 받아 분석기 함수 호출 후 결과를
+#   JSON/HTML/PPTX 등으로 저장. CLI 의 종료 코드는 finding 의 severity
+#   가 critical 이면 1 (CI 통과/실패용).
+#
+# parity 주의사항
+#   - 명령 이름, 옵션 이름, JSON 출력 shape 이 Go engine-native 의
+#     cmd/archscope-engine 과 동일해야 동등 호출 가능.
+#   - 두 엔진을 같은 입력으로 호출 → diff 가 0 byte 가 parity gate.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import json

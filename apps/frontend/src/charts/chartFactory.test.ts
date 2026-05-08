@@ -1,3 +1,16 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] charts/chartFactory.test.ts — Vitest 단위 테스트.
+//
+// 검증 목적:
+//   - dashboardChartTemplateIds 에 등록된 모든 템플릿이 sampleAnalysisResult
+//     으로 createChartOption 을 호출했을 때 series 가 정의되도록.
+//   - 도메인별 specialized 결과(AccessLog/Profiler 등) 입력에서도 옵션이
+//     생성되는지 확인.
+//
+// 의의:
+//   - chartFactory.ts 의 switch 가 모든 templateId 를 다루지 못하면(누락)
+//     이 테스트가 즉시 실패해 회귀를 빠르게 잡습니다.
+// ─────────────────────────────────────────────────────────────────────
 import { describe, expect, it } from "vitest";
 
 import type {

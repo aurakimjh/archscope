@@ -1,3 +1,33 @@
+"""OpenTelemetry JSONL log analyzer."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] otel_analyzer — OpenTelemetry JSONL 로그 분석기.
+#
+# 책임/목적
+#   OTLP-JSONL 형식의 로그 레코드를 받아 otel_logs 타입의
+#   AnalysisResult 를 만든다. trace_id 단위로 service 호출 path 를
+#   재구성하고, cross-service trace, failure propagation, span
+#   topology 경고를 finding 으로 surface.
+#
+# 알고리즘 흐름
+#   1) parse_otel_jsonl → OTelLogRecord 리스트.
+#   2) trace_id, service, severity 분포 Counter.
+#   3) trace_id → service set 매핑으로 cross-service trace 식별.
+#   4) parent_span_id 체이닝으로 service path 재구성.
+#   5) ERROR/FATAL/CRITICAL 레코드 추적해 failure 전파 분석.
+#   6) span topology (orphan span, root 없음, cycle) 경고 산출.
+#   7) service_trace_matrix 등 표 형태로 cap.
+#
+# 주요 함수
+#   - analyze_otel_jsonl: 진입점.
+#   - build_otel_result: 레코드 → AnalysisResult.
+#   - _trace_paths / _trace_failures / _failure_propagation
+#   - _span_topology_warnings / _trace_span_topology
+#   - _service_trace_matrix
+#
+# parity 주의사항 (Go engine-native 와 byte 단위 일치)
+#   - "(no-trace)" / "(unknown)" placeholder 라벨, severity 대소문자
+#     처리, finding code/message 가 Go 측과 동일.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 from collections import Counter, defaultdict

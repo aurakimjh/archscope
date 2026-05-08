@@ -1,3 +1,16 @@
+// [한글] runtime 분석기 회귀 테스트.
+//
+// 검증 대상
+//   • 4개 진입점 (Nodejs / PythonTraceback / GoPanic / Dotnet) 각각이
+//     fixture 파일에 대해 올바른 result.type 과 summary 를 emit.
+//   • REPEATED_RUNTIME_STACK_SIGNATURE finding 동작.
+//   • STACKLESS_RUNTIME_RECORDS finding 동작.
+//   • .NET 만의 IIS_5XX_PRESENT / DOTNET_EXCEPTIONS_PRESENT.
+//   • tables.records 가 시간순 첫 N개를 보존.
+//
+// fixture
+//   examples/runtime/ 아래의 sample-{nodejs-stack,python-traceback,
+//   go-panic,dotnet-iis}.txt 를 사용 — Python 테스트와 공유.
 package runtime
 
 import (

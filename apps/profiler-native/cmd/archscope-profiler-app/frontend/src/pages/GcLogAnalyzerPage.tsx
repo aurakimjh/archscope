@@ -1,3 +1,22 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] pages/GcLogAnalyzerPage.tsx — JVM GC log 분석기 페이지.
+//
+// 책임/목적:
+//   - JVM GC 로그(unified, JFR-extract, parallel/G1/ZGC/Shenandoah 등)
+//     파일을 받아 engine.analyzeGcLog 호출 → AnalysisResult (type
+//     "gc_log", GcLogAnalysisResult 로 좁혀 사용) 수신.
+//   - Summary metric(total_events, total/avg/max/p95/p99 pause,
+//     throughput%, young/full GC count, allocation/promotion rate) +
+//     pause 타임라인 + heap 사용량 + GC type/cause breakdown 차트 + JVM
+//     info(jvm_info) + GC events 표 + findings 렌더.
+//
+// 다루는 결과 형식: GcLogAnalysisResult — charts/gcLogCharts.ts 의
+// 5 가지 옵션 빌더(pauseTimelineOption, heapUsageOption, allocationRate,
+// gcTypeBreakdown, causeBreakdown) 와 함께 동작.
+//
+// 데이터 흐름: engine.analyzeGcLog(GcLogRequest) → CancellablePromise →
+// setResult → ECharts 옵션 메모이제이션 → ChartPanel 렌더.
+// ─────────────────────────────────────────────────────────────────────
 import { Loader2, Play, Square } from "lucide-react";
 import { useCallback, useMemo, useRef, useState } from "react";
 

@@ -1,3 +1,9 @@
+"""Before/after AnalysisResult comparison exporter."""
+# [한글] report_diff — 두 AnalysisResult JSON 비교 리포트.
+# 책임: before/after 두 분석 결과 파일을 받아 summary 메트릭 변화,
+# finding 수 변화를 정리한 새로운 AnalysisResult ("comparison_report")
+# 를 만든다. CLI report-diff 가 사용.
+# parity: Go engine-native internal/exporters/reportdiff 와 동일.
 from __future__ import annotations
 
 import json

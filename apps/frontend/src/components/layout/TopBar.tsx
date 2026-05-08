@@ -1,3 +1,21 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] TopBar.tsx — 상단 헤더(브랜드/검색/테마/언어/설정 진입).
+//
+// 책임/목적:
+//   - Cmd/Ctrl+K 단축키로 콘솔 검색(combobox) 활성화. 입력어로 페이지/
+//     그룹 라벨을 부분 일치 검색해 ArrowUp/Down/Enter 로 이동.
+//   - 테마(light/dark/system) 와 로케일을 DropdownMenuRadioGroup 으로 변경.
+//   - 설정 메뉴에서 SettingsPage / ExportCenter 로 빠른 이동.
+//
+// 데이터 흐름:
+//   사용자 입력 → 로컬 state(query/highlightIndex) → SEARCH_INDEX 필터
+//   → 결과 클릭/Enter → onNavigate(PageKey).
+//
+// 주의:
+//   - SEARCH_INDEX 의 페이지 키는 App.tsx 의 PageKey 와 1:1.
+//   - input blur 와 click 의 race 를 onMouseDown preventDefault + 120ms
+//     setTimeout 으로 처리(웹 표준 회피 패턴).
+// ─────────────────────────────────────────────────────────────────────
 import { Languages, Moon, Search, Settings as SettingsIcon, Sun } from "lucide-react";
 import {
   useEffect,

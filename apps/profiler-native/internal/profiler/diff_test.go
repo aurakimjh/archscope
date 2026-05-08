@@ -1,3 +1,9 @@
+// [한글] diff_test — BuildDiffFlameTree / AnalyzeProfilerDiff 검증.
+// Normalize=true 모드에서 양쪽 합계 정규화 후 delta 가 ratio(0~1) 단위인지,
+// biggest_increases / biggest_decreases 정렬 + cap, max_increase / max_decrease
+// summary 보고가 정상인지, AnalysisResult.Type="profiler_diff" + diff_summary /
+// diff_tables 페이로드가 metadata 에 부착되는지 확인.
+
 package profiler
 
 import (

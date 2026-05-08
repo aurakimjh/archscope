@@ -10,6 +10,29 @@ inputs whose detected ``source_format`` values disagree because mixing
 dumps from different runtimes makes the persistence findings (T-191)
 meaningless.
 """
+# ─────────────────────────────────────────────────────────────────────
+# [한글] thread_dump.registry — 플러그인 등록/자동 감지 코어.
+#
+# 책임
+#   ParserRegistry 인스턴스 (DEFAULT_REGISTRY) 가 plugin 들을 list 로
+#   보관. parse(path) 또는 parse_many(paths) 호출 시:
+#     1) 파일 head (앞 4KB) 를 읽음.
+#     2) 모든 plugin 의 can_parse(head) 를 순서대로 호출.
+#     3) True 를 반환한 첫 plugin 의 parse(path) 호출.
+#     4) format_override 가 주어지면 감지 단계 건너뛰고 해당 plugin 직접.
+#
+# 에러 케이스
+#   - UnknownFormatError: 어떤 plugin 도 head 를 인식 못함.
+#   - MixedFormatError: 다중 입력이 서로 다른 source_format 으로
+#     해석됨 (멀티-덤프 분석은 동일 포맷 가정).
+#
+# 등록 순서
+#   plugin 이 import 시점에 register() 호출하므로 thread_dump/__init__.py
+#   의 import 순서가 곧 감지 우선순위.
+#
+# parity: DETECT_HEAD_BYTES (4096), source_format 라벨이 Go 측
+# internal/threaddump/registry.go 와 동일.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import inspect

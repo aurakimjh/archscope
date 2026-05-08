@@ -1,3 +1,21 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] AnalyzerFeedback.tsx — 분석 결과 외 부가 정보를 표시하는 작은
+//   패널 모음(에러/엔진 메시지/parser diagnostics/AI interpretation 등).
+//
+// 책임/목적:
+//   - 모든 분석 페이지가 공통으로 보여 줘야 하는 정보를 한 파일에 모아
+//     "패널 컴포넌트 라이브러리" 처럼 사용.
+//   - ErrorPanel: BridgeError(code+message+...) 표시.
+//   - DiagnosticsPanel: ParserDiagnostics(skipped lines, samples) 표시.
+//   - EngineMessagesPanel: 엔진 stdout/log 라인 모음.
+//   - 추가로 AiInterpretation 관련 패널 등(파일 본문 참고).
+//
+// 데이터 흐름:
+//   analyzer.execute 의 응답 → 페이지 → 본 컴포넌트들에 props 로 전달.
+//
+// UI:
+//   - shadcn Card/Alert 류로 통일. labels 는 i18n 으로 외부에서 주입.
+// ─────────────────────────────────────────────────────────────────────
 import type {
   AiFinding,
   AnalysisValue,

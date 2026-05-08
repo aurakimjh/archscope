@@ -1,3 +1,15 @@
+// [한글] aop 정리 회귀 테스트 (T-194).
+//
+// 검증 대상
+//   • CGLIB EnhancerBy* 접미사 제거: `OrderService$$EnhancerByCGLIB
+//     $$abc123` → `OrderService`.
+//   • Spring CGLIB 변형도 같은 결과.
+//   • Lambda hash 제거: `Foo$$Lambda$42/0x...` → `Foo$$Lambda`.
+//   • $Proxy<N>$$ 제거.
+//   • accessor synthetic ($1, $$$0) 제거.
+//   • 정리 적용 전후의 stack signature 가 같은 비즈니스 코드를 가리키면
+//     동일해지는지 확인.
+//   • Non-Java frame (Go func 등) 은 no-op 통과.
 package javajstack
 
 import (

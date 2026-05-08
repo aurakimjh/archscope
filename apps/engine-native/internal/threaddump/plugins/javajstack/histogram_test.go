@@ -1,3 +1,13 @@
+// [한글] histogram_test.go — class histogram 파싱 회귀 테스트
+// (T-230 / T-235).
+//
+// 검증 대상
+//   • 정상 histogram 블록: header → row 들 → Total 라인 → 종료.
+//   • row limit (ARCHSCOPE_CLASS_HISTOGRAM_ROW_LIMIT) 적용.
+//   • Total 라인 누락 / 파일 truncate 시 incomplete=true + reason.
+//   • partial_tail_line 보존.
+//   • bundle.Metadata["class_histogram"] 의 구조 정확성.
+//   • bytes 정렬 (DESC) 가 분석기에서 정확히 사용.
 package javajstack
 
 import "testing"

@@ -1,3 +1,20 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] ChartStudioPage.tsx — 사전 정의된 차트 템플릿(chartTemplates)을
+//   샘플 데이터 또는 사용자가 업로드한 JSON 으로 미리보고 커스터마이즈.
+//
+// 책임/목적:
+//   - 템플릿 셀렉트 → createChartOption(templateId, data, labels) 으로
+//     ECharts 옵션 생성 → ChartPanel 에 표시.
+//   - canvas/svg 렌더러, 라이트/다크 테마 토글.
+//   - 사용자 정의 타이틀/색상 등 ChartCustomizer 와 연동.
+//
+// 데이터 흐름:
+//   chartTemplates → 사용자 선택 → sampleAnalysisResult 또는 업로드
+//   JSON → createChartOption → ChartPanel(ECharts).
+//
+// 사용 series/tables/charts 키:
+//   - 템플릿마다 다름. chartTemplates.ts 의 각 정의 참조.
+// ─────────────────────────────────────────────────────────────────────
 import { Check, Pencil, Upload, X } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import type { EChartsOption } from "echarts";

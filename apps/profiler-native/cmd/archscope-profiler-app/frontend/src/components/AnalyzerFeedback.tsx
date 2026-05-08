@@ -1,3 +1,16 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] AnalyzerFeedback.tsx — 분석 결과 화면 상단에 표시할 보조 패널들.
+//
+// 책임/목적:
+//   - ErrorPanel           : Wails IPC / 분석기에서 발생한 BridgeError 렌더.
+//   - EngineMessagesPanel  : 분석기가 stdout/stderr 로 흘려보낸 메시지 목록.
+//   - DiagnosticsPanel     : ParserDiagnostics(파싱 통계 + skip 샘플) 표시.
+//
+// 데이터 흐름: 페이지 컴포넌트가 EngineService 호출 결과
+// (AnalysisResult.metadata.diagnostics, error 객체 등)를 props 로 주입.
+// AI findings 패널은 추후 phase 에서 포팅 예정 — 현재 wired 된 분석기는
+// AI interpretation 을 emit 하지 않으므로 의도적으로 빠져 있습니다.
+// ─────────────────────────────────────────────────────────────────────
 import type { BridgeError, ParserDiagnostics } from "@/bridge/types";
 
 // Slim port of apps/frontend/src/components/AnalyzerFeedback.tsx.

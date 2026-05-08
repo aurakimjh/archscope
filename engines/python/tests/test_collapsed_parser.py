@@ -1,3 +1,6 @@
+# [한글] test_collapsed_parser — collapsed 라인 파서 단위 테스트.
+# 정상 라인, count 비정수/음수 skip, 빈 stack, 다중 파일 union
+# (parse_collapsed_files) 동작 검증.
 import pytest
 
 from archscope_engine.parsers.collapsed_parser import (

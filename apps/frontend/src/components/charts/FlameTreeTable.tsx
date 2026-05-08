@@ -1,3 +1,16 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] FlameTreeTable.tsx — 플레임 그래프와 동일한 트리를 펼침/접기형
+//   테이블로 표시(검색 친화적인 보조 뷰).
+//
+// 책임/목적:
+//   - 같은 FlameGraphNode 트리를 받아 화면 면적 대신 행 단위로 표시.
+//   - initialDepth 까지만 펼쳐 두고 사용자가 클릭으로 추가 확장.
+//   - highlightPattern 으로 부분 일치 행 강조(찾기 기능).
+//   - applyDisplayOptions 로 프레임 이름 단순화 옵션을 D3FlameGraph 와 공유.
+//
+// 데이터 흐름:
+//   부모 → FlameGraphNode 트리 + labels(i18n) → 트리 평탄화 → table 행.
+// ─────────────────────────────────────────────────────────────────────
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { useMemo, useState } from "react";
 

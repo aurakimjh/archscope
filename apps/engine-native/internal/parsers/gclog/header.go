@@ -5,7 +5,36 @@
 // the fields without judging or interpreting them. The frontend is
 // responsible for highlighting suspicious combinations (e.g.
 // `-XX:ParallelGCThreads=1` on a multi-core host).
-
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] gclog header 추출기 — JVM Info 카드 데이터.
+//
+// 실세계 GC 로그의 구조
+//   대부분의 GC 로그는 첫 수 KB 가 JVM/시스템 헤더입니다.
+//     - JVM build banner (OpenJDK / OracleJDK / Azul / Adoptium 등)
+//     - Platform (Linux/macOS/Windows + 아키텍처)
+//     - CPU 코어 수, 메모리 총량
+//     - Heap min/initial/max, Region size
+//     - GC 컬렉터 (G1 / Parallel / CMS / ZGC / Shenandoah)
+//     - Parallel/Concurrent worker 수
+//     - Compressed oops 여부
+//     - 전체 CommandLine flags
+//
+// 본 모듈의 책임
+//   • 헤더 라인을 정규식으로 매칭해 HeaderInfo 구조체를 채움.
+//   • "이 조합은 이상하다" 같은 판단은 절대 하지 않음 — 추출만.
+//   • 누락된 필드는 zero value (포인터는 nil) 로 두고, ToMap 은
+//     이 필드를 결과에서 제외 (Python `omit if absent` 와 동일).
+//
+// 사용처
+//   • analyzer.gclog 가 metadata.jvm_info 로 첨부.
+//   • UI 가 "JVM Info" 카드로 렌더링.
+//   • UI 가 worker count > CPU count 경고를 자체적으로 표시 (이 모듈
+//     은 raw 값만 제공).
+//
+// 본문 파서와 독립
+//   본 파싱(이벤트 라인) 이 0건이거나 실패해도, header 는 살아남아
+//   "어떤 환경의 어떤 JVM 인지" 정보가 사용자에게 도달하도록 함.
 package gclog
 
 import (

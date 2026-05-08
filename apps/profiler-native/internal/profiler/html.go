@@ -1,3 +1,33 @@
+// ─────────────────────────────────────────────────────────────────────
+// [한글] html — HTML 형태로 export 된 flame graph 입력 처리.
+//
+// 책임/목적
+//   async-profiler / perf flamegraph 등이 만든 단일 HTML 파일을 읽어
+//   collapsed stack map(map[stackKey]samples) 으로 변환한다. 형식이 두
+//   가지 — inline SVG 와 JS data block — 이라 정규식으로 둘 다 시도.
+//
+// 입력 케이스
+//   1) Inline SVG (perf flamegraph 등)
+//      <svg>...</svg> 블록을 정규식으로 잘라 svg.go 의 ParseSvgFlamegraph
+//      Text 에 위임. 결과 진단은 mergeSvgDiagnostics 로 host 진단에 합산.
+//   2) async-profiler JS data block
+//      "var root = {...};" 같은 JS 변수 선언을 정규식으로 캡처해 JS 객체
+//      문자열을 추출. JS 키는 unquoted 라 htmlJsKeyRE 로 따옴표 보강 후
+//      json.Unmarshal. walkAsyncProfilerNode 가 트리를 재귀 순회하며
+//      collapsed stack 으로 평탄화 (self-time = parent - sum(children)).
+//
+// 둘 다 실패하면 UNSUPPORTED_HTML_FORMAT 진단과 빈 결과.
+//
+// 트리키한 부분
+//   • async-profiler 의 키 이름은 버전마다 root/levels/profileTree/flame
+//     중 하나라 정규식이 alternation 으로 모두 허용.
+//   • children 의 sample value 는 samples/value/v 키 어느 것이든 가능.
+//     name 은 name/title/frame 어느 것이든 허용. firstNonNil 로 우선순위.
+//   • self-time 계산 (parent - sum(children)) 은 음수가 될 수 있어
+//     >0 가드. children 이 없으면 parent 자체를 self-time 으로 본다.
+//   • intFromAny 는 float64/string 모두 받아 음수면 0 으로 정규화.
+// ─────────────────────────────────────────────────────────────────────
+
 package profiler
 
 import (
@@ -23,6 +53,9 @@ type HtmlProfilerParseResult struct {
 	DetectedFormat string
 }
 
+// [한글] ParseHtmlProfilerText — HTML 텍스트를 stack map 으로.
+// 두 형식(inline SVG, async-profiler JS) 을 순차 시도해 첫 성공한 결과 반환.
+// 둘 다 실패하면 UNSUPPORTED_HTML_FORMAT 진단 + 빈 stacks.
 func ParseHtmlProfilerText(text string, debugLog *DebugLog) HtmlProfilerParseResult {
 	diagnostics := ParserDiagnostics{
 		Format:          "flamegraph_html",
@@ -124,6 +157,11 @@ func stacksFromAsyncProfilerJS(jsText string, diagnostics *ParserDiagnostics, de
 	return stacks
 }
 
+// [한글] walkAsyncProfilerNode — async-profiler JS tree 재귀 평탄화.
+// 각 node 는 name/samples/children 을 가진다 (key 별칭 지원).
+// 자식이 있으면 self-time = parent.samples - sum(children.samples) 로
+// 노드별 exclusive 분량을 collapsed stack 으로 누적.
+// 자식이 없으면 parent.samples 자체가 leaf samples.
 func walkAsyncProfilerNode(node any, path []string, stacks map[string]int) {
 	obj, ok := node.(map[string]any)
 	if !ok {

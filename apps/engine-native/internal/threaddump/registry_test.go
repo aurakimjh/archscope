@@ -1,3 +1,13 @@
+// [한글] threaddump registry 회귀 테스트.
+//
+// 검증 대상
+//   • CanParse 가 head 4 KB 만 받는지 (전체 파일 X).
+//   • 첫 매치 plugin 으로 dispatch.
+//   • 모두 미매치 → "unknown source format" 에러.
+//   • FormatOverride 가 sniff 우회.
+//   • ParseMany 의 mixed-format 검사 + MixedFormatError.
+//   • FormatOverride 가 mixed-format 검사도 skip.
+//   • DumpIndex 가 입력 순서대로 0..N-1 부여.
 package threaddump
 
 import (

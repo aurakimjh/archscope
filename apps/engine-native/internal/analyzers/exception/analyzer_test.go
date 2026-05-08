@@ -1,3 +1,18 @@
+// [한글] exception 분석기 회귀 테스트.
+//
+// 핵심 검증 포인트
+//   • 같은 IllegalStateException 이 두 번 등장하면 unique_signatures=1
+//     이고 REPEATED_EXCEPTION_SIGNATURE finding 발생.
+//   • Caused by SQLTimeoutException 이 root_cause 로 추출되고
+//     ROOT_CAUSE_PRESENT finding 발생.
+//   • orderedCounter 의 insertion-order 안정성: 같은 빈도일 때
+//     입력 순서대로 출력.
+//   • tables.exceptions 가 첫 top-N 만 보존(빈도순 아님).
+//
+// fixture 정책
+//   Python test_jvm_analyzers.test_exception_parser_and_analyzer 와
+//   1:1 동일한 입력 — parity gate 가 두 엔진의 결과 차이를 즉시 잡을
+//   수 있도록 일치시킴.
 package exception
 
 import (

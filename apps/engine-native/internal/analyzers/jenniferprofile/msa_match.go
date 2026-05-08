@@ -1,3 +1,29 @@
+// [한글] msa_match.go — §14 caller-callee 매칭 알고리즘.
+//
+// 책임
+//   GUID 그룹 안의 EXTERNAL_CALL 이벤트와 같은 그룹의 다른 profile
+//   header(URL/application/start_time) 를 후보로 간주해, 어떤
+//   caller→callee 짝이 가장 그럴듯한지 점수화.
+//
+// 정규화 규칙 (§14.1, normalizeURL)
+//   1) 양 끝 공백 trim.
+//   2) `?` 이후의 query string + `#` 이후의 fragment 제거.
+//   3) 연속 `/` 를 한 번으로(`//` → `/`).
+//   4) 끝 `/` 제거(루트 `/` 는 보존).
+//   목적: caller 의 EXTERNAL_CALL.url 과 callee 의 header.application
+//   을 같은 정규형으로 비교 가능하게.
+//
+// 점수 산정 핵심 요소 (§14.2~§14.4)
+//   • URL 일치도(prefix/suffix/exact) : 가장 큰 가중치.
+//   • application 라벨 일치 : 인스턴스 도메인 식별.
+//   • 시간 근접도 : 외부호출 시작 시각과 callee 시작 시각의 갭.
+//   • 동률 처리 : 점수 같으면 시간 근접 우선, 그 다음 URL 길이.
+//
+// 매칭 결과 상태
+//   MATCHED                       : 채택
+//   UNMATCHED                     : 어떤 후보와도 매치 실패
+//   MATCH_SCORE_TOO_LOW           : 후보 있으나 MinMatchScore(=80) 미만
+//   AMBIGUOUS_EXTERNAL_CALL_MATCH : 동률 후보 ≥ 2 (§14.3 §14.4)
 package jenniferprofile
 
 import (

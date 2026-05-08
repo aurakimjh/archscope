@@ -1,3 +1,15 @@
+# ─────────────────────────────────────────────────────────────────────
+# [한글] test_profiler_timeline — profiler timeline 분석기 회귀.
+#
+# 검증 대상
+#   • build_flame_tree_from_collapsed: collapsed Counter → flame tree
+#     (FlameNode) 정상 변환.
+#   • build_timeline_analysis: collapsed 프로파일을 시간 segment 단위
+#     로 분할하고, 각 segment 의 hot stacks + sample 수 보고.
+#   • build_timeline_analysis_with_scope: 사용자가 시간 윈도우 지정 시
+#     해당 윈도우만 추출.
+#   • UI 의 time-bucket 시각화에 직결 (scrub bar / brush selection).
+# ─────────────────────────────────────────────────────────────────────
 from collections import Counter
 
 from archscope_engine.analyzers.flamegraph_builder import build_flame_tree_from_collapsed

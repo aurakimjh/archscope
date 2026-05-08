@@ -5,6 +5,48 @@ reporting toolkit. Its core responsibility is to turn raw operational
 evidence into normalized `AnalysisResult` JSON and report-ready
 visualizations — without sending data to any third-party service.
 
+## Two engine tracks (current state)
+
+ArchScope currently ships **two parallel engine implementations**. Both
+emit the same `AnalysisResult` JSON envelope and are exercised
+side-by-side by the parity gate at
+`.github/workflows/profiler-native.yml`.
+
+| Track | Location | Status | Distribution |
+| --- | --- | --- | --- |
+| **Python (legacy / current shipping)** | `engines/python/archscope_engine/` | All 16 parsers + 7 thread-dump plugins + 18 analyzers + 6 exporters complete | `pip install archscope` wheel — bundles React UI as package data, runs FastAPI on `127.0.0.1:8765` |
+| **Go (Tier-5 desktop pivot)** | `apps/engine-native/` | Tiers 1–4 + Cobra CLI (T-360) + demo runner (T-380) all complete; library-only — no HTTP server | Linked into Wails desktop binary (`apps/profiler-native/`) and exposed via Cobra CLI for parity gate / CI |
+
+The Go track is positioned as the **target end-state**: a single Wails
+desktop binary (T-391, target raw size < 12 MB) is the primary release
+artifact. The Python wheel still ships and is the path
+`pip install archscope` users follow today; T-352 (frontend cleanup)
+and T-209 (browser support matrix) are deferred until T-392 retires
+the Python wheel.
+
+```text
+                    AnalysisResult JSON contract
+                              ▲
+        ┌─────────────────────┴─────────────────────┐
+        │                                           │
+┌───────────────────────────┐         ┌─────────────────────────────────┐
+│ engines/python/           │         │ apps/engine-native/             │
+│   archscope_engine/       │         │   internal/parsers/             │
+│   (FastAPI, in-process)   │         │   internal/analyzers/           │
+│                           │         │   internal/exporters/           │
+│   Used by:                │         │   internal/threaddump/plugins/  │
+│   • pip install archscope │         │                                 │
+│   • archscope serve       │         │   Used by:                      │
+│   • CI parity gate        │         │   • apps/profiler-native        │
+│                           │         │     (Wails desktop binary)      │
+│                           │         │   • cmd/archscope-engine        │
+│                           │         │     (Cobra CLI for parity gate) │
+└───────────────────────────┘         └─────────────────────────────────┘
+```
+
+The rest of this document explains both tracks. Sections that apply
+only to one are flagged accordingly.
+
 ## Web platform pivot — design decisions (T-206)
 
 Decided **2026-05-06**. **Supersedes T-001** (the original "Electron +
@@ -69,19 +111,55 @@ that the rest of Phase 1 (T-207–T-209) builds on.
   `style-src 'unsafe-inline'` stays for shadcn/ui CSS variables;
   nonce-based hardening is tracked separately under T-052/T-071.
 
-### Apps directory layout (post-T-207)
+### Apps directory layout (current)
 
 ```text
 apps/
-├ frontend/         # React shell — single source of truth for the web UI
-├ profiler-native/  # Wails v3 native profiler (decided 2026-05-05, T-240a)
-└ desktop/          # Removed by T-207
+├ frontend/         # React shell — served by both the Python wheel and
+│                   # the Wails desktop binary
+├ profiler-native/  # Wails v3 desktop binary (Tier-5 release artifact)
+└ engine-native/    # Go library + Cobra CLI (full Python parity, T-301..T-380)
 ```
 
-The historical `apps/desktop/electron/`, `tsconfig.electron.json`,
-`electron-builder` config, `release/`, and `dist-electron/` are
-deleted. The new top-level `archscope` Python distribution
-(package data + console script) lands at the repo root via T-208.
+`apps/desktop/` (Electron) was removed by T-207. The new top-level
+`archscope` Python distribution (package data + console script) lives
+at the repo root via T-208. The Go track at `apps/engine-native/` was
+added by the T-301..T-392 conversion and is consumed by both the Wails
+desktop binary and the Cobra CLI used by the parity gate.
+
+### Go engine-native module layout
+
+```text
+apps/engine-native/
+├ cmd/archscope-engine/         # Cobra CLI mirroring typer surface (T-360)
+│   ├ main.go                   # rootCmd + side-effect plugin registrations
+│   ├ cmd_accesslog.go          # one cmd_*.go per typer group
+│   ├ cmd_demosite.go           # demo runner (T-380)
+│   ├ cmd_gclog.go, cmd_jfr.go, ...
+│   └ helpers.go                # writeJSONResult, parseTimeFlag, readJSONFile
+├ api/                          # public re-export facade for external Go modules
+│   └ api.go                    # type aliases over internal/* — Wails uses this
+├ internal/
+│   ├ parsers/{accesslog,exception,gclog,jenniferprofile,jfr,otel,runtimestack}/
+│   ├ analyzers/{accesslog,exception,gclog,jenniferprofile,jfr,
+│   │            lockcontention,multithread,otel,profileclassification,
+│   │            runtime,threaddump,threaddumpcollapsed}/
+│   ├ exporters/{csv,html,json,pptx,reportdiff}/
+│   ├ threaddump/plugins/{javajstack,javajcmdjson,gogoroutine,
+│   │                     pythondump,nodejsreport,dotnetclrstack}/
+│   ├ models/                   # AnalysisResult, ThreadSnapshot, StackFrame, ...
+│   ├ common/, diagnostics/, statistics/, textio/, timeutil/
+│   └ demosite/                 # ported demo runner (T-380)
+└ bin/                          # built binaries (gitignored)
+```
+
+The `api/` package exists because `internal/` is unreachable from
+external Go modules. Wails service bindings in
+`apps/profiler-native/cmd/archscope-profiler-app/` import `api` rather
+than `internal/*`. Each analyzer's `Options` is re-exported with a type
+prefix (`AccessLogOptions`, `JfrOptions`, …) so call sites stay
+unambiguous; `AnalysisResult`, `ThreadDumpBundle`, and the model types
+keep their original names because they're the lingua franca.
 
 ## Product positioning
 
@@ -109,6 +187,8 @@ Raw Data
 
 ## Runtime topology
 
+### Python track — `pip install archscope`
+
 ```text
 ┌────────────────────────────────────────────────────────────────┐
 │  Browser (React 18 + Vite + Tailwind v4 + shadcn/ui)           │
@@ -121,14 +201,15 @@ Raw Data
                            │  fetch /api/...
                            ▼
 ┌────────────────────────────────────────────────────────────────┐
-│  FastAPI server (`archscope-engine serve`)                     │
+│  FastAPI server (`archscope serve` / `archscope-engine serve`) │
 │   • POST /api/upload                  multipart upload         │
 │   • POST /api/analyzer/execute        dispatcher (per type)    │
-│   • POST /api/analyzer/cancel         no-op in single-process  │
+│   • POST /api/analyzer/cancel         signals task registry    │
 │   • POST /api/export/execute          html / pptx / diff       │
 │   • GET  /api/demo/list, POST /api/demo/run                    │
 │   • GET  /api/files?path=…            stream artifacts back    │
 │   • GET/PUT /api/settings             ~/.archscope/settings    │
+│   • WS   /ws/progress                 progress + cancel + logs │
 │   • GET  /                            static React build       │
 └──────────────────────────┬─────────────────────────────────────┘
                            │  in-process call (no subprocess)
@@ -183,6 +264,74 @@ Raw Data
 │                                                                │
 │   web/server.py     ← FastAPI factory + analyzer dispatcher    │
 │   cli.py            ← Typer commands (one per analyzer + serve)│
+└────────────────────────────────────────────────────────────────┘
+```
+
+### Go track — Wails desktop binary (Tier-5)
+
+The Go track is library-only — there is **no HTTP server**. The
+desktop binary embeds the React bundle directly and binds analyzers
+through Wails service methods, not a network round-trip. The Cobra
+CLI (`apps/engine-native/cmd/archscope-engine/`) is the headless
+counterpart used by the parity gate and CI; it does not include a
+`serve` subcommand.
+
+```text
+┌────────────────────────────────────────────────────────────────┐
+│  Wails desktop binary (apps/profiler-native/)                  │
+│   • Native window — no separate browser needed                 │
+│   • Embedded React bundle (same source tree as web)            │
+│   • Service methods bound through Wails IPC:                   │
+│       EngineService.Analyze*  → calls api/api.go re-exports    │
+│       ProfilerService.*       → flamegraph / drilldown / diff  │
+│   • Task registry symmetric with FastAPI's WS progress path    │
+└──────────────────────────┬─────────────────────────────────────┘
+                           │  in-process Go call (no IPC)
+                           ▼
+┌────────────────────────────────────────────────────────────────┐
+│  apps/engine-native/api  (re-export facade)                    │
+│   • AnalysisResult       — model alias                         │
+│   • AnalyzeAccessLog,    AnalyzeException,                     │
+│     AnalyzeGcLog,        AnalyzeJfr,                           │
+│     AnalyzeMultiThread,  AnalyzeLockContention,                │
+│     AnalyzeOTel,         AnalyzeRuntimeStack,                  │
+│     AnalyzeJenniferProfile, ConvertToCollapsed, ...            │
+│   • Threaddump DefaultRegistry (auto-registered plugins)       │
+└──────────────────────────┬─────────────────────────────────────┘
+                           │  internal package access
+                           ▼
+┌────────────────────────────────────────────────────────────────┐
+│  apps/engine-native/internal/                                  │
+│                                                                │
+│   parsers/                                                     │
+│     accesslog/, exception/, gclog/, jenniferprofile/,          │
+│     jfr/, otel/, runtimestack/                                 │
+│                                                                │
+│   analyzers/                                                   │
+│     accesslog/, exception/, gclog/, jenniferprofile/, jfr/,    │
+│     lockcontention/ (owner/waiter graph + DFS deadlock),       │
+│     multithread/    (LONG_RUNNING_THREAD,                      │
+│                      PERSISTENT_BLOCKED_THREAD, …),            │
+│     otel/, profileclassification/, runtime/, threaddump/,      │
+│     threaddumpcollapsed/                                       │
+│                                                                │
+│   threaddump/plugins/                                          │
+│     javajstack/      ← + AOP / network-IO + JDK 21+ no-`nid`   │
+│     javajcmdjson/    ← jcmd JSON.thread_dump_to_file           │
+│     gogoroutine/     ← + framework cleanup + state inference   │
+│     pythondump/      ← py-spy / faulthandler / traceback       │
+│     nodejsreport/    ← diagnostic-report JSON + libuv state    │
+│     dotnetclrstack/  ← + async state machine cleanup           │
+│                                                                │
+│   exporters/                                                   │
+│     json/, html/, pptx/, csv/, reportdiff/                     │
+│                                                                │
+│   models/                                                      │
+│     AnalysisResult, ThreadSnapshot, ThreadDumpBundle,          │
+│     StackFrame, ThreadState                                    │
+│                                                                │
+│   common/, diagnostics/, statistics/, textio/, timeutil/,      │
+│   demosite/                                                    │
 └────────────────────────────────────────────────────────────────┘
 ```
 

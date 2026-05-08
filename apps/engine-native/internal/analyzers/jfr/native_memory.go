@@ -18,6 +18,41 @@
 // `1` per event when not. Engine returns flame `samples` in bytes so
 // the existing flamegraph renderer just works — display labels can show
 // units via `metadata.unit`.
+//
+// ─────────────────────────────────────────────────────────────────────
+// [한글] native memory leak 분석기.
+//
+// 핵심 발상
+//   할당(alloc) 이벤트와 해제(free) 이벤트를 address 키로 매칭하면,
+//   레코딩 종료 시점에 매칭되지 않은 alloc 이 곧 "현재 살아있는
+//   네이티브 메모리"입니다. 이 살아있는 메모리의 call site 별 크기를
+//   flame tree 로 그리면 leak 의 위치가 선명해집니다.
+//
+// 두 가지 출력 플레이버
+//   • leak  : free 가 매칭되지 않은 alloc 만. 추가로 tail_ratio
+//     (기본 10%) 의 끝부분 alloc 은 "아직 해제될 수 있음" 으로 보고
+//     배제. async-profiler 표준 동작과 같음.
+//   • alloc : 모든 alloc. 일반적인 hot-spot 분석용.
+//
+// 옵션
+//   • LeakOnly                   : true 면 leak 모드, false 면 alloc.
+//   • TailRatio                  : 0.0 ~ 1.0. 끝부분 N% 의 alloc 무시.
+//   • LeakOnlyExplicitlySet /    : 사용자가 명시적으로 false 를
+//     TailRatioExplicitlySet       지정했는지 / 기본값을 받았는지 구분
+//                                 (Python None vs False 패리티).
+//
+// flame samples 단위
+//   각 노드의 samples 값은 bytes. Python 분석기와 동일하게 size 가
+//   누락된 이벤트는 1 byte 로 fallback. UI 는 metadata.unit 을 보고
+//   라벨에 "MB"/"KB" 등을 자동 변환.
+//
+// 알고리즘
+//   1) NativeMemoryAllocation / Free 이벤트만 필터.
+//   2) tail_ratio 컷오프 적용(LeakOnly=true 일 때).
+//   3) address → alloc 이벤트 맵 구성. Free 이벤트가 들어오면 매칭
+//      해제(map 에서 제거).
+//   4) 남은 alloc 들을 stack frame 단위로 trie 화 → flame tree 작성.
+//   5) summary 에 unfreed bytes / count 와 top-N call sites 기록.
 package jfr
 
 import (

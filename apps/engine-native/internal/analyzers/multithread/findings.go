@@ -1,3 +1,47 @@
+// [한글] findings.go — multithread 분석기의 모든 finding 빌더 + 메시지
+// 조립 로직.
+//
+// 구성
+//   1) Persistence findings (buildPersistenceFindings)
+//        LONG_RUNNING_THREAD       : 같은 RUNNABLE stack signature 가
+//                                    threshold 연속 덤프 지속.
+//        PERSISTENT_BLOCKED_THREAD : BLOCKED/LOCK_WAIT 가 threshold
+//                                    연속 덤프 지속.
+//
+//   2) Latency findings (buildLatencySections)
+//        LATENCY_SECTION_DETECTED  : NETWORK_WAIT / IO_WAIT /
+//                                    CHANNEL_WAIT 카테고리별 별도 finding.
+//
+//   3) Growing lock contention (buildGrowingLockFindings)
+//        GROWING_LOCK_CONTENTION   : 같은 lock_id 의 waiter count 가
+//                                    연속 덤프에서 strict 증가하면서
+//                                    threshold 만큼 지속.
+//        object_wait, parking_condition_wait 는 락 경합이 아니라
+//        Object.wait()/parked-on-condition 이므로 제외.
+//
+//   4) Heuristic findings (buildHeuristicFindings) — 비율 기반
+//        THREAD_CONGESTION_DETECTED  : waiting/total > 10%
+//        EXTERNAL_RESOURCE_WAIT_HIGH : timed_waiting/total > 25%
+//        LIKELY_GC_PAUSE_DETECTED    : "unowned monitor 에 BLOCKED" 가
+//                                      total 의 50% 초과
+//                                      → 일반적으로 GC stop-the-world
+//                                        때 발생하는 시그니처.
+//
+//   5) Finding 조립 (assembleFindings)
+//        사용자에게 보이는 메시지 문자열을 만드는 단계. Python 메시지
+//        포맷과 byte 단위로 동일해야 parity gate 가 통과.
+//        formatThreadName 의 quoting 도 그래서 유지.
+//
+// 알고리즘 디테일
+//   • runnableRunLengths : RUNNABLE 관측을 한 번 훑으면서 stack
+//     signature 가 바뀌면 새 run 시작. 한 스레드당 첫 임계 도달
+//     signature 만 finding 에 채택(Python 의 break 동치).
+//   • dedupSorted        : 행 안에 들어가는 stack_signatures 의
+//     중복 제거 + 정렬(JSON 안정성).
+//   • roundToEven        : Python round() 의 banker's rounding 과
+//     동일하게 비율을 4자리로 반올림.
+//   • Python `enumerate(bundles)` 시맨틱을 보존 — index 가 bundle
+//     리스트 위치이며 DumpIndex 와 다를 수 있음에 유의.
 package multithread
 
 import (

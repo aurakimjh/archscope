@@ -1,3 +1,23 @@
+"""Python traceback parser (CPython 3.x format)."""
+# ─────────────────────────────────────────────────────────────────────
+# [한글] python_traceback_parser — CPython traceback 텍스트 파서.
+#
+# 입력 형식 (CPython 3.x 표준)
+#   `Traceback (most recent call last):` 라인이 block 시작.
+#   각 frame 은 `  File "path/to/file.py", line N, in func_name`
+#   + 선택적으로 다음 줄에 source line.
+#   block 마지막 라인은 `ExceptionType: message`.
+#
+# 알고리즘
+#   1) 라인 단위 dispatch.
+#   2) Traceback 헤더로 block 시작, exception 라인으로 block 종료.
+#   3) 각 frame 은 PY_FILE_RE 매칭으로 (file, line, func) 추출.
+#   4) "Caused by:" 대신 chained traceback ("During handling..." /
+#      "The above exception...") 도 multi-block 으로 처리.
+#
+# parity: PY_EXCEPTION_RE / PY_FILE_RE 정규식, frame 키 이름이
+# Go engine-native internal/parsers/runtimestack/pythontraceback.go 와 동일.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import re

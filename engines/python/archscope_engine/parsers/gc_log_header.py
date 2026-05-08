@@ -18,6 +18,42 @@ This module is **purely** a scanner; it does not interpret or judge the
 configuration. The frontend is responsible for highlighting suspicious
 combinations.
 """
+# ─────────────────────────────────────────────────────────────────────
+# [한글] gc_log_header — GC log 의 첫 부분에서 JVM Info 카드 데이터 추출.
+#
+# 책임
+#   GC log 의 헤더 영역에서 JVM 빌드/호스트 하드웨어/효과적인 JVM 플래그
+#   같은 메타데이터만 추출합니다. "이상한 조합인지" 판단은 절대 하지
+#   않음 — 추출만 하고 UI 가 강조 표시 (예: ParallelGCThreads=1 on
+#   8-core box) 를 담당.
+#
+# 두 가지 스타일
+#   1) Unified (JDK 9+): `[ts][info][gc,init] CPUs: 8 total, 8 available`
+#      형태로 각 항목이 자기 줄에. tagged 라인을 정규식으로 분류.
+#   2) Legacy (JDK 4-8): 파일 첫 부분에 자유 형식 라인. 예:
+//        `Java HotSpot(TM) ...`, `Memory: 8G`, `CommandLine flags: ...`
+#
+# 추출 항목 (HeaderInfo)
+#   VMBanner / VMVersion / VMBuild / Platform / Collector
+#   CommandLine / CPUs / Memory
+#   Heap Min/Initial/Max / Region size
+#   Parallel/Concurrent worker 수
+#   Compressed Oops 등.
+#
+# 누락 처리
+#   매칭되지 않은 필드는 None 유지. ToMap 단계에서 None 인 키는 결과
+#   딕셔너리에서 제외 (Python `omit if absent` 정책 — JSON 출력이
+#   사용자에게 깔끔하게 보이도록).
+#
+# 본 파서와 분리된 이유
+#   본문 GC event 파싱 (gc_log_parser) 이 0건 또는 실패해도, 헤더는
+#   살아남아 사용자가 "어떤 환경의 어떤 JVM 인지" 알 수 있도록.
+#
+# Go engine-native parity
+#   apps/engine-native/internal/parsers/gclog/header.go 와 동일한 정규식
+#   + 동일한 HeaderInfo 키 이름. parity gate 가 양 엔진의 jvm_info
+#   딕셔너리를 byte 단위로 비교.
+# ─────────────────────────────────────────────────────────────────────
 from __future__ import annotations
 
 import re
