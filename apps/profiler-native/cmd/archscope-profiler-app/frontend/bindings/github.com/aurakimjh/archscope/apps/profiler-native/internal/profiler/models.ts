@@ -433,6 +433,14 @@ export class Metadata {
     "timeline_scope": TimelineScope;
 
     /**
+     * ProgressLogPath, when non-empty, points to the on-disk
+     * streaming log written during parse + analyze. Surfaced to the
+     * renderer so the user has a tailable artifact when a 400 MB
+     * wall analysis crashes.
+     */
+    "progress_log_path"?: string;
+
+    /**
      * Profiler-diff–specific payload. Empty for ordinary profiler results.
      */
     "diff_summary"?: { [_ in string]?: any };
@@ -462,8 +470,8 @@ export class Metadata {
     static createFrom($$source: any = {}): Metadata {
         const $$createField2_0 = $$createType15;
         const $$createField3_0 = $$createType16;
-        const $$createField4_0 = $$createType9;
         const $$createField5_0 = $$createType9;
+        const $$createField6_0 = $$createType9;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("diagnostics" in $$parsedSource) {
             $$parsedSource["diagnostics"] = $$createField2_0($$parsedSource["diagnostics"]);
@@ -472,10 +480,10 @@ export class Metadata {
             $$parsedSource["timeline_scope"] = $$createField3_0($$parsedSource["timeline_scope"]);
         }
         if ("diff_summary" in $$parsedSource) {
-            $$parsedSource["diff_summary"] = $$createField4_0($$parsedSource["diff_summary"]);
+            $$parsedSource["diff_summary"] = $$createField5_0($$parsedSource["diff_summary"]);
         }
         if ("diff_tables" in $$parsedSource) {
-            $$parsedSource["diff_tables"] = $$createField5_0($$parsedSource["diff_tables"]);
+            $$parsedSource["diff_tables"] = $$createField6_0($$parsedSource["diff_tables"]);
         }
         return new Metadata($$parsedSource as Partial<Metadata>);
     }

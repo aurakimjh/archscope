@@ -339,6 +339,8 @@ func guidGroupToRow(g models.JenniferGuidGroup) map[string]any {
 			"external_call_elapsed_ms":  edge.ExternalCallElapsedMs,
 			"callee_response_time_ms":   edge.CalleeResponseTimeMs,
 			"network_gap_ms":            edge.NetworkGapMs,
+			"caller_event_start_ms":     edge.CallerEventStartMs,
+			"callee_body_start_ms":      edge.CalleeBodyStartMs,
 		})
 	}
 	return map[string]any{
@@ -382,6 +384,8 @@ func edgeToRow(e models.JenniferExternalCallEdge) map[string]any {
 		"external_call_url":        e.ExternalCallURL,
 		"external_call_elapsed_ms": e.ExternalCallElapsedMs,
 		"match_status":             string(e.MatchStatus),
+		"caller_event_start_ms":    e.CallerEventStartMs,
+		"callee_body_start_ms":     e.CalleeBodyStartMs,
 	}
 	if e.CalleeTXID != "" {
 		row["callee_txid"] = e.CalleeTXID

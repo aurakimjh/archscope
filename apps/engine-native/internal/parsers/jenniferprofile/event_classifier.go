@@ -35,7 +35,15 @@ var (
 	twoPCPrepareRE  = regexp.MustCompile(`(?i)(?:^|[^a-z0-9_])xa_prepare`)
 	twoPCCommitRE   = regexp.MustCompile(`(?i)(?:^|[^a-z0-9_])xa_commit`)
 	twoPCRollbackRE = regexp.MustCompile(`(?i)(?:^|[^a-z0-9_])xa_rollback`)
-	twoPCAnyRE      = regexp.MustCompile(`(?i)(?:^|[^a-z0-9_])xa_[a-z]\w*`)
+	// twoPCAnyRE picks up two flavours seen in real exports:
+	//   - lowercase `xa_*` calls (`xa_start_new`, `xa_recover`, …)
+	//   - the `JAVA_XA` family that wraps XA driver calls in
+	//     application code; bytea/SQL bodies render the marker as
+	//     `JAVA_XA` (uppercase) on its own. We accept either so the
+	//     2PC ledger doesn't undercount when the tracing library
+	//     normalises to the uppercase form.
+	twoPCAnyRE  = regexp.MustCompile(`(?i)(?:^|[^a-z0-9_])xa_[a-z]\w*`)
+	twoPCJavaRE = regexp.MustCompile(`(?i)(?:^|[^a-z0-9_])java_xa\b`)
 )
 
 // checkQueryNormalized are the canonical Check Query SQL bodies per §11.3.
@@ -211,6 +219,15 @@ func classifyOne(ev *models.JenniferProfileEvent) models.JenniferEventType {
 		if twoPCAnyRE.MatchString(joined) {
 			return models.JenniferEventTwoPCUnknown
 		}
+		// JAVA_XA wrapper (Atomikos / WebLogic XA / Spring JtaTransactionManager
+		// etc.) — the SQL body carries the marker even when the actual
+		// xa_start / xa_commit calls are emitted as plain method
+		// events. Counting the wrapping SQL_EXECUTE keeps the 2PC
+		// ledger aligned with the user's mental model: "every line
+		// containing JAVA_XA is a 2PC step".
+		if twoPCJavaRE.MatchString(joined) {
+			return models.JenniferEventTwoPCUnknown
+		}
 		// Default SQL classifier — distinguish UPDATE / QUERY / GENERIC.
 		switch {
 		case strings.HasPrefix(upper, "SQL-EXECUTE-UPDATE"), strings.HasPrefix(upper, "SQL_EXECUTE_UPDATE"):
@@ -220,6 +237,14 @@ func classifyOne(ev *models.JenniferProfileEvent) models.JenniferEventType {
 		default:
 			return models.JenniferEventSQLExecute
 		}
+	}
+
+	// JAVA_XA can also appear at the message level rather than only
+	// inside a SQL body — many tracing libraries surface it as a
+	// pseudo-method name. Recognising it here means the 2PC ledger
+	// catches both shapes without relying on the SQL fall-through.
+	if twoPCJavaRE.MatchString(msg) {
+		return models.JenniferEventTwoPCUnknown
 	}
 
 	// Connection acquire — the message itself usually carries a

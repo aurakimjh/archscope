@@ -6,7 +6,16 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 	"unicode"
+)
+
+// timeNow / timeSince are wrappers so tests can stub time without
+// importing the real clock everywhere. The defaults forward to
+// time.Now / time.Since.
+var (
+	timeNow   = time.Now
+	timeSince = time.Since
 )
 
 // Collapsed-parser memory guards. The 70M-wall regression (process
@@ -60,15 +69,29 @@ func ParseCollapsedFileWithOptions(path string, opts Options) (map[string]int, P
 		diagnostics.BytesRead = info.Size()
 	}
 
+	pl := opts.ProgressLog
+	pl.Phase("parse-start", fmt.Sprintf("file=%s size=%d cap_stacks=%d cap_depth=%d", path, diagnostics.BytesRead, maxStacks, maxDepth))
+
 	stacks := map[string]int{}
 	scanner := bufio.NewScanner(file)
 	scanner.Buffer(make([]byte, 1024), defaultCollapsedScannerBuffer)
+
+	// Tick cadence: every 250k lines OR when 64 MB more bytes have
+	// been processed since the last tick. The collapsed parser is
+	// I/O-bound for large files, so the tick adds <1% overhead while
+	// giving users a heartbeat they can `tail -f` from disk.
+	const tickEveryLines = 250_000
+	const tickEveryBytes = 64 * 1024 * 1024
+	bytesProcessed := int64(0)
+	bytesAtLastTick := int64(0)
+	startTime := timeNow()
 
 	lineNumber := 0
 	for scanner.Scan() {
 		lineNumber++
 		diagnostics.TotalLines++
 		raw := scanner.Text()
+		bytesProcessed += int64(len(raw)) + 1
 		line := strings.TrimSpace(raw)
 		if line == "" {
 			continue
@@ -93,9 +116,9 @@ func ParseCollapsedFileWithOptions(path string, opts Options) (map[string]int, P
 			}
 		}
 		// Unique-stack guard: once the cap is hit, drop new entries
-		// rather than letting the map grow without bound. The kept
-		// entries are the most-frequent ones because they were
-		// accumulated first under the typical async-profiler ordering.
+		// rather than letting the map grow without bound. Existing
+		// entries still aggregate, so the dominant stacks keep their
+		// counts even when the long-tail is truncated.
 		if maxStacks > 0 && len(stacks) >= maxStacks {
 			if _, ok := stacks[stack]; !ok {
 				diagnostics.DroppedStacks++
@@ -107,10 +130,24 @@ func ParseCollapsedFileWithOptions(path string, opts Options) (map[string]int, P
 		}
 		stacks[stack] += samples
 		diagnostics.ParsedRecords++
+
+		if pl != nil {
+			if lineNumber%tickEveryLines == 0 || bytesProcessed-bytesAtLastTick >= tickEveryBytes {
+				bytesAtLastTick = bytesProcessed
+				elapsed := timeSince(startTime)
+				rate := float64(bytesProcessed) / elapsed.Seconds() / (1024 * 1024)
+				pl.Tick("parse line=%d bytes=%d/%dMB unique=%d dropped=%d depth_max=%d rate=%.1fMB/s",
+					lineNumber, bytesProcessed/(1024*1024), diagnostics.BytesRead/(1024*1024),
+					len(stacks), diagnostics.DroppedStacks, diagnostics.MaxObservedDepth, rate)
+				pl.Mem("parse")
+			}
+		}
 	}
 	if err := scanner.Err(); err != nil {
+		pl.Phase("parse-error", fmt.Sprintf("scanner: %v", err))
 		return nil, diagnostics, err
 	}
+	pl.Phase("parse-end", fmt.Sprintf("lines=%d unique=%d dropped=%d", lineNumber, len(stacks), diagnostics.DroppedStacks))
 	if diagnostics.TotalLines == 0 {
 		addDiagnosticWarning(&diagnostics, 0, "EMPTY_FILE", "Collapsed profiler file is empty.", "")
 	}

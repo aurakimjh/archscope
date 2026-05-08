@@ -23,6 +23,17 @@ type Options struct {
 	// "EXTERNAL_CALL", "SQL_EXECUTION"); values are case-insensitive
 	// substrings matched against frame text.
 	TimelineCategories map[string][]string
+	// ProgressLog, when non-nil, receives phase / progress / panic
+	// lines during the parse + analyze pipeline. The renderer surfaces
+	// the log path back to the user so a 400 MB wall analysis that
+	// dies still leaves a tailable trail. Owned by the caller —
+	// nothing inside the analyzer closes it.
+	ProgressLog *ProgressLog
+	// ProgressLogDir is consulted by AnalyzeCollapsedFile when
+	// ProgressLog is nil; the analyzer auto-opens a log under this
+	// directory so users get coverage without explicit wiring. Empty
+	// → fall back to <os.TempDir>/archscope-progress.
+	ProgressLogDir string
 }
 
 type AnalysisResult struct {
@@ -68,6 +79,11 @@ type Metadata struct {
 	SchemaVersion string            `json:"schema_version"`
 	Diagnostics   ParserDiagnostics `json:"diagnostics"`
 	TimelineScope TimelineScope     `json:"timeline_scope"`
+	// ProgressLogPath, when non-empty, points to the on-disk
+	// streaming log written during parse + analyze. Surfaced to the
+	// renderer so the user has a tailable artifact when a 400 MB
+	// wall analysis crashes.
+	ProgressLogPath string `json:"progress_log_path,omitempty"`
 	// Profiler-diff–specific payload. Empty for ordinary profiler results.
 	DiffSummary map[string]any `json:"diff_summary,omitempty"`
 	DiffTables  map[string]any `json:"diff_tables,omitempty"`

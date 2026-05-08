@@ -17,6 +17,8 @@ import {
   type SegmentSpec,
 } from "../components/CustomCategoriesEditor";
 import { MsaStackedBar } from "../components/MsaStackedBar";
+import { MsaTimeline } from "../components/MsaTimeline";
+import { MsaTopology } from "../components/MsaTopology";
 import { MetricCard } from "../components/MetricCard";
 import { RecentFilesPanel } from "../components/RecentFilesPanel";
 import { SlideOverPanel } from "../components/SlideOverPanel";
@@ -222,6 +224,30 @@ export function JenniferProfilePage(): JSX.Element {
   const guidGroups: any[] = result?.series?.guid_groups ?? [];
   const msaEdges: any[] = result?.tables?.msa_edges ?? [];
   const signatureStats: any[] = result?.series?.signature_statistics ?? [];
+  const [profileTimelineActivated, setProfileTimelineActivated] = useState(false);
+
+  // primaryRootApplication: pick the first GUID group's root for the
+  // topology / per-service ordering. When the result spans multiple
+  // unrelated traces, the topology still merges them but the root
+  // hint anchors the most-frequent caller at the top.
+  const primaryRootApplication: string | undefined = guidGroups.find(
+    (g) => g?.root_application,
+  )?.root_application;
+
+  // topologyEdges flattens every group's call_graph into one
+  // caller→callee list — these are the matched edges with timing
+  // metadata, used by the topology graph and the overall timeline.
+  const topologyEdges: any[] = guidGroups.flatMap((g) => g?.call_graph ?? []);
+
+  // overallTimelineEdges keeps the unmatched edges too (with caller-
+  // side timing) so the MSA timeline can show "this call had no
+  // matching callee profile" alongside healthy ones. We backfill
+  // missing match_status as MATCHED for call_graph entries because
+  // call_graph only carries matched edges.
+  const overallTimelineEdges: any[] = [
+    ...topologyEdges.map((e) => ({ ...e, match_status: e.match_status ?? "MATCHED" })),
+    ...msaEdges.filter((e) => e?.match_status && e.match_status !== "MATCHED"),
+  ];
 
   const handleRecentSelect = (entry: {
     path: string;
@@ -940,34 +966,60 @@ export function JenniferProfilePage(): JSX.Element {
                   사용자 분류 패턴을 추가해 다시 분석하세요.
                 </p>
               )}
+            {topologyEdges.length > 0 && (
+              <div className="mt-4 flex flex-col gap-4">
+                <MsaTopology
+                  edges={topologyEdges as any}
+                  rootApplication={primaryRootApplication}
+                />
+                <MsaTimeline
+                  title="MSA 전체 타임라인 (호출 시각 순)"
+                  edges={overallTimelineEdges as any}
+                  mode="overall"
+                  rootApplication={primaryRootApplication}
+                />
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm">
+                      GUID 그룹별 카테고리 누적 시간 (Stacked Bar)
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <MsaStackedBar groups={guidGroups as any} />
+                  </CardContent>
+                </Card>
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="profiles" className="mt-4 flex flex-col gap-4">
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm">
-                  GUID 그룹별 카테고리 누적 시간 (Stacked Bar)
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <MsaStackedBar groups={guidGroups as any} />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm">
-                  Swimlane 그래프 (다음 단계)
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-xs text-muted-foreground">
-                  서비스별 가로 막대 형태의 시간축 그래프는 본문 이벤트의 절대
-                  오프셋(start_offset_ms / start_time_ms)을 분석 결과에 노출한
-                  뒤 추가합니다. 현재는 위 Stacked Bar로 카테고리별 비중을 비교하고,
-                  필요하면 "MSA" 탭의 Edge / GUID 그룹 표를 함께 보세요.
-                </p>
-              </CardContent>
-            </Card>
+            <div className="flex items-center justify-between gap-3">
+              <div className="text-xs text-muted-foreground">
+                메인 Caller 서비스가 맨 위. 호출 시각 순으로 가로 막대로 표시.
+              </div>
+              <label className="flex cursor-pointer select-none items-center gap-1.5 text-xs">
+                <input
+                  type="checkbox"
+                  className="h-3.5 w-3.5"
+                  checked={profileTimelineActivated}
+                  onChange={(e) =>
+                    setProfileTimelineActivated(e.target.checked)
+                  }
+                />
+                활성화 (응답시간 기준 정렬)
+              </label>
+            </div>
+            <MsaTimeline
+              title={
+                profileTimelineActivated
+                  ? "서비스별 타임라인 (응답시간 순)"
+                  : "서비스별 타임라인 (호출 시각 순)"
+              }
+              edges={overallTimelineEdges as any}
+              mode="by-service"
+              rootApplication={primaryRootApplication}
+              useResponseTimeOrder={profileTimelineActivated}
+            />
           </TabsContent>
 
           <TabsContent value="parser" className="mt-4">

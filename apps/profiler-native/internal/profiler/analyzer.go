@@ -1,6 +1,7 @@
 package profiler
 
 import (
+	"fmt"
 	"sort"
 	"strings"
 	"time"
@@ -29,12 +30,33 @@ func writeDebugLogIfNeeded(options Options) {
 
 func AnalyzeCollapsedFile(path string, options Options) (AnalysisResult, error) {
 	normalizeOptions(&options)
+
+	// Auto-attach a progress log when the caller didn't supply one.
+	// Large wall profiles (70 MB+) routinely take 30s+ to parse and
+	// users need a tailable artifact to debug crashes; auto-opening
+	// here means the debug-log path is always present in the result
+	// metadata so the renderer can show it without any opt-in flag.
+	autoLog := options.ProgressLog == nil
+	if autoLog {
+		if pl, plErr := OpenProgressLog(options.ProgressLogDir, path); plErr == nil {
+			options.ProgressLog = pl
+			defer pl.Close()
+		}
+	}
+	pl := options.ProgressLog
+	defer pl.Recover("AnalyzeCollapsedFile")
+
 	stacks, diagnostics, err := ParseCollapsedFileWithOptions(path, options)
 	if err != nil {
 		return AnalysisResult{}, err
 	}
+	pl.Phase("analyze-start", fmt.Sprintf("stacks=%d", len(stacks)))
 	result := AnalyzeCollapsedStacks(stacks, path, diagnostics, options)
+	pl.Phase("analyze-end")
 	writeDebugLogIfNeeded(options)
+	if pl != nil {
+		result.Metadata.ProgressLogPath = pl.Path()
+	}
 	return result, nil
 }
 
@@ -157,6 +179,7 @@ func stacksFromTree(root FlameNode) map[string]int {
 }
 
 func AnalyzeCollapsedStacks(stacks map[string]int, sourceFile string, diagnostics ParserDiagnostics, options Options) AnalysisResult {
+	pl := options.ProgressLog
 	totalSamples := 0
 	for _, samples := range stacks {
 		if samples > 0 {
@@ -165,9 +188,16 @@ func AnalyzeCollapsedStacks(stacks map[string]int, sourceFile string, diagnostic
 	}
 	intervalSeconds := options.IntervalMS / 1000
 	estimatedSeconds := round(float64(totalSamples)*intervalSeconds, 3)
+	pl.Phase("build-flamegraph-start", fmt.Sprintf("stacks=%d total_samples=%d", len(stacks), totalSamples))
 	flamegraph := buildFlameTree(stacks)
+	pl.Phase("build-flamegraph-end", fmt.Sprintf("nodes_root=%d", len(flamegraph.Children)))
+	pl.Mem("post-flamegraph")
+	pl.Phase("timeline-start")
 	timelineRows, timelineScope := buildTimeline(flamegraph, options, totalSamples)
+	pl.Phase("timeline-end", fmt.Sprintf("rows=%d", len(timelineRows)))
+	pl.Phase("topstacks-start")
 	topSeries, topTables := topStacksFromCollapsed(stacks, totalSamples, intervalSeconds, options)
+	pl.Phase("topstacks-end", fmt.Sprintf("rows=%d", len(topSeries)))
 	rootTopStacks := topStacksFromTree(flamegraph, options.TopN)
 	rootStage := DrilldownStage{
 		Index:      0,

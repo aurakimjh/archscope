@@ -225,6 +225,8 @@ func buildCallGraph(edges []models.JenniferExternalCallEdge) []models.JenniferCa
 			ExternalCallElapsedMs: e.ExternalCallElapsedMs,
 			CalleeResponseTimeMs:  callee,
 			NetworkGapMs:          gap,
+			CallerEventStartMs:    e.CallerEventStartMs,
+			CalleeBodyStartMs:     e.CalleeBodyStartMs,
 		})
 	}
 	return out

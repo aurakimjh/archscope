@@ -9,8 +9,12 @@ import (
 )
 
 // MinMatchScore is the cutoff under which a candidate is declared
-// MATCH_SCORE_TOO_LOW (§14.3 last clause). Tunable via Options.
-const MinMatchScore = 80
+// MATCH_SCORE_TOO_LOW (§14.3 last clause). Lowered from 80 → 60
+// after the containment-style matching landed: caller URL ⊃ callee
+// Application alone is +75, which would otherwise fail an 80-bar
+// even on perfectly clean profiles where the user-supplied tooling
+// doesn't carry a response_time_ms / start_time pair.
+const MinMatchScore = 60
 
 // duplicateSlashRE collapses runs of slashes like `//` to a single
 // `/` per §14.1 normalisation rule 4.
@@ -42,15 +46,19 @@ func normalizeURL(raw string) string {
 // considered during one-to-one assignment.
 type matchCandidate struct {
 	callerTXID    string
-	callerEdgeIdx int          // index into the caller-profile's external-call list
+	callerEdgeIdx int // index into the caller-profile's external-call list
 	calleeTXID    string
-	calleeIdx     int          // index in the GUID group's profiles slice
+	calleeIdx     int // index in the GUID group's profiles slice
 	score         int
 	urlExact      bool
 	timeOverlap   bool
 	gapNonNeg     bool
 	smallGap      bool
 	orderMatch    bool
+	// Sort keys for the "earliest first" tie-break that keeps repeated
+	// caller→callee pairs paired in chronological order.
+	callerEventStartMs int
+	calleeBodyStartMs  int
 }
 
 // callerEdge is one EXTERNAL_CALL event flagged with its enclosing
@@ -80,17 +88,30 @@ func matchExternalCalls(group *guidGroupBucket) []models.JenniferExternalCallEdg
 	candidates := buildCandidates(callers, group.profiles)
 
 	// Greedy one-to-one assignment by descending score: each callee
-	// profile can be paired with at most one caller-edge. This is
-	// good enough for MVP2; the spec recommends Hungarian for
-	// optimal but greedy matches the "obvious" cases the doc lists
-	// as long as scores diverge cleanly.
+	// profile can be paired with at most one caller-edge. Tie-break
+	// rules carry the "동일 호출건 여러 개면 시간 순으로" requirement —
+	// when the same caller→callee pair appears repeatedly, we want the
+	// pairing to follow caller-event start time so the call graph
+	// preserves the actual sequence rather than an arbitrary one.
 	sort.SliceStable(candidates, func(i, j int) bool {
 		if candidates[i].score != candidates[j].score {
 			return candidates[i].score > candidates[j].score
 		}
-		// Stable tiebreaker: prefer URL-exact, then earlier caller seq.
 		if candidates[i].urlExact != candidates[j].urlExact {
 			return candidates[i].urlExact
+		}
+		// callerEventStartMs ascending: the earlier external-call event
+		// gets first pick of available callees. This is what makes
+		// "earliest call → earliest callee profile" hold when the
+		// caller fires the same downstream service N times.
+		if candidates[i].callerEventStartMs != candidates[j].callerEventStartMs {
+			return candidates[i].callerEventStartMs < candidates[j].callerEventStartMs
+		}
+		// calleeBodyStartMs ascending: among callees that all match,
+		// prefer the one whose body started earliest — that's the
+		// natural pairing when both lists are time-ordered.
+		if candidates[i].calleeBodyStartMs != candidates[j].calleeBodyStartMs {
+			return candidates[i].calleeBodyStartMs < candidates[j].calleeBodyStartMs
 		}
 		if candidates[i].callerEdgeIdx != candidates[j].callerEdgeIdx {
 			return candidates[i].callerEdgeIdx < candidates[j].callerEdgeIdx
@@ -122,6 +143,10 @@ func matchExternalCalls(group *guidGroupBucket) []models.JenniferExternalCallEdg
 	for _, ce := range callers {
 		ek := edgeKey{caller: callerTXIDOf(group.profiles, ce.profileIdx), edgeIdx: ce.eventIdx}
 		caller := &group.profiles[ce.profileIdx]
+		// Resolve the caller-event start in absolute ms-since-midnight
+		// regardless of match status, so unmatched edges still place
+		// on the renderer's Gantt timeline at the correct offset.
+		callerStart, _ := parseHHMMSSmsLocal(ce.callerEventStartTime(group.profiles))
 		edge := models.JenniferExternalCallEdge{
 			GUID:                  group.guid,
 			CallerTXID:            caller.Header.TXID,
@@ -129,6 +154,7 @@ func matchExternalCalls(group *guidGroupBucket) []models.JenniferExternalCallEdg
 			ExternalCallSequence:  ce.sequence,
 			ExternalCallURL:       ce.url,
 			ExternalCallElapsedMs: ce.elapsedMs,
+			CallerEventStartMs:    callerStart,
 		}
 		match, ok := picked[ek]
 		if !ok {
@@ -145,6 +171,8 @@ func matchExternalCalls(group *guidGroupBucket) []models.JenniferExternalCallEdg
 		}
 		edge.MatchScore = match.score
 		edge.MatchStatus = models.JenniferMatchOK
+		edge.CallerEventStartMs = match.callerEventStartMs
+		edge.CalleeBodyStartMs = match.calleeBodyStartMs
 		applyNetworkGap(&edge)
 		out = append(out, edge)
 	}
@@ -202,9 +230,22 @@ func collectCallerEdges(profiles []models.JenniferTransactionProfile) []callerEd
 }
 
 // buildCandidates produces every (caller-edge, callee-profile)
-// pairing that could plausibly match — i.e. URL prefixes match and
-// the callee profile is not the caller itself. Score is computed
-// here per §14.3.
+// pairing that could plausibly match. The relationship between the
+// caller's EXTERNAL_CALL URL and the callee profile's APPLICATION
+// header is "containment", not equality:
+//
+//	caller URL = "http://orders.svc/api/v1/place?id=42"
+//	callee Application = "/api/v1/place"   ← substring of the URL
+//
+// Real-world Jennifer exports also produce the reverse layout:
+//
+//	caller URL = "/api/v1/place"
+//	callee Application = "orders-service./api/v1/place"
+//
+// so we accept either direction (URL ⊃ Application OR Application ⊃
+// URL) and assign a higher score to exact equality. When the same
+// (caller, callee) pair would match repeatedly, the time-overlap
+// score does the per-call disambiguation later.
 func buildCandidates(callers []callerEdge, profiles []models.JenniferTransactionProfile) []matchCandidate {
 	out := []matchCandidate{}
 	for _, ce := range callers {
@@ -216,17 +257,44 @@ func buildCandidates(callers []callerEdge, profiles []models.JenniferTransaction
 			if callee.Header.Application == "" {
 				continue
 			}
-			urlExact := callee.Header.Application == ce.url
-			normalisedCallee := normalizeURL(callee.Header.Application)
-			urlNorm := normalisedCallee == ce.urlNormalized
-			if !urlExact && !urlNorm {
+			calleeApp := callee.Header.Application
+			calleeAppNorm := normalizeURL(calleeApp)
+
+			urlExact := calleeApp == ce.url
+			urlNorm := calleeAppNorm == ce.urlNormalized && calleeAppNorm != ""
+
+			// Containment matching — case-insensitive on the
+			// normalized forms so DNS casing / capitalised path
+			// segments don't break otherwise-obvious matches.
+			urlNormLower := strings.ToLower(ce.urlNormalized)
+			calleeAppNormLower := strings.ToLower(calleeAppNorm)
+			urlContains := false
+			appContains := false
+			if calleeAppNormLower != "" && urlNormLower != "" {
+				if calleeAppNormLower != urlNormLower {
+					if strings.Contains(urlNormLower, calleeAppNormLower) {
+						urlContains = true
+					} else if strings.Contains(calleeAppNormLower, urlNormLower) {
+						appContains = true
+					}
+				}
+			}
+
+			if !urlExact && !urlNorm && !urlContains && !appContains {
 				continue
 			}
 			score := 0
 			if urlExact {
 				score += 100
 			} else if urlNorm {
-				score += 80
+				score += 90
+			} else if urlContains {
+				// Caller URL ⊃ callee Application is the spec the
+				// user described — a longer caller URL embeds the
+				// service path. Heavier weight than the reverse.
+				score += 75
+			} else if appContains {
+				score += 60
 			}
 			gapNonNeg := false
 			smallGap := false
@@ -265,15 +333,17 @@ func buildCandidates(callers []callerEdge, profiles []models.JenniferTransaction
 				timeOverlap = true
 			}
 			out = append(out, matchCandidate{
-				callerTXID:    callerTXIDOf(profiles, ce.profileIdx),
-				callerEdgeIdx: ce.eventIdx,
-				calleeTXID:    callee.Header.TXID,
-				calleeIdx:     ci,
-				score:         score,
-				urlExact:      urlExact,
-				timeOverlap:   timeOverlap,
-				gapNonNeg:     gapNonNeg,
-				smallGap:      smallGap,
+				callerTXID:         callerTXIDOf(profiles, ce.profileIdx),
+				callerEdgeIdx:      ce.eventIdx,
+				calleeTXID:         callee.Header.TXID,
+				calleeIdx:          ci,
+				score:              score,
+				urlExact:           urlExact,
+				timeOverlap:        timeOverlap,
+				gapNonNeg:          gapNonNeg,
+				smallGap:           smallGap,
+				callerEventStartMs: callerStart,
+				calleeBodyStartMs:  calleeStart,
 			})
 		}
 	}

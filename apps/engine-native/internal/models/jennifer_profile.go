@@ -157,6 +157,13 @@ type JenniferExternalCallEdge struct {
 	MatchStatus           JenniferMatchStatus `json:"match_status"`
 	MatchScore            int                 `json:"match_score,omitempty"`
 	Warnings              []string            `json:"warnings,omitempty"`
+	// CallerEventStartMs / CalleeBodyStartMs are ms-since-midnight
+	// timestamps lifted from the caller's EXTERNAL_CALL event row
+	// and the callee's body START row respectively. They feed the
+	// MSA topology / Gantt timeline UI on the renderer side; absent
+	// (zero) when the source profile didn't carry the timestamp.
+	CallerEventStartMs int `json:"caller_event_start_ms,omitempty"`
+	CalleeBodyStartMs  int `json:"callee_body_start_ms,omitempty"`
 }
 
 // JenniferGuidGroup is the §13 MSA transaction group: every profile
@@ -194,6 +201,8 @@ type JenniferCallGraphEdge struct {
 	ExternalCallElapsedMs int    `json:"external_call_elapsed_ms"`
 	CalleeResponseTimeMs  int    `json:"callee_response_time_ms"`
 	NetworkGapMs          int    `json:"network_gap_ms"`
+	CallerEventStartMs    int    `json:"caller_event_start_ms,omitempty"`
+	CalleeBodyStartMs     int    `json:"callee_body_start_ms,omitempty"`
 }
 
 // JenniferTimelineSignature is the §19 cross-instance fingerprint

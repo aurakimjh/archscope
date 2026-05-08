@@ -14,6 +14,18 @@ type mutableNode struct {
 	Children map[string]*mutableNode
 }
 
+// buildFlameTree builds the canonical flame tree from a stack→count
+// map. Hot path on 400 MB+ wall profiles, so the loop body is
+// careful about allocations:
+//   - the per-stack `path` slice is hoisted outside the outer loop
+//     and truncated (path[:0]) instead of re-allocated; the only
+//     cost paid per frame is one append-may-grow which tops out
+//     after the first deep stack reaches the depth ceiling.
+//   - splitStack returns a slice that lives only until the next
+//     call; we don't retain it.
+//   - mutableNode.Path is cloned via slices.Clone-equivalent because
+//     freezeNode shares it directly with the FlameNode and the path
+//     buffer above keeps mutating.
 func buildFlameTree(stacks map[string]int) FlameNode {
 	total := 0
 	for _, samples := range stacks {
@@ -27,22 +39,25 @@ func buildFlameTree(stacks map[string]int) FlameNode {
 		Samples:  total,
 		Children: map[string]*mutableNode{},
 	}
+	path := make([]string, 0, 256)
 	for stack, samples := range stacks {
 		if samples <= 0 {
 			continue
 		}
 		current := root
-		path := []string{}
+		path = path[:0]
 		for _, frame := range splitStack(stack) {
 			path = append(path, frame)
 			child := current.Children[frame]
 			if child == nil {
 				parentID := current.ID
+				clonedPath := make([]string, len(path))
+				copy(clonedPath, path)
 				child = &mutableNode{
 					ID:       nodeID(path),
 					ParentID: &parentID,
 					Name:     frame,
-					Path:     append([]string(nil), path...),
+					Path:     clonedPath,
 					Children: map[string]*mutableNode{},
 				}
 				current.Children[frame] = child
