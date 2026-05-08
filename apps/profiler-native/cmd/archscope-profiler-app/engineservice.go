@@ -117,6 +117,15 @@ type JenniferProfileRequest struct {
 	Paths                     []string `json:"paths,omitempty"`
 	FallbackCorrelationToTxid bool     `json:"fallbackCorrelationToTxid,omitempty"`
 	HeaderBodyToleranceMs     int      `json:"headerBodyToleranceMs,omitempty"`
+	// NetworkPrepPatterns are case-insensitive substrings that mark
+	// an event as a "network prep" wrapper method. Empty falls back
+	// to the built-in default (IntegrationUtil.sendToService).
+	NetworkPrepPatterns []string `json:"networkPrepPatterns,omitempty"`
+	// EventCategoryPatterns extends the event classifier. Keys are
+	// JenniferEventType values; values are case-insensitive substrings.
+	// User patterns only apply to METHOD/UNKNOWN events so they can't
+	// override well-known matches.
+	EventCategoryPatterns map[string][]string `json:"eventCategoryPatterns,omitempty"`
 }
 
 // ThreadDumpRequest mirrors threaddump.Options + a Path.
@@ -337,6 +346,8 @@ func (s *EngineService) AnalyzeJenniferProfile(req JenniferProfileRequest) (engi
 	opts := engineapi.JenniferProfileOptions{
 		FallbackCorrelationToTxid: req.FallbackCorrelationToTxid,
 		HeaderBodyToleranceMs:     req.HeaderBodyToleranceMs,
+		NetworkPrepPatterns:       req.NetworkPrepPatterns,
+		EventCategoryPatterns:     req.EventCategoryPatterns,
 	}
 	if len(paths) == 1 {
 		return engineapi.AnalyzeJenniferProfile(paths[0], opts)

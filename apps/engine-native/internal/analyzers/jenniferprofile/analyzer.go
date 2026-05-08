@@ -34,13 +34,32 @@ type Options struct {
 	// HeaderBodyToleranceMs overrides the default 1ms tolerance on
 	// header vs body cumulative checks.
 	HeaderBodyToleranceMs int
+	// NetworkPrepPatterns are forwarded to the parser's classifier;
+	// METHOD lines whose message contains any of these substrings
+	// (case-insensitive) become NETWORK_PREP_METHOD events. Empty
+	// means "use built-in defaults" (IntegrationUtil.sendToService).
+	NetworkPrepPatterns []string
+	// EventCategoryPatterns extends the event classifier. Keys are
+	// JenniferEventType values; values are case-insensitive substrings.
+	// User patterns are applied to METHOD/UNKNOWN events only — they
+	// can't override well-known matches like EXTERNAL_CALL or FETCH.
+	EventCategoryPatterns map[string][]string
+}
+
+// parserOpts projects the analyzer-level options onto the parser's
+// option struct so classifier customization (network-prep patterns,
+// extra event-category rules) flows end-to-end.
+func (o Options) parserOpts() jenniferprofile.Options {
+	return jenniferprofile.Options{
+		FallbackCorrelationToTxid: o.FallbackCorrelationToTxid,
+		NetworkPrepPatterns:       o.NetworkPrepPatterns,
+		EventCategoryPatterns:     o.EventCategoryPatterns,
+	}
 }
 
 // AnalyzeFile parses + analyses a single Jennifer profile export.
 func AnalyzeFile(path string, opts Options) (models.AnalysisResult, error) {
-	parsed, err := jenniferprofile.ParseFile(path, jenniferprofile.Options{
-		FallbackCorrelationToTxid: opts.FallbackCorrelationToTxid,
-	})
+	parsed, err := jenniferprofile.ParseFile(path, opts.parserOpts())
 	if err != nil {
 		return models.AnalysisResult{}, err
 	}
@@ -52,9 +71,7 @@ func AnalyzeFile(path string, opts Options) (models.AnalysisResult, error) {
 func AnalyzeFiles(paths []string, opts Options) (models.AnalysisResult, error) {
 	results := make([]jenniferprofile.FileResult, 0, len(paths))
 	for _, p := range paths {
-		parsed, err := jenniferprofile.ParseFile(p, jenniferprofile.Options{
-			FallbackCorrelationToTxid: opts.FallbackCorrelationToTxid,
-		})
+		parsed, err := jenniferprofile.ParseFile(p, opts.parserOpts())
 		if err != nil {
 			return models.AnalysisResult{}, fmt.Errorf("%s: %w", p, err)
 		}
@@ -140,6 +157,9 @@ func Build(files []jenniferprofile.FileResult, opts Options) models.AnalysisResu
 			totals.BodyMetrics.ExternalCallCount += metrics.ExternalCallCount
 			totals.BodyMetrics.ConnectionAcquireCumMs += metrics.ConnectionAcquireCumMs
 			totals.BodyMetrics.ConnectionAcquireCount += metrics.ConnectionAcquireCount
+			totals.BodyMetrics.NetworkPrepMethodCumMs += metrics.NetworkPrepMethodCumMs
+			totals.BodyMetrics.NetworkPrepMethodCount += metrics.NetworkPrepMethodCount
+			totals.BodyMetrics.NetworkPrepCumMs += metrics.NetworkPrepCumMs
 
 			totalErrors += len(p.Errors)
 			totalWarnings += len(p.Warnings)
@@ -214,6 +234,9 @@ func Build(files []jenniferprofile.FileResult, opts Options) models.AnalysisResu
 		"fetch_total_rows":    totals.BodyMetrics.FetchTotalRows,
 		"external_call_cum_ms": totals.BodyMetrics.ExternalCallCumMs,
 		"external_call_count":  totals.BodyMetrics.ExternalCallCount,
+		"network_prep_cum_ms":         totals.BodyMetrics.NetworkPrepCumMs,
+		"network_prep_method_cum_ms":  totals.BodyMetrics.NetworkPrepMethodCumMs,
+		"network_prep_method_count":   totals.BodyMetrics.NetworkPrepMethodCount,
 		"connection_acquire_cum_ms": totals.BodyMetrics.ConnectionAcquireCumMs,
 		// MVP2 MSA roll-up.
 		"guid_group_count":             len(guidGroups),
@@ -421,6 +444,9 @@ func profileToRow(p models.JenniferTransactionProfile, m models.JenniferBodyMetr
 			"fetch_total_rows":          m.FetchTotalRows,
 			"external_call_cum_ms":      m.ExternalCallCumMs,
 			"external_call_count":       m.ExternalCallCount,
+			"network_prep_method_cum_ms": m.NetworkPrepMethodCumMs,
+			"network_prep_method_count":  m.NetworkPrepMethodCount,
+			"network_prep_cum_ms":        m.NetworkPrepCumMs,
 			"connection_acquire_cum_ms": m.ConnectionAcquireCumMs,
 			"connection_acquire_count":  m.ConnectionAcquireCount,
 		},

@@ -494,6 +494,17 @@ export class ParserDiagnostics {
     "warnings": DiagnosticSample[];
     "errors": DiagnosticSample[];
 
+    /**
+     * Memory-guard counters (T-WALL70). Populated when caps in
+     * Options trigger; rendered in the parser-report tab so the user
+     * can see exactly what the analyzer dropped to stay within budget.
+     */
+    "dropped_stacks"?: number;
+    "dropped_stack_reason"?: string;
+    "over_depth_records"?: number;
+    "max_observed_depth"?: number;
+    "bytes_read"?: number;
+
     /** Creates a new ParserDiagnostics instance. */
     constructor($$source: Partial<ParserDiagnostics> = {}) {
         if (!("source_file" in $$source)) {

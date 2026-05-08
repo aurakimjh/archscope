@@ -37,6 +37,21 @@ type Options struct {
 	// SourceFile is stamped onto every parsed profile so a multi-file
 	// batch can attribute back to its origin without re-reading.
 	SourceFile string
+	// NetworkPrepPatterns are case-insensitive substrings that mark a
+	// METHOD line as a "network prep" wrapper (e.g.
+	// IntegrationUtil.sendToService). When the message contains any
+	// of these, the event type becomes JenniferEventNetworkPrep and
+	// the analyzer can subtract embedded EXTERNAL_CALL elapsed.
+	// Empty means "use defaults".
+	NetworkPrepPatterns []string
+	// EventCategoryPatterns lets users extend the event classifier.
+	// Keys are JenniferEventType values (e.g.
+	// "EXTERNAL_CALL", "TWO_PC_UNKNOWN", "CHECK_QUERY",
+	// "NETWORK_PREP_METHOD"); values are case-insensitive substrings
+	// matched against the event message. The first matching rule
+	// wins, evaluated AFTER the built-in classifier so the defaults
+	// still bracket well-known forms.
+	EventCategoryPatterns map[string][]string
 }
 
 // FileResult is the per-file parse output.
@@ -134,7 +149,7 @@ func parseTransactionBlock(block string, opts Options) models.JenniferTransactio
 		parseBody(bodyText, &profile)
 	}
 
-	classifyEvents(&profile)
+	classifyEventsWithOptions(&profile, opts)
 	calculateOffsets(&profile)
 	validateFullProfile(&profile, opts)
 

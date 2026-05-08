@@ -15,6 +15,9 @@ declare module "@wailsio/runtime" {
             "analyze:cancelled": main$0.AnalyzeCancelledEvent;
             "analyze:done": main$0.AnalyzeDoneEvent;
             "analyze:error": main$0.AnalyzeErrorEvent;
+            "engine:cancelled": main$0.EngineCancelledEvent;
+            "engine:done": main$0.EngineDoneEvent;
+            "engine:error": main$0.EngineErrorEvent;
         }
     }
 }

@@ -10,6 +10,7 @@ var timelineOrder = []string{
 	"INTERNAL_METHOD",
 	"SQL_EXECUTION",
 	"DB_NETWORK_WAIT",
+	"NETWORK_PREP",
 	"EXTERNAL_CALL",
 	"EXTERNAL_NETWORK_WAIT",
 	"CONNECTION_POOL_WAIT",
@@ -25,6 +26,7 @@ var timelineLabels = map[string]string{
 	"INTERNAL_METHOD":           "Internal method",
 	"SQL_EXECUTION":             "SQL execution",
 	"DB_NETWORK_WAIT":           "DB network wait",
+	"NETWORK_PREP":              "External call prep (network)",
 	"EXTERNAL_CALL":             "External call",
 	"EXTERNAL_NETWORK_WAIT":     "External network wait",
 	"CONNECTION_POOL_WAIT":      "Connection pool wait",
@@ -48,6 +50,7 @@ func buildTimeline(root FlameNode, options Options, originalTotal int) ([]Timeli
 	if baseMethod != "" {
 		stageTotal = 0
 	}
+	custom := normalizedCustomCategories(options.TimelineCategories)
 	accumulators := map[string]*timelineAccumulator{}
 	for _, leaf := range iterLeafPaths(root) {
 		path := timelineScopedPath(leaf.Path, baseMethod)
@@ -57,7 +60,13 @@ func buildTimeline(root FlameNode, options Options, originalTotal int) ([]Timeli
 		if baseMethod != "" {
 			stageTotal += leaf.Samples
 		}
-		segment := timelineSegment(path)
+		// User-supplied patterns win over the built-in classifier.
+		// We check the deepest frame first because the leaf is what
+		// the timeline conventionally attributes time to.
+		segment := matchCustomCategory(path, custom)
+		if segment == "" {
+			segment = timelineSegment(path)
+		}
 		acc := accumulators[segment]
 		if acc == nil {
 			acc = &timelineAccumulator{
@@ -80,16 +89,22 @@ func buildTimeline(root FlameNode, options Options, originalTotal int) ([]Timeli
 
 	rows := []TimelineRow{}
 	intervalSeconds := options.IntervalMS / 1000
-	for index, segment := range timelineOrder {
+	emitted := map[string]bool{}
+	emit := func(index int, segment string) {
 		acc := accumulators[segment]
 		if acc == nil || acc.Samples <= 0 {
-			continue
+			return
+		}
+		emitted[segment] = true
+		label := timelineLabels[segment]
+		if label == "" {
+			label = segment
 		}
 		estimated := round(float64(acc.Samples)*intervalSeconds, 3)
 		rows = append(rows, TimelineRow{
 			Index:            index,
 			Segment:          segment,
-			Label:            timelineLabels[segment],
+			Label:            label,
 			Samples:          acc.Samples,
 			EstimatedSeconds: estimated,
 			StageRatio:       ratio(acc.Samples, stageTotal, 4),
@@ -99,6 +114,24 @@ func buildTimeline(root FlameNode, options Options, originalTotal int) ([]Timeli
 			MethodChains:     topChainRows(acc.Chains, options.TopN),
 			TopStacks:        topCounter(acc.Stacks, options.TopN),
 		})
+	}
+	for index, segment := range timelineOrder {
+		emit(index, segment)
+	}
+	// User-supplied custom segments that aren't in timelineOrder
+	// still need to surface in the report; emit them after the
+	// built-ins, sorted by descending samples for stable ordering.
+	customSegments := []string{}
+	for segment := range accumulators {
+		if !emitted[segment] {
+			customSegments = append(customSegments, segment)
+		}
+	}
+	sort.Slice(customSegments, func(i, j int) bool {
+		return accumulators[customSegments[i]].Samples > accumulators[customSegments[j]].Samples
+	})
+	for offset, segment := range customSegments {
+		emit(len(timelineOrder)+offset, segment)
 	}
 	return rows, scope
 }
@@ -250,6 +283,58 @@ func topChainRows(counter map[string]int, limit int) []TimelineChainRow {
 		rows = append(rows, TimelineChainRow{Chain: item.Name, Samples: item.Samples, Frames: frames})
 	}
 	return rows
+}
+
+// normalizedCustomCategories lower-cases and trims user-supplied
+// patterns so the matcher can do straight substring comparisons.
+// We keep the canonical segment IDs as-is so downstream code can
+// place a custom category alongside the built-ins (e.g. NETWORK_PREP).
+func normalizedCustomCategories(in map[string][]string) map[string][]string {
+	if len(in) == 0 {
+		return nil
+	}
+	out := make(map[string][]string, len(in))
+	for segment, patterns := range in {
+		seg := strings.TrimSpace(segment)
+		if seg == "" {
+			continue
+		}
+		var cleaned []string
+		for _, p := range patterns {
+			p = strings.TrimSpace(p)
+			if p == "" {
+				continue
+			}
+			cleaned = append(cleaned, strings.ToLower(p))
+		}
+		if len(cleaned) > 0 {
+			out[seg] = cleaned
+		}
+	}
+	return out
+}
+
+// matchCustomCategory returns the first segment whose patterns match
+// any frame in the path. We test the leaf first (deepest frame) so a
+// user-defined "NETWORK_PREP" sendToService rule wins over an enclosing
+// JVM frame. Returns "" when no rule matches.
+func matchCustomCategory(path []string, rules map[string][]string) string {
+	if len(rules) == 0 || len(path) == 0 {
+		return ""
+	}
+	// Check leaf first, then walk towards root. This biases to the
+	// most specific user intent.
+	for i := len(path) - 1; i >= 0; i-- {
+		frameLower := strings.ToLower(path[i])
+		for segment, patterns := range rules {
+			for _, p := range patterns {
+				if strings.Contains(frameLower, p) {
+					return segment
+				}
+			}
+		}
+	}
+	return ""
 }
 
 func sortedSegmentsBySamples(values map[string]int) []string {

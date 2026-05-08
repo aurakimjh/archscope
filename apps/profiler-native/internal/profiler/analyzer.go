@@ -29,7 +29,7 @@ func writeDebugLogIfNeeded(options Options) {
 
 func AnalyzeCollapsedFile(path string, options Options) (AnalysisResult, error) {
 	normalizeOptions(&options)
-	stacks, diagnostics, err := ParseCollapsedFile(path)
+	stacks, diagnostics, err := ParseCollapsedFileWithOptions(path, options)
 	if err != nil {
 		return AnalysisResult{}, err
 	}

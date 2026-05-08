@@ -68,8 +68,24 @@ func AggregateBody(p *models.JenniferTransactionProfile) models.JenniferBodyMetr
 			connSeen[key] = struct{}{}
 			m.ConnectionAcquireCumMs += elapsed
 			m.ConnectionAcquireCount++
+		case models.JenniferEventNetworkPrep:
+			if ev.ElapsedMs != nil {
+				m.NetworkPrepMethodCumMs += *ev.ElapsedMs
+			}
+			m.NetworkPrepMethodCount++
 		}
 	}
+	// Network preparation = wrapper-method elapsed minus the
+	// EXTERNAL_CALL elapsed we already counted above. This is the
+	// "marshalling + DNS + TLS handshake + thread queueing" remainder
+	// the user asked for. Clamped to 0 because the trailing-elapsed
+	// regex can occasionally pull a longer value off the EXTERNAL_CALL
+	// row than the wrapper method reports (different code paths).
+	prep := m.NetworkPrepMethodCumMs - m.ExternalCallCumMs
+	if prep < 0 {
+		prep = 0
+	}
+	m.NetworkPrepCumMs = prep
 	return m
 }
 

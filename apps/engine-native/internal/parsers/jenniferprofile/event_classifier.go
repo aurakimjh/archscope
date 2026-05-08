@@ -46,14 +46,67 @@ var checkQueryNormalized = map[string]struct{}{
 	"select 1 from rdb$database":     {},
 }
 
+// defaultNetworkPrepPatterns is the built-in marker for HTTP-client
+// wrapper methods. The user can extend or replace this via Options.
+// Matched on the message text (case-insensitive substring).
+var defaultNetworkPrepPatterns = []string{
+	"integrationutil.sendtoservice",
+	"sendtoservice(",
+}
+
 // classifyEvents walks the body events in priority order (§11.1) and
 // stamps `EventType`. SQL events are inspected against their
 // detail-lines first so `select 1 from dual` becomes CHECK_QUERY
 // rather than SQL_EXECUTE_GENERIC.
 func classifyEvents(profile *models.JenniferTransactionProfile) {
+	classifyEventsWithOptions(profile, Options{})
+}
+
+// classifyEventsWithOptions is the parser-options-aware variant. The
+// user-supplied NetworkPrepPatterns and EventCategoryPatterns extend
+// the built-in classifier; built-in matches still win for well-known
+// forms (EXTERNAL_CALL, FETCH, etc) so a malformed user pattern can't
+// silently break matched-edge correlation.
+func classifyEventsWithOptions(profile *models.JenniferTransactionProfile, opts Options) {
+	prepPatterns := opts.NetworkPrepPatterns
+	if len(prepPatterns) == 0 {
+		prepPatterns = defaultNetworkPrepPatterns
+	}
+	prepLower := make([]string, 0, len(prepPatterns))
+	for _, p := range prepPatterns {
+		p = strings.ToLower(strings.TrimSpace(p))
+		if p != "" {
+			prepLower = append(prepLower, p)
+		}
+	}
+	customRules := normalizeEventPatterns(opts.EventCategoryPatterns)
+
 	for i := range profile.Body.Events {
 		ev := &profile.Body.Events[i]
 		ev.EventType = classifyOne(ev)
+		// Built-in matches don't get re-classified. Only METHOD /
+		// UNKNOWN events are eligible for the user-supplied patterns
+		// so a typo in EventCategoryPatterns can't corrupt
+		// EXTERNAL_CALL / FETCH bookkeeping.
+		if ev.EventType == models.JenniferEventMethod || ev.EventType == models.JenniferEventUnknown {
+			lowerMsg := strings.ToLower(ev.RawMessage)
+			matchedPrep := false
+			for _, p := range prepLower {
+				if strings.Contains(lowerMsg, p) {
+					ev.EventType = models.JenniferEventNetworkPrep
+					matchedPrep = true
+					break
+				}
+			}
+			if !matchedPrep {
+				for _, rule := range customRules {
+					if matchAnyLower(lowerMsg, rule.patterns) {
+						ev.EventType = rule.target
+						break
+					}
+				}
+			}
+		}
 		if ev.EventType == models.JenniferEventExternalCall {
 			fillExternalCall(ev)
 		}
@@ -61,6 +114,50 @@ func classifyEvents(profile *models.JenniferTransactionProfile) {
 			fillFetch(ev)
 		}
 	}
+}
+
+// eventCategoryRule binds a target event-type to a list of
+// case-insensitive substrings.
+type eventCategoryRule struct {
+	target   models.JenniferEventType
+	patterns []string
+}
+
+func normalizeEventPatterns(in map[string][]string) []eventCategoryRule {
+	if len(in) == 0 {
+		return nil
+	}
+	out := make([]eventCategoryRule, 0, len(in))
+	for cat, patterns := range in {
+		cat = strings.TrimSpace(cat)
+		if cat == "" {
+			continue
+		}
+		var lowered []string
+		for _, p := range patterns {
+			p = strings.ToLower(strings.TrimSpace(p))
+			if p != "" {
+				lowered = append(lowered, p)
+			}
+		}
+		if len(lowered) == 0 {
+			continue
+		}
+		out = append(out, eventCategoryRule{
+			target:   models.JenniferEventType(cat),
+			patterns: lowered,
+		})
+	}
+	return out
+}
+
+func matchAnyLower(haystack string, needles []string) bool {
+	for _, n := range needles {
+		if strings.Contains(haystack, n) {
+			return true
+		}
+	}
+	return false
 }
 
 func classifyOne(ev *models.JenniferProfileEvent) models.JenniferEventType {

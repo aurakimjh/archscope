@@ -15,6 +15,9 @@ function configure() {
         "analyze:cancelled": $$createType0,
         "analyze:done": $$createType1,
         "analyze:error": $$createType2,
+        "engine:cancelled": $$createType3,
+        "engine:done": $$createType4,
+        "engine:error": $$createType5,
     }));
 }
 
@@ -22,5 +25,8 @@ function configure() {
 const $$createType0 = main$0.AnalyzeCancelledEvent.createFrom;
 const $$createType1 = main$0.AnalyzeDoneEvent.createFrom;
 const $$createType2 = main$0.AnalyzeErrorEvent.createFrom;
+const $$createType3 = main$0.EngineCancelledEvent.createFrom;
+const $$createType4 = main$0.EngineDoneEvent.createFrom;
+const $$createType5 = main$0.EngineErrorEvent.createFrom;
 
 configure();

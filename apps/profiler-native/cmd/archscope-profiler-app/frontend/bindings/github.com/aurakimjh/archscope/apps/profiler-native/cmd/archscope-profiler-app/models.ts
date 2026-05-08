@@ -7,7 +7,45 @@ import { Create as $Create } from "@wailsio/runtime";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
+import * as api$0 from "../../../engine-native/api/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
+import * as models$0 from "../../../engine-native/internal/models/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
 import * as profiler$0 from "../../internal/profiler/models.js";
+
+/**
+ * AccessLogRequest mirrors accesslog.Options + a Path.
+ */
+export class AccessLogRequest {
+    "path": string;
+    "format"?: string;
+    "maxLines"?: number;
+
+    /**
+     * RFC3339; empty = unset
+     */
+    "startTime"?: string;
+    "endTime"?: string;
+
+    /** Creates a new AccessLogRequest instance. */
+    constructor($$source: Partial<AccessLogRequest> = {}) {
+        if (!("path" in $$source)) {
+            this["path"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new AccessLogRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): AccessLogRequest {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new AccessLogRequest($$parsedSource as Partial<AccessLogRequest>);
+    }
+}
 
 /**
  * AnalyzeAsyncResponse is returned to the renderer immediately. The actual
@@ -131,6 +169,21 @@ export class AnalyzeRequest {
     "debugLog"?: boolean;
     "debugLogDir"?: string;
 
+    /**
+     * Memory guards for very large collapsed/wall inputs. Empty/zero
+     * triggers analyzer defaults (250k unique stacks, depth 256).
+     */
+    "maxUniqueStacks"?: number;
+    "maxStackDepth"?: number;
+
+    /**
+     * TimelineCategories carries user-supplied additional method
+     * patterns per timeline segment. Keys are segment IDs (e.g.
+     * "EXTERNAL_CALL", "SQL_EXECUTION", "INTERNAL_METHOD"); values
+     * are case-insensitive substrings matched against frame text.
+     */
+    "timelineCategories"?: { [_ in string]?: string[] };
+
     /** Creates a new AnalyzeRequest instance. */
     constructor($$source: Partial<AnalyzeRequest> = {}) {
         if (!("path" in $$source)) {
@@ -162,8 +215,131 @@ export class AnalyzeRequest {
      * Creates a new AnalyzeRequest instance from a string or object.
      */
     static createFrom($$source: any = {}): AnalyzeRequest {
+        const $$createField11_0 = $$createType2;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("timelineCategories" in $$parsedSource) {
+            $$parsedSource["timelineCategories"] = $$createField11_0($$parsedSource["timelineCategories"]);
+        }
         return new AnalyzeRequest($$parsedSource as Partial<AnalyzeRequest>);
+    }
+}
+
+/**
+ * ClassifyRequest classifies one collapsed-stack string. Returns the
+ * runtime label (e.g. "JVM", "Node.js", "Application").
+ */
+export class ClassifyRequest {
+    "stack": string;
+
+    /** Creates a new ClassifyRequest instance. */
+    constructor($$source: Partial<ClassifyRequest> = {}) {
+        if (!("stack" in $$source)) {
+            this["stack"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ClassifyRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ClassifyRequest {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new ClassifyRequest($$parsedSource as Partial<ClassifyRequest>);
+    }
+}
+
+/**
+ * ClassifyResult is a single-field wrapper so the TS binding has a
+ * readable type name on the renderer side.
+ */
+export class ClassifyResult {
+    "label": string;
+
+    /** Creates a new ClassifyResult instance. */
+    constructor($$source: Partial<ClassifyResult> = {}) {
+        if (!("label" in $$source)) {
+            this["label"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ClassifyResult instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ClassifyResult {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new ClassifyResult($$parsedSource as Partial<ClassifyResult>);
+    }
+}
+
+/**
+ * CollapsedRequest converts a set of thread-dump paths into the
+ * FlameGraph collapsed format. Returns the `stack -> count` map
+ * directly (Counter equivalent).
+ */
+export class CollapsedRequest {
+    "paths": string[];
+    "formatOverride"?: string;
+    "includeThreadName"?: boolean;
+
+    /** Creates a new CollapsedRequest instance. */
+    constructor($$source: Partial<CollapsedRequest> = {}) {
+        if (!("paths" in $$source)) {
+            this["paths"] = [];
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new CollapsedRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): CollapsedRequest {
+        const $$createField0_0 = $$createType1;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("paths" in $$parsedSource) {
+            $$parsedSource["paths"] = $$createField0_0($$parsedSource["paths"]);
+        }
+        return new CollapsedRequest($$parsedSource as Partial<CollapsedRequest>);
+    }
+}
+
+/**
+ * CollapsedResult carries both the raw counter and the sorted line
+ * projection so the renderer can pick whichever shape suits.
+ */
+export class CollapsedResult {
+    "counts": { [_ in string]?: number };
+    "lines": string[];
+
+    /** Creates a new CollapsedResult instance. */
+    constructor($$source: Partial<CollapsedResult> = {}) {
+        if (!("counts" in $$source)) {
+            this["counts"] = {};
+        }
+        if (!("lines" in $$source)) {
+            this["lines"] = [];
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new CollapsedResult instance from a string or object.
+     */
+    static createFrom($$source: any = {}): CollapsedResult {
+        const $$createField0_0 = $$createType3;
+        const $$createField1_0 = $$createType1;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("counts" in $$parsedSource) {
+            $$parsedSource["counts"] = $$createField0_0($$parsedSource["counts"]);
+        }
+        if ("lines" in $$parsedSource) {
+            $$parsedSource["lines"] = $$createField1_0($$parsedSource["lines"]);
+        }
+        return new CollapsedResult($$parsedSource as Partial<CollapsedResult>);
     }
 }
 
@@ -258,6 +434,21 @@ export class DrilldownRequest {
      */
     "debugLog"?: boolean;
     "debugLogDir"?: string;
+
+    /**
+     * Memory guards for very large collapsed/wall inputs. Empty/zero
+     * triggers analyzer defaults (250k unique stacks, depth 256).
+     */
+    "maxUniqueStacks"?: number;
+    "maxStackDepth"?: number;
+
+    /**
+     * TimelineCategories carries user-supplied additional method
+     * patterns per timeline segment. Keys are segment IDs (e.g.
+     * "EXTERNAL_CALL", "SQL_EXECUTION", "INTERNAL_METHOD"); values
+     * are case-insensitive substrings matched against frame text.
+     */
+    "timelineCategories"?: { [_ in string]?: string[] };
     "filters": profiler$0.DrilldownFilter[];
 
     /** Creates a new DrilldownRequest instance. */
@@ -294,12 +485,298 @@ export class DrilldownRequest {
      * Creates a new DrilldownRequest instance from a string or object.
      */
     static createFrom($$source: any = {}): DrilldownRequest {
-        const $$createField9_0 = $$createType2;
+        const $$createField11_0 = $$createType2;
+        const $$createField12_0 = $$createType5;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("timelineCategories" in $$parsedSource) {
+            $$parsedSource["timelineCategories"] = $$createField11_0($$parsedSource["timelineCategories"]);
+        }
         if ("filters" in $$parsedSource) {
-            $$parsedSource["filters"] = $$createField9_0($$parsedSource["filters"]);
+            $$parsedSource["filters"] = $$createField12_0($$parsedSource["filters"]);
         }
         return new DrilldownRequest($$parsedSource as Partial<DrilldownRequest>);
+    }
+}
+
+/**
+ * EngineAsyncResponse mirrors AnalyzeAsyncResponse on the profiler side.
+ */
+export class EngineAsyncResponse {
+    "taskId": string;
+
+    /** Creates a new EngineAsyncResponse instance. */
+    constructor($$source: Partial<EngineAsyncResponse> = {}) {
+        if (!("taskId" in $$source)) {
+            this["taskId"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new EngineAsyncResponse instance from a string or object.
+     */
+    static createFrom($$source: any = {}): EngineAsyncResponse {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new EngineAsyncResponse($$parsedSource as Partial<EngineAsyncResponse>);
+    }
+}
+
+/**
+ * EngineCancelledEvent fires when the renderer cancels a task before
+ * it produced a result.
+ */
+export class EngineCancelledEvent {
+    "taskId": string;
+
+    /** Creates a new EngineCancelledEvent instance. */
+    constructor($$source: Partial<EngineCancelledEvent> = {}) {
+        if (!("taskId" in $$source)) {
+            this["taskId"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new EngineCancelledEvent instance from a string or object.
+     */
+    static createFrom($$source: any = {}): EngineCancelledEvent {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new EngineCancelledEvent($$parsedSource as Partial<EngineCancelledEvent>);
+    }
+}
+
+/**
+ * EngineDiffRequest carries two AnalysisResult JSON paths and an
+ * optional label. Returns the full reportdiff payload as a generic
+ * map so the renderer can render it like any other AnalysisResult.
+ */
+export class EngineDiffRequest {
+    "beforePath": string;
+    "afterPath": string;
+    "label"?: string;
+
+    /** Creates a new EngineDiffRequest instance. */
+    constructor($$source: Partial<EngineDiffRequest> = {}) {
+        if (!("beforePath" in $$source)) {
+            this["beforePath"] = "";
+        }
+        if (!("afterPath" in $$source)) {
+            this["afterPath"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new EngineDiffRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): EngineDiffRequest {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new EngineDiffRequest($$parsedSource as Partial<EngineDiffRequest>);
+    }
+}
+
+/**
+ * EngineDoneEvent carries an AnalysisResult back to the renderer.
+ */
+export class EngineDoneEvent {
+    "taskId": string;
+    "result": api$0.AnalysisResult;
+
+    /** Creates a new EngineDoneEvent instance. */
+    constructor($$source: Partial<EngineDoneEvent> = {}) {
+        if (!("taskId" in $$source)) {
+            this["taskId"] = "";
+        }
+        if (!("result" in $$source)) {
+            this["result"] = (new api$0.AnalysisResult());
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new EngineDoneEvent instance from a string or object.
+     */
+    static createFrom($$source: any = {}): EngineDoneEvent {
+        const $$createField1_0 = $$createType6;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("result" in $$parsedSource) {
+            $$parsedSource["result"] = $$createField1_0($$parsedSource["result"]);
+        }
+        return new EngineDoneEvent($$parsedSource as Partial<EngineDoneEvent>);
+    }
+}
+
+/**
+ * EngineErrorEvent carries an analyzer / exporter failure.
+ */
+export class EngineErrorEvent {
+    "taskId": string;
+    "message": string;
+
+    /** Creates a new EngineErrorEvent instance. */
+    constructor($$source: Partial<EngineErrorEvent> = {}) {
+        if (!("taskId" in $$source)) {
+            this["taskId"] = "";
+        }
+        if (!("message" in $$source)) {
+            this["message"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new EngineErrorEvent instance from a string or object.
+     */
+    static createFrom($$source: any = {}): EngineErrorEvent {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new EngineErrorEvent($$parsedSource as Partial<EngineErrorEvent>);
+    }
+}
+
+/**
+ * ExceptionRequest mirrors exception.Options + a Path.
+ */
+export class ExceptionRequest {
+    "path": string;
+    "topN"?: number;
+    "maxLines"?: number;
+    "strict"?: boolean;
+
+    /** Creates a new ExceptionRequest instance. */
+    constructor($$source: Partial<ExceptionRequest> = {}) {
+        if (!("path" in $$source)) {
+            this["path"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ExceptionRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ExceptionRequest {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new ExceptionRequest($$parsedSource as Partial<ExceptionRequest>);
+    }
+}
+
+/**
+ * ExportCSVRequest is the single-file CSV analog. For directory mode
+ * (one CSV per logical table) call ExportCSVDir.
+ */
+export class ExportCSVRequest {
+    "path": string;
+    "result": any;
+
+    /** Creates a new ExportCSVRequest instance. */
+    constructor($$source: Partial<ExportCSVRequest> = {}) {
+        if (!("path" in $$source)) {
+            this["path"] = "";
+        }
+        if (!("result" in $$source)) {
+            this["result"] = null;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ExportCSVRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ExportCSVRequest {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new ExportCSVRequest($$parsedSource as Partial<ExportCSVRequest>);
+    }
+}
+
+/**
+ * ExportHTMLRequest is the HTML analog.
+ */
+export class ExportHTMLRequest {
+    "path": string;
+    "result": any;
+
+    /** Creates a new ExportHTMLRequest instance. */
+    constructor($$source: Partial<ExportHTMLRequest> = {}) {
+        if (!("path" in $$source)) {
+            this["path"] = "";
+        }
+        if (!("result" in $$source)) {
+            this["result"] = null;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ExportHTMLRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ExportHTMLRequest {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new ExportHTMLRequest($$parsedSource as Partial<ExportHTMLRequest>);
+    }
+}
+
+/**
+ * ExportJSONRequest writes an AnalysisResult-shaped value to disk as
+ * JSON. `Result` is `any` — the renderer typically forwards the same
+ * shape it received from a previous Analyze* call.
+ */
+export class ExportJSONRequest {
+    "path": string;
+    "result": any;
+
+    /** Creates a new ExportJSONRequest instance. */
+    constructor($$source: Partial<ExportJSONRequest> = {}) {
+        if (!("path" in $$source)) {
+            this["path"] = "";
+        }
+        if (!("result" in $$source)) {
+            this["result"] = null;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ExportJSONRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ExportJSONRequest {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new ExportJSONRequest($$parsedSource as Partial<ExportJSONRequest>);
+    }
+}
+
+/**
+ * ExportPPTXRequest is the PPTX analog.
+ */
+export class ExportPPTXRequest {
+    "path": string;
+    "result": any;
+
+    /** Creates a new ExportPPTXRequest instance. */
+    constructor($$source: Partial<ExportPPTXRequest> = {}) {
+        if (!("path" in $$source)) {
+            this["path"] = "";
+        }
+        if (!("result" in $$source)) {
+            this["result"] = null;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ExportPPTXRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ExportPPTXRequest {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new ExportPPTXRequest($$parsedSource as Partial<ExportPPTXRequest>);
     }
 }
 
@@ -320,6 +797,21 @@ export class ExportPprofRequest {
      */
     "debugLog"?: boolean;
     "debugLogDir"?: string;
+
+    /**
+     * Memory guards for very large collapsed/wall inputs. Empty/zero
+     * triggers analyzer defaults (250k unique stacks, depth 256).
+     */
+    "maxUniqueStacks"?: number;
+    "maxStackDepth"?: number;
+
+    /**
+     * TimelineCategories carries user-supplied additional method
+     * patterns per timeline segment. Keys are segment IDs (e.g.
+     * "EXTERNAL_CALL", "SQL_EXECUTION", "INTERNAL_METHOD"); values
+     * are case-insensitive substrings matched against frame text.
+     */
+    "timelineCategories"?: { [_ in string]?: string[] };
     "outputPath": string;
 
     /** Creates a new ExportPprofRequest instance. */
@@ -356,7 +848,11 @@ export class ExportPprofRequest {
      * Creates a new ExportPprofRequest instance from a string or object.
      */
     static createFrom($$source: any = {}): ExportPprofRequest {
+        const $$createField11_0 = $$createType2;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("timelineCategories" in $$parsedSource) {
+            $$parsedSource["timelineCategories"] = $$createField11_0($$parsedSource["timelineCategories"]);
+        }
         return new ExportPprofRequest($$parsedSource as Partial<ExportPprofRequest>);
     }
 }
@@ -386,7 +882,275 @@ export class ExportPprofResponse {
     }
 }
 
+/**
+ * GcLogRequest mirrors gclog.Options + a Path.
+ */
+export class GcLogRequest {
+    "path": string;
+    "topN"?: number;
+    "maxLines"?: number;
+    "strict"?: boolean;
+
+    /** Creates a new GcLogRequest instance. */
+    constructor($$source: Partial<GcLogRequest> = {}) {
+        if (!("path" in $$source)) {
+            this["path"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new GcLogRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): GcLogRequest {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new GcLogRequest($$parsedSource as Partial<GcLogRequest>);
+    }
+}
+
+/**
+ * JenniferProfileRequest accepts a single Path or repeatable Paths
+ * for multi-file batches. FallbackCorrelationToTxid mirrors the
+ * CLI flag of the same name.
+ */
+export class JenniferProfileRequest {
+    "path"?: string;
+    "paths"?: string[];
+    "fallbackCorrelationToTxid"?: boolean;
+    "headerBodyToleranceMs"?: number;
+
+    /**
+     * NetworkPrepPatterns are case-insensitive substrings that mark
+     * an event as a "network prep" wrapper method. Empty falls back
+     * to the built-in default (IntegrationUtil.sendToService).
+     */
+    "networkPrepPatterns"?: string[];
+
+    /**
+     * EventCategoryPatterns extends the event classifier. Keys are
+     * JenniferEventType values; values are case-insensitive substrings.
+     * User patterns only apply to METHOD/UNKNOWN events so they can't
+     * override well-known matches.
+     */
+    "eventCategoryPatterns"?: { [_ in string]?: string[] };
+
+    /** Creates a new JenniferProfileRequest instance. */
+    constructor($$source: Partial<JenniferProfileRequest> = {}) {
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new JenniferProfileRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): JenniferProfileRequest {
+        const $$createField1_0 = $$createType1;
+        const $$createField4_0 = $$createType1;
+        const $$createField5_0 = $$createType2;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("paths" in $$parsedSource) {
+            $$parsedSource["paths"] = $$createField1_0($$parsedSource["paths"]);
+        }
+        if ("networkPrepPatterns" in $$parsedSource) {
+            $$parsedSource["networkPrepPatterns"] = $$createField4_0($$parsedSource["networkPrepPatterns"]);
+        }
+        if ("eventCategoryPatterns" in $$parsedSource) {
+            $$parsedSource["eventCategoryPatterns"] = $$createField5_0($$parsedSource["eventCategoryPatterns"]);
+        }
+        return new JenniferProfileRequest($$parsedSource as Partial<JenniferProfileRequest>);
+    }
+}
+
+/**
+ * JfrRequest mirrors jfr.Options + a Path. Used for both Analyze and
+ * AnalyzeNativeMemory — the latter only honors Path / LeakOnly /
+ * TailRatio.
+ */
+export class JfrRequest {
+    "path": string;
+    "topN"?: number;
+    "mode"?: string;
+    "fromTime"?: string;
+    "toTime"?: string;
+    "state"?: string;
+
+    /**
+     * Native-memory knobs.
+     */
+    "leakOnly"?: boolean;
+    "tailRatio"?: number;
+
+    /** Creates a new JfrRequest instance. */
+    constructor($$source: Partial<JfrRequest> = {}) {
+        if (!("path" in $$source)) {
+            this["path"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new JfrRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): JfrRequest {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new JfrRequest($$parsedSource as Partial<JfrRequest>);
+    }
+}
+
+/**
+ * LockContentionRequest is the lock-contention analog of MultiThreadRequest.
+ */
+export class LockContentionRequest {
+    "paths": string[];
+    "formatOverride"?: string;
+    "topN"?: number;
+
+    /** Creates a new LockContentionRequest instance. */
+    constructor($$source: Partial<LockContentionRequest> = {}) {
+        if (!("paths" in $$source)) {
+            this["paths"] = [];
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new LockContentionRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): LockContentionRequest {
+        const $$createField0_0 = $$createType1;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("paths" in $$parsedSource) {
+            $$parsedSource["paths"] = $$createField0_0($$parsedSource["paths"]);
+        }
+        return new LockContentionRequest($$parsedSource as Partial<LockContentionRequest>);
+    }
+}
+
+/**
+ * MultiThreadRequest takes paths and lets the engine's plugin registry
+ * detect format from header bytes. FormatOverride bypasses sniffing
+ * when the renderer already knows the format.
+ */
+export class MultiThreadRequest {
+    "paths": string[];
+    "formatOverride"?: string;
+    "threshold"?: number;
+    "topN"?: number;
+    "includeRawSnapshots"?: boolean;
+
+    /** Creates a new MultiThreadRequest instance. */
+    constructor($$source: Partial<MultiThreadRequest> = {}) {
+        if (!("paths" in $$source)) {
+            this["paths"] = [];
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new MultiThreadRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): MultiThreadRequest {
+        const $$createField0_0 = $$createType1;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("paths" in $$parsedSource) {
+            $$parsedSource["paths"] = $$createField0_0($$parsedSource["paths"]);
+        }
+        return new MultiThreadRequest($$parsedSource as Partial<MultiThreadRequest>);
+    }
+}
+
+/**
+ * OtelRequest mirrors otel.Options + a Path.
+ */
+export class OtelRequest {
+    "path": string;
+    "topN"?: number;
+
+    /** Creates a new OtelRequest instance. */
+    constructor($$source: Partial<OtelRequest> = {}) {
+        if (!("path" in $$source)) {
+            this["path"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new OtelRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): OtelRequest {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new OtelRequest($$parsedSource as Partial<OtelRequest>);
+    }
+}
+
+/**
+ * RuntimeRequest dispatches to one of the four runtime.Analyze*
+ * entry points based on Variant. Variant must be one of:
+ * "nodejs", "python", "go", "dotnet".
+ */
+export class RuntimeRequest {
+    "path": string;
+    "variant": string;
+    "topN"?: number;
+    "maxLines"?: number;
+    "strict"?: boolean;
+
+    /** Creates a new RuntimeRequest instance. */
+    constructor($$source: Partial<RuntimeRequest> = {}) {
+        if (!("path" in $$source)) {
+            this["path"] = "";
+        }
+        if (!("variant" in $$source)) {
+            this["variant"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new RuntimeRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): RuntimeRequest {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new RuntimeRequest($$parsedSource as Partial<RuntimeRequest>);
+    }
+}
+
+/**
+ * ThreadDumpRequest mirrors threaddump.Options + a Path.
+ */
+export class ThreadDumpRequest {
+    "path": string;
+    "topN"?: number;
+
+    /** Creates a new ThreadDumpRequest instance. */
+    constructor($$source: Partial<ThreadDumpRequest> = {}) {
+        if (!("path" in $$source)) {
+            this["path"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ThreadDumpRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ThreadDumpRequest {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new ThreadDumpRequest($$parsedSource as Partial<ThreadDumpRequest>);
+    }
+}
+
 // Private type creation functions
 const $$createType0 = profiler$0.AnalysisResult.createFrom;
-const $$createType1 = profiler$0.DrilldownFilter.createFrom;
-const $$createType2 = $Create.Array($$createType1);
+const $$createType1 = $Create.Array($Create.Any);
+const $$createType2 = $Create.Map($Create.Any, $$createType1);
+const $$createType3 = $Create.Map($Create.Any, $Create.Any);
+const $$createType4 = profiler$0.DrilldownFilter.createFrom;
+const $$createType5 = $Create.Array($$createType4);
+const $$createType6 = models$0.AnalysisResult.createFrom;

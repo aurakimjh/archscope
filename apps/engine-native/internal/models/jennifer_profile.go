@@ -91,7 +91,13 @@ const (
 	JenniferEventConnAcquire      JenniferEventType = "CONNECTION_ACQUIRE"
 	JenniferEventSocket           JenniferEventType = "SOCKET"
 	JenniferEventMethod           JenniferEventType = "METHOD"
-	JenniferEventUnknown          JenniferEventType = "UNKNOWN"
+	// JenniferEventNetworkPrep — methods like
+	// IntegrationUtil.sendToService that wrap the actual EXTERNAL_CALL.
+	// We classify them so the analyzer can subtract the embedded
+	// EXTERNAL_CALL elapsed and report the remainder as
+	// "network preparation" (marshalling / DNS / SSL handshake / etc).
+	JenniferEventNetworkPrep JenniferEventType = "NETWORK_PREP_METHOD"
+	JenniferEventUnknown     JenniferEventType = "UNKNOWN"
 )
 
 // JenniferProfileEvent is one row of the body table.
@@ -309,4 +315,13 @@ type JenniferBodyMetrics struct {
 	ExternalCallCount     int `json:"external_call_count"`
 	ConnectionAcquireCumMs int `json:"connection_acquire_cum_ms"`
 	ConnectionAcquireCount int `json:"connection_acquire_count"`
+	// NetworkPrepMethodCumMs is the raw sum of method elapsed for
+	// frames that match the configured network-prep patterns
+	// (default: IntegrationUtil.sendToService). NetworkPrepCumMs is
+	// the derived remainder: NetworkPrepMethodCumMs minus the
+	// matched-call ExternalCallCumMs (clamped to 0). The latter is
+	// what users see as "external call preparation time".
+	NetworkPrepMethodCumMs int `json:"network_prep_method_cum_ms"`
+	NetworkPrepMethodCount int `json:"network_prep_method_count"`
+	NetworkPrepCumMs       int `json:"network_prep_cum_ms"`
 }

@@ -8,6 +8,21 @@ type Options struct {
 	TimelineBaseMethod string
 	DebugLog           *DebugLog
 	DebugLogDir        string
+	// MaxUniqueStacks caps the number of distinct stacks the
+	// collapsed/HTML/SVG parsers retain in memory. Stacks beyond
+	// the cap (lowest-sample first) are dropped and tracked under
+	// ParserDiagnostics.DroppedStacks. 0 / negative means unlimited.
+	// Sensible defaults are applied in normalizeOptions when zero.
+	MaxUniqueStacks int
+	// MaxStackDepth caps the number of frames per stack. Frames
+	// beyond the cap are truncated and tracked under
+	// ParserDiagnostics.OverDepthRecords. 0 / negative means unlimited.
+	MaxStackDepth int
+	// TimelineCategories carries user-supplied additional method
+	// patterns per timeline segment. Keys are segment IDs (e.g.
+	// "EXTERNAL_CALL", "SQL_EXECUTION"); values are case-insensitive
+	// substrings matched against frame text.
+	TimelineCategories map[string][]string
 }
 
 type AnalysisResult struct {
@@ -70,6 +85,14 @@ type ParserDiagnostics struct {
 	ErrorCount      int                `json:"error_count"`
 	Warnings        []DiagnosticSample `json:"warnings"`
 	Errors          []DiagnosticSample `json:"errors"`
+	// Memory-guard counters (T-WALL70). Populated when caps in
+	// Options trigger; rendered in the parser-report tab so the user
+	// can see exactly what the analyzer dropped to stay within budget.
+	DroppedStacks      int    `json:"dropped_stacks,omitempty"`
+	DroppedStackReason string `json:"dropped_stack_reason,omitempty"`
+	OverDepthRecords   int    `json:"over_depth_records,omitempty"`
+	MaxObservedDepth   int    `json:"max_observed_depth,omitempty"`
+	BytesRead          int64  `json:"bytes_read,omitempty"`
 }
 
 type DiagnosticSample struct {

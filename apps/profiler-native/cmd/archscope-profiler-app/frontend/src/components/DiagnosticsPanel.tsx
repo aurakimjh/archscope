@@ -65,7 +65,33 @@ export function DiagnosticsPanel({ diagnostics, baseRequest }: DiagnosticsPanelP
         <Metric label={t("skippedLines")} value={diagnostics.skipped_lines.toLocaleString()} />
         <Metric label={t("warnings")} value={(diagnostics.warning_count ?? 0).toLocaleString()} />
         <Metric label={t("errors")} value={(diagnostics.error_count ?? 0).toLocaleString()} />
+        {(() => {
+          const d = diagnostics as any;
+          const cards: JSX.Element[] = [];
+          if (d.bytes_read) {
+            cards.push(<Metric key="bytes" label="Bytes read" value={Number(d.bytes_read).toLocaleString()} />);
+          }
+          if (d.dropped_stacks) {
+            cards.push(<Metric key="dropped" label="Dropped stacks (cap hit)" value={Number(d.dropped_stacks).toLocaleString()} />);
+          }
+          if (d.over_depth_records) {
+            cards.push(<Metric key="overdepth" label="Depth-truncated records" value={Number(d.over_depth_records).toLocaleString()} />);
+          }
+          if (d.max_observed_depth) {
+            cards.push(<Metric key="maxdepth" label="Max observed depth" value={Number(d.max_observed_depth).toLocaleString()} />);
+          }
+          return cards;
+        })()}
       </div>
+      {(() => {
+        const d = diagnostics as any;
+        if (!d.dropped_stack_reason) return null;
+        return (
+          <p className="diagnostics-notice warn" style={{ marginTop: 8, padding: 8, borderRadius: 6 }}>
+            {String(d.dropped_stack_reason)}
+          </p>
+        );
+      })()}
 
       {reasons.length > 0 && (
         <div className="diagnostics-block">

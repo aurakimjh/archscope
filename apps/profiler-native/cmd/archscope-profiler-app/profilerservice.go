@@ -104,6 +104,15 @@ type AnalyzeRequest struct {
 	// path is returned in the result metadata.
 	DebugLog    bool   `json:"debugLog,omitempty"`
 	DebugLogDir string `json:"debugLogDir,omitempty"`
+	// Memory guards for very large collapsed/wall inputs. Empty/zero
+	// triggers analyzer defaults (250k unique stacks, depth 256).
+	MaxUniqueStacks int `json:"maxUniqueStacks,omitempty"`
+	MaxStackDepth   int `json:"maxStackDepth,omitempty"`
+	// TimelineCategories carries user-supplied additional method
+	// patterns per timeline segment. Keys are segment IDs (e.g.
+	// "EXTERNAL_CALL", "SQL_EXECUTION", "INTERNAL_METHOD"); values
+	// are case-insensitive substrings matched against frame text.
+	TimelineCategories map[string][]string `json:"timelineCategories,omitempty"`
 }
 
 // DebugLogResult is the response shape for ProfilerService.WriteDebugLog.
@@ -295,6 +304,9 @@ func (s *ProfilerService) optionsFromRequest(req AnalyzeRequest) (profiler.Optio
 		ProfileKind:        req.ProfileKind,
 		TimelineBaseMethod: req.TimelineBaseMethod,
 		DebugLogDir:        req.DebugLogDir,
+		MaxUniqueStacks:    req.MaxUniqueStacks,
+		MaxStackDepth:      req.MaxStackDepth,
+		TimelineCategories: req.TimelineCategories,
 	}
 	if req.ElapsedSec >= 0 {
 		elapsed := req.ElapsedSec

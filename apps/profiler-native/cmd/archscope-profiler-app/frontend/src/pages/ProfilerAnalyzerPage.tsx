@@ -21,6 +21,12 @@ import type {
 } from "../../bindings/github.com/aurakimjh/archscope/apps/profiler-native/internal/profiler/models";
 
 import { CanvasFlameGraph, type FlameGraphNode } from "../components/CanvasFlameGraph";
+import {
+  CustomCategoriesEditor,
+  type CategoryRules,
+  type Preset,
+  type SegmentSpec,
+} from "../components/CustomCategoriesEditor";
 import { DiagnosticsPanel } from "../components/DiagnosticsPanel";
 import { DrilldownPanel } from "../components/DrilldownPanel";
 import { HorizontalBarChart, type BarRow } from "../components/HorizontalBarChart";
@@ -55,6 +61,48 @@ type ProfileFormat =
   | "flamegraph_html";
 
 type ProfileKind = "wall" | "cpu" | "lock";
+
+// PROFILER_TIMELINE_SEGMENTS lists the segments the user can override.
+// The IDs are the canonical segment keys consumed by buildTimeline on
+// the Go side; user patterns flow through Options.TimelineCategories.
+const PROFILER_TIMELINE_SEGMENTS: SegmentSpec[] = [
+  { id: "STARTUP_FRAMEWORK", label: "Startup / framework" },
+  { id: "INTERNAL_METHOD", label: "Internal method" },
+  { id: "SQL_EXECUTION", label: "SQL execution" },
+  { id: "DB_NETWORK_WAIT", label: "DB network wait" },
+  { id: "NETWORK_PREP", label: "External call prep (network)" },
+  { id: "EXTERNAL_CALL", label: "External call" },
+  { id: "EXTERNAL_NETWORK_WAIT", label: "External network wait" },
+  { id: "CONNECTION_POOL_WAIT", label: "Connection pool wait" },
+  { id: "LOCK_SYNCHRONIZATION_WAIT", label: "Lock / synchronization wait" },
+  { id: "FILE_IO", label: "File I/O" },
+];
+
+// PROFILER_TIMELINE_PRESETS — built-in libraries the user can seed
+// and then refine. Patterns are case-insensitive substrings; they
+// merge into the existing per-segment rule list rather than replacing.
+const PROFILER_TIMELINE_PRESETS = (
+  t: (key: any) => string,
+): Preset[] => [
+  {
+    id: "msa-network-prep",
+    label: t("presetMsaNetworkPrep"),
+    rules: {
+      NETWORK_PREP: [
+        "IntegrationUtil.sendToService",
+        "sendToService(",
+        "RestTemplate.exchange",
+      ],
+    },
+  },
+  {
+    id: "msa-2pc",
+    label: t("presetMsa2pc"),
+    rules: {
+      EXTERNAL_CALL: ["xa_start", "xa_end", "xa_prepare", "xa_commit", "xa_rollback"],
+    },
+  },
+];
 
 const FILE_FILTERS = [
   {
@@ -101,6 +149,14 @@ export function ProfilerAnalyzerPage(): JSX.Element {
   const [elapsedSec, setElapsedSec] = useState<string>("");
   const [topN, setTopN] = useState<number>(defaults.topN);
   const [timelineBaseMethod, setTimelineBaseMethod] = useState<string>("");
+  // Memory caps default to 0 = "use backend defaults" (250k stacks,
+  // depth 256). Surfaced so 70M+ wall files can be tuned without a
+  // rebuild when the defaults still aren't enough.
+  const [maxUniqueStacks, setMaxUniqueStacks] = useState<number>(0);
+  const [maxStackDepth, setMaxStackDepth] = useState<number>(0);
+  const [timelineCategories, setTimelineCategories] = useState<CategoryRules>(
+    {},
+  );
 
   const [analyzing, setAnalyzing] = useState<boolean>(false);
   const [exporting, setExporting] = useState<boolean>(false);
@@ -173,7 +229,10 @@ export function ProfilerAnalyzerPage(): JSX.Element {
         topN,
         profileKind,
         timelineBaseMethod,
-      });
+        maxUniqueStacks,
+        maxStackDepth,
+        timelineCategories,
+      } as any);
       const response = await ProfilerService.AnalyzeAsync(request);
       activeTaskRef.current = response.taskId;
     } catch (err: any) {
@@ -261,7 +320,10 @@ export function ProfilerAnalyzerPage(): JSX.Element {
         topN,
         profileKind,
         timelineBaseMethod,
-      })
+        maxUniqueStacks,
+        maxStackDepth,
+        timelineCategories,
+      } as any)
     : null;
 
   const breakdownRows: BarRow[] = (result?.series?.execution_breakdown ?? [])
@@ -419,6 +481,51 @@ export function ProfilerAnalyzerPage(): JSX.Element {
               disabled={analyzing}
             />
           </label>
+        </CardContent>
+        <CardContent className="grid grid-cols-1 gap-3 md:grid-cols-3 border-t border-border pt-3">
+          <label className="flex flex-col gap-1.5 text-xs md:col-span-3">
+            <span className="font-semibold text-foreground/80">
+              {t("memoryGuards")}
+            </span>
+          </label>
+          <label className="flex flex-col gap-1.5 text-xs">
+            <span className="font-medium text-foreground/80">
+              {t("maxUniqueStacks")}
+            </span>
+            <Input
+              type="number"
+              min={0}
+              placeholder="0 = default (250000)"
+              value={maxUniqueStacks || ""}
+              onChange={(e) => setMaxUniqueStacks(Number(e.target.value) || 0)}
+              disabled={analyzing}
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 text-xs">
+            <span className="font-medium text-foreground/80">
+              {t("maxStackDepth")}
+            </span>
+            <Input
+              type="number"
+              min={0}
+              placeholder="0 = default (256)"
+              value={maxStackDepth || ""}
+              onChange={(e) => setMaxStackDepth(Number(e.target.value) || 0)}
+              disabled={analyzing}
+            />
+          </label>
+        </CardContent>
+        <CardContent className="border-t border-border pt-3">
+          <p className="mb-2 text-xs font-semibold text-foreground/80">
+            {t("customCategoriesTitle")}
+          </p>
+          <CustomCategoriesEditor
+            segments={PROFILER_TIMELINE_SEGMENTS}
+            presets={PROFILER_TIMELINE_PRESETS(t)}
+            value={timelineCategories}
+            onChange={setTimelineCategories}
+            disabled={analyzing}
+          />
         </CardContent>
       </Card>
 
