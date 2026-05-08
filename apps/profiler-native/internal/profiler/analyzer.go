@@ -153,6 +153,16 @@ func AnalyzeJenniferTree(root FlameNode, sourceFile string, diagnostics ParserDi
 	timelineRows, timelineScope := buildTimeline(root, options, totalSamples)
 	topSeries, topTables := topStacksFromCollapsed(stacks, totalSamples, intervalSeconds, options)
 	rootTopStacks := topStacksFromTree(root, options.TopN)
+	topChildFramesRoot := topChildFrames(root, options.TopN)
+	// Same pruning + DrilldownStage de-duplication as the collapsed
+	// path — Jennifer CSV inputs can also produce huge trees.
+	maxNodes := options.MaxFlamegraphNodes
+	if maxNodes == 0 {
+		maxNodes = defaultMaxFlamegraphNodes
+	}
+	if maxNodes > 0 {
+		_, _ = pruneFlamegraph(&root, maxNodes)
+	}
 	rootStage := DrilldownStage{
 		Index:      0,
 		Label:      "All",
@@ -166,9 +176,9 @@ func AnalyzeJenniferTree(root FlameNode, sourceFile string, diagnostics ParserDi
 			"parent_stage_ratio": 100.0,
 			"elapsed_ratio":      elapsedRatio(estimatedSeconds, options.ElapsedSec, 4),
 		},
-		Flamegraph:     root,
+		Flamegraph:     FlameNode{},
 		TopStacks:      rootTopStacks,
-		TopChildFrames: topChildFrames(root, options.TopN),
+		TopChildFrames: topChildFramesRoot,
 		Diagnostics:    nil,
 	}
 	return AnalysisResult{
@@ -191,7 +201,7 @@ func AnalyzeJenniferTree(root FlameNode, sourceFile string, diagnostics ParserDi
 		},
 		Tables: Tables{
 			TopStacks:        topTables,
-			TopChildFrames:   rootStage.TopChildFrames,
+			TopChildFrames:   topChildFramesRoot,
 			TimelineAnalysis: timelineRows,
 		},
 		Charts: Charts{
@@ -231,7 +241,8 @@ func AnalyzeCollapsedStacks(stacks map[string]int, sourceFile string, diagnostic
 	estimatedSeconds := round(float64(totalSamples)*intervalSeconds, 3)
 	pl.Phase("build-flamegraph-start", fmt.Sprintf("stacks=%d total_samples=%d", len(stacks), totalSamples))
 	flamegraph := buildFlameTreeWithLog(stacks, pl)
-	pl.Phase("build-flamegraph-end", fmt.Sprintf("nodes_root=%d", len(flamegraph.Children)))
+	rawNodes := countNodes(flamegraph)
+	pl.Phase("build-flamegraph-end", fmt.Sprintf("nodes_total=%d nodes_root=%d", rawNodes, len(flamegraph.Children)))
 	pl.Mem("post-flamegraph")
 	pl.Phase("timeline-start")
 	timelineRows, timelineScope := buildTimeline(flamegraph, options, totalSamples)
@@ -240,22 +251,51 @@ func AnalyzeCollapsedStacks(stacks map[string]int, sourceFile string, diagnostic
 	topSeries, topTables := topStacksFromCollapsed(stacks, totalSamples, intervalSeconds, options)
 	pl.Phase("topstacks-end", fmt.Sprintf("rows=%d", len(topSeries)))
 	rootTopStacks := topStacksFromTree(flamegraph, options.TopN)
+	topChildFramesRoot := topChildFrames(flamegraph, options.TopN)
+	// Build everything that needs the FULL tree BEFORE pruning so
+	// the breakdown stats stay accurate. The pruner only affects the
+	// tree we ship to the renderer for visualization.
+	executionBreakdown := buildExecutionBreakdown(flamegraph, options, totalSamples, max(flamegraph.Samples, 1))
+	rootStageMetrics := map[string]any{
+		"total_samples":      totalSamples,
+		"matched_samples":    flamegraph.Samples,
+		"estimated_seconds":  estimatedSeconds,
+		"total_ratio":        100.0,
+		"parent_stage_ratio": 100.0,
+		"elapsed_ratio":      elapsedRatio(estimatedSeconds, options.ElapsedSec, 4),
+	}
+	// Prune the FlameNode tree to a sane node count BEFORE the result
+	// gets handed to Wails for IPC encoding. On 1M+ node trees the
+	// JSON payload alone can hit several gigabytes — we'd survive
+	// analyze() only to be killed during marshal. The pruner replaces
+	// the tail of each level with a "…other" synthetic sibling so the
+	// hidden weight is still visible on the flame graph.
+	maxNodes := options.MaxFlamegraphNodes
+	if maxNodes == 0 {
+		maxNodes = defaultMaxFlamegraphNodes
+	}
+	if maxNodes > 0 {
+		pl.Phase("prune-start", fmt.Sprintf("max_nodes=%d", maxNodes))
+		_, dropped := pruneFlamegraph(&flamegraph, maxNodes)
+		if dropped > 0 {
+			pl.Phase("prune-end", fmt.Sprintf("dropped=%d kept=%d", dropped, countNodes(flamegraph)))
+		} else {
+			pl.Phase("prune-end", "no pruning needed")
+		}
+	}
+	// rootStage.Flamegraph deliberately holds an EMPTY FlameNode so
+	// the result doesn't double-encode the tree (Charts.Flamegraph is
+	// the single source of truth). The renderer's drilldown stages
+	// come from a separate IPC call anyway.
 	rootStage := DrilldownStage{
-		Index:      0,
-		Label:      "All",
-		Breadcrumb: []string{"All"},
-		Filter:     nil,
-		Metrics: map[string]any{
-			"total_samples":      totalSamples,
-			"matched_samples":    flamegraph.Samples,
-			"estimated_seconds":  estimatedSeconds,
-			"total_ratio":        100.0,
-			"parent_stage_ratio": 100.0,
-			"elapsed_ratio":      elapsedRatio(estimatedSeconds, options.ElapsedSec, 4),
-		},
-		Flamegraph:     flamegraph,
+		Index:          0,
+		Label:          "All",
+		Breadcrumb:     []string{"All"},
+		Filter:         nil,
+		Metrics:        rootStageMetrics,
+		Flamegraph:     FlameNode{},
 		TopStacks:      rootTopStacks,
-		TopChildFrames: topChildFrames(flamegraph, options.TopN),
+		TopChildFrames: topChildFramesRoot,
 		Diagnostics:    nil,
 	}
 	return AnalysisResult{
@@ -272,13 +312,13 @@ func AnalyzeCollapsedStacks(stacks map[string]int, sourceFile string, diagnostic
 		Series: Series{
 			TopStacks:          topSeries,
 			ComponentBreakdown: componentBreakdown(stacks),
-			ExecutionBreakdown: buildExecutionBreakdown(flamegraph, options, totalSamples, max(flamegraph.Samples, 1)),
+			ExecutionBreakdown: executionBreakdown,
 			TimelineAnalysis:   timelineRows,
 			Threads:            detectThreads(stacks, totalSamples),
 		},
 		Tables: Tables{
 			TopStacks:        topTables,
-			TopChildFrames:   rootStage.TopChildFrames,
+			TopChildFrames:   topChildFramesRoot,
 			TimelineAnalysis: timelineRows,
 		},
 		Charts: Charts{

@@ -305,6 +305,41 @@ type JenniferGuidMetrics struct {
 	ExternalCallParallelismRatio    float64 `json:"external_call_parallelism_ratio"`
 	GroupExecutionMode              JenniferExecutionMode `json:"group_execution_mode"`
 	ProfileParallelism              []JenniferProfileParallelism `json:"profile_parallelism,omitempty"`
+	// ResponseTimeBreakdown decomposes root_response_time_ms into the
+	// categories the user wants to see. This is the "where did the
+	// time go" view that drives improvement decisions.
+	ResponseTimeBreakdown JenniferResponseTimeBreakdown `json:"response_time_breakdown"`
+}
+
+// JenniferResponseTimeBreakdown decomposes the root profile's wall-
+// clock response time into the categories the user reasons about
+// when targeting an optimisation. The math:
+//
+//	method_time = root_response - (sql + check_query + 2pc + fetch
+//	            + network_call + network_prep + connection_acquire)
+//
+// network_call uses adjusted_network_gap (the time spent in the
+// wire / waiting between caller and callee) rather than the raw
+// external_call_elapsed, because external_call_elapsed already
+// embeds the callee's own response time which gets captured in
+// the callee's profile (and thus in this group's sum).
+//
+// method_time can go negative if the callee response time wasn't
+// captured (unmatched edges) or if there's overlap from missing
+// data; the renderer clamps to 0 and shows a warning.
+type JenniferResponseTimeBreakdown struct {
+	RootResponseTimeMs    int     `json:"root_response_time_ms"`
+	SQLExecuteMs          int     `json:"sql_execute_ms"`
+	CheckQueryMs          int     `json:"check_query_ms"`
+	TwoPCMs               int     `json:"two_pc_ms"`
+	FetchMs               int     `json:"fetch_ms"`
+	NetworkCallMs         int     `json:"network_call_ms"`
+	NetworkPrepMs         int     `json:"network_prep_ms"`
+	ConnectionAcquireMs   int     `json:"connection_acquire_ms"`
+	MethodTimeMs          int     `json:"method_time_ms"`
+	MethodTimeRatio       float64 `json:"method_time_ratio"`
+	Coverage              float64 `json:"coverage"`
+	NegativeMethodTime    bool    `json:"negative_method_time,omitempty"`
 }
 
 // JenniferBodyMetrics is the aggregated cost ledger emitted per

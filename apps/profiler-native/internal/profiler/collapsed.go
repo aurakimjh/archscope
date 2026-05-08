@@ -45,6 +45,12 @@ const (
 	// SIGKILL when alloc crosses this — we lose the result but the
 	// progress log is fully flushed so the user knows what happened.
 	defaultMaxRSSMB = 4096 // 4 GB
+	// defaultMaxFlamegraphNodes caps the renderer payload. A 100k-
+	// node tree gzip-encodes to ~5 MB and the canvas can render it
+	// without freezing; bigger trees are pruned (top-K children per
+	// level + "...other" tail). Set MaxFlamegraphNodes < 0 to skip
+	// pruning entirely.
+	defaultMaxFlamegraphNodes = 100_000
 )
 
 // ParseCollapsedFile is the back-compat entry that uses default

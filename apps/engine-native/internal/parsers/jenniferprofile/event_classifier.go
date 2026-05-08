@@ -127,6 +127,102 @@ func classifyEventsWithOptions(profile *models.JenniferTransactionProfile, opts 
 			fillFetch(ev)
 		}
 	}
+	validateNetworkPrep(profile)
+}
+
+// validateNetworkPrep enforces the user-stated invariant: a method
+// classified as NETWORK_PREP_METHOD must be immediately followed by
+// an EXTERNAL_CALL event in the body. If not, the method was a
+// false positive (the wrapper name happens to appear in non-network
+// code paths) and we demote it back to METHOD so it doesn't pollute
+// the network_prep ledger.
+//
+// We also surface a per-profile warning when the wrapper-method
+// elapsed differs significantly from the following EXTERNAL_CALL
+// elapsed — that's the "이상한" signal the user wanted: either the
+// wrapper has heavy non-network code OR the call took longer than
+// the wrapper recorded (clock drift / overlapping events).
+func validateNetworkPrep(profile *models.JenniferTransactionProfile) {
+	events := profile.Body.Events
+	for i := range events {
+		ev := &events[i]
+		if ev.EventType != models.JenniferEventNetworkPrep {
+			continue
+		}
+		// Skip START / END / continuation rows when looking for the
+		// "next real event". The classifier already collapsed those
+		// into recognised types so we only need to walk forward.
+		nextIdx := -1
+		for j := i + 1; j < len(events); j++ {
+			t := events[j].EventType
+			if t == models.JenniferEventStart || t == models.JenniferEventEnd || t == models.JenniferEventTotal {
+				continue
+			}
+			nextIdx = j
+			break
+		}
+		if nextIdx < 0 || events[nextIdx].EventType != models.JenniferEventExternalCall {
+			ev.EventType = models.JenniferEventMethod
+			profile.Warnings = append(profile.Warnings, models.JenniferProfileIssue{
+				Code:    "NETWORK_PREP_NOT_FOLLOWED_BY_EXTERNAL_CALL",
+				Message: "NETWORK_PREP wrapper method demoted: next event was not EXTERNAL_CALL",
+			})
+			continue
+		}
+		// Suspicious-elapsed warning: wrapper elapsed should be ≥
+		// next EXTERNAL_CALL elapsed (wrapper enclosing the call).
+		// If the EXTERNAL_CALL is much larger, the wrapper isn't
+		// actually wrapping it and the prep math will under-report.
+		// If wrapper is much larger than the call, there's hidden
+		// work inside the wrapper that's not actually network-prep.
+		if ev.ElapsedMs != nil && events[nextIdx].ElapsedMs != nil {
+			wrapperMs := *ev.ElapsedMs
+			callMs := *events[nextIdx].ElapsedMs
+			diff := wrapperMs - callMs
+			if diff < 0 {
+				diff = -diff
+			}
+			// Threshold: 500 ms absolute or 50% relative — whichever
+			// is larger — to avoid noise on tiny calls.
+			rel := 0.0
+			base := wrapperMs
+			if callMs > base {
+				base = callMs
+			}
+			if base > 0 {
+				rel = float64(diff) / float64(base)
+			}
+			if diff > 500 && rel > 0.5 {
+				profile.Warnings = append(profile.Warnings, models.JenniferProfileIssue{
+					Code: "NETWORK_PREP_ELAPSED_MISMATCH",
+					Message: "NETWORK_PREP wrapper elapsed differs from following EXTERNAL_CALL by " +
+						intToString(diff) + " ms (wrapper=" + intToString(wrapperMs) + " call=" + intToString(callMs) + ")",
+				})
+			}
+		}
+	}
+}
+
+// intToString is a tiny strconv shim to keep validateNetworkPrep
+// independent of the rest of the file's helpers.
+func intToString(v int) string {
+	if v == 0 {
+		return "0"
+	}
+	negative := false
+	if v < 0 {
+		negative = true
+		v = -v
+	}
+	digits := []byte{}
+	for v > 0 {
+		digits = append([]byte{byte('0' + v%10)}, digits...)
+		v /= 10
+	}
+	if negative {
+		return "-" + string(digits)
+	}
+	return string(digits)
 }
 
 // eventCategoryRule binds a target event-type to a list of

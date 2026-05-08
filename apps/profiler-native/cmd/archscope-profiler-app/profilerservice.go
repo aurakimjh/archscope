@@ -112,9 +112,10 @@ type AnalyzeRequest struct {
 	// Memory guards for very large collapsed/wall inputs. Empty/zero
 	// triggers analyzer defaults (100k unique stacks, depth 128, 4 GB
 	// soft RSS ceiling).
-	MaxUniqueStacks int `json:"maxUniqueStacks,omitempty"`
-	MaxStackDepth   int `json:"maxStackDepth,omitempty"`
-	MaxRSSMB        int `json:"maxRssMb,omitempty"`
+	MaxUniqueStacks    int `json:"maxUniqueStacks,omitempty"`
+	MaxStackDepth      int `json:"maxStackDepth,omitempty"`
+	MaxRSSMB           int `json:"maxRssMb,omitempty"`
+	MaxFlamegraphNodes int `json:"maxFlamegraphNodes,omitempty"`
 	// ProgressLogDir overrides where the analyzer writes its
 	// streaming progress log. Empty → next to the executable
 	// (archscope-logs/), with cwd / temp-dir fallbacks.
@@ -340,6 +341,7 @@ func (s *ProfilerService) optionsFromRequest(req AnalyzeRequest) (profiler.Optio
 		MaxUniqueStacks:    req.MaxUniqueStacks,
 		MaxStackDepth:      req.MaxStackDepth,
 		MaxRSSMB:           req.MaxRSSMB,
+		MaxFlamegraphNodes: req.MaxFlamegraphNodes,
 		TimelineCategories: req.TimelineCategories,
 		ProgressLogDir:     req.ProgressLogDir,
 	}

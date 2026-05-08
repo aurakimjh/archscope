@@ -16,7 +16,7 @@ import {
   type Preset,
   type SegmentSpec,
 } from "../components/CustomCategoriesEditor";
-import { MsaStackedBar } from "../components/MsaStackedBar";
+import { MsaResponseTimeBreakdown } from "../components/MsaResponseTimeBreakdown";
 import { MsaTimeline } from "../components/MsaTimeline";
 import { MsaTopology } from "../components/MsaTopology";
 import { MetricCard } from "../components/MetricCard";
@@ -966,6 +966,15 @@ export function JenniferProfilePage(): JSX.Element {
                   사용자 분류 패턴을 추가해 다시 분석하세요.
                 </p>
               )}
+            {/* Response time decomposition sits right below the
+                capture-status cards as the primary "what's slow" view —
+                the topology and full timeline follow as drill-down. */}
+            <div className="mt-4">
+              <MsaResponseTimeBreakdown
+                groups={guidGroups as any}
+                edges={msaEdges as any}
+              />
+            </div>
             {topologyEdges.length > 0 && (
               <div className="mt-4 flex flex-col gap-4">
                 <MsaTopology
@@ -978,16 +987,6 @@ export function JenniferProfilePage(): JSX.Element {
                   mode="overall"
                   rootApplication={primaryRootApplication}
                 />
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm">
-                      GUID 그룹별 카테고리 누적 시간 (Stacked Bar)
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <MsaStackedBar groups={guidGroups as any} />
-                  </CardContent>
-                </Card>
               </div>
             )}
           </TabsContent>

@@ -370,6 +370,20 @@ func guidGroupToRow(g models.JenniferGuidGroup) map[string]any {
 			"max_external_call_concurrency":    g.Metrics.MaxExternalCallConcurrency,
 			"external_call_parallelism_ratio":  g.Metrics.ExternalCallParallelismRatio,
 			"group_execution_mode":             string(g.Metrics.GroupExecutionMode),
+			"response_time_breakdown": map[string]any{
+				"root_response_time_ms": g.Metrics.ResponseTimeBreakdown.RootResponseTimeMs,
+				"sql_execute_ms":        g.Metrics.ResponseTimeBreakdown.SQLExecuteMs,
+				"check_query_ms":        g.Metrics.ResponseTimeBreakdown.CheckQueryMs,
+				"two_pc_ms":             g.Metrics.ResponseTimeBreakdown.TwoPCMs,
+				"fetch_ms":              g.Metrics.ResponseTimeBreakdown.FetchMs,
+				"network_call_ms":       g.Metrics.ResponseTimeBreakdown.NetworkCallMs,
+				"network_prep_ms":       g.Metrics.ResponseTimeBreakdown.NetworkPrepMs,
+				"connection_acquire_ms": g.Metrics.ResponseTimeBreakdown.ConnectionAcquireMs,
+				"method_time_ms":        g.Metrics.ResponseTimeBreakdown.MethodTimeMs,
+				"method_time_ratio":     g.Metrics.ResponseTimeBreakdown.MethodTimeRatio,
+				"coverage":              g.Metrics.ResponseTimeBreakdown.Coverage,
+				"negative_method_time":  g.Metrics.ResponseTimeBreakdown.NegativeMethodTime,
+			},
 		},
 	}
 }

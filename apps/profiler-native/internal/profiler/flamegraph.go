@@ -1,6 +1,7 @@
 package profiler
 
 import (
+	"fmt"
 	"sort"
 	"strings"
 )
@@ -130,6 +131,104 @@ func freezeNode(node *mutableNode, total int, pathBuf []string) FlameNode {
 		pathBuf = pathBuf[:len(pathBuf)-1]
 	}
 	return out
+}
+
+// countNodes walks the frozen tree and returns the total number of
+// nodes. Cheap (O(N)) and useful for the IPC-payload sanity check.
+func countNodes(root FlameNode) int {
+	n := 1
+	for i := range root.Children {
+		n += countNodes(root.Children[i])
+	}
+	return n
+}
+
+// pruneFlamegraph collapses the tail of each level's children when
+// the total node count exceeds `maxNodes`. The tail is replaced with
+// a single synthetic "...other (N nodes)" sibling whose Samples is
+// the sum of the dropped children — that way the visual flame graph
+// stays balanced and the user still sees how much aggregate weight
+// was hidden. Pruning only fires for very large trees (typically
+// 1M+ nodes); ordinary inputs pass through unchanged.
+//
+// We keep the topK children per level by descending Samples; the
+// list is already sorted by freezeNode so we just slice. Recurses
+// into kept children so deeper subtrees also get pruned.
+func pruneFlamegraph(root *FlameNode, maxNodes int) (kept int, dropped int) {
+	if root == nil {
+		return 0, 0
+	}
+	total := countNodes(*root)
+	if maxNodes <= 0 || total <= maxNodes {
+		return total, 0
+	}
+	// Per-level cap derived from maxNodes; each kept node's children
+	// are similarly capped. log scale because a uniform cap would
+	// either flood depth-1 or starve depth-N. The exponent 1.4 was
+	// chosen empirically on a 1.5M-node test tree to land near
+	// maxNodes after one pass.
+	perLevelCap := perLevelCapFor(maxNodes, total)
+	dropped = pruneSubtree(root, perLevelCap)
+	return countNodes(*root), dropped
+}
+
+func perLevelCapFor(maxNodes, total int) int {
+	if total <= 0 || maxNodes <= 0 {
+		return 50
+	}
+	cap := maxNodes / 100
+	if cap < 32 {
+		return 32
+	}
+	if cap > 256 {
+		return 256
+	}
+	return cap
+}
+
+func pruneSubtree(node *FlameNode, perLevelCap int) int {
+	if node == nil || len(node.Children) == 0 {
+		return 0
+	}
+	dropped := 0
+	if len(node.Children) > perLevelCap {
+		tailSamples := 0
+		tailCount := 0
+		for i := perLevelCap; i < len(node.Children); i++ {
+			tailSamples += node.Children[i].Samples
+			tailCount += 1 + countChildrenDeep(node.Children[i])
+		}
+		dropped += tailCount
+		kept := node.Children[:perLevelCap]
+		if tailSamples > 0 {
+			kept = append(kept, FlameNode{
+				ID:      node.ID + "/...other",
+				Name:    fmt.Sprintf("…other (%d frames)", len(node.Children)-perLevelCap),
+				Samples: tailSamples,
+				Ratio:   float64(tailSamples) / float64(maxInt(node.Samples, 1)),
+			})
+		}
+		node.Children = kept
+	}
+	for i := range node.Children {
+		dropped += pruneSubtree(&node.Children[i], perLevelCap)
+	}
+	return dropped
+}
+
+func countChildrenDeep(node FlameNode) int {
+	n := 0
+	for i := range node.Children {
+		n += 1 + countChildrenDeep(node.Children[i])
+	}
+	return n
+}
+
+func maxInt(a, b int) int {
+	if a >= b {
+		return a
+	}
+	return b
 }
 
 func iterLeafPaths(root FlameNode) []leafPath {

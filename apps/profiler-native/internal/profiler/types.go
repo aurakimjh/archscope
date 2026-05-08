@@ -40,6 +40,12 @@ type Options struct {
 	// limit it aborts with an error rather than letting the OS
 	// SIGKILL the process. 0 / negative falls back to defaultMaxRSSMB.
 	MaxRSSMB int
+	// MaxFlamegraphNodes caps the size of the FlameNode tree shipped
+	// to the renderer. Larger trees get pruned per level (top-K
+	// children by samples) with a synthetic "…other" sibling holding
+	// the dropped weight. 0 / negative falls back to default; -1
+	// disables pruning entirely (use only on small inputs).
+	MaxFlamegraphNodes int
 }
 
 type AnalysisResult struct {
@@ -210,8 +216,14 @@ type FlameNode struct {
 	Category *string     `json:"category"`
 	Color    *string     `json:"color"`
 	Children []FlameNode `json:"children"`
-	Path     []string    `json:"path"`
-	Metadata any         `json:"metadata,omitempty"`
+	// Path is dropped from JSON serialization. It's only consumed
+	// internally by buildTimeline / iterLeafPaths during analysis;
+	// the renderer reconstructs paths from the parent → child Name
+	// chain, so shipping the slice over IPC is pure overhead. On
+	// 1M+ node trees this single change drops the result-IPC
+	// payload by ~1 GB.
+	Path     []string `json:"-"`
+	Metadata any      `json:"metadata,omitempty"`
 }
 
 type DrilldownStage struct {

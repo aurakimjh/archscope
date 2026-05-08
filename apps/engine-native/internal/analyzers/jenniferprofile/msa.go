@@ -293,6 +293,7 @@ func computeGroupMetrics(b *guidGroupBucket, edges []models.JenniferExternalCall
 		MatchedExternalCallCount:   group.MatchedEdgeCount,
 		UnmatchedExternalCallCount: group.UnmatchedEdgeCount,
 	}
+	totalNetworkPrep := 0
 	for _, p := range b.profiles {
 		bm := AggregateBody(&p)
 		m.TotalSqlExecuteMs += bm.SQLExecuteCumMs
@@ -301,6 +302,7 @@ func computeGroupMetrics(b *guidGroupBucket, edges []models.JenniferExternalCall
 		m.TotalFetchMs += bm.FetchCumMs
 		m.TotalFetchRows += bm.FetchTotalRows
 		m.TotalConnectionAcquireMs += bm.ConnectionAcquireCumMs
+		totalNetworkPrep += bm.NetworkPrepCumMs
 	}
 	for _, e := range edges {
 		m.TotalExternalCallCumulativeMs += e.ExternalCallElapsedMs
@@ -308,6 +310,38 @@ func computeGroupMetrics(b *guidGroupBucket, edges []models.JenniferExternalCall
 			m.TotalNetworkGapCumulativeMs += *e.AdjustedNetworkGapMs
 		}
 	}
+	// Response time decomposition (the "where did the time go" view).
+	// We use NetworkGap (= external_call_elapsed - callee_response)
+	// for "network call time" so we don't double-count the callee's
+	// own work that's already attributed to its own SQL / FETCH /
+	// etc. fields aggregated above.
+	rootResp := 0
+	if group.RootResponseTimeMs != nil {
+		rootResp = *group.RootResponseTimeMs
+	}
+	bd := models.JenniferResponseTimeBreakdown{
+		RootResponseTimeMs:  rootResp,
+		SQLExecuteMs:        m.TotalSqlExecuteMs,
+		CheckQueryMs:        m.TotalCheckQueryMs,
+		TwoPCMs:             m.TotalTwoPcMs,
+		FetchMs:             m.TotalFetchMs,
+		NetworkCallMs:       m.TotalNetworkGapCumulativeMs,
+		NetworkPrepMs:       totalNetworkPrep,
+		ConnectionAcquireMs: m.TotalConnectionAcquireMs,
+	}
+	covered := bd.SQLExecuteMs + bd.CheckQueryMs + bd.TwoPCMs + bd.FetchMs +
+		bd.NetworkCallMs + bd.NetworkPrepMs + bd.ConnectionAcquireMs
+	if rootResp > 0 {
+		methodMs := rootResp - covered
+		if methodMs < 0 {
+			bd.NegativeMethodTime = true
+			methodMs = 0
+		}
+		bd.MethodTimeMs = methodMs
+		bd.MethodTimeRatio = float64(methodMs) / float64(rootResp)
+		bd.Coverage = float64(covered) / float64(rootResp)
+	}
+	m.ResponseTimeBreakdown = bd
 	// §16.7 parallelism — ALWAYS computed even for sequential
 	// inputs so the renderer can show ratio=1.0 / mode=SEQUENTIAL
 	// uniformly. Cumulative ms stays sourced from the edge sum

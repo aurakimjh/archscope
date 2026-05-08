@@ -182,6 +182,7 @@ export class AnalyzeRequest {
     "maxUniqueStacks"?: number;
     "maxStackDepth"?: number;
     "maxRssMb"?: number;
+    "maxFlamegraphNodes"?: number;
 
     /**
      * ProgressLogDir overrides where the analyzer writes its
@@ -229,10 +230,10 @@ export class AnalyzeRequest {
      * Creates a new AnalyzeRequest instance from a string or object.
      */
     static createFrom($$source: any = {}): AnalyzeRequest {
-        const $$createField13_0 = $$createType2;
+        const $$createField14_0 = $$createType2;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("timelineCategories" in $$parsedSource) {
-            $$parsedSource["timelineCategories"] = $$createField13_0($$parsedSource["timelineCategories"]);
+            $$parsedSource["timelineCategories"] = $$createField14_0($$parsedSource["timelineCategories"]);
         }
         return new AnalyzeRequest($$parsedSource as Partial<AnalyzeRequest>);
     }
@@ -457,6 +458,7 @@ export class DrilldownRequest {
     "maxUniqueStacks"?: number;
     "maxStackDepth"?: number;
     "maxRssMb"?: number;
+    "maxFlamegraphNodes"?: number;
 
     /**
      * ProgressLogDir overrides where the analyzer writes its
@@ -508,14 +510,14 @@ export class DrilldownRequest {
      * Creates a new DrilldownRequest instance from a string or object.
      */
     static createFrom($$source: any = {}): DrilldownRequest {
-        const $$createField13_0 = $$createType2;
-        const $$createField14_0 = $$createType5;
+        const $$createField14_0 = $$createType2;
+        const $$createField15_0 = $$createType5;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("timelineCategories" in $$parsedSource) {
-            $$parsedSource["timelineCategories"] = $$createField13_0($$parsedSource["timelineCategories"]);
+            $$parsedSource["timelineCategories"] = $$createField14_0($$parsedSource["timelineCategories"]);
         }
         if ("filters" in $$parsedSource) {
-            $$parsedSource["filters"] = $$createField14_0($$parsedSource["filters"]);
+            $$parsedSource["filters"] = $$createField15_0($$parsedSource["filters"]);
         }
         return new DrilldownRequest($$parsedSource as Partial<DrilldownRequest>);
     }
@@ -829,6 +831,7 @@ export class ExportPprofRequest {
     "maxUniqueStacks"?: number;
     "maxStackDepth"?: number;
     "maxRssMb"?: number;
+    "maxFlamegraphNodes"?: number;
 
     /**
      * ProgressLogDir overrides where the analyzer writes its
@@ -880,10 +883,10 @@ export class ExportPprofRequest {
      * Creates a new ExportPprofRequest instance from a string or object.
      */
     static createFrom($$source: any = {}): ExportPprofRequest {
-        const $$createField13_0 = $$createType2;
+        const $$createField14_0 = $$createType2;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("timelineCategories" in $$parsedSource) {
-            $$parsedSource["timelineCategories"] = $$createField13_0($$parsedSource["timelineCategories"]);
+            $$parsedSource["timelineCategories"] = $$createField14_0($$parsedSource["timelineCategories"]);
         }
         return new ExportPprofRequest($$parsedSource as Partial<ExportPprofRequest>);
     }

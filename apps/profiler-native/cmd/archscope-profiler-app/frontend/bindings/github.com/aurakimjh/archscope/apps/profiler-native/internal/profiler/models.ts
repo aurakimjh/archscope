@@ -373,7 +373,6 @@ export class FlameNode {
     "category": string | null;
     "color": string | null;
     "children": FlameNode[];
-    "path": string[];
     "metadata"?: any;
 
     /** Creates a new FlameNode instance. */
@@ -402,9 +401,6 @@ export class FlameNode {
         if (!("children" in $$source)) {
             this["children"] = [];
         }
-        if (!("path" in $$source)) {
-            this["path"] = [];
-        }
 
         Object.assign(this, $$source);
     }
@@ -414,13 +410,9 @@ export class FlameNode {
      */
     static createFrom($$source: any = {}): FlameNode {
         const $$createField7_0 = $$createType14;
-        const $$createField8_0 = $$createType0;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("children" in $$parsedSource) {
             $$parsedSource["children"] = $$createField7_0($$parsedSource["children"]);
-        }
-        if ("path" in $$parsedSource) {
-            $$parsedSource["path"] = $$createField8_0($$parsedSource["path"]);
         }
         return new FlameNode($$parsedSource as Partial<FlameNode>);
     }
