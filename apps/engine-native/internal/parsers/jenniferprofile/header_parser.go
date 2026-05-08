@@ -40,8 +40,12 @@ func parseHeader(headerText string, profile *models.JenniferTransactionProfile) 
 		}
 		// `APPLICATION : /xxx` is single-column — the slash prefix
 		// would otherwise be hard to attribute to the right column.
+		// Jennifer appends a hash suffix like `(-1059484346)` to the
+		// APPLICATION URL; we strip it here so URL containment matching
+		// against EXTERNAL_CALL urls works and the renderer table
+		// shows the clean path the user actually deployed.
 		if appValue, ok := matchSingleKey(line, "APPLICATION"); ok {
-			profile.Header.Application = appValue
+			profile.Header.Application = stripApplicationHash(appValue)
 			continue
 		}
 		matches := keyMarkerRE.FindAllStringSubmatchIndex(line, -1)
@@ -180,12 +184,30 @@ func assignHeaderField(profile *models.JenniferTransactionProfile, key string, h
 	case "ERROR":
 		h.Error = value
 	case "APPLICATION":
-		h.Application = value
+		h.Application = stripApplicationHash(value)
 	default:
 		if value != "" {
 			h.Extra[key] = value
 		}
 	}
+}
+
+// applicationHashRE strips the trailing `(-NNN)` or `(NNN)` hash that
+// Jennifer appends to APPLICATION URLs. The number can be negative
+// (sign-extended hashCode) and arbitrarily wide. We only strip when
+// the parens sit at the very end after a path-like value so we don't
+// accidentally trim a parenthesised path segment.
+var applicationHashRE = regexp.MustCompile(`\s*\(-?\d+\)\s*$`)
+
+// stripApplicationHash removes the trailing hash suffix Jennifer
+// appends to APPLICATION URLs (e.g. `/api/users(-1059484346)` →
+// `/api/users`). Idempotent and safe to call on already-clean values.
+func stripApplicationHash(value string) string {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return value
+	}
+	return strings.TrimSpace(applicationHashRE.ReplaceAllString(value, ""))
 }
 
 // parseIntPtr returns nil for empty / non-numeric values so they

@@ -10,8 +10,13 @@ import (
 
 // Event-message regexes per §11.
 var (
+	// Real-world Jennifer exports emit either EXTERNAL_CALL or
+	// EXTERNAL-CALL depending on tracer version, so we accept both
+	// here (and in the prefix check below). Counting EXTERNAL-CALL
+	// is what unbroke the count=0 / ms=0 case the user reported on
+	// the transaction profiles table.
 	externalCallRE = regexp.MustCompile(
-		`^EXTERNAL_CALL\s+\[([^\]]+)\]\s+(\S+)\s+\(\s*url\s*=\s*([^,)]+)`,
+		`^EXTERNAL[_-]CALL\s+\[([^\]]+)\]\s+(\S+)\s+\(\s*url\s*=\s*([^,)]+)`,
 	)
 	// Note: the trailing `[NNN ms]` is stripped by extractTrailingElapsed
 	// before this regex runs, so we only match the rows-portion here.
@@ -181,7 +186,7 @@ func classifyOne(ev *models.JenniferProfileEvent) models.JenniferEventType {
 		return models.JenniferEventTotal
 	}
 
-	if strings.HasPrefix(upper, "EXTERNAL_CALL") {
+	if strings.HasPrefix(upper, "EXTERNAL_CALL") || strings.HasPrefix(upper, "EXTERNAL-CALL") {
 		return models.JenniferEventExternalCall
 	}
 	if strings.HasPrefix(upper, "FETCH") {
