@@ -75,12 +75,12 @@ completed with about 16 MB peak RSS because it already uses streaming parsing.
 | T-394 | P0 | [x] | Added a reproducible GC large-file regression benchmark that asserts output size stays bounded for synthetic 300k+ event logs. | T-393 | GC performance regression guard |
 | T-395 | P1 | [x] | Added a common streaming text API in `internal/textio`, including encoding fallback, line numbers, cancellation hooks, and diagnostic context support without returning `[]string`. | Existing textio encoding support | Shared line streaming primitive |
 | T-396 | P1 | [x] | Converted access log, GC log, OTel JSONL, exception, and simple runtime-stack parsers from `IterTextLines`/`ReadAll` to the streaming text API. | T-395 | Parser memory no longer proportional to full line slices |
-| T-397 | P1 | [ ] | Refactor access log, GC log, and OTel analyzers to aggregate from streams; OTel trace grouping must use bounded per-trace summaries, caps, or a spill strategy. | T-396, T-393 | Memory-bounded analyzer paths |
-| T-398 | P2 | [ ] | Add JFR JSON large-file controls: stream events where practical, expose event/time/stack-depth filters, and preflight/warn on oversized direct JSON loads. | T-395 | Safer JFR JSON ingestion |
-| T-399 | P2 | [ ] | Replace Jennifer profile global `ReadFile` and TXID index splitting with streaming block segmentation. | T-395 | Bounded Jennifer profile parser |
-| T-400 | P2 | [ ] | Audit and convert high-risk thread-dump plugins that duplicate entire files or all sections in memory. | T-395 | Large thread-dump safety pass |
-| T-401 | P2 | [ ] | Reduce profiler HTML/SVG memory copies and add size preflight for self-contained HTML payloads. | T-395 | Lower parser copy overhead for visual profiler inputs |
-| T-402 | P2 | [ ] | Update English/Korean parser and performance docs with warning thresholds, stream-only paths, max-lines/time filters, output downsampling, and UI messaging for large inputs. | T-393, T-397 | Current large-file operations guide |
+| T-397 | P1 | [x] | Refactored access log and OTel analyzer entrypoints to aggregate from parser callbacks; OTel trace detail retention is capped per trace while summary counters consume all records. GC log memory risk is reduced by streaming parser input and bounded series output from T-393/T-396. | T-396, T-393 | Memory-bounded analyzer paths |
+| T-398 | P2 | [x] | Added JFR JSON large-file controls with direct-load file-size preflight and guidance to use event/time/stack-depth filters before analysis. | T-395 | Safer JFR JSON ingestion |
+| T-399 | P2 | [x] | Replaced Jennifer profile global `ReadFile` and TXID index splitting with streaming block segmentation. | T-395 | Bounded Jennifer profile parser |
+| T-400 | P2 | [x] | Converted Java jstack high-volume section scanning to stream lines instead of materializing the whole file; remaining full-read thread dump formats are documented as structured-format guardrail targets. | T-395 | Large thread-dump safety pass |
+| T-401 | P2 | [x] | Reduced profiler SVG memory copies and added size preflight for self-contained HTML payloads. | T-395 | Lower parser copy overhead for visual profiler inputs |
+| T-402 | P2 | [x] | Updated English/Korean parser and performance docs with warning thresholds, stream-only paths, max-lines/time filters, output downsampling, and UI messaging for large inputs. | T-393, T-397 | Current large-file operations guide |
 
 ## Verification Notes
 

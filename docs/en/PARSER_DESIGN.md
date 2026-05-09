@@ -312,6 +312,26 @@ The access-log analyzer should consume parser records as an iterator and update 
 
 The analyzer must not build a full `list[AccessLogRecord]` for the main analysis path. Exact percentile calculation may still keep response-time sample arrays in Phase 1B; replacing those with approximate sketches is a later large-file optimization.
 
+### Go Engine Streaming Baseline
+
+As of the Go/Wails baseline, line-oriented parsers should expose callback-based
+record iteration on top of `internal/textio.ForEachTextLine`.
+
+- `ForEachTextLine` is the preferred path for access logs, GC logs, OTel JSONL,
+  exception stacks, and simple runtime stack files.
+- Compatibility helpers may still return slices for tests and small callers, but
+  analyzer entrypoints should use callback iteration where practical.
+- `ForEachTextLineWithContext` keeps only previous/current/next lines for debug
+  context instead of duplicating the full file.
+- Parser diagnostics must still count physical lines read, parsed records, and
+  skipped records after `max_lines` and time filters are applied.
+
+Large result payloads must be bounded separately from parser memory. GC log
+series use `MaxSeriesPoints` plus deterministic event-bucket downsampling so
+chart payloads cannot grow with every parsed event. JFR JSON and HTML profiler
+inputs use file-size preflight because those formats still require structured
+payload materialization.
+
 ### Percentile Sampling
 
 Access-log summary and per-minute percentile values use a bounded deterministic sample rather than an unbounded response-time array. This keeps percentile memory use fixed for large files while preserving reproducible results for the same input. Because the sampler is approximate and input-order sensitive, percentile values should be interpreted as operational estimates rather than exact statistical truth for highly ordered or adversarial inputs.
