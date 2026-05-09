@@ -20,9 +20,9 @@ DMG is built via stdlib `hdiutil` (UDZO compression) — no `create-dmg` or
 similar third-party tool needed. Typical size: ~5 MB (compressed from
 ~11 MB raw .app).
 
-Cross-architecture macOS builds (arm64 ↔ amd64) require Xcode 26+ for the
-target SDK; the GHA release matrix runs each architecture on a host of the
-matching arch (`macos-14` for arm64, `macos-13` for amd64) instead.
+The RC release matrix currently publishes macOS arm64 from `macos-14`.
+Intel macOS packaging is deferred until a reliable amd64 runner path is
+available; local Intel hosts can still run `task package`.
 
 ### Codesign + notarize (production releases)
 
@@ -95,7 +95,7 @@ everything else; the .deb and .rpm declare their dependencies (see
 `workflow_dispatch` with a manual tag input). It:
 
 1. Builds the Wails desktop binary on each platform host
-   (`macos-14` arm64, `macos-13` amd64, `windows-latest`, `ubuntu-latest`).
+   (`macos-14` arm64, `windows-latest`, `ubuntu-latest`).
 2. Codesigns + notarizes (macOS only, gated by secrets — falls back to
    ad-hoc if absent).
 3. Builds the platform installer (`.dmg` for macOS, NSIS `.exe` for

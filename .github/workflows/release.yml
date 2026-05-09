@@ -1,7 +1,7 @@
 name: Release
 
 # Triggers on `v*` tags. Builds the Wails desktop binary for darwin/arm64,
-# darwin/amd64, windows/amd64, and linux/amd64; bundles each into the
+# windows/amd64, and linux/amd64; bundles each into the
 # platform-native installer (.dmg / NSIS .exe / .deb + .rpm); attaches them
 # to a GitHub Release.
 #
@@ -43,9 +43,6 @@ jobs:
           - os: macos-14
             label: darwin-arm64
             arch: arm64
-          - os: macos-13
-            label: darwin-amd64
-            arch: amd64
           - os: windows-latest
             label: windows-amd64
             arch: amd64
