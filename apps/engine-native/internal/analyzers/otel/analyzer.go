@@ -24,34 +24,36 @@
 // [한글] otel 분석기 — OpenTelemetry JSONL 로그 분석.
 //
 // 입력
-//   parsers/otel.ParseFile() 의 라인 단위 LogRecord. timestamp,
-//   severity, service.name, trace_id, span_id, parent_span_id, body 등.
+//
+//	parsers/otel.ParseFile() 의 라인 단위 LogRecord. timestamp,
+//	severity, service.name, trace_id, span_id, parent_span_id, body 등.
 //
 // 출력 envelope (type: "otel_logs")
-//   • summary: total_records / unique_traces / unique_services /
+//   - summary: total_records / unique_traces / unique_services /
 //     error_count.
-//   • series: severity / service / trace 분포(top-N).
-//   • tables.service_paths : trace 별 부모-자식 DAG 순회로 만든 서비스
+//   - series: severity / service / trace 분포(top-N).
+//   - tables.service_paths : trace 별 부모-자식 DAG 순회로 만든 서비스
 //     호출 경로(예: order → user → inventory).
-//   • tables.failure_propagation : trace 안에서 첫 error 이후 거친
+//   - tables.failure_propagation : trace 안에서 첫 error 이후 거친
 //     downstream 서비스들.
-//   • findings: 5종(아래).
+//   - findings: 5종(아래).
 //
 // 주요 알고리즘
-//   1) trace_id 별로 LogRecord 를 그룹화.
-//   2) parent_span_id 가 있는 record 는 DAG 엣지로 사용.
-//        SELF_PARENT      : parent == self → finding 1건.
-//        PARENT_CYCLE     : 사이클 발견    → finding 1건.
-//   3) 부모 엣지가 없는 trace 는 timestamp ASC 로 정렬한 뒤 service
-//      변경점 기준으로 경로 합성 (fallback heuristic).
-//   4) 첫 error severity 발견 후의 service 변경 = failure propagation.
+//  1. trace_id 별로 LogRecord 를 그룹화.
+//  2. parent_span_id 가 있는 record 는 DAG 엣지로 사용.
+//     SELF_PARENT      : parent == self → finding 1건.
+//     PARENT_CYCLE     : 사이클 발견    → finding 1건.
+//  3. 부모 엣지가 없는 trace 는 timestamp ASC 로 정렬한 뒤 service
+//     변경점 기준으로 경로 합성 (fallback heuristic).
+//  4. 첫 error severity 발견 후의 service 변경 = failure propagation.
 //
 // findings
-//   OTEL_ERROR_RECORDS_PRESENT   : error severity 1건 이상.
-//   OTEL_CROSS_SERVICE_TRACE     : 단일 trace 가 ≥2 service 를 거침.
-//   OTEL_FAILED_TRACE            : trace 안에 error 가 포함.
-//   OTEL_FAILURE_PROPAGATION     : 에러가 downstream 서비스로 전파됨.
-//   OTEL_SPAN_TOPOLOGY_INCONSISTENT : SELF_PARENT 또는 PARENT_CYCLE.
+//
+//	OTEL_ERROR_RECORDS_PRESENT   : error severity 1건 이상.
+//	OTEL_CROSS_SERVICE_TRACE     : 단일 trace 가 ≥2 service 를 거침.
+//	OTEL_FAILED_TRACE            : trace 안에 error 가 포함.
+//	OTEL_FAILURE_PROPAGATION     : 에러가 downstream 서비스로 전파됨.
+//	OTEL_SPAN_TOPOLOGY_INCONSISTENT : SELF_PARENT 또는 PARENT_CYCLE.
 package otel
 
 import (
@@ -76,18 +78,22 @@ const (
 	ResultType = "otel_logs"
 	// ParserName mirrors the Python `metadata.parser` literal.
 	ParserName = "otel_jsonl"
+	// DefaultMaxRecordsPerTrace bounds trace detail retention while summary
+	// counters still consume every parsed record.
+	DefaultMaxRecordsPerTrace = 500
 
-	noTracePlaceholder   = "(no-trace)"
-	unknownServiceLabel  = "(unknown)"
-	defaultMaxSeverity   = "UNSPECIFIED"
-	severityRankUnknown  = 0
+	noTracePlaceholder  = "(no-trace)"
+	unknownServiceLabel = "(unknown)"
+	defaultMaxSeverity  = "UNSPECIFIED"
+	severityRankUnknown = 0
 )
 
 // Options carries the analyzer-level knobs surfaced to callers. TopN
 // is the same parameter Python exposes; zero (the Go default) routes
 // to DefaultTopN so callers don't have to spell the number.
 type Options struct {
-	TopN int
+	TopN               int
+	MaxRecordsPerTrace int
 }
 
 func (o Options) topN() int {
@@ -100,11 +106,17 @@ func (o Options) topN() int {
 // Analyze parses the JSONL at `path` and returns the populated
 // AnalysisResult. Mirrors Python `analyze_otel_jsonl`.
 func Analyze(path string, opts Options) (models.AnalysisResult, error) {
-	records, diags, err := otelparser.ParseFile(path, otelparser.Options{})
+	var diags *diagnostics.ParserDiagnostics
+	result, err := buildFromIterator(path, nil, opts, func(yield func(otelparser.Record) error) error {
+		var err error
+		diags, err = otelparser.ForEachRecord(path, otelparser.Options{}, yield)
+		return err
+	})
 	if err != nil {
 		return models.AnalysisResult{}, err
 	}
-	return Build(records, path, diags, opts), nil
+	result.Metadata.Diagnostics = diags
+	return result, nil
 }
 
 // Build assembles the AnalysisResult from already-parsed records.
@@ -112,7 +124,31 @@ func Analyze(path string, opts Options) (models.AnalysisResult, error) {
 // two-tier API and lets tests / CLI callers feed records they parsed
 // themselves.
 func Build(records []otelparser.Record, sourceFile string, diags *diagnostics.ParserDiagnostics, opts Options) models.AnalysisResult {
+	result, _ := buildFromIterator(sourceFile, diags, opts, func(yield func(otelparser.Record) error) error {
+		for _, record := range records {
+			if err := yield(record); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	return result
+}
+
+func buildFromIterator(
+	sourceFile string,
+	diags *diagnostics.ParserDiagnostics,
+	opts Options,
+	iter func(func(otelparser.Record) error) error,
+) (models.AnalysisResult, error) {
 	topN := opts.topN()
+	maxRecordsPerTrace := opts.MaxRecordsPerTrace
+	if maxRecordsPerTrace <= 0 {
+		maxRecordsPerTrace = DefaultMaxRecordsPerTrace
+	}
+	if iter == nil {
+		iter = func(func(otelparser.Record) error) error { return nil }
+	}
 
 	// ── Counter-equivalents (insertion order = first-seen order) ──
 	traceCounts := newOrderedCounter[string]()
@@ -121,8 +157,11 @@ func Build(records []otelparser.Record, sourceFile string, diags *diagnostics.Pa
 
 	traceServices := newOrderedSetMap()
 	traceRecords := newOrderedRecordMap()
+	recordsTable := make([]map[string]any, 0, topN)
+	totalRecords := 0
 
-	for _, record := range records {
+	if err := iter(func(record otelparser.Record) error {
+		totalRecords++
 		traceKey := derefOr(record.TraceID, noTracePlaceholder)
 		serviceKey := derefOr(record.ServiceName, unknownServiceLabel)
 		traceCounts.add(traceKey)
@@ -133,8 +172,22 @@ func Build(records []otelparser.Record, sourceFile string, diags *diagnostics.Pa
 			traceServices.add(*record.TraceID, *record.ServiceName)
 		}
 		if record.TraceID != nil {
-			traceRecords.append(*record.TraceID, record)
+			traceRecords.appendLimited(*record.TraceID, record, maxRecordsPerTrace)
 		}
+		if len(recordsTable) < topN {
+			recordsTable = append(recordsTable, map[string]any{
+				"timestamp":      ptrToAny(record.Timestamp),
+				"trace_id":       ptrToAny(record.TraceID),
+				"span_id":        ptrToAny(record.SpanID),
+				"parent_span_id": ptrToAny(record.ParentSpanID),
+				"service_name":   ptrToAny(record.ServiceName),
+				"severity":       record.Severity,
+				"body":           record.Body,
+			})
+		}
+		return nil
+	}); err != nil {
+		return models.AnalysisResult{}, err
 	}
 
 	crossServiceTraceIDs := []string{}
@@ -174,7 +227,7 @@ func Build(records []otelparser.Record, sourceFile string, diags *diagnostics.Pa
 	}
 
 	summary := map[string]any{
-		"total_records":              len(records),
+		"total_records":              totalRecords,
 		"unique_traces":              uniqueTraces,
 		"unique_services":            uniqueServices,
 		"cross_service_traces":       len(crossServiceTraceIDs),
@@ -188,23 +241,6 @@ func Build(records []otelparser.Record, sourceFile string, diags *diagnostics.Pa
 		"severity_distribution": severityCounts.mostCommonRows("severity", topN),
 		"service_distribution":  serviceCounts.mostCommonRows("service", topN),
 		"top_traces":            traceCounts.mostCommonRows("trace_id", topN),
-	}
-
-	// Records table — first `topN` records in ingestion order.
-	recordsTable := make([]map[string]any, 0, topN)
-	for i, record := range records {
-		if i >= topN {
-			break
-		}
-		recordsTable = append(recordsTable, map[string]any{
-			"timestamp":      ptrToAny(record.Timestamp),
-			"trace_id":       ptrToAny(record.TraceID),
-			"span_id":        ptrToAny(record.SpanID),
-			"parent_span_id": ptrToAny(record.ParentSpanID),
-			"service_name":   ptrToAny(record.ServiceName),
-			"severity":       record.Severity,
-			"body":           record.Body,
-		})
 	}
 
 	crossRows := make([]map[string]any, 0, topN)
@@ -234,8 +270,8 @@ func Build(records []otelparser.Record, sourceFile string, diags *diagnostics.Pa
 
 	if diags == nil {
 		diags = diagnostics.New("otel_jsonl")
-		diags.TotalLines = len(records)
-		diags.ParsedRecords = len(records)
+		diags.TotalLines = totalRecords
+		diags.ParsedRecords = totalRecords
 	}
 
 	result := models.New(ResultType, ParserName)
@@ -248,7 +284,19 @@ func Build(records []otelparser.Record, sourceFile string, diags *diagnostics.Pa
 	for _, finding := range buildFindings(summary) {
 		result.Metadata.Findings = append(result.Metadata.Findings, finding)
 	}
-	return result
+	if result.Metadata.Extra == nil {
+		result.Metadata.Extra = map[string]any{}
+	}
+	result.Metadata.Extra["analysis_options"] = map[string]any{
+		"top_n":                 topN,
+		"max_records_per_trace": maxRecordsPerTrace,
+	}
+	result.Metadata.Extra["trace_record_retention"] = map[string]any{
+		"strategy":              "first_n_per_trace",
+		"max_records_per_trace": maxRecordsPerTrace,
+		"summary_uses_all_data": true,
+	}
+	return result, nil
 }
 
 // ── Trace tables ────────────────────────────────────────────────────
@@ -344,13 +392,13 @@ func buildFailurePropagation(traceRecords *orderedRecordMap, sortedTraceIDs []st
 			continue
 		}
 		rows = append(rows, map[string]any{
-			"trace_id":                  traceID,
-			"service_path":              strings.Join(orderedServices(recs), " -> "),
-			"first_failing_service":     derefOr(firstError.ServiceName, unknownServiceLabel),
-			"first_failing_span_id":     ptrToAny(firstError.SpanID),
-			"downstream_services":       downstream,
-			"downstream_service_count":  len(downstream),
-			"first_error":               firstError.Body,
+			"trace_id":                 traceID,
+			"service_path":             strings.Join(orderedServices(recs), " -> "),
+			"first_failing_service":    derefOr(firstError.ServiceName, unknownServiceLabel),
+			"first_failing_span_id":    ptrToAny(firstError.SpanID),
+			"downstream_services":      downstream,
+			"downstream_service_count": len(downstream),
+			"first_error":              firstError.Body,
 		})
 	}
 	return rows
@@ -973,6 +1021,15 @@ func (m *orderedRecordMap) append(traceID string, record otelparser.Record) {
 		m.orderedKeys = append(m.orderedKeys, traceID)
 	}
 	m.records[traceID] = append(m.records[traceID], record)
+}
+
+func (m *orderedRecordMap) appendLimited(traceID string, record otelparser.Record, limit int) {
+	if _, ok := m.records[traceID]; !ok {
+		m.orderedKeys = append(m.orderedKeys, traceID)
+	}
+	if limit <= 0 || len(m.records[traceID]) < limit {
+		m.records[traceID] = append(m.records[traceID], record)
+	}
 }
 
 func derefOr(s *string, fallback string) string {

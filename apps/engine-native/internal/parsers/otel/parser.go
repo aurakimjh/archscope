@@ -334,14 +334,27 @@ type Options struct {
 // On `Strict=true`, the first malformed line is returned as a
 // non-nil error after the diagnostics row has been recorded.
 func ParseFile(path string, opts Options) ([]Record, *diagnostics.ParserDiagnostics, error) {
+	records := make([]Record, 0, 1024)
+	diags, err := ForEachRecord(path, opts, func(record Record) error {
+		records = append(records, record)
+		return nil
+	})
+	if err != nil {
+		return records, diags, err
+	}
+	return records, diags, nil
+}
+
+// ForEachRecord streams parsed OTel JSONL records without retaining the full
+// record set in parser memory.
+func ForEachRecord(path string, opts Options, fn func(Record) error) (*diagnostics.ParserDiagnostics, error) {
 	if opts.MaxLines < 0 {
-		return nil, nil, fmt.Errorf("max_lines must be a positive integer")
+		return nil, fmt.Errorf("max_lines must be a positive integer")
 	}
 
 	diags := diagnostics.New("otel_jsonl")
 	diags.SetSourceFile(path)
 
-	records := make([]Record, 0, 1024)
 	err := textio.ForEachTextLine(path, "", func(lineNumber int, line string) error {
 		if opts.MaxLines > 0 && lineNumber > opts.MaxLines {
 			return errStopIteration
@@ -353,8 +366,7 @@ func ParseFile(path string, opts Options) ([]Record, *diagnostics.ParserDiagnost
 		record, perr := ParseLine(line)
 		if record != nil {
 			diags.ParsedRecords++
-			records = append(records, *record)
-			return nil
+			return fn(*record)
 		}
 		if perr == nil {
 			return fmt.Errorf("otel parser returned neither record nor error")
@@ -366,13 +378,13 @@ func ParseFile(path string, opts Options) ([]Record, *diagnostics.ParserDiagnost
 		return nil
 	})
 	if err != nil && !errors.Is(err, errStopIteration) {
-		return records, diags, err
+		return diags, err
 	}
 
 	if diags.TotalLines == 0 {
 		diags.AddWarning(0, "EMPTY_FILE", "OTel log file is empty.", "", false)
 	}
-	return records, diags, nil
+	return diags, nil
 }
 
 func isBlank(line string) bool {

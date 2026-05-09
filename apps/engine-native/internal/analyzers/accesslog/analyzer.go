@@ -12,73 +12,77 @@
 // 라인 단위 record 를 받아 보고서용 통계 + finding 으로 변환.
 //
 // 입력
-//   parsers/accesslog.ParseFile() 가 만든 []Record. 각 Record 는 이미
-//   timestamp / method / uri / status / response_time_ms / bytes_sent
-//   로 정규화된 상태(분석기는 raw 라인을 보지 않음).
+//
+//	parsers/accesslog.ParseFile() 가 만든 []Record. 각 Record 는 이미
+//	timestamp / method / uri / status / response_time_ms / bytes_sent
+//	로 정규화된 상태(분석기는 raw 라인을 보지 않음).
 //
 // 출력
-//   AnalysisResult{type: "access_log"} — summary 22개 메트릭,
-//   분당 시계열 9종, URL 단위 통계 + 5종 top-N 표, status 분포,
-//   findings 리스트.
+//
+//	AnalysisResult{type: "access_log"} — summary 22개 메트릭,
+//	분당 시계열 9종, URL 단위 통계 + 5종 top-N 표, status 분포,
+//	findings 리스트.
 //
 // 알고리즘 흐름 (Build 함수)
-//   1) 한 번의 라인 순회로 다음을 동시에 채움:
-//        • totalRT / staticRT / apiRT — 전체/정적/API 응답시간
-//          평균 + 백분위. percentile 은 BoundedPercentile reservoir
-//          (size=10000) 로 메모리 상한 — T-049 정책.
-//        • 분당 시계열 4종(요청수, 평균/p50/p90/p95/p99 응답시간,
-//          status class 분포, 오류율, 바이트수) — minute key 는
-//          timeutil.MinuteBucket(ts).
-//        • URL 단위 buckets — uri 별 count, totalResponseMS,
-//          totalBytes, errorCount, status family 분포 + 자기 RT
-//          reservoir.
-//        • 비표준 status 카운트(<100 또는 >599) — finding 의
-//          NON_STANDARD_HTTP_STATUS 원천.
-//        • 첫 25 라인을 "원본 sample" 로 sampleRecords 에 보존.
 //
-//   2) static vs api 분류
-//        regex 2개 — 확장자 매칭(.js/.css/.png/.woff 등)과 경로
-//        힌트(/static/, /assets/, /js/, /img/ 등). 둘 중 하나라도
-//        걸리면 "static", 아니면 "api". 정적 콘텐츠와 서비스 트래픽을
-//        분리해 KPI 가 정적 자산 트래픽에 가려지지 않도록 함.
+//  1. 한 번의 라인 순회로 다음을 동시에 채움:
+//     • totalRT / staticRT / apiRT — 전체/정적/API 응답시간
+//     평균 + 백분위. percentile 은 BoundedPercentile reservoir
+//     (size=10000) 로 메모리 상한 — T-049 정책.
+//     • 분당 시계열 4종(요청수, 평균/p50/p90/p95/p99 응답시간,
+//     status class 분포, 오류율, 바이트수) — minute key 는
+//     timeutil.MinuteBucket(ts).
+//     • URL 단위 buckets — uri 별 count, totalResponseMS,
+//     totalBytes, errorCount, status family 분포 + 자기 RT
+//     reservoir.
+//     • 비표준 status 카운트(<100 또는 >599) — finding 의
+//     NON_STANDARD_HTTP_STATUS 원천.
+//     • 첫 25 라인을 "원본 sample" 로 sampleRecords 에 보존.
 //
-//   3) 시계열 변환
-//        minute key 들을 사전순 정렬한 뒤, 각 minute 의 stats 로
-//        9종의 series 를 만든다. throughput 은 RPS/BPS 둘 다.
-//        에러율은 (4xx + 5xx) / total * 100 (소수 둘째자리 반올림).
+//  2. static vs api 분류
+//     regex 2개 — 확장자 매칭(.js/.css/.png/.woff 등)과 경로
+//     힌트(/static/, /assets/, /js/, /img/ 등). 둘 중 하나라도
+//     걸리면 "static", 아니면 "api". 정적 콘텐츠와 서비스 트래픽을
+//     분리해 KPI 가 정적 자산 트래픽에 가려지지 않도록 함.
 //
-//   4) URL aggregates → 5종 top-N
-//        topByCount / topByAvg / topByP95 / topByBytes / topByErrors.
-//        오류 표는 errorCount > 0 만 필터링 후 정렬.
+//  3. 시계열 변환
+//     minute key 들을 사전순 정렬한 뒤, 각 minute 의 stats 로
+//     9종의 series 를 만든다. throughput 은 RPS/BPS 둘 다.
+//     에러율은 (4xx + 5xx) / total * 100 (소수 둘째자리 반올림).
 //
-//   5) Wall time + RPS/BPS
-//        max(latest - earliest, 0) 초 단위. wallTimeSec=0 일 때 RPS=0.
+//  4. URL aggregates → 5종 top-N
+//     topByCount / topByAvg / topByP95 / topByBytes / topByErrors.
+//     오류 표는 errorCount > 0 만 필터링 후 정렬.
 //
-//   6) Findings 생성 (buildFindings)
-//        HIGH_ERROR_RATE        : error_rate ≥ 10%   (critical)
-//        ELEVATED_ERROR_RATE    : 5% ≤ error_rate < 10% (warning)
-//        SERVER_ERRORS_PRESENT  : 5xx 1건 이상       (warning)
-//        NON_STANDARD_HTTP_STATUS : 비표준 코드 발견 (warning)
-//        SLOW_URL_P95           : count ≥5 인 URL 의 p95 ≥ 1초 중
-//                                 가장 느린 1개      (warning)
-//        ERROR_BURST_DETECTED   : 어느 1분간 total ≥5 + error_rate
-//                                 ≥ 50%             (critical)
+//  5. Wall time + RPS/BPS
+//     max(latest - earliest, 0) 초 단위. wallTimeSec=0 일 때 RPS=0.
+//
+//  6. Findings 생성 (buildFindings)
+//     HIGH_ERROR_RATE        : error_rate ≥ 10%   (critical)
+//     ELEVATED_ERROR_RATE    : 5% ≤ error_rate < 10% (warning)
+//     SERVER_ERRORS_PRESENT  : 5xx 1건 이상       (warning)
+//     NON_STANDARD_HTTP_STATUS : 비표준 코드 발견 (warning)
+//     SLOW_URL_P95           : count ≥5 인 URL 의 p95 ≥ 1초 중
+//     가장 느린 1개      (warning)
+//     ERROR_BURST_DETECTED   : 어느 1분간 total ≥5 + error_rate
+//     ≥ 50%             (critical)
 //
 // 결정론 / parity 주의
-//   • map 순회 결과의 비결정성을 잡기 위해 sortedKeys / topRows 모두
+//   - map 순회 결과의 비결정성을 잡기 위해 sortedKeys / topRows 모두
 //     명시적 sort. URI tie-breaker 는 사전순.
-//   • mostCommonStrings 의 Python 측은 Counter 의 insertion order 를
+//   - mostCommonStrings 의 Python 측은 Counter 의 insertion order 를
 //     사용 — Go 측은 lex 정렬로 결정론 확보(차이는 의미 없는 동률 케이스).
-//   • roundHalfEven (banker's rounding) 으로 Python round() 와 byte
+//   - roundHalfEven (banker's rounding) 으로 Python round() 와 byte
 //     동일한 출력.
-//   • DefaultPercentileSeed=12345 — reservoir 크기를 넘는 입력에서만
+//   - DefaultPercentileSeed=12345 — reservoir 크기를 넘는 입력에서만
 //     영향(10k 이하면 두 RNG 결과 동일).
 //
 // 메모리 정책
-//   라인은 stream 처리(통계만 누적). 단, sampleRecords 는 첫 25행
-//   원본을 보관(보고서용). URL bucket 은 uri 종류 수만큼 보관 — 매우
-//   대용량 로그에서 위험할 수 있으나, 실제 운영 액세스 로그는 unique
-//   URI 수가 제한적이므로 일반적으로 안전.
+//
+//	라인은 stream 처리(통계만 누적). 단, sampleRecords 는 첫 25행
+//	원본을 보관(보고서용). URL bucket 은 uri 종류 수만큼 보관 — 매우
+//	대용량 로그에서 위험할 수 있으나, 실제 운영 액세스 로그는 unique
+//	URI 수가 제한적이므로 일반적으로 안전.
 package accesslog
 
 import (
@@ -136,12 +140,12 @@ var (
 // traffic". Same regex pair Python uses.
 //
 // [한글] 분류 규칙
-//   1) staticExtRE : 확장자 기반 — .js/.css/.png/.jpg/.woff 등.
-//   2) staticPathHintRE : 경로 힌트 — /static/, /assets/, /js/ 등.
-//   둘 중 하나라도 매칭되면 "static", 그 외는 모두 "api".
-//   분리 목적: API 응답시간 통계를 정적 자산 다운로드 시간으로 오염
-//   시키지 않기 위함(이미지·번들 다운로드는 보통 짧고, 데이터 API 는
-//   상대적으로 김 — 섞이면 KPI 가 무의미해짐).
+//  1. staticExtRE : 확장자 기반 — .js/.css/.png/.jpg/.woff 등.
+//  2. staticPathHintRE : 경로 힌트 — /static/, /assets/, /js/ 등.
+//     둘 중 하나라도 매칭되면 "static", 그 외는 모두 "api".
+//     분리 목적: API 응답시간 통계를 정적 자산 다운로드 시간으로 오염
+//     시키지 않기 위함(이미지·번들 다운로드는 보통 짧고, 데이터 API 는
+//     상대적으로 김 — 섞이면 KPI 가 무의미해짐).
 func classifyRequest(uri string) string {
 	if staticExtRE.MatchString(uri) || staticPathHintRE.MatchString(uri) {
 		return "static"
@@ -229,30 +233,60 @@ type Options struct {
 // Format defaults to "nginx".
 //
 // [한글] CLI 진입점.
-//   1) format == "" 이면 "nginx" 로 기본값 설정.
-//   2) parsers/accesslog.ParseFile 호출 — record + diagnostics 반환.
-//   3) Build 으로 분석 파이프라인 실행.
+//  1. format == "" 이면 "nginx" 로 기본값 설정.
+//  2. parsers/accesslog.ParseFile 호출 — record + diagnostics 반환.
+//  3. Build 으로 분석 파이프라인 실행.
+//
 // Analyze 와 Build 가 분리된 이유: 테스트와 데모 러너가 record 를
 // 메모리에서 직접 만들어 Build 만 호출할 수 있도록(파일 IO 우회).
 func Analyze(path, format string, opts Options) (models.AnalysisResult, error) {
 	if format == "" {
 		format = "nginx"
 	}
-	records, diags, err := accesslog.ParseFile(path, format, accesslog.Options{
-		MaxLines:  opts.MaxLines,
-		StartTime: opts.StartTime,
-		EndTime:   opts.EndTime,
+	var diags *diagnostics.ParserDiagnostics
+	result, err := buildFromIterator(path, format, nil, opts, func(yield func(accesslog.Record) error) error {
+		var err error
+		diags, err = accesslog.ForEachRecord(path, format, accesslog.Options{
+			MaxLines:  opts.MaxLines,
+			StartTime: opts.StartTime,
+			EndTime:   opts.EndTime,
+		}, yield)
+		return err
 	})
 	if err != nil {
 		return models.AnalysisResult{}, err
 	}
-	return Build(records, path, format, diags, opts), nil
+	result.Metadata.Diagnostics = diags
+	return result, nil
 }
 
 // Build assembles the AnalysisResult from already-parsed records.
 // Splitting Analyze and Build matches Python's two-tier API and lets
 // callers (CLI, web server, tests) feed records from elsewhere.
 func Build(records []accesslog.Record, sourceFile, format string, diags *diagnostics.ParserDiagnostics, opts Options) models.AnalysisResult {
+	result, _ := buildFromIterator(sourceFile, format, diags, opts, func(yield func(accesslog.Record) error) error {
+		for _, record := range records {
+			if err := yield(record); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	return result
+}
+
+func buildFromIterator(
+	sourceFile, format string,
+	diags *diagnostics.ParserDiagnostics,
+	opts Options,
+	iter func(func(accesslog.Record) error) error,
+) (models.AnalysisResult, error) {
+	if format == "" {
+		format = "nginx"
+	}
+	if iter == nil {
+		iter = func(func(accesslog.Record) error) error { return nil }
+	}
 	totalRT := newResponseTimeStats()
 	staticRT := newResponseTimeStats()
 	apiRT := newResponseTimeStats()
@@ -279,7 +313,7 @@ func Build(records []accesslog.Record, sourceFile, format string, diags *diagnos
 		sampleRecords  = make([]map[string]any, 0, SampleRecordLimit)
 	)
 
-	for _, record := range records {
+	if err := iter(func(record accesslog.Record) error {
 		total++
 		totalRT.add(record.ResponseTimeMS)
 		if record.Status >= 400 {
@@ -352,6 +386,9 @@ func Build(records []accesslog.Record, sourceFile, format string, diags *diagnos
 				"response_time_ms": roundHalfEven(record.ResponseTimeMS, 2),
 			})
 		}
+		return nil
+	}); err != nil {
+		return models.AnalysisResult{}, err
 	}
 
 	// ── Time-series ──────────────────────────────────────────────────────────
@@ -417,21 +454,21 @@ func Build(records []accesslog.Record, sourceFile, format string, diags *diagnos
 			avg = bucket.totalResponseMS / float64(bucket.count)
 		}
 		urlRows = append(urlRows, map[string]any{
-			"uri":              uri,
-			"method":           bucket.sampleMethod,
-			"classification":   bucket.classification,
-			"count":            bucket.count,
-			"avg_response_ms":  roundHalfEven(avg, 2),
-			"p50_response_ms":  roundHalfEven(bucket.rt.percentile(50), 2),
-			"p90_response_ms":  roundHalfEven(bucket.rt.percentile(90), 2),
-			"p95_response_ms":  roundHalfEven(bucket.rt.percentile(95), 2),
-			"p99_response_ms":  roundHalfEven(bucket.rt.percentile(99), 2),
-			"total_bytes":      bucket.totalBytes,
-			"error_count":      bucket.errorCount,
-			"status_2xx":       bucket.statusCounts["2xx"],
-			"status_3xx":       bucket.statusCounts["3xx"],
-			"status_4xx":       bucket.statusCounts["4xx"],
-			"status_5xx":       bucket.statusCounts["5xx"],
+			"uri":             uri,
+			"method":          bucket.sampleMethod,
+			"classification":  bucket.classification,
+			"count":           bucket.count,
+			"avg_response_ms": roundHalfEven(avg, 2),
+			"p50_response_ms": roundHalfEven(bucket.rt.percentile(50), 2),
+			"p90_response_ms": roundHalfEven(bucket.rt.percentile(90), 2),
+			"p95_response_ms": roundHalfEven(bucket.rt.percentile(95), 2),
+			"p99_response_ms": roundHalfEven(bucket.rt.percentile(99), 2),
+			"total_bytes":     bucket.totalBytes,
+			"error_count":     bucket.errorCount,
+			"status_2xx":      bucket.statusCounts["2xx"],
+			"status_3xx":      bucket.statusCounts["3xx"],
+			"status_4xx":      bucket.statusCounts["4xx"],
+			"status_5xx":      bucket.statusCounts["5xx"],
 		})
 	}
 
@@ -512,31 +549,31 @@ func Build(records []accesslog.Record, sourceFile, format string, diags *diagnos
 	}
 
 	series := map[string]any{
-		"requests_per_minute":          requestsPerMinute,
-		"avg_response_time_per_minute": avgRTPerMinute,
-		"p50_response_time_per_minute": p50PerMinute,
-		"p90_response_time_per_minute": p90PerMinute,
-		"p95_response_time_per_minute": p95PerMinute,
-		"p99_response_time_per_minute": p99PerMinute,
-		"status_class_per_minute":      statusClassPerMinute,
-		"error_rate_per_minute":        errorRatePerMinute,
-		"bytes_per_minute":             bytesPerMinute,
-		"throughput_per_minute":        throughputPerMinute,
-		"status_code_distribution":     statusDistribOrdered,
-		"method_distribution":          mostCommonStrings(methodDistrib, "method", -1),
-		"request_classification":       mostCommonStrings(classDistrib, "classification", -1),
-		"top_urls_by_count":            projectURICount(topByCount),
+		"requests_per_minute":           requestsPerMinute,
+		"avg_response_time_per_minute":  avgRTPerMinute,
+		"p50_response_time_per_minute":  p50PerMinute,
+		"p90_response_time_per_minute":  p90PerMinute,
+		"p95_response_time_per_minute":  p95PerMinute,
+		"p99_response_time_per_minute":  p99PerMinute,
+		"status_class_per_minute":       statusClassPerMinute,
+		"error_rate_per_minute":         errorRatePerMinute,
+		"bytes_per_minute":              bytesPerMinute,
+		"throughput_per_minute":         throughputPerMinute,
+		"status_code_distribution":      statusDistribOrdered,
+		"method_distribution":           mostCommonStrings(methodDistrib, "method", -1),
+		"request_classification":        mostCommonStrings(classDistrib, "classification", -1),
+		"top_urls_by_count":             projectURICount(topByCount),
 		"top_urls_by_avg_response_time": projectURIAvg(topByAvg),
 	}
 	tables := map[string]any{
-		"sample_records":                 sampleRecords,
-		"url_stats":                      urlRows,
-		"top_urls_by_count":              topByCount,
-		"top_urls_by_avg_response_time":  topByAvg,
-		"top_urls_by_p95_response_time":  topByP95,
-		"top_urls_by_bytes":              topByBytes,
-		"top_urls_by_errors":             topByErrors,
-		"top_status_codes":               topStatusCodes,
+		"sample_records":                sampleRecords,
+		"url_stats":                     urlRows,
+		"top_urls_by_count":             topByCount,
+		"top_urls_by_avg_response_time": topByAvg,
+		"top_urls_by_p95_response_time": topByP95,
+		"top_urls_by_bytes":             topByBytes,
+		"top_urls_by_errors":            topByErrors,
+		"top_status_codes":              topStatusCodes,
 	}
 
 	findings := buildFindings(summary, statusDistrib, urlRows, errorRatePerMinute, nonStandard)
@@ -560,7 +597,7 @@ func Build(records []accesslog.Record, sourceFile, format string, diags *diagnos
 	}
 	result.Metadata.Extra["format"] = format
 	result.Metadata.Extra["analysis_options"] = optionsToDict(opts)
-	return result
+	return result, nil
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────────────

@@ -235,6 +235,21 @@ type Options struct {
 // non-nil error after the diagnostics row has been recorded — same
 // behaviour as Python's `ValueError` from inside the iterator.
 func ParseFile(path, format string, opts Options) ([]Record, *diagnostics.ParserDiagnostics, error) {
+	records := make([]Record, 0, 1024)
+	diags, err := ForEachRecord(path, format, opts, func(record Record) error {
+		records = append(records, record)
+		return nil
+	})
+	if err != nil {
+		return records, diags, err
+	}
+	return records, diags, nil
+}
+
+// ForEachRecord streams parsed records from `path` into fn without retaining
+// the whole record set. Diagnostics are returned after iteration completes or
+// stops with a parse/callback error.
+func ForEachRecord(path, format string, opts Options, fn func(Record) error) (*diagnostics.ParserDiagnostics, error) {
 	if format == "" {
 		format = "nginx"
 	}
@@ -247,16 +262,15 @@ func ParseFile(path, format string, opts Options) ([]Record, *diagnostics.Parser
 			}
 			joined += f
 		}
-		return nil, nil, fmt.Errorf("Unsupported access log format. Supported formats: %s", joined)
+		return nil, fmt.Errorf("Unsupported access log format. Supported formats: %s", joined)
 	}
 	if opts.MaxLines < 0 {
-		return nil, nil, fmt.Errorf("max_lines must be a positive integer")
+		return nil, fmt.Errorf("max_lines must be a positive integer")
 	}
 
 	diags := diagnostics.New(format)
 	diags.SetSourceFile(path)
 
-	records := make([]Record, 0, 1024)
 	err := textio.ForEachTextLine(path, "", func(lineNumber int, line string) error {
 		if opts.MaxLines > 0 && lineNumber > opts.MaxLines {
 			return errStopIteration
@@ -271,8 +285,7 @@ func ParseFile(path, format string, opts Options) ([]Record, *diagnostics.Parser
 				return nil
 			}
 			diags.ParsedRecords++
-			records = append(records, *record)
-			return nil
+			return fn(*record)
 		}
 		if perr == nil {
 			return fmt.Errorf("access log parser returned neither record nor error")
@@ -284,13 +297,13 @@ func ParseFile(path, format string, opts Options) ([]Record, *diagnostics.Parser
 		return nil
 	})
 	if err != nil && !errors.Is(err, errStopIteration) {
-		return records, diags, err
+		return diags, err
 	}
 
 	if diags.TotalLines == 0 {
 		diags.AddWarning(0, "EMPTY_FILE", "Access log file is empty.", "", false)
 	}
-	return records, diags, nil
+	return diags, nil
 }
 
 func isBlank(line string) bool {
