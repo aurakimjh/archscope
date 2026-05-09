@@ -1,16 +1,17 @@
 // [한글] jfr recording bridge 회귀 테스트.
 //
 // 검증 대상
-//   • jfrMagic 시그니처 식별 (FLR\x00) → 바이너리 vs JSON 분기.
-//   • ARCHSCOPE_JFR_CLI 환경변수 우선순위.
-//   • PATH 의 `jfr` 탐색.
-//   • JAVA_HOME/bin/jfr fallback.
-//   • CLI 미존재 시 CLIMissingError 의 안내 메시지.
-//   • 잘못된 .jfr (시그니처 불일치) → 적절한 에러.
+//   - jfrMagic 시그니처 식별 (FLR\x00) → 바이너리 vs JSON 분기.
+//   - ARCHSCOPE_JFR_CLI 환경변수 우선순위.
+//   - PATH 의 `jfr` 탐색.
+//   - JAVA_HOME/bin/jfr fallback.
+//   - CLI 미존재 시 CLIMissingError 의 안내 메시지.
+//   - 잘못된 .jfr (시그니처 불일치) → 적절한 에러.
 //
 // 외부 의존성
-//   실 jfr CLI 가 PATH 에 없을 수도 있으므로, 탐색/에러 경로는 stub
-//   바이너리 (mock) 와 환경변수 조작으로 검증.
+//
+//	실 jfr CLI 가 PATH 에 없을 수도 있으므로, 탐색/에러 경로는 stub
+//	바이너리 (mock) 와 환경변수 조작으로 검증.
 package jfr
 
 import (
@@ -18,6 +19,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -71,7 +73,7 @@ func TestDiscoverCLIFallsBackToJavaHome(t *testing.T) {
 	if err := os.MkdirAll(bin, 0o755); err != nil {
 		t.Fatalf("mkdir: %v", err)
 	}
-	candidate := filepath.Join(bin, "jfr")
+	candidate := filepath.Join(bin, jfrExecutableName())
 	if err := os.WriteFile(candidate, []byte("#!/bin/sh\nexit 0\n"), 0o755); err != nil {
 		t.Fatalf("write: %v", err)
 	}
@@ -83,6 +85,13 @@ func TestDiscoverCLIFallsBackToJavaHome(t *testing.T) {
 	if got != candidate {
 		t.Errorf("DiscoverCLI() = %q, want %q", got, candidate)
 	}
+}
+
+func jfrExecutableName() string {
+	if runtime.GOOS == "windows" {
+		return "jfr.exe"
+	}
+	return "jfr"
 }
 
 func TestDiscoverCLIReturnsEmptyWhenNothingFound(t *testing.T) {

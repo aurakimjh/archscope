@@ -72,7 +72,11 @@ func fixturesRoot(t *testing.T) string {
 func buildBinary(t *testing.T) string {
 	t.Helper()
 	dir := t.TempDir()
-	out := filepath.Join(dir, "archscope-engine")
+	name := "archscope-engine"
+	if runtime.GOOS == "windows" {
+		name += ".exe"
+	}
+	out := filepath.Join(dir, name)
 	cmd := exec.Command("go", "build", "-o", out, ".")
 	if buf, err := cmd.CombinedOutput(); err != nil {
 		t.Fatalf("go build: %v\n%s", err, string(buf))
