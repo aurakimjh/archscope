@@ -1,0 +1,15 @@
+{
+	"fixed": {
+		"file_version": "0.3.0-rc1"
+	},
+	"info": {
+		"0000": {
+			"ProductVersion": "0.3.0-rc1",
+			"CompanyName": "ArchScope",
+			"FileDescription": "ArchScope native profiler + analyzer desktop",
+			"LegalCopyright": "© 2026 ArchScope",
+			"ProductName": "ArchScope Profiler",
+			"Comments": "Wails v3 desktop binary"
+		}
+	}
+}

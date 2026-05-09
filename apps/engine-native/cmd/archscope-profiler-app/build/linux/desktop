@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Name=ArchScope Profiler
+Comment=Native profiler + analyzer desktop
+Exec=/usr/local/bin/archscope-profiler %u
+Terminal=false
+Type=Application
+Icon=archscope-profiler
+Categories=Development;Utility;
+StartupWMClass=archscope-profiler

@@ -69,6 +69,12 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Linux WebKitGTK runtime headers
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev
+
       - name: Install Wails CLI
         run: go install github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0-alpha.84
 
@@ -80,12 +86,6 @@ jobs:
       - name: Install Task runner (Windows)
         if: matrix.os == 'windows-latest'
         run: choco install go-task --no-progress -y
-
-      - name: Linux WebKitGTK runtime headers
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev
 
       - name: Frontend deps
         run: npm install

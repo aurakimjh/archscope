@@ -33,6 +33,8 @@ apps/engine-native/package-lock.json
 # Wails v3 keeps its template config under build/ — treat that subtree as source.
 !apps/profiler-native/cmd/archscope-profiler-app/build/
 !apps/profiler-native/cmd/archscope-profiler-app/build/**
+!apps/engine-native/cmd/archscope-profiler-app/build/
+!apps/engine-native/cmd/archscope-profiler-app/build/**
 
 # T-208: archscope wheel ships the React bundle as package data; the build
 # script populates this directory at wheel-build time. The .gitkeep stays
