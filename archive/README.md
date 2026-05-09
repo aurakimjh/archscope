@@ -11,6 +11,9 @@ line is now the Go/Wails implementation under `apps/engine-native`.
 - `web-frontend-python/` — the former browser-served React frontend used by the
   Python `archscope serve` wheel path. The active desktop UI now lives under
   `apps/engine-native/cmd/archscope-profiler-app/frontend`.
+- `work_status_legacy_2026-05-09.md` — the previous long-form project status and
+  historical backlog before `work_status.md` was rewritten as the current active
+  execution status.
 
 ## Policy
 
