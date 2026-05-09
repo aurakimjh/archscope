@@ -19,40 +19,42 @@
 // [한글] jenniferprofile parser — Jennifer APM Profile Export 파서.
 //
 // 7개 파일로 분리
-//   parser.go           : 공개 진입점 ParseFile / ParseString.
-//   splitter.go         : 파일을 Total Transaction 안내 + N개 TXID
-//                         블록으로 분할.
-//   header_parser.go    : 2-column key:value 헤더 파싱.
-//   body_parser.go      : 본문 이벤트 라인 + START/END/TOTAL 파싱.
-//   event_classifier.go : 이벤트 우선순위 기반 분류 (SQL / 2PC /
-//                         FETCH / EXTERNAL_CALL / METHOD ...).
-//   validator.go        : §10 FULL-Profile 검증 (TXID/GUID/Application
-//                         /TIME 필드 누락 검출).
+//
+//	parser.go           : 공개 진입점 ParseFile / ParseString.
+//	splitter.go         : 파일을 Total Transaction 안내 + N개 TXID
+//	                      블록으로 분할.
+//	header_parser.go    : 2-column key:value 헤더 파싱.
+//	body_parser.go      : 본문 이벤트 라인 + START/END/TOTAL 파싱.
+//	event_classifier.go : 이벤트 우선순위 기반 분류 (SQL / 2PC /
+//	                      FETCH / EXTERNAL_CALL / METHOD ...).
+//	validator.go        : §10 FULL-Profile 검증 (TXID/GUID/Application
+//	                      /TIME 필드 누락 검출).
 //
 // 처리 흐름
-//   1) ParseFile : textio.ReadAll 로 파일 전체 읽음 (인코딩 폴백).
-//   2) splitTotalAndBlocks : `Total Transaction : N` 와 N개 TXID
-//      블록으로 분할.
-//   3) 각 블록에 대해:
-//        a) parseHeader : 2-column key:value → JenniferProfileHeader.
-//        b) parseBody   : 본문 이벤트 라인 → JenniferProfileBody.
-//        c) classifyEvents : 이벤트 메시지를 우선순위 규칙으로 분류.
-//        d) validateFullProfile : §10 강제 필드 검증.
-//   4) 결과를 JenniferTransactionProfile + FileResult 로 반환.
+//  1. ParseFile : textio.ReadAll 로 파일 전체 읽음 (인코딩 폴백).
+//  2. splitTotalAndBlocks : `Total Transaction : N` 와 N개 TXID
+//     블록으로 분할.
+//  3. 각 블록에 대해:
+//     a) parseHeader : 2-column key:value → JenniferProfileHeader.
+//     b) parseBody   : 본문 이벤트 라인 → JenniferProfileBody.
+//     c) classifyEvents : 이벤트 메시지를 우선순위 규칙으로 분류.
+//     d) validateFullProfile : §10 강제 필드 검증.
+//  4. 결과를 JenniferTransactionProfile + FileResult 로 반환.
 //
 // STRICT_MODE 기본값
-//   §10 위반 = profile.Errors. STRICT_MODE 에서는 분석기가 그 GUID
-//   그룹을 실패로 표시. 호출자가 비활성화하면 warning 으로 격하.
+//
+//	§10 위반 = profile.Errors. STRICT_MODE 에서는 분석기가 그 GUID
+//	그룹을 실패로 표시. 호출자가 비활성화하면 warning 으로 격하.
 //
 // MSA 단계 분리
-//   본 파서는 MVP1 — 단일 트랜잭션 단위 파싱까지만. GUID 그룹핑 /
-//   caller-callee 매칭 / 시그니처 통계 / 병렬도는 분석기 (analyzers/
-//   jenniferprofile) 가 처리.
+//
+//	본 파서는 MVP1 — 단일 트랜잭션 단위 파싱까지만. GUID 그룹핑 /
+//	caller-callee 매칭 / 시그니처 통계 / 병렬도는 분석기 (analyzers/
+//	jenniferprofile) 가 처리.
 package jenniferprofile
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
@@ -97,31 +99,69 @@ type FileResult struct {
 	FileErrors               []models.JenniferProfileIssue       `json:"file_errors,omitempty"`
 }
 
-// ParseFile reads a Jennifer profile export from disk, decodes it
-// (UTF-8 → MS949 → EUC-KR fallback per §6.2), normalises line endings,
-// then delegates to ParseString.
+// ParseFile reads a Jennifer profile export from disk as a decoded line stream
+// and segments TXID blocks without building a whole-file string.
 func ParseFile(path string, opts Options) (FileResult, error) {
-	raw, err := os.ReadFile(path)
-	if err != nil {
-		return FileResult{SourceFile: path}, fmt.Errorf("read %s: %w", path, err)
-	}
-	enc, _ := textio.DetectFromBytes(raw, []string{"utf-8", "utf-8-sig", "cp949", "euc-kr", "latin-1"})
-	if enc == "" {
-		enc = "utf-8"
-	}
-	text, decodeErr := textio.DecodeBytes(raw, enc)
-	if decodeErr != nil {
-		return FileResult{
-			SourceFile: path,
-			FileErrors: []models.JenniferProfileIssue{
-				{Code: "FILE_DECODE_ERROR", Message: decodeErr.Error()},
-			},
-		}, nil
-	}
 	if opts.SourceFile == "" {
 		opts.SourceFile = path
 	}
-	return ParseString(text, opts), nil
+	res := FileResult{SourceFile: opts.SourceFile}
+
+	var preamble strings.Builder
+	var block strings.Builder
+	inBlock := false
+
+	flushBlock := func() {
+		if !inBlock || block.Len() == 0 {
+			return
+		}
+		res.DetectedTransactionCount++
+		profile := parseTransactionBlock(block.String(), opts)
+		res.Profiles = append(res.Profiles, profile)
+		block.Reset()
+	}
+
+	err := textio.ForEachTextLine(path, "", func(_ int, line string) error {
+		line = strings.TrimRight(line, "\r")
+		if txidLineRE.MatchString(line) {
+			flushBlock()
+			inBlock = true
+			block.WriteString(line)
+			block.WriteByte('\n')
+			return nil
+		}
+		if inBlock {
+			block.WriteString(line)
+			block.WriteByte('\n')
+		} else {
+			preamble.WriteString(line)
+			preamble.WriteByte('\n')
+		}
+		return nil
+	})
+	if err != nil {
+		return FileResult{SourceFile: path}, fmt.Errorf("read %s: %w", path, err)
+	}
+	flushBlock()
+
+	declared, declaredOK := parseTotalTransaction(preamble.String())
+	res.DeclaredTransactionCount = declared
+	if !declaredOK {
+		res.FileErrors = append(res.FileErrors, models.JenniferProfileIssue{
+			Code:    "TOTAL_TRANSACTION_NOT_FOUND",
+			Message: "Total Transaction header not found",
+		})
+	}
+	if declaredOK && declared != res.DetectedTransactionCount {
+		res.FileErrors = append(res.FileErrors, models.JenniferProfileIssue{
+			Code: "TRANSACTION_COUNT_MISMATCH",
+			Message: fmt.Sprintf(
+				"Total Transaction declared %d but found %d TXID blocks",
+				declared, res.DetectedTransactionCount,
+			),
+		})
+	}
+	return res, nil
 }
 
 // ParseString runs the parsing pipeline against an in-memory string —

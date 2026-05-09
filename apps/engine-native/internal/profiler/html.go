@@ -32,10 +32,14 @@ package profiler
 
 import (
 	"encoding/json"
+	"fmt"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
 )
+
+const MaxHTMLProfilerBytes int64 = 256 << 20
 
 var (
 	htmlSvgBlockRE = regexp.MustCompile(`(?is)<svg\b[^>]*>.*?</svg>`)
@@ -110,6 +114,9 @@ func ParseHtmlProfilerText(text string, debugLog *DebugLog) HtmlProfilerParseRes
 }
 
 func ParseHtmlProfilerFile(path string, debugLog *DebugLog) (HtmlProfilerParseResult, error) {
+	if stat, err := os.Stat(path); err == nil && stat.Size() > MaxHTMLProfilerBytes {
+		return HtmlProfilerParseResult{}, fmt.Errorf("html profiler file %s is %d bytes; direct HTML parsing is capped at %d bytes", path, stat.Size(), MaxHTMLProfilerBytes)
+	}
 	bytes, err := readAllUTF8(path)
 	if err != nil {
 		return HtmlProfilerParseResult{}, err

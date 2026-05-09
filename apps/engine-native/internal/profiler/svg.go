@@ -41,6 +41,7 @@
 package profiler
 
 import (
+	"bytes"
 	"encoding/xml"
 	"fmt"
 	"io"
@@ -130,7 +131,7 @@ func extractSvgRects(payload []byte, diagnostics *ParserDiagnostics, debugLog *D
 		hasTitle bool
 		rect     *svgRect
 	}
-	decoder := xml.NewDecoder(strings.NewReader(string(payload)))
+	decoder := xml.NewDecoder(bytes.NewReader(payload))
 	stack := []*pendingGroup{}
 	rects := []svgRect{}
 
