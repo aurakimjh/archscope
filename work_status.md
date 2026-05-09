@@ -36,36 +36,34 @@ The previous long-form history was archived to
 
 ## Current Risk
 
-The Electron-to-Wails migration risk is closed. The current technical risk is
-large-file parser memory pressure in the Go engine.
+The Electron-to-Wails migration risk is closed. The highest large-file issue
+found in the 2026-05-09 audit has been mitigated: GC log analysis no longer
+emits chart series for every event, and access-log/OTel analyzer entrypoints no
+longer materialize the full parser record slice before aggregation.
 
-The highest priority issue is GC log analysis. In the 2026-05-09 synthetic
-audit, a 34 MB GC log produced about 1.08 GB peak RSS and a 105 MB result JSON.
-The main cause is unbounded timeline/series emission for every parsed GC event.
-
-Collapsed profiler parsing is the positive baseline: a 29 MB / 500k-line input
-completed with about 16 MB peak RSS because it already uses streaming parsing.
+Remaining large-file risk is concentrated in structured formats that naturally
+require object materialization, such as JFR JSON, Node diagnostic reports, jcmd
+JSON, and self-contained HTML profiler files. These paths now have documented
+guardrails or targeted preflight, but multi-GB structured inputs should still be
+filtered before analysis.
 
 ## Large-File Audit Snapshot
 
 | Analyzer | Synthetic input | Time | Peak RSS | Output | Status |
 |---|---:|---:|---:|---:|---|
-| Access log | 30 MB / 300k lines | 0.51s | 173 MB | 10 KB | Needs streaming parser/analyzer follow-up |
-| OTel JSONL | 31 MB / 200k lines | 0.25s | 147 MB | 6 KB | Needs bounded trace grouping |
-| GC log | 34 MB / 300k lines | 1.51s | 1.08 GB | 105 MB | P0 fix required |
+| Access log | 30 MB / 300k lines | 0.53s | 19 MB | 10 KB | Streaming parser/analyzer path verified |
+| OTel JSONL | 31 MB / 200k lines | 0.25s | 18 MB | 6.3 KB | Streaming parser/analyzer path with trace-detail cap verified |
+| GC log | 34 MB / 300k lines | 1.55s | 305 MB | 3.5 MB | Series cap/downsampling verified |
 | Collapsed profiler | 29 MB / 500k lines | 0.26s | 16 MB | 6.8 KB | Good baseline |
 
 ## Next Execution Queue
 
-1. Fix GC log output/memory growth with series caps and downsampling.
-2. Add a common streaming text-line API in `internal/textio`.
-3. Convert access log, GC log, OTel JSONL, exception, and simple runtime-stack
-   parsers away from full file/line retention.
-4. Refactor analyzers so they can aggregate from streams instead of requiring
-   full `[]Record` or `[]Event` inputs.
-5. Add structured large-file guardrails for JFR JSON, Jennifer exports,
-   thread-dump plugins, and profiler SVG/HTML inputs.
-6. Document the large-file policy and add reproducible performance gates.
+1. Run release CI and smoke-test the Wails desktop app on macOS and Windows.
+2. Consider deeper GC event streaming if future real-world logs exceed the
+   current 305 MB RSS envelope.
+3. Add format-specific streaming for remaining structured thread-dump formats
+   when real multi-GB samples are available.
+4. Continue signing/notarization and frontend bundle-splitting release work.
 
 ## Active TO-DO
 
@@ -84,10 +82,12 @@ completed with about 16 MB peak RSS because it already uses streaming parsing.
 
 ## Verification Notes
 
-- `go test` passed for representative parser/analyzer packages:
-  access log, GC log, OTel, JFR, Jennifer profile, and thread dump.
-- `go test -bench . -benchmem ./internal/profiler` passed and confirmed the
-  collapsed profiler path remains memory efficient.
+- `go test ./...` passed under `apps/engine-native`. The Wails app test build
+  still emits the known macOS linker warning about object files built for newer
+  macOS 26.0 than the 11.0 link target.
+- `go test -bench BenchmarkBuildLargeSyntheticGCLog -benchtime=1x -benchmem
+  ./internal/analyzers/gclog` passed with a 300k-event JSON payload of about
+  1.9 MB.
 - Synthetic large-file measurements were captured with the current
   `cmd/archscope-engine` binary built from `apps/engine-native`.
 
