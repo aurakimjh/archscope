@@ -6,44 +6,48 @@
 //
 // We mirror Python's detection heuristics:
 //
-//   1. Byte order marks (utf-16 BE/LE, utf-8-sig).
-//   2. Even/odd null-byte ratio — utf-16 emits NUL on every other
-//      byte, so a 30%+ ratio at the right parity wins.
-//   3. Try-decode fallback in order utf-8, utf-8-sig, cp949,
-//      latin-1 — latin-1 always succeeds so the chain never raises.
+//  1. Byte order marks (utf-16 BE/LE, utf-8-sig).
+//  2. Even/odd null-byte ratio — utf-16 emits NUL on every other
+//     byte, so a 30%+ ratio at the right parity wins.
+//  3. Try-decode fallback in order utf-8, utf-8-sig, cp949,
+//     latin-1 — latin-1 always succeeds so the chain never raises.
 //
 // ─────────────────────────────────────────────────────────────────────
 // [한글] textio 패키지 — 인코딩 안전 텍스트 라인 iterator.
 //
 // 왜 필요한가?
-//   ArchScope 의 입력은 다양한 환경에서 옴:
-//     • Linux / macOS 의 UTF-8 (대부분).
-//     • UTF-8-sig (BOM 포함) — Windows 에서 "ANSI" 로 저장한 파일이
-//       그대로 BOM 가지고 들어옴.
-//     • CP949 — 한국 Windows 의 일부 도구가 출력하는 텍스트.
-//     • UTF-16 (BE/LE) — 일부 JVM thread dump exporter (Windows 환경)
-//       가 UTF-16 으로 출력. NUL 바이트가 양 옆마다 등장.
-//   파서가 매번 인코딩을 따지지 않도록 textio 가 흡수.
+//
+//	ArchScope 의 입력은 다양한 환경에서 옴:
+//	  • Linux / macOS 의 UTF-8 (대부분).
+//	  • UTF-8-sig (BOM 포함) — Windows 에서 "ANSI" 로 저장한 파일이
+//	    그대로 BOM 가지고 들어옴.
+//	  • CP949 — 한국 Windows 의 일부 도구가 출력하는 텍스트.
+//	  • UTF-16 (BE/LE) — 일부 JVM thread dump exporter (Windows 환경)
+//	    가 UTF-16 으로 출력. NUL 바이트가 양 옆마다 등장.
+//	파서가 매번 인코딩을 따지지 않도록 textio 가 흡수.
 //
 // 인코딩 감지 알고리즘 (Python 동치)
-//   1) BOM 검사: 처음 2~3 byte 가 BOM 이면 즉시 결정.
-//   2) NUL 비율: 짝수/홀수 위치별 NUL 비율 → 30% 이상이면 UTF-16
-//      (LE/BE 구별).
-//   3) Try-decode 체인: utf-8 → utf-8-sig → cp949 → latin-1.
-//      latin-1 은 항상 성공하므로 체인이 절대 실패하지 않음.
+//  1. BOM 검사: 처음 2~3 byte 가 BOM 이면 즉시 결정.
+//  2. NUL 비율: 짝수/홀수 위치별 NUL 비율 → 30% 이상이면 UTF-16
+//     (LE/BE 구별).
+//  3. Try-decode 체인: utf-8 → utf-8-sig → cp949 → latin-1.
+//     latin-1 은 항상 성공하므로 체인이 절대 실패하지 않음.
 //
 // 라인 iterator
-//   bufio.Scanner 기반. 큰 파일에 메모리 안전한 라인 스트림 제공.
-//   파서는 ParseFile / ParseString / ReadHead 헬퍼만 호출.
+//
+//	bufio.Scanner 기반. 큰 파일에 메모리 안전한 라인 스트림 제공.
+//	파서는 ParseFile / ParseString / ReadHead 헬퍼만 호출.
 //
 // 회귀 안전망
-//   T-031 fix: mid-file decode 실패 시 fallback 재시도가 라인을 중복
-//   emit 하지 않도록 보장 (옛날 버그 회귀 방지).
+//
+//	T-031 fix: mid-file decode 실패 시 fallback 재시도가 라인을 중복
+//	emit 하지 않도록 보장 (옛날 버그 회귀 방지).
 package textio
 
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"encoding/binary"
 	"errors"
 	"io"
@@ -52,7 +56,10 @@ import (
 	"unicode/utf16"
 	"unicode/utf8"
 
+	"golang.org/x/text/encoding/charmap"
 	"golang.org/x/text/encoding/korean"
+	xunicode "golang.org/x/text/encoding/unicode"
+	"golang.org/x/text/transform"
 )
 
 // DefaultEncodings is the fallback chain used when no explicit
@@ -71,6 +78,13 @@ type TextLineContext struct {
 	Target     string
 	After      *string
 }
+
+// LineFunc receives one decoded text line. The line number is 1-based.
+type LineFunc func(lineNumber int, line string) error
+
+// LineContextFunc receives one decoded text line plus a one-line
+// before/after window for parser diagnostics.
+type LineContextFunc func(ctx TextLineContext) error
 
 // DetectFromBytes returns the best-guess encoding for a byte sample.
 // Falls back to Python's order; latin-1 always succeeds so the
@@ -167,61 +181,170 @@ func DetectEncoding(path string, probeBytes int) (string, error) {
 // caller-supplied) encoding. Trailing `\n` is stripped — same shape
 // as Python's `iter_text_lines`.
 func IterTextLines(path, encoding string) ([]string, error) {
-	if encoding == "" {
-		detected, err := DetectEncoding(path, DefaultProbeBytes)
-		if err != nil {
-			return nil, err
-		}
-		encoding = detected
-	}
-	f, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-
-	body, err := io.ReadAll(f)
-	if err != nil {
-		return nil, err
-	}
-	decoded, err := decodeBytes(body, encoding)
-	if err != nil {
-		return nil, err
-	}
-	scanner := bufio.NewScanner(strings.NewReader(decoded))
-	scanner.Buffer(make([]byte, 0, 1<<20), 1<<26)
 	out := make([]string, 0, 256)
-	for scanner.Scan() {
-		out = append(out, scanner.Text())
-	}
-	if err := scanner.Err(); err != nil {
+	err := ForEachTextLine(path, encoding, func(_ int, line string) error {
+		out = append(out, line)
+		return nil
+	})
+	if err != nil {
 		return nil, err
 	}
 	return out, nil
+}
+
+// ForEachTextLine streams decoded lines from `path` without materialising the
+// whole file or a `[]string`. It preserves the same encoding detection and line
+// shape as IterTextLines.
+func ForEachTextLine(path, encoding string, fn LineFunc) error {
+	return ForEachTextLineContext(context.Background(), path, encoding, fn)
+}
+
+// ForEachTextLineContext is the cancellable variant of ForEachTextLine.
+func ForEachTextLineContext(ctx context.Context, path, encoding string, fn LineFunc) error {
+	if fn == nil {
+		return nil
+	}
+	scanner, closeFn, err := openLineScanner(path, encoding)
+	if err != nil {
+		return err
+	}
+	defer closeFn()
+
+	lineNumber := 0
+	for scanner.Scan() {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+		lineNumber++
+		if err := fn(lineNumber, scanner.Text()); err != nil {
+			return err
+		}
+	}
+	return scanner.Err()
+}
+
+// ForEachTextLineWithContext streams lines with one-line before/after context.
+// It keeps only the previous/current/next line in memory.
+func ForEachTextLineWithContext(path, encoding string, fn LineContextFunc) error {
+	return ForEachTextLineWithContextContext(context.Background(), path, encoding, fn)
+}
+
+// ForEachTextLineWithContextContext is the cancellable context-window iterator.
+func ForEachTextLineWithContextContext(ctx context.Context, path, encoding string, fn LineContextFunc) error {
+	if fn == nil {
+		return nil
+	}
+	scanner, closeFn, err := openLineScanner(path, encoding)
+	if err != nil {
+		return err
+	}
+	defer closeFn()
+
+	var before *string
+	var current string
+	var currentLine int
+	haveCurrent := false
+	lineNumber := 0
+
+	for scanner.Scan() {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+		lineNumber++
+		next := scanner.Text()
+		if haveCurrent {
+			after := next
+			if err := fn(TextLineContext{
+				LineNumber: currentLine,
+				Before:     before,
+				Target:     current,
+				After:      &after,
+			}); err != nil {
+				return err
+			}
+			prev := current
+			before = &prev
+		}
+		current = next
+		currentLine = lineNumber
+		haveCurrent = true
+	}
+	if err := scanner.Err(); err != nil {
+		return err
+	}
+	if haveCurrent {
+		return fn(TextLineContext{
+			LineNumber: currentLine,
+			Before:     before,
+			Target:     current,
+		})
+	}
+	return nil
 }
 
 // IterTextLinesWithContext attaches a one-line before/after window to
 // each line so parser-debug logs can preserve the surrounding
 // context without re-reading the file.
 func IterTextLinesWithContext(path, encoding string) ([]TextLineContext, error) {
-	lines, err := IterTextLines(path, encoding)
+	out := make([]TextLineContext, 0, 256)
+	err := ForEachTextLineWithContext(path, encoding, func(ctx TextLineContext) error {
+		out = append(out, ctx)
+		return nil
+	})
 	if err != nil {
 		return nil, err
 	}
-	out := make([]TextLineContext, 0, len(lines))
-	for i, line := range lines {
-		entry := TextLineContext{LineNumber: i + 1, Target: line}
-		if i > 0 {
-			prev := lines[i-1]
-			entry.Before = &prev
-		}
-		if i+1 < len(lines) {
-			next := lines[i+1]
-			entry.After = &next
-		}
-		out = append(out, entry)
-	}
 	return out, nil
+}
+
+func openLineScanner(path, encoding string) (*bufio.Scanner, func() error, error) {
+	if encoding == "" {
+		detected, err := DetectEncoding(path, DefaultProbeBytes)
+		if err != nil {
+			return nil, nil, err
+		}
+		encoding = detected
+	}
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, nil, err
+	}
+	reader, err := decodedReader(f, encoding)
+	if err != nil {
+		_ = f.Close()
+		return nil, nil, err
+	}
+	scanner := bufio.NewScanner(reader)
+	scanner.Buffer(make([]byte, 0, 1<<20), 1<<26)
+	return scanner, f.Close, nil
+}
+
+func decodedReader(r io.Reader, encoding string) (io.Reader, error) {
+	switch normalize(encoding) {
+	case "utf-8":
+		return r, nil
+	case "utf-8-sig":
+		return stripUTF8BOMReader(r), nil
+	case "cp949", "euc-kr":
+		return transform.NewReader(r, korean.EUCKR.NewDecoder()), nil
+	case "latin-1", "iso-8859-1":
+		return transform.NewReader(r, charmap.ISO8859_1.NewDecoder()), nil
+	case "utf-16", "utf-16-le":
+		return transform.NewReader(r, xunicode.UTF16(xunicode.LittleEndian, xunicode.UseBOM).NewDecoder()), nil
+	case "utf-16-be":
+		return transform.NewReader(r, xunicode.UTF16(xunicode.BigEndian, xunicode.UseBOM).NewDecoder()), nil
+	default:
+		return nil, errors.New("unsupported encoding: " + encoding)
+	}
+}
+
+func stripUTF8BOMReader(r io.Reader) io.Reader {
+	br := bufio.NewReader(r)
+	bom, err := br.Peek(3)
+	if err == nil && bytes.Equal(bom, []byte{0xef, 0xbb, 0xbf}) {
+		_, _ = br.Discard(3)
+	}
+	return br
 }
 
 // DecodeBytes decodes raw bytes into a UTF-8 Go string using the given

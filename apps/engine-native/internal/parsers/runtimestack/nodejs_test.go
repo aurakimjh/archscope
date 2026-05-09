@@ -1,13 +1,13 @@
 // [한글] nodejs stack parser 회귀 테스트.
 //
 // 검증 대상
-//   • TypeError / RangeError / ReferenceError / SyntaxError 등 다양한
+//   - TypeError / RangeError / ReferenceError / SyntaxError 등 다양한
 //     Error 타입 인식.
-//   • optional ISO timestamp prefix 처리.
-//   • `at name (file:line:col)` 와 `at file:line:col` 두 형식 모두 인식.
-//   • Caused by 체인 → RootCause 등록.
-//   • 새 헤더 등장 시 이전 블록 자동 flush.
-//   • 헤더 없는 stray 라인 → NO_NODEJS_ERROR_HEADER 카운트.
+//   - optional ISO timestamp prefix 처리.
+//   - `at name (file:line:col)` 와 `at file:line:col` 두 형식 모두 인식.
+//   - Caused by 체인 → RootCause 등록.
+//   - 새 헤더 등장 시 이전 블록 자동 flush.
+//   - 헤더 없는 stray 라인 → NO_NODEJS_ERROR_HEADER 카운트.
 package runtimestack
 
 import (

@@ -16,35 +16,40 @@
 // [한글] exception parser — Java 예외 스택 그룹화 파서.
 //
 // 입력
-//   임의의 텍스트 파일. 보통 애플리케이션 로그에서 grep 으로 추출한
-//   stack trace 모음, 또는 서버가 출력한 raw 에러 로그.
+//
+//	임의의 텍스트 파일. 보통 애플리케이션 로그에서 grep 으로 추출한
+//	stack trace 모음, 또는 서버가 출력한 raw 에러 로그.
 //
 // 그룹화 규칙
-//   1) Header 감지 (regex): `<TS>? <FQCN>: <message>` 형태의 라인.
-//      예) `2026-04-27T10:00:00 java.lang.IllegalStateException: failed`
-//   2) 그 다음의 `    at <frame>` 라인들을 같은 record 의 stack 에 누적.
-//   3) `Caused by: <FQCN>: <message>` 라인을 만나면 가장 최근 record 의
-//      RootCause 로 등록. cause 의 stack 은 무시(가독성).
-//   4) 새 header 라인을 만나면 새 record 시작.
-//   5) 빈 줄/관련 없는 라인은 무시.
+//  1. Header 감지 (regex): `<TS>? <FQCN>: <message>` 형태의 라인.
+//     예) `2026-04-27T10:00:00 java.lang.IllegalStateException: failed`
+//  2. 그 다음의 `    at <frame>` 라인들을 같은 record 의 stack 에 누적.
+//  3. `Caused by: <FQCN>: <message>` 라인을 만나면 가장 최근 record 의
+//     RootCause 로 등록. cause 의 stack 은 무시(가독성).
+//  4. 새 header 라인을 만나면 새 record 시작.
+//  5. 빈 줄/관련 없는 라인은 무시.
 //
 // signature 산출
-//   ExceptionType + 첫 stack frame 으로 짧은 키 생성. 같은 위치에서
-//   계속 발생하는 동일 예외를 한 그룹으로 묶기 위함. 분석기의
-//   REPEATED_EXCEPTION_SIGNATURE finding 의 dedup 키.
+//
+//	ExceptionType + 첫 stack frame 으로 짧은 키 생성. 같은 위치에서
+//	계속 발생하는 동일 예외를 한 그룹으로 묶기 위함. 분석기의
+//	REPEATED_EXCEPTION_SIGNATURE finding 의 dedup 키.
 //
 // skip/warning reason
-//   diagnostics.SkippedRecords 카운트와 함께 reason 을 기록:
-//     SKIP_NO_HEADER       : header regex 가 한 번도 매칭되지 않음.
-//     SKIP_BAD_TIMESTAMP   : header 의 타임스탬프 파싱 실패.
-//     WARN_TRUNCATED_STACK : MaxLines 초과 또는 EOF 로 잘림.
-//   Python 측과 byte 단위 동일 (parity gate 검증).
+//
+//	diagnostics.SkippedRecords 카운트와 함께 reason 을 기록:
+//	  SKIP_NO_HEADER       : header regex 가 한 번도 매칭되지 않음.
+//	  SKIP_BAD_TIMESTAMP   : header 의 타임스탬프 파싱 실패.
+//	  WARN_TRUNCATED_STACK : MaxLines 초과 또는 EOF 로 잘림.
+//	Python 측과 byte 단위 동일 (parity gate 검증).
 //
 // Strict 모드
-//   첫 skip 이 fatal — CI 에서 회귀를 즉시 차단할 때 사용.
+//
+//	첫 skip 이 fatal — CI 에서 회귀를 즉시 차단할 때 사용.
 package exception
 
 import (
+	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -53,6 +58,8 @@ import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/diagnostics"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/textio"
 )
+
+var errStopIteration = errors.New("stop exception iteration")
 
 // Record is the parsed exception block. Mirrors Python's
 // `models.thread_dump.ExceptionRecord` field-for-field. Pointer types
@@ -70,11 +77,11 @@ type Record struct {
 
 // Skip / warning reasons (mirror Python verbatim).
 const (
-	ReasonNoExceptionHeader    = "NO_EXCEPTION_HEADER"
-	ReasonInvalidBlock         = "INVALID_EXCEPTION_BLOCK"
-	ReasonEmptyFile            = "EMPTY_FILE"
-	ReasonNoExceptionBlocks    = "NO_EXCEPTION_BLOCKS"
-	FormatJavaExceptionStack   = "java_exception_stack"
+	ReasonNoExceptionHeader     = "NO_EXCEPTION_HEADER"
+	ReasonInvalidBlock          = "INVALID_EXCEPTION_BLOCK"
+	ReasonEmptyFile             = "EMPTY_FILE"
+	ReasonNoExceptionBlocks     = "NO_EXCEPTION_BLOCKS"
+	FormatJavaExceptionStack    = "java_exception_stack"
 	signatureNoFramePlaceholder = "(no-frame)"
 )
 
@@ -169,11 +176,6 @@ func ParseFile(path, format string, opts Options) ([]Record, *diagnostics.Parser
 	diags := diagnostics.New(format)
 	diags.SetSourceFile(path)
 
-	lines, err := textio.IterTextLines(path, "")
-	if err != nil {
-		return nil, nil, err
-	}
-
 	records := make([]Record, 0)
 	var current []string
 	currentStart := 0
@@ -194,10 +196,9 @@ func ParseFile(path, format string, opts Options) ([]Record, *diagnostics.Parser
 		return nil
 	}
 
-	for i, raw := range lines {
-		lineNumber := i + 1
+	err := textio.ForEachTextLine(path, "", func(lineNumber int, raw string) error {
 		if opts.MaxLines > 0 && lineNumber > opts.MaxLines {
-			break
+			return errStopIteration
 		}
 		diags.TotalLines++
 		stripped := strings.TrimSpace(raw)
@@ -206,31 +207,35 @@ func ParseFile(path, format string, opts Options) ([]Record, *diagnostics.Parser
 		// New block: header line that is NOT a "Caused by:" continuation.
 		if groups != nil && !strings.HasPrefix(stripped, "Caused by:") {
 			if perr := flush(currentStart); perr != nil && opts.Strict {
-				return records, diags, fmt.Errorf("%s:%d: %s: %s", path, currentStart, perr.Reason, perr.Message)
+				return fmt.Errorf("%s:%d: %s: %s", path, currentStart, perr.Reason, perr.Message)
 			}
 			current = append(current, stripped)
 			currentStart = lineNumber
-			continue
+			return nil
 		}
 
 		// Continuation: stack frame, "Caused by:" line, or any
 		// non-blank trailing line while a block is still open.
 		if len(current) > 0 && stripped != "" {
 			current = append(current, stripped)
-			continue
+			return nil
 		}
 
 		// Blank line outside a block: ignored.
 		if stripped == "" {
-			continue
+			return nil
 		}
 
 		// Non-blank line with no open block and no header match — Python
 		// records this with NO_EXCEPTION_HEADER.
 		diags.AddSkipped(lineNumber, ReasonNoExceptionHeader, "Line did not start a supported exception stack block.", raw)
 		if opts.Strict {
-			return records, diags, fmt.Errorf("%s:%d: %s: %s", path, lineNumber, ReasonNoExceptionHeader, "Line did not start a supported exception stack block.")
+			return fmt.Errorf("%s:%d: %s: %s", path, lineNumber, ReasonNoExceptionHeader, "Line did not start a supported exception stack block.")
 		}
+		return nil
+	})
+	if err != nil && !errors.Is(err, errStopIteration) {
+		return records, diags, err
 	}
 
 	// Flush trailing block.

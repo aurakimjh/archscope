@@ -17,41 +17,49 @@
 // [한글] otel parser — OpenTelemetry JSONL 로그/스팬 파서.
 //
 // 입력 형식
-//   라인 단위 JSON. 각 라인이 독립된 JSON 객체이며 한 로그/스팬을
-//   표현. OTel exporter 마다 키 이름이 다양하게 emit 되므로 alias
-//   허용 정책을 채택 — snake_case / camelCase / 도트 표기 모두 인식.
+//
+//	라인 단위 JSON. 각 라인이 독립된 JSON 객체이며 한 로그/스팬을
+//	표현. OTel exporter 마다 키 이름이 다양하게 emit 되므로 alias
+//	허용 정책을 채택 — snake_case / camelCase / 도트 표기 모두 인식.
 //
 // alias 매핑 예
-//   service name : `service.name` / `serviceName` / `resource.service.name`
-//                  / `resource.attributes.service.name`.
-//   parent span  : `parent_span_id` / `parentSpanId` / `parent_id`.
-//   trace/span   : `trace_id` / `traceId`, `span_id` / `spanId`.
+//
+//	service name : `service.name` / `serviceName` / `resource.service.name`
+//	               / `resource.attributes.service.name`.
+//	parent span  : `parent_span_id` / `parentSpanId` / `parent_id`.
+//	trace/span   : `trace_id` / `traceId`, `span_id` / `spanId`.
 //
 // body 값 형태
-//   문자열, 원시 타입(bool/int/float), 또는 dict (stringValue / str /
-//   value / text 키 안에 실 값) 모두 허용. dict 가 들어오면 위 키들을
-//   순서대로 시도해 첫 매치를 사용.
+//
+//	문자열, 원시 타입(bool/int/float), 또는 dict (stringValue / str /
+//	value / text 키 안에 실 값) 모두 허용. dict 가 들어오면 위 키들을
+//	순서대로 시도해 첫 매치를 사용.
 //
 // Python str() semantics
-//   bool → "True"/"False" (대문자), int → "123" (소수점 없음), float
-//   → "1.5". Python 의 str() 결과를 byte 단위로 일치 — parity gate
-//   가 stderr/JSON 비교 시 안전.
+//
+//	bool → "True"/"False" (대문자), int → "123" (소수점 없음), float
+//	→ "1.5". Python 의 str() 결과를 byte 단위로 일치 — parity gate
+//	가 stderr/JSON 비교 시 안전.
 //
 // skip 사유
-//   ReasonInvalidOTelJSON   : 라인이 JSON 으로 파싱 불가.
-//   ReasonInvalidOTelRecord : JSON 은 OK 인데 trace/span_id 등 필수
-//                             필드 누락.
-//   둘 다 라인 단위 skip → diagnostics 에 카운트, 분석 진행.
+//
+//	ReasonInvalidOTelJSON   : 라인이 JSON 으로 파싱 불가.
+//	ReasonInvalidOTelRecord : JSON 은 OK 인데 trace/span_id 등 필수
+//	                          필드 누락.
+//	둘 다 라인 단위 skip → diagnostics 에 카운트, 분석 진행.
 package otel
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/diagnostics"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/textio"
 )
+
+var errStopIteration = errors.New("stop otel iteration")
 
 // Record mirrors `models.otel.OTelLogRecord`. Pointer types double as
 // Python's `Optional[str]` — nil means "field absent from payload".
@@ -333,34 +341,32 @@ func ParseFile(path string, opts Options) ([]Record, *diagnostics.ParserDiagnost
 	diags := diagnostics.New("otel_jsonl")
 	diags.SetSourceFile(path)
 
-	lines, err := textio.IterTextLines(path, "")
-	if err != nil {
-		return nil, nil, err
-	}
-
-	records := make([]Record, 0, len(lines))
-	for i, line := range lines {
-		lineNumber := i + 1
+	records := make([]Record, 0, 1024)
+	err := textio.ForEachTextLine(path, "", func(lineNumber int, line string) error {
 		if opts.MaxLines > 0 && lineNumber > opts.MaxLines {
-			break
+			return errStopIteration
 		}
 		diags.TotalLines++
 		if isBlank(line) {
-			continue
+			return nil
 		}
 		record, perr := ParseLine(line)
 		if record != nil {
 			diags.ParsedRecords++
 			records = append(records, *record)
-			continue
+			return nil
 		}
 		if perr == nil {
-			return nil, nil, fmt.Errorf("otel parser returned neither record nor error")
+			return fmt.Errorf("otel parser returned neither record nor error")
 		}
 		diags.AddSkipped(lineNumber, perr.Reason, perr.Message, line)
 		if opts.Strict {
-			return records, diags, fmt.Errorf("%s:%d: %s: %s", path, lineNumber, perr.Reason, perr.Message)
+			return fmt.Errorf("%s:%d: %s: %s", path, lineNumber, perr.Reason, perr.Message)
 		}
+		return nil
+	})
+	if err != nil && !errors.Is(err, errStopIteration) {
+		return records, diags, err
 	}
 
 	if diags.TotalLines == 0 {
@@ -377,4 +383,3 @@ func isBlank(line string) bool {
 	}
 	return true
 }
-

@@ -12,42 +12,46 @@
 // [한글] gclog parser — HotSpot GC 로그 파서 (3개 포맷 자동 감지).
 //
 // 지원 포맷
-//   FormatUnified  : JDK 9+ -Xlog:gc unified 포맷.
-//                    `[2026-04-27T10:00:00+0900][info][gc] GC(123) Pause
-//                     Young ... 25.000ms` 형태.
-//   FormatG1Legacy : JDK 8 G1 legacy. 멀티라인 + datestamp 프리픽스.
-//   FormatLegacy   : JDK 4-8 Serial/Parallel/CMS legacy. 단일 라인.
-//   FormatUnknown  : 자동 감지 실패 — Unified 로 fallback.
+//
+//	FormatUnified  : JDK 9+ -Xlog:gc unified 포맷.
+//	                 `[2026-04-27T10:00:00+0900][info][gc] GC(123) Pause
+//	                  Young ... 25.000ms` 형태.
+//	FormatG1Legacy : JDK 8 G1 legacy. 멀티라인 + datestamp 프리픽스.
+//	FormatLegacy   : JDK 4-8 Serial/Parallel/CMS legacy. 단일 라인.
+//	FormatUnknown  : 자동 감지 실패 — Unified 로 fallback.
 //
 // 자동 감지 (DetectFormat)
-//   첫 8 KiB 를 sampling 후 정규식으로 포맷 시그니처 판단. 헤더의
-//   `[gc]` 태그 유무, datestamp 프리픽스 여부, GC ID `GC(123)` 패턴
-//   등을 종합.
+//
+//	첫 8 KiB 를 sampling 후 정규식으로 포맷 시그니처 판단. 헤더의
+//	`[gc]` 태그 유무, datestamp 프리픽스 여부, GC ID `GC(123)` 패턴
+//	등을 종합.
 //
 // Event 의 의미
-//   한 GC 사이클 = 1 Event. 필드:
-//     Timestamp / GCID / Cause / Type(Young/Old/Mixed/Full) /
-//     Collector(G1/CMS/Parallel/Serial/ZGC/Shenandoah) /
-//     PauseMS / HeapBeforeMB / HeapAfterMB / HeapCommittedMB /
-//     YoungBefore/After / OldBefore/After / Metaspace.
+//
+//	한 GC 사이클 = 1 Event. 필드:
+//	  Timestamp / GCID / Cause / Type(Young/Old/Mixed/Full) /
+//	  Collector(G1/CMS/Parallel/Serial/ZGC/Shenandoah) /
+//	  PauseMS / HeapBeforeMB / HeapAfterMB / HeapCommittedMB /
+//	  YoungBefore/After / OldBefore/After / Metaspace.
 //
 // 핵심 알고리즘
-//   1) 라인을 stream 으로 읽음 (textio.LineIterator — 인코딩 폴백).
-//   2) 포맷별 정규식 dispatch.
-//   3) Unified 포맷은 multi-line phase 가 있을 수 있으나 현재 구현은
-//      "Pause" 라인 1개에 모든 메트릭을 모음(Python 측과 동일).
-//   4) Legacy / G1Legacy 는 multi-line 을 buffer 에 모았다가 한 record
-//      로 emit.
-//   5) MaxLines / Strict 옵션은 다른 파서와 동일 의미.
+//  1. 라인을 stream 으로 읽음 (textio.LineIterator — 인코딩 폴백).
+//  2. 포맷별 정규식 dispatch.
+//  3. Unified 포맷은 multi-line phase 가 있을 수 있으나 현재 구현은
+//     "Pause" 라인 1개에 모든 메트릭을 모음(Python 측과 동일).
+//  4. Legacy / G1Legacy 는 multi-line 을 buffer 에 모았다가 한 record
+//     로 emit.
+//  5. MaxLines / Strict 옵션은 다른 파서와 동일 의미.
 //
 // 분리된 header.go
-//   JVM Info(버전 / CPU / heap min/max / 워커 수 / CommandLine flags)
-//   는 본문 파싱과 독립적으로 추출됨. 본 파싱이 0 record 로 실패해도
-//   JVM Info 는 살아남아 사용자에게 환경을 알려줄 수 있도록 분리.
+//
+//	JVM Info(버전 / CPU / heap min/max / 워커 수 / CommandLine flags)
+//	는 본문 파싱과 독립적으로 추출됨. 본 파싱이 0 record 로 실패해도
+//	JVM Info 는 살아남아 사용자에게 환경을 알려줄 수 있도록 분리.
 package gclog
 
-
 import (
+	"errors"
 	"fmt"
 	"math"
 	"os"
@@ -59,6 +63,8 @@ import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/diagnostics"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/textio"
 )
+
+var errStopIteration = errors.New("stop gc log iteration")
 
 // Format constants surface the four labels Python's
 // `detect_gc_log_format` returns. The string values match Python
@@ -237,24 +243,25 @@ func ParseFile(path string, opts Options) ([]Event, *diagnostics.ParserDiagnosti
 	diags := diagnostics.New(format)
 	diags.SetSourceFile(path)
 
-	lines, err := textio.IterTextLines(path, "")
-	if err != nil {
-		return nil, nil, err
-	}
-
 	switch format {
 	case FormatG1Legacy:
-		events := parseG1Legacy(lines, opts, diags)
+		events, err := parseG1LegacyFile(path, opts, diags)
+		if err != nil {
+			return events, diags, err
+		}
 		emitNoEventsWarning(diags, "No supported G1 legacy GC events were parsed.")
 		return events, diags, nil
 	case FormatLegacy:
-		events := parseLegacy(lines, opts, diags)
+		events, err := parseLegacyFile(path, opts, diags)
+		if err != nil {
+			return events, diags, err
+		}
 		emitNoEventsWarning(diags, "No supported legacy GC events were parsed.")
 		return events, diags, nil
 	default:
 		// FormatUnified and FormatUnknown both go through the unified
 		// parser — Python falls through to `_iter_unified` for unknown.
-		events, perr := parseUnified(lines, opts, diags)
+		events, perr := parseUnifiedFile(path, opts, diags)
 		emitNoEventsWarning(diags, "No supported GC pause events were parsed.")
 		if perr != nil {
 			return events, diags, perr
@@ -284,6 +291,65 @@ func emitNoEventsWarning(diags *diagnostics.ParserDiagnostics, noEventsMsg strin
 // parseUnified runs the JDK 9+ pipeline. A pause event is buffered
 // across iterations so the next-line Metaspace companion can be
 // merged before flushing to the output.
+func parseUnifiedFile(path string, opts Options, diags *diagnostics.ParserDiagnostics) ([]Event, error) {
+	events := make([]Event, 0, 1024)
+
+	var pending *Event
+	var pendingGCID *int
+
+	flush := func() {
+		if pending != nil {
+			events = append(events, *pending)
+			diags.ParsedRecords++
+			pending = nil
+			pendingGCID = nil
+		}
+	}
+
+	err := textio.ForEachTextLine(path, "", func(lineNumber int, line string) error {
+		if opts.MaxLines > 0 && lineNumber > opts.MaxLines {
+			return errStopIteration
+		}
+		diags.TotalLines++
+		if isBlank(line) {
+			return nil
+		}
+
+		if meta := captureGroups(unifiedMetaspaceRe, line); meta != nil {
+			if pending != nil && pendingGCID != nil {
+				if mid, err := strconv.Atoi(meta["gc_id"]); err == nil && mid == *pendingGCID {
+					pending.MetaspaceBeforeMB = toMBPtr(meta["before"], meta["before_unit"])
+					pending.MetaspaceAfterMB = toMBPtr(meta["after"], meta["after_unit"])
+				}
+			}
+			return nil
+		}
+
+		event, gcID := parseUnifiedGCLine(line)
+		if event == nil {
+			diags.AddWarning(lineNumber, ReasonNoGCFormatMatch,
+				"Line did not match the supported HotSpot unified GC format.",
+				line, true)
+			if opts.Strict {
+				flush()
+				return fmt.Errorf("%d: %s: Line did not match the supported HotSpot unified GC format.",
+					lineNumber, ReasonNoGCFormatMatch)
+			}
+			return nil
+		}
+
+		flush()
+		pending = event
+		pendingGCID = gcID
+		return nil
+	})
+	flush()
+	if err != nil && !errors.Is(err, errStopIteration) {
+		return events, err
+	}
+	return events, nil
+}
+
 func parseUnified(lines []string, opts Options, diags *diagnostics.ParserDiagnostics) ([]Event, error) {
 	events := make([]Event, 0, len(lines))
 
@@ -400,6 +466,86 @@ type g1Pending struct {
 	metaspaceBeforeMB *float64
 	metaspaceAfterMB  *float64
 	rawLine           string
+}
+
+func parseG1LegacyFile(path string, opts Options, diags *diagnostics.ParserDiagnostics) ([]Event, error) {
+	events := make([]Event, 0, 1024)
+	var pending *g1Pending
+
+	flush := func() {
+		if pending != nil {
+			events = append(events, buildG1Event(*pending))
+			diags.ParsedRecords++
+			pending = nil
+		}
+	}
+
+	err := textio.ForEachTextLine(path, "", func(lineNumber int, line string) error {
+		if opts.MaxLines > 0 && lineNumber > opts.MaxLines {
+			return errStopIteration
+		}
+		diags.TotalLines++
+		if isBlank(line) {
+			return nil
+		}
+
+		if m := g1MemoryRe.FindStringSubmatch(line); m != nil && pending != nil {
+			pending.heapBeforeMB = toMBPtr(m[9], m[10])
+			pending.heapAfterMB = toMBPtr(m[13], m[14])
+			pending.heapCommittedMB = toMBPtr(m[15], m[16])
+			edenBefore := toMBPtr(m[1], m[2])
+			survivorsBefore := toMBPtr(m[5], m[6])
+			edenAfter := toMBPtr(m[3], m[4])
+			survivorsAfter := toMBPtr(m[7], m[8])
+			pending.youngBeforeMB = safeAdd(edenBefore, survivorsBefore)
+			pending.youngAfterMB = safeAdd(edenAfter, survivorsAfter)
+			return nil
+		}
+
+		if m := g1MetaspaceRe.FindStringSubmatch(line); m != nil && pending != nil {
+			pending.metaspaceBeforeMB = toMBPtr(m[1], m[2])
+			pending.metaspaceAfterMB = toMBPtr(m[3], m[4])
+			return nil
+		}
+
+		if m := g1PauseRe.FindStringSubmatch(line); m != nil {
+			if pending != nil {
+				flush()
+			}
+			pauseSecsStr := matchGroup(g1PauseRe, m, "pause")
+			pauseSecs, err := strconv.ParseFloat(pauseSecsStr, 64)
+			pauseMS := 0.0
+			if err == nil {
+				pauseMS = pauseSecs * 1000.0
+			}
+			label := strings.TrimRight(strings.TrimSpace(matchGroup(g1PauseRe, m, "label")), ",")
+			label = strings.TrimSpace(label)
+			pending = &g1Pending{
+				datestamp: matchGroup(g1PauseRe, m, "datestamp"),
+				uptime:    matchGroup(g1PauseRe, m, "uptime"),
+				label:     label,
+				pauseMS:   &pauseMS,
+				rawLine:   line,
+			}
+			if cm := g1CleanupMemRe.FindStringSubmatch(line); cm != nil {
+				pending.heapBeforeMB = toMBPtr(cm[1], cm[2])
+				pending.heapAfterMB = toMBPtr(cm[3], cm[4])
+				pending.heapCommittedMB = toMBPtr(cm[5], cm[6])
+			} else if hm := g1InlineHeapRe.FindStringSubmatchIndex(label); hm != nil {
+				groups := g1InlineHeapRe.FindStringSubmatch(label)
+				pending.heapBeforeMB = toMBPtr(groups[1], groups[2])
+				pending.heapAfterMB = toMBPtr(groups[3], groups[4])
+				pending.heapCommittedMB = toMBPtr(groups[5], groups[6])
+				pending.label = strings.TrimRight(label[:hm[0]], " ")
+			}
+		}
+		return nil
+	})
+	flush()
+	if err != nil && !errors.Is(err, errStopIteration) {
+		return events, err
+	}
+	return events, nil
 }
 
 func parseG1Legacy(lines []string, opts Options, diags *diagnostics.ParserDiagnostics) []Event {
@@ -576,6 +722,65 @@ func titleCase(s string) string {
 // ═══════════════════════════════════════════════════════════════════
 // Legacy Non-G1 (JDK 4-8 Serial / Parallel / CMS)
 // ═══════════════════════════════════════════════════════════════════
+
+func parseLegacyFile(path string, opts Options, diags *diagnostics.ParserDiagnostics) ([]Event, error) {
+	events := make([]Event, 0, 1024)
+	err := textio.ForEachTextLine(path, "", func(lineNumber int, line string) error {
+		if opts.MaxLines > 0 && lineNumber > opts.MaxLines {
+			return errStopIteration
+		}
+		diags.TotalLines++
+		if isBlank(line) {
+			return nil
+		}
+
+		pm := captureGroups(legacyPauseRe, line)
+		if pm == nil {
+			return nil
+		}
+
+		allHeap := legacyHeapRe.FindAllStringSubmatchIndex(line, -1)
+		if len(allHeap) == 0 {
+			return nil
+		}
+		lastIdx := allHeap[len(allHeap)-1]
+		hm := captureGroupsFromIndex(legacyHeapRe, line, lastIdx)
+
+		label := strings.TrimSpace(pm["label"])
+		var uptime *float64
+		if pm["uptime"] != "" {
+			if v, err := strconv.ParseFloat(strings.ReplaceAll(pm["uptime"], ",", "."), 64); err == nil {
+				uptime = &v
+			}
+		}
+
+		gcType, cause := detectLegacyGCType(line, label)
+
+		pauseSecs, err := strconv.ParseFloat(hm["pause"], 64)
+		if err != nil {
+			return nil
+		}
+		pauseMS := pauseSecs * 1000.0
+
+		events = append(events, Event{
+			Timestamp:       parseLegacyTimestamp(pm["datestamp"]),
+			UptimeSec:       uptime,
+			GCType:          gcType,
+			Cause:           cause,
+			PauseMS:         &pauseMS,
+			HeapBeforeMB:    toMBPtr(hm["before"], hm["bu"]),
+			HeapAfterMB:     toMBPtr(hm["after"], hm["au"]),
+			HeapCommittedMB: toMBPtr(hm["committed"], hm["cu"]),
+			RawLine:         line,
+		})
+		diags.ParsedRecords++
+		return nil
+	})
+	if err != nil && !errors.Is(err, errStopIteration) {
+		return events, err
+	}
+	return events, nil
+}
 
 func parseLegacy(lines []string, opts Options, diags *diagnostics.ParserDiagnostics) []Event {
 	events := make([]Event, 0, len(lines))

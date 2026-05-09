@@ -9,32 +9,35 @@
 // [한글] nodejs stack parser — Node.js 에러 스택 트레이스 파서.
 //
 // 입력 패턴
-//   2026-04-27T10:00:00.000Z TypeError: Cannot read property 'foo' of undefined
-//       at Object.<anonymous> (/app/index.js:42:13)
-//       at Module._compile (internal/modules/cjs/loader.js:1:1)
-//   Caused by: ReferenceError: bar is not defined
-//       at ...
+//
+//	2026-04-27T10:00:00.000Z TypeError: Cannot read property 'foo' of undefined
+//	    at Object.<anonymous> (/app/index.js:42:13)
+//	    at Module._compile (internal/modules/cjs/loader.js:1:1)
+//	Caused by: ReferenceError: bar is not defined
+//	    at ...
 //
 // header 정규식 nodeErrorRE
-//   • optional ISO timestamp prefix.
-//   • TypeName : "Error" 또는 "Exception" 으로 끝나는 식별자.
+//   - optional ISO timestamp prefix.
+//   - TypeName : "Error" 또는 "Exception" 으로 끝나는 식별자.
 //     (TypeError, RangeError, ReferenceError, SyntaxError, ...)
-//   • 선택적 `: message`.
+//   - 선택적 `: message`.
 //
 // 처리 흐름
-//   1) header 매칭 → 이전 블록 flush + 새 블록 시작.
-//   2) 이후의 `at ...` 라인을 stack 에 누적.
-//   3) `Caused by:` 라인이 오면 RootCause 로 등록(분석기에서 활용).
-//   4) live 블록 외부의 무관한 라인은 NO_NODEJS_ERROR_HEADER 사유로
-//      diagnostics 카운트.
+//  1. header 매칭 → 이전 블록 flush + 새 블록 시작.
+//  2. 이후의 `at ...` 라인을 stack 에 누적.
+//  3. `Caused by:` 라인이 오면 RootCause 로 등록(분석기에서 활용).
+//  4. live 블록 외부의 무관한 라인은 NO_NODEJS_ERROR_HEADER 사유로
+//     diagnostics 카운트.
 //
 // frame 정규화
-//   `at <name> (<file>:<line>:<col>)` 또는 `at <file>:<line>:<col>`
-//   둘 다 인식. file:line:col 까지 보존해 dashboard 의 detail 표에
-//   직결.
+//
+//	`at <name> (<file>:<line>:<col>)` 또는 `at <file>:<line>:<col>`
+//	둘 다 인식. file:line:col 까지 보존해 dashboard 의 detail 표에
+//	직결.
 package runtimestack
 
 import (
+	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -63,31 +66,33 @@ func ParseNodejsFile(path string, opts Options) ([]RuntimeStackRecord, *diagnost
 	diags := diagnostics.New("nodejs_stack")
 	diags.SetSourceFile(path)
 
-	lines, err := textio.IterTextLines(path, "")
-	if err != nil {
-		return nil, nil, err
-	}
-
 	type pending struct {
 		startLine int
 		body      []string
 	}
-	var blocks []pending
+	records := make([]RuntimeStackRecord, 0)
 	var current pending
 	currentActive := false
 
 	flush := func() {
 		if currentActive {
-			blocks = append(blocks, current)
+			record, ok := parseNodejsBlock(current.body)
+			if !ok {
+				diags.AddSkipped(current.startLine, ReasonInvalidNodejsStack,
+					"Node.js stack block was missing a supported header.",
+					strings.Join(current.body, "\n"))
+			} else {
+				records = append(records, record)
+				diags.ParsedRecords++
+			}
 		}
 		currentActive = false
 		current = pending{}
 	}
 
-	for i, line := range lines {
-		lineNumber := i + 1
+	err := textio.ForEachTextLine(path, "", func(lineNumber int, line string) error {
 		if opts.MaxLines > 0 && lineNumber > opts.MaxLines {
-			break
+			return errStopIteration
 		}
 		diags.TotalLines++
 
@@ -106,24 +111,15 @@ func ParseNodejsFile(path string, opts Options) ([]RuntimeStackRecord, *diagnost
 			message := "Line did not start a supported Node.js stack block."
 			diags.AddSkipped(lineNumber, reason, message, line)
 			if opts.Strict {
-				return nil, diags, fmt.Errorf("%s:%d: %s: %s", path, lineNumber, reason, message)
+				return fmt.Errorf("%s:%d: %s: %s", path, lineNumber, reason, message)
 			}
 		}
+		return nil
+	})
+	if err != nil && !errors.Is(err, errStopIteration) {
+		return records, diags, err
 	}
 	flush()
-
-	records := make([]RuntimeStackRecord, 0, len(blocks))
-	for _, b := range blocks {
-		record, ok := parseNodejsBlock(b.body)
-		if !ok {
-			diags.AddSkipped(b.startLine, ReasonInvalidNodejsStack,
-				"Node.js stack block was missing a supported header.",
-				strings.Join(b.body, "\n"))
-			continue
-		}
-		records = append(records, record)
-		diags.ParsedRecords++
-	}
 
 	if diags.TotalLines == 0 {
 		diags.AddWarning(0, "EMPTY_FILE", "Node.js stack file is empty.", "", false)

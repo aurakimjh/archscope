@@ -10,31 +10,37 @@
 // [한글] accesslog parser — HTTP 액세스 로그 라인을 Record 구조체로 변환.
 //
 // 지원 포맷 (3종 regex 우선순위)
-//   1) nginx-combined-with-response-time: combined + 끝에 응답시간(초).
-//   2) combined: referer + user-agent + 응답시간 없음.
-//   3) common: client IP + status + bytes 만(제일 단순).
 //
-//   라인을 위에서부터 시도해 첫 매칭이 채택. 정확히 어떤 포맷인지는
-//   분석기의 `format` 라벨로 사용자에게 노출되지만, 파싱 자체는 위
-//   3개로 dispatch — 실제 파일이 mixed 라도 라인 단위로 가능한 한
-//   많이 살림.
+//  1. nginx-combined-with-response-time: combined + 끝에 응답시간(초).
+//
+//  2. combined: referer + user-agent + 응답시간 없음.
+//
+//  3. common: client IP + status + bytes 만(제일 단순).
+//
+//     라인을 위에서부터 시도해 첫 매칭이 채택. 정확히 어떤 포맷인지는
+//     분석기의 `format` 라벨로 사용자에게 노출되지만, 파싱 자체는 위
+//     3개로 dispatch — 실제 파일이 mixed 라도 라인 단위로 가능한 한
+//     많이 살림.
 //
 // 시간 파싱
-//   nginx 형식: `27/Apr/2026:10:00:01 +0900`. 월 약어를 numeric 으로
-//   변환해 time.Parse 의 reference layout 으로 처리.
+//
+//	nginx 형식: `27/Apr/2026:10:00:01 +0900`. 월 약어를 numeric 으로
+//	변환해 time.Parse 의 reference layout 으로 처리.
 //
 // 라인 손상 정책 (T-013)
-//   • 정상 미매칭        : skip + diagnostics.SkippedRecords++
-//   • 매칭됐으나 status 가 숫자 아님 : skip + 별도 reason 카운트.
-//   • 응답시간 음수 / NaN: 0 으로 강제 + warning.
-//   • Strict=true        : 첫 skip 이 fatal error 로 즉시 반환.
+//   - 정상 미매칭        : skip + diagnostics.SkippedRecords++
+//   - 매칭됐으나 status 가 숫자 아님 : skip + 별도 reason 카운트.
+//   - 응답시간 음수 / NaN: 0 으로 강제 + warning.
+//   - Strict=true        : 첫 skip 이 fatal error 로 즉시 반환.
 //
 // MaxLines / 시간 윈도우 필터
-//   사용자가 큰 로그를 빠르게 sampling 하거나(MaxLines), 특정 분 단위
-//   구간만 분석(StartTime/EndTime)할 수 있도록 옵션 제공.
+//
+//	사용자가 큰 로그를 빠르게 sampling 하거나(MaxLines), 특정 분 단위
+//	구간만 분석(StartTime/EndTime)할 수 있도록 옵션 제공.
 package accesslog
 
 import (
+	"errors"
 	"fmt"
 	"math"
 	"regexp"
@@ -46,6 +52,8 @@ import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/textio"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/timeutil"
 )
+
+var errStopIteration = errors.New("stop access log iteration")
 
 // Record is the parsed access-log row. Mirrors Python's
 // `models.access_log.AccessLogRecord` field-for-field; `RawLine` is
@@ -248,37 +256,35 @@ func ParseFile(path, format string, opts Options) ([]Record, *diagnostics.Parser
 	diags := diagnostics.New(format)
 	diags.SetSourceFile(path)
 
-	lines, err := textio.IterTextLines(path, "")
-	if err != nil {
-		return nil, nil, err
-	}
-
-	records := make([]Record, 0, len(lines))
-	for i, line := range lines {
-		lineNumber := i + 1
+	records := make([]Record, 0, 1024)
+	err := textio.ForEachTextLine(path, "", func(lineNumber int, line string) error {
 		if opts.MaxLines > 0 && lineNumber > opts.MaxLines {
-			break
+			return errStopIteration
 		}
 		diags.TotalLines++
 		if isBlank(line) {
-			continue
+			return nil
 		}
 		record, perr := ParseLine(line)
 		if record != nil {
 			if !inTimeRange(record.Timestamp, opts.StartTime, opts.EndTime) {
-				continue
+				return nil
 			}
 			diags.ParsedRecords++
 			records = append(records, *record)
-			continue
+			return nil
 		}
 		if perr == nil {
-			return nil, nil, fmt.Errorf("access log parser returned neither record nor error")
+			return fmt.Errorf("access log parser returned neither record nor error")
 		}
 		diags.AddSkipped(lineNumber, perr.Reason, perr.Message, line)
 		if opts.Strict {
-			return records, diags, fmt.Errorf("%s:%d: %s: %s", path, lineNumber, perr.Reason, perr.Message)
+			return fmt.Errorf("%s:%d: %s: %s", path, lineNumber, perr.Reason, perr.Message)
 		}
+		return nil
+	})
+	if err != nil && !errors.Is(err, errStopIteration) {
+		return records, diags, err
 	}
 
 	if diags.TotalLines == 0 {
