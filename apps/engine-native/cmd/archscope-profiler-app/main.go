@@ -7,7 +7,8 @@
 //   등록해 renderer 에서 비동기 분석 호출이 가능하도록 한다.
 //
 // 핵심 구성
-//   - //go:embed all:frontend/dist : 프론트엔드 정적 자산 임베드
+//   - assets_* 파일             : production 에서는 frontend/dist 를 embed,
+//                                 dev/test 에서는 컴파일 가능한 DirFS fallback 사용
 //   - RegisterEvent[T]              : 타입드 이벤트 등록 (generated JS handler)
 //   - ProfilerService / EngineService : 분석 서비스 두 개를 노출
 //
@@ -24,14 +25,10 @@
 package main
 
 import (
-	"embed"
 	"log"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
-
-//go:embed all:frontend/dist
-var assets embed.FS
 
 // [한글] init — 패키지 로드 시 frontend 와 주고받을 typed event 6개 등록.
 // Wails 바인딩 생성기가 이 정보를 보고 강타입 JS 핸들러를 만든다.
