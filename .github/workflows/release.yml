@@ -85,7 +85,9 @@ jobs:
 
       - name: Install Task runner and Windows packaging tools
         if: matrix.os == 'windows-latest'
-        run: choco install go-task nsis --no-progress -y
+        run: |
+          choco install go-task nsis --no-progress -y
+          "C:\Program Files (x86)\NSIS" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: Frontend deps
         run: npm install
