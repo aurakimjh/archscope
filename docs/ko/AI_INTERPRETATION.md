@@ -2,6 +2,10 @@
 
 AI-assisted interpretation은 optional이며 evidence-bound로 제한한다. ArchScope는 model output을 근거 없는 conclusion처럼 표시하면 안 된다.
 
+현재 구현 위치는 Go package
+`apps/engine-native/internal/aiinterpretation`입니다. 이전 Python 설계
+메모는 정책 맥락으로만 유지하며, 활성 runtime은 Go입니다.
+
 ## Evidence Requirement
 
 AI가 생성한 finding, explanation, recommendation은 반드시 다음 중 하나 이상의 raw evidence를 참조해야 한다.
@@ -62,15 +66,15 @@ AI interpretation은 `AnalysisResult`를 대체하지 않고 별도 `Interpretat
 
 ## Runtime Enforcement
 
-첫 구현은 `archscope_engine.ai_interpretation` 아래에 code-level guardrail을 포함한다.
+현재 구현은 `apps/engine-native/internal/aiinterpretation` 아래에
+code-level guardrail을 포함한다.
 
 - `EvidenceRegistry`는 analyzer output에서 canonical evidence reference를 수집한다.
 - `AiFindingValidator`는 blank, malformed, unsupported, unknown, low-confidence, quote-mismatched finding을 거부한다.
 - `EvidenceSelector`는 prompt construction 전 evidence 개수와 문자 수를 제한한다.
-- `PromptBuilder`는 `archscope_engine.config/prompt_templates.json`의 packaged prompt template을 읽고, model profile과 English/Korean language variant를 선택한 뒤 system instruction과 untrusted diagnostic data를 delimited JSON block으로 분리한다.
-- `LocalLlmClient`는 optional local inference의 실행 경계를 정의한다.
+- `PromptBuilder`는 versioned prompt payload를 만들고 bounded evidence를
+  선택한 뒤 system instruction과 untrusted diagnostic data를 JSON block으로 분리한다.
 - `OllamaClient`는 Ollama local `/api/generate` endpoint를 timeout-bound JSON request로 호출하고, interpretation envelope를 정규화한 뒤 결과를 검증해서 반환한다.
-- `LocalLlmClient.execute_async()`는 local inference 중 UI 또는 worker caller의 main loop가 block되지 않도록 non-blocking wrapper를 제공한다.
 - Prompt 및 response logging은 기본 비활성화한다.
 
 초기 low-confidence threshold는 `0.3`이다. Partial invalid response는 보수적으로 처리한다. Invalid finding은 표시하지 않으며 validation failure는 engine/UI message로 노출해야 한다.

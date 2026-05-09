@@ -4,7 +4,7 @@
 // result type uniformly.
 //
 // The profiler-track Go binary already has its own AnalysisResult
-// (apps/profiler-native/internal/profiler) tuned to the profiler
+// (apps/engine-native/internal/profiler) tuned to the profiler
 // shape — this package generalises that shape so Access Log / GC
 // Log / Thread Dump analyzers can also use it. We keep the JSON
 // keys identical to the Python implementation so the T-244 / T-390

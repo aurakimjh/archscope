@@ -1,15 +1,19 @@
 # ArchScope Documentation
 
-This directory contains the English design documents for ArchScope.
+This directory contains the English design documents for the current
+Go/Wails ArchScope line. Python/FastAPI/browser implementation notes are
+historical unless they explicitly reference `archive/`.
 
 User-facing guides:
 
-- [User Guide](./USER_GUIDE.md) — install, run, every page, every CLI command, troubleshooting.
+- [Native App](./PROFILER_NATIVE.md) — build, run, package, and CLI entry points.
+- [User Guide](./USER_GUIDE.md) — historical browser guide; use the native app guide for current builds.
 - [Multi-language Thread Dumps](./MULTI_LANGUAGE_THREADS.md) — six-format support matrix and per-language enrichment rules.
 
 Engineering / design references:
 
 - [Architecture](./ARCHITECTURE.md)
+- [Native App](./PROFILER_NATIVE.md)
 - [Roadmap](./ROADMAP.md)
 - [Data Model](./DATA_MODEL.md)
 - [Parser Design](./PARSER_DESIGN.md)

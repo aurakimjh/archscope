@@ -1,102 +1,69 @@
-# engine-native — Go port of the ArchScope Python engine
+# engine-native
 
-This module is the Tier-0 / Tier-9 home for the **Go Engine Full
-Conversion** track in `work_status.md` (T-301..T-392). It owns
-analyzer / parser / exporter / web / CLI Go code that supersedes the
-matching Python module under `engines/python/archscope_engine/`.
+`apps/engine-native` is the active ArchScope implementation. It contains
+the Go analysis engine, the profiler core formerly located under
+`apps/profiler-native`, the Cobra CLIs, and the Wails desktop app.
 
-The existing Wails v3 native profiler module
-(`apps/profiler-native/`) is intentionally **not** merged into this
-one — it ships a smaller binary tuned to the profiler-first slice.
-Shared models (FlameNode, ParserDiagnostics, DebugLog, RedactText)
-are duplicated for now; T-302 will lift them into a workspace `pkg/`
-once both apps reference them in lockstep.
+The retired Python implementation has been moved to `archive/`; it is no
+longer the shipping path.
 
-## Layout (T-301 foundation)
+## Layout
 
-```
+```text
 apps/engine-native/
-├ internal/
-│  ├ models/             AnalysisResult envelope + Metadata
-│  │                     ThreadState / StackFrame / ThreadSnapshot / ThreadDumpBundle (T-302)
-│  ├ diagnostics/        ParserDiagnostics builder (matches Python JSON)
-│  ├ statistics/         Average / Percentile / BoundedPercentile
-│  ├ textio/             Encoding-safe text iterator
-│  │                     (utf-8-sig / utf-8 / cp949 / utf-16-LE/BE / latin-1)
-│  ├ timeutil/           ParseNginxTimestamp / MinuteBucket (T-310)
-│  ├ parsers/
-│  │  ├ accesslog/       Access log parser — 3 regex variants (T-310)
-│  │  ├ exception/       Java stack trace + cause chain (T-311)
-│  │  ├ gclog/           HotSpot unified / G1 legacy GC log + JVM info card (T-312)
-│  │  ├ otel/            OTel JSONL trace/span parser (T-313)
-│  │  ├ jfr/             JFR JSON parser + .jfr→JSON via `jfr` JDK CLI (T-314)
-│  │  └ runtimestack/    .NET / Go panic / Node.js / Python traceback (T-315)
-│  ├ threaddump/         Plugin interface + Registry + 4KB head sniff (T-320)
-│  │  └ plugins/
-│  │     ├ javajstack/      jstack + AOP cleanup + state inference + SMR + virtual threads + class histogram + monitors (T-321)
-│  │     ├ javajcmdjson/    Java jcmd JSON output (T-322)
-│  │     ├ gogoroutine/     Go goroutine dump + framework cleanup (T-323)
-│  │     ├ pythondump/      py-spy + faulthandler + Python traceback (T-324)
-│  │     ├ nodejsreport/    Node.js diagnostic-report + sample-trace (T-325)
-│  │     └ dotnetclrstack/  WinDbg clrstack + .NET environment stacktrace (T-326)
-│  ├ analyzers/
-│  │  ├ accesslog/              22-metric summary + percentile timeline + findings (T-330)
-│  │  ├ gclog/                  pause/heap series + JVM Info card + 7 findings (T-331)
-│  │  ├ jfr/                    JFR + native memory analyzer + heatmap (T-332)
-│  │  ├ exception/              Java exception type/root-cause aggregation (T-333)
-│  │  ├ runtime/                Runtime stack trace findings + IIS / .NET (T-333)
-│  │  ├ otel/                   Service-path DAG + failure propagation (T-334)
-│  │  ├ threaddump/             Single-dump JVM state distribution (T-335)
-│  │  ├ multithread/            Multi-dump correlation + 10 findings (T-336)
-│  │  ├ lockcontention/         Owner/waiter graph + DFS deadlock detector (T-337)
-│  │  ├ threaddumpcollapsed/    Bundle → flamegraph collapsed format (T-338)
-│  │  └ profileclassification/  Config-driven runtime classification rules (T-339)
-│  ├ exporters/
-│  │  ├ json/                   round-trip-stable JSON writer (T-340)
-│  │  ├ html/                   single-file portable HTML report (T-341)
-│  │  ├ pptx/                   hand-rolled OOXML PPTX (T-342)
-│  │  ├ csv/                    summary/series flattening (T-343)
-│  │  └ reportdiff/             before/after comparison (T-344)
-│  └ common/             RedactText / DebugLog (lifted from profiler-native)
-└ cmd/
-   └ archscope-engine/   CLI entry point — `accesslog` subcommand wired
-                         for the parity gate; full Cobra surface lands
-                         under T-360
+  api/                         Wails service API bindings
+  cmd/
+    archscope-engine/          Headless Cobra CLI for all analyzers
+    archscope-profiler/        Profiler-focused CLI
+    archscope-profiler-app/    Wails desktop app + React frontend
+  internal/
+    aiinterpretation/          Evidence-bound local AI interpretation
+    analyzers/                 Access log, GC, JFR, thread dump, etc.
+    demosite/                  Demo manifest runner
+    diagnostics/               Parser diagnostics contract
+    exporters/                 JSON, CSV, HTML, PPTX, report diff
+    models/                    Common AnalysisResult envelope
+    parsers/                   Input parsers
+    profiler/                  Collapsed/SVG/HTML/Jennifer profiler core
+    threaddump/                Multi-runtime thread dump registry/plugins
 ```
 
-`internal/` is module-private; cross-app sharing happens through a
-future `packages/` workspace (tracked under T-352).
-
-## Build / test
+## Build And Test
 
 ```bash
 cd apps/engine-native
-go build ./...
 go test ./...
+go build ./cmd/archscope-engine ./cmd/archscope-profiler
+
+cd cmd/archscope-profiler-app/frontend
+npm ci
+npm run build
 ```
 
-CI runs `go test ./...` for this module under
-`.github/workflows/profiler-native.yml` `go-test` matrix
-(`ubuntu-latest`, `macos-14`, `windows-latest`).
+Desktop packaging requires the Wails v3 CLI and Task:
 
-## What's next
+```bash
+go install github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0-alpha.84
+brew install go-task
+cd apps/engine-native/cmd/archscope-profiler-app
+GOCACHE=/tmp/aiservice-go-cache task package
+```
 
-After the **2026-05-07 desktop-only pivot**, this module's role narrows
-to "pure Go library + thin CLI". T-350 (net/http server) and T-351
-(embed.FS for HTTP-served React) were rejected and dropped — the
-desktop binary (`apps/profiler-native`) is the single user-facing
-artifact and consumes engine-native via Wails service bindings.
+Current local packaging verification (2026-05-09):
 
-- T-350' — Wails service bindings exposing every analyzer/exporter to
-  the desktop UI.
-- T-351' — extend the Wails frontend with all analyzer pages
-  currently in `apps/frontend/`.
-- T-352 — frontend cleanup (lift shared components into a workspace
-  package, then delete or archive `apps/frontend/`).
-- T-360 — headless Cobra CLI for CI / scripting / parity gate.
-- T-370 — AI interpretation (optional, off by default).
-- T-380 — demo-site runner.
-- T-390..T-392 — full-engine parity gate, single Wails desktop
-  binary release, Python retirement decision.
+- `task` 3.50.0
+- `wails3` v3.0.0-alpha.84
+- `npm audit`: 0 vulnerabilities after Vite 8 / React plugin 6 update
+- `bin/archscope-profiler`: 11 MB
+- `bin/archscope-profiler.app`: 13 MB
 
-See `work_status.md` for the full Tier-0..Tier-9 fan-out.
+## Notes
+
+- `internal/models.AnalysisResult` remains the common engine/UI
+  contract.
+- `internal/profiler.AnalysisResult` is preserved for the profiler core
+  and is serialized directly by profiler CLI commands.
+- AI interpretation is implemented under `internal/aiinterpretation` and
+  accepts only localhost LLM URLs.
+- `.github/workflows/profiler-native.yml` now validates this unified Go
+  module and Wails frontend.

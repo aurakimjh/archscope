@@ -60,11 +60,9 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.22"
+          go-version: "1.25.x"
           cache: true
-          cache-dependency-path: |
-            apps/profiler-native/go.sum
-            apps/engine-native/go.sum
+          cache-dependency-path: apps/engine-native/go.sum
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -91,11 +89,11 @@ jobs:
 
       - name: Frontend deps
         run: npm install
-        working-directory: apps/profiler-native/cmd/archscope-profiler-app/frontend
+        working-directory: apps/engine-native/cmd/archscope-profiler-app/frontend
 
       - name: Wails package
         run: task package
-        working-directory: apps/profiler-native/cmd/archscope-profiler-app
+        working-directory: apps/engine-native/cmd/archscope-profiler-app
 
       # ── macOS: codesign with Developer ID if cert is in repo secrets ──
       - name: Import Developer ID certificate (macOS)
@@ -127,7 +125,7 @@ jobs:
           else
             echo "APPLE_DEVELOPER_ID secret not set; keeping ad-hoc signature."
           fi
-        working-directory: apps/profiler-native/cmd/archscope-profiler-app
+        working-directory: apps/engine-native/cmd/archscope-profiler-app
 
       - name: Notarize
         if: startsWith(matrix.label, 'darwin-')
@@ -142,24 +140,24 @@ jobs:
           else
             echo "Notary credentials absent; skipping notarization."
           fi
-        working-directory: apps/profiler-native/cmd/archscope-profiler-app
+        working-directory: apps/engine-native/cmd/archscope-profiler-app
 
       - name: Build DMG
         if: startsWith(matrix.label, 'darwin-')
         run: task darwin:package:dmg ARCH=${{ matrix.arch }}
-        working-directory: apps/profiler-native/cmd/archscope-profiler-app
+        working-directory: apps/engine-native/cmd/archscope-profiler-app
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: archscope-profiler-${{ matrix.label }}
           path: |
-            apps/profiler-native/cmd/archscope-profiler-app/bin/archscope-profiler.app/**
-            apps/profiler-native/cmd/archscope-profiler-app/bin/*.dmg
-            apps/profiler-native/cmd/archscope-profiler-app/bin/*.exe
-            apps/profiler-native/cmd/archscope-profiler-app/bin/archscope-profiler
-            apps/profiler-native/cmd/archscope-profiler-app/bin/*.deb
-            apps/profiler-native/cmd/archscope-profiler-app/bin/*.rpm
+            apps/engine-native/cmd/archscope-profiler-app/bin/archscope-profiler.app/**
+            apps/engine-native/cmd/archscope-profiler-app/bin/*.dmg
+            apps/engine-native/cmd/archscope-profiler-app/bin/*.exe
+            apps/engine-native/cmd/archscope-profiler-app/bin/archscope-profiler
+            apps/engine-native/cmd/archscope-profiler-app/bin/*.deb
+            apps/engine-native/cmd/archscope-profiler-app/bin/*.rpm
           if-no-files-found: warn
 
   release:

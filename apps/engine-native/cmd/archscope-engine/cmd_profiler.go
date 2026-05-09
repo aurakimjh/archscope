@@ -1,67 +1,240 @@
-// `profiler` group — stub. The async-profiler / Jennifer / flamegraph
-// analyzers are still Python-only; they will live in apps/profiler-native
-// once the desktop shell takes over (T-352 follow-up). The group is
-// registered here only so it shows up in `--help` and so users get a
-// clear pointer rather than "unknown command".
-//
-// ─────────────────────────────────────────────────────────────────────
-// [한글] `profiler` 명령 그룹 — 스텁(stub) 구현.
-//
-// 왜 스텁인가?
-//   async-profiler collapsed/SVG/HTML 파싱과 drilldown/breakdown 는
-//   현재 Python 측에만 구현되어 있고, Go 포트는 데스크톱 셸
-//   (apps/profiler-native) 이 직접 흡수하는 방향(T-352 follow-up)으로
-//   계획되어 있습니다. 따라서 engine-native CLI 에서는 의도적으로
-//   "이 분석기는 여기 없다" 는 명시적 안내 메시지를 반환합니다.
-//
-// 왜 그래도 등록은 하는가?
-//   사용자가 `archscope-engine --help` 또는 `archscope-engine profiler`
-//   를 실행했을 때 "unknown command" 가 아닌, 어디로 가야 하는지를
-//   알려주기 위함입니다(`python -m archscope_engine.cli profiler` 안내).
-//   이는 parity gate 의 stderr 형식 비교에서도 "동일한 길잡이 메시지"
-//   를 유지하는 데 도움이 됩니다.
-//
-// stub 헬퍼
-//   stub("name", "short") 는 같은 RunE — 즉 "profilerStubMessage 를
-//   에러로 반환" — 만 가지는 cobra.Command 를 반복 생성하는 팩토리
-//   클로저입니다. 6개의 리프(analyze-collapsed/-svg/-html/-jennifer-csv/
-//   drilldown/breakdown)를 한 줄씩 등록.
 package main
 
 import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-)
 
-const profilerStubMessage = "profiler analyzers live in apps/profiler-native (T-352 follow-up); engine-native does not ship them"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/profiler"
+)
 
 func init() {
 	group := &cobra.Command{
 		Use:   "profiler",
-		Short: "Profiler analysis commands (not shipped by engine-native).",
-		Long: `Profiler analysis is provided by the desktop shell at
-apps/profiler-native (T-352 follow-up). engine-native intentionally
-does not ship these analyzers — for command-line profiler analysis,
-use ` + "`python -m archscope_engine.cli profiler`" + `.`,
+		Short: "Profiler analysis commands.",
+		Long:  "Analyze collapsed stacks, FlameGraph SVG/HTML, and Jennifer APM CSV inputs.",
 	}
 
-	stub := func(use, short string) *cobra.Command {
-		return &cobra.Command{
-			Use:   use,
-			Short: short,
-			RunE: func(cmd *cobra.Command, args []string) error {
-				return fmt.Errorf("%s", profilerStubMessage)
-			},
-		}
-	}
-
-	group.AddCommand(stub("analyze-collapsed", "Analyze a collapsed-stack profile (not in engine-native)."))
-	group.AddCommand(stub("analyze-flamegraph-svg", "Analyze a FlameGraph SVG (not in engine-native)."))
-	group.AddCommand(stub("analyze-flamegraph-html", "Analyze a FlameGraph HTML wrapper (not in engine-native)."))
-	group.AddCommand(stub("analyze-jennifer-csv", "Analyze a Jennifer APM CSV (not in engine-native)."))
-	group.AddCommand(stub("drilldown", "Apply drill-down filters (not in engine-native)."))
-	group.AddCommand(stub("breakdown", "Compute execution breakdown (not in engine-native)."))
+	group.AddCommand(newProfilerAnalyzeCollapsedCommand())
+	group.AddCommand(newProfilerAnalyzeSVGCommand())
+	group.AddCommand(newProfilerAnalyzeHTMLCommand())
+	group.AddCommand(newProfilerAnalyzeJenniferCommand())
+	group.AddCommand(newProfilerDrilldownCommand())
+	group.AddCommand(newProfilerBreakdownCommand())
 
 	rootCmd.AddCommand(group)
+}
+
+type profilerFlags struct {
+	in                 string
+	collapsed          string
+	jenniferCSV        string
+	out                string
+	intervalMS         float64
+	elapsedSec         float64
+	topN               int
+	profileKind        string
+	timelineBaseMethod string
+	filterPatterns     []string
+	filterType         string
+	matchMode          string
+	viewMode           string
+	caseSensitive      bool
+}
+
+func newProfilerAnalyzeCollapsedCommand() *cobra.Command {
+	var f profilerFlags
+	cmd := &cobra.Command{
+		Use:   "analyze-collapsed",
+		Short: "Analyze an async-profiler collapsed stack file.",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if f.in == "" {
+				return fmt.Errorf("--in is required")
+			}
+			result, err := profiler.AnalyzeCollapsedFile(f.in, profilerOptions(f))
+			if err != nil {
+				return err
+			}
+			return writeJSONAny(result, f.out)
+		},
+	}
+	addProfilerCommonFlags(cmd, &f)
+	return cmd
+}
+
+func newProfilerAnalyzeSVGCommand() *cobra.Command {
+	var f profilerFlags
+	cmd := &cobra.Command{
+		Use:   "analyze-flamegraph-svg",
+		Short: "Analyze a FlameGraph SVG file.",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if f.in == "" {
+				return fmt.Errorf("--in is required")
+			}
+			result, err := profiler.AnalyzeFlamegraphSVGFile(f.in, profilerOptions(f))
+			if err != nil {
+				return err
+			}
+			return writeJSONAny(result, f.out)
+		},
+	}
+	addProfilerCommonFlags(cmd, &f)
+	return cmd
+}
+
+func newProfilerAnalyzeHTMLCommand() *cobra.Command {
+	var f profilerFlags
+	cmd := &cobra.Command{
+		Use:   "analyze-flamegraph-html",
+		Short: "Analyze an HTML-wrapped flamegraph.",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if f.in == "" {
+				return fmt.Errorf("--in is required")
+			}
+			result, err := profiler.AnalyzeFlamegraphHTMLFile(f.in, profilerOptions(f))
+			if err != nil {
+				return err
+			}
+			return writeJSONAny(result, f.out)
+		},
+	}
+	addProfilerCommonFlags(cmd, &f)
+	return cmd
+}
+
+func newProfilerAnalyzeJenniferCommand() *cobra.Command {
+	var f profilerFlags
+	cmd := &cobra.Command{
+		Use:   "analyze-jennifer-csv",
+		Short: "Analyze a Jennifer APM flamegraph CSV file.",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if f.in == "" {
+				return fmt.Errorf("--in is required")
+			}
+			result, err := profiler.AnalyzeJenniferFile(f.in, profilerOptions(f))
+			if err != nil {
+				return err
+			}
+			return writeJSONAny(result, f.out)
+		},
+	}
+	addProfilerCommonFlags(cmd, &f)
+	return cmd
+}
+
+func newProfilerDrilldownCommand() *cobra.Command {
+	var f profilerFlags
+	cmd := &cobra.Command{
+		Use:   "drilldown",
+		Short: "Apply one or more profiler drill-down filters.",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			result, opts, err := analyzeProfilerInput(f)
+			if err != nil {
+				return err
+			}
+			stages := profiler.BuildDrilldownStages(result.Charts.Flamegraph, profilerFilters(f), opts.IntervalMS, opts.ElapsedSec, opts.TopN)
+			return writeJSONAny(stages, f.out)
+		},
+	}
+	addProfilerInputChoiceFlags(cmd, &f)
+	addProfilerCommonOptionFlags(cmd, &f)
+	addProfilerFilterFlags(cmd, &f)
+	return cmd
+}
+
+func newProfilerBreakdownCommand() *cobra.Command {
+	var f profilerFlags
+	cmd := &cobra.Command{
+		Use:   "breakdown",
+		Short: "Analyze profiler input and emit execution breakdown sections.",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			result, _, err := analyzeProfilerInput(f)
+			if err != nil {
+				return err
+			}
+			return writeJSONAny(result, f.out)
+		},
+	}
+	addProfilerInputChoiceFlags(cmd, &f)
+	addProfilerCommonOptionFlags(cmd, &f)
+	addProfilerFilterFlags(cmd, &f)
+	return cmd
+}
+
+func addProfilerCommonFlags(cmd *cobra.Command, f *profilerFlags) {
+	cmd.Flags().StringVar(&f.in, "in", "", "input path (required)")
+	addProfilerCommonOptionFlags(cmd, f)
+}
+
+func addProfilerInputChoiceFlags(cmd *cobra.Command, f *profilerFlags) {
+	cmd.Flags().StringVar(&f.collapsed, "wall", "", "collapsed stack input")
+	cmd.Flags().StringVar(&f.jenniferCSV, "jennifer-csv", "", "Jennifer CSV input")
+}
+
+func addProfilerCommonOptionFlags(cmd *cobra.Command, f *profilerFlags) {
+	cmd.Flags().StringVar(&f.out, "out", "-", "output path; `-` for stdout")
+	cmd.Flags().Float64Var(&f.intervalMS, "interval-ms", 100, "sample interval in milliseconds")
+	cmd.Flags().Float64Var(&f.intervalMS, "wall-interval-ms", 100, "collapsed wall interval in milliseconds")
+	cmd.Flags().Float64Var(&f.elapsedSec, "elapsed-sec", -1, "elapsed seconds; negative means unset")
+	cmd.Flags().IntVar(&f.topN, "top-n", 20, "top-N rows to emit")
+	cmd.Flags().StringVar(&f.profileKind, "profile-kind", "wall", "profile mode: wall, cpu, or lock")
+	cmd.Flags().StringVar(&f.timelineBaseMethod, "timeline-base-method", "", "optional base method for timeline analysis")
+}
+
+func addProfilerFilterFlags(cmd *cobra.Command, f *profilerFlags) {
+	cmd.Flags().StringArrayVar(&f.filterPatterns, "filter", nil, "drill-down filter pattern; repeatable")
+	cmd.Flags().StringVar(&f.filterType, "filter-type", "include_text", "include_text|exclude_text|regex_include|regex_exclude")
+	cmd.Flags().StringVar(&f.matchMode, "match-mode", "anywhere", "anywhere|ordered|subtree")
+	cmd.Flags().StringVar(&f.viewMode, "view-mode", "preserve_full_path", "preserve_full_path|reroot_at_match")
+	cmd.Flags().BoolVar(&f.caseSensitive, "case-sensitive", false, "enable case-sensitive filter matching")
+}
+
+func analyzeProfilerInput(f profilerFlags) (profiler.AnalysisResult, profiler.Options, error) {
+	if (f.collapsed == "") == (f.jenniferCSV == "") {
+		return profiler.AnalysisResult{}, profiler.Options{}, fmt.Errorf("exactly one of --wall or --jennifer-csv is required")
+	}
+	opts := profilerOptions(f)
+	if f.jenniferCSV != "" {
+		result, err := profiler.AnalyzeJenniferFile(f.jenniferCSV, opts)
+		return result, opts, err
+	}
+	result, err := profiler.AnalyzeCollapsedFile(f.collapsed, opts)
+	return result, opts, err
+}
+
+func profilerOptions(f profilerFlags) profiler.Options {
+	opts := profiler.Options{
+		IntervalMS:         f.intervalMS,
+		TopN:               f.topN,
+		ProfileKind:        f.profileKind,
+		TimelineBaseMethod: f.timelineBaseMethod,
+	}
+	if opts.IntervalMS <= 0 {
+		opts.IntervalMS = 100
+	}
+	if opts.TopN <= 0 {
+		opts.TopN = 20
+	}
+	if opts.ProfileKind == "" {
+		opts.ProfileKind = "wall"
+	}
+	if f.elapsedSec >= 0 {
+		elapsed := f.elapsedSec
+		opts.ElapsedSec = &elapsed
+	}
+	return opts
+}
+
+func profilerFilters(f profilerFlags) []profiler.DrilldownFilter {
+	filters := make([]profiler.DrilldownFilter, 0, len(f.filterPatterns))
+	for _, pattern := range f.filterPatterns {
+		filters = append(filters, profiler.DrilldownFilter{
+			Pattern:       pattern,
+			FilterType:    f.filterType,
+			MatchMode:     f.matchMode,
+			ViewMode:      f.viewMode,
+			CaseSensitive: f.caseSensitive,
+		})
+	}
+	return filters
 }

@@ -2,6 +2,10 @@
 
 AI-assisted interpretation is optional and evidence-bound. ArchScope must never present model output as an unsupported conclusion.
 
+Current implementation: Go package
+`apps/engine-native/internal/aiinterpretation`. Earlier Python design
+notes remain useful for policy context, but the active runtime is Go.
+
 ## Evidence Requirement
 
 Every AI-generated finding, explanation, or recommendation must reference raw evidence through one or more of:
@@ -62,15 +66,16 @@ If an analyzer result later embeds AI output under `metadata.ai_interpretation`,
 
 ## Runtime Enforcement
 
-The first implementation includes code-level guardrails under `archscope_engine.ai_interpretation`:
+The active implementation includes code-level guardrails under
+`apps/engine-native/internal/aiinterpretation`:
 
 - `EvidenceRegistry` collects canonical evidence references from analyzer output.
 - `AiFindingValidator` rejects blank, malformed, unsupported, unknown, low-confidence, or quote-mismatched findings.
 - `EvidenceSelector` bounds evidence count and character budgets before prompt construction.
-- `PromptBuilder` loads packaged prompt templates from `archscope_engine.config/prompt_templates.json`, selects a model profile and English/Korean language variant, and separates system instructions from untrusted diagnostic data inside a delimited JSON block.
-- `LocalLlmClient` defines the execution boundary for optional local inference.
+- `PromptBuilder` builds a versioned prompt payload, selects bounded
+  evidence, and separates system instructions from untrusted diagnostic
+  data inside a JSON block.
 - `OllamaClient` calls Ollama's local `/api/generate` endpoint with timeout-bound JSON requests, normalizes the interpretation envelope, and validates the result before returning it.
-- `LocalLlmClient.execute_async()` provides a non-blocking wrapper for UI or worker callers that should not block their main loop during local inference.
 - Prompt and response logging are disabled by default.
 
 Low-confidence output is rejected below the initial threshold of `0.3`. Partial invalid responses are treated conservatively: invalid findings are not displayed, and a validation failure should be surfaced as an engine/UI message.

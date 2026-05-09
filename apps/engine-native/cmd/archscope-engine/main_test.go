@@ -1,11 +1,8 @@
 // Smoke tests for the engine CLI subcommands. We build the binary
 // once via `go build` and run each subcommand on its example fixture,
 // asserting the JSON payload parses and the `type` field matches the
-// expected string. This is the in-Go counterpart to the workflow
-// parity step (.github/workflows/profiler-native.yml) — the workflow
-// catches Python ↔ Go drift, this catches "Go subcommand silently
-// stopped emitting JSON" without needing to run the full parity job
-// locally.
+// expected string. This catches "Go subcommand silently stopped emitting
+// JSON" without needing to run the full cross-platform workflow locally.
 //
 // T-360 renamed every subcommand to mirror the typer surface (see
 // cmd/archscope-engine/main.go); the cases below use the new Cobra
@@ -15,28 +12,31 @@
 // [한글] CLI 서브커맨드의 smoke test.
 //
 // 책임 분담
-//   • 본 테스트(파일내) : "각 서브커맨드가 예제 fixture 를 받아 JSON
+//   - 본 테스트(파일내) : "각 서브커맨드가 예제 fixture 를 받아 JSON
 //     을 무사히 emit 하는가" 만 빠르게 검증. 분석 결과의 정확성은 검증
 //     하지 않음.
-//   • parity gate(GitHub Actions) : Python ↔ Go 결과 차이를 비교.
+//   - GitHub Actions : 동일 테스트를 cross-platform 으로 반복.
 //
 // 왜 in-process 가 아니라 외부 실행인가?
-//   Cobra 의 init() side-effect 와 분석기/플러그인 init() 등록까지
-//   포함된 진짜 사용자 호출 형태를 그대로 재현해야 하기 때문입니다.
-//   `go run` 보다는 build 결과물을 캐시한 `exec.Command` 가 매 test
-//   case 의 시작 시간을 일정하게 만들어 plain go test 로 디버깅하기
-//   편합니다.
+//
+//	Cobra 의 init() side-effect 와 분석기/플러그인 init() 등록까지
+//	포함된 진짜 사용자 호출 형태를 그대로 재현해야 하기 때문입니다.
+//	`go run` 보다는 build 결과물을 캐시한 `exec.Command` 가 매 test
+//	case 의 시작 시간을 일정하게 만들어 plain go test 로 디버깅하기
+//	편합니다.
 //
 // fixturesRoot 의 경로 계산
-//   runtime.Caller(0) 로 이 테스트 파일의 절대 경로를 받고, 거기서
-//   4단계 위(레포 루트)로 올라간 뒤 examples/ 를 가리킵니다.
-//   `go test` 의 cwd 가 다양해도 fixture 경로가 깨지지 않도록 anchor
-//   를 절대 경로로 잡는 것이 핵심입니다.
+//
+//	runtime.Caller(0) 로 이 테스트 파일의 절대 경로를 받고, 거기서
+//	4단계 위(레포 루트)로 올라간 뒤 examples/ 를 가리킵니다.
+//	`go test` 의 cwd 가 다양해도 fixture 경로가 깨지지 않도록 anchor
+//	를 절대 경로로 잡는 것이 핵심입니다.
 //
 // 빌드 정책
-//   buildBinary 가 각 test 마다 t.TempDir() 안에 새로 빌드합니다.
-//   "한 번만 빌드해서 공유" 형태로 최적화할 수 있지만, suite 가 작아
-//   1~2 초 절약 효과뿐이고 공유 상태가 늘어나는 단점이 더 큽니다.
+//
+//	buildBinary 가 각 test 마다 t.TempDir() 안에 새로 빌드합니다.
+//	"한 번만 빌드해서 공유" 형태로 최적화할 수 있지만, suite 가 작아
+//	1~2 초 절약 효과뿐이고 공유 상태가 늘어나는 단점이 더 큽니다.
 package main
 
 import (

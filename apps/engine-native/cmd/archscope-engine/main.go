@@ -1,14 +1,12 @@
-// archscope-engine is the Go counterpart of `python -m
-// archscope_engine.cli`. Each command group below mirrors the typer
-// surface byte-for-byte (`gc-log` not `gclog`; `thread-dump
-// analyze-multi` not `multithread`) so users, the parity gate, and
-// the future demo runner (T-380) can swap engines without rewriting
-// invocations.
+// archscope-engine is the headless Go CLI for the active ArchScope
+// engine. Each command group below keeps stable names (`gc-log` not
+// `gclog`; `thread-dump analyze-multi` not `multithread`) so users,
+// scripts, and the demo runner can reuse invocations across releases.
 //
 // Build layout:
 //   - main.go            (this file): root *cobra.Command + Execute.
 //   - cmd_*.go:           one file per top-level group. Each file owns
-//                         its leaves, flag bindings, and RunE handlers.
+//     its leaves, flag bindings, and RunE handlers.
 //   - helpers.go:         writeJSONResult, parseTimeFlag, readJSONFile.
 //
 // T-360 only refactors the CLI surface; analyzers/exporters under
@@ -16,35 +14,34 @@
 //
 // ─────────────────────────────────────────────────────────────────────
 // [한글 설명]
-// archscope-engine 은 Python 의 `python -m archscope_engine.cli` 를
-// Go 로 옮긴 헤드리스 CLI 바이너리입니다. T-360 작업으로 도입된
+// archscope-engine 은 활성 Go 엔진의 헤드리스 CLI 바이너리입니다.
+// T-360 작업으로 도입된
 // Cobra 기반 명령 트리이며, 핵심 설계 원칙은 다음과 같습니다.
 //
-//   1) Python typer 표면을 글자 단위로 동일하게 미러링합니다.
-//      예) typer 가 `gc-log analyze` 라면 Cobra 도 `gc-log analyze`
-//          (절대 `gclog`/`gcLogAnalyze` 같은 변형 금지).
-//      이유: parity gate(.github/workflows/profiler-native.yml) 가
-//      두 엔진을 같은 인자로 호출해 결과(JSON)를 비교하기 때문에
-//      명령/플래그 표면이 1:1 이어야 회귀를 잡을 수 있습니다.
+//  1. 기존 스크립트 표면을 안정적으로 유지합니다.
+//     예) `gc-log analyze` 는 계속 `gc-log analyze`
+//     (절대 `gclog`/`gcLogAnalyze` 같은 변형 금지).
+//     이유: CLI 이름이 흔들리면 CI, 데모 러너, 사용자 스크립트가
+//     동시에 깨지기 때문입니다.
 //
-//   2) 파일 분할 규칙
-//      • main.go      : 루트 cobra.Command 정의 + Execute 진입점만 담당.
-//      • cmd_*.go     : typer 의 top-level group 1개당 파일 1개.
-//        각 파일이 자신의 리프 명령, 플래그 바인딩, RunE 핸들러를
-//        모두 소유합니다(분석기/exporter 코드는 직접 두지 않음).
-//      • helpers.go   : 모든 cmd_*.go 가 공통으로 쓰는 작은 유틸
-//        (writeJSONResult / parseTimeFlag / readJSONFile).
+//  2. 파일 분할 규칙
+//     • main.go      : 루트 cobra.Command 정의 + Execute 진입점만 담당.
+//     • cmd_*.go     : typer 의 top-level group 1개당 파일 1개.
+//     각 파일이 자신의 리프 명령, 플래그 바인딩, RunE 핸들러를
+//     모두 소유합니다(분석기/exporter 코드는 직접 두지 않음).
+//     • helpers.go   : 모든 cmd_*.go 가 공통으로 쓰는 작은 유틸
+//     (writeJSONResult / parseTimeFlag / readJSONFile).
 //
-//   3) 부수효과(import _) 등록
-//      thread-dump 플러그인은 자기 자신을 `enginethreaddump.DefaultRegistry`
-//      에 등록하는 init() 를 가지고 있습니다. 아래 익명 import 가 없으면
-//      플러그인의 init() 이 실행되지 않아 ParseMany / ParseOne 이
-//      해당 포맷을 인식하지 못합니다(레지스트리에 미등록 상태).
+//  3. 부수효과(import _) 등록
+//     thread-dump 플러그인은 자기 자신을 `enginethreaddump.DefaultRegistry`
+//     에 등록하는 init() 를 가지고 있습니다. 아래 익명 import 가 없으면
+//     플러그인의 init() 이 실행되지 않아 ParseMany / ParseOne 이
+//     해당 포맷을 인식하지 못합니다(레지스트리에 미등록 상태).
 //
-//   4) T-360 의 책임 한계
-//      이 작업은 CLI surface 만 재정비합니다. internal/ 하위의 분석기,
-//      파서, exporter 코드는 일절 손대지 않습니다 — 그래야 parity gate 가
-//      "CLI 변경" 과 "엔진 변경" 을 분리해 회귀를 추적할 수 있습니다.
+//  4. T-360 의 책임 한계
+//     이 작업은 CLI surface 만 재정비합니다. internal/ 하위의 분석기,
+//     파서, exporter 코드는 일절 손대지 않습니다 — 그래야 parity gate 가
+//     "CLI 변경" 과 "엔진 변경" 을 분리해 회귀를 추적할 수 있습니다.
 package main
 
 import (
@@ -79,13 +76,9 @@ import (
 var rootCmd = &cobra.Command{
 	Use:   "archscope-engine",
 	Short: "ArchScope analysis engine CLI (Go)",
-	Long: `ArchScope analysis engine CLI — the Go counterpart of
-` + "`python -m archscope_engine.cli`" + `.
+	Long: `ArchScope analysis engine CLI.
 
-Every analyzer emits the same models.AnalysisResult JSON envelope as
-the Python CLI; the parity gate at .github/workflows/profiler-native.yml
-runs them side-by-side on every PR. Subcommand names mirror the typer
-surface verbatim — see ` + "`archscope-engine <group> --help`" + ` for the
+Every analyzer emits the models.AnalysisResult JSON envelope. See ` + "`archscope-engine <group> --help`" + ` for the
 flags each leaf accepts.`,
 	SilenceUsage:  true,
 	SilenceErrors: true,
@@ -93,9 +86,10 @@ flags each leaf accepts.`,
 
 // main 은 cobra 의 Execute() 결과만 단일 exit 코드로 변환합니다.
 // 흐름:
-//   1) rootCmd.Execute() 가 argv 를 파싱해 알맞은 RunE 를 호출.
-//   2) RunE 가 nil 을 반환하면 종료 코드 0.
-//   3) error 를 반환하면 stderr 에 한 줄로 출력 후 종료 코드 1.
+//  1. rootCmd.Execute() 가 argv 를 파싱해 알맞은 RunE 를 호출.
+//  2. RunE 가 nil 을 반환하면 종료 코드 0.
+//  3. error 를 반환하면 stderr 에 한 줄로 출력 후 종료 코드 1.
+//
 // 이 한 줄 형식("archscope-engine: <msg>") 은 Python CLI 의
 // `typer` 기본 에러 형식과 동일하게 맞춰져 있어, parity gate 가
 // "엔진별 에러 메시지가 같은 라인 형태인지" 까지 verify 할 수 있습니다.

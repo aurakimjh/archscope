@@ -1,12 +1,14 @@
 # ArchScope 문서
 
-이 디렉터리는 ArchScope의 한국어 문서를 포함합니다.
+이 디렉터리는 현재 Go/Wails 기반 ArchScope 라인의 한국어 문서를 포함합니다.
+Python/FastAPI/browser 구현 관련 문서는 `archive/`를 명시하지 않는 한
+historical note로 취급합니다.
 
 ## 읽기 순서 안내
 
 | 독자 | 추천 시작 문서 |
 |------|----------------|
-| 처음 사용하는 분 | [사용자 가이드](./USER_GUIDE.md) |
+| 처음 사용하는 분 | [네이티브 앱 가이드](./PROFILER_NATIVE.md) |
 | 아키텍처 이해가 필요한 개발자 | [아키텍처](./ARCHITECTURE.md) → [데이터 모델](./DATA_MODEL.md) |
 | Parser/Analyzer 확장 개발자 | [파서 설계](./PARSER_DESIGN.md) → [런타임 분류](./RUNTIME_CLASSIFICATION.md) |
 | UI/차트 개발자 | [차트 설계](./CHART_DESIGN.md) → [Chart Studio 설계](./CHART_STUDIO_DESIGN.md) |
@@ -14,12 +16,13 @@
 
 ## 사용자 문서
 
-- [**사용자 가이드**](./USER_GUIDE.md) — 설치, 실행, 페이지별 + CLI별 상세 사용법, 트러블슈팅
+- [**네이티브 앱 가이드**](./PROFILER_NATIVE.md) — 현재 Go/Wails 빌드, 실행, 패키징, CLI
+- [사용자 가이드](./USER_GUIDE.md) — browser/FastAPI 경로 중심의 historical guide
 - [멀티 언어 Thread Dump 프레임워크](./MULTI_LANGUAGE_THREADS.md) — 6개 포맷 + 언어별 enrichment 매트릭스
 
 ## 설계 문서
 
-- [아키텍처](./ARCHITECTURE.md) — 시스템 구성, 컴포넌트 경계, FastAPI HTTP 경로 설계
+- [아키텍처](./ARCHITECTURE.md) — Go/Wails 구성, 컴포넌트 경계, archive 정책
 - [데이터 모델](./DATA_MODEL.md) — AnalysisResult 공통 contract, TypeScript/Python 타입 정의
 - [파서 설계](./PARSER_DESIGN.md) — Parser 책임, 에러 처리, 대용량 파일 전략
 - [차트 설계](./CHART_DESIGN.md) — Chart template, factory 패턴, 성능 가이드라인
@@ -32,7 +35,7 @@
 ## 운영 문서
 
 - [로드맵](./ROADMAP.md) — Phase별 개발 계획
-- [패키징 계획](./PACKAGING_PLAN.md) — 현재 배포 모델(`pip install -e .` + FastAPI 정적 서빙), Electron + PyInstaller 시도의 historical note
+- [패키징 계획](./PACKAGING_PLAN.md) — historical note. 현재 배포 모델은 Wails desktop입니다.
 - [성능 측정](./PERFORMANCE.md) — 벤치마크, 프로파일링, 메모리 측정
 
 ## UX / 기능 문서

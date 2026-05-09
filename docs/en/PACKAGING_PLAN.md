@@ -1,74 +1,47 @@
 # Packaging Plan
 
-ArchScope is delivered as a **local web application**, not as a desktop
-binary. There is no Electron shell and no PyInstaller sidecar in the
-current shipping model. The historical Electron-era plan is preserved
-at the bottom of this document for context.
+ArchScope is packaged as a Go/Wails desktop application. The former
+Python wheel and FastAPI browser server have been retired and moved
+under `archive/`.
 
-## Current shipping model
-
-End users install the engine and serve the bundled React UI from a
-single Python process:
+## Current Model
 
 ```bash
-cd engines/python
-python -m venv .venv && source .venv/bin/activate
-pip install -e .                       # registers `archscope-engine`
+cd apps/engine-native
+go test ./...
+go build ./cmd/archscope-engine ./cmd/archscope-profiler
 
-cd ../..
-./scripts/serve-web.sh                 # builds apps/desktop/dist + serves
-# Open http://127.0.0.1:8765
+cd cmd/archscope-profiler-app/frontend
+npm ci
+npm run build
+
+cd ..
+GOCACHE=/tmp/aiservice-go-cache task package
 ```
 
-Components:
+Artifacts are produced from
+`apps/engine-native/cmd/archscope-profiler-app/bin/`.
 
-- **Python engine** — the `archscope-engine` distribution (defined by
-  `engines/python/setup.cfg`). Installs Typer + FastAPI + uvicorn +
-  defusedxml + python-multipart and exposes the `archscope-engine`
-  console script. Wheel publishing and `pip install archscope-engine`
-  from PyPI is the next step (see open items below).
-- **React UI** — Vite produces a static bundle into
-  `apps/desktop/dist`. `archscope-engine serve --static-dir
-  apps/desktop/dist` (or the helper script) serves the bundle at `/`.
-- **No platform binary** — there is no `.dmg`, `.msi`, or `.deb`. The
-  user runs the engine from any Python ≥ 3.9. This collapses three
-  past concerns (Electron version upgrades, electron-builder signing,
-  PyInstaller sidecar paths) into a single supply chain.
+Latest local verification (2026-05-09):
 
-User data lives under `~/.archscope/` (uploads, settings) and stays on
-the local machine. The engine binds `127.0.0.1` by default.
+- `task` 3.50.0 and `wails3` v3.0.0-alpha.84 installed under
+  `/opt/homebrew/bin`.
+- Vite upgraded to 8.0.11 and `@vitejs/plugin-react` to 6.0.1.
+- `npm audit` reports 0 vulnerabilities.
+- macOS package build succeeds: raw binary 11 MB, `.app` bundle 13 MB.
+- The remaining Vite warning is bundle-size related, not a security
+  vulnerability.
 
-## CSP policy
+## CI And Release
 
-There is no Electron renderer to lock down anymore. The browser loads
-the React bundle from FastAPI and talks back to the same origin via
-`fetch('/api/...')`. No `unsafe-eval` is needed in production builds;
-the only inline style still emitted comes from ECharts tooltip themes.
+- `.github/workflows/ci.yml` runs Go tests and Wails frontend build.
+- `.github/workflows/profiler-native.yml` runs the cross-platform
+  Go/Wails validation matrix.
+- `.github/workflows/release.yml` packages the Wails app from
+  `apps/engine-native/cmd/archscope-profiler-app`.
 
-## Open items
+## Historical Notes
 
-These are the next packaging steps but are not yet implemented:
-
-1. **Publish a versioned wheel to PyPI** so end users can run
-   `pip install archscope-engine` without cloning the repository.
-2. **Bundle the React `dist/` with the wheel** so the install does not
-   require a Node.js toolchain. The wheel ships static files; the
-   engine auto-resolves them from the package directory if
-   `--static-dir` is omitted.
-3. **Optional standalone runtime** — an `uv tool install
-   archscope-engine` recipe so a user gets the CLI + web server from a
-   single command without managing a virtualenv.
-4. **Docker image** — `archscope-engine serve --host 0.0.0.0` for team
-   use on a trusted internal host.
-
-## Historical: Electron + PyInstaller spike (2026-Q1)
-
-The original packaging plan stacked Electron over a PyInstaller
-sidecar. That direction was abandoned in **Phase 1 (Web pivot, T-206
-… T-209)** for three reasons: the Electron-bundled installer was too
-large for the operations users we ship to, the PyInstaller sidecar
-duplicated debugging surface, and the Electron IPC contract added
-overhead the FastAPI HTTP boundary handles cleanly. The current shape
-above replaces that plan in full. The retired implementation lived in
-`apps/desktop/electron/` (deleted in Phase 1) and the spike artifacts
-are no longer reachable from the build pipeline.
+Electron was removed because of distribution size. The Python
+wheel/FastAPI web path was later retired after the Go/Wails binary
+proved small enough for the target deployment model.
