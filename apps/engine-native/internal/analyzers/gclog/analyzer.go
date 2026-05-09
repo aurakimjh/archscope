@@ -14,48 +14,50 @@
 // 레거시 G1/CMS 로그까지 처리.
 //
 // 입력
-//   parsers/gclog.ParseFile() 가 만든 []Event. 각 Event 는 한 GC
-//   사이클의 시작 + (옵션) heap before/after + pause 시간 + 원인 + GC
-//   유형(Young/Old/Mixed/Full/...) + 컬렉터 라벨로 정규화됨.
+//
+//	parsers/gclog.ParseFile() 가 만든 []Event. 각 Event 는 한 GC
+//	사이클의 시작 + (옵션) heap before/after + pause 시간 + 원인 + GC
+//	유형(Young/Old/Mixed/Full/...) + 컬렉터 라벨로 정규화됨.
 //
 // 출력
-//   AnalysisResult{type: "gc_log"} —
-//     • summary: 총 이벤트 / pause 통계 / heap 통계 / GC throughput.
-//     • series: pause/heap 시계열 (분석기→차트 직결).
-//     • tables: 가장 긴 pause N개, 컬렉터별 비교, pause 히스토그램,
-//       cause 분포.
-//     • metadata.jvm_info: 헤더 추출(버전/CPU/Heap Min/Max/플래그/
-//       워커 수). 워커 vs CPU 미스매치 경고 포함.
+//
+//	AnalysisResult{type: "gc_log"} —
+//	  • summary: 총 이벤트 / pause 통계 / heap 통계 / GC throughput.
+//	  • series: pause/heap 시계열 (분석기→차트 직결).
+//	  • tables: 가장 긴 pause N개, 컬렉터별 비교, pause 히스토그램,
+//	    cause 분포.
+//	  • metadata.jvm_info: 헤더 추출(버전/CPU/Heap Min/Max/플래그/
+//	    워커 수). 워커 vs CPU 미스매치 경고 포함.
 //
 // 알고리즘 흐름
-//   1) DetectFormat: 첫 수 KB 를 sniff 해 FormatUnified / G1Legacy /
-//      Legacy 중 하나로 판단. parser 와 분석기는 같은 format 문자열을
-//      공유해 metadata.parser 도 일관됨.
-//   2) ExtractHeader: JVM Info 블록(시작 ~수 KB) 만 따로 추출 —
-//      라이트한 별도 파서. 본 파싱이 0 이벤트로 실패해도 JVM Info 는
-//      살아남도록 분리.
-//   3) ParseFile: 본 이벤트 라인 파싱 + diagnostics 수집(skip count).
-//   4) Build: 한 번의 이벤트 순회로 다음을 동시에 채움
-//        • pause 통계: count/total/max/p50/p90/p95/p99 (sort 기반).
-//        • pause 히스토그램: 9개 bucket(<1ms ~ ≥5s).
-//        • 시계열: pauseTimeline + heap before/after/committed +
-//          young/old before/after + metaspace.
-//        • cause + type counter: orderedCounter (insertion-order
-//          stable) — exception 분석기와 같은 패턴.
-//        • 컬렉터별 비교: collector → {count, totalPause, maxPause}.
-//   5) buildFindings (별도 파일):
-//        LONG_GC_PAUSE          : pause ≥ 1초인 이벤트 발생
-//        FULL_GC_PRESENT        : Full GC 발생
-//        HIGH_P99_PAUSE         : p99 ≥ 500ms
-//        LOW_GC_THROUGHPUT      : (1 - sum(pause)/wall) < 95%
-//        HUMONGOUS_ALLOCATION   : G1 Humongous 패턴 감지
-//        CONCURRENT_MODE_FAILURE: CMS 의 concurrent mode failure
-//        PROMOTION_FAILURE      : promotion failure
+//  1. DetectFormat: 첫 수 KB 를 sniff 해 FormatUnified / G1Legacy /
+//     Legacy 중 하나로 판단. parser 와 분석기는 같은 format 문자열을
+//     공유해 metadata.parser 도 일관됨.
+//  2. ExtractHeader: JVM Info 블록(시작 ~수 KB) 만 따로 추출 —
+//     라이트한 별도 파서. 본 파싱이 0 이벤트로 실패해도 JVM Info 는
+//     살아남도록 분리.
+//  3. ParseFile: 본 이벤트 라인 파싱 + diagnostics 수집(skip count).
+//  4. Build: 한 번의 이벤트 순회로 다음을 동시에 채움
+//     • pause 통계: count/total/max/p50/p90/p95/p99 (sort 기반).
+//     • pause 히스토그램: 9개 bucket(<1ms ~ ≥5s).
+//     • 시계열: pauseTimeline + heap before/after/committed +
+//     young/old before/after + metaspace.
+//     • cause + type counter: orderedCounter (insertion-order
+//     stable) — exception 분석기와 같은 패턴.
+//     • 컬렉터별 비교: collector → {count, totalPause, maxPause}.
+//  5. buildFindings (별도 파일):
+//     LONG_GC_PAUSE          : pause ≥ 1초인 이벤트 발생
+//     FULL_GC_PRESENT        : Full GC 발생
+//     HIGH_P99_PAUSE         : p99 ≥ 500ms
+//     LOW_GC_THROUGHPUT      : (1 - sum(pause)/wall) < 95%
+//     HUMONGOUS_ALLOCATION   : G1 Humongous 패턴 감지
+//     CONCURRENT_MODE_FAILURE: CMS 의 concurrent mode failure
+//     PROMOTION_FAILURE      : promotion failure
 //
 // parity 주의
-//   • _HISTOGRAM_BUCKETS_MS 는 Python 과 byte 동일.
-//   • parserNames 매핑이 결과의 metadata.parser 결정 — Python 과 일치.
-//   • orderedCounter 는 insertion-order 기반 정렬로 JSON 안정성.
+//   - _HISTOGRAM_BUCKETS_MS 는 Python 과 byte 동일.
+//   - parserNames 매핑이 결과의 metadata.parser 결정 — Python 과 일치.
+//   - orderedCounter 는 insertion-order 기반 정렬로 JSON 안정성.
 package gclog
 
 import (
@@ -76,6 +78,9 @@ const (
 	// DefaultTopN mirrors Python `top_n=20` — caps the per-event
 	// `tables.events` list.
 	DefaultTopN = 20
+	// DefaultMaxSeriesPoints keeps chart payloads bounded for large
+	// production GC logs. Summary statistics still use every parsed event.
+	DefaultMaxSeriesPoints = 10_000
 )
 
 // parserNames mirrors Python `_PARSER_NAMES` — picks the
@@ -110,12 +115,13 @@ var histogramBuckets = []histogramBucket{
 }
 
 // Options carries analyzer-level knobs. Currently only `TopN` (matches
-// Python's keyword arg) and the parser-level `MaxLines` / `Strict`
-// passthroughs.
+// Python's keyword arg), `MaxSeriesPoints`, and the parser-level
+// `MaxLines` / `Strict` passthroughs.
 type Options struct {
-	TopN     int
-	MaxLines int
-	Strict   bool
+	TopN            int
+	MaxSeriesPoints int
+	MaxLines        int
+	Strict          bool
 }
 
 // Analyze parses `path`, extracts the JVM header, and returns the
@@ -150,36 +156,41 @@ func Build(
 	if topN <= 0 {
 		topN = DefaultTopN
 	}
+	maxSeriesPoints := opts.MaxSeriesPoints
+	if maxSeriesPoints <= 0 {
+		maxSeriesPoints = DefaultMaxSeriesPoints
+	}
 
 	var (
-		totalEvents             int
-		pauseCount              int
-		totalPause              float64
-		maxPause                float64
-		pausesMS                = make([]float64, 0, len(events))
-		typeCounts              = newOrderedCounter()
-		causeCounts             = newOrderedCounter()
-		pauseTimeline           = make([]map[string]any, 0, len(events))
-		heapAfterMB             = make([]map[string]any, 0)
-		heapBeforeMB            = make([]map[string]any, 0)
-		heapCommittedMB         = make([]map[string]any, 0)
-		youngBeforeMB           = make([]map[string]any, 0)
-		youngAfterMB            = make([]map[string]any, 0)
-		oldBeforeMB             = make([]map[string]any, 0)
-		oldAfterMB              = make([]map[string]any, 0)
-		metaspaceBeforeMB       = make([]map[string]any, 0)
-		metaspaceAfterMB        = make([]map[string]any, 0)
-		allocationRateTimeline  = make([]map[string]any, 0)
-		promotionRateTimeline   = make([]map[string]any, 0)
-		allocationRates         = make([]float64, 0)
-		promotionRates          = make([]float64, 0)
-		eventRows               = make([]map[string]any, 0, topN)
-		firstUptimeSec          *float64
-		lastUptimeSec           *float64
-		humongousCount          int
-		cmfCount                int
-		promotionFailureCount   int
+		totalEvents           int
+		pauseCount            int
+		totalPause            float64
+		maxPause              float64
+		pausesMS              = make([]float64, 0, len(events))
+		typeCounts            = newOrderedCounter()
+		causeCounts           = newOrderedCounter()
+		allocationRates       = make([]float64, 0)
+		promotionRates        = make([]float64, 0)
+		eventRows             = make([]map[string]any, 0, topN)
+		firstUptimeSec        *float64
+		lastUptimeSec         *float64
+		humongousCount        int
+		cmfCount              int
+		promotionFailureCount int
 	)
+	seriesTotal := len(events)
+	pauseTimeline := newSeriesSampler(seriesTotal, maxSeriesPoints)
+	heapAfterMB := newSeriesSampler(seriesTotal, maxSeriesPoints)
+	heapBeforeMB := newSeriesSampler(seriesTotal, maxSeriesPoints)
+	heapCommittedMB := newSeriesSampler(seriesTotal, maxSeriesPoints)
+	youngBeforeMB := newSeriesSampler(seriesTotal, maxSeriesPoints)
+	youngAfterMB := newSeriesSampler(seriesTotal, maxSeriesPoints)
+	oldBeforeMB := newSeriesSampler(seriesTotal, maxSeriesPoints)
+	oldAfterMB := newSeriesSampler(seriesTotal, maxSeriesPoints)
+	metaspaceBeforeMB := newSeriesSampler(seriesTotal, maxSeriesPoints)
+	metaspaceAfterMB := newSeriesSampler(seriesTotal, maxSeriesPoints)
+	allocationRateTimeline := newSeriesSampler(seriesTotal, maxSeriesPoints)
+	promotionRateTimeline := newSeriesSampler(seriesTotal, maxSeriesPoints)
 
 	var prevEvent *gclog.Event
 
@@ -213,26 +224,26 @@ func Build(
 		if event.PauseMS != nil {
 			pauseValue = *event.PauseMS
 		}
-		pauseTimeline = append(pauseTimeline, map[string]any{
+		pauseTimeline.add(index, map[string]any{
 			"time":    timeLabel,
 			"value":   roundHalfEven(pauseValue, 3),
 			"gc_type": strOrUnknown(event.GCType),
 		})
 
 		if event.HeapAfterMB != nil {
-			heapAfterMB = append(heapAfterMB, map[string]any{"time": timeLabel, "value": *event.HeapAfterMB})
+			heapAfterMB.add(index, map[string]any{"time": timeLabel, "value": *event.HeapAfterMB})
 		}
 		if event.HeapBeforeMB != nil {
-			heapBeforeMB = append(heapBeforeMB, map[string]any{"time": timeLabel, "value": *event.HeapBeforeMB})
+			heapBeforeMB.add(index, map[string]any{"time": timeLabel, "value": *event.HeapBeforeMB})
 		}
 		if event.HeapCommittedMB != nil {
-			heapCommittedMB = append(heapCommittedMB, map[string]any{"time": timeLabel, "value": *event.HeapCommittedMB})
+			heapCommittedMB.add(index, map[string]any{"time": timeLabel, "value": *event.HeapCommittedMB})
 		}
 		if event.YoungBeforeMB != nil {
-			youngBeforeMB = append(youngBeforeMB, map[string]any{"time": timeLabel, "value": *event.YoungBeforeMB})
+			youngBeforeMB.add(index, map[string]any{"time": timeLabel, "value": *event.YoungBeforeMB})
 		}
 		if event.YoungAfterMB != nil {
-			youngAfterMB = append(youngAfterMB, map[string]any{"time": timeLabel, "value": *event.YoungAfterMB})
+			youngAfterMB.add(index, map[string]any{"time": timeLabel, "value": *event.YoungAfterMB})
 		}
 
 		// Old gen synthesised from heap - young if no explicit value.
@@ -245,7 +256,7 @@ func Build(
 			oldBefore = &v
 		}
 		if oldBefore != nil {
-			oldBeforeMB = append(oldBeforeMB, map[string]any{"time": timeLabel, "value": *oldBefore})
+			oldBeforeMB.add(index, map[string]any{"time": timeLabel, "value": *oldBefore})
 		}
 
 		var oldAfter *float64
@@ -257,22 +268,22 @@ func Build(
 			oldAfter = &v
 		}
 		if oldAfter != nil {
-			oldAfterMB = append(oldAfterMB, map[string]any{"time": timeLabel, "value": *oldAfter})
+			oldAfterMB.add(index, map[string]any{"time": timeLabel, "value": *oldAfter})
 		}
 
 		if event.MetaspaceBeforeMB != nil {
-			metaspaceBeforeMB = append(metaspaceBeforeMB, map[string]any{"time": timeLabel, "value": *event.MetaspaceBeforeMB})
+			metaspaceBeforeMB.add(index, map[string]any{"time": timeLabel, "value": *event.MetaspaceBeforeMB})
 		}
 		if event.MetaspaceAfterMB != nil {
-			metaspaceAfterMB = append(metaspaceAfterMB, map[string]any{"time": timeLabel, "value": *event.MetaspaceAfterMB})
+			metaspaceAfterMB.add(index, map[string]any{"time": timeLabel, "value": *event.MetaspaceAfterMB})
 		}
 
 		if rate := allocationRateMBPerSec(prevEvent, &event); rate != nil {
-			allocationRateTimeline = append(allocationRateTimeline, map[string]any{"time": timeLabel, "value": *rate})
+			allocationRateTimeline.add(index, map[string]any{"time": timeLabel, "value": *rate})
 			allocationRates = append(allocationRates, *rate)
 		}
 		if rate := promotionRateMBPerSec(prevEvent, &event); rate != nil {
-			promotionRateTimeline = append(promotionRateTimeline, map[string]any{"time": timeLabel, "value": *rate})
+			promotionRateTimeline.add(index, map[string]any{"time": timeLabel, "value": *rate})
 			promotionRates = append(promotionRates, *rate)
 		}
 
@@ -319,22 +330,22 @@ func Build(
 	}
 
 	summary := map[string]any{
-		"total_events":                  totalEvents,
-		"total_pause_ms":                roundHalfEven(totalPause, 3),
-		"avg_pause_ms":                  avgPauseMS,
-		"max_pause_ms":                  maxPauseMS,
-		"p50_pause_ms":                  p50,
-		"p95_pause_ms":                  p95,
-		"p99_pause_ms":                  p99,
-		"throughput_percent":            throughputPercent,
-		"wall_time_sec":                 wallTimeOut,
-		"young_gc_count":                youngGCCount,
-		"full_gc_count":                 fullGCCount,
+		"total_events":                   totalEvents,
+		"total_pause_ms":                 roundHalfEven(totalPause, 3),
+		"avg_pause_ms":                   avgPauseMS,
+		"max_pause_ms":                   maxPauseMS,
+		"p50_pause_ms":                   p50,
+		"p95_pause_ms":                   p95,
+		"p99_pause_ms":                   p99,
+		"throughput_percent":             throughputPercent,
+		"wall_time_sec":                  wallTimeOut,
+		"young_gc_count":                 youngGCCount,
+		"full_gc_count":                  fullGCCount,
 		"avg_allocation_rate_mb_per_sec": avgFloat(allocationRates),
 		"avg_promotion_rate_mb_per_sec":  avgFloat(promotionRates),
-		"humongous_allocation_count":    humongousCount,
-		"concurrent_mode_failure_count": cmfCount,
-		"promotion_failure_count":       promotionFailureCount,
+		"humongous_allocation_count":     humongousCount,
+		"concurrent_mode_failure_count":  cmfCount,
+		"promotion_failure_count":        promotionFailureCount,
 	}
 
 	gcTypeBreakdown := make([]map[string]any, 0, typeCounts.len())
@@ -347,19 +358,19 @@ func Build(
 	}
 
 	series := map[string]any{
-		"pause_timeline":             pauseTimeline,
-		"heap_after_mb":              heapAfterMB,
-		"heap_before_mb":             heapBeforeMB,
-		"heap_committed_mb":          heapCommittedMB,
-		"young_before_mb":            youngBeforeMB,
-		"young_after_mb":             youngAfterMB,
-		"old_before_mb":              oldBeforeMB,
-		"old_after_mb":               oldAfterMB,
-		"metaspace_before_mb":        metaspaceBeforeMB,
-		"metaspace_after_mb":         metaspaceAfterMB,
+		"pause_timeline":             pauseTimeline.rows(),
+		"heap_after_mb":              heapAfterMB.rows(),
+		"heap_before_mb":             heapBeforeMB.rows(),
+		"heap_committed_mb":          heapCommittedMB.rows(),
+		"young_before_mb":            youngBeforeMB.rows(),
+		"young_after_mb":             youngAfterMB.rows(),
+		"old_before_mb":              oldBeforeMB.rows(),
+		"old_after_mb":               oldAfterMB.rows(),
+		"metaspace_before_mb":        metaspaceBeforeMB.rows(),
+		"metaspace_after_mb":         metaspaceAfterMB.rows(),
 		"pause_histogram":            buildPauseHistogram(pausesMS),
-		"allocation_rate_mb_per_sec": allocationRateTimeline,
-		"promotion_rate_mb_per_sec":  promotionRateTimeline,
+		"allocation_rate_mb_per_sec": allocationRateTimeline.rows(),
+		"promotion_rate_mb_per_sec":  promotionRateTimeline.rows(),
 		"gc_type_breakdown":          gcTypeBreakdown,
 		"cause_breakdown":            causeBreakdown,
 	}
@@ -393,7 +404,73 @@ func Build(
 		result.Metadata.Extra["jvm_info"] = jvmInfo
 	}
 	result.Metadata.Extra["analysis_options"] = optionsToDict(opts)
+	result.Metadata.Extra["series_sampling"] = map[string]any{
+		"max_series_points":     maxSeriesPoints,
+		"input_events":          len(events),
+		"downsampled":           len(events) > maxSeriesPoints,
+		"strategy":              "event_bucket_last",
+		"summary_uses_all_data": true,
+	}
 	return result
+}
+
+// seriesSampler keeps per-event chart series bounded without losing the
+// exact summary path. When the input exceeds maxRows, each event-index bucket
+// retains its latest point so output size is deterministic and stable.
+type seriesSampler struct {
+	total   int
+	maxRows int
+	rowsAll []map[string]any
+	buckets []map[string]any
+}
+
+func newSeriesSampler(total, maxRows int) *seriesSampler {
+	if maxRows <= 0 || total <= maxRows {
+		capacity := total
+		if capacity < 0 {
+			capacity = 0
+		}
+		return &seriesSampler{total: total, maxRows: maxRows, rowsAll: make([]map[string]any, 0, capacity)}
+	}
+	return &seriesSampler{
+		total:   total,
+		maxRows: maxRows,
+		buckets: make([]map[string]any, maxRows),
+	}
+}
+
+func (s *seriesSampler) add(eventIndex int, row map[string]any) {
+	if s == nil {
+		return
+	}
+	if s.buckets == nil {
+		s.rowsAll = append(s.rowsAll, row)
+		return
+	}
+	bucket := int((int64(eventIndex) * int64(s.maxRows)) / int64(s.total))
+	if bucket < 0 {
+		bucket = 0
+	}
+	if bucket >= s.maxRows {
+		bucket = s.maxRows - 1
+	}
+	s.buckets[bucket] = row
+}
+
+func (s *seriesSampler) rows() []map[string]any {
+	if s == nil {
+		return nil
+	}
+	if s.buckets == nil {
+		return s.rowsAll
+	}
+	out := make([]map[string]any, 0, s.maxRows)
+	for _, row := range s.buckets {
+		if row != nil {
+			out = append(out, row)
+		}
+	}
+	return out
 }
 
 // ─── Per-event helpers ───────────────────────────────────────────────
@@ -863,12 +940,16 @@ func asFloat(v any) float64 {
 
 func optionsToDict(opts Options) map[string]any {
 	out := map[string]any{
-		"top_n":     DefaultTopN,
-		"max_lines": nil,
-		"strict":    opts.Strict,
+		"top_n":             DefaultTopN,
+		"max_series_points": DefaultMaxSeriesPoints,
+		"max_lines":         nil,
+		"strict":            opts.Strict,
 	}
 	if opts.TopN > 0 {
 		out["top_n"] = opts.TopN
+	}
+	if opts.MaxSeriesPoints > 0 {
+		out["max_series_points"] = opts.MaxSeriesPoints
 	}
 	if opts.MaxLines > 0 {
 		out["max_lines"] = opts.MaxLines

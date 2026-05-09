@@ -71,8 +71,8 @@ completed with about 16 MB peak RSS because it already uses streaming parsing.
 
 | ID | Priority | Status | Task | Depends on | Output |
 |---|---|---|---|---|---|
-| T-393 | P0 | [ ] | Add GC analyzer `MaxSeriesPoints` limits and deterministic downsampling for pause, heap, metaspace, allocation, and promotion series while preserving exact summary metrics and findings. | Current Go GC analyzer | Bounded `gc_log` result size and lower RSS |
-| T-394 | P0 | [ ] | Add a reproducible GC large-file regression benchmark that asserts output size stays bounded for synthetic 300k+ event logs. | T-393 | GC performance regression guard |
+| T-393 | P0 | [x] | Added GC analyzer `MaxSeriesPoints` limits and deterministic event-bucket downsampling for pause, heap, metaspace, allocation, and promotion series while preserving exact summary metrics and findings. | Current Go GC analyzer | Bounded `gc_log` result size and lower RSS |
+| T-394 | P0 | [x] | Added a reproducible GC large-file regression benchmark that asserts output size stays bounded for synthetic 300k+ event logs. | T-393 | GC performance regression guard |
 | T-395 | P1 | [ ] | Add a common streaming text API in `internal/textio`, including encoding fallback, line numbers, cancellation hooks, and diagnostic context support without returning `[]string`. | Existing textio encoding support | Shared line streaming primitive |
 | T-396 | P1 | [ ] | Convert access log, GC log, OTel JSONL, exception, and simple runtime-stack parsers from `IterTextLines`/`ReadAll` to the streaming text API. | T-395 | Parser memory no longer proportional to full line slices |
 | T-397 | P1 | [ ] | Refactor access log, GC log, and OTel analyzers to aggregate from streams; OTel trace grouping must use bounded per-trace summaries, caps, or a spill strategy. | T-396, T-393 | Memory-bounded analyzer paths |

@@ -1,18 +1,19 @@
 // [한글] gclog 분석기 회귀 테스트.
 //
 // 핵심 검증 포인트
-//   • 실제 fixture 파일(examples/gc-logs/*.log) 의 summary/series/tables
+//   - 실제 fixture 파일(examples/gc-logs/*.log) 의 summary/series/tables
 //     이 Python 결과와 byte 단위 일치(parity).
-//   • JVM Info 추출: 버전 / CPU / heap min/max / parallel·concurrent
+//   - JVM Info 추출: 버전 / CPU / heap min/max / parallel·concurrent
 //     워커 수가 jvm_info 블록에 포함.
-//   • 워커 vs CPU 미스매치 경고가 워커 수 > CPU 일 때 발생.
-//   • findings: LONG_GC_PAUSE, FULL_GC_PRESENT, HIGH_P99_PAUSE,
+//   - 워커 vs CPU 미스매치 경고가 워커 수 > CPU 일 때 발생.
+//   - findings: LONG_GC_PAUSE, FULL_GC_PRESENT, HIGH_P99_PAUSE,
 //     HUMONGOUS_ALLOCATION 등이 fixture 에 따라 재현.
-//   • 9개 pause histogram bucket 의 카운트 합 == total pause events.
+//   - 9개 pause histogram bucket 의 카운트 합 == total pause events.
 //
 // repoFixture
-//   `go test` 의 cwd 가 어디든 fixture 를 찾도록 wd 에서 8단계 위까지
-//   순회하며 examples/ 디렉터리를 anchor. 경로 의존성 제거.
+//
+//	`go test` 의 cwd 가 어디든 fixture 를 찾도록 wd 에서 8단계 위까지
+//	순회하며 examples/ 디렉터리를 anchor. 경로 의존성 제거.
 package gclog
 
 import (
@@ -22,6 +23,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	parser "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/gclog"
 )
 
 // repoFixture mirrors the helper in the parser tests — walks up from
@@ -250,44 +253,44 @@ func TestFindingsRules(t *testing.T) {
 		{
 			"long_pause_only",
 			map[string]any{
-				"max_pause_ms":   105.0,
-				"full_gc_count":  0,
+				"max_pause_ms":       105.0,
+				"full_gc_count":      0,
 				"throughput_percent": 99.0,
-				"wall_time_sec":  10.0,
-				"p99_pause_ms":   50.0,
+				"wall_time_sec":      10.0,
+				"p99_pause_ms":       50.0,
 			},
 			[]string{"LONG_GC_PAUSE"},
 		},
 		{
 			"full_gc",
 			map[string]any{
-				"max_pause_ms":   10.0,
-				"full_gc_count":  3,
+				"max_pause_ms":       10.0,
+				"full_gc_count":      3,
 				"throughput_percent": 99.0,
-				"wall_time_sec":  10.0,
-				"p99_pause_ms":   50.0,
+				"wall_time_sec":      10.0,
+				"p99_pause_ms":       50.0,
 			},
 			[]string{"FULL_GC_PRESENT"},
 		},
 		{
 			"low_throughput",
 			map[string]any{
-				"max_pause_ms":   10.0,
-				"full_gc_count":  0,
+				"max_pause_ms":       10.0,
+				"full_gc_count":      0,
 				"throughput_percent": 90.0,
-				"wall_time_sec":  10.0,
-				"p99_pause_ms":   50.0,
+				"wall_time_sec":      10.0,
+				"p99_pause_ms":       50.0,
 			},
 			[]string{"LOW_GC_THROUGHPUT"},
 		},
 		{
 			"high_p99",
 			map[string]any{
-				"max_pause_ms":   10.0,
-				"full_gc_count":  0,
+				"max_pause_ms":       10.0,
+				"full_gc_count":      0,
 				"throughput_percent": 99.0,
-				"wall_time_sec":  10.0,
-				"p99_pause_ms":   250.0,
+				"wall_time_sec":      10.0,
+				"p99_pause_ms":       250.0,
 			},
 			[]string{"HIGH_P99_PAUSE"},
 		},
@@ -330,11 +333,11 @@ func TestFindingsRules(t *testing.T) {
 		{
 			"low_throughput_skipped_when_no_wall_time",
 			map[string]any{
-				"max_pause_ms":   10.0,
-				"full_gc_count":  0,
+				"max_pause_ms":       10.0,
+				"full_gc_count":      0,
 				"throughput_percent": 0.0,
-				"wall_time_sec":  0.0,
-				"p99_pause_ms":   50.0,
+				"wall_time_sec":      0.0,
+				"p99_pause_ms":       50.0,
 			},
 			[]string{},
 		},
@@ -469,6 +472,106 @@ func TestAllocationAndPromotionRates(t *testing.T) {
 	if avgAlloc != 7.0 {
 		t.Errorf("avg_allocation_rate = %v, want 7.0", avgAlloc)
 	}
+}
+
+func TestSeriesDownsamplingCapsRowsAndKeepsSummary(t *testing.T) {
+	events := makeSyntheticGCEvents(25)
+
+	result := Build(events, "/tmp/gc.log", parser.FormatUnified, nil, nil, Options{MaxSeriesPoints: 5})
+	if got := asInt(result.Summary["total_events"]); got != 25 {
+		t.Fatalf("total_events = %d, want 25", got)
+	}
+	if got := asFloat(result.Summary["p99_pause_ms"]); got == 0 {
+		t.Fatalf("p99_pause_ms was not computed from all events")
+	}
+
+	pause, ok := result.Series["pause_timeline"].([]map[string]any)
+	if !ok {
+		t.Fatalf("pause_timeline is %T", result.Series["pause_timeline"])
+	}
+	if len(pause) != 5 {
+		t.Fatalf("pause_timeline len = %d, want 5", len(pause))
+	}
+	if pause[len(pause)-1]["time"] != "24.0" {
+		t.Errorf("last sampled time = %v, want 24.0", pause[len(pause)-1]["time"])
+	}
+
+	heap, ok := result.Series["heap_after_mb"].([]map[string]any)
+	if !ok {
+		t.Fatalf("heap_after_mb is %T", result.Series["heap_after_mb"])
+	}
+	if len(heap) != 5 {
+		t.Fatalf("heap_after_mb len = %d, want 5", len(heap))
+	}
+
+	sampling, ok := result.Metadata.Extra["series_sampling"].(map[string]any)
+	if !ok {
+		t.Fatalf("series_sampling is %T", result.Metadata.Extra["series_sampling"])
+	}
+	if sampling["downsampled"] != true {
+		t.Errorf("downsampled = %v, want true", sampling["downsampled"])
+	}
+	if sampling["max_series_points"] != 5 {
+		t.Errorf("max_series_points = %v, want 5", sampling["max_series_points"])
+	}
+}
+
+func TestLargeSyntheticOutputStaysBounded(t *testing.T) {
+	events := makeSyntheticGCEvents(20_000)
+
+	result := Build(events, "/tmp/gc.log", parser.FormatUnified, nil, nil, Options{MaxSeriesPoints: 500})
+	body, err := json.Marshal(result)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	if len(body) > 1_000_000 {
+		t.Fatalf("large synthetic result = %d bytes, want <= 1MB", len(body))
+	}
+	if got := asInt(result.Summary["total_events"]); got != 20_000 {
+		t.Fatalf("total_events = %d, want 20000", got)
+	}
+	pause := result.Series["pause_timeline"].([]map[string]any)
+	if len(pause) > 500 {
+		t.Fatalf("pause_timeline len = %d, want <= 500", len(pause))
+	}
+}
+
+func BenchmarkBuildLargeSyntheticGCLog(b *testing.B) {
+	events := makeSyntheticGCEvents(300_000)
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		result := Build(events, "/tmp/gc.log", parser.FormatUnified, nil, nil, Options{})
+		body, err := json.Marshal(result)
+		if err != nil {
+			b.Fatalf("marshal: %v", err)
+		}
+		if len(body) > 20_000_000 {
+			b.Fatalf("result = %d bytes, want <= 20MB", len(body))
+		}
+		b.ReportMetric(float64(len(body)), "json_bytes")
+	}
+}
+
+func makeSyntheticGCEvents(n int) []parser.Event {
+	events := make([]parser.Event, 0, n)
+	for i := 0; i < n; i++ {
+		uptime := float64(i)
+		pause := float64(i + 1)
+		heapBefore := float64(100 + i)
+		heapAfter := float64(50 + i)
+		heapCommitted := 200.0
+		events = append(events, parser.Event{
+			UptimeSec:       &uptime,
+			GCType:          "Pause Young",
+			PauseMS:         &pause,
+			HeapBeforeMB:    &heapBefore,
+			HeapAfterMB:     &heapAfter,
+			HeapCommittedMB: &heapCommitted,
+			RawLine:         "synthetic",
+		})
+	}
+	return events
 }
 
 func TestRoundHalfEven(t *testing.T) {
