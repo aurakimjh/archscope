@@ -2,10 +2,10 @@
 set -e
 
 # Build configuration
-APP_NAME="probe"
-BUNDLE_ID="com.archscope.probe"
-VERSION="0.1.0"
-BUILD_NUMBER="0.1.0"
+APP_NAME="archscope"
+BUNDLE_ID="com.archscope.app"
+VERSION="0.3.0-rc1"
+BUILD_NUMBER="0.3.0-rc1"
 BUILD_DIR="build/ios"
 TARGET="simulator"
 

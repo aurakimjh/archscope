@@ -1,4 +1,4 @@
-# ArchScope Profiler — Native (Wails v3)
+# ArchScope — Native (Wails v3)
 
 Wails v3 desktop app over the dependency-light Go profiler core in
 `apps/engine-native/internal/profiler`.
@@ -77,21 +77,22 @@ service method.
 
 ## Build / run
 
-Wails v3 alpha.84 and Task must be on `PATH`.
+Wails v3 alpha.87 and Task must be on `PATH`.
 
 ```bash
-go install github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0-alpha.84
+git clone --depth 1 --branch v3.0.0-alpha.87 https://github.com/wailsapp/wails.git /tmp/wails
+(cd /tmp/wails/v3 && go install ./cmd/wails3)
 brew install go-task
 
 # dev mode (hot reload)
 wails3 dev
 
-# .app bundle (mac) at bin/archscope-profiler.app.
+# .app bundle (mac) at bin/archscope.app.
 # Codex/sandboxed runs should set GOCACHE to a writable path.
 GOCACHE=/tmp/aiservice-go-cache task package
 ```
 
-## Binary size (darwin/arm64, alpha.84)
+## Binary size (darwin/arm64, alpha.87)
 
 | Output | Size |
 |---|---|
@@ -103,7 +104,7 @@ GOCACHE=/tmp/aiservice-go-cache task package
 Comparison (single distributable):
 
 - Electron desktop shell (retired): ~120 MB
-- Wails v3 alpha.84 current app: **11 MB raw / 13 MB `.app`**
+- Wails v3 alpha.87 current app: **11 MB raw / 13 MB `.app`**
 
 The Vite production build still emits a large chunk warning. That is not
 a security finding; it is a future code-splitting/performance task.

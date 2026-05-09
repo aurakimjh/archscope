@@ -24,7 +24,7 @@ Artifacts are produced from
 
 Latest local verification (2026-05-09):
 
-- `task` 3.50.0 and `wails3` v3.0.0-alpha.84 installed under
+- `task` 3.50.0 and `wails3` v3.0.0-alpha.87 installed under
   `/opt/homebrew/bin`.
 - Vite upgraded to 8.0.11 and `@vitejs/plugin-react` to 6.0.1.
 - `npm audit` reports 0 vulnerabilities.

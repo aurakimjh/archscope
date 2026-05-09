@@ -6,10 +6,10 @@
 		"0000": {
 			"ProductVersion": "0.3.0-rc1",
 			"CompanyName": "ArchScope",
-			"FileDescription": "ArchScope native profiler + analyzer desktop",
-			"LegalCopyright": "© 2026 ArchScope",
-			"ProductName": "ArchScope Profiler",
-			"Comments": "Wails v3 desktop binary"
+			"FileDescription": "Local-first architecture diagnostics desktop",
+			"LegalCopyright": "(c) 2026, ArchScope",
+			"ProductName": "ArchScope",
+			"Comments": "Wails v3 desktop app"
 		}
 	}
 }

@@ -8,27 +8,27 @@
         AllowPromptForPassword="false">
     </Settings>
     <Installer
-        Path="probe"
+        Path="archscope"
         Arguments=""
-        InstallLocation="C:\Program Files\ArchScope\Probe">
+        InstallLocation="C:\Program Files\ArchScope\ArchScope">
     </Installer>
     <PackageInformation
-        PackageName="Probe"
-        PackageDisplayName="Probe"
+        PackageName="ArchScope"
+        PackageDisplayName="ArchScope"
         PublisherName="CN=ArchScope"
         PublisherDisplayName="ArchScope"
-        Version="0.1.0.0"
-        PackageDescription="A probe application">
+        Version="0.3.0.0"
+        PackageDescription="Local-first architecture diagnostics desktop">
         <Capabilities>
             <Capability Name="runFullTrust" />
             
         </Capabilities>
         <Applications>
             <Application
-                Id="com.archscope.probe"
-                Description="A probe application"
-                DisplayName="Probe"
-                ExecutableName="probe"
+                Id="com.archscope.app"
+                Description="Local-first architecture diagnostics desktop"
+                DisplayName="ArchScope"
+                ExecutableName="archscope"
                 EntryPoint="Windows.FullTrustApplication">
                 
             </Application>
@@ -41,13 +41,13 @@
         </Dependencies>
         <Properties>
             <Framework>false</Framework>
-            <DisplayName>Probe</DisplayName>
+            <DisplayName>ArchScope</DisplayName>
             <PublisherDisplayName>ArchScope</PublisherDisplayName>
-            <Description>A probe application</Description>
+            <Description>Local-first architecture diagnostics desktop</Description>
             <Logo>Assets\AppIcon.png</Logo>
         </Properties>
     </PackageInformation>
-    <SaveLocation PackagePath="probe.msix" />
+    <SaveLocation PackagePath="archscope.msix" />
     <PackageIntegrity>
         <CertificatePath></CertificatePath>
     </PackageIntegrity>

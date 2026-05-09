@@ -24,7 +24,7 @@ GOCACHE=/tmp/aiservice-go-cache task package
 
 최신 로컬 검증(2026-05-09):
 
-- `task` 3.50.0과 `wails3` v3.0.0-alpha.84가 `/opt/homebrew/bin`에
+- `task` 3.50.0과 `wails3` v3.0.0-alpha.87가 `/opt/homebrew/bin`에
   설치되었습니다.
 - Vite는 8.0.11, `@vitejs/plugin-react`는 6.0.1로 올렸습니다.
 - `npm audit` 결과 취약점 0건입니다.

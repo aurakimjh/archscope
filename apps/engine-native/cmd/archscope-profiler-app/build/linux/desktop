@@ -1,10 +1,11 @@
 [Desktop Entry]
 Version=1.0
-Name=ArchScope Profiler
-Comment=Native profiler + analyzer desktop
-Exec=/usr/local/bin/archscope-profiler %u
+Name=ArchScope
+Comment=Local-first architecture diagnostics desktop
+# The Exec line includes %u to pass the URL to the application
+Exec=/usr/local/bin/archscope %u
 Terminal=false
 Type=Application
-Icon=archscope-profiler
-Categories=Development;Utility;
-StartupWMClass=archscope-profiler
+Icon=archscope
+Categories=Utility;
+StartupWMClass=archscope

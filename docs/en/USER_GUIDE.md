@@ -19,7 +19,8 @@ npm run build
 For desktop packaging:
 
 ```bash
-go install github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0-alpha.84
+git clone --depth 1 --branch v3.0.0-alpha.87 https://github.com/wailsapp/wails.git /tmp/wails
+(cd /tmp/wails/v3 && go install ./cmd/wails3)
 cd apps/engine-native/cmd/archscope-profiler-app
 task package
 ```

@@ -30,6 +30,13 @@ Unicode true
 ####
 ## !define REQUEST_EXECUTION_LEVEL "admin"            # Default "admin"  see also https://nsis.sourceforge.io/Docs/Chapter4.html
 ####
+!define INFO_PROJECTNAME    "archscope"
+!define INFO_PRODUCTNAME    "ArchScope"
+!define INFO_PRODUCTVERSION "0.3.0"
+!define INFO_COPYRIGHT      "(c) 2026, ArchScope"
+!define PRODUCT_EXECUTABLE  "archscope.exe"
+!define UNINST_KEY_NAME     "ArchScope"
+
 ## Include the wails tools
 ####
 !include "wails_tools.nsh"

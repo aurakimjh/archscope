@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────
-// [한글] archscope-profiler-app — Wails3 데스크톱 셸 진입점.
+// [한글] archscope — Wails3 데스크톱 셸 진입점.
 //
 // 책임/목적
 //   통합 engine-native 데스크톱 앱(Wails v3) 진입점. frontend(React/Vite
@@ -51,8 +51,8 @@ func init() {
 // Run 은 GUI 이벤트 루프 진입. 에러 시 즉시 log.Fatal.
 func main() {
 	app := application.New(application.Options{
-		Name:        "ArchScope Profiler",
-		Description: "Native profiler-first slice of ArchScope",
+		Name:        "ArchScope",
+		Description: "Local-first architecture diagnostics desktop",
 		Services: []application.Service{
 			application.NewService(&ProfilerService{}),
 			application.NewService(&EngineService{}),
@@ -66,7 +66,7 @@ func main() {
 	})
 
 	app.Window.NewWithOptions(application.WebviewWindowOptions{
-		Title:  "ArchScope Profiler",
+		Title:  "ArchScope",
 		Width:  1280,
 		Height: 800,
 		Mac: application.MacWindow{

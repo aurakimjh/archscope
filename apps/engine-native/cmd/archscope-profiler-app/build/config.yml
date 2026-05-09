@@ -6,11 +6,11 @@ version: '3'
 # This information is used to generate the build assets.
 info:
   companyName: "ArchScope"
-  productName: "ArchScope Profiler"
-  productIdentifier: "com.archscope.profiler"
-  description: "Native profiler-first slice of ArchScope"
+  productName: "ArchScope"
+  productIdentifier: "com.archscope.app"
+  description: "Local-first architecture diagnostics desktop"
   copyright: "(c) 2026, ArchScope"
-  comments: "Wails v3 native profiler"
+  comments: "Wails v3 desktop app"
   version: "0.3.0-rc1"
   # cfBundleIconName: "appicon" # The macOS icon name in Assets.car icon bundles (optional)
   #                               # Should match the name of your .icon file without the extension
