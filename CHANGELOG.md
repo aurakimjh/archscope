@@ -6,6 +6,34 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.0-rc1] — 2026-05-09
+
+This release rebuilds ArchScope around the unified Go/Wails desktop
+baseline. The Python/FastAPI/browser implementation is retained only as
+archive material, while the active parser, analyzer, exporter, profiler,
+AI interpretation, and desktop UI paths now live under
+`apps/engine-native`.
+
+### Changed
+
+- Consolidated the Go engine, profiler core, Cobra CLIs, and Wails
+  desktop application into `apps/engine-native`.
+- Ported evidence-bound AI interpretation to Go and kept Wails service
+  bindings as the active engine/UI boundary.
+- Reworked release packaging around Wails desktop artifacts for macOS,
+  Windows, and Linux.
+
+### Fixed
+
+- Bounded high-volume GC chart output with deterministic downsampling
+  while preserving exact summary metrics.
+- Converted high-volume text parser paths to streaming line processing
+  and refactored access-log and OTel analyzer entrypoints to aggregate
+  without retaining full parser record slices.
+- Added preflight or documented guardrails for structured large-file
+  formats such as JFR JSON, jcmd JSON, Node reports, and self-contained
+  HTML profiler inputs.
+
 ## [0.2.0-rc1] — 2026-05-05
 
 The post-0.2.0-beta cycle landed a major analyzer overhaul: profiler
@@ -395,3 +423,5 @@ Superseded by 0.2.0-alpha; no longer publicly distributed.
 
 [0.2.0-beta]: https://github.com/aurakimjh/archscope/releases/tag/v0.2.0-beta
 [0.2.0-alpha]: https://github.com/aurakimjh/archscope/releases/tag/v0.2.0-alpha
+[0.3.0-rc1]: https://github.com/aurakimjh/archscope/releases/tag/v0.3.0-rc1
+[0.2.0-rc1]: https://github.com/aurakimjh/archscope/releases/tag/v0.2.0-rc1

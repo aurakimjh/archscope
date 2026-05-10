@@ -1,6 +1,6 @@
 module github.com/aurakimjh/archscope/apps/engine-native
 
-go 1.25.0
+go 1.26.3
 
 require (
 	github.com/google/pprof v0.0.0-20260402051712-545e8a4df936

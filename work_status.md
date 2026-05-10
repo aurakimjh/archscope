@@ -1,6 +1,6 @@
 # ArchScope Work Status
 
-Last updated: 2026-05-09
+Last updated: 2026-05-10
 
 This file is the current execution status for the active ArchScope product line.
 The previous long-form history was archived to
@@ -33,6 +33,11 @@ The previous long-form history was archived to
 - Verified representative Go parser/analyzer packages and profiler benchmarks.
 - Audited large-file parsing behavior across logs, JSON inputs, profiler files,
   and thread-dump plugins.
+- Aligned the active Go baseline with the latest stable Go toolchain
+  (`go1.26.3`) and updated CI/release workflows to use `1.26.x`.
+- Completed release verification for `v0.3.0-rc1`: local macOS Wails package,
+  DMG validation, CLI analysis/export smoke tests, GitHub Release matrix review,
+  and release asset checksum validation.
 
 ## Current Risk
 
@@ -40,6 +45,11 @@ The Electron-to-Wails migration risk is closed. The highest large-file issue
 found in the 2026-05-09 audit has been mitigated: GC log analysis no longer
 emits chart series for every event, and access-log/OTel analyzer entrypoints no
 longer materialize the full parser record slice before aggregation.
+
+Release verification found no new blocker. Direct Windows GUI launch was not
+performed in the local macOS environment; Windows confidence currently comes
+from GitHub Actions Windows test/build/package success plus release artifact
+checksum and PE inspection.
 
 Remaining large-file risk is concentrated in structured formats that naturally
 require object materialization, such as JFR JSON, Node diagnostic reports, jcmd
@@ -58,12 +68,15 @@ filtered before analysis.
 
 ## Next Execution Queue
 
-1. Run release CI and smoke-test the Wails desktop app on macOS and Windows.
-2. Consider deeper GC event streaming if future real-world logs exceed the
+1. Commit/push the Go 1.26.3 and version-metadata alignment, then let CI verify
+   the updated workflow definitions on `main`.
+2. Perform direct Windows GUI launch smoke-test on a Windows host/VM before the
+   next non-RC release.
+3. Consider deeper GC event streaming if future real-world logs exceed the
    current 305 MB RSS envelope.
-3. Add format-specific streaming for remaining structured thread-dump formats
+4. Add format-specific streaming for remaining structured thread-dump formats
    when real multi-GB samples are available.
-4. Continue signing/notarization and frontend bundle-splitting release work.
+5. Continue signing/notarization and frontend bundle-splitting release work.
 
 ## Active TO-DO
 
@@ -79,6 +92,8 @@ filtered before analysis.
 | T-400 | P2 | [x] | Converted Java jstack high-volume section scanning to stream lines instead of materializing the whole file; remaining full-read thread dump formats are documented as structured-format guardrail targets. | T-395 | Large thread-dump safety pass |
 | T-401 | P2 | [x] | Reduced profiler SVG memory copies and added size preflight for self-contained HTML payloads. | T-395 | Lower parser copy overhead for visual profiler inputs |
 | T-402 | P2 | [x] | Updated English/Korean parser and performance docs with warning thresholds, stream-only paths, max-lines/time filters, output downsampling, and UI messaging for large inputs. | T-393, T-397 | Current large-file operations guide |
+| T-403 | P0 | [x] | Updated local Go to `go1.26.3`, set `go.mod`/`go.work` to Go 1.26.3, moved CI/release workflows to `go-version: 1.26.x`, aligned release Node setup to 22, added the missing `0.3.0-rc1` changelog entry, and corrected Android build metadata from `1.0` to `0.3.0-rc1`. | Release verification request | Version/toolchain baseline aligned |
+| T-404 | P0 | [x] | Verified the `v0.3.0-rc1` release path locally and remotely: Go vet/build/race tests, frontend build, Wails macOS package, app launch smoke, code signature check, DMG checksum, CLI analysis/export smoke tests, GitHub Release matrix review, and release asset SHA256 validation. | T-403 | Release verification evidence captured |
 
 ## Verification Notes
 
@@ -90,6 +105,29 @@ filtered before analysis.
   1.9 MB.
 - Synthetic large-file measurements were captured with the current
   `cmd/archscope-engine` binary built from `apps/engine-native`.
+- 2026-05-10 release verification ran with local `go1.26.3`. `go vet ./...`,
+  `go build ./cmd/archscope-engine ./cmd/archscope-profiler
+  ./cmd/archscope-profiler-app`, and `go test ./... -race -count=1` passed
+  under `apps/engine-native` using `/tmp` Go caches. The race test required
+  loopback permission for `httptest`.
+- `npm ci` and `npm run build` passed for the Wails frontend. Vite still warns
+  that the main JS chunk is larger than 500 KB, matching the existing
+  bundle-splitting follow-up.
+- `task package` and `task darwin:package:dmg ARCH=arm64` produced
+  `bin/archscope.app` and `bin/archscope-arm64.dmg`. The app launched without
+  immediate crash, ad-hoc `codesign --verify --deep --strict` passed,
+  `CFBundleShortVersionString`/`CFBundleVersion` are `0.3.0-rc1`, and
+  `hdiutil verify` reported a valid DMG checksum.
+- CLI smoke tests produced access-log and profiler `AnalysisResult` JSON plus
+  HTML/CSV report outputs in `/tmp`.
+- GitHub Actions run `25602445878` completed the `v0.3.0-rc1` Release workflow
+  successfully across darwin-arm64, windows-amd64, and linux-amd64 packaging
+  plus GitHub Release creation. Latest main CI runs `25603594053` and
+  `25603594056` were also successful, including Windows `go vet`, `go build`,
+  and `go test`.
+- Downloaded release assets matched `SHA256SUMS`; Windows zip contains an
+  x86-64 `archscope.exe`, while the NSIS installer wrapper is a 32-bit PE
+  self-extractor as expected.
 
 ## Decisions
 
