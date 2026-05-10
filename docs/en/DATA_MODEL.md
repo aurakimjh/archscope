@@ -620,6 +620,17 @@ Updated `series.guid_groups[].metrics.response_time_breakdown`:
 - `method_time_ms` is now only the remaining uncategorized application time,
   not a bucket for known external calls whose callee profile was missing.
 
+Event-category option timing:
+
+- METHOD rows promoted by `EventCategoryPatterns` into SQL, Check Query, 2PC,
+  Fetch, or Connection Acquire use exclusive elapsed within the same ledger
+  bucket. If a promoted 2PC wrapper contains other promoted 2PC methods, the
+  child intervals are subtracted from the parent before summing so nested
+  methods are not double-counted.
+- `EXTERNAL_CALL` remains raw cumulative elapsed because MSA matching,
+  unprofiled-call accounting, and parallelism analysis depend on the
+  caller-reported wait time.
+
 ### JFR (`type: "jfr_recording"`)
 
 - `metadata.event_modes`, `metadata.time_from`, `metadata.time_to`,

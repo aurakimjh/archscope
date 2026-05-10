@@ -760,6 +760,16 @@ MSA 타임라인 매칭은 기존처럼 matched caller-to-callee edge를
 - `method_time_ms`는 callee profile이 없지만 caller elapsed는 확인된
   외부호출을 포함하지 않는 순수 잔여 애플리케이션 시간이다.
 
+이벤트 카테고리 옵션의 시간 계산:
+
+- `EventCategoryPatterns`로 METHOD row를 SQL, Check Query, 2PC, Fetch,
+  Connection Acquire에 추가한 경우 같은 ledger bucket 안에서는 exclusive
+  elapsed를 사용한다. 예를 들어 2PC wrapper 메소드 안에 다른 2PC 메소드가
+  포함되어 있으면 부모 메소드에서 자식 interval을 빼고 합산해 중첩 메소드가
+  중복 계산되지 않게 한다.
+- `EXTERNAL_CALL`은 MSA 매칭, 프로파일 미수집 외부호출 집계, 병렬도 분석이
+  caller가 보고한 wait time에 의존하므로 raw cumulative elapsed를 유지한다.
+
 ### JFR (`type: "jfr_recording"`)
 
 - `metadata.event_modes`, `metadata.time_from`, `metadata.time_to`,

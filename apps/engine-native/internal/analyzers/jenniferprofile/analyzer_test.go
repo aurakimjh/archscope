@@ -206,6 +206,52 @@ APPLICATION : /prod/order/create
 	}
 }
 
+func TestOptionCategoryMethodsUseExclusiveElapsed(t *testing.T) {
+	body := `---------------------------------------------------------------------------------------------------------------------
+Total Transaction : 1
+---------------------------------------------------------------------------------------------------------------------
+
+
+
+TXID : 100                                                       DOMAIN (ID) : caller (1)
+RESPONSE_TIME : 1200                                             GUID : G1
+APPLICATION : /prod/order/create
+
+---------------------------------------------------------------------------------------------------------------------
+[ No.][ START_TIME ][  GAP][CPU_T]
+---------------------------------------------------------------------------------------------------------------------
+[0000][10:00:00 000][    0][    0] START
+[0001][10:00:00 010][    0][    0] com.acme.TxCoordinator.twoPcCommit() [1000ms]
+[0002][10:00:00 100][    0][    0] com.acme.XaBranch.prepare() [250ms]
+[0003][10:00:00 450][    0][    0] com.acme.XaBranch.commit() [300ms]
+[    ][10:00:01 200][    0][    0] END
+---------------------------------------------------------------------------------------------------------------------
+                TOTAL[1200][   0]
+`
+	parsed := jenniferprofile.ParseString(body, jenniferprofile.Options{
+		EventCategoryPatterns: map[string][]string{
+			"TWO_PC_UNKNOWN": {
+				"TxCoordinator.twoPcCommit",
+				"XaBranch.prepare",
+				"XaBranch.commit",
+			},
+		},
+	})
+	res := Build([]jenniferprofile.FileResult{parsed}, Options{})
+
+	if got := res.Summary["two_pc_cum_ms"].(int); got != 1000 {
+		t.Fatalf("two_pc_cum_ms = %d, want 1000", got)
+	}
+	rows := res.Tables["profiles"].([]map[string]any)
+	metrics := rows[0]["body_metrics"].(map[string]any)
+	if got := metrics["two_pc_count"].(int); got != 3 {
+		t.Errorf("two_pc_count = %d, want 3", got)
+	}
+	if got := metrics["two_pc_cum_ms"].(int); got != 1000 {
+		t.Errorf("profile two_pc_cum_ms = %d, want 1000", got)
+	}
+}
+
 // Acceptance #8 — SQL / Check Query / 2PC / Fetch counts don't
 // double-add. Sample profile #1 has:
 //   - 1 CHECK_QUERY (`select 1 from dual`)

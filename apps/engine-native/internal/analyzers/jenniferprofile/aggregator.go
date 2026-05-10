@@ -2,10 +2,11 @@
 //
 // 핵심 불변
 //
-//	분류기(parser 의 event_classifier) 가 이미 각 이벤트를 정확히
-//	한 카테고리(SQL/CHECK_QUERY/2PC/FETCH/EXTERNAL_CALL/...) 로
-//	배정했습니다. 따라서 합산은 단순 카테고리별 합으로 충분 — 카테고리
-//	간 중복 시간이 발생하지 않습니다(double-counting 방지).
+//	분류기(parser 의 event_classifier) 가 각 이벤트를 하나의
+//	카테고리(SQL/CHECK_QUERY/2PC/FETCH/EXTERNAL_CALL/...) 로
+//	배정합니다. 옵션으로 METHOD wrapper 를 비용 카테고리에 추가할 수
+//	있으므로, 같은 비용 카테고리의 메소드 안에 같은 카테고리 자식 이벤트가
+//	있으면 그 자식 interval 을 빼고 exclusive elapsed 를 합산합니다.
 //
 // 처리 규칙
 //   - SQL 계열(EXECUTE/UPDATE/QUERY) → SQLExecuteCum + count.
@@ -27,40 +28,44 @@ import (
 )
 
 // AggregateBody walks the body events and produces the §12 cost
-// ledger. Critical correctness rule: SQL_EXECUTE / CHECK_QUERY /
-// TWO_PC / FETCH / EXTERNAL_CALL never overlap because the classifier
-// already categorised each event into exactly one slot. We just sum
-// elapsed-ms per category here.
+// ledger. METHOD rows promoted by EventCategoryPatterns can enclose
+// other promoted/built-in rows in the same ledger bucket, so SQL /
+// CHECK_QUERY / TWO_PC / FETCH / CONNECTION_ACQUIRE use exclusive
+// elapsed within each bucket to avoid double counting nested method
+// time. EXTERNAL_CALL remains raw cumulative because downstream
+// matching and parallelism need the caller-reported wait.
 func AggregateBody(p *models.JenniferTransactionProfile) models.JenniferBodyMetrics {
 	m := models.JenniferBodyMetrics{}
+	exclusiveElapsed := exclusiveLedgerElapsedByIndex(p.Body.Events)
 
 	// Connection-acquire events get deduped per §11.9: same
 	// startTime + same elapsedMs counts as one. Map key is
 	// `start|elapsed` so identical stack-derived rows fold.
 	connSeen := map[string]struct{}{}
 
-	for _, ev := range p.Body.Events {
+	for i := range p.Body.Events {
+		ev := p.Body.Events[i]
 		switch ev.EventType {
 		case models.JenniferEventSQLExecute, models.JenniferEventSQLUpdate, models.JenniferEventSQLQuery:
 			if ev.ElapsedMs != nil {
-				m.SQLExecuteCumMs += *ev.ElapsedMs
+				m.SQLExecuteCumMs += exclusiveElapsed[i]
 			}
 			m.SQLExecuteCount++
 		case models.JenniferEventCheckQuery:
 			if ev.ElapsedMs != nil {
-				m.CheckQueryCumMs += *ev.ElapsedMs
+				m.CheckQueryCumMs += exclusiveElapsed[i]
 			}
 			m.CheckQueryCount++
 		case models.JenniferEventTwoPCStart, models.JenniferEventTwoPCEnd,
 			models.JenniferEventTwoPCPrepare, models.JenniferEventTwoPCCommit,
 			models.JenniferEventTwoPCRollback, models.JenniferEventTwoPCUnknown:
 			if ev.ElapsedMs != nil {
-				m.TwoPCCumMs += *ev.ElapsedMs
+				m.TwoPCCumMs += exclusiveElapsed[i]
 			}
 			m.TwoPCCount++
 		case models.JenniferEventFetch:
 			if ev.ElapsedMs != nil {
-				m.FetchCumMs += *ev.ElapsedMs
+				m.FetchCumMs += exclusiveElapsed[i]
 			}
 			m.FetchCount++
 			// Fetch total rows uses the cumulative count column
@@ -88,7 +93,7 @@ func AggregateBody(p *models.JenniferTransactionProfile) models.JenniferBodyMetr
 				continue
 			}
 			connSeen[key] = struct{}{}
-			m.ConnectionAcquireCumMs += elapsed
+			m.ConnectionAcquireCumMs += exclusiveElapsed[i]
 			m.ConnectionAcquireCount++
 		case models.JenniferEventNetworkPrep:
 			// Counted below as wrapper groups so one method wrapping
@@ -102,6 +107,95 @@ func AggregateBody(p *models.JenniferTransactionProfile) models.JenniferBodyMetr
 		m.NetworkPrepCumMs += method.NetworkPrepMs
 	}
 	return m
+}
+
+func exclusiveLedgerElapsedByIndex(events []models.JenniferProfileEvent) map[int]int {
+	out := map[int]int{}
+	for i := range events {
+		ev := events[i]
+		if !usesExclusiveLedgerElapsed(ev.EventType) || ev.ElapsedMs == nil {
+			continue
+		}
+		elapsed := *ev.ElapsedMs
+		parent, ok := eventOffsetInterval(ev)
+		if !ok {
+			out[i] = elapsed
+			continue
+		}
+		parentGroup, _ := exclusiveLedgerGroup(ev.EventType)
+		childIntervals := []interval{}
+		for j := range events {
+			if i == j {
+				continue
+			}
+			child := events[j]
+			childGroup, ok := exclusiveLedgerGroup(child.EventType)
+			if !ok || childGroup != parentGroup {
+				continue
+			}
+			childInterval, ok := eventOffsetInterval(child)
+			if !ok {
+				continue
+			}
+			if intervalContains(parent, childInterval) && !sameInterval(parent, childInterval) {
+				childIntervals = append(childIntervals, childInterval)
+			}
+		}
+		deduct := unionDuration(childIntervals)
+		if deduct >= elapsed {
+			out[i] = 0
+			continue
+		}
+		out[i] = elapsed - deduct
+	}
+	return out
+}
+
+func usesExclusiveLedgerElapsed(t models.JenniferEventType) bool {
+	_, ok := exclusiveLedgerGroup(t)
+	return ok
+}
+
+func exclusiveLedgerGroup(t models.JenniferEventType) (string, bool) {
+	switch t {
+	case models.JenniferEventSQLExecute, models.JenniferEventSQLUpdate, models.JenniferEventSQLQuery:
+		return "sql", true
+	case models.JenniferEventCheckQuery:
+		return "check_query", true
+	case models.JenniferEventTwoPCStart, models.JenniferEventTwoPCEnd,
+		models.JenniferEventTwoPCPrepare, models.JenniferEventTwoPCCommit,
+		models.JenniferEventTwoPCRollback, models.JenniferEventTwoPCUnknown:
+		return "two_pc", true
+	case models.JenniferEventFetch:
+		return "fetch", true
+	case models.JenniferEventConnAcquire:
+		return "connection_acquire", true
+	default:
+		return "", false
+	}
+}
+
+func eventOffsetInterval(ev models.JenniferProfileEvent) (interval, bool) {
+	if ev.StartOffsetMs == nil || ev.ElapsedMs == nil {
+		return interval{}, false
+	}
+	start := *ev.StartOffsetMs
+	end := start + *ev.ElapsedMs
+	if ev.EndOffsetMs != nil {
+		end = *ev.EndOffsetMs
+	}
+	if end < start {
+		return interval{}, false
+	}
+	return interval{start: start, end: end}, true
+}
+
+func intervalContains(parent, child interval) bool {
+	return child.start >= parent.start && child.end <= parent.end
+}
+
+func sameInterval(a, b interval) bool {
+	return a.start == b.start && a.end == b.end
 }
 
 func computeNetworkPrepMethods(events []models.JenniferProfileEvent) []models.JenniferNetworkPrepMethod {
