@@ -443,15 +443,17 @@ export function ProfilerAnalyzerPage(): JSX.Element {
 
   return (
     <main className="flex flex-col gap-5 p-5">
-      <WailsFileDock
-        label={t("filePathPlaceholder")}
-        description={t("dropOrBrowseProfiler") || t("filePathPlaceholder")}
-        selected={selected}
-        onSelect={handleSelect}
-        onClear={handleClear}
-        browseLabel={t("pickFile")}
-        fileFilters={FILE_FILTERS}
-        rightSlot={
+      <div className="flex items-stretch gap-3">
+        <WailsFileDock
+          className="min-w-0 flex-1"
+          label={t("filePathPlaceholder")}
+          description={t("dropOrBrowseProfiler") || t("filePathPlaceholder")}
+          selected={selected}
+          onSelect={handleSelect}
+          onClear={handleClear}
+          browseLabel={t("pickFile")}
+          fileFilters={FILE_FILTERS}
+          rightSlot={
           <div className="flex items-center gap-2">
             <Button
               type="button"
@@ -483,20 +485,13 @@ export function ProfilerAnalyzerPage(): JSX.Element {
               </Button>
             )}
           </div>
-        }
-      />
+          }
+        />
 
-      <RecentFilesPanel
-        entries={recent.entries}
-        onSelect={handleRecentSelect}
-        onRemove={recent.remove}
-        onClear={recent.clear}
-      />
-
-      <AnalyzerOptionsDock
-        title={t("analyzerOptions")}
-        width={560}
-        footer={
+        <AnalyzerOptionsDock
+          title={t("analyzerOptions")}
+          width={560}
+          footer={
           <div className="flex justify-end">
             <Button
               type="button"
@@ -517,8 +512,8 @@ export function ProfilerAnalyzerPage(): JSX.Element {
               )}
             </Button>
           </div>
-        }
-      >
+          }
+        >
       <Card className="border-0 shadow-none">
         <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2 px-0">
           <label className="flex flex-col gap-1.5 text-xs">
@@ -678,7 +673,15 @@ export function ProfilerAnalyzerPage(): JSX.Element {
           />
         </CardContent>
       </Card>
-      </AnalyzerOptionsDock>
+        </AnalyzerOptionsDock>
+      </div>
+
+      <RecentFilesPanel
+        entries={recent.entries}
+        onSelect={handleRecentSelect}
+        onRemove={recent.remove}
+        onClear={recent.clear}
+      />
 
       {error && (
         <div

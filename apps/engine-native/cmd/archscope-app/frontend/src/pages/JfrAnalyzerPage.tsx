@@ -247,140 +247,142 @@ export function JfrAnalyzerPage(): JSX.Element {
 
   return (
     <main className="flex flex-col gap-5 p-5">
-      <WailsFileDock
-        label={t("selectJfrFile")}
-        description={t("dropOrBrowseJfr")}
-        accept=".jfr,.json"
-        selected={selectedFile}
-        onSelect={handleFileSelected}
-        onClear={handleClearFile}
-        browseLabel={t("browseFile")}
-        dropHereLabel={t("dropHere")}
-        errorLabel={t("error")}
-        fileFilters={[
-          { displayName: "JFR recordings", pattern: "*.jfr;*.json" },
-          { displayName: "All files", pattern: "*.*" },
-        ]}
-        rightSlot={
-          activeModeTab === "recording" ? (
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                size="sm"
-                disabled={!canAnalyzeJfr}
-                onClick={() => void analyzeJfr()}
-              >
-                {jfrState === "running" ? (
-                  <>
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    {t("analyzing")}
-                  </>
-                ) : (
-                  <>
-                    <Play className="h-3.5 w-3.5" />
-                    {t("analyze")}
-                  </>
-                )}
-              </Button>
-              {jfrState === "running" && (
+      <div className="flex items-stretch gap-3">
+        <WailsFileDock
+          className="min-w-0 flex-1"
+          label={t("selectJfrFile")}
+          description={t("dropOrBrowseJfr")}
+          accept=".jfr,.json"
+          selected={selectedFile}
+          onSelect={handleFileSelected}
+          onClear={handleClearFile}
+          browseLabel={t("browseFile")}
+          dropHereLabel={t("dropHere")}
+          errorLabel={t("error")}
+          fileFilters={[
+            { displayName: "JFR recordings", pattern: "*.jfr;*.json" },
+            { displayName: "All files", pattern: "*.*" },
+          ]}
+          rightSlot={
+            activeModeTab === "recording" ? (
+              <div className="flex items-center gap-2">
                 <Button
                   type="button"
                   size="sm"
-                  variant="outline"
-                  onClick={() => cancelJfr()}
+                  disabled={!canAnalyzeJfr}
+                  onClick={() => void analyzeJfr()}
                 >
-                  <Square className="h-3.5 w-3.5" />
-                  {t("cancelAnalysis")}
+                  {jfrState === "running" ? (
+                    <>
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      {t("analyzing")}
+                    </>
+                  ) : (
+                    <>
+                      <Play className="h-3.5 w-3.5" />
+                      {t("analyze")}
+                    </>
+                  )}
                 </Button>
-              )}
-            </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                size="sm"
-                disabled={!canAnalyzeNativeMem}
-                onClick={() => void analyzeNativeMemory()}
-              >
-                {nativeMemState === "running" ? (
-                  <>
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    {t("analyzing")}
-                  </>
-                ) : (
-                  <>
-                    <Play className="h-3.5 w-3.5" />
-                    {t("jfrNativeMemRun")}
-                  </>
+                {jfrState === "running" && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => cancelJfr()}
+                  >
+                    <Square className="h-3.5 w-3.5" />
+                    {t("cancelAnalysis")}
+                  </Button>
                 )}
-              </Button>
-              {nativeMemState === "running" && (
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  onClick={() => cancelNativeMem()}
-                >
-                  <Square className="h-3.5 w-3.5" />
-                  {t("cancelAnalysis")}
-                </Button>
-              )}
-            </div>
-          )
-        }
-      />
-
-      <AnalyzerOptionsDock
-        title={
-          activeModeTab === "recording"
-            ? t("analyzerOptions")
-            : t("jfrNativeMemTitle")
-        }
-        label={t("analyzerOptions")}
-        footer={
-          <div className="flex justify-end">
-            {activeModeTab === "recording" ? (
-              <Button
-                type="button"
-                size="sm"
-                disabled={!canAnalyzeJfr}
-                onClick={() => void analyzeJfr()}
-              >
-                {jfrState === "running" ? (
-                  <>
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    {t("analyzing")}
-                  </>
-                ) : (
-                  <>
-                    <Play className="h-3.5 w-3.5" />
-                    {t("analyze")}
-                  </>
-                )}
-              </Button>
+              </div>
             ) : (
-              <Button
-                type="button"
-                size="sm"
-                disabled={!canAnalyzeNativeMem}
-                onClick={() => void analyzeNativeMemory()}
-              >
-                {nativeMemState === "running" ? (
-                  <>
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    {t("analyzing")}
-                  </>
-                ) : (
-                  <>
-                    <Play className="h-3.5 w-3.5" />
-                    {t("jfrNativeMemRun")}
-                  </>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  disabled={!canAnalyzeNativeMem}
+                  onClick={() => void analyzeNativeMemory()}
+                >
+                  {nativeMemState === "running" ? (
+                    <>
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      {t("analyzing")}
+                    </>
+                  ) : (
+                    <>
+                      <Play className="h-3.5 w-3.5" />
+                      {t("jfrNativeMemRun")}
+                    </>
+                  )}
+                </Button>
+                {nativeMemState === "running" && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => cancelNativeMem()}
+                  >
+                    <Square className="h-3.5 w-3.5" />
+                    {t("cancelAnalysis")}
+                  </Button>
                 )}
-              </Button>
-            )}
-          </div>
-        }
-      >
+              </div>
+            )
+          }
+        />
+
+        <AnalyzerOptionsDock
+          title={
+            activeModeTab === "recording"
+              ? t("analyzerOptions")
+              : t("jfrNativeMemTitle")
+          }
+          label={t("analyzerOptions")}
+          footer={
+            <div className="flex justify-end">
+              {activeModeTab === "recording" ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  disabled={!canAnalyzeJfr}
+                  onClick={() => void analyzeJfr()}
+                >
+                  {jfrState === "running" ? (
+                    <>
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      {t("analyzing")}
+                    </>
+                  ) : (
+                    <>
+                      <Play className="h-3.5 w-3.5" />
+                      {t("analyze")}
+                    </>
+                  )}
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  size="sm"
+                  disabled={!canAnalyzeNativeMem}
+                  onClick={() => void analyzeNativeMemory()}
+                >
+                  {nativeMemState === "running" ? (
+                    <>
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      {t("analyzing")}
+                    </>
+                  ) : (
+                    <>
+                      <Play className="h-3.5 w-3.5" />
+                      {t("jfrNativeMemRun")}
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
+          }
+        >
         {activeModeTab === "recording" ? (
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <label className="flex flex-col gap-1.5 text-xs">
@@ -493,7 +495,8 @@ export function JfrAnalyzerPage(): JSX.Element {
             </label>
           </div>
         )}
-      </AnalyzerOptionsDock>
+        </AnalyzerOptionsDock>
+      </div>
 
       <Tabs
         value={activeModeTab}

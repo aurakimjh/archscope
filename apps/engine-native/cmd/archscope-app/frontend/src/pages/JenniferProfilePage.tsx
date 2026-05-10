@@ -611,71 +611,73 @@ export function JenniferProfilePage(): JSX.Element {
 
   return (
     <main className="flex flex-col gap-5 p-5 overflow-y-auto">
-      <WailsFileDock
-        label={t("dropOrBrowseJennifer")}
-        description="Jennifer profile export 파일 또는 같은 트랜잭션 묶음 파일을 선택하세요."
-        accept=".txt,.log,.profile"
-        selectedFiles={selectedFileDockItems}
-        onSelect={handleFileSelected}
-        onSelectMany={handleFilesSelected}
-        onClear={handleClearAll}
-        allowsMultipleSelection
-        browseLabel={t("browseFile")}
-        dropHereLabel={t("dropHere")}
-        errorLabel={t("error")}
-        fileFilters={FILE_FILTERS}
-        rightSlot={
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              type="button"
-              size="sm"
-              variant="default"
-              onClick={() => void handleAnalyze()}
-              disabled={analyzing || selected.length === 0}
-            >
-              {analyzing ? (
-                <>
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  {t("analyzing")}
-                </>
-              ) : (
-                <>
-                  <Play className="h-3.5 w-3.5" />
-                  {t("analyze")} ({selected.length})
-                </>
-              )}
-            </Button>
-          </div>
-        }
-      />
-      <AnalyzerOptionsDock
-        title="Jennifer 분석 옵션"
-        label={t("analyzerOptions")}
-        width={560}
-        footer={
-          <div className="flex justify-end">
-            <Button
-              type="button"
-              size="sm"
-              onClick={() => void handleAnalyze()}
-              disabled={analyzing || selected.length === 0}
-            >
-              {analyzing ? (
-                <>
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  {t("analyzing")}
-                </>
-              ) : (
-                <>
-                  <Play className="h-3.5 w-3.5" />
-                  {t("analyze")} ({selected.length})
-                </>
-              )}
-            </Button>
-          </div>
-        }
-      >
-        <div className="flex flex-col gap-4 text-sm">
+      <div className="flex items-stretch gap-3">
+        <WailsFileDock
+          className="min-w-0 flex-1"
+          label={t("dropOrBrowseJennifer")}
+          description="Jennifer profile export 파일 또는 같은 트랜잭션 묶음 파일을 선택하세요."
+          accept=".txt,.log,.profile"
+          selectedFiles={selectedFileDockItems}
+          onSelect={handleFileSelected}
+          onSelectMany={handleFilesSelected}
+          onClear={handleClearAll}
+          allowsMultipleSelection
+          browseLabel={t("browseFile")}
+          dropHereLabel={t("dropHere")}
+          errorLabel={t("error")}
+          fileFilters={FILE_FILTERS}
+          rightSlot={
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="default"
+                onClick={() => void handleAnalyze()}
+                disabled={analyzing || selected.length === 0}
+              >
+                {analyzing ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    {t("analyzing")}
+                  </>
+                ) : (
+                  <>
+                    <Play className="h-3.5 w-3.5" />
+                    {t("analyze")} ({selected.length})
+                  </>
+                )}
+              </Button>
+            </div>
+          }
+        />
+        <AnalyzerOptionsDock
+          title="Jennifer 분석 옵션"
+          label={t("analyzerOptions")}
+          width={560}
+          footer={
+            <div className="flex justify-end">
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => void handleAnalyze()}
+                disabled={analyzing || selected.length === 0}
+              >
+                {analyzing ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    {t("analyzing")}
+                  </>
+                ) : (
+                  <>
+                    <Play className="h-3.5 w-3.5" />
+                    {t("analyze")} ({selected.length})
+                  </>
+                )}
+              </Button>
+            </div>
+          }
+        >
+          <div className="flex flex-col gap-4 text-sm">
           <label className="flex items-center gap-1.5 text-xs">
             <input
               type="checkbox"
@@ -703,8 +705,9 @@ export function JenniferProfilePage(): JSX.Element {
               disabled={analyzing}
             />
           </div>
-        </div>
-      </AnalyzerOptionsDock>
+          </div>
+        </AnalyzerOptionsDock>
+      </div>
       <RecentFilesPanel
         entries={recent.entries}
         onSelect={handleRecentSelect}

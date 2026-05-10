@@ -266,88 +266,83 @@ export function GcLogAnalyzerPage(): JSX.Element {
 
   return (
     <main className="flex flex-col gap-5 p-5">
-      <WailsFileDock
-        label={t("selectGcLogFile")}
-        description={t("dropOrBrowseGcLog")}
-        accept=".log,.txt,.gz"
-        selected={selectedFile}
-        onSelect={handleFileSelected}
-        onClear={handleClearFile}
-        browseLabel={t("browseFile")}
-        dropHereLabel={t("dropHere")}
-        errorLabel={t("error")}
-        fileFilters={[
-          { displayName: "GC logs", pattern: "*.log;*.txt;*.gz" },
-          { displayName: "All files", pattern: "*.*" },
-        ]}
-        rightSlot={
-          <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              size="sm"
-              disabled={!canAnalyze}
-              onClick={() => void analyze()}
-            >
-              {state === "running" ? (
-                <>
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  {t("analyzing")}
-                </>
-              ) : (
-                <>
-                  <Play className="h-3.5 w-3.5" />
-                  {t("analyze")}
-                </>
-              )}
-            </Button>
-            {state === "running" && (
+      <div className="flex items-stretch gap-3">
+        <WailsFileDock
+          className="min-w-0 flex-1"
+          label={t("selectGcLogFile")}
+          description={t("dropOrBrowseGcLog")}
+          accept=".log,.txt,.gz"
+          selected={selectedFile}
+          onSelect={handleFileSelected}
+          onClear={handleClearFile}
+          browseLabel={t("browseFile")}
+          dropHereLabel={t("dropHere")}
+          errorLabel={t("error")}
+          fileFilters={[
+            { displayName: "GC logs", pattern: "*.log;*.txt;*.gz" },
+            { displayName: "All files", pattern: "*.*" },
+          ]}
+          rightSlot={
+            <div className="flex items-center gap-2">
               <Button
                 type="button"
                 size="sm"
-                variant="outline"
-                onClick={() => cancelAnalysis()}
+                disabled={!canAnalyze}
+                onClick={() => void analyze()}
               >
-                <Square className="h-3.5 w-3.5" />
-                {t("cancelAnalysis")}
+                {state === "running" ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    {t("analyzing")}
+                  </>
+                ) : (
+                  <>
+                    <Play className="h-3.5 w-3.5" />
+                    {t("analyze")}
+                  </>
+                )}
               </Button>
-            )}
-          </div>
-        }
-      />
-
-      <RecentFilesPanel
-        entries={recent.entries}
-        onSelect={handleRecentSelect}
-        onRemove={recent.remove}
-        onClear={recent.clear}
-      />
-
-      <AnalyzerOptionsDock
-        title={t("analyzerOptions")}
-        footer={
-          <div className="flex justify-end">
-            <Button
-              type="button"
-              size="sm"
-              disabled={!canAnalyze}
-              onClick={() => void analyze()}
-            >
-              {state === "running" ? (
-                <>
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  {t("analyzing")}
-                </>
-              ) : (
-                <>
-                  <Play className="h-3.5 w-3.5" />
-                  {t("analyze")}
-                </>
+              {state === "running" && (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => cancelAnalysis()}
+                >
+                  <Square className="h-3.5 w-3.5" />
+                  {t("cancelAnalysis")}
+                </Button>
               )}
-            </Button>
-          </div>
-        }
-      >
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            </div>
+          }
+        />
+
+        <AnalyzerOptionsDock
+          title={t("analyzerOptions")}
+          footer={
+            <div className="flex justify-end">
+              <Button
+                type="button"
+                size="sm"
+                disabled={!canAnalyze}
+                onClick={() => void analyze()}
+              >
+                {state === "running" ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    {t("analyzing")}
+                  </>
+                ) : (
+                  <>
+                    <Play className="h-3.5 w-3.5" />
+                    {t("analyze")}
+                  </>
+                )}
+              </Button>
+            </div>
+          }
+        >
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           <label className="flex flex-col gap-1.5 text-xs">
             <span className="font-medium text-foreground/80">
               {t("maxLines")}
@@ -383,8 +378,16 @@ export function GcLogAnalyzerPage(): JSX.Element {
               {t("gcLogStrict")}
             </span>
           </label>
-        </div>
-      </AnalyzerOptionsDock>
+          </div>
+        </AnalyzerOptionsDock>
+      </div>
+
+      <RecentFilesPanel
+        entries={recent.entries}
+        onSelect={handleRecentSelect}
+        onRemove={recent.remove}
+        onClear={recent.clear}
+      />
 
       <ErrorPanel
         error={error}

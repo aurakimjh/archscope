@@ -1,6 +1,6 @@
-// AnalyzerOptionsDock — shared right-edge bookmark tab for analyzer
-// settings. The visible affordance stays in the same place on every
-// analyzer page; the actual form is still rendered by SlideOverPanel.
+// AnalyzerOptionsDock — shared bookmark tab for analyzer settings.
+// Analyzer pages place it beside the file selector so the settings
+// affordance is consistent without floating over result cards.
 
 import { SlidersHorizontal } from "lucide-react";
 import { useState, type ReactNode } from "react";
@@ -18,6 +18,7 @@ export type AnalyzerOptionsDockProps = {
   disabled?: boolean;
   hasChanges?: boolean;
   className?: string;
+  placement?: "inline" | "fixed";
 };
 
 export function AnalyzerOptionsDock({
@@ -29,15 +30,20 @@ export function AnalyzerOptionsDock({
   disabled = false,
   hasChanges = false,
   className,
+  placement = "inline",
 }: AnalyzerOptionsDockProps): JSX.Element {
   const [open, setOpen] = useState(false);
+  const fixed = placement === "fixed";
 
   return (
     <>
       <button
         type="button"
         className={cn(
-          "fixed right-0 top-[34vh] z-40 flex items-center gap-1.5 rounded-l-md border border-r-0 border-border bg-background px-2 py-3 text-xs font-medium text-foreground shadow-md transition-colors",
+          "relative flex shrink-0 items-center gap-1.5 border border-border bg-background px-2 py-3 text-xs font-medium text-foreground shadow-md transition-colors",
+          fixed
+            ? "fixed right-0 top-[34vh] z-40 rounded-l-md border-r-0"
+            : "self-stretch rounded-md",
           "hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
           disabled && "pointer-events-none opacity-50",
           className,

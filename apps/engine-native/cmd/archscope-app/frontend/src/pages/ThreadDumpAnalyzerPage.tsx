@@ -429,66 +429,70 @@ export function ThreadDumpAnalyzerPage(): JSX.Element {
         </CardContent>
       </Card>
 
-      {mode === "single" ? (
-        <WailsFileDock
-          label={t("threadDumpSelectFile")}
-          description={t("threadDumpDropOrBrowse")}
-          accept=".txt,.log,.dump,.json"
-          selected={singleFile}
-          onSelect={handleSingleFile}
-          onClear={handleClearSingle}
-          browseLabel={t("browseFile")}
-          dropHereLabel={t("dropHere")}
-          errorLabel={t("error")}
-          fileFilters={FILE_FILTERS}
-          rightSlot={
-            <RunControls
-              t={t}
-              state={state}
-              canAnalyze={canAnalyze}
-              onRun={() => void analyze()}
-              onCancel={() => cancelAnalysis()}
-              runLabel={t("threadDumpRunSingle")}
-            />
-          }
-        />
-      ) : (
-        <MultiFileDock
-          t={t}
-          files={files}
-          mode={mode}
-          state={state}
-          canAnalyze={canAnalyze}
-          onPick={() => void pickMultipleFiles()}
-          onRemove={removeFile}
-          onClear={clearFiles}
-          onRun={() => void analyze()}
-          onCancel={() => cancelAnalysis()}
-        />
-      )}
-
-      <AnalyzerOptionsDock
-        title={t("analyzerOptions")}
-        footer={
-          <div className="flex justify-end">
-            <RunControls
-              t={t}
-              state={state}
-              canAnalyze={canAnalyze}
-              onRun={() => void analyze()}
-              onCancel={() => cancelAnalysis()}
-              runLabel={
-                mode === "single"
-                  ? t("threadDumpRunSingle")
-                  : mode === "multi"
-                    ? t("threadDumpRunMulti")
-                    : t("threadDumpRunLocks")
+      <div className="flex items-stretch gap-3">
+        <div className="min-w-0 flex-1">
+          {mode === "single" ? (
+            <WailsFileDock
+              className="min-w-0"
+              label={t("threadDumpSelectFile")}
+              description={t("threadDumpDropOrBrowse")}
+              accept=".txt,.log,.dump,.json"
+              selected={singleFile}
+              onSelect={handleSingleFile}
+              onClear={handleClearSingle}
+              browseLabel={t("browseFile")}
+              dropHereLabel={t("dropHere")}
+              errorLabel={t("error")}
+              fileFilters={FILE_FILTERS}
+              rightSlot={
+                <RunControls
+                  t={t}
+                  state={state}
+                  canAnalyze={canAnalyze}
+                  onRun={() => void analyze()}
+                  onCancel={() => cancelAnalysis()}
+                  runLabel={t("threadDumpRunSingle")}
+                />
               }
             />
-          </div>
-        }
-      >
-        <div className="grid grid-cols-1 gap-3">
+          ) : (
+            <MultiFileDock
+              t={t}
+              files={files}
+              mode={mode}
+              state={state}
+              canAnalyze={canAnalyze}
+              onPick={() => void pickMultipleFiles()}
+              onRemove={removeFile}
+              onClear={clearFiles}
+              onRun={() => void analyze()}
+              onCancel={() => cancelAnalysis()}
+            />
+          )}
+        </div>
+
+        <AnalyzerOptionsDock
+          title={t("analyzerOptions")}
+          footer={
+            <div className="flex justify-end">
+              <RunControls
+                t={t}
+                state={state}
+                canAnalyze={canAnalyze}
+                onRun={() => void analyze()}
+                onCancel={() => cancelAnalysis()}
+                runLabel={
+                  mode === "single"
+                    ? t("threadDumpRunSingle")
+                    : mode === "multi"
+                      ? t("threadDumpRunMulti")
+                      : t("threadDumpRunLocks")
+                }
+              />
+            </div>
+          }
+        >
+          <div className="grid grid-cols-1 gap-3">
           <label className="flex flex-col gap-1.5 text-xs">
             <span className="font-medium text-foreground/80">
               {t("topN")}
@@ -530,8 +534,9 @@ export function ThreadDumpAnalyzerPage(): JSX.Element {
               />
             </label>
           )}
-        </div>
-      </AnalyzerOptionsDock>
+          </div>
+        </AnalyzerOptionsDock>
+      </div>
 
       <ErrorPanel
         error={error}
