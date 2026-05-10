@@ -3,51 +3,53 @@
 //
 // 데이터 모델 계층 (위에서 아래로 응집)
 //
-//   1) JenniferTransactionProfile
-//      - 한 파일의 한 TXID 블록 = 하나의 트랜잭션 호출 트리.
-//      - Header(메타) + Body(이벤트 표) + Errors/Warnings.
+//  1. JenniferTransactionProfile
+//     - 한 파일의 한 TXID 블록 = 하나의 트랜잭션 호출 트리.
+//     - Header(메타) + Body(이벤트 표) + Errors/Warnings.
 //
-//   2) JenniferProfileHeader
-//      - 2-column key:value 섹션. APM 의 사전 집계 메트릭 + 메타.
-//      - Extra 가 있어 신규 컬럼이 추가되어도 파서가 깨지지 않음.
+//  2. JenniferProfileHeader
+//     - 2-column key:value 섹션. APM 의 사전 집계 메트릭 + 메타.
+//     - Extra 가 있어 신규 컬럼이 추가되어도 파서가 깨지지 않음.
 //
-//   3) JenniferProfileBody / JenniferProfileEvent
-//      - START / END / TOTAL 사이의 이벤트 표.
-//      - EventType 분류기가 우선순위 규칙으로 라벨 부여
-//        (PROFILE_START, EXTERNAL_CALL, SQL_EXECUTE_*, FETCH, ...).
+//  3. JenniferProfileBody / JenniferProfileEvent
+//     - START / END / TOTAL 사이의 이벤트 표.
+//     - EventType 분류기가 우선순위 규칙으로 라벨 부여
+//     (PROFILE_START, EXTERNAL_CALL, SQL_EXECUTE_*, FETCH, ...).
 //
-//   4) GUID 그룹 (MVP2)
-//      - JenniferGuidGroup : 같은 GUID 를 공유하는 트랜잭션 묶음.
-//      - JenniferExternalCallEdge : caller→callee 외부호출 1건.
-//      - 매칭 점수/이상 케이스(UNMATCHED, AMBIGUOUS, SCORE_TOO_LOW)
-//        를 통해 MSA 호출 그래프를 복원.
+//  4. GUID 그룹 (MVP2)
+//     - JenniferGuidGroup : 같은 GUID 를 공유하는 트랜잭션 묶음.
+//     - JenniferExternalCallEdge : caller→callee 외부호출 1건.
+//     - 매칭 점수/이상 케이스(UNMATCHED, AMBIGUOUS, SCORE_TOO_LOW)
+//     를 통해 MSA 호출 그래프를 복원.
 //
-//   5) Timeline Signature 통계 (MVP3)
-//      - JenniferTimelineSignature : GUID 와 무관한 호출 구조 지문.
-//      - JenniferSignatureStats / JenniferEdgeStats / JenniferMetricStats
-//        : 같은 시그니처를 가진 트랜잭션들의 분포 통계
-//          (count/min/avg/p50/p90/p95/p99/max/stddev).
+//  5. Timeline Signature 통계 (MVP3)
+//     - JenniferTimelineSignature : GUID 와 무관한 호출 구조 지문.
+//     - JenniferSignatureStats / JenniferEdgeStats / JenniferMetricStats
+//     : 같은 시그니처를 가진 트랜잭션들의 분포 통계
+//     (count/min/avg/p50/p90/p95/p99/max/stddev).
 //
-//   6) Parallelism / Body Metrics (MVP4)
-//      - JenniferProfileParallelism : 외부호출이 직렬/병렬/혼합인지,
-//        wall-clock 대비 cumulative 비율(parallelism_ratio).
-//      - JenniferGuidMetrics / JenniferBodyMetrics : roll-up 메트릭.
+//  6. Parallelism / Body Metrics (MVP4)
+//     - JenniferProfileParallelism : 외부호출이 직렬/병렬/혼합인지,
+//     wall-clock 대비 cumulative 비율(parallelism_ratio).
+//     - JenniferGuidMetrics / JenniferBodyMetrics : roll-up 메트릭.
 //
 // 포인터 vs 비포인터
-//   값이 "보고되지 않음" 과 "0" 을 구분해야 하면 포인터(*int).
-//   누적 합계처럼 0 이 의미를 가지면 비포인터(int).
+//
+//	값이 "보고되지 않음" 과 "0" 을 구분해야 하면 포인터(*int).
+//	누적 합계처럼 0 이 의미를 가지면 비포인터(int).
 //
 // JSON omitempty 정책
-//   값이 0/빈문자/빈슬라이스일 때 키를 생략해야 하면 omitempty.
-//   대시보드가 항상 키 존재를 가정하는 필드(예: events) 는 비포함.
+//
+//	값이 0/빈문자/빈슬라이스일 때 키를 생략해야 하면 omitempty.
+//	대시보드가 항상 키 존재를 가정하는 필드(예: events) 는 비포함.
 package models
 
 // JenniferTransactionProfile is one TXID block of a Jennifer Profile
 // Export file. Multiple profiles share the same GUID when they belong
 // to the same MSA call group.
 type JenniferTransactionProfile struct {
-	Header JenniferProfileHeader  `json:"header"`
-	Body   JenniferProfileBody    `json:"body"`
+	Header JenniferProfileHeader `json:"header"`
+	Body   JenniferProfileBody   `json:"body"`
 	// SourceFile is the file the profile was lifted from — useful
 	// when many files are batched into one analysis.
 	SourceFile string `json:"source_file,omitempty"`
@@ -64,32 +66,32 @@ type JenniferTransactionProfile struct {
 // precedes the body table. All numeric fields are pointers so a
 // missing field round-trips as JSON null.
 type JenniferProfileHeader struct {
-	TXID             string  `json:"txid"`
-	GUID             string  `json:"guid,omitempty"`
-	Domain           string  `json:"domain,omitempty"`
-	DomainID         string  `json:"domain_id,omitempty"`
-	StartTime        string  `json:"start_time,omitempty"`
-	CollectionTime   string  `json:"collection_time,omitempty"`
-	EndTime          string  `json:"end_time,omitempty"`
-	ResponseTimeMs   *int    `json:"response_time_ms,omitempty"`
-	SQLTimeMs        *int    `json:"sql_time_ms,omitempty"`
-	SQLCount         *int    `json:"sql_count,omitempty"`
-	ExternalCallMs   *int    `json:"external_call_time_ms,omitempty"`
-	FetchTimeMs      *int    `json:"fetch_time_ms,omitempty"`
-	CPUTimeMs        *int    `json:"cpu_time_ms,omitempty"`
-	Instance         string  `json:"instance,omitempty"`
-	InstanceID       string  `json:"instance_id,omitempty"`
-	Business         string  `json:"business,omitempty"`
-	BusinessID       string  `json:"business_id,omitempty"`
-	ClientIP         string  `json:"client_ip,omitempty"`
-	ClientID         string  `json:"client_id,omitempty"`
-	UserID           string  `json:"user_id,omitempty"`
-	UserAgent        string  `json:"user_agent,omitempty"`
-	HTTPStatusCode   *int    `json:"http_status_code,omitempty"`
-	FrontAppID       string  `json:"front_app_id,omitempty"`
-	FrontPageID      string  `json:"front_page_id,omitempty"`
-	Error            string  `json:"error,omitempty"`
-	Application      string  `json:"application"`
+	TXID           string `json:"txid"`
+	GUID           string `json:"guid,omitempty"`
+	Domain         string `json:"domain,omitempty"`
+	DomainID       string `json:"domain_id,omitempty"`
+	StartTime      string `json:"start_time,omitempty"`
+	CollectionTime string `json:"collection_time,omitempty"`
+	EndTime        string `json:"end_time,omitempty"`
+	ResponseTimeMs *int   `json:"response_time_ms,omitempty"`
+	SQLTimeMs      *int   `json:"sql_time_ms,omitempty"`
+	SQLCount       *int   `json:"sql_count,omitempty"`
+	ExternalCallMs *int   `json:"external_call_time_ms,omitempty"`
+	FetchTimeMs    *int   `json:"fetch_time_ms,omitempty"`
+	CPUTimeMs      *int   `json:"cpu_time_ms,omitempty"`
+	Instance       string `json:"instance,omitempty"`
+	InstanceID     string `json:"instance_id,omitempty"`
+	Business       string `json:"business,omitempty"`
+	BusinessID     string `json:"business_id,omitempty"`
+	ClientIP       string `json:"client_ip,omitempty"`
+	ClientID       string `json:"client_id,omitempty"`
+	UserID         string `json:"user_id,omitempty"`
+	UserAgent      string `json:"user_agent,omitempty"`
+	HTTPStatusCode *int   `json:"http_status_code,omitempty"`
+	FrontAppID     string `json:"front_app_id,omitempty"`
+	FrontPageID    string `json:"front_page_id,omitempty"`
+	Error          string `json:"error,omitempty"`
+	Application    string `json:"application"`
 	// Extra catches every key:value pair we encountered but didn't
 	// promote to a typed field — keeps the parser forward-compatible
 	// against new Jennifer columns.
@@ -176,10 +178,10 @@ type JenniferProfileIssue struct {
 type JenniferMatchStatus string
 
 const (
-	JenniferMatchOK         JenniferMatchStatus = "MATCHED"
-	JenniferMatchUnmatched  JenniferMatchStatus = "UNMATCHED"
-	JenniferMatchScoreLow   JenniferMatchStatus = "MATCH_SCORE_TOO_LOW"
-	JenniferMatchAmbiguous  JenniferMatchStatus = "AMBIGUOUS_EXTERNAL_CALL_MATCH"
+	JenniferMatchOK        JenniferMatchStatus = "MATCHED"
+	JenniferMatchUnmatched JenniferMatchStatus = "UNMATCHED"
+	JenniferMatchScoreLow  JenniferMatchStatus = "MATCH_SCORE_TOO_LOW"
+	JenniferMatchAmbiguous JenniferMatchStatus = "AMBIGUOUS_EXTERNAL_CALL_MATCH"
 )
 
 // JenniferExternalCallEdge is one Caller-Callee pairing inside a
@@ -252,11 +254,11 @@ type JenniferCallGraphEdge struct {
 // stable across requests so the same business call pattern groups
 // together for statistics.
 type JenniferTimelineSignature struct {
-	Version           string `json:"signature_version"`
-	Hash              string `json:"signature_hash"`
-	Canonical         string `json:"canonical_signature"`
-	RootApplication   string `json:"root_application,omitempty"`
-	EdgeCount         int    `json:"edge_count"`
+	Version         string `json:"signature_version"`
+	Hash            string `json:"signature_hash"`
+	Canonical       string `json:"canonical_signature"`
+	RootApplication string `json:"root_application,omitempty"`
+	EdgeCount       int    `json:"edge_count"`
 }
 
 // JenniferMetricStats is one metric's distribution stats, computed
@@ -278,9 +280,9 @@ type JenniferMetricStats struct {
 // `OccurrenceIndex` is 1-based and disambiguates same caller→callee
 // edges that fire multiple times in the same call structure.
 type JenniferEdgeStats struct {
-	CallerApplication      string                `json:"caller_application"`
-	CalleeApplication      string                `json:"callee_application"`
-	OccurrenceIndex        int                   `json:"occurrence_index"`
+	CallerApplication        string              `json:"caller_application"`
+	CalleeApplication        string              `json:"callee_application"`
+	OccurrenceIndex          int                 `json:"occurrence_index"`
 	ExternalCallElapsedStats JenniferMetricStats `json:"external_call_elapsed_ms"`
 	CalleeResponseTimeStats  JenniferMetricStats `json:"callee_response_time_ms"`
 	RawNetworkGapStats       JenniferMetricStats `json:"raw_network_gap_ms"`
@@ -292,11 +294,11 @@ type JenniferEdgeStats struct {
 // `Edges`. Sample count = number of GUID groups that fold into this
 // signature.
 type JenniferSignatureStats struct {
-	Signature       JenniferTimelineSignature           `json:"signature"`
-	SampleCount     int                                 `json:"sample_count"`
-	GUIDs           []string                            `json:"guids"`
-	Metrics         map[string]JenniferMetricStats      `json:"metrics"`
-	Edges           []JenniferEdgeStats                 `json:"edges"`
+	Signature   JenniferTimelineSignature      `json:"signature"`
+	SampleCount int                            `json:"sample_count"`
+	GUIDs       []string                       `json:"guids"`
+	Metrics     map[string]JenniferMetricStats `json:"metrics"`
+	Edges       []JenniferEdgeStats            `json:"edges"`
 }
 
 // JenniferExecutionMode is the §16.5 verdict for one profile's
@@ -328,25 +330,25 @@ type JenniferProfileParallelism struct {
 // MVP4 adds wall-clock + parallelism columns alongside the existing
 // cumulative ones.
 type JenniferGuidMetrics struct {
-	GUID                            string `json:"guid"`
-	RootApplication                 string `json:"root_application,omitempty"`
-	RootResponseTimeMs              *int   `json:"root_response_time_ms,omitempty"`
-	ProfileCount                    int    `json:"profile_count"`
-	MatchedExternalCallCount        int    `json:"matched_external_call_count"`
-	UnmatchedExternalCallCount      int    `json:"unmatched_external_call_count"`
-	TotalExternalCallCumulativeMs   int    `json:"total_external_call_cumulative_ms"`
-	TotalExternalCallWallTimeMs     int    `json:"total_external_call_wall_time_ms"`
-	TotalNetworkGapCumulativeMs     int    `json:"total_network_gap_cumulative_ms"`
-	TotalSqlExecuteMs               int    `json:"total_sql_execute_ms"`
-	TotalCheckQueryMs               int    `json:"total_check_query_ms"`
-	TotalTwoPcMs                    int    `json:"total_two_pc_ms"`
-	TotalFetchMs                    int    `json:"total_fetch_ms"`
-	TotalFetchRows                  int    `json:"total_fetch_rows"`
-	TotalConnectionAcquireMs        int    `json:"total_connection_acquire_ms"`
-	MaxExternalCallConcurrency      int    `json:"max_external_call_concurrency"`
-	ExternalCallParallelismRatio    float64 `json:"external_call_parallelism_ratio"`
-	GroupExecutionMode              JenniferExecutionMode `json:"group_execution_mode"`
-	ProfileParallelism              []JenniferProfileParallelism `json:"profile_parallelism,omitempty"`
+	GUID                          string                       `json:"guid"`
+	RootApplication               string                       `json:"root_application,omitempty"`
+	RootResponseTimeMs            *int                         `json:"root_response_time_ms,omitempty"`
+	ProfileCount                  int                          `json:"profile_count"`
+	MatchedExternalCallCount      int                          `json:"matched_external_call_count"`
+	UnmatchedExternalCallCount    int                          `json:"unmatched_external_call_count"`
+	TotalExternalCallCumulativeMs int                          `json:"total_external_call_cumulative_ms"`
+	TotalExternalCallWallTimeMs   int                          `json:"total_external_call_wall_time_ms"`
+	TotalNetworkGapCumulativeMs   int                          `json:"total_network_gap_cumulative_ms"`
+	TotalSqlExecuteMs             int                          `json:"total_sql_execute_ms"`
+	TotalCheckQueryMs             int                          `json:"total_check_query_ms"`
+	TotalTwoPcMs                  int                          `json:"total_two_pc_ms"`
+	TotalFetchMs                  int                          `json:"total_fetch_ms"`
+	TotalFetchRows                int                          `json:"total_fetch_rows"`
+	TotalConnectionAcquireMs      int                          `json:"total_connection_acquire_ms"`
+	MaxExternalCallConcurrency    int                          `json:"max_external_call_concurrency"`
+	ExternalCallParallelismRatio  float64                      `json:"external_call_parallelism_ratio"`
+	GroupExecutionMode            JenniferExecutionMode        `json:"group_execution_mode"`
+	ProfileParallelism            []JenniferProfileParallelism `json:"profile_parallelism,omitempty"`
 	// ResponseTimeBreakdown decomposes root_response_time_ms into the
 	// categories the user wants to see. This is the "where did the
 	// time go" view that drives improvement decisions.
@@ -370,44 +372,77 @@ type JenniferGuidMetrics struct {
 // captured (unmatched edges) or if there's overlap from missing
 // data; the renderer clamps to 0 and shows a warning.
 type JenniferResponseTimeBreakdown struct {
-	RootResponseTimeMs    int     `json:"root_response_time_ms"`
-	SQLExecuteMs          int     `json:"sql_execute_ms"`
-	CheckQueryMs          int     `json:"check_query_ms"`
-	TwoPCMs               int     `json:"two_pc_ms"`
-	FetchMs               int     `json:"fetch_ms"`
-	NetworkCallMs         int     `json:"network_call_ms"`
-	NetworkPrepMs         int     `json:"network_prep_ms"`
-	ConnectionAcquireMs   int     `json:"connection_acquire_ms"`
-	MethodTimeMs          int     `json:"method_time_ms"`
-	MethodTimeRatio       float64 `json:"method_time_ratio"`
-	Coverage              float64 `json:"coverage"`
-	NegativeMethodTime    bool    `json:"negative_method_time,omitempty"`
+	RootResponseTimeMs  int     `json:"root_response_time_ms"`
+	SQLExecuteMs        int     `json:"sql_execute_ms"`
+	CheckQueryMs        int     `json:"check_query_ms"`
+	TwoPCMs             int     `json:"two_pc_ms"`
+	FetchMs             int     `json:"fetch_ms"`
+	NetworkCallMs       int     `json:"network_call_ms"`
+	NetworkPrepMs       int     `json:"network_prep_ms"`
+	ConnectionAcquireMs int     `json:"connection_acquire_ms"`
+	MethodTimeMs        int     `json:"method_time_ms"`
+	MethodTimeRatio     float64 `json:"method_time_ratio"`
+	Coverage            float64 `json:"coverage"`
+	NegativeMethodTime  bool    `json:"negative_method_time,omitempty"`
 }
 
 // JenniferBodyMetrics is the aggregated cost ledger emitted per
 // transaction profile. Cumulative-only for MVP1; wall-clock /
 // parallelism comes in MVP4.
 type JenniferBodyMetrics struct {
-	SQLExecuteCumMs       int `json:"sql_execute_cum_ms"`
-	SQLExecuteCount       int `json:"sql_execute_count"`
-	CheckQueryCumMs       int `json:"check_query_cum_ms"`
-	CheckQueryCount       int `json:"check_query_count"`
-	TwoPCCumMs            int `json:"two_pc_cum_ms"`
-	TwoPCCount            int `json:"two_pc_count"`
-	FetchCumMs            int `json:"fetch_cum_ms"`
-	FetchCount            int `json:"fetch_count"`
-	FetchTotalRows        int `json:"fetch_total_rows"`
-	ExternalCallCumMs     int `json:"external_call_cum_ms"`
-	ExternalCallCount     int `json:"external_call_count"`
+	SQLExecuteCumMs        int `json:"sql_execute_cum_ms"`
+	SQLExecuteCount        int `json:"sql_execute_count"`
+	CheckQueryCumMs        int `json:"check_query_cum_ms"`
+	CheckQueryCount        int `json:"check_query_count"`
+	TwoPCCumMs             int `json:"two_pc_cum_ms"`
+	TwoPCCount             int `json:"two_pc_count"`
+	FetchCumMs             int `json:"fetch_cum_ms"`
+	FetchCount             int `json:"fetch_count"`
+	FetchTotalRows         int `json:"fetch_total_rows"`
+	ExternalCallCumMs      int `json:"external_call_cum_ms"`
+	ExternalCallCount      int `json:"external_call_count"`
 	ConnectionAcquireCumMs int `json:"connection_acquire_cum_ms"`
 	ConnectionAcquireCount int `json:"connection_acquire_count"`
 	// NetworkPrepMethodCumMs is the raw sum of method elapsed for
 	// frames that match the configured network-prep patterns
 	// (default: IntegrationUtil.sendToService). NetworkPrepCumMs is
-	// the derived remainder: NetworkPrepMethodCumMs minus the
-	// matched-call ExternalCallCumMs (clamped to 0). The latter is
-	// what users see as "external call preparation time".
-	NetworkPrepMethodCumMs int `json:"network_prep_method_cum_ms"`
-	NetworkPrepMethodCount int `json:"network_prep_method_count"`
-	NetworkPrepCumMs       int `json:"network_prep_cum_ms"`
+	// the derived remainder: each wrapper method elapsed minus the
+	// sum of EXTERNAL_CALL rows assigned to that wrapper (clamped to
+	// 0). The latter is what users see as "external call preparation
+	// time".
+	NetworkPrepMethodCumMs int                         `json:"network_prep_method_cum_ms"`
+	NetworkPrepMethodCount int                         `json:"network_prep_method_count"`
+	NetworkPrepCumMs       int                         `json:"network_prep_cum_ms"`
+	NetworkPrepMethods     []JenniferNetworkPrepMethod `json:"network_prep_methods,omitempty"`
+}
+
+// JenniferNetworkPrepMethod explains one wrapper method that was
+// counted as network preparation. One wrapper can contain multiple
+// EXTERNAL_CALL rows; the prep time is method_elapsed minus the sum
+// of the included external calls, clamped at zero.
+type JenniferNetworkPrepMethod struct {
+	EventNo                  string                            `json:"event_no,omitempty"`
+	EventStart               string                            `json:"event_start,omitempty"`
+	RawMessage               string                            `json:"raw_message,omitempty"`
+	MethodElapsedMs          int                               `json:"method_elapsed_ms"`
+	StartOffsetMs            *int                              `json:"start_offset_ms,omitempty"`
+	EndOffsetMs              *int                              `json:"end_offset_ms,omitempty"`
+	ExternalCallCount        int                               `json:"external_call_count"`
+	ExternalCallCumMs        int                               `json:"external_call_cum_ms"`
+	NetworkPrepMs            int                               `json:"network_prep_ms"`
+	ExternalCallOverMethodMs int                               `json:"external_call_over_method_ms,omitempty"`
+	Suspicious               bool                              `json:"suspicious,omitempty"`
+	Warnings                 []string                          `json:"warnings,omitempty"`
+	IncludedExternalCalls    []JenniferNetworkPrepExternalCall `json:"included_external_calls,omitempty"`
+}
+
+// JenniferNetworkPrepExternalCall is one EXTERNAL_CALL row included
+// under a network-prep wrapper method.
+type JenniferNetworkPrepExternalCall struct {
+	EventNo       string `json:"event_no,omitempty"`
+	EventStart    string `json:"event_start,omitempty"`
+	ExternalURL   string `json:"external_url,omitempty"`
+	ElapsedMs     int    `json:"elapsed_ms"`
+	StartOffsetMs *int   `json:"start_offset_ms,omitempty"`
+	EndOffsetMs   *int   `json:"end_offset_ms,omitempty"`
 }

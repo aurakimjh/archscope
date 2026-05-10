@@ -1,34 +1,36 @@
 // [한글] event_classifier.go — 이벤트 메시지 → JenniferEventType 분류.
 //
 // 분류 우선순위 (높은 순)
-//   1) PROFILE_START / END / TOTAL  : 본문 경계.
-//   2) EXTERNAL_CALL                : `EXTERNAL_CALL [proto] client (url=...)`
-//                                      의 url 까지 추출.
-//   3) EXTERNAL_CALL_INFO           : INFO 헤더만(시간 측정 X).
-//   4) FETCH                        : `FETCH [N/M] [T ms]` — 행 수 + 시간.
-//   5) TWO_PC_*                     : XA START/END/PREPARE/COMMIT/ROLLBACK
-//                                      6종.
-//   6) CHECK_QUERY                  : DB 쿼리 검사 phase.
-//   7) SQL_EXECUTE_QUERY/UPDATE/...  : 실제 SQL 실행 (READ/WRITE 구분).
-//   8) CONNECTION_ACQUIRE           : getConnection / PoolingDataSource.*
-//                                      여러 패턴.
-//   9) SOCKET                        : `SOCKET_OSTREAM` / `SOCEKT_ISTREAM`
-//                                      (오타 SOCEKT 도 허용 — Jennifer
-//                                      실제 출력에 존재).
-//   10) METHOD                       : 일반 메서드 호출.
-//   11) UNKNOWN                      : 위 어느 것에도 매칭 안 됨.
+//  1. PROFILE_START / END / TOTAL  : 본문 경계.
+//  2. EXTERNAL_CALL                : `EXTERNAL_CALL [proto] client (url=...)`
+//     의 url 까지 추출.
+//  3. EXTERNAL_CALL_INFO           : INFO 헤더만(시간 측정 X).
+//  4. FETCH                        : `FETCH [N/M] [T ms]` — 행 수 + 시간.
+//  5. TWO_PC_*                     : XA START/END/PREPARE/COMMIT/ROLLBACK
+//     6종.
+//  6. CHECK_QUERY                  : DB 쿼리 검사 phase.
+//  7. SQL_EXECUTE_QUERY/UPDATE/...  : 실제 SQL 실행 (READ/WRITE 구분).
+//  8. CONNECTION_ACQUIRE           : getConnection / PoolingDataSource.*
+//     여러 패턴.
+//  9. SOCKET                        : `SOCKET_OSTREAM` / `SOCEKT_ISTREAM`
+//     (오타 SOCEKT 도 허용 — Jennifer
+//     실제 출력에 존재).
+//  10. METHOD                       : 일반 메서드 호출.
+//  11. UNKNOWN                      : 위 어느 것에도 매칭 안 됨.
 //
 // 이렇게 우선순위 기반으로 분류해야 EXTERNAL_CALL 안에 SQL 같은 키워드
 // 가 섞여도 EXTERNAL_CALL 로 정확히 라벨링됨 (예: SQL_EXECUTE 가 url
 // 안 path 에 등장하는 케이스).
 //
 // 추출 부가 필드
-//   EXTERNAL_CALL : protocol, client, url 분리 보관.
-//   FETCH        : current/cumulative rows + elapsed ms.
+//
+//	EXTERNAL_CALL : protocol, client, url 분리 보관.
+//	FETCH        : current/cumulative rows + elapsed ms.
 //
 // 비고: SOCEKT 오타
-//   Jennifer 의 실제 export 에 `SOCEKT_OSTREAM` 오타가 등장 — 정정하지
-//   말고 원본 그대로 인식해야 누락 없이 분류됨.
+//
+//	Jennifer 의 실제 export 에 `SOCEKT_OSTREAM` 오타가 등장 — 정정하지
+//	말고 원본 그대로 인식해야 누락 없이 분류됨.
 package jenniferprofile
 
 import (
@@ -158,21 +160,13 @@ func classifyEventsWithOptions(profile *models.JenniferTransactionProfile, opts 
 			fillFetch(ev)
 		}
 	}
-	validateNetworkPrep(profile)
 }
 
-// validateNetworkPrep enforces the user-stated invariant: a method
-// classified as NETWORK_PREP_METHOD must be immediately followed by
-// an EXTERNAL_CALL event in the body. If not, the method was a
-// false positive (the wrapper name happens to appear in non-network
-// code paths) and we demote it back to METHOD so it doesn't pollute
-// the network_prep ledger.
-//
-// We also surface a per-profile warning when the wrapper-method
-// elapsed differs significantly from the following EXTERNAL_CALL
-// elapsed — that's the "이상한" signal the user wanted: either the
-// wrapper has heavy non-network code OR the call took longer than
-// the wrapper recorded (clock drift / overlapping events).
+// validateNetworkPrep enforces the user-stated invariant after event
+// offsets are available: a NETWORK_PREP_METHOD wrapper must contain
+// at least one EXTERNAL_CALL. Older traces often put the wrapper
+// immediately above the call, but one wrapper method can also contain
+// several EXTERNAL_CALL rows before it returns.
 func validateNetworkPrep(profile *models.JenniferTransactionProfile) {
 	events := profile.Body.Events
 	for i := range events {
@@ -180,35 +174,29 @@ func validateNetworkPrep(profile *models.JenniferTransactionProfile) {
 		if ev.EventType != models.JenniferEventNetworkPrep {
 			continue
 		}
-		// Skip START / END / continuation rows when looking for the
-		// "next real event". The classifier already collapsed those
-		// into recognised types so we only need to walk forward.
-		nextIdx := -1
-		for j := i + 1; j < len(events); j++ {
-			t := events[j].EventType
-			if t == models.JenniferEventStart || t == models.JenniferEventEnd || t == models.JenniferEventTotal {
-				continue
+		callIdxs := containedExternalCallIndexes(events, i)
+		if len(callIdxs) == 0 {
+			nextIdx := nextRealEventIndex(events, i)
+			if nextIdx >= 0 && events[nextIdx].EventType == models.JenniferEventExternalCall {
+				callIdxs = append(callIdxs, nextIdx)
 			}
-			nextIdx = j
-			break
 		}
-		if nextIdx < 0 || events[nextIdx].EventType != models.JenniferEventExternalCall {
+		if len(callIdxs) == 0 {
 			ev.EventType = models.JenniferEventMethod
 			profile.Warnings = append(profile.Warnings, models.JenniferProfileIssue{
 				Code:    "NETWORK_PREP_NOT_FOLLOWED_BY_EXTERNAL_CALL",
-				Message: "NETWORK_PREP wrapper method demoted: next event was not EXTERNAL_CALL",
+				Message: "NETWORK_PREP wrapper method demoted: no enclosed EXTERNAL_CALL was found",
 			})
 			continue
 		}
-		// Suspicious-elapsed warning: wrapper elapsed should be ≥
-		// next EXTERNAL_CALL elapsed (wrapper enclosing the call).
-		// If the EXTERNAL_CALL is much larger, the wrapper isn't
-		// actually wrapping it and the prep math will under-report.
-		// If wrapper is much larger than the call, there's hidden
-		// work inside the wrapper that's not actually network-prep.
-		if ev.ElapsedMs != nil && events[nextIdx].ElapsedMs != nil {
+		if ev.ElapsedMs != nil {
 			wrapperMs := *ev.ElapsedMs
-			callMs := *events[nextIdx].ElapsedMs
+			callMs := 0
+			for _, idx := range callIdxs {
+				if events[idx].ElapsedMs != nil {
+					callMs += *events[idx].ElapsedMs
+				}
+			}
 			diff := wrapperMs - callMs
 			if diff < 0 {
 				diff = -diff
@@ -226,12 +214,44 @@ func validateNetworkPrep(profile *models.JenniferTransactionProfile) {
 			if diff > 500 && rel > 0.5 {
 				profile.Warnings = append(profile.Warnings, models.JenniferProfileIssue{
 					Code: "NETWORK_PREP_ELAPSED_MISMATCH",
-					Message: "NETWORK_PREP wrapper elapsed differs from following EXTERNAL_CALL by " +
-						intToString(diff) + " ms (wrapper=" + intToString(wrapperMs) + " call=" + intToString(callMs) + ")",
+					Message: "NETWORK_PREP wrapper elapsed differs from enclosed EXTERNAL_CALL sum by " +
+						intToString(diff) + " ms (wrapper=" + intToString(wrapperMs) + " calls=" + intToString(callMs) + ")",
 				})
 			}
 		}
 	}
+}
+
+func containedExternalCallIndexes(events []models.JenniferProfileEvent, prepIdx int) []int {
+	if prepIdx < 0 || prepIdx >= len(events) {
+		return nil
+	}
+	prep := events[prepIdx]
+	if prep.StartOffsetMs == nil || prep.EndOffsetMs == nil {
+		return nil
+	}
+	out := []int{}
+	for i := prepIdx + 1; i < len(events); i++ {
+		ev := events[i]
+		if ev.EventType != models.JenniferEventExternalCall || ev.StartOffsetMs == nil {
+			continue
+		}
+		if *ev.StartOffsetMs >= *prep.StartOffsetMs && *ev.StartOffsetMs <= *prep.EndOffsetMs {
+			out = append(out, i)
+		}
+	}
+	return out
+}
+
+func nextRealEventIndex(events []models.JenniferProfileEvent, idx int) int {
+	for j := idx + 1; j < len(events); j++ {
+		t := events[j].EventType
+		if t == models.JenniferEventStart || t == models.JenniferEventEnd || t == models.JenniferEventTotal {
+			continue
+		}
+		return j
+	}
+	return -1
 }
 
 // intToString is a tiny strconv shim to keep validateNetworkPrep

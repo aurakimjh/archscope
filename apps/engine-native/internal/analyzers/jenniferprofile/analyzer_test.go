@@ -1,22 +1,23 @@
 // [한글] jenniferprofile 분석기 회귀 테스트.
 //
 // 검증 대상
-//   • MVP1: per-profile body metrics + header/body validation.
-//   • MVP2: GUID 그룹핑 + caller↔callee 매칭(점수/동률/저점수).
-//   • MVP2: NETWORK_GAP raw / adjusted (음수 보정 §16.2).
-//   • MVP3: Timeline Signature stats (canonical + hash).
-//   • MVP4: parallelism (NONE/SEQUENTIAL/PARALLEL/MIXED) + max_concurrency.
-//   • MVP4: HTML 보고서 self-contained 검증.
+//   - MVP1: per-profile body metrics + header/body validation.
+//   - MVP2: GUID 그룹핑 + caller↔callee 매칭(점수/동률/저점수).
+//   - MVP2: NETWORK_GAP raw / adjusted (음수 보정 §16.2).
+//   - MVP3: Timeline Signature stats (canonical + hash).
+//   - MVP4: parallelism (NONE/SEQUENTIAL/PARALLEL/MIXED) + max_concurrency.
+//   - MVP4: HTML 보고서 self-contained 검증.
 //
 // fixture 전략
-//   • 큰 케이스 : `parsers/jenniferprofile/testdata/sample_two_tx.txt`
+//   - 큰 케이스 : `parsers/jenniferprofile/testdata/sample_two_tx.txt`
 //     (실제 형식의 샘플; Python 측과 공유).
-//   • 매처 edge case : buildTwoProfileFixture (인라인 fixture builder)
+//   - 매처 edge case : buildTwoProfileFixture (인라인 fixture builder)
 //     로 점수 동률, 음수 갭 등을 명시적으로 만든다.
 //
 // 헬퍼 alias
-//   callerElapsedMs / calleeResponseMs 는 단위 ms 의 의미를 호출 지점
-//   에 명시하기 위한 named int — 값을 헷갈리지 않게 함.
+//
+//	callerElapsedMs / calleeResponseMs 는 단위 ms 의 의미를 호출 지점
+//	에 명시하기 위한 named int — 값을 헷갈리지 않게 함.
 package jenniferprofile
 
 import (
@@ -96,12 +97,61 @@ func TestAnalyzeFile_ExternalCallSumMatches(t *testing.T) {
 	}
 }
 
+func TestNetworkPrepMethod_MultipleExternalCallsInsideWrapper(t *testing.T) {
+	body := `---------------------------------------------------------------------------------------------------------------------
+Total Transaction : 1
+---------------------------------------------------------------------------------------------------------------------
+
+
+
+TXID : 100                                                       DOMAIN (ID) : caller (1)
+RESPONSE_TIME : 900                                              GUID : G1
+EXTERNAL_CALL_TIME : 300                                         USER_AGENT : test
+APPLICATION : /prod/order/create
+
+---------------------------------------------------------------------------------------------------------------------
+[ No.][ START_TIME ][  GAP][CPU_T]
+---------------------------------------------------------------------------------------------------------------------
+[0000][10:00:00 000][    0][    0] START
+[0001][10:00:00 010][    0][    0] IntegrationUtil.sendToService [/dev/svc] [500ms]
+[0002][10:00:00 020][    0][    0] EXTERNAL_CALL [HTTP] APACHE_HTTP_CLIENT_V5 ( url=/dev/svc/a) [100ms]
+[0003][10:00:00 150][    0][    0] EXTERNAL_CALL [HTTP] APACHE_HTTP_CLIENT_V5 ( url=/dev/svc/b) [200ms]
+[    ][10:00:01 000][    0][    0] END
+---------------------------------------------------------------------------------------------------------------------
+                TOTAL[900][   0]
+`
+	parsed := jenniferprofile.ParseString(body, jenniferprofile.Options{})
+	res := Build([]jenniferprofile.FileResult{parsed}, Options{})
+
+	if got := res.Summary["network_prep_method_cum_ms"].(int); got != 500 {
+		t.Fatalf("network_prep_method_cum_ms = %d, want 500", got)
+	}
+	if got := res.Summary["network_prep_cum_ms"].(int); got != 200 {
+		t.Fatalf("network_prep_cum_ms = %d, want 200", got)
+	}
+	rows := res.Tables["network_prep_methods"].([]map[string]any)
+	if len(rows) != 1 {
+		t.Fatalf("network_prep_methods rows = %d, want 1", len(rows))
+	}
+	row := rows[0]
+	if got := row["external_call_count"].(int); got != 2 {
+		t.Errorf("external_call_count = %d, want 2", got)
+	}
+	if got := row["external_call_cum_ms"].(int); got != 300 {
+		t.Errorf("external_call_cum_ms = %d, want 300", got)
+	}
+	if got := row["network_prep_ms"].(int); got != 200 {
+		t.Errorf("network_prep_ms = %d, want 200", got)
+	}
+}
+
 // Acceptance #8 — SQL / Check Query / 2PC / Fetch counts don't
 // double-add. Sample profile #1 has:
 //   - 1 CHECK_QUERY (`select 1 from dual`)
 //   - 3 TWO_PC (xa_start, xa_end, xa_prepare)
 //   - 2 SQL_EXECUTE (UPDATE INSERT JOBS, QUERY SELECT a,b,c)
 //   - 1 FETCH
+//
 // SQL_EXECUTE_GENERIC should NOT include the check-query or 2PC
 // rows.
 func TestAnalyzeFile_NoDoubleCounting(t *testing.T) {

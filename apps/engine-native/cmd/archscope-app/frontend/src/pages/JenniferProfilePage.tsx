@@ -326,6 +326,98 @@ function GuidTransactionSummary({ group }: { group: any }): JSX.Element {
   );
 }
 
+function NetworkPrepMethodsTable({ rows }: { rows: any[] }): JSX.Element {
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm">
+          네트워크 준비시간 포함 메소드 ({rows.length})
+        </CardTitle>
+        <p className="text-xs text-muted-foreground">
+          wrapper 메소드 안에 포함된 EXTERNAL_CALL 합계를 빼고 남은 시간을
+          네트워크 준비시간으로 계산합니다.
+        </p>
+      </CardHeader>
+      <CardContent className="overflow-x-auto p-0">
+        {rows.length === 0 ? (
+          <p className="px-4 py-3 text-xs text-muted-foreground">
+            네트워크 준비시간으로 포함된 메소드가 없습니다.
+          </p>
+        ) : (
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
+                <th className="px-3 py-2 text-left font-medium">TXID</th>
+                <th className="px-3 py-2 text-left font-medium">Application</th>
+                <th className="px-3 py-2 text-left font-medium">Method</th>
+                <th className="px-3 py-2 text-right font-medium">Calls</th>
+                <th className="px-3 py-2 text-right font-medium">Method ms</th>
+                <th className="px-3 py-2 text-right font-medium">Call sum</th>
+                <th className="px-3 py-2 text-right font-medium">Prep ms</th>
+                <th className="px-3 py-2 text-left font-medium">URLs</th>
+                <th className="px-3 py-2 text-left font-medium">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row, idx) => {
+                const urls = Array.isArray(row.external_call_urls)
+                  ? row.external_call_urls.filter(Boolean).join(", ")
+                  : "";
+                return (
+                  <tr key={idx} className="border-b border-border last:border-0">
+                    <td className="px-3 py-2 font-mono text-xs">
+                      {row.txid || "—"}
+                    </td>
+                    <td className="px-3 py-2 text-xs" title={row.application}>
+                      {row.application || "—"}
+                    </td>
+                    <td className="max-w-[360px] px-3 py-2 font-mono text-xs">
+                      <span className="block truncate" title={row.raw_message}>
+                        {row.raw_message || "—"}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2 text-right tabular-nums">
+                      {(row.external_call_count ?? 0).toLocaleString()}
+                    </td>
+                    <td className="px-3 py-2 text-right tabular-nums">
+                      {(row.method_elapsed_ms ?? 0).toLocaleString()}
+                    </td>
+                    <td className="px-3 py-2 text-right tabular-nums">
+                      {(row.external_call_cum_ms ?? 0).toLocaleString()}
+                    </td>
+                    <td className="px-3 py-2 text-right tabular-nums">
+                      {(row.network_prep_ms ?? 0).toLocaleString()}
+                    </td>
+                    <td className="max-w-[320px] px-3 py-2 font-mono text-xs">
+                      <span className="block truncate" title={urls}>
+                        {urls || "—"}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2">
+                      {row.suspicious ? (
+                        <span
+                          className="rounded bg-amber-500/10 px-1.5 py-0.5 text-xs text-amber-700 dark:text-amber-300"
+                          title={(row.warnings ?? []).join(", ")}
+                        >
+                          확인 필요
+                        </span>
+                      ) : (
+                        <span className="rounded bg-primary/10 px-1.5 py-0.5 text-xs text-primary">
+                          포함
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 export function JenniferProfilePage(): JSX.Element {
   const { t } = useI18n();
   const [selected, setSelected] = useState<Selection[]>([]);
@@ -453,6 +545,7 @@ export function JenniferProfilePage(): JSX.Element {
   const fileSummary: any[] = result?.series?.file_summary ?? [];
   const guidGroups: any[] = result?.series?.guid_groups ?? [];
   const msaEdges: any[] = result?.tables?.msa_edges ?? [];
+  const networkPrepRows: any[] = result?.tables?.network_prep_methods ?? [];
   const signatureStats: any[] = result?.series?.signature_statistics ?? [];
   const [profileTimelineActivated, setProfileTimelineActivated] = useState(false);
   const hasResult = Boolean(result);
@@ -538,6 +631,11 @@ export function JenniferProfilePage(): JSX.Element {
     [singleGroupEdges, singleTopologyEdges],
   );
 
+  const singleNetworkPrepRows: any[] = useMemo(() => {
+    if (!selectedGuidGroup?.guid) return [];
+    return networkPrepRows.filter((row) => row?.guid === selectedGuidGroup.guid);
+  }, [networkPrepRows, selectedGuidGroup]);
+
   const selectedSignature = useMemo(() => {
     if (signatureStats.length === 0) return undefined;
     return (
@@ -560,6 +658,11 @@ export function JenniferProfilePage(): JSX.Element {
   const signatureMsaEdges: any[] = useMemo(
     () => msaEdges.filter((edge) => selectedSignatureGuidSet.has(edge?.guid)),
     [msaEdges, selectedSignatureGuidSet],
+  );
+
+  const signatureNetworkPrepRows: any[] = useMemo(
+    () => networkPrepRows.filter((row) => selectedSignatureGuidSet.has(row?.guid)),
+    [networkPrepRows, selectedSignatureGuidSet],
   );
 
   const averageTimelineEdges: any[] = useMemo(
@@ -1387,6 +1490,7 @@ export function JenniferProfilePage(): JSX.Element {
               selectedGuidGroup ? (
                 <>
                   <GuidTransactionSummary group={selectedGuidGroup} />
+                  <NetworkPrepMethodsTable rows={singleNetworkPrepRows} />
                   <MsaResponseTimeBreakdown
                     groups={[selectedGuidGroup] as any}
                     edges={singleGroupEdges as any}
@@ -1414,6 +1518,7 @@ export function JenniferProfilePage(): JSX.Element {
             ) : selectedSignature ? (
               <>
                 <SignatureAverageSummary signature={selectedSignature} />
+                <NetworkPrepMethodsTable rows={signatureNetworkPrepRows} />
                 <MsaResponseTimeBreakdown
                   groups={signatureGroups as any}
                   edges={signatureMsaEdges as any}

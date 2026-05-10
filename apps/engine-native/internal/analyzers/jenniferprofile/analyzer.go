@@ -11,38 +11,39 @@
 // [한글] jenniferprofile 분석기 — Jennifer APM Profile Export 의
 // 트랜잭션 프로파일 분석기. 8개 .go 파일로 분리:
 //
-//   • analyzer.go         : 진입점 + Build (이 파일).
-//   • aggregator.go       : 본문 이벤트 → 비용 ledger 합산.
-//   • msa.go              : §13-§18 GUID 그룹핑 파이프라인.
-//   • msa_match.go        : caller-callee 매칭 알고리즘 + 점수.
-//   • msa_parallelism.go  : §16.7 외부호출 병렬도 분석.
-//   • msa_stats.go        : §19-§21 timeline signature 분포 통계.
-//   • html_report.go      : 자기 충족 HTML 보고서 렌더러.
+//   - analyzer.go         : 진입점 + Build (이 파일).
+//   - aggregator.go       : 본문 이벤트 → 비용 ledger 합산.
+//   - msa.go              : §13-§18 GUID 그룹핑 파이프라인.
+//   - msa_match.go        : caller-callee 매칭 알고리즘 + 점수.
+//   - msa_parallelism.go  : §16.7 외부호출 병렬도 분석.
+//   - msa_stats.go        : §19-§21 timeline signature 분포 통계.
+//   - html_report.go      : 자기 충족 HTML 보고서 렌더러.
 //
 // MVP 단계
-//   MVP1 : per-profile metrics + header/body validation (이 파일).
-//   MVP2 : GUID 단위 MSA 그룹핑 + EXTERNAL_CALL caller↔callee 매칭 +
-//          NETWORK_GAP 계산.
-//   MVP3 : Timeline Signature 통계(같은 호출 구조의 분포).
-//   MVP4 : 외부호출 병렬도(parallelism) + HTML 보고서.
+//
+//	MVP1 : per-profile metrics + header/body validation (이 파일).
+//	MVP2 : GUID 단위 MSA 그룹핑 + EXTERNAL_CALL caller↔callee 매칭 +
+//	       NETWORK_GAP 계산.
+//	MVP3 : Timeline Signature 통계(같은 호출 구조의 분포).
+//	MVP4 : 외부호출 병렬도(parallelism) + HTML 보고서.
 //
 // 알고리즘 흐름 (Build)
-//   1) 각 FileResult 의 모든 profile 을 순회하면서:
-//        • AggregateBody : SQL/FETCH/2PC/EXTERNAL_CALL/CONNECTION_ACQUIRE
-//          누적 합 산출.
-//        • header vs body 검증 : header 의 사전 집계 메트릭과 body
-//          합이 tolerance(기본 1ms) 안에 들어오는지. 벗어나면 warning.
-//        • profileRows + rowsBySource 누적.
-//   2) buildGuidGroups (msa.go) : 같은 correlation key (GUID 또는
-//      TXID 폴백) 를 가진 profile 을 묶고, caller-callee 매칭/network
-//      gap 계산.
-//   3) 결과 envelope 채움 — summary(총수/오류/경고), tables(profile/
-//      group), series(필요 시), metadata(diagnostics, errors, warnings).
+//  1. 각 FileResult 의 모든 profile 을 순회하면서:
+//     • AggregateBody : SQL/FETCH/2PC/EXTERNAL_CALL/CONNECTION_ACQUIRE
+//     누적 합 산출.
+//     • header vs body 검증 : header 의 사전 집계 메트릭과 body
+//     합이 tolerance(기본 1ms) 안에 들어오는지. 벗어나면 warning.
+//     • profileRows + rowsBySource 누적.
+//  2. buildGuidGroups (msa.go) : 같은 correlation key (GUID 또는
+//     TXID 폴백) 를 가진 profile 을 묶고, caller-callee 매칭/network
+//     gap 계산.
+//  3. 결과 envelope 채움 — summary(총수/오류/경고), tables(profile/
+//     group), series(필요 시), metadata(diagnostics, errors, warnings).
 //
 // parity 주의
-//   • header_body_tolerance_ms 의 0 입력은 기본값(1ms) 으로 fallback —
+//   - header_body_tolerance_ms 의 0 입력은 기본값(1ms) 으로 fallback —
 //     Python 의 None 처리와 동치.
-//   • orderedCounter / sort 정렬 키가 Python 과 byte 동일.
+//   - orderedCounter / sort 정렬 키가 Python 과 byte 동일.
 package jenniferprofile
 
 import (
@@ -133,12 +134,13 @@ func Build(files []jenniferprofile.FileResult, opts Options) models.AnalysisResu
 	rowsBySource := []map[string]any{}
 	profileRows := []map[string]any{}
 	fileErrors := []map[string]any{}
+	networkPrepRows := []map[string]any{}
 
 	type aggregate struct {
-		BodyMetrics     models.JenniferBodyMetrics
-		ResponseTimeMs  int64
-		ResponseTimeN   int
-		ProfileCount    int
+		BodyMetrics      models.JenniferBodyMetrics
+		ResponseTimeMs   int64
+		ResponseTimeN    int
+		ProfileCount     int
 		FullProfileCount int
 	}
 	totals := aggregate{}
@@ -154,10 +156,10 @@ func Build(files []jenniferprofile.FileResult, opts Options) models.AnalysisResu
 			sources = append(sources, file.SourceFile)
 		}
 		rowsBySource = append(rowsBySource, map[string]any{
-			"source_file":                 file.SourceFile,
-			"declared_transaction_count":  file.DeclaredTransactionCount,
-			"detected_transaction_count":  file.DetectedTransactionCount,
-			"profile_count":               len(file.Profiles),
+			"source_file":                file.SourceFile,
+			"declared_transaction_count": file.DeclaredTransactionCount,
+			"detected_transaction_count": file.DetectedTransactionCount,
+			"profile_count":              len(file.Profiles),
 		})
 		for _, fe := range file.FileErrors {
 			fileErrors = append(fileErrors, map[string]any{
@@ -202,6 +204,7 @@ func Build(files []jenniferprofile.FileResult, opts Options) models.AnalysisResu
 			totalWarnings += len(p.Warnings)
 
 			profileRows = append(profileRows, profileToRow(p, metrics))
+			networkPrepRows = append(networkPrepRows, networkPrepMethodsToRows(p, metrics)...)
 			mutated = append(mutated, p)
 		}
 		fileBuckets = append(fileBuckets, jenniferFileBucket{
@@ -258,41 +261,42 @@ func Build(files []jenniferprofile.FileResult, opts Options) models.AnalysisResu
 	result := models.New(ResultType, ParserName)
 	result.SourceFiles = sources
 	result.Summary = map[string]any{
-		"total_files":         len(files),
-		"total_profiles":      totalProfiles,
-		"full_profile_count":  fullProfileCount,
-		"total_errors":        totalErrors,
-		"total_warnings":      totalWarnings,
-		"avg_response_time_ms": avgInt(totals.ResponseTimeMs, totals.ResponseTimeN),
-		"sql_execute_cum_ms":  totals.BodyMetrics.SQLExecuteCumMs,
-		"check_query_cum_ms":  totals.BodyMetrics.CheckQueryCumMs,
-		"two_pc_cum_ms":       totals.BodyMetrics.TwoPCCumMs,
-		"fetch_cum_ms":        totals.BodyMetrics.FetchCumMs,
-		"fetch_total_rows":    totals.BodyMetrics.FetchTotalRows,
-		"external_call_cum_ms": totals.BodyMetrics.ExternalCallCumMs,
-		"external_call_count":  totals.BodyMetrics.ExternalCallCount,
-		"network_prep_cum_ms":         totals.BodyMetrics.NetworkPrepCumMs,
-		"network_prep_method_cum_ms":  totals.BodyMetrics.NetworkPrepMethodCumMs,
-		"network_prep_method_count":   totals.BodyMetrics.NetworkPrepMethodCount,
-		"connection_acquire_cum_ms": totals.BodyMetrics.ConnectionAcquireCumMs,
+		"total_files":                len(files),
+		"total_profiles":             totalProfiles,
+		"full_profile_count":         fullProfileCount,
+		"total_errors":               totalErrors,
+		"total_warnings":             totalWarnings,
+		"avg_response_time_ms":       avgInt(totals.ResponseTimeMs, totals.ResponseTimeN),
+		"sql_execute_cum_ms":         totals.BodyMetrics.SQLExecuteCumMs,
+		"check_query_cum_ms":         totals.BodyMetrics.CheckQueryCumMs,
+		"two_pc_cum_ms":              totals.BodyMetrics.TwoPCCumMs,
+		"fetch_cum_ms":               totals.BodyMetrics.FetchCumMs,
+		"fetch_total_rows":           totals.BodyMetrics.FetchTotalRows,
+		"external_call_cum_ms":       totals.BodyMetrics.ExternalCallCumMs,
+		"external_call_count":        totals.BodyMetrics.ExternalCallCount,
+		"network_prep_cum_ms":        totals.BodyMetrics.NetworkPrepCumMs,
+		"network_prep_method_cum_ms": totals.BodyMetrics.NetworkPrepMethodCumMs,
+		"network_prep_method_count":  totals.BodyMetrics.NetworkPrepMethodCount,
+		"connection_acquire_cum_ms":  totals.BodyMetrics.ConnectionAcquireCumMs,
 		// MVP2 MSA roll-up.
-		"guid_group_count":             len(guidGroups),
-		"matched_external_call_count":  totalMatched,
+		"guid_group_count":              len(guidGroups),
+		"matched_external_call_count":   totalMatched,
 		"unmatched_external_call_count": totalUnmatched,
-		"total_network_gap_cum_ms":     totalGapMs,
+		"total_network_gap_cum_ms":      totalGapMs,
 		// MVP3 signature aggregation.
 		"unique_signature_count": len(signatureStats),
 	}
 	result.Series = map[string]any{
-		"file_summary":          rowsBySource,
-		"guid_groups":           guidGroupRows,
-		"signature_statistics":  signatureRows,
+		"file_summary":         rowsBySource,
+		"guid_groups":          guidGroupRows,
+		"signature_statistics": signatureRows,
 	}
 	result.Tables = map[string]any{
-		"profiles":                   profileRows,
-		"file_errors":                fileErrors,
-		"msa_edges":                  allEdgeRows,
-		"unmatched_external_calls":   unmatchedRows,
+		"profiles":                 profileRows,
+		"file_errors":              fileErrors,
+		"msa_edges":                allEdgeRows,
+		"unmatched_external_calls": unmatchedRows,
+		"network_prep_methods":     networkPrepRows,
 	}
 	result.Metadata.SchemaVersion = SchemaVersion
 	result.Metadata.Diagnostics = diagnostics.New(ParserName)
@@ -320,13 +324,13 @@ func signatureStatsToRow(s models.JenniferSignatureStats) map[string]any {
 	edges := make([]map[string]any, 0, len(s.Edges))
 	for _, e := range s.Edges {
 		edges = append(edges, map[string]any{
-			"caller_application":         e.CallerApplication,
-			"callee_application":         e.CalleeApplication,
-			"occurrence_index":           e.OccurrenceIndex,
-			"external_call_elapsed_ms":   metricStatsToMap(e.ExternalCallElapsedStats),
-			"callee_response_time_ms":    metricStatsToMap(e.CalleeResponseTimeStats),
-			"raw_network_gap_ms":         metricStatsToMap(e.RawNetworkGapStats),
-			"adjusted_network_gap_ms":    metricStatsToMap(e.AdjustedNetworkGapStats),
+			"caller_application":       e.CallerApplication,
+			"callee_application":       e.CalleeApplication,
+			"occurrence_index":         e.OccurrenceIndex,
+			"external_call_elapsed_ms": metricStatsToMap(e.ExternalCallElapsedStats),
+			"callee_response_time_ms":  metricStatsToMap(e.CalleeResponseTimeStats),
+			"raw_network_gap_ms":       metricStatsToMap(e.RawNetworkGapStats),
+			"adjusted_network_gap_ms":  metricStatsToMap(e.AdjustedNetworkGapStats),
 		})
 	}
 	return map[string]any{
@@ -369,15 +373,15 @@ func guidGroupToRow(g models.JenniferGuidGroup) map[string]any {
 	graph := make([]map[string]any, 0, len(g.CallGraph))
 	for _, edge := range g.CallGraph {
 		graph = append(graph, map[string]any{
-			"caller_txid":               edge.CallerTXID,
-			"caller_application":        edge.CallerApplication,
-			"callee_txid":               edge.CalleeTXID,
-			"callee_application":        edge.CalleeApplication,
-			"external_call_elapsed_ms":  edge.ExternalCallElapsedMs,
-			"callee_response_time_ms":   edge.CalleeResponseTimeMs,
-			"network_gap_ms":            edge.NetworkGapMs,
-			"caller_event_start_ms":     edge.CallerEventStartMs,
-			"callee_body_start_ms":      edge.CalleeBodyStartMs,
+			"caller_txid":              edge.CallerTXID,
+			"caller_application":       edge.CallerApplication,
+			"callee_txid":              edge.CalleeTXID,
+			"callee_application":       edge.CalleeApplication,
+			"external_call_elapsed_ms": edge.ExternalCallElapsedMs,
+			"callee_response_time_ms":  edge.CalleeResponseTimeMs,
+			"network_gap_ms":           edge.NetworkGapMs,
+			"caller_event_start_ms":    edge.CallerEventStartMs,
+			"callee_body_start_ms":     edge.CalleeBodyStartMs,
 		})
 	}
 	return map[string]any{
@@ -392,21 +396,21 @@ func guidGroupToRow(g models.JenniferGuidGroup) map[string]any {
 		"validation_status":     g.ValidationStatus,
 		"call_graph":            graph,
 		"metrics": map[string]any{
-			"profile_count":                    g.Metrics.ProfileCount,
-			"matched_external_call_count":      g.Metrics.MatchedExternalCallCount,
-			"unmatched_external_call_count":    g.Metrics.UnmatchedExternalCallCount,
+			"profile_count":                     g.Metrics.ProfileCount,
+			"matched_external_call_count":       g.Metrics.MatchedExternalCallCount,
+			"unmatched_external_call_count":     g.Metrics.UnmatchedExternalCallCount,
 			"total_external_call_cumulative_ms": g.Metrics.TotalExternalCallCumulativeMs,
-			"total_external_call_wall_time_ms": g.Metrics.TotalExternalCallWallTimeMs,
-			"total_network_gap_cumulative_ms":  g.Metrics.TotalNetworkGapCumulativeMs,
-			"total_sql_execute_ms":             g.Metrics.TotalSqlExecuteMs,
-			"total_check_query_ms":             g.Metrics.TotalCheckQueryMs,
-			"total_two_pc_ms":                  g.Metrics.TotalTwoPcMs,
-			"total_fetch_ms":                   g.Metrics.TotalFetchMs,
-			"total_fetch_rows":                 g.Metrics.TotalFetchRows,
-			"total_connection_acquire_ms":      g.Metrics.TotalConnectionAcquireMs,
-			"max_external_call_concurrency":    g.Metrics.MaxExternalCallConcurrency,
-			"external_call_parallelism_ratio":  g.Metrics.ExternalCallParallelismRatio,
-			"group_execution_mode":             string(g.Metrics.GroupExecutionMode),
+			"total_external_call_wall_time_ms":  g.Metrics.TotalExternalCallWallTimeMs,
+			"total_network_gap_cumulative_ms":   g.Metrics.TotalNetworkGapCumulativeMs,
+			"total_sql_execute_ms":              g.Metrics.TotalSqlExecuteMs,
+			"total_check_query_ms":              g.Metrics.TotalCheckQueryMs,
+			"total_two_pc_ms":                   g.Metrics.TotalTwoPcMs,
+			"total_fetch_ms":                    g.Metrics.TotalFetchMs,
+			"total_fetch_rows":                  g.Metrics.TotalFetchRows,
+			"total_connection_acquire_ms":       g.Metrics.TotalConnectionAcquireMs,
+			"max_external_call_concurrency":     g.Metrics.MaxExternalCallConcurrency,
+			"external_call_parallelism_ratio":   g.Metrics.ExternalCallParallelismRatio,
+			"group_execution_mode":              string(g.Metrics.GroupExecutionMode),
 			"response_time_breakdown": map[string]any{
 				"root_response_time_ms": g.Metrics.ResponseTimeBreakdown.RootResponseTimeMs,
 				"sql_execute_ms":        g.Metrics.ResponseTimeBreakdown.SQLExecuteMs,
@@ -480,30 +484,30 @@ func profileToRow(p models.JenniferTransactionProfile, m models.JenniferBodyMetr
 		warnings = append(warnings, map[string]any{"code": w.Code, "message": w.Message})
 	}
 	row := map[string]any{
-		"txid":              p.Header.TXID,
-		"guid":              p.Header.GUID,
-		"application":       p.Header.Application,
-		"start_time":        p.Header.StartTime,
-		"is_full_profile":   len(p.Errors) == 0,
-		"errors":            errors,
-		"warnings":          warnings,
+		"txid":            p.Header.TXID,
+		"guid":            p.Header.GUID,
+		"application":     p.Header.Application,
+		"start_time":      p.Header.StartTime,
+		"is_full_profile": len(p.Errors) == 0,
+		"errors":          errors,
+		"warnings":        warnings,
 		"body_metrics": map[string]any{
-			"sql_execute_cum_ms":        m.SQLExecuteCumMs,
-			"sql_execute_count":         m.SQLExecuteCount,
-			"check_query_cum_ms":        m.CheckQueryCumMs,
-			"check_query_count":         m.CheckQueryCount,
-			"two_pc_cum_ms":             m.TwoPCCumMs,
-			"two_pc_count":              m.TwoPCCount,
-			"fetch_cum_ms":              m.FetchCumMs,
-			"fetch_count":               m.FetchCount,
-			"fetch_total_rows":          m.FetchTotalRows,
-			"external_call_cum_ms":      m.ExternalCallCumMs,
-			"external_call_count":       m.ExternalCallCount,
+			"sql_execute_cum_ms":         m.SQLExecuteCumMs,
+			"sql_execute_count":          m.SQLExecuteCount,
+			"check_query_cum_ms":         m.CheckQueryCumMs,
+			"check_query_count":          m.CheckQueryCount,
+			"two_pc_cum_ms":              m.TwoPCCumMs,
+			"two_pc_count":               m.TwoPCCount,
+			"fetch_cum_ms":               m.FetchCumMs,
+			"fetch_count":                m.FetchCount,
+			"fetch_total_rows":           m.FetchTotalRows,
+			"external_call_cum_ms":       m.ExternalCallCumMs,
+			"external_call_count":        m.ExternalCallCount,
 			"network_prep_method_cum_ms": m.NetworkPrepMethodCumMs,
 			"network_prep_method_count":  m.NetworkPrepMethodCount,
 			"network_prep_cum_ms":        m.NetworkPrepCumMs,
-			"connection_acquire_cum_ms": m.ConnectionAcquireCumMs,
-			"connection_acquire_count":  m.ConnectionAcquireCount,
+			"connection_acquire_cum_ms":  m.ConnectionAcquireCumMs,
+			"connection_acquire_count":   m.ConnectionAcquireCount,
 		},
 		"header": map[string]any{
 			"response_time_ms":      ptrIntOrNil(p.Header.ResponseTimeMs),
@@ -518,6 +522,46 @@ func profileToRow(p models.JenniferTransactionProfile, m models.JenniferBodyMetr
 		},
 	}
 	return row
+}
+
+func networkPrepMethodsToRows(p models.JenniferTransactionProfile, m models.JenniferBodyMetrics) []map[string]any {
+	rows := make([]map[string]any, 0, len(m.NetworkPrepMethods))
+	for _, method := range m.NetworkPrepMethods {
+		calls := make([]map[string]any, 0, len(method.IncludedExternalCalls))
+		urls := make([]string, 0, len(method.IncludedExternalCalls))
+		for _, call := range method.IncludedExternalCalls {
+			urls = append(urls, call.ExternalURL)
+			calls = append(calls, map[string]any{
+				"event_no":        call.EventNo,
+				"event_start":     call.EventStart,
+				"external_url":    call.ExternalURL,
+				"elapsed_ms":      call.ElapsedMs,
+				"start_offset_ms": ptrIntOrNil(call.StartOffsetMs),
+				"end_offset_ms":   ptrIntOrNil(call.EndOffsetMs),
+			})
+		}
+		rows = append(rows, map[string]any{
+			"source_file":                  p.SourceFile,
+			"guid":                         p.Header.GUID,
+			"txid":                         p.Header.TXID,
+			"application":                  p.Header.Application,
+			"event_no":                     method.EventNo,
+			"event_start":                  method.EventStart,
+			"raw_message":                  method.RawMessage,
+			"method_elapsed_ms":            method.MethodElapsedMs,
+			"start_offset_ms":              ptrIntOrNil(method.StartOffsetMs),
+			"end_offset_ms":                ptrIntOrNil(method.EndOffsetMs),
+			"external_call_count":          method.ExternalCallCount,
+			"external_call_cum_ms":         method.ExternalCallCumMs,
+			"network_prep_ms":              method.NetworkPrepMs,
+			"external_call_over_method_ms": method.ExternalCallOverMethodMs,
+			"suspicious":                   method.Suspicious,
+			"warnings":                     method.Warnings,
+			"external_call_urls":           urls,
+			"included_external_calls":      calls,
+		})
+	}
+	return rows
 }
 
 func ptrIntOrNil(p *int) any {

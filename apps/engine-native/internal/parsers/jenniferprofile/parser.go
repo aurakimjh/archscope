@@ -225,6 +225,7 @@ func parseTransactionBlock(block string, opts Options) models.JenniferTransactio
 
 	classifyEventsWithOptions(&profile, opts)
 	calculateOffsets(&profile)
+	validateNetworkPrep(&profile)
 	validateFullProfile(&profile, opts)
 
 	return profile
