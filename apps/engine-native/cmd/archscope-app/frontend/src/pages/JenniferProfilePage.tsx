@@ -12,7 +12,7 @@
 // type = "jennifer_profile" 등). MSA call-graph / network gap /
 // signature stats 등 고급 표시는 MVP2-MVP3 에서 추가 예정.
 //
-// 데이터 흐름: Wails Dialogs.OpenFile (multiple=true) → paths[] →
+// 데이터 흐름: WailsFileDock (native multi-select / drop) → paths[] →
 // engine.analyzeJenniferProfile({ paths, fallbackCorrelationToTxid,
 // headerBodyToleranceMs }) → 결과 렌더.
 // ─────────────────────────────────────────────────────────────────────
@@ -24,7 +24,6 @@
 
 import { Loader2, Play, Settings, X } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
-import { Dialogs } from "@wailsio/runtime";
 
 import { engine } from "../bridge/engine";
 
@@ -40,6 +39,10 @@ import { MsaTopology } from "../components/MsaTopology";
 import { MetricCard } from "../components/MetricCard";
 import { RecentFilesPanel } from "../components/RecentFilesPanel";
 import { SlideOverPanel } from "../components/SlideOverPanel";
+import {
+  WailsFileDock,
+  type FileDockSelection,
+} from "../components/WailsFileDock";
 import { useRecentFiles } from "../hooks/useRecentFiles";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
@@ -99,10 +102,10 @@ const MSA_EVENT_PRESETS: Preset[] = [
 
 const FILE_FILTERS = [
   {
-    DisplayName: "Jennifer profile export",
-    Pattern: "*.txt;*.log;*.profile",
+    displayName: "Jennifer profile export",
+    pattern: "*.txt;*.log;*.profile",
   },
-  { DisplayName: "All files", Pattern: "*.*" },
+  { displayName: "All files", pattern: "*.*" },
 ];
 
 type Selection = {
@@ -110,9 +113,217 @@ type Selection = {
   originalName: string;
 };
 
+type MsaTimelineMode = "single" | "average";
+
 function basenameOf(p: string): string {
   const segments = p.split(/[\\/]/);
   return segments[segments.length - 1] ?? p;
+}
+
+function toFiniteNumber(value: unknown): number | undefined {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : undefined;
+}
+
+function statValue(stats: any, key: string): number | undefined {
+  if (!stats || typeof stats !== "object") return undefined;
+  return toFiniteNumber(stats[key]);
+}
+
+function formatStat(stats: any, key: string): string {
+  const value = statValue(stats, key);
+  return value == null ? "—" : Math.round(value).toLocaleString();
+}
+
+function metricStat(metrics: any, key: string, stat: string): string {
+  return formatStat(metrics?.[key], stat);
+}
+
+function buildAverageTimelineEdges(signature: any): any[] {
+  const edges: any[] = signature?.edges ?? [];
+  let cursor = 0;
+  return [...edges]
+    .sort(
+      (a, b) =>
+        Number(a?.occurrence_index ?? 0) - Number(b?.occurrence_index ?? 0),
+    )
+    .map((edge, idx) => {
+      const elapsed = Math.max(
+        0,
+        Math.round(statValue(edge?.external_call_elapsed_ms, "avg") ?? 0),
+      );
+      const start = cursor;
+      cursor += elapsed;
+      const networkGap =
+        statValue(edge?.adjusted_network_gap_ms, "avg") ??
+        statValue(edge?.raw_network_gap_ms, "avg") ??
+        0;
+      return {
+        caller_application: edge?.caller_application ?? "?",
+        callee_application: edge?.callee_application ?? "?",
+        caller_txid: `avg-${idx}-caller`,
+        callee_txid: `avg-${idx}-callee`,
+        external_call_elapsed_ms: elapsed,
+        callee_response_time_ms: Math.max(
+          0,
+          Math.round(statValue(edge?.callee_response_time_ms, "avg") ?? 0),
+        ),
+        network_gap_ms: Math.max(0, Math.round(networkGap)),
+        caller_event_start_ms: start,
+        match_status: "MATCHED",
+      };
+    })
+    .filter((edge) => edge.external_call_elapsed_ms > 0);
+}
+
+function guidOptionLabel(group: any): string {
+  const guid = String(group?.guid ?? "");
+  const root = group?.root_application || "unknown";
+  const responseTime = toFiniteNumber(group?.root_response_time_ms);
+  const suffix = guid ? `…${guid.slice(-10)}` : "GUID 없음";
+  return responseTime != null
+    ? `${root} · ${suffix} · ${Math.round(responseTime).toLocaleString()} ms`
+    : `${root} · ${suffix}`;
+}
+
+function signatureOptionLabel(signature: any): string {
+  const hash = String(signature?.signature_hash ?? "");
+  const root = signature?.root_application || "unknown";
+  const samples = Number(signature?.sample_count ?? 0).toLocaleString();
+  const suffix = hash ? `…${hash.slice(-8)}` : "signature 없음";
+  return `${root} · ${suffix} · ${samples}건`;
+}
+
+function SignatureAverageSummary({ signature }: { signature: any }): JSX.Element {
+  const metrics = signature?.metrics ?? {};
+  const edges: any[] = signature?.edges ?? [];
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm">평균 트랜잭션 기준값</CardTitle>
+        <p className="text-xs text-muted-foreground">
+          같은 호출 구조(signature)로 묶인 GUID들의 평균값으로 타임라인을
+          구성합니다.
+        </p>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-4">
+        <section className="grid grid-cols-2 gap-3 sm:grid-cols-4 xl:grid-cols-6">
+          <MetricCard
+            label="Samples"
+            value={(signature?.sample_count ?? 0).toLocaleString()}
+          />
+          <MetricCard
+            label="Edges"
+            value={(signature?.edge_count ?? 0).toLocaleString()}
+          />
+          <MetricCard
+            label="Root avg"
+            value={metricStat(metrics, "root_response_time_ms", "avg")}
+          />
+          <MetricCard
+            label="Root p95"
+            value={metricStat(metrics, "root_response_time_ms", "p95")}
+          />
+          <MetricCard
+            label="External avg"
+            value={metricStat(metrics, "total_external_call_cumulative_ms", "avg")}
+          />
+          <MetricCard
+            label="Gap avg"
+            value={metricStat(metrics, "total_network_gap_cumulative_ms", "avg")}
+          />
+        </section>
+        {edges.length > 0 && (
+          <div className="overflow-x-auto rounded-md border border-border">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
+                  <th className="px-3 py-2 text-left font-medium">Caller → Callee</th>
+                  <th className="px-3 py-2 text-right font-medium">#</th>
+                  <th className="px-3 py-2 text-right font-medium">Count</th>
+                  <th className="px-3 py-2 text-right font-medium">Ext avg</th>
+                  <th className="px-3 py-2 text-right font-medium">Ext p95</th>
+                  <th className="px-3 py-2 text-right font-medium">Callee avg</th>
+                  <th className="px-3 py-2 text-right font-medium">Gap avg</th>
+                </tr>
+              </thead>
+              <tbody>
+                {edges.map((edge, idx) => (
+                  <tr key={idx} className="border-b border-border last:border-0">
+                    <td
+                      className="px-3 py-2 font-mono text-xs"
+                      title={`${edge?.caller_application} → ${edge?.callee_application}`}
+                    >
+                      {edge?.caller_application || "?"} →{" "}
+                      {edge?.callee_application || "?"}
+                    </td>
+                    <td className="px-3 py-2 text-right tabular-nums">
+                      #{edge?.occurrence_index ?? idx + 1}
+                    </td>
+                    <td className="px-3 py-2 text-right tabular-nums">
+                      {formatStat(edge?.external_call_elapsed_ms, "count")}
+                    </td>
+                    <td className="px-3 py-2 text-right tabular-nums">
+                      {formatStat(edge?.external_call_elapsed_ms, "avg")}
+                    </td>
+                    <td className="px-3 py-2 text-right tabular-nums">
+                      {formatStat(edge?.external_call_elapsed_ms, "p95")}
+                    </td>
+                    <td className="px-3 py-2 text-right tabular-nums">
+                      {formatStat(edge?.callee_response_time_ms, "avg")}
+                    </td>
+                    <td className="px-3 py-2 text-right tabular-nums">
+                      {formatStat(edge?.adjusted_network_gap_ms, "avg")}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function GuidTransactionSummary({ group }: { group: any }): JSX.Element {
+  const metrics = group?.metrics ?? {};
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm">단일 트랜잭션 기준값</CardTitle>
+        <p className="text-xs text-muted-foreground">
+          선택한 GUID 하나의 실제 호출 순서와 elapsed 값을 그대로 표시합니다.
+        </p>
+      </CardHeader>
+      <CardContent className="grid grid-cols-2 gap-3 sm:grid-cols-4 xl:grid-cols-6">
+        <MetricCard
+          label="Root RT"
+          value={(group?.root_response_time_ms ?? 0).toLocaleString()}
+        />
+        <MetricCard
+          label="Profiles"
+          value={(group?.profile_count ?? 0).toLocaleString()}
+        />
+        <MetricCard
+          label="Matched"
+          value={(group?.matched_edge_count ?? 0).toLocaleString()}
+        />
+        <MetricCard
+          label="External cum"
+          value={(metrics.total_external_call_cumulative_ms ?? 0).toLocaleString()}
+        />
+        <MetricCard
+          label="Network gap"
+          value={(metrics.total_network_gap_cumulative_ms ?? 0).toLocaleString()}
+        />
+        <MetricCard
+          label="Mode"
+          value={String(metrics.group_execution_mode ?? "—")}
+        />
+      </CardContent>
+    </Card>
+  );
 }
 
 export function JenniferProfilePage(): JSX.Element {
@@ -131,38 +342,38 @@ export function JenniferProfilePage(): JSX.Element {
   const [eventCategoryPatterns, setEventCategoryPatterns] =
     useState<CategoryRules>({});
   const [activeTab, setActiveTab] = useState<string>("summary");
+  const [msaTimelineMode, setMsaTimelineMode] =
+    useState<MsaTimelineMode>("single");
+  const [selectedGuid, setSelectedGuid] = useState<string>("");
+  const [selectedSignatureHash, setSelectedSignatureHash] =
+    useState<string>("");
   // Jennifer-scoped recent-files history. The UI lets users add
   // multiple files at once, so a "recent" entry restores the full
   // selection vector (paths array + analyzer options).
   const recent = useRecentFiles({ category: "jennifer" });
   const [optionsOpen, setOptionsOpen] = useState<boolean>(false);
 
-  const handlePick = useCallback(async () => {
+  const addSelections = useCallback((files: FileDockSelection[]) => {
     setError("");
-    try {
-      const picked = await Dialogs.OpenFile({
-        Title: "Select Jennifer profile export",
-        Filters: FILE_FILTERS,
-        AllowsMultipleSelection: true,
-      });
-      const list: string[] = Array.isArray(picked)
-        ? (picked as string[])
-        : typeof picked === "string" && picked
-        ? [picked]
-        : [];
-      if (list.length === 0) return;
-      const additions: Selection[] = list.map((p) => ({
-        filePath: p,
-        originalName: basenameOf(p),
-      }));
-      setSelected((prev) => {
-        const seen = new Set(prev.map((s) => s.filePath));
-        return [...prev, ...additions.filter((a) => !seen.has(a.filePath))];
-      });
-    } catch (err: any) {
-      setError(String(err?.message ?? err));
-    }
+    const additions: Selection[] = files.map((file) => ({
+      filePath: file.filePath,
+      originalName: file.originalName || basenameOf(file.filePath),
+    }));
+    setSelected((prev) => {
+      const seen = new Set(prev.map((s) => s.filePath));
+      return [...prev, ...additions.filter((a) => !seen.has(a.filePath))];
+    });
   }, []);
+
+  const handleFileSelected = useCallback(
+    (file: FileDockSelection) => addSelections([file]),
+    [addSelections],
+  );
+
+  const handleFilesSelected = useCallback(
+    (files: FileDockSelection[]) => addSelections(files),
+    [addSelections],
+  );
 
   const handleClear = (path: string) => {
     setSelected((prev) => prev.filter((s) => s.filePath !== path));
@@ -205,7 +416,9 @@ export function JenniferProfilePage(): JSX.Element {
           Object.keys(otherCategories).length > 0 ? otherCategories : undefined,
       } as any);
       setResult(res);
-      setActiveTab("summary");
+      setSelectedGuid("");
+      setSelectedSignatureHash("");
+      setActiveTab("msa");
       // Jennifer is multi-file by design — the recent entry stores
       // the first file as the keyed path and stashes the full list +
       // analyzer toggles in meta so a one-click reload re-creates the
@@ -244,6 +457,7 @@ export function JenniferProfilePage(): JSX.Element {
   const signatureStats: any[] = result?.series?.signature_statistics ?? [];
   const [profileTimelineActivated, setProfileTimelineActivated] = useState(false);
   const hasResult = Boolean(result);
+  const showMsaTablesInSummary = false;
 
   // primaryRootApplication: pick the first GUID group's root for the
   // topology / per-service ordering. When the result spans multiple
@@ -276,6 +490,82 @@ export function JenniferProfilePage(): JSX.Element {
       ...msaEdges.filter((e) => e?.match_status && e.match_status !== "MATCHED"),
     ],
     [topologyEdges, msaEdges],
+  );
+
+  const selectedFileDockItems: FileDockSelection[] = useMemo(
+    () =>
+      selected.map((file) => ({
+        ...file,
+        size: 0,
+      })),
+    [selected],
+  );
+
+  const groupsWithCallGraph: any[] = useMemo(
+    () => guidGroups.filter((g) => (g?.call_graph ?? []).length > 0),
+    [guidGroups],
+  );
+
+  const selectedGuidGroup = useMemo(() => {
+    const candidates =
+      groupsWithCallGraph.length > 0 ? groupsWithCallGraph : guidGroups;
+    if (candidates.length === 0) return undefined;
+    return (
+      candidates.find((g) => g?.guid === selectedGuid) ?? candidates[0]
+    );
+  }, [groupsWithCallGraph, guidGroups, selectedGuid]);
+
+  const singleGroupEdges: any[] = useMemo(() => {
+    if (!selectedGuidGroup?.guid) return [];
+    return msaEdges.filter((edge) => edge?.guid === selectedGuidGroup.guid);
+  }, [msaEdges, selectedGuidGroup]);
+
+  const singleTopologyEdges: any[] = useMemo(
+    () =>
+      (selectedGuidGroup?.call_graph ?? []).map((edge: any) => ({
+        ...edge,
+        match_status: edge?.match_status ?? "MATCHED",
+      })),
+    [selectedGuidGroup],
+  );
+
+  const singleTimelineEdges: any[] = useMemo(
+    () => [
+      ...singleTopologyEdges,
+      ...singleGroupEdges.filter(
+        (edge) => edge?.match_status && edge.match_status !== "MATCHED",
+      ),
+    ],
+    [singleGroupEdges, singleTopologyEdges],
+  );
+
+  const selectedSignature = useMemo(() => {
+    if (signatureStats.length === 0) return undefined;
+    return (
+      signatureStats.find(
+        (signature) => signature?.signature_hash === selectedSignatureHash,
+      ) ?? signatureStats[0]
+    );
+  }, [selectedSignatureHash, signatureStats]);
+
+  const selectedSignatureGuidSet = useMemo(
+    () => new Set((selectedSignature?.guids ?? []) as string[]),
+    [selectedSignature],
+  );
+
+  const signatureGroups: any[] = useMemo(
+    () => guidGroups.filter((g) => selectedSignatureGuidSet.has(g?.guid)),
+    [guidGroups, selectedSignatureGuidSet],
+  );
+
+  const signatureMsaEdges: any[] = useMemo(
+    () => msaEdges.filter((edge) => selectedSignatureGuidSet.has(edge?.guid)),
+    [msaEdges, selectedSignatureGuidSet],
+  );
+
+  const averageTimelineEdges: any[] = useMemo(
+    () => buildAverageTimelineEdges(selectedSignature),
+    [selectedSignature],
   );
 
   const emptyResultCard = (
@@ -322,29 +612,21 @@ export function JenniferProfilePage(): JSX.Element {
 
   return (
     <main className="flex flex-col gap-5 p-5 overflow-y-auto">
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm">
-            {t("dropOrBrowseJennifer")}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-3">
+      <WailsFileDock
+        label={t("dropOrBrowseJennifer")}
+        description="Jennifer profile export 파일 또는 같은 트랜잭션 묶음 파일을 선택하세요."
+        accept=".txt,.log,.profile"
+        selectedFiles={selectedFileDockItems}
+        onSelect={handleFileSelected}
+        onSelectMany={handleFilesSelected}
+        onClear={handleClearAll}
+        allowsMultipleSelection
+        browseLabel={t("browseFile")}
+        dropHereLabel={t("dropHere")}
+        errorLabel={t("error")}
+        fileFilters={FILE_FILTERS}
+        rightSlot={
           <div className="flex flex-wrap items-center gap-2">
-            <Button type="button" size="sm" onClick={handlePick} disabled={analyzing}>
-              {t("browseFile")}
-            </Button>
-            {selected.length > 0 && (
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={handleClearAll}
-                disabled={analyzing}
-              >
-                <X className="h-3.5 w-3.5" />
-                Clear all
-              </Button>
-            )}
             <Button
               type="button"
               size="sm"
@@ -375,72 +657,72 @@ export function JenniferProfilePage(): JSX.Element {
               옵션
             </Button>
           </div>
-          <SlideOverPanel
-            open={optionsOpen}
-            onClose={() => setOptionsOpen(false)}
-            title="Jennifer 분석 옵션"
-            width={560}
-          >
-            <div className="flex flex-col gap-4 text-sm">
-              <label className="flex items-center gap-1.5 text-xs">
-                <input
-                  type="checkbox"
-                  checked={fallbackToTxid}
-                  onChange={(e) => setFallbackToTxid(e.target.checked)}
-                />
-                fallback correlation = TXID
-                <span className="text-muted-foreground">
-                  (기본: 꺼짐 — GUID 누락 시에만 켜세요)
-                </span>
-              </label>
-              <div>
-                <p className="mb-2 text-xs font-semibold text-foreground/80">
-                  MSA 이벤트 분류 패턴 (METHOD/UNKNOWN 라인 추가 분류)
-                </p>
-                <p className="mb-2 text-[11px] text-muted-foreground">
-                  기본값: NETWORK_PREP_METHOD = "IntegrationUtil.sendToService".
-                  나머지 카테고리는 비어있음 — 빌트인 분류만 사용.
-                </p>
-                <CustomCategoriesEditor
-                  segments={MSA_EVENT_SEGMENTS}
-                  presets={MSA_EVENT_PRESETS}
-                  value={eventCategoryPatterns}
-                  onChange={setEventCategoryPatterns}
-                  disabled={analyzing}
-                />
-              </div>
-            </div>
-          </SlideOverPanel>
-          <RecentFilesPanel
-            entries={recent.entries}
-            onSelect={handleRecentSelect}
-            onRemove={recent.remove}
-            onClear={recent.clear}
-          />
-          {selected.length > 0 && (
-            <ul className="flex flex-col gap-1 rounded-md border border-border bg-muted/30 p-2">
-              {selected.map((s) => (
-                <li
-                  key={s.filePath}
-                  className="flex items-center justify-between gap-2 rounded px-2 py-1 text-xs"
-                >
-                  <span className="truncate font-mono" title={s.filePath}>
-                    {s.originalName}
-                  </span>
-                  <button
-                    type="button"
-                    className="text-muted-foreground hover:text-destructive"
-                    onClick={() => handleClear(s.filePath)}
-                    aria-label="Remove"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
+        }
+      />
+      <SlideOverPanel
+        open={optionsOpen}
+        onClose={() => setOptionsOpen(false)}
+        title="Jennifer 분석 옵션"
+        width={560}
+      >
+        <div className="flex flex-col gap-4 text-sm">
+          <label className="flex items-center gap-1.5 text-xs">
+            <input
+              type="checkbox"
+              checked={fallbackToTxid}
+              onChange={(e) => setFallbackToTxid(e.target.checked)}
+            />
+            fallback correlation = TXID
+            <span className="text-muted-foreground">
+              (기본: 꺼짐 — GUID 누락 시에만 켜세요)
+            </span>
+          </label>
+          <div>
+            <p className="mb-2 text-xs font-semibold text-foreground/80">
+              MSA 이벤트 분류 패턴 (METHOD/UNKNOWN 라인 추가 분류)
+            </p>
+            <p className="mb-2 text-[11px] text-muted-foreground">
+              기본값: NETWORK_PREP_METHOD = "IntegrationUtil.sendToService".
+              나머지 카테고리는 비어있음 — 빌트인 분류만 사용.
+            </p>
+            <CustomCategoriesEditor
+              segments={MSA_EVENT_SEGMENTS}
+              presets={MSA_EVENT_PRESETS}
+              value={eventCategoryPatterns}
+              onChange={setEventCategoryPatterns}
+              disabled={analyzing}
+            />
+          </div>
+        </div>
+      </SlideOverPanel>
+      <RecentFilesPanel
+        entries={recent.entries}
+        onSelect={handleRecentSelect}
+        onRemove={recent.remove}
+        onClear={recent.clear}
+      />
+      {selected.length > 0 && (
+        <ul className="flex flex-col gap-1 rounded-md border border-border bg-muted/30 p-2">
+          {selected.map((s) => (
+            <li
+              key={s.filePath}
+              className="flex items-center justify-between gap-2 rounded px-2 py-1 text-xs"
+            >
+              <span className="truncate font-mono" title={s.filePath}>
+                {s.originalName}
+              </span>
+              <button
+                type="button"
+                className="text-muted-foreground hover:text-destructive"
+                onClick={() => handleClear(s.filePath)}
+                aria-label="Remove"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
 
       {error && (
         <div
@@ -580,7 +862,7 @@ export function JenniferProfilePage(): JSX.Element {
             </Card>
           )}
 
-          {signatureStats.length > 0 && (
+          {showMsaTablesInSummary && signatureStats.length > 0 && (
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm">
@@ -655,7 +937,8 @@ export function JenniferProfilePage(): JSX.Element {
             </Card>
           )}
 
-          {signatureStats.some((s) => (s.edges ?? []).length > 0) && (
+          {showMsaTablesInSummary &&
+            signatureStats.some((s) => (s.edges ?? []).length > 0) && (
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm">Edge statistics</CardTitle>
@@ -731,7 +1014,7 @@ export function JenniferProfilePage(): JSX.Element {
             </Card>
           )}
 
-          {guidGroups.length > 0 && (
+          {showMsaTablesInSummary && guidGroups.length > 0 && (
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm">
@@ -816,7 +1099,7 @@ export function JenniferProfilePage(): JSX.Element {
             </Card>
           )}
 
-          {msaEdges.length > 0 && (
+          {showMsaTablesInSummary && msaEdges.length > 0 && (
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm">
@@ -956,11 +1239,85 @@ export function JenniferProfilePage(): JSX.Element {
           )}
           </TabsContent>
 
-          <TabsContent value="msa" className="mt-4">
+          <TabsContent value="msa" className="mt-4 flex flex-col gap-4">
             {!hasResult ? (
               emptyResultCard
             ) : (
             <>
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm">MSA 타임라인 분석 모드</CardTitle>
+                <p className="text-xs text-muted-foreground">
+                  단일 트랜잭션은 GUID 하나의 실제 호출 흐름을, 평균
+                  트랜잭션은 같은 signature로 묶인 여러 GUID의 평균 호출
+                  흐름을 표시합니다.
+                </p>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={msaTimelineMode === "single" ? "default" : "outline"}
+                    onClick={() => setMsaTimelineMode("single")}
+                  >
+                    단일 트랜잭션
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={msaTimelineMode === "average" ? "default" : "outline"}
+                    onClick={() => setMsaTimelineMode("average")}
+                  >
+                    평균 트랜잭션
+                  </Button>
+                </div>
+                {msaTimelineMode === "single" ? (
+                  <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs lg:max-w-xl">
+                    <span className="font-medium text-foreground/80">
+                      분석할 GUID
+                    </span>
+                    <select
+                      className="h-9 rounded-md border border-input bg-background px-3 text-xs"
+                      value={selectedGuidGroup?.guid ?? ""}
+                      onChange={(event) => setSelectedGuid(event.target.value)}
+                    >
+                      {(groupsWithCallGraph.length > 0
+                        ? groupsWithCallGraph
+                        : guidGroups
+                      ).map((group) => (
+                        <option key={group?.guid} value={group?.guid ?? ""}>
+                          {guidOptionLabel(group)}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                ) : (
+                  <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs lg:max-w-xl">
+                    <span className="font-medium text-foreground/80">
+                      평균을 낼 signature
+                    </span>
+                    <select
+                      className="h-9 rounded-md border border-input bg-background px-3 text-xs"
+                      value={selectedSignature?.signature_hash ?? ""}
+                      onChange={(event) =>
+                        setSelectedSignatureHash(event.target.value)
+                      }
+                    >
+                      {signatureStats.map((signature) => (
+                        <option
+                          key={signature?.signature_hash}
+                          value={signature?.signature_hash ?? ""}
+                        >
+                          {signatureOptionLabel(signature)}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                )}
+              </CardContent>
+            </Card>
+
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm">
@@ -1005,35 +1362,69 @@ export function JenniferProfilePage(): JSX.Element {
             {(summary.external_call_cum_ms ?? 0) === 0 &&
               (summary.two_pc_cum_ms ?? 0) === 0 &&
               (summary.check_query_cum_ms ?? 0) === 0 && (
-                <p className="mt-3 rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-amber-700 dark:text-amber-300">
+                <p className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-amber-700 dark:text-amber-300">
                   EXTERNAL_CALL / 2PC / CHECK_QUERY 합계가 모두 0입니다. 본문
                   이벤트가 잡히지 않았을 수 있습니다 — "파서 보고서" 탭의
                   파일 오류와 프로파일별 이슈를 확인하고, 필요하면 위 폼에서
                   사용자 분류 패턴을 추가해 다시 분석하세요.
                 </p>
               )}
-            {/* Response time decomposition sits right below the
-                capture-status cards as the primary "what's slow" view —
-                the topology and full timeline follow as drill-down. */}
-            <div className="mt-4">
-              <MsaResponseTimeBreakdown
-                groups={guidGroups as any}
-                edges={msaEdges as any}
-              />
-            </div>
-            {topologyEdges.length > 0 && (
-              <div className="mt-4 flex flex-col gap-4">
+
+            {msaTimelineMode === "single" ? (
+              selectedGuidGroup ? (
+                <>
+                  <GuidTransactionSummary group={selectedGuidGroup} />
+                  <MsaResponseTimeBreakdown
+                    groups={[selectedGuidGroup] as any}
+                    edges={singleGroupEdges as any}
+                  />
+                  <MsaTopology
+                    title="단일 트랜잭션 호출 토폴로지"
+                    edges={singleTopologyEdges as any}
+                    rootApplication={selectedGuidGroup?.root_application}
+                  />
+                  <MsaTimeline
+                    title="단일 트랜잭션 타임라인 (호출 시각 순)"
+                    edges={singleTimelineEdges as any}
+                    mode="overall"
+                    rootApplication={selectedGuidGroup?.root_application}
+                  />
+                </>
+              ) : (
+                <Card>
+                  <CardContent className="p-4 text-xs text-muted-foreground">
+                    GUID 기반 MSA 호출 그래프가 없습니다. 원본 프로파일의 GUID
+                    또는 EXTERNAL_CALL 매칭 상태를 확인하세요.
+                  </CardContent>
+                </Card>
+              )
+            ) : selectedSignature ? (
+              <>
+                <SignatureAverageSummary signature={selectedSignature} />
+                <MsaResponseTimeBreakdown
+                  groups={signatureGroups as any}
+                  edges={signatureMsaEdges as any}
+                />
                 <MsaTopology
-                  edges={topologyEdges as any}
-                  rootApplication={primaryRootApplication}
+                  title="평균 트랜잭션 호출 토폴로지"
+                  edges={averageTimelineEdges as any}
+                  rootApplication={selectedSignature?.root_application}
                 />
                 <MsaTimeline
-                  title="MSA 전체 타임라인 (호출 시각 순)"
-                  edges={overallTimelineEdges as any}
+                  title="평균 트랜잭션 타임라인 (avg elapsed 기준)"
+                  edges={averageTimelineEdges as any}
                   mode="overall"
-                  rootApplication={primaryRootApplication}
+                  rootApplication={selectedSignature?.root_application}
                 />
-              </div>
+              </>
+            ) : (
+              <Card>
+                <CardContent className="p-4 text-xs text-muted-foreground">
+                  같은 호출 구조로 묶을 signature 통계가 없습니다. 같은 MSA
+                  트랜잭션 파일 여러 개를 함께 분석하면 평균 모드를 사용할 수
+                  있습니다.
+                </CardContent>
+              </Card>
             )}
             </>
             )}

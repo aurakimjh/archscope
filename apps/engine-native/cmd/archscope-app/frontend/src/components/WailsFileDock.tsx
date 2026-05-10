@@ -60,8 +60,12 @@ export type WailsFileDockProps = {
   accept?: string;
   /** Currently selected file (controlled). */
   selected?: FileDockSelection | null;
+  /** Currently selected files when the analyzer supports batch input. */
+  selectedFiles?: FileDockSelection[];
   /** Called once the user picks or drops a file. */
-  onSelect: (file: FileDockSelection) => void;
+  onSelect?: (file: FileDockSelection) => void;
+  /** Called once the user picks or drops multiple files. */
+  onSelectMany?: (files: FileDockSelection[]) => void;
   /** Called when the user clears the selection (X button). */
   onClear?: () => void;
   /** Translated copy for the call-to-action button. */
@@ -77,6 +81,8 @@ export type WailsFileDockProps = {
   className?: string;
   /** Wails dialog filters (DisplayName + Pattern). */
   fileFilters?: { displayName: string; pattern: string }[];
+  /** Enables native multi-select and multi-file drop. */
+  allowsMultipleSelection?: boolean;
 };
 
 function basenameOf(filePath: string): string {
@@ -101,7 +107,9 @@ export function WailsFileDock({
   description,
   accept,
   selected,
+  selectedFiles,
   onSelect,
+  onSelectMany,
   onClear,
   browseLabel = "Browse",
   dropHereLabel = "Drop file to open",
@@ -110,6 +118,7 @@ export function WailsFileDock({
   sticky = true,
   className,
   fileFilters,
+  allowsMultipleSelection = false,
 }: WailsFileDockProps): JSX.Element {
   const dragCounterRef = useRef(0);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -122,15 +131,32 @@ export function WailsFileDock({
     }
   }, [selected]);
 
-  const handleNativeFile = useCallback(
-    (filePath: string, size: number, originalName?: string) => {
-      onSelect({
-        filePath,
-        size,
-        originalName: originalName ?? basenameOf(filePath),
-      });
+  const selectedItems =
+    selectedFiles && selectedFiles.length > 0
+      ? selectedFiles
+      : selected
+      ? [selected]
+      : [];
+
+  const emitNativeFiles = useCallback(
+    (files: FileDockSelection[]) => {
+      if (files.length === 0) return;
+      if (allowsMultipleSelection && onSelectMany) {
+        onSelectMany(files);
+        return;
+      }
+      onSelect?.(files[0]);
     },
-    [onSelect],
+    [allowsMultipleSelection, onSelect, onSelectMany],
+  );
+
+  const toSelection = useCallback(
+    (filePath: string, size: number, originalName?: string): FileDockSelection => ({
+      filePath,
+      size,
+      originalName: originalName ?? basenameOf(filePath),
+    }),
+    [],
   );
 
   const openDialog = useCallback(async () => {
@@ -145,17 +171,28 @@ export function WailsFileDock({
       const result = await Dialogs.OpenFile({
         Title: label,
         Filters: filters.length > 0 ? filters : undefined,
-        AllowsMultipleSelection: false,
+        AllowsMultipleSelection: allowsMultipleSelection,
       });
-      const filePath = typeof result === "string" ? result : "";
-      if (!filePath) return;
-      handleNativeFile(filePath, 0);
+      const filePaths = Array.isArray(result)
+        ? (result as string[])
+        : typeof result === "string" && result
+        ? [result]
+        : [];
+      if (filePaths.length === 0) return;
+      emitNativeFiles(filePaths.map((filePath) => toSelection(filePath, 0)));
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : String(caught));
     } finally {
       setBusy(false);
     }
-  }, [busy, fileFilters, handleNativeFile, label]);
+  }, [
+    allowsMultipleSelection,
+    busy,
+    emitNativeFiles,
+    fileFilters,
+    label,
+    toSelection,
+  ]);
 
   const handleDrop = useCallback(
     (event: DragEvent<HTMLDivElement>) => {
@@ -163,19 +200,27 @@ export function WailsFileDock({
       event.stopPropagation();
       dragCounterRef.current = 0;
       setIsDragOver(false);
-      const file = event.dataTransfer?.files?.[0];
-      if (!file) return;
+      const files = Array.from(event.dataTransfer?.files ?? []);
+      if (files.length === 0) return;
       // Wails v3 patches the standard File interface with `path`; if a
       // browser environment ever rendered this component the drop would
       // gracefully no-op (no absolute path means we can't analyze).
-      const filePath = (file as File & { path?: string }).path;
-      if (!filePath) {
+      const selections: FileDockSelection[] = [];
+      for (const file of files) {
+        const filePath = (file as File & { path?: string }).path;
+        if (filePath) {
+          selections.push(toSelection(filePath, file.size, file.name));
+        }
+      }
+      if (selections.length === 0) {
         setError("Drop did not include an absolute path. Use Browse instead.");
         return;
       }
-      handleNativeFile(filePath, file.size, file.name);
+      emitNativeFiles(
+        allowsMultipleSelection ? selections : selections.slice(0, 1),
+      );
     },
-    [handleNativeFile],
+    [allowsMultipleSelection, emitNativeFiles, toSelection],
   );
 
   const onDragEnter = useCallback((event: DragEvent<HTMLDivElement>) => {
@@ -249,17 +294,22 @@ export function WailsFileDock({
                   {description}
                 </p>
               )}
-              {selected && (
+              {selectedItems.length > 0 && (
                 <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
                   <FileIcon className="h-3 w-3 shrink-0" />
-                  <span className="truncate font-mono" title={selected.filePath}>
-                    {selected.originalName}
+                  <span
+                    className="truncate font-mono"
+                    title={selectedItems.map((item) => item.filePath).join("\n")}
+                  >
+                    {selectedItems.length === 1
+                      ? selectedItems[0].originalName
+                      : `${selectedItems[0].originalName} +${selectedItems.length - 1}`}
                   </span>
-                  {selected.size > 0 && (
+                  {selectedItems.length === 1 && selectedItems[0].size > 0 && (
                     <>
                       <span className="shrink-0">·</span>
                       <span className="shrink-0 tabular-nums">
-                        {formatBytes(selected.size)}
+                        {formatBytes(selectedItems[0].size)}
                       </span>
                     </>
                   )}
@@ -285,7 +335,7 @@ export function WailsFileDock({
                 <Upload className="h-3.5 w-3.5" />
                 {browseLabel}
               </Button>
-              {selected && onClear && (
+              {selectedItems.length > 0 && onClear && (
                 <Button
                   type="button"
                   variant="ghost"
