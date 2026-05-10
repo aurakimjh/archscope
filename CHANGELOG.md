@@ -6,6 +6,24 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.1-rc1] — 2026-05-10
+
+### Added
+
+- Added Jennifer MSA service-call network-time summaries grouped by
+  caller and callee service, including average, p95, max, and stable
+  latency bands.
+- Added network-time-aware MSA topology placement so internal
+  single-digit millisecond calls and gateway/external double-digit
+  millisecond calls are visually separated.
+- Added summary-table network time columns for service calls and
+  caller-to-callee breakdowns.
+
+### Changed
+
+- Updated the Jennifer profile data contract documentation in English
+  and Korean for the new `service_call_network_summary` series.
+
 ## [0.3.0-rc1] — 2026-05-09
 
 This release rebuilds ArchScope around the unified Go/Wails desktop
@@ -421,7 +439,8 @@ Initial closed-development tag covering the original Electron + React
 desktop application with the Phase 1–3 backlog (T-001…T-179).
 Superseded by 0.2.0-alpha; no longer publicly distributed.
 
-[0.2.0-beta]: https://github.com/aurakimjh/archscope/releases/tag/v0.2.0-beta
-[0.2.0-alpha]: https://github.com/aurakimjh/archscope/releases/tag/v0.2.0-alpha
+[0.3.1-rc1]: https://github.com/aurakimjh/archscope/releases/tag/v0.3.1-rc1
 [0.3.0-rc1]: https://github.com/aurakimjh/archscope/releases/tag/v0.3.0-rc1
 [0.2.0-rc1]: https://github.com/aurakimjh/archscope/releases/tag/v0.2.0-rc1
+[0.2.0-beta]: https://github.com/aurakimjh/archscope/releases/tag/v0.2.0-beta
+[0.2.0-alpha]: https://github.com/aurakimjh/archscope/releases/tag/v0.2.0-alpha
