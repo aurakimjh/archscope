@@ -3,7 +3,8 @@
 // optimisation:
 //
 //   root_response = SQL + CheckQuery + 2PC + Fetch + NetworkCall +
-//                   NetworkPrep + ConnAcquire + MethodTime
+//                   UnprofiledExternalCall + NetworkPrep + ConnAcquire +
+//                   MethodTime
 //
 // MethodTime is the residual — what's left after subtracting all
 // the categorised time. A high MethodTime ratio means the trace
@@ -36,6 +37,7 @@ type GroupMetrics = {
       two_pc_ms?: number;
       fetch_ms?: number;
       network_call_ms?: number;
+      unprofiled_external_call_ms?: number;
       network_prep_ms?: number;
       connection_acquire_ms?: number;
       method_time_ms?: number;
@@ -65,6 +67,7 @@ const SLICE_DEFS: {
   { key: "two_pc_ms", label: "2PC / XA", color: "#f59e0b", hint: "분산트랜잭션 prepare/commit" },
   { key: "fetch_ms", label: "Fetch", color: "#fbbf24", hint: "ResultSet fetch" },
   { key: "network_call_ms", label: "Network", color: "#10b981", hint: "외부호출 - callee 응답시간 (실제 망 시간)" },
+  { key: "unprofiled_external_call_ms", label: "Unprofiled Call", color: "#14b8a6", hint: "callee profile 없이 caller EXTERNAL_CALL elapsed만 확인된 외부호출" },
   { key: "network_prep_ms", label: "Network Prep", color: "#a78bfa", hint: "sendToService 등 wrapper의 비-네트워크 부분" },
   { key: "connection_acquire_ms", label: "Conn Acquire", color: "#ef4444", hint: "DB 풀 대기" },
   { key: "method_time_ms", label: "Method", color: "#94a3b8", hint: "잔여 메소드 수행시간 (전체 - 위 합계)" },
@@ -94,6 +97,7 @@ export function MsaResponseTimeBreakdown({
     totals.two_pc_ms +
     totals.fetch_ms +
     totals.network_call_ms +
+    totals.unprofiled_external_call_ms +
     totals.network_prep_ms +
     totals.connection_acquire_ms +
     totals.method_time_ms;
@@ -138,8 +142,8 @@ export function MsaResponseTimeBreakdown({
           응답시간 구성 (전체 합계 + GUID 그룹별)
         </CardTitle>
         <p className="text-xs text-muted-foreground">
-          root 응답시간 = SQL + CheckQuery + 2PC + Fetch + Network + Prep + Conn +
-          Method (잔여). 비중이 큰 카테고리가 우선 개선 대상입니다.
+          root 응답시간 = SQL + CheckQuery + 2PC + Fetch + Network + Unprofiled +
+          Prep + Conn + Method (잔여). 비중이 큰 카테고리가 우선 개선 대상입니다.
         </p>
       </CardHeader>
       <CardContent className="flex flex-col gap-5">

@@ -591,6 +591,35 @@ New optional `series` rows: `young_heap_before_per_event`,
   and `profiler_export_pprof` (returns `{ outputPath, sizeBytes }`
   pointing at the gzipped pprof file under `~/.archscope/uploads/`).
 
+### Jennifer profile (`type: "jennifer_profile"`)
+
+MSA timeline matching still emits matched caller-to-callee edges in
+`tables.msa_edges`. External calls without a callee profile are now
+kept as first-class unprofiled external calls instead of being folded
+into residual method time.
+
+New `summary` field:
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `total_unprofiled_external_call_ms` | integer | Sum of `EXTERNAL_CALL` elapsed time for unmatched / unprofiled downstream calls |
+
+New `tables` row:
+
+- `unprofiled_external_call_groups` — grouped by
+  `{ guid, caller_application, target, protocol, client, match_status }` and
+  emitted as `{ count, total_elapsed_ms, avg_elapsed_ms, max_elapsed_ms,
+  caller_txids, external_call_urls }`. `target` is normalized by dropping query
+  strings/fragments and folding obvious numeric/UUID path IDs to `{id}`.
+
+Updated `series.guid_groups[].metrics.response_time_breakdown`:
+
+- `unprofiled_external_call_ms` is subtracted before `method_time_ms`.
+- `network_call_ms` remains the matched MSA network gap
+  (`EXTERNAL_CALL elapsed - callee response time`).
+- `method_time_ms` is now only the remaining uncategorized application time,
+  not a bucket for known external calls whose callee profile was missing.
+
 ### JFR (`type: "jfr_recording"`)
 
 - `metadata.event_modes`, `metadata.time_from`, `metadata.time_to`,

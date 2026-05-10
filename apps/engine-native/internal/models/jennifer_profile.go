@@ -192,6 +192,9 @@ type JenniferExternalCallEdge struct {
 	CallerApplication     string              `json:"caller_application"`
 	ExternalCallSequence  int                 `json:"external_call_sequence"`
 	ExternalCallURL       string              `json:"external_call_url"`
+	ExternalCallTarget    string              `json:"external_call_target,omitempty"`
+	ExternalCallProtocol  string              `json:"external_call_protocol,omitempty"`
+	ExternalCallClient    string              `json:"external_call_client,omitempty"`
 	ExternalCallElapsedMs int                 `json:"external_call_elapsed_ms"`
 	CalleeTXID            string              `json:"callee_txid,omitempty"`
 	CalleeApplication     string              `json:"callee_application,omitempty"`
@@ -223,6 +226,11 @@ type JenniferGuidGroup struct {
 	Edges              []JenniferExternalCallEdge `json:"edges"`
 	MatchedEdgeCount   int                        `json:"matched_edge_count"`
 	UnmatchedEdgeCount int                        `json:"unmatched_edge_count"`
+	// UnprofiledExternalCallGroups groups EXTERNAL_CALL rows that
+	// did not resolve to a callee profile inside this GUID. Their
+	// elapsed time is known, but the downstream profile is missing,
+	// so the response-time breakdown keeps them out of MethodTime.
+	UnprofiledExternalCallGroups []JenniferUnprofiledExternalCallGroup `json:"unprofiled_external_call_groups,omitempty"`
 	// CallGraph is a flat list of (caller_txid → callee_txid) tuples
 	// with the edge metric. Used by the renderer to draw the DAG.
 	CallGraph []JenniferCallGraphEdge `json:"call_graph"`
@@ -353,6 +361,11 @@ type JenniferGuidMetrics struct {
 	// categories the user wants to see. This is the "where did the
 	// time go" view that drives improvement decisions.
 	ResponseTimeBreakdown JenniferResponseTimeBreakdown `json:"response_time_breakdown"`
+	// TotalUnprofiledExternalCallMs is the elapsed total of
+	// EXTERNAL_CALL rows with no matched callee profile in this GUID.
+	// It is separated from MethodTime because the caller already
+	// reported these rows as external wait time.
+	TotalUnprofiledExternalCallMs int `json:"total_unprofiled_external_call_ms"`
 }
 
 // JenniferResponseTimeBreakdown decomposes the root profile's wall-
@@ -360,7 +373,8 @@ type JenniferGuidMetrics struct {
 // when targeting an optimisation. The math:
 //
 //	method_time = root_response - (sql + check_query + 2pc + fetch
-//	            + network_call + network_prep + connection_acquire)
+//	            + network_call + unprofiled_external_call
+//	            + network_prep + connection_acquire)
 //
 // network_call uses adjusted_network_gap (the time spent in the
 // wire / waiting between caller and callee) rather than the raw
@@ -368,22 +382,48 @@ type JenniferGuidMetrics struct {
 // embeds the callee's own response time which gets captured in
 // the callee's profile (and thus in this group's sum).
 //
-// method_time can go negative if the callee response time wasn't
-// captured (unmatched edges) or if there's overlap from missing
-// data; the renderer clamps to 0 and shows a warning.
+// unprofiled_external_call_ms covers EXTERNAL_CALL rows whose callee
+// profile was not present in the GUID group. For those rows the
+// caller elapsed time is still known, so it should not be hidden in
+// method_time.
+//
+// method_time can go negative if there is overlap from missing data
+// or duplicated cumulative ledgers; the renderer clamps to 0 and
+// shows a warning.
 type JenniferResponseTimeBreakdown struct {
-	RootResponseTimeMs  int     `json:"root_response_time_ms"`
-	SQLExecuteMs        int     `json:"sql_execute_ms"`
-	CheckQueryMs        int     `json:"check_query_ms"`
-	TwoPCMs             int     `json:"two_pc_ms"`
-	FetchMs             int     `json:"fetch_ms"`
-	NetworkCallMs       int     `json:"network_call_ms"`
-	NetworkPrepMs       int     `json:"network_prep_ms"`
-	ConnectionAcquireMs int     `json:"connection_acquire_ms"`
-	MethodTimeMs        int     `json:"method_time_ms"`
-	MethodTimeRatio     float64 `json:"method_time_ratio"`
-	Coverage            float64 `json:"coverage"`
-	NegativeMethodTime  bool    `json:"negative_method_time,omitempty"`
+	RootResponseTimeMs       int     `json:"root_response_time_ms"`
+	SQLExecuteMs             int     `json:"sql_execute_ms"`
+	CheckQueryMs             int     `json:"check_query_ms"`
+	TwoPCMs                  int     `json:"two_pc_ms"`
+	FetchMs                  int     `json:"fetch_ms"`
+	NetworkCallMs            int     `json:"network_call_ms"`
+	UnprofiledExternalCallMs int     `json:"unprofiled_external_call_ms"`
+	NetworkPrepMs            int     `json:"network_prep_ms"`
+	ConnectionAcquireMs      int     `json:"connection_acquire_ms"`
+	MethodTimeMs             int     `json:"method_time_ms"`
+	MethodTimeRatio          float64 `json:"method_time_ratio"`
+	Coverage                 float64 `json:"coverage"`
+	NegativeMethodTime       bool    `json:"negative_method_time,omitempty"`
+}
+
+// JenniferUnprofiledExternalCallGroup is the grouped view of
+// EXTERNAL_CALL rows that did not match a callee profile. Grouping
+// uses caller application + normalized target + protocol + client +
+// match status so rule-engine or third-party calls stay visible
+// without pretending to be internal MSA nodes.
+type JenniferUnprofiledExternalCallGroup struct {
+	GUID              string              `json:"guid"`
+	CallerApplication string              `json:"caller_application,omitempty"`
+	Target            string              `json:"target,omitempty"`
+	Protocol          string              `json:"protocol,omitempty"`
+	Client            string              `json:"client,omitempty"`
+	MatchStatus       JenniferMatchStatus `json:"match_status"`
+	Count             int                 `json:"count"`
+	TotalElapsedMs    int                 `json:"total_elapsed_ms"`
+	AvgElapsedMs      float64             `json:"avg_elapsed_ms"`
+	MaxElapsedMs      int                 `json:"max_elapsed_ms"`
+	CallerTXIDs       []string            `json:"caller_txids,omitempty"`
+	ExternalCallURLs  []string            `json:"external_call_urls,omitempty"`
 }
 
 // JenniferBodyMetrics is the aggregated cost ledger emitted per

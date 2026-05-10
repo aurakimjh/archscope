@@ -221,9 +221,11 @@ func Build(files []jenniferprofile.FileResult, opts Options) models.AnalysisResu
 	guidGroupRows := make([]map[string]any, 0, len(guidGroups))
 	allEdgeRows := []map[string]any{}
 	unmatchedRows := []map[string]any{}
+	unprofiledGroupRows := []map[string]any{}
 	totalEdges := 0
 	totalMatched := 0
 	totalUnmatched := 0
+	totalUnprofiledMs := 0
 	totalGapMs := 0
 	for i := range guidGroups {
 		// Stamp each group's signature so guid_group rows can
@@ -247,6 +249,10 @@ func Build(files []jenniferprofile.FileResult, opts Options) models.AnalysisResu
 		totalEdges += len(g.Edges)
 		totalMatched += g.MatchedEdgeCount
 		totalUnmatched += g.UnmatchedEdgeCount
+		totalUnprofiledMs += g.Metrics.TotalUnprofiledExternalCallMs
+		for _, group := range g.UnprofiledExternalCallGroups {
+			unprofiledGroupRows = append(unprofiledGroupRows, unprofiledExternalCallGroupToRow(group))
+		}
 		for _, e := range g.Edges {
 			allEdgeRows = append(allEdgeRows, edgeToRow(e))
 			if e.MatchStatus != models.JenniferMatchOK {
@@ -279,10 +285,11 @@ func Build(files []jenniferprofile.FileResult, opts Options) models.AnalysisResu
 		"network_prep_method_count":  totals.BodyMetrics.NetworkPrepMethodCount,
 		"connection_acquire_cum_ms":  totals.BodyMetrics.ConnectionAcquireCumMs,
 		// MVP2 MSA roll-up.
-		"guid_group_count":              len(guidGroups),
-		"matched_external_call_count":   totalMatched,
-		"unmatched_external_call_count": totalUnmatched,
-		"total_network_gap_cum_ms":      totalGapMs,
+		"guid_group_count":                  len(guidGroups),
+		"matched_external_call_count":       totalMatched,
+		"unmatched_external_call_count":     totalUnmatched,
+		"total_unprofiled_external_call_ms": totalUnprofiledMs,
+		"total_network_gap_cum_ms":          totalGapMs,
 		// MVP3 signature aggregation.
 		"unique_signature_count": len(signatureStats),
 	}
@@ -292,11 +299,12 @@ func Build(files []jenniferprofile.FileResult, opts Options) models.AnalysisResu
 		"signature_statistics": signatureRows,
 	}
 	result.Tables = map[string]any{
-		"profiles":                 profileRows,
-		"file_errors":              fileErrors,
-		"msa_edges":                allEdgeRows,
-		"unmatched_external_calls": unmatchedRows,
-		"network_prep_methods":     networkPrepRows,
+		"profiles":                        profileRows,
+		"file_errors":                     fileErrors,
+		"msa_edges":                       allEdgeRows,
+		"unmatched_external_calls":        unmatchedRows,
+		"unprofiled_external_call_groups": unprofiledGroupRows,
+		"network_prep_methods":            networkPrepRows,
 	}
 	result.Metadata.SchemaVersion = SchemaVersion
 	result.Metadata.Diagnostics = diagnostics.New(ParserName)
@@ -401,6 +409,7 @@ func guidGroupToRow(g models.JenniferGuidGroup) map[string]any {
 			"unmatched_external_call_count":     g.Metrics.UnmatchedExternalCallCount,
 			"total_external_call_cumulative_ms": g.Metrics.TotalExternalCallCumulativeMs,
 			"total_external_call_wall_time_ms":  g.Metrics.TotalExternalCallWallTimeMs,
+			"total_unprofiled_external_call_ms": g.Metrics.TotalUnprofiledExternalCallMs,
 			"total_network_gap_cumulative_ms":   g.Metrics.TotalNetworkGapCumulativeMs,
 			"total_sql_execute_ms":              g.Metrics.TotalSqlExecuteMs,
 			"total_check_query_ms":              g.Metrics.TotalCheckQueryMs,
@@ -412,18 +421,19 @@ func guidGroupToRow(g models.JenniferGuidGroup) map[string]any {
 			"external_call_parallelism_ratio":   g.Metrics.ExternalCallParallelismRatio,
 			"group_execution_mode":              string(g.Metrics.GroupExecutionMode),
 			"response_time_breakdown": map[string]any{
-				"root_response_time_ms": g.Metrics.ResponseTimeBreakdown.RootResponseTimeMs,
-				"sql_execute_ms":        g.Metrics.ResponseTimeBreakdown.SQLExecuteMs,
-				"check_query_ms":        g.Metrics.ResponseTimeBreakdown.CheckQueryMs,
-				"two_pc_ms":             g.Metrics.ResponseTimeBreakdown.TwoPCMs,
-				"fetch_ms":              g.Metrics.ResponseTimeBreakdown.FetchMs,
-				"network_call_ms":       g.Metrics.ResponseTimeBreakdown.NetworkCallMs,
-				"network_prep_ms":       g.Metrics.ResponseTimeBreakdown.NetworkPrepMs,
-				"connection_acquire_ms": g.Metrics.ResponseTimeBreakdown.ConnectionAcquireMs,
-				"method_time_ms":        g.Metrics.ResponseTimeBreakdown.MethodTimeMs,
-				"method_time_ratio":     g.Metrics.ResponseTimeBreakdown.MethodTimeRatio,
-				"coverage":              g.Metrics.ResponseTimeBreakdown.Coverage,
-				"negative_method_time":  g.Metrics.ResponseTimeBreakdown.NegativeMethodTime,
+				"root_response_time_ms":       g.Metrics.ResponseTimeBreakdown.RootResponseTimeMs,
+				"sql_execute_ms":              g.Metrics.ResponseTimeBreakdown.SQLExecuteMs,
+				"check_query_ms":              g.Metrics.ResponseTimeBreakdown.CheckQueryMs,
+				"two_pc_ms":                   g.Metrics.ResponseTimeBreakdown.TwoPCMs,
+				"fetch_ms":                    g.Metrics.ResponseTimeBreakdown.FetchMs,
+				"network_call_ms":             g.Metrics.ResponseTimeBreakdown.NetworkCallMs,
+				"unprofiled_external_call_ms": g.Metrics.ResponseTimeBreakdown.UnprofiledExternalCallMs,
+				"network_prep_ms":             g.Metrics.ResponseTimeBreakdown.NetworkPrepMs,
+				"connection_acquire_ms":       g.Metrics.ResponseTimeBreakdown.ConnectionAcquireMs,
+				"method_time_ms":              g.Metrics.ResponseTimeBreakdown.MethodTimeMs,
+				"method_time_ratio":           g.Metrics.ResponseTimeBreakdown.MethodTimeRatio,
+				"coverage":                    g.Metrics.ResponseTimeBreakdown.Coverage,
+				"negative_method_time":        g.Metrics.ResponseTimeBreakdown.NegativeMethodTime,
 			},
 		},
 	}
@@ -437,6 +447,9 @@ func edgeToRow(e models.JenniferExternalCallEdge) map[string]any {
 		"caller_application":       e.CallerApplication,
 		"external_call_sequence":   e.ExternalCallSequence,
 		"external_call_url":        e.ExternalCallURL,
+		"external_call_target":     e.ExternalCallTarget,
+		"external_call_protocol":   e.ExternalCallProtocol,
+		"external_call_client":     e.ExternalCallClient,
 		"external_call_elapsed_ms": e.ExternalCallElapsedMs,
 		"match_status":             string(e.MatchStatus),
 		"caller_event_start_ms":    e.CallerEventStartMs,
@@ -462,6 +475,23 @@ func edgeToRow(e models.JenniferExternalCallEdge) map[string]any {
 		row["warnings"] = e.Warnings
 	}
 	return row
+}
+
+func unprofiledExternalCallGroupToRow(g models.JenniferUnprofiledExternalCallGroup) map[string]any {
+	return map[string]any{
+		"guid":               g.GUID,
+		"caller_application": g.CallerApplication,
+		"target":             g.Target,
+		"protocol":           g.Protocol,
+		"client":             g.Client,
+		"match_status":       string(g.MatchStatus),
+		"count":              g.Count,
+		"total_elapsed_ms":   g.TotalElapsedMs,
+		"avg_elapsed_ms":     g.AvgElapsedMs,
+		"max_elapsed_ms":     g.MaxElapsedMs,
+		"caller_txids":       g.CallerTXIDs,
+		"external_call_urls": g.ExternalCallURLs,
+	}
 }
 
 // avgInt returns nil-friendly average so 0/0 becomes JSON null.

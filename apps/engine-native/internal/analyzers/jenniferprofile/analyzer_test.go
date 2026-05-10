@@ -145,6 +145,67 @@ APPLICATION : /prod/order/create
 	}
 }
 
+func TestUnprofiledExternalCallsSeparatedFromMethodTime(t *testing.T) {
+	body := `---------------------------------------------------------------------------------------------------------------------
+Total Transaction : 1
+---------------------------------------------------------------------------------------------------------------------
+
+
+
+TXID : 100                                                       DOMAIN (ID) : caller (1)
+RESPONSE_TIME : 1000                                             GUID : G1
+EXTERNAL_CALL_TIME : 300                                         USER_AGENT : test
+APPLICATION : /prod/order/create
+
+---------------------------------------------------------------------------------------------------------------------
+[ No.][ START_TIME ][  GAP][CPU_T]
+---------------------------------------------------------------------------------------------------------------------
+[0000][10:00:00 000][    0][    0] START
+[0001][10:00:00 010][    0][    0] EXTERNAL_CALL [HTTP] RULE_ENGINE_CLIENT ( url=/rule/evaluate/123?user=alice) [100ms]
+[0002][10:00:00 150][    0][    0] EXTERNAL_CALL [HTTP] RULE_ENGINE_CLIENT ( url=/rule/evaluate/456?user=bob) [200ms]
+[    ][10:00:01 000][    0][    0] END
+---------------------------------------------------------------------------------------------------------------------
+                TOTAL[1000][   0]
+`
+	parsed := jenniferprofile.ParseString(body, jenniferprofile.Options{})
+	res := Build([]jenniferprofile.FileResult{parsed}, Options{})
+
+	if got := res.Summary["unmatched_external_call_count"].(int); got != 2 {
+		t.Fatalf("unmatched_external_call_count = %d, want 2", got)
+	}
+	if got := res.Summary["total_unprofiled_external_call_ms"].(int); got != 300 {
+		t.Fatalf("total_unprofiled_external_call_ms = %d, want 300", got)
+	}
+
+	groups := res.Series["guid_groups"].([]map[string]any)
+	metrics := groups[0]["metrics"].(map[string]any)
+	breakdown := metrics["response_time_breakdown"].(map[string]any)
+	if got := breakdown["unprofiled_external_call_ms"].(int); got != 300 {
+		t.Errorf("unprofiled_external_call_ms = %d, want 300", got)
+	}
+	if got := breakdown["method_time_ms"].(int); got != 700 {
+		t.Errorf("method_time_ms = %d, want 700", got)
+	}
+
+	rows := res.Tables["unprofiled_external_call_groups"].([]map[string]any)
+	if len(rows) != 1 {
+		t.Fatalf("unprofiled_external_call_groups rows = %d, want 1", len(rows))
+	}
+	row := rows[0]
+	if got := row["target"].(string); got != "/rule/evaluate/{id}" {
+		t.Errorf("target = %q, want /rule/evaluate/{id}", got)
+	}
+	if got := row["client"].(string); got != "RULE_ENGINE_CLIENT" {
+		t.Errorf("client = %q, want RULE_ENGINE_CLIENT", got)
+	}
+	if got := row["count"].(int); got != 2 {
+		t.Errorf("count = %d, want 2", got)
+	}
+	if got := row["total_elapsed_ms"].(int); got != 300 {
+		t.Errorf("total_elapsed_ms = %d, want 300", got)
+	}
+}
+
 // Acceptance #8 — SQL / Check Query / 2PC / Fetch counts don't
 // double-add. Sample profile #1 has:
 //   - 1 CHECK_QUERY (`select 1 from dual`)

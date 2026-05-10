@@ -418,6 +418,90 @@ function NetworkPrepMethodsTable({ rows }: { rows: any[] }): JSX.Element {
   );
 }
 
+function UnprofiledExternalCallGroupsTable({ rows }: { rows: any[] }): JSX.Element {
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm">
+          프로파일 미수집 외부호출 ({rows.length})
+        </CardTitle>
+        <p className="text-xs text-muted-foreground">
+          callee profile이 없는 EXTERNAL_CALL은 Method 잔여시간에서 분리해
+          별도 외부호출 시간으로 계산합니다.
+        </p>
+      </CardHeader>
+      <CardContent className="overflow-x-auto p-0">
+        {rows.length === 0 ? (
+          <p className="px-4 py-3 text-xs text-muted-foreground">
+            프로파일 미수집 외부호출이 없습니다.
+          </p>
+        ) : (
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
+                <th className="px-3 py-2 text-left font-medium">Caller</th>
+                <th className="px-3 py-2 text-left font-medium">Target</th>
+                <th className="px-3 py-2 text-left font-medium">Client</th>
+                <th className="px-3 py-2 text-right font-medium">Count</th>
+                <th className="px-3 py-2 text-right font-medium">Total ms</th>
+                <th className="px-3 py-2 text-right font-medium">Avg ms</th>
+                <th className="px-3 py-2 text-right font-medium">Max ms</th>
+                <th className="px-3 py-2 text-left font-medium">Sample URLs</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row, idx) => {
+                const urls = Array.isArray(row.external_call_urls)
+                  ? row.external_call_urls.filter(Boolean).join(", ")
+                  : "";
+                const client = [row.protocol, row.client].filter(Boolean).join(" / ");
+                return (
+                  <tr key={idx} className="border-b border-border last:border-0">
+                    <td
+                      className="max-w-[220px] px-3 py-2 font-mono text-xs"
+                      title={row.caller_application}
+                    >
+                      <span className="block truncate">
+                        {row.caller_application || "—"}
+                      </span>
+                    </td>
+                    <td
+                      className="max-w-[280px] px-3 py-2 font-mono text-xs"
+                      title={row.target}
+                    >
+                      <span className="block truncate">{row.target || "—"}</span>
+                    </td>
+                    <td className="px-3 py-2 text-xs" title={client}>
+                      {client || "—"}
+                    </td>
+                    <td className="px-3 py-2 text-right tabular-nums">
+                      {(row.count ?? 0).toLocaleString()}
+                    </td>
+                    <td className="px-3 py-2 text-right tabular-nums">
+                      {(row.total_elapsed_ms ?? 0).toLocaleString()}
+                    </td>
+                    <td className="px-3 py-2 text-right tabular-nums">
+                      {Math.round(row.avg_elapsed_ms ?? 0).toLocaleString()}
+                    </td>
+                    <td className="px-3 py-2 text-right tabular-nums">
+                      {(row.max_elapsed_ms ?? 0).toLocaleString()}
+                    </td>
+                    <td className="max-w-[320px] px-3 py-2 font-mono text-xs">
+                      <span className="block truncate" title={urls}>
+                        {urls || "—"}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 export function JenniferProfilePage(): JSX.Element {
   const { t } = useI18n();
   const [selected, setSelected] = useState<Selection[]>([]);
@@ -546,6 +630,8 @@ export function JenniferProfilePage(): JSX.Element {
   const guidGroups: any[] = result?.series?.guid_groups ?? [];
   const msaEdges: any[] = result?.tables?.msa_edges ?? [];
   const networkPrepRows: any[] = result?.tables?.network_prep_methods ?? [];
+  const unprofiledExternalCallRows: any[] =
+    result?.tables?.unprofiled_external_call_groups ?? [];
   const signatureStats: any[] = result?.series?.signature_statistics ?? [];
   const [profileTimelineActivated, setProfileTimelineActivated] = useState(false);
   const hasResult = Boolean(result);
@@ -636,6 +722,13 @@ export function JenniferProfilePage(): JSX.Element {
     return networkPrepRows.filter((row) => row?.guid === selectedGuidGroup.guid);
   }, [networkPrepRows, selectedGuidGroup]);
 
+  const singleUnprofiledExternalCallRows: any[] = useMemo(() => {
+    if (!selectedGuidGroup?.guid) return [];
+    return unprofiledExternalCallRows.filter(
+      (row) => row?.guid === selectedGuidGroup.guid,
+    );
+  }, [unprofiledExternalCallRows, selectedGuidGroup]);
+
   const selectedSignature = useMemo(() => {
     if (signatureStats.length === 0) return undefined;
     return (
@@ -663,6 +756,14 @@ export function JenniferProfilePage(): JSX.Element {
   const signatureNetworkPrepRows: any[] = useMemo(
     () => networkPrepRows.filter((row) => selectedSignatureGuidSet.has(row?.guid)),
     [networkPrepRows, selectedSignatureGuidSet],
+  );
+
+  const signatureUnprofiledExternalCallRows: any[] = useMemo(
+    () =>
+      unprofiledExternalCallRows.filter((row) =>
+        selectedSignatureGuidSet.has(row?.guid),
+      ),
+    [unprofiledExternalCallRows, selectedSignatureGuidSet],
   );
 
   const averageTimelineEdges: any[] = useMemo(
@@ -899,6 +1000,10 @@ export function JenniferProfilePage(): JSX.Element {
             <MetricCard
               label="네트워크 준비시간 (cum ms)"
               value={(summary.network_prep_cum_ms ?? 0).toLocaleString()}
+            />
+            <MetricCard
+              label="미수집 외부호출 (cum ms)"
+              value={(summary.total_unprofiled_external_call_ms ?? 0).toLocaleString()}
             />
             <MetricCard
               label="네트워크 wrapper 합계 (cum ms)"
@@ -1491,6 +1596,9 @@ export function JenniferProfilePage(): JSX.Element {
                 <>
                   <GuidTransactionSummary group={selectedGuidGroup} />
                   <NetworkPrepMethodsTable rows={singleNetworkPrepRows} />
+                  <UnprofiledExternalCallGroupsTable
+                    rows={singleUnprofiledExternalCallRows}
+                  />
                   <MsaResponseTimeBreakdown
                     groups={[selectedGuidGroup] as any}
                     edges={singleGroupEdges as any}
@@ -1519,6 +1627,9 @@ export function JenniferProfilePage(): JSX.Element {
               <>
                 <SignatureAverageSummary signature={selectedSignature} />
                 <NetworkPrepMethodsTable rows={signatureNetworkPrepRows} />
+                <UnprofiledExternalCallGroupsTable
+                  rows={signatureUnprofiledExternalCallRows}
+                />
                 <MsaResponseTimeBreakdown
                   groups={signatureGroups as any}
                   edges={signatureMsaEdges as any}

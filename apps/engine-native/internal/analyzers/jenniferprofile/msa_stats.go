@@ -1,34 +1,37 @@
 // [한글] msa_stats.go — §19-§21 Timeline Signature 통계.
 //
 // Timeline Signature 의 의미
-//   GUID 는 한 트랜잭션 인스턴스를 식별하는 키입니다. 그러나 같은
-//   비즈니스 호출 패턴(예: order 생성 → user 조회 → inventory 차감)
-//   은 인스턴스마다 GUID 가 다르더라도 "구조" 는 같습니다.
-//   Signature 는 그 "구조" 를 GUID 와 무관하게 고정 — 같은 시그니처를
-//   가진 인스턴스 N개를 한 데 모아 분포 통계(p50/p90/p95/p99) 를
-//   낼 수 있게 함.
+//
+//	GUID 는 한 트랜잭션 인스턴스를 식별하는 키입니다. 그러나 같은
+//	비즈니스 호출 패턴(예: order 생성 → user 조회 → inventory 차감)
+//	은 인스턴스마다 GUID 가 다르더라도 "구조" 는 같습니다.
+//	Signature 는 그 "구조" 를 GUID 와 무관하게 고정 — 같은 시그니처를
+//	가진 인스턴스 N개를 한 데 모아 분포 통계(p50/p90/p95/p99) 를
+//	낼 수 있게 함.
 //
 // canonical signature 정의 (§19)
-//   • 시간 순서 무시(병렬 호출에서도 안정된 시그니처가 되도록).
-//   • caller_application → callee_application 엣지 문자열을 사전순
+//   - 시간 순서 무시(병렬 호출에서도 안정된 시그니처가 되도록).
+//   - caller_application → callee_application 엣지 문자열을 사전순
 //     정렬.
-//   • 동일 엣지가 여러 번이면 occurrence_index 로 disambiguate
+//   - 동일 엣지가 여러 번이면 occurrence_index 로 disambiguate
 //     (예: A→B(1), A→B(2)).
-//   • 시그니처 hash = SHA-256(canonical 문자열) — 짧고 비교 빠름.
-//   • SignatureVersion ("v1") 으로 알고리즘 버전 stamp — 알고리즘이
+//   - 시그니처 hash = SHA-256(canonical 문자열) — 짧고 비교 빠름.
+//   - SignatureVersion ("v1") 으로 알고리즘 버전 stamp — 알고리즘이
 //     바뀌면 옛 시그니처와 섞이지 않도록.
 //
 // 통계
-//   같은 signature_hash 를 가진 GUID 그룹들의 메트릭 분포:
-//     external_call_elapsed / callee_response_time / raw_network_gap /
-//     adjusted_network_gap → count/min/avg/p50/p90/p95/p99/max/stddev.
-//   엣지별 통계도 같은 방식으로 산출(occurrence_index 로 동일 엣지
-//   반복 호출 분리).
+//
+//	같은 signature_hash 를 가진 GUID 그룹들의 메트릭 분포:
+//	  external_call_elapsed / callee_response_time / raw_network_gap /
+//	  adjusted_network_gap → count/min/avg/p50/p90/p95/p99/max/stddev.
+//	엣지별 통계도 같은 방식으로 산출(occurrence_index 로 동일 엣지
+//	반복 호출 분리).
 //
 // 백분위 계산
-//   sample_count 가 작은(예: <10) signature 도 의미를 가질 수 있으므로
-//   linear interpolation 표준 알고리즘을 그대로 사용. 큰 sample 에서는
-//   sort 후 선형 보간.
+//
+//	sample_count 가 작은(예: <10) signature 도 의미를 가질 수 있으므로
+//	linear interpolation 표준 알고리즘을 그대로 사용. 큰 sample 에서는
+//	sort 후 선형 보간.
 package jenniferprofile
 
 import (
@@ -180,6 +183,9 @@ func computeGroupMetricStats(groups []models.JenniferGuidGroup) map[string]model
 	}))
 	addMetric("total_network_gap_cumulative_ms", pull(func(m models.JenniferGuidMetrics, _ models.JenniferGuidGroup) (float64, bool) {
 		return float64(m.TotalNetworkGapCumulativeMs), true
+	}))
+	addMetric("total_unprofiled_external_call_ms", pull(func(m models.JenniferGuidMetrics, _ models.JenniferGuidGroup) (float64, bool) {
+		return float64(m.TotalUnprofiledExternalCallMs), true
 	}))
 	addMetric("total_sql_execute_ms", pull(func(m models.JenniferGuidMetrics, _ models.JenniferGuidGroup) (float64, bool) {
 		return float64(m.TotalSqlExecuteMs), true

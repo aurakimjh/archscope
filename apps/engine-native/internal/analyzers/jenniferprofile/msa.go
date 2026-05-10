@@ -1,28 +1,31 @@
 // [한글] msa.go — §13-§18 MSA 그룹핑 파이프라인의 본체.
 //
 // 입력
-//   buildGuidGroups 가 받는 jenniferFileBucket 슬라이스는 모든 파일에서
-//   파싱된 트랜잭션 프로파일들을 한 데 모은 형태.
+//
+//	buildGuidGroups 가 받는 jenniferFileBucket 슬라이스는 모든 파일에서
+//	파싱된 트랜잭션 프로파일들을 한 데 모은 형태.
 //
 // 처리 흐름
-//   1) Bucket 형성 — correlation key(GUID 또는 옵션 fallback 시 TXID)
-//      별로 profile 묶음. 빈 key 는 skip(상위 분석기가 diagnostic 으로
-//      보고).
-//   2) 각 bucket 에 대해 §15 caller-callee 매칭 (msa_match.go).
-//   3) §16 network gap 계산 (raw / adjusted).
-//   4) §17 root profile 추론 (들어오는 외부호출 매치가 없는 profile).
-//   5) §18 call graph 구축 — DAG 형태의 (caller_txid → callee_txid)
-//      엣지 리스트.
-//   6) §16.7 parallelism (msa_parallelism.go) 호출.
-//   7) §10 group validation status 결정 — 어느 한 profile 이라도 FULL
-//      validation 실패면 GROUP_FAILED.
+//  1. Bucket 형성 — correlation key(GUID 또는 옵션 fallback 시 TXID)
+//     별로 profile 묶음. 빈 key 는 skip(상위 분석기가 diagnostic 으로
+//     보고).
+//  2. 각 bucket 에 대해 §15 caller-callee 매칭 (msa_match.go).
+//  3. §16 network gap 계산 (raw / adjusted).
+//  4. §17 root profile 추론 (들어오는 외부호출 매치가 없는 profile).
+//  5. §18 call graph 구축 — DAG 형태의 (caller_txid → callee_txid)
+//     엣지 리스트.
+//  6. §16.7 parallelism (msa_parallelism.go) 호출.
+//  7. §10 group validation status 결정 — 어느 한 profile 이라도 FULL
+//     validation 실패면 GROUP_FAILED.
 //
 // 결정론
-//   bucket 출력 순서는 keyOrder 에 보존된 입력 순서. parity gate 가
-//   바이트 단위로 비교 가능하도록 정렬은 명시적 sort 만 사용.
+//
+//	bucket 출력 순서는 keyOrder 에 보존된 입력 순서. parity gate 가
+//	바이트 단위로 비교 가능하도록 정렬은 명시적 sort 만 사용.
 //
 // 결과
-//   []models.JenniferGuidGroup — 분석기의 tables.guid_groups 로 직결.
+//
+//	[]models.JenniferGuidGroup — 분석기의 tables.guid_groups 로 직결.
 package jenniferprofile
 
 import (
@@ -132,6 +135,7 @@ func runMSAForGroup(b *guidGroupBucket, opts Options) models.JenniferGuidGroup {
 			group.UnmatchedEdgeCount++
 		}
 	}
+	group.UnprofiledExternalCallGroups = groupUnprofiledExternalCalls(edges)
 
 	// §17 root profile detection runs against the matched edges
 	// only — unmatched edges don't contribute inbound state.
@@ -331,6 +335,9 @@ func computeGroupMetrics(b *guidGroupBucket, edges []models.JenniferExternalCall
 	}
 	for _, e := range edges {
 		m.TotalExternalCallCumulativeMs += e.ExternalCallElapsedMs
+		if e.MatchStatus != models.JenniferMatchOK {
+			m.TotalUnprofiledExternalCallMs += e.ExternalCallElapsedMs
+		}
 		if e.AdjustedNetworkGapMs != nil {
 			m.TotalNetworkGapCumulativeMs += *e.AdjustedNetworkGapMs
 		}
@@ -345,17 +352,18 @@ func computeGroupMetrics(b *guidGroupBucket, edges []models.JenniferExternalCall
 		rootResp = *group.RootResponseTimeMs
 	}
 	bd := models.JenniferResponseTimeBreakdown{
-		RootResponseTimeMs:  rootResp,
-		SQLExecuteMs:        m.TotalSqlExecuteMs,
-		CheckQueryMs:        m.TotalCheckQueryMs,
-		TwoPCMs:             m.TotalTwoPcMs,
-		FetchMs:             m.TotalFetchMs,
-		NetworkCallMs:       m.TotalNetworkGapCumulativeMs,
-		NetworkPrepMs:       totalNetworkPrep,
-		ConnectionAcquireMs: m.TotalConnectionAcquireMs,
+		RootResponseTimeMs:       rootResp,
+		SQLExecuteMs:             m.TotalSqlExecuteMs,
+		CheckQueryMs:             m.TotalCheckQueryMs,
+		TwoPCMs:                  m.TotalTwoPcMs,
+		FetchMs:                  m.TotalFetchMs,
+		NetworkCallMs:            m.TotalNetworkGapCumulativeMs,
+		UnprofiledExternalCallMs: m.TotalUnprofiledExternalCallMs,
+		NetworkPrepMs:            totalNetworkPrep,
+		ConnectionAcquireMs:      m.TotalConnectionAcquireMs,
 	}
 	covered := bd.SQLExecuteMs + bd.CheckQueryMs + bd.TwoPCMs + bd.FetchMs +
-		bd.NetworkCallMs + bd.NetworkPrepMs + bd.ConnectionAcquireMs
+		bd.NetworkCallMs + bd.UnprofiledExternalCallMs + bd.NetworkPrepMs + bd.ConnectionAcquireMs
 	if rootResp > 0 {
 		methodMs := rootResp - covered
 		if methodMs < 0 {
@@ -383,4 +391,91 @@ func computeGroupMetrics(b *guidGroupBucket, edges []models.JenniferExternalCall
 	m.GroupExecutionMode = mode
 	m.ProfileParallelism = perProfile
 	return m
+}
+
+func groupUnprofiledExternalCalls(edges []models.JenniferExternalCallEdge) []models.JenniferUnprofiledExternalCallGroup {
+	type groupKey struct {
+		guid     string
+		caller   string
+		target   string
+		protocol string
+		client   string
+		status   models.JenniferMatchStatus
+	}
+	type groupState struct {
+		group   models.JenniferUnprofiledExternalCallGroup
+		txidSet map[string]bool
+		urlSet  map[string]bool
+	}
+
+	states := map[groupKey]*groupState{}
+	order := []groupKey{}
+	for _, edge := range edges {
+		if edge.MatchStatus == models.JenniferMatchOK {
+			continue
+		}
+		target := edge.ExternalCallTarget
+		if target == "" {
+			target = normalizeExternalTargetForGrouping(edge.ExternalCallURL)
+		}
+		key := groupKey{
+			guid:     edge.GUID,
+			caller:   edge.CallerApplication,
+			target:   target,
+			protocol: edge.ExternalCallProtocol,
+			client:   edge.ExternalCallClient,
+			status:   edge.MatchStatus,
+		}
+		state, ok := states[key]
+		if !ok {
+			state = &groupState{
+				group: models.JenniferUnprofiledExternalCallGroup{
+					GUID:              edge.GUID,
+					CallerApplication: edge.CallerApplication,
+					Target:            target,
+					Protocol:          edge.ExternalCallProtocol,
+					Client:            edge.ExternalCallClient,
+					MatchStatus:       edge.MatchStatus,
+				},
+				txidSet: map[string]bool{},
+				urlSet:  map[string]bool{},
+			}
+			states[key] = state
+			order = append(order, key)
+		}
+		state.group.Count++
+		state.group.TotalElapsedMs += edge.ExternalCallElapsedMs
+		if edge.ExternalCallElapsedMs > state.group.MaxElapsedMs {
+			state.group.MaxElapsedMs = edge.ExternalCallElapsedMs
+		}
+		if edge.CallerTXID != "" && !state.txidSet[edge.CallerTXID] {
+			state.txidSet[edge.CallerTXID] = true
+			state.group.CallerTXIDs = append(state.group.CallerTXIDs, edge.CallerTXID)
+		}
+		if edge.ExternalCallURL != "" && !state.urlSet[edge.ExternalCallURL] {
+			state.urlSet[edge.ExternalCallURL] = true
+			state.group.ExternalCallURLs = append(state.group.ExternalCallURLs, edge.ExternalCallURL)
+		}
+	}
+	out := make([]models.JenniferUnprofiledExternalCallGroup, 0, len(order))
+	for _, key := range order {
+		group := states[key].group
+		if group.Count > 0 {
+			group.AvgElapsedMs = float64(group.TotalElapsedMs) / float64(group.Count)
+		}
+		out = append(out, group)
+	}
+	sort.SliceStable(out, func(i, j int) bool {
+		if out[i].TotalElapsedMs != out[j].TotalElapsedMs {
+			return out[i].TotalElapsedMs > out[j].TotalElapsedMs
+		}
+		if out[i].CallerApplication != out[j].CallerApplication {
+			return out[i].CallerApplication < out[j].CallerApplication
+		}
+		if out[i].Target != out[j].Target {
+			return out[i].Target < out[j].Target
+		}
+		return out[i].MatchStatus < out[j].MatchStatus
+	})
+	return out
 }

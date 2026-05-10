@@ -731,6 +731,35 @@ metadata.jvm_info = {
   `profiler_export_pprof`(`~/.archscope/uploads/`의 gzipped pprof
   파일을 가리키는 `{ outputPath, sizeBytes }` 반환).
 
+### Jennifer profile (`type: "jennifer_profile"`)
+
+MSA 타임라인 매칭은 기존처럼 matched caller-to-callee edge를
+`tables.msa_edges`에 낸다. callee profile이 없는 외부호출은 이제
+잔여 `method_time_ms`에 섞지 않고 “프로파일 미수집 외부호출”로 별도
+분리한다.
+
+새 `summary` 필드:
+
+| Field | Type | 의미 |
+| --- | --- | --- |
+| `total_unprofiled_external_call_ms` | integer | unmatched / unprofiled downstream call의 `EXTERNAL_CALL` elapsed 합계 |
+
+새 `tables` row:
+
+- `unprofiled_external_call_groups` — `{ guid, caller_application, target,
+  protocol, client, match_status }` 기준으로 묶고 `{ count,
+  total_elapsed_ms, avg_elapsed_ms, max_elapsed_ms, caller_txids,
+  external_call_urls }`를 낸다. `target`은 query string/fragment를 제거하고
+  숫자/UUID형 path ID를 `{id}`로 접어 같은 호출군이 묶이도록 한다.
+
+변경된 `series.guid_groups[].metrics.response_time_breakdown`:
+
+- `unprofiled_external_call_ms`는 `method_time_ms` 계산 전에 차감한다.
+- `network_call_ms`는 기존처럼 matched MSA network gap
+  (`EXTERNAL_CALL elapsed - callee response time`)만 의미한다.
+- `method_time_ms`는 callee profile이 없지만 caller elapsed는 확인된
+  외부호출을 포함하지 않는 순수 잔여 애플리케이션 시간이다.
+
 ### JFR (`type: "jfr_recording"`)
 
 - `metadata.event_modes`, `metadata.time_from`, `metadata.time_to`,
