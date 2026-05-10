@@ -56,6 +56,8 @@ type RenderRect = {
   height: number;
 };
 
+type RectBuckets = Map<number, RenderRect[]>;
+
 const FALLBACK_PALETTE = [
   "#ef4444",
   "#f97316",
@@ -123,6 +125,7 @@ export function CanvasFlameGraph({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const rectsRef = useRef<RenderRect[]>([]);
+  const rectBucketsRef = useRef<RectBuckets>(new Map());
   const [width, setWidth] = useState(0);
   const [focusPath, setFocusPath] = useState<number[]>([]);
   const [tooltip, setTooltip] = useState<{
@@ -173,17 +176,18 @@ export function CanvasFlameGraph({
     const canvas = canvasRef.current;
     if (!canvas || !layoutInfo) {
       rectsRef.current = [];
+      rectBucketsRef.current = new Map();
       return;
     }
     const { partitioned, focused } = layoutInfo;
+    const descendants = partitioned.descendants();
     const dpr = Math.max(1, window.devicePixelRatio || 1);
     const fx0 = focused.x0;
     const fx1 = focused.x1;
     const fy0 = focused.y0;
     const xScale = (value: number) => ((value - fx0) / Math.max(1e-6, fx1 - fx0)) * width;
     const yScale = (value: number) => value - fy0;
-    const visibleHeight = partitioned
-      .descendants()
+    const visibleHeight = descendants
       .reduce((acc, node) => Math.max(acc, node.y1 - fy0), rowHeight);
 
     canvas.width = Math.floor(width * dpr);
@@ -197,11 +201,12 @@ export function CanvasFlameGraph({
     ctx.clearRect(0, 0, width, visibleHeight);
     const strokeColor = resolvedTheme === "dark" ? "#1f2937" : "#ffffff";
     const rects: RenderRect[] = [];
+    const rectBuckets: RectBuckets = new Map();
 
     ctx.font = '11px ui-monospace, SFMono-Regular, Menlo, monospace';
     ctx.textBaseline = "middle";
 
-    for (const node of partitioned.descendants()) {
+    for (const node of descendants) {
       if (node === partitioned) continue;
       const x = xScale(node.x0);
       const x1 = xScale(node.x1);
@@ -220,9 +225,18 @@ export function CanvasFlameGraph({
         ctx.fillStyle = readableTextColor(fill);
         ctx.fillText(clipText(node.data.name || "", w), x + 4, y + h / 2);
       }
-      rects.push({ node, x, y, width: w, height: h });
+      const renderRect = { node, x, y, width: w, height: h };
+      rects.push(renderRect);
+      const row = Math.floor(y / rowHeight);
+      const bucket = rectBuckets.get(row);
+      if (bucket) {
+        bucket.push(renderRect);
+      } else {
+        rectBuckets.set(row, [renderRect]);
+      }
     }
     rectsRef.current = rects;
+    rectBucketsRef.current = rectBuckets;
   }, [layoutInfo, width, rowHeight, root, resolvedTheme]);
 
   const findHit = useCallback((event: ReactMouseEvent<HTMLCanvasElement>): RenderRect | null => {
@@ -231,20 +245,21 @@ export function CanvasFlameGraph({
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
-    let found: RenderRect | null = null;
-    for (const candidate of rectsRef.current) {
+    const row = Math.floor(y / rowHeight);
+    const candidates = rectBucketsRef.current.get(row) ?? [];
+    for (let i = candidates.length - 1; i >= 0; i -= 1) {
+      const candidate = candidates[i];
       if (
         x >= candidate.x &&
         x <= candidate.x + candidate.width &&
         y >= candidate.y &&
         y <= candidate.y + candidate.height
       ) {
-        // Don't break — descendants come later and should win when they overlap.
-        found = candidate;
+        return candidate;
       }
     }
-    return found;
-  }, []);
+    return null;
+  }, [rowHeight]);
 
   const handleMouseMove = useCallback(
     (event: ReactMouseEvent<HTMLCanvasElement>) => {
@@ -256,13 +271,25 @@ export function CanvasFlameGraph({
       const total = (root.value as number) || 1;
       const containerRect = containerRef.current?.getBoundingClientRect();
       if (!containerRect) return;
-      setTooltip({
+      const nextTooltip = {
         x: event.clientX - containerRect.left,
         y: event.clientY - containerRect.top,
         name: found.node.data.name || "",
         value: (found.node.value as number) ?? 0,
         ratio: ((found.node.value as number) ?? 0) / total,
         category: found.node.data.category ?? null,
+      };
+      setTooltip((prev) => {
+        if (
+          prev &&
+          prev.name === nextTooltip.name &&
+          prev.value === nextTooltip.value &&
+          Math.abs(prev.x - nextTooltip.x) < 3 &&
+          Math.abs(prev.y - nextTooltip.y) < 3
+        ) {
+          return prev;
+        }
+        return nextTooltip;
       });
     },
     [findHit, root],

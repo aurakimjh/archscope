@@ -48,14 +48,23 @@ func elapsedRatio(seconds float64, elapsed *float64, places int) *float64 {
 }
 
 func splitStack(stack string) []string {
-	parts := strings.Split(stack, ";")
-	frames := make([]string, 0, len(parts))
-	for _, part := range parts {
-		if trimmed := strings.TrimSpace(part); trimmed != "" {
-			frames = append(frames, trimmed)
+	return splitStackInto(nil, stack)
+}
+
+func splitStackInto(dst []string, stack string) []string {
+	dst = dst[:0]
+	start := 0
+	for i := 0; i <= len(stack); i++ {
+		if i < len(stack) && stack[i] != ';' {
+			continue
 		}
+		part := stack[start:i]
+		if trimmed := strings.TrimSpace(part); trimmed != "" {
+			dst = append(dst, trimmed)
+		}
+		start = i + 1
 	}
-	return frames
+	return dst
 }
 
 func joinPath(path []string) string {

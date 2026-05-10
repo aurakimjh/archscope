@@ -23,7 +23,7 @@
 // gap / signature stats land in MVP2-MVP3.
 
 import { Loader2, Play, Settings, X } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Dialogs } from "@wailsio/runtime";
 
 import { engine } from "../bridge/engine";
@@ -243,29 +243,48 @@ export function JenniferProfilePage(): JSX.Element {
   const msaEdges: any[] = result?.tables?.msa_edges ?? [];
   const signatureStats: any[] = result?.series?.signature_statistics ?? [];
   const [profileTimelineActivated, setProfileTimelineActivated] = useState(false);
+  const hasResult = Boolean(result);
 
   // primaryRootApplication: pick the first GUID group's root for the
   // topology / per-service ordering. When the result spans multiple
   // unrelated traces, the topology still merges them but the root
   // hint anchors the most-frequent caller at the top.
-  const primaryRootApplication: string | undefined = guidGroups.find(
-    (g) => g?.root_application,
-  )?.root_application;
+  const primaryRootApplication: string | undefined = useMemo(
+    () => guidGroups.find((g) => g?.root_application)?.root_application,
+    [guidGroups],
+  );
 
   // topologyEdges flattens every group's call_graph into one
   // caller→callee list — these are the matched edges with timing
   // metadata, used by the topology graph and the overall timeline.
-  const topologyEdges: any[] = guidGroups.flatMap((g) => g?.call_graph ?? []);
+  const topologyEdges: any[] = useMemo(
+    () => guidGroups.flatMap((g) => g?.call_graph ?? []),
+    [guidGroups],
+  );
 
   // overallTimelineEdges keeps the unmatched edges too (with caller-
   // side timing) so the MSA timeline can show "this call had no
   // matching callee profile" alongside healthy ones. We backfill
   // missing match_status as MATCHED for call_graph entries because
   // call_graph only carries matched edges.
-  const overallTimelineEdges: any[] = [
-    ...topologyEdges.map((e) => ({ ...e, match_status: e.match_status ?? "MATCHED" })),
-    ...msaEdges.filter((e) => e?.match_status && e.match_status !== "MATCHED"),
-  ];
+  const overallTimelineEdges: any[] = useMemo(
+    () => [
+      ...topologyEdges.map((e) => ({
+        ...e,
+        match_status: e.match_status ?? "MATCHED",
+      })),
+      ...msaEdges.filter((e) => e?.match_status && e.match_status !== "MATCHED"),
+    ],
+    [topologyEdges, msaEdges],
+  );
+
+  const emptyResultCard = (
+    <Card>
+      <CardContent className="p-4 text-xs text-muted-foreground">
+        분석 결과가 없습니다.
+      </CardContent>
+    </Card>
+  );
 
   const handleRecentSelect = (entry: {
     path: string;
@@ -433,8 +452,7 @@ export function JenniferProfilePage(): JSX.Element {
         </div>
       )}
 
-      {result && (
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList>
             <TabsTrigger value="summary">요약</TabsTrigger>
             <TabsTrigger value="msa">MSA</TabsTrigger>
@@ -443,6 +461,10 @@ export function JenniferProfilePage(): JSX.Element {
           </TabsList>
 
           <TabsContent value="summary" className="mt-4 flex flex-col gap-4">
+          {!hasResult ? (
+            emptyResultCard
+          ) : (
+          <>
           <section className="grid grid-cols-2 gap-3 sm:grid-cols-4 xl:grid-cols-8">
             <MetricCard
               label="Total files"
@@ -930,9 +952,15 @@ export function JenniferProfilePage(): JSX.Element {
               </table>
             </CardContent>
           </Card>
+          </>
+          )}
           </TabsContent>
 
           <TabsContent value="msa" className="mt-4">
+            {!hasResult ? (
+              emptyResultCard
+            ) : (
+            <>
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm">
@@ -1007,9 +1035,15 @@ export function JenniferProfilePage(): JSX.Element {
                 />
               </div>
             )}
+            </>
+            )}
           </TabsContent>
 
           <TabsContent value="profiles" className="mt-4 flex flex-col gap-4">
+            {!hasResult ? (
+              emptyResultCard
+            ) : (
+            <>
             <div className="flex items-center justify-between gap-3">
               <div className="text-xs text-muted-foreground">
                 메인 Caller 서비스가 맨 위. 호출 시각 순으로 가로 막대로 표시.
@@ -1037,9 +1071,15 @@ export function JenniferProfilePage(): JSX.Element {
               rootApplication={primaryRootApplication}
               useResponseTimeOrder={profileTimelineActivated}
             />
+            </>
+            )}
           </TabsContent>
 
           <TabsContent value="parser" className="mt-4">
+            {!hasResult ? (
+              emptyResultCard
+            ) : (
+            <>
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm">파서 보고서</CardTitle>
@@ -1175,9 +1215,10 @@ export function JenniferProfilePage(): JSX.Element {
                 })()}
               </CardContent>
             </Card>
+            </>
+            )}
           </TabsContent>
-        </Tabs>
-      )}
+      </Tabs>
     </main>
   );
 }

@@ -115,14 +115,13 @@ func buildFlameTreeWithLog(stacks map[string]int, pl *ProgressLog) FlameNode {
 			continue
 		}
 		current := root
-		path = path[:0]
-		for _, frame := range splitStack(stack) {
-			path = append(path, frame)
+		frames := splitStackInto(path[:0], stack)
+		for idx, frame := range frames {
 			child := current.Children[frame]
 			if child == nil {
 				parentID := current.ID
 				child = &mutableNode{
-					ID:       nodeID(path),
+					ID:       nodeID(frames[:idx+1]),
 					ParentID: &parentID,
 					Name:     frame,
 					Children: map[string]*mutableNode{},
@@ -133,6 +132,7 @@ func buildFlameTreeWithLog(stacks map[string]int, pl *ProgressLog) FlameNode {
 			child.Samples += samples
 			current = child
 		}
+		path = frames
 		consumed++
 		if pl != nil && consumed%tickEvery == 0 {
 			pl.Tick("build stacks=%d/%d nodes=%d", consumed, len(stacks), totalNodes)

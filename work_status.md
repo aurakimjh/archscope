@@ -38,6 +38,13 @@ The previous long-form history was archived to
 - Completed release verification for `v0.3.0-rc1`: local macOS Wails package,
   DMG validation, CLI analysis/export smoke tests, GitHub Release matrix review,
   and release asset checksum validation.
+- Changed Jennifer profile analysis tabs so Summary, MSA Timeline, Profile
+  Timeline, and Parser Report are visible before a file is analyzed.
+- Optimized hot parser/profiler paths for common nginx access logs with
+  response time and collapsed-stack flame graph construction.
+- Optimized large graph rendering paths by capping displayed MSA timeline bars,
+  reducing ECharts animation/resize churn, and using row-bucket hit testing for
+  canvas flame graph hover lookup.
 
 ## Current Risk
 
@@ -50,6 +57,11 @@ Release verification found no new blocker. Direct Windows GUI launch was not
 performed in the local macOS environment; Windows confidence currently comes
 from GitHub Actions Windows test/build/package success plus release artifact
 checksum and PE inspection.
+
+The MSA timeline discoverability issue is closed: the tab list now renders
+before analysis and each tab shows a neutral empty-result state until data is
+available. Large MSA timelines are display-capped for browser responsiveness;
+the underlying `AnalysisResult` tables remain unchanged.
 
 Remaining large-file risk is concentrated in structured formats that naturally
 require object materialization, such as JFR JSON, Node diagnostic reports, jcmd
@@ -68,8 +80,8 @@ filtered before analysis.
 
 ## Next Execution Queue
 
-1. Commit/push the Go 1.26.3 and version-metadata alignment, then let CI verify
-   the updated workflow definitions on `main`.
+1. Monitor CI after the next push to confirm the version and performance
+   changes on `main`.
 2. Perform direct Windows GUI launch smoke-test on a Windows host/VM before the
    next non-RC release.
 3. Consider deeper GC event streaming if future real-world logs exceed the
@@ -94,6 +106,9 @@ filtered before analysis.
 | T-402 | P2 | [x] | Updated English/Korean parser and performance docs with warning thresholds, stream-only paths, max-lines/time filters, output downsampling, and UI messaging for large inputs. | T-393, T-397 | Current large-file operations guide |
 | T-403 | P0 | [x] | Updated local Go to `go1.26.3`, set `go.mod`/`go.work` to Go 1.26.3, moved CI/release workflows to `go-version: 1.26.x`, aligned release Node setup to 22, added the missing `0.3.0-rc1` changelog entry, and corrected Android build metadata from `1.0` to `0.3.0-rc1`. | Release verification request | Version/toolchain baseline aligned |
 | T-404 | P0 | [x] | Verified the `v0.3.0-rc1` release path locally and remotely: Go vet/build/race tests, frontend build, Wails macOS package, app launch smoke, code signature check, DMG checksum, CLI analysis/export smoke tests, GitHub Release matrix review, and release asset SHA256 validation. | T-403 | Release verification evidence captured |
+| T-405 | P1 | [x] | Made Jennifer profile tabs visible before analysis and added a consistent empty-result state for Summary, MSA Timeline, Profile Timeline, and Parser Report. | Jennifer profile UI | MSA timeline menu discoverable before analysis |
+| T-406 | P1 | [x] | Added a fast path for common nginx access-log lines with trailing response time, preserved fallback parsing, and reduced collapsed profiler stack-splitting/whitespace-scan allocations. | Large-log audit findings | Faster parser/profiler hot paths |
+| T-407 | P1 | [x] | Optimized graph rendering for large results: MSA timeline display cap and row-index map, ECharts canvas/no-animation/lazy resize updates, and row-bucket hit testing for canvas flame graph hover. | T-405, graph UI components | Lower browser render and interaction cost |
 
 ## Verification Notes
 
@@ -128,6 +143,14 @@ filtered before analysis.
 - Downloaded release assets matched `SHA256SUMS`; Windows zip contains an
   x86-64 `archscope.exe`, while the NSIS installer wrapper is a 32-bit PE
   self-extractor as expected.
+- 2026-05-10 UI/performance pass: `npm run build` passed for the Wails
+  frontend; Vite still reports the existing >500 KB main chunk warning.
+- `go test ./internal/parsers/accesslog ./internal/profiler` and
+  `go test ./...` passed under `apps/engine-native` using `/tmp` Go caches.
+- Parser/profiler benchmarks after the hot-path changes:
+  `BenchmarkParseLineNginxWithResponseTime` 165.4 ns/op, 144 B/op, 1 alloc/op;
+  `BenchmarkAnalyzeCollapsedSampleWall` 86.7 ms/op, 53.6 KB/op, 549 allocs/op;
+  `BenchmarkAnalyzeJenniferSample` 41.5 us/op, 41.3 KB/op, 422 allocs/op.
 
 ## Decisions
 

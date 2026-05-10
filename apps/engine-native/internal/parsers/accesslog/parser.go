@@ -46,7 +46,9 @@ import (
 	"regexp"
 	"sort"
 	"strconv"
+	"strings"
 	"time"
+	"unicode"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/diagnostics"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/textio"
@@ -137,6 +139,10 @@ type parseError struct {
 // Returns (record, nil) on success, (nil, *parseError) on a
 // classified rejection. Mirrors Python `_parse_nginx_access_line`.
 func ParseLine(line string) (*Record, *parseError) {
+	if record, perr, ok := fastParseNginxWithResponseTime(line); ok {
+		return record, perr
+	}
+
 	groups, hasResponseTime := matchAny(line)
 	if groups == nil {
 		return nil, &parseError{Reason: ReasonNoFormatMatch, Message: "Line does not match supported access log formats."}
@@ -184,6 +190,141 @@ func ParseLine(line string) (*Record, *parseError) {
 		Referer:        groups["referer"],
 		RawLine:        line,
 	}, nil
+}
+
+func fastParseNginxWithResponseTime(line string) (*Record, *parseError, bool) {
+	clientEnd := strings.IndexByte(line, ' ')
+	if clientEnd <= 0 {
+		return nil, nil, false
+	}
+	clientIP := line[:clientEnd]
+
+	openTS := strings.IndexByte(line[clientEnd+1:], '[')
+	if openTS < 0 {
+		return nil, nil, false
+	}
+	openTS += clientEnd + 1
+	closeTS := strings.IndexByte(line[openTS+1:], ']')
+	if closeTS < 0 {
+		return nil, nil, false
+	}
+	closeTS += openTS + 1
+
+	pos := skipSpaces(line, closeTS+1)
+	request, pos, ok := nextQuotedField(line, pos)
+	if !ok {
+		return nil, nil, false
+	}
+	method, uri, ok := splitRequestLine(request)
+	if !ok {
+		return nil, nil, false
+	}
+
+	pos = skipSpaces(line, pos)
+	statusText, pos, ok := nextToken(line, pos)
+	if !ok {
+		return nil, nil, false
+	}
+	bytesText, pos, ok := nextToken(line, pos)
+	if !ok {
+		return nil, nil, false
+	}
+	pos = skipSpaces(line, pos)
+	referer, pos, ok := nextQuotedField(line, pos)
+	if !ok {
+		return nil, nil, false
+	}
+	pos = skipSpaces(line, pos)
+	userAgent, pos, ok := nextQuotedField(line, pos)
+	if !ok {
+		return nil, nil, false
+	}
+	pos = skipSpaces(line, pos)
+	responseTimeText := line[pos:]
+	if responseTimeText == "" || strings.IndexFunc(responseTimeText, unicode.IsSpace) >= 0 {
+		return nil, nil, false
+	}
+
+	ts, err := timeutil.ParseNginxTimestamp(line[openTS+1 : closeTS])
+	if err != nil {
+		return nil, &parseError{Reason: ReasonInvalidTimestamp, Message: "Timestamp does not match nginx format."}, true
+	}
+	status, err := strconv.Atoi(statusText)
+	if err != nil {
+		return nil, &parseError{Reason: ReasonInvalidNumber, Message: "Numeric field could not be parsed."}, true
+	}
+	bytesSent := 0
+	if bytesText != "-" {
+		bytesSent, err = strconv.Atoi(bytesText)
+		if err != nil {
+			return nil, &parseError{Reason: ReasonInvalidNumber, Message: "Numeric field could not be parsed."}, true
+		}
+	}
+	sec, err := strconv.ParseFloat(responseTimeText, 64)
+	if err != nil {
+		return nil, &parseError{Reason: ReasonInvalidNumber, Message: "Numeric field could not be parsed."}, true
+	}
+	responseTimeMS := sec * 1000
+	if status < 100 || status > 999 || bytesSent < 0 || math.IsNaN(responseTimeMS) || math.IsInf(responseTimeMS, 0) || responseTimeMS < 0 {
+		return nil, &parseError{Reason: ReasonInvalidNumber, Message: "Numeric field is outside the valid range."}, true
+	}
+
+	return &Record{
+		Timestamp:      ts,
+		Method:         method,
+		URI:            uri,
+		Status:         status,
+		ResponseTimeMS: responseTimeMS,
+		BytesSent:      bytesSent,
+		ClientIP:       clientIP,
+		UserAgent:      userAgent,
+		Referer:        referer,
+		RawLine:        line,
+	}, nil, true
+}
+
+func skipSpaces(line string, pos int) int {
+	for pos < len(line) && line[pos] == ' ' {
+		pos++
+	}
+	return pos
+}
+
+func nextToken(line string, pos int) (string, int, bool) {
+	if pos >= len(line) || line[pos] == ' ' {
+		return "", pos, false
+	}
+	end := strings.IndexByte(line[pos:], ' ')
+	if end < 0 {
+		return line[pos:], len(line), true
+	}
+	end += pos
+	return line[pos:end], skipSpaces(line, end), true
+}
+
+func nextQuotedField(line string, pos int) (string, int, bool) {
+	if pos >= len(line) || line[pos] != '"' {
+		return "", pos, false
+	}
+	end := strings.IndexByte(line[pos+1:], '"')
+	if end < 0 {
+		return "", pos, false
+	}
+	end += pos + 1
+	return line[pos+1 : end], end + 1, true
+}
+
+func splitRequestLine(request string) (method, uri string, ok bool) {
+	first := strings.IndexByte(request, ' ')
+	if first <= 0 {
+		return "", "", false
+	}
+	rest := request[first+1:]
+	second := strings.IndexByte(rest, ' ')
+	if second <= 0 || second == len(rest)-1 {
+		return "", "", false
+	}
+	return request[:first], rest[:second], true
 }
 
 // matchAny tries the three regex variants in order, returning the

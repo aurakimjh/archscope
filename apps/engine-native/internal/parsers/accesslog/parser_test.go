@@ -1,12 +1,12 @@
 // [한글] accesslog parser 회귀 테스트.
 //
 // 검증 대상
-//   • nginx / combined / common 3개 regex 가 우선순위대로 시도.
-//   • 시간 파싱 (`27/Apr/2026:10:00:01 +0900`) 의 timezone 정확.
-//   • 정상 미매칭 라인은 skip + diagnostics.SkippedRecords 증가.
-//   • Strict=true 면 첫 skip 이 fatal error.
-//   • MaxLines / StartTime / EndTime 필터.
-//   • UTF-8 BOM / 다양한 line ending(\r\n) 처리.
+//   - nginx / combined / common 3개 regex 가 우선순위대로 시도.
+//   - 시간 파싱 (`27/Apr/2026:10:00:01 +0900`) 의 timezone 정확.
+//   - 정상 미매칭 라인은 skip + diagnostics.SkippedRecords 증가.
+//   - Strict=true 면 첫 skip 이 fatal error.
+//   - MaxLines / StartTime / EndTime 필터.
+//   - UTF-8 BOM / 다양한 line ending(\r\n) 처리.
 package accesslog
 
 import (
@@ -85,6 +85,13 @@ func TestParseLineRejectsBadNumber(t *testing.T) {
 
 func TestParseLineRejectsNoFormat(t *testing.T) {
 	_, perr := ParseLine("not an access log line")
+	if perr == nil || perr.Reason != ReasonNoFormatMatch {
+		t.Fatalf("expected NO_FORMAT_MATCH, got %+v", perr)
+	}
+}
+
+func TestParseLineNginxTrailingSpaceStillRejects(t *testing.T) {
+	_, perr := ParseLine(nginxLine("", "", "", "") + " ")
 	if perr == nil || perr.Reason != ReasonNoFormatMatch {
 		t.Fatalf("expected NO_FORMAT_MATCH, got %+v", perr)
 	}
@@ -209,5 +216,16 @@ func TestParseFileEmptyFileWarns(t *testing.T) {
 	}
 	if len(diags.Warnings) == 0 || diags.Warnings[0].Reason != "EMPTY_FILE" {
 		t.Errorf("expected EMPTY_FILE warning, got %+v", diags.Warnings)
+	}
+}
+
+func BenchmarkParseLineNginxWithResponseTime(b *testing.B) {
+	line := nginxLine("", "/api/orders/1001?status=ready", "200", "0.123")
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		rec, perr := ParseLine(line)
+		if perr != nil || rec == nil {
+			b.Fatalf("ParseLine = %+v, %+v", rec, perr)
+		}
 	}
 }

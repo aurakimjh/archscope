@@ -19,6 +19,9 @@ import { useEffect, useMemo, useRef } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
+const DEFAULT_MAX_BARS = 2_000;
+const LABEL_RENDER_LIMIT = 300;
+
 export type MsaTimelineEdge = {
   caller_application: string;
   callee_application?: string;
@@ -44,6 +47,7 @@ export type MsaTimelineProps = {
    *  rather than absolute caller_event_start_ms. */
   useResponseTimeOrder?: boolean;
   height?: number;
+  maxBars?: number;
 };
 
 export function MsaTimeline({
@@ -53,24 +57,31 @@ export function MsaTimeline({
   rootApplication,
   useResponseTimeOrder = false,
   height,
+  maxBars = DEFAULT_MAX_BARS,
 }: MsaTimelineProps): JSX.Element {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<echarts.ECharts | null>(null);
 
-  const { option, rowCount } = useMemo(() => {
+  const { option, rowCount, visibleCount, totalCount } = useMemo(() => {
     const items = edges.filter(
       (e) =>
         Number.isFinite(e.external_call_elapsed_ms) &&
         (e.external_call_elapsed_ms ?? 0) > 0,
     );
     if (items.length === 0) {
-      return { option: {} as EChartsOption, rowCount: 0 };
+      return {
+        option: {} as EChartsOption,
+        rowCount: 0,
+        visibleCount: 0,
+        totalCount: 0,
+      };
     }
+    const cappedItems = limitTimelineEdges(items, maxBars, mode);
 
     // Compute a min-time anchor so the x-axis is "ms since first
     // call in the trace" — easier to read than absolute ms-since-
     // midnight.
-    const t0 = items.reduce(
+    const t0 = cappedItems.reduce(
       (acc, e) => Math.min(acc, e.caller_event_start_ms ?? Infinity),
       Infinity,
     );
@@ -83,25 +94,33 @@ export function MsaTimeline({
       label: string;
       color: string;
       tooltip: string;
+      rowIndex: number;
     };
     const bars: Bar[] = [];
     const rowSet: string[] = [];
-    const pushRow = (r: string) => {
-      if (!rowSet.includes(r)) rowSet.push(r);
+    const rowIndexByName = new Map<string, number>();
+    const pushRow = (r: string): number => {
+      const existing = rowIndexByName.get(r);
+      if (existing != null) return existing;
+      const idx = rowSet.length;
+      rowSet.push(r);
+      rowIndexByName.set(r, idx);
+      return idx;
     };
 
     if (mode === "overall") {
-      const sorted = [...items].sort(
+      const sorted = [...cappedItems].sort(
         (a, b) =>
           (a.caller_event_start_ms ?? 0) - (b.caller_event_start_ms ?? 0),
       );
       sorted.forEach((e, idx) => {
         const row = `${idx + 1}. ${e.caller_application || "?"} → ${e.callee_application || "?"}`;
-        pushRow(row);
+        const rowIndex = pushRow(row);
         const start = (e.caller_event_start_ms ?? 0) - anchor;
         const elapsed = e.external_call_elapsed_ms ?? 0;
         bars.push({
           row,
+          rowIndex,
           start,
           end: start + elapsed,
           label: `${elapsed} ms`,
@@ -114,7 +133,7 @@ export function MsaTimeline({
       // bars are positioned either by absolute start (default) or
       // by response-time order ("활성화" mode).
       const byService = new Map<string, MsaTimelineEdge[]>();
-      for (const e of items) {
+      for (const e of cappedItems) {
         const k = e.caller_application || "?";
         const list = byService.get(k) ?? [];
         list.push(e);
@@ -136,7 +155,7 @@ export function MsaTimeline({
         return bTotal - aTotal;
       });
       for (const svc of services) {
-        pushRow(svc);
+        const rowIndex = pushRow(svc);
         const calls = byService.get(svc) ?? [];
         if (useResponseTimeOrder) {
           // Response-time mode: bars are stacked left→right in the
@@ -152,6 +171,7 @@ export function MsaTimeline({
             const elapsed = e.external_call_elapsed_ms ?? 0;
             bars.push({
               row: svc,
+              rowIndex,
               start: cursor,
               end: cursor + elapsed,
               label: `${e.callee_application ?? "?"} ${elapsed} ms`,
@@ -166,6 +186,7 @@ export function MsaTimeline({
             const elapsed = e.external_call_elapsed_ms ?? 0;
             bars.push({
               row: svc,
+              rowIndex,
               start,
               end: start + elapsed,
               label: `→ ${e.callee_application ?? "?"} ${elapsed} ms`,
@@ -178,11 +199,13 @@ export function MsaTimeline({
     }
 
     const data = bars.map((b) => ({
-      value: [rowSet.indexOf(b.row), b.start, b.end, b.label, b.color, b.tooltip],
+      value: [b.rowIndex, b.start, b.end, b.label, b.color, b.tooltip],
       itemStyle: { color: b.color },
     }));
+    const showLabels = bars.length <= LABEL_RENDER_LIMIT;
 
     const opt: EChartsOption = {
+      animation: false,
       tooltip: {
         formatter: (p: any) => p.value?.[5] ?? "",
       },
@@ -233,35 +256,53 @@ export function MsaTimeline({
                 lineWidth: 0.5,
                 opacity: 0.85,
               }),
-              textContent: {
-                style: {
-                  text: label,
-                  fontSize: 10,
-                  fill: "#0f172a",
-                },
-              },
-              textConfig: {
-                position: "right",
-              },
+              ...(showLabels
+                ? {
+                    textContent: {
+                      style: {
+                        text: label,
+                        fontSize: 10,
+                        fill: "#0f172a",
+                      },
+                    },
+                    textConfig: {
+                      position: "right",
+                    },
+                  }
+                : {}),
             };
           },
           data,
+          progressive: 400,
+          progressiveThreshold: 800,
         } as any,
       ],
     };
-    return { option: opt, rowCount: rowSet.length };
-  }, [edges, mode, rootApplication, useResponseTimeOrder]);
+    return {
+      option: opt,
+      rowCount: rowSet.length,
+      visibleCount: cappedItems.length,
+      totalCount: items.length,
+    };
+  }, [edges, maxBars, mode, rootApplication, useResponseTimeOrder]);
 
   const finalHeight = height ?? Math.max(220, 60 + rowCount * 28);
 
   useEffect(() => {
     if (!containerRef.current) return;
-    const chart = echarts.init(containerRef.current);
+    const chart = echarts.init(containerRef.current, undefined, {
+      renderer: "canvas",
+    });
     chartRef.current = chart;
-    chart.setOption(option, { notMerge: true });
-    const ro = new ResizeObserver(() => chart.resize());
+    chart.setOption(option, { notMerge: true, lazyUpdate: true });
+    let resizeFrame = 0;
+    const ro = new ResizeObserver(() => {
+      if (resizeFrame) cancelAnimationFrame(resizeFrame);
+      resizeFrame = requestAnimationFrame(() => chart.resize());
+    });
     ro.observe(containerRef.current);
     return () => {
+      if (resizeFrame) cancelAnimationFrame(resizeFrame);
       ro.disconnect();
       chart.dispose();
       if (chartRef.current === chart) chartRef.current = null;
@@ -270,7 +311,7 @@ export function MsaTimeline({
   }, []);
 
   useEffect(() => {
-    chartRef.current?.setOption(option, { notMerge: true });
+    chartRef.current?.setOption(option, { notMerge: true, lazyUpdate: true });
   }, [option]);
 
   return (
@@ -284,11 +325,48 @@ export function MsaTimeline({
             타임라인에 표시할 외부 호출이 없습니다.
           </p>
         ) : (
-          <div ref={containerRef} style={{ width: "100%", height: finalHeight }} />
+          <>
+            {visibleCount < totalCount && (
+              <p className="mb-2 text-xs text-muted-foreground">
+                호출 {visibleCount.toLocaleString()} / {totalCount.toLocaleString()} 표시
+              </p>
+            )}
+            <div ref={containerRef} style={{ width: "100%", height: finalHeight }} />
+          </>
         )}
       </CardContent>
     </Card>
   );
+}
+
+function limitTimelineEdges(
+  items: MsaTimelineEdge[],
+  maxBars: number,
+  mode: "overall" | "by-service",
+): MsaTimelineEdge[] {
+  if (maxBars <= 0 || items.length <= maxBars) return items;
+  if (mode === "overall") {
+    const sorted = [...items].sort(
+      (a, b) => (a.caller_event_start_ms ?? 0) - (b.caller_event_start_ms ?? 0),
+    );
+    const out: MsaTimelineEdge[] = [];
+    const step = sorted.length / maxBars;
+    let lastIndex = -1;
+    for (let i = 0; i < maxBars; i += 1) {
+      const idx = Math.min(sorted.length - 1, Math.floor(i * step));
+      if (idx !== lastIndex) {
+        out.push(sorted[idx]);
+        lastIndex = idx;
+      }
+    }
+    return out;
+  }
+  return [...items]
+    .sort(
+      (a, b) =>
+        (b.external_call_elapsed_ms ?? 0) - (a.external_call_elapsed_ms ?? 0),
+    )
+    .slice(0, maxBars);
 }
 
 function edgeColor(e: MsaTimelineEdge): string {

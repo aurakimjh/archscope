@@ -11,7 +11,7 @@
 // ─────────────────────────────────────────────────────────────────────
 import * as echarts from "echarts";
 import type { EChartsOption } from "echarts";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -44,15 +44,26 @@ export function ChartPanel({
 }: ChartPanelProps): JSX.Element {
   const chartRef = useRef<HTMLDivElement | null>(null);
   const chartInstanceRef = useRef<echarts.ECharts | null>(null);
+  const optimizedOption = useMemo<EChartsOption>(
+    () => ({ animation: false, ...option }),
+    [option],
+  );
 
   useEffect(() => {
     if (!chartRef.current) return;
-    const chart = echarts.init(chartRef.current);
+    const chart = echarts.init(chartRef.current, undefined, {
+      renderer: "canvas",
+    });
     chartInstanceRef.current = chart;
-    chart.setOption(option, { notMerge: true, lazyUpdate: true });
-    const ro = new ResizeObserver(() => chart.resize());
+    chart.setOption(optimizedOption, { notMerge: true, lazyUpdate: true });
+    let resizeFrame = 0;
+    const ro = new ResizeObserver(() => {
+      if (resizeFrame) cancelAnimationFrame(resizeFrame);
+      resizeFrame = requestAnimationFrame(() => chart.resize());
+    });
     ro.observe(chartRef.current);
     return () => {
+      if (resizeFrame) cancelAnimationFrame(resizeFrame);
       ro.disconnect();
       chart.dispose();
       if (chartInstanceRef.current === chart) {
@@ -63,11 +74,11 @@ export function ChartPanel({
   }, []);
 
   useEffect(() => {
-    chartInstanceRef.current?.setOption(option, {
+    chartInstanceRef.current?.setOption(optimizedOption, {
       notMerge: true,
       lazyUpdate: true,
     });
-  }, [option]);
+  }, [optimizedOption]);
 
   return (
     <Card className={cn(className)} aria-busy={busy}>

@@ -50,11 +50,11 @@ var (
 
 // Collapsed-parser memory guards. The 70M-wall regression (process
 // killed by Windows OOM) was traced to:
-//   1. Per-line scanner buffer too small for very deep stacks; some
-//      Spring/Hibernate sample lines exceed 1MB.
-//   2. Unbounded unique-stack map: a 70MB collapsed profile can hold
-//      300k+ distinct stacks, each with 100+ frames, before tree
-//      construction.
+//  1. Per-line scanner buffer too small for very deep stacks; some
+//     Spring/Hibernate sample lines exceed 1MB.
+//  2. Unbounded unique-stack map: a 70MB collapsed profile can hold
+//     300k+ distinct stacks, each with 100+ frames, before tree
+//     construction.
 //
 // These constants are the defaults applied via normalizeOptions when
 // the renderer doesn't pass explicit values. They're tuned so a
@@ -68,14 +68,14 @@ var (
 // covering >99% of useful samples on real wall profiles.
 //
 // [한글] 메모리 가드 상수 모음.
-//   • defaultCollapsedScannerBuffer (64 MB) : 한 라인 최대 길이.
+//   - defaultCollapsedScannerBuffer (64 MB) : 한 라인 최대 길이.
 //     Spring/Hibernate 의 매우 깊은 stack 한 줄이 1MB 를 넘는 경우
 //     있어 넉넉히.
-//   • defaultMaxUniqueStacks (100k) / MaxStackDepth (128) :
+//   - defaultMaxUniqueStacks (100k) / MaxStackDepth (128) :
 //     70MB wall profile 가 ~1-2GB working-set 에 들어가도록 조정한 cap.
-//   • defaultMaxRSSMB (4GB) : soft RSS ceiling. 초과 시 친절한 에러
+//   - defaultMaxRSSMB (4GB) : soft RSS ceiling. 초과 시 친절한 에러
 //     반환 + progress log flush — OS SIGKILL 보다 사용자 경험이 좋음.
-//   • defaultMaxFlamegraphNodes (100k) : 렌더러 payload cap. 100k
+//   - defaultMaxFlamegraphNodes (100k) : 렌더러 payload cap. 100k
 //     노드 트리는 gzip 시 ~5 MB, canvas 가 끊김 없이 렌더 가능.
 //     <0 설정 시 pruning 끔.
 const (
@@ -281,6 +281,12 @@ func parseCollapsedLine(line string) (string, int, string, string) {
 }
 
 func lastWhitespace(value string) int {
+	for i := len(value) - 1; i >= 0; i-- {
+		switch value[i] {
+		case ' ', '\t', '\n', '\r', '\v', '\f':
+			return i
+		}
+	}
 	last := -1
 	for index, r := range value {
 		if unicode.IsSpace(r) {
