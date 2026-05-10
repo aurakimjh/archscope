@@ -5,12 +5,12 @@ desktop shell.
 
 ```text
 Wails desktop UI
-  apps/engine-native/cmd/archscope-profiler-app/frontend
+  apps/engine-native/cmd/archscope-app/frontend
         |
         v
 Wails services
   apps/engine-native/api
-  apps/engine-native/cmd/archscope-profiler-app/*service.go
+  apps/engine-native/cmd/archscope-app/*service.go
         |
         v
 Go engine
@@ -56,9 +56,9 @@ CLIs for CI and scripting.
 ```bash
 cd apps/engine-native
 go test ./...
-go build ./cmd/archscope-engine ./cmd/archscope-profiler
+go build ./cmd/archscope-engine ./cmd/archscope-app
 
-cd cmd/archscope-profiler-app/frontend
+cd cmd/archscope-app/frontend
 npm ci
 npm run build
 ```

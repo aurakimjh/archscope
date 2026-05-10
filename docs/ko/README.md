@@ -8,7 +8,7 @@ historical note로 취급합니다.
 
 | 독자 | 추천 시작 문서 |
 |------|----------------|
-| 처음 사용하는 분 | [네이티브 앱 가이드](./PROFILER_NATIVE.md) |
+| 처음 사용하는 분 | [네이티브 앱 가이드](./NATIVE_APP.md) |
 | 아키텍처 이해가 필요한 개발자 | [아키텍처](./ARCHITECTURE.md) → [데이터 모델](./DATA_MODEL.md) |
 | Parser/Analyzer 확장 개발자 | [파서 설계](./PARSER_DESIGN.md) → [런타임 분류](./RUNTIME_CLASSIFICATION.md) |
 | UI/차트 개발자 | [차트 설계](./CHART_DESIGN.md) → [Chart Studio 설계](./CHART_STUDIO_DESIGN.md) |
@@ -16,7 +16,7 @@ historical note로 취급합니다.
 
 ## 사용자 문서
 
-- [**네이티브 앱 가이드**](./PROFILER_NATIVE.md) — 현재 Go/Wails 빌드, 실행, 패키징, CLI
+- [**네이티브 앱 가이드**](./NATIVE_APP.md) — 현재 Go/Wails 빌드, 실행, 패키징, CLI
 - [사용자 가이드](./USER_GUIDE.md) — browser/FastAPI 경로 중심의 historical guide
 - [멀티 언어 Thread Dump 프레임워크](./MULTI_LANGUAGE_THREADS.md) — 6개 포맷 + 언어별 enrichment 매트릭스
 

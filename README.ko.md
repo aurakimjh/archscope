@@ -12,8 +12,7 @@ thread dump)를 분석해 공통 `AnalysisResult`, 차트, 진단, 보고서 산
 - `apps/engine-native/` — Go 엔진, parser/analyzer/exporter,
   profiler core, Cobra CLI, Wails 앱.
 - `apps/engine-native/cmd/archscope-engine` — CI와 스크립팅용 headless CLI.
-- `apps/engine-native/cmd/archscope-profiler` — profiler 전용 CLI.
-- `apps/engine-native/cmd/archscope-profiler-app` — Wails 데스크톱 앱.
+- `apps/engine-native/cmd/archscope-app` — Wails 데스크톱 앱.
 - `archive/python-engine/`, `archive/web-frontend-python/` — 폐기된
   Python/FastAPI/browser 구현. 참조와 이관 검증 용도로만 보관.
 
@@ -22,9 +21,9 @@ thread dump)를 분석해 공통 `AnalysisResult`, 차트, 진단, 보고서 산
 ```bash
 cd apps/engine-native
 go test ./...
-go build ./cmd/archscope-engine ./cmd/archscope-profiler
+go build ./cmd/archscope-engine ./cmd/archscope-app
 
-cd cmd/archscope-profiler-app/frontend
+cd cmd/archscope-app/frontend
 npm ci
 npm run build
 ```
@@ -43,7 +42,7 @@ npm run build
 ## 문서
 
 - [아키텍처](docs/ko/ARCHITECTURE.md)
-- [네이티브 앱 가이드](docs/ko/PROFILER_NATIVE.md)
+- [네이티브 앱 가이드](docs/ko/NATIVE_APP.md)
 - [AI 보조 해석](docs/ko/AI_INTERPRETATION.md)
 - [멀티 언어 thread dump](docs/ko/MULTI_LANGUAGE_THREADS.md)
 

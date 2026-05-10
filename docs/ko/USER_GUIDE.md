@@ -9,9 +9,9 @@ Python/FastAPI browser app은 `archive/`에 보관되어 있으며 권장 실행
 ```bash
 cd apps/engine-native
 go test ./...
-go build ./cmd/archscope-engine ./cmd/archscope-profiler
+go build ./cmd/archscope-engine ./cmd/archscope-app
 
-cd cmd/archscope-profiler-app/frontend
+cd cmd/archscope-app/frontend
 npm ci
 npm run build
 ```
@@ -21,7 +21,7 @@ npm run build
 ```bash
 git clone --depth 1 --branch v3.0.0-alpha.87 https://github.com/wailsapp/wails.git /tmp/wails
 (cd /tmp/wails/v3 && go install ./cmd/wails3)
-cd apps/engine-native/cmd/archscope-profiler-app
+cd apps/engine-native/cmd/archscope-app
 task package
 ```
 
@@ -46,7 +46,7 @@ go run ./cmd/archscope-engine thread-dump analyze \
 
 ## 네이티브 앱
 
-데스크톱 UI와 패키징 흐름은 `docs/ko/PROFILER_NATIVE.md`를 기준으로
+데스크톱 UI와 패키징 흐름은 `docs/ko/NATIVE_APP.md`를 기준으로
 확인하세요. Wails 앱은 profiler 분석과 Go 엔진의 일반 analyzer를 Wails
 서비스로 노출합니다.
 

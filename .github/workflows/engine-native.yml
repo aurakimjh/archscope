@@ -1,18 +1,31 @@
-name: CI
+name: Engine Native (Go + Wails)
 
 on:
   pull_request:
+    paths:
+      - "apps/engine-native/**"
+      - "examples/**"
+      - ".github/workflows/engine-native.yml"
   push:
     branches:
       - main
+    paths:
+      - "apps/engine-native/**"
+      - "examples/**"
+      - ".github/workflows/engine-native.yml"
+
+defaults:
+  run:
+    working-directory: apps/engine-native
 
 jobs:
-  engine-native:
-    name: Go Engine Native
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: apps/engine-native
+  go:
+    name: Go test/build (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-14, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,18 +38,22 @@ jobs:
           cache-dependency-path: apps/engine-native/go.sum
 
       - name: Linux WebKitGTK headers
+        if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev
 
-      - name: Test
-        run: go test ./...
+      - name: go vet
+        run: go vet ./...
 
-      - name: Build CLIs
+      - name: go build
         run: go build ./cmd/archscope-engine ./cmd/archscope-app
 
-  desktop-frontend:
-    name: Wails Frontend
+      - name: go test
+        run: go test ./... -race -count=1
+
+  wails-frontend:
+    name: Wails frontend build
     runs-on: ubuntu-latest
     defaults:
       run:

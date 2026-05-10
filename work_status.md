@@ -11,15 +11,14 @@ The previous long-form history was archived to
 - Active product: unified Go/Wails desktop implementation under
   `apps/engine-native`.
 - Active UI: Wails v3 React frontend under
-  `apps/engine-native/cmd/archscope-profiler-app/frontend`.
+  `apps/engine-native/cmd/archscope-app/frontend`.
 - Active engine: Go parser/analyzer/exporter/AI interpretation modules under
   `apps/engine-native/internal`.
 - Release baseline: `v0.3.0-rc1` has been rebuilt from the Go/Wails baseline
   and published as the latest GitHub release.
 - Retired implementation: Python/FastAPI/browser sources are archived under
   `archive/python-engine` and `archive/web-frontend-python`.
-- Historical module: `apps/profiler-native` has been folded into
-  `apps/engine-native`.
+- Historical native POC module has been folded into `apps/engine-native`.
 
 ## Completed In This Cycle
 
@@ -45,6 +44,9 @@ The previous long-form history was archived to
 - Optimized large graph rendering paths by capping displayed MSA timeline bars,
   reducing ECharts animation/resize churn, and using row-bucket hit testing for
   canvas flame graph hover lookup.
+- Removed POC-era profiler-suffixed command/app path names from the active
+  source and build surface; the desktop app now builds from
+  `apps/engine-native/cmd/archscope-app`.
 
 ## Current Risk
 
@@ -80,7 +82,7 @@ filtered before analysis.
 
 ## Next Execution Queue
 
-1. Monitor CI after the next push to confirm the version and performance
+1. Monitor CI after the next push to confirm the path rename and performance
    changes on `main`.
 2. Perform direct Windows GUI launch smoke-test on a Windows host/VM before the
    next non-RC release.
@@ -109,6 +111,7 @@ filtered before analysis.
 | T-405 | P1 | [x] | Made Jennifer profile tabs visible before analysis and added a consistent empty-result state for Summary, MSA Timeline, Profile Timeline, and Parser Report. | Jennifer profile UI | MSA timeline menu discoverable before analysis |
 | T-406 | P1 | [x] | Added a fast path for common nginx access-log lines with trailing response time, preserved fallback parsing, and reduced collapsed profiler stack-splitting/whitespace-scan allocations. | Large-log audit findings | Faster parser/profiler hot paths |
 | T-407 | P1 | [x] | Optimized graph rendering for large results: MSA timeline display cap and row-index map, ECharts canvas/no-animation/lazy resize updates, and row-bucket hit testing for canvas flame graph hover. | T-405, graph UI components | Lower browser render and interaction cost |
+| T-408 | P1 | [x] | Renamed the Wails app command tree to `cmd/archscope-app`, retired the duplicate POC CLI path in favor of `archscope-engine profiler ...`, renamed the native workflow/docs, and regenerated Wails bindings under the new path. | Official ArchScope naming | Build/source paths no longer expose POC-era profiler suffixes |
 
 ## Verification Notes
 
@@ -121,8 +124,8 @@ filtered before analysis.
 - Synthetic large-file measurements were captured with the current
   `cmd/archscope-engine` binary built from `apps/engine-native`.
 - 2026-05-10 release verification ran with local `go1.26.3`. `go vet ./...`,
-  `go build ./cmd/archscope-engine ./cmd/archscope-profiler
-  ./cmd/archscope-profiler-app`, and `go test ./... -race -count=1` passed
+  `go build ./cmd/archscope-engine ./cmd/archscope-app`, and
+  `go test ./... -race -count=1` passed
   under `apps/engine-native` using `/tmp` Go caches. The race test required
   loopback permission for `httptest`.
 - `npm ci` and `npm run build` passed for the Wails frontend. Vite still warns
@@ -151,6 +154,11 @@ filtered before analysis.
   `BenchmarkParseLineNginxWithResponseTime` 165.4 ns/op, 144 B/op, 1 alloc/op;
   `BenchmarkAnalyzeCollapsedSampleWall` 86.7 ms/op, 53.6 KB/op, 549 allocs/op;
   `BenchmarkAnalyzeJenniferSample` 41.5 us/op, 41.3 KB/op, 422 allocs/op.
+- 2026-05-10 naming cleanup: `go test ./...`, `go build
+  ./cmd/archscope-engine ./cmd/archscope-app`, `npm run build`, `task
+  package`, `task darwin:package:dmg ARCH=arm64`, `codesign --verify --deep
+  --strict bin/archscope.app`, and `hdiutil verify bin/archscope-arm64.dmg`
+  passed from the renamed `cmd/archscope-app` tree.
 
 ## Decisions
 

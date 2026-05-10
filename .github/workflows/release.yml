@@ -92,11 +92,11 @@ jobs:
 
       - name: Frontend deps
         run: npm install
-        working-directory: apps/engine-native/cmd/archscope-profiler-app/frontend
+        working-directory: apps/engine-native/cmd/archscope-app/frontend
 
       - name: Wails package
         run: task package
-        working-directory: apps/engine-native/cmd/archscope-profiler-app
+        working-directory: apps/engine-native/cmd/archscope-app
 
       # ── macOS: codesign with Developer ID if cert is in repo secrets ──
       - name: Import Developer ID certificate (macOS)
@@ -128,7 +128,7 @@ jobs:
           else
             echo "APPLE_DEVELOPER_ID secret not set; keeping ad-hoc signature."
           fi
-        working-directory: apps/engine-native/cmd/archscope-profiler-app
+        working-directory: apps/engine-native/cmd/archscope-app
 
       - name: Notarize
         if: startsWith(matrix.label, 'darwin-')
@@ -143,24 +143,24 @@ jobs:
           else
             echo "Notary credentials absent; skipping notarization."
           fi
-        working-directory: apps/engine-native/cmd/archscope-profiler-app
+        working-directory: apps/engine-native/cmd/archscope-app
 
       - name: Build DMG
         if: startsWith(matrix.label, 'darwin-')
         run: task darwin:package:dmg ARCH=${{ matrix.arch }}
-        working-directory: apps/engine-native/cmd/archscope-profiler-app
+        working-directory: apps/engine-native/cmd/archscope-app
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: archscope-${{ matrix.label }}
           path: |
-            apps/engine-native/cmd/archscope-profiler-app/bin/archscope.app/**
-            apps/engine-native/cmd/archscope-profiler-app/bin/*.dmg
-            apps/engine-native/cmd/archscope-profiler-app/bin/*.exe
-            apps/engine-native/cmd/archscope-profiler-app/bin/archscope
-            apps/engine-native/cmd/archscope-profiler-app/bin/*.deb
-            apps/engine-native/cmd/archscope-profiler-app/bin/*.rpm
+            apps/engine-native/cmd/archscope-app/bin/archscope.app/**
+            apps/engine-native/cmd/archscope-app/bin/*.dmg
+            apps/engine-native/cmd/archscope-app/bin/*.exe
+            apps/engine-native/cmd/archscope-app/bin/archscope
+            apps/engine-native/cmd/archscope-app/bin/*.deb
+            apps/engine-native/cmd/archscope-app/bin/*.rpm
           if-no-files-found: warn
 
   release:

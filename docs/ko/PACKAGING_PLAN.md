@@ -9,9 +9,9 @@ Python wheel 및 FastAPI browser server 경로는 폐기되어 `archive/`에
 ```bash
 cd apps/engine-native
 go test ./...
-go build ./cmd/archscope-engine ./cmd/archscope-profiler
+go build ./cmd/archscope-engine ./cmd/archscope-app
 
-cd cmd/archscope-profiler-app/frontend
+cd cmd/archscope-app/frontend
 npm ci
 npm run build
 
@@ -19,7 +19,7 @@ cd ..
 GOCACHE=/tmp/aiservice-go-cache task package
 ```
 
-산출물은 `apps/engine-native/cmd/archscope-profiler-app/bin/`에서
+산출물은 `apps/engine-native/cmd/archscope-app/bin/`에서
 생성됩니다.
 
 최신 로컬 검증(2026-05-09):
@@ -34,10 +34,10 @@ GOCACHE=/tmp/aiservice-go-cache task package
 ## CI와 릴리스
 
 - `.github/workflows/ci.yml`은 Go 테스트와 Wails frontend build를 수행합니다.
-- `.github/workflows/profiler-native.yml`은 cross-platform Go/Wails 검증
+- `.github/workflows/engine-native.yml`은 cross-platform Go/Wails 검증
   matrix입니다.
 - `.github/workflows/release.yml`은
-  `apps/engine-native/cmd/archscope-profiler-app`에서 Wails 앱을 패키징합니다.
+  `apps/engine-native/cmd/archscope-app`에서 Wails 앱을 패키징합니다.
 
 ## Historical Notes
 

@@ -1,8 +1,8 @@
 # engine-native
 
 `apps/engine-native` is the active ArchScope implementation. It contains
-the Go analysis engine, the profiler core formerly located under
-`apps/profiler-native`, the Cobra CLIs, and the Wails desktop app.
+the Go analysis engine, the consolidated profiling core, the Cobra CLI,
+and the Wails desktop app.
 
 The retired Python implementation has been moved to `archive/`; it is no
 longer the shipping path.
@@ -14,8 +14,7 @@ apps/engine-native/
   api/                         Wails service API bindings
   cmd/
     archscope-engine/          Headless Cobra CLI for all analyzers
-    archscope-profiler/        Profiler-focused CLI
-    archscope-profiler-app/    Wails desktop app + React frontend
+    archscope-app/             Wails desktop app + React frontend
   internal/
     aiinterpretation/          Evidence-bound local AI interpretation
     analyzers/                 Access log, GC, JFR, thread dump, etc.
@@ -33,9 +32,9 @@ apps/engine-native/
 ```bash
 cd apps/engine-native
 go test ./...
-go build ./cmd/archscope-engine ./cmd/archscope-profiler
+go build ./cmd/archscope-engine ./cmd/archscope-app
 
-cd cmd/archscope-profiler-app/frontend
+cd cmd/archscope-app/frontend
 npm ci
 npm run build
 ```
@@ -46,7 +45,7 @@ Desktop packaging requires the Wails v3 CLI and Task:
 git clone --depth 1 --branch v3.0.0-alpha.87 https://github.com/wailsapp/wails.git /tmp/wails
 (cd /tmp/wails/v3 && go install ./cmd/wails3)
 brew install go-task
-cd apps/engine-native/cmd/archscope-profiler-app
+cd apps/engine-native/cmd/archscope-app
 GOCACHE=/tmp/aiservice-go-cache task package
 ```
 
@@ -66,5 +65,5 @@ Current local packaging verification (2026-05-09):
   and is serialized directly by profiler CLI commands.
 - AI interpretation is implemented under `internal/aiinterpretation` and
   accepts only localhost LLM URLs.
-- `.github/workflows/profiler-native.yml` now validates this unified Go
+- `.github/workflows/engine-native.yml` now validates this unified Go
   module and Wails frontend.

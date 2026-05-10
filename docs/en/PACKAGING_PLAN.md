@@ -9,9 +9,9 @@ under `archive/`.
 ```bash
 cd apps/engine-native
 go test ./...
-go build ./cmd/archscope-engine ./cmd/archscope-profiler
+go build ./cmd/archscope-engine ./cmd/archscope-app
 
-cd cmd/archscope-profiler-app/frontend
+cd cmd/archscope-app/frontend
 npm ci
 npm run build
 
@@ -20,7 +20,7 @@ GOCACHE=/tmp/aiservice-go-cache task package
 ```
 
 Artifacts are produced from
-`apps/engine-native/cmd/archscope-profiler-app/bin/`.
+`apps/engine-native/cmd/archscope-app/bin/`.
 
 Latest local verification (2026-05-09):
 
@@ -35,10 +35,10 @@ Latest local verification (2026-05-09):
 ## CI And Release
 
 - `.github/workflows/ci.yml` runs Go tests and Wails frontend build.
-- `.github/workflows/profiler-native.yml` runs the cross-platform
+- `.github/workflows/engine-native.yml` runs the cross-platform
   Go/Wails validation matrix.
 - `.github/workflows/release.yml` packages the Wails app from
-  `apps/engine-native/cmd/archscope-profiler-app`.
+  `apps/engine-native/cmd/archscope-app`.
 
 ## Historical Notes
 

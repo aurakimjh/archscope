@@ -6,14 +6,14 @@ historical unless they explicitly reference `archive/`.
 
 User-facing guides:
 
-- [Native App](./PROFILER_NATIVE.md) — build, run, package, and CLI entry points.
+- [Native App](./NATIVE_APP.md) — build, run, package, and CLI entry points.
 - [User Guide](./USER_GUIDE.md) — historical browser guide; use the native app guide for current builds.
 - [Multi-language Thread Dumps](./MULTI_LANGUAGE_THREADS.md) — six-format support matrix and per-language enrichment rules.
 
 Engineering / design references:
 
 - [Architecture](./ARCHITECTURE.md)
-- [Native App](./PROFILER_NATIVE.md)
+- [Native App](./NATIVE_APP.md)
 - [Roadmap](./ROADMAP.md)
 - [Data Model](./DATA_MODEL.md)
 - [Parser Design](./PARSER_DESIGN.md)

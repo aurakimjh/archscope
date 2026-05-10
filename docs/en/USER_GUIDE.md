@@ -9,9 +9,9 @@ the recommended path.
 ```bash
 cd apps/engine-native
 go test ./...
-go build ./cmd/archscope-engine ./cmd/archscope-profiler
+go build ./cmd/archscope-engine ./cmd/archscope-app
 
-cd cmd/archscope-profiler-app/frontend
+cd cmd/archscope-app/frontend
 npm ci
 npm run build
 ```
@@ -21,7 +21,7 @@ For desktop packaging:
 ```bash
 git clone --depth 1 --branch v3.0.0-alpha.87 https://github.com/wailsapp/wails.git /tmp/wails
 (cd /tmp/wails/v3 && go install ./cmd/wails3)
-cd apps/engine-native/cmd/archscope-profiler-app
+cd apps/engine-native/cmd/archscope-app
 task package
 ```
 
@@ -46,7 +46,7 @@ go run ./cmd/archscope-engine thread-dump analyze \
 
 ## Native App
 
-Use `docs/en/PROFILER_NATIVE.md` for the desktop UI and packaging
+Use `docs/en/NATIVE_APP.md` for the desktop UI and packaging
 workflow. The Wails app exposes profiler analysis plus the broader Go
 engine analyzers through Wails services.
 

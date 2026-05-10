@@ -13,8 +13,7 @@ service.
   profiler core, Cobra CLIs, and Wails app.
 - `apps/engine-native/cmd/archscope-engine` — headless CLI for analysis,
   CI, and scripted workflows.
-- `apps/engine-native/cmd/archscope-profiler` — profiler-focused CLI.
-- `apps/engine-native/cmd/archscope-profiler-app` — Wails desktop app.
+- `apps/engine-native/cmd/archscope-app` — Wails desktop app.
 - `archive/python-engine/` and `archive/web-frontend-python/` — retired
   Python/FastAPI/browser implementation kept for reference only.
 
@@ -23,9 +22,9 @@ service.
 ```bash
 cd apps/engine-native
 go test ./...
-go build ./cmd/archscope-engine ./cmd/archscope-profiler
+go build ./cmd/archscope-engine ./cmd/archscope-app
 
-cd cmd/archscope-profiler-app/frontend
+cd cmd/archscope-app/frontend
 npm ci
 npm run build
 ```
@@ -44,7 +43,7 @@ npm run build
 ## Docs
 
 - [Architecture](docs/en/ARCHITECTURE.md)
-- [Native app guide](docs/en/PROFILER_NATIVE.md)
+- [Native app guide](docs/en/NATIVE_APP.md)
 - [AI interpretation](docs/en/AI_INTERPRETATION.md)
 - [Multi-language thread dumps](docs/en/MULTI_LANGUAGE_THREADS.md)
 

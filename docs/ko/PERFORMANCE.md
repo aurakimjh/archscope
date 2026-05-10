@@ -8,13 +8,13 @@
 cd apps/engine-native
 go test ./...
 go test -bench=. -run=^$ ./internal/profiler
-go build -trimpath -ldflags="-s -w" ./cmd/archscope-engine ./cmd/archscope-profiler
+go build -trimpath -ldflags="-s -w" ./cmd/archscope-engine ./cmd/archscope-app
 ```
 
 프론트엔드 빌드 크기:
 
 ```bash
-cd apps/engine-native/cmd/archscope-profiler-app/frontend
+cd apps/engine-native/cmd/archscope-app/frontend
 npm ci
 npm run build
 ```

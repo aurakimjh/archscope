@@ -15,9 +15,9 @@ preserved under `archive/` for reference and migration audits only.
 ```bash
 cd apps/engine-native
 go test ./...
-go build ./cmd/archscope-engine ./cmd/archscope-profiler
+go build ./cmd/archscope-engine ./cmd/archscope-app
 
-cd cmd/archscope-profiler-app/frontend
+cd cmd/archscope-app/frontend
 npm ci
 npm run build
 ```
@@ -27,7 +27,7 @@ Desktop packaging:
 ```bash
 git clone --depth 1 --branch v3.0.0-alpha.87 https://github.com/wailsapp/wails.git /tmp/wails
 (cd /tmp/wails/v3 && go install ./cmd/wails3)
-cd apps/engine-native/cmd/archscope-profiler-app
+cd apps/engine-native/cmd/archscope-app
 task package
 ```
 
@@ -62,7 +62,7 @@ archscope/
 - [English documentation index](docs/en/README.md)
 - [Korean documentation index](docs/ko/README.md)
 - [Architecture](docs/en/ARCHITECTURE.md) · [아키텍처](docs/ko/ARCHITECTURE.md)
-- [Native app guide](docs/en/PROFILER_NATIVE.md) · [네이티브 앱 가이드](docs/ko/PROFILER_NATIVE.md)
+- [Native app guide](docs/en/NATIVE_APP.md) · [네이티브 앱 가이드](docs/ko/NATIVE_APP.md)
 
 ## Privacy
 

@@ -8,5 +8,5 @@ set -euo pipefail
 
 echo "The Python wheel build path has been retired."
 echo "Use: cd apps/engine-native && go build ./cmd/archscope-engine"
-echo "Use: cd apps/engine-native/cmd/archscope-profiler-app && task package"
+echo "Use: cd apps/engine-native/cmd/archscope-app && task package"
 exit 2
