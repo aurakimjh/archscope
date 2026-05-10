@@ -205,6 +205,8 @@ export function MsaResponseTimeBreakdown({
                     <th className="px-3 py-2 text-right font-medium">횟수</th>
                     <th className="px-3 py-2 text-right font-medium">총 elapsed</th>
                     <th className="px-3 py-2 text-right font-medium">avg</th>
+                    <th className="px-3 py-2 text-right font-medium">network avg</th>
+                    <th className="px-3 py-2 text-right font-medium">network max</th>
                     <th className="px-3 py-2 text-right font-medium">max</th>
                   </tr>
                 </thead>
@@ -225,6 +227,16 @@ export function MsaResponseTimeBreakdown({
                       </td>
                       <td className="px-3 py-2 text-right tabular-nums">
                         {Math.round(p.totalMs / p.count).toLocaleString()} ms
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums">
+                        {p.networkCount > 0
+                          ? `${Math.round(p.networkMs / p.networkCount).toLocaleString()} ms`
+                          : "—"}
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums">
+                        {p.networkCount > 0
+                          ? `${Math.round(p.maxNetworkMs).toLocaleString()} ms`
+                          : "—"}
                       </td>
                       <td className="px-3 py-2 text-right tabular-nums">
                         {Math.round(p.maxMs).toLocaleString()} ms
@@ -352,24 +364,67 @@ function GroupRow({
 
 function aggregateCallPairs(
   edges: any[],
-): Array<{ caller: string; callee: string; count: number; totalMs: number; maxMs: number }> {
+): Array<{
+  caller: string;
+  callee: string;
+  count: number;
+  totalMs: number;
+  maxMs: number;
+  networkMs: number;
+  networkCount: number;
+  maxNetworkMs: number;
+}> {
   const acc: Record<
     string,
-    { caller: string; callee: string; count: number; totalMs: number; maxMs: number }
+    {
+      caller: string;
+      callee: string;
+      count: number;
+      totalMs: number;
+      maxMs: number;
+      networkMs: number;
+      networkCount: number;
+      maxNetworkMs: number;
+    }
   > = {};
   for (const e of edges ?? []) {
     const caller = e?.caller_application ?? "?";
     const callee = e?.callee_application ?? e?.external_call_url ?? "?";
     const key = `${caller}::${callee}`;
     const ms = Number(e?.external_call_elapsed_ms ?? 0);
+    const network = networkGapValue(e);
     const cur = acc[key];
     if (!cur) {
-      acc[key] = { caller, callee, count: 1, totalMs: ms, maxMs: ms };
+      acc[key] = {
+        caller,
+        callee,
+        count: 1,
+        totalMs: ms,
+        maxMs: ms,
+        networkMs: network ?? 0,
+        networkCount: network == null ? 0 : 1,
+        maxNetworkMs: network ?? 0,
+      };
     } else {
       cur.count += 1;
       cur.totalMs += ms;
       if (ms > cur.maxMs) cur.maxMs = ms;
+      if (network != null) {
+        cur.networkMs += network;
+        cur.networkCount += 1;
+        if (network > cur.maxNetworkMs) cur.maxNetworkMs = network;
+      }
     }
   }
   return Object.values(acc).sort((a, b) => b.totalMs - a.totalMs);
+}
+
+function networkGapValue(edge: any): number | undefined {
+  const raw =
+    edge?.adjusted_network_gap_ms ??
+    edge?.network_gap_ms ??
+    edge?.raw_network_gap_ms;
+  if (raw == null) return undefined;
+  const value = Number(raw);
+  return Number.isFinite(value) ? Math.max(0, value) : undefined;
 }

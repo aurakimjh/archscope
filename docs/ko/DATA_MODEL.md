@@ -752,6 +752,19 @@ MSA 타임라인 매칭은 기존처럼 matched caller-to-callee edge를
   external_call_urls }`를 낸다. `target`은 query string/fragment를 제거하고
   숫자/UUID형 path ID를 `{id}`로 접어 같은 호출군이 묶이도록 한다.
 
+새 `series` row:
+
+- `service_call_network_summary` — matched MSA 호출을
+  `{ caller_application, callee_application }` 기준으로 묶는다. 각 row는
+  `call_count`, `guid_count`, `external_call_elapsed_ms`,
+  `callee_response_time_ms`, `network_gap_ms`, `avg_network_gap_ms`,
+  `p95_network_gap_ms`, `max_network_gap_ms`, `total_network_gap_ms`,
+  stable `network_time_group` / `network_time_group_label`을 포함한다.
+  네트워크 그룹은 평균 adjusted network gap 기준으로 `0-4 ms`,
+  `5-9 ms`, `10-19 ms`, `20-49 ms`, `50-99 ms`, `>=100 ms` band를
+  사용한다. UI 토폴로지는 이 그룹으로 node 위치를 나누어 서비스의
+  네트워크 거리/위치를 추정한다.
+
 변경된 `series.guid_groups[].metrics.response_time_breakdown`:
 
 - `unprofiled_external_call_ms`는 `method_time_ms` 계산 전에 차감한다.

@@ -48,6 +48,7 @@ package jenniferprofile
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/diagnostics"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
@@ -294,9 +295,10 @@ func Build(files []jenniferprofile.FileResult, opts Options) models.AnalysisResu
 		"unique_signature_count": len(signatureStats),
 	}
 	result.Series = map[string]any{
-		"file_summary":         rowsBySource,
-		"guid_groups":          guidGroupRows,
-		"signature_statistics": signatureRows,
+		"file_summary":                 rowsBySource,
+		"guid_groups":                  guidGroupRows,
+		"signature_statistics":         signatureRows,
+		"service_call_network_summary": serviceCallNetworkSummaryRows(guidGroups),
 	}
 	result.Tables = map[string]any{
 		"profiles":                        profileRows,
@@ -369,6 +371,133 @@ func metricStatsToMap(m models.JenniferMetricStats) map[string]any {
 		"max":    m.Max,
 		"stddev": m.Stddev,
 	}
+}
+
+type networkTimeGroup struct {
+	Key   string
+	Label string
+	Index int
+}
+
+// classifyNetworkTimeGroup maps the observed network gap into a stable
+// latency band. The thresholds intentionally separate the single-digit
+// internal-call group from the double-digit gateway/external-call group.
+func classifyNetworkTimeGroup(ms float64) networkTimeGroup {
+	switch {
+	case ms < 5:
+		return networkTimeGroup{Key: "near_0_4_ms", Label: "0-4 ms", Index: 0}
+	case ms < 10:
+		return networkTimeGroup{Key: "internal_5_9_ms", Label: "5-9 ms", Index: 1}
+	case ms < 20:
+		return networkTimeGroup{Key: "cross_service_10_19_ms", Label: "10-19 ms", Index: 2}
+	case ms < 50:
+		return networkTimeGroup{Key: "gateway_external_20_49_ms", Label: "20-49 ms", Index: 3}
+	case ms < 100:
+		return networkTimeGroup{Key: "remote_50_99_ms", Label: "50-99 ms", Index: 4}
+	default:
+		return networkTimeGroup{Key: "slow_remote_ge_100_ms", Label: ">=100 ms", Index: 5}
+	}
+}
+
+func serviceCallNetworkSummaryRows(groups []models.JenniferGuidGroup) []map[string]any {
+	type bucket struct {
+		caller    string
+		callee    string
+		count     int
+		elapsed   []float64
+		calleeRT  []float64
+		network   []float64
+		guidSet   map[string]bool
+		guidOrder []string
+	}
+
+	buckets := map[string]*bucket{}
+	order := []string{}
+	for _, group := range groups {
+		for _, edge := range group.Edges {
+			if edge.MatchStatus != models.JenniferMatchOK {
+				continue
+			}
+			key := edge.CallerApplication + "->" + edge.CalleeApplication
+			b, ok := buckets[key]
+			if !ok {
+				b = &bucket{
+					caller:  edge.CallerApplication,
+					callee:  edge.CalleeApplication,
+					guidSet: map[string]bool{},
+				}
+				buckets[key] = b
+				order = append(order, key)
+			}
+			b.count++
+			b.elapsed = append(b.elapsed, float64(edge.ExternalCallElapsedMs))
+			if edge.CalleeResponseTimeMs != nil {
+				b.calleeRT = append(b.calleeRT, float64(*edge.CalleeResponseTimeMs))
+			}
+			if edge.AdjustedNetworkGapMs != nil {
+				b.network = append(b.network, float64(*edge.AdjustedNetworkGapMs))
+			}
+			if group.GUID != "" && !b.guidSet[group.GUID] {
+				b.guidSet[group.GUID] = true
+				b.guidOrder = append(b.guidOrder, group.GUID)
+			}
+		}
+	}
+
+	rows := make([]map[string]any, 0, len(order))
+	for _, key := range order {
+		b := buckets[key]
+		elapsedStats := computeMetricStats(b.elapsed)
+		calleeStats := computeMetricStats(b.calleeRT)
+		networkStats := computeMetricStats(b.network)
+		group := classifyNetworkTimeGroup(networkStats.Avg)
+		rows = append(rows, map[string]any{
+			"caller_application":           b.caller,
+			"callee_application":           b.callee,
+			"call_count":                   b.count,
+			"guid_count":                   len(b.guidOrder),
+			"sample_guids":                 b.guidOrder,
+			"external_call_elapsed_ms":     metricStatsToMap(elapsedStats),
+			"callee_response_time_ms":      metricStatsToMap(calleeStats),
+			"network_gap_ms":               metricStatsToMap(networkStats),
+			"network_time_group":           group.Key,
+			"network_time_group_label":     group.Label,
+			"network_time_group_index":     group.Index,
+			"network_time_group_basis":     "avg_network_gap_ms",
+			"avg_network_gap_ms":           networkStats.Avg,
+			"p95_network_gap_ms":           networkStats.P95,
+			"max_network_gap_ms":           networkStats.Max,
+			"total_network_gap_ms":         sumFloat64(b.network),
+			"avg_external_call_elapsed_ms": elapsedStats.Avg,
+		})
+	}
+	sort.SliceStable(rows, func(i, j int) bool {
+		ai := rows[i]["network_time_group_index"].(int)
+		aj := rows[j]["network_time_group_index"].(int)
+		if ai != aj {
+			return ai > aj
+		}
+		ati := rows[i]["total_network_gap_ms"].(float64)
+		atj := rows[j]["total_network_gap_ms"].(float64)
+		if ati != atj {
+			return ati > atj
+		}
+		ci := rows[i]["caller_application"].(string)
+		cj := rows[j]["caller_application"].(string)
+		if ci != cj {
+			return ci < cj
+		}
+		return rows[i]["callee_application"].(string) < rows[j]["callee_application"].(string)
+	})
+	return rows
+}
+
+func sumFloat64(values []float64) float64 {
+	var total float64
+	for _, v := range values {
+		total += v
+	}
+	return total
 }
 
 // guidGroupToRow projects a JenniferGuidGroup into the

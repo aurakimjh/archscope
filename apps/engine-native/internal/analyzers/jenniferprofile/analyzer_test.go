@@ -393,6 +393,25 @@ func TestAnalyzeFile_NetworkGap(t *testing.T) {
 	if got := e["adjusted_network_gap_ms"].(int); got != 89 {
 		t.Errorf("adjusted_network_gap_ms = %d, want 89", got)
 	}
+
+	serviceRows := res.Series["service_call_network_summary"].([]map[string]any)
+	if len(serviceRows) != 1 {
+		t.Fatalf("service_call_network_summary = %d, want 1", len(serviceRows))
+	}
+	service := serviceRows[0]
+	if got := service["caller_application"].(string); got != "/prod/common/rule/testrule" {
+		t.Errorf("caller_application = %q", got)
+	}
+	if got := service["callee_application"].(string); got != "/dev/common/rule/testrule" {
+		t.Errorf("callee_application = %q", got)
+	}
+	if got := service["network_time_group"].(string); got != "remote_50_99_ms" {
+		t.Errorf("network_time_group = %q", got)
+	}
+	gapStats := service["network_gap_ms"].(map[string]any)
+	if got := gapStats["avg"].(float64); got != 89 {
+		t.Errorf("network avg = %v, want 89", got)
+	}
 }
 
 // §17 root profile detection — TX1 is not a callee anywhere, TX2 is.

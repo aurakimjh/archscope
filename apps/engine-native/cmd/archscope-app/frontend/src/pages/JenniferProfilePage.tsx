@@ -502,6 +502,105 @@ function UnprofiledExternalCallGroupsTable({ rows }: { rows: any[] }): JSX.Eleme
   );
 }
 
+function ServiceNetworkTimeSummary({ rows }: { rows: any[] }): JSX.Element {
+  const visibleRows = [...rows]
+    .sort((a, b) => {
+      const groupDelta =
+        Number(b.network_time_group_index ?? 0) -
+        Number(a.network_time_group_index ?? 0);
+      if (groupDelta !== 0) return groupDelta;
+      const totalDelta =
+        Number(b.total_network_gap_ms ?? 0) - Number(a.total_network_gap_ms ?? 0);
+      if (totalDelta !== 0) return totalDelta;
+      return String(a.caller_application ?? "").localeCompare(
+        String(b.caller_application ?? ""),
+      );
+    })
+    .slice(0, 20);
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm">
+          서비스 호출 네트워크 타임 ({rows.length})
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="overflow-x-auto p-0">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
+              <th className="px-3 py-2 text-left font-medium">Caller → Callee</th>
+              <th className="px-3 py-2 text-right font-medium">Calls</th>
+              <th className="px-3 py-2 text-right font-medium">Ext avg</th>
+              <th className="px-3 py-2 text-right font-medium">Callee avg</th>
+              <th className="px-3 py-2 text-right font-medium">Network avg</th>
+              <th className="px-3 py-2 text-right font-medium">Network p95</th>
+              <th className="px-3 py-2 text-right font-medium">Network max</th>
+              <th className="px-3 py-2 text-left font-medium">Group</th>
+            </tr>
+          </thead>
+          <tbody>
+            {visibleRows.map((row, idx) => {
+              const caller = row.caller_application || "?";
+              const callee = row.callee_application || "?";
+              return (
+                <tr key={idx} className="border-b border-border last:border-0">
+                  <td
+                    className="max-w-[360px] px-3 py-2 font-mono text-xs"
+                    title={`${caller} → ${callee}`}
+                  >
+                    <span className="block truncate">
+                      {caller} → {callee}
+                    </span>
+                  </td>
+                  <td className="px-3 py-2 text-right tabular-nums">
+                    {(row.call_count ?? 0).toLocaleString()}
+                  </td>
+                  <td className="px-3 py-2 text-right tabular-nums">
+                    {formatMsValue(statValue(row.external_call_elapsed_ms, "avg"))}
+                  </td>
+                  <td className="px-3 py-2 text-right tabular-nums">
+                    {formatMsValue(statValue(row.callee_response_time_ms, "avg"))}
+                  </td>
+                  <td className="px-3 py-2 text-right tabular-nums">
+                    {formatMsValue(row.avg_network_gap_ms)}
+                  </td>
+                  <td className="px-3 py-2 text-right tabular-nums">
+                    {formatMsValue(row.p95_network_gap_ms)}
+                  </td>
+                  <td className="px-3 py-2 text-right tabular-nums">
+                    {formatMsValue(row.max_network_gap_ms)}
+                  </td>
+                  <td className="px-3 py-2">
+                    <span className={networkGroupClass(row.network_time_group_index)}>
+                      {row.network_time_group_label || row.network_time_group || "—"}
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </CardContent>
+    </Card>
+  );
+}
+
+function formatMsValue(value: unknown): string {
+  const n = toFiniteNumber(value);
+  return n == null ? "—" : `${Math.round(n).toLocaleString()} ms`;
+}
+
+function networkGroupClass(index: unknown): string {
+  const n = Number(index ?? 0);
+  if (n >= 4) {
+    return "rounded bg-destructive/10 px-1.5 py-0.5 text-xs text-destructive";
+  }
+  if (n >= 3) {
+    return "rounded bg-amber-500/10 px-1.5 py-0.5 text-xs text-amber-700 dark:text-amber-300";
+  }
+  return "rounded bg-primary/10 px-1.5 py-0.5 text-xs text-primary";
+}
+
 export function JenniferProfilePage(): JSX.Element {
   const { t } = useI18n();
   const [selected, setSelected] = useState<Selection[]>([]);
@@ -629,6 +728,8 @@ export function JenniferProfilePage(): JSX.Element {
   const fileSummary: any[] = result?.series?.file_summary ?? [];
   const guidGroups: any[] = result?.series?.guid_groups ?? [];
   const msaEdges: any[] = result?.tables?.msa_edges ?? [];
+  const serviceNetworkRows: any[] =
+    result?.series?.service_call_network_summary ?? [];
   const networkPrepRows: any[] = result?.tables?.network_prep_methods ?? [];
   const unprofiledExternalCallRows: any[] =
     result?.tables?.unprofiled_external_call_groups ?? [];
@@ -1014,6 +1115,10 @@ export function JenniferProfilePage(): JSX.Element {
               value={(summary.fetch_total_rows ?? 0).toLocaleString()}
             />
           </section>
+
+          {serviceNetworkRows.length > 0 && (
+            <ServiceNetworkTimeSummary rows={serviceNetworkRows} />
+          )}
 
           {fileErrors.length > 0 && (
             <Card>

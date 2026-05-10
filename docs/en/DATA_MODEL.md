@@ -612,6 +612,19 @@ New `tables` row:
   caller_txids, external_call_urls }`. `target` is normalized by dropping query
   strings/fragments and folding obvious numeric/UUID path IDs to `{id}`.
 
+New `series` row:
+
+- `service_call_network_summary` — matched MSA calls grouped by
+  `{ caller_application, callee_application }`. Each row includes
+  `call_count`, `guid_count`, `external_call_elapsed_ms`,
+  `callee_response_time_ms`, `network_gap_ms`, `avg_network_gap_ms`,
+  `p95_network_gap_ms`, `max_network_gap_ms`, `total_network_gap_ms`,
+  and a stable `network_time_group` / `network_time_group_label`.
+  Network groups use average adjusted network gap bands:
+  `0-4 ms`, `5-9 ms`, `10-19 ms`, `20-49 ms`, `50-99 ms`, `>=100 ms`.
+  The UI uses these groups to separate topology nodes by estimated
+  service/network distance.
+
 Updated `series.guid_groups[].metrics.response_time_breakdown`:
 
 - `unprofiled_external_call_ms` is subtracted before `method_time_ms`.
