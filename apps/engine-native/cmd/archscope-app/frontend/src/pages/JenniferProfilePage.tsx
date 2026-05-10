@@ -22,7 +22,7 @@
 // cards + per-profile table + file errors. MSA call-graph / network
 // gap / signature stats land in MVP2-MVP3.
 
-import { Loader2, Play, Settings, X } from "lucide-react";
+import { Loader2, Play, X } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 
 import { engine } from "../bridge/engine";
@@ -36,9 +36,9 @@ import {
 import { MsaResponseTimeBreakdown } from "../components/MsaResponseTimeBreakdown";
 import { MsaTimeline } from "../components/MsaTimeline";
 import { MsaTopology } from "../components/MsaTopology";
+import { AnalyzerOptionsDock } from "../components/AnalyzerOptionsDock";
 import { MetricCard } from "../components/MetricCard";
 import { RecentFilesPanel } from "../components/RecentFilesPanel";
-import { SlideOverPanel } from "../components/SlideOverPanel";
 import {
   WailsFileDock,
   type FileDockSelection,
@@ -351,7 +351,6 @@ export function JenniferProfilePage(): JSX.Element {
   // multiple files at once, so a "recent" entry restores the full
   // selection vector (paths array + analyzer options).
   const recent = useRecentFiles({ category: "jennifer" });
-  const [optionsOpen, setOptionsOpen] = useState<boolean>(false);
 
   const addSelections = useCallback((files: FileDockSelection[]) => {
     setError("");
@@ -646,24 +645,35 @@ export function JenniferProfilePage(): JSX.Element {
                 </>
               )}
             </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              onClick={() => setOptionsOpen(true)}
-              disabled={analyzing}
-            >
-              <Settings className="h-3.5 w-3.5" />
-              옵션
-            </Button>
           </div>
         }
       />
-      <SlideOverPanel
-        open={optionsOpen}
-        onClose={() => setOptionsOpen(false)}
+      <AnalyzerOptionsDock
         title="Jennifer 분석 옵션"
+        label={t("analyzerOptions")}
         width={560}
+        footer={
+          <div className="flex justify-end">
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => void handleAnalyze()}
+              disabled={analyzing || selected.length === 0}
+            >
+              {analyzing ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  {t("analyzing")}
+                </>
+              ) : (
+                <>
+                  <Play className="h-3.5 w-3.5" />
+                  {t("analyze")} ({selected.length})
+                </>
+              )}
+            </Button>
+          </div>
+        }
       >
         <div className="flex flex-col gap-4 text-sm">
           <label className="flex items-center gap-1.5 text-xs">
@@ -694,7 +704,7 @@ export function JenniferProfilePage(): JSX.Element {
             />
           </div>
         </div>
-      </SlideOverPanel>
+      </AnalyzerOptionsDock>
       <RecentFilesPanel
         entries={recent.entries}
         onSelect={handleRecentSelect}

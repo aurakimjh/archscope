@@ -37,6 +37,7 @@ import {
   EngineMessagesPanel,
   ErrorPanel,
 } from "@/components/AnalyzerFeedback";
+import { AnalyzerOptionsDock } from "@/components/AnalyzerOptionsDock";
 import { MetricCard } from "@/components/MetricCard";
 import { RecentFilesPanel } from "@/components/RecentFilesPanel";
 import { SlideOverPanel } from "@/components/SlideOverPanel";
@@ -302,11 +303,32 @@ export function ExceptionAnalyzerPage(): JSX.Element {
         onClear={recent.clear}
       />
 
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm">{t("analyzerOptions")}</CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 gap-3 md:grid-cols-3">
+      <AnalyzerOptionsDock
+        title={t("analyzerOptions")}
+        footer={
+          <div className="flex justify-end">
+            <Button
+              type="button"
+              size="sm"
+              disabled={!canAnalyze}
+              onClick={() => void analyze()}
+            >
+              {state === "running" ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  {t("analyzing")}
+                </>
+              ) : (
+                <>
+                  <Play className="h-3.5 w-3.5" />
+                  {t("analyze")}
+                </>
+              )}
+            </Button>
+          </div>
+        }
+      >
+        <div className="grid grid-cols-1 gap-3">
           <label className="flex flex-col gap-1.5 text-xs">
             <span className="font-medium text-foreground/80">
               {t("topN")} <span className="text-muted-foreground">({DEFAULT_TOP_N})</span>
@@ -321,8 +343,8 @@ export function ExceptionAnalyzerPage(): JSX.Element {
               }
             />
           </label>
-        </CardContent>
-      </Card>
+        </div>
+      </AnalyzerOptionsDock>
 
       <ErrorPanel
         error={error}

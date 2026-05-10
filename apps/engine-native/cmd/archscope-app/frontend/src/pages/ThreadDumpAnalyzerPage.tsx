@@ -82,6 +82,7 @@ import {
   EngineMessagesPanel,
   ErrorPanel,
 } from "@/components/AnalyzerFeedback";
+import { AnalyzerOptionsDock } from "@/components/AnalyzerOptionsDock";
 import { MetricCard } from "@/components/MetricCard";
 import {
   WailsFileDock,
@@ -165,6 +166,7 @@ export function ThreadDumpAnalyzerPage(): JSX.Element {
   );
   const [threshold, setThreshold] = useState(3);
   const [formatOverride, setFormatOverride] = useState("");
+  const [topN, setTopN] = useState(20);
   const [state, setState] = useState<AnalyzerState>("idle");
   const [result, setResult] = useState<AnyResult | null>(null);
   const [error, setError] = useState<BridgeError | null>(null);
@@ -312,7 +314,7 @@ export function ThreadDumpAnalyzerPage(): JSX.Element {
       try {
         const response = await engine.analyzeThreadDump({
           path: singleFile.filePath,
-          topN: 20,
+          topN,
         });
         if (inflightSyncRef.current !== token) return;
         inflightSyncRef.current = null;
@@ -340,12 +342,12 @@ export function ThreadDumpAnalyzerPage(): JSX.Element {
               paths,
               formatOverride: fmt,
               threshold,
-              topN: 20,
+              topN,
             })
           : await engine.analyzeLockContention({
               paths,
               formatOverride: fmt,
-              topN: 20,
+              topN,
             });
       taskRef.current = response.taskId;
     } catch (caught) {
@@ -355,7 +357,7 @@ export function ThreadDumpAnalyzerPage(): JSX.Element {
       });
       setState("error");
     }
-  }, [canAnalyze, files, formatOverride, mode, singleFile, threshold]);
+  }, [canAnalyze, files, formatOverride, mode, singleFile, threshold, topN]);
 
   const cancelAnalysis = useCallback(() => {
     if (mode === "single") {
@@ -457,17 +459,79 @@ export function ThreadDumpAnalyzerPage(): JSX.Element {
           mode={mode}
           state={state}
           canAnalyze={canAnalyze}
-          threshold={threshold}
-          formatOverride={formatOverride}
           onPick={() => void pickMultipleFiles()}
           onRemove={removeFile}
           onClear={clearFiles}
           onRun={() => void analyze()}
           onCancel={() => cancelAnalysis()}
-          onThresholdChange={setThreshold}
-          onFormatOverrideChange={setFormatOverride}
         />
       )}
+
+      <AnalyzerOptionsDock
+        title={t("analyzerOptions")}
+        footer={
+          <div className="flex justify-end">
+            <RunControls
+              t={t}
+              state={state}
+              canAnalyze={canAnalyze}
+              onRun={() => void analyze()}
+              onCancel={() => cancelAnalysis()}
+              runLabel={
+                mode === "single"
+                  ? t("threadDumpRunSingle")
+                  : mode === "multi"
+                    ? t("threadDumpRunMulti")
+                    : t("threadDumpRunLocks")
+              }
+            />
+          </div>
+        }
+      >
+        <div className="grid grid-cols-1 gap-3">
+          <label className="flex flex-col gap-1.5 text-xs">
+            <span className="font-medium text-foreground/80">
+              {t("topN")}
+            </span>
+            <Input
+              type="number"
+              min={1}
+              value={topN}
+              onChange={(event) =>
+                setTopN(Math.max(1, Number(event.target.value) || 20))
+              }
+            />
+          </label>
+          {mode === "multi" && (
+            <label className="flex flex-col gap-1.5 text-xs">
+              <span className="font-medium text-foreground/80">
+                {t("threadDumpThreshold")}
+              </span>
+              <Input
+                type="number"
+                min={1}
+                value={threshold}
+                onChange={(event) =>
+                  setThreshold(Math.max(1, Number(event.target.value) || 1))
+                }
+              />
+            </label>
+          )}
+          {mode !== "single" && (
+            <label className="flex flex-col gap-1.5 text-xs">
+              <span className="font-medium text-foreground/80">
+                {t("threadDumpFormatOverride")}
+              </span>
+              <Input
+                type="text"
+                placeholder="java_jstack"
+                value={formatOverride}
+                onChange={(event) => setFormatOverride(event.target.value)}
+              />
+            </label>
+          )}
+        </div>
+      </AnalyzerOptionsDock>
 
       <ErrorPanel
         error={error}
@@ -582,15 +646,11 @@ type MultiFileDockProps = {
   mode: Exclude<AnalysisMode, "single">;
   state: AnalyzerState;
   canAnalyze: boolean;
-  threshold: number;
-  formatOverride: string;
   onPick: () => void;
   onRemove: (filePath: string) => void;
   onClear: () => void;
   onRun: () => void;
   onCancel: () => void;
-  onThresholdChange: (value: number) => void;
-  onFormatOverrideChange: (value: string) => void;
 };
 
 function MultiFileDock({
@@ -599,15 +659,11 @@ function MultiFileDock({
   mode,
   state,
   canAnalyze,
-  threshold,
-  formatOverride,
   onPick,
   onRemove,
   onClear,
   onRun,
   onCancel,
-  onThresholdChange,
-  onFormatOverrideChange,
 }: MultiFileDockProps): JSX.Element {
   return (
     <Card>
@@ -645,39 +701,6 @@ function MultiFileDock({
         </div>
       </CardHeader>
       <CardContent className="space-y-3 p-4 pt-0">
-        <div className="flex flex-wrap items-center gap-3 text-xs">
-          {mode === "multi" && (
-            <label className="flex items-center gap-1.5">
-              <span className="font-medium text-foreground/80">
-                {t("threadDumpThreshold")}
-              </span>
-              <Input
-                type="number"
-                min={1}
-                value={threshold}
-                onChange={(event) =>
-                  onThresholdChange(
-                    Math.max(1, Number(event.target.value) || 1),
-                  )
-                }
-                className="h-8 w-16"
-              />
-            </label>
-          )}
-          <label className="flex items-center gap-1.5">
-            <span className="font-medium text-foreground/80">
-              {t("threadDumpFormatOverride")}
-            </span>
-            <Input
-              type="text"
-              placeholder="java_jstack"
-              value={formatOverride}
-              onChange={(event) => onFormatOverrideChange(event.target.value)}
-              className="h-8 w-40"
-            />
-          </label>
-        </div>
-
         {files.length === 0 ? (
           <p className="rounded-md border border-dashed border-border bg-muted/30 px-3 py-3 text-xs text-muted-foreground">
             {t("threadDumpEmpty")}

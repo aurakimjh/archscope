@@ -24,7 +24,7 @@
 // charting (CanvasFlameGraph, HorizontalBarChart, DrilldownPanel) so we ship
 // a consistent profiler page without porting every web sub-component.
 
-import { Loader2, Play, Settings, Square } from "lucide-react";
+import { Loader2, Play, Square } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Events } from "@wailsio/runtime";
 
@@ -39,6 +39,7 @@ import type {
 } from "../../bindings/github.com/aurakimjh/archscope/apps/engine-native/internal/profiler/models";
 
 import { CanvasFlameGraph, type FlameGraphNode } from "../components/CanvasFlameGraph";
+import { AnalyzerOptionsDock } from "../components/AnalyzerOptionsDock";
 import {
   CustomCategoriesEditor,
   type CategoryRules,
@@ -68,7 +69,6 @@ import {
   TabsTrigger,
 } from "../components/ui/tabs";
 import { RecentFilesPanel } from "../components/RecentFilesPanel";
-import { SlideOverPanel } from "../components/SlideOverPanel";
 import { useRecentFiles } from "../hooks/useRecentFiles";
 import { useShortcuts } from "../hooks/useShortcuts";
 import { useI18n } from "../i18n/I18nProvider";
@@ -182,12 +182,6 @@ export function ProfilerAnalyzerPage(): JSX.Element {
   const [timelineCategories, setTimelineCategories] = useState<CategoryRules>(
     {},
   );
-  // Slide-over for the analyzer options. Opening this is now the
-  // primary affordance for tweaking knobs — the inline options card
-  // would have pushed the recent-files / FileDock chrome out of view
-  // on smaller windows.
-  const [optionsOpen, setOptionsOpen] = useState<boolean>(false);
-
   const [analyzing, setAnalyzing] = useState<boolean>(false);
   const [exporting, setExporting] = useState<boolean>(false);
   const [exportNotice, setExportNotice] = useState<string>("");
@@ -462,15 +456,6 @@ export function ProfilerAnalyzerPage(): JSX.Element {
             <Button
               type="button"
               size="sm"
-              variant="outline"
-              onClick={() => setOptionsOpen(true)}
-            >
-              <Settings className="h-3.5 w-3.5" />
-              {t("analyzerOptions")}
-            </Button>
-            <Button
-              type="button"
-              size="sm"
               disabled={!canAnalyze}
               onClick={() => void handleAnalyze()}
             >
@@ -508,11 +493,31 @@ export function ProfilerAnalyzerPage(): JSX.Element {
         onClear={recent.clear}
       />
 
-      <SlideOverPanel
-        open={optionsOpen}
-        onClose={() => setOptionsOpen(false)}
+      <AnalyzerOptionsDock
         title={t("analyzerOptions")}
         width={560}
+        footer={
+          <div className="flex justify-end">
+            <Button
+              type="button"
+              size="sm"
+              disabled={!canAnalyze}
+              onClick={() => void handleAnalyze()}
+            >
+              {analyzing ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  {t("analyzing")}
+                </>
+              ) : (
+                <>
+                  <Play className="h-3.5 w-3.5" />
+                  {t("analyze")}
+                </>
+              )}
+            </Button>
+          </div>
+        }
       >
       <Card className="border-0 shadow-none">
         <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2 px-0">
@@ -673,7 +678,7 @@ export function ProfilerAnalyzerPage(): JSX.Element {
           />
         </CardContent>
       </Card>
-      </SlideOverPanel>
+      </AnalyzerOptionsDock>
 
       {error && (
         <div

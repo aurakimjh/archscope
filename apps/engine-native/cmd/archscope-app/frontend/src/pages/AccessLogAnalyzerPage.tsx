@@ -35,6 +35,7 @@ import {
   EngineMessagesPanel,
   ErrorPanel,
 } from "@/components/AnalyzerFeedback";
+import { AnalyzerOptionsDock } from "@/components/AnalyzerOptionsDock";
 import { ChartPanel } from "@/components/ChartPanel";
 import { MetricCard } from "@/components/MetricCard";
 import {
@@ -231,11 +232,32 @@ export function AccessLogAnalyzerPage(): JSX.Element {
         }
       />
 
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm">{t("analyzerOptions")}</CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 gap-3 md:grid-cols-4">
+      <AnalyzerOptionsDock
+        title={t("analyzerOptions")}
+        footer={
+          <div className="flex justify-end">
+            <Button
+              type="button"
+              size="sm"
+              disabled={!canAnalyze}
+              onClick={() => void analyze()}
+            >
+              {state === "running" ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  {t("analyzing")}
+                </>
+              ) : (
+                <>
+                  <Play className="h-3.5 w-3.5" />
+                  {t("analyze")}
+                </>
+              )}
+            </Button>
+          </div>
+        }
+      >
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           <label className="flex flex-col gap-1.5 text-xs">
             <span className="font-medium text-foreground/80">
               {t("logFormat")}
@@ -288,8 +310,8 @@ export function AccessLogAnalyzerPage(): JSX.Element {
               onChange={(event) => setEndTime(event.target.value)}
             />
           </label>
-        </CardContent>
-      </Card>
+        </div>
+      </AnalyzerOptionsDock>
 
       <ErrorPanel
         error={error}

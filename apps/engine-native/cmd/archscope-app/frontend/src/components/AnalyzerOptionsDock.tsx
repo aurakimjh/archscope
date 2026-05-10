@@ -1,0 +1,69 @@
+// AnalyzerOptionsDock — shared right-edge bookmark tab for analyzer
+// settings. The visible affordance stays in the same place on every
+// analyzer page; the actual form is still rendered by SlideOverPanel.
+
+import { SlidersHorizontal } from "lucide-react";
+import { useState, type ReactNode } from "react";
+
+import { cn } from "@/lib/utils";
+
+import { SlideOverPanel } from "./SlideOverPanel";
+
+export type AnalyzerOptionsDockProps = {
+  title: string;
+  children: ReactNode;
+  label?: string;
+  width?: number;
+  footer?: ReactNode;
+  disabled?: boolean;
+  hasChanges?: boolean;
+  className?: string;
+};
+
+export function AnalyzerOptionsDock({
+  title,
+  children,
+  label = title,
+  width = 560,
+  footer,
+  disabled = false,
+  hasChanges = false,
+  className,
+}: AnalyzerOptionsDockProps): JSX.Element {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <button
+        type="button"
+        className={cn(
+          "fixed right-0 top-[34vh] z-40 flex items-center gap-1.5 rounded-l-md border border-r-0 border-border bg-background px-2 py-3 text-xs font-medium text-foreground shadow-md transition-colors",
+          "hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          disabled && "pointer-events-none opacity-50",
+          className,
+        )}
+        aria-label={label}
+        onClick={() => setOpen(true)}
+        disabled={disabled}
+      >
+        <SlidersHorizontal className="h-3.5 w-3.5 shrink-0" />
+        <span style={{ writingMode: "vertical-rl" }}>{label}</span>
+        {hasChanges && (
+          <span
+            className="absolute left-1 top-1 h-2 w-2 rounded-full bg-primary"
+            aria-hidden="true"
+          />
+        )}
+      </button>
+      <SlideOverPanel
+        open={open}
+        onClose={() => setOpen(false)}
+        title={title}
+        width={width}
+        footer={footer}
+      >
+        {children}
+      </SlideOverPanel>
+    </>
+  );
+}

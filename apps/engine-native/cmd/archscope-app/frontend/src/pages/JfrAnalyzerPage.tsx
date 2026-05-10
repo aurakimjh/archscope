@@ -35,6 +35,7 @@ import {
   EngineMessagesPanel,
   ErrorPanel,
 } from "@/components/AnalyzerFeedback";
+import { AnalyzerOptionsDock } from "@/components/AnalyzerOptionsDock";
 import {
   CanvasFlameGraph,
   type FlameGraphNode,
@@ -106,6 +107,9 @@ export function JfrAnalyzerPage(): JSX.Element {
   const { t } = useI18n();
   const [selectedFile, setSelectedFile] = useState<FileDockSelection | null>(
     null,
+  );
+  const [activeModeTab, setActiveModeTab] = useState<"recording" | "native">(
+    "recording",
   );
 
   // ── JFR-recording state ──────────────────────────────────────────
@@ -257,9 +261,247 @@ export function JfrAnalyzerPage(): JSX.Element {
           { displayName: "JFR recordings", pattern: "*.jfr;*.json" },
           { displayName: "All files", pattern: "*.*" },
         ]}
+        rightSlot={
+          activeModeTab === "recording" ? (
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                size="sm"
+                disabled={!canAnalyzeJfr}
+                onClick={() => void analyzeJfr()}
+              >
+                {jfrState === "running" ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    {t("analyzing")}
+                  </>
+                ) : (
+                  <>
+                    <Play className="h-3.5 w-3.5" />
+                    {t("analyze")}
+                  </>
+                )}
+              </Button>
+              {jfrState === "running" && (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => cancelJfr()}
+                >
+                  <Square className="h-3.5 w-3.5" />
+                  {t("cancelAnalysis")}
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                size="sm"
+                disabled={!canAnalyzeNativeMem}
+                onClick={() => void analyzeNativeMemory()}
+              >
+                {nativeMemState === "running" ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    {t("analyzing")}
+                  </>
+                ) : (
+                  <>
+                    <Play className="h-3.5 w-3.5" />
+                    {t("jfrNativeMemRun")}
+                  </>
+                )}
+              </Button>
+              {nativeMemState === "running" && (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => cancelNativeMem()}
+                >
+                  <Square className="h-3.5 w-3.5" />
+                  {t("cancelAnalysis")}
+                </Button>
+              )}
+            </div>
+          )
+        }
       />
 
-      <Tabs defaultValue="recording" className="w-full">
+      <AnalyzerOptionsDock
+        title={
+          activeModeTab === "recording"
+            ? t("analyzerOptions")
+            : t("jfrNativeMemTitle")
+        }
+        label={t("analyzerOptions")}
+        footer={
+          <div className="flex justify-end">
+            {activeModeTab === "recording" ? (
+              <Button
+                type="button"
+                size="sm"
+                disabled={!canAnalyzeJfr}
+                onClick={() => void analyzeJfr()}
+              >
+                {jfrState === "running" ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    {t("analyzing")}
+                  </>
+                ) : (
+                  <>
+                    <Play className="h-3.5 w-3.5" />
+                    {t("analyze")}
+                  </>
+                )}
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                size="sm"
+                disabled={!canAnalyzeNativeMem}
+                onClick={() => void analyzeNativeMemory()}
+              >
+                {nativeMemState === "running" ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    {t("analyzing")}
+                  </>
+                ) : (
+                  <>
+                    <Play className="h-3.5 w-3.5" />
+                    {t("jfrNativeMemRun")}
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
+        }
+      >
+        {activeModeTab === "recording" ? (
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <label className="flex flex-col gap-1.5 text-xs">
+              <span className="font-medium text-foreground/80">
+                {t("jfrModeLabel")}
+              </span>
+              <select
+                className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
+                value={mode}
+                onChange={(e) => setMode(e.target.value as JfrAnalysisMode)}
+              >
+                {MODE_OPTIONS.map((option) => {
+                  const enabled =
+                    availableModes.length === 0 ||
+                    option.value === "all" ||
+                    availableModes.includes(option.value);
+                  return (
+                    <option
+                      key={option.value}
+                      value={option.value}
+                      disabled={!enabled}
+                    >
+                      {t(option.labelKey)}
+                      {!enabled ? " (—)" : ""}
+                    </option>
+                  );
+                })}
+              </select>
+            </label>
+            <label className="flex flex-col gap-1.5 text-xs">
+              <span className="font-medium text-foreground/80">
+                {t("jfrFromTimeLabel")}
+              </span>
+              <Input
+                type="text"
+                placeholder={t("jfrTimeHint")}
+                value={fromTime}
+                onChange={(event) => setFromTime(event.target.value)}
+              />
+            </label>
+            <label className="flex flex-col gap-1.5 text-xs">
+              <span className="font-medium text-foreground/80">
+                {t("jfrToTimeLabel")}
+              </span>
+              <Input
+                type="text"
+                placeholder={t("jfrTimeHint")}
+                value={toTime}
+                onChange={(event) => setToTime(event.target.value)}
+              />
+            </label>
+            <label className="flex flex-col gap-1.5 text-xs">
+              <span className="font-medium text-foreground/80">
+                {t("topN")}
+              </span>
+              <Input
+                type="number"
+                min={1}
+                value={topN}
+                onChange={(event) => setTopN(Number(event.target.value) || 20)}
+              />
+            </label>
+            <label className="flex flex-col gap-1.5 text-xs">
+              <span className="font-medium text-foreground/80">
+                {t("jfrStateLabel")}
+              </span>
+              <select
+                className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
+                value={stateFilter}
+                onChange={(e) => setStateFilter(e.target.value)}
+              >
+                <option value="">{t("jfrStateAll")}</option>
+                {availableStates.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4 text-xs">
+            <p className="text-muted-foreground">{t("jfrNativeMemDesc")}</p>
+            <label className="flex cursor-pointer items-center gap-1.5">
+              <input
+                type="checkbox"
+                checked={leakOnly}
+                onChange={(e) => setLeakOnly(e.target.checked)}
+              />
+              {t("jfrNativeMemLeakOnly")}
+            </label>
+            <label className="flex flex-col gap-1.5">
+              <span className="font-medium text-foreground/80">
+                {t("jfrNativeMemTailRatio")}
+              </span>
+              <select
+                className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
+                value={String(tailRatio)}
+                onChange={(e) => setTailRatio(Number(e.target.value))}
+              >
+                {TAIL_RATIO_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+              <span className="text-[11px] text-muted-foreground">
+                {t("jfrNativeMemTailHint")}
+              </span>
+            </label>
+          </div>
+        )}
+      </AnalyzerOptionsDock>
+
+      <Tabs
+        value={activeModeTab}
+        onValueChange={(value) =>
+          setActiveModeTab(value as "recording" | "native")
+        }
+        className="w-full"
+      >
         <TabsList>
           <TabsTrigger value="recording">{t("jfrModeRecording")}</TabsTrigger>
           <TabsTrigger value="native">{t("jfrModeNativeMemory")}</TabsTrigger>
@@ -267,126 +509,6 @@ export function JfrAnalyzerPage(): JSX.Element {
 
         {/* ── Mode 1: JFR Recording ──────────────────────────────── */}
         <TabsContent value="recording" className="mt-4 flex flex-col gap-5">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-              <CardTitle className="text-sm">{t("analyzerOptions")}</CardTitle>
-              <div className="flex items-center gap-2">
-                <Button
-                  type="button"
-                  size="sm"
-                  disabled={!canAnalyzeJfr}
-                  onClick={() => void analyzeJfr()}
-                >
-                  {jfrState === "running" ? (
-                    <>
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      {t("analyzing")}
-                    </>
-                  ) : (
-                    <>
-                      <Play className="h-3.5 w-3.5" />
-                      {t("analyze")}
-                    </>
-                  )}
-                </Button>
-                {jfrState === "running" && (
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => cancelJfr()}
-                  >
-                    <Square className="h-3.5 w-3.5" />
-                    {t("cancelAnalysis")}
-                  </Button>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
-              <label className="flex flex-col gap-1.5 text-xs">
-                <span className="font-medium text-foreground/80">
-                  {t("jfrModeLabel")}
-                </span>
-                <select
-                  className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
-                  value={mode}
-                  onChange={(e) =>
-                    setMode(e.target.value as JfrAnalysisMode)
-                  }
-                >
-                  {MODE_OPTIONS.map((option) => {
-                    const enabled =
-                      availableModes.length === 0 ||
-                      option.value === "all" ||
-                      availableModes.includes(option.value);
-                    return (
-                      <option
-                        key={option.value}
-                        value={option.value}
-                        disabled={!enabled}
-                      >
-                        {t(option.labelKey)}
-                        {!enabled ? " (—)" : ""}
-                      </option>
-                    );
-                  })}
-                </select>
-              </label>
-              <label className="flex flex-col gap-1.5 text-xs">
-                <span className="font-medium text-foreground/80">
-                  {t("jfrFromTimeLabel")}
-                </span>
-                <Input
-                  type="text"
-                  placeholder={t("jfrTimeHint")}
-                  value={fromTime}
-                  onChange={(event) => setFromTime(event.target.value)}
-                />
-              </label>
-              <label className="flex flex-col gap-1.5 text-xs">
-                <span className="font-medium text-foreground/80">
-                  {t("jfrToTimeLabel")}
-                </span>
-                <Input
-                  type="text"
-                  placeholder={t("jfrTimeHint")}
-                  value={toTime}
-                  onChange={(event) => setToTime(event.target.value)}
-                />
-              </label>
-              <label className="flex flex-col gap-1.5 text-xs">
-                <span className="font-medium text-foreground/80">
-                  {t("topN")}
-                </span>
-                <Input
-                  type="number"
-                  min={1}
-                  value={topN}
-                  onChange={(event) =>
-                    setTopN(Number(event.target.value) || 20)
-                  }
-                />
-              </label>
-              <label className="flex flex-col gap-1.5 text-xs">
-                <span className="font-medium text-foreground/80">
-                  {t("jfrStateLabel")}
-                </span>
-                <select
-                  className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
-                  value={stateFilter}
-                  onChange={(e) => setStateFilter(e.target.value)}
-                >
-                  <option value="">{t("jfrStateAll")}</option>
-                  {availableStates.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </CardContent>
-          </Card>
-
           <ErrorPanel
             error={jfrError}
             labels={{ title: t("analysisError"), code: t("errorCode") }}
@@ -465,77 +587,6 @@ export function JfrAnalyzerPage(): JSX.Element {
 
         {/* ── Mode 2: Native Memory ──────────────────────────────── */}
         <TabsContent value="native" className="mt-4 flex flex-col gap-5">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-              <CardTitle className="text-sm">
-                {t("jfrNativeMemTitle")}
-              </CardTitle>
-              <div className="flex items-center gap-2">
-                <Button
-                  type="button"
-                  size="sm"
-                  disabled={!canAnalyzeNativeMem}
-                  onClick={() => void analyzeNativeMemory()}
-                >
-                  {nativeMemState === "running" ? (
-                    <>
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      {t("analyzing")}
-                    </>
-                  ) : (
-                    <>
-                      <Play className="h-3.5 w-3.5" />
-                      {t("jfrNativeMemRun")}
-                    </>
-                  )}
-                </Button>
-                {nativeMemState === "running" && (
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => cancelNativeMem()}
-                  >
-                    <Square className="h-3.5 w-3.5" />
-                    {t("cancelAnalysis")}
-                  </Button>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent className="flex flex-wrap items-center gap-4 text-xs">
-              <p className="w-full text-xs text-muted-foreground">
-                {t("jfrNativeMemDesc")}
-              </p>
-              <label className="flex cursor-pointer items-center gap-1.5">
-                <input
-                  type="checkbox"
-                  checked={leakOnly}
-                  onChange={(e) => setLeakOnly(e.target.checked)}
-                />
-                {t("jfrNativeMemLeakOnly")}
-              </label>
-              <label className="flex items-center gap-2">
-                <span className="text-muted-foreground">
-                  {t("jfrNativeMemTailRatio")}
-                </span>
-                <select
-                  className="h-7 rounded-md border border-input bg-transparent px-2 text-xs"
-                  value={String(tailRatio)}
-                  onChange={(e) => setTailRatio(Number(e.target.value))}
-                >
-                  {TAIL_RATIO_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-                <span className="text-[10px] text-muted-foreground">
-                  {t("jfrNativeMemTailHint")}
-                </span>
-              </label>
-            </CardContent>
-          </Card>
-
           <ErrorPanel
             error={nativeMemError}
             labels={{ title: t("analysisError"), code: t("errorCode") }}
