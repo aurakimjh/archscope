@@ -26,6 +26,7 @@ import { useState } from "react";
 import { useI18n } from "./i18n/I18nProvider";
 import { localeLabels, locales } from "./i18n/messages";
 import { useTheme, type Theme } from "./theme/ThemeProvider";
+import { useSortableTables } from "./hooks/useSortableTables";
 import { DropZone } from "./components/DropZone";
 import { Sidebar, type NavKey } from "./components/Sidebar";
 import { DiffPage } from "./pages/DiffPage";
@@ -47,6 +48,7 @@ function App() {
   const { locale, setLocale, t } = useI18n();
   const { theme, setTheme } = useTheme();
   const [active, setActive] = useState<NavKey>("profiler");
+  useSortableTables();
 
   const handleDrop = (path: string) => {
     // Drop forwards into whichever page is active. Each page owns its own

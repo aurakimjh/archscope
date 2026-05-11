@@ -1034,6 +1034,48 @@ button.ghost:hover {
   background: var(--bg-soft);
 }
 
+table th.sortable-header {
+  cursor: pointer;
+  position: relative;
+  user-select: none;
+  white-space: nowrap;
+}
+
+table th.sortable-header:focus-visible {
+  outline: 2px solid var(--ring, var(--accent));
+  outline-offset: -2px;
+}
+
+table th.sortable-header::after {
+  content: "";
+  display: inline-block;
+  width: 0;
+  height: 0;
+  margin-left: 6px;
+  vertical-align: middle;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid currentColor;
+  opacity: 0;
+  transition: opacity 0.12s ease-out;
+}
+
+table th.sortable-header:hover::after {
+  opacity: 0.35;
+}
+
+table th.sortable-header.sort-asc::after {
+  border-top: 0;
+  border-bottom: 5px solid currentColor;
+  opacity: 0.9;
+}
+
+table th.sortable-header.sort-desc::after {
+  border-top: 5px solid currentColor;
+  border-bottom: 0;
+  opacity: 0.9;
+}
+
 .data-table th.num,
 .data-table td.num {
   text-align: right;
