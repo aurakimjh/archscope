@@ -176,7 +176,7 @@ export class AnalyzeRequest {
 
     /**
      * Memory guards for very large collapsed/wall inputs. Empty/zero
-     * triggers analyzer defaults (100k unique stacks, depth 128, 4 GB
+     * triggers analyzer defaults (100k unique stacks, depth 512, 4 GB
      * soft RSS ceiling).
      */
     "maxUniqueStacks"?: number;
@@ -194,7 +194,7 @@ export class AnalyzeRequest {
     /**
      * TimelineCategories carries user-supplied additional method
      * patterns per timeline segment. Keys are segment IDs (e.g.
-     * "EXTERNAL_CALL", "SQL_EXECUTION", "INTERNAL_METHOD"); values
+     * "EXTERNAL_CALL", "SQL_EXECUTION", "DB_FETCH", "INTERNAL_METHOD"); values
      * are case-insensitive substrings matched against frame text.
      */
     "timelineCategories"?: { [_ in string]?: string[] };
@@ -452,7 +452,7 @@ export class DrilldownRequest {
 
     /**
      * Memory guards for very large collapsed/wall inputs. Empty/zero
-     * triggers analyzer defaults (100k unique stacks, depth 128, 4 GB
+     * triggers analyzer defaults (100k unique stacks, depth 512, 4 GB
      * soft RSS ceiling).
      */
     "maxUniqueStacks"?: number;
@@ -470,7 +470,7 @@ export class DrilldownRequest {
     /**
      * TimelineCategories carries user-supplied additional method
      * patterns per timeline segment. Keys are segment IDs (e.g.
-     * "EXTERNAL_CALL", "SQL_EXECUTION", "INTERNAL_METHOD"); values
+     * "EXTERNAL_CALL", "SQL_EXECUTION", "DB_FETCH", "INTERNAL_METHOD"); values
      * are case-insensitive substrings matched against frame text.
      */
     "timelineCategories"?: { [_ in string]?: string[] };
@@ -825,7 +825,7 @@ export class ExportPprofRequest {
 
     /**
      * Memory guards for very large collapsed/wall inputs. Empty/zero
-     * triggers analyzer defaults (100k unique stacks, depth 128, 4 GB
+     * triggers analyzer defaults (100k unique stacks, depth 512, 4 GB
      * soft RSS ceiling).
      */
     "maxUniqueStacks"?: number;
@@ -843,7 +843,7 @@ export class ExportPprofRequest {
     /**
      * TimelineCategories carries user-supplied additional method
      * patterns per timeline segment. Keys are segment IDs (e.g.
-     * "EXTERNAL_CALL", "SQL_EXECUTION", "INTERNAL_METHOD"); values
+     * "EXTERNAL_CALL", "SQL_EXECUTION", "DB_FETCH", "INTERNAL_METHOD"); values
      * are case-insensitive substrings matched against frame text.
      */
     "timelineCategories"?: { [_ in string]?: string[] };

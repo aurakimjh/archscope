@@ -1,10 +1,11 @@
 {
 	"fixed": {
-		"file_version": "0.3.0-rc1"
+		"file_version": "0.3.1.2"
 	},
 	"info": {
 		"0000": {
-			"ProductVersion": "0.3.0-rc1",
+			"ProductVersion": "0.3.1-rc2",
+			"FileVersion": "0.3.1-rc2",
 			"CompanyName": "ArchScope",
 			"FileDescription": "Local-first architecture diagnostics desktop",
 			"LegalCopyright": "(c) 2026, ArchScope",
