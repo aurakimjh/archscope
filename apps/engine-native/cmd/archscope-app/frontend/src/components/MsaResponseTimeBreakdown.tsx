@@ -18,10 +18,10 @@
 //   2) Per-group bars (one bar per GUID, sorted by descending root
 //      response time) — surfaces which trace is dragging the avg.
 //
-// Below each bar we render a stack table: top contributing methods
-// per category, sourced from the per-edge signature stats so the
-// user can drill from "EXTERNAL_CALL is 60% of the time" down to
-// "and it's this specific endpoint pair that dominates".
+// External-call drill-down tables live in the profile verification tab;
+// this component stays focused on the response-time composition bars.
+
+import { useMemo } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
@@ -50,9 +50,6 @@ type GroupMetrics = {
 
 type MsaResponseTimeBreakdownProps = {
   groups: GroupMetrics[];
-  /** Used by the per-category top-stack table — the renderer
-   *  passes the same msa_edges array it already has. Optional;
-   *  the bars render fine without it. */
   edges?: any[];
 };
 
@@ -75,43 +72,52 @@ const SLICE_DEFS: {
 
 export function MsaResponseTimeBreakdown({
   groups,
-  edges = [],
 }: MsaResponseTimeBreakdownProps): JSX.Element {
-  // Aggregate across all groups.
-  const totals = SLICE_DEFS.reduce<Record<string, number>>((acc, def) => {
-    acc[def.key] = 0;
-    return acc;
-  }, {});
-  let totalRoot = 0;
-  for (const g of groups) {
-    const bd = g.metrics?.response_time_breakdown;
-    if (!bd) continue;
-    totalRoot += Number(bd.root_response_time_ms ?? 0);
-    for (const def of SLICE_DEFS) {
-      totals[def.key] += Number((bd as any)[def.key] ?? 0);
-    }
-  }
-  const totalCovered =
-    totals.sql_execute_ms +
-    totals.check_query_ms +
-    totals.two_pc_ms +
-    totals.fetch_ms +
-    totals.network_call_ms +
-    totals.unprofiled_external_call_ms +
-    totals.network_prep_ms +
-    totals.connection_acquire_ms +
-    totals.method_time_ms;
-  const aggregateBase = totalCovered > 0 ? totalCovered : 1;
+  const { totals, totalRoot, totalCovered, aggregateBase, perGroup } =
+    useMemo(() => {
+      // Aggregate across all groups.
+      const nextTotals = SLICE_DEFS.reduce<Record<string, number>>((acc, def) => {
+        acc[def.key] = 0;
+        return acc;
+      }, {});
+      let nextTotalRoot = 0;
+      for (const g of groups) {
+        const bd = g.metrics?.response_time_breakdown;
+        if (!bd) continue;
+        nextTotalRoot += Number(bd.root_response_time_ms ?? 0);
+        for (const def of SLICE_DEFS) {
+          nextTotals[def.key] += Number((bd as any)[def.key] ?? 0);
+        }
+      }
+      const nextTotalCovered =
+        nextTotals.sql_execute_ms +
+        nextTotals.check_query_ms +
+        nextTotals.two_pc_ms +
+        nextTotals.fetch_ms +
+        nextTotals.network_call_ms +
+        nextTotals.unprofiled_external_call_ms +
+        nextTotals.network_prep_ms +
+        nextTotals.connection_acquire_ms +
+        nextTotals.method_time_ms;
 
-  // Per-group sorted by root response time desc.
-  const perGroup = groups
-    .map((g) => {
-      const bd = g.metrics?.response_time_breakdown;
-      const root = Number(bd?.root_response_time_ms ?? 0);
-      return { g, bd, root };
-    })
-    .filter((r) => r.bd && r.root > 0)
-    .sort((a, b) => b.root - a.root);
+      // Per-group sorted by root response time desc.
+      const nextPerGroup = groups
+        .map((g) => {
+          const bd = g.metrics?.response_time_breakdown;
+          const root = Number(bd?.root_response_time_ms ?? 0);
+          return { g, bd, root };
+        })
+        .filter((r) => r.bd && r.root > 0)
+        .sort((a, b) => b.root - a.root);
+
+      return {
+        totals: nextTotals,
+        totalRoot: nextTotalRoot,
+        totalCovered: nextTotalCovered,
+        aggregateBase: nextTotalCovered > 0 ? nextTotalCovered : 1,
+        perGroup: nextPerGroup,
+      };
+    }, [groups]);
 
   if (totalRoot === 0 && perGroup.length === 0) {
     return (
@@ -128,12 +134,6 @@ export function MsaResponseTimeBreakdown({
       </Card>
     );
   }
-
-  // Build the category top-stack table from the edges. We aggregate
-  // the per-edge external_call_elapsed_ms by caller_application →
-  // callee_application pair so the user sees which call site
-  // contributes most to the Network / Network Prep slices.
-  const callPairs = aggregateCallPairs(edges);
 
   return (
     <Card>
@@ -167,7 +167,7 @@ export function MsaResponseTimeBreakdown({
               GUID 그룹별 (root 응답시간 큰 순서)
             </header>
             <div className="flex flex-col gap-1.5">
-              {perGroup.slice(0, 25).map(({ g, bd, root }) => {
+              {perGroup.slice(0, 25).map(({ g, bd, root }, idx) => {
                 if (!bd) return null;
                 const slices: Record<string, number> = {};
                 for (const def of SLICE_DEFS) {
@@ -175,7 +175,7 @@ export function MsaResponseTimeBreakdown({
                 }
                 return (
                   <GroupRow
-                    key={g.guid ?? Math.random()}
+                    key={g.guid ?? `${g.root_application ?? "group"}-${idx}`}
                     label={
                       g.root_application
                         ? `${g.root_application} · …${String(g.guid ?? "").slice(-8)}`
@@ -191,68 +191,10 @@ export function MsaResponseTimeBreakdown({
           </section>
         )}
 
-        {/* Top call pairs — drill-down to "which endpoint" */}
-        {callPairs.length > 0 && (
-          <section>
-            <header className="mb-1.5 text-xs font-semibold">
-              EXTERNAL_CALL 누적 시간 상위 (caller → callee)
-            </header>
-            <div className="overflow-x-auto rounded-md border border-border">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
-                    <th className="px-3 py-2 text-left font-medium">Caller → Callee</th>
-                    <th className="px-3 py-2 text-right font-medium">횟수</th>
-                    <th className="px-3 py-2 text-right font-medium">총 elapsed</th>
-                    <th className="px-3 py-2 text-right font-medium">avg</th>
-                    <th className="px-3 py-2 text-right font-medium">network avg</th>
-                    <th className="px-3 py-2 text-right font-medium">network max</th>
-                    <th className="px-3 py-2 text-right font-medium">max</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {callPairs.slice(0, 15).map((p) => (
-                    <tr
-                      key={`${p.caller}-${p.callee}`}
-                      className="border-b border-border last:border-0"
-                    >
-                      <td className="px-3 py-2 font-mono text-xs">
-                        {p.caller} → {p.callee}
-                      </td>
-                      <td className="px-3 py-2 text-right tabular-nums">
-                        {p.count.toLocaleString()}
-                      </td>
-                      <td className="px-3 py-2 text-right tabular-nums">
-                        {Math.round(p.totalMs).toLocaleString()} ms
-                      </td>
-                      <td className="px-3 py-2 text-right tabular-nums">
-                        {Math.round(p.totalMs / p.count).toLocaleString()} ms
-                      </td>
-                      <td className="px-3 py-2 text-right tabular-nums">
-                        {p.networkCount > 0
-                          ? `${Math.round(p.networkMs / p.networkCount).toLocaleString()} ms`
-                          : "—"}
-                      </td>
-                      <td className="px-3 py-2 text-right tabular-nums">
-                        {p.networkCount > 0
-                          ? `${Math.round(p.maxNetworkMs).toLocaleString()} ms`
-                          : "—"}
-                      </td>
-                      <td className="px-3 py-2 text-right tabular-nums">
-                        {Math.round(p.maxMs).toLocaleString()} ms
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        )}
       </CardContent>
     </Card>
   );
 }
-
 function BreakdownBar({
   totals,
   base,
@@ -360,71 +302,4 @@ function GroupRow({
       )}
     </div>
   );
-}
-
-function aggregateCallPairs(
-  edges: any[],
-): Array<{
-  caller: string;
-  callee: string;
-  count: number;
-  totalMs: number;
-  maxMs: number;
-  networkMs: number;
-  networkCount: number;
-  maxNetworkMs: number;
-}> {
-  const acc: Record<
-    string,
-    {
-      caller: string;
-      callee: string;
-      count: number;
-      totalMs: number;
-      maxMs: number;
-      networkMs: number;
-      networkCount: number;
-      maxNetworkMs: number;
-    }
-  > = {};
-  for (const e of edges ?? []) {
-    const caller = e?.caller_application ?? "?";
-    const callee = e?.callee_application ?? e?.external_call_url ?? "?";
-    const key = `${caller}::${callee}`;
-    const ms = Number(e?.external_call_elapsed_ms ?? 0);
-    const network = networkGapValue(e);
-    const cur = acc[key];
-    if (!cur) {
-      acc[key] = {
-        caller,
-        callee,
-        count: 1,
-        totalMs: ms,
-        maxMs: ms,
-        networkMs: network ?? 0,
-        networkCount: network == null ? 0 : 1,
-        maxNetworkMs: network ?? 0,
-      };
-    } else {
-      cur.count += 1;
-      cur.totalMs += ms;
-      if (ms > cur.maxMs) cur.maxMs = ms;
-      if (network != null) {
-        cur.networkMs += network;
-        cur.networkCount += 1;
-        if (network > cur.maxNetworkMs) cur.maxNetworkMs = network;
-      }
-    }
-  }
-  return Object.values(acc).sort((a, b) => b.totalMs - a.totalMs);
-}
-
-function networkGapValue(edge: any): number | undefined {
-  const raw =
-    edge?.adjusted_network_gap_ms ??
-    edge?.network_gap_ms ??
-    edge?.raw_network_gap_ms;
-  if (raw == null) return undefined;
-  const value = Number(raw);
-  return Number.isFinite(value) ? Math.max(0, value) : undefined;
 }

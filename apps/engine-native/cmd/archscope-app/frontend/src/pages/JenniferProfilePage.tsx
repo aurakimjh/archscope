@@ -34,7 +34,7 @@ import {
   type SegmentSpec,
 } from "../components/CustomCategoriesEditor";
 import { MsaResponseTimeBreakdown } from "../components/MsaResponseTimeBreakdown";
-import { MsaTimeline } from "../components/MsaTimeline";
+import { MsaTimeline, MsaTimelineTreemap } from "../components/MsaTimeline";
 import { MsaTopology } from "../components/MsaTopology";
 import { AnalyzerOptionsDock } from "../components/AnalyzerOptionsDock";
 import { MetricCard } from "../components/MetricCard";
@@ -108,6 +108,8 @@ const FILE_FILTERS = [
   { displayName: "All files", pattern: "*.*" },
 ];
 
+const MSA_TABLE_PREVIEW_LIMIT = 200;
+
 type Selection = {
   filePath: string;
   originalName: string;
@@ -128,15 +130,6 @@ function toFiniteNumber(value: unknown): number | undefined {
 function statValue(stats: any, key: string): number | undefined {
   if (!stats || typeof stats !== "object") return undefined;
   return toFiniteNumber(stats[key]);
-}
-
-function formatStat(stats: any, key: string): string {
-  const value = statValue(stats, key);
-  return value == null ? "—" : Math.round(value).toLocaleString();
-}
-
-function metricStat(metrics: any, key: string, stat: string): string {
-  return formatStat(metrics?.[key], stat);
 }
 
 function buildAverageTimelineEdges(signature: any): any[] {
@@ -176,6 +169,69 @@ function buildAverageTimelineEdges(signature: any): any[] {
     .filter((edge) => edge.external_call_elapsed_ms > 0);
 }
 
+function uniqueTimelineEdges(edges: any[]): any[] {
+  const seen = new Set<string>();
+  const out: any[] = [];
+  for (const edge of edges) {
+    const key = timelineEdgeKey(edge);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(edge);
+  }
+  return out;
+}
+
+function timelineEdgeKey(edge: any): string {
+  return [
+    edge?.timeline_kind ?? "external_call",
+    edge?.match_status ?? "MATCHED",
+    edge?.guid ?? "",
+    edge?.caller_txid ?? "",
+    edge?.callee_txid ?? "",
+    edge?.external_call_sequence ?? "",
+    edge?.caller_application ?? "",
+    edge?.callee_application ?? edge?.external_call_target ?? edge?.external_call_url ?? "",
+    Math.round(toFiniteNumber(edge?.caller_event_start_ms) ?? -1),
+    Math.round(toFiniteNumber(edge?.external_call_elapsed_ms) ?? -1),
+  ].join("\u0000");
+}
+
+function buildNetworkTimeByTxid(groups: any[]): Map<string, number> {
+  const out = new Map<string, number>();
+  for (const group of groups) {
+    for (const edge of group?.call_graph ?? []) {
+      const txid = String(edge?.caller_txid ?? "");
+      if (!txid) continue;
+      out.set(txid, (out.get(txid) ?? 0) + Number(edge?.network_gap_ms ?? 0));
+    }
+  }
+  return out;
+}
+
+function txidSetFromProfiles(rows: any[]): Set<string> {
+  return new Set(rows.map((row) => String(row?.txid ?? "")).filter(Boolean));
+}
+
+function compactJenniferResult(raw: any): any {
+  const tables = raw?.tables;
+  if (!tables || !Array.isArray(tables.msa_edges)) return raw;
+  const unmatched = Array.isArray(tables.unmatched_external_calls)
+    ? tables.unmatched_external_calls
+    : tables.msa_edges.filter(
+        (edge: any) => edge?.match_status && edge.match_status !== "MATCHED",
+      );
+  return {
+    ...raw,
+    tables: {
+      ...tables,
+      // Matched edges are already present in series.guid_groups[*].call_graph.
+      // Keep only non-matched rows here so the renderer does not hold the
+      // same large edge list twice.
+      msa_edges: unmatched,
+    },
+  };
+}
+
 function guidOptionLabel(group: any): string {
   const guid = String(group?.guid ?? "");
   const root = group?.root_application || "unknown";
@@ -192,98 +248,6 @@ function signatureOptionLabel(signature: any): string {
   const samples = Number(signature?.sample_count ?? 0).toLocaleString();
   const suffix = hash ? `…${hash.slice(-8)}` : "signature 없음";
   return `${root} · ${suffix} · ${samples}건`;
-}
-
-function SignatureAverageSummary({ signature }: { signature: any }): JSX.Element {
-  const metrics = signature?.metrics ?? {};
-  const edges: any[] = signature?.edges ?? [];
-  return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-sm">평균 트랜잭션 기준값</CardTitle>
-        <p className="text-xs text-muted-foreground">
-          같은 호출 구조(signature)로 묶인 GUID들의 평균값으로 타임라인을
-          구성합니다.
-        </p>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-4">
-        <section className="grid grid-cols-2 gap-3 sm:grid-cols-4 xl:grid-cols-6">
-          <MetricCard
-            label="Samples"
-            value={(signature?.sample_count ?? 0).toLocaleString()}
-          />
-          <MetricCard
-            label="Edges"
-            value={(signature?.edge_count ?? 0).toLocaleString()}
-          />
-          <MetricCard
-            label="Root avg"
-            value={metricStat(metrics, "root_response_time_ms", "avg")}
-          />
-          <MetricCard
-            label="Root p95"
-            value={metricStat(metrics, "root_response_time_ms", "p95")}
-          />
-          <MetricCard
-            label="External avg"
-            value={metricStat(metrics, "total_external_call_cumulative_ms", "avg")}
-          />
-          <MetricCard
-            label="Gap avg"
-            value={metricStat(metrics, "total_network_gap_cumulative_ms", "avg")}
-          />
-        </section>
-        {edges.length > 0 && (
-          <div className="overflow-x-auto rounded-md border border-border">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
-                  <th className="px-3 py-2 text-left font-medium">Caller → Callee</th>
-                  <th className="px-3 py-2 text-right font-medium">#</th>
-                  <th className="px-3 py-2 text-right font-medium">Count</th>
-                  <th className="px-3 py-2 text-right font-medium">Ext avg</th>
-                  <th className="px-3 py-2 text-right font-medium">Ext p95</th>
-                  <th className="px-3 py-2 text-right font-medium">Callee avg</th>
-                  <th className="px-3 py-2 text-right font-medium">Gap avg</th>
-                </tr>
-              </thead>
-              <tbody>
-                {edges.map((edge, idx) => (
-                  <tr key={idx} className="border-b border-border last:border-0">
-                    <td
-                      className="px-3 py-2 font-mono text-xs"
-                      title={`${edge?.caller_application} → ${edge?.callee_application}`}
-                    >
-                      {edge?.caller_application || "?"} →{" "}
-                      {edge?.callee_application || "?"}
-                    </td>
-                    <td className="px-3 py-2 text-right tabular-nums">
-                      #{edge?.occurrence_index ?? idx + 1}
-                    </td>
-                    <td className="px-3 py-2 text-right tabular-nums">
-                      {formatStat(edge?.external_call_elapsed_ms, "count")}
-                    </td>
-                    <td className="px-3 py-2 text-right tabular-nums">
-                      {formatStat(edge?.external_call_elapsed_ms, "avg")}
-                    </td>
-                    <td className="px-3 py-2 text-right tabular-nums">
-                      {formatStat(edge?.external_call_elapsed_ms, "p95")}
-                    </td>
-                    <td className="px-3 py-2 text-right tabular-nums">
-                      {formatStat(edge?.callee_response_time_ms, "avg")}
-                    </td>
-                    <td className="px-3 py-2 text-right tabular-nums">
-                      {formatStat(edge?.adjusted_network_gap_ms, "avg")}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
 }
 
 function GuidTransactionSummary({ group }: { group: any }): JSX.Element {
@@ -326,7 +290,155 @@ function GuidTransactionSummary({ group }: { group: any }): JSX.Element {
   );
 }
 
+function MsaCaptureStatusCard({ summary }: { summary: any }): JSX.Element {
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm">
+          MSA 캡처 상태 (체크쿼리 / 2PC / 외부호출 / 네트워크 준비)
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <MetricCard
+          label="2PC (cum ms)"
+          value={(summary.two_pc_cum_ms ?? 0).toLocaleString()}
+        />
+        <MetricCard
+          label="Check Query (cum ms)"
+          value={(summary.check_query_cum_ms ?? 0).toLocaleString()}
+        />
+        <MetricCard
+          label="External call (cum ms)"
+          value={(summary.external_call_cum_ms ?? 0).toLocaleString()}
+        />
+        <MetricCard
+          label="External call count"
+          value={(summary.external_call_count ?? 0).toLocaleString()}
+        />
+        <MetricCard
+          label="Network prep wrapper (ms)"
+          value={(summary.network_prep_method_cum_ms ?? 0).toLocaleString()}
+        />
+        <MetricCard
+          label="Network prep wrapper count"
+          value={(summary.network_prep_method_count ?? 0).toLocaleString()}
+        />
+        <MetricCard
+          label="Network prep (cum ms)"
+          value={(summary.network_prep_cum_ms ?? 0).toLocaleString()}
+        />
+        <MetricCard
+          label="Connection acquire (ms)"
+          value={(summary.connection_acquire_cum_ms ?? 0).toLocaleString()}
+        />
+      </CardContent>
+    </Card>
+  );
+}
+
+function TransactionProfilesTable({
+  rows,
+  networkTimeByTxid,
+}: {
+  rows: any[];
+  networkTimeByTxid: Map<string, number>;
+}): JSX.Element {
+  const visibleRows = rows.slice(0, MSA_TABLE_PREVIEW_LIMIT);
+  const hiddenCount = Math.max(0, rows.length - visibleRows.length);
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm">Transaction profiles ({rows.length})</CardTitle>
+      </CardHeader>
+      <CardContent className="overflow-x-auto p-0">
+        {hiddenCount > 0 && (
+          <p className="border-b border-border px-3 py-2 text-xs text-muted-foreground">
+            상위 {visibleRows.length.toLocaleString()}건만 표시합니다. 숨김{" "}
+            {hiddenCount.toLocaleString()}건.
+          </p>
+        )}
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
+              <th className="px-3 py-2 text-left font-medium">TXID</th>
+              <th className="px-3 py-2 text-left font-medium">GUID</th>
+              <th className="px-3 py-2 text-left font-medium">Application</th>
+              <th className="px-3 py-2 text-right font-medium">Resp ms</th>
+              <th className="px-3 py-2 text-right font-medium">Network ms</th>
+              <th className="px-3 py-2 text-right font-medium">Prep ms</th>
+              <th className="px-3 py-2 text-right font-medium">SQL Exec ms</th>
+              <th className="px-3 py-2 text-right font-medium">Check Q ms</th>
+              <th className="px-3 py-2 text-right font-medium">2PC ms</th>
+              <th className="px-3 py-2 text-right font-medium">Fetch ms</th>
+              <th className="px-3 py-2 text-right font-medium">Ext call</th>
+              <th className="px-3 py-2 text-right font-medium">Ext call ms</th>
+              <th className="px-3 py-2 text-right font-medium">Issues</th>
+            </tr>
+          </thead>
+          <tbody>
+            {visibleRows.map((row, idx) => {
+              const bm = row.body_metrics ?? {};
+              const hdr = row.header ?? {};
+              const issues = (row.errors?.length ?? 0) + (row.warnings?.length ?? 0);
+              const networkMs = networkTimeByTxid.get(String(row.txid ?? "")) ?? 0;
+              return (
+                <tr key={idx} className="border-b border-border last:border-0">
+                  <td className="px-3 py-2 font-mono text-xs">{row.txid}</td>
+                  <td className="px-3 py-2 font-mono text-xs" title={row.guid}>
+                    {row.guid ? `${String(row.guid).slice(-8)}...` : "-"}
+                  </td>
+                  <td className="px-3 py-2 text-xs" title={row.application}>
+                    {row.application}
+                  </td>
+                  <td className="px-3 py-2 text-right tabular-nums">
+                    {hdr.response_time_ms ?? "-"}
+                  </td>
+                  <td className="px-3 py-2 text-right tabular-nums">
+                    {Math.round(networkMs).toLocaleString()}
+                  </td>
+                  <td className="px-3 py-2 text-right tabular-nums">
+                    {(bm.network_prep_cum_ms ?? 0).toLocaleString()}
+                  </td>
+                  <td className="px-3 py-2 text-right tabular-nums">
+                    {(bm.sql_execute_cum_ms ?? 0).toLocaleString()}
+                  </td>
+                  <td className="px-3 py-2 text-right tabular-nums">
+                    {(bm.check_query_cum_ms ?? 0).toLocaleString()}
+                  </td>
+                  <td className="px-3 py-2 text-right tabular-nums">
+                    {(bm.two_pc_cum_ms ?? 0).toLocaleString()}
+                  </td>
+                  <td className="px-3 py-2 text-right tabular-nums">
+                    {(bm.fetch_cum_ms ?? 0).toLocaleString()}
+                  </td>
+                  <td className="px-3 py-2 text-right tabular-nums">
+                    {(bm.external_call_count ?? 0).toLocaleString()}
+                  </td>
+                  <td className="px-3 py-2 text-right tabular-nums">
+                    {(bm.external_call_cum_ms ?? 0).toLocaleString()}
+                  </td>
+                  <td className="px-3 py-2 text-right tabular-nums">
+                    {issues > 0 ? (
+                      <span className="rounded bg-destructive/10 px-1.5 py-0.5 text-xs text-destructive">
+                        {issues}
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground">-</span>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </CardContent>
+    </Card>
+  );
+}
+
 function NetworkPrepMethodsTable({ rows }: { rows: any[] }): JSX.Element {
+  const visibleRows = rows.slice(0, MSA_TABLE_PREVIEW_LIMIT);
+  const hiddenCount = Math.max(0, rows.length - visibleRows.length);
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -344,74 +456,82 @@ function NetworkPrepMethodsTable({ rows }: { rows: any[] }): JSX.Element {
             네트워크 준비시간으로 포함된 메소드가 없습니다.
           </p>
         ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
-                <th className="px-3 py-2 text-left font-medium">TXID</th>
-                <th className="px-3 py-2 text-left font-medium">Application</th>
-                <th className="px-3 py-2 text-left font-medium">Method</th>
-                <th className="px-3 py-2 text-right font-medium">Calls</th>
-                <th className="px-3 py-2 text-right font-medium">Method ms</th>
-                <th className="px-3 py-2 text-right font-medium">Call sum</th>
-                <th className="px-3 py-2 text-right font-medium">Prep ms</th>
-                <th className="px-3 py-2 text-left font-medium">URLs</th>
-                <th className="px-3 py-2 text-left font-medium">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row, idx) => {
-                const urls = Array.isArray(row.external_call_urls)
-                  ? row.external_call_urls.filter(Boolean).join(", ")
-                  : "";
-                return (
-                  <tr key={idx} className="border-b border-border last:border-0">
-                    <td className="px-3 py-2 font-mono text-xs">
-                      {row.txid || "—"}
-                    </td>
-                    <td className="px-3 py-2 text-xs" title={row.application}>
-                      {row.application || "—"}
-                    </td>
-                    <td className="max-w-[360px] px-3 py-2 font-mono text-xs">
-                      <span className="block truncate" title={row.raw_message}>
-                        {row.raw_message || "—"}
-                      </span>
-                    </td>
-                    <td className="px-3 py-2 text-right tabular-nums">
-                      {(row.external_call_count ?? 0).toLocaleString()}
-                    </td>
-                    <td className="px-3 py-2 text-right tabular-nums">
-                      {(row.method_elapsed_ms ?? 0).toLocaleString()}
-                    </td>
-                    <td className="px-3 py-2 text-right tabular-nums">
-                      {(row.external_call_cum_ms ?? 0).toLocaleString()}
-                    </td>
-                    <td className="px-3 py-2 text-right tabular-nums">
-                      {(row.network_prep_ms ?? 0).toLocaleString()}
-                    </td>
-                    <td className="max-w-[320px] px-3 py-2 font-mono text-xs">
-                      <span className="block truncate" title={urls}>
-                        {urls || "—"}
-                      </span>
-                    </td>
-                    <td className="px-3 py-2">
-                      {row.suspicious ? (
-                        <span
-                          className="rounded bg-amber-500/10 px-1.5 py-0.5 text-xs text-amber-700 dark:text-amber-300"
-                          title={(row.warnings ?? []).join(", ")}
-                        >
-                          확인 필요
+          <>
+            {hiddenCount > 0 && (
+              <p className="border-b border-border px-3 py-2 text-xs text-muted-foreground">
+                상위 {visibleRows.length.toLocaleString()}건만 표시합니다. 숨김{" "}
+                {hiddenCount.toLocaleString()}건.
+              </p>
+            )}
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
+                  <th className="px-3 py-2 text-left font-medium">TXID</th>
+                  <th className="px-3 py-2 text-left font-medium">Application</th>
+                  <th className="px-3 py-2 text-left font-medium">Method</th>
+                  <th className="px-3 py-2 text-right font-medium">Calls</th>
+                  <th className="px-3 py-2 text-right font-medium">Method ms</th>
+                  <th className="px-3 py-2 text-right font-medium">Call sum</th>
+                  <th className="px-3 py-2 text-right font-medium">Prep ms</th>
+                  <th className="px-3 py-2 text-left font-medium">URLs</th>
+                  <th className="px-3 py-2 text-left font-medium">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {visibleRows.map((row, idx) => {
+                  const urls = Array.isArray(row.external_call_urls)
+                    ? row.external_call_urls.filter(Boolean).join(", ")
+                    : "";
+                  return (
+                    <tr key={idx} className="border-b border-border last:border-0">
+                      <td className="px-3 py-2 font-mono text-xs">
+                        {row.txid || "—"}
+                      </td>
+                      <td className="px-3 py-2 text-xs" title={row.application}>
+                        {row.application || "—"}
+                      </td>
+                      <td className="max-w-[360px] px-3 py-2 font-mono text-xs">
+                        <span className="block truncate" title={row.raw_message}>
+                          {row.raw_message || "—"}
                         </span>
-                      ) : (
-                        <span className="rounded bg-primary/10 px-1.5 py-0.5 text-xs text-primary">
-                          포함
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums">
+                        {(row.external_call_count ?? 0).toLocaleString()}
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums">
+                        {(row.method_elapsed_ms ?? 0).toLocaleString()}
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums">
+                        {(row.external_call_cum_ms ?? 0).toLocaleString()}
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums">
+                        {(row.network_prep_ms ?? 0).toLocaleString()}
+                      </td>
+                      <td className="max-w-[320px] px-3 py-2 font-mono text-xs">
+                        <span className="block truncate" title={urls}>
+                          {urls || "—"}
                         </span>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                      </td>
+                      <td className="px-3 py-2">
+                        {row.suspicious ? (
+                          <span
+                            className="rounded bg-amber-500/10 px-1.5 py-0.5 text-xs text-amber-700 dark:text-amber-300"
+                            title={(row.warnings ?? []).join(", ")}
+                          >
+                            확인 필요
+                          </span>
+                        ) : (
+                          <span className="rounded bg-primary/10 px-1.5 py-0.5 text-xs text-primary">
+                            포함
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </>
         )}
       </CardContent>
     </Card>
@@ -419,6 +539,8 @@ function NetworkPrepMethodsTable({ rows }: { rows: any[] }): JSX.Element {
 }
 
 function UnprofiledExternalCallGroupsTable({ rows }: { rows: any[] }): JSX.Element {
+  const visibleRows = rows.slice(0, MSA_TABLE_PREVIEW_LIMIT);
+  const hiddenCount = Math.max(0, rows.length - visibleRows.length);
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -436,59 +558,185 @@ function UnprofiledExternalCallGroupsTable({ rows }: { rows: any[] }): JSX.Eleme
             프로파일 미수집 외부호출이 없습니다.
           </p>
         ) : (
+          <>
+            {hiddenCount > 0 && (
+              <p className="border-b border-border px-3 py-2 text-xs text-muted-foreground">
+                상위 {visibleRows.length.toLocaleString()}건만 표시합니다. 숨김{" "}
+                {hiddenCount.toLocaleString()}건.
+              </p>
+            )}
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
+                  <th className="px-3 py-2 text-left font-medium">Caller</th>
+                  <th className="px-3 py-2 text-left font-medium">Target</th>
+                  <th className="px-3 py-2 text-left font-medium">Client</th>
+                  <th className="px-3 py-2 text-right font-medium">Count</th>
+                  <th className="px-3 py-2 text-right font-medium">Total ms</th>
+                  <th className="px-3 py-2 text-right font-medium">Avg ms</th>
+                  <th className="px-3 py-2 text-right font-medium">Max ms</th>
+                  <th className="px-3 py-2 text-left font-medium">Sample URLs</th>
+                </tr>
+              </thead>
+              <tbody>
+                {visibleRows.map((row, idx) => {
+                  const urls = Array.isArray(row.external_call_urls)
+                    ? row.external_call_urls.filter(Boolean).join(", ")
+                    : "";
+                  const client = [row.protocol, row.client].filter(Boolean).join(" / ");
+                  return (
+                    <tr key={idx} className="border-b border-border last:border-0">
+                      <td
+                        className="max-w-[220px] px-3 py-2 font-mono text-xs"
+                        title={row.caller_application}
+                      >
+                        <span className="block truncate">
+                          {row.caller_application || "—"}
+                        </span>
+                      </td>
+                      <td
+                        className="max-w-[280px] px-3 py-2 font-mono text-xs"
+                        title={row.target}
+                      >
+                        <span className="block truncate">{row.target || "—"}</span>
+                      </td>
+                      <td className="px-3 py-2 text-xs" title={client}>
+                        {client || "—"}
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums">
+                        {(row.count ?? 0).toLocaleString()}
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums">
+                        {(row.total_elapsed_ms ?? 0).toLocaleString()}
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums">
+                        {Math.round(row.avg_elapsed_ms ?? 0).toLocaleString()}
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums">
+                        {(row.max_elapsed_ms ?? 0).toLocaleString()}
+                      </td>
+                      <td className="max-w-[320px] px-3 py-2 font-mono text-xs">
+                        <span className="block truncate" title={urls}>
+                          {urls || "—"}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function ExternalCallTopTable({ edges }: { edges: any[] }): JSX.Element {
+  const rows = aggregateExternalCallPairs(edges).slice(0, MSA_TABLE_PREVIEW_LIMIT);
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm">
+          EXTERNAL_CALL 누적 시간 상위 ({rows.length})
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="overflow-x-auto p-0">
+        {rows.length === 0 ? (
+          <p className="px-4 py-3 text-xs text-muted-foreground">
+            표시할 외부 호출이 없습니다.
+          </p>
+        ) : (
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
-                <th className="px-3 py-2 text-left font-medium">Caller</th>
-                <th className="px-3 py-2 text-left font-medium">Target</th>
-                <th className="px-3 py-2 text-left font-medium">Client</th>
-                <th className="px-3 py-2 text-right font-medium">Count</th>
+                <th className="px-3 py-2 text-left font-medium">Caller → Callee</th>
+                <th className="px-3 py-2 text-right font-medium">Calls</th>
                 <th className="px-3 py-2 text-right font-medium">Total ms</th>
                 <th className="px-3 py-2 text-right font-medium">Avg ms</th>
+                <th className="px-3 py-2 text-right font-medium">Network ms</th>
                 <th className="px-3 py-2 text-right font-medium">Max ms</th>
-                <th className="px-3 py-2 text-left font-medium">Sample URLs</th>
               </tr>
             </thead>
             <tbody>
-              {rows.map((row, idx) => {
-                const urls = Array.isArray(row.external_call_urls)
-                  ? row.external_call_urls.filter(Boolean).join(", ")
-                  : "";
-                const client = [row.protocol, row.client].filter(Boolean).join(" / ");
+              {rows.map((row, idx) => (
+                <tr key={idx} className="border-b border-border last:border-0">
+                  <td
+                    className="max-w-[420px] px-3 py-2 font-mono text-xs"
+                    title={`${row.caller} → ${row.callee}`}
+                  >
+                    <span className="block truncate">
+                      {row.caller} → {row.callee}
+                    </span>
+                  </td>
+                  <td className="px-3 py-2 text-right tabular-nums">
+                    {row.count.toLocaleString()}
+                  </td>
+                  <td className="px-3 py-2 text-right tabular-nums">
+                    {Math.round(row.totalMs).toLocaleString()}
+                  </td>
+                  <td className="px-3 py-2 text-right tabular-nums">
+                    {Math.round(row.totalMs / row.count).toLocaleString()}
+                  </td>
+                  <td className="px-3 py-2 text-right tabular-nums">
+                    {Math.round(row.networkMs).toLocaleString()}
+                  </td>
+                  <td className="px-3 py-2 text-right tabular-nums">
+                    {Math.round(row.maxMs).toLocaleString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function SlowSqlTable({ rows }: { rows: any[] }): JSX.Element {
+  const visibleRows = [...rows]
+    .sort((a, b) => Number(b?.elapsed_ms ?? 0) - Number(a?.elapsed_ms ?? 0))
+    .slice(0, MSA_TABLE_PREVIEW_LIMIT);
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm">성능 저하 SQL 후보 ({rows.length})</CardTitle>
+      </CardHeader>
+      <CardContent className="overflow-x-auto p-0">
+        {visibleRows.length === 0 ? (
+          <p className="px-4 py-3 text-xs text-muted-foreground">
+            SQL 실행 이벤트가 없습니다.
+          </p>
+        ) : (
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
+                <th className="px-3 py-2 text-left font-medium">TXID</th>
+                <th className="px-3 py-2 text-left font-medium">Application</th>
+                <th className="px-3 py-2 text-left font-medium">Type</th>
+                <th className="px-3 py-2 text-right font-medium">Elapsed ms</th>
+                <th className="px-3 py-2 text-left font-medium">SQL / Message</th>
+              </tr>
+            </thead>
+            <tbody>
+              {visibleRows.map((row, idx) => {
+                const sql = String(row?.sql_text || row?.raw_message || "-");
                 return (
                   <tr key={idx} className="border-b border-border last:border-0">
-                    <td
-                      className="max-w-[220px] px-3 py-2 font-mono text-xs"
-                      title={row.caller_application}
-                    >
-                      <span className="block truncate">
-                        {row.caller_application || "—"}
-                      </span>
+                    <td className="px-3 py-2 font-mono text-xs">{row?.txid || "-"}</td>
+                    <td className="px-3 py-2 text-xs" title={row?.application}>
+                      {row?.application || "-"}
                     </td>
-                    <td
-                      className="max-w-[280px] px-3 py-2 font-mono text-xs"
-                      title={row.target}
-                    >
-                      <span className="block truncate">{row.target || "—"}</span>
-                    </td>
-                    <td className="px-3 py-2 text-xs" title={client}>
-                      {client || "—"}
+                    <td className="px-3 py-2 font-mono text-xs">
+                      {row?.event_type || "-"}
                     </td>
                     <td className="px-3 py-2 text-right tabular-nums">
-                      {(row.count ?? 0).toLocaleString()}
+                      {(row?.elapsed_ms ?? 0).toLocaleString()}
                     </td>
-                    <td className="px-3 py-2 text-right tabular-nums">
-                      {(row.total_elapsed_ms ?? 0).toLocaleString()}
-                    </td>
-                    <td className="px-3 py-2 text-right tabular-nums">
-                      {Math.round(row.avg_elapsed_ms ?? 0).toLocaleString()}
-                    </td>
-                    <td className="px-3 py-2 text-right tabular-nums">
-                      {(row.max_elapsed_ms ?? 0).toLocaleString()}
-                    </td>
-                    <td className="max-w-[320px] px-3 py-2 font-mono text-xs">
-                      <span className="block truncate" title={urls}>
-                        {urls || "—"}
+                    <td className="max-w-[560px] px-3 py-2 font-mono text-xs">
+                      <span className="block truncate" title={sql}>
+                        {sql}
                       </span>
                     </td>
                   </tr>
@@ -500,6 +748,47 @@ function UnprofiledExternalCallGroupsTable({ rows }: { rows: any[] }): JSX.Eleme
       </CardContent>
     </Card>
   );
+}
+
+function aggregateExternalCallPairs(edges: any[]): Array<{
+  caller: string;
+  callee: string;
+  count: number;
+  totalMs: number;
+  networkMs: number;
+  maxMs: number;
+}> {
+  const byPair = new Map<string, {
+    caller: string;
+    callee: string;
+    count: number;
+    totalMs: number;
+    networkMs: number;
+    maxMs: number;
+  }>();
+  for (const edge of edges) {
+    const caller = String(edge?.caller_application ?? "?");
+    const callee = String(
+      edge?.callee_application ??
+        edge?.external_call_target ??
+        edge?.external_call_url ??
+        "?",
+    );
+    const key = `${caller}\u0000${callee}`;
+    const elapsed = Number(edge?.external_call_elapsed_ms ?? 0);
+    const network = Number(
+      edge?.network_gap_ms ?? edge?.adjusted_network_gap_ms ?? edge?.raw_network_gap_ms ?? 0,
+    );
+    const cur =
+      byPair.get(key) ??
+      { caller, callee, count: 0, totalMs: 0, networkMs: 0, maxMs: 0 };
+    cur.count += 1;
+    cur.totalMs += elapsed;
+    cur.networkMs += Number.isFinite(network) ? Math.max(0, network) : 0;
+    cur.maxMs = Math.max(cur.maxMs, elapsed);
+    byPair.set(key, cur);
+  }
+  return Array.from(byPair.values()).sort((a, b) => b.totalMs - a.totalMs);
 }
 
 function ServiceNetworkTimeSummary({ rows }: { rows: any[] }): JSX.Element {
@@ -689,7 +978,7 @@ export function JenniferProfilePage(): JSX.Element {
         eventCategoryPatterns:
           Object.keys(otherCategories).length > 0 ? otherCategories : undefined,
       } as any);
-      setResult(res);
+      setResult(compactJenniferResult(res));
       setSelectedGuid("");
       setSelectedSignatureHash("");
       setActiveTab("msa");
@@ -733,19 +1022,10 @@ export function JenniferProfilePage(): JSX.Element {
   const networkPrepRows: any[] = result?.tables?.network_prep_methods ?? [];
   const unprofiledExternalCallRows: any[] =
     result?.tables?.unprofiled_external_call_groups ?? [];
+  const slowSqlRows: any[] = result?.tables?.slow_sql_events ?? [];
   const signatureStats: any[] = result?.series?.signature_statistics ?? [];
-  const [profileTimelineActivated, setProfileTimelineActivated] = useState(false);
   const hasResult = Boolean(result);
   const showMsaTablesInSummary = false;
-
-  // primaryRootApplication: pick the first GUID group's root for the
-  // topology / per-service ordering. When the result spans multiple
-  // unrelated traces, the topology still merges them but the root
-  // hint anchors the most-frequent caller at the top.
-  const primaryRootApplication: string | undefined = useMemo(
-    () => guidGroups.find((g) => g?.root_application)?.root_application,
-    [guidGroups],
-  );
 
   // topologyEdges flattens every group's call_graph into one
   // caller→callee list — these are the matched edges with timing
@@ -755,19 +1035,20 @@ export function JenniferProfilePage(): JSX.Element {
     [guidGroups],
   );
 
+  const networkTimeByTxid = useMemo(
+    () => buildNetworkTimeByTxid(guidGroups),
+    [guidGroups],
+  );
+
   // overallTimelineEdges keeps the unmatched edges too (with caller-
   // side timing) so the MSA timeline can show "this call had no
-  // matching callee profile" alongside healthy ones. We backfill
-  // missing match_status as MATCHED for call_graph entries because
-  // call_graph only carries matched edges.
+  // matching callee profile" alongside healthy ones.
   const overallTimelineEdges: any[] = useMemo(
-    () => [
-      ...topologyEdges.map((e) => ({
-        ...e,
-        match_status: e.match_status ?? "MATCHED",
-      })),
-      ...msaEdges.filter((e) => e?.match_status && e.match_status !== "MATCHED"),
-    ],
+    () =>
+      uniqueTimelineEdges([
+        ...topologyEdges,
+        ...msaEdges.filter((e) => e?.match_status && e.match_status !== "MATCHED"),
+      ]),
     [topologyEdges, msaEdges],
   );
 
@@ -800,35 +1081,33 @@ export function JenniferProfilePage(): JSX.Element {
   }, [msaEdges, selectedGuidGroup]);
 
   const singleTopologyEdges: any[] = useMemo(
-    () =>
-      (selectedGuidGroup?.call_graph ?? []).map((edge: any) => ({
-        ...edge,
-        match_status: edge?.match_status ?? "MATCHED",
-      })),
+    () => selectedGuidGroup?.call_graph ?? [],
     [selectedGuidGroup],
   );
 
   const singleTimelineEdges: any[] = useMemo(
-    () => [
-      ...singleTopologyEdges,
-      ...singleGroupEdges.filter(
-        (edge) => edge?.match_status && edge.match_status !== "MATCHED",
-      ),
-    ],
+    () =>
+      uniqueTimelineEdges([
+        ...singleTopologyEdges,
+        ...singleGroupEdges.filter(
+          (edge) => edge?.match_status && edge.match_status !== "MATCHED",
+        ),
+      ]),
     [singleGroupEdges, singleTopologyEdges],
   );
 
-  const singleNetworkPrepRows: any[] = useMemo(() => {
+  const singleProfileRows: any[] = useMemo(() => {
     if (!selectedGuidGroup?.guid) return [];
-    return networkPrepRows.filter((row) => row?.guid === selectedGuidGroup.guid);
-  }, [networkPrepRows, selectedGuidGroup]);
-
-  const singleUnprofiledExternalCallRows: any[] = useMemo(() => {
-    if (!selectedGuidGroup?.guid) return [];
-    return unprofiledExternalCallRows.filter(
-      (row) => row?.guid === selectedGuidGroup.guid,
+    const txids = new Set((selectedGuidGroup?.profile_txids ?? []) as string[]);
+    return profileRows.filter(
+      (row) => row?.guid === selectedGuidGroup.guid || txids.has(row?.txid),
     );
-  }, [unprofiledExternalCallRows, selectedGuidGroup]);
+  }, [profileRows, selectedGuidGroup]);
+
+  const singleSlowSqlRows: any[] = useMemo(() => {
+    const txids = txidSetFromProfiles(singleProfileRows);
+    return slowSqlRows.filter((row) => txids.has(String(row?.txid ?? "")));
+  }, [singleProfileRows, slowSqlRows]);
 
   const selectedSignature = useMemo(() => {
     if (signatureStats.length === 0) return undefined;
@@ -849,27 +1128,40 @@ export function JenniferProfilePage(): JSX.Element {
     [guidGroups, selectedSignatureGuidSet],
   );
 
+  const signatureTopologyEdges: any[] = useMemo(
+    () => signatureGroups.flatMap((g) => g?.call_graph ?? []),
+    [signatureGroups],
+  );
+
   const signatureMsaEdges: any[] = useMemo(
     () => msaEdges.filter((edge) => selectedSignatureGuidSet.has(edge?.guid)),
     [msaEdges, selectedSignatureGuidSet],
   );
 
-  const signatureNetworkPrepRows: any[] = useMemo(
-    () => networkPrepRows.filter((row) => selectedSignatureGuidSet.has(row?.guid)),
-    [networkPrepRows, selectedSignatureGuidSet],
+  const signatureProfileRows: any[] = useMemo(
+    () => profileRows.filter((row) => selectedSignatureGuidSet.has(row?.guid)),
+    [profileRows, selectedSignatureGuidSet],
   );
 
-  const signatureUnprofiledExternalCallRows: any[] = useMemo(
-    () =>
-      unprofiledExternalCallRows.filter((row) =>
-        selectedSignatureGuidSet.has(row?.guid),
-      ),
-    [unprofiledExternalCallRows, selectedSignatureGuidSet],
-  );
+  const signatureSlowSqlRows: any[] = useMemo(() => {
+    const txids = txidSetFromProfiles(signatureProfileRows);
+    return slowSqlRows.filter((row) => txids.has(String(row?.txid ?? "")));
+  }, [signatureProfileRows, slowSqlRows]);
 
   const averageTimelineEdges: any[] = useMemo(
-    () => buildAverageTimelineEdges(selectedSignature),
+    () => uniqueTimelineEdges(buildAverageTimelineEdges(selectedSignature)),
     [selectedSignature],
+  );
+
+  const signatureTimelineEdges: any[] = useMemo(
+    () =>
+      uniqueTimelineEdges([
+        ...signatureTopologyEdges,
+        ...signatureMsaEdges.filter(
+          (edge) => edge?.match_status && edge.match_status !== "MATCHED",
+        ),
+      ]),
+    [signatureMsaEdges, signatureTopologyEdges],
   );
 
   const emptyResultCard = (
@@ -1056,7 +1348,7 @@ export function JenniferProfilePage(): JSX.Element {
           <TabsList>
             <TabsTrigger value="summary">요약</TabsTrigger>
             <TabsTrigger value="msa">MSA</TabsTrigger>
-            <TabsTrigger value="profiles">프로파일</TabsTrigger>
+            <TabsTrigger value="profiles">부가/검증</TabsTrigger>
             <TabsTrigger value="parser">파서 보고서</TabsTrigger>
           </TabsList>
 
@@ -1116,9 +1408,11 @@ export function JenniferProfilePage(): JSX.Element {
             />
           </section>
 
-          {serviceNetworkRows.length > 0 && (
-            <ServiceNetworkTimeSummary rows={serviceNetworkRows} />
+          {selectedGuidGroup && (
+            <GuidTransactionSummary group={selectedGuidGroup} />
           )}
+
+          <MsaCaptureStatusCard summary={summary} />
 
           {fileErrors.length > 0 && (
             <Card>
@@ -1489,78 +1783,6 @@ export function JenniferProfilePage(): JSX.Element {
             </Card>
           )}
 
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm">Transaction profiles</CardTitle>
-            </CardHeader>
-            <CardContent className="overflow-x-auto p-0">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
-                    <th className="px-3 py-2 text-left font-medium">TXID</th>
-                    <th className="px-3 py-2 text-left font-medium">GUID</th>
-                    <th className="px-3 py-2 text-left font-medium">Application</th>
-                    <th className="px-3 py-2 text-right font-medium">Resp ms</th>
-                    <th className="px-3 py-2 text-right font-medium">SQL Exec ms</th>
-                    <th className="px-3 py-2 text-right font-medium">Check Q ms</th>
-                    <th className="px-3 py-2 text-right font-medium">2PC ms</th>
-                    <th className="px-3 py-2 text-right font-medium">Fetch ms</th>
-                    <th className="px-3 py-2 text-right font-medium">Ext call</th>
-                    <th className="px-3 py-2 text-right font-medium">Ext call ms</th>
-                    <th className="px-3 py-2 text-right font-medium">Issues</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {profileRows.map((row, idx) => {
-                    const bm = row.body_metrics ?? {};
-                    const hdr = row.header ?? {};
-                    const issues = (row.errors?.length ?? 0) + (row.warnings?.length ?? 0);
-                    return (
-                      <tr key={idx} className="border-b border-border last:border-0">
-                        <td className="px-3 py-2 font-mono text-xs">{row.txid}</td>
-                        <td className="px-3 py-2 font-mono text-xs" title={row.guid}>
-                          {row.guid ? `${String(row.guid).slice(-8)}…` : "—"}
-                        </td>
-                        <td className="px-3 py-2 text-xs" title={row.application}>
-                          {row.application}
-                        </td>
-                        <td className="px-3 py-2 text-right tabular-nums">
-                          {hdr.response_time_ms ?? "—"}
-                        </td>
-                        <td className="px-3 py-2 text-right tabular-nums">
-                          {(bm.sql_execute_cum_ms ?? 0).toLocaleString()}
-                        </td>
-                        <td className="px-3 py-2 text-right tabular-nums">
-                          {(bm.check_query_cum_ms ?? 0).toLocaleString()}
-                        </td>
-                        <td className="px-3 py-2 text-right tabular-nums">
-                          {(bm.two_pc_cum_ms ?? 0).toLocaleString()}
-                        </td>
-                        <td className="px-3 py-2 text-right tabular-nums">
-                          {(bm.fetch_cum_ms ?? 0).toLocaleString()}
-                        </td>
-                        <td className="px-3 py-2 text-right tabular-nums">
-                          {(bm.external_call_count ?? 0).toLocaleString()}
-                        </td>
-                        <td className="px-3 py-2 text-right tabular-nums">
-                          {(bm.external_call_cum_ms ?? 0).toLocaleString()}
-                        </td>
-                        <td className="px-3 py-2 text-right tabular-nums">
-                          {issues > 0 ? (
-                            <span className="rounded bg-destructive/10 px-1.5 py-0.5 text-xs text-destructive">
-                              {issues}
-                            </span>
-                          ) : (
-                            <span className="text-muted-foreground">—</span>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </CardContent>
-          </Card>
           </>
           )}
           </TabsContent>
@@ -1644,74 +1866,21 @@ export function JenniferProfilePage(): JSX.Element {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm">
-                  MSA 캡처 상태 (체크쿼리 / 2PC / 외부호출 / 네트워크 준비)
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                <MetricCard
-                  label="2PC (cum ms)"
-                  value={(summary.two_pc_cum_ms ?? 0).toLocaleString()}
-                />
-                <MetricCard
-                  label="Check Query (cum ms)"
-                  value={(summary.check_query_cum_ms ?? 0).toLocaleString()}
-                />
-                <MetricCard
-                  label="External call (cum ms)"
-                  value={(summary.external_call_cum_ms ?? 0).toLocaleString()}
-                />
-                <MetricCard
-                  label="External call count"
-                  value={(summary.external_call_count ?? 0).toLocaleString()}
-                />
-                <MetricCard
-                  label="Network prep wrapper (ms)"
-                  value={(summary.network_prep_method_cum_ms ?? 0).toLocaleString()}
-                />
-                <MetricCard
-                  label="Network prep wrapper count"
-                  value={(summary.network_prep_method_count ?? 0).toLocaleString()}
-                />
-                <MetricCard
-                  label="Network prep (cum ms)"
-                  value={(summary.network_prep_cum_ms ?? 0).toLocaleString()}
-                />
-                <MetricCard
-                  label="Connection acquire (ms)"
-                  value={(summary.connection_acquire_cum_ms ?? 0).toLocaleString()}
-                />
-              </CardContent>
-            </Card>
-            {(summary.external_call_cum_ms ?? 0) === 0 &&
-              (summary.two_pc_cum_ms ?? 0) === 0 &&
-              (summary.check_query_cum_ms ?? 0) === 0 && (
-                <p className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-amber-700 dark:text-amber-300">
-                  EXTERNAL_CALL / 2PC / CHECK_QUERY 합계가 모두 0입니다. 본문
-                  이벤트가 잡히지 않았을 수 있습니다 — "파서 보고서" 탭의
-                  파일 오류와 프로파일별 이슈를 확인하고, 필요하면 위 폼에서
-                  사용자 분류 패턴을 추가해 다시 분석하세요.
-                </p>
-              )}
-
             {msaTimelineMode === "single" ? (
               selectedGuidGroup ? (
                 <>
-                  <GuidTransactionSummary group={selectedGuidGroup} />
-                  <NetworkPrepMethodsTable rows={singleNetworkPrepRows} />
-                  <UnprofiledExternalCallGroupsTable
-                    rows={singleUnprofiledExternalCallRows}
-                  />
                   <MsaResponseTimeBreakdown
                     groups={[selectedGuidGroup] as any}
-                    edges={singleGroupEdges as any}
+                    edges={singleTimelineEdges as any}
                   />
                   <MsaTopology
                     title="단일 트랜잭션 호출 토폴로지"
                     edges={singleTopologyEdges as any}
                     rootApplication={selectedGuidGroup?.root_application}
+                  />
+                  <TransactionProfilesTable
+                    rows={singleProfileRows}
+                    networkTimeByTxid={networkTimeByTxid}
                   />
                   <MsaTimeline
                     title="단일 트랜잭션 타임라인 (호출 시각 순)"
@@ -1719,6 +1888,12 @@ export function JenniferProfilePage(): JSX.Element {
                     mode="overall"
                     rootApplication={selectedGuidGroup?.root_application}
                   />
+                  <MsaTimelineTreemap
+                    title="단일 트랜잭션 트리맵 (elapsed 합계)"
+                    edges={singleTimelineEdges as any}
+                    rootApplication={selectedGuidGroup?.root_application}
+                  />
+                  <SlowSqlTable rows={singleSlowSqlRows} />
                 </>
               ) : (
                 <Card>
@@ -1730,19 +1905,18 @@ export function JenniferProfilePage(): JSX.Element {
               )
             ) : selectedSignature ? (
               <>
-                <SignatureAverageSummary signature={selectedSignature} />
-                <NetworkPrepMethodsTable rows={signatureNetworkPrepRows} />
-                <UnprofiledExternalCallGroupsTable
-                  rows={signatureUnprofiledExternalCallRows}
-                />
                 <MsaResponseTimeBreakdown
                   groups={signatureGroups as any}
-                  edges={signatureMsaEdges as any}
+                  edges={signatureTimelineEdges as any}
                 />
                 <MsaTopology
                   title="평균 트랜잭션 호출 토폴로지"
                   edges={averageTimelineEdges as any}
                   rootApplication={selectedSignature?.root_application}
+                />
+                <TransactionProfilesTable
+                  rows={signatureProfileRows}
+                  networkTimeByTxid={networkTimeByTxid}
                 />
                 <MsaTimeline
                   title="평균 트랜잭션 타임라인 (avg elapsed 기준)"
@@ -1750,6 +1924,12 @@ export function JenniferProfilePage(): JSX.Element {
                   mode="overall"
                   rootApplication={selectedSignature?.root_application}
                 />
+                <MsaTimelineTreemap
+                  title="평균 트랜잭션 트리맵 (avg elapsed 합계)"
+                  edges={averageTimelineEdges as any}
+                  rootApplication={selectedSignature?.root_application}
+                />
+                <SlowSqlTable rows={signatureSlowSqlRows} />
               </>
             ) : (
               <Card>
@@ -1769,33 +1949,10 @@ export function JenniferProfilePage(): JSX.Element {
               emptyResultCard
             ) : (
             <>
-            <div className="flex items-center justify-between gap-3">
-              <div className="text-xs text-muted-foreground">
-                메인 Caller 서비스가 맨 위. 호출 시각 순으로 가로 막대로 표시.
-              </div>
-              <label className="flex cursor-pointer select-none items-center gap-1.5 text-xs">
-                <input
-                  type="checkbox"
-                  className="h-3.5 w-3.5"
-                  checked={profileTimelineActivated}
-                  onChange={(e) =>
-                    setProfileTimelineActivated(e.target.checked)
-                  }
-                />
-                활성화 (응답시간 기준 정렬)
-              </label>
-            </div>
-            <MsaTimeline
-              title={
-                profileTimelineActivated
-                  ? "서비스별 타임라인 (응답시간 순)"
-                  : "서비스별 타임라인 (호출 시각 순)"
-              }
-              edges={overallTimelineEdges as any}
-              mode="by-service"
-              rootApplication={primaryRootApplication}
-              useResponseTimeOrder={profileTimelineActivated}
-            />
+            <ServiceNetworkTimeSummary rows={serviceNetworkRows} />
+            <ExternalCallTopTable edges={overallTimelineEdges as any} />
+            <NetworkPrepMethodsTable rows={networkPrepRows} />
+            <UnprofiledExternalCallGroupsTable rows={unprofiledExternalCallRows} />
             </>
             )}
           </TabsContent>

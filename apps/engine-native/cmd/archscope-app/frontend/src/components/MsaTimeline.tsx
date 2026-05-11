@@ -19,8 +19,10 @@ import { useEffect, useMemo, useRef } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
-const DEFAULT_MAX_BARS = 2_000;
-const LABEL_RENDER_LIMIT = 300;
+const DEFAULT_MAX_BARS = 800;
+const LABEL_RENDER_LIMIT = 120;
+const MAX_TIMELINE_HEIGHT = 760;
+const ROW_HEIGHT = 28;
 
 export type MsaTimelineEdge = {
   caller_application: string;
@@ -33,6 +35,8 @@ export type MsaTimelineEdge = {
   caller_event_start_ms?: number;
   callee_body_start_ms?: number;
   match_status?: string;
+  call_count?: number;
+  timeline_kind?: "external_call" | "network_prep";
 };
 
 export type MsaTimelineProps = {
@@ -209,7 +213,7 @@ export function MsaTimeline({
       tooltip: {
         formatter: (p: any) => p.value?.[5] ?? "",
       },
-      grid: { left: 220, right: 24, top: 24, bottom: 48 },
+      grid: { left: 220, right: rowSet.length > 24 ? 44 : 24, top: 24, bottom: 48 },
       xAxis: {
         type: "value",
         name: "ms",
@@ -225,10 +229,27 @@ export function MsaTimeline({
         inverse: true,
         axisLabel: { fontSize: 10, width: 200, overflow: "truncate" },
       },
-      dataZoom: [
-        { type: "slider", height: 14, bottom: 8 },
-        { type: "inside" },
-      ],
+      dataZoom:
+        rowSet.length > 24
+          ? [
+              { type: "slider", xAxisIndex: 0, height: 14, bottom: 8 },
+              { type: "inside", xAxisIndex: 0 },
+              {
+                type: "slider",
+                yAxisIndex: 0,
+                width: 14,
+                right: 4,
+                top: 24,
+                bottom: 48,
+                start: 0,
+                end: Math.min(100, (24 / rowSet.length) * 100),
+              },
+              { type: "inside", yAxisIndex: 0 },
+            ]
+          : [
+              { type: "slider", xAxisIndex: 0, height: 14, bottom: 8 },
+              { type: "inside", xAxisIndex: 0 },
+            ],
       series: [
         {
           type: "custom",
@@ -286,7 +307,8 @@ export function MsaTimeline({
     };
   }, [edges, maxBars, mode, rootApplication, useResponseTimeOrder]);
 
-  const finalHeight = height ?? Math.max(220, 60 + rowCount * 28);
+  const finalHeight =
+    height ?? Math.min(MAX_TIMELINE_HEIGHT, Math.max(220, 60 + rowCount * ROW_HEIGHT));
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -294,7 +316,6 @@ export function MsaTimeline({
       renderer: "canvas",
     });
     chartRef.current = chart;
-    chart.setOption(option, { notMerge: true, lazyUpdate: true });
     let resizeFrame = 0;
     const ro = new ResizeObserver(() => {
       if (resizeFrame) cancelAnimationFrame(resizeFrame);
@@ -339,6 +360,193 @@ export function MsaTimeline({
   );
 }
 
+export function MsaTimelineTreemap({
+  title = "MSA 트리맵",
+  edges,
+  rootApplication,
+  height = 360,
+  maxBars = DEFAULT_MAX_BARS,
+}: Pick<
+  MsaTimelineProps,
+  "title" | "edges" | "rootApplication" | "height" | "maxBars"
+>): JSX.Element {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const chartRef = useRef<echarts.ECharts | null>(null);
+
+  const { option, visibleCount, totalCount, leafCount } = useMemo(() => {
+    const items = edges.filter(
+      (e) =>
+        Number.isFinite(e.external_call_elapsed_ms) &&
+        (e.external_call_elapsed_ms ?? 0) > 0,
+    );
+    if (items.length === 0) {
+      return {
+        option: {} as EChartsOption,
+        visibleCount: 0,
+        totalCount: 0,
+        leafCount: 0,
+      };
+    }
+
+    const cappedItems = limitTimelineEdges(items, maxBars, "by-service");
+    const root = buildTreemapRoot(cappedItems, rootApplication);
+    const opt: EChartsOption = {
+      animation: false,
+      tooltip: {
+        formatter: (p: any) => {
+          const data = p.data ?? {};
+          const path = Array.isArray(p.treePathInfo)
+            ? p.treePathInfo.map((x: any) => x.name).filter(Boolean).join(" / ")
+            : data.name;
+          const elapsed = Number(data.value ?? 0);
+          const count = Number(data.count ?? 0);
+          const gap = Number(data.networkGapMs ?? 0);
+          const response = Number(data.responseTimeMs ?? 0);
+          const ratio = Number(data.ratioPct ?? 0);
+          const lines = [
+            path,
+            `elapsed = ${Math.round(elapsed).toLocaleString()} ms`,
+          ];
+          if (ratio > 0) lines.push(`ratio = ${ratio.toFixed(1)}%`);
+          if (count > 0) lines.push(`calls = ${count.toLocaleString()}`);
+          if (response > 0) {
+            lines.push(`callee response = ${Math.round(response).toLocaleString()} ms`);
+          }
+          if (gap > 0) lines.push(`network gap = ${Math.round(gap).toLocaleString()} ms`);
+          if (data.status) lines.push(`status = ${data.status}`);
+          return lines.join("<br/>");
+        },
+      },
+      series: [
+        {
+          type: "treemap",
+          roam: false,
+          nodeClick: "zoomToNode",
+          breadcrumb: { show: false },
+          squareRatio: 1.2,
+          visibleMin: 8,
+          label: {
+            show: true,
+            position: "inside",
+            align: "center",
+            verticalAlign: "middle",
+            formatter: (p: any) => {
+              const count = Number(p.data?.count ?? 0);
+              const ratio = Number(p.data?.ratioPct ?? 0);
+              const ratioLabel = ratio > 0 ? `${ratio.toFixed(1)}%` : "";
+              const countLabel = count > 0 ? `${count.toLocaleString()}건` : "";
+              return [p.name, [ratioLabel, countLabel].filter(Boolean).join(" · ")]
+                .filter(Boolean)
+                .join("\n");
+            },
+            fontSize: 11,
+            color: "#0f172a",
+            overflow: "truncate",
+          },
+          upperLabel: {
+            show: false,
+          },
+          itemStyle: {
+            borderColor: "#f8fafc",
+            borderWidth: 1,
+            gapWidth: 2,
+          },
+          levels: [
+            {
+              itemStyle: {
+                borderColor: "#e2e8f0",
+                borderWidth: 0,
+                gapWidth: 4,
+              },
+            },
+            {
+              colorSaturation: [0.35, 0.65],
+              itemStyle: {
+                borderColor: "#f8fafc",
+                borderWidth: 2,
+                gapWidth: 2,
+              },
+            },
+            {
+              colorSaturation: [0.4, 0.75],
+              itemStyle: {
+                borderColor: "#f8fafc",
+                borderWidth: 1,
+                gapWidth: 1,
+              },
+            },
+          ],
+          data: root.children ?? [],
+        } as any,
+      ],
+    };
+
+    return {
+      option: opt,
+      visibleCount: cappedItems.length,
+      totalCount: items.length,
+      leafCount: (root.children ?? []).reduce(
+        (sum, node) => sum + (node.children?.length ?? 0),
+        0,
+      ),
+    };
+  }, [edges, maxBars, rootApplication]);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const chart = echarts.init(containerRef.current, undefined, {
+      renderer: "canvas",
+    });
+    chartRef.current = chart;
+    let resizeFrame = 0;
+    const ro = new ResizeObserver(() => {
+      if (resizeFrame) cancelAnimationFrame(resizeFrame);
+      resizeFrame = requestAnimationFrame(() => chart.resize());
+    });
+    ro.observe(containerRef.current);
+    return () => {
+      if (resizeFrame) cancelAnimationFrame(resizeFrame);
+      ro.disconnect();
+      chart.dispose();
+      if (chartRef.current === chart) chartRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    chartRef.current?.setOption(option, { notMerge: true, lazyUpdate: true });
+  }, [option]);
+
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm">{title}</CardTitle>
+        {leafCount > 0 && (
+          <p className="text-xs text-muted-foreground">
+            사각형 면적은 external call elapsed 합계 기준입니다.
+          </p>
+        )}
+      </CardHeader>
+      <CardContent>
+        {leafCount === 0 ? (
+          <p className="text-xs text-muted-foreground">
+            트리맵에 표시할 외부 호출이 없습니다.
+          </p>
+        ) : (
+          <>
+            {visibleCount < totalCount && (
+              <p className="mb-2 text-xs text-muted-foreground">
+                호출 {visibleCount.toLocaleString()} / {totalCount.toLocaleString()} 표시
+              </p>
+            )}
+            <div ref={containerRef} style={{ width: "100%", height }} />
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 function limitTimelineEdges(
   items: MsaTimelineEdge[],
   maxBars: number,
@@ -370,11 +578,108 @@ function limitTimelineEdges(
 }
 
 function edgeColor(e: MsaTimelineEdge): string {
+  if (e.timeline_kind === "network_prep" || e.match_status === "NETWORK_PREP") {
+    return "#a78bfa";
+  }
   if (e.match_status && e.match_status !== "MATCHED") return "#fda4af";
   const gap = e.network_gap_ms ?? 0;
   const total = e.external_call_elapsed_ms ?? 0;
   if (total > 0 && gap / total > 0.3) return "#a78bfa"; // network-heavy
   return "#10b981"; // healthy matched call
+}
+
+type TreemapNode = {
+  name: string;
+  value: number;
+  count?: number;
+  networkGapMs?: number;
+  responseTimeMs?: number;
+  ratioPct?: number;
+  status?: string;
+  itemStyle?: { color: string };
+  children?: TreemapNode[];
+};
+
+function buildTreemapRoot(
+  edges: MsaTimelineEdge[],
+  rootApplication?: string,
+): TreemapNode {
+  const byCaller = new Map<string, Map<string, TreemapNode>>();
+  for (const edge of edges) {
+    const caller = edge.caller_application || "?";
+    const callee = edge.callee_application || "unmatched / unknown";
+    const elapsed = edge.external_call_elapsed_ms ?? 0;
+    const callerChildren = byCaller.get(caller) ?? new Map<string, TreemapNode>();
+    const key = `${caller}\u0000${callee}\u0000${edge.match_status ?? ""}\u0000${edge.timeline_kind ?? ""}`;
+    const node = callerChildren.get(key) ?? {
+      name: callee,
+      value: 0,
+      count: 0,
+      networkGapMs: 0,
+      responseTimeMs: 0,
+      status: edge.match_status,
+      itemStyle: { color: edgeColor(edge) },
+    };
+    node.value += elapsed;
+    node.count = (node.count ?? 0) + Math.max(1, edge.call_count ?? 1);
+    node.networkGapMs = (node.networkGapMs ?? 0) + (edge.network_gap_ms ?? 0);
+    node.responseTimeMs =
+      (node.responseTimeMs ?? 0) + (edge.callee_response_time_ms ?? 0);
+    callerChildren.set(key, node);
+    byCaller.set(caller, callerChildren);
+  }
+
+  const children = Array.from(byCaller.entries())
+    .map(([caller, childMap]) => {
+      const serviceChildren = Array.from(childMap.values()).sort(
+        (a, b) => b.value - a.value,
+      );
+      return {
+        name: caller,
+        value: serviceChildren.reduce((sum, child) => sum + child.value, 0),
+        count: serviceChildren.reduce((sum, child) => sum + (child.count ?? 0), 0),
+        networkGapMs: serviceChildren.reduce(
+          (sum, child) => sum + (child.networkGapMs ?? 0),
+          0,
+        ),
+        responseTimeMs: serviceChildren.reduce(
+          (sum, child) => sum + (child.responseTimeMs ?? 0),
+          0,
+        ),
+        children: serviceChildren,
+      };
+    })
+    .sort((a, b) => b.value - a.value);
+
+  const rootName = rootApplication || children[0]?.name || "MSA";
+  const rootDirectChildren = children.filter((child) => child.name !== rootName);
+  const rootSelf = children.find((child) => child.name === rootName);
+  const mergedChildren = rootSelf
+    ? [...(rootSelf.children ?? []), ...rootDirectChildren]
+    : children;
+  const root: TreemapNode = {
+    name: rootName,
+    value: mergedChildren.reduce((sum, child) => sum + child.value, 0),
+    count: mergedChildren.reduce((sum, child) => sum + (child.count ?? 0), 0),
+    networkGapMs: mergedChildren.reduce(
+      (sum, child) => sum + (child.networkGapMs ?? 0),
+      0,
+    ),
+    responseTimeMs: mergedChildren.reduce(
+      (sum, child) => sum + (child.responseTimeMs ?? 0),
+      0,
+    ),
+    children: mergedChildren,
+  };
+  assignTreemapRatios(root, root.value);
+  return root;
+}
+
+function assignTreemapRatios(node: TreemapNode, total: number): void {
+  node.ratioPct = total > 0 ? (node.value / total) * 100 : 0;
+  for (const child of node.children ?? []) {
+    assignTreemapRatios(child, total);
+  }
 }
 
 function tooltipFor(e: MsaTimelineEdge, start: number, elapsed: number): string {

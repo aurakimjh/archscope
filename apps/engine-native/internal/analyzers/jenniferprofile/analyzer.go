@@ -49,6 +49,7 @@ package jenniferprofile
 import (
 	"fmt"
 	"sort"
+	"strings"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/diagnostics"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
@@ -136,6 +137,7 @@ func Build(files []jenniferprofile.FileResult, opts Options) models.AnalysisResu
 	profileRows := []map[string]any{}
 	fileErrors := []map[string]any{}
 	networkPrepRows := []map[string]any{}
+	slowSQLRows := []map[string]any{}
 
 	type aggregate struct {
 		BodyMetrics      models.JenniferBodyMetrics
@@ -206,6 +208,7 @@ func Build(files []jenniferprofile.FileResult, opts Options) models.AnalysisResu
 
 			profileRows = append(profileRows, profileToRow(p, metrics))
 			networkPrepRows = append(networkPrepRows, networkPrepMethodsToRows(p, metrics)...)
+			slowSQLRows = append(slowSQLRows, slowSQLEventsToRows(p)...)
 			mutated = append(mutated, p)
 		}
 		fileBuckets = append(fileBuckets, jenniferFileBucket{
@@ -307,6 +310,7 @@ func Build(files []jenniferprofile.FileResult, opts Options) models.AnalysisResu
 		"unmatched_external_calls":        unmatchedRows,
 		"unprofiled_external_call_groups": unprofiledGroupRows,
 		"network_prep_methods":            networkPrepRows,
+		"slow_sql_events":                 slowSQLRows,
 	}
 	result.Metadata.SchemaVersion = SchemaVersion
 	result.Metadata.Diagnostics = diagnostics.New(ParserName)
@@ -721,6 +725,35 @@ func networkPrepMethodsToRows(p models.JenniferTransactionProfile, m models.Jenn
 		})
 	}
 	return rows
+}
+
+func slowSQLEventsToRows(p models.JenniferTransactionProfile) []map[string]any {
+	rows := []map[string]any{}
+	for _, ev := range p.Body.Events {
+		if !isSQLExecuteEvent(ev.EventType) || ev.ElapsedMs == nil {
+			continue
+		}
+		rows = append(rows, map[string]any{
+			"source_file":     p.SourceFile,
+			"guid":            p.Header.GUID,
+			"txid":            p.Header.TXID,
+			"application":     p.Header.Application,
+			"event_no":        ev.EventNo,
+			"event_start":     ev.EventStart,
+			"event_type":      string(ev.EventType),
+			"elapsed_ms":      *ev.ElapsedMs,
+			"raw_message":     ev.RawMessage,
+			"sql_text":        strings.Join(ev.DetailLines, "\n"),
+			"start_offset_ms": ptrIntOrNil(ev.StartOffsetMs),
+		})
+	}
+	return rows
+}
+
+func isSQLExecuteEvent(t models.JenniferEventType) bool {
+	return t == models.JenniferEventSQLExecute ||
+		t == models.JenniferEventSQLUpdate ||
+		t == models.JenniferEventSQLQuery
 }
 
 func ptrIntOrNil(p *int) any {

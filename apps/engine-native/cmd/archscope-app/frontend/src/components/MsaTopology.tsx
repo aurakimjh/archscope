@@ -317,10 +317,14 @@ export function MsaTopology({
     if (!containerRef.current) return;
     const chart = echarts.init(containerRef.current);
     chartRef.current = chart;
-    chart.setOption(option, { notMerge: true });
-    const ro = new ResizeObserver(() => chart.resize());
+    let resizeFrame = 0;
+    const ro = new ResizeObserver(() => {
+      if (resizeFrame) cancelAnimationFrame(resizeFrame);
+      resizeFrame = requestAnimationFrame(() => chart.resize());
+    });
     ro.observe(containerRef.current);
     return () => {
+      if (resizeFrame) cancelAnimationFrame(resizeFrame);
       ro.disconnect();
       chart.dispose();
       if (chartRef.current === chart) chartRef.current = null;
