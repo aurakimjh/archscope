@@ -11,6 +11,7 @@ ArchScope documentation is maintained in English and Korean.
 | Parser/Analyzer contributor | [Parser Design](./en/PARSER_DESIGN.md) → [Runtime Classification](./en/RUNTIME_CLASSIFICATION.md) |
 | UI/Chart developer | [Chart Design](./en/CHART_DESIGN.md) → [Chart Studio Design](./en/CHART_STUDIO_DESIGN.md) |
 | Performance engineer | [Performance](./en/PERFORMANCE.md) |
+| Product expansion / external APM import | [Product Expansion TO-DO (한국어)](./ko/PRODUCT_EXPANSION_TODO.md) → [APM Import Matrix (한국어)](./ko/APM_IMPORT_MATRIX.md) |
 
 ## English
 
@@ -48,3 +49,5 @@ ArchScope documentation is maintained in English and Korean.
 - [보고서 Export 설계](./ko/REPORT_EXPORT_DESIGN.md)
 - [Demo-site 데이터 실행 흐름](./ko/DEMO_SITE_DATA.md)
 - [성능 측정](./ko/PERFORMANCE.md)
+- [제품 확장 TO-DO](./ko/PRODUCT_EXPANSION_TODO.md)
+- [APM Import Matrix](./ko/APM_IMPORT_MATRIX.md)

@@ -6,6 +6,28 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.1] — 2026-05-11
+
+This release promotes the 0.3.1 line to a stable desktop release and
+adds the first local-first external trace import path for APM evidence.
+
+### Added
+
+- Added external trace import MVP support for OTLP JSON-file traces and
+  Zipkin v2 JSON traces, including canonical `trace_import` analysis
+  output, `archscope-engine trace import`, sample fixtures, and CLI
+  smoke coverage.
+- Added APM import matrix and product expansion TO-DO documentation for
+  Evidence Board, trace import, incident timeline, SLO/golden signals,
+  and deferred SaaS connector work.
+
+### Changed
+
+- Promoted app/package metadata to `0.3.1` for the formal desktop
+  release.
+- Carries forward the Jennifer MSA network-time analysis improvements
+  from `0.3.1-rc1`.
+
 ## [0.3.1-rc1] — 2026-05-10
 
 ### Added
@@ -439,6 +461,7 @@ Initial closed-development tag covering the original Electron + React
 desktop application with the Phase 1–3 backlog (T-001…T-179).
 Superseded by 0.2.0-alpha; no longer publicly distributed.
 
+[0.3.1]: https://github.com/aurakimjh/archscope/releases/tag/v0.3.1
 [0.3.1-rc1]: https://github.com/aurakimjh/archscope/releases/tag/v0.3.1-rc1
 [0.3.0-rc1]: https://github.com/aurakimjh/archscope/releases/tag/v0.3.0-rc1
 [0.2.0-rc1]: https://github.com/aurakimjh/archscope/releases/tag/v0.2.0-rc1

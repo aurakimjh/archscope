@@ -13,6 +13,7 @@ historical note로 취급합니다.
 | Parser/Analyzer 확장 개발자 | [파서 설계](./PARSER_DESIGN.md) → [런타임 분류](./RUNTIME_CLASSIFICATION.md) |
 | UI/차트 개발자 | [차트 설계](./CHART_DESIGN.md) → [Chart Studio 설계](./CHART_STUDIO_DESIGN.md) |
 | 성능 최적화 담당 | [성능 측정](./PERFORMANCE.md) |
+| 제품 확장/외부 APM 연동 검토 | [제품 확장 TO-DO](./PRODUCT_EXPANSION_TODO.md) → [APM Import Matrix](./APM_IMPORT_MATRIX.md) |
 
 ## 사용자 문서
 
@@ -31,6 +32,8 @@ historical note로 취급합니다.
 - [보고서 Export 설계](./REPORT_EXPORT_DESIGN.md) — HTML/PPTX/Diff export 파이프라인
 - [고급 진단 설계](./ADVANCED_DIAGNOSTICS.md) — Timeline correlation, JFR, OpenTelemetry
 - [AI 보조 해석 설계](./AI_INTERPRETATION.md) — Evidence-bound AI interpretation, Ollama 연동
+- [제품 확장 TO-DO](./PRODUCT_EXPANSION_TODO.md) — Evidence Studio / Trace import / APM 연동 실행 순서
+- [APM Import Matrix](./APM_IMPORT_MATRIX.md) — 외부 APM export/API와 ArchScope import 우선순위
 
 ## 운영 문서
 

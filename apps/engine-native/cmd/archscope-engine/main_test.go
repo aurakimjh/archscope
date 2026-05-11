@@ -148,6 +148,11 @@ func TestCLISubcommands(t *testing.T) {
 			wantType: "otel_logs",
 		},
 		{
+			name:     "trace-import",
+			args:     []string{"trace", "import", "--in", join("traces", "sample-otlp-traces.jsonl")},
+			wantType: "trace_import",
+		},
+		{
 			name:     "thread-dump",
 			args:     []string{"thread-dump", "analyze", "--in", join("thread-dumps", "sample-java-thread-dump.txt")},
 			wantType: "thread_dump",

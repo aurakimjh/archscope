@@ -1,0 +1,52 @@
+[
+  {
+    "traceId": "6f9a20b5092b4e7e95dfd76a83f69f20",
+    "id": "aaaaaaaaaaaaaaaa",
+    "name": "get /orders/{id}",
+    "kind": "SERVER",
+    "timestamp": 1715414500000000,
+    "duration": 90000,
+    "localEndpoint": {
+      "serviceName": "order-service"
+    },
+    "tags": {
+      "http.method": "GET",
+      "http.status_code": "200"
+    }
+  },
+  {
+    "traceId": "6f9a20b5092b4e7e95dfd76a83f69f20",
+    "parentId": "aaaaaaaaaaaaaaaa",
+    "id": "bbbbbbbbbbbbbbbb",
+    "name": "get /inventory/{sku}",
+    "kind": "CLIENT",
+    "timestamp": 1715414500010000,
+    "duration": 45000,
+    "localEndpoint": {
+      "serviceName": "order-service"
+    },
+    "remoteEndpoint": {
+      "serviceName": "inventory-service"
+    },
+    "tags": {
+      "http.method": "GET",
+      "http.status_code": "200"
+    }
+  },
+  {
+    "traceId": "6f9a20b5092b4e7e95dfd76a83f69f20",
+    "parentId": "bbbbbbbbbbbbbbbb",
+    "id": "cccccccccccccccc",
+    "name": "get /inventory/{sku}",
+    "kind": "SERVER",
+    "timestamp": 1715414500014000,
+    "duration": 40000,
+    "localEndpoint": {
+      "serviceName": "inventory-service"
+    },
+    "tags": {
+      "http.method": "GET",
+      "http.status_code": "200"
+    }
+  }
+]
