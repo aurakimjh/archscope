@@ -17,9 +17,9 @@ The previous long-form history was archived to
 - Release baseline: `v0.3.1` is the latest stable GitHub release. The
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
-- Current product expansion focus: local-first external trace import,
-  Evidence Board, Incident Timeline, SLO/Golden Signals, and service-flow
-  topology integration.
+- Current execution focus: trace import UI, Elastic APM file import,
+  trace critical-path findings, Evidence Board skeleton, and Windows GUI
+  smoke testing.
 - Retired implementation: Python/FastAPI/browser sources are archived under
   `archive/python-engine` and `archive/web-frontend-python`.
 - Historical native POC module has been folded into `apps/engine-native`.
@@ -62,9 +62,12 @@ The previous long-form history was archived to
 - Added `archscope-engine trace import --in <file> --format
   auto|otlp-json|zipkin-v2-json` and trace sample fixtures under
   `examples/traces`.
-- Added Korean APM import matrix and product expansion TODO documents covering
-  trace import, Evidence Board, Incident Timeline, SLO/Golden Signals, service
-  flow, and deferred SaaS connectors.
+- Researched product expansion and external APM import priorities around
+  local-first trace evidence, Evidence Board, Incident Timeline,
+  SLO/Golden Signals, service flow, and deferred SaaS connectors.
+- Consolidated product expansion and external APM planning into the English and
+  Korean roadmap documents, then removed the former Korean-only planning notes
+  so `docs/en` and `docs/ko` Markdown files stay paired.
 
 ## Current Risk
 
@@ -86,9 +89,11 @@ distance, while the underlying `AnalysisResult` tables retain detailed call
 metrics.
 
 Trace import is now an engine/CLI MVP, not a full UI workflow. OTLP JSON-file
-and Zipkin v2 JSON inputs are covered, but Elastic APM, Jaeger, SkyWalking, and
-SaaS connector paths are still pending. Critical-path analysis, richer findings,
-and Wails page integration remain the highest trace-import follow-ups.
+and Zipkin v2 JSON inputs are covered, while Elastic APM file import,
+critical-path analysis, richer findings, and Wails page integration remain the
+highest active trace-import follow-ups. Broader Jaeger, SkyWalking, and SaaS
+connector items remain roadmap candidates until they are explicitly promoted
+into the active TO-DO.
 
 Remaining large-file risk is concentrated in structured formats that naturally
 require object materialization, such as JFR JSON, Node diagnostic reports, jcmd
@@ -117,41 +122,20 @@ filtered before analysis.
 4. Start the Evidence Board skeleton and define the common evidence-card model
    shared by analyzer findings, chart selections, table rows, and parser
    diagnostics.
-5. Perform direct Windows GUI launch smoke-test on a Windows host/VM and
-   continue signing/notarization plus frontend bundle-splitting release work.
-6. Consider deeper GC event streaming if future real-world logs exceed the
-   current 305 MB RSS envelope.
+5. Perform direct Windows GUI launch smoke-test on a Windows host/VM.
+6. Continue 0.3.x release hardening for signing/notarization and frontend
+   bundle splitting.
 
 ## Active TO-DO
 
 | ID | Priority | Status | Task | Depends on | Output |
 |---|---|---|---|---|---|
-| T-393 | P0 | [x] | Added GC analyzer `MaxSeriesPoints` limits and deterministic event-bucket downsampling for pause, heap, metaspace, allocation, and promotion series while preserving exact summary metrics and findings. | Current Go GC analyzer | Bounded `gc_log` result size and lower RSS |
-| T-394 | P0 | [x] | Added a reproducible GC large-file regression benchmark that asserts output size stays bounded for synthetic 300k+ event logs. | T-393 | GC performance regression guard |
-| T-395 | P1 | [x] | Added a common streaming text API in `internal/textio`, including encoding fallback, line numbers, cancellation hooks, and diagnostic context support without returning `[]string`. | Existing textio encoding support | Shared line streaming primitive |
-| T-396 | P1 | [x] | Converted access log, GC log, OTel JSONL, exception, and simple runtime-stack parsers from `IterTextLines`/`ReadAll` to the streaming text API. | T-395 | Parser memory no longer proportional to full line slices |
-| T-397 | P1 | [x] | Refactored access log and OTel analyzer entrypoints to aggregate from parser callbacks; OTel trace detail retention is capped per trace while summary counters consume all records. GC log memory risk is reduced by streaming parser input and bounded series output from T-393/T-396. | T-396, T-393 | Memory-bounded analyzer paths |
-| T-398 | P2 | [x] | Added JFR JSON large-file controls with direct-load file-size preflight and guidance to use event/time/stack-depth filters before analysis. | T-395 | Safer JFR JSON ingestion |
-| T-399 | P2 | [x] | Replaced Jennifer profile global `ReadFile` and TXID index splitting with streaming block segmentation. | T-395 | Bounded Jennifer profile parser |
-| T-400 | P2 | [x] | Converted Java jstack high-volume section scanning to stream lines instead of materializing the whole file; remaining full-read thread dump formats are documented as structured-format guardrail targets. | T-395 | Large thread-dump safety pass |
-| T-401 | P2 | [x] | Reduced profiler SVG memory copies and added size preflight for self-contained HTML payloads. | T-395 | Lower parser copy overhead for visual profiler inputs |
-| T-402 | P2 | [x] | Updated English/Korean parser and performance docs with warning thresholds, stream-only paths, max-lines/time filters, output downsampling, and UI messaging for large inputs. | T-393, T-397 | Current large-file operations guide |
-| T-403 | P0 | [x] | Updated local Go to `go1.26.3`, set `go.mod`/`go.work` to Go 1.26.3, moved CI/release workflows to `go-version: 1.26.x`, aligned release Node setup to 22, added the missing `0.3.0-rc1` changelog entry, and corrected Android build metadata from `1.0` to `0.3.0-rc1`. | Release verification request | Version/toolchain baseline aligned |
-| T-404 | P0 | [x] | Verified the `v0.3.0-rc1` release path locally and remotely: Go vet/build/race tests, frontend build, Wails macOS package, app launch smoke, code signature check, DMG checksum, CLI analysis/export smoke tests, GitHub Release matrix review, and release asset SHA256 validation. | T-403 | Release verification evidence captured |
-| T-405 | P1 | [x] | Made Jennifer profile tabs visible before analysis and added a consistent empty-result state for Summary, MSA Timeline, Profile Timeline, and Parser Report. | Jennifer profile UI | MSA timeline menu discoverable before analysis |
-| T-406 | P1 | [x] | Added a fast path for common nginx access-log lines with trailing response time, preserved fallback parsing, and reduced collapsed profiler stack-splitting/whitespace-scan allocations. | Large-log audit findings | Faster parser/profiler hot paths |
-| T-407 | P1 | [x] | Optimized graph rendering for large results: MSA timeline display cap and row-index map, ECharts canvas/no-animation/lazy resize updates, and row-bucket hit testing for canvas flame graph hover. | T-405, graph UI components | Lower browser render and interaction cost |
-| T-408 | P1 | [x] | Renamed the Wails app command tree to `cmd/archscope-app`, retired the duplicate POC CLI path in favor of `archscope-engine profiler ...`, renamed the native workflow/docs, and regenerated Wails bindings under the new path. | Official ArchScope naming | Build/source paths no longer expose POC-era profiler suffixes |
-| T-409 | P1 | [x] | Added Jennifer MSA service-call network summaries and network-time topology grouping so internal and gateway/external call distances are visually separated. | Jennifer MSA result contract | Service position inference from network-time bands |
-| T-410 | P2 | [x] | Added sortable table header support for dense frontend tables. | Wails frontend table UX | Reusable table sorting hook |
-| T-411 | P1 | [x] | Added external trace import MVP for OTLP JSON-file and Zipkin v2 JSON inputs, including canonical span parsing, `trace_import` analysis result, samples, and CLI command. | Product expansion import matrix | Local-first APM trace evidence import |
-| T-412 | P1 | [x] | Added APM import matrix and product expansion TODO docs covering standard file imports, deferred SaaS connectors, Evidence Board, Incident Timeline, and SLO/golden signals. | Product expansion research | Prioritized product expansion backlog |
-| T-413 | P0 | [x] | Promoted desktop metadata and GitHub release line to `0.3.1` after the `0.3.1-rc1` Jennifer MSA prerelease. | T-409, T-411 | Stable 0.3.1 desktop release baseline |
-| T-414 | P1 | [ ] | Connect `trace_import` to the Wails UI with summary cards, service dependency view, trace table, span table, and findings panel. | T-411 | Trace Import desktop workflow |
-| T-415 | P1 | [ ] | Add Elastic APM `_search` response and source-only NDJSON importers. | T-411, APM import matrix | Elastic trace evidence import |
-| T-416 | P1 | [ ] | Add trace critical-path analysis and expanded trace findings. | T-411 | Root-cause oriented trace diagnostics |
-| T-417 | P1 | [ ] | Design and build the Evidence Board skeleton around reusable evidence cards. | T-412, analyzer result contracts | Cross-analyzer evidence pack foundation |
+| T-414 | P1 | [ ] | Connect `trace_import` to the Wails UI with summary cards, service dependency view, trace table, span table, and findings panel. | Trace import MVP | Trace Import desktop workflow |
+| T-415 | P1 | [ ] | Add Elastic APM `_search` response and source-only NDJSON importers. | Trace import MVP | Elastic trace evidence import |
+| T-416 | P1 | [ ] | Add trace critical-path analysis and current MVP findings: `SLOW_TRACE_P95`, `CLOCK_SKEW_SUSPECTED`, `UNBALANCED_SERVICE_LATENCY`, and `HIGH_ERROR_SERVICE_EDGE`. | Trace import MVP | Root-cause oriented trace diagnostics |
+| T-417 | P1 | [ ] | Design and build the Evidence Board skeleton around reusable evidence cards. | Analyzer result contracts | Cross-analyzer evidence pack foundation |
 | T-418 | P1 | [ ] | Run direct Windows GUI launch smoke-test for the 0.3.1 line on a Windows host/VM. | 0.3.1 release assets | Native Windows confidence beyond CI/package success |
+| T-419 | P2 | [ ] | Continue 0.3.x release hardening for signing/notarization and frontend bundle splitting. | 0.3.1 release baseline | Release hardening follow-up list |
 
 ## Verification Notes
 
@@ -209,6 +193,9 @@ filtered before analysis.
   `env GOCACHE=/tmp/archscope-go-cache go test
   ./internal/parsers/traceimport ./internal/analyzers/traceimport
   ./cmd/archscope-engine`.
+- 2026-05-11 documentation consolidation check passed: `git diff --check`
+  succeeded, and `docs/en` and `docs/ko` Markdown file lists match 1:1 after
+  removing the former single-language planning notes.
 
 ## Decisions
 
@@ -218,6 +205,8 @@ filtered before analysis.
 - Python sources are retained for behavior reference and audits only.
 - Large-file safety work should happen in Go first; archived Python code should
   not receive new product features.
+- Roadmap candidates are not automatically promoted into `Active TO-DO`; they
+  should be added only after explicit review and request.
 
 ## Archive
 

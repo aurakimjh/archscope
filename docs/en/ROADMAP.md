@@ -1,169 +1,296 @@
 # Roadmap
 
-## Phase 1: Foundation
+Last updated: 2026-05-11
 
-- Repository skeleton
-- Desktop UI skeleton
-- Python engine skeleton
-- Access log parser MVP
-- Collapsed profiler parser MVP
-- Sample charts
-- JSON result format
-- English/Korean documentation and UI i18n foundation
-- Engine-UI bridge — initially Electron IPC + Python CLI; replaced in the 2026-05 web pivot (T-206..T-209) with a FastAPI HTTP boundary (`/api/...`) + in-process analyzer dispatch
-- Explicit Python runtime dependencies and CLI entry point
-- Parser diagnostics for malformed records
-- Encoding fallback correctness
-- Type-specific `AnalysisResult` contracts for Access Log and Profiler
-- Focused parser, utility, and JSON exporter tests
+This document is the consolidated product roadmap for the active Go/Wails
+ArchScope line. It pulls together the previous phase roadmap, the product
+expansion notes, the APM import matrix, and the AI interpretation design into a
+single planning view.
 
-## Phase 2: Report-ready Charts
+Use this file for product direction. Use the root `work_status.md` for the
+current execution queue and verification status. This roadmap supersedes the
+former single-language product expansion notes, product expansion TODO, and APM
+import matrix documents.
 
-- Chart Studio
-- Theme editor
-- ECharts 6 upgrade evaluation
-- Dark mode and dynamic chart themes
-- Broken-axis and distribution chart options
-- PNG/SVG export
-- CSV export
-- Chart Studio template preview/edit MVP
-- Access log advanced statistics
-- Access log diagnostic findings beyond raw charts
-- Profiler flamegraph drill-down, Jennifer CSV import, and execution breakdown
-- Custom regex parser
-- Report label language toggle
+## Roadmap Inputs
 
-## Phase 3: JVM Diagnostics and Distribution
+- `work_status.md` - active execution status and current TO-DO IDs.
+- `docs/en/AI_INTERPRETATION.md` and `docs/ko/AI_INTERPRETATION.md` -
+  evidence-bound AI interpretation policy and runtime guardrails.
+- `docs/en/REPORT_EXPORT_DESIGN.md` and `docs/ko/REPORT_EXPORT_DESIGN.md` -
+  report export and before/after design context.
 
-- GC log analyzer MVP
-- Java thread dump analyzer MVP
-- Java exception analyzer MVP
-- JFR recording parser design and feasibility spike
-- Timeline correlation
-- Electron supported-version upgrade
-- Electron + PyInstaller packaging spike
+## Product Direction
 
-## Phase 4: Multi-runtime and Observability Inputs
+ArchScope is moving from a collection of local diagnostic analyzers into an
+Evidence Studio for architecture, operations, and customer reporting. The core
+product promise is local-first evidence reanalysis: users can import files or
+exports from real systems, inspect deterministic findings, collect supporting
+evidence, and produce reports without sending customer data to a SaaS service.
 
-- Timeline correlation `AnalysisResult` design
-- JFR recording parser design using the JDK `jfr` command spike path
-- OpenTelemetry log input design with trace/span context mapping
-- Node.js log and stack analyzer
-- Python traceback analyzer
-- Go panic/goroutine analyzer
-- .NET exception/IIS analyzer
-- OpenTelemetry JSONL log analyzer and cross-service trace correlation MVP
-- OpenTelemetry parent-span service path analysis and failure propagation
-- Broader OpenTelemetry envelope ingestion and span timing correlation
-- Cross-evidence timeline correlation across access logs, GC, profiler, thread, JFR, and OTel evidence
+Guiding principles:
 
-## Phase 5: Report Automation
+- Prefer local files and standard/open formats before SaaS-specific API
+  connectors.
+- Keep parser, analyzer, exporter, and UI responsibilities separate.
+- Preserve the shared `AnalysisResult` contract as the deterministic source of
+  truth.
+- Treat AI interpretation as optional, evidence-bound, and separate from
+  deterministic analyzer output.
+- Keep product documentation available in both English and Korean when a topic
+  becomes part of the canonical roadmap.
 
-- Before/after diff
-- HTML report generation
-- Portable static HTML report MVP for `AnalysisResult` and parser debug JSON
-- Static HTML flamegraph rendering for profiler result JSON
-- PowerPoint export
-- Minimal PowerPoint `.pptx` report MVP
-- Executive summary generator
-- AI-assisted interpretation, optional and evidence-bound
-- Optional local LLM/Ollama interpretation with validated evidence references
-- AI interpretation hardening: canonical `evidence_ref` grammar, `InterpretationResult` contract, runtime validator, prompt-injection defense, local-only runtime policy, provenance UI, and evaluation gates
+## Current Baseline
 
-## Phase 6: Industry-tool parity (post-0.2.0-beta)
+- Active product: Go/Wails desktop app under `apps/engine-native`.
+- Active UI: Wails v3 React frontend under
+  `apps/engine-native/cmd/archscope-app/frontend`.
+- Active engine: Go parser, analyzer, exporter, profiler, and AI
+  interpretation modules under `apps/engine-native/internal`.
+- Release baseline: `v0.3.1` stable.
+- Archived implementation: Python/FastAPI/browser sources are kept under
+  `archive/` for historical reference only.
 
-Driven by gap analysis against TDA (`C:\workspace\tda-main`) for thread
-dumps and async-profiler for profiler workflows. Each milestone bundles
-engine + UI work.
+## Delivered Foundation
 
-### Profiler (M1–M4 — completed 2026-04/05)
+### Foundation and Charts
 
-- **M1 — JFR first class.** Binary `.jfr` auto-converted via the JDK
-  `jfr` CLI (PATH / `JAVA_HOME` / `ARCHSCOPE_JFR_CLI`); multi-event
-  mode filter (`cpu` / `wall` / `alloc` / `lock` / `gc` /
-  `exception` / `io` / `nativemem`); time-range filter (ISO,
-  `HH:MM:SS`, relative `+30s` / `-2m` / `500ms`); thread-state filter;
-  min-duration filter.
-- **M2 — Differential flame + display options.** Two-side diff with
-  divergent red/blue gradient on a normalized total comparison; flame
-  display toolbar (highlight regex, simple class names, normalize
-  lambdas, dotted package, icicle inverted view, min-width
-  simplification).
-- **M3 — Heatmap + per-thread isolation.** 1D wall-clock density
-  strip with drag-to-select that auto-fills the next analyze run's
-  time-range filter; per-thread filter dropdown for `-t` collapsed
-  output that re-roots the flame on a single thread without a server
-  round-trip; min-width simplification finalized.
-- **M4 — pprof export + tree view + native-mem leak + JFR
-  enhancements.** Hand-rolled minimal protobuf encoder for pprof
-  (gzipped, no protobuf runtime dependency, ready for
-  Pyroscope / Speedscope / `go tool pprof`); hierarchical expandable
-  tree-view table; native-memory leak detection (alloc/free pairing
-  with tail-ratio cutoff, byte-weighted flame); recent-files panel
-  (localStorage) for continuous diff sessions.
+- Repository, desktop UI, parser, exporter, and JSON result foundations.
+- Access log and collapsed profiler MVPs.
+- Parser diagnostics, encoding fallback, and type-specific `AnalysisResult`
+  contracts.
+- Chart Studio, chart templates, PNG/SVG/CSV export, report label language
+  toggle, and report-ready chart improvements.
 
-### Thread dumps — TDA hardening (in progress)
+### JVM and Runtime Diagnostics
 
-Many of the items below were delivered by Codex in a single batch
-(commit `e6e6f48`) and have since been extended:
+- GC log, Java thread dump, Java exception, and JFR parser/analyzer paths.
+- Timeline correlation design across access logs, GC, profiler, thread, JFR,
+  OTel, and runtime evidence.
+- Multi-language stack and dump parsing for Java, Go, Python, Node.js, and .NET
+  sources.
+- Thread dump hardening with carrier-pinning, SMR/zombie-thread, lock
+  contention, and deadlock findings.
 
-- Virtual-thread carrier-pinning detector
-  (`VIRTUAL_THREAD_CARRIER_PINNING`) — flags Loom carrier threads
-  pinned because the virtual thread holds a monitor.
-- SafeMemoryReclamation / zombie thread detector
-  (`SMR_UNRESOLVED_THREAD`).
-- Lock-contention owner/waiter graph + DFS deadlock cycle detection.
-- Heuristic findings: `THREAD_CONGESTION_DETECTED`,
-  `EXTERNAL_RESOURCE_WAIT_HIGH`, `LIKELY_GC_PAUSE_DETECTED`,
-  `GROWING_LOCK_CONTENTION`.
-- 9-variant parser registry: `java_jstack` (incl. JDK 21+
-  no-`nid` form), `java_jcmd_json`, `go_goroutine`, `python_pyspy`,
-  `python_faulthandler`, `python_traceback`, `nodejs_diagnostic_report`,
-  `nodejs_sample_trace`, `dotnet_clrstack`,
-  `dotnet_environment_stacktrace`. UTF-16 / BOM auto-detection.
-- Multi-file picker (drag a folder of dumps in one shot).
-- JVM signals tab — Carrier-pinning / SMR / Native methods / Class
-  histogram sub-tabs, plus a Dump overview card.
+### Go/Wails Consolidation
 
-### Access log overhaul (completed 2026-05)
+- Active product line consolidated into the Go/Wails desktop implementation.
+- Python and browser implementations archived instead of receiving new product
+  features.
+- Wails service bindings selected as the active engine/UI boundary.
+- Large-file guardrails added for access log, OTel JSONL, GC log, JFR JSON,
+  thread dump, Jennifer profile, and profiler HTML/SVG paths.
 
-- Per-URL stats sortable by count / avg / p95 / total bytes / errors.
-- Static / API request classification by file extension and
-  well-known asset paths, with mix percentages on every URL row.
-- p50 / p90 / p95 / p99 percentiles in the summary and a per-minute
-  percentile timeline.
-- Throughput (req/s, bytes/s) summary + per-minute series.
-- HTTP status family + top status code breakdown, per-minute
-  status-class timeline that highlights any minute ≥ 50 % error rate.
-- New findings: `SLOW_URL_P95`, `ERROR_BURST_DETECTED`.
+### Profiler, Access Log, GC, and MSA Improvements
 
-### GC log deep-dive (completed 2026-05)
+- JFR-first profiler workflows, differential flame views, heatmap selection,
+  per-thread isolation, pprof export, tree view, native-memory leak findings,
+  and recent-files workflow.
+- Access log overhaul with URL statistics, static/API classification,
+  percentile timelines, throughput, status distribution, and findings such as
+  `SLOW_URL_P95` and `ERROR_BURST_DETECTED`.
+- GC log deep-dive with JVM info cards, worker/CPU mismatch warnings,
+  toggleable heap series, pause overlay, rectangle zoom, and point
+  decimation.
+- Jennifer MSA service-call network-time summaries and topology placement so
+  internal single-digit millisecond calls and gateway/external double-digit
+  millisecond calls separate visually.
 
-- JVM Info card extracted from the recording header (Version, CPUs,
-  Memory, Heap min/initial/max/region, Parallel & Concurrent workers,
-  Compressed Oops, NUMA, Pre-touch, Periodic GC, full CommandLine
-  flags) with a worker-vs-CPU mismatch warning banner.
-- 9 toggleable heap series (Heap before/after/committed, Young
-  before/after, Old before/after, Metaspace before/after) with
-  optional Pause overlay on a right axis.
-- Drag-rectangle zoom (visible blue selection rect) and series-level
-  point decimation (max 2 000 / series) for huge logs.
+### Trace Import MVP
 
-### Windows desktop hardening
+- Canonical trace/span model for external trace imports.
+- OTLP JSON-file parser and Zipkin v2 JSON parser.
+- `trace_import` analyzer result with summary, services, traces, spans,
+  dependencies, and service summaries.
+- CLI command:
+  `archscope-engine trace import --in <file> --format auto|otlp-json|zipkin-v2-json`.
+- Sample trace fixtures under `examples/traces`.
 
-- Windows installer (NSIS) + portable zip via Electron, with the
-  Python engine PyInstaller-bundled inside.
-- ESM `__dirname` fix + static imports in the Electron main process.
-- `apiBase` helper resolved from `window.archscope.engineUrl` (set in
-  the preload) so the renderer running from `file://` reaches the
-  bundled engine at `127.0.0.1:8765`.
-- Pretendard Variable bundled inside the renderer so Korean text no
-  longer falls back to Malgun Gothic.
-- Page zoom locked at 1.0 to keep chart axes stable.
+### Evidence-Bound AI Interpretation
 
-### Future candidates (not yet committed)
+- Go implementation under `apps/engine-native/internal/aiinterpretation`.
+- Evidence registry, evidence selector, prompt builder, Ollama client, and AI
+  finding validator.
+- Contract that keeps `InterpretationResult` separate from `AnalysisResult`.
+- Local-only default provider policy, prompt-injection defense, validation,
+  low-confidence filtering, and evaluation requirements.
 
-- Continuous-session timeline that joins access-log, GC, thread-dump,
-  and JFR evidence on a shared time axis.
-- async-profiler 3.x packed-binary HTML support.
+## Near-Term Roadmap: 0.3.x Stabilization
+
+These items should stay aligned with `work_status.md`.
+
+1. Connect `trace_import` to the Wails UI.
+   - Add summary cards, service dependency table/chart, trace table, span
+     table, and findings panel.
+   - Decide whether the UI belongs under `Service Flow > Trace / OTel` or as
+     an extension of the existing OTel analyzer view.
+
+2. Implement Elastic APM file import.
+   - Support Elasticsearch `_search` response JSON.
+   - Support source-only NDJSON exports based on `hits.hits[*]._source`.
+   - Normalize Elastic transactions and spans into the canonical trace model.
+
+3. Add trace critical-path and richer trace findings.
+   - Critical path through the longest parent-child span chain.
+   - External wait and service-boundary latency separation.
+   - Findings: `SLOW_TRACE_P95`, `SLOW_SPAN_DOMINATES_TRACE`,
+     `ERROR_SPAN_IN_TRACE`, `MISSING_PARENT_SPAN`,
+     `CLOCK_SKEW_SUSPECTED`, `UNBALANCED_SERVICE_LATENCY`, and
+     `HIGH_ERROR_SERVICE_EDGE`.
+
+4. Build the Evidence Board skeleton.
+   - Define reusable evidence cards for analyzer findings, chart selections,
+     table rows, parser diagnostics, source metadata, comments, hypotheses,
+     impact, and recommendations.
+   - Add a shared "Add to Evidence" action across analysis screens.
+   - Start HTML/ZIP export around evidence cards.
+
+5. Finish release hardening.
+   - Run direct Windows GUI launch smoke tests on a Windows host or VM.
+   - Continue signing/notarization work.
+   - Split large frontend bundles where needed.
+   - Revisit deeper GC event streaming if real-world inputs exceed the current
+     bounded-memory envelope.
+
+## Mid-Term Roadmap: Evidence Studio
+
+### Incident Timeline
+
+- Define a common timeline event model with timestamp/range, source analyzer,
+  severity, label, and evidence reference.
+- Map access-log error bursts, slow URL p95 events, throughput spikes, GC/JFR
+  events, thread-dump contention/deadlock signals, exceptions, profiler
+  hotspots, and trace-import events onto one timeline.
+- Use the timeline to explain what happened and in what order during an
+  incident.
+
+### SLO and Golden Signals
+
+- Build a golden-signals inventory across access logs, trace import, Jennifer
+  MSA, exceptions, GC, JFR, thread dumps, and JVM signals.
+- Define SLI metrics for latency, traffic, errors, and saturation.
+- Add SLO target configuration, violating-window detection, error-budget burn
+  tables, and affected service/endpoint breakdowns.
+
+### Service Flow and MSA Topology
+
+- Unify Jennifer MSA topology and trace-import dependency models.
+- Define a common service-edge schema with caller, callee, call count,
+  average/max/total latency, error count, and network gap.
+- Normalize unmatched calls, missing parents, and network gaps into service-edge
+  findings.
+- Add C4 dynamic view or sequence-like export for service-flow evidence.
+
+### Reports and Evidence Packs
+
+- Generate report-ready HTML, ZIP, and eventually PPTX/PDF outputs from
+  Evidence Board content.
+- Preserve source metadata, analyzer options, captured evidence, deterministic
+  findings, and optional AI interpretation provenance.
+- Support customer-facing summaries without hiding the raw evidence behind
+  conclusions.
+
+### AI Interpretation Productization
+
+- Surface AI interpretation provenance in the UI.
+- Keep AI findings visually separate from deterministic findings.
+- Add evaluation gates using golden diagnostics, evidence-reference integrity,
+  quote-to-source matching, low-confidence filtering, and hallucination review.
+- Connect AI interpretation to Evidence Board and report generation only when
+  every generated claim has valid evidence references.
+
+## Later Roadmap: Architecture and Operations Expansion
+
+### API and Event Contract Analysis
+
+- Import OpenAPI specifications and compare them with access-log evidence.
+- Detect undocumented APIs, unused APIs, slow APIs, high-error APIs, and
+  contract drift.
+- Import AsyncAPI definitions and analyze Kafka, RabbitMQ, WebSocket, or other
+  producer/consumer flows where evidence is available.
+
+### Architecture Documentation Pack
+
+- Generate draft inputs for arc42 sections such as Context, Runtime View,
+  Deployment View, Quality Requirements, and Risks.
+- Generate ADR drafts with decision, context, alternatives, tradeoffs,
+  consequences, and evidence references.
+- Connect C4 diagrams, service-flow evidence, incident timelines, and Evidence
+  Board cards into architecture-review deliverables.
+
+### Security and Compliance Evidence
+
+- Detect potential sensitive-data exposure in logs.
+- Inventory access/error/log patterns from an OWASP Top 10 perspective.
+- Investigate SBOM/CycloneDX import feasibility.
+- Design vulnerability, license, and affected-service impact maps.
+- Add threat-model, security logging, and redaction evidence only when the
+  related source evidence is available.
+
+### Before/After Multi-Signal Compare
+
+- Extend comparison beyond profiler outputs.
+- Compare access-log latency/error/traffic, GC pause and heap behavior, JFR
+  signals, MSA external call latency, thread blocking, and profiler hotspots
+  before and after tuning or deployment.
+
+### Product Navigation
+
+- Move toward a workflow-oriented navigation model:
+  Workspace, Diagnostics, Service Flow, Architecture, Operations, Security,
+  and Settings.
+- Consider renaming `MSA Timeline` to `MSA / Service Flow` and `Compare` to
+  `Before / After`.
+- Keep parser reports near their analyzers while allowing important parser
+  evidence to be promoted into the Evidence Board.
+
+## External APM Import Roadmap
+
+### File-First Priority
+
+1. OpenTelemetry OTLP JSON file - completed for trace import MVP.
+2. Zipkin v2 JSON - completed for trace import MVP.
+3. Elastic APM Elasticsearch `_search` response and source-only NDJSON - next
+   implementation target.
+4. Jaeger compatibility import - P1/P2, prefer stable QueryService or OTLP
+   paths over UI-internal HTTP JSON when possible.
+5. Apache SkyWalking GraphQL response import - P1/P2 feasibility item after
+   schema/version validation.
+
+### SaaS and Product-Specific Connectors
+
+These remain later-stage items until file import contracts and token/security
+policies are stable:
+
+- New Relic NerdGraph trace detail and Historical Data Export JSON.
+- Datadog Spans API and Continuous Profiler/profile export feasibility.
+- Dynatrace distributed trace CSV/table download and DQL/API export.
+- Splunk/Cisco AppDynamics transaction snapshot import.
+- Pinpoint import only after a stable official export/API path is confirmed.
+
+Deferral rationale:
+
+- Authentication and authorization models differ by product.
+- Retention windows, indexed-span sampling, and rate limits can reduce evidence
+  completeness.
+- SaaS API tokens require explicit local storage, redaction, and compliance
+  policies.
+- The local file-import UX must stabilize before connector inputs become part
+  of the public contract.
+
+## Documentation Roadmap
+
+- Keep this roadmap mirrored in English and Korean.
+- Keep product expansion, external APM import, and Evidence Studio planning in
+  this roadmap instead of separate single-language notes.
+- Keep detailed design documents under `docs/en` and `docs/ko`.
+- Keep `work_status.md` focused on active execution status rather than the full
+  product roadmap.
+
+## Deferred or Out of Scope
+
 - Heap dump / `.hprof` analysis remains explicitly out of scope.
+- Direct SaaS connectors are deferred until local file imports, evidence
+  contracts, and token policies are stable.
+- Archived Python/FastAPI/browser sources should not receive new product
+  features.
