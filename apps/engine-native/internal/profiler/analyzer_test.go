@@ -82,3 +82,32 @@ func TestAnalyzeCollapsedStacksTimelineBaseMethodNotFound(t *testing.T) {
 		t.Fatalf("warnings = %#v, want TIMELINE_BASE_METHOD_NOT_FOUND", warnings)
 	}
 }
+
+func TestAnalyzeCollapsedStacksTimelineSeparatesDBFetch(t *testing.T) {
+	source := "fixture.collapsed"
+	result := AnalyzeCollapsedStacks(
+		map[string]int{
+			"com.company.Repository.query;oracle.jdbc.Statement.executeQuery":        3,
+			"com.company.Repository.query;oracle.jdbc.driver.OracleResultSet.next":   5,
+			"com.company.Repository.query;org.postgresql.jdbc.PgResultSet.fetchRows": 2,
+			"com.company.Repository.query;com.company.Service.mapFetchedRows":        4,
+		},
+		source,
+		ParserDiagnostics{SourceFile: &source, Format: "async_profiler_collapsed", SkippedByReason: map[string]int{}},
+		Options{IntervalMS: 100, TopN: 5, ProfileKind: "wall"},
+	)
+
+	bySegment := map[string]TimelineRow{}
+	for _, row := range result.Series.TimelineAnalysis {
+		bySegment[row.Segment] = row
+	}
+	if got := bySegment["SQL_EXECUTION"].Samples; got != 3 {
+		t.Fatalf("SQL_EXECUTION samples = %d, want 3", got)
+	}
+	if got := bySegment["DB_FETCH"].Samples; got != 7 {
+		t.Fatalf("DB_FETCH samples = %d, want 7", got)
+	}
+	if got := bySegment["INTERNAL_METHOD"].Samples; got != 4 {
+		t.Fatalf("INTERNAL_METHOD samples = %d, want 4", got)
+	}
+}

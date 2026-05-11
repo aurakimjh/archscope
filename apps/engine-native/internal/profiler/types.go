@@ -57,7 +57,7 @@ type Options struct {
 	MaxStackDepth int
 	// TimelineCategories carries user-supplied additional method
 	// patterns per timeline segment. Keys are segment IDs (e.g.
-	// "EXTERNAL_CALL", "SQL_EXECUTION"); values are case-insensitive
+	// "EXTERNAL_CALL", "SQL_EXECUTION", "DB_FETCH"); values are case-insensitive
 	// substrings matched against frame text.
 	TimelineCategories map[string][]string
 	// ProgressLog, when non-nil, receives phase / progress / panic

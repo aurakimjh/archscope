@@ -1,10 +1,10 @@
 // ─────────────────────────────────────────────────────────────────────
-// [한글] timeline — flame tree 를 12개 의미 segment 로 나눈 timeline 표.
+// [한글] timeline — flame tree 를 의미 segment 로 나눈 timeline 표.
 //
 // 책임/목적
 //   profiler 결과를 "execution timeline" 형태로 변환한다. 각 leaf path 를
 //   classify.go 의 카테고리에서 한 단계 더 추상화된 12개 segment
-//   (STARTUP_FRAMEWORK / INTERNAL_METHOD / SQL_EXECUTION / ... ) 로
+//   (STARTUP_FRAMEWORK / INTERNAL_METHOD / SQL_EXECUTION / DB_FETCH / ... ) 로
 //   매핑하고 segment 별 samples 를 합산해 실행 타임라인을 만든다.
 //
 // 알고리즘 흐름
@@ -50,6 +50,7 @@ var timelineOrder = []string{
 	"STARTUP_FRAMEWORK",
 	"INTERNAL_METHOD",
 	"SQL_EXECUTION",
+	"DB_FETCH",
 	"DB_NETWORK_WAIT",
 	"NETWORK_PREP",
 	"EXTERNAL_CALL",
@@ -66,6 +67,7 @@ var timelineLabels = map[string]string{
 	"STARTUP_FRAMEWORK":         "Startup / framework",
 	"INTERNAL_METHOD":           "Internal method",
 	"SQL_EXECUTION":             "SQL execution",
+	"DB_FETCH":                  "DB fetch",
 	"DB_NETWORK_WAIT":           "DB network wait",
 	"NETWORK_PREP":              "External call prep (network)",
 	"EXTERNAL_CALL":             "External call",
@@ -75,7 +77,7 @@ var timelineLabels = map[string]string{
 	"NETWORK_IO_WAIT":           "Network / I/O wait",
 	"FILE_IO":                   "File I/O",
 	"JVM_GC_RUNTIME":            "JVM / GC runtime",
-	"UNKNOWN":                   "Unclassified",
+	"UNKNOWN":                   "Other",
 }
 
 type timelineAccumulator struct {
@@ -230,6 +232,9 @@ func timelineScope(baseMethod string, baseSamples int, totalSamples int) Timelin
 // classify 카테고리 + WaitReason 조합을 기반으로 결정. SQL/EXTERNAL +
 // NETWORK_IO_WAIT 조합은 별도 segment 로 분리해 "쿼리 실행 vs DB 대기",
 // "외부 호출 vs 외부 응답 대기" 를 구분 가능하게 한다.
+// ResultSet/fetch 계열 프레임은 DB_FETCH 로 분리한다. collapsed stack 은
+// Jennifer FETCH 이벤트처럼 명시적인 phase 필드가 없으므로 프레임 기반
+// 휴리스틱이다.
 // looksLikeStartup 은 startup 휴리스틱 (Spring Boot 부팅 등).
 func timelineSegment(path []string) string {
 	classification := classifyFrames(path)
@@ -239,6 +244,8 @@ func timelineSegment(path []string) string {
 		wait = *classification.WaitReason
 	}
 	switch {
+	case primary == "SQL_DATABASE" && looksLikeDBFetch(path):
+		return "DB_FETCH"
 	case primary == "SQL_DATABASE" && wait == "NETWORK_IO_WAIT":
 		return "DB_NETWORK_WAIT"
 	case primary == "EXTERNAL_API_HTTP" && wait == "NETWORK_IO_WAIT":
@@ -264,6 +271,23 @@ func timelineSegment(path []string) string {
 	default:
 		return "UNKNOWN"
 	}
+}
+
+func looksLikeDBFetch(path []string) bool {
+	stack := strings.ToLower(strings.Join(path, ";"))
+	return containsAny(
+		stack,
+		"resultset",
+		"result set",
+		"fetchrow",
+		"fetchrows",
+		"fetch row",
+		"fetch rows",
+		"fetchnext",
+		"oracleresultset",
+		"pgresultset",
+		"mysql.cj.protocol.a.resultset",
+	)
 }
 
 func methodName(path []string) string {
@@ -314,7 +338,7 @@ func selectChainFrames(path []string, segment string) []string {
 // 고리에 대해 정의되어 있고 그 외 segment 는 path 의 마지막 6개 frame.
 func segmentTokens(segment string) []string {
 	switch segment {
-	case "SQL_EXECUTION", "DB_NETWORK_WAIT":
+	case "SQL_EXECUTION", "DB_FETCH", "DB_NETWORK_WAIT":
 		return []string{"oracle.jdbc", "java.sql", "t4cpreparedstatement", "t4cmarengine", "executequery", "executeupdate", "resultset", "socketinputstream.socketread", "niosocketimpl"}
 	case "EXTERNAL_CALL", "EXTERNAL_NETWORK_WAIT":
 		return []string{"resttemplate", "webclient", "httpclient", "okhttp", "urlconnection", "mainclientexec", "bhttpconnection", "socketinputstream.socketread", "niosocketimpl"}

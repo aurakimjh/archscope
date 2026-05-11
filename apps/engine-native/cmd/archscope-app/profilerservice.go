@@ -159,7 +159,7 @@ type AnalyzeRequest struct {
 	ProgressLogDir string `json:"progressLogDir,omitempty"`
 	// TimelineCategories carries user-supplied additional method
 	// patterns per timeline segment. Keys are segment IDs (e.g.
-	// "EXTERNAL_CALL", "SQL_EXECUTION", "INTERNAL_METHOD"); values
+	// "EXTERNAL_CALL", "SQL_EXECUTION", "DB_FETCH", "INTERNAL_METHOD"); values
 	// are case-insensitive substrings matched against frame text.
 	TimelineCategories map[string][]string `json:"timelineCategories,omitempty"`
 }

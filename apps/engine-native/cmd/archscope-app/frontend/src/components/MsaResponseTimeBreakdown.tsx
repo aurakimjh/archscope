@@ -228,25 +228,50 @@ function Legend({
   base: number;
 }): JSX.Element {
   return (
-    <ul className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] sm:grid-cols-4">
+    <ul className="mt-3 grid grid-cols-1 gap-2 text-[11px] sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
       {SLICE_DEFS.map((def) => {
         const v = totals[def.key];
         const pct = base > 0 ? (v / base) * 100 : 0;
+        const isZero = Math.round(v) === 0;
         return (
           <li
             key={def.key}
-            className="flex items-center gap-1.5"
-            title={def.hint}
+            className={[
+              "min-w-0 rounded-md border p-2.5",
+              isZero
+                ? "border-border/70 bg-muted/20 text-muted-foreground"
+                : "border-border bg-background/70",
+            ].join(" ")}
+            title={`${def.label}: ${Math.round(v).toLocaleString()} ms (${pct.toFixed(1)}%)${def.hint ? ` - ${def.hint}` : ""}`}
           >
-            <span
-              className="inline-block h-2.5 w-2.5 rounded-sm"
-              style={{ backgroundColor: def.color }}
-              aria-hidden
-            />
-            <span className="text-foreground/70">{def.label}</span>
-            <span className="ml-auto font-mono tabular-nums text-muted-foreground">
-              {Math.round(v).toLocaleString()} ms · {pct.toFixed(1)}%
-            </span>
+            <div className="flex min-w-0 items-center gap-2">
+              <span
+                className="inline-block h-3 w-3 shrink-0 rounded-sm"
+                style={{ backgroundColor: def.color }}
+                aria-hidden
+              />
+              <span className="min-w-0 truncate font-medium text-foreground/80">
+                {def.label}
+              </span>
+            </div>
+            <div className="mt-2 grid grid-cols-2 gap-1.5">
+              <span className="rounded bg-muted/40 px-2 py-1">
+                <span className="block text-[10px] text-muted-foreground">
+                  시간
+                </span>
+                <span className="block font-mono tabular-nums text-foreground">
+                  {Math.round(v).toLocaleString()} ms
+                </span>
+              </span>
+              <span className="rounded bg-muted/40 px-2 py-1">
+                <span className="block text-[10px] text-muted-foreground">
+                  비율
+                </span>
+                <span className="block font-mono tabular-nums text-foreground">
+                  {pct.toFixed(1)}%
+                </span>
+              </span>
+            </div>
           </li>
         );
       })}

@@ -89,6 +89,7 @@ const PROFILER_TIMELINE_SEGMENTS: SegmentSpec[] = [
   { id: "STARTUP_FRAMEWORK", label: "Startup / framework" },
   { id: "INTERNAL_METHOD", label: "Internal method" },
   { id: "SQL_EXECUTION", label: "SQL execution" },
+  { id: "DB_FETCH", label: "DB fetch" },
   { id: "DB_NETWORK_WAIT", label: "DB network wait" },
   { id: "NETWORK_PREP", label: "External call prep (network)" },
   { id: "EXTERNAL_CALL", label: "External call" },
@@ -124,7 +125,57 @@ const PROFILER_TIMELINE_PRESETS = (
   },
 ];
 
-const TIMELINE_COMPOSITION_COLORS = [
+type TimelineCompositionGroupId = "database" | "external" | "internal";
+
+const TIMELINE_COMPOSITION_GROUP_ORDER: TimelineCompositionGroupId[] = [
+  "database",
+  "external",
+  "internal",
+];
+
+const TIMELINE_COMPOSITION_GROUP_COLORS: Record<TimelineCompositionGroupId, string> = {
+  database: "#2563eb",
+  external: "#059669",
+  internal: "#ea580c",
+};
+
+const TIMELINE_COMPOSITION_SEGMENT_COLORS: Record<string, string> = {
+  SQL_EXECUTION: "#2563eb",
+  DB_FETCH: "#38bdf8",
+  DB_NETWORK_WAIT: "#0ea5e9",
+  CONNECTION_POOL_WAIT: "#64748b",
+  NETWORK_PREP: "#a78bfa",
+  EXTERNAL_CALL: "#10b981",
+  EXTERNAL_NETWORK_WAIT: "#14b8a6",
+  STARTUP_FRAMEWORK: "#f59e0b",
+  INTERNAL_METHOD: "#f97316",
+  LOCK_SYNCHRONIZATION_WAIT: "#ef4444",
+  NETWORK_IO_WAIT: "#06b6d4",
+  FILE_IO: "#eab308",
+  JVM_GC_RUNTIME: "#8b5cf6",
+  UNKNOWN: "#94a3b8",
+  OTHER_INTERNAL_METHOD: "#94a3b8",
+};
+
+const TIMELINE_COMPOSITION_SEGMENT_ORDER: Record<string, number> = {
+  SQL_EXECUTION: 0,
+  DB_FETCH: 1,
+  DB_NETWORK_WAIT: 2,
+  CONNECTION_POOL_WAIT: 3,
+  NETWORK_PREP: 10,
+  EXTERNAL_CALL: 11,
+  EXTERNAL_NETWORK_WAIT: 12,
+  STARTUP_FRAMEWORK: 20,
+  INTERNAL_METHOD: 21,
+  LOCK_SYNCHRONIZATION_WAIT: 22,
+  NETWORK_IO_WAIT: 23,
+  FILE_IO: 24,
+  JVM_GC_RUNTIME: 25,
+  UNKNOWN: 26,
+  OTHER_INTERNAL_METHOD: 27,
+};
+
+const TIMELINE_COMPOSITION_FALLBACK_COLORS = [
   "#6366f1",
   "#22c55e",
   "#f59e0b",
@@ -191,6 +242,39 @@ function formatTimelinePercent(value: number | undefined): string {
   return value == null ? "—" : `${value.toFixed(2)}%`;
 }
 
+function timelineCompositionGroupId(segment: string): TimelineCompositionGroupId {
+  switch (segment) {
+    case "SQL_EXECUTION":
+    case "DB_FETCH":
+    case "DB_NETWORK_WAIT":
+    case "CONNECTION_POOL_WAIT":
+      return "database";
+    case "NETWORK_PREP":
+    case "EXTERNAL_CALL":
+    case "EXTERNAL_NETWORK_WAIT":
+      return "external";
+    default:
+      return "internal";
+  }
+}
+
+function timelineCompositionColor(row: any, fallbackIndex: number): string {
+  const segment = String(row?.segment ?? "");
+  return (
+    TIMELINE_COMPOSITION_SEGMENT_COLORS[segment] ??
+    TIMELINE_COMPOSITION_FALLBACK_COLORS[
+      fallbackIndex % TIMELINE_COMPOSITION_FALLBACK_COLORS.length
+    ]
+  );
+}
+
+function timelineCompositionSortValue(row: any): number {
+  const segment = String(row?.segment ?? "");
+  const group = timelineCompositionGroupId(segment);
+  const groupIndex = TIMELINE_COMPOSITION_GROUP_ORDER.indexOf(group);
+  return groupIndex * 100 + (TIMELINE_COMPOSITION_SEGMENT_ORDER[segment] ?? 99);
+}
+
 function timelineEvidenceTooltip(row: any, scope: any): string {
   const lines: string[] = [
     `구간: ${row?.label || row?.segment || "(unknown)"}`,
@@ -222,40 +306,147 @@ function TimelineCompositionCard({
   rows,
   title,
   emptyLabel,
+  groupLabels,
+  scope,
+  intervalMs,
+  baseTimeLabel,
+  totalTimeLabel,
+  otherLabel,
+  samplesLabel,
 }: {
   rows: any[];
   title: string;
   emptyLabel: string;
+  groupLabels: Record<TimelineCompositionGroupId, string>;
+  scope: any;
+  intervalMs: number;
+  baseTimeLabel: string;
+  totalTimeLabel: string;
+  otherLabel: string;
+  samplesLabel: string;
 }): JSX.Element {
-  const visibleRows = rows.filter((row) => Number(row?.samples ?? 0) > 0);
-  const totalSamples =
-    visibleRows.reduce((sum, row) => sum + Number(row?.samples ?? 0), 0) || 1;
+  const { visibleRows, groups, totalSamples, denominatorSamples, totalSeconds, rowsSamples } = useMemo(() => {
+    const nextRows = rows
+      .filter((row) => Number(row?.samples ?? 0) > 0)
+      .slice()
+      .sort((a, b) => {
+        const orderDiff = timelineCompositionSortValue(a) - timelineCompositionSortValue(b);
+        if (orderDiff !== 0) return orderDiff;
+        return Number(b?.samples ?? 0) - Number(a?.samples ?? 0);
+      });
+    const nextRowsSamples = nextRows.reduce(
+      (sum, row) => sum + Number(row?.samples ?? 0),
+      0,
+    );
+    const scopeSamples = Number(scope?.base_samples ?? 0);
+    const basisSamples = scopeSamples > 0 ? scopeSamples : nextRowsSamples;
+    const missingSamples = Math.max(0, basisSamples - nextRowsSamples);
+    if (missingSamples > 0) {
+      const otherSeconds = (missingSamples * intervalMs) / 1000;
+      nextRows.push({
+        index: 999,
+        segment: "OTHER_INTERNAL_METHOD",
+        label: otherLabel,
+        samples: missingSamples,
+        estimated_seconds: otherSeconds,
+        stage_ratio: basisSamples > 0 ? (missingSamples / basisSamples) * 100 : 0,
+        total_ratio: basisSamples > 0 ? (missingSamples / basisSamples) * 100 : 0,
+      });
+    }
+    const nextTotalSamples = Math.max(basisSamples, nextRowsSamples);
+    const nextDenominatorSamples = Math.max(nextTotalSamples, 1);
+    const nextTotalSeconds = (nextTotalSamples * intervalMs) / 1000;
+    const groupMap = new Map<
+      TimelineCompositionGroupId,
+      { id: TimelineCompositionGroupId; samples: number; seconds: number; rows: any[] }
+    >();
+    for (const id of TIMELINE_COMPOSITION_GROUP_ORDER) {
+      groupMap.set(id, { id, samples: 0, seconds: 0, rows: [] });
+    }
+    for (const row of nextRows) {
+      const id = timelineCompositionGroupId(String(row?.segment ?? ""));
+      const group = groupMap.get(id);
+      if (!group) continue;
+      group.samples += Number(row?.samples ?? 0);
+      group.seconds += Number(row?.estimated_seconds ?? 0);
+      group.rows.push(row);
+    }
+    return {
+      visibleRows: nextRows,
+      totalSamples: nextTotalSamples,
+      denominatorSamples: nextDenominatorSamples,
+      totalSeconds: nextTotalSeconds,
+      rowsSamples: nextRowsSamples + missingSamples,
+      groups: TIMELINE_COMPOSITION_GROUP_ORDER.map((id) => groupMap.get(id)!)
+        .filter((group) => group.samples > 0),
+    };
+  }, [intervalMs, otherLabel, rows, scope?.base_samples]);
+  const displayTotalLabel = scope?.base_method ? baseTimeLabel : totalTimeLabel;
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm">{title}</CardTitle>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <CardTitle className="text-sm">{title}</CardTitle>
+          {totalSamples > 0 && (
+            <div className="rounded-md border border-border bg-muted/20 px-3 py-2 text-right">
+              <div className="text-[10px] font-medium text-muted-foreground">
+                {displayTotalLabel}
+              </div>
+              <div className="font-mono text-xs tabular-nums text-foreground">
+                {formatTimelineSeconds(totalSeconds)} · {totalSamples.toLocaleString()} {samplesLabel}
+              </div>
+            </div>
+          )}
+        </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
-        {visibleRows.length === 0 ? (
+        {visibleRows.length === 0 || rowsSamples === 0 ? (
           <p className="text-xs text-muted-foreground">{emptyLabel}</p>
         ) : (
           <>
+            <div className="flex h-9 overflow-hidden">
+              {groups.map((group) => {
+                const widthPct = Math.max(0, (group.samples / denominatorSamples) * 100);
+                const color = TIMELINE_COMPOSITION_GROUP_COLORS[group.id];
+                const label = groupLabels[group.id];
+                return (
+                  <div
+                    key={group.id}
+                    className="relative h-9 px-1"
+                    style={{ width: `${widthPct.toFixed(2)}%` }}
+                    title={`${label}: ${group.samples.toLocaleString()} samples · ${widthPct.toFixed(2)}% · ${formatTimelineSeconds(group.seconds)}`}
+                  >
+                    <div
+                      className="absolute inset-x-1 bottom-0 h-3 rounded-t-sm border-l border-r border-t"
+                      style={{ borderColor: color }}
+                      aria-hidden
+                    />
+                    {widthPct >= 12 ? (
+                      <div
+                        className="truncate text-center text-[10px] font-semibold leading-4"
+                        style={{ color }}
+                      >
+                        {label} · {widthPct.toFixed(1)}%
+                      </div>
+                    ) : null}
+                  </div>
+                );
+              })}
+            </div>
             <div className="flex h-7 overflow-hidden rounded border border-border bg-muted/30">
               {visibleRows.map((row, idx) => {
                 const samples = Number(row?.samples ?? 0);
-                const widthPct = Math.max(0, (samples / totalSamples) * 100);
+                const widthPct = Math.max(0, (samples / denominatorSamples) * 100);
                 const ratio = timelineDisplayRatio(row);
                 const label = row?.label || row?.segment || "(unknown)";
+                const color = timelineCompositionColor(row, idx);
                 return (
                   <div
                     key={`${row?.index ?? idx}-${row?.segment ?? idx}`}
                     className="flex min-w-[2px] items-center justify-center overflow-hidden text-[10px] font-medium text-white"
                     style={{
                       width: `${widthPct.toFixed(2)}%`,
-                      backgroundColor:
-                        TIMELINE_COMPOSITION_COLORS[
-                          idx % TIMELINE_COMPOSITION_COLORS.length
-                        ],
+                      backgroundColor: color,
                     }}
                     title={`${label}: ${samples.toLocaleString()} samples · ${formatTimelinePercent(ratio)} · ${formatTimelineSeconds(row?.estimated_seconds)}`}
                   >
@@ -266,38 +457,62 @@ function TimelineCompositionCard({
                 );
               })}
             </div>
-            <ul className="grid gap-x-4 gap-y-1.5 text-[11px] sm:grid-cols-2 xl:grid-cols-3">
-              {visibleRows.map((row, idx) => {
-                const samples = Number(row?.samples ?? 0);
-                const ratio = timelineDisplayRatio(row);
-                const label = row?.label || row?.segment || "(unknown)";
+            <div className="grid gap-3 text-[11px] lg:grid-cols-3">
+              {groups.map((group) => {
+                const widthPct = (group.samples / denominatorSamples) * 100;
+                const groupColor = TIMELINE_COMPOSITION_GROUP_COLORS[group.id];
                 return (
-                  <li
-                    key={`${row?.index ?? idx}-${row?.segment ?? idx}-legend`}
-                    className="flex min-w-0 items-center gap-1.5"
-                    title={`${label}: ${samples.toLocaleString()} samples · ${formatTimelinePercent(ratio)} · ${formatTimelineSeconds(row?.estimated_seconds)}`}
+                  <section
+                    key={`${group.id}-legend`}
+                    className="min-w-0 rounded-md border border-border bg-background/70 p-2.5"
                   >
-                    <span
-                      className="h-2.5 w-2.5 shrink-0 rounded-sm"
-                      style={{
-                        backgroundColor:
-                          TIMELINE_COMPOSITION_COLORS[
-                            idx % TIMELINE_COMPOSITION_COLORS.length
-                          ],
-                      }}
-                      aria-hidden
-                    />
-                    <span className="min-w-0 flex-1 truncate text-foreground/75">
-                      {label}
-                    </span>
-                    <span className="shrink-0 font-mono tabular-nums text-muted-foreground">
-                      {samples.toLocaleString()} · {formatTimelinePercent(ratio)} ·{" "}
-                      {formatTimelineSeconds(row?.estimated_seconds)}
-                    </span>
-                  </li>
+                    <div className="mb-2 flex min-w-0 items-center justify-between gap-2">
+                      <div className="flex min-w-0 items-center gap-1.5">
+                        <span
+                          className="h-2.5 w-2.5 shrink-0 rounded-full"
+                          style={{ backgroundColor: groupColor }}
+                          aria-hidden
+                        />
+                        <span className="truncate font-semibold text-foreground/85">
+                          {groupLabels[group.id]}
+                        </span>
+                      </div>
+                      <span className="shrink-0 font-mono tabular-nums text-muted-foreground">
+                        {widthPct.toFixed(1)}%
+                      </span>
+                    </div>
+                    <ul className="flex flex-col gap-1.5">
+                      {group.rows.map((row, idx) => {
+                        const samples = Number(row?.samples ?? 0);
+                        const ratio = timelineDisplayRatio(row);
+                        const label = row?.label || row?.segment || "(unknown)";
+                        const color = timelineCompositionColor(row, idx);
+                        return (
+                          <li
+                            key={`${row?.index ?? idx}-${row?.segment ?? idx}-legend`}
+                            className="flex min-w-0 items-center gap-1.5"
+                            title={`${label}: ${samples.toLocaleString()} samples · ${formatTimelinePercent(ratio)} · ${formatTimelineSeconds(row?.estimated_seconds)}`}
+                          >
+                            <span
+                              className="h-2.5 w-2.5 shrink-0 rounded-sm"
+                              style={{ backgroundColor: color }}
+                              aria-hidden
+                            />
+                            <span className="min-w-0 flex-1 truncate text-foreground/75">
+                              {label}
+                            </span>
+                            <span className="shrink-0 font-mono tabular-nums text-muted-foreground">
+                              {samples.toLocaleString()} · {formatTimelinePercent(ratio)} ·{" "}
+                              {formatTimelineSeconds(row?.estimated_seconds)}
+                            </span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </section>
                 );
               })}
-            </ul>
+            </div>
           </>
         )}
       </CardContent>
@@ -1053,6 +1268,17 @@ export function ProfilerAnalyzerPage(): JSX.Element {
               rows={result?.series?.timeline_analysis ?? []}
               title={t("executionTimeComposition")}
               emptyLabel={t("timelineEmpty")}
+              groupLabels={{
+                database: t("executionGroupDatabase"),
+                external: t("executionGroupExternal"),
+                internal: t("executionGroupInternal"),
+              }}
+              scope={timelineScope}
+              intervalMs={summary?.interval_ms ?? intervalMs}
+              baseTimeLabel={t("executionBaseMethodTime")}
+              totalTimeLabel={t("executionTotalTime")}
+              otherLabel={t("executionOther")}
+              samplesLabel={t("samples")}
             />
             <Card>
               <CardHeader className="pb-3">
