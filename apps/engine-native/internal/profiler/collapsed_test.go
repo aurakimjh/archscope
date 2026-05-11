@@ -39,3 +39,21 @@ func TestParseCollapsedFileAggregatesAndReportsBadLines(t *testing.T) {
 		t.Fatalf("negative sample count diagnostics missing: %#v", diagnostics.SkippedByReason)
 	}
 }
+
+func TestTruncateStackDepthPreservesTimelineBaseMethod(t *testing.T) {
+	stack := "bootstrap;framework;com.example.OrderJob.execute;service;dao;jdbc;socket"
+	got := truncateStackDepth(stack, 4, "OrderJob.execute")
+	want := "com.example.OrderJob.execute;...truncated...;jdbc;socket"
+	if got != want {
+		t.Fatalf("truncated stack = %q, want %q", got, want)
+	}
+}
+
+func TestTruncateStackDepthFallsBackToLeafTail(t *testing.T) {
+	stack := "a;b;c;d;e"
+	got := truncateStackDepth(stack, 3, "MissingBase")
+	want := "...truncated;c;d;e"
+	if got != want {
+		t.Fatalf("truncated stack = %q, want %q", got, want)
+	}
+}

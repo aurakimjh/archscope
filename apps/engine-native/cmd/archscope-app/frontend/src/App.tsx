@@ -65,10 +65,6 @@ function App() {
         <Sidebar active={active} onNavigate={setActive} />
         <div className="app-main">
           <header className="topbar">
-            <div className="brand">
-              <span className="eyebrow">{t("eyebrow")}</span>
-              <h1>{t("appTitle")}</h1>
-            </div>
             <div className="topbar-controls">
               <div className="locale-switch" role="group" aria-label={t("themeLabel")}>
                 {THEME_OPTIONS.map((value) => (

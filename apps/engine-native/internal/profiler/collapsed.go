@@ -61,17 +61,17 @@ var (
 // 70MB wall profile fits in ~1-2GB working-set rather than the
 // 8-12GB the previous unbounded path consumed.
 // Defaults tightened after the 60 MB / 6 GB OOM regression. The old
-// limits (250k stacks × depth 256) made it possible for tree
+// limits (250k stacks x depth 256) made it possible for tree
 // construction to spawn ~10M nodes whose Path slices alone consumed
-// 6+ GB. Halving each axis caps tree size at ~1.5M nodes, which
-// fits comfortably under 1 GB even on the worst inputs while still
-// covering >99% of useful samples on real wall profiles.
+// 6+ GB. The tree builder now avoids per-node Path clones and uses
+// shorter hashed IDs, so the depth cap can be relaxed to 512 without
+// returning to the old memory profile.
 //
 // [한글] 메모리 가드 상수 모음.
 //   - defaultCollapsedScannerBuffer (64 MB) : 한 라인 최대 길이.
 //     Spring/Hibernate 의 매우 깊은 stack 한 줄이 1MB 를 넘는 경우
 //     있어 넉넉히.
-//   - defaultMaxUniqueStacks (100k) / MaxStackDepth (128) :
+//   - defaultMaxUniqueStacks (100k) / MaxStackDepth (512) :
 //     70MB wall profile 가 ~1-2GB working-set 에 들어가도록 조정한 cap.
 //   - defaultMaxRSSMB (4GB) : soft RSS ceiling. 초과 시 친절한 에러
 //     반환 + progress log flush — OS SIGKILL 보다 사용자 경험이 좋음.
@@ -81,7 +81,7 @@ var (
 const (
 	defaultCollapsedScannerBuffer = 1024 * 1024 * 64 // 64 MB per line cap
 	defaultMaxUniqueStacks        = 100_000
-	defaultMaxStackDepth          = 128
+	defaultMaxStackDepth          = 512
 	// defaultMaxRSSMB is the soft RSS ceiling. The analyzer aborts
 	// with a friendly error rather than letting the OS issue a hard
 	// SIGKILL when alloc crosses this — we lose the result but the
@@ -179,7 +179,7 @@ func ParseCollapsedFileWithOptions(path string, opts Options) (map[string]int, P
 				diagnostics.MaxObservedDepth = depth
 			}
 			if depth > maxDepth {
-				stack = truncateStackDepth(stack, maxDepth)
+				stack = truncateStackDepth(stack, maxDepth, opts.TimelineBaseMethod)
 				diagnostics.OverDepthRecords++
 			}
 		}
@@ -239,17 +239,44 @@ func ParseCollapsedFileWithOptions(path string, opts Options) (map[string]int, P
 }
 
 // truncateStackDepth keeps the deepest `keep` frames of a collapsed
-// stack. We preserve the leaf side because the timeline classifier
-// keys off the deepest frame; a leading "...truncated..." marker
-// makes the truncation visible in top-stacks tables.
+// stack. When a timeline base method is configured, it preserves the
+// first matching base frame whenever possible so base-method timeline
+// scoping is not broken by the depth guard.
 //
-// [한글] truncateStackDepth — stack 의 가장 깊은 keep 개 프레임만 유지.
-// 잎쪽을 보존하는 이유: timeline 분류기가 가장 깊은 프레임을 키로 사용.
-// 잘렸음을 알리는 "...truncated;" 헤드 마커로 사용자가 잘림을 인식 가능.
-func truncateStackDepth(stack string, keep int) string {
+// [한글] truncateStackDepth — stack 의 가장 깊은 keep 개 프레임을 기본으로
+// 유지한다. 단, 타임라인 기준 메서드가 있으면 해당 프레임을 보존하여
+// truncation 때문에 기준 메서드 매칭이 누락되는 상황을 줄인다.
+func truncateStackDepth(stack string, keep int, baseMethod string) string {
 	parts := strings.Split(stack, ";")
 	if len(parts) <= keep {
 		return stack
+	}
+	if keep <= 0 {
+		return stack
+	}
+	if base := strings.TrimSpace(baseMethod); base != "" {
+		needle := strings.ToLower(base)
+		for idx, frame := range parts {
+			if !strings.Contains(strings.ToLower(frame), needle) {
+				continue
+			}
+			suffix := parts[idx:]
+			if len(suffix) <= keep {
+				return strings.Join(suffix, ";")
+			}
+			if keep == 1 {
+				return suffix[0]
+			}
+			tailKeep := keep - 1
+			out := make([]string, 0, keep)
+			out = append(out, suffix[0])
+			if keep > 2 {
+				out = append(out, "...truncated...")
+				tailKeep = keep - 2
+			}
+			out = append(out, suffix[len(suffix)-tailKeep:]...)
+			return strings.Join(out, ";")
+		}
 	}
 	tail := parts[len(parts)-keep:]
 	return "...truncated;" + strings.Join(tail, ";")

@@ -24,7 +24,7 @@
 // charting (CanvasFlameGraph, HorizontalBarChart, DrilldownPanel) so we ship
 // a consistent profiler page without porting every web sub-component.
 
-import { Loader2, Play, Square } from "lucide-react";
+import { CircleHelp, Loader2, Play, Square } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Events } from "@wailsio/runtime";
 
@@ -124,6 +124,21 @@ const PROFILER_TIMELINE_PRESETS = (
   },
 ];
 
+const TIMELINE_COMPOSITION_COLORS = [
+  "#6366f1",
+  "#22c55e",
+  "#f59e0b",
+  "#06b6d4",
+  "#a855f7",
+  "#ec4899",
+  "#14b8a6",
+  "#ef4444",
+  "#84cc16",
+  "#0ea5e9",
+  "#f97316",
+  "#64748b",
+];
+
 const FILE_FILTERS = [
   {
     displayName: "All profiler inputs",
@@ -157,6 +172,139 @@ function adaptFlameNode(node: FlameNode | null | undefined): FlameGraphNode | nu
   };
 }
 
+function timelineDisplayRatio(row: any): number | undefined {
+  if (typeof row?.stage_ratio === "number") return row.stage_ratio;
+  if (typeof row?.total_ratio === "number") return row.total_ratio;
+  return undefined;
+}
+
+function formatTimelineSeconds(value: unknown): string {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return "—";
+  return `${n.toLocaleString(undefined, {
+    maximumFractionDigits: 3,
+    minimumFractionDigits: n > 0 && n < 1 ? 3 : 0,
+  })} s`;
+}
+
+function formatTimelinePercent(value: number | undefined): string {
+  return value == null ? "—" : `${value.toFixed(2)}%`;
+}
+
+function timelineEvidenceTooltip(row: any, scope: any): string {
+  const lines: string[] = [
+    `구간: ${row?.label || row?.segment || "(unknown)"}`,
+    `샘플: ${(row?.samples ?? 0).toLocaleString()}`,
+    `비율: ${formatTimelinePercent(timelineDisplayRatio(row))}`,
+    `시간: ${formatTimelineSeconds(row?.estimated_seconds)}`,
+  ];
+  if (scope?.base_method) {
+    lines.splice(1, 0, `기준 메서드: ${scope.base_method}`);
+  }
+  const methods = Array.isArray(row?.top_methods) ? row.top_methods.slice(0, 6) : [];
+  if (methods.length > 0) {
+    lines.push("", "근거 메서드:");
+    for (const item of methods) {
+      lines.push(`- ${item?.name ?? "(unknown)"} (${(item?.samples ?? 0).toLocaleString()} samples)`);
+    }
+  }
+  const chains = Array.isArray(row?.method_chains) ? row.method_chains.slice(0, 3) : [];
+  if (chains.length > 0) {
+    lines.push("", "대표 호출 체인:");
+    for (const item of chains) {
+      lines.push(`- ${item?.chain ?? "(unknown)"} (${(item?.samples ?? 0).toLocaleString()} samples)`);
+    }
+  }
+  return lines.join("\n");
+}
+
+function TimelineCompositionCard({
+  rows,
+  title,
+  emptyLabel,
+}: {
+  rows: any[];
+  title: string;
+  emptyLabel: string;
+}): JSX.Element {
+  const visibleRows = rows.filter((row) => Number(row?.samples ?? 0) > 0);
+  const totalSamples =
+    visibleRows.reduce((sum, row) => sum + Number(row?.samples ?? 0), 0) || 1;
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm">{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-3">
+        {visibleRows.length === 0 ? (
+          <p className="text-xs text-muted-foreground">{emptyLabel}</p>
+        ) : (
+          <>
+            <div className="flex h-7 overflow-hidden rounded border border-border bg-muted/30">
+              {visibleRows.map((row, idx) => {
+                const samples = Number(row?.samples ?? 0);
+                const widthPct = Math.max(0, (samples / totalSamples) * 100);
+                const ratio = timelineDisplayRatio(row);
+                const label = row?.label || row?.segment || "(unknown)";
+                return (
+                  <div
+                    key={`${row?.index ?? idx}-${row?.segment ?? idx}`}
+                    className="flex min-w-[2px] items-center justify-center overflow-hidden text-[10px] font-medium text-white"
+                    style={{
+                      width: `${widthPct.toFixed(2)}%`,
+                      backgroundColor:
+                        TIMELINE_COMPOSITION_COLORS[
+                          idx % TIMELINE_COMPOSITION_COLORS.length
+                        ],
+                    }}
+                    title={`${label}: ${samples.toLocaleString()} samples · ${formatTimelinePercent(ratio)} · ${formatTimelineSeconds(row?.estimated_seconds)}`}
+                  >
+                    {widthPct >= 12 ? (
+                      <span className="truncate px-1">{label}</span>
+                    ) : null}
+                  </div>
+                );
+              })}
+            </div>
+            <ul className="grid gap-x-4 gap-y-1.5 text-[11px] sm:grid-cols-2 xl:grid-cols-3">
+              {visibleRows.map((row, idx) => {
+                const samples = Number(row?.samples ?? 0);
+                const ratio = timelineDisplayRatio(row);
+                const label = row?.label || row?.segment || "(unknown)";
+                return (
+                  <li
+                    key={`${row?.index ?? idx}-${row?.segment ?? idx}-legend`}
+                    className="flex min-w-0 items-center gap-1.5"
+                    title={`${label}: ${samples.toLocaleString()} samples · ${formatTimelinePercent(ratio)} · ${formatTimelineSeconds(row?.estimated_seconds)}`}
+                  >
+                    <span
+                      className="h-2.5 w-2.5 shrink-0 rounded-sm"
+                      style={{
+                        backgroundColor:
+                          TIMELINE_COMPOSITION_COLORS[
+                            idx % TIMELINE_COMPOSITION_COLORS.length
+                          ],
+                      }}
+                      aria-hidden
+                    />
+                    <span className="min-w-0 flex-1 truncate text-foreground/75">
+                      {label}
+                    </span>
+                    <span className="shrink-0 font-mono tabular-nums text-muted-foreground">
+                      {samples.toLocaleString()} · {formatTimelinePercent(ratio)} ·{" "}
+                      {formatTimelineSeconds(row?.estimated_seconds)}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 export function ProfilerAnalyzerPage(): JSX.Element {
   const { t } = useI18n();
   // Profiler-scoped recent-files history. The category keeps it
@@ -173,7 +321,7 @@ export function ProfilerAnalyzerPage(): JSX.Element {
   const [topN, setTopN] = useState<number>(defaults.topN);
   const [timelineBaseMethod, setTimelineBaseMethod] = useState<string>("");
   // Memory caps default to 0 = "use backend defaults" (250k stacks,
-  // depth 256). Surfaced so 70M+ wall files can be tuned without a
+  // depth 512). Surfaced so 70M+ wall files can be tuned without a
   // rebuild when the defaults still aren't enough.
   const [maxUniqueStacks, setMaxUniqueStacks] = useState<number>(0);
   const [maxStackDepth, setMaxStackDepth] = useState<number>(0);
@@ -429,7 +577,8 @@ export function ProfilerAnalyzerPage(): JSX.Element {
       key: `${row.index}-${row.segment}`,
       label: row.label || row.segment || "(unknown)",
       value: row.samples,
-      ratio: typeof row.total_ratio === "number" ? row.total_ratio : undefined,
+      ratio: timelineDisplayRatio(row),
+      detail: formatTimelineSeconds(row.estimated_seconds),
     }));
 
   const errorBadge =
@@ -625,7 +774,7 @@ export function ProfilerAnalyzerPage(): JSX.Element {
             <Input
               type="number"
               min={0}
-              placeholder="0 = default (128)"
+              placeholder="0 = default (512)"
               value={maxStackDepth || ""}
               onChange={(e) => setMaxStackDepth(Number(e.target.value) || 0)}
               disabled={analyzing}
@@ -900,6 +1049,11 @@ export function ProfilerAnalyzerPage(): JSX.Element {
                 </CardContent>
               </Card>
             )}
+            <TimelineCompositionCard
+              rows={result?.series?.timeline_analysis ?? []}
+              title={t("executionTimeComposition")}
+              emptyLabel={t("timelineEmpty")}
+            />
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm">{t("timelineTitle")}</CardTitle>
@@ -933,6 +1087,9 @@ export function ProfilerAnalyzerPage(): JSX.Element {
                         <th className="px-4 py-2 text-right font-medium">
                           {t("ratio")}
                         </th>
+                        <th className="px-4 py-2 text-right font-medium">
+                          {t("estimatedSeconds")}
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -945,15 +1102,26 @@ export function ProfilerAnalyzerPage(): JSX.Element {
                             className="px-4 py-2 text-xs"
                             title={row.label || row.segment}
                           >
-                            {row.label || row.segment || "(unknown)"}
+                            <span className="inline-flex max-w-[420px] items-center gap-1.5">
+                              <span className="truncate">
+                                {row.label || row.segment || "(unknown)"}
+                              </span>
+                              <span
+                                aria-label="timeline evidence"
+                                title={timelineEvidenceTooltip(row, timelineScope)}
+                              >
+                                <CircleHelp className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                              </span>
+                            </span>
                           </td>
                           <td className="px-4 py-2 text-right tabular-nums">
                             {(row.samples ?? 0).toLocaleString()}
                           </td>
                           <td className="px-4 py-2 text-right tabular-nums">
-                            {typeof row.total_ratio === "number"
-                              ? `${row.total_ratio.toFixed(2)}%`
-                              : "—"}
+                            {formatTimelinePercent(timelineDisplayRatio(row))}
+                          </td>
+                          <td className="px-4 py-2 text-right tabular-nums">
+                            {formatTimelineSeconds(row.estimated_seconds)}
                           </td>
                         </tr>
                       ))}

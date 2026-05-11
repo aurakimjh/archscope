@@ -17,6 +17,7 @@ export type BarRow = {
   label: string;
   value: number;
   ratio?: number; // 0..100, optional pre-computed percent
+  detail?: string;
 };
 
 export type HorizontalBarChartProps = {
@@ -84,6 +85,7 @@ export function HorizontalBarChart({
                 {row.value.toLocaleString()}
                 {valueSuffix ? ` ${valueSuffix}` : ""}
               </span>
+              {row.detail && <span className="bar-detail">{row.detail}</span>}
               <span className="bar-ratio">{ratio.toFixed(ratioFractionDigits)}%</span>
             </div>
           </div>

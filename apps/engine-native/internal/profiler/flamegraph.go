@@ -40,7 +40,9 @@ package profiler
 
 import (
 	"fmt"
+	"hash/fnv"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -69,21 +71,17 @@ type mutableNode struct {
 // buildFlameTree builds the canonical flame tree from a stack→count
 // map. Hot path on 400 MB+ wall profiles, so the loop body is
 // careful about allocations:
-//   - the per-stack `path` slice is hoisted outside the outer loop
-//     and truncated (path[:0]) instead of re-allocated; the only
-//     cost paid per frame is one append-may-grow which tops out
-//     after the first deep stack reaches the depth ceiling.
 //   - splitStack returns a slice that lives only until the next
 //     call; we don't retain it.
-//   - mutableNode.Path is cloned via slices.Clone-equivalent because
-//     freezeNode shares it directly with the FlameNode and the path
-//     buffer above keeps mutating.
+//   - Node IDs are short hashes derived from parent ID + frame name.
+//     Keeping full path strings in every node was a large multiplier
+//     once the depth cap was raised for wall profiles.
 //
 // [한글] buildFlameTree — collapsed stack 카운터를 FlameNode 트리로.
 // 매개변수 stacks: map[";"-joined frame sequence]samples.
 // 동작: 음수/0 sample 은 무시. 각 stack 을 ";" split 하여 trie 형태로
 // 누적, freezeNode 로 정렬·ratio 계산까지 끝낸 immutable 트리 반환.
-// 400 MB+ wall profile 의 hot path 이므로 path slice hoisting 등
+// 400 MB+ wall profile 의 hot path 이므로 split 결과 재사용, 짧은 ID 등
 // allocation 최소화 패턴 적용.
 func buildFlameTree(stacks map[string]int) FlameNode {
 	return buildFlameTreeWithLog(stacks, nil)
@@ -106,7 +104,7 @@ func buildFlameTreeWithLog(stacks map[string]int, pl *ProgressLog) FlameNode {
 		Samples:  total,
 		Children: map[string]*mutableNode{},
 	}
-	path := make([]string, 0, 256)
+	path := make([]string, 0, 512)
 	consumed := 0
 	const tickEvery = 25_000
 	totalNodes := 0
@@ -116,12 +114,12 @@ func buildFlameTreeWithLog(stacks map[string]int, pl *ProgressLog) FlameNode {
 		}
 		current := root
 		frames := splitStackInto(path[:0], stack)
-		for idx, frame := range frames {
+		for _, frame := range frames {
 			child := current.Children[frame]
 			if child == nil {
 				parentID := current.ID
 				child = &mutableNode{
-					ID:       nodeID(frames[:idx+1]),
+					ID:       childNodeID(current.ID, frame),
 					ParentID: &parentID,
 					Name:     frame,
 					Children: map[string]*mutableNode{},
@@ -143,24 +141,20 @@ func buildFlameTreeWithLog(stacks map[string]int, pl *ProgressLog) FlameNode {
 		pl.Tick("build done: stacks=%d nodes=%d total_samples=%d", consumed, totalNodes, total)
 		pl.Mem("build-end")
 	}
-	pathBuf := make([]string, 0, 256)
-	return freezeNode(root, max(total, 1), pathBuf)
+	return freezeNode(root, max(total, 1))
 }
 
 // freezeNode reconstructs the immutable FlameNode from the in-progress
-// mutableNode tree. The path slice is rebuilt from the recursion
-// stack rather than stored on every mutableNode — saves ~50%
-// memory during build on deep stacks. Each FlameNode receives its
-// own freshly cloned Path because consumers (iterLeafPaths,
-// timeline classifier) retain it across the result lifetime.
+// mutableNode tree. Path is no longer stored per node. Consumers that
+// need full paths call iterLeafPaths, which reconstructs and clones
+// only leaf paths.
 //
 // [한글] freezeNode — mutableNode 재귀 → FlameNode 재귀 변환.
 // children 을 Samples DESC (동률이면 Name ASC) 로 정렬해 deterministic
 // 한 결과를 보장하고, 각 노드의 Ratio 를 total 대비 백분율 계산.
 // total=0 가 되면 ratio 가 NaN 이 되므로 호출부에서 max(total,1) 로 보호.
-// path slice 는 재귀 스택에서 재구성하여 mutableNode 당 저장 비용 0
-// (deep stack 에서 ~50% 메모리 절감).
-func freezeNode(node *mutableNode, total int, pathBuf []string) FlameNode {
+// Path slice 는 leaf 계산 시점에만 재구성하여 deep stack 에서 메모리를 절감.
+func freezeNode(node *mutableNode, total int) FlameNode {
 	children := make([]*mutableNode, 0, len(node.Children))
 	for _, child := range node.Children {
 		children = append(children, child)
@@ -171,11 +165,6 @@ func freezeNode(node *mutableNode, total int, pathBuf []string) FlameNode {
 		}
 		return children[i].Samples > children[j].Samples
 	})
-	var clonedPath []string
-	if len(pathBuf) > 0 {
-		clonedPath = make([]string, len(pathBuf))
-		copy(clonedPath, pathBuf)
-	}
 	out := FlameNode{
 		ID:       node.ID,
 		ParentID: node.ParentID,
@@ -183,12 +172,9 @@ func freezeNode(node *mutableNode, total int, pathBuf []string) FlameNode {
 		Samples:  node.Samples,
 		Ratio:    ratio(node.Samples, total, 4),
 		Children: make([]FlameNode, 0, len(children)),
-		Path:     clonedPath,
 	}
 	for _, child := range children {
-		pathBuf = append(pathBuf, child.Name)
-		out.Children = append(out.Children, freezeNode(child, total, pathBuf))
-		pathBuf = pathBuf[:len(pathBuf)-1]
+		out.Children = append(out.Children, freezeNode(child, total))
 	}
 	return out
 }
@@ -341,31 +327,35 @@ func maxInt(a, b int) int {
 // 집합) 도 처리하기 위해, 중간 노드라도 exclusive>0 이면 leaf 로 보고.
 // 진짜 자식이 없는 leaf 는 (예외적으로 exclusive<=0 인 케이스 포함) 자기
 // Samples 를 그대로 사용. 결과는 breakdown/top stacks 계산의 기반.
+// 메모리 절감을 위해 FlameNode 마다 Path 를 보관하지 않고, DFS 중 현재
+// 경로를 재구성한 뒤 leaf 로 채택되는 순간에만 clone 한다.
 func iterLeafPaths(root FlameNode) []leafPath {
 	out := []leafPath{}
-	var walk func(node FlameNode)
-	walk = func(node FlameNode) {
+	path := make([]string, 0, 64)
+	var walk func(node FlameNode, current []string, isRoot bool)
+	walk = func(node FlameNode, current []string, isRoot bool) {
+		next := current
+		if isRoot && len(node.Path) > 0 {
+			next = append([]string(nil), node.Path...)
+		} else if !isRoot {
+			next = append(current, node.Name)
+		}
 		childTotal := 0
 		for _, child := range node.Children {
 			childTotal += child.Samples
 		}
 		exclusive := node.Samples - childTotal
-		// Memory: share the Path slice from the FlameNode rather
-		// than cloning. The flame tree is read-only after freeze, so
-		// downstream consumers (timeline, top-stacks, classifier)
-		// only read these slices. This is the single largest
-		// allocation drop on 70MB wall inputs.
-		if len(node.Path) > 0 && exclusive > 0 {
-			out = append(out, leafPath{Path: node.Path, Samples: exclusive})
+		if len(next) > 0 && exclusive > 0 {
+			out = append(out, leafPath{Path: append([]string(nil), next...), Samples: exclusive})
 		}
-		if len(node.Children) == 0 && len(node.Path) > 0 && node.Samples > 0 && exclusive <= 0 {
-			out = append(out, leafPath{Path: node.Path, Samples: node.Samples})
+		if len(node.Children) == 0 && len(next) > 0 && node.Samples > 0 && exclusive <= 0 {
+			out = append(out, leafPath{Path: append([]string(nil), next...), Samples: node.Samples})
 		}
 		for _, child := range node.Children {
-			walk(child)
+			walk(child, next, false)
 		}
 	}
-	walk(root)
+	walk(root, path, true)
 	return out
 }
 
@@ -405,16 +395,20 @@ func topChildFrames(root FlameNode, limit int) []TopChildFrameRow {
 	return out
 }
 
-// [한글] nodeID / slug — DOM 에서 사용할 노드 식별자 생성.
-// path 의 각 frame 을 slug 처리한 뒤 "/" 로 join 하고 "frame:" prefix.
-// slug 는 백슬래시/슬래시/세미콜론/공백을 "_" 로 치환하고 160자에서 잘라
-// HTML id 로 안전하게 쓸 수 있는 형태를 만든다. Python 측과 byte 단위 동등.
-func nodeID(path []string) string {
-	parts := make([]string, 0, len(path))
-	for _, item := range path {
-		parts = append(parts, slug(item))
+// [한글] childNodeID / slug — DOM 에서 사용할 노드 식별자 생성.
+// 예전에는 전체 path 를 ID 문자열로 들고 있어 depth 가 큰 wall profile 에서
+// 메모리 사용량이 커졌다. parentID + frame 을 해시해 짧고 안정적인 ID 를
+// 만들고, 사람이 읽을 수 있도록 마지막 frame slug 를 앞에 붙인다.
+func childNodeID(parentID string, frame string) string {
+	h := fnv.New64a()
+	_, _ = h.Write([]byte(parentID))
+	_, _ = h.Write([]byte{0})
+	_, _ = h.Write([]byte(frame))
+	name := slug(frame)
+	if len(name) > 80 {
+		name = name[:80]
 	}
-	return "frame:" + strings.Join(parts, "/")
+	return "frame:" + name + "-" + strconv.FormatUint(h.Sum64(), 16)
 }
 
 func slug(value string) string {

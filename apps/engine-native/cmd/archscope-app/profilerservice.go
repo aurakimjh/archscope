@@ -118,8 +118,8 @@ type AnalyzeAsyncResponse struct {
 // AnalyzeDoneEvent / AnalyzeErrorEvent / AnalyzeCancelledEvent are emitted
 // over Wails Event so the renderer doesn't have to poll.
 type AnalyzeDoneEvent struct {
-	TaskID string                   `json:"taskId"`
-	Result profiler.AnalysisResult  `json:"result"`
+	TaskID string                  `json:"taskId"`
+	Result profiler.AnalysisResult `json:"result"`
 }
 
 type AnalyzeErrorEvent struct {
@@ -147,7 +147,7 @@ type AnalyzeRequest struct {
 	DebugLog    bool   `json:"debugLog,omitempty"`
 	DebugLogDir string `json:"debugLogDir,omitempty"`
 	// Memory guards for very large collapsed/wall inputs. Empty/zero
-	// triggers analyzer defaults (100k unique stacks, depth 128, 4 GB
+	// triggers analyzer defaults (100k unique stacks, depth 512, 4 GB
 	// soft RSS ceiling).
 	MaxUniqueStacks    int `json:"maxUniqueStacks,omitempty"`
 	MaxStackDepth      int `json:"maxStackDepth,omitempty"`
