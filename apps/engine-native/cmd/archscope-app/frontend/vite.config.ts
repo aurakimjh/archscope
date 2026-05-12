@@ -12,6 +12,8 @@
 // 의존성 주의: tailwindcss v4 vite plugin 사용 (기존 PostCSS 설정 불필요).
 // ─────────────────────────────────────────────────────────────────────
 import path from "node:path";
+import { execSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 import tailwindcss from "@tailwindcss/vite";
@@ -22,9 +24,35 @@ import wails from "@wailsio/runtime/plugins/vite";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+function readPackageVersion(): string {
+  try {
+    const pkg = JSON.parse(readFileSync(path.resolve(__dirname, "package.json"), "utf8"));
+    return typeof pkg.version === "string" && pkg.version.trim() ? pkg.version.trim() : "0.3.1";
+  } catch {
+    return "0.3.1";
+  }
+}
+
+function readGitBuild(): string {
+  try {
+    return execSync("git describe --tags --always --dirty", {
+      cwd: __dirname,
+      stdio: ["ignore", "pipe", "ignore"],
+    })
+      .toString()
+      .trim();
+  } catch {
+    return `v${readPackageVersion()}`;
+  }
+}
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss(), wails("./bindings")],
+  define: {
+    __APP_VERSION__: JSON.stringify(process.env.VITE_APP_VERSION || readPackageVersion()),
+    __APP_BUILD__: JSON.stringify(process.env.VITE_APP_BUILD || readGitBuild()),
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),

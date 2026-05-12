@@ -6,3 +6,6 @@
 // 이 파일은 build/lint 단계에서만 필요하고, 런타임 코드는 없음.
 // ─────────────────────────────────────────────────────────────────────
 /// <reference types="vite/client" />
+
+declare const __APP_VERSION__: string;
+declare const __APP_BUILD__: string;

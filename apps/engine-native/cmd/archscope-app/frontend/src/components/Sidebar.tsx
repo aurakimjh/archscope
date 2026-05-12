@@ -15,6 +15,7 @@ import {
   Cpu,
   FileSearch,
   GitCompareArrows,
+  Info,
   Network,
   PanelsLeftBottom,
   Settings,
@@ -23,7 +24,9 @@ import {
 import { useEffect, useState } from "react";
 import type { ComponentType } from "react";
 
+import { APP_VERSION } from "../appInfo";
 import { useI18n } from "../i18n/I18nProvider";
+import { AboutDialog } from "./AboutDialog";
 
 const STORAGE_KEY = "archscope.profiler.sidebar.collapsed";
 const TOOLS_STORAGE_KEY = "archscope.profiler.sidebar.tools.expanded";
@@ -74,6 +77,7 @@ export function Sidebar({ active, onNavigate }: SidebarProps) {
       return true;
     }
   });
+  const [aboutOpen, setAboutOpen] = useState(false);
 
   useEffect(() => {
     try {
@@ -182,6 +186,20 @@ export function Sidebar({ active, onNavigate }: SidebarProps) {
           );
         })}
       </nav>
+      <div className="sidebar-footer">
+        <button
+          type="button"
+          className="sidebar-version-button"
+          onClick={() => setAboutOpen(true)}
+          title={collapsed ? t("aboutOpen") : undefined}
+          aria-label={t("aboutOpen")}
+        >
+          <span className="nav-icon" aria-hidden="true">
+            <Info className="nav-lucide" />
+          </span>
+          {!collapsed && <span className="sidebar-version-text">v{APP_VERSION}</span>}
+        </button>
+      </div>
       <button
         type="button"
         className="sidebar-toggle"
@@ -195,6 +213,7 @@ export function Sidebar({ active, onNavigate }: SidebarProps) {
           <ChevronLeft className="nav-lucide-sm" />
         )}
       </button>
+      <AboutDialog open={aboutOpen} onClose={() => setAboutOpen(false)} />
     </aside>
   );
 }

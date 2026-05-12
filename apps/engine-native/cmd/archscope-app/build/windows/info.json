@@ -1,13 +1,17 @@
 {
 	"fixed": {
-		"file_version": "0.3.1"
+		"file_version": "0.3.1.0",
+		"product_version": "0.3.1.0"
 	},
 	"info": {
-		"0000": {
+		"0409": {
+			"FileVersion": "0.3.1",
 			"ProductVersion": "0.3.1",
 			"CompanyName": "ArchScope",
 			"FileDescription": "Local-first architecture diagnostics desktop",
-			"LegalCopyright": "(c) 2026, ArchScope",
+			"InternalName": "archscope",
+			"LegalCopyright": "Copyright (c) 2026 ArchScope contributors.",
+			"OriginalFilename": "archscope.exe",
 			"ProductName": "ArchScope",
 			"Comments": "Wails v3 desktop app"
 		}
