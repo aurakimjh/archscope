@@ -40,6 +40,15 @@ func validateFullProfile(profile *models.JenniferTransactionProfile, opts Option
 	add := func(code, msg string) {
 		profile.Errors = append(profile.Errors, models.JenniferProfileIssue{Code: code, Message: msg})
 	}
+	warn := func(code, msg string) {
+		profile.Warnings = append(profile.Warnings, models.JenniferProfileIssue{Code: code, Message: msg})
+	}
+	if profile.Body.CapacityExceeded {
+		warn(
+			"PROFILE_CAPACITY_EXCEEDED",
+			"Jennifer profile export exceeded the 5MB capacity; this transaction profile may be truncated and statistics can be incomplete",
+		)
+	}
 	if profile.Header.TXID == "" {
 		add("MISSING_TXID", "TXID is empty or absent")
 	}

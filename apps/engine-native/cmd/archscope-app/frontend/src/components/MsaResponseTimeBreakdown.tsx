@@ -279,7 +279,7 @@ function GroupedTimelineBar({
           return (
             <div
               key={group.id}
-              className="relative h-9 px-1"
+              className="relative h-9 border-l border-border/70 px-1 first:border-l-0"
               style={{ width: `${widthPct.toFixed(2)}%` }}
               title={`${label}: ${formatMs(group.value)} · ${widthPct.toFixed(1)}%`}
             >
@@ -293,7 +293,7 @@ function GroupedTimelineBar({
                   className="truncate text-center text-[10px] font-semibold leading-4"
                   style={{ color }}
                 >
-                  {label} · {widthPct.toFixed(1)}%
+                  {label} · {formatMs(group.value)} · {widthPct.toFixed(1)}%
                 </div>
               ) : null}
             </div>
@@ -306,7 +306,7 @@ function GroupedTimelineBar({
           return (
             <div
               key={slice.key}
-              className="flex min-w-[2px] items-center justify-center overflow-hidden text-[10px] font-medium text-white"
+              className="flex min-w-[2px] items-center justify-center overflow-hidden border-r border-background/70 text-[10px] font-medium text-white last:border-r-0"
               style={{
                 width: `${widthPct.toFixed(2)}%`,
                 backgroundColor: slice.color,
@@ -364,7 +364,7 @@ function GroupedLegend({
                 </span>
               </div>
               <span className="shrink-0 font-mono tabular-nums text-muted-foreground">
-                {groupPct.toFixed(1)}%
+                {formatMs(group.value)} · {groupPct.toFixed(1)}%
               </span>
             </div>
             <ul className="flex flex-col gap-1.5">

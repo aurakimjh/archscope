@@ -60,6 +60,11 @@ func parseBody(bodyText string, profile *models.JenniferTransactionProfile) {
 	var current *models.JenniferProfileEvent
 
 	for _, rawLine := range strings.Split(bodyText, "\n") {
+		if strings.Contains(strings.ToLower(rawLine), "profile capacity exceeded") {
+			body.CapacityExceeded = true
+			current = nil
+			continue
+		}
 		// Trailing dash separator (`---…---`) closes the body table.
 		// Stop once we see one outside an event continuation.
 		if isDashLine(rawLine) {

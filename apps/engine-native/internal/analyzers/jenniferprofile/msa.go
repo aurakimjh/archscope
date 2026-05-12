@@ -107,6 +107,9 @@ func runMSAForGroup(b *guidGroupBucket, opts Options) models.JenniferGuidGroup {
 	}
 	for _, p := range b.profiles {
 		group.ProfileTXIDs = append(group.ProfileTXIDs, p.Header.TXID)
+		if p.Body.CapacityExceeded {
+			group.IncompleteProfileCount++
+		}
 	}
 	sort.Strings(group.ProfileTXIDs)
 
@@ -119,8 +122,17 @@ func runMSAForGroup(b *guidGroupBucket, opts Options) models.JenniferGuidGroup {
 			group.Errors = append(group.Errors, p.Errors...)
 		}
 	}
+	if group.IncompleteProfileCount > 0 {
+		group.ExcludedFromSignatureStats = true
+		group.Warnings = append(group.Warnings, models.JenniferProfileIssue{
+			Code:    "GROUP_EXCLUDED_FROM_SIGNATURE_STATS",
+			Message: "At least one profile in this GUID group was truncated by Jennifer's 5MB export capacity; signature averages exclude this group",
+		})
+	}
 	if groupFailed {
 		group.ValidationStatus = "GROUP_FAILED"
+	} else if group.ExcludedFromSignatureStats {
+		group.ValidationStatus = "GROUP_INCOMPLETE"
 	} else {
 		group.ValidationStatus = "OK"
 	}

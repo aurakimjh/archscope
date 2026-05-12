@@ -970,6 +970,11 @@ export class JenniferProfileRequest {
      */
     "eventCategoryPatterns"?: { [_ in string]?: string[] };
 
+    /**
+     * CustomAnalysisRules produces user-defined MSA roll-up cards.
+     */
+    "customAnalysisRules"?: models$0.JenniferCustomAnalysisRule[];
+
     /** Creates a new JenniferProfileRequest instance. */
     constructor($$source: Partial<JenniferProfileRequest> = {}) {
 
@@ -983,6 +988,7 @@ export class JenniferProfileRequest {
         const $$createField1_0 = $$createType1;
         const $$createField4_0 = $$createType1;
         const $$createField5_0 = $$createType2;
+        const $$createField6_0 = $$createType8;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("paths" in $$parsedSource) {
             $$parsedSource["paths"] = $$createField1_0($$parsedSource["paths"]);
@@ -992,6 +998,9 @@ export class JenniferProfileRequest {
         }
         if ("eventCategoryPatterns" in $$parsedSource) {
             $$parsedSource["eventCategoryPatterns"] = $$createField5_0($$parsedSource["eventCategoryPatterns"]);
+        }
+        if ("customAnalysisRules" in $$parsedSource) {
+            $$parsedSource["customAnalysisRules"] = $$createField6_0($$parsedSource["customAnalysisRules"]);
         }
         return new JenniferProfileRequest($$parsedSource as Partial<JenniferProfileRequest>);
     }
@@ -1189,3 +1198,5 @@ const $$createType3 = $Create.Map($Create.Any, $Create.Any);
 const $$createType4 = profiler$0.DrilldownFilter.createFrom;
 const $$createType5 = $Create.Array($$createType4);
 const $$createType6 = models$0.AnalysisResult.createFrom;
+const $$createType7 = models$0.JenniferCustomAnalysisRule.createFrom;
+const $$createType8 = $Create.Array($$createType7);

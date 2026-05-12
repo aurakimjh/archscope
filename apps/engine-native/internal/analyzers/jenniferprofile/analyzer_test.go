@@ -25,6 +25,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/jenniferprofile"
 )
 
@@ -203,6 +204,70 @@ APPLICATION : /prod/order/create
 	}
 	if got := row["total_elapsed_ms"].(int); got != 300 {
 		t.Errorf("total_elapsed_ms = %d, want 300", got)
+	}
+}
+
+func TestCustomAnalysisRulesAggregateBySource(t *testing.T) {
+	body := `---------------------------------------------------------------------------------------------------------------------
+Total Transaction : 1
+---------------------------------------------------------------------------------------------------------------------
+
+
+
+TXID : 100                                                       DOMAIN (ID) : caller (1)
+RESPONSE_TIME : 1000                                             GUID : G1
+APPLICATION : /prod/rule/evaluate
+
+---------------------------------------------------------------------------------------------------------------------
+[ No.][ START_TIME ][  GAP][CPU_T]
+---------------------------------------------------------------------------------------------------------------------
+[0000][10:00:00 000][    0][    0] START
+[0001][10:00:00 010][    0][    0] com.acme.RuleEngine.run() [250ms]
+[0002][10:00:00 300][    0][    0] EXTERNAL_CALL [HTTP] RULE_ENGINE_CLIENT ( url=/g4c/api/verify) [120ms]
+[    ][10:00:01 000][    0][    0] END
+---------------------------------------------------------------------------------------------------------------------
+                TOTAL[1000][   0]
+`
+	parsed := jenniferprofile.ParseString(body, jenniferprofile.Options{})
+	res := Build([]jenniferprofile.FileResult{parsed}, Options{
+		CustomAnalysisRules: []models.JenniferCustomAnalysisRule{
+			{
+				ID:       "profile-rule",
+				Label:    "룰 프로파일",
+				Group:    "internal",
+				Source:   "profile_application",
+				Patterns: []string{"/rule/evaluate"},
+			},
+			{
+				ID:       "method-rule",
+				Label:    "룰 메소드",
+				Group:    "internal",
+				Source:   "method",
+				Patterns: []string{"RuleEngine.run"},
+			},
+			{
+				ID:       "external-rule",
+				Label:    "G4C 연동",
+				Group:    "external",
+				Source:   "external_call_url",
+				Patterns: []string{"/g4c/"},
+			},
+		},
+	})
+
+	rows := res.Tables["custom_rule_stats"].([]map[string]any)
+	byID := map[string]map[string]any{}
+	for _, row := range rows {
+		byID[row["id"].(string)] = row
+	}
+	if got := byID["profile-rule"]["total_ms"].(int); got != 1000 {
+		t.Fatalf("profile total_ms = %d, want 1000", got)
+	}
+	if got := byID["method-rule"]["total_ms"].(int); got != 250 {
+		t.Fatalf("method total_ms = %d, want 250", got)
+	}
+	if got := byID["external-rule"]["total_ms"].(int); got != 120 {
+		t.Fatalf("external total_ms = %d, want 120", got)
 	}
 }
 
@@ -530,6 +595,57 @@ func TestAnalyzeFile_SignatureStats(t *testing.T) {
 	}
 	if got := gap["p95"].(float64); got != 150 {
 		t.Errorf("gap p95 = %v, want 150", got)
+	}
+}
+
+func TestAnalyzeFile_SignatureStatsExcludeCapacityExceededGroups(t *testing.T) {
+	files := []jenniferprofile.FileResult{
+		buildSignatureFixture("G1", 100, 50),
+		buildSignatureFixture("G2", 1000, 500),
+		buildSignatureFixture("G3", 300, 150),
+	}
+	files[1].Profiles[0].Body.CapacityExceeded = true
+	res := Build(files, Options{})
+
+	if got := res.Summary["incomplete_profile_count"].(int); got != 1 {
+		t.Fatalf("incomplete_profile_count = %d, want 1", got)
+	}
+	if got := res.Summary["signature_excluded_group_count"].(int); got != 1 {
+		t.Fatalf("signature_excluded_group_count = %d, want 1", got)
+	}
+
+	groups := res.Series["guid_groups"].([]map[string]any)
+	excluded := 0
+	for _, group := range groups {
+		if group["excluded_from_signature_stats"].(bool) {
+			excluded++
+			if got := group["validation_status"].(string); got != "GROUP_INCOMPLETE" {
+				t.Fatalf("validation_status = %q, want GROUP_INCOMPLETE", got)
+			}
+		}
+	}
+	if excluded != 1 {
+		t.Fatalf("excluded groups = %d, want 1", excluded)
+	}
+
+	sigs := res.Series["signature_statistics"].([]map[string]any)
+	if len(sigs) != 1 {
+		t.Fatalf("signatures = %d, want 1", len(sigs))
+	}
+	sig := sigs[0]
+	if got := sig["sample_count"].(int); got != 2 {
+		t.Fatalf("sample_count = %d, want 2", got)
+	}
+	guids := sig["guids"].([]string)
+	for _, guid := range guids {
+		if guid == "G2" {
+			t.Fatalf("excluded GUID G2 leaked into signature stats: %v", guids)
+		}
+	}
+	metrics := sig["metrics"].(map[string]any)
+	ext := metrics["total_external_call_cumulative_ms"].(map[string]any)
+	if got := ext["avg"].(float64); got != 200 {
+		t.Fatalf("external-call avg = %v, want 200", got)
 	}
 }
 

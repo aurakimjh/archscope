@@ -43,6 +43,7 @@ import (
 	"time"
 
 	engineapi "github.com/aurakimjh/archscope/apps/engine-native/api"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 )
 
 // EngineService exposes the Tier-3/4 analyzers and exporters from
@@ -163,6 +164,8 @@ type JenniferProfileRequest struct {
 	// User patterns only apply to METHOD/UNKNOWN events so they can't
 	// override well-known matches.
 	EventCategoryPatterns map[string][]string `json:"eventCategoryPatterns,omitempty"`
+	// CustomAnalysisRules produces user-defined MSA roll-up cards.
+	CustomAnalysisRules []models.JenniferCustomAnalysisRule `json:"customAnalysisRules,omitempty"`
 }
 
 // ThreadDumpRequest mirrors threaddump.Options + a Path.
@@ -385,6 +388,7 @@ func (s *EngineService) AnalyzeJenniferProfile(req JenniferProfileRequest) (engi
 		HeaderBodyToleranceMs:     req.HeaderBodyToleranceMs,
 		NetworkPrepPatterns:       req.NetworkPrepPatterns,
 		EventCategoryPatterns:     req.EventCategoryPatterns,
+		CustomAnalysisRules:       req.CustomAnalysisRules,
 	}
 	if len(paths) == 1 {
 		return engineapi.AnalyzeJenniferProfile(paths[0], opts)

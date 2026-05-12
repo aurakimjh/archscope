@@ -101,14 +101,15 @@ type JenniferProfileHeader struct {
 // JenniferProfileBody holds the events between START and END plus
 // the trailing TOTAL line.
 type JenniferProfileBody struct {
-	HasBodyHeader bool                   `json:"has_body_header"`
-	HasStart      bool                   `json:"has_start"`
-	HasEnd        bool                   `json:"has_end"`
-	HasTotal      bool                   `json:"has_total"`
-	BodyStartTime string                 `json:"body_start_time,omitempty"` // HH:MM:SS NNN of START event
-	TotalGapMs    *int                   `json:"total_gap_ms,omitempty"`
-	TotalCPUMs    *int                   `json:"total_cpu_ms,omitempty"`
-	Events        []JenniferProfileEvent `json:"events"`
+	HasBodyHeader    bool                   `json:"has_body_header"`
+	HasStart         bool                   `json:"has_start"`
+	HasEnd           bool                   `json:"has_end"`
+	HasTotal         bool                   `json:"has_total"`
+	CapacityExceeded bool                   `json:"capacity_exceeded,omitempty"`
+	BodyStartTime    string                 `json:"body_start_time,omitempty"` // HH:MM:SS NNN of START event
+	TotalGapMs       *int                   `json:"total_gap_ms,omitempty"`
+	TotalCPUMs       *int                   `json:"total_cpu_ms,omitempty"`
+	Events           []JenniferProfileEvent `json:"events"`
 }
 
 // JenniferEventType is the priority-ordered classifier output. The
@@ -217,15 +218,17 @@ type JenniferExternalCallEdge struct {
 // sharing the same GUID, the matched/unmatched external calls, the
 // inferred root profile and the call graph topology.
 type JenniferGuidGroup struct {
-	GUID               string                     `json:"guid"`
-	ProfileTXIDs       []string                   `json:"profile_txids"`
-	ProfileCount       int                        `json:"profile_count"`
-	RootTXID           string                     `json:"root_txid,omitempty"`
-	RootApplication    string                     `json:"root_application,omitempty"`
-	RootResponseTimeMs *int                       `json:"root_response_time_ms,omitempty"`
-	Edges              []JenniferExternalCallEdge `json:"edges"`
-	MatchedEdgeCount   int                        `json:"matched_edge_count"`
-	UnmatchedEdgeCount int                        `json:"unmatched_edge_count"`
+	GUID                       string                     `json:"guid"`
+	ProfileTXIDs               []string                   `json:"profile_txids"`
+	ProfileCount               int                        `json:"profile_count"`
+	IncompleteProfileCount     int                        `json:"incomplete_profile_count,omitempty"`
+	ExcludedFromSignatureStats bool                       `json:"excluded_from_signature_stats,omitempty"`
+	RootTXID                   string                     `json:"root_txid,omitempty"`
+	RootApplication            string                     `json:"root_application,omitempty"`
+	RootResponseTimeMs         *int                       `json:"root_response_time_ms,omitempty"`
+	Edges                      []JenniferExternalCallEdge `json:"edges"`
+	MatchedEdgeCount           int                        `json:"matched_edge_count"`
+	UnmatchedEdgeCount         int                        `json:"unmatched_edge_count"`
 	// UnprofiledExternalCallGroups groups EXTERNAL_CALL rows that
 	// did not resolve to a callee profile inside this GUID. Their
 	// elapsed time is known, but the downstream profile is missing,
@@ -485,4 +488,31 @@ type JenniferNetworkPrepExternalCall struct {
 	ElapsedMs     int    `json:"elapsed_ms"`
 	StartOffsetMs *int   `json:"start_offset_ms,omitempty"`
 	EndOffsetMs   *int   `json:"end_offset_ms,omitempty"`
+}
+
+// JenniferCustomAnalysisRule is a user-defined roll-up bucket. Source controls
+// which profile surface is matched: profile_application uses the profile URL
+// and charges the whole profile response time; method matches body method/event
+// text and charges event elapsed; external_call_url matches EXTERNAL_CALL URL.
+type JenniferCustomAnalysisRule struct {
+	ID       string   `json:"id,omitempty"`
+	Label    string   `json:"label"`
+	Group    string   `json:"group,omitempty"`
+	Source   string   `json:"source"`
+	Patterns []string `json:"patterns"`
+}
+
+// JenniferCustomAnalysisRuleStat is the aggregate result for one custom rule.
+type JenniferCustomAnalysisRuleStat struct {
+	ID             string   `json:"id,omitempty"`
+	Label          string   `json:"label"`
+	Group          string   `json:"group,omitempty"`
+	Source         string   `json:"source"`
+	Patterns       []string `json:"patterns,omitempty"`
+	Count          int      `json:"count"`
+	TotalMs        int      `json:"total_ms"`
+	AvgMs          float64  `json:"avg_ms"`
+	MaxMs          int      `json:"max_ms"`
+	MatchedTXIDs   []string `json:"matched_txids,omitempty"`
+	MatchedSamples []string `json:"matched_samples,omitempty"`
 }

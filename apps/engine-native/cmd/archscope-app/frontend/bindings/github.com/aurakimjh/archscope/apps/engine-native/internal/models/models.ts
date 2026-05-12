@@ -99,6 +99,47 @@ export class AnalysisResult {
 }
 
 /**
+ * JenniferCustomAnalysisRule is a user-defined roll-up bucket. Source controls
+ * which profile surface is matched: profile_application uses the profile URL
+ * and charges the whole profile response time; method matches body method/event
+ * text and charges event elapsed; external_call_url matches EXTERNAL_CALL URL.
+ */
+export class JenniferCustomAnalysisRule {
+    "id"?: string;
+    "label": string;
+    "group"?: string;
+    "source": string;
+    "patterns": string[];
+
+    /** Creates a new JenniferCustomAnalysisRule instance. */
+    constructor($$source: Partial<JenniferCustomAnalysisRule> = {}) {
+        if (!("label" in $$source)) {
+            this["label"] = "";
+        }
+        if (!("source" in $$source)) {
+            this["source"] = "";
+        }
+        if (!("patterns" in $$source)) {
+            this["patterns"] = [];
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new JenniferCustomAnalysisRule instance from a string or object.
+     */
+    static createFrom($$source: any = {}): JenniferCustomAnalysisRule {
+        const $$createField4_0 = $$createType0;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("patterns" in $$parsedSource) {
+            $$parsedSource["patterns"] = $$createField4_0($$parsedSource["patterns"]);
+        }
+        return new JenniferCustomAnalysisRule($$parsedSource as Partial<JenniferCustomAnalysisRule>);
+    }
+}
+
+/**
  * Metadata carries per-analyzer plumbing (parser name, schema
  * version, parser diagnostics, findings list, AI interpretation
  * payload, etc.). `Findings` and `Extra` stay open-ended for the

@@ -86,7 +86,7 @@ export function CustomCategoriesEditor({
           {t("customCategoryPreset")}:
         </label>
         <select
-          className="h-8 rounded-md border border-input bg-transparent px-2 text-xs"
+          className="h-8 rounded-md border border-input bg-background px-2 text-xs text-foreground"
           disabled={disabled}
           defaultValue=""
           onChange={(e) => {
@@ -94,9 +94,15 @@ export function CustomCategoriesEditor({
             e.currentTarget.value = "";
           }}
         >
-          <option value="">{t("presetEmpty")}</option>
+          <option className="bg-background text-foreground" value="">
+            {t("presetEmpty")}
+          </option>
           {presets.map((p) => (
-            <option key={p.id} value={p.id}>
+            <option
+              key={p.id}
+              className="bg-background text-foreground"
+              value={p.id}
+            >
               {p.label}
             </option>
           ))}

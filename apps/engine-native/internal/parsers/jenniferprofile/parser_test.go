@@ -265,3 +265,43 @@ func TestParseFile_OffsetCalculation(t *testing.T) {
 		t.Errorf("startOffsetMs = %d, want 1478", got)
 	}
 }
+
+func TestParseString_ProfileCapacityExceededWarning(t *testing.T) {
+	body := `---------------------------------------------------------------------------------------------------------------------
+Total Transaction : 1
+---------------------------------------------------------------------------------------------------------------------
+
+
+
+TXID : 100                                                       DOMAIN (ID) : caller (1)
+RESPONSE_TIME : 25                                               GUID : G1
+APPLICATION : /prod/order/create
+
+---------------------------------------------------------------------------------------------------------------------
+[ No.][ START_TIME ][  GAP][CPU_T]
+---------------------------------------------------------------------------------------------------------------------
+[0000][16:10:52 608][    0][    0] START
+----- Profile capacity exceeded. (Maximum size: 5MB) -----
+[    ][16:10:52 608][    0][    0] END
+---------------------------------------------------------------------------------------------------------------------
+        TOTAL[  25][  23]
+`
+	res := ParseString(body, Options{})
+	if len(res.Profiles) != 1 {
+		t.Fatalf("profiles = %d, want 1", len(res.Profiles))
+	}
+	p := res.Profiles[0]
+	if !p.Body.CapacityExceeded {
+		t.Fatalf("CapacityExceeded = false, want true")
+	}
+	found := false
+	for _, warning := range p.Warnings {
+		if warning.Code == "PROFILE_CAPACITY_EXCEEDED" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("PROFILE_CAPACITY_EXCEEDED warning not found: %v", p.Warnings)
+	}
+}

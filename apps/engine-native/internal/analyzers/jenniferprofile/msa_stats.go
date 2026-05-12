@@ -116,6 +116,9 @@ func aggregateSignatureStats(groups []models.JenniferGuidGroup) []models.Jennife
 	order := []string{}
 
 	for _, g := range groups {
+		if g.ExcludedFromSignatureStats {
+			continue
+		}
 		sig := computeTimelineSignature(g)
 		b, ok := buckets[sig.Hash]
 		if !ok {

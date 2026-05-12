@@ -139,6 +139,15 @@ export type JenniferProfileRequest = {
   paths?: string[];
   fallbackCorrelationToTxid?: boolean;
   headerBodyToleranceMs?: number;
+  networkPrepPatterns?: string[];
+  eventCategoryPatterns?: Record<string, string[]>;
+  customAnalysisRules?: Array<{
+    id?: string;
+    label: string;
+    group?: string;
+    source: string;
+    patterns: string[];
+  }>;
 };
 
 export function analyzeJenniferProfile(

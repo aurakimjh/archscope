@@ -84,6 +84,9 @@ type Options struct {
 	// User patterns are applied to METHOD/UNKNOWN events only — they
 	// can't override well-known matches like EXTERNAL_CALL or FETCH.
 	EventCategoryPatterns map[string][]string
+	// CustomAnalysisRules define user-visible roll-up cards. They can
+	// match whole profile URLs, method/event names, or EXTERNAL_CALL URLs.
+	CustomAnalysisRules []models.JenniferCustomAnalysisRule
 }
 
 // parserOpts projects the analyzer-level options onto the parser's
@@ -132,6 +135,7 @@ func Build(files []jenniferprofile.FileResult, opts Options) models.AnalysisResu
 	totalProfiles := 0
 	totalErrors := 0
 	totalWarnings := 0
+	incompleteProfiles := 0
 	fullProfileCount := 0
 	rowsBySource := []map[string]any{}
 	profileRows := []map[string]any{}
@@ -158,11 +162,18 @@ func Build(files []jenniferprofile.FileResult, opts Options) models.AnalysisResu
 		if file.SourceFile != "" {
 			sources = append(sources, file.SourceFile)
 		}
+		fileIncompleteProfiles := 0
+		for _, p := range file.Profiles {
+			if p.Body.CapacityExceeded {
+				fileIncompleteProfiles++
+			}
+		}
 		rowsBySource = append(rowsBySource, map[string]any{
 			"source_file":                file.SourceFile,
 			"declared_transaction_count": file.DeclaredTransactionCount,
 			"detected_transaction_count": file.DetectedTransactionCount,
 			"profile_count":              len(file.Profiles),
+			"incomplete_profile_count":   fileIncompleteProfiles,
 		})
 		for _, fe := range file.FileErrors {
 			fileErrors = append(fileErrors, map[string]any{
@@ -177,12 +188,15 @@ func Build(files []jenniferprofile.FileResult, opts Options) models.AnalysisResu
 			metrics := AggregateBody(&p)
 			validateHeaderVsBody(&p, metrics, tolerance)
 
-			isFull := len(p.Errors) == 0
+			if p.Body.CapacityExceeded {
+				incompleteProfiles++
+			}
+			isFull := len(p.Errors) == 0 && !p.Body.CapacityExceeded
 			if isFull {
 				fullProfileCount++
 				totals.FullProfileCount++
 			}
-			if p.Header.ResponseTimeMs != nil {
+			if p.Header.ResponseTimeMs != nil && !p.Body.CapacityExceeded {
 				totals.ResponseTimeMs += int64(*p.Header.ResponseTimeMs)
 				totals.ResponseTimeN++
 			}
@@ -231,10 +245,14 @@ func Build(files []jenniferprofile.FileResult, opts Options) models.AnalysisResu
 	totalUnmatched := 0
 	totalUnprofiledMs := 0
 	totalGapMs := 0
+	signatureExcludedGroups := 0
 	for i := range guidGroups {
 		// Stamp each group's signature so guid_group rows can
 		// reference the parent signature hash.
 		guidGroups[i].Metrics.GUID = guidGroups[i].GUID
+		if guidGroups[i].ExcludedFromSignatureStats {
+			signatureExcludedGroups++
+		}
 	}
 	signatureStats := aggregateSignatureStats(guidGroups)
 	signatureRows := make([]map[string]any, 0, len(signatureStats))
@@ -273,6 +291,7 @@ func Build(files []jenniferprofile.FileResult, opts Options) models.AnalysisResu
 	result.Summary = map[string]any{
 		"total_files":                len(files),
 		"total_profiles":             totalProfiles,
+		"incomplete_profile_count":   incompleteProfiles,
 		"full_profile_count":         fullProfileCount,
 		"total_errors":               totalErrors,
 		"total_warnings":             totalWarnings,
@@ -295,7 +314,9 @@ func Build(files []jenniferprofile.FileResult, opts Options) models.AnalysisResu
 		"total_unprofiled_external_call_ms": totalUnprofiledMs,
 		"total_network_gap_cum_ms":          totalGapMs,
 		// MVP3 signature aggregation.
-		"unique_signature_count": len(signatureStats),
+		"unique_signature_count":           len(signatureStats),
+		"signature_excluded_group_count":   signatureExcludedGroups,
+		"signature_excluded_profile_count": incompleteProfiles,
 	}
 	result.Series = map[string]any{
 		"file_summary":                 rowsBySource,
@@ -311,6 +332,7 @@ func Build(files []jenniferprofile.FileResult, opts Options) models.AnalysisResu
 		"unprofiled_external_call_groups": unprofiledGroupRows,
 		"network_prep_methods":            networkPrepRows,
 		"slow_sql_events":                 slowSQLRows,
+		"custom_rule_stats":               customRuleStats(fileBuckets, opts.CustomAnalysisRules),
 	}
 	result.Metadata.SchemaVersion = SchemaVersion
 	result.Metadata.Diagnostics = diagnostics.New(ParserName)
@@ -526,16 +548,19 @@ func guidGroupToRow(g models.JenniferGuidGroup) map[string]any {
 		})
 	}
 	return map[string]any{
-		"guid":                  g.GUID,
-		"profile_count":         g.ProfileCount,
-		"profile_txids":         g.ProfileTXIDs,
-		"root_txid":             g.RootTXID,
-		"root_application":      g.RootApplication,
-		"root_response_time_ms": rootRT,
-		"matched_edge_count":    g.MatchedEdgeCount,
-		"unmatched_edge_count":  g.UnmatchedEdgeCount,
-		"validation_status":     g.ValidationStatus,
-		"call_graph":            graph,
+		"guid":                          g.GUID,
+		"profile_count":                 g.ProfileCount,
+		"incomplete_profile_count":      g.IncompleteProfileCount,
+		"excluded_from_signature_stats": g.ExcludedFromSignatureStats,
+		"profile_txids":                 g.ProfileTXIDs,
+		"root_txid":                     g.RootTXID,
+		"root_application":              g.RootApplication,
+		"root_response_time_ms":         rootRT,
+		"matched_edge_count":            g.MatchedEdgeCount,
+		"unmatched_edge_count":          g.UnmatchedEdgeCount,
+		"validation_status":             g.ValidationStatus,
+		"warnings":                      g.Warnings,
+		"call_graph":                    graph,
 		"metrics": map[string]any{
 			"profile_count":                     g.Metrics.ProfileCount,
 			"matched_external_call_count":       g.Metrics.MatchedExternalCallCount,
@@ -651,7 +676,8 @@ func profileToRow(p models.JenniferTransactionProfile, m models.JenniferBodyMetr
 		"guid":            p.Header.GUID,
 		"application":     p.Header.Application,
 		"start_time":      p.Header.StartTime,
-		"is_full_profile": len(p.Errors) == 0,
+		"is_full_profile": len(p.Errors) == 0 && !p.Body.CapacityExceeded,
+		"is_incomplete":   p.Body.CapacityExceeded,
 		"errors":          errors,
 		"warnings":        warnings,
 		"body_metrics": map[string]any{

@@ -22,8 +22,24 @@
 // cards + per-profile table + file errors. MSA call-graph / network
 // gap / signature stats land in MVP2-MVP3.
 
-import { Loader2, Play, X } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import {
+  Loader2,
+  Network,
+  Play,
+  Plus,
+  Rows3,
+  Save,
+  Trash2,
+  Upload,
+  X,
+} from "lucide-react";
+import {
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+  type RefObject,
+} from "react";
 
 import { engine } from "../bridge/engine";
 
@@ -109,6 +125,8 @@ const FILE_FILTERS = [
 ];
 
 const MSA_TABLE_PREVIEW_LIMIT = 200;
+const DEFAULT_SLOW_SQL_THRESHOLD_MS = 1000;
+const CUSTOM_RULE_PRESET_VERSION = 1;
 
 type Selection = {
   filePath: string;
@@ -116,6 +134,38 @@ type Selection = {
 };
 
 type MsaTimelineMode = "single" | "average";
+type MsaTimelineLayout = "grouped" | "expanded";
+type CustomAnalysisRuleSource =
+  | "profile_application"
+  | "method"
+  | "external_call_url";
+type CustomAnalysisRuleGroup = "database" | "external" | "internal";
+
+type CustomAnalysisRule = {
+  id: string;
+  label: string;
+  group: CustomAnalysisRuleGroup;
+  source: CustomAnalysisRuleSource;
+  patterns: string[];
+};
+
+const CUSTOM_RULE_GROUPS: Array<{
+  id: CustomAnalysisRuleGroup;
+  label: string;
+}> = [
+  { id: "database", label: "Database" },
+  { id: "external", label: "External" },
+  { id: "internal", label: "Internal" },
+];
+
+const CUSTOM_RULE_SOURCES: Array<{
+  id: CustomAnalysisRuleSource;
+  label: string;
+}> = [
+  { id: "profile_application", label: "프로파일 URL 전체시간" },
+  { id: "method", label: "메소드/이벤트 처리시간" },
+  { id: "external_call_url", label: "EXTERNAL_CALL URL" },
+];
 
 function basenameOf(p: string): string {
   const segments = p.split(/[\\/]/);
@@ -210,6 +260,51 @@ function buildNetworkTimeByTxid(groups: any[]): Map<string, number> {
 
 function txidSetFromProfiles(rows: any[]): Set<string> {
   return new Set(rows.map((row) => String(row?.txid ?? "")).filter(Boolean));
+}
+
+function makeCustomRule(): CustomAnalysisRule {
+  return {
+    id: `custom-${Date.now().toString(36)}-${Math.random()
+      .toString(36)
+      .slice(2, 7)}`,
+    label: "",
+    group: "external",
+    source: "external_call_url",
+    patterns: [],
+  };
+}
+
+function parsePatternText(value: string): string[] {
+  return Array.from(
+    new Set(
+      value
+        .split(/\r?\n|,/)
+        .map((part) => part.trim())
+        .filter(Boolean),
+    ),
+  );
+}
+
+function normalizeCustomAnalysisRules(input: unknown): CustomAnalysisRule[] {
+  if (!Array.isArray(input)) return [];
+  const groups = new Set(CUSTOM_RULE_GROUPS.map((group) => group.id));
+  const sources = new Set(CUSTOM_RULE_SOURCES.map((source) => source.id));
+  return input
+    .map((raw: any) => {
+      const group = groups.has(raw?.group) ? raw.group : "external";
+      const source = sources.has(raw?.source) ? raw.source : "external_call_url";
+      const patterns = Array.isArray(raw?.patterns)
+        ? parsePatternText(raw.patterns.join("\n"))
+        : parsePatternText(String(raw?.patterns ?? ""));
+      return {
+        id: String(raw?.id || makeCustomRule().id),
+        label: String(raw?.label ?? "").trim(),
+        group,
+        source,
+        patterns,
+      } as CustomAnalysisRule;
+    })
+    .filter((rule) => rule.label && rule.patterns.length > 0);
 }
 
 function compactJenniferResult(raw: any): any {
@@ -331,6 +426,26 @@ function MsaCaptureStatusCard({ summary }: { summary: any }): JSX.Element {
           label="Connection acquire (ms)"
           value={(summary.connection_acquire_cum_ms ?? 0).toLocaleString()}
         />
+      </CardContent>
+    </Card>
+  );
+}
+
+function IncompleteProfileWarning({ summary }: { summary: any }): JSX.Element | null {
+  const incomplete = Number(summary?.incomplete_profile_count ?? 0);
+  const excludedGroups = Number(summary?.signature_excluded_group_count ?? 0);
+  if (incomplete <= 0 && excludedGroups <= 0) return null;
+  return (
+    <Card className="border-amber-500/50 bg-amber-500/5">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm text-amber-800 dark:text-amber-200">
+          불완전 프로파일 감지
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="text-xs text-amber-900 dark:text-amber-100">
+        Jennifer의 5MB Profile capacity exceeded 문구가 포함된 프로파일{" "}
+        {incomplete.toLocaleString()}건이 있습니다. 해당 GUID 그룹{" "}
+        {excludedGroups.toLocaleString()}건은 시그니처 평균 통계에서 제외했습니다.
       </CardContent>
     </Card>
   );
@@ -695,18 +810,73 @@ function ExternalCallTopTable({ edges }: { edges: any[] }): JSX.Element {
 }
 
 function SlowSqlTable({ rows }: { rows: any[] }): JSX.Element {
-  const visibleRows = [...rows]
+  const [minElapsedInput, setMinElapsedInput] = useState(
+    String(DEFAULT_SLOW_SQL_THRESHOLD_MS),
+  );
+  const minElapsedMs = Math.max(0, Number(minElapsedInput) || 0);
+  const filteredRows = rows.filter(
+    (row) => Number(row?.elapsed_ms ?? 0) >= minElapsedMs,
+  );
+  const visibleRows = [...filteredRows]
     .sort((a, b) => Number(b?.elapsed_ms ?? 0) - Number(a?.elapsed_ms ?? 0))
     .slice(0, MSA_TABLE_PREVIEW_LIMIT);
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm">성능 저하 SQL 후보 ({rows.length})</CardTitle>
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <CardTitle className="text-sm">
+              성능 저하 SQL 후보 ({filteredRows.length}/{rows.length})
+            </CardTitle>
+            <p className="mt-1 text-xs text-muted-foreground">
+              기본값은 1초 이상 수행된 SQL만 표시합니다.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-end gap-2 text-xs">
+            <label className="flex flex-col gap-1">
+              <span className="font-medium text-foreground/80">
+                최소 응답시간(ms)
+              </span>
+              <input
+                type="number"
+                min={0}
+                step={100}
+                value={minElapsedInput}
+                onChange={(event) => setMinElapsedInput(event.target.value)}
+                className="h-8 w-32 rounded-md border border-input bg-background px-2 text-right text-xs"
+              />
+            </label>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => setMinElapsedInput("0")}
+            >
+              전체
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => setMinElapsedInput("1000")}
+            >
+              1초+
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => setMinElapsedInput("3000")}
+            >
+              3초+
+            </Button>
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="overflow-x-auto p-0">
         {visibleRows.length === 0 ? (
           <p className="px-4 py-3 text-xs text-muted-foreground">
-            SQL 실행 이벤트가 없습니다.
+            조건에 맞는 SQL 실행 이벤트가 없습니다.
           </p>
         ) : (
           <table className="w-full text-sm">
@@ -745,6 +915,232 @@ function SlowSqlTable({ rows }: { rows: any[] }): JSX.Element {
             </tbody>
           </table>
         )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function CustomAnalysisRulesEditor({
+  rules,
+  onChange,
+  disabled,
+  onSavePreset,
+  onLoadPresetClick,
+  presetInputRef,
+  onLoadPresetFile,
+}: {
+  rules: CustomAnalysisRule[];
+  onChange: (rules: CustomAnalysisRule[]) => void;
+  disabled?: boolean;
+  onSavePreset: () => void;
+  onLoadPresetClick: () => void;
+  presetInputRef: RefObject<HTMLInputElement>;
+  onLoadPresetFile: (file?: File) => void;
+}): JSX.Element {
+  const updateRule = (id: string, patch: Partial<CustomAnalysisRule>) => {
+    onChange(
+      rules.map((rule) => (rule.id === id ? { ...rule, ...patch } : rule)),
+    );
+  };
+  return (
+    <div className="flex flex-col gap-3 rounded-md border border-border bg-muted/20 p-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <p className="text-xs font-semibold text-foreground/80">
+            사용자 정의 분석 카드
+          </p>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            URL, 메소드명, EXTERNAL_CALL URL 패턴을 Database/External/Internal
+            그룹으로 집계합니다.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={disabled}
+            onClick={() => onChange([...rules, makeCustomRule()])}
+          >
+            <Plus className="h-3.5 w-3.5" />
+            카드
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={disabled}
+            onClick={onSavePreset}
+          >
+            <Save className="h-3.5 w-3.5" />
+            저장
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={disabled}
+            onClick={onLoadPresetClick}
+          >
+            <Upload className="h-3.5 w-3.5" />
+            읽기
+          </Button>
+          <input
+            ref={presetInputRef}
+            type="file"
+            accept="application/json,.json"
+            className="hidden"
+            onChange={(event) => onLoadPresetFile(event.target.files?.[0])}
+          />
+        </div>
+      </div>
+
+      {rules.length === 0 ? (
+        <p className="rounded border border-dashed border-border bg-background/50 px-3 py-2 text-xs text-muted-foreground">
+          추가된 카드가 없습니다.
+        </p>
+      ) : (
+        <div className="grid grid-cols-1 gap-3">
+          {rules.map((rule) => (
+            <div
+              key={rule.id}
+              className="grid gap-2 rounded border border-border bg-background/60 p-2"
+            >
+              <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_150px_190px_auto]">
+                <input
+                  type="text"
+                  value={rule.label}
+                  disabled={disabled}
+                  placeholder="카드 이름"
+                  onChange={(event) =>
+                    updateRule(rule.id, { label: event.target.value })
+                  }
+                  className="h-8 rounded-md border border-input bg-background px-2 text-xs"
+                />
+                <select
+                  value={rule.group}
+                  disabled={disabled}
+                  onChange={(event) =>
+                    updateRule(rule.id, {
+                      group: event.target.value as CustomAnalysisRuleGroup,
+                    })
+                  }
+                  className="h-8 rounded-md border border-input bg-background px-2 text-xs text-foreground"
+                >
+                  {CUSTOM_RULE_GROUPS.map((group) => (
+                    <option key={group.id} value={group.id}>
+                      {group.label}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={rule.source}
+                  disabled={disabled}
+                  onChange={(event) =>
+                    updateRule(rule.id, {
+                      source: event.target.value as CustomAnalysisRuleSource,
+                    })
+                  }
+                  className="h-8 rounded-md border border-input bg-background px-2 text-xs text-foreground"
+                >
+                  {CUSTOM_RULE_SOURCES.map((source) => (
+                    <option key={source.id} value={source.id}>
+                      {source.label}
+                    </option>
+                  ))}
+                </select>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  disabled={disabled}
+                  onClick={() => onChange(rules.filter((r) => r.id !== rule.id))}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+              <textarea
+                value={rule.patterns.join("\n")}
+                disabled={disabled}
+                placeholder="패턴을 줄 단위로 입력"
+                onChange={(event) =>
+                  updateRule(rule.id, {
+                    patterns: parsePatternText(event.target.value),
+                  })
+                }
+                className="min-h-16 rounded-md border border-input bg-background px-2 py-1.5 font-mono text-xs"
+              />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CustomRuleStatsPanel({ rows }: { rows: any[] }): JSX.Element | null {
+  if (rows.length === 0) return null;
+  const visibleRows = rows.slice(0, MSA_TABLE_PREVIEW_LIMIT);
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm">
+          사용자 정의 카드 통계 ({rows.length})
+        </CardTitle>
+        <p className="text-xs text-muted-foreground">
+          분석 옵션에서 추가한 카드별 집계입니다. 프로파일 URL은 전체
+          응답시간, 메소드는 이벤트 elapsed, EXTERNAL_CALL은 호출 URL elapsed를
+          합산합니다.
+        </p>
+      </CardHeader>
+      <CardContent className="overflow-x-auto p-0">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
+              <th className="px-3 py-2 text-left font-medium">Group</th>
+              <th className="px-3 py-2 text-left font-medium">Card</th>
+              <th className="px-3 py-2 text-left font-medium">Source</th>
+              <th className="px-3 py-2 text-right font-medium">Count</th>
+              <th className="px-3 py-2 text-right font-medium">Total ms</th>
+              <th className="px-3 py-2 text-right font-medium">Avg ms</th>
+              <th className="px-3 py-2 text-right font-medium">Max ms</th>
+              <th className="px-3 py-2 text-left font-medium">Patterns</th>
+            </tr>
+          </thead>
+          <tbody>
+            {visibleRows.map((row, idx) => (
+              <tr key={idx} className="border-b border-border last:border-0">
+                <td className="px-3 py-2 text-xs">{row?.group || "-"}</td>
+                <td className="px-3 py-2 text-xs font-medium">
+                  {row?.label || "-"}
+                </td>
+                <td className="px-3 py-2 font-mono text-xs">
+                  {row?.source || "-"}
+                </td>
+                <td className="px-3 py-2 text-right tabular-nums">
+                  {(row?.count ?? 0).toLocaleString()}
+                </td>
+                <td className="px-3 py-2 text-right tabular-nums">
+                  {Math.round(Number(row?.total_ms ?? 0)).toLocaleString()}
+                </td>
+                <td className="px-3 py-2 text-right tabular-nums">
+                  {Math.round(Number(row?.avg_ms ?? 0)).toLocaleString()}
+                </td>
+                <td className="px-3 py-2 text-right tabular-nums">
+                  {Math.round(Number(row?.max_ms ?? 0)).toLocaleString()}
+                </td>
+                <td
+                  className="max-w-[360px] px-3 py-2 font-mono text-xs"
+                  title={(row?.patterns ?? []).join(", ")}
+                >
+                  <span className="block truncate">
+                    {(row?.patterns ?? []).join(", ") || "-"}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </CardContent>
     </Card>
   );
@@ -908,9 +1304,15 @@ export function JenniferProfilePage(): JSX.Element {
   const [activeTab, setActiveTab] = useState<string>("summary");
   const [msaTimelineMode, setMsaTimelineMode] =
     useState<MsaTimelineMode>("single");
+  const [singleTimelineLayout, setSingleTimelineLayout] =
+    useState<MsaTimelineLayout>("grouped");
+  const [customAnalysisRules, setCustomAnalysisRules] = useState<
+    CustomAnalysisRule[]
+  >([]);
   const [selectedGuid, setSelectedGuid] = useState<string>("");
   const [selectedSignatureHash, setSelectedSignatureHash] =
     useState<string>("");
+  const customPresetInputRef = useRef<HTMLInputElement>(null);
   // Jennifer-scoped recent-files history. The UI lets users add
   // multiple files at once, so a "recent" entry restores the full
   // selection vector (paths array + analyzer options).
@@ -948,6 +1350,61 @@ export function JenniferProfilePage(): JSX.Element {
     setError("");
   };
 
+  const handleSaveAnalysisPreset = useCallback(() => {
+    const preset = {
+      version: CUSTOM_RULE_PRESET_VERSION,
+      fallbackToTxid,
+      eventCategoryPatterns,
+      customAnalysisRules: normalizeCustomAnalysisRules(customAnalysisRules),
+    };
+    const blob = new Blob([JSON.stringify(preset, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "archscope-jennifer-analysis-preset.json";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }, [customAnalysisRules, eventCategoryPatterns, fallbackToTxid]);
+
+  const handleLoadAnalysisPresetFile = useCallback(
+    (file?: File) => {
+      if (!file) return;
+      void file
+        .text()
+        .then((text) => {
+          const parsed = JSON.parse(text);
+          if (
+            parsed?.eventCategoryPatterns &&
+            typeof parsed.eventCategoryPatterns === "object"
+          ) {
+            setEventCategoryPatterns(
+              parsed.eventCategoryPatterns as CategoryRules,
+            );
+          }
+          if (typeof parsed?.fallbackToTxid === "boolean") {
+            setFallbackToTxid(parsed.fallbackToTxid);
+          }
+          setCustomAnalysisRules(
+            normalizeCustomAnalysisRules(parsed?.customAnalysisRules),
+          );
+          setError("");
+        })
+        .catch((err) => {
+          setError(`프리셋 파일을 읽지 못했습니다: ${String(err?.message ?? err)}`);
+        })
+        .finally(() => {
+          if (customPresetInputRef.current) {
+            customPresetInputRef.current.value = "";
+          }
+        });
+    },
+    [],
+  );
+
   const handleAnalyze = async () => {
     if (selected.length === 0) return;
     setError("");
@@ -968,6 +1425,7 @@ export function JenniferProfilePage(): JSX.Element {
       );
       const otherCategories: CategoryRules = { ...eventCategoryPatterns };
       delete otherCategories["NETWORK_PREP_METHOD"];
+      const activeCustomRules = normalizeCustomAnalysisRules(customAnalysisRules);
 
       const res = await engine.analyzeJenniferProfile({
         path: selected.length === 1 ? selected[0].filePath : undefined,
@@ -977,7 +1435,9 @@ export function JenniferProfilePage(): JSX.Element {
         networkPrepPatterns: prepCombined.length > 0 ? prepCombined : undefined,
         eventCategoryPatterns:
           Object.keys(otherCategories).length > 0 ? otherCategories : undefined,
-      } as any);
+        customAnalysisRules:
+          activeCustomRules.length > 0 ? activeCustomRules : undefined,
+      });
       setResult(compactJenniferResult(res));
       setSelectedGuid("");
       setSelectedSignatureHash("");
@@ -1000,6 +1460,7 @@ export function JenniferProfilePage(): JSX.Element {
             fallbackToTxid,
             networkPrepPatterns: prepCombined,
             eventCategoryPatterns: otherCategories,
+            customAnalysisRules: activeCustomRules,
           },
         });
       }
@@ -1023,6 +1484,7 @@ export function JenniferProfilePage(): JSX.Element {
   const unprofiledExternalCallRows: any[] =
     result?.tables?.unprofiled_external_call_groups ?? [];
   const slowSqlRows: any[] = result?.tables?.slow_sql_events ?? [];
+  const customRuleRows: any[] = result?.tables?.custom_rule_stats ?? [];
   const signatureStats: any[] = result?.series?.signature_statistics ?? [];
   const hasResult = Boolean(result);
   const showMsaTablesInSummary = false;
@@ -1203,6 +1665,11 @@ export function JenniferProfilePage(): JSX.Element {
         meta.eventCategoryPatterns as CategoryRules,
       );
     }
+    if (Array.isArray(meta.customAnalysisRules)) {
+      setCustomAnalysisRules(
+        normalizeCustomAnalysisRules(meta.customAnalysisRules),
+      );
+    }
     setError("");
   };
 
@@ -1302,6 +1769,15 @@ export function JenniferProfilePage(): JSX.Element {
               disabled={analyzing}
             />
           </div>
+          <CustomAnalysisRulesEditor
+            rules={customAnalysisRules}
+            onChange={setCustomAnalysisRules}
+            disabled={analyzing}
+            onSavePreset={handleSaveAnalysisPreset}
+            onLoadPresetClick={() => customPresetInputRef.current?.click()}
+            presetInputRef={customPresetInputRef}
+            onLoadPresetFile={handleLoadAnalysisPresetFile}
+          />
           </div>
         </AnalyzerOptionsDock>
       </div>
@@ -1375,6 +1851,14 @@ export function JenniferProfilePage(): JSX.Element {
               value={(summary.unique_signature_count ?? 0).toLocaleString()}
             />
             <MetricCard
+              label="Incomplete profiles"
+              value={(summary.incomplete_profile_count ?? 0).toLocaleString()}
+            />
+            <MetricCard
+              label="Avg excluded groups"
+              value={(summary.signature_excluded_group_count ?? 0).toLocaleString()}
+            />
+            <MetricCard
               label="Matched edges"
               value={(summary.matched_external_call_count ?? 0).toLocaleString()}
             />
@@ -1413,6 +1897,10 @@ export function JenniferProfilePage(): JSX.Element {
           )}
 
           <MsaCaptureStatusCard summary={summary} />
+
+          <IncompleteProfileWarning summary={summary} />
+
+          <CustomRuleStatsPanel rows={customRuleRows} />
 
           {fileErrors.length > 0 && (
             <Card>
@@ -1457,6 +1945,7 @@ export function JenniferProfilePage(): JSX.Element {
                       <th className="px-4 py-2 text-right font-medium">Declared</th>
                       <th className="px-4 py-2 text-right font-medium">Detected</th>
                       <th className="px-4 py-2 text-right font-medium">Profiles</th>
+                      <th className="px-4 py-2 text-right font-medium">Incomplete</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1473,6 +1962,9 @@ export function JenniferProfilePage(): JSX.Element {
                         </td>
                         <td className="px-4 py-2 text-right tabular-nums">
                           {(row.profile_count ?? 0).toLocaleString()}
+                        </td>
+                        <td className="px-4 py-2 text-right tabular-nums">
+                          {(row.incomplete_profile_count ?? 0).toLocaleString()}
                         </td>
                       </tr>
                     ))}
@@ -1809,6 +2301,7 @@ export function JenniferProfilePage(): JSX.Element {
                     variant={msaTimelineMode === "single" ? "default" : "outline"}
                     onClick={() => setMsaTimelineMode("single")}
                   >
+                    <Network className="h-3.5 w-3.5" />
                     단일 트랜잭션
                   </Button>
                   <Button
@@ -1817,6 +2310,7 @@ export function JenniferProfilePage(): JSX.Element {
                     variant={msaTimelineMode === "average" ? "default" : "outline"}
                     onClick={() => setMsaTimelineMode("average")}
                   >
+                    <Rows3 className="h-3.5 w-3.5" />
                     평균 트랜잭션
                   </Button>
                 </div>
@@ -1863,6 +2357,36 @@ export function JenniferProfilePage(): JSX.Element {
                     </select>
                   </label>
                 )}
+                {msaTimelineMode === "single" && (
+                  <div className="flex flex-wrap items-center gap-1 rounded-md border border-border bg-muted/20 p-1">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant={
+                        singleTimelineLayout === "grouped"
+                          ? "default"
+                          : "outline"
+                      }
+                      onClick={() => setSingleTimelineLayout("grouped")}
+                    >
+                      <Network className="h-3.5 w-3.5" />
+                      서비스 그룹
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant={
+                        singleTimelineLayout === "expanded"
+                          ? "default"
+                          : "outline"
+                      }
+                      onClick={() => setSingleTimelineLayout("expanded")}
+                    >
+                      <Rows3 className="h-3.5 w-3.5" />
+                      펼쳐보기
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -1883,9 +2407,17 @@ export function JenniferProfilePage(): JSX.Element {
                     networkTimeByTxid={networkTimeByTxid}
                   />
                   <MsaTimeline
-                    title="단일 트랜잭션 타임라인 (서비스 그룹)"
+                    title={
+                      singleTimelineLayout === "grouped"
+                        ? "단일 트랜잭션 타임라인 (서비스 그룹)"
+                        : "단일 트랜잭션 타임라인 (펼쳐보기)"
+                    }
                     edges={singleTimelineEdges as any}
-                    mode="by-service"
+                    mode={
+                      singleTimelineLayout === "grouped"
+                        ? "by-service"
+                        : "overall"
+                    }
                     rootApplication={selectedGuidGroup?.root_application}
                     rootDurationMs={toFiniteNumber(
                       selectedGuidGroup?.root_response_time_ms,
@@ -1957,6 +2489,7 @@ export function JenniferProfilePage(): JSX.Element {
             ) : (
             <>
             <ServiceNetworkTimeSummary rows={serviceNetworkRows} />
+            <CustomRuleStatsPanel rows={customRuleRows} />
             <ExternalCallTopTable edges={overallTimelineEdges as any} />
             <NetworkPrepMethodsTable rows={networkPrepRows} />
             <UnprofiledExternalCallGroupsTable rows={unprofiledExternalCallRows} />
