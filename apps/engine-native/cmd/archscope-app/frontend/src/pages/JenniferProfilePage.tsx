@@ -331,7 +331,13 @@ function guidOptionLabel(group: any): string {
   const guid = String(group?.guid ?? "");
   const root = group?.root_application || "unknown";
   const responseTime = toFiniteNumber(group?.root_response_time_ms);
-  const suffix = guid ? `…${guid.slice(-10)}` : "GUID 없음";
+  const txids = (group?.profile_txids ?? []) as string[];
+  const suffix =
+    guid.startsWith("standalone:") && txids.length > 0
+      ? `TXID …${String(txids[0]).slice(-10)}`
+      : guid
+        ? `…${guid.slice(-10)}`
+        : "단일 프로파일";
   return responseTime != null
     ? `${root} · ${suffix} · ${Math.round(responseTime).toLocaleString()} ms`
     : `${root} · ${suffix}`;
@@ -2317,7 +2323,7 @@ export function JenniferProfilePage(): JSX.Element {
                 {msaTimelineMode === "single" ? (
                   <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs lg:max-w-xl">
                     <span className="font-medium text-foreground/80">
-                      분석할 GUID
+                      분석할 트랜잭션
                     </span>
                     <select
                       className="h-9 rounded-md border border-input bg-background px-3 text-xs"
@@ -2433,8 +2439,8 @@ export function JenniferProfilePage(): JSX.Element {
               ) : (
                 <Card>
                   <CardContent className="p-4 text-xs text-muted-foreground">
-                    GUID 기반 MSA 호출 그래프가 없습니다. 원본 프로파일의 GUID
-                    또는 EXTERNAL_CALL 매칭 상태를 확인하세요.
+                    분석할 트랜잭션 프로파일이 없습니다. 원본 프로파일의 TXID,
+                    RESPONSE_TIME 또는 본문 이벤트를 확인하세요.
                   </CardContent>
                 </Card>
               )

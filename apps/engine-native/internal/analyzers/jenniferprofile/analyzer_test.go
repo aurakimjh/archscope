@@ -207,6 +207,66 @@ APPLICATION : /prod/order/create
 	}
 }
 
+func TestStandaloneProfileWithoutGuidStillBuildsBreakdown(t *testing.T) {
+	body := `---------------------------------------------------------------------------------------------------------------------
+Total Transaction : 1
+---------------------------------------------------------------------------------------------------------------------
+
+
+
+TXID : 100                                                       DOMAIN (ID) : caller (1)
+RESPONSE_TIME : 1000                                             USER_AGENT : test
+APPLICATION : /prod/solo
+
+---------------------------------------------------------------------------------------------------------------------
+[ No.][ START_TIME ][  GAP][CPU_T]
+---------------------------------------------------------------------------------------------------------------------
+[0000][10:00:00 000][    0][    0] START
+[0001][10:00:00 010][    0][    0] SQL-EXECUTE-QUERY [100ms]
+[0002][10:00:00 200][    0][    0] EXTERNAL_CALL [HTTP] APACHE_HTTP_CLIENT_V5 ( url=/external/rule) [200ms]
+[    ][10:00:01 000][    0][    0] END
+---------------------------------------------------------------------------------------------------------------------
+                TOTAL[1000][   0]
+`
+	parsed := jenniferprofile.ParseString(body, jenniferprofile.Options{})
+	res := Build([]jenniferprofile.FileResult{parsed}, Options{})
+
+	if got := res.Summary["guid_group_count"].(int); got != 1 {
+		t.Fatalf("guid_group_count = %d, want 1", got)
+	}
+	groups := res.Series["guid_groups"].([]map[string]any)
+	group := groups[0]
+	if got := group["root_application"].(string); got != "/prod/solo" {
+		t.Fatalf("root_application = %q, want /prod/solo", got)
+	}
+	if got := group["root_response_time_ms"].(int); got != 1000 {
+		t.Fatalf("root_response_time_ms = %d, want 1000", got)
+	}
+
+	metrics := group["metrics"].(map[string]any)
+	breakdown := metrics["response_time_breakdown"].(map[string]any)
+	if got := breakdown["sql_execute_ms"].(int); got != 100 {
+		t.Fatalf("sql_execute_ms = %d, want 100", got)
+	}
+	if got := breakdown["unprofiled_external_call_ms"].(int); got != 200 {
+		t.Fatalf("unprofiled_external_call_ms = %d, want 200", got)
+	}
+	if got := breakdown["network_call_ms"].(int); got != 0 {
+		t.Fatalf("network_call_ms = %d, want 0", got)
+	}
+	if got := breakdown["method_time_ms"].(int); got != 700 {
+		t.Fatalf("method_time_ms = %d, want 700", got)
+	}
+
+	edges := res.Tables["msa_edges"].([]map[string]any)
+	if len(edges) != 1 {
+		t.Fatalf("msa_edges = %d, want 1", len(edges))
+	}
+	if got := edges[0]["match_status"].(string); got != "UNMATCHED" {
+		t.Fatalf("match_status = %q, want UNMATCHED", got)
+	}
+}
+
 func TestCustomAnalysisRulesAggregateBySource(t *testing.T) {
 	body := `---------------------------------------------------------------------------------------------------------------------
 Total Transaction : 1

@@ -72,7 +72,7 @@ const SLICE_DEFS: {
   { key: "fetch_ms", label: "Fetch", group: "database", color: "#fbbf24", hint: "ResultSet fetch" },
   { key: "connection_acquire_ms", label: "Conn Acquire", group: "database", color: "#ef4444", hint: "DB 풀 대기" },
   { key: "network_call_ms", label: "Network", group: "external", color: "#10b981", hint: "외부호출 - callee 응답시간 (실제 망 시간)" },
-  { key: "unprofiled_external_call_ms", label: "Unprofiled Call", group: "external", color: "#14b8a6", hint: "callee profile 없이 caller EXTERNAL_CALL elapsed만 확인된 외부호출" },
+  { key: "unprofiled_external_call_ms", label: "External Call", group: "external", color: "#14b8a6", hint: "callee profile 없이 caller EXTERNAL_CALL elapsed만 확인된 외부호출" },
   { key: "network_prep_ms", label: "Network Prep", group: "external", color: "#a78bfa", hint: "sendToService 등 wrapper의 비-네트워크 부분" },
   { key: "method_time_ms", label: "Method", group: "internal", color: "#94a3b8", hint: "잔여 메소드 수행시간 (전체 - 위 합계)" },
 ];

@@ -45,18 +45,19 @@ type guidGroupBucket struct {
 
 // buildGuidGroups runs the full §13-§18 MSA pipeline against every
 // FileResult and returns one models.JenniferGuidGroup per distinct
-// GUID. Profiles missing GUID (and not opted into the TXID
-// fallback) bubble up through the diagnostics path on the analyzer
-// side; this function silently skips them.
+// GUID. Profiles missing GUID (and not opted into explicit TXID
+// fallback) still become standalone groups so a single exported
+// profile can be analysed by its own SQL / method / EXTERNAL_CALL
+// ledger even though caller-callee network time cannot be derived.
 func buildGuidGroups(files []jenniferFileBucket, opts Options) []models.JenniferGuidGroup {
 	buckets := map[string]*guidGroupBucket{}
 	keyOrder := []string{}
 
-	for _, file := range files {
-		for _, p := range file.profiles {
+	for fileIdx, file := range files {
+		for profileIdx, p := range file.profiles {
 			key := correlationKey(p, opts)
 			if key == "" {
-				continue
+				key = standaloneCorrelationKey(p, fileIdx, profileIdx)
 			}
 			b, ok := buckets[key]
 			if !ok {
@@ -94,6 +95,16 @@ func correlationKey(p models.JenniferTransactionProfile, opts Options) string {
 		return p.Header.TXID
 	}
 	return ""
+}
+
+func standaloneCorrelationKey(p models.JenniferTransactionProfile, fileIdx int, profileIdx int) string {
+	if p.Header.TXID != "" {
+		return "standalone:" + p.Header.TXID
+	}
+	if p.SourceFile != "" {
+		return "standalone:" + p.SourceFile + "#" + intKey(profileIdx)
+	}
+	return "standalone:" + intKey(fileIdx) + "#" + intKey(profileIdx)
 }
 
 // runMSAForGroup executes the §14-§18 stages against one bucket
