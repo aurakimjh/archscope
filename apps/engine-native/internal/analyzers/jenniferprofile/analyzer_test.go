@@ -242,6 +242,9 @@ APPLICATION : /prod/solo
 	if got := group["root_response_time_ms"].(int); got != 1000 {
 		t.Fatalf("root_response_time_ms = %d, want 1000", got)
 	}
+	if got := group["root_body_start_ms"].(int); got != 36_000_000 {
+		t.Fatalf("root_body_start_ms = %d, want 36000000", got)
+	}
 
 	metrics := group["metrics"].(map[string]any)
 	breakdown := metrics["response_time_breakdown"].(map[string]any)
@@ -328,6 +331,60 @@ APPLICATION : /prod/rule/evaluate
 	}
 	if got := byID["external-rule"]["total_ms"].(int); got != 120 {
 		t.Fatalf("external total_ms = %d, want 120", got)
+	}
+}
+
+func TestCustomAnalysisRulesChangeResponseBreakdown(t *testing.T) {
+	body := `---------------------------------------------------------------------------------------------------------------------
+Total Transaction : 1
+---------------------------------------------------------------------------------------------------------------------
+
+
+
+TXID : 100                                                       DOMAIN (ID) : caller (1)
+RESPONSE_TIME : 1000                                             GUID : G1
+APPLICATION : /prod/order/create
+
+---------------------------------------------------------------------------------------------------------------------
+[ No.][ START_TIME ][  GAP][CPU_T]
+---------------------------------------------------------------------------------------------------------------------
+[0000][10:00:00 000][    0][    0] START
+[0001][10:00:00 010][    0][    0] com.acme.RuleEngine.run() [250ms]
+[    ][10:00:01 000][    0][    0] END
+---------------------------------------------------------------------------------------------------------------------
+                TOTAL[1000][   0]
+`
+	parsed := jenniferprofile.ParseString(body, jenniferprofile.Options{})
+	res := Build([]jenniferprofile.FileResult{parsed}, Options{
+		CustomAnalysisRules: []models.JenniferCustomAnalysisRule{
+			{
+				ID:       "rule-method",
+				Label:    "룰 자체 처리",
+				Group:    "internal",
+				Source:   "method",
+				Patterns: []string{"RuleEngine.run"},
+			},
+		},
+	})
+
+	groups := res.Series["guid_groups"].([]map[string]any)
+	metrics := groups[0]["metrics"].(map[string]any)
+	breakdown := metrics["response_time_breakdown"].(map[string]any)
+	if got := breakdown["method_time_ms"].(int); got != 750 {
+		t.Fatalf("method_time_ms = %d, want 750", got)
+	}
+	slices := breakdown["custom_slices"].([]map[string]any)
+	if len(slices) != 1 {
+		t.Fatalf("custom_slices = %d, want 1", len(slices))
+	}
+	if got := slices[0]["label"].(string); got != "룰 자체 처리" {
+		t.Fatalf("custom label = %q, want 룰 자체 처리", got)
+	}
+	if got := slices[0]["value_ms"].(int); got != 250 {
+		t.Fatalf("custom value_ms = %d, want 250", got)
+	}
+	if got := slices[0]["group"].(string); got != "internal" {
+		t.Fatalf("custom group = %q, want internal", got)
 	}
 }
 

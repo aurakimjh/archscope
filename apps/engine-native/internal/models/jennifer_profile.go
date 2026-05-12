@@ -226,6 +226,7 @@ type JenniferGuidGroup struct {
 	RootTXID                   string                     `json:"root_txid,omitempty"`
 	RootApplication            string                     `json:"root_application,omitempty"`
 	RootResponseTimeMs         *int                       `json:"root_response_time_ms,omitempty"`
+	RootBodyStartMs            *int                       `json:"root_body_start_ms,omitempty"`
 	Edges                      []JenniferExternalCallEdge `json:"edges"`
 	MatchedEdgeCount           int                        `json:"matched_edge_count"`
 	UnmatchedEdgeCount         int                        `json:"unmatched_edge_count"`
@@ -394,19 +395,34 @@ type JenniferGuidMetrics struct {
 // or duplicated cumulative ledgers; the renderer clamps to 0 and
 // shows a warning.
 type JenniferResponseTimeBreakdown struct {
-	RootResponseTimeMs       int     `json:"root_response_time_ms"`
-	SQLExecuteMs             int     `json:"sql_execute_ms"`
-	CheckQueryMs             int     `json:"check_query_ms"`
-	TwoPCMs                  int     `json:"two_pc_ms"`
-	FetchMs                  int     `json:"fetch_ms"`
-	NetworkCallMs            int     `json:"network_call_ms"`
-	UnprofiledExternalCallMs int     `json:"unprofiled_external_call_ms"`
-	NetworkPrepMs            int     `json:"network_prep_ms"`
-	ConnectionAcquireMs      int     `json:"connection_acquire_ms"`
-	MethodTimeMs             int     `json:"method_time_ms"`
-	MethodTimeRatio          float64 `json:"method_time_ratio"`
-	Coverage                 float64 `json:"coverage"`
-	NegativeMethodTime       bool    `json:"negative_method_time,omitempty"`
+	RootResponseTimeMs       int                               `json:"root_response_time_ms"`
+	SQLExecuteMs             int                               `json:"sql_execute_ms"`
+	CheckQueryMs             int                               `json:"check_query_ms"`
+	TwoPCMs                  int                               `json:"two_pc_ms"`
+	FetchMs                  int                               `json:"fetch_ms"`
+	NetworkCallMs            int                               `json:"network_call_ms"`
+	UnprofiledExternalCallMs int                               `json:"unprofiled_external_call_ms"`
+	NetworkPrepMs            int                               `json:"network_prep_ms"`
+	ConnectionAcquireMs      int                               `json:"connection_acquire_ms"`
+	CustomSlices             []JenniferResponseTimeCustomSlice `json:"custom_slices,omitempty"`
+	MethodTimeMs             int                               `json:"method_time_ms"`
+	MethodTimeRatio          float64                           `json:"method_time_ratio"`
+	Coverage                 float64                           `json:"coverage"`
+	NegativeMethodTime       bool                              `json:"negative_method_time,omitempty"`
+}
+
+// JenniferResponseTimeCustomSlice is a user-defined response-time slice.
+// It is carved out of the closest built-in bucket where possible so the
+// response-time composition changes without double-counting common cases.
+type JenniferResponseTimeCustomSlice struct {
+	ID             string   `json:"id,omitempty"`
+	Label          string   `json:"label"`
+	Group          string   `json:"group,omitempty"`
+	Source         string   `json:"source"`
+	ValueMs        int      `json:"value_ms"`
+	Count          int      `json:"count"`
+	MatchedTXIDs   []string `json:"matched_txids,omitempty"`
+	MatchedSamples []string `json:"matched_samples,omitempty"`
 }
 
 // JenniferUnprofiledExternalCallGroup is the grouped view of

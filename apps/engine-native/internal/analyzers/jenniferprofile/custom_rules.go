@@ -84,6 +84,11 @@ type customRuleAccumulator struct {
 	samples []string
 }
 
+type customBreakdownAccumulator struct {
+	customRuleAccumulator
+	sourceBuckets map[string]int
+}
+
 func normalizeCustomRules(rules []models.JenniferCustomAnalysisRule) []models.JenniferCustomAnalysisRule {
 	out := make([]models.JenniferCustomAnalysisRule, 0, len(rules))
 	for _, rule := range rules {
@@ -123,6 +128,215 @@ func normalizeCustomRuleSource(source string) string {
 		return customRuleSourceExternalCallURL
 	default:
 		return ""
+	}
+}
+
+func applyCustomBreakdownRules(
+	bd *models.JenniferResponseTimeBreakdown,
+	group *guidGroupBucket,
+	edges []models.JenniferExternalCallEdge,
+	rules []models.JenniferCustomAnalysisRule,
+) {
+	accs := customRuleBreakdownAccumulators(group, edges, rules)
+	if len(accs) == 0 {
+		recomputeBreakdownRatios(bd)
+		return
+	}
+	for i := range accs {
+		for bucket, value := range accs[i].sourceBuckets {
+			subtractBreakdownBucket(bd, bucket, value)
+		}
+	}
+	slices := make([]models.JenniferResponseTimeCustomSlice, 0, len(accs))
+	for _, acc := range accs {
+		if acc.totalMs <= 0 {
+			continue
+		}
+		slices = append(slices, models.JenniferResponseTimeCustomSlice{
+			ID:             acc.rule.ID,
+			Label:          acc.rule.Label,
+			Group:          acc.rule.Group,
+			Source:         acc.rule.Source,
+			ValueMs:        acc.totalMs,
+			Count:          acc.count,
+			MatchedTXIDs:   acc.txids,
+			MatchedSamples: acc.samples,
+		})
+	}
+	bd.CustomSlices = slices
+	recomputeBreakdownRatios(bd)
+}
+
+func customRuleBreakdownAccumulators(
+	group *guidGroupBucket,
+	edges []models.JenniferExternalCallEdge,
+	rules []models.JenniferCustomAnalysisRule,
+) []customBreakdownAccumulator {
+	normalized := normalizeCustomRules(rules)
+	if len(normalized) == 0 {
+		return nil
+	}
+	stats := make([]customBreakdownAccumulator, len(normalized))
+	for i, rule := range normalized {
+		stats[i] = customBreakdownAccumulator{
+			customRuleAccumulator: customRuleAccumulator{
+				rule:    rule,
+				txidSet: map[string]struct{}{},
+				seenSet: map[string]struct{}{},
+			},
+			sourceBuckets: map[string]int{},
+		}
+	}
+	for _, profile := range group.profiles {
+		for i := range stats {
+			applyCustomBreakdownProfileRule(&stats[i], profile)
+		}
+	}
+	for _, edge := range edges {
+		for i := range stats {
+			applyCustomBreakdownExternalRule(&stats[i], edge)
+		}
+	}
+	out := stats[:0]
+	for _, stat := range stats {
+		if stat.totalMs > 0 {
+			out = append(out, stat)
+		}
+	}
+	return out
+}
+
+func applyCustomBreakdownProfileRule(stat *customBreakdownAccumulator, profile models.JenniferTransactionProfile) {
+	switch stat.rule.Source {
+	case customRuleSourceProfileApplication:
+		haystack := strings.ToLower(profile.Header.Application)
+		if customRuleMatchAny(haystack, stat.rule.Patterns) {
+			elapsed := 0
+			if profile.Header.ResponseTimeMs != nil {
+				elapsed = *profile.Header.ResponseTimeMs
+			}
+			stat.addWithBucket(profile.Header.TXID, profile.Header.Application, elapsed, "method_time_ms")
+		}
+	case customRuleSourceMethod:
+		for _, ev := range profile.Body.Events {
+			if ev.ElapsedMs == nil {
+				continue
+			}
+			if ev.EventType == models.JenniferEventStart ||
+				ev.EventType == models.JenniferEventEnd ||
+				ev.EventType == models.JenniferEventTotal {
+				continue
+			}
+			haystack := strings.ToLower(ev.RawMessage + "\n" + strings.Join(ev.DetailLines, "\n"))
+			if customRuleMatchAny(haystack, stat.rule.Patterns) {
+				stat.addWithBucket(profile.Header.TXID, ev.RawMessage, *ev.ElapsedMs, breakdownBucketForEvent(ev.EventType))
+			}
+		}
+	}
+}
+
+func applyCustomBreakdownExternalRule(stat *customBreakdownAccumulator, edge models.JenniferExternalCallEdge) {
+	if stat.rule.Source != customRuleSourceExternalCallURL {
+		return
+	}
+	haystack := strings.ToLower(edge.ExternalCallURL)
+	if !customRuleMatchAny(haystack, stat.rule.Patterns) {
+		return
+	}
+	elapsed := edge.ExternalCallElapsedMs
+	bucket := "unprofiled_external_call_ms"
+	if edge.MatchStatus == models.JenniferMatchOK {
+		bucket = "network_call_ms"
+		if edge.AdjustedNetworkGapMs != nil {
+			elapsed = *edge.AdjustedNetworkGapMs
+		} else {
+			elapsed = 0
+		}
+	}
+	stat.addWithBucket(edge.CallerTXID, edge.ExternalCallURL, elapsed, bucket)
+}
+
+func (s *customBreakdownAccumulator) addWithBucket(txid string, sample string, elapsedMs int, bucket string) {
+	if elapsedMs <= 0 {
+		return
+	}
+	s.add(txid, sample, elapsedMs)
+	if bucket != "" {
+		s.sourceBuckets[bucket] += elapsedMs
+	}
+}
+
+func breakdownBucketForEvent(t models.JenniferEventType) string {
+	switch t {
+	case models.JenniferEventSQLExecute, models.JenniferEventSQLUpdate, models.JenniferEventSQLQuery:
+		return "sql_execute_ms"
+	case models.JenniferEventCheckQuery:
+		return "check_query_ms"
+	case models.JenniferEventTwoPCStart, models.JenniferEventTwoPCEnd,
+		models.JenniferEventTwoPCPrepare, models.JenniferEventTwoPCCommit,
+		models.JenniferEventTwoPCRollback, models.JenniferEventTwoPCUnknown:
+		return "two_pc_ms"
+	case models.JenniferEventFetch:
+		return "fetch_ms"
+	case models.JenniferEventConnAcquire:
+		return "connection_acquire_ms"
+	case models.JenniferEventNetworkPrep:
+		return "network_prep_ms"
+	case models.JenniferEventExternalCall:
+		return "unprofiled_external_call_ms"
+	default:
+		return "method_time_ms"
+	}
+}
+
+func subtractBreakdownBucket(bd *models.JenniferResponseTimeBreakdown, bucket string, value int) {
+	if value <= 0 {
+		return
+	}
+	switch bucket {
+	case "sql_execute_ms":
+		subtractInt(&bd.SQLExecuteMs, value)
+	case "check_query_ms":
+		subtractInt(&bd.CheckQueryMs, value)
+	case "two_pc_ms":
+		subtractInt(&bd.TwoPCMs, value)
+	case "fetch_ms":
+		subtractInt(&bd.FetchMs, value)
+	case "network_call_ms":
+		subtractInt(&bd.NetworkCallMs, value)
+	case "unprofiled_external_call_ms":
+		subtractInt(&bd.UnprofiledExternalCallMs, value)
+	case "network_prep_ms":
+		subtractInt(&bd.NetworkPrepMs, value)
+	case "connection_acquire_ms":
+		subtractInt(&bd.ConnectionAcquireMs, value)
+	case "method_time_ms":
+		subtractInt(&bd.MethodTimeMs, value)
+	}
+}
+
+func subtractInt(target *int, value int) {
+	if value >= *target {
+		*target = 0
+		return
+	}
+	*target -= value
+}
+
+func recomputeBreakdownRatios(bd *models.JenniferResponseTimeBreakdown) {
+	if bd.RootResponseTimeMs <= 0 {
+		return
+	}
+	bd.MethodTimeRatio = float64(bd.MethodTimeMs) / float64(bd.RootResponseTimeMs)
+	covered := bd.SQLExecuteMs + bd.CheckQueryMs + bd.TwoPCMs + bd.FetchMs +
+		bd.NetworkCallMs + bd.UnprofiledExternalCallMs + bd.NetworkPrepMs +
+		bd.ConnectionAcquireMs
+	for _, slice := range bd.CustomSlices {
+		covered += slice.ValueMs
+	}
+	bd.Coverage = float64(covered) / float64(bd.RootResponseTimeMs)
+	if covered > bd.RootResponseTimeMs {
+		bd.NegativeMethodTime = true
 	}
 }
 

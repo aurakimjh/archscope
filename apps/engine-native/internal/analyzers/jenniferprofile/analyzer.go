@@ -533,6 +533,10 @@ func guidGroupToRow(g models.JenniferGuidGroup) map[string]any {
 	if g.RootResponseTimeMs != nil {
 		rootRT = *g.RootResponseTimeMs
 	}
+	rootBodyStartMs := any(nil)
+	if g.RootBodyStartMs != nil {
+		rootBodyStartMs = *g.RootBodyStartMs
+	}
 	graph := make([]map[string]any, 0, len(g.CallGraph))
 	for _, edge := range g.CallGraph {
 		graph = append(graph, map[string]any{
@@ -556,6 +560,7 @@ func guidGroupToRow(g models.JenniferGuidGroup) map[string]any {
 		"root_txid":                     g.RootTXID,
 		"root_application":              g.RootApplication,
 		"root_response_time_ms":         rootRT,
+		"root_body_start_ms":            rootBodyStartMs,
 		"matched_edge_count":            g.MatchedEdgeCount,
 		"unmatched_edge_count":          g.UnmatchedEdgeCount,
 		"validation_status":             g.ValidationStatus,
@@ -588,6 +593,7 @@ func guidGroupToRow(g models.JenniferGuidGroup) map[string]any {
 				"unprofiled_external_call_ms": g.Metrics.ResponseTimeBreakdown.UnprofiledExternalCallMs,
 				"network_prep_ms":             g.Metrics.ResponseTimeBreakdown.NetworkPrepMs,
 				"connection_acquire_ms":       g.Metrics.ResponseTimeBreakdown.ConnectionAcquireMs,
+				"custom_slices":               responseTimeCustomSlicesToRows(g.Metrics.ResponseTimeBreakdown.CustomSlices),
 				"method_time_ms":              g.Metrics.ResponseTimeBreakdown.MethodTimeMs,
 				"method_time_ratio":           g.Metrics.ResponseTimeBreakdown.MethodTimeRatio,
 				"coverage":                    g.Metrics.ResponseTimeBreakdown.Coverage,
@@ -595,6 +601,26 @@ func guidGroupToRow(g models.JenniferGuidGroup) map[string]any {
 			},
 		},
 	}
+}
+
+func responseTimeCustomSlicesToRows(slices []models.JenniferResponseTimeCustomSlice) []map[string]any {
+	if len(slices) == 0 {
+		return nil
+	}
+	rows := make([]map[string]any, 0, len(slices))
+	for _, slice := range slices {
+		rows = append(rows, map[string]any{
+			"id":              slice.ID,
+			"label":           slice.Label,
+			"group":           slice.Group,
+			"source":          slice.Source,
+			"value_ms":        slice.ValueMs,
+			"count":           slice.Count,
+			"matched_txids":   slice.MatchedTXIDs,
+			"matched_samples": slice.MatchedSamples,
+		})
+	}
+	return rows
 }
 
 // edgeToRow projects an edge into a flat row for `tables.msa_edges`.

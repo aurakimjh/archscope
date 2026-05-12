@@ -40,6 +40,14 @@ type GroupMetrics = {
       unprofiled_external_call_ms?: number;
       network_prep_ms?: number;
       connection_acquire_ms?: number;
+      custom_slices?: Array<{
+        id?: string;
+        label?: string;
+        group?: SliceGroupId | string;
+        source?: string;
+        value_ms?: number;
+        count?: number;
+      }>;
       method_time_ms?: number;
       method_time_ratio?: number;
       coverage?: number;
@@ -54,18 +62,17 @@ type MsaResponseTimeBreakdownProps = {
 };
 
 type SliceGroupId = "database" | "external" | "internal";
-type Breakdown = NonNullable<
-  NonNullable<GroupMetrics["metrics"]>["response_time_breakdown"]
->;
-type SliceKey = keyof Breakdown;
+type SliceKey = string;
 
-const SLICE_DEFS: {
+type SliceDef = {
   key: SliceKey;
   label: string;
   group: SliceGroupId;
   color: string;
   hint?: string;
-}[] = [
+};
+
+const SLICE_DEFS: SliceDef[] = [
   { key: "sql_execute_ms", label: "SQL", group: "database", color: "#2563eb", hint: "DB 쿼리 수행 누적" },
   { key: "check_query_ms", label: "Check Query", group: "database", color: "#06b6d4", hint: "select 1 같은 헬스체크" },
   { key: "two_pc_ms", label: "2PC / XA", group: "database", color: "#f59e0b", hint: "분산트랜잭션 prepare/commit" },
@@ -91,6 +98,17 @@ const GROUP_COLORS: Record<SliceGroupId, string> = {
   internal: "#ea580c",
 };
 
+const CUSTOM_COLORS = [
+  "#7c3aed",
+  "#db2777",
+  "#0f766e",
+  "#b45309",
+  "#475569",
+  "#be123c",
+  "#0891b2",
+  "#4f46e5",
+];
+
 export function MsaResponseTimeBreakdown({
   groups,
 }: MsaResponseTimeBreakdownProps): JSX.Element {
@@ -100,8 +118,10 @@ export function MsaResponseTimeBreakdown({
     aggregateBase,
     aggregateGroups,
     visibleSlices,
+    sliceDefs,
     perGroup,
   } = useMemo(() => {
+      const customDefs = new Map<string, SliceDef>();
       // Aggregate across all groups.
       const nextTotals = SLICE_DEFS.reduce<Record<string, number>>((acc, def) => {
         acc[def.key] = 0;
@@ -115,13 +135,29 @@ export function MsaResponseTimeBreakdown({
         for (const def of SLICE_DEFS) {
           nextTotals[def.key] += Math.max(0, Number((bd as any)[def.key] ?? 0));
         }
+        for (const slice of bd.custom_slices ?? []) {
+          const key = customSliceKey(slice);
+          const value = Math.max(0, Number(slice?.value_ms ?? 0));
+          if (!customDefs.has(key)) {
+            customDefs.set(key, {
+              key,
+              label: String(slice?.label || "Custom"),
+              group: normalizeGroup(slice?.group),
+              color: CUSTOM_COLORS[customDefs.size % CUSTOM_COLORS.length],
+              hint: `사용자 정의 카드${slice?.source ? ` · ${slice.source}` : ""}`,
+            });
+            nextTotals[key] = 0;
+          }
+          nextTotals[key] += value;
+        }
       }
-      const nextTotalCovered = SLICE_DEFS.reduce(
+      const nextSliceDefs = [...SLICE_DEFS, ...customDefs.values()];
+      const nextTotalCovered = nextSliceDefs.reduce(
         (sum, def) => sum + Number(nextTotals[def.key] ?? 0),
         0,
       );
       const nextAggregateBase = Math.max(nextTotalRoot, nextTotalCovered, 1);
-      const nextVisibleSlices = SLICE_DEFS.map((def) => ({
+      const nextVisibleSlices = nextSliceDefs.map((def) => ({
         ...def,
         value: Number(nextTotals[def.key] ?? 0),
       })).filter((slice) => slice.value > 0);
@@ -161,6 +197,7 @@ export function MsaResponseTimeBreakdown({
           (group) => group.value > 0,
         ),
         visibleSlices: nextVisibleSlices,
+        sliceDefs: nextSliceDefs,
         perGroup: nextPerGroup,
       };
     }, [groups]);
@@ -220,6 +257,12 @@ export function MsaResponseTimeBreakdown({
                 for (const def of SLICE_DEFS) {
                   slices[def.key] = Math.max(0, Number((bd as any)[def.key] ?? 0));
                 }
+                for (const slice of bd.custom_slices ?? []) {
+                  slices[customSliceKey(slice)] = Math.max(
+                    0,
+                    Number(slice?.value_ms ?? 0),
+                  );
+                }
                 return (
                   <GroupRow
                     key={g.guid ?? `${g.root_application ?? "group"}-${idx}`}
@@ -230,6 +273,7 @@ export function MsaResponseTimeBreakdown({
                     }
                     root={root}
                     slices={slices}
+                    sliceDefs={sliceDefs}
                     negativeMethod={!!bd.negative_method_time}
                   />
                 );
@@ -260,7 +304,7 @@ function GroupedTimelineBar({
     }>;
   }>;
   slices: Array<{
-    key: SliceKey;
+    key: string;
     label: string;
     group: SliceGroupId;
     color: string;
@@ -410,14 +454,16 @@ function GroupRow({
   label,
   root,
   slices,
+  sliceDefs,
   negativeMethod,
 }: {
   label: string;
   root: number;
   slices: Record<string, number>;
+  sliceDefs: SliceDef[];
   negativeMethod: boolean;
 }): JSX.Element {
-  const covered = SLICE_DEFS.reduce((s, d) => s + (slices[d.key] ?? 0), 0);
+  const covered = sliceDefs.reduce((s, d) => s + (slices[d.key] ?? 0), 0);
   const base = Math.max(root, covered, 1);
   return (
     <div className="flex items-center gap-2">
@@ -428,7 +474,7 @@ function GroupRow({
         className="flex h-4 flex-1 overflow-hidden rounded bg-muted/30"
         title={formatMs(root)}
       >
-        {SLICE_DEFS.map((def) => {
+        {sliceDefs.map((def) => {
           const v = slices[def.key];
           if (!v) return null;
           const widthPct = pct(v, base);
@@ -454,4 +500,15 @@ function GroupRow({
       )}
     </div>
   );
+}
+
+function customSliceKey(slice: { id?: string; label?: string }): string {
+  return `custom:${String(slice?.id || slice?.label || "custom")}`;
+}
+
+function normalizeGroup(group: unknown): SliceGroupId {
+  if (group === "database" || group === "external" || group === "internal") {
+    return group;
+  }
+  return "internal";
 }

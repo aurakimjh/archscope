@@ -171,6 +171,9 @@ func runMSAForGroup(b *guidGroupBucket, opts Options) models.JenniferGuidGroup {
 			rt := *root.Header.ResponseTimeMs
 			group.RootResponseTimeMs = &rt
 		}
+		if startMs, ok := parseHHMMSSmsLocal(root.Body.BodyStartTime); ok {
+			group.RootBodyStartMs = &startMs
+		}
 	}
 
 	// §18 call graph + cycle detection.
@@ -182,7 +185,7 @@ func runMSAForGroup(b *guidGroupBucket, opts Options) models.JenniferGuidGroup {
 		})
 	}
 
-	group.Metrics = computeGroupMetrics(b, edges, group)
+	group.Metrics = computeGroupMetrics(b, edges, group, opts.CustomAnalysisRules)
 	return group
 }
 
@@ -336,7 +339,12 @@ func detectCycle(graph []models.JenniferCallGraphEdge) bool {
 // computeGroupMetrics rolls every matched edge + every body metric
 // up into the §20.1 single-instance summary, plus the §16.7
 // parallelism columns added in MVP4.
-func computeGroupMetrics(b *guidGroupBucket, edges []models.JenniferExternalCallEdge, group models.JenniferGuidGroup) models.JenniferGuidMetrics {
+func computeGroupMetrics(
+	b *guidGroupBucket,
+	edges []models.JenniferExternalCallEdge,
+	group models.JenniferGuidGroup,
+	customRules []models.JenniferCustomAnalysisRule,
+) models.JenniferGuidMetrics {
 	m := models.JenniferGuidMetrics{
 		GUID:                       group.GUID,
 		RootApplication:            group.RootApplication,
@@ -397,6 +405,7 @@ func computeGroupMetrics(b *guidGroupBucket, edges []models.JenniferExternalCall
 		bd.MethodTimeRatio = float64(methodMs) / float64(rootResp)
 		bd.Coverage = float64(covered) / float64(rootResp)
 	}
+	applyCustomBreakdownRules(&bd, b, edges, customRules)
 	m.ResponseTimeBreakdown = bd
 	// §16.7 parallelism — ALWAYS computed even for sequential
 	// inputs so the renderer can show ratio=1.0 / mode=SEQUENTIAL

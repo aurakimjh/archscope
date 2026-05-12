@@ -18,11 +18,14 @@ import type { EChartsOption } from "echarts";
 import { useEffect, useMemo, useRef } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Button } from "./ui/button";
 
 const DEFAULT_MAX_BARS = 800;
 const LABEL_RENDER_LIMIT = 120;
 const MAX_TIMELINE_HEIGHT = 760;
+const MAX_INDIVIDUAL_TIMELINE_HEIGHT = 1120;
 const ROW_HEIGHT = 28;
+export type MsaTimelineLayout = "individual" | "grouped";
 
 export type MsaTimelineEdge = {
   caller_application: string;
@@ -48,10 +51,16 @@ export type MsaTimelineProps = {
   rootApplication?: string;
   /** Optional root transaction duration. Rendered as a fixed top-row span. */
   rootDurationMs?: number | null;
+  /** Absolute ms-since-midnight of the root START row. Used as x-axis zero. */
+  rootStartMs?: number | null;
   /** Profile-tab "활성화" toggle. When true the calls inside one
    *  service are repositioned by callee_response_time_ms order
    *  rather than absolute caller_event_start_ms. */
   useResponseTimeOrder?: boolean;
+  layoutToggle?: {
+    value: MsaTimelineLayout;
+    onChange: (value: MsaTimelineLayout) => void;
+  };
   height?: number;
   maxBars?: number;
 };
@@ -62,7 +71,9 @@ export function MsaTimeline({
   mode = "overall",
   rootApplication,
   rootDurationMs,
+  rootStartMs,
   useResponseTimeOrder = false,
+  layoutToggle,
   height,
   maxBars = DEFAULT_MAX_BARS,
 }: MsaTimelineProps): JSX.Element {
@@ -90,11 +101,13 @@ export function MsaTimeline({
     // Compute a min-time anchor so the x-axis is "ms since first
     // call in the trace" — easier to read than absolute ms-since-
     // midnight.
+    const rootStart = Number(rootStartMs ?? NaN);
+    const hasRootStart = Number.isFinite(rootStart) && rootStart > 0;
     const t0 = cappedItems.reduce(
       (acc, e) => Math.min(acc, e.caller_event_start_ms ?? Infinity),
       Infinity,
     );
-    const anchor = Number.isFinite(t0) ? t0 : 0;
+    const anchor = hasRootStart ? rootStart : Number.isFinite(t0) ? t0 : 0;
 
     type Bar = {
       row: string;
@@ -119,15 +132,15 @@ export function MsaTimeline({
     };
     const pushRootSpan = () => {
       if (!hasRootSpan) return;
-      const row = rootApplication || "최초 서비스";
+      const row = rootApplication ? `최초 서비스 · ${rootApplication}` : "최초 서비스";
       const rowIndex = pushRow(row);
       bars.push({
         row,
         rowIndex,
         start: 0,
         end: rootDuration,
-        label: `전체 ${Math.round(rootDuration).toLocaleString()} ms`,
-        color: "#cbd5e1",
+        label: `${rootApplication || "Root"} · ${Math.round(rootDuration).toLocaleString()} ms`,
+        color: "#dbeafe",
         tooltip: `${row}<br/>root response = ${Math.round(rootDuration).toLocaleString()} ms`,
         kind: "root",
       });
@@ -141,7 +154,8 @@ export function MsaTimeline({
           (a.caller_event_start_ms ?? 0) - (b.caller_event_start_ms ?? 0),
       );
       sorted.forEach((e, idx) => {
-        const row = `${idx + 1}. ${e.caller_application || "?"} → ${e.callee_application || "?"}`;
+        const service = e.callee_application || e.caller_application || "?";
+        const row = `${idx + 1}. ${service}`;
         const rowIndex = pushRow(row);
         const start = (e.caller_event_start_ms ?? 0) - anchor;
         const elapsed = e.external_call_elapsed_ms ?? 0;
@@ -150,7 +164,7 @@ export function MsaTimeline({
           rowIndex,
           start,
           end: start + elapsed,
-          label: `${elapsed} ms`,
+          label: `${e.caller_application || "?"} → ${e.callee_application || "?"} ${elapsed} ms`,
           color: edgeColor(e),
           tooltip: tooltipFor(e, start, elapsed),
           kind: "call",
@@ -290,7 +304,7 @@ export function MsaTimeline({
             const start = api.coord([startVal, rowIdx]);
             const end = api.coord([endVal, rowIdx]);
             const isRoot = kind === "root";
-            const height = api.size([0, 1])[1] * (isRoot ? 0.72 : 0.55);
+            const height = api.size([0, 1])[1] * (isRoot ? 0.82 : 0.55);
             return {
               type: "rect",
               shape: {
@@ -301,9 +315,9 @@ export function MsaTimeline({
               },
               style: api.style({
                 fill: color,
-                stroke: isRoot ? "#64748b" : "#1e293b",
-                lineWidth: 0.5,
-                opacity: isRoot ? 0.42 : 0.85,
+                stroke: isRoot ? "#2563eb" : "#1e293b",
+                lineWidth: isRoot ? 1.2 : 0.5,
+                opacity: isRoot ? 0.96 : 0.85,
               }),
               ...(showLabels
                 ? {
@@ -311,7 +325,8 @@ export function MsaTimeline({
                       style: {
                         text: label,
                         fontSize: 10,
-                        fill: isRoot ? "#334155" : "#0f172a",
+                        fill: isRoot ? "#1e3a8a" : "#0f172a",
+                        fontWeight: isRoot ? 700 : 400,
                       },
                     },
                     textConfig: {
@@ -333,10 +348,12 @@ export function MsaTimeline({
       visibleCount: cappedItems.length,
       totalCount: items.length,
     };
-  }, [edges, maxBars, mode, rootApplication, rootDurationMs, useResponseTimeOrder]);
+  }, [edges, maxBars, mode, rootApplication, rootDurationMs, rootStartMs, useResponseTimeOrder]);
 
+  const maxHeight =
+    mode === "overall" ? MAX_INDIVIDUAL_TIMELINE_HEIGHT : MAX_TIMELINE_HEIGHT;
   const finalHeight =
-    height ?? Math.min(MAX_TIMELINE_HEIGHT, Math.max(220, 60 + rowCount * ROW_HEIGHT));
+    height ?? Math.min(maxHeight, Math.max(220, 60 + rowCount * ROW_HEIGHT));
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -365,8 +382,28 @@ export function MsaTimeline({
 
   return (
     <Card>
-      <CardHeader className="pb-3">
+      <CardHeader className="flex flex-col gap-2 pb-3 sm:flex-row sm:items-center sm:justify-between">
         <CardTitle className="text-sm">{title}</CardTitle>
+        {layoutToggle && (
+          <div className="flex items-center gap-1 rounded-md border border-border bg-muted/20 p-1">
+            <Button
+              type="button"
+              size="sm"
+              variant={layoutToggle.value === "individual" ? "default" : "outline"}
+              onClick={() => layoutToggle.onChange("individual")}
+            >
+              개별
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={layoutToggle.value === "grouped" ? "default" : "outline"}
+              onClick={() => layoutToggle.onChange("grouped")}
+            >
+              그룹
+            </Button>
+          </div>
+        )}
       </CardHeader>
       <CardContent>
         {rowCount === 0 ? (

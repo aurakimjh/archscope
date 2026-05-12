@@ -134,7 +134,7 @@ type Selection = {
 };
 
 type MsaTimelineMode = "single" | "average";
-type MsaTimelineLayout = "grouped" | "expanded";
+type MsaTimelineLayout = "grouped" | "individual";
 type CustomAnalysisRuleSource =
   | "profile_application"
   | "method"
@@ -280,6 +280,17 @@ function parsePatternText(value: string): string[] {
       value
         .split(/\r?\n|,/)
         .map((part) => part.trim())
+        .filter(Boolean),
+    ),
+  );
+}
+
+function normalizeStringList(input: unknown): string[] {
+  if (!Array.isArray(input)) return [];
+  return Array.from(
+    new Set(
+      input
+        .map((value) => String(value ?? "").trim())
         .filter(Boolean),
     ),
   );
@@ -953,11 +964,11 @@ function CustomAnalysisRulesEditor({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <p className="text-xs font-semibold text-foreground/80">
-            사용자 정의 분석 카드
+            분석 옵션 프리셋 / 사용자 정의 카드
           </p>
           <p className="mt-1 text-[11px] text-muted-foreground">
-            URL, 메소드명, EXTERNAL_CALL URL 패턴을 Database/External/Internal
-            그룹으로 집계합니다.
+            MSA 이벤트 분류 패턴과 사용자 정의 카드를 함께 저장하고 읽습니다.
+            카드는 응답시간 구성에도 반영됩니다.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-1.5">
@@ -979,7 +990,7 @@ function CustomAnalysisRulesEditor({
             onClick={onSavePreset}
           >
             <Save className="h-3.5 w-3.5" />
-            저장
+            전체 설정 저장
           </Button>
           <Button
             type="button"
@@ -989,7 +1000,7 @@ function CustomAnalysisRulesEditor({
             onClick={onLoadPresetClick}
           >
             <Upload className="h-3.5 w-3.5" />
-            읽기
+            전체 설정 읽기
           </Button>
           <input
             ref={presetInputRef}
@@ -1359,7 +1370,10 @@ export function JenniferProfilePage(): JSX.Element {
   const handleSaveAnalysisPreset = useCallback(() => {
     const preset = {
       version: CUSTOM_RULE_PRESET_VERSION,
+      kind: "jennifer_analysis_options",
+      savedAt: new Date().toISOString(),
       fallbackToTxid,
+      networkPrepPatterns,
       eventCategoryPatterns,
       customAnalysisRules: normalizeCustomAnalysisRules(customAnalysisRules),
     };
@@ -1374,7 +1388,7 @@ export function JenniferProfilePage(): JSX.Element {
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
-  }, [customAnalysisRules, eventCategoryPatterns, fallbackToTxid]);
+  }, [customAnalysisRules, eventCategoryPatterns, fallbackToTxid, networkPrepPatterns]);
 
   const handleLoadAnalysisPresetFile = useCallback(
     (file?: File) => {
@@ -1383,16 +1397,27 @@ export function JenniferProfilePage(): JSX.Element {
         .text()
         .then((text) => {
           const parsed = JSON.parse(text);
-          if (
+          const loadedCategories: CategoryRules =
             parsed?.eventCategoryPatterns &&
             typeof parsed.eventCategoryPatterns === "object"
-          ) {
-            setEventCategoryPatterns(
-              parsed.eventCategoryPatterns as CategoryRules,
+              ? { ...(parsed.eventCategoryPatterns as CategoryRules) }
+              : {};
+          const loadedPrep = normalizeStringList(parsed?.networkPrepPatterns);
+          if (loadedPrep.length > 0) {
+            loadedCategories.NETWORK_PREP_METHOD = Array.from(
+              new Set([
+                ...(loadedCategories.NETWORK_PREP_METHOD ?? []),
+                ...loadedPrep,
+              ]),
             );
           }
-          if (typeof parsed?.fallbackToTxid === "boolean") {
+          setEventCategoryPatterns(loadedCategories);
+          if (
+            typeof parsed?.fallbackToTxid === "boolean"
+          ) {
             setFallbackToTxid(parsed.fallbackToTxid);
+          } else {
+            setFallbackToTxid(false);
           }
           setCustomAnalysisRules(
             normalizeCustomAnalysisRules(parsed?.customAnalysisRules),
@@ -2363,36 +2388,6 @@ export function JenniferProfilePage(): JSX.Element {
                     </select>
                   </label>
                 )}
-                {msaTimelineMode === "single" && (
-                  <div className="flex flex-wrap items-center gap-1 rounded-md border border-border bg-muted/20 p-1">
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant={
-                        singleTimelineLayout === "grouped"
-                          ? "default"
-                          : "outline"
-                      }
-                      onClick={() => setSingleTimelineLayout("grouped")}
-                    >
-                      <Network className="h-3.5 w-3.5" />
-                      서비스 그룹
-                    </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant={
-                        singleTimelineLayout === "expanded"
-                          ? "default"
-                          : "outline"
-                      }
-                      onClick={() => setSingleTimelineLayout("expanded")}
-                    >
-                      <Rows3 className="h-3.5 w-3.5" />
-                      펼쳐보기
-                    </Button>
-                  </div>
-                )}
               </CardContent>
             </Card>
 
@@ -2416,7 +2411,7 @@ export function JenniferProfilePage(): JSX.Element {
                     title={
                       singleTimelineLayout === "grouped"
                         ? "단일 트랜잭션 타임라인 (서비스 그룹)"
-                        : "단일 트랜잭션 타임라인 (펼쳐보기)"
+                        : "단일 트랜잭션 타임라인 (개별 호출)"
                     }
                     edges={singleTimelineEdges as any}
                     mode={
@@ -2424,9 +2419,16 @@ export function JenniferProfilePage(): JSX.Element {
                         ? "by-service"
                         : "overall"
                     }
+                    layoutToggle={{
+                      value: singleTimelineLayout,
+                      onChange: setSingleTimelineLayout,
+                    }}
                     rootApplication={selectedGuidGroup?.root_application}
                     rootDurationMs={toFiniteNumber(
                       selectedGuidGroup?.root_response_time_ms,
+                    )}
+                    rootStartMs={toFiniteNumber(
+                      selectedGuidGroup?.root_body_start_ms,
                     )}
                   />
                   <MsaTimelineTreemap
