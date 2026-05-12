@@ -1883,10 +1883,13 @@ export function JenniferProfilePage(): JSX.Element {
                     networkTimeByTxid={networkTimeByTxid}
                   />
                   <MsaTimeline
-                    title="단일 트랜잭션 타임라인 (호출 시각 순)"
+                    title="단일 트랜잭션 타임라인 (서비스 그룹)"
                     edges={singleTimelineEdges as any}
-                    mode="overall"
+                    mode="by-service"
                     rootApplication={selectedGuidGroup?.root_application}
+                    rootDurationMs={toFiniteNumber(
+                      selectedGuidGroup?.root_response_time_ms,
+                    )}
                   />
                   <MsaTimelineTreemap
                     title="단일 트랜잭션 트리맵 (elapsed 합계)"
@@ -1919,10 +1922,14 @@ export function JenniferProfilePage(): JSX.Element {
                   networkTimeByTxid={networkTimeByTxid}
                 />
                 <MsaTimeline
-                  title="평균 트랜잭션 타임라인 (avg elapsed 기준)"
+                  title="평균 트랜잭션 타임라인 (서비스 그룹)"
                   edges={averageTimelineEdges as any}
-                  mode="overall"
+                  mode="by-service"
                   rootApplication={selectedSignature?.root_application}
+                  rootDurationMs={statValue(
+                    selectedSignature?.metrics?.root_response_time_ms,
+                    "avg",
+                  )}
                 />
                 <MsaTimelineTreemap
                   title="평균 트랜잭션 트리맵 (avg elapsed 합계)"

@@ -57,6 +57,7 @@ type RenderRect = {
 };
 
 type RectBuckets = Map<number, RenderRect[]>;
+type SearchScope = "visible" | "total";
 
 const FALLBACK_PALETTE = [
   "#ef4444",
@@ -128,6 +129,8 @@ export function CanvasFlameGraph({
   const rectBucketsRef = useRef<RectBuckets>(new Map());
   const [width, setWidth] = useState(0);
   const [focusPath, setFocusPath] = useState<number[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchScope, setSearchScope] = useState<SearchScope>("visible");
   const [tooltip, setTooltip] = useState<{
     x: number;
     y: number;
@@ -168,8 +171,56 @@ export function CanvasFlameGraph({
       if (!next) break;
       focused = next;
     }
-    return { partitioned, focused };
+    const visibleNodes = focused.descendants();
+    const visibleHeight = Math.max(
+      rowHeight,
+      visibleNodes.reduce((acc, node) => Math.max(acc, node.y1 - focused.y0), rowHeight),
+    );
+    return { partitioned, focused, visibleNodes, visibleHeight };
   }, [root, focusPath, width, rowHeight]);
+
+  const searchText = searchQuery.trim();
+  const searchLower = searchText.toLowerCase();
+
+  const searchStats = useMemo(() => {
+    if (!layoutInfo || !searchLower) return null;
+    const scopeRoot = searchScope === "visible" ? layoutInfo.focused : layoutInfo.partitioned;
+    const basisSamples = Number(scopeRoot.value ?? 0);
+    const basisWidth = Math.max(1e-6, scopeRoot.x1 - scopeRoot.x0);
+    const matches = scopeRoot
+      .descendants()
+      .filter((node) => (node.data.name || "").toLowerCase().includes(searchLower));
+    if (matches.length === 0 || basisSamples <= 0) {
+      return {
+        frameCount: 0,
+        matchedSamples: 0,
+        ratio: 0,
+        basisSamples,
+      };
+    }
+    const intervals = matches
+      .map((node) => ({
+        start: Math.max(scopeRoot.x0, node.x0),
+        end: Math.min(scopeRoot.x1, node.x1),
+      }))
+      .filter((interval) => interval.end > interval.start)
+      .sort((a, b) => (a.start === b.start ? b.end - a.end : a.start - b.start));
+    let coveredWidth = 0;
+    let coveredEnd = -Infinity;
+    for (const interval of intervals) {
+      if (interval.end <= coveredEnd) continue;
+      const start = Math.max(interval.start, coveredEnd);
+      coveredWidth += interval.end - start;
+      coveredEnd = interval.end;
+    }
+    const ratio = Math.max(0, Math.min(1, coveredWidth / basisWidth));
+    return {
+      frameCount: matches.length,
+      matchedSamples: basisSamples * ratio,
+      ratio,
+      basisSamples,
+    };
+  }, [layoutInfo, searchLower, searchScope]);
 
   // Render to canvas whenever layout changes.
   useEffect(() => {
@@ -179,16 +230,13 @@ export function CanvasFlameGraph({
       rectBucketsRef.current = new Map();
       return;
     }
-    const { partitioned, focused } = layoutInfo;
-    const descendants = partitioned.descendants();
+    const { partitioned, focused, visibleNodes, visibleHeight } = layoutInfo;
     const dpr = Math.max(1, window.devicePixelRatio || 1);
     const fx0 = focused.x0;
     const fx1 = focused.x1;
     const fy0 = focused.y0;
     const xScale = (value: number) => ((value - fx0) / Math.max(1e-6, fx1 - fx0)) * width;
     const yScale = (value: number) => value - fy0;
-    const visibleHeight = descendants
-      .reduce((acc, node) => Math.max(acc, node.y1 - fy0), rowHeight);
 
     canvas.width = Math.floor(width * dpr);
     canvas.height = Math.floor(visibleHeight * dpr);
@@ -206,7 +254,7 @@ export function CanvasFlameGraph({
     ctx.font = '11px ui-monospace, SFMono-Regular, Menlo, monospace';
     ctx.textBaseline = "middle";
 
-    for (const node of descendants) {
+    for (const node of visibleNodes) {
       if (node === partitioned) continue;
       const x = xScale(node.x0);
       const x1 = xScale(node.x1);
@@ -214,6 +262,9 @@ export function CanvasFlameGraph({
       const w = Math.max(0, x1 - x);
       const h = Math.max(0, node.y1 - node.y0 - 1);
       if (y < 0 || w < 0.5) continue;
+      const matchesSearch =
+        searchLower.length > 0 &&
+        (node.data.name || "").toLowerCase().includes(searchLower);
 
       const fill = colorFor(node);
       ctx.fillStyle = fill;
@@ -221,6 +272,16 @@ export function CanvasFlameGraph({
       ctx.strokeStyle = strokeColor;
       ctx.lineWidth = 0.5;
       ctx.strokeRect(x + 0.25, y + 0.25, Math.max(0, w - 0.5), Math.max(0, h - 0.5));
+      if (matchesSearch) {
+        ctx.fillStyle =
+          resolvedTheme === "dark"
+            ? "rgba(250, 204, 21, 0.28)"
+            : "rgba(250, 204, 21, 0.36)";
+        ctx.fillRect(x, y, w, h);
+        ctx.strokeStyle = "#facc15";
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(x + 0.75, y + 0.75, Math.max(0, w - 1.5), Math.max(0, h - 1.5));
+      }
       if (w > 28) {
         ctx.fillStyle = readableTextColor(fill);
         ctx.fillText(clipText(node.data.name || "", w), x + 4, y + h / 2);
@@ -237,7 +298,7 @@ export function CanvasFlameGraph({
     }
     rectsRef.current = rects;
     rectBucketsRef.current = rectBuckets;
-  }, [layoutInfo, width, rowHeight, root, resolvedTheme]);
+  }, [layoutInfo, width, rowHeight, root, resolvedTheme, searchLower]);
 
   const findHit = useCallback((event: ReactMouseEvent<HTMLCanvasElement>): RenderRect | null => {
     const canvas = canvasRef.current;
@@ -334,14 +395,46 @@ export function CanvasFlameGraph({
   return (
     <div className="flamegraph">
       <div className="flamegraph-toolbar">
-        {focusPath.length > 0 && (
-          <button type="button" className="ghost" onClick={handleReset}>
-            {t("flamegraphReset")}
+        <div className="flamegraph-search">
+          <input
+            type="search"
+            className="flamegraph-search-input"
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            placeholder={t("flamegraphSearchPlaceholder")}
+            aria-label={t("flamegraphSearchPlaceholder")}
+          />
+          <select
+            className="flamegraph-search-scope"
+            value={searchScope}
+            onChange={(event) => setSearchScope(event.target.value as SearchScope)}
+            aria-label={t("flamegraphSearchScope")}
+          >
+            <option value="visible">{t("flamegraphSearchScopeVisible")}</option>
+            <option value="total">{t("flamegraphSearchScopeTotal")}</option>
+          </select>
+          {searchLower && searchStats && (
+            <div className="flamegraph-search-result">
+              {searchStats.frameCount === 0
+                ? t("flamegraphSearchNoMatches")
+                : `${Math.round(searchStats.matchedSamples).toLocaleString()} ${t(
+                    "samples",
+                  )} · ${(searchStats.ratio * 100).toFixed(2)}% · ${searchStats.frameCount.toLocaleString()} ${t(
+                    "flamegraphSearchFrames",
+                  )}`}
+            </div>
+          )}
+        </div>
+        <div className="flamegraph-actions">
+          {focusPath.length > 0 && (
+            <button type="button" className="ghost" onClick={handleReset}>
+              {t("flamegraphReset")}
+            </button>
+          )}
+          <button type="button" className="ghost" onClick={handleSavePng}>
+            {t("flamegraphSavePng")}
           </button>
-        )}
-        <button type="button" className="ghost" onClick={handleSavePng}>
-          {t("flamegraphSavePng")}
-        </button>
+        </div>
       </div>
       <div ref={containerRef} className="flamegraph-canvas-host">
         {!root || !root.value ? (

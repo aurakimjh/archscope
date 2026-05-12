@@ -46,6 +46,8 @@ export type MsaTimelineProps = {
   mode?: "overall" | "by-service";
   /** Anchors the row order: this service goes on top. */
   rootApplication?: string;
+  /** Optional root transaction duration. Rendered as a fixed top-row span. */
+  rootDurationMs?: number | null;
   /** Profile-tab "활성화" toggle. When true the calls inside one
    *  service are repositioned by callee_response_time_ms order
    *  rather than absolute caller_event_start_ms. */
@@ -59,6 +61,7 @@ export function MsaTimeline({
   edges,
   mode = "overall",
   rootApplication,
+  rootDurationMs,
   useResponseTimeOrder = false,
   height,
   maxBars = DEFAULT_MAX_BARS,
@@ -72,7 +75,9 @@ export function MsaTimeline({
         Number.isFinite(e.external_call_elapsed_ms) &&
         (e.external_call_elapsed_ms ?? 0) > 0,
     );
-    if (items.length === 0) {
+    const rootDuration = Number(rootDurationMs ?? 0);
+    const hasRootSpan = Number.isFinite(rootDuration) && rootDuration > 0;
+    if (items.length === 0 && !hasRootSpan) {
       return {
         option: {} as EChartsOption,
         rowCount: 0,
@@ -99,6 +104,7 @@ export function MsaTimeline({
       color: string;
       tooltip: string;
       rowIndex: number;
+      kind: "root" | "call";
     };
     const bars: Bar[] = [];
     const rowSet: string[] = [];
@@ -111,6 +117,23 @@ export function MsaTimeline({
       rowIndexByName.set(r, idx);
       return idx;
     };
+    const pushRootSpan = () => {
+      if (!hasRootSpan) return;
+      const row = rootApplication || "최초 서비스";
+      const rowIndex = pushRow(row);
+      bars.push({
+        row,
+        rowIndex,
+        start: 0,
+        end: rootDuration,
+        label: `전체 ${Math.round(rootDuration).toLocaleString()} ms`,
+        color: "#cbd5e1",
+        tooltip: `${row}<br/>root response = ${Math.round(rootDuration).toLocaleString()} ms`,
+        kind: "root",
+      });
+    };
+
+    pushRootSpan();
 
     if (mode === "overall") {
       const sorted = [...cappedItems].sort(
@@ -130,6 +153,7 @@ export function MsaTimeline({
           label: `${elapsed} ms`,
           color: edgeColor(e),
           tooltip: tooltipFor(e, start, elapsed),
+          kind: "call",
         });
       });
     } else {
@@ -181,6 +205,7 @@ export function MsaTimeline({
               label: `${e.callee_application ?? "?"} ${elapsed} ms`,
               color: edgeColor(e),
               tooltip: tooltipFor(e, cursor, elapsed),
+              kind: "call",
             });
             cursor += elapsed + 4;
           }
@@ -196,6 +221,7 @@ export function MsaTimeline({
               label: `→ ${e.callee_application ?? "?"} ${elapsed} ms`,
               color: edgeColor(e),
               tooltip: tooltipFor(e, start, elapsed),
+              kind: "call",
             });
           }
         }
@@ -203,7 +229,7 @@ export function MsaTimeline({
     }
 
     const data = bars.map((b) => ({
-      value: [b.rowIndex, b.start, b.end, b.label, b.color, b.tooltip],
+      value: [b.rowIndex, b.start, b.end, b.label, b.color, b.tooltip, b.kind],
       itemStyle: { color: b.color },
     }));
     const showLabels = bars.length <= LABEL_RENDER_LIMIT;
@@ -260,9 +286,11 @@ export function MsaTimeline({
             const endVal = api.value(2);
             const label = api.value(3) as string;
             const color = api.value(4) as string;
+            const kind = api.value(6) as string;
             const start = api.coord([startVal, rowIdx]);
             const end = api.coord([endVal, rowIdx]);
-            const height = api.size([0, 1])[1] * 0.55;
+            const isRoot = kind === "root";
+            const height = api.size([0, 1])[1] * (isRoot ? 0.72 : 0.55);
             return {
               type: "rect",
               shape: {
@@ -273,9 +301,9 @@ export function MsaTimeline({
               },
               style: api.style({
                 fill: color,
-                stroke: "#1e293b",
+                stroke: isRoot ? "#64748b" : "#1e293b",
                 lineWidth: 0.5,
-                opacity: 0.85,
+                opacity: isRoot ? 0.42 : 0.85,
               }),
               ...(showLabels
                 ? {
@@ -283,11 +311,11 @@ export function MsaTimeline({
                       style: {
                         text: label,
                         fontSize: 10,
-                        fill: "#0f172a",
+                        fill: isRoot ? "#334155" : "#0f172a",
                       },
                     },
                     textConfig: {
-                      position: "right",
+                      position: isRoot ? "insideLeft" : "right",
                     },
                   }
                 : {}),
@@ -305,7 +333,7 @@ export function MsaTimeline({
       visibleCount: cappedItems.length,
       totalCount: items.length,
     };
-  }, [edges, maxBars, mode, rootApplication, useResponseTimeOrder]);
+  }, [edges, maxBars, mode, rootApplication, rootDurationMs, useResponseTimeOrder]);
 
   const finalHeight =
     height ?? Math.min(MAX_TIMELINE_HEIGHT, Math.max(220, 60 + rowCount * ROW_HEIGHT));

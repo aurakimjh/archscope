@@ -646,8 +646,70 @@ button.ghost:hover {
 
 .flamegraph-toolbar {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flamegraph-actions,
+.flamegraph-search {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 6px;
+}
+
+.flamegraph-search {
+  flex: 1 1 420px;
+}
+
+.flamegraph-actions {
+  flex: 0 0 auto;
+}
+
+.flamegraph-search-input,
+.flamegraph-search-scope {
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-elev);
+  color: var(--text);
+  font-size: 12px;
+}
+
+.flamegraph-search-input {
+  width: min(320px, 42vw);
+  min-width: 180px;
+  padding: 0 10px;
+  font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+}
+
+.flamegraph-search-scope {
+  padding: 0 8px;
+}
+
+.flamegraph-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.flamegraph-search-input:focus,
+.flamegraph-search-scope:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
+}
+
+.flamegraph-search-result {
+  min-width: 0;
+  max-width: 360px;
+  overflow: hidden;
+  color: var(--text-muted);
+  font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .flamegraph-canvas-host {

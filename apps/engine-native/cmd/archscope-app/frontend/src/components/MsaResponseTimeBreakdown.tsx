@@ -53,28 +53,55 @@ type MsaResponseTimeBreakdownProps = {
   edges?: any[];
 };
 
+type SliceGroupId = "database" | "external" | "internal";
+type Breakdown = NonNullable<
+  NonNullable<GroupMetrics["metrics"]>["response_time_breakdown"]
+>;
+type SliceKey = keyof Breakdown;
+
 const SLICE_DEFS: {
-  key: keyof NonNullable<NonNullable<GroupMetrics["metrics"]>["response_time_breakdown"]>;
+  key: SliceKey;
   label: string;
+  group: SliceGroupId;
   color: string;
   hint?: string;
 }[] = [
-  { key: "sql_execute_ms", label: "SQL", color: "#3b82f6", hint: "DB 쿼리 수행 누적" },
-  { key: "check_query_ms", label: "Check Query", color: "#06b6d4", hint: "select 1 같은 헬스체크" },
-  { key: "two_pc_ms", label: "2PC / XA", color: "#f59e0b", hint: "분산트랜잭션 prepare/commit" },
-  { key: "fetch_ms", label: "Fetch", color: "#fbbf24", hint: "ResultSet fetch" },
-  { key: "network_call_ms", label: "Network", color: "#10b981", hint: "외부호출 - callee 응답시간 (실제 망 시간)" },
-  { key: "unprofiled_external_call_ms", label: "Unprofiled Call", color: "#14b8a6", hint: "callee profile 없이 caller EXTERNAL_CALL elapsed만 확인된 외부호출" },
-  { key: "network_prep_ms", label: "Network Prep", color: "#a78bfa", hint: "sendToService 등 wrapper의 비-네트워크 부분" },
-  { key: "connection_acquire_ms", label: "Conn Acquire", color: "#ef4444", hint: "DB 풀 대기" },
-  { key: "method_time_ms", label: "Method", color: "#94a3b8", hint: "잔여 메소드 수행시간 (전체 - 위 합계)" },
+  { key: "sql_execute_ms", label: "SQL", group: "database", color: "#2563eb", hint: "DB 쿼리 수행 누적" },
+  { key: "check_query_ms", label: "Check Query", group: "database", color: "#06b6d4", hint: "select 1 같은 헬스체크" },
+  { key: "two_pc_ms", label: "2PC / XA", group: "database", color: "#f59e0b", hint: "분산트랜잭션 prepare/commit" },
+  { key: "fetch_ms", label: "Fetch", group: "database", color: "#fbbf24", hint: "ResultSet fetch" },
+  { key: "connection_acquire_ms", label: "Conn Acquire", group: "database", color: "#ef4444", hint: "DB 풀 대기" },
+  { key: "network_call_ms", label: "Network", group: "external", color: "#10b981", hint: "외부호출 - callee 응답시간 (실제 망 시간)" },
+  { key: "unprofiled_external_call_ms", label: "Unprofiled Call", group: "external", color: "#14b8a6", hint: "callee profile 없이 caller EXTERNAL_CALL elapsed만 확인된 외부호출" },
+  { key: "network_prep_ms", label: "Network Prep", group: "external", color: "#a78bfa", hint: "sendToService 등 wrapper의 비-네트워크 부분" },
+  { key: "method_time_ms", label: "Method", group: "internal", color: "#94a3b8", hint: "잔여 메소드 수행시간 (전체 - 위 합계)" },
 ];
+
+const GROUP_ORDER: SliceGroupId[] = ["database", "external", "internal"];
+
+const GROUP_LABELS: Record<SliceGroupId, string> = {
+  database: "Database",
+  external: "External",
+  internal: "Internal",
+};
+
+const GROUP_COLORS: Record<SliceGroupId, string> = {
+  database: "#2563eb",
+  external: "#059669",
+  internal: "#ea580c",
+};
 
 export function MsaResponseTimeBreakdown({
   groups,
 }: MsaResponseTimeBreakdownProps): JSX.Element {
-  const { totals, totalRoot, totalCovered, aggregateBase, perGroup } =
-    useMemo(() => {
+  const {
+    totalRoot,
+    totalCovered,
+    aggregateBase,
+    aggregateGroups,
+    visibleSlices,
+    perGroup,
+  } = useMemo(() => {
       // Aggregate across all groups.
       const nextTotals = SLICE_DEFS.reduce<Record<string, number>>((acc, def) => {
         acc[def.key] = 0;
@@ -86,19 +113,35 @@ export function MsaResponseTimeBreakdown({
         if (!bd) continue;
         nextTotalRoot += Number(bd.root_response_time_ms ?? 0);
         for (const def of SLICE_DEFS) {
-          nextTotals[def.key] += Number((bd as any)[def.key] ?? 0);
+          nextTotals[def.key] += Math.max(0, Number((bd as any)[def.key] ?? 0));
         }
       }
-      const nextTotalCovered =
-        nextTotals.sql_execute_ms +
-        nextTotals.check_query_ms +
-        nextTotals.two_pc_ms +
-        nextTotals.fetch_ms +
-        nextTotals.network_call_ms +
-        nextTotals.unprofiled_external_call_ms +
-        nextTotals.network_prep_ms +
-        nextTotals.connection_acquire_ms +
-        nextTotals.method_time_ms;
+      const nextTotalCovered = SLICE_DEFS.reduce(
+        (sum, def) => sum + Number(nextTotals[def.key] ?? 0),
+        0,
+      );
+      const nextAggregateBase = Math.max(nextTotalRoot, nextTotalCovered, 1);
+      const nextVisibleSlices = SLICE_DEFS.map((def) => ({
+        ...def,
+        value: Number(nextTotals[def.key] ?? 0),
+      })).filter((slice) => slice.value > 0);
+      const groupMap = new Map<
+        SliceGroupId,
+        {
+          id: SliceGroupId;
+          value: number;
+          slices: Array<(typeof nextVisibleSlices)[number]>;
+        }
+      >();
+      for (const id of GROUP_ORDER) {
+        groupMap.set(id, { id, value: 0, slices: [] });
+      }
+      for (const slice of nextVisibleSlices) {
+        const group = groupMap.get(slice.group);
+        if (!group) continue;
+        group.value += slice.value;
+        group.slices.push(slice);
+      }
 
       // Per-group sorted by root response time desc.
       const nextPerGroup = groups
@@ -111,15 +154,18 @@ export function MsaResponseTimeBreakdown({
         .sort((a, b) => b.root - a.root);
 
       return {
-        totals: nextTotals,
         totalRoot: nextTotalRoot,
         totalCovered: nextTotalCovered,
-        aggregateBase: nextTotalCovered > 0 ? nextTotalCovered : 1,
+        aggregateBase: nextAggregateBase,
+        aggregateGroups: GROUP_ORDER.map((id) => groupMap.get(id)!).filter(
+          (group) => group.value > 0,
+        ),
+        visibleSlices: nextVisibleSlices,
         perGroup: nextPerGroup,
       };
     }, [groups]);
 
-  if (totalRoot === 0 && perGroup.length === 0) {
+  if (totalRoot === 0 && totalCovered === 0 && perGroup.length === 0) {
     return (
       <Card>
         <CardHeader className="pb-3">
@@ -138,26 +184,27 @@ export function MsaResponseTimeBreakdown({
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm">
-          응답시간 구성 (전체 합계 + GUID 그룹별)
-        </CardTitle>
-        <p className="text-xs text-muted-foreground">
-          root 응답시간 = SQL + CheckQuery + 2PC + Fetch + Network + Unprofiled +
-          Prep + Conn + Method (잔여). 비중이 큰 카테고리가 우선 개선 대상입니다.
-        </p>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <CardTitle className="text-sm">응답시간 구성</CardTitle>
+          <div className="rounded-md border border-border bg-muted/20 px-3 py-2 text-right">
+            <div className="text-[10px] font-medium text-muted-foreground">
+              Root RT / Categorised
+            </div>
+            <div className="font-mono text-xs tabular-nums text-foreground">
+              {formatMs(totalRoot)} · {formatMs(totalCovered)}
+            </div>
+          </div>
+        </div>
       </CardHeader>
-      <CardContent className="flex flex-col gap-5">
+      <CardContent className="flex flex-col gap-4">
         {/* Aggregate */}
         <section>
-          <header className="mb-1.5 flex items-center justify-between text-xs">
-            <span className="font-semibold">전체</span>
-            <span className="font-mono text-muted-foreground">
-              root 합계 {totalRoot.toLocaleString()} ms · 분해 합계{" "}
-              {totalCovered.toLocaleString()} ms
-            </span>
-          </header>
-          <BreakdownBar totals={totals} base={aggregateBase} />
-          <Legend totals={totals} base={aggregateBase} />
+          <GroupedTimelineBar
+            groups={aggregateGroups}
+            slices={visibleSlices}
+            base={aggregateBase}
+          />
+          <GroupedLegend groups={aggregateGroups} base={aggregateBase} />
         </section>
 
         {/* Per-group */}
@@ -171,7 +218,7 @@ export function MsaResponseTimeBreakdown({
                 if (!bd) return null;
                 const slices: Record<string, number> = {};
                 for (const def of SLICE_DEFS) {
-                  slices[def.key] = Number((bd as any)[def.key] ?? 0);
+                  slices[def.key] = Math.max(0, Number((bd as any)[def.key] ?? 0));
                 }
                 return (
                   <GroupRow
@@ -195,88 +242,168 @@ export function MsaResponseTimeBreakdown({
     </Card>
   );
 }
-function BreakdownBar({
-  totals,
+function GroupedTimelineBar({
+  groups,
+  slices,
   base,
 }: {
-  totals: Record<string, number>;
+  groups: Array<{
+    id: SliceGroupId;
+    value: number;
+    slices: Array<{
+      key: SliceKey;
+      label: string;
+      group: SliceGroupId;
+      color: string;
+      hint?: string;
+      value: number;
+    }>;
+  }>;
+  slices: Array<{
+    key: SliceKey;
+    label: string;
+    group: SliceGroupId;
+    color: string;
+    hint?: string;
+    value: number;
+  }>;
   base: number;
 }): JSX.Element {
   return (
-    <div className="flex h-6 overflow-hidden rounded border border-border bg-muted/30">
-      {SLICE_DEFS.map((def) => {
-        const v = totals[def.key];
-        if (!v) return null;
-        const pct = (v / base) * 100;
+    <div className="flex flex-col gap-2">
+      <div className="flex h-9 overflow-hidden">
+        {groups.map((group) => {
+          const widthPct = pct(group.value, base);
+          const color = GROUP_COLORS[group.id];
+          const label = GROUP_LABELS[group.id];
+          return (
+            <div
+              key={group.id}
+              className="relative h-9 px-1"
+              style={{ width: `${widthPct.toFixed(2)}%` }}
+              title={`${label}: ${formatMs(group.value)} · ${widthPct.toFixed(1)}%`}
+            >
+              <div
+                className="absolute inset-x-1 bottom-0 h-3 rounded-t-sm border-l border-r border-t"
+                style={{ borderColor: color }}
+                aria-hidden
+              />
+              {widthPct >= 12 ? (
+                <div
+                  className="truncate text-center text-[10px] font-semibold leading-4"
+                  style={{ color }}
+                >
+                  {label} · {widthPct.toFixed(1)}%
+                </div>
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+      <div className="flex h-7 overflow-hidden rounded border border-border bg-muted/30">
+        {slices.map((slice) => {
+          const widthPct = pct(slice.value, base);
+          return (
+            <div
+              key={slice.key}
+              className="flex min-w-[2px] items-center justify-center overflow-hidden text-[10px] font-medium text-white"
+              style={{
+                width: `${widthPct.toFixed(2)}%`,
+                backgroundColor: slice.color,
+              }}
+              title={`${slice.label}: ${formatMs(slice.value)} · ${widthPct.toFixed(1)}%${slice.hint ? ` - ${slice.hint}` : ""}`}
+            >
+              {widthPct >= 12 ? (
+                <span className="truncate px-1">{slice.label}</span>
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function GroupedLegend({
+  groups,
+  base,
+}: {
+  groups: Array<{
+    id: SliceGroupId;
+    value: number;
+    slices: Array<{
+      key: SliceKey;
+      label: string;
+      group: SliceGroupId;
+      color: string;
+      hint?: string;
+      value: number;
+    }>;
+  }>;
+  base: number;
+}): JSX.Element {
+  return (
+    <div className="mt-3 grid gap-3 text-[11px] lg:grid-cols-3">
+      {groups.map((group) => {
+        const groupPct = pct(group.value, base);
+        const groupColor = GROUP_COLORS[group.id];
         return (
-          <div
-            key={def.key}
-            style={{ width: `${pct}%`, backgroundColor: def.color }}
-            title={`${def.label}: ${Math.round(v).toLocaleString()} ms (${pct.toFixed(1)}%) — ${def.hint ?? ""}`}
-          />
+          <section
+            key={group.id}
+            className="min-w-0 rounded-md border border-border bg-background/70 p-2.5"
+          >
+            <div className="mb-2 flex min-w-0 items-center justify-between gap-2">
+              <div className="flex min-w-0 items-center gap-1.5">
+                <span
+                  className="h-2.5 w-2.5 shrink-0 rounded-full"
+                  style={{ backgroundColor: groupColor }}
+                  aria-hidden
+                />
+                <span className="truncate font-semibold text-foreground/85">
+                  {GROUP_LABELS[group.id]}
+                </span>
+              </div>
+              <span className="shrink-0 font-mono tabular-nums text-muted-foreground">
+                {groupPct.toFixed(1)}%
+              </span>
+            </div>
+            <ul className="flex flex-col gap-1.5">
+              {group.slices.map((slice) => {
+                const slicePct = pct(slice.value, base);
+                return (
+                  <li
+                    key={slice.key}
+                    className="flex min-w-0 items-center gap-1.5"
+                    title={`${slice.label}: ${formatMs(slice.value)} · ${slicePct.toFixed(1)}%${slice.hint ? ` - ${slice.hint}` : ""}`}
+                  >
+                    <span
+                      className="h-2.5 w-2.5 shrink-0 rounded-sm"
+                      style={{ backgroundColor: slice.color }}
+                      aria-hidden
+                    />
+                    <span className="min-w-0 flex-1 truncate text-foreground/75">
+                      {slice.label}
+                    </span>
+                    <span className="shrink-0 font-mono tabular-nums text-muted-foreground">
+                      {formatMs(slice.value)} · {slicePct.toFixed(1)}%
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
         );
       })}
     </div>
   );
 }
 
-function Legend({
-  totals,
-  base,
-}: {
-  totals: Record<string, number>;
-  base: number;
-}): JSX.Element {
-  return (
-    <ul className="mt-3 grid grid-cols-1 gap-2 text-[11px] sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
-      {SLICE_DEFS.map((def) => {
-        const v = totals[def.key];
-        const pct = base > 0 ? (v / base) * 100 : 0;
-        const isZero = Math.round(v) === 0;
-        return (
-          <li
-            key={def.key}
-            className={[
-              "min-w-0 rounded-md border p-2.5",
-              isZero
-                ? "border-border/70 bg-muted/20 text-muted-foreground"
-                : "border-border bg-background/70",
-            ].join(" ")}
-            title={`${def.label}: ${Math.round(v).toLocaleString()} ms (${pct.toFixed(1)}%)${def.hint ? ` - ${def.hint}` : ""}`}
-          >
-            <div className="flex min-w-0 items-center gap-2">
-              <span
-                className="inline-block h-3 w-3 shrink-0 rounded-sm"
-                style={{ backgroundColor: def.color }}
-                aria-hidden
-              />
-              <span className="min-w-0 truncate font-medium text-foreground/80">
-                {def.label}
-              </span>
-            </div>
-            <div className="mt-2 grid grid-cols-2 gap-1.5">
-              <span className="rounded bg-muted/40 px-2 py-1">
-                <span className="block text-[10px] text-muted-foreground">
-                  시간
-                </span>
-                <span className="block font-mono tabular-nums text-foreground">
-                  {Math.round(v).toLocaleString()} ms
-                </span>
-              </span>
-              <span className="rounded bg-muted/40 px-2 py-1">
-                <span className="block text-[10px] text-muted-foreground">
-                  비율
-                </span>
-                <span className="block font-mono tabular-nums text-foreground">
-                  {pct.toFixed(1)}%
-                </span>
-              </span>
-            </div>
-          </li>
-        );
-      })}
-    </ul>
-  );
+function formatMs(value: number): string {
+  return `${Math.round(value).toLocaleString()} ms`;
+}
+
+function pct(value: number, base: number): number {
+  return base > 0 ? (value / base) * 100 : 0;
 }
 
 function GroupRow({
@@ -291,7 +418,7 @@ function GroupRow({
   negativeMethod: boolean;
 }): JSX.Element {
   const covered = SLICE_DEFS.reduce((s, d) => s + (slices[d.key] ?? 0), 0);
-  const base = covered > 0 ? covered : 1;
+  const base = Math.max(root, covered, 1);
   return (
     <div className="flex items-center gap-2">
       <div className="w-44 truncate font-mono text-[11px]" title={label}>
@@ -299,23 +426,23 @@ function GroupRow({
       </div>
       <div
         className="flex h-4 flex-1 overflow-hidden rounded bg-muted/30"
-        title={`${root.toLocaleString()} ms`}
+        title={formatMs(root)}
       >
         {SLICE_DEFS.map((def) => {
           const v = slices[def.key];
           if (!v) return null;
-          const pct = (v / base) * 100;
+          const widthPct = pct(v, base);
           return (
             <div
               key={def.key}
-              style={{ width: `${pct}%`, backgroundColor: def.color }}
-              title={`${def.label}: ${Math.round(v).toLocaleString()} ms`}
+              style={{ width: `${widthPct}%`, backgroundColor: def.color }}
+              title={`${def.label}: ${formatMs(v)}`}
             />
           );
         })}
       </div>
       <div className="w-24 text-right font-mono text-[11px] tabular-nums">
-        {root.toLocaleString()} ms
+        {formatMs(root)}
       </div>
       {negativeMethod && (
         <span
