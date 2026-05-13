@@ -470,13 +470,15 @@ export const messages = {
     threadDumpModeMulti: "Multi-dump correlation",
     threadDumpModeLocks: "Lock contention",
     threadDumpModeSingleHint:
-      "One Java jstack file: state distribution, lock relationships, top signatures.",
+      "Legacy single-dump JVM view for Java jstack: state distribution, lock relationships, top signatures.",
     threadDumpModeMultiHint:
-      "Correlate N consecutive dumps to surface long-running and persistently-blocked threads.",
+      "Correlate consecutive dumps across Java jstack/jcmd JSON, Go, Python, Node.js, and .NET to surface long-running and persistently-blocked threads.",
     threadDumpModeLocksHint:
-      "Detect contended locks and deadlock cycles across N dumps.",
+      "Detect contended locks and deadlock cycles from parsed lock metadata; Java jstack/jcmd dumps provide the richest lock detail.",
     threadDumpsSelected: "Files selected",
     threadDumpFormatOverride: "Format override",
+    threadDumpFormatOverridePlaceholder:
+      "blank = auto; e.g. go_goroutine",
     threadDumpThreshold: "Consecutive threshold",
     threadDumpAdd: "Add file",
     threadDumpClear: "Clear all",
@@ -992,13 +994,15 @@ export const messages = {
     threadDumpModeMulti: "멀티 덤프 상관 분석",
     threadDumpModeLocks: "락 경합",
     threadDumpModeSingleHint:
-      "단일 Java jstack 파일을 분석합니다: 상태 분포, 락 관계, 상위 시그니처.",
+      "단일 덤프는 레거시 JVM(Java jstack) 요약입니다: 상태 분포, 락 관계, 상위 시그니처.",
     threadDumpModeMultiHint:
-      "연속된 N 개 덤프를 상관 분석해 장시간 실행 / 지속 BLOCKED 쓰레드를 탐지합니다.",
+      "Java jstack/jcmd JSON, Go, Python, Node.js, .NET 덤프를 연속 시점으로 상관 분석해 장시간 실행 / 지속 BLOCKED 쓰레드를 탐지합니다.",
     threadDumpModeLocksHint:
-      "여러 덤프에서 경합 락과 데드락 사이클을 탐지합니다.",
+      "파싱된 락 메타데이터로 경합 락과 데드락 사이클을 탐지합니다. Java jstack/jcmd 덤프에서 가장 많은 락 세부정보가 나옵니다.",
     threadDumpsSelected: "선택된 파일",
     threadDumpFormatOverride: "포맷 강제",
+    threadDumpFormatOverridePlaceholder:
+      "비우면 자동 감지; 예: go_goroutine",
     threadDumpThreshold: "연속 임계치",
     threadDumpAdd: "파일 추가",
     threadDumpClear: "모두 비우기",

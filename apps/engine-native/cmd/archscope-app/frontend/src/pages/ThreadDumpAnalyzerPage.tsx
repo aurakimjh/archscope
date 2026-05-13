@@ -528,7 +528,7 @@ export function ThreadDumpAnalyzerPage(): JSX.Element {
               </span>
               <Input
                 type="text"
-                placeholder="java_jstack"
+                placeholder={t("threadDumpFormatOverridePlaceholder")}
                 value={formatOverride}
                 onChange={(event) => setFormatOverride(event.target.value)}
               />

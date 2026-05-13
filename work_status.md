@@ -1,6 +1,6 @@
 # ArchScope Work Status
 
-Last updated: 2026-05-11
+Last updated: 2026-05-13
 
 This file is the current execution status for the active ArchScope product line.
 The previous long-form history was archived to
@@ -125,6 +125,9 @@ filtered before analysis.
 5. Perform direct Windows GUI launch smoke-test on a Windows host/VM.
 6. Continue 0.3.x release hardening for signing/notarization and frontend
    bundle splitting.
+7. Improve JFR handling for async-profiler recordings: keep the JDK `jfr`
+   CLI as a binary-to-JSON converter, then add ArchScope-native stack/sample
+   views instead of trying to clone the full JDK `jfr` tool UI.
 
 ## Active TO-DO
 
@@ -136,6 +139,9 @@ filtered before analysis.
 | T-417 | P1 | [ ] | Design and build the Evidence Board skeleton around reusable evidence cards. | Analyzer result contracts | Cross-analyzer evidence pack foundation |
 | T-418 | P1 | [ ] | Run direct Windows GUI launch smoke-test for the 0.3.1 line on a Windows host/VM. | 0.3.1 release assets | Native Windows confidence beyond CI/package success |
 | T-419 | P2 | [ ] | Continue 0.3.x release hardening for signing/notarization and frontend bundle splitting. | 0.3.1 release baseline | Release hardening follow-up list |
+| T-420 | P1 | [ ] | Clarify the JFR analyzer contract: use the JDK `jfr` CLI only for `.jfr` to `jfr print --json` conversion, and avoid reimplementing the full JDK `jfr view` / `jfr summary` feature set in the desktop UI. | Existing JFR parser bridge | JFR scope note and UI copy |
+| T-421 | P1 | [ ] | Add async-profiler-oriented JFR stack analysis by aggregating `stackTrace.frames` from sample events into top methods, top packages, top threads, and call-tree/flamegraph-ready rows. | JFR JSON parser, profiler flamegraph components | Useful CPU/wall/alloc sample diagnostics for async-profiler JFR |
+| T-422 | P2 | [ ] | Add JFR recording UX hints that detect sparse or mode-specific recordings, especially async-profiler JFR files with mostly `jdk.ExecutionSample`, `jdk.NativeMethodSample`, `jdk.ObjectAllocationSample`, or lock events. | T-421 preferred | Clear empty-state and capture-mode guidance |
 
 ## Verification Notes
 
