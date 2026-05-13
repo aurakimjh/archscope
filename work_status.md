@@ -17,9 +17,8 @@ The previous long-form history was archived to
 - Release baseline: `v0.3.1` is the latest stable GitHub release. The
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
-- Current execution focus: JFR/async-profiler diagnostics and Evidence Board
-  expansion after the trace import desktop workflow, Windows GUI smoke
-  workflow, and 0.3.x release hardening pass landed.
+- Current execution focus: next roadmap selection after the JFR/async-profiler
+  diagnostics and Evidence Board expansion pass landed.
 - Retired implementation: Python/FastAPI/browser sources are archived under
   `archive/python-engine` and `archive/web-frontend-python`.
 - Historical native POC module has been folded into `apps/engine-native`.
@@ -86,6 +85,17 @@ The previous long-form history was archived to
 - Hardened the 0.3.x release workflow with macOS signing/notarization secret
   preflight, signature/stapler verification, route-level frontend lazy loading,
   modular ECharts bundling, and explicit frontend chunk budgets.
+- Clarified the JFR analyzer contract: the JDK `jfr` CLI is only the `.jfr` to
+  `jfr print --json` conversion boundary, while ArchScope focuses on
+  report-oriented summaries, stack evidence, hints, and Evidence Board capture.
+- Added async-profiler-oriented JFR stack aggregation from `stackTrace.frames`
+  into top methods, packages, threads, sample stacks, and a flamegraph-ready
+  call tree.
+- Added JFR recording UX hints for empty filters, missing stack samples,
+  async-profiler-style sample recordings, and sparse stack samples.
+- Expanded Evidence Board capture beyond Trace Import to Access Log findings,
+  GC findings/alerts, JFR findings/profile rows, and native-memory call sites;
+  added local HTML report and JSON evidence-pack export.
 
 ## Current Risk
 
@@ -120,9 +130,16 @@ Trace import is now a desktop workflow, not only an engine/CLI MVP. OTLP
 JSON-file, Zipkin v2 JSON, Elastic APM `_search` JSON, and Elastic source
 NDJSON are covered. The UI exposes summary metrics, service dependencies,
 traces, spans, critical paths, parser diagnostics, deterministic findings, and
-basic Evidence Board capture. Broader Jaeger, SkyWalking, and SaaS connector
+basic Evidence Board capture. Evidence Board capture also now covers selected
+non-trace analyzers and can export local HTML/JSON evidence packs. Broader
+Jaeger, SkyWalking, and SaaS connector
 items remain roadmap candidates until they are explicitly promoted into the
 active TO-DO.
+
+JFR analysis now has an explicit product boundary and async-profiler-oriented
+stack evidence, but direct JFR JSON loading is still an object-materializing
+path. Large recordings should still be constrained with `jfr print` event,
+time-window, or stack-depth filters before analysis.
 
 Remaining large-file risk is concentrated in structured formats that naturally
 require object materialization, such as JFR JSON, Node diagnostic reports, jcmd
@@ -141,12 +158,12 @@ filtered before analysis.
 
 ## Next Execution Queue
 
-1. Improve JFR handling for async-profiler recordings: keep the JDK `jfr`
-   CLI as a binary-to-JSON converter, then add ArchScope-native stack/sample
-   views instead of trying to clone the full JDK `jfr` tool UI.
-2. Expand the Evidence Board beyond Trace Import: add shared "Add to Evidence"
-   actions on other analyzer findings/tables and design report export around
-   saved evidence cards.
+1. Promote the next roadmap batch into active TO-DO after review. Candidate
+   tracks are trace import compatibility, Incident Timeline, SLO/Golden
+   Signals, and unified Service Flow.
+2. Continue trace-import compatibility after the file-first MVP by choosing the
+   Jaeger local export or QueryService contract and validating SkyWalking
+   schema/version handling.
 3. Keep release verification healthy before the next 0.3.x cut by repeating
    Windows GUI smoke, macOS signing/notarization validation, and frontend bundle
    budget checks.
@@ -161,10 +178,10 @@ filtered before analysis.
 | T-417 | P1 | [x] | Design and build the Evidence Board skeleton around reusable evidence cards. | Analyzer result contracts | Completed 2026-05-13: Cross-analyzer evidence pack foundation |
 | T-418 | P1 | [x] | Run direct Windows GUI launch smoke-test for the 0.3.1 line on a Windows host/VM. | 0.3.1 release assets | Completed 2026-05-13: Windows runner GUI process launch smoke |
 | T-419 | P2 | [x] | Continue 0.3.x release hardening for signing/notarization and frontend bundle splitting. | 0.3.1 release baseline | Completed 2026-05-13: signing/notarization preflight plus frontend bundle split |
-| T-420 | P1 | [ ] | Clarify the JFR analyzer contract: use the JDK `jfr` CLI only for `.jfr` to `jfr print --json` conversion, and avoid reimplementing the full JDK `jfr view` / `jfr summary` feature set in the desktop UI. | Existing JFR parser bridge | JFR scope note and UI copy |
-| T-421 | P1 | [ ] | Add async-profiler-oriented JFR stack analysis by aggregating `stackTrace.frames` from sample events into top methods, top packages, top threads, and call-tree/flamegraph-ready rows. | JFR JSON parser, profiler flamegraph components | Useful CPU/wall/alloc sample diagnostics for async-profiler JFR |
-| T-422 | P2 | [ ] | Add JFR recording UX hints that detect sparse or mode-specific recordings, especially async-profiler JFR files with mostly `jdk.ExecutionSample`, `jdk.NativeMethodSample`, `jdk.ObjectAllocationSample`, or lock events. | T-421 preferred | Clear empty-state and capture-mode guidance |
-| T-423 | P2 | [ ] | Expand Evidence Board capture beyond Trace Import and add report export around saved evidence cards. | T-417 | Evidence-driven report pack workflow |
+| T-420 | P1 | [x] | Clarify the JFR analyzer contract: use the JDK `jfr` CLI only for `.jfr` to `jfr print --json` conversion, and avoid reimplementing the full JDK `jfr view` / `jfr summary` feature set in the desktop UI. | Existing JFR parser bridge | Completed 2026-05-13: JFR scope note, metadata contract, and UI copy |
+| T-421 | P1 | [x] | Add async-profiler-oriented JFR stack analysis by aggregating `stackTrace.frames` from sample events into top methods, top packages, top threads, and call-tree/flamegraph-ready rows. | JFR JSON parser, profiler flamegraph components | Completed 2026-05-13: async-profiler stack evidence tables and flamegraph-ready tree |
+| T-422 | P2 | [x] | Add JFR recording UX hints that detect sparse or mode-specific recordings, especially async-profiler JFR files with mostly `jdk.ExecutionSample`, `jdk.NativeMethodSample`, `jdk.ObjectAllocationSample`, or lock events. | T-421 preferred | Completed 2026-05-13: empty-filter, missing-stack, async-profiler-style, and sparse-stack hints |
+| T-423 | P2 | [x] | Expand Evidence Board capture beyond Trace Import and add report export around saved evidence cards. | T-417 | Completed 2026-05-13: non-trace evidence capture plus HTML/JSON evidence export |
 
 ## Verification Notes
 
@@ -255,6 +272,14 @@ filtered before analysis.
   with `task windows:build ARCH=amd64`, confirmed a 14,060,544-byte executable,
   launched it, observed the GUI process alive for 15 seconds, and requested
   graceful shutdown.
+- 2026-05-13 JFR async-profiler verification passed:
+  `env GOCACHE=/tmp/archscope-go-cache GOMODCACHE=/tmp/archscope-go-mod-cache
+  go test ./internal/analyzers/jfr ./internal/parsers/jfr ./cmd/archscope-app`.
+  The Wails app test build still emits the known macOS linker warning.
+- 2026-05-13 Wails frontend verification passed after JFR/Evidence Board
+  expansion: `npm run build`. Startup shell chunk is 156.78 KB raw / 50.91 KB
+  gzip; the lazy shared ECharts runtime remains 668.49 KB raw / 221.26 KB gzip.
+- 2026-05-13 `git diff --check` passed after the T-420 through T-423 changes.
 
 ## Decisions
 

@@ -1,4 +1,4 @@
-import { Trash2 } from "lucide-react";
+import { Download, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useI18n } from "@/i18n/I18nProvider";
 import {
   clearEvidenceCards,
+  exportEvidencePack,
+  exportEvidenceReport,
   readEvidenceCards,
   removeEvidenceCard,
   type EvidenceCard,
@@ -30,18 +32,38 @@ export function EvidenceBoardPage(): JSX.Element {
             {cards.length.toLocaleString()} {t("evidenceCards")}
           </p>
         </div>
-        <Button
-          type="button"
-          variant="outline"
-          disabled={cards.length === 0}
-          onClick={() => {
-            clearEvidenceCards();
-            setCards([]);
-          }}
-        >
-          <Trash2 className="mr-2 h-4 w-4" />
-          {t("evidenceClear")}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            disabled={cards.length === 0}
+            onClick={() => exportEvidenceReport(cards)}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            {t("evidenceExportReport")}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={cards.length === 0}
+            onClick={() => exportEvidencePack(cards)}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            {t("evidenceExportPack")}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={cards.length === 0}
+            onClick={() => {
+              clearEvidenceCards();
+              setCards([]);
+            }}
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            {t("evidenceClear")}
+          </Button>
+        </div>
       </div>
 
       {cards.length === 0 ? (

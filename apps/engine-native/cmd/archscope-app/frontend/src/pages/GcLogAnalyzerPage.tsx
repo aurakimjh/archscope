@@ -17,7 +17,7 @@
 // 데이터 흐름: engine.analyzeGcLog(GcLogRequest) → CancellablePromise →
 // setResult → ECharts 옵션 메모이제이션 → ChartPanel 렌더.
 // ─────────────────────────────────────────────────────────────────────
-import { Loader2, Play, Square } from "lucide-react";
+import { Loader2, Play, Plus, Square } from "lucide-react";
 import { useCallback, useMemo, useRef, useState } from "react";
 
 import { engine } from "@/bridge/engine";
@@ -64,6 +64,7 @@ import {
   type HeapSeriesId,
 } from "@/charts/gcLogCharts";
 import { useI18n, type MessageKey } from "@/i18n/I18nProvider";
+import { addEvidenceCard } from "@/state/evidenceBoard";
 import {
   formatMilliseconds,
   formatNumber,
@@ -113,6 +114,7 @@ export function GcLogAnalyzerPage(): JSX.Element {
   const eventRows = result?.tables?.events?.slice(0, MAX_EVENT_ROWS) ?? [];
   const alertRows = result?.tables?.alerts?.slice(0, MAX_EVENT_ROWS) ?? [];
   const jvmInfo = result?.metadata?.jvm_info;
+  const sourceFile = result?.source_files?.[0] ?? filePath;
 
   const chartLabels = useMemo<GcChartLabels>(
     () => ({
@@ -275,6 +277,40 @@ export function GcLogAnalyzerPage(): JSX.Element {
     setState("ready");
     setEngineMessages([t("analysisCanceled")]);
   }, [t]);
+
+  const addFindingEvidence = useCallback(
+    (finding: JvmFinding) => {
+      addEvidenceCard({
+        analyzer: "gc_log",
+        source_kind: "finding",
+        title: finding.code,
+        summary: finding.message,
+        severity: finding.severity,
+        source_file: sourceFile,
+        source_ref: finding.code,
+        payload: finding as unknown as Record<string, unknown>,
+      });
+      setEngineMessages([t("evidenceAdded")]);
+    },
+    [sourceFile, t],
+  );
+
+  const addAlertEvidence = useCallback(
+    (row: GcAlertRow) => {
+      addEvidenceCard({
+        analyzer: "gc_log",
+        source_kind: "table_row",
+        title: row.code,
+        summary: row.message,
+        severity: row.severity,
+        source_file: sourceFile,
+        source_ref: formatAlertLocation(row),
+        payload: row as unknown as Record<string, unknown>,
+      });
+      setEngineMessages([t("evidenceAdded")]);
+    },
+    [sourceFile, t],
+  );
 
   return (
     <main className="flex flex-col gap-5 p-5">
@@ -499,15 +535,24 @@ export function GcLogAnalyzerPage(): JSX.Element {
               </CardHeader>
               <CardContent className="space-y-1 pt-0 text-sm">
                 {findings.map((finding, idx) => (
-                  <p
+                  <div
                     key={`${finding.code}-${idx}`}
-                    className="leading-relaxed"
+                    className="flex items-start gap-2 leading-relaxed"
                   >
                     <span className="mr-2 inline-block rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase">
                       {finding.severity}
                     </span>
-                    {finding.message}
-                  </p>
+                    <p className="min-w-0 flex-1">{finding.message}</p>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => addFindingEvidence(finding)}
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                      {t("evidenceAdd")}
+                    </Button>
+                  </div>
                 ))}
               </CardContent>
             </Card>
@@ -625,7 +670,7 @@ export function GcLogAnalyzerPage(): JSX.Element {
 
         <TabsContent value="events" className="mt-4">
           <div className="grid gap-4">
-            <AlertRowsTable rows={alertRows} t={t} />
+            <AlertRowsTable rows={alertRows} t={t} onEvidence={addAlertEvidence} />
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm">{t("gcEventTable")}</CardTitle>
@@ -753,9 +798,11 @@ function formatMb(mb: number | null | undefined): string | null {
 function AlertRowsTable({
   rows,
   t,
+  onEvidence,
 }: {
   rows: GcAlertRow[];
   t: (key: MessageKey) => string;
+  onEvidence: (row: GcAlertRow) => void;
 }): JSX.Element {
   return (
     <Card>
@@ -784,6 +831,9 @@ function AlertRowsTable({
               <th className="px-3 py-2 text-left font-medium">
                 {t("gcAlertRawPreview")}
               </th>
+              <th className="px-3 py-2 text-right font-medium">
+                {t("evidence")}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -811,13 +861,23 @@ function AlertRowsTable({
                   <td className="max-w-[28rem] truncate px-3 py-1.5 font-mono text-[11px] text-muted-foreground">
                     {row.raw_preview ?? "-"}
                   </td>
+                  <td className="px-3 py-1.5 text-right">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => onEvidence(row)}
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                    </Button>
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
                 <td
                   className="px-3 py-3 text-center text-muted-foreground"
-                  colSpan={6}
+                  colSpan={7}
                 >
                   —
                 </td>

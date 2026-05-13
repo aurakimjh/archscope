@@ -19,6 +19,12 @@ Later phases may add:
 - Executive summary documents
 - Packaged evidence bundles
 
+The Wails Evidence Board now provides a local report-oriented export path before
+the full engine exporter exists: saved evidence cards can be downloaded as a
+static HTML evidence report or as a JSON evidence pack. This export is sourced
+from local browser storage and preserves the captured analyzer, source kind,
+source reference, severity, summary, and payload for each card.
+
 ## Export Contract
 
 Exporters consume normalized `AnalysisResult` structures. They should not parse raw logs directly.
@@ -51,6 +57,18 @@ python -m archscope_engine.cli report html --input result.json --out report.html
 Profiler result JSON now receives a static HTML flamegraph section when `charts.flamegraph`
 is present. It is intended for report review and evidence sharing, not as a full
 interactive flamegraph profiler UI.
+
+## Evidence Board Export
+
+Evidence Board export is a UI-level MVP around saved evidence cards. It does not
+re-parse source files and does not require a server:
+
+- HTML report: a static single-file summary of the collected evidence cards.
+- JSON evidence pack: `type = archscope_evidence_pack`, schema version, export
+  timestamp, card count, and the card payloads.
+
+This is the short-term bridge between ad-hoc analyzer findings and the planned
+engine-level report pack workflow.
 
 ## Before/After Diff
 

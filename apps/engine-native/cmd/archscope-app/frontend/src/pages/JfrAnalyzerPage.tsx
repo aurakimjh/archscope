@@ -18,15 +18,22 @@
 // 데이터 흐름: 사용자 mode 선택 → 해당 engine.* 호출 → 결과 type 으로
 // switch (`result.type === "native_memory"`) → 적절한 view 렌더.
 // ─────────────────────────────────────────────────────────────────────
-import { Loader2, Play, Square } from "lucide-react";
+import { Loader2, Play, Plus, Square } from "lucide-react";
+import type React from "react";
 import { useCallback, useMemo, useRef, useState } from "react";
 
 import { engine } from "@/bridge/engine";
 import type {
   BridgeError,
   JfrAnalysisMode,
+  JfrAsyncFlameNode,
   JfrAnalysisResult,
   JfrHeatmapStrip,
+  JfrSampleStackRow,
+  JfrTopMethodRow,
+  JfrTopPackageRow,
+  JfrTopThreadRow,
+  JvmFinding,
   NativeMemoryAnalysisResult,
   NativeMemoryFlameNode,
 } from "@/bridge/types";
@@ -55,6 +62,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { useI18n, type MessageKey } from "@/i18n/I18nProvider";
+import { addEvidenceCard } from "@/state/evidenceBoard";
 
 // Wails port of apps/frontend/src/pages/JfrAnalyzerPage.tsx.
 //
@@ -143,13 +151,25 @@ export function JfrAnalyzerPage(): JSX.Element {
   const metadata = jfrResult?.metadata;
   const availableModes = metadata?.available_modes ?? [];
   const availableStates = metadata?.available_states ?? [];
+  const sourceFile = jfrResult?.source_files?.[0] ?? filePath;
+  const findings = metadata?.findings ?? ([] as JvmFinding[]);
 
   const eventTypeRows = jfrResult?.series?.events_by_type ?? [];
   const heatmap: JfrHeatmapStrip | undefined =
     jfrResult?.series?.heatmap_strip;
   const notableRows = jfrResult?.tables?.notable_events ?? [];
+  const topMethods = jfrResult?.tables?.top_methods ?? [];
+  const topPackages = jfrResult?.tables?.top_packages ?? [];
+  const topThreads = jfrResult?.tables?.top_threads ?? [];
+  const sampleStacks = jfrResult?.tables?.sample_stacks ?? [];
 
-  const flameGraph = useMemo<FlameGraphNode | null>(() => {
+  const jfrFlameGraph = useMemo<FlameGraphNode | null>(() => {
+    const node = jfrResult?.charts?.async_profile_flamegraph;
+    if (!node) return null;
+    return adaptJfrFlameNode(node);
+  }, [jfrResult]);
+
+  const nativeFlameGraph = useMemo<FlameGraphNode | null>(() => {
     const node = nativeMemResult?.charts?.flamegraph;
     if (!node) return null;
     return adaptFlameNode(node);
@@ -212,6 +232,40 @@ export function JfrAnalyzerPage(): JSX.Element {
     setJfrState("ready");
     setEngineMessages([t("analysisCanceled")]);
   }, [t]);
+
+  const addJfrFindingEvidence = useCallback(
+    (finding: JvmFinding) => {
+      addEvidenceCard({
+        analyzer: "jfr_recording",
+        source_kind: "finding",
+        title: finding.code,
+        summary: finding.message,
+        severity: finding.severity,
+        source_file: sourceFile,
+        source_ref: finding.code,
+        payload: finding as unknown as Record<string, unknown>,
+      });
+      setEngineMessages([t("evidenceAdded")]);
+    },
+    [sourceFile, t],
+  );
+
+  const addJfrRowEvidence = useCallback(
+    (title: string, summaryText: string, sourceRef: string, row: Record<string, unknown>) => {
+      addEvidenceCard({
+        analyzer: "jfr_recording",
+        source_kind: "table_row",
+        title,
+        summary: summaryText,
+        severity: "info",
+        source_file: sourceFile,
+        source_ref: sourceRef,
+        payload: row,
+      });
+      setEngineMessages([t("evidenceAdded")]);
+    },
+    [sourceFile, t],
+  );
 
   // ── Native memory analysis ──────────────────────────────────────
   const analyzeNativeMemory = useCallback(async () => {
@@ -540,11 +594,30 @@ export function JfrAnalyzerPage(): JSX.Element {
                 availableModes.filter((m) => m !== "all").join(", ") || "—"
               }
             />
+            <MetricCard
+              label={t("jfrSampleEvents")}
+              value={formatCount(summary?.sample_event_count)}
+            />
+            <MetricCard
+              label={t("jfrStackSamples")}
+              value={formatCount(summary?.stack_sample_count)}
+            />
+            <MetricCard
+              label={t("jfrUniqueStacks")}
+              value={formatCount(summary?.unique_sample_stacks)}
+            />
           </section>
+          <JfrContractPanel metadata={metadata} t={t} />
+          <JfrFindingsPanel
+            findings={findings}
+            t={t}
+            onAddEvidence={addJfrFindingEvidence}
+          />
 
           <Tabs defaultValue="events" className="w-full">
             <TabsList>
               <TabsTrigger value="events">{t("jfrTabEvents")}</TabsTrigger>
+              <TabsTrigger value="profile">{t("jfrTabProfile")}</TabsTrigger>
               <TabsTrigger value="heatmap">{t("jfrHeatmap")}</TabsTrigger>
               <TabsTrigger value="breakdown">
                 {t("jfrEventTypeBreakdown")}
@@ -555,7 +628,30 @@ export function JfrAnalyzerPage(): JSX.Element {
             </TabsList>
 
             <TabsContent value="events" className="mt-4">
-              <NotableEventsPanel rows={notableRows} t={t} />
+              <NotableEventsPanel
+                rows={notableRows}
+                t={t}
+                onEvidence={(row) =>
+                  addJfrRowEvidence(
+                    row.event_type ?? "JFR event",
+                    row.message || `${row.duration_ms ?? 0} ms`,
+                    row.evidence_ref ?? "notable_events",
+                    row as unknown as Record<string, unknown>,
+                  )
+                }
+              />
+            </TabsContent>
+
+            <TabsContent value="profile" className="mt-4">
+              <JfrProfilePanel
+                flameGraph={jfrFlameGraph}
+                topMethods={topMethods}
+                topPackages={topPackages}
+                topThreads={topThreads}
+                sampleStacks={sampleStacks}
+                t={t}
+                onEvidence={addJfrRowEvidence}
+              />
             </TabsContent>
 
             <TabsContent value="heatmap" className="mt-4">
@@ -620,7 +716,7 @@ export function JfrAnalyzerPage(): JSX.Element {
                 />
               </section>
 
-              {flameGraph && (
+              {nativeFlameGraph && (
                 <Card>
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm">
@@ -629,7 +725,7 @@ export function JfrAnalyzerPage(): JSX.Element {
                   </CardHeader>
                   <CardContent>
                     <CanvasFlameGraph
-                      data={flameGraph}
+                      data={nativeFlameGraph}
                       exportName="native-memory-flamegraph"
                     />
                   </CardContent>
@@ -657,6 +753,9 @@ export function JfrAnalyzerPage(): JSX.Element {
                           <th className="w-[140px] px-3 py-2 text-right font-medium">
                             {t("jfrNativeMemSiteBytes")}
                           </th>
+                          <th className="w-[90px] px-3 py-2 text-right font-medium">
+                            {t("evidence")}
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
@@ -673,6 +772,31 @@ export function JfrAnalyzerPage(): JSX.Element {
                             </td>
                             <td className="px-3 py-2 text-right tabular-nums">
                               {formatBytes(row.bytes)}
+                            </td>
+                            <td className="px-3 py-2 text-right">
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  addEvidenceCard({
+                                    analyzer: "native_memory",
+                                    source_kind: "table_row",
+                                    title: row.stack,
+                                    summary: formatBytes(row.bytes),
+                                    severity: "warning",
+                                    source_file:
+                                      nativeMemResult?.source_files?.[0] ??
+                                      filePath,
+                                    source_ref: "top_call_sites",
+                                    payload:
+                                      row as unknown as Record<string, unknown>,
+                                  });
+                                  setEngineMessages([t("evidenceAdded")]);
+                                }}
+                              >
+                                <Plus className="h-3.5 w-3.5" />
+                              </Button>
                             </td>
                           </tr>
                         ))}
@@ -693,14 +817,364 @@ export function JfrAnalyzerPage(): JSX.Element {
 // Sub-panels
 // ──────────────────────────────────────────────────────────────────
 
+function JfrContractPanel({
+  metadata,
+  t,
+}: {
+  metadata: JfrAnalysisResult["metadata"] | undefined;
+  t: (key: MessageKey) => string;
+}): JSX.Element | null {
+  const contract = metadata?.jfr_contract;
+  if (!contract?.binary_boundary && !contract?.desktop_scope) return null;
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm">{t("jfrContractTitle")}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-1 pt-0 text-xs text-muted-foreground">
+        {contract.binary_boundary && <p>{contract.binary_boundary}</p>}
+        {contract.desktop_scope && <p>{contract.desktop_scope}</p>}
+      </CardContent>
+    </Card>
+  );
+}
+
+function JfrFindingsPanel({
+  findings,
+  t,
+  onAddEvidence,
+}: {
+  findings: JvmFinding[];
+  t: (key: MessageKey) => string;
+  onAddEvidence: (finding: JvmFinding) => void;
+}): JSX.Element | null {
+  if (findings.length === 0) return null;
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm">{t("findings")}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-2 pt-0 text-sm">
+        {findings.map((finding, idx) => (
+          <div key={`${finding.code}-${idx}`} className="flex items-start gap-2">
+            <span className="mt-0.5 rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase">
+              {finding.severity}
+            </span>
+            <p className="min-w-0 flex-1 leading-relaxed">{finding.message}</p>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => onAddEvidence(finding)}
+            >
+              <Plus className="h-3.5 w-3.5" />
+              {t("evidenceAdd")}
+            </Button>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  );
+}
+
+function JfrProfilePanel({
+  flameGraph,
+  topMethods,
+  topPackages,
+  topThreads,
+  sampleStacks,
+  t,
+  onEvidence,
+}: {
+  flameGraph: FlameGraphNode | null;
+  topMethods: JfrTopMethodRow[];
+  topPackages: JfrTopPackageRow[];
+  topThreads: JfrTopThreadRow[];
+  sampleStacks: JfrSampleStackRow[];
+  t: (key: MessageKey) => string;
+  onEvidence: (
+    title: string,
+    summaryText: string,
+    sourceRef: string,
+    row: Record<string, unknown>,
+  ) => void;
+}): JSX.Element {
+  if (
+    !flameGraph &&
+    topMethods.length === 0 &&
+    topPackages.length === 0 &&
+    topThreads.length === 0 &&
+    sampleStacks.length === 0
+  ) {
+    return (
+      <Card>
+        <CardContent className="px-6 py-6 text-center text-sm text-muted-foreground">
+          {t("jfrProfileEmpty")}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="grid gap-4">
+      {flameGraph && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm">{t("jfrProfileFlamegraph")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CanvasFlameGraph data={flameGraph} exportName="jfr-stack-profile" />
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="grid gap-4 xl:grid-cols-3">
+        <TopMethodsTable rows={topMethods} t={t} onEvidence={onEvidence} />
+        <TopPackagesTable rows={topPackages} t={t} onEvidence={onEvidence} />
+        <TopThreadsTable rows={topThreads} t={t} onEvidence={onEvidence} />
+      </div>
+      <SampleStacksTable rows={sampleStacks} t={t} onEvidence={onEvidence} />
+    </div>
+  );
+}
+
+function TopMethodsTable({
+  rows,
+  t,
+  onEvidence,
+}: {
+  rows: JfrTopMethodRow[];
+  t: (key: MessageKey) => string;
+  onEvidence: (
+    title: string,
+    summaryText: string,
+    sourceRef: string,
+    row: Record<string, unknown>,
+  ) => void;
+}): JSX.Element {
+  return (
+    <CompactTableCard title={t("jfrTopMethods")}>
+      <thead>
+        <tr className="border-b border-border bg-muted/40 text-[10px] uppercase tracking-wider text-muted-foreground">
+          <th className="px-3 py-2 text-left">{t("jfrColMessage")}</th>
+          <th className="px-3 py-2 text-right">{t("jfrColSamples")}</th>
+          <th className="px-3 py-2 text-right">{t("evidence")}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row) => (
+          <tr key={row.method} className="border-b border-border last:border-0">
+            <td className="max-w-[22rem] truncate px-3 py-1.5 font-mono text-[11px]" title={row.method}>
+              {row.method}
+            </td>
+            <td className="px-3 py-1.5 text-right tabular-nums">{row.samples}</td>
+            <td className="px-3 py-1.5 text-right">
+              <EvidenceButton
+                onClick={() =>
+                  onEvidence(
+                    row.method,
+                    `${row.samples} samples`,
+                    "top_methods",
+                    row as unknown as Record<string, unknown>,
+                  )
+                }
+              />
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </CompactTableCard>
+  );
+}
+
+function TopPackagesTable({
+  rows,
+  t,
+  onEvidence,
+}: {
+  rows: JfrTopPackageRow[];
+  t: (key: MessageKey) => string;
+  onEvidence: (
+    title: string,
+    summaryText: string,
+    sourceRef: string,
+    row: Record<string, unknown>,
+  ) => void;
+}): JSX.Element {
+  return (
+    <CompactTableCard title={t("jfrTopPackages")}>
+      <thead>
+        <tr className="border-b border-border bg-muted/40 text-[10px] uppercase tracking-wider text-muted-foreground">
+          <th className="px-3 py-2 text-left">{t("jfrColPackage")}</th>
+          <th className="px-3 py-2 text-right">{t("jfrColSamples")}</th>
+          <th className="px-3 py-2 text-right">{t("evidence")}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row) => (
+          <tr key={row.package} className="border-b border-border last:border-0">
+            <td className="max-w-[18rem] truncate px-3 py-1.5 font-mono text-[11px]" title={row.package}>
+              {row.package}
+            </td>
+            <td className="px-3 py-1.5 text-right tabular-nums">{row.samples}</td>
+            <td className="px-3 py-1.5 text-right">
+              <EvidenceButton
+                onClick={() =>
+                  onEvidence(
+                    row.package,
+                    `${row.samples} samples`,
+                    "top_packages",
+                    row as unknown as Record<string, unknown>,
+                  )
+                }
+              />
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </CompactTableCard>
+  );
+}
+
+function TopThreadsTable({
+  rows,
+  t,
+  onEvidence,
+}: {
+  rows: JfrTopThreadRow[];
+  t: (key: MessageKey) => string;
+  onEvidence: (
+    title: string,
+    summaryText: string,
+    sourceRef: string,
+    row: Record<string, unknown>,
+  ) => void;
+}): JSX.Element {
+  return (
+    <CompactTableCard title={t("jfrTopThreads")}>
+      <thead>
+        <tr className="border-b border-border bg-muted/40 text-[10px] uppercase tracking-wider text-muted-foreground">
+          <th className="px-3 py-2 text-left">{t("jfrColThread")}</th>
+          <th className="px-3 py-2 text-right">{t("jfrColSamples")}</th>
+          <th className="px-3 py-2 text-right">{t("evidence")}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row) => (
+          <tr key={row.thread} className="border-b border-border last:border-0">
+            <td className="max-w-[18rem] truncate px-3 py-1.5 font-mono text-[11px]" title={row.thread}>
+              {row.thread}
+            </td>
+            <td className="px-3 py-1.5 text-right tabular-nums">{row.samples}</td>
+            <td className="px-3 py-1.5 text-right">
+              <EvidenceButton
+                onClick={() =>
+                  onEvidence(
+                    row.thread,
+                    `${row.samples} samples`,
+                    "top_threads",
+                    row as unknown as Record<string, unknown>,
+                  )
+                }
+              />
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </CompactTableCard>
+  );
+}
+
+function SampleStacksTable({
+  rows,
+  t,
+  onEvidence,
+}: {
+  rows: JfrSampleStackRow[];
+  t: (key: MessageKey) => string;
+  onEvidence: (
+    title: string,
+    summaryText: string,
+    sourceRef: string,
+    row: Record<string, unknown>,
+  ) => void;
+}): JSX.Element {
+  return (
+    <CompactTableCard title={t("jfrSampleStacks")}>
+      <thead>
+        <tr className="border-b border-border bg-muted/40 text-[10px] uppercase tracking-wider text-muted-foreground">
+          <th className="px-3 py-2 text-left">{t("topStacks")}</th>
+          <th className="px-3 py-2 text-right">{t("jfrColSamples")}</th>
+          <th className="px-3 py-2 text-right">{t("jfrColAllocationBytes")}</th>
+          <th className="px-3 py-2 text-right">{t("evidence")}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row, idx) => (
+          <tr key={`${row.collapsed_stack}-${idx}`} className="border-b border-border last:border-0">
+            <td className="max-w-[42rem] truncate px-3 py-1.5 font-mono text-[11px]" title={row.collapsed_stack}>
+              {row.collapsed_stack}
+            </td>
+            <td className="px-3 py-1.5 text-right tabular-nums">{row.samples}</td>
+            <td className="px-3 py-1.5 text-right tabular-nums">
+              {formatBytes(row.allocation_bytes)}
+            </td>
+            <td className="px-3 py-1.5 text-right">
+              <EvidenceButton
+                onClick={() =>
+                  onEvidence(
+                    row.frames?.[0] ?? row.collapsed_stack,
+                    `${row.samples} samples`,
+                    "sample_stacks",
+                    row as unknown as Record<string, unknown>,
+                  )
+                }
+              />
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </CompactTableCard>
+  );
+}
+
+function CompactTableCard({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}): JSX.Element {
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm">{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="overflow-x-auto p-0">
+        <table className="w-full text-xs">{children}</table>
+      </CardContent>
+    </Card>
+  );
+}
+
+function EvidenceButton({ onClick }: { onClick: () => void }): JSX.Element {
+  return (
+    <Button type="button" size="sm" variant="outline" onClick={onClick}>
+      <Plus className="h-3.5 w-3.5" />
+    </Button>
+  );
+}
+
 function NotableEventsPanel({
   rows,
   t,
+  onEvidence,
 }: {
   rows: JfrAnalysisResult["tables"]["notable_events"] extends infer R
     ? Exclude<R, undefined>
     : never;
   t: (key: MessageKey) => string;
+  onEvidence: (row: Exclude<JfrAnalysisResult["tables"]["notable_events"], undefined>[number]) => void;
 }): JSX.Element {
   return (
     <Card>
@@ -730,6 +1204,9 @@ function NotableEventsPanel({
                 </th>
                 <th className="px-3 py-2 text-left font-medium">
                   {t("jfrColMessage")}
+                </th>
+                <th className="w-[90px] px-3 py-2 text-right font-medium">
+                  {t("evidence")}
                 </th>
               </tr>
             </thead>
@@ -761,6 +1238,9 @@ function NotableEventsPanel({
                     title={row.message}
                   >
                     {row.message || "—"}
+                  </td>
+                  <td className="px-3 py-2 text-right">
+                    <EvidenceButton onClick={() => onEvidence(row)} />
                   </td>
                 </tr>
               ))}
@@ -897,6 +1377,18 @@ function HeatmapPanel({
 // ──────────────────────────────────────────────────────────────────
 // Helpers
 // ──────────────────────────────────────────────────────────────────
+
+function adaptJfrFlameNode(node: JfrAsyncFlameNode): FlameGraphNode {
+  return {
+    name: node.name,
+    value: node.samples,
+    category: node.category ?? null,
+    color: node.color ?? null,
+    children: Array.isArray(node.children)
+      ? node.children.map(adaptJfrFlameNode)
+      : [],
+  };
+}
 
 function adaptFlameNode(node: NativeMemoryFlameNode): FlameGraphNode {
   return {

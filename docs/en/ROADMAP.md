@@ -71,6 +71,9 @@ Guiding principles:
   sources.
 - Thread dump hardening with carrier-pinning, SMR/zombie-thread, lock
   contention, and deadlock findings.
+- JFR analyzer contract clarified: the JDK `jfr` CLI is the `.jfr` to
+  `jfr print --json` conversion boundary, while ArchScope builds
+  report-oriented event summaries, async-profiler stack evidence, and UX hints.
 
 ### Go/Wails Consolidation
 
@@ -100,6 +103,9 @@ Guiding principles:
   toggleable heap series, pause overlay, rectangle zoom, and point
   decimation. Young/old/metaspace series, OOM alerts, and long-pause event
   findings are covered in the current Go analyzer.
+- Async-profiler-oriented JFR stack aggregation from `stackTrace.frames` into
+  top methods, packages, threads, sample stacks, and a flamegraph-ready call
+  tree.
 - Jennifer MSA service-call network-time summaries and topology placement so
   internal single-digit millisecond calls and gateway/external double-digit
   millisecond calls separate visually.
@@ -126,6 +132,10 @@ Guiding principles:
 - Initial desktop Evidence Board page backed by local browser storage.
 - Trace Import can add findings, service edges, traces, and source metadata to
   the Evidence Board.
+- Access Log, GC Log, JFR, and Native Memory views can add selected findings
+  and table rows to the Evidence Board.
+- Evidence Board can export local static HTML evidence reports and JSON
+  evidence packs from saved cards.
 
 ### Evidence-Bound AI Interpretation
 
@@ -149,19 +159,16 @@ These items should stay aligned with `work_status.md`.
    - Revisit deeper GC event streaming if real-world inputs exceed the current
      bounded-memory envelope.
 
-2. Improve JFR handling for async-profiler recordings.
-   - Keep the JDK `jfr` CLI as the binary-to-JSON conversion boundary.
-   - Add ArchScope-native stack/sample aggregation for async-profiler JFR
-     recordings.
-   - Add UX hints for sparse or capture-mode-specific JFR recordings.
-
-3. Expand the Evidence Board.
-   - Add shared "Add to Evidence" actions across non-trace analyzers.
-   - Add report-ready HTML/ZIP export around saved evidence cards.
+2. Stabilize JFR and Evidence Board expansion.
+   - Validate async-profiler JFR stack aggregation against real CPU, wall,
+     allocation, and lock recordings.
+   - Extend "Add to Evidence" coverage to remaining analyzers where it is useful.
+   - Move Evidence Board export from UI-level HTML/JSON toward the planned
+     engine-level report pack workflow.
    - Connect AI interpretation to the board only after evidence-reference
      integrity checks pass.
 
-4. Continue trace-import compatibility after the file-first MVP.
+3. Continue trace-import compatibility after the file-first MVP.
    - Add Jaeger compatibility import after choosing a stable local export or
      QueryService contract.
    - Investigate SkyWalking GraphQL response import after schema/version

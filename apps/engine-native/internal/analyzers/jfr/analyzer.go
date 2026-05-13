@@ -24,48 +24,53 @@
 // [한글] jfr 분석기 — JDK Flight Recorder JSON 출력 분석기.
 //
 // 입력
-//   parsers/jfr.ParseFile() 가 만든 []Event. 입력 형식은
-//   `jfr print --json recording.jfr` 의 출력. 바이너리 .jfr 자체는
-//   Go 측에서 직접 파싱하지 않음 — JDK 의존을 끊기 위함.
+//
+//	parsers/jfr.ParseFile() 가 만든 []Event. 입력 형식은
+//	`jfr print --json recording.jfr` 의 출력. 바이너리 .jfr 자체는
+//	Go 측에서 직접 파싱하지 않음 — JDK 의존을 끊기 위함.
 //
 // 출력 (analyze)
-//   AnalysisResult{type: "jfr_recording"}
-//     • summary: total_events / by_mode 카운트 / 시간 범위.
-//     • series: events_over_time / pause_events (GC/safepoint) /
-//               events_by_type (top-N) / heatmap_strip (wall-clock).
-//     • tables: notable_events (최장 지속 / 최대 alloc 등 상위 N).
-//     • metadata: selected_mode / available_modes / filter_window.
+//
+//	AnalysisResult{type: "jfr_recording"}
+//	  • summary: total_events / by_mode 카운트 / 시간 범위.
+//	  • series: events_over_time / pause_events (GC/safepoint) /
+//	            events_by_type (top-N) / heatmap_strip (wall-clock).
+//	  • tables: notable_events (최장 지속 / 최대 alloc 등 상위 N).
+//	  • metadata: selected_mode / available_modes / filter_window.
 //
 // mode 필터 (--mode)
-//   각 mode 는 Python MODE_EVENT_TYPES 와 byte 동일한 event-type
-//   집합:
-//     cpu        : ExecutionSample / NativeMethodSample / MethodTrace ...
-//     wall       : (cpu 와 동일 — 캡처 시 sampling rate 만 다름)
-//     alloc      : ObjectAllocationInNewTLAB / OutsideTLAB / SampledObjectAllocation
-//     lock       : JavaMonitorEnter / Wait / ThreadPark
-//     gc         : GarbageCollection / Pause / Phase
-//     exception  : ThrowableConstructor / ExceptionStatistics
-//     io         : FileRead / FileWrite / SocketRead / SocketWrite
-//     nativemem  : NativeMemoryAllocation / NativeMemoryFree
-//     all        : 모든 mode 합집합.
+//
+//	각 mode 는 Python MODE_EVENT_TYPES 와 byte 동일한 event-type
+//	집합:
+//	  cpu        : ExecutionSample / NativeMethodSample / MethodTrace ...
+//	  wall       : (cpu 와 동일 — 캡처 시 sampling rate 만 다름)
+//	  alloc      : ObjectAllocationInNewTLAB / OutsideTLAB / SampledObjectAllocation
+//	  lock       : JavaMonitorEnter / Wait / ThreadPark
+//	  gc         : GarbageCollection / Pause / Phase
+//	  exception  : ThrowableConstructor / ExceptionStatistics
+//	  io         : FileRead / FileWrite / SocketRead / SocketWrite
+//	  nativemem  : NativeMemoryAllocation / NativeMemoryFree
+//	  all        : 모든 mode 합집합.
 //
 // 시간 필터 (--from / --to)
-//   parseTimeFilter 가 ISO 8601 / HH:MM[:SS] / 상대표기(+30s/-2m/500ms)
-//   를 모두 처리. 상대 표기는 레코딩 시작/끝을 anchor 로 변환.
+//
+//	parseTimeFilter 가 ISO 8601 / HH:MM[:SS] / 상대표기(+30s/-2m/500ms)
+//	를 모두 처리. 상대 표기는 레코딩 시작/끝을 anchor 로 변환.
 //
 // 알고리즘 흐름 (Analyze)
-//   1) parsers/jfr.ParseFile → []Event.
-//   2) 시간 윈도우 + mode 필터 적용 — 통과한 이벤트만 스트림.
-//   3) 한 번 순회로 events_over_time(분당 카운트) +
-//      events_by_type(top-N) + pause_events(GC) + notable_events
-//      (지속시간 또는 alloc bytes 상위 N) + heatmap_strip 동시 채움.
-//   4) heatmap_strip : wall-clock 0~100% 구간을 분당 또는 1초 bucket
-//      으로 stride. UI 의 "drag-to-set" 히트맵에 직결.
-//   5) summary / metadata 채워서 반환.
+//  1. parsers/jfr.ParseFile → []Event.
+//  2. 시간 윈도우 + mode 필터 적용 — 통과한 이벤트만 스트림.
+//  3. 한 번 순회로 events_over_time(분당 카운트) +
+//     events_by_type(top-N) + pause_events(GC) + notable_events
+//     (지속시간 또는 alloc bytes 상위 N) + heatmap_strip 동시 채움.
+//  4. heatmap_strip : wall-clock 0~100% 구간을 분당 또는 1초 bucket
+//     으로 stride. UI 의 "drag-to-set" 히트맵에 직결.
+//  5. summary / metadata 채워서 반환.
 //
 // 결정론
-//   sortedKeys / topN sort 모두 명시적 정렬. event-type 동률은
-//   사전순.
+//
+//	sortedKeys / topN sort 모두 명시적 정렬. event-type 동률은
+//	사전순.
 package jfr
 
 import (
@@ -83,7 +88,7 @@ import (
 )
 
 // SchemaVersion mirrors archscope_engine.analyzers.jfr_analyzer.SCHEMA_VERSION.
-const SchemaVersion = "0.2.0"
+const SchemaVersion = "0.3.0"
 
 // ResultType mirrors Python `AnalysisResult(type="jfr_recording", ...)`.
 const ResultType = "jfr_recording"
@@ -152,6 +157,21 @@ var modeEventTypes = map[string]map[string]struct{}{
 		"jdk.NativeFree",
 	),
 }
+
+var asyncProfileEventTypes = setOf(
+	"jdk.CPUTimeSample",
+	"jdk.ExecutionSample",
+	"jdk.NativeMethodSample",
+	"jdk.MethodTrace",
+	"jdk.ObjectAllocationInNewTLAB",
+	"jdk.ObjectAllocationOutsideTLAB",
+	"jdk.ObjectAllocationSample",
+	"jdk.OldObjectSample",
+	"jdk.JavaMonitorEnter",
+	"jdk.JavaMonitorWait",
+	"jdk.ThreadPark",
+	"jdk.ThreadSleep",
+)
 
 // SupportedModes mirrors Python `supported_modes()` — `["all", ...sorted]`.
 func SupportedModes() []string {
@@ -260,28 +280,50 @@ func Build(events []jfrparser.Event, sourceFile string, info jfrparser.SourceInf
 	for i, e := range notable {
 		notableRows = append(notableRows, toNotableEvent(e, i+1))
 	}
+	asyncProfile := buildAsyncProfile(filtered, opts.TopN)
 
 	series := map[string]any{
-		"events_over_time": eventsOverTime(filtered),
-		"pause_events":     pauseRows,
-		"events_by_type":   eventsByType(filtered),
-		"heatmap_strip":    buildHeatmapStrip(filtered),
+		"events_over_time":      eventsOverTime(filtered),
+		"pause_events":          pauseRows,
+		"events_by_type":        eventsByType(filtered),
+		"heatmap_strip":         buildHeatmapStrip(filtered),
+		"sample_events_by_type": asyncProfile.SampleEventsByType,
 	}
 
 	tables := map[string]any{
 		"notable_events": notableRows,
+		"top_methods":    asyncProfile.TopMethods,
+		"top_packages":   asyncProfile.TopPackages,
+		"top_threads":    asyncProfile.TopThreads,
+		"sample_stacks":  asyncProfile.SampleStacks,
 	}
+	charts := map[string]any{}
+	if asyncProfile.Flamegraph != nil {
+		charts["async_profile_flamegraph"] = asyncProfile.Flamegraph
+	}
+
+	summary["sample_event_count"] = asyncProfile.SampleEventCount
+	summary["stack_sample_count"] = asyncProfile.StackSampleCount
+	summary["unique_sample_stacks"] = asyncProfile.UniqueSampleStacks
 
 	result := models.New(ResultType, ParserName)
 	result.SourceFiles = []string{sourceFile}
 	result.Summary = summary
 	result.Series = series
 	result.Tables = tables
+	result.Charts = charts
 	result.Metadata.SchemaVersion = SchemaVersion
 	result.Metadata.Diagnostics = diags
+	for _, finding := range buildRecordingFindings(events, filtered, asyncProfile) {
+		result.AddFinding(finding.Severity, finding.Code, finding.Message, finding.Evidence)
+	}
 
 	if result.Metadata.Extra == nil {
 		result.Metadata.Extra = map[string]any{}
+	}
+	result.Metadata.Extra["jfr_contract"] = map[string]any{
+		"binary_boundary": "Binary .jfr files are converted by the JDK jfr CLI using `jfr print --json`; ArchScope analyzes the JSON output.",
+		"desktop_scope":   "ArchScope surfaces report-oriented event summaries, stack aggregation, hints, and evidence rows. It does not attempt to replace the full JDK `jfr view` or `jfr summary` UI.",
 	}
 	result.Metadata.Extra["jfr_command_version"] = "external"
 	result.Metadata.Extra["selected_mode"] = selectedMode
@@ -300,6 +342,13 @@ func Build(events []jfrparser.Event, sourceFile string, info jfrparser.SourceInf
 	}
 	result.Metadata.Extra["filter_window"] = windowToDict(window)
 	result.Metadata.Extra["source_format"] = info.SourceFormat
+	result.Metadata.Extra["async_profile"] = map[string]any{
+		"frame_source":           "stackTrace.frames",
+		"sample_event_count":     asyncProfile.SampleEventCount,
+		"stack_sample_count":     asyncProfile.StackSampleCount,
+		"unique_sample_stacks":   asyncProfile.UniqueSampleStacks,
+		"dominant_sample_family": asyncProfile.DominantSampleFamily,
+	}
 	if info.JFRCli != nil {
 		result.Metadata.Extra["jfr_cli"] = *info.JFRCli
 	} else {
@@ -827,6 +876,400 @@ func samplingType(eventType string) string {
 		return "sampled"
 	}
 	return "exact"
+}
+
+// ── Async-profiler stack aggregation ───────────────────────────────────────
+
+type asyncProfileData struct {
+	SampleEventCount     int
+	StackSampleCount     int
+	UniqueSampleStacks   int
+	DominantSampleFamily string
+	SampleEventsByType   []map[string]any
+	TopMethods           []map[string]any
+	TopPackages          []map[string]any
+	TopThreads           []map[string]any
+	SampleStacks         []map[string]any
+	Flamegraph           *asyncFlameNode
+}
+
+type asyncCounter struct {
+	Name   string
+	Count  int
+	Bytes  int64
+	Extra  map[string]int
+	Frames []string
+}
+
+type asyncMutableNode struct {
+	Name     string
+	Samples  int
+	Children map[string]*asyncMutableNode
+}
+
+type asyncFlameNode struct {
+	ID       string           `json:"id"`
+	ParentID *string          `json:"parentId"`
+	Name     string           `json:"name"`
+	Samples  int              `json:"samples"`
+	Ratio    float64          `json:"ratio"`
+	Category *string          `json:"category"`
+	Color    *string          `json:"color"`
+	Path     []string         `json:"path"`
+	Children []asyncFlameNode `json:"children"`
+}
+
+type recordingFinding struct {
+	Severity string
+	Code     string
+	Message  string
+	Evidence map[string]any
+}
+
+func buildAsyncProfile(events []jfrparser.Event, topN int) asyncProfileData {
+	if topN <= 0 {
+		topN = DefaultTopN
+	}
+	methods := map[string]*asyncCounter{}
+	packages := map[string]*asyncCounter{}
+	threads := map[string]*asyncCounter{}
+	stacks := map[string]*asyncCounter{}
+	eventTypes := map[string]*asyncCounter{}
+	familyCounts := map[string]int{}
+
+	root := &asyncMutableNode{Name: "All", Children: map[string]*asyncMutableNode{}}
+	out := asyncProfileData{}
+
+	for _, event := range events {
+		if !isAsyncProfileEvent(event) {
+			continue
+		}
+		out.SampleEventCount++
+		eventTypeCounter := ensureAsyncCounter(eventTypes, event.EventType)
+		eventTypeCounter.Count++
+		familyCounts[sampleFamily(event.EventType)]++
+
+		if len(event.Frames) == 0 {
+			continue
+		}
+		out.StackSampleCount++
+		bytes := int64(0)
+		if event.Size != nil && *event.Size > 0 {
+			bytes = *event.Size
+		}
+		thread := "unknown"
+		if event.Thread != nil && strings.TrimSpace(*event.Thread) != "" {
+			thread = *event.Thread
+		}
+		topMethod := event.Frames[0]
+		pkg := packageForFrame(topMethod)
+		methodCounter := ensureAsyncCounter(methods, topMethod)
+		methodCounter.Count++
+		methodCounter.Bytes += bytes
+		methodCounter.Extra[thread]++
+
+		packageCounter := ensureAsyncCounter(packages, pkg)
+		packageCounter.Count++
+		packageCounter.Bytes += bytes
+		packageCounter.Extra[topMethod]++
+
+		threadCounter := ensureAsyncCounter(threads, thread)
+		threadCounter.Count++
+		threadCounter.Bytes += bytes
+		threadCounter.Extra[topMethod]++
+
+		flameFrames := reverseFrames(event.Frames)
+		stackKey := strings.Join(flameFrames, ";")
+		stackCounter := ensureAsyncCounter(stacks, stackKey)
+		stackCounter.Count++
+		stackCounter.Bytes += bytes
+		stackCounter.Frames = append([]string(nil), event.Frames...)
+		stackCounter.Extra[event.EventType]++
+		addAsyncStack(root, flameFrames)
+	}
+
+	out.UniqueSampleStacks = len(stacks)
+	out.DominantSampleFamily = dominantFamily(familyCounts)
+	out.SampleEventsByType = asyncCountersToRows(eventTypes, topN, out.SampleEventCount, func(c *asyncCounter) map[string]any {
+		return map[string]any{
+			"event_type": c.Name,
+			"count":      c.Count,
+			"ratio":      ratio(c.Count, out.SampleEventCount, 4),
+		}
+	})
+	out.TopMethods = asyncCountersToRows(methods, topN, out.StackSampleCount, func(c *asyncCounter) map[string]any {
+		return map[string]any{
+			"method":           c.Name,
+			"package":          packageForFrame(c.Name),
+			"samples":          c.Count,
+			"sample_ratio":     ratio(c.Count, out.StackSampleCount, 4),
+			"allocation_bytes": c.Bytes,
+			"threads":          topNames(c.Extra, 5),
+		}
+	})
+	out.TopPackages = asyncCountersToRows(packages, topN, out.StackSampleCount, func(c *asyncCounter) map[string]any {
+		return map[string]any{
+			"package":          c.Name,
+			"samples":          c.Count,
+			"sample_ratio":     ratio(c.Count, out.StackSampleCount, 4),
+			"allocation_bytes": c.Bytes,
+			"top_methods":      topNames(c.Extra, 5),
+		}
+	})
+	out.TopThreads = asyncCountersToRows(threads, topN, out.StackSampleCount, func(c *asyncCounter) map[string]any {
+		return map[string]any{
+			"thread":           c.Name,
+			"samples":          c.Count,
+			"sample_ratio":     ratio(c.Count, out.StackSampleCount, 4),
+			"allocation_bytes": c.Bytes,
+			"top_methods":      topNames(c.Extra, 5),
+		}
+	})
+	out.SampleStacks = asyncCountersToRows(stacks, topN, out.StackSampleCount, func(c *asyncCounter) map[string]any {
+		return map[string]any{
+			"collapsed_stack":   c.Name,
+			"frames":            c.Frames,
+			"samples":           c.Count,
+			"sample_ratio":      ratio(c.Count, out.StackSampleCount, 4),
+			"allocation_bytes":  c.Bytes,
+			"event_types":       topNames(c.Extra, 5),
+			"flamegraph_frames": strings.Split(c.Name, ";"),
+		}
+	})
+	if out.StackSampleCount > 0 {
+		out.Flamegraph = freezeAsyncNode(root, out.StackSampleCount, nil, []string{}, 0)
+	}
+	return out
+}
+
+func isAsyncProfileEvent(event jfrparser.Event) bool {
+	if _, ok := asyncProfileEventTypes[event.EventType]; ok {
+		return true
+	}
+	return len(event.Frames) > 0 && strings.Contains(event.EventType, "Sample")
+}
+
+func sampleFamily(eventType string) string {
+	switch eventType {
+	case "jdk.CPUTimeSample", "jdk.ExecutionSample", "jdk.NativeMethodSample", "jdk.MethodTrace":
+		return "cpu_wall"
+	case "jdk.ObjectAllocationInNewTLAB", "jdk.ObjectAllocationOutsideTLAB", "jdk.ObjectAllocationSample", "jdk.OldObjectSample":
+		return "allocation"
+	case "jdk.JavaMonitorEnter", "jdk.JavaMonitorWait", "jdk.ThreadPark", "jdk.ThreadSleep":
+		return "lock_wait"
+	default:
+		return "other"
+	}
+}
+
+func dominantFamily(counts map[string]int) string {
+	bestName := ""
+	bestCount := 0
+	for name, count := range counts {
+		if count > bestCount || (count == bestCount && name < bestName) {
+			bestName = name
+			bestCount = count
+		}
+	}
+	return bestName
+}
+
+func ensureAsyncCounter(counters map[string]*asyncCounter, name string) *asyncCounter {
+	counter := counters[name]
+	if counter == nil {
+		counter = &asyncCounter{Name: name, Extra: map[string]int{}}
+		counters[name] = counter
+	}
+	return counter
+}
+
+func asyncCountersToRows(counters map[string]*asyncCounter, limit int, total int, row func(*asyncCounter) map[string]any) []map[string]any {
+	if limit <= 0 {
+		limit = DefaultTopN
+	}
+	items := make([]*asyncCounter, 0, len(counters))
+	for _, counter := range counters {
+		items = append(items, counter)
+	}
+	sort.SliceStable(items, func(i, j int) bool {
+		if items[i].Count != items[j].Count {
+			return items[i].Count > items[j].Count
+		}
+		return items[i].Name < items[j].Name
+	})
+	if limit > len(items) {
+		limit = len(items)
+	}
+	rows := make([]map[string]any, 0, limit)
+	for _, item := range items[:limit] {
+		r := row(item)
+		if _, ok := r["sample_ratio"]; !ok {
+			r["sample_ratio"] = ratio(item.Count, total, 4)
+		}
+		rows = append(rows, r)
+	}
+	return rows
+}
+
+func topNames(counts map[string]int, limit int) []string {
+	type item struct {
+		name  string
+		count int
+	}
+	items := make([]item, 0, len(counts))
+	for name, count := range counts {
+		items = append(items, item{name: name, count: count})
+	}
+	sort.SliceStable(items, func(i, j int) bool {
+		if items[i].count != items[j].count {
+			return items[i].count > items[j].count
+		}
+		return items[i].name < items[j].name
+	})
+	if limit > len(items) {
+		limit = len(items)
+	}
+	out := make([]string, 0, limit)
+	for _, item := range items[:limit] {
+		out = append(out, item.name)
+	}
+	return out
+}
+
+func reverseFrames(frames []string) []string {
+	out := make([]string, 0, len(frames))
+	for i := len(frames) - 1; i >= 0; i-- {
+		frame := strings.TrimSpace(frames[i])
+		if frame != "" {
+			out = append(out, frame)
+		}
+	}
+	return out
+}
+
+func addAsyncStack(root *asyncMutableNode, frames []string) {
+	current := root
+	current.Samples++
+	for _, frame := range frames {
+		child := current.Children[frame]
+		if child == nil {
+			child = &asyncMutableNode{Name: frame, Children: map[string]*asyncMutableNode{}}
+			current.Children[frame] = child
+		}
+		child.Samples++
+		current = child
+	}
+}
+
+func freezeAsyncNode(node *asyncMutableNode, total int, parentID *string, path []string, ordinal int) *asyncFlameNode {
+	id := "root"
+	if parentID != nil {
+		id = *parentID + "." + strconv.Itoa(ordinal)
+	}
+	currentPath := path
+	if parentID != nil {
+		currentPath = append(append([]string(nil), path...), node.Name)
+	}
+	children := make([]*asyncMutableNode, 0, len(node.Children))
+	for _, child := range node.Children {
+		children = append(children, child)
+	}
+	sort.SliceStable(children, func(i, j int) bool {
+		if children[i].Samples != children[j].Samples {
+			return children[i].Samples > children[j].Samples
+		}
+		return children[i].Name < children[j].Name
+	})
+	out := &asyncFlameNode{
+		ID:       id,
+		ParentID: parentID,
+		Name:     node.Name,
+		Samples:  node.Samples,
+		Ratio:    ratio(node.Samples, total, 4),
+		Path:     currentPath,
+		Children: make([]asyncFlameNode, 0, len(children)),
+	}
+	if pkg := packageForFrame(node.Name); parentID != nil && pkg != "" && pkg != "unknown" {
+		out.Category = &pkg
+	}
+	for idx, child := range children {
+		childParent := id
+		out.Children = append(out.Children, *freezeAsyncNode(child, total, &childParent, currentPath, idx))
+	}
+	return out
+}
+
+func packageForFrame(frame string) string {
+	text := strings.TrimSpace(frame)
+	if text == "" || text == "unknown" {
+		return "unknown"
+	}
+	parts := strings.Split(text, ".")
+	if len(parts) >= 3 {
+		return strings.Join(parts[:len(parts)-2], ".")
+	}
+	if len(parts) == 2 {
+		return parts[0]
+	}
+	return "unknown"
+}
+
+func buildRecordingFindings(allEvents, filtered []jfrparser.Event, profile asyncProfileData) []recordingFinding {
+	findings := []recordingFinding{}
+	if len(filtered) == 0 && len(allEvents) > 0 {
+		findings = append(findings, recordingFinding{
+			Severity: "info",
+			Code:     "JFR_FILTER_EMPTY",
+			Message:  "The selected JFR filters matched no events. Clear mode, state, duration, or time-window filters before concluding the recording is empty.",
+			Evidence: map[string]any{"total_events": len(allEvents)},
+		})
+		return findings
+	}
+	if len(filtered) > 0 && profile.StackSampleCount == 0 {
+		findings = append(findings, recordingFinding{
+			Severity: "warning",
+			Code:     "JFR_NO_STACK_SAMPLES",
+			Message:  "The filtered JFR events do not include stackTrace.frames, so ArchScope can show event summaries but cannot build a method/package stack profile.",
+			Evidence: map[string]any{
+				"filtered_events":    len(filtered),
+				"sample_event_count": profile.SampleEventCount,
+			},
+		})
+	}
+	if profile.SampleEventCount > 0 {
+		sampleRatio := float64(profile.SampleEventCount) / float64(max(len(filtered), 1))
+		if sampleRatio >= 0.70 {
+			findings = append(findings, recordingFinding{
+				Severity: "info",
+				Code:     "JFR_ASYNC_PROFILER_STYLE_RECORDING",
+				Message:  "Most filtered JFR events are sample-style CPU, allocation, or lock events. ArchScope is treating this as an async-profiler-style recording and aggregating stackTrace.frames into report-ready method evidence.",
+				Evidence: map[string]any{
+					"filtered_events":        len(filtered),
+					"sample_event_count":     profile.SampleEventCount,
+					"dominant_sample_family": profile.DominantSampleFamily,
+				},
+			})
+		}
+	}
+	if profile.StackSampleCount > 0 && profile.StackSampleCount < 5 {
+		findings = append(findings, recordingFinding{
+			Severity: "warning",
+			Code:     "JFR_SPARSE_STACK_SAMPLES",
+			Message:  "Only a few JFR events include stack frames. Treat top method and flamegraph rankings as directional, not statistically stable.",
+			Evidence: map[string]any{
+				"stack_sample_count":   profile.StackSampleCount,
+				"unique_sample_stacks": profile.UniqueSampleStacks,
+			},
+		})
+	}
+	return findings
+}
+
+func ratio(value, total, decimals int) float64 {
+	if total <= 0 {
+		return 0
+	}
+	return roundHalfEven(float64(value)/float64(total)*100, decimals)
 }
 
 // ── small utilities ─────────────────────────────────────────────────────────

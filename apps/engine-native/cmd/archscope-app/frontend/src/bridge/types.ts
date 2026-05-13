@@ -593,6 +593,9 @@ export type JfrSummary = {
   gc_pause_total_ms?: number;
   blocked_thread_events?: number;
   selected_mode?: string;
+  sample_event_count?: number;
+  stack_sample_count?: number;
+  unique_sample_stacks?: number;
 };
 
 export type JfrFilterWindow = {
@@ -606,6 +609,7 @@ export type JfrMetadata = {
   schema_version?: string;
   parser?: string;
   diagnostics?: ParserDiagnostics;
+  findings?: JvmFinding[];
   selected_mode?: string;
   available_modes?: string[];
   supported_modes?: string[];
@@ -616,11 +620,23 @@ export type JfrMetadata = {
   source_format?: string;
   jfr_cli?: string | null;
   jfr_command_version?: string;
+  jfr_contract?: {
+    binary_boundary?: string;
+    desktop_scope?: string;
+  };
+  async_profile?: {
+    frame_source?: string;
+    sample_event_count?: number;
+    stack_sample_count?: number;
+    unique_sample_stacks?: number;
+    dominant_sample_family?: string;
+  };
 };
 
 export type JfrEventTypeRow = {
   event_type: string;
   count: number;
+  ratio?: number;
 };
 
 export type JfrEventOverTimeRow = {
@@ -663,15 +679,71 @@ export type JfrNotableEventRow = {
   raw_preview?: string;
 };
 
+export type JfrTopMethodRow = {
+  method: string;
+  package?: string;
+  samples: number;
+  sample_ratio?: number;
+  allocation_bytes?: number;
+  threads?: string[];
+};
+
+export type JfrTopPackageRow = {
+  package: string;
+  samples: number;
+  sample_ratio?: number;
+  allocation_bytes?: number;
+  top_methods?: string[];
+};
+
+export type JfrTopThreadRow = {
+  thread: string;
+  samples: number;
+  sample_ratio?: number;
+  allocation_bytes?: number;
+  top_methods?: string[];
+};
+
+export type JfrSampleStackRow = {
+  collapsed_stack: string;
+  frames: string[];
+  samples: number;
+  sample_ratio?: number;
+  allocation_bytes?: number;
+  event_types?: string[];
+  flamegraph_frames?: string[];
+};
+
+export type JfrAsyncFlameNode = {
+  id: string;
+  parentId: string | null;
+  name: string;
+  samples: number;
+  ratio: number;
+  category: string | null;
+  color: string | null;
+  path: string[];
+  children: JfrAsyncFlameNode[];
+};
+
 export type JfrSeries = {
   events_over_time?: JfrEventOverTimeRow[];
   pause_events?: JfrPauseEventRow[];
   events_by_type?: JfrEventTypeRow[];
+  sample_events_by_type?: JfrEventTypeRow[];
   heatmap_strip?: JfrHeatmapStrip;
 };
 
 export type JfrTables = {
   notable_events?: JfrNotableEventRow[];
+  top_methods?: JfrTopMethodRow[];
+  top_packages?: JfrTopPackageRow[];
+  top_threads?: JfrTopThreadRow[];
+  sample_stacks?: JfrSampleStackRow[];
+};
+
+export type JfrCharts = {
+  async_profile_flamegraph?: JfrAsyncFlameNode;
 };
 
 export type JfrAnalysisResult = AnalysisResult<
@@ -679,7 +751,7 @@ export type JfrAnalysisResult = AnalysisResult<
   JfrSummary,
   JfrSeries,
   JfrTables,
-  AnalysisObject,
+  JfrCharts,
   JfrMetadata
 >;
 

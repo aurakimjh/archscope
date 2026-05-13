@@ -852,14 +852,24 @@ MSA 타임라인 매칭은 기존처럼 matched caller-to-callee edge를
 
 ### JFR (`type: "jfr_recording"`)
 
-- `metadata.event_modes`, `metadata.time_from`, `metadata.time_to`,
-  `metadata.thread_state`, `metadata.min_duration_ms` — UI가 활성
-  필터를 렌더할 수 있도록 metadata에 echo.
-- `series.thread_density_per_bucket` — wall-clock 히트맵 데이터
-  `{ time, count }`.
-- 새 optional sub-result `tables.native_memory_leaks` —
-  `{ stack_signature, alloc_count, alloc_bytes, free_bytes, tail_ratio }`
-  로 nativemem 이벤트가 있을 때 `native_memory_analyzer.py`가 생성.
+- `summary.sample_event_count`, `summary.stack_sample_count`,
+  `summary.unique_sample_stacks`는 필터된 JFR 이벤트 중 async-profiler 스타일
+  스택 집계에 사용할 수 있는 이벤트 규모를 나타낸다.
+- `series.events_over_time`, `series.pause_events`, `series.events_by_type`,
+  `series.heatmap_strip`, `series.sample_events_by_type`는 chart-ready 이벤트
+  요약이다.
+- `tables.notable_events`는 긴 duration 또는 주요 이벤트 row를 유지한다.
+- `tables.top_methods`, `tables.top_packages`, `tables.top_threads`,
+  `tables.sample_stacks`는 JFR sample event의 `stackTrace.frames`를 집계한
+  보고서용 evidence다. 이는 JDK Mission Control 또는 `jfr view` 전체
+  기능을 대체하는 UI가 아니다.
+- `charts.async_profile_flamegraph`는 sample stack에서 만든 FlameNode 호환
+  tree다.
+- `metadata.jfr_contract`는 JDK `jfr` CLI가 바이너리 `.jfr`를
+  `jfr print --json`으로 변환하는 boundary까지만 담당한다는 점을 명시한다.
+- `metadata.findings`에는 `JFR_FILTER_EMPTY`, `JFR_NO_STACK_SAMPLES`,
+  `JFR_ASYNC_PROFILER_STYLE_RECORDING`, `JFR_SPARSE_STACK_SAMPLES` 같은 UX hint가
+  포함될 수 있다.
 
 ### Thread dump multi (`type: "thread_dump_multi"`)
 

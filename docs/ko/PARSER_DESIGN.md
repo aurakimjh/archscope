@@ -96,6 +96,10 @@ GC log, thread dump, exception stack trace parser는 access log 및 profiler inp
 - **GC parser** (`gc_log_parser.py`)는 HotSpot unified GC pause line을 지원하며 timestamp, GC type, cause, pause, Eden/Survivor/Old/Metaspace 영역의 heap before/after/committed 값을 추출한다.
 - **GC log header parser** (`gc_log_header.py`)는 `OpenJDK ... VM` 배너와 `CommandLine flags:` 라인, 그리고 `[gc,init]` 블록(CPU 수, 메모리, heap min/initial/max/region size, parallel/concurrent worker 수, NUMA, pre-touch)을 읽어들인다. 결과는 GC log 분석기 상단의 **JVM Info** 카드를 채운다.
 - **JFR recording parser** (`jfr_recording.py`)는 바이너리 `FLR\0` 매직을 감지하고 JDK `jfr` CLI를 호출(`ARCHSCOPE_JFR_CLI` → `JAVA_HOME/bin/jfr` → PATH)하여 `print --json`을 수행한다. 기존 JSON 경로(`jfr_parser.py`)는 그대로 유지된다. 집계 전에 모드/시간 범위/상태 필터도 받는다.
+  JDK `jfr` CLI는 바이너리 `.jfr`를 JSON으로 변환하는 경계까지만 담당한다.
+  ArchScope는 JDK `jfr view` 또는 `jfr summary` UI 전체를 복제하지 않고,
+  JSON 출력의 `stackTrace.frames`를 기반으로 보고서용 이벤트 요약,
+  async-profiler 스타일 스택 집계, recording hint, Evidence Board row를 만든다.
 - **Thread dump parser registry** (`thread_dump/registry.py`)는 plugin contract `(format_id, can_parse(head: str) -> bool, parse(path) -> ThreadDumpBundle)`을 노출한다. 레지스트리는 모든 입력의 첫 4 KB를 검사해 매칭 플러그인으로 dispatch하고, UTF-16 / BOM 인코딩 입력을 자동 디코딩한다. 단일 멀티 덤프 요청 안에서 포맷이 섞이면 `format_override`가 없는 한 `MixedFormatError`로 즉시 거부한다.
 - **Exception parser**는 optional ISO timestamp, nested `Caused by` root cause, stack frame, stable stack signature가 있는 Java exception stack block을 지원한다.
 

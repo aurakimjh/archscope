@@ -20,12 +20,13 @@
 // 의존성 주의: shadcn Tabs(@/components/ui/tabs) 사용 — Radix 기반.
 // ECharts 는 ChartPanel 내부에서 init/dispose 처리.
 // ─────────────────────────────────────────────────────────────────────
-import { Loader2, Play, Square } from "lucide-react";
+import { Loader2, Play, Plus, Square } from "lucide-react";
 import { useCallback, useMemo, useRef, useState } from "react";
 
 import { engine } from "@/bridge/engine";
 import type {
   AccessLogAnalysisResult,
+  AccessLogFinding,
   AccessLogFormat,
   AccessLogStatusCodeRow,
   BridgeError,
@@ -57,6 +58,7 @@ import {
   type ChartLabels,
 } from "@/charts/accessLogCharts";
 import { useI18n, type MessageKey } from "@/i18n/I18nProvider";
+import { addEvidenceCard } from "@/state/evidenceBoard";
 import {
   formatMilliseconds,
   formatNumber,
@@ -101,6 +103,8 @@ export function AccessLogAnalyzerPage(): JSX.Element {
   const filePath = selectedFile?.filePath ?? "";
   const canAnalyze = Boolean(filePath) && state !== "running";
   const summary = result?.summary;
+  const findings = result?.metadata?.findings ?? ([] as AccessLogFinding[]);
+  const sourceFile = result?.source_files?.[0] ?? filePath;
 
   const chartLabels = useMemo<ChartLabels>(
     () => ({
@@ -180,6 +184,23 @@ export function AccessLogAnalyzerPage(): JSX.Element {
     setState("ready");
     setEngineMessages([t("analysisCanceled")]);
   }, [t]);
+
+  const addFindingEvidence = useCallback(
+    (finding: AccessLogFinding) => {
+      addEvidenceCard({
+        analyzer: "access_log",
+        source_kind: "finding",
+        title: finding.code,
+        summary: finding.message,
+        severity: finding.severity,
+        source_file: sourceFile,
+        source_ref: finding.code,
+        payload: finding as unknown as Record<string, unknown>,
+      });
+      setEngineMessages([t("evidenceAdded")]);
+    },
+    [sourceFile, t],
+  );
 
   return (
     <main className="flex flex-col gap-5 p-5">
@@ -385,6 +406,11 @@ export function AccessLogAnalyzerPage(): JSX.Element {
               value={formatNumber(summary?.api_count)}
             />
           </section>
+          <AccessLogFindingsPanel
+            findings={findings}
+            t={t}
+            onAddEvidence={addFindingEvidence}
+          />
         </TabsContent>
 
         <TabsContent value="charts" className="mt-4">
@@ -423,6 +449,44 @@ export function AccessLogAnalyzerPage(): JSX.Element {
         </TabsContent>
       </Tabs>
     </main>
+  );
+}
+
+function AccessLogFindingsPanel({
+  findings,
+  t,
+  onAddEvidence,
+}: {
+  findings: AccessLogFinding[];
+  t: (key: MessageKey) => string;
+  onAddEvidence: (finding: AccessLogFinding) => void;
+}): JSX.Element | null {
+  if (findings.length === 0) return null;
+  return (
+    <Card className="mt-4">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm">{t("findings")}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-2 pt-0 text-sm">
+        {findings.map((finding, idx) => (
+          <div key={`${finding.code}-${idx}`} className="flex items-start gap-2">
+            <span className="mt-0.5 rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase">
+              {finding.severity}
+            </span>
+            <p className="min-w-0 flex-1 leading-relaxed">{finding.message}</p>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => onAddEvidence(finding)}
+            >
+              <Plus className="h-3.5 w-3.5" />
+              {t("evidenceAdd")}
+            </Button>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
   );
 }
 

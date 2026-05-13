@@ -96,6 +96,11 @@ GC logs, thread dumps, and exception stack traces follow the same parser and ana
 - **GC parser** (`gc_log_parser.py`) supports HotSpot unified GC pause lines and extracts timestamp, GC type, cause, pause, and heap before/after/committed values for Eden/Survivor/Old/Metaspace regions.
 - **GC log header parser** (`gc_log_header.py`) reads the `OpenJDK ... VM` banner and `CommandLine flags:` line, plus the `[gc,init]` block (CPU count, memory, heap min/initial/max/region size, parallel/concurrent worker counts, NUMA, pre-touch). The result becomes the **JVM Info** card at the top of the GC log analyzer.
 - **JFR recording parser** (`jfr_recording.py`) detects the binary `FLR\0` magic and shells out to the JDK `jfr` CLI (`ARCHSCOPE_JFR_CLI` → `JAVA_HOME/bin/jfr` → PATH) with `print --json`. The existing JSON path (`jfr_parser.py`) is unchanged. The parser also accepts mode/time-range/state filters before aggregation.
+  The JDK `jfr` CLI is a binary-to-JSON conversion boundary only. ArchScope does
+  not try to clone the full JDK `jfr view` or `jfr summary` UI; it builds
+  report-oriented event summaries, async-profiler-style stack aggregation,
+  recording hints, and Evidence Board rows from `stackTrace.frames` in the JSON
+  output.
 - **Thread dump parser registry** (`thread_dump/registry.py`) exposes a plugin contract `(format_id, can_parse(head: str) -> bool, parse(path) -> ThreadDumpBundle)`. The registry probes the first 4 KB of every input, dispatches to the matching plugin, and decodes UTF-16 / BOM-encoded inputs transparently. Mixing formats inside one multi-dump request raises `MixedFormatError` unless `format_override` is set.
 - **Exception parser** supports Java exception stack blocks with optional ISO timestamps, nested `Caused by` root causes, stack frames, and stable stack signatures.
 

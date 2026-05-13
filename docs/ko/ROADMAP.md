@@ -66,6 +66,9 @@ finding을 확인하고, 근거를 수집하고, 고객 데이터 외부 전송 
   parsing.
 - Carrier pinning, SMR/zombie thread, lock contention, deadlock finding을
   포함한 thread dump 강화.
+- JFR analyzer contract 정리. JDK `jfr` CLI는 `.jfr`를 `jfr print --json`으로
+  변환하는 boundary로 두고, ArchScope는 보고서용 이벤트 요약,
+  async-profiler 스택 evidence, UX hint를 만든다.
 
 ### Go/Wails 통합
 
@@ -93,6 +96,8 @@ finding을 확인하고, 근거를 수집하고, 고객 데이터 외부 전송 
   overlay, rectangle zoom, point decimation을 포함한 GC log 심화. 현재 Go
   analyzer는 young/old/metaspace series, OOM alert, long-pause event finding을
   함께 낸다.
+- `stackTrace.frames`를 top methods, packages, threads, sample stacks,
+  flamegraph-ready call tree로 집계하는 async-profiler 지향 JFR stack 분석.
 - Jennifer MSA service-call network-time summary와 topology placement 추가.
   내부 single-digit ms 호출과 gateway/external double-digit ms 호출이 시각적으로
   분리된다.
@@ -120,6 +125,10 @@ finding을 확인하고, 근거를 수집하고, 고객 데이터 외부 전송 
 - Browser local storage 기반의 첫 desktop Evidence Board page.
 - Trace Import 화면에서 finding, service edge, trace, source metadata를
   Evidence Board에 추가할 수 있다.
+- Access Log, GC Log, JFR, Native Memory 화면에서 선택한 finding과 table row를
+  Evidence Board에 추가할 수 있다.
+- Evidence Board는 저장된 card를 local static HTML evidence report와 JSON
+  evidence pack으로 export할 수 있다.
 
 ### 증거 기반 AI 보조 해석
 
@@ -144,20 +153,16 @@ finding을 확인하고, 근거를 수집하고, 고객 데이터 외부 전송 
    - 실제 로그가 현재 bounded-memory envelope를 넘으면 GC event streaming을
      더 깊게 검토한다.
 
-2. Async-profiler JFR 처리 수준을 높인다.
-   - JDK `jfr` CLI는 `.jfr`를 JSON으로 변환하는 boundary로 유지한다.
-   - Async-profiler JFR recording에서 ArchScope-native stack/sample aggregation을
-     추가한다.
-   - Sparse recording 또는 capture-mode별 빈 결과를 설명하는 UX hint를
-     추가한다.
-
-3. Evidence Board를 확장한다.
-   - Trace가 아닌 analyzer에도 공통 "Add to Evidence" action을 추가한다.
-   - 저장된 evidence card 기반 report-ready HTML/ZIP export를 만든다.
+2. JFR 및 Evidence Board 확장을 안정화한다.
+   - 실제 CPU, wall, allocation, lock async-profiler JFR recording으로 stack
+     aggregation을 검증한다.
+   - 필요한 나머지 analyzer에도 "Add to Evidence" coverage를 넓힌다.
+   - 현재 UI-level HTML/JSON export를 향후 engine-level report pack workflow로
+     확장한다.
    - Evidence-reference integrity check가 통과한 뒤에만 AI interpretation을
      board와 연결한다.
 
-4. File-first MVP 이후 trace import compatibility를 계속 넓힌다.
+3. File-first MVP 이후 trace import compatibility를 계속 넓힌다.
    - 안정적인 local export 또는 QueryService contract를 정한 뒤 Jaeger
      compatibility import를 추가한다.
    - Schema/version validation 이후 SkyWalking GraphQL response import를

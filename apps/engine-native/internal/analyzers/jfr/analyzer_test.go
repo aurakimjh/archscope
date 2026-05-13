@@ -1,15 +1,16 @@
 // [한글] jfr 분석기 회귀 테스트.
 //
 // 검증 대상
-//   • mode 별 필터 결과(cpu/wall/alloc/lock/gc/exception/io/nativemem).
-//   • 시간 윈도우 필터(ISO/HH:MM/relative).
-//   • events_over_time / heatmap_strip 의 시간 bucket 정확성.
-//   • notable_events top-N 정렬.
-//   • metadata.selected_mode / available_modes 가 입력에 따라 변동.
+//   - mode 별 필터 결과(cpu/wall/alloc/lock/gc/exception/io/nativemem).
+//   - 시간 윈도우 필터(ISO/HH:MM/relative).
+//   - events_over_time / heatmap_strip 의 시간 bucket 정확성.
+//   - notable_events top-N 정렬.
+//   - metadata.selected_mode / available_modes 가 입력에 따라 변동.
 //
 // fixture 정책
-//   examples/jfr/sample-jfr-print.json 은 Python 테스트도 같이 사용 —
-//   같은 입력에 대한 Python ↔ Go 결과 일치를 parity gate 가 자동 검증.
+//
+//	examples/jfr/sample-jfr-print.json 은 Python 테스트도 같이 사용 —
+//	같은 입력에 대한 Python ↔ Go 결과 일치를 parity gate 가 자동 검증.
 package jfr
 
 import (
@@ -82,6 +83,13 @@ func TestAnalyzeMetadataAndNotableEvents(t *testing.T) {
 	if got := result.Metadata.Extra["jfr_command_version"]; got != "external" {
 		t.Errorf("metadata.jfr_command_version = %v, want external", got)
 	}
+	contract, ok := result.Metadata.Extra["jfr_contract"].(map[string]any)
+	if !ok {
+		t.Fatalf("jfr_contract type = %T, want map[string]any", result.Metadata.Extra["jfr_contract"])
+	}
+	if contract["binary_boundary"] == "" {
+		t.Errorf("jfr_contract.binary_boundary should be populated: %+v", contract)
+	}
 	availableModes, ok := result.Metadata.Extra["available_modes"].([]string)
 	if !ok {
 		t.Fatalf("available_modes type = %T, want []string", result.Metadata.Extra["available_modes"])
@@ -109,6 +117,108 @@ func TestAnalyzeMetadataAndNotableEvents(t *testing.T) {
 	}
 	if w["from"] != nil || w["to"] != nil {
 		t.Errorf("filter_window from/to should be nil, got %+v", w)
+	}
+}
+
+func TestAsyncProfilerStackAggregation(t *testing.T) {
+	mainThread := "http-nio-8080-exec-1"
+	workerThread := "worker-1"
+	allocSize := int64(4096)
+	events := []jfrparser.Event{
+		{
+			EventType: "jdk.ExecutionSample",
+			Thread:    &mainThread,
+			Frames: []string{
+				"com.example.checkout.PaymentService.authorize",
+				"com.example.checkout.CheckoutController.submit",
+			},
+		},
+		{
+			EventType: "jdk.ExecutionSample",
+			Thread:    &mainThread,
+			Frames: []string{
+				"com.example.checkout.PaymentService.authorize",
+				"com.example.checkout.CheckoutController.submit",
+			},
+		},
+		{
+			EventType: "jdk.ObjectAllocationSample",
+			Thread:    &workerThread,
+			Size:      &allocSize,
+			Frames: []string{
+				"com.example.catalog.CacheLoader.load",
+				"com.example.catalog.CatalogService.refresh",
+			},
+		},
+	}
+
+	result := Build(events, "/tmp/profile.jfr", jfrparser.SourceInfo{SourceFormat: "json"}, nil, Options{TopN: 10})
+	if got := getInt(result.Summary, "sample_event_count"); got != 3 {
+		t.Fatalf("sample_event_count = %d, want 3", got)
+	}
+	if got := getInt(result.Summary, "stack_sample_count"); got != 3 {
+		t.Fatalf("stack_sample_count = %d, want 3", got)
+	}
+	if got := getInt(result.Summary, "unique_sample_stacks"); got != 2 {
+		t.Fatalf("unique_sample_stacks = %d, want 2", got)
+	}
+
+	methods := result.Tables["top_methods"].([]map[string]any)
+	if len(methods) < 2 {
+		t.Fatalf("top_methods length = %d, want at least 2", len(methods))
+	}
+	if got := methods[0]["method"]; got != "com.example.checkout.PaymentService.authorize" {
+		t.Fatalf("top method = %v", got)
+	}
+	if got := methods[0]["samples"]; got != 2 {
+		t.Fatalf("top method samples = %v, want 2", got)
+	}
+	if got := methods[0]["package"]; got != "com.example.checkout" {
+		t.Fatalf("top method package = %v, want com.example.checkout", got)
+	}
+
+	packages := result.Tables["top_packages"].([]map[string]any)
+	if got := packages[0]["package"]; got != "com.example.checkout" {
+		t.Fatalf("top package = %v", got)
+	}
+	threads := result.Tables["top_threads"].([]map[string]any)
+	if got := threads[0]["thread"]; got != mainThread {
+		t.Fatalf("top thread = %v, want %s", got, mainThread)
+	}
+	stacks := result.Tables["sample_stacks"].([]map[string]any)
+	if len(stacks) != 2 {
+		t.Fatalf("sample_stacks length = %d, want 2", len(stacks))
+	}
+	if got := stacks[0]["collapsed_stack"]; got != "com.example.checkout.CheckoutController.submit;com.example.checkout.PaymentService.authorize" {
+		t.Fatalf("collapsed_stack = %v", got)
+	}
+	flame, ok := result.Charts["async_profile_flamegraph"].(*asyncFlameNode)
+	if !ok || flame == nil {
+		t.Fatalf("async_profile_flamegraph type = %T", result.Charts["async_profile_flamegraph"])
+	}
+	if flame.Samples != 3 {
+		t.Fatalf("flamegraph root samples = %d, want 3", flame.Samples)
+	}
+	if len(result.Metadata.Findings) == 0 {
+		t.Fatalf("expected async-profiler recording hint finding")
+	}
+}
+
+func TestJfrRecordingHintsForMissingStackSamples(t *testing.T) {
+	events := []jfrparser.Event{
+		{EventType: "jdk.GCPhasePause", DurationMS: ptrFloat(12)},
+		{EventType: "jdk.GarbageCollection", DurationMS: ptrFloat(2)},
+	}
+	result := Build(events, "/tmp/gc-only.json", jfrparser.SourceInfo{SourceFormat: "json"}, nil, Options{})
+	found := false
+	for _, finding := range result.Metadata.Findings {
+		if finding["code"] == "JFR_NO_STACK_SAMPLES" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected JFR_NO_STACK_SAMPLES finding, got %+v", result.Metadata.Findings)
 	}
 }
 

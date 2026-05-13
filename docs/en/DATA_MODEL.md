@@ -713,15 +713,24 @@ Event-category option timing:
 
 ### JFR (`type: "jfr_recording"`)
 
-- `metadata.event_modes`, `metadata.time_from`, `metadata.time_to`,
-  `metadata.thread_state`, `metadata.min_duration_ms` — analyzer
-  options echoed in metadata so the UI can render the active filters.
-- `series.thread_density_per_bucket` — wall-clock heatmap data
-  `{ time, count }`.
-- New optional sub-result `tables.native_memory_leaks` —
-  `{ stack_signature, alloc_count, alloc_bytes, free_bytes, tail_ratio }`
-  produced by `native_memory_analyzer.py` when nativemem events are
-  present.
+- `summary.sample_event_count`, `summary.stack_sample_count`, and
+  `summary.unique_sample_stacks` describe how many filtered JFR events can
+  participate in async-profiler-style stack aggregation.
+- `series.events_over_time`, `series.pause_events`, `series.events_by_type`,
+  `series.heatmap_strip`, and `series.sample_events_by_type` remain chart-ready
+  event summaries.
+- `tables.notable_events` keeps long-duration or otherwise notable event rows.
+- `tables.top_methods`, `tables.top_packages`, `tables.top_threads`, and
+  `tables.sample_stacks` aggregate `stackTrace.frames` from JFR sample events.
+  These tables are report evidence, not a replacement for the full JDK
+  Mission Control or `jfr view` feature set.
+- `charts.async_profile_flamegraph` is a FlameNode-compatible tree derived from
+  sample stacks.
+- `metadata.jfr_contract` states that the JDK `jfr` CLI is used only as the
+  binary `.jfr` to `jfr print --json` conversion boundary.
+- `metadata.findings` may include UX hints such as `JFR_FILTER_EMPTY`,
+  `JFR_NO_STACK_SAMPLES`, `JFR_ASYNC_PROFILER_STYLE_RECORDING`, and
+  `JFR_SPARSE_STACK_SAMPLES`.
 
 ### Thread dump multi (`type: "thread_dump_multi"`)
 
