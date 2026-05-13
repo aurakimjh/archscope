@@ -74,6 +74,9 @@ finding을 확인하고, 근거를 수집하고, 고객 데이터 외부 전송 
 - Wails service binding을 활성 engine/UI boundary로 확정.
 - Access log, OTel JSONL, GC log, JFR JSON, thread dump, Jennifer profile,
   profiler HTML/SVG 경로에 large-file guardrail 추가.
+- Go/Wails desktop app용 Windows GUI smoke workflow 추가. GitHub-hosted
+  Windows runner에서 Windows 실행 파일을 빌드하고 `archscope.exe`를 실행한 뒤
+  GUI process가 유지되는지 확인하고 정상 종료한다.
 
 ### Profiler, Access Log, GC, MSA 개선
 
@@ -129,7 +132,8 @@ finding을 확인하고, 근거를 수집하고, 고객 데이터 외부 전송 
 이 항목들은 `work_status.md`의 현재 실행 큐와 계속 맞춰야 한다.
 
 1. Release hardening을 마무리한다.
-   - Windows host 또는 VM에서 직접 GUI launch smoke test를 수행한다.
+   - Release cut 전 Windows GUI smoke를 반복하고, 가능한 경우 고객 환경에
+     가까운 수동 smoke도 추가한다.
    - Signing/notarization 작업을 계속한다.
    - 필요한 frontend bundle splitting을 진행한다.
    - 실제 로그가 현재 bounded-memory envelope를 넘으면 GC event streaming을

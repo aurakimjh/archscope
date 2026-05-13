@@ -80,6 +80,10 @@ Guiding principles:
 - Wails service bindings selected as the active engine/UI boundary.
 - Large-file guardrails added for access log, OTel JSONL, GC log, JFR JSON,
   thread dump, Jennifer profile, and profiler HTML/SVG paths.
+- Windows GUI smoke workflow added for the Go/Wails desktop app: it builds the
+  Windows executable on a GitHub-hosted Windows runner, launches
+  `archscope.exe`, verifies that the GUI process stays alive, and shuts it down
+  cleanly.
 
 ### Profiler, Access Log, GC, and MSA Improvements
 
@@ -134,7 +138,8 @@ Guiding principles:
 These items should stay aligned with `work_status.md`.
 
 1. Finish release hardening.
-   - Run direct Windows GUI launch smoke tests on a Windows host or VM.
+   - Repeat the Windows GUI smoke before release cuts and add manual
+     customer-environment smoke where available.
    - Continue signing/notarization work.
    - Split large frontend bundles where needed.
    - Revisit deeper GC event streaming if real-world inputs exceed the current

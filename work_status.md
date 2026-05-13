@@ -17,9 +17,9 @@ The previous long-form history was archived to
 - Release baseline: `v0.3.1` is the latest stable GitHub release. The
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
-- Current execution focus: Windows GUI smoke testing, 0.3.x release hardening,
-  JFR/async-profiler diagnostics, and Evidence Board expansion after the trace
-  import desktop workflow landed.
+- Current execution focus: 0.3.x release hardening, JFR/async-profiler
+  diagnostics, and Evidence Board expansion after the trace import desktop
+  workflow and Windows GUI smoke workflow landed.
 - Retired implementation: Python/FastAPI/browser sources are archived under
   `archive/python-engine` and `archive/web-frontend-python`.
 - Historical native POC module has been folded into `apps/engine-native`.
@@ -80,6 +80,9 @@ The previous long-form history was archived to
   `UNBALANCED_SERVICE_LATENCY`, and `HIGH_ERROR_SERVICE_EDGE`.
 - Added the first Evidence Board skeleton with local evidence cards for trace
   findings, service edges, traces, and source metadata.
+- Added a Windows GUI smoke workflow that builds the Wails Windows executable
+  on `windows-latest`, launches `archscope.exe`, verifies it stays alive, and
+  shuts it down cleanly.
 
 ## Current Risk
 
@@ -89,9 +92,12 @@ emits chart series for every event, and access-log/OTel analyzer entrypoints no
 longer materialize the full parser record slice before aggregation.
 
 Release verification found no new blocker for the 0.3.x Go/Wails line. Direct
-Windows GUI launch was not performed in the local macOS environment; Windows
-confidence currently comes from GitHub Actions Windows test/build/package
-success plus release artifact checksum and PE inspection.
+local Windows desktop testing is still environment-dependent, but automated
+Windows GUI smoke now runs on a GitHub-hosted Windows Server 2025 runner. The
+smoke builds the Wails Windows executable, launches `archscope.exe`, verifies
+that the GUI process stays alive for the startup window, and shuts it down.
+Windows confidence now includes tests/builds/packages, release artifact
+checksum and PE inspection, plus the GUI launch smoke.
 
 The MSA timeline discoverability issue is closed: the tab list now renders
 before analysis and each tab shows a neutral empty-result state until data is
@@ -125,13 +131,12 @@ filtered before analysis.
 
 ## Next Execution Queue
 
-1. Perform direct Windows GUI launch smoke-test on a Windows host/VM.
-2. Continue 0.3.x release hardening for signing/notarization and frontend
+1. Continue 0.3.x release hardening for signing/notarization and frontend
    bundle splitting.
-3. Improve JFR handling for async-profiler recordings: keep the JDK `jfr`
+2. Improve JFR handling for async-profiler recordings: keep the JDK `jfr`
    CLI as a binary-to-JSON converter, then add ArchScope-native stack/sample
    views instead of trying to clone the full JDK `jfr` tool UI.
-4. Expand the Evidence Board beyond Trace Import: add shared "Add to Evidence"
+3. Expand the Evidence Board beyond Trace Import: add shared "Add to Evidence"
    actions on other analyzer findings/tables and design report export around
    saved evidence cards.
 
@@ -143,7 +148,7 @@ filtered before analysis.
 | T-415 | P1 | [x] | Add Elastic APM `_search` response and source-only NDJSON importers. | Trace import MVP | Completed 2026-05-13: Elastic trace evidence import |
 | T-416 | P1 | [x] | Add trace critical-path analysis and current MVP findings: `SLOW_TRACE_P95`, `CLOCK_SKEW_SUSPECTED`, `UNBALANCED_SERVICE_LATENCY`, and `HIGH_ERROR_SERVICE_EDGE`. | Trace import MVP | Completed 2026-05-13: Root-cause oriented trace diagnostics |
 | T-417 | P1 | [x] | Design and build the Evidence Board skeleton around reusable evidence cards. | Analyzer result contracts | Completed 2026-05-13: Cross-analyzer evidence pack foundation |
-| T-418 | P1 | [ ] | Run direct Windows GUI launch smoke-test for the 0.3.1 line on a Windows host/VM. | 0.3.1 release assets | Native Windows confidence beyond CI/package success |
+| T-418 | P1 | [x] | Run direct Windows GUI launch smoke-test for the 0.3.1 line on a Windows host/VM. | 0.3.1 release assets | Completed 2026-05-13: Windows runner GUI process launch smoke |
 | T-419 | P2 | [ ] | Continue 0.3.x release hardening for signing/notarization and frontend bundle splitting. | 0.3.1 release baseline | Release hardening follow-up list |
 | T-420 | P1 | [ ] | Clarify the JFR analyzer contract: use the JDK `jfr` CLI only for `.jfr` to `jfr print --json` conversion, and avoid reimplementing the full JDK `jfr view` / `jfr summary` feature set in the desktop UI. | Existing JFR parser bridge | JFR scope note and UI copy |
 | T-421 | P1 | [ ] | Add async-profiler-oriented JFR stack analysis by aggregating `stackTrace.frames` from sample events into top methods, top packages, top threads, and call-tree/flamegraph-ready rows. | JFR JSON parser, profiler flamegraph components | Useful CPU/wall/alloc sample diagnostics for async-profiler JFR |
@@ -227,6 +232,11 @@ filtered before analysis.
   ../../examples/traces/sample-elastic-apm-search.json --format auto --top-n
   10` emitted `source_format = elastic-apm-search-json` and the expected
   trace findings.
+- 2026-05-13 Windows GUI smoke run `25800619784` passed on Microsoft Windows
+  Server 2025. It built `apps/engine-native/cmd/archscope-app/bin/archscope.exe`
+  with `task windows:build ARCH=amd64`, confirmed a 14,060,544-byte executable,
+  launched it, observed the GUI process alive for 15 seconds, and requested
+  graceful shutdown.
 
 ## Decisions
 
