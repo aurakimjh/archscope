@@ -38,6 +38,7 @@ import {
   type TraceImportChartLabels,
 } from "@/charts/traceImportCharts";
 import { useI18n, type MessageKey } from "@/i18n/I18nProvider";
+import { addWorkspaceResult } from "@/state/analysisWorkspace";
 import { addEvidenceCard } from "@/state/evidenceBoard";
 import {
   formatMilliseconds,
@@ -127,6 +128,11 @@ export function TraceImportPage(): JSX.Element {
       if (inflightRef.current !== token) return;
       inflightRef.current = null;
       setResult(response);
+      addWorkspaceResult({
+        result: response,
+        title: `trace_import: ${selectedFile?.originalName ?? response.source_files?.[0] ?? ""}`,
+        sourceLabel: selectedFile?.originalName,
+      });
       setState("success");
     } catch (caught) {
       if (inflightRef.current !== token) return;
@@ -137,7 +143,7 @@ export function TraceImportPage(): JSX.Element {
       });
       setState("error");
     }
-  }, [canAnalyze, filePath, format, t, topN]);
+  }, [canAnalyze, filePath, format, selectedFile?.originalName, t, topN]);
 
   const cancelAnalysis = useCallback(() => {
     inflightRef.current = null;

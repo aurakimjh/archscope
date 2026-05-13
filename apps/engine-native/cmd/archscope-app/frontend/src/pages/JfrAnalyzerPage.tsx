@@ -62,6 +62,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { useI18n, type MessageKey } from "@/i18n/I18nProvider";
+import { addWorkspaceResult } from "@/state/analysisWorkspace";
 import { addEvidenceCard } from "@/state/evidenceBoard";
 
 // Wails port of apps/frontend/src/pages/JfrAnalyzerPage.tsx.
@@ -217,6 +218,11 @@ export function JfrAnalyzerPage(): JSX.Element {
       if (inflightRef.current !== token) return;
       inflightRef.current = null;
       setJfrResult(response);
+      addWorkspaceResult({
+        result: response,
+        title: `jfr_recording: ${selectedFile?.originalName ?? response.source_files?.[0] ?? ""}`,
+        sourceLabel: selectedFile?.originalName,
+      });
       setJfrState("success");
     } catch (caught) {
       if (inflightRef.current !== token) return;
@@ -225,7 +231,7 @@ export function JfrAnalyzerPage(): JSX.Element {
       setJfrError({ code: "ENGINE_FAILED", message });
       setJfrState("error");
     }
-  }, [canAnalyzeJfr, filePath, fromTime, mode, stateFilter, toTime, topN]);
+  }, [canAnalyzeJfr, filePath, fromTime, mode, selectedFile?.originalName, stateFilter, toTime, topN]);
 
   const cancelJfr = useCallback(() => {
     inflightRef.current = null;
@@ -284,6 +290,11 @@ export function JfrAnalyzerPage(): JSX.Element {
       if (nativeMemInflightRef.current !== token) return;
       nativeMemInflightRef.current = null;
       setNativeMemResult(response);
+      addWorkspaceResult({
+        result: response,
+        title: `native_memory: ${selectedFile?.originalName ?? response.source_files?.[0] ?? ""}`,
+        sourceLabel: selectedFile?.originalName,
+      });
       setNativeMemState("success");
     } catch (caught) {
       if (nativeMemInflightRef.current !== token) return;
@@ -292,7 +303,7 @@ export function JfrAnalyzerPage(): JSX.Element {
       setNativeMemError({ code: "ENGINE_FAILED", message });
       setNativeMemState("error");
     }
-  }, [canAnalyzeNativeMem, filePath, leakOnly, tailRatio]);
+  }, [canAnalyzeNativeMem, filePath, leakOnly, selectedFile?.originalName, tailRatio]);
 
   const cancelNativeMem = useCallback(() => {
     nativeMemInflightRef.current = null;

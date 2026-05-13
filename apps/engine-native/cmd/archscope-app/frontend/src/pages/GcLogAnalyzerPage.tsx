@@ -64,6 +64,7 @@ import {
   type HeapSeriesId,
 } from "@/charts/gcLogCharts";
 import { useI18n, type MessageKey } from "@/i18n/I18nProvider";
+import { addWorkspaceResult } from "@/state/analysisWorkspace";
 import { addEvidenceCard } from "@/state/evidenceBoard";
 import {
   formatMilliseconds,
@@ -252,7 +253,13 @@ export function GcLogAnalyzerPage(): JSX.Element {
       inflightRef.current = null;
       // The shared bridge returns AnalysisResult — narrow it to the
       // GcLog shape now that the engine guarantees `type === "gc_log"`.
-      setResult(response as unknown as GcLogAnalysisResult);
+      const gcResult = response as unknown as GcLogAnalysisResult;
+      setResult(gcResult);
+      addWorkspaceResult({
+        result: gcResult,
+        title: `gc_log: ${selectedFile?.originalName ?? gcResult.source_files?.[0] ?? ""}`,
+        sourceLabel: selectedFile?.originalName,
+      });
       setState("success");
       if (filePath) {
         recent.push({
@@ -268,7 +275,7 @@ export function GcLogAnalyzerPage(): JSX.Element {
       setError({ code: "ENGINE_FAILED", message });
       setState("error");
     }
-  }, [canAnalyze, filePath, maxLines, strict, t, topN, recent]);
+  }, [canAnalyze, filePath, maxLines, recent, selectedFile?.originalName, strict, t, topN]);
 
   const cancelAnalysis = useCallback(() => {
     // GcLog runs synchronously — no engine-side cancel hook. We just

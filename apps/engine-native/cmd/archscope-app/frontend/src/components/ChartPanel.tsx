@@ -10,7 +10,7 @@
 // 도입 예정이라 본 슬림 버전에는 포함하지 않습니다.
 // ─────────────────────────────────────────────────────────────────────
 import { echarts, type ECharts, type EChartsOption } from "@/charts/echartsCore";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, type ReactNode } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -32,6 +32,9 @@ export type ChartPanelProps = {
   className?: string;
   /** Container height, defaults to 320px to give axis labels room. */
   height?: number;
+  renderer?: "canvas" | "svg";
+  actions?: ReactNode;
+  onReady?: (chart: ECharts | null) => void;
 };
 
 export function ChartPanel({
@@ -40,6 +43,9 @@ export function ChartPanel({
   busy = false,
   className,
   height = 320,
+  renderer = "canvas",
+  actions,
+  onReady,
 }: ChartPanelProps): JSX.Element {
   const chartRef = useRef<HTMLDivElement | null>(null);
   const chartInstanceRef = useRef<ECharts | null>(null);
@@ -51,9 +57,10 @@ export function ChartPanel({
   useEffect(() => {
     if (!chartRef.current) return;
     const chart = echarts.init(chartRef.current, undefined, {
-      renderer: "canvas",
+      renderer,
     });
     chartInstanceRef.current = chart;
+    onReady?.(chart);
     chart.setOption(optimizedOption, { notMerge: true, lazyUpdate: true });
     let resizeFrame = 0;
     const ro = new ResizeObserver(() => {
@@ -68,9 +75,10 @@ export function ChartPanel({
       if (chartInstanceRef.current === chart) {
         chartInstanceRef.current = null;
       }
+      onReady?.(null);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [renderer]);
 
   useEffect(() => {
     chartInstanceRef.current?.setOption(optimizedOption, {
@@ -81,8 +89,9 @@ export function ChartPanel({
 
   return (
     <Card className={cn(className)} aria-busy={busy}>
-      <CardHeader className="pb-2">
+      <CardHeader className="flex flex-row items-center justify-between gap-3 pb-2">
         <CardTitle className="text-sm">{title}</CardTitle>
+        {actions}
       </CardHeader>
       <CardContent className="p-3">
         <div ref={chartRef} style={{ width: "100%", height }} />

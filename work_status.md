@@ -17,8 +17,8 @@ The previous long-form history was archived to
 - Release baseline: `v0.3.1` is the latest stable GitHub release. The
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
-- Current execution focus: next roadmap selection after the JFR/async-profiler
-  diagnostics and Evidence Board expansion pass landed.
+- Current execution focus: next roadmap selection after restoring selected
+  Wails workspace/export parity from the archived browser frontend.
 - Retired implementation: Python/FastAPI/browser sources are archived under
   `archive/python-engine` and `archive/web-frontend-python`.
 - Historical native POC module has been folded into `apps/engine-native`.
@@ -96,6 +96,11 @@ The previous long-form history was archived to
 - Expanded Evidence Board capture beyond Trace Import to Access Log findings,
   GC findings/alerts, JFR findings/profile rows, and native-memory call sites;
   added local HTML report and JSON evidence-pack export.
+- Restored the selected Wails workspace/export parity surfaces: Analysis
+  Workspace, Export Center, general report diff, and Chart Studio MVP.
+- Added a session Analysis Workspace that retains successful analyzer outputs
+  across page navigation and connects those results to Evidence Board,
+  Export Center, report diff, and Chart Studio workflows.
 
 ## Current Risk
 
@@ -158,15 +163,15 @@ filtered before analysis.
 
 ## Next Execution Queue
 
-1. Promote the next roadmap batch into active TO-DO after review. Candidate
-   tracks are trace import compatibility, Incident Timeline, SLO/Golden
-   Signals, and unified Service Flow.
-2. Continue trace-import compatibility after the file-first MVP by choosing the
+1. Continue trace-import compatibility after the file-first MVP by choosing the
    Jaeger local export or QueryService contract and validating SkyWalking
    schema/version handling.
+2. Promote the next roadmap batch after trace compatibility review. Candidate
+   tracks remain Incident Timeline, SLO/Golden Signals, and unified Service
+   Flow.
 3. Keep release verification healthy before the next 0.3.x cut by repeating
-   Windows GUI smoke, macOS signing/notarization validation, and frontend bundle
-   budget checks.
+   Windows GUI smoke, macOS signing/notarization validation, and frontend
+   bundle budget checks.
 
 ## Active TO-DO
 
@@ -182,6 +187,10 @@ filtered before analysis.
 | T-421 | P1 | [x] | Add async-profiler-oriented JFR stack analysis by aggregating `stackTrace.frames` from sample events into top methods, top packages, top threads, and call-tree/flamegraph-ready rows. | JFR JSON parser, profiler flamegraph components | Completed 2026-05-13: async-profiler stack evidence tables and flamegraph-ready tree |
 | T-422 | P2 | [x] | Add JFR recording UX hints that detect sparse or mode-specific recordings, especially async-profiler JFR files with mostly `jdk.ExecutionSample`, `jdk.NativeMethodSample`, `jdk.ObjectAllocationSample`, or lock events. | T-421 preferred | Completed 2026-05-13: empty-filter, missing-stack, async-profiler-style, and sparse-stack hints |
 | T-423 | P2 | [x] | Expand Evidence Board capture beyond Trace Import and add report export around saved evidence cards. | T-417 | Completed 2026-05-13: non-trace evidence capture plus HTML/JSON evidence export |
+| T-424 | P1 | [x] | Restore a Wails Export Center page and menu entry using the existing `ExportJSON`, `ExportHTML`, `ExportPPTX`, `ExportCSV`, and `ExportCSVDir` engine bindings for full `AnalysisResult` exports. | Engine exporter bindings | Completed 2026-05-13: desktop Export Center for JSON/HTML/PPTX/CSV artifacts |
+| T-425 | P1 | [x] | Add an Analysis Workspace / Recent Results surface that stores successful analyzer results across page navigation and lets users send them to Evidence Board, Export Center, or comparison workflows. | T-424 preferred, current analyzer pages | Completed 2026-05-13: reusable session result registry and workspace UI |
+| T-426 | P2 | [x] | Add a general AnalysisResult comparison workflow around the existing `DiffReports` engine binding so non-profiler JSON results can be compared before/after or release-to-release. | T-425 preferred | Completed 2026-05-13: normalized AnalysisResult JSON comparison page |
+| T-427 | P2 | [x] | Reintroduce a focused Chart Studio MVP for Wails with chart template selection, analyzer-result preview, and PNG/SVG/CSV-style chart export before deeper custom chart editing. | T-425 preferred, chart/export foundation | Completed 2026-05-13: report-ready chart preview/export workflow |
 
 ## Verification Notes
 
@@ -280,6 +289,10 @@ filtered before analysis.
   expansion: `npm run build`. Startup shell chunk is 156.78 KB raw / 50.91 KB
   gzip; the lazy shared ECharts runtime remains 668.49 KB raw / 221.26 KB gzip.
 - 2026-05-13 `git diff --check` passed after the T-420 through T-423 changes.
+- 2026-05-13 Wails frontend verification passed after T-424 through T-427:
+  `npm run build`. Startup shell chunk is 159.76 KB raw / 51.58 KB gzip; the
+  lazy shared ECharts runtime is 689.89 KB raw / 229.49 KB gzip and remains
+  under the documented 700 KB chart-runtime budget.
 
 ## Decisions
 

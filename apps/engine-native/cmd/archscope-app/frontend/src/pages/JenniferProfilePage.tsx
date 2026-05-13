@@ -69,6 +69,7 @@ import {
   TabsTrigger,
 } from "../components/ui/tabs";
 import { useI18n } from "../i18n/I18nProvider";
+import { addWorkspaceResult } from "../state/analysisWorkspace";
 
 // MSA event-category segments — these match JenniferEventType values
 // that the backend classifier accepts via EventCategoryPatterns.
@@ -1469,7 +1470,13 @@ export function JenniferProfilePage(): JSX.Element {
         customAnalysisRules:
           activeCustomRules.length > 0 ? activeCustomRules : undefined,
       });
-      setResult(compactJenniferResult(res));
+      const compactedResult = compactJenniferResult(res);
+      setResult(compactedResult);
+      addWorkspaceResult({
+        result: compactedResult,
+        title: `jennifer_profile: ${selected[0]?.originalName ?? compactedResult.source_files?.[0] ?? ""}`,
+        sourceLabel: selected[0]?.originalName,
+      });
       setSelectedGuid("");
       setSelectedSignatureHash("");
       setActiveTab("msa");

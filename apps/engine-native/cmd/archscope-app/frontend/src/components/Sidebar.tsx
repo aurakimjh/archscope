@@ -8,11 +8,13 @@
 import {
   Activity,
   AlertTriangle,
+  BarChart3,
   ChartNoAxesCombined,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
   Cpu,
+  Download,
   FileSearch,
   GitCompareArrows,
   Info,
@@ -32,6 +34,7 @@ import { AboutDialog } from "./AboutDialog";
 
 const STORAGE_KEY = "archscope.profiler.sidebar.collapsed";
 const TOOLS_STORAGE_KEY = "archscope.profiler.sidebar.tools.expanded";
+const WORKSPACE_STORAGE_KEY = "archscope.profiler.sidebar.workspace.expanded";
 
 export type NavKey =
   | "profiler"
@@ -43,6 +46,10 @@ export type NavKey =
   | "thread_dump"
   | "msa_profile"
   | "trace_import"
+  | "analysis_workspace"
+  | "export_center"
+  | "report_diff"
+  | "chart_studio"
   | "evidence_board"
   | "settings";
 
@@ -58,6 +65,10 @@ const NAV_ICONS: Record<NavKey, NavIcon> = {
   thread_dump: PanelsLeftBottom,
   msa_profile: Network,
   trace_import: Route,
+  analysis_workspace: ClipboardList,
+  export_center: Download,
+  report_diff: GitCompareArrows,
+  chart_studio: BarChart3,
   evidence_board: ClipboardList,
   settings: Settings,
 };
@@ -83,6 +94,13 @@ export function Sidebar({ active, onNavigate }: SidebarProps) {
       return true;
     }
   });
+  const [workspaceExpanded, setWorkspaceExpanded] = useState<boolean>(() => {
+    try {
+      return window.localStorage.getItem(WORKSPACE_STORAGE_KEY) !== "0";
+    } catch {
+      return true;
+    }
+  });
   const [aboutOpen, setAboutOpen] = useState(false);
 
   useEffect(() => {
@@ -101,6 +119,17 @@ export function Sidebar({ active, onNavigate }: SidebarProps) {
     }
   }, [toolsExpanded]);
 
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(
+        WORKSPACE_STORAGE_KEY,
+        workspaceExpanded ? "1" : "0",
+      );
+    } catch {
+      // ignore
+    }
+  }, [workspaceExpanded]);
+
   const analysisItems: { key: NavKey; label: string }[] = [
     { key: "profiler", label: t("navProfiler") },
     { key: "diff", label: t("navDiff") },
@@ -111,6 +140,12 @@ export function Sidebar({ active, onNavigate }: SidebarProps) {
     { key: "thread_dump", label: t("navThreadDump") },
     { key: "msa_profile", label: t("navMsaProfile") },
     { key: "trace_import", label: t("navTraceImport") },
+  ];
+  const workspaceItems: { key: NavKey; label: string }[] = [
+    { key: "analysis_workspace", label: t("navAnalysisWorkspace") },
+    { key: "export_center", label: t("navExportCenter") },
+    { key: "report_diff", label: t("navReportDiff") },
+    { key: "chart_studio", label: t("navChartStudio") },
     { key: "evidence_board", label: t("navEvidenceBoard") },
   ];
   const topLevelItems: { key: NavKey; label: string }[] = [
@@ -153,26 +188,41 @@ export function Sidebar({ active, onNavigate }: SidebarProps) {
           )}
         </button>
         {toolsExpanded && (
-          <div className="nav-group-items">
-            {analysisItems.map((item) => {
-              const Icon = NAV_ICONS[item.key];
-              return (
-                <button
-                  key={item.key}
-                  type="button"
-                  className={item.key === active ? "nav-item active" : "nav-item"}
-                  onClick={() => onNavigate(item.key)}
-                  aria-current={item.key === active ? "page" : undefined}
-                  title={collapsed ? item.label : undefined}
-                >
-                  <span className="nav-icon" aria-hidden="true">
-                    <Icon className="nav-lucide" />
-                  </span>
-                  {!collapsed && <span className="nav-label">{item.label}</span>}
-                </button>
-              );
-            })}
-          </div>
+          <NavGroupItems
+            active={active}
+            collapsed={collapsed}
+            items={analysisItems}
+            onNavigate={onNavigate}
+          />
+        )}
+        <button
+          type="button"
+          className="nav-group-toggle"
+          onClick={() => setWorkspaceExpanded((value) => !value)}
+          aria-expanded={workspaceExpanded}
+          title={collapsed ? t("navWorkspaceTools") : undefined}
+        >
+          <span className="nav-icon nav-group-icon" aria-hidden="true">
+            <ClipboardList className="nav-lucide" />
+          </span>
+          {!collapsed && <span className="nav-label">{t("navWorkspaceTools")}</span>}
+          {!collapsed && (
+            <span className="nav-group-chevron" aria-hidden="true">
+              {workspaceExpanded ? (
+                <ChevronDown className="nav-lucide-sm" />
+              ) : (
+                <ChevronRight className="nav-lucide-sm" />
+              )}
+            </span>
+          )}
+        </button>
+        {workspaceExpanded && (
+          <NavGroupItems
+            active={active}
+            collapsed={collapsed}
+            items={workspaceItems}
+            onNavigate={onNavigate}
+          />
         )}
         <div className="nav-separator" />
         {topLevelItems.map((item) => {
@@ -223,5 +273,40 @@ export function Sidebar({ active, onNavigate }: SidebarProps) {
       </button>
       <AboutDialog open={aboutOpen} onClose={() => setAboutOpen(false)} />
     </aside>
+  );
+}
+
+function NavGroupItems({
+  active,
+  collapsed,
+  items,
+  onNavigate,
+}: {
+  active: NavKey;
+  collapsed: boolean;
+  items: { key: NavKey; label: string }[];
+  onNavigate: (key: NavKey) => void;
+}): JSX.Element {
+  return (
+    <div className="nav-group-items">
+      {items.map((item) => {
+        const Icon = NAV_ICONS[item.key];
+        return (
+          <button
+            key={item.key}
+            type="button"
+            className={item.key === active ? "nav-item active" : "nav-item"}
+            onClick={() => onNavigate(item.key)}
+            aria-current={item.key === active ? "page" : undefined}
+            title={collapsed ? item.label : undefined}
+          >
+            <span className="nav-icon" aria-hidden="true">
+              <Icon className="nav-lucide" />
+            </span>
+            {!collapsed && <span className="nav-label">{item.label}</span>}
+          </button>
+        );
+      })}
+    </div>
   );
 }

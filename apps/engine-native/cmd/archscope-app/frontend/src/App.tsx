@@ -40,6 +40,26 @@ const ProfilerAnalyzerPage = lazy(() =>
 const DiffPage = lazy(() =>
   import("./pages/DiffPage").then(({ DiffPage }) => ({ default: DiffPage })),
 );
+const AnalysisWorkspacePage = lazy(() =>
+  import("./pages/AnalysisWorkspacePage").then(({ AnalysisWorkspacePage }) => ({
+    default: AnalysisWorkspacePage,
+  })),
+);
+const ExportCenterPage = lazy(() =>
+  import("./pages/ExportCenterPage").then(({ ExportCenterPage }) => ({
+    default: ExportCenterPage,
+  })),
+);
+const ReportDiffPage = lazy(() =>
+  import("./pages/ReportDiffPage").then(({ ReportDiffPage }) => ({
+    default: ReportDiffPage,
+  })),
+);
+const ChartStudioPage = lazy(() =>
+  import("./pages/ChartStudioPage").then(({ ChartStudioPage }) => ({
+    default: ChartStudioPage,
+  })),
+);
 const AccessLogAnalyzerPage = lazy(() =>
   import("./pages/AccessLogAnalyzerPage").then(({ AccessLogAnalyzerPage }) => ({
     default: AccessLogAnalyzerPage,
@@ -157,6 +177,10 @@ function App() {
             {active === "thread_dump" && <ThreadDumpAnalyzerPage />}
             {active === "msa_profile" && <JenniferProfilePage />}
             {active === "trace_import" && <TraceImportPage />}
+            {active === "analysis_workspace" && <AnalysisWorkspacePage />}
+            {active === "export_center" && <ExportCenterPage />}
+            {active === "report_diff" && <ReportDiffPage />}
+            {active === "chart_studio" && <ChartStudioPage />}
             {active === "evidence_board" && <EvidenceBoardPage />}
             {active === "settings" && <SettingsPage />}
           </Suspense>

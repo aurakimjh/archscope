@@ -1647,6 +1647,134 @@ table th.sortable-header.sort-desc::after {
   font-size: 13px;
 }
 
+/* Workspace / Export Center / Chart Studio */
+.workspace-header,
+.workspace-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.workspace-header h2 {
+  margin-bottom: 4px;
+}
+
+.workspace-result-list {
+  display: grid;
+  gap: 12px;
+}
+
+.workspace-result-card.active {
+  border-color: rgba(99, 102, 241, 0.55);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.workspace-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-size: 13px;
+}
+
+.workspace-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.workspace-meta-grid {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.7fr) minmax(150px, 0.9fr) minmax(180px, 1.4fr);
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.workspace-meta-grid span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-summary-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 11px;
+}
+
+.workspace-summary-chips span {
+  max-width: 100%;
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  background: var(--bg-soft);
+  color: var(--text-muted);
+  padding: 4px 7px;
+  overflow-wrap: anywhere;
+}
+
+.workspace-summary-chips strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.workspace-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.workspace-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.workspace-field-wide {
+  grid-column: 1 / -1;
+}
+
+.workspace-field select,
+.workspace-field input {
+  min-height: 36px;
+}
+
+.workspace-field select {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-elev);
+  color: var(--text);
+  padding: 0 10px;
+  font: inherit;
+}
+
+.workspace-path-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+
+.workspace-run-button {
+  align-self: end;
+}
+
+@media (max-width: 900px) {
+  .workspace-form-grid,
+  .workspace-meta-grid,
+  .workspace-path-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Diff page */
 .diff-form {
   display: flex;

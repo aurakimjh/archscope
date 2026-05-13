@@ -105,6 +105,7 @@ import {
 } from "@/components/ui/tabs";
 import { useI18n, type MessageKey } from "@/i18n/I18nProvider";
 import { cn } from "@/lib/utils";
+import { addWorkspaceResult } from "@/state/analysisWorkspace";
 import { formatNumber } from "@/utils/formatters";
 
 // Wails port of apps/frontend/src/pages/ThreadDumpAnalyzerPage.tsx.
@@ -188,6 +189,11 @@ export function ThreadDumpAnalyzerPage(): JSX.Element {
       if (!data || data.taskId !== taskRef.current) return;
       taskRef.current = null;
       setResult(data.result as unknown as AnyResult);
+      addWorkspaceResult({
+        result: data.result,
+        title: `${data.result.type}: ${data.result.source_files?.[0] ?? ""}`,
+        sourceLabel: data.result.source_files?.[0],
+      });
       setState("success");
     });
     const offError = Events.On("engine:error", (event: unknown) => {
@@ -318,7 +324,13 @@ export function ThreadDumpAnalyzerPage(): JSX.Element {
         });
         if (inflightSyncRef.current !== token) return;
         inflightSyncRef.current = null;
-        setResult(response as unknown as ThreadDumpSingleResult);
+        const singleResult = response as unknown as ThreadDumpSingleResult;
+        setResult(singleResult);
+        addWorkspaceResult({
+          result: singleResult,
+          title: `thread_dump: ${singleFile.originalName}`,
+          sourceLabel: singleFile.originalName,
+        });
         setState("success");
       } catch (caught) {
         if (inflightSyncRef.current !== token) return;

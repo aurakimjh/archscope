@@ -72,6 +72,10 @@ import { RecentFilesPanel } from "../components/RecentFilesPanel";
 import { useRecentFiles } from "../hooks/useRecentFiles";
 import { useShortcuts } from "../hooks/useShortcuts";
 import { useI18n } from "../i18n/I18nProvider";
+import {
+  addWorkspaceResult,
+  type WorkspaceAnalysisResult,
+} from "../state/analysisWorkspace";
 import { loadDefaults } from "../state/defaults";
 
 type ProfileFormat =
@@ -566,6 +570,11 @@ export function ProfilerAnalyzerPage(): JSX.Element {
       if (!data || data.taskId !== activeTaskRef.current) return;
       activeTaskRef.current = null;
       setResult(data.result);
+      addWorkspaceResult({
+        result: data.result as unknown as WorkspaceAnalysisResult,
+        title: `profiler: ${selected?.originalName ?? data.result?.source_files?.[0] ?? ""}`,
+        sourceLabel: selected?.originalName,
+      });
       setActiveTab("summary");
       setAnalyzing(false);
       if (path) {

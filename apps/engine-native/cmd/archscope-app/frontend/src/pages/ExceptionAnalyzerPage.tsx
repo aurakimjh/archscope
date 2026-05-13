@@ -56,6 +56,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { useI18n, type MessageKey } from "@/i18n/I18nProvider";
+import { addWorkspaceResult } from "@/state/analysisWorkspace";
 import { formatNumber } from "@/utils/formatters";
 
 // Wails port of apps/frontend/src/pages/ExceptionAnalyzerPage.tsx
@@ -162,6 +163,11 @@ export function ExceptionAnalyzerPage(): JSX.Element {
       if (inflightRef.current !== token) return;
       inflightRef.current = null;
       setResult(response);
+      addWorkspaceResult({
+        result: response,
+        title: `exception_stack: ${selectedFile?.originalName ?? response.source_files?.[0] ?? ""}`,
+        sourceLabel: selectedFile?.originalName,
+      });
       setState("success");
       if (filePath) {
         recent.push({
@@ -177,7 +183,7 @@ export function ExceptionAnalyzerPage(): JSX.Element {
       setError({ code: "ENGINE_FAILED", message });
       setState("error");
     }
-  }, [canAnalyze, filePath, recent, t, topN]);
+  }, [canAnalyze, filePath, recent, selectedFile?.originalName, t, topN]);
 
   const handleRecentSelect = useCallback(
     (entry: { path: string; name?: string; meta?: Record<string, unknown> }) => {

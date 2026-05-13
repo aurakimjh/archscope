@@ -58,6 +58,7 @@ import {
   type ChartLabels,
 } from "@/charts/accessLogCharts";
 import { useI18n, type MessageKey } from "@/i18n/I18nProvider";
+import { addWorkspaceResult } from "@/state/analysisWorkspace";
 import { addEvidenceCard } from "@/state/evidenceBoard";
 import {
   formatMilliseconds,
@@ -165,6 +166,11 @@ export function AccessLogAnalyzerPage(): JSX.Element {
       if (inflightRef.current !== token) return;
       inflightRef.current = null;
       setResult(response);
+      addWorkspaceResult({
+        result: response,
+        title: `access_log: ${selectedFile?.originalName ?? response.source_files?.[0] ?? ""}`,
+        sourceLabel: selectedFile?.originalName,
+      });
       setState("success");
     } catch (caught) {
       if (inflightRef.current !== token) return;
@@ -173,7 +179,7 @@ export function AccessLogAnalyzerPage(): JSX.Element {
       setError({ code: "ENGINE_FAILED", message });
       setState("error");
     }
-  }, [canAnalyze, endTime, filePath, format, maxLines, startTime, t]);
+  }, [canAnalyze, endTime, filePath, format, maxLines, selectedFile?.originalName, startTime, t]);
 
   const cancelAnalysis = useCallback(() => {
     // The synchronous AccessLog analyzer doesn't expose a cancel hook
