@@ -450,6 +450,118 @@ export type GcLogAnalysisResult = AnalysisResult<
 >;
 
 // ──────────────────────────────────────────────────────────────────
+// External trace import typed shapes
+// ──────────────────────────────────────────────────────────────────
+
+export type TraceImportSummary = {
+  source_format: string;
+  total_spans: number;
+  unique_traces: number;
+  unique_services: number;
+  unique_dependencies: number;
+  root_spans: number;
+  error_spans: number;
+  missing_parent_spans: number;
+  clock_skew_suspected_spans?: number;
+  p95_trace_duration_ms?: number;
+  max_trace_duration_ms?: number;
+  unbalanced_service_count?: number;
+  high_error_service_edges?: number;
+};
+
+export type TraceImportPoint = {
+  [key: string]: string | number | boolean | string[] | null | undefined;
+};
+
+export type TraceImportSpanRow = {
+  trace_id: string;
+  span_id: string;
+  parent_span_id?: string | null;
+  name: string;
+  service_name?: string | null;
+  remote_service?: string | null;
+  kind: string;
+  start_unix_nanos: number;
+  duration_ms: number;
+  status_code?: string | null;
+  error: boolean;
+  source_format: string;
+};
+
+export type TraceImportTraceRow = {
+  trace_id: string;
+  span_count: number;
+  service_count: number;
+  services: string[];
+  duration_ms: number;
+  total_span_ms: number;
+  error_count: number;
+  slowest_span: string;
+  slowest_span_ms: number;
+};
+
+export type TraceImportDependencyRow = {
+  caller: string;
+  callee: string;
+  call_count: number;
+  total_duration_ms: number;
+  avg_duration_ms: number;
+  error_count: number;
+  error_rate?: number;
+};
+
+export type TraceImportServiceRow = {
+  service: string;
+  span_count: number;
+  total_duration_ms: number;
+  avg_duration_ms: number;
+  error_count: number;
+};
+
+export type TraceImportCriticalPathRow = {
+  trace_id: string;
+  critical_path_ms: number;
+  span_count: number;
+  services: string[];
+  span_names: string[];
+};
+
+export type TraceImportSeries = {
+  service_distribution: TraceImportPoint[];
+  kind_distribution: TraceImportPoint[];
+  top_traces: TraceImportPoint[];
+  top_slow_spans: TraceImportPoint[];
+};
+
+export type TraceImportTables = {
+  spans: TraceImportSpanRow[];
+  traces: TraceImportTraceRow[];
+  service_dependencies: TraceImportDependencyRow[];
+  service_summary: TraceImportServiceRow[];
+  critical_paths?: TraceImportCriticalPathRow[];
+};
+
+export type TraceImportMetadata = JvmAnalyzerMetadata & {
+  analysis_options?: {
+    format?: string;
+    top_n?: number;
+  };
+  trace_import?: {
+    source_format?: string;
+    canonical_model?: string[];
+  };
+};
+
+export type TraceImportAnalysisResult = AnalysisResult<
+  "trace_import",
+  TraceImportSummary,
+  TraceImportSeries,
+  TraceImportTables,
+  AnalysisObject,
+  TraceImportMetadata
+>;
+
+// ──────────────────────────────────────────────────────────────────
 // JFR typed shapes (T-351'-Phase-2 — JFR analyzer + native memory).
 //
 // The Go engine emits two AnalysisResults for the same .jfr/.json
@@ -1034,6 +1146,12 @@ export type RuntimeRequest = {
 
 export type OtelRequest = {
   path: string;
+  topN?: number;
+};
+
+export type TraceImportRequest = {
+  path: string;
+  format?: string;
   topN?: number;
 };
 

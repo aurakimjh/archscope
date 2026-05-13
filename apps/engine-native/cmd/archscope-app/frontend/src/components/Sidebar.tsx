@@ -18,8 +18,10 @@ import {
   Info,
   Network,
   PanelsLeftBottom,
+  Route,
   Settings,
   Sparkles,
+  ClipboardList,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { ComponentType } from "react";
@@ -40,6 +42,8 @@ export type NavKey =
   | "exception"
   | "thread_dump"
   | "msa_profile"
+  | "trace_import"
+  | "evidence_board"
   | "settings";
 
 type NavIcon = ComponentType<{ className?: string }>;
@@ -53,6 +57,8 @@ const NAV_ICONS: Record<NavKey, NavIcon> = {
   exception: AlertTriangle,
   thread_dump: PanelsLeftBottom,
   msa_profile: Network,
+  trace_import: Route,
+  evidence_board: ClipboardList,
   settings: Settings,
 };
 
@@ -104,6 +110,8 @@ export function Sidebar({ active, onNavigate }: SidebarProps) {
     { key: "exception", label: t("navException") },
     { key: "thread_dump", label: t("navThreadDump") },
     { key: "msa_profile", label: t("navMsaProfile") },
+    { key: "trace_import", label: t("navTraceImport") },
+    { key: "evidence_board", label: t("navEvidenceBoard") },
   ];
   const topLevelItems: { key: NavKey; label: string }[] = [
     { key: "settings", label: t("navSettings") },

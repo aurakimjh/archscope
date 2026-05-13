@@ -38,6 +38,8 @@ import { ExceptionAnalyzerPage } from "./pages/ExceptionAnalyzerPage";
 import { ThreadDumpAnalyzerPage } from "./pages/ThreadDumpAnalyzerPage";
 import { ProfilerAnalyzerPage } from "./pages/ProfilerAnalyzerPage";
 import { JenniferProfilePage } from "./pages/JenniferProfilePage";
+import { TraceImportPage } from "./pages/TraceImportPage";
+import { EvidenceBoardPage } from "./pages/EvidenceBoardPage";
 
 const THEME_OPTIONS: Theme[] = ["light", "dark", "system"];
 
@@ -110,6 +112,8 @@ function App() {
           {active === "exception" && <ExceptionAnalyzerPage />}
           {active === "thread_dump" && <ThreadDumpAnalyzerPage />}
           {active === "msa_profile" && <JenniferProfilePage />}
+          {active === "trace_import" && <TraceImportPage />}
+          {active === "evidence_board" && <EvidenceBoardPage />}
           {active === "settings" && <SettingsPage />}
         </div>
       </div>

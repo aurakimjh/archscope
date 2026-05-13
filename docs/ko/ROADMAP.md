@@ -1,6 +1,6 @@
 # 로드맵
 
-Last updated: 2026-05-11
+Last updated: 2026-05-13
 
 이 문서는 현재 Go/Wails 기반 ArchScope 라인의 통합 제품 로드맵입니다. 기존
 phase 로드맵, 제품 확장 메모, APM import matrix, AI 보조 해석 설계를 한곳에
@@ -84,7 +84,9 @@ finding을 확인하고, 근거를 수집하고, 고객 데이터 외부 전송 
   distribution, `SLOW_URL_P95`, `ERROR_BURST_DETECTED`를 포함한 access log
   개편.
 - JVM info card, worker/CPU mismatch warning, toggleable heap series, pause
-  overlay, rectangle zoom, point decimation을 포함한 GC log 심화.
+  overlay, rectangle zoom, point decimation을 포함한 GC log 심화. 현재 Go
+  analyzer는 young/old/metaspace series, OOM alert, long-pause event finding을
+  함께 낸다.
 - Jennifer MSA service-call network-time summary와 topology placement 추가.
   내부 single-digit ms 호출과 gateway/external double-digit ms 호출이 시각적으로
   분리된다.
@@ -92,12 +94,26 @@ finding을 확인하고, 근거를 수집하고, 고객 데이터 외부 전송 
 ### Trace Import MVP
 
 - 외부 trace import용 canonical trace/span model.
-- OTLP JSON-file parser와 Zipkin v2 JSON parser.
+- OTLP JSON-file parser, Zipkin v2 JSON parser, Elastic APM Elasticsearch
+  `_search` response parser, Elastic APM source-only NDJSON parser.
 - Summary, services, traces, spans, dependencies, service summary를 포함한
-  `trace_import` analyzer result.
+  `trace_import` analyzer result. 현재는 critical path와 deterministic
+  finding도 함께 낸다.
+- Summary card, service dependency/service latency chart, trace/span table,
+  critical path row, parser diagnostics, Evidence Board 추가 action을 포함한
+  Wails Trace Import page.
 - CLI command:
-  `archscope-engine trace import --in <file> --format auto|otlp-json|zipkin-v2-json`.
+  `archscope-engine trace import --in <file> --format auto|otlp-json|zipkin-v2-json|elastic-apm-search-json|elastic-apm-source-ndjson`.
 - `examples/traces` 아래 sample trace fixture.
+
+### Evidence Board Skeleton
+
+- Analyzer finding, chart selection, table row, parser diagnostic, source
+  metadata, comment, hypothesis, impact, recommendation을 담는 reusable local
+  evidence-card model.
+- Browser local storage 기반의 첫 desktop Evidence Board page.
+- Trace Import 화면에서 finding, service edge, trace, source metadata를
+  Evidence Board에 추가할 수 있다.
 
 ### 증거 기반 AI 보조 해석
 
@@ -112,38 +128,31 @@ finding을 확인하고, 근거를 수집하고, 고객 데이터 외부 전송 
 
 이 항목들은 `work_status.md`의 현재 실행 큐와 계속 맞춰야 한다.
 
-1. `trace_import`를 Wails UI에 연결한다.
-   - Summary card, service dependency table/chart, trace table, span table,
-     findings panel을 추가한다.
-   - UI 위치를 `Service Flow > Trace / OTel`로 둘지, 기존 OTel analyzer 화면
-     확장으로 둘지 결정한다.
-
-2. Elastic APM file import를 구현한다.
-   - Elasticsearch `_search` response JSON을 지원한다.
-   - `hits.hits[*]._source` 기반 source-only NDJSON export를 지원한다.
-   - Elastic transaction과 span을 canonical trace model로 정규화한다.
-
-3. Trace critical path와 richer finding을 추가한다.
-   - 가장 긴 parent-child span chain 기준 critical path.
-   - External wait와 service-boundary latency 분리.
-   - Finding: `SLOW_TRACE_P95`, `SLOW_SPAN_DOMINATES_TRACE`,
-     `ERROR_SPAN_IN_TRACE`, `MISSING_PARENT_SPAN`,
-     `CLOCK_SKEW_SUSPECTED`, `UNBALANCED_SERVICE_LATENCY`,
-     `HIGH_ERROR_SERVICE_EDGE`.
-
-4. Evidence Board skeleton을 만든다.
-   - Analyzer finding, chart selection, table row, parser diagnostic, source
-     metadata, comment, hypothesis, impact, recommendation을 담는 reusable
-     evidence card model을 정의한다.
-   - 분석 화면 공통 "Add to Evidence" action을 추가한다.
-   - Evidence card 기반 HTML/ZIP export를 시작한다.
-
-5. Release hardening을 마무리한다.
+1. Release hardening을 마무리한다.
    - Windows host 또는 VM에서 직접 GUI launch smoke test를 수행한다.
    - Signing/notarization 작업을 계속한다.
    - 필요한 frontend bundle splitting을 진행한다.
    - 실제 로그가 현재 bounded-memory envelope를 넘으면 GC event streaming을
      더 깊게 검토한다.
+
+2. Async-profiler JFR 처리 수준을 높인다.
+   - JDK `jfr` CLI는 `.jfr`를 JSON으로 변환하는 boundary로 유지한다.
+   - Async-profiler JFR recording에서 ArchScope-native stack/sample aggregation을
+     추가한다.
+   - Sparse recording 또는 capture-mode별 빈 결과를 설명하는 UX hint를
+     추가한다.
+
+3. Evidence Board를 확장한다.
+   - Trace가 아닌 analyzer에도 공통 "Add to Evidence" action을 추가한다.
+   - 저장된 evidence card 기반 report-ready HTML/ZIP export를 만든다.
+   - Evidence-reference integrity check가 통과한 뒤에만 AI interpretation을
+     board와 연결한다.
+
+4. File-first MVP 이후 trace import compatibility를 계속 넓힌다.
+   - 안정적인 local export 또는 QueryService contract를 정한 뒤 Jaeger
+     compatibility import를 추가한다.
+   - Schema/version validation 이후 SkyWalking GraphQL response import를
+     조사한다.
 
 ## 중기 로드맵: Evidence Studio
 
@@ -242,8 +251,8 @@ finding을 확인하고, 근거를 수집하고, 고객 데이터 외부 전송 
 
 1. OpenTelemetry OTLP JSON file - trace import MVP 완료.
 2. Zipkin v2 JSON - trace import MVP 완료.
-3. Elastic APM Elasticsearch `_search` response와 source-only NDJSON - 다음
-   구현 대상.
+3. Elastic APM Elasticsearch `_search` response와 source-only NDJSON - trace
+   import MVP 완료.
 4. Jaeger compatibility import - P1/P2. 가능하면 UI-internal HTTP JSON보다
    stable QueryService 또는 OTLP 경로를 우선한다.
 5. Apache SkyWalking GraphQL response import - schema/version validation 이후

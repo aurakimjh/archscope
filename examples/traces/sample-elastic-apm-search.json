@@ -1,0 +1,35 @@
+{
+  "hits": {
+    "hits": [
+      {
+        "_source": {
+          "@timestamp": "2026-05-13T00:00:00.000Z",
+          "trace": { "id": "elastic-trace-1" },
+          "transaction": { "id": "tx-1", "name": "POST /checkout", "type": "request", "duration": { "us": 1200000 }, "result": "HTTP 2xx" },
+          "service": { "name": "checkout-service" },
+          "event": { "outcome": "success" }
+        }
+      },
+      {
+        "_source": {
+          "@timestamp": "2026-05-13T00:00:00.100Z",
+          "trace": { "id": "elastic-trace-1" },
+          "parent": { "id": "tx-1" },
+          "span": { "id": "span-1", "name": "POST inventory", "type": "external", "duration": { "us": 900000 }, "destination": { "service": { "resource": "inventory-service" } } },
+          "service": { "name": "checkout-service" },
+          "event": { "outcome": "failure" }
+        }
+      },
+      {
+        "_source": {
+          "@timestamp": "2026-05-13T00:00:00.180Z",
+          "trace": { "id": "elastic-trace-1" },
+          "parent": { "id": "span-1" },
+          "span": { "id": "span-2", "name": "inventory query", "type": "db", "duration": { "us": 500000 } },
+          "service": { "name": "inventory-service" },
+          "event": { "outcome": "success" }
+        }
+      }
+    ]
+  }
+}

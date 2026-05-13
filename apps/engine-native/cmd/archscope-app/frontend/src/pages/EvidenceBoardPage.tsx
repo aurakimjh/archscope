@@ -1,0 +1,106 @@
+import { Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useI18n } from "@/i18n/I18nProvider";
+import {
+  clearEvidenceCards,
+  readEvidenceCards,
+  removeEvidenceCard,
+  type EvidenceCard,
+} from "@/state/evidenceBoard";
+
+export function EvidenceBoardPage(): JSX.Element {
+  const { t } = useI18n();
+  const [cards, setCards] = useState<EvidenceCard[]>(() => readEvidenceCards());
+
+  useEffect(() => {
+    const refresh = () => setCards(readEvidenceCards());
+    window.addEventListener("archscope:evidence-board-updated", refresh);
+    return () => window.removeEventListener("archscope:evidence-board-updated", refresh);
+  }, []);
+
+  return (
+    <main className="mx-auto max-w-6xl px-6 py-6">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-semibold">{t("navEvidenceBoard")}</h1>
+          <p className="text-sm text-muted-foreground">
+            {cards.length.toLocaleString()} {t("evidenceCards")}
+          </p>
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          disabled={cards.length === 0}
+          onClick={() => {
+            clearEvidenceCards();
+            setCards([]);
+          }}
+        >
+          <Trash2 className="mr-2 h-4 w-4" />
+          {t("evidenceClear")}
+        </Button>
+      </div>
+
+      {cards.length === 0 ? (
+        <Card>
+          <CardContent className="px-4 py-6 text-sm text-muted-foreground">
+            {t("evidenceEmpty")}
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-3">
+          {cards.map((card) => (
+            <EvidenceCardItem
+              key={card.id}
+              card={card}
+              onRemove={() => setCards(removeEvidenceCard(card.id))}
+            />
+          ))}
+        </div>
+      )}
+    </main>
+  );
+}
+
+function EvidenceCardItem({
+  card,
+  onRemove,
+}: {
+  card: EvidenceCard;
+  onRemove: () => void;
+}): JSX.Element {
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <CardTitle className="text-sm">{card.title}</CardTitle>
+            <div className="mt-1 flex flex-wrap gap-1.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+              <span className="rounded bg-muted px-1.5 py-0.5">{card.analyzer}</span>
+              <span className="rounded bg-muted px-1.5 py-0.5">{card.source_kind}</span>
+              {card.severity && (
+                <span className="rounded bg-muted px-1.5 py-0.5">{card.severity}</span>
+              )}
+            </div>
+          </div>
+          <Button type="button" variant="ghost" size="sm" onClick={onRemove}>
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-2 pt-0 text-xs">
+        {card.summary && <p className="leading-relaxed">{card.summary}</p>}
+        <div className="grid gap-1 text-muted-foreground sm:grid-cols-2">
+          <div>{card.source_file ?? "-"}</div>
+          <div>{card.source_ref ?? card.created_at}</div>
+        </div>
+        <pre className="max-h-40 overflow-auto rounded bg-muted/50 p-2 font-mono text-[11px]">
+          {JSON.stringify(card.payload, null, 2)}
+        </pre>
+      </CardContent>
+    </Card>
+  );
+}

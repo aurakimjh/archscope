@@ -1,6 +1,6 @@
 # Roadmap
 
-Last updated: 2026-05-11
+Last updated: 2026-05-13
 
 This document is the consolidated product roadmap for the active Go/Wails
 ArchScope line. It pulls together the previous phase roadmap, the product
@@ -91,7 +91,8 @@ Guiding principles:
   `SLOW_URL_P95` and `ERROR_BURST_DETECTED`.
 - GC log deep-dive with JVM info cards, worker/CPU mismatch warnings,
   toggleable heap series, pause overlay, rectangle zoom, and point
-  decimation.
+  decimation. Young/old/metaspace series, OOM alerts, and long-pause event
+  findings are covered in the current Go analyzer.
 - Jennifer MSA service-call network-time summaries and topology placement so
   internal single-digit millisecond calls and gateway/external double-digit
   millisecond calls separate visually.
@@ -99,12 +100,25 @@ Guiding principles:
 ### Trace Import MVP
 
 - Canonical trace/span model for external trace imports.
-- OTLP JSON-file parser and Zipkin v2 JSON parser.
+- OTLP JSON-file parser, Zipkin v2 JSON parser, Elastic APM Elasticsearch
+  `_search` response parser, and Elastic APM source-only NDJSON parser.
 - `trace_import` analyzer result with summary, services, traces, spans,
-  dependencies, and service summaries.
+  dependencies, service summaries, critical paths, and deterministic findings.
+- Wails Trace Import page with summary cards, service dependency and service
+  latency charts, trace/span tables, critical path rows, parser diagnostics,
+  and finding capture into the Evidence Board.
 - CLI command:
-  `archscope-engine trace import --in <file> --format auto|otlp-json|zipkin-v2-json`.
+  `archscope-engine trace import --in <file> --format auto|otlp-json|zipkin-v2-json|elastic-apm-search-json|elastic-apm-source-ndjson`.
 - Sample trace fixtures under `examples/traces`.
+
+### Evidence Board Skeleton
+
+- Reusable local evidence-card model for analyzer findings, chart selections,
+  table rows, parser diagnostics, source metadata, comments, hypotheses,
+  impact, and recommendations.
+- Initial desktop Evidence Board page backed by local browser storage.
+- Trace Import can add findings, service edges, traces, and source metadata to
+  the Evidence Board.
 
 ### Evidence-Bound AI Interpretation
 
@@ -119,38 +133,30 @@ Guiding principles:
 
 These items should stay aligned with `work_status.md`.
 
-1. Connect `trace_import` to the Wails UI.
-   - Add summary cards, service dependency table/chart, trace table, span
-     table, and findings panel.
-   - Decide whether the UI belongs under `Service Flow > Trace / OTel` or as
-     an extension of the existing OTel analyzer view.
-
-2. Implement Elastic APM file import.
-   - Support Elasticsearch `_search` response JSON.
-   - Support source-only NDJSON exports based on `hits.hits[*]._source`.
-   - Normalize Elastic transactions and spans into the canonical trace model.
-
-3. Add trace critical-path and richer trace findings.
-   - Critical path through the longest parent-child span chain.
-   - External wait and service-boundary latency separation.
-   - Findings: `SLOW_TRACE_P95`, `SLOW_SPAN_DOMINATES_TRACE`,
-     `ERROR_SPAN_IN_TRACE`, `MISSING_PARENT_SPAN`,
-     `CLOCK_SKEW_SUSPECTED`, `UNBALANCED_SERVICE_LATENCY`, and
-     `HIGH_ERROR_SERVICE_EDGE`.
-
-4. Build the Evidence Board skeleton.
-   - Define reusable evidence cards for analyzer findings, chart selections,
-     table rows, parser diagnostics, source metadata, comments, hypotheses,
-     impact, and recommendations.
-   - Add a shared "Add to Evidence" action across analysis screens.
-   - Start HTML/ZIP export around evidence cards.
-
-5. Finish release hardening.
+1. Finish release hardening.
    - Run direct Windows GUI launch smoke tests on a Windows host or VM.
    - Continue signing/notarization work.
    - Split large frontend bundles where needed.
    - Revisit deeper GC event streaming if real-world inputs exceed the current
      bounded-memory envelope.
+
+2. Improve JFR handling for async-profiler recordings.
+   - Keep the JDK `jfr` CLI as the binary-to-JSON conversion boundary.
+   - Add ArchScope-native stack/sample aggregation for async-profiler JFR
+     recordings.
+   - Add UX hints for sparse or capture-mode-specific JFR recordings.
+
+3. Expand the Evidence Board.
+   - Add shared "Add to Evidence" actions across non-trace analyzers.
+   - Add report-ready HTML/ZIP export around saved evidence cards.
+   - Connect AI interpretation to the board only after evidence-reference
+     integrity checks pass.
+
+4. Continue trace-import compatibility after the file-first MVP.
+   - Add Jaeger compatibility import after choosing a stable local export or
+     QueryService contract.
+   - Investigate SkyWalking GraphQL response import after schema/version
+     validation.
 
 ## Mid-Term Roadmap: Evidence Studio
 
@@ -250,8 +256,8 @@ These items should stay aligned with `work_status.md`.
 
 1. OpenTelemetry OTLP JSON file - completed for trace import MVP.
 2. Zipkin v2 JSON - completed for trace import MVP.
-3. Elastic APM Elasticsearch `_search` response and source-only NDJSON - next
-   implementation target.
+3. Elastic APM Elasticsearch `_search` response and source-only NDJSON -
+   completed for trace import MVP.
 4. Jaeger compatibility import - P1/P2, prefer stable QueryService or OTLP
    paths over UI-internal HTTP JSON when possible.
 5. Apache SkyWalking GraphQL response import - P1/P2 feasibility item after

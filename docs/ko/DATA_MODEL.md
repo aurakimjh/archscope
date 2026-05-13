@@ -596,6 +596,71 @@ signature
 raw_block
 ```
 
+## Trace Import Result
+
+`type`: `trace_import`
+
+지원하는 local file format:
+
+- `otlp-json`
+- `zipkin-v2-json`
+- `elastic-apm-search-json`
+- `elastic-apm-source-ndjson`
+
+필수 `summary` fields:
+
+| Field | Type | 의미 |
+|---|---|---|
+| `source_format` | string | 감지되었거나 요청된 import format |
+| `total_spans` | integer | 파싱된 canonical span 수 |
+| `unique_traces` | integer | 고유 trace id 수 |
+| `unique_services` | integer | unknown을 제외한 service 수 |
+| `unique_dependencies` | integer | caller-to-callee service edge 수 |
+| `error_spans` | integer | error로 표시된 span 수 |
+| `missing_parent_spans` | integer | import에 parent가 없는 span 수 |
+| `clock_skew_suspected_spans` | integer | parent 시간 범위를 벗어난 child span 수 |
+| `p95_trace_duration_ms` | number | trace duration p95 |
+| `max_trace_duration_ms` | number | 가장 긴 trace duration |
+| `unbalanced_service_count` | integer | 전체 span latency를 지배하는 service 수 |
+| `high_error_service_edges` | integer | 오류율 threshold를 넘은 service edge 수 |
+
+주요 `tables` row:
+
+- `spans` — `{ trace_id, span_id, parent_span_id, name, service_name, remote_service, kind, start_unix_nanos, duration_ms, status_code, error, source_format }`
+- `traces` — `{ trace_id, span_count, service_count, services, duration_ms, total_span_ms, error_count, slowest_span, slowest_span_ms }`
+- `service_dependencies` — `{ caller, callee, call_count, total_duration_ms, avg_duration_ms, error_count, error_rate }`
+- `service_summary` — `{ service, span_count, total_duration_ms, avg_duration_ms, error_count }`
+- `critical_paths` — `{ trace_id, critical_path_ms, span_count, services, span_names }`
+
+현재 deterministic finding code는 `SLOW_TRACE_P95`,
+`TRACE_IMPORT_ERROR_SPANS`, `TRACE_IMPORT_MISSING_PARENT`,
+`CLOCK_SKEW_SUSPECTED`, `UNBALANCED_SERVICE_LATENCY`,
+`HIGH_ERROR_SERVICE_EDGE`, `TRACE_IMPORT_CROSS_SERVICE_TRACE`,
+`TRACE_IMPORT_SLOW_SPAN_DOMINATES_TRACE`를 포함한다.
+
+## Evidence Board Card
+
+첫 Evidence Board 구현은 persisted engine result가 아니라 local UI state다.
+Analyzer finding, chart selection, table row, parser diagnostic, source
+metadata를 이후 하나의 report pipeline에 묶기 위해 card field를 범용적으로
+둔다.
+
+```text
+id
+created_at
+source_kind
+analyzer
+title
+severity
+source_file
+source_ref
+payload
+comment
+hypothesis
+impact
+recommendation
+```
+
 ## AI Interpretation Contract
 
 AI interpretation은 `AnalysisResult`를 대체하지 않는다. Source result에 연결된 별도 `InterpretationResult`로 취급한다.
@@ -643,6 +708,8 @@ Canonical `evidence_ref` 문법:
 | `profiler` | `stack`, `frame`, `finding` |
 | `jfr` | `event` |
 | `otel` | `log`, `span`, `event` |
+| `trace_import` | `span`, `trace`, `service_edge`, `finding` |
+| `evidence_board` | `card` |
 | `timeline` | `event`, `correlation` |
 
 AI output은 표시 전에 runtime validation을 통과해야 한다. Validation은 non-empty reference, grammar 및 namespace 검사, source evidence registry 내 reference 존재 여부, confidence threshold, quote-to-source matching을 포함한다.

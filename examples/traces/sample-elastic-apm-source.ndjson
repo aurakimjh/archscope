@@ -1,0 +1,2 @@
+{"@timestamp":"2026-05-13T00:00:00.000Z","trace":{"id":"elastic-trace-2"},"transaction":{"id":"tx-2","name":"GET /orders","type":"request","duration":{"us":700000},"result":"HTTP 2xx"},"service":{"name":"order-service"},"event":{"outcome":"success"}}
+{"@timestamp":"2026-05-13T00:00:00.030Z","trace":{"id":"elastic-trace-2"},"parent":{"id":"tx-2"},"span":{"id":"span-3","name":"GET payment","type":"external","duration":{"us":300000},"destination":{"service":{"resource":"payment-service"}}},"service":{"name":"order-service"},"event":{"outcome":"success"}}

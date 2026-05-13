@@ -1,6 +1,6 @@
 // Package traceimport parses portable trace export files into a small
 // canonical span model. It intentionally starts with local-first formats:
-// OpenTelemetry OTLP JSON files and Zipkin v2 JSON.
+// OpenTelemetry OTLP JSON files, Zipkin v2 JSON, and Elastic APM JSON exports.
 package traceimport
 
 import (
@@ -13,19 +13,23 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/diagnostics"
 )
 
 const (
-	FormatAuto     = "auto"
-	FormatOTLPJSON = "otlp-json"
-	FormatZipkinV2 = "zipkin-v2-json"
+	FormatAuto                = "auto"
+	FormatOTLPJSON            = "otlp-json"
+	FormatZipkinV2            = "zipkin-v2-json"
+	FormatElasticSearchJSON   = "elastic-apm-search-json"
+	FormatElasticSourceNDJSON = "elastic-apm-source-ndjson"
 
 	ReasonInvalidJSON         = "INVALID_TRACE_JSON"
 	ReasonUnsupportedFormat   = "UNSUPPORTED_TRACE_FORMAT"
 	ReasonInvalidOTLPEnvelope = "INVALID_OTLP_JSON_ENVELOPE"
 	ReasonInvalidZipkinSpan   = "INVALID_ZIPKIN_V2_SPAN"
+	ReasonInvalidElasticEvent = "INVALID_ELASTIC_APM_EVENT"
 )
 
 type Options struct {
@@ -72,6 +76,10 @@ func ParseFile(path string, opts Options) (ParseResult, error) {
 		return parseOTLPJSONFile(path)
 	case FormatZipkinV2:
 		return parseZipkinV2File(path)
+	case FormatElasticSearchJSON:
+		return parseElasticSearchJSONFile(path)
+	case FormatElasticSourceNDJSON:
+		return parseElasticSourceNDJSONFile(path)
 	default:
 		diags := diagnostics.New("trace_import")
 		diags.SetSourceFile(path)
@@ -87,6 +95,17 @@ func detectFormat(path string) (string, error) {
 	}
 	switch v := first.(type) {
 	case map[string]any:
+		if hits, ok := v["hits"].(map[string]any); ok {
+			if _, ok := hits["hits"]; ok {
+				return FormatElasticSearchJSON, nil
+			}
+		}
+		if isElasticSource(v) {
+			return FormatElasticSourceNDJSON, nil
+		}
+		if source, ok := v["_source"].(map[string]any); ok && isElasticSource(source) {
+			return FormatElasticSourceNDJSON, nil
+		}
 		if hasAnyKey(v, "resourceSpans", "resource_spans") {
 			return FormatOTLPJSON, nil
 		}
@@ -212,6 +231,86 @@ func parseZipkinV2File(path string) (ParseResult, error) {
 		diags.AddSkipped(0, ReasonInvalidZipkinSpan, msg, "")
 	}
 	return ParseResult{Format: FormatZipkinV2, Spans: spans, Diagnostics: diags}, nil
+}
+
+func parseElasticSearchJSONFile(path string) (ParseResult, error) {
+	diags := diagnostics.New(FormatElasticSearchJSON)
+	diags.SetSourceFile(path)
+
+	f, err := os.Open(path)
+	if err != nil {
+		return ParseResult{}, err
+	}
+	defer f.Close()
+
+	dec := json.NewDecoder(f)
+	dec.UseNumber()
+	var payload any
+	if err := dec.Decode(&payload); err != nil {
+		diags.AddError(0, ReasonInvalidJSON, err.Error(), "")
+		return ParseResult{Format: FormatElasticSearchJSON, Diagnostics: diags}, err
+	}
+
+	sources := flattenElasticSearchSources(payload)
+	spans := make([]Span, 0, len(sources))
+	diags.TotalLines = 1
+	for _, source := range sources {
+		span, ok, msg := spanFromElasticSource(source, FormatElasticSearchJSON)
+		if !ok {
+			diags.AddSkipped(0, ReasonInvalidElasticEvent, msg, "")
+			continue
+		}
+		spans = append(spans, span)
+		diags.ParsedRecords++
+	}
+	sortSpans(spans)
+	return ParseResult{Format: FormatElasticSearchJSON, Spans: spans, Diagnostics: diags}, nil
+}
+
+func parseElasticSourceNDJSONFile(path string) (ParseResult, error) {
+	diags := diagnostics.New(FormatElasticSourceNDJSON)
+	diags.SetSourceFile(path)
+	spans := make([]Span, 0, 1024)
+
+	f, err := os.Open(path)
+	if err != nil {
+		return ParseResult{}, err
+	}
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+	scanner.Buffer(make([]byte, 0, 64*1024), 16*1024*1024)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		diags.TotalLines++
+		if line == "" {
+			continue
+		}
+		var payload any
+		dec := json.NewDecoder(strings.NewReader(line))
+		dec.UseNumber()
+		if err := dec.Decode(&payload); err != nil {
+			diags.AddSkipped(diags.TotalLines, ReasonInvalidJSON, err.Error(), line)
+			continue
+		}
+		for _, source := range flattenElasticSourceLine(payload) {
+			span, ok, msg := spanFromElasticSource(source, FormatElasticSourceNDJSON)
+			if !ok {
+				diags.AddSkipped(diags.TotalLines, ReasonInvalidElasticEvent, msg, line)
+				continue
+			}
+			spans = append(spans, span)
+			diags.ParsedRecords++
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		return ParseResult{}, err
+	}
+	if diags.TotalLines == 0 {
+		diags.AddWarning(0, "EMPTY_FILE", "Trace import file is empty.", "", false)
+	}
+	sortSpans(spans)
+	return ParseResult{Format: FormatElasticSourceNDJSON, Spans: spans, Diagnostics: diags}, nil
 }
 
 type otlpEnvelope struct {
@@ -429,6 +528,246 @@ func flattenZipkinPayload(payload any) []any {
 	}
 }
 
+func flattenElasticSearchSources(payload any) []map[string]any {
+	root, ok := payload.(map[string]any)
+	if !ok {
+		return nil
+	}
+	hitsObj, _ := root["hits"].(map[string]any)
+	rawHits, _ := hitsObj["hits"].([]any)
+	out := make([]map[string]any, 0, len(rawHits))
+	for _, raw := range rawHits {
+		hit, ok := raw.(map[string]any)
+		if !ok {
+			continue
+		}
+		source, ok := hit["_source"].(map[string]any)
+		if !ok {
+			continue
+		}
+		out = append(out, source)
+	}
+	return out
+}
+
+func flattenElasticSourceLine(payload any) []map[string]any {
+	switch v := payload.(type) {
+	case map[string]any:
+		if source, ok := v["_source"].(map[string]any); ok {
+			return []map[string]any{source}
+		}
+		if sources := flattenElasticSearchSources(v); len(sources) > 0 {
+			return sources
+		}
+		return []map[string]any{v}
+	case []any:
+		out := make([]map[string]any, 0, len(v))
+		for _, item := range v {
+			out = append(out, flattenElasticSourceLine(item)...)
+		}
+		return out
+	default:
+		return nil
+	}
+}
+
+func spanFromElasticSource(source map[string]any, sourceFormat string) (Span, bool, string) {
+	traceID := strings.ToLower(elasticNestedString(source, "trace", "id"))
+	if traceID == "" {
+		return Span{}, false, "Elastic APM event missing trace.id"
+	}
+	kind, id := elasticSpanKindAndID(source)
+	if id == "" {
+		return Span{}, false, "Elastic APM event missing transaction.id or span.id"
+	}
+	attrs := flattenStringAttrs(source)
+	durationMicros := firstNumber(
+		elasticNestedAny(source, "transaction", "duration", "us"),
+		elasticNestedAny(source, "span", "duration", "us"),
+		elasticNestedAny(source, "duration", "us"),
+	)
+	if durationMicros == 0 {
+		// ECS event.duration is nanoseconds, while Elastic APM duration.us is
+		// microseconds.
+		durationMicros = firstNumber(elasticNestedAny(source, "event", "duration")) / 1000
+	}
+	name := firstNonEmpty(
+		elasticNestedString(source, "transaction", "name"),
+		elasticNestedString(source, "span", "name"),
+		elasticNestedString(source, "message"),
+		"(unnamed)",
+	)
+	serviceName := elasticNestedString(source, "service", "name")
+	statusCode := firstNonEmpty(
+		elasticNestedString(source, "event", "outcome"),
+		elasticNestedString(source, "transaction", "result"),
+		elasticNestedString(source, "http", "response", "status_code"),
+	)
+	errorFlag := elasticEventHasError(source, statusCode)
+	span := Span{
+		TraceID:        traceID,
+		SpanID:         strings.ToLower(id),
+		ParentSpanID:   strings.ToLower(elasticNestedString(source, "parent", "id")),
+		Name:           name,
+		ServiceName:    serviceName,
+		RemoteService:  elasticRemoteService(source),
+		Kind:           kind,
+		StartUnixNanos: parseElasticTimestampNanos(elasticNestedString(source, "@timestamp")),
+		DurationNanos:  durationMicros * 1000,
+		StatusCode:     statusCode,
+		Error:          errorFlag,
+		Attributes:     attrs,
+		SourceFormat:   sourceFormat,
+	}
+	return span, true, ""
+}
+
+func elasticSpanKindAndID(source map[string]any) (string, string) {
+	if spanID := elasticNestedString(source, "span", "id"); spanID != "" {
+		kind := strings.ToUpper(firstNonEmpty(
+			elasticNestedString(source, "span", "type"),
+			elasticNestedString(source, "span", "subtype"),
+			"SPAN",
+		))
+		return kind, spanID
+	}
+	if txID := elasticNestedString(source, "transaction", "id"); txID != "" {
+		kind := strings.ToUpper(firstNonEmpty(elasticNestedString(source, "transaction", "type"), "TRANSACTION"))
+		return kind, txID
+	}
+	return "", ""
+}
+
+func elasticRemoteService(source map[string]any) string {
+	return firstNonEmpty(
+		elasticNestedString(source, "span", "destination", "service", "resource"),
+		elasticNestedString(source, "span", "destination", "service", "name"),
+		elasticNestedString(source, "service", "target", "name"),
+		elasticNestedString(source, "destination", "service", "resource"),
+		elasticNestedString(source, "destination", "address"),
+		elasticNestedString(source, "url", "domain"),
+		elasticNestedString(source, "span", "subtype"),
+	)
+}
+
+func elasticEventHasError(source map[string]any, status string) bool {
+	if strings.EqualFold(status, "failure") || strings.EqualFold(status, "error") {
+		return true
+	}
+	if elasticNestedAny(source, "error") != nil {
+		return true
+	}
+	if code, err := strconv.Atoi(status); err == nil && code >= 500 {
+		return true
+	}
+	return false
+}
+
+func isElasticSource(source map[string]any) bool {
+	return elasticNestedString(source, "trace", "id") != "" &&
+		(elasticNestedString(source, "transaction", "id") != "" || elasticNestedString(source, "span", "id") != "")
+}
+
+func elasticNestedString(m map[string]any, path ...string) string {
+	value := elasticNestedAny(m, path...)
+	switch v := value.(type) {
+	case string:
+		return v
+	case json.Number:
+		return v.String()
+	case float64:
+		return strconv.FormatFloat(v, 'f', -1, 64)
+	case bool:
+		return strconv.FormatBool(v)
+	default:
+		return ""
+	}
+}
+
+func elasticNestedAny(m map[string]any, path ...string) any {
+	var current any = m
+	for _, key := range path {
+		obj, ok := current.(map[string]any)
+		if !ok {
+			return nil
+		}
+		current = obj[key]
+		if current == nil {
+			return nil
+		}
+	}
+	return current
+}
+
+func firstNumber(values ...any) int64 {
+	for _, value := range values {
+		switch v := value.(type) {
+		case json.Number:
+			if i, err := v.Int64(); err == nil {
+				return i
+			}
+			if f, err := strconv.ParseFloat(v.String(), 64); err == nil {
+				return int64(f)
+			}
+		case float64:
+			return int64(v)
+		case int64:
+			return v
+		case int:
+			return int64(v)
+		case string:
+			if f, err := strconv.ParseFloat(v, 64); err == nil {
+				return int64(f)
+			}
+		}
+	}
+	return 0
+}
+
+func parseElasticTimestampNanos(value string) int64 {
+	if value == "" {
+		return 0
+	}
+	for _, layout := range []string{
+		time.RFC3339Nano,
+		time.RFC3339,
+		"2006-01-02T15:04:05.000-07:00",
+		"2006-01-02T15:04:05.000000-07:00",
+	} {
+		if ts, err := time.Parse(layout, value); err == nil {
+			return ts.UnixNano()
+		}
+	}
+	return 0
+}
+
+func flattenStringAttrs(source map[string]any) map[string]string {
+	out := map[string]string{}
+	var walk func(prefix string, value any)
+	walk = func(prefix string, value any) {
+		switch v := value.(type) {
+		case map[string]any:
+			for key, child := range v {
+				next := key
+				if prefix != "" {
+					next = prefix + "." + key
+				}
+				walk(next, child)
+			}
+		case string:
+			out[prefix] = v
+		case json.Number:
+			out[prefix] = v.String()
+		case float64:
+			out[prefix] = strconv.FormatFloat(v, 'f', -1, 64)
+		case bool:
+			out[prefix] = strconv.FormatBool(v)
+		}
+	}
+	walk("", source)
+	return out
+}
+
 func hasAnyKey(m map[string]any, keys ...string) bool {
 	for _, key := range keys {
 		if _, ok := m[key]; ok {
@@ -505,6 +844,18 @@ func zipkinSpanHasError(attrs map[string]string) bool {
 	}
 	n, err := strconv.Atoi(code)
 	return err == nil && n >= 500
+}
+
+func sortSpans(spans []Span) {
+	sort.SliceStable(spans, func(i, j int) bool {
+		if spans[i].TraceID != spans[j].TraceID {
+			return spans[i].TraceID < spans[j].TraceID
+		}
+		if spans[i].StartUnixNanos != spans[j].StartUnixNanos {
+			return spans[i].StartUnixNanos < spans[j].StartUnixNanos
+		}
+		return spans[i].SpanID < spans[j].SpanID
+	})
 }
 
 func mergeAttrs(left, right map[string]string) map[string]string {

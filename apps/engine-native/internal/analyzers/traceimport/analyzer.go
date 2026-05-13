@@ -15,6 +15,11 @@ const (
 	ParserName    = "trace_import"
 	SchemaVersion = "0.1.0"
 	DefaultTopN   = 50
+
+	slowTraceP95ThresholdMS           = 1_000.0
+	unbalancedServiceLatencyRatio     = 0.70
+	highErrorServiceEdgeRateThreshold = 0.20
+	clockSkewToleranceNanos           = int64(10 * 1_000_000)
 )
 
 type Options struct {
@@ -62,6 +67,21 @@ func Build(spans []traceparser.Span, sourceFile, sourceFormat string, opts Optio
 
 	dependencies := buildDependencies(spans, spanByID)
 	missingParents := countMissingParents(spans, spanByID)
+	clockSkewCount := countClockSkewSuspects(spans, spanByID)
+	criticalPaths := buildCriticalPaths(spans, topN)
+	traceDurations := make([]float64, 0, len(traceStats))
+	for _, trace := range traceStats {
+		traceDurations = append(traceDurations, nanosToMillis(trace.DurationNanos()))
+	}
+	p95TraceDurationMS := percentile(traceDurations, 0.95)
+	maxTraceDurationMS := 0.0
+	for _, duration := range traceDurations {
+		if duration > maxTraceDurationMS {
+			maxTraceDurationMS = duration
+		}
+	}
+	unbalancedServices := countUnbalancedServices(serviceStats)
+	highErrorEdges := countHighErrorEdges(dependencies)
 	errorSpans := 0
 	rootSpans := 0
 	for _, span := range spans {
@@ -74,14 +94,19 @@ func Build(spans []traceparser.Span, sourceFile, sourceFormat string, opts Optio
 	}
 
 	summary := map[string]any{
-		"source_format":        sourceFormat,
-		"total_spans":          len(spans),
-		"unique_traces":        len(traceStats),
-		"unique_services":      len(nonUnknownKeys(serviceStats)),
-		"unique_dependencies":  len(dependencies),
-		"root_spans":           rootSpans,
-		"error_spans":          errorSpans,
-		"missing_parent_spans": missingParents,
+		"source_format":              sourceFormat,
+		"total_spans":                len(spans),
+		"unique_traces":              len(traceStats),
+		"unique_services":            len(nonUnknownKeys(serviceStats)),
+		"unique_dependencies":        len(dependencies),
+		"root_spans":                 rootSpans,
+		"error_spans":                errorSpans,
+		"missing_parent_spans":       missingParents,
+		"clock_skew_suspected_spans": clockSkewCount,
+		"p95_trace_duration_ms":      p95TraceDurationMS,
+		"max_trace_duration_ms":      maxTraceDurationMS,
+		"unbalanced_service_count":   unbalancedServices,
+		"high_error_service_edges":   highErrorEdges,
 	}
 
 	result := models.New(ResultType, ParserName)
@@ -98,6 +123,7 @@ func Build(spans []traceparser.Span, sourceFile, sourceFormat string, opts Optio
 		"traces":               traceRows(traceStats, topN),
 		"service_dependencies": dependencyRows(dependencies, topN),
 		"service_summary":      serviceRows(serviceStats, topN),
+		"critical_paths":       criticalPathRows(criticalPaths, topN),
 	}
 	result.Metadata.SchemaVersion = SchemaVersion
 	result.Metadata.Extra["analysis_options"] = map[string]any{
@@ -116,7 +142,7 @@ func Build(spans []traceparser.Span, sourceFile, sourceFormat string, opts Optio
 			"duration_nanos",
 		},
 	}
-	for _, finding := range findings(summary, traceStats) {
+	for _, finding := range findings(summary, traceStats, dependencies) {
 		result.Metadata.Findings = append(result.Metadata.Findings, finding)
 	}
 	return result
@@ -225,8 +251,194 @@ func countMissingParents(spans []traceparser.Span, spanByID map[string]tracepars
 	return count
 }
 
-func findings(summary map[string]any, traces map[string]*traceStat) []map[string]any {
+func countClockSkewSuspects(spans []traceparser.Span, spanByID map[string]traceparser.Span) int {
+	count := 0
+	for _, span := range spans {
+		if span.ParentSpanID == "" || span.StartUnixNanos == 0 {
+			continue
+		}
+		parent, ok := spanByID[spanKey(span.TraceID, span.ParentSpanID)]
+		if !ok || parent.StartUnixNanos == 0 {
+			continue
+		}
+		parentEnd := parent.StartUnixNanos + parent.DurationNanos
+		childEnd := span.StartUnixNanos + span.DurationNanos
+		if span.StartUnixNanos+clockSkewToleranceNanos < parent.StartUnixNanos ||
+			childEnd > parentEnd+clockSkewToleranceNanos {
+			count++
+		}
+	}
+	return count
+}
+
+type criticalPath struct {
+	TraceID       string
+	DurationNanos int64
+	SpanCount     int
+	Services      map[string]struct{}
+	SpanNames     []string
+}
+
+func buildCriticalPaths(spans []traceparser.Span, limit int) []criticalPath {
+	byTrace := map[string][]traceparser.Span{}
+	for _, span := range spans {
+		byTrace[span.TraceID] = append(byTrace[span.TraceID], span)
+	}
+	out := make([]criticalPath, 0, len(byTrace))
+	for traceID, traceSpans := range byTrace {
+		path := longestSpanChain(traceID, traceSpans)
+		if path.SpanCount > 0 {
+			out = append(out, path)
+		}
+	}
+	sort.SliceStable(out, func(i, j int) bool {
+		if out[i].DurationNanos != out[j].DurationNanos {
+			return out[i].DurationNanos > out[j].DurationNanos
+		}
+		return out[i].TraceID < out[j].TraceID
+	})
+	if limit > 0 && len(out) > limit {
+		out = out[:limit]
+	}
+	return out
+}
+
+func longestSpanChain(traceID string, spans []traceparser.Span) criticalPath {
+	byID := map[string]traceparser.Span{}
+	children := map[string][]traceparser.Span{}
+	for _, span := range spans {
+		byID[span.SpanID] = span
+		children[span.ParentSpanID] = append(children[span.ParentSpanID], span)
+	}
+	for parentID := range children {
+		sort.SliceStable(children[parentID], func(i, j int) bool {
+			if children[parentID][i].StartUnixNanos != children[parentID][j].StartUnixNanos {
+				return children[parentID][i].StartUnixNanos < children[parentID][j].StartUnixNanos
+			}
+			return children[parentID][i].SpanID < children[parentID][j].SpanID
+		})
+	}
+	memo := map[string]criticalPath{}
+	var visit func(span traceparser.Span) criticalPath
+	visit = func(span traceparser.Span) criticalPath {
+		if cached, ok := memo[span.SpanID]; ok {
+			return cached
+		}
+		bestChild := criticalPath{}
+		for _, child := range children[span.SpanID] {
+			candidate := visit(child)
+			if candidate.DurationNanos > bestChild.DurationNanos {
+				bestChild = candidate
+			}
+		}
+		services := map[string]struct{}{}
+		for service := range bestChild.Services {
+			services[service] = struct{}{}
+		}
+		if span.ServiceName != "" {
+			services[span.ServiceName] = struct{}{}
+		}
+		names := append([]string{span.Name}, bestChild.SpanNames...)
+		path := criticalPath{
+			TraceID:       traceID,
+			DurationNanos: span.DurationNanos + bestChild.DurationNanos,
+			SpanCount:     1 + bestChild.SpanCount,
+			Services:      services,
+			SpanNames:     names,
+		}
+		memo[span.SpanID] = path
+		return path
+	}
+	best := criticalPath{}
+	for _, span := range spans {
+		if span.ParentSpanID != "" {
+			if _, ok := byID[span.ParentSpanID]; ok {
+				continue
+			}
+		}
+		candidate := visit(span)
+		if candidate.DurationNanos > best.DurationNanos {
+			best = candidate
+		}
+	}
+	return best
+}
+
+func criticalPathRows(paths []criticalPath, limit int) []map[string]any {
+	if limit > 0 && len(paths) > limit {
+		paths = paths[:limit]
+	}
+	rows := make([]map[string]any, 0, len(paths))
+	for _, path := range paths {
+		rows = append(rows, map[string]any{
+			"trace_id":         path.TraceID,
+			"critical_path_ms": nanosToMillis(path.DurationNanos),
+			"span_count":       path.SpanCount,
+			"services":         sortedSet(path.Services),
+			"span_names":       path.SpanNames,
+		})
+	}
+	return rows
+}
+
+func countUnbalancedServices(stats map[string]*serviceStat) int {
+	total := int64(0)
+	for _, stat := range stats {
+		total += stat.TotalDurationNanos
+	}
+	if total <= 0 || len(nonUnknownKeys(stats)) < 2 {
+		return 0
+	}
+	count := 0
+	for _, stat := range stats {
+		if stat.ServiceName == "(unknown)" {
+			continue
+		}
+		if float64(stat.TotalDurationNanos)/float64(total) >= unbalancedServiceLatencyRatio {
+			count++
+		}
+	}
+	return count
+}
+
+func countHighErrorEdges(stats map[string]*dependencyStat) int {
+	return len(highErrorEdgeRows(stats))
+}
+
+func highErrorEdgeRows(stats map[string]*dependencyStat) []map[string]any {
+	rows := []map[string]any{}
+	for _, stat := range stats {
+		if stat.Count <= 0 || stat.ErrorCount <= 0 {
+			continue
+		}
+		rate := float64(stat.ErrorCount) / float64(stat.Count)
+		if rate < highErrorServiceEdgeRateThreshold {
+			continue
+		}
+		rows = append(rows, map[string]any{
+			"caller":     stat.Caller,
+			"callee":     stat.Callee,
+			"error_rate": rate,
+			"errors":     stat.ErrorCount,
+			"calls":      stat.Count,
+		})
+	}
+	return rows
+}
+
+func findings(summary map[string]any, traces map[string]*traceStat, dependencies map[string]*dependencyStat) []map[string]any {
 	out := []map[string]any{}
+	if asFloat(summary["p95_trace_duration_ms"]) >= slowTraceP95ThresholdMS {
+		out = append(out, map[string]any{
+			"severity": "warning",
+			"code":     "SLOW_TRACE_P95",
+			"message":  "Trace p95 duration is above the slow-trace threshold.",
+			"evidence": map[string]any{
+				"p95_trace_duration_ms": summary["p95_trace_duration_ms"],
+				"threshold_ms":          slowTraceP95ThresholdMS,
+			},
+		})
+	}
 	if asInt(summary["error_spans"]) > 0 {
 		out = append(out, map[string]any{
 			"severity": "warning",
@@ -241,6 +453,36 @@ func findings(summary map[string]any, traces map[string]*traceStat) []map[string
 			"code":     "TRACE_IMPORT_MISSING_PARENT",
 			"message":  "Some spans reference parent spans that were not present in the export.",
 			"evidence": map[string]any{"missing_parent_spans": summary["missing_parent_spans"]},
+		})
+	}
+	if asInt(summary["clock_skew_suspected_spans"]) > 0 {
+		out = append(out, map[string]any{
+			"severity": "warning",
+			"code":     "CLOCK_SKEW_SUSPECTED",
+			"message":  "Some child spans appear outside their parent time window.",
+			"evidence": map[string]any{"clock_skew_suspected_spans": summary["clock_skew_suspected_spans"]},
+		})
+	}
+	if asInt(summary["unbalanced_service_count"]) > 0 {
+		out = append(out, map[string]any{
+			"severity": "warning",
+			"code":     "UNBALANCED_SERVICE_LATENCY",
+			"message":  "One service accounts for most imported span latency.",
+			"evidence": map[string]any{
+				"unbalanced_service_count": summary["unbalanced_service_count"],
+				"ratio_threshold":          unbalancedServiceLatencyRatio,
+			},
+		})
+	}
+	if highErrorEdges := highErrorEdgeRows(dependencies); len(highErrorEdges) > 0 {
+		out = append(out, map[string]any{
+			"severity": "critical",
+			"code":     "HIGH_ERROR_SERVICE_EDGE",
+			"message":  "One or more service edges have a high error rate.",
+			"evidence": map[string]any{
+				"high_error_service_edges": len(highErrorEdges),
+				"error_rate_threshold":     highErrorServiceEdgeRateThreshold,
+			},
 		})
 	}
 	crossService := 0
@@ -382,6 +624,7 @@ func dependencyRows(stats map[string]*dependencyStat, limit int) []map[string]an
 			"total_duration_ms": nanosToMillis(item.TotalDurationNanos),
 			"avg_duration_ms":   avgMillis(item.TotalDurationNanos, item.Count),
 			"error_count":       item.ErrorCount,
+			"error_rate":        errorRate(item.ErrorCount, item.Count),
 		})
 	}
 	return rows
@@ -548,6 +791,35 @@ func avgMillis(nanos int64, count int) float64 {
 	return nanosToMillis(nanos) / float64(count)
 }
 
+func errorRate(errors, count int) float64 {
+	if count <= 0 {
+		return 0
+	}
+	return float64(errors) / float64(count)
+}
+
+func percentile(values []float64, q float64) float64 {
+	if len(values) == 0 {
+		return 0
+	}
+	sorted := append([]float64(nil), values...)
+	sort.Float64s(sorted)
+	if q <= 0 {
+		return sorted[0]
+	}
+	if q >= 1 {
+		return sorted[len(sorted)-1]
+	}
+	pos := q * float64(len(sorted)-1)
+	lower := int(pos)
+	upper := lower + 1
+	if upper >= len(sorted) {
+		return sorted[lower]
+	}
+	weight := pos - float64(lower)
+	return sorted[lower]*(1-weight) + sorted[upper]*weight
+}
+
 func asInt(v any) int {
 	switch x := v.(type) {
 	case int:
@@ -556,6 +828,18 @@ func asInt(v any) int {
 		return int(x)
 	case float64:
 		return int(x)
+	}
+	return 0
+}
+
+func asFloat(v any) float64 {
+	switch x := v.(type) {
+	case float64:
+		return x
+	case int:
+		return float64(x)
+	case int64:
+		return float64(x)
 	}
 	return 0
 }

@@ -17,9 +17,9 @@ The previous long-form history was archived to
 - Release baseline: `v0.3.1` is the latest stable GitHub release. The
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
-- Current execution focus: trace import UI, Elastic APM file import,
-  trace critical-path findings, Evidence Board skeleton, and Windows GUI
-  smoke testing.
+- Current execution focus: Windows GUI smoke testing, 0.3.x release hardening,
+  JFR/async-profiler diagnostics, and Evidence Board expansion after the trace
+  import desktop workflow landed.
 - Retired implementation: Python/FastAPI/browser sources are archived under
   `archive/python-engine` and `archive/web-frontend-python`.
 - Historical native POC module has been folded into `apps/engine-native`.
@@ -68,6 +68,18 @@ The previous long-form history was archived to
 - Consolidated product expansion and external APM planning into the English and
   Korean roadmap documents, then removed the former Korean-only planning notes
   so `docs/en` and `docs/ko` Markdown files stay paired.
+- Restored and extended GC log memory-space analysis so young/old/metaspace
+  event series are emitted again, and added OOM plus long-pause alert findings.
+- Connected `trace_import` to the Wails desktop UI with summary cards,
+  service dependency and service latency charts, trace/span tables, critical
+  path rows, parser diagnostics, and findings.
+- Added Elastic APM file import for Elasticsearch `_search` response JSON and
+  source-only NDJSON exports.
+- Added trace critical-path analysis and MVP findings:
+  `SLOW_TRACE_P95`, `CLOCK_SKEW_SUSPECTED`,
+  `UNBALANCED_SERVICE_LATENCY`, and `HIGH_ERROR_SERVICE_EDGE`.
+- Added the first Evidence Board skeleton with local evidence cards for trace
+  findings, service edges, traces, and source metadata.
 
 ## Current Risk
 
@@ -88,12 +100,13 @@ Jennifer MSA topology now uses network-time groups to estimate service
 distance, while the underlying `AnalysisResult` tables retain detailed call
 metrics.
 
-Trace import is now an engine/CLI MVP, not a full UI workflow. OTLP JSON-file
-and Zipkin v2 JSON inputs are covered, while Elastic APM file import,
-critical-path analysis, richer findings, and Wails page integration remain the
-highest active trace-import follow-ups. Broader Jaeger, SkyWalking, and SaaS
-connector items remain roadmap candidates until they are explicitly promoted
-into the active TO-DO.
+Trace import is now a desktop workflow, not only an engine/CLI MVP. OTLP
+JSON-file, Zipkin v2 JSON, Elastic APM `_search` JSON, and Elastic source
+NDJSON are covered. The UI exposes summary metrics, service dependencies,
+traces, spans, critical paths, parser diagnostics, deterministic findings, and
+basic Evidence Board capture. Broader Jaeger, SkyWalking, and SaaS connector
+items remain roadmap candidates until they are explicitly promoted into the
+active TO-DO.
 
 Remaining large-file risk is concentrated in structured formats that naturally
 require object materialization, such as JFR JSON, Node diagnostic reports, jcmd
@@ -112,36 +125,30 @@ filtered before analysis.
 
 ## Next Execution Queue
 
-1. Wire `trace_import` into the Wails UI: summary cards, service dependency
-   table/chart, trace table, span table, and findings panel.
-2. Implement Elastic APM importers for Elasticsearch `_search` response JSON
-   and `_source` NDJSON exports.
-3. Add trace critical-path and richer findings:
-   `SLOW_TRACE_P95`, `CLOCK_SKEW_SUSPECTED`,
-   `UNBALANCED_SERVICE_LATENCY`, and `HIGH_ERROR_SERVICE_EDGE`.
-4. Start the Evidence Board skeleton and define the common evidence-card model
-   shared by analyzer findings, chart selections, table rows, and parser
-   diagnostics.
-5. Perform direct Windows GUI launch smoke-test on a Windows host/VM.
-6. Continue 0.3.x release hardening for signing/notarization and frontend
+1. Perform direct Windows GUI launch smoke-test on a Windows host/VM.
+2. Continue 0.3.x release hardening for signing/notarization and frontend
    bundle splitting.
-7. Improve JFR handling for async-profiler recordings: keep the JDK `jfr`
+3. Improve JFR handling for async-profiler recordings: keep the JDK `jfr`
    CLI as a binary-to-JSON converter, then add ArchScope-native stack/sample
    views instead of trying to clone the full JDK `jfr` tool UI.
+4. Expand the Evidence Board beyond Trace Import: add shared "Add to Evidence"
+   actions on other analyzer findings/tables and design report export around
+   saved evidence cards.
 
 ## Active TO-DO
 
 | ID | Priority | Status | Task | Depends on | Output |
 |---|---|---|---|---|---|
-| T-414 | P1 | [ ] | Connect `trace_import` to the Wails UI with summary cards, service dependency view, trace table, span table, and findings panel. | Trace import MVP | Trace Import desktop workflow |
-| T-415 | P1 | [ ] | Add Elastic APM `_search` response and source-only NDJSON importers. | Trace import MVP | Elastic trace evidence import |
-| T-416 | P1 | [ ] | Add trace critical-path analysis and current MVP findings: `SLOW_TRACE_P95`, `CLOCK_SKEW_SUSPECTED`, `UNBALANCED_SERVICE_LATENCY`, and `HIGH_ERROR_SERVICE_EDGE`. | Trace import MVP | Root-cause oriented trace diagnostics |
-| T-417 | P1 | [ ] | Design and build the Evidence Board skeleton around reusable evidence cards. | Analyzer result contracts | Cross-analyzer evidence pack foundation |
+| T-414 | P1 | [x] | Connect `trace_import` to the Wails UI with summary cards, service dependency view, trace table, span table, and findings panel. | Trace import MVP | Completed 2026-05-13: Trace Import desktop workflow |
+| T-415 | P1 | [x] | Add Elastic APM `_search` response and source-only NDJSON importers. | Trace import MVP | Completed 2026-05-13: Elastic trace evidence import |
+| T-416 | P1 | [x] | Add trace critical-path analysis and current MVP findings: `SLOW_TRACE_P95`, `CLOCK_SKEW_SUSPECTED`, `UNBALANCED_SERVICE_LATENCY`, and `HIGH_ERROR_SERVICE_EDGE`. | Trace import MVP | Completed 2026-05-13: Root-cause oriented trace diagnostics |
+| T-417 | P1 | [x] | Design and build the Evidence Board skeleton around reusable evidence cards. | Analyzer result contracts | Completed 2026-05-13: Cross-analyzer evidence pack foundation |
 | T-418 | P1 | [ ] | Run direct Windows GUI launch smoke-test for the 0.3.1 line on a Windows host/VM. | 0.3.1 release assets | Native Windows confidence beyond CI/package success |
 | T-419 | P2 | [ ] | Continue 0.3.x release hardening for signing/notarization and frontend bundle splitting. | 0.3.1 release baseline | Release hardening follow-up list |
 | T-420 | P1 | [ ] | Clarify the JFR analyzer contract: use the JDK `jfr` CLI only for `.jfr` to `jfr print --json` conversion, and avoid reimplementing the full JDK `jfr view` / `jfr summary` feature set in the desktop UI. | Existing JFR parser bridge | JFR scope note and UI copy |
 | T-421 | P1 | [ ] | Add async-profiler-oriented JFR stack analysis by aggregating `stackTrace.frames` from sample events into top methods, top packages, top threads, and call-tree/flamegraph-ready rows. | JFR JSON parser, profiler flamegraph components | Useful CPU/wall/alloc sample diagnostics for async-profiler JFR |
 | T-422 | P2 | [ ] | Add JFR recording UX hints that detect sparse or mode-specific recordings, especially async-profiler JFR files with mostly `jdk.ExecutionSample`, `jdk.NativeMethodSample`, `jdk.ObjectAllocationSample`, or lock events. | T-421 preferred | Clear empty-state and capture-mode guidance |
+| T-423 | P2 | [ ] | Expand Evidence Board capture beyond Trace Import and add report export around saved evidence cards. | T-417 | Evidence-driven report pack workflow |
 
 ## Verification Notes
 
@@ -202,6 +209,24 @@ filtered before analysis.
 - 2026-05-11 documentation consolidation check passed: `git diff --check`
   succeeded, and `docs/en` and `docs/ko` Markdown file lists match 1:1 after
   removing the former single-language planning notes.
+- 2026-05-13 GC alert verification passed in
+  `apps/engine-native/internal/analyzers/gclog`: young/old/metaspace series,
+  long-pause flags, and `OUT_OF_MEMORY_ERROR` findings are covered by tests.
+- 2026-05-13 trace import verification passed:
+  `env GOCACHE=/tmp/archscope-go-cache GOMODCACHE=/tmp/archscope-go-mod-cache
+  go test ./internal/parsers/traceimport ./internal/analyzers/traceimport
+  ./cmd/archscope-engine ./api ./cmd/archscope-app`. The Wails app test build
+  still emits the known macOS linker warning.
+- 2026-05-13 full Go verification also passed:
+  `env GOCACHE=/tmp/archscope-go-cache GOMODCACHE=/tmp/archscope-go-mod-cache
+  go test ./...`.
+- 2026-05-13 Wails frontend verification passed: `npm run build`. Vite still
+  reports the existing >500 KB main chunk warning.
+- 2026-05-13 CLI smoke passed for Elastic APM auto-detect:
+  `go run ./cmd/archscope-engine trace import --in
+  ../../examples/traces/sample-elastic-apm-search.json --format auto --top-n
+  10` emitted `source_format = elastic-apm-search-json` and the expected
+  trace findings.
 
 ## Decisions
 

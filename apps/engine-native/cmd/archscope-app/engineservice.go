@@ -147,6 +147,13 @@ type OtelRequest struct {
 	TopN int    `json:"topN,omitempty"`
 }
 
+// TraceImportRequest mirrors traceimport.Options + a Path.
+type TraceImportRequest struct {
+	Path   string `json:"path"`
+	Format string `json:"format,omitempty"`
+	TopN   int    `json:"topN,omitempty"`
+}
+
 // JenniferProfileRequest accepts a single Path or repeatable Paths
 // for multi-file batches. FallbackCorrelationToTxid mirrors the
 // CLI flag of the same name.
@@ -370,6 +377,17 @@ func (s *EngineService) AnalyzeOtel(req OtelRequest) (engineapi.AnalysisResult, 
 		return engineapi.AnalysisResult{}, fmt.Errorf("path is required")
 	}
 	return engineapi.AnalyzeOtel(req.Path, engineapi.OtelOptions{TopN: req.TopN})
+}
+
+// AnalyzeTraceImport wraps engineapi.AnalyzeTraceImport.
+func (s *EngineService) AnalyzeTraceImport(req TraceImportRequest) (engineapi.AnalysisResult, error) {
+	if strings.TrimSpace(req.Path) == "" {
+		return engineapi.AnalysisResult{}, fmt.Errorf("path is required")
+	}
+	return engineapi.AnalyzeTraceImport(req.Path, engineapi.TraceImportOptions{
+		Format: req.Format,
+		TopN:   req.TopN,
+	})
 }
 
 // AnalyzeJenniferProfile wraps engineapi.AnalyzeJenniferProfile/s.

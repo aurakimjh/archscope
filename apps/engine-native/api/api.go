@@ -82,6 +82,7 @@ import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/runtime"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/threaddump"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/threaddumpcollapsed"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/traceimport"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/exporters/csv"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/exporters/html"
 	enginejson "github.com/aurakimjh/archscope/apps/engine-native/internal/exporters/json"
@@ -187,6 +188,14 @@ type OtelOptions = otel.Options
 
 // AnalyzeOtel wraps otel.Analyze.
 var AnalyzeOtel = otel.Analyze
+
+// ── External trace import ───────────────────────────────────────────
+
+// TraceImportOptions mirrors traceimport.Options.
+type TraceImportOptions = traceimport.Options
+
+// AnalyzeTraceImport wraps traceimport.Analyze.
+var AnalyzeTraceImport = traceimport.Analyze
 
 // ── Jennifer Profile (MSA timeline) ─────────────────────────────────
 

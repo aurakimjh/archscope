@@ -454,6 +454,71 @@ signature
 raw_block
 ```
 
+## Trace Import Result
+
+`type`: `trace_import`
+
+Supported local file formats:
+
+- `otlp-json`
+- `zipkin-v2-json`
+- `elastic-apm-search-json`
+- `elastic-apm-source-ndjson`
+
+Required `summary` fields:
+
+| Field | Type | Meaning |
+|---|---|---|
+| `source_format` | string | Detected or requested import format |
+| `total_spans` | integer | Parsed canonical spans |
+| `unique_traces` | integer | Unique trace ids |
+| `unique_services` | integer | Non-unknown services |
+| `unique_dependencies` | integer | Caller-to-callee service edges |
+| `error_spans` | integer | Spans marked as errors |
+| `missing_parent_spans` | integer | Spans whose parent was absent from the import |
+| `clock_skew_suspected_spans` | integer | Child spans outside the parent time window |
+| `p95_trace_duration_ms` | number | Trace-duration p95 |
+| `max_trace_duration_ms` | number | Longest trace duration |
+| `unbalanced_service_count` | integer | Services dominating total imported span latency |
+| `high_error_service_edges` | integer | Service edges above the error-rate threshold |
+
+Primary `tables` rows:
+
+- `spans` — `{ trace_id, span_id, parent_span_id, name, service_name, remote_service, kind, start_unix_nanos, duration_ms, status_code, error, source_format }`
+- `traces` — `{ trace_id, span_count, service_count, services, duration_ms, total_span_ms, error_count, slowest_span, slowest_span_ms }`
+- `service_dependencies` — `{ caller, callee, call_count, total_duration_ms, avg_duration_ms, error_count, error_rate }`
+- `service_summary` — `{ service, span_count, total_duration_ms, avg_duration_ms, error_count }`
+- `critical_paths` — `{ trace_id, critical_path_ms, span_count, services, span_names }`
+
+Current deterministic finding codes include `SLOW_TRACE_P95`,
+`TRACE_IMPORT_ERROR_SPANS`, `TRACE_IMPORT_MISSING_PARENT`,
+`CLOCK_SKEW_SUSPECTED`, `UNBALANCED_SERVICE_LATENCY`,
+`HIGH_ERROR_SERVICE_EDGE`, `TRACE_IMPORT_CROSS_SERVICE_TRACE`, and
+`TRACE_IMPORT_SLOW_SPAN_DOMINATES_TRACE`.
+
+## Evidence Board Card
+
+The first Evidence Board implementation is local UI state, not a persisted
+engine result. Card fields are intentionally generic so analyzer findings,
+chart selections, table rows, parser diagnostics, and source metadata can share
+one report pipeline later.
+
+```text
+id
+created_at
+source_kind
+analyzer
+title
+severity
+source_file
+source_ref
+payload
+comment
+hypothesis
+impact
+recommendation
+```
+
 ## AI Interpretation Contract
 
 AI interpretation does not replace `AnalysisResult`. It is a separate `InterpretationResult` linked back to a source result.
@@ -501,6 +566,8 @@ Registered namespaces:
 | `profiler` | `stack`, `frame`, `finding` |
 | `jfr` | `event` |
 | `otel` | `log`, `span`, `event` |
+| `trace_import` | `span`, `trace`, `service_edge`, `finding` |
+| `evidence_board` | `card` |
 | `timeline` | `event`, `correlation` |
 
 AI output must pass runtime validation before it is shown. Validation includes non-empty references, grammar and namespace checks, reference presence in the source evidence registry, confidence threshold, and quote-to-source matching when quotes are provided.

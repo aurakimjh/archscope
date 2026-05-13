@@ -2,7 +2,7 @@
 // [한글] bridge/engine.ts — Wails v3 EngineService 바인딩 래퍼.
 //
 // 책임/목적:
-//   - Go 측 `main.EngineService` 의 14 개 메서드를 TypeScript 함수로
+//   - Go 측 `main.EngineService` 메서드를 TypeScript 함수로
 //     1:1 매핑. Wails CLI 의 `task generate:bindings` 가 자동 생성하는
 //     모듈 대용으로, 모든 호출은 `Call.ByName("main.EngineService.XXX",
 //     ...)` 와이어 형식을 직접 사용 — 빌드 환경에 Wails CLI 가 없어도
@@ -36,7 +36,7 @@
 // generator runs locally, drop this file and import the generated module
 // instead.
 //
-// All 14 EngineService methods are wrapped with their Go-side request
+// EngineService methods are wrapped with their Go-side request
 // shape mirrored under `bridge/types.ts`. Async analyzers
 // (`analyzeMultiThread`, `analyzeLockContention`) return `{ taskId }` and
 // the caller subscribes to the `engine:done` / `engine:error` /
@@ -69,6 +69,8 @@ import type {
   OtelRequest,
   RuntimeRequest,
   ThreadDumpRequest,
+  TraceImportAnalysisResult,
+  TraceImportRequest,
 } from "./types";
 
 // `main.EngineService` is the qualified name the Go binding generator
@@ -129,6 +131,12 @@ export function analyzeOtel(
   req: OtelRequest,
 ): CancellablePromise<AnalysisResult> {
   return call<AnalysisResult>("AnalyzeOtel", req);
+}
+
+export function analyzeTraceImport(
+  req: TraceImportRequest,
+): CancellablePromise<TraceImportAnalysisResult> {
+  return call<TraceImportAnalysisResult>("AnalyzeTraceImport", req);
 }
 
 // JenniferProfileRequest matches the Go-side struct; either Path
@@ -243,6 +251,7 @@ export const engine = {
   analyzeException,
   analyzeRuntimeStack,
   analyzeOtel,
+  analyzeTraceImport,
   analyzeJenniferProfile,
   analyzeThreadDump,
   analyzeMultiThread,
