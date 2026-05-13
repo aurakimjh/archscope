@@ -1,0 +1,62 @@
+name: Windows GUI Smoke
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/windows-gui-smoke.yml"
+      - "scripts/windows-gui-smoke.ps1"
+
+jobs:
+  smoke:
+    name: Build and launch Wails exe
+    runs-on: windows-latest
+    timeout-minutes: 35
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.26.x"
+          cache: true
+          cache-dependency-path: apps/engine-native/go.sum
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/engine-native/cmd/archscope-app/frontend/package-lock.json
+
+      - name: Install Wails CLI
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $wailsDir = Join-Path $env:RUNNER_TEMP "wails"
+          if (Test-Path $wailsDir) {
+            Remove-Item -Recurse -Force $wailsDir
+          }
+          git clone --depth 1 --branch v3.0.0-alpha.87 https://github.com/wailsapp/wails.git $wailsDir
+          Push-Location (Join-Path $wailsDir "v3")
+          go install ./cmd/wails3
+          Pop-Location
+          Join-Path $env:USERPROFILE "go\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Install Task runner
+        shell: pwsh
+        run: choco install go-task --no-progress -y
+
+      - name: Build Windows executable
+        shell: pwsh
+        working-directory: apps/engine-native/cmd/archscope-app
+        run: task windows:build ARCH=amd64
+
+      - name: Launch GUI smoke
+        shell: pwsh
+        run: ./scripts/windows-gui-smoke.ps1 -ExePath apps/engine-native/cmd/archscope-app/bin/archscope.exe -StartupSeconds 15
+
