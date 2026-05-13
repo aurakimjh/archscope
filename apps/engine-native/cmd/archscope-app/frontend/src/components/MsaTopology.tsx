@@ -5,8 +5,7 @@
 // remain close while gateway/external calls with double-digit gaps
 // are pushed into separate columns.
 
-import * as echarts from "echarts";
-import type { EChartsOption } from "echarts";
+import { echarts, type ECharts, type EChartsOption } from "@/charts/echartsCore";
 import { useEffect, useMemo, useRef } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
@@ -74,7 +73,7 @@ export function MsaTopology({
   height = 420,
 }: MsaTopologyProps): JSX.Element {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const chartRef = useRef<echarts.ECharts | null>(null);
+  const chartRef = useRef<ECharts | null>(null);
 
   const { option, latencyGroups } = useMemo<{
     option: EChartsOption;

@@ -58,4 +58,11 @@ export default defineConfig({
       "@": path.resolve(__dirname, "src"),
     },
   },
+  build: {
+    // Page-level lazy loading keeps the startup shell small. The largest
+    // remaining chunk is the shared, lazy ECharts runtime used only after a
+    // chart page is opened, so keep the release budget explicit instead of
+    // accepting Vite's generic 500 KB default.
+    chunkSizeWarningLimit: 700,
+  },
 });

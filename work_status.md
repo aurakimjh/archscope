@@ -17,9 +17,9 @@ The previous long-form history was archived to
 - Release baseline: `v0.3.1` is the latest stable GitHub release. The
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
-- Current execution focus: 0.3.x release hardening, JFR/async-profiler
-  diagnostics, and Evidence Board expansion after the trace import desktop
-  workflow and Windows GUI smoke workflow landed.
+- Current execution focus: JFR/async-profiler diagnostics and Evidence Board
+  expansion after the trace import desktop workflow, Windows GUI smoke
+  workflow, and 0.3.x release hardening pass landed.
 - Retired implementation: Python/FastAPI/browser sources are archived under
   `archive/python-engine` and `archive/web-frontend-python`.
 - Historical native POC module has been folded into `apps/engine-native`.
@@ -83,6 +83,9 @@ The previous long-form history was archived to
 - Added a Windows GUI smoke workflow that builds the Wails Windows executable
   on `windows-latest`, launches `archscope.exe`, verifies it stays alive, and
   shuts it down cleanly.
+- Hardened the 0.3.x release workflow with macOS signing/notarization secret
+  preflight, signature/stapler verification, route-level frontend lazy loading,
+  modular ECharts bundling, and explicit frontend chunk budgets.
 
 ## Current Risk
 
@@ -98,6 +101,13 @@ smoke builds the Wails Windows executable, launches `archscope.exe`, verifies
 that the GUI process stays alive for the startup window, and shuts it down.
 Windows confidence now includes tests/builds/packages, release artifact
 checksum and PE inspection, plus the GUI launch smoke.
+
+Release hardening now fails fast when macOS Developer ID signing or Apple-ID
+notarization secrets are only partially configured. The release workflow also
+verifies the built app signature and validates the stapled ticket when
+notarization credentials are available. The Wails frontend startup shell is
+split from the analyzer pages and shared chart runtime, so the initial bundle
+is within the documented release budget.
 
 The MSA timeline discoverability issue is closed: the tab list now renders
 before analysis and each tab shows a neutral empty-result state until data is
@@ -131,14 +141,15 @@ filtered before analysis.
 
 ## Next Execution Queue
 
-1. Continue 0.3.x release hardening for signing/notarization and frontend
-   bundle splitting.
-2. Improve JFR handling for async-profiler recordings: keep the JDK `jfr`
+1. Improve JFR handling for async-profiler recordings: keep the JDK `jfr`
    CLI as a binary-to-JSON converter, then add ArchScope-native stack/sample
    views instead of trying to clone the full JDK `jfr` tool UI.
-3. Expand the Evidence Board beyond Trace Import: add shared "Add to Evidence"
+2. Expand the Evidence Board beyond Trace Import: add shared "Add to Evidence"
    actions on other analyzer findings/tables and design report export around
    saved evidence cards.
+3. Keep release verification healthy before the next 0.3.x cut by repeating
+   Windows GUI smoke, macOS signing/notarization validation, and frontend bundle
+   budget checks.
 
 ## Active TO-DO
 
@@ -149,7 +160,7 @@ filtered before analysis.
 | T-416 | P1 | [x] | Add trace critical-path analysis and current MVP findings: `SLOW_TRACE_P95`, `CLOCK_SKEW_SUSPECTED`, `UNBALANCED_SERVICE_LATENCY`, and `HIGH_ERROR_SERVICE_EDGE`. | Trace import MVP | Completed 2026-05-13: Root-cause oriented trace diagnostics |
 | T-417 | P1 | [x] | Design and build the Evidence Board skeleton around reusable evidence cards. | Analyzer result contracts | Completed 2026-05-13: Cross-analyzer evidence pack foundation |
 | T-418 | P1 | [x] | Run direct Windows GUI launch smoke-test for the 0.3.1 line on a Windows host/VM. | 0.3.1 release assets | Completed 2026-05-13: Windows runner GUI process launch smoke |
-| T-419 | P2 | [ ] | Continue 0.3.x release hardening for signing/notarization and frontend bundle splitting. | 0.3.1 release baseline | Release hardening follow-up list |
+| T-419 | P2 | [x] | Continue 0.3.x release hardening for signing/notarization and frontend bundle splitting. | 0.3.1 release baseline | Completed 2026-05-13: signing/notarization preflight plus frontend bundle split |
 | T-420 | P1 | [ ] | Clarify the JFR analyzer contract: use the JDK `jfr` CLI only for `.jfr` to `jfr print --json` conversion, and avoid reimplementing the full JDK `jfr view` / `jfr summary` feature set in the desktop UI. | Existing JFR parser bridge | JFR scope note and UI copy |
 | T-421 | P1 | [ ] | Add async-profiler-oriented JFR stack analysis by aggregating `stackTrace.frames` from sample events into top methods, top packages, top threads, and call-tree/flamegraph-ready rows. | JFR JSON parser, profiler flamegraph components | Useful CPU/wall/alloc sample diagnostics for async-profiler JFR |
 | T-422 | P2 | [ ] | Add JFR recording UX hints that detect sparse or mode-specific recordings, especially async-profiler JFR files with mostly `jdk.ExecutionSample`, `jdk.NativeMethodSample`, `jdk.ObjectAllocationSample`, or lock events. | T-421 preferred | Clear empty-state and capture-mode guidance |
@@ -170,9 +181,9 @@ filtered before analysis.
   `go test ./... -race -count=1` passed
   under `apps/engine-native` using `/tmp` Go caches. The race test required
   loopback permission for `httptest`.
-- `npm ci` and `npm run build` passed for the Wails frontend. Vite still warns
-  that the main JS chunk is larger than 500 KB, matching the existing
-  bundle-splitting follow-up.
+- `npm ci` and `npm run build` passed for the Wails frontend during the
+  2026-05-10 release pass. That pass exposed the former main-chunk warning
+  that was later addressed by T-419.
 - `task package` and `task darwin:package:dmg ARCH=arm64` produced
   `bin/archscope.app` and `bin/archscope-arm64.dmg`. The app launched without
   immediate crash, ad-hoc `codesign --verify --deep --strict` passed,
@@ -189,7 +200,8 @@ filtered before analysis.
   x86-64 `archscope.exe`, while the NSIS installer wrapper is a 32-bit PE
   self-extractor as expected.
 - 2026-05-10 UI/performance pass: `npm run build` passed for the Wails
-  frontend; Vite still reports the existing >500 KB main chunk warning.
+  frontend and reported the former >500 KB main chunk warning that was later
+  addressed by T-419.
 - `go test ./internal/parsers/accesslog ./internal/profiler` and
   `go test ./...` passed under `apps/engine-native` using `/tmp` Go caches.
 - Parser/profiler benchmarks after the hot-path changes:
@@ -225,8 +237,14 @@ filtered before analysis.
 - 2026-05-13 full Go verification also passed:
   `env GOCACHE=/tmp/archscope-go-cache GOMODCACHE=/tmp/archscope-go-mod-cache
   go test ./...`.
-- 2026-05-13 Wails frontend verification passed: `npm run build`. Vite still
-  reports the existing >500 KB main chunk warning.
+- 2026-05-13 Wails frontend release-hardening build passed: `npm run build`.
+  Startup shell chunk is 156.77 KB raw / 50.90 KB gzip; the lazy shared
+  ECharts runtime is 668.49 KB raw / 221.26 KB gzip and stays under the
+  documented 700 KB chart-runtime budget. The previous Vite large-chunk warning
+  is no longer emitted.
+- 2026-05-13 release workflow hardening updated macOS signing secret preflight
+  and codesign/stapler validation. The workflow change was not exercised by a
+  local release-tag run. Local YAML parsing and `git diff --check` passed.
 - 2026-05-13 CLI smoke passed for Elastic APM auto-detect:
   `go run ./cmd/archscope-engine trace import --in
   ../../examples/traces/sample-elastic-apm-search.json --format auto --top-n

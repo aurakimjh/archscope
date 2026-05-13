@@ -1,4 +1,4 @@
-import type { EChartsOption } from "echarts";
+import type { EChartsOption } from "@/charts/echartsCore";
 
 import type { TraceImportAnalysisResult } from "@/bridge/types";
 

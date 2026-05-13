@@ -13,8 +13,7 @@
 // horizontal rectangle from (start) to (start + elapsed). Color
 // codes the segment (matched / unmatched / 2PC / SQL / network).
 
-import * as echarts from "echarts";
-import type { EChartsOption } from "echarts";
+import { echarts, type ECharts, type EChartsOption } from "@/charts/echartsCore";
 import { useEffect, useMemo, useRef } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
@@ -78,7 +77,7 @@ export function MsaTimeline({
   maxBars = DEFAULT_MAX_BARS,
 }: MsaTimelineProps): JSX.Element {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const chartRef = useRef<echarts.ECharts | null>(null);
+  const chartRef = useRef<ECharts | null>(null);
 
   const { option, rowCount, visibleCount, totalCount } = useMemo(() => {
     const items = edges.filter(
@@ -436,7 +435,7 @@ export function MsaTimelineTreemap({
   "title" | "edges" | "rootApplication" | "height" | "maxBars"
 >): JSX.Element {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const chartRef = useRef<echarts.ECharts | null>(null);
+  const chartRef = useRef<ECharts | null>(null);
 
   const { option, visibleCount, totalCount, leafCount } = useMemo(() => {
     const items = edges.filter(

@@ -9,8 +9,7 @@
 // 테마 토글 같은 추가 기능은 Phase-2 에서 별도 batch exporter 와 함께
 // 도입 예정이라 본 슬림 버전에는 포함하지 않습니다.
 // ─────────────────────────────────────────────────────────────────────
-import * as echarts from "echarts";
-import type { EChartsOption } from "echarts";
+import { echarts, type ECharts, type EChartsOption } from "@/charts/echartsCore";
 import { useEffect, useMemo, useRef } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -43,7 +42,7 @@ export function ChartPanel({
   height = 320,
 }: ChartPanelProps): JSX.Element {
   const chartRef = useRef<HTMLDivElement | null>(null);
-  const chartInstanceRef = useRef<echarts.ECharts | null>(null);
+  const chartInstanceRef = useRef<ECharts | null>(null);
   const optimizedOption = useMemo<EChartsOption>(
     () => ({ animation: false, ...option }),
     [option],

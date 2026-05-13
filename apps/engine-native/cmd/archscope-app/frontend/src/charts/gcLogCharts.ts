@@ -15,7 +15,7 @@
 // 내보내기는 의도적으로 제외 (bundle 크기 트레이드오프). 추후 Save-All-
 // Charts batch exporter 와 함께 복원 예정.
 // ─────────────────────────────────────────────────────────────────────
-import type { EChartsOption } from "echarts";
+import type { EChartsOption } from "@/charts/echartsCore";
 
 import type { GcLogAnalysisResult } from "@/bridge/types";
 
@@ -236,7 +236,7 @@ export function heapUsageOption(
     string,
     Array<{ time: string; value: number }> | undefined
   >;
-  const series: NonNullable<EChartsOption["series"]> = [];
+  const series: any[] = [];
   for (const def of heapSeriesDefs(labels)) {
     if (!selected.has(def.id)) continue;
     const points = allSeries[def.field] ?? [];
@@ -273,7 +273,7 @@ export function heapUsageOption(
     });
   }
 
-  const yAxes: NonNullable<EChartsOption["yAxis"]> = [
+  const yAxes: any[] = [
     {
       type: "value",
       name: labels.heapAxis,

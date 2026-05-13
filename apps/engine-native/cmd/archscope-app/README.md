@@ -98,7 +98,8 @@ GOCACHE=/tmp/aiservice-go-cache task package
 |---|---|
 | Raw binary | 11 MB |
 | `.app` bundle (binary + Assets.car + icns + Info.plist + ad-hoc signature) | 13 MB |
-| Vite 8 frontend bundle | 1.60 MB raw / 493 KB gzipped |
+| Vite startup shell JS | 157 KB raw / 51 KB gzipped |
+| Lazy shared ECharts runtime | 668 KB raw / 221 KB gzipped |
 | npm audit | 0 vulnerabilities |
 
 Comparison (single distributable):
@@ -106,5 +107,6 @@ Comparison (single distributable):
 - Electron desktop shell (retired): ~120 MB
 - Wails v3 alpha.87 current app: **11 MB raw / 13 MB `.app`**
 
-The Vite production build still emits a large chunk warning. That is not
-a security finding; it is a future code-splitting/performance task.
+The Wails frontend now uses route-level lazy loading. The startup shell stays
+small, and the chart runtime is loaded only when a chart-backed analyzer page is
+opened.

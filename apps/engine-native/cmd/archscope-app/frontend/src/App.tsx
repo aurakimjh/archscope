@@ -21,7 +21,7 @@
 // 주요 페이지: profiler / diff / access_log / gc_log / jfr /
 //   exception / thread_dump / msa_profile (Jennifer) / settings.
 // ─────────────────────────────────────────────────────────────────────
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 
 import { useI18n } from "./i18n/I18nProvider";
 import { localeLabels, locales } from "./i18n/messages";
@@ -29,19 +29,62 @@ import { useTheme, type Theme } from "./theme/ThemeProvider";
 import { useSortableTables } from "./hooks/useSortableTables";
 import { DropZone } from "./components/DropZone";
 import { Sidebar, type NavKey } from "./components/Sidebar";
-import { DiffPage } from "./pages/DiffPage";
-import { SettingsPage } from "./pages/SettingsPage";
-import { AccessLogAnalyzerPage } from "./pages/AccessLogAnalyzerPage";
-import { GcLogAnalyzerPage } from "./pages/GcLogAnalyzerPage";
-import { JfrAnalyzerPage } from "./pages/JfrAnalyzerPage";
-import { ExceptionAnalyzerPage } from "./pages/ExceptionAnalyzerPage";
-import { ThreadDumpAnalyzerPage } from "./pages/ThreadDumpAnalyzerPage";
-import { ProfilerAnalyzerPage } from "./pages/ProfilerAnalyzerPage";
-import { JenniferProfilePage } from "./pages/JenniferProfilePage";
-import { TraceImportPage } from "./pages/TraceImportPage";
-import { EvidenceBoardPage } from "./pages/EvidenceBoardPage";
 
 const THEME_OPTIONS: Theme[] = ["light", "dark", "system"];
+
+const ProfilerAnalyzerPage = lazy(() =>
+  import("./pages/ProfilerAnalyzerPage").then(({ ProfilerAnalyzerPage }) => ({
+    default: ProfilerAnalyzerPage,
+  })),
+);
+const DiffPage = lazy(() =>
+  import("./pages/DiffPage").then(({ DiffPage }) => ({ default: DiffPage })),
+);
+const AccessLogAnalyzerPage = lazy(() =>
+  import("./pages/AccessLogAnalyzerPage").then(({ AccessLogAnalyzerPage }) => ({
+    default: AccessLogAnalyzerPage,
+  })),
+);
+const GcLogAnalyzerPage = lazy(() =>
+  import("./pages/GcLogAnalyzerPage").then(({ GcLogAnalyzerPage }) => ({
+    default: GcLogAnalyzerPage,
+  })),
+);
+const JfrAnalyzerPage = lazy(() =>
+  import("./pages/JfrAnalyzerPage").then(({ JfrAnalyzerPage }) => ({
+    default: JfrAnalyzerPage,
+  })),
+);
+const ExceptionAnalyzerPage = lazy(() =>
+  import("./pages/ExceptionAnalyzerPage").then(({ ExceptionAnalyzerPage }) => ({
+    default: ExceptionAnalyzerPage,
+  })),
+);
+const ThreadDumpAnalyzerPage = lazy(() =>
+  import("./pages/ThreadDumpAnalyzerPage").then(({ ThreadDumpAnalyzerPage }) => ({
+    default: ThreadDumpAnalyzerPage,
+  })),
+);
+const JenniferProfilePage = lazy(() =>
+  import("./pages/JenniferProfilePage").then(({ JenniferProfilePage }) => ({
+    default: JenniferProfilePage,
+  })),
+);
+const TraceImportPage = lazy(() =>
+  import("./pages/TraceImportPage").then(({ TraceImportPage }) => ({
+    default: TraceImportPage,
+  })),
+);
+const EvidenceBoardPage = lazy(() =>
+  import("./pages/EvidenceBoardPage").then(({ EvidenceBoardPage }) => ({
+    default: EvidenceBoardPage,
+  })),
+);
+const SettingsPage = lazy(() =>
+  import("./pages/SettingsPage").then(({ SettingsPage }) => ({
+    default: SettingsPage,
+  })),
+);
 
 // [한글] App: 사이드바 선택(active) 에 따라 9개 분석기/유틸 페이지 중
 // 하나를 마운트하는 컨테이너. 페이지 전환 시 이전 페이지의 분석 결과는
@@ -104,20 +147,38 @@ function App() {
             </div>
           </header>
 
-          {active === "profiler" && <ProfilerAnalyzerPage />}
-          {active === "diff" && <DiffPage />}
-          {active === "access_log" && <AccessLogAnalyzerPage />}
-          {active === "gc_log" && <GcLogAnalyzerPage />}
-          {active === "jfr" && <JfrAnalyzerPage />}
-          {active === "exception" && <ExceptionAnalyzerPage />}
-          {active === "thread_dump" && <ThreadDumpAnalyzerPage />}
-          {active === "msa_profile" && <JenniferProfilePage />}
-          {active === "trace_import" && <TraceImportPage />}
-          {active === "evidence_board" && <EvidenceBoardPage />}
-          {active === "settings" && <SettingsPage />}
+          <Suspense fallback={<PageFallback />}>
+            {active === "profiler" && <ProfilerAnalyzerPage />}
+            {active === "diff" && <DiffPage />}
+            {active === "access_log" && <AccessLogAnalyzerPage />}
+            {active === "gc_log" && <GcLogAnalyzerPage />}
+            {active === "jfr" && <JfrAnalyzerPage />}
+            {active === "exception" && <ExceptionAnalyzerPage />}
+            {active === "thread_dump" && <ThreadDumpAnalyzerPage />}
+            {active === "msa_profile" && <JenniferProfilePage />}
+            {active === "trace_import" && <TraceImportPage />}
+            {active === "evidence_board" && <EvidenceBoardPage />}
+            {active === "settings" && <SettingsPage />}
+          </Suspense>
         </div>
       </div>
     </DropZone>
+  );
+}
+
+function PageFallback(): JSX.Element {
+  return (
+    <main className="content" aria-busy="true">
+      <section className="rounded-md border border-border bg-muted/40 p-4">
+        <div className="h-4 w-36 animate-pulse rounded bg-muted" />
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="h-20 animate-pulse rounded bg-muted" />
+          <div className="h-20 animate-pulse rounded bg-muted" />
+          <div className="h-20 animate-pulse rounded bg-muted" />
+          <div className="h-20 animate-pulse rounded bg-muted" />
+        </div>
+      </section>
+    </main>
   );
 }
 

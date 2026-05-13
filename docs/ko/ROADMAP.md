@@ -77,6 +77,9 @@ finding을 확인하고, 근거를 수집하고, 고객 데이터 외부 전송 
 - Go/Wails desktop app용 Windows GUI smoke workflow 추가. GitHub-hosted
   Windows runner에서 Windows 실행 파일을 빌드하고 `archscope.exe`를 실행한 뒤
   GUI process가 유지되는지 확인하고 정상 종료한다.
+- Release workflow hardening 추가. macOS signing/notarization secret preflight,
+  build 이후 codesign/stapler validation, route-level frontend lazy loading,
+  modular ECharts bundling, startup/chart-runtime chunk budget을 포함한다.
 
 ### Profiler, Access Log, GC, MSA 개선
 
@@ -131,11 +134,13 @@ finding을 확인하고, 근거를 수집하고, 고객 데이터 외부 전송 
 
 이 항목들은 `work_status.md`의 현재 실행 큐와 계속 맞춰야 한다.
 
-1. Release hardening을 마무리한다.
+1. Release verification 상태를 유지한다.
    - Release cut 전 Windows GUI smoke를 반복하고, 가능한 경우 고객 환경에
      가까운 수동 smoke도 추가한다.
-   - Signing/notarization 작업을 계속한다.
-   - 필요한 frontend bundle splitting을 진행한다.
+   - macOS signing/notarization credential이 complete한 상태로 검증되게
+     유지한다.
+   - Frontend startup chunk와 lazy chart-runtime chunk를 문서화된 budget
+     안에서 추적한다.
    - 실제 로그가 현재 bounded-memory envelope를 넘으면 GC event streaming을
      더 깊게 검토한다.
 

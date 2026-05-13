@@ -10,7 +10,7 @@
 // 의존성 주의: ECharts 옵션 객체만 생성하고 실제 렌더는 ChartPanel 이
 // 담당 — 옵션과 렌더 분리로 메모이제이션과 테스트가 쉬워집니다.
 // ─────────────────────────────────────────────────────────────────────
-import type { EChartsOption } from "echarts";
+import type { EChartsOption } from "@/charts/echartsCore";
 
 import type { AccessLogAnalysisResult } from "@/bridge/types";
 

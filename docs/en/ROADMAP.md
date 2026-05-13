@@ -84,6 +84,9 @@ Guiding principles:
   Windows executable on a GitHub-hosted Windows runner, launches
   `archscope.exe`, verifies that the GUI process stays alive, and shuts it down
   cleanly.
+- Release workflow hardening added macOS signing/notarization secret preflight,
+  post-build codesign/stapler validation, route-level frontend lazy loading,
+  modular ECharts bundling, and explicit startup/chart-runtime chunk budgets.
 
 ### Profiler, Access Log, GC, and MSA Improvements
 
@@ -137,11 +140,12 @@ Guiding principles:
 
 These items should stay aligned with `work_status.md`.
 
-1. Finish release hardening.
+1. Keep release verification healthy.
    - Repeat the Windows GUI smoke before release cuts and add manual
      customer-environment smoke where available.
-   - Continue signing/notarization work.
-   - Split large frontend bundles where needed.
+   - Keep macOS signing/notarization credentials complete and validated.
+   - Track frontend startup and lazy chart-runtime chunks against the documented
+     budgets.
    - Revisit deeper GC event streaming if real-world inputs exceed the current
      bounded-memory envelope.
 

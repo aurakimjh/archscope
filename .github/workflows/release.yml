@@ -36,6 +36,9 @@ jobs:
   build:
     name: Package (${{ matrix.label }})
     runs-on: ${{ matrix.os }}
+    env:
+      HAS_DEV_CERT: ${{ secrets.APPLE_DEVELOPER_ID_CERT_P12 != '' }}
+      HAS_NOTARY_CREDS: ${{ secrets.APPLE_NOTARY_KEYCHAIN_PROFILE != '' || secrets.APPLE_ID != '' }}
     strategy:
       fail-fast: false
       matrix:
@@ -65,6 +68,46 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
+
+      - name: Validate macOS signing inputs
+        if: startsWith(matrix.label, 'darwin-')
+        env:
+          DEV_ID_PRESENT: ${{ secrets.APPLE_DEVELOPER_ID != '' }}
+          CERT_P12_PRESENT: ${{ secrets.APPLE_DEVELOPER_ID_CERT_P12 != '' }}
+          CERT_PASSWORD_PRESENT: ${{ secrets.APPLE_DEVELOPER_ID_CERT_PASSWORD != '' }}
+          KEYCHAIN_PROFILE_PRESENT: ${{ secrets.APPLE_NOTARY_KEYCHAIN_PROFILE != '' }}
+          APPLE_ID_PRESENT: ${{ secrets.APPLE_ID != '' }}
+          APPLE_TEAM_ID_PRESENT: ${{ secrets.APPLE_TEAM_ID != '' }}
+          APPLE_PASSWORD_PRESENT: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD != '' }}
+        run: |
+          set -euo pipefail
+
+          if [ "$DEV_ID_PRESENT" = "true" ] || [ "$CERT_P12_PRESENT" = "true" ] || [ "$CERT_PASSWORD_PRESENT" = "true" ]; then
+            if [ "$DEV_ID_PRESENT" != "true" ] || [ "$CERT_P12_PRESENT" != "true" ] || [ "$CERT_PASSWORD_PRESENT" != "true" ]; then
+              echo "::error::macOS Developer ID signing requires APPLE_DEVELOPER_ID, APPLE_DEVELOPER_ID_CERT_P12, and APPLE_DEVELOPER_ID_CERT_PASSWORD together."
+              exit 1
+            fi
+          fi
+
+          if [ "$APPLE_ID_PRESENT" = "true" ] || [ "$APPLE_TEAM_ID_PRESENT" = "true" ] || [ "$APPLE_PASSWORD_PRESENT" = "true" ]; then
+            if [ "$APPLE_ID_PRESENT" != "true" ] || [ "$APPLE_TEAM_ID_PRESENT" != "true" ] || [ "$APPLE_PASSWORD_PRESENT" != "true" ]; then
+              echo "::error::Apple ID notarization requires APPLE_ID, APPLE_TEAM_ID, and APPLE_APP_SPECIFIC_PASSWORD together."
+              exit 1
+            fi
+          fi
+
+          if [ "$KEYCHAIN_PROFILE_PRESENT" = "true" ] || [ "$APPLE_ID_PRESENT" = "true" ]; then
+            if [ "$DEV_ID_PRESENT" != "true" ]; then
+              echo "::error::Notarization credentials were provided, but Developer ID signing secrets are incomplete."
+              exit 1
+            fi
+          fi
+
+          if [ "$DEV_ID_PRESENT" = "true" ]; then
+            echo "macOS Developer ID signing secrets are configured."
+          else
+            echo "macOS Developer ID signing secrets are absent; release will use ad-hoc signing and skip notarization."
+          fi
 
       - name: Linux WebKitGTK runtime headers
         if: matrix.os == 'ubuntu-latest'
@@ -102,7 +145,6 @@ jobs:
       - name: Import Developer ID certificate (macOS)
         if: startsWith(matrix.label, 'darwin-') && env.HAS_DEV_CERT == 'true'
         env:
-          HAS_DEV_CERT: ${{ secrets.APPLE_DEVELOPER_ID_CERT_P12 != '' }}
           CERT_P12: ${{ secrets.APPLE_DEVELOPER_ID_CERT_P12 }}
           CERT_PASSWORD: ${{ secrets.APPLE_DEVELOPER_ID_CERT_PASSWORD }}
         run: |
@@ -142,6 +184,18 @@ jobs:
             task darwin:notarize
           else
             echo "Notary credentials absent; skipping notarization."
+          fi
+        working-directory: apps/engine-native/cmd/archscope-app
+
+      - name: Verify macOS signature and notarization
+        if: startsWith(matrix.label, 'darwin-')
+        run: |
+          set -euo pipefail
+          codesign --verify --deep --strict --verbose=2 bin/archscope.app
+          if [ "$HAS_NOTARY_CREDS" = "true" ]; then
+            xcrun stapler validate bin/archscope.app
+          else
+            echo "Notarization credentials absent; skipping stapler validation."
           fi
         working-directory: apps/engine-native/cmd/archscope-app
 

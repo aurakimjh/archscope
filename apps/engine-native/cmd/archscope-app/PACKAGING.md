@@ -41,6 +41,16 @@ When secrets are absent the workflow falls back to **ad-hoc signing** and
 user; opening via right-click → Open works around it. This makes the
 workflow useful for early RCs without blocking on Apple credentials.
 
+The release workflow validates macOS signing inputs before packaging:
+
+- Developer ID signing requires `APPLE_DEVELOPER_ID`,
+  `APPLE_DEVELOPER_ID_CERT_P12`, and `APPLE_DEVELOPER_ID_CERT_PASSWORD`
+  together.
+- Apple-ID notarization requires `APPLE_ID`, `APPLE_TEAM_ID`, and
+  `APPLE_APP_SPECIFIC_PASSWORD` together.
+- Notarization credentials require a complete Developer ID signing set, because
+  notarization of an ad-hoc signed app is not useful.
+
 Local production-grade signing:
 
 ```bash
@@ -98,10 +108,12 @@ everything else; the .deb and .rpm declare their dependencies (see
    (`macos-14` arm64, `windows-latest`, `ubuntu-latest`).
 2. Codesigns + notarizes (macOS only, gated by secrets — falls back to
    ad-hoc if absent).
-3. Builds the platform installer (`.dmg` for macOS, NSIS `.exe` for
+3. Verifies the macOS signature with `codesign --verify --deep --strict`; when
+   notarization credentials are present, also runs `xcrun stapler validate`.
+4. Builds the platform installer (`.dmg` for macOS, NSIS `.exe` for
    Windows, `.deb` + `.rpm` + raw binary for Linux).
-4. Computes SHA256SUMS of all release artifacts.
-5. Creates a GitHub Release with auto-generated notes; pre-release flag
+5. Computes SHA256SUMS of all release artifacts.
+6. Creates a GitHub Release with auto-generated notes; pre-release flag
    set when the tag matches `-rc` / `-alpha` / `-beta`.
 
 ```bash
@@ -123,8 +135,15 @@ bindings. Size measurement on darwin/arm64 (proper `-tags production
 | darwin/arm64 raw binary | ≤ 12 MB | **11 MB** ✅ |
 | darwin/arm64 .app bundle | ≤ 14 MB | **11 MB** ✅ |
 | darwin/arm64 .dmg (UDZO) | ≤ 8 MB | **5.3 MB** ✅ |
-| windows/amd64 .exe | ≤ 13 MB | tbd (CI) |
+| windows/amd64 .exe | ≤ 15 MB | **13.4 MiB / 14,060,544 bytes** ✅ |
 | linux/amd64 AppImage | ≤ 30 MB | tbd (CI) |
+
+Frontend bundle budget after route-level splitting:
+
+| Chunk | Budget | Measured |
+|---|---:|---:|
+| startup shell JS | ≤ 200 KB raw | **156.8 KB raw / 50.9 KB gzip** ✅ |
+| lazy shared chart runtime | ≤ 700 KB raw | **668.5 KB raw / 221.3 KB gzip** ✅ |
 
 Reproducible local build (without `task`):
 
