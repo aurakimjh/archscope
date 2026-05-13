@@ -1,12 +1,12 @@
 // [한글] gclog parser 회귀 테스트.
 //
 // 검증 대상
-//   • DetectFormat: Unified / G1Legacy / Legacy 자동 감지.
-//   • Unified: pause + heap before/after + young/old + metaspace 추출.
-//   • Legacy multi-line: 여러 줄 buffer 가 한 record 로 emit.
-//   • Cause 문자열 (System.gc, Allocation Failure 등) 정상 추출.
-//   • Collector 라벨 (G1/Parallel/CMS/ZGC/Shenandoah) 식별.
-//   • MaxLines / Strict 동작.
+//   - DetectFormat: Unified / G1Legacy / Legacy 자동 감지.
+//   - Unified: pause + heap before/after + young/old + metaspace 추출.
+//   - Legacy multi-line: 여러 줄 buffer 가 한 record 로 emit.
+//   - Cause 문자열 (System.gc, Allocation Failure 등) 정상 추출.
+//   - Collector 라벨 (G1/Parallel/CMS/ZGC/Shenandoah) 식별.
+//   - MaxLines / Strict 동작.
 package gclog
 
 import (
@@ -195,6 +195,61 @@ func TestParseUnifiedMetaspaceCompanionMismatchedGCID(t *testing.T) {
 	if events[0].MetaspaceBeforeMB != nil {
 		t.Errorf("Metaspace should not merge across mismatched GC IDs, got %v",
 			*events[0].MetaspaceBeforeMB)
+	}
+}
+
+func TestParseUnifiedG1HeapRegionDetails(t *testing.T) {
+	body := strings.Join([]string{
+		"[0.000s][info][gc,init] Heap Region Size: 4M",
+		"[0.001s][info][gc,heap] GC(0) Eden regions: 5->0(10)",
+		"[0.002s][info][gc,heap] GC(0) Survivor regions: 1->2(2)",
+		"[0.003s][info][gc,heap] GC(0) Old regions: 7->8",
+		"[0.004s][info][gc,metaspace] GC(0) Metaspace: 12345K(13000K)->12300K(13000K)",
+		"[0.005s][info][gc] GC(0) Pause Young (Normal) (G1 Evacuation Pause) 80M->40M(200M) 12.000ms",
+		"",
+	}, "\n")
+	path := writeTempFile(t, "u-regions.log", body)
+	events, _, err := ParseFile(path, Options{})
+	if err != nil {
+		t.Fatalf("ParseFile: %v", err)
+	}
+	if len(events) != 1 {
+		t.Fatalf("events = %d, want 1", len(events))
+	}
+	e := events[0]
+	if e.YoungBeforeMB == nil || *e.YoungBeforeMB != 24.0 {
+		t.Errorf("YoungBeforeMB = %v, want 24.0", e.YoungBeforeMB)
+	}
+	if e.YoungAfterMB == nil || *e.YoungAfterMB != 8.0 {
+		t.Errorf("YoungAfterMB = %v, want 8.0", e.YoungAfterMB)
+	}
+	if e.OldBeforeMB == nil || *e.OldBeforeMB != 28.0 {
+		t.Errorf("OldBeforeMB = %v, want 28.0", e.OldBeforeMB)
+	}
+	if e.OldAfterMB == nil || *e.OldAfterMB != 32.0 {
+		t.Errorf("OldAfterMB = %v, want 32.0", e.OldAfterMB)
+	}
+	if e.MetaspaceBeforeMB == nil || *e.MetaspaceBeforeMB <= 12.0 {
+		t.Errorf("MetaspaceBeforeMB = %v, want parsed value", e.MetaspaceBeforeMB)
+	}
+}
+
+func TestParseUnifiedOutOfMemoryWarningStrict(t *testing.T) {
+	body := strings.Join([]string{
+		"[2026-04-27T10:00:00.000+0900][info][gc] GC(0) Pause Young (Normal) (G1 Evacuation Pause) 80M->40M(200M) 12.000ms",
+		"java.lang.OutOfMemoryError: Java heap space",
+		"",
+	}, "\n")
+	path := writeTempFile(t, "u-oom.log", body)
+	events, diags, err := ParseFile(path, Options{Strict: true})
+	if err != nil {
+		t.Fatalf("ParseFile strict OOM warning should not fail: %v", err)
+	}
+	if len(events) != 1 {
+		t.Fatalf("events = %d, want 1", len(events))
+	}
+	if got := diags.SkippedByReason[ReasonOutOfMemoryError]; got != 1 {
+		t.Fatalf("OUT_OF_MEMORY_ERROR warnings = %d, want 1", got)
 	}
 }
 

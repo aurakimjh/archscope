@@ -331,6 +331,18 @@ func TestFindingsRules(t *testing.T) {
 			[]string{"PROMOTION_FAILURE"},
 		},
 		{
+			"out_of_memory_critical",
+			map[string]any{
+				"max_pause_ms":       10.0,
+				"full_gc_count":      0,
+				"throughput_percent": 99.0,
+				"wall_time_sec":      10.0,
+				"p99_pause_ms":       50.0,
+				"oom_event_count":    1,
+			},
+			[]string{"OUT_OF_MEMORY_ERROR"},
+		},
+		{
 			"low_throughput_skipped_when_no_wall_time",
 			map[string]any{
 				"max_pause_ms":       10.0,
@@ -471,6 +483,94 @@ func TestAllocationAndPromotionRates(t *testing.T) {
 	avgAlloc := asFloat(result.Summary["avg_allocation_rate_mb_per_sec"])
 	if avgAlloc != 7.0 {
 		t.Errorf("avg_allocation_rate = %v, want 7.0", avgAlloc)
+	}
+}
+
+func TestAnalyzeUnifiedG1HeapRegionSeries(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "gc-unified-regions.log")
+	body := strings.Join([]string{
+		"[0.000s][info][gc,init] Heap Region Size: 4M",
+		"[0.001s][info][gc,heap] GC(0) Eden regions: 5->0(10)",
+		"[0.002s][info][gc,heap] GC(0) Survivor regions: 1->2(2)",
+		"[0.003s][info][gc,heap] GC(0) Old regions: 7->8",
+		"[0.004s][info][gc,metaspace] GC(0) Metaspace: 12345K(13000K)->12300K(13000K)",
+		"[0.005s][info][gc] GC(0) Pause Young (Normal) (G1 Evacuation Pause) 80M->40M(200M) 12.000ms",
+		"",
+	}, "\n")
+	if err := os.WriteFile(path, []byte(body), 0o644); err != nil {
+		t.Fatalf("write: %v", err)
+	}
+	result, err := Analyze(path, Options{})
+	if err != nil {
+		t.Fatalf("Analyze: %v", err)
+	}
+
+	assertSeriesValue := func(name string, want float64) {
+		t.Helper()
+		rows, ok := result.Series[name].([]map[string]any)
+		if !ok {
+			t.Fatalf("%s is %T", name, result.Series[name])
+		}
+		if len(rows) != 1 {
+			t.Fatalf("%s len = %d, want 1", name, len(rows))
+		}
+		if got := asFloat(rows[0]["value"]); got != want {
+			t.Fatalf("%s value = %v, want %v", name, got, want)
+		}
+	}
+
+	assertSeriesValue("young_before_mb", 24.0)
+	assertSeriesValue("young_after_mb", 8.0)
+	assertSeriesValue("old_before_mb", 28.0)
+	assertSeriesValue("old_after_mb", 32.0)
+	if rows, ok := result.Series["metaspace_after_mb"].([]map[string]any); !ok || len(rows) != 1 {
+		t.Fatalf("metaspace_after_mb = %T len %d, want one row", result.Series["metaspace_after_mb"], len(rows))
+	}
+}
+
+func TestAnalyzeOutOfMemoryAndLongPauseAlerts(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "gc-alerts.log")
+	body := strings.Join([]string{
+		"[2026-04-27T10:00:00.000+0900][info][gc] GC(0) Pause Young (Normal) (G1 Evacuation Pause) 80M->40M(200M) 150.000ms",
+		"java.lang.OutOfMemoryError: Java heap space",
+		"",
+	}, "\n")
+	if err := os.WriteFile(path, []byte(body), 0o644); err != nil {
+		t.Fatalf("write: %v", err)
+	}
+	result, err := Analyze(path, Options{})
+	if err != nil {
+		t.Fatalf("Analyze: %v", err)
+	}
+	if got := asInt(result.Summary["long_pause_event_count"]); got != 1 {
+		t.Fatalf("long_pause_event_count = %d, want 1", got)
+	}
+	if got := asInt(result.Summary["oom_event_count"]); got != 1 {
+		t.Fatalf("oom_event_count = %d, want 1", got)
+	}
+	alerts, ok := result.Tables["alerts"].([]map[string]any)
+	if !ok {
+		t.Fatalf("alerts is %T", result.Tables["alerts"])
+	}
+	gotCodes := map[string]bool{}
+	for _, alert := range alerts {
+		gotCodes[alert["code"].(string)] = true
+	}
+	if !gotCodes["LONG_GC_PAUSE_EVENT"] || !gotCodes["OUT_OF_MEMORY_ERROR"] {
+		t.Fatalf("alert codes = %v, want long pause and OOM", gotCodes)
+	}
+	events, ok := result.Tables["events"].([]map[string]any)
+	if !ok || len(events) != 1 {
+		t.Fatalf("events = %T len %d, want one row", result.Tables["events"], len(events))
+	}
+	if events[0]["severity"] != "warning" {
+		t.Fatalf("event severity = %v, want warning", events[0]["severity"])
+	}
+	flags, ok := events[0]["event_flags"].([]string)
+	if !ok || !containsString(flags, "long_pause") {
+		t.Fatalf("event_flags = %#v, want long_pause", events[0]["event_flags"])
 	}
 }
 
@@ -636,4 +736,13 @@ func sameSet(a, b []string) bool {
 		}
 	}
 	return true
+}
+
+func containsString(values []string, want string) bool {
+	for _, value := range values {
+		if value == want {
+			return true
+		}
+	}
+	return false
 }

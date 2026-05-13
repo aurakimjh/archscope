@@ -32,6 +32,8 @@ export type GcChartLabels = {
   pauseAxis: string;
   pauseSeries: string;
   fullGcMarker: string;
+  longPauseMarker: string;
+  criticalPauseMarker: string;
   heapAxis: string;
   heapBefore: string;
   heapAfter: string;
@@ -133,7 +135,8 @@ export function pauseTimelineOption(
 ): EChartsOption {
   const rows = result?.series.pause_timeline ?? [];
   const events = result?.tables.events ?? [];
-  // Find Full GC events so they can be highlighted as markPoints.
+  const alerts = result?.tables.alerts ?? [];
+  // Find Full GC and anomalous events so they can be highlighted as markPoints.
   const fullGcMarks = events
     .filter(
       (row) =>
@@ -147,6 +150,24 @@ export function pauseTimelineOption(
       symbol: "pin",
       symbolSize: 30,
     }));
+  const alertMarks = alerts
+    .filter((alert) => alert.time && typeof alert.pause_ms === "number")
+    .map((alert) => {
+      const isCritical = alert.severity?.toLowerCase() === "critical";
+      const name =
+        alert.code === "CRITICAL_GC_PAUSE_EVENT"
+          ? labels.criticalPauseMarker
+          : labels.longPauseMarker;
+      return {
+        name,
+        coord: [alert.time as string, alert.pause_ms ?? 0] as [string, number],
+        value: `${name}: ${alert.pause_ms ?? 0} ms`,
+        itemStyle: { color: isCritical ? "#e11d48" : "#f59e0b" },
+        symbol: "pin",
+        symbolSize: isCritical ? 34 : 28,
+      };
+    });
+  const markPoints = [...fullGcMarks, ...alertMarks];
 
   return {
     grid: baseGrid,
@@ -174,12 +195,13 @@ export function pauseTimelineOption(
         itemStyle: { color: "#ef4444" },
         areaStyle: { color: "rgba(239,68,68,0.10)" },
         markPoint:
-          fullGcMarks.length > 0
+          markPoints.length > 0
             ? {
-                data: fullGcMarks,
+                data: markPoints,
                 label: {
                   fontSize: 9,
-                  formatter: () => labels.fullGcMarker,
+                  formatter: (params: { name?: string }) =>
+                    params.name ?? labels.fullGcMarker,
                 },
               }
             : undefined,

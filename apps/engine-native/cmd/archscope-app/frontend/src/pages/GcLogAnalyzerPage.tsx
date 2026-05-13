@@ -23,6 +23,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { engine } from "@/bridge/engine";
 import type {
   BridgeError,
+  GcAlertRow,
   GcEventRow,
   GcJvmInfo,
   GcLogAnalysisResult,
@@ -110,6 +111,7 @@ export function GcLogAnalyzerPage(): JSX.Element {
   const summary = result?.summary;
   const findings = result?.metadata?.findings ?? ([] as JvmFinding[]);
   const eventRows = result?.tables?.events?.slice(0, MAX_EVENT_ROWS) ?? [];
+  const alertRows = result?.tables?.alerts?.slice(0, MAX_EVENT_ROWS) ?? [];
   const jvmInfo = result?.metadata?.jvm_info;
 
   const chartLabels = useMemo<GcChartLabels>(
@@ -117,6 +119,8 @@ export function GcLogAnalyzerPage(): JSX.Element {
       pauseAxis: t("pauseMsAxis"),
       pauseSeries: t("pauseSeriesLabel"),
       fullGcMarker: t("fullGcMarker"),
+      longPauseMarker: t("longPauseMarker"),
+      criticalPauseMarker: t("criticalPauseMarker"),
       heapAxis: t("heapMbAxis"),
       heapBefore: t("gcHeapBefore"),
       heapAfter: t("gcHeapAfter"),
@@ -136,11 +140,19 @@ export function GcLogAnalyzerPage(): JSX.Element {
     [t],
   );
 
-  // Heap series toggles + pause overlay state. Defaults match the
-  // web page so users get heap_committed / before / after on first
-  // open, then can drill into young / old / metaspace as needed.
+  // Heap series toggles + pause overlay state. Show the key generation
+  // lines by default so young / old / metaspace regressions are visible
+  // immediately after analysis; empty series are ignored by the chart.
   const [visibleHeapSeries, setVisibleHeapSeries] = useState<Set<HeapSeriesId>>(
-    () => new Set<HeapSeriesId>(["heap_committed", "heap_before", "heap_after"]),
+    () =>
+      new Set<HeapSeriesId>([
+        "heap_committed",
+        "heap_before",
+        "heap_after",
+        "young_after",
+        "old_after",
+        "metaspace_after",
+      ]),
   );
   const [showPauseOverlay, setShowPauseOverlay] = useState(false);
 
@@ -471,6 +483,14 @@ export function GcLogAnalyzerPage(): JSX.Element {
               label={t("promotionFailureCount")}
               value={formatNumber(summary?.promotion_failure_count)}
             />
+            <MetricCard
+              label={t("longPauseEventCount")}
+              value={formatNumber(summary?.long_pause_event_count)}
+            />
+            <MetricCard
+              label={t("oomEventCount")}
+              value={formatNumber(summary?.oom_event_count)}
+            />
           </section>
           {findings.length > 0 && (
             <Card className="mt-4">
@@ -604,59 +624,83 @@ export function GcLogAnalyzerPage(): JSX.Element {
         </TabsContent>
 
         <TabsContent value="events" className="mt-4">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm">{t("gcEventTable")}</CardTitle>
-            </CardHeader>
-            <CardContent className="overflow-x-auto p-0">
-              <table className="w-full text-xs">
-                <thead>
-                  <tr className="border-b border-border bg-muted/40 text-[10px] uppercase tracking-wider text-muted-foreground">
-                    <th className="px-3 py-2 text-left font-medium">
-                      {t("timestampLabel")}
-                    </th>
-                    <th className="px-3 py-2 text-right font-medium">
-                      {t("uptimeSec")}
-                    </th>
-                    <th className="px-3 py-2 text-left font-medium">
-                      {t("gcTypeLabel")}
-                    </th>
-                    <th className="px-3 py-2 text-left font-medium">
-                      {t("gcCauseLabel")}
-                    </th>
-                    <th className="px-3 py-2 text-right font-medium">
-                      {t("pauseMsAxis")}
-                    </th>
-                    <th className="px-3 py-2 text-right font-medium">
-                      {t("heapBeforeMb")}
-                    </th>
-                    <th className="px-3 py-2 text-right font-medium">
-                      {t("heapAfterMb")}
-                    </th>
-                    <th className="px-3 py-2 text-right font-medium">
-                      {t("heapCommittedMb")}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {eventRows.length > 0 ? (
-                    eventRows.map((row, idx) => (
-                      <EventRowItem key={idx} row={row} />
-                    ))
-                  ) : (
-                    <tr>
-                      <td
-                        className="px-3 py-3 text-center text-muted-foreground"
-                        colSpan={8}
-                      >
-                        —
-                      </td>
+          <div className="grid gap-4">
+            <AlertRowsTable rows={alertRows} t={t} />
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm">{t("gcEventTable")}</CardTitle>
+              </CardHeader>
+              <CardContent className="overflow-x-auto p-0">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="border-b border-border bg-muted/40 text-[10px] uppercase tracking-wider text-muted-foreground">
+                      <th className="px-3 py-2 text-left font-medium">
+                        {t("gcAlertSeverity")}
+                      </th>
+                      <th className="px-3 py-2 text-left font-medium">
+                        {t("timestampLabel")}
+                      </th>
+                      <th className="px-3 py-2 text-right font-medium">
+                        {t("uptimeSec")}
+                      </th>
+                      <th className="px-3 py-2 text-left font-medium">
+                        {t("gcTypeLabel")}
+                      </th>
+                      <th className="px-3 py-2 text-left font-medium">
+                        {t("gcCauseLabel")}
+                      </th>
+                      <th className="px-3 py-2 text-right font-medium">
+                        {t("pauseMsAxis")}
+                      </th>
+                      <th className="px-3 py-2 text-right font-medium">
+                        {t("heapBeforeMb")}
+                      </th>
+                      <th className="px-3 py-2 text-right font-medium">
+                        {t("heapAfterMb")}
+                      </th>
+                      <th className="px-3 py-2 text-right font-medium">
+                        {t("heapCommittedMb")}
+                      </th>
+                      <th className="px-3 py-2 text-right font-medium">
+                        {t("gcHeapYoungBefore")}
+                      </th>
+                      <th className="px-3 py-2 text-right font-medium">
+                        {t("gcHeapYoungAfter")}
+                      </th>
+                      <th className="px-3 py-2 text-right font-medium">
+                        {t("gcHeapOldBefore")}
+                      </th>
+                      <th className="px-3 py-2 text-right font-medium">
+                        {t("gcHeapOldAfter")}
+                      </th>
+                      <th className="px-3 py-2 text-right font-medium">
+                        {t("gcHeapMetaspaceBefore")}
+                      </th>
+                      <th className="px-3 py-2 text-right font-medium">
+                        {t("gcHeapMetaspaceAfter")}
+                      </th>
                     </tr>
-                  )}
-                </tbody>
-              </table>
-            </CardContent>
-          </Card>
+                  </thead>
+                  <tbody>
+                    {eventRows.length > 0 ? (
+                      eventRows.map((row, idx) => (
+                        <EventRowItem key={idx} row={row} />
+                      ))
+                    ) : (
+                      <tr>
+                        <td
+                          className="px-3 py-3 text-center text-muted-foreground"
+                          colSpan={15}
+                        >
+                          —
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         <TabsContent value="jvm" className="mt-4">
@@ -706,9 +750,136 @@ function formatMb(mb: number | null | undefined): string | null {
   return `${mb.toLocaleString(undefined, { maximumFractionDigits: 2 })} MB`;
 }
 
+function AlertRowsTable({
+  rows,
+  t,
+}: {
+  rows: GcAlertRow[];
+  t: (key: MessageKey) => string;
+}): JSX.Element {
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm">{t("gcAlertTable")}</CardTitle>
+      </CardHeader>
+      <CardContent className="overflow-x-auto p-0">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="border-b border-border bg-muted/40 text-[10px] uppercase tracking-wider text-muted-foreground">
+              <th className="px-3 py-2 text-left font-medium">
+                {t("gcAlertSeverity")}
+              </th>
+              <th className="px-3 py-2 text-left font-medium">
+                {t("gcAlertCode")}
+              </th>
+              <th className="px-3 py-2 text-left font-medium">
+                {t("gcAlertLocation")}
+              </th>
+              <th className="px-3 py-2 text-right font-medium">
+                {t("pauseMsAxis")}
+              </th>
+              <th className="px-3 py-2 text-left font-medium">
+                {t("gcAlertMessage")}
+              </th>
+              <th className="px-3 py-2 text-left font-medium">
+                {t("gcAlertRawPreview")}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.length > 0 ? (
+              rows.map((row, idx) => (
+                <tr
+                  key={`${row.code}-${idx}`}
+                  className="border-b border-border last:border-0"
+                >
+                  <td className="px-3 py-1.5">
+                    <span className={severityBadgeClass(row.severity)}>
+                      {row.severity}
+                    </span>
+                  </td>
+                  <td className="px-3 py-1.5 font-mono text-[11px]">
+                    {row.code}
+                  </td>
+                  <td className="px-3 py-1.5 font-mono text-[11px]">
+                    {formatAlertLocation(row)}
+                  </td>
+                  <td className="px-3 py-1.5 text-right tabular-nums">
+                    {row.pause_ms != null ? row.pause_ms.toFixed(2) : "-"}
+                  </td>
+                  <td className="px-3 py-1.5">{row.message}</td>
+                  <td className="max-w-[28rem] truncate px-3 py-1.5 font-mono text-[11px] text-muted-foreground">
+                    {row.raw_preview ?? "-"}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  className="px-3 py-3 text-center text-muted-foreground"
+                  colSpan={6}
+                >
+                  —
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </CardContent>
+    </Card>
+  );
+}
+
+function formatAlertLocation(row: GcAlertRow): string {
+  if (row.time) return row.time;
+  if (row.event_number != null) return `#${row.event_number}`;
+  if (row.line_number != null) return `line ${row.line_number}`;
+  return "-";
+}
+
+function severityBadgeClass(severity: string | null | undefined): string {
+  const base =
+    "inline-block rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase";
+  switch ((severity ?? "").toLowerCase()) {
+    case "critical":
+    case "error":
+      return `${base} bg-rose-500/15 text-rose-700 dark:text-rose-300`;
+    case "warning":
+    case "warn":
+      return `${base} bg-amber-500/15 text-amber-700 dark:text-amber-300`;
+    case "info":
+      return `${base} bg-sky-500/15 text-sky-700 dark:text-sky-300`;
+    default:
+      return `${base} bg-muted text-muted-foreground`;
+  }
+}
+
+function eventRowClass(row: GcEventRow): string {
+  switch ((row.severity ?? "").toLowerCase()) {
+    case "critical":
+      return "bg-rose-500/5";
+    case "warning":
+    case "warn":
+      return "bg-amber-500/5";
+    default:
+      return "";
+  }
+}
+
 function EventRowItem({ row }: { row: GcEventRow }): JSX.Element {
   return (
-    <tr className="border-b border-border last:border-0">
+    <tr
+      className={`border-b border-border last:border-0 ${eventRowClass(row)}`}
+    >
+      <td className="px-3 py-1.5">
+        {row.severity ? (
+          <span className={severityBadgeClass(row.severity)}>
+            {row.severity}
+          </span>
+        ) : (
+          <span className="text-muted-foreground">-</span>
+        )}
+      </td>
       <td className="px-3 py-1.5 font-mono text-[11px]">
         {row.timestamp ?? "-"}
       </td>
@@ -732,6 +903,24 @@ function EventRowItem({ row }: { row: GcEventRow }): JSX.Element {
       </td>
       <td className="px-3 py-1.5 text-right tabular-nums">
         {row.heap_committed_mb != null ? row.heap_committed_mb.toFixed(1) : "-"}
+      </td>
+      <td className="px-3 py-1.5 text-right tabular-nums">
+        {row.young_before_mb != null ? row.young_before_mb.toFixed(1) : "-"}
+      </td>
+      <td className="px-3 py-1.5 text-right tabular-nums">
+        {row.young_after_mb != null ? row.young_after_mb.toFixed(1) : "-"}
+      </td>
+      <td className="px-3 py-1.5 text-right tabular-nums">
+        {row.old_before_mb != null ? row.old_before_mb.toFixed(1) : "-"}
+      </td>
+      <td className="px-3 py-1.5 text-right tabular-nums">
+        {row.old_after_mb != null ? row.old_after_mb.toFixed(1) : "-"}
+      </td>
+      <td className="px-3 py-1.5 text-right tabular-nums">
+        {row.metaspace_before_mb != null ? row.metaspace_before_mb.toFixed(1) : "-"}
+      </td>
+      <td className="px-3 py-1.5 text-right tabular-nums">
+        {row.metaspace_after_mb != null ? row.metaspace_after_mb.toFixed(1) : "-"}
       </td>
     </tr>
   );

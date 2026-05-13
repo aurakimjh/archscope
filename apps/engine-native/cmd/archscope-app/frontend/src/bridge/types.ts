@@ -313,6 +313,9 @@ export type GcLogSummary = {
   humongous_allocation_count: number;
   concurrent_mode_failure_count: number;
   promotion_failure_count: number;
+  long_pause_event_count?: number;
+  critical_pause_event_count?: number;
+  oom_event_count?: number;
 };
 
 export type GcPauseHistogramBucket = {
@@ -354,6 +357,8 @@ export type GcEventRow = {
   gc_type: string | null;
   cause: string | null;
   pause_ms: number | null;
+  severity?: string | null;
+  event_flags?: string[];
   heap_before_mb: number | null;
   heap_after_mb: number | null;
   heap_committed_mb: number | null;
@@ -363,6 +368,22 @@ export type GcEventRow = {
   old_after_mb?: number | null;
   metaspace_before_mb?: number | null;
   metaspace_after_mb?: number | null;
+};
+
+export type GcAlertRow = {
+  severity: string;
+  code: string;
+  message: string;
+  event_category?: string;
+  time?: string;
+  event_number?: number;
+  line_number?: number;
+  pause_ms?: number;
+  threshold_ms?: number;
+  gc_type?: string;
+  cause?: string | null;
+  oom_type?: string;
+  raw_preview?: string;
 };
 
 export type GcLogSeries = {
@@ -385,6 +406,7 @@ export type GcLogSeries = {
 
 export type GcLogTables = {
   events: GcEventRow[];
+  alerts?: GcAlertRow[];
 };
 
 export type GcJvmInfo = {

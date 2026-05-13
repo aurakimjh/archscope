@@ -61,6 +61,7 @@
 package gclog
 
 import (
+	"errors"
 	"math"
 	"sort"
 	"strconv"
@@ -70,6 +71,7 @@ import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/diagnostics"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/gclog"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/textio"
 )
 
 const (
@@ -81,7 +83,15 @@ const (
 	// DefaultMaxSeriesPoints keeps chart payloads bounded for large
 	// production GC logs. Summary statistics still use every parsed event.
 	DefaultMaxSeriesPoints = 10_000
+	// DefaultMaxAlertRows caps display rows for per-event warnings while
+	// summary counts still use the full event set.
+	DefaultMaxAlertRows = 500
+
+	longPauseWarningThresholdMS  = 100.0
+	longPauseCriticalThresholdMS = 1_000.0
 )
+
+var errStopAlertScan = errors.New("stop gc alert scan")
 
 // parserNames mirrors Python `_PARSER_NAMES` — picks the
 // `metadata.parser` literal based on the detected GC log format.
@@ -172,11 +182,15 @@ func Build(
 		allocationRates       = make([]float64, 0)
 		promotionRates        = make([]float64, 0)
 		eventRows             = make([]map[string]any, 0, topN)
+		alertRows             = make([]map[string]any, 0, DefaultMaxAlertRows)
 		firstUptimeSec        *float64
 		lastUptimeSec         *float64
 		humongousCount        int
 		cmfCount              int
 		promotionFailureCount int
+		longPauseEventCount   int
+		criticalPauseCount    int
+		oomEventCount         int
 	)
 	seriesTotal := len(events)
 	pauseTimeline := newSeriesSampler(seriesTotal, maxSeriesPoints)
@@ -191,6 +205,9 @@ func Build(
 	metaspaceAfterMB := newSeriesSampler(seriesTotal, maxSeriesPoints)
 	allocationRateTimeline := newSeriesSampler(seriesTotal, maxSeriesPoints)
 	promotionRateTimeline := newSeriesSampler(seriesTotal, maxSeriesPoints)
+
+	oomAlerts, oomEventCount := scanOutOfMemoryAlerts(sourceFile, opts.MaxLines, DefaultMaxAlertRows)
+	alertRows = append(alertRows, oomAlerts...)
 
 	var prevEvent *gclog.Event
 
@@ -229,6 +246,15 @@ func Build(
 			"value":   roundHalfEven(pauseValue, 3),
 			"gc_type": strOrUnknown(event.GCType),
 		})
+		if alert := buildLongPauseAlert(&event, index, timeLabel); alert != nil {
+			longPauseEventCount++
+			if alert["severity"] == "critical" {
+				criticalPauseCount++
+			}
+			if len(alertRows) < DefaultMaxAlertRows {
+				alertRows = append(alertRows, alert)
+			}
+		}
 
 		if event.HeapAfterMB != nil {
 			heapAfterMB.add(index, map[string]any{"time": timeLabel, "value": *event.HeapAfterMB})
@@ -346,6 +372,9 @@ func Build(
 		"humongous_allocation_count":     humongousCount,
 		"concurrent_mode_failure_count":  cmfCount,
 		"promotion_failure_count":        promotionFailureCount,
+		"long_pause_event_count":         longPauseEventCount,
+		"critical_pause_event_count":     criticalPauseCount,
+		"oom_event_count":                oomEventCount,
 	}
 
 	gcTypeBreakdown := make([]map[string]any, 0, typeCounts.len())
@@ -377,6 +406,7 @@ func Build(
 
 	tables := map[string]any{
 		"events": eventRows,
+		"alerts": alertRows,
 	}
 
 	parser := parserNames[gcFormat]
@@ -499,6 +529,16 @@ func formatFloat(v float64) string {
 }
 
 func eventToRow(event *gclog.Event) map[string]any {
+	oldBefore := event.OldBeforeMB
+	if oldBefore == nil && event.HeapBeforeMB != nil && event.YoungBeforeMB != nil {
+		v := math.Max(0.0, *event.HeapBeforeMB-*event.YoungBeforeMB)
+		oldBefore = &v
+	}
+	oldAfter := event.OldAfterMB
+	if oldAfter == nil && event.HeapAfterMB != nil && event.YoungAfterMB != nil {
+		v := math.Max(0.0, *event.HeapAfterMB-*event.YoungAfterMB)
+		oldAfter = &v
+	}
 	row := map[string]any{
 		"timestamp":           nilOr(event.Timestamp, func(t time.Time) any { return t.Format(time.RFC3339Nano) }),
 		"uptime_sec":          ptrOrNil(event.UptimeSec),
@@ -510,10 +550,12 @@ func eventToRow(event *gclog.Event) map[string]any {
 		"heap_committed_mb":   ptrOrNil(event.HeapCommittedMB),
 		"young_before_mb":     ptrOrNil(event.YoungBeforeMB),
 		"young_after_mb":      ptrOrNil(event.YoungAfterMB),
-		"old_before_mb":       ptrOrNil(event.OldBeforeMB),
-		"old_after_mb":        ptrOrNil(event.OldAfterMB),
+		"old_before_mb":       ptrOrNil(oldBefore),
+		"old_after_mb":        ptrOrNil(oldAfter),
 		"metaspace_before_mb": ptrOrNil(event.MetaspaceBeforeMB),
 		"metaspace_after_mb":  ptrOrNil(event.MetaspaceAfterMB),
+		"severity":            eventSeverity(event),
+		"event_flags":         eventFlags(event),
 		"raw_line":            event.RawLine,
 	}
 	return row
@@ -644,6 +686,128 @@ func oldGenAfterMB(event *gclog.Event) *float64 {
 	return nil
 }
 
+func buildLongPauseAlert(event *gclog.Event, index int, timeLabel string) map[string]any {
+	if event == nil || event.PauseMS == nil || *event.PauseMS < longPauseWarningThresholdMS {
+		return nil
+	}
+	severity := "warning"
+	code := "LONG_GC_PAUSE_EVENT"
+	threshold := longPauseWarningThresholdMS
+	if *event.PauseMS >= longPauseCriticalThresholdMS {
+		severity = "critical"
+		code = "CRITICAL_GC_PAUSE_EVENT"
+		threshold = longPauseCriticalThresholdMS
+	}
+	row := map[string]any{
+		"severity":       severity,
+		"code":           code,
+		"message":        "GC pause exceeded " + formatFloat(threshold) + " ms.",
+		"time":           timeLabel,
+		"event_number":   index + 1,
+		"pause_ms":       roundHalfEven(*event.PauseMS, 3),
+		"threshold_ms":   threshold,
+		"gc_type":        strOrUnknown(event.GCType),
+		"cause":          strPtrOrNil(event.Cause),
+		"raw_preview":    previewLine(event.RawLine),
+		"event_category": "gc_pause",
+	}
+	return row
+}
+
+func scanOutOfMemoryAlerts(path string, maxLines, maxRows int) ([]map[string]any, int) {
+	if path == "" {
+		return nil, 0
+	}
+	alerts := []map[string]any{}
+	total := 0
+	err := textio.ForEachTextLine(path, "", func(lineNumber int, line string) error {
+		if maxLines > 0 && lineNumber > maxLines {
+			return errStopAlertScan
+		}
+		oomType, ok := gclog.DetectOutOfMemory(line)
+		if !ok {
+			return nil
+		}
+		total++
+		if len(alerts) < maxRows {
+			alerts = append(alerts, map[string]any{
+				"severity":       "critical",
+				"code":           "OUT_OF_MEMORY_ERROR",
+				"message":        "OutOfMemoryError detected: " + oomType + ".",
+				"line_number":    lineNumber,
+				"oom_type":       oomType,
+				"raw_preview":    previewLine(line),
+				"event_category": "runtime_failure",
+			})
+		}
+		return nil
+	})
+	if err != nil && !errors.Is(err, errStopAlertScan) {
+		return alerts, total
+	}
+	return alerts, total
+}
+
+func eventFlags(event *gclog.Event) []string {
+	flags := []string{}
+	if event == nil {
+		return flags
+	}
+	if event.PauseMS != nil {
+		switch {
+		case *event.PauseMS >= longPauseCriticalThresholdMS:
+			flags = append(flags, "critical_pause")
+		case *event.PauseMS >= longPauseWarningThresholdMS:
+			flags = append(flags, "long_pause")
+		}
+	}
+	if strings.Contains(strings.ToLower(event.GCType), "full") {
+		flags = append(flags, "full_gc")
+	}
+	if isHumongous(event) {
+		flags = append(flags, "humongous")
+	}
+	if isConcurrentModeFailure(event) {
+		flags = append(flags, "concurrent_mode_failure")
+	}
+	if isPromotionFailure(event) {
+		flags = append(flags, "promotion_failure")
+	}
+	return flags
+}
+
+func eventSeverity(event *gclog.Event) any {
+	if event == nil {
+		return nil
+	}
+	if event.PauseMS != nil && *event.PauseMS >= longPauseCriticalThresholdMS {
+		return "critical"
+	}
+	if isConcurrentModeFailure(event) || isPromotionFailure(event) {
+		return "critical"
+	}
+	if event.PauseMS != nil && *event.PauseMS >= longPauseWarningThresholdMS {
+		return "warning"
+	}
+	if isHumongous(event) {
+		return "warning"
+	}
+	return nil
+}
+
+func previewLine(line string) string {
+	preview := strings.TrimSpace(line)
+	const limit = 200
+	if len(preview) <= limit {
+		return preview
+	}
+	runes := []rune(preview)
+	if len(runes) <= limit {
+		return preview
+	}
+	return string(runes[:limit])
+}
+
 // ─── Failure detectors ───────────────────────────────────────────────
 
 func isHumongous(event *gclog.Event) bool {
@@ -733,12 +897,26 @@ func buildFindings(summary map[string]any) []map[string]any {
 	findings := []map[string]any{}
 
 	maxPause := asFloat(summary["max_pause_ms"])
-	if maxPause >= 100 {
+	if maxPause >= longPauseWarningThresholdMS {
+		evidence := map[string]any{"max_pause_ms": summary["max_pause_ms"]}
+		if count := asInt(summary["long_pause_event_count"]); count > 0 {
+			evidence["long_pause_event_count"] = count
+		}
 		findings = append(findings, map[string]any{
 			"severity": "warning",
 			"code":     "LONG_GC_PAUSE",
 			"message":  "One or more GC pauses exceeded 100 ms.",
-			"evidence": map[string]any{"max_pause_ms": summary["max_pause_ms"]},
+			"evidence": evidence,
+		})
+	}
+
+	oomEvents := asInt(summary["oom_event_count"])
+	if oomEvents > 0 {
+		findings = append(findings, map[string]any{
+			"severity": "critical",
+			"code":     "OUT_OF_MEMORY_ERROR",
+			"message":  "OutOfMemoryError was detected in the log.",
+			"evidence": map[string]any{"oom_event_count": oomEvents},
 		})
 	}
 

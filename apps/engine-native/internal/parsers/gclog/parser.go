@@ -81,6 +81,7 @@ const (
 	ReasonNoGCFormatMatch    = "NO_GC_FORMAT_MATCH"
 	ReasonEmptyFile          = "EMPTY_FILE"
 	ReasonNoSupportedGCEvent = "NO_SUPPORTED_GC_EVENTS"
+	ReasonOutOfMemoryError   = "OUT_OF_MEMORY_ERROR"
 )
 
 // Event mirrors `models.gc_event.GcEvent` field-for-field. Optional
@@ -136,6 +137,68 @@ var unifiedMetaspaceRe = regexp.MustCompile(
 		`(?P<after>\d+(?:\.\d+)?)(?P<after_unit>[KMG])` +
 		`(?:\((?P<committed>\d+(?:\.\d+)?)(?P<committed_unit>[KMG])\))?`,
 )
+
+// Unified G1 detailed logs usually report generation occupancy in
+// region-count lines before the final pause summary:
+//
+//	GC(0) Eden regions: 24->0(75)
+//	GC(0) Survivor regions: 0->4(4)
+//	GC(0) Old regions: 12->14
+//
+// The parser converts those counts using the header's Heap Region Size.
+var unifiedRegionRe = regexp.MustCompile(
+	`GC\((?P<gc_id>\d+)\)\s+` +
+		`(?P<kind>Eden|Survivor|Old)\s+regions:\s+` +
+		`(?P<before>\d+)->(?P<after>\d+)` +
+		`(?:\((?P<target>\d+)\))?`,
+)
+
+// DetectOutOfMemory recognises JVM/OS out-of-memory symptoms that may
+// be interleaved with GC logs. It is exported so the analyzer can build
+// user-facing alert rows while the parser records diagnostics warnings.
+func DetectOutOfMemory(line string) (string, bool) {
+	lower := strings.ToLower(line)
+	if !strings.Contains(lower, "outofmemoryerror") &&
+		!strings.Contains(lower, "out of memory") &&
+		!strings.Contains(lower, "gc overhead limit exceeded") {
+		return "", false
+	}
+	switch {
+	case strings.Contains(lower, "gc overhead limit exceeded"):
+		return "GC overhead limit exceeded", true
+	case strings.Contains(lower, "java heap space"):
+		return "Java heap space", true
+	case strings.Contains(lower, "metaspace"):
+		return "Metaspace", true
+	case strings.Contains(lower, "compressed class space"):
+		return "Compressed class space", true
+	case strings.Contains(lower, "direct buffer memory"):
+		return "Direct buffer memory", true
+	case strings.Contains(lower, "unable to create new native thread"):
+		return "Unable to create new native thread", true
+	case strings.Contains(lower, "requested array size exceeds vm limit"):
+		return "Requested array size exceeds VM limit", true
+	case strings.Contains(lower, "out of swap space"):
+		return "Out of swap space", true
+	default:
+		return "OutOfMemoryError", true
+	}
+}
+
+func recordOutOfMemoryWarning(diags *diagnostics.ParserDiagnostics, lineNumber int, line string) bool {
+	oomType, ok := DetectOutOfMemory(line)
+	if !ok {
+		return false
+	}
+	diags.AddWarning(
+		lineNumber,
+		ReasonOutOfMemoryError,
+		"OutOfMemoryError detected: "+oomType+".",
+		line,
+		true,
+	)
+	return true
+}
 
 // ─── JDK 8 G1GC Legacy ──────────────────────────────────────────────
 
@@ -261,7 +324,8 @@ func ParseFile(path string, opts Options) ([]Event, *diagnostics.ParserDiagnosti
 	default:
 		// FormatUnified and FormatUnknown both go through the unified
 		// parser — Python falls through to `_iter_unified` for unknown.
-		events, perr := parseUnifiedFile(path, opts, diags)
+		regionSizeMB := ExtractHeader(path).HeapRegionSizeMB
+		events, perr := parseUnifiedFile(path, opts, diags, regionSizeMB)
 		emitNoEventsWarning(diags, "No supported GC pause events were parsed.")
 		if perr != nil {
 			return events, diags, perr
@@ -288,14 +352,30 @@ func emitNoEventsWarning(diags *diagnostics.ParserDiagnostics, noEventsMsg strin
 // Unified (JDK 9+)
 // ═══════════════════════════════════════════════════════════════════
 
+// unifiedDetails stores per-GC(id) generation/metaspace details that
+// may appear before or after the final pause summary line.
+type unifiedDetails struct {
+	edenBeforeRegions     *float64
+	edenAfterRegions      *float64
+	survivorBeforeRegions *float64
+	survivorAfterRegions  *float64
+	oldBeforeRegions      *float64
+	oldAfterRegions       *float64
+	metaspaceBeforeMB     *float64
+	metaspaceAfterMB      *float64
+}
+
 // parseUnified runs the JDK 9+ pipeline. A pause event is buffered
-// across iterations so the next-line Metaspace companion can be
-// merged before flushing to the output.
-func parseUnifiedFile(path string, opts Options, diags *diagnostics.ParserDiagnostics) ([]Event, error) {
+// across iterations so detailed heap/metaspace companion lines can be
+// merged before flushing to the output. Unified logs can emit
+// [gc,heap] details before the final [gc] pause summary, so details
+// are keyed by GC id until the summary event arrives.
+func parseUnifiedFile(path string, opts Options, diags *diagnostics.ParserDiagnostics, regionSizeMB *float64) ([]Event, error) {
 	events := make([]Event, 0, 1024)
 
 	var pending *Event
 	var pendingGCID *int
+	detailsByGCID := map[int]*unifiedDetails{}
 
 	flush := func() {
 		if pending != nil {
@@ -314,12 +394,28 @@ func parseUnifiedFile(path string, opts Options, diags *diagnostics.ParserDiagno
 		if isBlank(line) {
 			return nil
 		}
+		if recordOutOfMemoryWarning(diags, lineNumber, line) {
+			return nil
+		}
 
 		if meta := captureGroups(unifiedMetaspaceRe, line); meta != nil {
-			if pending != nil && pendingGCID != nil {
-				if mid, err := strconv.Atoi(meta["gc_id"]); err == nil && mid == *pendingGCID {
-					pending.MetaspaceBeforeMB = toMBPtr(meta["before"], meta["before_unit"])
-					pending.MetaspaceAfterMB = toMBPtr(meta["after"], meta["after_unit"])
+			if mid, ok := parseGCID(meta["gc_id"]); ok {
+				detail := ensureUnifiedDetails(detailsByGCID, mid)
+				detail.metaspaceBeforeMB = toMBPtr(meta["before"], meta["before_unit"])
+				detail.metaspaceAfterMB = toMBPtr(meta["after"], meta["after_unit"])
+				if pending != nil && pendingGCID != nil && mid == *pendingGCID {
+					applyUnifiedDetails(pending, detail, regionSizeMB)
+				}
+			}
+			return nil
+		}
+
+		if region := captureGroups(unifiedRegionRe, line); region != nil {
+			if mid, ok := parseGCID(region["gc_id"]); ok {
+				detail := ensureUnifiedDetails(detailsByGCID, mid)
+				setUnifiedRegionDetail(detail, region["kind"], region["before"], region["after"])
+				if pending != nil && pendingGCID != nil && mid == *pendingGCID {
+					applyUnifiedDetails(pending, detail, regionSizeMB)
 				}
 			}
 			return nil
@@ -339,6 +435,11 @@ func parseUnifiedFile(path string, opts Options, diags *diagnostics.ParserDiagno
 		}
 
 		flush()
+		if gcID != nil {
+			if detail := detailsByGCID[*gcID]; detail != nil {
+				applyUnifiedDetails(event, detail, regionSizeMB)
+			}
+		}
 		pending = event
 		pendingGCID = gcID
 		return nil
@@ -355,6 +456,7 @@ func parseUnified(lines []string, opts Options, diags *diagnostics.ParserDiagnos
 
 	var pending *Event
 	var pendingGCID *int
+	detailsByGCID := map[int]*unifiedDetails{}
 
 	flush := func() {
 		if pending != nil {
@@ -374,13 +476,29 @@ func parseUnified(lines []string, opts Options, diags *diagnostics.ParserDiagnos
 		if isBlank(line) {
 			continue
 		}
+		if recordOutOfMemoryWarning(diags, lineNumber, line) {
+			continue
+		}
 
 		// Metaspace companion line — attach to buffered event when GC(id) matches.
 		if meta := captureGroups(unifiedMetaspaceRe, line); meta != nil {
-			if pending != nil && pendingGCID != nil {
-				if mid, err := strconv.Atoi(meta["gc_id"]); err == nil && mid == *pendingGCID {
-					pending.MetaspaceBeforeMB = toMBPtr(meta["before"], meta["before_unit"])
-					pending.MetaspaceAfterMB = toMBPtr(meta["after"], meta["after_unit"])
+			if mid, ok := parseGCID(meta["gc_id"]); ok {
+				detail := ensureUnifiedDetails(detailsByGCID, mid)
+				detail.metaspaceBeforeMB = toMBPtr(meta["before"], meta["before_unit"])
+				detail.metaspaceAfterMB = toMBPtr(meta["after"], meta["after_unit"])
+				if pending != nil && pendingGCID != nil && mid == *pendingGCID {
+					applyUnifiedDetails(pending, detail, nil)
+				}
+			}
+			continue
+		}
+
+		if region := captureGroups(unifiedRegionRe, line); region != nil {
+			if mid, ok := parseGCID(region["gc_id"]); ok {
+				detail := ensureUnifiedDetails(detailsByGCID, mid)
+				setUnifiedRegionDetail(detail, region["kind"], region["before"], region["after"])
+				if pending != nil && pendingGCID != nil && mid == *pendingGCID {
+					applyUnifiedDetails(pending, detail, nil)
 				}
 			}
 			continue
@@ -401,12 +519,103 @@ func parseUnified(lines []string, opts Options, diags *diagnostics.ParserDiagnos
 
 		// New pause event — flush any prior buffered event first.
 		flush()
+		if gcID != nil {
+			if detail := detailsByGCID[*gcID]; detail != nil {
+				applyUnifiedDetails(event, detail, nil)
+			}
+		}
 		pending = event
 		pendingGCID = gcID
 	}
 
 	flush()
 	return events, nil
+}
+
+func parseGCID(raw string) (int, bool) {
+	id, err := strconv.Atoi(raw)
+	if err != nil {
+		return 0, false
+	}
+	return id, true
+}
+
+func ensureUnifiedDetails(details map[int]*unifiedDetails, gcID int) *unifiedDetails {
+	if details[gcID] == nil {
+		details[gcID] = &unifiedDetails{}
+	}
+	return details[gcID]
+}
+
+func setUnifiedRegionDetail(detail *unifiedDetails, kind, before, after string) {
+	if detail == nil {
+		return
+	}
+	beforeRegions := parseRegionCount(before)
+	afterRegions := parseRegionCount(after)
+	switch kind {
+	case "Eden":
+		detail.edenBeforeRegions = beforeRegions
+		detail.edenAfterRegions = afterRegions
+	case "Survivor":
+		detail.survivorBeforeRegions = beforeRegions
+		detail.survivorAfterRegions = afterRegions
+	case "Old":
+		detail.oldBeforeRegions = beforeRegions
+		detail.oldAfterRegions = afterRegions
+	}
+}
+
+func parseRegionCount(raw string) *float64 {
+	if raw == "" {
+		return nil
+	}
+	n, err := strconv.ParseFloat(raw, 64)
+	if err != nil {
+		return nil
+	}
+	return &n
+}
+
+func applyUnifiedDetails(event *Event, detail *unifiedDetails, regionSizeMB *float64) {
+	if event == nil || detail == nil {
+		return
+	}
+	if detail.metaspaceBeforeMB != nil {
+		event.MetaspaceBeforeMB = detail.metaspaceBeforeMB
+	}
+	if detail.metaspaceAfterMB != nil {
+		event.MetaspaceAfterMB = detail.metaspaceAfterMB
+	}
+	if regionSizeMB == nil {
+		return
+	}
+	if youngBefore := safeAdd(
+		regionsToMB(detail.edenBeforeRegions, regionSizeMB),
+		regionsToMB(detail.survivorBeforeRegions, regionSizeMB),
+	); youngBefore != nil {
+		event.YoungBeforeMB = youngBefore
+	}
+	if youngAfter := safeAdd(
+		regionsToMB(detail.edenAfterRegions, regionSizeMB),
+		regionsToMB(detail.survivorAfterRegions, regionSizeMB),
+	); youngAfter != nil {
+		event.YoungAfterMB = youngAfter
+	}
+	if oldBefore := regionsToMB(detail.oldBeforeRegions, regionSizeMB); oldBefore != nil {
+		event.OldBeforeMB = oldBefore
+	}
+	if oldAfter := regionsToMB(detail.oldAfterRegions, regionSizeMB); oldAfter != nil {
+		event.OldAfterMB = oldAfter
+	}
+}
+
+func regionsToMB(regions, regionSizeMB *float64) *float64 {
+	if regions == nil || regionSizeMB == nil {
+		return nil
+	}
+	v := round3(*regions * *regionSizeMB)
+	return &v
 }
 
 // parseUnifiedGCLine attempts to parse a single non-empty unified
@@ -488,6 +697,9 @@ func parseG1LegacyFile(path string, opts Options, diags *diagnostics.ParserDiagn
 		if isBlank(line) {
 			return nil
 		}
+		if recordOutOfMemoryWarning(diags, lineNumber, line) {
+			return nil
+		}
 
 		if m := g1MemoryRe.FindStringSubmatch(line); m != nil && pending != nil {
 			pending.heapBeforeMB = toMBPtr(m[9], m[10])
@@ -567,6 +779,9 @@ func parseG1Legacy(lines []string, opts Options, diags *diagnostics.ParserDiagno
 		}
 		diags.TotalLines++
 		if isBlank(line) {
+			continue
+		}
+		if recordOutOfMemoryWarning(diags, lineNumber, line) {
 			continue
 		}
 
@@ -733,6 +948,9 @@ func parseLegacyFile(path string, opts Options, diags *diagnostics.ParserDiagnos
 		if isBlank(line) {
 			return nil
 		}
+		if recordOutOfMemoryWarning(diags, lineNumber, line) {
+			return nil
+		}
 
 		pm := captureGroups(legacyPauseRe, line)
 		if pm == nil {
@@ -792,6 +1010,9 @@ func parseLegacy(lines []string, opts Options, diags *diagnostics.ParserDiagnost
 		}
 		diags.TotalLines++
 		if isBlank(line) {
+			continue
+		}
+		if recordOutOfMemoryWarning(diags, lineNumber, line) {
 			continue
 		}
 
