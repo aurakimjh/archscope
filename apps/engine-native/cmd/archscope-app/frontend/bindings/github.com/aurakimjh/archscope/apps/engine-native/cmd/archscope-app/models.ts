@@ -1190,6 +1190,32 @@ export class ThreadDumpRequest {
     }
 }
 
+/**
+ * TraceImportRequest mirrors traceimport.Options + a Path.
+ */
+export class TraceImportRequest {
+    "path": string;
+    "format"?: string;
+    "topN"?: number;
+
+    /** Creates a new TraceImportRequest instance. */
+    constructor($$source: Partial<TraceImportRequest> = {}) {
+        if (!("path" in $$source)) {
+            this["path"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new TraceImportRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): TraceImportRequest {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new TraceImportRequest($$parsedSource as Partial<TraceImportRequest>);
+    }
+}
+
 // Private type creation functions
 const $$createType0 = profiler$0.AnalysisResult.createFrom;
 const $$createType1 = $Create.Array($Create.Any);

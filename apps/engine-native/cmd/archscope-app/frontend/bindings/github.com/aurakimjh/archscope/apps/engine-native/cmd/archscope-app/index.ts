@@ -41,5 +41,6 @@ export {
     MultiThreadRequest,
     OtelRequest,
     RuntimeRequest,
-    ThreadDumpRequest
+    ThreadDumpRequest,
+    TraceImportRequest
 } from "./models.js";

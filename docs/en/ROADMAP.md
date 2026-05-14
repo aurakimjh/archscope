@@ -1,6 +1,6 @@
 # Roadmap
 
-Last updated: 2026-05-13
+Last updated: 2026-05-14
 
 This document is the consolidated product roadmap for the active Go/Wails
 ArchScope line. It pulls together the previous phase roadmap, the product
@@ -47,7 +47,7 @@ Guiding principles:
   `apps/engine-native/cmd/archscope-app/frontend`.
 - Active engine: Go parser, analyzer, exporter, profiler, and AI
   interpretation modules under `apps/engine-native/internal`.
-- Release baseline: `v0.3.1` stable.
+- Release baseline: `v0.3.2` stable.
 - Archived implementation: Python/FastAPI/browser sources are kept under
   `archive/` for historical reference only.
 

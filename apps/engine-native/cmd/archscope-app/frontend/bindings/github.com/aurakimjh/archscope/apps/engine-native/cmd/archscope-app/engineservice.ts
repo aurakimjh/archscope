@@ -147,6 +147,15 @@ export function AnalyzeThreadDump(req: $models.ThreadDumpRequest): $CancellableP
 }
 
 /**
+ * AnalyzeTraceImport wraps engineapi.AnalyzeTraceImport.
+ */
+export function AnalyzeTraceImport(req: $models.TraceImportRequest): $CancellablePromise<api$0.AnalysisResult> {
+    return $Call.ByID(1034762711, req).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
  * CancelEngineTask is the engine-side cancel hook. ProfilerService.Cancel
  * already covers profiler tasks; the registry is shared so either name
  * works, but a separate method keeps the binding name self-documenting.

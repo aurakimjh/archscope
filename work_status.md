@@ -1,6 +1,6 @@
 # ArchScope Work Status
 
-Last updated: 2026-05-13
+Last updated: 2026-05-14
 
 This file is the current execution status for the active ArchScope product line.
 The previous long-form history was archived to
@@ -14,11 +14,12 @@ The previous long-form history was archived to
   `apps/engine-native/cmd/archscope-app/frontend`.
 - Active engine: Go parser/analyzer/exporter/AI interpretation modules under
   `apps/engine-native/internal`.
-- Release baseline: `v0.3.1` is the latest stable GitHub release. The
+- Release baseline: `v0.3.2` is the latest stable GitHub release. The
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
-- Current execution focus: next roadmap selection after restoring selected
-  Wails workspace/export parity from the archived browser frontend.
+- Current execution focus: post-0.3.2 trace compatibility review and next
+  roadmap selection after restoring selected Wails workspace/export parity
+  from the archived browser frontend.
 - Retired implementation: Python/FastAPI/browser sources are archived under
   `archive/python-engine` and `archive/web-frontend-python`.
 - Historical native POC module has been folded into `apps/engine-native`.
@@ -101,6 +102,9 @@ The previous long-form history was archived to
 - Added a session Analysis Workspace that retains successful analyzer outputs
   across page navigation and connects those results to Evidence Board,
   Export Center, report diff, and Chart Studio workflows.
+- Prepared the stable `v0.3.2` desktop release with app/package metadata,
+  Windows executable version metadata, changelog notes, local Windows build,
+  and GUI launch smoke verification.
 
 ## Current Risk
 

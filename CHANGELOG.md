@@ -6,6 +6,63 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.2] — 2026-05-14
+
+This release expands the Wails desktop app into a broader local-first
+Evidence Studio workflow. It connects trace import, JFR stack evidence,
+Evidence Board capture, workspace persistence, export, report diff, and
+Chart Studio surfaces into the active desktop product line.
+
+### Added
+
+- Added the Trace Import desktop workflow for OTLP JSON-file traces,
+  Zipkin v2 JSON, Elastic APM `_search` response JSON, and Elastic
+  source-only NDJSON exports, including summary metrics, service dependency
+  charts, service latency charts, trace/span tables, critical paths,
+  parser diagnostics, and deterministic findings.
+- Added trace critical-path analysis and MVP trace findings:
+  `SLOW_TRACE_P95`, `CLOCK_SKEW_SUSPECTED`,
+  `UNBALANCED_SERVICE_LATENCY`, and `HIGH_ERROR_SERVICE_EDGE`.
+- Added Evidence Board capture for trace findings, service edges, traces,
+  source metadata, Access Log findings, GC findings/alerts, JFR findings,
+  JFR profile rows, and native-memory call sites.
+- Added local Evidence Board export as HTML reports and JSON evidence packs.
+- Added Analysis Workspace, Export Center, general Report Diff, and Chart
+  Studio MVP surfaces for retained analyzer outputs and report-oriented
+  follow-up workflows.
+- Added async-profiler-oriented JFR stack aggregation from
+  `stackTrace.frames` into top methods, packages, threads, sample stacks,
+  and a flamegraph-ready call tree.
+- Added JFR recording UX hints for empty filters, missing stack samples,
+  async-profiler-style sample recordings, and sparse stack samples.
+- Added a Windows GUI smoke workflow that builds the Wails executable on
+  `windows-latest`, launches `archscope.exe`, verifies it stays alive, and
+  shuts it down cleanly.
+
+### Changed
+
+- Promoted app/package metadata and Windows executable version metadata to
+  `0.3.2`.
+- Hardened the 0.3.x release workflow with macOS signing/notarization secret
+  preflight, signature/stapler verification, route-level frontend lazy
+  loading, modular ECharts bundling, and explicit frontend chunk budgets.
+- Improved Jennifer profile analysis with standalone analysis support,
+  custom breakdown controls, network-time-aware MSA timelines, and clearer
+  tab/empty-state behavior before files are analyzed.
+- Clarified the JFR analyzer contract: the JDK `jfr` CLI is only the `.jfr`
+  to `jfr print --json` conversion boundary, while ArchScope focuses on
+  report-oriented summaries, stack evidence, UX hints, and Evidence Board
+  capture.
+
+### Fixed
+
+- Restored selected Wails workspace/export parity surfaces from the archived
+  browser frontend.
+- Restored and extended GC log memory-space event series and added OOM plus
+  long-pause alert findings.
+- Regenerated Wails service bindings for the Trace Import desktop service
+  surface.
+
 ## [0.3.1] — 2026-05-11
 
 This release promotes the 0.3.1 line to a stable desktop release and
