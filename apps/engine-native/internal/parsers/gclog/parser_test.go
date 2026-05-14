@@ -451,6 +451,41 @@ func TestParseLegacyParallelYoung(t *testing.T) {
 	if events[0].PauseMS == nil || *events[0].PauseMS != 1.0 {
 		t.Errorf("PauseMS = %v, want 1.0 (0.001 secs)", events[0].PauseMS)
 	}
+	if events[0].YoungBeforeMB == nil || *events[0].YoungBeforeMB != 1.0 {
+		t.Errorf("YoungBeforeMB = %v, want 1.0", events[0].YoungBeforeMB)
+	}
+	if events[0].YoungAfterMB == nil || *events[0].YoungAfterMB != 0.0 {
+		t.Errorf("YoungAfterMB = %v, want 0.0", events[0].YoungAfterMB)
+	}
+}
+
+func TestParseLegacyParallelGenerationDetailCompanions(t *testing.T) {
+	body := strings.Join([]string{
+		"2026-04-27T10:00:00.000+0900: 1.234: [Full GC (Ergonomics) 66611K->7572K(251392K), 0.050 secs]",
+		"ParOldGen: 1075K(175104K)->1075K(175104K)",
+		"PSYoungGen: 65536K(76288K)->6497K(4224K) Eden: 65536K(65536K)->0K(131072K) From: 0K(10752K)->6479K(10752K)",
+		"",
+	}, "\n")
+	path := writeTempFile(t, "l.log", body)
+	events, _, err := ParseFile(path, Options{})
+	if err != nil {
+		t.Fatalf("ParseFile: %v", err)
+	}
+	if len(events) != 1 {
+		t.Fatalf("events = %d, want 1", len(events))
+	}
+	if events[0].YoungBeforeMB == nil || *events[0].YoungBeforeMB != 64.0 {
+		t.Errorf("YoungBeforeMB = %v, want 64.0", events[0].YoungBeforeMB)
+	}
+	if events[0].YoungAfterMB == nil || *events[0].YoungAfterMB != 6.345 {
+		t.Errorf("YoungAfterMB = %v, want 6.345", events[0].YoungAfterMB)
+	}
+	if events[0].OldBeforeMB == nil || *events[0].OldBeforeMB != 1.05 {
+		t.Errorf("OldBeforeMB = %v, want 1.05", events[0].OldBeforeMB)
+	}
+	if events[0].OldAfterMB == nil || *events[0].OldAfterMB != 1.05 {
+		t.Errorf("OldAfterMB = %v, want 1.05", events[0].OldAfterMB)
+	}
 }
 
 func TestParseLegacyFullCMS(t *testing.T) {

@@ -247,6 +247,14 @@ var legacyHeapRe = regexp.MustCompile(
 		`\((?P<committed>[\d.]+)(?P<cu>[KMG])\),\s+(?P<pause>[\d.]+)\s+secs`,
 )
 
+var legacyGenerationRe = regexp.MustCompile(
+	`(?P<name>PSYoungGen|ParNew|DefNew|ParOldGen|PSOldGen|TenuredGen|Tenured|CMS|OldGen|Old)\s*:\s*` +
+		`(?P<before>[\d.]+)(?P<before_unit>[BKMG])` +
+		`(?:\((?P<before_capacity>[\d.]+)(?P<before_capacity_unit>[BKMG])\))?` +
+		`->(?P<after>[\d.]+)(?P<after_unit>[BKMG])` +
+		`\((?P<after_capacity>[\d.]+)(?P<after_capacity_unit>[BKMG])\)`,
+)
+
 // tzFixRe converts Python-incompatible `+0900` to `+09:00` so
 // `time.Parse` handles both. Go's `time.Parse` accepts `-0700` natively
 // but the legacy datestamp uses ISO-8601 `2006-01-02T15:04:05.000+0900`
@@ -940,6 +948,16 @@ func titleCase(s string) string {
 
 func parseLegacyFile(path string, opts Options, diags *diagnostics.ParserDiagnostics) ([]Event, error) {
 	events := make([]Event, 0, 1024)
+	var pending *Event
+
+	flush := func() {
+		if pending != nil {
+			events = append(events, *pending)
+			diags.ParsedRecords++
+			pending = nil
+		}
+	}
+
 	err := textio.ForEachTextLine(path, "", func(lineNumber int, line string) error {
 		if opts.MaxLines > 0 && lineNumber > opts.MaxLines {
 			return errStopIteration
@@ -954,6 +972,9 @@ func parseLegacyFile(path string, opts Options, diags *diagnostics.ParserDiagnos
 
 		pm := captureGroups(legacyPauseRe, line)
 		if pm == nil {
+			if pending != nil && applyLegacyGenerationDetails(pending, line) {
+				return nil
+			}
 			return nil
 		}
 
@@ -980,7 +1001,7 @@ func parseLegacyFile(path string, opts Options, diags *diagnostics.ParserDiagnos
 		}
 		pauseMS := pauseSecs * 1000.0
 
-		events = append(events, Event{
+		event := Event{
 			Timestamp:       parseLegacyTimestamp(pm["datestamp"]),
 			UptimeSec:       uptime,
 			GCType:          gcType,
@@ -990,10 +1011,13 @@ func parseLegacyFile(path string, opts Options, diags *diagnostics.ParserDiagnos
 			HeapAfterMB:     toMBPtr(hm["after"], hm["au"]),
 			HeapCommittedMB: toMBPtr(hm["committed"], hm["cu"]),
 			RawLine:         line,
-		})
-		diags.ParsedRecords++
+		}
+		applyLegacyGenerationDetails(&event, line)
+		flush()
+		pending = &event
 		return nil
 	})
+	flush()
 	if err != nil && !errors.Is(err, errStopIteration) {
 		return events, err
 	}
@@ -1002,6 +1026,15 @@ func parseLegacyFile(path string, opts Options, diags *diagnostics.ParserDiagnos
 
 func parseLegacy(lines []string, opts Options, diags *diagnostics.ParserDiagnostics) []Event {
 	events := make([]Event, 0, len(lines))
+	var pending *Event
+
+	flush := func() {
+		if pending != nil {
+			events = append(events, *pending)
+			diags.ParsedRecords++
+			pending = nil
+		}
+	}
 
 	for i, line := range lines {
 		lineNumber := i + 1
@@ -1018,6 +1051,9 @@ func parseLegacy(lines []string, opts Options, diags *diagnostics.ParserDiagnost
 
 		pm := captureGroups(legacyPauseRe, line)
 		if pm == nil {
+			if pending != nil && applyLegacyGenerationDetails(pending, line) {
+				continue
+			}
 			continue
 		}
 
@@ -1046,7 +1082,7 @@ func parseLegacy(lines []string, opts Options, diags *diagnostics.ParserDiagnost
 		}
 		pauseMS := pauseSecs * 1000.0
 
-		events = append(events, Event{
+		event := Event{
 			Timestamp:       parseLegacyTimestamp(pm["datestamp"]),
 			UptimeSec:       uptime,
 			GCType:          gcType,
@@ -1056,10 +1092,51 @@ func parseLegacy(lines []string, opts Options, diags *diagnostics.ParserDiagnost
 			HeapAfterMB:     toMBPtr(hm["after"], hm["au"]),
 			HeapCommittedMB: toMBPtr(hm["committed"], hm["cu"]),
 			RawLine:         line,
-		})
-		diags.ParsedRecords++
+		}
+		applyLegacyGenerationDetails(&event, line)
+		flush()
+		pending = &event
 	}
+	flush()
 	return events
+}
+
+func applyLegacyGenerationDetails(event *Event, line string) bool {
+	if event == nil {
+		return false
+	}
+	matches := legacyGenerationRe.FindAllStringSubmatchIndex(line, -1)
+	if len(matches) == 0 {
+		return false
+	}
+	applied := false
+	for _, idx := range matches {
+		groups := captureGroupsFromIndex(legacyGenerationRe, line, idx)
+		before := toMBPtr(groups["before"], groups["before_unit"])
+		after := toMBPtr(groups["after"], groups["after_unit"])
+		switch legacyGenerationKind(groups["name"]) {
+		case "young":
+			event.YoungBeforeMB = before
+			event.YoungAfterMB = after
+			applied = true
+		case "old":
+			event.OldBeforeMB = before
+			event.OldAfterMB = after
+			applied = true
+		}
+	}
+	return applied
+}
+
+func legacyGenerationKind(name string) string {
+	switch strings.TrimSpace(name) {
+	case "PSYoungGen", "ParNew", "DefNew":
+		return "young"
+	case "ParOldGen", "PSOldGen", "TenuredGen", "Tenured", "CMS", "OldGen", "Old":
+		return "old"
+	default:
+		return ""
+	}
 }
 
 func detectLegacyGCType(line, label string) (string, *string) {
