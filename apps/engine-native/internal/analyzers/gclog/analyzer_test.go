@@ -529,6 +529,43 @@ func TestAnalyzeUnifiedG1HeapRegionSeries(t *testing.T) {
 	}
 }
 
+func TestAnalyzeUnifiedGenerationDetailSeries(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "gc-unified-generation-details.log")
+	body := strings.Join([]string{
+		"[0.001s][info][gc] GC(7) Pause Full (Ergonomics) 66611K->7572K(251392K) 50.000ms",
+		"[0.002s][info][gc,heap] GC(7) ParOldGen: 1075K(175104K)->1075K(175104K)",
+		"[0.003s][info][gc,heap] GC(7) PSYoungGen: 65536K(76288K)->6497K(4224K) Eden: 65536K(65536K)->0K(131072K) From: 0K(10752K)->6479K(10752K)",
+		"",
+	}, "\n")
+	if err := os.WriteFile(path, []byte(body), 0o644); err != nil {
+		t.Fatalf("write: %v", err)
+	}
+	result, err := Analyze(path, Options{})
+	if err != nil {
+		t.Fatalf("Analyze: %v", err)
+	}
+
+	assertSeriesValue := func(name string, want float64) {
+		t.Helper()
+		rows, ok := result.Series[name].([]map[string]any)
+		if !ok {
+			t.Fatalf("%s is %T", name, result.Series[name])
+		}
+		if len(rows) != 1 {
+			t.Fatalf("%s len = %d, want 1", name, len(rows))
+		}
+		if got := asFloat(rows[0]["value"]); got != want {
+			t.Fatalf("%s value = %v, want %v", name, got, want)
+		}
+	}
+
+	assertSeriesValue("young_before_mb", 64.0)
+	assertSeriesValue("young_after_mb", 6.345)
+	assertSeriesValue("old_before_mb", 1.05)
+	assertSeriesValue("old_after_mb", 1.05)
+}
+
 func TestAnalyzeLegacyParallelGenerationDetailSeries(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "gc-legacy-parallel-details.log")

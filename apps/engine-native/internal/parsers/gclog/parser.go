@@ -153,6 +153,15 @@ var unifiedRegionRe = regexp.MustCompile(
 		`(?:\((?P<target>\d+)\))?`,
 )
 
+var unifiedGenerationRe = regexp.MustCompile(
+	`GC\((?P<gc_id>\d+)\)\s+` +
+		`(?P<name>PSYoungGen|ParNew|DefNew|ParOldGen|PSOldGen|TenuredGen|Tenured|CMS|OldGen|Old)\s*:\s*` +
+		`(?P<before>[\d.]+)(?P<before_unit>[BKMG])` +
+		`(?:\((?P<before_capacity>[\d.]+)(?P<before_capacity_unit>[BKMG])\))?` +
+		`->(?P<after>[\d.]+)(?P<after_unit>[BKMG])` +
+		`\((?P<after_capacity>[\d.]+)(?P<after_capacity_unit>[BKMG])\)`,
+)
+
 // DetectOutOfMemory recognises JVM/OS out-of-memory symptoms that may
 // be interleaved with GC logs. It is exported so the analyzer can build
 // user-facing alert rows while the parser records diagnostics warnings.
@@ -369,6 +378,10 @@ type unifiedDetails struct {
 	survivorAfterRegions  *float64
 	oldBeforeRegions      *float64
 	oldAfterRegions       *float64
+	youngBeforeMB         *float64
+	youngAfterMB          *float64
+	oldBeforeMB           *float64
+	oldAfterMB            *float64
 	metaspaceBeforeMB     *float64
 	metaspaceAfterMB      *float64
 }
@@ -426,6 +439,10 @@ func parseUnifiedFile(path string, opts Options, diags *diagnostics.ParserDiagno
 					applyUnifiedDetails(pending, detail, regionSizeMB)
 				}
 			}
+			return nil
+		}
+
+		if applyUnifiedGenerationLine(detailsByGCID, line, pending, pendingGCID, regionSizeMB) {
 			return nil
 		}
 
@@ -512,6 +529,10 @@ func parseUnified(lines []string, opts Options, diags *diagnostics.ParserDiagnos
 			continue
 		}
 
+		if applyUnifiedGenerationLine(detailsByGCID, line, pending, pendingGCID, nil) {
+			continue
+		}
+
 		event, gcID := parseUnifiedGCLine(line)
 		if event == nil {
 			diags.AddWarning(lineNumber, ReasonNoGCFormatMatch,
@@ -585,6 +606,45 @@ func parseRegionCount(raw string) *float64 {
 	return &n
 }
 
+func applyUnifiedGenerationLine(
+	details map[int]*unifiedDetails,
+	line string,
+	pending *Event,
+	pendingGCID *int,
+	regionSizeMB *float64,
+) bool {
+	groups := captureGroups(unifiedGenerationRe, line)
+	if groups == nil {
+		return false
+	}
+	gcID, ok := parseGCID(groups["gc_id"])
+	if !ok {
+		return false
+	}
+	detail := ensureUnifiedDetails(details, gcID)
+	setUnifiedGenerationDetail(detail, groups)
+	if pending != nil && pendingGCID != nil && gcID == *pendingGCID {
+		applyUnifiedDetails(pending, detail, regionSizeMB)
+	}
+	return true
+}
+
+func setUnifiedGenerationDetail(detail *unifiedDetails, groups map[string]string) {
+	if detail == nil {
+		return
+	}
+	before := toMBPtr(groups["before"], groups["before_unit"])
+	after := toMBPtr(groups["after"], groups["after_unit"])
+	switch legacyGenerationKind(groups["name"]) {
+	case "young":
+		detail.youngBeforeMB = before
+		detail.youngAfterMB = after
+	case "old":
+		detail.oldBeforeMB = before
+		detail.oldAfterMB = after
+	}
+}
+
 func applyUnifiedDetails(event *Event, detail *unifiedDetails, regionSizeMB *float64) {
 	if event == nil || detail == nil {
 		return
@@ -595,26 +655,46 @@ func applyUnifiedDetails(event *Event, detail *unifiedDetails, regionSizeMB *flo
 	if detail.metaspaceAfterMB != nil {
 		event.MetaspaceAfterMB = detail.metaspaceAfterMB
 	}
+	if detail.youngBeforeMB != nil {
+		event.YoungBeforeMB = detail.youngBeforeMB
+	}
+	if detail.youngAfterMB != nil {
+		event.YoungAfterMB = detail.youngAfterMB
+	}
+	if detail.oldBeforeMB != nil {
+		event.OldBeforeMB = detail.oldBeforeMB
+	}
+	if detail.oldAfterMB != nil {
+		event.OldAfterMB = detail.oldAfterMB
+	}
 	if regionSizeMB == nil {
 		return
 	}
-	if youngBefore := safeAdd(
-		regionsToMB(detail.edenBeforeRegions, regionSizeMB),
-		regionsToMB(detail.survivorBeforeRegions, regionSizeMB),
-	); youngBefore != nil {
-		event.YoungBeforeMB = youngBefore
+	if event.YoungBeforeMB == nil {
+		if youngBefore := safeAdd(
+			regionsToMB(detail.edenBeforeRegions, regionSizeMB),
+			regionsToMB(detail.survivorBeforeRegions, regionSizeMB),
+		); youngBefore != nil {
+			event.YoungBeforeMB = youngBefore
+		}
 	}
-	if youngAfter := safeAdd(
-		regionsToMB(detail.edenAfterRegions, regionSizeMB),
-		regionsToMB(detail.survivorAfterRegions, regionSizeMB),
-	); youngAfter != nil {
-		event.YoungAfterMB = youngAfter
+	if event.YoungAfterMB == nil {
+		if youngAfter := safeAdd(
+			regionsToMB(detail.edenAfterRegions, regionSizeMB),
+			regionsToMB(detail.survivorAfterRegions, regionSizeMB),
+		); youngAfter != nil {
+			event.YoungAfterMB = youngAfter
+		}
 	}
-	if oldBefore := regionsToMB(detail.oldBeforeRegions, regionSizeMB); oldBefore != nil {
-		event.OldBeforeMB = oldBefore
+	if event.OldBeforeMB == nil {
+		if oldBefore := regionsToMB(detail.oldBeforeRegions, regionSizeMB); oldBefore != nil {
+			event.OldBeforeMB = oldBefore
+		}
 	}
-	if oldAfter := regionsToMB(detail.oldAfterRegions, regionSizeMB); oldAfter != nil {
-		event.OldAfterMB = oldAfter
+	if event.OldAfterMB == nil {
+		if oldAfter := regionsToMB(detail.oldAfterRegions, regionSizeMB); oldAfter != nil {
+			event.OldAfterMB = oldAfter
+		}
 	}
 }
 

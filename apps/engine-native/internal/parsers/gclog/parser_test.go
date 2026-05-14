@@ -234,6 +234,35 @@ func TestParseUnifiedG1HeapRegionDetails(t *testing.T) {
 	}
 }
 
+func TestParseUnifiedGenerationDetailCompanions(t *testing.T) {
+	body := strings.Join([]string{
+		"[0.001s][info][gc] GC(7) Pause Full (Ergonomics) 66611K->7572K(251392K) 50.000ms",
+		"[0.002s][info][gc,heap] GC(7) ParOldGen: 1075K(175104K)->1075K(175104K)",
+		"[0.003s][info][gc,heap] GC(7) PSYoungGen: 65536K(76288K)->6497K(4224K) Eden: 65536K(65536K)->0K(131072K) From: 0K(10752K)->6479K(10752K)",
+		"",
+	}, "\n")
+	path := writeTempFile(t, "u-generation-details.log", body)
+	events, _, err := ParseFile(path, Options{})
+	if err != nil {
+		t.Fatalf("ParseFile: %v", err)
+	}
+	if len(events) != 1 {
+		t.Fatalf("events = %d, want 1", len(events))
+	}
+	if events[0].YoungBeforeMB == nil || *events[0].YoungBeforeMB != 64.0 {
+		t.Errorf("YoungBeforeMB = %v, want 64.0", events[0].YoungBeforeMB)
+	}
+	if events[0].YoungAfterMB == nil || *events[0].YoungAfterMB != 6.345 {
+		t.Errorf("YoungAfterMB = %v, want 6.345", events[0].YoungAfterMB)
+	}
+	if events[0].OldBeforeMB == nil || *events[0].OldBeforeMB != 1.05 {
+		t.Errorf("OldBeforeMB = %v, want 1.05", events[0].OldBeforeMB)
+	}
+	if events[0].OldAfterMB == nil || *events[0].OldAfterMB != 1.05 {
+		t.Errorf("OldAfterMB = %v, want 1.05", events[0].OldAfterMB)
+	}
+}
+
 func TestParseUnifiedOutOfMemoryWarningStrict(t *testing.T) {
 	body := strings.Join([]string{
 		"[2026-04-27T10:00:00.000+0900][info][gc] GC(0) Pause Young (Normal) (G1 Evacuation Pause) 80M->40M(200M) 12.000ms",
