@@ -670,6 +670,32 @@ impact
 recommendation
 ```
 
+## Incident Timeline Event
+
+첫 Incident Timeline 구현은 Analysis Workspace 결과로부터 만든 Wails session
+projection이다. Analyzer가 소유한 `AnalysisResult` 출력을 대체하지 않고,
+기존 evidence를 timeline view로 정규화한다.
+
+```text
+id
+timestamp
+time_label
+source_analyzer
+source_result_id
+source_title
+source_file
+severity
+category
+label
+description
+evidence_ref
+payload
+```
+
+현재 event source는 analyzer finding, access-log error/latency series, GC
+alert, JFR pause/notable event, exception row, thread-dump contention/deadlock
+table, trace-import error/critical-path row를 포함한다.
+
 ## AI Interpretation Contract
 
 AI interpretation은 `AnalysisResult`를 대체하지 않는다. Source result에 연결된 별도 `InterpretationResult`로 취급한다.

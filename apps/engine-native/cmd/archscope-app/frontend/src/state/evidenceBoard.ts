@@ -2,6 +2,7 @@ export type EvidenceSourceKind =
   | "finding"
   | "chart_selection"
   | "table_row"
+  | "timeline_event"
   | "parser_diagnostic"
   | "source_metadata";
 

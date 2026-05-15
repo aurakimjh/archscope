@@ -13,6 +13,7 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Clock3,
   Cpu,
   Download,
   FileSearch,
@@ -50,6 +51,7 @@ export type NavKey =
   | "export_center"
   | "report_diff"
   | "chart_studio"
+  | "incident_timeline"
   | "evidence_board"
   | "settings";
 
@@ -69,6 +71,7 @@ const NAV_ICONS: Record<NavKey, NavIcon> = {
   export_center: Download,
   report_diff: GitCompareArrows,
   chart_studio: BarChart3,
+  incident_timeline: Clock3,
   evidence_board: ClipboardList,
   settings: Settings,
 };
@@ -146,6 +149,7 @@ export function Sidebar({ active, onNavigate }: SidebarProps) {
     { key: "export_center", label: t("navExportCenter") },
     { key: "report_diff", label: t("navReportDiff") },
     { key: "chart_studio", label: t("navChartStudio") },
+    { key: "incident_timeline", label: t("navIncidentTimeline") },
     { key: "evidence_board", label: t("navEvidenceBoard") },
   ];
   const topLevelItems: { key: NavKey; label: string }[] = [

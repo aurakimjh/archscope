@@ -528,6 +528,32 @@ impact
 recommendation
 ```
 
+## Incident Timeline Event
+
+The first Incident Timeline implementation is a Wails session projection built
+from Analysis Workspace results. It does not replace analyzer-owned
+`AnalysisResult` output; it normalizes existing evidence into a timeline view.
+
+```text
+id
+timestamp
+time_label
+source_analyzer
+source_result_id
+source_title
+source_file
+severity
+category
+label
+description
+evidence_ref
+payload
+```
+
+Current event sources include analyzer findings, access-log error/latency
+series, GC alerts, JFR pause/notable events, exception rows, thread-dump
+contention/deadlock tables, and trace-import error/critical-path rows.
+
 ## AI Interpretation Contract
 
 AI interpretation does not replace `AnalysisResult`. It is a separate `InterpretationResult` linked back to a source result.

@@ -132,6 +132,16 @@ finding을 확인하고, 근거를 수집하고, 고객 데이터 외부 전송 
 - Evidence Board는 저장된 card를 local static HTML evidence report와 JSON
   evidence pack으로 export할 수 있다.
 
+### Incident Timeline MVP
+
+- Timestamp, source analyzer, severity, category, label, evidence reference,
+  source metadata를 담는 공통 session timeline event model.
+- Analysis Workspace 결과를 입력으로 사용하고 Evidence Board card를 출력으로
+  사용하는 Wails Workspace 하위 Incident Timeline page.
+- Deterministic finding, access-log error/latency series, GC alert, JFR
+  pause/notable event, exception row, thread-dump contention/deadlock table,
+  trace-import error/critical path를 timeline event로 매핑한다.
+
 ### 증거 기반 AI 보조 해석
 
 - `apps/engine-native/internal/aiinterpretation` 아래 Go 구현.
@@ -164,9 +174,8 @@ finding을 확인하고, 근거를 수집하고, 고객 데이터 외부 전송 
    - Evidence-reference integrity check가 통과한 뒤에만 AI interpretation을
      board와 연결한다.
 
-3. Trace compatibility pass 이후 다음 Evidence Studio batch를 승격한다.
-   - 후보 track은 Incident Timeline, SLO/Golden Signals, unified Service
-     Flow다.
+3. Incident Timeline MVP 이후 다음 Evidence Studio batch를 승격한다.
+   - 후보 track은 SLO/Golden Signals와 unified Service Flow다.
    - 실제 customer export가 확보되면 Jaeger와 SkyWalking compatibility
      fixture가 대표성을 유지하는지 계속 검증한다.
 
@@ -174,11 +183,10 @@ finding을 확인하고, 근거를 수집하고, 고객 데이터 외부 전송 
 
 ### 장애 타임라인
 
-- Timestamp/range, source analyzer, severity, label, evidence reference를 갖는
-  공통 timeline event model을 정의한다.
-- Access-log error burst, slow URL p95, throughput spike, GC/JFR event,
-  thread-dump contention/deadlock signal, exception, profiler hotspot,
-  trace-import event를 하나의 시간축에 배치한다.
+- Report-pack generation에서 persisted timeline data가 필요해지면 Wails
+  session timeline을 engine-level 또는 exportable `AnalysisResult`로 승격한다.
+- Multi-file incident를 위해 event range, correlation ID, timeline grouping을
+  더 풍부하게 만든다.
 - 장애 중 무엇이 어떤 순서로 일어났는지를 설명하는 보고서 축으로 사용한다.
 
 ### SLO 및 Golden Signals

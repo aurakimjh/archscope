@@ -18,7 +18,7 @@ The previous long-form history was archived to
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
 - Current execution focus: next roadmap batch selection after completing the
-  post-0.3.2 file-first trace compatibility pass for Jaeger and SkyWalking.
+  Wails Incident Timeline MVP from Analysis Workspace results.
 - Retired implementation: Python/FastAPI/browser sources are archived under
   `archive/python-engine` and `archive/web-frontend-python`.
 - Historical native POC module has been folded into `apps/engine-native`.
@@ -108,6 +108,8 @@ The previous long-form history was archived to
   SkyWalking GraphQL `queryTrace.spans` validation to the `trace_import`
   parser, analyzer tests, CLI format list, Wails Trace Import selector, and
   English/Korean data-model and roadmap documents.
+- Added the Wails Incident Timeline MVP with a common session event model,
+  cross-analyzer event mapping, filtering, and Evidence Board capture.
 
 ## Current Risk
 
@@ -170,9 +172,8 @@ filtered before analysis.
 
 ## Next Execution Queue
 
-1. Promote the next roadmap batch after trace compatibility review. Candidate
-   tracks remain Incident Timeline, SLO/Golden Signals, and unified Service
-   Flow.
+1. Promote the next roadmap batch after the Incident Timeline MVP. Candidate
+   tracks are SLO/Golden Signals and unified Service Flow.
 2. Keep release verification healthy before the next 0.3.x cut by repeating
    Windows GUI smoke, macOS signing/notarization validation, and frontend
    bundle budget checks.
@@ -200,6 +201,9 @@ filtered before analysis.
 | T-428 | P1 | [x] | Decide and implement the Jaeger trace import contract for the file-first compatibility pass. | Trace import MVP | Completed 2026-05-15: Jaeger QueryService/local trace JSON importer, auto-detect, fixtures, CLI/UI format option |
 | T-429 | P1 | [x] | Add SkyWalking schema/version handling before widening import support. | Trace import MVP | Completed 2026-05-15: schema-guarded SkyWalking GraphQL `queryTrace.spans` importer diagnostics and fixture coverage |
 | T-430 | P2 | [x] | Update trace compatibility fixtures, tests, and English/Korean docs after Jaeger/SkyWalking work. | T-428, T-429 | Completed 2026-05-15: parser/analyzer tests, data-model docs, roadmap, Trace Import UI/CLI format list |
+| T-431 | P1 | [x] | Define a common Incident Timeline event model for timestamp/range, source analyzer, severity, label, and evidence reference. | Analysis Workspace, Evidence Board | Completed 2026-05-15: reusable Wails session timeline event model |
+| T-432 | P1 | [x] | Map existing analyzer results into Incident Timeline events across findings, access-log bursts/latency, GC alerts, JFR pauses/notable events, exceptions, thread dumps, and trace import. | T-431 | Completed 2026-05-15: cross-analyzer event builder from Analysis Workspace results |
+| T-433 | P1 | [x] | Add a Wails Incident Timeline workspace page with event filters and Evidence Board capture. | T-431, T-432 | Completed 2026-05-15: desktop Incident Timeline MVP under Workspace |
 
 ## Verification Notes
 
@@ -318,6 +322,10 @@ filtered before analysis.
   `go run ./cmd/archscope-engine trace import --format auto` emitted
   `source_format = jaeger-query-json` with three spans and
   `source_format = skywalking-graphql-json` with two spans.
+- 2026-05-15 Wails frontend verification passed after T-431 through T-433:
+  `npm run build`. Startup shell chunk is 160.48 KB raw / 51.79 KB gzip; the
+  lazy shared ECharts runtime is 689.89 KB raw / 229.50 KB gzip and remains
+  under the documented 700 KB chart-runtime budget.
 
 ## Decisions
 

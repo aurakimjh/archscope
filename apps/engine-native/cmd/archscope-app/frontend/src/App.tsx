@@ -60,6 +60,11 @@ const ChartStudioPage = lazy(() =>
     default: ChartStudioPage,
   })),
 );
+const IncidentTimelinePage = lazy(() =>
+  import("./pages/IncidentTimelinePage").then(({ IncidentTimelinePage }) => ({
+    default: IncidentTimelinePage,
+  })),
+);
 const AccessLogAnalyzerPage = lazy(() =>
   import("./pages/AccessLogAnalyzerPage").then(({ AccessLogAnalyzerPage }) => ({
     default: AccessLogAnalyzerPage,
@@ -181,6 +186,7 @@ function App() {
             {active === "export_center" && <ExportCenterPage />}
             {active === "report_diff" && <ReportDiffPage />}
             {active === "chart_studio" && <ChartStudioPage />}
+            {active === "incident_timeline" && <IncidentTimelinePage />}
             {active === "evidence_board" && <EvidenceBoardPage />}
             {active === "settings" && <SettingsPage />}
           </Suspense>

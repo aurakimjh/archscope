@@ -139,6 +139,16 @@ Guiding principles:
 - Evidence Board can export local static HTML evidence reports and JSON
   evidence packs from saved cards.
 
+### Incident Timeline MVP
+
+- Common session timeline event model with timestamp, source analyzer,
+  severity, category, label, evidence reference, and source metadata.
+- Wails Incident Timeline page under Workspace using Analysis Workspace results
+  as input and Evidence Board cards as output.
+- Event mapping covers deterministic findings plus access-log error/latency
+  series, GC alerts, JFR pause/notable events, exception rows, thread-dump
+  contention/deadlock tables, and trace-import errors/critical paths.
+
 ### Evidence-Bound AI Interpretation
 
 - Go implementation under `apps/engine-native/internal/aiinterpretation`.
@@ -170,9 +180,8 @@ These items should stay aligned with `work_status.md`.
    - Connect AI interpretation to the board only after evidence-reference
      integrity checks pass.
 
-3. Promote the next Evidence Studio batch after the trace compatibility pass.
-   - Candidate tracks remain Incident Timeline, SLO/Golden Signals, and
-     unified Service Flow.
+3. Promote the next Evidence Studio batch after the Incident Timeline MVP.
+   - Candidate tracks are SLO/Golden Signals and unified Service Flow.
    - Keep Jaeger and SkyWalking compatibility fixtures representative as real
      customer exports become available.
 
@@ -180,11 +189,10 @@ These items should stay aligned with `work_status.md`.
 
 ### Incident Timeline
 
-- Define a common timeline event model with timestamp/range, source analyzer,
-  severity, label, and evidence reference.
-- Map access-log error bursts, slow URL p95 events, throughput spikes, GC/JFR
-  events, thread-dump contention/deadlock signals, exceptions, profiler
-  hotspots, and trace-import events onto one timeline.
+- Promote the Wails session timeline into an engine-level or exportable
+  `AnalysisResult` when report-pack generation needs persisted timeline data.
+- Add richer event range handling, correlation IDs, and timeline grouping for
+  multi-file incidents.
 - Use the timeline to explain what happened and in what order during an
   incident.
 
