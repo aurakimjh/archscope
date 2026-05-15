@@ -1,6 +1,6 @@
 # ArchScope Work Status
 
-Last updated: 2026-05-15
+Last updated: 2026-05-16
 
 This file is the current execution status for the active ArchScope product line.
 The previous long-form history was archived to
@@ -17,8 +17,8 @@ The previous long-form history was archived to
 - Release baseline: `v0.3.2` is the latest stable GitHub release. The
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
-- Current execution focus: next roadmap batch selection after completing the
-  Wails Incident Timeline MVP from Analysis Workspace results.
+- Current execution focus: executing the promoted mid-term Evidence Studio
+  roadmap TODOs after the Wails Incident Timeline MVP.
 - Retired implementation: Python/FastAPI/browser sources are archived under
   `archive/python-engine` and `archive/web-frontend-python`.
 - Historical native POC module has been folded into `apps/engine-native`.
@@ -172,8 +172,9 @@ filtered before analysis.
 
 ## Next Execution Queue
 
-1. Promote the next roadmap batch after the Incident Timeline MVP. Candidate
-   tracks are SLO/Golden Signals and unified Service Flow.
+1. Start the promoted mid-term Evidence Studio batch with SLO/Golden Signals,
+   then unified Service Flow, report packs, and AI interpretation
+   productization.
 2. Keep release verification healthy before the next 0.3.x cut by repeating
    Windows GUI smoke, macOS signing/notarization validation, and frontend
    bundle budget checks.
@@ -204,6 +205,24 @@ filtered before analysis.
 | T-431 | P1 | [x] | Define a common Incident Timeline event model for timestamp/range, source analyzer, severity, label, and evidence reference. | Analysis Workspace, Evidence Board | Completed 2026-05-15: reusable Wails session timeline event model |
 | T-432 | P1 | [x] | Map existing analyzer results into Incident Timeline events across findings, access-log bursts/latency, GC alerts, JFR pauses/notable events, exceptions, thread dumps, and trace import. | T-431 | Completed 2026-05-15: cross-analyzer event builder from Analysis Workspace results |
 | T-433 | P1 | [x] | Add a Wails Incident Timeline workspace page with event filters and Evidence Board capture. | T-431, T-432 | Completed 2026-05-15: desktop Incident Timeline MVP under Workspace |
+| T-434 | P1 | [ ] | Promote the Wails session Incident Timeline into an engine-level or exportable `AnalysisResult` when report-pack generation needs persisted timeline data. | T-431, T-432, T-433 | Planned: persisted/exportable incident timeline result contract |
+| T-435 | P2 | [ ] | Add richer Incident Timeline event ranges, correlation IDs, and timeline grouping for multi-file incidents. | T-434 | Planned: grouped multi-file incident timeline |
+| T-436 | P2 | [ ] | Add Incident Timeline narrative support that explains what happened and in what order during an incident. | T-435, T-446 preferred | Planned: evidence-backed incident sequence summary |
+| T-437 | P1 | [ ] | Build a Golden Signals inventory across access logs, trace import, Jennifer MSA, exceptions, GC, JFR, thread dumps, and JVM signals. | T-425, T-433 | Planned: cross-analyzer signal inventory |
+| T-438 | P1 | [ ] | Define SLI metrics for latency, traffic, errors, and saturation from the Golden Signals inventory. | T-437 | Planned: normalized SLI metric model |
+| T-439 | P1 | [ ] | Add SLO target configuration, violating-window detection, error-budget burn tables, and affected service/endpoint breakdowns. | T-438 | Planned: SLO violation analysis result |
+| T-440 | P1 | [ ] | Add a Wails SLO / Golden Signals workspace page with signal inventory, SLO violations, and Evidence Board capture. | T-437, T-438, T-439 | Planned: desktop SLO and Golden Signals workflow |
+| T-441 | P1 | [ ] | Unify Jennifer MSA topology and trace-import dependency models. | T-427, T-430 | Planned: shared service-flow input model |
+| T-442 | P1 | [ ] | Define a common service-edge schema with caller, callee, call count, average/max/total latency, error count, and network gap. | T-441 | Planned: normalized service-edge contract |
+| T-443 | P1 | [ ] | Normalize unmatched calls, missing parents, and network gaps into service-edge findings. | T-442 | Planned: deterministic service-flow findings |
+| T-444 | P2 | [ ] | Add C4 dynamic view or sequence-like export for service-flow evidence. | T-442, T-443 | Planned: service-flow evidence export |
+| T-445 | P1 | [ ] | Generate report-ready HTML, ZIP, and later PPTX/PDF outputs from Evidence Board content. | T-423, T-434 preferred | Planned: report pack export workflow |
+| T-446 | P1 | [ ] | Preserve source metadata, analyzer options, captured evidence, deterministic findings, and optional AI interpretation provenance in report packs. | T-445 | Planned: report pack provenance contract |
+| T-447 | P2 | [ ] | Support customer-facing summaries without hiding raw evidence behind conclusions. | T-445, T-446 | Planned: evidence-first customer report summary |
+| T-448 | P2 | [ ] | Surface AI interpretation provenance in the UI. | AI interpretation module, T-425 | Planned: visible AI provenance controls |
+| T-449 | P2 | [ ] | Keep AI findings visually separate from deterministic findings. | T-448 | Planned: deterministic vs AI finding presentation split |
+| T-450 | P1 | [ ] | Add AI evaluation gates using golden diagnostics, evidence-reference integrity, quote-to-source matching, low-confidence filtering, and hallucination review. | T-448, T-449 | Planned: AI interpretation quality gate |
+| T-451 | P1 | [ ] | Connect AI interpretation to Evidence Board and report generation only when every generated claim has valid evidence references. | T-446, T-450 | Planned: evidence-gated AI report integration |
 
 ## Verification Notes
 
