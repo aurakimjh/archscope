@@ -1,0 +1,46 @@
+{
+  "data": {
+    "queryTrace": {
+      "spans": [
+        {
+          "traceId": "skywalking-trace-1",
+          "segmentId": "sw-seg-1",
+          "spanId": 0,
+          "parentSpanId": -1,
+          "serviceCode": "gateway-service",
+          "serviceInstanceName": "gateway-1",
+          "endpointName": "GET /checkout",
+          "type": "Entry",
+          "startTime": 1770000000000,
+          "endTime": 1770000000180,
+          "isError": false,
+          "component": "SpringMVC",
+          "tags": [
+            { "key": "http.status_code", "value": "200" }
+          ]
+        },
+        {
+          "traceId": "skywalking-trace-1",
+          "segmentId": "sw-seg-1",
+          "spanId": 1,
+          "parentSpanId": 0,
+          "serviceCode": "gateway-service",
+          "serviceInstanceName": "gateway-1",
+          "endpointName": "GET inventory",
+          "type": "Exit",
+          "peer": "inventory-service",
+          "startTime": 1770000000030,
+          "endTime": 1770000000110,
+          "isError": false,
+          "component": "HttpClient",
+          "tags": [
+            { "key": "http.status_code", "value": "200" }
+          ]
+        }
+      ]
+    }
+  },
+  "extensions": {
+    "skyWalkingVersion": "10.x-queryTrace"
+  }
+}

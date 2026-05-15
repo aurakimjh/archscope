@@ -1,0 +1,70 @@
+{
+  "data": [
+    {
+      "traceID": "jaeger-trace-1",
+      "spans": [
+        {
+          "traceID": "jaeger-trace-1",
+          "spanID": "root",
+          "operationName": "GET /checkout",
+          "startTime": 1770000000000000,
+          "duration": 240000,
+          "processID": "p1",
+          "tags": [
+            { "key": "span.kind", "type": "string", "value": "server" },
+            { "key": "http.status_code", "type": "int64", "value": 200 }
+          ]
+        },
+        {
+          "traceID": "jaeger-trace-1",
+          "spanID": "inventory",
+          "operationName": "GET /inventory",
+          "references": [
+            { "refType": "CHILD_OF", "traceID": "jaeger-trace-1", "spanID": "root" }
+          ],
+          "startTime": 1770000000040000,
+          "duration": 90000,
+          "processID": "p1",
+          "tags": [
+            { "key": "span.kind", "type": "string", "value": "client" },
+            { "key": "peer.service", "type": "string", "value": "inventory-service" },
+            { "key": "http.status_code", "type": "int64", "value": 200 }
+          ]
+        },
+        {
+          "traceID": "jaeger-trace-1",
+          "spanID": "inventory-server",
+          "operationName": "GET /inventory",
+          "references": [
+            { "refType": "CHILD_OF", "traceID": "jaeger-trace-1", "spanID": "inventory" }
+          ],
+          "startTime": 1770000000045000,
+          "duration": 70000,
+          "processID": "p2",
+          "tags": [
+            { "key": "span.kind", "type": "string", "value": "server" },
+            { "key": "http.status_code", "type": "int64", "value": 200 }
+          ]
+        }
+      ],
+      "processes": {
+        "p1": {
+          "serviceName": "checkout-service",
+          "tags": [
+            { "key": "hostname", "type": "string", "value": "checkout-1" }
+          ]
+        },
+        "p2": {
+          "serviceName": "inventory-service",
+          "tags": [
+            { "key": "hostname", "type": "string", "value": "inventory-1" }
+          ]
+        }
+      }
+    }
+  ],
+  "total": 1,
+  "limit": 1,
+  "offset": 0,
+  "errors": null
+}

@@ -91,6 +91,20 @@ func TestAutoDetectFormats(t *testing.T) {
 	if wrappedSource.Format != FormatElasticSourceNDJSON {
 		t.Fatalf("auto elastic source format = %q", wrappedSource.Format)
 	}
+	jaeger, err := ParseFile(filepath.Join(root, "sample-jaeger-query.json"), Options{})
+	if err != nil {
+		t.Fatalf("auto jaeger: %v", err)
+	}
+	if jaeger.Format != FormatJaegerQueryJSON {
+		t.Fatalf("auto jaeger format = %q", jaeger.Format)
+	}
+	skywalking, err := ParseFile(filepath.Join(root, "sample-skywalking-query-trace.json"), Options{})
+	if err != nil {
+		t.Fatalf("auto skywalking: %v", err)
+	}
+	if skywalking.Format != FormatSkyWalkingGraphQL {
+		t.Fatalf("auto skywalking format = %q", skywalking.Format)
+	}
 }
 
 func TestParseElasticAPMSearchJSON(t *testing.T) {
@@ -121,5 +135,62 @@ func TestParseElasticAPMSourceNDJSON(t *testing.T) {
 	}
 	if result.Spans[0].SourceFormat != FormatElasticSourceNDJSON {
 		t.Fatalf("source format = %q", result.Spans[0].SourceFormat)
+	}
+}
+
+func TestParseJaegerQueryJSON(t *testing.T) {
+	path := filepath.Join(examplesRoot(t), "sample-jaeger-query.json")
+	result, err := ParseFile(path, Options{Format: FormatJaegerQueryJSON})
+	if err != nil {
+		t.Fatalf("ParseFile: %v", err)
+	}
+	if got, want := len(result.Spans), 3; got != want {
+		t.Fatalf("spans = %d, want %d", got, want)
+	}
+	if result.Spans[0].ServiceName != "checkout-service" {
+		t.Fatalf("service = %q", result.Spans[0].ServiceName)
+	}
+	if result.Spans[1].RemoteService != "inventory-service" {
+		t.Fatalf("remote service = %q", result.Spans[1].RemoteService)
+	}
+	if result.Spans[2].ParentSpanID != "inventory" {
+		t.Fatalf("parent span = %q", result.Spans[2].ParentSpanID)
+	}
+}
+
+func TestParseSkyWalkingGraphQLTrace(t *testing.T) {
+	path := filepath.Join(examplesRoot(t), "sample-skywalking-query-trace.json")
+	result, err := ParseFile(path, Options{Format: FormatSkyWalkingGraphQL})
+	if err != nil {
+		t.Fatalf("ParseFile: %v", err)
+	}
+	if got, want := len(result.Spans), 2; got != want {
+		t.Fatalf("spans = %d, want %d", got, want)
+	}
+	if result.Spans[1].SpanID != "sw-seg-1:1" {
+		t.Fatalf("span id = %q", result.Spans[1].SpanID)
+	}
+	if result.Spans[1].ParentSpanID != "sw-seg-1:0" {
+		t.Fatalf("parent span id = %q", result.Spans[1].ParentSpanID)
+	}
+	if result.Spans[0].DurationNanos != 180_000_000 {
+		t.Fatalf("duration nanos = %d", result.Spans[0].DurationNanos)
+	}
+}
+
+func TestSkyWalkingUnsupportedSchemaReportsDiagnostics(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "skywalking-basic.json")
+	if err := os.WriteFile(path, []byte(`{"data":{"queryBasicTraces":{"traces":[]}}}`), 0o600); err != nil {
+		t.Fatalf("write fixture: %v", err)
+	}
+	result, err := ParseFile(path, Options{Format: FormatSkyWalkingGraphQL})
+	if err != nil {
+		t.Fatalf("ParseFile should return diagnostics without fatal error: %v", err)
+	}
+	if result.Diagnostics == nil || result.Diagnostics.ErrorCount == 0 {
+		t.Fatalf("expected schema diagnostic: %#v", result.Diagnostics)
+	}
+	if result.Diagnostics.Errors[0].Reason != ReasonSkyWalkingSchema {
+		t.Fatalf("reason = %q", result.Diagnostics.Errors[0].Reason)
 	}
 }

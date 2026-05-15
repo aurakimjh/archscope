@@ -55,6 +55,8 @@ const TRACE_FORMATS = [
   "zipkin-v2-json",
   "elastic-apm-search-json",
   "elastic-apm-source-ndjson",
+  "jaeger-query-json",
+  "skywalking-graphql-json",
 ] as const;
 
 export function TraceImportPage(): JSX.Element {

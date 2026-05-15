@@ -1,6 +1,7 @@
 // Package traceimport parses portable trace export files into a small
 // canonical span model. It intentionally starts with local-first formats:
-// OpenTelemetry OTLP JSON files, Zipkin v2 JSON, and Elastic APM JSON exports.
+// OpenTelemetry OTLP JSON files, Zipkin v2 JSON, Elastic APM JSON exports,
+// Jaeger QueryService JSON, and guarded SkyWalking GraphQL trace responses.
 package traceimport
 
 import (
@@ -24,12 +25,18 @@ const (
 	FormatZipkinV2            = "zipkin-v2-json"
 	FormatElasticSearchJSON   = "elastic-apm-search-json"
 	FormatElasticSourceNDJSON = "elastic-apm-source-ndjson"
+	FormatJaegerQueryJSON     = "jaeger-query-json"
+	FormatSkyWalkingGraphQL   = "skywalking-graphql-json"
 
 	ReasonInvalidJSON         = "INVALID_TRACE_JSON"
 	ReasonUnsupportedFormat   = "UNSUPPORTED_TRACE_FORMAT"
 	ReasonInvalidOTLPEnvelope = "INVALID_OTLP_JSON_ENVELOPE"
 	ReasonInvalidZipkinSpan   = "INVALID_ZIPKIN_V2_SPAN"
 	ReasonInvalidElasticEvent = "INVALID_ELASTIC_APM_EVENT"
+	ReasonInvalidJaegerTrace  = "INVALID_JAEGER_TRACE"
+	ReasonInvalidSkyWalking   = "INVALID_SKYWALKING_TRACE"
+	ReasonSkyWalkingSchema    = "UNSUPPORTED_SKYWALKING_SCHEMA"
+	ReasonSkyWalkingVersion   = "SKYWALKING_VERSION_UNVERIFIED"
 )
 
 type Options struct {
@@ -80,6 +87,10 @@ func ParseFile(path string, opts Options) (ParseResult, error) {
 		return parseElasticSearchJSONFile(path)
 	case FormatElasticSourceNDJSON:
 		return parseElasticSourceNDJSONFile(path)
+	case FormatJaegerQueryJSON:
+		return parseJaegerQueryJSONFile(path)
+	case FormatSkyWalkingGraphQL:
+		return parseSkyWalkingGraphQLFile(path)
 	default:
 		diags := diagnostics.New("trace_import")
 		diags.SetSourceFile(path)
@@ -95,6 +106,12 @@ func detectFormat(path string) (string, error) {
 	}
 	switch v := first.(type) {
 	case map[string]any:
+		if isSkyWalkingGraphQLPayload(v) {
+			return FormatSkyWalkingGraphQL, nil
+		}
+		if isJaegerPayload(v) {
+			return FormatJaegerQueryJSON, nil
+		}
 		if hits, ok := v["hits"].(map[string]any); ok {
 			if _, ok := hits["hits"]; ok {
 				return FormatElasticSearchJSON, nil
@@ -117,6 +134,9 @@ func detectFormat(path string) (string, error) {
 			return FormatZipkinV2, nil
 		}
 		if _, ok := v[0].(map[string]any); ok {
+			if isJaegerPayload(v[0]) {
+				return FormatJaegerQueryJSON, nil
+			}
 			return FormatZipkinV2, nil
 		}
 		if nested, ok := v[0].([]any); ok && (len(nested) == 0 || isObject(nested[0])) {
@@ -311,6 +331,82 @@ func parseElasticSourceNDJSONFile(path string) (ParseResult, error) {
 	}
 	sortSpans(spans)
 	return ParseResult{Format: FormatElasticSourceNDJSON, Spans: spans, Diagnostics: diags}, nil
+}
+
+func parseJaegerQueryJSONFile(path string) (ParseResult, error) {
+	diags := diagnostics.New(FormatJaegerQueryJSON)
+	diags.SetSourceFile(path)
+
+	f, err := os.Open(path)
+	if err != nil {
+		return ParseResult{}, err
+	}
+	defer f.Close()
+
+	dec := json.NewDecoder(f)
+	dec.UseNumber()
+	var payload any
+	if err := dec.Decode(&payload); err != nil {
+		diags.AddError(0, ReasonInvalidJSON, err.Error(), "")
+		return ParseResult{Format: FormatJaegerQueryJSON, Diagnostics: diags}, err
+	}
+
+	traces, skipped := jaegerTracesFromPayload(payload)
+	diags.TotalLines = 1
+	if len(traces) == 0 {
+		diags.AddError(0, ReasonInvalidJaegerTrace, "Jaeger payload must contain data[].spans or a trace object with spans.", "")
+		return ParseResult{Format: FormatJaegerQueryJSON, Diagnostics: diags}, nil
+	}
+
+	spans := make([]Span, 0)
+	for _, msg := range skipped {
+		diags.AddSkipped(0, ReasonInvalidJaegerTrace, msg, "")
+	}
+	for _, trace := range traces {
+		next, nextSkipped := spansFromJaegerTrace(trace)
+		spans = append(spans, next...)
+		for _, msg := range nextSkipped {
+			diags.AddSkipped(0, ReasonInvalidJaegerTrace, msg, "")
+		}
+	}
+	diags.ParsedRecords = len(spans)
+	sortSpans(spans)
+	return ParseResult{Format: FormatJaegerQueryJSON, Spans: spans, Diagnostics: diags}, nil
+}
+
+func parseSkyWalkingGraphQLFile(path string) (ParseResult, error) {
+	diags := diagnostics.New(FormatSkyWalkingGraphQL)
+	diags.SetSourceFile(path)
+
+	f, err := os.Open(path)
+	if err != nil {
+		return ParseResult{}, err
+	}
+	defer f.Close()
+
+	dec := json.NewDecoder(f)
+	dec.UseNumber()
+	var payload any
+	if err := dec.Decode(&payload); err != nil {
+		diags.AddError(0, ReasonInvalidJSON, err.Error(), "")
+		return ParseResult{Format: FormatSkyWalkingGraphQL, Diagnostics: diags}, err
+	}
+
+	spans, schemaMatched, version, skipped := spansFromSkyWalkingPayload(payload)
+	diags.TotalLines = 1
+	if !schemaMatched {
+		diags.AddError(0, ReasonSkyWalkingSchema, "SkyWalking GraphQL payload must contain data.queryTrace.spans or data.trace.spans.", "")
+		return ParseResult{Format: FormatSkyWalkingGraphQL, Diagnostics: diags}, nil
+	}
+	if version == "" {
+		diags.AddWarning(0, ReasonSkyWalkingVersion, "SkyWalking response does not expose an explicit schema/version marker; parsed using the guarded queryTrace.spans contract.", "", false)
+	}
+	for _, msg := range skipped {
+		diags.AddSkipped(0, ReasonInvalidSkyWalking, msg, "")
+	}
+	diags.ParsedRecords = len(spans)
+	sortSpans(spans)
+	return ParseResult{Format: FormatSkyWalkingGraphQL, Spans: spans, Diagnostics: diags}, nil
 }
 
 type otlpEnvelope struct {
@@ -526,6 +622,412 @@ func flattenZipkinPayload(payload any) []any {
 	default:
 		return nil
 	}
+}
+
+type jaegerTrace struct {
+	TraceID   string                   `json:"traceID"`
+	Spans     []jaegerSpan             `json:"spans"`
+	Processes map[string]jaegerProcess `json:"processes"`
+}
+
+type jaegerSpan struct {
+	TraceID       string            `json:"traceID"`
+	SpanID        string            `json:"spanID"`
+	OperationName string            `json:"operationName"`
+	Name          string            `json:"name"`
+	Kind          string            `json:"kind"`
+	References    []jaegerReference `json:"references"`
+	StartTime     json.Number       `json:"startTime"`
+	Duration      json.Number       `json:"duration"`
+	Tags          []jaegerTag       `json:"tags"`
+	ProcessID     string            `json:"processID"`
+	Process       jaegerProcess     `json:"process"`
+}
+
+type jaegerReference struct {
+	RefType string `json:"refType"`
+	TraceID string `json:"traceID"`
+	SpanID  string `json:"spanID"`
+}
+
+type jaegerProcess struct {
+	ServiceName string      `json:"serviceName"`
+	Tags        []jaegerTag `json:"tags"`
+}
+
+type jaegerTag struct {
+	Key   string `json:"key"`
+	Type  string `json:"type"`
+	Value any    `json:"value"`
+}
+
+func jaegerTracesFromPayload(payload any) ([]jaegerTrace, []string) {
+	rawItems := flattenJaegerTraceItems(payload)
+	out := make([]jaegerTrace, 0, len(rawItems))
+	skipped := []string{}
+	for _, raw := range rawItems {
+		if !isJaegerPayload(raw) {
+			skipped = append(skipped, "Jaeger trace item missing spans")
+			continue
+		}
+		body, err := json.Marshal(raw)
+		if err != nil {
+			skipped = append(skipped, err.Error())
+			continue
+		}
+		var item jaegerTrace
+		dec := json.NewDecoder(strings.NewReader(string(body)))
+		dec.UseNumber()
+		if err := dec.Decode(&item); err != nil {
+			skipped = append(skipped, err.Error())
+			continue
+		}
+		out = append(out, item)
+	}
+	return out, skipped
+}
+
+func flattenJaegerTraceItems(payload any) []any {
+	switch v := payload.(type) {
+	case map[string]any:
+		if data, ok := v["data"]; ok {
+			switch dataValue := data.(type) {
+			case []any:
+				out := make([]any, 0, len(dataValue))
+				for _, item := range dataValue {
+					out = append(out, flattenJaegerTraceItems(item)...)
+				}
+				return out
+			case map[string]any:
+				return flattenJaegerTraceItems(dataValue)
+			}
+		}
+		if isJaegerPayload(v) {
+			return []any{v}
+		}
+	case []any:
+		out := make([]any, 0, len(v))
+		for _, item := range v {
+			out = append(out, flattenJaegerTraceItems(item)...)
+		}
+		return out
+	}
+	return nil
+}
+
+func spansFromJaegerTrace(trace jaegerTrace) ([]Span, []string) {
+	out := make([]Span, 0, len(trace.Spans))
+	skipped := []string{}
+	for _, raw := range trace.Spans {
+		traceID := strings.ToLower(firstNonEmpty(raw.TraceID, trace.TraceID))
+		spanID := strings.ToLower(raw.SpanID)
+		if traceID == "" || spanID == "" {
+			skipped = append(skipped, "Jaeger span missing traceID or spanID")
+			continue
+		}
+		process := raw.Process
+		if process.ServiceName == "" && raw.ProcessID != "" && trace.Processes != nil {
+			process = trace.Processes[raw.ProcessID]
+		}
+		processAttrs := attrsFromJaegerTags(process.Tags)
+		spanAttrs := attrsFromJaegerTags(raw.Tags)
+		attrs := mergeAttrs(processAttrs, spanAttrs)
+		serviceName := firstNonEmpty(process.ServiceName, attrs["service.name"])
+		statusCode := firstNonEmpty(attrs["http.status_code"], attrs["otel.status_code"])
+		kind := strings.ToUpper(firstNonEmpty(raw.Kind, attrs["span.kind"], "SPAN"))
+		out = append(out, Span{
+			TraceID:        traceID,
+			SpanID:         spanID,
+			ParentSpanID:   strings.ToLower(jaegerParentSpanID(raw.References)),
+			Name:           firstNonEmpty(raw.OperationName, raw.Name, "(unnamed)"),
+			ServiceName:    serviceName,
+			RemoteService:  jaegerRemoteService(attrs),
+			Kind:           kind,
+			StartUnixNanos: numberToInt64(raw.StartTime) * 1000,
+			DurationNanos:  numberToInt64(raw.Duration) * 1000,
+			StatusCode:     statusCode,
+			Error:          traceAttrsIndicateError(attrs, statusCode),
+			Attributes:     attrs,
+			SourceFormat:   FormatJaegerQueryJSON,
+		})
+	}
+	return out, skipped
+}
+
+func attrsFromJaegerTags(tags []jaegerTag) map[string]string {
+	out := make(map[string]string, len(tags))
+	for _, tag := range tags {
+		if tag.Key == "" {
+			continue
+		}
+		out[tag.Key] = traceValueString(tag.Value)
+	}
+	return out
+}
+
+func jaegerParentSpanID(refs []jaegerReference) string {
+	for _, ref := range refs {
+		if strings.EqualFold(ref.RefType, "CHILD_OF") && ref.SpanID != "" {
+			return ref.SpanID
+		}
+	}
+	for _, ref := range refs {
+		if ref.SpanID != "" {
+			return ref.SpanID
+		}
+	}
+	return ""
+}
+
+func jaegerRemoteService(attrs map[string]string) string {
+	return firstNonEmpty(
+		attrs["peer.service"],
+		attrs["server.address"],
+		attrs["net.peer.name"],
+		attrs["net.peer.ip"],
+		attrs["peer.hostname"],
+		attrs["http.host"],
+		attrs["db.system"],
+	)
+}
+
+func isJaegerPayload(payload any) bool {
+	root, ok := payload.(map[string]any)
+	if !ok {
+		return false
+	}
+	if _, ok := root["spans"]; ok {
+		return true
+	}
+	data, ok := root["data"]
+	if !ok {
+		return false
+	}
+	switch v := data.(type) {
+	case []any:
+		if len(v) == 0 {
+			return false
+		}
+		return isJaegerPayload(v[0])
+	case map[string]any:
+		return isJaegerPayload(v)
+	default:
+		return false
+	}
+}
+
+func spansFromSkyWalkingPayload(payload any) ([]Span, bool, string, []string) {
+	rawSpans, matched := flattenSkyWalkingSpanItems(payload)
+	if !matched {
+		return nil, false, skyWalkingVersion(payload), nil
+	}
+	out := make([]Span, 0, len(rawSpans))
+	skipped := []string{}
+	for _, raw := range rawSpans {
+		span, ok, msg := spanFromSkyWalkingSpan(raw)
+		if !ok {
+			skipped = append(skipped, msg)
+			continue
+		}
+		out = append(out, span)
+	}
+	return out, true, skyWalkingVersion(payload), skipped
+}
+
+func flattenSkyWalkingSpanItems(payload any) ([]map[string]any, bool) {
+	root, ok := payload.(map[string]any)
+	if !ok {
+		return nil, false
+	}
+	data, ok := root["data"].(map[string]any)
+	if !ok {
+		return nil, false
+	}
+	for _, key := range []string{"queryTrace", "trace"} {
+		if candidate, ok := data[key]; ok {
+			spans, matched := skyWalkingSpansFromCandidate(candidate)
+			if matched {
+				return spans, true
+			}
+		}
+	}
+	if _, ok := data["queryBasicTraces"]; ok {
+		return nil, false
+	}
+	return nil, false
+}
+
+func skyWalkingSpansFromCandidate(candidate any) ([]map[string]any, bool) {
+	switch v := candidate.(type) {
+	case map[string]any:
+		rawSpans, ok := v["spans"]
+		if !ok {
+			return nil, false
+		}
+		return skyWalkingSpanList(rawSpans), true
+	case []any:
+		out := []map[string]any{}
+		matched := false
+		for _, item := range v {
+			next, ok := skyWalkingSpansFromCandidate(item)
+			if ok {
+				matched = true
+				out = append(out, next...)
+			}
+		}
+		return out, matched
+	default:
+		return nil, false
+	}
+}
+
+func skyWalkingSpanList(raw any) []map[string]any {
+	items, ok := raw.([]any)
+	if !ok {
+		return nil
+	}
+	out := make([]map[string]any, 0, len(items))
+	for _, item := range items {
+		if span, ok := item.(map[string]any); ok {
+			out = append(out, span)
+		}
+	}
+	return out
+}
+
+func spanFromSkyWalkingSpan(raw map[string]any) (Span, bool, string) {
+	traceID := strings.ToLower(firstNonEmpty(
+		traceMapString(raw, "traceId"),
+		traceMapString(raw, "traceID"),
+	))
+	segmentID := traceMapString(raw, "segmentId")
+	spanIDValue := traceMapString(raw, "spanId")
+	if traceID == "" || segmentID == "" || spanIDValue == "" {
+		return Span{}, false, "SkyWalking span missing traceId, segmentId, or spanId"
+	}
+
+	attrs := attrsFromSkyWalkingTags(raw["tags"])
+	for _, key := range []string{"component", "layer", "serviceInstanceName"} {
+		if value := traceMapString(raw, key); value != "" {
+			attrs[key] = value
+		}
+	}
+	start := skyWalkingTimeToNanos(firstNumber(raw["startTime"]))
+	end := skyWalkingTimeToNanos(firstNumber(raw["endTime"]))
+	duration := int64(0)
+	if end > start {
+		duration = end - start
+	} else if rawDuration := firstNumber(raw["duration"]); rawDuration > 0 {
+		duration = skyWalkingDurationToNanos(rawDuration)
+	}
+	statusCode := firstNonEmpty(attrs["http.status_code"], attrs["status_code"])
+	span := Span{
+		TraceID:        traceID,
+		SpanID:         skyWalkingCanonicalSpanID(segmentID, spanIDValue),
+		ParentSpanID:   skyWalkingParentSpanID(segmentID, raw),
+		Name:           firstNonEmpty(traceMapString(raw, "endpointName"), traceMapString(raw, "operationName"), "(unnamed)"),
+		ServiceName:    firstNonEmpty(traceMapString(raw, "serviceCode"), traceMapString(raw, "serviceName"), traceMapString(raw, "service")),
+		RemoteService:  firstNonEmpty(traceMapString(raw, "peer"), attrs["peer.service"], attrs["networkAddress"]),
+		Kind:           strings.ToUpper(firstNonEmpty(traceMapString(raw, "type"), traceMapString(raw, "spanType"), "SPAN")),
+		StartUnixNanos: start,
+		DurationNanos:  duration,
+		StatusCode:     statusCode,
+		Error:          traceValueBool(raw["isError"]) || traceAttrsIndicateError(attrs, statusCode),
+		Attributes:     attrs,
+		SourceFormat:   FormatSkyWalkingGraphQL,
+	}
+	return span, true, ""
+}
+
+func attrsFromSkyWalkingTags(raw any) map[string]string {
+	out := map[string]string{}
+	switch tags := raw.(type) {
+	case []any:
+		for _, item := range tags {
+			tag, ok := item.(map[string]any)
+			if !ok {
+				continue
+			}
+			key := traceValueString(tag["key"])
+			if key == "" {
+				continue
+			}
+			out[key] = traceValueString(tag["value"])
+		}
+	case map[string]any:
+		for key, value := range tags {
+			out[key] = traceValueString(value)
+		}
+	}
+	return out
+}
+
+func skyWalkingParentSpanID(segmentID string, raw map[string]any) string {
+	parentValue := traceMapString(raw, "parentSpanId")
+	if parentValue != "" && parentValue != "-1" {
+		return skyWalkingCanonicalSpanID(segmentID, parentValue)
+	}
+	refs, ok := raw["refs"].([]any)
+	if !ok {
+		return ""
+	}
+	for _, item := range refs {
+		ref, ok := item.(map[string]any)
+		if !ok {
+			continue
+		}
+		parentSegment := firstNonEmpty(
+			traceMapString(ref, "parentTraceSegmentId"),
+			traceMapString(ref, "parentSegmentId"),
+			traceMapString(ref, "traceSegmentId"),
+		)
+		parentSpan := traceMapString(ref, "parentSpanId")
+		if parentSegment != "" && parentSpan != "" && parentSpan != "-1" {
+			return skyWalkingCanonicalSpanID(parentSegment, parentSpan)
+		}
+	}
+	return ""
+}
+
+func skyWalkingCanonicalSpanID(segmentID, spanID string) string {
+	return strings.ToLower(segmentID + ":" + spanID)
+}
+
+func isSkyWalkingGraphQLPayload(payload any) bool {
+	root, ok := payload.(map[string]any)
+	if !ok {
+		return false
+	}
+	data, ok := root["data"].(map[string]any)
+	if !ok {
+		return false
+	}
+	for _, key := range []string{"queryTrace", "trace", "queryBasicTraces"} {
+		if _, ok := data[key]; ok {
+			return true
+		}
+	}
+	return false
+}
+
+func skyWalkingVersion(payload any) string {
+	root, ok := payload.(map[string]any)
+	if !ok {
+		return ""
+	}
+	for _, key := range []string{"version", "skyWalkingVersion", "schemaVersion"} {
+		if value := traceValueString(root[key]); value != "" {
+			return value
+		}
+	}
+	if extensions, ok := root["extensions"].(map[string]any); ok {
+		for _, key := range []string{"version", "skyWalkingVersion", "schemaVersion"} {
+			if value := traceValueString(extensions[key]); value != "" {
+				return value
+			}
+		}
+	}
+	return ""
 }
 
 func flattenElasticSearchSources(payload any) []map[string]any {
@@ -822,6 +1324,87 @@ func otlpStatusName(code int) string {
 	default:
 		return "UNSET"
 	}
+}
+
+func traceMapString(m map[string]any, key string) string {
+	return traceValueString(m[key])
+}
+
+func traceValueString(value any) string {
+	switch v := value.(type) {
+	case string:
+		return strings.TrimSpace(v)
+	case json.Number:
+		return v.String()
+	case float64:
+		return strconv.FormatFloat(v, 'f', -1, 64)
+	case float32:
+		return strconv.FormatFloat(float64(v), 'f', -1, 32)
+	case int:
+		return strconv.Itoa(v)
+	case int64:
+		return strconv.FormatInt(v, 10)
+	case bool:
+		return strconv.FormatBool(v)
+	case nil:
+		return ""
+	default:
+		return strings.TrimSpace(fmt.Sprint(v))
+	}
+}
+
+func traceValueBool(value any) bool {
+	switch v := value.(type) {
+	case bool:
+		return v
+	case string:
+		normalized := strings.ToLower(strings.TrimSpace(v))
+		return normalized == "true" || normalized == "1" || normalized == "error"
+	case json.Number:
+		return v.String() == "1"
+	case float64:
+		return v == 1
+	case int:
+		return v == 1
+	default:
+		return false
+	}
+}
+
+func traceAttrsIndicateError(attrs map[string]string, statusCode string) bool {
+	if traceValueBool(attrs["error"]) {
+		return true
+	}
+	if strings.EqualFold(statusCode, "ERROR") || strings.EqualFold(statusCode, "failure") {
+		return true
+	}
+	if code, err := strconv.Atoi(statusCode); err == nil && code >= 500 {
+		return true
+	}
+	return false
+}
+
+func skyWalkingTimeToNanos(value int64) int64 {
+	switch {
+	case value >= 10_000_000_000_000_000:
+		return value
+	case value >= 100_000_000_000_000:
+		return value * 1000
+	case value > 0:
+		return value * 1_000_000
+	default:
+		return 0
+	}
+}
+
+func skyWalkingDurationToNanos(value int64) int64 {
+	if value <= 0 {
+		return 0
+	}
+	if value >= 10_000_000_000_000 {
+		return value
+	}
+	return value * 1_000_000
 }
 
 func statusFromZipkinTags(attrs map[string]string) string {

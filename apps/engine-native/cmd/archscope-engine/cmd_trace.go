@@ -12,7 +12,7 @@ func init() {
 	group := &cobra.Command{
 		Use:   "trace",
 		Short: "External trace import analysis commands.",
-		Long:  "Import portable trace exports such as OTLP JSON files and Zipkin v2 JSON into an AnalysisResult envelope.",
+		Long:  "Import portable trace exports such as OTLP, Zipkin, Elastic APM, Jaeger, and guarded SkyWalking JSON into an AnalysisResult envelope.",
 	}
 
 	var (
@@ -44,7 +44,7 @@ func init() {
 		},
 	}
 	importCmd.Flags().StringVar(&in, "in", "", "path to trace export file (required)")
-	importCmd.Flags().StringVar(&format, "format", "auto", "input format: auto, otlp-json, zipkin-v2-json, elastic-apm-search-json, elastic-apm-source-ndjson")
+	importCmd.Flags().StringVar(&format, "format", "auto", "input format: auto, otlp-json, zipkin-v2-json, elastic-apm-search-json, elastic-apm-source-ndjson, jaeger-query-json, skywalking-graphql-json")
 	importCmd.Flags().IntVar(&topN, "top-n", 0, "top-N rows (0 = analyzer default)")
 	importCmd.Flags().StringVar(&out, "out", "-", "output path; `-` for stdout")
 

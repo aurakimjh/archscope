@@ -464,6 +464,15 @@ Supported local file formats:
 - `zipkin-v2-json`
 - `elastic-apm-search-json`
 - `elastic-apm-source-ndjson`
+- `jaeger-query-json`
+- `skywalking-graphql-json`
+
+`jaeger-query-json` accepts Jaeger QueryService-style JSON envelopes with
+`data[].spans` plus `processes`, or a local trace object with the same shape.
+`skywalking-graphql-json` is schema-guarded: the current importer accepts
+SkyWalking GraphQL responses with `data.queryTrace.spans` or
+`data.trace.spans`; other SkyWalking response shapes produce parser diagnostics
+instead of silently guessing.
 
 Required `summary` fields:
 

@@ -95,6 +95,46 @@ func TestAnalyzeElasticTraceImport(t *testing.T) {
 	}
 }
 
+func TestAnalyzeJaegerTraceImport(t *testing.T) {
+	result, err := Analyze(filepath.Join(traceExamplesRoot(t), "sample-jaeger-query.json"), Options{
+		Format: traceparser.FormatJaegerQueryJSON,
+	})
+	if err != nil {
+		t.Fatalf("Analyze: %v", err)
+	}
+	if result.Summary["source_format"] != traceparser.FormatJaegerQueryJSON {
+		t.Fatalf("source_format = %#v", result.Summary["source_format"])
+	}
+	if result.Summary["unique_dependencies"] != 1 {
+		t.Fatalf("unique_dependencies = %#v", result.Summary["unique_dependencies"])
+	}
+	rows, ok := result.Tables["service_dependencies"].([]map[string]any)
+	if !ok || len(rows) != 1 {
+		t.Fatalf("service_dependencies = %#v", result.Tables["service_dependencies"])
+	}
+	if rows[0]["caller"] != "checkout-service" || rows[0]["callee"] != "inventory-service" {
+		t.Fatalf("dependency rows = %#v", rows)
+	}
+}
+
+func TestAnalyzeSkyWalkingTraceImport(t *testing.T) {
+	result, err := Analyze(filepath.Join(traceExamplesRoot(t), "sample-skywalking-query-trace.json"), Options{
+		Format: traceparser.FormatSkyWalkingGraphQL,
+	})
+	if err != nil {
+		t.Fatalf("Analyze: %v", err)
+	}
+	if result.Summary["source_format"] != traceparser.FormatSkyWalkingGraphQL {
+		t.Fatalf("source_format = %#v", result.Summary["source_format"])
+	}
+	if result.Summary["total_spans"] != 2 {
+		t.Fatalf("total_spans = %#v", result.Summary["total_spans"])
+	}
+	if result.Summary["unique_dependencies"] != 1 {
+		t.Fatalf("unique_dependencies = %#v", result.Summary["unique_dependencies"])
+	}
+}
+
 func TestAnalyzeClockSkewFinding(t *testing.T) {
 	result := Build([]traceparser.Span{
 		{

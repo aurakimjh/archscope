@@ -106,7 +106,9 @@ finding을 확인하고, 근거를 수집하고, 고객 데이터 외부 전송 
 
 - 외부 trace import용 canonical trace/span model.
 - OTLP JSON-file parser, Zipkin v2 JSON parser, Elastic APM Elasticsearch
-  `_search` response parser, Elastic APM source-only NDJSON parser.
+  `_search` response parser, Elastic APM source-only NDJSON parser, Jaeger
+  QueryService/local trace JSON parser, schema-guarded SkyWalking GraphQL
+  `queryTrace.spans` parser diagnostics.
 - Summary, services, traces, spans, dependencies, service summary를 포함한
   `trace_import` analyzer result. 현재는 critical path와 deterministic
   finding도 함께 낸다.
@@ -114,7 +116,7 @@ finding을 확인하고, 근거를 수집하고, 고객 데이터 외부 전송 
   critical path row, parser diagnostics, Evidence Board 추가 action을 포함한
   Wails Trace Import page.
 - CLI command:
-  `archscope-engine trace import --in <file> --format auto|otlp-json|zipkin-v2-json|elastic-apm-search-json|elastic-apm-source-ndjson`.
+  `archscope-engine trace import --in <file> --format auto|otlp-json|zipkin-v2-json|elastic-apm-search-json|elastic-apm-source-ndjson|jaeger-query-json|skywalking-graphql-json`.
 - `examples/traces` 아래 sample trace fixture.
 
 ### Evidence Board Skeleton
@@ -162,11 +164,11 @@ finding을 확인하고, 근거를 수집하고, 고객 데이터 외부 전송 
    - Evidence-reference integrity check가 통과한 뒤에만 AI interpretation을
      board와 연결한다.
 
-3. File-first MVP 이후 trace import compatibility를 계속 넓힌다.
-   - 안정적인 local export 또는 QueryService contract를 정한 뒤 Jaeger
-     compatibility import를 추가한다.
-   - Schema/version validation 이후 SkyWalking GraphQL response import를
-     조사한다.
+3. Trace compatibility pass 이후 다음 Evidence Studio batch를 승격한다.
+   - 후보 track은 Incident Timeline, SLO/Golden Signals, unified Service
+     Flow다.
+   - 실제 customer export가 확보되면 Jaeger와 SkyWalking compatibility
+     fixture가 대표성을 유지하는지 계속 검증한다.
 
 ## 중기 로드맵: Evidence Studio
 
@@ -267,10 +269,11 @@ finding을 확인하고, 근거를 수집하고, 고객 데이터 외부 전송 
 2. Zipkin v2 JSON - trace import MVP 완료.
 3. Elastic APM Elasticsearch `_search` response와 source-only NDJSON - trace
    import MVP 완료.
-4. Jaeger compatibility import - P1/P2. 가능하면 UI-internal HTTP JSON보다
-   stable QueryService 또는 OTLP 경로를 우선한다.
-5. Apache SkyWalking GraphQL response import - schema/version validation 이후
-   P1/P2 feasibility 항목.
+4. Jaeger compatibility import - stable QueryService/local trace JSON contract로
+   완료.
+5. Apache SkyWalking GraphQL response import - schema-guarded
+   `queryTrace.spans` 지원 완료. Importer를 더 넓히기 전 추가 SkyWalking
+   response version을 계속 검증한다.
 
 ### SaaS 및 제품별 Connector
 

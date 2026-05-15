@@ -606,6 +606,15 @@ raw_block
 - `zipkin-v2-json`
 - `elastic-apm-search-json`
 - `elastic-apm-source-ndjson`
+- `jaeger-query-json`
+- `skywalking-graphql-json`
+
+`jaeger-query-json`은 `data[].spans`와 `processes`를 포함하는 Jaeger
+QueryService 스타일 JSON envelope 또는 같은 형태의 local trace object를
+받는다. `skywalking-graphql-json`은 schema guard를 적용한다. 현재 importer는
+`data.queryTrace.spans` 또는 `data.trace.spans`가 있는 SkyWalking GraphQL
+응답만 canonical span으로 변환하고, 다른 SkyWalking 응답 형태는 추측하지
+않고 parser diagnostics로 보고한다.
 
 필수 `summary` fields:
 

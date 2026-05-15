@@ -114,14 +114,16 @@ Guiding principles:
 
 - Canonical trace/span model for external trace imports.
 - OTLP JSON-file parser, Zipkin v2 JSON parser, Elastic APM Elasticsearch
-  `_search` response parser, and Elastic APM source-only NDJSON parser.
+  `_search` response parser, Elastic APM source-only NDJSON parser, Jaeger
+  QueryService/local trace JSON parser, and schema-guarded SkyWalking GraphQL
+  `queryTrace.spans` parser diagnostics.
 - `trace_import` analyzer result with summary, services, traces, spans,
   dependencies, service summaries, critical paths, and deterministic findings.
 - Wails Trace Import page with summary cards, service dependency and service
   latency charts, trace/span tables, critical path rows, parser diagnostics,
   and finding capture into the Evidence Board.
 - CLI command:
-  `archscope-engine trace import --in <file> --format auto|otlp-json|zipkin-v2-json|elastic-apm-search-json|elastic-apm-source-ndjson`.
+  `archscope-engine trace import --in <file> --format auto|otlp-json|zipkin-v2-json|elastic-apm-search-json|elastic-apm-source-ndjson|jaeger-query-json|skywalking-graphql-json`.
 - Sample trace fixtures under `examples/traces`.
 
 ### Evidence Board Skeleton
@@ -168,11 +170,11 @@ These items should stay aligned with `work_status.md`.
    - Connect AI interpretation to the board only after evidence-reference
      integrity checks pass.
 
-3. Continue trace-import compatibility after the file-first MVP.
-   - Add Jaeger compatibility import after choosing a stable local export or
-     QueryService contract.
-   - Investigate SkyWalking GraphQL response import after schema/version
-     validation.
+3. Promote the next Evidence Studio batch after the trace compatibility pass.
+   - Candidate tracks remain Incident Timeline, SLO/Golden Signals, and
+     unified Service Flow.
+   - Keep Jaeger and SkyWalking compatibility fixtures representative as real
+     customer exports become available.
 
 ## Mid-Term Roadmap: Evidence Studio
 
@@ -274,10 +276,11 @@ These items should stay aligned with `work_status.md`.
 2. Zipkin v2 JSON - completed for trace import MVP.
 3. Elastic APM Elasticsearch `_search` response and source-only NDJSON -
    completed for trace import MVP.
-4. Jaeger compatibility import - P1/P2, prefer stable QueryService or OTLP
-   paths over UI-internal HTTP JSON when possible.
-5. Apache SkyWalking GraphQL response import - P1/P2 feasibility item after
-   schema/version validation.
+4. Jaeger compatibility import - completed with the stable QueryService/local
+   trace JSON contract.
+5. Apache SkyWalking GraphQL response import - schema-guarded
+   `queryTrace.spans` support is in place; continue validating additional
+   SkyWalking response versions before widening the importer.
 
 ### SaaS and Product-Specific Connectors
 

@@ -1,6 +1,6 @@
 # ArchScope Work Status
 
-Last updated: 2026-05-14
+Last updated: 2026-05-15
 
 This file is the current execution status for the active ArchScope product line.
 The previous long-form history was archived to
@@ -17,9 +17,8 @@ The previous long-form history was archived to
 - Release baseline: `v0.3.2` is the latest stable GitHub release. The
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
-- Current execution focus: post-0.3.2 trace compatibility review and next
-  roadmap selection after restoring selected Wails workspace/export parity
-  from the archived browser frontend.
+- Current execution focus: next roadmap batch selection after completing the
+  post-0.3.2 file-first trace compatibility pass for Jaeger and SkyWalking.
 - Retired implementation: Python/FastAPI/browser sources are archived under
   `archive/python-engine` and `archive/web-frontend-python`.
 - Historical native POC module has been folded into `apps/engine-native`.
@@ -105,6 +104,10 @@ The previous long-form history was archived to
 - Prepared the stable `v0.3.2` desktop release with app/package metadata,
   Windows executable version metadata, changelog notes, local Windows build,
   and GUI launch smoke verification.
+- Added Jaeger QueryService/local trace JSON import and schema-guarded
+  SkyWalking GraphQL `queryTrace.spans` validation to the `trace_import`
+  parser, analyzer tests, CLI format list, Wails Trace Import selector, and
+  English/Korean data-model and roadmap documents.
 
 ## Current Risk
 
@@ -136,14 +139,14 @@ distance, while the underlying `AnalysisResult` tables retain detailed call
 metrics.
 
 Trace import is now a desktop workflow, not only an engine/CLI MVP. OTLP
-JSON-file, Zipkin v2 JSON, Elastic APM `_search` JSON, and Elastic source
-NDJSON are covered. The UI exposes summary metrics, service dependencies,
-traces, spans, critical paths, parser diagnostics, deterministic findings, and
-basic Evidence Board capture. Evidence Board capture also now covers selected
-non-trace analyzers and can export local HTML/JSON evidence packs. Broader
-Jaeger, SkyWalking, and SaaS connector
-items remain roadmap candidates until they are explicitly promoted into the
-active TO-DO.
+JSON-file, Zipkin v2 JSON, Elastic APM `_search` JSON, Elastic source NDJSON,
+Jaeger QueryService/local trace JSON, and schema-guarded SkyWalking GraphQL
+`queryTrace.spans` responses are covered. The UI exposes summary metrics,
+service dependencies, traces, spans, critical paths, parser diagnostics,
+deterministic findings, and basic Evidence Board capture. Evidence Board
+capture also now covers selected non-trace analyzers and can export local
+HTML/JSON evidence packs. Broader SaaS connectors remain roadmap candidates
+until they are explicitly promoted into the active TO-DO.
 
 JFR analysis now has an explicit product boundary and async-profiler-oriented
 stack evidence, but direct JFR JSON loading is still an object-materializing
@@ -167,15 +170,14 @@ filtered before analysis.
 
 ## Next Execution Queue
 
-1. Continue trace-import compatibility after the file-first MVP by choosing the
-   Jaeger local export or QueryService contract and validating SkyWalking
-   schema/version handling.
-2. Promote the next roadmap batch after trace compatibility review. Candidate
+1. Promote the next roadmap batch after trace compatibility review. Candidate
    tracks remain Incident Timeline, SLO/Golden Signals, and unified Service
    Flow.
-3. Keep release verification healthy before the next 0.3.x cut by repeating
+2. Keep release verification healthy before the next 0.3.x cut by repeating
    Windows GUI smoke, macOS signing/notarization validation, and frontend
    bundle budget checks.
+3. Keep Jaeger and SkyWalking compatibility fixtures representative as real
+   customer exports become available.
 
 ## Active TO-DO
 
@@ -195,6 +197,9 @@ filtered before analysis.
 | T-425 | P1 | [x] | Add an Analysis Workspace / Recent Results surface that stores successful analyzer results across page navigation and lets users send them to Evidence Board, Export Center, or comparison workflows. | T-424 preferred, current analyzer pages | Completed 2026-05-13: reusable session result registry and workspace UI |
 | T-426 | P2 | [x] | Add a general AnalysisResult comparison workflow around the existing `DiffReports` engine binding so non-profiler JSON results can be compared before/after or release-to-release. | T-425 preferred | Completed 2026-05-13: normalized AnalysisResult JSON comparison page |
 | T-427 | P2 | [x] | Reintroduce a focused Chart Studio MVP for Wails with chart template selection, analyzer-result preview, and PNG/SVG/CSV-style chart export before deeper custom chart editing. | T-425 preferred, chart/export foundation | Completed 2026-05-13: report-ready chart preview/export workflow |
+| T-428 | P1 | [x] | Decide and implement the Jaeger trace import contract for the file-first compatibility pass. | Trace import MVP | Completed 2026-05-15: Jaeger QueryService/local trace JSON importer, auto-detect, fixtures, CLI/UI format option |
+| T-429 | P1 | [x] | Add SkyWalking schema/version handling before widening import support. | Trace import MVP | Completed 2026-05-15: schema-guarded SkyWalking GraphQL `queryTrace.spans` importer diagnostics and fixture coverage |
+| T-430 | P2 | [x] | Update trace compatibility fixtures, tests, and English/Korean docs after Jaeger/SkyWalking work. | T-428, T-429 | Completed 2026-05-15: parser/analyzer tests, data-model docs, roadmap, Trace Import UI/CLI format list |
 
 ## Verification Notes
 
@@ -297,6 +302,22 @@ filtered before analysis.
   `npm run build`. Startup shell chunk is 159.76 KB raw / 51.58 KB gzip; the
   lazy shared ECharts runtime is 689.89 KB raw / 229.49 KB gzip and remains
   under the documented 700 KB chart-runtime budget.
+- 2026-05-15 trace compatibility verification passed:
+  `env GOCACHE=/tmp/archscope-go-cache go test
+  ./internal/parsers/traceimport ./internal/analyzers/traceimport
+  ./cmd/archscope-engine`.
+- 2026-05-15 full Go verification passed:
+  `env GOCACHE=/tmp/archscope-go-cache go test ./...`. The Wails app test
+  build still emits the known macOS linker warning.
+- 2026-05-15 Wails frontend verification passed after adding Jaeger and
+  SkyWalking format options: `npm run build`. Startup shell chunk is
+  159.75 KB raw / 51.58 KB gzip; the lazy shared ECharts runtime is
+  689.89 KB raw / 229.49 KB gzip and remains under the documented 700 KB
+  chart-runtime budget.
+- 2026-05-15 CLI smoke passed for Jaeger and SkyWalking auto-detect:
+  `go run ./cmd/archscope-engine trace import --format auto` emitted
+  `source_format = jaeger-query-json` with three spans and
+  `source_format = skywalking-graphql-json` with two spans.
 
 ## Decisions
 
