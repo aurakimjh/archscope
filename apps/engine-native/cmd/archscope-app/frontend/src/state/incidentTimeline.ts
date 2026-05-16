@@ -247,6 +247,9 @@ function eventsFromEntry(entry: AnalysisWorkspaceEntry): IncidentTimelineEvent[]
     case "server_log":
       events.push(...eventsFromServerLog(entry));
       break;
+    case "observability_evidence":
+      events.push(...eventsFromObservability(entry));
+      break;
   }
   return uniqueEvents(events).slice(0, MAX_EVENTS_PER_RESULT);
 }
@@ -339,6 +342,21 @@ function eventsFromServerLog(entry: AnalysisWorkspaceEntry): IncidentTimelineEve
       label: stringValue(row.event_type)?.toUpperCase() || "SERVER_LOG_EVENT",
       description: stringValue(row.message) || "Server log event",
       evidenceRef: "tables.events",
+      payload: row,
+      timeValue: row.timestamp,
+    }),
+  );
+}
+
+function eventsFromObservability(entry: AnalysisWorkspaceEntry): IncidentTimelineEvent[] {
+  return arrayOfObjects(entry.result.tables?.records).map((row, index) =>
+    makeEvent(entry, {
+      idSuffix: `observability-${stringValue(row.kind) || index}`,
+      severity: normalizeSeverity(stringValue(row.severity)),
+      category: stringValue(row.kind) || "observability",
+      label: stringValue(row.kind)?.toUpperCase() || "OBSERVABILITY_EVENT",
+      description: stringValue(row.message) || stringValue(row.panel_title) || "Observability evidence",
+      evidenceRef: "tables.records",
       payload: row,
       timeValue: row.timestamp,
     }),

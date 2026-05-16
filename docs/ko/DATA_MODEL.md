@@ -394,6 +394,24 @@ Finding code는 `SERVER_SEVERE_ERRORS`, `DEPLOYMENT_FAILURE`,
 `THREAD_POOL_PRESSURE`, `WORKER_ERROR_PRESENT`, `MANAGED_SERVER_HEALTH`를
 포함한다.
 
+### Observability Logs And Metrics
+
+`otel_logs`는 JSONL/NDJSON 형태의 OTel log record와 OTLP Logs JSON
+`resourceLogs`를 받는다. Severity, body, attributes, resource metadata,
+service name, trace ID, span ID, parent span ID를 보존한다. Analyzer table은
+records, cross-service traces, trace service paths, failure propagation,
+resource groups, error signatures, severity bursts를 포함한다.
+
+`metrics_snapshot`은 Prometheus/OpenMetrics text snapshot을 받는다. Metric
+sample count, per-metric distribution, bounded raw sample, latency/traffic/errors/
+saturation용 `golden_signal_candidates`를 emit한다.
+
+`observability_evidence`는 Loki query JSON export, Tempo trace JSON export,
+Grafana dashboard JSON export를 받는다. Loki와 Tempo record는 trace ID로
+Incident Timeline에 연결할 수 있고, Grafana row는 raw metric truth가 아니라
+Evidence Board와 report pack context를 위한 dashboard-panel reference로
+저장한다.
+
 ### Profiler Collapsed Result
 
 `type`: `profiler_collapsed`

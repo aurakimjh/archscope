@@ -250,6 +250,24 @@ Finding codes include `SERVER_SEVERE_ERRORS`, `DEPLOYMENT_FAILURE`,
 `DATASOURCE_POOL_WARNING`, `STUCK_THREAD_DETECTED`, `HUNG_THREAD_DETECTED`,
 `THREAD_POOL_PRESSURE`, `WORKER_ERROR_PRESENT`, and `MANAGED_SERVER_HEALTH`.
 
+### Observability Logs And Metrics
+
+`otel_logs` accepts JSONL/NDJSON-style OTel log records and OTLP Logs JSON
+`resourceLogs`. It preserves severity, body, attributes, resource metadata,
+service name, trace ID, span ID, and parent span ID. Analyzer tables include
+records, cross-service traces, trace service paths, failure propagation,
+resource groups, error signatures, and severity bursts.
+
+`metrics_snapshot` accepts Prometheus/OpenMetrics text snapshots. It emits
+metric sample counts, per-metric distribution, bounded raw samples, and
+`golden_signal_candidates` for latency, traffic, errors, and saturation.
+
+`observability_evidence` accepts Loki query JSON exports, Tempo trace JSON
+exports, and Grafana dashboard JSON exports. Loki and Tempo records can join the
+Incident Timeline through trace IDs; Grafana rows are stored as dashboard-panel
+references for Evidence Board and report-pack context rather than raw metric
+truth.
+
 ### Profiler Collapsed Result
 
 `type`: `profiler_collapsed`

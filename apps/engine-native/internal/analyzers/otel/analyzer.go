@@ -60,6 +60,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/diagnostics"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
@@ -154,6 +155,9 @@ func buildFromIterator(
 	traceCounts := newOrderedCounter[string]()
 	serviceCounts := newOrderedCounter[string]()
 	severityCounts := newOrderedCounter[string]()
+	resourceCounts := newOrderedCounter[string]()
+	errorSignatureCounts := newOrderedCounter[string]()
+	errorBursts := map[string]int{}
 
 	traceServices := newOrderedSetMap()
 	traceRecords := newOrderedRecordMap()
@@ -167,6 +171,13 @@ func buildFromIterator(
 		traceCounts.add(traceKey)
 		serviceCounts.add(serviceKey)
 		severityCounts.add(record.Severity)
+		resourceCounts.add(serviceKey)
+		if isErrorRecord(record) {
+			errorSignatureCounts.add(errorSignature(record.Body))
+			if minute := timestampMinute(record.Timestamp); minute != "" {
+				errorBursts[minute+"|"+serviceKey]++
+			}
+		}
 
 		if record.TraceID != nil && record.ServiceName != nil {
 			traceServices.add(*record.TraceID, *record.ServiceName)
@@ -183,6 +194,8 @@ func buildFromIterator(
 				"service_name":   ptrToAny(record.ServiceName),
 				"severity":       record.Severity,
 				"body":           record.Body,
+				"attributes":     record.Attributes,
+				"resource":       record.Resource,
 			})
 		}
 		return nil
@@ -235,11 +248,14 @@ func buildFromIterator(
 		"failure_propagation_traces": len(failureProp),
 		"span_topology_warnings":     len(topologyWarnings),
 		"error_records":              errorRecords,
+		"error_signature_count":      len(errorSignatureCounts.counts),
+		"resource_group_count":       len(resourceCounts.counts),
 	}
 
 	series := map[string]any{
 		"severity_distribution": severityCounts.mostCommonRows("severity", topN),
 		"service_distribution":  serviceCounts.mostCommonRows("service", topN),
+		"resource_distribution": resourceCounts.mostCommonRows("resource", topN),
 		"top_traces":            traceCounts.mostCommonRows("trace_id", topN),
 	}
 
@@ -266,6 +282,9 @@ func buildFromIterator(
 		"trace_span_topology":         buildTraceSpanTopology(traceRecords, sortedTraceIDs, topN),
 		"span_topology_warnings":      truncateRows(topologyWarnings, topN),
 		"service_trace_matrix":        buildServiceTraceMatrix(traceRecords, sortedTraceIDs, topN),
+		"error_signatures":            errorSignatureCounts.mostCommonRows("signature", topN),
+		"severity_bursts":             severityBurstRows(errorBursts, topN),
+		"resource_groups":             resourceCounts.mostCommonRows("resource", topN),
 	}
 
 	if diags == nil {
@@ -1051,6 +1070,61 @@ func truncateRows(rows []map[string]any, limit int) []map[string]any {
 		return rows[:limit]
 	}
 	return rows
+}
+
+func errorSignature(body string) string {
+	body = strings.ToLower(strings.TrimSpace(body))
+	if body == "" {
+		return "(empty)"
+	}
+	re := regexp.MustCompile(`[0-9a-f]{8,}|\d+`)
+	body = re.ReplaceAllString(body, "?")
+	fields := strings.Fields(body)
+	if len(fields) > 12 {
+		fields = fields[:12]
+	}
+	return strings.Join(fields, " ")
+}
+
+func timestampMinute(value *string) string {
+	if value == nil || strings.TrimSpace(*value) == "" {
+		return ""
+	}
+	ts, err := time.Parse(time.RFC3339Nano, *value)
+	if err != nil {
+		return ""
+	}
+	return ts.UTC().Truncate(time.Minute).Format(time.RFC3339)
+}
+
+func severityBurstRows(counts map[string]int, limit int) []map[string]any {
+	type kv struct {
+		key   string
+		count int
+	}
+	items := make([]kv, 0, len(counts))
+	for k, v := range counts {
+		items = append(items, kv{k, v})
+	}
+	sort.SliceStable(items, func(i, j int) bool {
+		if items[i].count != items[j].count {
+			return items[i].count > items[j].count
+		}
+		return items[i].key < items[j].key
+	})
+	if limit > 0 && len(items) > limit {
+		items = items[:limit]
+	}
+	out := make([]map[string]any, 0, len(items))
+	for _, item := range items {
+		parts := strings.SplitN(item.key, "|", 2)
+		service := ""
+		if len(parts) == 2 {
+			service = parts[1]
+		}
+		out = append(out, map[string]any{"time": parts[0], "service": service, "error_count": item.count})
+	}
+	return out
 }
 
 func asInt(v any) int {

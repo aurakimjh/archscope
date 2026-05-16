@@ -1,0 +1,6 @@
+# HELP http_requests_total HTTP requests
+# TYPE http_requests_total counter
+http_requests_total{service="api",code="200"} 42
+http_errors_total{service="api",code="500"} 2
+http_request_duration_seconds{service="api",quantile="0.95"} 0.35
+# EOF

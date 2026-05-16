@@ -746,6 +746,12 @@ function signalsFromEntry(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
     case "server_log":
       signals = signalsFromServerLog(entry);
       break;
+    case "metrics_snapshot":
+      signals = signalsFromMetricsSnapshot(entry);
+      break;
+    case "observability_evidence":
+      signals = signalsFromObservabilityEvidence(entry);
+      break;
     case "jfr_recording":
       signals = signalsFromJfr(entry);
       break;
@@ -1209,6 +1215,35 @@ function signalsFromServerLog(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
     scopeType: "thread",
   });
   addSummary(out, entry, "datasource_event_count", "Datasource warning count", "saturation", "count", "count", {
+    scopeType: "runtime",
+  });
+  return out;
+}
+
+function signalsFromMetricsSnapshot(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
+  const out: GoldenSignal[] = [];
+  for (const row of arrayOfObjects(entry.result.tables?.golden_signal_candidates).slice(0, MAX_ROW_SIGNALS)) {
+    addSignal(out, entry, {
+      kind: (stringValue(row.kind) as GoldenSignalKind) || "traffic",
+      name: stringValue(row.name) || "Metric sample",
+      value: row.value,
+      unit: "count",
+      aggregation: "latest",
+      scopeType: "runtime",
+      scope: stringValue(objectOrEmpty(row.labels).service) || stringValue(row.name) || "metrics",
+      evidenceRef: "tables.golden_signal_candidates",
+      payload: row,
+    });
+  }
+  return out;
+}
+
+function signalsFromObservabilityEvidence(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
+  const out: GoldenSignal[] = [];
+  addSummary(out, entry, "error_count", "Observability error count", "errors", "count", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "dashboard_panel_count", "Grafana panel references", "traffic", "count", "count", {
     scopeType: "runtime",
   });
   return out;

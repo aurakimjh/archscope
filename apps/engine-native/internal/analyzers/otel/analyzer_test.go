@@ -1,15 +1,15 @@
 // [한글] otel 분석기 회귀 테스트.
 //
 // 핵심 시나리오
-//   • parent_span_id DAG 정상 케이스: service 호출 경로가 올바르게
+//   - parent_span_id DAG 정상 케이스: service 호출 경로가 올바르게
 //     복원됨.
-//   • SELF_PARENT 케이스: span 의 parent 가 자기 자신 → finding 1건.
-//   • PARENT_CYCLE 케이스: A→B→A 형태 → finding 1건.
-//   • 부모 엣지 없는 trace: timestamp 폴백으로 service 변경점 기반
+//   - SELF_PARENT 케이스: span 의 parent 가 자기 자신 → finding 1건.
+//   - PARENT_CYCLE 케이스: A→B→A 형태 → finding 1건.
+//   - 부모 엣지 없는 trace: timestamp 폴백으로 service 변경점 기반
 //     경로 합성.
-//   • cross-service trace: 단일 trace_id 가 여러 service 를 거침 →
+//   - cross-service trace: 단일 trace_id 가 여러 service 를 거침 →
 //     OTEL_CROSS_SERVICE_TRACE finding.
-//   • 에러 전파: 첫 error 이후 downstream service 가 등장 →
+//   - 에러 전파: 첫 error 이후 downstream service 가 등장 →
 //     OTEL_FAILURE_PROPAGATION 행 + finding.
 package otel
 
@@ -554,6 +554,29 @@ func TestBuildAcceptsManuallyConstructedRecords(t *testing.T) {
 	}
 	if got := tracePaths[0]["service_path"].(string); got != "svc-a -> svc-b" {
 		t.Errorf("service_path = %q, want %q", got, "svc-a -> svc-b")
+	}
+}
+
+func TestAnalyzerBuildsErrorSignaturesAndSeverityBursts(t *testing.T) {
+	traceID := "trace-burst"
+	spanID := "span-burst"
+	service := "checkout"
+	ts1 := "2026-05-16T10:00:01Z"
+	ts2 := "2026-05-16T10:00:20Z"
+	result := Build([]otelparser.Record{
+		{Timestamp: &ts1, TraceID: &traceID, SpanID: &spanID, ServiceName: &service, Severity: "ERROR", Body: "payment failed order=1001"},
+		{Timestamp: &ts2, TraceID: &traceID, SpanID: &spanID, ServiceName: &service, Severity: "ERROR", Body: "payment failed order=1002"},
+	}, "manual.json", nil, Options{})
+	if got := asInt(result.Summary["error_signature_count"]); got != 1 {
+		t.Fatalf("error_signature_count=%d, want 1", got)
+	}
+	signatures := rowSlice(t, result.Tables, "error_signatures")
+	if len(signatures) != 1 || asInt(signatures[0]["count"]) != 2 {
+		t.Fatalf("error_signatures=%+v", signatures)
+	}
+	bursts := rowSlice(t, result.Tables, "severity_bursts")
+	if len(bursts) != 1 || asInt(bursts[0]["error_count"]) != 2 {
+		t.Fatalf("severity_bursts=%+v", bursts)
 	}
 }
 

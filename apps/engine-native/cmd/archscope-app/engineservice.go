@@ -157,6 +157,19 @@ type ServerLogRequest struct {
 	Strict   bool   `json:"strict,omitempty"`
 }
 
+type MetricsRequest struct {
+	Path     string `json:"path"`
+	TopN     int    `json:"topN,omitempty"`
+	MaxLines int    `json:"maxLines,omitempty"`
+	Strict   bool   `json:"strict,omitempty"`
+}
+
+type ObservabilityRequest struct {
+	Path   string `json:"path"`
+	Format string `json:"format,omitempty"`
+	TopN   int    `json:"topN,omitempty"`
+}
+
 // TraceImportRequest mirrors traceimport.Options + a Path.
 type TraceImportRequest struct {
 	Path   string `json:"path"`
@@ -408,6 +421,24 @@ func (s *EngineService) AnalyzeServerLog(req ServerLogRequest) (engineapi.Analys
 		TopN:     req.TopN,
 		Strict:   req.Strict,
 	})
+}
+
+func (s *EngineService) AnalyzeMetrics(req MetricsRequest) (engineapi.AnalysisResult, error) {
+	if strings.TrimSpace(req.Path) == "" {
+		return engineapi.AnalysisResult{}, fmt.Errorf("path is required")
+	}
+	return engineapi.AnalyzeMetrics(req.Path, engineapi.MetricsOptions{
+		MaxLines: req.MaxLines,
+		TopN:     req.TopN,
+		Strict:   req.Strict,
+	})
+}
+
+func (s *EngineService) AnalyzeObservability(req ObservabilityRequest) (engineapi.AnalysisResult, error) {
+	if strings.TrimSpace(req.Path) == "" {
+		return engineapi.AnalysisResult{}, fmt.Errorf("path is required")
+	}
+	return engineapi.AnalyzeObservability(req.Path, engineapi.ObservabilityOptions{Format: req.Format, TopN: req.TopN})
 }
 
 // AnalyzeTraceImport wraps engineapi.AnalyzeTraceImport.

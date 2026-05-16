@@ -193,6 +193,37 @@ assert(
   "server-log summaries should feed Golden Signals",
 );
 
+const metricsSnapshot = entry("metrics-1", "metrics_snapshot", {
+  tables: {
+    golden_signal_candidates: [
+      { name: "http_request_duration_seconds", kind: "latency", value: 0.25, labels: { service: "api" } },
+    ],
+  },
+});
+assert(
+  buildGoldenSignalInventory([metricsSnapshot]).signals.some((signal) => signal.name === "http_request_duration_seconds"),
+  "metrics snapshot candidates should feed Golden Signals",
+);
+
+const observability = entry("obs-1", "observability_evidence", {
+  summary: { error_count: 1, dashboard_panel_count: 1 },
+  tables: {
+    records: [
+      {
+        kind: "loki_log",
+        timestamp: "2026-05-16T10:00:00Z",
+        severity: "ERROR",
+        message: "request failed",
+        trace_id: "trace-obs",
+      },
+    ],
+  },
+});
+assert(
+  buildIncidentTimelineEvents([observability]).some((event) => event.category === "loki_log"),
+  "observability evidence should feed Incident Timeline",
+);
+
 const aiResult = entry("ai-1", "jfr_recording", {
   tables: {
     notable_events: [{ evidence_ref: "jfr:event:1", message: "GC pause 120ms" }],

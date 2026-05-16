@@ -53,7 +53,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/diagnostics"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/textio"
@@ -73,6 +76,8 @@ type Record struct {
 	ServiceName  *string
 	Severity     string
 	Body         string
+	Attributes   map[string]string
+	Resource     map[string]string
 	RawLine      string
 }
 
@@ -149,8 +154,41 @@ func recordFromPayload(payload any, rawLine string) *Record {
 		ServiceName:  serviceName(obj),
 		Severity:     severityStr,
 		Body:         bodyStr,
+		Attributes:   attributeMap(mapValue(obj, "attributes")),
+		Resource:     resourceAttributes(obj),
 		RawLine:      rawLine,
 	}
+}
+
+func mapValue(obj map[string]any, key string) map[string]any {
+	if obj == nil {
+		return nil
+	}
+	if m, ok := obj[key].(map[string]any); ok {
+		return m
+	}
+	return nil
+}
+
+func resourceAttributes(obj map[string]any) map[string]string {
+	resource, ok := obj["resource"].(map[string]any)
+	if !ok {
+		return map[string]string{}
+	}
+	return attributeMap(mapValue(resource, "attributes"))
+}
+
+func attributeMap(obj map[string]any) map[string]string {
+	if len(obj) == 0 {
+		return map[string]string{}
+	}
+	out := map[string]string{}
+	for key, value := range obj {
+		if s := bodyValue(value); s != nil {
+			out[key] = *s
+		}
+	}
+	return out
 }
 
 // serviceName mirrors Python `_service_name` — top-level alias →
@@ -355,6 +393,10 @@ func ForEachRecord(path string, opts Options, fn func(Record) error) (*diagnosti
 	diags := diagnostics.New("otel_jsonl")
 	diags.SetSourceFile(path)
 
+	if handled, err := forEachOTLPRecord(path, diags, opts, fn); handled || err != nil {
+		return diags, err
+	}
+
 	err := textio.ForEachTextLine(path, "", func(lineNumber int, line string) error {
 		if opts.MaxLines > 0 && lineNumber > opts.MaxLines {
 			return errStopIteration
@@ -387,6 +429,78 @@ func ForEachRecord(path string, opts Options, fn func(Record) error) (*diagnosti
 	return diags, nil
 }
 
+func forEachOTLPRecord(path string, diags *diagnostics.ParserDiagnostics, opts Options, fn func(Record) error) (bool, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return false, err
+	}
+	if !strings.Contains(string(data[:min(len(data), 4096)]), "resourceLogs") {
+		return false, nil
+	}
+	var payload map[string]any
+	if err := json.Unmarshal(data, &payload); err != nil {
+		diags.TotalLines = 1
+		diags.AddSkipped(1, ReasonInvalidOTelJSON, err.Error(), string(data[:min(len(data), diagnostics.RawPreviewLimit)]))
+		if opts.Strict {
+			return true, err
+		}
+		return true, nil
+	}
+	diags.Format = "otlp_logs_json"
+	lineNumber := 0
+	for _, resourceLog := range arrayValue(payload["resourceLogs"]) {
+		resourceObj, _ := resourceLog.(map[string]any)
+		resource := attributeListMap(nestedArray(resourceObj, "resource", "attributes"))
+		service := resource["service.name"]
+		for _, scopeLog := range arrayValue(resourceObj["scopeLogs"]) {
+			scopeObj, _ := scopeLog.(map[string]any)
+			for _, item := range arrayValue(scopeObj["logRecords"]) {
+				lineNumber++
+				if opts.MaxLines > 0 && lineNumber > opts.MaxLines {
+					return true, nil
+				}
+				diags.TotalLines++
+				obj, ok := item.(map[string]any)
+				if !ok {
+					diags.AddSkipped(lineNumber, ReasonInvalidOTelRecord, "OTLP logRecord is not an object.", "")
+					continue
+				}
+				attrs := attributeListMap(arrayValue(obj["attributes"]))
+				body := bodyValue(obj["body"])
+				bodyStr := ""
+				if body != nil {
+					bodyStr = *body
+				}
+				ts := otlpTime(obj["timeUnixNano"], obj["observedTimeUnixNano"])
+				rec := Record{
+					Timestamp:    ts,
+					TraceID:      stringValue(obj, "traceId", "trace_id"),
+					SpanID:       stringValue(obj, "spanId", "span_id"),
+					ParentSpanID: stringValue(obj, "parentSpanId", "parent_span_id"),
+					ServiceName:  stringPtr(service),
+					Severity:     derefString(stringValue(obj, "severityText", "severity_text", "level"), "UNSPECIFIED"),
+					Body:         bodyStr,
+					Attributes:   attrs,
+					Resource:     resource,
+					RawLine:      "",
+				}
+				if rec.ServiceName == nil {
+					rec.ServiceName = stringPtr(attrs["service.name"])
+				}
+				if rec.TraceID == nil && rec.SpanID == nil && rec.Body == "" {
+					diags.AddSkipped(lineNumber, ReasonInvalidOTelRecord, "OTLP logRecord did not contain OTel log fields.", "")
+					continue
+				}
+				diags.ParsedRecords++
+				if err := fn(rec); err != nil {
+					return true, err
+				}
+			}
+		}
+	}
+	return true, nil
+}
+
 func isBlank(line string) bool {
 	for _, r := range line {
 		if r != ' ' && r != '\t' && r != '\r' && r != '\n' {
@@ -394,4 +508,99 @@ func isBlank(line string) bool {
 		}
 	}
 	return true
+}
+
+func arrayValue(value any) []any {
+	if items, ok := value.([]any); ok {
+		return items
+	}
+	return nil
+}
+
+func nestedArray(obj map[string]any, parent, child string) []any {
+	if obj == nil {
+		return nil
+	}
+	if parentObj, ok := obj[parent].(map[string]any); ok {
+		return arrayValue(parentObj[child])
+	}
+	return nil
+}
+
+func attributeListMap(items []any) map[string]string {
+	out := map[string]string{}
+	for _, item := range items {
+		obj, ok := item.(map[string]any)
+		if !ok {
+			continue
+		}
+		key := derefString(stringValue(obj, "key"), "")
+		value, ok := obj["value"]
+		if key == "" || !ok {
+			continue
+		}
+		if s := otlpAnyValue(value); s != "" {
+			out[key] = s
+		}
+	}
+	return out
+}
+
+func otlpAnyValue(value any) string {
+	if obj, ok := value.(map[string]any); ok {
+		for _, key := range []string{"stringValue", "intValue", "doubleValue", "boolValue"} {
+			if v, exists := obj[key]; exists {
+				if s := bodyValue(v); s != nil {
+					return *s
+				}
+			}
+		}
+	}
+	if s := bodyValue(value); s != nil {
+		return *s
+	}
+	return ""
+}
+
+func otlpTime(values ...any) *string {
+	for _, value := range values {
+		raw := ""
+		switch v := value.(type) {
+		case string:
+			raw = v
+		case float64:
+			raw = strconv.FormatInt(int64(v), 10)
+		}
+		if raw == "" || raw == "0" {
+			continue
+		}
+		ns, err := strconv.ParseInt(raw, 10, 64)
+		if err != nil {
+			continue
+		}
+		ts := time.Unix(0, ns).UTC().Format(time.RFC3339Nano)
+		return &ts
+	}
+	return nil
+}
+
+func stringPtr(value string) *string {
+	if strings.TrimSpace(value) == "" {
+		return nil
+	}
+	return &value
+}
+
+func derefString(value *string, fallback string) string {
+	if value == nil {
+		return fallback
+	}
+	return *value
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }

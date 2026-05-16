@@ -76,7 +76,9 @@ import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/jenniferprofile"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/jfr"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/lockcontention"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/metrics"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/multithread"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/observability"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/otel"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/profileclassification"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/runtime"
@@ -197,6 +199,16 @@ type ServerLogOptions = serverlog.Options
 
 // AnalyzeServerLog wraps serverlog.Analyze.
 var AnalyzeServerLog = serverlog.Analyze
+
+// ── Metrics and observability exports ───────────────────────────────
+
+type MetricsOptions = metrics.Options
+
+var AnalyzeMetrics = metrics.Analyze
+
+type ObservabilityOptions = observability.Options
+
+var AnalyzeObservability = observability.Analyze
 
 // ── External trace import ───────────────────────────────────────────
 

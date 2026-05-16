@@ -1,0 +1,11 @@
+{
+  "uid": "svc-api",
+  "title": "API Service",
+  "panels": [
+    {
+      "id": 1,
+      "title": "Latency p95",
+      "type": "timeseries"
+    }
+  ]
+}

@@ -1,13 +1,13 @@
 // [한글] otel parser 회귀 테스트.
 //
 // 검증 대상
-//   • snake_case / camelCase / 도트 표기 alias 가 모두 같은 Record
+//   - snake_case / camelCase / 도트 표기 alias 가 모두 같은 Record
 //     필드로 매핑.
-//   • body 가 dict 이면 stringValue → str → value → text 순으로 시도.
-//   • body 가 bool/int/float → Python str() 호환 표현.
-//   • resource.attributes 안의 service.name 도 인식.
-//   • INVALID_OTEL_JSON / INVALID_OTEL_RECORD 사유의 라인 단위 skip.
-//   • parent_span_id 가 자기 자신과 같으면 그대로 통과 (분석기가
+//   - body 가 dict 이면 stringValue → str → value → text 순으로 시도.
+//   - body 가 bool/int/float → Python str() 호환 표현.
+//   - resource.attributes 안의 service.name 도 인식.
+//   - INVALID_OTEL_JSON / INVALID_OTEL_RECORD 사유의 라인 단위 skip.
+//   - parent_span_id 가 자기 자신과 같으면 그대로 통과 (분석기가
 //     SELF_PARENT finding 으로 처리).
 package otel
 
@@ -424,6 +424,25 @@ func TestParseFileEmptyFileWarns(t *testing.T) {
 	}
 	if len(diags.Warnings) == 0 || diags.Warnings[0].Reason != "EMPTY_FILE" {
 		t.Errorf("expected EMPTY_FILE warning, got %+v", diags.Warnings)
+	}
+}
+
+func TestParseOTLPLogsJSON(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "otlp-logs.json")
+	payload := `{"resourceLogs":[{"resource":{"attributes":[{"key":"service.name","value":{"stringValue":"checkout"}},{"key":"host.name","value":{"stringValue":"node-a"}}]},"scopeLogs":[{"logRecords":[{"timeUnixNano":"1778916000000000000","severityText":"ERROR","body":{"stringValue":"payment failed order=1001"},"traceId":"trace-1","spanId":"span-1","attributes":[{"key":"http.route","value":{"stringValue":"/pay"}}]}]}]}]}`
+	if err := os.WriteFile(path, []byte(payload), 0o644); err != nil {
+		t.Fatalf("write: %v", err)
+	}
+	records, diags, err := ParseFile(path, Options{})
+	if err != nil {
+		t.Fatalf("ParseFile: %v", err)
+	}
+	if len(records) != 1 || diags.Format != "otlp_logs_json" {
+		t.Fatalf("records=%d diagnostics=%+v", len(records), diags)
+	}
+	if strDeref(records[0].ServiceName) != "checkout" || records[0].Attributes["http.route"] != "/pay" || records[0].Resource["host.name"] != "node-a" {
+		t.Fatalf("record mismatch: %+v", records[0])
 	}
 }
 
