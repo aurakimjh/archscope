@@ -71,6 +71,7 @@ package api
 
 import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/accesslog"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/databaselog"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/exception"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/gclog"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/jenniferprofile"
@@ -209,6 +210,12 @@ var AnalyzeMetrics = metrics.Analyze
 type ObservabilityOptions = observability.Options
 
 var AnalyzeObservability = observability.Analyze
+
+// ── Database logs and plans ─────────────────────────────────────────
+
+type DatabaseLogOptions = databaselog.Options
+
+var AnalyzeDatabaseLog = databaselog.Analyze
 
 // ── External trace import ───────────────────────────────────────────
 

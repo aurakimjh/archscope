@@ -250,6 +250,9 @@ function eventsFromEntry(entry: AnalysisWorkspaceEntry): IncidentTimelineEvent[]
     case "observability_evidence":
       events.push(...eventsFromObservability(entry));
       break;
+    case "database_slow_query":
+      events.push(...eventsFromDatabase(entry));
+      break;
   }
   return uniqueEvents(events).slice(0, MAX_EVENTS_PER_RESULT);
 }
@@ -357,6 +360,21 @@ function eventsFromObservability(entry: AnalysisWorkspaceEntry): IncidentTimelin
       label: stringValue(row.kind)?.toUpperCase() || "OBSERVABILITY_EVENT",
       description: stringValue(row.message) || stringValue(row.panel_title) || "Observability evidence",
       evidenceRef: "tables.records",
+      payload: row,
+      timeValue: row.timestamp,
+    }),
+  );
+}
+
+function eventsFromDatabase(entry: AnalysisWorkspaceEntry): IncidentTimelineEvent[] {
+  return arrayOfObjects(entry.result.tables?.queries).map((row, index) =>
+    makeEvent(entry, {
+      idSuffix: `database-${stringValue(row.fingerprint) || index}`,
+      severity: stringValue(row.error) ? "critical" : numberValue(row.duration_ms) >= 1_000 ? "warning" : "info",
+      category: stringValue(row.error) ? "database_error" : "database_query",
+      label: stringValue(row.error) ? "DB_ERROR" : "DB_QUERY",
+      description: stringValue(row.error) || stringValue(row.fingerprint) || "Database query evidence",
+      evidenceRef: "tables.queries",
       payload: row,
       timeValue: row.timestamp,
     }),

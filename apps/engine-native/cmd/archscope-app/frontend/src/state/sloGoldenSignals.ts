@@ -752,6 +752,9 @@ function signalsFromEntry(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
     case "observability_evidence":
       signals = signalsFromObservabilityEvidence(entry);
       break;
+    case "database_slow_query":
+      signals = signalsFromDatabaseLog(entry);
+      break;
     case "jfr_recording":
       signals = signalsFromJfr(entry);
       break;
@@ -1244,6 +1247,23 @@ function signalsFromObservabilityEvidence(entry: AnalysisWorkspaceEntry): Golden
     scopeType: "runtime",
   });
   addSummary(out, entry, "dashboard_panel_count", "Grafana panel references", "traffic", "count", "count", {
+    scopeType: "runtime",
+  });
+  return out;
+}
+
+function signalsFromDatabaseLog(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
+  const out: GoldenSignal[] = [];
+  addSummary(out, entry, "p95_query_ms", "Database query p95 latency", "latency", "ms", "p95", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "slow_query_count", "Database slow query count", "saturation", "count", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "error_count", "Database error count", "errors", "count", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "lock_wait_count", "Database lock wait count", "saturation", "count", "count", {
     scopeType: "runtime",
   });
   return out;

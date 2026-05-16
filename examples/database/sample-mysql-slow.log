@@ -1,0 +1,3 @@
+# Time: 260516 10:00:00
+# Query_time: 1.200 Lock_time: 0.010 Rows_sent: 1 Rows_examined: 2000
+SELECT * FROM users WHERE id=42;

@@ -6,6 +6,7 @@ import type {
 export type ServiceFlowSourceType =
   | "trace_import_dependency"
   | "access_edge_dependency"
+  | "database_dependency"
   | "jennifer_msa_edge"
   | "jennifer_unprofiled_external_call_group";
 
@@ -310,6 +311,9 @@ function inputEdgesFromEntry(entry: AnalysisWorkspaceEntry): ServiceFlowInputEdg
   if (type === "access_log" && Array.isArray(entry.result.tables?.service_dependencies)) {
     return accessLogEdges(entry);
   }
+  if (type === "database_slow_query" && Array.isArray(entry.result.tables?.service_dependencies)) {
+    return databaseEdges(entry);
+  }
   if (type === "jennifer_profile" || Array.isArray(entry.result.tables?.msa_edges)) {
     return jenniferEdges(entry);
   }
@@ -354,6 +358,27 @@ function accessLogEdges(entry: AnalysisWorkspaceEntry): ServiceFlowInputEdge[] {
       evidenceRef: "tables.service_dependencies",
       payload: row,
       idSuffix: `access-edge-${caller}-${callee}-${index}`,
+    });
+  });
+}
+
+function databaseEdges(entry: AnalysisWorkspaceEntry): ServiceFlowInputEdge[] {
+  return arrayOfObjects(entry.result.tables?.service_dependencies).map((row, index) => {
+    const caller = normalizeServiceName(stringValue(row.caller) || "application");
+    const callee = normalizeServiceName(stringValue(row.callee) || "database");
+    return makeInputEdge(entry, {
+      sourceType: "database_dependency",
+      caller,
+      callee,
+      callCount: numberValue(row.call_count, 1),
+      totalLatencyMs: optionalNumber(row.total_duration_ms),
+      avgLatencyMs: optionalNumber(row.avg_duration_ms),
+      errorCount: optionalNumber(row.error_count),
+      errorRate: optionalNumber(row.error_rate),
+      matchStatus: "database_evidence",
+      evidenceRef: "tables.service_dependencies",
+      payload: row,
+      idSuffix: `database-${caller}-${callee}-${index}`,
     });
   });
 }
@@ -470,6 +495,7 @@ function countBySourceType(edges: ServiceFlowInputEdge[]): Record<ServiceFlowSou
   const counts: Record<ServiceFlowSourceType, number> = {
     trace_import_dependency: 0,
     access_edge_dependency: 0,
+    database_dependency: 0,
     jennifer_msa_edge: 0,
     jennifer_unprofiled_external_call_group: 0,
   };

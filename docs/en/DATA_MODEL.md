@@ -268,6 +268,21 @@ Incident Timeline through trace IDs; Grafana rows are stored as dashboard-panel
 references for Evidence Board and report-pack context rather than raw metric
 truth.
 
+### Database Slow Query Result
+
+`type`: `database_slow_query`
+
+The database evidence contract covers PostgreSQL text/csvlog, MySQL/MariaDB
+slow query logs, MongoDB profiler JSON, Redis slowlog text, SQL Server extended
+events JSON, and PostgreSQL/MySQL EXPLAIN JSON. Core rows preserve sanitized SQL
+fingerprints, duration, lock wait, error, row count, database/schema, collection
+or operation, and plan summaries. `tables.service_dependencies` exposes
+application-to-database edges so Service Flow can place database evidence beside
+trace and access-log dependencies.
+
+Finding codes include `SLOW_QUERY_PRESENT`, `LOCK_WAIT_PRESENT`,
+`DB_ERRORS_PRESENT`, `HIGH_ROWS_EXAMINED`, and `EXPLAIN_PLAN_IMPORTED`.
+
 ### Profiler Collapsed Result
 
 `type`: `profiler_collapsed`

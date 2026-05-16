@@ -100,6 +100,31 @@ const accessEdge = entry("access-edge-1", "access_log", {
 const accessServiceFlow = buildServiceFlowAnalysis([accessEdge]);
 assert(accessServiceFlow.edge_model.edge_count === 1, "access edge dependencies should feed Service Flow");
 
+const database = entry("db-1", "database_slow_query", {
+  summary: { p95_query_ms: 1200, slow_query_count: 1, error_count: 1 },
+  tables: {
+    service_dependencies: [
+      {
+        caller: "application",
+        callee: "database:shop",
+        call_count: 2,
+        total_duration_ms: 1800,
+        avg_duration_ms: 900,
+        error_count: 1,
+        error_rate: 0.5,
+      },
+    ],
+    queries: [
+      {
+        timestamp: "2026-05-16T10:00:00Z",
+        fingerprint: "select * from orders where id = ?",
+        duration_ms: 1200,
+      },
+    ],
+  },
+});
+assert(buildServiceFlowAnalysis([database]).edge_model.edge_count === 1, "database dependencies should feed Service Flow");
+
 const inventory = buildGoldenSignalInventory([trace, jennifer]);
 const dependencyErrorRate = inventory.signals.find((signal) => signal.name === "Dependency error rate");
 assert(dependencyErrorRate?.value === 20, "trace-import error_rate fractions should normalize to percent");
@@ -130,6 +155,7 @@ const mermaid = buildServiceFlowMermaidSequence({
     by_source_type: {
       trace_import_dependency: 0,
       access_edge_dependency: 0,
+      database_dependency: 0,
       jennifer_msa_edge: 0,
       jennifer_unprofiled_external_call_group: 0,
     },
@@ -222,6 +248,10 @@ const observability = entry("obs-1", "observability_evidence", {
 assert(
   buildIncidentTimelineEvents([observability]).some((event) => event.category === "loki_log"),
   "observability evidence should feed Incident Timeline",
+);
+assert(
+  buildGoldenSignalInventory([database]).signals.some((signal) => signal.name === "Database query p95 latency"),
+  "database slow-query evidence should feed Golden Signals",
 );
 
 const aiResult = entry("ai-1", "jfr_recording", {

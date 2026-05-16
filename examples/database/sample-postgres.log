@@ -1,0 +1,2 @@
+2026-05-16 10:00:00 UTC LOG: duration: 1234.500 ms statement: SELECT * FROM orders WHERE id = 1001
+2026-05-16 10:00:01 UTC ERROR: deadlock detected
