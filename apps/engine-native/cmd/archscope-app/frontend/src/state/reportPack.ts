@@ -240,6 +240,9 @@ export function buildReportPackHTML(payload: ReportPackPayload): string {
   <h2>AI Interpretation</h2>
   ${renderAiInterpretation(payload.provenance.ai_interpretation)}
 
+  <h2>Incident Narrative</h2>
+  ${renderNarrativeTable(timeline.tables.narrative.slice(0, 20))}
+
   <h2>Incident Timeline Preview</h2>
   ${renderTimelineTable(timeline.tables.events.slice(0, 50))}
 
@@ -551,6 +554,18 @@ function renderAiFinding(finding: ReportPackAiFindingProvenance): string {
   <p>${escapeHTML(finding.summary)}</p>
   <p class="subtle">${escapeHTML(finding.evidence_refs.join(", "))}</p>
 </article>`;
+}
+
+function renderNarrativeTable(events: ReportPackPayload["artifacts"]["incident_timeline"]["tables"]["narrative"]): string {
+  if (events.length === 0) return "<p>No incident narrative steps.</p>";
+  return `<table><thead><tr><th>Order</th><th>Severity</th><th>Group</th><th>Summary</th><th>Evidence</th></tr></thead><tbody>${events
+    .map(
+      (step) =>
+        `<tr><td class="num">${step.order.toLocaleString()}</td><td>${escapeHTML(step.severity)}</td><td>${escapeHTML(
+          step.group_label,
+        )}</td><td>${escapeHTML(step.summary)}</td><td>${escapeHTML(step.evidence_refs.join(", "))}</td></tr>`,
+    )
+    .join("")}</tbody></table>`;
 }
 
 function renderSourceResultTable(results: ReportPackSourceResultProvenance[]): string {

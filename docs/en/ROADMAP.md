@@ -221,7 +221,8 @@ These items should stay aligned with `work_status.md`.
   multi-file incidents. The Wails session projection now carries event ranges,
   duration, correlation IDs, group metadata, and `tables.groups`.
 - Use the timeline to explain what happened and in what order during an
-  incident.
+  incident. The Wails timeline now emits deterministic, evidence-linked
+  narrative steps and includes them in report packs.
 
 ### SLO and Golden Signals
 

@@ -216,6 +216,8 @@ finding을 확인하고, 근거를 수집하고, 고객 데이터 외부 전송 
   더 풍부하게 만든다. Wails session projection은 이제 event range, duration,
   correlation ID, group metadata, `tables.groups`를 포함한다.
 - 장애 중 무엇이 어떤 순서로 일어났는지를 설명하는 보고서 축으로 사용한다.
+  Wails timeline은 이제 deterministic, evidence-linked narrative step을 만들고
+  report pack에 포함한다.
 
 ### SLO 및 Golden Signals
 

@@ -567,6 +567,9 @@ service/endpoint hints, and finally category/source fallback keys. The
 exportable result includes `tables.groups`, grouped event counts, ranged event
 counts, and correlated event counts so multi-file incidents can be reviewed by
 incident slice rather than only as a flat event list.
+`tables.narrative` contains deterministic incident narrative steps derived from
+those groups. Each step includes order, group key/label, severity, summary,
+event IDs, source result IDs, and evidence refs; it is not AI-generated prose.
 
 For report packs, the same projection can be emitted as an exportable
 `AnalysisResult` with `type = "incident_timeline"`. It preserves source files,

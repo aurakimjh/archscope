@@ -17,7 +17,9 @@ import { addEvidenceCard } from "@/state/evidenceBoard";
 import {
   buildIncidentTimelineEvents,
   buildIncidentTimelineGroups,
+  buildIncidentTimelineNarrative,
   type IncidentTimelineEvent,
+  type IncidentTimelineNarrativeStep,
 } from "@/state/incidentTimeline";
 
 const ALL = "__all__";
@@ -30,6 +32,7 @@ export function IncidentTimelinePage(): JSX.Element {
     [workspace.entries],
   );
   const groups = useMemo(() => buildIncidentTimelineGroups(events), [events]);
+  const narrative = useMemo(() => buildIncidentTimelineNarrative(events), [events]);
   const [analyzer, setAnalyzer] = useState(ALL);
   const [severity, setSeverity] = useState(ALL);
   const [group, setGroup] = useState(ALL);
@@ -218,6 +221,19 @@ export function IncidentTimelinePage(): JSX.Element {
         </Card>
       )}
 
+      <Card className="mt-4">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm">{t("incidentTimelineNarrative")}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {narrative.length === 0 ? (
+            <p className="text-sm text-muted-foreground">{t("incidentTimelineNarrativeEmpty")}</p>
+          ) : (
+            narrative.slice(0, 8).map((step) => <NarrativeStepCard key={step.id} step={step} />)
+          )}
+        </CardContent>
+      </Card>
+
       {message && (
         <p className="mt-3 rounded-md border border-border bg-muted/50 px-3 py-2 text-sm">
           {message}
@@ -272,6 +288,30 @@ export function IncidentTimelinePage(): JSX.Element {
         </CardContent>
       </Card>
     </main>
+  );
+}
+
+function NarrativeStepCard({ step }: { step: IncidentTimelineNarrativeStep }): JSX.Element {
+  return (
+    <article className="rounded-md border border-border bg-muted/20 p-3 text-sm">
+      <div className="mb-1 flex flex-wrap items-center gap-2">
+        <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
+          #{step.order}
+        </span>
+        <span className={`rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase ${severityClass(step.severity)}`}>
+          {step.severity}
+        </span>
+        <strong>{step.title}</strong>
+      </div>
+      <p className="text-muted-foreground">{step.summary}</p>
+      <div className="mt-2 flex flex-wrap gap-1 font-mono text-[10px] text-muted-foreground">
+        {step.evidence_refs.slice(0, 5).map((ref) => (
+          <span key={ref} className="rounded bg-background px-1.5 py-0.5">
+            {ref}
+          </span>
+        ))}
+      </div>
+    </article>
   );
 }
 

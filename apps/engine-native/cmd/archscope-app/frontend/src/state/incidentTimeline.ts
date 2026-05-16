@@ -49,11 +49,26 @@ export type IncidentTimelineGroup = {
   evidence_refs: string[];
 };
 
+export type IncidentTimelineNarrativeStep = {
+  id: string;
+  order: number;
+  group_key: string;
+  group_label: string;
+  time_label: string;
+  severity: IncidentTimelineSeverity;
+  title: string;
+  summary: string;
+  evidence_refs: string[];
+  event_ids: string[];
+  source_result_ids: string[];
+};
+
 export type IncidentTimelineAnalysisResult = WorkspaceAnalysisResult & {
   type: "incident_timeline";
   summary: {
     event_count: number;
     group_count: number;
+    narrative_step_count: number;
     ranged_event_count: number;
     correlated_event_count: number;
     critical_event_count: number;
@@ -71,6 +86,7 @@ export type IncidentTimelineAnalysisResult = WorkspaceAnalysisResult & {
   };
   tables: {
     groups: IncidentTimelineGroup[];
+    narrative: IncidentTimelineNarrativeStep[];
     events: IncidentTimelineEvent[];
   };
   metadata: {
@@ -118,6 +134,7 @@ export function buildIncidentTimelineAnalysisResult(
 ): IncidentTimelineAnalysisResult {
   const events = buildIncidentTimelineEvents(entries);
   const groups = buildIncidentTimelineGroups(events);
+  const narrative = buildIncidentTimelineNarrative(events);
   const ordered = [...events].sort((left, right) => left.sort_time - right.sort_time);
   return {
     type: "incident_timeline",
@@ -126,6 +143,7 @@ export function buildIncidentTimelineAnalysisResult(
     summary: {
       event_count: events.length,
       group_count: groups.length,
+      narrative_step_count: narrative.length,
       ranged_event_count: events.filter((event) => event.duration_ms !== undefined || event.end_time !== undefined).length,
       correlated_event_count: events.filter((event) => Object.keys(event.correlation_ids).length > 0).length,
       critical_event_count: events.filter((event) => event.severity === "critical").length,
@@ -156,6 +174,7 @@ export function buildIncidentTimelineAnalysisResult(
     },
     tables: {
       groups,
+      narrative,
       events,
     },
     charts: {},
@@ -488,6 +507,57 @@ export function buildIncidentTimelineGroups(events: IncidentTimelineEvent[]): In
   return Array.from(grouped.entries())
     .map(([groupKey, groupEvents]) => buildIncidentTimelineGroup(groupKey, groupEvents))
     .sort((left, right) => Date.parse(left.start_time) - Date.parse(right.start_time) || left.group_label.localeCompare(right.group_label));
+}
+
+export function buildIncidentTimelineNarrative(events: IncidentTimelineEvent[]): IncidentTimelineNarrativeStep[] {
+  const grouped = new Map<string, IncidentTimelineEvent[]>();
+  for (const event of events) {
+    const items = grouped.get(event.group_key) ?? [];
+    items.push(event);
+    grouped.set(event.group_key, items);
+  }
+  return Array.from(grouped.entries())
+    .map(([, groupEvents], index) => buildNarrativeStep(groupEvents, index + 1))
+    .sort((left, right) => {
+      const leftEvent = events.find((event) => event.id === left.event_ids[0]);
+      const rightEvent = events.find((event) => event.id === right.event_ids[0]);
+      return (leftEvent?.sort_time ?? 0) - (rightEvent?.sort_time ?? 0) || left.title.localeCompare(right.title);
+    })
+    .map((step, index) => ({ ...step, order: index + 1 }));
+}
+
+function buildNarrativeStep(events: IncidentTimelineEvent[], order: number): IncidentTimelineNarrativeStep {
+  const ordered = [...events].sort((left, right) => left.sort_time - right.sort_time);
+  const first = ordered[0];
+  const last = ordered[ordered.length - 1];
+  const highest = [...ordered].sort((left, right) => severityRank(right.severity) - severityRank(left.severity))[0];
+  const duration = groupDurationLabel(ordered);
+  const sourceLabel = uniqueStrings(ordered.map((event) => event.source_analyzer)).join(", ");
+  const eventLabel = events.length === 1 ? "event" : "events";
+  const summary =
+    events.length === 1
+      ? `${first.label} occurred in ${sourceLabel}: ${first.description}`
+      : `${events.length} ${eventLabel} were grouped under ${first.group_label}${duration ? ` over ${duration}` : ""}. The first event was ${first.label}; the highest severity event was ${highest.label}; the latest event was ${last.label}.`;
+  return {
+    id: `narrative-${first.group_key.replace(/[^A-Za-z0-9_.-]/g, "-")}`,
+    order,
+    group_key: first.group_key,
+    group_label: first.group_label,
+    time_label: first.range_label,
+    severity: highest.severity,
+    title: first.group_label,
+    summary,
+    evidence_refs: uniqueStrings(ordered.flatMap((event) => [event.evidence_ref]).slice(0, 8)),
+    event_ids: ordered.map((event) => event.id),
+    source_result_ids: uniqueStrings(ordered.map((event) => event.source_result_id)),
+  };
+}
+
+function groupDurationLabel(events: IncidentTimelineEvent[]): string {
+  const first = events[0];
+  const last = events.reduce((candidate, event) => eventEndSort(event) > eventEndSort(candidate) ? event : candidate, first);
+  const duration = eventEndSort(last) - first.sort_time;
+  return duration > 0 ? `${formatNumber(duration)} ms` : "";
 }
 
 function buildIncidentTimelineGroup(groupKey: string, events: IncidentTimelineEvent[]): IncidentTimelineGroup {

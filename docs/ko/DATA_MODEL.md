@@ -709,6 +709,9 @@ Timeline group은 correlation ID(`trace_id`, `request_id`, `correlation_id`,
 `tables.groups`, group별 event count, ranged event count, correlated event
 count를 포함하므로 multi-file incident를 flat event list가 아니라 incident
 slice 단위로 검토할 수 있다.
+`tables.narrative`는 이 group에서 파생한 deterministic incident narrative
+step을 담는다. 각 step은 order, group key/label, severity, summary, event ID,
+source result ID, evidence ref를 포함하며 AI-generated prose가 아니다.
 
 Report pack에서는 같은 projection을 `type = "incident_timeline"`인 exportable
 `AnalysisResult`로 낼 수 있다. Source file, summary count,

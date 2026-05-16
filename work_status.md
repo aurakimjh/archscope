@@ -213,7 +213,7 @@ filtered before analysis.
 | T-433 | P1 | [x] | Add a Wails Incident Timeline workspace page with event filters and Evidence Board capture. | T-431, T-432 | Completed 2026-05-15: desktop Incident Timeline MVP under Workspace |
 | T-434 | P1 | [x] | Promote the Wails session Incident Timeline into an engine-level or exportable `AnalysisResult` when report-pack generation needs persisted timeline data. | T-431, T-432, T-433 | Completed 2026-05-16: exportable `incident_timeline` AnalysisResult projection |
 | T-435 | P2 | [x] | Add richer Incident Timeline event ranges, correlation IDs, and timeline grouping for multi-file incidents. | T-434 | Completed 2026-05-16: event ranges, correlation IDs, group metadata, grouped UI filters, and exportable `tables.groups` |
-| T-436 | P2 | [ ] | Add Incident Timeline narrative support that explains what happened and in what order during an incident. | T-435, T-446 preferred | Planned: evidence-backed incident sequence summary |
+| T-436 | P2 | [x] | Add Incident Timeline narrative support that explains what happened and in what order during an incident. | T-435, T-446 preferred | Completed 2026-05-16: deterministic evidence-linked narrative steps in UI, exportable timeline, and report packs |
 | T-437 | P1 | [x] | Build a Golden Signals inventory across access logs, trace import, Jennifer MSA, exceptions, GC, JFR, thread dumps, and JVM signals. | T-425, T-433 | Completed 2026-05-16: session-wide Golden Signals inventory model |
 | T-438 | P1 | [x] | Define SLI metrics for latency, traffic, errors, and saturation from the Golden Signals inventory. | T-437 | Completed 2026-05-16: normalized latency, traffic, error, and saturation SLI metric model |
 | T-439 | P1 | [x] | Add SLO target configuration, violating-window detection, error-budget burn tables, and affected service/endpoint breakdowns. | T-438 | Completed 2026-05-16: session SLO targets, violations, error-budget, and affected-scope breakdowns |
@@ -390,6 +390,11 @@ filtered before analysis.
   `npm run build`. Startup shell chunk is 161.50 KB raw / 52.08 KB gzip; the
   Incident Timeline page is a lazy 9.97 KB raw / 2.62 KB gzip route chunk, the
   shared `incidentTimeline` helper is 11.38 KB raw / 3.79 KB gzip, and
+  `git diff --check` passed.
+- 2026-05-16 Wails frontend verification passed after T-436:
+  `npm run build`. Startup shell chunk is 161.50 KB raw / 52.08 KB gzip; the
+  Incident Timeline page is a lazy 11.18 KB raw / 2.80 KB gzip route chunk,
+  the shared `incidentTimeline` helper is 12.70 KB raw / 4.20 KB gzip, and
   `git diff --check` passed.
 
 ## Decisions
