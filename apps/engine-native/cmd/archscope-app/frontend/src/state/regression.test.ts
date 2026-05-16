@@ -81,6 +81,25 @@ const jennifer = entry("jennifer-1", "jennifer_profile", {
 const serviceFlow = buildServiceFlowAnalysis([trace, jennifer]);
 assert(serviceFlow.edge_model.edge_count === 1, "service aliases should group equivalent Trace/Jennifer edges");
 
+const accessEdge = entry("access-edge-1", "access_log", {
+  tables: {
+    service_dependencies: [
+      {
+        caller: "edge-gateway",
+        callee: "payment-service",
+        call_count: 5,
+        total_duration_ms: 250,
+        avg_duration_ms: 50,
+        max_duration_ms: 80,
+        error_count: 1,
+        error_rate: 0.2,
+      },
+    ],
+  },
+});
+const accessServiceFlow = buildServiceFlowAnalysis([accessEdge]);
+assert(accessServiceFlow.edge_model.edge_count === 1, "access edge dependencies should feed Service Flow");
+
 const inventory = buildGoldenSignalInventory([trace, jennifer]);
 const dependencyErrorRate = inventory.signals.find((signal) => signal.name === "Dependency error rate");
 assert(dependencyErrorRate?.value === 20, "trace-import error_rate fractions should normalize to percent");
@@ -88,6 +107,11 @@ const trafficMetric = buildSliMetricModel(inventory).metrics.find((metric) =>
   metric.metric_key.includes("service_edge_traffic"),
 );
 assert(trafficMetric?.value === 10, "equivalent Trace/Jennifer edge traffic should not double count");
+const accessInventory = buildGoldenSignalInventory([accessEdge]);
+assert(
+  accessInventory.signals.some((signal) => signal.name === "Access edge error rate" && signal.value === 20),
+  "access edge error_rate fractions should normalize to percent",
+);
 
 const runtimeInventory = buildGoldenSignalInventory([
   entry("go-1", "go_panic", { summary: { total_records: 2, unique_signatures: 1 } }),
@@ -105,6 +129,7 @@ const mermaid = buildServiceFlowMermaidSequence({
     input_edge_count: 0,
     by_source_type: {
       trace_import_dependency: 0,
+      access_edge_dependency: 0,
       jennifer_msa_edge: 0,
       jennifer_unprofiled_external_call_group: 0,
     },

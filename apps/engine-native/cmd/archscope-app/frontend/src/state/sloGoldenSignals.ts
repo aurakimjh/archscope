@@ -838,6 +838,56 @@ function signalsFromAccessLog(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
       evidenceRef: "tables.url_stats",
     });
   }
+
+  for (const row of arrayOfObjects(entry.result.tables?.service_dependencies).slice(0, MAX_ROW_SIGNALS)) {
+    const scope = edgeScope(row, "caller", "callee");
+    addRowSignal(out, entry, row, {
+      key: "avg_duration_ms",
+      name: "Access edge average latency",
+      kind: "latency",
+      unit: "ms",
+      aggregation: "avg",
+      scopeType: "edge",
+      scope,
+      evidenceRef: "tables.service_dependencies",
+    });
+    addRowSignal(out, entry, row, {
+      key: "call_count",
+      name: "Access edge request volume",
+      kind: "traffic",
+      unit: "requests",
+      aggregation: "count",
+      scopeType: "edge",
+      scope,
+      evidenceRef: "tables.service_dependencies",
+      tags: { metric_family: "service_edge_traffic", dedupe_policy: "equivalent_edge_max" },
+    });
+    addRowSignal(out, entry, row, {
+      key: "error_rate",
+      name: "Access edge error rate",
+      kind: "errors",
+      unit: "percent",
+      aggregation: "rate",
+      scopeType: "edge",
+      scope,
+      evidenceRef: "tables.service_dependencies",
+      tags: {
+        metric_family: "service_edge_error_rate",
+        rate_unit: "fraction",
+      },
+    });
+    addRowSignal(out, entry, row, {
+      key: "error_count",
+      name: "Access edge error count",
+      kind: "errors",
+      unit: "count",
+      aggregation: "count",
+      scopeType: "edge",
+      scope,
+      evidenceRef: "tables.service_dependencies",
+      tags: { metric_family: "service_edge_errors" },
+    });
+  }
   return out;
 }
 

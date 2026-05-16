@@ -222,6 +222,74 @@ func (u *urlStats) add(record accesslog.Record) {
 	}
 }
 
+type edgeStats struct {
+	caller         string
+	callee         string
+	count          int
+	totalLatencyMS float64
+	maxLatencyMS   float64
+	errorCount     int
+	retryCount     int
+	routes         map[string]int
+	formats        map[string]int
+}
+
+func newEdgeStats(caller, callee string) *edgeStats {
+	return &edgeStats{
+		caller:  caller,
+		callee:  callee,
+		routes:  map[string]int{},
+		formats: map[string]int{},
+	}
+}
+
+func (e *edgeStats) add(record accesslog.Record) {
+	e.count++
+	e.totalLatencyMS += record.ResponseTimeMS
+	if record.ResponseTimeMS > e.maxLatencyMS {
+		e.maxLatencyMS = record.ResponseTimeMS
+	}
+	if record.Status >= 400 {
+		e.errorCount++
+	}
+	if record.RetryCount > 0 {
+		e.retryCount += record.RetryCount
+	}
+	if record.Route != "" {
+		e.routes[record.Route]++
+	}
+	if record.SourceFormat != "" {
+		e.formats[record.SourceFormat]++
+	}
+}
+
+type routeStats struct {
+	route          string
+	count          int
+	errorCount     int
+	totalLatencyMS float64
+	maxLatencyMS   float64
+	formats        map[string]int
+}
+
+func newRouteStats(route string) *routeStats {
+	return &routeStats{route: route, formats: map[string]int{}}
+}
+
+func (r *routeStats) add(record accesslog.Record) {
+	r.count++
+	r.totalLatencyMS += record.ResponseTimeMS
+	if record.ResponseTimeMS > r.maxLatencyMS {
+		r.maxLatencyMS = record.ResponseTimeMS
+	}
+	if record.Status >= 400 {
+		r.errorCount++
+	}
+	if record.SourceFormat != "" {
+		r.formats[record.SourceFormat]++
+	}
+}
+
 // Options matches the Python `AccessLogAnalyzerOptions`. Time pointers
 // double as "filter unset" sentinels.
 type Options struct {
@@ -292,26 +360,33 @@ func buildFromIterator(
 	staticRT := newResponseTimeStats()
 	apiRT := newResponseTimeStats()
 	var (
-		errorCount     int
-		staticCount    int
-		apiCount       int
-		staticBytes    int
-		apiBytes       int
-		totalBytes     int
-		total          int
-		earliest       *time.Time
-		latest         *time.Time
-		requestsByMin  = map[string]int{}
-		bytesByMin     = map[string]int{}
-		rtByMin        = map[string]*responseTimeStats{}
-		statusClassMin = map[string]map[string]int{}
-		statusDistrib  = map[string]int{}
-		statusCodes    = map[int]int{}
-		nonStandard    = map[int]int{}
-		methodDistrib  = map[string]int{}
-		classDistrib   = map[string]int{}
-		urlBuckets     = map[string]*urlStats{}
-		sampleRecords  = make([]map[string]any, 0, SampleRecordLimit)
+		errorCount      int
+		staticCount     int
+		apiCount        int
+		staticBytes     int
+		apiBytes        int
+		totalBytes      int
+		total           int
+		earliest        *time.Time
+		latest          *time.Time
+		requestsByMin   = map[string]int{}
+		bytesByMin      = map[string]int{}
+		rtByMin         = map[string]*responseTimeStats{}
+		statusClassMin  = map[string]map[string]int{}
+		statusDistrib   = map[string]int{}
+		statusCodes     = map[int]int{}
+		nonStandard     = map[int]int{}
+		methodDistrib   = map[string]int{}
+		classDistrib    = map[string]int{}
+		formatDistrib   = map[string]int{}
+		upstreamDistrib = map[string]int{}
+		routeBuckets    = map[string]*routeStats{}
+		edgeBuckets     = map[string]*edgeStats{}
+		gatewayRT       = newResponseTimeStats()
+		urlBuckets      = map[string]*urlStats{}
+		sampleRecords   = make([]map[string]any, 0, SampleRecordLimit)
+		retryCount      int
+		terminationErr  int
 	)
 
 	if err := iter(func(record accesslog.Record) error {
@@ -326,6 +401,29 @@ func buildFromIterator(
 			method = "?"
 		}
 		methodDistrib[method]++
+		if record.SourceFormat != "" {
+			formatDistrib[record.SourceFormat]++
+		}
+		if record.UpstreamService != "" {
+			upstreamDistrib[record.UpstreamService]++
+		}
+		if record.GatewayLatencyMS > 0 {
+			gatewayRT.add(record.GatewayLatencyMS)
+		}
+		if record.RetryCount > 0 {
+			retryCount += record.RetryCount
+		}
+		if isSuspiciousTerminationState(record.TerminationState) {
+			terminationErr++
+		}
+		if record.Route != "" {
+			route := getRouteStats(routeBuckets, record.Route)
+			route.add(record)
+		}
+		if caller, callee, ok := serviceEdge(record); ok {
+			edge := getEdgeStats(edgeBuckets, caller, callee)
+			edge.add(record)
+		}
 
 		classification := classifyRequest(record.URI)
 		classDistrib[classification]++
@@ -385,6 +483,11 @@ func buildFromIterator(
 				"uri":              record.URI,
 				"status":           record.Status,
 				"response_time_ms": roundHalfEven(record.ResponseTimeMS, 2),
+				"source_format":    record.SourceFormat,
+				"route":            record.Route,
+				"upstream_service": record.UpstreamService,
+				"trace_id":         record.TraceID,
+				"request_id":       record.RequestID,
 			})
 		}
 		return nil
@@ -517,28 +620,36 @@ func buildFromIterator(
 	}
 
 	summary := map[string]any{
-		"total_requests":         total,
-		"avg_response_ms":        roundHalfEven(totalRT.average(), 2),
-		"p50_response_ms":        roundHalfEven(totalRT.percentile(50), 2),
-		"p90_response_ms":        roundHalfEven(totalRT.percentile(90), 2),
-		"p95_response_ms":        roundHalfEven(totalRT.percentile(95), 2),
-		"p99_response_ms":        roundHalfEven(totalRT.percentile(99), 2),
-		"error_rate":             roundHalfEven(errorRate, 2),
-		"error_count":            errorCount,
-		"total_bytes":            totalBytes,
-		"wall_time_sec":          roundHalfEven(wallTimeSec, 3),
-		"avg_requests_per_sec":   avgRPS,
-		"avg_bytes_per_sec":      avgBPS,
-		"static_count":           staticCount,
-		"api_count":              apiCount,
-		"static_bytes":           staticBytes,
-		"api_bytes":              apiBytes,
-		"static_avg_response_ms": roundHalfEven(staticRT.average(), 2),
-		"api_avg_response_ms":    roundHalfEven(apiRT.average(), 2),
-		"api_p95_response_ms":    roundHalfEven(apiRT.percentile(95), 2),
-		"earliest_timestamp":     earliestStr,
-		"latest_timestamp":       latestStr,
-		"unique_uris":            len(urlBuckets),
+		"total_requests":          total,
+		"avg_response_ms":         roundHalfEven(totalRT.average(), 2),
+		"p50_response_ms":         roundHalfEven(totalRT.percentile(50), 2),
+		"p90_response_ms":         roundHalfEven(totalRT.percentile(90), 2),
+		"p95_response_ms":         roundHalfEven(totalRT.percentile(95), 2),
+		"p99_response_ms":         roundHalfEven(totalRT.percentile(99), 2),
+		"error_rate":              roundHalfEven(errorRate, 2),
+		"error_count":             errorCount,
+		"total_bytes":             totalBytes,
+		"wall_time_sec":           roundHalfEven(wallTimeSec, 3),
+		"avg_requests_per_sec":    avgRPS,
+		"avg_bytes_per_sec":       avgBPS,
+		"static_count":            staticCount,
+		"api_count":               apiCount,
+		"static_bytes":            staticBytes,
+		"api_bytes":               apiBytes,
+		"static_avg_response_ms":  roundHalfEven(staticRT.average(), 2),
+		"api_avg_response_ms":     roundHalfEven(apiRT.average(), 2),
+		"api_p95_response_ms":     roundHalfEven(apiRT.percentile(95), 2),
+		"earliest_timestamp":      earliestStr,
+		"latest_timestamp":        latestStr,
+		"unique_uris":             len(urlBuckets),
+		"detected_format_count":   len(formatDistrib),
+		"upstream_service_count":  len(upstreamDistrib),
+		"route_count":             len(routeBuckets),
+		"service_edge_count":      len(edgeBuckets),
+		"gateway_avg_latency_ms":  roundHalfEven(gatewayRT.average(), 2),
+		"gateway_p95_latency_ms":  roundHalfEven(gatewayRT.percentile(95), 2),
+		"retry_count":             retryCount,
+		"termination_error_count": terminationErr,
 	}
 
 	statusDistribOrdered := make([]map[string]any, 0, len(statusDistrib))
@@ -563,6 +674,8 @@ func buildFromIterator(
 		"status_code_distribution":      statusDistribOrdered,
 		"method_distribution":           mostCommonStrings(methodDistrib, "method", -1),
 		"request_classification":        mostCommonStrings(classDistrib, "classification", -1),
+		"source_format_distribution":    mostCommonStrings(formatDistrib, "source_format", -1),
+		"upstream_service_distribution": mostCommonStrings(upstreamDistrib, "upstream_service", TopURLLimit),
 		"top_urls_by_count":             projectURICount(topByCount),
 		"top_urls_by_avg_response_time": projectURIAvg(topByAvg),
 	}
@@ -575,9 +688,12 @@ func buildFromIterator(
 		"top_urls_by_bytes":             topByBytes,
 		"top_urls_by_errors":            topByErrors,
 		"top_status_codes":              topStatusCodes,
+		"service_dependencies":          serviceDependencyRows(edgeBuckets, TopURLLimit),
+		"route_stats":                   routeRows(routeBuckets, TopURLLimit),
 	}
 
 	findings := buildFindings(summary, statusDistrib, urlRows, errorRatePerMinute, nonStandard)
+	findings = append(findings, buildEdgeFindings(edgeBuckets, summary)...)
 
 	if diags == nil {
 		diags = defaultDiagnostics(total)
@@ -765,6 +881,115 @@ func projectURIAvg(rows []map[string]any) []map[string]any {
 	return out
 }
 
+func getRouteStats(routes map[string]*routeStats, route string) *routeStats {
+	stats := routes[route]
+	if stats == nil {
+		stats = newRouteStats(route)
+		routes[route] = stats
+	}
+	return stats
+}
+
+func getEdgeStats(edges map[string]*edgeStats, caller, callee string) *edgeStats {
+	key := caller + "\x00" + callee
+	stats := edges[key]
+	if stats == nil {
+		stats = newEdgeStats(caller, callee)
+		edges[key] = stats
+	}
+	return stats
+}
+
+func serviceEdge(record accesslog.Record) (string, string, bool) {
+	callee := firstNonEmpty(
+		record.UpstreamService,
+		record.UpstreamCluster,
+		record.BackendName,
+		record.BackendServer,
+	)
+	if callee == "" {
+		return "", "", false
+	}
+	caller := firstNonEmpty(record.ServiceName, record.Host, record.CloudProvider, "edge-gateway")
+	if caller == callee {
+		caller = "edge-gateway"
+	}
+	return caller, callee, true
+}
+
+func serviceDependencyRows(edges map[string]*edgeStats, limit int) []map[string]any {
+	rows := make([]map[string]any, 0, len(edges))
+	for _, edge := range edges {
+		avg := 0.0
+		errorRate := 0.0
+		if edge.count > 0 {
+			avg = edge.totalLatencyMS / float64(edge.count)
+			errorRate = float64(edge.errorCount) / float64(edge.count)
+		}
+		rows = append(rows, map[string]any{
+			"caller":            edge.caller,
+			"callee":            edge.callee,
+			"call_count":        edge.count,
+			"total_duration_ms": roundHalfEven(edge.totalLatencyMS, 2),
+			"avg_duration_ms":   roundHalfEven(avg, 2),
+			"max_duration_ms":   roundHalfEven(edge.maxLatencyMS, 2),
+			"error_count":       edge.errorCount,
+			"error_rate":        roundHalfEven(errorRate, 4),
+			"retry_count":       edge.retryCount,
+			"routes":            sortedKeys(edge.routes),
+			"source_formats":    sortedKeys(edge.formats),
+		})
+	}
+	sort.SliceStable(rows, func(i, j int) bool {
+		ci := asInt(rows[i]["call_count"])
+		cj := asInt(rows[j]["call_count"])
+		if ci != cj {
+			return ci > cj
+		}
+		if asString(rows[i]["caller"]) != asString(rows[j]["caller"]) {
+			return asString(rows[i]["caller"]) < asString(rows[j]["caller"])
+		}
+		return asString(rows[i]["callee"]) < asString(rows[j]["callee"])
+	})
+	if limit > 0 && len(rows) > limit {
+		rows = rows[:limit]
+	}
+	return rows
+}
+
+func routeRows(routes map[string]*routeStats, limit int) []map[string]any {
+	rows := make([]map[string]any, 0, len(routes))
+	for _, route := range routes {
+		avg := 0.0
+		errorRate := 0.0
+		if route.count > 0 {
+			avg = route.totalLatencyMS / float64(route.count)
+			errorRate = float64(route.errorCount) / float64(route.count) * 100
+		}
+		rows = append(rows, map[string]any{
+			"route":           route.route,
+			"count":           route.count,
+			"avg_response_ms": roundHalfEven(avg, 2),
+			"max_response_ms": roundHalfEven(route.maxLatencyMS, 2),
+			"error_count":     route.errorCount,
+			"error_rate":      roundHalfEven(errorRate, 2),
+			"source_formats":  sortedKeys(route.formats),
+		})
+	}
+	sort.SliceStable(rows, func(i, j int) bool {
+		ci := asInt(rows[i]["count"])
+		cj := asInt(rows[j]["count"])
+		if ci != cj {
+			return ci > cj
+		}
+		return asString(rows[i]["route"]) < asString(rows[j]["route"])
+	})
+	if limit > 0 && len(rows) > limit {
+		rows = rows[:limit]
+	}
+	return rows
+}
+
 func defaultDiagnostics(total int) *diagnostics.ParserDiagnostics {
 	d := diagnostics.New("nginx")
 	d.TotalLines = total
@@ -794,10 +1019,42 @@ func accessLogProduct(format string) string {
 	switch strings.ToLower(strings.TrimSpace(format)) {
 	case "apache":
 		return "Apache HTTP Server"
+	case "aws-alb":
+		return "AWS Application Load Balancer"
+	case "aws-api-gateway-json":
+		return "AWS API Gateway"
+	case "aws-cloudfront":
+		return "AWS CloudFront"
+	case "aws-elb":
+		return "AWS Classic Load Balancer"
+	case "azure-app-service-json":
+		return "Azure App Service"
+	case "azure-front-door-json":
+		return "Azure Front Door"
+	case "caddy-json":
+		return "Caddy"
+	case "envoy-json", "envoy-text":
+		return "Envoy"
+	case "gcp-http-lb-json":
+		return "GCP HTTP Load Balancer"
+	case "haproxy", "haproxy-http":
+		return "HAProxy"
+	case "iis-w3c":
+		return "Microsoft IIS"
+	case "istio-json", "istio-text":
+		return "Istio"
+	case "jetty":
+		return "Eclipse Jetty"
+	case "kong-json":
+		return "Kong Gateway"
 	case "nginx":
 		return "nginx"
 	case "tomcat":
 		return "Apache Tomcat"
+	case "traefik-json":
+		return "Traefik"
+	case "tyk-json":
+		return "Tyk Gateway"
 	case "weblogic":
 		return "Oracle WebLogic"
 	case "ohs":
@@ -805,6 +1062,23 @@ func accessLogProduct(format string) string {
 	default:
 		return format
 	}
+}
+
+func firstNonEmpty(values ...string) string {
+	for _, value := range values {
+		if strings.TrimSpace(value) != "" {
+			return strings.TrimSpace(value)
+		}
+	}
+	return ""
+}
+
+func isSuspiciousTerminationState(value string) bool {
+	value = strings.TrimSpace(value)
+	if value == "" || value == "-" {
+		return false
+	}
+	return strings.ContainsAny(value, "SCPCDPRLQIT")
 }
 
 // buildFindings ports `_build_access_log_findings`. Code names match
@@ -920,6 +1194,56 @@ func buildFindings(
 		})
 	}
 
+	return findings
+}
+
+func buildEdgeFindings(edges map[string]*edgeStats, summary map[string]any) []map[string]any {
+	findings := []map[string]any{}
+	if retryCount := asInt(summary["retry_count"]); retryCount > 0 {
+		findings = append(findings, map[string]any{
+			"severity": "warning",
+			"code":     "EDGE_RETRIES_PRESENT",
+			"message":  "One or more edge or load-balancer retries were observed.",
+			"evidence": map[string]any{"retry_count": retryCount},
+		})
+	}
+	if terminationErrors := asInt(summary["termination_error_count"]); terminationErrors > 0 {
+		findings = append(findings, map[string]any{
+			"severity": "warning",
+			"code":     "HAPROXY_TERMINATION_ERRORS",
+			"message":  "HAProxy termination-state flags indicate interrupted or abnormal requests.",
+			"evidence": map[string]any{"termination_error_count": terminationErrors},
+		})
+	}
+	if gatewayP95 := asFloat(summary["gateway_p95_latency_ms"]); gatewayP95 >= 500 {
+		findings = append(findings, map[string]any{
+			"severity": "warning",
+			"code":     "GATEWAY_LATENCY_ELEVATED",
+			"message":  "Gateway-side latency is elevated for access or edge traffic.",
+			"evidence": map[string]any{"gateway_p95_latency_ms": gatewayP95, "threshold_ms": 500},
+		})
+	}
+	for _, edge := range edges {
+		if edge.count < 3 || edge.errorCount == 0 {
+			continue
+		}
+		rate := float64(edge.errorCount) / float64(edge.count)
+		if rate < 0.2 {
+			continue
+		}
+		findings = append(findings, map[string]any{
+			"severity": "warning",
+			"code":     "HIGH_ERROR_SERVICE_EDGE",
+			"message":  "A service edge has an elevated error rate in access or edge logs.",
+			"evidence": map[string]any{
+				"caller":      edge.caller,
+				"callee":      edge.callee,
+				"call_count":  edge.count,
+				"error_count": edge.errorCount,
+				"error_rate":  roundHalfEven(rate, 4),
+			},
+		})
+	}
 	return findings
 }
 

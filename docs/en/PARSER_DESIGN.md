@@ -41,14 +41,22 @@ The same package also provides:
 
 ## Access Log Parser
 
-Initial support targets NGINX combined-like logs with a response time field, and
+Access-log parsing keeps the legacy NGINX/common/combined path compatible while
+adding source-specific access and edge formats behind explicit selectors and
+`auto` detection. Supported selectors include NGINX, Apache/common/combined,
+OHS, WebLogic, Tomcat, Jetty, HAProxy HTTP, Envoy/Istio text and JSON, AWS
+ELB/ALB/CloudFront, GCP HTTP(S) Load Balancer JSON, Azure App Service/Front
+Door JSON, IIS W3C, Caddy JSON, Traefik JSON, Kong JSON, Tyk JSON, and AWS API
+Gateway JSON.
+
+The legacy combined-like path targets NGINX rows with a response time field and
 tolerates common/combined access-log rows without response-time data:
 
 ```text
 127.0.0.1 - - [27/Apr/2026:10:00:01 +0900] "GET /api/orders/1001 HTTP/1.1" 200 1234 "-" "Mozilla/5.0" 0.123
 ```
 
-The parser extracts:
+The parser extracts the common access-log fields:
 
 - timestamp
 - method
@@ -62,8 +70,16 @@ The parser extracts:
 
 When a common/combined row has no response-time field, ArchScope keeps the
 request/status evidence and records response time as `0.0` because the source
-format does not provide latency. Apache/OHS/WebLogic/Tomcat format selectors
-currently share the common/combined parsing path.
+format does not provide latency. Apache, OHS, WebLogic, Tomcat, and Jetty
+format selectors share this combined/common parsing path when their rows match
+that shape.
+
+Source-specific parsers may also populate additive edge metadata such as source
+format, host, protocol/scheme, upstream service or cluster, route, backend,
+gateway/upstream latency, TLS fields, response flags, termination state, retry
+count, trace ID, request ID, consumer, cloud provider, and edge location. These
+fields feed analyzer summaries and downstream projections but do not replace the
+required access-log contract.
 
 ## Collapsed Profiler Parser
 
@@ -229,6 +245,8 @@ The parser should skip and report record-level errors:
 | Access Log | Line does not match selected log format | Skip | `NO_FORMAT_MATCH` |
 | Access Log | Timestamp parse fails | Skip | `INVALID_TIMESTAMP` |
 | Access Log | Numeric field conversion fails | Skip | `INVALID_NUMBER` |
+| Access Log | JSON access-log payload cannot be decoded | Skip | `INVALID_JSON` |
+| Access Log | IIS W3C row appears before a `#Fields:` header or is missing required columns | Skip | `MISSING_W3C_FIELDS` |
 | Collapsed Profiler | Line has no trailing sample count | Skip | `MISSING_SAMPLE_COUNT` |
 | Collapsed Profiler | Sample count is not an integer | Skip | `INVALID_SAMPLE_COUNT` |
 | Collapsed Profiler | Sample count is negative | Skip | `NEGATIVE_SAMPLE_COUNT` |
@@ -380,5 +398,9 @@ Access-log findings are bounded structured observations under `metadata.findings
 - `ELEVATED_ERROR_RATE` when error rate is at or above 5%.
 - `SERVER_ERRORS_PRESENT` when one or more `5xx` responses are present.
 - `SLOW_URL_AVERAGE` when the slowest average URL response time is at or above 1000 ms.
+- `EDGE_RETRIES_PRESENT` when gateway or edge logs report retry attempts.
+- `HAPROXY_TERMINATION_ERRORS` when HAProxy termination state indicates an abnormal close or server/client-side failure.
+- `GATEWAY_LATENCY_ELEVATED` when gateway latency percentiles indicate the edge tier is adding material delay.
+- `HIGH_ERROR_SERVICE_EDGE` when an inferred caller-to-upstream service edge has elevated HTTP errors.
 
 Findings must include a stable `code`, `severity`, short `message`, and small structured `evidence`.

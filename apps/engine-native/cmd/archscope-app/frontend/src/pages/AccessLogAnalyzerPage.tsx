@@ -299,12 +299,36 @@ export function AccessLogAnalyzerPage(): JSX.Element {
                 if (filePath && state === "idle") setState("ready");
               }}
             >
+              <option value="auto">Auto detect</option>
               <option value="nginx">NGINX</option>
               <option value="apache">Apache</option>
+              <option value="combined">Combined</option>
+              <option value="common">Common</option>
               <option value="ohs">OHS</option>
               <option value="weblogic">WebLogic</option>
               <option value="tomcat">Tomcat</option>
-              <option value="custom-regex">Custom Regex</option>
+              <option value="jetty">Jetty</option>
+              <option value="haproxy-http">HAProxy</option>
+              <option value="envoy-text">Envoy text</option>
+              <option value="envoy-json">Envoy JSON</option>
+              <option value="istio-text">Istio text</option>
+              <option value="istio-json">Istio JSON</option>
+              <option value="aws-elb">AWS ELB</option>
+              <option value="aws-alb">AWS ALB</option>
+              <option value="aws-cloudfront">AWS CloudFront</option>
+              <option value="gcp-http-lb-json">GCP HTTP LB JSON</option>
+              <option value="azure-app-service-json">
+                Azure App Service JSON
+              </option>
+              <option value="azure-front-door-json">
+                Azure Front Door JSON
+              </option>
+              <option value="iis-w3c">IIS W3C</option>
+              <option value="caddy-json">Caddy JSON</option>
+              <option value="traefik-json">Traefik JSON</option>
+              <option value="kong-json">Kong JSON</option>
+              <option value="tyk-json">Tyk JSON</option>
+              <option value="aws-api-gateway-json">AWS API Gateway JSON</option>
             </select>
           </label>
           <label className="flex flex-col gap-1.5 text-xs">

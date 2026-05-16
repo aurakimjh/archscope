@@ -118,11 +118,33 @@ export type ParserDiagnostics = {
 // ──────────────────────────────────────────────────────────────────
 
 export type AccessLogFormat =
+  | "auto"
   | "nginx"
   | "apache"
+  | "combined"
+  | "common"
   | "ohs"
   | "weblogic"
   | "tomcat"
+  | "jetty"
+  | "haproxy"
+  | "haproxy-http"
+  | "envoy-text"
+  | "envoy-json"
+  | "istio-text"
+  | "istio-json"
+  | "aws-elb"
+  | "aws-alb"
+  | "aws-cloudfront"
+  | "gcp-http-lb-json"
+  | "azure-app-service-json"
+  | "azure-front-door-json"
+  | "iis-w3c"
+  | "caddy-json"
+  | "traefik-json"
+  | "kong-json"
+  | "tyk-json"
+  | "aws-api-gateway-json"
   | "custom-regex";
 
 export type AccessLogSummary = {
@@ -148,6 +170,14 @@ export type AccessLogSummary = {
   earliest_timestamp?: string | null;
   latest_timestamp?: string | null;
   unique_uris?: number;
+  detected_format_count?: number;
+  upstream_service_count?: number;
+  route_count?: number;
+  service_edge_count?: number;
+  gateway_avg_latency_ms?: number;
+  gateway_p95_latency_ms?: number;
+  retry_count?: number;
+  termination_error_count?: number;
 };
 
 export type TimeValuePoint = {
@@ -216,6 +246,16 @@ export type RequestClassificationRow = {
   count: number;
 };
 
+export type SourceFormatDistributionRow = {
+  source_format: string;
+  count: number;
+};
+
+export type UpstreamServiceDistributionRow = {
+  upstream_service: string;
+  count: number;
+};
+
 export type AccessLogSeries = {
   requests_per_minute: TimeValuePoint[];
   avg_response_time_per_minute: TimeValuePoint[];
@@ -230,6 +270,8 @@ export type AccessLogSeries = {
   status_code_distribution: StatusCodeDistributionRow[];
   method_distribution?: MethodDistributionRow[];
   request_classification?: RequestClassificationRow[];
+  source_format_distribution?: SourceFormatDistributionRow[];
+  upstream_service_distribution?: UpstreamServiceDistributionRow[];
   top_urls_by_count: TopUrlCountRow[];
   top_urls_by_avg_response_time: TopUrlAvgResponseRow[];
 };
@@ -263,10 +305,41 @@ export type AccessLogSampleRecordRow = {
   uri: string;
   status: number;
   response_time_ms: number;
+  source_format?: string;
+  route?: string;
+  upstream_service?: string;
+  trace_id?: string;
+  request_id?: string;
+};
+
+export type AccessLogServiceDependencyRow = {
+  caller: string;
+  callee: string;
+  call_count: number;
+  total_duration_ms: number;
+  avg_duration_ms: number;
+  max_duration_ms: number;
+  error_count: number;
+  error_rate: number;
+  retry_count: number;
+  routes: string[];
+  source_formats: string[];
+};
+
+export type AccessLogRouteStatRow = {
+  route: string;
+  count: number;
+  avg_response_ms: number;
+  max_response_ms: number;
+  error_count: number;
+  error_rate: number;
+  source_formats: string[];
 };
 
 export type AccessLogTables = {
   sample_records: AccessLogSampleRecordRow[];
+  service_dependencies?: AccessLogServiceDependencyRow[];
+  route_stats?: AccessLogRouteStatRow[];
   url_stats?: AccessLogUrlStatRow[];
   top_urls_by_count?: AccessLogUrlStatRow[];
   top_urls_by_avg_response_time?: AccessLogUrlStatRow[];

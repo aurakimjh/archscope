@@ -5,6 +5,7 @@ import type {
 
 export type ServiceFlowSourceType =
   | "trace_import_dependency"
+  | "access_edge_dependency"
   | "jennifer_msa_edge"
   | "jennifer_unprofiled_external_call_group";
 
@@ -306,6 +307,9 @@ export function buildServiceFlowMermaidSequence(analysis: ServiceFlowAnalysis): 
 function inputEdgesFromEntry(entry: AnalysisWorkspaceEntry): ServiceFlowInputEdge[] {
   const type = entry.result.type || entry.result_type;
   if (type === "trace_import") return traceImportEdges(entry);
+  if (type === "access_log" && Array.isArray(entry.result.tables?.service_dependencies)) {
+    return accessLogEdges(entry);
+  }
   if (type === "jennifer_profile" || Array.isArray(entry.result.tables?.msa_edges)) {
     return jenniferEdges(entry);
   }
@@ -328,6 +332,28 @@ function traceImportEdges(entry: AnalysisWorkspaceEntry): ServiceFlowInputEdge[]
       evidenceRef: "tables.service_dependencies",
       payload: row,
       idSuffix: `trace-dependency-${caller}-${callee}-${index}`,
+    });
+  });
+}
+
+function accessLogEdges(entry: AnalysisWorkspaceEntry): ServiceFlowInputEdge[] {
+  return arrayOfObjects(entry.result.tables?.service_dependencies).map((row, index) => {
+    const caller = normalizeServiceName(stringValue(row.caller) || "edge-gateway");
+    const callee = normalizeServiceName(stringValue(row.callee) || "unknown-upstream");
+    return makeInputEdge(entry, {
+      sourceType: "access_edge_dependency",
+      caller,
+      callee,
+      callCount: numberValue(row.call_count, 1),
+      totalLatencyMs: optionalNumber(row.total_duration_ms),
+      avgLatencyMs: optionalNumber(row.avg_duration_ms),
+      maxLatencyMs: optionalNumber(row.max_duration_ms),
+      errorCount: optionalNumber(row.error_count),
+      errorRate: optionalNumber(row.error_rate),
+      matchStatus: "access_edge",
+      evidenceRef: "tables.service_dependencies",
+      payload: row,
+      idSuffix: `access-edge-${caller}-${callee}-${index}`,
     });
   });
 }
@@ -443,6 +469,7 @@ function makeInputEdge(
 function countBySourceType(edges: ServiceFlowInputEdge[]): Record<ServiceFlowSourceType, number> {
   const counts: Record<ServiceFlowSourceType, number> = {
     trace_import_dependency: 0,
+    access_edge_dependency: 0,
     jennifer_msa_edge: 0,
     jennifer_unprofiled_external_call_group: 0,
   };

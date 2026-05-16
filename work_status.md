@@ -17,8 +17,9 @@ The previous long-form history was archived to
 - Release baseline: `v0.3.4` is the latest stable GitHub release. The
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
-- Current execution focus: prepare the v0.3.5 foundation release and then start
-  the access/edge-log coverage wave from T-473.
+- Current execution focus: finish the remaining v0.3.6 access/edge-log
+  hardening tasks T-483 and T-484 after completing the T-473 through T-482
+  parser and projection coverage wave.
 - Retired implementation: Python/FastAPI/browser sources are archived under
   `archive/python-engine` and `archive/web-frontend-python`.
 - Historical native POC module has been folded into `apps/engine-native`.
@@ -125,6 +126,11 @@ The previous long-form history was archived to
   family boundary specs, reusable source-format registry, golden fixture
   diagnostic harness, normalized source metadata, and cross-source correlation
   key model.
+- Added the first access/edge-log coverage wave for `v0.3.6`: Tomcat/Jetty,
+  HAProxy HTTP, Envoy/Istio text and JSON, AWS ELB/ALB/CloudFront, GCP/Azure
+  edge JSON, IIS W3C, Caddy/Traefik JSON, and Kong/Tyk/API Gateway JSON parsing
+  now feed additive access-log summaries, edge dependency tables, Service Flow,
+  and Golden Signals.
 
 ## Current Risk
 
@@ -187,17 +193,19 @@ filtered before analysis.
 
 ## Next Execution Queue
 
-1. Cut `v0.3.5` after release verification for the shared ingestion
-   foundations, then start T-473.
+1. Finish T-483 and T-484 to harden auto-detect diagnostics and formal
+   access-log edge metadata contract coverage.
 2. Ship `v0.3.6` after the first user-visible access/edge log coverage wave
    lands, because it already has a mature `AnalysisResult`, SLO, Incident
    Timeline, and report path.
-3. Continue one release per evidence family through server logs, OpenTelemetry
+3. Cut or verify `v0.3.5` foundation release artifacts if the release line
+   needs a separate foundation checkpoint before `v0.3.6`.
+4. Continue one release per evidence family through server logs, OpenTelemetry
    Logs, database slow-query evidence, broker logs, Kubernetes/cloud evidence,
    and multi-language profiling.
-4. Reserve `v0.4.0` for the completed Mid-Term Plus roll-up after cross-source
+5. Reserve `v0.4.0` for the completed Mid-Term Plus roll-up after cross-source
    evidence stitching and continuous-profiling imports have stabilized.
-5. Keep release verification healthy before each release cut by repeating
+6. Keep release verification healthy before each release cut by repeating
    Windows GUI smoke, macOS signing/notarization validation, frontend bundle
    budget checks, and representative real-export fixture updates.
 
@@ -309,16 +317,16 @@ filtered before analysis.
 | T-470 | P1 | [x] | Create a golden fixture and parser diagnostic harness for new importers, including valid, partial, malformed, unknown-format, and large-file samples. | T-468 | Completed 2026-05-16: parser-agnostic fixture expectation/check harness covers valid, partial, malformed, unknown-format, and large-file diagnostic assertions |
 | T-471 | P1 | [x] | Normalize source metadata fields for new evidence families, including source kind, source format, product, version, host, service, environment, and sanitized file identity. | T-468 | Completed 2026-05-16: `SourceMetadata`/`FileIdentity` contract plus additive access-log and trace-import `metadata.source_metadata` |
 | T-472 | P1 | [x] | Define the cross-source correlation-key model for trace ID, span ID, request ID, tenant/customer ID, container ID, pod UID, host ID, PID, and source timestamp windows. | T-468, T-471 | Completed 2026-05-16: `CorrelationKeys` with normalized stable IDs and timestamp windows; trace import now emits bounded correlation-key samples |
-| T-473 | P1 | [ ] | Add Tomcat access valve and Jetty NCSA request-log parsers with format auto-detection fixtures. | T-469, T-470 |  |
-| T-474 | P1 | [ ] | Map Tomcat and Jetty access records into the existing access-log `AnalysisResult` contract without breaking nginx/apache fields. | T-473 |  |
-| T-475 | P1 | [ ] | Add HAProxy default and HTTP log parsers with backend/server timing fields and diagnostics for partial timing data. | T-469, T-470 |  |
-| T-476 | P1 | [ ] | Analyze HAProxy access evidence for latency, status, backend saturation, retry, termination-state, and error-burst findings. | T-475 |  |
-| T-477 | P1 | [ ] | Add Envoy and Istio default text plus JSON access-log parsers, including service-mesh trace headers and upstream cluster metadata. | T-469, T-470, T-472 |  |
-| T-478 | P1 | [ ] | Feed Envoy/Istio upstream service, trace ID, TLS, response flag, and route data into access-log summaries, Service Flow, and Golden Signals. | T-477 |  |
-| T-479 | P2 | [ ] | Add AWS ELB/ALB classic, ALB v2, and CloudFront standard log parsers with cloud source metadata. | T-469, T-470, T-471 |  |
-| T-480 | P2 | [ ] | Add GCP HTTP(S) Load Balancer JSON and Azure App Service/Front Door JSON access-log parsers. | T-469, T-470, T-471 |  |
-| T-481 | P2 | [ ] | Add IIS W3C extended log and Caddy/Traefik JSON access-log parsers. | T-469, T-470 |  |
-| T-482 | P2 | [ ] | Add Kong, Tyk, and AWS API Gateway access-log parsers with route, consumer, upstream, and gateway-latency fields. | T-469, T-470, T-472 |  |
+| T-473 | P1 | [x] | Add Tomcat access valve and Jetty NCSA request-log parsers with format auto-detection fixtures. | T-469, T-470 | Completed 2026-05-16: Tomcat and Jetty now use the combined/common access parser path with source-format tagging and auto-detect coverage |
+| T-474 | P1 | [x] | Map Tomcat and Jetty access records into the existing access-log `AnalysisResult` contract without breaking nginx/apache fields. | T-473 | Completed 2026-05-16: Tomcat/Jetty records flow through existing access-log summaries, series, sample records, and diagnostics without changing required nginx/apache fields |
+| T-475 | P1 | [x] | Add HAProxy default and HTTP log parsers with backend/server timing fields and diagnostics for partial timing data. | T-469, T-470 | Completed 2026-05-16: HAProxy HTTP parser extracts backend/server, queue/connect/response timings, termination state, retry count, and classified parse diagnostics |
+| T-476 | P1 | [x] | Analyze HAProxy access evidence for latency, status, backend saturation, retry, termination-state, and error-burst findings. | T-475 | Completed 2026-05-16: access-log analyzer now summarizes gateway latency/retries/termination errors and emits HAProxy/edge findings plus service-edge tables |
+| T-477 | P1 | [x] | Add Envoy and Istio default text plus JSON access-log parsers, including service-mesh trace headers and upstream cluster metadata. | T-469, T-470, T-472 | Completed 2026-05-16: Envoy/Istio text and JSON parsers capture upstream cluster/service, route, response flags, TLS, trace ID, and request ID metadata |
+| T-478 | P1 | [x] | Feed Envoy/Istio upstream service, trace ID, TLS, response flag, and route data into access-log summaries, Service Flow, and Golden Signals. | T-477 | Completed 2026-05-16: upstream service distributions, route stats, service dependency rows, access edge Service Flow edges, and access edge Golden Signals are emitted |
+| T-479 | P2 | [x] | Add AWS ELB/ALB classic, ALB v2, and CloudFront standard log parsers with cloud source metadata. | T-469, T-470, T-471 | Completed 2026-05-16: AWS ELB, ALB, and CloudFront access rows parse with AWS cloud provider and edge/location or load-balancer metadata |
+| T-480 | P2 | [x] | Add GCP HTTP(S) Load Balancer JSON and Azure App Service/Front Door JSON access-log parsers. | T-469, T-470, T-471 | Completed 2026-05-16: GCP HTTP LB JSON and Azure App Service/Front Door JSON parse request, status, latency, host/service, backend, route, and trace fields |
+| T-481 | P2 | [x] | Add IIS W3C extended log and Caddy/Traefik JSON access-log parsers. | T-469, T-470 | Completed 2026-05-16: IIS W3C field headers, Caddy JSON, and Traefik JSON parse into normalized access-log records with route/upstream/backend metadata where available |
+| T-482 | P2 | [x] | Add Kong, Tyk, and AWS API Gateway access-log parsers with route, consumer, upstream, and gateway-latency fields. | T-469, T-470, T-472 | Completed 2026-05-16: Kong, Tyk, and AWS API Gateway JSON access logs parse gateway latency, route, consumer, upstream service, request ID, and trace ID fields |
 | T-483 | P1 | [ ] | Wire all new access/edge formats into access-log auto-detect dispatch and per-source parser diagnostics. | T-473, T-475, T-477 |  |
 | T-484 | P1 | [ ] | Extend the access-log contract and tests for upstream service, mesh trace ID, gateway latency, TLS, route, and cloud-edge metadata while keeping existing exports compatible. | T-474, T-476, T-478, T-483 |  |
 | T-485 | P1 | [ ] | Define the server-log `AnalysisResult` contract and finding taxonomy for startup, deployment, datasource pool, stuck thread, hung thread, severe error, and worker error events. | T-468, T-471, T-472 |  |

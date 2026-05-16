@@ -143,6 +143,42 @@ Required `tables` fields:
 |---|---|
 | `sample_records` | `{ timestamp: string, method: string, uri: string, status: integer, response_time_ms: number }` |
 
+Optional access/edge extensions are additive. Existing consumers can ignore
+them and still rely on the required access-log fields above.
+
+Optional `summary` fields:
+
+| Field | Type | Unit / meaning |
+|---|---|---|
+| `detected_format_count` | integer | Number of source formats observed in parsed records |
+| `upstream_service_count` | integer | Number of upstream services or clusters observed |
+| `route_count` | integer | Number of gateway or mesh routes observed |
+| `service_edge_count` | integer | Number of inferred caller-to-upstream edges |
+| `gateway_avg_latency_ms` | number | Average gateway latency in milliseconds |
+| `gateway_p95_latency_ms` | number | 95th percentile gateway latency in milliseconds |
+| `retry_count` | integer | Sum of retry attempts reported by edge logs |
+| `termination_error_count` | integer | HAProxy termination-state rows treated as abnormal |
+
+Optional `series` fields:
+
+| Field | Row shape |
+|---|---|
+| `source_format_distribution` | `{ source_format: string, count: integer }` |
+| `upstream_service_distribution` | `{ upstream_service: string, count: integer }` |
+
+Optional `tables` fields:
+
+| Field | Row shape |
+|---|---|
+| `service_dependencies` | `{ caller: string, callee: string, call_count: integer, total_duration_ms: number, avg_duration_ms: number, max_duration_ms: number, error_count: integer, error_rate: number, retry_count: integer, routes: string[], source_formats: string[] }` |
+| `route_stats` | `{ route: string, count: integer, avg_response_ms: number, max_response_ms: number, error_count: integer, error_rate: number, source_formats: string[] }` |
+
+`tables.service_dependencies.error_rate` is a fraction from `0.0` to `1.0`,
+matching Trace Import service-dependency tables. `tables.route_stats.error_rate`
+is a percent value like the access-log summary error rate. `sample_records` may
+also include optional `source_format`, `route`, `upstream_service`, `trace_id`,
+and `request_id` fields.
+
 Required `metadata` fields:
 
 | Field | Type | Meaning |
@@ -698,24 +734,25 @@ tags
 ```
 
 Current Golden Signal sources include access-log latency/throughput/error
-metrics, trace-import service/dependency/critical-path metrics, Jennifer MSA
-external-call and network-gap metrics, exception distributions, GC pause,
-memory-space, OOM and long-pause alerts, JFR pause/sample/thread metrics,
-thread-dump lock/contention/deadlock metrics, and JVM metadata such as heap and
-worker counts.
+metrics, access edge service-dependency latency/traffic/error metrics,
+trace-import service/dependency/critical-path metrics, Jennifer MSA external-call
+and network-gap metrics, exception distributions, GC pause, memory-space, OOM
+and long-pause alerts, JFR pause/sample/thread metrics, thread-dump
+lock/contention/deadlock metrics, and JVM metadata such as heap and worker
+counts.
 
 ## Service Flow Projection
 
 The first Service Flow implementation is a Wails session projection built from
 Analysis Workspace results. It unifies Trace Import `service_dependencies`,
-Jennifer `tables.msa_edges`, and Jennifer unprofiled external-call groups into
-a common service-edge view.
+Access Log `tables.service_dependencies`, Jennifer `tables.msa_edges`, and
+Jennifer unprofiled external-call groups into a common service-edge view.
 
 `ServiceFlowInputEdge` fields:
 
 ```text
 id
-source_type            trace_import_dependency | jennifer_msa_edge | jennifer_unprofiled_external_call_group
+source_type            trace_import_dependency | access_edge_dependency | jennifer_msa_edge | jennifer_unprofiled_external_call_group
 source_analyzer
 source_result_id
 source_title

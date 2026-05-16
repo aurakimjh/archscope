@@ -1,19 +1,20 @@
 // [한글] accesslog 분석기 회귀 테스트.
 //
 // 핵심 검증 포인트
-//   • Fixture 파일에 대한 summary 22 메트릭 parity (Python 결과와
+//   - Fixture 파일에 대한 summary 22 메트릭 parity (Python 결과와
 //     byte 단위 일치).
-//   • 시계열 9종이 분당 시간순으로 정렬되어 있는지.
-//   • static / api 분류가 확장자/경로 기반으로 올바르게 동작.
-//   • findings: HIGH_ERROR_RATE / SERVER_ERRORS_PRESENT /
+//   - 시계열 9종이 분당 시간순으로 정렬되어 있는지.
+//   - static / api 분류가 확장자/경로 기반으로 올바르게 동작.
+//   - findings: HIGH_ERROR_RATE / SERVER_ERRORS_PRESENT /
 //     NON_STANDARD_HTTP_STATUS / SLOW_URL_P95 / ERROR_BURST_DETECTED.
-//   • Top-N 표 5종(by_count/by_avg/by_p95/by_bytes/by_errors).
-//   • Diagnostics 의 totalLines/parsedRecords/skippedRecords 합산.
+//   - Top-N 표 5종(by_count/by_avg/by_p95/by_bytes/by_errors).
+//   - Diagnostics 의 totalLines/parsedRecords/skippedRecords 합산.
 //
 // 헬퍼
-//   nginxLine 은 nginx combined 포맷을 1라인 만드는 fixture builder.
-//   각 인자가 빈 문자열이면 기본값(2026-04-27 10:00:01, /api/orders/1001,
-//   200, 0.123) 으로 채워져 테스트 본문이 짧게 유지됨.
+//
+//	nginxLine 은 nginx combined 포맷을 1라인 만드는 fixture builder.
+//	각 인자가 빈 문자열이면 기본값(2026-04-27 10:00:01, /api/orders/1001,
+//	200, 0.123) 으로 채워져 테스트 본문이 짧게 유지됨.
 package accesslog
 
 import (
@@ -24,6 +25,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	parser "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/accesslog"
 )
 
 func nginxLine(timestamp, uri, status, responseTimeSec string) string {
@@ -207,6 +210,77 @@ func TestAnalyzeReportsNonStandardHTTPStatus(t *testing.T) {
 	evidence := ns["evidence"].(map[string]any)
 	if evidence["statuses"] != "999" || asInt(evidence["count"]) != 1 {
 		t.Fatalf("evidence mismatch: %+v", evidence)
+	}
+}
+
+func TestAnalyzeAccessEdgeMetadataTablesAndFindings(t *testing.T) {
+	base := time.Date(2026, time.May, 16, 10, 0, 0, 0, time.UTC)
+	records := []parser.Record{
+		{
+			Timestamp:         base,
+			Method:            "GET",
+			URI:               "/api/orders",
+			Status:            503,
+			ResponseTimeMS:    600,
+			BytesSent:         128,
+			ClientIP:          "192.0.2.1",
+			SourceFormat:      "haproxy-http",
+			ServiceName:       "haproxy",
+			UpstreamService:   "orders",
+			UpstreamLatencyMS: 100,
+			GatewayLatencyMS:  500,
+			TerminationState:  "SC--",
+			RetryCount:        1,
+			Route:             "orders-route",
+		},
+		{
+			Timestamp:       base.Add(time.Second),
+			Method:          "GET",
+			URI:             "/api/orders",
+			Status:          503,
+			ResponseTimeMS:  700,
+			BytesSent:       128,
+			SourceFormat:    "envoy-json",
+			ServiceName:     "envoy",
+			UpstreamService: "orders",
+			Route:           "orders-route",
+		},
+		{
+			Timestamp:       base.Add(2 * time.Second),
+			Method:          "GET",
+			URI:             "/api/orders",
+			Status:          503,
+			ResponseTimeMS:  800,
+			BytesSent:       128,
+			SourceFormat:    "envoy-json",
+			ServiceName:     "envoy",
+			UpstreamService: "orders",
+			Route:           "orders-route",
+		},
+	}
+	result := Build(records, "edge.log", "auto", nil, Options{})
+	if got := asInt(result.Summary["service_edge_count"]); got != 2 {
+		t.Fatalf("service_edge_count = %d, want 2", got)
+	}
+	if got := asFloat(result.Summary["gateway_p95_latency_ms"]); got != 500 {
+		t.Fatalf("gateway_p95_latency_ms = %v, want 500", got)
+	}
+	deps := result.Tables["service_dependencies"].([]map[string]any)
+	if len(deps) != 2 {
+		t.Fatalf("service_dependencies = %+v", deps)
+	}
+	routes := result.Tables["route_stats"].([]map[string]any)
+	if len(routes) != 1 || routes[0]["route"] != "orders-route" {
+		t.Fatalf("route_stats mismatch: %+v", routes)
+	}
+	codes := map[string]bool{}
+	for _, finding := range result.Metadata.Findings {
+		codes[finding["code"].(string)] = true
+	}
+	for _, code := range []string{"EDGE_RETRIES_PRESENT", "HAPROXY_TERMINATION_ERRORS", "GATEWAY_LATENCY_ELEVATED"} {
+		if !codes[code] {
+			t.Fatalf("missing finding %s in %+v", code, result.Metadata.Findings)
+		}
 	}
 }
 

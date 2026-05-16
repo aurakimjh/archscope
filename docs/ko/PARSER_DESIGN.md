@@ -40,14 +40,22 @@ Mid-Term Plus importer 작업은 parser별 record를 만들기 전에
 
 ## Access Log Parser
 
-초기 지원 대상은 response time field를 포함한 NGINX combined 유사 format이다.
-또한 response time이 없는 common/combined access-log row도 tolerant하게 처리한다.
+Access-log parsing은 기존 NGINX/common/combined path의 호환성을 유지하면서
+명시적 selector와 `auto` detection 뒤에 source-specific access 및 edge format을
+추가한다. 지원 selector는 NGINX, Apache/common/combined, OHS, WebLogic,
+Tomcat, Jetty, HAProxy HTTP, Envoy/Istio text 및 JSON, AWS ELB/ALB/CloudFront,
+GCP HTTP(S) Load Balancer JSON, Azure App Service/Front Door JSON, IIS W3C,
+Caddy JSON, Traefik JSON, Kong JSON, Tyk JSON, AWS API Gateway JSON이다.
+
+기존 combined-like path는 response time field를 포함한 NGINX row를 대상으로
+하며, response time이 없는 common/combined access-log row도 tolerant하게
+처리한다.
 
 ```text
 127.0.0.1 - - [27/Apr/2026:10:00:01 +0900] "GET /api/orders/1001 HTTP/1.1" 200 1234 "-" "Mozilla/5.0" 0.123
 ```
 
-Parser는 다음 필드를 추출한다.
+Parser는 공통 access-log field를 추출한다.
 
 - timestamp
 - method
@@ -61,8 +69,15 @@ Parser는 다음 필드를 추출한다.
 
 Common/combined row에 response time field가 없으면 source format 자체에 latency
 정보가 없으므로 request/status evidence는 보존하고 `response_time_ms=0.0`으로
-기록한다. Apache/OHS/WebLogic/Tomcat format selector는 현재 common/combined
-parsing path를 공유한다.
+기록한다. Apache, OHS, WebLogic, Tomcat, Jetty format selector는 row shape이
+맞는 경우 이 combined/common parsing path를 공유한다.
+
+Source-specific parser는 source format, host, protocol/scheme, upstream service
+또는 cluster, route, backend, gateway/upstream latency, TLS field, response
+flag, termination state, retry count, trace ID, request ID, consumer, cloud
+provider, edge location 같은 additive edge metadata도 채울 수 있다. 이 field는
+analyzer summary와 downstream projection에 사용하지만 필수 access-log contract를
+대체하지 않는다.
 
 ## Collapsed Profiler Parser
 
@@ -217,6 +232,8 @@ Record-level error는 skip하고 diagnostics에 보고한다.
 | Access Log | 선택한 log format과 line이 맞지 않음 | Skip | `NO_FORMAT_MATCH` |
 | Access Log | Timestamp parse 실패 | Skip | `INVALID_TIMESTAMP` |
 | Access Log | Numeric field 변환 실패 | Skip | `INVALID_NUMBER` |
+| Access Log | JSON access-log payload decode 실패 | Skip | `INVALID_JSON` |
+| Access Log | IIS W3C row가 `#Fields:` header보다 먼저 나오거나 필수 column이 없음 | Skip | `MISSING_W3C_FIELDS` |
 | Collapsed Profiler | Trailing sample count가 없음 | Skip | `MISSING_SAMPLE_COUNT` |
 | Collapsed Profiler | Sample count가 integer가 아님 | Skip | `INVALID_SAMPLE_COUNT` |
 | Collapsed Profiler | Sample count가 음수 | Skip | `NEGATIVE_SAMPLE_COUNT` |
@@ -437,5 +454,12 @@ Access-log finding은 `metadata.findings` 아래의 bounded structured observati
 - error rate가 5% 이상이면 `ELEVATED_ERROR_RATE`.
 - 하나 이상의 `5xx` response가 있으면 `SERVER_ERRORS_PRESENT`.
 - 가장 느린 URL 평균 응답 시간이 1000 ms 이상이면 `SLOW_URL_AVERAGE`.
+- Gateway 또는 edge log가 retry attempt를 보고하면 `EDGE_RETRIES_PRESENT`.
+- HAProxy termination state가 비정상 close 또는 server/client-side failure를
+  나타내면 `HAPROXY_TERMINATION_ERRORS`.
+- Gateway latency percentile이 edge tier의 의미 있는 지연을 나타내면
+  `GATEWAY_LATENCY_ELEVATED`.
+- 추론된 caller-to-upstream service edge의 HTTP error가 높으면
+  `HIGH_ERROR_SERVICE_EDGE`.
 
 Finding은 stable `code`, `severity`, 짧은 `message`, 작은 structured `evidence`를 포함해야 한다.

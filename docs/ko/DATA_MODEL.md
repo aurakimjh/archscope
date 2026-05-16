@@ -286,6 +286,42 @@ Tenant/customer identifier는 저장 전에 sanitize하거나 명시적으로 al
 |---|---|
 | `sample_records` | `{ timestamp: string, method: string, uri: string, status: integer, response_time_ms: number }` |
 
+Optional access/edge extension은 additive이다. 기존 consumer는 이 field를
+무시하고 위의 필수 access-log field만 계속 사용할 수 있다.
+
+Optional `summary` fields:
+
+| Field | Type | Unit / 의미 |
+|---|---|---|
+| `detected_format_count` | integer | 파싱 record에서 관측된 source format 수 |
+| `upstream_service_count` | integer | 관측된 upstream service 또는 cluster 수 |
+| `route_count` | integer | 관측된 gateway 또는 mesh route 수 |
+| `service_edge_count` | integer | 추론된 caller-to-upstream edge 수 |
+| `gateway_avg_latency_ms` | number | 평균 gateway latency, milliseconds |
+| `gateway_p95_latency_ms` | number | 95 percentile gateway latency, milliseconds |
+| `retry_count` | integer | Edge log가 보고한 retry attempt 합계 |
+| `termination_error_count` | integer | 비정상으로 판단한 HAProxy termination-state row 수 |
+
+Optional `series` fields:
+
+| Field | Row shape |
+|---|---|
+| `source_format_distribution` | `{ source_format: string, count: integer }` |
+| `upstream_service_distribution` | `{ upstream_service: string, count: integer }` |
+
+Optional `tables` fields:
+
+| Field | Row shape |
+|---|---|
+| `service_dependencies` | `{ caller: string, callee: string, call_count: integer, total_duration_ms: number, avg_duration_ms: number, max_duration_ms: number, error_count: integer, error_rate: number, retry_count: integer, routes: string[], source_formats: string[] }` |
+| `route_stats` | `{ route: string, count: integer, avg_response_ms: number, max_response_ms: number, error_count: integer, error_rate: number, source_formats: string[] }` |
+
+`tables.service_dependencies.error_rate`는 Trace Import service-dependency
+table과 맞춘 `0.0`부터 `1.0`까지의 fraction이다.
+`tables.route_stats.error_rate`는 access-log summary error rate와 같은 percent
+값이다. `sample_records`는 optional `source_format`, `route`,
+`upstream_service`, `trace_id`, `request_id` field도 포함할 수 있다.
+
 필수 `metadata` fields:
 
 | Field | Type | 의미 |
@@ -838,24 +874,25 @@ evidence_refs
 tags
 ```
 
-현재 Golden Signal source는 access-log latency/throughput/error metric,
-trace-import service/dependency/critical-path metric, Jennifer MSA external-call
-및 network-gap metric, exception distribution, GC pause, memory-space, OOM 및
-long-pause alert, JFR pause/sample/thread metric, thread-dump
-lock/contention/deadlock metric, heap 및 worker count 같은 JVM metadata를
-포함한다.
+현재 Golden Signal source는 access-log latency/throughput/error metric, access
+edge service-dependency latency/traffic/error metric, trace-import
+service/dependency/critical-path metric, Jennifer MSA external-call 및 network-gap
+metric, exception distribution, GC pause, memory-space, OOM 및 long-pause alert,
+JFR pause/sample/thread metric, thread-dump lock/contention/deadlock metric, heap
+및 worker count 같은 JVM metadata를 포함한다.
 
 ## Service Flow Projection
 
 첫 Service Flow 구현은 Analysis Workspace 결과로부터 만든 Wails session
-projection이다. Trace Import `service_dependencies`, Jennifer `tables.msa_edges`,
-Jennifer unprofiled external-call group을 공통 service-edge view로 통합한다.
+projection이다. Trace Import `service_dependencies`, Access Log
+`tables.service_dependencies`, Jennifer `tables.msa_edges`, Jennifer unprofiled
+external-call group을 공통 service-edge view로 통합한다.
 
 `ServiceFlowInputEdge` fields:
 
 ```text
 id
-source_type            trace_import_dependency | jennifer_msa_edge | jennifer_unprofiled_external_call_group
+source_type            trace_import_dependency | access_edge_dependency | jennifer_msa_edge | jennifer_unprofiled_external_call_group
 source_analyzer
 source_result_id
 source_title
