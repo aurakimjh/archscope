@@ -369,6 +369,10 @@ report packs, and AI productization.
 - Promote the existing collapsed/JFR profiler analyzers into a unified
   multi-language profile analyzer with language-tagged frames, native vs
   managed split, and cross-language flamegraph rollups.
+- Current implementation status: `profile import` emits `profile_evidence` for
+  pprof, async-profiler, py-spy/rbspy, speedscope/dotnet-trace, perf collapsed,
+  JFR JSON stacks, StackProf, PHP/Xdebug, Swift/async stacks, and Pyroscope/
+  Parca-style snapshots.
 
 ### Correlation and Evidence Stitching
 
@@ -379,6 +383,9 @@ report packs, and AI productization.
   Incident Timeline and Evidence Board.
 - Surface correlation gaps (missing trace-id, dropped parent span, log without
   matching request) as deterministic findings.
+- Current implementation status: `stitch analyze` emits `stitched_evidence`
+  with match groups, gap findings, Incident Timeline rows, and stitched Service
+  Flow dependencies from existing result JSON files.
 
 ### Local Continuous Profiling Imports
 
@@ -388,6 +395,9 @@ report packs, and AI productization.
 - Keep the OpenTelemetry Profiles signal (currently public alpha as of 2026
   Q1) on the active radar — see the long-term roadmap entry for full OTLP
   Profiles ingestion.
+- Current implementation status: Pyroscope/Phlare and Parca-style snapshots are
+  routed through `profile_evidence`; OTLP Profiles activation criteria are
+  tracked in `OTLP_PROFILES_DECISION.md`.
 
 ## Later Roadmap: Architecture and Operations Expansion
 

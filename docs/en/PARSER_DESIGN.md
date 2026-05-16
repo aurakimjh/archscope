@@ -39,6 +39,15 @@ The same package also provides:
 - a cross-source correlation-key model for trace/span/request IDs,
   tenant/customer IDs, container/pod/host/PID identity, and timestamp windows.
 
+## Evidence Stitching
+
+`stitch analyze` is a second-pass analyzer over existing `AnalysisResult` JSON
+files. It does not parse raw logs again. Instead, it extracts bounded evidence
+nodes from tables, records trace/span/request/tenant/container/host/PID keys,
+builds match groups, and emits correlation-gap findings for missing trace IDs,
+dropped parent spans, unmatched request logs, unmatched database calls, and
+unmatched broker events.
+
 ## Access Log Parser
 
 Access-log parsing keeps the legacy NGINX/common/combined path compatible while

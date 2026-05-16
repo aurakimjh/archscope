@@ -166,6 +166,7 @@ const mermaid = buildServiceFlowMermaidSequence({
       access_edge_dependency: 0,
       database_dependency: 0,
       broker_dependency: 0,
+      stitched_dependency: 0,
       jennifer_msa_edge: 0,
       jennifer_unprofiled_external_call_group: 0,
     },
@@ -290,6 +291,19 @@ assert(
   buildGoldenSignalInventory([profileEvidence]).signals.some((signal) => signal.name === "Profile sample volume"),
   "profile evidence should feed Golden Signals",
 );
+
+const stitched = entry("stitched-1", "stitched_evidence", {
+  tables: {
+    gaps: [{ code: "UNMATCHED_DATABASE_CALL", severity: "warning", message: "db call unmatched", timestamp: "2026-05-16T10:00:00Z" }],
+    matches: [{ key_kind: "trace_id", event_count: 3, first_seen: "2026-05-16T10:00:00Z", last_seen: "2026-05-16T10:00:01Z" }],
+    service_dependencies: [{ caller: "order-service", callee: "database:shop", call_count: 1, match_status: "stitched" }],
+  },
+});
+assert(
+  buildIncidentTimelineEvents([stitched]).some((event) => event.label === "UNMATCHED_DATABASE_CALL"),
+  "stitched evidence gaps should feed Incident Timeline",
+);
+assert(buildServiceFlowAnalysis([stitched]).edge_model.edge_count === 1, "stitched dependencies should feed Service Flow");
 
 const aiResult = entry("ai-1", "jfr_recording", {
   tables: {

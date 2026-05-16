@@ -346,6 +346,27 @@ Core `summary` fields include:
 `metadata.unified_profile_schema` records the canonical frame and sample fields,
 while `metadata.flamegraph_rollup` records the collapsed-stack rollup source.
 
+### Stitched Evidence
+
+`type`: `stitched_evidence`
+
+Stitched evidence reads existing `AnalysisResult` JSON files and joins rows by
+correlation keys: trace ID, span ID, parent span ID, request/correlation ID,
+TXID/GUID, tenant/customer ID, pod/container/host, and PID.
+
+Core tables:
+
+| Field | Row shape |
+|---|---|
+| `matches` | `{ key_kind, key_value, event_count, source_types, evidence_refs, first_seen, last_seen, services }` |
+| `gaps` | `{ code, severity, message, source_type, evidence_ref, timestamp, service, correlation }` |
+| `evidence_nodes` | Normalized source rows with source type, table, timestamp, service, target, message, evidence ref, and correlation keys |
+| `service_dependencies` | Stitched service edges for Service Flow when database/broker evidence matches request or trace evidence |
+
+Gap finding codes include `MISSING_TRACE_ID`, `DROPPED_PARENT_SPAN`,
+`UNMATCHED_REQUEST_LOG`, `UNMATCHED_DATABASE_CALL`, and
+`UNMATCHED_BROKER_EVENT`.
+
 ### Profiler Collapsed Result
 
 `type`: `profiler_collapsed`

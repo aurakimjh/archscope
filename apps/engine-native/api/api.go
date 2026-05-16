@@ -87,6 +87,7 @@ import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/profileclassification"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/runtime"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/serverlog"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/stitching"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/threaddump"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/threaddumpcollapsed"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/traceimport"
@@ -237,6 +238,12 @@ var AnalyzePlatform = platform.Analyze
 type ProfileEvidenceOptions = profileevidence.Options
 
 var AnalyzeProfileEvidence = profileevidence.Analyze
+
+// ── Cross-source evidence stitching ─────────────────────────────────
+
+type StitchingOptions = stitching.Options
+
+var AnalyzeStitchedEvidence = stitching.AnalyzeFiles
 
 // ── External trace import ───────────────────────────────────────────
 

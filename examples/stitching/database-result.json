@@ -1,0 +1,14 @@
+{
+  "type": "database_slow_query",
+  "source_files": ["postgres.log"],
+  "created_at": "2026-05-16T10:00:00Z",
+  "summary": {},
+  "series": {},
+  "tables": {
+    "queries": [
+      { "timestamp": "2026-05-16T10:00:00Z", "trace_id": "trace-demo-1", "database": "shop", "fingerprint": "select * from orders where id = ?" }
+    ]
+  },
+  "charts": {},
+  "metadata": {}
+}

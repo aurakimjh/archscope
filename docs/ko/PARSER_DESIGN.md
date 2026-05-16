@@ -38,6 +38,15 @@ Mid-Term Plus importer 작업은 parser별 record를 만들기 전에
 - Trace/span/request ID, tenant/customer ID, container/pod/host/PID identity,
   timestamp window를 담는 cross-source correlation-key model.
 
+## Evidence Stitching
+
+`stitch analyze`는 기존 `AnalysisResult` JSON 파일을 대상으로 동작하는
+second-pass analyzer다. 원본 log를 다시 parsing하지 않고 table에서 bounded
+evidence node를 추출한 뒤 trace/span/request/tenant/container/host/PID key를
+기록하고 match group을 만든다. 또한 missing trace ID, dropped parent span,
+unmatched request log, unmatched database call, unmatched broker event를
+correlation-gap finding으로 낸다.
+
 ## Access Log Parser
 
 Access-log parsing은 기존 NGINX/common/combined path의 호환성을 유지하면서

@@ -488,6 +488,27 @@ Parca 계열 profile JSON이다.
 `charts.flamegraph`와 `charts.drilldown_stages`는 profiler `FlameNode`
 contract를 재사용한다.
 
+### Stitched Evidence
+
+`type`: `stitched_evidence`
+
+Stitched evidence는 기존 `AnalysisResult` JSON 파일들을 읽고 trace ID, span ID,
+parent span ID, request/correlation ID, TXID/GUID, tenant/customer ID,
+pod/container/host, PID 같은 correlation key로 row를 연결한다.
+
+핵심 table:
+
+| Field | Row shape |
+|---|---|
+| `matches` | `{ key_kind, key_value, event_count, source_types, evidence_refs, first_seen, last_seen, services }` |
+| `gaps` | `{ code, severity, message, source_type, evidence_ref, timestamp, service, correlation }` |
+| `evidence_nodes` | source type, table, timestamp, service, target, message, evidence ref, correlation key를 가진 정규화 source row |
+| `service_dependencies` | database/broker evidence가 request 또는 trace evidence와 match될 때 Service Flow에 투영하는 stitched service edge |
+
+Gap finding code는 `MISSING_TRACE_ID`, `DROPPED_PARENT_SPAN`,
+`UNMATCHED_REQUEST_LOG`, `UNMATCHED_DATABASE_CALL`, `UNMATCHED_BROKER_EVENT`를
+포함한다.
+
 ### Profiler Collapsed Result
 
 `type`: `profiler_collapsed`

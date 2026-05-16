@@ -764,6 +764,9 @@ function signalsFromEntry(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
     case "profile_evidence":
       signals = signalsFromProfileEvidence(entry);
       break;
+    case "stitched_evidence":
+      signals = signalsFromStitchedEvidence(entry);
+      break;
     case "jfr_recording":
       signals = signalsFromJfr(entry);
       break;
@@ -1324,6 +1327,23 @@ function signalsFromProfileEvidence(entry: AnalysisWorkspaceEntry): GoldenSignal
     scopeType: "runtime",
   });
   addSummary(out, entry, "async_frame_samples", "Profile async frame samples", "saturation", "count", "count", {
+    scopeType: "runtime",
+  });
+  return out;
+}
+
+function signalsFromStitchedEvidence(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
+  const out: GoldenSignal[] = [];
+  addSummary(out, entry, "matched_group_count", "Stitched evidence match groups", "traffic", "count", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "gap_count", "Stitched evidence gap count", "errors", "count", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "unmatched_database_call_count", "Unmatched database calls", "errors", "count", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "unmatched_broker_event_count", "Unmatched broker events", "errors", "count", "count", {
     scopeType: "runtime",
   });
   return out;

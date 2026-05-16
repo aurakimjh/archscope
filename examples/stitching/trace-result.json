@@ -1,0 +1,14 @@
+{
+  "type": "trace_import",
+  "source_files": ["trace.json"],
+  "created_at": "2026-05-16T10:00:00Z",
+  "summary": {},
+  "series": {},
+  "tables": {
+    "spans": [
+      { "trace_id": "trace-demo-1", "span_id": "span-1", "service": "order-service", "span_name": "GET /orders/1001" }
+    ]
+  },
+  "charts": {},
+  "metadata": {}
+}

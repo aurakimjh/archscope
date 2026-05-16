@@ -198,6 +198,11 @@ type ProfileEvidenceRequest struct {
 	ProfileKind string  `json:"profileKind,omitempty"`
 }
 
+type StitchedEvidenceRequest struct {
+	Paths []string `json:"paths"`
+	TopN  int      `json:"topN,omitempty"`
+}
+
 // TraceImportRequest mirrors traceimport.Options + a Path.
 type TraceImportRequest struct {
 	Path   string `json:"path"`
@@ -500,6 +505,13 @@ func (s *EngineService) AnalyzeProfileEvidence(req ProfileEvidenceRequest) (engi
 		IntervalMS:  req.IntervalMS,
 		ProfileKind: req.ProfileKind,
 	})
+}
+
+func (s *EngineService) AnalyzeStitchedEvidence(req StitchedEvidenceRequest) (engineapi.AnalysisResult, error) {
+	if len(req.Paths) == 0 {
+		return engineapi.AnalysisResult{}, fmt.Errorf("paths are required")
+	}
+	return engineapi.AnalyzeStitchedEvidence(req.Paths, engineapi.StitchingOptions{TopN: req.TopN})
 }
 
 // AnalyzeTraceImport wraps engineapi.AnalyzeTraceImport.

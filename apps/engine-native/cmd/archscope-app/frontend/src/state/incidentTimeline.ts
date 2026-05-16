@@ -259,6 +259,9 @@ function eventsFromEntry(entry: AnalysisWorkspaceEntry): IncidentTimelineEvent[]
     case "kubernetes_evidence":
       events.push(...eventsFromPlatform(entry));
       break;
+    case "stitched_evidence":
+      events.push(...eventsFromStitchedEvidence(entry));
+      break;
   }
   return uniqueEvents(events).slice(0, MAX_EVENTS_PER_RESULT);
 }
@@ -415,6 +418,35 @@ function eventsFromPlatform(entry: AnalysisWorkspaceEntry): IncidentTimelineEven
       timeValue: row.timestamp,
     }),
   );
+}
+
+function eventsFromStitchedEvidence(entry: AnalysisWorkspaceEntry): IncidentTimelineEvent[] {
+  const gaps = arrayOfObjects(entry.result.tables?.gaps).map((row, index) =>
+    makeEvent(entry, {
+      idSuffix: `stitched-gap-${stringValue(row.code) || index}`,
+      severity: normalizeSeverity(stringValue(row.severity)),
+      category: "correlation_gap",
+      label: stringValue(row.code) || "CORRELATION_GAP",
+      description: stringValue(row.message) || "Correlation gap",
+      evidenceRef: stringValue(row.evidence_ref) || "tables.gaps",
+      payload: row,
+      timeValue: row.timestamp,
+    }),
+  );
+  const matches = arrayOfObjects(entry.result.tables?.matches).map((row, index) =>
+    makeEvent(entry, {
+      idSuffix: `stitched-match-${stringValue(row.key_kind) || index}`,
+      severity: "info",
+      category: "correlation_match",
+      label: "CORRELATION_MATCH",
+      description: `${numberValue(row.event_count)} evidence rows matched by ${stringValue(row.key_kind) || "correlation key"}.`,
+      evidenceRef: "tables.matches",
+      payload: row,
+      timeValue: row.first_seen,
+      endTimeValue: row.last_seen,
+    }),
+  );
+  return [...gaps, ...matches];
 }
 
 function eventsFromJfr(entry: AnalysisWorkspaceEntry): IncidentTimelineEvent[] {
