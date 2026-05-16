@@ -354,6 +354,46 @@ Optional `metadata.source_format_diagnostics`는 access/edge auto-detect evidenc
 | `message` | string | 사람이 읽을 수 있는 finding summary |
 | `evidence` | object | finding을 뒷받침하는 작은 structured value |
 
+### Server Log Result
+
+`type`: `server_log`
+
+Server-log contract는 Tomcat, Jetty, JBoss/WildFly, WebLogic, WebSphere,
+GlassFish/Payara, nginx error log, Apache error log의 application-server 및
+web-server error evidence를 다룬다.
+
+Core `summary` fields:
+
+| Field | Type | 의미 |
+|---|---|---|
+| `total_events` | integer | 파싱된 server-log event 수 |
+| `error_count` | integer | Error/severe/fatal record 수 |
+| `warning_count` | integer | Warning record 수 |
+| `startup_count` | integer | Startup/lifecycle event 수 |
+| `deployment_event_count` | integer | Deployment 관련 event 수 |
+| `datasource_event_count` | integer | JDBC/datasource/pool event 수 |
+| `stuck_thread_count` | integer | Stuck-thread event 수 |
+| `hung_thread_count` | integer | Hung-thread event 수 |
+| `thread_pool_pressure_count` | integer | Executor/thread-pool pressure 수 |
+| `worker_error_count` | integer | nginx/Apache worker/upstream error 수 |
+| `correlated_event_count` | integer | Trace 또는 request ID를 가진 event 수 |
+
+Core `tables` fields:
+
+| Field | Row shape |
+|---|---|
+| `events` | `{ timestamp, severity, product, component, thread, host, service_name, event_type, message, trace_id, request_id }` |
+| `deployment_events` | `events`와 같은 row shape. Deployment evidence만 포함 |
+| `datasource_events` | `events`와 같은 row shape. Datasource/pool evidence만 포함 |
+| `thread_events` | `events`와 같은 row shape. Stuck/hung/thread-pool evidence만 포함 |
+| `worker_errors` | `events`와 같은 row shape. nginx/Apache worker evidence만 포함 |
+| `correlation_candidates` | Trace 또는 request ID를 가진 event |
+
+Finding code는 `SERVER_SEVERE_ERRORS`, `DEPLOYMENT_FAILURE`,
+`DATASOURCE_POOL_WARNING`, `STUCK_THREAD_DETECTED`, `HUNG_THREAD_DETECTED`,
+`THREAD_POOL_PRESSURE`, `WORKER_ERROR_PRESENT`, `MANAGED_SERVER_HEALTH`를
+포함한다.
+
 ### Profiler Collapsed Result
 
 `type`: `profiler_collapsed`

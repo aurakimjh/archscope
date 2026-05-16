@@ -80,6 +80,7 @@ import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/otel"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/profileclassification"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/runtime"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/serverlog"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/threaddump"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/threaddumpcollapsed"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/traceimport"
@@ -188,6 +189,14 @@ type OtelOptions = otel.Options
 
 // AnalyzeOtel wraps otel.Analyze.
 var AnalyzeOtel = otel.Analyze
+
+// ── Server logs ─────────────────────────────────────────────────────
+
+// ServerLogOptions mirrors serverlog.Options.
+type ServerLogOptions = serverlog.Options
+
+// AnalyzeServerLog wraps serverlog.Analyze.
+var AnalyzeServerLog = serverlog.Analyze
 
 // ── External trace import ───────────────────────────────────────────
 

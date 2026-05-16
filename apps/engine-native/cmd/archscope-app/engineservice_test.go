@@ -1,15 +1,16 @@
 // [한글] engineservice_test — Wails 데스크톱 셸의 EngineService 회귀 테스트.
 //
 // 검증 대상
-//   • EngineService 의 Wails IPC 메서드 (Analyze* / Convert* / Classify*) 들이
+//   - EngineService 의 Wails IPC 메서드 (Analyze* / Convert* / Classify*) 들이
 //     올바른 타입의 결과를 반환.
-//   • engine-native/api 의 re-export 함수와 byte 단위 같은 결과를 produce.
-//   • fixturesDir helper 가 examples/ 디렉토리를 정확히 찾음.
+//   - engine-native/api 의 re-export 함수와 byte 단위 같은 결과를 produce.
+//   - fixturesDir helper 가 examples/ 디렉토리를 정확히 찾음.
 //
 // fixturesDir 경로 계산
-//   Wails 앱은 apps/engine-native/cmd/archscope-app/ 의 4단계 깊이.
-//   runtime.Caller(0) 또는 wd 에서 4단계 위로 올라가 examples/ 를 anchor.
-//   `go test` cwd 에 무관하게 fixture 경로 보존.
+//
+//	Wails 앱은 apps/engine-native/cmd/archscope-app/ 의 4단계 깊이.
+//	runtime.Caller(0) 또는 wd 에서 4단계 위로 올라가 examples/ 를 anchor.
+//	`go test` cwd 에 무관하게 fixture 경로 보존.
 package main
 
 import (
@@ -92,6 +93,16 @@ func TestEngineService_AnalyzeAccessLog(t *testing.T) {
 		t.Fatalf("AnalyzeAccessLog: %v", err)
 	}
 	requireResultEnvelope(t, "AnalyzeAccessLog", "access_log", resultToMap(t, res))
+}
+
+func TestEngineService_AnalyzeServerLog(t *testing.T) {
+	svc := &EngineService{}
+	path := filepath.Join(fixturesDir(t), "server-logs", "sample-server.log")
+	res, err := svc.AnalyzeServerLog(ServerLogRequest{Path: path, Format: "auto"})
+	if err != nil {
+		t.Fatalf("AnalyzeServerLog: %v", err)
+	}
+	requireResultEnvelope(t, "AnalyzeServerLog", "server_log", resultToMap(t, res))
 }
 
 // TestEngineService_AnalyzeException smoke-tests the Java exception

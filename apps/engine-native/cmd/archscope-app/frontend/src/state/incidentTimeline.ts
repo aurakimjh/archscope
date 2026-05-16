@@ -244,6 +244,9 @@ function eventsFromEntry(entry: AnalysisWorkspaceEntry): IncidentTimelineEvent[]
     case "trace_import":
       events.push(...eventsFromTraceImport(entry));
       break;
+    case "server_log":
+      events.push(...eventsFromServerLog(entry));
+      break;
   }
   return uniqueEvents(events).slice(0, MAX_EVENTS_PER_RESULT);
 }
@@ -323,6 +326,21 @@ function eventsFromGcLog(entry: AnalysisWorkspaceEntry): IncidentTimelineEvent[]
       evidenceRef: "tables.alerts",
       payload: alert,
       timeValue: alert.time,
+    }),
+  );
+}
+
+function eventsFromServerLog(entry: AnalysisWorkspaceEntry): IncidentTimelineEvent[] {
+  return arrayOfObjects(entry.result.tables?.events).map((row, index) =>
+    makeEvent(entry, {
+      idSuffix: `server-log-${stringValue(row.event_type) || index}`,
+      severity: normalizeSeverity(stringValue(row.severity)),
+      category: stringValue(row.event_type) || "server_log",
+      label: stringValue(row.event_type)?.toUpperCase() || "SERVER_LOG_EVENT",
+      description: stringValue(row.message) || "Server log event",
+      evidenceRef: "tables.events",
+      payload: row,
+      timeValue: row.timestamp,
     }),
   );
 }

@@ -81,6 +81,26 @@ count, trace ID, request ID, consumer, cloud provider, and edge location. These
 fields feed analyzer summaries and downstream projections but do not replace the
 required access-log contract.
 
+## Server Log Parser
+
+The server-log parser accepts `auto`, Tomcat, Jetty, JBoss/WildFly, WebLogic,
+WebSphere, GlassFish/Payara, nginx error, and Apache error selectors. Parser
+responsibility stops at decoding rows into normalized event records:
+
+- timestamp when present
+- severity
+- product
+- component
+- thread / host / service when present
+- event type
+- message
+- trace ID and request ID when present
+- raw line
+
+The analyzer owns taxonomy and findings for startup, deployment, datasource
+pool, stuck/hung thread, thread-pool pressure, managed-server health, severe
+error, and worker/upstream error events.
+
 ## Collapsed Profiler Parser
 
 Initial support targets async-profiler collapsed output:

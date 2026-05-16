@@ -211,6 +211,45 @@ Required `metadata` fields:
 | `message` | string | Human-readable finding summary |
 | `evidence` | object | Small structured values supporting the finding |
 
+### Server Log Result
+
+`type`: `server_log`
+
+The server-log contract covers application-server and web-server error evidence
+from Tomcat, Jetty, JBoss/WildFly, WebLogic, WebSphere, GlassFish/Payara, nginx
+error logs, and Apache error logs.
+
+Core `summary` fields:
+
+| Field | Type | Meaning |
+|---|---|---|
+| `total_events` | integer | Parsed server-log event count |
+| `error_count` | integer | Error/severe/fatal record count |
+| `warning_count` | integer | Warning record count |
+| `startup_count` | integer | Startup/lifecycle event count |
+| `deployment_event_count` | integer | Deployment-related event count |
+| `datasource_event_count` | integer | JDBC/datasource/pool event count |
+| `stuck_thread_count` | integer | Stuck-thread event count |
+| `hung_thread_count` | integer | Hung-thread event count |
+| `thread_pool_pressure_count` | integer | Executor/thread-pool pressure count |
+| `worker_error_count` | integer | nginx/Apache worker/upstream error count |
+| `correlated_event_count` | integer | Events with trace or request IDs |
+
+Core `tables` fields:
+
+| Field | Row shape |
+|---|---|
+| `events` | `{ timestamp, severity, product, component, thread, host, service_name, event_type, message, trace_id, request_id }` |
+| `deployment_events` | Same row shape as `events`, filtered to deployment evidence |
+| `datasource_events` | Same row shape as `events`, filtered to datasource/pool evidence |
+| `thread_events` | Same row shape as `events`, filtered to stuck/hung/thread-pool evidence |
+| `worker_errors` | Same row shape as `events`, filtered to nginx/Apache worker evidence |
+| `correlation_candidates` | Events carrying trace or request IDs |
+
+Finding codes include `SERVER_SEVERE_ERRORS`, `DEPLOYMENT_FAILURE`,
+`DATASOURCE_POOL_WARNING`, `STUCK_THREAD_DETECTED`, `HUNG_THREAD_DETECTED`,
+`THREAD_POOL_PRESSURE`, `WORKER_ERROR_PRESENT`, and `MANAGED_SERVER_HEALTH`.
+
 ### Profiler Collapsed Result
 
 `type`: `profiler_collapsed`

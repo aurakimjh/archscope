@@ -743,6 +743,9 @@ function signalsFromEntry(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
     case "gc_log":
       signals = signalsFromGcLog(entry);
       break;
+    case "server_log":
+      signals = signalsFromServerLog(entry);
+      break;
     case "jfr_recording":
       signals = signalsFromJfr(entry);
       break;
@@ -1185,6 +1188,29 @@ function signalsFromGcLog(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
       tags: { severity: stringValue(row.severity) || "warning" },
     });
   }
+  return out;
+}
+
+function signalsFromServerLog(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
+  const out: GoldenSignal[] = [];
+  addSummary(out, entry, "total_events", "Server log event volume", "traffic", "events", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "error_count", "Server log error count", "errors", "count", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "worker_error_count", "Web server worker errors", "errors", "count", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "stuck_thread_count", "Stuck thread count", "saturation", "count", "count", {
+    scopeType: "thread",
+  });
+  addSummary(out, entry, "hung_thread_count", "Hung thread count", "saturation", "count", "count", {
+    scopeType: "thread",
+  });
+  addSummary(out, entry, "datasource_event_count", "Datasource warning count", "saturation", "count", "count", {
+    scopeType: "runtime",
+  });
   return out;
 }
 

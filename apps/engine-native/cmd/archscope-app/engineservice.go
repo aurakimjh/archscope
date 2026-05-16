@@ -148,6 +148,15 @@ type OtelRequest struct {
 	TopN int    `json:"topN,omitempty"`
 }
 
+// ServerLogRequest mirrors serverlog.Options + a Path.
+type ServerLogRequest struct {
+	Path     string `json:"path"`
+	Format   string `json:"format,omitempty"`
+	TopN     int    `json:"topN,omitempty"`
+	MaxLines int    `json:"maxLines,omitempty"`
+	Strict   bool   `json:"strict,omitempty"`
+}
+
 // TraceImportRequest mirrors traceimport.Options + a Path.
 type TraceImportRequest struct {
 	Path   string `json:"path"`
@@ -387,6 +396,18 @@ func (s *EngineService) AnalyzeOtel(req OtelRequest) (engineapi.AnalysisResult, 
 		return engineapi.AnalysisResult{}, fmt.Errorf("path is required")
 	}
 	return engineapi.AnalyzeOtel(req.Path, engineapi.OtelOptions{TopN: req.TopN})
+}
+
+// AnalyzeServerLog wraps engineapi.AnalyzeServerLog.
+func (s *EngineService) AnalyzeServerLog(req ServerLogRequest) (engineapi.AnalysisResult, error) {
+	if strings.TrimSpace(req.Path) == "" {
+		return engineapi.AnalysisResult{}, fmt.Errorf("path is required")
+	}
+	return engineapi.AnalyzeServerLog(req.Path, req.Format, engineapi.ServerLogOptions{
+		MaxLines: req.MaxLines,
+		TopN:     req.TopN,
+		Strict:   req.Strict,
+	})
 }
 
 // AnalyzeTraceImport wraps engineapi.AnalyzeTraceImport.

@@ -170,6 +170,29 @@ const timeline = buildIncidentTimelineEvents([
 ]);
 assert(timeline[0]?.timestamp === "2024-05-15T00:00:00.000Z", "Unix-second timestamps should parse");
 
+const serverLog = entry("server-1", "server_log", {
+  summary: { total_events: 2, error_count: 1, stuck_thread_count: 1 },
+  tables: {
+    events: [
+      {
+        timestamp: "2026-05-16T10:00:00Z",
+        severity: "ERROR",
+        event_type: "worker_error",
+        message: "upstream connection failed",
+        request_id: "req-1",
+      },
+    ],
+  },
+});
+assert(
+  buildIncidentTimelineEvents([serverLog]).some((event) => event.category === "worker_error"),
+  "server-log events should feed Incident Timeline",
+);
+assert(
+  buildGoldenSignalInventory([serverLog]).signals.some((signal) => signal.name === "Server log error count"),
+  "server-log summaries should feed Golden Signals",
+);
+
 const aiResult = entry("ai-1", "jfr_recording", {
   tables: {
     notable_events: [{ evidence_ref: "jfr:event:1", message: "GC pause 120ms" }],

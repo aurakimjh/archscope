@@ -79,6 +79,26 @@ provider, edge location 같은 additive edge metadata도 채울 수 있다. 이 
 analyzer summary와 downstream projection에 사용하지만 필수 access-log contract를
 대체하지 않는다.
 
+## Server Log Parser
+
+Server-log parser는 `auto`, Tomcat, Jetty, JBoss/WildFly, WebLogic, WebSphere,
+GlassFish/Payara, nginx error, Apache error selector를 받는다. Parser 책임은
+row를 normalized event record로 decode하는 데서 끝난다.
+
+- timestamp, 존재하는 경우
+- severity
+- product
+- component
+- thread / host / service, 존재하는 경우
+- event type
+- message
+- trace ID 및 request ID, 존재하는 경우
+- raw line
+
+Startup, deployment, datasource pool, stuck/hung thread, thread-pool pressure,
+managed-server health, severe error, worker/upstream error taxonomy와 finding은
+analyzer가 소유한다.
+
 ## Collapsed Profiler Parser
 
 초기 지원 대상은 async-profiler collapsed output이다.
