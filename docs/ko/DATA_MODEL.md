@@ -851,6 +851,28 @@ input_edge_ids
 sequence-like view(`.mmd`)와 JSON `archscope_service_flow` payload를 export할
 수 있다.
 
+## Report Pack
+
+Wails Evidence Board는 전체 engine report-pack exporter가 완성되기 전에도
+UI-level report pack을 만들 수 있다.
+
+```text
+ReportPack
+  type = archscope_report_pack
+  schema_version
+  created_at
+  card_count
+  source_result_count
+  provenance
+  artifacts
+```
+
+`provenance`는 source result metadata, analyzer option, captured evidence card,
+deterministic finding, derived artifact reference, 존재하는 경우 optional AI
+interpretation provenance를 보존한다. `artifacts`는 현재 evidence card,
+exportable `incident_timeline` result, SLO analysis, Service Flow export
+payload를 포함한다.
+
 ## AI Interpretation Contract
 
 AI interpretation은 `AnalysisResult`를 대체하지 않는다. Source result에 연결된 별도 `InterpretationResult`로 취급한다.

@@ -69,6 +69,9 @@ Source file을 다시 parse하지 않고 서버도 필요하지 않다.
 - Report pack ZIP: 브라우저에서 생성하는 package이며 `index.html`,
   `report-pack.json`, `evidence-cards.json`, `incident-timeline.json`,
   `slo-analysis.json`, `service-flow.json`을 포함한다.
+- Report pack provenance: `report-pack.json`은 source result metadata, analyzer
+  option, captured evidence reference, deterministic finding, derived artifact
+  reference, 존재하는 경우 optional AI interpretation provenance를 보존한다.
 
 이는 analyzer finding을 임시로 모아 보고서에 활용하는 현재 기능과 향후
 engine-level report pack workflow 사이의 단기 연결점이다.

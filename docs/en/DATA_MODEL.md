@@ -710,6 +710,28 @@ Current deterministic service-flow finding codes are
 `SERVICE_FLOW_MISSING_PARENT`. The Wails Service Flow page can export a
 Mermaid sequence-like view (`.mmd`) and a JSON `archscope_service_flow` payload.
 
+## Report Pack
+
+The Wails Evidence Board can emit a UI-level report pack before the full engine
+report-pack exporter exists.
+
+```text
+ReportPack
+  type = archscope_report_pack
+  schema_version
+  created_at
+  card_count
+  source_result_count
+  provenance
+  artifacts
+```
+
+`provenance` preserves source result metadata, analyzer options, captured
+evidence cards, deterministic findings, derived artifact references, and
+optional AI interpretation provenance when it exists. `artifacts` currently
+include evidence cards, the exportable `incident_timeline` result, SLO analysis,
+and the Service Flow export payload.
+
 ## AI Interpretation Contract
 
 AI interpretation does not replace `AnalysisResult`. It is a separate `InterpretationResult` linked back to a source result.

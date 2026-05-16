@@ -243,7 +243,8 @@ finding을 확인하고, 근거를 수집하고, 고객 데이터 외부 전송 
   Service Flow artifact를 포함한 report-ready HTML과 ZIP export를 만든다.
   이후 단계에서 PPTX/PDF를 추가할 수 있다.
 - Source metadata, analyzer option, captured evidence, deterministic finding,
-  optional AI interpretation provenance를 보존한다.
+  derived artifact reference, optional AI interpretation provenance를 report
+  pack JSON/HTML에 보존한다.
 - 결론 뒤에 raw evidence를 숨기지 않는 고객-facing summary를 지원한다.
 
 ### AI 보조 해석 제품화

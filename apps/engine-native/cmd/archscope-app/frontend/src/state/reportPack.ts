@@ -10,12 +10,70 @@ export type ReportPackPayload = {
   created_at: string;
   card_count: number;
   source_result_count: number;
+  provenance: ReportPackProvenance;
   artifacts: {
     evidence_cards: EvidenceCard[];
     incident_timeline: ReturnType<typeof buildIncidentTimelineAnalysisResult>;
     slo_analysis: ReturnType<typeof analyzeSloViolationsFromEntries>;
     service_flow: ReturnType<typeof buildServiceFlowExportPayload>;
   };
+};
+
+export type ReportPackProvenance = {
+  generated_at: string;
+  source_results: ReportPackSourceResultProvenance[];
+  captured_evidence: ReportPackCapturedEvidenceProvenance[];
+  deterministic_findings: ReportPackFindingProvenance[];
+  derived_artifacts: Array<{
+    artifact_type: string;
+    schema_version?: string;
+    evidence_refs: string[];
+  }>;
+  ai_interpretation: {
+    present: boolean;
+    sources: Array<{
+      source_result_id: string;
+      source_result_type: string;
+      provider?: string;
+      model?: string;
+      prompt_version?: string;
+      generated_at?: string;
+    }>;
+  };
+};
+
+export type ReportPackSourceResultProvenance = {
+  id: string;
+  title: string;
+  result_type: string;
+  source_files: string[];
+  created_at: string;
+  recorded_at: string;
+  parser?: string;
+  schema_version?: string;
+  analyzer_options?: Record<string, unknown>;
+  summary_preview: Array<{ key: string; value: string }>;
+};
+
+export type ReportPackCapturedEvidenceProvenance = {
+  card_id: string;
+  captured_at: string;
+  analyzer: string;
+  source_kind: string;
+  source_file?: string;
+  source_ref?: string;
+  severity?: string;
+};
+
+export type ReportPackFindingProvenance = {
+  id: string;
+  source_result_id: string;
+  source_result_type: string;
+  severity?: string;
+  code: string;
+  message: string;
+  evidence_refs: string[];
+  evidence?: Record<string, unknown>;
 };
 
 type ZipFile = {
@@ -28,17 +86,25 @@ export function buildReportPackPayload(
   entries: AnalysisWorkspaceEntry[],
 ): ReportPackPayload {
   const serviceFlow = buildServiceFlowAnalysis(entries);
+  const incidentTimeline = buildIncidentTimelineAnalysisResult(entries);
+  const sloAnalysis = analyzeSloViolationsFromEntries(entries);
+  const serviceFlowPayload = buildServiceFlowExportPayload(serviceFlow);
   return {
     type: "archscope_report_pack",
     schema_version: "0.1.0",
     created_at: new Date().toISOString(),
     card_count: cards.length,
     source_result_count: entries.length,
+    provenance: buildReportPackProvenance(cards, entries, {
+      incidentTimeline,
+      sloAnalysis,
+      serviceFlow: serviceFlowPayload,
+    }),
     artifacts: {
       evidence_cards: cards,
-      incident_timeline: buildIncidentTimelineAnalysisResult(entries),
-      slo_analysis: analyzeSloViolationsFromEntries(entries),
-      service_flow: buildServiceFlowExportPayload(serviceFlow),
+      incident_timeline: incidentTimeline,
+      slo_analysis: sloAnalysis,
+      service_flow: serviceFlowPayload,
     },
   };
 }
@@ -115,6 +181,9 @@ export function buildReportPackHTML(payload: ReportPackPayload): string {
   <h2>Evidence Cards</h2>
   ${payload.artifacts.evidence_cards.map(renderEvidenceCard).join("\n") || "<p>No evidence cards collected.</p>"}
 
+  <h2>Provenance</h2>
+  ${renderProvenance(payload.provenance)}
+
   <h2>Incident Timeline Preview</h2>
   ${renderTimelineTable(timeline.tables.events.slice(0, 50))}
 
@@ -125,6 +194,157 @@ export function buildReportPackHTML(payload: ReportPackPayload): string {
   ${renderServiceEdgeTable(serviceFlow.edges.slice(0, 50))}
 </body>
 </html>`;
+}
+
+function buildReportPackProvenance(
+  cards: EvidenceCard[],
+  entries: AnalysisWorkspaceEntry[],
+  artifacts: {
+    incidentTimeline: ReportPackPayload["artifacts"]["incident_timeline"];
+    sloAnalysis: ReportPackPayload["artifacts"]["slo_analysis"];
+    serviceFlow: ReportPackPayload["artifacts"]["service_flow"];
+  },
+): ReportPackProvenance {
+  return {
+    generated_at: new Date().toISOString(),
+    source_results: entries.map(sourceResultProvenance),
+    captured_evidence: cards.map((card) => ({
+      card_id: card.id,
+      captured_at: card.created_at,
+      analyzer: card.analyzer,
+      source_kind: card.source_kind,
+      source_file: card.source_file,
+      source_ref: card.source_ref,
+      severity: card.severity,
+    })),
+    deterministic_findings: [
+      ...entries.flatMap(entryFindings),
+      ...artifacts.sloAnalysis.violations.map((violation) => ({
+        id: violation.id,
+        source_result_id: "slo_analysis",
+        source_result_type: "slo_analysis",
+        severity: violation.severity,
+        code: violation.target_id,
+        message: violation.target_name,
+        evidence_refs: violation.evidence_refs,
+        evidence: {
+          metric: violation.metric_name,
+          actual: violation.actual,
+          threshold: violation.threshold,
+          affected_scope: violation.affected_scope,
+        },
+      })),
+      ...artifacts.serviceFlow.findings.map((finding) => ({
+        id: finding.id,
+        source_result_id: "service_flow",
+        source_result_type: "service_flow",
+        severity: finding.severity,
+        code: finding.code,
+        message: finding.message,
+        evidence_refs: finding.evidence_refs,
+        evidence: finding.payload,
+      })),
+    ],
+    derived_artifacts: [
+      {
+        artifact_type: artifacts.incidentTimeline.type,
+        schema_version: artifacts.incidentTimeline.metadata.schema_version,
+        evidence_refs: uniqueStrings(artifacts.incidentTimeline.tables.events.map((event) => event.evidence_ref)),
+      },
+      {
+        artifact_type: "slo_analysis",
+        evidence_refs: uniqueStrings(artifacts.sloAnalysis.violations.flatMap((violation) => violation.evidence_refs)),
+      },
+      {
+        artifact_type: artifacts.serviceFlow.type,
+        schema_version: artifacts.serviceFlow.schema_version,
+        evidence_refs: uniqueStrings(artifacts.serviceFlow.findings.flatMap((finding) => finding.evidence_refs)),
+      },
+    ],
+    ai_interpretation: collectAIInterpretationProvenance(entries),
+  };
+}
+
+function sourceResultProvenance(entry: AnalysisWorkspaceEntry): ReportPackSourceResultProvenance {
+  const metadata = objectOrEmpty(entry.result.metadata);
+  return {
+    id: entry.id,
+    title: entry.title,
+    result_type: entry.result_type,
+    source_files: entry.source_files,
+    created_at: entry.created_at,
+    recorded_at: entry.recorded_at,
+    parser: stringValue(metadata.parser),
+    schema_version: stringValue(metadata.schema_version),
+    analyzer_options: objectOrUndefined(metadata.analysis_options),
+    summary_preview: entry.summary_preview,
+  };
+}
+
+function entryFindings(entry: AnalysisWorkspaceEntry): ReportPackFindingProvenance[] {
+  return arrayOfObjects(entry.result.metadata?.findings).map((finding, index) => {
+    const code = stringValue(finding.code) || "FINDING";
+    const evidenceRef = stringValue(finding.evidence_ref);
+    return {
+      id: `${entry.id}-finding-${code || index}`,
+      source_result_id: entry.id,
+      source_result_type: entry.result_type,
+      severity: stringValue(finding.severity),
+      code,
+      message: stringValue(finding.message) || code,
+      evidence_refs: evidenceRef ? [evidenceRef] : [],
+      evidence: objectOrUndefined(finding.evidence),
+    };
+  });
+}
+
+function collectAIInterpretationProvenance(
+  entries: AnalysisWorkspaceEntry[],
+): ReportPackProvenance["ai_interpretation"] {
+  const sources = entries.flatMap((entry) => {
+    const metadata = objectOrEmpty(entry.result.metadata);
+    const candidates = [
+      objectOrUndefined(metadata.ai_interpretation),
+      objectOrUndefined(metadata.interpretation),
+      objectOrUndefined(metadata.ai_provenance),
+    ].filter((value): value is Record<string, unknown> => value !== undefined);
+    return candidates.map((candidate) => ({
+      source_result_id: entry.id,
+      source_result_type: entry.result_type,
+      provider: stringValue(candidate.provider),
+      model: stringValue(candidate.model),
+      prompt_version: stringValue(candidate.prompt_version),
+      generated_at: stringValue(candidate.generated_at),
+    }));
+  });
+  return {
+    present: sources.length > 0,
+    sources,
+  };
+}
+
+function renderProvenance(provenance: ReportPackProvenance): string {
+  return `<section>
+    <div class="grid">
+      <div class="metric"><span>Source results</span><strong>${provenance.source_results.length.toLocaleString()}</strong></div>
+      <div class="metric"><span>Captured evidence</span><strong>${provenance.captured_evidence.length.toLocaleString()}</strong></div>
+      <div class="metric"><span>Deterministic findings</span><strong>${provenance.deterministic_findings.length.toLocaleString()}</strong></div>
+      <div class="metric"><span>AI provenance</span><strong>${provenance.ai_interpretation.present ? "Present" : "None"}</strong></div>
+    </div>
+    ${renderSourceResultTable(provenance.source_results)}
+  </section>`;
+}
+
+function renderSourceResultTable(results: ReportPackSourceResultProvenance[]): string {
+  if (results.length === 0) return "<p>No source results in this session.</p>";
+  return `<table><thead><tr><th>Type</th><th>Title</th><th>Parser</th><th>Sources</th></tr></thead><tbody>${results
+    .map(
+      (result) =>
+        `<tr><td>${escapeHTML(result.result_type)}</td><td>${escapeHTML(result.title)}</td><td>${escapeHTML(
+          result.parser ?? "-",
+        )}</td><td>${escapeHTML(result.source_files.join(", ") || "-")}</td></tr>`,
+    )
+    .join("")}</tbody></table>`;
 }
 
 function renderEvidenceCard(card: EvidenceCard): string {
@@ -288,6 +508,34 @@ function byteLength(parts: Uint8Array[]): number {
 
 function blobParts(parts: Uint8Array[]): BlobPart[] {
   return parts.map((part) => part.buffer.slice(part.byteOffset, part.byteOffset + part.byteLength) as ArrayBuffer);
+}
+
+function arrayOfObjects(value: unknown): Record<string, unknown>[] {
+  return Array.isArray(value)
+    ? value.filter((item): item is Record<string, unknown> => isPlainObject(item))
+    : [];
+}
+
+function objectOrEmpty(value: unknown): Record<string, unknown> {
+  return isPlainObject(value) ? value : {};
+}
+
+function objectOrUndefined(value: unknown): Record<string, unknown> | undefined {
+  return isPlainObject(value) ? value : undefined;
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function stringValue(value: unknown): string | undefined {
+  if (typeof value === "string") return value || undefined;
+  if (typeof value === "number" || typeof value === "boolean") return String(value);
+  return undefined;
+}
+
+function uniqueStrings(values: string[]): string[] {
+  return Array.from(new Set(values.filter(Boolean))).sort((left, right) => left.localeCompare(right));
 }
 
 function downloadBlob(content: string | Blob, filename: string, type: string): void {

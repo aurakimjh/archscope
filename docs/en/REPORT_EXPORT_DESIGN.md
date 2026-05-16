@@ -71,6 +71,10 @@ re-parse source files and does not require a server:
 - Report pack ZIP: a browser-generated package containing `index.html`,
   `report-pack.json`, `evidence-cards.json`, `incident-timeline.json`,
   `slo-analysis.json`, and `service-flow.json`.
+- Report pack provenance: `report-pack.json` preserves source result metadata,
+  analyzer options, captured evidence references, deterministic findings,
+  derived artifact references, and optional AI interpretation provenance when
+  present.
 
 This is the short-term bridge between ad-hoc analyzer findings and the planned
 engine-level report pack workflow.

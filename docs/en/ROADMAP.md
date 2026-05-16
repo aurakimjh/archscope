@@ -249,7 +249,8 @@ These items should stay aligned with `work_status.md`.
   including session-derived Incident Timeline, SLO, and Service Flow artifacts.
   Later phases may add PPTX/PDF.
 - Preserve source metadata, analyzer options, captured evidence, deterministic
-  findings, and optional AI interpretation provenance.
+  findings, derived artifact references, and optional AI interpretation
+  provenance in report pack JSON/HTML.
 - Support customer-facing summaries without hiding the raw evidence behind
   conclusions.
 
