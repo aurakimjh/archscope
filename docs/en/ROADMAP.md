@@ -259,7 +259,9 @@ These items should stay aligned with `work_status.md`.
 
 ### AI Interpretation Productization
 
-- Surface AI interpretation provenance in the UI.
+- Surface AI interpretation provenance in the UI. The Analysis Workspace now
+  shows provider/model/prompt metadata when a result carries AI interpretation
+  metadata.
 - Keep AI findings visually separate from deterministic findings.
 - Add evaluation gates using golden diagnostics, evidence-reference integrity,
   quote-to-source matching, low-confidence filtering, and hallucination review.

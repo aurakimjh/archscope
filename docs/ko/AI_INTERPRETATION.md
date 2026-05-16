@@ -64,6 +64,12 @@ AI interpretation은 `AnalysisResult`를 대체하지 않고 별도 `Interpretat
 
 향후 analyzer result가 `metadata.ai_interpretation`에 AI output을 포함하면 Go/Wails service boundary가 동일한 contract를 검증하고 불일치 시 compatibility warning을 표시해야 한다. 기존 FastAPI/browser 경로는 archive 보관용이며 historical parity 확인 시에만 이 contract를 따른다.
 
+Wails Analysis Workspace는 result에 `metadata.ai_interpretation`,
+`metadata.interpretation`, `metadata.ai_provenance` 중 하나가 있으면 AI
+interpretation provenance를 표시한다. UI는 provider, model, prompt version,
+generated time, disabled state, finding count, 기본 compatibility warning을
+노출하되 AI output을 deterministic analyzer finding과 섞지 않는다.
+
 ## Runtime Enforcement
 
 현재 구현은 `apps/engine-native/internal/aiinterpretation` 아래에

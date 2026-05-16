@@ -225,7 +225,7 @@ filtered before analysis.
 | T-445 | P1 | [x] | Generate report-ready HTML, ZIP, and later PPTX/PDF outputs from Evidence Board content. | T-423, T-434 preferred | Completed 2026-05-16: Evidence Board report pack HTML/ZIP export with session artifacts |
 | T-446 | P1 | [x] | Preserve source metadata, analyzer options, captured evidence, deterministic findings, and optional AI interpretation provenance in report packs. | T-445 | Completed 2026-05-16: report pack provenance contract for source results, evidence, findings, derived artifacts, and AI provenance |
 | T-447 | P2 | [x] | Support customer-facing summaries without hiding raw evidence behind conclusions. | T-445, T-446 | Completed 2026-05-16: evidence-linked customer summary with raw evidence appendix |
-| T-448 | P2 | [ ] | Surface AI interpretation provenance in the UI. | AI interpretation module, T-425 | Planned: visible AI provenance controls |
+| T-448 | P2 | [x] | Surface AI interpretation provenance in the UI. | AI interpretation module, T-425 | Completed 2026-05-16: Analysis Workspace AI provenance status with provider/model/prompt metadata |
 | T-449 | P2 | [ ] | Keep AI findings visually separate from deterministic findings. | T-448 | Planned: deterministic vs AI finding presentation split |
 | T-450 | P1 | [ ] | Add AI evaluation gates using golden diagnostics, evidence-reference integrity, quote-to-source matching, low-confidence filtering, and hallucination review. | T-448, T-449 | Planned: AI interpretation quality gate |
 | T-451 | P1 | [ ] | Connect AI interpretation to Evidence Board and report generation only when every generated claim has valid evidence references. | T-446, T-450 | Planned: evidence-gated AI report integration |
@@ -364,6 +364,10 @@ filtered before analysis.
   `npm run build`. Startup shell chunk is 161.45 KB raw / 52.07 KB gzip; the
   Evidence Board page is a lazy 17.92 KB raw / 5.63 KB gzip route chunk, and
   the lazy shared ECharts runtime remains 689.89 KB raw / 229.50 KB gzip.
+- 2026-05-16 Wails frontend verification passed after T-448:
+  `npm run build`. Startup shell chunk is 161.45 KB raw / 52.07 KB gzip; the
+  Analysis Workspace page is a lazy 6.14 KB raw / 2.21 KB gzip route chunk,
+  and the lazy shared ECharts runtime remains 689.89 KB raw / 229.49 KB gzip.
 
 ## Decisions
 

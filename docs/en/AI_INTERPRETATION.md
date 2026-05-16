@@ -64,6 +64,12 @@ AI interpretation is transported as a separate `InterpretationResult`, not as a 
 
 If an analyzer result later embeds AI output under `metadata.ai_interpretation`, the Go/Wails service boundary must validate this same contract and surface compatibility warnings when it does not match. The former FastAPI/browser path is archived and should follow this contract only for historical parity checks.
 
+The Wails Analysis Workspace surfaces AI interpretation provenance when a result
+contains `metadata.ai_interpretation`, `metadata.interpretation`, or
+`metadata.ai_provenance`. The UI exposes provider, model, prompt version,
+generation time, disabled state, finding count, and basic compatibility
+warnings without merging AI output into deterministic analyzer findings.
+
 ## Runtime Enforcement
 
 The active implementation includes code-level guardrails under
