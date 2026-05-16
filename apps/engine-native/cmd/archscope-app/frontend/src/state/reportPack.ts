@@ -641,13 +641,44 @@ function renderServiceEdgeTable(edges: ReportPackPayload["artifacts"]["service_f
     .join("")}</tbody></table>`;
 }
 
+export function normalizeZipEntryPath(path: string): string {
+  const raw = path.trim();
+  if (!raw || raw.includes("\0")) {
+    throw new Error("ZIP entry path must be a non-empty relative path");
+  }
+  if (/^[A-Za-z]:/.test(raw) || raw.startsWith("/") || raw.startsWith("\\") || raw.startsWith("//")) {
+    throw new Error(`Unsafe ZIP entry path: ${path}`);
+  }
+  const normalized = raw.replace(/\\/g, "/");
+  if (normalized.startsWith("/") || normalized.startsWith("//")) {
+    throw new Error(`Unsafe ZIP entry path: ${path}`);
+  }
+  const parts = normalized.split("/");
+  if (
+    parts.length === 0 ||
+    parts.some((part) => {
+      const lowered = part.toLowerCase();
+      return !part || part === "." || part === ".." || lowered === "%2e" || lowered === "%2e%2e";
+    })
+  ) {
+    throw new Error(`Unsafe ZIP entry path: ${path}`);
+  }
+  return parts.join("/");
+}
+
 function buildStoredZip(files: ZipFile[]): Blob {
   const encoder = new TextEncoder();
   const localParts: Uint8Array[] = [];
   const centralParts: Uint8Array[] = [];
+  const seen = new Set<string>();
   let offset = 0;
   for (const file of files) {
-    const nameBytes = encoder.encode(file.path);
+    const entryPath = normalizeZipEntryPath(file.path);
+    if (seen.has(entryPath)) {
+      throw new Error(`Duplicate ZIP entry path: ${entryPath}`);
+    }
+    seen.add(entryPath);
+    const nameBytes = encoder.encode(entryPath);
     const contentBytes = encoder.encode(file.content);
     const crc = crc32(contentBytes);
     const local = buildLocalHeader(nameBytes, contentBytes, crc);
@@ -656,7 +687,7 @@ function buildStoredZip(files: ZipFile[]): Blob {
     offset += local.byteLength + contentBytes.byteLength;
   }
   const centralSize = byteLength(centralParts);
-  const end = buildEndRecord(files.length, centralSize, offset);
+  const end = buildEndRecord(seen.size, centralSize, offset);
   return new Blob(blobParts([...localParts, ...centralParts, end]), { type: "application/zip" });
 }
 
