@@ -767,6 +767,9 @@ function signalsFromEntry(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
     case "stitched_evidence":
       signals = signalsFromStitchedEvidence(entry);
       break;
+    case "api_contract_analysis":
+      signals = signalsFromApiContract(entry);
+      break;
     case "jfr_recording":
       signals = signalsFromJfr(entry);
       break;
@@ -1344,6 +1347,26 @@ function signalsFromStitchedEvidence(entry: AnalysisWorkspaceEntry): GoldenSigna
     scopeType: "runtime",
   });
   addSummary(out, entry, "unmatched_broker_event_count", "Unmatched broker events", "errors", "count", "count", {
+    scopeType: "runtime",
+  });
+  return out;
+}
+
+function signalsFromApiContract(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
+  const out: GoldenSignal[] = [];
+  addSummary(out, entry, "undocumented_route_count", "Undocumented API routes", "errors", "count", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "unused_operation_count", "Unused API operations", "traffic", "count", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "slow_operation_count", "Slow API operations", "latency", "count", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "high_error_operation_count", "High-error API operations", "errors", "count", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "undocumented_event_channel_count", "Undocumented event channels", "errors", "count", "count", {
     scopeType: "runtime",
   });
   return out;

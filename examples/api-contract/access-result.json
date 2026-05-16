@@ -1,0 +1,15 @@
+{
+  "type": "access_log",
+  "source_files": ["access.log"],
+  "created_at": "2026-05-17T00:00:00Z",
+  "summary": {},
+  "series": {},
+  "tables": {
+    "url_stats": [
+      { "method": "GET", "uri": "/orders/1001", "count": 42, "p95_response_ms": 1200, "error_rate": 0.08 },
+      { "method": "GET", "uri": "/internal/debug", "count": 3, "p95_response_ms": 15, "error_rate": 0 }
+    ]
+  },
+  "charts": {},
+  "metadata": {}
+}

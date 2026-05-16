@@ -509,6 +509,33 @@ Gap finding code는 `MISSING_TRACE_ID`, `DROPPED_PARENT_SPAN`,
 `UNMATCHED_REQUEST_LOG`, `UNMATCHED_DATABASE_CALL`, `UNMATCHED_BROKER_EVENT`를
 포함한다.
 
+### API 및 Event Contract Analysis
+
+`type`: `api_contract_analysis`
+
+API contract analysis는 OpenAPI operation을 access-log `AnalysisResult` table과
+대조하고, AsyncAPI channel을 broker evidence와 대조한다. 원본 log를 다시
+parsing하지 않는 second-pass analyzer이며, `api-contract analyze`가 기존 result
+JSON 파일과 contract spec을 읽는다.
+
+핵심 table:
+
+| Field | Row shape |
+|---|---|
+| `operations` | observed count, matched route ref, max p95 latency, max error rate를 가진 OpenAPI operation row |
+| `observed_routes` | path template으로 정규화한 access-log route |
+| `undocumented_routes` | OpenAPI와 match되지 않은 observed route |
+| `unused_operations` | access log에서 관측되지 않은 OpenAPI operation |
+| `slow_operations` | 설정한 latency threshold를 넘은 observed route |
+| `high_error_operations` | 설정한 error-rate threshold를 넘은 observed route |
+| `event_channels` | observed broker evidence ref를 가진 AsyncAPI channel row |
+| `undocumented_event_channels` | AsyncAPI에 문서화되지 않은 broker channel |
+| `unused_event_channels` | broker evidence에서 관측되지 않은 AsyncAPI channel |
+
+Finding code는 `UNDOCUMENTED_API_ROUTE`, `UNUSED_API_OPERATION`,
+`SLOW_API_OPERATION`, `HIGH_ERROR_API_OPERATION`,
+`UNDOCUMENTED_EVENT_CHANNEL`, `UNUSED_EVENT_CHANNEL`을 포함한다.
+
 ### Profiler Collapsed Result
 
 `type`: `profiler_collapsed`

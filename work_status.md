@@ -381,6 +381,25 @@ filtered before analysis.
 | T-534 | P2 | [x] | Route continuous-profiling snapshots through the existing flamegraph analyzer, Evidence Board capture, and report-pack export paths. | T-532, T-533, T-528 | Completed 2026-05-16: continuous profile snapshots roll up through `profile_evidence` flamegraph charts, findings, Golden Signals, and generic report-pack capture |
 | T-535 | P3 | [x] | Track the OpenTelemetry Profiles signal lifecycle and add a decision note for when OTLP Profiles should move from long-term radar to active ingestion work. | T-520 | Completed 2026-05-16: added English/Korean OTLP Profiles decision notes with activation criteria |
 | T-536 | P2 | [x] | Keep English/Korean roadmap, data-model notes, examples, and importer support matrices current as Mid-Term Plus tasks are implemented. | T-468 through T-535 | Completed 2026-05-16: updated data model/parser docs, examples, and English/Korean importer support matrices |
+| T-537 | P1 | [x] | Add OpenAPI import for endpoint/method/operation metadata and expose it through the common parser/analyzer boundary. | T-536, T-470 | Completed 2026-05-17: OpenAPI JSON and conservative YAML subset import into `api_contract_analysis` operations |
+| T-538 | P1 | [x] | Compare OpenAPI operations with access-log evidence to identify observed, undocumented, and unused API surfaces. | T-537, access-log evidence | Completed 2026-05-17: access-log result tables are normalized to route templates and compared with OpenAPI operations |
+| T-539 | P1 | [x] | Detect slow and high-error APIs by combining API contract matches with access-log latency/error evidence. | T-538 | Completed 2026-05-17: slow/high-error operation tables and findings use configurable latency/error thresholds |
+| T-540 | P2 | [x] | Add AsyncAPI import for channel, direction, operation, and message metadata. | T-536, broker evidence | Completed 2026-05-17: AsyncAPI JSON and conservative YAML subset import channel and message metadata |
+| T-541 | P2 | [x] | Compare AsyncAPI channels with broker/event evidence to find undocumented and unused event channels. | T-540, T-513 | Completed 2026-05-17: broker result tables are matched to AsyncAPI channels with undocumented/unused channel findings |
+| T-542 | P2 | [x] | Surface API/event contract findings in Incident Timeline, SLO/Golden Signals, Evidence Board, examples, and support docs. | T-537 through T-541 | Completed 2026-05-17: API contract summaries feed Golden Signals, findings/tables feed generic Evidence Board/report paths, and key findings feed Incident Timeline |
+| T-543 | P1 | [ ] | Define the architecture-documentation `AnalysisResult` contract for arc42 Context, Runtime View, Deployment View, Quality Requirements, Risks, and ADR draft sections. | T-536 |  |
+| T-544 | P1 | [ ] | Generate arc42 Context and System Scope draft inputs from service-flow, API contract, and stitched evidence. | T-543, T-542, T-531 |  |
+| T-545 | P1 | [ ] | Generate Runtime View draft inputs from Incident Timeline, trace, broker, database, and stitched evidence. | T-543, T-531 |  |
+| T-546 | P2 | [ ] | Generate Deployment View draft inputs from Kubernetes/platform, cloud audit, host/container, and service metadata evidence. | T-543, T-519 |  |
+| T-547 | P1 | [ ] | Generate Quality Requirement and Risk sections from deterministic findings across latency, errors, saturation, security, and correlation gaps. | T-543, T-542, T-531 |  |
+| T-548 | P2 | [ ] | Add ADR draft rows with decision, context, alternatives, tradeoffs, consequences, and evidence references. | T-543, architecture evidence |  |
+| T-549 | P1 | [ ] | Enhance evidence stitching with timestamp-window matching so nearby records can correlate even when only request/service identity is shared. | T-529 |  |
+| T-550 | P1 | [ ] | Add service alias normalization for gateway, database, broker, Kubernetes workload, and application naming variants in stitched evidence. | T-549, T-531 |  |
+| T-551 | P2 | [ ] | Add trace-profile linkage by joining profile evidence with trace/service/runtime labels when correlation metadata is present. | T-549, T-528 |  |
+| T-552 | P2 | [ ] | Add stitched drilldown tables for match confidence, time-window reason, alias reason, and raw evidence references. | T-549, T-550, T-551 |  |
+| T-553 | P2 | [ ] | Surface advanced stitched-evidence signals in Incident Timeline, Service Flow, and Golden Signals. | T-552 |  |
+| T-554 | P2 | [ ] | Add a stitched-evidence detail view or drilldown-ready state projection for the desktop UI. | T-552 |  |
+| T-555 | P2 | [ ] | Update English/Korean docs, examples, and support matrix for architecture docs and advanced stitching work. | T-543 through T-554 |  |
 
 ## Verification Notes
 

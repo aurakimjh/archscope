@@ -262,6 +262,9 @@ function eventsFromEntry(entry: AnalysisWorkspaceEntry): IncidentTimelineEvent[]
     case "stitched_evidence":
       events.push(...eventsFromStitchedEvidence(entry));
       break;
+    case "api_contract_analysis":
+      events.push(...eventsFromApiContract(entry));
+      break;
   }
   return uniqueEvents(events).slice(0, MAX_EVENTS_PER_RESULT);
 }
@@ -447,6 +450,43 @@ function eventsFromStitchedEvidence(entry: AnalysisWorkspaceEntry): IncidentTime
     }),
   );
   return [...gaps, ...matches];
+}
+
+function eventsFromApiContract(entry: AnalysisWorkspaceEntry): IncidentTimelineEvent[] {
+  const slow = arrayOfObjects(entry.result.tables?.slow_operations).map((row, index) =>
+    makeEvent(entry, {
+      idSuffix: `api-slow-${stringValue(row.method)}-${stringValue(row.path) || index}`,
+      severity: "warning",
+      category: "slow_api_operation",
+      label: "SLOW_API_OPERATION",
+      description: `${stringValue(row.method) || "ANY"} ${stringValue(row.path) || stringValue(row.normalized_path) || "route"} exceeded the latency threshold.`,
+      evidenceRef: stringValue(row.evidence_ref) || "tables.slow_operations",
+      payload: row,
+    }),
+  );
+  const highError = arrayOfObjects(entry.result.tables?.high_error_operations).map((row, index) =>
+    makeEvent(entry, {
+      idSuffix: `api-error-${stringValue(row.method)}-${stringValue(row.path) || index}`,
+      severity: "critical",
+      category: "high_error_api_operation",
+      label: "HIGH_ERROR_API_OPERATION",
+      description: `${stringValue(row.method) || "ANY"} ${stringValue(row.path) || stringValue(row.normalized_path) || "route"} exceeded the error-rate threshold.`,
+      evidenceRef: stringValue(row.evidence_ref) || "tables.high_error_operations",
+      payload: row,
+    }),
+  );
+  const undocumented = arrayOfObjects(entry.result.tables?.undocumented_routes).map((row, index) =>
+    makeEvent(entry, {
+      idSuffix: `api-undocumented-${stringValue(row.method)}-${stringValue(row.path) || index}`,
+      severity: "warning",
+      category: "undocumented_api_route",
+      label: "UNDOCUMENTED_API_ROUTE",
+      description: `${stringValue(row.method) || "ANY"} ${stringValue(row.path) || "route"} is observed but not documented in OpenAPI.`,
+      evidenceRef: stringValue(row.evidence_ref) || "tables.undocumented_routes",
+      payload: row,
+    }),
+  );
+  return [...highError, ...slow, ...undocumented];
 }
 
 function eventsFromJfr(entry: AnalysisWorkspaceEntry): IncidentTimelineEvent[] {

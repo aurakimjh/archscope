@@ -292,6 +292,29 @@ assert(
   "profile evidence should feed Golden Signals",
 );
 
+const apiContract = entry("api-contract-1", "api_contract_analysis", {
+  summary: {
+    undocumented_route_count: 1,
+    unused_operation_count: 1,
+    slow_operation_count: 1,
+    high_error_operation_count: 1,
+    undocumented_event_channel_count: 1,
+  },
+  tables: {
+    slow_operations: [{ method: "GET", path: "/orders/1001", evidence_ref: "tables.observed_routes[0]" }],
+    high_error_operations: [{ method: "GET", path: "/orders/1001", evidence_ref: "tables.observed_routes[0]" }],
+    undocumented_routes: [{ method: "GET", path: "/internal/debug", evidence_ref: "tables.observed_routes[1]" }],
+  },
+});
+assert(
+  buildIncidentTimelineEvents([apiContract]).some((event) => event.label === "HIGH_ERROR_API_OPERATION"),
+  "API contract findings should feed Incident Timeline",
+);
+assert(
+  buildGoldenSignalInventory([apiContract]).signals.some((signal) => signal.name === "Undocumented API routes"),
+  "API contract summaries should feed Golden Signals",
+);
+
 const stitched = entry("stitched-1", "stitched_evidence", {
   tables: {
     gaps: [{ code: "UNMATCHED_DATABASE_CALL", severity: "warning", message: "db call unmatched", timestamp: "2026-05-16T10:00:00Z" }],

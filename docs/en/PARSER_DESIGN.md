@@ -48,6 +48,15 @@ builds match groups, and emits correlation-gap findings for missing trace IDs,
 dropped parent spans, unmatched request logs, unmatched database calls, and
 unmatched broker events.
 
+## API And Event Contract Parser
+
+`api-contract analyze` accepts OpenAPI and AsyncAPI JSON, plus a conservative
+YAML subset that covers `paths`, HTTP method objects, `operationId`, `summary`,
+`tags`, `channels`, `publish`, `subscribe`, and message names. The analyzer
+compares OpenAPI operations to access-log result tables and AsyncAPI channels
+to broker result tables, then emits deterministic findings for undocumented,
+unused, slow, and high-error API/event surfaces.
+
 ## Access Log Parser
 
 Access-log parsing keeps the legacy NGINX/common/combined path compatible while

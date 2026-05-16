@@ -367,6 +367,33 @@ Gap finding codes include `MISSING_TRACE_ID`, `DROPPED_PARENT_SPAN`,
 `UNMATCHED_REQUEST_LOG`, `UNMATCHED_DATABASE_CALL`, and
 `UNMATCHED_BROKER_EVENT`.
 
+### API And Event Contract Analysis
+
+`type`: `api_contract_analysis`
+
+API contract analysis compares OpenAPI operations with access-log
+`AnalysisResult` tables and AsyncAPI channels with broker evidence. It is a
+second-pass analyzer: the raw logs are parsed by the access/broker importers,
+then `api-contract analyze` reads the result JSON files and contract specs.
+
+Core tables:
+
+| Field | Row shape |
+|---|---|
+| `operations` | OpenAPI operation rows with observed count, matched route refs, max p95 latency, and max error rate |
+| `observed_routes` | Access-log routes normalized to path templates |
+| `undocumented_routes` | Observed routes that did not match OpenAPI |
+| `unused_operations` | OpenAPI operations not observed in access logs |
+| `slow_operations` | Observed routes above the configured latency threshold |
+| `high_error_operations` | Observed routes above the configured error-rate threshold |
+| `event_channels` | AsyncAPI channel rows with observed broker evidence refs |
+| `undocumented_event_channels` | Broker channels not documented in AsyncAPI |
+| `unused_event_channels` | AsyncAPI channels not observed in broker evidence |
+
+Finding codes include `UNDOCUMENTED_API_ROUTE`, `UNUSED_API_OPERATION`,
+`SLOW_API_OPERATION`, `HIGH_ERROR_API_OPERATION`,
+`UNDOCUMENTED_EVENT_CHANNEL`, and `UNUSED_EVENT_CHANNEL`.
+
 ### Profiler Collapsed Result
 
 `type`: `profiler_collapsed`

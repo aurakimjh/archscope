@@ -203,6 +203,16 @@ type StitchedEvidenceRequest struct {
 	TopN  int      `json:"topN,omitempty"`
 }
 
+type ApiContractRequest struct {
+	OpenAPIPath        string  `json:"openapiPath,omitempty"`
+	AccessResultPath   string  `json:"accessResultPath,omitempty"`
+	AsyncAPIPath       string  `json:"asyncapiPath,omitempty"`
+	BrokerResultPath   string  `json:"brokerResultPath,omitempty"`
+	TopN               int     `json:"topN,omitempty"`
+	SlowThresholdMS    float64 `json:"slowThresholdMs,omitempty"`
+	ErrorRateThreshold float64 `json:"errorRateThreshold,omitempty"`
+}
+
 // TraceImportRequest mirrors traceimport.Options + a Path.
 type TraceImportRequest struct {
 	Path   string `json:"path"`
@@ -512,6 +522,21 @@ func (s *EngineService) AnalyzeStitchedEvidence(req StitchedEvidenceRequest) (en
 		return engineapi.AnalysisResult{}, fmt.Errorf("paths are required")
 	}
 	return engineapi.AnalyzeStitchedEvidence(req.Paths, engineapi.StitchingOptions{TopN: req.TopN})
+}
+
+func (s *EngineService) AnalyzeApiContract(req ApiContractRequest) (engineapi.AnalysisResult, error) {
+	if strings.TrimSpace(req.OpenAPIPath) == "" && strings.TrimSpace(req.AsyncAPIPath) == "" {
+		return engineapi.AnalysisResult{}, fmt.Errorf("openapiPath or asyncapiPath is required")
+	}
+	return engineapi.AnalyzeApiContract(engineapi.ApiContractOptions{
+		OpenAPIPath:        req.OpenAPIPath,
+		AccessResultPath:   req.AccessResultPath,
+		AsyncAPIPath:       req.AsyncAPIPath,
+		BrokerResultPath:   req.BrokerResultPath,
+		TopN:               req.TopN,
+		SlowThresholdMS:    req.SlowThresholdMS,
+		ErrorRateThreshold: req.ErrorRateThreshold,
+	})
 }
 
 // AnalyzeTraceImport wraps engineapi.AnalyzeTraceImport.

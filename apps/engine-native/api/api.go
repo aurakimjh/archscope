@@ -71,6 +71,7 @@ package api
 
 import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/accesslog"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/apicontract"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/brokerlog"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/databaselog"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/exception"
@@ -244,6 +245,12 @@ var AnalyzeProfileEvidence = profileevidence.Analyze
 type StitchingOptions = stitching.Options
 
 var AnalyzeStitchedEvidence = stitching.AnalyzeFiles
+
+// ── API and event contract analysis ─────────────────────────────────
+
+type ApiContractOptions = apicontract.Options
+
+var AnalyzeApiContract = apicontract.Analyze
 
 // ── External trace import ───────────────────────────────────────────
 

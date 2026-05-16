@@ -1,0 +1,12 @@
+{
+  "asyncapi": "2.6.0",
+  "info": { "title": "Orders Events", "version": "1.0.0" },
+  "channels": {
+    "orders.created": {
+      "publish": {
+        "operationId": "publishOrderCreated",
+        "message": { "name": "OrderCreated" }
+      }
+    }
+  }
+}

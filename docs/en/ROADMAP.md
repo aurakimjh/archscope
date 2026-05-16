@@ -408,6 +408,10 @@ report packs, and AI productization.
   contract drift.
 - Import AsyncAPI definitions and analyze Kafka, RabbitMQ, WebSocket, or other
   producer/consumer flows where evidence is available.
+- Current implementation status: `api-contract analyze` emits
+  `api_contract_analysis` from OpenAPI/AsyncAPI specs and access-log/broker
+  result JSON files, including undocumented, unused, slow, and high-error
+  findings.
 
 ### Architecture Documentation Pack
 
