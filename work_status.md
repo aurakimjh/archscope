@@ -14,11 +14,11 @@ The previous long-form history was archived to
   `apps/engine-native/cmd/archscope-app/frontend`.
 - Active engine: Go parser/analyzer/exporter/AI interpretation modules under
   `apps/engine-native/internal`.
-- Release baseline: preparing `v0.3.4` as the latest stable GitHub release. The
+- Release baseline: `v0.3.4` is the latest stable GitHub release. The
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
-- Current execution focus: `v0.3.4` release verification and publication after
-  completing the 2026-05-16 mid-term roadmap stabilization tasks.
+- Current execution focus: promote the Mid-Term Roadmap Plus file-first
+  evidence expansion into an executable, prioritized TO-DO backlog.
 - Retired implementation: Python/FastAPI/browser sources are archived under
   `archive/python-engine` and `archive/web-frontend-python`.
 - Historical native POC module has been folded into `apps/engine-native`.
@@ -118,6 +118,9 @@ The previous long-form history was archived to
   capture, Mermaid sequence-like export, and JSON export.
 - Prepared the stable `v0.3.3` desktop release with updated app/package
   metadata, changelog notes, and 0.3.x Evidence Studio release scope.
+- Published the stable `v0.3.4` desktop release with Incident Timeline mapping
+  fixes, AI gate hardening, SLO unit/deduplication fixes, report-pack ZIP path
+  sanitization, derived export alignment, and frontend state regression tests.
 
 ## Current Risk
 
@@ -180,22 +183,20 @@ filtered before analysis.
 
 ## Next Execution Queue
 
-1. Execute the accepted P0 findings from the 2026-05-16 mid-term roadmap
-   review before any external demo: Incident Timeline mapping, AI gate
-   enforcement, privacy redaction, SLO unit accuracy, signal deduplication,
-   and report-pack ZIP safety.
-2. Restore the architecture guardrails incrementally by moving the simplest
-   derived workflow, Service Flow, toward a Go analyzer/exportable
-   `AnalysisResult` pattern first, then use that pattern for Incident Timeline
-   and SLO projections.
-3. Add deterministic export/test coverage around the 0.3.4 stabilization work
-   so timeline, SLO, service-flow, report-pack, and AI-gate regressions are
-   caught before the next release.
-4. Keep release verification healthy before the next 0.3.x cut by repeating
-   Windows GUI smoke, macOS signing/notarization validation, and frontend
-   bundle budget checks.
-5. Keep Jaeger and SkyWalking compatibility fixtures representative as real
-   customer exports become available.
+1. Ship `v0.3.5` after the Mid-Term Roadmap Plus shared ingestion foundations
+   are in place: source-format registry, parser diagnostics, fixtures, source
+   metadata, and cross-source correlation keys.
+2. Ship `v0.3.6` after the first user-visible access/edge log coverage wave
+   lands, because it already has a mature `AnalysisResult`, SLO, Incident
+   Timeline, and report path.
+3. Continue one release per evidence family through server logs, OpenTelemetry
+   Logs, database slow-query evidence, broker logs, Kubernetes/cloud evidence,
+   and multi-language profiling.
+4. Reserve `v0.4.0` for the completed Mid-Term Plus roll-up after cross-source
+   evidence stitching and continuous-profiling imports have stabilized.
+5. Keep release verification healthy before each release cut by repeating
+   Windows GUI smoke, macOS signing/notarization validation, frontend bundle
+   budget checks, and representative real-export fixture updates.
 
 ## Review Intake Decisions
 
@@ -210,6 +211,37 @@ filtered before analysis.
 | P2 determinism, timestamp, runtime-stack, testing, shared utility, Mermaid, narrative sorting, and dedupe issues | Accepted and grouped by risk/dependency | T-464 through T-467 |
 | Full immediate migration of all Wails state projections to Go analyzers | Deferred as too broad for one patch; start with Service Flow and migrate the remaining projections after the contract pattern is proven | T-458, T-459 |
 | Korean PII allow-list coverage | Accepted as a review point inside the privacy hardening task; exact rule set needs implementation-time examples | T-454 |
+
+## Mid-Term Plus Intake Plan
+
+| Classification | Priority | TO-DO range | Target release | Execution rule |
+|---|---|---|---|---|
+| Shared ingestion foundations | P1 | T-468 through T-472 | v0.3.5 | Build first; every new source should reuse these contracts, diagnostics, fixtures, and correlation keys. |
+| Access and edge logs | P1 | T-473 through T-484 | v0.3.6 | First functional coverage wave because it extends existing access-log, SLO, Incident Timeline, and report-pack paths. |
+| Application and web server logs | P1/P2 | T-485 through T-492 | v0.3.7 | Start with Tomcat/Jetty and nginx/Apache error logs, then add enterprise app-server variants. |
+| Observability logs and metrics | P1/P2 | T-493 through T-498 | v0.3.8 | Add OpenTelemetry Logs first, then offline metrics and LGTM export formats. |
+| Database slow-query and engine logs | P1/P2 | T-499 through T-506 | v0.3.9 | Prioritize PostgreSQL/MySQL slow-query evidence before broader database engines. |
+| Broker and streaming middleware | P1/P2 | T-507 through T-513 | v0.3.10 | Prioritize Kafka and RabbitMQ before Pulsar, NATS, and ActiveMQ. |
+| Kubernetes, container, and cloud evidence | P2 | T-514 through T-519 | v0.3.11 | Add platform context after app/server/database/broker evidence contracts are available. |
+| Multi-language stack and profiler evidence | P1/P2 | T-520 through T-528 | v0.3.12 | Add generic pprof first, then raw language-specific profiler inputs and unified rollups. |
+| Correlation and evidence stitching | P1/P2 | T-529 through T-531 | v0.3.13 | Requires enough source coverage to validate stitching and correlation-gap findings. |
+| Continuous profiling imports and docs | P2/P3 | T-532 through T-536 | v0.3.14 | Add snapshot imports first; keep OTLP Profiles as a spec-tracking decision item. |
+
+## Version Milestone Plan
+
+| Release | Complete through | Release type | Required contents before cut |
+|---|---|---|---|
+| v0.3.5 | T-468 through T-472 | Foundation release | Shared ingestion architecture, source-format registry, golden fixture/diagnostic harness, normalized source metadata, and correlation-key model are implemented and documented. |
+| v0.3.6 | T-473 through T-484 | User-visible evidence release | Tomcat/Jetty, HAProxy, Envoy/Istio, cloud edge, IIS/Caddy/Traefik, and gateway access formats are imported through auto-detect and remain compatible with the existing access-log contract. |
+| v0.3.7 | T-485 through T-492 | Server diagnostics release | Server-log contract, Tomcat/Jetty, nginx/Apache error logs, and at least the planned enterprise app-server parsers feed Incident Timeline, Evidence Board, and report packs. |
+| v0.3.8 | T-493 through T-498 | Observability evidence release | OpenTelemetry Logs, offline metrics, Loki/Tempo exports, and Grafana dashboard references are accepted as local evidence and mapped into Golden Signals/report workflows. |
+| v0.3.9 | T-499 through T-506 | Database evidence release | PostgreSQL and MySQL/MariaDB slow-query evidence, EXPLAIN plan cards, and the broader database engine parser set integrate with Timeline, SLO, Service Flow, and reports. |
+| v0.3.10 | T-507 through T-513 | Broker evidence release | Kafka and RabbitMQ evidence are complete, follow-up broker parsers are in place, and broker findings appear beside service-edge evidence. |
+| v0.3.11 | T-514 through T-519 | Platform evidence release | Kubernetes events/pod evidence, kubelet/runtime logs, and cloud audit logs can back Timeline, Evidence Board, SLO saturation, and security report sections. |
+| v0.3.12 | T-520 through T-528 | Multi-language profiling release | Unified profile schema, generic pprof, async-profiler parity, and priority language/runtime profiler inputs flow through flamegraph and Evidence Board paths. |
+| v0.3.13 | T-529 through T-531 | Cross-source stitching release | Correlation-key stitching joins access, trace, runtime stack, broker, and database evidence and emits deterministic correlation-gap findings. |
+| v0.3.14 | T-532 through T-536 | Continuous profiling plus docs release | Pyroscope/Phlare and Parca snapshot imports are routed through profile analysis, OTLP Profiles tracking is documented, and English/Korean docs/support matrices are current. |
+| v0.4.0 | T-468 through T-536 plus stabilization | Mid-Term Plus roll-up | Full Mid-Term Plus scope is smoke-tested as one product story with sample packs, report exports, regression tests, and release notes that present the expanded Evidence Studio capability coherently. |
 
 ## Active TO-DO
 
@@ -269,6 +301,75 @@ filtered before analysis.
 | T-465 | P2 | [x] | Expand SLO and runtime signal robustness with configurable SLO target overrides, safe non-spread max scans for large series, and runtime-stack signal extraction for Node.js, Python, Go panic, and .NET analyzer result types. | T-455 | Completed 2026-05-16: added SLO target override merging, non-spread max/min scans, and Golden Signal extraction for `nodejs_stack`, `python_traceback`, `go_panic`, and `dotnet_exception_iis` runtime results |
 | T-466 | P2 | [x] | Add frontend state regression tests for Incident Timeline, SLO/Golden Signals, Service Flow, Report Pack, and AI gate behavior, plus Go AI redaction/evidence-reference tests for the new hardening paths. | T-452, T-453, T-454, T-455, T-456, T-457 | Completed 2026-05-16: added `npm run test:state` with frontend state regressions for service identity, SLO percent conversion/dedupe, runtime signals, Mermaid source-only findings, Unix timestamps, and AI quote enforcement; Go AI hardening tests were added with T-453/T-454 |
 | T-467 | P2 | [x] | Deduplicate shared frontend state utilities and fix Mermaid sequence export edge cases, including empty-service/source-only findings and quoted labels. | T-458, T-461 | Completed 2026-05-16: service identity canonicalization is shared by Service Flow and SLO, Mermaid source-only findings now get a fallback participant, quoted labels continue to use JSON escaping, and large-series max scans avoid spread-based limits |
+| T-468 | P1 | [ ] | Define the Mid-Term Plus ingestion architecture boundary: parser package layout, analyzer package layout, CLI command naming, Wails binding pattern, and `AnalysisResult` naming for new evidence families. | Roadmap Mid-Term Plus |  |
+| T-469 | P1 | [ ] | Add a reusable source-format registry and auto-detect contract that can be shared by access logs, trace import, server logs, database logs, broker logs, and platform evidence. | T-468 |  |
+| T-470 | P1 | [ ] | Create a golden fixture and parser diagnostic harness for new importers, including valid, partial, malformed, unknown-format, and large-file samples. | T-468 |  |
+| T-471 | P1 | [ ] | Normalize source metadata fields for new evidence families, including source kind, source format, product, version, host, service, environment, and sanitized file identity. | T-468 |  |
+| T-472 | P1 | [ ] | Define the cross-source correlation-key model for trace ID, span ID, request ID, tenant/customer ID, container ID, pod UID, host ID, PID, and source timestamp windows. | T-468, T-471 |  |
+| T-473 | P1 | [ ] | Add Tomcat access valve and Jetty NCSA request-log parsers with format auto-detection fixtures. | T-469, T-470 |  |
+| T-474 | P1 | [ ] | Map Tomcat and Jetty access records into the existing access-log `AnalysisResult` contract without breaking nginx/apache fields. | T-473 |  |
+| T-475 | P1 | [ ] | Add HAProxy default and HTTP log parsers with backend/server timing fields and diagnostics for partial timing data. | T-469, T-470 |  |
+| T-476 | P1 | [ ] | Analyze HAProxy access evidence for latency, status, backend saturation, retry, termination-state, and error-burst findings. | T-475 |  |
+| T-477 | P1 | [ ] | Add Envoy and Istio default text plus JSON access-log parsers, including service-mesh trace headers and upstream cluster metadata. | T-469, T-470, T-472 |  |
+| T-478 | P1 | [ ] | Feed Envoy/Istio upstream service, trace ID, TLS, response flag, and route data into access-log summaries, Service Flow, and Golden Signals. | T-477 |  |
+| T-479 | P2 | [ ] | Add AWS ELB/ALB classic, ALB v2, and CloudFront standard log parsers with cloud source metadata. | T-469, T-470, T-471 |  |
+| T-480 | P2 | [ ] | Add GCP HTTP(S) Load Balancer JSON and Azure App Service/Front Door JSON access-log parsers. | T-469, T-470, T-471 |  |
+| T-481 | P2 | [ ] | Add IIS W3C extended log and Caddy/Traefik JSON access-log parsers. | T-469, T-470 |  |
+| T-482 | P2 | [ ] | Add Kong, Tyk, and AWS API Gateway access-log parsers with route, consumer, upstream, and gateway-latency fields. | T-469, T-470, T-472 |  |
+| T-483 | P1 | [ ] | Wire all new access/edge formats into access-log auto-detect dispatch and per-source parser diagnostics. | T-473, T-475, T-477 |  |
+| T-484 | P1 | [ ] | Extend the access-log contract and tests for upstream service, mesh trace ID, gateway latency, TLS, route, and cloud-edge metadata while keeping existing exports compatible. | T-474, T-476, T-478, T-483 |  |
+| T-485 | P1 | [ ] | Define the server-log `AnalysisResult` contract and finding taxonomy for startup, deployment, datasource pool, stuck thread, hung thread, severe error, and worker error events. | T-468, T-471, T-472 |  |
+| T-486 | P1 | [ ] | Add Tomcat catalina.out and Jetty server-log parsers/analyzers with startup, deployment, datasource, stuck-thread, and severe-error findings. | T-485, T-470 |  |
+| T-487 | P2 | [ ] | Add JBoss/WildFly server-log parsing and findings for deployment failures, datasource warnings, thread pool pressure, and severe errors. | T-485, T-470 |  |
+| T-488 | P2 | [ ] | Add WebLogic AdminServer/ManagedServer log parsing and findings for deployment, stuck thread, JDBC pool, and managed-server health events. | T-485, T-470 |  |
+| T-489 | P2 | [ ] | Add WebSphere SystemOut/SystemErr parsing and findings for hung threads, application lifecycle events, datasource warnings, and severe errors. | T-485, T-470 |  |
+| T-490 | P2 | [ ] | Add GlassFish/Payara server-log parsing and findings for deployment, JDBC pool, thread pool, and severe application-server errors. | T-485, T-470 |  |
+| T-491 | P1 | [ ] | Add nginx and Apache error-log parsers/analyzers so worker errors can be correlated with access-log request evidence. | T-485, T-472 |  |
+| T-492 | P1 | [ ] | Map server-log and web-server error findings into Incident Timeline, Evidence Board, and report-pack artifacts with access/error correlation where keys are available. | T-486, T-491 |  |
+| T-493 | P1 | [ ] | Define and implement OpenTelemetry Logs OTLP JSON and NDJSON parser contracts with severity, body, attributes, resource metadata, and trace/span references. | T-468, T-470, T-472 |  |
+| T-494 | P1 | [ ] | Add the OpenTelemetry Logs analyzer with severity bursts, error signatures, resource grouping, and trace/span correlation diagnostics. | T-493 |  |
+| T-495 | P2 | [ ] | Add Prometheus snapshot and OpenMetrics import for offline metrics evidence and Golden Signals enrichment. | T-468, T-470 |  |
+| T-496 | P2 | [ ] | Add Loki query JSON export and Tempo trace JSON export importers so LGTM stack exports become first-class local evidence sources. | T-493, Trace import MVP |  |
+| T-497 | P2 | [ ] | Add Grafana dashboard JSON ingestion that lets Evidence Board cards reference dashboard panels without treating dashboards as raw metrics evidence. | T-468, T-471 |  |
+| T-498 | P1 | [ ] | Map OTel logs, metrics snapshots, Loki, Tempo, and Grafana references into Incident Timeline, SLO/Golden Signals, Evidence Board, and report packs. | T-494, T-495, T-496, T-497 |  |
+| T-499 | P1 | [ ] | Define the slow-query and database engine-log `AnalysisResult` contract with query fingerprint, latency percentiles, lock wait, error, row count, database, schema, and sanitized SQL fields. | T-468, T-471, T-472 |  |
+| T-500 | P1 | [ ] | Add PostgreSQL csvlog and text log parsers/analyzers for slow queries, errors, lock waits, checkpoints, autovacuum signals, and top query fingerprints. | T-499, T-470 |  |
+| T-501 | P1 | [ ] | Add MySQL/MariaDB slow query log parsing and analysis for query fingerprints, p95/p99 latency, lock time, rows examined, and top query findings. | T-499, T-470 |  |
+| T-502 | P2 | [ ] | Add MongoDB profiler and diagnostic.data export parsing for slow operations, collection/index hints, lock/queue indicators, and error counts. | T-499, T-470 |  |
+| T-503 | P2 | [ ] | Add Redis slowlog get output parsing and analysis for command fingerprints, latency, key-pattern sanitization, and top slow commands. | T-499, T-470 |  |
+| T-504 | P2 | [ ] | Add SQL Server extended events JSON parsing for slow query, wait, deadlock, and error evidence. | T-499, T-470 |  |
+| T-505 | P1 | [ ] | Add PostgreSQL and MySQL EXPLAIN plan importers and Evidence Board plan cards linked to slow-query fingerprints. | T-499, T-500, T-501 |  |
+| T-506 | P1 | [ ] | Integrate database slow-query evidence into Incident Timeline, SLO/Golden Signals, Service Flow enrichment, and report packs. | T-500, T-501, T-505 |  |
+| T-507 | P1 | [ ] | Define the broker/streaming middleware `AnalysisResult` contract and finding taxonomy for rebalance, replication, queue pressure, dead letter, partition, and broker health events. | T-468, T-471, T-472 |  |
+| T-508 | P1 | [ ] | Add Kafka broker, controller, and state-change log parsing with ISR change, rebalance, under-replicated partition, log compaction, and KRaft quorum findings. | T-507, T-470 |  |
+| T-509 | P1 | [ ] | Add RabbitMQ server-log parsing plus `rabbitmq-diagnostics` JSON import for connection churn, queue length, dead-letter, partition, and node health findings. | T-507, T-470 |  |
+| T-510 | P2 | [ ] | Add Pulsar broker-log parsing for topic, ledger, bookie, broker health, and backlog-related findings. | T-507, T-470 |  |
+| T-511 | P2 | [ ] | Add NATS server-log parsing for connection churn, slow consumers, cluster events, JetStream pressure, and authorization failures. | T-507, T-470 |  |
+| T-512 | P2 | [ ] | Add ActiveMQ broker-log parsing for queue pressure, consumer churn, dead letter, store usage, and broker health events. | T-507, T-470 |  |
+| T-513 | P1 | [ ] | Surface broker findings in Incident Timeline and Service Flow beside trace-import dependencies and service-edge evidence. | T-508, T-509, T-472 |  |
+| T-514 | P2 | [ ] | Define the Kubernetes/container evidence contract and identity model for cluster, namespace, workload, pod, container, node, image, restart count, and owner references. | T-468, T-471, T-472 |  |
+| T-515 | P2 | [ ] | Add `kubectl get events` and `describe pod` JSON importers with OOMKilled, restart, eviction, scheduling, image pull, and readiness findings. | T-514, T-470 |  |
+| T-516 | P2 | [ ] | Add kubelet log parsing for pod lifecycle, eviction, probe, image, runtime, and node-pressure events. | T-514, T-470 |  |
+| T-517 | P2 | [ ] | Add container runtime log parsing for containerd, CRI-O, and Docker daemon events that accompany application evidence. | T-514, T-470 |  |
+| T-518 | P2 | [ ] | Add cloud audit/log importers for AWS CloudTrail JSON, GCP Cloud Audit Logging JSON, and Azure Activity Logs JSON with security-incident evidence fields. | T-468, T-470, T-471 |  |
+| T-519 | P2 | [ ] | Map Kubernetes, container, and cloud audit evidence into Incident Timeline, Evidence Board, SLO saturation signals, and security-oriented report sections. | T-515, T-516, T-517, T-518 |  |
+| T-520 | P1 | [ ] | Define a unified profile evidence schema with language-tagged frames, native-versus-managed split, async frame markers, source runtime, and flamegraph rollup metadata. | T-468, existing profiler analyzers |  |
+| T-521 | P1 | [ ] | Add a generic pprof binary `.pb.gz` importer shared by Go pprof, Datadog Ruby/PHP profiler exports, py-spy pprof-compatible output, and other pprof runtimes. | T-520, T-470 |  |
+| T-522 | P2 | [ ] | Add py-spy raw output and rbspy raw output importers with Python/Ruby frame tagging and thread/process metadata. | T-520, T-470 |  |
+| T-523 | P1 | [ ] | Add async-profiler `.html` and collapsed input parity for the unified profile path while preserving existing collapsed/JFR behavior. | T-520, existing profiler analyzers |  |
+| T-524 | P2 | [ ] | Add dotnet-trace `.nettrace` and speedscope output importers with .NET frame tagging and managed/native separation. | T-520, T-470 |  |
+| T-525 | P2 | [ ] | Add perf script collapsed import for Rust/native profiling evidence with symbol, thread, and process metadata. | T-520, T-470 |  |
+| T-526 | P2 | [ ] | Add Ruby stackprof plus PHP Excimer, Tideways CLI export, and Xdebug profile importers where stable file contracts are available. | T-520, T-470 |  |
+| T-527 | P3 | [ ] | Add Swift backtrace and generic async stack trace parsing after the primary server-side runtime profiler inputs stabilize. | T-520, T-470 |  |
+| T-528 | P1 | [ ] | Promote collapsed and JFR profiler outputs into the unified multi-language profile analyzer with cross-language flamegraph rollups and Evidence Board capture. | T-521, T-523, T-520 |  |
+| T-529 | P1 | [ ] | Implement the first evidence-stitching pass that joins access logs, traces, runtime stacks, broker logs, and database slow logs by correlation key. | T-472, T-484, Trace import MVP, T-506, T-513 |  |
+| T-530 | P1 | [ ] | Surface correlation-gap findings for missing trace ID, dropped parent span, unmatched request log, unmatched database call, and unmatched broker event. | T-529 |  |
+| T-531 | P2 | [ ] | Add stitched evidence views in Incident Timeline, Evidence Board, Service Flow, and report packs with raw source evidence preserved. | T-529, T-530 |  |
+| T-532 | P2 | [ ] | Add Grafana Pyroscope/Phlare snapshot export importer and map it into the unified profile evidence schema. | T-520, T-470 |  |
+| T-533 | P2 | [ ] | Add Polar Signals Parca snapshot export importer and map it into the unified profile evidence schema. | T-520, T-470 |  |
+| T-534 | P2 | [ ] | Route continuous-profiling snapshots through the existing flamegraph analyzer, Evidence Board capture, and report-pack export paths. | T-532, T-533, T-528 |  |
+| T-535 | P3 | [ ] | Track the OpenTelemetry Profiles signal lifecycle and add a decision note for when OTLP Profiles should move from long-term radar to active ingestion work. | T-520 |  |
+| T-536 | P2 | [ ] | Keep English/Korean roadmap, data-model notes, examples, and importer support matrices current as Mid-Term Plus tasks are implemented. | T-468 through T-535 |  |
 
 ## Verification Notes
 
