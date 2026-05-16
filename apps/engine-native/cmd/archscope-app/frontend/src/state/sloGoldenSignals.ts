@@ -1,0 +1,920 @@
+import type { AnalysisWorkspaceEntry } from "@/state/analysisWorkspace";
+
+export type GoldenSignalKind = "latency" | "traffic" | "errors" | "saturation";
+
+export type GoldenSignalScopeType =
+  | "global"
+  | "service"
+  | "endpoint"
+  | "edge"
+  | "runtime"
+  | "thread"
+  | "trace"
+  | "jvm";
+
+export type GoldenSignalAggregation =
+  | "avg"
+  | "p50"
+  | "p90"
+  | "p95"
+  | "p99"
+  | "max"
+  | "min"
+  | "sum"
+  | "count"
+  | "rate"
+  | "latest"
+  | "peak";
+
+export type GoldenSignalUnit =
+  | "ms"
+  | "percent"
+  | "count"
+  | "requests"
+  | "requests_per_sec"
+  | "bytes"
+  | "bytes_per_sec"
+  | "spans"
+  | "calls"
+  | "events"
+  | "mb"
+  | "mb_per_sec"
+  | "threads";
+
+export type GoldenSignalTags = Record<string, string | number | boolean>;
+
+export type GoldenSignal = {
+  id: string;
+  kind: GoldenSignalKind;
+  name: string;
+  value: number;
+  unit: GoldenSignalUnit;
+  aggregation: GoldenSignalAggregation;
+  scope_type: GoldenSignalScopeType;
+  scope: string;
+  source_analyzer: string;
+  source_result_id: string;
+  source_title: string;
+  source_file?: string;
+  evidence_ref: string;
+  payload: Record<string, unknown>;
+  tags: GoldenSignalTags;
+};
+
+export type GoldenSignalInventory = {
+  generated_at: string;
+  source_count: number;
+  signal_count: number;
+  by_kind: Record<GoldenSignalKind, number>;
+  by_source: Record<string, number>;
+  signals: GoldenSignal[];
+};
+
+type SignalInput = {
+  kind: GoldenSignalKind;
+  name: string;
+  value: unknown;
+  unit: GoldenSignalUnit;
+  aggregation: GoldenSignalAggregation;
+  scopeType?: GoldenSignalScopeType;
+  scope?: string;
+  evidenceRef: string;
+  payload?: Record<string, unknown>;
+  tags?: GoldenSignalTags;
+};
+
+const MAX_SIGNALS = 1_500;
+const MAX_ROW_SIGNALS = 80;
+
+export function buildGoldenSignalInventory(entries: AnalysisWorkspaceEntry[]): GoldenSignalInventory {
+  const signals = dedupeSignals(entries.flatMap((entry) => signalsFromEntry(entry)))
+    .sort(compareSignals)
+    .slice(0, MAX_SIGNALS);
+  return {
+    generated_at: new Date().toISOString(),
+    source_count: entries.length,
+    signal_count: signals.length,
+    by_kind: countByKind(signals),
+    by_source: countBySource(signals),
+    signals,
+  };
+}
+
+export function buildGoldenSignals(entries: AnalysisWorkspaceEntry[]): GoldenSignal[] {
+  return buildGoldenSignalInventory(entries).signals;
+}
+
+function signalsFromEntry(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
+  const type = entry.result.type || entry.result_type;
+  let signals: GoldenSignal[] = [];
+  switch (type) {
+    case "access_log":
+      signals = signalsFromAccessLog(entry);
+      break;
+    case "trace_import":
+      signals = signalsFromTraceImport(entry);
+      break;
+    case "jennifer_profile":
+      signals = signalsFromJenniferMsa(entry);
+      break;
+    case "exception_stack":
+      signals = signalsFromException(entry);
+      break;
+    case "gc_log":
+      signals = signalsFromGcLog(entry);
+      break;
+    case "jfr_recording":
+      signals = signalsFromJfr(entry);
+      break;
+    case "thread_dump":
+    case "thread_dump_multi":
+    case "multi_thread_dump":
+    case "lock_contention":
+    case "thread_dump_locks":
+      signals = signalsFromThreadDump(entry);
+      break;
+    default:
+      if (Array.isArray(entry.result.tables?.msa_edges)) {
+        signals = signalsFromJenniferMsa(entry);
+      } else {
+        signals = signalsFromGenericJvm(entry);
+      }
+  }
+  return [...signals, ...signalsFromJvmInfo(entry)];
+}
+
+function signalsFromAccessLog(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
+  const out: GoldenSignal[] = [];
+  addSummary(out, entry, "avg_response_ms", "Access average latency", "latency", "ms", "avg");
+  addSummary(out, entry, "p50_response_ms", "Access p50 latency", "latency", "ms", "p50");
+  addSummary(out, entry, "p90_response_ms", "Access p90 latency", "latency", "ms", "p90");
+  addSummary(out, entry, "p95_response_ms", "Access p95 latency", "latency", "ms", "p95");
+  addSummary(out, entry, "p99_response_ms", "Access p99 latency", "latency", "ms", "p99");
+  addSummary(out, entry, "total_requests", "Access request volume", "traffic", "requests", "count");
+  addSummary(out, entry, "avg_requests_per_sec", "Access request rate", "traffic", "requests_per_sec", "rate");
+  addSummary(out, entry, "total_bytes", "Access response bytes", "traffic", "bytes", "sum");
+  addSummary(out, entry, "avg_bytes_per_sec", "Access byte rate", "traffic", "bytes_per_sec", "rate");
+  addSummary(out, entry, "error_rate", "Access error rate", "errors", "percent", "rate");
+  addSummary(out, entry, "error_count", "Access error count", "errors", "count", "count");
+
+  for (const row of arrayOfObjects(entry.result.tables?.url_stats).slice(0, MAX_ROW_SIGNALS)) {
+    const endpoint = endpointScope(row);
+    addRowSignal(out, entry, row, {
+      key: "avg_response_ms",
+      name: "Endpoint average latency",
+      kind: "latency",
+      unit: "ms",
+      aggregation: "avg",
+      scopeType: "endpoint",
+      scope: endpoint,
+      evidenceRef: "tables.url_stats",
+    });
+    addRowSignal(out, entry, row, {
+      key: "p95_response_ms",
+      name: "Endpoint p95 latency",
+      kind: "latency",
+      unit: "ms",
+      aggregation: "p95",
+      scopeType: "endpoint",
+      scope: endpoint,
+      evidenceRef: "tables.url_stats",
+    });
+    addRowSignal(out, entry, row, {
+      key: "p99_response_ms",
+      name: "Endpoint p99 latency",
+      kind: "latency",
+      unit: "ms",
+      aggregation: "p99",
+      scopeType: "endpoint",
+      scope: endpoint,
+      evidenceRef: "tables.url_stats",
+    });
+    addRowSignal(out, entry, row, {
+      key: "count",
+      name: "Endpoint request volume",
+      kind: "traffic",
+      unit: "requests",
+      aggregation: "count",
+      scopeType: "endpoint",
+      scope: endpoint,
+      evidenceRef: "tables.url_stats",
+    });
+    addRowSignal(out, entry, row, {
+      key: "error_count",
+      name: "Endpoint error count",
+      kind: "errors",
+      unit: "count",
+      aggregation: "count",
+      scopeType: "endpoint",
+      scope: endpoint,
+      evidenceRef: "tables.url_stats",
+    });
+  }
+  return out;
+}
+
+function signalsFromTraceImport(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
+  const out: GoldenSignal[] = [];
+  addSummary(out, entry, "p95_trace_duration_ms", "Trace p95 duration", "latency", "ms", "p95", {
+    scopeType: "trace",
+  });
+  addSummary(out, entry, "max_trace_duration_ms", "Trace max duration", "latency", "ms", "max", {
+    scopeType: "trace",
+  });
+  addSummary(out, entry, "total_spans", "Trace span volume", "traffic", "spans", "count");
+  addSummary(out, entry, "unique_traces", "Trace volume", "traffic", "count", "count", {
+    tags: { dimension: "trace_count" },
+  });
+  addSummary(out, entry, "error_spans", "Trace error spans", "errors", "spans", "count");
+  addSummary(out, entry, "missing_parent_spans", "Trace missing-parent spans", "errors", "spans", "count");
+  addSummary(out, entry, "clock_skew_suspected_spans", "Trace clock-skew spans", "errors", "spans", "count");
+
+  for (const row of arrayOfObjects(entry.result.tables?.service_summary).slice(0, MAX_ROW_SIGNALS)) {
+    const service = stringValue(row.service) || "unknown-service";
+    addRowSignal(out, entry, row, {
+      key: "avg_duration_ms",
+      name: "Service average span latency",
+      kind: "latency",
+      unit: "ms",
+      aggregation: "avg",
+      scopeType: "service",
+      scope: service,
+      evidenceRef: "tables.service_summary",
+    });
+    addRowSignal(out, entry, row, {
+      key: "span_count",
+      name: "Service span volume",
+      kind: "traffic",
+      unit: "spans",
+      aggregation: "count",
+      scopeType: "service",
+      scope: service,
+      evidenceRef: "tables.service_summary",
+    });
+    addRowSignal(out, entry, row, {
+      key: "error_count",
+      name: "Service span errors",
+      kind: "errors",
+      unit: "spans",
+      aggregation: "count",
+      scopeType: "service",
+      scope: service,
+      evidenceRef: "tables.service_summary",
+    });
+  }
+
+  for (const row of arrayOfObjects(entry.result.tables?.service_dependencies).slice(0, MAX_ROW_SIGNALS)) {
+    const scope = edgeScope(row, "caller", "callee");
+    addRowSignal(out, entry, row, {
+      key: "avg_duration_ms",
+      name: "Dependency average latency",
+      kind: "latency",
+      unit: "ms",
+      aggregation: "avg",
+      scopeType: "edge",
+      scope,
+      evidenceRef: "tables.service_dependencies",
+    });
+    addRowSignal(out, entry, row, {
+      key: "call_count",
+      name: "Dependency call volume",
+      kind: "traffic",
+      unit: "calls",
+      aggregation: "count",
+      scopeType: "edge",
+      scope,
+      evidenceRef: "tables.service_dependencies",
+    });
+    addRowSignal(out, entry, row, {
+      key: "error_rate",
+      name: "Dependency error rate",
+      kind: "errors",
+      unit: "percent",
+      aggregation: "rate",
+      scopeType: "edge",
+      scope,
+      evidenceRef: "tables.service_dependencies",
+    });
+    addRowSignal(out, entry, row, {
+      key: "error_count",
+      name: "Dependency error count",
+      kind: "errors",
+      unit: "count",
+      aggregation: "count",
+      scopeType: "edge",
+      scope,
+      evidenceRef: "tables.service_dependencies",
+    });
+  }
+
+  for (const row of arrayOfObjects(entry.result.tables?.critical_paths).slice(0, MAX_ROW_SIGNALS)) {
+    addRowSignal(out, entry, row, {
+      key: "critical_path_ms",
+      name: "Trace critical-path latency",
+      kind: "latency",
+      unit: "ms",
+      aggregation: "max",
+      scopeType: "trace",
+      scope: stringValue(row.trace_id) || "unknown-trace",
+      evidenceRef: "tables.critical_paths",
+    });
+  }
+  return out;
+}
+
+function signalsFromJenniferMsa(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
+  const out: GoldenSignal[] = [];
+  addSummary(out, entry, "external_call_cum_ms", "Jennifer external-call elapsed time", "latency", "ms", "sum");
+  addSummary(out, entry, "external_call_count", "Jennifer external-call volume", "traffic", "calls", "count");
+  addSummary(out, entry, "matched_external_call_count", "Jennifer matched external calls", "traffic", "calls", "count");
+  addSummary(out, entry, "unmatched_external_call_count", "Jennifer unmatched external calls", "errors", "calls", "count");
+  addSummary(out, entry, "total_unprofiled_external_call_ms", "Jennifer unprofiled external-call time", "latency", "ms", "sum");
+  addSummary(out, entry, "total_network_gap_cum_ms", "Jennifer network gap time", "latency", "ms", "sum", {
+    tags: { dimension: "network_gap" },
+  });
+
+  for (const row of arrayOfObjects(entry.result.tables?.msa_edges).slice(0, MAX_ROW_SIGNALS)) {
+    const scope = jenniferEdgeScope(row);
+    addRowSignal(out, entry, row, {
+      key: "external_call_elapsed_ms",
+      name: "MSA edge external-call latency",
+      kind: "latency",
+      unit: "ms",
+      aggregation: "sum",
+      scopeType: "edge",
+      scope,
+      evidenceRef: "tables.msa_edges",
+      tags: { dimension: "external_call_elapsed" },
+    });
+    addRowSignal(out, entry, row, {
+      key: "adjusted_network_gap_ms",
+      name: "MSA edge network gap",
+      kind: "latency",
+      unit: "ms",
+      aggregation: "sum",
+      scopeType: "edge",
+      scope,
+      evidenceRef: "tables.msa_edges",
+      tags: { dimension: "network_gap" },
+    });
+    addRowSignal(out, entry, row, {
+      key: "raw_network_gap_ms",
+      name: "MSA edge raw network gap",
+      kind: "latency",
+      unit: "ms",
+      aggregation: "sum",
+      scopeType: "edge",
+      scope,
+      evidenceRef: "tables.msa_edges",
+      tags: { dimension: "raw_network_gap" },
+    });
+    if (stringValue(row.match_status).toLowerCase() !== "matched") {
+      addSignal(out, entry, {
+        kind: "errors",
+        name: "MSA unmatched external call",
+        value: 1,
+        unit: "count",
+        aggregation: "count",
+        scopeType: "edge",
+        scope,
+        evidenceRef: "tables.msa_edges",
+        payload: row,
+        tags: { dimension: "msa_match", match_status: stringValue(row.match_status) || "unknown" },
+      });
+    }
+  }
+
+  for (const row of arrayOfObjects(entry.result.series?.service_call_network_summary).slice(0, MAX_ROW_SIGNALS)) {
+    const scope = serviceCallScope(row);
+    addRowSignal(out, entry, row, {
+      key: "avg_network_gap_ms",
+      name: "Service-call average network gap",
+      kind: "latency",
+      unit: "ms",
+      aggregation: "avg",
+      scopeType: "edge",
+      scope,
+      evidenceRef: "series.service_call_network_summary",
+      tags: { dimension: "network_gap" },
+    });
+    addRowSignal(out, entry, row, {
+      key: "p95_network_gap_ms",
+      name: "Service-call p95 network gap",
+      kind: "latency",
+      unit: "ms",
+      aggregation: "p95",
+      scopeType: "edge",
+      scope,
+      evidenceRef: "series.service_call_network_summary",
+      tags: { dimension: "network_gap" },
+    });
+    addRowSignal(out, entry, row, {
+      key: "call_count",
+      name: "Service-call volume",
+      kind: "traffic",
+      unit: "calls",
+      aggregation: "count",
+      scopeType: "edge",
+      scope,
+      evidenceRef: "series.service_call_network_summary",
+    });
+  }
+  return out;
+}
+
+function signalsFromException(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
+  const out: GoldenSignal[] = [];
+  addSummary(out, entry, "total_exceptions", "Exception volume", "errors", "count", "count");
+  addSummary(out, entry, "unique_exception_types", "Unique exception types", "errors", "count", "count");
+  addSummary(out, entry, "unique_signatures", "Unique exception signatures", "errors", "count", "count");
+
+  for (const row of arrayOfObjects(entry.result.series?.exception_type_distribution).slice(0, MAX_ROW_SIGNALS)) {
+    addRowSignal(out, entry, row, {
+      key: "count",
+      name: "Exception type volume",
+      kind: "errors",
+      unit: "count",
+      aggregation: "count",
+      scopeType: "runtime",
+      scope: stringValue(row.exception_type) || "unknown-exception",
+      evidenceRef: "series.exception_type_distribution",
+    });
+  }
+  return out;
+}
+
+function signalsFromGcLog(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
+  const out: GoldenSignal[] = [];
+  addSummary(out, entry, "avg_pause_ms", "GC average pause", "latency", "ms", "avg", { scopeType: "runtime" });
+  addSummary(out, entry, "p50_pause_ms", "GC p50 pause", "latency", "ms", "p50", { scopeType: "runtime" });
+  addSummary(out, entry, "p95_pause_ms", "GC p95 pause", "latency", "ms", "p95", { scopeType: "runtime" });
+  addSummary(out, entry, "p99_pause_ms", "GC p99 pause", "latency", "ms", "p99", { scopeType: "runtime" });
+  addSummary(out, entry, "max_pause_ms", "GC max pause", "latency", "ms", "max", { scopeType: "runtime" });
+  addSummary(out, entry, "total_pause_ms", "GC total pause", "latency", "ms", "sum", { scopeType: "runtime" });
+  addSummary(out, entry, "total_events", "GC event volume", "traffic", "events", "count", { scopeType: "runtime" });
+  addSummary(out, entry, "young_gc_count", "Young GC count", "traffic", "events", "count", { scopeType: "runtime" });
+  addSummary(out, entry, "full_gc_count", "Full GC count", "traffic", "events", "count", { scopeType: "runtime" });
+  addSummary(out, entry, "throughput_percent", "GC throughput", "saturation", "percent", "avg", { scopeType: "runtime" });
+  addSummary(out, entry, "avg_allocation_rate_mb_per_sec", "Allocation rate", "saturation", "mb_per_sec", "rate", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "avg_promotion_rate_mb_per_sec", "Promotion rate", "saturation", "mb_per_sec", "rate", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "humongous_allocation_count", "Humongous allocation count", "saturation", "count", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "concurrent_mode_failure_count", "Concurrent mode failure count", "errors", "count", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "promotion_failure_count", "Promotion failure count", "errors", "count", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "long_pause_event_count", "Long GC pause count", "saturation", "events", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "critical_pause_event_count", "Critical GC pause count", "errors", "events", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "oom_event_count", "OutOfMemory event count", "errors", "events", "count", {
+    scopeType: "runtime",
+  });
+
+  addPeakSeries(out, entry, "heap_after_mb", "Peak heap after GC", "heap");
+  addPeakSeries(out, entry, "heap_committed_mb", "Peak committed heap", "heap_committed");
+  addPeakSeries(out, entry, "young_after_mb", "Peak young generation after GC", "young_gen");
+  addPeakSeries(out, entry, "old_after_mb", "Peak old generation after GC", "old_gen");
+  addPeakSeries(out, entry, "metaspace_after_mb", "Peak metaspace after GC", "metaspace");
+
+  for (const row of arrayOfObjects(entry.result.tables?.alerts).slice(0, MAX_ROW_SIGNALS)) {
+    addSignal(out, entry, {
+      kind: stringValue(row.severity).toLowerCase() === "critical" ? "errors" : "saturation",
+      name: stringValue(row.code) || "GC alert",
+      value: 1,
+      unit: "events",
+      aggregation: "count",
+      scopeType: "runtime",
+      scope: stringValue(row.event_category) || "gc",
+      evidenceRef: "tables.alerts",
+      payload: row,
+      tags: { severity: stringValue(row.severity) || "warning" },
+    });
+  }
+  return out;
+}
+
+function signalsFromJfr(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
+  const out: GoldenSignal[] = [];
+  addSummary(out, entry, "duration_ms", "JFR selected duration", "latency", "ms", "sum", { scopeType: "runtime" });
+  addSummary(out, entry, "gc_pause_total_ms", "JFR GC pause total", "latency", "ms", "sum", { scopeType: "runtime" });
+  addSummary(out, entry, "event_count", "JFR event volume", "traffic", "events", "count", { scopeType: "runtime" });
+  addSummary(out, entry, "event_count_total", "JFR total event volume", "traffic", "events", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "blocked_thread_events", "JFR blocked-thread events", "saturation", "events", "count", {
+    scopeType: "thread",
+  });
+  addSummary(out, entry, "sample_event_count", "JFR sample event volume", "traffic", "events", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "stack_sample_count", "JFR stack sample volume", "traffic", "events", "count", {
+    scopeType: "runtime",
+  });
+
+  for (const row of arrayOfObjects(entry.result.series?.pause_events).slice(0, MAX_ROW_SIGNALS)) {
+    addRowSignal(out, entry, row, {
+      key: "duration_ms",
+      name: "JFR pause latency",
+      kind: "latency",
+      unit: "ms",
+      aggregation: "max",
+      scopeType: "runtime",
+      scope: stringValue(row.event_type) || "pause",
+      evidenceRef: "series.pause_events",
+    });
+  }
+  for (const row of arrayOfObjects(entry.result.tables?.top_threads).slice(0, MAX_ROW_SIGNALS)) {
+    addRowSignal(out, entry, row, {
+      key: "samples",
+      name: "JFR sampled thread load",
+      kind: "saturation",
+      unit: "events",
+      aggregation: "count",
+      scopeType: "thread",
+      scope: stringValue(row.thread) || "unknown-thread",
+      evidenceRef: "tables.top_threads",
+    });
+  }
+  return out;
+}
+
+function signalsFromThreadDump(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
+  const out: GoldenSignal[] = [];
+  addSummary(out, entry, "total_threads", "Thread count", "saturation", "threads", "count", { scopeType: "thread" });
+  addSummary(out, entry, "runnable_threads", "Runnable thread count", "traffic", "threads", "count", {
+    scopeType: "thread",
+  });
+  addSummary(out, entry, "blocked_threads", "Blocked thread count", "saturation", "threads", "count", {
+    scopeType: "thread",
+  });
+  addSummary(out, entry, "waiting_threads", "Waiting thread count", "saturation", "threads", "count", {
+    scopeType: "thread",
+  });
+  addSummary(out, entry, "threads_with_locks", "Threads with locks", "saturation", "threads", "count", {
+    scopeType: "thread",
+  });
+  addSummary(out, entry, "long_running_threads", "Long-running threads", "saturation", "threads", "count", {
+    scopeType: "thread",
+  });
+  addSummary(out, entry, "persistent_blocked_threads", "Persistent blocked threads", "saturation", "threads", "count", {
+    scopeType: "thread",
+  });
+  addSummary(out, entry, "virtual_thread_carrier_pinning", "Virtual-thread carrier pinning", "saturation", "threads", "count", {
+    scopeType: "thread",
+  });
+  addSummary(out, entry, "native_method_threads", "Native-method threads", "saturation", "threads", "count", {
+    scopeType: "thread",
+  });
+  addSummary(out, entry, "threads_waiting_on_lock", "Threads waiting on locks", "saturation", "threads", "count", {
+    scopeType: "thread",
+  });
+  addSummary(out, entry, "contended_locks", "Contended locks", "saturation", "count", "count", { scopeType: "thread" });
+  addSummary(out, entry, "deadlocks_detected", "Detected deadlocks", "errors", "count", "count", { scopeType: "thread" });
+
+  for (const tableName of [
+    "long_running_stacks",
+    "persistent_blocked_threads",
+    "growing_lock_contention",
+    "virtual_thread_carrier_pinning",
+    "native_method_threads",
+    "locks",
+    "deadlock_chains",
+  ]) {
+    const rows = arrayOfObjects(entry.result.tables?.[tableName]);
+    if (rows.length === 0) continue;
+    addSignal(out, entry, {
+      kind: tableName === "deadlock_chains" ? "errors" : "saturation",
+      name: humanizeKey(tableName),
+      value: rows.length,
+      unit: "count",
+      aggregation: "count",
+      scopeType: "thread",
+      scope: tableName,
+      evidenceRef: `tables.${tableName}`,
+      payload: { count: rows.length, table: tableName },
+    });
+  }
+  return out;
+}
+
+function signalsFromJvmInfo(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
+  const out: GoldenSignal[] = [];
+  const jvmInfo = objectOrEmpty(entry.result.metadata?.jvm_info);
+  addJvmInfoSignal(out, entry, jvmInfo, "cpus_available", "JVM available CPUs", "count", "runtime");
+  addJvmInfoSignal(out, entry, jvmInfo, "cpus_total", "JVM total CPUs", "count", "runtime");
+  addJvmInfoSignal(out, entry, jvmInfo, "memory_mb", "Host memory", "mb", "memory");
+  addJvmInfoSignal(out, entry, jvmInfo, "heap_min_mb", "JVM minimum heap", "mb", "heap");
+  addJvmInfoSignal(out, entry, jvmInfo, "heap_initial_mb", "JVM initial heap", "mb", "heap");
+  addJvmInfoSignal(out, entry, jvmInfo, "heap_max_mb", "JVM maximum heap", "mb", "heap");
+  addJvmInfoSignal(out, entry, jvmInfo, "heap_region_size_mb", "JVM heap region size", "mb", "heap");
+  addJvmInfoSignal(out, entry, jvmInfo, "parallel_workers", "JVM parallel GC workers", "threads", "gc_workers");
+  addJvmInfoSignal(out, entry, jvmInfo, "concurrent_workers", "JVM concurrent GC workers", "threads", "gc_workers");
+  return out;
+}
+
+function signalsFromGenericJvm(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
+  const out: GoldenSignal[] = [];
+  addGenericSummary(out, entry, "cpu_usage_percent", "CPU usage", "saturation", "percent");
+  addGenericSummary(out, entry, "process_cpu_percent", "Process CPU usage", "saturation", "percent");
+  addGenericSummary(out, entry, "heap_used_mb", "Heap used", "saturation", "mb");
+  addGenericSummary(out, entry, "heap_committed_mb", "Heap committed", "saturation", "mb");
+  addGenericSummary(out, entry, "heap_max_mb", "Heap max", "saturation", "mb");
+  addGenericSummary(out, entry, "non_heap_used_mb", "Non-heap used", "saturation", "mb");
+  addGenericSummary(out, entry, "metaspace_used_mb", "Metaspace used", "saturation", "mb");
+  addGenericSummary(out, entry, "thread_count", "Thread count", "saturation", "threads");
+  addGenericSummary(out, entry, "daemon_thread_count", "Daemon thread count", "saturation", "threads");
+  addGenericSummary(out, entry, "loaded_class_count", "Loaded class count", "saturation", "count");
+  return out;
+}
+
+function addSummary(
+  out: GoldenSignal[],
+  entry: AnalysisWorkspaceEntry,
+  key: string,
+  name: string,
+  kind: GoldenSignalKind,
+  unit: GoldenSignalUnit,
+  aggregation: GoldenSignalAggregation,
+  options: {
+    scopeType?: GoldenSignalScopeType;
+    scope?: string;
+    tags?: GoldenSignalTags;
+  } = {},
+): void {
+  const summary = entry.result.summary ?? {};
+  addSignal(out, entry, {
+    kind,
+    name,
+    value: summary[key],
+    unit,
+    aggregation,
+    scopeType: options.scopeType,
+    scope: options.scope,
+    evidenceRef: `summary.${key}`,
+    payload: { [key]: summary[key] },
+    tags: options.tags,
+  });
+}
+
+function addGenericSummary(
+  out: GoldenSignal[],
+  entry: AnalysisWorkspaceEntry,
+  key: string,
+  name: string,
+  kind: GoldenSignalKind,
+  unit: GoldenSignalUnit,
+): void {
+  addSummary(out, entry, key, name, kind, unit, "latest", { scopeType: "jvm" });
+}
+
+function addRowSignal(
+  out: GoldenSignal[],
+  entry: AnalysisWorkspaceEntry,
+  row: Record<string, unknown>,
+  input: Omit<SignalInput, "value" | "payload"> & { key: string },
+): void {
+  addSignal(out, entry, {
+    ...input,
+    value: row[input.key],
+    payload: row,
+  });
+}
+
+function addPeakSeries(
+  out: GoldenSignal[],
+  entry: AnalysisWorkspaceEntry,
+  seriesKey: string,
+  name: string,
+  scope: string,
+): void {
+  const rows = arrayOfObjects(entry.result.series?.[seriesKey]);
+  const values = rows.map((row) => finiteNumber(row.value)).filter((value): value is number => value !== null);
+  if (values.length === 0) return;
+  addSignal(out, entry, {
+    kind: "saturation",
+    name,
+    value: Math.max(...values),
+    unit: "mb",
+    aggregation: "peak",
+    scopeType: "runtime",
+    scope,
+    evidenceRef: `series.${seriesKey}`,
+    payload: { points: values.length, peak_mb: Math.max(...values) },
+  });
+}
+
+function addJvmInfoSignal(
+  out: GoldenSignal[],
+  entry: AnalysisWorkspaceEntry,
+  jvmInfo: Record<string, unknown>,
+  key: string,
+  name: string,
+  unit: GoldenSignalUnit,
+  scope: string,
+): void {
+  addSignal(out, entry, {
+    kind: "saturation",
+    name,
+    value: jvmInfo[key],
+    unit,
+    aggregation: "latest",
+    scopeType: "jvm",
+    scope,
+    evidenceRef: `metadata.jvm_info.${key}`,
+    payload: { [key]: jvmInfo[key] },
+  });
+}
+
+function addSignal(out: GoldenSignal[], entry: AnalysisWorkspaceEntry, input: SignalInput): void {
+  const value = finiteNumber(input.value);
+  if (value === null) return;
+  const scope = input.scope || defaultScope(input.scopeType);
+  const signal: GoldenSignal = {
+    id: `gs-${hashString(
+      [entry.id, input.evidenceRef, input.name, input.kind, scope, String(value)].join("\x00"),
+    )}`,
+    kind: input.kind,
+    name: input.name,
+    value,
+    unit: input.unit,
+    aggregation: input.aggregation,
+    scope_type: input.scopeType ?? "global",
+    scope,
+    source_analyzer: entry.result.type || entry.result_type,
+    source_result_id: entry.id,
+    source_title: entry.title,
+    source_file: entry.source_files[0],
+    evidence_ref: input.evidenceRef,
+    payload: input.payload ?? {},
+    tags: input.tags ?? {},
+  };
+  out.push(signal);
+}
+
+function dedupeSignals(signals: GoldenSignal[]): GoldenSignal[] {
+  const seen = new Set<string>();
+  const out: GoldenSignal[] = [];
+  for (const signal of signals) {
+    const key = [
+      signal.source_result_id,
+      signal.kind,
+      signal.name,
+      signal.scope_type,
+      signal.scope,
+      signal.evidence_ref,
+      signal.value,
+    ].join("\x00");
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(signal);
+  }
+  return out;
+}
+
+function compareSignals(left: GoldenSignal, right: GoldenSignal): number {
+  const kindDelta = kindRank(left.kind) - kindRank(right.kind);
+  if (kindDelta !== 0) return kindDelta;
+  if (left.source_analyzer !== right.source_analyzer) {
+    return left.source_analyzer.localeCompare(right.source_analyzer);
+  }
+  if (left.scope_type !== right.scope_type) return left.scope_type.localeCompare(right.scope_type);
+  if (left.scope !== right.scope) return left.scope.localeCompare(right.scope);
+  return right.value - left.value;
+}
+
+function kindRank(kind: GoldenSignalKind): number {
+  switch (kind) {
+    case "latency":
+      return 1;
+    case "traffic":
+      return 2;
+    case "errors":
+      return 3;
+    case "saturation":
+      return 4;
+  }
+}
+
+function countByKind(signals: GoldenSignal[]): Record<GoldenSignalKind, number> {
+  const counts: Record<GoldenSignalKind, number> = {
+    latency: 0,
+    traffic: 0,
+    errors: 0,
+    saturation: 0,
+  };
+  for (const signal of signals) counts[signal.kind] += 1;
+  return counts;
+}
+
+function countBySource(signals: GoldenSignal[]): Record<string, number> {
+  const counts: Record<string, number> = {};
+  for (const signal of signals) {
+    counts[signal.source_analyzer] = (counts[signal.source_analyzer] ?? 0) + 1;
+  }
+  return counts;
+}
+
+function endpointScope(row: Record<string, unknown>): string {
+  const method = stringValue(row.method);
+  const uri = stringValue(row.uri) || stringValue(row.path) || "unknown-endpoint";
+  return method ? `${method} ${uri}` : uri;
+}
+
+function edgeScope(row: Record<string, unknown>, callerKey: string, calleeKey: string): string {
+  const caller = stringValue(row[callerKey]) || "unknown-caller";
+  const callee = stringValue(row[calleeKey]) || "unknown-callee";
+  return `${caller} -> ${callee}`;
+}
+
+function jenniferEdgeScope(row: Record<string, unknown>): string {
+  const caller = stringValue(row.caller_application) || stringValue(row.caller_txid) || "unknown-caller";
+  const callee =
+    stringValue(row.callee_application) ||
+    stringValue(row.external_call_target) ||
+    stringValue(row.external_call_url) ||
+    "external-service";
+  return `${caller} -> ${callee}`;
+}
+
+function serviceCallScope(row: Record<string, unknown>): string {
+  const caller = stringValue(row.caller_application) || stringValue(row.caller) || "unknown-caller";
+  const callee = stringValue(row.callee_application) || stringValue(row.callee) || "unknown-callee";
+  return `${caller} -> ${callee}`;
+}
+
+function defaultScope(scopeType: GoldenSignalScopeType | undefined): string {
+  switch (scopeType) {
+    case "service":
+      return "all-services";
+    case "endpoint":
+      return "all-endpoints";
+    case "edge":
+      return "all-edges";
+    case "runtime":
+      return "runtime";
+    case "thread":
+      return "threads";
+    case "trace":
+      return "traces";
+    case "jvm":
+      return "jvm";
+    default:
+      return "global";
+  }
+}
+
+function humanizeKey(value: string): string {
+  return value
+    .split("_")
+    .filter(Boolean)
+    .map((part) => part.slice(0, 1).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function arrayOfObjects(value: unknown): Record<string, unknown>[] {
+  return Array.isArray(value)
+    ? value.filter((item): item is Record<string, unknown> => isPlainObject(item))
+    : [];
+}
+
+function objectOrEmpty(value: unknown): Record<string, unknown> {
+  return isPlainObject(value) ? value : {};
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function stringValue(value: unknown): string {
+  if (typeof value === "string") return value;
+  if (typeof value === "number" || typeof value === "boolean") return String(value);
+  return "";
+}
+
+function finiteNumber(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string") {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+}
+
+function hashString(value: string): string {
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(16);
+}
