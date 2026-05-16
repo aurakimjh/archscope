@@ -638,6 +638,72 @@ memory-space, OOM and long-pause alerts, JFR pause/sample/thread metrics,
 thread-dump lock/contention/deadlock metrics, and JVM metadata such as heap and
 worker counts.
 
+## Service Flow Projection
+
+The first Service Flow implementation is a Wails session projection built from
+Analysis Workspace results. It unifies Trace Import `service_dependencies`,
+Jennifer `tables.msa_edges`, and Jennifer unprofiled external-call groups into
+a common service-edge view.
+
+`ServiceFlowInputEdge` fields:
+
+```text
+id
+source_type            trace_import_dependency | jennifer_msa_edge | jennifer_unprofiled_external_call_group
+source_analyzer
+source_result_id
+source_title
+source_file
+caller
+callee
+call_count
+total_latency_ms
+avg_latency_ms
+max_latency_ms
+error_count
+error_rate
+raw_network_gap_ms
+adjusted_network_gap_ms
+network_gap_ms
+match_status
+guid
+trace_id
+external_call_url
+evidence_ref
+payload
+```
+
+`ServiceEdge` groups compatible input edges by caller/callee:
+
+```text
+id
+caller
+callee
+call_count
+total_latency_ms
+avg_latency_ms
+max_latency_ms
+error_count
+error_rate
+network_gap_sample_count
+total_network_gap_ms
+avg_network_gap_ms
+max_network_gap_ms
+matched_call_count
+unmatched_call_count
+source_types
+source_analyzers
+source_result_ids
+source_files
+evidence_refs
+input_edge_ids
+```
+
+Current deterministic service-flow finding codes are
+`SERVICE_FLOW_UNMATCHED_CALLS`, `SERVICE_FLOW_HIGH_NETWORK_GAP`, and
+`SERVICE_FLOW_MISSING_PARENT`. The Wails Service Flow page can export a
+Mermaid sequence-like view (`.mmd`) and a JSON `archscope_service_flow` payload.
+
 ## AI Interpretation Contract
 
 AI interpretation does not replace `AnalysisResult`. It is a separate `InterpretationResult` linked back to a source result.

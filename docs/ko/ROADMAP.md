@@ -154,6 +154,19 @@ finding을 확인하고, 근거를 수집하고, 고객 데이터 외부 전송 
   metric, SLO violation, affected-scope breakdown, error-budget burn row,
   SLO violation의 Evidence Board capture를 제공한다.
 
+### Service Flow MVP
+
+- Trace Import `service_dependencies`, Jennifer MSA `tables.msa_edges`,
+  Jennifer unprofiled external-call group을 위한 shared Service Flow input
+  model.
+- Caller, callee, call count, average/max/total latency, error count/rate,
+  network gap, matched/unmatched call, evidence reference를 담는 common
+  service-edge schema.
+- Unmatched call, missing trace parent, 높은 MSA network gap에 대한
+  deterministic service-flow finding.
+- Workspace 하위 Wails Service Flow page에서 service-edge/finding table,
+  Evidence Board capture, Mermaid sequence-like export, JSON export를 제공한다.
+
 ### 증거 기반 AI 보조 해석
 
 - `apps/engine-native/internal/aiinterpretation` 아래 Go 구현.
@@ -186,10 +199,10 @@ finding을 확인하고, 근거를 수집하고, 고객 데이터 외부 전송 
    - Evidence-reference integrity check가 통과한 뒤에만 AI interpretation을
      board와 연결한다.
 
-3. Incident Timeline 및 SLO/Golden Signals MVP 이후 다음 Evidence Studio
-   batch를 승격한다.
-   - 다음 후보 track은 unified Service Flow이며, 이후 report pack과
-     evidence-gated AI interpretation productization을 진행한다.
+3. Incident Timeline, SLO/Golden Signals, Service Flow MVP 이후 다음 Evidence
+   Studio batch를 승격한다.
+   - 다음 후보 track은 report pack과 evidence-gated AI interpretation
+     productization이다.
    - 실제 customer export가 확보되면 Jaeger와 SkyWalking compatibility
      fixture가 대표성을 유지하는지 계속 검증한다.
 
@@ -216,12 +229,13 @@ finding을 확인하고, 근거를 수집하고, 고객 데이터 외부 전송 
 
 ### Service Flow 및 MSA Topology
 
-- Jennifer MSA topology와 trace-import dependency model을 통합한다.
-- Caller, callee, call count, average/max/total latency, error count,
-  network gap을 담는 common service-edge schema를 정의한다.
-- Unmatched call, missing parent, network gap을 service-edge finding으로
-  정규화한다.
-- Service-flow evidence를 C4 dynamic view 또는 sequence-like export로 내보낸다.
+- Report pack에서 persisted service-flow data가 필요해지면 Wails session
+  Service Flow projection을 engine-level 또는 exportable `AnalysisResult`로
+  승격한다.
+- Common service-edge contract가 더 많은 evidence source에서 안정화되면 현재
+  Mermaid sequence-like export를 C4 dynamic view로 확장한다.
+- Access log, trace, database slow log, broker log, runtime stack evidence가
+  같은 service edge를 보강할 수 있도록 correlation-key stitching을 추가한다.
 
 ### 보고서 및 Evidence Pack
 

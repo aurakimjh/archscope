@@ -779,6 +779,72 @@ long-pause alert, JFR pause/sample/thread metric, thread-dump
 lock/contention/deadlock metric, heap 및 worker count 같은 JVM metadata를
 포함한다.
 
+## Service Flow Projection
+
+첫 Service Flow 구현은 Analysis Workspace 결과로부터 만든 Wails session
+projection이다. Trace Import `service_dependencies`, Jennifer `tables.msa_edges`,
+Jennifer unprofiled external-call group을 공통 service-edge view로 통합한다.
+
+`ServiceFlowInputEdge` fields:
+
+```text
+id
+source_type            trace_import_dependency | jennifer_msa_edge | jennifer_unprofiled_external_call_group
+source_analyzer
+source_result_id
+source_title
+source_file
+caller
+callee
+call_count
+total_latency_ms
+avg_latency_ms
+max_latency_ms
+error_count
+error_rate
+raw_network_gap_ms
+adjusted_network_gap_ms
+network_gap_ms
+match_status
+guid
+trace_id
+external_call_url
+evidence_ref
+payload
+```
+
+`ServiceEdge`는 caller/callee가 호환되는 input edge를 묶는다.
+
+```text
+id
+caller
+callee
+call_count
+total_latency_ms
+avg_latency_ms
+max_latency_ms
+error_count
+error_rate
+network_gap_sample_count
+total_network_gap_ms
+avg_network_gap_ms
+max_network_gap_ms
+matched_call_count
+unmatched_call_count
+source_types
+source_analyzers
+source_result_ids
+source_files
+evidence_refs
+input_edge_ids
+```
+
+현재 deterministic service-flow finding code는
+`SERVICE_FLOW_UNMATCHED_CALLS`, `SERVICE_FLOW_HIGH_NETWORK_GAP`,
+`SERVICE_FLOW_MISSING_PARENT`다. Wails Service Flow page는 Mermaid
+sequence-like view(`.mmd`)와 JSON `archscope_service_flow` payload를 export할
+수 있다.
+
 ## AI Interpretation Contract
 
 AI interpretation은 `AnalysisResult`를 대체하지 않는다. Source result에 연결된 별도 `InterpretationResult`로 취급한다.

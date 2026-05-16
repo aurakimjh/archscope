@@ -160,6 +160,19 @@ Guiding principles:
   metrics, SLO violations, affected-scope breakdowns, error-budget burn rows,
   and Evidence Board capture for SLO violations.
 
+### Service Flow MVP
+
+- Shared Service Flow input model for Trace Import `service_dependencies`,
+  Jennifer MSA `tables.msa_edges`, and Jennifer unprofiled external-call
+  groups.
+- Common service-edge schema with caller, callee, call count,
+  average/max/total latency, error count/rate, network gap, matched/unmatched
+  calls, and evidence references.
+- Deterministic service-flow findings for unmatched calls, missing trace
+  parents, and high MSA network gaps.
+- Wails Service Flow page under Workspace with service-edge and finding tables,
+  Evidence Board capture, Mermaid sequence-like export, and JSON export.
+
 ### Evidence-Bound AI Interpretation
 
 - Go implementation under `apps/engine-native/internal/aiinterpretation`.
@@ -191,10 +204,10 @@ These items should stay aligned with `work_status.md`.
    - Connect AI interpretation to the board only after evidence-reference
      integrity checks pass.
 
-3. Promote the next Evidence Studio batch after the Incident Timeline and
-   SLO/Golden Signals MVPs.
-   - The next candidate track is unified Service Flow, followed by report packs
-     and evidence-gated AI interpretation productization.
+3. Promote the next Evidence Studio batch after the Incident Timeline,
+   SLO/Golden Signals, and Service Flow MVPs.
+   - The next candidate tracks are report packs and evidence-gated AI
+     interpretation productization.
    - Keep Jaeger and SkyWalking compatibility fixtures representative as real
      customer exports become available.
 
@@ -222,12 +235,13 @@ These items should stay aligned with `work_status.md`.
 
 ### Service Flow and MSA Topology
 
-- Unify Jennifer MSA topology and trace-import dependency models.
-- Define a common service-edge schema with caller, callee, call count,
-  average/max/total latency, error count, and network gap.
-- Normalize unmatched calls, missing parents, and network gaps into service-edge
-  findings.
-- Add C4 dynamic view or sequence-like export for service-flow evidence.
+- Promote the Wails session Service Flow projection into an engine-level or
+  exportable `AnalysisResult` when report packs need persisted service-flow
+  data.
+- Extend the current Mermaid sequence-like export toward C4 dynamic views when
+  the common service-edge contract is stable across more evidence sources.
+- Add correlation-key stitching so access logs, traces, database slow logs,
+  broker logs, and runtime stack evidence can enrich the same service edges.
 
 ### Reports and Evidence Packs
 

@@ -4,6 +4,8 @@ export type EvidenceSourceKind =
   | "table_row"
   | "timeline_event"
   | "slo_violation"
+  | "service_edge"
+  | "service_flow_finding"
   | "parser_diagnostic"
   | "source_metadata";
 

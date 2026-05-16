@@ -54,6 +54,7 @@ export type NavKey =
   | "chart_studio"
   | "incident_timeline"
   | "slo_golden_signals"
+  | "service_flow"
   | "evidence_board"
   | "settings";
 
@@ -75,6 +76,7 @@ const NAV_ICONS: Record<NavKey, NavIcon> = {
   chart_studio: BarChart3,
   incident_timeline: Clock3,
   slo_golden_signals: Gauge,
+  service_flow: Network,
   evidence_board: ClipboardList,
   settings: Settings,
 };
@@ -154,6 +156,7 @@ export function Sidebar({ active, onNavigate }: SidebarProps) {
     { key: "chart_studio", label: t("navChartStudio") },
     { key: "incident_timeline", label: t("navIncidentTimeline") },
     { key: "slo_golden_signals", label: t("navSloGoldenSignals") },
+    { key: "service_flow", label: t("navServiceFlow") },
     { key: "evidence_board", label: t("navEvidenceBoard") },
   ];
   const topLevelItems: { key: NavKey; label: string }[] = [

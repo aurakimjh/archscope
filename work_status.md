@@ -18,7 +18,8 @@ The previous long-form history was archived to
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
 - Current execution focus: executing the promoted mid-term Evidence Studio
-  roadmap TODOs after the Wails Incident Timeline and SLO/Golden Signals MVPs.
+  roadmap TODOs after the Wails Incident Timeline, SLO/Golden Signals, and
+  Service Flow MVPs.
 - Retired implementation: Python/FastAPI/browser sources are archived under
   `archive/python-engine` and `archive/web-frontend-python`.
 - Historical native POC module has been folded into `apps/engine-native`.
@@ -113,6 +114,9 @@ The previous long-form history was archived to
 - Added the Wails SLO / Golden Signals MVP with session-wide signal inventory,
   SLI metric normalization, default SLO target evaluation, violation/error
   budget tables, affected-scope breakdowns, and Evidence Board capture.
+- Added the Wails Service Flow MVP with a shared Trace Import/Jennifer MSA
+  service-edge model, deterministic service-flow findings, Evidence Board
+  capture, Mermaid sequence-like export, and JSON export.
 
 ## Current Risk
 
@@ -175,9 +179,8 @@ filtered before analysis.
 
 ## Next Execution Queue
 
-1. Continue the promoted mid-term Evidence Studio batch with unified Service
-   Flow, report packs, and AI interpretation productization after the
-   SLO/Golden Signals MVP.
+1. Continue the promoted mid-term Evidence Studio batch with report packs and
+   AI interpretation productization after the Service Flow MVP.
 2. Keep release verification healthy before the next 0.3.x cut by repeating
    Windows GUI smoke, macOS signing/notarization validation, and frontend
    bundle budget checks.
@@ -218,7 +221,7 @@ filtered before analysis.
 | T-441 | P1 | [x] | Unify Jennifer MSA topology and trace-import dependency models. | T-427, T-430 | Completed 2026-05-16: shared service-flow input model for Trace Import and Jennifer MSA |
 | T-442 | P1 | [x] | Define a common service-edge schema with caller, callee, call count, average/max/total latency, error count, and network gap. | T-441 | Completed 2026-05-16: normalized service-edge contract with latency, error, and network-gap aggregation |
 | T-443 | P1 | [x] | Normalize unmatched calls, missing parents, and network gaps into service-edge findings. | T-442 | Completed 2026-05-16: deterministic service-flow findings for unmatched calls, missing parents, and high network gaps |
-| T-444 | P2 | [ ] | Add C4 dynamic view or sequence-like export for service-flow evidence. | T-442, T-443 | Planned: service-flow evidence export |
+| T-444 | P2 | [x] | Add C4 dynamic view or sequence-like export for service-flow evidence. | T-442, T-443 | Completed 2026-05-16: Wails Service Flow page with Mermaid sequence-like and JSON export |
 | T-445 | P1 | [ ] | Generate report-ready HTML, ZIP, and later PPTX/PDF outputs from Evidence Board content. | T-423, T-434 preferred | Planned: report pack export workflow |
 | T-446 | P1 | [ ] | Preserve source metadata, analyzer options, captured evidence, deterministic findings, and optional AI interpretation provenance in report packs. | T-445 | Planned: report pack provenance contract |
 | T-447 | P2 | [ ] | Support customer-facing summaries without hiding raw evidence behind conclusions. | T-445, T-446 | Planned: evidence-first customer report summary |
@@ -353,6 +356,10 @@ filtered before analysis.
   SLO / Golden Signals page is a lazy 41.99 KB raw / 9.17 KB gzip route chunk,
   and the lazy shared ECharts runtime remains 689.89 KB raw / 229.50 KB gzip.
   `git diff --check` passed.
+- 2026-05-16 Wails frontend verification passed after T-441 through T-444:
+  `npm run build`. Startup shell chunk is 161.40 KB raw / 52.02 KB gzip; the
+  Service Flow page is a lazy 22.30 KB raw / 5.84 KB gzip route chunk, and the
+  lazy shared ECharts runtime remains 689.89 KB raw / 229.49 KB gzip.
 
 ## Decisions
 

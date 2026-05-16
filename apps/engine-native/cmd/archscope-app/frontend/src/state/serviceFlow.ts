@@ -98,7 +98,25 @@ export type ServiceFlowAnalysis = {
   findings_by_severity: Record<ServiceFlowFindingSeverity, number>;
 };
 
+export type ServiceFlowExportPayload = {
+  type: "archscope_service_flow";
+  schema_version: "0.1.0";
+  generated_at: string;
+  summary: {
+    source_count: number;
+    input_edge_count: number;
+    edge_count: number;
+    total_call_count: number;
+    total_error_count: number;
+    total_unmatched_call_count: number;
+    finding_count: number;
+  };
+  edges: ServiceEdge[];
+  findings: ServiceFlowFinding[];
+};
+
 const MAX_INPUT_EDGES = 1_500;
+const MAX_SEQUENCE_EDGES = 80;
 const NETWORK_GAP_WARNING_MS = 20;
 const NETWORK_GAP_CRITICAL_MS = 50;
 
@@ -157,6 +175,50 @@ export function buildServiceFlowFindings(
     ...edgeModel.edges.flatMap((edge) => edgeFindings(edge)),
     ...missingParentFindings(entries),
   ].sort(compareFindings);
+}
+
+export function buildServiceFlowExportPayload(analysis: ServiceFlowAnalysis): ServiceFlowExportPayload {
+  return {
+    type: "archscope_service_flow",
+    schema_version: "0.1.0",
+    generated_at: new Date().toISOString(),
+    summary: {
+      source_count: analysis.edge_model.source_count,
+      input_edge_count: analysis.edge_model.input_edge_count,
+      edge_count: analysis.edge_model.edge_count,
+      total_call_count: analysis.edge_model.total_call_count,
+      total_error_count: analysis.edge_model.total_error_count,
+      total_unmatched_call_count: analysis.edge_model.total_unmatched_call_count,
+      finding_count: analysis.findings.length,
+    },
+    edges: analysis.edge_model.edges,
+    findings: analysis.findings,
+  };
+}
+
+export function buildServiceFlowMermaidSequence(analysis: ServiceFlowAnalysis): string {
+  const edges = analysis.edge_model.edges.slice(0, MAX_SEQUENCE_EDGES);
+  const services = uniqueSorted(edges.flatMap((edge) => [edge.caller, edge.callee]));
+  const aliases = new Map(services.map((service, index) => [service, `S${index + 1}`]));
+  const lines = [
+    "sequenceDiagram",
+    "    autonumber",
+    ...services.map((service) => `    participant ${aliases.get(service)} as ${mermaidText(service)}`),
+  ];
+  const findingsByEdge = groupFindingsByEdge(analysis.findings);
+  for (const edge of edges) {
+    const caller = aliases.get(edge.caller) ?? "UnknownCaller";
+    const callee = aliases.get(edge.callee) ?? "UnknownCallee";
+    lines.push(`    ${caller}->>${callee}: ${mermaidText(edgeMessage(edge))}`);
+    for (const finding of findingsByEdge.get(edge.id) ?? []) {
+      lines.push(`    Note over ${caller},${callee}: ${mermaidText(`${finding.code}: ${finding.message}`)}`);
+    }
+  }
+  const sourceOnlyFindings = analysis.findings.filter((finding) => !finding.edge_id).slice(0, 20);
+  for (const finding of sourceOnlyFindings) {
+    lines.push(`    Note over ${services.length > 0 ? aliases.get(services[0]) : "S1"}: ${mermaidText(`${finding.code}: ${finding.message}`)}`);
+  }
+  return `${lines.join("\n")}\n`;
 }
 
 function inputEdgesFromEntry(entry: AnalysisWorkspaceEntry): ServiceFlowInputEdge[] {
@@ -554,6 +616,33 @@ function severityRank(severity: ServiceFlowFindingSeverity): number {
 
 function formatMs(value: number): string {
   return `${round(value, 2).toLocaleString()} ms`;
+}
+
+function groupFindingsByEdge(findings: ServiceFlowFinding[]): Map<string, ServiceFlowFinding[]> {
+  const groups = new Map<string, ServiceFlowFinding[]>();
+  for (const finding of findings) {
+    if (!finding.edge_id) continue;
+    const group = groups.get(finding.edge_id);
+    if (group) {
+      group.push(finding);
+    } else {
+      groups.set(finding.edge_id, [finding]);
+    }
+  }
+  return groups;
+}
+
+function edgeMessage(edge: ServiceEdge): string {
+  const parts = [`${edge.call_count.toLocaleString()} calls`];
+  if (edge.avg_latency_ms !== undefined) parts.push(`avg ${formatMs(edge.avg_latency_ms)}`);
+  if (edge.error_count > 0) parts.push(`${edge.error_count.toLocaleString()} errors`);
+  if (edge.avg_network_gap_ms !== undefined) parts.push(`gap ${formatMs(edge.avg_network_gap_ms)}`);
+  if (edge.unmatched_call_count > 0) parts.push(`${edge.unmatched_call_count.toLocaleString()} unmatched`);
+  return parts.join(", ");
+}
+
+function mermaidText(value: string): string {
+  return JSON.stringify(value.replace(/\r?\n/g, " ").slice(0, 180));
 }
 
 function sum(values: number[]): number {

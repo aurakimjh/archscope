@@ -70,6 +70,11 @@ const SloGoldenSignalsPage = lazy(() =>
     default: SloGoldenSignalsPage,
   })),
 );
+const ServiceFlowPage = lazy(() =>
+  import("./pages/ServiceFlowPage").then(({ ServiceFlowPage }) => ({
+    default: ServiceFlowPage,
+  })),
+);
 const AccessLogAnalyzerPage = lazy(() =>
   import("./pages/AccessLogAnalyzerPage").then(({ AccessLogAnalyzerPage }) => ({
     default: AccessLogAnalyzerPage,
@@ -193,6 +198,7 @@ function App() {
             {active === "chart_studio" && <ChartStudioPage />}
             {active === "incident_timeline" && <IncidentTimelinePage />}
             {active === "slo_golden_signals" && <SloGoldenSignalsPage />}
+            {active === "service_flow" && <ServiceFlowPage />}
             {active === "evidence_board" && <EvidenceBoardPage />}
             {active === "settings" && <SettingsPage />}
           </Suspense>
