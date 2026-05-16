@@ -536,6 +536,27 @@ Finding code는 `UNDOCUMENTED_API_ROUTE`, `UNUSED_API_OPERATION`,
 `SLOW_API_OPERATION`, `HIGH_ERROR_API_OPERATION`,
 `UNDOCUMENTED_EVENT_CHANNEL`, `UNUSED_EVENT_CHANNEL`을 포함한다.
 
+### Architecture Documentation Package
+
+`type`: `architecture_docs`
+
+Architecture documentation package는 기존 `AnalysisResult` JSON evidence에서
+생성된다. 최종 문서를 바로 렌더링하지 않고, source evidence reference를 보존한
+상태로 arc42 및 ADR workflow에 넣을 수 있는 review-ready row를 만든다.
+
+핵심 table:
+
+| Field | Row shape |
+|---|---|
+| `arc42_sections` | `{ section_id, title, draft_markdown, evidence_tables }` |
+| `context_services` | Service Flow, stitched evidence, contract evidence에서 추론한 service/component |
+| `interfaces` | API/event contract analysis에서 가져온 HTTP API operation 및 event channel |
+| `runtime_views` | evidence-backed runtime interaction, match, gap |
+| `deployment_views` | Kubernetes/container/cloud deployment row |
+| `quality_requirements` | deterministic finding에서 파생한 quality scenario |
+| `risks` | severity, impact, mitigation, evidence ref를 가진 architecture risk |
+| `adr_drafts` | decision, context, alternatives, tradeoffs, consequences, evidence ref를 가진 ADR draft row |
+
 ### Profiler Collapsed Result
 
 `type`: `profiler_collapsed`

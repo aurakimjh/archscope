@@ -213,6 +213,11 @@ type ApiContractRequest struct {
 	ErrorRateThreshold float64 `json:"errorRateThreshold,omitempty"`
 }
 
+type ArchitectureDocsRequest struct {
+	Paths []string `json:"paths"`
+	TopN  int      `json:"topN,omitempty"`
+}
+
 // TraceImportRequest mirrors traceimport.Options + a Path.
 type TraceImportRequest struct {
 	Path   string `json:"path"`
@@ -537,6 +542,13 @@ func (s *EngineService) AnalyzeApiContract(req ApiContractRequest) (engineapi.An
 		SlowThresholdMS:    req.SlowThresholdMS,
 		ErrorRateThreshold: req.ErrorRateThreshold,
 	})
+}
+
+func (s *EngineService) AnalyzeArchitectureDocs(req ArchitectureDocsRequest) (engineapi.AnalysisResult, error) {
+	if len(req.Paths) == 0 {
+		return engineapi.AnalysisResult{}, fmt.Errorf("paths are required")
+	}
+	return engineapi.AnalyzeArchitectureDocs(req.Paths, engineapi.ArchitectureDocsOptions{TopN: req.TopN})
 }
 
 // AnalyzeTraceImport wraps engineapi.AnalyzeTraceImport.

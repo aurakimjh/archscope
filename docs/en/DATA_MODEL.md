@@ -394,6 +394,28 @@ Finding codes include `UNDOCUMENTED_API_ROUTE`, `UNUSED_API_OPERATION`,
 `SLOW_API_OPERATION`, `HIGH_ERROR_API_OPERATION`,
 `UNDOCUMENTED_EVENT_CHANNEL`, and `UNUSED_EVENT_CHANNEL`.
 
+### Architecture Documentation Package
+
+`type`: `architecture_docs`
+
+Architecture documentation packages are generated from existing
+`AnalysisResult` JSON evidence. The result does not try to render final prose;
+it emits review-ready rows for arc42 and ADR workflows while preserving source
+evidence references.
+
+Core tables:
+
+| Field | Row shape |
+|---|---|
+| `arc42_sections` | `{ section_id, title, draft_markdown, evidence_tables }` |
+| `context_services` | Services/components inferred from Service Flow, stitched evidence, and contract evidence |
+| `interfaces` | HTTP API operations and event channels imported from API/event contract analysis |
+| `runtime_views` | Evidence-backed runtime interactions, matches, and gaps |
+| `deployment_views` | Kubernetes/container/cloud deployment rows |
+| `quality_requirements` | Quality scenarios derived from deterministic findings |
+| `risks` | Evidence-backed architecture risks with severity, impact, mitigation, and evidence ref |
+| `adr_drafts` | Draft ADR rows with decision, context, alternatives, tradeoffs, consequences, and evidence refs |
+
 ### Profiler Collapsed Result
 
 `type`: `profiler_collapsed`

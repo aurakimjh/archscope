@@ -56,6 +56,14 @@ OpenAPI operation을 access-log result table과, AsyncAPI channel을 broker resu
 table과 비교한 뒤 undocumented, unused, slow, high-error API/event surface를
 deterministic finding으로 낸다.
 
+## Architecture Documentation Package
+
+`architecture-docs draft`는 기존 `AnalysisResult` JSON 파일을 대상으로 하는
+second-pass analyzer다. arc42 Context, Runtime View, Deployment View, Quality
+Requirements, Risks, ADR draft에 들어갈 architecture-review row를 추출한다.
+원본 evidence parsing 책임은 각 importer에 남기고, 이 package는 이미 정규화된
+evidence와 finding을 문서 입력으로 변환한다.
+
 ## Access Log Parser
 
 Access-log parsing은 기존 NGINX/common/combined path의 호환성을 유지하면서

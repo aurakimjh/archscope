@@ -421,6 +421,10 @@ report packs, and AI productization.
   consequences, and evidence references.
 - Connect C4 diagrams, service-flow evidence, incident timelines, and Evidence
   Board cards into architecture-review deliverables.
+- Current implementation status: `architecture-docs draft` emits
+  `architecture_docs` with arc42 section drafts, context/runtime/deployment
+  rows, quality requirements, risks, and ADR draft rows from existing evidence
+  results.
 
 ### Security and Compliance Evidence
 
