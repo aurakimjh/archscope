@@ -39,6 +39,41 @@ export type ServiceFlowInputModel = {
   edges: ServiceFlowInputEdge[];
 };
 
+export type ServiceEdge = {
+  id: string;
+  caller: string;
+  callee: string;
+  call_count: number;
+  total_latency_ms?: number;
+  avg_latency_ms?: number;
+  max_latency_ms?: number;
+  error_count: number;
+  error_rate: number;
+  network_gap_sample_count: number;
+  total_network_gap_ms?: number;
+  avg_network_gap_ms?: number;
+  max_network_gap_ms?: number;
+  matched_call_count: number;
+  unmatched_call_count: number;
+  source_types: ServiceFlowSourceType[];
+  source_analyzers: string[];
+  source_result_ids: string[];
+  source_files: string[];
+  evidence_refs: string[];
+  input_edge_ids: string[];
+};
+
+export type ServiceEdgeModel = {
+  generated_at: string;
+  source_count: number;
+  input_edge_count: number;
+  edge_count: number;
+  total_call_count: number;
+  total_error_count: number;
+  total_unmatched_call_count: number;
+  edges: ServiceEdge[];
+};
+
 const MAX_INPUT_EDGES = 1_500;
 
 export function buildServiceFlowInputModel(entries: AnalysisWorkspaceEntry[]): ServiceFlowInputModel {
@@ -54,6 +89,25 @@ export function buildServiceFlowInputModel(entries: AnalysisWorkspaceEntry[]): S
 
 export function buildServiceFlowInputEdges(entries: AnalysisWorkspaceEntry[]): ServiceFlowInputEdge[] {
   return buildServiceFlowInputModel(entries).edges;
+}
+
+export function buildServiceEdgeModel(input: ServiceFlowInputModel | ServiceFlowInputEdge[]): ServiceEdgeModel {
+  const edges = Array.isArray(input) ? input : input.edges;
+  const serviceEdges = Array.from(groupServiceEdges(edges).values()).sort(compareServiceEdges);
+  return {
+    generated_at: new Date().toISOString(),
+    source_count: Array.isArray(input) ? uniqueSorted(edges.map((edge) => edge.source_result_id)).length : input.source_count,
+    input_edge_count: edges.length,
+    edge_count: serviceEdges.length,
+    total_call_count: sum(serviceEdges.map((edge) => edge.call_count)),
+    total_error_count: sum(serviceEdges.map((edge) => edge.error_count)),
+    total_unmatched_call_count: sum(serviceEdges.map((edge) => edge.unmatched_call_count)),
+    edges: serviceEdges,
+  };
+}
+
+export function buildServiceEdgeModelFromEntries(entries: AnalysisWorkspaceEntry[]): ServiceEdgeModel {
+  return buildServiceEdgeModel(buildServiceFlowInputModel(entries));
 }
 
 function inputEdgesFromEntry(entry: AnalysisWorkspaceEntry): ServiceFlowInputEdge[] {
@@ -201,6 +255,133 @@ function countBySourceType(edges: ServiceFlowInputEdge[]): Record<ServiceFlowSou
   };
   for (const edge of edges) counts[edge.source_type] += 1;
   return counts;
+}
+
+function groupServiceEdges(edges: ServiceFlowInputEdge[]): Map<string, ServiceEdge> {
+  const buckets = new Map<string, ServiceFlowInputEdge[]>();
+  for (const edge of edges) {
+    const key = serviceEdgeKey(edge.caller, edge.callee);
+    const bucket = buckets.get(key);
+    if (bucket) {
+      bucket.push(edge);
+    } else {
+      buckets.set(key, [edge]);
+    }
+  }
+
+  const serviceEdges = new Map<string, ServiceEdge>();
+  for (const [key, bucket] of buckets.entries()) {
+    const representative = bucket[0];
+    const callCount = sum(bucket.map((edge) => edge.call_count));
+    const totalLatency = sumOptional(bucket.map((edge) => edge.total_latency_ms ?? derivedTotalLatency(edge)));
+    const maxLatency = maxOptional(bucket.flatMap((edge) => [edge.max_latency_ms, edge.avg_latency_ms]));
+    const errorCount = Math.round(sum(bucket.map((edge) => edge.error_count ?? 0)));
+    const networkGapSamples = sum(
+      bucket.map((edge) => (edge.network_gap_ms === undefined ? 0 : Math.max(1, edge.call_count))),
+    );
+    const totalNetworkGap = sumOptional(
+      bucket.map((edge) =>
+        edge.network_gap_ms === undefined ? undefined : edge.network_gap_ms * Math.max(1, edge.call_count),
+      ),
+    );
+    serviceEdges.set(key, {
+      id: `svc-edge-${hashString(key)}`,
+      caller: representative.caller,
+      callee: representative.callee,
+      call_count: callCount,
+      total_latency_ms: roundOptional(totalLatency, 3),
+      avg_latency_ms: roundOptional(
+        totalLatency === undefined ? avgOptional(bucket.map((edge) => edge.avg_latency_ms)) : totalLatency / callCount,
+        3,
+      ),
+      max_latency_ms: roundOptional(maxLatency, 3),
+      error_count: errorCount,
+      error_rate: callCount > 0 ? round((errorCount / callCount) * 100, 3) : 0,
+      network_gap_sample_count: networkGapSamples,
+      total_network_gap_ms: roundOptional(totalNetworkGap, 3),
+      avg_network_gap_ms: roundOptional(
+        totalNetworkGap === undefined || networkGapSamples <= 0 ? undefined : totalNetworkGap / networkGapSamples,
+        3,
+      ),
+      max_network_gap_ms: roundOptional(maxOptional(bucket.map((edge) => edge.network_gap_ms)), 3),
+      matched_call_count: sum(bucket.map((edge) => matchedCallCount(edge))),
+      unmatched_call_count: sum(bucket.map((edge) => unmatchedCallCount(edge))),
+      source_types: uniqueSorted(bucket.map((edge) => edge.source_type)) as ServiceFlowSourceType[],
+      source_analyzers: uniqueSorted(bucket.map((edge) => edge.source_analyzer)),
+      source_result_ids: uniqueSorted(bucket.map((edge) => edge.source_result_id)),
+      source_files: uniqueSorted(bucket.map((edge) => edge.source_file ?? "")),
+      evidence_refs: uniqueSorted(bucket.map((edge) => edge.evidence_ref)),
+      input_edge_ids: uniqueSorted(bucket.map((edge) => edge.id)),
+    });
+  }
+  return serviceEdges;
+}
+
+function serviceEdgeKey(caller: string, callee: string): string {
+  return `${canonicalServiceName(caller)}\x00${canonicalServiceName(callee)}`;
+}
+
+function canonicalServiceName(value: string): string {
+  return value.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+function derivedTotalLatency(edge: ServiceFlowInputEdge): number | undefined {
+  return edge.avg_latency_ms === undefined ? undefined : edge.avg_latency_ms * Math.max(1, edge.call_count);
+}
+
+function matchedCallCount(edge: ServiceFlowInputEdge): number {
+  if (edge.source_type !== "jennifer_msa_edge") return 0;
+  return edge.match_status?.toLowerCase() === "matched" ? edge.call_count : 0;
+}
+
+function unmatchedCallCount(edge: ServiceFlowInputEdge): number {
+  if (edge.source_type === "jennifer_unprofiled_external_call_group") return edge.call_count;
+  if (edge.source_type !== "jennifer_msa_edge") return 0;
+  return edge.match_status?.toLowerCase() === "matched" ? 0 : edge.call_count;
+}
+
+function compareServiceEdges(left: ServiceEdge, right: ServiceEdge): number {
+  return (
+    right.unmatched_call_count - left.unmatched_call_count ||
+    right.error_count - left.error_count ||
+    (right.max_network_gap_ms ?? 0) - (left.max_network_gap_ms ?? 0) ||
+    right.call_count - left.call_count ||
+    left.caller.localeCompare(right.caller) ||
+    left.callee.localeCompare(right.callee)
+  );
+}
+
+function sum(values: number[]): number {
+  return values.reduce((total, value) => total + value, 0);
+}
+
+function sumOptional(values: Array<number | undefined>): number | undefined {
+  const present = values.filter((value): value is number => value !== undefined && Number.isFinite(value));
+  return present.length > 0 ? sum(present) : undefined;
+}
+
+function avgOptional(values: Array<number | undefined>): number | undefined {
+  const present = values.filter((value): value is number => value !== undefined && Number.isFinite(value));
+  return present.length > 0 ? sum(present) / present.length : undefined;
+}
+
+function maxOptional(values: Array<number | undefined>): number | undefined {
+  const present = values.filter((value): value is number => value !== undefined && Number.isFinite(value));
+  return present.length > 0 ? Math.max(...present) : undefined;
+}
+
+function roundOptional(value: number | undefined, digits: number): number | undefined {
+  return value === undefined ? undefined : round(value, digits);
+}
+
+function round(value: number, digits: number): number {
+  if (!Number.isFinite(value)) return value;
+  const factor = 10 ** digits;
+  return Math.round(value * factor) / factor;
+}
+
+function uniqueSorted(values: string[]): string[] {
+  return Array.from(new Set(values.filter(Boolean))).sort((left, right) => left.localeCompare(right));
 }
 
 function normalizedExternalTarget(value: unknown): string {

@@ -216,7 +216,7 @@ filtered before analysis.
 | T-439 | P1 | [x] | Add SLO target configuration, violating-window detection, error-budget burn tables, and affected service/endpoint breakdowns. | T-438 | Completed 2026-05-16: session SLO targets, violations, error-budget, and affected-scope breakdowns |
 | T-440 | P1 | [x] | Add a Wails SLO / Golden Signals workspace page with signal inventory, SLO violations, and Evidence Board capture. | T-437, T-438, T-439 | Completed 2026-05-16: desktop SLO / Golden Signals workspace workflow |
 | T-441 | P1 | [x] | Unify Jennifer MSA topology and trace-import dependency models. | T-427, T-430 | Completed 2026-05-16: shared service-flow input model for Trace Import and Jennifer MSA |
-| T-442 | P1 | [ ] | Define a common service-edge schema with caller, callee, call count, average/max/total latency, error count, and network gap. | T-441 | Planned: normalized service-edge contract |
+| T-442 | P1 | [x] | Define a common service-edge schema with caller, callee, call count, average/max/total latency, error count, and network gap. | T-441 | Completed 2026-05-16: normalized service-edge contract with latency, error, and network-gap aggregation |
 | T-443 | P1 | [ ] | Normalize unmatched calls, missing parents, and network gaps into service-edge findings. | T-442 | Planned: deterministic service-flow findings |
 | T-444 | P2 | [ ] | Add C4 dynamic view or sequence-like export for service-flow evidence. | T-442, T-443 | Planned: service-flow evidence export |
 | T-445 | P1 | [ ] | Generate report-ready HTML, ZIP, and later PPTX/PDF outputs from Evidence Board content. | T-423, T-434 preferred | Planned: report pack export workflow |
