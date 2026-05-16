@@ -94,6 +94,7 @@ import (
 	"time"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/diagnostics"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/ingestion"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/accesslog"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/statistics"
@@ -597,6 +598,11 @@ func buildFromIterator(
 	}
 	result.Metadata.Extra["format"] = format
 	result.Metadata.Extra["analysis_options"] = optionsToDict(opts)
+	ingestion.AttachSourceMetadata(&result, ingestion.NewSourceMetadata(sourceFile, ingestion.SourceMetadataOptions{
+		SourceKind:   ingestion.SourceKindAccessLog,
+		SourceFormat: format,
+		Product:      accessLogProduct(format),
+	}))
 	return result, nil
 }
 
@@ -782,6 +788,23 @@ func optionsToDict(opts Options) map[string]any {
 		out["end_time"] = opts.EndTime.Format(time.RFC3339Nano)
 	}
 	return out
+}
+
+func accessLogProduct(format string) string {
+	switch strings.ToLower(strings.TrimSpace(format)) {
+	case "apache":
+		return "Apache HTTP Server"
+	case "nginx":
+		return "nginx"
+	case "tomcat":
+		return "Apache Tomcat"
+	case "weblogic":
+		return "Oracle WebLogic"
+	case "ohs":
+		return "Oracle HTTP Server"
+	default:
+		return format
+	}
 }
 
 // buildFindings ports `_build_access_log_findings`. Code names match

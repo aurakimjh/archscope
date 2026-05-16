@@ -10,6 +10,34 @@ Parser는 raw file을 typed record로 변환한다. Chart rendering이나 report
 - typed record 또는 parser diagnostic 반환
 - 향후 대용량 파일 처리를 위한 streaming pattern 유지
 
+## 공통 Ingestion 기반
+
+Mid-Term Plus importer 작업은 parser별 record를 만들기 전에
+`apps/engine-native/internal/ingestion` 아래의 공통 Go package를 사용한다.
+경계는 다음과 같다.
+
+- Parser package는 `internal/parsers/<family>` 아래에 두고 file decode, format
+  분류, typed record와 diagnostics 생성만 담당한다.
+- Analyzer package는 `internal/analyzers/<family>` 아래에 두고
+  `AnalysisResult` envelope를 만든다.
+- CLI group은 `server-log analyze`, `database-log analyze`, `profile import`
+  같은 kebab-case family name을 사용한다.
+- Wails binding은 `AnalyzeServerLog`, `AnalyzeDatabaseLog`처럼
+  `Analyze<Family>` 형태를 유지한다.
+- Result type은 `server_log`, `database_slow_query`, `broker_log`,
+  `kubernetes_evidence`, `profile_evidence`처럼 snake_case를 사용한다.
+
+같은 package는 다음 contract도 제공한다.
+
+- Auto-detect dispatch를 위한 reusable source-format registry와 bounded probe
+  contract.
+- Valid, partial, malformed, unknown-format, large-file importer sample을 위한
+  golden fixture diagnostic harness.
+- Source kind, format, product/version, host, service, environment, sanitized
+  file identity를 담는 normalized source metadata.
+- Trace/span/request ID, tenant/customer ID, container/pod/host/PID identity,
+  timestamp window를 담는 cross-source correlation-key model.
+
 ## Access Log Parser
 
 초기 지원 대상은 response time field를 포함한 NGINX combined 유사 format이다.

@@ -10,6 +10,35 @@ Parsers convert raw files into typed records. They should not own chart renderin
 - Return typed records or parser diagnostics.
 - Support streaming patterns for future large-file handling.
 
+## Shared Ingestion Foundation
+
+Mid-Term Plus importer work uses a shared Go package under
+`apps/engine-native/internal/ingestion` before parser-specific records are
+created. The boundary is:
+
+- parser packages live under `internal/parsers/<family>` and only decode files,
+  classify formats, and emit typed records plus diagnostics.
+- analyzer packages live under `internal/analyzers/<family>` and build the
+  `AnalysisResult` envelope.
+- CLI groups use kebab-case family names, for example `server-log analyze`,
+  `database-log analyze`, and `profile import`.
+- Wails bindings keep the `Analyze<Family>` shape, for example
+  `AnalyzeServerLog` and `AnalyzeDatabaseLog`.
+- result types stay snake_case, for example `server_log`,
+  `database_slow_query`, `broker_log`, `kubernetes_evidence`, and
+  `profile_evidence`.
+
+The same package also provides:
+
+- a reusable source-format registry and bounded probe contract for auto-detect
+  dispatch.
+- a golden fixture diagnostic harness for valid, partial, malformed,
+  unknown-format, and large-file importer samples.
+- normalized source metadata for source kind, format, product/version, host,
+  service, environment, and sanitized file identity.
+- a cross-source correlation-key model for trace/span/request IDs,
+  tenant/customer IDs, container/pod/host/PID identity, and timestamp windows.
+
 ## Access Log Parser
 
 Initial support targets NGINX combined-like logs with a response time field, and

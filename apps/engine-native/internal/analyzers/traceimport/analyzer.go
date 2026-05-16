@@ -5,7 +5,9 @@ package traceimport
 import (
 	"sort"
 	"strings"
+	"time"
 
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/ingestion"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 	traceparser "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/traceimport"
 )
@@ -142,6 +144,12 @@ func Build(spans []traceparser.Span, sourceFile, sourceFormat string, opts Optio
 			"duration_nanos",
 		},
 	}
+	ingestion.AttachSourceMetadata(&result, ingestion.NewSourceMetadata(sourceFile, ingestion.SourceMetadataOptions{
+		SourceKind:   ingestion.SourceKindTrace,
+		SourceFormat: sourceFormat,
+		Product:      traceProduct(sourceFormat),
+	}))
+	ingestion.AttachCorrelationKeys(&result, traceCorrelationKeys(spans, topN))
 	for _, finding := range findings(summary, traceStats, dependencies) {
 		result.Metadata.Findings = append(result.Metadata.Findings, finding)
 	}
@@ -236,6 +244,71 @@ func buildDependencies(spans []traceparser.Span, spanByID map[string]traceparser
 		}
 	}
 	return out
+}
+
+func traceProduct(sourceFormat string) string {
+	switch sourceFormat {
+	case traceparser.FormatOTLPJSON:
+		return "OpenTelemetry"
+	case traceparser.FormatZipkinV2:
+		return "Zipkin"
+	case traceparser.FormatElasticSearchJSON, traceparser.FormatElasticSourceNDJSON:
+		return "Elastic APM"
+	case traceparser.FormatJaegerQueryJSON:
+		return "Jaeger"
+	case traceparser.FormatSkyWalkingGraphQL:
+		return "Apache SkyWalking"
+	default:
+		return sourceFormat
+	}
+}
+
+func traceCorrelationKeys(spans []traceparser.Span, limit int) []ingestion.CorrelationKeys {
+	if limit <= 0 {
+		limit = DefaultTopN
+	}
+	ordered := append([]traceparser.Span(nil), spans...)
+	sort.SliceStable(ordered, func(i, j int) bool {
+		if ordered[i].TraceID != ordered[j].TraceID {
+			return ordered[i].TraceID < ordered[j].TraceID
+		}
+		if ordered[i].StartUnixNanos != ordered[j].StartUnixNanos {
+			return ordered[i].StartUnixNanos < ordered[j].StartUnixNanos
+		}
+		return ordered[i].SpanID < ordered[j].SpanID
+	})
+	keys := make([]ingestion.CorrelationKeys, 0, minInt(limit, len(ordered)))
+	seen := map[string]struct{}{}
+	for _, span := range ordered {
+		if span.TraceID == "" && span.SpanID == "" {
+			continue
+		}
+		key := ingestion.CorrelationKeys{
+			TraceID:      span.TraceID,
+			SpanID:       span.SpanID,
+			ParentSpanID: span.ParentSpanID,
+			RequestID:    firstNonEmpty(span.Attributes["http.request_id"], span.Attributes["request.id"], span.Attributes["x-request-id"]),
+			ContainerID:  firstNonEmpty(span.Attributes["container.id"], span.Attributes["container_id"]),
+			PodUID:       firstNonEmpty(span.Attributes["k8s.pod.uid"], span.Attributes["pod.uid"]),
+			HostID:       firstNonEmpty(span.Attributes["host.id"], span.Attributes["host.name"], span.Attributes["hostname"]),
+		}
+		if span.StartUnixNanos > 0 {
+			key.Window = ingestion.TimestampWindowFor(time.Unix(0, span.StartUnixNanos), ingestion.DefaultCorrelationWindow)
+		}
+		key = ingestion.NormalizeCorrelationKeys(key)
+		if key.StableID == "" {
+			continue
+		}
+		if _, ok := seen[key.StableID]; ok {
+			continue
+		}
+		seen[key.StableID] = struct{}{}
+		keys = append(keys, key)
+		if len(keys) >= limit {
+			break
+		}
+	}
+	return keys
 }
 
 func countMissingParents(spans []traceparser.Span, spanByID map[string]traceparser.Span) int {
@@ -771,6 +844,22 @@ func labelOr(value, fallback string) string {
 		return fallback
 	}
 	return value
+}
+
+func firstNonEmpty(values ...string) string {
+	for _, value := range values {
+		if strings.TrimSpace(value) != "" {
+			return value
+		}
+	}
+	return ""
+}
+
+func minInt(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
 
 func emptyToNil(value string) any {

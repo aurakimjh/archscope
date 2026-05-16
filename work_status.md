@@ -17,8 +17,8 @@ The previous long-form history was archived to
 - Release baseline: `v0.3.4` is the latest stable GitHub release. The
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
-- Current execution focus: promote the Mid-Term Roadmap Plus file-first
-  evidence expansion into an executable, prioritized TO-DO backlog.
+- Current execution focus: prepare the v0.3.5 foundation release and then start
+  the access/edge-log coverage wave from T-473.
 - Retired implementation: Python/FastAPI/browser sources are archived under
   `archive/python-engine` and `archive/web-frontend-python`.
 - Historical native POC module has been folded into `apps/engine-native`.
@@ -121,6 +121,10 @@ The previous long-form history was archived to
 - Published the stable `v0.3.4` desktop release with Incident Timeline mapping
   fixes, AI gate hardening, SLO unit/deduplication fixes, report-pack ZIP path
   sanitization, derived export alignment, and frontend state regression tests.
+- Added the Mid-Term Plus shared ingestion foundations for `v0.3.5`: evidence
+  family boundary specs, reusable source-format registry, golden fixture
+  diagnostic harness, normalized source metadata, and cross-source correlation
+  key model.
 
 ## Current Risk
 
@@ -183,9 +187,8 @@ filtered before analysis.
 
 ## Next Execution Queue
 
-1. Ship `v0.3.5` after the Mid-Term Roadmap Plus shared ingestion foundations
-   are in place: source-format registry, parser diagnostics, fixtures, source
-   metadata, and cross-source correlation keys.
+1. Cut `v0.3.5` after release verification for the shared ingestion
+   foundations, then start T-473.
 2. Ship `v0.3.6` after the first user-visible access/edge log coverage wave
    lands, because it already has a mature `AnalysisResult`, SLO, Incident
    Timeline, and report path.
@@ -301,11 +304,11 @@ filtered before analysis.
 | T-465 | P2 | [x] | Expand SLO and runtime signal robustness with configurable SLO target overrides, safe non-spread max scans for large series, and runtime-stack signal extraction for Node.js, Python, Go panic, and .NET analyzer result types. | T-455 | Completed 2026-05-16: added SLO target override merging, non-spread max/min scans, and Golden Signal extraction for `nodejs_stack`, `python_traceback`, `go_panic`, and `dotnet_exception_iis` runtime results |
 | T-466 | P2 | [x] | Add frontend state regression tests for Incident Timeline, SLO/Golden Signals, Service Flow, Report Pack, and AI gate behavior, plus Go AI redaction/evidence-reference tests for the new hardening paths. | T-452, T-453, T-454, T-455, T-456, T-457 | Completed 2026-05-16: added `npm run test:state` with frontend state regressions for service identity, SLO percent conversion/dedupe, runtime signals, Mermaid source-only findings, Unix timestamps, and AI quote enforcement; Go AI hardening tests were added with T-453/T-454 |
 | T-467 | P2 | [x] | Deduplicate shared frontend state utilities and fix Mermaid sequence export edge cases, including empty-service/source-only findings and quoted labels. | T-458, T-461 | Completed 2026-05-16: service identity canonicalization is shared by Service Flow and SLO, Mermaid source-only findings now get a fallback participant, quoted labels continue to use JSON escaping, and large-series max scans avoid spread-based limits |
-| T-468 | P1 | [ ] | Define the Mid-Term Plus ingestion architecture boundary: parser package layout, analyzer package layout, CLI command naming, Wails binding pattern, and `AnalysisResult` naming for new evidence families. | Roadmap Mid-Term Plus |  |
-| T-469 | P1 | [ ] | Add a reusable source-format registry and auto-detect contract that can be shared by access logs, trace import, server logs, database logs, broker logs, and platform evidence. | T-468 |  |
-| T-470 | P1 | [ ] | Create a golden fixture and parser diagnostic harness for new importers, including valid, partial, malformed, unknown-format, and large-file samples. | T-468 |  |
-| T-471 | P1 | [ ] | Normalize source metadata fields for new evidence families, including source kind, source format, product, version, host, service, environment, and sanitized file identity. | T-468 |  |
-| T-472 | P1 | [ ] | Define the cross-source correlation-key model for trace ID, span ID, request ID, tenant/customer ID, container ID, pod UID, host ID, PID, and source timestamp windows. | T-468, T-471 |  |
+| T-468 | P1 | [x] | Define the Mid-Term Plus ingestion architecture boundary: parser package layout, analyzer package layout, CLI command naming, Wails binding pattern, and `AnalysisResult` naming for new evidence families. | Roadmap Mid-Term Plus | Completed 2026-05-16: `internal/ingestion` evidence family specs define parser/analyzer packages, CLI leaves, Wails bindings, and result types for Mid-Term Plus source families |
+| T-469 | P1 | [x] | Add a reusable source-format registry and auto-detect contract that can be shared by access logs, trace import, server logs, database logs, broker logs, and platform evidence. | T-468 | Completed 2026-05-16: reusable bounded-probe `FormatRegistry`, `SourceFormat`, detector, and unknown-format contract |
+| T-470 | P1 | [x] | Create a golden fixture and parser diagnostic harness for new importers, including valid, partial, malformed, unknown-format, and large-file samples. | T-468 | Completed 2026-05-16: parser-agnostic fixture expectation/check harness covers valid, partial, malformed, unknown-format, and large-file diagnostic assertions |
+| T-471 | P1 | [x] | Normalize source metadata fields for new evidence families, including source kind, source format, product, version, host, service, environment, and sanitized file identity. | T-468 | Completed 2026-05-16: `SourceMetadata`/`FileIdentity` contract plus additive access-log and trace-import `metadata.source_metadata` |
+| T-472 | P1 | [x] | Define the cross-source correlation-key model for trace ID, span ID, request ID, tenant/customer ID, container ID, pod UID, host ID, PID, and source timestamp windows. | T-468, T-471 | Completed 2026-05-16: `CorrelationKeys` with normalized stable IDs and timestamp windows; trace import now emits bounded correlation-key samples |
 | T-473 | P1 | [ ] | Add Tomcat access valve and Jetty NCSA request-log parsers with format auto-detection fixtures. | T-469, T-470 |  |
 | T-474 | P1 | [ ] | Map Tomcat and Jetty access records into the existing access-log `AnalysisResult` contract without breaking nginx/apache fields. | T-473 |  |
 | T-475 | P1 | [ ] | Add HAProxy default and HTTP log parsers with backend/server timing fields and diagnostics for partial timing data. | T-469, T-470 |  |
@@ -551,6 +554,10 @@ filtered before analysis.
   `npm run test:state` passed for derived frontend state regressions,
   `npm run build` passed for the Wails frontend, and `git diff --check`
   passed. Frontend package/build metadata is set to 0.3.4.
+- 2026-05-16 T-468 through T-472 verification passed:
+  `env GOCACHE=/tmp/archscope-go-cache go test ./...` passed under
+  `apps/engine-native` with the known macOS linker warning, and
+  `git diff --check` passed.
 
 ## Decisions
 

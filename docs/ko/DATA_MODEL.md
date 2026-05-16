@@ -210,6 +210,49 @@ class AnalysisResult:
 - Malformed-input 처리를 지원하는 parser의 diagnostics는 `metadata.diagnostics` 아래에 둔다.
 - Portable parser debug log는 별도 JSON artifact이며 `AnalysisResult` 내부 field가 아니다. Parser 개발을 위해 redacted raw context, `field_shapes`, partial match data, traceback data를 포함할 수 있다.
 
+## 공통 Ingestion Metadata
+
+새 Mid-Term Plus evidence family는 local file에서 결과를 만들 때
+`metadata.source_metadata` 아래에 normalized source metadata를 붙인다. 기존
+analyzer도 summary, series, table contract를 바꾸지 않는 additive field로 이
+metadata를 채택할 수 있다.
+
+`SourceMetadata` shape:
+
+| Field | Type | 의미 |
+|---|---|---|
+| `source_kind` | string | `access_log`, `trace`, `server_log`, `database_log`, `broker_log` 같은 evidence source family |
+| `source_format` | string | 감지되었거나 사용자가 선택한 parser format |
+| `product` | string | nginx, OpenTelemetry, PostgreSQL, Kafka 같은 product 또는 ecosystem 이름 |
+| `product_version` | string | source가 제공하는 경우의 product version |
+| `host` | string | 노출해도 안전한 경우의 host identity |
+| `service` | string | service 또는 workload name |
+| `environment` | string | environment label |
+| `file` | object | basename, extension, size, path가 아닌 `sanitized_id`를 담는 sanitized file identity |
+
+Cross-source stitching은 analyzer가 결과 크기를 무한히 늘리지 않고 key를 만들
+수 있을 때 `metadata.correlation_keys`를 사용한다. Canonical key model은
+다음을 포함한다.
+
+```text
+trace_id
+span_id
+parent_span_id
+request_id
+tenant_id
+customer_id
+container_id
+pod_uid
+host_id
+pid
+timestamp_window
+stable_id
+```
+
+Tenant/customer identifier는 저장 전에 sanitize하거나 명시적으로 allow-list된
+값만 사용해야 한다. `stable_id`는 비어 있지 않은 normalized field를 hash한
+값이며 raw path data를 노출하지 않고 matching에 사용할 수 있다.
+
 ## 필수 Result Contract
 
 ### Access Log Result

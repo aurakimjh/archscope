@@ -67,6 +67,49 @@ The common `AnalysisResult` dataclass remains the outer transport model for now.
 - Parser diagnostics live under `metadata.diagnostics` for parsers that support malformed-input handling.
 - Portable parser debug logs are separate JSON artifacts, not nested `AnalysisResult` fields. They may include redacted raw context, `field_shapes`, partial match data, and traceback data for parser development.
 
+## Shared Ingestion Metadata
+
+New Mid-Term Plus evidence families should attach normalized source metadata
+under `metadata.source_metadata` when a result is produced from local files.
+Existing analyzers may adopt this additively without changing their summary,
+series, or table contracts.
+
+`SourceMetadata` shape:
+
+| Field | Type | Meaning |
+|---|---|---|
+| `source_kind` | string | Evidence source family, such as `access_log`, `trace`, `server_log`, `database_log`, or `broker_log` |
+| `source_format` | string | Detected or selected parser format |
+| `product` | string | Product or ecosystem name, such as nginx, OpenTelemetry, PostgreSQL, or Kafka |
+| `product_version` | string | Optional product version when the source exposes it |
+| `host` | string | Optional host identity when available and safe to expose |
+| `service` | string | Optional service/workload name |
+| `environment` | string | Optional environment label |
+| `file` | object | Sanitized file identity containing basename, extension, size, and a non-path `sanitized_id` |
+
+Cross-source stitching should use `metadata.correlation_keys` when an analyzer
+can derive them without expanding result size unboundedly. The canonical key
+model includes:
+
+```text
+trace_id
+span_id
+parent_span_id
+request_id
+tenant_id
+customer_id
+container_id
+pod_uid
+host_id
+pid
+timestamp_window
+stable_id
+```
+
+Tenant and customer identifiers must be sanitized or explicitly allow-listed
+before they are stored. `stable_id` is a derived hash over the non-empty
+normalized fields and is safe for matching without exposing raw path data.
+
 ## Required Result Contracts
 
 ### Access Log Result
