@@ -280,10 +280,13 @@ export function buildServiceFlowMermaidSequence(analysis: ServiceFlowAnalysis): 
   const edges = analysis.edge_model.edges.slice(0, MAX_SEQUENCE_EDGES);
   const services = uniqueSorted(edges.flatMap((edge) => [edge.caller, edge.callee]));
   const aliases = new Map(services.map((service, index) => [service, `S${index + 1}`]));
+  const sourceOnlyFindings = analysis.findings.filter((finding) => !finding.edge_id).slice(0, 20);
+  const hasSourceOnlyFallback = services.length === 0 && sourceOnlyFindings.length > 0;
   const lines = [
     "sequenceDiagram",
     "    autonumber",
     ...services.map((service) => `    participant ${aliases.get(service)} as ${mermaidText(service)}`),
+    ...(hasSourceOnlyFallback ? ["    participant S1 as Findings"] : []),
   ];
   const findingsByEdge = groupFindingsByEdge(analysis.findings);
   for (const edge of edges) {
@@ -294,7 +297,6 @@ export function buildServiceFlowMermaidSequence(analysis: ServiceFlowAnalysis): 
       lines.push(`    Note over ${caller},${callee}: ${mermaidText(`${finding.code}: ${finding.message}`)}`);
     }
   }
-  const sourceOnlyFindings = analysis.findings.filter((finding) => !finding.edge_id).slice(0, 20);
   for (const finding of sourceOnlyFindings) {
     lines.push(`    Note over ${services.length > 0 ? aliases.get(services[0]) : "S1"}: ${mermaidText(`${finding.code}: ${finding.message}`)}`);
   }
@@ -710,7 +712,7 @@ function severityRank(severity: ServiceFlowFindingSeverity): number {
 }
 
 function formatMs(value: number): string {
-  return `${round(value, 2).toLocaleString()} ms`;
+  return `${round(value, 2).toLocaleString("en-US")} ms`;
 }
 
 function groupFindingsByEdge(findings: ServiceFlowFinding[]): Map<string, ServiceFlowFinding[]> {
@@ -756,7 +758,12 @@ function avgOptional(values: Array<number | undefined>): number | undefined {
 
 function maxOptional(values: Array<number | undefined>): number | undefined {
   const present = values.filter((value): value is number => value !== undefined && Number.isFinite(value));
-  return present.length > 0 ? Math.max(...present) : undefined;
+  if (present.length === 0) return undefined;
+  let max = Number.NEGATIVE_INFINITY;
+  for (const value of present) {
+    if (value > max) max = value;
+  }
+  return max;
 }
 
 function roundOptional(value: number | undefined, digits: number): number | undefined {

@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "allowImportingTsExtensions": false,
+    "module": "ES2020",
+    "noEmit": false,
+    "outDir": ".tmp/state-tests",
+    "rootDir": "src"
+  },
+  "include": [
+    "src/state/regression.test.ts"
+  ]
+}

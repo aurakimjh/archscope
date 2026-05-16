@@ -35,6 +35,7 @@ apps/engine-native/package-lock.json
 !apps/profiler-native/cmd/archscope-profiler-app/build/**
 !apps/engine-native/cmd/archscope-profiler-app/build/
 !apps/engine-native/cmd/archscope-profiler-app/build/**
+apps/engine-native/cmd/archscope-app/frontend/.tmp/
 
 # T-208: archscope wheel ships the React bundle as package data; the build
 # script populates this directory at wheel-build time. The .gitkeep stays

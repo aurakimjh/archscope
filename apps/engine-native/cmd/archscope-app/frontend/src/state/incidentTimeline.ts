@@ -570,7 +570,7 @@ function makeEvent(
     (duration !== undefined
       ? {
           iso: new Date(parsed.sort + duration).toISOString(),
-          label: new Date(parsed.sort + duration).toLocaleString(),
+          label: formatTimeLabel(new Date(parsed.sort + duration)),
           sort: parsed.sort + duration,
         }
       : undefined);
@@ -622,7 +622,7 @@ export function buildIncidentTimelineGroups(events: IncidentTimelineEvent[]): In
   }
   return Array.from(grouped.entries())
     .map(([groupKey, groupEvents]) => buildIncidentTimelineGroup(groupKey, groupEvents))
-    .sort((left, right) => Date.parse(left.start_time) - Date.parse(right.start_time) || left.group_label.localeCompare(right.group_label));
+    .sort((left, right) => timestampMillis(left.start_time) - timestampMillis(right.start_time) || left.group_label.localeCompare(right.group_label));
 }
 
 export function buildIncidentTimelineNarrative(events: IncidentTimelineEvent[]): IncidentTimelineNarrativeStep[] {
@@ -632,13 +632,20 @@ export function buildIncidentTimelineNarrative(events: IncidentTimelineEvent[]):
     items.push(event);
     grouped.set(event.group_key, items);
   }
-  return Array.from(grouped.entries())
+  const firstEventByNarrativeID = new Map<string, IncidentTimelineEvent>();
+  const steps = Array.from(grouped.entries())
     .map(([, groupEvents], index) => buildNarrativeStep(groupEvents, index + 1))
-    .sort((left, right) => {
-      const leftEvent = events.find((event) => event.id === left.event_ids[0]);
-      const rightEvent = events.find((event) => event.id === right.event_ids[0]);
-      return (leftEvent?.sort_time ?? 0) - (rightEvent?.sort_time ?? 0) || left.title.localeCompare(right.title);
-    })
+  const eventsByID = new Map(events.map((event) => [event.id, event]));
+  for (const step of steps) {
+    const firstEvent = eventsByID.get(step.event_ids[0]);
+    if (firstEvent) firstEventByNarrativeID.set(step.id, firstEvent);
+  }
+  return steps
+    .sort((left, right) =>
+      (firstEventByNarrativeID.get(left.id)?.sort_time ?? 0) -
+        (firstEventByNarrativeID.get(right.id)?.sort_time ?? 0) ||
+      left.title.localeCompare(right.title),
+    )
     .map((step, index) => ({ ...step, order: index + 1 }));
 }
 
@@ -682,8 +689,8 @@ function buildIncidentTimelineGroup(groupKey: string, events: IncidentTimelineEv
   const last = ordered.reduce((candidate, event) => eventEndSort(event) > eventEndSort(candidate) ? event : candidate, first);
   const start = first.start_time;
   const end = last.end_time ?? last.start_time;
-  const startMs = Date.parse(start);
-  const endMs = Date.parse(end);
+  const startMs = timestampMillis(start);
+  const endMs = timestampMillis(end);
   const duration = Number.isFinite(startMs) && Number.isFinite(endMs) && endMs > startMs ? endMs - startMs : undefined;
   return {
     group_key: groupKey,
@@ -692,7 +699,7 @@ function buildIncidentTimelineGroup(groupKey: string, events: IncidentTimelineEv
     start_time: start,
     end_time: end,
     start_label: first.time_label,
-    end_label: last.end_time ? new Date(end).toLocaleString() : last.time_label,
+    end_label: last.end_time ? formatTimeLabel(new Date(end)) : last.time_label,
     duration_ms: duration,
     event_count: events.length,
     critical_event_count: events.filter((event) => event.severity === "critical").length,
@@ -707,7 +714,7 @@ function buildIncidentTimelineGroup(groupKey: string, events: IncidentTimelineEv
 
 function eventEndSort(event: IncidentTimelineEvent): number {
   if (event.end_time) {
-    const parsed = Date.parse(event.end_time);
+    const parsed = timestampMillis(event.end_time);
     if (Number.isFinite(parsed)) return parsed;
   }
   return event.sort_time;
@@ -894,11 +901,13 @@ function parseTime(value: unknown): { iso: string; label: string; sort: number }
         ? Math.floor(value / 1_000)
         : value > 10_000_000_000
         ? value
+        : value > 1_000_000_000
+        ? value * 1_000
         : null;
     if (millis !== null) {
       const date = new Date(millis);
       if (!Number.isNaN(date.getTime())) {
-        return { iso: date.toISOString(), label: date.toLocaleString(), sort: date.getTime() };
+        return { iso: date.toISOString(), label: formatTimeLabel(date), sort: date.getTime() };
       }
     }
     return null;
@@ -909,9 +918,18 @@ function parseTime(value: unknown): { iso: string; label: string; sort: number }
   const parsed = Date.parse(trimmed);
   if (!Number.isNaN(parsed)) {
     const date = new Date(parsed);
-    return { iso: date.toISOString(), label: date.toLocaleString(), sort: parsed };
+    return { iso: date.toISOString(), label: formatTimeLabel(date), sort: parsed };
   }
   return null;
+}
+
+function timestampMillis(value: string): number {
+  const parsed = Date.parse(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function formatTimeLabel(date: Date): string {
+  return date.toISOString();
 }
 
 function normalizeSeverity(value: string): IncidentTimelineSeverity {
@@ -965,7 +983,7 @@ function numberValue(value: unknown): number {
 
 function formatNumber(value: number): string {
   return Number.isFinite(value)
-    ? value.toLocaleString(undefined, { maximumFractionDigits: 2 })
+    ? value.toLocaleString("en-US", { maximumFractionDigits: 2 })
     : String(value);
 }
 

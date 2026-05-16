@@ -141,6 +141,10 @@ type ZipFile = {
   content: string;
 };
 
+type ZipBuildOptions = {
+  modifiedAt?: Date;
+};
+
 export function buildReportPackPayload(
   cards: EvidenceCard[],
   entries: AnalysisWorkspaceEntry[],
@@ -741,11 +745,12 @@ export function normalizeZipEntryPath(path: string): string {
   return parts.join("/");
 }
 
-function buildStoredZip(files: ZipFile[]): Blob {
+function buildStoredZip(files: ZipFile[], options: ZipBuildOptions = {}): Blob {
   const encoder = new TextEncoder();
   const localParts: Uint8Array[] = [];
   const centralParts: Uint8Array[] = [];
   const seen = new Set<string>();
+  const modifiedAt = options.modifiedAt ?? new Date();
   let offset = 0;
   for (const file of files) {
     const entryPath = normalizeZipEntryPath(file.path);
@@ -756,9 +761,9 @@ function buildStoredZip(files: ZipFile[]): Blob {
     const nameBytes = encoder.encode(entryPath);
     const contentBytes = encoder.encode(file.content);
     const crc = crc32(contentBytes);
-    const local = buildLocalHeader(nameBytes, contentBytes, crc);
+    const local = buildLocalHeader(nameBytes, contentBytes, crc, modifiedAt);
     localParts.push(local, contentBytes);
-    centralParts.push(buildCentralHeader(nameBytes, contentBytes, crc, offset));
+    centralParts.push(buildCentralHeader(nameBytes, contentBytes, crc, offset, modifiedAt));
     offset += local.byteLength + contentBytes.byteLength;
   }
   const centralSize = byteLength(centralParts);
@@ -766,14 +771,14 @@ function buildStoredZip(files: ZipFile[]): Blob {
   return new Blob(blobParts([...localParts, ...centralParts, end]), { type: "application/zip" });
 }
 
-function buildLocalHeader(nameBytes: Uint8Array, contentBytes: Uint8Array, crc: number): Uint8Array {
+function buildLocalHeader(nameBytes: Uint8Array, contentBytes: Uint8Array, crc: number, modifiedAt: Date): Uint8Array {
   const header = new Uint8Array(30 + nameBytes.byteLength);
   const view = new DataView(header.buffer);
   view.setUint32(0, 0x04034b50, true);
   view.setUint16(4, 20, true);
   view.setUint16(6, 0, true);
   view.setUint16(8, 0, true);
-  setDosDateTime(view, 10);
+  setDosDateTime(view, 10, modifiedAt);
   view.setUint32(14, crc, true);
   view.setUint32(18, contentBytes.byteLength, true);
   view.setUint32(22, contentBytes.byteLength, true);
@@ -788,6 +793,7 @@ function buildCentralHeader(
   contentBytes: Uint8Array,
   crc: number,
   offset: number,
+  modifiedAt: Date,
 ): Uint8Array {
   const header = new Uint8Array(46 + nameBytes.byteLength);
   const view = new DataView(header.buffer);
@@ -796,7 +802,7 @@ function buildCentralHeader(
   view.setUint16(6, 20, true);
   view.setUint16(8, 0, true);
   view.setUint16(10, 0, true);
-  setDosDateTime(view, 12);
+  setDosDateTime(view, 12, modifiedAt);
   view.setUint32(16, crc, true);
   view.setUint32(20, contentBytes.byteLength, true);
   view.setUint32(24, contentBytes.byteLength, true);
@@ -825,8 +831,8 @@ function buildEndRecord(fileCount: number, centralSize: number, centralOffset: n
   return end;
 }
 
-function setDosDateTime(view: DataView, offset: number): void {
-  const now = new Date();
+function setDosDateTime(view: DataView, offset: number, modifiedAt: Date): void {
+  const now = modifiedAt;
   const time = (now.getHours() << 11) | (now.getMinutes() << 5) | Math.floor(now.getSeconds() / 2);
   const date = ((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate();
   view.setUint16(offset, time, true);
@@ -963,7 +969,7 @@ function downloadBlob(content: string | Blob, filename: string, type: string): v
 
 function formatNumber(value: number): string {
   return Number.isFinite(value)
-    ? value.toLocaleString(undefined, { maximumFractionDigits: 2 })
+    ? value.toLocaleString("en-US", { maximumFractionDigits: 2 })
     : String(value);
 }
 

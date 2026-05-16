@@ -2,7 +2,7 @@ import type {
   AnalysisWorkspaceEntry,
   WorkspaceAnalysisResult,
 } from "@/state/analysisWorkspace";
-import { canonicalServiceIdentity } from "@/state/serviceFlow";
+import { canonicalServiceIdentity } from "./serviceFlow.js";
 
 export type GoldenSignalKind = "latency" | "traffic" | "errors" | "saturation";
 
@@ -125,6 +125,10 @@ export type SloTarget = {
   objective_percent?: number;
   window_label: string;
   match: SloTargetMatch;
+};
+
+export type SloTargetOverride = Partial<Omit<SloTarget, "id">> & {
+  id: string;
 };
 
 export type SloViolation = {
@@ -523,6 +527,19 @@ export function analyzeSloViolations(
   };
 }
 
+export function applySloTargetOverrides(
+  targets: SloTarget[] = DEFAULT_SLO_TARGETS,
+  overrides: SloTargetOverride[] = [],
+): SloTarget[] {
+  if (overrides.length === 0) return targets;
+  const byID = new Map(targets.map((target) => [target.id, target]));
+  for (const override of overrides) {
+    const existing = byID.get(override.id);
+    byID.set(override.id, existing ? { ...existing, ...override } : (override as SloTarget));
+  }
+  return Array.from(byID.values());
+}
+
 export function analyzeSloViolationsFromEntries(
   entries: AnalysisWorkspaceEntry[],
   targets: SloTarget[] = DEFAULT_SLO_TARGETS,
@@ -693,7 +710,7 @@ export function buildAffectedBreakdown(violations: SloViolation[]): AffectedBrea
             severityRankSlo(violation.severity) > severityRankSlo(severity) ? violation.severity : severity,
           "info" as SloSeverity,
         ),
-        max_burn_rate: Math.max(...bucket.map((violation) => violation.burn_rate)),
+        max_burn_rate: maxNumber(bucket.map((violation) => violation.burn_rate)),
         target_names: uniqueSorted(bucket.map((violation) => violation.target_name)),
         source_analyzers: uniqueSorted(bucket.flatMap((violation) => violation.source_analyzers)),
         evidence_refs: uniqueSorted(bucket.flatMap((violation) => violation.evidence_refs)),
@@ -728,6 +745,12 @@ function signalsFromEntry(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
       break;
     case "jfr_recording":
       signals = signalsFromJfr(entry);
+      break;
+    case "nodejs_stack":
+    case "python_traceback":
+    case "go_panic":
+    case "dotnet_exception_iis":
+      signals = signalsFromRuntimeStack(entry);
       break;
     case "thread_dump":
     case "thread_dump_multi":
@@ -1160,6 +1183,44 @@ function signalsFromJfr(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
   return out;
 }
 
+function signalsFromRuntimeStack(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
+  const out: GoldenSignal[] = [];
+  addSummary(out, entry, "total_records", "Runtime stack record volume", "errors", "events", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "unique_record_types", "Runtime stack record types", "errors", "count", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "unique_signatures", "Runtime stack signatures", "errors", "count", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "total_exceptions", "Runtime exception volume", "errors", "events", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "iis_requests", ".NET IIS request volume", "traffic", "requests", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "iis_error_requests", ".NET IIS error requests", "errors", "requests", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "max_iis_time_taken_ms", ".NET IIS max time taken", "latency", "ms", "max", {
+    scopeType: "runtime",
+  });
+  for (const row of arrayOfObjects(entry.result.series?.top_stack_signatures).slice(0, MAX_ROW_SIGNALS)) {
+    addRowSignal(out, entry, row, {
+      key: "count",
+      name: "Runtime stack signature frequency",
+      kind: "errors",
+      unit: "events",
+      aggregation: "count",
+      scopeType: "runtime",
+      scope: stringValue(row.signature) || "runtime-stack",
+      evidenceRef: "series.top_stack_signatures",
+    });
+  }
+  return out;
+}
+
 function signalsFromThreadDump(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
   const out: GoldenSignal[] = [];
   addSummary(out, entry, "total_threads", "Thread count", "saturation", "threads", "count", { scopeType: "thread" });
@@ -1312,16 +1373,17 @@ function addPeakSeries(
   const rows = arrayOfObjects(entry.result.series?.[seriesKey]);
   const values = rows.map((row) => finiteNumber(row.value)).filter((value): value is number => value !== null);
   if (values.length === 0) return;
+  const peak = maxNumber(values);
   addSignal(out, entry, {
     kind: "saturation",
     name,
-    value: Math.max(...values),
+    value: peak,
     unit: "mb",
     aggregation: "peak",
     scopeType: "runtime",
     scope,
     evidenceRef: `series.${seriesKey}`,
-    payload: { points: values.length, peak_mb: Math.max(...values) },
+    payload: { points: values.length, peak_mb: peak },
   });
 }
 
@@ -1511,14 +1573,14 @@ function aggregateSignalValues(
   const values = signals.map((signal) => signal.value);
   const finite = values.filter((value) => Number.isFinite(value));
   if (finite.length === 0) return 0;
-  if (aggregation === "min") return Math.min(...finite);
+  if (aggregation === "min") return minNumber(finite);
   if (aggregation === "count" || aggregation === "sum") {
-    return kind === "latency" || kind === "saturation" ? Math.max(...finite) : sum(finite);
+    return kind === "latency" || kind === "saturation" ? maxNumber(finite) : sum(finite);
   }
   if (aggregation === "avg" && kind === "traffic") {
     return sum(finite) / finite.length;
   }
-  return Math.max(...finite);
+  return maxNumber(finite);
 }
 
 function aggregateSourceAwareEquivalentSignals(signals: GoldenSignal[]): number | null {
@@ -1534,7 +1596,7 @@ function aggregateSourceAwareEquivalentSignals(signals: GoldenSignal[]): number 
   for (const signal of signals) {
     totalsByAnalyzer.set(signal.source_analyzer, (totalsByAnalyzer.get(signal.source_analyzer) ?? 0) + signal.value);
   }
-  return Math.max(...totalsByAnalyzer.values());
+  return maxNumber(Array.from(totalsByAnalyzer.values()));
 }
 
 function compareSliMetrics(left: SliMetric, right: SliMetric): number {
@@ -1609,6 +1671,22 @@ function uniqueSorted(values: string[]): string[] {
 
 function sum(values: number[]): number {
   return values.reduce((total, value) => total + value, 0);
+}
+
+function maxNumber(values: Iterable<number>): number {
+  let max = Number.NEGATIVE_INFINITY;
+  for (const value of values) {
+    if (value > max) max = value;
+  }
+  return max;
+}
+
+function minNumber(values: Iterable<number>): number {
+  let min = Number.POSITIVE_INFINITY;
+  for (const value of values) {
+    if (value < min) min = value;
+  }
+  return min;
 }
 
 function matchesTarget(metric: SliMetric, target: SloTarget): boolean {
