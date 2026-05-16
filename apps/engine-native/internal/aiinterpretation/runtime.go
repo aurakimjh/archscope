@@ -85,7 +85,10 @@ func (c OllamaClient) Execute(ctx context.Context, prompt PromptPayload, registr
 	if _, ok := interpretation["prompt_version"]; !ok {
 		interpretation["prompt_version"] = prompt.Version
 	}
-	return AiFindingValidator{Registry: registry}.ValidateInterpretation(interpretation)
+	return AiFindingValidator{
+		Registry:              registry,
+		RequireEvidenceQuotes: true,
+	}.ValidateInterpretation(interpretation)
 }
 
 func validateLocalURL(value string) error {

@@ -22,8 +22,9 @@ func (e ValidationError) Error() string {
 }
 
 type AiFindingValidator struct {
-	Registry      *EvidenceRegistry
-	MinConfidence float64
+	Registry              *EvidenceRegistry
+	MinConfidence         float64
+	RequireEvidenceQuotes bool
 }
 
 func (v AiFindingValidator) ValidateInterpretation(payload map[string]any) (map[string]any, error) {
@@ -124,6 +125,12 @@ func (v AiFindingValidator) validateFinding(finding map[string]any) []Validation
 				FindingID: findingID,
 			})
 		}
+	} else if v.RequireEvidenceQuotes {
+		issues = append(issues, ValidationIssue{
+			Code:      "EVIDENCE_QUOTES_REQUIRED",
+			Message:   "evidence_quotes must be present when quote matching is required",
+			FindingID: findingID,
+		})
 	}
 	for _, rawRef := range refs {
 		ref, ok := rawRef.(string)
@@ -155,7 +162,17 @@ func (v AiFindingValidator) validateFinding(finding map[string]any) []Validation
 			})
 			continue
 		}
-		if quote, ok := quotes[ref].(string); ok && strings.TrimSpace(quote) != "" && !containsNormalized(item.Text, quote) {
+		quote, ok := quotes[ref].(string)
+		if v.RequireEvidenceQuotes && (!ok || strings.TrimSpace(quote) == "") {
+			issues = append(issues, ValidationIssue{
+				Code:        "EVIDENCE_QUOTE_REQUIRED",
+				Message:     "evidence_quotes must include a non-empty quote for every evidence_ref",
+				FindingID:   findingID,
+				EvidenceRef: ref,
+			})
+			continue
+		}
+		if ok && strings.TrimSpace(quote) != "" && !containsNormalized(item.Text, quote) {
 			issues = append(issues, ValidationIssue{
 				Code:        "EVIDENCE_QUOTE_MISMATCH",
 				Message:     "evidence quote is not present in source evidence",

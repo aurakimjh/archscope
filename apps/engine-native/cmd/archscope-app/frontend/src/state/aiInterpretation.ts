@@ -1,6 +1,7 @@
 import type { WorkspaceAnalysisResult } from "@/state/analysisWorkspace";
 
 const AI_METADATA_KEYS = ["ai_interpretation", "interpretation", "ai_provenance"] as const;
+export const DEFAULT_AI_MIN_CONFIDENCE = 0.3;
 
 export type AiInterpretationProvenance = {
   present: boolean;
@@ -49,6 +50,11 @@ export type AiEvaluationGate = {
   }>;
 };
 
+export type AiEvaluationOptions = {
+  minConfidence?: number;
+  requireEvidenceQuotes?: boolean;
+};
+
 export type AiInterpretationResult = {
   schema_version?: string;
   provider?: string;
@@ -84,7 +90,7 @@ export function extractAiInterpretation(
     generated_at: stringValue(value.generated_at),
     disabled: value.disabled === true,
     findings: arrayValue(value.findings)
-      .map((finding, index) => normalizeAiFinding(finding, index, fallbackModel))
+      .map((finding, index) => normalizeAiFinding(finding, index))
       .filter((finding): finding is AiFinding => finding !== null),
     source_metadata_key: candidate.key,
   };
@@ -141,14 +147,13 @@ function findAiInterpretationCandidate(
   return null;
 }
 
-function normalizeAiFinding(value: unknown, index: number, fallbackModel?: string): AiFinding | null {
+function normalizeAiFinding(value: unknown, index: number): AiFinding | null {
   if (!isPlainObject(value)) return null;
   const id = stringValue(value.id) ?? `ai-finding-${index + 1}`;
   const label = stringValue(value.label) ?? stringValue(value.code) ?? stringValue(value.title) ?? id;
-  const summary = stringValue(value.summary) ?? stringValue(value.message) ?? label;
+  const summary = stringValue(value.summary) ?? "";
   const evidenceRefs = arrayValue(value.evidence_refs)
-    .map(stringValue)
-    .filter((ref): ref is string => Boolean(ref));
+    .map((ref) => stringValue(ref) ?? "");
   const limitations = arrayValue(value.limitations)
     .map(stringValue)
     .filter((limitation): limitation is string => Boolean(limitation));
@@ -158,7 +163,7 @@ function normalizeAiFinding(value: unknown, index: number, fallbackModel?: strin
     severity: normalizeSeverity(stringValue(value.severity)),
     raw_severity: stringValue(value.severity),
     generated_by: stringValue(value.generated_by) ?? "",
-    model: stringValue(value.model) ?? fallbackModel,
+    model: stringValue(value.model),
     summary,
     reasoning: stringValue(value.reasoning),
     evidence_refs: evidenceRefs,
@@ -171,6 +176,7 @@ function normalizeAiFinding(value: unknown, index: number, fallbackModel?: strin
 export function evaluateAiInterpretation(
   result: WorkspaceAnalysisResult | null | undefined,
   interpretation: AiInterpretationResult | null = extractAiInterpretation(result),
+  options: AiEvaluationOptions = {},
 ): AiEvaluationGate {
   if (!interpretation) {
     return emptyGate("not_present");
@@ -180,10 +186,25 @@ export function evaluateAiInterpretation(
   }
   const evidence = buildEvidenceMap(result);
   const issues: AiEvaluationGate["issues"] = [];
+  const minConfidence = options.minConfidence ?? DEFAULT_AI_MIN_CONFIDENCE;
+  const requireEvidenceQuotes = options.requireEvidenceQuotes ?? true;
   if (interpretation.schema_version !== "0.1.0") {
     issues.push({ code: "SCHEMA_VERSION", message: "schema_version must be 0.1.0" });
   }
   for (const finding of interpretation.findings) {
+    for (const [field, value] of [
+      ["model", finding.model],
+      ["summary", finding.summary],
+      ["reasoning", finding.reasoning],
+    ] as const) {
+      if (!value) {
+        issues.push({
+          code: `${field.toUpperCase()}_REQUIRED`,
+          message: `${field} must be a non-empty string`,
+          finding_id: finding.id,
+        });
+      }
+    }
     if (finding.generated_by !== "ai") {
       issues.push({
         code: "GENERATED_BY_REQUIRED",
@@ -204,10 +225,10 @@ export function evaluateAiInterpretation(
         message: "confidence must be a number between 0 and 1",
         finding_id: finding.id,
       });
-    } else if (finding.confidence < 0.3) {
+    } else if (finding.confidence < minConfidence) {
       issues.push({
         code: "CONFIDENCE_TOO_LOW",
-        message: "confidence must be at least 0.3",
+        message: `confidence must be at least ${minConfidence.toFixed(2)}`,
         finding_id: finding.id,
       });
     }
@@ -218,33 +239,58 @@ export function evaluateAiInterpretation(
         finding_id: finding.id,
       });
     }
+    if (requireEvidenceQuotes && !finding.evidence_quotes) {
+      issues.push({
+        code: "EVIDENCE_QUOTES_REQUIRED",
+        message: "evidence_quotes must be present when quote matching is required",
+        finding_id: finding.id,
+      });
+    }
     for (const ref of finding.evidence_refs) {
-      if (!parseEvidenceRef(ref)) {
+      const evidenceRef = ref.trim();
+      if (!evidenceRef) {
+        issues.push({
+          code: "EVIDENCE_REF_BLANK",
+          message: "evidence_refs must contain non-empty strings",
+          finding_id: finding.id,
+        });
+        continue;
+      }
+      if (!parseEvidenceRef(evidenceRef)) {
         issues.push({
           code: "EVIDENCE_REF_GRAMMAR",
           message: "invalid evidence_ref grammar",
           finding_id: finding.id,
-          evidence_ref: ref,
+          evidence_ref: evidenceRef,
         });
         continue;
       }
-      const sourceText = evidence.get(ref);
+      const sourceText = evidence.get(evidenceRef);
       if (!sourceText) {
         issues.push({
           code: "EVIDENCE_REF_UNKNOWN",
           message: "evidence_ref is not present in the input evidence set",
           finding_id: finding.id,
-          evidence_ref: ref,
+          evidence_ref: evidenceRef,
         });
         continue;
       }
-      const quote = finding.evidence_quotes?.[ref];
+      const quote = finding.evidence_quotes?.[evidenceRef];
+      if (requireEvidenceQuotes && !quote) {
+        issues.push({
+          code: "EVIDENCE_QUOTE_REQUIRED",
+          message: "evidence_quotes must include a non-empty quote for every evidence_ref",
+          finding_id: finding.id,
+          evidence_ref: evidenceRef,
+        });
+        continue;
+      }
       if (quote && !normalizeText(sourceText).includes(normalizeText(quote))) {
         issues.push({
           code: "EVIDENCE_QUOTE_MISMATCH",
           message: "evidence quote is not present in source evidence",
           finding_id: finding.id,
-          evidence_ref: ref,
+          evidence_ref: evidenceRef,
         });
       }
     }
@@ -323,7 +369,7 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 }
 
 function stringValue(value: unknown): string | undefined {
-  if (typeof value === "string") return value || undefined;
+  if (typeof value === "string") return value.trim() || undefined;
   if (typeof value === "number" || typeof value === "boolean") return String(value);
   return undefined;
 }
@@ -378,8 +424,11 @@ function normalizeText(value: string): string {
 function isEvidenceIssue(code: string): boolean {
   return (
     code === "EVIDENCE_REFS_REQUIRED" ||
+    code === "EVIDENCE_REF_BLANK" ||
     code === "EVIDENCE_REF_GRAMMAR" ||
     code === "EVIDENCE_REF_UNKNOWN" ||
+    code === "EVIDENCE_QUOTES_REQUIRED" ||
+    code === "EVIDENCE_QUOTE_REQUIRED" ||
     code === "EVIDENCE_QUOTE_MISMATCH"
   );
 }

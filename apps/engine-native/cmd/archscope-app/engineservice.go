@@ -43,6 +43,7 @@ import (
 	"time"
 
 	engineapi "github.com/aurakimjh/archscope/apps/engine-native/api"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/aiinterpretation"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 )
 
@@ -263,6 +264,15 @@ type EngineDiffRequest struct {
 	Label      string `json:"label,omitempty"`
 }
 
+// AiInterpretationGateRequest evaluates an AI interpretation payload against
+// the same Go evidence registry and validator used before LLM output is stored.
+type AiInterpretationGateRequest struct {
+	Result                map[string]any `json:"result"`
+	Interpretation        map[string]any `json:"interpretation"`
+	MinConfidence         float64        `json:"minConfidence,omitempty"`
+	RequireEvidenceQuotes bool           `json:"requireEvidenceQuotes,omitempty"`
+}
+
 // ──────────────────────────────────────────────────────────────────
 // Sync analyzers — single-file inputs, microsecond-to-millisecond
 // runtimes. We don't bother with the task-registry round-trip.
@@ -427,6 +437,38 @@ func (s *EngineService) AnalyzeThreadDump(req ThreadDumpRequest) (engineapi.Anal
 // default rules are used (matches Python's `rules=None`).
 func (s *EngineService) ClassifyStack(req ClassifyRequest) ClassifyResult {
 	return ClassifyResult{Label: engineapi.ClassifyStack(req.Stack, nil)}
+}
+
+// EvaluateAiInterpretation exposes the authoritative Go AI evidence gate to the
+// renderer so report surfaces can display validation status without reimplementing
+// analyzer evidence lookup semantics.
+func (s *EngineService) EvaluateAiInterpretation(req AiInterpretationGateRequest) (map[string]any, error) {
+	if req.Interpretation == nil {
+		return map[string]any{
+			"total_findings":           0,
+			"valid_findings":           0,
+			"rejected_findings":        0,
+			"evidence_integrity_ratio": 0.0,
+			"valid":                    false,
+			"gate_status":              "not_present",
+			"issue_codes":              []string{},
+			"issues":                   []aiinterpretation.ValidationIssue{},
+		}, nil
+	}
+	minConfidence := req.MinConfidence
+	if minConfidence <= 0 {
+		minConfidence = 0.3
+	}
+	registry := aiinterpretation.BuildEvidenceRegistry(req.Result)
+	validator := aiinterpretation.AiFindingValidator{
+		Registry:              registry,
+		MinConfidence:         minConfidence,
+		RequireEvidenceQuotes: req.RequireEvidenceQuotes,
+	}
+	evaluation := aiinterpretation.EvaluateInterpretation(req.Interpretation, validator)
+	evaluation["min_confidence"] = minConfidence
+	evaluation["require_evidence_quotes"] = req.RequireEvidenceQuotes
+	return evaluation, nil
 }
 
 // ──────────────────────────────────────────────────────────────────

@@ -55,6 +55,8 @@ func isEvidenceIssue(code string) bool {
 		"EVIDENCE_REF_BLANK",
 		"EVIDENCE_REF_GRAMMAR",
 		"EVIDENCE_REF_UNKNOWN",
+		"EVIDENCE_QUOTES_REQUIRED",
+		"EVIDENCE_QUOTE_REQUIRED",
 		"EVIDENCE_QUOTE_MISMATCH":
 		return true
 	default:

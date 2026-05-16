@@ -65,6 +65,33 @@ export type AnalysisResult<
   metadata: TMetadata;
 };
 
+export type AiInterpretationGateRequest = {
+  result: AnalysisResult | Record<string, unknown>;
+  interpretation: Record<string, unknown>;
+  minConfidence?: number;
+  requireEvidenceQuotes?: boolean;
+};
+
+export type AiValidationIssue = {
+  code: string;
+  message: string;
+  finding_id?: string;
+  evidence_ref?: string;
+};
+
+export type AiInterpretationGateResponse = {
+  valid: boolean;
+  gate_status: "passed" | "blocked" | "not_present" | "disabled";
+  total_findings: number;
+  valid_findings: number;
+  rejected_findings: number;
+  evidence_integrity_ratio: number;
+  issue_codes: string[];
+  issues: AiValidationIssue[];
+  min_confidence?: number;
+  require_evidence_quotes?: boolean;
+};
+
 export type DiagnosticSample = {
   line_number: number;
   reason: string;

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -129,6 +130,23 @@ func TestValidatorRejectsQuoteMismatch(t *testing.T) {
 	}
 }
 
+func TestValidatorRequiresQuotesWhenEnabled(t *testing.T) {
+	registry := NewEvidenceRegistry()
+	_ = registry.Add(EvidenceItem{Ref: "jfr:event:1", Text: "GC pause"})
+	payload := validInterpretationPayload("jfr:event:1", "GC pause")
+	delete(payload["findings"].([]any)[0].(map[string]any), "evidence_quotes")
+	_, err := (AiFindingValidator{
+		Registry:              registry,
+		RequireEvidenceQuotes: true,
+	}).ValidateInterpretation(payload)
+	if err == nil {
+		t.Fatal("expected validation error")
+	}
+	if !hasIssueCode(err, "EVIDENCE_QUOTES_REQUIRED") || !hasIssueCode(err, "EVIDENCE_QUOTE_REQUIRED") {
+		t.Fatalf("expected quote-required issues, got %v", err)
+	}
+}
+
 func TestEvaluationGateReportsGoldenDiagnostics(t *testing.T) {
 	registry := NewEvidenceRegistry()
 	_ = registry.Add(EvidenceItem{Ref: "jfr:event:1", Text: "GC pause"})
@@ -141,6 +159,33 @@ func TestEvaluationGateReportsGoldenDiagnostics(t *testing.T) {
 	codes := evaluation["issue_codes"].([]string)
 	if !containsCode(codes, "EVIDENCE_REF_UNKNOWN") || !containsCode(codes, "CONFIDENCE_TOO_LOW") {
 		t.Fatalf("missing expected issue codes: %+v", codes)
+	}
+}
+
+func TestRedactSensitiveTextCoversPromptPrivacyEdges(t *testing.T) {
+	input := `email=a@example.com phone=010-1234-5678 rrn=900101-1234567
+Authorization: Bearer abc.def.ghi bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIn0.sig password:superpass
+client=2001:db8::1 server=prod-api.example.com url=https://orders.internal.example.com/api
+at com.example.Service.method(/Users/alice/work/app/Service.java:42)
+SQL select * from users where email='a@example.com' and name="kim"`
+	redacted := RedactSensitiveText(input)
+	for _, forbidden := range []string{
+		"a@example.com",
+		"010-1234-5678",
+		"900101-1234567",
+		"abc.def.ghi",
+		"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIn0.sig",
+		"superpass",
+		"2001:db8::1",
+		"prod-api.example.com",
+		"orders.internal.example.com",
+		"/Users/alice/work/app/Service.java",
+		"'a@example.com'",
+		`"kim"`,
+	} {
+		if containsRaw(redacted, forbidden) {
+			t.Fatalf("redacted text still contains %q: %s", forbidden, redacted)
+		}
 	}
 }
 
@@ -176,6 +221,10 @@ func hasIssueCode(err error, code string) bool {
 		}
 	}
 	return false
+}
+
+func containsRaw(text string, raw string) bool {
+	return strings.Contains(text, raw)
 }
 
 func containsCode(codes []string, code string) bool {

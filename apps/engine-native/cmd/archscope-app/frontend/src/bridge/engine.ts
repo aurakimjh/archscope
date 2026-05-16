@@ -47,6 +47,8 @@ import { Call, type CancellablePromise } from "@wailsio/runtime";
 import type {
   AccessLogAnalysisResult,
   AccessLogRequest,
+  AiInterpretationGateRequest,
+  AiInterpretationGateResponse,
   AnalysisResult,
   ClassifyRequest,
   ClassifyResult,
@@ -176,6 +178,12 @@ export function classifyStack(
   return call<ClassifyResult>("ClassifyStack", req);
 }
 
+export function evaluateAiInterpretation(
+  req: AiInterpretationGateRequest,
+): CancellablePromise<AiInterpretationGateResponse> {
+  return call<AiInterpretationGateResponse>("EvaluateAiInterpretation", req);
+}
+
 // ──────────────────────────────────────────────────────────────────
 // Async analyzers — return a TaskID; the renderer subscribes to
 // `engine:done` / `engine:error` / `engine:cancelled` events.
@@ -257,6 +265,7 @@ export const engine = {
   analyzeMultiThread,
   analyzeLockContention,
   classifyStack,
+  evaluateAiInterpretation,
   cancelEngineTask,
   convertToCollapsed,
   exportJSON,
