@@ -537,13 +537,21 @@ from Analysis Workspace results. It does not replace analyzer-owned
 ```text
 id
 timestamp
+start_time
+end_time?
 time_label
+range_label
+duration_ms?
 source_analyzer
 source_result_id
 source_title
 source_file
 severity
 category
+group_key
+group_label
+group_category
+correlation_ids
 label
 description
 evidence_ref
@@ -553,6 +561,12 @@ payload
 Current event sources include analyzer findings, access-log error/latency
 series, GC alerts, JFR pause/notable events, exception rows, thread-dump
 contention/deadlock tables, and trace-import error/critical-path rows.
+Timeline groups are derived from correlation IDs first (`trace_id`,
+`request_id`, `correlation_id`, `transaction_id`, `thread_id`, thread), then
+service/endpoint hints, and finally category/source fallback keys. The
+exportable result includes `tables.groups`, grouped event counts, ranged event
+counts, and correlated event counts so multi-file incidents can be reviewed by
+incident slice rather than only as a flat event list.
 
 For report packs, the same projection can be emitted as an exportable
 `AnalysisResult` with `type = "incident_timeline"`. It preserves source files,

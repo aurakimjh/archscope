@@ -8,24 +8,54 @@ export type IncidentTimelineSeverity = "critical" | "warning" | "info";
 export type IncidentTimelineEvent = {
   id: string;
   timestamp: string;
+  start_time: string;
+  end_time?: string;
   time_label: string;
+  range_label: string;
   sort_time: number;
+  duration_ms?: number;
   source_analyzer: string;
   source_result_id: string;
   source_title: string;
   source_file?: string;
   severity: IncidentTimelineSeverity;
   category: string;
+  group_key: string;
+  group_label: string;
+  group_category: string;
+  correlation_ids: Record<string, string>;
   label: string;
   description: string;
   evidence_ref: string;
   payload: Record<string, unknown>;
 };
 
+export type IncidentTimelineGroup = {
+  group_key: string;
+  group_label: string;
+  group_category: string;
+  start_time: string;
+  end_time: string;
+  start_label: string;
+  end_label: string;
+  duration_ms?: number;
+  event_count: number;
+  critical_event_count: number;
+  warning_event_count: number;
+  source_result_ids: string[];
+  source_analyzers: string[];
+  source_files: string[];
+  correlation_ids: Record<string, string[]>;
+  evidence_refs: string[];
+};
+
 export type IncidentTimelineAnalysisResult = WorkspaceAnalysisResult & {
   type: "incident_timeline";
   summary: {
     event_count: number;
+    group_count: number;
+    ranged_event_count: number;
+    correlated_event_count: number;
     critical_event_count: number;
     warning_event_count: number;
     info_event_count: number;
@@ -37,8 +67,10 @@ export type IncidentTimelineAnalysisResult = WorkspaceAnalysisResult & {
     events_by_severity: Array<{ severity: IncidentTimelineSeverity; count: number }>;
     events_by_category: Array<{ category: string; count: number }>;
     events_by_source_analyzer: Array<{ source_analyzer: string; count: number }>;
+    events_by_group: Array<{ group_key: string; group_label: string; count: number }>;
   };
   tables: {
+    groups: IncidentTimelineGroup[];
     events: IncidentTimelineEvent[];
   };
   metadata: {
@@ -85,6 +117,7 @@ export function buildIncidentTimelineAnalysisResult(
   entries: AnalysisWorkspaceEntry[],
 ): IncidentTimelineAnalysisResult {
   const events = buildIncidentTimelineEvents(entries);
+  const groups = buildIncidentTimelineGroups(events);
   const ordered = [...events].sort((left, right) => left.sort_time - right.sort_time);
   return {
     type: "incident_timeline",
@@ -92,6 +125,9 @@ export function buildIncidentTimelineAnalysisResult(
     created_at: new Date().toISOString(),
     summary: {
       event_count: events.length,
+      group_count: groups.length,
+      ranged_event_count: events.filter((event) => event.duration_ms !== undefined || event.end_time !== undefined).length,
+      correlated_event_count: events.filter((event) => Object.keys(event.correlation_ids).length > 0).length,
       critical_event_count: events.filter((event) => event.severity === "critical").length,
       warning_event_count: events.filter((event) => event.severity === "warning").length,
       info_event_count: events.filter((event) => event.severity === "info").length,
@@ -112,8 +148,14 @@ export function buildIncidentTimelineAnalysisResult(
         source_analyzer,
         count,
       })),
+      events_by_group: groups.map((group) => ({
+        group_key: group.group_key,
+        group_label: group.group_label,
+        count: group.event_count,
+      })),
     },
     tables: {
+      groups,
       events,
     },
     charts: {},
@@ -376,6 +418,8 @@ function makeEvent(
     evidenceRef: string;
     payload: Record<string, unknown>;
     timeValue?: unknown;
+    endTimeValue?: unknown;
+    durationMs?: number;
   },
 ): IncidentTimelineEvent {
   const fallback = parseTime(entry.result.created_at || entry.recorded_at);
@@ -384,17 +428,38 @@ function makeEvent(
     label: "unknown",
     sort: 0,
   };
+  const duration = input.durationMs ?? durationFromPayload(input.payload);
+  const parsedEnd = parseTime(input.endTimeValue ?? firstEndTimeValue(input.payload));
+  const end =
+    parsedEnd ??
+    (duration !== undefined
+      ? {
+          iso: new Date(parsed.sort + duration).toISOString(),
+          label: new Date(parsed.sort + duration).toLocaleString(),
+          sort: parsed.sort + duration,
+        }
+      : undefined);
+  const correlation = extractCorrelationIds(input.payload, entry.result);
+  const group = inferEventGroup(entry, input.category, input.label, correlation);
   return {
     id: `${entry.id}-${input.idSuffix}`,
     timestamp: parsed.iso,
+    start_time: parsed.iso,
+    end_time: end?.iso,
     time_label: parsed.label,
+    range_label: formatRangeLabel(parsed, end, duration),
     sort_time: parsed.sort,
+    duration_ms: duration,
     source_analyzer: entry.result_type,
     source_result_id: entry.id,
     source_title: entry.title,
     source_file: entry.source_files[0],
     severity: input.severity,
     category: input.category,
+    group_key: group.key,
+    group_label: group.label,
+    group_category: group.category,
+    correlation_ids: correlation,
     label: input.label,
     description: input.description,
     evidence_ref: input.evidenceRef,
@@ -411,6 +476,65 @@ function firstTraceStart(result: WorkspaceAnalysisResult, traceID: string): unkn
     .filter((value) => value > 0)
     .sort((a, b) => a - b);
   return matches[0];
+}
+
+export function buildIncidentTimelineGroups(events: IncidentTimelineEvent[]): IncidentTimelineGroup[] {
+  const grouped = new Map<string, IncidentTimelineEvent[]>();
+  for (const event of events) {
+    const items = grouped.get(event.group_key) ?? [];
+    items.push(event);
+    grouped.set(event.group_key, items);
+  }
+  return Array.from(grouped.entries())
+    .map(([groupKey, groupEvents]) => buildIncidentTimelineGroup(groupKey, groupEvents))
+    .sort((left, right) => Date.parse(left.start_time) - Date.parse(right.start_time) || left.group_label.localeCompare(right.group_label));
+}
+
+function buildIncidentTimelineGroup(groupKey: string, events: IncidentTimelineEvent[]): IncidentTimelineGroup {
+  const ordered = [...events].sort((left, right) => left.sort_time - right.sort_time);
+  const first = ordered[0];
+  const last = ordered.reduce((candidate, event) => eventEndSort(event) > eventEndSort(candidate) ? event : candidate, first);
+  const start = first.start_time;
+  const end = last.end_time ?? last.start_time;
+  const startMs = Date.parse(start);
+  const endMs = Date.parse(end);
+  const duration = Number.isFinite(startMs) && Number.isFinite(endMs) && endMs > startMs ? endMs - startMs : undefined;
+  return {
+    group_key: groupKey,
+    group_label: first.group_label,
+    group_category: first.group_category,
+    start_time: start,
+    end_time: end,
+    start_label: first.time_label,
+    end_label: last.end_time ? new Date(end).toLocaleString() : last.time_label,
+    duration_ms: duration,
+    event_count: events.length,
+    critical_event_count: events.filter((event) => event.severity === "critical").length,
+    warning_event_count: events.filter((event) => event.severity === "warning").length,
+    source_result_ids: uniqueStrings(events.map((event) => event.source_result_id)),
+    source_analyzers: uniqueStrings(events.map((event) => event.source_analyzer)),
+    source_files: uniqueStrings(events.map((event) => event.source_file ?? "")),
+    correlation_ids: mergeCorrelationIds(events),
+    evidence_refs: uniqueStrings(events.map((event) => event.evidence_ref)),
+  };
+}
+
+function eventEndSort(event: IncidentTimelineEvent): number {
+  if (event.end_time) {
+    const parsed = Date.parse(event.end_time);
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  return event.sort_time;
+}
+
+function mergeCorrelationIds(events: IncidentTimelineEvent[]): Record<string, string[]> {
+  const out: Record<string, string[]> = {};
+  for (const event of events) {
+    for (const [key, value] of Object.entries(event.correlation_ids)) {
+      out[key] = uniqueStrings([...(out[key] ?? []), value]);
+    }
+  }
+  return out;
 }
 
 function uniqueEvents(events: IncidentTimelineEvent[]): IncidentTimelineEvent[] {
@@ -459,6 +583,120 @@ function firstTimeValue(source: Record<string, unknown>): unknown {
     }
   }
   return undefined;
+}
+
+function firstEndTimeValue(source: Record<string, unknown>): unknown {
+  for (const key of [
+    "end_time",
+    "end",
+    "finish_time",
+    "finished_at",
+    "last_seen",
+    "latest_timestamp",
+    "end_unix_nanos",
+  ]) {
+    if (source[key] !== undefined && source[key] !== null && source[key] !== "") {
+      return source[key];
+    }
+  }
+  return undefined;
+}
+
+function durationFromPayload(source: Record<string, unknown>): number | undefined {
+  for (const key of [
+    "duration_ms",
+    "elapsed_ms",
+    "latency_ms",
+    "response_time_ms",
+    "critical_path_ms",
+    "total_duration_ms",
+    "pause_ms",
+  ]) {
+    const value = numberValue(source[key]);
+    if (value > 0) return value;
+  }
+  const seconds = numberValue(source.duration_sec) || numberValue(source.elapsed_sec);
+  if (seconds > 0) return seconds * 1_000;
+  const nanos = numberValue(source.duration_nanos) || numberValue(source.duration_ns);
+  if (nanos > 0) return nanos / 1_000_000;
+  return undefined;
+}
+
+function extractCorrelationIds(
+  payload: Record<string, unknown>,
+  result: WorkspaceAnalysisResult,
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  const metadata = objectOrEmpty(result.metadata);
+  for (const key of [
+    "trace_id",
+    "span_id",
+    "parent_span_id",
+    "request_id",
+    "correlation_id",
+    "transaction_id",
+    "txn_id",
+    "thread_id",
+    "thread_name",
+    "service",
+    "service_name",
+    "endpoint",
+    "uri",
+    "method",
+  ]) {
+    const value = stringValue(payload[key]) || stringValue(metadata[key]);
+    if (value) out[normalizeCorrelationKey(key)] = value;
+  }
+  return out;
+}
+
+function normalizeCorrelationKey(key: string): string {
+  if (key === "txn_id") return "transaction_id";
+  if (key === "thread_name") return "thread";
+  if (key === "service_name") return "service";
+  return key;
+}
+
+function inferEventGroup(
+  entry: AnalysisWorkspaceEntry,
+  category: string,
+  label: string,
+  correlation: Record<string, string>,
+): { key: string; label: string; category: string } {
+  for (const key of ["trace_id", "request_id", "correlation_id", "transaction_id", "thread_id", "thread"]) {
+    const value = correlation[key];
+    if (value) {
+      return {
+        key: `${key}:${value}`,
+        label: `${key}: ${value}`,
+        category: key,
+      };
+    }
+  }
+  if (correlation.service) {
+    const endpoint = correlation.endpoint || correlation.uri || label;
+    return {
+      key: `service:${correlation.service}:${endpoint}`,
+      label: `${correlation.service} / ${endpoint}`,
+      category: "service",
+    };
+  }
+  const source = entry.source_files[0] || entry.result_type;
+  return {
+    key: `category:${category}:${label}:${source}`,
+    label: `${category} / ${label}`,
+    category,
+  };
+}
+
+function formatRangeLabel(
+  start: { iso: string; label: string; sort: number },
+  end: { iso: string; label: string; sort: number } | undefined,
+  durationMs: number | undefined,
+): string {
+  if (end && end.iso !== start.iso) return `${start.label} - ${end.label}`;
+  if (durationMs !== undefined) return `${start.label} (+${formatNumber(durationMs)} ms)`;
+  return start.label;
 }
 
 function parseTime(value: unknown): { iso: string; label: string; sort: number } | null {

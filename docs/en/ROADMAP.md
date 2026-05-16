@@ -218,7 +218,8 @@ These items should stay aligned with `work_status.md`.
 - Promote the Wails session timeline into an engine-level or exportable
   `AnalysisResult` when report-pack generation needs persisted timeline data.
 - Add richer event range handling, correlation IDs, and timeline grouping for
-  multi-file incidents.
+  multi-file incidents. The Wails session projection now carries event ranges,
+  duration, correlation IDs, group metadata, and `tables.groups`.
 - Use the timeline to explain what happened and in what order during an
   incident.
 

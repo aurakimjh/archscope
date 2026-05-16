@@ -16,6 +16,7 @@ import { useAnalysisWorkspace } from "@/state/analysisWorkspace";
 import { addEvidenceCard } from "@/state/evidenceBoard";
 import {
   buildIncidentTimelineEvents,
+  buildIncidentTimelineGroups,
   type IncidentTimelineEvent,
 } from "@/state/incidentTimeline";
 
@@ -28,8 +29,10 @@ export function IncidentTimelinePage(): JSX.Element {
     () => buildIncidentTimelineEvents(workspace.entries),
     [workspace.entries],
   );
+  const groups = useMemo(() => buildIncidentTimelineGroups(events), [events]);
   const [analyzer, setAnalyzer] = useState(ALL);
   const [severity, setSeverity] = useState(ALL);
+  const [group, setGroup] = useState(ALL);
   const [query, setQuery] = useState("");
   const [message, setMessage] = useState<string | null>(null);
 
@@ -37,17 +40,25 @@ export function IncidentTimelinePage(): JSX.Element {
     () => Array.from(new Set(events.map((event) => event.source_analyzer))).sort(),
     [events],
   );
+  const groupOptions = useMemo(
+    () => groups.map((item) => ({ key: item.group_key, label: item.group_label })),
+    [groups],
+  );
   const filtered = useMemo(
     () =>
       events.filter((event) => {
         if (analyzer !== ALL && event.source_analyzer !== analyzer) return false;
         if (severity !== ALL && event.severity !== severity) return false;
+        if (group !== ALL && event.group_key !== group) return false;
         const needle = query.trim().toLowerCase();
         if (!needle) return true;
         return [
           event.label,
           event.description,
           event.category,
+          event.group_label,
+          event.group_category,
+          Object.values(event.correlation_ids).join(" "),
           event.source_analyzer,
           event.source_title,
           event.source_file ?? "",
@@ -56,12 +67,13 @@ export function IncidentTimelinePage(): JSX.Element {
           .toLowerCase()
           .includes(needle);
       }),
-    [analyzer, events, query, severity],
+    [analyzer, events, group, query, severity],
   );
 
   const criticalCount = events.filter((event) => event.severity === "critical").length;
   const warningCount = events.filter((event) => event.severity === "warning").length;
   const sourceCount = new Set(events.map((event) => event.source_result_id)).size;
+  const rangedCount = events.filter((event) => event.duration_ms !== undefined || event.end_time !== undefined).length;
   const timeWindow = eventWindow(events);
 
   const addEventEvidence = (event: IncidentTimelineEvent): void => {
@@ -73,16 +85,24 @@ export function IncidentTimelinePage(): JSX.Element {
       severity: event.severity,
       source_file: event.source_file,
       source_ref: event.evidence_ref,
-      payload: {
-        timestamp: event.timestamp,
-        time_label: event.time_label,
-        source_analyzer: event.source_analyzer,
-        source_result_id: event.source_result_id,
-        source_title: event.source_title,
-        category: event.category,
-        evidence_ref: event.evidence_ref,
-        payload: event.payload,
-      },
+        payload: {
+          timestamp: event.timestamp,
+          start_time: event.start_time,
+          end_time: event.end_time,
+          duration_ms: event.duration_ms,
+          range_label: event.range_label,
+          time_label: event.time_label,
+          source_analyzer: event.source_analyzer,
+          source_result_id: event.source_result_id,
+          source_title: event.source_title,
+          category: event.category,
+          group_key: event.group_key,
+          group_label: event.group_label,
+          group_category: event.group_category,
+          correlation_ids: event.correlation_ids,
+          evidence_ref: event.evidence_ref,
+          payload: event.payload,
+        },
     });
     setMessage(t("evidenceAdded"));
   };
@@ -98,6 +118,7 @@ export function IncidentTimelinePage(): JSX.Element {
 
       <section className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         <MetricCard label={t("incidentTimelineEvents")} value={events.length.toLocaleString()} />
+        <MetricCard label={t("incidentTimelineGroups")} value={groups.length.toLocaleString()} />
         <MetricCard
           label={t("incidentTimelineCritical")}
           value={criticalCount.toLocaleString()}
@@ -106,6 +127,7 @@ export function IncidentTimelinePage(): JSX.Element {
           label={t("incidentTimelineWarnings")}
           value={warningCount.toLocaleString()}
         />
+        <MetricCard label={t("incidentTimelineRanged")} value={rangedCount.toLocaleString()} />
         <MetricCard label={t("incidentTimelineSources")} value={sourceCount.toLocaleString()} />
       </section>
 
@@ -116,7 +138,7 @@ export function IncidentTimelinePage(): JSX.Element {
             {t("incidentTimelineFilters")}
           </CardTitle>
         </CardHeader>
-        <CardContent className="grid gap-3 md:grid-cols-[1fr_12rem_12rem]">
+        <CardContent className="grid gap-3 md:grid-cols-[1fr_12rem_12rem_12rem]">
           <label className="space-y-1 text-xs">
             <span className="text-muted-foreground">{t("incidentTimelineSearch")}</span>
             <div className="relative">
@@ -157,8 +179,44 @@ export function IncidentTimelinePage(): JSX.Element {
               <option value="info">info</option>
             </select>
           </label>
+          <label className="space-y-1 text-xs">
+            <span className="text-muted-foreground">{t("incidentTimelineGroup")}</span>
+            <select
+              className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+              value={group}
+              onChange={(event) => setGroup(event.currentTarget.value)}
+            >
+              <option value={ALL}>{t("incidentTimelineAll")}</option>
+              {groupOptions.map((item) => (
+                <option key={item.key} value={item.key}>
+                  {item.label}
+                </option>
+              ))}
+            </select>
+          </label>
         </CardContent>
       </Card>
+
+      {groups.length > 0 && (
+        <Card className="mt-4">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm">{t("incidentTimelineGroups")}</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+            {groups.slice(0, 6).map((item) => (
+              <div key={item.group_key} className="rounded-md border border-border bg-muted/30 p-3 text-xs">
+                <div className="font-semibold text-foreground">{item.group_label}</div>
+                <div className="mt-1 text-muted-foreground">
+                  {item.event_count.toLocaleString()} {t("incidentTimelineEvents")} · {item.source_analyzers.join(", ")}
+                </div>
+                <div className="mt-1 font-mono text-[11px] text-muted-foreground">
+                  {item.start_label} - {item.end_label}
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
       {message && (
         <p className="mt-3 rounded-md border border-border bg-muted/50 px-3 py-2 text-sm">
@@ -191,8 +249,10 @@ export function IncidentTimelinePage(): JSX.Element {
                   <tr className="border-b border-border bg-muted/40 text-[10px] uppercase tracking-wider text-muted-foreground">
                     <th className="px-3 py-2 text-left">{t("incidentTimelineTime")}</th>
                     <th className="px-3 py-2 text-left">{t("incidentTimelineSeverity")}</th>
+                    <th className="px-3 py-2 text-left">{t("incidentTimelineGroup")}</th>
                     <th className="px-3 py-2 text-left">{t("incidentTimelineSource")}</th>
                     <th className="px-3 py-2 text-left">{t("incidentTimelineEvent")}</th>
+                    <th className="px-3 py-2 text-left">{t("incidentTimelineCorrelation")}</th>
                     <th className="px-3 py-2 text-left">{t("incidentTimelineEvidenceRef")}</th>
                     <th className="px-3 py-2 text-right">{t("evidence")}</th>
                   </tr>
@@ -225,7 +285,7 @@ function TimelineRow({
   return (
     <tr className="border-b border-border align-top last:border-0">
       <td className="whitespace-nowrap px-3 py-2 font-mono text-[11px]">
-        {event.time_label}
+        {event.range_label}
       </td>
       <td className="px-3 py-2">
         <span
@@ -235,6 +295,12 @@ function TimelineRow({
         >
           {event.severity}
         </span>
+      </td>
+      <td className="px-3 py-2">
+        <div className="max-w-[14rem] truncate font-medium" title={event.group_label}>
+          {event.group_label}
+        </div>
+        <div className="font-mono text-[10px] text-muted-foreground">{event.group_category}</div>
       </td>
       <td className="px-3 py-2">
         <div className="font-mono text-[11px]">{event.source_analyzer}</div>
@@ -248,6 +314,9 @@ function TimelineRow({
         <div className="mt-1 text-[10px] uppercase tracking-wider text-muted-foreground">
           {event.category}
         </div>
+      </td>
+      <td className="max-w-[16rem] px-3 py-2 font-mono text-[11px] text-muted-foreground">
+        {formatCorrelation(event.correlation_ids)}
       </td>
       <td className="px-3 py-2 font-mono text-[11px]">{event.evidence_ref}</td>
       <td className="px-3 py-2 text-right">
@@ -277,4 +346,10 @@ function eventWindow(events: IncidentTimelineEvent[]): string {
   const last = ordered[ordered.length - 1];
   if (first.timestamp === last.timestamp) return first.time_label;
   return `${first.time_label} - ${last.time_label}`;
+}
+
+function formatCorrelation(values: Record<string, string>): string {
+  const entries = Object.entries(values);
+  if (entries.length === 0) return "-";
+  return entries.map(([key, value]) => `${key}=${value}`).join(" / ");
 }

@@ -679,13 +679,21 @@ projection이다. Analyzer가 소유한 `AnalysisResult` 출력을 대체하지 
 ```text
 id
 timestamp
+start_time
+end_time?
 time_label
+range_label
+duration_ms?
 source_analyzer
 source_result_id
 source_title
 source_file
 severity
 category
+group_key
+group_label
+group_category
+correlation_ids
 label
 description
 evidence_ref
@@ -695,6 +703,12 @@ payload
 현재 event source는 analyzer finding, access-log error/latency series, GC
 alert, JFR pause/notable event, exception row, thread-dump contention/deadlock
 table, trace-import error/critical-path row를 포함한다.
+Timeline group은 correlation ID(`trace_id`, `request_id`, `correlation_id`,
+`transaction_id`, `thread_id`, thread)를 먼저 사용하고, service/endpoint hint,
+마지막으로 category/source fallback key를 사용해 만든다. Exportable result는
+`tables.groups`, group별 event count, ranged event count, correlated event
+count를 포함하므로 multi-file incident를 flat event list가 아니라 incident
+slice 단위로 검토할 수 있다.
 
 Report pack에서는 같은 projection을 `type = "incident_timeline"`인 exportable
 `AnalysisResult`로 낼 수 있다. Source file, summary count,

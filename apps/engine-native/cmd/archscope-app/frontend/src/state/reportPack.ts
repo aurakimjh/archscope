@@ -582,10 +582,12 @@ function renderEvidenceCard(card: EvidenceCard): string {
 
 function renderTimelineTable(events: ReportPackPayload["artifacts"]["incident_timeline"]["tables"]["events"]): string {
   if (events.length === 0) return "<p>No incident timeline events.</p>";
-  return `<table><thead><tr><th>Time</th><th>Severity</th><th>Source</th><th>Event</th><th>Evidence</th></tr></thead><tbody>${events
+  return `<table><thead><tr><th>Time / Range</th><th>Severity</th><th>Group</th><th>Source</th><th>Event</th><th>Evidence</th></tr></thead><tbody>${events
     .map(
       (event) =>
-        `<tr><td>${escapeHTML(event.time_label)}</td><td>${escapeHTML(event.severity)}</td><td>${escapeHTML(
+        `<tr><td>${escapeHTML(event.range_label)}</td><td>${escapeHTML(event.severity)}</td><td>${escapeHTML(
+          event.group_label,
+        )}</td><td>${escapeHTML(
           event.source_analyzer,
         )}</td><td>${escapeHTML(event.label)}<br>${escapeHTML(event.description)}</td><td>${escapeHTML(
           event.evidence_ref,
