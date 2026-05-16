@@ -554,6 +554,12 @@ Current event sources include analyzer findings, access-log error/latency
 series, GC alerts, JFR pause/notable events, exception rows, thread-dump
 contention/deadlock tables, and trace-import error/critical-path rows.
 
+For report packs, the same projection can be emitted as an exportable
+`AnalysisResult` with `type = "incident_timeline"`. It preserves source files,
+summary counts, severity/category/source distributions, `tables.events`, and
+`metadata.source_results` so the report artifact can persist the session
+timeline without replacing analyzer-owned results.
+
 ## SLO and Golden Signals Projection
 
 The first SLO / Golden Signals implementation is a Wails session projection

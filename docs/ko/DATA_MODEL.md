@@ -696,6 +696,12 @@ payload
 alert, JFR pause/notable event, exception row, thread-dump contention/deadlock
 table, trace-import error/critical-path row를 포함한다.
 
+Report pack에서는 같은 projection을 `type = "incident_timeline"`인 exportable
+`AnalysisResult`로 낼 수 있다. Source file, summary count,
+severity/category/source distribution, `tables.events`, `metadata.source_results`
+를 보존하므로 analyzer가 소유한 result를 대체하지 않고 session timeline을
+report artifact 안에 지속할 수 있다.
+
 ## SLO 및 Golden Signals Projection
 
 첫 SLO / Golden Signals 구현은 Analysis Workspace 결과로부터 만든 Wails

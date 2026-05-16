@@ -22,6 +22,39 @@ export type IncidentTimelineEvent = {
   payload: Record<string, unknown>;
 };
 
+export type IncidentTimelineAnalysisResult = WorkspaceAnalysisResult & {
+  type: "incident_timeline";
+  summary: {
+    event_count: number;
+    critical_event_count: number;
+    warning_event_count: number;
+    info_event_count: number;
+    source_result_count: number;
+    earliest_timestamp: string | null;
+    latest_timestamp: string | null;
+  };
+  series: {
+    events_by_severity: Array<{ severity: IncidentTimelineSeverity; count: number }>;
+    events_by_category: Array<{ category: string; count: number }>;
+    events_by_source_analyzer: Array<{ source_analyzer: string; count: number }>;
+  };
+  tables: {
+    events: IncidentTimelineEvent[];
+  };
+  metadata: {
+    schema_version: "0.1.0";
+    projection: "wails_session";
+    source_results: Array<{
+      id: string;
+      title: string;
+      result_type: string;
+      source_files: string[];
+      created_at: string;
+      recorded_at: string;
+    }>;
+  };
+};
+
 type FindingLike = {
   severity?: unknown;
   code?: unknown;
@@ -46,6 +79,57 @@ export function buildIncidentTimelineEvents(
       return left.label.localeCompare(right.label);
     })
     .slice(0, 1_000);
+}
+
+export function buildIncidentTimelineAnalysisResult(
+  entries: AnalysisWorkspaceEntry[],
+): IncidentTimelineAnalysisResult {
+  const events = buildIncidentTimelineEvents(entries);
+  const ordered = [...events].sort((left, right) => left.sort_time - right.sort_time);
+  return {
+    type: "incident_timeline",
+    source_files: uniqueStrings(entries.flatMap((entry) => entry.source_files)),
+    created_at: new Date().toISOString(),
+    summary: {
+      event_count: events.length,
+      critical_event_count: events.filter((event) => event.severity === "critical").length,
+      warning_event_count: events.filter((event) => event.severity === "warning").length,
+      info_event_count: events.filter((event) => event.severity === "info").length,
+      source_result_count: entries.length,
+      earliest_timestamp: ordered[0]?.timestamp ?? null,
+      latest_timestamp: ordered[ordered.length - 1]?.timestamp ?? null,
+    },
+    series: {
+      events_by_severity: countEvents(events, "severity").map(([severity, count]) => ({
+        severity: severity as IncidentTimelineSeverity,
+        count,
+      })),
+      events_by_category: countEvents(events, "category").map(([category, count]) => ({
+        category,
+        count,
+      })),
+      events_by_source_analyzer: countEvents(events, "source_analyzer").map(([source_analyzer, count]) => ({
+        source_analyzer,
+        count,
+      })),
+    },
+    tables: {
+      events,
+    },
+    charts: {},
+    metadata: {
+      schema_version: "0.1.0",
+      projection: "wails_session",
+      source_results: entries.map((entry) => ({
+        id: entry.id,
+        title: entry.title,
+        result_type: entry.result_type,
+        source_files: entry.source_files,
+        created_at: entry.created_at,
+        recorded_at: entry.recorded_at,
+      })),
+    },
+  };
 }
 
 function eventsFromEntry(entry: AnalysisWorkspaceEntry): IncidentTimelineEvent[] {
@@ -459,4 +543,20 @@ function formatNumber(value: number): string {
   return Number.isFinite(value)
     ? value.toLocaleString(undefined, { maximumFractionDigits: 2 })
     : String(value);
+}
+
+function countEvents(
+  events: IncidentTimelineEvent[],
+  key: "severity" | "category" | "source_analyzer",
+): Array<[string, number]> {
+  const counts = new Map<string, number>();
+  for (const event of events) {
+    const value = event[key];
+    counts.set(value, (counts.get(value) ?? 0) + 1);
+  }
+  return Array.from(counts.entries()).sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]));
+}
+
+function uniqueStrings(values: string[]): string[] {
+  return Array.from(new Set(values.filter(Boolean))).sort((left, right) => left.localeCompare(right));
 }
