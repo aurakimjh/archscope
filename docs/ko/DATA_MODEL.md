@@ -322,6 +322,10 @@ table과 맞춘 `0.0`부터 `1.0`까지의 fraction이다.
 값이다. `sample_records`는 optional `source_format`, `route`,
 `upstream_service`, `trace_id`, `request_id` field도 포함할 수 있다.
 
+Optional `metadata.source_format_diagnostics`는 access/edge auto-detect evidence를
+`selected_format`, `auto_detect_enabled`, `detected_format_count`,
+`parsed_by_format`, `skipped_by_reason`으로 기록한다.
+
 필수 `metadata` fields:
 
 | Field | Type | 의미 |

@@ -660,6 +660,8 @@ func buildFromIterator(
 		})
 	}
 
+	sourceFormatRows := mostCommonStrings(formatDistrib, "source_format", -1)
+	upstreamRows := mostCommonStrings(upstreamDistrib, "upstream_service", TopURLLimit)
 	series := map[string]any{
 		"requests_per_minute":           requestsPerMinute,
 		"avg_response_time_per_minute":  avgRTPerMinute,
@@ -674,8 +676,8 @@ func buildFromIterator(
 		"status_code_distribution":      statusDistribOrdered,
 		"method_distribution":           mostCommonStrings(methodDistrib, "method", -1),
 		"request_classification":        mostCommonStrings(classDistrib, "classification", -1),
-		"source_format_distribution":    mostCommonStrings(formatDistrib, "source_format", -1),
-		"upstream_service_distribution": mostCommonStrings(upstreamDistrib, "upstream_service", TopURLLimit),
+		"source_format_distribution":    sourceFormatRows,
+		"upstream_service_distribution": upstreamRows,
 		"top_urls_by_count":             projectURICount(topByCount),
 		"top_urls_by_avg_response_time": projectURIAvg(topByAvg),
 	}
@@ -714,6 +716,13 @@ func buildFromIterator(
 	}
 	result.Metadata.Extra["format"] = format
 	result.Metadata.Extra["analysis_options"] = optionsToDict(opts)
+	result.Metadata.Extra["source_format_diagnostics"] = map[string]any{
+		"selected_format":       format,
+		"auto_detect_enabled":   strings.EqualFold(strings.TrimSpace(format), "auto"),
+		"detected_format_count": len(formatDistrib),
+		"parsed_by_format":      sourceFormatRows,
+		"skipped_by_reason":     diags.SkippedByReason,
+	}
 	ingestion.AttachSourceMetadata(&result, ingestion.NewSourceMetadata(sourceFile, ingestion.SourceMetadataOptions{
 		SourceKind:   ingestion.SourceKindAccessLog,
 		SourceFormat: format,

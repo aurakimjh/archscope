@@ -179,6 +179,10 @@ is a percent value like the access-log summary error rate. `sample_records` may
 also include optional `source_format`, `route`, `upstream_service`, `trace_id`,
 and `request_id` fields.
 
+Optional `metadata.source_format_diagnostics` records access/edge auto-detect
+evidence with `selected_format`, `auto_detect_enabled`, `detected_format_count`,
+`parsed_by_format`, and `skipped_by_reason`.
+
 Required `metadata` fields:
 
 | Field | Type | Meaning |

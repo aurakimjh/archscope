@@ -273,6 +273,18 @@ func TestAnalyzeAccessEdgeMetadataTablesAndFindings(t *testing.T) {
 	if len(routes) != 1 || routes[0]["route"] != "orders-route" {
 		t.Fatalf("route_stats mismatch: %+v", routes)
 	}
+	formatDiag := result.Metadata.Extra["source_format_diagnostics"].(map[string]any)
+	if got := asInt(formatDiag["detected_format_count"]); got != 2 {
+		t.Fatalf("detected_format_count = %d, want 2", got)
+	}
+	parsedByFormat := formatDiag["parsed_by_format"].([]map[string]any)
+	if len(parsedByFormat) != 2 {
+		t.Fatalf("parsed_by_format = %+v", parsedByFormat)
+	}
+	sample := result.Tables["sample_records"].([]map[string]any)[0]
+	if sample["source_format"] != "haproxy-http" || sample["route"] != "orders-route" {
+		t.Fatalf("sample edge metadata mismatch: %+v", sample)
+	}
 	codes := map[string]bool{}
 	for _, finding := range result.Metadata.Findings {
 		codes[finding["code"].(string)] = true
