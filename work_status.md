@@ -14,12 +14,11 @@ The previous long-form history was archived to
   `apps/engine-native/cmd/archscope-app/frontend`.
 - Active engine: Go parser/analyzer/exporter/AI interpretation modules under
   `apps/engine-native/internal`.
-- Release baseline: `v0.3.3` is the latest stable GitHub release. The
+- Release baseline: preparing `v0.3.4` as the latest stable GitHub release. The
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
-- Current execution focus: preparing a `v0.3.4` stabilization pass from the
-  2026-05-16 mid-term roadmap review, with priority on P0 correctness,
-  privacy, SLO accuracy, report-pack safety, and AnalysisResult guardrails.
+- Current execution focus: `v0.3.4` release verification and publication after
+  completing the 2026-05-16 mid-term roadmap stabilization tasks.
 - Retired implementation: Python/FastAPI/browser sources are archived under
   `archive/python-engine` and `archive/web-frontend-python`.
 - Historical native POC module has been folded into `apps/engine-native`.
@@ -445,6 +444,12 @@ filtered before analysis.
   emits the known macOS linker warning. Startup shell chunk is 161.50 KB raw /
   52.08 KB gzip, and the lazy shared ECharts runtime is 689.89 KB raw /
   229.49 KB gzip.
+- 2026-05-16 `v0.3.4` release-prep verification passed:
+  `env GOCACHE=/tmp/archscope-go-cache go test ./...` passed under
+  `apps/engine-native` with the known macOS linker warning,
+  `npm run test:state` passed for derived frontend state regressions,
+  `npm run build` passed for the Wails frontend, and `git diff --check`
+  passed. Frontend package/build metadata is set to 0.3.4.
 
 ## Decisions
 

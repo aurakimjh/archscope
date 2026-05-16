@@ -6,6 +6,42 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.4] — 2026-05-16
+
+This stabilization release closes the mid-term roadmap review findings for the
+desktop Evidence Studio workflows introduced in 0.3.3.
+
+### Added
+
+- Added frontend state regression coverage for Incident Timeline, SLO / Golden
+  Signals, Service Flow, Report Pack ZIP path handling, runtime-stack signals,
+  and AI evidence-gate behavior.
+- Added runtime-stack Golden Signals for Node.js, Python traceback, Go panic,
+  and .NET/IIS analyzer results.
+
+### Changed
+
+- Hardened AI interpretation validation through the Go evidence gate, required
+  evidence quotes when quote matching is enabled, exposed the gate through the
+  Wails EngineService, and expanded prompt redaction for bearer/JWT secrets,
+  hostnames, IPv6, SQL literals, stack paths, and Korean PII patterns.
+- Corrected SLO error-rate unit handling, source-aware service-edge traffic
+  aggregation, service identity normalization, configurable SLO target
+  overrides, and deterministic derived workflow output behavior.
+- Promoted Service Flow, SLO / Golden Signals, and Incident Timeline derived
+  artifacts toward exportable `AnalysisResult` envelopes with parser,
+  diagnostics, findings, source metadata, and report-pack reuse.
+- Strengthened report-pack AI provenance with prompt/source/evidence hashes,
+  validation status, token/parameter metadata when present, visible AI badges,
+  confidence, limitations, and evidence quote status.
+
+### Fixed
+
+- Restored Incident Timeline mappings for `thread_dump`, `thread_dump_multi`,
+  and `thread_dump_locks` tables emitted by the Go analyzers.
+- Rejected unsafe report-pack ZIP entry paths before writing archive headers.
+- Fixed Mermaid sequence output for source-only Service Flow findings.
+
 ## [0.3.3] — 2026-05-16
 
 This release continues the local-first Evidence Studio line with external trace
@@ -551,6 +587,7 @@ Initial closed-development tag covering the original Electron + React
 desktop application with the Phase 1–3 backlog (T-001…T-179).
 Superseded by 0.2.0-alpha; no longer publicly distributed.
 
+[0.3.4]: https://github.com/aurakimjh/archscope/releases/tag/v0.3.4
 [0.3.3]: https://github.com/aurakimjh/archscope/releases/tag/v0.3.3
 [0.3.2]: https://github.com/aurakimjh/archscope/releases/tag/v0.3.2
 [0.3.1]: https://github.com/aurakimjh/archscope/releases/tag/v0.3.1

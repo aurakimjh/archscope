@@ -17,7 +17,7 @@
         PackageDisplayName="ArchScope"
         PublisherName="CN=ArchScope"
         PublisherDisplayName="ArchScope"
-        Version="0.3.3.0"
+        Version="0.3.4.0"
         PackageDescription="Local-first architecture diagnostics desktop">
         <Capabilities>
             <Capability Name="runFullTrust" />

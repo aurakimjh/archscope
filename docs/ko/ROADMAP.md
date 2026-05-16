@@ -42,7 +42,7 @@ finding을 확인하고, 근거를 수집하고, 고객 데이터 외부 전송 
   frontend.
 - 활성 엔진: `apps/engine-native/internal` 아래 Go parser, analyzer, exporter,
   profiler, AI interpretation module.
-- Release baseline: stable `v0.3.3`.
+- Release baseline: stable `v0.3.4`.
 - Archive: Python/FastAPI/browser 소스는 `archive/` 아래 historical reference로만
   유지한다.
 
