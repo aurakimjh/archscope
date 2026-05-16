@@ -863,15 +863,18 @@ ReportPack
   created_at
   card_count
   source_result_count
+  customer_summary
   provenance
   artifacts
 ```
 
-`provenance`는 source result metadata, analyzer option, captured evidence card,
-deterministic finding, derived artifact reference, 존재하는 경우 optional AI
-interpretation provenance를 보존한다. `artifacts`는 현재 evidence card,
-exportable `incident_timeline` result, SLO analysis, Service Flow export
-payload를 포함한다.
+`customer_summary`는 고객-facing overview와 key observation 목록이다. 각
+observation은 evidence card ID 또는 source evidence reference를 포함하며,
+raw evidence appendix는 pack에 그대로 남는다. `provenance`는 source result
+metadata, analyzer option, captured evidence card, deterministic finding,
+derived artifact reference, 존재하는 경우 optional AI interpretation provenance를
+보존한다. `artifacts`는 현재 evidence card, exportable `incident_timeline`
+result, SLO analysis, Service Flow export payload를 포함한다.
 
 ## AI Interpretation Contract
 

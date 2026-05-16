@@ -241,11 +241,15 @@ finding을 확인하고, 근거를 수집하고, 고객 데이터 외부 전송 
 
 - Evidence Board 내용을 기반으로 session-derived Incident Timeline, SLO,
   Service Flow artifact를 포함한 report-ready HTML과 ZIP export를 만든다.
-  이후 단계에서 PPTX/PDF를 추가할 수 있다.
+  Wails report pack은 현재 이 local HTML/ZIP bridge를 제공하며, 이후
+  단계에서 PPTX/PDF를 추가할 수 있다.
 - Source metadata, analyzer option, captured evidence, deterministic finding,
   derived artifact reference, optional AI interpretation provenance를 report
-  pack JSON/HTML에 보존한다.
+  pack JSON/HTML에 보존한다. 현재 report pack JSON/HTML은 이 provenance
+  contract를 포함한다.
 - 결론 뒤에 raw evidence를 숨기지 않는 고객-facing summary를 지원한다.
+  현재 report pack은 evidence-linked key observation을 포함하고 exported
+  pack 안에 raw evidence appendix를 유지한다.
 
 ### AI 보조 해석 제품화
 

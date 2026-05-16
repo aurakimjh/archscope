@@ -247,12 +247,15 @@ These items should stay aligned with `work_status.md`.
 
 - Generate report-ready HTML and ZIP outputs from Evidence Board content,
   including session-derived Incident Timeline, SLO, and Service Flow artifacts.
-  Later phases may add PPTX/PDF.
+  The Wails report pack now covers this local HTML/ZIP bridge; later phases may
+  add PPTX/PDF.
 - Preserve source metadata, analyzer options, captured evidence, deterministic
   findings, derived artifact references, and optional AI interpretation
-  provenance in report pack JSON/HTML.
+  provenance in report pack JSON/HTML. The current report pack JSON/HTML
+  includes this provenance contract.
 - Support customer-facing summaries without hiding the raw evidence behind
-  conclusions.
+  conclusions. The current report pack includes evidence-linked key
+  observations and keeps the raw evidence appendix in the exported pack.
 
 ### AI Interpretation Productization
 

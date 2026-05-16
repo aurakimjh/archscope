@@ -67,11 +67,16 @@ Source file을 다시 parse하지 않고 서버도 필요하지 않다.
 - Report pack HTML: Evidence Board card와 session-derived Incident Timeline,
   SLO, Service Flow artifact를 묶은 static report bundle view.
 - Report pack ZIP: 브라우저에서 생성하는 package이며 `index.html`,
-  `report-pack.json`, `evidence-cards.json`, `incident-timeline.json`,
-  `slo-analysis.json`, `service-flow.json`을 포함한다.
+  `report-pack.json`, `customer-summary.json`, `evidence-cards.json`,
+  `incident-timeline.json`, `slo-analysis.json`, `service-flow.json`을
+  포함한다.
 - Report pack provenance: `report-pack.json`은 source result metadata, analyzer
   option, captured evidence reference, deterministic finding, derived artifact
   reference, 존재하는 경우 optional AI interpretation provenance를 보존한다.
+- Customer summary: `report-pack.json`과 `customer-summary.json`은 evidence와
+  연결된 고객-facing overview 및 key observation을 포함한다. 모든 summary
+  항목은 evidence card ID 또는 source evidence reference를 표시하며, raw
+  evidence appendix는 HTML과 JSON pack에 그대로 남는다.
 
 이는 analyzer finding을 임시로 모아 보고서에 활용하는 현재 기능과 향후
 engine-level report pack workflow 사이의 단기 연결점이다.

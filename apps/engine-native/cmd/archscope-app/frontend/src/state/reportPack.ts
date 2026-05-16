@@ -10,6 +10,7 @@ export type ReportPackPayload = {
   created_at: string;
   card_count: number;
   source_result_count: number;
+  customer_summary: ReportPackCustomerSummary;
   provenance: ReportPackProvenance;
   artifacts: {
     evidence_cards: EvidenceCard[];
@@ -17,6 +18,21 @@ export type ReportPackPayload = {
     slo_analysis: ReturnType<typeof analyzeSloViolationsFromEntries>;
     service_flow: ReturnType<typeof buildServiceFlowExportPayload>;
   };
+};
+
+export type ReportPackCustomerSummary = {
+  generated_at: string;
+  overview: string;
+  key_observations: ReportPackCustomerObservation[];
+  evidence_policy: string;
+};
+
+export type ReportPackCustomerObservation = {
+  severity?: string;
+  title: string;
+  summary: string;
+  evidence_card_ids: string[];
+  evidence_refs: string[];
 };
 
 export type ReportPackProvenance = {
@@ -89,17 +105,23 @@ export function buildReportPackPayload(
   const incidentTimeline = buildIncidentTimelineAnalysisResult(entries);
   const sloAnalysis = analyzeSloViolationsFromEntries(entries);
   const serviceFlowPayload = buildServiceFlowExportPayload(serviceFlow);
+  const provenance = buildReportPackProvenance(cards, entries, {
+    incidentTimeline,
+    sloAnalysis,
+    serviceFlow: serviceFlowPayload,
+  });
   return {
     type: "archscope_report_pack",
     schema_version: "0.1.0",
     created_at: new Date().toISOString(),
     card_count: cards.length,
     source_result_count: entries.length,
-    provenance: buildReportPackProvenance(cards, entries, {
+    customer_summary: buildCustomerSummary(cards, provenance, {
       incidentTimeline,
       sloAnalysis,
       serviceFlow: serviceFlowPayload,
     }),
+    provenance,
     artifacts: {
       evidence_cards: cards,
       incident_timeline: incidentTimeline,
@@ -126,6 +148,7 @@ export async function exportReportPackZip(
   const files: ZipFile[] = [
     { path: "index.html", content: buildReportPackHTML(payload) },
     { path: "report-pack.json", content: JSON.stringify(payload, null, 2) },
+    { path: "customer-summary.json", content: JSON.stringify(payload.customer_summary, null, 2) },
     { path: "evidence-cards.json", content: JSON.stringify(payload.artifacts.evidence_cards, null, 2) },
     { path: "incident-timeline.json", content: JSON.stringify(payload.artifacts.incident_timeline, null, 2) },
     { path: "slo-analysis.json", content: JSON.stringify(payload.artifacts.slo_analysis, null, 2) },
@@ -158,6 +181,7 @@ export function buildReportPackHTML(payload: ReportPackPayload): string {
     .metric span { display: block; color: #6b7280; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
     .metric strong { display: block; margin-top: 4px; font-size: 20px; }
     .card { break-inside: avoid; margin: 0 0 12px; }
+    .observation { margin: 0 0 12px; }
     .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; color: #4b5563; font-size: 11px; text-transform: uppercase; }
     .meta span { background: #f3f4f6; border-radius: 4px; padding: 2px 6px; }
     table { width: 100%; border-collapse: collapse; background: white; border: 1px solid #d1d5db; border-radius: 8px; overflow: hidden; font-size: 12px; }
@@ -165,6 +189,7 @@ export function buildReportPackHTML(payload: ReportPackPayload): string {
     th { background: #f3f4f6; color: #4b5563; font-size: 10px; text-transform: uppercase; letter-spacing: .04em; }
     td.num { text-align: right; font-variant-numeric: tabular-nums; }
     pre { max-height: 360px; overflow: auto; background: #f3f4f6; border-radius: 6px; padding: 12px; font-size: 11px; line-height: 1.45; }
+    a { color: #2563eb; text-decoration: none; }
   </style>
 </head>
 <body>
@@ -178,8 +203,8 @@ export function buildReportPackHTML(payload: ReportPackPayload): string {
     <div class="metric"><span>Evidence cards</span><strong>${payload.card_count.toLocaleString()}</strong></div>
   </section>
 
-  <h2>Evidence Cards</h2>
-  ${payload.artifacts.evidence_cards.map(renderEvidenceCard).join("\n") || "<p>No evidence cards collected.</p>"}
+  <h2>Customer Summary</h2>
+  ${renderCustomerSummary(payload.customer_summary)}
 
   <h2>Provenance</h2>
   ${renderProvenance(payload.provenance)}
@@ -192,6 +217,9 @@ export function buildReportPackHTML(payload: ReportPackPayload): string {
 
   <h2>Service Flow Preview</h2>
   ${renderServiceEdgeTable(serviceFlow.edges.slice(0, 50))}
+
+  <h2>Raw Evidence Appendix</h2>
+  ${payload.artifacts.evidence_cards.map(renderEvidenceCard).join("\n") || "<p>No evidence cards collected.</p>"}
 </body>
 </html>`;
 }
@@ -265,6 +293,52 @@ function buildReportPackProvenance(
   };
 }
 
+function buildCustomerSummary(
+  cards: EvidenceCard[],
+  provenance: ReportPackProvenance,
+  artifacts: {
+    incidentTimeline: ReportPackPayload["artifacts"]["incident_timeline"];
+    sloAnalysis: ReportPackPayload["artifacts"]["slo_analysis"];
+    serviceFlow: ReportPackPayload["artifacts"]["service_flow"];
+  },
+): ReportPackCustomerSummary {
+  const cardObservations = cards
+    .filter((card) => card.summary || card.severity || card.impact || card.recommendation || card.hypothesis)
+    .sort(compareEvidenceCards)
+    .slice(0, 10)
+    .map((card) => ({
+      severity: card.severity,
+      title: card.title,
+      summary:
+        card.summary ??
+        card.impact ??
+        card.recommendation ??
+        card.hypothesis ??
+        "Captured evidence requires review.",
+      evidence_card_ids: [card.id],
+      evidence_refs: uniqueStrings([card.source_ref, card.source_file].filter((value): value is string => Boolean(value))),
+    }));
+  const remainingSlots = Math.max(0, 10 - cardObservations.length);
+  const findingObservations = provenance.deterministic_findings
+    .filter((finding) => finding.evidence_refs.length > 0)
+    .sort(compareFindingProvenance)
+    .slice(0, remainingSlots)
+    .map((finding) => ({
+      severity: finding.severity,
+      title: finding.code,
+      summary: finding.message,
+      evidence_card_ids: [],
+      evidence_refs: finding.evidence_refs,
+    }));
+  return {
+    generated_at: new Date().toISOString(),
+    overview: `This report pack contains ${cards.length.toLocaleString()} captured evidence cards, ${artifacts.incidentTimeline.summary.event_count.toLocaleString()} incident timeline events, ${artifacts.sloAnalysis.violation_count.toLocaleString()} SLO violations, and ${artifacts.serviceFlow.summary.edge_count.toLocaleString()} service-flow edges.`,
+    key_observations: [...cardObservations, ...findingObservations],
+    evidence_policy:
+      "Every summary item lists evidence card IDs or source evidence references. The raw evidence appendix remains part of the report pack.",
+  };
+}
+
 function sourceResultProvenance(entry: AnalysisWorkspaceEntry): ReportPackSourceResultProvenance {
   const metadata = objectOrEmpty(entry.result.metadata);
   return {
@@ -323,6 +397,37 @@ function collectAIInterpretationProvenance(
   };
 }
 
+function renderCustomerSummary(summary: ReportPackCustomerSummary): string {
+  const observations =
+    summary.key_observations.length > 0
+      ? `<ol>${summary.key_observations.map(renderCustomerObservation).join("\n")}</ol>`
+      : "<p>No customer summary observations yet.</p>";
+  return `<section>
+    <p>${escapeHTML(summary.overview)}</p>
+    ${observations}
+    <p class="subtle">${escapeHTML(summary.evidence_policy)}</p>
+  </section>`;
+}
+
+function renderCustomerObservation(observation: ReportPackCustomerObservation): string {
+  const cardRefs = observation.evidence_card_ids.map(
+    (cardId) => `<a href="#${escapeHTML(cardId)}">${escapeHTML(cardId)}</a>`,
+  );
+  const evidenceRefs = observation.evidence_refs.map((ref) => escapeHTML(ref));
+  const evidenceLabels = [
+    cardRefs.length > 0 ? `Cards: ${cardRefs.join(", ")}` : "",
+    evidenceRefs.length > 0 ? `Refs: ${evidenceRefs.join(", ")}` : "",
+  ].filter(Boolean);
+  return `<li class="observation">
+    <strong>${escapeHTML(observation.title)}</strong>
+    ${observation.summary ? `<p>${escapeHTML(observation.summary)}</p>` : ""}
+    <div class="meta">
+      ${observation.severity ? `<span>${escapeHTML(observation.severity)}</span>` : ""}
+      ${evidenceLabels.map((label) => `<span>${label}</span>`).join("")}
+    </div>
+  </li>`;
+}
+
 function renderProvenance(provenance: ReportPackProvenance): string {
   return `<section>
     <div class="grid">
@@ -348,9 +453,10 @@ function renderSourceResultTable(results: ReportPackSourceResultProvenance[]): s
 }
 
 function renderEvidenceCard(card: EvidenceCard): string {
-  return `<article class="card">
+  return `<article class="card" id="${escapeHTML(card.id)}">
   <h3>${escapeHTML(card.title)}</h3>
   <div class="meta">
+    <span>${escapeHTML(card.id)}</span>
     <span>${escapeHTML(card.analyzer)}</span>
     <span>${escapeHTML(card.source_kind)}</span>
     ${card.severity ? `<span>${escapeHTML(card.severity)}</span>` : ""}
@@ -536,6 +642,51 @@ function stringValue(value: unknown): string | undefined {
 
 function uniqueStrings(values: string[]): string[] {
   return Array.from(new Set(values.filter(Boolean))).sort((left, right) => left.localeCompare(right));
+}
+
+function compareEvidenceCards(left: EvidenceCard, right: EvidenceCard): number {
+  return (
+    severityRank(left.severity) - severityRank(right.severity) ||
+    timestampValue(right.created_at) - timestampValue(left.created_at) ||
+    left.title.localeCompare(right.title)
+  );
+}
+
+function compareFindingProvenance(
+  left: ReportPackFindingProvenance,
+  right: ReportPackFindingProvenance,
+): number {
+  return (
+    severityRank(left.severity) - severityRank(right.severity) ||
+    left.source_result_id.localeCompare(right.source_result_id) ||
+    left.code.localeCompare(right.code) ||
+    left.id.localeCompare(right.id)
+  );
+}
+
+function severityRank(severity?: string): number {
+  switch (severity?.toLowerCase()) {
+    case "critical":
+    case "fatal":
+      return 0;
+    case "error":
+    case "high":
+      return 1;
+    case "warn":
+    case "warning":
+    case "medium":
+      return 2;
+    case "info":
+    case "low":
+      return 3;
+    default:
+      return 4;
+  }
+}
+
+function timestampValue(value: string): number {
+  const parsed = Date.parse(value);
+  return Number.isFinite(parsed) ? parsed : 0;
 }
 
 function downloadBlob(content: string | Blob, filename: string, type: string): void {

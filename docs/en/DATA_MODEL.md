@@ -722,15 +722,18 @@ ReportPack
   created_at
   card_count
   source_result_count
+  customer_summary
   provenance
   artifacts
 ```
 
-`provenance` preserves source result metadata, analyzer options, captured
-evidence cards, deterministic findings, derived artifact references, and
-optional AI interpretation provenance when it exists. `artifacts` currently
-include evidence cards, the exportable `incident_timeline` result, SLO analysis,
-and the Service Flow export payload.
+`customer_summary` is a customer-facing overview and key-observation list. Each
+observation carries evidence card IDs or source evidence references, and the raw
+evidence appendix remains in the pack. `provenance` preserves source result
+metadata, analyzer options, captured evidence cards, deterministic findings,
+derived artifact references, and optional AI interpretation provenance when it
+exists. `artifacts` currently include evidence cards, the exportable
+`incident_timeline` result, SLO analysis, and the Service Flow export payload.
 
 ## AI Interpretation Contract
 
