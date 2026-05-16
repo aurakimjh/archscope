@@ -14,8 +14,8 @@ android {
         applicationId "com.wails.app"
         minSdk 21
         targetSdk 34
-        versionCode 301000
-        versionName "0.3.1"
+        versionCode 303000
+        versionName "0.3.3"
 
         // Configure supported ABIs
         ndk {

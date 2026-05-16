@@ -14,7 +14,7 @@ The previous long-form history was archived to
   `apps/engine-native/cmd/archscope-app/frontend`.
 - Active engine: Go parser/analyzer/exporter/AI interpretation modules under
   `apps/engine-native/internal`.
-- Release baseline: `v0.3.2` is the latest stable GitHub release. The
+- Release baseline: `v0.3.3` is the latest stable GitHub release. The
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
 - Current execution focus: executing the promoted mid-term Evidence Studio
@@ -117,6 +117,8 @@ The previous long-form history was archived to
 - Added the Wails Service Flow MVP with a shared Trace Import/Jennifer MSA
   service-edge model, deterministic service-flow findings, Evidence Board
   capture, Mermaid sequence-like export, and JSON export.
+- Prepared the stable `v0.3.3` desktop release with updated app/package
+  metadata, changelog notes, and 0.3.x Evidence Studio release scope.
 
 ## Current Risk
 
@@ -396,6 +398,14 @@ filtered before analysis.
   Incident Timeline page is a lazy 11.18 KB raw / 2.80 KB gzip route chunk,
   the shared `incidentTimeline` helper is 12.70 KB raw / 4.20 KB gzip, and
   `git diff --check` passed.
+- 2026-05-16 `v0.3.3` release-prep verification passed: Wails build assets
+  were regenerated from `build/config.yml`, Windows `syso` generation passed
+  for the 0.3.3 metadata, `env GOCACHE=/tmp/archscope-go-cache go test ./...`
+  passed under `apps/engine-native`, `npm run build` passed for the Wails
+  frontend, and `git diff --check` passed. The Wails app test build still
+  emits the known macOS linker warning. Startup shell chunk is 161.50 KB raw /
+  52.08 KB gzip, and the lazy shared ECharts runtime is 689.89 KB raw /
+  229.49 KB gzip.
 
 ## Decisions
 

@@ -17,9 +17,9 @@
 		<key>CFBundlePackageType</key>
 		<string>APPL</string>
 		<key>CFBundleShortVersionString</key>
-		<string>0.3.1</string>
+		<string>0.3.3</string>
 		<key>CFBundleVersion</key>
-		<string>0.3.1</string>
+		<string>0.3.3</string>
 		<key>LSMinimumSystemVersion</key>
 		<string>12.0.0</string>
 		<key>NSAppTransportSecurity</key>
@@ -30,6 +30,6 @@
 		<key>NSHighResolutionCapable</key>
 		<string>true</string>
 		<key>NSHumanReadableCopyright</key>
-		<string>(c) 2026, ArchScope</string>
+		<string>Copyright (c) 2026 ArchScope contributors.</string>
 	</dict>
 </plist>

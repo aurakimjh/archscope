@@ -47,7 +47,7 @@ Guiding principles:
   `apps/engine-native/cmd/archscope-app/frontend`.
 - Active engine: Go parser, analyzer, exporter, profiler, and AI
   interpretation modules under `apps/engine-native/internal`.
-- Release baseline: `v0.3.2` stable.
+- Release baseline: `v0.3.3` stable.
 - Archived implementation: Python/FastAPI/browser sources are kept under
   `archive/` for historical reference only.
 

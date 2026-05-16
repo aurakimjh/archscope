@@ -6,6 +6,39 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.3] — 2026-05-16
+
+This release continues the local-first Evidence Studio line with external trace
+compatibility, workspace-level Incident Timeline, SLO / Golden Signals,
+Service Flow, Evidence Board report packs, and evidence-gated AI
+interpretation workflows.
+
+### Added
+
+- Added Jaeger QueryService/local trace JSON import and schema-guarded
+  SkyWalking GraphQL `queryTrace.spans` validation to the trace import parser,
+  analyzer, CLI, Wails UI, fixtures, and bilingual data-model documentation.
+- Added a Wails Incident Timeline workspace with a common session event model,
+  cross-analyzer mapping, grouped event ranges, correlation IDs, deterministic
+  evidence-linked narrative steps, Evidence Board capture, and exportable
+  `incident_timeline` projections for report packs.
+- Added SLO / Golden Signals inventory, normalized latency/traffic/error/
+  saturation SLI metrics, default SLO target evaluation, violation and
+  error-budget tables, affected-scope breakdowns, and Evidence Board capture.
+- Added Service Flow workspace support with shared Trace Import/Jennifer MSA
+  input normalization, common service-edge schema, deterministic service-flow
+  findings, Mermaid sequence-like export, and JSON export.
+- Added Evidence Board report pack HTML/ZIP export with source metadata,
+  analyzer options, captured evidence, deterministic findings, derived
+  artifacts, AI provenance, customer-facing summary, and raw evidence appendix.
+
+### Changed
+
+- Kept AI-assisted findings visually separate from deterministic findings and
+  gated Evidence Board/report-pack integration on valid evidence references,
+  quote matching, confidence thresholds, and hallucinated-reference checks.
+- Promoted app/package and desktop packaging metadata to `0.3.3`.
+
 ## [0.3.2] — 2026-05-14
 
 This release expands the Wails desktop app into a broader local-first
@@ -518,6 +551,8 @@ Initial closed-development tag covering the original Electron + React
 desktop application with the Phase 1–3 backlog (T-001…T-179).
 Superseded by 0.2.0-alpha; no longer publicly distributed.
 
+[0.3.3]: https://github.com/aurakimjh/archscope/releases/tag/v0.3.3
+[0.3.2]: https://github.com/aurakimjh/archscope/releases/tag/v0.3.2
 [0.3.1]: https://github.com/aurakimjh/archscope/releases/tag/v0.3.1
 [0.3.1-rc1]: https://github.com/aurakimjh/archscope/releases/tag/v0.3.1-rc1
 [0.3.0-rc1]: https://github.com/aurakimjh/archscope/releases/tag/v0.3.0-rc1
