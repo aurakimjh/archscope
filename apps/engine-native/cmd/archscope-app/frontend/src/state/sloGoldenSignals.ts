@@ -310,7 +310,7 @@ export const DEFAULT_SLO_TARGETS: SloTarget[] = [
     comparator: "lte",
     threshold: 10,
     unit: "percent",
-    objective_percent: 99,
+    objective_percent: 90,
     window_label: "session",
     match: { kind: "errors", units: ["percent"], nameIncludes: ["error", "rate"] },
   },
@@ -631,7 +631,9 @@ function signalsFromAccessLog(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
   addSummary(out, entry, "avg_requests_per_sec", "Access request rate", "traffic", "requests_per_sec", "rate");
   addSummary(out, entry, "total_bytes", "Access response bytes", "traffic", "bytes", "sum");
   addSummary(out, entry, "avg_bytes_per_sec", "Access byte rate", "traffic", "bytes_per_sec", "rate");
-  addSummary(out, entry, "error_rate", "Access error rate", "errors", "percent", "rate");
+  addSummary(out, entry, "error_rate", "Access error rate", "errors", "percent", "rate", {
+    tags: { metric_family: "access_error_rate", rate_unit: "percent" },
+  });
   addSummary(out, entry, "error_count", "Access error count", "errors", "count", "count");
 
   for (const row of arrayOfObjects(entry.result.tables?.url_stats).slice(0, MAX_ROW_SIGNALS)) {
@@ -761,6 +763,7 @@ function signalsFromTraceImport(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
       scopeType: "edge",
       scope,
       evidenceRef: "tables.service_dependencies",
+      tags: { metric_family: "service_edge_traffic", dedupe_policy: "equivalent_edge_max" },
     });
     addRowSignal(out, entry, row, {
       key: "error_rate",
@@ -771,6 +774,10 @@ function signalsFromTraceImport(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
       scopeType: "edge",
       scope,
       evidenceRef: "tables.service_dependencies",
+      tags: {
+        metric_family: "service_edge_error_rate",
+        rate_unit: "fraction",
+      },
     });
     addRowSignal(out, entry, row, {
       key: "error_count",
@@ -781,6 +788,7 @@ function signalsFromTraceImport(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
       scopeType: "edge",
       scope,
       evidenceRef: "tables.service_dependencies",
+      tags: { metric_family: "service_edge_errors" },
     });
   }
 
@@ -894,6 +902,7 @@ function signalsFromJenniferMsa(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
       scopeType: "edge",
       scope,
       evidenceRef: "series.service_call_network_summary",
+      tags: { metric_family: "service_edge_traffic", dedupe_policy: "equivalent_edge_max" },
     });
   }
   return out;
@@ -1213,7 +1222,8 @@ function addJvmInfoSignal(
 }
 
 function addSignal(out: GoldenSignal[], entry: AnalysisWorkspaceEntry, input: SignalInput): void {
-  const value = finiteNumber(input.value);
+  const tags = input.tags ?? {};
+  const value = normalizedSignalValue(input.value, input.unit, tags);
   if (value === null) return;
   const scope = input.scope || defaultScope(input.scopeType);
   const signal: GoldenSignal = {
@@ -1233,9 +1243,22 @@ function addSignal(out: GoldenSignal[], entry: AnalysisWorkspaceEntry, input: Si
     source_file: entry.source_files[0],
     evidence_ref: input.evidenceRef,
     payload: input.payload ?? {},
-    tags: input.tags ?? {},
+    tags,
   };
   out.push(signal);
+}
+
+function normalizedSignalValue(
+  rawValue: unknown,
+  unit: GoldenSignalUnit,
+  tags: GoldenSignalTags,
+): number | null {
+  const value = finiteNumber(rawValue);
+  if (value === null) return null;
+  if (unit !== "percent") return value;
+  const rateUnit = stringValue(tags.rate_unit).toLowerCase();
+  if (rateUnit === "fraction") return round(value * 100, 3);
+  return value;
 }
 
 function dedupeSignals(signals: GoldenSignal[]): GoldenSignal[] {
@@ -1316,7 +1339,7 @@ function groupSignalsBySli(signals: GoldenSignal[]): Map<string, SliMetric> {
   const metrics = new Map<string, SliMetric>();
   for (const [key, bucket] of grouped.entries()) {
     const representative = bucket[0];
-    const value = aggregateSignalValues(representative.kind, representative.aggregation, bucket.map((signal) => signal.value));
+    const value = aggregateSignalValues(representative.kind, representative.aggregation, bucket);
     metrics.set(key, {
       id: `sli-${hashString(key)}`,
       metric_key: key,
@@ -1340,9 +1363,10 @@ function groupSignalsBySli(signals: GoldenSignal[]): Map<string, SliMetric> {
 
 function sliMetricKey(signal: GoldenSignal): string {
   const dimension = stringValue(signal.tags.dimension);
+  const metricFamily = stringValue(signal.tags.metric_family);
   return [
     signal.kind,
-    canonicalMetricName(signal.name),
+    metricFamily || canonicalMetricName(signal.name),
     dimension,
     signal.unit,
     signal.aggregation,
@@ -1354,8 +1378,11 @@ function sliMetricKey(signal: GoldenSignal): string {
 function aggregateSignalValues(
   kind: GoldenSignalKind,
   aggregation: GoldenSignalAggregation,
-  values: number[],
+  signals: GoldenSignal[],
 ): number {
+  const sourceAwareValue = aggregateSourceAwareEquivalentSignals(signals);
+  if (sourceAwareValue !== null) return sourceAwareValue;
+  const values = signals.map((signal) => signal.value);
   const finite = values.filter((value) => Number.isFinite(value));
   if (finite.length === 0) return 0;
   if (aggregation === "min") return Math.min(...finite);
@@ -1366,6 +1393,22 @@ function aggregateSignalValues(
     return sum(finite) / finite.length;
   }
   return Math.max(...finite);
+}
+
+function aggregateSourceAwareEquivalentSignals(signals: GoldenSignal[]): number | null {
+  if (signals.length === 0) return null;
+  const representative = signals[0];
+  if (
+    representative.scope_type !== "edge" ||
+    stringValue(representative.tags.dedupe_policy) !== "equivalent_edge_max"
+  ) {
+    return null;
+  }
+  const totalsByAnalyzer = new Map<string, number>();
+  for (const signal of signals) {
+    totalsByAnalyzer.set(signal.source_analyzer, (totalsByAnalyzer.get(signal.source_analyzer) ?? 0) + signal.value);
+  }
+  return Math.max(...totalsByAnalyzer.values());
 }
 
 function compareSliMetrics(left: SliMetric, right: SliMetric): number {
@@ -1479,8 +1522,8 @@ function computeErrorBudget(actual: number, target: SloTarget): {
 } {
   const consumedPercent =
     target.comparator === "lte"
-      ? consumedForUpperBound(actual, target.threshold)
-      : consumedForLowerBound(actual, target.threshold);
+      ? consumedForUpperBound(actual, target)
+      : consumedForLowerBound(actual, target);
   return {
     consumedPercent,
     remainingPercent: Math.max(0, 100 - consumedPercent),
@@ -1488,15 +1531,31 @@ function computeErrorBudget(actual: number, target: SloTarget): {
   };
 }
 
-function consumedForUpperBound(actual: number, threshold: number): number {
-  if (threshold === 0) return actual > 0 ? 100 : 0;
-  return Math.max(0, (actual / threshold) * 100);
+function consumedForUpperBound(actual: number, target: SloTarget): number {
+  const allowedBudget = upperBoundAllowedBudget(target);
+  if (allowedBudget === 0) return actual > 0 ? 100 : 0;
+  return Math.max(0, (actual / allowedBudget) * 100);
 }
 
-function consumedForLowerBound(actual: number, threshold: number): number {
-  const budget = Math.max(0.000001, 100 - threshold);
-  const shortfall = Math.max(0, threshold - actual);
+function consumedForLowerBound(actual: number, target: SloTarget): number {
+  const budget = lowerBoundAllowedBudget(target);
+  const shortfall = Math.max(0, target.threshold - actual);
   return Math.max(0, (shortfall / budget) * 100);
+}
+
+function upperBoundAllowedBudget(target: SloTarget): number {
+  if (target.unit === "percent" && target.match.kind === "errors") {
+    return Math.max(0, target.threshold);
+  }
+  return target.threshold;
+}
+
+function lowerBoundAllowedBudget(target: SloTarget): number {
+  if (target.unit === "percent") {
+    const objective = target.objective_percent ?? target.threshold;
+    return Math.max(0.000001, 100 - objective);
+  }
+  return Math.max(0.000001, target.threshold);
 }
 
 function compareViolations(left: SloViolation, right: SloViolation): number {
