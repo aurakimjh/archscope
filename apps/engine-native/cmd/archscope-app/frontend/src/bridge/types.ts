@@ -1163,7 +1163,7 @@ export type LockContentionMetadata = {
 };
 
 export type LockContentionResult = AnalysisResult<
-  "lock_contention",
+  "thread_dump_locks" | "lock_contention",
   LockContentionSummary,
   LockContentionSeries,
   LockContentionTables,

@@ -212,7 +212,9 @@ function eventsFromEntry(entry: AnalysisWorkspaceEntry): IncidentTimelineEvent[]
       events.push(...eventsFromException(entry));
       break;
     case "thread_dump":
+    case "thread_dump_multi":
     case "multi_thread_dump":
+    case "thread_dump_locks":
     case "lock_contention":
       events.push(...eventsFromThreadDump(entry));
       break;
@@ -362,28 +364,119 @@ function eventsFromException(entry: AnalysisWorkspaceEntry): IncidentTimelineEve
 function eventsFromThreadDump(entry: AnalysisWorkspaceEntry): IncidentTimelineEvent[] {
   const events: IncidentTimelineEvent[] = [];
   const tables = entry.result.tables ?? {};
-  for (const tableName of ["deadlocks", "contended_locks", "blocked_threads", "long_running_threads"]) {
-    for (const [index, row] of arrayOfObjects(tables[tableName]).entries()) {
+
+  if (entry.result.type === "thread_dump" || entry.result.type === "thread_dump_single") {
+    for (const [index, row] of arrayOfObjects(tables.threads).entries()) {
+      if (!isThreadAttentionRow(row)) continue;
       events.push(
-        makeEvent(entry, {
-          idSuffix: `${tableName}-${index}`,
-          severity: tableName === "deadlocks" ? "critical" : "warning",
-          category: tableName,
-          label: tableName.toUpperCase(),
-          description:
-            stringValue(row.thread_name) ||
-            stringValue(row.thread) ||
-            stringValue(row.lock_id) ||
-            stringValue(row.signature) ||
-            tableName,
-          evidenceRef: `tables.${tableName}`,
-          payload: row,
-          timeValue: firstTimeValue(row),
+        makeThreadEvent(entry, "threads", row, index, {
+          category: "thread_dump",
+          label: "THREAD_ATTENTION",
+          severity: normalizeThreadSeverity(row),
+        }),
+      );
+    }
+    return events;
+  }
+
+  if (entry.result.type === "thread_dump_locks" || entry.result.type === "lock_contention") {
+    for (const [index, row] of arrayOfObjects(tables.deadlock_chains).entries()) {
+      events.push(
+        makeThreadEvent(entry, "deadlock_chains", row, index, {
+          category: "deadlock",
+          label: "DEADLOCK_CHAIN",
+          severity: "critical",
+        }),
+      );
+    }
+    for (const [index, row] of arrayOfObjects(tables.locks).entries()) {
+      if (numberValue(row.waiter_count) <= 0 && row.contention_candidate !== true) continue;
+      events.push(
+        makeThreadEvent(entry, "locks", row, index, {
+          category: "lock_contention",
+          label: "LOCK_CONTENTION",
+          severity: numberValue(row.waiter_count) >= 5 ? "critical" : "warning",
+        }),
+      );
+    }
+    return events;
+  }
+
+  const multiTables: Array<{
+    name: string;
+    category: string;
+    label: string;
+    severity: IncidentTimelineSeverity;
+  }> = [
+    { name: "persistent_blocked_threads", category: "persistent_blocked_thread", label: "PERSISTENT_BLOCKED_THREAD", severity: "warning" },
+    { name: "long_running_stacks", category: "long_running_thread", label: "LONG_RUNNING_THREAD", severity: "warning" },
+    { name: "growing_lock_contention", category: "growing_lock_contention", label: "GROWING_LOCK_CONTENTION", severity: "warning" },
+    { name: "latency_sections", category: "thread_latency", label: "THREAD_LATENCY_SECTION", severity: "warning" },
+    { name: "virtual_thread_carrier_pinning", category: "carrier_pinning", label: "VIRTUAL_THREAD_CARRIER_PINNING", severity: "warning" },
+    { name: "smr_unresolved_threads", category: "smr_unresolved_thread", label: "SMR_UNRESOLVED_THREAD", severity: "warning" },
+    { name: "native_method_threads", category: "native_method_thread", label: "NATIVE_METHOD_THREAD", severity: "info" },
+  ];
+  for (const table of multiTables) {
+    for (const [index, row] of arrayOfObjects(tables[table.name]).entries()) {
+      events.push(
+        makeThreadEvent(entry, table.name, row, index, {
+          category: table.category,
+          label: table.label,
+          severity: table.severity,
         }),
       );
     }
   }
   return events;
+}
+
+function makeThreadEvent(
+  entry: AnalysisWorkspaceEntry,
+  tableName: string,
+  row: Record<string, unknown>,
+  index: number,
+  input: {
+    category: string;
+    label: string;
+    severity: IncidentTimelineSeverity;
+  },
+): IncidentTimelineEvent {
+  return makeEvent(entry, {
+    idSuffix: `${tableName}-${index}`,
+    severity: input.severity,
+    category: input.category,
+    label: input.label,
+    description:
+      stringValue(row.thread_name) ||
+      stringValue(row.thread) ||
+      stringValue(row.name) ||
+      stringValue(row.lock_id) ||
+      stringValue(row.signature) ||
+      stringValue(row.stack_signature) ||
+      stringValue(row.candidate_method) ||
+      input.label,
+    evidenceRef: `tables.${tableName}`,
+    payload: row,
+    timeValue: firstTimeValue(row),
+  });
+}
+
+function isThreadAttentionRow(row: Record<string, unknown>): boolean {
+  const state = stringValue(row.state).toUpperCase();
+  const category = stringValue(row.category).toUpperCase();
+  return (
+    state === "BLOCKED" ||
+    state === "WAITING" ||
+    category === "BLOCKED" ||
+    category === "WAITING" ||
+    stringValue(row.lock_info) !== ""
+  );
+}
+
+function normalizeThreadSeverity(row: Record<string, unknown>): IncidentTimelineSeverity {
+  const state = stringValue(row.state).toUpperCase();
+  const category = stringValue(row.category).toUpperCase();
+  return state === "BLOCKED" || category === "BLOCKED" ? "warning" : "info";
 }
 
 function eventsFromTraceImport(entry: AnalysisWorkspaceEntry): IncidentTimelineEvent[] {

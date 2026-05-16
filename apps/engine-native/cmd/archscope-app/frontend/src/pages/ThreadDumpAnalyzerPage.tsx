@@ -405,7 +405,7 @@ export function ThreadDumpAnalyzerPage(): JSX.Element {
       ? (result as ThreadDumpMultiResult)
       : null;
   const lockResult =
-    mode === "locks" && result?.type === "lock_contention"
+    mode === "locks" && (result?.type === "thread_dump_locks" || result?.type === "lock_contention")
       ? (result as LockContentionResult)
       : null;
 
