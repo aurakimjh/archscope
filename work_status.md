@@ -210,7 +210,7 @@ filtered before analysis.
 | T-436 | P2 | [ ] | Add Incident Timeline narrative support that explains what happened and in what order during an incident. | T-435, T-446 preferred | Planned: evidence-backed incident sequence summary |
 | T-437 | P1 | [x] | Build a Golden Signals inventory across access logs, trace import, Jennifer MSA, exceptions, GC, JFR, thread dumps, and JVM signals. | T-425, T-433 | Completed 2026-05-16: session-wide Golden Signals inventory model |
 | T-438 | P1 | [x] | Define SLI metrics for latency, traffic, errors, and saturation from the Golden Signals inventory. | T-437 | Completed 2026-05-16: normalized latency, traffic, error, and saturation SLI metric model |
-| T-439 | P1 | [ ] | Add SLO target configuration, violating-window detection, error-budget burn tables, and affected service/endpoint breakdowns. | T-438 | Planned: SLO violation analysis result |
+| T-439 | P1 | [x] | Add SLO target configuration, violating-window detection, error-budget burn tables, and affected service/endpoint breakdowns. | T-438 | Completed 2026-05-16: session SLO targets, violations, error-budget, and affected-scope breakdowns |
 | T-440 | P1 | [ ] | Add a Wails SLO / Golden Signals workspace page with signal inventory, SLO violations, and Evidence Board capture. | T-437, T-438, T-439 | Planned: desktop SLO and Golden Signals workflow |
 | T-441 | P1 | [ ] | Unify Jennifer MSA topology and trace-import dependency models. | T-427, T-430 | Planned: shared service-flow input model |
 | T-442 | P1 | [ ] | Define a common service-edge schema with caller, callee, call count, average/max/total latency, error count, and network gap. | T-441 | Planned: normalized service-edge contract |

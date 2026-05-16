@@ -97,6 +97,100 @@ export type SliMetricModel = {
   metrics: SliMetric[];
 };
 
+export type SloComparator = "lte" | "gte";
+export type SloSeverity = "critical" | "warning" | "info";
+
+export type SloTargetMatch = {
+  kind?: GoldenSignalKind;
+  units?: GoldenSignalUnit[];
+  aggregations?: GoldenSignalAggregation[];
+  scopeTypes?: GoldenSignalScopeType[];
+  sourceAnalyzers?: string[];
+  nameIncludes?: string[];
+  evidenceIncludes?: string[];
+  tagEquals?: GoldenSignalTags;
+};
+
+export type SloTarget = {
+  id: string;
+  name: string;
+  severity: SloSeverity;
+  comparator: SloComparator;
+  threshold: number;
+  unit: GoldenSignalUnit;
+  objective_percent?: number;
+  window_label: string;
+  match: SloTargetMatch;
+};
+
+export type SloViolation = {
+  id: string;
+  target_id: string;
+  target_name: string;
+  severity: SloSeverity;
+  metric_id: string;
+  metric_key: string;
+  metric_name: string;
+  kind: GoldenSignalKind;
+  actual: number;
+  threshold: number;
+  comparator: SloComparator;
+  unit: GoldenSignalUnit;
+  window_label: string;
+  delta: number;
+  ratio_to_threshold: number;
+  burn_rate: number;
+  error_budget_consumed_percent: number;
+  error_budget_remaining_percent: number;
+  affected_scope_type: GoldenSignalScopeType;
+  affected_scope: string;
+  source_analyzers: string[];
+  source_result_ids: string[];
+  evidence_refs: string[];
+  tags: GoldenSignalTags;
+};
+
+export type ErrorBudgetRow = {
+  target_id: string;
+  target_name: string;
+  severity: SloSeverity;
+  affected_scope_type: GoldenSignalScopeType;
+  affected_scope: string;
+  actual: number;
+  threshold: number;
+  comparator: SloComparator;
+  unit: GoldenSignalUnit;
+  consumed_percent: number;
+  remaining_percent: number;
+  burn_rate: number;
+  evidence_refs: string[];
+};
+
+export type AffectedBreakdownRow = {
+  affected_scope_type: GoldenSignalScopeType;
+  affected_scope: string;
+  violation_count: number;
+  max_severity: SloSeverity;
+  max_burn_rate: number;
+  target_names: string[];
+  source_analyzers: string[];
+  evidence_refs: string[];
+};
+
+export type SloAnalysisResult = {
+  generated_at: string;
+  window_label: string;
+  target_count: number;
+  metric_count: number;
+  violation_count: number;
+  violations_by_severity: Record<SloSeverity, number>;
+  targets: SloTarget[];
+  metrics: SliMetric[];
+  violations: SloViolation[];
+  error_budget_rows: ErrorBudgetRow[];
+  affected_breakdown: AffectedBreakdownRow[];
+};
+
 type SignalInput = {
   kind: GoldenSignalKind;
   name: string;
@@ -112,6 +206,214 @@ type SignalInput = {
 
 const MAX_SIGNALS = 1_500;
 const MAX_ROW_SIGNALS = 80;
+
+export const DEFAULT_SLO_TARGETS: SloTarget[] = [
+  {
+    id: "latency-p95-1s-warning",
+    name: "p95 latency under 1s",
+    severity: "warning",
+    comparator: "lte",
+    threshold: 1_000,
+    unit: "ms",
+    objective_percent: 95,
+    window_label: "session",
+    match: { kind: "latency", units: ["ms"], aggregations: ["p95"], nameIncludes: ["latency"] },
+  },
+  {
+    id: "latency-p95-3s-critical",
+    name: "p95 latency under 3s",
+    severity: "critical",
+    comparator: "lte",
+    threshold: 3_000,
+    unit: "ms",
+    objective_percent: 99,
+    window_label: "session",
+    match: { kind: "latency", units: ["ms"], aggregations: ["p95"], nameIncludes: ["latency"] },
+  },
+  {
+    id: "trace-critical-path-5s-critical",
+    name: "Trace critical path under 5s",
+    severity: "critical",
+    comparator: "lte",
+    threshold: 5_000,
+    unit: "ms",
+    objective_percent: 99,
+    window_label: "session",
+    match: { kind: "latency", units: ["ms"], nameIncludes: ["critical", "path"] },
+  },
+  {
+    id: "msa-network-gap-avg-50ms-warning",
+    name: "MSA average network gap under 50ms",
+    severity: "warning",
+    comparator: "lte",
+    threshold: 50,
+    unit: "ms",
+    objective_percent: 95,
+    window_label: "session",
+    match: {
+      kind: "latency",
+      units: ["ms"],
+      aggregations: ["avg"],
+      scopeTypes: ["edge"],
+      tagEquals: { dimension: "network_gap" },
+    },
+  },
+  {
+    id: "msa-network-gap-p95-100ms-warning",
+    name: "MSA p95 network gap under 100ms",
+    severity: "warning",
+    comparator: "lte",
+    threshold: 100,
+    unit: "ms",
+    objective_percent: 95,
+    window_label: "session",
+    match: {
+      kind: "latency",
+      units: ["ms"],
+      aggregations: ["p95"],
+      scopeTypes: ["edge"],
+      tagEquals: { dimension: "network_gap" },
+    },
+  },
+  {
+    id: "msa-network-gap-p95-500ms-critical",
+    name: "MSA p95 network gap under 500ms",
+    severity: "critical",
+    comparator: "lte",
+    threshold: 500,
+    unit: "ms",
+    objective_percent: 99,
+    window_label: "session",
+    match: {
+      kind: "latency",
+      units: ["ms"],
+      aggregations: ["p95"],
+      scopeTypes: ["edge"],
+      tagEquals: { dimension: "network_gap" },
+    },
+  },
+  {
+    id: "error-rate-5pct-warning",
+    name: "Error rate under 5%",
+    severity: "warning",
+    comparator: "lte",
+    threshold: 5,
+    unit: "percent",
+    objective_percent: 95,
+    window_label: "session",
+    match: { kind: "errors", units: ["percent"], nameIncludes: ["error", "rate"] },
+  },
+  {
+    id: "error-rate-10pct-critical",
+    name: "Error rate under 10%",
+    severity: "critical",
+    comparator: "lte",
+    threshold: 10,
+    unit: "percent",
+    objective_percent: 99,
+    window_label: "session",
+    match: { kind: "errors", units: ["percent"], nameIncludes: ["error", "rate"] },
+  },
+  {
+    id: "gc-p99-pause-200ms-warning",
+    name: "GC p99 pause under 200ms",
+    severity: "warning",
+    comparator: "lte",
+    threshold: 200,
+    unit: "ms",
+    objective_percent: 99,
+    window_label: "session",
+    match: { kind: "latency", units: ["ms"], aggregations: ["p99"], nameIncludes: ["gc", "pause"] },
+  },
+  {
+    id: "gc-max-pause-1s-critical",
+    name: "GC max pause under 1s",
+    severity: "critical",
+    comparator: "lte",
+    threshold: 1_000,
+    unit: "ms",
+    objective_percent: 99,
+    window_label: "session",
+    match: { kind: "latency", units: ["ms"], aggregations: ["max"], nameIncludes: ["gc", "pause"] },
+  },
+  {
+    id: "gc-throughput-95pct-warning",
+    name: "GC throughput at least 95%",
+    severity: "warning",
+    comparator: "gte",
+    threshold: 95,
+    unit: "percent",
+    objective_percent: 95,
+    window_label: "session",
+    match: { kind: "saturation", units: ["percent"], nameIncludes: ["gc", "throughput"] },
+  },
+  {
+    id: "gc-throughput-90pct-critical",
+    name: "GC throughput at least 90%",
+    severity: "critical",
+    comparator: "gte",
+    threshold: 90,
+    unit: "percent",
+    objective_percent: 99,
+    window_label: "session",
+    match: { kind: "saturation", units: ["percent"], nameIncludes: ["gc", "throughput"] },
+  },
+  {
+    id: "oom-zero-critical",
+    name: "No OutOfMemory events",
+    severity: "critical",
+    comparator: "lte",
+    threshold: 0,
+    unit: "events",
+    objective_percent: 100,
+    window_label: "session",
+    match: { kind: "errors", units: ["events"], nameIncludes: ["outofmemory"] },
+  },
+  {
+    id: "deadlock-zero-critical",
+    name: "No detected deadlocks",
+    severity: "critical",
+    comparator: "lte",
+    threshold: 0,
+    unit: "count",
+    objective_percent: 100,
+    window_label: "session",
+    match: { kind: "errors", units: ["count"], nameIncludes: ["deadlock"] },
+  },
+  {
+    id: "blocked-thread-zero-warning",
+    name: "No blocked-thread signals",
+    severity: "warning",
+    comparator: "lte",
+    threshold: 0,
+    unit: "threads",
+    objective_percent: 95,
+    window_label: "session",
+    match: { kind: "saturation", units: ["threads"], nameIncludes: ["blocked"] },
+  },
+  {
+    id: "trace-integrity-zero-warning",
+    name: "No trace integrity errors",
+    severity: "warning",
+    comparator: "lte",
+    threshold: 0,
+    unit: "spans",
+    objective_percent: 95,
+    window_label: "session",
+    match: { kind: "errors", units: ["spans"], nameIncludes: ["trace"] },
+  },
+  {
+    id: "jennifer-unmatched-zero-warning",
+    name: "No unmatched Jennifer MSA calls",
+    severity: "warning",
+    comparator: "lte",
+    threshold: 0,
+    unit: "calls",
+    objective_percent: 95,
+    window_label: "session",
+    match: { kind: "errors", units: ["calls"], nameIncludes: ["unmatched"] },
+  },
+];
 
 export function buildGoldenSignalInventory(entries: AnalysisWorkspaceEntry[]): GoldenSignalInventory {
   const signals = dedupeSignals(entries.flatMap((entry) => signalsFromEntry(entry)))
@@ -150,6 +452,133 @@ export function buildSliMetricModelFromEntries(entries: AnalysisWorkspaceEntry[]
 
 export function buildSliMetrics(input: GoldenSignalInventory | GoldenSignal[]): SliMetric[] {
   return buildSliMetricModel(input).metrics;
+}
+
+export function analyzeSloViolations(
+  input: SliMetricModel | SliMetric[],
+  targets: SloTarget[] = DEFAULT_SLO_TARGETS,
+): SloAnalysisResult {
+  const metrics = Array.isArray(input) ? input : input.metrics;
+  const violations = detectSloViolations(metrics, targets);
+  return {
+    generated_at: new Date().toISOString(),
+    window_label: "session",
+    target_count: targets.length,
+    metric_count: metrics.length,
+    violation_count: violations.length,
+    violations_by_severity: countViolationsBySeverity(violations),
+    targets,
+    metrics,
+    violations,
+    error_budget_rows: buildErrorBudgetRows(violations),
+    affected_breakdown: buildAffectedBreakdown(violations),
+  };
+}
+
+export function analyzeSloViolationsFromEntries(
+  entries: AnalysisWorkspaceEntry[],
+  targets: SloTarget[] = DEFAULT_SLO_TARGETS,
+): SloAnalysisResult {
+  return analyzeSloViolations(buildSliMetricModelFromEntries(entries), targets);
+}
+
+export function detectSloViolations(
+  metrics: SliMetric[],
+  targets: SloTarget[] = DEFAULT_SLO_TARGETS,
+): SloViolation[] {
+  const violations: SloViolation[] = [];
+  for (const target of targets) {
+    for (const metric of metrics) {
+      if (!matchesTarget(metric, target)) continue;
+      if (!comparisonViolates(metric.value, target.comparator, target.threshold)) continue;
+      const budget = computeErrorBudget(metric.value, target);
+      violations.push({
+        id: `slo-${hashString([target.id, metric.id, String(metric.value)].join("\x00"))}`,
+        target_id: target.id,
+        target_name: target.name,
+        severity: target.severity,
+        metric_id: metric.id,
+        metric_key: metric.metric_key,
+        metric_name: metric.name,
+        kind: metric.kind,
+        actual: round(metric.value, 3),
+        threshold: target.threshold,
+        comparator: target.comparator,
+        unit: target.unit,
+        window_label: target.window_label,
+        delta: round(violationDelta(metric.value, target.comparator, target.threshold), 3),
+        ratio_to_threshold: round(ratioToThreshold(metric.value, target.comparator, target.threshold), 3),
+        burn_rate: round(budget.burnRate, 3),
+        error_budget_consumed_percent: round(budget.consumedPercent, 2),
+        error_budget_remaining_percent: round(budget.remainingPercent, 2),
+        affected_scope_type: metric.scope_type,
+        affected_scope: metric.scope,
+        source_analyzers: metric.source_analyzers,
+        source_result_ids: metric.source_result_ids,
+        evidence_refs: metric.evidence_refs,
+        tags: metric.tags,
+      });
+    }
+  }
+  return violations.sort(compareViolations);
+}
+
+export function buildErrorBudgetRows(violations: SloViolation[]): ErrorBudgetRow[] {
+  return violations
+    .map((violation) => ({
+      target_id: violation.target_id,
+      target_name: violation.target_name,
+      severity: violation.severity,
+      affected_scope_type: violation.affected_scope_type,
+      affected_scope: violation.affected_scope,
+      actual: violation.actual,
+      threshold: violation.threshold,
+      comparator: violation.comparator,
+      unit: violation.unit,
+      consumed_percent: violation.error_budget_consumed_percent,
+      remaining_percent: violation.error_budget_remaining_percent,
+      burn_rate: violation.burn_rate,
+      evidence_refs: violation.evidence_refs,
+    }))
+    .sort((left, right) => severityRankSlo(right.severity) - severityRankSlo(left.severity) || right.burn_rate - left.burn_rate);
+}
+
+export function buildAffectedBreakdown(violations: SloViolation[]): AffectedBreakdownRow[] {
+  const grouped = new Map<string, SloViolation[]>();
+  for (const violation of violations) {
+    const key = `${violation.affected_scope_type}\x00${violation.affected_scope}`;
+    const bucket = grouped.get(key);
+    if (bucket) {
+      bucket.push(violation);
+    } else {
+      grouped.set(key, [violation]);
+    }
+  }
+
+  return Array.from(grouped.values())
+    .map((bucket) => {
+      const representative = bucket[0];
+      return {
+        affected_scope_type: representative.affected_scope_type,
+        affected_scope: representative.affected_scope,
+        violation_count: bucket.length,
+        max_severity: bucket.reduce(
+          (severity, violation) =>
+            severityRankSlo(violation.severity) > severityRankSlo(severity) ? violation.severity : severity,
+          "info" as SloSeverity,
+        ),
+        max_burn_rate: Math.max(...bucket.map((violation) => violation.burn_rate)),
+        target_names: uniqueSorted(bucket.map((violation) => violation.target_name)),
+        source_analyzers: uniqueSorted(bucket.flatMap((violation) => violation.source_analyzers)),
+        evidence_refs: uniqueSorted(bucket.flatMap((violation) => violation.evidence_refs)),
+      };
+    })
+    .sort(
+      (left, right) =>
+        severityRankSlo(right.max_severity) - severityRankSlo(left.max_severity) ||
+        right.max_burn_rate - left.max_burn_rate ||
+        right.violation_count - left.violation_count,
+    );
 }
 
 function signalsFromEntry(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
@@ -1000,6 +1429,110 @@ function uniqueSorted(values: string[]): string[] {
 
 function sum(values: number[]): number {
   return values.reduce((total, value) => total + value, 0);
+}
+
+function matchesTarget(metric: SliMetric, target: SloTarget): boolean {
+  const match = target.match;
+  if (match.kind && metric.kind !== match.kind) return false;
+  if (match.units && !match.units.includes(metric.unit)) return false;
+  if (match.aggregations && !match.aggregations.includes(metric.aggregation)) return false;
+  if (match.scopeTypes && !match.scopeTypes.includes(metric.scope_type)) return false;
+  if (match.sourceAnalyzers && !metric.source_analyzers.some((source) => match.sourceAnalyzers?.includes(source))) {
+    return false;
+  }
+  const searchableName = `${metric.name} ${metric.metric_key}`.toLowerCase();
+  if (match.nameIncludes && !match.nameIncludes.every((term) => searchableName.includes(term.toLowerCase()))) {
+    return false;
+  }
+  const searchableEvidence = metric.evidence_refs.join(" ").toLowerCase();
+  if (
+    match.evidenceIncludes &&
+    !match.evidenceIncludes.every((term) => searchableEvidence.includes(term.toLowerCase()))
+  ) {
+    return false;
+  }
+  if (match.tagEquals) {
+    for (const [key, value] of Object.entries(match.tagEquals)) {
+      if (String(metric.tags[key]) !== String(value)) return false;
+    }
+  }
+  return metric.unit === target.unit;
+}
+
+function comparisonViolates(actual: number, comparator: SloComparator, threshold: number): boolean {
+  return comparator === "lte" ? actual > threshold : actual < threshold;
+}
+
+function violationDelta(actual: number, comparator: SloComparator, threshold: number): number {
+  return comparator === "lte" ? Math.max(0, actual - threshold) : Math.max(0, threshold - actual);
+}
+
+function ratioToThreshold(actual: number, comparator: SloComparator, threshold: number): number {
+  if (threshold === 0) return actual === 0 ? 1 : Number.POSITIVE_INFINITY;
+  return comparator === "lte" ? actual / threshold : threshold / Math.max(actual, 0.000001);
+}
+
+function computeErrorBudget(actual: number, target: SloTarget): {
+  consumedPercent: number;
+  remainingPercent: number;
+  burnRate: number;
+} {
+  const consumedPercent =
+    target.comparator === "lte"
+      ? consumedForUpperBound(actual, target.threshold)
+      : consumedForLowerBound(actual, target.threshold);
+  return {
+    consumedPercent,
+    remainingPercent: Math.max(0, 100 - consumedPercent),
+    burnRate: consumedPercent / 100,
+  };
+}
+
+function consumedForUpperBound(actual: number, threshold: number): number {
+  if (threshold === 0) return actual > 0 ? 100 : 0;
+  return Math.max(0, (actual / threshold) * 100);
+}
+
+function consumedForLowerBound(actual: number, threshold: number): number {
+  const budget = Math.max(0.000001, 100 - threshold);
+  const shortfall = Math.max(0, threshold - actual);
+  return Math.max(0, (shortfall / budget) * 100);
+}
+
+function compareViolations(left: SloViolation, right: SloViolation): number {
+  return (
+    severityRankSlo(right.severity) - severityRankSlo(left.severity) ||
+    right.burn_rate - left.burn_rate ||
+    right.delta - left.delta ||
+    left.affected_scope.localeCompare(right.affected_scope)
+  );
+}
+
+function countViolationsBySeverity(violations: SloViolation[]): Record<SloSeverity, number> {
+  const counts: Record<SloSeverity, number> = {
+    critical: 0,
+    warning: 0,
+    info: 0,
+  };
+  for (const violation of violations) counts[violation.severity] += 1;
+  return counts;
+}
+
+function severityRankSlo(severity: SloSeverity): number {
+  switch (severity) {
+    case "critical":
+      return 3;
+    case "warning":
+      return 2;
+    default:
+      return 1;
+  }
+}
+
+function round(value: number, digits: number): number {
+  if (!Number.isFinite(value)) return value;
+  const factor = 10 ** digits;
+  return Math.round(value * factor) / factor;
 }
 
 function endpointScope(row: Record<string, unknown>): string {
