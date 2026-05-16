@@ -7,6 +7,7 @@ export type ServiceFlowSourceType =
   | "trace_import_dependency"
   | "access_edge_dependency"
   | "database_dependency"
+  | "broker_dependency"
   | "jennifer_msa_edge"
   | "jennifer_unprofiled_external_call_group";
 
@@ -314,6 +315,9 @@ function inputEdgesFromEntry(entry: AnalysisWorkspaceEntry): ServiceFlowInputEdg
   if (type === "database_slow_query" && Array.isArray(entry.result.tables?.service_dependencies)) {
     return databaseEdges(entry);
   }
+  if (type === "broker_log" && Array.isArray(entry.result.tables?.service_dependencies)) {
+    return brokerEdges(entry);
+  }
   if (type === "jennifer_profile" || Array.isArray(entry.result.tables?.msa_edges)) {
     return jenniferEdges(entry);
   }
@@ -379,6 +383,25 @@ function databaseEdges(entry: AnalysisWorkspaceEntry): ServiceFlowInputEdge[] {
       evidenceRef: "tables.service_dependencies",
       payload: row,
       idSuffix: `database-${caller}-${callee}-${index}`,
+    });
+  });
+}
+
+function brokerEdges(entry: AnalysisWorkspaceEntry): ServiceFlowInputEdge[] {
+  return arrayOfObjects(entry.result.tables?.service_dependencies).map((row, index) => {
+    const caller = normalizeServiceName(stringValue(row.caller) || "application");
+    const callee = normalizeServiceName(stringValue(row.callee) || "broker");
+    return makeInputEdge(entry, {
+      sourceType: "broker_dependency",
+      caller,
+      callee,
+      callCount: numberValue(row.call_count, 1),
+      errorCount: optionalNumber(row.error_count),
+      errorRate: optionalNumber(row.error_rate),
+      matchStatus: "broker_evidence",
+      evidenceRef: "tables.service_dependencies",
+      payload: row,
+      idSuffix: `broker-${caller}-${callee}-${index}`,
     });
   });
 }
@@ -496,6 +519,7 @@ function countBySourceType(edges: ServiceFlowInputEdge[]): Record<ServiceFlowSou
     trace_import_dependency: 0,
     access_edge_dependency: 0,
     database_dependency: 0,
+    broker_dependency: 0,
     jennifer_msa_edge: 0,
     jennifer_unprofiled_external_call_group: 0,
   };

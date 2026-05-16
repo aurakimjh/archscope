@@ -71,6 +71,7 @@ package api
 
 import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/accesslog"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/brokerlog"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/databaselog"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/exception"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/gclog"
@@ -216,6 +217,12 @@ var AnalyzeObservability = observability.Analyze
 type DatabaseLogOptions = databaselog.Options
 
 var AnalyzeDatabaseLog = databaselog.Analyze
+
+// ── Broker logs ─────────────────────────────────────────────────────
+
+type BrokerLogOptions = brokerlog.Options
+
+var AnalyzeBrokerLog = brokerlog.Analyze
 
 // ── External trace import ───────────────────────────────────────────
 

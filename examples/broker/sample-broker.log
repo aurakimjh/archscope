@@ -1,0 +1,3 @@
+2026-05-16 10:00:00 ERROR kafka Under replicated partition topic=orders partition=0 ISR shrunk
+2026-05-16 10:00:01 WARN rabbitmq queue orders messages backlog
+2026-05-16 10:00:02 WARN nats slow consumer detected

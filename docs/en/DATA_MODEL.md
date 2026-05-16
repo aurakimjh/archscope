@@ -283,6 +283,20 @@ trace and access-log dependencies.
 Finding codes include `SLOW_QUERY_PRESENT`, `LOCK_WAIT_PRESENT`,
 `DB_ERRORS_PRESENT`, `HIGH_ROWS_EXAMINED`, and `EXPLAIN_PLAN_IMPORTED`.
 
+### Broker Log Result
+
+`type`: `broker_log`
+
+The broker evidence contract covers Kafka, RabbitMQ diagnostics/server logs,
+Pulsar, NATS, and ActiveMQ. Rows normalize rebalance, replication/ISR,
+KRaft quorum, queue pressure, dead-letter, partition, slow-consumer,
+authorization, store usage, and broker-health events. `tables.service_dependencies`
+projects application-to-broker edges for Service Flow.
+
+Finding codes include `BROKER_REBALANCE`, `BROKER_REPLICATION_ISSUE`,
+`BROKER_QUEUE_PRESSURE`, `BROKER_DEAD_LETTER`, `BROKER_HEALTH_EVENT`,
+`BROKER_SLOW_CONSUMER`, and `BROKER_AUTHORIZATION_FAILURE`.
+
 ### Profiler Collapsed Result
 
 `type`: `profiler_collapsed`

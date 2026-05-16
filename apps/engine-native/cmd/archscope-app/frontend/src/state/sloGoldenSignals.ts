@@ -755,6 +755,9 @@ function signalsFromEntry(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
     case "database_slow_query":
       signals = signalsFromDatabaseLog(entry);
       break;
+    case "broker_log":
+      signals = signalsFromBrokerLog(entry);
+      break;
     case "jfr_recording":
       signals = signalsFromJfr(entry);
       break;
@@ -1264,6 +1267,23 @@ function signalsFromDatabaseLog(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
     scopeType: "runtime",
   });
   addSummary(out, entry, "lock_wait_count", "Database lock wait count", "saturation", "count", "count", {
+    scopeType: "runtime",
+  });
+  return out;
+}
+
+function signalsFromBrokerLog(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
+  const out: GoldenSignal[] = [];
+  addSummary(out, entry, "total_events", "Broker event volume", "traffic", "events", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "queue_pressure_count", "Broker queue pressure", "saturation", "count", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "replication_issue_count", "Broker replication issues", "errors", "count", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "dead_letter_count", "Broker dead-letter count", "errors", "count", "count", {
     scopeType: "runtime",
   });
   return out;

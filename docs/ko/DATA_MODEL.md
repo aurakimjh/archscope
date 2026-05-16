@@ -427,6 +427,20 @@ application-to-database edge를 노출해 Service Flow가 database evidence를 t
 Finding code는 `SLOW_QUERY_PRESENT`, `LOCK_WAIT_PRESENT`, `DB_ERRORS_PRESENT`,
 `HIGH_ROWS_EXAMINED`, `EXPLAIN_PLAN_IMPORTED`를 포함한다.
 
+### Broker Log Result
+
+`type`: `broker_log`
+
+Broker evidence contract는 Kafka, RabbitMQ diagnostics/server log, Pulsar, NATS,
+ActiveMQ를 다룬다. Row는 rebalance, replication/ISR, KRaft quorum, queue
+pressure, dead-letter, partition, slow-consumer, authorization, store usage,
+broker-health event를 normalize한다. `tables.service_dependencies`는 Service
+Flow를 위한 application-to-broker edge를 projection한다.
+
+Finding code는 `BROKER_REBALANCE`, `BROKER_REPLICATION_ISSUE`,
+`BROKER_QUEUE_PRESSURE`, `BROKER_DEAD_LETTER`, `BROKER_HEALTH_EVENT`,
+`BROKER_SLOW_CONSUMER`, `BROKER_AUTHORIZATION_FAILURE`를 포함한다.
+
 ### Profiler Collapsed Result
 
 `type`: `profiler_collapsed`

@@ -253,6 +253,9 @@ function eventsFromEntry(entry: AnalysisWorkspaceEntry): IncidentTimelineEvent[]
     case "database_slow_query":
       events.push(...eventsFromDatabase(entry));
       break;
+    case "broker_log":
+      events.push(...eventsFromBroker(entry));
+      break;
   }
   return uniqueEvents(events).slice(0, MAX_EVENTS_PER_RESULT);
 }
@@ -375,6 +378,21 @@ function eventsFromDatabase(entry: AnalysisWorkspaceEntry): IncidentTimelineEven
       label: stringValue(row.error) ? "DB_ERROR" : "DB_QUERY",
       description: stringValue(row.error) || stringValue(row.fingerprint) || "Database query evidence",
       evidenceRef: "tables.queries",
+      payload: row,
+      timeValue: row.timestamp,
+    }),
+  );
+}
+
+function eventsFromBroker(entry: AnalysisWorkspaceEntry): IncidentTimelineEvent[] {
+  return arrayOfObjects(entry.result.tables?.events).map((row, index) =>
+    makeEvent(entry, {
+      idSuffix: `broker-${stringValue(row.event_type) || index}`,
+      severity: normalizeSeverity(stringValue(row.severity)),
+      category: stringValue(row.event_type) || "broker_event",
+      label: stringValue(row.event_type)?.toUpperCase() || "BROKER_EVENT",
+      description: stringValue(row.message) || "Broker evidence",
+      evidenceRef: "tables.events",
       payload: row,
       timeValue: row.timestamp,
     }),

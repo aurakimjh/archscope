@@ -177,6 +177,13 @@ type DatabaseLogRequest struct {
 	Strict bool   `json:"strict,omitempty"`
 }
 
+type BrokerLogRequest struct {
+	Path   string `json:"path"`
+	Format string `json:"format,omitempty"`
+	TopN   int    `json:"topN,omitempty"`
+	Strict bool   `json:"strict,omitempty"`
+}
+
 // TraceImportRequest mirrors traceimport.Options + a Path.
 type TraceImportRequest struct {
 	Path   string `json:"path"`
@@ -453,6 +460,13 @@ func (s *EngineService) AnalyzeDatabaseLog(req DatabaseLogRequest) (engineapi.An
 		return engineapi.AnalysisResult{}, fmt.Errorf("path is required")
 	}
 	return engineapi.AnalyzeDatabaseLog(req.Path, engineapi.DatabaseLogOptions{Format: req.Format, TopN: req.TopN, Strict: req.Strict})
+}
+
+func (s *EngineService) AnalyzeBrokerLog(req BrokerLogRequest) (engineapi.AnalysisResult, error) {
+	if strings.TrimSpace(req.Path) == "" {
+		return engineapi.AnalysisResult{}, fmt.Errorf("path is required")
+	}
+	return engineapi.AnalyzeBrokerLog(req.Path, engineapi.BrokerLogOptions{Format: req.Format, TopN: req.TopN, Strict: req.Strict})
 }
 
 // AnalyzeTraceImport wraps engineapi.AnalyzeTraceImport.

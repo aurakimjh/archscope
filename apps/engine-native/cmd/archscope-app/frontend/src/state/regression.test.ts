@@ -125,6 +125,15 @@ const database = entry("db-1", "database_slow_query", {
 });
 assert(buildServiceFlowAnalysis([database]).edge_model.edge_count === 1, "database dependencies should feed Service Flow");
 
+const broker = entry("broker-1", "broker_log", {
+  summary: { total_events: 2, queue_pressure_count: 1, replication_issue_count: 1 },
+  tables: {
+    service_dependencies: [{ caller: "application", callee: "broker:orders", call_count: 2, error_count: 0, error_rate: 0 }],
+    events: [{ timestamp: "2026-05-16T10:00:00Z", severity: "WARN", event_type: "queue_pressure", message: "queue backlog" }],
+  },
+});
+assert(buildServiceFlowAnalysis([broker]).edge_model.edge_count === 1, "broker dependencies should feed Service Flow");
+
 const inventory = buildGoldenSignalInventory([trace, jennifer]);
 const dependencyErrorRate = inventory.signals.find((signal) => signal.name === "Dependency error rate");
 assert(dependencyErrorRate?.value === 20, "trace-import error_rate fractions should normalize to percent");
@@ -156,6 +165,7 @@ const mermaid = buildServiceFlowMermaidSequence({
       trace_import_dependency: 0,
       access_edge_dependency: 0,
       database_dependency: 0,
+      broker_dependency: 0,
       jennifer_msa_edge: 0,
       jennifer_unprofiled_external_call_group: 0,
     },
@@ -252,6 +262,10 @@ assert(
 assert(
   buildGoldenSignalInventory([database]).signals.some((signal) => signal.name === "Database query p95 latency"),
   "database slow-query evidence should feed Golden Signals",
+);
+assert(
+  buildIncidentTimelineEvents([broker]).some((event) => event.category === "queue_pressure"),
+  "broker events should feed Incident Timeline",
 );
 
 const aiResult = entry("ai-1", "jfr_recording", {
