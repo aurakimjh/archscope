@@ -74,7 +74,33 @@ export type ServiceEdgeModel = {
   edges: ServiceEdge[];
 };
 
+export type ServiceFlowFindingSeverity = "critical" | "warning" | "info";
+
+export type ServiceFlowFinding = {
+  id: string;
+  severity: ServiceFlowFindingSeverity;
+  code: string;
+  message: string;
+  caller?: string;
+  callee?: string;
+  edge_id?: string;
+  source_analyzers: string[];
+  source_result_ids: string[];
+  evidence_refs: string[];
+  payload: Record<string, unknown>;
+};
+
+export type ServiceFlowAnalysis = {
+  generated_at: string;
+  input_model: ServiceFlowInputModel;
+  edge_model: ServiceEdgeModel;
+  findings: ServiceFlowFinding[];
+  findings_by_severity: Record<ServiceFlowFindingSeverity, number>;
+};
+
 const MAX_INPUT_EDGES = 1_500;
+const NETWORK_GAP_WARNING_MS = 20;
+const NETWORK_GAP_CRITICAL_MS = 50;
 
 export function buildServiceFlowInputModel(entries: AnalysisWorkspaceEntry[]): ServiceFlowInputModel {
   const edges = entries.flatMap((entry) => inputEdgesFromEntry(entry)).slice(0, MAX_INPUT_EDGES);
@@ -108,6 +134,29 @@ export function buildServiceEdgeModel(input: ServiceFlowInputModel | ServiceFlow
 
 export function buildServiceEdgeModelFromEntries(entries: AnalysisWorkspaceEntry[]): ServiceEdgeModel {
   return buildServiceEdgeModel(buildServiceFlowInputModel(entries));
+}
+
+export function buildServiceFlowAnalysis(entries: AnalysisWorkspaceEntry[]): ServiceFlowAnalysis {
+  const inputModel = buildServiceFlowInputModel(entries);
+  const edgeModel = buildServiceEdgeModel(inputModel);
+  const findings = buildServiceFlowFindings(edgeModel, entries);
+  return {
+    generated_at: new Date().toISOString(),
+    input_model: inputModel,
+    edge_model: edgeModel,
+    findings,
+    findings_by_severity: countFindingsBySeverity(findings),
+  };
+}
+
+export function buildServiceFlowFindings(
+  edgeModel: ServiceEdgeModel,
+  entries: AnalysisWorkspaceEntry[] = [],
+): ServiceFlowFinding[] {
+  return [
+    ...edgeModel.edges.flatMap((edge) => edgeFindings(edge)),
+    ...missingParentFindings(entries),
+  ].sort(compareFindings);
 }
 
 function inputEdgesFromEntry(entry: AnalysisWorkspaceEntry): ServiceFlowInputEdge[] {
@@ -349,6 +398,162 @@ function compareServiceEdges(left: ServiceEdge, right: ServiceEdge): number {
     left.caller.localeCompare(right.caller) ||
     left.callee.localeCompare(right.callee)
   );
+}
+
+function edgeFindings(edge: ServiceEdge): ServiceFlowFinding[] {
+  const findings: ServiceFlowFinding[] = [];
+  if (edge.unmatched_call_count > 0) {
+    findings.push({
+      id: `svc-finding-${hashString(["unmatched", edge.id, String(edge.unmatched_call_count)].join("\x00"))}`,
+      severity: "warning",
+      code: "SERVICE_FLOW_UNMATCHED_CALLS",
+      message: `${edge.unmatched_call_count.toLocaleString()} calls from ${edge.caller} to ${edge.callee} were unmatched or unprofiled.`,
+      caller: edge.caller,
+      callee: edge.callee,
+      edge_id: edge.id,
+      source_analyzers: edge.source_analyzers,
+      source_result_ids: edge.source_result_ids,
+      evidence_refs: edge.evidence_refs,
+      payload: {
+        caller: edge.caller,
+        callee: edge.callee,
+        unmatched_call_count: edge.unmatched_call_count,
+        call_count: edge.call_count,
+      },
+    });
+  }
+
+  const networkGap = edge.avg_network_gap_ms ?? edge.max_network_gap_ms;
+  if (networkGap !== undefined && networkGap >= NETWORK_GAP_WARNING_MS) {
+    const severity: ServiceFlowFindingSeverity =
+      networkGap >= NETWORK_GAP_CRITICAL_MS ? "critical" : "warning";
+    findings.push({
+      id: `svc-finding-${hashString(["network-gap", edge.id, String(networkGap)].join("\x00"))}`,
+      severity,
+      code: "SERVICE_FLOW_HIGH_NETWORK_GAP",
+      message: `${edge.caller} -> ${edge.callee} network gap is ${formatMs(networkGap)}.`,
+      caller: edge.caller,
+      callee: edge.callee,
+      edge_id: edge.id,
+      source_analyzers: edge.source_analyzers,
+      source_result_ids: edge.source_result_ids,
+      evidence_refs: edge.evidence_refs,
+      payload: {
+        caller: edge.caller,
+        callee: edge.callee,
+        avg_network_gap_ms: edge.avg_network_gap_ms,
+        max_network_gap_ms: edge.max_network_gap_ms,
+        warning_threshold_ms: NETWORK_GAP_WARNING_MS,
+        critical_threshold_ms: NETWORK_GAP_CRITICAL_MS,
+      },
+    });
+  }
+  return findings;
+}
+
+function missingParentFindings(entries: AnalysisWorkspaceEntry[]): ServiceFlowFinding[] {
+  const findings: ServiceFlowFinding[] = [];
+  for (const entry of entries) {
+    if ((entry.result.type || entry.result_type) !== "trace_import") continue;
+    const spans = arrayOfObjects(entry.result.tables?.spans);
+    const spanIDs = new Set(spans.map((span) => stringValue(span.span_id)).filter(Boolean));
+    const missing = spans.filter((span) => {
+      const parent = stringValue(span.parent_span_id);
+      return parent && !spanIDs.has(parent);
+    });
+    if (missing.length > 0) {
+      for (const [callee, rows] of groupRowsByCallee(missing).entries()) {
+        findings.push({
+          id: `svc-finding-${hashString(["missing-parent", entry.id, callee, String(rows.length)].join("\x00"))}`,
+          severity: "warning",
+          code: "SERVICE_FLOW_MISSING_PARENT",
+          message: `${rows.length.toLocaleString()} spans in ${callee} reference parents missing from the trace export.`,
+          caller: "missing-parent",
+          callee,
+          source_analyzers: [entry.result.type || entry.result_type],
+          source_result_ids: [entry.id],
+          evidence_refs: ["tables.spans"],
+          payload: {
+            callee,
+            missing_parent_spans: rows.length,
+            sample_span_ids: rows.slice(0, 5).map((row) => stringValue(row.span_id)).filter(Boolean),
+            source_title: entry.title,
+          },
+        });
+      }
+      continue;
+    }
+
+    const summaryMissing = optionalNumber(entry.result.summary?.missing_parent_spans);
+    if (summaryMissing !== undefined && summaryMissing > 0) {
+      findings.push({
+        id: `svc-finding-${hashString(["missing-parent-summary", entry.id, String(summaryMissing)].join("\x00"))}`,
+        severity: "warning",
+        code: "SERVICE_FLOW_MISSING_PARENT",
+        message: `${summaryMissing.toLocaleString()} spans reference parents missing from the trace export.`,
+        caller: "missing-parent",
+        callee: "unknown-service",
+        source_analyzers: [entry.result.type || entry.result_type],
+        source_result_ids: [entry.id],
+        evidence_refs: ["summary.missing_parent_spans"],
+        payload: {
+          missing_parent_spans: summaryMissing,
+          source_title: entry.title,
+        },
+      });
+    }
+  }
+  return findings;
+}
+
+function groupRowsByCallee(rows: Record<string, unknown>[]): Map<string, Record<string, unknown>[]> {
+  const groups = new Map<string, Record<string, unknown>[]>();
+  for (const row of rows) {
+    const callee = normalizeServiceName(
+      stringValue(row.service_name) || stringValue(row.remote_service) || "unknown-service",
+    );
+    const group = groups.get(callee);
+    if (group) {
+      group.push(row);
+    } else {
+      groups.set(callee, [row]);
+    }
+  }
+  return groups;
+}
+
+function countFindingsBySeverity(findings: ServiceFlowFinding[]): Record<ServiceFlowFindingSeverity, number> {
+  const counts: Record<ServiceFlowFindingSeverity, number> = {
+    critical: 0,
+    warning: 0,
+    info: 0,
+  };
+  for (const finding of findings) counts[finding.severity] += 1;
+  return counts;
+}
+
+function compareFindings(left: ServiceFlowFinding, right: ServiceFlowFinding): number {
+  return (
+    severityRank(right.severity) - severityRank(left.severity) ||
+    left.code.localeCompare(right.code) ||
+    (left.caller ?? "").localeCompare(right.caller ?? "") ||
+    (left.callee ?? "").localeCompare(right.callee ?? "")
+  );
+}
+
+function severityRank(severity: ServiceFlowFindingSeverity): number {
+  switch (severity) {
+    case "critical":
+      return 3;
+    case "warning":
+      return 2;
+    default:
+      return 1;
+  }
+}
+
+function formatMs(value: number): string {
+  return `${round(value, 2).toLocaleString()} ms`;
 }
 
 function sum(values: number[]): number {
