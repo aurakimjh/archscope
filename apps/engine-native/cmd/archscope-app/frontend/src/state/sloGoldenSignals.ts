@@ -70,6 +70,33 @@ export type GoldenSignalInventory = {
   signals: GoldenSignal[];
 };
 
+export type SliMetric = {
+  id: string;
+  metric_key: string;
+  kind: GoldenSignalKind;
+  name: string;
+  value: number;
+  unit: GoldenSignalUnit;
+  aggregation: GoldenSignalAggregation;
+  scope_type: GoldenSignalScopeType;
+  scope: string;
+  source_analyzers: string[];
+  source_result_ids: string[];
+  evidence_refs: string[];
+  signal_ids: string[];
+  contributor_count: number;
+  tags: GoldenSignalTags;
+};
+
+export type SliMetricModel = {
+  generated_at: string;
+  signal_count: number;
+  metric_count: number;
+  by_kind: Record<GoldenSignalKind, number>;
+  by_scope_type: Record<GoldenSignalScopeType, number>;
+  metrics: SliMetric[];
+};
+
 type SignalInput = {
   kind: GoldenSignalKind;
   name: string;
@@ -102,6 +129,27 @@ export function buildGoldenSignalInventory(entries: AnalysisWorkspaceEntry[]): G
 
 export function buildGoldenSignals(entries: AnalysisWorkspaceEntry[]): GoldenSignal[] {
   return buildGoldenSignalInventory(entries).signals;
+}
+
+export function buildSliMetricModel(input: GoldenSignalInventory | GoldenSignal[]): SliMetricModel {
+  const signals = Array.isArray(input) ? input : input.signals;
+  const metrics = Array.from(groupSignalsBySli(signals).values()).sort(compareSliMetrics);
+  return {
+    generated_at: new Date().toISOString(),
+    signal_count: signals.length,
+    metric_count: metrics.length,
+    by_kind: countMetricsByKind(metrics),
+    by_scope_type: countMetricsByScope(metrics),
+    metrics,
+  };
+}
+
+export function buildSliMetricModelFromEntries(entries: AnalysisWorkspaceEntry[]): SliMetricModel {
+  return buildSliMetricModel(buildGoldenSignalInventory(entries));
+}
+
+export function buildSliMetrics(input: GoldenSignalInventory | GoldenSignal[]): SliMetric[] {
+  return buildSliMetricModel(input).metrics;
 }
 
 function signalsFromEntry(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
@@ -822,6 +870,136 @@ function countBySource(signals: GoldenSignal[]): Record<string, number> {
     counts[signal.source_analyzer] = (counts[signal.source_analyzer] ?? 0) + 1;
   }
   return counts;
+}
+
+function groupSignalsBySli(signals: GoldenSignal[]): Map<string, SliMetric> {
+  const grouped = new Map<string, GoldenSignal[]>();
+  for (const signal of signals) {
+    const key = sliMetricKey(signal);
+    const bucket = grouped.get(key);
+    if (bucket) {
+      bucket.push(signal);
+    } else {
+      grouped.set(key, [signal]);
+    }
+  }
+
+  const metrics = new Map<string, SliMetric>();
+  for (const [key, bucket] of grouped.entries()) {
+    const representative = bucket[0];
+    const value = aggregateSignalValues(representative.kind, representative.aggregation, bucket.map((signal) => signal.value));
+    metrics.set(key, {
+      id: `sli-${hashString(key)}`,
+      metric_key: key,
+      kind: representative.kind,
+      name: representative.name,
+      value,
+      unit: representative.unit,
+      aggregation: representative.aggregation,
+      scope_type: representative.scope_type,
+      scope: representative.scope,
+      source_analyzers: uniqueSorted(bucket.map((signal) => signal.source_analyzer)),
+      source_result_ids: uniqueSorted(bucket.map((signal) => signal.source_result_id)),
+      evidence_refs: uniqueSorted(bucket.map((signal) => signal.evidence_ref)),
+      signal_ids: uniqueSorted(bucket.map((signal) => signal.id)),
+      contributor_count: bucket.length,
+      tags: mergeTags(bucket.map((signal) => signal.tags)),
+    });
+  }
+  return metrics;
+}
+
+function sliMetricKey(signal: GoldenSignal): string {
+  const dimension = stringValue(signal.tags.dimension);
+  return [
+    signal.kind,
+    canonicalMetricName(signal.name),
+    dimension,
+    signal.unit,
+    signal.aggregation,
+    signal.scope_type,
+    canonicalScope(signal.scope),
+  ].join(":");
+}
+
+function aggregateSignalValues(
+  kind: GoldenSignalKind,
+  aggregation: GoldenSignalAggregation,
+  values: number[],
+): number {
+  const finite = values.filter((value) => Number.isFinite(value));
+  if (finite.length === 0) return 0;
+  if (aggregation === "min") return Math.min(...finite);
+  if (aggregation === "count" || aggregation === "sum") {
+    return kind === "latency" || kind === "saturation" ? Math.max(...finite) : sum(finite);
+  }
+  if (aggregation === "avg" && kind === "traffic") {
+    return sum(finite) / finite.length;
+  }
+  return Math.max(...finite);
+}
+
+function compareSliMetrics(left: SliMetric, right: SliMetric): number {
+  const kindDelta = kindRank(left.kind) - kindRank(right.kind);
+  if (kindDelta !== 0) return kindDelta;
+  if (left.scope_type !== right.scope_type) return left.scope_type.localeCompare(right.scope_type);
+  if (left.scope !== right.scope) return left.scope.localeCompare(right.scope);
+  if (left.name !== right.name) return left.name.localeCompare(right.name);
+  return right.value - left.value;
+}
+
+function countMetricsByKind(metrics: SliMetric[]): Record<GoldenSignalKind, number> {
+  const counts: Record<GoldenSignalKind, number> = {
+    latency: 0,
+    traffic: 0,
+    errors: 0,
+    saturation: 0,
+  };
+  for (const metric of metrics) counts[metric.kind] += 1;
+  return counts;
+}
+
+function countMetricsByScope(metrics: SliMetric[]): Record<GoldenSignalScopeType, number> {
+  const counts: Record<GoldenSignalScopeType, number> = {
+    global: 0,
+    service: 0,
+    endpoint: 0,
+    edge: 0,
+    runtime: 0,
+    thread: 0,
+    trace: 0,
+    jvm: 0,
+  };
+  for (const metric of metrics) counts[metric.scope_type] += 1;
+  return counts;
+}
+
+function mergeTags(tags: GoldenSignalTags[]): GoldenSignalTags {
+  const merged: GoldenSignalTags = {};
+  for (const tagSet of tags) {
+    for (const [key, value] of Object.entries(tagSet)) {
+      if (merged[key] === undefined || merged[key] === value) {
+        merged[key] = value;
+      }
+    }
+  }
+  return merged;
+}
+
+function canonicalMetricName(value: string): string {
+  return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+}
+
+function canonicalScope(value: string): string {
+  return value.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+function uniqueSorted(values: string[]): string[] {
+  return Array.from(new Set(values.filter(Boolean))).sort((left, right) => left.localeCompare(right));
+}
+
+function sum(values: number[]): number {
+  return values.reduce((total, value) => total + value, 0);
 }
 
 function endpointScope(row: Record<string, unknown>): string {
