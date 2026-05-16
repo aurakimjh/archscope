@@ -1,6 +1,6 @@
 # 로드맵
 
-Last updated: 2026-05-14
+Last updated: 2026-05-16
 
 이 문서는 현재 Go/Wails 기반 ArchScope 라인의 통합 제품 로드맵입니다. 기존
 phase 로드맵, 제품 확장 메모, APM import matrix, AI 보조 해석 설계를 한곳에
@@ -224,6 +224,120 @@ finding을 확인하고, 근거를 수집하고, 고객 데이터 외부 전송 
 - 생성된 모든 claim이 유효한 evidence reference를 가질 때만 Evidence Board와
   report generation에 연결한다.
 
+## 중기 로드맵 플러스: 다중 언어 및 미들웨어 Evidence
+
+현재 진행 중인 중기 Evidence Studio 사이클에 함께 묶을 추가 항목이다. 현재
+parser/analyzer 커버리지를 다양한 프로그래밍 언어와 미들웨어 지원이라는 제품
+약속과 대조해 보고 도출했으며, Incident Timeline, SLO/Golden Signals, Service
+Flow, report pack, AI 제품화와 같은 호흡으로 함께 진행할 수 있는 규모로
+잡았다.
+
+### Access/Edge 로그 커버리지 확장
+
+- 현재 access-log parser는 nginx(combined, combined+response time)와 apache
+  combined 포맷만 지원한다. File-first 커버리지를 아래로 넓힌다.
+  - Tomcat access valve와 Jetty NCSA request log.
+  - HAProxy default와 HTTP log 포맷.
+  - Envoy/Istio default와 JSON access log (service mesh trace header 포함).
+  - AWS ELB/ALB classic, v2 access log, AWS CloudFront standard log.
+  - GCP HTTP(S) Load Balancer JSON, Azure App Service/Front Door JSON.
+  - IIS W3C extended log format과 Caddy/Traefik JSON access log.
+  - Kong/Tyk/AWS API Gateway access log.
+- trace-import importer dispatch와 비슷한 포맷 자동 탐지와 source별
+  parser diagnostics를 추가한다.
+- 신규 필드(upstream service, mesh trace-id, TLS 정보 등)를 기존 access-log
+  `AnalysisResult` contract를 깨지 않고 정규화한다.
+
+### Application/Web Server 진단
+
+- Tomcat catalina.out, Jetty server log, JBoss/WildFly server log, WebLogic
+  AdminServer/ManagedServer log, WebSphere SystemOut/SystemErr, GlassFish/Payara
+  server log를 대상으로 하는 server-log analyzer family를 추가한다.
+- Startup banner, deployment event, datasource pool warning, stuck thread,
+  hung-thread detection, 알려진 severe error signature를 파싱한다.
+- nginx와 Apache의 error log를 access log와 함께 파싱해 요청 evidence와
+  worker 오류가 같은 Incident Timeline에 올라오게 한다.
+
+### OpenTelemetry Logs 및 관측 신호 확장
+
+- 기존 OTel trace JSONL 경로와 짝이 되는 OpenTelemetry Logs (OTLP JSON /
+  NDJSON) parser/analyzer track을 추가한다. Severity, body, attribute,
+  resource metadata, trace/span correlation, severity burst를 표현한다.
+- 오프라인 metrics evidence를 위한 Prometheus snapshot/OpenMetrics importer를
+  추가한다.
+- LGTM 스택 export를 1급 evidence로 받기 위해 Loki query JSON export와 Tempo
+  trace JSON export importer를 추가한다.
+- Grafana dashboard JSON을 받아서 Evidence Board card에서 dashboard panel을
+  참조할 수 있게 한다.
+
+### Database Slow Query 및 Engine 로그 Evidence
+
+- PostgreSQL(csvlog/text), MySQL/MariaDB slow query log, MongoDB
+  profiler/diagnostic.data export, Redis slowlog get 출력, SQL Server
+  extended events JSON을 위한 slow-query/engine-log parser/analyzer를
+  추가한다.
+- Query fingerprint, p95/p99 latency, top query, error count, lock wait,
+  missing-index hint를 slow-query `AnalysisResult`로 집계한다.
+- PostgreSQL/MySQL용 EXPLAIN plan importer를 추가해 plan evidence가
+  Evidence Board에 함께 들어오게 한다.
+
+### Message Broker 및 Streaming Middleware
+
+- Kafka broker/controller/state-change log parsing을 추가한다. ISR change,
+  rebalance, under-replicated, log compaction, KRaft quorum event를 다룬다.
+- RabbitMQ server log parsing을 추가하고 connection churn, queue length,
+  dead letter, partition event를 다룬다. `rabbitmq-diagnostics` JSON export
+  도 함께 받는다.
+- Pulsar broker log, NATS server log, ActiveMQ broker log parser를 후속으로
+  추가한다.
+- Broker finding을 Incident Timeline과 Service Flow에서 trace-import
+  dependency와 함께 표시한다.
+
+### Container / Kubernetes / Cloud Platform Evidence
+
+- `kubectl get events`/`describe pod` JSON, audit log NDJSON, kubelet log,
+  OOMKilled/restart/eviction 신호를 받는 Kubernetes evidence importer를
+  추가한다.
+- 애플리케이션 evidence와 함께 들어오는 container runtime log(containerd,
+  CRI-O, Docker daemon)를 파싱한다.
+- 보안 인시던트 Evidence Board card를 뒷받침하기 위해 AWS CloudTrail JSON,
+  GCP Cloud Audit Logging JSON, Azure Activity Logs JSON cloud audit/log
+  importer를 추가한다.
+
+### 다중 언어 Stack 및 Profiler 커버리지
+
+- 현재 runtime-stack parser는 Java, Go, Python, Node.js, .NET을 다룬다.
+  Ruby(rbspy text/JSON, stackprof), PHP(Excimer, Tideways CLI export, Xdebug
+  profile), Rust(perf script, tokio-console export), Kotlin/Scala JVM(JFR/
+  thread dump 경유), Swift backtrace, async stack trace까지 확장한다.
+- Go pprof, Datadog Ruby/PHP profiler, py-spy speedscope-via-pprof 등 pprof
+  호환 runtime이 한 analyzer 경로를 공유하도록 generic pprof 바이너리
+  (`.pb.gz`) importer를 추가한다.
+- py-spy raw output, rbspy raw output, async-profiler `.html`/collapsed,
+  dotnet-trace `.nettrace`/speedscope, perf script collapsed importer를
+  추가한다.
+- 기존 collapsed/JFR profiler analyzer를 language-tagged frame, native vs
+  managed split, cross-language flamegraph rollup을 지원하는 통합
+  multi-language profile analyzer로 승격한다.
+
+### Correlation 및 Evidence Stitching
+
+- trace-id, span-id, request-id, customer/tenant-id, container-id, pod-uid,
+  host-id, PID를 다루는 cross-source correlation key model을 정의한다.
+- Access log, trace, runtime stack, broker log, database slow log를
+  correlation key로 묶어 Incident Timeline과 Evidence Board에 올리는 evidence
+  stitching pass를 추가한다.
+- Missing trace-id, dropped parent span, 매칭되지 않는 request log 같은
+  correlation gap을 deterministic finding으로 노출한다.
+
+### Local Continuous Profiling Import
+
+- Grafana Pyroscope/Phlare snapshot export, Polar Signals Parca snapshot
+  export를 file-first로 import해 같은 flamegraph analyzer를 통해 continuous
+  profiling evidence가 흐르게 한다.
+- 2026년 1분기 기준 public alpha인 OpenTelemetry Profiles signal은 장기 로드맵
+  항목으로 추적하고, 안정화 시 정식 OTLP Profiles ingestion으로 승격한다.
+
 ## 장기 로드맵: 아키텍처 및 운영 확장
 
 ### API 및 Event Contract 분석
@@ -268,6 +382,51 @@ finding을 확인하고, 근거를 수집하고, 고객 데이터 외부 전송 
   방안을 검토한다.
 - Parser report는 각 analyzer 가까이에 두되, 중요한 parser evidence는
   Evidence Board로 승격할 수 있게 한다.
+
+### OpenTelemetry Profiles 및 eBPF Continuous Profiling
+
+- OpenTelemetry Profiles signal lifecycle을 추적한다. 2026년 1분기 public alpha
+  였으며 이후 RC/GA를 목표로 한다. 스펙이 안정되면 OTLP Profiles 파일
+  importer를 추가한다.
+- 오픈소스 OpenTelemetry eBPF profiler와 Parca/Pyroscope agent와 호환되는
+  eBPF profile evidence importer를 계획한다. C/C++, Go, Rust, Python, Java,
+  Node.js, .NET, PHP, Ruby, Perl frame을 다룬다.
+- JFR, pprof, OTLP Profiles, eBPF sample을 묶는 통합 profile evidence schema를
+  정의해 flamegraph 및 Evidence Board capture가 언어 독립적으로 동작하게 한다.
+
+### Browser, Mobile, Client Evidence
+
+- 오픈 RUM beacon export 기반의 Real User Monitoring(RUM) import 경로를
+  추가한다. Core Web Vitals(LCP, INP, CLS)와 resource timing을 다룬다.
+- Browser performance trace import(Chrome DevTools `.json`, Lighthouse report
+  JSON)와 synthetic check export를 추가한다.
+- 안정적인 파일 contract가 확보되면 모바일 성능 import(Firebase Performance
+  export, Sentry performance, App Center diagnostic export)를 검토한다.
+
+### Anomaly Detection 및 Causal Analysis
+
+- Golden signal에 대한 통계적 baseline(rolling median/p95, seasonality-aware
+  band)을 추가하고 편차를 deterministic finding으로 노출한다.
+- Access-log latency, GC pause cluster, JFR CPU/lock signal, trace error rate
+  에 대한 change-point detection을 추가한다.
+- Incident timeline event를 correlation key로 묶어 ordered root-cause
+  hypothesis를 제안하는 causal-chain explorer를 추가한다.
+
+### Live / Streaming Evidence (Read-Only)
+
+- 로컬 파일(access log, GC log, OTel exporter, broker log) tailing을 read-only
+  로 검토한다. Local-first 보장을 유지하면서 Evidence Studio 세션에서 live
+  하게 사용할 수 있게 한다.
+- 발생하는 event를 evidence card로 승격하는 streaming 모드 Incident Timeline
+  을 검토한다.
+
+### Report Distribution 및 Workflow Integration
+
+- 이슈 트래커나 ADR에 붙여 넣을 수 있는 Markdown/Mermaid/PlantUML 보고서 pack
+  export를 추가한다.
+- Jira/GitHub Issue, Slack/Teams summary post, email-friendly evidence pack
+  zip을 위한 1-click template을 옵션으로 추가한다. 반드시 opt-in이며
+  evidence-bound로 유지한다.
 
 ## 외부 APM Import 로드맵
 

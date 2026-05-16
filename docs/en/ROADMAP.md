@@ -1,6 +1,6 @@
 # Roadmap
 
-Last updated: 2026-05-14
+Last updated: 2026-05-16
 
 This document is the consolidated product roadmap for the active Go/Wails
 ArchScope line. It pulls together the previous phase roadmap, the product
@@ -231,6 +231,119 @@ These items should stay aligned with `work_status.md`.
 - Connect AI interpretation to Evidence Board and report generation only when
   every generated claim has valid evidence references.
 
+## Mid-Term Roadmap Plus: Multi-Language and Middleware Evidence
+
+These items extend the active mid-term Evidence Studio cycle. They were
+identified by auditing the current parser/analyzer coverage against the product
+promise of broad programming-language and middleware support, and they are
+sized to land alongside Incident Timeline, SLO/Golden Signals, Service Flow,
+report packs, and AI productization.
+
+### Broader Access and Edge Log Coverage
+
+- Access-log parser currently supports nginx (combined, combined with response
+  time) and apache combined formats. Extend file-first coverage to:
+  - Tomcat access valve and Jetty NCSA request log.
+  - HAProxy default and HTTP log formats.
+  - Envoy/Istio default and JSON access logs (with service-mesh trace headers).
+  - AWS ELB/ALB classic and v2 access logs, AWS CloudFront standard logs.
+  - GCP HTTP(S) Load Balancer JSON, Azure App Service/Front Door JSON.
+  - IIS W3C extended log format and Caddy/Traefik JSON access logs.
+  - Kong/Tyk/AWS API Gateway access logs.
+- Add a format auto-detect pass and per-source diagnostics, mirroring the
+  trace-import importer dispatch.
+- Normalize new fields (upstream service, mesh trace-id, TLS info) into the
+  shared access-log `AnalysisResult` without breaking the current contract.
+
+### Application Server and Web Server Diagnostics
+
+- Add a server-log analyzer family for Tomcat catalina.out, Jetty server log,
+  JBoss/WildFly server log, WebLogic AdminServer/ManagedServer log, WebSphere
+  SystemOut/SystemErr, and GlassFish/Payara server log.
+- Parse startup banners, deployment events, datasource pool warnings, stuck
+  threads, hung-thread detections, and known severe error signatures.
+- Parse nginx and Apache error logs alongside their access logs so request
+  evidence and worker errors share an Incident Timeline.
+
+### OpenTelemetry Logs and Wider Observability Signals
+
+- Add an OpenTelemetry Logs (OTLP JSON / NDJSON) parser/analyzer track,
+  complementing the existing OTel trace JSONL path. Surface severity, body,
+  attributes, resource metadata, trace/span correlation, and severity bursts.
+- Add Prometheus snapshot/OpenMetrics import for offline metrics evidence.
+- Add Loki query JSON export and Tempo trace JSON export importers so LGTM
+  stack exports become first-class evidence sources.
+- Add Grafana dashboard JSON ingestion so dashboard panels can be referenced
+  from Evidence Board cards.
+
+### Database Slow Query and Engine Log Evidence
+
+- Add slow-query and engine-log parsers/analyzers for PostgreSQL (csvlog and
+  text), MySQL/MariaDB slow query log, MongoDB profiler/diagnostic.data
+  exports, Redis slowlog get output, and SQL Server extended events JSON.
+- Aggregate query fingerprints, p95/p99 latency, top queries, error counts,
+  lock waits, and missing-index hints into a slow-query `AnalysisResult`.
+- Add an EXPLAIN plan importer for PostgreSQL/MySQL so plan evidence can join
+  the Evidence Board.
+
+### Message Broker and Streaming Middleware
+
+- Add Kafka broker/controller/state-change log parsing with ISR change,
+  rebalance, under-replicated, log compaction, and KRaft quorum events.
+- Add RabbitMQ server log parsing with connection churn, queue length, dead
+  letter, and partition events; ingest `rabbitmq-diagnostics` JSON exports.
+- Add Pulsar broker log, NATS server log, and ActiveMQ broker log parsers as
+  follow-ups.
+- Surface broker findings into Incident Timeline and Service Flow alongside
+  trace-import dependencies.
+
+### Container, Kubernetes, and Cloud Platform Evidence
+
+- Add a Kubernetes evidence importer for `kubectl get events`/`describe pod`
+  JSON, audit log NDJSON, kubelet log lines, and OOMKilled/restart/eviction
+  signals.
+- Parse container runtime logs (containerd, CRI-O, Docker daemon) when they
+  accompany application-side evidence.
+- Add cloud audit/log importers for AWS CloudTrail JSON, GCP Cloud Audit
+  Logging JSON, and Azure Activity Logs JSON to back security-incident
+  Evidence Board cards.
+
+### Multi-Language Stack and Profiler Coverage
+
+- Current runtime-stack parsers cover Java, Go, Python, Node.js, and .NET.
+  Extend coverage to Ruby (rbspy text/JSON, stackprof), PHP (Excimer, Tideways
+  CLI export, Xdebug profile), Rust (perf script, tokio-console export),
+  Kotlin/Scala JVM (via JFR/thread dumps), Swift backtrace, and async stack
+  traces.
+- Add a generic pprof binary (`.pb.gz`) importer so Go pprof, Datadog Ruby/PHP
+  profilers, py-spy speedscope-via-pprof, and other pprof-compatible runtimes
+  share one analyzer path.
+- Add py-spy raw output, rbspy raw output, async-profiler `.html`/collapsed
+  formats, dotnet-trace `.nettrace`/speedscope output, and perf script
+  collapsed importers.
+- Promote the existing collapsed/JFR profiler analyzers into a unified
+  multi-language profile analyzer with language-tagged frames, native vs
+  managed split, and cross-language flamegraph rollups.
+
+### Correlation and Evidence Stitching
+
+- Define a cross-source correlation key model covering trace-id, span-id,
+  request-id, customer/tenant-id, container-id, pod-uid, host-id, and PID.
+- Add an evidence stitching pass that joins access logs, traces, runtime
+  stacks, broker logs, and database slow logs by correlation key for the
+  Incident Timeline and Evidence Board.
+- Surface correlation gaps (missing trace-id, dropped parent span, log without
+  matching request) as deterministic findings.
+
+### Local Continuous Profiling Imports
+
+- Add file-first importers for Grafana Pyroscope/Phlare snapshot export and
+  Polar Signals Parca snapshot export so continuous-profiling evidence flows
+  through the same flamegraph analyzers.
+- Keep the OpenTelemetry Profiles signal (currently public alpha as of 2026
+  Q1) on the active radar — see the long-term roadmap entry for full OTLP
+  Profiles ingestion.
+
 ## Later Roadmap: Architecture and Operations Expansion
 
 ### API and Event Contract Analysis
@@ -275,6 +388,53 @@ These items should stay aligned with `work_status.md`.
   `Before / After`.
 - Keep parser reports near their analyzers while allowing important parser
   evidence to be promoted into the Evidence Board.
+
+### OpenTelemetry Profiles and eBPF Continuous Profiling
+
+- Track the OpenTelemetry Profiles signal lifecycle (public alpha in 2026 Q1
+  with RC/GA targeted later in the year) and add an OTLP Profiles file
+  importer when the spec is stable.
+- Plan an eBPF profile evidence importer compatible with the open-source
+  OpenTelemetry eBPF profiler and Parca/Pyroscope agents, covering C/C++, Go,
+  Rust, Python, Java, Node.js, .NET, PHP, Ruby, and Perl frames.
+- Define a unified profile evidence schema that joins JFR, pprof, OTLP
+  Profiles, and eBPF samples so flamegraph and Evidence Board capture remain
+  language-agnostic.
+
+### Browser, Mobile, and Client Evidence
+
+- Add a Real User Monitoring (RUM) import path for Core Web Vitals
+  (LCP, INP, CLS) and resource-timing exports from open RUM beacons.
+- Add browser performance trace import (Chrome DevTools `.json`, Lighthouse
+  report JSON) and synthetic-check exports.
+- Investigate mobile-side performance imports (Firebase Performance export,
+  Sentry performance, App Center diagnostic exports) once a stable file
+  contract is available.
+
+### Anomaly Detection and Causal Analysis
+
+- Add statistical baselining for golden signals (rolling median/p95,
+  seasonality-aware bands) and surface deviations as deterministic findings.
+- Add change-point detection for access-log latency, GC pause clusters, JFR
+  CPU/lock signals, and trace error rate.
+- Add a causal-chain explorer that links incident-timeline events by
+  correlation key and proposes ordered root-cause hypotheses.
+
+### Live and Streaming Evidence (Read-Only)
+
+- Investigate read-only tailing of local files (access logs, GC logs, OTel
+  exporters, broker logs) for live Evidence Studio sessions, while keeping
+  local-first guarantees.
+- Investigate streaming-mode Incident Timeline that promotes ongoing events
+  into evidence cards as they occur.
+
+### Report Distribution and Workflow Integrations
+
+- Add Markdown/Mermaid/PlantUML report-pack exports so evidence can be pasted
+  into issue trackers and ADRs.
+- Add optional one-click templates for Jira/GitHub Issues, Slack/Teams summary
+  posts, and email-friendly evidence pack zips — strictly opt-in and
+  evidence-bound.
 
 ## External APM Import Roadmap
 
