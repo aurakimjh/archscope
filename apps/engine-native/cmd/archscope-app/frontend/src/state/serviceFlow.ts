@@ -1,4 +1,7 @@
-import type { AnalysisWorkspaceEntry } from "@/state/analysisWorkspace";
+import type {
+  AnalysisWorkspaceEntry,
+  WorkspaceAnalysisResult,
+} from "@/state/analysisWorkspace";
 
 export type ServiceFlowSourceType =
   | "trace_import_dependency"
@@ -98,8 +101,8 @@ export type ServiceFlowAnalysis = {
   findings_by_severity: Record<ServiceFlowFindingSeverity, number>;
 };
 
-export type ServiceFlowExportPayload = {
-  type: "archscope_service_flow";
+export type ServiceFlowAnalysisResult = WorkspaceAnalysisResult & {
+  type: "service_flow";
   schema_version: "0.1.0";
   generated_at: string;
   summary: {
@@ -111,14 +114,41 @@ export type ServiceFlowExportPayload = {
     total_unmatched_call_count: number;
     finding_count: number;
   };
+  series: {
+    edges_by_source_type: Array<{ source_type: ServiceFlowSourceType; count: number }>;
+    findings_by_severity: Array<{ severity: ServiceFlowFindingSeverity; count: number }>;
+  };
+  tables: {
+    input_edges: ServiceFlowInputEdge[];
+    edges: ServiceEdge[];
+    findings: ServiceFlowFinding[];
+  };
+  charts: Record<string, never>;
+  metadata: {
+    schema_version: "0.1.0";
+    parser: "wails_session_service_flow";
+    projection: "wails_session";
+    diagnostics: Record<string, unknown>;
+    findings: ServiceFlowFinding[];
+    extra: {
+      source_results: Array<{
+        id: string;
+        result_type: string;
+        source_files: string[];
+      }>;
+    };
+  };
   edges: ServiceEdge[];
   findings: ServiceFlowFinding[];
 };
+
+export type ServiceFlowExportPayload = ServiceFlowAnalysisResult;
 
 const MAX_INPUT_EDGES = 1_500;
 const MAX_SEQUENCE_EDGES = 80;
 const NETWORK_GAP_WARNING_MS = 20;
 const NETWORK_GAP_CRITICAL_MS = 50;
+const SERVICE_IDENTITY_ALIASES: Record<string, string> = {};
 
 export function buildServiceFlowInputModel(entries: AnalysisWorkspaceEntry[]): ServiceFlowInputModel {
   const edges = entries.flatMap((entry) => inputEdgesFromEntry(entry)).slice(0, MAX_INPUT_EDGES);
@@ -178,10 +208,25 @@ export function buildServiceFlowFindings(
 }
 
 export function buildServiceFlowExportPayload(analysis: ServiceFlowAnalysis): ServiceFlowExportPayload {
+  const sourceFiles = uniqueSorted(analysis.input_model.edges.map((edge) => edge.source_file ?? ""));
+  const sourceResults = uniqueSorted(analysis.input_model.edges.map((edge) => edge.source_result_id)).map((id) => {
+    const edge = analysis.input_model.edges.find((candidate) => candidate.source_result_id === id);
+    return {
+      id,
+      result_type: edge?.source_analyzer ?? "unknown",
+      source_files: uniqueSorted(
+        analysis.input_model.edges
+          .filter((candidate) => candidate.source_result_id === id)
+          .map((candidate) => candidate.source_file ?? ""),
+      ),
+    };
+  });
   return {
-    type: "archscope_service_flow",
+    type: "service_flow",
+    source_files: sourceFiles,
+    created_at: analysis.generated_at,
     schema_version: "0.1.0",
-    generated_at: new Date().toISOString(),
+    generated_at: analysis.generated_at,
     summary: {
       source_count: analysis.edge_model.source_count,
       input_edge_count: analysis.edge_model.input_edge_count,
@@ -191,9 +236,44 @@ export function buildServiceFlowExportPayload(analysis: ServiceFlowAnalysis): Se
       total_unmatched_call_count: analysis.edge_model.total_unmatched_call_count,
       finding_count: analysis.findings.length,
     },
+    series: {
+      edges_by_source_type: Object.entries(analysis.input_model.by_source_type).map(([source_type, count]) => ({
+        source_type: source_type as ServiceFlowSourceType,
+        count,
+      })),
+      findings_by_severity: Object.entries(analysis.findings_by_severity).map(([severity, count]) => ({
+        severity: severity as ServiceFlowFindingSeverity,
+        count,
+      })),
+    },
+    tables: {
+      input_edges: analysis.input_model.edges,
+      edges: analysis.edge_model.edges,
+      findings: analysis.findings,
+    },
+    charts: {},
+    metadata: {
+      schema_version: "0.1.0",
+      parser: "wails_session_service_flow",
+      projection: "wails_session",
+      diagnostics: {
+        source_count: analysis.input_model.source_count,
+        input_edge_count: analysis.input_model.input_edge_count,
+        edge_count: analysis.edge_model.edge_count,
+        finding_count: analysis.findings.length,
+      },
+      findings: analysis.findings,
+      extra: {
+        source_results: sourceResults,
+      },
+    },
     edges: analysis.edge_model.edges,
     findings: analysis.findings,
   };
+}
+
+export function buildServiceFlowAnalysisResult(entries: AnalysisWorkspaceEntry[]): ServiceFlowAnalysisResult {
+  return buildServiceFlowExportPayload(buildServiceFlowAnalysis(entries));
 }
 
 export function buildServiceFlowMermaidSequence(analysis: ServiceFlowAnalysis): string {
@@ -433,7 +513,22 @@ function serviceEdgeKey(caller: string, callee: string): string {
 }
 
 function canonicalServiceName(value: string): string {
-  return value.trim().toLowerCase().replace(/\s+/g, " ");
+  return canonicalServiceIdentity(value);
+}
+
+export function canonicalServiceIdentity(value: string): string {
+  const key = serviceIdentityKey(value);
+  return SERVICE_IDENTITY_ALIASES[key] ?? key;
+}
+
+function serviceIdentityKey(value: string): string {
+  let text = value.trim();
+  if (!text) return "unknownservice";
+  text = text.replace(/^https?:\/\//i, "");
+  text = text.split(/[/?#]/)[0] || text;
+  text = text.replace(/:\d+$/, "");
+  text = text.replace(/([a-z0-9])([A-Z])/g, "$1 $2");
+  return text.toLowerCase().replace(/[\s_-]+/g, "").replace(/[^a-z0-9.]/g, "");
 }
 
 function derivedTotalLatency(edge: ServiceFlowInputEdge): number | undefined {

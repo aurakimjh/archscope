@@ -7,8 +7,15 @@ import {
 } from "@/state/aiInterpretation";
 import type { EvidenceCard } from "@/state/evidenceBoard";
 import { buildIncidentTimelineAnalysisResult } from "@/state/incidentTimeline";
-import { buildServiceFlowAnalysis, buildServiceFlowExportPayload } from "@/state/serviceFlow";
-import { analyzeSloViolationsFromEntries } from "@/state/sloGoldenSignals";
+import {
+  buildServiceFlowAnalysis,
+  buildServiceFlowExportPayload,
+  type ServiceFlowExportPayload,
+} from "@/state/serviceFlow";
+import {
+  buildSloAnalysisResultFromEntries,
+  type SloAnalysisExportResult,
+} from "@/state/sloGoldenSignals";
 
 export type ReportPackPayload = {
   type: "archscope_report_pack";
@@ -21,8 +28,8 @@ export type ReportPackPayload = {
   artifacts: {
     evidence_cards: EvidenceCard[];
     incident_timeline: ReturnType<typeof buildIncidentTimelineAnalysisResult>;
-    slo_analysis: ReturnType<typeof analyzeSloViolationsFromEntries>;
-    service_flow: ReturnType<typeof buildServiceFlowExportPayload>;
+    slo_analysis: SloAnalysisExportResult;
+    service_flow: ServiceFlowExportPayload;
   };
 };
 
@@ -65,6 +72,11 @@ export type ReportPackAiInterpretationSource = {
   model?: string;
   prompt_version?: string;
   generated_at?: string;
+  prompt_hash?: string;
+  generation_parameters?: Record<string, unknown>;
+  token_counts?: Record<string, unknown>;
+  source_integrity_hash: string;
+  validation_status: AiEvaluationGate["gate_status"];
   gate_status: AiEvaluationGate["gate_status"];
   finding_count: number;
   evidence_integrity_ratio: number;
@@ -82,7 +94,12 @@ export type ReportPackAiFindingProvenance = {
   provider?: string;
   model?: string;
   prompt_version?: string;
+  prompt_hash?: string;
+  validation_status: AiEvaluationGate["gate_status"];
+  evidence_integrity_hash: string;
+  evidence_quote_status: "present" | "missing";
   evidence_refs: string[];
+  limitations: string[];
 };
 
 export type ReportPackSourceResultProvenance = {
@@ -128,34 +145,63 @@ export function buildReportPackPayload(
   cards: EvidenceCard[],
   entries: AnalysisWorkspaceEntry[],
 ): ReportPackPayload {
-  const serviceFlow = buildServiceFlowAnalysis(entries);
-  const incidentTimeline = buildIncidentTimelineAnalysisResult(entries);
-  const sloAnalysis = analyzeSloViolationsFromEntries(entries);
-  const serviceFlowPayload = buildServiceFlowExportPayload(serviceFlow);
-  const provenance = buildReportPackProvenance(cards, entries, {
-    incidentTimeline,
-    sloAnalysis,
-    serviceFlow: serviceFlowPayload,
+  const sourceEntries = reportPackSourceEntries(entries);
+  const artifacts = resolveReportPackArtifacts(entries, sourceEntries);
+  const provenance = buildReportPackProvenance(cards, sourceEntries, {
+    incidentTimeline: artifacts.incident_timeline,
+    sloAnalysis: artifacts.slo_analysis,
+    serviceFlow: artifacts.service_flow,
   });
   return {
     type: "archscope_report_pack",
     schema_version: "0.1.0",
     created_at: new Date().toISOString(),
     card_count: cards.length,
-    source_result_count: entries.length,
+    source_result_count: sourceEntries.length,
     customer_summary: buildCustomerSummary(cards, provenance, {
-      incidentTimeline,
-      sloAnalysis,
-      serviceFlow: serviceFlowPayload,
+      incidentTimeline: artifacts.incident_timeline,
+      sloAnalysis: artifacts.slo_analysis,
+      serviceFlow: artifacts.service_flow,
     }),
     provenance,
     artifacts: {
       evidence_cards: cards,
-      incident_timeline: incidentTimeline,
-      slo_analysis: sloAnalysis,
-      service_flow: serviceFlowPayload,
+      ...artifacts,
     },
   };
+}
+
+function resolveReportPackArtifacts(
+  entries: AnalysisWorkspaceEntry[],
+  sourceEntries: AnalysisWorkspaceEntry[],
+): Omit<ReportPackPayload["artifacts"], "evidence_cards"> {
+  const existingTimeline = latestDerivedResult<ReturnType<typeof buildIncidentTimelineAnalysisResult>>(
+    entries,
+    "incident_timeline",
+  );
+  const existingSlo = latestDerivedResult<SloAnalysisExportResult>(entries, "slo_golden_signals");
+  const existingServiceFlow = latestDerivedResult<ServiceFlowExportPayload>(entries, "service_flow");
+  const serviceFlowAnalysis = existingServiceFlow ? null : buildServiceFlowAnalysis(sourceEntries);
+  return {
+    incident_timeline: existingTimeline ?? buildIncidentTimelineAnalysisResult(sourceEntries),
+    slo_analysis: existingSlo ?? buildSloAnalysisResultFromEntries(sourceEntries),
+    service_flow: existingServiceFlow ?? buildServiceFlowExportPayload(serviceFlowAnalysis ?? buildServiceFlowAnalysis(sourceEntries)),
+  };
+}
+
+function latestDerivedResult<T>(entries: AnalysisWorkspaceEntry[], type: string): T | null {
+  const entry = [...entries]
+    .filter((candidate) => (candidate.result.type || candidate.result_type) === type)
+    .sort((left, right) => timestampValue(right.recorded_at) - timestampValue(left.recorded_at))[0];
+  return entry ? (entry.result as T) : null;
+}
+
+function reportPackSourceEntries(entries: AnalysisWorkspaceEntry[]): AnalysisWorkspaceEntry[] {
+  return entries.filter((entry) => !isDerivedArtifactType(entry.result.type || entry.result_type));
+}
+
+function isDerivedArtifactType(type: string): boolean {
+  return type === "incident_timeline" || type === "slo_golden_signals" || type === "service_flow";
 }
 
 export function exportReportPackHTML(cards: EvidenceCard[], entries: AnalysisWorkspaceEntry[]): void {
@@ -314,8 +360,9 @@ function buildReportPackProvenance(
         evidence_refs: uniqueStrings(artifacts.incidentTimeline.tables.events.map((event) => event.evidence_ref)),
       },
       {
-        artifact_type: "slo_analysis",
-        evidence_refs: uniqueStrings(artifacts.sloAnalysis.violations.flatMap((violation) => violation.evidence_refs)),
+        artifact_type: artifacts.sloAnalysis.type,
+        schema_version: artifacts.sloAnalysis.metadata.schema_version,
+        evidence_refs: uniqueStrings(artifacts.sloAnalysis.tables.violations.flatMap((violation) => violation.evidence_refs)),
       },
       {
         artifact_type: artifacts.serviceFlow.type,
@@ -425,6 +472,7 @@ function collectAIInterpretationProvenance(
     const interpretation = extractAiInterpretation(entry.result);
     if (!interpretation) continue;
     const gate = evaluateAiInterpretation(entry.result, interpretation);
+    const interpretationRecord = interpretation as unknown as Record<string, unknown>;
     sources.push({
       source_result_id: entry.id,
       source_result_type: entry.result_type,
@@ -432,6 +480,11 @@ function collectAIInterpretationProvenance(
       model: interpretation.model,
       prompt_version: interpretation.prompt_version,
       generated_at: interpretation.generated_at,
+      prompt_hash: stringValue(interpretationRecord.prompt_hash),
+      generation_parameters: objectOrUndefined(interpretationRecord.generation_parameters),
+      token_counts: objectOrUndefined(interpretationRecord.token_counts),
+      source_integrity_hash: stableHash(entry.result),
+      validation_status: gate.gate_status,
       gate_status: gate.gate_status,
       finding_count: interpretation.findings.length,
       evidence_integrity_ratio: gate.evidence_integrity_ratio,
@@ -439,7 +492,7 @@ function collectAIInterpretationProvenance(
     });
     if (gate.valid) {
       acceptedFindings.push(
-        ...interpretation.findings.map((finding) => aiFindingProvenance(finding, entry, interpretation)),
+        ...interpretation.findings.map((finding) => aiFindingProvenance(finding, entry, interpretation, gate)),
       );
     }
   }
@@ -454,7 +507,9 @@ function aiFindingProvenance(
   finding: AiFinding,
   entry: AnalysisWorkspaceEntry,
   interpretation: NonNullable<ReturnType<typeof extractAiInterpretation>>,
+  gate: AiEvaluationGate,
 ): ReportPackAiFindingProvenance {
+  const interpretationRecord = interpretation as unknown as Record<string, unknown>;
   return {
     id: finding.id,
     source_result_id: entry.id,
@@ -466,7 +521,12 @@ function aiFindingProvenance(
     provider: interpretation.provider,
     model: finding.model ?? interpretation.model,
     prompt_version: interpretation.prompt_version,
+    prompt_hash: stringValue(interpretationRecord.prompt_hash),
+    validation_status: gate.gate_status,
+    evidence_integrity_hash: stableHash(finding.evidence_refs),
+    evidence_quote_status: finding.evidence_quotes ? "present" : "missing",
     evidence_refs: finding.evidence_refs,
+    limitations: finding.limitations,
   };
 }
 
@@ -527,7 +587,7 @@ function renderAiInterpretation(ai: ReportPackProvenance["ai_interpretation"]): 
 
 function renderAiSourceTable(sources: ReportPackAiInterpretationSource[]): string {
   if (sources.length === 0) return "";
-  return `<table><thead><tr><th>Result</th><th>Provider</th><th>Model</th><th>Gate</th><th>Integrity</th><th>Issues</th></tr></thead><tbody>${sources
+  return `<table><thead><tr><th>Result</th><th>Provider</th><th>Model</th><th>Gate</th><th>Integrity</th><th>Provenance</th><th>Issues</th></tr></thead><tbody>${sources
     .map(
       (source) =>
         `<tr><td>${escapeHTML(source.source_result_type)}<br>${escapeHTML(source.source_result_id)}</td><td>${escapeHTML(
@@ -536,7 +596,15 @@ function renderAiSourceTable(sources: ReportPackAiInterpretationSource[]): strin
           source.gate_status,
         )}</td><td class="num">${formatNumber(
           source.evidence_integrity_ratio * 100,
-        )}%</td><td>${escapeHTML(source.issue_codes.join(", ") || "-")}</td></tr>`,
+        )}%</td><td>${escapeHTML(
+          [
+            source.prompt_hash ? `prompt:${source.prompt_hash}` : "",
+            `source:${source.source_integrity_hash}`,
+            source.token_counts ? `tokens:${JSON.stringify(source.token_counts)}` : "",
+          ]
+            .filter(Boolean)
+            .join(" · ") || "-",
+        )}</td><td>${escapeHTML(source.issue_codes.join(", ") || "-")}</td></tr>`,
     )
     .join("")}</tbody></table>`;
 }
@@ -546,12 +614,19 @@ function renderAiFinding(finding: ReportPackAiFindingProvenance): string {
   <h3>${escapeHTML(finding.label)}</h3>
   <div class="meta">
     <span>AI-assisted</span>
+    <span>${escapeHTML(finding.validation_status)}</span>
     <span>${escapeHTML(finding.severity)}</span>
+    <span>evidence ${escapeHTML(finding.evidence_quote_status)}</span>
     ${finding.provider ? `<span>${escapeHTML(finding.provider)}</span>` : ""}
     ${finding.model ? `<span>${escapeHTML(finding.model)}</span>` : ""}
     ${finding.confidence !== undefined ? `<span>${formatNumber(finding.confidence * 100)}% confidence</span>` : ""}
   </div>
   <p>${escapeHTML(finding.summary)}</p>
+  ${
+    finding.limitations.length > 0
+      ? `<p class="subtle">Limitations: ${escapeHTML(finding.limitations.join("; "))}</p>`
+      : ""
+  }
   <p class="subtle">${escapeHTML(finding.evidence_refs.join(", "))}</p>
 </article>`;
 }
@@ -756,6 +831,30 @@ function setDosDateTime(view: DataView, offset: number): void {
   const date = ((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate();
   view.setUint16(offset, time, true);
   view.setUint16(offset + 2, date, true);
+}
+
+function stableHash(value: unknown): string {
+  return hashString(stableStringify(value));
+}
+
+function stableStringify(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(stableStringify).join(",")}]`;
+  if (isPlainObject(value)) {
+    return `{${Object.keys(value)
+      .sort()
+      .map((key) => `${JSON.stringify(key)}:${stableStringify(value[key])}`)
+      .join(",")}}`;
+  }
+  return JSON.stringify(value) ?? "null";
+}
+
+function hashString(value: string): string {
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(16);
 }
 
 function crc32(bytes: Uint8Array): number {

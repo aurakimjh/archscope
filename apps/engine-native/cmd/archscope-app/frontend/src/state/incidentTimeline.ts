@@ -91,7 +91,11 @@ export type IncidentTimelineAnalysisResult = WorkspaceAnalysisResult & {
   };
   metadata: {
     schema_version: "0.1.0";
+    parser: "wails_session_incident_timeline";
     projection: "wails_session";
+    diagnostics: Record<string, unknown>;
+    findings: Array<Record<string, unknown>>;
+    extra: Record<string, unknown>;
     source_results: Array<{
       id: string;
       title: string;
@@ -180,7 +184,26 @@ export function buildIncidentTimelineAnalysisResult(
     charts: {},
     metadata: {
       schema_version: "0.1.0",
+      parser: "wails_session_incident_timeline",
       projection: "wails_session",
+      diagnostics: {
+        source_count: entries.length,
+        event_count: events.length,
+        group_count: groups.length,
+        narrative_step_count: narrative.length,
+      },
+      findings: events
+        .filter((event) => event.severity !== "info")
+        .map((event) => ({
+          severity: event.severity,
+          code: event.category,
+          message: event.description,
+          evidence_ref: event.evidence_ref,
+          event_id: event.id,
+        })),
+      extra: {
+        deterministic_projection: true,
+      },
       source_results: entries.map((entry) => ({
         id: entry.id,
         title: entry.title,

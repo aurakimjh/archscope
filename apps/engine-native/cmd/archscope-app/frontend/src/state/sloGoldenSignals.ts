@@ -1,4 +1,8 @@
-import type { AnalysisWorkspaceEntry } from "@/state/analysisWorkspace";
+import type {
+  AnalysisWorkspaceEntry,
+  WorkspaceAnalysisResult,
+} from "@/state/analysisWorkspace";
+import { canonicalServiceIdentity } from "@/state/serviceFlow";
 
 export type GoldenSignalKind = "latency" | "traffic" | "errors" | "saturation";
 
@@ -190,6 +194,50 @@ export type SloAnalysisResult = {
   error_budget_rows: ErrorBudgetRow[];
   affected_breakdown: AffectedBreakdownRow[];
 };
+
+export type SloAnalysisExportResult = WorkspaceAnalysisResult &
+  SloAnalysisResult & {
+    type: "slo_golden_signals";
+    source_files: string[];
+    created_at: string;
+    summary: {
+      source_count: number;
+      signal_count: number;
+      metric_count: number;
+      target_count: number;
+      violation_count: number;
+      critical_violation_count: number;
+      warning_violation_count: number;
+    };
+    series: {
+      signals_by_kind: Array<{ kind: GoldenSignalKind; count: number }>;
+      metrics_by_kind: Array<{ kind: GoldenSignalKind; count: number }>;
+      metrics_by_scope_type: Array<{ scope_type: GoldenSignalScopeType; count: number }>;
+    };
+    tables: {
+      targets: SloTarget[];
+      signals: GoldenSignal[];
+      metrics: SliMetric[];
+      violations: SloViolation[];
+      error_budget_rows: ErrorBudgetRow[];
+      affected_breakdown: AffectedBreakdownRow[];
+    };
+    charts: Record<string, never>;
+    metadata: {
+      schema_version: "0.1.0";
+      parser: "wails_session_slo_golden_signals";
+      projection: "wails_session";
+      diagnostics: Record<string, unknown>;
+      findings: Array<Record<string, unknown>>;
+      extra: {
+        source_results: Array<{
+          id: string;
+          result_type: string;
+          source_files: string[];
+        }>;
+      };
+    };
+  };
 
 type SignalInput = {
   kind: GoldenSignalKind;
@@ -480,6 +528,84 @@ export function analyzeSloViolationsFromEntries(
   targets: SloTarget[] = DEFAULT_SLO_TARGETS,
 ): SloAnalysisResult {
   return analyzeSloViolations(buildSliMetricModelFromEntries(entries), targets);
+}
+
+export function buildSloAnalysisResultFromEntries(
+  entries: AnalysisWorkspaceEntry[],
+  targets: SloTarget[] = DEFAULT_SLO_TARGETS,
+): SloAnalysisExportResult {
+  const inventory = buildGoldenSignalInventory(entries);
+  const metricModel = buildSliMetricModel(inventory);
+  const analysis = analyzeSloViolations(metricModel, targets);
+  return {
+    ...analysis,
+    type: "slo_golden_signals",
+    source_files: uniqueSorted(entries.flatMap((entry) => entry.source_files)),
+    created_at: analysis.generated_at,
+    summary: {
+      source_count: entries.length,
+      signal_count: inventory.signal_count,
+      metric_count: metricModel.metric_count,
+      target_count: analysis.target_count,
+      violation_count: analysis.violation_count,
+      critical_violation_count: analysis.violations_by_severity.critical,
+      warning_violation_count: analysis.violations_by_severity.warning,
+    },
+    series: {
+      signals_by_kind: Object.entries(inventory.by_kind).map(([kind, count]) => ({
+        kind: kind as GoldenSignalKind,
+        count,
+      })),
+      metrics_by_kind: Object.entries(metricModel.by_kind).map(([kind, count]) => ({
+        kind: kind as GoldenSignalKind,
+        count,
+      })),
+      metrics_by_scope_type: Object.entries(metricModel.by_scope_type).map(([scope_type, count]) => ({
+        scope_type: scope_type as GoldenSignalScopeType,
+        count,
+      })),
+    },
+    tables: {
+      targets: analysis.targets,
+      signals: inventory.signals,
+      metrics: metricModel.metrics,
+      violations: analysis.violations,
+      error_budget_rows: analysis.error_budget_rows,
+      affected_breakdown: analysis.affected_breakdown,
+    },
+    charts: {},
+    metadata: {
+      schema_version: "0.1.0",
+      parser: "wails_session_slo_golden_signals",
+      projection: "wails_session",
+      diagnostics: {
+        source_count: entries.length,
+        signal_count: inventory.signal_count,
+        metric_count: metricModel.metric_count,
+        target_count: analysis.target_count,
+        violation_count: analysis.violation_count,
+      },
+      findings: analysis.violations.map((violation) => ({
+        severity: violation.severity,
+        code: violation.target_id,
+        message: violation.target_name,
+        evidence: {
+          metric: violation.metric_name,
+          actual: violation.actual,
+          threshold: violation.threshold,
+          affected_scope: violation.affected_scope,
+        },
+        evidence_refs: violation.evidence_refs,
+      })),
+      extra: {
+        source_results: entries.map((entry) => ({
+          id: entry.id,
+          result_type: entry.result_type,
+          source_files: entry.source_files,
+        })),
+      },
+    },
+  };
 }
 
 export function detectSloViolations(
@@ -1371,7 +1497,7 @@ function sliMetricKey(signal: GoldenSignal): string {
     signal.unit,
     signal.aggregation,
     signal.scope_type,
-    canonicalScope(signal.scope),
+    canonicalSignalScope(signal),
   ].join(":");
 }
 
@@ -1464,6 +1590,17 @@ function canonicalMetricName(value: string): string {
 
 function canonicalScope(value: string): string {
   return value.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+function canonicalSignalScope(signal: GoldenSignal): string {
+  if (signal.scope_type === "edge") {
+    const [caller, callee] = signal.scope.split(/\s*->\s*/, 2);
+    if (caller && callee) {
+      return `${canonicalServiceIdentity(caller)} -> ${canonicalServiceIdentity(callee)}`;
+    }
+  }
+  if (signal.scope_type === "service") return canonicalServiceIdentity(signal.scope);
+  return canonicalScope(signal.scope);
 }
 
 function uniqueSorted(values: string[]): string[] {
