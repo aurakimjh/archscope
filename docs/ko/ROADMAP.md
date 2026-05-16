@@ -264,7 +264,9 @@ finding을 확인하고, 근거를 수집하고, 고객 데이터 외부 전송 
   추가한다. Go validator와 Wails workspace gate는 malformed,
   low-confidence, unknown-reference, quote-mismatched AI output을 차단한다.
 - 생성된 모든 claim이 유효한 evidence reference를 가질 때만 Evidence Board와
-  report generation에 연결한다.
+  report generation에 연결한다. Evidence Board capture와 Report Pack AI
+  section은 workspace evidence gate를 사용하며, 전체 interpretation이 통과한
+  경우에만 AI finding을 포함한다.
 
 ## 중기 로드맵 플러스: 다중 언어 및 미들웨어 Evidence
 

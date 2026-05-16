@@ -228,7 +228,7 @@ filtered before analysis.
 | T-448 | P2 | [x] | Surface AI interpretation provenance in the UI. | AI interpretation module, T-425 | Completed 2026-05-16: Analysis Workspace AI provenance status with provider/model/prompt metadata |
 | T-449 | P2 | [x] | Keep AI findings visually separate from deterministic findings. | T-448 | Completed 2026-05-16: separate AI-assisted findings panel with confidence, reasoning, limitations, and evidence refs |
 | T-450 | P1 | [x] | Add AI evaluation gates using golden diagnostics, evidence-reference integrity, quote-to-source matching, low-confidence filtering, and hallucination review. | T-448, T-449 | Completed 2026-05-16: Go/UI AI gate for schema, evidence refs, quote matching, confidence, and hallucinated refs |
-| T-451 | P1 | [ ] | Connect AI interpretation to Evidence Board and report generation only when every generated claim has valid evidence references. | T-446, T-450 | Planned: evidence-gated AI report integration |
+| T-451 | P1 | [x] | Connect AI interpretation to Evidence Board and report generation only when every generated claim has valid evidence references. | T-446, T-450 | Completed 2026-05-16: gated AI Evidence Board capture and Report Pack AI findings |
 
 ## Verification Notes
 
@@ -379,6 +379,13 @@ filtered before analysis.
   passed. Startup shell chunk is 161.45 KB raw / 52.05 KB gzip; the Analysis
   Workspace page is a lazy 13.42 KB raw / 4.20 KB gzip route chunk, and the
   lazy shared ECharts runtime remains 689.89 KB raw / 229.50 KB gzip.
+- 2026-05-16 AI report integration verification passed after T-451:
+  `env GOCACHE=/tmp/archscope-go-cache go test ./internal/aiinterpretation`
+  passed under `apps/engine-native`, and Wails frontend `npm run build` passed.
+  Startup shell chunk is 161.50 KB raw / 52.08 KB gzip; the Analysis Workspace
+  page is a lazy 9.22 KB raw / 2.78 KB gzip route chunk, Evidence Board is a
+  lazy 19.97 KB raw / 6.11 KB gzip route chunk, and the shared
+  `aiInterpretation` helper is a lazy 5.15 KB raw / 1.88 KB gzip chunk.
 
 ## Decisions
 

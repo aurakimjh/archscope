@@ -69,8 +69,9 @@ re-parse source files and does not require a server:
 - Report pack HTML: a static report bundle view that combines Evidence Board
   cards with session-derived Incident Timeline, SLO, and Service Flow artifacts.
 - Report pack ZIP: a browser-generated package containing `index.html`,
-  `report-pack.json`, `customer-summary.json`, `evidence-cards.json`,
-  `incident-timeline.json`, `slo-analysis.json`, and `service-flow.json`.
+  `report-pack.json`, `customer-summary.json`, `ai-interpretation.json`,
+  `evidence-cards.json`, `incident-timeline.json`, `slo-analysis.json`, and
+  `service-flow.json`.
 - Report pack provenance: `report-pack.json` preserves source result metadata,
   analyzer options, captured evidence references, deterministic findings,
   derived artifact references, and optional AI interpretation provenance when
@@ -79,6 +80,9 @@ re-parse source files and does not require a server:
   evidence-linked customer-facing overview and key observations. Every summary
   item lists evidence card IDs or source evidence references, and the raw
   evidence appendix remains in the HTML and JSON pack.
+- AI interpretation: report packs include AI interpretation provenance and only
+  include AI findings in customer-facing/report sections when the whole
+  interpretation passes the evidence gate.
 
 This is the short-term bridge between ad-hoc analyzer findings and the planned
 engine-level report pack workflow.

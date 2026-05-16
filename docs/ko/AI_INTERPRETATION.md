@@ -95,6 +95,10 @@ evidence reference, quote-to-source mismatch를 blocking gate failure로
 처리한다. Wails UI도 workspace result에 같은 gate status를 계산해 표시하므로
 차단된 AI output은 deterministic analysis가 아니라 provenance/quality 상태로
 보인다.
+Evidence Board capture와 report-pack 포함 여부는 이 status에 의해 제어된다.
+ArchScope는 차단된 output의 AI interpretation provenance는 보여주지만, 전체
+interpretation이 통과한 경우에만 AI finding을 evidence card 또는 report
+section에 연결한다.
 
 ## Prompt 예시
 

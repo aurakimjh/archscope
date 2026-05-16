@@ -875,6 +875,9 @@ metadata, analyzer option, captured evidence card, deterministic finding,
 derived artifact reference, 존재하는 경우 optional AI interpretation provenance를
 보존한다. `artifacts`는 현재 evidence card, exportable `incident_timeline`
 result, SLO analysis, Service Flow export payload를 포함한다.
+AI interpretation provenance는 source gate status와 accepted AI finding을
+분리해 기록하며, 전체 interpretation이 evidence gate를 통과한 경우에만
+accepted AI finding을 포함한다.
 
 ## AI Interpretation Contract
 

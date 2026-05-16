@@ -270,7 +270,9 @@ These items should stay aligned with `work_status.md`.
   The Go validator and Wails workspace gate now block malformed, low-confidence,
   unknown-reference, and quote-mismatched AI output.
 - Connect AI interpretation to Evidence Board and report generation only when
-  every generated claim has valid evidence references.
+  every generated claim has valid evidence references. Evidence Board capture
+  and Report Pack AI sections now use the workspace evidence gate and include
+  AI findings only when the full interpretation passes.
 
 ## Mid-Term Roadmap Plus: Multi-Language and Middleware Evidence
 

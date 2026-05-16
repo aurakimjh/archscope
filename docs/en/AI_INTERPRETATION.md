@@ -97,6 +97,10 @@ missing or malformed evidence references, unknown evidence references, and
 quote-to-source mismatches. The Wails UI computes and displays the same gate
 status for workspace results so blocked AI output is visible as provenance
 instead of being treated as deterministic analysis.
+Evidence Board capture and report-pack inclusion are gated on that status:
+ArchScope exposes AI interpretation provenance for blocked output, but only
+connects AI findings to evidence cards or report sections when the full
+interpretation passes.
 
 ## Local LLM / Ollama Layer
 

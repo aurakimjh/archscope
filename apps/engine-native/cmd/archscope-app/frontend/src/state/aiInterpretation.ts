@@ -265,6 +265,22 @@ export function evaluateAiInterpretation(
   };
 }
 
+export function getReportableAiFindings(
+  result: WorkspaceAnalysisResult | null | undefined,
+): {
+  interpretation: AiInterpretationResult | null;
+  gate: AiEvaluationGate;
+  findings: AiFinding[];
+} {
+  const interpretation = extractAiInterpretation(result);
+  const gate = evaluateAiInterpretation(result, interpretation);
+  return {
+    interpretation,
+    gate,
+    findings: gate.valid && interpretation ? interpretation.findings : [],
+  };
+}
+
 function normalizeSeverity(value: string | undefined): AiSeverity {
   switch (value?.toLowerCase()) {
     case "critical":

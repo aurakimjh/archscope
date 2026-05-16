@@ -14,6 +14,7 @@ import {
   useAnalysisWorkspace,
   type AnalysisWorkspaceEntry,
 } from "@/state/analysisWorkspace";
+import { getReportableAiFindings } from "@/state/aiInterpretation";
 import { addEvidenceCard } from "@/state/evidenceBoard";
 
 export function AnalysisWorkspacePage(): JSX.Element {
@@ -37,6 +38,32 @@ export function AnalysisWorkspacePage(): JSX.Element {
         summary: entry.result.summary,
       },
     });
+  };
+
+  const addAiEvidence = (entry: AnalysisWorkspaceEntry): void => {
+    const reportable = getReportableAiFindings(entry.result);
+    if (!reportable.interpretation || reportable.findings.length === 0) return;
+    for (const finding of reportable.findings) {
+      addEvidenceCard({
+        analyzer: `${entry.result_type}:ai`,
+        source_kind: "ai_finding",
+        title: finding.label,
+        summary: finding.summary,
+        severity: finding.severity,
+        source_file: entry.source_files[0],
+        source_ref: finding.evidence_refs.join(", "),
+        payload: {
+          result_id: entry.id,
+          result_type: entry.result_type,
+          provider: reportable.interpretation.provider,
+          model: finding.model ?? reportable.interpretation.model,
+          prompt_version: reportable.interpretation.prompt_version,
+          generated_at: reportable.interpretation.generated_at,
+          gate: reportable.gate,
+          finding,
+        },
+      });
+    }
   };
 
   return (
@@ -68,6 +95,7 @@ export function AnalysisWorkspacePage(): JSX.Element {
               active={entry.id === workspace.active_id}
               onSelect={() => selectWorkspaceResult(entry.id)}
               onEvidence={() => addEntryEvidence(entry)}
+              onAiEvidence={() => addAiEvidence(entry)}
               onRemove={() => removeWorkspaceResult(entry.id)}
             />
           ))}
@@ -82,15 +110,18 @@ function WorkspaceResultCard({
   active,
   onSelect,
   onEvidence,
+  onAiEvidence,
   onRemove,
 }: {
   entry: AnalysisWorkspaceEntry;
   active: boolean;
   onSelect: () => void;
   onEvidence: () => void;
+  onAiEvidence: () => void;
   onRemove: () => void;
 }): JSX.Element {
   const { t } = useI18n();
+  const reportableAi = getReportableAiFindings(entry.result);
   return (
     <Card className={active ? "workspace-result-card active" : "workspace-result-card"}>
       <CardHeader className="workspace-card-header">
@@ -106,6 +137,12 @@ function WorkspaceResultCard({
             <ClipboardPlus className="nav-lucide-sm" />
             {t("evidenceAdd")}
           </Button>
+          {reportableAi.findings.length > 0 && (
+            <Button type="button" size="sm" variant="outline" onClick={onAiEvidence}>
+              <ClipboardPlus className="nav-lucide-sm" />
+              {t("aiAddEvidence")} ({reportableAi.findings.length})
+            </Button>
+          )}
           <Button type="button" size="sm" variant="ghost" onClick={onRemove}>
             <Trash2 className="nav-lucide-sm" />
           </Button>

@@ -6,6 +6,7 @@ export type EvidenceSourceKind =
   | "slo_violation"
   | "service_edge"
   | "service_flow_finding"
+  | "ai_finding"
   | "parser_diagnostic"
   | "source_metadata";
 
