@@ -283,6 +283,14 @@ assert(
   "platform evidence should feed Golden Signals",
 );
 
+const profileEvidence = entry("profile-1", "profile_evidence", {
+  summary: { total_samples: 12, estimated_seconds: 1.2, native_samples: 4, async_frame_samples: 2 },
+});
+assert(
+  buildGoldenSignalInventory([profileEvidence]).signals.some((signal) => signal.name === "Profile sample volume"),
+  "profile evidence should feed Golden Signals",
+);
+
 const aiResult = entry("ai-1", "jfr_recording", {
   tables: {
     notable_events: [{ evidence_ref: "jfr:event:1", message: "GC pause 120ms" }],

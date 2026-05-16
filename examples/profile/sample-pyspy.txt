@@ -1,0 +1,10 @@
+Process 4242: python app.py
+Python v3.12.1
+Thread 4242 "MainThread"
+  app.py:44 - handle_order
+  service.py:88 - checkout
+  httpx/_client.py:1201 - send
+
+Thread 4243 "async-worker"
+  worker.py:18 - async process_message
+  redis/client.py:536 - execute_command

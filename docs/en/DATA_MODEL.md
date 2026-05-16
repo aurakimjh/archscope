@@ -312,6 +312,40 @@ Finding codes include `K8S_OOMKILLED`, `K8S_RESTARTS_PRESENT`, `K8S_EVICTION`,
 `K8S_SCHEDULING_ISSUE`, `K8S_IMAGE_PULL_ISSUE`, `K8S_READINESS_ISSUE`,
 `K8S_NODE_PRESSURE`, and `CLOUD_AUDIT_SECURITY_EVENT`.
 
+### Unified Profile Evidence
+
+`type`: `profile_evidence`
+
+The unified profile evidence contract normalizes runtime profiler inputs into
+language-tagged stack samples before reusing the existing flamegraph analyzer.
+Supported selectors include generic pprof `.pb.gz`, async-profiler collapsed and
+HTML, py-spy raw, rbspy raw, speedscope JSON including dotnet-trace speedscope
+exports, perf collapsed stacks, JFR JSON stack samples, Ruby StackProf JSON,
+PHP Excimer/Tideways-style JSON, Xdebug cachegrind text, Swift/generic async
+stacks, Pyroscope/Phlare snapshots, and Parca-style profile JSON.
+
+Core `summary` fields include:
+
+| Field | Type | Meaning |
+|---|---|---|
+| `total_samples` | integer | Sum of normalized sample values |
+| `unique_stacks` | integer | Distinct collapsed stack keys after normalization |
+| `runtime_count` | integer | Distinct runtime labels |
+| `language_count` | integer | Distinct language labels |
+| `native_samples` | integer | Samples whose stack includes native frames |
+| `managed_samples` | integer | Samples whose stack includes managed frames |
+| `async_frame_samples` | integer | Samples whose stack includes async/await/continuation frames |
+| `thread_count` | integer | Distinct thread labels when present |
+| `process_count` | integer | Distinct process/PID labels when present |
+| `max_stack_depth` | integer | Maximum normalized stack depth |
+
+`tables.frames` rows preserve `name`, `function`, `file`, `line`, `language`,
+`runtime`, `kind`, `native`, `async`, and `samples`. `charts.flamegraph` and
+`charts.drilldown_stages` reuse the profiler `FlameNode` contract.
+
+`metadata.unified_profile_schema` records the canonical frame and sample fields,
+while `metadata.flamegraph_rollup` records the collapsed-stack rollup source.
+
 ### Profiler Collapsed Result
 
 `type`: `profiler_collapsed`

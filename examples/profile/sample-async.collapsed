@@ -1,0 +1,3 @@
+com.example.OrderController.handle;com.example.OrderService.checkout;com.example.PaymentClient.charge 8
+com.example.OrderController.handle;java.util.concurrent.CompletableFuture.asyncSupplyStage;com.example.InventoryClient.reserve 3
+[unknown];libc.so.6;epoll_wait 4

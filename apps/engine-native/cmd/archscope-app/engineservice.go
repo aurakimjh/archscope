@@ -190,6 +190,14 @@ type PlatformRequest struct {
 	TopN   int    `json:"topN,omitempty"`
 }
 
+type ProfileEvidenceRequest struct {
+	Path        string  `json:"path"`
+	Format      string  `json:"format,omitempty"`
+	TopN        int     `json:"topN,omitempty"`
+	IntervalMS  float64 `json:"intervalMs,omitempty"`
+	ProfileKind string  `json:"profileKind,omitempty"`
+}
+
 // TraceImportRequest mirrors traceimport.Options + a Path.
 type TraceImportRequest struct {
 	Path   string `json:"path"`
@@ -480,6 +488,18 @@ func (s *EngineService) AnalyzePlatform(req PlatformRequest) (engineapi.Analysis
 		return engineapi.AnalysisResult{}, fmt.Errorf("path is required")
 	}
 	return engineapi.AnalyzePlatform(req.Path, engineapi.PlatformOptions{Format: req.Format, TopN: req.TopN})
+}
+
+func (s *EngineService) AnalyzeProfileEvidence(req ProfileEvidenceRequest) (engineapi.AnalysisResult, error) {
+	if strings.TrimSpace(req.Path) == "" {
+		return engineapi.AnalysisResult{}, fmt.Errorf("path is required")
+	}
+	return engineapi.AnalyzeProfileEvidence(req.Path, engineapi.ProfileEvidenceOptions{
+		Format:      req.Format,
+		TopN:        req.TopN,
+		IntervalMS:  req.IntervalMS,
+		ProfileKind: req.ProfileKind,
+	})
 }
 
 // AnalyzeTraceImport wraps engineapi.AnalyzeTraceImport.

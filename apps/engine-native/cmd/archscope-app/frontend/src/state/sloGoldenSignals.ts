@@ -761,6 +761,9 @@ function signalsFromEntry(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
     case "kubernetes_evidence":
       signals = signalsFromPlatformEvidence(entry);
       break;
+    case "profile_evidence":
+      signals = signalsFromProfileEvidence(entry);
+      break;
     case "jfr_recording":
       signals = signalsFromJfr(entry);
       break;
@@ -1304,6 +1307,23 @@ function signalsFromPlatformEvidence(entry: AnalysisWorkspaceEntry): GoldenSigna
     scopeType: "runtime",
   });
   addSummary(out, entry, "security_event_count", "Cloud audit security event count", "errors", "count", "count", {
+    scopeType: "runtime",
+  });
+  return out;
+}
+
+function signalsFromProfileEvidence(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
+  const out: GoldenSignal[] = [];
+  addSummary(out, entry, "total_samples", "Profile sample volume", "traffic", "count", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "unique_stacks", "Profile unique stack count", "saturation", "count", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "native_samples", "Profile native sample count", "saturation", "count", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "async_frame_samples", "Profile async frame samples", "saturation", "count", "count", {
     scopeType: "runtime",
   });
   return out;

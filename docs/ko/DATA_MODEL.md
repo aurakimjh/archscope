@@ -456,6 +456,38 @@ Finding code는 `K8S_OOMKILLED`, `K8S_RESTARTS_PRESENT`, `K8S_EVICTION`,
 `K8S_SCHEDULING_ISSUE`, `K8S_IMAGE_PULL_ISSUE`, `K8S_READINESS_ISSUE`,
 `K8S_NODE_PRESSURE`, `CLOUD_AUDIT_SECURITY_EVENT`를 포함한다.
 
+### 통합 Profile Evidence
+
+`type`: `profile_evidence`
+
+통합 profile evidence contract는 runtime profiler 입력을 language-tagged stack
+sample로 정규화한 뒤 기존 flamegraph analyzer 경로를 재사용한다. 지원 selector는
+generic pprof `.pb.gz`, async-profiler collapsed/HTML, py-spy raw, rbspy raw,
+dotnet-trace speedscope export를 포함한 speedscope JSON, perf collapsed stack,
+JFR JSON stack sample, Ruby StackProf JSON, PHP Excimer/Tideways 계열 JSON,
+Xdebug cachegrind text, Swift/generic async stack, Pyroscope/Phlare snapshot,
+Parca 계열 profile JSON이다.
+
+핵심 `summary` fields:
+
+| Field | Type | 의미 |
+|---|---|---|
+| `total_samples` | integer | 정규화된 sample value 합계 |
+| `unique_stacks` | integer | 정규화 후 distinct collapsed stack key 수 |
+| `runtime_count` | integer | distinct runtime label 수 |
+| `language_count` | integer | distinct language label 수 |
+| `native_samples` | integer | stack에 native frame이 포함된 sample 수 |
+| `managed_samples` | integer | stack에 managed frame이 포함된 sample 수 |
+| `async_frame_samples` | integer | async/await/continuation frame이 포함된 sample 수 |
+| `thread_count` | integer | thread label이 있을 때 distinct thread 수 |
+| `process_count` | integer | process/PID label이 있을 때 distinct process 수 |
+| `max_stack_depth` | integer | 최대 정규화 stack depth |
+
+`tables.frames` row는 `name`, `function`, `file`, `line`, `language`,
+`runtime`, `kind`, `native`, `async`, `samples`를 보존한다.
+`charts.flamegraph`와 `charts.drilldown_stages`는 profiler `FlameNode`
+contract를 재사용한다.
+
 ### Profiler Collapsed Result
 
 `type`: `profiler_collapsed`

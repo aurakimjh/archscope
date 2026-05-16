@@ -1,0 +1,19 @@
+{
+  "$schema": "https://www.speedscope.app/file-format-schema.json",
+  "shared": {
+    "frames": [
+      { "name": "OrderController.handle", "file": "OrderController.cs", "line": 22 },
+      { "name": "OrderService.Checkout", "file": "OrderService.cs", "line": 41 },
+      { "name": "PaymentClient.ChargeAsync", "file": "PaymentClient.cs", "line": 77 }
+    ]
+  },
+  "profiles": [
+    {
+      "type": "sampled",
+      "name": "dotnet-trace speedscope",
+      "unit": "milliseconds",
+      "samples": [[0, 1, 2], [0, 1]],
+      "weights": [6, 2]
+    }
+  ]
+}

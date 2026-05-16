@@ -83,6 +83,7 @@ import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/observability"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/otel"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/platform"
+	profileevidence "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/profile"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/profileclassification"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/runtime"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/serverlog"
@@ -230,6 +231,12 @@ var AnalyzeBrokerLog = brokerlog.Analyze
 type PlatformOptions = platform.Options
 
 var AnalyzePlatform = platform.Analyze
+
+// ── Unified runtime profile evidence ────────────────────────────────
+
+type ProfileEvidenceOptions = profileevidence.Options
+
+var AnalyzeProfileEvidence = profileevidence.Analyze
 
 // ── External trace import ───────────────────────────────────────────
 

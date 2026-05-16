@@ -120,6 +120,27 @@ frame1;frame2;frame3 123
 
 Collapsed stack은 공통 `FlameNode` tree contract로도 변환한다. 이를 통해 drill-down과 execution breakdown이 flat top-stack row가 아니라 동일한 tree model을 기준으로 동작한다.
 
+## 통합 Profile Evidence Parser
+
+`profile import` 경로는 여러 profiler family를 공통 sample schema로 정규화한 뒤
+분석한다. 각 sample은 language, runtime, `native`, `managed`, `async` marker가
+붙은 frame stack을 가진다. Analyzer는 이 sample들을 collapsed stack으로
+roll up한 뒤 기존 flamegraph, top-stack, execution-breakdown, drill-down 로직을
+재사용한다.
+
+지원 import contract:
+
+- `github.com/google/pprof/profile` 기반 pprof binary/gzip profile (`.pb.gz`)
+- 기존 profiler parser를 재사용하는 async-profiler collapsed 및 HTML flamegraph
+- py-spy, rbspy raw text stack dump
+- dotnet-trace speedscope export를 포함한 speedscope JSON
+- Rust/native evidence용 perf collapsed stack
+- JFR JSON stack sample event
+- Ruby StackProf JSON
+- PHP Excimer/Tideways 계열 JSON 및 Xdebug cachegrind text
+- Swift backtrace와 generic async stack text
+- Pyroscope/Phlare 및 Parca 계열 continuous-profiling snapshot
+
 ## Jennifer APM Flamegraph CSV Parser
 
 Jennifer APM flamegraph CSV import는 다음 canonical column을 기대한다.

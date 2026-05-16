@@ -122,6 +122,28 @@ Rules:
 
 Collapsed stacks are also converted into the common `FlameNode` tree contract so drill-down and execution breakdown can work on a tree rather than only on flat top-stack rows.
 
+## Unified Profile Evidence Parser
+
+The `profile import` path normalizes profiler families into a common sample
+schema before analysis. Each sample carries a stack of frames tagged with
+language, runtime, `native`, `managed`, and `async` markers. The analyzer then
+rolls those samples up to collapsed stacks and reuses the existing flamegraph,
+top-stack, execution-breakdown, and drill-down logic.
+
+Supported import contracts include:
+
+- pprof binary/gzip profiles (`.pb.gz`) through `github.com/google/pprof/profile`
+- async-profiler collapsed and HTML flamegraph payloads through the existing
+  profiler parser
+- py-spy and rbspy raw text stack dumps
+- speedscope JSON, including dotnet-trace speedscope exports
+- perf collapsed stacks for Rust/native evidence
+- JFR JSON stack sample events
+- Ruby StackProf JSON
+- PHP Excimer/Tideways-style JSON and Xdebug cachegrind text
+- Swift backtrace and generic async stack text
+- Pyroscope/Phlare and Parca-style continuous-profiling snapshots
+
 ## Jennifer APM Flamegraph CSV Parser
 
 Jennifer APM flamegraph CSV import expects these canonical columns:
