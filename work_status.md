@@ -17,9 +17,9 @@ The previous long-form history was archived to
 - Release baseline: `v0.3.3` is the latest stable GitHub release. The
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
-- Current execution focus: executing the promoted mid-term Evidence Studio
-  roadmap TODOs after the Wails Incident Timeline, SLO/Golden Signals, and
-  Service Flow MVPs.
+- Current execution focus: preparing a `v0.3.4` stabilization pass from the
+  2026-05-16 mid-term roadmap review, with priority on P0 correctness,
+  privacy, SLO accuracy, report-pack safety, and AnalysisResult guardrails.
 - Retired implementation: Python/FastAPI/browser sources are archived under
   `archive/python-engine` and `archive/web-frontend-python`.
 - Historical native POC module has been folded into `apps/engine-native`.
@@ -181,13 +181,36 @@ filtered before analysis.
 
 ## Next Execution Queue
 
-1. Continue the promoted mid-term Evidence Studio batch with report packs and
-   AI interpretation productization after the Service Flow MVP.
-2. Keep release verification healthy before the next 0.3.x cut by repeating
+1. Execute the accepted P0 findings from the 2026-05-16 mid-term roadmap
+   review before any external demo: Incident Timeline mapping, AI gate
+   enforcement, privacy redaction, SLO unit accuracy, signal deduplication,
+   and report-pack ZIP safety.
+2. Restore the architecture guardrails incrementally by moving the simplest
+   derived workflow, Service Flow, toward a Go analyzer/exportable
+   `AnalysisResult` pattern first, then use that pattern for Incident Timeline
+   and SLO projections.
+3. Add deterministic export/test coverage around the 0.3.4 stabilization work
+   so timeline, SLO, service-flow, report-pack, and AI-gate regressions are
+   caught before the next release.
+4. Keep release verification healthy before the next 0.3.x cut by repeating
    Windows GUI smoke, macOS signing/notarization validation, and frontend
    bundle budget checks.
-3. Keep Jaeger and SkyWalking compatibility fixtures representative as real
+5. Keep Jaeger and SkyWalking compatibility fixtures representative as real
    customer exports become available.
+
+## Review Intake Decisions
+
+| Review | Decision | Follow-up |
+|---|---|---|
+| 2026-05-16 mid-term roadmap review P0-1 through P0-6 | Accepted | T-452 through T-457 |
+| P1-7 UI-heavy derived analysis and P1-8 AnalysisResult drift | Accepted as phased remediation, not a single rewrite | T-458, T-459 |
+| P1-9 exporter recomputes analysis | Accepted | T-460 |
+| P1-10 service-edge identity matching | Accepted | T-461 |
+| P1-11 AI provenance depth | Accepted | T-462 |
+| P1-12 AI/deterministic visual separation after Evidence Board capture | Accepted | T-463 |
+| P2 determinism, timestamp, runtime-stack, testing, shared utility, Mermaid, narrative sorting, and dedupe issues | Accepted and grouped by risk/dependency | T-464 through T-467 |
+| Full immediate migration of all Wails state projections to Go analyzers | Deferred as too broad for one patch; start with Service Flow and migrate the remaining projections after the contract pattern is proven | T-458, T-459 |
+| Korean PII allow-list coverage | Accepted as a review point inside the privacy hardening task; exact rule set needs implementation-time examples | T-454 |
 
 ## Active TO-DO
 
@@ -231,6 +254,22 @@ filtered before analysis.
 | T-449 | P2 | [x] | Keep AI findings visually separate from deterministic findings. | T-448 | Completed 2026-05-16: separate AI-assisted findings panel with confidence, reasoning, limitations, and evidence refs |
 | T-450 | P1 | [x] | Add AI evaluation gates using golden diagnostics, evidence-reference integrity, quote-to-source matching, low-confidence filtering, and hallucination review. | T-448, T-449 | Completed 2026-05-16: Go/UI AI gate for schema, evidence refs, quote matching, confidence, and hallucinated refs |
 | T-451 | P1 | [x] | Connect AI interpretation to Evidence Board and report generation only when every generated claim has valid evidence references. | T-446, T-450 | Completed 2026-05-16: gated AI Evidence Board capture and Report Pack AI findings |
+| T-452 | P0 | [ ] | Fix Incident Timeline cross-analyzer mappings so thread dump, lock contention, multi-thread dump, and exception events read the table keys actually emitted by Go analyzers, or add the missing analyzer tables where that is the better contract. Add regression fixtures for each corrected mapping. | T-431, T-432 | Review accepted 2026-05-16: restore T-432 event coverage before external demo |
+| T-453 | P0 | [ ] | Make AI interpretation gating authoritative through the Go `internal/aiinterpretation` evaluator exposed via Wails bindings; keep TypeScript as presentation logic only, require non-empty model/summary/reasoning fields, require evidence quotes when quote matching is enabled, make minimum confidence configurable, and preserve validation issues with provenance. | T-448, T-449, T-450, T-451 | Review accepted 2026-05-16: close advisory-only AI gate gap |
+| T-454 | P0 | [ ] | Harden privacy redaction before any LLM dispatch by adding allow-list or stronger deny-list coverage for stack traces, hostnames, IPv6, bearer tokens, JWTs, SQL fragments, and Korean PII patterns, with Go tests for redaction edge cases. | T-453 preferred | Review accepted 2026-05-16: reduce AI prompt privacy/compliance exposure |
+| T-455 | P0 | [ ] | Normalize SLO error-rate units across access-log and trace-import signals, add explicit fraction/percent conversion at the SLI boundary, and fix error-budget burn formulas so objective percent and threshold semantics are applied correctly. | T-437, T-438, T-439, T-440 | Review accepted 2026-05-16: restore SLO violation accuracy |
+| T-456 | P0 | [ ] | Prevent Trace Import and Jennifer MSA traffic double-counting in Golden Signals by making aggregation source-aware and deduplicating equivalent caller-to-callee traffic where both analyzers describe the same edge. | T-441, T-455 | Review accepted 2026-05-16: keep traffic/error SLI totals trustworthy |
+| T-457 | P0 | [ ] | Sanitize report-pack ZIP entry paths with a shared path-normalization helper that rejects absolute, parent-directory, and platform-specific traversal forms before writing archive headers. | T-445 | Review accepted 2026-05-16: close report-pack ZIP traversal surface |
+| T-458 | P1 | [ ] | Move Service Flow toward the first Go analyzer/exportable `AnalysisResult` pattern for derived Evidence Studio workflows, including parser/findings/diagnostics metadata, CLI/exporter compatibility, service-edge normalization, and fixtures. | T-441, T-442, T-443, T-444 | Review accepted 2026-05-16: establish guardrail-restoration pattern with the simplest derived workflow |
+| T-459 | P1 | [ ] | Apply the proven derived-analysis contract pattern to Incident Timeline and SLO/Golden Signals projections so exported payloads satisfy the common `AnalysisResult` envelope and remain readable by Go exporters. | T-458, T-452, T-455 | Review accepted 2026-05-16: reduce Wails-only projection drift |
+| T-460 | P1 | [ ] | Stop report-pack export from recomputing analysis at export time; report packs should consume persisted Analysis Workspace results and derived `AnalysisResult` artifacts produced earlier in the workflow. | T-458, T-459, T-445 | Review accepted 2026-05-16: keep exporters from mutating or reanalyzing evidence |
+| T-461 | P1 | [ ] | Add service identity normalization for Service Flow and SLO aggregation, including case, hyphen/underscore, display-name, and alias-table matching for Trace Import and Jennifer MSA service names. | T-441, T-458 | Review accepted 2026-05-16: make T-441/T-442 unification effective in real exports |
+| T-462 | P1 | [ ] | Strengthen AI provenance in Evidence Board and report packs with prompt hash, generation parameters, token counts when available, source/evidence integrity hashes, and validation status. | T-453, T-446 | Review accepted 2026-05-16: make AI provenance auditable instead of descriptive only |
+| T-463 | P1 | [ ] | Preserve AI-assisted versus deterministic finding separation after Evidence Board capture and in report-pack rendering, including visible AI badges, confidence, limitations, and evidence-reference status. | T-449, T-451 | Review accepted 2026-05-16: keep AI/deterministic distinction across all report surfaces |
+| T-464 | P2 | [ ] | Make derived workflow exports deterministic by injecting `now` explicitly, supporting fixed ZIP timestamps, parsing Unix-second timestamps, replacing locale-dependent formatting, stabilizing dedupe keys, and optimizing narrative sorting with precomputed event maps. | T-457, T-459 | Review accepted 2026-05-16: enable byte-stable report diffs where inputs match |
+| T-465 | P2 | [ ] | Expand SLO and runtime signal robustness with configurable SLO target overrides, safe non-spread max scans for large series, and runtime-stack signal extraction for Node.js, Python, Go panic, and .NET analyzer result types. | T-455 | Review accepted 2026-05-16: complete the missing configuration/runtime-signal paths |
+| T-466 | P2 | [ ] | Add frontend state regression tests for Incident Timeline, SLO/Golden Signals, Service Flow, Report Pack, and AI gate behavior, plus Go AI redaction/evidence-reference tests for the new hardening paths. | T-452, T-453, T-454, T-455, T-456, T-457 | Review accepted 2026-05-16: prevent repeat silent-break regressions |
+| T-467 | P2 | [ ] | Deduplicate shared frontend state utilities and fix Mermaid sequence export edge cases, including empty-service/source-only findings and quoted labels. | T-458, T-461 | Review accepted 2026-05-16: reduce maintenance drift and malformed diagram output |
 
 ## Verification Notes
 
