@@ -45,7 +45,10 @@ second-pass analyzer다. 원본 log를 다시 parsing하지 않고 table에서 b
 evidence node를 추출한 뒤 trace/span/request/tenant/container/host/PID key를
 기록하고 match group을 만든다. 또한 missing trace ID, dropped parent span,
 unmatched request log, unmatched database call, unmatched broker event를
-correlation-gap finding으로 낸다.
+correlation-gap finding으로 낸다. 고도화된 stitching은 timestamp-window
+matching, workload/service/database/broker naming variant를 위한 service alias
+normalization, profile label 기반 trace-profile linkage, raw source 확인용
+`match_drilldowns`를 추가한다.
 
 ## API 및 Event Contract Parser
 

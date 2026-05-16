@@ -436,19 +436,28 @@ function eventsFromStitchedEvidence(entry: AnalysisWorkspaceEntry): IncidentTime
       timeValue: row.timestamp,
     }),
   );
-  const matches = arrayOfObjects(entry.result.tables?.matches).map((row, index) =>
-    makeEvent(entry, {
+  const matches = arrayOfObjects(entry.result.tables?.matches).map((row, index) => {
+    const reason = stringValue(row.match_reason) || "exact_correlation_key";
+    const confidence = numberValue(row.confidence);
+    const label =
+      reason === "time_window_service_alias"
+        ? "TIME_WINDOW_STITCH"
+        : reason === "trace_profile_label"
+          ? "TRACE_PROFILE_LINK"
+          : "CORRELATION_MATCH";
+    const confidenceText = confidence > 0 ? ` at ${formatNumber(confidence * 100)}% confidence` : "";
+    return makeEvent(entry, {
       idSuffix: `stitched-match-${stringValue(row.key_kind) || index}`,
       severity: "info",
       category: "correlation_match",
-      label: "CORRELATION_MATCH",
-      description: `${numberValue(row.event_count)} evidence rows matched by ${stringValue(row.key_kind) || "correlation key"}.`,
+      label,
+      description: `${numberValue(row.event_count)} evidence rows matched by ${stringValue(row.key_kind) || "correlation key"} via ${reason}${confidenceText}.`,
       evidenceRef: "tables.matches",
       payload: row,
       timeValue: row.first_seen,
       endTimeValue: row.last_seen,
-    }),
-  );
+    });
+  });
   return [...gaps, ...matches];
 }
 

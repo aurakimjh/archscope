@@ -384,8 +384,10 @@ report packs, and AI productization.
 - Surface correlation gaps (missing trace-id, dropped parent span, log without
   matching request) as deterministic findings.
 - Current implementation status: `stitch analyze` emits `stitched_evidence`
-  with match groups, gap findings, Incident Timeline rows, and stitched Service
-  Flow dependencies from existing result JSON files.
+  with exact and advanced match groups, timestamp-window/service-alias
+  correlation, trace-profile linkage, drilldown rows, gap findings, Incident
+  Timeline rows, Golden Signals, and stitched Service Flow dependencies from
+  existing result JSON files.
 
 ### Local Continuous Profiling Imports
 

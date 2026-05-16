@@ -199,8 +199,9 @@ type ProfileEvidenceRequest struct {
 }
 
 type StitchedEvidenceRequest struct {
-	Paths []string `json:"paths"`
-	TopN  int      `json:"topN,omitempty"`
+	Paths             []string `json:"paths"`
+	TopN              int      `json:"topN,omitempty"`
+	TimeWindowSeconds int      `json:"timeWindowSeconds,omitempty"`
 }
 
 type ApiContractRequest struct {
@@ -526,7 +527,7 @@ func (s *EngineService) AnalyzeStitchedEvidence(req StitchedEvidenceRequest) (en
 	if len(req.Paths) == 0 {
 		return engineapi.AnalysisResult{}, fmt.Errorf("paths are required")
 	}
-	return engineapi.AnalyzeStitchedEvidence(req.Paths, engineapi.StitchingOptions{TopN: req.TopN})
+	return engineapi.AnalyzeStitchedEvidence(req.Paths, engineapi.StitchingOptions{TopN: req.TopN, TimeWindowSeconds: req.TimeWindowSeconds})
 }
 
 func (s *EngineService) AnalyzeApiContract(req ApiContractRequest) (engineapi.AnalysisResult, error) {

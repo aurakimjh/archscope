@@ -18,6 +18,7 @@ func init() {
 	var inputs []string
 	var out string
 	var topN int
+	var timeWindowSeconds int
 	analyze := &cobra.Command{
 		Use:   "analyze",
 		Short: "Analyze multiple result JSON files and emit stitched evidence.",
@@ -25,7 +26,7 @@ func init() {
 			if len(inputs) == 0 {
 				return fmt.Errorf("--in is required at least once")
 			}
-			result, err := stitching.AnalyzeFiles(inputs, stitching.Options{TopN: topN})
+			result, err := stitching.AnalyzeFiles(inputs, stitching.Options{TopN: topN, TimeWindowSeconds: timeWindowSeconds})
 			if err != nil {
 				return err
 			}
@@ -34,6 +35,7 @@ func init() {
 	}
 	analyze.Flags().StringArrayVar(&inputs, "in", nil, "input AnalysisResult JSON path; repeatable")
 	analyze.Flags().IntVar(&topN, "top-n", 100, "maximum rows per stitched table")
+	analyze.Flags().IntVar(&timeWindowSeconds, "time-window-seconds", 60, "timestamp window for service-alias stitching")
 	analyze.Flags().StringVar(&out, "out", "-", "output path; `-` for stdout")
 	group.AddCommand(analyze)
 	rootCmd.AddCommand(group)

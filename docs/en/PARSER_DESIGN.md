@@ -46,7 +46,10 @@ files. It does not parse raw logs again. Instead, it extracts bounded evidence
 nodes from tables, records trace/span/request/tenant/container/host/PID keys,
 builds match groups, and emits correlation-gap findings for missing trace IDs,
 dropped parent spans, unmatched request logs, unmatched database calls, and
-unmatched broker events.
+unmatched broker events. Advanced stitching adds timestamp-window matching,
+service alias normalization for workload/service/database/broker naming
+variants, trace-profile linkage through profile labels, and `match_drilldowns`
+for raw-source inspection.
 
 ## API And Event Contract Parser
 

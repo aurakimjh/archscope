@@ -6,7 +6,8 @@
   "series": {},
   "tables": {
     "queries": [
-      { "timestamp": "2026-05-16T10:00:00Z", "trace_id": "trace-demo-1", "database": "shop", "fingerprint": "select * from orders where id = ?" }
+      { "timestamp": "2026-05-16T10:00:00Z", "trace_id": "trace-demo-1", "service": "order-service", "database": "shop", "fingerprint": "select * from orders where id = ?" },
+      { "timestamp": "2026-05-16T10:00:20Z", "service": "order-deployment", "database": "shop", "fingerprint": "select * from orders where status = ?" }
     ]
   },
   "charts": {},

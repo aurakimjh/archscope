@@ -6,7 +6,7 @@
   "series": {},
   "tables": {
     "spans": [
-      { "trace_id": "trace-demo-1", "span_id": "span-1", "service": "order-service", "span_name": "GET /orders/1001" }
+      { "timestamp": "2026-05-16T10:00:00Z", "trace_id": "trace-demo-1", "span_id": "span-1", "service": "order-service", "span_name": "GET /orders/1001" }
     ]
   },
   "charts": {},

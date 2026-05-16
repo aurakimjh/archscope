@@ -1340,6 +1340,15 @@ function signalsFromStitchedEvidence(entry: AnalysisWorkspaceEntry): GoldenSigna
   addSummary(out, entry, "matched_group_count", "Stitched evidence match groups", "traffic", "count", "count", {
     scopeType: "runtime",
   });
+  addSummary(out, entry, "advanced_match_count", "Advanced stitched evidence matches", "traffic", "count", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "time_window_match_count", "Time-window stitched matches", "traffic", "count", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "trace_profile_link_count", "Trace/profile stitched links", "traffic", "count", "count", {
+    scopeType: "runtime",
+  });
   addSummary(out, entry, "gap_count", "Stitched evidence gap count", "errors", "count", "count", {
     scopeType: "runtime",
   });

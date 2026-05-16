@@ -1,0 +1,20 @@
+{
+  "type": "profile_evidence",
+  "source_files": ["profile.json"],
+  "created_at": "2026-05-16T10:00:00Z",
+  "summary": {},
+  "series": {},
+  "tables": {
+    "profile_samples": [
+      {
+        "runtime": "jvm",
+        "language": "java",
+        "labels": { "trace_id": "trace-demo-1", "service": "order-service" },
+        "stack": "OrderController.get;OrderRepository.findById;SocketInputStream.read",
+        "samples": 42
+      }
+    ]
+  },
+  "charts": {},
+  "metadata": {}
+}

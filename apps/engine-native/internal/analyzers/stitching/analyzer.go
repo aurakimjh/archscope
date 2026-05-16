@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 )
@@ -13,7 +15,8 @@ import (
 const ResultType = "stitched_evidence"
 
 type Options struct {
-	TopN int
+	TopN              int
+	TimeWindowSeconds int
 }
 
 type rawResult struct {
@@ -69,8 +72,12 @@ func Build(results []rawResult, opts Options) models.AnalysisResult {
 	if topN <= 0 {
 		topN = 100
 	}
+	windowSeconds := opts.TimeWindowSeconds
+	if windowSeconds <= 0 {
+		windowSeconds = 60
+	}
 	nodes := collectNodes(results, topN*20)
-	matches, matchedIDs := buildMatches(nodes, topN)
+	matches, matchedIDs, drilldowns := buildMatches(nodes, topN, windowSeconds)
 	gaps := buildGaps(nodes, matchedIDs, topN)
 	edges := serviceDependencies(matches, nodes, topN)
 
@@ -81,6 +88,9 @@ func Build(results []rawResult, opts Options) models.AnalysisResult {
 		"evidence_node_count":           len(nodes),
 		"correlation_key_count":         countCorrelationKeys(nodes),
 		"matched_group_count":           len(matches),
+		"advanced_match_count":          countAdvancedMatches(matches),
+		"time_window_match_count":       countMatchesByReason(matches, "time_window_service_alias"),
+		"trace_profile_link_count":      countTraceProfileLinks(matches),
 		"gap_count":                     len(gaps),
 		"missing_trace_id_count":        countGaps(gaps, "MISSING_TRACE_ID"),
 		"dropped_parent_span_count":     countGaps(gaps, "DROPPED_PARENT_SPAN"),
@@ -88,9 +98,11 @@ func Build(results []rawResult, opts Options) models.AnalysisResult {
 		"unmatched_database_call_count": countGaps(gaps, "UNMATCHED_DATABASE_CALL"),
 		"unmatched_broker_event_count":  countGaps(gaps, "UNMATCHED_BROKER_EVENT"),
 		"service_dependency_count":      len(edges),
+		"time_window_seconds":           windowSeconds,
 	}
 	result.Series = map[string]any{
 		"matches_by_key_kind":          rowsFromCounts(matchKeyKindCounts(matches), "key_kind", topN),
+		"matches_by_reason":            rowsFromCounts(matchReasonCounts(matches), "match_reason", topN),
 		"gaps_by_code":                 rowsFromCounts(gapCodeCounts(gaps), "code", topN),
 		"source_type_distribution":     rowsFromCounts(sourceTypeCounts(nodes), "source_type", topN),
 		"correlation_key_distribution": rowsFromCounts(correlationKindCounts(nodes), "key_kind", topN),
@@ -99,11 +111,16 @@ func Build(results []rawResult, opts Options) models.AnalysisResult {
 		"matches":              matches,
 		"gaps":                 gaps,
 		"evidence_nodes":       nodeRows(nodes, topN),
+		"match_drilldowns":     drilldowns,
 		"service_dependencies": edges,
 	}
 	result.Metadata.SchemaVersion = "0.1.0"
 	result.Metadata.Extra["input_result_types"] = resultTypes(results)
-	result.Metadata.Extra["correlation_key_model"] = []string{"trace_id", "span_id", "parent_span_id", "request_id", "correlation_id", "txid", "tenant_id", "customer_id", "pod", "container", "host", "pid"}
+	result.Metadata.Extra["correlation_key_model"] = []string{"trace_id", "span_id", "parent_span_id", "request_id", "correlation_id", "txid", "tenant_id", "customer_id", "pod", "container", "host", "pid", "profile_label.trace_id"}
+	result.Metadata.Extra["advanced_matching"] = map[string]any{
+		"time_window_seconds": windowSeconds,
+		"service_aliases":     []string{"-service", "-svc", "-deployment", "pod replica suffixes", "database:/broker: prefixes"},
+	}
 	addFindings(&result)
 	return result
 }
@@ -142,8 +159,8 @@ func collectNodes(results []rawResult, limit int) []evidenceNode {
 					Table:       table,
 					RowIndex:    rowIndex,
 					Timestamp:   firstValue(row, "timestamp", "time", "start_time", "startTime"),
-					Service:     normalizeName(firstValue(row, "service", "service_name", "service.name", "caller", "application", "app")),
-					Target:      normalizeName(firstValue(row, "callee", "target", "database", "broker", "upstream_service", "resource")),
+					Service:     canonicalServiceName(firstValue(row, "service", "service_name", "service.name", "caller", "application", "app", "runtime")),
+					Target:      canonicalServiceName(firstValue(row, "callee", "target", "database", "broker", "upstream_service", "resource")),
 					Message:     firstValue(row, "message", "uri", "path", "fingerprint", "query", "statement", "event_type", "span_name", "name"),
 					EvidenceRef: fmt.Sprintf("tables.%s[%d]", table, rowIndex),
 					Keys:        collectKeys(row),
@@ -172,23 +189,30 @@ func isRelevantTable(resultType, table string, row map[string]any) bool {
 		return table == "events" || table == "service_dependencies"
 	case "trace_import":
 		return table == "spans" || table == "service_dependencies" || table == "critical_paths"
+	case "profile_evidence":
+		return table == "profile_samples"
 	default:
 		return false
 	}
 }
 
-func buildMatches(nodes []evidenceNode, limit int) ([]map[string]any, map[string]bool) {
+type matchItem struct {
+	key           key
+	nodes         []evidenceNode
+	reason        string
+	confidence    float64
+	aliasReason   string
+	windowSeconds int
+}
+
+func buildMatches(nodes []evidenceNode, limit int, windowSeconds int) ([]map[string]any, map[string]bool, []map[string]any) {
 	buckets := map[string][]evidenceNode{}
 	for _, node := range nodes {
 		for _, key := range node.Keys {
 			buckets[key.Kind+"\x00"+key.Value] = append(buckets[key.Kind+"\x00"+key.Value], node)
 		}
 	}
-	type item struct {
-		key   key
-		nodes []evidenceNode
-	}
-	var items []item
+	var items []matchItem
 	for bucketKey, bucket := range buckets {
 		sourceTypes := map[string]bool{}
 		for _, node := range bucket {
@@ -198,9 +222,19 @@ func buildMatches(nodes []evidenceNode, limit int) ([]map[string]any, map[string
 			continue
 		}
 		parts := strings.SplitN(bucketKey, "\x00", 2)
-		items = append(items, item{key: key{Kind: parts[0], Value: parts[1]}, nodes: bucket})
+		reason := "exact_correlation_key"
+		confidence := 0.95
+		if parts[0] == "trace_id" && bucketHasType(bucket, "profile_evidence") {
+			reason = "trace_profile_label"
+			confidence = 0.98
+		}
+		items = append(items, matchItem{key: key{Kind: parts[0], Value: parts[1]}, nodes: bucket, reason: reason, confidence: confidence})
 	}
+	items = append(items, buildTimeWindowMatches(nodes, buckets, windowSeconds, limit)...)
 	sort.SliceStable(items, func(i, j int) bool {
+		if items[i].confidence != items[j].confidence {
+			return items[i].confidence > items[j].confidence
+		}
 		if len(items[i].nodes) != len(items[j].nodes) {
 			return len(items[i].nodes) > len(items[j].nodes)
 		}
@@ -214,23 +248,187 @@ func buildMatches(nodes []evidenceNode, limit int) ([]map[string]any, map[string
 	}
 	matchedIDs := map[string]bool{}
 	rows := make([]map[string]any, 0, len(items))
+	drilldowns := make([]map[string]any, 0, len(items))
 	for index, item := range items {
 		for _, node := range item.nodes {
 			matchedIDs[node.ID] = true
 		}
+		matchID := fmt.Sprintf("match-%d", index+1)
 		rows = append(rows, map[string]any{
-			"id":            fmt.Sprintf("match-%d", index+1),
-			"key_kind":      item.key.Kind,
-			"key_value":     item.key.Value,
-			"event_count":   len(item.nodes),
-			"source_types":  uniqueNodeTypes(item.nodes),
-			"evidence_refs": evidenceRefs(item.nodes),
-			"first_seen":    minTimestamp(item.nodes),
-			"last_seen":     maxTimestamp(item.nodes),
-			"services":      uniqueNodeServices(item.nodes),
+			"id":                  matchID,
+			"key_kind":            item.key.Kind,
+			"key_value":           item.key.Value,
+			"match_reason":        item.reason,
+			"confidence":          item.confidence,
+			"alias_reason":        item.aliasReason,
+			"time_window_seconds": item.windowSeconds,
+			"event_count":         len(item.nodes),
+			"source_types":        uniqueNodeTypes(item.nodes),
+			"evidence_refs":       evidenceRefs(item.nodes),
+			"first_seen":          minTimestamp(item.nodes),
+			"last_seen":           maxTimestamp(item.nodes),
+			"services":            uniqueNodeServices(item.nodes),
+		})
+		drilldowns = append(drilldowns, map[string]any{
+			"match_id":            matchID,
+			"match_reason":        item.reason,
+			"confidence":          item.confidence,
+			"alias_reason":        item.aliasReason,
+			"time_window_seconds": item.windowSeconds,
+			"source_node_ids":     nodeIDs(item.nodes),
+			"evidence_refs":       evidenceRefs(item.nodes),
+			"raw_sources":         nodeRows(item.nodes, 0),
 		})
 	}
-	return rows, matchedIDs
+	return rows, matchedIDs, drilldowns
+}
+
+func buildTimeWindowMatches(nodes []evidenceNode, buckets map[string][]evidenceNode, windowSeconds, limit int) []matchItem {
+	if windowSeconds <= 0 {
+		return nil
+	}
+	exactPairs := exactPairSet(buckets)
+	seenPairs := map[string]bool{}
+	window := time.Duration(windowSeconds) * time.Second
+	items := make([]matchItem, 0)
+	for i := 0; i < len(nodes); i++ {
+		leftTime, ok := parseNodeTime(nodes[i].Timestamp)
+		if !ok {
+			continue
+		}
+		for j := i + 1; j < len(nodes); j++ {
+			if nodes[i].ResultType == nodes[j].ResultType {
+				continue
+			}
+			pairID := pairKey(nodes[i].ID, nodes[j].ID)
+			if exactPairs[pairID] || seenPairs[pairID] {
+				continue
+			}
+			rightTime, ok := parseNodeTime(nodes[j].Timestamp)
+			if !ok || absDuration(leftTime.Sub(rightTime)) > window {
+				continue
+			}
+			aliasReason, aliasName := serviceAliasReason(nodes[i], nodes[j])
+			if aliasReason == "" {
+				continue
+			}
+			seenPairs[pairID] = true
+			confidence := 0.72
+			if aliasName != "" && (nodes[i].Service == aliasName || nodes[j].Service == aliasName) {
+				confidence = 0.76
+			}
+			items = append(items, matchItem{
+				key:           key{Kind: "time_window", Value: timeWindowKeyValue(nodes[i], nodes[j], aliasName)},
+				nodes:         []evidenceNode{nodes[i], nodes[j]},
+				reason:        "time_window_service_alias",
+				confidence:    confidence,
+				aliasReason:   aliasReason,
+				windowSeconds: windowSeconds,
+			})
+			if limit > 0 && len(items) >= limit {
+				return items
+			}
+		}
+	}
+	return items
+}
+
+func exactPairSet(buckets map[string][]evidenceNode) map[string]bool {
+	out := map[string]bool{}
+	for _, bucket := range buckets {
+		if len(bucket) < 2 {
+			continue
+		}
+		for i := 0; i < len(bucket); i++ {
+			for j := i + 1; j < len(bucket); j++ {
+				out[pairKey(bucket[i].ID, bucket[j].ID)] = true
+			}
+		}
+	}
+	return out
+}
+
+func pairKey(left, right string) string {
+	if left > right {
+		left, right = right, left
+	}
+	return left + "\x00" + right
+}
+
+func parseNodeTime(value string) (time.Time, bool) {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return time.Time{}, false
+	}
+	for _, layout := range []string{
+		time.RFC3339Nano,
+		time.RFC3339,
+		"2006-01-02T15:04:05.000",
+		"2006-01-02T15:04:05",
+		"2006-01-02 15:04:05.000",
+		"2006-01-02 15:04:05",
+	} {
+		parsed, err := time.Parse(layout, value)
+		if err == nil {
+			return parsed.UTC(), true
+		}
+	}
+	number, err := strconv.ParseFloat(value, 64)
+	if err != nil {
+		return time.Time{}, false
+	}
+	switch {
+	case number > 1_000_000_000_000:
+		return time.UnixMilli(int64(number)).UTC(), true
+	case number > 1_000_000_000:
+		return time.Unix(int64(number), 0).UTC(), true
+	default:
+		return time.Time{}, false
+	}
+}
+
+func absDuration(value time.Duration) time.Duration {
+	if value < 0 {
+		return -value
+	}
+	return value
+}
+
+func serviceAliasReason(left, right evidenceNode) (string, string) {
+	leftNames := nodeAliasNames(left)
+	rightNames := nodeAliasNames(right)
+	for name := range leftNames {
+		if rightNames[name] {
+			return "service_alias:" + name, name
+		}
+	}
+	return "", ""
+}
+
+func nodeAliasNames(node evidenceNode) map[string]bool {
+	names := map[string]bool{}
+	addAliasName(names, node.Service)
+	addAliasName(names, node.Target)
+	for _, key := range node.Keys {
+		if key.Kind == "pod" || key.Kind == "container" {
+			addAliasName(names, key.Value)
+		}
+	}
+	return names
+}
+
+func addAliasName(names map[string]bool, value string) {
+	value = canonicalServiceName(value)
+	if value != "" {
+		names[value] = true
+	}
+}
+
+func timeWindowKeyValue(left, right evidenceNode, aliasName string) string {
+	service := firstNonEmpty(aliasName, left.Service, left.Target, right.Service, right.Target, "service")
+	first := minTimestamp([]evidenceNode{left, right})
+	last := maxTimestamp([]evidenceNode{left, right})
+	return service + "@" + first + ".." + last
 }
 
 func buildGaps(nodes []evidenceNode, matchedIDs map[string]bool, limit int) []map[string]any {
@@ -298,6 +496,7 @@ func serviceDependencies(matches []map[string]any, nodes []evidenceNode, limit i
 		callCount      int
 		refs           []string
 		keyKinds       []string
+		matchReasons   []string
 	}
 	edges := map[string]*edge{}
 	for _, match := range matches {
@@ -331,6 +530,7 @@ func serviceDependencies(matches []map[string]any, nodes []evidenceNode, limit i
 			item.callCount++
 			item.refs = append(item.refs, refs...)
 			item.keyKinds = append(item.keyKinds, str(match["key_kind"]))
+			item.matchReasons = append(item.matchReasons, firstNonEmpty(str(match["match_reason"]), "exact_correlation_key"))
 		}
 	}
 	rows := make([]map[string]any, 0, len(edges))
@@ -341,9 +541,10 @@ func serviceDependencies(matches []map[string]any, nodes []evidenceNode, limit i
 			"call_count":    item.callCount,
 			"error_count":   0,
 			"error_rate":    0,
-			"match_status":  "stitched",
+			"match_status":  stitchedMatchStatus(item.matchReasons),
 			"evidence_refs": uniqueStrings(item.refs),
 			"key_kinds":     uniqueStrings(item.keyKinds),
+			"match_reasons": uniqueStrings(item.matchReasons),
 		})
 	}
 	sort.SliceStable(rows, func(i, j int) bool {
@@ -353,6 +554,21 @@ func serviceDependencies(matches []map[string]any, nodes []evidenceNode, limit i
 		rows = rows[:limit]
 	}
 	return rows
+}
+
+func stitchedMatchStatus(reasons []string) string {
+	unique := uniqueStrings(reasons)
+	for _, reason := range unique {
+		if reason == "time_window_service_alias" {
+			return "stitched_time_window"
+		}
+	}
+	for _, reason := range unique {
+		if reason == "trace_profile_label" {
+			return "stitched_trace_profile"
+		}
+	}
+	return "stitched"
 }
 
 func collectKeys(row map[string]any) []key {
@@ -372,16 +588,26 @@ func collectKeys(row map[string]any) []key {
 	}
 	var keys []key
 	seen := map[string]bool{}
+	addKey := func(kind, value string) {
+		value = strings.TrimSpace(value)
+		if value == "" {
+			return
+		}
+		id := kind + "\x00" + value
+		if !seen[id] {
+			keys = append(keys, key{Kind: kind, Value: value})
+			seen[id] = true
+		}
+	}
 	for kind, names := range aliases {
 		for _, name := range names {
-			value := firstValue(row, name)
-			if value == "" {
-				continue
-			}
-			id := kind + "\x00" + value
-			if !seen[id] {
-				keys = append(keys, key{Kind: kind, Value: value})
-				seen[id] = true
+			addKey(kind, firstValue(row, name))
+		}
+	}
+	if labels := stringAnyMap(row["labels"]); len(labels) > 0 {
+		for kind, names := range aliases {
+			for _, name := range names {
+				addKey(kind, firstValue(labels, name))
 			}
 		}
 	}
@@ -421,6 +647,7 @@ func nodeRows(nodes []evidenceNode, limit int) []map[string]any {
 			"message":      node.Message,
 			"evidence_ref": node.EvidenceRef,
 			"correlation":  keysAsRows(node.Keys),
+			"raw_row":      node.Row,
 		})
 	}
 	return rows
@@ -460,6 +687,14 @@ func matchKeyKindCounts(rows []map[string]any) map[string]int {
 	return counts
 }
 
+func matchReasonCounts(rows []map[string]any) map[string]int {
+	counts := map[string]int{}
+	for _, row := range rows {
+		counts[str(row["match_reason"])]++
+	}
+	return counts
+}
+
 func gapCodeCounts(rows []map[string]any) map[string]int {
 	counts := map[string]int{}
 	for _, row := range rows {
@@ -494,6 +729,70 @@ func countGaps(rows []map[string]any, code string) int {
 		}
 	}
 	return count
+}
+
+func countAdvancedMatches(rows []map[string]any) int {
+	count := 0
+	for _, row := range rows {
+		if reason := str(row["match_reason"]); reason != "" && reason != "exact_correlation_key" {
+			count++
+		}
+	}
+	return count
+}
+
+func countMatchesByReason(rows []map[string]any, reason string) int {
+	count := 0
+	for _, row := range rows {
+		if str(row["match_reason"]) == reason {
+			count++
+		}
+	}
+	return count
+}
+
+func countTraceProfileLinks(rows []map[string]any) int {
+	count := 0
+	for _, row := range rows {
+		if str(row["match_reason"]) == "trace_profile_label" {
+			count++
+			continue
+		}
+		if str(row["key_kind"]) != "trace_id" {
+			continue
+		}
+		hasProfile := false
+		hasTraceLike := false
+		for _, sourceType := range stringSlice(row["source_types"]) {
+			switch sourceType {
+			case "profile_evidence":
+				hasProfile = true
+			case "trace_import", "access_log":
+				hasTraceLike = true
+			}
+		}
+		if hasProfile && hasTraceLike {
+			count++
+		}
+	}
+	return count
+}
+
+func bucketHasType(nodes []evidenceNode, resultType string) bool {
+	for _, node := range nodes {
+		if node.ResultType == resultType {
+			return true
+		}
+	}
+	return false
+}
+
+func nodeIDs(nodes []evidenceNode) []string {
+	values := make([]string, 0, len(nodes))
+	for _, node := range nodes {
+		values = append(values, node.ID)
+	}
+	return values
 }
 
 func rowsFromCounts(counts map[string]int, key string, limit int) []map[string]any {
@@ -617,6 +916,21 @@ func stringSlice(v any) []string {
 	}
 }
 
+func stringAnyMap(value any) map[string]any {
+	switch typed := value.(type) {
+	case map[string]any:
+		return typed
+	case map[string]string:
+		out := make(map[string]any, len(typed))
+		for key, value := range typed {
+			out[key] = value
+		}
+		return out
+	default:
+		return nil
+	}
+}
+
 func str(v any) string {
 	switch value := v.(type) {
 	case string:
@@ -652,6 +966,65 @@ func normalizeName(value string) string {
 	value = strings.ReplaceAll(value, "_", "-")
 	value = strings.Join(strings.Fields(value), "-")
 	return strings.ToLower(value)
+}
+
+func canonicalServiceName(value string) string {
+	value = normalizeName(value)
+	if value == "" {
+		return ""
+	}
+	for _, prefix := range []string{"database:", "db:", "broker:", "topic:", "queue:", "service:"} {
+		value = strings.TrimPrefix(value, prefix)
+	}
+	value = stripKubernetesReplicaSuffix(value)
+	for _, suffix := range []string{"-service", "-svc", "-deployment", "-deploy"} {
+		if strings.HasSuffix(value, suffix) && len(value) > len(suffix)+1 {
+			value = strings.TrimSuffix(value, suffix)
+			break
+		}
+	}
+	return value
+}
+
+func stripKubernetesReplicaSuffix(value string) string {
+	parts := strings.Split(value, "-")
+	if len(parts) >= 3 && isKubernetesToken(parts[len(parts)-1]) && isKubernetesToken(parts[len(parts)-2]) {
+		return strings.Join(parts[:len(parts)-2], "-")
+	}
+	if len(parts) >= 2 && isSmallInteger(parts[len(parts)-1]) {
+		return strings.Join(parts[:len(parts)-1], "-")
+	}
+	return value
+}
+
+func isKubernetesToken(value string) bool {
+	if len(value) < 5 || len(value) > 12 {
+		return false
+	}
+	hasDigit := false
+	for _, ch := range value {
+		if ch >= '0' && ch <= '9' {
+			hasDigit = true
+			continue
+		}
+		if ch >= 'a' && ch <= 'z' {
+			continue
+		}
+		return false
+	}
+	return hasDigit
+}
+
+func isSmallInteger(value string) bool {
+	if len(value) == 0 || len(value) > 3 {
+		return false
+	}
+	for _, ch := range value {
+		if ch < '0' || ch > '9' {
+			return false
+		}
+	}
+	return true
 }
 
 func firstNonEmpty(values ...string) string {

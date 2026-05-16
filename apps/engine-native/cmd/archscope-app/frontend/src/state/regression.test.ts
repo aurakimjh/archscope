@@ -316,17 +316,35 @@ assert(
 );
 
 const stitched = entry("stitched-1", "stitched_evidence", {
+  summary: {
+    matched_group_count: 2,
+    advanced_match_count: 1,
+    time_window_match_count: 1,
+    trace_profile_link_count: 1,
+    gap_count: 1,
+  },
   tables: {
     gaps: [{ code: "UNMATCHED_DATABASE_CALL", severity: "warning", message: "db call unmatched", timestamp: "2026-05-16T10:00:00Z" }],
-    matches: [{ key_kind: "trace_id", event_count: 3, first_seen: "2026-05-16T10:00:00Z", last_seen: "2026-05-16T10:00:01Z" }],
-    service_dependencies: [{ caller: "order-service", callee: "database:shop", call_count: 1, match_status: "stitched" }],
+    matches: [
+      { key_kind: "trace_id", match_reason: "trace_profile_label", confidence: 0.98, event_count: 3, first_seen: "2026-05-16T10:00:00Z", last_seen: "2026-05-16T10:00:01Z" },
+      { key_kind: "time_window", match_reason: "time_window_service_alias", confidence: 0.76, event_count: 2, first_seen: "2026-05-16T10:00:10Z", last_seen: "2026-05-16T10:00:35Z" },
+    ],
+    service_dependencies: [{ caller: "order-service", callee: "database:shop", call_count: 1, match_status: "stitched_time_window" }],
   },
 });
 assert(
   buildIncidentTimelineEvents([stitched]).some((event) => event.label === "UNMATCHED_DATABASE_CALL"),
   "stitched evidence gaps should feed Incident Timeline",
 );
+assert(
+  buildIncidentTimelineEvents([stitched]).some((event) => event.label === "TIME_WINDOW_STITCH"),
+  "advanced stitched matches should feed Incident Timeline",
+);
 assert(buildServiceFlowAnalysis([stitched]).edge_model.edge_count === 1, "stitched dependencies should feed Service Flow");
+assert(
+  buildGoldenSignalInventory([stitched]).signals.some((signal) => signal.name === "Time-window stitched matches"),
+  "advanced stitched summaries should feed Golden Signals",
+);
 
 const aiResult = entry("ai-1", "jfr_recording", {
   tables: {

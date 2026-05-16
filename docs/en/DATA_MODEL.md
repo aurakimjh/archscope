@@ -352,16 +352,20 @@ while `metadata.flamegraph_rollup` records the collapsed-stack rollup source.
 
 Stitched evidence reads existing `AnalysisResult` JSON files and joins rows by
 correlation keys: trace ID, span ID, parent span ID, request/correlation ID,
-TXID/GUID, tenant/customer ID, pod/container/host, and PID.
+TXID/GUID, tenant/customer ID, pod/container/host, and PID. It can also create
+lower-confidence matches from timestamp windows plus normalized service aliases,
+and it links `profile_evidence` samples to traces when profile labels carry
+trace metadata.
 
 Core tables:
 
 | Field | Row shape |
 |---|---|
-| `matches` | `{ key_kind, key_value, event_count, source_types, evidence_refs, first_seen, last_seen, services }` |
+| `matches` | `{ key_kind, key_value, match_reason, confidence, alias_reason, time_window_seconds, event_count, source_types, evidence_refs, first_seen, last_seen, services }` |
 | `gaps` | `{ code, severity, message, source_type, evidence_ref, timestamp, service, correlation }` |
-| `evidence_nodes` | Normalized source rows with source type, table, timestamp, service, target, message, evidence ref, and correlation keys |
-| `service_dependencies` | Stitched service edges for Service Flow when database/broker evidence matches request or trace evidence |
+| `evidence_nodes` | Normalized source rows with source type, table, timestamp, service, target, message, evidence ref, correlation keys, and the bounded raw row |
+| `match_drilldowns` | Drilldown-ready match rows with confidence, reason, source node IDs, evidence refs, and raw source rows |
+| `service_dependencies` | Stitched service edges for Service Flow when database/broker evidence matches request or trace evidence, including match status and match reasons |
 
 Gap finding codes include `MISSING_TRACE_ID`, `DROPPED_PARENT_SPAN`,
 `UNMATCHED_REQUEST_LOG`, `UNMATCHED_DATABASE_CALL`, and

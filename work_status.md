@@ -393,13 +393,13 @@ filtered before analysis.
 | T-546 | P2 | [x] | Generate Deployment View draft inputs from Kubernetes/platform, cloud audit, host/container, and service metadata evidence. | T-543, T-519 | Completed 2026-05-17: deployment rows preserve namespace, workload/pod, container, node, image, and platform risk hints |
 | T-547 | P1 | [x] | Generate Quality Requirement and Risk sections from deterministic findings across latency, errors, saturation, security, and correlation gaps. | T-543, T-542, T-531 | Completed 2026-05-17: quality requirements and risks are derived from deterministic findings with severity, impact, mitigation, and evidence refs |
 | T-548 | P2 | [x] | Add ADR draft rows with decision, context, alternatives, tradeoffs, consequences, and evidence references. | T-543, architecture evidence | Completed 2026-05-17: ADR draft rows are generated from highest-priority risk and quality evidence |
-| T-549 | P1 | [ ] | Enhance evidence stitching with timestamp-window matching so nearby records can correlate even when only request/service identity is shared. | T-529 |  |
-| T-550 | P1 | [ ] | Add service alias normalization for gateway, database, broker, Kubernetes workload, and application naming variants in stitched evidence. | T-549, T-531 |  |
-| T-551 | P2 | [ ] | Add trace-profile linkage by joining profile evidence with trace/service/runtime labels when correlation metadata is present. | T-549, T-528 |  |
-| T-552 | P2 | [ ] | Add stitched drilldown tables for match confidence, time-window reason, alias reason, and raw evidence references. | T-549, T-550, T-551 |  |
-| T-553 | P2 | [ ] | Surface advanced stitched-evidence signals in Incident Timeline, Service Flow, and Golden Signals. | T-552 |  |
-| T-554 | P2 | [ ] | Add a stitched-evidence detail view or drilldown-ready state projection for the desktop UI. | T-552 |  |
-| T-555 | P2 | [ ] | Update English/Korean docs, examples, and support matrix for architecture docs and advanced stitching work. | T-543 through T-554 |  |
+| T-549 | P1 | [x] | Enhance evidence stitching with timestamp-window matching so nearby records can correlate even when only request/service identity is shared. | T-529 | Completed 2026-05-17: `stitch analyze` adds configurable timestamp-window matching with `time_window_service_alias` match rows |
+| T-550 | P1 | [x] | Add service alias normalization for gateway, database, broker, Kubernetes workload, and application naming variants in stitched evidence. | T-549, T-531 | Completed 2026-05-17: service aliases normalize service/svc/deployment suffixes, database/broker prefixes, and Kubernetes pod replica suffixes |
+| T-551 | P2 | [x] | Add trace-profile linkage by joining profile evidence with trace/service/runtime labels when correlation metadata is present. | T-549, T-528 | Completed 2026-05-17: `profile_evidence.profile_samples.labels.trace_id` participates in trace/profile stitching |
+| T-552 | P2 | [x] | Add stitched drilldown tables for match confidence, time-window reason, alias reason, and raw evidence references. | T-549, T-550, T-551 | Completed 2026-05-17: `match_drilldowns` preserves confidence, reason, alias, source node IDs, evidence refs, and bounded raw source rows |
+| T-553 | P2 | [x] | Surface advanced stitched-evidence signals in Incident Timeline, Service Flow, and Golden Signals. | T-552 | Completed 2026-05-17: time-window and trace-profile matches feed Incident Timeline labels, Service Flow match status, and Golden Signal summaries |
+| T-554 | P2 | [x] | Add a stitched-evidence detail view or drilldown-ready state projection for the desktop UI. | T-552 | Completed 2026-05-17: desktop state can drill from match events into `match_drilldowns` and raw source node rows |
+| T-555 | P2 | [x] | Update English/Korean docs, examples, and support matrix for architecture docs and advanced stitching work. | T-543 through T-554 | Completed 2026-05-17: updated data model, parser design, roadmap, importer matrix, and stitching examples |
 
 ## Verification Notes
 
