@@ -149,6 +149,17 @@ Guiding principles:
   series, GC alerts, JFR pause/notable events, exception rows, thread-dump
   contention/deadlock tables, and trace-import errors/critical paths.
 
+### SLO and Golden Signals MVP
+
+- Golden Signals inventory across access logs, trace import, Jennifer MSA,
+  exceptions, GC, JFR, thread dumps, and JVM metadata/runtime signals.
+- Normalized SLI metric model for latency, traffic, errors, and saturation.
+- Session-window SLO target evaluation with default latency, error-rate, GC
+  pause/throughput, OOM, deadlock, trace-integrity, and MSA network-gap targets.
+- Wails SLO / Golden Signals page under Workspace with signal inventory, SLI
+  metrics, SLO violations, affected-scope breakdowns, error-budget burn rows,
+  and Evidence Board capture for SLO violations.
+
 ### Evidence-Bound AI Interpretation
 
 - Go implementation under `apps/engine-native/internal/aiinterpretation`.
@@ -180,8 +191,10 @@ These items should stay aligned with `work_status.md`.
    - Connect AI interpretation to the board only after evidence-reference
      integrity checks pass.
 
-3. Promote the next Evidence Studio batch after the Incident Timeline MVP.
-   - Candidate tracks are SLO/Golden Signals and unified Service Flow.
+3. Promote the next Evidence Studio batch after the Incident Timeline and
+   SLO/Golden Signals MVPs.
+   - The next candidate track is unified Service Flow, followed by report packs
+     and evidence-gated AI interpretation productization.
    - Keep Jaeger and SkyWalking compatibility fixtures representative as real
      customer exports become available.
 
@@ -198,11 +211,14 @@ These items should stay aligned with `work_status.md`.
 
 ### SLO and Golden Signals
 
-- Build a golden-signals inventory across access logs, trace import, Jennifer
-  MSA, exceptions, GC, JFR, thread dumps, and JVM signals.
-- Define SLI metrics for latency, traffic, errors, and saturation.
-- Add SLO target configuration, violating-window detection, error-budget burn
-  tables, and affected service/endpoint breakdowns.
+- Promote the Wails session SLO / Golden Signals projection into an
+  engine-level or exportable `AnalysisResult` when report packs need persisted
+  SLO data.
+- Add user-editable SLO target presets and per-customer threshold profiles.
+- Add true time-window SLO evaluation from source series where analyzers expose
+  enough timestamped data, while keeping the current session aggregate view.
+- Feed SLO violations and budget rows into report packs without hiding raw
+  signal evidence.
 
 ### Service Flow and MSA Topology
 

@@ -142,6 +142,18 @@ finding을 확인하고, 근거를 수집하고, 고객 데이터 외부 전송 
   pause/notable event, exception row, thread-dump contention/deadlock table,
   trace-import error/critical path를 timeline event로 매핑한다.
 
+### SLO 및 Golden Signals MVP
+
+- Access log, trace import, Jennifer MSA, exception, GC, JFR, thread dump,
+  JVM metadata/runtime signal을 포함하는 Golden Signals inventory.
+- Latency, traffic, errors, saturation에 대한 정규화된 SLI metric model.
+- 기본 latency, error-rate, GC pause/throughput, OOM, deadlock,
+  trace-integrity, MSA network-gap target을 적용하는 session-window SLO
+  평가.
+- Workspace 하위 Wails SLO / Golden Signals page에서 signal inventory, SLI
+  metric, SLO violation, affected-scope breakdown, error-budget burn row,
+  SLO violation의 Evidence Board capture를 제공한다.
+
 ### 증거 기반 AI 보조 해석
 
 - `apps/engine-native/internal/aiinterpretation` 아래 Go 구현.
@@ -174,8 +186,10 @@ finding을 확인하고, 근거를 수집하고, 고객 데이터 외부 전송 
    - Evidence-reference integrity check가 통과한 뒤에만 AI interpretation을
      board와 연결한다.
 
-3. Incident Timeline MVP 이후 다음 Evidence Studio batch를 승격한다.
-   - 후보 track은 SLO/Golden Signals와 unified Service Flow다.
+3. Incident Timeline 및 SLO/Golden Signals MVP 이후 다음 Evidence Studio
+   batch를 승격한다.
+   - 다음 후보 track은 unified Service Flow이며, 이후 report pack과
+     evidence-gated AI interpretation productization을 진행한다.
    - 실제 customer export가 확보되면 Jaeger와 SkyWalking compatibility
      fixture가 대표성을 유지하는지 계속 검증한다.
 
@@ -191,11 +205,14 @@ finding을 확인하고, 근거를 수집하고, 고객 데이터 외부 전송 
 
 ### SLO 및 Golden Signals
 
-- Access log, trace import, Jennifer MSA, exception, GC, JFR, thread dump, JVM
-  signal을 대상으로 golden signals inventory를 만든다.
-- Latency, traffic, errors, saturation에 대한 SLI metric을 정의한다.
-- SLO target config, violating-window detection, error-budget burn table,
-  affected service/endpoint breakdown을 추가한다.
+- Report pack에서 persisted SLO data가 필요해지면 Wails session SLO /
+  Golden Signals projection을 engine-level 또는 exportable `AnalysisResult`로
+  승격한다.
+- 사용자 편집 가능한 SLO target preset과 고객별 threshold profile을 추가한다.
+- Analyzer가 충분한 timestamp series를 제공하는 경우 true time-window SLO
+  evaluation을 추가하되, 현재 session aggregate view도 유지한다.
+- Raw signal evidence를 숨기지 않는 방식으로 SLO violation과 budget row를
+  report pack에 연결한다.
 
 ### Service Flow 및 MSA Topology
 

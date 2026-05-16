@@ -65,6 +65,11 @@ const IncidentTimelinePage = lazy(() =>
     default: IncidentTimelinePage,
   })),
 );
+const SloGoldenSignalsPage = lazy(() =>
+  import("./pages/SloGoldenSignalsPage").then(({ SloGoldenSignalsPage }) => ({
+    default: SloGoldenSignalsPage,
+  })),
+);
 const AccessLogAnalyzerPage = lazy(() =>
   import("./pages/AccessLogAnalyzerPage").then(({ AccessLogAnalyzerPage }) => ({
     default: AccessLogAnalyzerPage,
@@ -187,6 +192,7 @@ function App() {
             {active === "report_diff" && <ReportDiffPage />}
             {active === "chart_studio" && <ChartStudioPage />}
             {active === "incident_timeline" && <IncidentTimelinePage />}
+            {active === "slo_golden_signals" && <SloGoldenSignalsPage />}
             {active === "evidence_board" && <EvidenceBoardPage />}
             {active === "settings" && <SettingsPage />}
           </Suspense>

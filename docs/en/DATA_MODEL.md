@@ -554,6 +554,90 @@ Current event sources include analyzer findings, access-log error/latency
 series, GC alerts, JFR pause/notable events, exception rows, thread-dump
 contention/deadlock tables, and trace-import error/critical-path rows.
 
+## SLO and Golden Signals Projection
+
+The first SLO / Golden Signals implementation is a Wails session projection
+built from Analysis Workspace results. It does not replace analyzer-owned
+`AnalysisResult` output; it normalizes existing metrics into signal, SLI, and
+SLO views.
+
+`GoldenSignal` fields:
+
+```text
+id
+kind                  latency | traffic | errors | saturation
+name
+value
+unit
+aggregation
+scope_type            global | service | endpoint | edge | runtime | thread | trace | jvm
+scope
+source_analyzer
+source_result_id
+source_title
+source_file
+evidence_ref
+payload
+tags
+```
+
+`SliMetric` groups compatible Golden Signals by kind, name, unit, aggregation,
+scope type, and scope:
+
+```text
+id
+metric_key
+kind
+name
+value
+unit
+aggregation
+scope_type
+scope
+source_analyzers
+source_result_ids
+evidence_refs
+signal_ids
+contributor_count
+tags
+```
+
+`SloViolation` fields:
+
+```text
+id
+target_id
+target_name
+severity
+metric_id
+metric_key
+metric_name
+kind
+actual
+threshold
+comparator
+unit
+window_label
+delta
+ratio_to_threshold
+burn_rate
+error_budget_consumed_percent
+error_budget_remaining_percent
+affected_scope_type
+affected_scope
+source_analyzers
+source_result_ids
+evidence_refs
+tags
+```
+
+Current Golden Signal sources include access-log latency/throughput/error
+metrics, trace-import service/dependency/critical-path metrics, Jennifer MSA
+external-call and network-gap metrics, exception distributions, GC pause,
+memory-space, OOM and long-pause alerts, JFR pause/sample/thread metrics,
+thread-dump lock/contention/deadlock metrics, and JVM metadata such as heap and
+worker counts.
+
 ## AI Interpretation Contract
 
 AI interpretation does not replace `AnalysisResult`. It is a separate `InterpretationResult` linked back to a source result.

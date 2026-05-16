@@ -3,6 +3,7 @@ export type EvidenceSourceKind =
   | "chart_selection"
   | "table_row"
   | "timeline_event"
+  | "slo_violation"
   | "parser_diagnostic"
   | "source_metadata";
 

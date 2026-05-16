@@ -18,7 +18,7 @@ The previous long-form history was archived to
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
 - Current execution focus: executing the promoted mid-term Evidence Studio
-  roadmap TODOs after the Wails Incident Timeline MVP.
+  roadmap TODOs after the Wails Incident Timeline and SLO/Golden Signals MVPs.
 - Retired implementation: Python/FastAPI/browser sources are archived under
   `archive/python-engine` and `archive/web-frontend-python`.
 - Historical native POC module has been folded into `apps/engine-native`.
@@ -110,6 +110,9 @@ The previous long-form history was archived to
   English/Korean data-model and roadmap documents.
 - Added the Wails Incident Timeline MVP with a common session event model,
   cross-analyzer event mapping, filtering, and Evidence Board capture.
+- Added the Wails SLO / Golden Signals MVP with session-wide signal inventory,
+  SLI metric normalization, default SLO target evaluation, violation/error
+  budget tables, affected-scope breakdowns, and Evidence Board capture.
 
 ## Current Risk
 
@@ -172,9 +175,9 @@ filtered before analysis.
 
 ## Next Execution Queue
 
-1. Start the promoted mid-term Evidence Studio batch with SLO/Golden Signals,
-   then unified Service Flow, report packs, and AI interpretation
-   productization.
+1. Continue the promoted mid-term Evidence Studio batch with unified Service
+   Flow, report packs, and AI interpretation productization after the
+   SLO/Golden Signals MVP.
 2. Keep release verification healthy before the next 0.3.x cut by repeating
    Windows GUI smoke, macOS signing/notarization validation, and frontend
    bundle budget checks.
@@ -211,7 +214,7 @@ filtered before analysis.
 | T-437 | P1 | [x] | Build a Golden Signals inventory across access logs, trace import, Jennifer MSA, exceptions, GC, JFR, thread dumps, and JVM signals. | T-425, T-433 | Completed 2026-05-16: session-wide Golden Signals inventory model |
 | T-438 | P1 | [x] | Define SLI metrics for latency, traffic, errors, and saturation from the Golden Signals inventory. | T-437 | Completed 2026-05-16: normalized latency, traffic, error, and saturation SLI metric model |
 | T-439 | P1 | [x] | Add SLO target configuration, violating-window detection, error-budget burn tables, and affected service/endpoint breakdowns. | T-438 | Completed 2026-05-16: session SLO targets, violations, error-budget, and affected-scope breakdowns |
-| T-440 | P1 | [ ] | Add a Wails SLO / Golden Signals workspace page with signal inventory, SLO violations, and Evidence Board capture. | T-437, T-438, T-439 | Planned: desktop SLO and Golden Signals workflow |
+| T-440 | P1 | [x] | Add a Wails SLO / Golden Signals workspace page with signal inventory, SLO violations, and Evidence Board capture. | T-437, T-438, T-439 | Completed 2026-05-16: desktop SLO / Golden Signals workspace workflow |
 | T-441 | P1 | [ ] | Unify Jennifer MSA topology and trace-import dependency models. | T-427, T-430 | Planned: shared service-flow input model |
 | T-442 | P1 | [ ] | Define a common service-edge schema with caller, callee, call count, average/max/total latency, error count, and network gap. | T-441 | Planned: normalized service-edge contract |
 | T-443 | P1 | [ ] | Normalize unmatched calls, missing parents, and network gaps into service-edge findings. | T-442 | Planned: deterministic service-flow findings |
@@ -345,6 +348,11 @@ filtered before analysis.
   `npm run build`. Startup shell chunk is 160.48 KB raw / 51.79 KB gzip; the
   lazy shared ECharts runtime is 689.89 KB raw / 229.50 KB gzip and remains
   under the documented 700 KB chart-runtime budget.
+- 2026-05-16 Wails frontend verification passed after T-437 through T-440:
+  `npm run build`. Startup shell chunk is 161.04 KB raw / 51.95 KB gzip; the
+  SLO / Golden Signals page is a lazy 41.99 KB raw / 9.17 KB gzip route chunk,
+  and the lazy shared ECharts runtime remains 689.89 KB raw / 229.50 KB gzip.
+  `git diff --check` passed.
 
 ## Decisions
 

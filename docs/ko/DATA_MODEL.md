@@ -696,6 +696,89 @@ payload
 alert, JFR pause/notable event, exception row, thread-dump contention/deadlock
 table, trace-import error/critical-path row를 포함한다.
 
+## SLO 및 Golden Signals Projection
+
+첫 SLO / Golden Signals 구현은 Analysis Workspace 결과로부터 만든 Wails
+session projection이다. Analyzer가 소유한 `AnalysisResult` 출력을 대체하지
+않고, 기존 metric을 signal, SLI, SLO view로 정규화한다.
+
+`GoldenSignal` fields:
+
+```text
+id
+kind                  latency | traffic | errors | saturation
+name
+value
+unit
+aggregation
+scope_type            global | service | endpoint | edge | runtime | thread | trace | jvm
+scope
+source_analyzer
+source_result_id
+source_title
+source_file
+evidence_ref
+payload
+tags
+```
+
+`SliMetric`은 kind, name, unit, aggregation, scope type, scope가 호환되는
+Golden Signal을 묶는다.
+
+```text
+id
+metric_key
+kind
+name
+value
+unit
+aggregation
+scope_type
+scope
+source_analyzers
+source_result_ids
+evidence_refs
+signal_ids
+contributor_count
+tags
+```
+
+`SloViolation` fields:
+
+```text
+id
+target_id
+target_name
+severity
+metric_id
+metric_key
+metric_name
+kind
+actual
+threshold
+comparator
+unit
+window_label
+delta
+ratio_to_threshold
+burn_rate
+error_budget_consumed_percent
+error_budget_remaining_percent
+affected_scope_type
+affected_scope
+source_analyzers
+source_result_ids
+evidence_refs
+tags
+```
+
+현재 Golden Signal source는 access-log latency/throughput/error metric,
+trace-import service/dependency/critical-path metric, Jennifer MSA external-call
+및 network-gap metric, exception distribution, GC pause, memory-space, OOM 및
+long-pause alert, JFR pause/sample/thread metric, thread-dump
+lock/contention/deadlock metric, heap 및 worker count 같은 JVM metadata를
+포함한다.
+
 ## AI Interpretation Contract
 
 AI interpretation은 `AnalysisResult`를 대체하지 않는다. Source result에 연결된 별도 `InterpretationResult`로 취급한다.

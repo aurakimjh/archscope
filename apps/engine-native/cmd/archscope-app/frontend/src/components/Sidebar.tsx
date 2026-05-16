@@ -17,6 +17,7 @@ import {
   Cpu,
   Download,
   FileSearch,
+  Gauge,
   GitCompareArrows,
   Info,
   Network,
@@ -52,6 +53,7 @@ export type NavKey =
   | "report_diff"
   | "chart_studio"
   | "incident_timeline"
+  | "slo_golden_signals"
   | "evidence_board"
   | "settings";
 
@@ -72,6 +74,7 @@ const NAV_ICONS: Record<NavKey, NavIcon> = {
   report_diff: GitCompareArrows,
   chart_studio: BarChart3,
   incident_timeline: Clock3,
+  slo_golden_signals: Gauge,
   evidence_board: ClipboardList,
   settings: Settings,
 };
@@ -150,6 +153,7 @@ export function Sidebar({ active, onNavigate }: SidebarProps) {
     { key: "report_diff", label: t("navReportDiff") },
     { key: "chart_studio", label: t("navChartStudio") },
     { key: "incident_timeline", label: t("navIncidentTimeline") },
+    { key: "slo_golden_signals", label: t("navSloGoldenSignals") },
     { key: "evidence_board", label: t("navEvidenceBoard") },
   ];
   const topLevelItems: { key: NavKey; label: string }[] = [
