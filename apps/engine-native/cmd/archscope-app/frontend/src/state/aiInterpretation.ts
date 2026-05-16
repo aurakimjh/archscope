@@ -22,6 +22,7 @@ export type AiFinding = {
   id: string;
   label: string;
   severity: AiSeverity;
+  raw_severity?: string;
   generated_by: string;
   model?: string;
   summary: string;
@@ -30,6 +31,22 @@ export type AiFinding = {
   evidence_quotes?: Record<string, string>;
   confidence?: number;
   limitations: string[];
+};
+
+export type AiEvaluationGate = {
+  valid: boolean;
+  gate_status: "passed" | "blocked" | "not_present" | "disabled";
+  total_findings: number;
+  valid_findings: number;
+  rejected_findings: number;
+  evidence_integrity_ratio: number;
+  issue_codes: string[];
+  issues: Array<{
+    code: string;
+    message: string;
+    finding_id?: string;
+    evidence_ref?: string;
+  }>;
 };
 
 export type AiInterpretationResult = {
@@ -139,7 +156,8 @@ function normalizeAiFinding(value: unknown, index: number, fallbackModel?: strin
     id,
     label,
     severity: normalizeSeverity(stringValue(value.severity)),
-    generated_by: stringValue(value.generated_by) ?? "ai",
+    raw_severity: stringValue(value.severity),
+    generated_by: stringValue(value.generated_by) ?? "",
     model: stringValue(value.model) ?? fallbackModel,
     summary,
     reasoning: stringValue(value.reasoning),
@@ -147,6 +165,103 @@ function normalizeAiFinding(value: unknown, index: number, fallbackModel?: strin
     evidence_quotes: stringRecord(value.evidence_quotes),
     confidence: numberValue(value.confidence),
     limitations,
+  };
+}
+
+export function evaluateAiInterpretation(
+  result: WorkspaceAnalysisResult | null | undefined,
+  interpretation: AiInterpretationResult | null = extractAiInterpretation(result),
+): AiEvaluationGate {
+  if (!interpretation) {
+    return emptyGate("not_present");
+  }
+  if (interpretation.disabled) {
+    return emptyGate("disabled");
+  }
+  const evidence = buildEvidenceMap(result);
+  const issues: AiEvaluationGate["issues"] = [];
+  if (interpretation.schema_version !== "0.1.0") {
+    issues.push({ code: "SCHEMA_VERSION", message: "schema_version must be 0.1.0" });
+  }
+  for (const finding of interpretation.findings) {
+    if (finding.generated_by !== "ai") {
+      issues.push({
+        code: "GENERATED_BY_REQUIRED",
+        message: "generated_by must be ai",
+        finding_id: finding.id,
+      });
+    }
+    if (!validSeverity(finding.raw_severity)) {
+      issues.push({
+        code: "SEVERITY_INVALID",
+        message: "severity must be info, warning, or critical",
+        finding_id: finding.id,
+      });
+    }
+    if (finding.confidence === undefined || finding.confidence < 0 || finding.confidence > 1) {
+      issues.push({
+        code: "CONFIDENCE_INVALID",
+        message: "confidence must be a number between 0 and 1",
+        finding_id: finding.id,
+      });
+    } else if (finding.confidence < 0.3) {
+      issues.push({
+        code: "CONFIDENCE_TOO_LOW",
+        message: "confidence must be at least 0.3",
+        finding_id: finding.id,
+      });
+    }
+    if (finding.evidence_refs.length === 0) {
+      issues.push({
+        code: "EVIDENCE_REFS_REQUIRED",
+        message: "evidence_refs must be a non-empty array",
+        finding_id: finding.id,
+      });
+    }
+    for (const ref of finding.evidence_refs) {
+      if (!parseEvidenceRef(ref)) {
+        issues.push({
+          code: "EVIDENCE_REF_GRAMMAR",
+          message: "invalid evidence_ref grammar",
+          finding_id: finding.id,
+          evidence_ref: ref,
+        });
+        continue;
+      }
+      const sourceText = evidence.get(ref);
+      if (!sourceText) {
+        issues.push({
+          code: "EVIDENCE_REF_UNKNOWN",
+          message: "evidence_ref is not present in the input evidence set",
+          finding_id: finding.id,
+          evidence_ref: ref,
+        });
+        continue;
+      }
+      const quote = finding.evidence_quotes?.[ref];
+      if (quote && !normalizeText(sourceText).includes(normalizeText(quote))) {
+        issues.push({
+          code: "EVIDENCE_QUOTE_MISMATCH",
+          message: "evidence quote is not present in source evidence",
+          finding_id: finding.id,
+          evidence_ref: ref,
+        });
+      }
+    }
+  }
+  const total = interpretation.findings.length;
+  const evidenceIssueCount = issues.filter((issue) => isEvidenceIssue(issue.code)).length;
+  const evidenceIntegrityRatio = total > 0 ? Math.max(0, 1 - evidenceIssueCount / total) : 1;
+  const valid = issues.length === 0;
+  return {
+    valid,
+    gate_status: valid ? "passed" : "blocked",
+    total_findings: total,
+    valid_findings: valid ? total : 0,
+    rejected_findings: valid ? 0 : total,
+    evidence_integrity_ratio: evidenceIntegrityRatio,
+    issue_codes: Array.from(new Set(issues.map((issue) => issue.code))).sort(),
+    issues,
   };
 }
 
@@ -164,6 +279,23 @@ function normalizeSeverity(value: string | undefined): AiSeverity {
     default:
       return "info";
   }
+}
+
+function validSeverity(value: string | undefined): boolean {
+  return value === "info" || value === "warning" || value === "critical";
+}
+
+function emptyGate(status: AiEvaluationGate["gate_status"]): AiEvaluationGate {
+  return {
+    valid: false,
+    gate_status: status,
+    total_findings: 0,
+    valid_findings: 0,
+    rejected_findings: 0,
+    evidence_integrity_ratio: 0,
+    issue_codes: [],
+    issues: [],
+  };
 }
 
 function arrayValue(value: unknown): unknown[] {
@@ -190,4 +322,48 @@ function stringRecord(value: unknown): Record<string, string> | undefined {
     .map(([key, item]) => [key, stringValue(item)] as const)
     .filter((entry): entry is readonly [string, string] => Boolean(entry[1]));
   return entries.length > 0 ? Object.fromEntries(entries) : undefined;
+}
+
+function buildEvidenceMap(result: WorkspaceAnalysisResult | null | undefined): Map<string, string> {
+  const evidence = new Map<string, string>();
+  collectEvidence(result, evidence);
+  return evidence;
+}
+
+function collectEvidence(value: unknown, evidence: Map<string, string>): void {
+  if (Array.isArray(value)) {
+    for (const item of value) collectEvidence(item, evidence);
+    return;
+  }
+  if (!isPlainObject(value)) return;
+  const ref = stringValue(value.evidence_ref);
+  if (ref) {
+    evidence.set(ref, evidenceText(value, ref));
+  }
+  for (const child of Object.values(value)) collectEvidence(child, evidence);
+}
+
+function evidenceText(value: Record<string, unknown>, fallback: string): string {
+  for (const key of ["message", "summary", "text", "description", "event_type", "thread", "signature"]) {
+    const text = stringValue(value[key]);
+    if (text) return text;
+  }
+  return fallback;
+}
+
+function parseEvidenceRef(value: string): boolean {
+  return /^[a-z][a-z0-9_]*:[a-z][a-z0-9_]*:[A-Za-z0-9_.-]+$/.test(value.trim());
+}
+
+function normalizeText(value: string): string {
+  return value.split(/\s+/).filter(Boolean).join(" ").toLowerCase();
+}
+
+function isEvidenceIssue(code: string): boolean {
+  return (
+    code === "EVIDENCE_REFS_REQUIRED" ||
+    code === "EVIDENCE_REF_GRAMMAR" ||
+    code === "EVIDENCE_REF_UNKNOWN" ||
+    code === "EVIDENCE_QUOTE_MISMATCH"
+  );
 }

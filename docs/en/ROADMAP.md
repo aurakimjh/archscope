@@ -267,6 +267,8 @@ These items should stay aligned with `work_status.md`.
   confidence, reasoning, limitations, and evidence references.
 - Add evaluation gates using golden diagnostics, evidence-reference integrity,
   quote-to-source matching, low-confidence filtering, and hallucination review.
+  The Go validator and Wails workspace gate now block malformed, low-confidence,
+  unknown-reference, and quote-mismatched AI output.
 - Connect AI interpretation to Evidence Board and report generation only when
   every generated claim has valid evidence references.
 

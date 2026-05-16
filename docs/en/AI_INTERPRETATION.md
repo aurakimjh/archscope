@@ -90,6 +90,14 @@ The active implementation includes code-level guardrails under
 
 Low-confidence output is rejected below the initial threshold of `0.3`. Partial invalid responses are treated conservatively: invalid findings are not displayed, and a validation failure should be surfaced as an engine/UI message.
 
+The Go validator now treats the following as blocking gate failures:
+invalid schema version, missing finding shape fields, non-`ai` `generated_by`,
+unsupported severity, confidence outside `0..1`, confidence below `0.3`,
+missing or malformed evidence references, unknown evidence references, and
+quote-to-source mismatches. The Wails UI computes and displays the same gate
+status for workspace results so blocked AI output is visible as provenance
+instead of being treated as deterministic analysis.
+
 ## Local LLM / Ollama Layer
 
 The first implementation should target an optional local provider such as Ollama. No cloud model call should be required for normal operation.

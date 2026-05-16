@@ -4,6 +4,7 @@ import { useI18n } from "@/i18n/I18nProvider";
 import { cn } from "@/lib/utils";
 import type { WorkspaceAnalysisResult } from "@/state/analysisWorkspace";
 import {
+  evaluateAiInterpretation,
   extractAiInterpretation,
   extractAiInterpretationProvenance,
   type AiFinding,
@@ -63,6 +64,7 @@ export function AiInterpretationFindingsPanel({
   const { t } = useI18n();
   const interpretation = extractAiInterpretation(result);
   if (!interpretation || interpretation.disabled || interpretation.findings.length === 0) return null;
+  const gate = evaluateAiInterpretation(result, interpretation);
   return (
     <section className="rounded-md border border-sky-200 bg-sky-50/80 p-3 text-sm dark:border-sky-900 dark:bg-sky-950/20">
       <header className="mb-3 flex flex-wrap items-center justify-between gap-2">
@@ -74,6 +76,26 @@ export function AiInterpretationFindingsPanel({
           {t("aiAssisted")}
         </span>
       </header>
+      <div className="mb-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+        <span
+          className={cn(
+            "rounded border px-2 py-0.5 font-medium",
+            gate.valid
+              ? "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-200"
+              : "border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200",
+          )}
+        >
+          {gate.valid ? t("aiGatePassed") : t("aiGateBlocked")}
+        </span>
+        <span>
+          {t("aiEvidenceIntegrity")}: {Math.round(gate.evidence_integrity_ratio * 100)}%
+        </span>
+        {gate.issue_codes.length > 0 && (
+          <span>
+            {t("aiGateIssues")}: {gate.issue_codes.join(", ")}
+          </span>
+        )}
+      </div>
       <div className="space-y-2">
         {interpretation.findings.map((finding) => (
           <AiFindingCard key={finding.id} finding={finding} />

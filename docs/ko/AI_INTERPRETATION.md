@@ -88,6 +88,14 @@ code-level guardrail을 포함한다.
 
 초기 low-confidence threshold는 `0.3`이다. Partial invalid response는 보수적으로 처리한다. Invalid finding은 표시하지 않으며 validation failure는 engine/UI message로 노출해야 한다.
 
+Go validator는 invalid schema version, finding shape field 누락,
+`generated_by != "ai"`, 지원하지 않는 severity, `0..1` 범위를 벗어난
+confidence, `0.3` 미만 confidence, 누락/잘못된 evidence reference, unknown
+evidence reference, quote-to-source mismatch를 blocking gate failure로
+처리한다. Wails UI도 workspace result에 같은 gate status를 계산해 표시하므로
+차단된 AI output은 deterministic analysis가 아니라 provenance/quality 상태로
+보인다.
+
 ## Prompt 예시
 
 아래는 access log 분석 결과에 대해 AI interpretation을 요청하는 prompt 구조 예시이다.

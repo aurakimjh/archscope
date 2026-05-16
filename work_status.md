@@ -227,7 +227,7 @@ filtered before analysis.
 | T-447 | P2 | [x] | Support customer-facing summaries without hiding raw evidence behind conclusions. | T-445, T-446 | Completed 2026-05-16: evidence-linked customer summary with raw evidence appendix |
 | T-448 | P2 | [x] | Surface AI interpretation provenance in the UI. | AI interpretation module, T-425 | Completed 2026-05-16: Analysis Workspace AI provenance status with provider/model/prompt metadata |
 | T-449 | P2 | [x] | Keep AI findings visually separate from deterministic findings. | T-448 | Completed 2026-05-16: separate AI-assisted findings panel with confidence, reasoning, limitations, and evidence refs |
-| T-450 | P1 | [ ] | Add AI evaluation gates using golden diagnostics, evidence-reference integrity, quote-to-source matching, low-confidence filtering, and hallucination review. | T-448, T-449 | Planned: AI interpretation quality gate |
+| T-450 | P1 | [x] | Add AI evaluation gates using golden diagnostics, evidence-reference integrity, quote-to-source matching, low-confidence filtering, and hallucination review. | T-448, T-449 | Completed 2026-05-16: Go/UI AI gate for schema, evidence refs, quote matching, confidence, and hallucinated refs |
 | T-451 | P1 | [ ] | Connect AI interpretation to Evidence Board and report generation only when every generated claim has valid evidence references. | T-446, T-450 | Planned: evidence-gated AI report integration |
 
 ## Verification Notes
@@ -372,6 +372,13 @@ filtered before analysis.
   `npm run build`. Startup shell chunk is 161.45 KB raw / 52.06 KB gzip; the
   Analysis Workspace page is a lazy 10.15 KB raw / 3.15 KB gzip route chunk,
   and the lazy shared ECharts runtime remains 689.89 KB raw / 229.50 KB gzip.
+- 2026-05-16 AI interpretation gate verification passed after T-450:
+  `env GOCACHE=/tmp/archscope-go-cache go test ./internal/aiinterpretation`
+  passed under `apps/engine-native`; loopback permission was required for the
+  existing Ollama `httptest` client case. Wails frontend `npm run build` also
+  passed. Startup shell chunk is 161.45 KB raw / 52.05 KB gzip; the Analysis
+  Workspace page is a lazy 13.42 KB raw / 4.20 KB gzip route chunk, and the
+  lazy shared ECharts runtime remains 689.89 KB raw / 229.50 KB gzip.
 
 ## Decisions
 
