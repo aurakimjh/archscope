@@ -69,6 +69,9 @@ Wails Analysis Workspace는 result에 `metadata.ai_interpretation`,
 interpretation provenance를 표시한다. UI는 provider, model, prompt version,
 generated time, disabled state, finding count, 기본 compatibility warning을
 노출하되 AI output을 deterministic analyzer finding과 섞지 않는다.
+AI finding이 존재하면 workspace는 confidence, reasoning, limitation,
+evidence reference를 포함한 별도 AI-assisted panel에 표시해 deterministic
+analyzer finding과 시각적으로 구분한다.
 
 ## Runtime Enforcement
 

@@ -262,7 +262,9 @@ These items should stay aligned with `work_status.md`.
 - Surface AI interpretation provenance in the UI. The Analysis Workspace now
   shows provider/model/prompt metadata when a result carries AI interpretation
   metadata.
-- Keep AI findings visually separate from deterministic findings.
+- Keep AI findings visually separate from deterministic findings. The Analysis
+  Workspace renders AI findings in a separate AI-assisted panel with
+  confidence, reasoning, limitations, and evidence references.
 - Add evaluation gates using golden diagnostics, evidence-reference integrity,
   quote-to-source matching, low-confidence filtering, and hallucination review.
 - Connect AI interpretation to Evidence Board and report generation only when

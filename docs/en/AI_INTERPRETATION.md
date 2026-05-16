@@ -69,6 +69,10 @@ contains `metadata.ai_interpretation`, `metadata.interpretation`, or
 `metadata.ai_provenance`. The UI exposes provider, model, prompt version,
 generation time, disabled state, finding count, and basic compatibility
 warnings without merging AI output into deterministic analyzer findings.
+When AI findings are present, the workspace renders them in a separate
+AI-assisted panel with confidence, reasoning, limitations, and evidence
+references so they remain visually distinct from deterministic analyzer
+findings.
 
 ## Runtime Enforcement
 

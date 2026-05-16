@@ -3,7 +3,12 @@ import { BrainCircuit } from "lucide-react";
 import { useI18n } from "@/i18n/I18nProvider";
 import { cn } from "@/lib/utils";
 import type { WorkspaceAnalysisResult } from "@/state/analysisWorkspace";
-import { extractAiInterpretationProvenance } from "@/state/aiInterpretation";
+import {
+  extractAiInterpretation,
+  extractAiInterpretationProvenance,
+  type AiFinding,
+  type AiSeverity,
+} from "@/state/aiInterpretation";
 
 type AiInterpretationSummaryProps = {
   result: WorkspaceAnalysisResult | null | undefined;
@@ -50,10 +55,94 @@ export function AiInterpretationSummary({
   );
 }
 
+export function AiInterpretationFindingsPanel({
+  result,
+}: {
+  result: WorkspaceAnalysisResult | null | undefined;
+}): JSX.Element | null {
+  const { t } = useI18n();
+  const interpretation = extractAiInterpretation(result);
+  if (!interpretation || interpretation.disabled || interpretation.findings.length === 0) return null;
+  return (
+    <section className="rounded-md border border-sky-200 bg-sky-50/80 p-3 text-sm dark:border-sky-900 dark:bg-sky-950/20">
+      <header className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <BrainCircuit className="h-4 w-4 text-sky-700 dark:text-sky-300" />
+          <h3 className="text-sm font-semibold text-foreground">{t("aiFindingsTitle")}</h3>
+        </div>
+        <span className="rounded border border-sky-300 bg-background/80 px-2 py-0.5 text-xs font-medium text-sky-900 dark:border-sky-800 dark:text-sky-100">
+          {t("aiAssisted")}
+        </span>
+      </header>
+      <div className="space-y-2">
+        {interpretation.findings.map((finding) => (
+          <AiFindingCard key={finding.id} finding={finding} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function Pill({ label, value }: { label: string; value: string }): JSX.Element {
   return (
     <span className="rounded border border-current/20 bg-background/70 px-1.5 py-0.5">
       {label}: <span className="font-mono">{value}</span>
     </span>
   );
+}
+
+function AiFindingCard({ finding }: { finding: AiFinding }): JSX.Element {
+  const { t } = useI18n();
+  return (
+    <article className="rounded border border-sky-200 bg-background p-3 dark:border-sky-900">
+      <div className="mb-2 flex flex-wrap items-center gap-2">
+        <span className={severityClass(finding.severity)}>{finding.severity}</span>
+        <strong className="text-sm text-foreground">{finding.label}</strong>
+        {finding.confidence !== undefined && (
+          <span className="text-xs text-muted-foreground">
+            {t("aiConfidence")}: {Math.round(finding.confidence * 100)}%
+          </span>
+        )}
+        {finding.model && (
+          <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs text-muted-foreground">
+            {finding.model}
+          </span>
+        )}
+      </div>
+      <p className="text-sm text-foreground">{finding.summary}</p>
+      {finding.reasoning && (
+        <p className="mt-1 text-xs text-muted-foreground">
+          {t("aiReasoning")}: {finding.reasoning}
+        </p>
+      )}
+      {finding.evidence_refs.length > 0 && (
+        <div className="mt-2">
+          <span className="text-xs font-medium uppercase text-muted-foreground">{t("aiEvidenceRefs")}</span>
+          <div className="mt-1 flex flex-wrap gap-1">
+            {finding.evidence_refs.map((ref) => (
+              <code key={ref} className="rounded bg-muted px-1.5 py-0.5 text-xs">
+                {ref}
+              </code>
+            ))}
+          </div>
+        </div>
+      )}
+      {finding.limitations.length > 0 && (
+        <div className="mt-2 text-xs text-muted-foreground">
+          {t("aiLimitations")}: {finding.limitations.join(", ")}
+        </div>
+      )}
+    </article>
+  );
+}
+
+function severityClass(severity: AiSeverity): string {
+  switch (severity) {
+    case "critical":
+      return "rounded bg-red-100 px-1.5 py-0.5 text-xs font-semibold text-red-800 dark:bg-red-950 dark:text-red-200";
+    case "warning":
+      return "rounded bg-amber-100 px-1.5 py-0.5 text-xs font-semibold text-amber-800 dark:bg-amber-950 dark:text-amber-200";
+    default:
+      return "rounded bg-sky-100 px-1.5 py-0.5 text-xs font-semibold text-sky-800 dark:bg-sky-950 dark:text-sky-200";
+  }
 }

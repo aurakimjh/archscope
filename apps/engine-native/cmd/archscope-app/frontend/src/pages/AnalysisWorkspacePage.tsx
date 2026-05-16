@@ -1,6 +1,9 @@
 import { ClipboardPlus, FileText, Trash2 } from "lucide-react";
 
-import { AiInterpretationSummary } from "@/components/AiInterpretationPanel";
+import {
+  AiInterpretationFindingsPanel,
+  AiInterpretationSummary,
+} from "@/components/AiInterpretationPanel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useI18n } from "@/i18n/I18nProvider";
@@ -128,6 +131,7 @@ function WorkspaceResultCard({
           )}
         </div>
         <AiInterpretationSummary result={entry.result} />
+        <AiInterpretationFindingsPanel result={entry.result} />
       </CardContent>
     </Card>
   );

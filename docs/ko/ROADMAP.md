@@ -256,7 +256,9 @@ finding을 확인하고, 근거를 수집하고, 고객 데이터 외부 전송 
 - UI에 AI interpretation provenance를 표시한다. Analysis Workspace는 result가
   AI interpretation metadata를 포함할 때 provider/model/prompt metadata를
   표시한다.
-- AI finding을 deterministic finding과 시각적으로 분리한다.
+- AI finding을 deterministic finding과 시각적으로 분리한다. Analysis
+  Workspace는 confidence, reasoning, limitation, evidence reference를 포함한
+  별도 AI-assisted panel에 AI finding을 표시한다.
 - Golden diagnostics, evidence-reference integrity, quote-to-source matching,
   low-confidence filtering, hallucination review를 이용한 evaluation gate를
   추가한다.
