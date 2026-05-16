@@ -64,6 +64,11 @@ Source file을 다시 parse하지 않고 서버도 필요하지 않다.
 - HTML report: 수집된 evidence card를 정리한 static single-file report.
 - JSON evidence pack: `type = archscope_evidence_pack`, schema version, export
   timestamp, card count, card payload를 포함한다.
+- Report pack HTML: Evidence Board card와 session-derived Incident Timeline,
+  SLO, Service Flow artifact를 묶은 static report bundle view.
+- Report pack ZIP: 브라우저에서 생성하는 package이며 `index.html`,
+  `report-pack.json`, `evidence-cards.json`, `incident-timeline.json`,
+  `slo-analysis.json`, `service-flow.json`을 포함한다.
 
 이는 analyzer finding을 임시로 모아 보고서에 활용하는 현재 기능과 향후
 engine-level report pack workflow 사이의 단기 연결점이다.

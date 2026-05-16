@@ -66,6 +66,11 @@ re-parse source files and does not require a server:
 - HTML report: a static single-file summary of the collected evidence cards.
 - JSON evidence pack: `type = archscope_evidence_pack`, schema version, export
   timestamp, card count, and the card payloads.
+- Report pack HTML: a static report bundle view that combines Evidence Board
+  cards with session-derived Incident Timeline, SLO, and Service Flow artifacts.
+- Report pack ZIP: a browser-generated package containing `index.html`,
+  `report-pack.json`, `evidence-cards.json`, `incident-timeline.json`,
+  `slo-analysis.json`, and `service-flow.json`.
 
 This is the short-term bridge between ad-hoc analyzer findings and the planned
 engine-level report pack workflow.

@@ -245,8 +245,9 @@ These items should stay aligned with `work_status.md`.
 
 ### Reports and Evidence Packs
 
-- Generate report-ready HTML, ZIP, and eventually PPTX/PDF outputs from
-  Evidence Board content.
+- Generate report-ready HTML and ZIP outputs from Evidence Board content,
+  including session-derived Incident Timeline, SLO, and Service Flow artifacts.
+  Later phases may add PPTX/PDF.
 - Preserve source metadata, analyzer options, captured evidence, deterministic
   findings, and optional AI interpretation provenance.
 - Support customer-facing summaries without hiding the raw evidence behind

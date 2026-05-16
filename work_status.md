@@ -222,7 +222,7 @@ filtered before analysis.
 | T-442 | P1 | [x] | Define a common service-edge schema with caller, callee, call count, average/max/total latency, error count, and network gap. | T-441 | Completed 2026-05-16: normalized service-edge contract with latency, error, and network-gap aggregation |
 | T-443 | P1 | [x] | Normalize unmatched calls, missing parents, and network gaps into service-edge findings. | T-442 | Completed 2026-05-16: deterministic service-flow findings for unmatched calls, missing parents, and high network gaps |
 | T-444 | P2 | [x] | Add C4 dynamic view or sequence-like export for service-flow evidence. | T-442, T-443 | Completed 2026-05-16: Wails Service Flow page with Mermaid sequence-like and JSON export |
-| T-445 | P1 | [ ] | Generate report-ready HTML, ZIP, and later PPTX/PDF outputs from Evidence Board content. | T-423, T-434 preferred | Planned: report pack export workflow |
+| T-445 | P1 | [x] | Generate report-ready HTML, ZIP, and later PPTX/PDF outputs from Evidence Board content. | T-423, T-434 preferred | Completed 2026-05-16: Evidence Board report pack HTML/ZIP export with session artifacts |
 | T-446 | P1 | [ ] | Preserve source metadata, analyzer options, captured evidence, deterministic findings, and optional AI interpretation provenance in report packs. | T-445 | Planned: report pack provenance contract |
 | T-447 | P2 | [ ] | Support customer-facing summaries without hiding raw evidence behind conclusions. | T-445, T-446 | Planned: evidence-first customer report summary |
 | T-448 | P2 | [ ] | Surface AI interpretation provenance in the UI. | AI interpretation module, T-425 | Planned: visible AI provenance controls |

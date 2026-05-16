@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useI18n } from "@/i18n/I18nProvider";
+import { useAnalysisWorkspace } from "@/state/analysisWorkspace";
 import {
   clearEvidenceCards,
   exportEvidencePack,
@@ -12,9 +13,11 @@ import {
   removeEvidenceCard,
   type EvidenceCard,
 } from "@/state/evidenceBoard";
+import { exportReportPackHTML, exportReportPackZip } from "@/state/reportPack";
 
 export function EvidenceBoardPage(): JSX.Element {
   const { t } = useI18n();
+  const workspace = useAnalysisWorkspace();
   const [cards, setCards] = useState<EvidenceCard[]>(() => readEvidenceCards());
 
   useEffect(() => {
@@ -50,6 +53,26 @@ export function EvidenceBoardPage(): JSX.Element {
           >
             <Download className="mr-2 h-4 w-4" />
             {t("evidenceExportPack")}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={cards.length === 0}
+            onClick={() => exportReportPackHTML(cards, workspace.entries)}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            {t("reportPackExportHtml")}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={cards.length === 0}
+            onClick={() => {
+              void exportReportPackZip(cards, workspace.entries);
+            }}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            {t("reportPackExportZip")}
           </Button>
           <Button
             type="button"
