@@ -256,6 +256,9 @@ function eventsFromEntry(entry: AnalysisWorkspaceEntry): IncidentTimelineEvent[]
     case "broker_log":
       events.push(...eventsFromBroker(entry));
       break;
+    case "kubernetes_evidence":
+      events.push(...eventsFromPlatform(entry));
+      break;
   }
   return uniqueEvents(events).slice(0, MAX_EVENTS_PER_RESULT);
 }
@@ -392,6 +395,21 @@ function eventsFromBroker(entry: AnalysisWorkspaceEntry): IncidentTimelineEvent[
       category: stringValue(row.event_type) || "broker_event",
       label: stringValue(row.event_type)?.toUpperCase() || "BROKER_EVENT",
       description: stringValue(row.message) || "Broker evidence",
+      evidenceRef: "tables.events",
+      payload: row,
+      timeValue: row.timestamp,
+    }),
+  );
+}
+
+function eventsFromPlatform(entry: AnalysisWorkspaceEntry): IncidentTimelineEvent[] {
+  return arrayOfObjects(entry.result.tables?.events).map((row, index) =>
+    makeEvent(entry, {
+      idSuffix: `platform-${stringValue(row.reason) || stringValue(row.operation) || index}`,
+      severity: normalizeSeverity(stringValue(row.severity)),
+      category: stringValue(row.kind) || "platform_event",
+      label: stringValue(row.reason) || stringValue(row.operation) || "PLATFORM_EVENT",
+      description: stringValue(row.message) || stringValue(row.operation) || "Platform evidence",
       evidenceRef: "tables.events",
       payload: row,
       timeValue: row.timestamp,

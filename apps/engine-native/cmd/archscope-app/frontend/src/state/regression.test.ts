@@ -268,6 +268,21 @@ assert(
   "broker events should feed Incident Timeline",
 );
 
+const platform = entry("platform-1", "kubernetes_evidence", {
+  summary: { restart_count: 2, oom_killed_count: 1, security_event_count: 1 },
+  tables: {
+    events: [{ timestamp: "2026-05-16T10:00:00Z", severity: "ERROR", kind: "kubernetes_event", reason: "OOMKilled", message: "container killed" }],
+  },
+});
+assert(
+  buildIncidentTimelineEvents([platform]).some((event) => event.label === "OOMKilled"),
+  "platform evidence should feed Incident Timeline",
+);
+assert(
+  buildGoldenSignalInventory([platform]).signals.some((signal) => signal.name === "Kubernetes OOMKilled count"),
+  "platform evidence should feed Golden Signals",
+);
+
 const aiResult = entry("ai-1", "jfr_recording", {
   tables: {
     notable_events: [{ evidence_ref: "jfr:event:1", message: "GC pause 120ms" }],

@@ -82,6 +82,7 @@ import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/multithread"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/observability"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/otel"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/platform"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/profileclassification"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/runtime"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/serverlog"
@@ -223,6 +224,12 @@ var AnalyzeDatabaseLog = databaselog.Analyze
 type BrokerLogOptions = brokerlog.Options
 
 var AnalyzeBrokerLog = brokerlog.Analyze
+
+// ── Platform and cloud audit evidence ───────────────────────────────
+
+type PlatformOptions = platform.Options
+
+var AnalyzePlatform = platform.Analyze
 
 // ── External trace import ───────────────────────────────────────────
 

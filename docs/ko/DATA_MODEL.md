@@ -441,6 +441,21 @@ Finding code는 `BROKER_REBALANCE`, `BROKER_REPLICATION_ISSUE`,
 `BROKER_QUEUE_PRESSURE`, `BROKER_DEAD_LETTER`, `BROKER_HEALTH_EVENT`,
 `BROKER_SLOW_CONSUMER`, `BROKER_AUTHORIZATION_FAILURE`를 포함한다.
 
+### Kubernetes, Container, And Cloud Audit Evidence
+
+`type`: `kubernetes_evidence`
+
+Platform evidence contract는 cluster, namespace, workload, pod, container,
+node, image, restart count, owner-style object identity, kubelet 및
+container-runtime event, cloud audit actor/operation/resource field를 보존한다.
+지원 입력은 `kubectl get events -o json`, pod JSON, kubelet log,
+containerd/CRI-O/Docker daemon log, AWS CloudTrail JSON, GCP Cloud Audit Logging
+JSON, Azure Activity Logs JSON이다.
+
+Finding code는 `K8S_OOMKILLED`, `K8S_RESTARTS_PRESENT`, `K8S_EVICTION`,
+`K8S_SCHEDULING_ISSUE`, `K8S_IMAGE_PULL_ISSUE`, `K8S_READINESS_ISSUE`,
+`K8S_NODE_PRESSURE`, `CLOUD_AUDIT_SECURITY_EVENT`를 포함한다.
+
 ### Profiler Collapsed Result
 
 `type`: `profiler_collapsed`

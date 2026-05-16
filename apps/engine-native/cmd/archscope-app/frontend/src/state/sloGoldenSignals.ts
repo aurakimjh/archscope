@@ -758,6 +758,9 @@ function signalsFromEntry(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
     case "broker_log":
       signals = signalsFromBrokerLog(entry);
       break;
+    case "kubernetes_evidence":
+      signals = signalsFromPlatformEvidence(entry);
+      break;
     case "jfr_recording":
       signals = signalsFromJfr(entry);
       break;
@@ -1284,6 +1287,23 @@ function signalsFromBrokerLog(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
     scopeType: "runtime",
   });
   addSummary(out, entry, "dead_letter_count", "Broker dead-letter count", "errors", "count", "count", {
+    scopeType: "runtime",
+  });
+  return out;
+}
+
+function signalsFromPlatformEvidence(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
+  const out: GoldenSignal[] = [];
+  addSummary(out, entry, "restart_count", "Kubernetes restart count", "saturation", "count", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "oom_killed_count", "Kubernetes OOMKilled count", "errors", "count", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "node_pressure_count", "Kubernetes node pressure count", "saturation", "count", "count", {
+    scopeType: "runtime",
+  });
+  addSummary(out, entry, "security_event_count", "Cloud audit security event count", "errors", "count", "count", {
     scopeType: "runtime",
   });
   return out;

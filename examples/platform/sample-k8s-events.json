@@ -1,0 +1,14 @@
+{
+  "items": [
+    {
+      "type": "Warning",
+      "reason": "OOMKilled",
+      "message": "Container api was killed due to memory pressure",
+      "lastTimestamp": "2026-05-16T10:00:00Z",
+      "involvedObject": {
+        "namespace": "shop",
+        "name": "api-1"
+      }
+    }
+  ]
+}

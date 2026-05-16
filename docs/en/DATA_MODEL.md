@@ -297,6 +297,21 @@ Finding codes include `BROKER_REBALANCE`, `BROKER_REPLICATION_ISSUE`,
 `BROKER_QUEUE_PRESSURE`, `BROKER_DEAD_LETTER`, `BROKER_HEALTH_EVENT`,
 `BROKER_SLOW_CONSUMER`, and `BROKER_AUTHORIZATION_FAILURE`.
 
+### Kubernetes, Container, And Cloud Audit Evidence
+
+`type`: `kubernetes_evidence`
+
+The platform evidence contract preserves cluster, namespace, workload, pod,
+container, node, image, restart count, owner-style object identity, kubelet and
+container-runtime events, and cloud audit actor/operation/resource fields.
+Supported inputs include `kubectl get events -o json`, pod JSON, kubelet logs,
+containerd/CRI-O/Docker daemon logs, AWS CloudTrail JSON, GCP Cloud Audit Logging
+JSON, and Azure Activity Logs JSON.
+
+Finding codes include `K8S_OOMKILLED`, `K8S_RESTARTS_PRESENT`, `K8S_EVICTION`,
+`K8S_SCHEDULING_ISSUE`, `K8S_IMAGE_PULL_ISSUE`, `K8S_READINESS_ISSUE`,
+`K8S_NODE_PRESSURE`, and `CLOUD_AUDIT_SECURITY_EVENT`.
+
 ### Profiler Collapsed Result
 
 `type`: `profiler_collapsed`
