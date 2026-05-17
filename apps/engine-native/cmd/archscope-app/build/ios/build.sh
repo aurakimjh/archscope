@@ -4,8 +4,8 @@ set -e
 # Build configuration
 APP_NAME="archscope"
 BUNDLE_ID="com.archscope.app"
-VERSION="0.3.4"
-BUILD_NUMBER="0.3.4"
+VERSION="0.3.5"
+BUILD_NUMBER="0.3.5"
 BUILD_DIR="build/ios"
 TARGET="simulator"
 

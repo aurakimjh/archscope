@@ -6,6 +6,40 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.5] — 2026-05-17
+
+This release completes the Mid-Term Plus evidence-analysis wave with broader
+file-first importers, API/event contract analysis, architecture documentation
+drafts, and advanced cross-source stitching.
+
+### Added
+
+- Added shared ingestion foundations for evidence family boundaries,
+  source-format registry entries, golden fixture diagnostics, normalized source
+  metadata, and correlation-key modeling.
+- Added expanded file-first evidence coverage for access/edge logs, server
+  logs, observability exports, database slow-query evidence, broker evidence,
+  platform/cloud audit evidence, and unified runtime profile evidence.
+- Added `api_contract_analysis` with OpenAPI and AsyncAPI import, access-log
+  and broker evidence comparison, undocumented/unused surface detection, and
+  slow/high-error API findings.
+- Added `architecture_docs` drafts for arc42 Context, Runtime View, Deployment
+  View, quality requirements, risks, and ADR rows derived from existing
+  evidence results.
+- Added advanced `stitched_evidence` matching with timestamp windows, service
+  alias normalization, profile-label trace linkage, confidence metadata, and
+  drilldown-ready raw source rows.
+
+### Changed
+
+- Surfaced API contract and advanced stitched-evidence signals through
+  Incident Timeline, Service Flow, Golden Signals, generic Evidence Board, and
+  report-pack-compatible `AnalysisResult` paths.
+- Updated English/Korean data-model, parser-design, roadmap, importer support
+  matrix, and examples for the new contract, architecture, profile, platform,
+  and stitching analyzers.
+- Promoted app/package and desktop packaging metadata to `0.3.5`.
+
 ## [0.3.4] — 2026-05-16
 
 This stabilization release closes the mid-term roadmap review findings for the
@@ -587,6 +621,7 @@ Initial closed-development tag covering the original Electron + React
 desktop application with the Phase 1–3 backlog (T-001…T-179).
 Superseded by 0.2.0-alpha; no longer publicly distributed.
 
+[0.3.5]: https://github.com/aurakimjh/archscope/releases/tag/v0.3.5
 [0.3.4]: https://github.com/aurakimjh/archscope/releases/tag/v0.3.4
 [0.3.3]: https://github.com/aurakimjh/archscope/releases/tag/v0.3.3
 [0.3.2]: https://github.com/aurakimjh/archscope/releases/tag/v0.3.2

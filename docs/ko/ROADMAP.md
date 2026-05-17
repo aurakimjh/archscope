@@ -1,6 +1,6 @@
 # 로드맵
 
-Last updated: 2026-05-16
+Last updated: 2026-05-17
 
 이 문서는 현재 Go/Wails 기반 ArchScope 라인의 통합 제품 로드맵입니다. 기존
 phase 로드맵, 제품 확장 메모, APM import matrix, AI 보조 해석 설계를 한곳에
@@ -42,7 +42,7 @@ finding을 확인하고, 근거를 수집하고, 고객 데이터 외부 전송 
   frontend.
 - 활성 엔진: `apps/engine-native/internal` 아래 Go parser, analyzer, exporter,
   profiler, AI interpretation module.
-- Release baseline: stable `v0.3.4`.
+- Release baseline: stable `v0.3.5`.
 - Archive: Python/FastAPI/browser 소스는 `archive/` 아래 historical reference로만
   유지한다.
 

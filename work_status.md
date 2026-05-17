@@ -1,6 +1,6 @@
 # ArchScope Work Status
 
-Last updated: 2026-05-16
+Last updated: 2026-05-17
 
 This file is the current execution status for the active ArchScope product line.
 The previous long-form history was archived to
@@ -14,12 +14,12 @@ The previous long-form history was archived to
   `apps/engine-native/cmd/archscope-app/frontend`.
 - Active engine: Go parser/analyzer/exporter/AI interpretation modules under
   `apps/engine-native/internal`.
-- Release baseline: `v0.3.4` is the latest stable GitHub release. The
+- Release baseline: preparing `v0.3.5` as the latest stable GitHub release. The
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
-- Current execution focus: finish the remaining v0.3.6 access/edge-log
-  hardening tasks T-483 and T-484 after completing the T-473 through T-482
-  parser and projection coverage wave.
+- Current execution focus: `v0.3.5` release verification and publication after
+  completing the T-468 through T-555 ingestion, contract, architecture, and
+  stitching wave.
 - Retired implementation: Python/FastAPI/browser sources are archived under
   `archive/python-engine` and `archive/web-frontend-python`.
 - Historical native POC module has been folded into `apps/engine-native`.
@@ -122,6 +122,10 @@ The previous long-form history was archived to
 - Published the stable `v0.3.4` desktop release with Incident Timeline mapping
   fixes, AI gate hardening, SLO unit/deduplication fixes, report-pack ZIP path
   sanitization, derived export alignment, and frontend state regression tests.
+- Prepared the stable `v0.3.5` desktop release with Mid-Term Plus file-first
+  evidence importers, API/event contract analysis, architecture documentation
+  drafts, advanced stitching, app/package metadata updates, and changelog
+  notes.
 - Added the Mid-Term Plus shared ingestion foundations for `v0.3.5`: evidence
   family boundary specs, reusable source-format registry, golden fixture
   diagnostic harness, normalized source metadata, and cross-source correlation
@@ -581,6 +585,12 @@ filtered before analysis.
   `npm run test:state` passed for derived frontend state regressions,
   `npm run build` passed for the Wails frontend, and `git diff --check`
   passed. Frontend package/build metadata is set to 0.3.4.
+- 2026-05-17 `v0.3.5` release-prep verification passed:
+  `env GOCACHE=/tmp/archscope-go-cache go test ./...` passed under
+  `apps/engine-native` with the known macOS linker warning,
+  `npm run test:state` passed for derived frontend state regressions,
+  `npm run build` passed for the Wails frontend, and `git diff --check`
+  passed. Frontend package/build metadata is set to 0.3.5.
 - 2026-05-16 T-468 through T-472 verification passed:
   `env GOCACHE=/tmp/archscope-go-cache go test ./...` passed under
   `apps/engine-native` with the known macOS linker warning, and
