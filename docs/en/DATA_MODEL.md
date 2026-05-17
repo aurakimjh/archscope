@@ -29,32 +29,55 @@ AnalysisResult
 
 ## Contract Hardening Scope
 
-The first contract-hardening pass is limited to the analyzer result types that already exist in code:
+The active Go/Wails contract-hardening scope covers the analyzer and derived
+result types implemented in `apps/engine-native`:
 
 - `access_log`
-- `profiler_collapsed`
 - `gc_log`
+- `jfr_recording`
+- `native_memory`
 - `thread_dump`
+- `thread_dump_multi`
+- `thread_dump_locks`
 - `exception_stack`
 - `nodejs_stack`
 - `python_traceback`
 - `go_panic`
 - `dotnet_exception_iis`
 - `otel_logs`
+- `metrics_snapshot`
+- `observability_evidence`
+- `server_log`
+- `database_slow_query`
+- `broker_log`
+- `kubernetes_evidence`
+- `trace_import`
+- `profile_evidence`
+- `stitched_evidence`
+- `api_contract_analysis`
+- `architecture_docs`
+- `incident_timeline`
+- `slo_golden_signals`
+- `service_flow`
+- `jennifer_profile`
+- `profiler_collapsed`
+- `profiler_jennifer`
 - `comparison_report`
 
-The common `AnalysisResult` dataclass remains the outer transport model for now. The hardening layer adds type-specific contracts for the contents of `summary`, `series`, `tables`, and `metadata`.
+The Go `internal/models.AnalysisResult` struct is the outer transport model for
+new analyzer work. The hardening layer adds type-specific contracts for the
+contents of `summary`, `series`, `tables`, and `metadata`; frontend TypeScript
+interfaces mirror the same JSON envelope.
 
 ### Included In This Scope
 
-- Python `TypedDict` definitions for Access Log and Profiler result sections.
-- Matching TypeScript interfaces for renderer and chart code.
+- Go result contracts under `internal/models` and analyzer-specific packages.
+- Matching TypeScript interfaces for renderer, workspace, and chart code.
 - Required keys, value types, and units documented in this file.
 - `schema_version` retained in `metadata` for future migration.
 
 ### Excluded From This Scope
 
-- Full Pydantic model migration.
 - Runtime validation for every nested field.
 - Chart Studio template schema.
 - Dashboard sample data as a canonical contract. `dashboard_sample` is UI fixture data only.
@@ -78,7 +101,7 @@ series, or table contracts.
 
 | Field | Type | Meaning |
 |---|---|---|
-| `source_kind` | string | Evidence source family, such as `access_log`, `trace`, `server_log`, `database_log`, or `broker_log` |
+| `source_kind` | string | Evidence source family, such as `access_log`, `trace_import`, `server_log`, `database_slow_query`, or `broker_log` |
 | `source_format` | string | Detected or selected parser format |
 | `product` | string | Product or ecosystem name, such as nginx, OpenTelemetry, PostgreSQL, or Kafka |
 | `product_version` | string | Optional product version when the source exposes it |

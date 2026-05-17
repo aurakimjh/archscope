@@ -1,7 +1,7 @@
 # Importer Support Matrix
 
-이 문서는 Mid-Term Plus ingestion 라인에서 구현된 local evidence importer를
-정리한다.
+이 문서는 `v0.3.5` 기준 Mid-Term Plus ingestion 라인에서 구현된 local evidence
+importer를 정리한다.
 
 | Family | Result type | CLI | 대표 입력 |
 |---|---|---|---|
@@ -10,6 +10,7 @@
 | OpenTelemetry log | `otel_logs` | `otel analyze` | JSONL/NDJSON, OTLP Logs JSON |
 | Metrics snapshot | `metrics_snapshot` | `metrics import` | Prometheus/OpenMetrics text |
 | Observability export | `observability_evidence` | `observability import` | Loki query JSON, Tempo trace JSON, Grafana dashboard JSON |
+| Trace import | `trace_import` | `trace import` | OTLP JSON/JSONL trace, Zipkin v2 JSON, Elastic APM `_search` JSON, Elastic source NDJSON, Jaeger QueryService/local trace JSON, guarded SkyWalking GraphQL `queryTrace.spans` JSON |
 | Database evidence | `database_slow_query` | `database-log analyze` | PostgreSQL log/csvlog, MySQL slow log, MongoDB profiler JSON, Redis slowlog, SQL Server xevent JSON, PostgreSQL/MySQL EXPLAIN JSON |
 | Broker evidence | `broker_log` | `broker-log analyze` | Kafka, RabbitMQ log/diagnostics JSON, Pulsar, NATS, ActiveMQ |
 | Platform evidence | `kubernetes_evidence` | `platform import` | Kubernetes event/pod JSON, kubelet/runtime log, CloudTrail, GCP audit, Azure Activity |

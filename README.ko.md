@@ -3,9 +3,11 @@
 [English](./README.en.md) · [최상위 README](./README.md)
 
 ArchScope는 이제 **Go/Wails 기반 로컬 데스크톱 애플리케이션**입니다.
-운영 증거(access log, GC log, profiler output, JFR, exception stack,
-thread dump)를 분석해 공통 `AnalysisResult`, 차트, 진단, 보고서 산출물로
-변환하며 원격 서비스로 데이터를 보내지 않습니다.
+Access/edge log, server log, OpenTelemetry log, database/broker log,
+platform/cloud evidence, metrics snapshot, trace, runtime profile, JFR, GC log,
+exception stack, thread dump를 분석해 공통 `AnalysisResult`, 차트, 진단,
+contract/risk view, architecture-doc draft, 보고서 산출물로 변환하며 원격
+서비스로 데이터를 보내지 않습니다.
 
 ## 현재 스택
 
@@ -32,12 +34,12 @@ npm run build
 
 | 영역 | 기능 |
 | --- | --- |
-| Profiler | collapsed stack, Jennifer CSV, FlameGraph SVG/HTML, drill-down, execution breakdown, timeline analysis, diff flamegraph, pprof export |
-| JVM | GC log, JFR, native memory, Java thread dump, lock contention, multi-dump correlation |
-| 멀티 런타임 | Go goroutine, Python dump/traceback, Node.js diagnostic report, .NET clrstack/environment stacktrace |
-| 로그 | Access log, exception stack, OpenTelemetry log |
-| 내보내기 | JSON, CSV, HTML report, PPTX, report diff |
-| AI | evidence 기반 로컬 해석 헬퍼, localhost Ollama 전용 |
+| Evidence import | access/edge log, server log, OpenTelemetry log, metrics snapshot, observability export, database slow-query evidence, broker log, Kubernetes/container/cloud audit evidence, trace import |
+| Runtime diagnostics | GC log, JFR, native memory, Java thread dump, lock contention, multi-dump correlation, exception stack, Node.js/Python/Go/.NET runtime stack evidence |
+| Profiling | collapsed stack, Jennifer CSV, FlameGraph SVG/HTML, pprof, py-spy, rbspy, speedscope/dotnet-trace, perf collapsed, StackProf, PHP profiler export, Xdebug, Swift/async stack, Pyroscope/Phlare, Parca |
+| Evidence Studio | Analysis Workspace, Evidence Board, Incident Timeline, SLO/Golden Signals, Service Flow, stitched-evidence drilldown, API/event contract analysis, architecture docs draft |
+| 내보내기 | JSON, CSV, HTML report, PPTX, report diff, chart export, evidence pack, report-pack ZIP |
+| AI | evidence 기반 로컬 해석 헬퍼, redaction, evidence-reference validation, localhost Ollama 전용 |
 
 ## 문서
 
@@ -45,6 +47,8 @@ npm run build
 - [네이티브 앱 가이드](docs/ko/NATIVE_APP.md)
 - [AI 보조 해석](docs/ko/AI_INTERPRETATION.md)
 - [멀티 언어 thread dump](docs/ko/MULTI_LANGUAGE_THREADS.md)
+- [Importer support matrix](docs/ko/IMPORTER_SUPPORT_MATRIX.md)
+- [데이터 모델](docs/ko/DATA_MODEL.md)
 
 ## 로컬 우선
 

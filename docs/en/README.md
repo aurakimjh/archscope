@@ -7,7 +7,7 @@ historical unless they explicitly reference `archive/`.
 User-facing guides:
 
 - [Native App](./NATIVE_APP.md) — build, run, package, and CLI entry points.
-- [User Guide](./USER_GUIDE.md) — historical browser guide; use the native app guide for current builds.
+- [User Guide](./USER_GUIDE.md) — current Go/Wails CLI and desktop workflow examples.
 - [Multi-language Thread Dumps](./MULTI_LANGUAGE_THREADS.md) — six-format support matrix and per-language enrichment rules.
 
 Engineering / design references:
@@ -16,6 +16,7 @@ Engineering / design references:
 - [Native App](./NATIVE_APP.md)
 - [Roadmap](./ROADMAP.md)
 - [Data Model](./DATA_MODEL.md)
+- [Importer Support Matrix](./IMPORTER_SUPPORT_MATRIX.md)
 - [Parser Design](./PARSER_DESIGN.md)
 - [Chart Design](./CHART_DESIGN.md)
 - [Chart Studio Design](./CHART_STUDIO_DESIGN.md)
@@ -23,7 +24,8 @@ Engineering / design references:
 - [Packaging Plan](./PACKAGING_PLAN.md)
 - [Advanced Diagnostics](./ADVANCED_DIAGNOSTICS.md)
 - [AI-Assisted Interpretation](./AI_INTERPRETATION.md)
-- [Bridge PoC UX Flow](./BRIDGE_POC_UX_FLOW.md)
+- [OTLP Profiles Decision Note](./OTLP_PROFILES_DECISION.md)
+- [Bridge PoC UX Flow](./BRIDGE_POC_UX_FLOW.md) — historical Electron/FastAPI bridge note
 - [Report Export Design](./REPORT_EXPORT_DESIGN.md)
 - [Demo-Site Data Workflow](./DEMO_SITE_DATA.md)
 

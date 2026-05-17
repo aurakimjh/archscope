@@ -29,12 +29,20 @@ task package
 
 ## Features
 
-- Profiler inputs: collapsed stacks, Jennifer CSV, FlameGraph SVG, and
-  async-profiler/inline-SVG HTML.
-- Analyzer inputs: access logs, GC logs, JFR, exception stacks,
-  OpenTelemetry logs, and multi-runtime thread dumps.
+- Profiler inputs: collapsed stacks, Jennifer CSV, FlameGraph SVG/HTML,
+  async-profiler HTML, pprof, py-spy, rbspy, speedscope/dotnet-trace, perf
+  collapsed, StackProf, PHP profiler exports, Xdebug, Swift/async stacks,
+  Pyroscope/Phlare, and Parca snapshots.
+- Analyzer inputs: access and edge logs, server logs, OpenTelemetry logs,
+  metrics snapshots, observability exports, database slow-query evidence,
+  broker logs, Kubernetes/container/cloud evidence, trace imports, GC logs,
+  JFR JSON, native memory, exception stacks, and multi-runtime thread dumps.
+- Derived workflows: Analysis Workspace, Evidence Board, Incident Timeline,
+  SLO/Golden Signals, Service Flow, stitched evidence drilldown, API/event
+  contract analysis, and evidence-backed architecture documentation drafts.
 - Drill-down, execution breakdown, timeline analysis, profiler diff,
-  pprof export, parser diagnostics, and debug logs.
+  pprof export, parser diagnostics, debug logs, chart export, report diff,
+  evidence packs, and report-pack ZIP export.
 - Light/dark/system theme, Korean/English locale, recent files, and
   cancellable async analysis.
 
@@ -48,6 +56,37 @@ go run ./cmd/archscope-engine profiler analyze-collapsed \
   --in ../../examples/profiler/sample-wall.collapsed \
   --out result.json
 ```
+
+Recent evidence workflows:
+
+```bash
+go run ./cmd/archscope-engine trace import \
+  --in ../../examples/traces/sample-otlp-traces.jsonl \
+  --format auto \
+  --out trace.json
+
+go run ./cmd/archscope-engine stitch analyze \
+  --in ../../examples/stitching/access-result.json \
+  --in ../../examples/stitching/trace-result.json \
+  --in ../../examples/stitching/database-result.json \
+  --time-window-seconds 60 \
+  --out stitched.json
+
+go run ./cmd/archscope-engine api-contract analyze \
+  --openapi ../../examples/api-contract/openapi-orders.json \
+  --access-result ../../examples/api-contract/access-result.json \
+  --asyncapi ../../examples/api-contract/asyncapi-orders.json \
+  --broker-result ../../examples/api-contract/broker-result.json \
+  --out contract.json
+
+go run ./cmd/archscope-engine architecture-docs draft \
+  --in contract.json --in stitched.json \
+  --out architecture-docs.json
+```
+
+Use `go run ./cmd/archscope-engine --help` and the
+[Importer Support Matrix](./IMPORTER_SUPPORT_MATRIX.md) for the current command
+surface.
 
 ## CI
 

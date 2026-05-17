@@ -1,11 +1,11 @@
-# Engine ↔ UI Bridge
+# Engine-UI Bridge POC (Historical)
 
-This document captured the original Electron-IPC bridge experiment.
-Phase 1 (T-206 … T-209) replaced that bridge with an HTTP boundary
-between the FastAPI engine and the React UI. The historical Electron
-notes are at the bottom for context.
+This document captures the archived Electron-IPC and FastAPI/React bridge
+experiments. The active product line is the Go/Wails desktop app under
+`apps/engine-native/cmd/archscope-app`; use `docs/en/NATIVE_APP.md` and
+`docs/en/ARCHITECTURE.md` for the current engine/UI boundary.
 
-## Current bridge model
+## Archived HTTP Bridge Model
 
 ```text
 Browser (React)

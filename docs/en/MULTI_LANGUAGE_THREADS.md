@@ -24,8 +24,8 @@ The registry probes the **first 4 KB** of every input. When two formats
 might match the same head, we register the most specific plugin first;
 if none match, the registry raises `UnknownFormatError`. Operators can
 override detection with `--format` (CLI) or the `format` field on the
-HTTP request — useful when a headerless dump fragment was extracted from
-a larger log.
+Wails request — useful when a headerless dump fragment was extracted from a
+larger log.
 
 For `java_jstack`, one physical file may contain multiple `Full thread
 dump` sections. The registry expands those sections into ordered
@@ -51,13 +51,13 @@ Every plugin emits the same three records:
 - **`ThreadDumpBundle`** — all snapshots from one logical dump plus
   `dump_index`, `dump_label`, `captured_at`, `metadata`.
 
-The legacy single-dump `ThreadDumpRecord` (in `models/thread_dump.py`)
-stays untouched so the original Java single-dump analyzer keeps its
-byte-for-byte output.
+The legacy single-dump Go analyzer under `internal/analyzers/threaddump` stays
+compatible with the original Java single-dump output while the multi-runtime
+plugins emit the normalized bundle model.
 
 ## ThreadState enum
 
-`models/thread_snapshot.ThreadState` is the union state model:
+`internal/models.ThreadState` is the union state model:
 
 `RUNNABLE · BLOCKED · WAITING · TIMED_WAITING · NETWORK_WAIT · IO_WAIT
 · LOCK_WAIT · CHANNEL_WAIT · DEAD · NEW · UNKNOWN`
@@ -83,8 +83,8 @@ findings.
 
 ## Multi-dump correlation findings
 
-`analyzers/multi_thread_analyzer.analyze_multi_thread_dumps()` consumes
-an ordered list of `ThreadDumpBundle` objects and emits an
+`internal/analyzers/multithread.Analyze()` consumes an ordered list of
+`ThreadDumpBundle` objects and emits an
 `AnalysisResult(type="thread_dump_multi")` (`schema_version: "0.2.0"`)
 with these core findings:
 
@@ -134,16 +134,15 @@ Supporting tables: `native_method_threads` and
 `class_histogram_top_classes`. The class histogram parser handles text
 `num  #instances  #bytes  class name` blocks only; it does not parse
 HPROF heap dumps. Parser metadata keeps up to 500 histogram rows by
-default. Increase it with CLI `--class-histogram-limit N`, HTTP
-`classHistogramLimit`, or environment variable
+default. Increase it with the environment variable
 `ARCHSCOPE_CLASS_HISTOGRAM_ROW_LIMIT`.
 
 ### Lock-contention graph
 
-`lock_contention_analyzer.build_lock_graph()` runs alongside the
-correlator. It builds a directed graph from each `lock_addr` to its
-waiters, then runs a DFS to detect cycles — exposed in the UI's
-**Lock contention** tab as a graph + list of deadlock cycles. Java
+The `internal/analyzers/lockcontention` analyzer runs alongside the correlator.
+It builds a waits-for graph from lock owners and waiters, then runs a DFS to
+detect cycles — exposed in the UI's **Lock contention** tab as a graph + list
+of deadlock cycles. Java
 jstack monitor semantics are split into `lock_entry_wait`,
 `object_wait`, and `parking_condition_wait`. Pure `Object.wait()`
 sleep is not reported as a lock-contention hotspot unless there is
@@ -155,8 +154,8 @@ workstation completed 10,000 virtual-thread snapshots in about 0.7s and
 50,000 in about 4.1s for parse+analyze. UI rendering and JSON payload
 size should still stay behind `topN`/table limits for very large dumps.
 
-Tunable via `--consecutive-threshold` (CLI) or `consecutiveThreshold`
-(HTTP). Findings are also reflected on the `summary` (counts) and
+Tunable via `--threshold` (CLI) or `threshold` (Wails request). Findings are
+also reflected on the `summary` (counts) and
 `tables` (per-finding rows) of the result.
 
 ## CLI
@@ -164,39 +163,39 @@ Tunable via `--consecutive-threshold` (CLI) or `consecutiveThreshold`
 Single-dump (legacy, Java only):
 
 ```bash
-archscope-engine thread-dump analyze --file dump.txt --out result.json
+archscope-engine thread-dump analyze --in dump.txt --out result.json
 ```
 
 Multi-dump (any combination of languages):
 
 ```bash
 archscope-engine thread-dump analyze-multi \
-  --input dump-1.txt --input dump-2.txt --input dump-3.txt \
+  --in dump-1.txt --in dump-2.txt --in dump-3.txt \
   --out multi-result.json \
   [--format <plugin-id>] \
-  [--consecutive-threshold N] \
+  [--threshold N] \
   [--top-n N]
 ```
 
 The CLI prints a one-line summary on success
 (`<dumps> dumps, <threads> threads, <findings> findings`).
 
-## HTTP / UI
+## Desktop UI
 
-The FastAPI engine accepts the same multi-dump request via
-`POST /api/analyzer/execute` with body:
+The active Wails desktop app calls `EngineService.AnalyzeMultiThread` with:
 
 ```json
 {
-  "type": "thread_dump_multi",
-  "params": {
-    "filePaths": ["/tmp/uploads/d1.txt", "/tmp/uploads/d2.txt"],
-    "consecutiveThreshold": 3,
-    "format": null,
-    "topN": 20
-  }
+  "paths": ["/tmp/uploads/d1.txt", "/tmp/uploads/d2.txt"],
+  "threshold": 3,
+  "formatOverride": "",
+  "topN": 20,
+  "includeRawSnapshots": false
 }
 ```
+
+Lock-contention analysis uses `EngineService.AnalyzeLockContention` with the
+same `paths`, `formatOverride`, and `topN` fields.
 
 Errors map to `UNKNOWN_THREAD_DUMP_FORMAT` and
 `MIXED_THREAD_DUMP_FORMATS` so the UI can surface a clear message.
@@ -212,8 +211,8 @@ ArchScope also accepts FlameGraph.pl / async-profiler SVG and HTML
 inputs (T-184…T-187). Those files plug into the existing collapsed
 profile pipeline rather than the thread-dump framework:
 
-- `archscope-engine profiler analyze-flamegraph-svg --file flame.svg --out result.json`
-- `archscope-engine profiler analyze-flamegraph-html --file flame.html --out result.json`
+- `archscope-engine profiler analyze-flamegraph-svg --in flame.svg --out result.json`
+- `archscope-engine profiler analyze-flamegraph-html --in flame.html --out result.json`
 
 In the UI, the `profileFormat` selector exposes
 `flamegraph_svg`/`flamegraph_html`; FileDock’s `accept` adapts to

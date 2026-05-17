@@ -5,10 +5,13 @@ Profiler stack classification is configuration-driven at the rule level. The ana
 Rules can be loaded from the packaged JSON resource:
 
 ```text
-archscope_engine/config/runtime_classification_rules.json
+apps/engine-native/internal/analyzers/profileclassification/config/runtime_classification_rules.json
 ```
 
-The Python API also supports loading a caller-provided JSON file through `load_stack_classification_rules(path)` for packaging spikes and future user-managed rule sets.
+The Go implementation embeds this JSON in
+`internal/analyzers/profileclassification`. It also supports loading a
+caller-provided JSON file through `LoadRules(path)` for tests, packaging
+experiments, and future user-managed rule sets.
 
 ## Default Families
 
@@ -48,4 +51,6 @@ Rule authoring constraints:
 
 ## Extension Direction
 
-The default configuration file should be included as PyInstaller sidecar data with the engine package. User-editable classification can later layer an external JSON file over the packaged default after packaged resource paths and update policy are stable.
+The default configuration file is embedded into the Go binary. User-editable
+classification can later layer an external JSON file over the packaged default
+after desktop settings and update policy are stable.

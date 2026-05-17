@@ -15,10 +15,9 @@ Run all demo-site scenarios:
 Run a selected scenario:
 
 ```bash
-python -m archscope_engine.cli demo-site run \
-  --manifest-root ../projects-assets/test-data/demo-site \
-  --data-source synthetic \
-  --scenario gc-pressure \
+cd apps/engine-native
+go run ./cmd/archscope-engine demo-site run \
+  --manifest ../../../projects-assets/test-data/demo-site/synthetic/gc-pressure/manifest.json \
   --out /tmp/archscope-demo-bundles
 ```
 
@@ -53,11 +52,13 @@ The canonical demo-site manifest mapping lives in:
 ```
 
 ArchScope reads this JSON when running demo-site manifests; command rendering is
-not duplicated in the engine. To inspect the active mapping:
+implemented by the Go demo-site runner and can be overridden with
+`--mapping <path>`. To inspect the active manifest set:
 
 ```bash
-python -m archscope_engine.cli demo-site mapping \
-  --manifest-root ../projects-assets/test-data/demo-site
+cd apps/engine-native
+go run ./cmd/archscope-engine demo-site list \
+  --manifests ../../../projects-assets/test-data/demo-site
 ```
 
 Examples:
@@ -70,7 +71,7 @@ Examples:
 | `jfr_recording` | `jfr analyze-json` |
 | `otel_logs` | `otel analyze` |
 
-## Web UI
+## Desktop UI
 
 Demo Data Center supports:
 
@@ -81,13 +82,11 @@ Demo Data Center supports:
 - sending JSON outputs to Export Center
 - showing failed analyzer, skipped line, finding, and reference-only context summaries
 
-The full scenario run blocks the FastAPI request handler until the engine
-returns. The UI keeps the page in a running state until the response
-arrives; streaming progress events are still deferred. The legacy
-Electron-only Playwright smoke test was removed when the desktop shell
-was retired in Phase 1; an equivalent web smoke test covering the Demo
-Data Center is tracked separately and will use the same
-`ARCHSCOPE_E2E_DEMO_STUB=1` server-side fixture path.
+The current product line runs demo scenarios through the Go CLI/Wails engine
+boundary, not the retired FastAPI handler. The UI keeps the page in a running
+state until the engine task completes; streaming progress events remain a
+separate follow-up. The legacy Electron-only Playwright smoke test was removed
+when the desktop shell was retired in Phase 1.
 
 ## OpenTelemetry Scenario Checks
 

@@ -1,11 +1,11 @@
-# 엔진 ↔ UI 브릿지
+# 엔진-UI 브릿지 POC (Historical)
 
-이 문서는 원래 Electron-IPC 브릿지 실험을 기록했습니다. Phase 1
-(T-206 … T-209)에서 그 브릿지를 FastAPI 엔진과 React UI 사이의 HTTP
-경계로 교체했습니다. Electron 시대 노트는 historical context로
-하단에 보존됩니다.
+이 문서는 archived Electron-IPC 및 FastAPI/React bridge 실험을 기록합니다.
+현재 제품 라인은 `apps/engine-native/cmd/archscope-app` 아래의 Go/Wails
+desktop app입니다. 현재 engine/UI 경계는 `docs/ko/NATIVE_APP.md`와
+`docs/ko/ARCHITECTURE.md`를 기준으로 확인합니다.
 
-## 현재 브릿지 모델
+## Archived HTTP 브릿지 모델
 
 ```text
 브라우저 (React)

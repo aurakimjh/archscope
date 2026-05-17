@@ -4,26 +4,23 @@ ArchScope should help architects move from diagnostic evidence to report artifac
 
 ## Export Targets
 
-Initial design targets:
+Current engine/UI targets:
 
 - JSON analysis results
 - CSV tables
 - PNG charts
 - SVG charts
-- HTML interactive chart bundles
-
-Later phases may add:
-
-- PowerPoint export
+- HTML static reports
 - Before/after comparison reports
-- Executive summary documents
 - Packaged evidence bundles
+- PowerPoint export
+- Report-pack HTML/ZIP bundles with customer summaries and provenance
 
-The Wails Evidence Board now provides a local report-oriented export path before
-the full engine exporter exists: saved evidence cards can be downloaded as a
-static HTML evidence report or as a JSON evidence pack. This export is sourced
-from local browser storage and preserves the captured analyzer, source kind,
-source reference, severity, summary, and payload for each card.
+The Wails Evidence Board and Report Pack flows provide a local report-oriented
+export path: saved evidence cards can be exported as static HTML, JSON evidence
+packs, or report-pack ZIP bundles. These exports consume persisted Analysis
+Workspace results and derived `AnalysisResult` artifacts; they do not re-parse
+source files during export.
 
 ## Export Contract
 
@@ -35,7 +32,8 @@ AnalysisResult -> Exporter -> Report Artifact
 
 ## JSON Export
 
-JSON is the primary interchange format between the Python engine and desktop UI.
+JSON is the primary interchange format between the Go engine CLI, Wails desktop
+services, Analysis Workspace, and report/export workflows.
 
 ## CSV Export
 
@@ -51,7 +49,7 @@ The first HTML report MVP is intentionally portable and static. It renders eithe
 CLI:
 
 ```text
-python -m archscope_engine.cli report html --input result.json --out report.html
+archscope-engine report html --in result.json --out report.html
 ```
 
 Profiler result JSON now receives a static HTML flamegraph section when `charts.flamegraph`
@@ -93,10 +91,15 @@ The first comparison report is a deterministic `comparison_report` `AnalysisResu
 It compares numeric `summary` fields and finding counts:
 
 ```text
-python -m archscope_engine.cli report diff --before before.json --after after.json --out diff.json
+archscope-engine report diff --before before.json --after after.json --out diff.json
 ```
 
-`--html-out` can render the comparison through the same static HTML report exporter.
+The diff command writes a `comparison_report` JSON file. Render it with the same
+HTML exporter when a portable report is needed:
+
+```text
+archscope-engine report html --in diff.json --out diff.html
+```
 
 ## PowerPoint Export
 
@@ -104,7 +107,7 @@ The minimal PowerPoint exporter writes a `.pptx` package directly from an
 `AnalysisResult` JSON file:
 
 ```text
-python -m archscope_engine.cli report pptx --input result.json --out report.pptx
+archscope-engine report pptx --in result.json --out report.pptx
 ```
 
 The MVP includes title, source metadata, summary metrics, and findings slides.
@@ -114,6 +117,12 @@ Chart image embedding and slide-level theme editing remain later work.
 
 Report-facing text should be selected from locale resources for English and Korean. Exporters should not translate raw evidence or measured values.
 
-## PowerPoint Direction
+## CLI Summary
 
-PowerPoint export is intentionally out of scope for Phase 1. Chart templates should still maintain 16:9 presets and title/subtitle metadata so future slide generation is straightforward.
+```text
+archscope-engine report json --in result.json --out result.pretty.json
+archscope-engine report csv --in result.json --out report.csv
+archscope-engine report html --in result.json --out report.html
+archscope-engine report pptx --in result.json --out report.pptx
+archscope-engine report diff --before before.json --after after.json --out diff.json
+```

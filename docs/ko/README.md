@@ -18,13 +18,14 @@ historical note로 취급합니다.
 ## 사용자 문서
 
 - [**네이티브 앱 가이드**](./NATIVE_APP.md) — 현재 Go/Wails 빌드, 실행, 패키징, CLI
-- [사용자 가이드](./USER_GUIDE.md) — browser/FastAPI 경로 중심의 historical guide
+- [사용자 가이드](./USER_GUIDE.md) — 현재 Go/Wails CLI와 데스크톱 workflow 예시
 - [멀티 언어 Thread Dump 프레임워크](./MULTI_LANGUAGE_THREADS.md) — 6개 포맷 + 언어별 enrichment 매트릭스
 
 ## 설계 문서
 
 - [아키텍처](./ARCHITECTURE.md) — Go/Wails 구성, 컴포넌트 경계, archive 정책
-- [데이터 모델](./DATA_MODEL.md) — AnalysisResult 공통 contract, TypeScript/Python 타입 정의
+- [데이터 모델](./DATA_MODEL.md) — AnalysisResult 공통 contract, Go/TypeScript 타입 정의
+- [Importer Support Matrix](./IMPORTER_SUPPORT_MATRIX.md) — v0.3.5 evidence importer 지원 범위
 - [파서 설계](./PARSER_DESIGN.md) — Parser 책임, 에러 처리, 대용량 파일 전략
 - [차트 설계](./CHART_DESIGN.md) — Chart template, factory 패턴, 성능 가이드라인
 - [Chart Studio 설계](./CHART_STUDIO_DESIGN.md) — Chart 미리보기, option persistence
@@ -32,6 +33,7 @@ historical note로 취급합니다.
 - [보고서 Export 설계](./REPORT_EXPORT_DESIGN.md) — HTML/PPTX/Diff export 파이프라인
 - [고급 진단 설계](./ADVANCED_DIAGNOSTICS.md) — Timeline correlation, JFR, OpenTelemetry
 - [AI 보조 해석 설계](./AI_INTERPRETATION.md) — Evidence-bound AI interpretation, Ollama 연동
+- [OTLP Profiles 결정 노트](./OTLP_PROFILES_DECISION.md) — OTLP Profiles 활성화 기준
 
 ## 운영 문서
 
@@ -41,7 +43,7 @@ historical note로 취급합니다.
 
 ## UX / 기능 문서
 
-- [Bridge PoC UX Flow](./BRIDGE_POC_UX_FLOW.md) — Engine-UI 연동 최소 UX 정의
+- [Bridge PoC UX Flow](./BRIDGE_POC_UX_FLOW.md) — historical Electron/FastAPI bridge note
 - [Demo-site 데이터 실행 흐름](./DEMO_SITE_DATA.md) — Demo 시나리오 생성 및 검증
 
 ---

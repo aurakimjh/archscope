@@ -2,9 +2,11 @@
 
 [한국어](./README.ko.md) · [English](./README.en.md)
 
-ArchScope is a local-first architecture diagnostics toolkit for access
-logs, GC logs, profiler outputs, JFR recordings, exception stacks, and
-thread dumps across Java, Go, Python, Node.js, and .NET.
+ArchScope is a local-first architecture diagnostics toolkit for operational
+evidence: access and edge logs, server logs, OpenTelemetry logs, database and
+broker logs, platform/cloud evidence, metrics snapshots, traces, runtime
+profiles, JFR recordings, GC logs, exception stacks, and thread dumps across
+Java, Go, Python, Node.js, and .NET.
 
 The active product line is now **Go + Wails** under
 `apps/engine-native/`. The former Python/FastAPI/web implementation is
@@ -47,15 +49,25 @@ archscope/
 
 ## Capabilities
 
-- Profiler: async-profiler collapsed, FlameGraph SVG/HTML, Jennifer APM
-  CSV, drill-down, diff flamegraph, pprof export.
-- Logs: access log, GC log, exception stack, OpenTelemetry log analysis.
-- Runtime diagnostics: JFR, native-memory, multi-runtime thread dumps,
-  lock contention, multi-dump correlation, thread-dump to collapsed.
-- Exporters: JSON, CSV, HTML report, PowerPoint, before/after report diff.
-- AI interpretation: evidence-bound local interpretation helpers ported
-  to Go under `internal/aiinterpretation`; local Ollama execution only,
-  off by default.
+- Evidence importers: access/edge logs, application and web server logs,
+  OpenTelemetry logs, Prometheus/OpenMetrics snapshots, Loki/Tempo/Grafana
+  exports, database slow-query evidence, broker logs, Kubernetes/container
+  evidence, cloud audit logs, and portable trace exports.
+- Runtime diagnostics: GC logs, JFR JSON, native memory, exception stacks,
+  multi-runtime thread dumps, lock contention, multi-dump correlation, Node.js,
+  Python, Go, and .NET runtime stack evidence.
+- Profiling: async-profiler collapsed/HTML, FlameGraph SVG/HTML, Jennifer APM
+  CSV, pprof, py-spy, rbspy, speedscope/dotnet-trace, perf collapsed, StackProf,
+  PHP profiler exports, Xdebug, Swift/async stacks, Pyroscope/Phlare, and Parca
+  snapshots.
+- Evidence Studio: Analysis Workspace, Evidence Board, Incident Timeline,
+  SLO/Golden Signals, Service Flow, stitched evidence drilldowns, API/event
+  contract analysis, and evidence-backed architecture documentation drafts.
+- Exporters: JSON, CSV, HTML report, PowerPoint, before/after report diff,
+  chart exports, evidence packs, and report-pack ZIP bundles.
+- AI interpretation: evidence-bound local interpretation helpers under
+  `internal/aiinterpretation`; localhost Ollama execution only, off by default,
+  with redaction and evidence-reference validation.
 
 ## Documentation
 

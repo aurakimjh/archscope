@@ -14,12 +14,12 @@ The previous long-form history was archived to
   `apps/engine-native/cmd/archscope-app/frontend`.
 - Active engine: Go parser/analyzer/exporter/AI interpretation modules under
   `apps/engine-native/internal`.
-- Release baseline: preparing `v0.3.5` as the latest stable GitHub release. The
+- Release baseline: `v0.3.5` is the latest stable GitHub release. The
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
-- Current execution focus: `v0.3.5` release verification and publication after
-  completing the T-468 through T-555 ingestion, contract, architecture, and
-  stitching wave.
+- Current execution focus: prepare the next evidence family, starting with
+  T-556 through T-561 security/compliance evidence contracts and source-aligned
+  documentation.
 - Retired implementation: Python/FastAPI/browser sources are archived under
   `archive/python-engine` and `archive/web-frontend-python`.
 - Historical native POC module has been folded into `apps/engine-native`.
@@ -122,7 +122,7 @@ The previous long-form history was archived to
 - Published the stable `v0.3.4` desktop release with Incident Timeline mapping
   fixes, AI gate hardening, SLO unit/deduplication fixes, report-pack ZIP path
   sanitization, derived export alignment, and frontend state regression tests.
-- Prepared the stable `v0.3.5` desktop release with Mid-Term Plus file-first
+- Published the stable `v0.3.5` desktop release with Mid-Term Plus file-first
   evidence importers, API/event contract analysis, architecture documentation
   drafts, advanced stitching, app/package metadata updates, and changelog
   notes.
@@ -130,7 +130,7 @@ The previous long-form history was archived to
   family boundary specs, reusable source-format registry, golden fixture
   diagnostic harness, normalized source metadata, and cross-source correlation
   key model.
-- Added the first access/edge-log coverage wave for `v0.3.6`: Tomcat/Jetty,
+- Added the access/edge-log coverage wave as part of `v0.3.5`: Tomcat/Jetty,
   HAProxy HTTP, Envoy/Istio text and JSON, AWS ELB/ALB/CloudFront, GCP/Azure
   edge JSON, IIS W3C, Caddy/Traefik JSON, and Kong/Tyk/API Gateway JSON parsing
   now feed additive access-log summaries, edge dependency tables, Service Flow,
@@ -197,18 +197,20 @@ filtered before analysis.
 
 ## Next Execution Queue
 
-1. Finish T-483 and T-484 to harden auto-detect diagnostics and formal
-   access-log edge metadata contract coverage.
-2. Ship `v0.3.6` after the first user-visible access/edge log coverage wave
-   lands, because it already has a mature `AnalysisResult`, SLO, Incident
-   Timeline, and report path.
-3. Cut or verify `v0.3.5` foundation release artifacts if the release line
-   needs a separate foundation checkpoint before `v0.3.6`.
-4. Continue one release per evidence family through server logs, OpenTelemetry
-   Logs, database slow-query evidence, broker logs, Kubernetes/cloud evidence,
-   and multi-language profiling.
-5. Reserve `v0.4.0` for the completed Mid-Term Plus roll-up after cross-source
-   evidence stitching and continuous-profiling imports have stabilized.
+1. Start T-556 through T-561 to add security/compliance evidence contracts:
+   sensitive-data exposure, OWASP-oriented log/error patterns, SBOM/CycloneDX
+   feasibility, vulnerability/license impact mapping, and source-backed threat
+   model/report sections.
+2. Use `v0.3.6` as the next candidate release only after the security/compliance
+   scope has source-backed evidence, tests, documentation, and report-pack
+   behavior.
+3. Keep `v0.3.5` release verification healthy by monitoring the release
+   workflow, release asset availability, and app/package metadata alignment.
+4. Continue pairing English/Korean docs whenever importer, analyzer, UI, or
+   report-pack surfaces change.
+5. Reserve `v0.4.0` for a broader Evidence Studio roll-up after
+   security/compliance evidence and the Mid-Term Plus source families have
+   stabilized as one coherent workflow.
 6. Keep release verification healthy before each release cut by repeating
    Windows GUI smoke, macOS signing/notarization validation, frontend bundle
    budget checks, and representative real-export fixture updates.
@@ -231,32 +233,17 @@ filtered before analysis.
 
 | Classification | Priority | TO-DO range | Target release | Execution rule |
 |---|---|---|---|---|
-| Shared ingestion foundations | P1 | T-468 through T-472 | v0.3.5 | Build first; every new source should reuse these contracts, diagnostics, fixtures, and correlation keys. |
-| Access and edge logs | P1 | T-473 through T-484 | v0.3.6 | First functional coverage wave because it extends existing access-log, SLO, Incident Timeline, and report-pack paths. |
-| Application and web server logs | P1/P2 | T-485 through T-492 | v0.3.7 | Start with Tomcat/Jetty and nginx/Apache error logs, then add enterprise app-server variants. |
-| Observability logs and metrics | P1/P2 | T-493 through T-498 | v0.3.8 | Add OpenTelemetry Logs first, then offline metrics and LGTM export formats. |
-| Database slow-query and engine logs | P1/P2 | T-499 through T-506 | v0.3.9 | Prioritize PostgreSQL/MySQL slow-query evidence before broader database engines. |
-| Broker and streaming middleware | P1/P2 | T-507 through T-513 | v0.3.10 | Prioritize Kafka and RabbitMQ before Pulsar, NATS, and ActiveMQ. |
-| Kubernetes, container, and cloud evidence | P2 | T-514 through T-519 | v0.3.11 | Add platform context after app/server/database/broker evidence contracts are available. |
-| Multi-language stack and profiler evidence | P1/P2 | T-520 through T-528 | v0.3.12 | Add generic pprof first, then raw language-specific profiler inputs and unified rollups. |
-| Correlation and evidence stitching | P1/P2 | T-529 through T-531 | v0.3.13 | Requires enough source coverage to validate stitching and correlation-gap findings. |
-| Continuous profiling imports and docs | P2/P3 | T-532 through T-536 | v0.3.14 | Add snapshot imports first; keep OTLP Profiles as a spec-tracking decision item. |
+| Completed Mid-Term Plus roll-up | P1/P2 | T-468 through T-555 | v0.3.5 | Shipped as one stable release covering ingestion foundations, access/edge, server, observability, database, broker, platform, profiling, stitching, API/event contracts, architecture docs, and documentation alignment. |
+| Security/compliance evidence | P1/P2 | T-556 through T-561 | v0.3.6 candidate | Promote only evidence-backed checks; avoid report claims that cannot be traced to local source artifacts. |
+| Evidence Studio stabilization | P1/P2 | Post T-561 | v0.4.0 candidate | Treat the full importer, contract, stitching, report-pack, and AI-gated interpretation workflow as one user story before a broader roll-up release. |
 
 ## Version Milestone Plan
 
 | Release | Complete through | Release type | Required contents before cut |
 |---|---|---|---|
-| v0.3.5 | T-468 through T-472 | Foundation release | Shared ingestion architecture, source-format registry, golden fixture/diagnostic harness, normalized source metadata, and correlation-key model are implemented and documented. |
-| v0.3.6 | T-473 through T-484 | User-visible evidence release | Tomcat/Jetty, HAProxy, Envoy/Istio, cloud edge, IIS/Caddy/Traefik, and gateway access formats are imported through auto-detect and remain compatible with the existing access-log contract. |
-| v0.3.7 | T-485 through T-492 | Server diagnostics release | Server-log contract, Tomcat/Jetty, nginx/Apache error logs, and at least the planned enterprise app-server parsers feed Incident Timeline, Evidence Board, and report packs. |
-| v0.3.8 | T-493 through T-498 | Observability evidence release | OpenTelemetry Logs, offline metrics, Loki/Tempo exports, and Grafana dashboard references are accepted as local evidence and mapped into Golden Signals/report workflows. |
-| v0.3.9 | T-499 through T-506 | Database evidence release | PostgreSQL and MySQL/MariaDB slow-query evidence, EXPLAIN plan cards, and the broader database engine parser set integrate with Timeline, SLO, Service Flow, and reports. |
-| v0.3.10 | T-507 through T-513 | Broker evidence release | Kafka and RabbitMQ evidence are complete, follow-up broker parsers are in place, and broker findings appear beside service-edge evidence. |
-| v0.3.11 | T-514 through T-519 | Platform evidence release | Kubernetes events/pod evidence, kubelet/runtime logs, and cloud audit logs can back Timeline, Evidence Board, SLO saturation, and security report sections. |
-| v0.3.12 | T-520 through T-528 | Multi-language profiling release | Unified profile schema, generic pprof, async-profiler parity, and priority language/runtime profiler inputs flow through flamegraph and Evidence Board paths. |
-| v0.3.13 | T-529 through T-531 | Cross-source stitching release | Correlation-key stitching joins access, trace, runtime stack, broker, and database evidence and emits deterministic correlation-gap findings. |
-| v0.3.14 | T-532 through T-536 | Continuous profiling plus docs release | Pyroscope/Phlare and Parca snapshot imports are routed through profile analysis, OTLP Profiles tracking is documented, and English/Korean docs/support matrices are current. |
-| v0.4.0 | T-468 through T-536 plus stabilization | Mid-Term Plus roll-up | Full Mid-Term Plus scope is smoke-tested as one product story with sample packs, report exports, regression tests, and release notes that present the expanded Evidence Studio capability coherently. |
+| v0.3.5 | T-468 through T-555 | Stable Evidence Studio expansion | Released 2026-05-17 with Mid-Term Plus importers, API/event contract analysis, architecture docs drafts, advanced stitching, version metadata, changelog, release tag, and release workflow verification. |
+| v0.3.6 candidate | T-556 through T-561 | Security/compliance evidence release | Sensitive-data exposure/redaction evidence, OWASP-oriented log/error pattern inventory, SBOM/CycloneDX feasibility, vulnerability/license impact map, and source-backed security report sections are implemented and documented. |
+| v0.4.0 candidate | Post T-561 stabilization | Evidence Studio roll-up | Full local evidence workflow is smoke-tested as one product story with sample packs, report exports, regression tests, AI gate checks, and release notes that present the expanded capability coherently. |
 
 ## Active TO-DO
 
@@ -404,6 +391,12 @@ filtered before analysis.
 | T-553 | P2 | [x] | Surface advanced stitched-evidence signals in Incident Timeline, Service Flow, and Golden Signals. | T-552 | Completed 2026-05-17: time-window and trace-profile matches feed Incident Timeline labels, Service Flow match status, and Golden Signal summaries |
 | T-554 | P2 | [x] | Add a stitched-evidence detail view or drilldown-ready state projection for the desktop UI. | T-552 | Completed 2026-05-17: desktop state can drill from match events into `match_drilldowns` and raw source node rows |
 | T-555 | P2 | [x] | Update English/Korean docs, examples, and support matrix for architecture docs and advanced stitching work. | T-543 through T-554 | Completed 2026-05-17: updated data model, parser design, roadmap, importer matrix, and stitching examples |
+| T-556 | P1 | [ ] | Define the sensitive-data exposure and redaction evidence contract for logs, report packs, AI prompts, and exported evidence previews. | T-454, T-519 | Planned: source-backed redaction and exposure evidence contract |
+| T-557 | P1 | [ ] | Add an OWASP Top 10 oriented access/error/log pattern inventory that maps observed local evidence to security risk hints without inventing unsupported findings. | T-556, access/server/platform evidence | Planned: deterministic pattern inventory and finding taxonomy |
+| T-558 | P2 | [ ] | Investigate SBOM and CycloneDX import feasibility for offline component, package, and service ownership evidence. | T-468, T-519 | Planned: importer feasibility note plus sample contract if viable |
+| T-559 | P2 | [ ] | Design vulnerability, license, component, and affected-service impact mapping from SBOM/security evidence into Evidence Board and report packs. | T-558, T-556 | Planned: impact map contract and report integration plan |
+| T-560 | P2 | [ ] | Add threat-model, security logging, and redaction report sections only when source evidence exists and every claim has evidence references. | T-556 through T-559 | Planned: source-backed report sections |
+| T-561 | P2 | [ ] | Update English/Korean docs, examples, support matrix, and release notes for the security/compliance evidence wave. | T-556 through T-560 | Planned: paired documentation and examples |
 
 ## Verification Notes
 
@@ -591,10 +584,21 @@ filtered before analysis.
   `npm run test:state` passed for derived frontend state regressions,
   `npm run build` passed for the Wails frontend, and `git diff --check`
   passed. Frontend package/build metadata is set to 0.3.5.
+- 2026-05-17 `v0.3.5` GitHub release workflow completed successfully after the
+  `Prepare v0.3.5 release` commit and `v0.3.5` tag were pushed. The release is
+  the latest stable release; GitHub workflow annotations were limited to
+  non-blocking Node.js 20 deprecation notices.
 - 2026-05-16 T-468 through T-472 verification passed:
   `env GOCACHE=/tmp/archscope-go-cache go test ./...` passed under
   `apps/engine-native` with the known macOS linker warning, and
   `git diff --check` passed.
+- 2026-05-17 documentation current-state verification passed after source/doc
+  alignment: `git diff --check`, `bash -n scripts/run-demo-site-data.sh`,
+  `env GOCACHE=/tmp/archscope-go-cache go test ./cmd/archscope-engine`, CLI
+  help checks for report/demo-site/thread-dump/api-contract/stitch/
+  architecture-docs/database-log/broker-log, and sample executions for API
+  contract, stitching, thread-dump, trace import, database-log, broker-log, and
+  architecture-docs workflows.
 
 ## Decisions
 

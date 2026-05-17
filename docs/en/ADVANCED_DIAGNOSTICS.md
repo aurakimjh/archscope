@@ -11,8 +11,8 @@ Target scenario:
 ```text
 access_log + JFR recording + OpenTelemetry logs
   -> normalized AnalysisResult files
-  -> timeline_correlation meta-analyzer
-  -> multi-lane evidence timeline
+  -> stitched_evidence / incident_timeline derived analysis
+  -> multi-lane evidence timeline and drilldown tables
   -> report/AI interpretation with evidence_ref links
 ```
 
@@ -23,7 +23,11 @@ Differentiation points:
 - cross-source correlation across access logs, JVM runtime events, profiler stacks, and trace-aware logs
 - explicit evidence references that separate facts from heuristic interpretation
 
-Implementation trigger: start implementation-heavy correlation only after at least two production-quality time-bearing result types exist. The first practical pair should be `access_log` plus `otel_log`, followed by `jfr_recording` once the JFR command bridge is validated.
+Implementation status: the trigger is satisfied in the current Go/Wails line.
+`access_log`, `otel_logs`, `trace_import`, `jfr_recording`, `gc_log`,
+`thread_dump*`, `database_slow_query`, `broker_log`, `profile_evidence`, and
+platform evidence can all contribute time-bearing or correlation-key evidence.
+The active cross-source outputs are `incident_timeline` and `stitched_evidence`.
 
 ## Common Time Policy
 
@@ -40,21 +44,28 @@ Rules:
 
 ## Timeline Correlation
 
-Timeline correlation is a meta-analyzer. It consumes normalized `AnalysisResult` JSON files or in-memory typed results, not raw source logs.
+Timeline correlation is a meta-analyzer pattern. It consumes normalized
+`AnalysisResult` JSON files or in-memory typed results, not raw source logs. In
+the active product this pattern is implemented through the Wails Incident
+Timeline projection and the Go `stitch analyze` command.
 
 Input result types:
 
 - `access_log`
-- `otel_log`
-- future `jfr_recording`
-- future `gc_log`
-- future `thread_dump`
-- future anchored profiler results
+- `otel_logs`
+- `trace_import`
+- `jfr_recording`
+- `gc_log`
+- `thread_dump`, `thread_dump_multi`, `thread_dump_locks`
+- `database_slow_query`
+- `broker_log`
+- `profile_evidence` when timestamp, trace, service, or runtime labels exist
+- `kubernetes_evidence` and cloud/platform evidence
 
 Recommended output type:
 
 ```text
-type: timeline_correlation
+type: incident_timeline or stitched_evidence
 summary:
   window_start
   window_end
@@ -178,6 +189,10 @@ metadata:
 
 OpenTelemetry log input should accept OTLP-style JSON first, then legacy JSON/plain text formats that carry trace context fields. The design baseline is the OpenTelemetry Logs Data Model checked on 2026-04-30.
 
+Current parser status: the Go `otel analyze` path accepts JSONL/NDJSON records
+and OTLP Logs JSON `resourceLogs` envelopes, preserving bounded previews,
+resource attributes, instrumentation scope metadata, and trace/span references.
+
 Recommended input mapping:
 
 | OpenTelemetry field | ArchScope field |
@@ -197,7 +212,7 @@ Recommended input mapping:
 Recommended output type:
 
 ```text
-type: otel_log
+type: otel_logs
 summary:
   log_count
   error_count
@@ -207,9 +222,9 @@ series:
   logs_over_time: [{ time, time_unix_nano, severity, count }]
   trace_event_counts: [{ trace_id, count }]
 tables:
-  log_records: [{ time, severity, trace_id, span_id, service_name, body_preview, evidence_ref }]
+  records: [{ time, severity, trace_id, span_id, service_name, body_preview, evidence_ref }]
 metadata:
-  parser: otel_log_json
+  parser: otel_jsonl
   schema_version
   accepted_formats
   privacy_policy
@@ -227,18 +242,21 @@ OTel Profiles is not a Phase 5 blocker while the signal remains early. Reevaluat
 ## Large-File Strategy
 
 - JFR: use `--events`, `--categories`, and `--stack-depth` to constrain `jfr print --json`; move to streaming JSON parsing if real outputs exceed memory budgets.
-- OTel logs: reuse access-log controls such as `max_lines`, `start_time`, and `end_time`.
+- OTel logs: keep streaming JSONL/NDJSON ingestion, bounded OTLP envelope
+  processing, top-N aggregation, and row/table limits for high-volume evidence.
 - High-cardinality series such as `trace_event_counts` must be capped with top-N plus "other" aggregation.
 - Tables should keep bounded evidence rows and store counts in `summary` or `series`.
 
 ## Multi-Lane Timeline Visualization
 
-The `timeline_correlation` UI should render an ECharts custom or timeline-like chart with one lane per source family:
+Incident Timeline and stitched-evidence views should render an ECharts custom or
+timeline-like chart with one lane per source family:
 
 - access log requests/errors
 - OTel logs/traces
 - JFR runtime events
-- profiler/thread/GC evidence as they become available
+- profiler/thread/GC evidence
+- database, broker, platform, and stitched-evidence rows
 
 Chart requirements:
 

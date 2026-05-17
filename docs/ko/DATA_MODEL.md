@@ -32,15 +32,35 @@ interface AnalysisResult {
 
 type AnalyzerType =
   | "access_log"
-  | "profiler_collapsed"
   | "gc_log"
+  | "jfr_recording"
+  | "native_memory"
   | "thread_dump"
+  | "thread_dump_multi"
+  | "thread_dump_locks"
   | "exception_stack"
   | "nodejs_stack"
   | "python_traceback"
   | "go_panic"
   | "dotnet_exception_iis"
   | "otel_logs"
+  | "metrics_snapshot"
+  | "observability_evidence"
+  | "server_log"
+  | "database_slow_query"
+  | "broker_log"
+  | "kubernetes_evidence"
+  | "trace_import"
+  | "profile_evidence"
+  | "stitched_evidence"
+  | "api_contract_analysis"
+  | "architecture_docs"
+  | "incident_timeline"
+  | "slo_golden_signals"
+  | "service_flow"
+  | "jennifer_profile"
+  | "profiler_collapsed"
+  | "profiler_jennifer"
   | "comparison_report";
 
 interface ResultMetadata {
@@ -69,22 +89,19 @@ interface DiagnosticSample {
 }
 ```
 
-### Python Dataclass
+### Go Struct
 
-```python
-from dataclasses import dataclass, field
-from typing import Any
-
-@dataclass
-class AnalysisResult:
-    type: str
-    source_files: list[str]
-    created_at: str
-    summary: dict[str, Any]
-    series: dict[str, list[dict[str, Any]]]
-    tables: dict[str, list[dict[str, Any]]]
-    metadata: dict[str, Any]
-    charts: dict[str, Any] = field(default_factory=dict)
+```go
+type AnalysisResult struct {
+    Type        string         `json:"type"`
+    SourceFiles []string       `json:"source_files"`
+    CreatedAt   string         `json:"created_at"`
+    Summary     map[string]any `json:"summary"`
+    Series      map[string]any `json:"series"`
+    Tables      map[string]any `json:"tables"`
+    Charts      map[string]any `json:"charts"`
+    Metadata    Metadata       `json:"metadata"`
+}
 ```
 
 ### 샘플 출력 (Access Log)
@@ -172,32 +189,55 @@ class AnalysisResult:
 
 ## 계약 강화 범위
 
-1차 계약 강화는 이미 코드에 존재하는 analyzer result type으로 제한한다.
+현재 Go/Wails 계약 강화 범위는 `apps/engine-native`에 구현된 analyzer 및
+derived result type을 포함한다.
 
 - `access_log`
-- `profiler_collapsed`
 - `gc_log`
+- `jfr_recording`
+- `native_memory`
 - `thread_dump`
+- `thread_dump_multi`
+- `thread_dump_locks`
 - `exception_stack`
 - `nodejs_stack`
 - `python_traceback`
 - `go_panic`
 - `dotnet_exception_iis`
 - `otel_logs`
+- `metrics_snapshot`
+- `observability_evidence`
+- `server_log`
+- `database_slow_query`
+- `broker_log`
+- `kubernetes_evidence`
+- `trace_import`
+- `profile_evidence`
+- `stitched_evidence`
+- `api_contract_analysis`
+- `architecture_docs`
+- `incident_timeline`
+- `slo_golden_signals`
+- `service_flow`
+- `jennifer_profile`
+- `profiler_collapsed`
+- `profiler_jennifer`
 - `comparison_report`
 
-공통 `AnalysisResult` dataclass는 당분간 외부 transport model로 유지한다. 계약 강화 계층은 `summary`, `series`, `tables`, `metadata` 내부에 들어가는 type별 필수 key를 정의하는 방식으로 적용한다.
+Go `internal/models.AnalysisResult` struct가 신규 analyzer 작업의 외부
+transport model이다. 계약 강화 계층은 `summary`, `series`, `tables`,
+`metadata` 내부에 들어가는 type별 필수 key를 정의하고, frontend TypeScript
+interface가 같은 JSON envelope을 mirror한다.
 
 ### 이번 범위에 포함
 
-- Access Log와 Profiler result section에 대한 Python `TypedDict` 정의
-- Renderer와 chart code에서 사용할 대응 TypeScript interface
+- `internal/models` 및 analyzer-specific package의 Go result contract
+- Renderer, workspace, chart code에서 사용할 대응 TypeScript interface
 - 필수 key, 값 type, unit 문서화
 - 향후 migration을 위한 `metadata.schema_version` 유지
 
 ### 이번 범위에서 제외
 
-- Pydantic model 전면 전환
 - 모든 nested field에 대한 runtime validation
 - Chart Studio template schema
 - Dashboard sample data를 canonical contract로 취급하는 것. `dashboard_sample`은 UI fixture data로만 본다.
@@ -221,7 +261,7 @@ metadata를 채택할 수 있다.
 
 | Field | Type | 의미 |
 |---|---|---|
-| `source_kind` | string | `access_log`, `trace`, `server_log`, `database_log`, `broker_log` 같은 evidence source family |
+| `source_kind` | string | `access_log`, `trace_import`, `server_log`, `database_slow_query`, `broker_log` 같은 evidence source family |
 | `source_format` | string | 감지되었거나 사용자가 선택한 parser format |
 | `product` | string | nginx, OpenTelemetry, PostgreSQL, Kafka 같은 product 또는 ecosystem 이름 |
 | `product_version` | string | source가 제공하는 경우의 product version |

@@ -4,8 +4,8 @@
 
 ArchScope is now a **Go/Wails local desktop application**. It analyzes
 operational evidence and produces normalized `AnalysisResult` payloads,
-charts, diagnostics, and report exports without sending data to a remote
-service.
+charts, diagnostics, contract/risk views, architecture-documentation drafts,
+and report exports without sending data to a remote service.
 
 ## Active Stack
 
@@ -33,12 +33,12 @@ npm run build
 
 | Domain | Capabilities |
 | --- | --- |
-| Profiler | collapsed stacks, Jennifer CSV, FlameGraph SVG/HTML, drill-down, execution breakdown, timeline analysis, diff flamegraph, pprof export |
-| JVM | GC log, JFR, native memory, Java thread dumps, lock contention, multi-dump correlation |
-| Multi-runtime | Go goroutine, Python dump/traceback, Node.js diagnostic reports, .NET clrstack/environment stacktrace |
-| Logs | Access logs, exception stacks, OpenTelemetry logs |
-| Export | JSON, CSV, HTML report, PPTX, report diff |
-| AI | Evidence-bound local interpretation helpers, local Ollama only |
+| Evidence import | access/edge logs, server logs, OpenTelemetry logs, metrics snapshots, observability exports, database slow-query evidence, broker logs, Kubernetes/container/cloud audit evidence, trace imports |
+| Runtime diagnostics | GC logs, JFR, native memory, Java thread dumps, lock contention, multi-dump correlation, exception stacks, Node.js/Python/Go/.NET runtime stack evidence |
+| Profiling | collapsed stacks, Jennifer CSV, FlameGraph SVG/HTML, pprof, py-spy, rbspy, speedscope/dotnet-trace, perf collapsed, StackProf, PHP profiler exports, Xdebug, Swift/async stacks, Pyroscope/Phlare, Parca |
+| Evidence Studio | Analysis Workspace, Evidence Board, Incident Timeline, SLO/Golden Signals, Service Flow, stitched-evidence drilldowns, API/event contract analysis, architecture docs drafts |
+| Export | JSON, CSV, HTML report, PPTX, report diff, chart export, evidence packs, report-pack ZIP |
+| AI | Evidence-bound local interpretation helpers, redaction, evidence-reference validation, local Ollama only |
 
 ## Docs
 
@@ -46,6 +46,8 @@ npm run build
 - [Native app guide](docs/en/NATIVE_APP.md)
 - [AI interpretation](docs/en/AI_INTERPRETATION.md)
 - [Multi-language thread dumps](docs/en/MULTI_LANGUAGE_THREADS.md)
+- [Importer support matrix](docs/en/IMPORTER_SUPPORT_MATRIX.md)
+- [Data model](docs/en/DATA_MODEL.md)
 
 ## Local-first
 
