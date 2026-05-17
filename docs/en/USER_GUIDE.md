@@ -85,6 +85,32 @@ Run `go run ./cmd/archscope-engine --help` for the full command list. The
 current supported evidence families are summarized in
 `docs/en/IMPORTER_SUPPORT_MATRIX.md`.
 
+## Supported Languages And Evidence
+
+ArchScope support is evidence-based. It analyzes runtime artifacts, logs,
+profiles, traces, and contracts; it does not perform static source-code review
+or modify application source code.
+
+| Area | Current support |
+| --- | --- |
+| ArchScope implementation | Go engine, Wails desktop app, React/TypeScript frontend |
+| JVM / Java evidence | GC logs, JFR JSON, native-memory events, Java thread dumps, jcmd JSON thread dumps, Java exception stacks, async-profiler/Jennifer profile evidence |
+| Go evidence | goroutine dumps, panic stacks, pprof-compatible profiles |
+| Python evidence | traceback blocks, py-spy/faulthandler-style dumps, py-spy profile evidence |
+| Node.js evidence | diagnostic reports, sample traces, JavaScript stack traces |
+| .NET evidence | clrstack, Environment.StackTrace, exception/IIS evidence, dotnet-trace speedscope exports |
+| Ruby / PHP / Swift / native profile evidence | rbspy, StackProf, PHP Excimer/Tideways/Xdebug, Swift/async stacks, perf collapsed/native stacks when supplied as supported profile artifacts |
+| Language-neutral evidence | access/edge logs, server logs, OpenTelemetry logs/traces, metrics snapshots, database/broker/platform evidence, OpenAPI, AsyncAPI, stitched evidence, architecture-doc drafts |
+
+Unsupported or deferred:
+
+- Static source-code analysis, AST indexing, repository-wide code search, code
+  quality scanning, and automatic source modification.
+- Heap dump parsing (`.hprof`) and process/system monitoring such as live CPU,
+  RSS, or syscall sampling.
+- Direct SaaS APM connectors unless promoted from the roadmap into an active
+  implementation slice.
+
 ## Native App
 
 Use `docs/en/NATIVE_APP.md` for the desktop UI and packaging
@@ -100,3 +126,30 @@ AI interpretation is optional and local-only. The Go implementation under
 `internal/aiinterpretation` builds evidence-bound prompts, redacts
 sensitive data, validates model findings against registered evidence
 references, and accepts only localhost Ollama URLs.
+
+This feature is not a source-editing coding agent. It is an evidence-bound
+interpretation assistant for already-produced `AnalysisResult` data. The
+deterministic analyzer output remains the source of truth.
+
+User-facing workflow:
+
+1. Run one or more deterministic analyzers and add the results to Analysis
+   Workspace.
+2. If an AI interpretation payload is present, Analysis Workspace shows provider,
+   model, prompt version, disabled state, finding count, and gate status.
+3. AI findings are rendered in a separate AI-assisted panel and can be added to
+   Evidence Board or Report Pack only when the evidence gate passes.
+4. If Ollama or the configured model is unavailable, deterministic analysis and
+   exports still work.
+
+Local runtime requirements:
+
+```bash
+ollama serve
+ollama pull qwen2.5-coder:7b
+```
+
+The initial policy allows only `localhost`, `127.0.0.1`, or `::1` Ollama
+endpoints. Models are user-installed and are not bundled with ArchScope. See
+`docs/en/AI_INTERPRETATION.md` for the full gate, redaction, prompt-injection,
+and reporting policy.

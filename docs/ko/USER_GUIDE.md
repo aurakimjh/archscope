@@ -85,6 +85,31 @@ go run ./cmd/archscope-engine report html \
 현재 지원 evidence family는 `docs/ko/IMPORTER_SUPPORT_MATRIX.md`에 정리되어
 있습니다.
 
+## 지원 언어와 Evidence 범위
+
+ArchScope의 지원 범위는 evidence 기반입니다. Runtime artifact, log, profile,
+trace, contract를 분석하며, application source code를 정적 분석하거나 직접
+수정하지 않습니다.
+
+| 영역 | 현재 지원 |
+| --- | --- |
+| ArchScope 구현 | Go engine, Wails desktop app, React/TypeScript frontend |
+| JVM / Java evidence | GC log, JFR JSON, native-memory event, Java thread dump, jcmd JSON thread dump, Java exception stack, async-profiler/Jennifer profile evidence |
+| Go evidence | goroutine dump, panic stack, pprof-compatible profile |
+| Python evidence | traceback block, py-spy/faulthandler-style dump, py-spy profile evidence |
+| Node.js evidence | diagnostic report, sample trace, JavaScript stack trace |
+| .NET evidence | clrstack, Environment.StackTrace, exception/IIS evidence, dotnet-trace speedscope export |
+| Ruby / PHP / Swift / native profile evidence | rbspy, StackProf, PHP Excimer/Tideways/Xdebug, Swift/async stack, perf collapsed/native stack을 지원 profile artifact로 제공한 경우 |
+| 언어 중립 evidence | access/edge log, server log, OpenTelemetry log/trace, metrics snapshot, database/broker/platform evidence, OpenAPI, AsyncAPI, stitched evidence, architecture-doc draft |
+
+지원하지 않거나 보류된 범위:
+
+- Static source-code analysis, AST indexing, repository-wide code search,
+  code quality scanning, automatic source modification.
+- Heap dump parsing(`.hprof`)과 live CPU/RSS/syscall sampling 같은
+  process/system monitoring.
+- Roadmap에서 Active TO-DO로 승격되지 않은 direct SaaS APM connector.
+
 ## 네이티브 앱
 
 데스크톱 UI와 패키징 흐름은 `docs/ko/NATIVE_APP.md`를 기준으로
@@ -99,3 +124,29 @@ AI 해석은 선택 기능이며 로컬 전용입니다. Go 구현은
 `internal/aiinterpretation` 아래에 있으며 evidence 기반 prompt 생성,
 민감정보 redaction, evidence reference 검증, localhost Ollama URL 제한을
 수행합니다.
+
+이 기능은 source-editing coding agent가 아닙니다. 이미 생성된
+`AnalysisResult`를 대상으로 하는 evidence-bound interpretation assistant이며,
+deterministic analyzer output이 항상 source of truth입니다.
+
+사용자 관점 흐름:
+
+1. Deterministic analyzer를 실행하고 결과를 Analysis Workspace에 추가합니다.
+2. AI interpretation payload가 있으면 Analysis Workspace가 provider, model,
+   prompt version, disabled state, finding count, gate status를 표시합니다.
+3. AI finding은 별도 AI-assisted panel에 표시되며, evidence gate를 통과한
+   경우에만 Evidence Board 또는 Report Pack에 연결됩니다.
+4. Ollama 또는 configured model을 사용할 수 없어도 deterministic analysis와
+   export는 계속 동작합니다.
+
+로컬 runtime 준비:
+
+```bash
+ollama serve
+ollama pull qwen2.5-coder:7b
+```
+
+초기 정책은 `localhost`, `127.0.0.1`, `::1` Ollama endpoint만 허용합니다.
+Model은 사용자가 설치하며 ArchScope desktop package에 번들링하지 않습니다.
+전체 gate, redaction, prompt-injection, reporting 정책은
+`docs/ko/AI_INTERPRETATION.md`를 기준으로 확인합니다.
