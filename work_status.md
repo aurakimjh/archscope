@@ -17,9 +17,10 @@ The previous long-form history was archived to
 - Release baseline: `v0.3.5` is the latest stable GitHub release. The
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
-- Current execution focus: prepare the next evidence family, starting with
-  T-556 through T-561 security/compliance evidence contracts and source-aligned
-  documentation.
+- Current execution focus: post-`v0.3.5` roadmap review. Long-term external
+  APM import and direct SaaS/product-specific connectors remain roadmap
+  candidates; no post-T-555 work is promoted into Active TO-DO until the next
+  implementation slice is explicitly selected.
 - Retired implementation: Python/FastAPI/browser sources are archived under
   `archive/python-engine` and `archive/web-frontend-python`.
 - Historical native POC module has been folded into `apps/engine-native`.
@@ -197,20 +198,21 @@ filtered before analysis.
 
 ## Next Execution Queue
 
-1. Start T-556 through T-561 to add security/compliance evidence contracts:
-   sensitive-data exposure, OWASP-oriented log/error patterns, SBOM/CycloneDX
-   feasibility, vulnerability/license impact mapping, and source-backed threat
-   model/report sections.
-2. Use `v0.3.6` as the next candidate release only after the security/compliance
-   scope has source-backed evidence, tests, documentation, and report-pack
-   behavior.
-3. Keep `v0.3.5` release verification healthy by monitoring the release
+1. Keep `v0.3.5` release verification healthy by monitoring the release
    workflow, release asset availability, and app/package metadata alignment.
+2. Review the long-term external APM import roadmap before assigning any new
+   T-556+ implementation range. Local file imports already cover OTLP, Zipkin,
+   Elastic APM, Jaeger, and SkyWalking-style trace evidence; direct SaaS and
+   product-specific connectors remain deferred until token storage, redaction,
+   compliance, connector testability, and source-evidence contracts are clear.
+3. Keep security/compliance evidence as a roadmap candidate, not an active
+   TO-DO range, until it is selected against the external APM roadmap and the
+   next release objective.
 4. Continue pairing English/Korean docs whenever importer, analyzer, UI, or
    report-pack surfaces change.
-5. Reserve `v0.4.0` for a broader Evidence Studio roll-up after
-   security/compliance evidence and the Mid-Term Plus source families have
-   stabilized as one coherent workflow.
+5. Reserve `v0.4.0` for a broader Evidence Studio roll-up after the remaining
+   roadmap candidates are prioritized and the chosen source families stabilize
+   as one coherent workflow.
 6. Keep release verification healthy before each release cut by repeating
    Windows GUI smoke, macOS signing/notarization validation, frontend bundle
    budget checks, and representative real-export fixture updates.
@@ -234,18 +236,23 @@ filtered before analysis.
 | Classification | Priority | TO-DO range | Target release | Execution rule |
 |---|---|---|---|---|
 | Completed Mid-Term Plus roll-up | P1/P2 | T-468 through T-555 | v0.3.5 | Shipped as one stable release covering ingestion foundations, access/edge, server, observability, database, broker, platform, profiling, stitching, API/event contracts, architecture docs, and documentation alignment. |
-| Security/compliance evidence | P1/P2 | T-556 through T-561 | v0.3.6 candidate | Promote only evidence-backed checks; avoid report claims that cannot be traced to local source artifacts. |
-| Evidence Studio stabilization | P1/P2 | Post T-561 | v0.4.0 candidate | Treat the full importer, contract, stitching, report-pack, and AI-gated interpretation workflow as one user story before a broader roll-up release. |
+| Long-term external APM import | P2/P3 | Not assigned | Roadmap candidate | Keep direct SaaS/product connectors deferred until local token policy, redaction, compliance, connector fixtures, and evidence contracts are ready. |
+| Security/compliance evidence | P1/P2 | Not assigned | Roadmap candidate | Promote only evidence-backed checks after the external APM roadmap and next release objective are reviewed. |
+| Evidence Studio stabilization | P1/P2 | Not assigned | v0.4.0 candidate | Treat the full importer, contract, stitching, report-pack, and AI-gated interpretation workflow as one user story before a broader roll-up release. |
 
 ## Version Milestone Plan
 
 | Release | Complete through | Release type | Required contents before cut |
 |---|---|---|---|
 | v0.3.5 | T-468 through T-555 | Stable Evidence Studio expansion | Released 2026-05-17 with Mid-Term Plus importers, API/event contract analysis, architecture docs drafts, advanced stitching, version metadata, changelog, release tag, and release workflow verification. |
-| v0.3.6 candidate | T-556 through T-561 | Security/compliance evidence release | Sensitive-data exposure/redaction evidence, OWASP-oriented log/error pattern inventory, SBOM/CycloneDX feasibility, vulnerability/license impact map, and source-backed security report sections are implemented and documented. |
-| v0.4.0 candidate | Post T-561 stabilization | Evidence Studio roll-up | Full local evidence workflow is smoke-tested as one product story with sample packs, report exports, regression tests, AI gate checks, and release notes that present the expanded capability coherently. |
+| Next candidate | Not assigned | Roadmap-selected slice | Select after reviewing long-term external APM import, security/compliance evidence, and stabilization needs; assign T-556+ only after the scope is explicitly promoted. |
+| v0.4.0 candidate | Not assigned | Evidence Studio roll-up | Full local evidence workflow is smoke-tested as one product story with sample packs, report exports, regression tests, AI gate checks, and release notes that present the expanded capability coherently. |
 
 ## Active TO-DO
+
+No post-T-555 items are active yet. Roadmap candidates, including long-term
+external APM import and security/compliance evidence, must be explicitly
+promoted before T-556+ IDs are allocated.
 
 | ID | Priority | Status | Task | Depends on | Output |
 |---|---|---|---|---|---|
@@ -391,12 +398,6 @@ filtered before analysis.
 | T-553 | P2 | [x] | Surface advanced stitched-evidence signals in Incident Timeline, Service Flow, and Golden Signals. | T-552 | Completed 2026-05-17: time-window and trace-profile matches feed Incident Timeline labels, Service Flow match status, and Golden Signal summaries |
 | T-554 | P2 | [x] | Add a stitched-evidence detail view or drilldown-ready state projection for the desktop UI. | T-552 | Completed 2026-05-17: desktop state can drill from match events into `match_drilldowns` and raw source node rows |
 | T-555 | P2 | [x] | Update English/Korean docs, examples, and support matrix for architecture docs and advanced stitching work. | T-543 through T-554 | Completed 2026-05-17: updated data model, parser design, roadmap, importer matrix, and stitching examples |
-| T-556 | P1 | [ ] | Define the sensitive-data exposure and redaction evidence contract for logs, report packs, AI prompts, and exported evidence previews. | T-454, T-519 | Planned: source-backed redaction and exposure evidence contract |
-| T-557 | P1 | [ ] | Add an OWASP Top 10 oriented access/error/log pattern inventory that maps observed local evidence to security risk hints without inventing unsupported findings. | T-556, access/server/platform evidence | Planned: deterministic pattern inventory and finding taxonomy |
-| T-558 | P2 | [ ] | Investigate SBOM and CycloneDX import feasibility for offline component, package, and service ownership evidence. | T-468, T-519 | Planned: importer feasibility note plus sample contract if viable |
-| T-559 | P2 | [ ] | Design vulnerability, license, component, and affected-service impact mapping from SBOM/security evidence into Evidence Board and report packs. | T-558, T-556 | Planned: impact map contract and report integration plan |
-| T-560 | P2 | [ ] | Add threat-model, security logging, and redaction report sections only when source evidence exists and every claim has evidence references. | T-556 through T-559 | Planned: source-backed report sections |
-| T-561 | P2 | [ ] | Update English/Korean docs, examples, support matrix, and release notes for the security/compliance evidence wave. | T-556 through T-560 | Planned: paired documentation and examples |
 
 ## Verification Notes
 
