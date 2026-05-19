@@ -9,10 +9,12 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { HelpTip, HelpedLabel, HelpedTitle } from "@/components/HelpTip";
 import { MetricCard } from "@/components/MetricCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { getHelpText } from "@/help/helpCatalog";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useAnalysisWorkspace } from "@/state/analysisWorkspace";
 import { addEvidenceCard } from "@/state/evidenceBoard";
@@ -28,7 +30,7 @@ import {
 const ALL = "__all__";
 
 export function ServiceFlowPage(): JSX.Element {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const workspace = useAnalysisWorkspace();
   const analysis = useMemo(
     () => buildServiceFlowAnalysis(workspace.entries),
@@ -113,7 +115,11 @@ export function ServiceFlowPage(): JSX.Element {
     <main className="content">
       <section className="card workspace-header">
         <div>
-          <h2>{t("navServiceFlow")}</h2>
+          <h2>
+            <HelpedTitle help={getHelpText(locale, "pageServiceFlow")}>
+              {t("navServiceFlow")}
+            </HelpedTitle>
+          </h2>
           <p className="muted">{t("serviceFlowDescription")}</p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -144,11 +150,14 @@ export function ServiceFlowPage(): JSX.Element {
           <CardTitle className="flex items-center gap-2 text-sm">
             <Filter className="h-4 w-4" />
             {t("serviceFlowFilters")}
+            <HelpTip text={getHelpText(locale, "sectionFilters")} />
           </CardTitle>
         </CardHeader>
         <CardContent className="grid gap-3 md:grid-cols-[1fr_12rem]">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">{t("serviceFlowSearch")}</span>
+            <HelpedLabel help={getHelpText(locale, "optionSearch")} className="text-muted-foreground">
+              {t("serviceFlowSearch")}
+            </HelpedLabel>
             <div className="relative">
               <Search className="pointer-events-none absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
@@ -160,7 +169,9 @@ export function ServiceFlowPage(): JSX.Element {
             </div>
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">{t("serviceFlowSeverity")}</span>
+            <HelpedLabel help={getHelpText(locale, "optionSeverity")} className="text-muted-foreground">
+              {t("serviceFlowSeverity")}
+            </HelpedLabel>
             <select
               className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
               value={severity}
@@ -186,6 +197,7 @@ export function ServiceFlowPage(): JSX.Element {
           <CardTitle className="flex items-center gap-2 text-sm">
             <AlertTriangle className="h-4 w-4" />
             {t("serviceFlowFindingsTable")}
+            <HelpTip text={getHelpText(locale, "sectionServiceFindings")} />
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
@@ -223,6 +235,7 @@ export function ServiceFlowPage(): JSX.Element {
           <CardTitle className="flex items-center gap-2 text-sm">
             <Network className="h-4 w-4" />
             {t("serviceFlowEdgesTable")}
+            <HelpTip text={getHelpText(locale, "sectionServiceEdges")} />
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">

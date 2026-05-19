@@ -15,6 +15,7 @@
 import { X } from "lucide-react";
 import { useEffect, type ReactNode } from "react";
 
+import { HelpTip } from "./HelpTip";
 import { Button } from "./ui/button";
 
 export type SlideOverPanelProps = {
@@ -26,6 +27,7 @@ export type SlideOverPanelProps = {
   width?: number;
   /** Extra footer content (e.g. action buttons). */
   footer?: ReactNode;
+  helpText?: string | null;
 };
 
 export function SlideOverPanel({
@@ -35,6 +37,7 @@ export function SlideOverPanel({
   children,
   width = 480,
   footer,
+  helpText,
 }: SlideOverPanelProps): JSX.Element {
   // Close on Escape so keyboard users don't have to reach for the
   // close button. Bound on the document so it works even when focus
@@ -84,7 +87,10 @@ export function SlideOverPanel({
         className="bg-background"
       >
         <header className="flex items-center justify-between border-b border-border px-4 py-3">
-          <h3 className="text-sm font-semibold">{title}</h3>
+          <h3 className="inline-flex min-w-0 items-center gap-2 text-sm font-semibold">
+            <span className="min-w-0 truncate">{title}</span>
+            {helpText && <HelpTip text={helpText} />}
+          </h3>
           <Button
             type="button"
             size="sm"

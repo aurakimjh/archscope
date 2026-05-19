@@ -7,6 +7,10 @@
 // Wails 셸의 CSS variable 기반 테마와 충돌하지 않도록 self-contained.
 // ─────────────────────────────────────────────────────────────────────
 import { cn } from "@/lib/utils";
+import { getGenericMetricHelpText } from "@/help/helpCatalog";
+import { useI18n } from "@/i18n/I18nProvider";
+
+import { HelpTip } from "./HelpTip";
 
 // Lifted in spirit from apps/frontend/src/components/MetricCard.tsx but
 // re-styled with Tailwind utilities so the component stays self-contained
@@ -19,13 +23,19 @@ type MetricCardProps = {
   label: string;
   value: string | number;
   className?: string;
+  helpText?: string | null;
 };
 
 export function MetricCard({
   label,
   value,
   className,
+  helpText,
 }: MetricCardProps): JSX.Element {
+  const { locale } = useI18n();
+  const resolvedHelp =
+    helpText === null ? null : helpText ?? getGenericMetricHelpText(locale, label);
+
   return (
     <div
       className={cn(
@@ -33,9 +43,12 @@ export function MetricCard({
         className,
       )}
     >
-      <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-        {label}
-      </span>
+      <div className="flex min-w-0 items-start justify-between gap-2">
+        <span className="min-w-0 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+          {label}
+        </span>
+        {resolvedHelp && <HelpTip text={resolvedHelp} align="end" />}
+      </div>
       <strong className="text-base font-semibold tabular-nums">
         {value}
       </strong>

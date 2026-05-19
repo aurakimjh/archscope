@@ -12,7 +12,10 @@
 import { echarts, type ECharts, type EChartsOption } from "@/charts/echartsCore";
 import { useEffect, useMemo, useRef, type ReactNode } from "react";
 
+import { HelpTip } from "@/components/HelpTip";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getGenericChartHelpText } from "@/help/helpCatalog";
+import { useI18n } from "@/i18n/I18nProvider";
 import { cn } from "@/lib/utils";
 
 // Simplified ChartPanel for the Wails app. The web ChartPanel
@@ -35,6 +38,7 @@ export type ChartPanelProps = {
   renderer?: "canvas" | "svg";
   actions?: ReactNode;
   onReady?: (chart: ECharts | null) => void;
+  helpText?: string | null;
 };
 
 export function ChartPanel({
@@ -46,9 +50,13 @@ export function ChartPanel({
   renderer = "canvas",
   actions,
   onReady,
+  helpText,
 }: ChartPanelProps): JSX.Element {
+  const { locale } = useI18n();
   const chartRef = useRef<HTMLDivElement | null>(null);
   const chartInstanceRef = useRef<ECharts | null>(null);
+  const resolvedHelp =
+    helpText === null ? null : helpText ?? getGenericChartHelpText(locale, title);
   const optimizedOption = useMemo<EChartsOption>(
     () => ({ animation: false, ...option }),
     [option],
@@ -90,7 +98,10 @@ export function ChartPanel({
   return (
     <Card className={cn(className)} aria-busy={busy}>
       <CardHeader className="flex flex-row items-center justify-between gap-3 pb-2">
-        <CardTitle className="text-sm">{title}</CardTitle>
+        <CardTitle className="flex min-w-0 items-center gap-2 text-sm">
+          <span className="min-w-0 truncate">{title}</span>
+          {resolvedHelp && <HelpTip text={resolvedHelp} />}
+        </CardTitle>
         {actions}
       </CardHeader>
       <CardContent className="p-3">

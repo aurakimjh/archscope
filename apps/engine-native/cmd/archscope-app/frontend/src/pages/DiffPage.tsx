@@ -27,6 +27,8 @@ import type { FlameNode } from "../../bindings/github.com/aurakimjh/archscope/ap
 
 import { useI18n } from "../i18n/I18nProvider";
 import { CanvasFlameGraph, type FlameGraphNode } from "../components/CanvasFlameGraph";
+import { HelpTip, HelpedLabel, HelpedTitle } from "../components/HelpTip";
+import { getGenericMetricHelpText, getHelpText } from "@/help/helpCatalog";
 
 type DiffFormat = "collapsed" | "jennifer" | "flamegraph_svg" | "flamegraph_html";
 
@@ -65,7 +67,7 @@ function adaptDiffNode(node: FlameNode | null | undefined): FlameGraphNode | nul
 }
 
 export function DiffPage() {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const [baseline, setBaseline] = useState("");
   const [target, setTarget] = useState("");
   const [normalize, setNormalize] = useState(true);
@@ -117,7 +119,11 @@ export function DiffPage() {
   return (
     <main className="content">
       <section className="card">
-        <h2>{t("diffTitle")}</h2>
+        <h2>
+          <HelpedTitle help={getHelpText(locale, "pageDiff")}>
+            {t("diffTitle")}
+          </HelpedTitle>
+        </h2>
         <div className="diff-form">
           <DiffFileRow label={t("diffBaseline")} value={baseline} onPick={() => pickFile(setBaseline)} onChange={setBaseline} disabled={busy} />
           <DiffFileRow label={t("diffTarget")} value={target} onPick={() => pickFile(setTarget)} onChange={setTarget} disabled={busy} />
@@ -128,7 +134,9 @@ export function DiffPage() {
               onChange={(e) => setNormalize(e.target.checked)}
               disabled={busy}
             />
-            <span>{t("diffNormalize")}</span>
+            <HelpedLabel help={getHelpText(locale, "optionNormalize")}>
+              {t("diffNormalize")}
+            </HelpedLabel>
           </label>
           <button
             type="button"
@@ -151,7 +159,11 @@ export function DiffPage() {
 
       {summary && (
         <section className="card">
-          <h2>{t("diffSummary")}</h2>
+          <h2>
+            <HelpedTitle help={getHelpText(locale, "sectionSummary")}>
+              {t("diffSummary")}
+            </HelpedTitle>
+          </h2>
           <div className="metric-grid">
             <Metric label={t("diffBaselineTotal")} value={(summary.baseline_total ?? 0).toLocaleString()} />
             <Metric label={t("diffTargetTotal")} value={(summary.target_total ?? 0).toLocaleString()} />
@@ -178,14 +190,22 @@ export function DiffPage() {
 
       {flame && (
         <section className="card flush">
-          <h2>{t("flamegraphTitle")}</h2>
+          <h2>
+            <HelpedTitle help={getHelpText(locale, "sectionFlamegraph")}>
+              {t("flamegraphTitle")}
+            </HelpedTitle>
+          </h2>
           <CanvasFlameGraph data={flame} exportName="diff-flamegraph" />
         </section>
       )}
 
       {(increases.length > 0 || decreases.length > 0) && (
         <section className="card">
-          <h2>{t("diffSummary")}</h2>
+          <h2>
+            <HelpedTitle help={getHelpText(locale, "genericTable").replace("{title}", t("diffSummary"))}>
+              {t("diffSummary")}
+            </HelpedTitle>
+          </h2>
           <div className="diff-tables">
             {increases.length > 0 && (
               <div>
@@ -263,9 +283,13 @@ function DiffRowsTable({ rows }: { rows: Array<Record<string, any>> }) {
 }
 
 function Metric({ label, value }: { label: string; value: string }) {
+  const { locale } = useI18n();
   return (
     <div className="metric">
-      <div className="metric-label">{label}</div>
+      <div className="metric-label inline-flex items-center gap-1.5">
+        {label}
+        <HelpTip text={getGenericMetricHelpText(locale, label)} align="end" />
+      </div>
       <div className="metric-value">{value}</div>
     </div>
   );

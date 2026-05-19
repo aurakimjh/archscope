@@ -1,8 +1,10 @@
 import { Download, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { HelpTip, HelpedTitle } from "@/components/HelpTip";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getHelpText } from "@/help/helpCatalog";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useAnalysisWorkspace } from "@/state/analysisWorkspace";
 import {
@@ -16,7 +18,7 @@ import {
 import { exportReportPackHTML, exportReportPackZip } from "@/state/reportPack";
 
 export function EvidenceBoardPage(): JSX.Element {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const workspace = useAnalysisWorkspace();
   const [cards, setCards] = useState<EvidenceCard[]>(() => readEvidenceCards());
 
@@ -30,7 +32,11 @@ export function EvidenceBoardPage(): JSX.Element {
     <main className="mx-auto max-w-6xl px-6 py-6">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold">{t("navEvidenceBoard")}</h1>
+          <h1 className="text-xl font-semibold">
+            <HelpedTitle help={getHelpText(locale, "pageEvidenceBoard")}>
+              {t("navEvidenceBoard")}
+            </HelpedTitle>
+          </h1>
           <p className="text-sm text-muted-foreground">
             {cards.length.toLocaleString()} {t("evidenceCards")}
           </p>
@@ -117,12 +123,16 @@ function EvidenceCardItem({
   card: EvidenceCard;
   onRemove: () => void;
 }): JSX.Element {
+  const { locale } = useI18n();
   return (
     <Card>
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <CardTitle className="text-sm">{card.title}</CardTitle>
+            <CardTitle className="inline-flex items-center gap-2 text-sm">
+              <span className="min-w-0 truncate">{card.title}</span>
+              <HelpTip text={getHelpText(locale, "sectionEvidenceCard")} />
+            </CardTitle>
             <div className="mt-1 flex flex-wrap gap-1.5 text-[10px] uppercase tracking-wide text-muted-foreground">
               <span className="rounded bg-muted px-1.5 py-0.5">{card.analyzer}</span>
               <span className="rounded bg-muted px-1.5 py-0.5">{card.source_kind}</span>

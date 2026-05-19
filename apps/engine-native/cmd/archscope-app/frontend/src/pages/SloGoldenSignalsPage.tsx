@@ -9,10 +9,12 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { HelpTip, HelpedLabel, HelpedTitle } from "@/components/HelpTip";
 import { MetricCard } from "@/components/MetricCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { getHelpText } from "@/help/helpCatalog";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useAnalysisWorkspace } from "@/state/analysisWorkspace";
 import { addEvidenceCard } from "@/state/evidenceBoard";
@@ -31,7 +33,7 @@ import {
 const ALL = "__all__";
 
 export function SloGoldenSignalsPage(): JSX.Element {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const workspace = useAnalysisWorkspace();
   const inventory = useMemo(
     () => buildGoldenSignalInventory(workspace.entries),
@@ -117,7 +119,11 @@ export function SloGoldenSignalsPage(): JSX.Element {
     <main className="content">
       <section className="card workspace-header">
         <div>
-          <h2>{t("navSloGoldenSignals")}</h2>
+          <h2>
+            <HelpedTitle help={getHelpText(locale, "pageSloGoldenSignals")}>
+              {t("navSloGoldenSignals")}
+            </HelpedTitle>
+          </h2>
           <p className="muted">{t("sloGoldenSignalsDescription")}</p>
         </div>
       </section>
@@ -135,11 +141,14 @@ export function SloGoldenSignalsPage(): JSX.Element {
           <CardTitle className="flex items-center gap-2 text-sm">
             <Filter className="h-4 w-4" />
             {t("sloFilters")}
+            <HelpTip text={getHelpText(locale, "sectionFilters")} />
           </CardTitle>
         </CardHeader>
         <CardContent className="grid gap-3 md:grid-cols-[1fr_12rem_12rem]">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">{t("sloSearch")}</span>
+            <HelpedLabel help={getHelpText(locale, "optionSearch")} className="text-muted-foreground">
+              {t("sloSearch")}
+            </HelpedLabel>
             <div className="relative">
               <Search className="pointer-events-none absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
@@ -151,7 +160,9 @@ export function SloGoldenSignalsPage(): JSX.Element {
             </div>
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">{t("sloKind")}</span>
+            <HelpedLabel help={getHelpText(locale, "optionSignalKind")} className="text-muted-foreground">
+              {t("sloKind")}
+            </HelpedLabel>
             <select
               className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
               value={kind}
@@ -166,7 +177,9 @@ export function SloGoldenSignalsPage(): JSX.Element {
             </select>
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">{t("sloSeverity")}</span>
+            <HelpedLabel help={getHelpText(locale, "optionSeverity")} className="text-muted-foreground">
+              {t("sloSeverity")}
+            </HelpedLabel>
             <select
               className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
               value={severity}
@@ -192,6 +205,7 @@ export function SloGoldenSignalsPage(): JSX.Element {
           <CardTitle className="flex items-center gap-2 text-sm">
             <ShieldAlert className="h-4 w-4" />
             {t("sloViolationTable")}
+            <HelpTip text={getHelpText(locale, "sectionSloViolations")} />
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
@@ -233,6 +247,7 @@ export function SloGoldenSignalsPage(): JSX.Element {
             <CardTitle className="flex items-center gap-2 text-sm">
               <Gauge className="h-4 w-4" />
               {t("sloSliMetrics")}
+              <HelpTip text={getHelpText(locale, "sectionSliMetrics")} />
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
@@ -249,6 +264,7 @@ export function SloGoldenSignalsPage(): JSX.Element {
             <CardTitle className="flex items-center gap-2 text-sm">
               <ListChecks className="h-4 w-4" />
               {t("sloAffectedBreakdown")}
+              <HelpTip text={getHelpText(locale, "sectionSloAffected")} />
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
@@ -297,6 +313,7 @@ export function SloGoldenSignalsPage(): JSX.Element {
           <CardTitle className="flex items-center gap-2 text-sm">
             <Gauge className="h-4 w-4" />
             {t("sloSignalInventory")}
+            <HelpTip text={getHelpText(locale, "sectionSignalInventory")} />
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">

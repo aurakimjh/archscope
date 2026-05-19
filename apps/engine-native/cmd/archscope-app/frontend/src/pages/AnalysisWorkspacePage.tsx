@@ -4,8 +4,10 @@ import {
   AiInterpretationFindingsPanel,
   AiInterpretationSummary,
 } from "@/components/AiInterpretationPanel";
+import { HelpTip, HelpedTitle } from "@/components/HelpTip";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getHelpText } from "@/help/helpCatalog";
 import { useI18n } from "@/i18n/I18nProvider";
 import {
   clearWorkspaceResults,
@@ -18,7 +20,7 @@ import { getReportableAiFindings } from "@/state/aiInterpretation";
 import { addEvidenceCard } from "@/state/evidenceBoard";
 
 export function AnalysisWorkspacePage(): JSX.Element {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const workspace = useAnalysisWorkspace();
 
   const addEntryEvidence = (entry: AnalysisWorkspaceEntry): void => {
@@ -70,7 +72,11 @@ export function AnalysisWorkspacePage(): JSX.Element {
     <main className="content">
       <section className="card workspace-header">
         <div>
-          <h2>{t("navAnalysisWorkspace")}</h2>
+          <h2>
+            <HelpedTitle help={getHelpText(locale, "pageAnalysisWorkspace")}>
+              {t("navAnalysisWorkspace")}
+            </HelpedTitle>
+          </h2>
           <p className="muted">{t("workspaceDescription")}</p>
         </div>
         <Button
@@ -120,14 +126,16 @@ function WorkspaceResultCard({
   onAiEvidence: () => void;
   onRemove: () => void;
 }): JSX.Element {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const reportableAi = getReportableAiFindings(entry.result);
+  const helpText = getHelpText(locale, "sectionWorkspaceCard");
   return (
     <Card className={active ? "workspace-result-card active" : "workspace-result-card"}>
       <CardHeader className="workspace-card-header">
         <CardTitle className="workspace-card-title">
           <FileText className="nav-lucide-sm" />
-          {entry.title}
+          <span className="min-w-0 truncate">{entry.title}</span>
+          <HelpTip text={helpText} />
         </CardTitle>
         <div className="workspace-card-actions">
           <Button type="button" size="sm" variant={active ? "default" : "outline"} onClick={onSelect}>

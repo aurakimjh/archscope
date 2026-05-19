@@ -23,6 +23,10 @@
 
 import { useMemo } from "react";
 
+import { HelpTip } from "@/components/HelpTip";
+import { getGenericChartHelpText } from "@/help/helpCatalog";
+import { useI18n } from "@/i18n/I18nProvider";
+
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
 type GroupMetrics = {
@@ -112,6 +116,8 @@ const CUSTOM_COLORS = [
 export function MsaResponseTimeBreakdown({
   groups,
 }: MsaResponseTimeBreakdownProps): JSX.Element {
+  const { locale } = useI18n();
+  const helpText = getGenericChartHelpText(locale, "응답시간 구성");
   const {
     totalRoot,
     totalCovered,
@@ -206,7 +212,10 @@ export function MsaResponseTimeBreakdown({
     return (
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm">응답시간 구성</CardTitle>
+          <CardTitle className="inline-flex items-center gap-2 text-sm">
+            응답시간 구성
+            <HelpTip text={helpText} />
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-xs text-muted-foreground">
@@ -222,7 +231,10 @@ export function MsaResponseTimeBreakdown({
     <Card>
       <CardHeader className="pb-3">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-          <CardTitle className="text-sm">응답시간 구성</CardTitle>
+          <CardTitle className="inline-flex items-center gap-2 text-sm">
+            응답시간 구성
+            <HelpTip text={helpText} />
+          </CardTitle>
           <div className="rounded-md border border-border bg-muted/20 px-3 py-2 text-right">
             <div className="text-[10px] font-medium text-muted-foreground">
               Root RT / Categorised

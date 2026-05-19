@@ -7,10 +7,12 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { HelpTip, HelpedLabel, HelpedTitle } from "@/components/HelpTip";
 import { MetricCard } from "@/components/MetricCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { getHelpText } from "@/help/helpCatalog";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useAnalysisWorkspace } from "@/state/analysisWorkspace";
 import { addEvidenceCard } from "@/state/evidenceBoard";
@@ -25,7 +27,7 @@ import {
 const ALL = "__all__";
 
 export function IncidentTimelinePage(): JSX.Element {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const workspace = useAnalysisWorkspace();
   const events = useMemo(
     () => buildIncidentTimelineEvents(workspace.entries),
@@ -114,7 +116,11 @@ export function IncidentTimelinePage(): JSX.Element {
     <main className="content">
       <section className="card workspace-header">
         <div>
-          <h2>{t("navIncidentTimeline")}</h2>
+          <h2>
+            <HelpedTitle help={getHelpText(locale, "pageIncidentTimeline")}>
+              {t("navIncidentTimeline")}
+            </HelpedTitle>
+          </h2>
           <p className="muted">{t("incidentTimelineDescription")}</p>
         </div>
       </section>
@@ -139,11 +145,14 @@ export function IncidentTimelinePage(): JSX.Element {
           <CardTitle className="flex items-center gap-2 text-sm">
             <Filter className="h-4 w-4" />
             {t("incidentTimelineFilters")}
+            <HelpTip text={getHelpText(locale, "sectionFilters")} />
           </CardTitle>
         </CardHeader>
         <CardContent className="grid gap-3 md:grid-cols-[1fr_12rem_12rem_12rem]">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">{t("incidentTimelineSearch")}</span>
+            <HelpedLabel help={getHelpText(locale, "optionSearch")} className="text-muted-foreground">
+              {t("incidentTimelineSearch")}
+            </HelpedLabel>
             <div className="relative">
               <Search className="pointer-events-none absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
@@ -155,7 +164,9 @@ export function IncidentTimelinePage(): JSX.Element {
             </div>
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">{t("incidentTimelineAnalyzer")}</span>
+            <HelpedLabel help={getHelpText(locale, "optionAnalyzer")} className="text-muted-foreground">
+              {t("incidentTimelineAnalyzer")}
+            </HelpedLabel>
             <select
               className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
               value={analyzer}
@@ -170,7 +181,9 @@ export function IncidentTimelinePage(): JSX.Element {
             </select>
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">{t("incidentTimelineSeverity")}</span>
+            <HelpedLabel help={getHelpText(locale, "optionSeverity")} className="text-muted-foreground">
+              {t("incidentTimelineSeverity")}
+            </HelpedLabel>
             <select
               className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
               value={severity}
@@ -183,7 +196,9 @@ export function IncidentTimelinePage(): JSX.Element {
             </select>
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">{t("incidentTimelineGroup")}</span>
+            <HelpedLabel help={getHelpText(locale, "optionGroup")} className="text-muted-foreground">
+              {t("incidentTimelineGroup")}
+            </HelpedLabel>
             <select
               className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
               value={group}
@@ -203,7 +218,10 @@ export function IncidentTimelinePage(): JSX.Element {
       {groups.length > 0 && (
         <Card className="mt-4">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm">{t("incidentTimelineGroups")}</CardTitle>
+            <CardTitle className="inline-flex items-center gap-2 text-sm">
+              {t("incidentTimelineGroups")}
+              <HelpTip text={getHelpText(locale, "sectionIncidentGroups")} />
+            </CardTitle>
           </CardHeader>
           <CardContent className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
             {groups.slice(0, 6).map((item) => (
@@ -223,7 +241,10 @@ export function IncidentTimelinePage(): JSX.Element {
 
       <Card className="mt-4">
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm">{t("incidentTimelineNarrative")}</CardTitle>
+          <CardTitle className="inline-flex items-center gap-2 text-sm">
+            {t("incidentTimelineNarrative")}
+            <HelpTip text={getHelpText(locale, "sectionIncidentNarrative")} />
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           {narrative.length === 0 ? (
@@ -246,6 +267,7 @@ export function IncidentTimelinePage(): JSX.Element {
             <span className="flex items-center gap-2">
               <Clock3 className="h-4 w-4" />
               {t("incidentTimeline")}
+              <HelpTip text={getHelpText(locale, "sectionIncidentTimeline")} />
             </span>
             <span className="text-xs font-normal text-muted-foreground">{timeWindow}</span>
           </CardTitle>

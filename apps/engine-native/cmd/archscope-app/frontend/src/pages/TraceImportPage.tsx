@@ -18,6 +18,7 @@ import {
 } from "@/components/AnalyzerFeedback";
 import { AnalyzerOptionsDock } from "@/components/AnalyzerOptionsDock";
 import { ChartPanel } from "@/components/ChartPanel";
+import { HelpTip, HelpedLabel } from "@/components/HelpTip";
 import { MetricCard } from "@/components/MetricCard";
 import {
   WailsFileDock,
@@ -37,6 +38,7 @@ import {
   traceServiceOption,
   type TraceImportChartLabels,
 } from "@/charts/traceImportCharts";
+import { getHelpText } from "@/help/helpCatalog";
 import { useI18n, type MessageKey } from "@/i18n/I18nProvider";
 import { addWorkspaceResult } from "@/state/analysisWorkspace";
 import { addEvidenceCard } from "@/state/evidenceBoard";
@@ -60,7 +62,7 @@ const TRACE_FORMATS = [
 ] as const;
 
 export function TraceImportPage(): JSX.Element {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const [selectedFile, setSelectedFile] = useState<FileDockSelection | null>(
     null,
   );
@@ -176,6 +178,7 @@ export function TraceImportPage(): JSX.Element {
         <WailsFileDock
           className="min-w-0 flex-1"
           label={t("selectTraceImportFile")}
+          helpText={getHelpText(locale, "pageTraceImport")}
           description={t("dropOrBrowseTraceImport")}
           accept=".json,.jsonl,.ndjson,.txt"
           selected={selectedFile}
@@ -219,7 +222,9 @@ export function TraceImportPage(): JSX.Element {
         />
         <AnalyzerOptionsDock title={t("analyzerOptions")}>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">{t("format")}</span>
+            <HelpedLabel help={getHelpText(locale, "optionFormat")} className="text-muted-foreground">
+              {t("format")}
+            </HelpedLabel>
             <select
               className="h-9 w-56 rounded-md border border-input bg-background px-3 text-sm"
               value={format}
@@ -235,7 +240,9 @@ export function TraceImportPage(): JSX.Element {
             </select>
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">{t("topN")}</span>
+            <HelpedLabel help={getHelpText(locale, "optionTopN")} className="text-muted-foreground">
+              {t("topN")}
+            </HelpedLabel>
             <Input
               value={topN}
               onChange={(event) => setTopN(event.currentTarget.value)}
@@ -360,10 +367,14 @@ function FindingsList({
   t: (key: MessageKey) => string;
   onAddEvidence: (finding: JvmFinding) => void;
 }): JSX.Element {
+  const { locale } = useI18n();
   return (
     <Card className="mt-4">
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm">{t("findings")}</CardTitle>
+        <CardTitle className="inline-flex items-center gap-2 text-sm">
+          {t("findings")}
+          <HelpTip text={getHelpText(locale, "sectionFindings")} />
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-2 pt-0 text-sm">
         {findings.length === 0 ? (
@@ -552,10 +563,14 @@ function TableCard({
   title: string;
   children: React.ReactNode;
 }): JSX.Element {
+  const { locale } = useI18n();
   return (
     <Card className="mt-4">
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm">{title}</CardTitle>
+        <CardTitle className="inline-flex items-center gap-2 text-sm">
+          {title}
+          <HelpTip text={getHelpText(locale, "genericTable")} />
+        </CardTitle>
       </CardHeader>
       <CardContent className="overflow-x-auto p-0">
         <table className="w-full text-xs">{children}</table>

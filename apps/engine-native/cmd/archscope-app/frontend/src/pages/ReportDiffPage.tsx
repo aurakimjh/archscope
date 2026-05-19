@@ -4,9 +4,11 @@ import { useState } from "react";
 
 import { engine } from "@/bridge/engine";
 import type { AnalysisResult } from "@/bridge/types";
+import { HelpTip, HelpedTitle } from "@/components/HelpTip";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { getGenericMetricHelpText, getHelpText } from "@/help/helpCatalog";
 import { useI18n } from "@/i18n/I18nProvider";
 import { addWorkspaceResult } from "@/state/analysisWorkspace";
 import { formatNumber } from "@/utils/formatters";
@@ -20,7 +22,7 @@ type MetricDeltaRow = {
 };
 
 export function ReportDiffPage(): JSX.Element {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const [beforePath, setBeforePath] = useState("");
   const [afterPath, setAfterPath] = useState("");
   const [label, setLabel] = useState("");
@@ -71,7 +73,11 @@ export function ReportDiffPage(): JSX.Element {
   return (
     <main className="content">
       <section className="card">
-        <h2>{t("navReportDiff")}</h2>
+        <h2>
+          <HelpedTitle help={getHelpText(locale, "pageReportDiff")}>
+            {t("navReportDiff")}
+          </HelpedTitle>
+        </h2>
         <div className="diff-form">
           <PathPicker label={t("beforeJson")} value={beforePath} onPick={() => void pickJson(setBeforePath)} onChange={setBeforePath} />
           <PathPicker label={t("afterJson")} value={afterPath} onPick={() => void pickJson(setAfterPath)} onChange={setAfterPath} />
@@ -100,7 +106,11 @@ export function ReportDiffPage(): JSX.Element {
 
       {summary ? (
         <section className="card">
-          <h2>{t("diffSummary")}</h2>
+          <h2>
+            <HelpedTitle help={getHelpText(locale, "sectionSummary")}>
+              {t("diffSummary")}
+            </HelpedTitle>
+          </h2>
           <div className="metric-grid">
             <Metric label={t("diffBeforeType")} value={String(summary.before_type ?? "-")} />
             <Metric label={t("diffAfterType")} value={String(summary.after_type ?? "-")} />
@@ -116,6 +126,7 @@ export function ReportDiffPage(): JSX.Element {
             <CardTitle className="flex items-center gap-2 text-sm">
               <GitCompareArrows className="nav-lucide-sm" />
               {t("diffMetricDeltas")}
+              <HelpTip text={getHelpText(locale, "sectionReportMetricDeltas")} />
             </CardTitle>
           </CardHeader>
           <CardContent className="overflow-x-auto">
@@ -177,9 +188,13 @@ function PathPicker({
 }
 
 function Metric({ label, value }: { label: string; value: string }): JSX.Element {
+  const { locale } = useI18n();
   return (
     <div className="metric">
-      <div className="metric-label">{label}</div>
+      <div className="metric-label inline-flex items-center gap-1.5">
+        {label}
+        <HelpTip text={getGenericMetricHelpText(locale, label)} align="end" />
+      </div>
       <div className="metric-value">{value}</div>
     </div>
   );

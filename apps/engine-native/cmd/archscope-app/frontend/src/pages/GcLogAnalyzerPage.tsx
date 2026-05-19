@@ -36,6 +36,7 @@ import {
 } from "@/components/AnalyzerFeedback";
 import { AnalyzerOptionsDock } from "@/components/AnalyzerOptionsDock";
 import { ChartPanel } from "@/components/ChartPanel";
+import { HelpTip, HelpedLabel } from "@/components/HelpTip";
 import { MetricCard } from "@/components/MetricCard";
 import { RecentFilesPanel } from "@/components/RecentFilesPanel";
 import {
@@ -63,6 +64,7 @@ import {
   type GcChartLabels,
   type HeapSeriesId,
 } from "@/charts/gcLogCharts";
+import { getHelpText } from "@/help/helpCatalog";
 import { useI18n, type MessageKey } from "@/i18n/I18nProvider";
 import { addWorkspaceResult } from "@/state/analysisWorkspace";
 import { addEvidenceCard } from "@/state/evidenceBoard";
@@ -95,7 +97,7 @@ type AnalyzerState = "idle" | "ready" | "running" | "success" | "error";
 const MAX_EVENT_ROWS = 200;
 
 export function GcLogAnalyzerPage(): JSX.Element {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const [selectedFile, setSelectedFile] = useState<FileDockSelection | null>(
     null,
   );
@@ -325,6 +327,7 @@ export function GcLogAnalyzerPage(): JSX.Element {
         <WailsFileDock
           className="min-w-0 flex-1"
           label={t("selectGcLogFile")}
+          helpText={getHelpText(locale, "pageGcLog")}
           description={t("dropOrBrowseGcLog")}
           accept=".log,.txt,.gz"
           selected={selectedFile}
@@ -399,9 +402,9 @@ export function GcLogAnalyzerPage(): JSX.Element {
         >
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           <label className="flex flex-col gap-1.5 text-xs">
-            <span className="font-medium text-foreground/80">
+            <HelpedLabel help={getHelpText(locale, "optionMaxLines")} className="font-medium text-foreground/80">
               {t("maxLines")}
-            </span>
+            </HelpedLabel>
             <Input
               type="number"
               min={1}
@@ -411,9 +414,9 @@ export function GcLogAnalyzerPage(): JSX.Element {
             />
           </label>
           <label className="flex flex-col gap-1.5 text-xs">
-            <span className="font-medium text-foreground/80">
+            <HelpedLabel help={getHelpText(locale, "optionTopN")} className="font-medium text-foreground/80">
               {t("gcLogTopN")}
-            </span>
+            </HelpedLabel>
             <Input
               type="number"
               min={1}
@@ -429,9 +432,9 @@ export function GcLogAnalyzerPage(): JSX.Element {
               checked={strict}
               onChange={(event) => setStrict(event.target.checked)}
             />
-            <span className="font-medium text-foreground/80">
+            <HelpedLabel help={getHelpText(locale, "optionStrict")} className="font-medium text-foreground/80">
               {t("gcLogStrict")}
-            </span>
+            </HelpedLabel>
           </label>
           </div>
         </AnalyzerOptionsDock>
@@ -538,7 +541,10 @@ export function GcLogAnalyzerPage(): JSX.Element {
           {findings.length > 0 && (
             <Card className="mt-4">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm">{t("findings")}</CardTitle>
+                <CardTitle className="inline-flex items-center gap-2 text-sm">
+                  {t("findings")}
+                  <HelpTip text={getHelpText(locale, "sectionFindings")} />
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-1 pt-0 text-sm">
                 {findings.map((finding, idx) => (
@@ -680,7 +686,10 @@ export function GcLogAnalyzerPage(): JSX.Element {
             <AlertRowsTable rows={alertRows} t={t} onEvidence={addAlertEvidence} />
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm">{t("gcEventTable")}</CardTitle>
+                <CardTitle className="inline-flex items-center gap-2 text-sm">
+                  {t("gcEventTable")}
+                  <HelpTip text={getHelpText(locale, "sectionGcEvents")} />
+                </CardTitle>
               </CardHeader>
               <CardContent className="overflow-x-auto p-0">
                 <table className="w-full text-xs">
@@ -811,10 +820,14 @@ function AlertRowsTable({
   t: (key: MessageKey) => string;
   onEvidence: (row: GcAlertRow) => void;
 }): JSX.Element {
+  const { locale } = useI18n();
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm">{t("gcAlertTable")}</CardTitle>
+        <CardTitle className="inline-flex items-center gap-2 text-sm">
+          {t("gcAlertTable")}
+          <HelpTip text={getHelpText(locale, "sectionGcAlerts")} />
+        </CardTitle>
       </CardHeader>
       <CardContent className="overflow-x-auto p-0">
         <table className="w-full text-xs">
@@ -1000,6 +1013,7 @@ function JvmInfoPanel({
   info: GcJvmInfo | undefined;
   t: (key: MessageKey) => string;
 }): JSX.Element {
+  const { locale } = useI18n();
   const [copied, setCopied] = useState(false);
 
   if (!info || Object.keys(info).length === 0) {
@@ -1093,7 +1107,10 @@ function JvmInfoPanel({
 
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm">{t("jvmInfoTitle")}</CardTitle>
+          <CardTitle className="inline-flex items-center gap-2 text-sm">
+            {t("jvmInfoTitle")}
+            <HelpTip text={getHelpText(locale, "sectionJvmInfo")} />
+          </CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           <JvmInfoSection
@@ -1122,8 +1139,9 @@ function JvmInfoPanel({
       {info.command_line && (
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-            <CardTitle className="text-sm">
+            <CardTitle className="inline-flex items-center gap-2 text-sm">
               {t("jvmInfoSectionCommandLine")}
+              <HelpTip text={getHelpText(locale, "sectionJvmInfo")} />
             </CardTitle>
             <Button
               type="button"
@@ -1146,8 +1164,9 @@ function JvmInfoPanel({
       {info.raw_lines && info.raw_lines.length > 0 && (
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm">
+            <CardTitle className="inline-flex items-center gap-2 text-sm">
               {t("jvmInfoSectionRaw")}
+              <HelpTip text={getHelpText(locale, "sectionJvmInfo")} />
             </CardTitle>
           </CardHeader>
           <CardContent>

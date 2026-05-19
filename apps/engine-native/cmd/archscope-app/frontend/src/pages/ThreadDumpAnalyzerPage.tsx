@@ -83,6 +83,7 @@ import {
   ErrorPanel,
 } from "@/components/AnalyzerFeedback";
 import { AnalyzerOptionsDock } from "@/components/AnalyzerOptionsDock";
+import { HelpTip, HelpedLabel } from "@/components/HelpTip";
 import { MetricCard } from "@/components/MetricCard";
 import {
   WailsFileDock,
@@ -103,6 +104,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import { getHelpText } from "@/help/helpCatalog";
 import { useI18n, type MessageKey } from "@/i18n/I18nProvider";
 import { cn } from "@/lib/utils";
 import { addWorkspaceResult } from "@/state/analysisWorkspace";
@@ -159,7 +161,7 @@ const FILE_FILTERS = [
 ];
 
 export function ThreadDumpAnalyzerPage(): JSX.Element {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const [mode, setMode] = useState<AnalysisMode>("single");
   const [files, setFiles] = useState<FileDockSelection[]>([]);
   const [singleFile, setSingleFile] = useState<FileDockSelection | null>(
@@ -413,7 +415,10 @@ export function ThreadDumpAnalyzerPage(): JSX.Element {
     <main className="flex flex-col gap-5 p-5">
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm">{t("threadDumpModeLabel")}</CardTitle>
+          <CardTitle className="inline-flex items-center gap-2 text-sm">
+            {t("threadDumpModeLabel")}
+            <HelpTip text={getHelpText(locale, "sectionThreadMode")} />
+          </CardTitle>
           <CardDescription>
             {mode === "single"
               ? t("threadDumpModeSingleHint")
@@ -447,6 +452,7 @@ export function ThreadDumpAnalyzerPage(): JSX.Element {
             <WailsFileDock
               className="min-w-0"
               label={t("threadDumpSelectFile")}
+              helpText={getHelpText(locale, "pageThreadDump")}
               description={t("threadDumpDropOrBrowse")}
               accept=".txt,.log,.dump,.json"
               selected={singleFile}
@@ -506,9 +512,9 @@ export function ThreadDumpAnalyzerPage(): JSX.Element {
         >
           <div className="grid grid-cols-1 gap-3">
           <label className="flex flex-col gap-1.5 text-xs">
-            <span className="font-medium text-foreground/80">
+            <HelpedLabel help={getHelpText(locale, "optionTopN")} className="font-medium text-foreground/80">
               {t("topN")}
-            </span>
+            </HelpedLabel>
             <Input
               type="number"
               min={1}
@@ -520,9 +526,9 @@ export function ThreadDumpAnalyzerPage(): JSX.Element {
           </label>
           {mode === "multi" && (
             <label className="flex flex-col gap-1.5 text-xs">
-              <span className="font-medium text-foreground/80">
+              <HelpedLabel help={getHelpText(locale, "optionThreadThreshold")} className="font-medium text-foreground/80">
                 {t("threadDumpThreshold")}
-              </span>
+              </HelpedLabel>
               <Input
                 type="number"
                 min={1}
@@ -535,9 +541,9 @@ export function ThreadDumpAnalyzerPage(): JSX.Element {
           )}
           {mode !== "single" && (
             <label className="flex flex-col gap-1.5 text-xs">
-              <span className="font-medium text-foreground/80">
+              <HelpedLabel help={getHelpText(locale, "optionThreadFormat")} className="font-medium text-foreground/80">
                 {t("threadDumpFormatOverride")}
-              </span>
+              </HelpedLabel>
               <Input
                 type="text"
                 placeholder={t("threadDumpFormatOverridePlaceholder")}
@@ -682,12 +688,14 @@ function MultiFileDock({
   onRun,
   onCancel,
 }: MultiFileDockProps): JSX.Element {
+  const { locale } = useI18n();
   return (
     <Card>
       <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0 pb-3">
         <div className="min-w-0">
-          <CardTitle className="text-sm">
+          <CardTitle className="inline-flex items-center gap-2 text-sm">
             {t("threadDumpsSelected")} ({files.length})
+            <HelpTip text={getHelpText(locale, "sectionThreadSelected")} />
           </CardTitle>
           <CardDescription>
             {t("threadDumpDropOrBrowseMulti")}
@@ -769,6 +777,7 @@ function SingleDumpResult({
   t: (key: MessageKey) => string;
   result: ThreadDumpSingleResult;
 }): JSX.Element {
+  const { locale } = useI18n();
   const summary: ThreadDumpSingleSummary = result.summary;
   const stateRows: ThreadDumpStateRow[] = result.series.state_distribution ?? [];
   const categoryRows: ThreadDumpCategoryRow[] =
@@ -850,8 +859,9 @@ function SingleDumpResult({
         ) : (
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm">
+              <CardTitle className="inline-flex items-center gap-2 text-sm">
                 {t("threadDumpTabSignatures")}
+                <HelpTip text={getHelpText(locale, "sectionThreadSignatures")} />
               </CardTitle>
             </CardHeader>
             <CardContent className="overflow-x-auto p-0">
@@ -962,6 +972,7 @@ function MultiDumpResult({
   t: (key: MessageKey) => string;
   result: ThreadDumpMultiResult;
 }): JSX.Element {
+  const { locale } = useI18n();
   const summary: ThreadDumpMultiSummary = result.summary;
   const longRunning: LongRunningStackRow[] =
     result.tables.long_running_stacks ?? [];
@@ -1172,8 +1183,9 @@ function MultiDumpResult({
       <TabsContent value="per-dump" className="mt-4">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm">
+            <CardTitle className="inline-flex items-center gap-2 text-sm">
               {t("threadDumpTabPerDump")}
+              <HelpTip text={getHelpText(locale, "sectionThreadPerDump")} />
             </CardTitle>
           </CardHeader>
           <CardContent className="overflow-x-auto p-0">
@@ -1219,8 +1231,9 @@ function MultiDumpResult({
       <TabsContent value="threads" className="mt-4">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm">
+            <CardTitle className="inline-flex items-center gap-2 text-sm">
               {t("threadDumpTabThreads")}
+              <HelpTip text={getHelpText(locale, "sectionThreadRows")} />
             </CardTitle>
           </CardHeader>
           <CardContent className="overflow-x-auto p-0">
@@ -1560,6 +1573,7 @@ function LockContentionView({
   t: (key: MessageKey) => string;
   result: LockContentionResult;
 }): JSX.Element {
+  const { locale } = useI18n();
   const summary = result.summary;
   const locks: LockContentionRow[] = result.tables.locks ?? [];
   const deadlocks: DeadlockChain[] = result.tables.deadlock_chains ?? [];
@@ -1690,8 +1704,9 @@ function LockContentionView({
                 className="border-destructive/40 bg-destructive/5"
               >
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm text-destructive">
+                  <CardTitle className="inline-flex items-center gap-2 text-sm text-destructive">
                     {t("threadDumpDeadlockCycle")} #{idx + 1}
+                    <HelpTip text={getHelpText(locale, "sectionThreadDeadlock")} variant="warning" />
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2 text-xs">
@@ -1778,6 +1793,7 @@ function FindingsList({
   t: (key: MessageKey) => string;
   findings: ThreadDumpFinding[];
 }): JSX.Element {
+  const { locale } = useI18n();
   if (findings.length === 0) {
     return (
       <Card>
@@ -1790,6 +1806,12 @@ function FindingsList({
   }
   return (
     <Card>
+      <CardHeader className="pb-0">
+        <CardTitle className="inline-flex items-center gap-2 text-sm">
+          {t("threadDumpTabFindings")}
+          <HelpTip text={getHelpText(locale, "sectionFindings")} />
+        </CardTitle>
+      </CardHeader>
       <CardContent className="space-y-2 p-4">
         {findings.map((finding, idx) => (
           <div
@@ -1823,10 +1845,14 @@ function SimpleCountTable({
   keyHeader: string;
   rows: { key: string; count: number }[];
 }): JSX.Element {
+  const { locale } = useI18n();
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm">{title}</CardTitle>
+        <CardTitle className="inline-flex items-center gap-2 text-sm">
+          {title}
+          <HelpTip text={getHelpText(locale, "genericTable")} />
+        </CardTitle>
       </CardHeader>
       <CardContent className="overflow-x-auto p-0">
         <table className="w-full text-xs">

@@ -3,8 +3,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { type ECharts, type EChartsOption } from "@/charts/echartsCore";
 import { ChartPanel } from "@/components/ChartPanel";
+import { HelpedLabel, HelpedTitle } from "@/components/HelpTip";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { getHelpText } from "@/help/helpCatalog";
 import { useI18n, type MessageKey } from "@/i18n/I18nProvider";
 import {
   selectWorkspaceResult,
@@ -89,7 +91,7 @@ const TEMPLATES: ChartTemplate[] = [
 ];
 
 export function ChartStudioPage(): JSX.Element {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const workspace = useAnalysisWorkspace();
   const [selectedID, setSelectedID] = useState(workspace.active_id ?? "");
   const [templateID, setTemplateID] = useState(TEMPLATES[0].id);
@@ -174,10 +176,16 @@ export function ChartStudioPage(): JSX.Element {
   return (
     <main className="content">
       <section className="card">
-        <h2>{t("navChartStudio")}</h2>
+        <h2>
+          <HelpedTitle help={getHelpText(locale, "pageChartStudio")}>
+            {t("navChartStudio")}
+          </HelpedTitle>
+        </h2>
         <div className="workspace-form-grid">
           <label className="workspace-field">
-            <span>{t("workspaceResult")}</span>
+            <HelpedLabel help={getHelpText(locale, "optionWorkspaceResult")}>
+              {t("workspaceResult")}
+            </HelpedLabel>
             <select
               value={selectedEntry?.id ?? ""}
               onChange={(event) => {
@@ -197,7 +205,9 @@ export function ChartStudioPage(): JSX.Element {
             </select>
           </label>
           <label className="workspace-field">
-            <span>{t("chartTemplate")}</span>
+            <HelpedLabel help={getHelpText(locale, "optionChartTemplate")}>
+              {t("chartTemplate")}
+            </HelpedLabel>
             <select value={selectedTemplate?.id ?? ""} onChange={(event) => setTemplateID(event.target.value)}>
               {templates.map((template) => (
                 <option key={template.id} value={template.id}>
@@ -207,7 +217,9 @@ export function ChartStudioPage(): JSX.Element {
             </select>
           </label>
           <label className="workspace-field">
-            <span>{t("renderer")}</span>
+            <HelpedLabel help={getHelpText(locale, "optionRenderer")}>
+              {t("renderer")}
+            </HelpedLabel>
             <select value={renderer} onChange={(event) => setRenderer(event.target.value as Renderer)}>
               <option value="canvas">Canvas</option>
               <option value="svg">SVG</option>

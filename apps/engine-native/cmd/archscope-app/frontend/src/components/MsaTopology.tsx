@@ -8,6 +8,9 @@
 import { echarts, type ECharts, type EChartsOption } from "@/charts/echartsCore";
 import { useEffect, useMemo, useRef } from "react";
 
+import { getGenericChartHelpText } from "@/help/helpCatalog";
+import { useI18n } from "@/i18n/I18nProvider";
+import { HelpTip } from "./HelpTip";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
 type CallGraphEdge = {
@@ -72,8 +75,10 @@ export function MsaTopology({
   rootApplication,
   height = 420,
 }: MsaTopologyProps): JSX.Element {
+  const { locale } = useI18n();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<ECharts | null>(null);
+  const helpText = getGenericChartHelpText(locale, title);
 
   const { option, latencyGroups } = useMemo<{
     option: EChartsOption;
@@ -338,7 +343,10 @@ export function MsaTopology({
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm">{title}</CardTitle>
+        <CardTitle className="inline-flex items-center gap-2 text-sm">
+          {title}
+          <HelpTip text={helpText} />
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div ref={containerRef} style={{ width: "100%", height }} />

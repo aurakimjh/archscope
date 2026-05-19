@@ -3,9 +3,11 @@ import { Download, FileText, Loader2 } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { engine } from "@/bridge/engine";
+import { HelpTip, HelpedLabel, HelpedTitle } from "@/components/HelpTip";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { getHelpText } from "@/help/helpCatalog";
 import { useI18n } from "@/i18n/I18nProvider";
 import {
   selectWorkspaceResult,
@@ -23,7 +25,7 @@ const MODE_EXTENSIONS: Record<Exclude<ExportMode, "csv_dir">, string> = {
 };
 
 export function ExportCenterPage(): JSX.Element {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const workspace = useAnalysisWorkspace();
   const [selectedID, setSelectedID] = useState<string>(workspace.active_id ?? "");
   const [mode, setMode] = useState<ExportMode>("html");
@@ -90,10 +92,16 @@ export function ExportCenterPage(): JSX.Element {
   return (
     <main className="content">
       <section className="card">
-        <h2>{t("navExportCenter")}</h2>
+        <h2>
+          <HelpedTitle help={getHelpText(locale, "pageExportCenter")}>
+            {t("navExportCenter")}
+          </HelpedTitle>
+        </h2>
         <div className="workspace-form-grid">
           <label className="workspace-field">
-            <span>{t("workspaceResult")}</span>
+            <HelpedLabel help={getHelpText(locale, "optionWorkspaceResult")}>
+              {t("workspaceResult")}
+            </HelpedLabel>
             <select
               value={selectedEntry?.id ?? ""}
               onChange={(event) => {
@@ -113,7 +121,9 @@ export function ExportCenterPage(): JSX.Element {
             </select>
           </label>
           <label className="workspace-field">
-            <span>{t("exportFormat")}</span>
+            <HelpedLabel help={getHelpText(locale, "optionExportFormat")}>
+              {t("exportFormat")}
+            </HelpedLabel>
             <select
               value={mode}
               onChange={(event) => {
@@ -131,7 +141,9 @@ export function ExportCenterPage(): JSX.Element {
             </select>
           </label>
           <label className="workspace-field workspace-field-wide">
-            <span>{mode === "csv_dir" ? t("exportDirectory") : t("exportOutputPath")}</span>
+            <HelpedLabel help={getHelpText(locale, "optionOutputPath")}>
+              {mode === "csv_dir" ? t("exportDirectory") : t("exportOutputPath")}
+            </HelpedLabel>
             <div className="workspace-path-row">
               <Input
                 value={outputPath}
@@ -172,13 +184,15 @@ export function ExportCenterPage(): JSX.Element {
 }
 
 function SelectedResultCard({ entry }: { entry: AnalysisWorkspaceEntry }): JSX.Element {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
+  const helpText = getHelpText(locale, "sectionExportPreview");
   return (
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-sm">
           <FileText className="nav-lucide-sm" />
-          {entry.title}
+          <span className="min-w-0 truncate">{entry.title}</span>
+          <HelpTip text={helpText} />
         </CardTitle>
       </CardHeader>
       <CardContent>

@@ -48,6 +48,7 @@ import {
 } from "../components/CustomCategoriesEditor";
 import { DiagnosticsPanel } from "../components/DiagnosticsPanel";
 import { DrilldownPanel } from "../components/DrilldownPanel";
+import { HelpTip, HelpedLabel } from "../components/HelpTip";
 import { HorizontalBarChart, type BarRow } from "../components/HorizontalBarChart";
 import { MetricCard } from "../components/MetricCard";
 import {
@@ -71,6 +72,7 @@ import {
 import { RecentFilesPanel } from "../components/RecentFilesPanel";
 import { useRecentFiles } from "../hooks/useRecentFiles";
 import { useShortcuts } from "../hooks/useShortcuts";
+import { getHelpText } from "@/help/helpCatalog";
 import { useI18n } from "../i18n/I18nProvider";
 import {
   addWorkspaceResult,
@@ -329,6 +331,7 @@ function TimelineCompositionCard({
   otherLabel: string;
   samplesLabel: string;
 }): JSX.Element {
+  const { locale } = useI18n();
   const { visibleRows, groups, totalSamples, denominatorSamples, totalSeconds, rowsSamples } = useMemo(() => {
     const nextRows = rows
       .filter((row) => Number(row?.samples ?? 0) > 0)
@@ -390,7 +393,10 @@ function TimelineCompositionCard({
     <Card>
       <CardHeader className="pb-3">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-          <CardTitle className="text-sm">{title}</CardTitle>
+          <CardTitle className="inline-flex items-center gap-2 text-sm">
+            {title}
+            <HelpTip text={getHelpText(locale, "sectionBreakdown")} />
+          </CardTitle>
           {totalSamples > 0 && (
             <div className="rounded-md border border-border bg-muted/20 px-3 py-2 text-right">
               <div className="text-[10px] font-medium text-muted-foreground">
@@ -525,7 +531,7 @@ function TimelineCompositionCard({
 }
 
 export function ProfilerAnalyzerPage(): JSX.Element {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   // Profiler-scoped recent-files history. The category keeps it
   // separate from the GC / Jennifer pages so users see only the
   // files they analyzed on this page.
@@ -820,6 +826,7 @@ export function ProfilerAnalyzerPage(): JSX.Element {
         <WailsFileDock
           className="min-w-0 flex-1"
           label={t("filePathPlaceholder")}
+          helpText={getHelpText(locale, "pageProfiler")}
           description={t("dropOrBrowseProfiler") || t("filePathPlaceholder")}
           selected={selected}
           onSelect={handleSelect}
@@ -890,7 +897,9 @@ export function ProfilerAnalyzerPage(): JSX.Element {
       <Card className="border-0 shadow-none">
         <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2 px-0">
           <label className="flex flex-col gap-1.5 text-xs">
-            <span className="font-medium text-foreground/80">{t("format")}</span>
+            <HelpedLabel help={getHelpText(locale, "optionFormat")} className="font-medium text-foreground/80">
+              {t("format")}
+            </HelpedLabel>
             <select
               className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
               value={format}
@@ -905,9 +914,9 @@ export function ProfilerAnalyzerPage(): JSX.Element {
           </label>
           {format === "collapsed" && (
             <label className="flex flex-col gap-1.5 text-xs">
-              <span className="font-medium text-foreground/80">
+              <HelpedLabel help={getHelpText(locale, "optionProfileKind")} className="font-medium text-foreground/80">
                 {t("profileKind")}
-              </span>
+              </HelpedLabel>
               <select
                 className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
                 value={profileKind}
@@ -921,9 +930,9 @@ export function ProfilerAnalyzerPage(): JSX.Element {
             </label>
           )}
           <label className="flex flex-col gap-1.5 text-xs">
-            <span className="font-medium text-foreground/80">
+            <HelpedLabel help={getHelpText(locale, "optionInterval")} className="font-medium text-foreground/80">
               {t("intervalMs")} <span className="text-muted-foreground">(기본: 100)</span>
-            </span>
+            </HelpedLabel>
             <Input
               type="number"
               min={1}
@@ -934,9 +943,9 @@ export function ProfilerAnalyzerPage(): JSX.Element {
             />
           </label>
           <label className="flex flex-col gap-1.5 text-xs">
-            <span className="font-medium text-foreground/80">
+            <HelpedLabel help={getHelpText(locale, "optionElapsed")} className="font-medium text-foreground/80">
               {t("elapsedSec")} <span className="text-muted-foreground">(기본: 자동)</span>
-            </span>
+            </HelpedLabel>
             <Input
               type="text"
               placeholder="비워두면 샘플 수 × interval"
@@ -946,9 +955,9 @@ export function ProfilerAnalyzerPage(): JSX.Element {
             />
           </label>
           <label className="flex flex-col gap-1.5 text-xs">
-            <span className="font-medium text-foreground/80">
+            <HelpedLabel help={getHelpText(locale, "optionTopN")} className="font-medium text-foreground/80">
               {t("topN")} <span className="text-muted-foreground">(기본: 20)</span>
-            </span>
+            </HelpedLabel>
             <Input
               type="number"
               min={1}
@@ -960,9 +969,9 @@ export function ProfilerAnalyzerPage(): JSX.Element {
             />
           </label>
           <label className="flex flex-col gap-1.5 text-xs sm:col-span-2">
-            <span className="font-medium text-foreground/80">
+            <HelpedLabel help={getHelpText(locale, "optionTimelineBase")} className="font-medium text-foreground/80">
               {t("timelineBaseMethod")} <span className="text-muted-foreground">(기본: 미설정)</span>
-            </span>
+            </HelpedLabel>
             <Input
               type="text"
               placeholder="예: SpringBootApplication.run"
@@ -974,14 +983,14 @@ export function ProfilerAnalyzerPage(): JSX.Element {
         </CardContent>
         <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2 border-t border-border pt-3 px-0">
           <label className="flex flex-col gap-1.5 text-xs sm:col-span-2">
-            <span className="font-semibold text-foreground/80">
+            <HelpedLabel help={getHelpText(locale, "optionMemoryGuards")} className="font-semibold text-foreground/80">
               {t("memoryGuards")}
-            </span>
+            </HelpedLabel>
           </label>
           <label className="flex flex-col gap-1.5 text-xs">
-            <span className="font-medium text-foreground/80">
+            <HelpedLabel help={getHelpText(locale, "optionMemoryGuards")} className="font-medium text-foreground/80">
               {t("maxUniqueStacks")}
-            </span>
+            </HelpedLabel>
             <Input
               type="number"
               min={0}
@@ -992,9 +1001,9 @@ export function ProfilerAnalyzerPage(): JSX.Element {
             />
           </label>
           <label className="flex flex-col gap-1.5 text-xs">
-            <span className="font-medium text-foreground/80">
+            <HelpedLabel help={getHelpText(locale, "optionMemoryGuards")} className="font-medium text-foreground/80">
               {t("maxStackDepth")}
-            </span>
+            </HelpedLabel>
             <Input
               type="number"
               min={0}
@@ -1005,9 +1014,9 @@ export function ProfilerAnalyzerPage(): JSX.Element {
             />
           </label>
           <label className="flex flex-col gap-1.5 text-xs">
-            <span className="font-medium text-foreground/80">
+            <HelpedLabel help={getHelpText(locale, "optionMemoryGuards")} className="font-medium text-foreground/80">
               최대 RSS (MB) <span className="text-muted-foreground">(기본: 4096)</span>
-            </span>
+            </HelpedLabel>
             <Input
               type="number"
               min={0}
@@ -1018,12 +1027,12 @@ export function ProfilerAnalyzerPage(): JSX.Element {
             />
           </label>
           <label className="flex flex-col gap-1.5 text-xs sm:col-span-2">
-            <span className="font-medium text-foreground/80">
+            <HelpedLabel help={getHelpText(locale, "optionMemoryGuards")} className="font-medium text-foreground/80">
               진행 로그 디렉터리{" "}
               <span className="text-muted-foreground">
                 (기본: 실행파일 옆 archscope-logs/)
               </span>
-            </span>
+            </HelpedLabel>
             <Input
               type="text"
               placeholder="예: D:\\analysis-logs (비우면 실행파일 옆 archscope-logs/)"
@@ -1167,8 +1176,9 @@ export function ProfilerAnalyzerPage(): JSX.Element {
               {topChildFrames.length > 0 && (
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm">
+                    <CardTitle className="inline-flex items-center gap-2 text-sm">
                       {t("topChildFrames")}
+                      <HelpTip text={getHelpText(locale, "sectionTopChildFrames")} />
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="overflow-x-auto p-0">
@@ -1221,7 +1231,10 @@ export function ProfilerAnalyzerPage(): JSX.Element {
           {flamegraph ? (
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm">{t("flamegraphTitle")}</CardTitle>
+                <CardTitle className="inline-flex items-center gap-2 text-sm">
+                  {t("flamegraphTitle")}
+                  <HelpTip text={getHelpText(locale, "sectionFlamegraph")} />
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <CanvasFlameGraph data={flamegraph} exportName={exportName} />
@@ -1237,8 +1250,9 @@ export function ProfilerAnalyzerPage(): JSX.Element {
             {timelineScope && (
               <Card>
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm">
+                  <CardTitle className="inline-flex items-center gap-2 text-sm">
                     {t("timelineScope")}
+                    <HelpTip text={getHelpText(locale, "sectionTimelineScope")} />
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -1291,7 +1305,10 @@ export function ProfilerAnalyzerPage(): JSX.Element {
             />
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm">{t("timelineTitle")}</CardTitle>
+                <CardTitle className="inline-flex items-center gap-2 text-sm">
+                  {t("timelineTitle")}
+                  <HelpTip text={getHelpText(locale, "sectionTimeline")} />
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <HorizontalBarChart
@@ -1305,8 +1322,9 @@ export function ProfilerAnalyzerPage(): JSX.Element {
             {timelineRows.length > 0 && (
               <Card>
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm">
+                  <CardTitle className="inline-flex items-center gap-2 text-sm">
                     {t("timelineEvidenceTable")}
+                    <HelpTip text={getHelpText(locale, "sectionTimelineEvidence")} />
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="overflow-x-auto p-0">
@@ -1379,7 +1397,10 @@ export function ProfilerAnalyzerPage(): JSX.Element {
         <TabsContent value="breakdown" className="mt-4">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm">{t("breakdownTitle")}</CardTitle>
+              <CardTitle className="inline-flex items-center gap-2 text-sm">
+                {t("breakdownTitle")}
+                <HelpTip text={getHelpText(locale, "sectionBreakdown")} />
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <HorizontalBarChart
@@ -1395,7 +1416,10 @@ export function ProfilerAnalyzerPage(): JSX.Element {
         <TabsContent value="topstacks" className="mt-4">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm">{t("topStacks")}</CardTitle>
+              <CardTitle className="inline-flex items-center gap-2 text-sm">
+                {t("topStacks")}
+                <HelpTip text={getHelpText(locale, "sectionTopStacks")} />
+              </CardTitle>
             </CardHeader>
             <CardContent className="overflow-x-auto p-0">
               {topStacks.length > 0 ? (
@@ -1444,7 +1468,10 @@ export function ProfilerAnalyzerPage(): JSX.Element {
         <TabsContent value="diagnostics" className="mt-4">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm">{t("tabDiagnostics")}</CardTitle>
+              <CardTitle className="inline-flex items-center gap-2 text-sm">
+                {t("tabDiagnostics")}
+                <HelpTip text={getHelpText(locale, "sectionDiagnostics")} />
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <DiagnosticsPanel

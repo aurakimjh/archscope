@@ -10,6 +10,8 @@
 // ─────────────────────────────────────────────────────────────────────
 import { useEffect, useState } from "react";
 
+import { HelpedLabel, HelpedTitle } from "../components/HelpTip";
+import { getHelpText } from "@/help/helpCatalog";
 import { useI18n } from "../i18n/I18nProvider";
 import { localeLabels, locales, type Locale } from "../i18n/messages";
 import { useTheme, type Theme } from "../theme/ThemeProvider";
@@ -43,10 +45,16 @@ export function SettingsPage() {
   return (
     <main className="content settings-content">
       <section className="card">
-        <h2>{t("settingsTitle")}</h2>
+        <h2>
+          <HelpedTitle help={getHelpText(locale, "pageSettings")}>
+            {t("settingsTitle")}
+          </HelpedTitle>
+        </h2>
         <div className="settings-grid">
           <div className="settings-row">
-            <span>{t("settingsLanguage")}</span>
+            <HelpedLabel help={getHelpText(locale, "localeControl")}>
+              {t("settingsLanguage")}
+            </HelpedLabel>
             <div className="locale-switch">
               {locales.map((value) => (
                 <button
@@ -62,7 +70,9 @@ export function SettingsPage() {
             </div>
           </div>
           <div className="settings-row">
-            <span>{t("settingsTheme")}</span>
+            <HelpedLabel help={getHelpText(locale, "themeControl")}>
+              {t("settingsTheme")}
+            </HelpedLabel>
             <div className="locale-switch">
               {(["light", "dark", "system"] as Theme[]).map((value) => (
                 <button
@@ -82,7 +92,9 @@ export function SettingsPage() {
             </div>
           </div>
           <div className="settings-row">
-            <span>{t("settingsDefaultInterval")}</span>
+            <HelpedLabel help={getHelpText(locale, "optionInterval")}>
+              {t("settingsDefaultInterval")}
+            </HelpedLabel>
             <input
               type="number"
               min={1}
@@ -93,7 +105,9 @@ export function SettingsPage() {
             />
           </div>
           <div className="settings-row">
-            <span>{t("settingsDefaultTopN")}</span>
+            <HelpedLabel help={getHelpText(locale, "optionTopN")}>
+              {t("settingsDefaultTopN")}
+            </HelpedLabel>
             <input
               type="number"
               min={1}
@@ -105,7 +119,9 @@ export function SettingsPage() {
             />
           </div>
           <div className="settings-row">
-            <span>{t("settingsDefaultProfileKind")}</span>
+            <HelpedLabel help={getHelpText(locale, "optionProfileKind")}>
+              {t("settingsDefaultProfileKind")}
+            </HelpedLabel>
             <select
               value={defaults.profileKind}
               onChange={(e) =>
@@ -131,7 +147,11 @@ export function SettingsPage() {
       </section>
 
       <section className="card">
-        <h2>{t("settingsRecentFiles")}</h2>
+        <h2>
+          <HelpedTitle help={getHelpText(locale, "settingsRecent")}>
+            {t("settingsRecentFiles")}
+          </HelpedTitle>
+        </h2>
         {entries.length === 0 ? (
           <p className="muted">{t("recentFilesNone")}</p>
         ) : (
@@ -151,7 +171,11 @@ export function SettingsPage() {
       </section>
 
       <section className="card">
-        <h2>{t("settingsAbout")}</h2>
+        <h2>
+          <HelpedTitle help={getHelpText(locale, "settingsAbout")}>
+            {t("settingsAbout")}
+          </HelpedTitle>
+        </h2>
         <p className="muted">{t("settingsAboutBody")}</p>
       </section>
     </main>

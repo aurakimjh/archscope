@@ -38,6 +38,7 @@ import {
   ErrorPanel,
 } from "@/components/AnalyzerFeedback";
 import { AnalyzerOptionsDock } from "@/components/AnalyzerOptionsDock";
+import { HelpTip, HelpedLabel } from "@/components/HelpTip";
 import { MetricCard } from "@/components/MetricCard";
 import { RecentFilesPanel } from "@/components/RecentFilesPanel";
 import { SlideOverPanel } from "@/components/SlideOverPanel";
@@ -55,6 +56,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import { getHelpText } from "@/help/helpCatalog";
 import { useI18n, type MessageKey } from "@/i18n/I18nProvider";
 import { addWorkspaceResult } from "@/state/analysisWorkspace";
 import { formatNumber } from "@/utils/formatters";
@@ -84,7 +86,7 @@ const DEFAULT_TOP_N = 50;
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100] as const;
 
 export function ExceptionAnalyzerPage(): JSX.Element {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const [selectedFile, setSelectedFile] = useState<FileDockSelection | null>(
     null,
   );
@@ -257,6 +259,7 @@ export function ExceptionAnalyzerPage(): JSX.Element {
         <WailsFileDock
           className="min-w-0 flex-1"
           label={t("selectExceptionFile")}
+          helpText={getHelpText(locale, "pageException")}
           description={t("dropOrBrowseException")}
           accept=".log,.txt"
           selected={selectedFile}
@@ -331,9 +334,9 @@ export function ExceptionAnalyzerPage(): JSX.Element {
         >
           <div className="grid grid-cols-1 gap-3">
           <label className="flex flex-col gap-1.5 text-xs">
-            <span className="font-medium text-foreground/80">
+            <HelpedLabel help={getHelpText(locale, "optionTopN")} className="font-medium text-foreground/80">
               {t("topN")} <span className="text-muted-foreground">({DEFAULT_TOP_N})</span>
-            </span>
+            </HelpedLabel>
             <Input
               type="number"
               min={1}
@@ -406,8 +409,9 @@ export function ExceptionAnalyzerPage(): JSX.Element {
           <Card>
             <CardHeader className="pb-3">
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <CardTitle className="text-sm">
+                <CardTitle className="inline-flex items-center gap-2 text-sm">
                   {t("exceptionTabEvents")}
+                  <HelpTip text={getHelpText(locale, "sectionExceptionEvents")} />
                 </CardTitle>
                 <div className="relative w-full max-w-xs">
                   <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
@@ -485,6 +489,7 @@ export function ExceptionAnalyzerPage(): JSX.Element {
             onClose={() => setActiveEventKey(null)}
             title={t("exceptionEventDetails")}
             width={560}
+            helpText={getHelpText(locale, "sectionExceptionEvents")}
           >
             {activeEvent && (
               <EventDetailCard
@@ -509,7 +514,10 @@ export function ExceptionAnalyzerPage(): JSX.Element {
         <TabsContent value="types" className="mt-4">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm">{t("exceptionsByType")}</CardTitle>
+              <CardTitle className="inline-flex items-center gap-2 text-sm">
+                {t("exceptionsByType")}
+                <HelpTip text={getHelpText(locale, "sectionExceptionTypes")} />
+              </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               {typeRows.length === 0 ? (
@@ -534,8 +542,9 @@ export function ExceptionAnalyzerPage(): JSX.Element {
         <TabsContent value="signatures" className="mt-4">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm">
+              <CardTitle className="inline-flex items-center gap-2 text-sm">
                 {t("exceptionsBySignature")}
+                <HelpTip text={getHelpText(locale, "sectionExceptionSignatures")} />
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
@@ -563,8 +572,9 @@ export function ExceptionAnalyzerPage(): JSX.Element {
           {activeSignature && (
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                <CardTitle className="text-sm">
+                <CardTitle className="inline-flex items-center gap-2 text-sm">
                   {t("exceptionEventSignature")}
+                  <HelpTip text={getHelpText(locale, "sectionExceptionSignatures")} />
                 </CardTitle>
                 <Button
                   type="button"
@@ -1011,6 +1021,7 @@ function FindingsPanel({
   findings,
   labels,
 }: FindingsPanelProps): JSX.Element {
+  const { locale } = useI18n();
   if (!findings || findings.length === 0) {
     return (
       <Card>
@@ -1023,7 +1034,10 @@ function FindingsPanel({
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm">{labels.title}</CardTitle>
+        <CardTitle className="inline-flex items-center gap-2 text-sm">
+          {labels.title}
+          <HelpTip text={getHelpText(locale, "sectionFindings")} />
+        </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
         <table className="w-full text-sm">

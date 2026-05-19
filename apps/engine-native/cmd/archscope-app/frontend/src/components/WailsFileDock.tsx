@@ -29,7 +29,11 @@ import { Dialogs } from "@wailsio/runtime";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { getHelpText } from "@/help/helpCatalog";
+import { useI18n } from "@/i18n/I18nProvider";
 import { cn } from "@/lib/utils";
+
+import { HelpTip } from "./HelpTip";
 
 // Wails-flavoured replacement for `apps/frontend/src/components/FileDock.tsx`.
 //
@@ -54,6 +58,8 @@ export type FileDockSelection = {
 export type WailsFileDockProps = {
   /** Translated label shown above the dropzone. */
   label: string;
+  /** Optional help text shown next to the title inside the dropzone. */
+  helpText?: string | null;
   /** Optional helper text. */
   description?: string;
   /** Comma-separated `accept` value for the underlying input. */
@@ -104,6 +110,7 @@ function formatBytes(bytes: number): string {
 
 export function WailsFileDock({
   label,
+  helpText,
   description,
   accept,
   selected,
@@ -120,6 +127,7 @@ export function WailsFileDock({
   fileFilters,
   allowsMultipleSelection = false,
 }: WailsFileDockProps): JSX.Element {
+  const { locale } = useI18n();
   const dragCounterRef = useRef(0);
   const [isDragOver, setIsDragOver] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -137,6 +145,8 @@ export function WailsFileDock({
       : selected
       ? [selected]
       : [];
+  const resolvedHelp =
+    helpText === null ? null : helpText ?? getHelpText(locale, "fileDock");
 
   const emitNativeFiles = useCallback(
     (files: FileDockSelection[]) => {
@@ -288,7 +298,10 @@ export function WailsFileDock({
               )}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium leading-tight">{label}</p>
+              <p className="inline-flex max-w-full items-center gap-2 text-sm font-medium leading-tight">
+                <span className="truncate">{label}</span>
+                {resolvedHelp && <HelpTip text={resolvedHelp} />}
+              </p>
               {description && (
                 <p className="truncate text-xs text-muted-foreground">
                   {description}

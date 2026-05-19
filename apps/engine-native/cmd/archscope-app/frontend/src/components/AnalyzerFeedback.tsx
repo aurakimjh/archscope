@@ -12,6 +12,9 @@
 // AI interpretation 을 emit 하지 않으므로 의도적으로 빠져 있습니다.
 // ─────────────────────────────────────────────────────────────────────
 import type { BridgeError, ParserDiagnostics } from "@/bridge/types";
+import { HelpTip } from "@/components/HelpTip";
+import { getHelpText } from "@/help/helpCatalog";
+import { useI18n } from "@/i18n/I18nProvider";
 
 // Slim port of apps/frontend/src/components/AnalyzerFeedback.tsx.
 // Phase 1 only ports `ErrorPanel`, `EngineMessagesPanel`, and
@@ -91,16 +94,22 @@ export function DiagnosticsPanel({
   diagnostics,
   labels,
 }: DiagnosticsPanelProps): JSX.Element | null {
+  const { locale } = useI18n();
+
   if (!diagnostics) {
     return null;
   }
 
   const samples = diagnostics.samples ?? [];
+  const helpText = getHelpText(locale, "sectionDiagnostics");
 
   return (
     <section className="rounded-md border border-border bg-card p-4 text-sm shadow-sm">
       <header className="mb-3 flex items-center justify-between">
-        <h2 className="text-sm font-semibold">{labels.title}</h2>
+        <h2 className="inline-flex items-center gap-2 text-sm font-semibold">
+          {labels.title}
+          <HelpTip text={helpText} />
+        </h2>
       </header>
       <dl className="grid grid-cols-2 gap-3 text-xs sm:grid-cols-4">
         <div>

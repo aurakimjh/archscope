@@ -38,6 +38,7 @@ import {
 } from "@/components/AnalyzerFeedback";
 import { AnalyzerOptionsDock } from "@/components/AnalyzerOptionsDock";
 import { ChartPanel } from "@/components/ChartPanel";
+import { HelpTip, HelpedLabel } from "@/components/HelpTip";
 import { MetricCard } from "@/components/MetricCard";
 import {
   WailsFileDock,
@@ -57,6 +58,7 @@ import {
   requestCountTrendOption,
   type ChartLabels,
 } from "@/charts/accessLogCharts";
+import { getHelpText } from "@/help/helpCatalog";
 import { useI18n, type MessageKey } from "@/i18n/I18nProvider";
 import { addWorkspaceResult } from "@/state/analysisWorkspace";
 import { addEvidenceCard } from "@/state/evidenceBoard";
@@ -87,7 +89,7 @@ import {
 type AnalyzerState = "idle" | "ready" | "running" | "success" | "error";
 
 export function AccessLogAnalyzerPage(): JSX.Element {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const [selectedFile, setSelectedFile] = useState<FileDockSelection | null>(
     null,
   );
@@ -214,6 +216,7 @@ export function AccessLogAnalyzerPage(): JSX.Element {
         <WailsFileDock
           className="min-w-0 flex-1"
           label={t("selectAccessLogFile")}
+          helpText={getHelpText(locale, "pageAccessLog")}
           description={t("dropOrBrowseAccessLog")}
           accept=".log,.txt,.gz"
           selected={selectedFile}
@@ -288,9 +291,9 @@ export function AccessLogAnalyzerPage(): JSX.Element {
         >
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           <label className="flex flex-col gap-1.5 text-xs">
-            <span className="font-medium text-foreground/80">
+            <HelpedLabel help={getHelpText(locale, "optionFormat")} className="font-medium text-foreground/80">
               {t("logFormat")}
-            </span>
+            </HelpedLabel>
             <select
               className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
               value={format}
@@ -332,9 +335,9 @@ export function AccessLogAnalyzerPage(): JSX.Element {
             </select>
           </label>
           <label className="flex flex-col gap-1.5 text-xs">
-            <span className="font-medium text-foreground/80">
+            <HelpedLabel help={getHelpText(locale, "optionMaxLines")} className="font-medium text-foreground/80">
               {t("maxLines")}
-            </span>
+            </HelpedLabel>
             <Input
               type="number"
               min={1}
@@ -344,9 +347,9 @@ export function AccessLogAnalyzerPage(): JSX.Element {
             />
           </label>
           <label className="flex flex-col gap-1.5 text-xs">
-            <span className="font-medium text-foreground/80">
+            <HelpedLabel help={getHelpText(locale, "optionStartTime")} className="font-medium text-foreground/80">
               {t("startTime")}
-            </span>
+            </HelpedLabel>
             <Input
               type="datetime-local"
               value={startTime}
@@ -354,9 +357,9 @@ export function AccessLogAnalyzerPage(): JSX.Element {
             />
           </label>
           <label className="flex flex-col gap-1.5 text-xs">
-            <span className="font-medium text-foreground/80">
+            <HelpedLabel help={getHelpText(locale, "optionEndTime")} className="font-medium text-foreground/80">
               {t("endTime")}
-            </span>
+            </HelpedLabel>
             <Input
               type="datetime-local"
               value={endTime}
@@ -491,11 +494,15 @@ function AccessLogFindingsPanel({
   t: (key: MessageKey) => string;
   onAddEvidence: (finding: AccessLogFinding) => void;
 }): JSX.Element | null {
+  const { locale } = useI18n();
   if (findings.length === 0) return null;
   return (
     <Card className="mt-4">
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm">{t("findings")}</CardTitle>
+        <CardTitle className="inline-flex items-center gap-2 text-sm">
+          {t("findings")}
+          <HelpTip text={getHelpText(locale, "sectionFindings")} />
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-2 pt-0 text-sm">
         {findings.map((finding, idx) => (
@@ -579,6 +586,7 @@ function UrlStatsPanel({
   t: (key: MessageKey) => string;
   result: AccessLogAnalysisResult | null;
 }): JSX.Element {
+  const { locale } = useI18n();
   const allUrls = result?.tables?.url_stats ?? [];
   const [sortKey, setSortKey] = useState<UrlSortKey>("count");
   const [classFilter, setClassFilter] = useState<"all" | "static" | "api">(
@@ -598,7 +606,10 @@ function UrlStatsPanel({
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-        <CardTitle className="text-sm">{t("accessLogUrlsTab")}</CardTitle>
+        <CardTitle className="inline-flex items-center gap-2 text-sm">
+          {t("accessLogUrlsTab")}
+          <HelpTip text={getHelpText(locale, "sectionUrls")} />
+        </CardTitle>
         <div className="flex items-center gap-2 text-xs">
           <select
             className="h-7 rounded-md border border-border bg-background px-2 text-xs"
@@ -611,7 +622,9 @@ function UrlStatsPanel({
             <option value="api">{t("accessLogClassApi")}</option>
             <option value="static">{t("accessLogClassStatic")}</option>
           </select>
-          <span className="text-muted-foreground">{t("accessLogSortBy")}</span>
+          <HelpedLabel help={getHelpText(locale, "sectionUrls")} className="text-muted-foreground">
+            {t("accessLogSortBy")}
+          </HelpedLabel>
           <select
             className="h-7 rounded-md border border-border bg-background px-2 text-xs"
             value={sortKey}
@@ -735,6 +748,7 @@ function StatusBreakdownPanel({
   t: (key: MessageKey) => string;
   result: AccessLogAnalysisResult | null;
 }): JSX.Element {
+  const { locale } = useI18n();
   const codes = (result?.tables?.top_status_codes ?? []) as
     AccessLogStatusCodeRow[];
   const families = result?.series?.status_code_distribution ?? [];
@@ -750,8 +764,9 @@ function StatusBreakdownPanel({
     <div className="grid gap-4">
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm">
+          <CardTitle className="inline-flex items-center gap-2 text-sm">
             {t("accessLogStatusFamiliesTitle")}
+            <HelpTip text={getHelpText(locale, "sectionStatusFamilies")} />
           </CardTitle>
         </CardHeader>
         <CardContent className="overflow-x-auto p-0">
@@ -795,8 +810,9 @@ function StatusBreakdownPanel({
 
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm">
+          <CardTitle className="inline-flex items-center gap-2 text-sm">
             {t("accessLogStatusCodesTitle")}
+            <HelpTip text={getHelpText(locale, "sectionStatusCodes")} />
           </CardTitle>
         </CardHeader>
         <CardContent className="overflow-x-auto p-0">
@@ -840,8 +856,9 @@ function StatusBreakdownPanel({
 
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm">
+          <CardTitle className="inline-flex items-center gap-2 text-sm">
             {t("accessLogErrorTimelineTitle")}
+            <HelpTip text={getHelpText(locale, "sectionErrorTimeline")} />
           </CardTitle>
           {peakError && peakError.value > 0 ? (
             <p className="text-xs text-muted-foreground">

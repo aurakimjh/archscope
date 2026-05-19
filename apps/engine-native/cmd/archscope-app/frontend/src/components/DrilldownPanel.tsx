@@ -37,6 +37,8 @@ import {
 } from "../../bindings/github.com/aurakimjh/archscope/apps/engine-native/internal/profiler/models";
 
 import { CanvasFlameGraph, type FlameGraphNode } from "./CanvasFlameGraph";
+import { HelpTip, HelpedLabel, HelpedTitle } from "./HelpTip";
+import { getGenericMetricHelpText, getHelpText } from "@/help/helpCatalog";
 
 type FilterType = "include_text" | "exclude_text" | "regex_include" | "regex_exclude";
 type MatchMode = "anywhere" | "ordered" | "subtree";
@@ -79,7 +81,7 @@ export type DrilldownPanelProps = {
 };
 
 export function DrilldownPanel({ baseRequest, onError }: DrilldownPanelProps) {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const [filters, setFilters] = useState<DrilldownFilter[]>([]);
   const [draft, setDraft] = useState<DraftFilter>(DEFAULT_DRAFT);
   const [stages, setStages] = useState<DrilldownStage[]>([]);
@@ -143,7 +145,11 @@ export function DrilldownPanel({ baseRequest, onError }: DrilldownPanelProps) {
   return (
     <section className="card drilldown">
       <div className="drilldown-header">
-        <h2>{t("drilldownTitle")}</h2>
+        <h2>
+          <HelpedTitle help={getHelpText(locale, "sectionFilters")}>
+            {t("drilldownTitle")}
+          </HelpedTitle>
+        </h2>
         {filters.length > 0 && (
           <button type="button" className="ghost" onClick={handleClear} disabled={busy}>
             {t("drilldownClear")}
@@ -163,7 +169,9 @@ export function DrilldownPanel({ baseRequest, onError }: DrilldownPanelProps) {
           }}
         />
         <label className="field compact">
-          <span>{t("drilldownFilterType")}</span>
+          <HelpedLabel help={getHelpText(locale, "optionDrillFilterType")}>
+            {t("drilldownFilterType")}
+          </HelpedLabel>
           <select
             value={draft.filterType}
             onChange={(e) => setDraft({ ...draft, filterType: e.target.value as FilterType })}
@@ -175,7 +183,9 @@ export function DrilldownPanel({ baseRequest, onError }: DrilldownPanelProps) {
           </select>
         </label>
         <label className="field compact">
-          <span>{t("drilldownMatchMode")}</span>
+          <HelpedLabel help={getHelpText(locale, "optionDrillMatchMode")}>
+            {t("drilldownMatchMode")}
+          </HelpedLabel>
           <select
             value={draft.matchMode}
             onChange={(e) => setDraft({ ...draft, matchMode: e.target.value as MatchMode })}
@@ -186,7 +196,9 @@ export function DrilldownPanel({ baseRequest, onError }: DrilldownPanelProps) {
           </select>
         </label>
         <label className="field compact">
-          <span>{t("drilldownViewMode")}</span>
+          <HelpedLabel help={getHelpText(locale, "optionDrillViewMode")}>
+            {t("drilldownViewMode")}
+          </HelpedLabel>
           <select
             value={draft.viewMode}
             onChange={(e) => setDraft({ ...draft, viewMode: e.target.value as ViewMode })}
@@ -201,7 +213,9 @@ export function DrilldownPanel({ baseRequest, onError }: DrilldownPanelProps) {
             checked={draft.caseSensitive}
             onChange={(e) => setDraft({ ...draft, caseSensitive: e.target.checked })}
           />
-          <span>{t("drilldownCaseSensitive")}</span>
+          <HelpedLabel help={getHelpText(locale, "optionCaseSensitive")}>
+            {t("drilldownCaseSensitive")}
+          </HelpedLabel>
         </label>
         <button
           type="button"
@@ -250,14 +264,17 @@ export function DrilldownPanel({ baseRequest, onError }: DrilldownPanelProps) {
             <Metric
               label={t("drilldownStageMatched")}
               value={(lastStage?.flamegraph?.samples ?? 0).toLocaleString()}
+              help={getGenericMetricHelpText(locale, t("drilldownStageMatched"))}
             />
             <Metric
               label={t("drilldownStageRatio")}
               value={`${formatNumber(lastStage?.metrics?.total_ratio)}%`}
+              help={getGenericMetricHelpText(locale, t("drilldownStageRatio"))}
             />
             <Metric
               label={t("drilldownStageParent")}
               value={`${formatNumber(lastStage?.metrics?.parent_stage_ratio)}%`}
+              help={getGenericMetricHelpText(locale, t("drilldownStageParent"))}
             />
           </div>
           {stageFlamegraph && (
@@ -272,10 +289,13 @@ export function DrilldownPanel({ baseRequest, onError }: DrilldownPanelProps) {
   );
 }
 
-function Metric({ label, value }: { label: string; value: string }) {
+function Metric({ label, value, help }: { label: string; value: string; help: string }) {
   return (
     <div className="metric">
-      <div className="metric-label">{label}</div>
+      <div className="metric-label inline-flex items-center gap-1.5">
+        {label}
+        <HelpTip text={help} align="end" />
+      </div>
       <div className="metric-value">{value}</div>
     </div>
   );

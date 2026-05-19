@@ -14,6 +14,9 @@
 // codes the segment (matched / unmatched / 2PC / SQL / network).
 
 import { echarts, type ECharts, type EChartsOption } from "@/charts/echartsCore";
+import { HelpTip } from "@/components/HelpTip";
+import { getGenericChartHelpText } from "@/help/helpCatalog";
+import { useI18n } from "@/i18n/I18nProvider";
 import { useEffect, useMemo, useRef } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
@@ -76,6 +79,7 @@ export function MsaTimeline({
   height,
   maxBars = DEFAULT_MAX_BARS,
 }: MsaTimelineProps): JSX.Element {
+  const { locale } = useI18n();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<ECharts | null>(null);
 
@@ -382,7 +386,10 @@ export function MsaTimeline({
   return (
     <Card>
       <CardHeader className="flex flex-col gap-2 pb-3 sm:flex-row sm:items-center sm:justify-between">
-        <CardTitle className="text-sm">{title}</CardTitle>
+        <CardTitle className="inline-flex items-center gap-2 text-sm">
+          {title}
+          <HelpTip text={getGenericChartHelpText(locale, title)} />
+        </CardTitle>
         {layoutToggle && (
           <div className="flex items-center gap-1 rounded-md border border-border bg-muted/20 p-1">
             <Button
@@ -434,6 +441,7 @@ export function MsaTimelineTreemap({
   MsaTimelineProps,
   "title" | "edges" | "rootApplication" | "height" | "maxBars"
 >): JSX.Element {
+  const { locale } = useI18n();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<ECharts | null>(null);
 
@@ -584,7 +592,10 @@ export function MsaTimelineTreemap({
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm">{title}</CardTitle>
+        <CardTitle className="inline-flex items-center gap-2 text-sm">
+          {title}
+          <HelpTip text={getGenericChartHelpText(locale, title)} />
+        </CardTitle>
         {leafCount > 0 && (
           <p className="text-xs text-muted-foreground">
             사각형 면적은 external call elapsed 합계 기준입니다.

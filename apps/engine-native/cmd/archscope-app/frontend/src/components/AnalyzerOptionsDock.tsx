@@ -5,8 +5,11 @@
 import { SlidersHorizontal } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
+import { getHelpText } from "@/help/helpCatalog";
+import { useI18n } from "@/i18n/I18nProvider";
 import { cn } from "@/lib/utils";
 
+import { HelpTip } from "./HelpTip";
 import { SlideOverPanel } from "./SlideOverPanel";
 
 export type AnalyzerOptionsDockProps = {
@@ -19,6 +22,7 @@ export type AnalyzerOptionsDockProps = {
   hasChanges?: boolean;
   className?: string;
   placement?: "inline" | "fixed";
+  helpText?: string | null;
 };
 
 export function AnalyzerOptionsDock({
@@ -31,9 +35,13 @@ export function AnalyzerOptionsDock({
   hasChanges = false,
   className,
   placement = "inline",
+  helpText,
 }: AnalyzerOptionsDockProps): JSX.Element {
+  const { locale } = useI18n();
   const [open, setOpen] = useState(false);
   const fixed = placement === "fixed";
+  const resolvedHelp =
+    helpText === null ? null : helpText ?? getHelpText(locale, "analyzerOptions");
 
   return (
     <>
@@ -54,6 +62,7 @@ export function AnalyzerOptionsDock({
       >
         <SlidersHorizontal className="h-3.5 w-3.5 shrink-0" />
         <span style={{ writingMode: "vertical-rl" }}>{label}</span>
+        {resolvedHelp && !fixed && <HelpTip text={resolvedHelp} align="end" />}
         {hasChanges && (
           <span
             className="absolute left-1 top-1 h-2 w-2 rounded-full bg-primary"
@@ -67,6 +76,7 @@ export function AnalyzerOptionsDock({
         title={title}
         width={width}
         footer={footer}
+        helpText={resolvedHelp}
       >
         {children}
       </SlideOverPanel>

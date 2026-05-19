@@ -28,7 +28,9 @@ import { localeLabels, locales } from "./i18n/messages";
 import { useTheme, type Theme } from "./theme/ThemeProvider";
 import { useSortableTables } from "./hooks/useSortableTables";
 import { DropZone } from "./components/DropZone";
+import { HelpTip } from "./components/HelpTip";
 import { Sidebar, type NavKey } from "./components/Sidebar";
+import { getHelpText } from "./help/helpCatalog";
 
 const THEME_OPTIONS: Theme[] = ["light", "dark", "system"];
 
@@ -149,6 +151,10 @@ function App() {
           <header className="topbar">
             <div className="topbar-controls">
               <div className="locale-switch" role="group" aria-label={t("themeLabel")}>
+                <HelpTip
+                  text={getHelpText(locale, "themeControl")}
+                  className="ml-0.5 mr-1 self-center"
+                />
                 {THEME_OPTIONS.map((value) => (
                   <button
                     key={value}
@@ -166,6 +172,10 @@ function App() {
                 ))}
               </div>
               <div className="locale-switch" role="group" aria-label="Locale">
+                <HelpTip
+                  text={getHelpText(locale, "localeControl")}
+                  className="ml-0.5 mr-1 self-center"
+                />
                 {locales.map((value) => (
                   <button
                     key={value}

@@ -1,5 +1,7 @@
 import { BrainCircuit } from "lucide-react";
 
+import { HelpTip } from "@/components/HelpTip";
+import { getHelpText } from "@/help/helpCatalog";
 import { useI18n } from "@/i18n/I18nProvider";
 import { cn } from "@/lib/utils";
 import type { WorkspaceAnalysisResult } from "@/state/analysisWorkspace";
@@ -20,8 +22,9 @@ export function AiInterpretationSummary({
   result,
   className,
 }: AiInterpretationSummaryProps): JSX.Element {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const provenance = extractAiInterpretationProvenance(result);
+  const helpText = getHelpText(locale, "aiFindings");
   const status = provenance.present
     ? provenance.disabled
       ? t("aiProvenanceDisabled")
@@ -38,6 +41,7 @@ export function AiInterpretationSummary({
     >
       <BrainCircuit className="h-3.5 w-3.5" />
       <span className="font-medium text-foreground">{t("aiProvenanceTitle")}</span>
+      <HelpTip text={helpText} />
       <span>{status}</span>
       {provenance.provider && <Pill label={t("aiProvider")} value={provenance.provider} />}
       {provenance.model && <Pill label={t("aiModel")} value={provenance.model} />}
@@ -61,16 +65,20 @@ export function AiInterpretationFindingsPanel({
 }: {
   result: WorkspaceAnalysisResult | null | undefined;
 }): JSX.Element | null {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const interpretation = extractAiInterpretation(result);
   if (!interpretation || interpretation.disabled || interpretation.findings.length === 0) return null;
   const gate = evaluateAiInterpretation(result, interpretation);
+  const helpText = getHelpText(locale, "aiFindings");
   return (
     <section className="rounded-md border border-sky-200 bg-sky-50/80 p-3 text-sm dark:border-sky-900 dark:bg-sky-950/20">
       <header className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <BrainCircuit className="h-4 w-4 text-sky-700 dark:text-sky-300" />
-          <h3 className="text-sm font-semibold text-foreground">{t("aiFindingsTitle")}</h3>
+          <h3 className="inline-flex items-center gap-2 text-sm font-semibold text-foreground">
+            {t("aiFindingsTitle")}
+            <HelpTip text={helpText} />
+          </h3>
         </div>
         <span className="rounded border border-sky-300 bg-background/80 px-2 py-0.5 text-xs font-medium text-sky-900 dark:border-sky-800 dark:text-sky-100">
           {t("aiAssisted")}

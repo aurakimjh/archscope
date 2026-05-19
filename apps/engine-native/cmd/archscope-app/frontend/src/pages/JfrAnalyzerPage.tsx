@@ -47,6 +47,7 @@ import {
   CanvasFlameGraph,
   type FlameGraphNode,
 } from "@/components/CanvasFlameGraph";
+import { HelpTip, HelpedLabel } from "@/components/HelpTip";
 import { MetricCard } from "@/components/MetricCard";
 import {
   WailsFileDock,
@@ -61,6 +62,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import { getHelpText } from "@/help/helpCatalog";
 import { useI18n, type MessageKey } from "@/i18n/I18nProvider";
 import { addWorkspaceResult } from "@/state/analysisWorkspace";
 import { addEvidenceCard } from "@/state/evidenceBoard";
@@ -113,7 +115,7 @@ const TAIL_RATIO_OPTIONS: Array<{ value: number; label: string }> = [
 ];
 
 export function JfrAnalyzerPage(): JSX.Element {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const [selectedFile, setSelectedFile] = useState<FileDockSelection | null>(
     null,
   );
@@ -316,6 +318,7 @@ export function JfrAnalyzerPage(): JSX.Element {
         <WailsFileDock
           className="min-w-0 flex-1"
           label={t("selectJfrFile")}
+          helpText={getHelpText(locale, "pageJfr")}
           description={t("dropOrBrowseJfr")}
           accept=".jfr,.json"
           selected={selectedFile}
@@ -451,9 +454,9 @@ export function JfrAnalyzerPage(): JSX.Element {
         {activeModeTab === "recording" ? (
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <label className="flex flex-col gap-1.5 text-xs">
-              <span className="font-medium text-foreground/80">
+              <HelpedLabel help={getHelpText(locale, "optionJfrMode")} className="font-medium text-foreground/80">
                 {t("jfrModeLabel")}
-              </span>
+              </HelpedLabel>
               <select
                 className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
                 value={mode}
@@ -478,9 +481,9 @@ export function JfrAnalyzerPage(): JSX.Element {
               </select>
             </label>
             <label className="flex flex-col gap-1.5 text-xs">
-              <span className="font-medium text-foreground/80">
+              <HelpedLabel help={getHelpText(locale, "optionJfrTime")} className="font-medium text-foreground/80">
                 {t("jfrFromTimeLabel")}
-              </span>
+              </HelpedLabel>
               <Input
                 type="text"
                 placeholder={t("jfrTimeHint")}
@@ -489,9 +492,9 @@ export function JfrAnalyzerPage(): JSX.Element {
               />
             </label>
             <label className="flex flex-col gap-1.5 text-xs">
-              <span className="font-medium text-foreground/80">
+              <HelpedLabel help={getHelpText(locale, "optionJfrTime")} className="font-medium text-foreground/80">
                 {t("jfrToTimeLabel")}
-              </span>
+              </HelpedLabel>
               <Input
                 type="text"
                 placeholder={t("jfrTimeHint")}
@@ -500,9 +503,9 @@ export function JfrAnalyzerPage(): JSX.Element {
               />
             </label>
             <label className="flex flex-col gap-1.5 text-xs">
-              <span className="font-medium text-foreground/80">
+              <HelpedLabel help={getHelpText(locale, "optionTopN")} className="font-medium text-foreground/80">
                 {t("topN")}
-              </span>
+              </HelpedLabel>
               <Input
                 type="number"
                 min={1}
@@ -511,9 +514,9 @@ export function JfrAnalyzerPage(): JSX.Element {
               />
             </label>
             <label className="flex flex-col gap-1.5 text-xs">
-              <span className="font-medium text-foreground/80">
+              <HelpedLabel help={getHelpText(locale, "optionJfrState")} className="font-medium text-foreground/80">
                 {t("jfrStateLabel")}
-              </span>
+              </HelpedLabel>
               <select
                 className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
                 value={stateFilter}
@@ -537,12 +540,14 @@ export function JfrAnalyzerPage(): JSX.Element {
                 checked={leakOnly}
                 onChange={(e) => setLeakOnly(e.target.checked)}
               />
-              {t("jfrNativeMemLeakOnly")}
+              <HelpedLabel help={getHelpText(locale, "optionNativeLeakOnly")}>
+                {t("jfrNativeMemLeakOnly")}
+              </HelpedLabel>
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className="font-medium text-foreground/80">
+              <HelpedLabel help={getHelpText(locale, "optionNativeTail")} className="font-medium text-foreground/80">
                 {t("jfrNativeMemTailRatio")}
-              </span>
+              </HelpedLabel>
               <select
                 className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
                 value={String(tailRatio)}
@@ -730,8 +735,9 @@ export function JfrAnalyzerPage(): JSX.Element {
               {nativeFlameGraph && (
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm">
+                    <CardTitle className="inline-flex items-center gap-2 text-sm">
                       {t("jfrNativeMemTitle")}
+                      <HelpTip text={getHelpText(locale, "sectionJfrNativeMemory")} />
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -745,8 +751,9 @@ export function JfrAnalyzerPage(): JSX.Element {
 
               <Card>
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm">
+                  <CardTitle className="inline-flex items-center gap-2 text-sm">
                     {t("jfrNativeMemTopSites")}
+                    <HelpTip text={getHelpText(locale, "sectionJfrTopSites")} />
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="overflow-x-auto p-0">
@@ -835,12 +842,16 @@ function JfrContractPanel({
   metadata: JfrAnalysisResult["metadata"] | undefined;
   t: (key: MessageKey) => string;
 }): JSX.Element | null {
+  const { locale } = useI18n();
   const contract = metadata?.jfr_contract;
   if (!contract?.binary_boundary && !contract?.desktop_scope) return null;
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm">{t("jfrContractTitle")}</CardTitle>
+        <CardTitle className="inline-flex items-center gap-2 text-sm">
+          {t("jfrContractTitle")}
+          <HelpTip text={getHelpText(locale, "sectionJfrContract")} />
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-1 pt-0 text-xs text-muted-foreground">
         {contract.binary_boundary && <p>{contract.binary_boundary}</p>}
@@ -859,11 +870,15 @@ function JfrFindingsPanel({
   t: (key: MessageKey) => string;
   onAddEvidence: (finding: JvmFinding) => void;
 }): JSX.Element | null {
+  const { locale } = useI18n();
   if (findings.length === 0) return null;
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm">{t("findings")}</CardTitle>
+        <CardTitle className="inline-flex items-center gap-2 text-sm">
+          {t("findings")}
+          <HelpTip text={getHelpText(locale, "sectionFindings")} />
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-2 pt-0 text-sm">
         {findings.map((finding, idx) => (
@@ -910,6 +925,7 @@ function JfrProfilePanel({
     row: Record<string, unknown>,
   ) => void;
 }): JSX.Element {
+  const { locale } = useI18n();
   if (
     !flameGraph &&
     topMethods.length === 0 &&
@@ -931,7 +947,10 @@ function JfrProfilePanel({
       {flameGraph && (
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm">{t("jfrProfileFlamegraph")}</CardTitle>
+            <CardTitle className="inline-flex items-center gap-2 text-sm">
+              {t("jfrProfileFlamegraph")}
+              <HelpTip text={getHelpText(locale, "sectionFlamegraph")} />
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <CanvasFlameGraph data={flameGraph} exportName="jfr-stack-profile" />
@@ -1156,10 +1175,14 @@ function CompactTableCard({
   title: string;
   children: React.ReactNode;
 }): JSX.Element {
+  const { locale } = useI18n();
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm">{title}</CardTitle>
+        <CardTitle className="inline-flex items-center gap-2 text-sm">
+          {title}
+          <HelpTip text={getHelpText(locale, "genericTable")} />
+        </CardTitle>
       </CardHeader>
       <CardContent className="overflow-x-auto p-0">
         <table className="w-full text-xs">{children}</table>
@@ -1187,10 +1210,14 @@ function NotableEventsPanel({
   t: (key: MessageKey) => string;
   onEvidence: (row: Exclude<JfrAnalysisResult["tables"]["notable_events"], undefined>[number]) => void;
 }): JSX.Element {
+  const { locale } = useI18n();
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm">{t("jfrTabEvents")}</CardTitle>
+        <CardTitle className="inline-flex items-center gap-2 text-sm">
+          {t("jfrTabEvents")}
+          <HelpTip text={getHelpText(locale, "sectionJfrEvents")} />
+        </CardTitle>
       </CardHeader>
       <CardContent className="overflow-x-auto p-0">
         {rows.length === 0 ? (
@@ -1270,10 +1297,14 @@ function EventTypeBreakdownPanel({
   rows: { event_type: string; count: number }[];
   t: (key: MessageKey) => string;
 }): JSX.Element {
+  const { locale } = useI18n();
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm">{t("jfrEventTypeBreakdown")}</CardTitle>
+        <CardTitle className="inline-flex items-center gap-2 text-sm">
+          {t("jfrEventTypeBreakdown")}
+          <HelpTip text={getHelpText(locale, "sectionJfrBreakdown")} />
+        </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
         {rows.length === 0 ? (
@@ -1328,6 +1359,7 @@ function HeatmapPanel({
   onPickStart: (time: string) => void;
   onClear: () => void;
 }): JSX.Element {
+  const { locale } = useI18n();
   const buckets = heatmap?.buckets ?? [];
   const maxCount = heatmap?.max_count ?? 0;
 
@@ -1335,7 +1367,10 @@ function HeatmapPanel({
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
         <div>
-          <CardTitle className="text-sm">{t("jfrHeatmap")}</CardTitle>
+          <CardTitle className="inline-flex items-center gap-2 text-sm">
+            {t("jfrHeatmap")}
+            <HelpTip text={getHelpText(locale, "sectionJfrHeatmap")} />
+          </CardTitle>
           <p className="mt-1 text-xs text-muted-foreground">
             {t("jfrHeatmapHint")}
           </p>

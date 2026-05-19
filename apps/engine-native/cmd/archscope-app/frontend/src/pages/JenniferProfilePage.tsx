@@ -53,6 +53,7 @@ import { MsaResponseTimeBreakdown } from "../components/MsaResponseTimeBreakdown
 import { MsaTimeline, MsaTimelineTreemap } from "../components/MsaTimeline";
 import { MsaTopology } from "../components/MsaTopology";
 import { AnalyzerOptionsDock } from "../components/AnalyzerOptionsDock";
+import { HelpTip, HelpedLabel } from "../components/HelpTip";
 import { MetricCard } from "../components/MetricCard";
 import { RecentFilesPanel } from "../components/RecentFilesPanel";
 import {
@@ -68,6 +69,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "../components/ui/tabs";
+import { getHelpText } from "@/help/helpCatalog";
 import { useI18n } from "../i18n/I18nProvider";
 import { addWorkspaceResult } from "../state/analysisWorkspace";
 
@@ -364,11 +366,15 @@ function signatureOptionLabel(signature: any): string {
 }
 
 function GuidTransactionSummary({ group }: { group: any }): JSX.Element {
+  const { locale } = useI18n();
   const metrics = group?.metrics ?? {};
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm">단일 트랜잭션 기준값</CardTitle>
+        <CardTitle className="inline-flex items-center gap-2 text-sm">
+          단일 트랜잭션 기준값
+          <HelpTip text={getHelpText(locale, "sectionMsaSingleBaseline")} />
+        </CardTitle>
         <p className="text-xs text-muted-foreground">
           선택한 GUID 하나의 실제 호출 순서와 elapsed 값을 그대로 표시합니다.
         </p>
@@ -404,11 +410,13 @@ function GuidTransactionSummary({ group }: { group: any }): JSX.Element {
 }
 
 function MsaCaptureStatusCard({ summary }: { summary: any }): JSX.Element {
+  const { locale } = useI18n();
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm">
+        <CardTitle className="inline-flex items-center gap-2 text-sm">
           MSA 캡처 상태 (체크쿼리 / 2PC / 외부호출 / 네트워크 준비)
+          <HelpTip text={getHelpText(locale, "sectionMsaCaptureStatus")} />
         </CardTitle>
       </CardHeader>
       <CardContent className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -450,14 +458,16 @@ function MsaCaptureStatusCard({ summary }: { summary: any }): JSX.Element {
 }
 
 function IncompleteProfileWarning({ summary }: { summary: any }): JSX.Element | null {
+  const { locale } = useI18n();
   const incomplete = Number(summary?.incomplete_profile_count ?? 0);
   const excludedGroups = Number(summary?.signature_excluded_group_count ?? 0);
   if (incomplete <= 0 && excludedGroups <= 0) return null;
   return (
     <Card className="border-amber-500/50 bg-amber-500/5">
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm text-amber-800 dark:text-amber-200">
+        <CardTitle className="inline-flex items-center gap-2 text-sm text-amber-800 dark:text-amber-200">
           불완전 프로파일 감지
+          <HelpTip text={getHelpText(locale, "sectionMsaIncomplete")} variant="warning" />
         </CardTitle>
       </CardHeader>
       <CardContent className="text-xs text-amber-900 dark:text-amber-100">
@@ -476,12 +486,16 @@ function TransactionProfilesTable({
   rows: any[];
   networkTimeByTxid: Map<string, number>;
 }): JSX.Element {
+  const { locale } = useI18n();
   const visibleRows = rows.slice(0, MSA_TABLE_PREVIEW_LIMIT);
   const hiddenCount = Math.max(0, rows.length - visibleRows.length);
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm">Transaction profiles ({rows.length})</CardTitle>
+        <CardTitle className="inline-flex items-center gap-2 text-sm">
+          Transaction profiles ({rows.length})
+          <HelpTip text={getHelpText(locale, "sectionMsaTransactions")} />
+        </CardTitle>
       </CardHeader>
       <CardContent className="overflow-x-auto p-0">
         {hiddenCount > 0 && (
@@ -570,13 +584,15 @@ function TransactionProfilesTable({
 }
 
 function NetworkPrepMethodsTable({ rows }: { rows: any[] }): JSX.Element {
+  const { locale } = useI18n();
   const visibleRows = rows.slice(0, MSA_TABLE_PREVIEW_LIMIT);
   const hiddenCount = Math.max(0, rows.length - visibleRows.length);
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm">
+        <CardTitle className="inline-flex items-center gap-2 text-sm">
           네트워크 준비시간 포함 메소드 ({rows.length})
+          <HelpTip text={getHelpText(locale, "sectionMsaNetworkPrep")} />
         </CardTitle>
         <p className="text-xs text-muted-foreground">
           wrapper 메소드 안에 포함된 EXTERNAL_CALL 합계를 빼고 남은 시간을
@@ -672,13 +688,15 @@ function NetworkPrepMethodsTable({ rows }: { rows: any[] }): JSX.Element {
 }
 
 function UnprofiledExternalCallGroupsTable({ rows }: { rows: any[] }): JSX.Element {
+  const { locale } = useI18n();
   const visibleRows = rows.slice(0, MSA_TABLE_PREVIEW_LIMIT);
   const hiddenCount = Math.max(0, rows.length - visibleRows.length);
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm">
+        <CardTitle className="inline-flex items-center gap-2 text-sm">
           프로파일 미수집 외부호출 ({rows.length})
+          <HelpTip text={getHelpText(locale, "sectionMsaUnprofiledExternal")} />
         </CardTitle>
         <p className="text-xs text-muted-foreground">
           callee profile이 없는 EXTERNAL_CALL은 Method 잔여시간에서 분리해
@@ -766,12 +784,14 @@ function UnprofiledExternalCallGroupsTable({ rows }: { rows: any[] }): JSX.Eleme
 }
 
 function ExternalCallTopTable({ edges }: { edges: any[] }): JSX.Element {
+  const { locale } = useI18n();
   const rows = aggregateExternalCallPairs(edges).slice(0, MSA_TABLE_PREVIEW_LIMIT);
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm">
+        <CardTitle className="inline-flex items-center gap-2 text-sm">
           EXTERNAL_CALL 누적 시간 상위 ({rows.length})
+          <HelpTip text={getHelpText(locale, "sectionMsaExternalTop")} />
         </CardTitle>
       </CardHeader>
       <CardContent className="overflow-x-auto p-0">
@@ -828,6 +848,7 @@ function ExternalCallTopTable({ edges }: { edges: any[] }): JSX.Element {
 }
 
 function SlowSqlTable({ rows }: { rows: any[] }): JSX.Element {
+  const { locale } = useI18n();
   const [minElapsedInput, setMinElapsedInput] = useState(
     String(DEFAULT_SLOW_SQL_THRESHOLD_MS),
   );
@@ -843,8 +864,9 @@ function SlowSqlTable({ rows }: { rows: any[] }): JSX.Element {
       <CardHeader className="pb-3">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <CardTitle className="text-sm">
+            <CardTitle className="inline-flex items-center gap-2 text-sm">
               성능 저하 SQL 후보 ({filteredRows.length}/{rows.length})
+              <HelpTip text={getHelpText(locale, "sectionMsaSlowSql")} />
             </CardTitle>
             <p className="mt-1 text-xs text-muted-foreground">
               기본값은 1초 이상 수행된 SQL만 표시합니다.
@@ -852,9 +874,9 @@ function SlowSqlTable({ rows }: { rows: any[] }): JSX.Element {
           </div>
           <div className="flex flex-wrap items-end gap-2 text-xs">
             <label className="flex flex-col gap-1">
-              <span className="font-medium text-foreground/80">
+              <HelpedLabel help={getHelpText(locale, "sectionMsaSlowSql")} className="font-medium text-foreground/80">
                 최소 응답시간(ms)
-              </span>
+              </HelpedLabel>
               <input
                 type="number"
                 min={0}
@@ -1097,13 +1119,15 @@ function CustomAnalysisRulesEditor({
 }
 
 function CustomRuleStatsPanel({ rows }: { rows: any[] }): JSX.Element | null {
+  const { locale } = useI18n();
   if (rows.length === 0) return null;
   const visibleRows = rows.slice(0, MSA_TABLE_PREVIEW_LIMIT);
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm">
+        <CardTitle className="inline-flex items-center gap-2 text-sm">
           사용자 정의 카드 통계 ({rows.length})
+          <HelpTip text={getHelpText(locale, "sectionMsaCustomCards")} />
         </CardTitle>
         <p className="text-xs text-muted-foreground">
           분석 옵션에서 추가한 카드별 집계입니다. 프로파일 URL은 전체
@@ -1206,6 +1230,7 @@ function aggregateExternalCallPairs(edges: any[]): Array<{
 }
 
 function ServiceNetworkTimeSummary({ rows }: { rows: any[] }): JSX.Element {
+  const { locale } = useI18n();
   const visibleRows = [...rows]
     .sort((a, b) => {
       const groupDelta =
@@ -1223,8 +1248,9 @@ function ServiceNetworkTimeSummary({ rows }: { rows: any[] }): JSX.Element {
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm">
+        <CardTitle className="inline-flex items-center gap-2 text-sm">
           서비스 호출 네트워크 타임 ({rows.length})
+          <HelpTip text={getHelpText(locale, "sectionMsaServiceNetworkTime")} />
         </CardTitle>
       </CardHeader>
       <CardContent className="overflow-x-auto p-0">
@@ -1305,7 +1331,7 @@ function networkGroupClass(index: unknown): string {
 }
 
 export function JenniferProfilePage(): JSX.Element {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const [selected, setSelected] = useState<Selection[]>([]);
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState<any>(null);
@@ -1717,6 +1743,7 @@ export function JenniferProfilePage(): JSX.Element {
         <WailsFileDock
           className="min-w-0 flex-1"
           label={t("dropOrBrowseJennifer")}
+          helpText={getHelpText(locale, "pageMsaProfile")}
           description="Jennifer profile export 파일 또는 같은 트랜잭션 묶음 파일을 선택하세요."
           accept=".txt,.log,.profile"
           selectedFiles={selectedFileDockItems}
@@ -1786,7 +1813,9 @@ export function JenniferProfilePage(): JSX.Element {
               checked={fallbackToTxid}
               onChange={(e) => setFallbackToTxid(e.target.checked)}
             />
-            fallback correlation = TXID
+            <HelpedLabel help={getHelpText(locale, "analyzerOptions")}>
+              fallback correlation = TXID
+            </HelpedLabel>
             <span className="text-muted-foreground">
               (기본: 꺼짐 — GUID 누락 시에만 켜세요)
             </span>
@@ -1943,7 +1972,10 @@ export function JenniferProfilePage(): JSX.Element {
           {fileErrors.length > 0 && (
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm">File errors</CardTitle>
+                <CardTitle className="inline-flex items-center gap-2 text-sm">
+                  File errors
+                  <HelpTip text={getHelpText(locale, "sectionMsaFileErrors")} />
+                </CardTitle>
               </CardHeader>
               <CardContent className="overflow-x-auto p-0">
                 <table className="w-full text-sm">
@@ -1973,7 +2005,10 @@ export function JenniferProfilePage(): JSX.Element {
           {fileSummary.length > 0 && (
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm">File summary</CardTitle>
+                <CardTitle className="inline-flex items-center gap-2 text-sm">
+                  File summary
+                  <HelpTip text={getHelpText(locale, "sectionMsaFileSummary")} />
+                </CardTitle>
               </CardHeader>
               <CardContent className="overflow-x-auto p-0">
                 <table className="w-full text-sm">
@@ -2015,8 +2050,9 @@ export function JenniferProfilePage(): JSX.Element {
           {showMsaTablesInSummary && signatureStats.length > 0 && (
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm">
+                <CardTitle className="inline-flex items-center gap-2 text-sm">
                   MSA timeline signatures ({signatureStats.length})
+                  <HelpTip text={getHelpText(locale, "sectionMsaSignatures")} />
                 </CardTitle>
               </CardHeader>
               <CardContent className="overflow-x-auto p-0">
@@ -2091,7 +2127,10 @@ export function JenniferProfilePage(): JSX.Element {
             signatureStats.some((s) => (s.edges ?? []).length > 0) && (
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm">Edge statistics</CardTitle>
+                <CardTitle className="inline-flex items-center gap-2 text-sm">
+                  Edge statistics
+                  <HelpTip text={getHelpText(locale, "sectionMsaEdgeStats")} />
+                </CardTitle>
               </CardHeader>
               <CardContent className="overflow-x-auto p-0">
                 <table className="w-full text-sm">
@@ -2167,8 +2206,9 @@ export function JenniferProfilePage(): JSX.Element {
           {showMsaTablesInSummary && guidGroups.length > 0 && (
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm">
+                <CardTitle className="inline-flex items-center gap-2 text-sm">
                   MSA GUID groups ({guidGroups.length})
+                  <HelpTip text={getHelpText(locale, "sectionMsaGuidGroups")} />
                 </CardTitle>
               </CardHeader>
               <CardContent className="overflow-x-auto p-0">
@@ -2252,8 +2292,9 @@ export function JenniferProfilePage(): JSX.Element {
           {showMsaTablesInSummary && msaEdges.length > 0 && (
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm">
+                <CardTitle className="inline-flex items-center gap-2 text-sm">
                   External call edges ({msaEdges.length})
+                  <HelpTip text={getHelpText(locale, "sectionMsaExternalEdges")} />
                 </CardTitle>
               </CardHeader>
               <CardContent className="overflow-x-auto p-0">
@@ -2324,7 +2365,10 @@ export function JenniferProfilePage(): JSX.Element {
             <>
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm">MSA 타임라인 분석 모드</CardTitle>
+                <CardTitle className="inline-flex items-center gap-2 text-sm">
+                  MSA 타임라인 분석 모드
+                  <HelpTip text={getHelpText(locale, "sectionMsaTimelineMode")} />
+                </CardTitle>
                 <p className="text-xs text-muted-foreground">
                   단일 트랜잭션은 GUID 하나의 실제 호출 흐름을, 평균
                   트랜잭션은 같은 signature로 묶인 여러 GUID의 평균 호출
@@ -2355,7 +2399,11 @@ export function JenniferProfilePage(): JSX.Element {
                 {msaTimelineMode === "single" ? (
                   <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs lg:max-w-xl">
                     <span className="font-medium text-foreground/80">
-                      분석할 트랜잭션
+                      <HelpedLabel
+                        help={getHelpText(locale, "optionMsaTimelineGuid")}
+                      >
+                        분석할 트랜잭션
+                      </HelpedLabel>
                     </span>
                     <select
                       className="h-9 rounded-md border border-input bg-background px-3 text-xs"
@@ -2375,7 +2423,11 @@ export function JenniferProfilePage(): JSX.Element {
                 ) : (
                   <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs lg:max-w-xl">
                     <span className="font-medium text-foreground/80">
-                      평균을 낼 signature
+                      <HelpedLabel
+                        help={getHelpText(locale, "optionMsaTimelineSignature")}
+                      >
+                        평균을 낼 signature
+                      </HelpedLabel>
                     </span>
                     <select
                       className="h-9 rounded-md border border-input bg-background px-3 text-xs"
@@ -2519,7 +2571,10 @@ export function JenniferProfilePage(): JSX.Element {
             <>
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm">파서 보고서</CardTitle>
+                <CardTitle className="inline-flex items-center gap-2 text-sm">
+                  파서 보고서
+                  <HelpTip text={getHelpText(locale, "sectionMsaParserReport")} />
+                </CardTitle>
               </CardHeader>
               <CardContent className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <MetricCard
@@ -2550,7 +2605,10 @@ export function JenniferProfilePage(): JSX.Element {
             </Card>
             <Card className="mt-3">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm">파일 오류</CardTitle>
+                <CardTitle className="inline-flex items-center gap-2 text-sm">
+                  파일 오류
+                  <HelpTip text={getHelpText(locale, "sectionMsaFileErrors")} />
+                </CardTitle>
               </CardHeader>
               <CardContent className="overflow-x-auto p-0">
                 {fileErrors.length === 0 ? (
@@ -2583,7 +2641,10 @@ export function JenniferProfilePage(): JSX.Element {
             </Card>
             <Card className="mt-3">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm">프로파일별 이슈 (errors / warnings)</CardTitle>
+                <CardTitle className="inline-flex items-center gap-2 text-sm">
+                  프로파일별 이슈 (errors / warnings)
+                  <HelpTip text={getHelpText(locale, "sectionMsaProfileIssues")} />
+                </CardTitle>
               </CardHeader>
               <CardContent className="overflow-x-auto p-0">
                 {(() => {
