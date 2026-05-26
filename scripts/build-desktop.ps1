@@ -1,18 +1,22 @@
 # ==========================================================================
-# build-desktop.ps1 — One-command build for the ArchScope desktop app.
+# build-desktop.ps1 — One-command build for the active Go/Wails desktop app.
 #
-# Produces a distributable Electron package with the Python engine bundled
-# so end-users need ZERO runtime dependencies (no Python, no Node).
+# Produces the current Wails desktop package from:
+#   apps\engine-native\cmd\archscope-app
 #
 # Prerequisites (build machine only):
-#   - Python 3.9+ with pip
+#   - Go
 #   - Node 18+ with npm
-#   - PyInstaller  (pip install pyinstaller)
+#   - Wails v3 CLI (wails3)
+#   - Task (go-task)
 #
 # Usage:
-#   scripts\build-desktop.ps1                   # full build
-#   scripts\build-desktop.ps1 -SkipEngine       # reuse existing engine binary
-#   scripts\build-desktop.ps1 -DirOnly          # produce unpacked dir (faster)
+#   scripts\build-desktop.ps1             # production package
+#   scripts\build-desktop.ps1 -DirOnly    # build app binary only
+#
+# [한글] 현재 제품 라인은 Python/Electron 이 아니라 Go/Wails 입니다.
+# 이 스크립트는 예전 engines\python, apps\frontend, apps\desktop 경로를 더 이상
+# 사용하지 않고 Wails Taskfile 을 호출합니다. -SkipEngine 은 예전 호환용 no-op 입니다.
 # ==========================================================================
 
 param(
@@ -22,70 +26,39 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$repoRoot   = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-$engineDir  = Join-Path $repoRoot "engines\python"
-$frontendDir = Join-Path $repoRoot "apps\frontend"
-$desktopDir = Join-Path $repoRoot "apps\desktop"
+$repoRoot = Split-Path -Parent $PSScriptRoot
+$appDir = Join-Path $repoRoot "apps\engine-native\cmd\archscope-app"
 
-# --------------------------------------------------------------------------
-# Step 1: Bundle the Python engine with PyInstaller
-# --------------------------------------------------------------------------
-if (-not $SkipEngine) {
-    Write-Host ""
-    Write-Host "--- Step 1/3: Building Python engine (PyInstaller) ---" -ForegroundColor Cyan
-    Write-Host ""
-    Set-Location $engineDir
-
-    pip install -e ".[dev]" --quiet 2>$null
-    pip install pyinstaller --quiet
-
-    if (Test-Path "build") { Remove-Item -Recurse -Force "build" }
-    if (Test-Path "dist")  { Remove-Item -Recurse -Force "dist" }
-
-    pyinstaller archscope-engine.spec --noconfirm --clean
-
-    Write-Host ""
-    Write-Host "  OK Engine built: $engineDir\dist\archscope-engine\" -ForegroundColor Green
-} else {
-    Write-Host ""
-    Write-Host "--- Step 1/3: Skipping engine build (--SkipEngine) ---" -ForegroundColor Yellow
-    if (-not (Test-Path (Join-Path $engineDir "dist\archscope-engine"))) {
-        Write-Host "  Warning: dist\archscope-engine\ does not exist." -ForegroundColor Yellow
-    }
+if ($SkipEngine) {
+    Write-Host "Warning: -SkipEngine is obsolete for the Go/Wails app and will be ignored." -ForegroundColor Yellow
 }
 
-# --------------------------------------------------------------------------
-# Step 2: Build the React frontend
-# --------------------------------------------------------------------------
-Write-Host ""
-Write-Host "--- Step 2/3: Building React frontend ---" -ForegroundColor Cyan
-Write-Host ""
-Set-Location $frontendDir
-npm install --no-audit --no-fund
-npm run build
-Write-Host ""
-Write-Host "  OK Frontend built: $frontendDir\dist\" -ForegroundColor Green
+if (-not (Test-Path -LiteralPath $appDir -PathType Container)) {
+    throw "Wails app directory not found: $appDir"
+}
 
-# --------------------------------------------------------------------------
-# Step 3: Compile Electron + package
-# --------------------------------------------------------------------------
-Write-Host ""
-Write-Host "--- Step 3/3: Packaging Electron app ---" -ForegroundColor Cyan
-Write-Host ""
-Set-Location $desktopDir
-npm install --no-audit --no-fund
+if (-not (Get-Command task -ErrorAction SilentlyContinue)) {
+    throw "go-task command 'task' is required. Install Task before running this script."
+}
 
-npx tsc -p tsconfig.electron.json
+Set-Location $appDir
 
 if ($DirOnly) {
-    npx electron-builder --dir
+    Write-Host "--- Building Wails app binary only ---" -ForegroundColor Cyan
+    task build
 } else {
-    npx electron-builder
+    Write-Host "--- Packaging Wails desktop app ---" -ForegroundColor Cyan
+    task package
+}
+
+$exitCode = $LASTEXITCODE
+if ($exitCode -ne 0) {
+    exit $exitCode
 }
 
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Green
 Write-Host "  Build complete!" -ForegroundColor Green
-Write-Host "  Output: $desktopDir\release\" -ForegroundColor Green
+Write-Host "  Output: $appDir\bin\" -ForegroundColor Green
 Write-Host "========================================" -ForegroundColor Green
 Write-Host ""
