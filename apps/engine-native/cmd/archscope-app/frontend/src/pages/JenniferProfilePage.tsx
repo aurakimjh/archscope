@@ -156,6 +156,7 @@ type MsaDrilldownOption = {
   value: string;
   label: string;
   txid?: string;
+  application?: string;
 };
 
 type MsaDrilldownScope = {
@@ -337,6 +338,59 @@ function buildMsaDrilldownOptions(group: any, rows: any[]): MsaDrilldownOption[]
     });
   }
   return options;
+}
+
+function buildMsaAverageDrilldownOptions(rows: any[]): MsaDrilldownOption[] {
+  const options: MsaDrilldownOption[] = [
+    {
+      value: "__whole__",
+      label: "전체 평균 트랜잭션 기준",
+    },
+  ];
+  const byApplication = new Map<
+    string,
+    {
+      application: string;
+      count: number;
+      responseTotal: number;
+      maxResponse: number;
+    }
+  >();
+  for (const row of rows) {
+    const application = String(row?.application ?? "").trim();
+    if (!application) continue;
+    const response = profileResponseTime(row);
+    const current =
+      byApplication.get(application) ?? {
+        application,
+        count: 0,
+        responseTotal: 0,
+        maxResponse: 0,
+      };
+    current.count += 1;
+    current.responseTotal += response;
+    current.maxResponse = Math.max(current.maxResponse, response);
+    byApplication.set(application, current);
+  }
+  return [
+    ...options,
+    ...Array.from(byApplication.values())
+      .sort((a, b) => {
+        if (a.maxResponse !== b.maxResponse) return b.maxResponse - a.maxResponse;
+        return a.application.localeCompare(b.application);
+      })
+      .map((entry) => {
+        const avg = entry.count > 0 ? entry.responseTotal / entry.count : 0;
+        return {
+          value: entry.application,
+          application: entry.application,
+          label:
+            avg > 0
+              ? `${entry.application} · ${entry.count.toLocaleString()}건 · avg ${Math.round(avg).toLocaleString()} ms`
+              : `${entry.application} · ${entry.count.toLocaleString()}건`,
+        };
+      }),
+  ];
 }
 
 function buildMsaDrilldownScope({
@@ -541,6 +595,136 @@ function buildMsaDrilldownScope({
     selectedTxid: targetTxid,
     isWholeTransaction: false,
   };
+}
+
+function representativeProfileForApplication(rows: any[], application: string): any | undefined {
+  const candidates = rows.filter(
+    (row) => String(row?.application ?? "").trim() === application,
+  );
+  if (candidates.length === 0) return undefined;
+  return [...candidates].sort(
+    (a, b) => profileResponseTime(b) - profileResponseTime(a),
+  )[0];
+}
+
+function profileRowsForGroup(group: any, rows: any[]): any[] {
+  if (!group?.guid) return [];
+  const txids = new Set((group?.profile_txids ?? []).map((txid: unknown) => txidOf(txid)));
+  return rows.filter((row) => row?.guid === group.guid || txids.has(txidOf(row?.txid)));
+}
+
+function buildMsaAverageDrilldownScopes({
+  groups,
+  profileRows,
+  msaEdges,
+  slowSqlRows,
+  selectedApplication,
+}: {
+  groups: any[];
+  profileRows: any[];
+  msaEdges: any[];
+  slowSqlRows: any[];
+  selectedApplication: string;
+}): MsaDrilldownScope[] {
+  if (!selectedApplication || selectedApplication === "__whole__") return [];
+  const scopes: MsaDrilldownScope[] = [];
+  for (const group of groups) {
+    const groupProfileRows = profileRowsForGroup(group, profileRows);
+    const representative = representativeProfileForApplication(
+      groupProfileRows,
+      selectedApplication,
+    );
+    const txid = txidOf(representative?.txid);
+    if (!txid) continue;
+    const groupEdges = msaEdges.filter((edge) => edge?.guid === group?.guid);
+    const groupTxids = txidSetFromProfiles(groupProfileRows);
+    const groupSlowSqlRows = slowSqlRows.filter((row) =>
+      groupTxids.has(txidOf(row?.txid)),
+    );
+    const scope = buildMsaDrilldownScope({
+      group,
+      profileRows: groupProfileRows,
+      groupEdges,
+      slowSqlRows: groupSlowSqlRows,
+      selectedValue: txid,
+    });
+    if (scope && !scope.isWholeTransaction) scopes.push(scope);
+  }
+  return scopes;
+}
+
+function buildAverageEdgesFromTimelineEdges(edges: any[]): any[] {
+  type State = {
+    caller: string;
+    callee: string;
+    count: number;
+    elapsedTotal: number;
+    calleeResponseTotal: number;
+    networkTotal: number;
+  };
+  const byPair = new Map<string, State>();
+  for (const edge of edges) {
+    const caller = String(edge?.caller_application ?? "");
+    const callee = String(
+      edge?.callee_application ??
+        edge?.external_call_target ??
+        edge?.external_call_url ??
+        "",
+    );
+    if (!caller || !callee) continue;
+    const key = `${caller}\u0000${callee}`;
+    const state =
+      byPair.get(key) ?? {
+        caller,
+        callee,
+        count: 0,
+        elapsedTotal: 0,
+        calleeResponseTotal: 0,
+        networkTotal: 0,
+      };
+    state.count += 1;
+    state.elapsedTotal += Math.max(0, Number(edge?.external_call_elapsed_ms ?? 0));
+    state.calleeResponseTotal += Math.max(
+      0,
+      Number(edge?.callee_response_time_ms ?? 0),
+    );
+    state.networkTotal += Math.max(
+      0,
+      Number(edge?.network_gap_ms ?? edge?.adjusted_network_gap_ms ?? 0),
+    );
+    byPair.set(key, state);
+  }
+  let cursor = 0;
+  return Array.from(byPair.values())
+    .sort((a, b) => b.elapsedTotal - a.elapsedTotal)
+    .map((state, idx) => {
+      const elapsed = Math.round(state.elapsedTotal / Math.max(1, state.count));
+      const start = cursor;
+      cursor += elapsed;
+      return {
+        caller_application: state.caller,
+        callee_application: state.callee,
+        caller_txid: `avg-drill-${idx}-caller`,
+        callee_txid: `avg-drill-${idx}-callee`,
+        external_call_elapsed_ms: elapsed,
+        callee_response_time_ms: Math.round(
+          state.calleeResponseTotal / Math.max(1, state.count),
+        ),
+        network_gap_ms: Math.round(state.networkTotal / Math.max(1, state.count)),
+        caller_event_start_ms: start,
+        match_status: "MATCHED",
+        call_count: state.count,
+      };
+    })
+    .filter((edge) => edge.external_call_elapsed_ms > 0);
+}
+
+function averageRootResponseMs(groups: any[]): number | undefined {
+  const values = groups
+    .map((group) => toFiniteNumber(group?.root_response_time_ms))
+    .filter((value): value is number => value != null && value > 0);
+  if (values.length === 0) return undefined;
+  return values.reduce((sum, value) => sum + value, 0) / values.length;
 }
 
 function makeCustomRule(): CustomAnalysisRule {
@@ -1636,6 +1820,8 @@ export function JenniferProfilePage(): JSX.Element {
     useState<string>("");
   const [selectedMsaDrilldown, setSelectedMsaDrilldown] =
     useState<string>("__whole__");
+  const [selectedAverageMsaDrilldown, setSelectedAverageMsaDrilldown] =
+    useState<string>("__whole__");
   const customPresetInputRef = useRef<HTMLInputElement>(null);
   // Jennifer-scoped recent-files history. The UI lets users add
   // multiple files at once, so a "recent" entry restores the full
@@ -1786,6 +1972,7 @@ export function JenniferProfilePage(): JSX.Element {
       setSelectedGuid("");
       setSelectedSignatureHash("");
       setSelectedMsaDrilldown("__whole__");
+      setSelectedAverageMsaDrilldown("__whole__");
       setActiveTab("msa");
       // Jennifer is multi-file by design — the recent entry stores
       // the first file as the keyed path and stashes the full list +
@@ -1839,11 +2026,6 @@ export function JenniferProfilePage(): JSX.Element {
   // metadata, used by the topology graph and the overall timeline.
   const topologyEdges: any[] = useMemo(
     () => guidGroups.flatMap((g) => g?.call_graph ?? []),
-    [guidGroups],
-  );
-
-  const networkTimeByTxid = useMemo(
-    () => buildNetworkTimeByTxid(guidGroups),
     [guidGroups],
   );
 
@@ -1984,6 +2166,99 @@ export function JenniferProfilePage(): JSX.Element {
       ]),
     [signatureMsaEdges, signatureTopologyEdges],
   );
+
+  const averageDrilldownOptions = useMemo(
+    () => buildMsaAverageDrilldownOptions(signatureProfileRows),
+    [signatureProfileRows],
+  );
+
+  const selectedAverageMsaDrilldownValue = useMemo(() => {
+    if (averageDrilldownOptions.length === 0) return "__whole__";
+    return averageDrilldownOptions.some(
+      (option) => option.value === selectedAverageMsaDrilldown,
+    )
+      ? selectedAverageMsaDrilldown
+      : "__whole__";
+  }, [averageDrilldownOptions, selectedAverageMsaDrilldown]);
+
+  const averageDrilldownScopes = useMemo(
+    () =>
+      buildMsaAverageDrilldownScopes({
+        groups: signatureGroups,
+        profileRows,
+        msaEdges,
+        slowSqlRows,
+        selectedApplication: selectedAverageMsaDrilldownValue,
+      }),
+    [
+      signatureGroups,
+      profileRows,
+      msaEdges,
+      slowSqlRows,
+      selectedAverageMsaDrilldownValue,
+    ],
+  );
+
+  const averageDrilldownGroups = useMemo(
+    () =>
+      selectedAverageMsaDrilldownValue === "__whole__"
+        ? signatureGroups
+        : averageDrilldownScopes.map((scope) => scope.group),
+    [averageDrilldownScopes, selectedAverageMsaDrilldownValue, signatureGroups],
+  );
+
+  const averageDrilldownProfileRows = useMemo(
+    () =>
+      selectedAverageMsaDrilldownValue === "__whole__"
+        ? signatureProfileRows
+        : averageDrilldownScopes.flatMap((scope) => scope.profileRows),
+    [averageDrilldownScopes, selectedAverageMsaDrilldownValue, signatureProfileRows],
+  );
+
+  const averageDrilldownSlowSqlRows = useMemo(
+    () =>
+      selectedAverageMsaDrilldownValue === "__whole__"
+        ? signatureSlowSqlRows
+        : averageDrilldownScopes.flatMap((scope) => scope.slowSqlRows),
+    [averageDrilldownScopes, selectedAverageMsaDrilldownValue, signatureSlowSqlRows],
+  );
+
+  const averageDrilldownActualEdges = useMemo(
+    () =>
+      selectedAverageMsaDrilldownValue === "__whole__"
+        ? signatureTimelineEdges
+        : uniqueTimelineEdges(
+            averageDrilldownScopes.flatMap((scope) => scope.timelineEdges),
+          ),
+    [averageDrilldownScopes, selectedAverageMsaDrilldownValue, signatureTimelineEdges],
+  );
+
+  const averageDrilldownTimelineEdges = useMemo(
+    () =>
+      selectedAverageMsaDrilldownValue === "__whole__"
+        ? averageTimelineEdges
+        : buildAverageEdgesFromTimelineEdges(averageDrilldownActualEdges),
+    [
+      averageDrilldownActualEdges,
+      averageTimelineEdges,
+      selectedAverageMsaDrilldownValue,
+    ],
+  );
+
+  const averageDrilldownNetworkTimeByTxid = useMemo(
+    () => buildNetworkTimeByTxid(averageDrilldownGroups),
+    [averageDrilldownGroups],
+  );
+
+  const averageDrilldownRootApplication =
+    selectedAverageMsaDrilldownValue === "__whole__"
+      ? selectedSignature?.root_application
+      : selectedAverageMsaDrilldownValue;
+
+  const averageDrilldownRootDurationMs =
+    selectedAverageMsaDrilldownValue === "__whole__"
+      ? statValue(selectedSignature?.metrics?.root_response_time_ms, "avg")
+      : averageRootResponseMs(averageDrilldownGroups);
 
   const emptyResultCard = (
     <Card>
@@ -2739,31 +3014,52 @@ export function JenniferProfilePage(): JSX.Element {
                     </label>
                   </>
                 ) : (
-                  <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs lg:max-w-xl">
-                    <span className="font-medium text-foreground/80">
-                      <HelpedLabel
-                        help={getHelpText(locale, "optionMsaTimelineSignature")}
-                      >
-                        평균을 낼 signature
-                      </HelpedLabel>
-                    </span>
-                    <select
-                      className="h-9 rounded-md border border-input bg-background px-3 text-xs"
-                      value={selectedSignature?.signature_hash ?? ""}
-                      onChange={(event) =>
-                        setSelectedSignatureHash(event.target.value)
-                      }
-                    >
-                      {signatureStats.map((signature) => (
-                        <option
-                          key={signature?.signature_hash}
-                          value={signature?.signature_hash ?? ""}
+                  <>
+                    <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs lg:max-w-xl">
+                      <span className="font-medium text-foreground/80">
+                        <HelpedLabel
+                          help={getHelpText(locale, "optionMsaTimelineSignature")}
                         >
-                          {signatureOptionLabel(signature)}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                          평균을 낼 signature
+                        </HelpedLabel>
+                      </span>
+                      <select
+                        className="h-9 rounded-md border border-input bg-background px-3 text-xs"
+                        value={selectedSignature?.signature_hash ?? ""}
+                        onChange={(event) => {
+                          setSelectedSignatureHash(event.target.value);
+                          setSelectedAverageMsaDrilldown("__whole__");
+                        }}
+                      >
+                        {signatureStats.map((signature) => (
+                          <option
+                            key={signature?.signature_hash}
+                            value={signature?.signature_hash ?? ""}
+                          >
+                            {signatureOptionLabel(signature)}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs lg:max-w-xl">
+                      <span className="font-medium text-foreground/80">
+                        평균 기준 앱
+                      </span>
+                      <select
+                        className="h-9 rounded-md border border-input bg-background px-3 text-xs"
+                        value={selectedAverageMsaDrilldownValue}
+                        onChange={(event) =>
+                          setSelectedAverageMsaDrilldown(event.target.value)
+                        }
+                      >
+                        {averageDrilldownOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </>
                 )}
               </CardContent>
             </Card>
@@ -2838,34 +3134,43 @@ export function JenniferProfilePage(): JSX.Element {
             ) : selectedSignature ? (
               <>
                 <MsaResponseTimeBreakdown
-                  groups={signatureGroups as any}
-                  edges={signatureTimelineEdges as any}
+                  groups={averageDrilldownGroups as any}
+                  edges={averageDrilldownActualEdges as any}
                 />
                 <MsaTopology
-                  title="평균 트랜잭션 호출 토폴로지"
-                  edges={averageTimelineEdges as any}
-                  rootApplication={selectedSignature?.root_application}
+                  title={
+                    selectedAverageMsaDrilldownValue === "__whole__"
+                      ? "평균 트랜잭션 호출 토폴로지"
+                      : `평균 드릴다운 호출 토폴로지 (${selectedAverageMsaDrilldownValue})`
+                  }
+                  edges={averageDrilldownTimelineEdges as any}
+                  rootApplication={averageDrilldownRootApplication}
                 />
                 <TransactionProfilesTable
-                  rows={signatureProfileRows}
-                  networkTimeByTxid={networkTimeByTxid}
+                  rows={averageDrilldownProfileRows}
+                  networkTimeByTxid={averageDrilldownNetworkTimeByTxid}
                 />
                 <MsaTimeline
-                  title="평균 트랜잭션 타임라인 (서비스 그룹)"
-                  edges={averageTimelineEdges as any}
+                  title={
+                    selectedAverageMsaDrilldownValue === "__whole__"
+                      ? "평균 트랜잭션 타임라인 (서비스 그룹)"
+                      : "평균 드릴다운 타임라인 (서비스 그룹)"
+                  }
+                  edges={averageDrilldownTimelineEdges as any}
                   mode="by-service"
-                  rootApplication={selectedSignature?.root_application}
-                  rootDurationMs={statValue(
-                    selectedSignature?.metrics?.root_response_time_ms,
-                    "avg",
-                  )}
+                  rootApplication={averageDrilldownRootApplication}
+                  rootDurationMs={averageDrilldownRootDurationMs}
                 />
                 <MsaTimelineTreemap
-                  title="평균 트랜잭션 트리맵 (avg elapsed 합계)"
-                  edges={averageTimelineEdges as any}
-                  rootApplication={selectedSignature?.root_application}
+                  title={
+                    selectedAverageMsaDrilldownValue === "__whole__"
+                      ? "평균 트랜잭션 트리맵 (avg elapsed 합계)"
+                      : "평균 드릴다운 트리맵 (avg elapsed 합계)"
+                  }
+                  edges={averageDrilldownTimelineEdges as any}
+                  rootApplication={averageDrilldownRootApplication}
                 />
-                <SlowSqlTable rows={signatureSlowSqlRows} />
+                <SlowSqlTable rows={averageDrilldownSlowSqlRows} />
               </>
             ) : (
               <Card>
