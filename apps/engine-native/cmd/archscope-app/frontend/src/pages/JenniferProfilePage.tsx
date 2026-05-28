@@ -152,6 +152,25 @@ type CustomAnalysisRule = {
   patterns: string[];
 };
 
+type MsaDrilldownOption = {
+  value: string;
+  label: string;
+  txid?: string;
+};
+
+type MsaDrilldownScope = {
+  group: any;
+  profileRows: any[];
+  timelineEdges: any[];
+  topologyEdges: any[];
+  slowSqlRows: any[];
+  networkTimeByTxid: Map<string, number>;
+  selectedValue: string;
+  selectedApplication: string;
+  selectedTxid?: string;
+  isWholeTransaction: boolean;
+};
+
 const CUSTOM_RULE_GROUPS: Array<{
   id: CustomAnalysisRuleGroup;
   label: string;
@@ -263,6 +282,265 @@ function buildNetworkTimeByTxid(groups: any[]): Map<string, number> {
 
 function txidSetFromProfiles(rows: any[]): Set<string> {
   return new Set(rows.map((row) => String(row?.txid ?? "")).filter(Boolean));
+}
+
+function txidOf(value: unknown): string {
+  return String(value ?? "").trim();
+}
+
+function profileResponseTime(row: any): number {
+  return Math.max(0, Math.round(toFiniteNumber(row?.header?.response_time_ms) ?? 0));
+}
+
+function profileMetric(row: any, key: string): number {
+  return Math.max(0, Math.round(toFiniteNumber(row?.body_metrics?.[key]) ?? 0));
+}
+
+function msaDrilldownOptionLabel(row: any): string {
+  const app = String(row?.application || "unknown");
+  const txid = txidOf(row?.txid);
+  const response = profileResponseTime(row);
+  const suffix = txid ? `TXID …${txid.slice(-10)}` : "TXID 없음";
+  return response > 0
+    ? `${app} · ${suffix} · ${response.toLocaleString()} ms`
+    : `${app} · ${suffix}`;
+}
+
+function buildMsaDrilldownOptions(group: any, rows: any[]): MsaDrilldownOption[] {
+  if (!group) return [];
+  const options: MsaDrilldownOption[] = [
+    {
+      value: "__whole__",
+      label: "전체 트랜잭션 기준",
+    },
+  ];
+  const txidOrder = new Set(
+    ((group?.profile_txids ?? []) as string[]).map((txid) => txidOf(txid)),
+  );
+  const candidates = rows
+    .filter((row) => txidOrder.has(txidOf(row?.txid)))
+    .sort((a, b) => {
+      const ar = txidOf(a?.txid) === txidOf(group?.root_txid) ? -1 : 0;
+      const br = txidOf(b?.txid) === txidOf(group?.root_txid) ? -1 : 0;
+      if (ar !== br) return ar - br;
+      return profileResponseTime(b) - profileResponseTime(a);
+    });
+  const seen = new Set<string>();
+  for (const row of candidates) {
+    const txid = txidOf(row?.txid);
+    if (!txid || seen.has(txid)) continue;
+    seen.add(txid);
+    options.push({
+      value: txid,
+      txid,
+      label: msaDrilldownOptionLabel(row),
+    });
+  }
+  return options;
+}
+
+function buildMsaDrilldownScope({
+  group,
+  profileRows,
+  groupEdges,
+  slowSqlRows,
+  selectedValue,
+}: {
+  group: any;
+  profileRows: any[];
+  groupEdges: any[];
+  slowSqlRows: any[];
+  selectedValue: string;
+}): MsaDrilldownScope | undefined {
+  if (!group) return undefined;
+  const wholeSelected = !selectedValue || selectedValue === "__whole__";
+  const wholeTimelineEdges = uniqueTimelineEdges([
+    ...(group?.call_graph ?? []),
+    ...groupEdges.filter((edge) => edge?.match_status && edge.match_status !== "MATCHED"),
+  ]);
+  if (wholeSelected) {
+    return {
+      group,
+      profileRows,
+      timelineEdges: wholeTimelineEdges,
+      topologyEdges: group?.call_graph ?? [],
+      slowSqlRows,
+      networkTimeByTxid: buildNetworkTimeByTxid([group]),
+      selectedValue: "__whole__",
+      selectedApplication: group?.root_application || "전체 트랜잭션",
+      isWholeTransaction: true,
+    };
+  }
+
+  const profileByTxid = new Map<string, any>();
+  for (const row of profileRows) {
+    const txid = txidOf(row?.txid);
+    if (txid) profileByTxid.set(txid, row);
+  }
+  const targetTxid = profileByTxid.has(selectedValue)
+    ? selectedValue
+    : txidOf(group?.root_txid);
+  if (!targetTxid) {
+    return {
+      group,
+      profileRows,
+      timelineEdges: wholeTimelineEdges,
+      topologyEdges: group?.call_graph ?? [],
+      slowSqlRows,
+      networkTimeByTxid: buildNetworkTimeByTxid([group]),
+      selectedValue: "__whole__",
+      selectedApplication: group?.root_application || "전체 트랜잭션",
+      isWholeTransaction: true,
+    };
+  }
+
+  const adjacency = new Map<string, string[]>();
+  for (const edge of group?.call_graph ?? []) {
+    const caller = txidOf(edge?.caller_txid);
+    const callee = txidOf(edge?.callee_txid);
+    if (!caller || !callee) continue;
+    const next = adjacency.get(caller) ?? [];
+    next.push(callee);
+    adjacency.set(caller, next);
+  }
+
+  const subtreeTxids = new Set<string>();
+  const stack = [targetTxid];
+  while (stack.length > 0) {
+    const txid = stack.pop();
+    if (!txid || subtreeTxids.has(txid)) continue;
+    subtreeTxids.add(txid);
+    for (const child of adjacency.get(txid) ?? []) {
+      if (!subtreeTxids.has(child)) stack.push(child);
+    }
+  }
+
+  const scopedProfiles = profileRows.filter((row) => subtreeTxids.has(txidOf(row?.txid)));
+  const scopedMatchedEdges = (group?.call_graph ?? []).filter(
+    (edge: any) =>
+      subtreeTxids.has(txidOf(edge?.caller_txid)) &&
+      subtreeTxids.has(txidOf(edge?.callee_txid)),
+  );
+  const scopedUnmatchedEdges = groupEdges.filter(
+    (edge) =>
+      edge?.match_status &&
+      edge.match_status !== "MATCHED" &&
+      subtreeTxids.has(txidOf(edge?.caller_txid)),
+  );
+  const scopedTimelineEdges = uniqueTimelineEdges([
+    ...scopedMatchedEdges,
+    ...scopedUnmatchedEdges,
+  ]);
+  const scopedSlowSqlRows = slowSqlRows.filter((row) =>
+    subtreeTxids.has(txidOf(row?.txid)),
+  );
+
+  const rootRow = profileByTxid.get(targetTxid);
+  const rootResponse = profileResponseTime(rootRow);
+  const rootApplication =
+    String(rootRow?.application || "") ||
+    String(group?.root_application || "선택 애플리케이션");
+  const totals = scopedProfiles.reduce(
+    (acc, row) => {
+      acc.sql += profileMetric(row, "sql_execute_cum_ms");
+      acc.checkQuery += profileMetric(row, "check_query_cum_ms");
+      acc.twoPc += profileMetric(row, "two_pc_cum_ms");
+      acc.fetch += profileMetric(row, "fetch_cum_ms");
+      acc.fetchRows += profileMetric(row, "fetch_total_rows");
+      acc.conn += profileMetric(row, "connection_acquire_cum_ms");
+      acc.networkPrep += profileMetric(row, "network_prep_cum_ms");
+      return acc;
+    },
+    {
+      sql: 0,
+      checkQuery: 0,
+      twoPc: 0,
+      fetch: 0,
+      fetchRows: 0,
+      conn: 0,
+      networkPrep: 0,
+    },
+  );
+  const networkMs = scopedMatchedEdges.reduce(
+    (sum: number, edge: any) => sum + Math.max(0, Math.round(Number(edge?.network_gap_ms ?? 0))),
+    0,
+  );
+  const matchedExternalMs = scopedMatchedEdges.reduce(
+    (sum: number, edge: any) =>
+      sum + Math.max(0, Math.round(Number(edge?.external_call_elapsed_ms ?? 0))),
+    0,
+  );
+  const unprofiledMs = scopedUnmatchedEdges.reduce(
+    (sum: number, edge: any) =>
+      sum + Math.max(0, Math.round(Number(edge?.external_call_elapsed_ms ?? 0))),
+    0,
+  );
+  const covered =
+    totals.sql +
+    totals.checkQuery +
+    totals.twoPc +
+    totals.fetch +
+    totals.conn +
+    totals.networkPrep +
+    networkMs +
+    unprofiledMs;
+  const methodTime = Math.max(0, rootResponse - covered);
+  const syntheticGroup = {
+    ...group,
+    root_txid: targetTxid,
+    root_application: rootApplication,
+    root_response_time_ms: rootResponse,
+    root_body_start_ms:
+      targetTxid === txidOf(group?.root_txid) ? group?.root_body_start_ms : undefined,
+    profile_txids: Array.from(subtreeTxids),
+    profile_count: scopedProfiles.length,
+    matched_edge_count: scopedMatchedEdges.length,
+    unmatched_edge_count: scopedUnmatchedEdges.length,
+    call_graph: scopedMatchedEdges,
+    metrics: {
+      ...(group?.metrics ?? {}),
+      profile_count: scopedProfiles.length,
+      matched_external_call_count: scopedMatchedEdges.length,
+      unmatched_external_call_count: scopedUnmatchedEdges.length,
+      total_external_call_cumulative_ms: matchedExternalMs + unprofiledMs,
+      total_unprofiled_external_call_ms: unprofiledMs,
+      total_network_gap_cumulative_ms: networkMs,
+      total_sql_execute_ms: totals.sql,
+      total_check_query_ms: totals.checkQuery,
+      total_two_pc_ms: totals.twoPc,
+      total_fetch_ms: totals.fetch,
+      total_fetch_rows: totals.fetchRows,
+      total_connection_acquire_ms: totals.conn,
+      response_time_breakdown: {
+        root_response_time_ms: rootResponse,
+        sql_execute_ms: totals.sql,
+        check_query_ms: totals.checkQuery,
+        two_pc_ms: totals.twoPc,
+        fetch_ms: totals.fetch,
+        network_call_ms: networkMs,
+        unprofiled_external_call_ms: unprofiledMs,
+        network_prep_ms: totals.networkPrep,
+        connection_acquire_ms: totals.conn,
+        method_time_ms: methodTime,
+        method_time_ratio: rootResponse > 0 ? methodTime / rootResponse : 0,
+        coverage: rootResponse > 0 ? covered / rootResponse : 0,
+        negative_method_time: covered > rootResponse,
+      },
+    },
+  };
+
+  return {
+    group: syntheticGroup,
+    profileRows: scopedProfiles,
+    timelineEdges: scopedTimelineEdges,
+    topologyEdges: scopedMatchedEdges,
+    slowSqlRows: scopedSlowSqlRows,
+    networkTimeByTxid: buildNetworkTimeByTxid([syntheticGroup]),
+    selectedValue: targetTxid,
+    selectedApplication: rootApplication,
+    selectedTxid: targetTxid,
+    isWholeTransaction: false,
+  };
 }
 
 function makeCustomRule(): CustomAnalysisRule {
@@ -1356,6 +1634,8 @@ export function JenniferProfilePage(): JSX.Element {
   const [selectedGuid, setSelectedGuid] = useState<string>("");
   const [selectedSignatureHash, setSelectedSignatureHash] =
     useState<string>("");
+  const [selectedMsaDrilldown, setSelectedMsaDrilldown] =
+    useState<string>("__whole__");
   const customPresetInputRef = useRef<HTMLInputElement>(null);
   // Jennifer-scoped recent-files history. The UI lets users add
   // multiple files at once, so a "recent" entry restores the full
@@ -1505,6 +1785,7 @@ export function JenniferProfilePage(): JSX.Element {
       });
       setSelectedGuid("");
       setSelectedSignatureHash("");
+      setSelectedMsaDrilldown("__whole__");
       setActiveTab("msa");
       // Jennifer is multi-file by design — the recent entry stores
       // the first file as the keyed path and stashes the full list +
@@ -1606,22 +1887,6 @@ export function JenniferProfilePage(): JSX.Element {
     return msaEdges.filter((edge) => edge?.guid === selectedGuidGroup.guid);
   }, [msaEdges, selectedGuidGroup]);
 
-  const singleTopologyEdges: any[] = useMemo(
-    () => selectedGuidGroup?.call_graph ?? [],
-    [selectedGuidGroup],
-  );
-
-  const singleTimelineEdges: any[] = useMemo(
-    () =>
-      uniqueTimelineEdges([
-        ...singleTopologyEdges,
-        ...singleGroupEdges.filter(
-          (edge) => edge?.match_status && edge.match_status !== "MATCHED",
-        ),
-      ]),
-    [singleGroupEdges, singleTopologyEdges],
-  );
-
   const singleProfileRows: any[] = useMemo(() => {
     if (!selectedGuidGroup?.guid) return [];
     const txids = new Set((selectedGuidGroup?.profile_txids ?? []) as string[]);
@@ -1634,6 +1899,36 @@ export function JenniferProfilePage(): JSX.Element {
     const txids = txidSetFromProfiles(singleProfileRows);
     return slowSqlRows.filter((row) => txids.has(String(row?.txid ?? "")));
   }, [singleProfileRows, slowSqlRows]);
+
+  const msaDrilldownOptions = useMemo(
+    () => buildMsaDrilldownOptions(selectedGuidGroup, singleProfileRows),
+    [selectedGuidGroup, singleProfileRows],
+  );
+
+  const selectedMsaDrilldownValue = useMemo(() => {
+    if (msaDrilldownOptions.length === 0) return "__whole__";
+    return msaDrilldownOptions.some((option) => option.value === selectedMsaDrilldown)
+      ? selectedMsaDrilldown
+      : "__whole__";
+  }, [msaDrilldownOptions, selectedMsaDrilldown]);
+
+  const singleDrilldownScope = useMemo(
+    () =>
+      buildMsaDrilldownScope({
+        group: selectedGuidGroup,
+        profileRows: singleProfileRows,
+        groupEdges: singleGroupEdges,
+        slowSqlRows: singleSlowSqlRows,
+        selectedValue: selectedMsaDrilldownValue,
+      }),
+    [
+      selectedGuidGroup,
+      singleProfileRows,
+      singleGroupEdges,
+      singleSlowSqlRows,
+      selectedMsaDrilldownValue,
+    ],
+  );
 
   const selectedSignature = useMemo(() => {
     if (signatureStats.length === 0) return undefined;
@@ -2397,29 +2692,52 @@ export function JenniferProfilePage(): JSX.Element {
                   </Button>
                 </div>
                 {msaTimelineMode === "single" ? (
-                  <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs lg:max-w-xl">
-                    <span className="font-medium text-foreground/80">
-                      <HelpedLabel
-                        help={getHelpText(locale, "optionMsaTimelineGuid")}
+                  <>
+                    <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs lg:max-w-xl">
+                      <span className="font-medium text-foreground/80">
+                        <HelpedLabel
+                          help={getHelpText(locale, "optionMsaTimelineGuid")}
+                        >
+                          분석할 트랜잭션
+                        </HelpedLabel>
+                      </span>
+                      <select
+                        className="h-9 rounded-md border border-input bg-background px-3 text-xs"
+                        value={selectedGuidGroup?.guid ?? ""}
+                        onChange={(event) => {
+                          setSelectedGuid(event.target.value);
+                          setSelectedMsaDrilldown("__whole__");
+                        }}
                       >
-                        분석할 트랜잭션
-                      </HelpedLabel>
-                    </span>
-                    <select
-                      className="h-9 rounded-md border border-input bg-background px-3 text-xs"
-                      value={selectedGuidGroup?.guid ?? ""}
-                      onChange={(event) => setSelectedGuid(event.target.value)}
-                    >
-                      {(groupsWithCallGraph.length > 0
-                        ? groupsWithCallGraph
-                        : guidGroups
-                      ).map((group) => (
-                        <option key={group?.guid} value={group?.guid ?? ""}>
-                          {guidOptionLabel(group)}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                        {(groupsWithCallGraph.length > 0
+                          ? groupsWithCallGraph
+                          : guidGroups
+                        ).map((group) => (
+                          <option key={group?.guid} value={group?.guid ?? ""}>
+                            {guidOptionLabel(group)}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs lg:max-w-xl">
+                      <span className="font-medium text-foreground/80">
+                        분석 기준 앱
+                      </span>
+                      <select
+                        className="h-9 rounded-md border border-input bg-background px-3 text-xs"
+                        value={selectedMsaDrilldownValue}
+                        onChange={(event) =>
+                          setSelectedMsaDrilldown(event.target.value)
+                        }
+                      >
+                        {msaDrilldownOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </>
                 ) : (
                   <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs lg:max-w-xl">
                     <span className="font-medium text-foreground/80">
@@ -2451,28 +2769,36 @@ export function JenniferProfilePage(): JSX.Element {
             </Card>
 
             {msaTimelineMode === "single" ? (
-              selectedGuidGroup ? (
+              singleDrilldownScope ? (
                 <>
                   <MsaResponseTimeBreakdown
-                    groups={[selectedGuidGroup] as any}
-                    edges={singleTimelineEdges as any}
+                    groups={[singleDrilldownScope.group] as any}
+                    edges={singleDrilldownScope.timelineEdges as any}
                   />
                   <MsaTopology
-                    title="단일 트랜잭션 호출 토폴로지"
-                    edges={singleTopologyEdges as any}
-                    rootApplication={selectedGuidGroup?.root_application}
+                    title={
+                      singleDrilldownScope.isWholeTransaction
+                        ? "단일 트랜잭션 호출 토폴로지"
+                        : `드릴다운 호출 토폴로지 (${singleDrilldownScope.selectedApplication})`
+                    }
+                    edges={singleDrilldownScope.topologyEdges as any}
+                    rootApplication={singleDrilldownScope.selectedApplication}
                   />
                   <TransactionProfilesTable
-                    rows={singleProfileRows}
-                    networkTimeByTxid={networkTimeByTxid}
+                    rows={singleDrilldownScope.profileRows}
+                    networkTimeByTxid={singleDrilldownScope.networkTimeByTxid}
                   />
                   <MsaTimeline
                     title={
                       singleTimelineLayout === "grouped"
-                        ? "단일 트랜잭션 타임라인 (서비스 그룹)"
-                        : "단일 트랜잭션 타임라인 (개별 호출)"
+                        ? singleDrilldownScope.isWholeTransaction
+                          ? "단일 트랜잭션 타임라인 (서비스 그룹)"
+                          : "드릴다운 타임라인 (서비스 그룹)"
+                        : singleDrilldownScope.isWholeTransaction
+                          ? "단일 트랜잭션 타임라인 (개별 호출)"
+                          : "드릴다운 타임라인 (개별 호출)"
                     }
-                    edges={singleTimelineEdges as any}
+                    edges={singleDrilldownScope.timelineEdges as any}
                     mode={
                       singleTimelineLayout === "grouped"
                         ? "by-service"
@@ -2482,20 +2808,24 @@ export function JenniferProfilePage(): JSX.Element {
                       value: singleTimelineLayout,
                       onChange: setSingleTimelineLayout,
                     }}
-                    rootApplication={selectedGuidGroup?.root_application}
+                    rootApplication={singleDrilldownScope.selectedApplication}
                     rootDurationMs={toFiniteNumber(
-                      selectedGuidGroup?.root_response_time_ms,
+                      singleDrilldownScope.group?.root_response_time_ms,
                     )}
                     rootStartMs={toFiniteNumber(
-                      selectedGuidGroup?.root_body_start_ms,
+                      singleDrilldownScope.group?.root_body_start_ms,
                     )}
                   />
                   <MsaTimelineTreemap
-                    title="단일 트랜잭션 트리맵 (elapsed 합계)"
-                    edges={singleTimelineEdges as any}
-                    rootApplication={selectedGuidGroup?.root_application}
+                    title={
+                      singleDrilldownScope.isWholeTransaction
+                        ? "단일 트랜잭션 트리맵 (elapsed 합계)"
+                        : "드릴다운 트리맵 (elapsed 합계)"
+                    }
+                    edges={singleDrilldownScope.timelineEdges as any}
+                    rootApplication={singleDrilldownScope.selectedApplication}
                   />
-                  <SlowSqlTable rows={singleSlowSqlRows} />
+                  <SlowSqlTable rows={singleDrilldownScope.slowSqlRows} />
                 </>
               ) : (
                 <Card>

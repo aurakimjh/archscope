@@ -250,12 +250,14 @@ filtered before analysis.
 
 ## Active TO-DO
 
-No post-T-555 items are active yet. Roadmap candidates, including long-term
-external APM import and security/compliance evidence, must be explicitly
-promoted before T-556+ IDs are allocated.
+Post-T-555 work is active for the Jennifer MSA drilldown slice requested on
+2026-05-28. Other roadmap candidates, including long-term external APM import
+and security/compliance evidence, remain deferred until explicitly promoted.
 
 | ID | Priority | Status | Task | Depends on | Output |
 |---|---|---|---|---|---|
+| T-556 | P0 | [x] | Add Jennifer MSA application drilldown so a user can choose a middle-tier application/TXID and recalculate response-time composition from that application and its downstream calls instead of the whole GUID root. | Existing Jennifer MSA `guid_groups`, `profiles`, `msa_edges`, `slow_sql_events` contracts | Completed 2026-05-28: app/TXID selector, scoped response breakdown, scoped topology/timeline/treemap, scoped transaction and slow SQL tables |
+| T-557 | P1 | [ ] | Promote the Jennifer MSA drilldown calculation from UI projection to a Go analyzer contract if repeated use shows it should be exported/reported outside the desktop page. | T-556 | Planned follow-up: stable result schema for drilldown scopes |
 | T-414 | P1 | [x] | Connect `trace_import` to the Wails UI with summary cards, service dependency view, trace table, span table, and findings panel. | Trace import MVP | Completed 2026-05-13: Trace Import desktop workflow |
 | T-415 | P1 | [x] | Add Elastic APM `_search` response and source-only NDJSON importers. | Trace import MVP | Completed 2026-05-13: Elastic trace evidence import |
 | T-416 | P1 | [x] | Add trace critical-path analysis and current MVP findings: `SLOW_TRACE_P95`, `CLOCK_SKEW_SUSPECTED`, `UNBALANCED_SERVICE_LATENCY`, and `HIGH_ERROR_SERVICE_EDGE`. | Trace import MVP | Completed 2026-05-13: Root-cause oriented trace diagnostics |
@@ -600,6 +602,8 @@ promoted before T-556+ IDs are allocated.
   architecture-docs/database-log/broker-log, and sample executions for API
   contract, stitching, thread-dump, trace import, database-log, broker-log, and
   architecture-docs workflows.
+- 2026-05-28 Wails frontend verification passed after Jennifer MSA application
+  drilldown: `npm run build`.
 
 ## Decisions
 
