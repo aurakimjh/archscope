@@ -2921,7 +2921,7 @@ export function JenniferProfilePage(): JSX.Element {
   };
 
   return (
-    <main className="flex flex-col gap-5 p-5 overflow-y-auto">
+    <main className="flex flex-col gap-5 p-5 pb-32 overflow-y-auto">
       <div className="flex items-stretch gap-3">
         <WailsFileDock
           className="min-w-0 flex-1"
