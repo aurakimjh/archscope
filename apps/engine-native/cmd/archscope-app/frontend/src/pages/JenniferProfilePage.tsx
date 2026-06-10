@@ -225,6 +225,8 @@ type ServiceNetworkSummaryRow = {
   max_network_gap_ms: number;
   network_time_group_label: string;
   network_time_group_index: number;
+  sample_guids?: string[];
+  guid_count?: number;
 };
 
 type MsaDrilldownOption = {
@@ -303,6 +305,11 @@ function buildAverageTimelineEdges(signature: any): any[] {
       return {
         caller_application: edge?.caller_application ?? "?",
         callee_application: edge?.callee_application ?? "?",
+        external_call_url:
+          edge?.external_call_url ??
+          edge?.external_call_target ??
+          edge?.callee_application ??
+          "?",
         caller_txid: `avg-${idx}-caller`,
         callee_txid: `avg-${idx}-callee`,
         external_call_elapsed_ms: elapsed,
@@ -313,6 +320,10 @@ function buildAverageTimelineEdges(signature: any): any[] {
         network_gap_ms: Math.max(0, Math.round(networkGap)),
         caller_event_start_ms: start,
         match_status: "MATCHED",
+        call_count: Math.max(
+          1,
+          Math.round(statValue(edge?.external_call_elapsed_ms, "count") ?? 1),
+        ),
       };
     })
     .filter((edge) => edge.external_call_elapsed_ms > 0);
@@ -768,16 +779,18 @@ function buildAverageEdgesFromTimelineEdges(edges: any[]): any[] {
         calleeResponseTotal: 0,
         networkTotal: 0,
       };
-    state.count += 1;
-    state.elapsedTotal += Math.max(0, Number(edge?.external_call_elapsed_ms ?? 0));
+    const callCount = Math.max(1, Math.round(toFiniteNumber(edge?.call_count) ?? 1));
+    state.count += callCount;
+    state.elapsedTotal +=
+      Math.max(0, Number(edge?.external_call_elapsed_ms ?? 0)) * callCount;
     state.calleeResponseTotal += Math.max(
       0,
       Number(edge?.callee_response_time_ms ?? 0),
-    );
+    ) * callCount;
     state.networkTotal += Math.max(
       0,
       Number(edge?.network_gap_ms ?? edge?.adjusted_network_gap_ms ?? 0),
-    );
+    ) * callCount;
     byPair.set(key, state);
   }
   let cursor = 0;
@@ -2062,15 +2075,74 @@ function compactLabels(values: Set<string>): string {
   return `${labels.slice(0, 2).join(", ")} +${labels.length - 2}`;
 }
 
-function serviceNetworkMetricStats(values: number[]): ServiceNetworkMetricStats {
-  const finite = values.filter((value) => Number.isFinite(value));
-  const total = sumNumbers(finite);
+type ServiceNetworkMetricAccumulator = {
+  count: number;
+  total: number;
+  max: number;
+  percentileValues: number[];
+};
+
+function emptyServiceNetworkMetricAccumulator(): ServiceNetworkMetricAccumulator {
   return {
-    count: finite.length,
-    total,
-    avg: total / Math.max(1, finite.length),
-    p95: percentile(finite, 95),
-    max: finite.length > 0 ? Math.max(0, ...finite) : 0,
+    count: 0,
+    total: 0,
+    max: 0,
+    percentileValues: [],
+  };
+}
+
+function addServiceNetworkMetric(
+  acc: ServiceNetworkMetricAccumulator,
+  metric: unknown,
+  fallbackCount = 1,
+  explicitTotal?: unknown,
+): void {
+  const direct = toFiniteNumber(metric);
+  if (direct != null) {
+    const count = Math.max(1, Math.round(fallbackCount));
+    acc.count += count;
+    acc.total += direct * count;
+    acc.max = Math.max(acc.max, direct);
+    acc.percentileValues.push(direct);
+    return;
+  }
+  if (!metric || typeof metric !== "object") return;
+
+  const stats = metric as Record<string, unknown>;
+  const count = Math.max(
+    1,
+    Math.round(
+      statValue(stats, "count") ??
+        statValue(stats, "sample_count") ??
+        fallbackCount,
+    ),
+  );
+  const avg = statValue(stats, "avg") ?? statValue(stats, "average");
+  const total = toFiniteNumber(explicitTotal) ?? statValue(stats, "total");
+  const max = statValue(stats, "max") ?? avg;
+  const p95 =
+    statValue(stats, "p95") ??
+    statValue(stats, "p90") ??
+    statValue(stats, "p50") ??
+    avg;
+
+  if (avg == null && total == null && max == null) return;
+  acc.count += count;
+  acc.total += total ?? (avg ?? max ?? 0) * count;
+  if (max != null) acc.max = Math.max(acc.max, max);
+  if (p95 != null) acc.percentileValues.push(p95);
+}
+
+function serviceNetworkMetricStats(
+  acc: ServiceNetworkMetricAccumulator,
+): ServiceNetworkMetricStats {
+  const count = Math.max(0, acc.count);
+  return {
+    count,
+    total: acc.total,
+    avg: acc.total / Math.max(1, count),
+    p95: percentile(acc.percentileValues, 95),
+    max: acc.max,
   };
 }
 
@@ -2092,20 +2164,24 @@ function buildServiceNetworkSummaryRows(edges: any[]): ServiceNetworkSummaryRow[
     callee: string;
     calleeUrl: string;
     count: number;
-    apiValues: number[];
-    calleeValues: number[];
-    networkValues: number[];
+    api: ServiceNetworkMetricAccumulator;
+    calleeResponse: ServiceNetworkMetricAccumulator;
+    network: ServiceNetworkMetricAccumulator;
+    guidSet: Set<string>;
+    guidOrder: string[];
   };
   const byCall = new Map<string, State>();
 
   for (const edge of edges) {
-    if (edge?.match_status !== "MATCHED") continue;
+    const matchStatus = String(edge?.match_status ?? "MATCHED");
+    if (matchStatus !== "MATCHED") continue;
     const caller = String(edge?.caller_application ?? "").trim() || "?";
     const callee = String(
       edge?.callee_application ?? edge?.external_call_target ?? "",
     ).trim();
     const calleeUrl = String(
       edge?.external_call_url ??
+        edge?.callee_url ??
         edge?.external_call_target ??
         edge?.callee_application ??
         "",
@@ -2120,32 +2196,58 @@ function buildServiceNetworkSummaryRows(edges: any[]): ServiceNetworkSummaryRow[
         callee: callee || calleeUrl,
         calleeUrl,
         count: 0,
-        apiValues: [],
-        calleeValues: [],
-        networkValues: [],
+        api: emptyServiceNetworkMetricAccumulator(),
+        calleeResponse: emptyServiceNetworkMetricAccumulator(),
+        network: emptyServiceNetworkMetricAccumulator(),
+        guidSet: new Set<string>(),
+        guidOrder: [],
       };
-    state.count += 1;
-    state.apiValues.push(Math.max(0, toFiniteNumber(edge?.external_call_elapsed_ms) ?? 0));
-
-    const calleeResponse = toFiniteNumber(edge?.callee_response_time_ms);
-    if (calleeResponse != null) {
-      state.calleeValues.push(Math.max(0, calleeResponse));
-    }
+    const metricCount = Math.max(
+      1,
+      Math.round(
+        toFiniteNumber(edge?.call_count) ??
+          statValue(edge?.external_call_elapsed_ms, "count") ??
+          statValue(edge?.network_gap_ms, "count") ??
+          1,
+      ),
+    );
+    state.count += metricCount;
+    addServiceNetworkMetric(state.api, edge?.external_call_elapsed_ms, metricCount);
+    addServiceNetworkMetric(
+      state.calleeResponse,
+      edge?.callee_response_time_ms,
+      metricCount,
+      edge?.total_callee_response_time_ms,
+    );
 
     const network =
-      toFiniteNumber(edge?.adjusted_network_gap_ms) ??
-      toFiniteNumber(edge?.network_gap_ms) ??
-      toFiniteNumber(edge?.raw_network_gap_ms);
-    if (network != null) {
-      state.networkValues.push(Math.max(0, network));
+      edge?.adjusted_network_gap_ms ??
+      edge?.network_gap_ms ??
+      edge?.avg_network_gap_ms ??
+      edge?.raw_network_gap_ms;
+    addServiceNetworkMetric(
+      state.network,
+      network,
+      metricCount,
+      edge?.total_network_gap_ms,
+    );
+
+    const guids = Array.isArray(edge?.sample_guids)
+      ? edge.sample_guids
+      : [edge?.guid];
+    for (const guid of guids) {
+      const normalizedGuid = String(guid ?? "").trim();
+      if (!normalizedGuid || state.guidSet.has(normalizedGuid)) continue;
+      state.guidSet.add(normalizedGuid);
+      state.guidOrder.push(normalizedGuid);
     }
     byCall.set(key, state);
   }
 
   return Array.from(byCall.values()).map((state) => {
-    const apiStats = serviceNetworkMetricStats(state.apiValues);
-    const calleeStats = serviceNetworkMetricStats(state.calleeValues);
-    const networkStats = serviceNetworkMetricStats(state.networkValues);
+    const apiStats = serviceNetworkMetricStats(state.api);
+    const calleeStats = serviceNetworkMetricStats(state.calleeResponse);
+    const networkStats = serviceNetworkMetricStats(state.network);
     const networkGroup = classifyServiceNetworkTime(networkStats.avg);
     return {
       caller_application: state.caller,
@@ -2162,6 +2264,8 @@ function buildServiceNetworkSummaryRows(edges: any[]): ServiceNetworkSummaryRow[
       max_network_gap_ms: networkStats.max,
       network_time_group_label: networkGroup.label,
       network_time_group_index: networkGroup.index,
+      sample_guids: state.guidOrder,
+      guid_count: state.guidOrder.length,
     };
   });
 }
@@ -2214,6 +2318,18 @@ function serviceNetworkSortValue(
     case "group":
       return row.network_time_group_index;
   }
+}
+
+function filterServiceNetworkRowsByGuidSet(
+  rows: ServiceNetworkSummaryRow[],
+  guidSet: Set<string>,
+): ServiceNetworkSummaryRow[] {
+  if (guidSet.size === 0) return rows;
+  return rows.filter((row) => {
+    const guids = row.sample_guids ?? [];
+    if (guids.length === 0) return false;
+    return guids.some((guid) => guidSet.has(guid));
+  });
 }
 
 function ServiceNetworkTimeSummary({
@@ -2632,6 +2748,8 @@ export function JenniferProfilePage(): JSX.Element {
   const fileSummary: any[] = result?.series?.file_summary ?? [];
   const guidGroups: any[] = result?.series?.guid_groups ?? [];
   const msaEdges: any[] = result?.tables?.msa_edges ?? [];
+  const backendServiceNetworkRows: any[] =
+    result?.series?.service_call_network_summary ?? [];
   const networkPrepRows: any[] = result?.tables?.network_prep_methods ?? [];
   const unprofiledExternalCallRows: any[] =
     result?.tables?.unprofiled_external_call_groups ?? [];
@@ -2644,6 +2762,11 @@ export function JenniferProfilePage(): JSX.Element {
   const allProfileNetworkTimeByTxid = useMemo(
     () => buildNetworkTimeByTxid(guidGroups),
     [guidGroups],
+  );
+
+  const serviceNetworkRows = useMemo(
+    () => buildServiceNetworkSummaryRows(backendServiceNetworkRows),
+    [backendServiceNetworkRows],
   );
 
   const selectedFileDockItems: FileDockSelection[] = useMemo(
@@ -2718,9 +2841,17 @@ export function JenniferProfilePage(): JSX.Element {
   );
 
   const singleServiceNetworkRows = useMemo(
-    () =>
-      buildServiceNetworkSummaryRows(singleDrilldownScope?.serviceNetworkEdges ?? []),
-    [singleDrilldownScope],
+    () => {
+      const scopedRows = buildServiceNetworkSummaryRows(
+        singleDrilldownScope?.serviceNetworkEdges ?? [],
+      );
+      if (scopedRows.length > 0) return scopedRows;
+      const selectedGuid = String(singleDrilldownScope?.group?.guid ?? "").trim();
+      return selectedGuid
+        ? filterServiceNetworkRowsByGuidSet(serviceNetworkRows, new Set([selectedGuid]))
+        : serviceNetworkRows;
+    },
+    [serviceNetworkRows, singleDrilldownScope],
   );
 
   const selectedSignature = useMemo(() => {
@@ -2735,6 +2866,11 @@ export function JenniferProfilePage(): JSX.Element {
   const selectedSignatureGuidSet = useMemo(
     () => new Set((selectedSignature?.guids ?? []) as string[]),
     [selectedSignature],
+  );
+
+  const signatureServiceNetworkRows = useMemo(
+    () => filterServiceNetworkRowsByGuidSet(serviceNetworkRows, selectedSignatureGuidSet),
+    [selectedSignatureGuidSet, serviceNetworkRows],
   );
 
   const signatureGroups: any[] = useMemo(
@@ -2846,11 +2982,6 @@ export function JenniferProfilePage(): JSX.Element {
     [averageDrilldownScopes, selectedAverageMsaDrilldownValue, signatureMsaEdges],
   );
 
-  const averageServiceNetworkRows = useMemo(
-    () => buildServiceNetworkSummaryRows(averageDrilldownServiceNetworkEdges),
-    [averageDrilldownServiceNetworkEdges],
-  );
-
   const averageDrilldownTimelineEdges = useMemo(
     () =>
       selectedAverageMsaDrilldownValue === "__whole__"
@@ -2862,6 +2993,28 @@ export function JenniferProfilePage(): JSX.Element {
       selectedAverageMsaDrilldownValue,
     ],
   );
+
+  const averageServiceNetworkRows = useMemo(() => {
+    const rawRows = buildServiceNetworkSummaryRows(averageDrilldownServiceNetworkEdges);
+    if (rawRows.length > 0) return rawRows;
+
+    const averageRows = buildServiceNetworkSummaryRows(averageDrilldownTimelineEdges);
+    if (averageRows.length > 0) return averageRows;
+
+    if (selectedAverageMsaDrilldownValue === "__whole__") {
+      return signatureServiceNetworkRows;
+    }
+    return signatureServiceNetworkRows.filter(
+      (row) =>
+        row.caller_application === selectedAverageMsaDrilldownValue ||
+        row.callee_application === selectedAverageMsaDrilldownValue,
+    );
+  }, [
+    averageDrilldownServiceNetworkEdges,
+    averageDrilldownTimelineEdges,
+    selectedAverageMsaDrilldownValue,
+    signatureServiceNetworkRows,
+  ]);
 
   const averageDrilldownRootApplication =
     selectedAverageMsaDrilldownValue === "__whole__"
@@ -2921,7 +3074,7 @@ export function JenniferProfilePage(): JSX.Element {
   };
 
   return (
-    <main className="flex flex-col gap-5 p-5 pb-32 overflow-y-auto">
+    <main className="flex flex-col gap-5 p-5 overflow-y-auto">
       <div className="flex items-stretch gap-3">
         <WailsFileDock
           className="min-w-0 flex-1"

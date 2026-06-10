@@ -1,12 +1,12 @@
 {
 	"fixed": {
-		"file_version": "0.3.5.8",
-		"product_version": "0.3.5.8"
+		"file_version": "0.3.5.9",
+		"product_version": "0.3.5.9"
 	},
 	"info": {
 		"0409": {
-			"FileVersion": "0.3.5.8",
-			"ProductVersion": "0.3.5.8",
+			"FileVersion": "0.3.5.9",
+			"ProductVersion": "0.3.5.9",
 			"CompanyName": "ArchScope",
 			"FileDescription": "Local-first architecture diagnostics desktop",
 			"InternalName": "archscope",
