@@ -170,6 +170,19 @@ type ApiCallSortKey =
 
 type SortDirection = "asc" | "desc";
 
+type ServiceNetworkSortKey =
+  | "caller"
+  | "calleeUrl"
+  | "callCount"
+  | "apiAvgMs"
+  | "calleeTotalMs"
+  | "calleeAvgMs"
+  | "calleeMaxMs"
+  | "networkTotalMs"
+  | "networkAvgMs"
+  | "networkMaxMs"
+  | "group";
+
 type ApiCallAggregate = {
   apiUrl: string;
   target: string;
@@ -189,6 +202,31 @@ type ApiCallAggregate = {
   networkMaxMs: number;
 };
 
+type ServiceNetworkMetricStats = {
+  count: number;
+  total: number;
+  avg: number;
+  p95: number;
+  max: number;
+};
+
+type ServiceNetworkSummaryRow = {
+  caller_application: string;
+  callee_application: string;
+  callee_url: string;
+  call_count: number;
+  external_call_elapsed_ms: ServiceNetworkMetricStats;
+  callee_response_time_ms: ServiceNetworkMetricStats;
+  total_callee_response_time_ms: number;
+  avg_callee_response_time_ms: number;
+  max_callee_response_time_ms: number;
+  total_network_gap_ms: number;
+  avg_network_gap_ms: number;
+  max_network_gap_ms: number;
+  network_time_group_label: string;
+  network_time_group_index: number;
+};
+
 type MsaDrilldownOption = {
   value: string;
   label: string;
@@ -201,6 +239,7 @@ type MsaDrilldownScope = {
   profileRows: any[];
   timelineEdges: any[];
   topologyEdges: any[];
+  serviceNetworkEdges: any[];
   slowSqlRows: any[];
   networkTimeByTxid: Map<string, number>;
   selectedValue: string;
@@ -455,6 +494,7 @@ function buildMsaDrilldownScope({
       profileRows,
       timelineEdges: wholeTimelineEdges,
       topologyEdges: group?.call_graph ?? [],
+      serviceNetworkEdges: groupEdges,
       slowSqlRows,
       networkTimeByTxid: buildNetworkTimeByTxid([group]),
       selectedValue: "__whole__",
@@ -477,6 +517,7 @@ function buildMsaDrilldownScope({
       profileRows,
       timelineEdges: wholeTimelineEdges,
       topologyEdges: group?.call_graph ?? [],
+      serviceNetworkEdges: groupEdges,
       slowSqlRows,
       networkTimeByTxid: buildNetworkTimeByTxid([group]),
       selectedValue: "__whole__",
@@ -518,6 +559,13 @@ function buildMsaDrilldownScope({
       edge.match_status !== "MATCHED" &&
       subtreeTxids.has(txidOf(edge?.caller_txid)),
   );
+  const scopedServiceNetworkEdges = groupEdges.filter((edge) => {
+    const caller = txidOf(edge?.caller_txid);
+    if (!caller || !subtreeTxids.has(caller)) return false;
+    if (edge?.match_status !== "MATCHED") return true;
+    const callee = txidOf(edge?.callee_txid);
+    return !callee || subtreeTxids.has(callee);
+  });
   const scopedTimelineEdges = uniqueTimelineEdges([
     ...scopedMatchedEdges,
     ...scopedUnmatchedEdges,
@@ -625,6 +673,7 @@ function buildMsaDrilldownScope({
     profileRows: scopedProfiles,
     timelineEdges: scopedTimelineEdges,
     topologyEdges: scopedMatchedEdges,
+    serviceNetworkEdges: scopedServiceNetworkEdges,
     slowSqlRows: scopedSlowSqlRows,
     networkTimeByTxid: buildNetworkTimeByTxid([syntheticGroup]),
     selectedValue: targetTxid,
@@ -2013,22 +2062,211 @@ function compactLabels(values: Set<string>): string {
   return `${labels.slice(0, 2).join(", ")} +${labels.length - 2}`;
 }
 
-function ServiceNetworkTimeSummary({ rows }: { rows: any[] }): JSX.Element {
+function serviceNetworkMetricStats(values: number[]): ServiceNetworkMetricStats {
+  const finite = values.filter((value) => Number.isFinite(value));
+  const total = sumNumbers(finite);
+  return {
+    count: finite.length,
+    total,
+    avg: total / Math.max(1, finite.length),
+    p95: percentile(finite, 95),
+    max: finite.length > 0 ? Math.max(0, ...finite) : 0,
+  };
+}
+
+function classifyServiceNetworkTime(value: number): {
+  label: string;
+  index: number;
+} {
+  if (value >= 100) return { label: ">= 100 ms", index: 5 };
+  if (value >= 50) return { label: "50-99 ms", index: 4 };
+  if (value >= 20) return { label: "20-49 ms", index: 3 };
+  if (value >= 10) return { label: "10-19 ms", index: 2 };
+  if (value >= 5) return { label: "5-9 ms", index: 1 };
+  return { label: "< 5 ms", index: 0 };
+}
+
+function buildServiceNetworkSummaryRows(edges: any[]): ServiceNetworkSummaryRow[] {
+  type State = {
+    caller: string;
+    callee: string;
+    calleeUrl: string;
+    count: number;
+    apiValues: number[];
+    calleeValues: number[];
+    networkValues: number[];
+  };
+  const byCall = new Map<string, State>();
+
+  for (const edge of edges) {
+    if (edge?.match_status !== "MATCHED") continue;
+    const caller = String(edge?.caller_application ?? "").trim() || "?";
+    const callee = String(
+      edge?.callee_application ?? edge?.external_call_target ?? "",
+    ).trim();
+    const calleeUrl = String(
+      edge?.external_call_url ??
+        edge?.external_call_target ??
+        edge?.callee_application ??
+        "",
+    ).trim();
+    if (!calleeUrl) continue;
+
+    const key = `${caller}\u0000${callee || calleeUrl}\u0000${calleeUrl}`;
+    const state =
+      byCall.get(key) ??
+      {
+        caller,
+        callee: callee || calleeUrl,
+        calleeUrl,
+        count: 0,
+        apiValues: [],
+        calleeValues: [],
+        networkValues: [],
+      };
+    state.count += 1;
+    state.apiValues.push(Math.max(0, toFiniteNumber(edge?.external_call_elapsed_ms) ?? 0));
+
+    const calleeResponse = toFiniteNumber(edge?.callee_response_time_ms);
+    if (calleeResponse != null) {
+      state.calleeValues.push(Math.max(0, calleeResponse));
+    }
+
+    const network =
+      toFiniteNumber(edge?.adjusted_network_gap_ms) ??
+      toFiniteNumber(edge?.network_gap_ms) ??
+      toFiniteNumber(edge?.raw_network_gap_ms);
+    if (network != null) {
+      state.networkValues.push(Math.max(0, network));
+    }
+    byCall.set(key, state);
+  }
+
+  return Array.from(byCall.values()).map((state) => {
+    const apiStats = serviceNetworkMetricStats(state.apiValues);
+    const calleeStats = serviceNetworkMetricStats(state.calleeValues);
+    const networkStats = serviceNetworkMetricStats(state.networkValues);
+    const networkGroup = classifyServiceNetworkTime(networkStats.avg);
+    return {
+      caller_application: state.caller,
+      callee_application: state.callee,
+      callee_url: state.calleeUrl,
+      call_count: state.count,
+      external_call_elapsed_ms: apiStats,
+      callee_response_time_ms: calleeStats,
+      total_callee_response_time_ms: calleeStats.total,
+      avg_callee_response_time_ms: calleeStats.avg,
+      max_callee_response_time_ms: calleeStats.max,
+      total_network_gap_ms: networkStats.total,
+      avg_network_gap_ms: networkStats.avg,
+      max_network_gap_ms: networkStats.max,
+      network_time_group_label: networkGroup.label,
+      network_time_group_index: networkGroup.index,
+    };
+  });
+}
+
+function sortServiceNetworkRows(
+  rows: ServiceNetworkSummaryRow[],
+  key: ServiceNetworkSortKey,
+  direction: SortDirection,
+): ServiceNetworkSummaryRow[] {
+  const factor = direction === "asc" ? 1 : -1;
+  return [...rows].sort((a, b) => {
+    const av = serviceNetworkSortValue(a, key);
+    const bv = serviceNetworkSortValue(b, key);
+    let delta = 0;
+    if (typeof av === "string" || typeof bv === "string") {
+      delta = String(av).localeCompare(String(bv));
+    } else {
+      delta = av - bv;
+    }
+    if (delta !== 0) return delta * factor;
+    return a.callee_url.localeCompare(b.callee_url);
+  });
+}
+
+function serviceNetworkSortValue(
+  row: ServiceNetworkSummaryRow,
+  key: ServiceNetworkSortKey,
+): string | number {
+  switch (key) {
+    case "caller":
+      return row.caller_application;
+    case "calleeUrl":
+      return row.callee_url;
+    case "callCount":
+      return row.call_count;
+    case "apiAvgMs":
+      return statValue(row.external_call_elapsed_ms, "avg") ?? 0;
+    case "calleeTotalMs":
+      return row.total_callee_response_time_ms;
+    case "calleeAvgMs":
+      return row.avg_callee_response_time_ms;
+    case "calleeMaxMs":
+      return row.max_callee_response_time_ms;
+    case "networkTotalMs":
+      return row.total_network_gap_ms;
+    case "networkAvgMs":
+      return row.avg_network_gap_ms;
+    case "networkMaxMs":
+      return row.max_network_gap_ms;
+    case "group":
+      return row.network_time_group_index;
+  }
+}
+
+function ServiceNetworkTimeSummary({
+  rows,
+}: {
+  rows: ServiceNetworkSummaryRow[];
+}): JSX.Element {
   const { locale } = useI18n();
-  const visibleRows = [...rows]
-    .sort((a, b) => {
-      const groupDelta =
-        Number(b.network_time_group_index ?? 0) -
-        Number(a.network_time_group_index ?? 0);
-      if (groupDelta !== 0) return groupDelta;
-      const totalDelta =
-        Number(b.total_network_gap_ms ?? 0) - Number(a.total_network_gap_ms ?? 0);
-      if (totalDelta !== 0) return totalDelta;
-      return String(a.caller_application ?? "").localeCompare(
-        String(b.caller_application ?? ""),
-      );
-    })
-    .slice(0, 20);
+  const [sortKey, setSortKey] = useState<ServiceNetworkSortKey>("networkTotalMs");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const sortedRows = useMemo(
+    () => sortServiceNetworkRows(rows, sortKey, sortDirection),
+    [rows, sortDirection, sortKey],
+  );
+  const visibleRows = sortedRows.slice(0, MSA_TABLE_PREVIEW_LIMIT);
+  const hiddenCount = Math.max(0, sortedRows.length - visibleRows.length);
+
+  const updateSort = (nextKey: ServiceNetworkSortKey) => {
+    if (nextKey === sortKey) {
+      setSortDirection((current) => (current === "desc" ? "asc" : "desc"));
+      return;
+    }
+    setSortKey(nextKey);
+    setSortDirection(
+      nextKey === "caller" || nextKey === "calleeUrl" ? "asc" : "desc",
+    );
+  };
+
+  const sortHeader = (
+    label: string,
+    key: ServiceNetworkSortKey,
+    align: "left" | "right" = "left",
+  ) => {
+    const Icon =
+      sortKey === key
+        ? sortDirection === "asc"
+          ? ArrowUp
+          : ArrowDown
+        : ArrowUpDown;
+    return (
+      <button
+        type="button"
+        className={`inline-flex w-full items-center gap-1 hover:text-foreground ${
+          align === "right" ? "justify-end" : "justify-start"
+        }`}
+        onClick={() => updateSort(key)}
+      >
+        <span>{label}</span>
+        <Icon className="h-3 w-3 shrink-0" aria-hidden="true" />
+      </button>
+    );
+  };
+
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -2037,62 +2275,124 @@ function ServiceNetworkTimeSummary({ rows }: { rows: any[] }): JSX.Element {
           <HelpTip text={getHelpText(locale, "sectionMsaServiceNetworkTime")} />
         </CardTitle>
       </CardHeader>
-      <CardContent className="overflow-x-auto p-0">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
-              <th className="px-3 py-2 text-left font-medium">Caller → Callee</th>
-              <th className="px-3 py-2 text-right font-medium">Calls</th>
-              <th className="px-3 py-2 text-right font-medium">Ext avg</th>
-              <th className="px-3 py-2 text-right font-medium">Callee avg</th>
-              <th className="px-3 py-2 text-right font-medium">Network avg</th>
-              <th className="px-3 py-2 text-right font-medium">Network p95</th>
-              <th className="px-3 py-2 text-right font-medium">Network max</th>
-              <th className="px-3 py-2 text-left font-medium">Group</th>
-            </tr>
-          </thead>
-          <tbody>
-            {visibleRows.map((row, idx) => {
-              const caller = row.caller_application || "?";
-              const callee = row.callee_application || "?";
-              return (
-                <tr key={idx} className="border-b border-border last:border-0">
-                  <td
-                    className="max-w-[360px] px-3 py-2 font-mono text-xs"
-                    title={`${caller} → ${callee}`}
-                  >
-                    <span className="block truncate">
-                      {caller} → {callee}
-                    </span>
-                  </td>
-                  <td className="px-3 py-2 text-right tabular-nums">
-                    {(row.call_count ?? 0).toLocaleString()}
-                  </td>
-                  <td className="px-3 py-2 text-right tabular-nums">
-                    {formatMsValue(statValue(row.external_call_elapsed_ms, "avg"))}
-                  </td>
-                  <td className="px-3 py-2 text-right tabular-nums">
-                    {formatMsValue(statValue(row.callee_response_time_ms, "avg"))}
-                  </td>
-                  <td className="px-3 py-2 text-right tabular-nums">
-                    {formatMsValue(row.avg_network_gap_ms)}
-                  </td>
-                  <td className="px-3 py-2 text-right tabular-nums">
-                    {formatMsValue(row.p95_network_gap_ms)}
-                  </td>
-                  <td className="px-3 py-2 text-right tabular-nums">
-                    {formatMsValue(row.max_network_gap_ms)}
-                  </td>
-                  <td className="px-3 py-2">
-                    <span className={networkGroupClass(row.network_time_group_index)}>
-                      {row.network_time_group_label || row.network_time_group || "—"}
-                    </span>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+      <CardContent className="p-0">
+        {rows.length === 0 ? (
+          <p className="px-4 py-3 text-xs text-muted-foreground">
+            표시할 서비스 호출 네트워크 타임이 없습니다.
+          </p>
+        ) : (
+          <>
+            {hiddenCount > 0 && (
+              <p className="border-b border-border px-3 py-2 text-xs text-muted-foreground">
+                상위 {visibleRows.length.toLocaleString()}건만 표시합니다. 숨김{" "}
+                {hiddenCount.toLocaleString()}건.
+              </p>
+            )}
+            <div className="overflow-x-auto">
+              <table className="min-w-[1180px] w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
+                    <th className="px-3 py-2 text-left font-medium">
+                      {sortHeader("Caller", "caller")}
+                    </th>
+                    <th className="px-3 py-2 text-left font-medium">
+                      {sortHeader("Callee URL", "calleeUrl")}
+                    </th>
+                    <th className="px-3 py-2 text-right font-medium">
+                      {sortHeader("Calls", "callCount", "right")}
+                    </th>
+                    <th className="px-3 py-2 text-right font-medium">
+                      {sortHeader("API avg", "apiAvgMs", "right")}
+                    </th>
+                    <th className="px-3 py-2 text-right font-medium">
+                      {sortHeader("Callee cum", "calleeTotalMs", "right")}
+                    </th>
+                    <th className="px-3 py-2 text-right font-medium">
+                      {sortHeader("Callee avg", "calleeAvgMs", "right")}
+                    </th>
+                    <th className="px-3 py-2 text-right font-medium">
+                      {sortHeader("Callee max", "calleeMaxMs", "right")}
+                    </th>
+                    <th className="px-3 py-2 text-right font-medium">
+                      {sortHeader("Network cum", "networkTotalMs", "right")}
+                    </th>
+                    <th className="px-3 py-2 text-right font-medium">
+                      {sortHeader("Network avg", "networkAvgMs", "right")}
+                    </th>
+                    <th className="px-3 py-2 text-right font-medium">
+                      {sortHeader("Network max", "networkMaxMs", "right")}
+                    </th>
+                    <th className="px-3 py-2 text-left font-medium">
+                      {sortHeader("Group", "group")}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {visibleRows.map((row, idx) => {
+                    const caller = row.caller_application || "?";
+                    const callee = row.callee_application || "?";
+                    const calleeUrl = row.callee_url || callee;
+                    return (
+                      <tr
+                        key={`${caller}-${calleeUrl}-${idx}`}
+                        className="border-b border-border last:border-0"
+                      >
+                        <td
+                          className="min-w-[140px] max-w-[220px] px-3 py-2 align-top font-mono text-xs"
+                          title={caller}
+                        >
+                          <span className="block break-words">{caller}</span>
+                        </td>
+                        <td
+                          className="min-w-[360px] max-w-[560px] px-3 py-2 align-top font-mono text-xs"
+                          title={`${calleeUrl}\nCallee: ${callee}`}
+                        >
+                          <span className="block whitespace-normal break-all">
+                            {calleeUrl}
+                          </span>
+                          {callee && callee !== calleeUrl ? (
+                            <span className="mt-1 block break-words font-sans text-[11px] text-muted-foreground">
+                              {callee}
+                            </span>
+                          ) : null}
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums">
+                          {row.call_count.toLocaleString()}
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums">
+                          {formatMsValue(statValue(row.external_call_elapsed_ms, "avg"))}
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums">
+                          {formatMsValue(row.total_callee_response_time_ms)}
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums">
+                          {formatMsValue(row.avg_callee_response_time_ms)}
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums">
+                          {formatMsValue(row.max_callee_response_time_ms)}
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums">
+                          {formatMsValue(row.total_network_gap_ms)}
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums">
+                          {formatMsValue(row.avg_network_gap_ms)}
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums">
+                          {formatMsValue(row.max_network_gap_ms)}
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-2 align-top">
+                          <span className={networkGroupClass(row.network_time_group_index)}>
+                            {row.network_time_group_label || "—"}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
       </CardContent>
     </Card>
   );
@@ -2332,8 +2632,6 @@ export function JenniferProfilePage(): JSX.Element {
   const fileSummary: any[] = result?.series?.file_summary ?? [];
   const guidGroups: any[] = result?.series?.guid_groups ?? [];
   const msaEdges: any[] = result?.tables?.msa_edges ?? [];
-  const serviceNetworkRows: any[] =
-    result?.series?.service_call_network_summary ?? [];
   const networkPrepRows: any[] = result?.tables?.network_prep_methods ?? [];
   const unprofiledExternalCallRows: any[] =
     result?.tables?.unprofiled_external_call_groups ?? [];
@@ -2417,6 +2715,12 @@ export function JenniferProfilePage(): JSX.Element {
       singleSlowSqlRows,
       selectedMsaDrilldownValue,
     ],
+  );
+
+  const singleServiceNetworkRows = useMemo(
+    () =>
+      buildServiceNetworkSummaryRows(singleDrilldownScope?.serviceNetworkEdges ?? []),
+    [singleDrilldownScope],
   );
 
   const selectedSignature = useMemo(() => {
@@ -2530,6 +2834,21 @@ export function JenniferProfilePage(): JSX.Element {
             averageDrilldownScopes.flatMap((scope) => scope.timelineEdges),
           ),
     [averageDrilldownScopes, selectedAverageMsaDrilldownValue, signatureTimelineEdges],
+  );
+
+  const averageDrilldownServiceNetworkEdges = useMemo(
+    () =>
+      selectedAverageMsaDrilldownValue === "__whole__"
+        ? signatureMsaEdges
+        : uniqueTimelineEdges(
+            averageDrilldownScopes.flatMap((scope) => scope.serviceNetworkEdges),
+          ),
+    [averageDrilldownScopes, selectedAverageMsaDrilldownValue, signatureMsaEdges],
+  );
+
+  const averageServiceNetworkRows = useMemo(
+    () => buildServiceNetworkSummaryRows(averageDrilldownServiceNetworkEdges),
+    [averageDrilldownServiceNetworkEdges],
   );
 
   const averageDrilldownTimelineEdges = useMemo(
@@ -3359,7 +3678,6 @@ export function JenniferProfilePage(): JSX.Element {
             </Card>
 
             <ApiCallAnalysisPanel edges={msaEdges} />
-            <ServiceNetworkTimeSummary rows={serviceNetworkRows} />
 
             {msaTimelineMode === "single" ? (
               singleDrilldownScope ? (
@@ -3377,6 +3695,7 @@ export function JenniferProfilePage(): JSX.Element {
                     edges={singleDrilldownScope.topologyEdges as any}
                     rootApplication={singleDrilldownScope.selectedApplication}
                   />
+                  <ServiceNetworkTimeSummary rows={singleServiceNetworkRows} />
                   <MsaTimeline
                     title={
                       singleTimelineLayout === "grouped"
@@ -3439,6 +3758,7 @@ export function JenniferProfilePage(): JSX.Element {
                   edges={averageDrilldownTimelineEdges as any}
                   rootApplication={averageDrilldownRootApplication}
                 />
+                <ServiceNetworkTimeSummary rows={averageServiceNetworkRows} />
                 <MsaTimeline
                   title={
                     selectedAverageMsaDrilldownValue === "__whole__"

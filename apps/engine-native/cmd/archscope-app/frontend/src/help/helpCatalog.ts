@@ -183,7 +183,7 @@ const en = {
   sectionMsaCustomCards:
     "Custom card statistics aggregate rows matched by analyzer option patterns.",
   sectionMsaServiceNetworkTime:
-    "Service-call network time summarizes caller-to-callee edge timing for service-flow investigation.",
+    "Service-call network time groups matched calls by caller and callee URL, then shows call count, callee cumulative/max time, and network cumulative/avg/max time.",
   sectionMsaFileErrors:
     "File errors list inputs that could not be parsed or had serious validation issues.",
   sectionMsaFileSummary:
@@ -466,7 +466,7 @@ const ko: Record<HelpKey, string> = {
   sectionMsaCustomCards:
     "사용자 정의 카드 통계는 분석 옵션의 pattern에 매칭된 행을 집계합니다.",
   sectionMsaServiceNetworkTime:
-    "서비스 호출 네트워크 타임은 service-flow 조사를 위해 caller-to-callee edge timing을 요약합니다.",
+    "서비스 호출 네트워크 타임은 caller와 callee URL 기준으로 매칭 호출을 묶고 호출회수, callee 누적/최장 시간, 네트워크 누적/평균/최장 시간을 보여줍니다.",
   sectionMsaFileErrors:
     "파일 오류는 파싱하지 못했거나 심각한 검증 문제가 있는 입력을 보여줍니다.",
   sectionMsaFileSummary:
