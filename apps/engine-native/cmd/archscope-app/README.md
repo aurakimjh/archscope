@@ -77,11 +77,10 @@ service method.
 
 ## Build / run
 
-Wails v3 alpha.87 and Task must be on `PATH`.
+Wails v3 alpha.98 and Task must be on `PATH`.
 
 ```bash
-git clone --depth 1 --branch v3.0.0-alpha.87 https://github.com/wailsapp/wails.git /tmp/wails
-(cd /tmp/wails/v3 && go install ./cmd/wails3)
+go install github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0-alpha.98
 brew install go-task
 
 # dev mode (hot reload)
@@ -92,7 +91,7 @@ wails3 dev
 GOCACHE=/tmp/aiservice-go-cache task package
 ```
 
-## Binary size (darwin/arm64, alpha.87)
+## Binary size (darwin/arm64, alpha.98)
 
 | Output | Size |
 |---|---|
@@ -105,7 +104,7 @@ GOCACHE=/tmp/aiservice-go-cache task package
 Comparison (single distributable):
 
 - Electron desktop shell (retired): ~120 MB
-- Wails v3 alpha.87 current app: **11 MB raw / 13 MB `.app`**
+- Wails v3 alpha.98 current app: **11 MB raw / 13 MB `.app`**
 
 The Wails frontend now uses route-level lazy loading. The startup shell stays
 small, and the chart runtime is loaded only when a chart-backed analyzer page is

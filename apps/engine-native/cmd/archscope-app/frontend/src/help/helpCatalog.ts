@@ -171,13 +171,13 @@ const en = {
   sectionMsaIncomplete:
     "Warns that some transaction profiles are incomplete, which can reduce confidence in reconstructed edges or timing.",
   sectionMsaTransactions:
-    "Transaction profile rows list parsed profiles and their GUID-level metadata.",
+    "Transaction profile rows list parsed profiles, validation metadata, and per-profile timing fields.",
   sectionMsaNetworkPrep:
     "Network preparation methods show wrapper time after subtracting nested external call time.",
   sectionMsaUnprofiledExternal:
     "Unprofiled external calls are calls where the caller exists but the matching callee profile was not captured.",
   sectionMsaExternalTop:
-    "Ranks external calls by cumulative time so expensive service boundaries are visible.",
+    "Aggregates API calls by URL with call count, cumulative API time, max, p95, and network timing.",
   sectionMsaSlowSql:
     "Slow SQL candidates highlight queries whose response time exceeds the current threshold.",
   sectionMsaCustomCards:
@@ -454,13 +454,13 @@ const ko: Record<HelpKey, string> = {
   sectionMsaIncomplete:
     "일부 트랜잭션 profile이 불완전해 edge 재구성이나 timing 신뢰도가 낮아질 수 있음을 알립니다.",
   sectionMsaTransactions:
-    "Transaction profile 행은 파싱된 profile과 GUID 단위 metadata를 보여줍니다.",
+    "Transaction profile 행은 파싱된 profile, 검증 metadata, profile별 timing 값을 보여줍니다.",
   sectionMsaNetworkPrep:
     "네트워크 준비 method는 내부 external call 시간을 빼고 남은 wrapper 시간을 보여줍니다.",
   sectionMsaUnprofiledExternal:
     "프로파일 미수집 외부호출은 caller는 있지만 매칭되는 callee profile이 수집되지 않은 call입니다.",
   sectionMsaExternalTop:
-    "External call 누적 시간을 순위로 보여줘 비용이 큰 service boundary를 찾습니다.",
+    "API URL별 호출회수, 누적 API 시간, 최장, p95, 네트워크 timing을 함께 집계합니다.",
   sectionMsaSlowSql:
     "성능 저하 SQL 후보는 현재 threshold를 넘는 SQL 응답 시간을 강조합니다.",
   sectionMsaCustomCards:

@@ -23,6 +23,9 @@
 // gap / signature stats land in MVP2-MVP3.
 
 import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
   Loader2,
   Network,
   Play,
@@ -150,6 +153,40 @@ type CustomAnalysisRule = {
   group: CustomAnalysisRuleGroup;
   source: CustomAnalysisRuleSource;
   patterns: string[];
+};
+
+type ApiCallSortKey =
+  | "apiUrl"
+  | "target"
+  | "count"
+  | "apiTotalMs"
+  | "apiAvgMs"
+  | "apiP95Ms"
+  | "apiMaxMs"
+  | "calleeAvgMs"
+  | "networkTotalMs"
+  | "networkP95Ms"
+  | "networkMaxMs";
+
+type SortDirection = "asc" | "desc";
+
+type ApiCallAggregate = {
+  apiUrl: string;
+  target: string;
+  callers: string;
+  callees: string;
+  count: number;
+  matchedCount: number;
+  unmatchedCount: number;
+  apiTotalMs: number;
+  apiAvgMs: number;
+  apiP95Ms: number;
+  apiMaxMs: number;
+  calleeAvgMs: number;
+  networkTotalMs: number;
+  networkAvgMs: number;
+  networkP95Ms: number;
+  networkMaxMs: number;
 };
 
 type MsaDrilldownOption = {
@@ -1245,67 +1282,231 @@ function UnprofiledExternalCallGroupsTable({ rows }: { rows: any[] }): JSX.Eleme
   );
 }
 
-function ExternalCallTopTable({ edges }: { edges: any[] }): JSX.Element {
+function ApiCallAnalysisPanel({ edges }: { edges: any[] }): JSX.Element {
   const { locale } = useI18n();
-  const rows = aggregateExternalCallPairs(edges).slice(0, MSA_TABLE_PREVIEW_LIMIT);
+  const [sortKey, setSortKey] = useState<ApiCallSortKey>("apiTotalMs");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const rows = useMemo(() => aggregateApiCalls(edges), [edges]);
+  const sortedRows = useMemo(
+    () => sortApiCallRows(rows, sortKey, sortDirection),
+    [rows, sortDirection, sortKey],
+  );
+  const visibleRows = sortedRows.slice(0, MSA_TABLE_PREVIEW_LIMIT);
+  const hiddenCount = Math.max(0, sortedRows.length - visibleRows.length);
+  const slowest = rows.reduce<ApiCallAggregate | undefined>(
+    (best, row) => (!best || row.apiMaxMs > best.apiMaxMs ? row : best),
+    undefined,
+  );
+  const mostCalled = rows.reduce<ApiCallAggregate | undefined>(
+    (best, row) => (!best || row.count > best.count ? row : best),
+    undefined,
+  );
+  const highestTotal = rows.reduce<ApiCallAggregate | undefined>(
+    (best, row) => (!best || row.apiTotalMs > best.apiTotalMs ? row : best),
+    undefined,
+  );
+  const highestP95 = rows.reduce<ApiCallAggregate | undefined>(
+    (best, row) => (!best || row.apiP95Ms > best.apiP95Ms ? row : best),
+    undefined,
+  );
+
+  const updateSort = (nextKey: ApiCallSortKey) => {
+    if (nextKey === sortKey) {
+      setSortDirection((current) => (current === "desc" ? "asc" : "desc"));
+      return;
+    }
+    setSortKey(nextKey);
+    setSortDirection(nextKey === "apiUrl" || nextKey === "target" ? "asc" : "desc");
+  };
+
+  const sortHeader = (
+    label: string,
+    key: ApiCallSortKey,
+    align: "left" | "right" = "left",
+  ) => {
+    const Icon =
+      sortKey === key
+        ? sortDirection === "asc"
+          ? ArrowUp
+          : ArrowDown
+        : ArrowUpDown;
+    return (
+      <button
+        type="button"
+        className={`inline-flex w-full items-center gap-1 hover:text-foreground ${
+          align === "right" ? "justify-end" : "justify-start"
+        }`}
+        onClick={() => updateSort(key)}
+      >
+        <span>{label}</span>
+        <Icon className="h-3 w-3" aria-hidden="true" />
+      </button>
+    );
+  };
+
   return (
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="inline-flex items-center gap-2 text-sm">
-          EXTERNAL_CALL 누적 시간 상위 ({rows.length})
+          API 호출 응답시간 분석 ({rows.length})
           <HelpTip text={getHelpText(locale, "sectionMsaExternalTop")} />
         </CardTitle>
+        <p className="text-xs text-muted-foreground">
+          EXTERNAL_CALL 원본 URL을 API 기준으로 묶고 API 수행시간과 네트워크
+          시간을 함께 집계합니다.
+        </p>
       </CardHeader>
-      <CardContent className="overflow-x-auto p-0">
+      <CardContent className="p-0">
         {rows.length === 0 ? (
           <p className="px-4 py-3 text-xs text-muted-foreground">
-            표시할 외부 호출이 없습니다.
+            표시할 API 호출이 없습니다.
           </p>
         ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
-                <th className="px-3 py-2 text-left font-medium">Caller → Callee</th>
-                <th className="px-3 py-2 text-right font-medium">Calls</th>
-                <th className="px-3 py-2 text-right font-medium">Total ms</th>
-                <th className="px-3 py-2 text-right font-medium">Avg ms</th>
-                <th className="px-3 py-2 text-right font-medium">Network ms</th>
-                <th className="px-3 py-2 text-right font-medium">Max ms</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row, idx) => (
-                <tr key={idx} className="border-b border-border last:border-0">
-                  <td
-                    className="max-w-[420px] px-3 py-2 font-mono text-xs"
-                    title={`${row.caller} → ${row.callee}`}
-                  >
-                    <span className="block truncate">
-                      {row.caller} → {row.callee}
-                    </span>
-                  </td>
-                  <td className="px-3 py-2 text-right tabular-nums">
-                    {row.count.toLocaleString()}
-                  </td>
-                  <td className="px-3 py-2 text-right tabular-nums">
-                    {Math.round(row.totalMs).toLocaleString()}
-                  </td>
-                  <td className="px-3 py-2 text-right tabular-nums">
-                    {Math.round(row.totalMs / row.count).toLocaleString()}
-                  </td>
-                  <td className="px-3 py-2 text-right tabular-nums">
-                    {Math.round(row.networkMs).toLocaleString()}
-                  </td>
-                  <td className="px-3 py-2 text-right tabular-nums">
-                    {Math.round(row.maxMs).toLocaleString()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <>
+            <div className="grid gap-3 border-b border-border p-3 sm:grid-cols-2 xl:grid-cols-4">
+              <ApiCallHighlight
+                label="가장 느린 API"
+                row={slowest}
+                value={formatMsValue(slowest?.apiMaxMs)}
+              />
+              <ApiCallHighlight
+                label="최다 호출 API"
+                row={mostCalled}
+                value={
+                  mostCalled ? `${mostCalled.count.toLocaleString()} calls` : "—"
+                }
+              />
+              <ApiCallHighlight
+                label="누적 수행시간 상위"
+                row={highestTotal}
+                value={formatMsValue(highestTotal?.apiTotalMs)}
+              />
+              <ApiCallHighlight
+                label="p95 응답시간 상위"
+                row={highestP95}
+                value={formatMsValue(highestP95?.apiP95Ms)}
+              />
+            </div>
+            {hiddenCount > 0 && (
+              <p className="border-b border-border px-3 py-2 text-xs text-muted-foreground">
+                상위 {visibleRows.length.toLocaleString()}건만 표시합니다. 숨김{" "}
+                {hiddenCount.toLocaleString()}건.
+              </p>
+            )}
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
+                    <th className="px-3 py-2 text-left font-medium">
+                      {sortHeader("API URL", "apiUrl")}
+                    </th>
+                    <th className="px-3 py-2 text-left font-medium">
+                      {sortHeader("Target", "target")}
+                    </th>
+                    <th className="px-3 py-2 text-right font-medium">
+                      {sortHeader("Calls", "count", "right")}
+                    </th>
+                    <th className="px-3 py-2 text-right font-medium">
+                      {sortHeader("API cum", "apiTotalMs", "right")}
+                    </th>
+                    <th className="px-3 py-2 text-right font-medium">
+                      {sortHeader("API avg", "apiAvgMs", "right")}
+                    </th>
+                    <th className="px-3 py-2 text-right font-medium">
+                      {sortHeader("API p95", "apiP95Ms", "right")}
+                    </th>
+                    <th className="px-3 py-2 text-right font-medium">
+                      {sortHeader("API max", "apiMaxMs", "right")}
+                    </th>
+                    <th className="px-3 py-2 text-right font-medium">
+                      {sortHeader("Callee avg", "calleeAvgMs", "right")}
+                    </th>
+                    <th className="px-3 py-2 text-right font-medium">
+                      {sortHeader("Network cum", "networkTotalMs", "right")}
+                    </th>
+                    <th className="px-3 py-2 text-right font-medium">
+                      {sortHeader("Network p95", "networkP95Ms", "right")}
+                    </th>
+                    <th className="px-3 py-2 text-right font-medium">
+                      {sortHeader("Network max", "networkMaxMs", "right")}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {visibleRows.map((row, idx) => (
+                    <tr key={`${row.apiUrl}-${idx}`} className="border-b border-border last:border-0">
+                      <td
+                        className="max-w-[420px] px-3 py-2 font-mono text-xs"
+                        title={row.apiUrl}
+                      >
+                        <span className="block truncate">{row.apiUrl}</span>
+                      </td>
+                      <td
+                        className="max-w-[260px] px-3 py-2 font-mono text-xs"
+                        title={`${row.target}\nCaller: ${row.callers}\nCallee: ${row.callees}`}
+                      >
+                        <span className="block truncate">{row.target || "—"}</span>
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums">
+                        {row.count.toLocaleString()}
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums">
+                        {Math.round(row.apiTotalMs).toLocaleString()}
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums">
+                        {Math.round(row.apiAvgMs).toLocaleString()}
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums">
+                        {Math.round(row.apiP95Ms).toLocaleString()}
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums">
+                        {Math.round(row.apiMaxMs).toLocaleString()}
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums">
+                        {row.calleeAvgMs > 0
+                          ? Math.round(row.calleeAvgMs).toLocaleString()
+                          : "—"}
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums">
+                        {Math.round(row.networkTotalMs).toLocaleString()}
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums">
+                        {Math.round(row.networkP95Ms).toLocaleString()}
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums">
+                        {Math.round(row.networkMaxMs).toLocaleString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </CardContent>
     </Card>
+  );
+}
+
+function ApiCallHighlight({
+  label,
+  row,
+  value,
+}: {
+  label: string;
+  row?: ApiCallAggregate;
+  value: string;
+}): JSX.Element {
+  return (
+    <div className="min-w-0 rounded-lg border border-border bg-card p-3">
+      <div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+        {label}
+      </div>
+      <div className="mt-1 truncate font-mono text-xs" title={row?.apiUrl}>
+        {row?.apiUrl ?? "—"}
+      </div>
+      <div className="mt-1 text-sm font-semibold tabular-nums">{value}</div>
+    </div>
   );
 }
 
@@ -1650,45 +1851,166 @@ function CustomRuleStatsPanel({ rows }: { rows: any[] }): JSX.Element | null {
   );
 }
 
-function aggregateExternalCallPairs(edges: any[]): Array<{
-  caller: string;
-  callee: string;
-  count: number;
-  totalMs: number;
-  networkMs: number;
-  maxMs: number;
-}> {
-  const byPair = new Map<string, {
-    caller: string;
-    callee: string;
+function aggregateApiCalls(edges: any[]): ApiCallAggregate[] {
+  type State = {
+    apiUrl: string;
+    target: string;
+    callers: Set<string>;
+    callees: Set<string>;
     count: number;
-    totalMs: number;
-    networkMs: number;
-    maxMs: number;
-  }>();
+    matchedCount: number;
+    unmatchedCount: number;
+    apiValues: number[];
+    calleeValues: number[];
+    networkValues: number[];
+  };
+  const byApi = new Map<string, State>();
   for (const edge of edges) {
-    const caller = String(edge?.caller_application ?? "?");
-    const callee = String(
-      edge?.callee_application ??
+    const apiUrl = String(
+      edge?.external_call_url ??
         edge?.external_call_target ??
-        edge?.external_call_url ??
-        "?",
-    );
-    const key = `${caller}\u0000${callee}`;
-    const elapsed = Number(edge?.external_call_elapsed_ms ?? 0);
-    const network = Number(
-      edge?.network_gap_ms ?? edge?.adjusted_network_gap_ms ?? edge?.raw_network_gap_ms ?? 0,
-    );
-    const cur =
-      byPair.get(key) ??
-      { caller, callee, count: 0, totalMs: 0, networkMs: 0, maxMs: 0 };
-    cur.count += 1;
-    cur.totalMs += elapsed;
-    cur.networkMs += Number.isFinite(network) ? Math.max(0, network) : 0;
-    cur.maxMs = Math.max(cur.maxMs, elapsed);
-    byPair.set(key, cur);
+        edge?.callee_application ??
+        "",
+    ).trim();
+    if (!apiUrl) continue;
+    const target = String(
+      edge?.external_call_target ?? edge?.callee_application ?? "",
+    ).trim();
+    const key = apiUrl;
+    const state =
+      byApi.get(key) ??
+      {
+        apiUrl,
+        target,
+        callers: new Set<string>(),
+        callees: new Set<string>(),
+        count: 0,
+        matchedCount: 0,
+        unmatchedCount: 0,
+        apiValues: [],
+        calleeValues: [],
+        networkValues: [],
+      };
+    if (!state.target && target) state.target = target;
+    const caller = String(edge?.caller_application ?? "").trim();
+    const callee = String(edge?.callee_application ?? "").trim();
+    if (caller) state.callers.add(caller);
+    if (callee) state.callees.add(callee);
+    state.count += 1;
+    if (edge?.match_status === "MATCHED") {
+      state.matchedCount += 1;
+    } else {
+      state.unmatchedCount += 1;
+    }
+    state.apiValues.push(Math.max(0, toFiniteNumber(edge?.external_call_elapsed_ms) ?? 0));
+    const calleeResponse = toFiniteNumber(edge?.callee_response_time_ms);
+    if (calleeResponse != null) {
+      state.calleeValues.push(Math.max(0, calleeResponse));
+    }
+    const network =
+      toFiniteNumber(edge?.adjusted_network_gap_ms) ??
+      toFiniteNumber(edge?.network_gap_ms) ??
+      toFiniteNumber(edge?.raw_network_gap_ms);
+    if (network != null) {
+      state.networkValues.push(Math.max(0, network));
+    }
+    byApi.set(key, state);
   }
-  return Array.from(byPair.values()).sort((a, b) => b.totalMs - a.totalMs);
+  return Array.from(byApi.values()).map((state) => {
+    const apiTotalMs = sumNumbers(state.apiValues);
+    const networkTotalMs = sumNumbers(state.networkValues);
+    const calleeTotalMs = sumNumbers(state.calleeValues);
+    return {
+      apiUrl: state.apiUrl,
+      target: state.target,
+      callers: compactLabels(state.callers),
+      callees: compactLabels(state.callees),
+      count: state.count,
+      matchedCount: state.matchedCount,
+      unmatchedCount: state.unmatchedCount,
+      apiTotalMs,
+      apiAvgMs: apiTotalMs / Math.max(1, state.apiValues.length),
+      apiP95Ms: percentile(state.apiValues, 95),
+      apiMaxMs: Math.max(0, ...state.apiValues),
+      calleeAvgMs: calleeTotalMs / Math.max(1, state.calleeValues.length),
+      networkTotalMs,
+      networkAvgMs: networkTotalMs / Math.max(1, state.networkValues.length),
+      networkP95Ms: percentile(state.networkValues, 95),
+      networkMaxMs: Math.max(0, ...state.networkValues),
+    };
+  });
+}
+
+function sortApiCallRows(
+  rows: ApiCallAggregate[],
+  key: ApiCallSortKey,
+  direction: SortDirection,
+): ApiCallAggregate[] {
+  const factor = direction === "asc" ? 1 : -1;
+  return [...rows].sort((a, b) => {
+    const av = apiCallSortValue(a, key);
+    const bv = apiCallSortValue(b, key);
+    let delta = 0;
+    if (typeof av === "string" || typeof bv === "string") {
+      delta = String(av).localeCompare(String(bv));
+    } else {
+      delta = av - bv;
+    }
+    if (delta !== 0) return delta * factor;
+    return a.apiUrl.localeCompare(b.apiUrl);
+  });
+}
+
+function apiCallSortValue(
+  row: ApiCallAggregate,
+  key: ApiCallSortKey,
+): string | number {
+  switch (key) {
+    case "apiUrl":
+      return row.apiUrl;
+    case "target":
+      return row.target;
+    case "count":
+      return row.count;
+    case "apiTotalMs":
+      return row.apiTotalMs;
+    case "apiAvgMs":
+      return row.apiAvgMs;
+    case "apiP95Ms":
+      return row.apiP95Ms;
+    case "apiMaxMs":
+      return row.apiMaxMs;
+    case "calleeAvgMs":
+      return row.calleeAvgMs;
+    case "networkTotalMs":
+      return row.networkTotalMs;
+    case "networkP95Ms":
+      return row.networkP95Ms;
+    case "networkMaxMs":
+      return row.networkMaxMs;
+  }
+}
+
+function percentile(values: number[], pct: number): number {
+  const finite = values.filter((value) => Number.isFinite(value)).sort((a, b) => a - b);
+  if (finite.length === 0) return 0;
+  if (finite.length === 1) return finite[0];
+  const rank = (Math.max(0, Math.min(100, pct)) / 100) * (finite.length - 1);
+  const lower = Math.floor(rank);
+  const upper = Math.ceil(rank);
+  if (lower === upper) return finite[lower];
+  const weight = rank - lower;
+  return finite[lower] * (1 - weight) + finite[upper] * weight;
+}
+
+function sumNumbers(values: number[]): number {
+  return values.reduce((sum, value) => sum + (Number.isFinite(value) ? value : 0), 0);
+}
+
+function compactLabels(values: Set<string>): string {
+  const labels = Array.from(values).filter(Boolean).sort();
+  if (labels.length <= 2) return labels.join(", ");
+  return `${labels.slice(0, 2).join(", ")} +${labels.length - 2}`;
 }
 
 function ServiceNetworkTimeSummary({ rows }: { rows: any[] }): JSX.Element {
@@ -2021,24 +2343,9 @@ export function JenniferProfilePage(): JSX.Element {
   const hasResult = Boolean(result);
   const showMsaTablesInSummary = false;
 
-  // topologyEdges flattens every group's call_graph into one
-  // caller→callee list — these are the matched edges with timing
-  // metadata, used by the topology graph and the overall timeline.
-  const topologyEdges: any[] = useMemo(
-    () => guidGroups.flatMap((g) => g?.call_graph ?? []),
+  const allProfileNetworkTimeByTxid = useMemo(
+    () => buildNetworkTimeByTxid(guidGroups),
     [guidGroups],
-  );
-
-  // overallTimelineEdges keeps the unmatched edges too (with caller-
-  // side timing) so the MSA timeline can show "this call had no
-  // matching callee profile" alongside healthy ones.
-  const overallTimelineEdges: any[] = useMemo(
-    () =>
-      uniqueTimelineEdges([
-        ...topologyEdges,
-        ...msaEdges.filter((e) => e?.match_status && e.match_status !== "MATCHED"),
-      ]),
-    [topologyEdges, msaEdges],
   );
 
   const selectedFileDockItems: FileDockSelection[] = useMemo(
@@ -2207,14 +2514,6 @@ export function JenniferProfilePage(): JSX.Element {
     [averageDrilldownScopes, selectedAverageMsaDrilldownValue, signatureGroups],
   );
 
-  const averageDrilldownProfileRows = useMemo(
-    () =>
-      selectedAverageMsaDrilldownValue === "__whole__"
-        ? signatureProfileRows
-        : averageDrilldownScopes.flatMap((scope) => scope.profileRows),
-    [averageDrilldownScopes, selectedAverageMsaDrilldownValue, signatureProfileRows],
-  );
-
   const averageDrilldownSlowSqlRows = useMemo(
     () =>
       selectedAverageMsaDrilldownValue === "__whole__"
@@ -2243,11 +2542,6 @@ export function JenniferProfilePage(): JSX.Element {
       averageTimelineEdges,
       selectedAverageMsaDrilldownValue,
     ],
-  );
-
-  const averageDrilldownNetworkTimeByTxid = useMemo(
-    () => buildNetworkTimeByTxid(averageDrilldownGroups),
-    [averageDrilldownGroups],
   );
 
   const averageDrilldownRootApplication =
@@ -3064,6 +3358,9 @@ export function JenniferProfilePage(): JSX.Element {
               </CardContent>
             </Card>
 
+            <ApiCallAnalysisPanel edges={msaEdges} />
+            <ServiceNetworkTimeSummary rows={serviceNetworkRows} />
+
             {msaTimelineMode === "single" ? (
               singleDrilldownScope ? (
                 <>
@@ -3079,10 +3376,6 @@ export function JenniferProfilePage(): JSX.Element {
                     }
                     edges={singleDrilldownScope.topologyEdges as any}
                     rootApplication={singleDrilldownScope.selectedApplication}
-                  />
-                  <TransactionProfilesTable
-                    rows={singleDrilldownScope.profileRows}
-                    networkTimeByTxid={singleDrilldownScope.networkTimeByTxid}
                   />
                   <MsaTimeline
                     title={
@@ -3146,10 +3439,6 @@ export function JenniferProfilePage(): JSX.Element {
                   edges={averageDrilldownTimelineEdges as any}
                   rootApplication={averageDrilldownRootApplication}
                 />
-                <TransactionProfilesTable
-                  rows={averageDrilldownProfileRows}
-                  networkTimeByTxid={averageDrilldownNetworkTimeByTxid}
-                />
                 <MsaTimeline
                   title={
                     selectedAverageMsaDrilldownValue === "__whole__"
@@ -3190,9 +3479,11 @@ export function JenniferProfilePage(): JSX.Element {
               emptyResultCard
             ) : (
             <>
-            <ServiceNetworkTimeSummary rows={serviceNetworkRows} />
+            <TransactionProfilesTable
+              rows={profileRows}
+              networkTimeByTxid={allProfileNetworkTimeByTxid}
+            />
             <CustomRuleStatsPanel rows={customRuleRows} />
-            <ExternalCallTopTable edges={overallTimelineEdges as any} />
             <NetworkPrepMethodsTable rows={networkPrepRows} />
             <UnprofiledExternalCallGroupsTable rows={unprofiledExternalCallRows} />
             </>

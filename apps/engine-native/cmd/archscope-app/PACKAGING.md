@@ -1,8 +1,9 @@
 # Multi-platform packaging (v0.3.0+)
 
 Targets land under `bin/` — one binary plus the platform-native installer
-shape. All commands assume `wails3` v3.0.0-alpha.87 is on `PATH` (install
-from the `v3.0.0-alpha.87` Wails tag) and `task` is on `PATH`
+shape. All commands assume `wails3` v3.0.0-alpha.98 is on `PATH` (install
+with `go install github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0-alpha.98`)
+and `task` is on `PATH`
 (`brew install go-task` on macOS, `choco install go-task` on Windows).
 
 ## macOS — `.app` bundle + `.dmg`
