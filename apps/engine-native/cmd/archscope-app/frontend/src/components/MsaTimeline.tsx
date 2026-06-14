@@ -628,28 +628,25 @@ function limitTimelineEdges(
   mode: "overall" | "by-service",
 ): MsaTimelineEdge[] {
   if (maxBars <= 0 || items.length <= maxBars) return items;
-  if (mode === "overall") {
-    const sorted = [...items].sort(
-      (a, b) => (a.caller_event_start_ms ?? 0) - (b.caller_event_start_ms ?? 0),
-    );
-    const out: MsaTimelineEdge[] = [];
-    const step = sorted.length / maxBars;
-    let lastIndex = -1;
-    for (let i = 0; i < maxBars; i += 1) {
-      const idx = Math.min(sorted.length - 1, Math.floor(i * step));
-      if (idx !== lastIndex) {
-        out.push(sorted[idx]);
-        lastIndex = idx;
-      }
-    }
-    return out;
-  }
-  return [...items]
+  // 두 모드 모두 elapsed 큰 순으로 maxBars 개만 보존해 "개별 / 그룹"
+  // 토글이 같은 부분집합을 다른 방식으로 배치할 뿐이게 만든다.
+  // 이전엔 overall(개별)이 균등 샘플링이라 토글 시 합계와 호출 개수가
+  // 달라져 사용자가 숫자가 흔들린다고 느낄 수 있었다.
+  // overall 은 이렇게 뽑은 부분집합을 다시 시간 순으로 정렬해 Gantt
+  // x 축 의미를 유지한다.
+  const top = [...items]
     .sort(
       (a, b) =>
         (b.external_call_elapsed_ms ?? 0) - (a.external_call_elapsed_ms ?? 0),
     )
     .slice(0, maxBars);
+  if (mode === "overall") {
+    return top.sort(
+      (a, b) =>
+        (a.caller_event_start_ms ?? 0) - (b.caller_event_start_ms ?? 0),
+    );
+  }
+  return top;
 }
 
 function edgeColor(e: MsaTimelineEdge): string {
@@ -685,14 +682,21 @@ function buildTreemapRoot(
     const callee = edge.callee_application || "unmatched / unknown";
     const elapsed = edge.external_call_elapsed_ms ?? 0;
     const callerChildren = byCaller.get(caller) ?? new Map<string, TreemapNode>();
-    const key = `${caller}\u0000${callee}\u0000${edge.match_status ?? ""}\u0000${edge.timeline_kind ?? ""}`;
+    // call_graph 에서 온 매칭 엣지는 match_status 가 undefined 라서 같은
+    // (caller, callee) 가 tables.msa_edges 의 "MATCHED" 엣지와 별도 노드로
+    // 쪼개졌다. 매칭은 한 통으로 합치고 비매칭만 status 별로 구분한다.
+    const matchBucket =
+      !edge.match_status || edge.match_status === "MATCHED"
+        ? "MATCHED"
+        : edge.match_status;
+    const key = `${caller}\u0000${callee}\u0000${matchBucket}\u0000${edge.timeline_kind ?? ""}`;
     const node = callerChildren.get(key) ?? {
       name: callee,
       value: 0,
       count: 0,
       networkGapMs: 0,
       responseTimeMs: 0,
-      status: edge.match_status,
+      status: matchBucket,
       itemStyle: { color: edgeColor(edge) },
     };
     node.value += elapsed;

@@ -21,12 +21,13 @@
 // External-call drill-down tables live in the profile verification tab;
 // this component stays focused on the response-time composition bars.
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import { HelpTip } from "@/components/HelpTip";
 import { getGenericChartHelpText } from "@/help/helpCatalog";
 import { useI18n } from "@/i18n/I18nProvider";
 
+import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
 type GroupMetrics = {
@@ -60,9 +61,15 @@ type GroupMetrics = {
   };
 };
 
+type AggregationMode = "sum" | "avg";
+
 type MsaResponseTimeBreakdownProps = {
   groups: GroupMetrics[];
-  edges?: any[];
+  /** Initial aggregation mode for the top bar. Defaults to "sum".
+   *  AVG divides each metric by the number of contributing groups so
+   *  files with very different root response times don't drown each
+   *  other out — useful when comparing distributions side by side. */
+  defaultAggregationMode?: AggregationMode;
 };
 
 type SliceGroupId = "database" | "external" | "internal";
@@ -115,9 +122,13 @@ const CUSTOM_COLORS = [
 
 export function MsaResponseTimeBreakdown({
   groups,
+  defaultAggregationMode = "sum",
 }: MsaResponseTimeBreakdownProps): JSX.Element {
   const { locale } = useI18n();
   const helpText = getGenericChartHelpText(locale, "응답시간 구성");
+  const [aggregationMode, setAggregationMode] = useState<AggregationMode>(
+    defaultAggregationMode,
+  );
   const {
     totalRoot,
     totalCovered,
@@ -126,20 +137,25 @@ export function MsaResponseTimeBreakdown({
     visibleSlices,
     sliceDefs,
     perGroup,
+    sampleCount,
   } = useMemo(() => {
       const customDefs = new Map<string, SliceDef>();
-      // Aggregate across all groups.
-      const nextTotals = SLICE_DEFS.reduce<Record<string, number>>((acc, def) => {
+      // First pass: SUMS across all groups. AVG is derived later by
+      // dividing each total by sampleCount so files with very
+      // different response times don't drown each other out.
+      const sumTotals = SLICE_DEFS.reduce<Record<string, number>>((acc, def) => {
         acc[def.key] = 0;
         return acc;
       }, {});
-      let nextTotalRoot = 0;
+      let sumTotalRoot = 0;
+      let nextSampleCount = 0;
       for (const g of groups) {
         const bd = g.metrics?.response_time_breakdown;
         if (!bd) continue;
-        nextTotalRoot += Number(bd.root_response_time_ms ?? 0);
+        nextSampleCount += 1;
+        sumTotalRoot += Number(bd.root_response_time_ms ?? 0);
         for (const def of SLICE_DEFS) {
-          nextTotals[def.key] += Math.max(0, Number((bd as any)[def.key] ?? 0));
+          sumTotals[def.key] += Math.max(0, Number((bd as any)[def.key] ?? 0));
         }
         for (const slice of bd.custom_slices ?? []) {
           const key = customSliceKey(slice);
@@ -152,10 +168,17 @@ export function MsaResponseTimeBreakdown({
               color: CUSTOM_COLORS[customDefs.size % CUSTOM_COLORS.length],
               hint: `사용자 정의 카드${slice?.source ? ` · ${slice.source}` : ""}`,
             });
-            nextTotals[key] = 0;
+            sumTotals[key] = 0;
           }
-          nextTotals[key] += value;
+          sumTotals[key] += value;
         }
+      }
+      const divisor =
+        aggregationMode === "avg" && nextSampleCount > 0 ? nextSampleCount : 1;
+      const nextTotalRoot = sumTotalRoot / divisor;
+      const nextTotals: Record<string, number> = {};
+      for (const key of Object.keys(sumTotals)) {
+        nextTotals[key] = sumTotals[key] / divisor;
       }
       const nextSliceDefs = [...SLICE_DEFS, ...customDefs.values()];
       const nextTotalCovered = nextSliceDefs.reduce(
@@ -205,8 +228,9 @@ export function MsaResponseTimeBreakdown({
         visibleSlices: nextVisibleSlices,
         sliceDefs: nextSliceDefs,
         perGroup: nextPerGroup,
+        sampleCount: nextSampleCount,
       };
-    }, [groups]);
+    }, [aggregationMode, groups]);
 
   if (totalRoot === 0 && totalCovered === 0 && perGroup.length === 0) {
     return (
@@ -227,6 +251,12 @@ export function MsaResponseTimeBreakdown({
     );
   }
 
+  const canToggle = sampleCount > 1;
+  const effectiveMode: AggregationMode = canToggle ? aggregationMode : "sum";
+  const summaryLabel =
+    effectiveMode === "avg"
+      ? `Avg Root RT / Avg Categorised · n=${sampleCount}`
+      : "Root RT / Categorised";
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -235,12 +265,36 @@ export function MsaResponseTimeBreakdown({
             응답시간 구성
             <HelpTip text={helpText} />
           </CardTitle>
-          <div className="rounded-md border border-border bg-muted/20 px-3 py-2 text-right">
-            <div className="text-[10px] font-medium text-muted-foreground">
-              Root RT / Categorised
-            </div>
-            <div className="font-mono text-xs tabular-nums text-foreground">
-              {formatMs(totalRoot)} · {formatMs(totalCovered)}
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            {canToggle && (
+              <div className="flex items-center gap-1 rounded-md border border-border bg-muted/20 p-1">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={effectiveMode === "sum" ? "default" : "outline"}
+                  onClick={() => setAggregationMode("sum")}
+                  title="모든 그룹의 시간을 합산해 비율을 봅니다 — 전체 비용 분포에 적합"
+                >
+                  합계
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={effectiveMode === "avg" ? "default" : "outline"}
+                  onClick={() => setAggregationMode("avg")}
+                  title="그룹당 평균으로 봅니다 — 응답시간 편차가 큰 파일들을 균등 비교할 때 적합"
+                >
+                  평균
+                </Button>
+              </div>
+            )}
+            <div className="rounded-md border border-border bg-muted/20 px-3 py-2 text-right">
+              <div className="text-[10px] font-medium text-muted-foreground">
+                {summaryLabel}
+              </div>
+              <div className="font-mono text-xs tabular-nums text-foreground">
+                {formatMs(totalRoot)} · {formatMs(totalCovered)}
+              </div>
             </div>
           </div>
         </div>

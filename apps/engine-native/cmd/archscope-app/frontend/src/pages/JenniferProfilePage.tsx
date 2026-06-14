@@ -2560,6 +2560,12 @@ export function JenniferProfilePage(): JSX.Element {
     useState<string>("__whole__");
   const [selectedAverageMsaDrilldown, setSelectedAverageMsaDrilldown] =
     useState<string>("__whole__");
+  // "all" 은 부가/검증 탭이 모든 파일/그룹을 보여주는 기존 동작이고,
+  // "drilldown" 은 MSA 탭에서 고른 단일/평균 + 드릴다운 범위에
+  // 맞춰 부가/검증의 리스트들도 함께 좁혀준다.
+  const [profilesViewScope, setProfilesViewScope] = useState<
+    "all" | "drilldown"
+  >("all");
   const customPresetInputRef = useRef<HTMLInputElement>(null);
   // Jennifer-scoped recent-files history. The UI lets users add
   // multiple files at once, so a "recent" entry restores the full
@@ -2888,10 +2894,20 @@ export function JenniferProfilePage(): JSX.Element {
     [msaEdges, selectedSignatureGuidSet],
   );
 
-  const signatureProfileRows: any[] = useMemo(
-    () => profileRows.filter((row) => selectedSignatureGuidSet.has(row?.guid)),
-    [profileRows, selectedSignatureGuidSet],
-  );
+  const signatureProfileRows: any[] = useMemo(() => {
+    // standalone:<txid> 합성 GUID 그룹의 프로파일은 row.guid 가 비어
+    // 있어 selectedSignatureGuidSet 매칭에서 빠진다. profile_txids
+    // fallback 으로 그 케이스도 살린다 (singleProfileRows 와 같은 규칙).
+    const txids = new Set<string>();
+    for (const g of signatureGroups) {
+      for (const t of (g?.profile_txids ?? []) as string[]) {
+        if (t) txids.add(t);
+      }
+    }
+    return profileRows.filter(
+      (row) => selectedSignatureGuidSet.has(row?.guid) || txids.has(row?.txid),
+    );
+  }, [profileRows, selectedSignatureGuidSet, signatureGroups]);
 
   const signatureSlowSqlRows: any[] = useMemo(() => {
     const txids = txidSetFromProfiles(signatureProfileRows);
@@ -3025,6 +3041,108 @@ export function JenniferProfilePage(): JSX.Element {
     selectedAverageMsaDrilldownValue === "__whole__"
       ? statValue(selectedSignature?.metrics?.root_response_time_ms, "avg")
       : averageRootResponseMs(averageDrilldownGroups);
+
+  // 부가/검증 탭에서 "MSA 드릴다운 기준" 토글이 켜져 있을 때 적용할
+  // 활성 범위. 단일/평균 + 전체/드릴다운 4분면을 한 곳으로 모아
+  // 다운스트림 리스트들이 같은 TXID/GUID 셋으로 좁혀지도록 한다.
+  const activeMsaScope = useMemo(() => {
+    if (msaTimelineMode === "single") {
+      const profiles = singleDrilldownScope?.profileRows ?? [];
+      const txids = new Set(
+        profiles.map((row: any) => String(row?.txid ?? "")).filter(Boolean),
+      );
+      const guids = new Set<string>();
+      if (singleDrilldownScope?.group?.guid)
+        guids.add(String(singleDrilldownScope.group.guid));
+      const label =
+        singleDrilldownScope?.isWholeTransaction === false
+          ? `단일 · ${singleDrilldownScope?.selectedApplication ?? ""}`
+          : `단일 · ${selectedGuidGroup?.root_application ?? "트랜잭션"}`;
+      return { txids, guids, label, available: profiles.length > 0 };
+    }
+    const groupRows =
+      selectedAverageMsaDrilldownValue === "__whole__"
+        ? [signatureProfileRows]
+        : averageDrilldownScopes.map((scope) => scope.profileRows);
+    const profiles = groupRows.flat();
+    const txids = new Set(
+      profiles.map((row: any) => String(row?.txid ?? "")).filter(Boolean),
+    );
+    const guids = new Set<string>();
+    for (const g of averageDrilldownGroups) {
+      if (g?.guid) guids.add(String(g.guid));
+    }
+    const label =
+      selectedAverageMsaDrilldownValue === "__whole__"
+        ? `평균 · ${selectedSignature?.root_application ?? "시그니처"}`
+        : `평균 · ${selectedAverageMsaDrilldownValue}`;
+    return { txids, guids, label, available: profiles.length > 0 };
+  }, [
+    averageDrilldownGroups,
+    averageDrilldownScopes,
+    msaTimelineMode,
+    selectedAverageMsaDrilldownValue,
+    selectedGuidGroup,
+    selectedSignature,
+    signatureProfileRows,
+    singleDrilldownScope,
+  ]);
+
+  const profilesScopeActive =
+    profilesViewScope === "drilldown" && activeMsaScope.available;
+
+  const scopedProfileRows = useMemo(() => {
+    if (!profilesScopeActive) return profileRows;
+    return profileRows.filter((row: any) =>
+      activeMsaScope.txids.has(String(row?.txid ?? "")),
+    );
+  }, [activeMsaScope, profileRows, profilesScopeActive]);
+
+  const scopedNetworkPrepRows = useMemo(() => {
+    if (!profilesScopeActive) return networkPrepRows;
+    return networkPrepRows.filter((row: any) =>
+      activeMsaScope.txids.has(String(row?.txid ?? "")),
+    );
+  }, [activeMsaScope, networkPrepRows, profilesScopeActive]);
+
+  const scopedUnprofiledExternalCallRows = useMemo(() => {
+    if (!profilesScopeActive) return unprofiledExternalCallRows;
+    return unprofiledExternalCallRows.filter((row: any) => {
+      const guid = String(row?.guid ?? "");
+      if (guid && activeMsaScope.guids.has(guid)) {
+        // GUID 매칭 후, 평균 드릴다운(=특정 app) 모드면 caller_txids 가
+        // 선택된 앱의 TXID 와 겹쳐야만 표시 — guid 만으로 들어오면 같은
+        // 트랜잭션의 다른 앱 호출까지 따라들어오기 때문.
+        if (msaTimelineMode === "average" &&
+            selectedAverageMsaDrilldownValue !== "__whole__") {
+          const callerTxids = Array.isArray(row?.caller_txids)
+            ? (row.caller_txids as string[])
+            : [];
+          if (callerTxids.length === 0) return true;
+          return callerTxids.some((t) => activeMsaScope.txids.has(String(t)));
+        }
+        return true;
+      }
+      return false;
+    });
+  }, [
+    activeMsaScope,
+    msaTimelineMode,
+    profilesScopeActive,
+    selectedAverageMsaDrilldownValue,
+    unprofiledExternalCallRows,
+  ]);
+
+  const scopedCustomRuleRows = useMemo(() => {
+    if (!profilesScopeActive) return customRuleRows;
+    return customRuleRows.filter((row: any) => {
+      const matched = Array.isArray(row?.matched_txids)
+        ? (row.matched_txids as string[])
+        : [];
+      if (matched.length === 0) return false;
+      return matched.some((t) => activeMsaScope.txids.has(String(t)));
+    });
+  }, [activeMsaScope, customRuleRows, profilesScopeActive]);
 
   const emptyResultCard = (
     <Card>
@@ -3837,7 +3955,6 @@ export function JenniferProfilePage(): JSX.Element {
                 <>
                   <MsaResponseTimeBreakdown
                     groups={[singleDrilldownScope.group] as any}
-                    edges={singleDrilldownScope.timelineEdges as any}
                   />
                   <MsaTopology
                     title={
@@ -3900,7 +4017,7 @@ export function JenniferProfilePage(): JSX.Element {
               <>
                 <MsaResponseTimeBreakdown
                   groups={averageDrilldownGroups as any}
-                  edges={averageDrilldownActualEdges as any}
+                  defaultAggregationMode="avg"
                 />
                 <MsaTopology
                   title={
@@ -3952,13 +4069,56 @@ export function JenniferProfilePage(): JSX.Element {
               emptyResultCard
             ) : (
             <>
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <CardTitle className="inline-flex items-center gap-2 text-sm">
+                    부가/검증 범위
+                  </CardTitle>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex items-center gap-1 rounded-md border border-border bg-muted/20 p-1">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant={profilesViewScope === "all" ? "default" : "outline"}
+                        onClick={() => setProfilesViewScope("all")}
+                        title="모든 파일의 프로파일/규칙/네트워크준비/외부호출을 그대로 표시"
+                      >
+                        전체
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant={
+                          profilesViewScope === "drilldown" ? "default" : "outline"
+                        }
+                        onClick={() => setProfilesViewScope("drilldown")}
+                        disabled={!activeMsaScope.available}
+                        title={
+                          activeMsaScope.available
+                            ? "MSA 탭에서 선택한 단일/평균 드릴다운에 맞춰 좁혀 표시"
+                            : "MSA 탭에서 드릴다운 범위를 먼저 선택하세요"
+                        }
+                      >
+                        MSA 드릴다운 기준
+                      </Button>
+                    </div>
+                    {profilesScopeActive && (
+                      <span className="rounded bg-primary/10 px-2 py-1 text-[11px] text-primary">
+                        {activeMsaScope.label} · TXID {activeMsaScope.txids.size.toLocaleString()}건
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </CardHeader>
+            </Card>
             <TransactionProfilesTable
-              rows={profileRows}
+              rows={scopedProfileRows}
               networkTimeByTxid={allProfileNetworkTimeByTxid}
             />
-            <CustomRuleStatsPanel rows={customRuleRows} />
-            <NetworkPrepMethodsTable rows={networkPrepRows} />
-            <UnprofiledExternalCallGroupsTable rows={unprofiledExternalCallRows} />
+            <CustomRuleStatsPanel rows={scopedCustomRuleRows} />
+            <NetworkPrepMethodsTable rows={scopedNetworkPrepRows} />
+            <UnprofiledExternalCallGroupsTable rows={scopedUnprofiledExternalCallRows} />
             </>
             )}
           </TabsContent>
