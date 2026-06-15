@@ -91,6 +91,7 @@ type customBreakdownAccumulator struct {
 
 func normalizeCustomRules(rules []models.JenniferCustomAnalysisRule) []models.JenniferCustomAnalysisRule {
 	out := make([]models.JenniferCustomAnalysisRule, 0, len(rules))
+	indexByKey := map[customRuleKey]int{}
 	for _, rule := range rules {
 		rule.ID = strings.TrimSpace(rule.ID)
 		rule.Label = strings.TrimSpace(rule.Label)
@@ -113,9 +114,43 @@ func normalizeCustomRules(rules []models.JenniferCustomAnalysisRule) []models.Je
 			continue
 		}
 		rule.Patterns = patterns
+		key := customRuleKey{
+			label:  strings.ToLower(rule.Label),
+			group:  rule.Group,
+			source: rule.Source,
+		}
+		if idx, ok := indexByKey[key]; ok {
+			out[idx].Patterns = mergeCustomRulePatterns(out[idx].Patterns, rule.Patterns)
+			if out[idx].ID == "" {
+				out[idx].ID = rule.ID
+			}
+			continue
+		}
+		indexByKey[key] = len(out)
 		out = append(out, rule)
 	}
 	return out
+}
+
+type customRuleKey struct {
+	label  string
+	group  string
+	source string
+}
+
+func mergeCustomRulePatterns(existing []string, incoming []string) []string {
+	seen := map[string]struct{}{}
+	for _, pattern := range existing {
+		seen[pattern] = struct{}{}
+	}
+	for _, pattern := range incoming {
+		if _, ok := seen[pattern]; ok {
+			continue
+		}
+		seen[pattern] = struct{}{}
+		existing = append(existing, pattern)
+	}
+	return existing
 }
 
 func normalizeCustomRuleSource(source string) string {
@@ -218,21 +253,11 @@ func applyCustomBreakdownProfileRule(stat *customBreakdownAccumulator, profile m
 			stat.addWithBucket(profile.Header.TXID, profile.Header.Application, elapsed, "method_time_ms")
 		}
 	case customRuleSourceMethod:
-		for i, ev := range profile.Body.Events {
-			if ev.ElapsedMs == nil {
-				continue
-			}
-			if ev.EventType == models.JenniferEventStart ||
-				ev.EventType == models.JenniferEventEnd ||
-				ev.EventType == models.JenniferEventTotal {
-				continue
-			}
-			haystack := strings.ToLower(ev.RawMessage + "\n" + strings.Join(ev.DetailLines, "\n"))
-			if customRuleMatchAny(haystack, stat.rule.Patterns) {
-				bucket := breakdownBucketForEvent(ev.EventType)
-				elapsed := customRuleMethodElapsed(profile.Body.Events, i, bucket)
-				stat.addWithBucket(profile.Header.TXID, ev.RawMessage, elapsed, bucket)
-			}
+		matches := customRuleMethodMatches(profile.Body.Events, stat.rule.Patterns)
+		matchedMethodIndexes := customRuleMatchedMethodIndexes(matches)
+		for _, match := range matches {
+			elapsed := customRuleMethodElapsed(profile.Body.Events, match.index, match.bucket, matchedMethodIndexes)
+			stat.addWithBucket(profile.Header.TXID, match.sample, elapsed, match.bucket)
 		}
 	}
 }
@@ -291,7 +316,46 @@ func breakdownBucketForEvent(t models.JenniferEventType) string {
 	}
 }
 
-func customRuleMethodElapsed(events []models.JenniferProfileEvent, idx int, bucket string) int {
+type customRuleMethodMatch struct {
+	index  int
+	bucket string
+	sample string
+}
+
+func customRuleMethodMatches(events []models.JenniferProfileEvent, patterns []string) []customRuleMethodMatch {
+	out := []customRuleMethodMatch{}
+	for i, ev := range events {
+		if ev.ElapsedMs == nil {
+			continue
+		}
+		if ev.EventType == models.JenniferEventStart ||
+			ev.EventType == models.JenniferEventEnd ||
+			ev.EventType == models.JenniferEventTotal {
+			continue
+		}
+		haystack := strings.ToLower(ev.RawMessage + "\n" + strings.Join(ev.DetailLines, "\n"))
+		if customRuleMatchAny(haystack, patterns) {
+			out = append(out, customRuleMethodMatch{
+				index:  i,
+				bucket: breakdownBucketForEvent(ev.EventType),
+				sample: ev.RawMessage,
+			})
+		}
+	}
+	return out
+}
+
+func customRuleMatchedMethodIndexes(matches []customRuleMethodMatch) []int {
+	out := []int{}
+	for _, match := range matches {
+		if match.bucket == "method_time_ms" {
+			out = append(out, match.index)
+		}
+	}
+	return out
+}
+
+func customRuleMethodElapsed(events []models.JenniferProfileEvent, idx int, bucket string, matchedMethodIndexes []int) int {
 	if idx < 0 || idx >= len(events) {
 		return 0
 	}
@@ -307,6 +371,18 @@ func customRuleMethodElapsed(events []models.JenniferProfileEvent, idx int, buck
 	if !ok {
 		return elapsed
 	}
+	for _, otherIdx := range matchedMethodIndexes {
+		if otherIdx == idx || otherIdx < 0 || otherIdx >= len(events) {
+			continue
+		}
+		otherInterval, ok := eventOffsetInterval(events[otherIdx])
+		if !ok {
+			continue
+		}
+		if sameInterval(parent, otherInterval) && otherIdx < idx {
+			return 0
+		}
+	}
 	childIntervals := []interval{}
 	for childIdx := range events {
 		if childIdx == idx {
@@ -317,6 +393,18 @@ func customRuleMethodElapsed(events []models.JenniferProfileEvent, idx int, buck
 			continue
 		}
 		childInterval, ok := eventOffsetInterval(child)
+		if !ok {
+			continue
+		}
+		if intervalContains(parent, childInterval) && !sameInterval(parent, childInterval) {
+			childIntervals = append(childIntervals, childInterval)
+		}
+	}
+	for _, childIdx := range matchedMethodIndexes {
+		if childIdx == idx || childIdx < 0 || childIdx >= len(events) {
+			continue
+		}
+		childInterval, ok := eventOffsetInterval(events[childIdx])
 		if !ok {
 			continue
 		}
@@ -411,20 +499,10 @@ func applyCustomRule(stat *customRuleAccumulator, profile models.JenniferTransac
 			stat.add(profile.Header.TXID, profile.Header.Application, elapsed)
 		}
 	case customRuleSourceMethod:
-		for i, ev := range profile.Body.Events {
-			if ev.ElapsedMs == nil {
-				continue
-			}
-			if ev.EventType == models.JenniferEventStart ||
-				ev.EventType == models.JenniferEventEnd ||
-				ev.EventType == models.JenniferEventTotal {
-				continue
-			}
-			haystack := strings.ToLower(ev.RawMessage + "\n" + strings.Join(ev.DetailLines, "\n"))
-			if customRuleMatchAny(haystack, stat.rule.Patterns) {
-				bucket := breakdownBucketForEvent(ev.EventType)
-				stat.add(profile.Header.TXID, ev.RawMessage, customRuleMethodElapsed(profile.Body.Events, i, bucket))
-			}
+		matches := customRuleMethodMatches(profile.Body.Events, stat.rule.Patterns)
+		matchedMethodIndexes := customRuleMatchedMethodIndexes(matches)
+		for _, match := range matches {
+			stat.add(profile.Header.TXID, match.sample, customRuleMethodElapsed(profile.Body.Events, match.index, match.bucket, matchedMethodIndexes))
 		}
 	case customRuleSourceExternalCallURL:
 		for _, ev := range profile.Body.Events {
