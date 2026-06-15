@@ -48,6 +48,45 @@ export class AccessLogRequest {
 }
 
 /**
+ * AiInterpretationGateRequest evaluates an AI interpretation payload against
+ * the same Go evidence registry and validator used before LLM output is stored.
+ */
+export class AiInterpretationGateRequest {
+    "result": { [_ in string]?: any };
+    "interpretation": { [_ in string]?: any };
+    "minConfidence"?: number;
+    "requireEvidenceQuotes"?: boolean;
+
+    /** Creates a new AiInterpretationGateRequest instance. */
+    constructor($$source: Partial<AiInterpretationGateRequest> = {}) {
+        if (!("result" in $$source)) {
+            this["result"] = {};
+        }
+        if (!("interpretation" in $$source)) {
+            this["interpretation"] = {};
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new AiInterpretationGateRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): AiInterpretationGateRequest {
+        const $$createField0_0 = $$createType0;
+        const $$createField1_0 = $$createType0;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("result" in $$parsedSource) {
+            $$parsedSource["result"] = $$createField0_0($$parsedSource["result"]);
+        }
+        if ("interpretation" in $$parsedSource) {
+            $$parsedSource["interpretation"] = $$createField1_0($$parsedSource["interpretation"]);
+        }
+        return new AiInterpretationGateRequest($$parsedSource as Partial<AiInterpretationGateRequest>);
+    }
+}
+
+/**
  * AnalyzeAsyncResponse is returned to the renderer immediately. The actual
  * AnalysisResult arrives later via the `analyze:done` event keyed by taskId.
  * ProgressLogPath is the on-disk progress log path that the analyzer is
@@ -121,7 +160,7 @@ export class AnalyzeDoneEvent {
      * Creates a new AnalyzeDoneEvent instance from a string or object.
      */
     static createFrom($$source: any = {}): AnalyzeDoneEvent {
-        const $$createField1_0 = $$createType0;
+        const $$createField1_0 = $$createType1;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("result" in $$parsedSource) {
             $$parsedSource["result"] = $$createField1_0($$parsedSource["result"]);
@@ -230,12 +269,86 @@ export class AnalyzeRequest {
      * Creates a new AnalyzeRequest instance from a string or object.
      */
     static createFrom($$source: any = {}): AnalyzeRequest {
-        const $$createField14_0 = $$createType2;
+        const $$createField14_0 = $$createType3;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("timelineCategories" in $$parsedSource) {
             $$parsedSource["timelineCategories"] = $$createField14_0($$parsedSource["timelineCategories"]);
         }
         return new AnalyzeRequest($$parsedSource as Partial<AnalyzeRequest>);
+    }
+}
+
+export class ApiContractRequest {
+    "openapiPath"?: string;
+    "accessResultPath"?: string;
+    "asyncapiPath"?: string;
+    "brokerResultPath"?: string;
+    "topN"?: number;
+    "slowThresholdMs"?: number;
+    "errorRateThreshold"?: number;
+
+    /** Creates a new ApiContractRequest instance. */
+    constructor($$source: Partial<ApiContractRequest> = {}) {
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ApiContractRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ApiContractRequest {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new ApiContractRequest($$parsedSource as Partial<ApiContractRequest>);
+    }
+}
+
+export class ArchitectureDocsRequest {
+    "paths": string[];
+    "topN"?: number;
+
+    /** Creates a new ArchitectureDocsRequest instance. */
+    constructor($$source: Partial<ArchitectureDocsRequest> = {}) {
+        if (!("paths" in $$source)) {
+            this["paths"] = [];
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ArchitectureDocsRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ArchitectureDocsRequest {
+        const $$createField0_0 = $$createType2;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("paths" in $$parsedSource) {
+            $$parsedSource["paths"] = $$createField0_0($$parsedSource["paths"]);
+        }
+        return new ArchitectureDocsRequest($$parsedSource as Partial<ArchitectureDocsRequest>);
+    }
+}
+
+export class BrokerLogRequest {
+    "path": string;
+    "format"?: string;
+    "topN"?: number;
+    "strict"?: boolean;
+
+    /** Creates a new BrokerLogRequest instance. */
+    constructor($$source: Partial<BrokerLogRequest> = {}) {
+        if (!("path" in $$source)) {
+            this["path"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new BrokerLogRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): BrokerLogRequest {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new BrokerLogRequest($$parsedSource as Partial<BrokerLogRequest>);
     }
 }
 
@@ -312,7 +425,7 @@ export class CollapsedRequest {
      * Creates a new CollapsedRequest instance from a string or object.
      */
     static createFrom($$source: any = {}): CollapsedRequest {
-        const $$createField0_0 = $$createType1;
+        const $$createField0_0 = $$createType2;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("paths" in $$parsedSource) {
             $$parsedSource["paths"] = $$createField0_0($$parsedSource["paths"]);
@@ -345,8 +458,8 @@ export class CollapsedResult {
      * Creates a new CollapsedResult instance from a string or object.
      */
     static createFrom($$source: any = {}): CollapsedResult {
-        const $$createField0_0 = $$createType3;
-        const $$createField1_0 = $$createType1;
+        const $$createField0_0 = $$createType4;
+        const $$createField1_0 = $$createType2;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("counts" in $$parsedSource) {
             $$parsedSource["counts"] = $$createField0_0($$parsedSource["counts"]);
@@ -355,6 +468,30 @@ export class CollapsedResult {
             $$parsedSource["lines"] = $$createField1_0($$parsedSource["lines"]);
         }
         return new CollapsedResult($$parsedSource as Partial<CollapsedResult>);
+    }
+}
+
+export class DatabaseLogRequest {
+    "path": string;
+    "format"?: string;
+    "topN"?: number;
+    "strict"?: boolean;
+
+    /** Creates a new DatabaseLogRequest instance. */
+    constructor($$source: Partial<DatabaseLogRequest> = {}) {
+        if (!("path" in $$source)) {
+            this["path"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new DatabaseLogRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): DatabaseLogRequest {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new DatabaseLogRequest($$parsedSource as Partial<DatabaseLogRequest>);
     }
 }
 
@@ -510,8 +647,8 @@ export class DrilldownRequest {
      * Creates a new DrilldownRequest instance from a string or object.
      */
     static createFrom($$source: any = {}): DrilldownRequest {
-        const $$createField14_0 = $$createType2;
-        const $$createField15_0 = $$createType5;
+        const $$createField14_0 = $$createType3;
+        const $$createField15_0 = $$createType6;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("timelineCategories" in $$parsedSource) {
             $$parsedSource["timelineCategories"] = $$createField14_0($$parsedSource["timelineCategories"]);
@@ -626,7 +763,7 @@ export class EngineDoneEvent {
      * Creates a new EngineDoneEvent instance from a string or object.
      */
     static createFrom($$source: any = {}): EngineDoneEvent {
-        const $$createField1_0 = $$createType6;
+        const $$createField1_0 = $$createType7;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("result" in $$parsedSource) {
             $$parsedSource["result"] = $$createField1_0($$parsedSource["result"]);
@@ -883,7 +1020,7 @@ export class ExportPprofRequest {
      * Creates a new ExportPprofRequest instance from a string or object.
      */
     static createFrom($$source: any = {}): ExportPprofRequest {
-        const $$createField14_0 = $$createType2;
+        const $$createField14_0 = $$createType3;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("timelineCategories" in $$parsedSource) {
             $$parsedSource["timelineCategories"] = $$createField14_0($$parsedSource["timelineCategories"]);
@@ -985,10 +1122,10 @@ export class JenniferProfileRequest {
      * Creates a new JenniferProfileRequest instance from a string or object.
      */
     static createFrom($$source: any = {}): JenniferProfileRequest {
-        const $$createField1_0 = $$createType1;
-        const $$createField4_0 = $$createType1;
-        const $$createField5_0 = $$createType2;
-        const $$createField6_0 = $$createType8;
+        const $$createField1_0 = $$createType2;
+        const $$createField4_0 = $$createType2;
+        const $$createField5_0 = $$createType3;
+        const $$createField6_0 = $$createType9;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("paths" in $$parsedSource) {
             $$parsedSource["paths"] = $$createField1_0($$parsedSource["paths"]);
@@ -1064,12 +1201,36 @@ export class LockContentionRequest {
      * Creates a new LockContentionRequest instance from a string or object.
      */
     static createFrom($$source: any = {}): LockContentionRequest {
-        const $$createField0_0 = $$createType1;
+        const $$createField0_0 = $$createType2;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("paths" in $$parsedSource) {
             $$parsedSource["paths"] = $$createField0_0($$parsedSource["paths"]);
         }
         return new LockContentionRequest($$parsedSource as Partial<LockContentionRequest>);
+    }
+}
+
+export class MetricsRequest {
+    "path": string;
+    "topN"?: number;
+    "maxLines"?: number;
+    "strict"?: boolean;
+
+    /** Creates a new MetricsRequest instance. */
+    constructor($$source: Partial<MetricsRequest> = {}) {
+        if (!("path" in $$source)) {
+            this["path"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new MetricsRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): MetricsRequest {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new MetricsRequest($$parsedSource as Partial<MetricsRequest>);
     }
 }
 
@@ -1098,12 +1259,35 @@ export class MultiThreadRequest {
      * Creates a new MultiThreadRequest instance from a string or object.
      */
     static createFrom($$source: any = {}): MultiThreadRequest {
-        const $$createField0_0 = $$createType1;
+        const $$createField0_0 = $$createType2;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("paths" in $$parsedSource) {
             $$parsedSource["paths"] = $$createField0_0($$parsedSource["paths"]);
         }
         return new MultiThreadRequest($$parsedSource as Partial<MultiThreadRequest>);
+    }
+}
+
+export class ObservabilityRequest {
+    "path": string;
+    "format"?: string;
+    "topN"?: number;
+
+    /** Creates a new ObservabilityRequest instance. */
+    constructor($$source: Partial<ObservabilityRequest> = {}) {
+        if (!("path" in $$source)) {
+            this["path"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ObservabilityRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ObservabilityRequest {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new ObservabilityRequest($$parsedSource as Partial<ObservabilityRequest>);
     }
 }
 
@@ -1129,6 +1313,54 @@ export class OtelRequest {
     static createFrom($$source: any = {}): OtelRequest {
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         return new OtelRequest($$parsedSource as Partial<OtelRequest>);
+    }
+}
+
+export class PlatformRequest {
+    "path": string;
+    "format"?: string;
+    "topN"?: number;
+
+    /** Creates a new PlatformRequest instance. */
+    constructor($$source: Partial<PlatformRequest> = {}) {
+        if (!("path" in $$source)) {
+            this["path"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new PlatformRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): PlatformRequest {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new PlatformRequest($$parsedSource as Partial<PlatformRequest>);
+    }
+}
+
+export class ProfileEvidenceRequest {
+    "path": string;
+    "format"?: string;
+    "topN"?: number;
+    "intervalMs"?: number;
+    "profileKind"?: string;
+
+    /** Creates a new ProfileEvidenceRequest instance. */
+    constructor($$source: Partial<ProfileEvidenceRequest> = {}) {
+        if (!("path" in $$source)) {
+            this["path"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ProfileEvidenceRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ProfileEvidenceRequest {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new ProfileEvidenceRequest($$parsedSource as Partial<ProfileEvidenceRequest>);
     }
 }
 
@@ -1162,6 +1394,61 @@ export class RuntimeRequest {
     static createFrom($$source: any = {}): RuntimeRequest {
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         return new RuntimeRequest($$parsedSource as Partial<RuntimeRequest>);
+    }
+}
+
+/**
+ * ServerLogRequest mirrors serverlog.Options + a Path.
+ */
+export class ServerLogRequest {
+    "path": string;
+    "format"?: string;
+    "topN"?: number;
+    "maxLines"?: number;
+    "strict"?: boolean;
+
+    /** Creates a new ServerLogRequest instance. */
+    constructor($$source: Partial<ServerLogRequest> = {}) {
+        if (!("path" in $$source)) {
+            this["path"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ServerLogRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ServerLogRequest {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new ServerLogRequest($$parsedSource as Partial<ServerLogRequest>);
+    }
+}
+
+export class StitchedEvidenceRequest {
+    "paths": string[];
+    "topN"?: number;
+    "timeWindowSeconds"?: number;
+
+    /** Creates a new StitchedEvidenceRequest instance. */
+    constructor($$source: Partial<StitchedEvidenceRequest> = {}) {
+        if (!("paths" in $$source)) {
+            this["paths"] = [];
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new StitchedEvidenceRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): StitchedEvidenceRequest {
+        const $$createField0_0 = $$createType2;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("paths" in $$parsedSource) {
+            $$parsedSource["paths"] = $$createField0_0($$parsedSource["paths"]);
+        }
+        return new StitchedEvidenceRequest($$parsedSource as Partial<StitchedEvidenceRequest>);
     }
 }
 
@@ -1217,12 +1504,13 @@ export class TraceImportRequest {
 }
 
 // Private type creation functions
-const $$createType0 = profiler$0.AnalysisResult.createFrom;
-const $$createType1 = $Create.Array($Create.Any);
-const $$createType2 = $Create.Map($Create.Any, $$createType1);
-const $$createType3 = $Create.Map($Create.Any, $Create.Any);
-const $$createType4 = profiler$0.DrilldownFilter.createFrom;
-const $$createType5 = $Create.Array($$createType4);
-const $$createType6 = models$0.AnalysisResult.createFrom;
-const $$createType7 = models$0.JenniferCustomAnalysisRule.createFrom;
-const $$createType8 = $Create.Array($$createType7);
+const $$createType0 = $Create.Map($Create.Any, $Create.Any);
+const $$createType1 = profiler$0.AnalysisResult.createFrom;
+const $$createType2 = $Create.Array($Create.Any);
+const $$createType3 = $Create.Map($Create.Any, $$createType2);
+const $$createType4 = $Create.Map($Create.Any, $Create.Any);
+const $$createType5 = profiler$0.DrilldownFilter.createFrom;
+const $$createType6 = $Create.Array($$createType5);
+const $$createType7 = models$0.AnalysisResult.createFrom;
+const $$createType8 = models$0.JenniferCustomAnalysisRule.createFrom;
+const $$createType9 = $Create.Array($$createType8);

@@ -44,6 +44,30 @@ export function AnalyzeAccessLog(req: $models.AccessLogRequest): $CancellablePro
     });
 }
 
+export function AnalyzeApiContract(req: $models.ApiContractRequest): $CancellablePromise<api$0.AnalysisResult> {
+    return $Call.ByID(837906317, req).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+export function AnalyzeArchitectureDocs(req: $models.ArchitectureDocsRequest): $CancellablePromise<api$0.AnalysisResult> {
+    return $Call.ByID(1213908473, req).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+export function AnalyzeBrokerLog(req: $models.BrokerLogRequest): $CancellablePromise<api$0.AnalysisResult> {
+    return $Call.ByID(3528065178, req).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+export function AnalyzeDatabaseLog(req: $models.DatabaseLogRequest): $CancellablePromise<api$0.AnalysisResult> {
+    return $Call.ByID(4066669974, req).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
 /**
  * AnalyzeException wraps engineapi.AnalyzeException.
  */
@@ -91,6 +115,12 @@ export function AnalyzeLockContention(req: $models.LockContentionRequest): $Canc
     });
 }
 
+export function AnalyzeMetrics(req: $models.MetricsRequest): $CancellablePromise<api$0.AnalysisResult> {
+    return $Call.ByID(253438314, req).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
 /**
  * AnalyzeMultiThread parses every path in `req.Paths` through the
  * engine plugin registry and runs the multithread correlator. Async
@@ -117,11 +147,29 @@ export function AnalyzeNativeMemory(req: $models.JfrRequest): $CancellablePromis
     });
 }
 
+export function AnalyzeObservability(req: $models.ObservabilityRequest): $CancellablePromise<api$0.AnalysisResult> {
+    return $Call.ByID(1834544218, req).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
 /**
  * AnalyzeOtel wraps engineapi.AnalyzeOtel.
  */
 export function AnalyzeOtel(req: $models.OtelRequest): $CancellablePromise<api$0.AnalysisResult> {
     return $Call.ByID(2612578331, req).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+export function AnalyzePlatform(req: $models.PlatformRequest): $CancellablePromise<api$0.AnalysisResult> {
+    return $Call.ByID(4187656606, req).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+export function AnalyzeProfileEvidence(req: $models.ProfileEvidenceRequest): $CancellablePromise<api$0.AnalysisResult> {
+    return $Call.ByID(1440460347, req).then(($result: any) => {
         return $$createType0($result);
     });
 }
@@ -132,6 +180,21 @@ export function AnalyzeOtel(req: $models.OtelRequest): $CancellablePromise<api$0
  */
 export function AnalyzeRuntimeStack(req: $models.RuntimeRequest): $CancellablePromise<api$0.AnalysisResult> {
     return $Call.ByID(866070465, req).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
+ * AnalyzeServerLog wraps engineapi.AnalyzeServerLog.
+ */
+export function AnalyzeServerLog(req: $models.ServerLogRequest): $CancellablePromise<api$0.AnalysisResult> {
+    return $Call.ByID(1729292708, req).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+export function AnalyzeStitchedEvidence(req: $models.StitchedEvidenceRequest): $CancellablePromise<api$0.AnalysisResult> {
+    return $Call.ByID(1484341432, req).then(($result: any) => {
         return $$createType0($result);
     });
 }
@@ -193,6 +256,17 @@ export function ConvertToCollapsed(req: $models.CollapsedRequest): $CancellableP
  */
 export function DiffReports(req: $models.EngineDiffRequest): $CancellablePromise<{ [_ in string]?: any }> {
     return $Call.ByID(3841388367, req).then(($result: any) => {
+        return $$createType4($result);
+    });
+}
+
+/**
+ * EvaluateAiInterpretation exposes the authoritative Go AI evidence gate to the
+ * renderer so report surfaces can display validation status without reimplementing
+ * analyzer evidence lookup semantics.
+ */
+export function EvaluateAiInterpretation(req: $models.AiInterpretationGateRequest): $CancellablePromise<{ [_ in string]?: any }> {
+    return $Call.ByID(756375120, req).then(($result: any) => {
         return $$createType4($result);
     });
 }

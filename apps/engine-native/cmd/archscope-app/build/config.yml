@@ -11,7 +11,7 @@ info:
   description: "Local-first architecture diagnostics desktop"
   copyright: "Copyright (c) 2026 ArchScope contributors."
   comments: "Wails v3 desktop app"
-  version: "0.3.5.9"
+  version: "0.3.5.14"
   # cfBundleIconName: "appicon" # The macOS icon name in Assets.car icon bundles (optional)
   #                               # Should match the name of your .icon file without the extension
   #                               # If not set and Assets.car exists, defaults to "appicon"
