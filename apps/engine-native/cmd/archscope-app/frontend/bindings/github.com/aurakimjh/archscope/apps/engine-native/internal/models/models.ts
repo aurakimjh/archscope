@@ -102,7 +102,8 @@ export class AnalysisResult {
  * JenniferCustomAnalysisRule is a user-defined roll-up bucket. Source controls
  * which profile surface is matched: profile_application uses the profile URL
  * and charges the whole profile response time; method matches body method/event
- * text and charges event elapsed; external_call_url matches EXTERNAL_CALL URL.
+ * text and charges exclusive internal elapsed; external_call_url matches
+ * EXTERNAL_CALL URL.
  */
 export class JenniferCustomAnalysisRule {
     "id"?: string;

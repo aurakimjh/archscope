@@ -218,7 +218,7 @@ func applyCustomBreakdownProfileRule(stat *customBreakdownAccumulator, profile m
 			stat.addWithBucket(profile.Header.TXID, profile.Header.Application, elapsed, "method_time_ms")
 		}
 	case customRuleSourceMethod:
-		for _, ev := range profile.Body.Events {
+		for i, ev := range profile.Body.Events {
 			if ev.ElapsedMs == nil {
 				continue
 			}
@@ -229,7 +229,9 @@ func applyCustomBreakdownProfileRule(stat *customBreakdownAccumulator, profile m
 			}
 			haystack := strings.ToLower(ev.RawMessage + "\n" + strings.Join(ev.DetailLines, "\n"))
 			if customRuleMatchAny(haystack, stat.rule.Patterns) {
-				stat.addWithBucket(profile.Header.TXID, ev.RawMessage, *ev.ElapsedMs, breakdownBucketForEvent(ev.EventType))
+				bucket := breakdownBucketForEvent(ev.EventType)
+				elapsed := customRuleMethodElapsed(profile.Body.Events, i, bucket)
+				stat.addWithBucket(profile.Header.TXID, ev.RawMessage, elapsed, bucket)
 			}
 		}
 	}
@@ -286,6 +288,63 @@ func breakdownBucketForEvent(t models.JenniferEventType) string {
 		return "unprofiled_external_call_ms"
 	default:
 		return "method_time_ms"
+	}
+}
+
+func customRuleMethodElapsed(events []models.JenniferProfileEvent, idx int, bucket string) int {
+	if idx < 0 || idx >= len(events) {
+		return 0
+	}
+	ev := events[idx]
+	if ev.ElapsedMs == nil {
+		return 0
+	}
+	elapsed := *ev.ElapsedMs
+	if bucket != "method_time_ms" {
+		return elapsed
+	}
+	parent, ok := eventOffsetInterval(ev)
+	if !ok {
+		return elapsed
+	}
+	childIntervals := []interval{}
+	for childIdx := range events {
+		if childIdx == idx {
+			continue
+		}
+		child := events[childIdx]
+		if !customRuleDeductsChildEvent(child.EventType) {
+			continue
+		}
+		childInterval, ok := eventOffsetInterval(child)
+		if !ok {
+			continue
+		}
+		if intervalContains(parent, childInterval) && !sameInterval(parent, childInterval) {
+			childIntervals = append(childIntervals, childInterval)
+		}
+	}
+	deduct := unionDuration(childIntervals)
+	if deduct >= elapsed {
+		return 0
+	}
+	return elapsed - deduct
+}
+
+func customRuleDeductsChildEvent(t models.JenniferEventType) bool {
+	switch t {
+	case models.JenniferEventSQLExecute, models.JenniferEventSQLUpdate, models.JenniferEventSQLQuery,
+		models.JenniferEventCheckQuery,
+		models.JenniferEventTwoPCStart, models.JenniferEventTwoPCEnd,
+		models.JenniferEventTwoPCPrepare, models.JenniferEventTwoPCCommit,
+		models.JenniferEventTwoPCRollback, models.JenniferEventTwoPCUnknown,
+		models.JenniferEventFetch,
+		models.JenniferEventConnAcquire,
+		models.JenniferEventNetworkPrep,
+		models.JenniferEventExternalCall:
+		return true
+	default:
+		return false
 	}
 }
 
@@ -352,7 +411,7 @@ func applyCustomRule(stat *customRuleAccumulator, profile models.JenniferTransac
 			stat.add(profile.Header.TXID, profile.Header.Application, elapsed)
 		}
 	case customRuleSourceMethod:
-		for _, ev := range profile.Body.Events {
+		for i, ev := range profile.Body.Events {
 			if ev.ElapsedMs == nil {
 				continue
 			}
@@ -363,7 +422,8 @@ func applyCustomRule(stat *customRuleAccumulator, profile models.JenniferTransac
 			}
 			haystack := strings.ToLower(ev.RawMessage + "\n" + strings.Join(ev.DetailLines, "\n"))
 			if customRuleMatchAny(haystack, stat.rule.Patterns) {
-				stat.add(profile.Header.TXID, ev.RawMessage, *ev.ElapsedMs)
+				bucket := breakdownBucketForEvent(ev.EventType)
+				stat.add(profile.Header.TXID, ev.RawMessage, customRuleMethodElapsed(profile.Body.Events, i, bucket))
 			}
 		}
 	case customRuleSourceExternalCallURL:

@@ -1856,8 +1856,8 @@ function CustomRuleStatsPanel({ rows }: { rows: any[] }): JSX.Element | null {
         </CardTitle>
         <p className="text-xs text-muted-foreground">
           분석 옵션에서 추가한 카드별 집계입니다. 프로파일 URL은 전체
-          응답시간, 메소드는 이벤트 elapsed, EXTERNAL_CALL은 호출 URL elapsed를
-          합산합니다.
+          응답시간, 메소드는 내부 DB/External 등 포함 비용을 제외한 처리시간,
+          EXTERNAL_CALL은 호출 URL elapsed를 합산합니다.
         </p>
       </CardHeader>
       <CardContent className="overflow-x-auto p-0">
