@@ -3952,11 +3952,6 @@ export function JenniferProfilePage(): JSX.Element {
 
             <ApiCallAnalysisPanel edges={msaEdges} />
 
-            <MsaMethodHotspots
-              rows={methodHotspotRows}
-              txids={activeMsaScope.available ? activeMsaScope.txids : null}
-            />
-
             {msaTimelineMode === "single" ? (
               singleDrilldownScope ? (
                 <>
@@ -3971,6 +3966,10 @@ export function JenniferProfilePage(): JSX.Element {
                     }
                     edges={singleDrilldownScope.topologyEdges as any}
                     rootApplication={singleDrilldownScope.selectedApplication}
+                  />
+                  <MsaMethodHotspots
+                    rows={methodHotspotRows}
+                    txids={activeMsaScope.available ? activeMsaScope.txids : null}
                   />
                   <ServiceNetworkTimeSummary rows={singleServiceNetworkRows} />
                   <MsaTimeline
@@ -4034,6 +4033,10 @@ export function JenniferProfilePage(): JSX.Element {
                   }
                   edges={averageDrilldownTimelineEdges as any}
                   rootApplication={averageDrilldownRootApplication}
+                />
+                <MsaMethodHotspots
+                  rows={methodHotspotRows}
+                  txids={activeMsaScope.available ? activeMsaScope.txids : null}
                 />
                 <ServiceNetworkTimeSummary rows={averageServiceNetworkRows} />
                 <MsaTimeline
