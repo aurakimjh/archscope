@@ -142,6 +142,10 @@ func Build(files []jenniferprofile.FileResult, opts Options) models.AnalysisResu
 	fileErrors := []map[string]any{}
 	networkPrepRows := []map[string]any{}
 	slowSQLRows := []map[string]any{}
+	methodHotspotRows := []map[string]any{}
+	// hotspotsByTXID feeds the per-GUID-group roll-up below so the MSA
+	// timeline can show the slowest pure methods across the whole group.
+	hotspotsByTXID := map[string][]models.JenniferMethodHotspot{}
 
 	type aggregate struct {
 		BodyMetrics      models.JenniferBodyMetrics
@@ -220,6 +224,13 @@ func Build(files []jenniferprofile.FileResult, opts Options) models.AnalysisResu
 			totalErrors += len(p.Errors)
 			totalWarnings += len(p.Warnings)
 
+			hotspots := MethodHotspots(p, DefaultMethodHotspotLimit)
+			p.MethodHotspots = hotspots
+			if len(hotspots) > 0 {
+				hotspotsByTXID[p.Header.TXID] = hotspots
+				methodHotspotRows = append(methodHotspotRows, methodHotspotsToRows(p, hotspots)...)
+			}
+
 			profileRows = append(profileRows, profileToRow(p, metrics))
 			networkPrepRows = append(networkPrepRows, networkPrepMethodsToRows(p, metrics)...)
 			slowSQLRows = append(slowSQLRows, slowSQLEventsToRows(p)...)
@@ -267,7 +278,9 @@ func Build(files []jenniferprofile.FileResult, opts Options) models.AnalysisResu
 		// Recompute the per-group signature so the guid_groups
 		// row can carry its hash. Cheap (≈O(edges)).
 		sig := computeTimelineSignature(g)
-		guidGroupRows = append(guidGroupRows, guidGroupToRowWithSignature(g, sig))
+		groupRow := guidGroupToRowWithSignature(g, sig)
+		groupRow["method_hotspots"] = groupMethodHotspotRows(g, hotspotsByTXID)
+		guidGroupRows = append(guidGroupRows, groupRow)
 		totalEdges += len(g.Edges)
 		totalMatched += g.MatchedEdgeCount
 		totalUnmatched += g.UnmatchedEdgeCount
@@ -332,6 +345,7 @@ func Build(files []jenniferprofile.FileResult, opts Options) models.AnalysisResu
 		"unprofiled_external_call_groups": unprofiledGroupRows,
 		"network_prep_methods":            networkPrepRows,
 		"slow_sql_events":                 slowSQLRows,
+		"method_hotspots":                 methodHotspotRows,
 		"custom_rule_stats":               customRuleStats(fileBuckets, opts.CustomAnalysisRules),
 	}
 	result.Metadata.SchemaVersion = SchemaVersion
@@ -806,6 +820,54 @@ func isSQLExecuteEvent(t models.JenniferEventType) bool {
 	return t == models.JenniferEventSQLExecute ||
 		t == models.JenniferEventSQLUpdate ||
 		t == models.JenniferEventSQLQuery
+}
+
+// methodHotspotToRow projects one ranked method into the renderer row
+// shape consumed by the MSA timeline's method-hotspot panel.
+func methodHotspotToRow(h models.JenniferMethodHotspot) map[string]any {
+	return map[string]any{
+		"method":           h.Method,
+		"application":      h.Application,
+		"txid":             h.TXID,
+		"guid":             h.GUID,
+		"self_time_ms":     h.SelfTimeMs,
+		"total_elapsed_ms": h.TotalElapsedMs,
+		"calls":            h.Calls,
+		"max_self_ms":      h.MaxSelfMs,
+		"avg_self_ms":      h.AvgSelfMs,
+		"self_ratio":       h.SelfRatio,
+		"child_method_ms":  h.ChildMethodMs,
+		"sql_ms":           h.SqlMs,
+		"external_ms":      h.ExternalMs,
+		"other_ms":         h.OtherMs,
+	}
+}
+
+// methodHotspotsToRows emits the per-profile `tables.method_hotspots`
+// rows; the renderer re-aggregates them by drilldown scope.
+func methodHotspotsToRows(p models.JenniferTransactionProfile, hotspots []models.JenniferMethodHotspot) []map[string]any {
+	rows := make([]map[string]any, 0, len(hotspots))
+	for _, h := range hotspots {
+		row := methodHotspotToRow(h)
+		row["source_file"] = p.SourceFile
+		rows = append(rows, row)
+	}
+	return rows
+}
+
+// groupMethodHotspotRows rolls per-profile hotspots up into a group
+// Top-N (by application+method) for the GUID-group row.
+func groupMethodHotspotRows(g models.JenniferGuidGroup, byTXID map[string][]models.JenniferMethodHotspot) []map[string]any {
+	var collected []models.JenniferMethodHotspot
+	for _, txid := range g.ProfileTXIDs {
+		collected = append(collected, byTXID[txid]...)
+	}
+	rolled := RollUpMethodHotspots(collected, g.GUID, DefaultMethodHotspotLimit)
+	rows := make([]map[string]any, 0, len(rolled))
+	for _, h := range rolled {
+		rows = append(rows, methodHotspotToRow(h))
+	}
+	return rows
 }
 
 func ptrIntOrNil(p *int) any {

@@ -60,6 +60,11 @@ type JenniferTransactionProfile struct {
 	// Warnings collects non-fatal mismatches (header vs body
 	// EXTERNAL_CALL_TIME drift inside tolerance, NEGATIVE_NETWORK_GAP_ADJUSTED, …).
 	Warnings []JenniferProfileIssue `json:"warnings,omitempty"`
+	// MethodHotspots ranks this profile's own method frames by pure
+	// self-time (elapsed minus nested SQL/external/fetch/child-method
+	// coverage, overlap-aware). It answers "어떤 메소드가 자체 코드로
+	// 오래 걸리는가" for the MSA timeline drilldown.
+	MethodHotspots []JenniferMethodHotspot `json:"method_hotspots,omitempty"`
 }
 
 // JenniferProfileHeader is the 2-column key:value section that
@@ -532,4 +537,40 @@ type JenniferCustomAnalysisRuleStat struct {
 	MaxMs          int      `json:"max_ms"`
 	MatchedTXIDs   []string `json:"matched_txids,omitempty"`
 	MatchedSamples []string `json:"matched_samples,omitempty"`
+}
+
+// JenniferMethodHotspot is one method (by normalized signature) ranked
+// by pure self-time. Self-time is the method's own elapsed minus the
+// wall-clock coverage of everything nested inside it — SQL, external
+// calls, fetch, connection-acquire and child method frames — computed
+// with interval-union so overlapping (parallel) children are only
+// charged once. This isolates "the method's own code" from I/O and
+// downstream-call wait, so the MSA timeline can point at the real
+// bottleneck instead of time that merely passed through the method.
+//
+// The same struct serves two scopes: per-profile rows (TXID set) and
+// group roll-ups (TXID empty, aggregated by Application+Method).
+type JenniferMethodHotspot struct {
+	Method      string `json:"method"`
+	Application string `json:"application,omitempty"`
+	TXID        string `json:"txid,omitempty"`
+	GUID        string `json:"guid,omitempty"`
+	// SelfTimeMs is the aggregated exclusive self-time (sum over Calls).
+	SelfTimeMs int `json:"self_time_ms"`
+	// TotalElapsedMs is the aggregated inclusive elapsed (sum over Calls).
+	TotalElapsedMs int `json:"total_elapsed_ms"`
+	Calls          int `json:"calls"`
+	MaxSelfMs      int `json:"max_self_ms"`
+	// AvgSelfMs = SelfTimeMs / Calls. SelfRatio = SelfTimeMs / TotalElapsedMs
+	// (0..1) — how much of the method's time is genuinely its own code.
+	AvgSelfMs float64 `json:"avg_self_ms"`
+	SelfRatio float64 `json:"self_ratio"`
+	// Nested-time breakdown (aggregated direct-child coverage by group),
+	// for the timeline panel's stacked bar. Informational: under
+	// cross-category overlap the buckets may slightly exceed
+	// TotalElapsedMs-SelfTimeMs, so renderers should normalize.
+	ChildMethodMs int `json:"child_method_ms,omitempty"`
+	SqlMs         int `json:"sql_ms,omitempty"`
+	ExternalMs    int `json:"external_ms,omitempty"`
+	OtherMs       int `json:"other_ms,omitempty"`
 }

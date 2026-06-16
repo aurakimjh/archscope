@@ -52,6 +52,7 @@ import {
   type Preset,
   type SegmentSpec,
 } from "../components/CustomCategoriesEditor";
+import { MsaMethodHotspots } from "../components/MsaMethodHotspots";
 import { MsaResponseTimeBreakdown } from "../components/MsaResponseTimeBreakdown";
 import { MsaTimeline, MsaTimelineTreemap } from "../components/MsaTimeline";
 import { MsaTopology } from "../components/MsaTopology";
@@ -2760,6 +2761,7 @@ export function JenniferProfilePage(): JSX.Element {
   const unprofiledExternalCallRows: any[] =
     result?.tables?.unprofiled_external_call_groups ?? [];
   const slowSqlRows: any[] = result?.tables?.slow_sql_events ?? [];
+  const methodHotspotRows: any[] = result?.tables?.method_hotspots ?? [];
   const customRuleRows: any[] = result?.tables?.custom_rule_stats ?? [];
   const signatureStats: any[] = result?.series?.signature_statistics ?? [];
   const hasResult = Boolean(result);
@@ -3949,6 +3951,11 @@ export function JenniferProfilePage(): JSX.Element {
             </Card>
 
             <ApiCallAnalysisPanel edges={msaEdges} />
+
+            <MsaMethodHotspots
+              rows={methodHotspotRows}
+              txids={activeMsaScope.available ? activeMsaScope.txids : null}
+            />
 
             {msaTimelineMode === "single" ? (
               singleDrilldownScope ? (
