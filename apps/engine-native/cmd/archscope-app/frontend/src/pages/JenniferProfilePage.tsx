@@ -131,7 +131,7 @@ const FILE_FILTERS = [
   { displayName: "All files", pattern: "*.*" },
 ];
 
-const MSA_TABLE_PREVIEW_LIMIT = 200;
+const MSA_TABLE_PREVIEW_LIMIT = 10;
 const DEFAULT_SLOW_SQL_THRESHOLD_MS = 1000;
 const CUSTOM_RULE_PRESET_VERSION = 1;
 
@@ -383,6 +383,43 @@ function profileResponseTime(row: any): number {
 
 function profileMetric(row: any, key: string): number {
   return Math.max(0, Math.round(toFiniteNumber(row?.body_metrics?.[key]) ?? 0));
+}
+
+function usePreviewRows<T>(rows: T[], limit = MSA_TABLE_PREVIEW_LIMIT) {
+  const [expanded, setExpanded] = useState(false);
+  const visibleRows = expanded ? rows : rows.slice(0, limit);
+  return {
+    expanded,
+    setExpanded,
+    visibleRows,
+  };
+}
+
+function PreviewRowsToggle({
+  total,
+  visibleCount,
+  expanded,
+  onToggle,
+}: {
+  total: number;
+  visibleCount: number;
+  expanded: boolean;
+  onToggle: () => void;
+}): JSX.Element | null {
+  if (total <= MSA_TABLE_PREVIEW_LIMIT) return null;
+  const hiddenCount = Math.max(0, total - visibleCount);
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border px-3 py-2 text-xs text-muted-foreground">
+      <span>
+        {expanded
+          ? `전체 ${total.toLocaleString()}건을 표시 중입니다.`
+          : `상위 ${visibleCount.toLocaleString()}건만 표시합니다. 숨김 ${hiddenCount.toLocaleString()}건.`}
+      </span>
+      <Button type="button" size="sm" variant="outline" onClick={onToggle}>
+        {expanded ? "접기" : `더 보기 (${hiddenCount.toLocaleString()}건)`}
+      </Button>
+    </div>
+  );
 }
 
 function msaDrilldownOptionLabel(row: any): string {
@@ -1049,8 +1086,7 @@ function TransactionProfilesTable({
   networkTimeByTxid: Map<string, number>;
 }): JSX.Element {
   const { locale } = useI18n();
-  const visibleRows = rows.slice(0, MSA_TABLE_PREVIEW_LIMIT);
-  const hiddenCount = Math.max(0, rows.length - visibleRows.length);
+  const { visibleRows, expanded, setExpanded } = usePreviewRows(rows);
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -1060,12 +1096,6 @@ function TransactionProfilesTable({
         </CardTitle>
       </CardHeader>
       <CardContent className="overflow-x-auto p-0">
-        {hiddenCount > 0 && (
-          <p className="border-b border-border px-3 py-2 text-xs text-muted-foreground">
-            상위 {visibleRows.length.toLocaleString()}건만 표시합니다. 숨김{" "}
-            {hiddenCount.toLocaleString()}건.
-          </p>
-        )}
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
@@ -1140,6 +1170,12 @@ function TransactionProfilesTable({
             })}
           </tbody>
         </table>
+        <PreviewRowsToggle
+          total={rows.length}
+          visibleCount={visibleRows.length}
+          expanded={expanded}
+          onToggle={() => setExpanded((value) => !value)}
+        />
       </CardContent>
     </Card>
   );
@@ -1147,8 +1183,7 @@ function TransactionProfilesTable({
 
 function NetworkPrepMethodsTable({ rows }: { rows: any[] }): JSX.Element {
   const { locale } = useI18n();
-  const visibleRows = rows.slice(0, MSA_TABLE_PREVIEW_LIMIT);
-  const hiddenCount = Math.max(0, rows.length - visibleRows.length);
+  const { visibleRows, expanded, setExpanded } = usePreviewRows(rows);
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -1168,12 +1203,6 @@ function NetworkPrepMethodsTable({ rows }: { rows: any[] }): JSX.Element {
           </p>
         ) : (
           <>
-            {hiddenCount > 0 && (
-              <p className="border-b border-border px-3 py-2 text-xs text-muted-foreground">
-                상위 {visibleRows.length.toLocaleString()}건만 표시합니다. 숨김{" "}
-                {hiddenCount.toLocaleString()}건.
-              </p>
-            )}
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
@@ -1242,6 +1271,12 @@ function NetworkPrepMethodsTable({ rows }: { rows: any[] }): JSX.Element {
                 })}
               </tbody>
             </table>
+            <PreviewRowsToggle
+              total={rows.length}
+              visibleCount={visibleRows.length}
+              expanded={expanded}
+              onToggle={() => setExpanded((value) => !value)}
+            />
           </>
         )}
       </CardContent>
@@ -1251,8 +1286,7 @@ function NetworkPrepMethodsTable({ rows }: { rows: any[] }): JSX.Element {
 
 function UnprofiledExternalCallGroupsTable({ rows }: { rows: any[] }): JSX.Element {
   const { locale } = useI18n();
-  const visibleRows = rows.slice(0, MSA_TABLE_PREVIEW_LIMIT);
-  const hiddenCount = Math.max(0, rows.length - visibleRows.length);
+  const { visibleRows, expanded, setExpanded } = usePreviewRows(rows);
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -1272,12 +1306,6 @@ function UnprofiledExternalCallGroupsTable({ rows }: { rows: any[] }): JSX.Eleme
           </p>
         ) : (
           <>
-            {hiddenCount > 0 && (
-              <p className="border-b border-border px-3 py-2 text-xs text-muted-foreground">
-                상위 {visibleRows.length.toLocaleString()}건만 표시합니다. 숨김{" "}
-                {hiddenCount.toLocaleString()}건.
-              </p>
-            )}
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
@@ -1338,6 +1366,12 @@ function UnprofiledExternalCallGroupsTable({ rows }: { rows: any[] }): JSX.Eleme
                 })}
               </tbody>
             </table>
+            <PreviewRowsToggle
+              total={rows.length}
+              visibleCount={visibleRows.length}
+              expanded={expanded}
+              onToggle={() => setExpanded((value) => !value)}
+            />
           </>
         )}
       </CardContent>
@@ -1354,8 +1388,7 @@ function ApiCallAnalysisPanel({ edges }: { edges: any[] }): JSX.Element {
     () => sortApiCallRows(rows, sortKey, sortDirection),
     [rows, sortDirection, sortKey],
   );
-  const visibleRows = sortedRows.slice(0, MSA_TABLE_PREVIEW_LIMIT);
-  const hiddenCount = Math.max(0, sortedRows.length - visibleRows.length);
+  const { visibleRows, expanded, setExpanded } = usePreviewRows(sortedRows);
   const slowest = rows.reduce<ApiCallAggregate | undefined>(
     (best, row) => (!best || row.apiMaxMs > best.apiMaxMs ? row : best),
     undefined,
@@ -1450,12 +1483,6 @@ function ApiCallAnalysisPanel({ edges }: { edges: any[] }): JSX.Element {
                 value={formatMsValue(highestP95?.apiP95Ms)}
               />
             </div>
-            {hiddenCount > 0 && (
-              <p className="border-b border-border px-3 py-2 text-xs text-muted-foreground">
-                상위 {visibleRows.length.toLocaleString()}건만 표시합니다. 숨김{" "}
-                {hiddenCount.toLocaleString()}건.
-              </p>
-            )}
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -1544,6 +1571,12 @@ function ApiCallAnalysisPanel({ edges }: { edges: any[] }): JSX.Element {
                 </tbody>
               </table>
             </div>
+            <PreviewRowsToggle
+              total={sortedRows.length}
+              visibleCount={visibleRows.length}
+              expanded={expanded}
+              onToggle={() => setExpanded((value) => !value)}
+            />
           </>
         )}
       </CardContent>
@@ -1582,9 +1615,10 @@ function SlowSqlTable({ rows }: { rows: any[] }): JSX.Element {
   const filteredRows = rows.filter(
     (row) => Number(row?.elapsed_ms ?? 0) >= minElapsedMs,
   );
-  const visibleRows = [...filteredRows]
-    .sort((a, b) => Number(b?.elapsed_ms ?? 0) - Number(a?.elapsed_ms ?? 0))
-    .slice(0, MSA_TABLE_PREVIEW_LIMIT);
+  const sortedRows = [...filteredRows].sort(
+    (a, b) => Number(b?.elapsed_ms ?? 0) - Number(a?.elapsed_ms ?? 0),
+  );
+  const { visibleRows, expanded, setExpanded } = usePreviewRows(sortedRows);
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -1645,41 +1679,49 @@ function SlowSqlTable({ rows }: { rows: any[] }): JSX.Element {
             조건에 맞는 SQL 실행 이벤트가 없습니다.
           </p>
         ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
-                <th className="px-3 py-2 text-left font-medium">TXID</th>
-                <th className="px-3 py-2 text-left font-medium">Application</th>
-                <th className="px-3 py-2 text-left font-medium">Type</th>
-                <th className="px-3 py-2 text-right font-medium">Elapsed ms</th>
-                <th className="px-3 py-2 text-left font-medium">SQL / Message</th>
-              </tr>
-            </thead>
-            <tbody>
-              {visibleRows.map((row, idx) => {
-                const sql = String(row?.sql_text || row?.raw_message || "-");
-                return (
-                  <tr key={idx} className="border-b border-border last:border-0">
-                    <td className="px-3 py-2 font-mono text-xs">{row?.txid || "-"}</td>
-                    <td className="px-3 py-2 text-xs" title={row?.application}>
-                      {row?.application || "-"}
-                    </td>
-                    <td className="px-3 py-2 font-mono text-xs">
-                      {row?.event_type || "-"}
-                    </td>
-                    <td className="px-3 py-2 text-right tabular-nums">
-                      {(row?.elapsed_ms ?? 0).toLocaleString()}
-                    </td>
-                    <td className="max-w-[560px] px-3 py-2 font-mono text-xs">
-                      <span className="block truncate" title={sql}>
-                        {sql}
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
+                  <th className="px-3 py-2 text-left font-medium">TXID</th>
+                  <th className="px-3 py-2 text-left font-medium">Application</th>
+                  <th className="px-3 py-2 text-left font-medium">Type</th>
+                  <th className="px-3 py-2 text-right font-medium">Elapsed ms</th>
+                  <th className="px-3 py-2 text-left font-medium">SQL / Message</th>
+                </tr>
+              </thead>
+              <tbody>
+                {visibleRows.map((row, idx) => {
+                  const sql = String(row?.sql_text || row?.raw_message || "-");
+                  return (
+                    <tr key={idx} className="border-b border-border last:border-0">
+                      <td className="px-3 py-2 font-mono text-xs">{row?.txid || "-"}</td>
+                      <td className="px-3 py-2 text-xs" title={row?.application}>
+                        {row?.application || "-"}
+                      </td>
+                      <td className="px-3 py-2 font-mono text-xs">
+                        {row?.event_type || "-"}
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums">
+                        {(row?.elapsed_ms ?? 0).toLocaleString()}
+                      </td>
+                      <td className="max-w-[560px] px-3 py-2 font-mono text-xs">
+                        <span className="block truncate" title={sql}>
+                          {sql}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            <PreviewRowsToggle
+              total={sortedRows.length}
+              visibleCount={visibleRows.length}
+              expanded={expanded}
+              onToggle={() => setExpanded((value) => !value)}
+            />
+          </>
         )}
       </CardContent>
     </Card>
@@ -1846,8 +1888,8 @@ function CustomAnalysisRulesEditor({
 
 function CustomRuleStatsPanel({ rows }: { rows: any[] }): JSX.Element | null {
   const { locale } = useI18n();
+  const { visibleRows, expanded, setExpanded } = usePreviewRows(rows);
   if (rows.length === 0) return null;
-  const visibleRows = rows.slice(0, MSA_TABLE_PREVIEW_LIMIT);
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -1909,6 +1951,12 @@ function CustomRuleStatsPanel({ rows }: { rows: any[] }): JSX.Element | null {
             ))}
           </tbody>
         </table>
+        <PreviewRowsToggle
+          total={rows.length}
+          visibleCount={visibleRows.length}
+          expanded={expanded}
+          onToggle={() => setExpanded((value) => !value)}
+        />
       </CardContent>
     </Card>
   );
@@ -2345,8 +2393,7 @@ function ServiceNetworkTimeSummary({
     () => sortServiceNetworkRows(rows, sortKey, sortDirection),
     [rows, sortDirection, sortKey],
   );
-  const visibleRows = sortedRows.slice(0, MSA_TABLE_PREVIEW_LIMIT);
-  const hiddenCount = Math.max(0, sortedRows.length - visibleRows.length);
+  const { visibleRows, expanded, setExpanded } = usePreviewRows(sortedRows);
 
   const updateSort = (nextKey: ServiceNetworkSortKey) => {
     if (nextKey === sortKey) {
@@ -2399,12 +2446,6 @@ function ServiceNetworkTimeSummary({
           </p>
         ) : (
           <>
-            {hiddenCount > 0 && (
-              <p className="border-b border-border px-3 py-2 text-xs text-muted-foreground">
-                상위 {visibleRows.length.toLocaleString()}건만 표시합니다. 숨김{" "}
-                {hiddenCount.toLocaleString()}건.
-              </p>
-            )}
             <div className="overflow-x-auto">
               <table className="min-w-[1180px] w-full text-sm">
                 <thead>
@@ -2508,6 +2549,12 @@ function ServiceNetworkTimeSummary({
                 </tbody>
               </table>
             </div>
+            <PreviewRowsToggle
+              total={sortedRows.length}
+              visibleCount={visibleRows.length}
+              expanded={expanded}
+              onToggle={() => setExpanded((value) => !value)}
+            />
           </>
         )}
       </CardContent>

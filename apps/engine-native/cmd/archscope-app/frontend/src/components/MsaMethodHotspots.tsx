@@ -184,7 +184,7 @@ export function MsaMethodHotspots({
   rows,
   txids,
   title = "메소드 미분류 응답시간",
-  limit = 12,
+  limit = 10,
   defaultAggregationMode = "sum",
   sampleCount = 1,
   scopeLabel,

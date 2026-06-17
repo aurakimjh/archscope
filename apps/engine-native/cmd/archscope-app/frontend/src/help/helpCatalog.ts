@@ -175,7 +175,7 @@ const en = {
   sectionMsaNetworkPrep:
     "Network preparation methods show wrapper time after subtracting nested external call time.",
   sectionMsaMethodResidual:
-    "Method residual time is not a generic slow-method ranking. It shows METHOD-frame response time left after subtracting identified child work such as SQL, external calls, fetch, Network Prep, connection acquire, and user-defined method rules.",
+    "Method residual time is not a generic slow-method ranking. It shows METHOD-frame response time left after subtracting identified child work such as SQL, external calls, fetch, Network Prep, connection acquire, and user-defined method rules. Its total is meant to be compared with Method Time in the response-time breakdown, but can differ because the two views use different scopes, interval reconstruction, overlap handling, and row limits.",
   sectionMsaUnprofiledExternal:
     "Unprofiled external calls are calls where the caller exists but the matching callee profile was not captured.",
   sectionMsaExternalTop:
@@ -460,7 +460,7 @@ const ko: Record<HelpKey, string> = {
   sectionMsaNetworkPrep:
     "네트워크 준비 method는 내부 external call 시간을 빼고 남은 wrapper 시간을 보여줍니다.",
   sectionMsaMethodResidual:
-    "메소드 미분류 응답시간은 일반적인 느린 메소드 순위가 아닙니다. METHOD frame 응답시간에서 SQL, 외부 호출, fetch, Network Prep, connection acquire, 사용자 정의 메소드 규칙처럼 식별된 자식 작업 구간을 빼고도 남은 시간을 보여줍니다.",
+    "메소드 미분류 응답시간은 일반적인 느린 메소드 순위가 아닙니다. METHOD frame 응답시간에서 SQL, 외부 호출, fetch, Network Prep, connection acquire, 사용자 정의 메소드 규칙처럼 식별된 자식 작업 구간을 빼고도 남은 시간을 보여줍니다. 합계는 응답시간 구성의 Method Time과 비교하는 값이지만, 스코프, interval 복원, 겹침 처리, 표시 행 제한 차이 때문에 완전히 일치하지 않을 수 있습니다.",
   sectionMsaUnprofiledExternal:
     "프로파일 미수집 외부호출은 caller는 있지만 매칭되는 callee profile이 수집되지 않은 call입니다.",
   sectionMsaExternalTop:
