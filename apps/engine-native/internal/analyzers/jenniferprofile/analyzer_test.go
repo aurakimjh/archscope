@@ -150,6 +150,88 @@ APPLICATION : /prod/order/create
 	}
 }
 
+func TestNetworkPrepMethod_CustomPatternsKeepBuiltInSendToService(t *testing.T) {
+	body := `---------------------------------------------------------------------------------------------------------------------
+Total Transaction : 1
+----------------------------------------------------------------------------------------------------------------------
+
+
+
+TXID : 100                                                       DOMAIN (ID) : caller (1)
+RESPONSE_TIME : 900                                              GUID : G1
+EXTERNAL_CALL_TIME : 300                                         USER_AGENT : test
+APPLICATION : /prod/order/create
+
+---------------------------------------------------------------------------------------------------------------------
+[ No.][ START_TIME ][  GAP][CPU_T]
+---------------------------------------------------------------------------------------------------------------------
+[0000][10:00:00 000][    0][    0] START
+[0001][10:00:00 010][    0][    0] devonboot.enterprise.ext.core.util.IntegrationUtil.sendToService(java.lang.String) [/dev/svc] [500ms]
+[0002][10:00:00 020][    0][    0] EXTERNAL_CALL [HTTP] APACHE_HTTP_CLIENT_V5 ( url=/dev/svc/a) [300ms]
+[    ][10:00:01 000][    0][    0] END
+---------------------------------------------------------------------------------------------------------------------
+                TOTAL[900][   0]
+`
+	parsed := jenniferprofile.ParseString(body, jenniferprofile.Options{
+		NetworkPrepPatterns: []string{"com.acme.CustomNetworkWrapper"},
+	})
+	res := Build([]jenniferprofile.FileResult{parsed}, Options{})
+
+	rows := res.Tables["network_prep_methods"].([]map[string]any)
+	if len(rows) != 1 {
+		t.Fatalf("network_prep_methods rows = %d, want 1", len(rows))
+	}
+	if got := rows[0]["network_prep_ms"].(int); got != 200 {
+		t.Fatalf("network_prep_ms = %d, want 200", got)
+	}
+	hotspots := res.Tables["method_hotspots"].([]map[string]any)
+	if len(hotspots) != 0 {
+		t.Fatalf("method_hotspots = %d, want 0 after built-in network prep exclusion: %+v", len(hotspots), hotspots)
+	}
+}
+
+func TestNetworkPrepMethod_DemotedWrapperStillExcludedFromHotspots(t *testing.T) {
+	body := `---------------------------------------------------------------------------------------------------------------------
+Total Transaction : 1
+----------------------------------------------------------------------------------------------------------------------
+
+
+
+TXID : 100                                                       DOMAIN (ID) : caller (1)
+RESPONSE_TIME : 900                                              GUID : G1
+EXTERNAL_CALL_TIME : 0                                           USER_AGENT : test
+APPLICATION : /prod/order/create
+
+---------------------------------------------------------------------------------------------------------------------
+[ No.][ START_TIME ][  GAP][CPU_T]
+---------------------------------------------------------------------------------------------------------------------
+[0000][10:00:00 000][    0][    0] START
+[0001][10:00:00 010][    0][    0] devonboot.enterprise.ext.core.util.IntegrationUtil.sendToService(java.lang.String) [/dev/svc] [500ms]
+[    ][10:00:01 000][    0][    0] END
+---------------------------------------------------------------------------------------------------------------------
+                TOTAL[900][   0]
+`
+	parsed := jenniferprofile.ParseString(body, jenniferprofile.Options{})
+	res := Build([]jenniferprofile.FileResult{parsed}, Options{})
+
+	profiles := res.Tables["profiles"].([]map[string]any)
+	warnings := profiles[0]["warnings"].([]map[string]any)
+	foundWarning := false
+	for _, warning := range warnings {
+		if warning["code"] == "NETWORK_PREP_NOT_FOLLOWED_BY_EXTERNAL_CALL" {
+			foundWarning = true
+			break
+		}
+	}
+	if !foundWarning {
+		t.Fatalf("expected NETWORK_PREP_NOT_FOLLOWED_BY_EXTERNAL_CALL warning, got %+v", warnings)
+	}
+	hotspots := res.Tables["method_hotspots"].([]map[string]any)
+	if len(hotspots) != 0 {
+		t.Fatalf("method_hotspots = %d, want 0 for configured network prep wrapper without external call: %+v", len(hotspots), hotspots)
+	}
+}
+
 func TestUnprofiledExternalCallsSeparatedFromMethodTime(t *testing.T) {
 	body := `---------------------------------------------------------------------------------------------------------------------
 Total Transaction : 1

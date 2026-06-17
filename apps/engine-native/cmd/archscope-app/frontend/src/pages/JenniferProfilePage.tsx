@@ -2727,8 +2727,10 @@ export function JenniferProfilePage(): JSX.Element {
     setAnalyzing(true);
     try {
       // Patterns flow into the parser's EventCategoryPatterns and
-      // NetworkPrepPatterns hooks. Built-in matches still bracket
-      // EXTERNAL_CALL/FETCH so user typos can't corrupt edge counts.
+      // NetworkPrepPatterns hooks. Built-in network-prep defaults are
+      // retained by the backend and these values only extend them.
+      // Built-in event matches still bracket EXTERNAL_CALL/FETCH so
+      // user typos can't corrupt edge counts.
       // The eventCategoryPatterns map already keys off
       // JenniferEventType values, so we forward it as-is. NETWORK_PREP_METHOD
       // patterns are split out into the dedicated NetworkPrepPatterns
@@ -3328,8 +3330,8 @@ export function JenniferProfilePage(): JSX.Element {
               MSA 이벤트 분류 패턴 (METHOD/UNKNOWN 라인 추가 분류)
             </p>
             <p className="mb-2 text-[11px] text-muted-foreground">
-              기본값: NETWORK_PREP_METHOD = "IntegrationUtil.sendToService".
-              나머지 카테고리는 비어있음 — 빌트인 분류만 사용.
+              기본값: NETWORK_PREP_METHOD = "IntegrationUtil.sendToService"는 항상 적용.
+              여기에 추가한 값은 기본값에 더해집니다.
             </p>
             <CustomCategoriesEditor
               segments={MSA_EVENT_SEGMENTS}

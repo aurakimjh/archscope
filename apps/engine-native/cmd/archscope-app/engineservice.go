@@ -234,9 +234,10 @@ type JenniferProfileRequest struct {
 	Paths                     []string `json:"paths,omitempty"`
 	FallbackCorrelationToTxid bool     `json:"fallbackCorrelationToTxid,omitempty"`
 	HeaderBodyToleranceMs     int      `json:"headerBodyToleranceMs,omitempty"`
-	// NetworkPrepPatterns are case-insensitive substrings that mark
-	// an event as a "network prep" wrapper method. Empty falls back
-	// to the built-in default (IntegrationUtil.sendToService).
+	// NetworkPrepPatterns are additional case-insensitive substrings
+	// that mark an event as a "network prep" wrapper method. Built-in
+	// defaults such as IntegrationUtil.sendToService always remain
+	// active.
 	NetworkPrepPatterns []string `json:"networkPrepPatterns,omitempty"`
 	// EventCategoryPatterns extends the event classifier. Keys are
 	// JenniferEventType values; values are case-insensitive substrings.

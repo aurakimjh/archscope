@@ -73,12 +73,10 @@ type Options struct {
 	// SourceFile is stamped onto every parsed profile so a multi-file
 	// batch can attribute back to its origin without re-reading.
 	SourceFile string
-	// NetworkPrepPatterns are case-insensitive substrings that mark a
-	// METHOD line as a "network prep" wrapper (e.g.
-	// IntegrationUtil.sendToService). When the message contains any
-	// of these, the event type becomes JenniferEventNetworkPrep and
-	// the analyzer can subtract embedded EXTERNAL_CALL elapsed.
-	// Empty means "use defaults".
+	// NetworkPrepPatterns are additional case-insensitive substrings
+	// that mark a METHOD line as a "network prep" wrapper. Built-in
+	// defaults such as IntegrationUtil.sendToService always remain
+	// active; custom values extend that list.
 	NetworkPrepPatterns []string
 	// EventCategoryPatterns lets users extend the event classifier.
 	// Keys are JenniferEventType values (e.g.

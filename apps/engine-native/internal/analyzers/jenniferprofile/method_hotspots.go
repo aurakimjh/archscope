@@ -25,6 +25,7 @@ import (
 	"strings"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
+	jenniferparser "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/jenniferprofile"
 )
 
 // DefaultMethodHotspotLimit bounds how many ranked methods one scope
@@ -161,7 +162,20 @@ func MethodHotspotsWithCustomRules(
 	limit int,
 	rules []models.JenniferCustomAnalysisRule,
 ) []models.JenniferMethodHotspot {
-	return methodHotspots(p, limit, customRuleMethodHotspotExclusions(p.Body.Events, rules))
+	return methodHotspots(p, limit, methodHotspotExclusions(p.Body.Events, nil, rules))
+}
+
+// MethodHotspotsWithAnalysisRules excludes method rows that have
+// already been identified by analysis options, including Network Prep
+// wrappers and custom method rules. Excluded rows still participate in
+// parent/child interval reconstruction.
+func MethodHotspotsWithAnalysisRules(
+	p models.JenniferTransactionProfile,
+	limit int,
+	networkPrepPatterns []string,
+	rules []models.JenniferCustomAnalysisRule,
+) []models.JenniferMethodHotspot {
+	return methodHotspots(p, limit, methodHotspotExclusions(p.Body.Events, networkPrepPatterns, rules))
 }
 
 func methodHotspots(
@@ -292,6 +306,49 @@ func customRuleMethodHotspotExclusions(
 				isMethodFrameEvent(events[match.index].EventType) {
 				excluded[match.index] = struct{}{}
 			}
+		}
+	}
+	if len(excluded) == 0 {
+		return nil
+	}
+	return excluded
+}
+
+func methodHotspotExclusions(
+	events []models.JenniferProfileEvent,
+	networkPrepPatterns []string,
+	rules []models.JenniferCustomAnalysisRule,
+) map[int]struct{} {
+	excluded := map[int]struct{}{}
+	for idx := range networkPrepMethodHotspotExclusions(events, networkPrepPatterns) {
+		excluded[idx] = struct{}{}
+	}
+	for idx := range customRuleMethodHotspotExclusions(events, rules) {
+		excluded[idx] = struct{}{}
+	}
+	if len(excluded) == 0 {
+		return nil
+	}
+	return excluded
+}
+
+func networkPrepMethodHotspotExclusions(
+	events []models.JenniferProfileEvent,
+	patterns []string,
+) map[int]struct{} {
+	normalized := jenniferparser.NetworkPrepPatternsWithDefaults(patterns)
+	if len(normalized) == 0 {
+		return nil
+	}
+	excluded := map[int]struct{}{}
+	for i := range events {
+		ev := events[i]
+		if !isMethodFrameEvent(ev.EventType) || ev.ElapsedMs == nil {
+			continue
+		}
+		haystack := strings.ToLower(ev.RawMessage + "\n" + strings.Join(ev.DetailLines, "\n"))
+		if customRuleMatchAny(haystack, normalized) {
+			excluded[i] = struct{}{}
 		}
 	}
 	if len(excluded) == 0 {

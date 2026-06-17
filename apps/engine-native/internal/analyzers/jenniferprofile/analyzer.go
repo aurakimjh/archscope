@@ -75,9 +75,10 @@ type Options struct {
 	// header vs body cumulative checks.
 	HeaderBodyToleranceMs int
 	// NetworkPrepPatterns are forwarded to the parser's classifier;
-	// METHOD lines whose message contains any of these substrings
-	// (case-insensitive) become NETWORK_PREP_METHOD events. Empty
-	// means "use built-in defaults" (IntegrationUtil.sendToService).
+	// METHOD lines whose message contains a built-in or custom
+	// substring become NETWORK_PREP_METHOD events. Custom values are
+	// additive; built-in defaults such as IntegrationUtil.sendToService
+	// always remain active.
 	NetworkPrepPatterns []string
 	// EventCategoryPatterns extends the event classifier. Keys are
 	// JenniferEventType values; values are case-insensitive substrings.
@@ -224,7 +225,12 @@ func Build(files []jenniferprofile.FileResult, opts Options) models.AnalysisResu
 			totalErrors += len(p.Errors)
 			totalWarnings += len(p.Warnings)
 
-			hotspots := MethodHotspotsWithCustomRules(p, DefaultMethodHotspotLimit, opts.CustomAnalysisRules)
+			hotspots := MethodHotspotsWithAnalysisRules(
+				p,
+				DefaultMethodHotspotLimit,
+				opts.NetworkPrepPatterns,
+				opts.CustomAnalysisRules,
+			)
 			p.MethodHotspots = hotspots
 			if len(hotspots) > 0 {
 				hotspotsByTXID[p.Header.TXID] = hotspots

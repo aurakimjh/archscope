@@ -93,11 +93,37 @@ var checkQueryNormalized = map[string]struct{}{
 }
 
 // defaultNetworkPrepPatterns is the built-in marker for HTTP-client
-// wrapper methods. The user can extend or replace this via Options.
+// wrapper methods. User-supplied options extend this list; they do
+// not replace the built-ins because the UI treats Network Prep
+// patterns as additive analysis options.
 // Matched on the message text (case-insensitive substring).
 var defaultNetworkPrepPatterns = []string{
 	"integrationutil.sendtoservice",
 	"sendtoservice(",
+}
+
+// NetworkPrepPatternsWithDefaults normalizes the built-in Network Prep
+// markers plus caller-supplied additions into lower-case substring
+// patterns. Callers that need to mirror classifier decisions, such as
+// method residual ranking, use this to keep default/additive semantics
+// identical.
+func NetworkPrepPatternsWithDefaults(patterns []string) []string {
+	raw := append([]string{}, defaultNetworkPrepPatterns...)
+	raw = append(raw, patterns...)
+	out := make([]string, 0, len(raw))
+	seen := map[string]struct{}{}
+	for _, p := range raw {
+		p = strings.ToLower(strings.TrimSpace(p))
+		if p == "" {
+			continue
+		}
+		if _, ok := seen[p]; ok {
+			continue
+		}
+		seen[p] = struct{}{}
+		out = append(out, p)
+	}
+	return out
 }
 
 // classifyEvents walks the body events in priority order (§11.1) and
@@ -114,17 +140,7 @@ func classifyEvents(profile *models.JenniferTransactionProfile) {
 // forms (EXTERNAL_CALL, FETCH, etc) so a malformed user pattern can't
 // silently break matched-edge correlation.
 func classifyEventsWithOptions(profile *models.JenniferTransactionProfile, opts Options) {
-	prepPatterns := opts.NetworkPrepPatterns
-	if len(prepPatterns) == 0 {
-		prepPatterns = defaultNetworkPrepPatterns
-	}
-	prepLower := make([]string, 0, len(prepPatterns))
-	for _, p := range prepPatterns {
-		p = strings.ToLower(strings.TrimSpace(p))
-		if p != "" {
-			prepLower = append(prepLower, p)
-		}
-	}
+	prepLower := NetworkPrepPatternsWithDefaults(opts.NetworkPrepPatterns)
 	customRules := normalizeEventPatterns(opts.EventCategoryPatterns)
 
 	for i := range profile.Body.Events {
