@@ -33,10 +33,11 @@ import (
 const DefaultMethodHotspotLimit = 50
 
 // isMethodFrameEvent reports whether an event is a "method frame" we
-// rank. NETWORK_PREP_METHOD is a method that wraps an EXTERNAL_CALL;
-// its self-time is the marshalling/DNS/SSL prep, so it counts too.
+// rank. NETWORK_PREP_METHOD is intentionally not ranked here: once a
+// user classifies a wrapper as network prep, its remainder belongs to
+// the Network Prep ledger instead of the general slow-method list.
 func isMethodFrameEvent(t models.JenniferEventType) bool {
-	return t == models.JenniferEventMethod || t == models.JenniferEventNetworkPrep
+	return t == models.JenniferEventMethod
 }
 
 // isStructuralEvent marks profile boundary rows that are not real work
@@ -148,6 +149,26 @@ type methodHotspotAgg struct {
 // aggregated by normalized signature and ranked self-time descending.
 // limit <= 0 falls back to DefaultMethodHotspotLimit.
 func MethodHotspots(p models.JenniferTransactionProfile, limit int) []models.JenniferMethodHotspot {
+	return methodHotspots(p, limit, nil)
+}
+
+// MethodHotspotsWithCustomRules applies the same slow-method ranking,
+// but excludes method events already carved out by user-defined
+// method rules. Excluded events still participate in the containment
+// tree, so an enclosing method's self-time keeps subtracting them.
+func MethodHotspotsWithCustomRules(
+	p models.JenniferTransactionProfile,
+	limit int,
+	rules []models.JenniferCustomAnalysisRule,
+) []models.JenniferMethodHotspot {
+	return methodHotspots(p, limit, customRuleMethodHotspotExclusions(p.Body.Events, rules))
+}
+
+func methodHotspots(
+	p models.JenniferTransactionProfile,
+	limit int,
+	excludedIndexes map[int]struct{},
+) []models.JenniferMethodHotspot {
 	events := p.Body.Events
 	if len(events) == 0 {
 		return nil
@@ -168,6 +189,9 @@ func MethodHotspots(p models.JenniferTransactionProfile, limit int) []models.Jen
 	for i := range events {
 		ev := events[i]
 		if !isMethodFrameEvent(ev.EventType) || ev.ElapsedMs == nil {
+			continue
+		}
+		if _, excluded := excludedIndexes[i]; excluded {
 			continue
 		}
 		inclusive := *ev.ElapsedMs
@@ -248,6 +272,32 @@ func MethodHotspots(p models.JenniferTransactionProfile, limit int) []models.Jen
 		out = out[:limit]
 	}
 	return out
+}
+
+func customRuleMethodHotspotExclusions(
+	events []models.JenniferProfileEvent,
+	rules []models.JenniferCustomAnalysisRule,
+) map[int]struct{} {
+	normalized := normalizeCustomRules(rules)
+	if len(normalized) == 0 {
+		return nil
+	}
+	excluded := map[int]struct{}{}
+	for _, rule := range normalized {
+		if rule.Source != customRuleSourceMethod {
+			continue
+		}
+		for _, match := range customRuleMethodMatches(events, rule.Patterns) {
+			if match.index >= 0 && match.index < len(events) &&
+				isMethodFrameEvent(events[match.index].EventType) {
+				excluded[match.index] = struct{}{}
+			}
+		}
+	}
+	if len(excluded) == 0 {
+		return nil
+	}
+	return excluded
 }
 
 // RollUpMethodHotspots folds per-profile hotspots into a group-level

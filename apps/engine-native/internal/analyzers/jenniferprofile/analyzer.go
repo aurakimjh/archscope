@@ -224,7 +224,7 @@ func Build(files []jenniferprofile.FileResult, opts Options) models.AnalysisResu
 			totalErrors += len(p.Errors)
 			totalWarnings += len(p.Warnings)
 
-			hotspots := MethodHotspots(p, DefaultMethodHotspotLimit)
+			hotspots := MethodHotspotsWithCustomRules(p, DefaultMethodHotspotLimit, opts.CustomAnalysisRules)
 			p.MethodHotspots = hotspots
 			if len(hotspots) > 0 {
 				hotspotsByTXID[p.Header.TXID] = hotspots

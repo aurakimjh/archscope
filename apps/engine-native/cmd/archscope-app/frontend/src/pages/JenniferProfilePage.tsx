@@ -3970,6 +3970,9 @@ export function JenniferProfilePage(): JSX.Element {
                   <MsaMethodHotspots
                     rows={methodHotspotRows}
                     txids={activeMsaScope.available ? activeMsaScope.txids : null}
+                    defaultAggregationMode="sum"
+                    sampleCount={1}
+                    scopeLabel={activeMsaScope.label}
                   />
                   <ServiceNetworkTimeSummary rows={singleServiceNetworkRows} />
                   <MsaTimeline
@@ -4037,6 +4040,9 @@ export function JenniferProfilePage(): JSX.Element {
                 <MsaMethodHotspots
                   rows={methodHotspotRows}
                   txids={activeMsaScope.available ? activeMsaScope.txids : null}
+                  defaultAggregationMode="avg"
+                  sampleCount={Math.max(1, averageDrilldownGroups.length)}
+                  scopeLabel={activeMsaScope.label}
                 />
                 <ServiceNetworkTimeSummary rows={averageServiceNetworkRows} />
                 <MsaTimeline

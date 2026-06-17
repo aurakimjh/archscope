@@ -36,9 +36,10 @@ func findHotspot(hs []models.JenniferMethodHotspot, method string) (models.Jenni
 }
 
 const (
-	mMETHOD = models.JenniferEventMethod
-	mSQL    = models.JenniferEventSQLQuery
-	mEXT    = models.JenniferEventExternalCall
+	mMETHOD      = models.JenniferEventMethod
+	mNETWORKPREP = models.JenniferEventNetworkPrep
+	mSQL         = models.JenniferEventSQLQuery
+	mEXT         = models.JenniferEventExternalCall
 )
 
 // Nested SQL + external are subtracted from the enclosing method; the
@@ -102,6 +103,54 @@ func TestMethodHotspots_OverlapUnionNotSum(t *testing.T) {
 	}
 	if hs[0].ExternalMs != 70 {
 		t.Errorf("external = %d, want 70 (union)", hs[0].ExternalMs)
+	}
+}
+
+func TestMethodHotspots_ExcludesNetworkPrepMethods(t *testing.T) {
+	p := profileOf("api",
+		ev(mMETHOD, "handle()", 0, 500),
+		ev(mNETWORKPREP, "IntegrationUtil.sendToService()", 100, 300),
+		ev(mEXT, "POST /svc", 150, 250),
+	)
+	hs := MethodHotspots(p, 0)
+
+	if _, ok := findHotspot(hs, "IntegrationUtil.sendToService()"); ok {
+		t.Fatalf("network prep wrapper should not be ranked as a slow method: %+v", hs)
+	}
+	handle, ok := findHotspot(hs, "handle()")
+	if !ok {
+		t.Fatalf("handle() missing: %+v", hs)
+	}
+	if handle.SelfTimeMs != 200 || handle.ChildMethodMs != 300 {
+		t.Errorf("handle self=%d childMethod=%d, want 200/300", handle.SelfTimeMs, handle.ChildMethodMs)
+	}
+}
+
+func TestMethodHotspotsWithCustomRules_ExcludesMatchedMethodButKeepsParent(t *testing.T) {
+	p := profileOf("api",
+		ev(mMETHOD, "handle()", 0, 500),
+		ev(mMETHOD, "com.acme.RuleEngine.run()", 100, 300),
+		ev(mSQL, "SELECT ...", 150, 100),
+	)
+	rules := []models.JenniferCustomAnalysisRule{
+		{
+			Label:    "룰 자체 처리",
+			Group:    "internal",
+			Source:   "method",
+			Patterns: []string{"RuleEngine.run"},
+		},
+	}
+	hs := MethodHotspotsWithCustomRules(p, 0, rules)
+
+	if _, ok := findHotspot(hs, "com.acme.RuleEngine.run()"); ok {
+		t.Fatalf("custom-rule method should not be ranked as a slow method: %+v", hs)
+	}
+	handle, ok := findHotspot(hs, "handle()")
+	if !ok {
+		t.Fatalf("handle() missing: %+v", hs)
+	}
+	if handle.SelfTimeMs != 200 || handle.ChildMethodMs != 300 {
+		t.Errorf("handle self=%d childMethod=%d, want 200/300", handle.SelfTimeMs, handle.ChildMethodMs)
 	}
 }
 

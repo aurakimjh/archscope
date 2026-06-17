@@ -144,6 +144,10 @@ APPLICATION : /prod/order/create
 	if got := row["network_prep_ms"].(int); got != 200 {
 		t.Errorf("network_prep_ms = %d, want 200", got)
 	}
+	hotspots := res.Tables["method_hotspots"].([]map[string]any)
+	if len(hotspots) != 0 {
+		t.Fatalf("method_hotspots = %d, want 0 after excluding network prep wrappers: %+v", len(hotspots), hotspots)
+	}
 }
 
 func TestUnprofiledExternalCallsSeparatedFromMethodTime(t *testing.T) {
@@ -430,6 +434,10 @@ APPLICATION : /prod/order/create
 	}
 	if got := stats[0]["total_ms"].(int); got != 250 {
 		t.Fatalf("custom stat total_ms = %d, want 250", got)
+	}
+	hotspots := res.Tables["method_hotspots"].([]map[string]any)
+	if len(hotspots) != 0 {
+		t.Fatalf("method_hotspots = %d, want 0 after custom method rule exclusion: %+v", len(hotspots), hotspots)
 	}
 
 	groups := res.Series["guid_groups"].([]map[string]any)
