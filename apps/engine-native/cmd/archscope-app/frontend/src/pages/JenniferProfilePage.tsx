@@ -653,6 +653,7 @@ function buildMsaDrilldownScope({
       acc.fetchRows += profileMetric(row, "fetch_total_rows");
       acc.conn += profileMetric(row, "connection_acquire_cum_ms");
       acc.networkPrep += profileMetric(row, "network_prep_cum_ms");
+      acc.servletDispatch += profileMetric(row, "servlet_dispatch_cum_ms");
       return acc;
     },
     {
@@ -663,6 +664,7 @@ function buildMsaDrilldownScope({
       fetchRows: 0,
       conn: 0,
       networkPrep: 0,
+      servletDispatch: 0,
     },
   );
   const networkMs = scopedMatchedEdges.reduce(
@@ -686,6 +688,7 @@ function buildMsaDrilldownScope({
     totals.fetch +
     totals.conn +
     totals.networkPrep +
+    totals.servletDispatch +
     networkMs +
     unprofiledMs;
   const methodTime = Math.max(0, rootResponse - covered);
@@ -724,6 +727,7 @@ function buildMsaDrilldownScope({
         network_call_ms: networkMs,
         unprofiled_external_call_ms: unprofiledMs,
         network_prep_ms: totals.networkPrep,
+        servlet_dispatch_ms: totals.servletDispatch,
         connection_acquire_ms: totals.conn,
         method_time_ms: methodTime,
         method_time_ratio: rootResponse > 0 ? methodTime / rootResponse : 0,
@@ -3375,13 +3379,42 @@ export function JenniferProfilePage(): JSX.Element {
     if (typeof meta.fallbackToTxid === "boolean") {
       setFallbackToTxid(meta.fallbackToTxid);
     }
-    if (
-      meta.eventCategoryPatterns &&
-      typeof meta.eventCategoryPatterns === "object"
-    ) {
-      setEventCategoryPatterns(
-        meta.eventCategoryPatterns as CategoryRules,
-      );
+    if (meta.eventCategoryPatterns && typeof meta.eventCategoryPatterns === "object") {
+      const restoredCategories: CategoryRules = {
+        ...(meta.eventCategoryPatterns as CategoryRules),
+      };
+      const restoredPrep = normalizeStringList(meta.networkPrepPatterns);
+      if (restoredPrep.length > 0) {
+        restoredCategories.NETWORK_PREP_METHOD = Array.from(
+          new Set([
+            ...(restoredCategories.NETWORK_PREP_METHOD ?? []),
+            ...restoredPrep,
+          ]),
+        );
+      }
+      const restoredDispatch = normalizeStringList(meta.servletDispatchPatterns);
+      if (restoredDispatch.length > 0) {
+        restoredCategories.SERVLET_DISPATCH_METHOD = Array.from(
+          new Set([
+            ...(restoredCategories.SERVLET_DISPATCH_METHOD ?? []),
+            ...restoredDispatch,
+          ]),
+        );
+      }
+      setEventCategoryPatterns(restoredCategories);
+    } else {
+      const restoredPrep = normalizeStringList(meta.networkPrepPatterns);
+      const restoredDispatch = normalizeStringList(meta.servletDispatchPatterns);
+      if (restoredPrep.length > 0 || restoredDispatch.length > 0) {
+        setEventCategoryPatterns({
+          ...(restoredPrep.length > 0
+            ? { NETWORK_PREP_METHOD: restoredPrep }
+            : {}),
+          ...(restoredDispatch.length > 0
+            ? { SERVLET_DISPATCH_METHOD: restoredDispatch }
+            : {}),
+        });
+      }
     }
     if (Array.isArray(meta.customAnalysisRules)) {
       setCustomAnalysisRules(

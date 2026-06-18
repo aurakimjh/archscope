@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
+	jenniferparser "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/jenniferprofile"
 )
 
 // service() wraps controller() which wraps SQL. Self-time of the servlet
@@ -39,5 +40,48 @@ func TestServletDispatchExcludedFromHotspots(t *testing.T) {
 	}
 	if _, ok := findHotspot(hs, "com.app.Controller.handle()"); !ok {
 		t.Fatalf("controller business method should still be ranked")
+	}
+}
+
+func TestServletDispatchProjectedToResult(t *testing.T) {
+	p := servletDispatchProfile()
+	p.Header.GUID = "guid-svc"
+	p.Header.ResponseTimeMs = ip(100)
+
+	res := Build([]jenniferparser.FileResult{{
+		SourceFile: "profile.txt",
+		Profiles:   []models.JenniferTransactionProfile{p},
+	}}, Options{})
+
+	if got := res.Summary["servlet_dispatch_cum_ms"].(int); got != 30 {
+		t.Fatalf("summary servlet_dispatch_cum_ms = %d, want 30", got)
+	}
+	if got := res.Summary["servlet_dispatch_count"].(int); got != 1 {
+		t.Fatalf("summary servlet_dispatch_count = %d, want 1", got)
+	}
+
+	profileRows := res.Tables["profiles"].([]map[string]any)
+	if len(profileRows) != 1 {
+		t.Fatalf("profile rows = %d, want 1", len(profileRows))
+	}
+	bodyMetrics := profileRows[0]["body_metrics"].(map[string]any)
+	if got := bodyMetrics["servlet_dispatch_cum_ms"].(int); got != 30 {
+		t.Fatalf("profile servlet_dispatch_cum_ms = %d, want 30", got)
+	}
+	if got := bodyMetrics["servlet_dispatch_count"].(int); got != 1 {
+		t.Fatalf("profile servlet_dispatch_count = %d, want 1", got)
+	}
+
+	groups := res.Series["guid_groups"].([]map[string]any)
+	if len(groups) != 1 {
+		t.Fatalf("guid groups = %d, want 1", len(groups))
+	}
+	metrics := groups[0]["metrics"].(map[string]any)
+	breakdown := metrics["response_time_breakdown"].(map[string]any)
+	if got := breakdown["servlet_dispatch_ms"].(int); got != 30 {
+		t.Fatalf("breakdown servlet_dispatch_ms = %d, want 30", got)
+	}
+	if got := breakdown["method_time_ms"].(int); got != 30 {
+		t.Fatalf("breakdown method_time_ms = %d, want 30", got)
 	}
 }

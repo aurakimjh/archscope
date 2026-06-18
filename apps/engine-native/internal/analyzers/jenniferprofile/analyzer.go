@@ -227,6 +227,8 @@ func Build(files []jenniferprofile.FileResult, opts Options) models.AnalysisResu
 			totals.BodyMetrics.NetworkPrepMethodCumMs += metrics.NetworkPrepMethodCumMs
 			totals.BodyMetrics.NetworkPrepMethodCount += metrics.NetworkPrepMethodCount
 			totals.BodyMetrics.NetworkPrepCumMs += metrics.NetworkPrepCumMs
+			totals.BodyMetrics.ServletDispatchCumMs += metrics.ServletDispatchCumMs
+			totals.BodyMetrics.ServletDispatchCount += metrics.ServletDispatchCount
 
 			totalErrors += len(p.Errors)
 			totalWarnings += len(p.Warnings)
@@ -331,6 +333,8 @@ func Build(files []jenniferprofile.FileResult, opts Options) models.AnalysisResu
 		"network_prep_cum_ms":        totals.BodyMetrics.NetworkPrepCumMs,
 		"network_prep_method_cum_ms": totals.BodyMetrics.NetworkPrepMethodCumMs,
 		"network_prep_method_count":  totals.BodyMetrics.NetworkPrepMethodCount,
+		"servlet_dispatch_cum_ms":    totals.BodyMetrics.ServletDispatchCumMs,
+		"servlet_dispatch_count":     totals.BodyMetrics.ServletDispatchCount,
 		"connection_acquire_cum_ms":  totals.BodyMetrics.ConnectionAcquireCumMs,
 		// MVP2 MSA roll-up.
 		"guid_group_count":                  len(guidGroups),
@@ -618,6 +622,7 @@ func guidGroupToRow(g models.JenniferGuidGroup) map[string]any {
 				"network_call_ms":             g.Metrics.ResponseTimeBreakdown.NetworkCallMs,
 				"unprofiled_external_call_ms": g.Metrics.ResponseTimeBreakdown.UnprofiledExternalCallMs,
 				"network_prep_ms":             g.Metrics.ResponseTimeBreakdown.NetworkPrepMs,
+				"servlet_dispatch_ms":         g.Metrics.ResponseTimeBreakdown.ServletDispatchMs,
 				"connection_acquire_ms":       g.Metrics.ResponseTimeBreakdown.ConnectionAcquireMs,
 				"custom_slices":               responseTimeCustomSlicesToRows(g.Metrics.ResponseTimeBreakdown.CustomSlices),
 				"method_time_ms":              g.Metrics.ResponseTimeBreakdown.MethodTimeMs,
@@ -747,6 +752,8 @@ func profileToRow(p models.JenniferTransactionProfile, m models.JenniferBodyMetr
 			"network_prep_method_cum_ms": m.NetworkPrepMethodCumMs,
 			"network_prep_method_count":  m.NetworkPrepMethodCount,
 			"network_prep_cum_ms":        m.NetworkPrepCumMs,
+			"servlet_dispatch_cum_ms":    m.ServletDispatchCumMs,
+			"servlet_dispatch_count":     m.ServletDispatchCount,
 			"connection_acquire_cum_ms":  m.ConnectionAcquireCumMs,
 			"connection_acquire_count":   m.ConnectionAcquireCount,
 		},
