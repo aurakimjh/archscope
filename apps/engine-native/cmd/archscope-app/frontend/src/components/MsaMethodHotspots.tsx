@@ -6,6 +6,7 @@
 // 계산해 `tables.method_hotspots` 로 내려주면, 이 패널은 현재 드릴다운 스코프
 // (txids)에 맞춰 (application, method) 단위로 재집계하여 보여준다.
 
+import { BarChart3, Table2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { useHelpText } from "@/help/helpCatalog";
@@ -42,6 +43,7 @@ type Aggregated = {
 };
 
 type AggregationMode = "sum" | "avg";
+type ViewMode = "chart" | "table";
 
 type MsaMethodHotspotsProps = {
   /** Raw `tables.method_hotspots` rows (per-profile, per-method). */
@@ -97,6 +99,10 @@ function formatCount(value: number): string {
   const digits =
     value > 0 && value < 1 ? 2 : Number.isInteger(value) || value >= 10 ? 0 : 1;
   return value.toLocaleString(undefined, { maximumFractionDigits: digits });
+}
+
+function formatNumber(value: number): string {
+  return Math.round(value).toLocaleString();
 }
 
 function aggregate(
@@ -190,6 +196,7 @@ export function MsaMethodHotspots({
   scopeLabel,
 }: MsaMethodHotspotsProps) {
   const [expanded, setExpanded] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>("chart");
   const [aggregationMode, setAggregationMode] = useState<AggregationMode>(
     defaultAggregationMode,
   );
@@ -246,6 +253,28 @@ export function MsaMethodHotspots({
                 </Button>
               </div>
             ) : null}
+            <div className="flex items-center gap-1 rounded-md border border-border bg-muted/20 p-1">
+              <Button
+                type="button"
+                size="sm"
+                variant={viewMode === "chart" ? "default" : "outline"}
+                onClick={() => setViewMode("chart")}
+                title="차트 보기"
+              >
+                <BarChart3 className="h-3.5 w-3.5" />
+                차트
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant={viewMode === "table" ? "default" : "outline"}
+                onClick={() => setViewMode("table")}
+                title="표 보기"
+              >
+                <Table2 className="h-3.5 w-3.5" />
+                표
+              </Button>
+            </div>
             <div className="rounded-md border border-border bg-muted/20 px-3 py-2 text-right">
               <div className="text-[10px] font-medium text-muted-foreground">
                 {valueLabel} 기준 · {scopeSummary}
@@ -267,118 +296,218 @@ export function MsaMethodHotspots({
           </p>
         ) : (
           <>
-            <div className="mb-2 flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-muted-foreground">
-              {Object.entries(CATEGORY).map(([k, c]) => (
-                <span key={k} className="flex items-center gap-1">
-                  <span
-                    className="inline-block h-2 w-2 rounded-sm"
-                    style={{ backgroundColor: c.color }}
-                  />
-                  {c.label}
-                </span>
-              ))}
-            </div>
-            <div className="mb-1 hidden items-center gap-2 text-[10px] text-muted-foreground sm:flex">
-              <span className="w-5 shrink-0" />
-              <span className="min-w-0 flex-1">응답시간 구성</span>
-              <span className="w-24 shrink-0 text-center">미분류 시간</span>
-              <span className="w-[8.5rem] shrink-0 text-right">
-                미분류 {valueLabel}
-              </span>
-            </div>
-
-            <ol className="space-y-1.5">
-              {shown.map((a, i) => {
-                const displaySelf = a.self / divisor;
-                const selfPct = maxSelf > 0 ? (displaySelf / maxSelf) * 100 : 0;
-                const selfRatio = a.total > 0 ? (a.self / a.total) * 100 : 0;
-                const perCallSelf = a.calls > 0 ? a.self / a.calls : 0;
-                const averageCalls = a.calls / divisor;
-                const method = methodDisplay(a.method);
-                const signatureTitle = `${a.application ? a.application + " · " : ""}${a.method}`;
-                return (
-                  <li
-                    key={`${a.application}${KEY_DELIMITER}${a.method}`}
-                    className="flex items-start gap-2 text-xs"
-                    title={signatureTitle}
-                  >
-                    <span className="w-5 shrink-0 text-right tabular-nums text-muted-foreground">
-                      {i + 1}
+            {viewMode === "table" ? (
+              <div className="overflow-x-auto rounded-md border border-border">
+                <table className="min-w-[1120px] w-full text-xs">
+                  <thead>
+                    <tr className="border-b border-border bg-muted/40 text-[11px] text-muted-foreground">
+                      <th className="px-3 py-2 text-right font-medium">#</th>
+                      <th className="px-3 py-2 text-left font-medium">Application</th>
+                      <th className="px-3 py-2 text-left font-medium">Method</th>
+                      <th className="px-3 py-2 text-right font-medium">Calls</th>
+                      <th className="px-3 py-2 text-right font-medium">
+                        미분류 {valueLabel} ms
+                      </th>
+                      <th className="px-3 py-2 text-right font-medium">
+                        Total {valueLabel} ms
+                      </th>
+                      <th className="px-3 py-2 text-right font-medium">
+                        Child method {valueLabel} ms
+                      </th>
+                      <th className="px-3 py-2 text-right font-medium">
+                        SQL {valueLabel} ms
+                      </th>
+                      <th className="px-3 py-2 text-right font-medium">
+                        External {valueLabel} ms
+                      </th>
+                      <th className="px-3 py-2 text-right font-medium">
+                        Other {valueLabel} ms
+                      </th>
+                      <th className="px-3 py-2 text-right font-medium">Max self ms</th>
+                      <th className="px-3 py-2 text-right font-medium">Self %</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {shown.map((a, i) => {
+                      const displaySelf = a.self / divisor;
+                      const displayTotal = a.total / divisor;
+                      const displayChild = a.childMethod / divisor;
+                      const displaySql = a.sql / divisor;
+                      const displayExternal = a.external / divisor;
+                      const displayOther = a.other / divisor;
+                      const displayCalls = a.calls / divisor;
+                      const selfRatio = a.total > 0 ? (a.self / a.total) * 100 : 0;
+                      return (
+                        <tr
+                          key={`${a.application}${KEY_DELIMITER}${a.method}`}
+                          className="border-b border-border last:border-0"
+                        >
+                          <td className="px-3 py-2 text-right tabular-nums text-muted-foreground">
+                            {i + 1}
+                          </td>
+                          <td className="max-w-[180px] px-3 py-2 font-mono">
+                            <span className="block truncate" title={a.application}>
+                              {a.application || "-"}
+                            </span>
+                          </td>
+                          <td className="max-w-[420px] px-3 py-2 font-mono">
+                            <span className="block truncate" title={a.method}>
+                              {a.method}
+                            </span>
+                          </td>
+                          <td className="px-3 py-2 text-right tabular-nums">
+                            {formatCount(displayCalls)}
+                          </td>
+                          <td className="px-3 py-2 text-right tabular-nums">
+                            {formatNumber(displaySelf)}
+                          </td>
+                          <td className="px-3 py-2 text-right tabular-nums">
+                            {formatNumber(displayTotal)}
+                          </td>
+                          <td className="px-3 py-2 text-right tabular-nums">
+                            {formatNumber(displayChild)}
+                          </td>
+                          <td className="px-3 py-2 text-right tabular-nums">
+                            {formatNumber(displaySql)}
+                          </td>
+                          <td className="px-3 py-2 text-right tabular-nums">
+                            {formatNumber(displayExternal)}
+                          </td>
+                          <td className="px-3 py-2 text-right tabular-nums">
+                            {formatNumber(displayOther)}
+                          </td>
+                          <td className="px-3 py-2 text-right tabular-nums">
+                            {formatNumber(a.maxSelf)}
+                          </td>
+                          <td className="px-3 py-2 text-right tabular-nums">
+                            {selfRatio.toFixed(0)}%
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <>
+                <div className="mb-2 flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-muted-foreground">
+                  {Object.entries(CATEGORY).map(([k, c]) => (
+                    <span key={k} className="flex items-center gap-1">
+                      <span
+                        className="inline-block h-2 w-2 rounded-sm"
+                        style={{ backgroundColor: c.color }}
+                      />
+                      {c.label}
                     </span>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex min-w-0 items-center gap-1">
-                        {a.application ? (
-                          <span className="shrink-0 rounded bg-muted px-1 text-[10px] text-muted-foreground">
-                            {a.application}
-                          </span>
-                        ) : null}
-                        <span className="min-w-0 truncate font-medium" title={a.method}>
-                          {method.name}
+                  ))}
+                </div>
+                <div className="mb-1 hidden items-center gap-2 text-[10px] text-muted-foreground sm:flex">
+                  <span className="w-5 shrink-0" />
+                  <span className="min-w-0 flex-1">응답시간 구성</span>
+                  <span className="w-24 shrink-0 text-center">미분류 시간</span>
+                  <span className="w-[8.5rem] shrink-0 text-right">
+                    미분류 {valueLabel}
+                  </span>
+                </div>
+
+                <ol className="space-y-1.5">
+                  {shown.map((a, i) => {
+                    const displaySelf = a.self / divisor;
+                    const selfPct =
+                      maxSelf > 0 ? (displaySelf / maxSelf) * 100 : 0;
+                    const selfRatio = a.total > 0 ? (a.self / a.total) * 100 : 0;
+                    const perCallSelf = a.calls > 0 ? a.self / a.calls : 0;
+                    const averageCalls = a.calls / divisor;
+                    const method = methodDisplay(a.method);
+                    const signatureTitle = `${a.application ? a.application + " · " : ""}${a.method}`;
+                    return (
+                      <li
+                        key={`${a.application}${KEY_DELIMITER}${a.method}`}
+                        className="flex items-start gap-2 text-xs"
+                        title={signatureTitle}
+                      >
+                        <span className="w-5 shrink-0 text-right tabular-nums text-muted-foreground">
+                          {i + 1}
                         </span>
-                        <span
-                          className="shrink-0 text-[10px] text-muted-foreground"
-                          title={
-                            effectiveMode === "avg"
-                              ? `총 ${a.calls.toLocaleString()}회 호출`
-                              : undefined
-                          }
-                        >
-                          {effectiveMode === "avg"
-                            ? `평균 ${formatCount(averageCalls)}회/트랜잭션`
-                            : `총 ${a.calls.toLocaleString()}회`}
-                        </span>
-                      </div>
-                      {method.qualifier ? (
-                        <div
-                          className="mt-0.5 truncate text-[10px] font-normal text-muted-foreground"
-                          title={method.qualifier}
-                        >
-                          {method.qualifier}
-                        </div>
-                      ) : null}
-                      <div className="mt-1 flex items-center gap-2">
                         <div className="min-w-0 flex-1">
-                          <HotspotBreakdownBar
-                            a={a}
-                            divisor={divisor}
-                            valueLabel={valueLabel}
-                          />
-                        </div>
-                        <div className="hidden w-24 shrink-0 sm:block">
-                          <div
-                            className="h-2 w-full overflow-hidden rounded-sm bg-muted"
-                            title={`미분류 ${valueLabel} ${formatMs(displaySelf)}`}
-                          >
+                          <div className="flex min-w-0 items-center gap-1">
+                            {a.application ? (
+                              <span className="shrink-0 rounded bg-muted px-1 text-[10px] text-muted-foreground">
+                                {a.application}
+                              </span>
+                            ) : null}
+                            <span
+                              className="min-w-0 truncate font-medium"
+                              title={a.method}
+                            >
+                              {method.name}
+                            </span>
+                            <span
+                              className="shrink-0 text-[10px] text-muted-foreground"
+                              title={
+                                effectiveMode === "avg"
+                                  ? `총 ${a.calls.toLocaleString()}회 호출`
+                                  : undefined
+                              }
+                            >
+                              {effectiveMode === "avg"
+                                ? `평균 ${formatCount(averageCalls)}회/트랜잭션`
+                                : `총 ${a.calls.toLocaleString()}회`}
+                            </span>
+                          </div>
+                          {method.qualifier ? (
                             <div
-                              className="h-full rounded-sm"
-                              style={{
-                                width: `${Math.max(selfPct, 2)}%`,
-                                backgroundColor: CATEGORY.self.color,
-                              }}
-                            />
+                              className="mt-0.5 truncate text-[10px] font-normal text-muted-foreground"
+                              title={method.qualifier}
+                            >
+                              {method.qualifier}
+                            </div>
+                          ) : null}
+                          <div className="mt-1 flex items-center gap-2">
+                            <div className="min-w-0 flex-1">
+                              <HotspotBreakdownBar
+                                a={a}
+                                divisor={divisor}
+                                valueLabel={valueLabel}
+                              />
+                            </div>
+                            <div className="hidden w-24 shrink-0 sm:block">
+                              <div
+                                className="h-2 w-full overflow-hidden rounded-sm bg-muted"
+                                title={`미분류 ${valueLabel} ${formatMs(displaySelf)}`}
+                              >
+                                <div
+                                  className="h-full rounded-sm"
+                                  style={{
+                                    width: `${Math.max(selfPct, 2)}%`,
+                                    backgroundColor: CATEGORY.self.color,
+                                  }}
+                                />
+                              </div>
+                            </div>
+                            <span className="w-[8.5rem] shrink-0 text-right tabular-nums">
+                              <span className="block font-semibold">
+                                {formatMs(displaySelf)}
+                              </span>
+                              <span className="block text-[10px] text-muted-foreground">
+                                {valueLabel} 미분류 · 메소드 내{" "}
+                                {selfRatio.toFixed(0)}%
+                              </span>
+                              {a.calls > 1 ? (
+                                <span className="block text-[10px] text-muted-foreground">
+                                  호출당 {formatMs(perCallSelf)} · max{" "}
+                                  {formatMs(a.maxSelf)}
+                                </span>
+                              ) : null}
+                            </span>
                           </div>
                         </div>
-                        <span className="w-[8.5rem] shrink-0 text-right tabular-nums">
-                          <span className="block font-semibold">
-                            {formatMs(displaySelf)}
-                          </span>
-                          <span className="block text-[10px] text-muted-foreground">
-                            {valueLabel} 미분류 · 메소드 내{" "}
-                            {selfRatio.toFixed(0)}%
-                          </span>
-                          {a.calls > 1 ? (
-                            <span className="block text-[10px] text-muted-foreground">
-                              호출당 {formatMs(perCallSelf)} · max{" "}
-                              {formatMs(a.maxSelf)}
-                            </span>
-                          ) : null}
-                        </span>
-                      </div>
-                    </div>
-                  </li>
-                );
-              })}
-            </ol>
+                      </li>
+                    );
+                  })}
+                </ol>
+              </>
+            )}
 
             {agg.length > limit ? (
               <button

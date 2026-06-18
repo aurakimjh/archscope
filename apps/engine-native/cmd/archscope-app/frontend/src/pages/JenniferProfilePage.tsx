@@ -142,6 +142,7 @@ type Selection = {
 
 type MsaTimelineMode = "single" | "average";
 type MsaTimelineLayout = "grouped" | "individual";
+type ApiCallValueMode = "sum" | "avg";
 type CustomAnalysisRuleSource =
   | "profile_application"
   | "method"
@@ -543,7 +544,7 @@ function buildMsaDrilldownScope({
       profileRows,
       timelineEdges: wholeTimelineEdges,
       topologyEdges: group?.call_graph ?? [],
-      serviceNetworkEdges: groupEdges,
+      serviceNetworkEdges: wholeTimelineEdges,
       slowSqlRows,
       networkTimeByTxid: buildNetworkTimeByTxid([group]),
       selectedValue: "__whole__",
@@ -566,7 +567,7 @@ function buildMsaDrilldownScope({
       profileRows,
       timelineEdges: wholeTimelineEdges,
       topologyEdges: group?.call_graph ?? [],
-      serviceNetworkEdges: groupEdges,
+      serviceNetworkEdges: wholeTimelineEdges,
       slowSqlRows,
       networkTimeByTxid: buildNetworkTimeByTxid([group]),
       selectedValue: "__whole__",
@@ -608,13 +609,17 @@ function buildMsaDrilldownScope({
       edge.match_status !== "MATCHED" &&
       subtreeTxids.has(txidOf(edge?.caller_txid)),
   );
-  const scopedServiceNetworkEdges = groupEdges.filter((edge) => {
+  const scopedSupplementalEdges = groupEdges.filter((edge) => {
     const caller = txidOf(edge?.caller_txid);
     if (!caller || !subtreeTxids.has(caller)) return false;
     if (edge?.match_status !== "MATCHED") return true;
     const callee = txidOf(edge?.callee_txid);
     return !callee || subtreeTxids.has(callee);
   });
+  const scopedServiceNetworkEdges = uniqueTimelineEdges([
+    ...scopedMatchedEdges,
+    ...scopedSupplementalEdges,
+  ]);
   const scopedTimelineEdges = uniqueTimelineEdges([
     ...scopedMatchedEdges,
     ...scopedUnmatchedEdges,
@@ -1379,11 +1384,31 @@ function UnprofiledExternalCallGroupsTable({ rows }: { rows: any[] }): JSX.Eleme
   );
 }
 
-function ApiCallAnalysisPanel({ edges }: { edges: any[] }): JSX.Element {
+function ApiCallAnalysisPanel({
+  edges,
+  scopeLabel,
+  valueMode = "sum",
+  sampleCount = 1,
+}: {
+  edges: any[];
+  scopeLabel?: string;
+  valueMode?: ApiCallValueMode;
+  sampleCount?: number;
+}): JSX.Element {
   const { locale } = useI18n();
   const [sortKey, setSortKey] = useState<ApiCallSortKey>("apiTotalMs");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
-  const rows = useMemo(() => aggregateApiCalls(edges), [edges]);
+  const normalizedSampleCount = Math.max(1, Math.round(sampleCount || 1));
+  const effectiveValueMode: ApiCallValueMode =
+    valueMode === "avg" && normalizedSampleCount > 1 ? "avg" : "sum";
+  const rows = useMemo(
+    () =>
+      aggregateApiCalls(edges, {
+        valueMode: effectiveValueMode,
+        sampleCount: normalizedSampleCount,
+      }),
+    [edges, effectiveValueMode, normalizedSampleCount],
+  );
   const sortedRows = useMemo(
     () => sortApiCallRows(rows, sortKey, sortDirection),
     [rows, sortDirection, sortKey],
@@ -1405,6 +1430,8 @@ function ApiCallAnalysisPanel({ edges }: { edges: any[] }): JSX.Element {
     (best, row) => (!best || row.apiP95Ms > best.apiP95Ms ? row : best),
     undefined,
   );
+  const isAverageView = effectiveValueMode === "avg";
+  const countUnit = isAverageView ? "calls/tx" : "calls";
 
   const updateSort = (nextKey: ApiCallSortKey) => {
     if (nextKey === sortKey) {
@@ -1451,6 +1478,14 @@ function ApiCallAnalysisPanel({ edges }: { edges: any[] }): JSX.Element {
           EXTERNAL_CALL 원본 URL을 API 기준으로 묶고 API 수행시간과 네트워크
           시간을 함께 집계합니다.
         </p>
+        {scopeLabel ? (
+          <div className="mt-2 inline-flex w-fit rounded-md border border-border bg-muted/20 px-2 py-1 text-[11px] text-muted-foreground">
+            {scopeLabel}
+            {isAverageView
+              ? ` · 평균 트랜잭션 기준 · n=${normalizedSampleCount.toLocaleString()}`
+              : " · 단일/선택 범위 기준"}
+          </div>
+        ) : null}
       </CardHeader>
       <CardContent className="p-0">
         {rows.length === 0 ? (
@@ -1469,7 +1504,9 @@ function ApiCallAnalysisPanel({ edges }: { edges: any[] }): JSX.Element {
                 label="최다 호출 API"
                 row={mostCalled}
                 value={
-                  mostCalled ? `${mostCalled.count.toLocaleString()} calls` : "—"
+                  mostCalled
+                    ? `${formatCountValue(mostCalled.count)} ${countUnit}`
+                    : "—"
                 }
               />
               <ApiCallHighlight
@@ -1494,10 +1531,10 @@ function ApiCallAnalysisPanel({ edges }: { edges: any[] }): JSX.Element {
                       {sortHeader("Target", "target")}
                     </th>
                     <th className="px-3 py-2 text-right font-medium">
-                      {sortHeader("Calls", "count", "right")}
+                      {sortHeader(isAverageView ? "Calls / tx" : "Calls", "count", "right")}
                     </th>
                     <th className="px-3 py-2 text-right font-medium">
-                      {sortHeader("API cum", "apiTotalMs", "right")}
+                      {sortHeader(isAverageView ? "API cum / tx" : "API cum", "apiTotalMs", "right")}
                     </th>
                     <th className="px-3 py-2 text-right font-medium">
                       {sortHeader("API avg", "apiAvgMs", "right")}
@@ -1512,7 +1549,11 @@ function ApiCallAnalysisPanel({ edges }: { edges: any[] }): JSX.Element {
                       {sortHeader("Callee avg", "calleeAvgMs", "right")}
                     </th>
                     <th className="px-3 py-2 text-right font-medium">
-                      {sortHeader("Network cum", "networkTotalMs", "right")}
+                      {sortHeader(
+                        isAverageView ? "Network cum / tx" : "Network cum",
+                        "networkTotalMs",
+                        "right",
+                      )}
                     </th>
                     <th className="px-3 py-2 text-right font-medium">
                       {sortHeader("Network p95", "networkP95Ms", "right")}
@@ -1538,7 +1579,7 @@ function ApiCallAnalysisPanel({ edges }: { edges: any[] }): JSX.Element {
                         <span className="block truncate">{row.target || "—"}</span>
                       </td>
                       <td className="px-3 py-2 text-right tabular-nums">
-                        {row.count.toLocaleString()}
+                        {formatCountValue(row.count)}
                       </td>
                       <td className="px-3 py-2 text-right tabular-nums">
                         {Math.round(row.apiTotalMs).toLocaleString()}
@@ -1962,7 +2003,13 @@ function CustomRuleStatsPanel({ rows }: { rows: any[] }): JSX.Element | null {
   );
 }
 
-function aggregateApiCalls(edges: any[]): ApiCallAggregate[] {
+function aggregateApiCalls(
+  edges: any[],
+  options: {
+    valueMode?: ApiCallValueMode;
+    sampleCount?: number;
+  } = {},
+): ApiCallAggregate[] {
   type State = {
     apiUrl: string;
     target: string;
@@ -1971,11 +2018,21 @@ function aggregateApiCalls(edges: any[]): ApiCallAggregate[] {
     count: number;
     matchedCount: number;
     unmatchedCount: number;
+    apiTotal: number;
+    apiMetricCount: number;
+    calleeTotal: number;
+    calleeMetricCount: number;
+    networkTotal: number;
+    networkMetricCount: number;
     apiValues: number[];
     calleeValues: number[];
     networkValues: number[];
   };
   const byApi = new Map<string, State>();
+  const divisor =
+    options.valueMode === "avg"
+      ? Math.max(1, Math.round(options.sampleCount || 1))
+      : 1;
   for (const edge of edges) {
     const apiUrl = String(
       edge?.external_call_url ??
@@ -1998,6 +2055,12 @@ function aggregateApiCalls(edges: any[]): ApiCallAggregate[] {
         count: 0,
         matchedCount: 0,
         unmatchedCount: 0,
+        apiTotal: 0,
+        apiMetricCount: 0,
+        calleeTotal: 0,
+        calleeMetricCount: 0,
+        networkTotal: 0,
+        networkMetricCount: 0,
         apiValues: [],
         calleeValues: [],
         networkValues: [],
@@ -2007,45 +2070,81 @@ function aggregateApiCalls(edges: any[]): ApiCallAggregate[] {
     const callee = String(edge?.callee_application ?? "").trim();
     if (caller) state.callers.add(caller);
     if (callee) state.callees.add(callee);
-    state.count += 1;
+    const metricCount = Math.max(
+      1,
+      Math.round(
+        toFiniteNumber(edge?.call_count) ??
+          statValue(edge?.external_call_elapsed_ms, "count") ??
+          1,
+      ),
+    );
+    state.count += metricCount;
     if (edge?.match_status === "MATCHED") {
-      state.matchedCount += 1;
+      state.matchedCount += metricCount;
     } else {
-      state.unmatchedCount += 1;
+      state.unmatchedCount += metricCount;
     }
-    state.apiValues.push(Math.max(0, toFiniteNumber(edge?.external_call_elapsed_ms) ?? 0));
-    const calleeResponse = toFiniteNumber(edge?.callee_response_time_ms);
+    const apiElapsed =
+      toFiniteNumber(edge?.external_call_elapsed_ms) ??
+      statValue(edge?.external_call_elapsed_ms, "avg");
+    if (apiElapsed != null) {
+      const value = Math.max(0, apiElapsed);
+      state.apiTotal +=
+        toFiniteNumber(edge?.external_call_elapsed_ms?.total) ??
+        value * metricCount;
+      state.apiMetricCount += metricCount;
+      state.apiValues.push(value);
+    }
+    const calleeResponse =
+      toFiniteNumber(edge?.callee_response_time_ms) ??
+      statValue(edge?.callee_response_time_ms, "avg");
     if (calleeResponse != null) {
-      state.calleeValues.push(Math.max(0, calleeResponse));
+      const value = Math.max(0, calleeResponse);
+      state.calleeTotal +=
+        toFiniteNumber(edge?.callee_response_time_ms?.total) ??
+        toFiniteNumber(edge?.total_callee_response_time_ms) ??
+        value * metricCount;
+      state.calleeMetricCount += metricCount;
+      state.calleeValues.push(value);
     }
     const network =
       toFiniteNumber(edge?.adjusted_network_gap_ms) ??
       toFiniteNumber(edge?.network_gap_ms) ??
-      toFiniteNumber(edge?.raw_network_gap_ms);
+      toFiniteNumber(edge?.raw_network_gap_ms) ??
+      statValue(edge?.adjusted_network_gap_ms, "avg") ??
+      statValue(edge?.network_gap_ms, "avg") ??
+      statValue(edge?.raw_network_gap_ms, "avg");
     if (network != null) {
-      state.networkValues.push(Math.max(0, network));
+      const value = Math.max(0, network);
+      state.networkTotal +=
+        toFiniteNumber(edge?.adjusted_network_gap_ms?.total) ??
+        toFiniteNumber(edge?.network_gap_ms?.total) ??
+        toFiniteNumber(edge?.raw_network_gap_ms?.total) ??
+        toFiniteNumber(edge?.total_network_gap_ms) ??
+        value * metricCount;
+      state.networkMetricCount += metricCount;
+      state.networkValues.push(value);
     }
     byApi.set(key, state);
   }
   return Array.from(byApi.values()).map((state) => {
-    const apiTotalMs = sumNumbers(state.apiValues);
-    const networkTotalMs = sumNumbers(state.networkValues);
-    const calleeTotalMs = sumNumbers(state.calleeValues);
+    const apiTotalMs = state.apiTotal / divisor;
+    const networkTotalMs = state.networkTotal / divisor;
     return {
       apiUrl: state.apiUrl,
       target: state.target,
       callers: compactLabels(state.callers),
       callees: compactLabels(state.callees),
-      count: state.count,
-      matchedCount: state.matchedCount,
-      unmatchedCount: state.unmatchedCount,
+      count: state.count / divisor,
+      matchedCount: state.matchedCount / divisor,
+      unmatchedCount: state.unmatchedCount / divisor,
       apiTotalMs,
-      apiAvgMs: apiTotalMs / Math.max(1, state.apiValues.length),
+      apiAvgMs: state.apiTotal / Math.max(1, state.apiMetricCount),
       apiP95Ms: percentile(state.apiValues, 95),
       apiMaxMs: Math.max(0, ...state.apiValues),
-      calleeAvgMs: calleeTotalMs / Math.max(1, state.calleeValues.length),
+      calleeAvgMs: state.calleeTotal / Math.max(1, state.calleeMetricCount),
       networkTotalMs,
-      networkAvgMs: networkTotalMs / Math.max(1, state.networkValues.length),
+      networkAvgMs: state.networkTotal / Math.max(1, state.networkMetricCount),
       networkP95Ms: percentile(state.networkValues, 95),
       networkMaxMs: Math.max(0, ...state.networkValues),
     };
@@ -2114,8 +2213,11 @@ function percentile(values: number[], pct: number): number {
   return finite[lower] * (1 - weight) + finite[upper] * weight;
 }
 
-function sumNumbers(values: number[]): number {
-  return values.reduce((sum, value) => sum + (Number.isFinite(value) ? value : 0), 0);
+function formatCountValue(value: number): string {
+  const finite = Number.isFinite(value) ? value : 0;
+  const maximumFractionDigits =
+    finite > 0 && finite < 10 && !Number.isInteger(finite) ? 1 : 0;
+  return finite.toLocaleString(undefined, { maximumFractionDigits });
 }
 
 function compactLabels(values: Set<string>): string {
@@ -3195,6 +3297,22 @@ export function JenniferProfilePage(): JSX.Element {
     });
   }, [activeMsaScope, customRuleRows, profilesScopeActive]);
 
+  const msaTabApiEdges = useMemo(() => {
+    if (msaTimelineMode === "single") {
+      return singleDrilldownScope?.timelineEdges ?? [];
+    }
+    if (!selectedSignature) return [];
+    return averageDrilldownActualEdges;
+  }, [
+    averageDrilldownActualEdges,
+    msaTimelineMode,
+    selectedSignature,
+    singleDrilldownScope,
+  ]);
+
+  const msaTabApiSampleCount =
+    msaTimelineMode === "average" ? Math.max(1, averageDrilldownGroups.length) : 1;
+
   const emptyResultCard = (
     <Card>
       <CardContent className="p-4 text-xs text-muted-foreground">
@@ -3999,7 +4117,12 @@ export function JenniferProfilePage(): JSX.Element {
               </CardContent>
             </Card>
 
-            <ApiCallAnalysisPanel edges={msaEdges} />
+            <ApiCallAnalysisPanel
+              edges={msaTabApiEdges}
+              scopeLabel={activeMsaScope.available ? activeMsaScope.label : undefined}
+              valueMode={msaTimelineMode === "average" ? "avg" : "sum"}
+              sampleCount={msaTabApiSampleCount}
+            />
 
             {msaTimelineMode === "single" ? (
               singleDrilldownScope ? (
