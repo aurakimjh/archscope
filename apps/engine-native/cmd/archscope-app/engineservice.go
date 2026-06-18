@@ -239,6 +239,9 @@ type JenniferProfileRequest struct {
 	// defaults such as IntegrationUtil.sendToService always remain
 	// active.
 	NetworkPrepPatterns []string `json:"networkPrepPatterns,omitempty"`
+	// ServletDispatchPatterns mark the callee servlet entry-point whose
+	// self-time is dispatch overhead. Built-in defaults always remain active.
+	ServletDispatchPatterns []string `json:"servletDispatchPatterns,omitempty"`
 	// EventCategoryPatterns extends the event classifier. Keys are
 	// JenniferEventType values; values are case-insensitive substrings.
 	// User patterns only apply to METHOD/UNKNOWN events so they can't
@@ -579,6 +582,7 @@ func (s *EngineService) AnalyzeJenniferProfile(req JenniferProfileRequest) (engi
 		FallbackCorrelationToTxid: req.FallbackCorrelationToTxid,
 		HeaderBodyToleranceMs:     req.HeaderBodyToleranceMs,
 		NetworkPrepPatterns:       req.NetworkPrepPatterns,
+		ServletDispatchPatterns:   req.ServletDispatchPatterns,
 		EventCategoryPatterns:     req.EventCategoryPatterns,
 		CustomAnalysisRules:       req.CustomAnalysisRules,
 	}

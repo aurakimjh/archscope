@@ -150,6 +150,7 @@ export type JenniferProfileRequest = {
   fallbackCorrelationToTxid?: boolean;
   headerBodyToleranceMs?: number;
   networkPrepPatterns?: string[];
+  servletDispatchPatterns?: string[];
   eventCategoryPatterns?: Record<string, string[]>;
   customAnalysisRules?: Array<{
     id?: string;

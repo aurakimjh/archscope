@@ -44,6 +44,7 @@ type GroupMetrics = {
       network_call_ms?: number;
       unprofiled_external_call_ms?: number;
       network_prep_ms?: number;
+      servlet_dispatch_ms?: number;
       connection_acquire_ms?: number;
       custom_slices?: Array<{
         id?: string;
@@ -92,6 +93,7 @@ const SLICE_DEFS: SliceDef[] = [
   { key: "network_call_ms", label: "Network", group: "external", color: "#10b981", hint: "외부호출 - callee 응답시간 (실제 망 시간)" },
   { key: "unprofiled_external_call_ms", label: "External Call", group: "external", color: "#14b8a6", hint: "callee profile 없이 caller EXTERNAL_CALL elapsed만 확인된 외부호출" },
   { key: "network_prep_ms", label: "Network Prep", group: "external", color: "#a78bfa", hint: "sendToService 등 wrapper의 비-네트워크 부분" },
+  { key: "servlet_dispatch_ms", label: "Servlet Dispatch", group: "internal", color: "#f97316", hint: "service() 등 콜리 프레임워크 dispatch self-time (업무 메소드 제외)" },
   { key: "method_time_ms", label: "Method", group: "internal", color: "#94a3b8", hint: "잔여 메소드 수행시간 (전체 - 위 합계)" },
 ];
 

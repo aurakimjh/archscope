@@ -82,6 +82,7 @@ import { addWorkspaceResult } from "../state/analysisWorkspace";
 const MSA_EVENT_SEGMENTS: SegmentSpec[] = [
   { id: "EXTERNAL_CALL", label: "EXTERNAL_CALL" },
   { id: "NETWORK_PREP_METHOD", label: "Network prep (sendToService 등)" },
+  { id: "SERVLET_DISPATCH_METHOD", label: "Servlet dispatch (service 등)" },
   { id: "TWO_PC_UNKNOWN", label: "2PC / XA" },
   { id: "CHECK_QUERY", label: "CHECK_QUERY" },
   { id: "CONNECTION_ACQUIRE", label: "Connection acquire" },
@@ -89,6 +90,16 @@ const MSA_EVENT_SEGMENTS: SegmentSpec[] = [
 ];
 
 const MSA_EVENT_PRESETS: Preset[] = [
+  {
+    id: "msa-servlet-dispatch",
+    label: "MSA — Servlet dispatch (HttpServlet.service)",
+    rules: {
+      SERVLET_DISPATCH_METHOD: [
+        "jakarta.servlet.http.HttpServlet.service",
+        "javax.servlet.http.HttpServlet.service",
+      ],
+    },
+  },
   {
     id: "msa-network-prep",
     label: "MSA — Network prep (sendToService)",
@@ -2693,6 +2704,7 @@ export function JenniferProfilePage(): JSX.Element {
   // network_prep_cum_ms metric. We keep the state slot so callers can
   // pre-seed it programmatically without prop drilling.
   const [networkPrepPatterns] = useState<string[]>([]);
+  const [servletDispatchPatterns] = useState<string[]>([]);
   const [eventCategoryPatterns, setEventCategoryPatterns] =
     useState<CategoryRules>({});
   const [activeTab, setActiveTab] = useState<string>("summary");
@@ -2761,6 +2773,7 @@ export function JenniferProfilePage(): JSX.Element {
       savedAt: new Date().toISOString(),
       fallbackToTxid,
       networkPrepPatterns,
+      servletDispatchPatterns,
       eventCategoryPatterns,
       customAnalysisRules: normalizeCustomAnalysisRules(customAnalysisRules),
     };
@@ -2775,7 +2788,7 @@ export function JenniferProfilePage(): JSX.Element {
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
-  }, [customAnalysisRules, eventCategoryPatterns, fallbackToTxid, networkPrepPatterns]);
+  }, [customAnalysisRules, eventCategoryPatterns, fallbackToTxid, networkPrepPatterns, servletDispatchPatterns]);
 
   const handleLoadAnalysisPresetFile = useCallback(
     (file?: File) => {
@@ -2795,6 +2808,15 @@ export function JenniferProfilePage(): JSX.Element {
               new Set([
                 ...(loadedCategories.NETWORK_PREP_METHOD ?? []),
                 ...loadedPrep,
+              ]),
+            );
+          }
+          const loadedDispatch = normalizeStringList(parsed?.servletDispatchPatterns);
+          if (loadedDispatch.length > 0) {
+            loadedCategories.SERVLET_DISPATCH_METHOD = Array.from(
+              new Set([
+                ...(loadedCategories.SERVLET_DISPATCH_METHOD ?? []),
+                ...loadedDispatch,
               ]),
             );
           }
@@ -2843,8 +2865,14 @@ export function JenniferProfilePage(): JSX.Element {
       const prepCombined = Array.from(
         new Set([...networkPrepPatterns, ...prepFromEditor]),
       );
+      const dispatchFromEditor =
+        eventCategoryPatterns["SERVLET_DISPATCH_METHOD"] ?? [];
+      const dispatchCombined = Array.from(
+        new Set([...servletDispatchPatterns, ...dispatchFromEditor]),
+      );
       const otherCategories: CategoryRules = { ...eventCategoryPatterns };
       delete otherCategories["NETWORK_PREP_METHOD"];
+      delete otherCategories["SERVLET_DISPATCH_METHOD"];
       const activeCustomRules = normalizeCustomAnalysisRules(customAnalysisRules);
 
       const res = await engine.analyzeJenniferProfile({
@@ -2853,6 +2881,8 @@ export function JenniferProfilePage(): JSX.Element {
         fallbackCorrelationToTxid: fallbackToTxid,
         headerBodyToleranceMs: 0,
         networkPrepPatterns: prepCombined.length > 0 ? prepCombined : undefined,
+        servletDispatchPatterns:
+          dispatchCombined.length > 0 ? dispatchCombined : undefined,
         eventCategoryPatterns:
           Object.keys(otherCategories).length > 0 ? otherCategories : undefined,
         customAnalysisRules:
@@ -2887,6 +2917,7 @@ export function JenniferProfilePage(): JSX.Element {
             originalNames: selected.map((s) => s.originalName),
             fallbackToTxid,
             networkPrepPatterns: prepCombined,
+            servletDispatchPatterns: dispatchCombined,
             eventCategoryPatterns: otherCategories,
             customAnalysisRules: activeCustomRules,
           },

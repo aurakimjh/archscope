@@ -354,6 +354,7 @@ func computeGroupMetrics(
 		UnmatchedExternalCallCount: group.UnmatchedEdgeCount,
 	}
 	totalNetworkPrep := 0
+	totalServletDispatch := 0
 	for _, p := range b.profiles {
 		bm := AggregateBody(&p)
 		m.TotalSqlExecuteMs += bm.SQLExecuteCumMs
@@ -363,6 +364,7 @@ func computeGroupMetrics(
 		m.TotalFetchRows += bm.FetchTotalRows
 		m.TotalConnectionAcquireMs += bm.ConnectionAcquireCumMs
 		totalNetworkPrep += bm.NetworkPrepCumMs
+		totalServletDispatch += bm.ServletDispatchCumMs
 	}
 	for _, e := range edges {
 		m.TotalExternalCallCumulativeMs += e.ExternalCallElapsedMs
@@ -392,9 +394,11 @@ func computeGroupMetrics(
 		UnprofiledExternalCallMs: m.TotalUnprofiledExternalCallMs,
 		NetworkPrepMs:            totalNetworkPrep,
 		ConnectionAcquireMs:      m.TotalConnectionAcquireMs,
+		ServletDispatchMs:        totalServletDispatch,
 	}
 	covered := bd.SQLExecuteMs + bd.CheckQueryMs + bd.TwoPCMs + bd.FetchMs +
-		bd.NetworkCallMs + bd.UnprofiledExternalCallMs + bd.NetworkPrepMs + bd.ConnectionAcquireMs
+		bd.NetworkCallMs + bd.UnprofiledExternalCallMs + bd.NetworkPrepMs + bd.ConnectionAcquireMs +
+		bd.ServletDispatchMs
 	if rootResp > 0 {
 		methodMs := rootResp - covered
 		if methodMs < 0 {

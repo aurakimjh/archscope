@@ -55,7 +55,7 @@ func isStructuralEvent(t models.JenniferEventType) bool {
 // (connection-acquire, socket, unknown, info) into "other".
 func nestedCostCategory(t models.JenniferEventType) string {
 	switch t {
-	case models.JenniferEventMethod, models.JenniferEventNetworkPrep:
+	case models.JenniferEventMethod, models.JenniferEventNetworkPrep, models.JenniferEventServletDispatch:
 		return "method"
 	case models.JenniferEventSQLExecute, models.JenniferEventSQLUpdate, models.JenniferEventSQLQuery,
 		models.JenniferEventCheckQuery, models.JenniferEventFetch,

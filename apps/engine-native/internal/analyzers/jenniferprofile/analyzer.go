@@ -80,6 +80,11 @@ type Options struct {
 	// additive; built-in defaults such as IntegrationUtil.sendToService
 	// always remain active.
 	NetworkPrepPatterns []string
+	// ServletDispatchPatterns are forwarded to the parser classifier;
+	// METHOD lines matching a built-in or custom substring become
+	// SERVLET_DISPATCH_METHOD. Defaults (jakarta/javax.servlet.http.
+	// HttpServlet.service) always remain active; custom values are additive.
+	ServletDispatchPatterns []string
 	// EventCategoryPatterns extends the event classifier. Keys are
 	// JenniferEventType values; values are case-insensitive substrings.
 	// User patterns are applied to METHOD/UNKNOWN events only — they
@@ -97,6 +102,7 @@ func (o Options) parserOpts() jenniferprofile.Options {
 	return jenniferprofile.Options{
 		FallbackCorrelationToTxid: o.FallbackCorrelationToTxid,
 		NetworkPrepPatterns:       o.NetworkPrepPatterns,
+		ServletDispatchPatterns:   o.ServletDispatchPatterns,
 		EventCategoryPatterns:     o.EventCategoryPatterns,
 	}
 }

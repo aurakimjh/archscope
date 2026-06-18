@@ -126,6 +126,37 @@ func NetworkPrepPatternsWithDefaults(patterns []string) []string {
 	return out
 }
 
+// defaultServletDispatchPatterns marks the callee servlet entry-point.
+// Both jakarta.* (Jakarta EE 9+) and javax.* (legacy) ship as defaults.
+// User-supplied options extend this list (same additive policy as Network
+// Prep). Matched as a case-insensitive substring.
+var defaultServletDispatchPatterns = []string{
+	"jakarta.servlet.http.httpservlet.service",
+	"javax.servlet.http.httpservlet.service",
+}
+
+// ServletDispatchPatternsWithDefaults normalizes the built-in servlet
+// dispatch markers plus caller-supplied additions into lower-case substring
+// patterns. Mirror of NetworkPrepPatternsWithDefaults.
+func ServletDispatchPatternsWithDefaults(patterns []string) []string {
+	raw := append([]string{}, defaultServletDispatchPatterns...)
+	raw = append(raw, patterns...)
+	out := make([]string, 0, len(raw))
+	seen := map[string]struct{}{}
+	for _, p := range raw {
+		p = strings.ToLower(strings.TrimSpace(p))
+		if p == "" {
+			continue
+		}
+		if _, ok := seen[p]; ok {
+			continue
+		}
+		seen[p] = struct{}{}
+		out = append(out, p)
+	}
+	return out
+}
+
 // classifyEvents walks the body events in priority order (§11.1) and
 // stamps `EventType`. SQL events are inspected against their
 // detail-lines first so `select 1 from dual` becomes CHECK_QUERY
@@ -141,6 +172,7 @@ func classifyEvents(profile *models.JenniferTransactionProfile) {
 // silently break matched-edge correlation.
 func classifyEventsWithOptions(profile *models.JenniferTransactionProfile, opts Options) {
 	prepLower := NetworkPrepPatternsWithDefaults(opts.NetworkPrepPatterns)
+	dispatchLower := ServletDispatchPatternsWithDefaults(opts.ServletDispatchPatterns)
 	customRules := normalizeEventPatterns(opts.EventCategoryPatterns)
 
 	for i := range profile.Body.Events {
@@ -152,15 +184,24 @@ func classifyEventsWithOptions(profile *models.JenniferTransactionProfile, opts 
 		// EXTERNAL_CALL / FETCH bookkeeping.
 		if ev.EventType == models.JenniferEventMethod || ev.EventType == models.JenniferEventUnknown {
 			lowerMsg := strings.ToLower(ev.RawMessage)
-			matchedPrep := false
+			matched := false
 			for _, p := range prepLower {
 				if strings.Contains(lowerMsg, p) {
 					ev.EventType = models.JenniferEventNetworkPrep
-					matchedPrep = true
+					matched = true
 					break
 				}
 			}
-			if !matchedPrep {
+			if !matched {
+				for _, p := range dispatchLower {
+					if strings.Contains(lowerMsg, p) {
+						ev.EventType = models.JenniferEventServletDispatch
+						matched = true
+						break
+					}
+				}
+			}
+			if !matched {
 				for _, rule := range customRules {
 					if matchAnyLower(lowerMsg, rule.patterns) {
 						ev.EventType = rule.target

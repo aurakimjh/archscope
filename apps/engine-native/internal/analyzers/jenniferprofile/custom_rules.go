@@ -309,6 +309,8 @@ func breakdownBucketForEvent(t models.JenniferEventType) string {
 		return "connection_acquire_ms"
 	case models.JenniferEventNetworkPrep:
 		return "network_prep_ms"
+	case models.JenniferEventServletDispatch:
+		return "servlet_dispatch_ms"
 	case models.JenniferEventExternalCall:
 		return "unprofiled_external_call_ms"
 	default:
@@ -429,6 +431,7 @@ func customRuleDeductsChildEvent(t models.JenniferEventType) bool {
 		models.JenniferEventFetch,
 		models.JenniferEventConnAcquire,
 		models.JenniferEventNetworkPrep,
+		models.JenniferEventServletDispatch,
 		models.JenniferEventExternalCall:
 		return true
 	default:
@@ -455,6 +458,8 @@ func subtractBreakdownBucket(bd *models.JenniferResponseTimeBreakdown, bucket st
 		subtractInt(&bd.UnprofiledExternalCallMs, value)
 	case "network_prep_ms":
 		subtractInt(&bd.NetworkPrepMs, value)
+	case "servlet_dispatch_ms":
+		subtractInt(&bd.ServletDispatchMs, value)
 	case "connection_acquire_ms":
 		subtractInt(&bd.ConnectionAcquireMs, value)
 	case "method_time_ms":
@@ -477,7 +482,7 @@ func recomputeBreakdownRatios(bd *models.JenniferResponseTimeBreakdown) {
 	bd.MethodTimeRatio = float64(bd.MethodTimeMs) / float64(bd.RootResponseTimeMs)
 	covered := bd.SQLExecuteMs + bd.CheckQueryMs + bd.TwoPCMs + bd.FetchMs +
 		bd.NetworkCallMs + bd.UnprofiledExternalCallMs + bd.NetworkPrepMs +
-		bd.ConnectionAcquireMs
+		bd.ConnectionAcquireMs + bd.ServletDispatchMs
 	for _, slice := range bd.CustomSlices {
 		covered += slice.ValueMs
 	}

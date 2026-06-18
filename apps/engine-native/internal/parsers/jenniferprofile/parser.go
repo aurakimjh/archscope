@@ -78,6 +78,10 @@ type Options struct {
 	// defaults such as IntegrationUtil.sendToService always remain
 	// active; custom values extend that list.
 	NetworkPrepPatterns []string
+	// ServletDispatchPatterns: callee servlet entry-point markers whose
+	// self-time is dispatch overhead. Defaults (jakarta/javax.servlet.http.
+	// HttpServlet.service) always remain active; custom values extend them.
+	ServletDispatchPatterns []string
 	// EventCategoryPatterns lets users extend the event classifier.
 	// Keys are JenniferEventType values (e.g.
 	// "EXTERNAL_CALL", "TWO_PC_UNKNOWN", "CHECK_QUERY",

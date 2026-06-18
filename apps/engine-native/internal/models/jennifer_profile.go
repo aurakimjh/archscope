@@ -147,7 +147,12 @@ const (
 	// EXTERNAL_CALL elapsed and report the remainder as
 	// "network preparation" (marshalling / DNS / SSL handshake / etc).
 	JenniferEventNetworkPrep JenniferEventType = "NETWORK_PREP_METHOD"
-	JenniferEventUnknown     JenniferEventType = "UNKNOWN"
+	// JenniferEventServletDispatch — callee-side counterpart to NETWORK_PREP_METHOD.
+	// Frames like jakarta.servlet.http.HttpServlet.service wrap the controller
+	// business method; their self-time (elapsed minus ALL nested children) is the
+	// servlet / framework dispatch overhead, reported in the internal group.
+	JenniferEventServletDispatch JenniferEventType = "SERVLET_DISPATCH_METHOD"
+	JenniferEventUnknown         JenniferEventType = "UNKNOWN"
 )
 
 // JenniferProfileEvent is one row of the body table.
@@ -409,6 +414,7 @@ type JenniferResponseTimeBreakdown struct {
 	UnprofiledExternalCallMs int                               `json:"unprofiled_external_call_ms"`
 	NetworkPrepMs            int                               `json:"network_prep_ms"`
 	ConnectionAcquireMs      int                               `json:"connection_acquire_ms"`
+	ServletDispatchMs        int                               `json:"servlet_dispatch_ms"`
 	CustomSlices             []JenniferResponseTimeCustomSlice `json:"custom_slices,omitempty"`
 	MethodTimeMs             int                               `json:"method_time_ms"`
 	MethodTimeRatio          float64                           `json:"method_time_ratio"`
@@ -478,6 +484,11 @@ type JenniferBodyMetrics struct {
 	NetworkPrepMethodCount int                         `json:"network_prep_method_count"`
 	NetworkPrepCumMs       int                         `json:"network_prep_cum_ms"`
 	NetworkPrepMethods     []JenniferNetworkPrepMethod `json:"network_prep_methods,omitempty"`
+	// ServletDispatchCumMs is the callee-side counterpart to NetworkPrepCumMs:
+	// summed self-time of frames matching the servlet-dispatch patterns
+	// (default: jakarta/javax.servlet.http.HttpServlet.service).
+	ServletDispatchCumMs int `json:"servlet_dispatch_cum_ms"`
+	ServletDispatchCount int `json:"servlet_dispatch_count"`
 }
 
 // JenniferNetworkPrepMethod explains one wrapper method that was

@@ -98,6 +98,8 @@ func AggregateBody(p *models.JenniferTransactionProfile) models.JenniferBodyMetr
 		case models.JenniferEventNetworkPrep:
 			// Counted below as wrapper groups so one method wrapping
 			// multiple EXTERNAL_CALL rows is represented once.
+		case models.JenniferEventServletDispatch:
+			// Counted below via self-time (elapsed minus all nested children).
 		}
 	}
 	m.NetworkPrepMethods = computeNetworkPrepMethods(p.Body.Events)
@@ -106,6 +108,7 @@ func AggregateBody(p *models.JenniferTransactionProfile) models.JenniferBodyMetr
 		m.NetworkPrepMethodCount++
 		m.NetworkPrepCumMs += method.NetworkPrepMs
 	}
+	m.ServletDispatchCumMs, m.ServletDispatchCount = computeServletDispatchSelf(p.Body.Events)
 	return m
 }
 
@@ -399,4 +402,45 @@ func intKey(v int) string {
 		return "-" + string(digits)
 	}
 	return string(digits)
+}
+
+// computeServletDispatchSelf sums the self-time of every servlet dispatch
+// frame. Self-time = frame elapsed minus the union of all directly-nested
+// children (controller method, SQL, external calls, ...) using the same
+// containment tree as the method-hotspots view. Returns (sumMs, frameCount).
+func computeServletDispatchSelf(events []models.JenniferProfileEvent) (int, int) {
+	parents := containmentParents(events)
+	childrenByParent := make(map[int][]int, len(parents))
+	for childIdx, parentIdx := range parents {
+		if parentIdx >= 0 {
+			childrenByParent[parentIdx] = append(childrenByParent[parentIdx], childIdx)
+		}
+	}
+	sumMs := 0
+	count := 0
+	for i := range events {
+		ev := events[i]
+		if ev.EventType != models.JenniferEventServletDispatch || ev.ElapsedMs == nil {
+			continue
+		}
+		count++
+		inclusive := *ev.ElapsedMs
+		if inclusive < 0 {
+			inclusive = 0
+		}
+		var childIntervals []interval
+		for _, ci := range childrenByParent[i] {
+			iv, ok := eventOffsetInterval(events[ci])
+			if !ok {
+				continue
+			}
+			childIntervals = append(childIntervals, iv)
+		}
+		self := inclusive - unionDuration(childIntervals)
+		if self < 0 {
+			self = 0
+		}
+		sumMs += self
+	}
+	return sumMs, count
 }
