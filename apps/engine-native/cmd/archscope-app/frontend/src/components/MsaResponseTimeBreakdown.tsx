@@ -457,28 +457,14 @@ function GroupedLegend({
   return (
     <div className="mt-3 grid gap-3 text-[11px] lg:grid-cols-3">
       {groups.map((group) => {
-        const groupPct = pct(group.value, base);
-        const groupColor = GROUP_COLORS[group.id];
+        // Group header row (Database/External/Internal + total) removed —
+        // the same groups are already labelled in the stacked bar above,
+        // and showing them here again read like data values to users.
         return (
           <section
             key={group.id}
             className="min-w-0 rounded-md border border-border bg-background/70 p-2.5"
           >
-            <div className="mb-2 flex min-w-0 items-center justify-between gap-2">
-              <div className="flex min-w-0 items-center gap-1.5">
-                <span
-                  className="h-2.5 w-2.5 shrink-0 rounded-full"
-                  style={{ backgroundColor: groupColor }}
-                  aria-hidden
-                />
-                <span className="truncate font-semibold text-foreground/85">
-                  {GROUP_LABELS[group.id]}
-                </span>
-              </div>
-              <span className="shrink-0 font-mono tabular-nums text-muted-foreground">
-                {formatMs(group.value)} · {groupPct.toFixed(1)}%
-              </span>
-            </div>
             <ul className="flex flex-col gap-1.5">
               {group.slices.map((slice) => {
                 const slicePct = pct(slice.value, base);

@@ -63,12 +63,19 @@ type MsaMethodHotspotsProps = {
   scopeLabel?: string;
 };
 
+// Colors are aligned with MsaResponseTimeBreakdown's SLICE_DEFS so the
+// same business category reads the same color across both gadgets:
+//   sql      -> SQL (#2563eb)
+//   external -> External Call (#14b8a6)
+//   self     -> Method residual / 미분류 (#94a3b8)
+// child_method/other have no breakdown equivalent; other is kept light
+// gray so it stays distinct from self.
 const CATEGORY = {
-  self: { color: "#10b981", label: "미분류 메소드 시간" },
+  self: { color: "#94a3b8", label: "미분류 메소드 시간" },
   child_method: { color: "#6366f1", label: "중첩 메소드" },
-  sql: { color: "#38bdf8", label: "SQL" },
-  external: { color: "#e67e22", label: "외부 호출" },
-  other: { color: "#94a3b8", label: "기타" },
+  sql: { color: "#2563eb", label: "SQL" },
+  external: { color: "#14b8a6", label: "외부 호출" },
+  other: { color: "#cbd5e1", label: "기타" },
 } as const;
 
 const KEY_DELIMITER = "\u001f";
@@ -77,12 +84,31 @@ function num(v: unknown): number {
   return typeof v === "number" && Number.isFinite(v) ? v : 0;
 }
 
+// Jennifer method signatures carry a leading return type / modifiers,
+// e.g. "void javax.servlet.http.HttpServlet.service(...)" or
+// "java.sql.Connection org.apache.jsp.getConnection()". That return
+// object is process noise, so strip it: keep only the last
+// whitespace-delimited token before "(" (the qualified method name).
+function stripReturnType(signature: string): string {
+  const trimmed = signature.trim();
+  if (!trimmed) return signature;
+  const paren = trimmed.indexOf("(");
+  const head = paren >= 0 ? trimmed.slice(0, paren) : trimmed;
+  const tail = paren >= 0 ? trimmed.slice(paren) : "";
+  const lastSpace = head.lastIndexOf(" ");
+  const qualified = lastSpace >= 0 ? head.slice(lastSpace + 1) : head;
+  return `${qualified}${tail}`;
+}
+
 function methodDisplay(signature: string): { name: string; qualifier: string } {
   const trimmed = signature.trim();
   if (!trimmed) return { name: signature, qualifier: "" };
   const paren = trimmed.indexOf("(");
   const head = paren >= 0 ? trimmed.slice(0, paren) : trimmed;
-  const normalized = head.replace(/::/g, ".").replace(/[\\/]+/g, ".");
+  // Drop the leading return type / modifiers before splitting.
+  const lastSpace = head.lastIndexOf(" ");
+  const qualifiedHead = lastSpace >= 0 ? head.slice(lastSpace + 1) : head;
+  const normalized = qualifiedHead.replace(/::/g, ".").replace(/[\\/]+/g, ".");
   const parts = normalized.split(".").filter(Boolean);
   if (parts.length === 0) return { name: trimmed, qualifier: "" };
   return {
@@ -352,7 +378,7 @@ export function MsaMethodHotspots({
                           </td>
                           <td className="max-w-[420px] px-3 py-2 font-mono">
                             <span className="block truncate" title={a.method}>
-                              {a.method}
+                              {stripReturnType(a.method)}
                             </span>
                           </td>
                           <td className="px-3 py-2 text-right tabular-nums">
@@ -406,7 +432,7 @@ export function MsaMethodHotspots({
                   <span className="min-w-0 flex-1">응답시간 구성</span>
                   <span className="w-24 shrink-0 text-center">미분류 시간</span>
                   <span className="w-[8.5rem] shrink-0 text-right">
-                    미분류 {valueLabel}
+                    미분류 {valueLabel} · 비중
                   </span>
                 </div>
 
@@ -416,10 +442,12 @@ export function MsaMethodHotspots({
                     const selfPct =
                       maxSelf > 0 ? (displaySelf / maxSelf) * 100 : 0;
                     const selfRatio = a.total > 0 ? (a.self / a.total) * 100 : 0;
+                    const shareOfTotal =
+                      totalSelf > 0 ? (displaySelf / totalSelf) * 100 : 0;
                     const perCallSelf = a.calls > 0 ? a.self / a.calls : 0;
                     const averageCalls = a.calls / divisor;
                     const method = methodDisplay(a.method);
-                    const signatureTitle = `${a.application ? a.application + " · " : ""}${a.method}`;
+                    const signatureTitle = `${a.application ? a.application + " · " : ""}${stripReturnType(a.method)}`;
                     return (
                       <li
                         key={`${a.application}${KEY_DELIMITER}${a.method}`}
@@ -486,19 +514,32 @@ export function MsaMethodHotspots({
                               </div>
                             </div>
                             <span className="w-[8.5rem] shrink-0 text-right tabular-nums">
-                              <span className="block font-semibold">
-                                {formatMs(displaySelf)}
+                              <span className="flex items-baseline justify-end gap-1.5">
+                                <span
+                                  className="font-semibold"
+                                  title={`${valueLabel} 미분류 시간`}
+                                >
+                                  {formatMs(displaySelf)}
+                                </span>
+                                <span
+                                  className="font-semibold text-muted-foreground"
+                                  title="전체 미분류 메소드 합에서의 비율"
+                                >
+                                  {shareOfTotal.toFixed(0)}%
+                                </span>
                               </span>
-                              <span className="block text-[10px] text-muted-foreground">
-                                {valueLabel} 미분류 · 메소드 내{" "}
-                                {selfRatio.toFixed(0)}%
-                              </span>
-                              {a.calls > 1 ? (
+                              {a.calls > 0 ? (
                                 <span className="block text-[10px] text-muted-foreground">
                                   호출당 {formatMs(perCallSelf)} · max{" "}
                                   {formatMs(a.maxSelf)}
                                 </span>
                               ) : null}
+                              <span
+                                className="block text-[10px] text-muted-foreground"
+                                title="자신의 메소드 내 비율 (미분류 self / total)"
+                              >
+                                메소드 내 {selfRatio.toFixed(0)}%
+                              </span>
                             </span>
                           </div>
                         </div>
