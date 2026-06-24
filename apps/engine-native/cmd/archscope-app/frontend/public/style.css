@@ -1131,6 +1131,189 @@ button.ghost:hover {
   margin: 0;
 }
 
+.drilldown-result-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.drilldown-mode-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-soft);
+}
+
+.drilldown-mode-toggle button {
+  min-height: 28px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.drilldown-mode-toggle button:hover {
+  color: var(--text);
+  background: var(--bg-elev);
+}
+
+.drilldown-mode-toggle button.active {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.drilldown-composition {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.drilldown-composition-groups {
+  display: flex;
+  height: 36px;
+  overflow: hidden;
+}
+
+.drilldown-composition-group {
+  position: relative;
+  min-width: 2px;
+  height: 36px;
+  padding: 0 4px;
+  overflow: hidden;
+}
+
+.drilldown-composition-group-marker {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  bottom: 0;
+  height: 12px;
+  border-width: 1px 1px 0;
+  border-style: solid;
+  border-radius: 4px 4px 0 0;
+}
+
+.drilldown-composition-group span {
+  display: block;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+}
+
+.drilldown-composition-segments {
+  display: flex;
+  height: 30px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-soft);
+}
+
+.drilldown-composition-segment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2px;
+  overflow: hidden;
+  border-right: 1px solid rgba(255, 255, 255, 0.55);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.drilldown-composition-segment:last-child {
+  border-right: 0;
+}
+
+.drilldown-composition-segment span {
+  overflow: hidden;
+  padding: 0 6px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.drilldown-composition-legend {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 10px;
+}
+
+.drilldown-composition-card {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  background: var(--bg-soft);
+}
+
+.drilldown-composition-card header,
+.drilldown-composition-card li {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.drilldown-composition-card header {
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.drilldown-composition-card header strong {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.drilldown-composition-card ul {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.drilldown-composition-card li {
+  font-size: 11px;
+}
+
+.drilldown-composition-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.drilldown-composition-label {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  color: var(--text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.drilldown-composition-value {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
 .bar-chart {
   display: flex;
   flex-direction: column;
