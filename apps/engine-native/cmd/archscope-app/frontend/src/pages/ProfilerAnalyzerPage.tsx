@@ -95,6 +95,7 @@ const PROFILER_TIMELINE_SEGMENTS: SegmentSpec[] = [
   { id: "STARTUP_FRAMEWORK", label: "Startup / framework" },
   { id: "FRAMEWORK_MIDDLEWARE", label: "Framework / middleware" },
   { id: "INTERNAL_METHOD", label: "Internal method" },
+  { id: "DTO_MAPPING", label: "DTO creation / mapping" },
   { id: "LOGGING", label: "Logging" },
   { id: "SQL_EXECUTION", label: "SQL execution" },
   { id: "DB_FETCH", label: "DB fetch" },
@@ -127,6 +128,23 @@ const PROFILER_TIMELINE_PRESETS = (
       ],
       SQL_EXECUTION: ["org.hibernate", "org.mybatis", "org.jooq"],
       EXTERNAL_CALL: ["openfeign", "feign.", "WebClient", "RestTemplate"],
+    },
+  },
+  {
+    id: "java-dto-mapping",
+    label: t("presetJavaDtoMapping"),
+    rules: {
+      DTO_MAPPING: [
+        "Dto.",
+        "RequestDto",
+        "ResponseDto",
+        "BeanUtils.copyProperties",
+        "ModelMapper",
+        "MapStruct",
+        "BeanPropertyRowMapper",
+        "RowMapper.mapRow",
+        "DefaultResultSetHandler.applyPropertyMappings",
+      ],
     },
   },
   {
@@ -165,6 +183,7 @@ const PROFILER_TIMELINE_PRESETS = (
 
 type TimelineCompositionGroupId =
   | "business"
+  | "mapping"
   | "framework"
   | "logging"
   | "database"
@@ -173,6 +192,7 @@ type TimelineCompositionGroupId =
 
 const TIMELINE_COMPOSITION_GROUP_ORDER: TimelineCompositionGroupId[] = [
   "business",
+  "mapping",
   "framework",
   "logging",
   "database",
@@ -182,6 +202,7 @@ const TIMELINE_COMPOSITION_GROUP_ORDER: TimelineCompositionGroupId[] = [
 
 const TIMELINE_COMPOSITION_GROUP_COLORS: Record<TimelineCompositionGroupId, string> = {
   business: "#ea580c",
+  mapping: "#0d9488",
   framework: "#7c3aed",
   logging: "#db2777",
   database: "#2563eb",
@@ -191,6 +212,7 @@ const TIMELINE_COMPOSITION_GROUP_COLORS: Record<TimelineCompositionGroupId, stri
 
 const TIMELINE_COMPOSITION_SEGMENT_COLORS: Record<string, string> = {
   INTERNAL_METHOD: "#f97316",
+  DTO_MAPPING: "#0d9488",
   FRAMEWORK_MIDDLEWARE: "#7c3aed",
   LOGGING: "#db2777",
   SQL_EXECUTION: "#2563eb",
@@ -211,6 +233,7 @@ const TIMELINE_COMPOSITION_SEGMENT_COLORS: Record<string, string> = {
 
 const TIMELINE_COMPOSITION_SEGMENT_ORDER: Record<string, number> = {
   INTERNAL_METHOD: 0,
+  DTO_MAPPING: 0,
   FRAMEWORK_MIDDLEWARE: 0,
   LOGGING: 0,
   SQL_EXECUTION: 0,
@@ -300,6 +323,8 @@ function timelineCompositionGroupId(segment: string): TimelineCompositionGroupId
   switch (segment) {
     case "INTERNAL_METHOD":
       return "business";
+    case "DTO_MAPPING":
+      return "mapping";
     case "FRAMEWORK_MIDDLEWARE":
     case "STARTUP_FRAMEWORK":
       return "framework";
@@ -522,7 +547,7 @@ function TimelineCompositionCard({
                 );
               })}
             </div>
-            <div className="grid gap-3 text-[11px] sm:grid-cols-2 xl:grid-cols-6">
+            <div className="grid gap-3 text-[11px] sm:grid-cols-2 xl:grid-cols-7">
               {groups.map((group) => {
                 const widthPct = (group.samples / denominatorSamples) * 100;
                 const groupColor = TIMELINE_COMPOSITION_GROUP_COLORS[group.id];
@@ -1348,6 +1373,7 @@ export function ProfilerAnalyzerPage(): JSX.Element {
               emptyLabel={t("timelineEmpty")}
               groupLabels={{
                 business: t("executionGroupBusiness"),
+                mapping: t("executionGroupMapping"),
                 framework: t("executionGroupFramework"),
                 logging: t("executionGroupLogging"),
                 database: t("executionGroupDatabase"),

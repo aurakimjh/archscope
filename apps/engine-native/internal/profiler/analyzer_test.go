@@ -150,6 +150,50 @@ func TestAnalyzeCollapsedStacksTimelineSeparatesLoggingFromBusinessLogic(t *test
 	}
 }
 
+func TestAnalyzeCollapsedStacksTimelineSeparatesDTOMappingFromBusinessLogicAndSQL(t *testing.T) {
+	source := "fixture.collapsed"
+	result := AnalyzeCollapsedStacks(
+		map[string]int{
+			"com.company.OrderService.calculate;com.company.PricingAlgorithm.apply":                                                                              11,
+			"com.company.OrderService.calculate;com.company.OrderRequestDto.<init>":                                                                              3,
+			"com.company.OrderRepository.find;org.apache.ibatis.executor.resultset.DefaultResultSetHandler.applyPropertyMappings;com.company.OrderDto.setAmount": 5,
+			"com.company.OrderRepository.find;oracle.jdbc.Statement.executeQuery":                                                                                7,
+			"com.company.OrderRepository.find;oracle.jdbc.driver.OracleResultSet.next":                                                                           4,
+		},
+		source,
+		ParserDiagnostics{SourceFile: &source, Format: "async_profiler_collapsed", SkippedByReason: map[string]int{}},
+		Options{IntervalMS: 100, TopN: 5, ProfileKind: "wall"},
+	)
+
+	bySegment := map[string]TimelineRow{}
+	for _, row := range result.Series.TimelineAnalysis {
+		bySegment[row.Segment] = row
+	}
+	if got := bySegment["INTERNAL_METHOD"].Samples; got != 11 {
+		t.Fatalf("INTERNAL_METHOD samples = %d, want 11", got)
+	}
+	if got := bySegment["DTO_MAPPING"].Samples; got != 8 {
+		t.Fatalf("DTO_MAPPING samples = %d, want 8", got)
+	}
+	if got := bySegment["SQL_EXECUTION"].Samples; got != 7 {
+		t.Fatalf("SQL_EXECUTION samples = %d, want 7", got)
+	}
+	if got := bySegment["DB_FETCH"].Samples; got != 4 {
+		t.Fatalf("DB_FETCH samples = %d, want 4", got)
+	}
+
+	byCategory := map[string]ExecutionBreakdownRow{}
+	for _, row := range result.Series.ExecutionBreakdown {
+		byCategory[row.Category] = row
+	}
+	if got := byCategory["DTO_MAPPING"].Samples; got != 8 {
+		t.Fatalf("DTO_MAPPING breakdown samples = %d, want 8", got)
+	}
+	if got := byCategory["APPLICATION_LOGIC"].Samples; got != 11 {
+		t.Fatalf("APPLICATION_LOGIC breakdown samples = %d, want 11", got)
+	}
+}
+
 func TestAnalyzeCollapsedStacksTimelineSeparatesSpringFrameworkFromBusinessLogic(t *testing.T) {
 	source := "fixture.collapsed"
 	result := AnalyzeCollapsedStacks(

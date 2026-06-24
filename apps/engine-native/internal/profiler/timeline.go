@@ -3,8 +3,8 @@
 //
 // 책임/목적
 //   profiler 결과를 "execution timeline" 형태로 변환한다. 각 leaf path 를
-//   classify.go 의 카테고리에서 한 단계 더 추상화된 12개 segment
-//   (STARTUP_FRAMEWORK / INTERNAL_METHOD / SQL_EXECUTION / DB_FETCH / ... ) 로
+//   classify.go 의 카테고리에서 한 단계 더 추상화된 semantic segment
+//   (STARTUP_FRAMEWORK / INTERNAL_METHOD / DTO_MAPPING / SQL_EXECUTION / ... ) 로
 //   매핑하고 segment 별 samples 를 합산해 실행 타임라인을 만든다.
 //
 // 알고리즘 흐름
@@ -12,7 +12,7 @@
 //     options.TimelineBaseMethod 가 지정되면 path 에서 그 베이스 메서드가
 //     처음 나타나는 곳부터 잘라 부분 트리 분석. 매치 없으면 skip.
 //   STEP 2. timelineSegment 매핑
-//     classifyFrames 결과(PrimaryCategory + WaitReason) 를 보고 12개
+//     classifyFrames 결과(PrimaryCategory + WaitReason) 를 보고
 //     segment 중 하나로 매핑. SQL+NETWORK_IO_WAIT → DB_NETWORK_WAIT
 //     같은 복합 룰 포함. 매치 안되면 STARTUP_FRAMEWORK heuristic 또는 UNKNOWN.
 //   STEP 3. segment 별 누적
@@ -50,6 +50,7 @@ var timelineOrder = []string{
 	"STARTUP_FRAMEWORK",
 	"FRAMEWORK_MIDDLEWARE",
 	"INTERNAL_METHOD",
+	"DTO_MAPPING",
 	"LOGGING",
 	"SQL_EXECUTION",
 	"DB_FETCH",
@@ -69,6 +70,7 @@ var timelineLabels = map[string]string{
 	"STARTUP_FRAMEWORK":         "Startup / framework",
 	"FRAMEWORK_MIDDLEWARE":      "Framework / middleware",
 	"INTERNAL_METHOD":           "Internal method",
+	"DTO_MAPPING":               "DTO creation / mapping",
 	"LOGGING":                   "Logging",
 	"SQL_EXECUTION":             "SQL execution",
 	"DB_FETCH":                  "DB fetch",
@@ -250,6 +252,8 @@ func timelineSegment(path []string) string {
 	switch {
 	case primary == "LOGGING":
 		return "LOGGING"
+	case primary == "DTO_MAPPING":
+		return "DTO_MAPPING"
 	case primary == "SQL_DATABASE" && looksLikeDBFetch(path):
 		return "DB_FETCH"
 	case primary == "SQL_DATABASE" && wait == "NETWORK_IO_WAIT":
@@ -348,6 +352,8 @@ func segmentTokens(segment string) []string {
 	switch segment {
 	case "FRAMEWORK_MIDDLEWARE":
 		return frameworkFrameTokens
+	case "DTO_MAPPING":
+		return append(append([]string{}, dtoTypeTokens...), dtoMappingActionTokens...)
 	case "LOGGING":
 		return loggingFrameTokens
 	case "SQL_EXECUTION", "DB_FETCH", "DB_NETWORK_WAIT":

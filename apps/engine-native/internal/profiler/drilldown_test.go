@@ -234,3 +234,29 @@ func TestDrilldownStageTimelineUsesCustomCategories(t *testing.T) {
 		t.Fatalf("INTERNAL_METHOD samples = %d, want 3", got)
 	}
 }
+
+func TestDrilldownStageTimelineSeparatesDTOMapping(t *testing.T) {
+	root := buildFlameTree(map[string]int{
+		"com.company.OrderController.list;com.company.OrderService.calculate":     4,
+		"com.company.OrderController.list;com.company.OrderResponseDto.setAmount": 6,
+		"com.company.OtherController.health;com.company.HealthService.check":      5,
+	})
+	stages := BuildDrilldownStagesWithOptions(
+		root,
+		[]DrilldownFilter{
+			{Pattern: "OrderController", FilterType: "include_text", MatchMode: "anywhere", ViewMode: "preserve_full_path"},
+		},
+		Options{IntervalMS: 100, TopN: 5, ProfileKind: "wall"},
+		root.Samples,
+	)
+	bySegment := map[string]TimelineRow{}
+	for _, row := range stages[1].TimelineAnalysis {
+		bySegment[row.Segment] = row
+	}
+	if got := bySegment["DTO_MAPPING"].Samples; got != 6 {
+		t.Fatalf("DTO_MAPPING samples = %d, want 6", got)
+	}
+	if got := bySegment["INTERNAL_METHOD"].Samples; got != 4 {
+		t.Fatalf("INTERNAL_METHOD samples = %d, want 4", got)
+	}
+}

@@ -8,6 +8,7 @@
 //
 // 분류 카테고리 (PrimaryCategory)
 //   - LOGGING                   : SLF4J / Logback / Log4j / java.util.logging 등
+//   - DTO_MAPPING               : DTO/VO 생성, setter, mapper/converter, RowMapper
 //   - SQL_DATABASE              : JDBC / Oracle / java.sql / executeQuery 등
 //   - EXTERNAL_API_HTTP         : RestTemplate / WebClient / OkHttp / urlconnection
 //   - CONNECTION_POOL_WAIT      : Hikari / ConcurrentBag / SynchronousQueue
@@ -20,7 +21,7 @@
 //   - UNKNOWN                   : 그 외
 //
 // 매칭 우선순위
-//   Logging → SQL → HTTP → Pool → Lock → Network → File → GC → Startup → Framework → Internal → Unknown.
+//   Logging → DTO mapping → SQL → HTTP → Pool → Lock → Network → File → GC → Startup → Framework → Internal → Unknown.
 //   (앞에서 매치되면 뒤는 보지 않음). SQL/HTTP 는 "+ Network" 가 있으면
 //   WaitReason="NETWORK_IO_WAIT" 보조 라벨을 부착해 timeline 이 "쿼리 실행
 //   vs DB 응답 대기" 같은 세분화를 할 수 있게 한다.
@@ -105,6 +106,56 @@ var frameworkFrameTokens = []string{
 	"quartzscheduler",
 }
 
+var dtoMappingActionTokens = []string{
+	"org.mapstruct",
+	"mapstruct",
+	"org.modelmapper",
+	"modelmapper",
+	"beanutils.copyproperties",
+	"copyproperties",
+	"propertyutils",
+	"beanwrapper",
+	"beanpropertyrowmapper",
+	"rowmapper.maprow",
+	".maprow",
+	"defaultresultsethandler.applypropertymappings",
+	"defaultresultsethandler.getrowvalue",
+	"metaobject.setvalue",
+	"objectfactory.create",
+	"constructor.newinstance",
+	"class.newinstance",
+	".mapperimpl",
+	"mapperimpl.",
+	".converter.",
+	".assembler.",
+	".transformer.",
+	"todto",
+	"fromdto",
+	"maptodto",
+	"toresponse",
+	"torequest",
+}
+
+var dtoTypeTokens = []string{
+	".dto.",
+	"dto.",
+	"dto$",
+	"dto<",
+	"dto(",
+	"dto;",
+	"requestdto",
+	"responsedto",
+	"commanddto",
+	"eventdto",
+	".vo.",
+	"vo$",
+	"vo<",
+	"requestvo",
+	"responsevo",
+	"valueobject",
+	"viewobject",
+}
+
 // [한글] stackClassification — 분류 결과 묶음.
 // PrimaryCategory: 메인 카테고리(영문 enum string), WaitReason: SQL/HTTP +
 // Network 같은 보조 분류, Label: UI 표시용 영문 라벨.
@@ -119,6 +170,8 @@ func classifyStack(stack string) string {
 	switch classification.PrimaryCategory {
 	case "LOGGING":
 		return "Logging"
+	case "DTO_MAPPING":
+		return "DTO mapping"
 	case "SQL_DATABASE":
 		return "Database"
 	case "EXTERNAL_API_HTTP":
@@ -144,12 +197,13 @@ func classifyStack(stack string) string {
 
 // [한글] classifyFrames — 핵심 분류 함수.
 // 모든 frame 을 join 후 lower 하여 substring 매칭으로 카테고리 후보를
-// 동시에 평가. 우선순위: Logging → SQL → HTTP → Pool → Lock → Network →
+// 동시에 평가. 우선순위: Logging → DTO mapping → SQL → HTTP → Pool → Lock → Network →
 // File → GC → Startup → Framework → Internal → Unknown. SQL/HTTP 는 Network 가 함께 있으면
 // WaitReason="NETWORK_IO_WAIT" 보조 분류 부착.
 func classifyFrames(path []string) stackClassification {
 	stack := strings.ToLower(strings.Join(path, ";"))
 	hasLogging := containsAny(stack, loggingFrameTokens...)
+	hasDTO := looksLikeDTOMapping(path)
 	hasSQL := containsAny(stack, "oracle.jdbc", "java.sql", "t4cpreparedstatement", "t4cmarengine", "executequery", "executeupdate", "resultset", "org.hibernate", "jakarta.persistence", "javax.persistence", "entitymanager", "org.mybatis", "org.apache.ibatis", "mybatis", "ibatis", "defaultsqlsession", "mappermethod", "preparedstatementhandler", "simpleexecutor", "cachingexecutor", "org.jooq")
 	hasHTTP := containsAny(stack, "resttemplate", "webclient", "httpclient", "okhttp", "urlconnection", "mainclientexec", "bhttpconnection", "openfeign", "feign.", "reactor.netty.http.client", "java.net.http", "jdk.internal.net.http", "grpc.")
 	hasNetwork := containsAny(stack, "socketinputstream.socketread", "niosocketimpl", "socketread", "socket.read", "netpoll", "epollwait")
@@ -160,6 +214,9 @@ func classifyFrames(path []string) stackClassification {
 
 	if hasLogging {
 		return stackClassification{PrimaryCategory: "LOGGING", Label: "Logging"}
+	}
+	if hasDTO {
+		return stackClassification{PrimaryCategory: "DTO_MAPPING", Label: "DTO mapping"}
 	}
 	if hasSQL {
 		if hasNetwork {
@@ -230,6 +287,30 @@ func looksLikeFrameworkMiddleware(path []string) bool {
 	}
 	leaf := strings.ToLower(path[len(path)-1])
 	return containsAny(leaf, frameworkFrameTokens...)
+}
+
+func looksLikeDTOMapping(path []string) bool {
+	if len(path) == 0 {
+		return false
+	}
+	stack := strings.ToLower(strings.Join(path, ";"))
+	if containsAny(stack, dtoMappingActionTokens...) {
+		return true
+	}
+	for _, frame := range path {
+		lowered := strings.ToLower(frame)
+		if !looksLikeDTOTypeFrame(lowered) {
+			continue
+		}
+		if containsAny(lowered, ".set", ".<init>", "$builder", ".builder", ".build", ".map", ".to", ".from") {
+			return true
+		}
+	}
+	return false
+}
+
+func looksLikeDTOTypeFrame(frame string) bool {
+	return containsAny(frame, dtoTypeTokens...)
 }
 
 func looksLikeInternal(path []string) bool {
