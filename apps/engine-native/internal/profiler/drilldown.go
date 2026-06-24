@@ -60,9 +60,9 @@ import (
 // 동작을 결정. Label 이 비어있으면 DisplayLabel() 이 "type:pattern" 자동 생성.
 type DrilldownFilter struct {
 	Pattern       string `json:"pattern"`
-	FilterType    string `json:"filter_type"`    // include_text | exclude_text | regex_include | regex_exclude
-	MatchMode     string `json:"match_mode"`     // anywhere | ordered | subtree
-	ViewMode      string `json:"view_mode"`      // preserve_full_path | reroot_at_match
+	FilterType    string `json:"filter_type"` // include_text | exclude_text | regex_include | regex_exclude
+	MatchMode     string `json:"match_mode"`  // anywhere | ordered | subtree
+	ViewMode      string `json:"view_mode"`   // preserve_full_path | reroot_at_match
 	CaseSensitive bool   `json:"case_sensitive"`
 	Label         string `json:"label,omitempty"`
 }
@@ -91,6 +91,12 @@ type filterDiagnostic struct {
 // [한글] CreateRootStage — 드릴다운 시작점("All" stage). 필터가 없으므로
 // 부모 비율 100%, 전체 root.Samples 가 그대로 totalSamples 가 된다.
 func CreateRootStage(root FlameNode, intervalMS float64, elapsedSec *float64, topN int) DrilldownStage {
+	options := Options{IntervalMS: intervalMS, ElapsedSec: elapsedSec, TopN: topN}
+	normalizeOptions(&options)
+	return createRootStageWithOptions(root, options, root.Samples)
+}
+
+func createRootStageWithOptions(root FlameNode, options Options, totalSamples int) DrilldownStage {
 	return buildDrilldownStage(stageInputs{
 		Index:         0,
 		Label:         "All",
@@ -98,10 +104,8 @@ func CreateRootStage(root FlameNode, intervalMS float64, elapsedSec *float64, to
 		Root:          root,
 		FilterSpec:    nil,
 		ParentSamples: nil,
-		TotalSamples:  root.Samples,
-		IntervalMS:    intervalMS,
-		ElapsedSec:    elapsedSec,
-		TopN:          topN,
+		TotalSamples:  totalSamples,
+		Options:       drilldownTimelineOptions(options),
 	})
 }
 
@@ -114,6 +118,12 @@ func CreateRootStage(root FlameNode, intervalMS float64, elapsedSec *float64, to
 // totalSamples 는 부모의 metrics["total_samples"] 를 그대로 이어받아 전체
 // 비율 기준이 stage 간 일관되게 유지된다.
 func ApplyDrilldownFilter(parent DrilldownStage, filter DrilldownFilter, intervalMS float64, elapsedSec *float64, topN int) DrilldownStage {
+	options := Options{IntervalMS: intervalMS, ElapsedSec: elapsedSec, TopN: topN}
+	normalizeOptions(&options)
+	return applyDrilldownFilterWithOptions(parent, filter, options)
+}
+
+func applyDrilldownFilterWithOptions(parent DrilldownStage, filter DrilldownFilter, options Options) DrilldownStage {
 	parentSamples := parent.Flamegraph.Samples
 	totalSamples := parent.Flamegraph.Samples
 	if rawTotal, ok := parent.Metrics["total_samples"]; ok {
@@ -138,9 +148,7 @@ func ApplyDrilldownFilter(parent DrilldownStage, filter DrilldownFilter, interva
 			FilterSpec:    &filter,
 			ParentSamples: &parentSamples,
 			TotalSamples:  totalSamples,
-			IntervalMS:    intervalMS,
-			ElapsedSec:    elapsedSec,
-			TopN:          topN,
+			Options:       drilldownTimelineOptions(options),
 			Diagnostic:    diag,
 		})
 	}
@@ -155,9 +163,7 @@ func ApplyDrilldownFilter(parent DrilldownStage, filter DrilldownFilter, interva
 		FilterSpec:    &filter,
 		ParentSamples: &parentSamples,
 		TotalSamples:  totalSamples,
-		IntervalMS:    intervalMS,
-		ElapsedSec:    elapsedSec,
-		TopN:          topN,
+		Options:       drilldownTimelineOptions(options),
 	})
 }
 
@@ -167,11 +173,30 @@ func ApplyDrilldownFilter(parent DrilldownStage, filter DrilldownFilter, interva
 // 결과는 [Root, Stage1, Stage2, ...] 순으로 누적된 stage 리스트.
 // 각 stage 의 breadcrumb 가 누적되며 UI 의 탐색 경로가 된다.
 func BuildDrilldownStages(root FlameNode, filters []DrilldownFilter, intervalMS float64, elapsedSec *float64, topN int) []DrilldownStage {
-	stages := []DrilldownStage{CreateRootStage(root, intervalMS, elapsedSec, topN)}
+	options := Options{IntervalMS: intervalMS, ElapsedSec: elapsedSec, TopN: topN}
+	normalizeOptions(&options)
+	return BuildDrilldownStagesWithOptions(root, filters, options, root.Samples)
+}
+
+func BuildDrilldownStagesWithOptions(root FlameNode, filters []DrilldownFilter, options Options, totalSamples int) []DrilldownStage {
+	normalizeOptions(&options)
+	if totalSamples <= 0 {
+		totalSamples = root.Samples
+	}
+	stages := []DrilldownStage{createRootStageWithOptions(root, options, totalSamples)}
 	for _, filter := range filters {
-		stages = append(stages, ApplyDrilldownFilter(stages[len(stages)-1], filter, intervalMS, elapsedSec, topN))
+		stages = append(stages, applyDrilldownFilterWithOptions(stages[len(stages)-1], filter, options))
 	}
 	return stages
+}
+
+func drilldownTimelineOptions(options Options) Options {
+	next := options
+	// A drilldown stage is already scoped by its filters, so applying
+	// the original base-method scope again can hide the very stage the
+	// user just selected, especially after reroot_at_match.
+	next.TimelineBaseMethod = ""
+	return next
 }
 
 type stageInputs struct {
@@ -182,14 +207,12 @@ type stageInputs struct {
 	FilterSpec    *DrilldownFilter
 	ParentSamples *int
 	TotalSamples  int
-	IntervalMS    float64
-	ElapsedSec    *float64
-	TopN          int
+	Options       Options
 	Diagnostic    *filterDiagnostic
 }
 
 func buildDrilldownStage(in stageInputs) DrilldownStage {
-	intervalSeconds := in.IntervalMS / 1000
+	intervalSeconds := in.Options.IntervalMS / 1000
 	estimatedSeconds := round(float64(in.Root.Samples)*intervalSeconds, 3)
 	totalRatio := 0.0
 	if in.TotalSamples > 0 {
@@ -200,10 +223,11 @@ func buildDrilldownStage(in stageInputs) DrilldownStage {
 		parentRatio = round(float64(in.Root.Samples)/float64(*in.ParentSamples)*100, 4)
 	}
 	var elapsedRatio *float64
-	if in.ElapsedSec != nil && *in.ElapsedSec > 0 {
-		value := round(estimatedSeconds/(*in.ElapsedSec)*100, 4)
+	if in.Options.ElapsedSec != nil && *in.Options.ElapsedSec > 0 {
+		value := round(estimatedSeconds/(*in.Options.ElapsedSec)*100, 4)
 		elapsedRatio = &value
 	}
+	timelineRows, _ := buildTimeline(in.Root, in.Options, in.TotalSamples)
 	metrics := map[string]any{
 		"total_samples":      in.TotalSamples,
 		"matched_samples":    in.Root.Samples,
@@ -213,15 +237,16 @@ func buildDrilldownStage(in stageInputs) DrilldownStage {
 		"elapsed_ratio":      elapsedRatio,
 	}
 	stage := DrilldownStage{
-		Index:          in.Index,
-		Label:          in.Label,
-		Breadcrumb:     in.Breadcrumb,
-		Filter:         nil,
-		Metrics:        metrics,
-		Flamegraph:     in.Root,
-		TopStacks:      topStacksFromTree(in.Root, in.TopN),
-		TopChildFrames: topChildFrames(in.Root, in.TopN),
-		Diagnostics:    nil,
+		Index:            in.Index,
+		Label:            in.Label,
+		Breadcrumb:       in.Breadcrumb,
+		Filter:           nil,
+		Metrics:          metrics,
+		Flamegraph:       in.Root,
+		TimelineAnalysis: timelineRows,
+		TopStacks:        topStacksFromTree(in.Root, in.Options.TopN),
+		TopChildFrames:   topChildFrames(in.Root, in.Options.TopN),
+		Diagnostics:      nil,
 	}
 	if in.FilterSpec != nil {
 		stage.Filter = *in.FilterSpec

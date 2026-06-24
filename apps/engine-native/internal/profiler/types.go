@@ -270,15 +270,16 @@ type FlameNode struct {
 }
 
 type DrilldownStage struct {
-	Index          int                `json:"index"`
-	Label          string             `json:"label"`
-	Breadcrumb     []string           `json:"breadcrumb"`
-	Filter         any                `json:"filter"`
-	Metrics        map[string]any     `json:"metrics"`
-	Flamegraph     FlameNode          `json:"flamegraph"`
-	TopStacks      []TopItem          `json:"top_stacks"`
-	TopChildFrames []TopChildFrameRow `json:"top_child_frames"`
-	Diagnostics    any                `json:"diagnostics"`
+	Index            int                `json:"index"`
+	Label            string             `json:"label"`
+	Breadcrumb       []string           `json:"breadcrumb"`
+	Filter           any                `json:"filter"`
+	Metrics          map[string]any     `json:"metrics"`
+	Flamegraph       FlameNode          `json:"flamegraph"`
+	TimelineAnalysis []TimelineRow      `json:"timeline_analysis"`
+	TopStacks        []TopItem          `json:"top_stacks"`
+	TopChildFrames   []TopChildFrameRow `json:"top_child_frames"`
+	Diagnostics      any                `json:"diagnostics"`
 }
 
 type TopChildFrameRow struct {

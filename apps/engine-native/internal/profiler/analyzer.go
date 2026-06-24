@@ -244,10 +244,11 @@ func AnalyzeJenniferTree(root FlameNode, sourceFile string, diagnostics ParserDi
 			"parent_stage_ratio": 100.0,
 			"elapsed_ratio":      elapsedRatio(estimatedSeconds, options.ElapsedSec, 4),
 		},
-		Flamegraph:     FlameNode{},
-		TopStacks:      rootTopStacks,
-		TopChildFrames: topChildFramesRoot,
-		Diagnostics:    nil,
+		Flamegraph:       FlameNode{},
+		TimelineAnalysis: timelineRows,
+		TopStacks:        rootTopStacks,
+		TopChildFrames:   topChildFramesRoot,
+		Diagnostics:      nil,
 	}
 	return AnalysisResult{
 		Type:        "profiler_jennifer",
@@ -367,15 +368,16 @@ func AnalyzeCollapsedStacks(stacks map[string]int, sourceFile string, diagnostic
 	// the single source of truth). The renderer's drilldown stages
 	// come from a separate IPC call anyway.
 	rootStage := DrilldownStage{
-		Index:          0,
-		Label:          "All",
-		Breadcrumb:     []string{"All"},
-		Filter:         nil,
-		Metrics:        rootStageMetrics,
-		Flamegraph:     FlameNode{},
-		TopStacks:      rootTopStacks,
-		TopChildFrames: topChildFramesRoot,
-		Diagnostics:    nil,
+		Index:            0,
+		Label:            "All",
+		Breadcrumb:       []string{"All"},
+		Filter:           nil,
+		Metrics:          rootStageMetrics,
+		Flamegraph:       FlameNode{},
+		TimelineAnalysis: timelineRows,
+		TopStacks:        rootTopStacks,
+		TopChildFrames:   topChildFramesRoot,
+		Diagnostics:      nil,
 	}
 	return AnalysisResult{
 		Type:        "profiler_collapsed",

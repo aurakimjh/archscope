@@ -38,6 +38,7 @@ import {
 
 import { CanvasFlameGraph, type FlameGraphNode } from "./CanvasFlameGraph";
 import { HelpTip, HelpedLabel, HelpedTitle } from "./HelpTip";
+import { HorizontalBarChart, type BarRow } from "./HorizontalBarChart";
 import { getGenericMetricHelpText, getHelpText } from "@/help/helpCatalog";
 
 type FilterType = "include_text" | "exclude_text" | "regex_include" | "regex_exclude";
@@ -75,6 +76,33 @@ function adaptStageFlamegraph(stage: DrilldownStage | undefined): FlameGraphNode
   return walk(root);
 }
 
+function timelineDisplayRatio(row: any): number | undefined {
+  if (typeof row?.stage_ratio === "number") return row.stage_ratio;
+  if (typeof row?.total_ratio === "number") return row.total_ratio;
+  return undefined;
+}
+
+function formatTimelineSeconds(value: unknown): string {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return "—";
+  return `${n.toLocaleString(undefined, {
+    maximumFractionDigits: 3,
+    minimumFractionDigits: n > 0 && n < 1 ? 3 : 0,
+  })} s`;
+}
+
+function stageTimelineRows(stage: DrilldownStage | undefined): BarRow[] {
+  return ((stage as any)?.timeline_analysis ?? [])
+    .filter((row: any) => Number(row?.samples ?? 0) > 0)
+    .map((row: any) => ({
+      key: row.segment,
+      label: row.label || row.segment || "(unknown)",
+      value: Number(row.samples ?? 0),
+      ratio: timelineDisplayRatio(row),
+      detail: formatTimelineSeconds(row.estimated_seconds),
+    }));
+}
+
 export type DrilldownPanelProps = {
   baseRequest: AnalyzeRequest | null;
   onError?: (message: string) => void;
@@ -89,6 +117,7 @@ export function DrilldownPanel({ baseRequest, onError }: DrilldownPanelProps) {
 
   const lastStage = stages[stages.length - 1];
   const stageFlamegraph = useMemo(() => adaptStageFlamegraph(lastStage), [lastStage]);
+  const timelineRows = useMemo(() => stageTimelineRows(lastStage), [lastStage]);
 
   const runDrilldown = async (nextFilters: DrilldownFilter[]) => {
     if (!baseRequest) return;
@@ -277,11 +306,29 @@ export function DrilldownPanel({ baseRequest, onError }: DrilldownPanelProps) {
               help={getGenericMetricHelpText(locale, t("drilldownStageParent"))}
             />
           </div>
-          {stageFlamegraph && (
-            <CanvasFlameGraph
-              data={stageFlamegraph}
-              exportName={`drilldown-${stages.length - 1}`}
+          <div className="drilldown-result-section">
+            <h3 className="inline-flex items-center gap-2 text-sm">
+              {t("timelineTitle")}
+              <HelpTip text={getHelpText(locale, "sectionTimeline")} />
+            </h3>
+            <HorizontalBarChart
+              rows={timelineRows}
+              emptyLabel={t("timelineEmpty")}
+              valueSuffix={t("samples")}
+              ratioFractionDigits={2}
             />
+          </div>
+          {stageFlamegraph && (
+            <div className="drilldown-result-section">
+              <h3 className="inline-flex items-center gap-2 text-sm">
+                {t("flamegraphTitle")}
+                <HelpTip text={getHelpText(locale, "sectionFlamegraph")} />
+              </h3>
+              <CanvasFlameGraph
+                data={stageFlamegraph}
+                exportName={`drilldown-${stages.length - 1}`}
+              />
+            </div>
           )}
         </>
       )}

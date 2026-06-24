@@ -162,3 +162,75 @@ func TestDrilldownRootStageMetrics(t *testing.T) {
 		t.Fatalf("total_ratio = %v, want 100", got)
 	}
 }
+
+func TestDrilldownStageBuildsTimelineForFilteredBusinessScope(t *testing.T) {
+	root := buildFlameTree(map[string]int{
+		"com.company.OrderController.list;com.company.OrderService.calculate": 10,
+		"com.company.OrderController.list;org.slf4j.Logger.info":              5,
+		"com.company.OrderController.list;java.sql.Statement.executeQuery":    7,
+		"com.company.OtherController.health;com.company.HealthService.check":  3,
+	})
+	stages := BuildDrilldownStagesWithOptions(
+		root,
+		[]DrilldownFilter{
+			{Pattern: "OrderController", FilterType: "include_text", MatchMode: "anywhere", ViewMode: "preserve_full_path"},
+		},
+		Options{IntervalMS: 100, TopN: 5, ProfileKind: "wall"},
+		root.Samples,
+	)
+	stage := stages[1]
+	if got, want := stage.Flamegraph.Samples, 22; got != want {
+		t.Fatalf("stage samples = %d, want %d", got, want)
+	}
+	bySegment := map[string]TimelineRow{}
+	for _, row := range stage.TimelineAnalysis {
+		bySegment[row.Segment] = row
+	}
+	if got := bySegment["INTERNAL_METHOD"].Samples; got != 10 {
+		t.Fatalf("INTERNAL_METHOD samples = %d, want 10", got)
+	}
+	if got := bySegment["LOGGING"].Samples; got != 5 {
+		t.Fatalf("LOGGING samples = %d, want 5", got)
+	}
+	if got := bySegment["SQL_EXECUTION"].Samples; got != 7 {
+		t.Fatalf("SQL_EXECUTION samples = %d, want 7", got)
+	}
+	if got := bySegment["INTERNAL_METHOD"].StageRatio; got != 45.4545 {
+		t.Fatalf("INTERNAL_METHOD stage ratio = %v, want 45.4545", got)
+	}
+	if got := bySegment["INTERNAL_METHOD"].TotalRatio; got != 40 {
+		t.Fatalf("INTERNAL_METHOD total ratio = %v, want 40", got)
+	}
+}
+
+func TestDrilldownStageTimelineUsesCustomCategories(t *testing.T) {
+	root := buildFlameTree(map[string]int{
+		"com.company.OrderController.list;com.company.IntegrationUtil.sendToService": 9,
+		"com.company.OrderController.list;com.company.OrderService.calculate":        3,
+	})
+	stages := BuildDrilldownStagesWithOptions(
+		root,
+		[]DrilldownFilter{
+			{Pattern: "OrderController", FilterType: "include_text", MatchMode: "anywhere", ViewMode: "preserve_full_path"},
+		},
+		Options{
+			IntervalMS:  100,
+			TopN:        5,
+			ProfileKind: "wall",
+			TimelineCategories: map[string][]string{
+				"NETWORK_PREP": []string{"sendToService"},
+			},
+		},
+		root.Samples,
+	)
+	bySegment := map[string]TimelineRow{}
+	for _, row := range stages[1].TimelineAnalysis {
+		bySegment[row.Segment] = row
+	}
+	if got := bySegment["NETWORK_PREP"].Samples; got != 9 {
+		t.Fatalf("NETWORK_PREP samples = %d, want 9", got)
+	}
+	if got := bySegment["INTERNAL_METHOD"].Samples; got != 3 {
+		t.Fatalf("INTERNAL_METHOD samples = %d, want 3", got)
+	}
+}

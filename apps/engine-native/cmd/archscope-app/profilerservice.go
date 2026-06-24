@@ -368,7 +368,7 @@ func (s *ProfilerService) Drilldown(req DrilldownRequest) ([]profiler.DrilldownS
 		return nil, err
 	}
 	root := result.Charts.Flamegraph
-	stages := profiler.BuildDrilldownStages(root, req.Filters, options.IntervalMS, options.ElapsedSec, options.TopN)
+	stages := profiler.BuildDrilldownStagesWithOptions(root, req.Filters, options, result.Summary.TotalSamples)
 	return stages, nil
 }
 

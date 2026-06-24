@@ -238,6 +238,7 @@ export class DrilldownStage {
     "filter": any;
     "metrics": { [_ in string]?: any };
     "flamegraph": FlameNode;
+    "timeline_analysis": TimelineRow[];
     "top_stacks": TopItem[];
     "top_child_frames": TopChildFrameRow[];
     "diagnostics": any;
@@ -262,6 +263,9 @@ export class DrilldownStage {
         if (!("flamegraph" in $$source)) {
             this["flamegraph"] = (new FlameNode());
         }
+        if (!("timeline_analysis" in $$source)) {
+            this["timeline_analysis"] = [];
+        }
         if (!("top_stacks" in $$source)) {
             this["top_stacks"] = [];
         }
@@ -282,8 +286,9 @@ export class DrilldownStage {
         const $$createField2_0 = $$createType0;
         const $$createField4_0 = $$createType9;
         const $$createField5_0 = $$createType6;
-        const $$createField6_0 = $$createType11;
-        const $$createField7_0 = $$createType13;
+        const $$createField6_0 = $$createType27;
+        const $$createField7_0 = $$createType11;
+        const $$createField8_0 = $$createType13;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("breadcrumb" in $$parsedSource) {
             $$parsedSource["breadcrumb"] = $$createField2_0($$parsedSource["breadcrumb"]);
@@ -294,11 +299,14 @@ export class DrilldownStage {
         if ("flamegraph" in $$parsedSource) {
             $$parsedSource["flamegraph"] = $$createField5_0($$parsedSource["flamegraph"]);
         }
+        if ("timeline_analysis" in $$parsedSource) {
+            $$parsedSource["timeline_analysis"] = $$createField6_0($$parsedSource["timeline_analysis"]);
+        }
         if ("top_stacks" in $$parsedSource) {
-            $$parsedSource["top_stacks"] = $$createField6_0($$parsedSource["top_stacks"]);
+            $$parsedSource["top_stacks"] = $$createField7_0($$parsedSource["top_stacks"]);
         }
         if ("top_child_frames" in $$parsedSource) {
-            $$parsedSource["top_child_frames"] = $$createField7_0($$parsedSource["top_child_frames"]);
+            $$parsedSource["top_child_frames"] = $$createField8_0($$parsedSource["top_child_frames"]);
         }
         return new DrilldownStage($$parsedSource as Partial<DrilldownStage>);
     }
