@@ -48,7 +48,9 @@ import (
 // [한글] timelineOrder — 표시 순서 (시간 순/추상화 정도 고려).
 var timelineOrder = []string{
 	"STARTUP_FRAMEWORK",
+	"FRAMEWORK_MIDDLEWARE",
 	"INTERNAL_METHOD",
+	"LOGGING",
 	"SQL_EXECUTION",
 	"DB_FETCH",
 	"DB_NETWORK_WAIT",
@@ -65,7 +67,9 @@ var timelineOrder = []string{
 
 var timelineLabels = map[string]string{
 	"STARTUP_FRAMEWORK":         "Startup / framework",
+	"FRAMEWORK_MIDDLEWARE":      "Framework / middleware",
 	"INTERNAL_METHOD":           "Internal method",
+	"LOGGING":                   "Logging",
 	"SQL_EXECUTION":             "SQL execution",
 	"DB_FETCH":                  "DB fetch",
 	"DB_NETWORK_WAIT":           "DB network wait",
@@ -244,6 +248,8 @@ func timelineSegment(path []string) string {
 		wait = *classification.WaitReason
 	}
 	switch {
+	case primary == "LOGGING":
+		return "LOGGING"
 	case primary == "SQL_DATABASE" && looksLikeDBFetch(path):
 		return "DB_FETCH"
 	case primary == "SQL_DATABASE" && wait == "NETWORK_IO_WAIT":
@@ -266,7 +272,9 @@ func timelineSegment(path []string) string {
 		return "JVM_GC_RUNTIME"
 	case looksLikeStartup(path):
 		return "STARTUP_FRAMEWORK"
-	case primary == "APPLICATION_LOGIC" || primary == "FRAMEWORK_MIDDLEWARE":
+	case primary == "FRAMEWORK_MIDDLEWARE":
+		return "FRAMEWORK_MIDDLEWARE"
+	case primary == "APPLICATION_LOGIC":
 		return "INTERNAL_METHOD"
 	default:
 		return "UNKNOWN"
@@ -338,6 +346,10 @@ func selectChainFrames(path []string, segment string) []string {
 // 고리에 대해 정의되어 있고 그 외 segment 는 path 의 마지막 6개 frame.
 func segmentTokens(segment string) []string {
 	switch segment {
+	case "FRAMEWORK_MIDDLEWARE":
+		return frameworkFrameTokens
+	case "LOGGING":
+		return loggingFrameTokens
 	case "SQL_EXECUTION", "DB_FETCH", "DB_NETWORK_WAIT":
 		return []string{"oracle.jdbc", "java.sql", "t4cpreparedstatement", "t4cmarengine", "executequery", "executeupdate", "resultset", "socketinputstream.socketread", "niosocketimpl"}
 	case "EXTERNAL_CALL", "EXTERNAL_NETWORK_WAIT":

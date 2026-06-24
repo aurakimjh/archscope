@@ -81,7 +81,7 @@ const en = {
   sectionTimelineScope:
     "Timeline scope explains which base method and matching mode were used to build the execution timeline.",
   sectionTimeline:
-    "The execution timeline breaks profile samples into ordered work segments such as internal work, database calls, and external calls.",
+    "The execution timeline breaks profile samples into ordered work segments such as business algorithm work, Java framework or middleware time, logging, database calls, and external calls.",
   sectionTimelineEvidence:
     "Timeline evidence lists the frames and ratios that support each execution segment.",
   sectionBreakdown:
@@ -366,7 +366,7 @@ const ko: Record<HelpKey, string> = {
   sectionTimelineScope:
     "Timeline scope는 실행 타임라인을 만들 때 사용한 base method와 match mode를 설명합니다.",
   sectionTimeline:
-    "실행 타임라인은 profile sample을 internal work, database call, external call 같은 작업 구간으로 나눕니다.",
+    "실행 타임라인은 profile sample을 업무 알고리즘, Java 프레임워크/미들웨어, 로깅, database call, external call 같은 작업 구간으로 나눕니다.",
   sectionTimelineEvidence:
     "Timeline evidence는 각 실행 구간을 뒷받침하는 frame과 비율을 보여줍니다.",
   sectionBreakdown:

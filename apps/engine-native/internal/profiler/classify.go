@@ -7,6 +7,7 @@
 //   의 그룹핑 키가 되므로 profiler UI 의 모든 표/차트의 의미 라벨이 여기서 결정.
 //
 // 분류 카테고리 (PrimaryCategory)
+//   - LOGGING                   : SLF4J / Logback / Log4j / java.util.logging 등
 //   - SQL_DATABASE              : JDBC / Oracle / java.sql / executeQuery 등
 //   - EXTERNAL_API_HTTP         : RestTemplate / WebClient / OkHttp / urlconnection
 //   - CONNECTION_POOL_WAIT      : Hikari / ConcurrentBag / SynchronousQueue
@@ -19,7 +20,7 @@
 //   - UNKNOWN                   : 그 외
 //
 // 매칭 우선순위
-//   SQL → HTTP → Pool → Lock → Network → File → GC → Startup → Internal → Unknown.
+//   Logging → SQL → HTTP → Pool → Lock → Network → File → GC → Startup → Framework → Internal → Unknown.
 //   (앞에서 매치되면 뒤는 보지 않음). SQL/HTTP 는 "+ Network" 가 있으면
 //   WaitReason="NETWORK_IO_WAIT" 보조 라벨을 부착해 timeline 이 "쿼리 실행
 //   vs DB 응답 대기" 같은 세분화를 할 수 있게 한다.
@@ -37,6 +38,73 @@ package profiler
 
 import "strings"
 
+var loggingFrameTokens = []string{
+	"org.slf4j",
+	"ch.qos.logback",
+	"org.apache.logging.log4j",
+	"org.apache.log4j",
+	"java.util.logging",
+	"org.apache.commons.logging",
+	"org.jboss.logging",
+	"kotlin.logging",
+	"mu.kotlin",
+	"go.uber.org/zap",
+	"sirupsen/logrus",
+	"log/slog",
+	"zerolog",
+	"winston",
+	"pino.",
+	"loggerfactory",
+	"loggingevent",
+	"appenderskeleton",
+	"appenderbase",
+	"asyncappender",
+	"fileappender",
+	"consoleappender",
+	"rollingfileappender",
+	"logback",
+	"log4j",
+	"slf4j",
+	".logger.",
+	"logger.",
+	"logger_",
+	"logging.",
+	".logging",
+}
+
+var frameworkFrameTokens = []string{
+	"org.springframework.",
+	"springframework",
+	"dispatcherservlet",
+	"frameworkservlet",
+	"invocablehandlermethod",
+	"requestmappinghandleradapter",
+	"handleradapter",
+	"handlerinterceptor",
+	"transactioninterceptor",
+	"filterchainproxy",
+	"onceperrequestfilter",
+	"springsecurity",
+	"springbatch",
+	"org.aopalliance",
+	"org.aspectj",
+	"cglib",
+	"jakarta.servlet",
+	"javax.servlet",
+	"applicationfilterchain",
+	"org.apache.catalina",
+	"org.apache.coyote",
+	"org.apache.tomcat",
+	"standardwrappervalve",
+	"http11processor",
+	"io.undertow",
+	"org.eclipse.jetty",
+	"org.glassfish.jersey",
+	"org.jboss.resteasy",
+	"org.quartz",
+	"quartzscheduler",
+}
+
 // [한글] stackClassification — 분류 결과 묶음.
 // PrimaryCategory: 메인 카테고리(영문 enum string), WaitReason: SQL/HTTP +
 // Network 같은 보조 분류, Label: UI 표시용 영문 라벨.
@@ -49,6 +117,8 @@ type stackClassification struct {
 func classifyStack(stack string) string {
 	classification := classifyFrames(splitStack(stack))
 	switch classification.PrimaryCategory {
+	case "LOGGING":
+		return "Logging"
 	case "SQL_DATABASE":
 		return "Database"
 	case "EXTERNAL_API_HTTP":
@@ -73,20 +143,24 @@ func classifyStack(stack string) string {
 }
 
 // [한글] classifyFrames — 핵심 분류 함수.
-// 모든 frame 을 join 후 lower 하여 substring 매칭으로 8개 카테고리 후보를
-// 동시에 평가. 우선순위: SQL → HTTP → Pool → Lock → Network → File → GC →
-// Startup → Internal → Unknown. SQL/HTTP 는 Network 가 함께 있으면
+// 모든 frame 을 join 후 lower 하여 substring 매칭으로 카테고리 후보를
+// 동시에 평가. 우선순위: Logging → SQL → HTTP → Pool → Lock → Network →
+// File → GC → Startup → Framework → Internal → Unknown. SQL/HTTP 는 Network 가 함께 있으면
 // WaitReason="NETWORK_IO_WAIT" 보조 분류 부착.
 func classifyFrames(path []string) stackClassification {
 	stack := strings.ToLower(strings.Join(path, ";"))
-	hasSQL := containsAny(stack, "oracle.jdbc", "java.sql", "t4cpreparedstatement", "t4cmarengine", "executequery", "executeupdate", "resultset")
-	hasHTTP := containsAny(stack, "resttemplate", "webclient", "httpclient", "okhttp", "urlconnection", "mainclientexec", "bhttpconnection")
+	hasLogging := containsAny(stack, loggingFrameTokens...)
+	hasSQL := containsAny(stack, "oracle.jdbc", "java.sql", "t4cpreparedstatement", "t4cmarengine", "executequery", "executeupdate", "resultset", "org.hibernate", "jakarta.persistence", "javax.persistence", "entitymanager", "org.mybatis", "org.apache.ibatis", "mybatis", "ibatis", "defaultsqlsession", "mappermethod", "preparedstatementhandler", "simpleexecutor", "cachingexecutor", "org.jooq")
+	hasHTTP := containsAny(stack, "resttemplate", "webclient", "httpclient", "okhttp", "urlconnection", "mainclientexec", "bhttpconnection", "openfeign", "feign.", "reactor.netty.http.client", "java.net.http", "jdk.internal.net.http", "grpc.")
 	hasNetwork := containsAny(stack, "socketinputstream.socketread", "niosocketimpl", "socketread", "socket.read", "netpoll", "epollwait")
-	hasPool := containsAny(stack, "hikaripool.getconnection", "concurrentbag", "synchronousqueue")
+	hasPool := containsAny(stack, "hikaripool.getconnection", "hikari.pool", "concurrentbag", "synchronousqueue", "tomcat.jdbc.pool", "commons.dbcp", "c3p0")
 	hasLock := containsAny(stack, "locksupport.park", "unsafe.park", "object.wait", "future.get", "monitor.enter", "mutex.lock")
 	hasFile := containsAny(stack, "fileinputstream", "filechannel", "randomaccessfile", "bufferedreader.readline")
 	hasGC := containsAny(stack, "g1youngcollector", "shenandoah", "zgc", "safepoint", "garbagecollect")
 
+	if hasLogging {
+		return stackClassification{PrimaryCategory: "LOGGING", Label: "Logging"}
+	}
 	if hasSQL {
 		if hasNetwork {
 			return stackClassification{PrimaryCategory: "SQL_DATABASE", WaitReason: stringPtr("NETWORK_IO_WAIT"), Label: "SQL database"}
@@ -117,6 +191,9 @@ func classifyFrames(path []string) stackClassification {
 	if looksLikeStartup(path) {
 		return stackClassification{PrimaryCategory: "FRAMEWORK_MIDDLEWARE", Label: "Framework"}
 	}
+	if looksLikeFrameworkMiddleware(path) {
+		return stackClassification{PrimaryCategory: "FRAMEWORK_MIDDLEWARE", Label: "Framework / middleware"}
+	}
 	if looksLikeInternal(path) {
 		return stackClassification{PrimaryCategory: "APPLICATION_LOGIC", Label: "Application logic"}
 	}
@@ -145,6 +222,14 @@ func looksLikeStartup(path []string) bool {
 		".main",
 		"application.run",
 	)
+}
+
+func looksLikeFrameworkMiddleware(path []string) bool {
+	if len(path) == 0 {
+		return false
+	}
+	leaf := strings.ToLower(path[len(path)-1])
+	return containsAny(leaf, frameworkFrameTokens...)
 }
 
 func looksLikeInternal(path []string) bool {

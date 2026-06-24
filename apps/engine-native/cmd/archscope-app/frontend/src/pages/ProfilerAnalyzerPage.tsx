@@ -93,7 +93,9 @@ type ProfileKind = "wall" | "cpu" | "lock";
 // the Go side; user patterns flow through Options.TimelineCategories.
 const PROFILER_TIMELINE_SEGMENTS: SegmentSpec[] = [
   { id: "STARTUP_FRAMEWORK", label: "Startup / framework" },
+  { id: "FRAMEWORK_MIDDLEWARE", label: "Framework / middleware" },
   { id: "INTERNAL_METHOD", label: "Internal method" },
+  { id: "LOGGING", label: "Logging" },
   { id: "SQL_EXECUTION", label: "SQL execution" },
   { id: "DB_FETCH", label: "DB fetch" },
   { id: "DB_NETWORK_WAIT", label: "DB network wait" },
@@ -111,6 +113,36 @@ const PROFILER_TIMELINE_SEGMENTS: SegmentSpec[] = [
 const PROFILER_TIMELINE_PRESETS = (
   t: (key: any) => string,
 ): Preset[] => [
+  {
+    id: "java-frameworks",
+    label: t("presetJavaFrameworks"),
+    rules: {
+      FRAMEWORK_MIDDLEWARE: [
+        "org.springframework",
+        "DispatcherServlet",
+        "FilterChainProxy",
+        "ApplicationFilterChain",
+        "org.apache.catalina",
+        "jakarta.servlet",
+      ],
+      SQL_EXECUTION: ["org.hibernate", "org.mybatis", "org.jooq"],
+      EXTERNAL_CALL: ["openfeign", "feign.", "WebClient", "RestTemplate"],
+    },
+  },
+  {
+    id: "logging-frameworks",
+    label: t("presetLoggingFrameworks"),
+    rules: {
+      LOGGING: [
+        "org.slf4j",
+        "ch.qos.logback",
+        "org.apache.logging.log4j",
+        "java.util.logging",
+        "LoggerUtil",
+        "AuditLogger",
+      ],
+    },
+  },
   {
     id: "msa-network-prep",
     label: t("presetMsaNetworkPrep"),
@@ -131,21 +163,36 @@ const PROFILER_TIMELINE_PRESETS = (
   },
 ];
 
-type TimelineCompositionGroupId = "database" | "external" | "internal";
+type TimelineCompositionGroupId =
+  | "business"
+  | "framework"
+  | "logging"
+  | "database"
+  | "external"
+  | "runtime";
 
 const TIMELINE_COMPOSITION_GROUP_ORDER: TimelineCompositionGroupId[] = [
+  "business",
+  "framework",
+  "logging",
   "database",
   "external",
-  "internal",
+  "runtime",
 ];
 
 const TIMELINE_COMPOSITION_GROUP_COLORS: Record<TimelineCompositionGroupId, string> = {
+  business: "#ea580c",
+  framework: "#7c3aed",
+  logging: "#db2777",
   database: "#2563eb",
   external: "#059669",
-  internal: "#ea580c",
+  runtime: "#64748b",
 };
 
 const TIMELINE_COMPOSITION_SEGMENT_COLORS: Record<string, string> = {
+  INTERNAL_METHOD: "#f97316",
+  FRAMEWORK_MIDDLEWARE: "#7c3aed",
+  LOGGING: "#db2777",
   SQL_EXECUTION: "#2563eb",
   DB_FETCH: "#38bdf8",
   DB_NETWORK_WAIT: "#0ea5e9",
@@ -154,7 +201,6 @@ const TIMELINE_COMPOSITION_SEGMENT_COLORS: Record<string, string> = {
   EXTERNAL_CALL: "#10b981",
   EXTERNAL_NETWORK_WAIT: "#14b8a6",
   STARTUP_FRAMEWORK: "#f59e0b",
-  INTERNAL_METHOD: "#f97316",
   LOCK_SYNCHRONIZATION_WAIT: "#ef4444",
   NETWORK_IO_WAIT: "#06b6d4",
   FILE_IO: "#eab308",
@@ -164,6 +210,9 @@ const TIMELINE_COMPOSITION_SEGMENT_COLORS: Record<string, string> = {
 };
 
 const TIMELINE_COMPOSITION_SEGMENT_ORDER: Record<string, number> = {
+  INTERNAL_METHOD: 0,
+  FRAMEWORK_MIDDLEWARE: 0,
+  LOGGING: 0,
   SQL_EXECUTION: 0,
   DB_FETCH: 1,
   DB_NETWORK_WAIT: 2,
@@ -172,7 +221,6 @@ const TIMELINE_COMPOSITION_SEGMENT_ORDER: Record<string, number> = {
   EXTERNAL_CALL: 11,
   EXTERNAL_NETWORK_WAIT: 12,
   STARTUP_FRAMEWORK: 20,
-  INTERNAL_METHOD: 21,
   LOCK_SYNCHRONIZATION_WAIT: 22,
   NETWORK_IO_WAIT: 23,
   FILE_IO: 24,
@@ -250,6 +298,13 @@ function formatTimelinePercent(value: number | undefined): string {
 
 function timelineCompositionGroupId(segment: string): TimelineCompositionGroupId {
   switch (segment) {
+    case "INTERNAL_METHOD":
+      return "business";
+    case "FRAMEWORK_MIDDLEWARE":
+    case "STARTUP_FRAMEWORK":
+      return "framework";
+    case "LOGGING":
+      return "logging";
     case "SQL_EXECUTION":
     case "DB_FETCH":
     case "DB_NETWORK_WAIT":
@@ -260,7 +315,7 @@ function timelineCompositionGroupId(segment: string): TimelineCompositionGroupId
     case "EXTERNAL_NETWORK_WAIT":
       return "external";
     default:
-      return "internal";
+      return "runtime";
   }
 }
 
@@ -467,7 +522,7 @@ function TimelineCompositionCard({
                 );
               })}
             </div>
-            <div className="grid gap-3 text-[11px] lg:grid-cols-3">
+            <div className="grid gap-3 text-[11px] sm:grid-cols-2 xl:grid-cols-6">
               {groups.map((group) => {
                 const widthPct = (group.samples / denominatorSamples) * 100;
                 const groupColor = TIMELINE_COMPOSITION_GROUP_COLORS[group.id];
@@ -1292,9 +1347,12 @@ export function ProfilerAnalyzerPage(): JSX.Element {
               title={t("executionTimeComposition")}
               emptyLabel={t("timelineEmpty")}
               groupLabels={{
+                business: t("executionGroupBusiness"),
+                framework: t("executionGroupFramework"),
+                logging: t("executionGroupLogging"),
                 database: t("executionGroupDatabase"),
                 external: t("executionGroupExternal"),
-                internal: t("executionGroupInternal"),
+                runtime: t("executionGroupRuntime"),
               }}
               scope={timelineScope}
               intervalMs={summary?.interval_ms ?? intervalMs}

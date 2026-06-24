@@ -111,3 +111,73 @@ func TestAnalyzeCollapsedStacksTimelineSeparatesDBFetch(t *testing.T) {
 		t.Fatalf("INTERNAL_METHOD samples = %d, want 4", got)
 	}
 }
+
+func TestAnalyzeCollapsedStacksTimelineSeparatesLoggingFromBusinessLogic(t *testing.T) {
+	source := "fixture.collapsed"
+	result := AnalyzeCollapsedStacks(
+		map[string]int{
+			"com.company.OrderService.calculate;com.company.PricingAlgorithm.apply":                                13,
+			"com.company.OrderService.calculate;org.slf4j.Logger.info;ch.qos.logback.classic.Logger.callAppenders": 7,
+		},
+		source,
+		ParserDiagnostics{SourceFile: &source, Format: "async_profiler_collapsed", SkippedByReason: map[string]int{}},
+		Options{IntervalMS: 100, TopN: 5, ProfileKind: "wall"},
+	)
+
+	bySegment := map[string]TimelineRow{}
+	for _, row := range result.Series.TimelineAnalysis {
+		bySegment[row.Segment] = row
+	}
+	if got := bySegment["LOGGING"].Samples; got != 7 {
+		t.Fatalf("LOGGING samples = %d, want 7", got)
+	}
+	if got := bySegment["INTERNAL_METHOD"].Samples; got != 13 {
+		t.Fatalf("INTERNAL_METHOD samples = %d, want 13", got)
+	}
+	if got := bySegment["LOGGING"].StageRatio; got != 35 {
+		t.Fatalf("LOGGING stage ratio = %v, want 35", got)
+	}
+
+	byCategory := map[string]ExecutionBreakdownRow{}
+	for _, row := range result.Series.ExecutionBreakdown {
+		byCategory[row.Category] = row
+	}
+	if got := byCategory["LOGGING"].Samples; got != 7 {
+		t.Fatalf("LOGGING breakdown samples = %d, want 7", got)
+	}
+	if got := byCategory["APPLICATION_LOGIC"].Samples; got != 13 {
+		t.Fatalf("APPLICATION_LOGIC breakdown samples = %d, want 13", got)
+	}
+}
+
+func TestAnalyzeCollapsedStacksTimelineSeparatesSpringFrameworkFromBusinessLogic(t *testing.T) {
+	source := "fixture.collapsed"
+	result := AnalyzeCollapsedStacks(
+		map[string]int{
+			"org.apache.catalina.core.ApplicationFilterChain.doFilter;org.springframework.web.servlet.DispatcherServlet.doDispatch":               6,
+			"org.springframework.web.servlet.DispatcherServlet.doDispatch;com.company.OrderController.list;com.company.OrderService.calculate":    14,
+			"org.springframework.boot.SpringApplication.run;org.springframework.batch.core.launch.support.SimpleJobLauncher.run":                  3,
+			"com.company.OrderRepository.find;org.mybatis.spring.SqlSessionTemplate.selectList;org.apache.ibatis.executor.SimpleExecutor.doQuery": 5,
+		},
+		source,
+		ParserDiagnostics{SourceFile: &source, Format: "async_profiler_collapsed", SkippedByReason: map[string]int{}},
+		Options{IntervalMS: 100, TopN: 5, ProfileKind: "wall"},
+	)
+
+	bySegment := map[string]TimelineRow{}
+	for _, row := range result.Series.TimelineAnalysis {
+		bySegment[row.Segment] = row
+	}
+	if got := bySegment["FRAMEWORK_MIDDLEWARE"].Samples; got != 6 {
+		t.Fatalf("FRAMEWORK_MIDDLEWARE samples = %d, want 6", got)
+	}
+	if got := bySegment["INTERNAL_METHOD"].Samples; got != 14 {
+		t.Fatalf("INTERNAL_METHOD samples = %d, want 14", got)
+	}
+	if got := bySegment["STARTUP_FRAMEWORK"].Samples; got != 3 {
+		t.Fatalf("STARTUP_FRAMEWORK samples = %d, want 3", got)
+	}
+	if got := bySegment["SQL_EXECUTION"].Samples; got != 5 {
+		t.Fatalf("SQL_EXECUTION samples = %d, want 5", got)
+	}
+}
