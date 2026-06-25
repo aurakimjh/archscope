@@ -177,6 +177,7 @@ type ApiCallSortKey =
   | "apiP95Ms"
   | "apiMaxMs"
   | "calleeAvgMs"
+  | "calleeTotalMs"
   | "networkTotalMs"
   | "networkP95Ms"
   | "networkMaxMs";
@@ -196,6 +197,7 @@ type ApiCallAggregate = {
   apiP95Ms: number;
   apiMaxMs: number;
   calleeAvgMs: number;
+  calleeTotalMs: number;
   networkTotalMs: number;
   networkAvgMs: number;
   networkP95Ms: number;
@@ -1446,12 +1448,12 @@ function ApiCallAnalysisPanel({
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="inline-flex items-center gap-2 text-sm">
-          API 호출 응답시간 분석 ({rows.length})
+          External Call 응답시간 분석 ({rows.length})
           <HelpTip text={getHelpText(locale, "sectionMsaExternalTop")} />
         </CardTitle>
         <p className="text-xs text-muted-foreground">
-          EXTERNAL_CALL 원본 URL을 API 기준으로 묶고 API 수행시간과 네트워크
-          시간을 함께 집계합니다.
+          EXTERNAL_CALL 원본 URL별로 묶어 External_Call(callee 응답시간)·API(호출자
+          측정 시간)·네트워크 시간을 함께 집계합니다.
         </p>
         {scopeLabel ? (
           <div className="mt-2 inline-flex w-fit rounded-md border border-border bg-muted/20 px-2 py-1 text-[11px] text-muted-foreground">
@@ -1509,19 +1511,26 @@ function ApiCallAnalysisPanel({
                       {sortHeader(isAverageView ? "Calls / tx" : "Calls", "count", "right")}
                     </th>
                     <th className="px-3 py-2 text-right font-medium">
-                      {sortHeader(isAverageView ? "API cum / tx" : "API cum", "apiTotalMs", "right")}
+                      {sortHeader("External_Call avg", "calleeAvgMs", "right")}
+                    </th>
+                    <th className="px-3 py-2 text-right font-medium">
+                      {sortHeader(
+                        isAverageView ? "External_Call Sum / tx" : "External_Call Sum",
+                        "calleeTotalMs",
+                        "right",
+                      )}
                     </th>
                     <th className="px-3 py-2 text-right font-medium">
                       {sortHeader("API avg", "apiAvgMs", "right")}
+                    </th>
+                    <th className="px-3 py-2 text-right font-medium">
+                      {sortHeader(isAverageView ? "API cum / tx" : "API cum", "apiTotalMs", "right")}
                     </th>
                     <th className="px-3 py-2 text-right font-medium">
                       {sortHeader("API p95", "apiP95Ms", "right")}
                     </th>
                     <th className="px-3 py-2 text-right font-medium">
                       {sortHeader("API max", "apiMaxMs", "right")}
-                    </th>
-                    <th className="px-3 py-2 text-right font-medium">
-                      {sortHeader("Callee avg", "calleeAvgMs", "right")}
                     </th>
                     <th className="px-3 py-2 text-right font-medium">
                       {sortHeader(
@@ -1557,21 +1566,26 @@ function ApiCallAnalysisPanel({
                         {formatCountValue(row.count)}
                       </td>
                       <td className="px-3 py-2 text-right tabular-nums">
-                        {Math.round(row.apiTotalMs).toLocaleString()}
+                        {row.calleeAvgMs > 0
+                          ? Math.round(row.calleeAvgMs).toLocaleString()
+                          : "—"}
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums">
+                        {row.calleeTotalMs > 0
+                          ? Math.round(row.calleeTotalMs).toLocaleString()
+                          : "—"}
                       </td>
                       <td className="px-3 py-2 text-right tabular-nums">
                         {Math.round(row.apiAvgMs).toLocaleString()}
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums">
+                        {Math.round(row.apiTotalMs).toLocaleString()}
                       </td>
                       <td className="px-3 py-2 text-right tabular-nums">
                         {Math.round(row.apiP95Ms).toLocaleString()}
                       </td>
                       <td className="px-3 py-2 text-right tabular-nums">
                         {Math.round(row.apiMaxMs).toLocaleString()}
-                      </td>
-                      <td className="px-3 py-2 text-right tabular-nums">
-                        {row.calleeAvgMs > 0
-                          ? Math.round(row.calleeAvgMs).toLocaleString()
-                          : "—"}
                       </td>
                       <td className="px-3 py-2 text-right tabular-nums">
                         {Math.round(row.networkTotalMs).toLocaleString()}
@@ -2118,6 +2132,7 @@ function aggregateApiCalls(
       apiP95Ms: percentile(state.apiValues, 95),
       apiMaxMs: Math.max(0, ...state.apiValues),
       calleeAvgMs: state.calleeTotal / Math.max(1, state.calleeMetricCount),
+      calleeTotalMs: state.calleeTotal / divisor,
       networkTotalMs,
       networkAvgMs: state.networkTotal / Math.max(1, state.networkMetricCount),
       networkP95Ms: percentile(state.networkValues, 95),
@@ -2167,6 +2182,8 @@ function apiCallSortValue(
       return row.apiMaxMs;
     case "calleeAvgMs":
       return row.calleeAvgMs;
+    case "calleeTotalMs":
+      return row.calleeTotalMs;
     case "networkTotalMs":
       return row.networkTotalMs;
     case "networkP95Ms":

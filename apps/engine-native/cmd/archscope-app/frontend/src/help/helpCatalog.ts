@@ -179,7 +179,7 @@ const en = {
   sectionMsaUnprofiledExternal:
     "Unprofiled external calls are calls where the caller exists but the matching callee profile was not captured.",
   sectionMsaExternalTop:
-    "Aggregates API calls by URL with call count, cumulative API time, max, p95, and network timing.",
+    "Aggregates external calls by URL: External_Call avg/sum is the callee's own response time, while the API columns are the caller-measured elapsed (callee + network), shown with call count, max, p95, and network timing.",
   sectionMsaSlowSql:
     "Slow SQL candidates highlight queries whose response time exceeds the current threshold.",
   sectionMsaCustomCards:
@@ -464,7 +464,7 @@ const ko: Record<HelpKey, string> = {
   sectionMsaUnprofiledExternal:
     "프로파일 미수집 외부호출은 caller는 있지만 매칭되는 callee profile이 수집되지 않은 call입니다.",
   sectionMsaExternalTop:
-    "API URL별 호출회수, 누적 API 시간, 최장, p95, 네트워크 timing을 함께 집계합니다.",
+    "EXTERNAL_CALL URL별로 집계합니다. External_Call avg/sum은 callee 자신의 응답시간이고, API 컬럼은 호출자가 측정한 elapsed(callee + 네트워크)입니다. 호출회수, 최장, p95, 네트워크 timing을 함께 보여줍니다.",
   sectionMsaSlowSql:
     "성능 저하 SQL 후보는 현재 threshold를 넘는 SQL 응답 시간을 강조합니다.",
   sectionMsaCustomCards:
