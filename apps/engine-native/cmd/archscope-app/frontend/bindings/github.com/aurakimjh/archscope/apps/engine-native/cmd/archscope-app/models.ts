@@ -1093,11 +1093,18 @@ export class JenniferProfileRequest {
     "headerBodyToleranceMs"?: number;
 
     /**
-     * NetworkPrepPatterns are case-insensitive substrings that mark
-     * an event as a "network prep" wrapper method. Empty falls back
-     * to the built-in default (IntegrationUtil.sendToService).
+     * NetworkPrepPatterns are additional case-insensitive substrings
+     * that mark an event as a "network prep" wrapper method. Built-in
+     * defaults such as IntegrationUtil.sendToService always remain
+     * active.
      */
     "networkPrepPatterns"?: string[];
+
+    /**
+     * ServletDispatchPatterns mark the callee servlet entry-point whose
+     * self-time is dispatch overhead. Built-in defaults always remain active.
+     */
+    "servletDispatchPatterns"?: string[];
 
     /**
      * EventCategoryPatterns extends the event classifier. Keys are
@@ -1124,8 +1131,9 @@ export class JenniferProfileRequest {
     static createFrom($$source: any = {}): JenniferProfileRequest {
         const $$createField1_0 = $$createType2;
         const $$createField4_0 = $$createType2;
-        const $$createField5_0 = $$createType3;
-        const $$createField6_0 = $$createType9;
+        const $$createField5_0 = $$createType2;
+        const $$createField6_0 = $$createType3;
+        const $$createField7_0 = $$createType9;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("paths" in $$parsedSource) {
             $$parsedSource["paths"] = $$createField1_0($$parsedSource["paths"]);
@@ -1133,11 +1141,14 @@ export class JenniferProfileRequest {
         if ("networkPrepPatterns" in $$parsedSource) {
             $$parsedSource["networkPrepPatterns"] = $$createField4_0($$parsedSource["networkPrepPatterns"]);
         }
+        if ("servletDispatchPatterns" in $$parsedSource) {
+            $$parsedSource["servletDispatchPatterns"] = $$createField5_0($$parsedSource["servletDispatchPatterns"]);
+        }
         if ("eventCategoryPatterns" in $$parsedSource) {
-            $$parsedSource["eventCategoryPatterns"] = $$createField5_0($$parsedSource["eventCategoryPatterns"]);
+            $$parsedSource["eventCategoryPatterns"] = $$createField6_0($$parsedSource["eventCategoryPatterns"]);
         }
         if ("customAnalysisRules" in $$parsedSource) {
-            $$parsedSource["customAnalysisRules"] = $$createField6_0($$parsedSource["customAnalysisRules"]);
+            $$parsedSource["customAnalysisRules"] = $$createField7_0($$parsedSource["customAnalysisRules"]);
         }
         return new JenniferProfileRequest($$parsedSource as Partial<JenniferProfileRequest>);
     }

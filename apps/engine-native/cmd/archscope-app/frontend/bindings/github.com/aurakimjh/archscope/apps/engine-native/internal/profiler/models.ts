@@ -286,9 +286,9 @@ export class DrilldownStage {
         const $$createField2_0 = $$createType0;
         const $$createField4_0 = $$createType9;
         const $$createField5_0 = $$createType6;
-        const $$createField6_0 = $$createType27;
-        const $$createField7_0 = $$createType11;
-        const $$createField8_0 = $$createType13;
+        const $$createField6_0 = $$createType11;
+        const $$createField7_0 = $$createType13;
+        const $$createField8_0 = $$createType15;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("breadcrumb" in $$parsedSource) {
             $$parsedSource["breadcrumb"] = $$createField2_0($$parsedSource["breadcrumb"]);
@@ -368,8 +368,8 @@ export class ExecutionBreakdownRow {
      * Creates a new ExecutionBreakdownRow instance from a string or object.
      */
     static createFrom($$source: any = {}): ExecutionBreakdownRow {
-        const $$createField9_0 = $$createType11;
-        const $$createField10_0 = $$createType11;
+        const $$createField9_0 = $$createType13;
+        const $$createField10_0 = $$createType13;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("top_methods" in $$parsedSource) {
             $$parsedSource["top_methods"] = $$createField9_0($$parsedSource["top_methods"]);
@@ -431,7 +431,7 @@ export class FlameNode {
      * Creates a new FlameNode instance from a string or object.
      */
     static createFrom($$source: any = {}): FlameNode {
-        const $$createField7_0 = $$createType14;
+        const $$createField7_0 = $$createType16;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("children" in $$parsedSource) {
             $$parsedSource["children"] = $$createField7_0($$parsedSource["children"]);
@@ -482,8 +482,8 @@ export class Metadata {
      * Creates a new Metadata instance from a string or object.
      */
     static createFrom($$source: any = {}): Metadata {
-        const $$createField2_0 = $$createType15;
-        const $$createField3_0 = $$createType16;
+        const $$createField2_0 = $$createType17;
+        const $$createField3_0 = $$createType18;
         const $$createField5_0 = $$createType9;
         const $$createField6_0 = $$createType9;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
@@ -570,10 +570,10 @@ export class ParserDiagnostics {
      * Creates a new ParserDiagnostics instance from a string or object.
      */
     static createFrom($$source: any = {}): ParserDiagnostics {
-        const $$createField5_0 = $$createType17;
-        const $$createField6_0 = $$createType19;
-        const $$createField9_0 = $$createType19;
-        const $$createField10_0 = $$createType19;
+        const $$createField5_0 = $$createType19;
+        const $$createField6_0 = $$createType21;
+        const $$createField9_0 = $$createType21;
+        const $$createField10_0 = $$createType21;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("skipped_by_reason" in $$parsedSource) {
             $$parsedSource["skipped_by_reason"] = $$createField5_0($$parsedSource["skipped_by_reason"]);
@@ -623,10 +623,10 @@ export class Series {
      * Creates a new Series instance from a string or object.
      */
     static createFrom($$source: any = {}): Series {
-        const $$createField0_0 = $$createType21;
-        const $$createField1_0 = $$createType23;
-        const $$createField2_0 = $$createType25;
-        const $$createField3_0 = $$createType27;
+        const $$createField0_0 = $$createType23;
+        const $$createField1_0 = $$createType25;
+        const $$createField2_0 = $$createType27;
+        const $$createField3_0 = $$createType11;
         const $$createField4_0 = $$createType29;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("top_stacks" in $$parsedSource) {
@@ -710,8 +710,8 @@ export class Tables {
      */
     static createFrom($$source: any = {}): Tables {
         const $$createField0_0 = $$createType31;
-        const $$createField1_0 = $$createType13;
-        const $$createField2_0 = $$createType27;
+        const $$createField1_0 = $$createType15;
+        const $$createField2_0 = $$createType11;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("top_stacks" in $$parsedSource) {
             $$parsedSource["top_stacks"] = $$createField0_0($$parsedSource["top_stacks"]);
@@ -844,9 +844,9 @@ export class TimelineRow {
      * Creates a new TimelineRow instance from a string or object.
      */
     static createFrom($$source: any = {}): TimelineRow {
-        const $$createField8_0 = $$createType11;
+        const $$createField8_0 = $$createType13;
         const $$createField9_0 = $$createType33;
-        const $$createField10_0 = $$createType11;
+        const $$createField10_0 = $$createType13;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("top_methods" in $$parsedSource) {
             $$parsedSource["top_methods"] = $$createField8_0($$parsedSource["top_methods"]);
@@ -1086,23 +1086,23 @@ const $$createType6 = FlameNode.createFrom;
 const $$createType7 = DrilldownStage.createFrom;
 const $$createType8 = $Create.Array($$createType7);
 const $$createType9 = $Create.Map($Create.Any, $Create.Any);
-const $$createType10 = TopItem.createFrom;
+const $$createType10 = TimelineRow.createFrom;
 const $$createType11 = $Create.Array($$createType10);
-const $$createType12 = TopChildFrameRow.createFrom;
+const $$createType12 = TopItem.createFrom;
 const $$createType13 = $Create.Array($$createType12);
-const $$createType14 = $Create.Array($$createType6);
-const $$createType15 = ParserDiagnostics.createFrom;
-const $$createType16 = TimelineScope.createFrom;
-const $$createType17 = $Create.Map($Create.Any, $Create.Any);
-const $$createType18 = DiagnosticSample.createFrom;
-const $$createType19 = $Create.Array($$createType18);
-const $$createType20 = TopStackSeriesRow.createFrom;
+const $$createType14 = TopChildFrameRow.createFrom;
+const $$createType15 = $Create.Array($$createType14);
+const $$createType16 = $Create.Array($$createType6);
+const $$createType17 = ParserDiagnostics.createFrom;
+const $$createType18 = TimelineScope.createFrom;
+const $$createType19 = $Create.Map($Create.Any, $Create.Any);
+const $$createType20 = DiagnosticSample.createFrom;
 const $$createType21 = $Create.Array($$createType20);
-const $$createType22 = ComponentBreakdownRow.createFrom;
+const $$createType22 = TopStackSeriesRow.createFrom;
 const $$createType23 = $Create.Array($$createType22);
-const $$createType24 = ExecutionBreakdownRow.createFrom;
+const $$createType24 = ComponentBreakdownRow.createFrom;
 const $$createType25 = $Create.Array($$createType24);
-const $$createType26 = TimelineRow.createFrom;
+const $$createType26 = ExecutionBreakdownRow.createFrom;
 const $$createType27 = $Create.Array($$createType26);
 const $$createType28 = ThreadRow.createFrom;
 const $$createType29 = $Create.Array($$createType28);
