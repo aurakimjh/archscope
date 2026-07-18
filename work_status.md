@@ -1,6 +1,6 @@
 # ArchScope Work Status
 
-Last updated: 2026-05-17
+Last updated: 2026-07-18
 
 This file is the current execution status for the active ArchScope product line.
 The previous long-form history was archived to
@@ -17,10 +17,10 @@ The previous long-form history was archived to
 - Release baseline: `v0.3.5` is the latest stable GitHub release. The
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
-- Current execution focus: post-`v0.3.5` roadmap review. Long-term external
-  APM import and direct SaaS/product-specific connectors remain roadmap
-  candidates; no post-T-555 work is promoted into Active TO-DO until the next
-  implementation slice is explicitly selected.
+- Current execution focus: the post-`v0.3.5` Jennifer MSA drilldown follow-up
+  plus the design-gated Chrome DevTools/V8 CPU profile slice. Long-term
+  external APM import and direct SaaS/product-specific connectors remain
+  roadmap candidates.
 - Retired implementation: Python/FastAPI/browser sources are archived under
   `archive/python-engine` and `archive/web-frontend-python`.
 - Historical native POC module has been folded into `apps/engine-native`.
@@ -200,20 +200,24 @@ filtered before analysis.
 
 1. Keep `v0.3.5` release verification healthy by monitoring the release
    workflow, release asset availability, and app/package metadata alignment.
-2. Review the long-term external APM import roadmap before assigning any new
-   T-556+ implementation range. Local file imports already cover OTLP, Zipkin,
-   Elastic APM, Jaeger, and SkyWalking-style trace evidence; direct SaaS and
-   product-specific connectors remain deferred until token storage, redaction,
-   compliance, connector testability, and source-evidence contracts are clear.
-3. Keep security/compliance evidence as a roadmap candidate, not an active
+2. Resolve T-558 and T-559 before starting the Chrome browser/V8 profile
+   implementation: select the actual Chrome acquisition format and lock the
+   sample value/time-unit contract with duration invariants.
+3. Review the long-term external APM import roadmap before assigning any new
+   external-connector implementation range. Local file imports already cover
+   OTLP, Zipkin, Elastic APM, Jaeger, and SkyWalking-style trace evidence;
+   direct SaaS and product-specific connectors remain deferred until token
+   storage, redaction, compliance, connector testability, and source-evidence
+   contracts are clear.
+4. Keep security/compliance evidence as a roadmap candidate, not an active
    TO-DO range, until it is selected against the external APM roadmap and the
    next release objective.
-4. Continue pairing English/Korean docs whenever importer, analyzer, UI, or
+5. Continue pairing English/Korean docs whenever importer, analyzer, UI, or
    report-pack surfaces change.
-5. Reserve `v0.4.0` for a broader Evidence Studio roll-up after the remaining
+6. Reserve `v0.4.0` for a broader Evidence Studio roll-up after the remaining
    roadmap candidates are prioritized and the chosen source families stabilize
    as one coherent workflow.
-6. Keep release verification healthy before each release cut by repeating
+7. Keep release verification healthy before each release cut by repeating
    Windows GUI smoke, macOS signing/notarization validation, frontend bundle
    budget checks, and representative real-export fixture updates.
 
@@ -230,6 +234,9 @@ filtered before analysis.
 | P2 determinism, timestamp, runtime-stack, testing, shared utility, Mermaid, narrative sorting, and dedupe issues | Accepted and grouped by risk/dependency | T-464 through T-467 |
 | Full immediate migration of all Wails state projections to Go analyzers | Deferred as too broad for one patch; start with Service Flow and migrate the remaining projections after the contract pattern is proven | T-458, T-459 |
 | Korean PII allow-list coverage | Accepted as a review point inside the privacy hardening task; exact rule set needs implementation-time examples | T-454 |
+| 2026-07-18 Chrome DevTools CPU profile design review P0-1 through P0-4 | Accepted as implementation gates | T-558 through T-561 |
+| Chrome/V8 classification, parser validation and frame identity, large-file/trace streaming findings | Accepted as dependent design hardening | T-562 through T-564 |
+| Chrome profile end-to-end fixtures and English/Korean documentation parity | Accepted after the P0 contracts stabilize | T-565 |
 
 ## Mid-Term Plus Intake Plan
 
@@ -245,19 +252,30 @@ filtered before analysis.
 | Release | Complete through | Release type | Required contents before cut |
 |---|---|---|---|
 | v0.3.5 | T-468 through T-555 | Stable Evidence Studio expansion | Released 2026-05-17 with Mid-Term Plus importers, API/event contract analysis, architecture docs drafts, advanced stitching, version metadata, changelog, release tag, and release workflow verification. |
-| Next candidate | Not assigned | Roadmap-selected slice | Select after reviewing long-term external APM import, security/compliance evidence, and stabilization needs; assign T-556+ only after the scope is explicitly promoted. |
+| Next candidate | T-558 through T-565 design-gated | Chrome browser/V8 profile slice | Start implementation only after T-558 acquisition-format and T-559 measurement-unit contracts are approved; keep external APM and security/compliance work deferred. |
 | v0.4.0 candidate | Not assigned | Evidence Studio roll-up | Full local evidence workflow is smoke-tested as one product story with sample packs, report exports, regression tests, AI gate checks, and release notes that present the expanded capability coherently. |
 
 ## Active TO-DO
 
-Post-T-555 work is active for the Jennifer MSA drilldown slice requested on
-2026-05-28. Other roadmap candidates, including long-term external APM import
-and security/compliance evidence, remain deferred until explicitly promoted.
+Post-T-555 work includes the Jennifer MSA drilldown follow-up and the
+Chrome DevTools/V8 CPU profile design gate reviewed on 2026-07-18. The Chrome
+profile implementation must not start until the actual acquisition format and
+measurement-unit contracts are resolved. Other roadmap candidates, including
+long-term external APM import and security/compliance evidence, remain deferred
+until explicitly promoted.
 
 | ID | Priority | Status | Task | Depends on | Output |
 |---|---|---|---|---|---|
+| T-558 | P0 | [ ] | Decide whether the first supported browser input is the current Chrome Performance trace (`.json`/`.json.gz`) or direct V8 `.cpuprofile`, then align the design title, collection guide, phase order, and menu copy with that decision. | None | Revised acquisition and format contract; no implementation before approval |
+| T-559 | P0 | [ ] | Define one value/time-unit contract for V8 samples, including delta attribution, `IntervalMS`, idle accounting, summary fields, Diff normalization, and CLI/Wails defaults; lock it with duration parity tests. | T-558 | Measurement contract and golden invariants |
+| T-560 | P0 | [ ] | Define and implement one desktop integration path for profile evidence so Browser CPU analysis, the existing Profiler policy, Analysis Workspace, Diff, and Report Export all consume the same normalized parser output. | T-558, T-559 | End-to-end Wails analysis, diff, and export contract |
+| T-561 | P0 | [ ] | Redesign Phase 3 temporal analysis: use Chrome trace task boundaries for true Long Task findings, or rename cpuprofile-only output to sampled CPU runs; define a pre-collapse ordered-series contract. | T-558, T-559 | Semantically correct temporal-analysis design |
 | T-556 | P0 | [x] | Add Jennifer MSA application drilldown so a user can choose a middle-tier application/TXID or average-transaction application URL and recalculate response-time composition from that application and its downstream calls instead of the whole GUID root. | Existing Jennifer MSA `guid_groups`, `profiles`, `msa_edges`, `slow_sql_events` contracts | Completed 2026-05-28: single TXID selector plus average-mode unique application URL selector, scoped response breakdown, scoped topology/timeline/treemap, scoped transaction and slow SQL tables |
+| T-562 | P1 | [ ] | Unify the JSON and hard-coded profiler classifiers behind a source-format-aware interface, then define where FlameNode category/color enrichment occurs without reclassifying Node V8 frames as browser frames. | T-559 | Context-aware classification and color contract |
+| T-563 | P1 | [ ] | Harden V8 parsing with graph validation, optional-field policy, timestamp reconciliation, canonical per-frame script identity, redaction, and explicit parser/analyzer/Wails options. | T-558, T-559 | Deterministic parser validation and evidence identity contract |
+| T-564 | P1 | [ ] | Replace whole-file/double-unmarshal assumptions with a size/gzip/streaming strategy for direct profiles and Chrome traces; define weighted downsampling and partial-result semantics. | T-558, T-563 | Large-file design, caps, diagnostics, and benchmark plan |
 | T-557 | P1 | [ ] | Promote the Jennifer MSA drilldown calculation from UI projection to a Go analyzer contract if repeated use shows it should be exported/reported outside the desktop page. | T-556 | Planned follow-up: stable result schema for drilldown scopes |
+| T-565 | P2 | [ ] | Add sanitized Chrome/Node/CDP malformed and end-to-end fixtures, then pair the Korean design with English documentation and update importer matrix, data model, user guide, and performance docs after the P0 contracts stabilize. | T-558 through T-564 | Fixture provenance, parity tests, and paired documentation |
 | T-414 | P1 | [x] | Connect `trace_import` to the Wails UI with summary cards, service dependency view, trace table, span table, and findings panel. | Trace import MVP | Completed 2026-05-13: Trace Import desktop workflow |
 | T-415 | P1 | [x] | Add Elastic APM `_search` response and source-only NDJSON importers. | Trace import MVP | Completed 2026-05-13: Elastic trace evidence import |
 | T-416 | P1 | [x] | Add trace critical-path analysis and current MVP findings: `SLOW_TRACE_P95`, `CLOCK_SKEW_SUSPECTED`, `UNBALANCED_SERVICE_LATENCY`, and `HIGH_ERROR_SERVICE_EDGE`. | Trace import MVP | Completed 2026-05-13: Root-cause oriented trace diagnostics |
