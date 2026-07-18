@@ -34,7 +34,7 @@ historical note로 취급합니다.
 - [고급 진단 설계](./ADVANCED_DIAGNOSTICS.md) — Timeline correlation, JFR, OpenTelemetry
 - [AI 보조 해석 설계](./AI_INTERPRETATION.md) — Evidence-bound AI interpretation, Ollama 연동
 - [OTLP Profiles 결정 노트](./OTLP_PROFILES_DECISION.md) — OTLP Profiles 활성화 기준
-- [Chrome DevTools 프로파일 분석](./CHROME_DEVTOOLS_CPUPROFILE.md) — `.cpuprofile` 파서, 브라우저 프레임 분류, Phase 로드맵
+- [Chrome DevTools 프로파일 분석](./CHROME_DEVTOOLS_CPUPROFILE.md) — `.cpuprofile` 파서, 플레임차트 vs 플레임그래프, 브라우저 성능 분석 메뉴 설계
 
 ## 운영 문서
 
