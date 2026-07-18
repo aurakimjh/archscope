@@ -35,6 +35,7 @@ historical note로 취급합니다.
 - [AI 보조 해석 설계](./AI_INTERPRETATION.md) — Evidence-bound AI interpretation, Ollama 연동
 - [OTLP Profiles 결정 노트](./OTLP_PROFILES_DECISION.md) — OTLP Profiles 활성화 기준
 - [Chrome DevTools 프로파일 분석](./CHROME_DEVTOOLS_CPUPROFILE.md) — `.cpuprofile` 파서, 플레임차트 vs 플레임그래프, 브라우저 성능 분석 메뉴 설계
+- [시스템 HTTP 캡처 설계](./SYSTEM_HTTP_CAPTURE.md) — 전역 HTTP/HTTPS 캡처, 프로세스별 트리, 캡처 방식 비교, 네트워크 분석 메뉴 설계
 
 ## 운영 문서
 
