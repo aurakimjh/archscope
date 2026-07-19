@@ -237,6 +237,10 @@ filtered before analysis.
 | 2026-07-18 Chrome DevTools CPU profile design review P0-1 through P0-4 | Accepted as implementation gates | T-558 through T-561 |
 | Chrome/V8 classification, parser validation and frame identity, large-file/trace streaming findings | Accepted as dependent design hardening | T-562 through T-564 |
 | Chrome profile end-to-end fixtures and English/Korean documentation parity | Accepted after the P0 contracts stabilize | T-565 |
+| 2026-07-19 system HTTP capture design review P0-1 through P0-5 | Accepted; design note revised on 2026-07-19 to withdraw the per-process `bytesSystem` coverage premise, the raw-wire header guarantee, the single timing model, the size-threshold `AnalysisResult` contract, and automatic TLS passthrough | T-566 through T-571 |
+| Proxy build-versus-integrate decision, capture lifecycle/recovery, HAR dialect identity and fixture corpus, capability tiers | Accepted as design completeness work reflected in the revised note | T-572 through T-575 |
+| Repository-relative paths, cross-reference numbering, and scoped competitive claims | Accepted and applied directly to `docs/ko/SYSTEM_HTTP_CAPTURE.md`; the source ledger itself remains open as a Phase 0 gate | T-566 |
+| English documentation parity for the HTTP capture note | Deferred until the Phase 1 contracts are approved, to avoid translating a design that is still moving | T-567 through T-571 |
 
 ## Mid-Term Plus Intake Plan
 
@@ -253,28 +257,52 @@ filtered before analysis.
 |---|---|---|---|
 | v0.3.5 | T-468 through T-555 | Stable Evidence Studio expansion | Released 2026-05-17 with Mid-Term Plus importers, API/event contract analysis, architecture docs drafts, advanced stitching, version metadata, changelog, release tag, and release workflow verification. |
 | Next candidate | T-558 through T-565 design-gated | Chrome browser/V8 profile slice | Start implementation only after T-558 acquisition-format and T-559 measurement-unit contracts are approved; keep external APM and security/compliance work deferred. |
+| Future candidate | T-566 through T-576 design-gated | Windows-first HTTP capture and cross-OS evidence analysis slice | Permit Windows HAR/import work only after capability/fidelity, security, and bounded result/store contracts are approved; analyze Linux/macOS-generated supported evidence in the Windows UI, and do not start Windows live MITM capture before the proxy and streaming gates pass. |
 | v0.4.0 candidate | Not assigned | Evidence Studio roll-up | Full local evidence workflow is smoke-tested as one product story with sample packs, report exports, regression tests, AI gate checks, and release notes that present the expanded capability coherently. |
 
 ## Active TO-DO
 
-Post-T-555 work includes the Jennifer MSA drilldown follow-up and the
-Chrome DevTools/V8 CPU profile design gate reviewed on 2026-07-18. The Chrome
-profile implementation must not start until the actual acquisition format and
-measurement-unit contracts are resolved. Other roadmap candidates, including
-long-term external APM import and security/compliance evidence, remain deferred
-until explicitly promoted.
+Post-T-555 work includes the Jennifer MSA drilldown follow-up, the Chrome
+DevTools/V8 CPU profile design gate reviewed on 2026-07-18, and the system HTTP
+capture design gate reviewed on 2026-07-19. The Chrome profile implementation
+must not start until the actual acquisition format and measurement-unit
+contracts are resolved. HTTP work must begin with bounded, sanitized HAR import;
+live MITM capture is Windows-first and remains blocked on capability/fidelity,
+security, session-store, and streaming contracts. Linux/macOS-generated supported
+HAR, profiles, and logs remain valid offline inputs to the Windows UI; Linux/macOS
+live-capture parity is not a first-release gate. The Korean design note was
+revised on 2026-07-19 to absorb the review: it now states capability tiers
+instead of an "all processes" requirement, splits fidelity into
+semantic/decoded_wire/raw_wire, separates timing perspectives with explicit
+known/not-applicable/unknown states, keeps `AnalysisResult` size-stable behind a
+versioned session store, defines backpressure and loss accounting, and hardens
+the security defaults. T-566 through T-575 remain open because they are approval
+and proof gates, not documentation edits. Other roadmap candidates,
+including long-term external APM import and security/compliance evidence, remain
+deferred until explicitly promoted.
 
 | ID | Priority | Status | Task | Depends on | Output |
 |---|---|---|---|---|---|
+| T-566 | P0 | [ ] | Add a reproducible source ledger for every HTTP-capture research claim marked `[V]`, including official URL or source commit, retrieval date, verified fact, and design impact; scope absolute competitive-gap claims to what was actually inspected. | None | Auditable 2026-07 HTTP capture research appendix |
+| T-567 | P0 | [ ] | Replace the global “all processes” requirement with a Windows-first platform/mode capability and fidelity matrix covering process attribution, HTTP versions, header/body fidelity, timing perspective, privileges, and explicit unsupported cases; separate Windows runtime support from cross-OS offline evidence compatibility. | T-566 | Approved tiered acceptance contract for Windows HAR/proxy/privileged modes and Linux/macOS-generated offline inputs |
+| T-568 | P0 | [ ] | Redesign the HTTP capture model so unknown/not-applicable/zero timings, client-proxy versus proxy-upstream perspectives, transaction state, connection reuse, header semantics, decoded versus wire bytes, and fidelity are represented without overclaiming Go `net/http` guarantees. | T-567 | Versioned canonical HTTP transaction and timing contract with H1/H2 golden invariants |
+| T-569 | P0 | [ ] | Define one bounded session-store and `AnalysisResult` boundary: keep the envelope size-stable, page details through a versioned cursor API, specify capture lifecycle/crash recovery, and define disk-slow/full backpressure and loss accounting. | T-567 | Session state machine, store schema, bounded IPC/result contract, and failure policy |
+| T-570 | P0 | [ ] | Complete the HTTP capture threat model and safe defaults for imported HAR, CA keys, TLS passthrough, JWT/cookies, blob identifiers, process metadata, user redaction rules, manifests, exports, and resource limits. | T-567 | Security gate and adversarial test matrix for Phase 1 and Phase 2 |
+| T-571 | P0 | [ ] | Prove or remove Windows coverage signals first, distinguishing TCP endpoint ownership, ETW event attribution, WFP/Npcap observations, and adapter counters by real scope; do not expose `bytesObserved/bytesSystem` as a process ratio without same-scope evidence. Defer Linux/macOS live-capture proofs without blocking Windows. | T-567 | Windows proof-of-capability results and honest coverage metric contract |
 | T-558 | P0 | [ ] | Decide whether the first supported browser input is the current Chrome Performance trace (`.json`/`.json.gz`) or direct V8 `.cpuprofile`, then align the design title, collection guide, phase order, and menu copy with that decision. | None | Revised acquisition and format contract; no implementation before approval |
 | T-559 | P0 | [ ] | Define one value/time-unit contract for V8 samples, including delta attribution, `IntervalMS`, idle accounting, summary fields, Diff normalization, and CLI/Wails defaults; lock it with duration parity tests. | T-558 | Measurement contract and golden invariants |
 | T-560 | P0 | [ ] | Define and implement one desktop integration path for profile evidence so Browser CPU analysis, the existing Profiler policy, Analysis Workspace, Diff, and Report Export all consume the same normalized parser output. | T-558, T-559 | End-to-end Wails analysis, diff, and export contract |
 | T-561 | P0 | [ ] | Redesign Phase 3 temporal analysis: use Chrome trace task boundaries for true Long Task findings, or rename cpuprofile-only output to sampled CPU runs; define a pre-collapse ordered-series contract. | T-558, T-559 | Semantically correct temporal-analysis design |
 | T-556 | P0 | [x] | Add Jennifer MSA application drilldown so a user can choose a middle-tier application/TXID or average-transaction application URL and recalculate response-time composition from that application and its downstream calls instead of the whole GUID root. | Existing Jennifer MSA `guid_groups`, `profiles`, `msa_edges`, `slow_sql_events` contracts | Completed 2026-05-28: single TXID selector plus average-mode unique application URL selector, scoped response breakdown, scoped topology/timeline/treemap, scoped transaction and slow SQL tables |
+| T-572 | P1 | [ ] | Build the Phase 1 HAR normalization and security fixture corpus for Chrome, Firefox, Safari, Charles, Fiddler, Proxyman, Insomnia, generic, malformed, oversized, and secret-bearing inputs in the shared asset repository, including Linux/macOS-generated fixtures consumed by the Windows UI, with provenance and expected diagnostics. | T-568, T-570 | Sanitized cross-dialect/cross-OS HAR corpus and indexed golden expectations |
+| T-573 | P1 | [ ] | Define a deterministic bounded aggregator and recoverable Wails snapshot/event protocol, then prove live completion-order and offline start-order parity with property and long-session tests. | T-568, T-569 | Bounded top-K/dimension policy, sequence/snapshot contract, and parity tests |
+| T-574 | P1 | [ ] | Run a Windows-first build-versus-integrate spike for the MITM proxy, comparing vetted libraries, a subprocess adapter, an H1-limited MVP, and a native H1/H2 implementation on licensing, Windows packaging/signing, updates, PID hooks, fidelity, and crash isolation. | T-568, T-569, T-570 | Approved Windows Phase 2 proxy implementation decision and measured risk register |
+| T-575 | P1 | [ ] | Define HTTP-specific report and session Diff projections plus the independent current-code navigation integration; do not claim generic Diff or a not-yet-implemented browser menu provides these paths automatically. | T-568, T-569 | URL-normalized HTTP comparison contract, bounded exports, and Wails navigation plan |
 | T-562 | P1 | [ ] | Unify the JSON and hard-coded profiler classifiers behind a source-format-aware interface, then define where FlameNode category/color enrichment occurs without reclassifying Node V8 frames as browser frames. | T-559 | Context-aware classification and color contract |
 | T-563 | P1 | [ ] | Harden V8 parsing with graph validation, optional-field policy, timestamp reconciliation, canonical per-frame script identity, redaction, and explicit parser/analyzer/Wails options. | T-558, T-559 | Deterministic parser validation and evidence identity contract |
 | T-564 | P1 | [ ] | Replace whole-file/double-unmarshal assumptions with a size/gzip/streaming strategy for direct profiles and Chrome traces; define weighted downsampling and partial-result semantics. | T-558, T-563 | Large-file design, caps, diagnostics, and benchmark plan |
 | T-557 | P1 | [ ] | Promote the Jennifer MSA drilldown calculation from UI projection to a Go analyzer contract if repeated use shows it should be exported/reported outside the desktop page. | T-556 | Planned follow-up: stable result schema for drilldown scopes |
+| T-576 | P2 | [ ] | Pair the revised Korean HTTP capture note with English documentation, an importer/dialect support matrix, a data-model reference, and a security guide once the Phase 1 contracts are approved; keep the source ledger appendix filled as claims are re-verified. | T-566 through T-571 | Paired English/Korean HTTP capture documentation set with an auditable claim ledger |
 | T-565 | P2 | [ ] | Add sanitized Chrome/Node/CDP malformed and end-to-end fixtures, then pair the Korean design with English documentation and update importer matrix, data model, user guide, and performance docs after the P0 contracts stabilize. | T-558 through T-564 | Fixture provenance, parity tests, and paired documentation |
 | T-414 | P1 | [x] | Connect `trace_import` to the Wails UI with summary cards, service dependency view, trace table, span table, and findings panel. | Trace import MVP | Completed 2026-05-13: Trace Import desktop workflow |
 | T-415 | P1 | [x] | Add Elastic APM `_search` response and source-only NDJSON importers. | Trace import MVP | Completed 2026-05-13: Elastic trace evidence import |
