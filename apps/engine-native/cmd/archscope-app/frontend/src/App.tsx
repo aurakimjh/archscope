@@ -115,6 +115,9 @@ const TraceImportPage = lazy(() =>
 const HttpCapturePage = lazy(() =>
   import("./pages/HttpCapturePage").then(({ HttpCapturePage }) => ({ default: HttpCapturePage })),
 );
+const BrowserCpuProfilePage = lazy(() =>
+  import("./pages/BrowserCpuProfilePage").then(({ BrowserCpuProfilePage }) => ({ default: BrowserCpuProfilePage })),
+);
 const EvidenceBoardPage = lazy(() =>
   import("./pages/EvidenceBoardPage").then(({ EvidenceBoardPage }) => ({
     default: EvidenceBoardPage,
@@ -206,6 +209,7 @@ function App() {
             {active === "msa_profile" && <JenniferProfilePage />}
             {active === "trace_import" && <TraceImportPage />}
             {active === "http_capture" && <HttpCapturePage />}
+            {active === "browser_cpu" && <BrowserCpuProfilePage />}
             {active === "analysis_workspace" && <AnalysisWorkspacePage />}
             {active === "export_center" && <ExportCenterPage />}
             {active === "report_diff" && <ReportDiffPage />}

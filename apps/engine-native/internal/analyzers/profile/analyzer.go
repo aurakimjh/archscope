@@ -159,7 +159,7 @@ func summary(parsed parser.Parsed, stacks map[string]int, intervalMS float64) ma
 			async += value
 		}
 	}
-	return map[string]any{
+	result := map[string]any{
 		"total_samples":        total,
 		"unique_stacks":        len(stacks),
 		"runtime_count":        len(sampleRuntimeCounts(parsed.Samples)),
@@ -174,7 +174,14 @@ func summary(parsed parser.Parsed, stacks map[string]int, intervalMS float64) ma
 		"estimated_seconds":    round(float64(total)*intervalMS/1000, 3),
 		"source_format_count":  len(sampleFormatCounts(parsed.Samples)),
 		"profile_sample_count": len(parsed.Samples),
+		"value_unit":           parsed.ValueUnit,
 	}
+	if parsed.ValueUnit == "microseconds" {
+		result["total_duration_us"] = total
+		result["total_duration_ms"] = round(float64(total)/1000, 3)
+		result["estimated_seconds"] = round(float64(total)/1_000_000, 3)
+	}
+	return result
 }
 
 func frameRows(samples []parser.Sample, limit int) []map[string]any {
@@ -251,6 +258,7 @@ func sampleRows(samples []parser.Sample, limit int) []map[string]any {
 			"stack":         item.stack,
 			"frames":        frameNames(item.sample.Stack),
 			"samples":       maxInt(1, int(item.sample.Value)),
+			"timestamp_us":  item.sample.TimestampUS,
 			"thread":        item.sample.Thread,
 			"process":       item.sample.Process,
 			"runtime":       item.sample.Runtime,

@@ -48,7 +48,8 @@ export type NavKey =
   | "thread_dump"
   | "msa_profile"
   | "trace_import"
-	  | "http_capture"
+  | "http_capture"
+	  | "browser_cpu"
   | "analysis_workspace"
   | "export_center"
   | "report_diff"
@@ -71,7 +72,8 @@ const NAV_ICONS: Record<NavKey, NavIcon> = {
   thread_dump: PanelsLeftBottom,
   msa_profile: Network,
   trace_import: Route,
-	  http_capture: Network,
+  http_capture: Network,
+	  browser_cpu: Cpu,
   analysis_workspace: ClipboardList,
   export_center: Download,
   report_diff: GitCompareArrows,
@@ -150,7 +152,8 @@ export function Sidebar({ active, onNavigate }: SidebarProps) {
     { key: "thread_dump", label: t("navThreadDump") },
     { key: "msa_profile", label: t("navMsaProfile") },
     { key: "trace_import", label: t("navTraceImport") },
-	    { key: "http_capture", label: "HTTP capture" },
+    { key: "http_capture", label: "HTTP capture" },
+	    { key: "browser_cpu", label: "Browser CPU" },
   ];
   const workspaceItems: { key: NavKey; label: string }[] = [
     { key: "analysis_workspace", label: t("navAnalysisWorkspace") },
