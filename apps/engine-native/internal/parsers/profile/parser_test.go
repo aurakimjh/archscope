@@ -121,3 +121,18 @@ func TestParseV8RejectsBrokenGraph(t *testing.T) {
 		t.Fatal("expected malformed V8 graph to be rejected")
 	}
 }
+
+func TestParseChromeTraceAssemblesProfileChunks(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "trace.json")
+	data := `{"traceEvents":[{"ph":"P","name":"Profile","args":{"data":{"cpuProfile":{"nodes":[{"id":1,"callFrame":{"functionName":"root"},"children":[2]},{"id":2,"callFrame":{"functionName":"paint","url":"app.js","lineNumber":0}}]}}}},{"ph":"P","name":"ProfileChunk","args":{"data":{"samples":[2,2],"timeDeltas":[10,30]}}}]}`
+	if err := os.WriteFile(path, []byte(data), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	parsed, _, err := ParseFile(path, "auto", Options{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if parsed.Format != "chrome-trace-json" || len(parsed.Samples) != 2 || parsed.Samples[1].Value != 30 {
+		t.Fatalf("unexpected Chrome trace normalization: %+v", parsed)
+	}
+}

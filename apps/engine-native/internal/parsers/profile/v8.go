@@ -132,50 +132,73 @@ func parseChromeTrace(data []byte) (Parsed, error) {
 	if len(envelope.TraceEvents) == 0 {
 		return Parsed{}, fmt.Errorf("Chrome trace has no traceEvents")
 	}
-	type chunk struct {
-		PID  int    `json:"pid"`
-		TID  int    `json:"tid"`
-		TS   int64  `json:"ts"`
-		Name string `json:"name"`
-		Args struct {
+	type traceEvent struct {
+		Phase string `json:"ph"`
+		Args  struct {
 			Data json.RawMessage `json:"data"`
 		} `json:"args"`
 	}
-	chunks := []chunk{}
+	var assembled v8Profile
+	foundNodes := false
 	for _, raw := range envelope.TraceEvents {
-		var event struct {
-			Phase string `json:"ph"`
-			PID   int    `json:"pid"`
-			TID   int    `json:"tid"`
-			TS    int64  `json:"ts"`
-			Name  string `json:"name"`
-			Args  struct {
-				Data json.RawMessage `json:"data"`
-			} `json:"args"`
-		}
+		var event traceEvent
 		if err := json.Unmarshal(raw, &event); err != nil {
 			continue
 		}
 		if event.Phase != "P" || len(event.Args.Data) == 0 {
 			continue
 		}
-		chunks = append(chunks, chunk{event.PID, event.TID, event.TS, event.Name, event.Args})
-	}
-	if len(chunks) == 0 {
-		return Parsed{}, fmt.Errorf("Chrome trace has no ph:P CPU profile chunks")
-	}
-	sort.SliceStable(chunks, func(i, j int) bool { return chunks[i].TS < chunks[j].TS })
-	// Chrome stores a complete profile object in ProfileChunk data for exported
-	// traces. Supporting this shape gives a deterministic first adapter; other
-	// trace event modelling intentionally remains outside Phase 1.
-	for _, chunk := range chunks {
-		var profile v8Profile
-		if err := json.Unmarshal(chunk.Args.Data, &profile); err == nil && len(profile.Nodes) > 0 {
-			encoded, _ := json.Marshal(profile)
-			return parseV8Profile(encoded, "chrome-trace-json")
+		var direct v8Profile
+		if json.Unmarshal(event.Args.Data, &direct) == nil {
+			if len(direct.Nodes) > 0 {
+				assembled.Nodes = append(assembled.Nodes, direct.Nodes...)
+				foundNodes = true
+				assembled.Samples = append(assembled.Samples, direct.Samples...)
+				assembled.TimeDeltas = append(assembled.TimeDeltas, direct.TimeDeltas...)
+				if assembled.StartTime == 0 {
+					assembled.StartTime = direct.StartTime
+				}
+				if direct.EndTime > assembled.EndTime {
+					assembled.EndTime = direct.EndTime
+				}
+			}
+		}
+		var nested struct {
+			CPUProfile v8Profile `json:"cpuProfile"`
+			Samples    []int     `json:"samples"`
+			TimeDeltas []int64   `json:"timeDeltas"`
+		}
+		if json.Unmarshal(event.Args.Data, &nested) == nil {
+			if len(nested.CPUProfile.Nodes) > 0 {
+				assembled.Nodes = append(assembled.Nodes, nested.CPUProfile.Nodes...)
+				foundNodes = true
+			}
+			assembled.Samples = append(assembled.Samples, nested.CPUProfile.Samples...)
+			assembled.Samples = append(assembled.Samples, nested.Samples...)
+			assembled.TimeDeltas = append(assembled.TimeDeltas, nested.CPUProfile.TimeDeltas...)
+			assembled.TimeDeltas = append(assembled.TimeDeltas, nested.TimeDeltas...)
+			if assembled.StartTime == 0 {
+				assembled.StartTime = nested.CPUProfile.StartTime
+			}
+			if nested.CPUProfile.EndTime > assembled.EndTime {
+				assembled.EndTime = nested.CPUProfile.EndTime
+			}
 		}
 	}
-	return Parsed{}, fmt.Errorf("Chrome trace ph:P chunks did not contain a complete CPU profile")
+	if !foundNodes || len(assembled.Samples) == 0 {
+		return Parsed{}, fmt.Errorf("Chrome trace has no ph:P CPU profile chunks")
+	}
+	nodes := map[int]v8Node{}
+	for _, node := range assembled.Nodes {
+		nodes[node.ID] = node
+	}
+	assembled.Nodes = assembled.Nodes[:0]
+	for _, node := range nodes {
+		assembled.Nodes = append(assembled.Nodes, node)
+	}
+	sort.Slice(assembled.Nodes, func(i, j int) bool { return assembled.Nodes[i].ID < assembled.Nodes[j].ID })
+	encoded, _ := json.Marshal(assembled)
+	return parseV8Profile(encoded, "chrome-trace-json")
 }
 
 func isV8Profile(data []byte) bool {
