@@ -26,6 +26,7 @@ type v8Node struct {
 		LineNumber   int    `json:"lineNumber"`
 	} `json:"callFrame"`
 	Children []int `json:"children"`
+	HitCount *int  `json:"hitCount,omitempty"`
 }
 
 type v8Profile struct {
@@ -121,8 +122,8 @@ func parseV8ProfileReader(reader io.Reader, format string, maxSamples int) (Pars
 }
 
 func parsedV8Profile(payload v8Profile, format string, maxSamples int) (Parsed, error) {
-	if len(payload.Nodes) == 0 || len(payload.Samples) == 0 {
-		return Parsed{}, fmt.Errorf("V8 profile requires non-empty nodes and samples")
+	if len(payload.Nodes) == 0 {
+		return Parsed{}, fmt.Errorf("V8 profile requires non-empty nodes")
 	}
 	resolver, err := newV8StackResolver(payload.Nodes, format)
 	if err != nil {
@@ -131,26 +132,67 @@ func parsedV8Profile(payload v8Profile, format string, maxSamples int) (Parsed, 
 	if len(payload.TimeDeltas) > 0 && len(payload.TimeDeltas) != len(payload.Samples) {
 		return Parsed{}, fmt.Errorf("V8 timeDeltas length %d does not match samples length %d", len(payload.TimeDeltas), len(payload.Samples))
 	}
+	if len(payload.Samples) == 0 {
+		return parsedV8HitCounts(payload, resolver, format)
+	}
 	collector := newWeightedSampleCollector(len(payload.Samples), maxSamples)
 	timestamp := payload.StartTime
+	clamped := 0
+	occurrences := map[int]int{}
 	for i, nodeID := range payload.Samples {
-		value := int64(0)
-		if len(payload.TimeDeltas) > 0 && i > 0 {
-			value = payload.TimeDeltas[i]
+		occurrences[nodeID]++
+		delta := int64(0)
+		if i < len(payload.TimeDeltas) {
+			delta = payload.TimeDeltas[i]
+			if delta < 0 {
+				delta = 0
+				clamped++
+			}
 		}
-		if value < 0 {
-			return Parsed{}, fmt.Errorf("V8 profile contains negative time delta at sample %d", i)
+		value := int64(0)
+		if i > 0 {
+			value = delta
 		}
 		stack, err := resolver.stackFor(nodeID)
 		if err != nil {
 			return Parsed{}, err
 		}
 		collector.Add(i, Sample{Stack: stack, Value: value, TimestampUS: timestamp, Runtime: "V8", Language: "JavaScript", ProfileKind: "cpu", SourceFormat: format})
-		if i < len(payload.TimeDeltas) {
-			timestamp += payload.TimeDeltas[i]
+		timestamp += delta
+	}
+	parsed := newV8Parsed(format, collector.Samples(), len(payload.Samples), payload.StartTime, payload.EndTime)
+	parsed.Metadata["negative_delta_clamp_count"] = clamped
+	mismatches := 0
+	for _, node := range payload.Nodes {
+		if node.HitCount != nil && occurrences[node.ID] != *node.HitCount {
+			mismatches++
 		}
 	}
-	return newV8Parsed(format, collector.Samples(), len(payload.Samples), payload.StartTime, payload.EndTime), nil
+	parsed.Metadata["hit_count_mismatch_nodes"] = mismatches
+	return parsed, nil
+}
+
+func parsedV8HitCounts(payload v8Profile, resolver *v8StackResolver, format string) (Parsed, error) {
+	samples := make([]Sample, 0)
+	total := 0
+	for _, node := range payload.Nodes {
+		if node.HitCount == nil || *node.HitCount <= 0 {
+			continue
+		}
+		stack, err := resolver.stackFor(node.ID)
+		if err != nil {
+			return Parsed{}, err
+		}
+		samples = append(samples, Sample{Stack: stack, Value: int64(*node.HitCount), Runtime: "V8", Language: "JavaScript", ProfileKind: "cpu", SourceFormat: format})
+		total += *node.HitCount
+	}
+	if len(samples) == 0 {
+		return newV8Parsed(format, nil, 0, payload.StartTime, payload.EndTime), nil
+	}
+	return Parsed{Format: format, ValueUnit: "samples", Samples: samples, Metadata: map[string]any{
+		"hit_count_only": true, "hit_count_sample_count": total, "hit_count_used_for_duration": false,
+		"v8_start_time_us": payload.StartTime, "v8_end_time_us": payload.EndTime,
+	}}, nil
 }
 
 type v8StackResolver struct {
@@ -313,6 +355,13 @@ func parseChromeTraceReader(reader io.Reader, maxSamples, totalSamples int) (Par
 		if err := json.Unmarshal(event.Args.Data, &data); err != nil {
 			return nil
 		}
+		if start == 0 && data.StartTime != 0 {
+			start = data.StartTime
+			timestamp = start
+		}
+		if data.EndTime > end {
+			end = data.EndTime
+		}
 		if len(data.Nodes) > 0 {
 			nodes = append(nodes, data.Nodes...)
 			foundNodes = true
@@ -335,7 +384,11 @@ func parseChromeTraceReader(reader io.Reader, maxSamples, totalSamples int) (Par
 				end = data.CPUProfile.EndTime
 			}
 		}
-		for _, chunk := range []v8Profile{data.v8Profile, data.CPUProfile} {
+		cpuProfile := data.CPUProfile
+		if len(cpuProfile.Samples) > 0 && len(cpuProfile.TimeDeltas) == 0 && len(data.TimeDeltas) > 0 {
+			cpuProfile.TimeDeltas = data.TimeDeltas
+		}
+		for _, chunk := range []v8Profile{data.v8Profile, cpuProfile} {
 			if len(chunk.Samples) == 0 {
 				continue
 			}
@@ -355,20 +408,22 @@ func parseChromeTraceReader(reader io.Reader, maxSamples, totalSamples int) (Par
 			foundSamples = true
 			for i, nodeID := range chunk.Samples {
 				value := int64(0)
-				if len(chunk.TimeDeltas) > 0 && index > 0 {
-					value = chunk.TimeDeltas[i]
+				delta := int64(0)
+				if len(chunk.TimeDeltas) > 0 {
+					delta = chunk.TimeDeltas[i]
+					if delta < 0 {
+						delta = 0
+					}
 				}
-				if value < 0 {
-					return fmt.Errorf("V8 profile contains negative time delta at sample %d", index)
+				if index > 0 {
+					value = delta
 				}
 				stack, err := resolver.stackFor(nodeID)
 				if err != nil {
 					return err
 				}
 				collector.Add(index, Sample{Stack: stack, Value: value, TimestampUS: timestamp, Runtime: "V8", Language: "JavaScript", ProfileKind: "cpu", SourceFormat: "chrome-trace-json"})
-				if i < len(chunk.TimeDeltas) {
-					timestamp += chunk.TimeDeltas[i]
-				}
+				timestamp += delta
 				index++
 			}
 		}
@@ -453,4 +508,11 @@ func isV8Profile(data []byte) bool {
 	return bytes.Contains(data, []byte(`"nodes"`)) && bytes.Contains(data, []byte(`"samples"`))
 }
 
-func isChromeTrace(data []byte) bool { return bytes.Contains(data, []byte(`"traceEvents"`)) }
+func isChromeTrace(data []byte) bool {
+	trimmed := bytes.TrimSpace(data)
+	if bytes.Contains(trimmed, []byte(`"traceEvents"`)) {
+		return true
+	}
+	return len(trimmed) > 0 && trimmed[0] == '[' && bytes.Contains(trimmed, []byte(`"ph"`)) &&
+		(bytes.Contains(trimmed, []byte(`"Profile"`)) || bytes.Contains(trimmed, []byte(`"cpuProfile"`)))
+}

@@ -84,6 +84,7 @@ func ParseFile(path, format string, opts Options) (Parsed, *diagnostics.ParserDi
 	if streamFormat, ok, err := profileStreamFormat(path, format, opts.MaxBytes); err != nil {
 		return Parsed{}, diags, err
 	} else if ok {
+		diags.Format = streamFormat
 		if opts.MaxSamples <= 0 {
 			opts.MaxSamples = DefaultMaxProfileSamples
 		}
@@ -160,6 +161,17 @@ func finalizeProfileParse(parsed Parsed, diags *diagnostics.ParserDiagnostics, o
 			parsed.Samples[i].SourceFormat = parsed.Format
 		}
 		normalizeSample(&parsed.Samples[i], parsed.Format, parsed.ValueUnit == "microseconds")
+	}
+	if parsed.Metadata != nil {
+		if count, _ := parsed.Metadata["negative_delta_clamp_count"].(int); count > 0 {
+			diags.AddWarning(0, "PROFILE_NEGATIVE_DELTA_CLAMPED", fmt.Sprintf("clamped %d negative V8 time delta(s) to zero", count), "", false)
+		}
+		if parsed.Metadata["hit_count_only"] == true {
+			diags.AddWarning(0, "PROFILE_HITCOUNT_ONLY", "profile has hitCount aggregates but no ordered samples; temporal outputs are disabled", "", false)
+		}
+		if count, _ := parsed.Metadata["hit_count_mismatch_nodes"].(int); count > 0 {
+			diags.AddWarning(0, "PROFILE_HITCOUNT_MISMATCH", fmt.Sprintf("samples and hitCount disagree for %d V8 node(s)", count), "", false)
+		}
 	}
 	if opts.MaxSamples > 0 && len(parsed.Samples) > opts.MaxSamples {
 		original := len(parsed.Samples)

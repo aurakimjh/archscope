@@ -40,6 +40,7 @@ export {
     ExportPprofRequest,
     ExportPprofResponse,
     GcLogRequest,
+    HttpCaptureRequest,
     JenniferProfileRequest,
     JfrRequest,
     LockContentionRequest,

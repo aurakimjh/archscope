@@ -86,6 +86,12 @@ export function AnalyzeGcLog(req: $models.GcLogRequest): $CancellablePromise<api
     });
 }
 
+export function AnalyzeHttpCapture(req: $models.HttpCaptureRequest): $CancellablePromise<api$0.AnalysisResult> {
+    return $Call.ByID(1316497525, req).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
 /**
  * AnalyzeJenniferProfile wraps engineapi.AnalyzeJenniferProfile/s.
  * Either Path (single) or Paths (batch) must be provided; if both

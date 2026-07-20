@@ -41,8 +41,12 @@ func Build(parsed parser.Parsed, sourceFile string, diags *diagnostics.ParserDia
 	}
 	stacks := collapsedStacks(parsed.Samples)
 	profileKind := firstNonEmpty(opts.ProfileKind, dominantProfileKind(parsed.Samples), "wall")
+	coreIntervalMS := intervalMS
+	if parsed.ValueUnit == "microseconds" {
+		coreIntervalMS = 0.001
+	}
 	core := coreprofiler.AnalyzeCollapsedStacks(stacks, sourceFile, profilerDiagnostics(diags, parsed.Format), coreprofiler.Options{
-		IntervalMS:  intervalMS,
+		IntervalMS:  coreIntervalMS,
 		TopN:        topN,
 		ProfileKind: profileKind,
 	})
@@ -83,23 +87,26 @@ func Build(parsed parser.Parsed, sourceFile string, diags *diagnostics.ParserDia
 		"samples": []string{
 			"stack", "value", "thread", "process", "runtime", "language", "profile_kind", "source_format", "labels",
 		},
-		"sample_unit": "samples",
+		"sample_unit": parsed.ValueUnit,
 	}
 	result.Metadata.Extra["flamegraph_rollup"] = map[string]any{
 		"unique_stacks": len(stacks),
-		"interval_ms":   intervalMS,
+		"interval_ms":   coreIntervalMS,
 		"source":        "internal/profiler.AnalyzeCollapsedStacks",
 	}
-	if parsed.ValueUnit == "microseconds" {
+	partial := parsed.Metadata != nil && parsed.Metadata["partial_result"] == true
+	if parsed.ValueUnit == "microseconds" && !partial {
 		runs, activity := sampledCPURuns(parsed.Samples, topN)
 		result.Tables["cpu_sample_runs"] = runs
 		result.Series["cpu_activity"] = activity
-		result.Metadata.Extra["temporal_semantics"] = "sampled_cpu_runs; not browser Long Tasks"
+		result.Metadata.Extra["temporal_semantics"] = "sampled_cpu_runs; observed sample windows, not task boundaries"
 		for _, run := range runs {
 			if duration, _ := run["duration_ms"].(float64); duration >= 100 {
-				result.AddFinding("warning", "SAMPLED_CPU_HOTSPOT", "Sampled CPU run exceeded 100ms; this is not a browser Long Task.", map[string]any{"stack": run["stack"], "duration_ms": duration})
+				result.AddFinding("warning", "SAMPLED_CPU_HOTSPOT", "Sampled CPU run exceeded 100ms; this is an observed sample window, not a task boundary.", map[string]any{"stack": run["stack"], "duration_ms": duration})
 			}
 		}
+	} else if parsed.ValueUnit == "microseconds" && partial && diags != nil {
+		diags.AddWarning(0, "TIMELINE_SUPPRESSED_DOWNSAMPLED", "temporal outputs are disabled because weighted downsampling does not preserve exact run boundaries", "", false)
 	}
 	if parsed.Metadata != nil {
 		result.Metadata.Extra["parser_metadata"] = parsed.Metadata

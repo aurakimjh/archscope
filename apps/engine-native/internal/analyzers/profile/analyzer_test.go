@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/diagnostics"
 	parser "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/profile"
 	coreprofiler "github.com/aurakimjh/archscope/apps/engine-native/internal/profiler"
 )
@@ -45,8 +46,8 @@ func TestBuildEmitsSampledCPURunsWithoutClaimingLongTasks(t *testing.T) {
 	if !ok || len(runs) != 1 || runs[0]["duration_ms"] != 120.0 {
 		t.Fatalf("unexpected runs: %#v", result.Tables["cpu_sample_runs"])
 	}
-	if result.Metadata.Extra["temporal_semantics"] != "sampled_cpu_runs; not browser Long Tasks" {
-		t.Fatal("temporal semantics must forbid Long Task claim")
+	if result.Metadata.Extra["temporal_semantics"] != "sampled_cpu_runs; observed sample windows, not task boundaries" {
+		t.Fatal("temporal semantics must identify sampled windows without claiming task boundaries")
 	}
 	found := false
 	for _, finding := range result.Metadata.Findings {
@@ -65,5 +66,37 @@ func TestBrowserFlamegraphClassificationIsSourceAware(t *testing.T) {
 	flame := result.Charts["flamegraph"].(coreprofiler.FlameNode)
 	if len(flame.Children) != 1 || flame.Children[0].Category == nil || *flame.Children[0].Category != "dependency" {
 		t.Fatalf("unexpected browser category: %+v", flame)
+	}
+}
+
+func TestBuildSuppressesTemporalOutputsAfterDownsampling(t *testing.T) {
+	frame := parser.Frame{Name: "renderList", Function: "renderList", Runtime: "V8", Language: "JavaScript"}
+	diags := diagnostics.New("v8-cpuprofile")
+	parsed := parser.Parsed{
+		Format:    "v8-cpuprofile",
+		ValueUnit: "microseconds",
+		Samples:   []parser.Sample{{Stack: []parser.Frame{frame}, TimestampUS: 1_000, Value: 120_000}},
+		Metadata:  map[string]any{"partial_result": true},
+	}
+	result := Build(parsed, "profile.cpuprofile", diags, Options{TopN: 10, ProfileKind: "cpu"})
+	if _, ok := result.Tables["cpu_sample_runs"]; ok {
+		t.Fatal("downsampled profiles must not emit cpu_sample_runs")
+	}
+	if _, ok := result.Series["cpu_activity"]; ok {
+		t.Fatal("downsampled profiles must not emit cpu_activity")
+	}
+	for _, finding := range result.Metadata.Findings {
+		if finding["code"] == "SAMPLED_CPU_HOTSPOT" {
+			t.Fatal("downsampled profiles must not emit SAMPLED_CPU_HOTSPOT")
+		}
+	}
+	found := false
+	for _, warning := range diags.Warnings {
+		if warning.Reason == "TIMELINE_SUPPRESSED_DOWNSAMPLED" {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatal("missing TIMELINE_SUPPRESSED_DOWNSAMPLED diagnostic")
 	}
 }

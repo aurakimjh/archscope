@@ -1082,6 +1082,34 @@ export class GcLogRequest {
 }
 
 /**
+ * HttpCaptureRequest mirrors the file-first HAR analyzer. Live capture is not
+ * exposed here: the desktop boundary intentionally begins with safe imports.
+ */
+export class HttpCaptureRequest {
+    "path": string;
+    "format"?: string;
+    "topN"?: number;
+    "maxEntries"?: number;
+
+    /** Creates a new HttpCaptureRequest instance. */
+    constructor($$source: Partial<HttpCaptureRequest> = {}) {
+        if (!("path" in $$source)) {
+            this["path"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new HttpCaptureRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): HttpCaptureRequest {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new HttpCaptureRequest($$parsedSource as Partial<HttpCaptureRequest>);
+    }
+}
+
+/**
  * JenniferProfileRequest accepts a single Path or repeatable Paths
  * for multi-file batches. FallbackCorrelationToTxid mirrors the
  * CLI flag of the same name.
@@ -1356,6 +1384,8 @@ export class ProfileEvidenceRequest {
     "topN"?: number;
     "intervalMs"?: number;
     "profileKind"?: string;
+    "maxBytes"?: number;
+    "maxSamples"?: number;
 
     /** Creates a new ProfileEvidenceRequest instance. */
     constructor($$source: Partial<ProfileEvidenceRequest> = {}) {
