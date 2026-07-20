@@ -63,6 +63,8 @@ import type {
   ExportJSONRequest,
   ExportPPTXRequest,
   GcLogRequest,
+	  HttpCaptureAnalysisResult,
+	  HttpCaptureRequest,
   JfrAnalysisResult,
   JfrRequest,
   LockContentionRequest,
@@ -139,6 +141,10 @@ export function analyzeTraceImport(
   req: TraceImportRequest,
 ): CancellablePromise<TraceImportAnalysisResult> {
   return call<TraceImportAnalysisResult>("AnalyzeTraceImport", req);
+}
+
+export function analyzeHttpCapture(req: HttpCaptureRequest): CancellablePromise<HttpCaptureAnalysisResult> {
+  return call<HttpCaptureAnalysisResult>("AnalyzeHttpCapture", req);
 }
 
 // JenniferProfileRequest matches the Go-side struct; either Path
@@ -261,6 +267,7 @@ export const engine = {
   analyzeRuntimeStack,
   analyzeOtel,
   analyzeTraceImport,
+  analyzeHttpCapture,
   analyzeJenniferProfile,
   analyzeThreadDump,
   analyzeMultiThread,

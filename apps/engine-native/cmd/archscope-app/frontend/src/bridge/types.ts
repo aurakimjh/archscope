@@ -65,6 +65,9 @@ export type AnalysisResult<
   metadata: TMetadata;
 };
 
+export type HttpCaptureRequest = { path: string; format?: string; topN?: number; maxEntries?: number };
+export type HttpCaptureAnalysisResult = AnalysisResult<"http_capture">;
+
 export type AiInterpretationGateRequest = {
   result: AnalysisResult | Record<string, unknown>;
   interpretation: Record<string, unknown>;

@@ -226,6 +226,15 @@ type TraceImportRequest struct {
 	TopN   int    `json:"topN,omitempty"`
 }
 
+// HttpCaptureRequest mirrors the file-first HAR analyzer. Live capture is not
+// exposed here: the desktop boundary intentionally begins with safe imports.
+type HttpCaptureRequest struct {
+	Path       string `json:"path"`
+	Format     string `json:"format,omitempty"`
+	TopN       int    `json:"topN,omitempty"`
+	MaxEntries int    `json:"maxEntries,omitempty"`
+}
+
 // JenniferProfileRequest accepts a single Path or repeatable Paths
 // for multi-file batches. FallbackCorrelationToTxid mirrors the
 // CLI flag of the same name.
@@ -525,6 +534,13 @@ func (s *EngineService) AnalyzeProfileEvidence(req ProfileEvidenceRequest) (engi
 		IntervalMS:  req.IntervalMS,
 		ProfileKind: req.ProfileKind,
 	})
+}
+
+func (s *EngineService) AnalyzeHttpCapture(req HttpCaptureRequest) (engineapi.AnalysisResult, error) {
+	if strings.TrimSpace(req.Path) == "" {
+		return engineapi.AnalysisResult{}, fmt.Errorf("path is required")
+	}
+	return engineapi.AnalyzeHttpCapture(req.Path, engineapi.HttpCaptureOptions{Format: req.Format, TopN: req.TopN, MaxEntries: req.MaxEntries})
 }
 
 func (s *EngineService) AnalyzeStitchedEvidence(req StitchedEvidenceRequest) (engineapi.AnalysisResult, error) {
