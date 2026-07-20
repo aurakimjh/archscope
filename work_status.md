@@ -200,9 +200,12 @@ filtered before analysis.
 
 1. Keep `v0.3.5` release verification healthy by monitoring the release
    workflow, release asset availability, and app/package metadata alignment.
-2. Resolve T-558 and T-559 before starting the Chrome browser/V8 profile
-   implementation: select the actual Chrome acquisition format and lock the
-   sample value/time-unit contract with duration invariants.
+2. Start the Chrome browser/V8 profile Phase 1 against the contracts approved
+   on 2026-07-20 (T-558 acquisition format, T-559 measurement units): build the
+   V8 normalization core and the `ph:"P"` trace filter, and lock `INV-C1`
+   through `INV-C9` as golden tests before the implementation, not after.
+   T-560 (desktop path) and T-561 (temporal semantics) still gate Phase 4 and
+   Phase 3 respectively.
 3. Review the long-term external APM import roadmap before assigning any new
    external-connector implementation range. Local file imports already cover
    OTLP, Zipkin, Elastic APM, Jaeger, and SkyWalking-style trace evidence;
@@ -234,7 +237,7 @@ filtered before analysis.
 | P2 determinism, timestamp, runtime-stack, testing, shared utility, Mermaid, narrative sorting, and dedupe issues | Accepted and grouped by risk/dependency | T-464 through T-467 |
 | Full immediate migration of all Wails state projections to Go analyzers | Deferred as too broad for one patch; start with Service Flow and migrate the remaining projections after the contract pattern is proven | T-458, T-459 |
 | Korean PII allow-list coverage | Accepted as a review point inside the privacy hardening task; exact rule set needs implementation-time examples | T-454 |
-| 2026-07-18 Chrome DevTools CPU profile design review P0-1 through P0-4 | Accepted as implementation gates | T-558 through T-561 |
+| 2026-07-18 Chrome DevTools CPU profile design review P0-1 through P0-4 | Accepted as implementation gates; G1/G2 closed on 2026-07-20 with Chrome trace chosen as the first input and a microsecond `int64` measurement contract | T-558 through T-561 |
 | Chrome/V8 classification, parser validation and frame identity, large-file/trace streaming findings | Accepted as dependent design hardening | T-562 through T-564 |
 | Chrome profile end-to-end fixtures and English/Korean documentation parity | Accepted after the P0 contracts stabilize | T-565 |
 | 2026-07-19 system HTTP capture design review P0-1 through P0-5 | Accepted; design note revised on 2026-07-19 to withdraw the per-process `bytesSystem` coverage premise, the raw-wire header guarantee, the single timing model, the size-threshold `AnalysisResult` contract, and automatic TLS passthrough | T-566 through T-571 |
@@ -257,7 +260,7 @@ filtered before analysis.
 | Release | Complete through | Release type | Required contents before cut |
 |---|---|---|---|
 | v0.3.5 | T-468 through T-555 | Stable Evidence Studio expansion | Released 2026-05-17 with Mid-Term Plus importers, API/event contract analysis, architecture docs drafts, advanced stitching, version metadata, changelog, release tag, and release workflow verification. |
-| Next candidate | T-558 through T-565 design-gated | Chrome browser/V8 profile slice | Start implementation only after T-558 acquisition-format and T-559 measurement-unit contracts are approved; keep external APM and security/compliance work deferred. |
+| Next candidate | T-560 through T-565 design-gated | Chrome browser/V8 profile slice | T-558 acquisition-format and T-559 measurement-unit contracts were approved on 2026-07-20, so Phase 1 parsing and Phase 2 classification may start. Phase 3 stays blocked on T-561 and Phase 4 on T-560. Keep external APM and security/compliance work deferred. |
 | Future candidate | T-571 through T-576 design-gated | Windows-first HTTP capture and cross-OS evidence analysis slice | Capability/fidelity, transaction/time, bounded store, and security contracts were approved on 2026-07-20 (T-566 through T-570), so Phase 1 Windows HAR/import work may start against the fixture corpus. Analyze Linux/macOS-generated supported evidence in the Windows UI. Do not start Windows live MITM capture before the proxy spike (T-574), streaming (T-573), and coverage proof (T-571) gates pass. |
 | v0.4.0 candidate | Not assigned | Evidence Studio roll-up | Full local evidence workflow is smoke-tested as one product story with sample packs, report exports, regression tests, AI gate checks, and release notes that present the expanded capability coherently. |
 
@@ -265,9 +268,10 @@ filtered before analysis.
 
 Post-T-555 work includes the Jennifer MSA drilldown follow-up, the Chrome
 DevTools/V8 CPU profile design gate reviewed on 2026-07-18, and the system HTTP
-capture design gate reviewed on 2026-07-19. The Chrome profile implementation
-must not start until the actual acquisition format and measurement-unit
-contracts are resolved. HTTP work must begin with bounded, sanitized HAR import;
+capture design gate reviewed on 2026-07-19. The Chrome profile acquisition-format
+and measurement-unit contracts were resolved on 2026-07-20 (T-558, T-559), so
+Phase 1 parsing may start; Phase 3 and Phase 4 stay gated on T-561 and T-560.
+HTTP work must begin with bounded, sanitized HAR import;
 live MITM capture is Windows-first and remains blocked on capability/fidelity,
 security, session-store, and streaming contracts. Linux/macOS-generated supported
 HAR, profiles, and logs remain valid offline inputs to the Windows UI; Linux/macOS
@@ -296,8 +300,8 @@ deferred until explicitly promoted.
 | T-569 | P0 | [x] | Define one bounded session-store and `AnalysisResult` boundary: keep the envelope size-stable, page details through a versioned cursor API, specify capture lifecycle/crash recovery, and define disk-slow/full backpressure and loss accounting. | T-567 | Completed 2026-07-20: §7.6 defines `CaptureSessionStore` — append-only NDJSON layout with rebuildable offset index, three independent version fields, per-tier memory ceilings including truncated live-window records and non-resident offset index, eviction policy with chunked lazy loading and store-side filtering, disk spill limits with `stop`/`body_only`/`rotate` policies defaulting to `stop`, and the interface contract with snapshot-versioned cursors and single-writer semantics |
 | T-570 | P0 | [x] | Complete the HTTP capture threat model and safe defaults for imported HAR, CA keys, TLS passthrough, JWT/cookies, blob identifiers, process metadata, user redaction rules, manifests, exports, and resource limits. | T-567 | Completed 2026-07-20: §11.2.1 adds the CA lifecycle state machine (`none`/`generated`/`trusted`/`expired`) with per-store partial-failure rules, rollback on partial install, and explicit "app removal does not remove the CA"; §11.6 consolidates the privilege contract around what elevated code may do (no resident elevated process, helper captures only, peer-credential IPC); §11.7 adds the `SEC-1`~`SEC-15` adversarial matrix, with `SEC-4`~`SEC-7` applying from Phase 1 |
 | T-571 | P0 | [ ] | Prove or remove Windows coverage signals first, distinguishing TCP endpoint ownership, ETW event attribution, WFP/Npcap observations, and adapter counters by real scope; do not expose `bytesObserved/bytesSystem` as a process ratio without same-scope evidence. Defer Linux/macOS live-capture proofs without blocking Windows. | T-567 | Contract side completed 2026-07-20 (§10.4): candidate scopes separated, `CAP-1`~`CAP-6` acceptance criteria defined with false attribution set to zero tolerance, and a disposition table whose all-fail branch removes absolute coverage ratios and keeps only the five self-observed counters. **Still open: the measurement itself** — the ETW payload/loss and WFP attribution figures (`Q-WIN-ETW-PAYLOAD`, `Q-WIN-WFP-ATTR`) require a Windows spike that has not been run, and the `미검증` cells in §9.3.1 stay unfilled until it is |
-| T-558 | P0 | [ ] | Decide whether the first supported browser input is the current Chrome Performance trace (`.json`/`.json.gz`) or direct V8 `.cpuprofile`, then align the design title, collection guide, phase order, and menu copy with that decision. | None | Revised acquisition and format contract; no implementation before approval |
-| T-559 | P0 | [ ] | Define one value/time-unit contract for V8 samples, including delta attribution, `IntervalMS`, idle accounting, summary fields, Diff normalization, and CLI/Wails defaults; lock it with duration parity tests. | T-558 | Measurement contract and golden invariants |
+| T-558 | P0 | [x] | Decide whether the first supported browser input is the current Chrome Performance trace (`.json`/`.json.gz`) or direct V8 `.cpuprofile`, then align the design title, collection guide, phase order, and menu copy with that decision. | None | Completed 2026-07-20: **Chrome Performance trace is the first input**, with `.cpuprofile` supported in the same Phase 1 because the V8 normalization core is shared. Narrowing the Phase 1 trace adapter to a `ph:"P"` filter removes most of the cost objection — duration-event modelling stays in Phase 4 under G4. Scoping `.cpuprofile` first was rejected as building a different feature, not a cheaper one: it fails both stated motivations (frontend bottleneck evidence, zero collection cost). Title kept, menu copy set to "브라우저 성능 분석", collection guide leads with Save trace, matrix entries registered as `chrome-trace-json`/`v8-cpuprofile`, Phase 1/4 items revised |
+| T-559 | P0 | [x] | Define one value/time-unit contract for V8 samples, including delta attribution, `IntervalMS`, idle accounting, summary fields, Diff normalization, and CLI/Wails defaults; lock it with duration parity tests. | T-558 | Completed 2026-07-20 (§4.3.1): `Sample.Value` is **microseconds `int64`** — nanoseconds rejected as precision the source lacks, float ms rejected because accumulation error makes the tolerance undefinable; ms conversion happens once at display. `samples[]` is authoritative and `hitCount` becomes a cross-check (`INV-C3`), with `hitCount`-only inputs served by an aggregate path that reports no duration rather than estimating one. The `IntervalMS` back-calculation is replaced by a `Parsed.ValueUnit` branch, leaving the 22 existing formats unchanged. Cost attribution assigns `timeDeltas[i]` to sample `i-1`, and recording/active/idle durations are recorded separately. Invariants `INV-C1`~`INV-C9` cover `total = self + Σ children`, the two cross-checks that catch dropped subtrees, no double-counting under recursion, and CLI/Wails parity |
 | T-560 | P0 | [ ] | Define and implement one desktop integration path for profile evidence so Browser CPU analysis, the existing Profiler policy, Analysis Workspace, Diff, and Report Export all consume the same normalized parser output. | T-558, T-559 | End-to-end Wails analysis, diff, and export contract |
 | T-561 | P0 | [ ] | Redesign Phase 3 temporal analysis: use Chrome trace task boundaries for true Long Task findings, or rename cpuprofile-only output to sampled CPU runs; define a pre-collapse ordered-series contract. | T-558, T-559 | Semantically correct temporal-analysis design |
 | T-556 | P0 | [x] | Add Jennifer MSA application drilldown so a user can choose a middle-tier application/TXID or average-transaction application URL and recalculate response-time composition from that application and its downstream calls instead of the whole GUID root. | Existing Jennifer MSA `guid_groups`, `profiles`, `msa_edges`, `slow_sql_events` contracts | Completed 2026-05-28: single TXID selector plus average-mode unique application URL selector, scoped response breakdown, scoped topology/timeline/treemap, scoped transaction and slow SQL tables |
