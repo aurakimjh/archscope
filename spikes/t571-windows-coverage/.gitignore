@@ -1,0 +1,5 @@
+# build + run scratch produced by run-spike.ps1
+/bin/
+/results/
+*.etl
+*.cab
