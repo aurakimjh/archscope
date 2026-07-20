@@ -30,13 +30,15 @@ import { CanvasFlameGraph, type FlameGraphNode } from "../components/CanvasFlame
 import { HelpTip, HelpedLabel, HelpedTitle } from "../components/HelpTip";
 import { getGenericMetricHelpText, getHelpText } from "@/help/helpCatalog";
 
-type DiffFormat = "collapsed" | "jennifer" | "flamegraph_svg" | "flamegraph_html";
+type DiffFormat = "collapsed" | "jennifer" | "flamegraph_svg" | "flamegraph_html" | "v8-cpuprofile" | "chrome-trace-json";
 
 function detectFormat(path: string): DiffFormat {
   const lower = path.toLowerCase();
   if (lower.endsWith(".csv")) return "jennifer";
   if (lower.endsWith(".svg")) return "flamegraph_svg";
   if (lower.endsWith(".html") || lower.endsWith(".htm")) return "flamegraph_html";
+  if (lower.endsWith(".cpuprofile")) return "v8-cpuprofile";
+  if (lower.endsWith(".json") || lower.endsWith(".json.gz")) return "chrome-trace-json";
   return "collapsed";
 }
 

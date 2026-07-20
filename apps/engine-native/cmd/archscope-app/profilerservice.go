@@ -46,6 +46,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	profileparser "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/profile"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/profiler"
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
@@ -293,6 +294,17 @@ func (s *ProfilerService) Diff(req DiffRequest) (profiler.AnalysisResult, error)
 }
 
 func (s *ProfilerService) loadStacks(path, format string) (map[string]int, error) {
+	// Browser/V8 evidence must use the same parser normalization as the
+	// EngineService profile-evidence path. Do not add new formats to the
+	// legacy profiler switch below.
+	switch strings.ToLower(strings.TrimSpace(format)) {
+	case "v8-cpuprofile", "chrome-trace-json", "cpuprofile", "chrome-trace":
+		parsed, _, err := profileparser.ParseFile(path, format, profileparser.Options{})
+		if err != nil {
+			return nil, err
+		}
+		return stacksFromParsedProfile(parsed), nil
+	}
 	switch strings.ToLower(strings.TrimSpace(format)) {
 	case "jennifer", "jennifer_csv", "jennifer-csv":
 		result, err := profiler.ParseJenniferFlamegraphCSV(path, nil)
@@ -321,6 +333,25 @@ func (s *ProfilerService) loadStacks(path, format string) (map[string]int, error
 	default:
 		return nil, fmt.Errorf("unsupported format: %q", format)
 	}
+}
+
+func stacksFromParsedProfile(parsed profileparser.Parsed) map[string]int {
+	stacks := map[string]int{}
+	for _, sample := range parsed.Samples {
+		if sample.Value <= 0 {
+			continue
+		}
+		frames := make([]string, 0, len(sample.Stack))
+		for _, frame := range sample.Stack {
+			if strings.TrimSpace(frame.Name) != "" {
+				frames = append(frames, frame.Name)
+			}
+		}
+		if len(frames) > 0 {
+			stacks[strings.Join(frames, ";")] += int(sample.Value)
+		}
+	}
+	return stacks
 }
 
 func stacksFromFlameNode(root profiler.FlameNode) map[string]int {

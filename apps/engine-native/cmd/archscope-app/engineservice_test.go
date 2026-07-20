@@ -21,6 +21,21 @@ import (
 	"testing"
 )
 
+func TestProfilerServiceLoadsV8ThroughUnifiedParser(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "profile.cpuprofile")
+	data := `{"nodes":[{"id":1,"callFrame":{"functionName":"root"},"children":[2]},{"id":2,"callFrame":{"functionName":"render"}}],"samples":[2,2],"timeDeltas":[10,40]}`
+	if err := os.WriteFile(path, []byte(data), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	stacks, err := (&ProfilerService{}).loadStacks(path, "v8-cpuprofile")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if stacks["root;render"] != 40 {
+		t.Fatalf("unexpected normalized V8 stacks: %#v", stacks)
+	}
+}
+
 // fixturesDir resolves the repo's `examples/` directory from the test
 // working directory. The Wails app's package sits four levels deep
 // (apps/engine-native/cmd/archscope-app), so we walk up
