@@ -3,8 +3,10 @@ package profile
 import (
 	"bufio"
 	"bytes"
+	"compress/gzip"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -54,6 +56,11 @@ type Parsed struct {
 
 type Options struct{}
 
+// MaxProfileBytes is the explicit Phase-1 safety boundary. Structured V8 and
+// trace JSON still need in-memory graph validation, so large recordings fail
+// predictably instead of exhausting the desktop process.
+const MaxProfileBytes int64 = 256 * 1024 * 1024
+
 var (
 	collapsedLineRE = regexp.MustCompile(`^(.+)\s+([0-9]+(?:e[0-9]+)?)$`)
 	xdebugFnRE      = regexp.MustCompile(`^fn=(.+)$`)
@@ -64,7 +71,7 @@ func ParseFile(path, format string, _ Options) (Parsed, *diagnostics.ParserDiagn
 	diags := diagnostics.New(format)
 	diags.SetSourceFile(path)
 
-	data, err := os.ReadFile(path)
+	data, err := readProfileData(path)
 	if err != nil {
 		return Parsed{}, diags, err
 	}
@@ -130,6 +137,43 @@ func ParseFile(path, format string, _ Options) (Parsed, *diagnostics.ParserDiagn
 		diags.AddWarning(0, "NO_PROFILE_SAMPLES", "profile input did not produce stack samples", stringPreview(data), false)
 	}
 	return parsed, diags, nil
+}
+
+func readProfileData(path string) ([]byte, error) {
+	info, err := os.Stat(path)
+	if err != nil {
+		return nil, err
+	}
+	if info.Size() > MaxProfileBytes {
+		return nil, fmt.Errorf("profile input exceeds %d MiB safety limit", MaxProfileBytes/(1024*1024))
+	}
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	head := make([]byte, 2)
+	n, _ := io.ReadFull(f, head)
+	if _, err := f.Seek(0, io.SeekStart); err != nil {
+		return nil, err
+	}
+	var reader io.Reader = f
+	if n == 2 && head[0] == 0x1f && head[1] == 0x8b {
+		gz, err := gzip.NewReader(f)
+		if err != nil {
+			return nil, err
+		}
+		defer gz.Close()
+		reader = gz
+	}
+	data, err := io.ReadAll(io.LimitReader(reader, MaxProfileBytes+1))
+	if err != nil {
+		return nil, err
+	}
+	if int64(len(data)) > MaxProfileBytes {
+		return nil, fmt.Errorf("decompressed profile exceeds %d MiB safety limit", MaxProfileBytes/(1024*1024))
+	}
+	return data, nil
 }
 
 func parsePprof(data []byte, format string) (Parsed, error) {
@@ -474,7 +518,7 @@ func detect(data []byte, path string) string {
 	ext := strings.ToLower(filepath.Ext(path))
 	base := strings.ToLower(filepath.Base(path))
 	trimmed := strings.TrimSpace(stringPreview(data))
-	if len(data) >= 2 && data[0] == 0x1f && data[1] == 0x8b || strings.HasSuffix(base, ".pb.gz") || strings.HasSuffix(base, ".pprof") {
+	if strings.HasSuffix(base, ".pb.gz") || strings.HasSuffix(base, ".pprof") {
 		return "pprof-gz"
 	}
 	if strings.Contains(base, "speedscope") || strings.Contains(strings.ToLower(trimmed), "speedscope") || jsonHas(data, "shared", "profiles") {

@@ -1,6 +1,7 @@
 package profile
 
 import (
+	"compress/gzip"
 	"os"
 	"path/filepath"
 	"testing"
@@ -134,5 +135,28 @@ func TestParseChromeTraceAssemblesProfileChunks(t *testing.T) {
 	}
 	if parsed.Format != "chrome-trace-json" || len(parsed.Samples) != 2 || parsed.Samples[1].Value != 30 {
 		t.Fatalf("unexpected Chrome trace normalization: %+v", parsed)
+	}
+}
+
+func TestParseGzipChromeTrace(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "trace.json.gz")
+	f, err := os.Create(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	gz := gzip.NewWriter(f)
+	_, _ = gz.Write([]byte(`{"traceEvents":[{"ph":"P","args":{"data":{"nodes":[{"id":1,"callFrame":{}}],"samples":[1],"timeDeltas":[10]}}}]}`))
+	if err := gz.Close(); err != nil {
+		t.Fatal(err)
+	}
+	if err := f.Close(); err != nil {
+		t.Fatal(err)
+	}
+	parsed, _, err := ParseFile(path, "auto", Options{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if parsed.Format != "chrome-trace-json" {
+		t.Fatalf("format = %q", parsed.Format)
 	}
 }
