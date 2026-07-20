@@ -48,6 +48,13 @@ npm run build
   multi-GB 사용 전에 size preflight 또는 포맷별 streaming 처리를 유지해야 합니다.
 - HTML profiler 입력은 직접 파싱 전에 크기를 확인합니다. SVG 파서는 추가
   전체 문자열 복사를 피하기 위해 byte reader를 사용합니다.
+- 브라우저/V8 profile 입력(`chrome-trace-json`, `v8-cpuprofile`,
+  `.json.gz`/`.cpuprofile.gz` 포함)은 256 MiB byte guard와 500,000 sample
+  상한으로 streaming 처리합니다. 초과 시 결정적 time-weighted bucket
+  downsampling이 적용되고 `PROFILE_DOWNSAMPLED`와 `metadata.partial_result`로
+  기록됩니다. 균등 downsampling은 시간 구간을 왜곡하므로 downsample된 입력에서는
+  시간축 산출물(`cpu_sample_runs`, `cpu_activity`, `SAMPLED_CPU_HOTSPOT`)을
+  억제합니다.
 
 권장 UI/CLI 경고 기준:
 

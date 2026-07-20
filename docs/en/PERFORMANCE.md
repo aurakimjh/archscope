@@ -48,6 +48,13 @@ browser upload workload.
   size preflight or format-specific streaming before multi-GB use.
 - HTML profiler inputs are size-checked before direct parsing; SVG parsing uses
   a byte reader to avoid an extra whole-file string copy.
+- Browser/V8 profile inputs (`chrome-trace-json`, `v8-cpuprofile`, including
+  `.json.gz`/`.cpuprofile.gz`) stream with a 256 MiB byte guard and a
+  500,000-sample cap. Overflow triggers deterministic time-weighted bucket
+  downsampling recorded via `PROFILE_DOWNSAMPLED` and
+  `metadata.partial_result`; time-axis outputs (`cpu_sample_runs`,
+  `cpu_activity`, `SAMPLED_CPU_HOTSPOT`) are suppressed for downsampled
+  inputs because uniform downsampling distorts time windows.
 
 Recommended warning thresholds for UI/CLI messaging:
 

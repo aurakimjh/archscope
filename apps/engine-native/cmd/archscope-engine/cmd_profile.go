@@ -38,7 +38,7 @@ func init() {
 		},
 	}
 	importCmd.Flags().StringVar(&in, "in", "", "path to profile evidence file")
-	importCmd.Flags().StringVar(&format, "format", "auto", "auto|pprof-gz|async-profiler-collapsed|async-profiler-html|pyspy-raw|rbspy-raw|speedscope-json|dotnet-speedscope-json|perf-collapsed|stackprof-json|php-excimer-json|php-tideways-json|xdebug-cachegrind|swift-backtrace|pyroscope-json|parca-json")
+	importCmd.Flags().StringVar(&format, "format", "auto", "auto|pprof-gz|async-profiler-collapsed|async-profiler-html|pyspy-raw|rbspy-raw|speedscope-json|dotnet-speedscope-json|perf-collapsed|stackprof-json|php-excimer-json|php-tideways-json|xdebug-cachegrind|swift-backtrace|pyroscope-json|parca-json|v8-cpuprofile|chrome-trace-json")
 	importCmd.Flags().IntVar(&topN, "top-n", 50, "maximum rows per table")
 	importCmd.Flags().Float64Var(&intervalMS, "interval-ms", 100, "sample interval in milliseconds")
 	importCmd.Flags().StringVar(&profileKind, "profile-kind", "", "profile kind override: wall, cpu, lock, memory, or samples")

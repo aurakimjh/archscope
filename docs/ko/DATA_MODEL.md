@@ -528,6 +528,49 @@ Parca 계열 profile JSON이다.
 `charts.flamegraph`와 `charts.drilldown_stages`는 profiler `FlameNode`
 contract를 재사용한다.
 
+브라우저/V8 입력(`chrome-trace-json`, `v8-cpuprofile`)은 envelope 변경 없이
+다음을 추가한다.
+
+- `Sample.Value`는 마이크로초(`value_unit: "microseconds"`)이며 `samples[]`가
+  정본, `hitCount`는 검증용이다. `hitCount`-only 입력은 duration을 보고하지
+  않는 집계 경로를 탄다.
+- sample은 `ts_us` label(프로파일 시작 기준 오프셋)을 갖는다. collapse 이전에
+  `tables.cpu_sample_runs`(연속 동일 스택 run 상위 N —
+  `start_us`/`end_us`/`duration_us`/`sample_count`/`top_frame`)와
+  `series.cpu_activity`(CPU 점유율 버킷, 최대 1,000개)를 만든다. `ts_us`가
+  없는 포맷, 다운샘플된 입력, `hitCount`-only 입력에서는 두 키를 생성하지
+  않는다.
+- 100ms 임계를 넘는 run은 `SAMPLED_CPU_HOTSPOT` warning finding이 된다.
+  문구는 의도적으로 "롱태스크"를 피한다 — 샘플 관측 구간이지 브라우저 task
+  경계가 아니다.
+- 대형 입력은 256 MiB 바이트 가드와 500,000 sample 상한으로 스트리밍 처리하며,
+  다운샘플 시 `metadata.partial_result`, `metadata.downsampled_from_samples`,
+  `metadata.downsampled_to_samples`와 `PROFILE_DOWNSAMPLED` diagnostic이
+  남는다.
+
+### HTTP Capture Result
+
+`type`: `http_capture`
+
+Phase 1은 리댁션된 HAR 파일을 bounded envelope로 가져온다
+(`http-capture analyze --in file.har`). parser는 `log.creator`/`log.browser`로
+생성 방언(Chrome, Firefox, Safari, Charles, Fiddler, Proxyman, Insomnia,
+`generic`)을 판별하고, entry 수를 상한(기본 100,000, 초과 시 `HAR_ENTRY_CAP`
+warning)으로 자르며, 잘못된 entry는 `INVALID_HAR` diagnostic으로 건너뛴다.
+
+| Envelope field | 내용 |
+|---|---|
+| `summary` | `total_transactions`, `error_transactions`, `unique_hosts`, `unique_endpoints`, `source_format`, `dialect` |
+| `series.timeline` | 분 단위 요청/오류/전송량 row (top-N 상한) |
+| `tables` | `transactions`, `endpoints`(`method path` key), `hosts` — 각 top-N 상한 (기본 50) |
+| `metadata.extra.http_capture` | `dialect`, `fidelity: "har_import"`, `redaction`, `detail_storage: "inline_phase1"` |
+| `metadata.extra.capture_aggregate_snapshot` | 향후 live capture와 공유하는 결정적 집계 snapshot — 오프라인 start-order와 라이브 completion-order projection의 비교 가능성 유지 |
+
+실패 응답이 있으면 `HTTP_CAPTURE_ERRORS` warning finding이 추가된다. Phase 1은
+상세를 inline으로 저장하며, cursor pagination이 있는 버전 붙은
+`CaptureSessionStore`는 live capture부터 적용된다
+(`docs/ko/SYSTEM_HTTP_CAPTURE.md` 7.6 참조).
+
 ### Stitched Evidence
 
 `type`: `stitched_evidence`

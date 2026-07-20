@@ -369,6 +369,50 @@ Core `summary` fields include:
 `metadata.unified_profile_schema` records the canonical frame and sample fields,
 while `metadata.flamegraph_rollup` records the collapsed-stack rollup source.
 
+Browser and V8 inputs (`chrome-trace-json`, `v8-cpuprofile`) add the following
+to this contract without changing the envelope:
+
+- `Sample.Value` is microseconds (`value_unit: "microseconds"`); `samples[]`
+  is authoritative and `hitCount` is a cross-check. `hitCount`-only inputs use
+  an aggregate path that reports no durations.
+- Samples carry a `ts_us` label (offset from profile start). Before collapsing,
+  the analyzer derives `tables.cpu_sample_runs` (top-N contiguous same-stack
+  runs with `start_us`/`end_us`/`duration_us`/`sample_count`/`top_frame`) and
+  `series.cpu_activity` (bounded CPU-occupancy buckets, at most 1,000). Both
+  are omitted for formats without `ts_us`, for downsampled inputs, and for
+  `hitCount`-only inputs.
+- Runs exceeding the 100 ms threshold produce the `SAMPLED_CPU_HOTSPOT`
+  warning finding. The wording deliberately avoids "Long Task": these are
+  sampled observation windows, not browser task boundaries.
+- Oversized inputs are streamed with a 256 MiB byte guard and a 500,000-sample
+  cap; when downsampling occurs `metadata.partial_result`,
+  `metadata.downsampled_from_samples`, `metadata.downsampled_to_samples`, and
+  the `PROFILE_DOWNSAMPLED` diagnostic record it.
+
+### HTTP Capture Result
+
+`type`: `http_capture`
+
+Phase 1 imports redacted HAR files (`http-capture analyze --in file.har`) into
+a bounded envelope. The parser detects the generating dialect from
+`log.creator`/`log.browser` (Chrome, Firefox, Safari, Charles, Fiddler,
+Proxyman, Insomnia, or `generic`), caps imported entries (default 100,000,
+`HAR_ENTRY_CAP` warning on overflow), and skips invalid entries with
+`INVALID_HAR` diagnostics.
+
+| Envelope field | Content |
+|---|---|
+| `summary` | `total_transactions`, `error_transactions`, `unique_hosts`, `unique_endpoints`, `source_format`, `dialect` |
+| `series.timeline` | Per-minute request/error/byte rows (top-N bounded) |
+| `tables` | `transactions`, `endpoints` (`method path` keys), `hosts` — each top-N bounded (default 50) |
+| `metadata.extra.http_capture` | `dialect`, `fidelity: "har_import"`, `redaction`, `detail_storage: "inline_phase1"` |
+| `metadata.extra.capture_aggregate_snapshot` | Deterministic aggregation snapshot shared with the future live-capture path, keeping offline start-order and live completion-order projections comparable |
+
+Failed responses raise the `HTTP_CAPTURE_ERRORS` warning finding. Phase 1
+stores details inline; the versioned `CaptureSessionStore` with cursor
+pagination applies from live capture onward (see
+`docs/en/SYSTEM_HTTP_CAPTURE.md`).
+
 ### Stitched Evidence
 
 `type`: `stitched_evidence`

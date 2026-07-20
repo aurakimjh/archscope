@@ -58,6 +58,17 @@ go run ./cmd/archscope-engine broker-log analyze \
   --format auto \
   --out broker.json
 
+# Chrome Performance trace or V8 .cpuprofile (Node --cpu-prof, CDP)
+go run ./cmd/archscope-engine profile import \
+  --in ./trace.json.gz \
+  --format auto \
+  --out browser-profile.json
+
+# Redacted HAR import (dialect auto-detection, bounded entry cap)
+go run ./cmd/archscope-engine http-capture analyze \
+  --in ./session.har \
+  --out http-capture.json
+
 go run ./cmd/archscope-engine api-contract analyze \
   --openapi ../../examples/api-contract/openapi-orders.json \
   --access-result ../../examples/api-contract/access-result.json \
@@ -100,6 +111,8 @@ or modify application source code.
 | Node.js evidence | diagnostic reports, sample traces, JavaScript stack traces |
 | .NET evidence | clrstack, Environment.StackTrace, exception/IIS evidence, dotnet-trace speedscope exports |
 | Ruby / PHP / Swift / native profile evidence | rbspy, StackProf, PHP Excimer/Tideways/Xdebug, Swift/async stacks, perf collapsed/native stacks when supplied as supported profile artifacts |
+| Browser / frontend evidence | Chrome Performance traces (`.json`/`.json.gz`), V8 `.cpuprofile` (browser, Node `--cpu-prof`, CDP `Profiler.stop`) with sampled CPU run analysis; note these are CPU samples only — no network, layout, or paint attribution |
+| HTTP evidence | HAR 1.2 imports with dialect detection and import-time redaction (`http_capture`); live capture is a Windows-first roadmap slice |
 | Language-neutral evidence | access/edge logs, server logs, OpenTelemetry logs/traces, metrics snapshots, database/broker/platform evidence, OpenAPI, AsyncAPI, stitched evidence, architecture-doc drafts |
 
 Unsupported or deferred:
