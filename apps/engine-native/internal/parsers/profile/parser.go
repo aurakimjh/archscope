@@ -30,8 +30,11 @@ type Frame struct {
 }
 
 type Sample struct {
-	Stack        []Frame           `json:"stack"`
-	Value        int               `json:"value"`
+	Stack []Frame `json:"stack"`
+	// Value is an integer quantity in Parsed.ValueUnit. Browser/V8 profiles use
+	// microseconds; legacy formats continue to use their native sample count.
+	Value        int64             `json:"value"`
+	TimestampUS  int64             `json:"timestamp_us,omitempty"`
 	Thread       string            `json:"thread,omitempty"`
 	Process      string            `json:"process,omitempty"`
 	Runtime      string            `json:"runtime,omitempty"`
@@ -43,9 +46,10 @@ type Sample struct {
 }
 
 type Parsed struct {
-	Format   string         `json:"format"`
-	Samples  []Sample       `json:"samples"`
-	Metadata map[string]any `json:"metadata,omitempty"`
+	Format    string         `json:"format"`
+	ValueUnit string         `json:"value_unit,omitempty"`
+	Samples   []Sample       `json:"samples"`
+	Metadata  map[string]any `json:"metadata,omitempty"`
 }
 
 type Options struct{}
@@ -79,6 +83,8 @@ func ParseFile(path, format string, _ Options) (Parsed, *diagnostics.ParserDiagn
 		parsed, err = parseCollapsed(path, format, diags)
 	case "speedscope-json", "dotnet-speedscope-json":
 		parsed, err = parseSpeedscope(data, format)
+	case "v8-cpuprofile", "chrome-trace-json":
+		parsed, err = parseV8(data, format)
 	case "jfr-json":
 		parsed, err = parseJFRJSON(data)
 	case "stackprof-json":
@@ -107,11 +113,14 @@ func ParseFile(path, format string, _ Options) (Parsed, *diagnostics.ParserDiagn
 		return Parsed{}, diags, err
 	}
 	parsed.Format = firstNonEmpty(parsed.Format, format)
+	if parsed.ValueUnit == "" {
+		parsed.ValueUnit = "samples"
+	}
 	for i := range parsed.Samples {
 		if parsed.Samples[i].SourceFormat == "" {
 			parsed.Samples[i].SourceFormat = parsed.Format
 		}
-		normalizeSample(&parsed.Samples[i], parsed.Format)
+		normalizeSample(&parsed.Samples[i], parsed.Format, parsed.ValueUnit == "microseconds")
 	}
 	diags.ParsedRecords = len(parsed.Samples)
 	if diags.TotalLines == 0 {
@@ -160,7 +169,7 @@ func parsePprof(data []byte, format string) (Parsed, error) {
 		labels := firstLabels(sample.Label)
 		samples = append(samples, Sample{
 			Stack:        frames,
-			Value:        value,
+			Value:        int64(value),
 			Thread:       labels["thread"],
 			Process:      firstNonEmpty(labels["process"], labels["pid"]),
 			Runtime:      labels["runtime"],
@@ -233,7 +242,7 @@ func parseSpeedscope(data []byte, format string) (Parsed, error) {
 			if idx < len(weights) {
 				value = maxInt(1, intNum(weights[idx]))
 			}
-			samples = append(samples, Sample{Stack: stack, Value: value, SourceFormat: format})
+			samples = append(samples, Sample{Stack: stack, Value: int64(value), SourceFormat: format})
 		}
 		if len(samples) == 0 {
 			samples = append(samples, eventedSpeedscopeSamples(profileObj, frames, format)...)
@@ -318,12 +327,12 @@ func parseStackprof(data []byte) (Parsed, error) {
 			if !ok {
 				continue
 			}
-			samples = append(samples, Sample{Stack: []Frame{parent, child}, Value: maxInt(1, intNum(rawCount)), Runtime: "Ruby", Language: "Ruby", SourceFormat: "stackprof-json"})
+			samples = append(samples, Sample{Stack: []Frame{parent, child}, Value: int64(maxInt(1, intNum(rawCount))), Runtime: "Ruby", Language: "Ruby", SourceFormat: "stackprof-json"})
 		}
 		if len(edges) == 0 {
 			count := firstPositive(intNum(obj["samples"]), intNum(obj["total_samples"]), intNum(obj["totalSamples"]))
 			if count > 0 {
-				samples = append(samples, Sample{Stack: []Frame{parent}, Value: count, Runtime: "Ruby", Language: "Ruby", SourceFormat: "stackprof-json"})
+				samples = append(samples, Sample{Stack: []Frame{parent}, Value: int64(count), Runtime: "Ruby", Language: "Ruby", SourceFormat: "stackprof-json"})
 			}
 		}
 	}
@@ -355,7 +364,7 @@ func genericSamples(payload any, format string) []Sample {
 		}
 		out = append(out, Sample{
 			Stack:        frames,
-			Value:        firstPositive(intNum(obj["value"]), intNum(obj["samples"]), intNum(obj["count"]), intNum(obj["weight"]), 1),
+			Value:        int64(firstPositive(intNum(obj["value"]), intNum(obj["samples"]), intNum(obj["count"]), intNum(obj["weight"]), 1)),
 			Thread:       firstNonEmpty(str(obj["thread"]), str(obj["thread_name"]), str(obj["threadName"])),
 			Process:      firstNonEmpty(str(obj["process"]), str(obj["pid"])),
 			Runtime:      str(obj["runtime"]),
@@ -456,7 +465,7 @@ func samplesFromCollapsed(stacks map[string]int, format, runtimeName, language s
 			}
 			frames = append(frames, makeFrame(name, name, "", 0, format))
 		}
-		samples = append(samples, Sample{Stack: frames, Value: count, Runtime: runtimeName, Language: language, SourceFormat: format})
+		samples = append(samples, Sample{Stack: frames, Value: int64(count), Runtime: runtimeName, Language: language, SourceFormat: format})
 	}
 	return samples
 }
@@ -473,6 +482,12 @@ func detect(data []byte, path string) string {
 			return "dotnet-speedscope-json"
 		}
 		return "speedscope-json"
+	}
+	if isChromeTrace(data) {
+		return "chrome-trace-json"
+	}
+	if isV8Profile(data) {
+		return "v8-cpuprofile"
 	}
 	if strings.Contains(base, "pyroscope") || jsonHas(data, "flamebearer", "") {
 		return "pyroscope-json"
@@ -545,13 +560,17 @@ func canonical(format string) string {
 		return "stackprof-json"
 	case "xdebug":
 		return "xdebug-cachegrind"
+	case "cpuprofile", "v8", "v8-cpu-profile":
+		return "v8-cpuprofile"
+	case "chrome-trace", "chrome-trace-json", "trace-json":
+		return "chrome-trace-json"
 	default:
 		return format
 	}
 }
 
-func normalizeSample(sample *Sample, format string) {
-	if sample.Value <= 0 {
+func normalizeSample(sample *Sample, format string, allowZeroValue bool) {
+	if sample.Value < 0 || (sample.Value == 0 && !allowZeroValue) {
 		sample.Value = 1
 	}
 	for i := range sample.Stack {

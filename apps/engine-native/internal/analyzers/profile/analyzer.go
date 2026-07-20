@@ -97,11 +97,14 @@ func Build(parsed parser.Parsed, sourceFile string, diags *diagnostics.ParserDia
 func collapsedStacks(samples []parser.Sample) map[string]int {
 	out := map[string]int{}
 	for _, sample := range samples {
+		if sample.Value == 0 && sample.TimestampUS != 0 {
+			continue // V8's first sample has no preceding duration to attribute.
+		}
 		key := stackKey(sample.Stack)
 		if key == "" {
 			continue
 		}
-		value := sample.Value
+		value := int(sample.Value)
 		if value <= 0 {
 			value = 1
 		}
@@ -119,7 +122,10 @@ func summary(parsed parser.Parsed, stacks map[string]int, intervalMS float64) ma
 	threads := map[string]int{}
 	processes := map[string]int{}
 	for _, sample := range parsed.Samples {
-		value := maxInt(1, sample.Value)
+		value := int(sample.Value)
+		if value == 0 && sample.TimestampUS == 0 {
+			value = 1
+		}
 		total += value
 		if len(sample.Stack) > maxDepth {
 			maxDepth = len(sample.Stack)
@@ -178,7 +184,10 @@ func frameRows(samples []parser.Sample, limit int) []map[string]any {
 	}
 	counts := map[string]aggregate{}
 	for _, sample := range samples {
-		value := maxInt(1, sample.Value)
+		value := int(sample.Value)
+		if value == 0 && sample.TimestampUS == 0 {
+			value = 1
+		}
 		for _, frame := range sample.Stack {
 			key := strings.Join([]string{frame.Name, frame.File, frame.Runtime, frame.Language}, "\x00")
 			item := counts[key]
@@ -241,7 +250,7 @@ func sampleRows(samples []parser.Sample, limit int) []map[string]any {
 		out = append(out, map[string]any{
 			"stack":         item.stack,
 			"frames":        frameNames(item.sample.Stack),
-			"samples":       maxInt(1, item.sample.Value),
+			"samples":       maxInt(1, int(item.sample.Value)),
 			"thread":        item.sample.Thread,
 			"process":       item.sample.Process,
 			"runtime":       item.sample.Runtime,
@@ -325,7 +334,7 @@ func frameNames(frames []parser.Frame) []string {
 func sampleRuntimeCounts(samples []parser.Sample) map[string]int {
 	counts := map[string]int{}
 	for _, sample := range samples {
-		counts[firstNonEmpty(sample.Runtime, "unknown")] += maxInt(1, sample.Value)
+		counts[firstNonEmpty(sample.Runtime, "unknown")] += maxInt(1, int(sample.Value))
 	}
 	return counts
 }
@@ -333,7 +342,7 @@ func sampleRuntimeCounts(samples []parser.Sample) map[string]int {
 func sampleLanguageCounts(samples []parser.Sample) map[string]int {
 	counts := map[string]int{}
 	for _, sample := range samples {
-		counts[firstNonEmpty(sample.Language, "unknown")] += maxInt(1, sample.Value)
+		counts[firstNonEmpty(sample.Language, "unknown")] += maxInt(1, int(sample.Value))
 	}
 	return counts
 }
@@ -341,7 +350,7 @@ func sampleLanguageCounts(samples []parser.Sample) map[string]int {
 func sampleFormatCounts(samples []parser.Sample) map[string]int {
 	counts := map[string]int{}
 	for _, sample := range samples {
-		counts[firstNonEmpty(sample.SourceFormat, "unknown")] += maxInt(1, sample.Value)
+		counts[firstNonEmpty(sample.SourceFormat, "unknown")] += maxInt(1, int(sample.Value))
 	}
 	return counts
 }
@@ -349,7 +358,7 @@ func sampleFormatCounts(samples []parser.Sample) map[string]int {
 func dominantProfileKind(samples []parser.Sample) string {
 	counts := map[string]int{}
 	for _, sample := range samples {
-		counts[sample.ProfileKind] += maxInt(1, sample.Value)
+		counts[sample.ProfileKind] += maxInt(1, int(sample.Value))
 	}
 	best := ""
 	bestCount := 0
