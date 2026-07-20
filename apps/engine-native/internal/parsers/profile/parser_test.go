@@ -160,3 +160,21 @@ func TestParseGzipChromeTrace(t *testing.T) {
 		t.Fatalf("format = %q", parsed.Format)
 	}
 }
+
+func TestParseV8DownsamplesDeterministicallyAndMarksPartial(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "profile.cpuprofile")
+	data := `{"nodes":[{"id":1,"callFrame":{}}],"samples":[1,1,1,1],"timeDeltas":[10,20,30,40]}`
+	if err := os.WriteFile(path, []byte(data), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	parsed, diags, err := ParseFile(path, "v8-cpuprofile", Options{MaxSamples: 2})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(parsed.Samples) != 2 || parsed.Samples[0].Value != 20 || parsed.Samples[1].Value != 70 {
+		t.Fatalf("unexpected downsample: %+v", parsed.Samples)
+	}
+	if parsed.Metadata["partial_result"] != true || diags.WarningCount == 0 {
+		t.Fatalf("missing partial diagnostic: %#v %#v", parsed.Metadata, diags)
+	}
+}

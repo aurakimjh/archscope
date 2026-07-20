@@ -67,7 +67,7 @@ export type AnalysisResult<
 
 export type HttpCaptureRequest = { path: string; format?: string; topN?: number; maxEntries?: number };
 export type HttpCaptureAnalysisResult = AnalysisResult<"http_capture">;
-export type ProfileEvidenceRequest = { path: string; format?: string; topN?: number; intervalMs?: number; profileKind?: string };
+export type ProfileEvidenceRequest = { path: string; format?: string; topN?: number; intervalMs?: number; profileKind?: string; maxBytes?: number; maxSamples?: number };
 export type ProfileEvidenceAnalysisResult = AnalysisResult<"profile_evidence">;
 
 export type AiInterpretationGateRequest = {

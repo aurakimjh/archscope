@@ -18,10 +18,12 @@ type Options struct {
 	TopN        int
 	IntervalMS  float64
 	ProfileKind string
+	MaxBytes    int64
+	MaxSamples  int
 }
 
 func Analyze(path string, opts Options) (models.AnalysisResult, error) {
-	parsed, diags, err := parser.ParseFile(path, opts.Format, parser.Options{})
+	parsed, diags, err := parser.ParseFile(path, opts.Format, parser.Options{MaxBytes: opts.MaxBytes, MaxSamples: opts.MaxSamples})
 	if err != nil {
 		return models.AnalysisResult{}, err
 	}
@@ -75,6 +77,7 @@ func Build(parsed parser.Parsed, sourceFile string, diags *diagnostics.ParserDia
 	result.Metadata.SchemaVersion = "0.1.0"
 	result.Metadata.Diagnostics = diags
 	result.Metadata.Extra["format"] = firstNonEmpty(parsed.Format, opts.Format, "auto")
+	result.Metadata.Extra["analysis_options"] = map[string]any{"max_bytes": opts.MaxBytes, "max_samples": opts.MaxSamples}
 	result.Metadata.Extra["unified_profile_schema"] = map[string]any{
 		"frames": []string{"name", "function", "file", "line", "language", "runtime", "kind", "native", "async"},
 		"samples": []string{

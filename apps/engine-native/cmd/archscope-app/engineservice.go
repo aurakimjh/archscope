@@ -196,6 +196,8 @@ type ProfileEvidenceRequest struct {
 	TopN        int     `json:"topN,omitempty"`
 	IntervalMS  float64 `json:"intervalMs,omitempty"`
 	ProfileKind string  `json:"profileKind,omitempty"`
+	MaxBytes    int64   `json:"maxBytes,omitempty"`
+	MaxSamples  int     `json:"maxSamples,omitempty"`
 }
 
 type StitchedEvidenceRequest struct {
@@ -533,6 +535,8 @@ func (s *EngineService) AnalyzeProfileEvidence(req ProfileEvidenceRequest) (engi
 		TopN:        req.TopN,
 		IntervalMS:  req.IntervalMS,
 		ProfileKind: req.ProfileKind,
+		MaxBytes:    req.MaxBytes,
+		MaxSamples:  req.MaxSamples,
 	})
 }
 

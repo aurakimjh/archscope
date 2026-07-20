@@ -54,7 +54,10 @@ type Parsed struct {
 	Metadata  map[string]any `json:"metadata,omitempty"`
 }
 
-type Options struct{}
+type Options struct {
+	MaxBytes   int64
+	MaxSamples int
+}
 
 // MaxProfileBytes is the explicit Phase-1 safety boundary. Structured V8 and
 // trace JSON still need in-memory graph validation, so large recordings fail
@@ -66,12 +69,12 @@ var (
 	xdebugFnRE      = regexp.MustCompile(`^fn=(.+)$`)
 )
 
-func ParseFile(path, format string, _ Options) (Parsed, *diagnostics.ParserDiagnostics, error) {
+func ParseFile(path, format string, opts Options) (Parsed, *diagnostics.ParserDiagnostics, error) {
 	format = canonical(format)
 	diags := diagnostics.New(format)
 	diags.SetSourceFile(path)
 
-	data, err := readProfileData(path)
+	data, err := readProfileData(path, opts.MaxBytes)
 	if err != nil {
 		return Parsed{}, diags, err
 	}
@@ -129,6 +132,17 @@ func ParseFile(path, format string, _ Options) (Parsed, *diagnostics.ParserDiagn
 		}
 		normalizeSample(&parsed.Samples[i], parsed.Format, parsed.ValueUnit == "microseconds")
 	}
+	if opts.MaxSamples > 0 && len(parsed.Samples) > opts.MaxSamples {
+		original := len(parsed.Samples)
+		parsed.Samples = downsampleSamples(parsed.Samples, opts.MaxSamples)
+		if parsed.Metadata == nil {
+			parsed.Metadata = map[string]any{}
+		}
+		parsed.Metadata["partial_result"] = true
+		parsed.Metadata["downsampled_from_samples"] = original
+		parsed.Metadata["downsampled_to_samples"] = len(parsed.Samples)
+		diags.AddWarning(0, "PROFILE_DOWNSAMPLED", fmt.Sprintf("profile samples downsampled from %d to %d", original, len(parsed.Samples)), "", false)
+	}
 	diags.ParsedRecords = len(parsed.Samples)
 	if diags.TotalLines == 0 {
 		diags.TotalLines = lineCount(data)
@@ -139,13 +153,16 @@ func ParseFile(path, format string, _ Options) (Parsed, *diagnostics.ParserDiagn
 	return parsed, diags, nil
 }
 
-func readProfileData(path string) ([]byte, error) {
+func readProfileData(path string, maxBytes int64) ([]byte, error) {
+	if maxBytes <= 0 {
+		maxBytes = MaxProfileBytes
+	}
 	info, err := os.Stat(path)
 	if err != nil {
 		return nil, err
 	}
-	if info.Size() > MaxProfileBytes {
-		return nil, fmt.Errorf("profile input exceeds %d MiB safety limit", MaxProfileBytes/(1024*1024))
+	if info.Size() > maxBytes {
+		return nil, fmt.Errorf("profile input exceeds %d MiB safety limit", maxBytes/(1024*1024))
 	}
 	f, err := os.Open(path)
 	if err != nil {
@@ -166,14 +183,35 @@ func readProfileData(path string) ([]byte, error) {
 		defer gz.Close()
 		reader = gz
 	}
-	data, err := io.ReadAll(io.LimitReader(reader, MaxProfileBytes+1))
+	data, err := io.ReadAll(io.LimitReader(reader, maxBytes+1))
 	if err != nil {
 		return nil, err
 	}
-	if int64(len(data)) > MaxProfileBytes {
-		return nil, fmt.Errorf("decompressed profile exceeds %d MiB safety limit", MaxProfileBytes/(1024*1024))
+	if int64(len(data)) > maxBytes {
+		return nil, fmt.Errorf("decompressed profile exceeds %d MiB safety limit", maxBytes/(1024*1024))
 	}
 	return data, nil
+}
+
+func downsampleSamples(samples []Sample, maxSamples int) []Sample {
+	if maxSamples <= 0 || len(samples) <= maxSamples {
+		return samples
+	}
+	out := make([]Sample, 0, maxSamples)
+	for bucket := 0; bucket < maxSamples; bucket++ {
+		start := bucket * len(samples) / maxSamples
+		end := (bucket + 1) * len(samples) / maxSamples
+		if start >= end {
+			continue
+		}
+		combined := samples[start]
+		combined.Value = 0
+		for _, sample := range samples[start:end] {
+			combined.Value += sample.Value
+		}
+		out = append(out, combined)
+	}
+	return out
 }
 
 func parsePprof(data []byte, format string) (Parsed, error) {
