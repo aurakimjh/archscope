@@ -690,18 +690,23 @@ and deterministic.
 
 ## 10. Implementation Phases and Current Status
 
+Task ownership and the sequential review gates are tracked in
+[Browser Profile and HTTP Capture Implementation and Review-Gate Plan](./BROWSER_PROFILE_HTTP_CAPTURE_IMPLEMENTATION_PLAN.md).
+
 Phases are cut so each ships independent value.
 
 - **Phase 0 — design fixed.** Gates 1-5 (T-566~T-570) are the design artifacts
   and are closed; gate 8 (proxy build-vs-integrate, T-574) is decided; gate 9
   (Windows coverage, T-571) has its first measurement. No design gate blocks Phase
   1; gates 8-10 must precede Phase 2.
-- **Phase 1 — HAR import (implemented as MVP).** A file-only HAR parser with
-  dialect detection and a 100,000-entry cap produces `http_capture` results,
-  through a deterministic capture aggregation protocol with offline/live parity
-  tests, surfaced by a HAR-import desktop page. Detail storage is inline for Phase
-  1. This breaks no architecture premise (file input, batch analysis, no
-  privilege) and builds all UI assets so later phases are lighter.
+- **Phase 1 — HAR import (MVP exists; design acceptance incomplete).** A
+  file-only HAR parser with dialect detection and a 100,000-entry cap produces
+  `http_capture` results through a deterministic capture aggregation protocol
+  with offline/live parity tests, surfaced by a minimal HAR-import desktop page.
+  Detail storage is inline for Phase 1. Manifest-driven dialect/security
+  goldens, dedicated redaction/resource guards, and the designed
+  timeline/brush/detail/filter UX remain in `H-RG1`. This breaks no architecture
+  premise (file input, batch analysis, no privilege).
 - **MITM proxy build-vs-integrate spike (T-574) — decided: option 3.** An
   H1-limited MVP with H2 passthrough, behind a `Proxy`/`Interceptor` interface so
   a native-H2 layer (option 4) can be grafted later without a rewrite; the

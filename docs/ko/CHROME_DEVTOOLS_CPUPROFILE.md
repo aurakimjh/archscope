@@ -1412,6 +1412,10 @@ weighted bucket만 만든다. 이 경로는 큰 trace document를 `[]json.RawMes
 
 ## 9. 구현 단계
 
+구현 담당과 새 리뷰 그룹 게이트는
+[브라우저 프로파일·HTTP 캡처 구현 및 리뷰 게이트 계획](./BROWSER_PROFILE_HTTP_CAPTURE_IMPLEMENTATION_PLAN.md)에서
+관리한다.
+
 ### Phase 1 — 최소 동작 (Chrome trace + `.cpuprofile` 파싱)
 
 3.0 확정에 따라 trace 어댑터가 Phase 1에 포함된다. 순서는 **정규화 코어 먼저,
@@ -1653,24 +1657,19 @@ sample `i-1`)과 같은 규칙으로 합산한다.
 `.cpuprofile` 지원이 아니라 상관관계 인프라의 문제이며, 본 문서의 Phase 1~4가
 그 전제 조건을 만든다.
 
-## 11. 문서화 계획 (T-565)
+## 11. 문서화 상태 (T-565)
 
-본 문서는 현재 `docs/ko`에만 있고 `docs/en` 대응 문서와 README 링크가 없다.
-`IMPORTER_SUPPORT_MATRIX.md`는 en/ko 양쪽에 존재하지만 `cpuprofile` 언급이
-**전혀 없다.** 프로젝트 가드레일상 en/ko 문서는 짝을 이뤄야 하므로 다음 순서를
-따른다.
+T-565는 2026-07-21 완료됐다. `docs/en/CHROME_DEVTOOLS_CPUPROFILE.md`가 영문 짝으로
+추가됐고, `IMPORTER_SUPPORT_MATRIX`, `DATA_MODEL`, `USER_GUIDE`, `PERFORMANCE`의
+영문·한글 문서에 실제 포맷명(`chrome-trace-json`, `v8-cpuprofile`), 옵션, 크기
+제한, weighted downsampling과 시간축 억제 정책이 반영됐다. shared 15-fixture
+manifest 골든 테스트가 V8/Node/CDP, trace object/array/gzip, malformed graph,
+hitCount-only, negative delta와 3.1초/210ms acceptance scenario를 고정한다.
 
-1. **구현 전(현재)**: 지원 매트릭스에 `planned` 상태로만 표기한다. 아직 지원하지
-   않는 포맷을 지원 목록에 올리지 않는다. G1 확정은 **결정**이지 구현이 아니므로
-   이 단계는 그대로다.
-2. **Phase 1 착수 시**: 확정된 포맷명(`chrome-trace-json`, `v8-cpuprofile`)으로
-   수집 안내를 정리하고, `docs/en/CHROME_DEVTOOLS_CPUPROFILE.md`를 짝으로
-   추가한다.
-3. **구현 완료 후**: `IMPORTER_SUPPORT_MATRIX`, `DATA_MODEL`, `USER_GUIDE`,
-   `PERFORMANCE`에 실제 지원 포맷·옵션·크기 제한·다운샘플 정책을 반영한다.
-
-10절의 "CPU만" 제약(네트워크 대기·레이아웃·페인트 미포함)은 사용자 문서에
-반드시 노출한다. 6.2의 `EXTERNAL_API_HTTP` 해석 주의도 함께 적는다.
+trace `ph:"X"`의 `BROWSER_LONG_TASK`·Layout·Paint는 T-565 미완료분이 아니라
+**선택 확장**이다. 승격할 경우 구현 계획의 `C-EXT1`과 `C-SEM1` 의미 리뷰를
+따른다. 10절의 "CPU만" 제약과 6.2의 `EXTERNAL_API_HTTP` 해석 주의는 계속 사용자
+문서에 노출한다.
 
 ## 12. 개정 이력
 
@@ -1682,3 +1681,4 @@ sample `i-1`)과 같은 규칙으로 합산한다.
 | 2026-07-20 | **G3 확정.** 데스크톱 단일 분석 경로를 A안(경로 통합)으로 결정(5.0.1). `parsers/profile.Parsed`가 유일한 정규화 지점, `AnalyzeProfileEvidence`가 유일한 데스크톱 정본 경로. legacy `ProfilerService` 포맷 스위치 동결 및 신규 포맷 추가 금지. 4단계 이행 순서(Diff 공통 로더 → Browser 페이지 → Workspace/Export 접속 → 기존 페이지 전환 후속)와 수용 기준 AC-1~AC-4 정의. 7.6 창구 서술과 2절 워크플로를 결정에 맞게 갱신 |
 | 2026-07-20 | **G1·G2 확정.** 1차 입력을 Chrome Performance trace(`.json`/`.json.gz`)로 결정하고 `.cpuprofile`을 같은 Phase 1에 포함(3.0). Phase 1 trace 어댑터를 `ph:"P"` 필터로 한정해 구간 이벤트 모델링을 Phase 4에 남김(3.0.2, 3.2). 측정 단위를 마이크로초 `int64`로, 표본 정본을 `samples[]`로, `hitCount`를 검증용으로 확정하고 `IntervalMS` 역산 경로를 `ValueUnit` 분기로 대체(4.3.1). duration 불변식 `INV-C1`~`INV-C9` 신설 — `total = self + Σ children`과 재귀 중복 계상 금지 포함. 메뉴 문구·수집 안내·지원 매트릭스 유보 해제(3.0.4), Phase 1/4 항목 개정(9) |
 | 2026-07-20 | **Phase 3 구현 반영.** `AnalyzeProfileEvidence`는 pre-collapse V8 sample에서 `cpu_sample_runs`와 `cpu_activity`를 생성하며, 100ms 이상의 run만 `SAMPLED_CPU_HOTSPOT`으로 기록한다. Browser CPU UI는 이것이 browser Long Task가 아님을 표시한다. V8/Chrome Diff는 동일한 `parsers/profile.Parsed` 정규화 경로를 사용한다. |
+| 2026-07-21 | T-565 fixture·문서 parity 완료 상태를 반영하고, 완료된 릴리스 범위와 선택 확장 `ph:"X"` duration event 범위를 분리했다. 구현 담당과 그룹 리뷰 순서는 paired 실행 계획으로 연결했다. |

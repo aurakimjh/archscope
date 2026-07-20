@@ -412,12 +412,15 @@ profiles.
 
 ## 10. Implementation Phases and Status
 
+Execution ownership and the new review-group gates are tracked in
+[Browser Profile and HTTP Capture Implementation and Review-Gate Plan](./BROWSER_PROFILE_HTTP_CAPTURE_IMPLEMENTATION_PLAN.md).
+
 | Phase | Scope | Status (2026-07-21) |
 | --- | --- | --- |
 | 1 | Normalization core (`parseV8CpuProfile`), unit contract (`ValueUnit`, INV-C1..C9 golden tests first), `ph:"P"` trace adapter with gzip streaming, largest-profile selection, `detect()`/`canonical()` for `chrome-trace-json` and `v8-cpuprofile`, fixtures, CLI help | Implemented |
 | 2 | Browser classification rules and tokens, Node `--cpu-prof` regression fixture, pre/post-deploy Diff validation | Implemented |
 | 3 | `buildSampleRuns`, `cpu_sample_runs`/`cpu_activity`, `SAMPLED_CPU_HOTSPOT` (100 ms), INV-T1..T5; flame-chart rendering deferred | Implemented (rendering deferred by decision) |
-| 4 | Size guards, downsampling + diagnostics, depth truncation, Browser sidebar group and page, Diff common loader with auto-detect, Workspace/Export registration; `ph:"X"` duration events and `BROWSER_LONG_TASK` remain in this phase's item 21 | Implemented (parsers, classification, sampled CPU runs, browser page, diff shared parser, streaming) |
+| 4 | Size guards, downsampling + diagnostics, depth truncation, Browser sidebar group and page, Diff common loader with auto-detect, Workspace/Export registration; `ph:"X"` duration events and `BROWSER_LONG_TASK` remain in this phase's item 21 | Release scope implemented; optional duration-event extension deferred |
 
 `AnalyzeProfileEvidence` generates `cpu_sample_runs` and `cpu_activity` from
 pre-collapse V8 samples, records only runs of 100 ms or more as
@@ -425,13 +428,16 @@ pre-collapse V8 samples, records only runs of 100 ms or more as
 browser Long Tasks. V8/Chrome Diff uses the same `parsers/profile.Parsed`
 normalization path.
 
-**Remaining work (T-565):** end-to-end fixture and documentation parity —
-official trace fixtures (json/json.gz, wrapper variants, multi-renderer),
-trace/`.cpuprofile` pairs from the same session, malformed-graph and
-`hitCount`-only cases, recursion and identity-collision fixtures, CLI/Wails
-parity, real `DiffPage` end-to-end, size-boundary and gzip-bomb cases; then
-reflecting formats, options, size limits, and downsampling policy in
-`IMPORTER_SUPPORT_MATRIX`, `DATA_MODEL`, `USER_GUIDE`, and `PERFORMANCE`.
+**T-565 is complete (2026-07-21):** the paired shared fixture corpus and
+manifest-driven goldens cover V8/Node/CDP, object/array/gzip trace wrappers,
+malformed graphs, hitCount-only input, negative deltas, temporal suppression,
+and the paired 3.1 s/210 ms acceptance scenario. The importer matrix, data
+model, user guide, and performance guide are updated in English and Korean.
+
+The remaining `ph:"X"` duration-event work (`BROWSER_LONG_TASK`, Layout, and
+Paint) is an **optional extension**, not unfinished T-565 release work. If it is
+promoted, it follows `C-EXT1` and the mandatory `C-SEM1` semantic review in the
+implementation plan.
 
 ## 11. Constraints and Future Extensions
 
