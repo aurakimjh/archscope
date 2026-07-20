@@ -24,7 +24,7 @@ const MODE_EXTENSIONS: Record<Exclude<ExportMode, "csv_dir">, string> = {
   csv: "csv",
 };
 
-export function ExportCenterPage(): JSX.Element {
+export function ExportCenterPage(): React.JSX.Element {
   const { locale, t } = useI18n();
   const workspace = useAnalysisWorkspace();
   const [selectedID, setSelectedID] = useState<string>(workspace.active_id ?? "");
@@ -183,7 +183,7 @@ export function ExportCenterPage(): JSX.Element {
   );
 }
 
-function SelectedResultCard({ entry }: { entry: AnalysisWorkspaceEntry }): JSX.Element {
+function SelectedResultCard({ entry }: { entry: AnalysisWorkspaceEntry }): React.JSX.Element {
   const { locale, t } = useI18n();
   const helpText = getHelpText(locale, "sectionExportPreview");
   return (

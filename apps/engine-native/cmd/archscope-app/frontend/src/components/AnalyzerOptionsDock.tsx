@@ -36,7 +36,7 @@ export function AnalyzerOptionsDock({
   className,
   placement = "inline",
   helpText,
-}: AnalyzerOptionsDockProps): JSX.Element {
+}: AnalyzerOptionsDockProps): React.JSX.Element {
   const { locale } = useI18n();
   const [open, setOpen] = useState(false);
   const fixed = placement === "fixed";

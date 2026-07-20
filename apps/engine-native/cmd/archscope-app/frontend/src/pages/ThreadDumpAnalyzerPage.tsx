@@ -160,7 +160,7 @@ const FILE_FILTERS = [
   { displayName: "All files", pattern: "*.*" },
 ];
 
-export function ThreadDumpAnalyzerPage(): JSX.Element {
+export function ThreadDumpAnalyzerPage(): React.JSX.Element {
   const { locale, t } = useI18n();
   const [mode, setMode] = useState<AnalysisMode>("single");
   const [files, setFiles] = useState<FileDockSelection[]>([]);
@@ -623,7 +623,7 @@ function RunControls({
   onRun: () => void;
   onCancel: () => void;
   runLabel: string;
-}): JSX.Element {
+}): React.JSX.Element {
   return (
     <div className="flex items-center gap-2">
       <Button
@@ -687,7 +687,7 @@ function MultiFileDock({
   onClear,
   onRun,
   onCancel,
-}: MultiFileDockProps): JSX.Element {
+}: MultiFileDockProps): React.JSX.Element {
   const { locale } = useI18n();
   return (
     <Card>
@@ -776,7 +776,7 @@ function SingleDumpResult({
 }: {
   t: (key: MessageKey) => string;
   result: ThreadDumpSingleResult;
-}): JSX.Element {
+}): React.JSX.Element {
   const { locale } = useI18n();
   const summary: ThreadDumpSingleSummary = result.summary;
   const stateRows: ThreadDumpStateRow[] = result.series.state_distribution ?? [];
@@ -971,7 +971,7 @@ function MultiDumpResult({
 }: {
   t: (key: MessageKey) => string;
   result: ThreadDumpMultiResult;
-}): JSX.Element {
+}): React.JSX.Element {
   const { locale } = useI18n();
   const summary: ThreadDumpMultiSummary = result.summary;
   const longRunning: LongRunningStackRow[] =
@@ -1357,7 +1357,7 @@ function JvmSignals({
   smrUnresolved: SmrUnresolvedRow[];
   nativeMethodThreads: NativeMethodRow[];
   classHistogram: ClassHistogramRow[];
-}): JSX.Element {
+}): React.JSX.Element {
   return (
     <Tabs defaultValue="pinning">
       <TabsList>
@@ -1572,7 +1572,7 @@ function LockContentionView({
 }: {
   t: (key: MessageKey) => string;
   result: LockContentionResult;
-}): JSX.Element {
+}): React.JSX.Element {
   const { locale } = useI18n();
   const summary = result.summary;
   const locks: LockContentionRow[] = result.tables.locks ?? [];
@@ -1792,7 +1792,7 @@ function FindingsList({
 }: {
   t: (key: MessageKey) => string;
   findings: ThreadDumpFinding[];
-}): JSX.Element {
+}): React.JSX.Element {
   const { locale } = useI18n();
   if (findings.length === 0) {
     return (
@@ -1844,7 +1844,7 @@ function SimpleCountTable({
   title: string;
   keyHeader: string;
   rows: { key: string; count: number }[];
-}): JSX.Element {
+}): React.JSX.Element {
   const { locale } = useI18n();
   return (
     <Card>
@@ -1891,7 +1891,7 @@ function SimpleCountTable({
   );
 }
 
-function EmptyCard({ message }: { message: string }): JSX.Element {
+function EmptyCard({ message }: { message: string }): React.JSX.Element {
   return (
     <Card>
       <CardContent className="px-4 py-6 text-center text-sm text-muted-foreground">

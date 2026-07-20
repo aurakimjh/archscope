@@ -88,7 +88,7 @@ import {
 
 type AnalyzerState = "idle" | "ready" | "running" | "success" | "error";
 
-export function AccessLogAnalyzerPage(): JSX.Element {
+export function AccessLogAnalyzerPage(): React.JSX.Element {
   const { locale, t } = useI18n();
   const [selectedFile, setSelectedFile] = useState<FileDockSelection | null>(
     null,
@@ -493,7 +493,7 @@ function AccessLogFindingsPanel({
   findings: AccessLogFinding[];
   t: (key: MessageKey) => string;
   onAddEvidence: (finding: AccessLogFinding) => void;
-}): JSX.Element | null {
+}): React.JSX.Element | null {
   const { locale } = useI18n();
   if (findings.length === 0) return null;
   return (
@@ -585,7 +585,7 @@ function UrlStatsPanel({
 }: {
   t: (key: MessageKey) => string;
   result: AccessLogAnalysisResult | null;
-}): JSX.Element {
+}): React.JSX.Element {
   const { locale } = useI18n();
   const allUrls = result?.tables?.url_stats ?? [];
   const [sortKey, setSortKey] = useState<UrlSortKey>("count");
@@ -747,7 +747,7 @@ function StatusBreakdownPanel({
 }: {
   t: (key: MessageKey) => string;
   result: AccessLogAnalysisResult | null;
-}): JSX.Element {
+}): React.JSX.Element {
   const { locale } = useI18n();
   const codes = (result?.tables?.top_status_codes ?? []) as
     AccessLogStatusCodeRow[];

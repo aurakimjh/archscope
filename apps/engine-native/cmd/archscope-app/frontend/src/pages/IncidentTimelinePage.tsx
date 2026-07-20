@@ -26,7 +26,7 @@ import {
 
 const ALL = "__all__";
 
-export function IncidentTimelinePage(): JSX.Element {
+export function IncidentTimelinePage(): React.JSX.Element {
   const { locale, t } = useI18n();
   const workspace = useAnalysisWorkspace();
   const events = useMemo(
@@ -313,7 +313,7 @@ export function IncidentTimelinePage(): JSX.Element {
   );
 }
 
-function NarrativeStepCard({ step }: { step: IncidentTimelineNarrativeStep }): JSX.Element {
+function NarrativeStepCard({ step }: { step: IncidentTimelineNarrativeStep }): React.JSX.Element {
   return (
     <article className="rounded-md border border-border bg-muted/20 p-3 text-sm">
       <div className="mb-1 flex flex-wrap items-center gap-2">
@@ -343,7 +343,7 @@ function TimelineRow({
 }: {
   event: IncidentTimelineEvent;
   onAddEvidence: () => void;
-}): JSX.Element {
+}): React.JSX.Element {
   return (
     <tr className="border-b border-border align-top last:border-0">
       <td className="whitespace-nowrap px-3 py-2 font-mono text-[11px]">

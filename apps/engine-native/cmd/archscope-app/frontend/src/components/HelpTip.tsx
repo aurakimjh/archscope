@@ -37,7 +37,7 @@ export function HelpTip({
   variant = "help",
   className,
   panelClassName,
-}: HelpTipProps): JSX.Element {
+}: HelpTipProps): React.JSX.Element {
   const { locale } = useI18n();
   const [open, setOpen] = useState(false);
   const tooltipId = useId();
@@ -127,7 +127,7 @@ export function HelpedTitle({
   help: string;
   align?: HelpTipAlign;
   className?: string;
-}): JSX.Element {
+}): React.JSX.Element {
   return (
     <span className={cn("inline-flex min-w-0 items-center gap-2", className)}>
       <span className="min-w-0 truncate">{children}</span>
@@ -146,7 +146,7 @@ export function HelpedLabel({
   help: string;
   align?: HelpTipAlign;
   className?: string;
-}): JSX.Element {
+}): React.JSX.Element {
   return (
     <span className={cn("inline-flex min-w-0 items-center gap-1.5", className)}>
       <span className="min-w-0">{children}</span>

@@ -78,7 +78,7 @@ export function MsaTimeline({
   layoutToggle,
   height,
   maxBars = DEFAULT_MAX_BARS,
-}: MsaTimelineProps): JSX.Element {
+}: MsaTimelineProps): React.JSX.Element {
   const { locale } = useI18n();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<ECharts | null>(null);
@@ -440,7 +440,7 @@ export function MsaTimelineTreemap({
 }: Pick<
   MsaTimelineProps,
   "title" | "edges" | "rootApplication" | "height" | "maxBars"
->): JSX.Element {
+>): React.JSX.Element {
   const { locale } = useI18n();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<ECharts | null>(null);

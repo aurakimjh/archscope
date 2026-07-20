@@ -31,7 +31,7 @@ export function MetricCard({
   value,
   className,
   helpText,
-}: MetricCardProps): JSX.Element {
+}: MetricCardProps): React.JSX.Element {
   const { locale } = useI18n();
   const resolvedHelp =
     helpText === null ? null : helpText ?? getGenericMetricHelpText(locale, label);

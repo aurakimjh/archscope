@@ -126,7 +126,7 @@ export function WailsFileDock({
   className,
   fileFilters,
   allowsMultipleSelection = false,
-}: WailsFileDockProps): JSX.Element {
+}: WailsFileDockProps): React.JSX.Element {
   const { locale } = useI18n();
   const dragCounterRef = useRef(0);
   const [isDragOver, setIsDragOver] = useState(false);

@@ -32,7 +32,7 @@ import {
 
 const ALL = "__all__";
 
-export function SloGoldenSignalsPage(): JSX.Element {
+export function SloGoldenSignalsPage(): React.JSX.Element {
   const { locale, t } = useI18n();
   const workspace = useAnalysisWorkspace();
   const inventory = useMemo(
@@ -334,7 +334,7 @@ function ViolationRow({
 }: {
   violation: SloViolation;
   onAddEvidence: () => void;
-}): JSX.Element {
+}): React.JSX.Element {
   return (
     <tr className="border-b border-border align-top last:border-0">
       <td className="px-3 py-2">
@@ -377,7 +377,7 @@ function ViolationRow({
   );
 }
 
-function CompactMetricTable({ metrics }: { metrics: SliMetric[] }): JSX.Element {
+function CompactMetricTable({ metrics }: { metrics: SliMetric[] }): React.JSX.Element {
   const { t } = useI18n();
   return (
     <div className="overflow-x-auto">
@@ -424,7 +424,7 @@ function CompactMetricTable({ metrics }: { metrics: SliMetric[] }): JSX.Element 
   );
 }
 
-function SignalInventoryTable({ signals }: { signals: GoldenSignal[] }): JSX.Element {
+function SignalInventoryTable({ signals }: { signals: GoldenSignal[] }): React.JSX.Element {
   const { t } = useI18n();
   return (
     <div className="overflow-x-auto">
@@ -470,7 +470,7 @@ function SignalInventoryTable({ signals }: { signals: GoldenSignal[] }): JSX.Ele
   );
 }
 
-function EmptyState({ text }: { text: string }): JSX.Element {
+function EmptyState({ text }: { text: string }): React.JSX.Element {
   return (
     <div className="flex items-center gap-2 px-4 py-6 text-sm text-muted-foreground">
       <AlertTriangle className="h-4 w-4" />
@@ -479,7 +479,7 @@ function EmptyState({ text }: { text: string }): JSX.Element {
   );
 }
 
-function SeverityBadge({ severity }: { severity: SloSeverity }): JSX.Element {
+function SeverityBadge({ severity }: { severity: SloSeverity }): React.JSX.Element {
   return (
     <span
       className={`rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase ${severityClass(

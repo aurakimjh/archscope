@@ -226,7 +226,7 @@ function App() {
   );
 }
 
-function PageFallback(): JSX.Element {
+function PageFallback(): React.JSX.Element {
   return (
     <main className="content" aria-busy="true">
       <section className="rounded-md border border-border bg-muted/40 p-4">

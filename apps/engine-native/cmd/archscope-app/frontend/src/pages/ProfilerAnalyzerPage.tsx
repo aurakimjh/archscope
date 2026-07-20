@@ -410,7 +410,7 @@ function TimelineCompositionCard({
   totalTimeLabel: string;
   otherLabel: string;
   samplesLabel: string;
-}): JSX.Element {
+}): React.JSX.Element {
   const { locale } = useI18n();
   const { visibleRows, groups, totalSamples, denominatorSamples, totalSeconds, rowsSamples } = useMemo(() => {
     const nextRows = rows
@@ -610,7 +610,7 @@ function TimelineCompositionCard({
   );
 }
 
-export function ProfilerAnalyzerPage(): JSX.Element {
+export function ProfilerAnalyzerPage(): React.JSX.Element {
   const { locale, t } = useI18n();
   // Profiler-scoped recent-files history. The category keeps it
   // separate from the GC / Jennifer pages so users see only the

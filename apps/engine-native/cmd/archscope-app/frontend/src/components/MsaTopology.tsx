@@ -74,7 +74,7 @@ export function MsaTopology({
   edges,
   rootApplication,
   height = 420,
-}: MsaTopologyProps): JSX.Element {
+}: MsaTopologyProps): React.JSX.Element {
   const { locale } = useI18n();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<ECharts | null>(null);

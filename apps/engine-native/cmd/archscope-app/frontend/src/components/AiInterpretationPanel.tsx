@@ -21,7 +21,7 @@ type AiInterpretationSummaryProps = {
 export function AiInterpretationSummary({
   result,
   className,
-}: AiInterpretationSummaryProps): JSX.Element {
+}: AiInterpretationSummaryProps): React.JSX.Element {
   const { locale, t } = useI18n();
   const provenance = extractAiInterpretationProvenance(result);
   const helpText = getHelpText(locale, "aiFindings");
@@ -64,7 +64,7 @@ export function AiInterpretationFindingsPanel({
   result,
 }: {
   result: WorkspaceAnalysisResult | null | undefined;
-}): JSX.Element | null {
+}): React.JSX.Element | null {
   const { locale, t } = useI18n();
   const interpretation = extractAiInterpretation(result);
   if (!interpretation || interpretation.disabled || interpretation.findings.length === 0) return null;
@@ -113,7 +113,7 @@ export function AiInterpretationFindingsPanel({
   );
 }
 
-function Pill({ label, value }: { label: string; value: string }): JSX.Element {
+function Pill({ label, value }: { label: string; value: string }): React.JSX.Element {
   return (
     <span className="rounded border border-current/20 bg-background/70 px-1.5 py-0.5">
       {label}: <span className="font-mono">{value}</span>
@@ -121,7 +121,7 @@ function Pill({ label, value }: { label: string; value: string }): JSX.Element {
   );
 }
 
-function AiFindingCard({ finding }: { finding: AiFinding }): JSX.Element {
+function AiFindingCard({ finding }: { finding: AiFinding }): React.JSX.Element {
   const { t } = useI18n();
   return (
     <article className="rounded border border-sky-200 bg-background p-3 dark:border-sky-900">

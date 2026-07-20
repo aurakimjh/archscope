@@ -17,7 +17,7 @@ import {
 } from "@/state/evidenceBoard";
 import { exportReportPackHTML, exportReportPackZip } from "@/state/reportPack";
 
-export function EvidenceBoardPage(): JSX.Element {
+export function EvidenceBoardPage(): React.JSX.Element {
   const { locale, t } = useI18n();
   const workspace = useAnalysisWorkspace();
   const [cards, setCards] = useState<EvidenceCard[]>(() => readEvidenceCards());
@@ -122,7 +122,7 @@ function EvidenceCardItem({
 }: {
   card: EvidenceCard;
   onRemove: () => void;
-}): JSX.Element {
+}): React.JSX.Element {
   const { locale } = useI18n();
   return (
     <Card>

@@ -45,7 +45,7 @@ type DiagnosticsPanelProps = {
   };
 };
 
-export function ErrorPanel({ error, labels }: ErrorPanelProps): JSX.Element | null {
+export function ErrorPanel({ error, labels }: ErrorPanelProps): React.JSX.Element | null {
   if (!error) {
     return null;
   }
@@ -72,7 +72,7 @@ export function ErrorPanel({ error, labels }: ErrorPanelProps): JSX.Element | nu
 export function EngineMessagesPanel({
   messages,
   title,
-}: EngineMessagesPanelProps): JSX.Element | null {
+}: EngineMessagesPanelProps): React.JSX.Element | null {
   if (messages.length === 0) {
     return null;
   }
@@ -93,7 +93,7 @@ export function EngineMessagesPanel({
 export function DiagnosticsPanel({
   diagnostics,
   labels,
-}: DiagnosticsPanelProps): JSX.Element | null {
+}: DiagnosticsPanelProps): React.JSX.Element | null {
   const { locale } = useI18n();
 
   if (!diagnostics) {

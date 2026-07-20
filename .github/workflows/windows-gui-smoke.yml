@@ -37,14 +37,7 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
-          $wailsDir = Join-Path $env:RUNNER_TEMP "wails"
-          if (Test-Path $wailsDir) {
-            Remove-Item -Recurse -Force $wailsDir
-          }
-          git clone --depth 1 --branch v3.0.0-alpha.87 https://github.com/wailsapp/wails.git $wailsDir
-          Push-Location (Join-Path $wailsDir "v3")
-          go install ./cmd/wails3
-          Pop-Location
+          go install github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0-alpha2.117
           Join-Path $env:USERPROFILE "go\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: Install Task runner
@@ -59,4 +52,3 @@ jobs:
       - name: Launch GUI smoke
         shell: pwsh
         run: ./scripts/windows-gui-smoke.ps1 -ExePath apps/engine-native/cmd/archscope-app/bin/archscope.exe -StartupSeconds 15
-

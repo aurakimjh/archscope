@@ -157,6 +157,10 @@ The previous long-form history was archived to
   Chrome `ProfileChunk` delta handling, supporting hitCount-only and clamped
   negative-delta inputs, suppressing invalid downsampled timelines, refreshing
   Wails bindings, and completing the local release smoke.
+- Upgraded the desktop baseline to Wails `v3.0.0-alpha2.117` with the matching
+  `@wailsio/runtime` alpha.97 package, refreshed all outdated direct frontend
+  dependencies (including React 19 and TypeScript 7), moved Linux CI and
+  packaging to GTK4/WebKitGTK 6.0, and revalidated the signed macOS app and DMG.
 
 ## Current Risk
 
@@ -220,8 +224,8 @@ filtered before analysis.
 ## Next Execution Queue
 
 1. Select the next candidate version/tag and prepare its metadata/changelog.
-   The Chrome/V8 implementation, manifest-driven golden tests, dependency
-   security update, and local macOS release smoke are complete.
+   The Chrome/V8 implementation, manifest-driven golden tests, Wails/dependency
+   upgrade, and local macOS release smoke are complete.
 2. Complete T-571 with the ETW/WFP real-NIC run and the direct
    `GetExtendedTcpTable` CAP-5 CPU-overhead rerun before Windows live capture.
 3. Review the long-term external APM import roadmap before assigning any new

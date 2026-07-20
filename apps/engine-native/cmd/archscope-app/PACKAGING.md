@@ -1,8 +1,8 @@
 # Multi-platform packaging (v0.3.0+)
 
 Targets land under `bin/` — one binary plus the platform-native installer
-shape. All commands assume `wails3` v3.0.0-alpha.98 is on `PATH` (install
-with `go install github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0-alpha.98`)
+shape. All commands assume `wails3` v3.0.0-alpha2.117 is on `PATH` (install
+with `go install github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0-alpha2.117`)
 and `task` is on `PATH`
 (`brew install go-task` on macOS, `choco install go-task` on Windows).
 
@@ -18,8 +18,8 @@ task darwin:package:dmg
 ```
 
 DMG is built via stdlib `hdiutil` (UDZO compression) — no `create-dmg` or
-similar third-party tool needed. Typical size: ~5 MB (compressed from
-~11 MB raw .app).
+similar third-party tool needed. The alpha2.117 darwin/arm64 baseline is
+7.6 MiB (compressed from a 15.0 MiB `.app` bundle).
 
 The RC release matrix currently publishes macOS arm64 from `macos-14`.
 Intel macOS packaging is deferred until a reliable amd64 runner path is
@@ -95,8 +95,9 @@ task linux:package:deb
 task linux:package:rpm
 ```
 
-WebKitGTK is required at runtime (`apt install libwebkit2gtk-4.1-0` on
-Debian/Ubuntu, `dnf install webkit2gtk4.1` on Fedora). The AppImage bundles
+GTK4 and WebKitGTK 6.0 are required at runtime (`apt install libgtk-4-1
+libwebkitgtk-6.0-4` on Debian/Ubuntu, `dnf install gtk4 webkitgtk6.0` on
+Fedora). The AppImage bundles
 everything else; the .deb and .rpm declare their dependencies (see
 `build/linux/nfpm/nfpm.yaml`).
 
@@ -133,9 +134,9 @@ bindings. Size measurement on darwin/arm64 (proper `-tags production
 
 | Target | Budget | Measured |
 |---|---|---|
-| darwin/arm64 raw binary | ≤ 12 MB | **11 MB** ✅ |
-| darwin/arm64 .app bundle | ≤ 14 MB | **11 MB** ✅ |
-| darwin/arm64 .dmg (UDZO) | ≤ 8 MB | **5.3 MB** ✅ |
+| darwin/arm64 raw binary | ≤ 14 MiB | **13.2 MiB** ✅ |
+| darwin/arm64 .app bundle | ≤ 16 MiB | **15.0 MiB** ✅ |
+| darwin/arm64 .dmg (UDZO) | ≤ 8 MiB | **7.6 MiB** ✅ |
 | windows/amd64 .exe | ≤ 15 MB | **13.4 MiB / 14,060,544 bytes** ✅ |
 | linux/amd64 AppImage | ≤ 30 MB | tbd (CI) |
 
@@ -143,8 +144,8 @@ Frontend bundle budget after route-level splitting:
 
 | Chunk | Budget | Measured |
 |---|---:|---:|
-| startup shell JS | ≤ 200 KB raw | **156.8 KB raw / 50.9 KB gzip** ✅ |
-| lazy shared chart runtime | ≤ 700 KB raw | **668.5 KB raw / 221.3 KB gzip** ✅ |
+| startup shell JS | ≤ 225 KB raw | **211.3 KB raw / 66.1 KB gzip** ✅ |
+| lazy shared chart runtime | ≤ 700 KB raw | **698.8 KB raw / 235.6 KB gzip** ✅ |
 
 Reproducible local build (without `task`):
 

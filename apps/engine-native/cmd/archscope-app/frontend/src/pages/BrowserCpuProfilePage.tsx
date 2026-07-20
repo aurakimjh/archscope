@@ -12,7 +12,7 @@ import { useI18n } from "@/i18n/I18nProvider";
 import { addWorkspaceResult } from "@/state/analysisWorkspace";
 import { formatNumber } from "@/utils/formatters";
 
-export function BrowserCpuProfilePage(): JSX.Element {
+export function BrowserCpuProfilePage(): React.JSX.Element {
   const { t } = useI18n();
   const [file, setFile] = useState<FileDockSelection | null>(null);
   const [result, setResult] = useState<ProfileEvidenceAnalysisResult | null>(null);

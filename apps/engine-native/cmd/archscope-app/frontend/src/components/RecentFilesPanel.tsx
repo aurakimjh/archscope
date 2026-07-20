@@ -53,7 +53,7 @@ export function RecentFilesPanel({
   title = "최근 분석",
   helpText,
   maxVisible = 6,
-}: RecentFilesPanelProps): JSX.Element | null {
+}: RecentFilesPanelProps): React.JSX.Element | null {
   const { locale } = useI18n();
   const resolvedHelp =
     helpText === null ? null : helpText ?? getHelpText(locale, "recentFiles");

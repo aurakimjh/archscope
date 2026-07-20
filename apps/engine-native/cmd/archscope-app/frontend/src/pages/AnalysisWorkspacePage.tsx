@@ -19,7 +19,7 @@ import {
 import { getReportableAiFindings } from "@/state/aiInterpretation";
 import { addEvidenceCard } from "@/state/evidenceBoard";
 
-export function AnalysisWorkspacePage(): JSX.Element {
+export function AnalysisWorkspacePage(): React.JSX.Element {
   const { locale, t } = useI18n();
   const workspace = useAnalysisWorkspace();
 
@@ -125,7 +125,7 @@ function WorkspaceResultCard({
   onEvidence: () => void;
   onAiEvidence: () => void;
   onRemove: () => void;
-}): JSX.Element {
+}): React.JSX.Element {
   const { locale, t } = useI18n();
   const reportableAi = getReportableAiFindings(entry.result);
   const helpText = getHelpText(locale, "sectionWorkspaceCard");

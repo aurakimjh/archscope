@@ -303,7 +303,7 @@ function NavGroupItems({
   collapsed: boolean;
   items: { key: NavKey; label: string }[];
   onNavigate: (key: NavKey) => void;
-}): JSX.Element {
+}): React.JSX.Element {
   return (
     <div className="nav-group-items">
       {items.map((item) => {

@@ -379,7 +379,7 @@ function PreviewRowsToggle({
   visibleCount: number;
   expanded: boolean;
   onToggle: () => void;
-}): JSX.Element | null {
+}): React.JSX.Element | null {
   if (total <= MSA_TABLE_PREVIEW_LIMIT) return null;
   const hiddenCount = Math.max(0, total - visibleCount);
   return (
@@ -946,7 +946,7 @@ function signatureOptionLabel(signature: any): string {
   return `${root} · ${suffix} · ${samples}건`;
 }
 
-function GuidTransactionSummary({ group }: { group: any }): JSX.Element {
+function GuidTransactionSummary({ group }: { group: any }): React.JSX.Element {
   const { locale } = useI18n();
   const metrics = group?.metrics ?? {};
   return (
@@ -990,7 +990,7 @@ function GuidTransactionSummary({ group }: { group: any }): JSX.Element {
   );
 }
 
-function MsaCaptureStatusCard({ summary }: { summary: any }): JSX.Element {
+function MsaCaptureStatusCard({ summary }: { summary: any }): React.JSX.Element {
   const { locale } = useI18n();
   return (
     <Card>
@@ -1038,7 +1038,7 @@ function MsaCaptureStatusCard({ summary }: { summary: any }): JSX.Element {
   );
 }
 
-function IncompleteProfileWarning({ summary }: { summary: any }): JSX.Element | null {
+function IncompleteProfileWarning({ summary }: { summary: any }): React.JSX.Element | null {
   const { locale } = useI18n();
   const incomplete = Number(summary?.incomplete_profile_count ?? 0);
   const excludedGroups = Number(summary?.signature_excluded_group_count ?? 0);
@@ -1066,7 +1066,7 @@ function TransactionProfilesTable({
 }: {
   rows: any[];
   networkTimeByTxid: Map<string, number>;
-}): JSX.Element {
+}): React.JSX.Element {
   const { locale } = useI18n();
   const { visibleRows, expanded, setExpanded } = usePreviewRows(rows);
   return (
@@ -1163,7 +1163,7 @@ function TransactionProfilesTable({
   );
 }
 
-function NetworkPrepMethodsTable({ rows }: { rows: any[] }): JSX.Element {
+function NetworkPrepMethodsTable({ rows }: { rows: any[] }): React.JSX.Element {
   const { locale } = useI18n();
   const { visibleRows, expanded, setExpanded } = usePreviewRows(rows);
   return (
@@ -1266,7 +1266,7 @@ function NetworkPrepMethodsTable({ rows }: { rows: any[] }): JSX.Element {
   );
 }
 
-function UnprofiledExternalCallGroupsTable({ rows }: { rows: any[] }): JSX.Element {
+function UnprofiledExternalCallGroupsTable({ rows }: { rows: any[] }): React.JSX.Element {
   const { locale } = useI18n();
   const { visibleRows, expanded, setExpanded } = usePreviewRows(rows);
   return (
@@ -1371,7 +1371,7 @@ function ApiCallAnalysisPanel({
   scopeLabel?: string;
   valueMode?: ApiCallValueMode;
   sampleCount?: number;
-}): JSX.Element {
+}): React.JSX.Element {
   const { locale } = useI18n();
   const [sortKey, setSortKey] = useState<ApiCallSortKey>("apiTotalMs");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
@@ -1622,7 +1622,7 @@ function ApiCallHighlight({
   label: string;
   row?: ApiCallAggregate;
   value: string;
-}): JSX.Element {
+}): React.JSX.Element {
   return (
     <div className="min-w-0 rounded-lg border border-border bg-card p-3">
       <div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
@@ -1636,7 +1636,7 @@ function ApiCallHighlight({
   );
 }
 
-function SlowSqlTable({ rows }: { rows: any[] }): JSX.Element {
+function SlowSqlTable({ rows }: { rows: any[] }): React.JSX.Element {
   const { locale } = useI18n();
   const [minElapsedInput, setMinElapsedInput] = useState(
     String(DEFAULT_SLOW_SQL_THRESHOLD_MS),
@@ -1772,9 +1772,9 @@ function CustomAnalysisRulesEditor({
   disabled?: boolean;
   onSavePreset: () => void;
   onLoadPresetClick: () => void;
-  presetInputRef: RefObject<HTMLInputElement>;
+  presetInputRef: RefObject<HTMLInputElement | null>;
   onLoadPresetFile: (file?: File) => void;
-}): JSX.Element {
+}): React.JSX.Element {
   const updateRule = (id: string, patch: Partial<CustomAnalysisRule>) => {
     onChange(
       rules.map((rule) => (rule.id === id ? { ...rule, ...patch } : rule)),
@@ -1916,7 +1916,7 @@ function CustomAnalysisRulesEditor({
   );
 }
 
-function CustomRuleStatsPanel({ rows }: { rows: any[] }): JSX.Element | null {
+function CustomRuleStatsPanel({ rows }: { rows: any[] }): React.JSX.Element | null {
   const { locale } = useI18n();
   const { visibleRows, expanded, setExpanded } = usePreviewRows(rows);
   if (rows.length === 0) return null;
@@ -2223,7 +2223,7 @@ function formatMsValue(value: unknown): string {
   return n == null ? "—" : `${Math.round(n).toLocaleString()} ms`;
 }
 
-export function JenniferProfilePage(): JSX.Element {
+export function JenniferProfilePage(): React.JSX.Element {
   const { locale, t } = useI18n();
   const [selected, setSelected] = useState<Selection[]>([]);
   const [analyzing, setAnalyzing] = useState(false);

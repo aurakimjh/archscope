@@ -125,7 +125,7 @@ const CUSTOM_COLORS = [
 export function MsaResponseTimeBreakdown({
   groups,
   defaultAggregationMode = "sum",
-}: MsaResponseTimeBreakdownProps): JSX.Element {
+}: MsaResponseTimeBreakdownProps): React.JSX.Element {
   const { locale } = useI18n();
   const helpText = getGenericChartHelpText(locale, "응답시간 구성");
   const [aggregationMode, setAggregationMode] = useState<AggregationMode>(
@@ -380,7 +380,7 @@ function GroupedTimelineBar({
     value: number;
   }>;
   base: number;
-}): JSX.Element {
+}): React.JSX.Element {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex h-9 overflow-hidden">
@@ -453,7 +453,7 @@ function GroupedLegend({
     }>;
   }>;
   base: number;
-}): JSX.Element {
+}): React.JSX.Element {
   return (
     <div className="mt-3 grid gap-3 text-[11px] lg:grid-cols-3">
       {groups.map((group) => {
@@ -516,7 +516,7 @@ function GroupRow({
   slices: Record<string, number>;
   sliceDefs: SliceDef[];
   negativeMethod: boolean;
-}): JSX.Element {
+}): React.JSX.Element {
   const covered = sliceDefs.reduce((s, d) => s + (slices[d.key] ?? 0), 0);
   const base = Math.max(root, covered, 1);
   return (

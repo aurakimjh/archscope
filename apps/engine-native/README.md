@@ -42,20 +42,19 @@ npm run build
 Desktop packaging requires the Wails v3 CLI and Task:
 
 ```bash
-git clone --depth 1 --branch v3.0.0-alpha.87 https://github.com/wailsapp/wails.git /tmp/wails
-(cd /tmp/wails/v3 && go install ./cmd/wails3)
+go install github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0-alpha2.117
 brew install go-task
 cd apps/engine-native/cmd/archscope-app
 GOCACHE=/tmp/aiservice-go-cache task package
 ```
 
-Current local packaging verification (2026-05-09):
+Current local packaging baseline (2026-07-21):
 
 - `task` 3.50.0
-- `wails3` v3.0.0-alpha.87
+- `wails3` v3.0.0-alpha2.117
 - `npm audit`: 0 vulnerabilities after Vite 8 / React plugin 6 update
-- `bin/archscope`: 11 MB
-- `bin/archscope.app`: 13 MB
+- `bin/archscope`: 13.2 MiB
+- `bin/archscope.app`: 15.0 MiB
 
 ## Notes
 

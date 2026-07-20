@@ -51,7 +51,7 @@ export function ChartPanel({
   actions,
   onReady,
   helpText,
-}: ChartPanelProps): JSX.Element {
+}: ChartPanelProps): React.JSX.Element {
   const { locale } = useI18n();
   const chartRef = useRef<HTMLDivElement | null>(null);
   const chartInstanceRef = useRef<ECharts | null>(null);

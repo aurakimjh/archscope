@@ -61,7 +61,7 @@ const TRACE_FORMATS = [
   "skywalking-graphql-json",
 ] as const;
 
-export function TraceImportPage(): JSX.Element {
+export function TraceImportPage(): React.JSX.Element {
   const { locale, t } = useI18n();
   const [selectedFile, setSelectedFile] = useState<FileDockSelection | null>(
     null,
@@ -366,7 +366,7 @@ function FindingsList({
   findings: JvmFinding[];
   t: (key: MessageKey) => string;
   onAddEvidence: (finding: JvmFinding) => void;
-}): JSX.Element {
+}): React.JSX.Element {
   const { locale } = useI18n();
   return (
     <Card className="mt-4">
@@ -408,7 +408,7 @@ function DependencyTable({
   sourceFile: string;
   t: (key: MessageKey) => string;
   onEvidence: (row: TraceImportDependencyRow) => void;
-}): JSX.Element {
+}): React.JSX.Element {
   void sourceFile;
   return (
     <TableCard title={t("traceDependencyTable")}>
@@ -452,7 +452,7 @@ function TraceTable({
   sourceFile: string;
   t: (key: MessageKey) => string;
   onEvidence: (row: TraceImportTraceRow) => void;
-}): JSX.Element {
+}): React.JSX.Element {
   void sourceFile;
   return (
     <TableCard title={t("traceTable")}>
@@ -492,7 +492,7 @@ function CriticalPathTable({
 }: {
   rows: NonNullable<TraceImportAnalysisResult["tables"]["critical_paths"]>;
   t: (key: MessageKey) => string;
-}): JSX.Element {
+}): React.JSX.Element {
   return (
     <TableCard title={t("traceCriticalPaths")}>
       <thead>
@@ -525,7 +525,7 @@ function SpanTable({
 }: {
   rows: TraceImportSpanRow[];
   t: (key: MessageKey) => string;
-}): JSX.Element {
+}): React.JSX.Element {
   return (
     <TableCard title={t("traceSpanTable")}>
       <thead>
@@ -562,7 +562,7 @@ function TableCard({
 }: {
   title: string;
   children: React.ReactNode;
-}): JSX.Element {
+}): React.JSX.Element {
   const { locale } = useI18n();
   return (
     <Card className="mt-4">

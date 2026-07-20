@@ -21,7 +21,7 @@ type MetricDeltaRow = {
   change_percent?: number | null;
 };
 
-export function ReportDiffPage(): JSX.Element {
+export function ReportDiffPage(): React.JSX.Element {
   const { locale, t } = useI18n();
   const [beforePath, setBeforePath] = useState("");
   const [afterPath, setAfterPath] = useState("");
@@ -175,7 +175,7 @@ function PathPicker({
   value: string;
   onPick: () => void;
   onChange: (value: string) => void;
-}): JSX.Element {
+}): React.JSX.Element {
   const { t } = useI18n();
   return (
     <div className="file-row">
@@ -187,7 +187,7 @@ function PathPicker({
   );
 }
 
-function Metric({ label, value }: { label: string; value: string }): JSX.Element {
+function Metric({ label, value }: { label: string; value: string }): React.JSX.Element {
   const { locale } = useI18n();
   return (
     <div className="metric">

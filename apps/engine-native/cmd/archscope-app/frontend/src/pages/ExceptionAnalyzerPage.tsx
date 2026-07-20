@@ -85,7 +85,7 @@ type AnalyzerState = "idle" | "ready" | "running" | "success" | "error";
 const DEFAULT_TOP_N = 50;
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100] as const;
 
-export function ExceptionAnalyzerPage(): JSX.Element {
+export function ExceptionAnalyzerPage(): React.JSX.Element {
   const { locale, t } = useI18n();
   const [selectedFile, setSelectedFile] = useState<FileDockSelection | null>(
     null,
@@ -657,7 +657,7 @@ function EventsTable({
   activeKey,
   onRowClick,
   labels,
-}: EventsTableProps): JSX.Element {
+}: EventsTableProps): React.JSX.Element {
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
@@ -757,7 +757,7 @@ function SignatureTable({
   activeSignature,
   onRowClick,
   labels,
-}: SignatureTableProps): JSX.Element {
+}: SignatureTableProps): React.JSX.Element {
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
@@ -828,7 +828,7 @@ function BarTable({
 }: {
   rows: BarTableRow[];
   labels: { name: string; count: string };
-}): JSX.Element {
+}): React.JSX.Element {
   const max = rows.reduce((acc, row) => Math.max(acc, row.count), 0) || 1;
   return (
     <div className="overflow-x-auto">
@@ -901,7 +901,7 @@ function EventDetailCard({
   onClose,
   hideHeader,
   labels,
-}: EventDetailCardProps): JSX.Element {
+}: EventDetailCardProps): React.JSX.Element {
   if (hideHeader) {
     return (
       <div className="flex flex-col gap-3 text-sm">
@@ -988,7 +988,7 @@ function DetailField({
   label: string;
   value: string | null | undefined;
   mono?: boolean;
-}): JSX.Element | null {
+}): React.JSX.Element | null {
   if (!value) return null;
   return (
     <section>
@@ -1020,7 +1020,7 @@ type FindingsPanelProps = {
 function FindingsPanel({
   findings,
   labels,
-}: FindingsPanelProps): JSX.Element {
+}: FindingsPanelProps): React.JSX.Element {
   const { locale } = useI18n();
   if (!findings || findings.length === 0) {
     return (
@@ -1119,7 +1119,7 @@ function PaginationBar({
   prevLabel,
   nextLabel,
   pageSizeLabel,
-}: PaginationBarProps): JSX.Element {
+}: PaginationBarProps): React.JSX.Element {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-2.5 text-xs text-muted-foreground">
       <span className="tabular-nums">{showingLabel}</span>

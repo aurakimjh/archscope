@@ -96,7 +96,7 @@ type AnalyzerState = "idle" | "ready" | "running" | "success" | "error";
 
 const MAX_EVENT_ROWS = 200;
 
-export function GcLogAnalyzerPage(): JSX.Element {
+export function GcLogAnalyzerPage(): React.JSX.Element {
   const { locale, t } = useI18n();
   const [selectedFile, setSelectedFile] = useState<FileDockSelection | null>(
     null,
@@ -819,7 +819,7 @@ function AlertRowsTable({
   rows: GcAlertRow[];
   t: (key: MessageKey) => string;
   onEvidence: (row: GcAlertRow) => void;
-}): JSX.Element {
+}): React.JSX.Element {
   const { locale } = useI18n();
   return (
     <Card>
@@ -946,7 +946,7 @@ function eventRowClass(row: GcEventRow): string {
   }
 }
 
-function EventRowItem({ row }: { row: GcEventRow }): JSX.Element {
+function EventRowItem({ row }: { row: GcEventRow }): React.JSX.Element {
   return (
     <tr
       className={`border-b border-border last:border-0 ${eventRowClass(row)}`}
@@ -1012,7 +1012,7 @@ function JvmInfoPanel({
 }: {
   info: GcJvmInfo | undefined;
   t: (key: MessageKey) => string;
-}): JSX.Element {
+}): React.JSX.Element {
   const { locale } = useI18n();
   const [copied, setCopied] = useState(false);
 
@@ -1186,7 +1186,7 @@ function JvmInfoSection({
 }: {
   title: string;
   fields: Array<[string, string | null]>;
-}): JSX.Element | null {
+}): React.JSX.Element | null {
   const visible = fields.filter(([, v]) => v != null && v !== "");
   if (visible.length === 0) return null;
   return (

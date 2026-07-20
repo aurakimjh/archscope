@@ -114,7 +114,7 @@ const TAIL_RATIO_OPTIONS: Array<{ value: number; label: string }> = [
   { value: 0.3, label: "30%" },
 ];
 
-export function JfrAnalyzerPage(): JSX.Element {
+export function JfrAnalyzerPage(): React.JSX.Element {
   const { locale, t } = useI18n();
   const [selectedFile, setSelectedFile] = useState<FileDockSelection | null>(
     null,
@@ -841,7 +841,7 @@ function JfrContractPanel({
 }: {
   metadata: JfrAnalysisResult["metadata"] | undefined;
   t: (key: MessageKey) => string;
-}): JSX.Element | null {
+}): React.JSX.Element | null {
   const { locale } = useI18n();
   const contract = metadata?.jfr_contract;
   if (!contract?.binary_boundary && !contract?.desktop_scope) return null;
@@ -869,7 +869,7 @@ function JfrFindingsPanel({
   findings: JvmFinding[];
   t: (key: MessageKey) => string;
   onAddEvidence: (finding: JvmFinding) => void;
-}): JSX.Element | null {
+}): React.JSX.Element | null {
   const { locale } = useI18n();
   if (findings.length === 0) return null;
   return (
@@ -924,7 +924,7 @@ function JfrProfilePanel({
     sourceRef: string,
     row: Record<string, unknown>,
   ) => void;
-}): JSX.Element {
+}): React.JSX.Element {
   const { locale } = useI18n();
   if (
     !flameGraph &&
@@ -981,7 +981,7 @@ function TopMethodsTable({
     sourceRef: string,
     row: Record<string, unknown>,
   ) => void;
-}): JSX.Element {
+}): React.JSX.Element {
   return (
     <CompactTableCard title={t("jfrTopMethods")}>
       <thead>
@@ -1030,7 +1030,7 @@ function TopPackagesTable({
     sourceRef: string,
     row: Record<string, unknown>,
   ) => void;
-}): JSX.Element {
+}): React.JSX.Element {
   return (
     <CompactTableCard title={t("jfrTopPackages")}>
       <thead>
@@ -1079,7 +1079,7 @@ function TopThreadsTable({
     sourceRef: string,
     row: Record<string, unknown>,
   ) => void;
-}): JSX.Element {
+}): React.JSX.Element {
   return (
     <CompactTableCard title={t("jfrTopThreads")}>
       <thead>
@@ -1128,7 +1128,7 @@ function SampleStacksTable({
     sourceRef: string,
     row: Record<string, unknown>,
   ) => void;
-}): JSX.Element {
+}): React.JSX.Element {
   return (
     <CompactTableCard title={t("jfrSampleStacks")}>
       <thead>
@@ -1174,7 +1174,7 @@ function CompactTableCard({
 }: {
   title: string;
   children: React.ReactNode;
-}): JSX.Element {
+}): React.JSX.Element {
   const { locale } = useI18n();
   return (
     <Card>
@@ -1191,7 +1191,7 @@ function CompactTableCard({
   );
 }
 
-function EvidenceButton({ onClick }: { onClick: () => void }): JSX.Element {
+function EvidenceButton({ onClick }: { onClick: () => void }): React.JSX.Element {
   return (
     <Button type="button" size="sm" variant="outline" onClick={onClick}>
       <Plus className="h-3.5 w-3.5" />
@@ -1209,7 +1209,7 @@ function NotableEventsPanel({
     : never;
   t: (key: MessageKey) => string;
   onEvidence: (row: Exclude<JfrAnalysisResult["tables"]["notable_events"], undefined>[number]) => void;
-}): JSX.Element {
+}): React.JSX.Element {
   const { locale } = useI18n();
   return (
     <Card>
@@ -1296,7 +1296,7 @@ function EventTypeBreakdownPanel({
 }: {
   rows: { event_type: string; count: number }[];
   t: (key: MessageKey) => string;
-}): JSX.Element {
+}): React.JSX.Element {
   const { locale } = useI18n();
   return (
     <Card>
@@ -1358,7 +1358,7 @@ function HeatmapPanel({
   t: (key: MessageKey) => string;
   onPickStart: (time: string) => void;
   onClear: () => void;
-}): JSX.Element {
+}): React.JSX.Element {
   const { locale } = useI18n();
   const buckets = heatmap?.buckets ?? [];
   const maxCount = heatmap?.max_count ?? 0;

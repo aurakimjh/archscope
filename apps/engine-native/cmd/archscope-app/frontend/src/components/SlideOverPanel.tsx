@@ -38,7 +38,7 @@ export function SlideOverPanel({
   width = 480,
   footer,
   helpText,
-}: SlideOverPanelProps): JSX.Element {
+}: SlideOverPanelProps): React.JSX.Element {
   // Close on Escape so keyboard users don't have to reach for the
   // close button. Bound on the document so it works even when focus
   // is on a child input.

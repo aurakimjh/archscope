@@ -29,7 +29,7 @@ import {
 
 const ALL = "__all__";
 
-export function ServiceFlowPage(): JSX.Element {
+export function ServiceFlowPage(): React.JSX.Element {
   const { locale, t } = useI18n();
   const workspace = useAnalysisWorkspace();
   const analysis = useMemo(
@@ -277,7 +277,7 @@ function FindingRow({
 }: {
   finding: ServiceFlowFinding;
   onAddEvidence: () => void;
-}): JSX.Element {
+}): React.JSX.Element {
   return (
     <tr className="border-b border-border align-top last:border-0">
       <td className="px-3 py-2">
@@ -303,7 +303,7 @@ function FindingRow({
   );
 }
 
-function EdgeRow({ edge, onAddEvidence }: { edge: ServiceEdge; onAddEvidence: () => void }): JSX.Element {
+function EdgeRow({ edge, onAddEvidence }: { edge: ServiceEdge; onAddEvidence: () => void }): React.JSX.Element {
   return (
     <tr className="border-b border-border align-top last:border-0">
       <td className="px-3 py-2 font-medium">{edge.caller}</td>
@@ -329,7 +329,7 @@ function EdgeRow({ edge, onAddEvidence }: { edge: ServiceEdge; onAddEvidence: ()
   );
 }
 
-function EmptyState({ text }: { text: string }): JSX.Element {
+function EmptyState({ text }: { text: string }): React.JSX.Element {
   return (
     <div className="flex items-center gap-2 px-4 py-6 text-sm text-muted-foreground">
       <AlertTriangle className="h-4 w-4" />
@@ -338,7 +338,7 @@ function EmptyState({ text }: { text: string }): JSX.Element {
   );
 }
 
-function SeverityBadge({ severity }: { severity: ServiceFlowFindingSeverity }): JSX.Element {
+function SeverityBadge({ severity }: { severity: ServiceFlowFindingSeverity }): React.JSX.Element {
   return (
     <span
       className={`rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase ${severityClass(

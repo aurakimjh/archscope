@@ -14,7 +14,7 @@ import { formatNumber } from "@/utils/formatters";
 
 // The Phase-1 page deliberately supports import only. It makes HAR fidelity
 // and source format visible instead of suggesting a live proxy capability.
-export function HttpCapturePage(): JSX.Element {
+export function HttpCapturePage(): React.JSX.Element {
   const { t } = useI18n();
   const [file, setFile] = useState<FileDockSelection | null>(null);
   const [result, setResult] = useState<HttpCaptureAnalysisResult | null>(null);
@@ -42,7 +42,7 @@ export function HttpCapturePage(): JSX.Element {
   </main>;
 }
 
-function TableCard({ title, rows }: { title: string; rows: Array<Record<string, unknown>> }): JSX.Element {
+function TableCard({ title, rows }: { title: string; rows: Array<Record<string, unknown>> }): React.JSX.Element {
   const columns = rows.length ? Object.keys(rows[0]).slice(0, 6) : [];
   return <Card><CardHeader><CardTitle>{title}</CardTitle></CardHeader><CardContent className="overflow-auto"><table className="w-full text-left text-xs"><thead><tr>{columns.map((column) => <th key={column} className="p-2">{column}</th>)}</tr></thead><tbody>{rows.slice(0, 50).map((row, index) => <tr key={index} className="border-t">{columns.map((column) => <td key={column} className="max-w-56 truncate p-2">{String(row[column] ?? "")}</td>)}</tr>)}</tbody></table>{rows.length === 0 && <p className="text-sm text-muted-foreground">No rows yet.</p>}</CardContent></Card>;
 }

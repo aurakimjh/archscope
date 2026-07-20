@@ -90,7 +90,7 @@ const TEMPLATES: ChartTemplate[] = [
   },
 ];
 
-export function ChartStudioPage(): JSX.Element {
+export function ChartStudioPage(): React.JSX.Element {
   const { locale, t } = useI18n();
   const workspace = useAnalysisWorkspace();
   const [selectedID, setSelectedID] = useState(workspace.active_id ?? "");

@@ -84,7 +84,7 @@ export function DiagnosticsPanel({ diagnostics, baseRequest }: DiagnosticsPanelP
         <Metric label={t("errors")} value={(diagnostics.error_count ?? 0).toLocaleString()} />
         {(() => {
           const d = diagnostics as any;
-          const cards: JSX.Element[] = [];
+          const cards: React.JSX.Element[] = [];
           if (d.bytes_read) {
             cards.push(<Metric key="bytes" label="Bytes read" value={Number(d.bytes_read).toLocaleString()} />);
           }
