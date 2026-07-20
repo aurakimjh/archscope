@@ -44,6 +44,11 @@ func Build(parsed parser.Parsed, sourceFile string, diags *diagnostics.ParserDia
 		TopN:        topN,
 		ProfileKind: profileKind,
 	})
+	// Classification is enriched after the common flame tree is built. The
+	// parser owns identity; this analyzer owns display category/color. Keeping
+	// the source format here prevents Node/V8 runtime frames from being
+	// incorrectly shown as browser application code in non-browser profiles.
+	enrichFlamegraph(&core.Charts.Flamegraph, parsed.Format)
 
 	result := models.New(ResultType, "profile_evidence")
 	result.SourceFiles = []string{sourceFile}
@@ -103,6 +108,33 @@ func Build(parsed parser.Parsed, sourceFile string, diags *diagnostics.ParserDia
 		Product:      "runtime profiler",
 	}))
 	return result
+}
+
+func enrichFlamegraph(node *coreprofiler.FlameNode, sourceFormat string) {
+	category, color := profileFramePresentation(node.Name, sourceFormat)
+	node.Category, node.Color = &category, &color
+	for i := range node.Children {
+		enrichFlamegraph(&node.Children[i], sourceFormat)
+	}
+}
+
+func profileFramePresentation(name, sourceFormat string) (string, string) {
+	lower := strings.ToLower(name)
+	format := strings.ToLower(sourceFormat)
+	if format == "v8-cpuprofile" || format == "chrome-trace-json" {
+		switch {
+		case strings.Contains(lower, "node_modules"), strings.Contains(lower, "webpack://"):
+			return "dependency", "#8b5cf6"
+		case strings.HasPrefix(lower, "("), strings.Contains(lower, "v8"), strings.Contains(lower, "idle"):
+			return "browser_runtime", "#64748b"
+		default:
+			return "browser_application", "#0ea5e9"
+		}
+	}
+	if strings.Contains(lower, "node:") || strings.Contains(lower, "node_modules") {
+		return "node_runtime", "#22c55e"
+	}
+	return "application", "#3b82f6"
 }
 
 // sampledCPURuns consumes V8's pre-collapse ordered samples. A run ends when

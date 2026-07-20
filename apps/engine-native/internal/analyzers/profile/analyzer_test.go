@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	parser "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/profile"
+	coreprofiler "github.com/aurakimjh/archscope/apps/engine-native/internal/profiler"
 )
 
 func TestAnalyzeProfileEvidence(t *testing.T) {
@@ -55,5 +56,14 @@ func TestBuildEmitsSampledCPURunsWithoutClaimingLongTasks(t *testing.T) {
 	}
 	if !found {
 		t.Fatal("expected sampled CPU hotspot finding")
+	}
+}
+
+func TestBrowserFlamegraphClassificationIsSourceAware(t *testing.T) {
+	frame := parser.Frame{Name: "node_modules/react/index.js", Function: "render", Runtime: "V8"}
+	result := Build(parser.Parsed{Format: "v8-cpuprofile", ValueUnit: "microseconds", Samples: []parser.Sample{{Stack: []parser.Frame{frame}, Value: 10}}}, "browser.cpuprofile", nil, Options{})
+	flame := result.Charts["flamegraph"].(coreprofiler.FlameNode)
+	if len(flame.Children) != 1 || flame.Children[0].Category == nil || *flame.Children[0].Category != "dependency" {
+		t.Fatalf("unexpected browser category: %+v", flame)
 	}
 }
