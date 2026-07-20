@@ -19,4 +19,7 @@ func TestBuildHTTPHARAnalysisIsDeterministicAndBounded(t *testing.T) {
 	if result.Metadata.Extra["http_capture"].(map[string]any)["fidelity"] != "har_import" {
 		t.Fatal("missing fidelity metadata")
 	}
+	if _, ok := result.Metadata.Extra["capture_aggregate_snapshot"]; !ok {
+		t.Fatal("HAR must use capture aggregate snapshot")
+	}
 }

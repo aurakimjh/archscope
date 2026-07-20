@@ -4,6 +4,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/aggregate"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/ingestion"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 	parser "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/httpcapture"
@@ -48,6 +49,11 @@ func Build(entries []parser.Entry, sourceFile, format, dialect string, opts Opti
 	result.Tables = map[string]any{"transactions": transactionRows(entries, topN), "endpoints": rows(endpoints, "endpoint", topN), "hosts": rows(hosts, "host", topN)}
 	result.Metadata.SchemaVersion = "0.1.0"
 	result.Metadata.Extra["http_capture"] = map[string]any{"dialect": dialect, "fidelity": "har_import", "redaction": "profile_redaction_0.1.0", "detail_storage": "inline_phase1"}
+	// HAR import uses the same aggregator as future live capture. This keeps
+	// offline start-order and live completion-order projections comparable.
+	aggregator := aggregate.New("offline-har", topN)
+	aggregator.ApplyBatch(entries)
+	result.Metadata.Extra["capture_aggregate_snapshot"] = aggregator.Snapshot()
 	ingestion.AttachSourceMetadata(&result, ingestion.NewSourceMetadata(sourceFile, ingestion.SourceMetadataOptions{SourceKind: ingestion.SourceKindHTTPCapture, SourceFormat: format, Product: "HAR import"}))
 	if countErrors(entries) > 0 {
 		result.AddFinding("warning", "HTTP_CAPTURE_ERRORS", "HTTP capture contains failed responses", map[string]any{"error_transactions": countErrors(entries)})
