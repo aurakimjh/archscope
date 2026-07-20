@@ -11,12 +11,12 @@
 | G1 수집 포맷 | 현재 Chrome Performance 패널의 저장 산출물은 `.cpuprofile`이 아니라 **trace(`.json`/`.json.gz`)**다. 1차 대상을 trace로 올릴지, 범위를 V8 direct profile로 좁힐지 | T-558 | **확정 (2026-07-20).** Chrome trace가 1차 입력이며 `.cpuprofile`을 같은 Phase 1에서 함께 지원한다 (3.0) |
 | G2 측정 단위 | `Sample.Value` 단위와 `IntervalMS` 이중 환산 문제. 시간 귀속 규칙과 골든 불변식 | T-559 | **확정 (2026-07-20).** 마이크로초 `int64`, `samples[]` 정본, `ValueUnit` 분기, `INV-C1`~`INV-C9` (4.3.1) |
 | G3 데스크톱 경로 | 신규 importer와 현재 `ProfilerService`/`DiffPage`가 서로 다른 서비스 경로를 사용(5.0, 7.6) | T-560 | **확정 (2026-07-20).** A안 경로 통합 — `AnalyzeProfileEvidence`가 유일한 데스크톱 정본 경로, legacy 포맷 스위치 동결, 4단계 이행 + AC-1~AC-4 (5.0.1) |
-| G4 시간축 의미 | CPU 샘플만으로는 브라우저 Long Task 경계를 복원할 수 없음(9 Phase 3) | T-561 | 미결 |
+| G4 시간축 의미 | CPU 샘플만으로는 브라우저 Long Task 경계를 복원할 수 없음(9 Phase 3) | T-561 | **확정 (2026-07-20).** pre-collapse `buildSampleRuns` 계약, `cpu_sample_runs`/`cpu_activity` 출력, `SAMPLED_CPU_HOTSPOT` finding(기본 100ms), INV-T1~T5. 렌더링은 보류, 진짜 Long Task는 Phase 4 항목 21 (9.3.1) |
 
-G1·G2에 이어 **G3도 닫히면서 Phase 1(파싱), Phase 2(분류), Phase 4(데스크톱
-통합)의 착수 조건이 갖춰졌다.** 7절의 메뉴 문구와 수집 안내도 3.0.4에서
-확정했다. 남은 G4는 Phase 3 시간축의 게이트이므로, **Phase 3에 한해 착수를
-막는다.**
+**네 게이트가 모두 닫혔다 (2026-07-20).** Phase 1(파싱), Phase 2(분류),
+Phase 3(시간축 — 단 렌더링 제외, 9.3.1 항목 13), Phase 4(데스크톱 통합)의
+착수 조건이 갖춰졌다. 7절의 메뉴 문구와 수집 안내도 3.0.4에서 확정했다.
+이 문서는 조건부 승인에서 **구현 착수 가능** 상태로 전환한다.
 
 ## 1. 배경 및 동기
 
@@ -182,8 +182,8 @@ A안의 대가로 지목된 것은 "gzip 스트리밍과 대형 파일 처리를
 
 이렇게 좁히면 Phase 1이 떠안는 것은 **gzip 스트리밍 해제와 JSON 스트리밍
 스캔** 두 가지뿐이다. `ph:"X"` 구간 이벤트 — 초안이 "`[]Sample` 모델에 그대로
-담기지 않는다"고 지적한 진짜 어려움 — 는 **애초에 Phase 3(시간축)의 과제이며
-G4/T-561의 범위**다. Phase 1에서 다룰 이유가 없다.
+담기지 않는다"고 지적한 진짜 어려움 — 는 G4/T-561 확정에 따라 **Phase 4 항목
+21(`BROWSER_LONG_TASK`)의 과제**다(9.3.1). Phase 1에서 다룰 이유가 없다.
 
 스트리밍 스캔은 8절이 어차피 요구하는 작업이고, `.cpuprofile` 단독 경로에서도
 대형 파일 문제는 동일하게 발생한다(T-564). **A안이 새로 만든 비용이 아니라
@@ -331,9 +331,10 @@ DevTools "Save as…" 전체 트레이스는 Trace Event Format 배열이며, CP
 스트리밍 파싱이 사실상 필수이며, `ph:"X"` 지속 이벤트(롱태스크, 레이아웃,
 페인트)는 샘플이 아니라 **구간**이라 `[]Sample` 모델에 그대로 담기지 않는다.
 
-**3.0의 결정으로 앞의 둘만 Phase 1이 떠안고, 세 번째는 Phase 3에 남는다.**
+**3.0의 결정으로 앞의 둘만 Phase 1이 떠안고, 세 번째는 뒤로 남는다.**
 크기·스트리밍은 `.cpuprofile` 단독 경로에서도 어차피 발생하는 문제이고(T-564),
-`ph:"X"` 해석은 G4/T-561의 범위다. Phase 1의 trace 어댑터는 `ph:"P"`만 걸러내는
+`ph:"X"` 해석은 G4/T-561 확정에 따라 Phase 4 항목 21의 범위다(9.3.1).
+Phase 1의 trace 어댑터는 `ph:"P"`만 걸러내는
 **필터**이므로 구간 이벤트 모델링 문제를 만나지 않는다(3.0.2).
 
 ### 3.3 범위 밖
@@ -782,7 +783,8 @@ Phase 1의 `chrome-trace-json`/`v8-cpuprofile` 파서는 `parsers/profile`에
 `FlameNode`를 받는다. `ts_us`는 타임라인 빌더에 **도달하지 못한다**.
 
 따라서 시간축은 합산 경로의 분기가 아니라 **collapse 이전에 분리되는 별도
-경로**여야 한다(9절 Phase 3 항목 10, T-561).
+경로**여야 한다. 그 경로의 확정 계약은 9.3.1(`buildSampleRuns`,
+`cpu_sample_runs`/`cpu_activity`, INV-T1~T5)이다.
 
 **단계 분리에 주의한다.** `ts_us` 라벨을 *채우는* 것은 Phase 1의 파서 작업이고,
 그 라벨을 *소비해* 시간축을 그리는 것은 Phase 3다. 파서가 Phase 1에서 라벨을
@@ -1269,10 +1271,11 @@ const NAV_GROUPS = [
 | 연속 CPU 점유 구간 | Phase 3 항목 12의 sample run. 강조 표시, 클릭 시 그 구간 스택으로 이동 |
 | 브러시 선택 | 가로 드래그로 구간 선택 → 플레임그래프·상세·요약이 그 구간으로 재집계 |
 
-임계값 라벨은 조건부로 둔다. 50ms 등 절대 임계를 표기하되 **"CPU 점유 기준,
-브라우저 Long Task와 다름"**을 툴팁에 명시한다. 렌더링 자체는 9절 Phase 3이
-보류 상태이므로(항목 12까지만, 렌더는 DevTools 대비 검토 후), 이 절의 타임라인
-UI도 그 결정에 종속된다.
+임계값 라벨은 9.3.1의 finding 계약을 따른다 — 기본 **100ms**로 RAIL의 50ms
+Long Task 정의와 의도적으로 다르게 잡았으며, **"CPU 점유 기준, 브라우저 Long
+Task와 다름"**을 툴팁에 명시한다. 렌더링 자체는 9.3.1 항목 13에서 보류로
+확정됐으므로, 이 절의 타임라인 UI는 `cpu_activity`/`cpu_sample_runs` 데이터
+표시로 한정하고 플레임차트 렌더는 수요 확인 후 재개한다.
 
 #### 7.8.6 상세 패널
 
@@ -1475,7 +1478,7 @@ fixture와 케이스를 포함한다.
 
 ### Phase 3 — 시간축 (플레임차트)
 
-> **G4 / T-561 — 재설계 필요.** 초안은 인접한 동일 스택을 병합해 50ms 초과
+> **G4 / T-561 — 확정 (2026-07-20).** 초안은 인접한 동일 스택을 병합해 50ms 초과
 > 구간을 **롱태스크 finding**으로 내려 했다. 이는 의미론적으로 틀렸다. V8
 > CpuProfile의 `samples`/`timeDeltas`는 **샘플 시점의 top node와 시각만** 제공하고
 > 브라우저 task의 시작/종료 경계는 제공하지 않는다
@@ -1487,23 +1490,80 @@ fixture와 케이스를 포함한다.
 > 합산하며(`analyzers/profile/analyzer.go:97-110`), `buildTimeline`은
 > `[]Sample`이 아니라 이미 합산된 `FlameNode`를 받는다. 따라서 "timeline
 > builder가 `ts_us`를 읽는다"는 변경만으로는 구현 자체가 불가능하다.
+>
+> 아래 9.3.1이 이 두 문제를 해소하는 확정 계약이다. Phase 3 산출물의 이름은
+> **sampled CPU run**이고, 진짜 Long Task는 Phase 4 항목 21(trace `ph:"X"`
+> 구간 이벤트)로 분리한다.
+
+#### 9.3.1 pre-collapse ordered-series 계약 (G4 / T-561) — 확정
+
+**분기 지점.** `analyzers/profile.Build`는 `collapsedStacks(parsed.Samples)`를
+호출하기 **이전에** `buildSampleRuns(parsed.Samples)`로 시간축 산출물을 만든다.
+`Sample.Labels["ts_us"]`는 이 지점에서 소비되며, collapse가 Labels를 버리는
+현행 동작은 그대로 둔다 — 합산 경로는 무변경이다.
+
+**run 병합 규칙.** `parsed.Samples`를 순서대로 훑으며(파서가 시간순을 보장,
+4.3.1) 다음 조건 중 하나가 성립할 때 run을 끊는다.
+
+1. `stackKey`가 직전 샘플과 다르다 (4.4의 script identity 반영 키).
+2. idle/GC 등 비귀속 샘플을 만난다 — idle은 run에 포함하지 않되 **경계로만**
+   쓴다.
+3. 직전 샘플과의 시간 갭이 `10 × median(timeDeltas)`를 넘는다 — 기록 중단
+   구간을 하나의 점유로 잇지 않기 위한 가드.
+
+run의 필드는 `start_us`/`end_us`/`duration_us`/`sample_count`/`top_frame`/
+`stack_key`/`category`다. duration은 4.3.1의 귀속 규칙(`timeDeltas[i]` →
+sample `i-1`)과 같은 규칙으로 합산한다.
+
+**출력 계약.** `AnalysisResult` 공통 envelope는 불변이고 키만 추가한다.
+
+| 키 | 내용 | 상한 |
+|---|---|---|
+| `tables["cpu_sample_runs"]` | duration 내림차순 run 행 | top-N (기본 50) |
+| `series["cpu_activity"]` | 고정 버킷 CPU 점유율 시계열 (7.8.5의 CPU% 축) | ≤ 1,000 버킷 |
+
+두 산출물 모두 크기 상한이 있어 `AnalysisResult` size-stable 가드레일을 지킨다.
+`ts_us`가 없는 포맷(collapsed 등 21종)에서는 두 키를 **생성하지 않는다** —
+균등 분포 가정으로 시간축을 위조하지 않는다. 기존 `buildTimeline`의 균등 분포
+시리즈는 호환용으로 유지하되, UI는 `cpu_sample_runs`가 있으면 그것을 우선한다.
+
+**finding 계약.** finding code는 **`SAMPLED_CPU_HOTSPOT`**이다. `LONG_TASK`
+계열 코드와 "롱태스크" 문구는 금지한다(7.4-c, 7.8.5와 정합). 기본 임계치는
+**100ms**로, RAIL의 50ms Long Task 정의와 **의도적으로 다르게** 잡아 두 지표의
+동일시를 막는다(옵션으로 조정 가능). finding 문구에는 "샘플 관측 구간이며
+브라우저 task 경계가 아님"을 명시한다. 진짜 Long Task finding
+(`BROWSER_LONG_TASK`)은 Chrome trace의 `RunTask`(`ph:"X"`) 경계를 정본으로
+삼아 그 구간에 CPU 샘플을 귀속하는 방식으로 Phase 4 항목 21에서 별도로 만든다.
+
+**불변식.**
+
+- **INV-T1**: run은 시간순이고 서로 겹치지 않는다.
+- **INV-T2**: Σ `duration_us` ≤ active duration (4.3.1의 정의).
+- **INV-T3**: stack별 run duration 합 = 합산 flamegraph의 해당 stack 시간 —
+  같은 `[]Sample`에서 파생됐음을 교차 검증한다 (INV-C2/C3과 같은 역할).
+- **INV-T4**: 다운샘플된 입력에서는 `cpu_sample_runs`·`cpu_activity`·
+  `SAMPLED_CPU_HOTSPOT`을 내지 않고 diagnostic
+  (`TIMELINE_SUPPRESSED_DOWNSAMPLED`)을 낸다 — 균등 다운샘플링은 시간 구간을
+  왜곡하므로(9절 Phase 4 상호작용) 시간축 주장 전체를 억제한다.
+- **INV-T5**: `hitCount`-only 집계 경로(4.3.1 결정 2)에서는 시간축 산출물을
+  내지 않는다 — 순서 정보가 없다.
 
 수정된 항목:
 
-10. **pre-collapse 순서 보존 계약 정의** — 시간 순서 데이터는 합산 flamegraph와
-    **별도의 series/table 계약**으로 정의한다. `Sample.Labels`를 내부 전달
-    수단으로 쓰더라도 **collapse 이전에 소비**해야 한다. `AnalysisResult` 공통
-    contract는 유지한다.
-11. 인접 동일 스택 병합 → **sample run**(연속 sampled CPU hotspot) 구간 생성
-12. **sampled CPU hotspot finding** — 임계치 초과 연속 구간. **`Long Task`라는
-    용어와 finding code를 쓰지 않는다.** 정확한 Long Task는 Chrome trace의
-    `RunTask` 이벤트 경계를 정본으로 삼고 그 구간에 CPU 샘플을 귀속하는 방식으로,
-    trace 지원 이후에 별도 finding으로 만든다.
-13. 시간 구간 렌더링 방식 결정 — 기존 `CanvasFlameGraph` 확장 vs 신규 컴포넌트
+10. **pre-collapse 순서 보존 계약** — 9.3.1로 확정. `buildSampleRuns`가
+    collapse 이전에 `ts_us`를 소비하고, 합산 경로는 무변경.
+11. 인접 동일 스택 병합 → **sample run** 구간 생성 (9.3.1 병합 규칙)
+12. **`SAMPLED_CPU_HOTSPOT` finding** — 기본 100ms 임계치, task 경계 아님 문구
+    필수. `Long Task` 용어·코드 금지 (9.3.1 finding 계약)
+13. 시간 구간 렌더링 — **보류로 확정.** Phase 3 범위는 항목 10~12
+    (runs table + activity series + finding)까지다. 플레임차트 렌더링은
+    "저장된 과거 프로파일 재열람" 수요가 확인될 때 별도 결정으로 재개하며,
+    그때까지 7.8.5의 타임라인 뷰는 `cpu_activity`/`cpu_sample_runs` 데이터
+    표시로 한정한다.
 
 **완료 기준**: "기록 3.1초 지점에 `renderList`가 210ms 연속 점유"를 프로파일만으로
 지목할 수 있고, 그 표현이 **task 경계가 아니라 샘플 관측 구간**임이 UI와 finding
-문구에 드러난다.
+문구에 드러나며, INV-T1~T5가 golden fixture로 고정된다.
 
 > Phase 3이 **플레임차트(시간축 분석)** 범위다. Phase 1~2와 달리 X축이 시간이
 > 되므로 합산 파이프라인(`collapsedStacks` 이후)을 우회하는 **별도 경로**가
@@ -1526,7 +1586,9 @@ fixture와 케이스를 포함한다.
     — `AnalyzeProfileEvidence`만 호출한다 (5.0.1 이행 2단계)
 19. 수집 안내 배너, 프레임워크 색상, 브라우저 어휘 라벨 (7.4)
 20. `adaptFlameNode` 공용 추출 — 네 번째 중복 방지 (7.4-e)
-21. `ph:"X"` 지속 이벤트 해석 — Long Task·Layout·Paint 구간 (3.2, G4/T-561 의존)
+21. `ph:"X"` 지속 이벤트 해석 — Long Task·Layout·Paint 구간. `RunTask` 경계를
+    정본으로 CPU 샘플을 귀속하는 `BROWSER_LONG_TASK` finding 포함
+    (3.2, 9.3.1 finding 계약)
 22. Diff 공통 로더 `stacksFromParsed` + `DiffPage` auto-detect 위임
     (5.0.1 이행 1단계, AC-2) — 항목 18보다 먼저 가능, Phase 1 파서와 독립
 23. Browser 페이지 결과의 Analysis Workspace 등록 + Export Center 소비 검증
@@ -1616,5 +1678,6 @@ fixture와 케이스를 포함한다.
 |---|---|
 | 2026-07-18 | 2026-07-18 Codex 설계 검토 반영. 0절 게이트(G1~G4) 신설, Chrome 저장 포맷 정정(3.0), 측정 단위·시간 귀속 계약 재정의(4.3.1), 프레임 정체성/redaction(4.4), 그래프 검증(4.6), 옵션 소유권(4.7), 데스크톱 단일 경로(5.0), 분류기 이원화 정정(6.0/6.1/6.3), 대형 파일 전략(8), Phase 3 Long Task 의미 정정(9), fixture·문서 계획(9/11) |
 | 2026-07-19 | UI 화면 레이아웃 설계 추가(7.8) |
+| 2026-07-20 | **G4 확정 — 네 게이트 모두 닫힘.** Phase 3 시간축을 재설계해 pre-collapse ordered-series 계약을 9.3.1로 확정. `buildSampleRuns`가 collapse 이전에 `ts_us`를 소비하고 합산 경로는 무변경. run 병합 규칙(스택 변경·idle 경계·시간 갭 가드), `tables["cpu_sample_runs"]`(top-N)·`series["cpu_activity"]`(≤1,000 버킷) 출력 상한, `SAMPLED_CPU_HOTSPOT` finding(기본 100ms — RAIL 50ms와 의도적 차별화), 불변식 INV-T1~T5(비중첩·active 상한·flamegraph 교차 검증·다운샘플/hitCount-only 억제). 렌더링(항목 13)은 보류 확정, 진짜 Long Task는 Phase 4 항목 21의 `BROWSER_LONG_TASK`로 분리. 0절을 구현 착수 가능 상태로 전환 |
 | 2026-07-20 | **G3 확정.** 데스크톱 단일 분석 경로를 A안(경로 통합)으로 결정(5.0.1). `parsers/profile.Parsed`가 유일한 정규화 지점, `AnalyzeProfileEvidence`가 유일한 데스크톱 정본 경로. legacy `ProfilerService` 포맷 스위치 동결 및 신규 포맷 추가 금지. 4단계 이행 순서(Diff 공통 로더 → Browser 페이지 → Workspace/Export 접속 → 기존 페이지 전환 후속)와 수용 기준 AC-1~AC-4 정의. 7.6 창구 서술과 2절 워크플로를 결정에 맞게 갱신 |
 | 2026-07-20 | **G1·G2 확정.** 1차 입력을 Chrome Performance trace(`.json`/`.json.gz`)로 결정하고 `.cpuprofile`을 같은 Phase 1에 포함(3.0). Phase 1 trace 어댑터를 `ph:"P"` 필터로 한정해 구간 이벤트 모델링을 Phase 4에 남김(3.0.2, 3.2). 측정 단위를 마이크로초 `int64`로, 표본 정본을 `samples[]`로, `hitCount`를 검증용으로 확정하고 `IntervalMS` 역산 경로를 `ValueUnit` 분기로 대체(4.3.1). duration 불변식 `INV-C1`~`INV-C9` 신설 — `total = self + Σ children`과 재귀 중복 계상 금지 포함. 메뉴 문구·수집 안내·지원 매트릭스 유보 해제(3.0.4), Phase 1/4 항목 개정(9) |
