@@ -1,6 +1,6 @@
 # ArchScope Work Status
 
-Last updated: 2026-07-20
+Last updated: 2026-07-21
 
 This file is the current execution status for the active ArchScope product line.
 The previous long-form history was archived to
@@ -17,10 +17,11 @@ The previous long-form history was archived to
 - Release baseline: `v0.3.5` is the latest stable GitHub release. The
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
-- Current execution focus: the post-`v0.3.5` Jennifer MSA drilldown follow-up
-  plus the design-gated Chrome DevTools/V8 CPU profile slice. Long-term
-  external APM import and direct SaaS/product-specific connectors remain
-  roadmap candidates.
+- Current execution focus: selecting the version/tag for the release-ready
+  Chrome DevTools/V8 CPU profile slice, then closing the T-571 Windows real-NIC
+  coverage measurement before live HTTP capture begins. The Jennifer MSA
+  analyzer promotion remains conditional; long-term external APM import and
+  direct SaaS/product-specific connectors remain roadmap candidates.
 - Retired implementation: Python/FastAPI/browser sources are archived under
   `archive/python-engine` and `archive/web-frontend-python`.
 - Historical native POC module has been folded into `apps/engine-native`.
@@ -151,6 +152,11 @@ The previous long-form history was archived to
   4 native-H2 as a later graft, mitmproxy subprocess as a documented fallback).
   De-risked it with `spikes/t574-mitm-proxy-poc`, a pure-stdlib PoC whose offline
   MITM self-test passes and which cross-compiles for Windows.
+- Closed the Chrome/V8 release implementation follow-up by wiring the shared
+  15-file fixture manifest into Go golden tests, fixing V8 `children` graph and
+  Chrome `ProfileChunk` delta handling, supporting hitCount-only and clamped
+  negative-delta inputs, suppressing invalid downsampled timelines, refreshing
+  Wails bindings, and completing the local release smoke.
 
 ## Current Risk
 
@@ -213,12 +219,11 @@ filtered before analysis.
 
 ## Next Execution Queue
 
-1. Keep `v0.3.5` release verification healthy by monitoring the release
-   workflow, release asset availability, and app/package metadata alignment.
-2. Complete the remaining Chrome/V8 hardening work after the implemented
-   parser, streaming/weighted downsampling path, Diff loader, Browser CPU page,
-   and sampled-CPU-run projection: the paired fixture and documentation set
-   (T-565) remains before the full slice can be released.
+1. Select the next candidate version/tag and prepare its metadata/changelog.
+   The Chrome/V8 implementation, manifest-driven golden tests, dependency
+   security update, and local macOS release smoke are complete.
+2. Complete T-571 with the ETW/WFP real-NIC run and the direct
+   `GetExtendedTcpTable` CAP-5 CPU-overhead rerun before Windows live capture.
 3. Review the long-term external APM import roadmap before assigning any new
    external-connector implementation range. Local file imports already cover
    OTLP, Zipkin, Elastic APM, Jaeger, and SkyWalking-style trace evidence;
@@ -273,8 +278,8 @@ filtered before analysis.
 | Release | Complete through | Release type | Required contents before cut |
 |---|---|---|---|
 | v0.3.5 | T-468 through T-555 | Stable Evidence Studio expansion | Released 2026-05-17 with Mid-Term Plus importers, API/event contract analysis, architecture docs drafts, advanced stitching, version metadata, changelog, release tag, and release workflow verification. |
-| Next candidate | T-560 through T-565 design-gated | Chrome browser/V8 profile slice | Parser normalization, bounded Chrome/V8 streaming, Browser CPU, Workspace, Diff, sampled CPU run, and source-aware category work are implemented, and the T-565 fixture/documentation set is complete (2026-07-21). Before the cut: wire the Go golden tests to the browser-profile fixture manifest and run the release smoke. Keep external APM and security/compliance work deferred. |
-| Future candidate | T-571 through T-576 design-gated | Windows-first HTTP capture and cross-OS evidence analysis slice | Capability/fidelity, transaction/time, bounded store, and security contracts were approved on 2026-07-20 (T-566 through T-570), so Phase 1 Windows HAR/import work may start against the fixture corpus. Analyze Linux/macOS-generated supported evidence in the Windows UI. Do not start Windows live MITM capture before the proxy spike (T-574), streaming (T-573), and coverage proof (T-571) gates pass. |
+| Next candidate | T-560 through T-565 design-gated | Chrome browser/V8 profile slice | Release implementation is complete as of 2026-07-21: parser normalization, bounded streaming, Browser CPU, Workspace, Diff, sampled CPU runs, source-aware categories, paired docs, shared fixture manifest golden tests, patched frontend dependencies, and local macOS package/DMG smoke all pass. Select the candidate version/tag and align metadata/changelog before the cut; keep external APM and security/compliance work deferred. |
+| Future candidate | T-571 through T-576 design-gated | Windows-first HTTP capture and cross-OS evidence analysis slice | Capability/fidelity, transaction/time, bounded store, and security contracts were approved on 2026-07-20 (T-566 through T-570), so Phase 1 Windows HAR/import work may start against the fixture corpus. T-573 streaming/recovery and T-574 proxy-spike gates are complete; T-571 real-NIC coverage proof is the remaining live-capture gate. Analyze Linux/macOS-generated supported evidence in the Windows UI. |
 | v0.4.0 candidate | Not assigned | Evidence Studio roll-up | Full local evidence workflow is smoke-tested as one product story with sample packs, report exports, regression tests, AI gate checks, and release notes that present the expanded capability coherently. |
 
 ## Active TO-DO
@@ -286,11 +291,11 @@ and measurement-unit contracts were resolved on 2026-07-20 (T-558, T-559), so
 Chrome parsing, bounded streaming, desktop integration, and sampled CPU run
 projections are now implemented, and the T-565 fixture/documentation parity
 set was completed on 2026-07-21 (browser-profile fixture corpus plus paired
-English documentation); wiring the Go golden tests to the fixture manifest
-remains an implementation follow-up.
-HTTP work must begin with bounded, sanitized HAR import;
-live MITM capture is Windows-first and remains blocked on capability/fidelity,
-security, session-store, and streaming contracts. Linux/macOS-generated supported
+English documentation). Go golden-test wiring to the fixture manifest and the
+local release smoke were completed on 2026-07-21.
+HTTP work must begin with bounded, sanitized HAR import. Phase 1 HAR import is
+unblocked; live MITM capture is Windows-first and remains blocked on the T-571
+real-NIC coverage measurement. Linux/macOS-generated supported
 HAR, profiles, and logs remain valid offline inputs to the Windows UI; Linux/macOS
 live-capture parity is not a first-release gate. The Korean design note was
 revised on 2026-07-19 to absorb the review: it now states capability tiers
@@ -303,9 +308,9 @@ gates themselves: the source ledger, the Windows capability/fidelity matrix, the
 transaction/time contract, the bounded session store, and the security model
 (T-566 through T-570). With those five closed, **no design gate blocks Phase 1
 HAR import**; T-571 keeps its contract half only, because proving Windows
-coverage signals needs a measurement run on Windows, and T-572 through T-575
-remain open as fixture, aggregator, proxy-spike, and Diff work. Other roadmap
-candidates,
+coverage signals needs a real-NIC measurement run on Windows. T-572 through
+T-575 are complete: fixture corpus, aggregator/recovery protocol, proxy spike,
+and HTTP-specific Diff contract. Other roadmap candidates,
 including long-term external APM import and security/compliance evidence, remain
 deferred until explicitly promoted.
 
@@ -331,7 +336,7 @@ deferred until explicitly promoted.
 | T-564 | P1 | [x] | Replace whole-file/double-unmarshal assumptions with a size/gzip/streaming strategy for direct profiles and Chrome traces; define weighted downsampling and partial-result semantics. | T-558, T-563 | Completed 2026-07-21: V8/Chrome path selects a capped gzip reader before whole-file loading; Chrome trace walks `traceEvents` token-by-token and only decodes `ph:"P"` chunks (with a count-only first pass when bounded output is needed). Default 500k deterministic time-weighted buckets preserve total microsecond duration, emit `partial_result`/source-and-output counts plus `PROFILE_DOWNSAMPLED`, and Browser CPU visibly labels aggregated output. Gzip-stream, weighted-duration, and decompressed-limit regressions pass. |
 | T-557 | P1 | [ ] | Promote the Jennifer MSA drilldown calculation from UI projection to a Go analyzer contract if repeated use shows it should be exported/reported outside the desktop page. | T-556 | Planned follow-up: stable result schema for drilldown scopes |
 | T-576 | P2 | [x] | Pair the revised Korean HTTP capture note with English documentation, an importer/dialect support matrix, a data-model reference, and a security guide once the Phase 1 contracts are approved; keep the source ledger appendix filled as claims are re-verified. | T-566 through T-571 | Completed 2026-07-21: `docs/en/SYSTEM_HTTP_CAPTURE.md` added as the condensed English pair with dedicated sections for the data-model reference (bounded `http_capture` envelope, `CaptureSessionRef`, versioned `CaptureSessionStore`), the importer/dialect support matrix (7-step pipeline, verified dialect quirks, `HAR_*` diagnostic codes, NetLog rejection, T-572 corpus pointer), and the security guide (import-time redaction rationale with the Okta incident, value-preserving techniques, CA lifecycle, privilege contract, SEC-1~15); also covers the transaction/time model, capability tiers, T-575 Diff contract, phase status, and the T-571 measurement state. The Korean note stays normative and Appendix A remains the auditable claim ledger — English §8 must be refreshed when the T-571 real-NIC rerun lands |
-| T-565 | P2 | [x] | Add sanitized Chrome/Node/CDP malformed and end-to-end fixtures, then pair the Korean design with English documentation and update importer matrix, data model, user guide, and performance docs after the P0 contracts stabilize. | T-558 through T-564 | Completed 2026-07-21: synthetic browser-profile corpus at `../projects-assets/test-data/browser-profile-fixtures/` (6 valid — V8/Node/CDP/trace object/array/gzip; 7 malformed — broken parent, hitCount-only, negative delta, unknown node, no-profile-chunk trace, truncated, empty; 2 e2e reproducing the Phase 3 acceptance scenario of a 210ms renderList run at 3.1s in both cpuprofile and trace form, doubling as the AC-1 parity input and reserving the trace `RunTask` as the Phase 4 `BROWSER_LONG_TASK` golden) with manifest-fixed expected formats/diagnostics/findings; `docs/en/CHROME_DEVTOOLS_CPUPROFILE.md` added as the condensed English pair (Korean note stays normative); importer matrix, data model, user guide, and performance docs updated in both languages with the implemented formats, 256 MiB/500k-sample guards, downsample suppression, and `http_capture` MVP envelope; CLI `profile import --format` help now lists `v8-cpuprofile`/`chrome-trace-json`. Go golden-test wiring to the manifest expectations remains an implementation-side follow-up |
+| T-565 | P2 | [x] | Add sanitized Chrome/Node/CDP malformed and end-to-end fixtures, then pair the Korean design with English documentation and update importer matrix, data model, user guide, and performance docs after the P0 contracts stabilize. | T-558 through T-564 | Completed 2026-07-21: synthetic browser-profile corpus at `../projects-assets/test-data/browser-profile-fixtures/` (6 valid — V8/Node/CDP/trace object/array/gzip; 7 malformed — broken children reference, hitCount-only, negative delta, unknown node, no-profile-chunk trace, truncated, empty; 2 e2e reproducing the Phase 3 acceptance scenario of a 210ms renderList run at 3.1s in both cpuprofile and trace form, doubling as the AC-1 parity input and reserving the trace `RunTask` as the Phase 4 `BROWSER_LONG_TASK` golden) with manifest-fixed expected formats/diagnostics/findings; `docs/en/CHROME_DEVTOOLS_CPUPROFILE.md` added as the condensed English pair (Korean note stays normative); importer matrix, data model, user guide, and performance docs updated in both languages with the implemented formats, 256 MiB/500k-sample guards, downsample suppression, and `http_capture` MVP envelope; CLI `profile import --format` help lists `v8-cpuprofile`/`chrome-trace-json`; Go golden tests now consume all 15 manifest entries and enforce Chrome trace/cpuprofile duration parity, diagnostics, findings, sampled-run location/duration, and hitCount-only temporal suppression. |
 | T-414 | P1 | [x] | Connect `trace_import` to the Wails UI with summary cards, service dependency view, trace table, span table, and findings panel. | Trace import MVP | Completed 2026-05-13: Trace Import desktop workflow |
 | T-415 | P1 | [x] | Add Elastic APM `_search` response and source-only NDJSON importers. | Trace import MVP | Completed 2026-05-13: Elastic trace evidence import |
 | T-416 | P1 | [x] | Add trace critical-path analysis and current MVP findings: `SLOW_TRACE_P95`, `CLOCK_SKEW_SUSPECTED`, `UNBALANCED_SERVICE_LATENCY`, and `HIGH_ERROR_SERVICE_EDGE`. | Trace import MVP | Completed 2026-05-13: Root-cause oriented trace diagnostics |
@@ -477,6 +482,19 @@ deferred until explicitly promoted.
 
 ## Verification Notes
 
+- 2026-07-21 Chrome/V8 release finishing passed the shared manifest golden test
+  across 15 valid, malformed, and E2E fixtures, including 3.1s/210ms
+  `renderList` parity between `.cpuprofile` and Chrome trace inputs.
+- 2026-07-21 release smoke passed `go test ./...`, `go vet ./...`, and
+  `go build ./cmd/archscope-engine ./cmd/archscope-app`; the known macOS
+  26.0-to-11.0 linker warning remains non-blocking. Frontend
+  `npm run test:state` and `npm run build` passed after resolving the direct
+  dependency advisories with ECharts 6.1.0 and Vite 8.1.5; `npm audit` reports
+  zero vulnerabilities. The shared ECharts chunk is 698.80 KB raw / 235.56 KB
+  gzip, within the 700 KB raw budget.
+- 2026-07-21 local Wails packaging produced the ad-hoc-signed
+  `bin/archscope.app` and `bin/archscope-arm64.dmg`; strict deep codesign
+  verification and `hdiutil verify` both passed.
 - `go test ./...` passed under `apps/engine-native`. The Wails app test build
   still emits the known macOS linker warning about object files built for newer
   macOS 26.0 than the 11.0 link target.
