@@ -160,7 +160,8 @@ The previous long-form history was archived to
 - Upgraded the desktop baseline to Wails `v3.0.0-alpha2.117` with the matching
   `@wailsio/runtime` alpha.97 package, refreshed all outdated direct frontend
   dependencies (including React 19 and TypeScript 7), moved Linux CI and
-  packaging to GTK4/WebKitGTK 6.0, and revalidated the signed macOS app and DMG.
+  packaging to GTK4/WebKitGTK 6.0, upgraded official GitHub Actions to their
+  Node 24-based majors, and revalidated the signed macOS app and DMG.
 
 ## Current Risk
 
