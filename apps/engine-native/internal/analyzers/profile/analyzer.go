@@ -82,6 +82,17 @@ func Build(parsed parser.Parsed, sourceFile string, diags *diagnostics.ParserDia
 		"interval_ms":   intervalMS,
 		"source":        "internal/profiler.AnalyzeCollapsedStacks",
 	}
+	if parsed.ValueUnit == "microseconds" {
+		runs, activity := sampledCPURuns(parsed.Samples, topN)
+		result.Tables["cpu_sample_runs"] = runs
+		result.Series["cpu_activity"] = activity
+		result.Metadata.Extra["temporal_semantics"] = "sampled_cpu_runs; not browser Long Tasks"
+		for _, run := range runs {
+			if duration, _ := run["duration_ms"].(float64); duration >= 100 {
+				result.AddFinding("warning", "SAMPLED_CPU_HOTSPOT", "Sampled CPU run exceeded 100ms; this is not a browser Long Task.", map[string]any{"stack": run["stack"], "duration_ms": duration})
+			}
+		}
+	}
 	if parsed.Metadata != nil {
 		result.Metadata.Extra["parser_metadata"] = parsed.Metadata
 	}
@@ -92,6 +103,65 @@ func Build(parsed parser.Parsed, sourceFile string, diags *diagnostics.ParserDia
 		Product:      "runtime profiler",
 	}))
 	return result
+}
+
+// sampledCPURuns consumes V8's pre-collapse ordered samples. A run ends when
+// the stack changes, an idle sample appears, or a gap exceeds 10× the median
+// delta. This preserves temporal semantics independently of flamegraph rollup.
+func sampledCPURuns(samples []parser.Sample, limit int) ([]map[string]any, []map[string]any) {
+	deltas := make([]int64, 0, len(samples))
+	for _, sample := range samples {
+		if sample.Value > 0 {
+			deltas = append(deltas, sample.Value)
+		}
+	}
+	sort.Slice(deltas, func(i, j int) bool { return deltas[i] < deltas[j] })
+	median := int64(0)
+	if len(deltas) > 0 {
+		median = deltas[len(deltas)/2]
+	}
+	gap := median * 10
+	type run struct {
+		stack                string
+		start, end, duration int64
+	}
+	runs := []run{}
+	var current *run
+	flush := func() {
+		if current != nil && current.duration > 0 {
+			runs = append(runs, *current)
+		}
+		current = nil
+	}
+	for _, sample := range samples {
+		if sample.Value <= 0 {
+			flush()
+			continue
+		}
+		stack := stackKey(sample.Stack)
+		if stack == "" {
+			flush()
+			continue
+		}
+		if current == nil || current.stack != stack || (gap > 0 && sample.TimestampUS-current.end > gap) {
+			flush()
+			current = &run{stack: stack, start: sample.TimestampUS, end: sample.TimestampUS}
+		}
+		current.end = sample.TimestampUS + sample.Value
+		current.duration += sample.Value
+	}
+	flush()
+	sort.SliceStable(runs, func(i, j int) bool { return runs[i].duration > runs[j].duration })
+	if limit > 0 && len(runs) > limit {
+		runs = runs[:limit]
+	}
+	rows := make([]map[string]any, 0, len(runs))
+	activity := make([]map[string]any, 0, len(runs))
+	for _, run := range runs {
+		rows = append(rows, map[string]any{"stack": run.stack, "start_us": run.start, "end_us": run.end, "duration_us": run.duration, "duration_ms": round(float64(run.duration)/1000, 3)})
+		activity = append(activity, map[string]any{"ts_us": run.start, "duration_us": run.duration, "active_us": run.duration})
+	}
+	return rows, activity
 }
 
 func collapsedStacks(samples []parser.Sample) map[string]int {

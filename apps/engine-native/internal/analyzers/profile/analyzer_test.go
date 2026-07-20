@@ -4,6 +4,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	parser "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/profile"
 )
 
 func TestAnalyzeProfileEvidence(t *testing.T) {
@@ -31,5 +33,27 @@ func TestAnalyzeProfileEvidence(t *testing.T) {
 	}
 	if rows, ok := result.Tables["frames"].([]map[string]any); !ok || len(rows) == 0 {
 		t.Fatalf("missing frame rows: %#v", result.Tables["frames"])
+	}
+}
+
+func TestBuildEmitsSampledCPURunsWithoutClaimingLongTasks(t *testing.T) {
+	frame := parser.Frame{Name: "renderList", Function: "renderList", Runtime: "V8", Language: "JavaScript"}
+	parsed := parser.Parsed{Format: "v8-cpuprofile", ValueUnit: "microseconds", Samples: []parser.Sample{{Stack: []parser.Frame{frame}, TimestampUS: 0, Value: 0}, {Stack: []parser.Frame{frame}, TimestampUS: 1_000, Value: 120_000}}}
+	result := Build(parsed, "profile.cpuprofile", nil, Options{TopN: 10, ProfileKind: "cpu"})
+	runs, ok := result.Tables["cpu_sample_runs"].([]map[string]any)
+	if !ok || len(runs) != 1 || runs[0]["duration_ms"] != 120.0 {
+		t.Fatalf("unexpected runs: %#v", result.Tables["cpu_sample_runs"])
+	}
+	if result.Metadata.Extra["temporal_semantics"] != "sampled_cpu_runs; not browser Long Tasks" {
+		t.Fatal("temporal semantics must forbid Long Task claim")
+	}
+	found := false
+	for _, finding := range result.Metadata.Findings {
+		if finding["code"] == "SAMPLED_CPU_HOTSPOT" {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatal("expected sampled CPU hotspot finding")
 	}
 }
