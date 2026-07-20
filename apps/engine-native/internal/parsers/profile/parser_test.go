@@ -2,8 +2,10 @@ package profile
 
 import (
 	"compress/gzip"
+	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	coreprofiler "github.com/aurakimjh/archscope/apps/engine-native/internal/profiler"
@@ -138,6 +140,21 @@ func TestParseChromeTraceAssemblesProfileChunks(t *testing.T) {
 	}
 }
 
+func TestParseChromeTraceAcceptsBareEventArray(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "trace-array.json")
+	data := `[{"ph":"P","args":{"data":{"nodes":[{"id":1,"callFrame":{}}],"samples":[1,1],"timeDeltas":[10,20]}}}]`
+	if err := os.WriteFile(path, []byte(data), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	parsed, _, err := ParseFile(path, "chrome-trace-json", Options{})
+	if err != nil {
+		t.Fatalf("parse bare event array: %v", err)
+	}
+	if len(parsed.Samples) != 2 || parsed.Samples[1].Value != 20 {
+		t.Fatalf("unexpected bare-array trace parse: %#v", parsed.Samples)
+	}
+}
+
 func TestParseGzipChromeTrace(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "trace.json.gz")
 	f, err := os.Create(path)
@@ -176,5 +193,63 @@ func TestParseV8DownsamplesDeterministicallyAndMarksPartial(t *testing.T) {
 	}
 	if parsed.Metadata["partial_result"] != true || diags.WarningCount == 0 {
 		t.Fatalf("missing partial diagnostic: %#v %#v", parsed.Metadata, diags)
+	}
+}
+
+func TestParseChromeTraceStreamsGzipAndPreservesWeightedDuration(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "large-trace.json.gz")
+	f, err := os.Create(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	gz := gzip.NewWriter(f)
+	trace := `{"traceEvents":[{"ph":"P","args":{"data":{"cpuProfile":{"startTime":100,"nodes":[{"id":1,"callFrame":{"functionName":"root"},"children":[2]},{"id":2,"callFrame":{"functionName":"work"}}]}}}},{"ph":"P","args":{"data":{"samples":[2,2,2,2,2,2],"timeDeltas":[10,20,30,40,50,60]}}}]}`
+	if _, err := gz.Write([]byte(trace)); err != nil {
+		t.Fatal(err)
+	}
+	if err := gz.Close(); err != nil {
+		t.Fatal(err)
+	}
+	if err := f.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	parsed, diags, err := ParseFile(path, "auto", Options{MaxSamples: 3})
+	if err != nil {
+		t.Fatalf("parse streamed gzip trace: %v", err)
+	}
+	if parsed.Format != "chrome-trace-json" || len(parsed.Samples) != 3 {
+		t.Fatalf("unexpected streamed trace result: %#v", parsed)
+	}
+	if got := []int64{parsed.Samples[0].Value, parsed.Samples[1].Value, parsed.Samples[2].Value}; got[0] != 20 || got[1] != 70 || got[2] != 110 {
+		t.Fatalf("weighted buckets = %#v", got)
+	}
+	if total := parsed.Samples[0].Value + parsed.Samples[1].Value + parsed.Samples[2].Value; total != 200 {
+		t.Fatalf("weighted duration = %d, want 200", total)
+	}
+	if parsed.Metadata["partial_result"] != true || parsed.Metadata["downsampling"] != "deterministic_time_weighted_buckets" || diags.WarningCount != 1 {
+		t.Fatalf("missing streaming partial-result contract: metadata=%#v diagnostics=%#v", parsed.Metadata, diags)
+	}
+}
+
+func TestProfileStreamRejectsDecompressedLimit(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "oversize.cpuprofile.gz")
+	f, err := os.Create(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	gz := gzip.NewWriter(f)
+	data := fmt.Sprintf(`{"nodes":[{"id":1,"callFrame":{}}],"samples":[1],"padding":"%s"}`, strings.Repeat("x", 2048))
+	if _, err := gz.Write([]byte(data)); err != nil {
+		t.Fatal(err)
+	}
+	if err := gz.Close(); err != nil {
+		t.Fatal(err)
+	}
+	if err := f.Close(); err != nil {
+		t.Fatal(err)
+	}
+	if _, _, err := ParseFile(path, "v8-cpuprofile", Options{MaxBytes: 256}); err == nil || !strings.Contains(err.Error(), "decompressed profile exceeds") {
+		t.Fatalf("expected decompressed size guard, got %v", err)
 	}
 }

@@ -64,6 +64,11 @@ type Options struct {
 // predictably instead of exhausting the desktop process.
 const MaxProfileBytes int64 = 256 * 1024 * 1024
 
+// DefaultMaxProfileSamples bounds browser profile output even when the Wails
+// or CLI caller does not supply an advanced option. The V8 decoder retains
+// elapsed time as weighted buckets, rather than silently discarding it.
+const DefaultMaxProfileSamples = 500_000
+
 var (
 	collapsedLineRE = regexp.MustCompile(`^(.+)\s+([0-9]+(?:e[0-9]+)?)$`)
 	xdebugFnRE      = regexp.MustCompile(`^fn=(.+)$`)
@@ -73,6 +78,22 @@ func ParseFile(path, format string, opts Options) (Parsed, *diagnostics.ParserDi
 	format = canonical(format)
 	diags := diagnostics.New(format)
 	diags.SetSourceFile(path)
+	// Chrome/V8 JSON is the only Phase-1 profile family for which large files
+	// are a normal input. Select its decoder before readProfileData so a trace
+	// does not incur both a whole-file byte buffer and a RawMessage envelope.
+	if streamFormat, ok, err := profileStreamFormat(path, format, opts.MaxBytes); err != nil {
+		return Parsed{}, diags, err
+	} else if ok {
+		if opts.MaxSamples <= 0 {
+			opts.MaxSamples = DefaultMaxProfileSamples
+		}
+		parsed, err := parseV8StreamFile(path, streamFormat, opts.MaxBytes, opts.MaxSamples)
+		if err != nil {
+			diags.AddError(0, "PROFILE_PARSE_ERROR", err.Error(), "")
+			return Parsed{}, diags, err
+		}
+		return finalizeProfileParse(parsed, diags, opts, nil), diags, nil
+	}
 
 	data, err := readProfileData(path, opts.MaxBytes)
 	if err != nil {
@@ -126,6 +147,14 @@ func ParseFile(path, format string, opts Options) (Parsed, *diagnostics.ParserDi
 	if parsed.ValueUnit == "" {
 		parsed.ValueUnit = "samples"
 	}
+	return finalizeProfileParse(parsed, diags, opts, data), diags, nil
+}
+
+func finalizeProfileParse(parsed Parsed, diags *diagnostics.ParserDiagnostics, opts Options, data []byte) Parsed {
+	parsed.Format = firstNonEmpty(parsed.Format, diags.Format)
+	if parsed.ValueUnit == "" {
+		parsed.ValueUnit = "samples"
+	}
 	for i := range parsed.Samples {
 		if parsed.Samples[i].SourceFormat == "" {
 			parsed.Samples[i].SourceFormat = parsed.Format
@@ -135,25 +164,83 @@ func ParseFile(path, format string, opts Options) (Parsed, *diagnostics.ParserDi
 	if opts.MaxSamples > 0 && len(parsed.Samples) > opts.MaxSamples {
 		original := len(parsed.Samples)
 		parsed.Samples = downsampleSamples(parsed.Samples, opts.MaxSamples)
-		if parsed.Metadata == nil {
-			parsed.Metadata = map[string]any{}
-		}
-		parsed.Metadata["partial_result"] = true
-		parsed.Metadata["downsampled_from_samples"] = original
-		parsed.Metadata["downsampled_to_samples"] = len(parsed.Samples)
-		diags.AddWarning(0, "PROFILE_DOWNSAMPLED", fmt.Sprintf("profile samples downsampled from %d to %d", original, len(parsed.Samples)), "", false)
+		markProfileDownsample(&parsed, diags, original)
+	} else if parsed.Metadata != nil && parsed.Metadata["partial_result"] == true && parsed.Metadata["downsampled_from_samples"] != nil {
+		// The V8 streaming path performed the bounded aggregation while
+		// decoding, so there is no post-parse slice length to compare here.
+		original, _ := parsed.Metadata["downsampled_from_samples"].(int)
+		diags.AddWarning(0, "PROFILE_DOWNSAMPLED", fmt.Sprintf("profile samples downsampled from %d to %d; elapsed time is retained as bucket weights", original, len(parsed.Samples)), "", false)
 	}
 	diags.ParsedRecords = len(parsed.Samples)
-	if diags.TotalLines == 0 {
+	if diags.TotalLines == 0 && data != nil {
 		diags.TotalLines = lineCount(data)
 	}
 	if len(parsed.Samples) == 0 {
-		diags.AddWarning(0, "NO_PROFILE_SAMPLES", "profile input did not produce stack samples", stringPreview(data), false)
+		context := ""
+		if data != nil {
+			context = stringPreview(data)
+		}
+		diags.AddWarning(0, "NO_PROFILE_SAMPLES", "profile input did not produce stack samples", context, false)
 	}
-	return parsed, diags, nil
+	return parsed
+}
+
+func markProfileDownsample(parsed *Parsed, diags *diagnostics.ParserDiagnostics, original int) {
+	if parsed.Metadata == nil {
+		parsed.Metadata = map[string]any{}
+	}
+	parsed.Metadata["partial_result"] = true
+	parsed.Metadata["downsampled_from_samples"] = original
+	parsed.Metadata["downsampled_to_samples"] = len(parsed.Samples)
+	diags.AddWarning(0, "PROFILE_DOWNSAMPLED", fmt.Sprintf("profile samples downsampled from %d to %d; elapsed time is retained as bucket weights", original, len(parsed.Samples)), "", false)
 }
 
 func readProfileData(path string, maxBytes int64) ([]byte, error) {
+	reader, err := openProfileInput(path, maxBytes)
+	if err != nil {
+		return nil, err
+	}
+	defer reader.Close()
+	return io.ReadAll(reader)
+}
+
+type profileReadCloser struct {
+	io.Reader
+	closers []io.Closer
+}
+
+func (r profileReadCloser) Close() error {
+	var first error
+	for i := len(r.closers) - 1; i >= 0; i-- {
+		if err := r.closers[i].Close(); err != nil && first == nil {
+			first = err
+		}
+	}
+	return first
+}
+
+// cappedProfileReader makes a gzip bomb and an over-limit plain JSON file
+// fail with the same explicit safety message. It intentionally does not turn
+// the profile into a []byte; JSON decoders consume it incrementally.
+type cappedProfileReader struct {
+	reader    io.Reader
+	remaining int64
+	limit     int64
+}
+
+func (r *cappedProfileReader) Read(p []byte) (int, error) {
+	if r.remaining <= 0 {
+		return 0, fmt.Errorf("decompressed profile exceeds %d MiB safety limit", r.limit/(1024*1024))
+	}
+	if int64(len(p)) > r.remaining {
+		p = p[:r.remaining]
+	}
+	n, err := r.reader.Read(p)
+	r.remaining -= int64(n)
+	return n, err
+}
+
+func openProfileInput(path string, maxBytes int64) (io.ReadCloser, error) {
 	if maxBytes <= 0 {
 		maxBytes = MaxProfileBytes
 	}
@@ -168,29 +255,24 @@ func readProfileData(path string, maxBytes int64) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close()
 	head := make([]byte, 2)
 	n, _ := io.ReadFull(f, head)
 	if _, err := f.Seek(0, io.SeekStart); err != nil {
+		_ = f.Close()
 		return nil, err
 	}
 	var reader io.Reader = f
+	closers := []io.Closer{f}
 	if n == 2 && head[0] == 0x1f && head[1] == 0x8b {
 		gz, err := gzip.NewReader(f)
 		if err != nil {
+			_ = f.Close()
 			return nil, err
 		}
-		defer gz.Close()
 		reader = gz
+		closers = append(closers, gz)
 	}
-	data, err := io.ReadAll(io.LimitReader(reader, maxBytes+1))
-	if err != nil {
-		return nil, err
-	}
-	if int64(len(data)) > maxBytes {
-		return nil, fmt.Errorf("decompressed profile exceeds %d MiB safety limit", maxBytes/(1024*1024))
-	}
-	return data, nil
+	return profileReadCloser{Reader: &cappedProfileReader{reader: reader, remaining: maxBytes, limit: maxBytes}, closers: closers}, nil
 }
 
 func downsampleSamples(samples []Sample, maxSamples int) []Sample {

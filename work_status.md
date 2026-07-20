@@ -216,9 +216,9 @@ filtered before analysis.
 1. Keep `v0.3.5` release verification healthy by monitoring the release
    workflow, release asset availability, and app/package metadata alignment.
 2. Complete the remaining Chrome/V8 hardening work after the implemented
-   parser, Diff loader, Browser CPU page, and sampled-CPU-run projection:
-   streaming/weighted downsampling benchmark coverage and the paired fixture
-   and documentation set remain before the full slice can be released.
+   parser, streaming/weighted downsampling path, Diff loader, Browser CPU page,
+   and sampled-CPU-run projection: the paired fixture and documentation set
+   (T-565) remains before the full slice can be released.
 3. Review the long-term external APM import roadmap before assigning any new
    external-connector implementation range. Local file imports already cover
    OTLP, Zipkin, Elastic APM, Jaeger, and SkyWalking-style trace evidence;
@@ -273,7 +273,7 @@ filtered before analysis.
 | Release | Complete through | Release type | Required contents before cut |
 |---|---|---|---|
 | v0.3.5 | T-468 through T-555 | Stable Evidence Studio expansion | Released 2026-05-17 with Mid-Term Plus importers, API/event contract analysis, architecture docs drafts, advanced stitching, version metadata, changelog, release tag, and release workflow verification. |
-| Next candidate | T-560 through T-565 design-gated | Chrome browser/V8 profile slice | Parser normalization, Browser CPU, Workspace, Diff, sampled CPU run, and source-aware category work are implemented. Complete streaming/benchmark coverage and the paired fixture/documentation set before the release cut. Keep external APM and security/compliance work deferred. |
+| Next candidate | T-560 through T-565 design-gated | Chrome browser/V8 profile slice | Parser normalization, bounded Chrome/V8 streaming, Browser CPU, Workspace, Diff, sampled CPU run, and source-aware category work are implemented. Complete the paired fixture/documentation set (T-565) before the release cut. Keep external APM and security/compliance work deferred. |
 | Future candidate | T-571 through T-576 design-gated | Windows-first HTTP capture and cross-OS evidence analysis slice | Capability/fidelity, transaction/time, bounded store, and security contracts were approved on 2026-07-20 (T-566 through T-570), so Phase 1 Windows HAR/import work may start against the fixture corpus. Analyze Linux/macOS-generated supported evidence in the Windows UI. Do not start Windows live MITM capture before the proxy spike (T-574), streaming (T-573), and coverage proof (T-571) gates pass. |
 | v0.4.0 candidate | Not assigned | Evidence Studio roll-up | Full local evidence workflow is smoke-tested as one product story with sample packs, report exports, regression tests, AI gate checks, and release notes that present the expanded capability coherently. |
 
@@ -283,9 +283,9 @@ Post-T-555 work includes the Jennifer MSA drilldown follow-up, the Chrome
 DevTools/V8 CPU profile design gate reviewed on 2026-07-18, and the system HTTP
 capture design gate reviewed on 2026-07-19. The Chrome profile acquisition-format
 and measurement-unit contracts were resolved on 2026-07-20 (T-558, T-559), so
-Chrome parsing, desktop integration, and sampled CPU run projections are now
-implemented; remaining Chrome work is bounded streaming/benchmark coverage and
-fixture/documentation parity.
+Chrome parsing, bounded streaming, desktop integration, and sampled CPU run
+projections are now implemented; remaining Chrome work is fixture/documentation
+parity (T-565).
 HTTP work must begin with bounded, sanitized HAR import;
 live MITM capture is Windows-first and remains blocked on capability/fidelity,
 security, session-store, and streaming contracts. Linux/macOS-generated supported
@@ -326,7 +326,7 @@ deferred until explicitly promoted.
 | T-575 | P1 | [x] | Define HTTP-specific report and session Diff projections plus the independent current-code navigation integration; do not claim generic Diff or a not-yet-implemented browser menu provides these paths automatically. | T-568, T-569 | Completed 2026-07-20 (§12.4.1): versioned deterministic URL templating (`{id}`/`{uuid}`/`{hash}`/`{token}`/`{email}`, query keys only, top-K template cap with `{other}` bucket); comparison dimensions endpoint/host/process with process disabled for HAR pseudo-process sessions and cross-dimension sum checks; explicit numerator/denominator on every rate, per-minute normalization skipped for degenerate-timestamp sessions, percentiles computed per session and never averaged; time-alignment grades `aligned`/`duration_only`/`none` with overlay views suppressed at `none`; bounded `http_capture_diff` AnalysisResult (top-K 50 tables, HTTP_DIFF_* findings) whose drilldown uses per-session store cursors and whose export never rescans stores (T-460 principle); Wails entry via HttpCapturePage compare action and Workspace comparison routing — no new NavKey, no browser-menu assumption, legacy DiffPage untouched. Implementation is Phase 4 item 31 |
 | T-562 | P1 | [x] | Unify the JSON and hard-coded profiler classifiers behind a source-format-aware interface, then define where FlameNode category/color enrichment occurs without reclassifying Node V8 frames as browser frames. | T-559 | Completed 2026-07-20: analyzer-stage flamegraph enrichment assigns browser application/runtime/dependency versus Node runtime categories and colors from source format. |
 | T-563 | P1 | [x] | Harden V8 parsing with graph validation, optional-field policy, timestamp reconciliation, canonical per-frame script identity, redaction, and explicit parser/analyzer/Wails options. | T-558, T-559 | Completed 2026-07-20: node/parent graph validation, timestamped microsecond samples, canonical frame identity with URL redaction, and max-bytes/max-samples options flow through parser, analyzer, and Wails. |
-| T-564 | P1 | [ ] | Replace whole-file/double-unmarshal assumptions with a size/gzip/streaming strategy for direct profiles and Chrome traces; define weighted downsampling and partial-result semantics. | T-558, T-563 | Large-file design, caps, diagnostics, and benchmark plan |
+| T-564 | P1 | [x] | Replace whole-file/double-unmarshal assumptions with a size/gzip/streaming strategy for direct profiles and Chrome traces; define weighted downsampling and partial-result semantics. | T-558, T-563 | Completed 2026-07-21: V8/Chrome path selects a capped gzip reader before whole-file loading; Chrome trace walks `traceEvents` token-by-token and only decodes `ph:"P"` chunks (with a count-only first pass when bounded output is needed). Default 500k deterministic time-weighted buckets preserve total microsecond duration, emit `partial_result`/source-and-output counts plus `PROFILE_DOWNSAMPLED`, and Browser CPU visibly labels aggregated output. Gzip-stream, weighted-duration, and decompressed-limit regressions pass. |
 | T-557 | P1 | [ ] | Promote the Jennifer MSA drilldown calculation from UI projection to a Go analyzer contract if repeated use shows it should be exported/reported outside the desktop page. | T-556 | Planned follow-up: stable result schema for drilldown scopes |
 | T-576 | P2 | [ ] | Pair the revised Korean HTTP capture note with English documentation, an importer/dialect support matrix, a data-model reference, and a security guide once the Phase 1 contracts are approved; keep the source ledger appendix filled as claims are re-verified. | T-566 through T-571 | Paired English/Korean HTTP capture documentation set with an auditable claim ledger |
 | T-565 | P2 | [ ] | Add sanitized Chrome/Node/CDP malformed and end-to-end fixtures, then pair the Korean design with English documentation and update importer matrix, data model, user guide, and performance docs after the P0 contracts stabilize. | T-558 through T-564 | Fixture provenance, parity tests, and paired documentation |
