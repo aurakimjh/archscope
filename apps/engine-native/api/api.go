@@ -77,6 +77,7 @@ import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/databaselog"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/exception"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/gclog"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/httpcapture"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/jenniferprofile"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/jfr"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/lockcontention"
@@ -154,6 +155,12 @@ type GcLogOptions = gclog.Options
 
 // AnalyzeGcLog wraps gclog.Analyze.
 var AnalyzeGcLog = gclog.Analyze
+
+// HttpCaptureOptions mirrors the file-first HAR analysis options.
+type HttpCaptureOptions = httpcapture.Options
+
+// AnalyzeHttpCapture imports a redacted HAR file into the common envelope.
+var AnalyzeHttpCapture = httpcapture.Analyze
 
 // ── JFR ─────────────────────────────────────────────────────────────
 
