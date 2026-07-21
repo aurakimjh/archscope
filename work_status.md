@@ -17,12 +17,12 @@ The previous long-form history was archived to
 - Release baseline: `v0.3.5` is the latest stable GitHub release. The
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
-- Current execution focus: run the independent `C-RG1` implementation review
-  for the release-ready Chrome DevTools/V8 CPU profile slice. Only after that
-  group passes, complete the `H-RG1` offline HAR analysis slice, then close the
-  T-571 Windows real-NIC coverage proof before live HTTP capture. Codex owns
-  engine work and Claude owns UI work; each review group must pass before the
-  next group starts.
+- Current execution focus: resolve the `C-RG1` CONDITIONAL findings for the
+  Chrome DevTools/V8 CPU profile slice and obtain an independent re-review
+  `PASS`. Only after that group passes, complete the `H-RG1` offline HAR
+  analysis slice, then close the T-571 Windows real-NIC coverage proof before
+  live HTTP capture. Codex owns engine work and Claude owns UI work; each
+  review group must pass before the next group starts.
 - Retired implementation: Python/FastAPI/browser sources are archived under
   `archive/python-engine` and `archive/web-frontend-python`.
 - Historical native POC module has been folded into `apps/engine-native`.
@@ -170,6 +170,15 @@ The previous long-form history was archived to
 
 ## Current Risk
 
+The 2026-07-21 C-RG1 implementation review returned `CONDITIONAL`, so H-RG1
+remains blocked. The primary engine risk is that the locked time-attribution
+contract disagrees with the implementation while the existing golden tolerance
+does not distinguish the two conventions. The primary UI risks are that parser
+and timeline diagnostics are not rendered and that the available flamegraph and
+drilldown data have no Browser CPU surface. T-578 now owns the complete A-E and
+U1-U5 remediation set plus independent re-review; no Chrome release candidate
+or HTTP implementation starts before `PASS`.
+
 The Electron-to-Wails migration risk is closed. The highest large-file issue
 found in the 2026-05-09 audit has been mitigated: GC log analysis no longer
 emits chart series for every event, and access-log/OTel analyzer entrypoints no
@@ -229,9 +238,14 @@ filtered before analysis.
 
 ## Next Execution Queue
 
-1. Submit `C-RG1` (T-578) for independent review against the completed
-   Chrome/V8 implementation and 2026-07-21 release-smoke evidence. Fix findings
-   in the same group and require `PASS` before HTTP implementation starts.
+1. Resolve the `C-RG1` (T-578) CONDITIONAL findings. Codex handles A-E: reconcile
+   and exactly pin time attribution, emit recording/active/idle/sampled duration
+   fields with head/tail accounting, align Chrome-trace negative-delta and
+   hitCount diagnostics, and fix the `startTime == 0` first-sample guard. Claude
+   handles U1-U5: surface diagnostics and suppressed-timeline reasons, add the
+   flamegraph/drilldown, advertise gzip inputs, complete empty-state/i18n/a11y,
+   and add frontend regression coverage. Re-run the original independent review
+   and require `PASS` before HTTP implementation starts.
 2. Complete `H-RG1` (T-579): Codex finishes the manifest-driven bounded HAR
    engine and H-SEC1 security gate; Claude completes timeline/brush,
    list/detail/filter, diagnostics, and Workspace UI; review the vertical slice
@@ -269,7 +283,7 @@ The authoritative paired plan is
 
 | Order | Group | Owners | Status | Gate |
 |---:|---|---|---|---|
-| 1 | C-RG1 Chrome/V8 release implementation acceptance | Codex engine, Claude UI fixes | Ready for review | Independent PASS |
+| 1 | C-RG1 Chrome/V8 release implementation acceptance | Codex engine, Claude UI fixes | CONDITIONAL; A-E and U1-U5 remediation required | Independent re-review PASS |
 | 2 | H-RG1 offline HAR analysis completion | Codex engine, Claude UI | Waiting on C-RG1 | H-SEC1 and group PASS |
 | 3 | H-RG2 Windows coverage proof | Codex | Waiting on H-RG1 and Windows real-NIC run | H-COV1 PASS |
 | 4 | H-RG3 live-capture engine foundation | Codex | Planned | H-SEC2 and group PASS |
@@ -304,6 +318,7 @@ Long Task semantics).
 | Repository-relative paths, cross-reference numbering, and scoped competitive claims | Accepted and applied directly to `docs/ko/SYSTEM_HTTP_CAPTURE.md`; the source ledger was filled on 2026-07-20 and the gate now reads "no design decision rests on an unverified row" | T-566 |
 | 2026-07-20 Phase 0 design-gate authoring | Gates 1 through 5 written into `docs/ko/SYSTEM_HTTP_CAPTURE.md` and renumbered 1-11 with design gates separated from measurement gates; Phase 1 unblocked | T-566 through T-570 |
 | English documentation parity for the HTTP capture note | Deferred until the Phase 1 contracts are approved, to avoid translating a design that is still moving | T-567 through T-571 |
+| 2026-07-21 C-RG1 Chrome/V8 release implementation review | Accepted `CONDITIONAL`; A-E engine and U1-U5 UI findings must all be fixed inside C-RG1, then independently re-reviewed. The P1 time-attribution contract/golden mismatch and missing diagnostics/flamegraph UI block `PASS`; P2/P3 duration decomposition, trace diagnostic parity, first-sample guard, gzip discoverability, empty-state/i18n/a11y, and frontend regression coverage remain required in the same group | T-578; H-RG1/T-579 remains blocked |
 
 ## Mid-Term Plus Intake Plan
 
@@ -319,7 +334,7 @@ Long Task semantics).
 | Release | Complete through | Release type | Required contents before cut |
 |---|---|---|---|
 | v0.3.5 | T-468 through T-555 | Stable Evidence Studio expansion | Released 2026-05-17 with Mid-Term Plus importers, API/event contract analysis, architecture docs drafts, advanced stitching, version metadata, changelog, release tag, and release workflow verification. |
-| Next candidate | T-560 through T-565 implemented; T-578 review-gated | Chrome browser/V8 profile slice | Release implementation is complete as of 2026-07-21: parser normalization, bounded streaming, Browser CPU, Workspace, Diff, sampled CPU runs, source-aware categories, paired docs, shared fixture manifest golden tests, patched frontend dependencies, and local macOS package/DMG smoke all pass. Obtain C-RG1/T-578 independent PASS before selecting the candidate version/tag or cutting the release. |
+| Next candidate | T-560 through T-565 implemented; T-578 remediation and re-review gated | Chrome browser/V8 profile slice | The 2026-07-21 C-RG1 review returned `CONDITIONAL`. Complete A-E engine and U1-U5 UI remediation, pass targeted goldens/frontend regressions, and obtain independent `PASS` before selecting the candidate version/tag or cutting the release. |
 | Future candidate | T-571 and T-579 through T-584 review-gated | Windows-first HTTP capture and cross-OS evidence analysis slice | Start only after C-RG1/T-578 passes. Finish H-RG1 offline HAR analysis, then T-571/H-RG2 coverage proof, live engine/UI, HTTP Diff, cross-analysis, and integrated release acceptance in review-group order. Analyze Linux/macOS-generated supported evidence in the Windows UI. |
 | v0.4.0 candidate | Not assigned | Evidence Studio roll-up | Full local evidence workflow is smoke-tested as one product story with sample packs, report exports, regression tests, AI gate checks, and release notes that present the expanded capability coherently. |
 
@@ -334,6 +349,12 @@ projections are now implemented, and the T-565 fixture/documentation parity
 set was completed on 2026-07-21 (browser-profile fixture corpus plus paired
 English documentation). Go golden-test wiring to the fixture manifest and the
 local release smoke were completed on 2026-07-21.
+The 2026-07-21 C-RG1 review then returned `CONDITIONAL`: the accepted parser,
+bounded-streaming, graph-validation, sampled-CPU semantics, shared analysis
+path, and CLI/Wails parity evidence remain valid, but T-578 stays open for A-E
+engine and U1-U5 UI remediation and independent re-review. The review's P2/P3
+items are required within the same group rather than deferred, and H-RG1 remains
+blocked until the verdict is re-issued as `PASS`.
 HTTP work must begin with bounded, sanitized HAR import. Phase 1 HAR import is
 design-unblocked but is now process-gated on the C-RG1 Chrome implementation
 review. Live MITM capture is Windows-first and remains blocked on the T-571
@@ -359,7 +380,7 @@ deferred until explicitly promoted.
 | ID | Priority | Status | Task | Depends on | Output |
 |---|---|---|---|---|---|
 | T-577 | P0 | [x] | Read the Chrome/V8 and system HTTP-capture designs and completed reviews, reconcile them with current code, and publish a paired English/Korean implementation plan with Codex engine ownership, Claude UI ownership, grouped review gates, and narrowly scoped individual security/semantic reviews. | T-558 through T-576 | Completed 2026-07-21: paired `BROWSER_PROFILE_HTTP_CAPTURE_IMPLEMENTATION_PLAN.md`; stale T-565 documentation status corrected; work status and execution queue aligned |
-| T-578 | P0 | [ ] | Run C-RG1 independent implementation review over the completed Chrome/V8 release slice: normalization, units, graph validation, bounded streaming/downsampling, sampled CPU semantics, Browser UI, Diff/Workspace/Export, shared fixture goldens, and release smoke. Fix findings within the group and obtain PASS. | T-565, T-577 | Ready for review; no new Chrome feature work is required unless review finds a defect. A CONDITIONAL verdict does not unblock H-RG1 |
+| T-578 | P0 | [ ] | Resolve the C-RG1 `CONDITIONAL` verdict and obtain independent re-review `PASS`. Codex A-E: reconcile the time-attribution contract with real Chrome semantics and add an exact convention-pinning golden plus tail handling; emit separate recording/active/idle/sampled durations without conflating `total_duration_us`; add Chrome-trace negative-delta diagnostic fixture/parity and hitCount cross-check; make first-sample handling independent of `startTime`. Claude U1-U5: render engine diagnostics and explicit suppressed/aggregated timeline states; add flamegraph/drilldown; expose `.json.gz`; add empty-state/i18n/table a11y; add Browser CPU regression tests for diagnostics, suppression, and the non-Long-Task wording. | T-565, T-577 | Independent review on 2026-07-21 confirmed normalization, units, graph validation, bounded streaming/downsampling, sampled CPU semantics, shared analysis path, CLI/Wails parity, and 15/15 fixture goldens, but returned `CONDITIONAL`. H-RG1/T-579 and the Chrome release candidate remain blocked until all A-E/U1-U5 findings are fixed and the reviewer re-issues `PASS` |
 | T-579 | P0 | [ ] | Complete and review H-RG1 offline HAR analysis. Codex: canonical transaction/timing/fidelity model, staged dialect normalizer, resource limits, shared manifest goldens, dedicated redaction, bounded result and CLI/Wails parity. Claude: pseudo-process tree, timeline/brush, list/detail/filter, fidelity/diagnostics/redaction UX and Workspace regression. | T-578 PASS; T-568 through T-573 | Must pass individual H-SEC1 before UI detail/export handoff, then one full vertical-slice group review |
 | T-580 | P0 | [ ] | Implement and review H-RG3 live-capture engine foundation: session lifecycle/recovery, versioned NDJSON/blob store and cursor API, bounded streaming/backpressure/loss counters, H1 semantic MITM with H2 passthrough, Windows process attribution, Wails snapshot/event recovery, and CA/TLS policy. | T-571/H-RG2 PASS, T-579 PASS | Codex-owned engine group; mandatory H-SEC2 CA/TLS/privilege review before live UI handoff |
 | T-581 | P1 | [ ] | Implement and review H-RG4 Windows live-capture UI and E2E. Claude: capture controls, CA lifecycle UX, process tree, stable live rows, recovery/backpressure/coverage/fidelity states. Codex: frozen bindings, acceptance fixtures, Windows E2E and packaging support. | T-580 PASS | Group PASS requires browser/curl/JVM/Electron supported-tier scenarios, long sessions, page re-entry, failure recovery, and honest unsupported-state UX |
