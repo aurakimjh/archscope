@@ -8,6 +8,18 @@ import {
   profileDiagnosticIssueCount,
   selectPartialResult,
 } from "./browserCpuProfile.js";
+import {
+  availableMethods,
+  buildProcessTree,
+  extractCaptureMeta,
+  extractRedaction,
+  filterTransactions,
+  isErrorTransaction,
+  statusClassOf,
+  timelineWindow,
+  timingBreakdown,
+  emptyFilter,
+} from "./httpCapture.js";
 import { buildIncidentTimelineEvents } from "./incidentTimeline.js";
 import {
   buildServiceFlowAnalysis,
@@ -507,3 +519,154 @@ const runsState = describeTimelineState(
 );
 assert(runsState.hasRuns === true, "microsecond profile with runs should render the runs table");
 assert(runsState.reason === null, "populated timeline has no empty-state reason");
+
+// ── HTTP capture (offline HAR) page derivations — T-579 ──────────────
+//
+// These guard the Claude-owned H-RG1 UI contract on the render-logic
+// side: the pseudo-process tree must group HAR transactions without OS
+// process attribution, list/detail filters must compose, the timeline
+// brush must map bucket indices to an inclusive time window, and the
+// redaction/fidelity metadata must surface for the capture-honesty UX.
+
+function harTx(overrides: Record<string, unknown>): any {
+  return {
+    id: "har-000001",
+    connection_id: "c1",
+    sequence: 0,
+    started_at: "2026-07-20T05:00:00Z",
+    ended_at: "2026-07-20T05:00:00.100Z",
+    method: "GET",
+    url: "https://shop.example.test/",
+    host: "shop.example.test",
+    path: "/",
+    status: 200,
+    status_text: "OK",
+    http_version: "http/1.1",
+    state: "complete",
+    duration_ms: 100,
+    request_bytes: 0,
+    response_bytes: 1310,
+    used_existing_connection: false,
+    capture_mode: "har_import",
+    coverage: "full",
+    fidelity: "semantic",
+    request: { headers: [], cookies: [], headerSize: 0, bodySize: 0, bodyDecoded: 0, transferSize: -1, bodyStorage: "omitted" },
+    response: { headers: [], cookies: [], headerSize: 0, bodySize: 1024, bodyDecoded: 2048, transferSize: 1310, bodyStorage: "inline" },
+    timings: {},
+    process: null,
+    ...overrides,
+  };
+}
+
+function httpResult(overrides: Record<string, unknown>): any {
+  return {
+    type: "http_capture",
+    source_files: ["chrome.har"],
+    created_at: "2026-07-21T00:00:00.000Z",
+    summary: {},
+    series: {},
+    tables: {},
+    charts: {},
+    metadata: {},
+    ...overrides,
+  };
+}
+
+const harTransactions = [
+  harTx({ id: "t1", host: "shop.example.test", connection_id: "c1", method: "GET", path: "/", status: 200, duration_ms: 120, started_at: "2026-07-20T05:00:00Z" }),
+  harTx({ id: "t2", host: "shop.example.test", connection_id: "c1", method: "POST", path: "/cart", status: 500, state: "failed", duration_ms: 300, started_at: "2026-07-20T05:01:00Z" }),
+  harTx({ id: "t3", host: "cdn.example.test", connection_id: "c2", method: "GET", path: "/app.js", status: 404, duration_ms: 40, started_at: "2026-07-20T05:02:00Z" }),
+];
+
+// Pseudo-process tree: two hosts → two synthesized process roots.
+const tree = buildProcessTree(harTransactions);
+assert(tree.length === 2, "each HAR host should synthesize its own pseudo-process root");
+assert(tree.every((node) => node.pseudo === true), "HAR roots are pseudo-processes (no OS attribution)");
+const shopRoot = tree.find((node) => node.label === "shop.example.test");
+assert(shopRoot !== undefined, "host label should name the pseudo-process root");
+assert(shopRoot?.count === 2, "pseudo-process root should aggregate its transactions");
+assert(shopRoot?.errorCount === 1, "pseudo-process error aggregation should count the failed POST");
+assert(shopRoot?.children.length === 1, "shared connection id should collapse under one connection node");
+assert(shopRoot?.children[0]?.children.length === 2, "connection node should hold both transaction leaves");
+assert(shopRoot?.children[0]?.children[0]?.kind === "transaction", "leaves should be transaction nodes");
+// Roots sort by total duration desc → shop (420ms) before cdn (40ms).
+assert(tree[0]?.label === "shop.example.test", "pseudo-process roots should sort by total duration");
+
+// Real OS process attribution should root under the process, not the host.
+const liveTree = buildProcessTree([
+  harTx({ id: "p1", host: "api.example.test", process: { pid: 4242, start_time: "2026-07-20T04:59:00Z", name: "chrome.exe", attribution: "etw_pid" } }),
+]);
+assert(liveTree[0]?.pseudo === false, "OS process attribution should not be marked pseudo");
+assert(liveTree[0]?.label === "chrome.exe", "process node should be labeled by process name");
+assert(liveTree[0]?.attribution === "etw_pid", "process attribution should carry through");
+
+// Status classification + error predicate.
+assert(statusClassOf(200) === "2xx" && statusClassOf(404) === "4xx" && statusClassOf(503) === "5xx", "status classes should bucket by hundreds");
+assert(isErrorTransaction(harTransactions[1]!) === true, "failed state should be an error transaction");
+assert(isErrorTransaction(harTransactions[0]!) === false, "2xx complete should not be an error");
+
+// Filter composition.
+assert(availableMethods(harTransactions).join(",") === "GET,POST", "method dropdown should list distinct sorted methods");
+assert(filterTransactions(harTransactions, { ...emptyFilter, errorsOnly: true }).length === 2, "errorsOnly should keep 5xx + 4xx");
+assert(filterTransactions(harTransactions, { ...emptyFilter, method: "POST" }).length === 1, "method filter should narrow to POST");
+assert(filterTransactions(harTransactions, { ...emptyFilter, statusClass: "4xx" })[0]?.id === "t3", "status-class filter should select the 404");
+assert(filterTransactions(harTransactions, { ...emptyFilter, query: "cart" }).length === 1, "query filter should match the path substring");
+assert(filterTransactions(harTransactions, emptyFilter).length === 3, "empty filter should pass everything");
+
+// Timeline brush → inclusive window (bucket end pushed one minute forward).
+const buckets = [
+  { start: "2026-07-20T05:00:00Z", end: "2026-07-20T05:00:00Z", bucket_minutes: 1, count: 1, errors: 0, error_rate: 0, request_bytes: 0, response_bytes: 0, total_duration_ms: 120 },
+  { start: "2026-07-20T05:01:00Z", end: "2026-07-20T05:01:00Z", bucket_minutes: 1, count: 1, errors: 1, error_rate: 1, request_bytes: 0, response_bytes: 0, total_duration_ms: 300 },
+];
+const window = timelineWindow(buckets, 0, 0);
+assert(window?.start === "2026-07-20T05:00:00Z", "brush window should start at the first bucket");
+assert(window?.end === "2026-07-20T05:01:00.000Z", "brush window end should cover the whole selected minute");
+const windowed = filterTransactions(harTransactions, { ...emptyFilter, window });
+assert(windowed.length === 1 && windowed[0]?.id === "t1", "brush window should filter transactions to the selected minute");
+// Reversed (right-to-left) brush should normalize to the same span.
+assert(timelineWindow(buckets, 1, 0)?.start === "2026-07-20T05:00:00Z", "reversed brush indices should normalize");
+assert(timelineWindow([], 0, 0) === null, "empty timeline yields no brush window");
+
+// Redaction + capture-fidelity metadata surfacing.
+const redacted = httpResult({
+  metadata: {
+    http_capture: {
+      dialect: "chrome",
+      capture_mode: "har_import",
+      observation_point: "foreign_tool",
+      fidelity: "semantic",
+      detail_storage: "bounded_inline",
+      truncated: false,
+      redaction: { applied: true, version: "har_redaction_1.0.0", rules: ["header_value", "query_value"], counts: { header_value: 3, query_value: 1 } },
+    },
+  },
+});
+const redaction = extractRedaction(redacted);
+assert(redaction?.applied === true, "redaction applied flag should surface");
+assert(redaction?.total === 4, "redaction total should sum per-rule counts");
+assert(redaction?.rules.includes("query_value"), "redaction rule list should surface");
+const captureMeta = extractCaptureMeta(redacted);
+assert(captureMeta?.fidelity === "semantic", "capture fidelity should surface for the honesty banner");
+assert(captureMeta?.observation_point === "foreign_tool", "observation point should surface");
+assert(extractRedaction(httpResult({ metadata: {} })) === null, "missing capture metadata yields null redaction");
+
+// Timing breakdown flattens the imported HAR phases in order.
+const timed = harTx({
+  timings: {
+    importedHar: {
+      blocked: { ms: 1.4, state: "known" },
+      dns: { ms: 6.2, state: "known" },
+      connect: { ms: 11.4, state: "known" },
+      tls: { ms: 18.7, state: "known" },
+      send: { ms: 0.2, state: "known" },
+      wait: { ms: 84.9, state: "known" },
+      receive: { ms: 5.1, state: "unknown" },
+    },
+  },
+});
+const phases = timingBreakdown(timed);
+assert(phases.length === 7, "timing breakdown should list all seven phases");
+assert(phases[0]?.phase === "blocked" && phases[5]?.phase === "wait", "timing phases should be in wire order");
+assert(phases[5]?.ms === 84.9, "known phase durations should surface");
+assert(phases[6]?.ms === 0 && phases[6]?.state === "unknown", "unknown phase should read zero ms with unknown state");
+assert(timingBreakdown(null).length === 0, "null transaction yields no timing rows");

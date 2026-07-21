@@ -78,7 +78,208 @@ export type HttpCaptureRequest = {
   maxDecompressionRatio?: number;
   customRedactionPatterns?: string[];
 };
-export type HttpCaptureAnalysisResult = AnalysisResult<"http_capture">;
+// ──────────────────────────────────────────────────────────────────
+// HTTP capture (offline HAR) typed shapes — H-RG1 / T-579.
+//
+// Mirrors the engine emit shape:
+//   - summary : apps/engine-native/internal/analyzers/httpcapture/analyzer.go::BuildParsed
+//   - series.timeline : boundedTimelineRows
+//   - tables  : transactions / slowest / errors / endpoints / hosts
+//   - metadata.http_capture / metadata.diagnostics / metadata.findings
+//   - nested request/response/timings use camelCase because they are the
+//     Go models.HTTPMessage / TimingSet structs (JSON camelCase tags),
+//     while table/summary keys are snake_case analyzer output.
+// ──────────────────────────────────────────────────────────────────
+
+export type CaptureTimingState = "known" | "not_applicable" | "unknown";
+
+export type CaptureDuration = {
+  ms: number;
+  state: CaptureTimingState;
+};
+
+export type CaptureTimingPhases = {
+  blocked: CaptureDuration;
+  dns: CaptureDuration;
+  connect: CaptureDuration;
+  tls: CaptureDuration;
+  send: CaptureDuration;
+  wait: CaptureDuration;
+  receive: CaptureDuration;
+};
+
+export type CaptureTimingSet = {
+  clientProxy?: CaptureTimingPhases;
+  proxyInternal?: CaptureTimingPhases;
+  proxyUpstream?: CaptureTimingPhases;
+  importedHar?: CaptureTimingPhases;
+};
+
+export type CaptureHeaderField = {
+  name: string;
+  value: string;
+  redacted?: boolean;
+};
+
+export type CaptureHTTPMessage = {
+  headers: CaptureHeaderField[];
+  cookies: CaptureHeaderField[];
+  headerSize: number;
+  bodySize: number;
+  bodyDecoded: number;
+  transferSize: number;
+  bodyEncoding?: string;
+  contentType?: string;
+  bodyStorage: string;
+  bodyRef?: string;
+  bodyPreview?: string;
+  redacted?: boolean;
+};
+
+export type CaptureProcessRow = {
+  pid: number;
+  start_time: string;
+  name: string;
+  exec_path?: string;
+  parent_pid?: number;
+  attribution: string;
+};
+
+export type HttpCaptureTransactionRow = {
+  id: string;
+  connection_id: string;
+  sequence: number;
+  started_at: string;
+  ended_at: string;
+  method: string;
+  url: string;
+  host: string;
+  path: string;
+  status: number;
+  status_text: string;
+  http_version: string;
+  state: string;
+  duration_ms: number;
+  request_bytes: number;
+  response_bytes: number;
+  used_existing_connection: boolean;
+  capture_mode: string;
+  coverage: string;
+  fidelity: string;
+  request: CaptureHTTPMessage;
+  response: CaptureHTTPMessage;
+  timings: CaptureTimingSet;
+  process: CaptureProcessRow | null;
+};
+
+export type HttpCaptureEndpointRow = {
+  endpoint: string;
+  count: number;
+  errors: number;
+  error_rate: number;
+  total_duration_ms: number;
+  avg_duration_ms: number;
+  request_bytes: number;
+  response_bytes: number;
+};
+
+export type HttpCaptureHostRow = Omit<HttpCaptureEndpointRow, "endpoint"> & {
+  host: string;
+};
+
+export type HttpCaptureTimelineBucket = {
+  start: string;
+  end: string;
+  bucket_minutes: number;
+  count: number;
+  errors: number;
+  error_rate: number;
+  request_bytes: number;
+  response_bytes: number;
+  total_duration_ms: number;
+};
+
+export type HttpCaptureSummary = {
+  total_transactions: number;
+  error_transactions: number;
+  aborted_transactions: number;
+  error_rate: number;
+  unique_hosts: number;
+  unique_endpoints: number;
+  unique_processes: number;
+  request_bytes: number;
+  response_bytes: number;
+  unknown_request_sizes: number;
+  unknown_response_sizes: number;
+  duration_p50_ms: number;
+  duration_p95_ms: number;
+  duration_p99_ms: number;
+  source_format: string;
+  dialect: string;
+  timeline_available: boolean;
+  redaction_applied: boolean;
+};
+
+export type HttpCaptureRedaction = {
+  applied: boolean;
+  version: string;
+  rules: string[];
+  counts: Record<string, number>;
+};
+
+export type HttpCaptureMeta = {
+  capture_schema_version: number;
+  dialect: string;
+  capture_mode: string;
+  observation_point: string;
+  fidelity: string;
+  redaction: HttpCaptureRedaction;
+  detail_storage: string;
+  table_limit: number;
+  timeline_bucket_limit: number;
+  transaction_rows: number;
+  transactions: number;
+  truncated: boolean;
+  timeline_available: boolean;
+  input_bytes: number;
+  decompressed_bytes: number;
+};
+
+export type HttpCaptureFinding = {
+  severity: string;
+  code: string;
+  message: string;
+  evidence?: Record<string, AnalysisValue> | null;
+};
+
+export type HttpCaptureSeries = {
+  timeline: HttpCaptureTimelineBucket[];
+};
+
+export type HttpCaptureTables = {
+  transactions: HttpCaptureTransactionRow[];
+  slowest: HttpCaptureTransactionRow[];
+  errors: HttpCaptureTransactionRow[];
+  endpoints: HttpCaptureEndpointRow[];
+  hosts: HttpCaptureHostRow[];
+};
+
+export type HttpCaptureMetadata = {
+  parser?: string;
+  schema_version?: string;
+  diagnostics?: ParserDiagnostics;
+  findings?: HttpCaptureFinding[];
+  http_capture?: HttpCaptureMeta;
+};
+
+export type HttpCaptureAnalysisResult = AnalysisResult<
+  "http_capture",
+  HttpCaptureSummary,
+  HttpCaptureSeries,
+  HttpCaptureTables,
+  AnalysisObject,
+  HttpCaptureMetadata
+>;
 export type ProfileEvidenceRequest = { path: string; format?: string; topN?: number; intervalMs?: number; profileKind?: string; maxBytes?: number; maxSamples?: number };
 export type ProfileEvidenceAnalysisResult = AnalysisResult<"profile_evidence">;
 
