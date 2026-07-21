@@ -161,14 +161,18 @@ func parsedV8Profile(payload v8Profile, format string, maxSamples int) (Parsed, 
 	parsed.Metadata["v8_last_sample_time_us"] = normalizer.LastTimestamp()
 	parsed.Metadata["end_time_tail_us"] = normalizer.Tail()
 	parsed.Metadata["end_time_tail_clamped"] = tailClamped
+	parsed.Metadata["hit_count_mismatch_nodes"] = v8HitCountMismatches(payload.Nodes, occurrences)
+	return parsed, nil
+}
+
+func v8HitCountMismatches(nodes []v8Node, occurrences map[int]int) int {
 	mismatches := 0
-	for _, node := range payload.Nodes {
+	for _, node := range nodes {
 		if node.HitCount != nil && occurrences[node.ID] != *node.HitCount {
 			mismatches++
 		}
 	}
-	parsed.Metadata["hit_count_mismatch_nodes"] = mismatches
-	return parsed, nil
+	return mismatches
 }
 
 // v8SampleNormalizer keeps observation timestamps separate from attributed
@@ -396,6 +400,7 @@ func parseChromeTraceReader(reader io.Reader, maxSamples, totalSamples int) (Par
 	var normalizer *v8SampleNormalizer
 	index := 0
 	clamped := 0
+	occurrences := map[int]int{}
 	err := walkChromeTraceEvents(reader, func(event chromeTraceEvent) error {
 		if event.Phase != "P" || len(event.Args.Data) == 0 {
 			return nil
@@ -454,6 +459,7 @@ func parseChromeTraceReader(reader io.Reader, maxSamples, totalSamples int) (Par
 			}
 			foundSamples = true
 			for i, nodeID := range chunk.Samples {
+				occurrences[nodeID]++
 				delta := int64(0)
 				if len(chunk.TimeDeltas) > 0 {
 					delta = chunk.TimeDeltas[i]
@@ -484,6 +490,7 @@ func parseChromeTraceReader(reader io.Reader, maxSamples, totalSamples int) (Par
 	parsed.Metadata["end_time_tail_us"] = normalizer.Tail()
 	parsed.Metadata["end_time_tail_clamped"] = tailClamped
 	parsed.Metadata["negative_delta_clamp_count"] = clamped
+	parsed.Metadata["hit_count_mismatch_nodes"] = v8HitCountMismatches(nodes, occurrences)
 	return parsed, nil
 }
 

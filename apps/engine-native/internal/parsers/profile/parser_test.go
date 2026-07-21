@@ -183,6 +183,30 @@ func TestParseChromeTraceReportsNegativeDelta(t *testing.T) {
 	}
 }
 
+func TestParseChromeTraceReportsHitCountMismatch(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "hitcount-mismatch-trace.json")
+	data := `{"traceEvents":[{"ph":"P","args":{"data":{"nodes":[{"id":1,"callFrame":{"functionName":"root"},"hitCount":0,"children":[2]},{"id":2,"callFrame":{"functionName":"work"},"hitCount":1}],"samples":[2,2],"timeDeltas":[10,20]}}}]}`
+	if err := os.WriteFile(path, []byte(data), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	parsed, diags, err := ParseFile(path, "chrome-trace-json", Options{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if parsed.Metadata["hit_count_mismatch_nodes"] != 1 {
+		t.Fatalf("hitCount mismatch metadata = %#v", parsed.Metadata)
+	}
+	found := false
+	for _, warning := range diags.Warnings {
+		if warning.Reason == "PROFILE_HITCOUNT_MISMATCH" {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("missing trace hitCount warning: %#v", diags.Warnings)
+	}
+}
+
 func TestParseGzipChromeTrace(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "trace.json.gz")
 	f, err := os.Create(path)
