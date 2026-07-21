@@ -14,6 +14,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/redact"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/diagnostics"
@@ -29,6 +30,7 @@ const (
 	ReasonStructural      = "HAR_STRUCTURAL_ERROR"
 	ReasonResourceLimit   = "HAR_RESOURCE_LIMIT"
 	ReasonSchemaViolation = "HAR_SCHEMA_VIOLATION"
+	ReasonURLUnparsable   = "HAR_URL_UNPARSABLE"
 )
 
 var (
@@ -161,10 +163,11 @@ type harArchScope struct {
 	} `json:"process"`
 }
 
-func ParseFile(path string, opts Options) (ParseResult, error) {
+func ParseFile(path string, opts Options) (result ParseResult, err error) {
 	effective := normalizeOptions(opts)
 	diags := diagnostics.New(FormatHAR)
 	diags.SetSourceFile(path)
+	defer recoverParsePanic(&result, &err, diags)
 	if effective.Format != FormatAuto && effective.Format != FormatHAR {
 		err := fmt.Errorf("unsupported HTTP capture format %q", effective.Format)
 		diags.AddError(0, ReasonInvalidHAR, err.Error(), "")
@@ -240,6 +243,7 @@ func ParseFile(path string, opts Options) (ParseResult, error) {
 	schemaViolation := false
 	redirectsUnlinkable := false
 	negativeTiming := false
+	urlUnparsable := false
 
 	for index, raw := range rawEntries {
 		if missingRequiredHARFields(raw) {
@@ -276,6 +280,7 @@ func ParseFile(path string, opts Options) (ParseResult, error) {
 		}
 		missingTimings = missingTimings || signals.missingTimings
 		negativeTiming = negativeTiming || signals.negativeTiming
+		urlUnparsable = urlUnparsable || signals.urlUnparsable
 		redirectsUnlinkable = redirectsUnlinkable || (dialect == DialectInsomnia && source.Response.Status >= 300 && source.Response.Status < 400 && source.Response.RedirectURL == "")
 	}
 	diags.TotalLines = len(rawEntries)
@@ -291,6 +296,9 @@ func ParseFile(path string, opts Options) (ParseResult, error) {
 	}
 	if negativeTiming {
 		addDiagnostic(diags, seenDiagnostics, "HAR_TIMING_NEGATIVE", "one or more timing values are invalid negative durations")
+	}
+	if urlUnparsable {
+		addDiagnostic(diags, seenDiagnostics, ReasonURLUnparsable, "one or more request URLs could not be parsed; redacted raw URLs were retained")
 	}
 	if len(entries) > 0 && unavailableSizes == len(entries) {
 		addDiagnostic(diags, seenDiagnostics, "HAR_SIZES_UNAVAILABLE", "HAR transfer sizes are unavailable")
@@ -326,11 +334,15 @@ func ParseFile(path string, opts Options) (ParseResult, error) {
 type entrySignals struct {
 	missingTimings bool
 	negativeTiming bool
+	urlUnparsable  bool
 }
 
 func mapEntry(source harEntry, index, sequence int, connectionID string, dialect Dialect, features DialectFeatures, policy *redact.Policy) (models.CaptureTransaction, entrySignals) {
 	redactedURL := policy.RedactURL(strings.TrimSpace(source.Request.URL))
-	parsedURL, _ := url.Parse(redactedURL)
+	parsedURL, urlErr := url.Parse(redactedURL)
+	if urlErr != nil {
+		parsedURL = &url.URL{}
+	}
 	method := strings.ToUpper(strings.TrimSpace(source.Request.Method))
 	if method == "" {
 		method = "GET"
@@ -385,7 +397,7 @@ func mapEntry(source harEntry, index, sequence int, connectionID string, dialect
 		Fidelity:               "semantic",
 		Process:                process,
 		Error:                  errorText,
-	}, entrySignals{missingTimings: timingSignals.missing, negativeTiming: timingSignals.negative}
+	}, entrySignals{missingTimings: timingSignals.missing, negativeTiming: timingSignals.negative, urlUnparsable: urlErr != nil}
 }
 
 func mapRequest(source harRequest, policy *redact.Policy) models.HTTPMessage {
@@ -409,10 +421,10 @@ func mapRequest(source harRequest, policy *redact.Policy) models.HTTPMessage {
 		Cookies:      mapCookies(source.Cookies, policy),
 		HeaderSize:   sizeValue(source.HeadersSize),
 		BodySize:     sizeValue(source.BodySize),
-		BodyDecoded:  sizeValue(source.BodySize),
+		BodyDecoded:  unknownSize(),
 		TransferSize: unknownSize(),
 		ContentType:  mimeType,
-		BodyStorage:  bodyStorage(preview, bodyRedacted, mimeType),
+		BodyStorage:  bodyStorage(preview, bodyRedacted),
 		BodyPreview:  inlinePreview(preview),
 		Redacted:     bodyRedacted,
 	}
@@ -438,7 +450,7 @@ func mapResponse(source harResponse, dialect Dialect, policy *redact.Policy) mod
 		TransferSize: transferSize,
 		BodyEncoding: source.Content.Encoding,
 		ContentType:  source.Content.MIMEType,
-		BodyStorage:  bodyStorage(preview, bodyRedacted, source.Content.MIMEType),
+		BodyStorage:  bodyStorage(preview, bodyRedacted),
 		BodyPreview:  inlinePreview(preview),
 		Redacted:     bodyRedacted,
 	}
@@ -531,11 +543,8 @@ func normalizeTimestamp(raw string) string {
 	return parsed.UTC().Format(time.RFC3339Nano)
 }
 
-func bodyStorage(preview string, redacted bool, mimeType string) string {
+func bodyStorage(preview string, redacted bool) string {
 	if preview == "" {
-		if mimeType != "" && !isTextMIME(mimeType) {
-			return "omitted"
-		}
 		return "omitted"
 	}
 	if len(preview) > inlineBodyPreviewBytes {
@@ -551,7 +560,11 @@ const inlineBodyPreviewBytes = 64 << 10
 
 func inlinePreview(value string) string {
 	if len(value) > inlineBodyPreviewBytes {
-		return value[:inlineBodyPreviewBytes]
+		end := inlineBodyPreviewBytes
+		for end > 0 && !utf8.ValidString(value[:end]) {
+			end--
+		}
+		return value[:end]
 	}
 	return value
 }
@@ -605,7 +618,12 @@ func safeJSONError(err error) string {
 	return "invalid JSON structure"
 }
 
-func isTextMIME(value string) bool {
-	value = strings.ToLower(value)
-	return value == "" || strings.HasPrefix(value, "text/") || strings.Contains(value, "json") || strings.Contains(value, "xml") || strings.Contains(value, "javascript") || strings.Contains(value, "x-www-form-urlencoded") || strings.Contains(value, "graphql")
+func recoverParsePanic(result *ParseResult, err *error, diags *diagnostics.ParserDiagnostics) {
+	if recover() == nil {
+		return
+	}
+	panicErr := fmt.Errorf("%w: unexpected parser failure", ErrStructuralHAR)
+	diags.AddError(0, ReasonStructural, panicErr.Error(), "")
+	*result = ParseResult{Format: FormatHAR, Diagnostics: diags}
+	*err = panicErr
 }

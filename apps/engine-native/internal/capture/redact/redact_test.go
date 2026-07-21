@@ -1,6 +1,7 @@
 package redact
 
 import (
+	"encoding/json"
 	"strings"
 	"testing"
 
@@ -67,5 +68,36 @@ func TestPaymentCardRequiresValidLuhnChecksum(t *testing.T) {
 	}
 	if !strings.Contains(value, "4111 1111 1111 1112") {
 		t.Fatalf("invalid checksum was over-redacted: %q", value)
+	}
+}
+
+func TestOversizedJSONBodyFailsClosed(t *testing.T) {
+	policy := NewPolicy(Options{MaxScanBytes: 64})
+	body := `{"padding":"` + strings.Repeat("x", 80) + `","token":"OPAQUE-SECRET-TOKEN"}`
+	redacted, changed := policy.RedactBody("application/json", body)
+	if !changed || redacted != "[REDACTED_OVERSIZED_JSON]" || strings.Contains(redacted, "OPAQUE-SECRET-TOKEN") {
+		t.Fatalf("oversized JSON did not fail closed: changed=%v body=%q", changed, redacted)
+	}
+	if policy.Summary().Counts["oversized_json_body"] != 1 {
+		t.Fatalf("missing oversized JSON accounting: %+v", policy.Summary())
+	}
+	warnings := policy.Warnings()
+	if len(warnings) != 1 || warnings[0].Code != "HAR_REDACTION_DEGRADED" {
+		t.Fatalf("missing degraded-redaction warning: %+v", warnings)
+	}
+}
+
+func TestStructuredJSONPreservesNonStringCodeAuthAndSessionValues(t *testing.T) {
+	policy := NewPolicy(Options{})
+	redacted, changed := policy.RedactBody("application/json", `{"code":200,"auth":false,"session":123,"token":"SECRET","nested":{"code":"SECRET-CODE"}}`)
+	if !changed || strings.Contains(redacted, "SECRET") {
+		t.Fatalf("string secrets survived structured redaction: %q", redacted)
+	}
+	var value map[string]any
+	if err := json.Unmarshal([]byte(redacted), &value); err != nil {
+		t.Fatal(err)
+	}
+	if value["code"] != float64(200) || value["auth"] != false || value["session"] != float64(123) {
+		t.Fatalf("non-string values were over-redacted: %+v", value)
 	}
 }

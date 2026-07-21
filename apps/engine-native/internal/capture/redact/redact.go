@@ -65,6 +65,7 @@ var (
 	assignmentPattern  = regexp.MustCompile(`(?i)([a-z0-9_.-]*(?:password|passwd|token|secret|signature|credential)|pwd|auth|authorization|session(?:id)?|code|cookie|set[_-]?cookie|api[_-]?key|service[_-]?key|private[_-]?key|credit[_-]?card|ssn)(\s*[=:]\s*)([^&\s,;"'}]+)`)
 	cliArgumentPattern = regexp.MustCompile(`(?i)(--?(?:[a-z0-9_.-]*(?:password|passwd|token|secret|signature|credential)|pwd|auth|authorization|session(?:id)?|code|cookie|api[_-]?key|service[_-]?key|private[_-]?key))(\s+)([^\s]+)`)
 	cardPattern        = regexp.MustCompile(`\b(?:[0-9][ -]?){12,18}[0-9]\b`)
+	urlUserInfoPattern = regexp.MustCompile(`(?i)([a-z][a-z0-9+.-]*://)([^/?#\s@]+)@`)
 )
 
 func NewPolicy(opts Options) *Policy {
@@ -122,7 +123,11 @@ func (p *Policy) Summary() Summary {
 func (p *Policy) RedactURL(raw string) string {
 	parsed, err := url.Parse(raw)
 	if err != nil {
-		return p.applyText(raw)
+		redacted := urlUserInfoPattern.ReplaceAllString(raw, `${1}[REDACTED]@`)
+		if redacted != raw {
+			p.bump("url_user_info")
+		}
+		return p.applyText(redacted)
 	}
 	if parsed.User != nil {
 		parsed.User = nil
@@ -183,13 +188,20 @@ func (p *Policy) RedactBody(mimeType, text string) (string, bool) {
 		p.bump("non_text_body_omitted")
 		return "", true
 	}
+	trimmedInput := strings.TrimSpace(text)
+	jsonBody := strings.Contains(strings.ToLower(mimeType), "json") || strings.HasPrefix(trimmedInput, "{") || strings.HasPrefix(trimmedInput, "[")
+	if jsonBody && len(text) > p.maxScanBytes {
+		p.bump("oversized_json_body")
+		p.addWarning("HAR_REDACTION_DEGRADED", "oversized JSON body was fully suppressed because structured redaction exceeded the scan limit")
+		return "[REDACTED_OVERSIZED_JSON]", true
+	}
 	limited := text
 	if len(limited) > p.maxScanBytes {
 		limited = limited[:p.maxScanBytes]
 		p.bump("body_scan_truncated")
 	}
 	trimmed := strings.TrimSpace(limited)
-	if strings.Contains(strings.ToLower(mimeType), "json") || strings.HasPrefix(trimmed, "{") || strings.HasPrefix(trimmed, "[") {
+	if jsonBody {
 		var value any
 		if json.Unmarshal([]byte(trimmed), &value) == nil {
 			before, _ := json.Marshal(value)
@@ -242,7 +254,7 @@ func (p *Policy) redactJSON(value *any, key string) {
 	switch typed := (*value).(type) {
 	case map[string]any:
 		for childKey, child := range typed {
-			if sensitiveKey(childKey) {
+			if sensitiveKey(childKey) && redactWholeJSONValue(child) {
 				typed[childKey] = "[REDACTED]"
 				p.bump("body_field")
 				continue
@@ -327,6 +339,15 @@ func (p *Policy) bump(rule string) {
 	p.bumpN(rule, 1)
 }
 
+func (p *Policy) addWarning(code, message string) {
+	for _, warning := range p.warnings {
+		if warning.Code == code && warning.Message == message {
+			return
+		}
+	}
+	p.warnings = append(p.warnings, Warning{Code: code, Message: message})
+}
+
 func (p *Policy) redactPaymentCards(value string) string {
 	matches := cardPattern.FindAllStringIndex(value, -1)
 	if len(matches) == 0 {
@@ -401,6 +422,15 @@ func sensitiveHeader(name string) bool {
 
 func sensitiveKey(name string) bool {
 	return sensitiveNormalizedKey(normalizedKey(name))
+}
+
+func redactWholeJSONValue(value any) bool {
+	switch value.(type) {
+	case bool, float64, json.Number:
+		return false
+	default:
+		return true
+	}
 }
 
 func sensitiveNormalizedKey(normalized string) bool {

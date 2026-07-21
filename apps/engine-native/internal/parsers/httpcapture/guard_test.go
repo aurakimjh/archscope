@@ -17,6 +17,8 @@ func TestHARResourceGuardsRejectBeforePartialSuccess(t *testing.T) {
 	}{
 		{"entry-cap", `{"log":{"creator":{"name":"Chrome"},"entries":[` + validEntry + `,` + validEntry + `]}}`, Options{MaxEntries: 1}},
 		{"depth-cap", `{"log":{"entries":[]}}`, Options{MaxDepth: 2}},
+		{"plain-byte-cap", `{"log":{"creator":{"name":"Chrome"},"entries":[]}}`, Options{MaxBytes: 32}},
+		{"field-cap", `{"log":{"creator":{"name":"Chrome"},"entries":[]}}`, Options{MaxFields: 2}},
 		{"string-cap", `{"log":{"creator":{"name":"Chrome"},"entries":[]}}`, Options{MaxStringBytes: 4}},
 		{"body-cap", `{"log":{"creator":{"name":"Chrome"},"entries":[` + strings.Replace(validEntry, `"text":""`, `"text":"0123456789"`, 1) + `]}}`, Options{MaxBodyBytes: 5}},
 	}
