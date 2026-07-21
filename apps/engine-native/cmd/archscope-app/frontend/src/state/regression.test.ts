@@ -1,5 +1,13 @@
 import type { AnalysisWorkspaceEntry, WorkspaceAnalysisResult } from "./analysisWorkspace.js";
 import { evaluateAiInterpretation, extractAiInterpretation } from "./aiInterpretation.js";
+import {
+  adaptProfileFlameNode,
+  describeTimelineState,
+  extractProfileDiagnostics,
+  extractProfileFlamegraph,
+  profileDiagnosticIssueCount,
+  selectPartialResult,
+} from "./browserCpuProfile.js";
 import { buildIncidentTimelineEvents } from "./incidentTimeline.js";
 import {
   buildServiceFlowAnalysis,
@@ -372,3 +380,130 @@ const aiResult = entry("ai-1", "jfr_recording", {
 }).result;
 const gate = evaluateAiInterpretation(aiResult, extractAiInterpretation(aiResult));
 assert(gate.issue_codes.includes("EVIDENCE_QUOTES_REQUIRED"), "AI gate should require evidence quotes");
+
+// ── Browser CPU profile page (profile_evidence) derivations ──────────
+//
+// These guard the U1/U2/U4 UI contract on the render-logic side: engine
+// diagnostics must surface, the flamegraph must adapt, and an empty
+// sampled-run timeline must be explained (hitCount-only vs. downsampled)
+// rather than shown as a silent empty table.
+
+function profileResult(overrides: Record<string, unknown>): any {
+  return {
+    type: "profile_evidence",
+    source_files: ["profile.cpuprofile"],
+    created_at: "2026-07-21T00:00:00.000Z",
+    summary: {},
+    series: {},
+    tables: {},
+    charts: {},
+    metadata: {},
+    ...overrides,
+  };
+}
+
+const flameResult = profileResult({
+  charts: {
+    flamegraph: {
+      name: "root",
+      samples: 100,
+      category: "browser_application",
+      color: "#0ea5e9",
+      children: [
+        { name: "render", samples: 60, category: null, color: null, children: [] },
+      ],
+    },
+  },
+});
+const adaptedFlame = extractProfileFlamegraph(flameResult);
+assert(adaptedFlame !== null, "flamegraph should adapt from charts.flamegraph");
+assert(adaptedFlame?.value === 100, "flame root value should mirror engine samples");
+assert(adaptedFlame?.children?.[0]?.name === "render", "flame children should adapt recursively");
+assert(adaptProfileFlameNode(undefined) === null, "missing flame node should adapt to null");
+
+const diagResult = profileResult({
+  summary: { value_unit: "samples" },
+  metadata: {
+    diagnostics: {
+      total_lines: 0,
+      parsed_records: 10,
+      skipped_lines: 0,
+      skipped_by_reason: {},
+      samples: [],
+      warning_count: 1,
+      error_count: 0,
+      warnings: [
+        {
+          line_number: 0,
+          reason: "PROFILE_HITCOUNT_ONLY",
+          message: "profile has hitCount aggregates but no ordered samples",
+          raw_preview: "",
+        },
+      ],
+      errors: [],
+    },
+  },
+});
+const diags = extractProfileDiagnostics(diagResult);
+assert(diags !== null, "metadata.diagnostics should be extracted for the UI");
+assert(profileDiagnosticIssueCount(diags) === 1, "diagnostic issue badge should count warnings + errors");
+assert(profileDiagnosticIssueCount(null) === 0, "null diagnostics should count as zero issues");
+
+const hitCountState = describeTimelineState(diagResult);
+assert(hitCountState.hasRuns === false, "hitCount-only profile has no sampled runs");
+assert(hitCountState.reason === "hitcount_only", "hitCount-only empty timeline must be explained, not silent");
+assert(hitCountState.suppressed === true, "hitCount-only timeline is a suppressed state");
+
+const downsampledState = describeTimelineState(
+  profileResult({
+    summary: { value_unit: "microseconds" },
+    metadata: {
+      parser_metadata: {
+        partial_result: true,
+        downsampled_from_samples: 900000,
+        downsampled_to_samples: 500000,
+      },
+      diagnostics: {
+        total_lines: 0,
+        parsed_records: 0,
+        skipped_lines: 0,
+        skipped_by_reason: {},
+        samples: [],
+        warning_count: 1,
+        error_count: 0,
+        warnings: [
+          {
+            line_number: 0,
+            reason: "TIMELINE_SUPPRESSED_DOWNSAMPLED",
+            message: "temporal outputs are disabled",
+            raw_preview: "",
+          },
+        ],
+        errors: [],
+      },
+    },
+  }),
+);
+assert(downsampledState.reason === "downsampled", "downsampled empty timeline must be explained");
+const partialInfo = selectPartialResult(
+  profileResult({
+    metadata: {
+      parser_metadata: {
+        partial_result: true,
+        downsampled_from_samples: 900000,
+        downsampled_to_samples: 500000,
+      },
+    },
+  }),
+);
+assert(partialInfo.partial === true, "partial_result flag should surface for the partial card");
+assert(partialInfo.fromSamples === 900000 && partialInfo.toSamples === 500000, "downsample counts should surface");
+
+const runsState = describeTimelineState(
+  profileResult({
+    summary: { value_unit: "microseconds" },
+    tables: { cpu_sample_runs: [{ stack: "a;b", duration_ms: 12, start_us: 1000 }] },
+  }),
+);
+assert(runsState.hasRuns === true, "microsecond profile with runs should render the runs table");
+assert(runsState.reason === null, "populated timeline has no empty-state reason");

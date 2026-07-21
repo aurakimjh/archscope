@@ -808,6 +808,37 @@ export const messages = {
       "No threads remained on the same stack across the threshold window.",
     threadDumpBlockedEmpty:
       "No threads stayed BLOCKED across the threshold window.",
+    browserCpuLabel: "Chrome CPU profile",
+    browserCpuDescription:
+      "Save a Chrome Performance trace or import a V8 .cpuprofile / .json.gz. Sampled CPU runs are not browser Long Tasks.",
+    browserCpuFilterProfiles: "Chrome profiles",
+    browserCpuEmpty:
+      "Select a Chrome Performance trace, a V8 .cpuprofile, or a gzipped .json.gz and click Analyze to see the flamegraph, sampled CPU runs, and the parser report.",
+    browserCpuMetricSamples: "Samples",
+    browserCpuMetricFormat: "Format",
+    browserCpuMetricCpuMs: "CPU duration (ms)",
+    browserCpuMetricStacks: "Stacks",
+    browserCpuPartialTitle: "Large-profile partial result",
+    browserCpuPartialBody:
+      "The profile was reduced to time-weighted samples. Total sampled CPU duration is preserved, but individual sample-run detail is aggregated.",
+    browserCpuReduced: "Reduced samples",
+    browserCpuFlamegraphHint:
+      "Click a frame to zoom in — the flamegraph doubles as an interactive drilldown; click Reset to zoom back out.",
+    browserCpuTopFramesTitle: "Top frames",
+    browserCpuTopFramesCaption: "Frames ranked by sample share.",
+    browserCpuRunsTitle: "Sampled CPU runs",
+    browserCpuRunsDisclaimer:
+      "These are sampled CPU observations, not browser Long Tasks.",
+    browserCpuRunsCaption: "Sampled CPU runs ordered by observed duration.",
+    browserCpuColStack: "Stack",
+    browserCpuColDurationMs: "Duration (ms)",
+    browserCpuColStartUs: "Start (µs)",
+    browserCpuRunsEmptyHitcount:
+      "This profile only carries aggregate hitCounts, not ordered samples — no time-ordered CPU runs can be shown. See the parser report below.",
+    browserCpuRunsEmptyDownsampled:
+      "Time-ordered CPU runs were suppressed because weighted downsampling does not preserve exact run boundaries. Totals stay accurate; see the parser report below.",
+    browserCpuRunsEmptyGeneric: "No sampled CPU runs were produced for this profile.",
+    browserCpuDiagnosticsTitle: "Parser report",
   },
   ko: {
     appTitle: "ArchScope",
@@ -1589,6 +1620,37 @@ export const messages = {
       "임계치 동안 동일 스택을 유지한 쓰레드가 없습니다.",
     threadDumpBlockedEmpty:
       "임계치 동안 지속적으로 BLOCKED인 쓰레드가 없습니다.",
+    browserCpuLabel: "Chrome CPU 프로파일",
+    browserCpuDescription:
+      "Chrome Performance 트레이스를 저장하거나 V8 .cpuprofile / .json.gz 를 불러오세요. 샘플링된 CPU run 은 브라우저 Long Task 가 아닙니다.",
+    browserCpuFilterProfiles: "Chrome 프로파일",
+    browserCpuEmpty:
+      "Chrome Performance 트레이스, V8 .cpuprofile, 또는 gzip 압축된 .json.gz 를 선택하고 분석을 누르면 플레임그래프·샘플 CPU run·파서 리포트가 표시됩니다.",
+    browserCpuMetricSamples: "샘플 수",
+    browserCpuMetricFormat: "포맷",
+    browserCpuMetricCpuMs: "CPU 시간 (ms)",
+    browserCpuMetricStacks: "스택 수",
+    browserCpuPartialTitle: "대용량 프로파일 부분 결과",
+    browserCpuPartialBody:
+      "프로파일이 시간 가중 샘플로 축소되었습니다. 총 샘플 CPU 시간은 보존되지만 개별 sample-run 상세는 집계됩니다.",
+    browserCpuReduced: "축소된 샘플",
+    browserCpuFlamegraphHint:
+      "프레임을 클릭하면 확대됩니다 — 플레임그래프가 인터랙티브 드릴다운 역할을 합니다. 초기화를 누르면 다시 축소됩니다.",
+    browserCpuTopFramesTitle: "상위 프레임",
+    browserCpuTopFramesCaption: "샘플 비중 순으로 정렬한 프레임.",
+    browserCpuRunsTitle: "샘플링된 CPU run",
+    browserCpuRunsDisclaimer:
+      "이것은 샘플링된 CPU 관측이며 브라우저 Long Task 가 아닙니다.",
+    browserCpuRunsCaption: "관측된 지속 시간 순으로 정렬된 샘플 CPU run.",
+    browserCpuColStack: "스택",
+    browserCpuColDurationMs: "지속 시간 (ms)",
+    browserCpuColStartUs: "시작 (µs)",
+    browserCpuRunsEmptyHitcount:
+      "이 프로파일은 순서 있는 샘플 없이 hitCount 집계만 포함합니다 — 시간순 CPU run 을 표시할 수 없습니다. 아래 파서 리포트를 확인하세요.",
+    browserCpuRunsEmptyDownsampled:
+      "가중 다운샘플링은 정확한 run 경계를 보존하지 못하므로 시간순 CPU run 이 억제되었습니다. 총계는 정확하며, 아래 파서 리포트를 확인하세요.",
+    browserCpuRunsEmptyGeneric: "이 프로파일에서는 샘플 CPU run 이 생성되지 않았습니다.",
+    browserCpuDiagnosticsTitle: "파서 리포트",
   },
 } as const satisfies Record<Locale, Record<string, string>>;
 
