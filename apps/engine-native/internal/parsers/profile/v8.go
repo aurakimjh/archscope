@@ -136,7 +136,7 @@ func parsedV8Profile(payload v8Profile, format string, maxSamples int) (Parsed, 
 		return parsedV8HitCounts(payload, resolver, format)
 	}
 	collector := newWeightedSampleCollector(len(payload.Samples), maxSamples)
-	timestamp := payload.StartTime
+	normalizer := newV8SampleNormalizer(payload.StartTime, collector)
 	clamped := 0
 	occurrences := map[int]int{}
 	for i, nodeID := range payload.Samples {
@@ -149,19 +149,18 @@ func parsedV8Profile(payload v8Profile, format string, maxSamples int) (Parsed, 
 				clamped++
 			}
 		}
-		value := int64(0)
-		if i > 0 {
-			value = delta
-		}
 		stack, err := resolver.stackFor(nodeID)
 		if err != nil {
 			return Parsed{}, err
 		}
-		collector.Add(i, Sample{Stack: stack, Value: value, TimestampUS: timestamp, Runtime: "V8", Language: "JavaScript", ProfileKind: "cpu", SourceFormat: format})
-		timestamp += delta
+		normalizer.Add(i, delta, Sample{Stack: stack, Runtime: "V8", Language: "JavaScript", ProfileKind: "cpu", SourceFormat: format})
 	}
-	parsed := newV8Parsed(format, collector.Samples(), len(payload.Samples), payload.StartTime, payload.EndTime)
+	end, tailClamped := normalizer.Finish(payload.EndTime)
+	parsed := newV8Parsed(format, collector.Samples(), len(payload.Samples), payload.StartTime, end)
 	parsed.Metadata["negative_delta_clamp_count"] = clamped
+	parsed.Metadata["v8_last_sample_time_us"] = normalizer.LastTimestamp()
+	parsed.Metadata["end_time_tail_us"] = normalizer.Tail()
+	parsed.Metadata["end_time_tail_clamped"] = tailClamped
 	mismatches := 0
 	for _, node := range payload.Nodes {
 		if node.HitCount != nil && occurrences[node.ID] != *node.HitCount {
@@ -171,6 +170,54 @@ func parsedV8Profile(payload v8Profile, format string, maxSamples int) (Parsed, 
 	parsed.Metadata["hit_count_mismatch_nodes"] = mismatches
 	return parsed, nil
 }
+
+// v8SampleNormalizer keeps observation timestamps separate from attributed
+// sample cost. CDP timeDeltas[i] advances to the observation time for sample
+// i; that sample owns the interval until the next observation. The final
+// sample owns the tail through endTime.
+type v8SampleNormalizer struct {
+	timestamp    int64
+	collector    *weightedSampleCollector
+	pending      *Sample
+	pendingIndex int
+	tail         int64
+}
+
+func newV8SampleNormalizer(start int64, collector *weightedSampleCollector) *v8SampleNormalizer {
+	return &v8SampleNormalizer{timestamp: start, collector: collector, pendingIndex: -1}
+}
+
+func (n *v8SampleNormalizer) Add(index int, delta int64, sample Sample) {
+	if n.pending != nil {
+		n.pending.Value = delta
+		n.collector.Add(n.pendingIndex, *n.pending)
+	}
+	n.timestamp += delta
+	sample.TimestampUS = n.timestamp
+	n.pending = &sample
+	n.pendingIndex = index
+}
+
+func (n *v8SampleNormalizer) Finish(end int64) (int64, bool) {
+	if n.pending == nil {
+		return end, false
+	}
+	if end == 0 {
+		end = n.timestamp
+	}
+	n.tail = end - n.timestamp
+	tailClamped := n.tail < 0
+	if tailClamped {
+		n.tail = 0
+	}
+	n.pending.Value = n.tail
+	n.collector.Add(n.pendingIndex, *n.pending)
+	n.pending = nil
+	return end, tailClamped
+}
+
+func (n *v8SampleNormalizer) LastTimestamp() int64 { return n.timestamp }
+func (n *v8SampleNormalizer) Tail() int64          { return n.tail }
 
 func parsedV8HitCounts(payload v8Profile, resolver *v8StackResolver, format string) (Parsed, error) {
 	samples := make([]Sample, 0)
@@ -343,9 +390,10 @@ func parseChromeTraceReader(reader io.Reader, maxSamples, totalSamples int) (Par
 	var nodes []v8Node
 	foundNodes := false
 	foundSamples := false
-	start, end, timestamp := int64(0), int64(0), int64(0)
+	start, end := int64(0), int64(0)
 	var resolver *v8StackResolver
 	collector := newWeightedSampleCollector(totalSamples, maxSamples)
+	var normalizer *v8SampleNormalizer
 	index := 0
 	err := walkChromeTraceEvents(reader, func(event chromeTraceEvent) error {
 		if event.Phase != "P" || len(event.Args.Data) == 0 {
@@ -357,7 +405,6 @@ func parseChromeTraceReader(reader io.Reader, maxSamples, totalSamples int) (Par
 		}
 		if start == 0 && data.StartTime != 0 {
 			start = data.StartTime
-			timestamp = start
 		}
 		if data.EndTime > end {
 			end = data.EndTime
@@ -367,7 +414,6 @@ func parseChromeTraceReader(reader io.Reader, maxSamples, totalSamples int) (Par
 			foundNodes = true
 			if start == 0 {
 				start = data.StartTime
-				timestamp = start
 			}
 			if data.EndTime > end {
 				end = data.EndTime
@@ -378,7 +424,6 @@ func parseChromeTraceReader(reader io.Reader, maxSamples, totalSamples int) (Par
 			foundNodes = true
 			if start == 0 {
 				start = data.CPUProfile.StartTime
-				timestamp = start
 			}
 			if data.CPUProfile.EndTime > end {
 				end = data.CPUProfile.EndTime
@@ -404,10 +449,10 @@ func parseChromeTraceReader(reader io.Reader, maxSamples, totalSamples int) (Par
 				if err != nil {
 					return err
 				}
+				normalizer = newV8SampleNormalizer(start, collector)
 			}
 			foundSamples = true
 			for i, nodeID := range chunk.Samples {
-				value := int64(0)
 				delta := int64(0)
 				if len(chunk.TimeDeltas) > 0 {
 					delta = chunk.TimeDeltas[i]
@@ -415,15 +460,11 @@ func parseChromeTraceReader(reader io.Reader, maxSamples, totalSamples int) (Par
 						delta = 0
 					}
 				}
-				if index > 0 {
-					value = delta
-				}
 				stack, err := resolver.stackFor(nodeID)
 				if err != nil {
 					return err
 				}
-				collector.Add(index, Sample{Stack: stack, Value: value, TimestampUS: timestamp, Runtime: "V8", Language: "JavaScript", ProfileKind: "cpu", SourceFormat: "chrome-trace-json"})
-				timestamp += delta
+				normalizer.Add(index, delta, Sample{Stack: stack, Runtime: "V8", Language: "JavaScript", ProfileKind: "cpu", SourceFormat: "chrome-trace-json"})
 				index++
 			}
 		}
@@ -435,7 +476,12 @@ func parseChromeTraceReader(reader io.Reader, maxSamples, totalSamples int) (Par
 	if !foundNodes || !foundSamples {
 		return Parsed{}, fmt.Errorf("Chrome trace has no ph:P CPU profile chunks")
 	}
-	return newV8Parsed("chrome-trace-json", collector.Samples(), index, start, end), nil
+	end, tailClamped := normalizer.Finish(end)
+	parsed := newV8Parsed("chrome-trace-json", collector.Samples(), index, start, end)
+	parsed.Metadata["v8_last_sample_time_us"] = normalizer.LastTimestamp()
+	parsed.Metadata["end_time_tail_us"] = normalizer.Tail()
+	parsed.Metadata["end_time_tail_clamped"] = tailClamped
+	return parsed, nil
 }
 
 func walkChromeTraceEvents(reader io.Reader, visit func(chromeTraceEvent) error) error {

@@ -541,6 +541,12 @@ estimatedSeconds := round(float64(totalSamples)*intervalSeconds, 3)
 즉 **`timeDeltas[i]`는 샘플 `i`의 비용이 아니라 샘플 `i-1`의 비용**이다. 한 칸
 어긋나면 전체 시간 귀속이 밀리므로 골든 테스트로 고정한다(`INV-C2`).
 
+이 방향은 Chrome 자체 데이터 모델과 같다. CDP는 첫 delta가 `startTime` 기준이라고
+정의하고, DevTools는 각 delta를 먼저 더해 해당 샘플의 관측 시각을 만든 뒤 샘플
+`i`를 다음 관측까지 유지한다. 따라서 ArchScope는 `TimestampUS = ts[i]`,
+`Value = ts[i+1] - ts[i]`로 저장한다. `ts[0]` 이전 head gap은 recording duration에만
+포함하고, 마지막 값은 명시적 `endTime` tail을 사용한다.
+
 `endTime < ts[last]`인 입력에서는 마지막 샘플 비용을 0으로 클램프하고 diagnostic을
 남긴다. 음수 비용을 허용하면 아래 불변식이 전부 무너진다.
 

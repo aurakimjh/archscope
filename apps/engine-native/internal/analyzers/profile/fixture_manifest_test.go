@@ -38,9 +38,9 @@ type browserProfileFixtureExpected struct {
 }
 
 type browserProfileRunTop struct {
-	TopFrame         string `json:"top_frame"`
-	StartUSApprox    int64  `json:"start_us_approx"`
-	DurationUSApprox int64  `json:"duration_us_approx"`
+	TopFrame   string `json:"top_frame"`
+	StartUS    int64  `json:"start_us"`
+	DurationUS int64  `json:"duration_us"`
 }
 
 func TestBrowserProfileFixtureManifest(t *testing.T) {
@@ -220,18 +220,11 @@ func assertTopSampleRun(t *testing.T, raw any, metadata map[string]any, want bro
 	if base, ok := metadata["v8_start_time_us"].(int64); ok {
 		start -= base
 	}
-	if absolute64(start-want.StartUSApprox) > 1_000 {
-		t.Fatalf("top run start offset = %d, want approximately %d", start, want.StartUSApprox)
+	if start != want.StartUS {
+		t.Fatalf("top run start offset = %d, want exactly %d", start, want.StartUS)
 	}
 	duration, _ := top["duration_us"].(int64)
-	if absolute64(duration-want.DurationUSApprox) > 1_000 {
-		t.Fatalf("top run duration = %d, want approximately %d", duration, want.DurationUSApprox)
+	if duration != want.DurationUS {
+		t.Fatalf("top run duration = %d, want exactly %d", duration, want.DurationUS)
 	}
-}
-
-func absolute64(value int64) int64 {
-	if value < 0 {
-		return -value
-	}
-	return value
 }

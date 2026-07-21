@@ -166,6 +166,9 @@ func finalizeProfileParse(parsed Parsed, diags *diagnostics.ParserDiagnostics, o
 		if count, _ := parsed.Metadata["negative_delta_clamp_count"].(int); count > 0 {
 			diags.AddWarning(0, "PROFILE_NEGATIVE_DELTA_CLAMPED", fmt.Sprintf("clamped %d negative V8 time delta(s) to zero", count), "", false)
 		}
+		if parsed.Metadata["end_time_tail_clamped"] == true {
+			diags.AddWarning(0, "PROFILE_END_TIME_BEFORE_LAST_SAMPLE", "V8 endTime precedes the last normalized sample timestamp; the final sample tail was clamped to zero", "", false)
+		}
 		if parsed.Metadata["hit_count_only"] == true {
 			diags.AddWarning(0, "PROFILE_HITCOUNT_ONLY", "profile has hitCount aggregates but no ordered samples; temporal outputs are disabled", "", false)
 		}

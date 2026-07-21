@@ -158,6 +158,14 @@ separately: `recording_duration_us` (`endTime - startTime`, constant
 regardless of display options), `active_duration_us`, `idle_duration_us`,
 `sampled_duration_us`.
 
+This direction follows Chrome's own data model: CDP defines the first delta
+relative to `startTime`, and DevTools reconstructs observation timestamps by
+adding each delta before placing the corresponding sample. DevTools then keeps
+sample `i` active until the next observation. ArchScope therefore stores
+`TimestampUS = ts[i]` and `Value = ts[i+1] - ts[i]`; the head gap before
+`ts[0]` belongs only to recording duration, while the last value uses the
+explicit `endTime` tail.
+
 **Decision 5 — duration invariants**, pinned by golden tests before
 implementation (tolerance 0 in integer microseconds except where clamping
 occurred):
