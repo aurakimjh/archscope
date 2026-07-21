@@ -395,6 +395,7 @@ func parseChromeTraceReader(reader io.Reader, maxSamples, totalSamples int) (Par
 	collector := newWeightedSampleCollector(totalSamples, maxSamples)
 	var normalizer *v8SampleNormalizer
 	index := 0
+	clamped := 0
 	err := walkChromeTraceEvents(reader, func(event chromeTraceEvent) error {
 		if event.Phase != "P" || len(event.Args.Data) == 0 {
 			return nil
@@ -458,6 +459,7 @@ func parseChromeTraceReader(reader io.Reader, maxSamples, totalSamples int) (Par
 					delta = chunk.TimeDeltas[i]
 					if delta < 0 {
 						delta = 0
+						clamped++
 					}
 				}
 				stack, err := resolver.stackFor(nodeID)
@@ -481,6 +483,7 @@ func parseChromeTraceReader(reader io.Reader, maxSamples, totalSamples int) (Par
 	parsed.Metadata["v8_last_sample_time_us"] = normalizer.LastTimestamp()
 	parsed.Metadata["end_time_tail_us"] = normalizer.Tail()
 	parsed.Metadata["end_time_tail_clamped"] = tailClamped
+	parsed.Metadata["negative_delta_clamp_count"] = clamped
 	return parsed, nil
 }
 
