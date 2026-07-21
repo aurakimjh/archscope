@@ -254,7 +254,7 @@ func (p *Policy) redactJSON(value *any, key string) {
 	switch typed := (*value).(type) {
 	case map[string]any:
 		for childKey, child := range typed {
-			if sensitiveKey(childKey) && redactWholeJSONValue(child) {
+			if sensitiveKey(childKey) && redactWholeJSONValue(childKey, child) {
 				typed[childKey] = "[REDACTED]"
 				p.bump("body_field")
 				continue
@@ -424,7 +424,16 @@ func sensitiveKey(name string) bool {
 	return sensitiveNormalizedKey(normalizedKey(name))
 }
 
-func redactWholeJSONValue(value any) bool {
+func redactWholeJSONValue(key string, value any) bool {
+	switch normalizedKey(key) {
+	case "code", "auth", "session":
+		// These keys are also common analysis fields. Preserve their numeric
+		// and boolean forms while continuing to redact string credentials.
+	default:
+		// Hard-secret keys (password, token, SSN, API key, and related
+		// suffixes) are sensitive regardless of the JSON value type.
+		return true
+	}
 	switch value.(type) {
 	case bool, float64, json.Number:
 		return false

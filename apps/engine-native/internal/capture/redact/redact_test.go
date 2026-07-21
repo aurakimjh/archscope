@@ -101,3 +101,20 @@ func TestStructuredJSONPreservesNonStringCodeAuthAndSessionValues(t *testing.T) 
 		t.Fatalf("non-string values were over-redacted: %+v", value)
 	}
 }
+
+func TestStructuredJSONRedactsNumericHardSecretValues(t *testing.T) {
+	policy := NewPolicy(Options{})
+	redacted, changed := policy.RedactBody("application/json", `{"password":98765,"ssn":123456789,"apiKey":42,"sessionId":1234}`)
+	if !changed {
+		t.Fatalf("numeric hard-secret values were not marked as redacted: %q", redacted)
+	}
+	var value map[string]any
+	if err := json.Unmarshal([]byte(redacted), &value); err != nil {
+		t.Fatal(err)
+	}
+	for _, key := range []string{"password", "ssn", "apiKey", "sessionId"} {
+		if value[key] != "[REDACTED]" {
+			t.Fatalf("numeric hard-secret field %q survived redaction: %+v", key, value)
+		}
+	}
+}
