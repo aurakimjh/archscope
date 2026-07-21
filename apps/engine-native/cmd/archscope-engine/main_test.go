@@ -112,6 +112,7 @@ func runJSON(t *testing.T, bin string, args ...string) map[string]any {
 func TestCLISubcommands(t *testing.T) {
 	bin := buildBinary(t)
 	root := fixturesRoot(t)
+	sharedHAR := filepath.Clean(filepath.Join(root, "..", "..", "projects-assets", "test-data", "har-fixtures", "dialects", "chrome-sensitive.har"))
 	join := func(parts ...string) string {
 		all := append([]string{root}, parts...)
 		return filepath.Join(all...)
@@ -151,6 +152,11 @@ func TestCLISubcommands(t *testing.T) {
 			name:     "trace-import",
 			args:     []string{"trace", "import", "--in", join("traces", "sample-otlp-traces.jsonl")},
 			wantType: "trace_import",
+		},
+		{
+			name:     "http-capture",
+			args:     []string{"http-capture", "analyze", "--in", sharedHAR, "--format", "har", "--top-n", "2", "--redact-pattern", "DO-NOT-USE"},
+			wantType: "http_capture",
 		},
 		{
 			name:     "thread-dump",

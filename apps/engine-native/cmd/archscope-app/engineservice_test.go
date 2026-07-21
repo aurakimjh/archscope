@@ -110,6 +110,29 @@ func TestEngineService_AnalyzeAccessLog(t *testing.T) {
 	requireResultEnvelope(t, "AnalyzeAccessLog", "access_log", resultToMap(t, res))
 }
 
+func TestEngineService_AnalyzeHttpCaptureUsesBoundedRequestContract(t *testing.T) {
+	svc := &EngineService{}
+	path := filepath.Clean(filepath.Join(fixturesDir(t), "..", "..", "projects-assets", "test-data", "har-fixtures", "dialects", "chrome-sensitive.har"))
+	res, err := svc.AnalyzeHttpCapture(HttpCaptureRequest{
+		Path: path, Format: "har", TopN: 2, MaxEntries: 100,
+		MaxBytes: 1 << 20, MaxStringBytes: 1 << 16, MaxBodyBytes: 1 << 16,
+		MaxDepth: 64, MaxFields: 10_000, MaxDecompressionRatio: 100,
+		CustomRedactionPatterns: []string{"DO-NOT-USE"},
+	})
+	if err != nil {
+		t.Fatalf("AnalyzeHttpCapture: %v", err)
+	}
+	payload := resultToMap(t, res)
+	requireResultEnvelope(t, "AnalyzeHttpCapture", "http_capture", payload)
+	encoded, err := json.Marshal(payload)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(encoded), "EXAMPLE-API-KEY-0000") || strings.Contains(string(encoded), "FAKE-SIGNATURE-EXAMPLE") {
+		t.Fatal("Wails result leaked a shared fixture secret")
+	}
+}
+
 func TestEngineService_AnalyzeServerLog(t *testing.T) {
 	svc := &EngineService{}
 	path := filepath.Join(fixturesDir(t), "server-logs", "sample-server.log")

@@ -231,10 +231,17 @@ type TraceImportRequest struct {
 // HttpCaptureRequest mirrors the file-first HAR analyzer. Live capture is not
 // exposed here: the desktop boundary intentionally begins with safe imports.
 type HttpCaptureRequest struct {
-	Path       string `json:"path"`
-	Format     string `json:"format,omitempty"`
-	TopN       int    `json:"topN,omitempty"`
-	MaxEntries int    `json:"maxEntries,omitempty"`
+	Path                    string   `json:"path"`
+	Format                  string   `json:"format,omitempty"`
+	TopN                    int      `json:"topN,omitempty"`
+	MaxEntries              int      `json:"maxEntries,omitempty"`
+	MaxBytes                int64    `json:"maxBytes,omitempty"`
+	MaxStringBytes          int      `json:"maxStringBytes,omitempty"`
+	MaxBodyBytes            int      `json:"maxBodyBytes,omitempty"`
+	MaxDepth                int      `json:"maxDepth,omitempty"`
+	MaxFields               int      `json:"maxFields,omitempty"`
+	MaxDecompressionRatio   int      `json:"maxDecompressionRatio,omitempty"`
+	CustomRedactionPatterns []string `json:"customRedactionPatterns,omitempty"`
 }
 
 // JenniferProfileRequest accepts a single Path or repeatable Paths
@@ -544,7 +551,12 @@ func (s *EngineService) AnalyzeHttpCapture(req HttpCaptureRequest) (engineapi.An
 	if strings.TrimSpace(req.Path) == "" {
 		return engineapi.AnalysisResult{}, fmt.Errorf("path is required")
 	}
-	return engineapi.AnalyzeHttpCapture(req.Path, engineapi.HttpCaptureOptions{Format: req.Format, TopN: req.TopN, MaxEntries: req.MaxEntries})
+	return engineapi.AnalyzeHttpCapture(req.Path, engineapi.HttpCaptureOptions{
+		Format: req.Format, TopN: req.TopN, MaxEntries: req.MaxEntries, MaxBytes: req.MaxBytes,
+		MaxStringBytes: req.MaxStringBytes, MaxBodyBytes: req.MaxBodyBytes, MaxDepth: req.MaxDepth,
+		MaxFields: req.MaxFields, MaxDecompressionRatio: req.MaxDecompressionRatio,
+		CustomRedactionPatterns: req.CustomRedactionPatterns,
+	})
 }
 
 func (s *EngineService) AnalyzeStitchedEvidence(req StitchedEvidenceRequest) (engineapi.AnalysisResult, error) {

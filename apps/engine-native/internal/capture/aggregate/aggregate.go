@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	parser "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/httpcapture"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 )
 
 const DefaultTopK = 50
@@ -62,12 +62,12 @@ func New(sessionID string, topK int) *Aggregator {
 
 // ApplyBatch is order-independent: every input applies only associative sums.
 // It returns one event after a successful atomic batch commit.
-func (a *Aggregator) ApplyBatch(entries []parser.Entry) Event {
+func (a *Aggregator) ApplyBatch(entries []models.CaptureTransaction) Event {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	for _, entry := range entries {
 		a.total++
-		if entry.Error {
+		if transactionError(entry) {
 			a.errors++
 		}
 		add(a.endpoints, entry.Method+" "+entry.Path, entry)
@@ -84,7 +84,7 @@ func (a *Aggregator) Snapshot() Snapshot {
 	return Snapshot{SessionID: a.sessionID, SnapshotVersion: a.snapshotVersion, Sequence: a.sequence, GeneratedAt: time.Now().UTC(), Total: a.total, Errors: a.errors, TopEndpoints: topRows(a.endpoints, a.topK), TopHosts: topRows(a.hosts, a.topK)}
 }
 
-func add(target map[string]*Row, key string, entry parser.Entry) {
+func add(target map[string]*Row, key string, entry models.CaptureTransaction) {
 	if key == "" {
 		key = "(unknown)"
 	}
@@ -94,11 +94,19 @@ func add(target map[string]*Row, key string, entry parser.Entry) {
 		target[key] = row
 	}
 	row.Count++
-	if entry.Error {
+	if transactionError(entry) {
 		row.Errors++
 	}
-	row.TotalDurationMS += entry.DurationMS
-	row.ResponseBytes += entry.ResponseBytes
+	row.TotalDurationMS += entry.TotalMS
+	if entry.Response.TransferSize >= 0 {
+		row.ResponseBytes += entry.Response.TransferSize
+	} else if entry.Response.BodySize >= 0 {
+		row.ResponseBytes += entry.Response.BodySize
+	}
+}
+
+func transactionError(entry models.CaptureTransaction) bool {
+	return entry.StatusCode >= 400 || entry.State == models.TxFailed
 }
 func topRows(source map[string]*Row, limit int) []Row {
 	out := make([]Row, 0, len(source))

@@ -65,7 +65,19 @@ export type AnalysisResult<
   metadata: TMetadata;
 };
 
-export type HttpCaptureRequest = { path: string; format?: string; topN?: number; maxEntries?: number };
+export type HttpCaptureRequest = {
+  path: string;
+  format?: string;
+  topN?: number;
+  maxEntries?: number;
+  maxBytes?: number;
+  maxStringBytes?: number;
+  maxBodyBytes?: number;
+  maxDepth?: number;
+  maxFields?: number;
+  maxDecompressionRatio?: number;
+  customRedactionPatterns?: string[];
+};
 export type HttpCaptureAnalysisResult = AnalysisResult<"http_capture">;
 export type ProfileEvidenceRequest = { path: string; format?: string; topN?: number; intervalMs?: number; profileKind?: string; maxBytes?: number; maxSamples?: number };
 export type ProfileEvidenceAnalysisResult = AnalysisResult<"profile_evidence">;

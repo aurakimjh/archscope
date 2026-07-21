@@ -8,13 +8,14 @@ The previous long-form history was archived to
 
 ## Status Overview
 
-**Overall: 163 of 171 tracked tasks are `DONE` (95.3%).** The next actionable
-task is **T-579 (`TODO`)**, the H-RG1 offline HAR analysis group.
+**Overall: 163 of 171 tracked tasks are `DONE` (95.3%).** The active task is
+**T-579 (`IN_PROGRESS`)**, the H-RG1 offline HAR analysis group. Its Codex-owned
+engine slice is complete; H-SEC1, Claude-owned UI work, and the group review remain.
 
 | Status | Count | Meaning |
 |---|---:|---|
-| `TODO` | 1 | Ready to start; prerequisites are satisfied |
-| `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
+| `TODO` | 0 | Ready to start; prerequisites are satisfied |
+| `IN_PROGRESS` | 1 | Implementation or documentation work is actively underway |
 | `REVIEW` | 0 | Implementation is complete and waiting for its required review gate |
 | `PENDING` | 7 | Waiting for a prerequisite, external condition, or activation trigger |
 | `DONE` | 163 | Completion criteria and required review gates have passed |
@@ -29,7 +30,7 @@ same change so this overview remains the status source of truth.
 
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
-| 1 | T-579 | P0 | `TODO` | Start H-RG1 bounded HAR engine/UI work; pass H-SEC1 and the full group review |
+| 1 | T-579 | P0 | `IN_PROGRESS` | Codex engine complete; run H-SEC1, complete Claude UI work, then pass the full group review |
 | 2 | T-571 | P0 | `PENDING` | Wait for H-RG1, then run ETW/WFP real-NIC and direct TCP-owner CAP-5 measurements on Windows |
 | 3 | T-580 | P0 | `PENDING` | Requires T-571/H-RG2 `PASS` and T-579 `PASS` |
 | 4 | T-581 | P1 | `PENDING` | Requires T-580 `PASS` |
@@ -49,8 +50,12 @@ same change so this overview remains the status source of truth.
 - Release baseline: `v0.3.5` is the latest stable GitHub release. The
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
-- Current execution focus: complete the `H-RG1` offline HAR analysis slice and
-  its mandatory H-SEC1 security gate. The independent C-RG1 re-review returned
+- Current execution focus: review the completed Codex `H-RG1` offline HAR
+  engine through H-SEC1, then complete the Claude UI slice and group review.
+  The engine now includes the canonical transaction/timing/fidelity model,
+  staged dialect normalization, resource guards, field-aware redaction,
+  manifest-driven shared-fixture goldens, bounded results, and CLI/Wails parity.
+  The independent C-RG1 re-review returned
   `PASS` on 2026-07-21 after verifying all engine A-E and UI U1-U5 remediations,
   so T-578 is complete and H-RG1 is unblocked. After H-RG1 passes, close the
   T-571 Windows real-NIC coverage proof before live HTTP capture. Codex owns
@@ -203,16 +208,23 @@ same change so this overview remains the status source of truth.
 - Closed C-RG1 with an independent `PASS` after all ten engine/UI remediation
   findings were re-verified against the 16-fixture goldens, engine tests,
   frontend state regressions, `go vet`, and full builds; H-RG1 is unblocked.
+- Completed the Codex-owned H-RG1 engine slice: canonical HAR transactions and
+  explicit timing states, Chrome/Firefox/Safari/Charles/Fiddler/Proxyman/
+  Insomnia/generic dialect normalization, bounded gzip/JSON/body parsing,
+  field-aware default-on redaction, bounded AnalysisResult aggregation, HAR
+  content detection, CLI/Wails option parity, generated bindings, and the
+  shared 20-fixture manifest regression suite.
 
 ## Current Risk
 
 The C-RG1 risk is closed. Its 2026-07-21 independent re-review returned `PASS`
 after re-verifying all ten engine/UI remediation findings and the 16-fixture,
-engine, frontend, vet, and build evidence. The active risk has moved to H-RG1:
-offline HAR import must preserve the canonical transaction/timing/fidelity
-contract, remain bounded, apply dedicated redaction, and pass H-SEC1 before UI
-detail/export handoff. Live HTTP capture remains separately blocked by H-RG1
-and the T-571 Windows real-NIC coverage proof.
+engine, frontend, vet, and build evidence. The Codex H-RG1 engine implementation
+now preserves the canonical transaction/timing/fidelity contract, applies
+bounded parsing and dedicated redaction, and passes the shared fixture suite.
+The active H-RG1 risk is its mandatory independent H-SEC1 review plus the
+remaining Claude detail/export UI and full group review. Live HTTP capture
+remains separately blocked by H-RG1 and the T-571 Windows real-NIC coverage proof.
 
 The Electron-to-Wails migration risk is closed. The highest large-file issue
 found in the 2026-05-09 audit has been mitigated: GC log analysis no longer
@@ -273,10 +285,10 @@ filtered before analysis.
 
 ## Next Execution Queue
 
-1. **TODO — T-579 / H-RG1:** Codex finishes the manifest-driven bounded HAR
-   engine and H-SEC1 security gate; Claude completes timeline/brush,
-   list/detail/filter, diagnostics, and Workspace UI; review the vertical slice
-   as one group.
+1. **IN_PROGRESS — T-579 / H-RG1:** submit the completed manifest-driven,
+   bounded HAR engine to H-SEC1; then Claude completes timeline/brush,
+   list/detail/filter, diagnostics, redaction, and Workspace UI before the full
+   vertical-slice group review.
 2. **PENDING — T-571 / H-RG2:** complete the ETW/WFP real-NIC run and direct
    `GetExtendedTcpTable` CAP-5 CPU-overhead rerun. Treat the evidence disposition
    as the mandatory H-COV1 review before Windows live capture.
@@ -312,7 +324,7 @@ The authoritative paired plan is
 | Order | Group | Owners | Status | Gate |
 |---:|---|---|---|---|
 | 1 | C-RG1 Chrome/V8 release implementation acceptance | Codex engine, Claude UI fixes | DONE — verdict `PASS`, 2026-07-21 | Closed |
-| 2 | H-RG1 offline HAR analysis completion | Codex engine, Claude UI | TODO — next execution focus | H-SEC1 and group PASS |
+| 2 | H-RG1 offline HAR analysis completion | Codex engine, Claude UI | IN_PROGRESS — Codex engine complete; H-SEC1 and UI pending | H-SEC1 and group PASS |
 | 3 | H-RG2 Windows coverage proof | Codex | PENDING — H-RG1 and Windows real-NIC run | H-COV1 PASS |
 | 4 | H-RG3 live-capture engine foundation | Codex | PENDING — H-RG2 and H-RG1 | H-SEC2 and group PASS |
 | 5 | H-RG4 live UI and Windows E2E | Claude UI, Codex integration | PENDING — H-RG3 | Group PASS |
@@ -412,7 +424,7 @@ deferred until explicitly promoted.
 |---|---|---|---|---|---|
 | T-577 | P0 | DONE | Read the Chrome/V8 and system HTTP-capture designs and completed reviews, reconcile them with current code, and publish a paired English/Korean implementation plan with Codex engine ownership, Claude UI ownership, grouped review gates, and narrowly scoped individual security/semantic reviews. | T-558 through T-576 | Completed 2026-07-21: paired `BROWSER_PROFILE_HTTP_CAPTURE_IMPLEMENTATION_PLAN.md`; stale T-565 documentation status corrected; work status and execution queue aligned |
 | T-578 | P0 | DONE | Resolve the C-RG1 `CONDITIONAL` verdict and obtain independent re-review `PASS`. Codex A-E: reconcile the time-attribution contract with real Chrome semantics and add an exact convention-pinning golden plus tail handling; emit separate recording/active/idle/sampled durations without conflating `total_duration_us`; add Chrome-trace negative-delta diagnostic fixture/parity and hitCount cross-check; make first-sample handling independent of `startTime`. Claude U1-U5: render engine diagnostics and explicit suppressed/aggregated timeline states; add flamegraph/drilldown; expose `.json.gz`; add empty-state/i18n/table a11y; add Browser CPU regression tests for diagnostics, suppression, and the non-Long-Task wording. | T-565, T-577 | Completed 2026-07-21. Codex A-E landed in `5db8df8`, `ed01dd0`, `7b24206`, `40c6bde`, and `3249c27`; Claude U1-U5 landed in `b023040`; shared exact/negative-trace fixtures are in projects-assets `de7cf07` and `5531036`. Independent re-review at `b023040` returned `PASS` after verifying all ten findings, 16-fixture goldens, engine tests, frontend state tests, EN/KO i18n parity, `go vet`, and full builds. H-RG1/T-579 is unblocked. |
-| T-579 | P0 | TODO | Complete and review H-RG1 offline HAR analysis. Codex: canonical transaction/timing/fidelity model, staged dialect normalizer, resource limits, shared manifest goldens, dedicated redaction, bounded result and CLI/Wails parity. Claude: pseudo-process tree, timeline/brush, list/detail/filter, fidelity/diagnostics/redaction UX and Workspace regression. | T-578 PASS; T-568 through T-573 | Must pass individual H-SEC1 before UI detail/export handoff, then one full vertical-slice group review |
+| T-579 | P0 | IN_PROGRESS | Complete and review H-RG1 offline HAR analysis. Codex: canonical transaction/timing/fidelity model, staged dialect normalizer, resource limits, shared manifest goldens, dedicated redaction, bounded result and CLI/Wails parity. Claude: pseudo-process tree, timeline/brush, list/detail/filter, fidelity/diagnostics/redaction UX and Workspace regression. | T-578 PASS; T-568 through T-573 | Codex engine completed 2026-07-21 with all 20 shared HAR fixtures, resource/adversarial guards, default-on redaction, bounded result aggregation, CLI/Wails parity, regenerated bindings, full Go test/vet, and frontend build passing. Remaining: independent H-SEC1, Claude UI, then full vertical-slice group review |
 | T-580 | P0 | PENDING | Implement and review H-RG3 live-capture engine foundation: session lifecycle/recovery, versioned NDJSON/blob store and cursor API, bounded streaming/backpressure/loss counters, H1 semantic MITM with H2 passthrough, Windows process attribution, Wails snapshot/event recovery, and CA/TLS policy. | T-571/H-RG2 PASS, T-579 PASS | Codex-owned engine group; mandatory H-SEC2 CA/TLS/privilege review before live UI handoff |
 | T-581 | P1 | PENDING | Implement and review H-RG4 Windows live-capture UI and E2E. Claude: capture controls, CA lifecycle UX, process tree, stable live rows, recovery/backpressure/coverage/fidelity states. Codex: frozen bindings, acceptance fixtures, Windows E2E and packaging support. | T-580 PASS | Group PASS requires browser/curl/JVM/Electron supported-tier scenarios, long sessions, page re-entry, failure recovery, and honest unsupported-state UX |
 | T-582 | P1 | PENDING | Implement and review H-RG5 HTTP-specific session Diff with versioned URL templates, bounded dimensions, explicit rate denominators, time-alignment grades, `http_capture_diff` findings, Workspace routing, and grade-aware comparison UI. | T-581 PASS, T-575 | Codex analyzer plus Claude comparison UI; reordered equivalent sessions must compare equal |

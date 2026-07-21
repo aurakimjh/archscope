@@ -66,6 +66,24 @@ func TestFormatRegistryUnknownFormat(t *testing.T) {
 	}
 }
 
+func TestHTTPCaptureFormatDetectsHARAndRejectsNetLog(t *testing.T) {
+	registry, err := NewFormatRegistry(HTTPCaptureSourceFormat())
+	if err != nil {
+		t.Fatal(err)
+	}
+	detection, err := registry.Detect(Probe{Path: "capture.json", Extension: ".json", Head: []byte{0xef, 0xbb, 0xbf, '{', '"', 'l', 'o', 'g', '"', ':', '{', '"', 'e', 'n', 't', 'r', 'i', 'e', 's', '"', ':', '[', ']', '}', '}'}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if detection.FormatID != "har" || detection.SourceKind != SourceKindHTTPCapture || detection.Confidence < 0.9 {
+		t.Fatalf("unexpected HAR detection: %+v", detection)
+	}
+	_, err = registry.Detect(Probe{Path: "netlog.json", Extension: ".json", Head: []byte(`{"constants":{},"events":[]}`)})
+	if !errors.Is(err, ErrUnknownFormat) {
+		t.Fatalf("NetLog detection error = %v, want ErrUnknownFormat", err)
+	}
+}
+
 func TestCheckFixtureCoversDiagnostics(t *testing.T) {
 	diags := diagnostics.New("demo")
 	diags.TotalLines = 3

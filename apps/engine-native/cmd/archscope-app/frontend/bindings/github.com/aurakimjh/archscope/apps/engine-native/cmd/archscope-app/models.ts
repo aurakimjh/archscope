@@ -1090,6 +1090,13 @@ export class HttpCaptureRequest {
     "format"?: string;
     "topN"?: number;
     "maxEntries"?: number;
+    "maxBytes"?: number;
+    "maxStringBytes"?: number;
+    "maxBodyBytes"?: number;
+    "maxDepth"?: number;
+    "maxFields"?: number;
+    "maxDecompressionRatio"?: number;
+    "customRedactionPatterns"?: string[];
 
     /** Creates a new HttpCaptureRequest instance. */
     constructor($$source: Partial<HttpCaptureRequest> = {}) {
@@ -1104,7 +1111,11 @@ export class HttpCaptureRequest {
      * Creates a new HttpCaptureRequest instance from a string or object.
      */
     static createFrom($$source: any = {}): HttpCaptureRequest {
+        const $$createField10_0 = $$createType2;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("customRedactionPatterns" in $$parsedSource) {
+            $$parsedSource["customRedactionPatterns"] = $$createField10_0($$parsedSource["customRedactionPatterns"]);
+        }
         return new HttpCaptureRequest($$parsedSource as Partial<HttpCaptureRequest>);
     }
 }
