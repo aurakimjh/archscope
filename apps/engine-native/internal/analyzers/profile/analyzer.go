@@ -39,7 +39,7 @@ func Build(parsed parser.Parsed, sourceFile string, diags *diagnostics.ParserDia
 	if intervalMS <= 0 {
 		intervalMS = 100
 	}
-	stacks := collapsedStacks(parsed.Samples)
+	stacks := collapsedStacks(parsed.Samples, parsed.ValueUnit)
 	profileKind := firstNonEmpty(opts.ProfileKind, dominantProfileKind(parsed.Samples), "wall")
 	coreIntervalMS := intervalMS
 	if parsed.ValueUnit == "microseconds" {
@@ -71,7 +71,7 @@ func Build(parsed parser.Parsed, sourceFile string, diags *diagnostics.ParserDia
 	result.Tables = map[string]any{
 		"top_stacks":       core.Tables.TopStacks,
 		"top_child_frames": core.Tables.TopChildFrames,
-		"frames":           frameRows(parsed.Samples, topN),
+		"frames":           frameRows(parsed.Samples, topN, parsed.ValueUnit),
 		"profile_samples":  sampleRows(parsed.Samples, topN),
 	}
 	result.Charts = map[string]any{
@@ -206,19 +206,16 @@ func sampledCPURuns(samples []parser.Sample, limit int) ([]map[string]any, []map
 	return rows, activity
 }
 
-func collapsedStacks(samples []parser.Sample) map[string]int {
+func collapsedStacks(samples []parser.Sample, valueUnit string) map[string]int {
 	out := map[string]int{}
-	for _, sample := range samples {
-		if sample.Value == 0 && sample.TimestampUS != 0 {
-			continue // V8's first sample has no preceding duration to attribute.
-		}
+	for index, sample := range samples {
 		key := stackKey(sample.Stack)
 		if key == "" {
 			continue
 		}
-		value := int(sample.Value)
-		if value <= 0 {
-			value = 1
+		value := normalizedSampleWeight(index, sample, valueUnit)
+		if value == 0 {
+			continue
 		}
 		out[key] += value
 	}
@@ -233,11 +230,8 @@ func summary(parsed parser.Parsed, stacks map[string]int, intervalMS float64) ma
 	maxDepth := 0
 	threads := map[string]int{}
 	processes := map[string]int{}
-	for _, sample := range parsed.Samples {
-		value := int(sample.Value)
-		if value == 0 && sample.TimestampUS == 0 {
-			value = 1
-		}
+	for index, sample := range parsed.Samples {
+		value := normalizedSampleWeight(index, sample, parsed.ValueUnit)
 		total += value
 		if len(sample.Stack) > maxDepth {
 			maxDepth = len(sample.Stack)
@@ -348,16 +342,16 @@ func isIdleSample(sample parser.Sample) bool {
 	return strings.EqualFold(strings.TrimSpace(firstNonEmpty(leaf.Name, leaf.Function)), "(idle)")
 }
 
-func frameRows(samples []parser.Sample, limit int) []map[string]any {
+func frameRows(samples []parser.Sample, limit int, valueUnit string) []map[string]any {
 	type aggregate struct {
 		frame   parser.Frame
 		samples int
 	}
 	counts := map[string]aggregate{}
-	for _, sample := range samples {
-		value := int(sample.Value)
-		if value == 0 && sample.TimestampUS == 0 {
-			value = 1
+	for index, sample := range samples {
+		value := normalizedSampleWeight(index, sample, valueUnit)
+		if value == 0 {
+			continue
 		}
 		for _, frame := range sample.Stack {
 			key := strings.Join([]string{frame.Name, frame.File, frame.Runtime, frame.Language}, "\x00")
@@ -396,6 +390,20 @@ func frameRows(samples []parser.Sample, limit int) []map[string]any {
 		})
 	}
 	return out
+}
+
+func normalizedSampleWeight(index int, sample parser.Sample, valueUnit string) int {
+	value := int(sample.Value)
+	if valueUnit == "microseconds" {
+		// index is intentionally part of this boundary: the first V8 sample
+		// may be timestamped at zero, but its zero duration must not be
+		// inferred as one sample. Later zero-width intervals are also exact.
+		if index == 0 && value == 0 {
+			return 0
+		}
+		return maxInt(0, value)
+	}
+	return maxInt(1, value)
 }
 
 func sampleRows(samples []parser.Sample, limit int) []map[string]any {

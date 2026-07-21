@@ -58,6 +58,13 @@ func TestBuildEmitsSampledCPURunsWithoutClaimingLongTasks(t *testing.T) {
 	if !found {
 		t.Fatal("expected sampled CPU hotspot finding")
 	}
+	if result.Summary["total_samples"] != 120_000 {
+		t.Fatalf("startTime=0 first sample skewed total: %#v", result.Summary)
+	}
+	flame := result.Charts["flamegraph"].(coreprofiler.FlameNode)
+	if len(flame.Children) != 1 || flame.Children[0].Samples != 120_000 {
+		t.Fatalf("startTime=0 first sample skewed flamegraph: %+v", flame)
+	}
 }
 
 func TestBrowserFlamegraphClassificationIsSourceAware(t *testing.T) {
