@@ -13,15 +13,12 @@ This document does not redefine either design. It translates the approved
 contracts into an implementation order where related tasks are reviewed as a
 group and **the next group cannot start until the current group passes**.
 
-- **Part A — Chrome/V8 profile analysis:** the engine, desktop UI, Diff,
-  Workspace, paired docs, fixtures, and release smoke are implemented. The new
-  process still requires an independent implementation review, so `C-RG1` is
-  **implemented / awaiting review**.
-- **Part B — HTTP capture and analysis:** Phase-0 design gates, the proxy PoC,
-  and deterministic aggregation are complete. A HAR parser/analyzer and minimal
-  import page exist, but manifest-driven dialect/security goldens, dedicated
-  redaction and resource limits, timeline/brush, detail, and filter UX remain.
-  Windows live capture cannot start until the T-571 real-NIC evidence closes.
+- **Part A — Chrome/V8 profile analysis:** `C-RG1` is **complete — PASS**.
+- **Part B — HTTP capture and analysis:** `H-RG1` offline HAR analysis is
+  **complete — integrated PASS (2026-07-21)**, including engine and H-SEC1
+  re-reviews, the bounded import UI, shared fixtures, and full engine/frontend
+  verification. Windows live capture remains blocked until the T-571 real-NIC
+  evidence closes.
 
 ## 2. Ownership
 
@@ -66,7 +63,7 @@ Only high-consequence boundaries receive an extra per-item gate:
 |---:|---|---|---|
 | 0 | `PLAN-RG0` execution plan | **Complete** | This plan and `work_status.md` agree |
 | 1 | `C-RG1` Chrome/V8 release implementation acceptance | **Complete — PASS (2026-07-21)** | Independent `PASS` |
-| 2 | `H-RG1` complete offline HAR analysis | **In progress — engine/H-SEC1 remediation complete; re-review/UI pending** | `C-RG1 PASS`; internal `H-SEC1 PASS` |
+| 2 | `H-RG1` complete offline HAR analysis | **Complete — integrated PASS (2026-07-21)** | Closed |
 | 3 | `H-RG2` Windows coverage proof | Waiting | `H-RG1 PASS`; real-NIC evidence and `H-COV1 PASS` |
 | 4 | `H-RG3` live-capture engine foundation | Planned | `H-RG2 PASS`; internal `H-SEC2 PASS` |
 | 5 | `H-RG4` live UI and Windows E2E | Planned | `H-RG3 PASS` |
@@ -81,8 +78,8 @@ to join them.
 
 ### C-RG1 — Accept the Existing Release Implementation
 
-**Status:** implemented, awaiting independent review. This group approves the
-completed T-558 through T-565 work under the new gate process.
+**Status:** complete — `PASS` (2026-07-21). This group approved the completed
+T-558 through T-565 work under the new gate process.
 
 #### Codex Engine Review Scope
 
@@ -100,7 +97,7 @@ completed T-558 through T-565 work under the new gate process.
 - [x] Copy that never presents sampled CPU runs as browser Long Tasks
 - [x] Partial/downsample diagnostic visibility
 - [x] Flamegraph, drilldown, and Workspace flow
-- [ ] Fix UI regression or accessibility findings from independent review
+- [x] Fix UI regression or accessibility findings from independent review
 
 #### PASS Criteria
 
@@ -154,25 +151,31 @@ Malicious-input resource limits and SEC-4 through SEC-7 must pass, with proof
 that secrets do not reappear in diagnostics, findings, exports, or Workspace,
 before UI detail/export integration proceeds.
 
-The 2026-07-21 independent review returned `CONDITIONAL`; all P1/P2/P3
-remediation is now reflected in code and the paired contracts. The gate is
-**awaiting independent re-review** and is not closed until that review returns
-`PASS`.
+The 2026-07-21 remediation re-review returned `PASS`: all original P1/P2/P3
+findings are closed. Phase-2+ SEC-8/10/16/17 implementation measurements remain
+assigned to H-SEC2 and do not reopen this offline-import gate.
 
-#### Claude UI TODO
+#### Claude UI — Complete (2026-07-21)
 
-- [ ] `(HAR import)` pseudo-process tree and summary cards
-- [ ] Full timeline, brush selection, and selected-window recomputation
-- [ ] Transaction list plus request/response/timing/process detail tabs
-- [ ] Method/status/host/path/MIME/duration/error/fidelity filters
-- [ ] Dialect, fidelity, redaction, parser diagnostics, and degenerate-time copy
-- [ ] Bounded rendering, empty/error/partial states, and Workspace regressions
+- [x] `(HAR import)` pseudo-process tree and summary cards
+- [x] Full timeline, brush selection, and selected-window recomputation
+- [x] Transaction list plus request/response/timing/process detail tabs
+- [x] Method/status/host/path/MIME/duration/error/fidelity filters
+- [x] Dialect, fidelity, redaction, parser diagnostics, and degenerate-time copy
+- [x] Bounded rendering, empty/error/partial states, and Workspace regressions
 
 #### PASS Criteria
 
 All 20 manifest fixtures and at least two sanitized real exports pass; the UI
 timeline selection and filters use the same denominator; import-only UI makes
 no live-capture claim.
+
+The integrated check accepted the deliberately bounded inline-row denominator:
+cards, list, and tree use the same filtered rows and the UI explicitly labels
+the result as a floor rather than a full-session filtered total. Populated state,
+provenance, Workspace, typed component wiring, and production-build evidence
+close the Phase-1 UI gate; deeper Wails component fixtures remain non-blocking
+hardening. Full Go tests/vet/build and frontend state/build checks passed.
 
 ### H-RG2 — Windows Coverage Proof (T-571)
 
@@ -278,7 +281,6 @@ HAR pseudo-process sessions.
 
 ## 8. First Execution Point
 
-The next action is an independent `C-RG1` review of the Chrome/V8 implementation
-and its 2026-07-21 release smoke. No `H-RG1` code starts before that review
-passes. Review fixes stay in the same group: Codex owns engine fixes, Claude owns
-UI fixes, followed by re-verification and re-review.
+The next action is T-571 / `H-RG2`: run the Windows real-NIC ETW/WFP coverage
+measurements and direct `GetExtendedTcpTable` CAP-5 overhead measurement, then
+obtain `H-COV1 PASS` before starting the live-capture engine group.

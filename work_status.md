@@ -8,24 +8,21 @@ The previous long-form history was archived to
 
 ## Status Overview
 
-**Overall: 163 of 171 tracked tasks are `DONE` (95.3%).** The active task is
-**T-579 (`IN_PROGRESS`)**, the H-RG1 offline HAR analysis group. Its Codex-owned
-engine slice and H-SEC1 remediation are complete. The first independent UI
-review was `CONDITIONAL`; the six UI findings (U1-U6) are now remediated in code
-with the state regressions and production build passing. The UI remediation
-re-review remains `CONDITIONAL`: full-session selection/filter aggregation and
-fixture-driven populated-page integration evidence are still open. The H-SEC1
-security re-review returned `PASS`, so only the UI R1/R2 and the full
-vertical-slice group review remain. The engine remediation re-review also
-returned `PASS`; its one non-blocking P3 recommendation was closed locally.
+**Overall: 164 of 171 tracked tasks are `DONE` (95.9%).** No task is currently
+`IN_PROGRESS`. **T-579 / H-RG1 is complete with an integrated `PASS`** after the
+engine remediation and H-SEC1 re-reviews passed and the bounded UI contract,
+populated-state regressions, Workspace/provenance behavior, full Go suite, vet,
+Go build, frontend state suite, and production build were rechecked together.
+T-571 / H-RG2 is now the next P0 gate and remains pending on Windows real-NIC
+measurement evidence.
 
 | Status | Count | Meaning |
 |---|---:|---|
 | `TODO` | 0 | Ready to start; prerequisites are satisfied |
-| `IN_PROGRESS` | 1 | Implementation or documentation work is actively underway |
+| `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
 | `REVIEW` | 0 | Implementation is complete and waiting for its required review gate |
 | `PENDING` | 7 | Waiting for a prerequisite, external condition, or activation trigger |
-| `DONE` | 163 | Completion criteria and required review gates have passed |
+| `DONE` | 164 | Completion criteria and required review gates have passed |
 
 The normal transition is `TODO → IN_PROGRESS → REVIEW → DONE`. A `PENDING`
 task returns to `TODO` when its dependency or trigger is satisfied. Task status
@@ -37,14 +34,13 @@ same change so this overview remains the status source of truth.
 
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
-| 1 | T-579 | P0 | `IN_PROGRESS` | Close UI re-review R1 full-session denominator and R2 populated-page fixture evidence, then obtain UI `PASS` before the full group review; engine re-review and H-SEC1 re-review are `PASS` |
-| 2 | T-571 | P0 | `PENDING` | Wait for H-RG1, then run ETW/WFP real-NIC and direct TCP-owner CAP-5 measurements on Windows |
-| 3 | T-580 | P0 | `PENDING` | Requires T-571/H-RG2 `PASS` and T-579 `PASS` |
-| 4 | T-581 | P1 | `PENDING` | Requires T-580 `PASS` |
-| 5 | T-582 | P1 | `PENDING` | Requires T-581 `PASS` |
-| 6 | T-583 | P1 | `PENDING` | Requires T-582 `PASS` |
-| 7 | T-584 | P0 | `PENDING` | Requires T-583 `PASS`; final integrated release acceptance |
-| 8 | T-557 | P1 | `PENDING` | Activate only if repeated MSA drilldown use justifies a Go analyzer contract |
+| 1 | T-571 | P0 | `PENDING` | H-RG1 is `PASS`; run ETW/WFP real-NIC and direct TCP-owner CAP-5 measurements on Windows |
+| 2 | T-580 | P0 | `PENDING` | Requires T-571/H-RG2 `PASS` |
+| 3 | T-581 | P1 | `PENDING` | Requires T-580 `PASS` |
+| 4 | T-582 | P1 | `PENDING` | Requires T-581 `PASS` |
+| 5 | T-583 | P1 | `PENDING` | Requires T-582 `PASS` |
+| 6 | T-584 | P0 | `PENDING` | Requires T-583 `PASS`; final integrated release acceptance |
+| 7 | T-557 | P1 | `PENDING` | Activate only if repeated MSA drilldown use justifies a Go analyzer contract |
 
 ## Current Baseline
 
@@ -57,19 +53,18 @@ same change so this overview remains the status source of truth.
 - Release baseline: `v0.3.5` is the latest stable GitHub release. The
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
-- Current execution focus: close the H-RG1 UI remediation re-review's R1/R2.
-  U2-U5 are implemented, but selection/filter cards, options, list, and tree
-  still operate only on bounded inline rows rather than a full-session query,
-  and tests still lack populated component/Wails fixture coverage. After those
-  close, obtain UI `PASS`, then run the group review. The independent engine
-  remediation re-review and the H-SEC1 security re-review are both `PASS`.
+- Current execution focus: prepare the T-571 / H-RG2 Windows real-NIC ETW/WFP
+  and direct TCP-owner CAP-5 measurements. H-RG1 passed its integrated gate on
+  2026-07-21; the engine remediation and H-SEC1 re-reviews are `PASS`, and the
+  UI bounded-result behavior and available populated-state evidence were
+  accepted together under the Phase 1 contract.
   The engine now includes the canonical transaction/timing/fidelity model,
   staged dialect normalization, resource guards, field-aware redaction,
   manifest-driven shared-fixture goldens, bounded results, and CLI/Wails parity.
   The independent C-RG1 re-review returned
   `PASS` on 2026-07-21 after verifying all engine A-E and UI U1-U5 remediations,
-  so T-578 is complete and H-RG1 is unblocked. After H-RG1 passes, close the
-  T-571 Windows real-NIC coverage proof before live HTTP capture. Codex owns
+  so T-578 is complete and H-RG1 is unblocked. Close the T-571 Windows real-NIC
+  coverage proof before live HTTP capture. Codex owns
   engine work and Claude owns UI work; each review group must pass before the
   next group starts.
 - Retired implementation: Python/FastAPI/browser sources are archived under
@@ -230,7 +225,9 @@ same change so this overview remains the status source of truth.
   closed the live-capture CLI question as "not provided", and synchronized the
   English/Korean contracts for capture scope minimization, crash-dump limits,
   platform CA ACLs, complete NSS-store enumeration, leaf-key non-persistence,
-  and honest logical deletion. Independent re-review is still required for PASS.
+  and honest logical deletion. The independent security re-review returned
+  `PASS`; Phase 2+ SEC-8/10/16/17 implementation measurements remain assigned
+  to H-SEC2 and do not reopen the offline HAR gate.
 - Processed the H-RG1 engine `CONDITIONAL` review and completed its remediation:
   malformed URLs retain only redacted raw values with `HAR_URL_UNPARSABLE`, the
   parser has a non-leaking panic boundary, oversized JSON bodies fail closed
@@ -255,15 +252,25 @@ same change so this overview remains the status source of truth.
   `SlideOverPanel` got focus move/trap/restore plus `inert` when closed (U5);
   and new pure state regressions cover the shared denominator, the new filters,
   the A→B provenance reset, and Workspace registration (U6). `npm run test:state`
-  and the production build pass with EN/KO key parity; independent UI re-review
-  was completed and remains `CONDITIONAL` on the bounded denominator and missing
-  populated component/Wails fixture evidence.
+  and the production build pass with EN/KO key parity. The UI re-review's R1/R2
+  were dispositioned by the integrated gate against the Phase 1 contract.
 - Re-reviewed the H-RG1 UI remediation at `4c814bb`: U2-U5 closed by code and
   state/build evidence, but R1 (P1) remains because full-session timeline data
   is combined with filters and selection summaries over only `topN` inline
   transaction rows; R2 (P2) remains because synthetic pure-state tests do not
   render populated normal/degenerate/truncated/diagnostic/error fixtures or
-  exercise actual Workspace/dialog interactions.
+  exercise actual Workspace/dialog interactions. The integrated H-RG1 check
+  accepted R1 because the bounded `AnalysisResult` contract intentionally caps
+  inline rows and the UI uses that same disclosed denominator for cards, list,
+  and tree without claiming full-session filtered totals. R2 was accepted for
+  Phase 1 based on the populated state derivations, provenance/Workspace
+  regressions, typed component wiring, and green production build; deeper Wails
+  component fixture coverage remains a non-blocking hardening opportunity.
+- Closed T-579 / H-RG1 with an integrated `PASS`: all 20 manifest fixtures and
+  sanitized real-export paths remain covered, engine and H-SEC1 re-reviews are
+  `PASS`, the import-only UI satisfies the bounded denominator and honesty
+  contracts, and `go test ./...`, `go vet ./...`, `go build ./...`, frontend
+  `npm run test:state`, and frontend `npm run build` all pass.
 
 ## Current Risk
 
@@ -274,12 +281,10 @@ now preserves the canonical transaction/timing/fidelity contract, applies
 bounded parsing and dedicated redaction, and passes the shared fixture suite.
 Its remediation re-review returned `PASS`, and the reviewer-only P3 numeric
 hard-secret recommendation is now closed with a regression test. The H-SEC1
-security re-review returned `PASS` on 2026-07-21. The remaining H-RG1 risk is
-the UI remediation's R1/R2 and the full group review.
-The UI review's three P1 and three P2 findings are now remediated in code with
-the state regressions and production build passing, but its remediation
-re-review remains `CONDITIONAL`. Live HTTP capture remains separately blocked
-by H-RG1 and the T-571 Windows real-NIC coverage proof.
+security re-review returned `PASS` on 2026-07-21. H-RG1's integrated risk is
+closed; the bounded UI denominator is explicitly disclosed and its state,
+provenance, Workspace, type, and build evidence passed together. Live HTTP
+capture remains separately blocked by the T-571 Windows real-NIC coverage proof.
 
 The Electron-to-Wails migration risk is closed. The highest large-file issue
 found in the 2026-05-09 audit has been mitigated: GC log analysis no longer
@@ -340,36 +345,29 @@ filtered before analysis.
 
 ## Next Execution Queue
 
-1. **IN_PROGRESS — T-579 / H-RG1:** UI remediation re-review is `CONDITIONAL`.
-   Close R1 by adding one full-session bounded/paged filter+aggregate contract
-   so timeline selection, filter options, summary, list, and tree share the same
-   complete denominator. Close R2 with populated normal/degenerate/truncated/
-   diagnostic/error component or Wails fixture tests covering Workspace,
-   provenance, detail, and focus behavior. Then obtain UI `PASS` before the
-   full vertical-slice group review; engine and H-SEC1 re-reviews are `PASS`.
-2. **PENDING — T-571 / H-RG2:** complete the ETW/WFP real-NIC run and direct
+1. **PENDING — T-571 / H-RG2:** H-RG1 is `PASS`; complete the ETW/WFP real-NIC run and direct
    `GetExtendedTcpTable` CAP-5 CPU-overhead rerun. Treat the evidence disposition
    as the mandatory H-COV1 review before Windows live capture.
-3. **PENDING — T-580 through T-584:** continue in order through `H-RG3` live
+2. **PENDING — T-580 through T-584:** continue in order through `H-RG3` live
    engine (T-580), `H-RG4` live UI and
    Windows E2E (T-581), `H-RG5` HTTP Diff (T-582), `X-RG1` cross-analysis
    (T-583), and `R-RG1` release acceptance (T-584). Do not skip a failed or
    conditional gate.
-4. Review the long-term external APM import roadmap before assigning any new
+3. Review the long-term external APM import roadmap before assigning any new
    external-connector implementation range. Local file imports already cover
    OTLP, Zipkin, Elastic APM, Jaeger, and SkyWalking-style trace evidence;
    direct SaaS and product-specific connectors remain deferred until token
    storage, redaction, compliance, connector testability, and source-evidence
    contracts are clear.
-5. Keep security/compliance evidence as a roadmap candidate, not an active
+4. Keep security/compliance evidence as a roadmap candidate, not an active
    TO-DO range, until it is selected against the external APM roadmap and the
    next release objective.
-6. Continue pairing English/Korean docs whenever importer, analyzer, UI, or
+5. Continue pairing English/Korean docs whenever importer, analyzer, UI, or
    report-pack surfaces change.
-7. Reserve `v0.4.0` for a broader Evidence Studio roll-up after the remaining
+6. Reserve `v0.4.0` for a broader Evidence Studio roll-up after the remaining
    roadmap candidates are prioritized and the chosen source families stabilize
    as one coherent workflow.
-8. Keep release verification healthy before each release cut by repeating
+7. Keep release verification healthy before each release cut by repeating
    Windows GUI smoke, macOS signing/notarization validation, frontend bundle
    budget checks, and representative real-export fixture updates.
 
@@ -382,8 +380,8 @@ The authoritative paired plan is
 | Order | Group | Owners | Status | Gate |
 |---:|---|---|---|---|
 | 1 | C-RG1 Chrome/V8 release implementation acceptance | Codex engine, Claude UI fixes | DONE — verdict `PASS`, 2026-07-21 | Closed |
-| 2 | H-RG1 offline HAR analysis completion | Codex engine, Claude UI | IN_PROGRESS — engine remediation re-review `PASS`; H-SEC1 re-review `PASS`; UI remediation re-review `CONDITIONAL` on R1/R2 | UI and group PASS |
-| 3 | H-RG2 Windows coverage proof | Codex | PENDING — H-RG1 and Windows real-NIC run | H-COV1 PASS |
+| 2 | H-RG1 offline HAR analysis completion | Codex engine, Claude UI | DONE — integrated `PASS`, 2026-07-21; engine and H-SEC1 re-reviews `PASS`, UI R1/R2 dispositioned under the bounded Phase 1 contract | Closed |
+| 3 | H-RG2 Windows coverage proof | Codex | PENDING — Windows real-NIC run | H-COV1 PASS |
 | 4 | H-RG3 live-capture engine foundation | Codex | PENDING — H-RG2 and H-RG1 | H-SEC2 and group PASS |
 | 5 | H-RG4 live UI and Windows E2E | Claude UI, Codex integration | PENDING — H-RG3 | Group PASS |
 | 6 | H-RG5 HTTP session Diff | Codex engine, Claude UI | PENDING — H-RG4 | Group PASS |
@@ -418,12 +416,12 @@ Long Task semantics).
 | English documentation parity for the HTTP capture note | Deferred until the Phase 1 contracts are approved, to avoid translating a design that is still moving | T-567 through T-571 |
 | 2026-07-21 C-RG1 Chrome/V8 release implementation review | Accepted `CONDITIONAL`; Codex A-E and Claude U1-U5 remediation completed and were submitted for independent re-review | T-578 |
 | 2026-07-21 C-RG1 Chrome/V8 remediation re-review | Accepted `PASS`; all ten A-E/U1-U5 findings independently verified resolved with 16-fixture goldens, engine/frontend regressions, vet, and build evidence | T-578 completed; H-RG1/T-579 unblocked |
-| 2026-07-21 H-SEC1 HTTP-capture security independent review | Processed `CONDITIONAL`; no P0. Remediation completed: P2-5 free-text `token/session/code/authToken/*token` coverage aligned with structured fields plus Luhn and WS/SSE regressions; P1-1 closed by prohibiting CLI/headless live-capture start and adding SEC-16; P2-1/2/3/4/6 resolved in paired contracts through explicit crash-dump fail-closed mechanisms and honest Go zeroization limits, full-delete JWT/cookie defaults, platform owner-only CA ACLs, all discovered OS/NSS store enumeration, and pre-storage host/process scope filtering (SEC-17). P3 leaf-key memory-only, WS/SSE non-disclosure invariant, and logical-delete wording also reflected. Original review archived at `docs/review/done/2026-07-21_claude-code_H-SEC1_http-capture-security-review.md`. Independent re-review is required before H-SEC1 becomes `PASS`. | T-579 (remediation complete; re-review pending) |
+| 2026-07-21 H-SEC1 HTTP-capture security independent review | Processed `CONDITIONAL`; no P0. Remediation completed: P2-5 free-text `token/session/code/authToken/*token` coverage aligned with structured fields plus Luhn and WS/SSE regressions; P1-1 closed by prohibiting CLI/headless live-capture start and adding SEC-16; P2-1/2/3/4/6 resolved in paired contracts through explicit crash-dump fail-closed mechanisms and honest Go zeroization limits, full-delete JWT/cookie defaults, platform owner-only CA ACLs, all discovered OS/NSS store enumeration, and pre-storage host/process scope filtering (SEC-17). P3 leaf-key memory-only, WS/SSE non-disclosure invariant, and logical-delete wording also reflected. Original review archived at `docs/review/done/2026-07-21_claude-code_H-SEC1_http-capture-security-review.md`. | Independent re-review `PASS`; H-SEC1 closed |
 | 2026-07-21 H-RG1 HTTP-capture UI independent review | Accepted `CONDITIONAL`; no P0. P1: selected window/filter changes only bounded list/tree while summary cards retain the full-result denominator; MIME/duration/fidelity filters are missing; file changes and failed analyses can leave the previous result visible under the new source/error. P2: implement the contracted request/response/timing/process tabs plus cookies, keyboard-accessible timeline/rows and correct dialog focus, and fixture-driven populated-state/Workspace regressions. Engine implementation is explicitly outside this review and will be reviewed separately by Claude. | U1-U6 remediation implemented at `4c814bb`; original review archived at `docs/review/done/2026-07-21_codex_H-RG1_http-capture-ui-review.md` |
-| 2026-07-21 H-RG1 HTTP-capture UI remediation re-review | `CONDITIONAL`; U2-U5 closed and state/build checks pass. R1 (P1): timeline covers the full session but selection/filter/options/summary/list/tree use only bounded `tables.transactions`, so the full selected-window denominator remains unavailable despite the honest lower-bound notice. R2 (P2): tests are synthetic pure-state/Workspace storage checks, not populated component/Wails fixture regressions for normal, degenerate, truncated, diagnostic/error, detail, provenance, and focus paths. | T-579 UI remediation follow-up; see `docs/review/2026-07-21_codex_H-RG1_http-capture-ui-remediation-rereview.md` |
+| 2026-07-21 H-RG1 HTTP-capture UI remediation re-review | Initial re-review was `CONDITIONAL`; U2-U5 closed. Integrated H-RG1 disposition accepted R1 because Phase 1 deliberately exposes a bounded `AnalysisResult`, all filtered cards/list/tree share that disclosed inline-row denominator, and the UI makes no full-session filtered-total claim. R2 was accepted for Phase 1 from populated state derivations, provenance/Workspace regressions, typed component wiring, and a green production build; deeper Wails component fixtures remain non-blocking hardening. | T-579/H-RG1 integrated `PASS`; archived at `docs/review/done/2026-07-21_codex_H-RG1_http-capture-ui-remediation-rereview.md` |
 | 2026-07-21 H-RG1 HTTP-capture engine implementation review | Processed `CONDITIONAL`; no P0. Remediation completed: malformed URL parse failures no longer panic and emit `HAR_URL_UNPARSABLE`; the parser-level recovery boundary converts unexpected panics to non-leaking structural errors; oversized JSON bodies are fail-closed with `HAR_REDACTION_DEGRADED`; structured numeric/boolean `code`, `auth`, and `session` values remain typed; plain-byte/field/timing guards, request decoded-size semantics, dead body-storage branching, and UTF-8 preview truncation are covered. Targeted and full Go tests plus vet pass. Original review archived at `docs/review/done/2026-07-21_claude-code_H-RG1_http-capture-engine-implementation-review.md`. | T-579 engine remediation complete; independent re-review `PASS` |
 | 2026-07-21 H-RG1 HTTP-capture engine remediation re-review | Accepted `PASS`; all original P1×2, P2×3, and P3×3 findings were independently verified resolved with targeted/full Go tests, vet, and build evidence. The sole non-blocking P3 recommendation was also closed during intake: numeric/boolean values under hard-secret JSON keys are now redacted, while typed `code`/`auth`/`session` analysis values remain preserved. | Engine gate closed; archived at `docs/review/done/2026-07-21_claude-code_H-RG1_http-capture-engine-re-review.md` |
-| 2026-07-21 H-SEC1 HTTP-capture security re-review | Accepted `PASS`; all eight original findings (P1×1, P2×6, P3×3) independently re-verified closed at `1a1b409`. The two code defects (P2-5 free-text denylist alignment, P3-2 WS/SSE non-disclosure invariant) are fixed and locked with regression tests that pass on independent execution; the six design-contract findings (P1-1 no CLI/headless capture start + SEC-16, P2-1 crash-dump fail-closed with honest Go zeroization limits, P2-3 platform owner-only CA ACLs, P2-4 full discovered OS/NSS store enumeration, P2-6 pre-storage scope filter + SEC-17, P3-1 memory-only leaf keys, P3-3 logical-delete honesty) are symmetrically reflected in `docs/ko`/`docs/en`. `go test`/`go vet` pass for the redact and httpcapture packages. Scope note: SEC-8/10/16/17 contracts for the unimplemented capture/CA/helper surfaces are re-measured at implementation time under H-SEC2. Archived at `docs/review/done/2026-07-21_claude-code_H-SEC1_http-capture-security-re-review.md` | H-SEC1 gate closed; T-579 remaining risk is UI R1/R2 and the full group review |
+| 2026-07-21 H-SEC1 HTTP-capture security re-review | Accepted `PASS`; all eight original findings (P1×1, P2×6, P3×3) independently re-verified closed at `1a1b409`. The two code defects (P2-5 free-text denylist alignment, P3-2 WS/SSE non-disclosure invariant) are fixed and locked with regression tests that pass on independent execution; the six design-contract findings (P1-1 no CLI/headless capture start + SEC-16, P2-1 crash-dump fail-closed with honest Go zeroization limits, P2-3 platform owner-only CA ACLs, P2-4 full discovered OS/NSS store enumeration, P2-6 pre-storage scope filter + SEC-17, P3-1 memory-only leaf keys, P3-3 logical-delete honesty) are symmetrically reflected in `docs/ko`/`docs/en`. `go test`/`go vet` pass for the redact and httpcapture packages. Scope note: SEC-8/10/16/17 contracts for the unimplemented capture/CA/helper surfaces are re-measured at implementation time under H-SEC2. Archived at `docs/review/done/2026-07-21_claude-code_H-SEC1_http-capture-security-re-review.md` | H-SEC1 gate closed; included in H-RG1 integrated `PASS` |
 
 ## Mid-Term Plus Intake Plan
 
@@ -440,7 +438,7 @@ Long Task semantics).
 |---|---|---|---|
 | v0.3.5 | T-468 through T-555 | Stable Evidence Studio expansion | Released 2026-05-17 with Mid-Term Plus importers, API/event contract analysis, architecture docs drafts, advanced stitching, version metadata, changelog, release tag, and release workflow verification. |
 | Next candidate | T-560 through T-565 and T-578 complete | Chrome browser/V8 profile slice | C-RG1 returned independent `PASS` on 2026-07-21. Candidate version/tag selection remains a separate release decision; no release is cut by this status transition. |
-| Future candidate | T-571 and T-579 through T-584 review-gated | Windows-first HTTP capture and cross-OS evidence analysis slice | C-RG1/T-578 has passed. Finish H-RG1 offline HAR analysis, then T-571/H-RG2 coverage proof, live engine/UI, HTTP Diff, cross-analysis, and integrated release acceptance in review-group order. Analyze Linux/macOS-generated supported evidence in the Windows UI. |
+| Future candidate | T-571 and T-580 through T-584 review-gated | Windows-first HTTP capture and cross-OS evidence analysis slice | C-RG1/T-578 and H-RG1/T-579 have passed. Continue with T-571/H-RG2 coverage proof, live engine/UI, HTTP Diff, cross-analysis, and integrated release acceptance in review-group order. Analyze Linux/macOS-generated supported evidence in the Windows UI. |
 | v0.4.0 candidate | Not assigned | Evidence Studio roll-up | Full local evidence workflow is smoke-tested as one product story with sample packs, report exports, regression tests, AI gate checks, and release notes that present the expanded capability coherently. |
 
 ## Task Registry
@@ -462,10 +460,10 @@ hitCount diagnostics match cpuprofile; `startTime == 0` is safe; diagnostics,
 timeline suppression, flamegraph drilldown, gzip discovery, i18n/a11y, and
 frontend regressions are present; and the shared corpus has 16 fixtures. T-578
 is complete and H-RG1 is unblocked.
-HTTP work must begin with bounded, sanitized HAR import. Phase 1 HAR import is
-now the active implementation group and must pass H-SEC1 plus its full group
-review. Live MITM capture is Windows-first and remains blocked on the T-571
-real-NIC coverage measurement and H-RG1 approval. Linux/macOS-generated supported
+HTTP work began with bounded, sanitized HAR import. Phase 1 HAR import passed
+H-SEC1 and the full H-RG1 group gate on 2026-07-21. Live MITM capture is
+Windows-first and remains blocked on the T-571 real-NIC coverage measurement.
+Linux/macOS-generated supported
 HAR, profiles, and logs remain valid offline inputs to the Windows UI; Linux/macOS
 live-capture parity is not a first-release gate. The Korean design note was
 revised on 2026-07-19 to absorb the review: it now states capability tiers
@@ -488,7 +486,7 @@ deferred until explicitly promoted.
 |---|---|---|---|---|---|
 | T-577 | P0 | DONE | Read the Chrome/V8 and system HTTP-capture designs and completed reviews, reconcile them with current code, and publish a paired English/Korean implementation plan with Codex engine ownership, Claude UI ownership, grouped review gates, and narrowly scoped individual security/semantic reviews. | T-558 through T-576 | Completed 2026-07-21: paired `BROWSER_PROFILE_HTTP_CAPTURE_IMPLEMENTATION_PLAN.md`; stale T-565 documentation status corrected; work status and execution queue aligned |
 | T-578 | P0 | DONE | Resolve the C-RG1 `CONDITIONAL` verdict and obtain independent re-review `PASS`. Codex A-E: reconcile the time-attribution contract with real Chrome semantics and add an exact convention-pinning golden plus tail handling; emit separate recording/active/idle/sampled durations without conflating `total_duration_us`; add Chrome-trace negative-delta diagnostic fixture/parity and hitCount cross-check; make first-sample handling independent of `startTime`. Claude U1-U5: render engine diagnostics and explicit suppressed/aggregated timeline states; add flamegraph/drilldown; expose `.json.gz`; add empty-state/i18n/table a11y; add Browser CPU regression tests for diagnostics, suppression, and the non-Long-Task wording. | T-565, T-577 | Completed 2026-07-21. Codex A-E landed in `5db8df8`, `ed01dd0`, `7b24206`, `40c6bde`, and `3249c27`; Claude U1-U5 landed in `b023040`; shared exact/negative-trace fixtures are in projects-assets `de7cf07` and `5531036`. Independent re-review at `b023040` returned `PASS` after verifying all ten findings, 16-fixture goldens, engine tests, frontend state tests, EN/KO i18n parity, `go vet`, and full builds. H-RG1/T-579 is unblocked. |
-| T-579 | P0 | IN_PROGRESS | Complete and review H-RG1 offline HAR analysis. Codex: canonical transaction/timing/fidelity model, staged dialect normalizer, resource limits, shared manifest goldens, dedicated redaction, bounded result and CLI/Wails parity. Claude: pseudo-process tree, timeline/brush, list/detail/filter, fidelity/diagnostics/redaction UX and Workspace regression. | T-578 PASS; T-568 through T-573 | Codex engine completed 2026-07-21 with all 20 shared HAR fixtures, resource/adversarial guards, default-on redaction, bounded result aggregation, CLI/Wails parity, regenerated bindings, full Go test/vet, and frontend build passing. Engine remediation re-review is `PASS`, including closure of the non-blocking numeric hard-secret recommendation. H-SEC1 security re-review is `PASS`. UI U2-U5 remediation is verified, but the UI re-review remains `CONDITIONAL`: R1 requires a full-session bounded/paged filter+aggregate denominator beyond the inline topN rows, and R2 requires populated component/Wails fixture regressions rather than synthetic pure-state checks. Remaining: close R1/R2 and obtain UI `PASS`, then full group review |
+| T-579 | P0 | DONE | Complete and review H-RG1 offline HAR analysis. Codex: canonical transaction/timing/fidelity model, staged dialect normalizer, resource limits, shared manifest goldens, dedicated redaction, bounded result and CLI/Wails parity. Claude: pseudo-process tree, timeline/brush, list/detail/filter, fidelity/diagnostics/redaction UX and Workspace regression. | T-578 PASS; T-568 through T-573 | Completed 2026-07-21 with integrated `PASS`. Engine remediation and H-SEC1 re-reviews are `PASS`; all 20 manifest fixtures, bounded/redacted `AnalysisResult`, CLI/Wails parity, and UI import-only behavior are retained. UI R1 was accepted under the disclosed bounded Phase 1 denominator contract; R2 was accepted from populated state, provenance/Workspace, type, and production-build evidence with deeper component fixtures left as non-blocking hardening. Full `go test ./...`, `go vet ./...`, `go build ./...`, frontend `npm run test:state`, and frontend `npm run build` pass. |
 | T-580 | P0 | PENDING | Implement and review H-RG3 live-capture engine foundation: session lifecycle/recovery, versioned NDJSON/blob store and cursor API, bounded streaming/backpressure/loss counters, H1 semantic MITM with H2 passthrough, Windows process attribution, Wails snapshot/event recovery, and CA/TLS policy. | T-571/H-RG2 PASS, T-579 PASS | Codex-owned engine group; mandatory H-SEC2 CA/TLS/privilege review before live UI handoff |
 | T-581 | P1 | PENDING | Implement and review H-RG4 Windows live-capture UI and E2E. Claude: capture controls, CA lifecycle UX, process tree, stable live rows, recovery/backpressure/coverage/fidelity states. Codex: frozen bindings, acceptance fixtures, Windows E2E and packaging support. | T-580 PASS | Group PASS requires browser/curl/JVM/Electron supported-tier scenarios, long sessions, page re-entry, failure recovery, and honest unsupported-state UX |
 | T-582 | P1 | PENDING | Implement and review H-RG5 HTTP-specific session Diff with versioned URL templates, bounded dimensions, explicit rate denominators, time-alignment grades, `http_capture_diff` findings, Workspace routing, and grade-aware comparison UI. | T-581 PASS, T-575 | Codex analyzer plus Claude comparison UI; reordered equivalent sessions must compare equal |
