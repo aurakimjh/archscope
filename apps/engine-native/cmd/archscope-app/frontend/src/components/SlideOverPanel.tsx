@@ -13,10 +13,20 @@
 // the page beneath.
 
 import { X } from "lucide-react";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 
 import { HelpTip } from "./HelpTip";
 import { Button } from "./ui/button";
+
+const FOCUSABLE =
+  'a[href],area[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+
+function focusableWithin(root: HTMLElement | null): HTMLElement[] {
+  if (!root) return [];
+  return Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
+    (el) => el.offsetParent !== null || el === document.activeElement,
+  );
+}
 
 export type SlideOverPanelProps = {
   open: boolean;
@@ -39,17 +49,51 @@ export function SlideOverPanel({
   footer,
   helpText,
 }: SlideOverPanelProps): React.JSX.Element {
-  // Close on Escape so keyboard users don't have to reach for the
-  // close button. Bound on the document so it works even when focus
-  // is on a child input.
+  const panelRef = useRef<HTMLElement | null>(null);
+  const restoreRef = useRef<HTMLElement | null>(null);
+
+  // Close on Escape and keep Tab focus inside the dialog so keyboard and
+  // assistive-tech users can't tab out into the (aria-hidden) background.
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") {
+        onClose();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const focusables = focusableWithin(panelRef.current);
+      if (focusables.length === 0) {
+        e.preventDefault();
+        panelRef.current?.focus();
+        return;
+      }
+      const first = focusables[0]!;
+      const last = focusables[focusables.length - 1]!;
+      const active = document.activeElement as HTMLElement | null;
+      if (e.shiftKey && (active === first || !panelRef.current?.contains(active))) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [open, onClose]);
+
+  // On open, remember the trigger and move focus into the panel; on close,
+  // restore focus to the element that opened it.
+  useEffect(() => {
+    if (!open) return;
+    restoreRef.current = (document.activeElement as HTMLElement) ?? null;
+    const focusables = focusableWithin(panelRef.current);
+    (focusables[0] ?? panelRef.current)?.focus();
+    return () => {
+      restoreRef.current?.focus?.();
+    };
+  }, [open]);
 
   return (
     <>
@@ -67,9 +111,12 @@ export function SlideOverPanel({
         }}
       />
       <aside
+        ref={panelRef}
         role="dialog"
         aria-modal="true"
         aria-hidden={!open}
+        inert={!open}
+        tabIndex={-1}
         style={{
           position: "fixed",
           top: 0,

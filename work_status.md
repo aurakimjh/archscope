@@ -11,8 +11,10 @@ The previous long-form history was archived to
 **Overall: 163 of 171 tracked tasks are `DONE` (95.3%).** The active task is
 **T-579 (`IN_PROGRESS`)**, the H-RG1 offline HAR analysis group. Its Codex-owned
 engine slice and H-SEC1 remediation are complete. The first independent UI
-review is `CONDITIONAL`; UI remediation, H-SEC1 re-review, H-RG1 engine
-remediation re-review, and the full vertical-slice group review remain.
+review was `CONDITIONAL`; the six UI findings (U1-U6) are now remediated in code
+with the state regressions and production build passing. Independent UI
+re-review, H-SEC1 re-review, H-RG1 engine remediation re-review, and the full
+vertical-slice group review remain.
 
 | Status | Count | Meaning |
 |---|---:|---|
@@ -32,7 +34,7 @@ same change so this overview remains the status source of truth.
 
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
-| 1 | T-579 | P0 | `IN_PROGRESS` | Complete the active UI remediation, then obtain UI, H-SEC1, and remediated H-RG1 engine re-review `PASS` before the full group review |
+| 1 | T-579 | P0 | `IN_PROGRESS` | UI remediation (U1-U6) is complete; obtain UI, H-SEC1, and remediated H-RG1 engine re-review `PASS` before the full group review |
 | 2 | T-571 | P0 | `PENDING` | Wait for H-RG1, then run ETW/WFP real-NIC and direct TCP-owner CAP-5 measurements on Windows |
 | 3 | T-580 | P0 | `PENDING` | Requires T-571/H-RG2 `PASS` and T-579 `PASS` |
 | 4 | T-581 | P1 | `PENDING` | Requires T-580 `PASS` |
@@ -52,10 +54,12 @@ same change so this overview remains the status source of truth.
 - Release baseline: `v0.3.5` is the latest stable GitHub release. The
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
-- Current execution focus: remediate the H-RG1 UI `CONDITIONAL` findings
-  (denominator/recomputation, missing filters, stale-result provenance, then
-  detail/accessibility/Workspace regressions), obtain UI and H-SEC1 re-review
-  `PASS`, obtain remediated engine re-review `PASS`, and then run the group review.
+- Current execution focus: the H-RG1 UI `CONDITIONAL` findings are now
+  remediated in code (denominator/recomputation, MIME/duration/fidelity filters,
+  stale-result provenance reducer, detail tabs/cookies, keyboard/dialog
+  accessibility, and fixture-driven Workspace/provenance regressions). Next:
+  obtain UI and H-SEC1 re-review `PASS`, obtain remediated engine re-review
+  `PASS`, and then run the group review.
   The engine now includes the canonical transaction/timing/fidelity model,
   staged dialect normalization, resource guards, field-aware redaction,
   manifest-driven shared-fixture goldens, bounded results, and CLI/Wails parity.
@@ -231,6 +235,21 @@ same change so this overview remains the status source of truth.
   preserved, and byte/field/timing/UTF-8/body-size regressions cover the P2/P3
   findings. Targeted packages, full `go test ./...`, and `go vet ./...` pass;
   independent engine re-review is still required for PASS.
+- Processed the H-RG1 UI `CONDITIONAL` review (U1-U6) and completed its
+  remediation: brush/filter now recompute the six summary cards over the same
+  filtered rows the list and tree render, with a scope banner that discloses the
+  bounded-detail floor (U1); MIME, duration-range, and fidelity filters were
+  added alongside method/status/query/errors and compose with the brush window
+  (U2); a pure `httpCaptureReducer` owns analysis provenance so selecting a new
+  file, starting a run, or a failed run drop any prior result (U3); the
+  transaction detail is now request/response/timing/process tabs that surface
+  cookies, content type, and body storage/redaction (U4); the timeline gained
+  keyboard start/end sliders, rows became keyboard-activatable buttons, and
+  `SlideOverPanel` got focus move/trap/restore plus `inert` when closed (U5);
+  and new pure state regressions cover the shared denominator, the new filters,
+  the A→B provenance reset, and Workspace registration (U6). `npm run test:state`
+  and the production build pass with EN/KO key parity; independent UI re-review
+  is still required for PASS.
 
 ## Current Risk
 
@@ -239,11 +258,12 @@ after re-verifying all ten engine/UI remediation findings and the 16-fixture,
 engine, frontend, vet, and build evidence. The Codex H-RG1 engine implementation
 now preserves the canonical transaction/timing/fidelity contract, applies
 bounded parsing and dedicated redaction, and passes the shared fixture suite.
-The active H-RG1 risk is independent confirmation that the H-SEC1
-`CONDITIONAL` remediation is sufficient, plus the UI review's three P1 and
-three P2 findings, engine remediation re-review, and the full group review. Live
-HTTP capture remains separately blocked by H-RG1 and the T-571 Windows real-NIC
-coverage proof.
+The UI review's three P1 and three P2 findings are now remediated in code with
+the state regressions and production build passing, so the active H-RG1 risk is
+independent confirmation that the UI remediation, the H-SEC1 `CONDITIONAL`
+remediation, and the engine remediation are each sufficient, plus the full group
+review. Live HTTP capture remains separately blocked by H-RG1 and the T-571
+Windows real-NIC coverage proof.
 
 The Electron-to-Wails migration risk is closed. The highest large-file issue
 found in the 2026-05-09 audit has been mitigated: GC log analysis no longer
@@ -304,13 +324,16 @@ filtered before analysis.
 
 ## Next Execution Queue
 
-1. **IN_PROGRESS — T-579 / H-RG1:** remediate the UI first-pass `CONDITIONAL`
-   in dependency order: (P1) selected-window/filter denominator and summary
-   recomputation, missing MIME/duration/fidelity filters, stale-result
-   provenance; then (P2) detail tabs/cookies, keyboard/dialog accessibility,
-   and fixture-driven Workspace/render regressions. Obtain UI and H-SEC1
-   re-review `PASS`, obtain engine remediation re-review `PASS`, then pass the full
-   vertical-slice group review.
+1. **IN_PROGRESS — T-579 / H-RG1:** the UI first-pass `CONDITIONAL` is
+   remediated in code — (P1) selected-window/filter denominator and summary
+   recomputation with bounded-detail disclosure, MIME/duration/fidelity filters,
+   and a pure stale-result provenance reducer; (P2) detail request/response/
+   timing/process tabs with cookies, keyboard timeline sliders + button-semantic
+   rows + dialog focus trap/restore/`inert`, and fixture-driven
+   Workspace/provenance regressions. `npm run test:state` and the production
+   build pass with EN/KO key parity. Next: obtain UI and H-SEC1 re-review `PASS`,
+   obtain engine remediation re-review `PASS`, then pass the full vertical-slice
+   group review.
 2. **PENDING — T-571 / H-RG2:** complete the ETW/WFP real-NIC run and direct
    `GetExtendedTcpTable` CAP-5 CPU-overhead rerun. Treat the evidence disposition
    as the mandatory H-COV1 review before Windows live capture.
@@ -346,7 +369,7 @@ The authoritative paired plan is
 | Order | Group | Owners | Status | Gate |
 |---:|---|---|---|---|
 | 1 | C-RG1 Chrome/V8 release implementation acceptance | Codex engine, Claude UI fixes | DONE — verdict `PASS`, 2026-07-21 | Closed |
-| 2 | H-RG1 offline HAR analysis completion | Codex engine, Claude UI | IN_PROGRESS — UI review `CONDITIONAL`; H-SEC1 and remediated engine re-reviews pending | UI, H-SEC1, engine, and group PASS |
+| 2 | H-RG1 offline HAR analysis completion | Codex engine, Claude UI | IN_PROGRESS — UI review `CONDITIONAL` remediated in code (U1-U6); UI, H-SEC1, and remediated engine re-reviews pending | UI, H-SEC1, engine, and group PASS |
 | 3 | H-RG2 Windows coverage proof | Codex | PENDING — H-RG1 and Windows real-NIC run | H-COV1 PASS |
 | 4 | H-RG3 live-capture engine foundation | Codex | PENDING — H-RG2 and H-RG1 | H-SEC2 and group PASS |
 | 5 | H-RG4 live UI and Windows E2E | Claude UI, Codex integration | PENDING — H-RG3 | Group PASS |
@@ -383,7 +406,7 @@ Long Task semantics).
 | 2026-07-21 C-RG1 Chrome/V8 release implementation review | Accepted `CONDITIONAL`; Codex A-E and Claude U1-U5 remediation completed and were submitted for independent re-review | T-578 |
 | 2026-07-21 C-RG1 Chrome/V8 remediation re-review | Accepted `PASS`; all ten A-E/U1-U5 findings independently verified resolved with 16-fixture goldens, engine/frontend regressions, vet, and build evidence | T-578 completed; H-RG1/T-579 unblocked |
 | 2026-07-21 H-SEC1 HTTP-capture security independent review | Processed `CONDITIONAL`; no P0. Remediation completed: P2-5 free-text `token/session/code/authToken/*token` coverage aligned with structured fields plus Luhn and WS/SSE regressions; P1-1 closed by prohibiting CLI/headless live-capture start and adding SEC-16; P2-1/2/3/4/6 resolved in paired contracts through explicit crash-dump fail-closed mechanisms and honest Go zeroization limits, full-delete JWT/cookie defaults, platform owner-only CA ACLs, all discovered OS/NSS store enumeration, and pre-storage host/process scope filtering (SEC-17). P3 leaf-key memory-only, WS/SSE non-disclosure invariant, and logical-delete wording also reflected. Original review archived at `docs/review/done/2026-07-21_claude-code_H-SEC1_http-capture-security-review.md`. Independent re-review is required before H-SEC1 becomes `PASS`. | T-579 (remediation complete; re-review pending) |
-| 2026-07-21 H-RG1 HTTP-capture UI independent review | Accepted `CONDITIONAL`; no P0. P1: selected window/filter changes only bounded list/tree while summary cards retain the full-result denominator; MIME/duration/fidelity filters are missing; file changes and failed analyses can leave the previous result visible under the new source/error. P2: implement the contracted request/response/timing/process tabs plus cookies, keyboard-accessible timeline/rows and correct dialog focus, and fixture-driven populated-state/Workspace regressions. Engine implementation is explicitly outside this review and will be reviewed separately by Claude. | T-579 UI remediation and independent UI re-review pending; see `docs/review/2026-07-21_codex_H-RG1_http-capture-ui-review.md` |
+| 2026-07-21 H-RG1 HTTP-capture UI independent review | Accepted `CONDITIONAL`; no P0. P1: selected window/filter changes only bounded list/tree while summary cards retain the full-result denominator; MIME/duration/fidelity filters are missing; file changes and failed analyses can leave the previous result visible under the new source/error. P2: implement the contracted request/response/timing/process tabs plus cookies, keyboard-accessible timeline/rows and correct dialog focus, and fixture-driven populated-state/Workspace regressions. Engine implementation is explicitly outside this review and will be reviewed separately by Claude. | Remediation complete (U1-U6): shared-denominator projection with bounded-detail disclosure; MIME/duration/fidelity filters composing with the brush; pure provenance reducer; detail tabs + cookies/content-type/body-storage; keyboard timeline sliders, button-semantic rows, and `SlideOverPanel` focus trap/restore/`inert`; new pure state regressions. `npm run test:state` + build pass with EN/KO parity. Independent UI re-review pending; review doc retained at `docs/review/2026-07-21_codex_H-RG1_http-capture-ui-review.md` |
 | 2026-07-21 H-RG1 HTTP-capture engine implementation review | Processed `CONDITIONAL`; no P0. Remediation completed: malformed URL parse failures no longer panic and emit `HAR_URL_UNPARSABLE`; the parser-level recovery boundary converts unexpected panics to non-leaking structural errors; oversized JSON bodies are fail-closed with `HAR_REDACTION_DEGRADED`; structured numeric/boolean `code`, `auth`, and `session` values remain typed; plain-byte/field/timing guards, request decoded-size semantics, dead body-storage branching, and UTF-8 preview truncation are covered. Targeted and full Go tests plus vet pass. Original review archived at `docs/review/done/2026-07-21_claude-code_H-RG1_http-capture-engine-implementation-review.md`. | T-579 engine remediation complete; independent re-review pending |
 
 ## Mid-Term Plus Intake Plan

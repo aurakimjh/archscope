@@ -19,6 +19,7 @@
 // ─────────────────────────────────────────────────────────────────────
 
 import type {
+  CaptureHTTPMessage,
   CaptureTimingPhases,
   HttpCaptureAnalysisResult,
   HttpCaptureEndpointRow,
@@ -140,6 +141,14 @@ export type TransactionFilter = {
   errorsOnly: boolean;
   /** inclusive-of-window; null = no time constraint */
   window: TimeWindow | null;
+  /** "" = all content types; matched against the transaction base MIME */
+  mime: string;
+  /** "" = all fidelities */
+  fidelity: string;
+  /** inclusive lower bound on duration_ms; null = no lower bound */
+  minDurationMs: number | null;
+  /** inclusive upper bound on duration_ms; null = no upper bound */
+  maxDurationMs: number | null;
 };
 
 export const emptyFilter: TransactionFilter = {
@@ -148,7 +157,48 @@ export const emptyFilter: TransactionFilter = {
   statusClass: "",
   errorsOnly: false,
   window: null,
+  mime: "",
+  fidelity: "",
+  minDurationMs: null,
+  maxDurationMs: null,
 };
+
+/**
+ * isFilterActive reports whether the user has narrowed the result at all.
+ * When true the summary cards recompute over the same filtered rows the list
+ * and tree use, so every panel shares one denominator (H-RG1 U1 contract).
+ */
+export function isFilterActive(filter: TransactionFilter): boolean {
+  return (
+    filter.query.trim() !== "" ||
+    filter.method !== "" ||
+    filter.statusClass !== "" ||
+    filter.errorsOnly ||
+    filter.window !== null ||
+    filter.mime !== "" ||
+    filter.fidelity !== "" ||
+    filter.minDurationMs !== null ||
+    filter.maxDurationMs !== null
+  );
+}
+
+/** baseMime strips any `; charset=…` parameters and lower-cases the type. */
+function baseMime(contentType: string | undefined): string {
+  if (!contentType) return "";
+  const semi = contentType.indexOf(";");
+  return (semi >= 0 ? contentType.slice(0, semi) : contentType).trim().toLowerCase();
+}
+
+/**
+ * transactionMime resolves the content type used for the MIME filter. The
+ * response type is preferred (what the analyst usually filters on); the
+ * request type is a fallback for uploads with no response body.
+ */
+export function transactionMime(tx: HttpCaptureTransactionRow): string {
+  const response = baseMime((tx.response as CaptureHTTPMessage | undefined)?.contentType);
+  if (response) return response;
+  return baseMime((tx.request as CaptureHTTPMessage | undefined)?.contentType);
+}
 
 function matchesQuery(tx: HttpCaptureTransactionRow, query: string): boolean {
   if (!query) return true;
@@ -177,6 +227,15 @@ export function filterTransactions(
     if (filter.method && tx.method !== filter.method) return false;
     if (filter.statusClass && statusClassOf(tx.status) !== filter.statusClass) return false;
     if (filter.errorsOnly && !isErrorTransaction(tx)) return false;
+    if (filter.mime && transactionMime(tx) !== filter.mime) return false;
+    if (filter.fidelity && tx.fidelity !== filter.fidelity) return false;
+    if (filter.minDurationMs !== null || filter.maxDurationMs !== null) {
+      const duration = Number(tx.duration_ms);
+      // Unknown/NaN durations drop out of an explicit duration range.
+      if (!Number.isFinite(duration)) return false;
+      if (filter.minDurationMs !== null && duration < filter.minDurationMs) return false;
+      if (filter.maxDurationMs !== null && duration > filter.maxDurationMs) return false;
+    }
     if (!matchesQuery(tx, filter.query)) return false;
     if (!withinWindow(tx, filter.window)) return false;
     return true;
@@ -190,6 +249,86 @@ export function availableMethods(transactions: HttpCaptureTransactionRow[]): str
     if (tx.method) methods.add(tx.method);
   }
   return Array.from(methods).sort();
+}
+
+/** Distinct base MIME types present, for the content-type filter dropdown. */
+export function availableMimeTypes(transactions: HttpCaptureTransactionRow[]): string[] {
+  const mimes = new Set<string>();
+  for (const tx of transactions) {
+    const mime = transactionMime(tx);
+    if (mime) mimes.add(mime);
+  }
+  return Array.from(mimes).sort();
+}
+
+/** Distinct fidelity labels present, for the fidelity filter dropdown. */
+export function availableFidelities(transactions: HttpCaptureTransactionRow[]): string[] {
+  const values = new Set<string>();
+  for (const tx of transactions) {
+    if (tx.fidelity) values.add(tx.fidelity);
+  }
+  return Array.from(values).sort();
+}
+
+// ── Selection projection (shared denominator) ───────────────────────
+//
+// When a brush window or any filter is active, the summary cards must be
+// recomputed over the exact same rows the list and tree render, so all
+// three panels agree on one numerator/denominator. The engine `summary`
+// stays authoritative only for the unfiltered, whole-session view.
+
+export type SummaryProjection = {
+  transactions: number;
+  errorTransactions: number;
+  errorRate: number;
+  uniqueHosts: number;
+  uniqueEndpoints: number;
+  durationP95Ms: number;
+  responseBytes: number;
+};
+
+/** nearest-rank percentile over non-negative finite durations. */
+function percentile(values: number[], p: number): number {
+  if (values.length === 0) return 0;
+  const sorted = [...values].sort((a, b) => a - b);
+  const rank = Math.ceil((p / 100) * sorted.length);
+  const index = Math.min(sorted.length - 1, Math.max(0, rank - 1));
+  return sorted[index] ?? 0;
+}
+
+/**
+ * projectSummary re-aggregates a transaction subset into the same six
+ * headline metrics the summary cards show. Callers pass the filtered rows so
+ * the cards match the visible list/tree exactly (H-RG1 U1 contract). Because
+ * the detail table is bounded, this is a floor over the visible rows, not a
+ * substitute for the engine's whole-session summary — the UI labels it so.
+ */
+export function projectSummary(
+  transactions: HttpCaptureTransactionRow[],
+): SummaryProjection {
+  let errorTransactions = 0;
+  let responseBytes = 0;
+  const hosts = new Set<string>();
+  const endpoints = new Set<string>();
+  const durations: number[] = [];
+  for (const tx of transactions) {
+    if (isErrorTransaction(tx)) errorTransactions += 1;
+    responseBytes += Math.max(0, Number(tx.response_bytes) || 0);
+    if (tx.host) hosts.add(tx.host);
+    endpoints.add(`${tx.method} ${tx.host}${tx.path}`);
+    const duration = Number(tx.duration_ms);
+    if (Number.isFinite(duration) && duration >= 0) durations.push(duration);
+  }
+  const count = transactions.length;
+  return {
+    transactions: count,
+    errorTransactions,
+    errorRate: count > 0 ? errorTransactions / count : 0,
+    uniqueHosts: hosts.size,
+    uniqueEndpoints: endpoints.size,
+    durationP95Ms: percentile(durations, 95),
+    responseBytes,
+  };
 }
 
 // ── Timeline brush → time window ────────────────────────────────────
@@ -410,6 +549,86 @@ export function timingBreakdown(tx: HttpCaptureTransactionRow | null): TimingPha
       state: duration?.state ?? "unknown",
     };
   });
+}
+
+// ── Page state / provenance reducer ─────────────────────────────────
+//
+// A single pure reducer owns the analysis lifecycle so result provenance is
+// deterministic and testable (H-RG1 U3). The invariant it protects: a result
+// is only ever visible together with the source that produced it. Selecting a
+// new file, starting a new analysis, or a failed analysis all drop the prior
+// result so a stale success can never render under a new source or an error.
+
+export type HttpCaptureError = { code: string; message: string };
+
+export type HttpCaptureAnalysisState = {
+  running: boolean;
+  result: HttpCaptureAnalysisResult | null;
+  /** name of the source that produced `result`; null whenever result is null */
+  resultSource: string | null;
+  error: HttpCaptureError | null;
+  filter: TransactionFilter;
+  selectedId: string | null;
+};
+
+export const initialHttpCaptureState: HttpCaptureAnalysisState = {
+  running: false,
+  result: null,
+  resultSource: null,
+  error: null,
+  filter: emptyFilter,
+  selectedId: null,
+};
+
+export type HttpCaptureAction =
+  | { type: "reset" }
+  | { type: "analyzeStart" }
+  | { type: "analyzeSuccess"; result: HttpCaptureAnalysisResult; source: string }
+  | { type: "analyzeError"; error: HttpCaptureError }
+  | { type: "setFilter"; filter: TransactionFilter }
+  | { type: "patchFilter"; patch: Partial<TransactionFilter> }
+  | { type: "select"; id: string }
+  | { type: "closeDetail" };
+
+export function httpCaptureReducer(
+  state: HttpCaptureAnalysisState,
+  action: HttpCaptureAction,
+): HttpCaptureAnalysisState {
+  switch (action.type) {
+    case "reset":
+      // File change / clear: forget everything from the previous source.
+      return { ...initialHttpCaptureState };
+    case "analyzeStart":
+      // Drop the prior result up front so a pending or failed re-analysis can
+      // never leave a stale success rendered under the new run.
+      return { ...initialHttpCaptureState, running: true };
+    case "analyzeSuccess":
+      return {
+        ...state,
+        running: false,
+        error: null,
+        result: action.result,
+        resultSource: action.source,
+      };
+    case "analyzeError":
+      return {
+        ...state,
+        running: false,
+        error: action.error,
+        result: null,
+        resultSource: null,
+      };
+    case "setFilter":
+      return { ...state, filter: action.filter };
+    case "patchFilter":
+      return { ...state, filter: { ...state.filter, ...action.patch } };
+    case "select":
+      return { ...state, selectedId: action.id };
+    case "closeDetail":
+      return { ...state, selectedId: null };
+    default:
+      return state;
+  }
 }
 
 // ── Byte formatting (local — formatters.ts has no byte helper) ───────

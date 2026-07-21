@@ -9,17 +9,29 @@ import {
   selectPartialResult,
 } from "./browserCpuProfile.js";
 import {
+  availableFidelities,
   availableMethods,
+  availableMimeTypes,
   buildProcessTree,
   extractCaptureMeta,
   extractRedaction,
   filterTransactions,
+  httpCaptureReducer,
+  initialHttpCaptureState,
   isErrorTransaction,
+  isFilterActive,
+  projectSummary,
   statusClassOf,
   timelineWindow,
   timingBreakdown,
+  transactionMime,
   emptyFilter,
 } from "./httpCapture.js";
+import {
+  addWorkspaceResult,
+  clearWorkspaceResults,
+  getWorkspaceEntry,
+} from "./analysisWorkspace.js";
 import { buildIncidentTimelineEvents } from "./incidentTimeline.js";
 import {
   buildServiceFlowAnalysis,
@@ -670,3 +682,114 @@ assert(phases[0]?.phase === "blocked" && phases[5]?.phase === "wait", "timing ph
 assert(phases[5]?.ms === 84.9, "known phase durations should surface");
 assert(phases[6]?.ms === 0 && phases[6]?.state === "unknown", "unknown phase should read zero ms with unknown state");
 assert(timingBreakdown(null).length === 0, "null transaction yields no timing rows");
+
+// ── H-RG1 U1: shared-denominator summary projection ─────────────────
+//
+// When a brush window or filter is active the summary cards must recompute
+// over the same rows the list/tree render, so every panel agrees on one
+// numerator/denominator instead of the cards showing whole-session totals.
+const projectionRows = [
+  harTx({ id: "p1", host: "a.example.test", path: "/", status: 200, duration_ms: 10, response_bytes: 100 }),
+  harTx({ id: "p2", host: "a.example.test", path: "/x", status: 500, state: "failed", duration_ms: 50, response_bytes: 200 }),
+  harTx({ id: "p3", host: "b.example.test", path: "/y", status: 404, duration_ms: 90, response_bytes: 300 }),
+  harTx({ id: "p4", host: "b.example.test", path: "/z", status: 200, duration_ms: 130, response_bytes: 400 }),
+];
+const fullProjection = projectSummary(projectionRows);
+assert(fullProjection.transactions === 4, "projection counts every row in scope");
+assert(fullProjection.errorTransactions === 2, "projection counts 5xx + 4xx as errors");
+assert(Math.abs(fullProjection.errorRate - 0.5) < 1e-9, "projection error rate uses the in-scope denominator");
+assert(fullProjection.uniqueHosts === 2, "projection counts distinct hosts in scope");
+assert(fullProjection.uniqueEndpoints === 4, "projection counts distinct method+host+path endpoints");
+assert(fullProjection.responseBytes === 1000, "projection sums response bytes in scope");
+assert(fullProjection.durationP95Ms === 130, "projection p95 uses nearest-rank over in-scope durations");
+// The projected denominator must equal the filtered list length exactly.
+const scopedFilter = { ...emptyFilter, statusClass: "2xx" as const };
+const scopedRows = filterTransactions(projectionRows, scopedFilter);
+const scopedProjection = projectSummary(scopedRows);
+assert(
+  scopedProjection.transactions === scopedRows.length && scopedProjection.transactions === 2,
+  "cards and list share one denominator under an active filter",
+);
+assert(scopedProjection.errorTransactions === 0, "2xx-only scope recomputes zero errors");
+assert(projectSummary([]).durationP95Ms === 0 && projectSummary([]).errorRate === 0, "empty scope projects zeros");
+
+// isFilterActive detects every contracted axis and ignores the empty filter.
+assert(isFilterActive(emptyFilter) === false, "the empty filter is inactive");
+assert(isFilterActive({ ...emptyFilter, mime: "application/json" }) === true, "mime makes the filter active");
+assert(isFilterActive({ ...emptyFilter, minDurationMs: 5 }) === true, "duration lower bound makes the filter active");
+assert(isFilterActive({ ...emptyFilter, window: { start: "a", end: "b" } }) === true, "a brush window makes the filter active");
+
+// ── H-RG1 U2: MIME / duration / fidelity filters ────────────────────
+const mimeRows = [
+  harTx({ id: "m1", duration_ms: 20, fidelity: "semantic", response: { headers: [], cookies: [], headerSize: 0, bodySize: 10, bodyDecoded: 10, transferSize: 10, bodyStorage: "inline", contentType: "application/json; charset=utf-8" } }),
+  harTx({ id: "m2", duration_ms: 200, fidelity: "structural", response: { headers: [], cookies: [], headerSize: 0, bodySize: 10, bodyDecoded: 10, transferSize: 10, bodyStorage: "inline", contentType: "text/html" } }),
+  harTx({ id: "m3", duration_ms: 800, fidelity: "semantic", response: { headers: [], cookies: [], headerSize: 0, bodySize: 10, bodyDecoded: 10, transferSize: 10, bodyStorage: "inline", contentType: "application/json" } }),
+];
+assert(transactionMime(mimeRows[0]!) === "application/json", "content-type params are stripped for the MIME axis");
+assert(availableMimeTypes(mimeRows).join(",") === "application/json,text/html", "MIME dropdown lists distinct sorted base types");
+assert(availableFidelities(mimeRows).join(",") === "semantic,structural", "fidelity dropdown lists distinct sorted values");
+assert(filterTransactions(mimeRows, { ...emptyFilter, mime: "application/json" }).length === 2, "MIME filter keeps matching content types");
+assert(filterTransactions(mimeRows, { ...emptyFilter, fidelity: "structural" })[0]?.id === "m2", "fidelity filter narrows to the fidelity");
+assert(filterTransactions(mimeRows, { ...emptyFilter, minDurationMs: 100 }).length === 2, "min duration keeps the slower requests");
+assert(filterTransactions(mimeRows, { ...emptyFilter, maxDurationMs: 100 })[0]?.id === "m1", "max duration keeps the faster request");
+assert(filterTransactions(mimeRows, { ...emptyFilter, minDurationMs: 100, maxDurationMs: 500 })[0]?.id === "m2", "a duration range brackets both bounds");
+// MIME filter composed with the timeline brush window (crossed axes).
+const crossRows = [
+  harTx({ id: "c1", started_at: "2026-07-20T05:00:00Z", duration_ms: 10, response: { headers: [], cookies: [], headerSize: 0, bodySize: 0, bodyDecoded: 0, transferSize: 0, bodyStorage: "inline", contentType: "application/json" } }),
+  harTx({ id: "c2", started_at: "2026-07-20T05:01:00Z", duration_ms: 10, response: { headers: [], cookies: [], headerSize: 0, bodySize: 0, bodyDecoded: 0, transferSize: 0, bodyStorage: "inline", contentType: "text/html" } }),
+  harTx({ id: "c3", started_at: "2026-07-20T05:00:30Z", duration_ms: 10, response: { headers: [], cookies: [], headerSize: 0, bodySize: 0, bodyDecoded: 0, transferSize: 0, bodyStorage: "inline", contentType: "application/json" } }),
+];
+const crossWindow = { start: "2026-07-20T05:00:00Z", end: "2026-07-20T05:01:00.000Z" };
+const crossed = filterTransactions(crossRows, { ...emptyFilter, mime: "application/json", window: crossWindow });
+assert(crossed.length === 2 && crossed.every((tx) => tx.id !== "c2"), "MIME + window compose to intersect both axes");
+
+// ── H-RG1 U3: stale-result provenance reducer ───────────────────────
+//
+// A result must never render under a different source. Selecting a new file,
+// starting a new run, and a failed run all drop the prior result.
+const resultA: any = httpResult({ source_files: ["a.har"], summary: { total_transactions: 3 } });
+const resultB: any = httpResult({ source_files: ["b.har"], summary: { total_transactions: 9 } });
+let s = initialHttpCaptureState;
+assert(s.result === null && s.resultSource === null, "initial state carries no result");
+s = httpCaptureReducer(s, { type: "analyzeStart" });
+assert(s.running === true, "analyzeStart marks the run in progress");
+s = httpCaptureReducer(s, { type: "analyzeSuccess", result: resultA, source: "a.har" });
+assert(s.result === resultA && s.resultSource === "a.har" && s.running === false, "successful analysis binds result to its source");
+// User selects file B → prior result A must be dropped before any B analysis.
+s = httpCaptureReducer(s, { type: "reset" });
+assert(s.result === null && s.resultSource === null && s.error === null, "selecting a new file clears the previous result");
+// Analyze B, then B fails → no stale A result may remain under the error.
+s = httpCaptureReducer(s, { type: "analyzeStart" });
+assert(s.result === null, "analyzeStart clears any prior result up front");
+s = httpCaptureReducer(s, { type: "analyzeError", error: { code: "X", message: "boom" } });
+assert(s.result === null && s.resultSource === null, "a failed analysis leaves no result");
+assert(s.error?.code === "X", "a failed analysis surfaces its error");
+// A→B success replaces provenance cleanly (no bleed-through of A).
+s = httpCaptureReducer(initialHttpCaptureState, { type: "analyzeSuccess", result: resultA, source: "a.har" });
+s = httpCaptureReducer(s, { type: "analyzeStart" });
+s = httpCaptureReducer(s, { type: "analyzeSuccess", result: resultB, source: "b.har" });
+assert(s.result === resultB && s.resultSource === "b.har", "a fresh success replaces the previous source binding");
+// Filter/selection actions are preserved across their own reducers.
+s = httpCaptureReducer(s, { type: "patchFilter", patch: { method: "POST" } });
+assert(s.filter.method === "POST", "patchFilter merges into the active filter");
+s = httpCaptureReducer(s, { type: "select", id: "tx-9" });
+assert(s.selectedId === "tx-9", "select records the open transaction id");
+s = httpCaptureReducer(s, { type: "closeDetail" });
+assert(s.selectedId === null, "closeDetail clears the open transaction id");
+
+// ── H-RG1 U6: Workspace registration of a populated http_capture result ─
+clearWorkspaceResults();
+const workspaceResult: any = httpResult({
+  source_files: ["chrome.har"],
+  summary: { total_transactions: 42, error_rate: 0.1 },
+});
+const workspaceEntry = addWorkspaceResult({
+  result: workspaceResult,
+  title: "http_capture: chrome.har",
+  sourceLabel: "chrome.har",
+});
+const reloaded = getWorkspaceEntry(workspaceEntry.id);
+assert(reloaded?.result_type === "http_capture", "Workspace preserves the http_capture result type");
+assert(reloaded?.source_files.includes("chrome.har"), "Workspace preserves the source label/files");
+assert((reloaded?.result as any)?.summary?.total_transactions === 42, "Workspace retains the populated summary");
+clearWorkspaceResults();
