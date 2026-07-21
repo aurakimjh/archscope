@@ -42,3 +42,30 @@ func TestInvalidCustomRuleIsDisabled(t *testing.T) {
 		t.Fatalf("invalid rule was not disabled: %+v", policy.Warnings())
 	}
 }
+
+func TestFreeTextChannelsUseStructuredSensitiveKeyCoverage(t *testing.T) {
+	policy := NewPolicy(Options{})
+	body, changed := policy.RedactBody("text/plain", "token=BODY-TOKEN sessionId=BODY-SESSION code=BODY-CODE authToken=BODY-AUTH card=4111-1111-1111-1111")
+	fragment := policy.RedactURL("https://example.test/#token=FRAGMENT-TOKEN&session=FRAGMENT-SESSION&code=FRAGMENT-CODE")
+	headers := policy.RedactHeaders([]models.HeaderField{{Name: "X-Debug", Value: "authToken=HEADER-AUTH sessionId=HEADER-SESSION"}})
+	combined := body + fragment + headers[0].Value
+	for _, secret := range []string{"BODY-TOKEN", "BODY-SESSION", "BODY-CODE", "BODY-AUTH", "4111-1111-1111-1111", "FRAGMENT-TOKEN", "FRAGMENT-SESSION", "FRAGMENT-CODE", "HEADER-AUTH", "HEADER-SESSION"} {
+		if strings.Contains(combined, secret) {
+			t.Fatalf("free-text secret survived redaction: %q in %q", secret, combined)
+		}
+	}
+	if !changed || !headers[0].Redacted || policy.Summary().Counts["payment_card"] != 1 {
+		t.Fatalf("free-text redaction accounting incomplete: headers=%+v summary=%+v", headers, policy.Summary())
+	}
+}
+
+func TestPaymentCardRequiresValidLuhnChecksum(t *testing.T) {
+	policy := NewPolicy(Options{})
+	value := policy.applyText("valid 4111 1111 1111 1111 invalid 4111 1111 1111 1112")
+	if strings.Contains(value, "4111 1111 1111 1111") {
+		t.Fatalf("valid card was not redacted: %q", value)
+	}
+	if !strings.Contains(value, "4111 1111 1111 1112") {
+		t.Fatalf("invalid checksum was over-redacted: %q", value)
+	}
+}

@@ -1,6 +1,7 @@
 package httpcapture
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -55,5 +56,24 @@ func TestParseHARRejectsEntriesObjectWithoutPartialSuccess(t *testing.T) {
 	}
 	if len(parsed.Entries) != 0 {
 		t.Fatalf("fatal structural error returned partial entries: %+v", parsed.Entries)
+	}
+}
+
+func TestParseHARDropsWebSocketAndSSEPayloadsFromNormalizedOutput(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "messages.har")
+	data := `{"log":{"creator":{"name":"Chrome"},"entries":[{"startedDateTime":"2026-07-20T10:00:00Z","time":1,"request":{"method":"GET","url":"https://example.test/socket","headers":[],"queryString":[],"cookies":[],"headersSize":-1,"bodySize":0},"response":{"status":101,"headers":[],"cookies":[],"content":{"size":0,"text":""},"headersSize":-1,"bodySize":0},"cache":{},"timings":{"blocked":0,"dns":-1,"connect":-1,"ssl":-1,"send":0,"wait":1,"receive":0},"_webSocketMessages":[{"data":"WS-SECRET-MUST-NOT-ESCAPE"}],"_eventSourceMessages":[{"data":"SSE-SECRET-MUST-NOT-ESCAPE"}]}]}}`
+	if err := os.WriteFile(path, []byte(data), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	parsed, err := ParseFile(path, Options{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	encoded, err := json.Marshal(parsed)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(encoded), "WS-SECRET-MUST-NOT-ESCAPE") || strings.Contains(string(encoded), "SSE-SECRET-MUST-NOT-ESCAPE") {
+		t.Fatalf("message payload escaped normalized output: %s", encoded)
 	}
 }

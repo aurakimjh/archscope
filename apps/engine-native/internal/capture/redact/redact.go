@@ -62,8 +62,9 @@ var (
 	bearerPattern      = regexp.MustCompile(`(?i)\bBearer\s+[A-Za-z0-9._~+/=-]+`)
 	jwtPattern         = regexp.MustCompile(`\b[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{4,}\b`)
 	awsKeyPattern      = regexp.MustCompile(`\bAKIA[0-9A-Z]{16}\b`)
-	assignmentPattern  = regexp.MustCompile(`(?i)(password|passwd|pwd|access[_-]?token|refresh[_-]?token|api[_-]?key|service[_-]?key|client[_-]?secret|private[_-]?key|credential|secret|signature|credit[_-]?card|ssn)(\s*[=:]\s*)([^&\s,;"'}]+)`)
-	cliArgumentPattern = regexp.MustCompile(`(?i)(--?(?:password|passwd|pwd|access[_-]?token|refresh[_-]?token|api[_-]?key|service[_-]?key|client[_-]?secret|secret|signature))(\s+)([^\s]+)`)
+	assignmentPattern  = regexp.MustCompile(`(?i)([a-z0-9_.-]*(?:password|passwd|token|secret|signature|credential)|pwd|auth|authorization|session(?:id)?|code|cookie|set[_-]?cookie|api[_-]?key|service[_-]?key|private[_-]?key|credit[_-]?card|ssn)(\s*[=:]\s*)([^&\s,;"'}]+)`)
+	cliArgumentPattern = regexp.MustCompile(`(?i)(--?(?:[a-z0-9_.-]*(?:password|passwd|token|secret|signature|credential)|pwd|auth|authorization|session(?:id)?|code|cookie|api[_-]?key|service[_-]?key|private[_-]?key))(\s+)([^\s]+)`)
+	cardPattern        = regexp.MustCompile(`\b(?:[0-9][ -]?){12,18}[0-9]\b`)
 )
 
 func NewPolicy(opts Options) *Policy {
@@ -140,7 +141,11 @@ func (p *Policy) RedactURL(raw string) string {
 		query[key] = values
 	}
 	parsed.RawQuery = query.Encode()
-	return p.applyText(parsed.String())
+	parsed.Path = p.applyText(parsed.Path)
+	parsed.RawPath = ""
+	parsed.Fragment = p.applyText(parsed.Fragment)
+	parsed.RawFragment = ""
+	return p.applyCustom(parsed.String())
 }
 
 func (p *Policy) RedactHeaders(headers []models.HeaderField) []models.HeaderField {
@@ -268,6 +273,7 @@ func (p *Policy) applyText(value string) string {
 	value = replaceAndCount(value, bearerPattern, "Bearer [REDACTED]", func(n int) { p.bumpN("bearer", n) })
 	value = replaceAndCount(value, jwtPattern, "[REDACTED_JWT]", func(n int) { p.bumpN("jwt", n) })
 	value = replaceAndCount(value, awsKeyPattern, "[REDACTED_AWS_KEY]", func(n int) { p.bumpN("aws_key", n) })
+	value = p.redactPaymentCards(value)
 	matches := assignmentPattern.FindAllStringSubmatchIndex(value, -1)
 	if len(matches) > 0 {
 		value = assignmentPattern.ReplaceAllString(value, `${1}${2}[REDACTED]`)
@@ -321,6 +327,53 @@ func (p *Policy) bump(rule string) {
 	p.bumpN(rule, 1)
 }
 
+func (p *Policy) redactPaymentCards(value string) string {
+	matches := cardPattern.FindAllStringIndex(value, -1)
+	if len(matches) == 0 {
+		return value
+	}
+	var out strings.Builder
+	last := 0
+	redacted := 0
+	for _, match := range matches {
+		candidate := value[match[0]:match[1]]
+		digits := strings.NewReplacer(" ", "", "-", "").Replace(candidate)
+		if len(digits) < 13 || len(digits) > 19 || !luhnValid(digits) {
+			continue
+		}
+		out.WriteString(value[last:match[0]])
+		out.WriteString("[REDACTED_CARD]")
+		last = match[1]
+		redacted++
+	}
+	if redacted == 0 {
+		return value
+	}
+	out.WriteString(value[last:])
+	p.bumpN("payment_card", redacted)
+	return out.String()
+}
+
+func luhnValid(digits string) bool {
+	sum := 0
+	double := false
+	for i := len(digits) - 1; i >= 0; i-- {
+		digit := int(digits[i] - '0')
+		if digit < 0 || digit > 9 {
+			return false
+		}
+		if double {
+			digit *= 2
+			if digit > 9 {
+				digit -= 9
+			}
+		}
+		sum += digit
+		double = !double
+	}
+	return sum%10 == 0
+}
+
 func (p *Policy) bumpN(rule string, count int) {
 	if count > 0 {
 		p.counts[rule] += count
@@ -362,6 +415,7 @@ func sensitiveNormalizedKey(normalized string) bool {
 		strings.HasSuffix(normalized, "signature") ||
 		strings.HasSuffix(normalized, "privatekey") ||
 		strings.HasSuffix(normalized, "credential") ||
+		normalized == "sessionid" ||
 		normalized == "awssecretaccesskey"
 }
 

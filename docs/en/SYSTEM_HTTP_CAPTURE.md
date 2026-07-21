@@ -478,11 +478,25 @@ handed to a third party and **contains no reusable credentials.**
 | Actor | Capability | Primary defense |
 |---|---|---|
 | Local user (self) | Full app/session control | Redaction on by default at write time |
-| Other user on a shared workstation | Different account, same machine | OS keychain, 0600 fallback, app-data path permissions |
+| Other user on a shared workstation | Different account, same machine | OS keychain, platform-specific owner-only fallback ACL, app-data path permissions |
 | Recipient of an exported file | HAR/report only | Re-confirm on export + export-exclusion policy |
 | Malicious HAR provider | Controls the input file | Import resource limits |
 | CA private-key thief | Obtains the key file | Machine-unique generation, no export, 1-year expiry |
-| Crash-dump / log collector | Process memory snapshot | Key discarded immediately, capture buffers excluded from dumps |
+| Crash-dump / log collector | OS crash artifacts/logs (an active debugger with full process-memory rights is out of scope) | Disable dumps before key load, prefer keystore signing handles, minimize sensitive-buffer size/lifetime |
+
+Live capture is **not exposed through the CLI**. `archscope-engine` remains a
+file import/analysis surface; capture can start only from the Wails UI that has a
+persistent indicator and stop control. No detached, daemon, or headless capture
+start path is registered. Changing this is a separate security decision and must
+re-pass `SEC-16`.
+
+Live capture also has a pre-storage `CaptureScope`: host-pattern allowlist,
+confirmed process-identity allowlist, or an explicitly acknowledged "all local
+processes" selection. Out-of-scope transactions are dropped before headers or
+bodies reach the session store. Under process scoping, unknown attribution fails
+closed; only an explicit `metadata_only` choice may retain bounded connection
+metadata, never headers/bodies. Scope and changes are recorded in the manifest
+and remain visible during capture.
 
 ### 7.2 Why Import-Time Redaction Is Mandatory (ko 6.5.6)
 
@@ -508,15 +522,13 @@ JSON text (the Cloudflare approach), which is structurally superior.
 | Technique | Effect |
 |---|---|
 | Mask header **values**, keep names | Header set preserved, most diagnostic signal survives |
-| **JWT signature-strip** — `header.payload.redacted` | Token invalidated, claims still readable |
-| Cookie **hash-prefix substitution** | Cross-entry correlation preserved, value unreusable |
+| Delete the **entire JWT payload** | Safe default; only minimal non-identifying metadata such as `alg`/`typ` and expiry may be retained |
+| Delete the **entire cookie value** | Safe default; session-keyed HMAC correlation requires explicit opt-in |
 | MIME-based body drop (JS/CSS/image/font) | Bulk noise removed |
 | **Detect-then-confirm** for `key=` patterns (≤64 chars) | Surfaces candidates beyond a static block list, user confirms |
 
-Note: the safety review (ko 11.3.1) hardens the *defaults* beyond value
-preservation — the default for a JWT is to delete the whole payload (keeping only
-`alg`/`typ` and expiry), cookie values are deleted (session-scoped HMAC only when
-the user opts into correlation), and blob identifiers are random opaque IDs, not
+The older signature-strip and unkeyed cookie hash techniques are superseded by
+ko 11.3.1 and are not defaults. Blob identifiers are random opaque IDs, not
 content hashes. Base defaults are delete; correlation-preserving forms are opt-in.
 Redaction is applied at write time (memory holds the original briefly, then it is
 gone), recorded in `manifest.json`, and re-confirmed on export. Process metadata
@@ -524,6 +536,12 @@ is also sensitive: `commandLine` values are redacted and excluded from export by
 default, `user` is excluded, `execPath` is path-abbreviated. The manifest hash is
 **corruption detection, not tamper protection** — it is never called an
 "integrity guarantee."
+
+Free-text bodies, URL fragments, and nonstandard header values use the same
+sensitive-key coverage as structured JSON/form/query fields (`token`, `*token`,
+`session`, `sessionId`, `code`, `auth`, `*secret`, `*credential`, and peers).
+There is no narrower channel-specific denylist. Payment-card candidates are
+redacted only after a valid Luhn check.
 
 ### 7.4 CA Lifecycle (ko 11.2.1)
 
@@ -554,12 +572,31 @@ guaranteed admin rights) — both the settings and first-registration screens st
 this, and reinstall removes any prior CA before creating a new one. Expiry
 auto-regenerates but does **not** auto-re-register.
 
-Additional CA rules (ko 11.2): stored in OS keychain / DPAPI / Secret Service
-(0600 file fallback); discarded from memory after use, never in logs/dumps; **no
-export or backup** (regeneration is the answer); machine-unique, **never bundled
-into the build**; 1-year expiry. Upstream TLS verification stays on (the proxy is
+Additional CA rules (ko 11.2): stored in OS keychain / DPAPI / Secret Service;
+file fallback fails closed unless it can enforce owner-only access (Windows:
+inheritance-disabled DACL for the current user and `SYSTEM`; macOS/Linux: file
+`0600` plus parent app-data directory `0700`). There is **no export or backup**
+(regeneration is the answer); CAs are machine-unique, **never bundled into the
+build**, and expire after one year. Upstream TLS verification stays on (the proxy is
 not a real MITM path); verification failure is recorded as a failed transaction,
 with host-scoped explicit exceptions only, no global disable.
+
+Go GC memory cannot promise reliable physical zeroization. Phase 2 therefore
+disables OS crash dumps **before** loading key material (Linux `RLIMIT_CORE=0`
+and `PR_SET_DUMPABLE=0` where supported, Windows WER/local-dump exclusion, and
+the macOS core-dump policy) and refuses HTTPS plaintext capture if that setup
+fails. Non-exportable OS-keystore signing handles are preferred where available;
+otherwise plaintext buffers stay bounded, short-lived, and absent from logs.
+This does not claim protection from an active same-user debugger. Per-host leaf
+private keys are memory-only, never written to disk, and their cache references
+are discarded at session end.
+
+"Every trust store" means the union of stores recorded at install time and all
+stores discovered again at removal time: Windows/macOS OS trust targets plus all
+discovered Firefox NSS profiles, and on Linux system anchors, `~/.pki/nssdb`,
+and every discovered Firefox/Chromium user/profile NSS DB. Enumeration or removal
+failure is not success: the UI reports the store and manual procedure and keeps
+the CA state `trusted`.
 
 ### 7.5 Privilege Contract (ko 11.6)
 
@@ -595,14 +632,16 @@ apply from Phase 1** (HAR import) — they are valid without any capture.
 | SEC-5 | Malicious HAR | structural corruption (`log.entries` an object) | Fatal abort; no partial result shown as normal |
 | SEC-6 | Malicious HAR | secret-bearing HAR import | Redaction applied on the import path |
 | SEC-7 | User regex rule | catastrophic-backtracking pattern | Impossible under RE2; rule disabled on time-limit + finding |
-| SEC-8 | CA key thief | key file location/permission, export feature | Keychain/DPAPI; 0600 on file fallback; **no export path** |
+| SEC-8 | CA key thief | key file location/permission, export feature | Keychain/DPAPI/Secret Service; owner-only DACL or file 0600 + parent 0700 fallback; **no export path** |
 | SEC-9 | CA key thief | compare CAs from two machines | Different; no bundled CA |
-| SEC-10 | Crash-dump collector | force crash during capture, search dump | No CA key/plaintext body |
+| SEC-10 | Crash-dump collector | verify dump policy before key load, force crash, inspect OS artifact/logs | Refuse HTTPS plaintext capture if dump exclusion fails; artifact/log contains no CA key/plaintext body; active-debugger defense is not claimed |
 | SEC-11 | Other workstation user | access session dir from another account | Blocked by OS permissions |
-| SEC-12 | — | verify all trust stores after CA removal | Removed everywhere; partial failure reported explicitly |
+| SEC-12 | — | verify install-recorded plus currently discovered OS/NSS stores after removal | Removed from every discovered store; enumeration/removal failure reported and state remains `trusted` |
 | SEC-13 | — | capture a pinned app | No auto-bypass; diagnosed reason shown |
 | SEC-14 | — | host with failing upstream cert | Recorded as failed transaction; no global-disable path |
 | SEC-15 | — | unauthorized process connects to helper IPC | Rejected by peer-credential check |
+| SEC-16 | Local user | attempt CLI/noninteractive/detached live-capture start | No capture-start/daemon command exists; capture requires the persistent Wails indicator |
+| SEC-17 | Local user | generate traffic outside host/process scope or with unknown process attribution | No out-of-scope headers/bodies in any store; unknown is dropped unless explicit metadata-only retention was selected |
 
 Related "does not do" rules (ko 11.4): no certificate-pinning bypass, no traffic
 tampering/injection/replay, no dedicated credential-harvesting feature, no
@@ -612,6 +651,15 @@ User regex rules run on a backtracking-free engine (Go `regexp`/RE2) with length
 count, per-rule time, and scan-size limits. Imported HAR is bounded before
 parsing (file size, entry count, field count, string/body size, nesting depth,
 decompression ratio).
+
+### 7.7 Retention and Deletion (ko 11.5)
+
+Session deletion unlinks indexes, manifests, session files, and blobs. It is
+logical deletion, **not** a promise of medium-level secure erase on SSDs or
+copy-on-write filesystems. If a future release permits redaction-off sessions,
+they are excluded from normal default retention and require explicit save, a
+short expiry, and a residual-media warning. Phase 1 HAR import has no
+redaction-off path.
 
 ## 8. Windows Coverage Proof Status (ko 10.4)
 

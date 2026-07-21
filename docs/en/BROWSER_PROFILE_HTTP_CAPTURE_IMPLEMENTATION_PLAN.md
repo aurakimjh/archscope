@@ -65,8 +65,8 @@ Only high-consequence boundaries receive an extra per-item gate:
 | Order | Review group | Status | Entry condition for the next group |
 |---:|---|---|---|
 | 0 | `PLAN-RG0` execution plan | **Complete** | This plan and `work_status.md` agree |
-| 1 | `C-RG1` Chrome/V8 release implementation acceptance | **Ready for review** | Independent `PASS` |
-| 2 | `H-RG1` complete offline HAR analysis | Waiting | `C-RG1 PASS`; internal `H-SEC1 PASS` |
+| 1 | `C-RG1` Chrome/V8 release implementation acceptance | **Complete — PASS (2026-07-21)** | Independent `PASS` |
+| 2 | `H-RG1` complete offline HAR analysis | **In progress — engine/H-SEC1 remediation complete; re-review/UI pending** | `C-RG1 PASS`; internal `H-SEC1 PASS` |
 | 3 | `H-RG2` Windows coverage proof | Waiting | `H-RG1 PASS`; real-NIC evidence and `H-COV1 PASS` |
 | 4 | `H-RG3` live-capture engine foundation | Planned | `H-RG2 PASS`; internal `H-SEC2 PASS` |
 | 5 | `H-RG4` live UI and Windows E2E | Planned | `H-RG3 PASS` |
@@ -130,28 +130,34 @@ separate release objective.
 
 This promotes Phase 1 from “an MVP exists” to the full design acceptance level.
 
-#### Codex Engine TODO
+#### Codex Engine — Complete (2026-07-21)
 
-- [ ] Implement the `CaptureTransaction`, timing-state, and fidelity contracts.
-- [ ] Split import into `detect -> structural validate -> dialect -> normalize ->
+- [x] Implement the `CaptureTransaction`, timing-state, and fidelity contracts.
+- [x] Split import into `detect -> structural validate -> dialect -> normalize ->
   model map -> redact -> analyze`.
-- [ ] Add BOM, malformed/deep/oversized JSON and entry/string/body limits with
+- [x] Add BOM, malformed/deep/oversized JSON and entry/string/body limits with
   deterministic diagnostics.
-- [ ] Make Chrome/Firefox/Safari/Charles/Fiddler/Proxyman/Insomnia/generic
+- [x] Make Chrome/Firefox/Safari/Charles/Fiddler/Proxyman/Insomnia/generic
   dialect normalization a first-class `dialect.go` stage.
-- [ ] Drive goldens from the 20-fixture shared HAR manifest, including dialect,
+- [x] Drive goldens from the 20-fixture shared HAR manifest, including dialect,
   diagnostic, and redaction assertions.
-- [ ] Apply dedicated redaction to headers, query, cookies, JWT, bodies, and
+- [x] Apply dedicated redaction to headers, query, cookies, JWT, bodies, and
   process metadata, not only URLs.
-- [ ] Keep summary/series/tables bounded and define the inline-detail cap and
+- [x] Keep summary/series/tables bounded and define the inline-detail cap and
   truncation diagnostic.
-- [ ] Verify CLI/Wails parity and add sanitized Chrome/Firefox real exports.
+- [x] Verify CLI/Wails parity and the procedure for adding sanitized real
+  Chrome/Firefox exports.
 
 #### Individual Gate H-SEC1
 
 Malicious-input resource limits and SEC-4 through SEC-7 must pass, with proof
 that secrets do not reappear in diagnostics, findings, exports, or Workspace,
 before UI detail/export integration proceeds.
+
+The 2026-07-21 independent review returned `CONDITIONAL`; all P1/P2/P3
+remediation is now reflected in code and the paired contracts. The gate is
+**awaiting independent re-review** and is not closed until that review returns
+`PASS`.
 
 #### Claude UI TODO
 
