@@ -100,3 +100,34 @@ func TestBuildSuppressesTemporalOutputsAfterDownsampling(t *testing.T) {
 		t.Fatal("missing TIMELINE_SUPPRESSED_DOWNSAMPLED diagnostic")
 	}
 }
+
+func TestBuildSeparatesBrowserProfileDurations(t *testing.T) {
+	work := parser.Frame{Name: "work", Runtime: "V8", Language: "JavaScript"}
+	idle := parser.Frame{Name: "(idle)", Runtime: "V8", Language: "JavaScript"}
+	parsed := parser.Parsed{
+		Format:    "v8-cpuprofile",
+		ValueUnit: "microseconds",
+		Samples: []parser.Sample{
+			{Stack: []parser.Frame{work}, TimestampUS: 1_100, Value: 200},
+			{Stack: []parser.Frame{idle}, TimestampUS: 1_300, Value: 500},
+		},
+		Metadata: map[string]any{"v8_start_time_us": int64(1_000), "v8_end_time_us": int64(1_800)},
+	}
+	result := Build(parsed, "profile.cpuprofile", nil, Options{ProfileKind: "cpu"})
+
+	want := map[string]int64{
+		"recording_duration_us": 800,
+		"active_duration_us":    200,
+		"idle_duration_us":      500,
+		"sampled_duration_us":   700,
+		"total_duration_us":     700,
+	}
+	for key, expected := range want {
+		if result.Summary[key] != expected {
+			t.Fatalf("%s = %#v, want %d (summary=%#v)", key, result.Summary[key], expected, result.Summary)
+		}
+	}
+	if result.Summary["total_duration_semantics"] != "deprecated alias of sampled_duration_us" {
+		t.Fatalf("missing compatibility semantics: %#v", result.Summary)
+	}
+}

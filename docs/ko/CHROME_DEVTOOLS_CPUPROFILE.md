@@ -560,6 +560,11 @@ estimatedSeconds := round(float64(totalSamples)*intervalSeconds, 3)
 | `idle_duration_us` | `(idle)` 샘플의 귀속 시간 합 |
 | `sampled_duration_us` | 전 샘플의 귀속 시간 합 |
 
+결과 호환성을 위해 `total_duration_us`/`total_duration_ms`는
+`sampled_duration_us`/`sampled_duration_ms`의 deprecated alias로만 유지한다.
+recording 또는 active duration을 뜻하지 않으며, 신규 소비자는 표시 주장에 맞는
+명시적 duration 필드를 선택해야 한다.
+
 4.3이 정한 "`(idle)` 제외는 표시 옵션이지 총시간 회계 옵션이 아니다"가 여기서
 필드로 구현된다. `--include-idle` 여부가 `recording_duration_us`를 바꾸면 안 된다.
 

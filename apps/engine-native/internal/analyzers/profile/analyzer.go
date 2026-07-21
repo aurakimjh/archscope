@@ -289,11 +289,63 @@ func summary(parsed parser.Parsed, stacks map[string]int, intervalMS float64) ma
 		"value_unit":           parsed.ValueUnit,
 	}
 	if parsed.ValueUnit == "microseconds" {
-		result["total_duration_us"] = total
-		result["total_duration_ms"] = round(float64(total)/1000, 3)
-		result["estimated_seconds"] = round(float64(total)/1_000_000, 3)
+		durations := browserProfileDurations(parsed)
+		result["recording_duration_us"] = durations.recording
+		result["active_duration_us"] = durations.active
+		result["idle_duration_us"] = durations.idle
+		result["sampled_duration_us"] = durations.sampled
+		result["recording_duration_ms"] = round(float64(durations.recording)/1000, 3)
+		result["active_duration_ms"] = round(float64(durations.active)/1000, 3)
+		result["idle_duration_ms"] = round(float64(durations.idle)/1000, 3)
+		result["sampled_duration_ms"] = round(float64(durations.sampled)/1000, 3)
+		// Compatibility aliases for the existing Browser CPU card. Their
+		// meaning is explicitly sampled duration; callers should migrate to
+		// one of the four named duration fields above.
+		result["total_duration_us"] = durations.sampled
+		result["total_duration_ms"] = round(float64(durations.sampled)/1000, 3)
+		result["total_duration_semantics"] = "deprecated alias of sampled_duration_us"
+		result["estimated_seconds"] = round(float64(durations.sampled)/1_000_000, 3)
 	}
 	return result
+}
+
+type profileDurations struct {
+	recording int64
+	active    int64
+	idle      int64
+	sampled   int64
+}
+
+func browserProfileDurations(parsed parser.Parsed) profileDurations {
+	durations := profileDurations{}
+	if parsed.Metadata != nil {
+		start, startOK := parsed.Metadata["v8_start_time_us"].(int64)
+		end, endOK := parsed.Metadata["v8_end_time_us"].(int64)
+		if startOK && endOK && end > start {
+			durations.recording = end - start
+		}
+	}
+	for _, sample := range parsed.Samples {
+		value := sample.Value
+		if value <= 0 {
+			continue
+		}
+		durations.sampled += value
+		if isIdleSample(sample) {
+			durations.idle += value
+		} else {
+			durations.active += value
+		}
+	}
+	return durations
+}
+
+func isIdleSample(sample parser.Sample) bool {
+	if len(sample.Stack) == 0 {
+		return false
+	}
+	leaf := sample.Stack[len(sample.Stack)-1]
+	return strings.EqualFold(strings.TrimSpace(firstNonEmpty(leaf.Name, leaf.Function)), "(idle)")
 }
 
 func frameRows(samples []parser.Sample, limit int) []map[string]any {

@@ -158,6 +158,11 @@ separately: `recording_duration_us` (`endTime - startTime`, constant
 regardless of display options), `active_duration_us`, `idle_duration_us`,
 `sampled_duration_us`.
 
+For result compatibility, `total_duration_us`/`total_duration_ms` remain as
+deprecated aliases of `sampled_duration_us`/`sampled_duration_ms`; they are not
+recording or active-duration fields. New consumers must select the named
+duration that matches the claim they display.
+
 This direction follows Chrome's own data model: CDP defines the first delta
 relative to `startTime`, and DevTools reconstructs observation timestamps by
 adding each delta before placing the corresponding sample. DevTools then keeps
