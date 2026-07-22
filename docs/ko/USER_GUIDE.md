@@ -64,6 +64,12 @@ go run ./cmd/archscope-engine profile import \
   --format auto \
   --out browser-profile.json
 
+# Local Lighthouse report (score 보존, URL 리댁션)
+go run ./cmd/archscope-engine browser import \
+  --in ./lighthouse-report.json \
+  --format lighthouse-json \
+  --out browser-audit.json
+
 # 리댁션된 HAR 가져오기 (방언 자동 판별, entry 상한)
 go run ./cmd/archscope-engine http-capture analyze \
   --in ./session.har \

@@ -200,6 +200,14 @@ type ProfileEvidenceRequest struct {
 	MaxSamples  int     `json:"maxSamples,omitempty"`
 }
 
+// BrowserAuditRequest imports a local Lighthouse report. URL fields are
+// redacted by the parser before the result crosses the desktop boundary.
+type BrowserAuditRequest struct {
+	Path     string `json:"path"`
+	TopN     int    `json:"topN,omitempty"`
+	MaxBytes int64  `json:"maxBytes,omitempty"`
+}
+
 type StitchedEvidenceRequest struct {
 	Paths             []string `json:"paths"`
 	TopN              int      `json:"topN,omitempty"`
@@ -544,6 +552,16 @@ func (s *EngineService) AnalyzeProfileEvidence(req ProfileEvidenceRequest) (engi
 		ProfileKind: req.ProfileKind,
 		MaxBytes:    req.MaxBytes,
 		MaxSamples:  req.MaxSamples,
+	})
+}
+
+// AnalyzeBrowserAudit wraps the file-first Lighthouse analyzer.
+func (s *EngineService) AnalyzeBrowserAudit(req BrowserAuditRequest) (engineapi.AnalysisResult, error) {
+	if strings.TrimSpace(req.Path) == "" {
+		return engineapi.AnalysisResult{}, fmt.Errorf("path is required")
+	}
+	return engineapi.AnalyzeBrowserAudit(req.Path, engineapi.BrowserAuditOptions{
+		TopN: req.TopN, MaxBytes: req.MaxBytes,
 	})
 }
 

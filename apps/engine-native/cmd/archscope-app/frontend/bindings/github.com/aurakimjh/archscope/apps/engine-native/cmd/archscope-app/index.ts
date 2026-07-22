@@ -19,6 +19,7 @@ export {
     ApiContractRequest,
     ArchitectureDocsRequest,
     BrokerLogRequest,
+    BrowserAuditRequest,
     ClassifyRequest,
     ClassifyResult,
     CollapsedRequest,

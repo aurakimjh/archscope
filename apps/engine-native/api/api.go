@@ -80,6 +80,7 @@ import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/httpcapture"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/jenniferprofile"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/jfr"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/lighthouse"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/lockcontention"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/metrics"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/multithread"
@@ -247,6 +248,12 @@ var AnalyzePlatform = platform.Analyze
 type ProfileEvidenceOptions = profileevidence.Options
 
 var AnalyzeProfileEvidence = profileevidence.Analyze
+
+// ── Browser audit evidence ──────────────────────────────────────────
+
+type BrowserAuditOptions = lighthouse.Options
+
+var AnalyzeBrowserAudit = lighthouse.Analyze
 
 // ── Cross-source evidence stitching ─────────────────────────────────
 

@@ -813,6 +813,33 @@ signature
 raw_block
 ```
 
+## Browser Audit Evidence Result
+
+`type`: `browser_audit_evidence`
+
+`browser import --format lighthouse-json` accepts a local Lighthouse report
+JSON file. The parser preserves Lighthouse's own category and audit scores;
+ArchScope does not recalculate thresholds from metric values. Requested,
+final, and network-request URLs are redacted before they enter the result.
+
+Primary projections:
+
+- `summary` — Lighthouse version, redacted URLs, collection mode, performance
+  score, available FCP/LCP/INP/CLS/TBT/Speed Index/TTI/server-response metrics,
+  request/byte counts, and run-warning/runtime-error state.
+- `series.category_scores` — report category scores.
+- `series.core_metrics` — available browser metric values and report scores.
+- `series.resource_type_distribution` — request and transfer-byte totals by
+  resource type.
+- `tables.audits` — worst scored audits first, bounded by `top_n`.
+- `tables.network_requests` — largest transfers first, bounded by `top_n`.
+- `tables.resource_summary` — Lighthouse resource-summary rows.
+
+Deterministic finding codes are `LIGHTHOUSE_PERFORMANCE_POOR`,
+`LIGHTHOUSE_AUDITS_POOR`, `LIGHTHOUSE_RUNTIME_ERROR`, and
+`LIGHTHOUSE_RUN_WARNINGS`. The default input limit is 64 MiB, and parser
+diagnostics report invalid envelopes and bounded-extraction limits.
+
 ## Trace Import Result
 
 `type`: `trace_import`

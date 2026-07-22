@@ -19,6 +19,7 @@ const (
 	SourceKindCloudAuditLog    = "cloud_audit_log"
 	SourceKindRuntimeProfile   = "runtime_profile"
 	SourceKindHTTPCapture      = "http_capture"
+	SourceKindBrowserAudit     = "browser_audit"
 )
 
 // EvidenceFamilySpec fixes the package and public boundary naming for one
@@ -149,6 +150,16 @@ func CoreEvidenceFamilies() []EvidenceFamilySpec {
 			CLIGroup:        "profile",
 			CLILeaf:         "import",
 			WailsBinding:    "AnalyzeProfileEvidence",
+		},
+		{
+			Family:          "browser_audits",
+			SourceKind:      SourceKindBrowserAudit,
+			ResultType:      "browser_audit_evidence",
+			ParserPackage:   "internal/parsers/lighthouse",
+			AnalyzerPackage: "internal/analyzers/lighthouse",
+			CLIGroup:        "browser",
+			CLILeaf:         "import",
+			WailsBinding:    "AnalyzeBrowserAudit",
 		},
 	}
 }

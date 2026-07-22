@@ -64,6 +64,12 @@ go run ./cmd/archscope-engine profile import \
   --format auto \
   --out browser-profile.json
 
+# Local Lighthouse report (scores are preserved, URLs are redacted)
+go run ./cmd/archscope-engine browser import \
+  --in ./lighthouse-report.json \
+  --format lighthouse-json \
+  --out browser-audit.json
+
 # Redacted HAR import (dialect auto-detection, bounded entry cap)
 go run ./cmd/archscope-engine http-capture analyze \
   --in ./session.har \

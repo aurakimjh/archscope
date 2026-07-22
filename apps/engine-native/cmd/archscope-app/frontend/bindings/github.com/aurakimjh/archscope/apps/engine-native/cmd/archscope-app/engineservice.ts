@@ -62,6 +62,15 @@ export function AnalyzeBrokerLog(req: $models.BrokerLogRequest): $CancellablePro
     });
 }
 
+/**
+ * AnalyzeBrowserAudit wraps the file-first Lighthouse analyzer.
+ */
+export function AnalyzeBrowserAudit(req: $models.BrowserAuditRequest): $CancellablePromise<api$0.AnalysisResult> {
+    return $Call.ByID(3499237002, req).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
 export function AnalyzeDatabaseLog(req: $models.DatabaseLogRequest): $CancellablePromise<api$0.AnalysisResult> {
     return $Call.ByID(4066669974, req).then(($result: any) => {
         return $$createType0($result);

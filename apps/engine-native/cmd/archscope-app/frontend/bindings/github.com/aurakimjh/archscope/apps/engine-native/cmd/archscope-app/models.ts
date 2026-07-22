@@ -353,6 +353,33 @@ export class BrokerLogRequest {
 }
 
 /**
+ * BrowserAuditRequest imports a local Lighthouse report. URL fields are
+ * redacted by the parser before the result crosses the desktop boundary.
+ */
+export class BrowserAuditRequest {
+    "path": string;
+    "topN"?: number;
+    "maxBytes"?: number;
+
+    /** Creates a new BrowserAuditRequest instance. */
+    constructor($$source: Partial<BrowserAuditRequest> = {}) {
+        if (!("path" in $$source)) {
+            this["path"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new BrowserAuditRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): BrowserAuditRequest {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new BrowserAuditRequest($$parsedSource as Partial<BrowserAuditRequest>);
+    }
+}
+
+/**
  * ClassifyRequest classifies one collapsed-stack string. Returns the
  * runtime label (e.g. "JVM", "Node.js", "Application").
  */

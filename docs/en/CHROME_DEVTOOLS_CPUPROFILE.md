@@ -360,9 +360,11 @@ engine-side task so the frontend renderer needs no change.
 A dedicated sidebar group, "Browser performance analysis"
 (`navBrowserTools`), is added between the analysis tools and workspace
 groups, initially containing one item: CPU profile (`browser_cpu`,
-`pages/BrowserCpuProfilePage.tsx`). Reserved future siblings: Lighthouse
-reports and Web Vitals (separate evidence families; a menu group is a
-user-facing bundle, not an engine family). Separation rationale: different
+`pages/BrowserCpuProfilePage.tsx`). The Lighthouse engine importer is now
+available as the separate `browser_audit_evidence` family through
+`browser import` and `AnalyzeBrowserAudit`; its dedicated desktop page remains
+reserved alongside Web Vitals. A menu group is a user-facing bundle, not an
+engine family. Separation rationale: different
 users, different collection guidance, different interpretation vocabulary,
 different extension direction. The engine — parsers, analyzers,
 `AnalysisResult` contract, flame graph builders, CLI — is **fully shared**;

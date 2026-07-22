@@ -470,8 +470,11 @@ report packs, and AI productization.
 
 - Add a Real User Monitoring (RUM) import path for Core Web Vitals
   (LCP, INP, CLS) and resource-timing exports from open RUM beacons.
-- Add browser performance trace import (Chrome DevTools `.json`, Lighthouse
-  report JSON) and synthetic-check exports.
+- Chrome DevTools `.json` profile import and local Lighthouse report JSON
+  import are implemented. Lighthouse emits `browser_audit_evidence` through
+  `browser import`, preserving report scores while projecting Core Web Vitals,
+  audits, and resources into bounded/redacted results. Synthetic-check exports
+  remain planned.
 - Investigate mobile-side performance imports (Firebase Performance export,
   Sentry performance, App Center diagnostic exports) once a stable file
   contract is available.

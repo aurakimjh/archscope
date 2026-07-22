@@ -1098,7 +1098,7 @@ Long Task 지표와 동일시하게 만든다. **Phase 3 의존 기능이므로 
 | 항목 | 데이터 성격 | 결과 타입 | 재사용 가능 여부 |
 |---|---|---|---|
 | CPU 프로파일 | 스택 샘플 | `profile_evidence` | 기존 파이프라인 100% |
-| Lighthouse 보고서 | 감사 점수 + 기회 목록 | 신규 `browser_audit_evidence` | 낮음 — 플레임그래프 아님 |
+| Lighthouse 보고서 | 감사 점수 + 기회 목록 | `browser_audit_evidence` — engine/CLI/Wails binding 구현, 전용 UI 대기 | 낮음 — 플레임그래프 아님 |
 | Web Vitals | 시계열 메트릭(LCP/INP/CLS) | 신규 `browser_vitals_evidence` | 낮음 — 차트 계열 |
 | Performance Insights | DevTools 인사이트 | 미정 | Chrome 포맷 확정 후 판단 |
 
@@ -1655,7 +1655,7 @@ sample `i-1`)과 같은 규칙으로 합산한다.
 |---|---|---|
 | Chrome Trace 전체 | 롱태스크, 레이아웃, 페인트를 타임라인에 병치 | Phase 4, 스트리밍 파서 |
 | 소스맵 | `.map` 파일로 번들 프레임을 원본 위치로 복원 | 소스맵 라이브러리 도입 |
-| Lighthouse JSON | 감사 점수·기회 목록을 프로파일과 연결 | 별도 evidence family. 메뉴 자리는 7.5에 예약됨 |
+| Lighthouse JSON | 감사 점수·기회 목록을 프로파일과 연결 | 별도 evidence family의 engine/CLI/Wails binding 구현 완료. 전용 메뉴·화면 대기 |
 | Web Vitals | LCP/INP/CLS 시계열 메트릭 | 별도 evidence family. 메뉴 자리는 7.5에 예약됨 |
 | Performance Insights | DevTools Insights 내보내기 포맷 안정화 시 | Chrome 측 포맷 확정 |
 | CDP 직접 수집 | `Profiler.start/stop`으로 ArchScope가 직접 수집 | 원격 디버깅 포트 접근 정책 |

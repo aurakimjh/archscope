@@ -969,6 +969,32 @@ signature
 raw_block
 ```
 
+## Browser Audit Evidence Result
+
+`type`: `browser_audit_evidence`
+
+`browser import --format lighthouse-json`은 local Lighthouse report JSON을
+입력받는다. Parser는 Lighthouse가 기록한 category/audit score를 그대로
+보존하고, ArchScope가 metric 값에서 threshold를 다시 계산하지 않는다.
+requested/final/network-request URL은 결과에 들어가기 전에 리댁션한다.
+
+주요 projection:
+
+- `summary` — Lighthouse 버전, 리댁션된 URL, 수집 mode, performance score,
+  존재하는 FCP/LCP/INP/CLS/TBT/Speed Index/TTI/server-response metric,
+  request/byte count, run warning/runtime error 상태.
+- `series.category_scores` — report category score.
+- `series.core_metrics` — 존재하는 browser metric 값과 report score.
+- `series.resource_type_distribution` — resource type별 request/transfer byte.
+- `tables.audits` — 낮은 score 우선, `top_n` 상한.
+- `tables.network_requests` — 큰 transfer 우선, `top_n` 상한.
+- `tables.resource_summary` — Lighthouse resource-summary row.
+
+Deterministic finding code는 `LIGHTHOUSE_PERFORMANCE_POOR`,
+`LIGHTHOUSE_AUDITS_POOR`, `LIGHTHOUSE_RUNTIME_ERROR`,
+`LIGHTHOUSE_RUN_WARNINGS`다. 기본 입력 상한은 64 MiB이며 parser diagnostics는
+invalid envelope과 bounded extraction 상한을 보고한다.
+
 ## Trace Import Result
 
 `type`: `trace_import`
