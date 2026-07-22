@@ -118,6 +118,9 @@ const HttpCapturePage = lazy(() =>
 const BrowserCpuProfilePage = lazy(() =>
   import("./pages/BrowserCpuProfilePage").then(({ BrowserCpuProfilePage }) => ({ default: BrowserCpuProfilePage })),
 );
+const LighthouseAuditPage = lazy(() =>
+  import("./pages/LighthouseAuditPage").then(({ LighthouseAuditPage }) => ({ default: LighthouseAuditPage })),
+);
 const EvidenceBoardPage = lazy(() =>
   import("./pages/EvidenceBoardPage").then(({ EvidenceBoardPage }) => ({
     default: EvidenceBoardPage,
@@ -210,6 +213,7 @@ function App() {
             {active === "trace_import" && <TraceImportPage />}
             {active === "http_capture" && <HttpCapturePage />}
             {active === "browser_cpu" && <BrowserCpuProfilePage />}
+            {active === "browser_audit" && <LighthouseAuditPage />}
             {active === "analysis_workspace" && <AnalysisWorkspacePage />}
             {active === "export_center" && <ExportCenterPage />}
             {active === "report_diff" && <ReportDiffPage />}

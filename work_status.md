@@ -8,24 +8,24 @@ The previous long-form history was archived to
 
 ## Status Overview
 
-**Overall: 165 of 173 tracked tasks are `DONE` (95.4%).** T-586 is currently
-`IN_PROGRESS`. **T-579 / H-RG1 is complete with an integrated `PASS`** after the
-engine remediation and H-SEC1 re-reviews passed and the bounded UI contract,
-populated-state regressions, Workspace/provenance behavior, full Go suite, vet,
-Go build, frontend state suite, and production build were rechecked together.
-T-571 / H-RG2 remains the next P0 gate but is deliberately parked until the
-network hub and Windows real-NIC measurement environment are ready. T-585
-completed the independent Lighthouse file-first engine slice. T-586 has frozen
-its backend handoff contract and populated acceptance fixture; the dedicated
-desktop page and frontend Workspace/Evidence Board flow remain.
+**Overall: 166 of 173 tracked tasks are `DONE` (96.0%).** **T-586 is complete**:
+the dedicated Lighthouse desktop page now consumes only `AnalyzeBrowserAudit`
+and connects the result to Analysis Workspace and Evidence Board. **T-579 / H-RG1
+is complete with an integrated `PASS`** after the engine remediation and H-SEC1
+re-reviews passed and the bounded UI contract, populated-state regressions,
+Workspace/provenance behavior, full Go suite, vet, Go build, frontend state
+suite, and production build were rechecked together. T-571 / H-RG2 remains the
+next P0 gate but is deliberately parked until the network hub and Windows
+real-NIC measurement environment are ready. T-585 completed the independent
+Lighthouse file-first engine slice.
 
 | Status | Count | Meaning |
 |---|---:|---|
 | `TODO` | 0 | Ready to start; prerequisites are satisfied |
-| `IN_PROGRESS` | 1 | Implementation or documentation work is actively underway |
+| `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
 | `REVIEW` | 0 | Implementation is complete and waiting for its required review gate |
 | `PENDING` | 7 | Waiting for a prerequisite, external condition, or activation trigger |
-| `DONE` | 165 | Completion criteria and required review gates have passed |
+| `DONE` | 166 | Completion criteria and required review gates have passed |
 
 The normal transition is `TODO → IN_PROGRESS → REVIEW → DONE`. A `PENDING`
 task returns to `TODO` when its dependency or trigger is satisfied. Task status
@@ -39,12 +39,11 @@ same change so this overview remains the status source of truth.
 |---:|---|---|---|---|
 | 1 | T-571 | P0 | `PENDING` | H-RG1 is `PASS`; run ETW/WFP real-NIC and direct TCP-owner CAP-5 measurements on Windows |
 | 2 | T-580 | P0 | `PENDING` | Requires T-571/H-RG2 `PASS` |
-| 3 | T-586 | P1 | `IN_PROGRESS` | Backend UI/evidence/export contract is frozen; add the dedicated Lighthouse page and frontend Workspace/Evidence Board flow |
-| 4 | T-581 | P1 | `PENDING` | Requires T-580 `PASS` |
-| 5 | T-582 | P1 | `PENDING` | Requires T-581 `PASS` |
-| 6 | T-583 | P1 | `PENDING` | Requires T-582 `PASS` |
-| 7 | T-584 | P0 | `PENDING` | Requires T-583 `PASS`; final integrated release acceptance |
-| 8 | T-557 | P1 | `PENDING` | Activate only if repeated MSA drilldown use justifies a Go analyzer contract |
+| 3 | T-581 | P1 | `PENDING` | Requires T-580 `PASS` |
+| 4 | T-582 | P1 | `PENDING` | Requires T-581 `PASS` |
+| 5 | T-583 | P1 | `PENDING` | Requires T-582 `PASS` |
+| 6 | T-584 | P0 | `PENDING` | Requires T-583 `PASS`; final integrated release acceptance |
+| 7 | T-557 | P1 | `PENDING` | Activate only if repeated MSA drilldown use justifies a Go analyzer contract |
 
 ## Current Baseline
 
@@ -60,10 +59,14 @@ same change so this overview remains the status source of truth.
 - Current execution focus: T-571 / H-RG2 is parked until a network hub and the
   Windows real-NIC target are ready; do not start T-580 before H-COV1 `PASS`.
   The parallel local track completed T-585 Lighthouse report JSON engine/CLI/
-  Wails-binding support. T-586 backend work now provides a versioned UI contract,
-  score provenance disclosure, stable Evidence Board source references, export
-  coverage, and a populated/redacted Wails acceptance fixture; frontend desktop
-  integration remains in progress.
+  Wails-binding support and T-586's desktop UI. The T-586 backend provides a
+  versioned UI contract, score provenance disclosure, stable Evidence Board
+  source references, export coverage, and a populated/redacted Wails acceptance
+  fixture; the frontend now adds a dedicated Lighthouse page that consumes only
+  `AnalyzeBrowserAudit`, discloses imported-score provenance, renders
+  category/Core Web Vitals/audit/network/resource views and diagnostics,
+  registers to Analysis Workspace, captures findings/audit rows to the Evidence
+  Board, and exports JSON/HTML reports.
   H-RG1 passed its integrated gate on
   2026-07-21; the engine remediation and H-SEC1 re-reviews are `PASS`, and the
   UI bounded-result behavior and available populated-state evidence were
@@ -250,6 +253,20 @@ same change so this overview remains the status source of truth.
   stable `source_ref` values, source metadata, and JSON/HTML report coverage.
   A populated sanitized Lighthouse fixture verifies TopN bounds, Wails payload
   shape, Workspace provenance, Evidence Board candidates, and non-disclosure.
+- Completed the T-586 frontend scope: a dedicated `LighthouseAuditPage` under
+  Browser Performance that consumes only `AnalyzeBrowserAudit` (new
+  `bridge/engine.ts` `analyzeBrowserAudit` wrapper and `bridge/types.ts`
+  `BrowserAuditRequest`/`BrowserAuditAnalysisResult`/`BrowserAuditContract`
+  types) with collection guidance, an imported-score provenance banner that
+  discloses scores are preserved and not recomputed, metric cards, category
+  scores, Core Web Vitals, bounded audit and network-request tables, resource
+  summary, findings, and parser diagnostics. Pure `state/browserAudit.ts`
+  selectors keep the logic testable; the result registers to Analysis
+  Workspace, findings/audit rows capture to the Evidence Board while preserving
+  the frozen `source_ref`, and JSON/HTML reports export from the page. Added
+  EN/KO localization, sidebar/App wiring, and populated-state/provenance
+  regressions; `npm run test:state` and `npm run build` pass and
+  `browser_audit_evidence` stays separate from `profile_evidence`.
 - Processed the H-RG1 engine `CONDITIONAL` review and completed its remediation:
   malformed URLs retain only redacted raw values with `HAR_URL_UNPARSABLE`, the
   parser has a non-leaking panic boundary, oversized JSON bodies fail closed
@@ -367,32 +384,27 @@ filtered before analysis.
 
 ## Next Execution Queue
 
-1. **IN PROGRESS — T-586:** use the frozen `AnalyzeBrowserAudit` backend
-   handoff to add the dedicated Lighthouse desktop page, then connect the result
-   to Analysis Workspace and Evidence Board without folding audit evidence into
-   the CPU-profile sample model. The backend score disclosure, provenance,
-   evidence-source, populated-fixture, and report-export regressions are complete.
-2. **PARKED — T-571 / H-RG2:** when the network hub and Windows real-NIC target
+1. **PARKED — T-571 / H-RG2:** when the network hub and Windows real-NIC target
    are ready, complete the ETW/WFP run and direct `GetExtendedTcpTable` CAP-5
    CPU-overhead rerun. Treat the evidence disposition as the mandatory H-COV1
    review before Windows live capture.
-3. **PENDING — T-580 through T-584:** continue in order through `H-RG3` live
+2. **PENDING — T-580 through T-584:** continue in order through `H-RG3` live
    engine (T-580), `H-RG4` live UI and
    Windows E2E (T-581), `H-RG5` HTTP Diff (T-582), `X-RG1` cross-analysis
    (T-583), and `R-RG1` release acceptance (T-584). Do not skip a failed or
    conditional gate.
-4. Review the long-term external APM import roadmap before assigning any new
+3. Review the long-term external APM import roadmap before assigning any new
    external-connector implementation range. Local file imports already cover
    OTLP, Zipkin, Elastic APM, Jaeger, and SkyWalking-style trace evidence;
    direct SaaS and product-specific connectors remain deferred until token
    storage, redaction, compliance, connector testability, and source-evidence
    contracts are clear.
-5. Keep security/compliance evidence as a roadmap candidate, not an active
+4. Keep security/compliance evidence as a roadmap candidate, not an active
    TO-DO range, until it is selected against the external APM roadmap and the
    next release objective.
-6. Continue pairing English/Korean docs whenever importer, analyzer, UI, or
+5. Continue pairing English/Korean docs whenever importer, analyzer, UI, or
    report-pack surfaces change.
-7. Reserve `v0.4.0` for a broader Evidence Studio roll-up after the remaining
+6. Reserve `v0.4.0` for a broader Evidence Studio roll-up after the remaining
    roadmap candidates are prioritized and the chosen source families stabilize
    as one coherent workflow.
 8. Keep release verification healthy before each release cut by repeating
@@ -521,7 +533,7 @@ deferred until explicitly promoted.
 | T-583 | P1 | PENDING | Implement and review X-RG1 HTTP correlation with Chrome/V8 CPU runs, Jennifer network-gap evidence, and access logs, including bounded alignment/confidence diagnostics and provenance-aware UI drilldown/overlay. | T-582 PASS | Codex engine plus Claude UI; incompatible clocks must never be presented as causal proof |
 | T-584 | P0 | PENDING | Run R-RG1 integrated release acceptance across Go test/vet/build, frontend test/build, Windows live E2E, macOS offline import/package smoke, paired documentation, support/security/performance matrices, and honest release notes. | T-583 PASS | No tag or GitHub release before independent release PASS |
 | T-585 | P1 | DONE | Implement the file-first Lighthouse report JSON engine slice as the browser-performance roadmap task that can proceed while T-571 waits for hardware: separate parser/analyzer packages, bounded/redacted projections, preserved report scoring, CLI, ingestion-family contract, Wails binding, tests, and paired documentation. | T-565; independent of T-571 | Completed 2026-07-21: `browser import --format lighthouse-json`, `browser_audit_evidence`, `AnalyzeBrowserAudit`, generated TypeScript bindings, Core Web Vitals/category/audit/resource outputs, report-authored score findings, 64 MiB default input guard, URL redaction, bounded audit/network tables, and targeted Go tests. |
-| T-586 | P1 | IN_PROGRESS | Add the dedicated Lighthouse desktop page under Browser Performance, consuming only `AnalyzeBrowserAudit`; provide collection guidance, score/metric cards, category/audit/resource views, diagnostics, Analysis Workspace registration, Evidence Board capture, report export, and populated-state/provenance regressions. | T-585 | Backend handoff completed 2026-07-22: versioned `browser_audit_contract`, explicit imported-score/non-recalculation disclosure, stable row/finding `source_ref` values, source metadata, declared view/evidence/export surfaces, sanitized populated fixture, Wails payload/redaction regression, and JSON/HTML export regression. Frontend page, localized guidance/views, Workspace/Evidence Board actions, and rendered populated-state regressions remain. Keep `browser_audit_evidence` separate from `profile_evidence`. |
+| T-586 | P1 | DONE | Add the dedicated Lighthouse desktop page under Browser Performance, consuming only `AnalyzeBrowserAudit`; provide collection guidance, score/metric cards, category/audit/resource views, diagnostics, Analysis Workspace registration, Evidence Board capture, report export, and populated-state/provenance regressions. | T-585 | Backend handoff completed 2026-07-22: versioned `browser_audit_contract`, explicit imported-score/non-recalculation disclosure, stable row/finding `source_ref` values, source metadata, declared view/evidence/export surfaces, sanitized populated fixture, Wails payload/redaction regression, and JSON/HTML export regression. Frontend completed 2026-07-22: `LighthouseAuditPage` + `bridge/engine.ts` `analyzeBrowserAudit` wrapper + `state/browserAudit.ts` pure selectors, sidebar/App route wiring, EN/KO localized guidance/provenance/views, score-provenance disclosure banner, category/Core Web Vitals/audit/network/resource views, diagnostics, Analysis Workspace registration, Evidence Board finding/audit-row capture preserving `source_ref`, JSON/HTML report export, and populated-state/provenance regressions in `state/regression.test.ts`. `npm run test:state`, `npm run build`, and the Lighthouse Go tests pass; `browser_audit_evidence` stays separate from `profile_evidence`. |
 | T-566 | P0 | DONE | Add a reproducible source ledger for every HTTP-capture research claim marked `[V]`, including official URL or source commit, retrieval date, verified fact, and design impact; scope absolute competitive-gap claims to what was actually inspected. | None | Completed 2026-07-20: appendix A rewritten as a filled ledger — claim-ID scheme (`V`/`I`/`N`/`Q` × area × topic), `fixed`/`partial`/`open` status values, four ledger tables (platform/spec, Windows capture, HTTPAnalyzer, competitors), and a refresh procedure. Gate condition restated as "no design decision rests on an `open` row" rather than "all rows verified"; `Q-COMP-MITM-PID` and the 1.5.4 absolutes are recorded as `open` and withdrawn from use |
 | T-567 | P0 | DONE | Replace the global “all processes” requirement with a Windows-first platform/mode capability and fidelity matrix covering process attribution, HTTP versions, header/body fidelity, timing perspective, privileges, and explicit unsupported cases; separate Windows runtime support from cross-OS offline evidence compatibility. | T-566 | Completed 2026-07-20: §9.3 adds six per-mode matrices (attribution, HTTP versions, fidelity, timing perspective, privileges, explicit unsupported) across proxy/HAR/ETW/WFP/Npcap/keylog with `미검증` cells reserved for the T-571 spike; §9.4 splits runtime support (Windows only) from evidence compatibility (all OSes) with separate acceptance criteria, and records that HAR dialect differences are a function of the generating tool, not the generating OS |
 | T-568 | P0 | DONE | Redesign the HTTP capture model so unknown/not-applicable/zero timings, client-proxy versus proxy-upstream perspectives, transaction state, connection reuse, header semantics, decoded versus wire bytes, and fidelity are represented without overclaiming Go `net/http` guarantees. | T-567 | Completed 2026-07-20: §6.3.1 fixes transaction boundaries (start = first request byte, end = last response byte/terminal state) with eight ambiguous cases resolved; §6.3.2 separates monotonic durations from wall-clock instants and locks ms/`float64`; §6.3.3 adds the state machine with transitions and aggregation rules; §6.3.4 adds versioned invariants `INV-1`~`INV-7` plus opposing H1/H2 golden sets (`INV-H1-1` non-overlap vs `INV-H2-1` overlap-permitted) |

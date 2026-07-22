@@ -19,6 +19,7 @@ import {
   FileSearch,
   Gauge,
   GitCompareArrows,
+  Globe,
   Info,
   Network,
   PanelsLeftBottom,
@@ -50,6 +51,7 @@ export type NavKey =
   | "trace_import"
   | "http_capture"
 	  | "browser_cpu"
+  | "browser_audit"
   | "analysis_workspace"
   | "export_center"
   | "report_diff"
@@ -74,6 +76,7 @@ const NAV_ICONS: Record<NavKey, NavIcon> = {
   trace_import: Route,
   http_capture: Network,
 	  browser_cpu: Cpu,
+  browser_audit: Globe,
   analysis_workspace: ClipboardList,
   export_center: Download,
   report_diff: GitCompareArrows,
@@ -154,6 +157,7 @@ export function Sidebar({ active, onNavigate }: SidebarProps) {
     { key: "trace_import", label: t("navTraceImport") },
     { key: "http_capture", label: "HTTP capture" },
 	    { key: "browser_cpu", label: "Browser CPU" },
+    { key: "browser_audit", label: t("navLighthouse") },
   ];
   const workspaceItems: { key: NavKey; label: string }[] = [
     { key: "analysis_workspace", label: t("navAnalysisWorkspace") },

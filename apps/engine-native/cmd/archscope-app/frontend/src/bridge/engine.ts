@@ -50,6 +50,8 @@ import type {
   AiInterpretationGateRequest,
   AiInterpretationGateResponse,
   AnalysisResult,
+  BrowserAuditAnalysisResult,
+  BrowserAuditRequest,
   ClassifyRequest,
   ClassifyResult,
   CollapsedRequest,
@@ -151,6 +153,14 @@ export function analyzeHttpCapture(req: HttpCaptureRequest): CancellablePromise<
 
 export function analyzeProfileEvidence(req: ProfileEvidenceRequest): CancellablePromise<ProfileEvidenceAnalysisResult> {
   return call<ProfileEvidenceAnalysisResult>("AnalyzeProfileEvidence", req);
+}
+
+// analyzeBrowserAudit imports a local Lighthouse report (T-585/T-586).
+// URL fields are redacted by the parser before the result crosses the
+// desktop boundary, and imported category/audit scores are preserved
+// verbatim — the UI must disclose that ArchScope does not recompute them.
+export function analyzeBrowserAudit(req: BrowserAuditRequest): CancellablePromise<BrowserAuditAnalysisResult> {
+  return call<BrowserAuditAnalysisResult>("AnalyzeBrowserAudit", req);
 }
 
 // JenniferProfileRequest matches the Go-side struct; either Path
@@ -275,6 +285,7 @@ export const engine = {
   analyzeTraceImport,
   analyzeHttpCapture,
   analyzeProfileEvidence,
+  analyzeBrowserAudit,
   analyzeJenniferProfile,
   analyzeThreadDump,
   analyzeMultiThread,

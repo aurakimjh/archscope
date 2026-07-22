@@ -9,6 +9,21 @@ import {
   selectPartialResult,
 } from "./browserCpuProfile.js";
 import {
+  browserAuditDiagnosticIssueCount,
+  buildBrowserAuditEvidence,
+  extractBrowserAuditDiagnostics,
+  scorePctBand,
+  scoreToPct,
+  selectAuditRows,
+  selectBrowserAuditContract,
+  selectBrowserAuditFindings,
+  selectCategoryScores,
+  selectCoreMetrics,
+  selectNetworkRequests,
+  selectResourceDistribution,
+  selectScoreProvenance,
+} from "./browserAudit.js";
+import {
   availableFidelities,
   availableMethods,
   availableMimeTypes,
@@ -792,4 +807,155 @@ const reloaded = getWorkspaceEntry(workspaceEntry.id);
 assert(reloaded?.result_type === "http_capture", "Workspace preserves the http_capture result type");
 assert(reloaded?.source_files.includes("chrome.har"), "Workspace preserves the source label/files");
 assert((reloaded?.result as any)?.summary?.total_transactions === 42, "Workspace retains the populated summary");
+clearWorkspaceResults();
+
+// ── T-586: populated browser_audit_evidence page derivations ───────────
+// Mirrors the frozen engine emit shape
+// (apps/engine-native/internal/analyzers/lighthouse/analyzer.go). The page
+// consumes only this contract and must never fold audit evidence into the
+// CPU-profile sample model.
+const browserAudit: any = {
+  type: "browser_audit_evidence",
+  source_files: ["report.json"],
+  created_at: "2026-07-22T00:00:00.000Z",
+  summary: {
+    source_format: "lighthouse-json",
+    score_source: "imported_lighthouse_report",
+    score_disclosure:
+      "Scores are preserved from the imported Lighthouse report; ArchScope does not recompute them.",
+    scores_recomputed: false,
+    lighthouse_version: "11.0.0",
+    final_url: "https://example.test/",
+    form_factor: "mobile",
+    performance_score_pct: 42,
+    audit_count: 3,
+    network_request_count: 2,
+    transfer_size_bytes: 2048,
+  },
+  series: {
+    category_scores: [
+      { id: "performance", title: "Performance", score: 0.42, score_pct: 42, source_ref: "category:performance" },
+      { id: "seo", title: "SEO", score: 0.95, score_pct: 95, source_ref: "category:seo" },
+    ],
+    core_metrics: [
+      {
+        id: "largest-contentful-paint",
+        title: "Largest Contentful Paint",
+        value: 4200,
+        unit: "millisecond",
+        display_value: "4.2 s",
+        score: 0.3,
+        source_ref: "audit:largest-contentful-paint",
+      },
+    ],
+    resource_type_distribution: [
+      { resource_type: "script", request_count: 1, transfer_size_bytes: 1500, source_ref: "resource_type:script" },
+    ],
+  },
+  tables: {
+    audits: [
+      { id: "unused-css-rules", title: "Reduce unused CSS", score: 0.1, score_pct: 10, display_value: "1 KiB", source_ref: "audit:unused-css-rules" },
+      { id: "viewport", title: "Has viewport", score: 1, score_pct: 100, source_ref: "audit:viewport" },
+    ],
+    network_requests: [
+      { url: "https://example.test/app.js", resource_type: "Script", transfer_size_bytes: 1500, duration_ms: 120, source_ref: "network_request:1" },
+    ],
+    resource_summary: [
+      { resource_type: "Script", request_count: 1, transfer_size_bytes: 1500, source_ref: "resource_type:script" },
+    ],
+  },
+  charts: {},
+  metadata: {
+    schema_version: "0.1.0",
+    format: "lighthouse-json",
+    browser_audit_contract: {
+      version: "1.0.0",
+      result_type: "browser_audit_evidence",
+      score_source: "imported_lighthouse_report",
+      score_disclosure:
+        "Scores are preserved from the imported Lighthouse report; ArchScope does not recompute them.",
+      scores_recomputed: false,
+      view_keys: {
+        series: ["category_scores", "core_metrics", "resource_type_distribution"],
+        tables: ["audits", "network_requests", "resource_summary"],
+      },
+      export_formats: ["json", "html", "pptx", "csv", "csv_dir"],
+    },
+    diagnostics: { warning_count: 1, error_count: 0, warnings: [{ reason: "LIGHTHOUSE_TRUNCATED" }] },
+    findings: [
+      {
+        severity: "warning",
+        code: "LIGHTHOUSE_PERFORMANCE_POOR",
+        message: "The imported Lighthouse report rated performance below 50.",
+        evidence: { score_pct: 42, source_ref: "category:performance", score_source: "imported_lighthouse_report" },
+      },
+    ],
+  },
+};
+
+const provenance = selectScoreProvenance(browserAudit);
+assert(provenance.scoresRecomputed === false, "browser audit must disclose scores are NOT recomputed");
+assert(
+  provenance.scoreSource === "imported_lighthouse_report",
+  "browser audit provenance must name the imported-report source",
+);
+assert(provenance.scoreDisclosure.length > 0, "browser audit must carry a human-readable score disclosure");
+// A malformed payload must never imply recomputation.
+assert(selectScoreProvenance(null).scoresRecomputed === false, "missing browser audit defaults to not-recomputed");
+
+const contract = selectBrowserAuditContract(browserAudit);
+assert(contract?.version === "1.0.0", "browser audit contract version is surfaced to the UI");
+assert(
+  Array.isArray(contract?.export_formats) && contract!.export_formats!.includes("html"),
+  "browser audit contract declares HTML export coverage",
+);
+
+const auditCategories = selectCategoryScores(browserAudit);
+assert(auditCategories.length === 2, "category scores are projected for the UI");
+assert(scorePctBand(42) === "poor", "sub-50 category scores band as poor");
+assert(scorePctBand(95) === "good", "90+ category scores band as good");
+assert(scorePctBand(null) === "unknown", "missing score bands as unknown, not poor");
+
+const vitals = selectCoreMetrics(browserAudit);
+assert(vitals.length === 1 && vitals[0]?.id === "largest-contentful-paint", "Core Web Vitals rows are projected");
+assert(scoreToPct(0.3) === 30, "0-1 audit scores normalize to a 0-100 percentage");
+assert(scoreToPct("x") === null, "non-numeric audit scores normalize to null, not 0");
+
+const browserAuditRows = selectAuditRows(browserAudit);
+assert(browserAuditRows.length === 2, "bounded audits table is projected");
+assert(browserAuditRows[0]?.source_ref === "audit:unused-css-rules", "audit rows keep their stable source_ref");
+assert(selectNetworkRequests(browserAudit).length === 1, "network requests table is projected");
+assert(selectResourceDistribution(browserAudit).length === 1, "resource distribution is projected");
+
+const auditDiags = extractBrowserAuditDiagnostics(browserAudit);
+assert(browserAuditDiagnosticIssueCount(auditDiags) === 1, "browser audit diagnostics issue badge counts warnings + errors");
+assert(browserAuditDiagnosticIssueCount(null) === 0, "null browser audit diagnostics count as zero issues");
+
+// Evidence Board capture must preserve the frozen finding source_ref so the
+// card links back to the exact category/audit in the imported report.
+const auditFindings = selectBrowserAuditFindings(browserAudit);
+assert(auditFindings.length === 1, "engine findings are projected for Evidence Board capture");
+const evidence = buildBrowserAuditEvidence(auditFindings[0]!, "report.json");
+assert(evidence.analyzer === "browser_audit", "browser audit evidence is tagged with its own analyzer id");
+assert(evidence.source_ref === "category:performance", "evidence capture preserves the finding source_ref");
+assert(evidence.source_file === "report.json", "evidence capture records the source file");
+assert(evidence.severity === "warning", "evidence capture preserves finding severity");
+
+// Workspace registration must keep browser_audit_evidence distinct from the
+// CPU-profile sample model (profile_evidence).
+clearWorkspaceResults();
+const browserAuditEntry = addWorkspaceResult({
+  result: browserAudit,
+  title: "browser_audit: report.json",
+  sourceLabel: "report.json",
+});
+const browserAuditReloaded = getWorkspaceEntry(browserAuditEntry.id);
+assert(
+  browserAuditReloaded?.result_type === "browser_audit_evidence",
+  "Workspace preserves the browser_audit_evidence result type, separate from profile_evidence",
+);
+assert(
+  (browserAuditReloaded?.result as any)?.summary?.performance_score_pct === 42,
+  "Workspace retains the imported performance score",
+);
 clearWorkspaceResults();

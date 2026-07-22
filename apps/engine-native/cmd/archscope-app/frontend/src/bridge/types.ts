@@ -283,6 +283,41 @@ export type HttpCaptureAnalysisResult = AnalysisResult<
 export type ProfileEvidenceRequest = { path: string; format?: string; topN?: number; intervalMs?: number; profileKind?: string; maxBytes?: number; maxSamples?: number };
 export type ProfileEvidenceAnalysisResult = AnalysisResult<"profile_evidence">;
 
+// ──────────────────────────────────────────────────────────────────
+// Browser audit (offline Lighthouse report) typed shapes — T-585 / T-586.
+//
+// Mirrors the frozen engine emit shape:
+//   - summary  : apps/engine-native/internal/analyzers/lighthouse/analyzer.go::summary
+//   - series   : category_scores / core_metrics / resource_type_distribution
+//   - tables   : audits / network_requests / resource_summary
+//   - metadata.browser_audit_contract : versioned view/evidence/export contract
+//   - metadata.findings / metadata.diagnostics / metadata.source_metadata
+//
+// Imported Lighthouse scores are preserved verbatim; ArchScope never
+// recomputes them (`scores_recomputed === false`).
+// ──────────────────────────────────────────────────────────────────
+
+export type BrowserAuditRequest = {
+  path: string;
+  topN?: number;
+  maxBytes?: number;
+};
+
+export type BrowserAuditContract = {
+  version: string;
+  result_type: string;
+  score_source: string;
+  score_disclosure: string;
+  scores_recomputed: boolean;
+  bounded_tables?: Record<string, number>;
+  redaction?: Record<string, unknown>;
+  view_keys?: { series?: string[]; tables?: string[] };
+  evidence_sources?: string[];
+  export_formats?: string[];
+};
+
+export type BrowserAuditAnalysisResult = AnalysisResult<"browser_audit_evidence">;
+
 export type AiInterpretationGateRequest = {
   result: AnalysisResult | Record<string, unknown>;
   interpretation: Record<string, unknown>;
