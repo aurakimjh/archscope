@@ -1,0 +1,101 @@
+{
+  "lighthouseVersion": "13.0.1",
+  "requestedUrl": "https://shop.example.test/products?token=fixture-secret",
+  "finalDisplayedUrl": "https://shop.example.test/products?campaign=summer",
+  "fetchTime": "2026-07-22T00:00:00.000Z",
+  "userAgent": "Mozilla/5.0 ArchScope Lighthouse fixture",
+  "configSettings": {
+    "formFactor": "mobile",
+    "throttlingMethod": "simulate"
+  },
+  "categories": {
+    "accessibility": {
+      "id": "accessibility",
+      "title": "Accessibility",
+      "score": 0.92
+    },
+    "performance": {
+      "id": "performance",
+      "title": "Performance",
+      "score": 0.42
+    }
+  },
+  "audits": {
+    "cumulative-layout-shift": {
+      "id": "cumulative-layout-shift",
+      "title": "Cumulative Layout Shift",
+      "score": 0.96,
+      "scoreDisplayMode": "numeric",
+      "numericValue": 0.08,
+      "numericUnit": "unitless",
+      "displayValue": "0.08"
+    },
+    "largest-contentful-paint": {
+      "id": "largest-contentful-paint",
+      "title": "Largest Contentful Paint",
+      "description": "Largest element loaded from https://cdn.example.test/hero?api_key=fixture-secret",
+      "score": 0.31,
+      "scoreDisplayMode": "numeric",
+      "numericValue": 3180.5,
+      "numericUnit": "millisecond",
+      "displayValue": "3.2 s"
+    },
+    "network-requests": {
+      "id": "network-requests",
+      "title": "Network Requests",
+      "scoreDisplayMode": "informative",
+      "details": {
+        "type": "table",
+        "items": [
+          {
+            "url": "https://cdn.example.test/app.js?session=fixture-secret",
+            "protocol": "h2",
+            "statusCode": 200,
+            "mimeType": "application/javascript",
+            "resourceType": "Script",
+            "transferSize": 42000,
+            "resourceSize": 110000,
+            "startTime": 12.5,
+            "endTime": 85.5,
+            "initiatorType": "script"
+          },
+          {
+            "url": "https://shop.example.test/api/catalog?user=12345678",
+            "protocol": "h2",
+            "statusCode": 200,
+            "mimeType": "application/json",
+            "resourceType": "Fetch",
+            "transferSize": 8000,
+            "resourceSize": 24000,
+            "startTime": 30,
+            "endTime": 96,
+            "initiatorType": "fetch"
+          }
+        ]
+      }
+    },
+    "resource-summary": {
+      "id": "resource-summary",
+      "title": "Resource Summary",
+      "scoreDisplayMode": "informative",
+      "details": {
+        "type": "table",
+        "items": [
+          {
+            "resourceType": "fetch",
+            "requestCount": 1,
+            "transferSize": 8000
+          },
+          {
+            "resourceType": "script",
+            "requestCount": 1,
+            "transferSize": 42000
+          }
+        ]
+      }
+    }
+  },
+  "runWarnings": [
+    "The page redirected through https://auth.example.test/login?token=fixture-secret"
+  ]
+}

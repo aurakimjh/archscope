@@ -826,7 +826,8 @@ Primary projections:
 
 - `summary` — Lighthouse version, redacted URLs, collection mode, performance
   score, available FCP/LCP/INP/CLS/TBT/Speed Index/TTI/server-response metrics,
-  request/byte counts, and run-warning/runtime-error state.
+  request/byte counts, run-warning/runtime-error state, and the explicit
+  `imported_lighthouse_report` score provenance/non-recalculation disclosure.
 - `series.category_scores` — report category scores.
 - `series.core_metrics` — available browser metric values and report scores.
 - `series.resource_type_distribution` — request and transfer-byte totals by
@@ -834,6 +835,13 @@ Primary projections:
 - `tables.audits` — worst scored audits first, bounded by `top_n`.
 - `tables.network_requests` — largest transfers first, bounded by `top_n`.
 - `tables.resource_summary` — Lighthouse resource-summary rows.
+
+The versioned `metadata.browser_audit_contract` freezes the series/table keys,
+Evidence Board source paths, bounded table sizes, score provenance, and report
+export formats consumed by the desktop page. Every category, metric, audit,
+network-request, and resource-summary row carries a stable `source_ref` for
+Workspace and Evidence Board capture. Source-file provenance remains in
+`metadata.source_metadata`; the UI does not need a second backend method.
 
 Deterministic finding codes are `LIGHTHOUSE_PERFORMANCE_POOR`,
 `LIGHTHOUSE_AUDITS_POOR`, `LIGHTHOUSE_RUNTIME_ERROR`, and

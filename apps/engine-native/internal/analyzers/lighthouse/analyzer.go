@@ -4,6 +4,7 @@ package lighthouse
 
 import (
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/ingestion"
@@ -12,10 +13,13 @@ import (
 )
 
 const (
-	ResultType    = "browser_audit_evidence"
-	ParserName    = "lighthouse"
-	SchemaVersion = "0.1.0"
-	DefaultTopN   = 50
+	ResultType        = "browser_audit_evidence"
+	ParserName        = "lighthouse"
+	SchemaVersion     = "0.1.0"
+	UIContractVersion = "1.0.0"
+	ScoreSource       = "imported_lighthouse_report"
+	ScoreDisclosure   = "Scores are preserved from the imported Lighthouse report; ArchScope does not recompute them."
+	DefaultTopN       = 50
 )
 
 type Options struct {
@@ -60,9 +64,22 @@ func Build(report parser.Report, sourceFile string, opts Options) models.Analysi
 	result.Metadata.Extra["format"] = parser.FormatLighthouseJSON
 	result.Metadata.Extra["analysis_options"] = map[string]any{"top_n": topN, "max_bytes": maxBytes}
 	result.Metadata.Extra["browser_audit_contract"] = map[string]any{
-		"score_source":   "scores emitted by the imported Lighthouse report; ArchScope does not recompute Lighthouse scoring",
-		"bounded_tables": map[string]any{"audits": topN, "network_requests": topN},
-		"redaction":      report.Redaction,
+		"version":           UIContractVersion,
+		"result_type":       ResultType,
+		"score_source":      ScoreSource,
+		"score_disclosure":  ScoreDisclosure,
+		"scores_recomputed": false,
+		"bounded_tables":    map[string]any{"audits": topN, "network_requests": topN},
+		"redaction":         report.Redaction,
+		"view_keys": map[string]any{
+			"series": []string{"category_scores", "core_metrics", "resource_type_distribution"},
+			"tables": []string{"audits", "network_requests", "resource_summary"},
+		},
+		"evidence_sources": []string{
+			"metadata.findings", "series.category_scores", "series.core_metrics",
+			"tables.audits", "tables.network_requests", "tables.resource_summary",
+		},
+		"export_formats": []string{"json", "html", "pptx", "csv", "csv_dir"},
 	}
 
 	addFindings(&result, report)
@@ -94,6 +111,9 @@ func summary(report parser.Report) map[string]any {
 	}
 	out := map[string]any{
 		"source_format":         parser.FormatLighthouseJSON,
+		"score_source":          ScoreSource,
+		"score_disclosure":      ScoreDisclosure,
+		"scores_recomputed":     false,
 		"lighthouse_version":    report.LighthouseVersion,
 		"requested_url":         report.RequestedURL,
 		"final_url":             report.FinalURL,
@@ -126,7 +146,7 @@ func summary(report parser.Report) map[string]any {
 func categoryRows(categories []parser.Category) []map[string]any {
 	rows := make([]map[string]any, 0, len(categories))
 	for _, category := range categories {
-		row := map[string]any{"id": category.ID, "title": category.Title}
+		row := map[string]any{"id": category.ID, "title": category.Title, "source_ref": "category:" + category.ID}
 		if category.Score != nil {
 			row["score"] = *category.Score
 			row["score_pct"] = round(*category.Score*100, 1)
@@ -151,6 +171,7 @@ func coreMetricRows(audits []parser.Audit) []map[string]any {
 		row := map[string]any{
 			"id": id, "title": audit.Title, "value": *audit.NumericValue,
 			"unit": audit.NumericUnit, "display_value": audit.DisplayValue,
+			"source_ref": "audit:" + id,
 		}
 		if audit.Score != nil {
 			row["score"] = *audit.Score
@@ -177,7 +198,7 @@ func auditRows(audits []parser.Audit, limit int) []map[string]any {
 		row := map[string]any{
 			"id": audit.ID, "title": audit.Title, "description": audit.Description,
 			"score_display_mode": audit.ScoreDisplayMode, "numeric_unit": audit.NumericUnit,
-			"display_value": audit.DisplayValue,
+			"display_value": audit.DisplayValue, "source_ref": "audit:" + audit.ID,
 		}
 		if audit.Score != nil {
 			row["score"] = *audit.Score
@@ -203,13 +224,14 @@ func networkRequestRows(resources []parser.Resource, limit int) []map[string]any
 		ordered = ordered[:limit]
 	}
 	rows := make([]map[string]any, 0, len(ordered))
-	for _, resource := range ordered {
+	for index, resource := range ordered {
 		rows = append(rows, map[string]any{
 			"url": resource.URL, "protocol": resource.Protocol, "status_code": resource.StatusCode,
 			"mime_type": resource.MIMEType, "resource_type": resource.ResourceType,
 			"transfer_size_bytes": resource.TransferBytes, "resource_size_bytes": resource.ResourceBytes,
 			"start_ms": resource.StartMS, "end_ms": resource.EndMS, "duration_ms": resource.DurationMS,
 			"initiator_type": resource.InitiatorType,
+			"source_ref":     "network_request:" + strconv.Itoa(index+1),
 		})
 	}
 	return rows
@@ -218,7 +240,10 @@ func networkRequestRows(resources []parser.Resource, limit int) []map[string]any
 func resourceSummaryRows(report parser.Report) []map[string]any {
 	rows := make([]map[string]any, 0, len(report.ResourceSummaries))
 	for _, item := range report.ResourceSummaries {
-		rows = append(rows, map[string]any{"resource_type": item.ResourceType, "request_count": item.RequestCount, "transfer_size_bytes": item.TransferBytes})
+		rows = append(rows, map[string]any{
+			"resource_type": item.ResourceType, "request_count": item.RequestCount,
+			"transfer_size_bytes": item.TransferBytes, "source_ref": "resource_type:" + strings.ToLower(item.ResourceType),
+		})
 	}
 	return rows
 }
@@ -249,7 +274,10 @@ func resourceRows(report parser.Report) []map[string]any {
 	sort.Strings(keys)
 	rows := make([]map[string]any, 0, len(keys))
 	for _, key := range keys {
-		rows = append(rows, map[string]any{"resource_type": key, "request_count": stats[key].count, "transfer_size_bytes": stats[key].transfer})
+		rows = append(rows, map[string]any{
+			"resource_type": key, "request_count": stats[key].count,
+			"transfer_size_bytes": stats[key].transfer, "source_ref": "resource_type:" + strings.ToLower(key),
+		})
 	}
 	return rows
 }
@@ -257,7 +285,9 @@ func resourceRows(report parser.Report) []map[string]any {
 func addFindings(result *models.AnalysisResult, report parser.Report) {
 	for _, category := range report.Categories {
 		if category.ID == "performance" && category.Score != nil && *category.Score < 0.5 {
-			result.AddFinding("warning", "LIGHTHOUSE_PERFORMANCE_POOR", "The imported Lighthouse report rated performance below 50.", map[string]any{"score_pct": round(*category.Score*100, 1)})
+			result.AddFinding("warning", "LIGHTHOUSE_PERFORMANCE_POOR", "The imported Lighthouse report rated performance below 50.", map[string]any{
+				"score_pct": round(*category.Score*100, 1), "source_ref": "category:performance", "score_source": ScoreSource,
+			})
 		}
 	}
 	poor := make([]string, 0)
@@ -272,17 +302,23 @@ func addFindings(result *models.AnalysisResult, report parser.Report) {
 		if len(shown) > 10 {
 			shown = shown[:10]
 		}
-		result.AddFinding("warning", "LIGHTHOUSE_AUDITS_POOR", "One or more scored Lighthouse audits are below 50.", map[string]any{"count": len(poor), "audit_ids": shown})
+		result.AddFinding("warning", "LIGHTHOUSE_AUDITS_POOR", "One or more scored Lighthouse audits are below 50.", map[string]any{
+			"count": len(poor), "audit_ids": shown, "source_ref": "audits:poor", "score_source": ScoreSource,
+		})
 	}
 	if report.RuntimeError != "" {
-		result.AddFinding("error", "LIGHTHOUSE_RUNTIME_ERROR", "Lighthouse reported a runtime error; results may be incomplete.", map[string]any{"runtime_error": report.RuntimeError})
+		result.AddFinding("error", "LIGHTHOUSE_RUNTIME_ERROR", "Lighthouse reported a runtime error; results may be incomplete.", map[string]any{
+			"runtime_error": report.RuntimeError, "source_ref": "runtime_error",
+		})
 	}
 	if len(report.RunWarnings) > 0 {
 		warnings := report.RunWarnings
 		if len(warnings) > 10 {
 			warnings = warnings[:10]
 		}
-		result.AddFinding("info", "LIGHTHOUSE_RUN_WARNINGS", "Lighthouse emitted run warnings; review collection conditions before comparison.", map[string]any{"count": len(report.RunWarnings), "warnings": warnings})
+		result.AddFinding("info", "LIGHTHOUSE_RUN_WARNINGS", "Lighthouse emitted run warnings; review collection conditions before comparison.", map[string]any{
+			"count": len(report.RunWarnings), "warnings": warnings, "source_ref": "run_warnings",
+		})
 	}
 }
 

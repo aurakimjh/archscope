@@ -133,6 +133,48 @@ func TestEngineService_AnalyzeHttpCaptureUsesBoundedRequestContract(t *testing.T
 	}
 }
 
+func TestEngineService_AnalyzeBrowserAuditSupportsWorkspaceEvidenceAndReportExport(t *testing.T) {
+	svc := &EngineService{}
+	path := filepath.Join(fixturesDir(t), "..", "apps", "engine-native", "internal", "parsers", "lighthouse", "testdata", "populated_report.json")
+	res, err := svc.AnalyzeBrowserAudit(BrowserAuditRequest{Path: path, TopN: 1, MaxBytes: 1 << 20})
+	if err != nil {
+		t.Fatalf("AnalyzeBrowserAudit: %v", err)
+	}
+	payload := resultToMap(t, res)
+	requireResultEnvelope(t, "AnalyzeBrowserAudit", "browser_audit_evidence", payload)
+
+	metadata, _ := payload["metadata"].(map[string]any)
+	contract, _ := metadata["browser_audit_contract"].(map[string]any)
+	if contract["version"] != "1.0.0" || contract["score_source"] != "imported_lighthouse_report" || contract["scores_recomputed"] != false {
+		t.Fatalf("unexpected browser audit UI contract: %+v", contract)
+	}
+	if _, ok := metadata["source_metadata"]; !ok {
+		t.Fatalf("workspace source metadata missing: %+v", metadata)
+	}
+
+	jsonPath := filepath.Join(t.TempDir(), "lighthouse-report.json")
+	if err := svc.ExportJSON(ExportJSONRequest{Path: jsonPath, Result: res}); err != nil {
+		t.Fatalf("ExportJSON: %v", err)
+	}
+	htmlPath := filepath.Join(t.TempDir(), "lighthouse-report.html")
+	if err := svc.ExportHTML(ExportHTMLRequest{Path: htmlPath, Result: res}); err != nil {
+		t.Fatalf("ExportHTML: %v", err)
+	}
+	for _, exportedPath := range []string{jsonPath, htmlPath} {
+		body, readErr := os.ReadFile(exportedPath)
+		if readErr != nil {
+			t.Fatalf("read %s: %v", exportedPath, readErr)
+		}
+		text := string(body)
+		if !strings.Contains(text, "browser_audit_evidence") || !strings.Contains(text, "ArchScope does not recompute") {
+			t.Fatalf("export %s omitted result type or score disclosure", exportedPath)
+		}
+		if strings.Contains(text, "fixture-secret") || strings.Contains(text, "12345678") {
+			t.Fatalf("export %s leaked fixture secrets", exportedPath)
+		}
+	}
+}
+
 func TestEngineService_AnalyzeServerLog(t *testing.T) {
 	svc := &EngineService{}
 	path := filepath.Join(fixturesDir(t), "server-logs", "sample-server.log")
@@ -324,6 +366,9 @@ func TestEngineService_PathRequired(t *testing.T) {
 	}
 	if _, err := svc.AnalyzeException(ExceptionRequest{}); err == nil {
 		t.Fatalf("AnalyzeException: expected error for empty path")
+	}
+	if _, err := svc.AnalyzeBrowserAudit(BrowserAuditRequest{}); err == nil {
+		t.Fatalf("AnalyzeBrowserAudit: expected error for empty path")
 	}
 	if _, err := svc.AnalyzeMultiThread(MultiThreadRequest{}); err == nil {
 		t.Fatalf("AnalyzeMultiThread: expected error for empty paths")
