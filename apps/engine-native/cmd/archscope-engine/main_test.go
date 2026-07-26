@@ -112,16 +112,22 @@ func runJSON(t *testing.T, bin string, args ...string) map[string]any {
 func TestCLISubcommands(t *testing.T) {
 	bin := buildBinary(t)
 	root := fixturesRoot(t)
-	sharedHAR := filepath.Clean(filepath.Join(root, "..", "..", "projects-assets", "test-data", "har-fixtures", "dialects", "chrome-sensitive.har"))
+	sharedHARRoot := os.Getenv("ARCHSCOPE_HAR_FIXTURES")
+	sharedHARExplicit := sharedHARRoot != ""
+	if !sharedHARExplicit {
+		sharedHARRoot = filepath.Clean(filepath.Join(root, "..", "..", "projects-assets", "test-data", "har-fixtures"))
+	}
+	sharedHAR := filepath.Join(sharedHARRoot, "dialects", "chrome-sensitive.har")
 	join := func(parts ...string) string {
 		all := append([]string{root}, parts...)
 		return filepath.Join(all...)
 	}
 
 	cases := []struct {
-		name     string
-		args     []string
-		wantType string
+		name          string
+		args          []string
+		wantType      string
+		sharedFixture string
 	}{
 		{
 			name:     "access-log",
@@ -154,9 +160,10 @@ func TestCLISubcommands(t *testing.T) {
 			wantType: "trace_import",
 		},
 		{
-			name:     "http-capture",
-			args:     []string{"http-capture", "analyze", "--in", sharedHAR, "--format", "har", "--top-n", "2", "--redact-pattern", "DO-NOT-USE"},
-			wantType: "http_capture",
+			name:          "http-capture",
+			args:          []string{"http-capture", "analyze", "--in", sharedHAR, "--format", "har", "--top-n", "2", "--redact-pattern", "DO-NOT-USE"},
+			wantType:      "http_capture",
+			sharedFixture: sharedHAR,
 		},
 		{
 			name:     "thread-dump",
@@ -198,6 +205,14 @@ func TestCLISubcommands(t *testing.T) {
 	for _, tc := range cases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
+			if tc.sharedFixture != "" {
+				if _, err := os.Stat(tc.sharedFixture); err != nil {
+					if sharedHARExplicit {
+						t.Fatalf("ARCHSCOPE_HAR_FIXTURES: %v", err)
+					}
+					t.Skipf("shared HAR fixtures are not checked out next to archscope: %v", err)
+				}
+			}
 			t.Parallel()
 			payload := runJSON(t, bin, tc.args...)
 			gotType, _ := payload["type"].(string)
