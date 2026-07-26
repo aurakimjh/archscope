@@ -702,14 +702,16 @@ the 9~13%p CPU boundary because the probe polls `Get-NetTCPConnection` via
 PowerShell at 1 s intervals; the production path must call `GetExtendedTcpTable`
 directly to remove that cost.
 
-**Still open (T-571):** re-run ETW/WFP against a real-NIC target
-(`-Target host:port`) to settle ETW CAP-1/CAP-4; a `GetExtendedTcpTable`-direct
-rerun for TCP-owner CAP-5; re-evaluate WFP depending on ALE audit. Until that
-re-measurement, absolute coverage ratios are not exposed — only the five counters
-are kept. The proxy mode's `confirmed` attribution basis (§4.1) is now
-measurement-backed, though polling-based TCP ownership misses connections shorter
-than the polling interval and does not replace full kernel observation for bypass
-detection.
+**Still open (T-571):** run `loadgen.exe -role server` on a separate Windows
+receiver and re-run ETW/WFP from the measurement host with
+`run-spike.ps1 -Target host:port` to settle ETW CAP-1/CAP-4. Worker PID and local
+port ground truth remain on the measurement host and do not depend on the remote
+server. A `GetExtendedTcpTable`-direct rerun for TCP-owner CAP-5 and WFP
+re-evaluation depending on ALE audit also remain. Until that re-measurement,
+absolute coverage ratios are not exposed — only the five counters are kept. The
+proxy mode's `confirmed` attribution basis (§4.1) is now measurement-backed,
+though polling-based TCP ownership misses connections shorter than the polling
+interval and does not replace full kernel observation for bypass detection.
 
 ## 9. HTTP Session Diff Contract (ko 12.4.1, T-575)
 

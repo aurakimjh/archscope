@@ -3164,8 +3164,12 @@ eBPF(Linux)와 Network Extension(macOS)이 더 나은 귀속을 줄 가능성은
 충족하나, **귀속 정확도와 우회 탐지(CAP-1/4)는 실 NIC 재실측이 남았다.** WFP는
 audit 설정 없이는 후보에서 제외된다.
 
-**잔여 작업 (T-571).** (a) ETW/WFP를 실 NIC 타깃(`-Target <다른 호스트:포트>`)으로
-재실행해 ETW의 CAP-1/CAP-4를 확정한다. (b) `GetExtendedTcpTable` 직접 호출로
+**잔여 작업 (T-571).** (a) 별도 Windows 수신 호스트에서
+`loadgen.exe -role server -listen 0.0.0.0:<포트>`를 실행하고, 측정 호스트에서
+ETW/WFP를 실 NIC 타깃(`run-spike.ps1 -Target <다른 호스트:포트>`)으로
+재실행해 ETW의 CAP-1/CAP-4를 확정한다. 이 경로에서 worker의 PID·local port
+ground truth는 측정 호스트에 직접 기록되며 원격 서버에 의존하지 않는다.
+(b) `GetExtendedTcpTable` 직접 호출로
 TCP-owner CAP-5를 재측정한다. (c) WFP는 ALE audit 활성 여부에 따라 재평가한다. 이
 재실측 전까지 §10.1.2의 절대 coverage ratio는 노출하지 않고
 `captured/passthrough/unattributed/dropped/unsupported` 5개 카운터만 유지한다.

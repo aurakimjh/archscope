@@ -38,6 +38,59 @@ Npcap 은 별도 설치가 필요해 기본 실행에는 빠져 있다. 실행�
 
 ## 실행
 
+### 실 NIC 출시 판정 구성
+
+최종 측정에는 같은 LAN에 연결된 **별도의 Windows 호스트 두 대**를 사용한다.
+측정 호스트 A는 probe와 worker를 실행하고, 수신 호스트 B는 응답만 담당한다.
+worker의 PID·ephemeral local port·transaction counter는 A의 임시 result file로
+돌아오므로 B가 ground truth를 만들거나 결과 파일을 공유할 필요가 없다.
+
+1. 호스트 A에서 바이너리를 먼저 빌드한다.
+
+   ```powershell
+   cd spikes\t571-windows-coverage
+   $env:GOWORK = "off"
+   New-Item -ItemType Directory -Force bin | Out-Null
+   go build -o bin\loadgen.exe .\cmd\loadgen
+   ```
+
+2. `bin\loadgen.exe`를 호스트 B로 복사하고, 관리자 PowerShell에서 수신 포트를
+   연다. 다음 예시는 TCP 18080을 사용한다.
+
+   ```powershell
+   New-NetFirewallRule -DisplayName "ArchScope T-571 loadgen" `
+     -Direction Inbound -Action Allow -Protocol TCP -LocalPort 18080
+   .\loadgen.exe -role server -listen 0.0.0.0:18080
+   ```
+
+3. 호스트 B에서 `Get-NetIPAddress -AddressFamily IPv4`로 LAN IPv4를 확인한다.
+   예를 들어 B의 주소가 `192.168.0.42`라면, 호스트 A에서 연결을 먼저 확인한다.
+
+   ```powershell
+   Test-NetConnection 192.168.0.42 -Port 18080
+   Invoke-WebRequest http://192.168.0.42:18080/healthz
+   ```
+
+4. 호스트 A의 **관리자 권한 PowerShell**에서 전체 측정을 실행한다.
+
+   ```powershell
+   .\run-spike.ps1 -Target 192.168.0.42:18080 -Window 30 -Tps 500 -Workers 5
+   ```
+
+측정 후 호스트 B에서는 `Ctrl+C`로 서버를 종료하고, 임시 방화벽 규칙이 더 이상
+필요하지 않으면 다음 명령으로 제거한다.
+
+```powershell
+Remove-NetFirewallRule -DisplayName "ArchScope T-571 loadgen"
+```
+
+별도 물리 호스트가 권장된다. Hyper-V VM을 쓸 경우 external virtual switch를
+사용하고, 결과에 가상 스위치 경로임을 기록한다. NAT/Default Switch 또는 같은
+호스트의 LAN IP는 출시 판정용 "실제 NIC를 경유한 다른 호스트" 증거로 간주하지
+않는다.
+
+### Loopback smoke
+
 관리자 권한 PowerShell 에서:
 
 ```powershell
@@ -82,6 +135,12 @@ CAP-1~4 통과 = ratio 노출(high), CAP-1 통과·CAP-3 실패 = ratio+손실�
 # 부하만
 bin\loadgen.exe -role parent -tps 500 -workers 5 -duration 30s -out results\ground_truth.json
 
+# 다른 Windows 호스트에서 실 NIC 수신 서버
+bin\loadgen.exe -role server -listen 0.0.0.0:18080
+
+# 측정 호스트에서 원격 수신 서버로 부하
+bin\loadgen.exe -role parent -target 192.168.0.42:18080 -tps 500 -workers 5 -duration 30s -out results\ground_truth.json
+
 # ETW probe만 (다른 창에서 loadgen 과 동시에)
 bin\etwprobe.exe -window 30s -out results\obs_etw.json
 
@@ -107,7 +166,9 @@ bin\bypassclient.exe -target some-host:80 -count 20
 
 ### Loopback caveat
 
-`-Target` 없이 실행하면 loadgen 은 loopback(127.0.0.1) listener 를 쓴다.
+`-Target` 없이 실행하면 loadgen parent는 loopback(127.0.0.1) listener를 직접
+띄운다. `-Target host:port`를 주면 parent는 로컬 listener를 만들지 않고, 로컬
+worker만 생성해 별도 호스트에서 실행 중인 `loadgen -role server`로 접속한다.
 loopback 트래픽의 귀속·관측은 실제 NIC 경로와 다를 수 있다(특히 Npcap 은 별도
 loopback 어댑터 필요). **출시 판정용 최종 측정은 `-Target <다른 호스트:포트>`
 로 실제 NIC 를 경유해 다시 확인**하는 것을 권장한다. loopback 결과는 1차

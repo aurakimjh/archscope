@@ -28,13 +28,19 @@
   proxy-bypass control).
 
 .PARAMETER Target
-  Optional remote listener host:port. If omitted, loadgen runs its own
-  loopback listener. NOTE: loopback attribution differs from real-NIC
-  attribution for some candidates — see README "Loopback caveat".
+  Optional remote loadgen server host:port. Start `loadgen.exe -role server`
+  on a different Windows host and pass its reachable LAN address here. If
+  omitted, loadgen runs its own loopback listener. NOTE: loopback attribution
+  differs from real-NIC attribution for some candidates — see README
+  "Loopback caveat".
 
 .EXAMPLE
   # From an elevated PowerShell:
   .\run-spike.ps1 -Window 30 -Tps 500 -Workers 5
+
+.EXAMPLE
+  # With `loadgen.exe -role server -listen 0.0.0.0:18080` running on 192.168.0.42:
+  .\run-spike.ps1 -Target 192.168.0.42:18080 -Window 30 -Tps 500 -Workers 5
 #>
 [CmdletBinding()]
 param(
@@ -126,18 +132,30 @@ function Invoke-Candidate {
   # (ground_truth_<GtName>.json) that judge pairs with this obs. A copy is also
   # written to ground_truth.json for the report summary / fallback.
   $gtPath = Join-Path $ResultsDir "ground_truth_$GtName.json"
+  if (Test-Path $gtPath) { Remove-Item $gtPath -Force }
   $lgArgs = @("-role","parent","-tps","$Tps","-workers","$Workers",
               "-duration","$([math]::Max(1,$Window-2))s",
               "-out", $gtPath)
-  if ($Target -ne "") { $lgArgs += @("-listen", $Target) }
+  if ($Target -ne "") { $lgArgs += @("-target", $Target) }
   Write-Host "driving load: $loadgen $($lgArgs -join ' ')" -ForegroundColor Yellow
   & $loadgen @lgArgs
-  if (Test-Path $gtPath) { Copy-Item $gtPath (Join-Path $ResultsDir "ground_truth.json") -Force }
+  $loadExitCode = $LASTEXITCODE
+  $loadSucceeded = $loadExitCode -eq 0 -and (Test-Path $gtPath)
+  if ($loadSucceeded) {
+    Copy-Item $gtPath (Join-Path $ResultsDir "ground_truth.json") -Force
+  } else {
+    Write-Warning "loadgen 실패(exit=$loadExitCode) 또는 ground truth 누락: $gtPath"
+  }
 
   $waitMs = [math]::Max(30, $Window + $MaxWaitSec) * 1000
   Write-Host "probe 종료 대기 (최대 $([math]::Round($waitMs/1000))s; WFP는 cab 생성에 시간이 걸립니다)..." -ForegroundColor DarkGray
   if (-not $probe.WaitForExit($waitMs)) {
     Write-Warning "probe가 제한 시간 내 종료되지 않았습니다: $ProbeExe. obs 파일이 없으면 judge가 '미측정'으로 기록합니다."
+  }
+  if (-not $loadSucceeded -and (Test-Path $ObsPath)) {
+    # Never score a fresh observation against stale ground truth from another
+    # candidate or an earlier run.
+    Remove-Item $ObsPath -Force
   }
 }
 
