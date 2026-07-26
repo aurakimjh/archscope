@@ -84,11 +84,21 @@ func containsString(values []string, target string) bool {
 
 func sharedHARFixtures(t *testing.T) string {
 	t.Helper()
+	if root := os.Getenv("ARCHSCOPE_HAR_FIXTURES"); root != "" {
+		if _, err := os.Stat(filepath.Join(root, "dialects", "manifest.json")); err != nil {
+			t.Fatalf("ARCHSCOPE_HAR_FIXTURES: %v", err)
+		}
+		return root
+	}
 	_, sourceFile, _, ok := runtime.Caller(0)
 	if !ok {
 		t.Fatal("cannot resolve test source path")
 	}
-	return filepath.Clean(filepath.Join(filepath.Dir(sourceFile), "../../../../../..", "projects-assets", "test-data", "har-fixtures"))
+	root := filepath.Clean(filepath.Join(filepath.Dir(sourceFile), "../../../../../..", "projects-assets", "test-data", "har-fixtures"))
+	if _, err := os.Stat(filepath.Join(root, "dialects", "manifest.json")); err != nil {
+		t.Skipf("shared HAR fixtures are not checked out next to archscope: %v", err)
+	}
+	return root
 }
 
 func warningReasons(parsed ParseResult) []string {

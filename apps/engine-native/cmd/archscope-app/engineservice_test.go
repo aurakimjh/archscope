@@ -112,7 +112,7 @@ func TestEngineService_AnalyzeAccessLog(t *testing.T) {
 
 func TestEngineService_AnalyzeHttpCaptureUsesBoundedRequestContract(t *testing.T) {
 	svc := &EngineService{}
-	path := filepath.Clean(filepath.Join(fixturesDir(t), "..", "..", "projects-assets", "test-data", "har-fixtures", "dialects", "chrome-sensitive.har"))
+	path := sharedHARFixture(t, "dialects", "chrome-sensitive.har")
 	res, err := svc.AnalyzeHttpCapture(HttpCaptureRequest{
 		Path: path, Format: "har", TopN: 2, MaxEntries: 100,
 		MaxBytes: 1 << 20, MaxStringBytes: 1 << 16, MaxBodyBytes: 1 << 16,
@@ -131,6 +131,23 @@ func TestEngineService_AnalyzeHttpCaptureUsesBoundedRequestContract(t *testing.T
 	if strings.Contains(string(encoded), "EXAMPLE-API-KEY-0000") || strings.Contains(string(encoded), "FAKE-SIGNATURE-EXAMPLE") {
 		t.Fatal("Wails result leaked a shared fixture secret")
 	}
+}
+
+func sharedHARFixture(t *testing.T, parts ...string) string {
+	t.Helper()
+	root := os.Getenv("ARCHSCOPE_HAR_FIXTURES")
+	explicit := root != ""
+	if !explicit {
+		root = filepath.Clean(filepath.Join(fixturesDir(t), "..", "..", "projects-assets", "test-data", "har-fixtures"))
+	}
+	path := filepath.Join(append([]string{root}, parts...)...)
+	if _, err := os.Stat(path); err != nil {
+		if explicit {
+			t.Fatalf("ARCHSCOPE_HAR_FIXTURES: %v", err)
+		}
+		t.Skipf("shared HAR fixtures are not checked out next to archscope: %v", err)
+	}
+	return path
 }
 
 func TestEngineService_AnalyzeBrowserAuditSupportsWorkspaceEvidenceAndReportExport(t *testing.T) {
