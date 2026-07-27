@@ -516,7 +516,7 @@ Long Task semantics).
 |---|---|---|---|
 | v0.3.5 | T-468 through T-555 | Stable Evidence Studio expansion | Released 2026-05-17 with Mid-Term Plus importers, API/event contract analysis, architecture docs drafts, advanced stitching, version metadata, changelog, release tag, and release workflow verification. |
 | Next candidate | T-560 through T-565 and T-578 complete | Chrome browser/V8 profile slice | C-RG1 returned independent `PASS` on 2026-07-21. Candidate version/tag selection remains a separate release decision; no release is cut by this status transition. |
-| Future candidate | T-571 and T-580 through T-584 review-gated | Windows-first HTTP capture and cross-OS evidence analysis slice | C-RG1/T-578, H-RG1/T-579, and H-RG2/T-571 have passed. Continue with H-RG3 live engine, live UI, HTTP Diff, cross-analysis, and integrated release acceptance in review-group order. Analyze Linux/macOS-generated supported evidence in the Windows UI. |
+| Future candidate | T-571 and T-580 through T-584 review-gated | Windows-first HTTP capture and cross-OS evidence analysis slice | C-RG1/T-578, H-RG1/T-579, H-RG2/T-571, and H-RG3/T-580 have passed. Continue with H-RG4 live UI, HTTP Diff, cross-analysis, and integrated release acceptance in review-group order. Analyze Linux/macOS-generated supported evidence in the Windows UI. |
 | v0.4.0 candidate | Not assigned | Evidence Studio roll-up | Full local evidence workflow is smoke-tested as one product story with sample packs, report exports, regression tests, AI gate checks, and release notes that present the expanded capability coherently. |
 
 ## Task Registry
@@ -540,7 +540,8 @@ frontend regressions are present; and the shared corpus has 16 fixtures. T-578
 is complete and H-RG1 is unblocked.
 HTTP work began with bounded, sanitized HAR import. Phase 1 HAR import passed
 H-SEC1 and the full H-RG1 group gate on 2026-07-21. Live MITM capture is
-Windows-first; T-571/H-RG2 passed on 2026-07-27 and T-580/H-RG3 is now ready.
+Windows-first; T-571/H-RG2 passed on 2026-07-27, T-580/H-RG3 passed on
+2026-07-28, and T-581/H-RG4 is now ready.
 Linux/macOS-generated supported
 HAR, profiles, and logs remain valid offline inputs to the Windows UI; Linux/macOS
 live-capture parity is not a first-release gate. The Korean design note was

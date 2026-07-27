@@ -18,7 +18,8 @@ group and **the next group cannot start until the current group passes**.
   **complete — integrated PASS (2026-07-21)**, including engine and H-SEC1
   re-reviews, the bounded import UI, shared fixtures, and full engine/frontend
   verification. T-571/H-RG2 closed with independent `H-COV1 PASS` on
-  2026-07-27, so the H-RG3 Windows live-capture engine group is ready.
+  2026-07-27, and T-580/H-RG3 closed with independent `H-SEC2 PASS` on
+  2026-07-28, so T-581/H-RG4 Windows live UI and E2E is ready.
 
 ## 2. Ownership
 

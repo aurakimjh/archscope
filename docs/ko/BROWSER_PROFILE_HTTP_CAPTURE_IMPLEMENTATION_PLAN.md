@@ -18,8 +18,9 @@
 - **Part A — Chrome/V8 프로파일 분석:** `C-RG1`은 **완료 — PASS**다.
 - **Part B — HTTP 캡처 및 분석:** `H-RG1` 오프라인 HAR 분석은 엔진/H-SEC1
   재리뷰, bounded import UI, shared fixture, 전체 엔진/프런트 검증을 포함해
-  **완료 — 통합 PASS (2026-07-21)**다. T-571/H-RG2도 2026-07-27 독립
-  `H-COV1 PASS`로 닫혀 H-RG3 Windows 실시간 캡처 엔진 그룹을 시작할 수 있다.
+  **완료 — 통합 PASS (2026-07-21)**다. T-571/H-RG2는 2026-07-27 독립
+  `H-COV1 PASS`로 닫혔고, T-580/H-RG3도 2026-07-28 독립 `H-SEC2 PASS`로
+  닫혀 T-581/H-RG4 Windows 실시간 UI와 E2E를 시작할 수 있다.
 
 ## 2. 역할과 소유권
 
