@@ -1,0 +1,283 @@
+{
+  "generated_at": "2026-07-27T21:23:38.8902028+09:00",
+  "host": "DESKTOP-BLMKDKH",
+  "os_version": "Microsoft Windows [Version 10.0.26200.8894]",
+  "loopback_mode": false,
+  "ground_truth": {
+    "started_at": "2026-07-27T21:23:06.2383091+09:00",
+    "ended_at": "2026-07-27T21:23:34.4045703+09:00",
+    "target_tps": 500,
+    "achieved_tps": 497.2260926132432,
+    "listener_addr": "192.168.0.3:18080",
+    "controls": [
+      {
+        "pid": 15124,
+        "label": "worker-0",
+        "image": "C:\\workspace\\archscope\\spikes\\t571-windows-coverage\\bin\\loadgen.exe",
+        "local_port": 9207,
+        "remote_host": "192.168.0.3",
+        "remote_port": 18080,
+        "goes_via_proxy": true,
+        "transactions": 2801
+      },
+      {
+        "pid": 29592,
+        "label": "worker-1",
+        "image": "C:\\workspace\\archscope\\spikes\\t571-windows-coverage\\bin\\loadgen.exe",
+        "local_port": 9208,
+        "remote_host": "192.168.0.3",
+        "remote_port": 18080,
+        "goes_via_proxy": true,
+        "transactions": 2801
+      },
+      {
+        "pid": 16980,
+        "label": "worker-2",
+        "image": "C:\\workspace\\archscope\\spikes\\t571-windows-coverage\\bin\\loadgen.exe",
+        "local_port": 9209,
+        "remote_host": "192.168.0.3",
+        "remote_port": 18080,
+        "goes_via_proxy": true,
+        "transactions": 2801
+      },
+      {
+        "pid": 31824,
+        "label": "worker-3",
+        "image": "C:\\workspace\\archscope\\spikes\\t571-windows-coverage\\bin\\loadgen.exe",
+        "local_port": 9210,
+        "remote_host": "192.168.0.3",
+        "remote_port": 18080,
+        "goes_via_proxy": true,
+        "transactions": 2801
+      },
+      {
+        "pid": 18228,
+        "label": "worker-4",
+        "image": "C:\\workspace\\archscope\\spikes\\t571-windows-coverage\\bin\\loadgen.exe",
+        "local_port": 9211,
+        "remote_host": "192.168.0.3",
+        "remote_port": 18080,
+        "goes_via_proxy": false,
+        "transactions": 2801
+      }
+    ],
+    "total_connections": 5,
+    "total_tx_attempted": 14005,
+    "total_tx_ok": 14005
+  },
+  "results": [
+    {
+      "candidate": "etw-tcpip",
+      "scope": "process_attribution",
+      "measured": true,
+      "criteria": {
+        "CAP-1": {
+          "id": "CAP-1",
+          "name": "귀속 정확도",
+          "threshold": "≥ 95%",
+          "value": "100.0% (5/5 control ports)",
+          "numeric": 100,
+          "pass": true,
+          "applied": true,
+          "detail": "PID 단위 귀속"
+        },
+        "CAP-2": {
+          "id": "CAP-2",
+          "name": "오탐(false attribution)",
+          "threshold": "= 0건",
+          "value": "197건",
+          "numeric": 197,
+          "pass": false,
+          "applied": true,
+          "detail": "통신하지 않은/다른 프로세스에 트래픽이 귀속된 사례"
+        },
+        "CAP-3": {
+          "id": "CAP-3",
+          "name": "손실률",
+          "threshold": "\u003c 1% 이고 카운터 노출 가능",
+          "value": "0.000% (dropped=0, delivered=44458)",
+          "numeric": 0,
+          "pass": true,
+          "applied": true
+        },
+        "CAP-4": {
+          "id": "CAP-4",
+          "name": "우회 탐지",
+          "threshold": "탐지 성공",
+          "value": "탐지됨 (port 4184, pid 26164)",
+          "numeric": 0,
+          "pass": true,
+          "applied": true
+        },
+        "CAP-5": {
+          "id": "CAP-5",
+          "name": "CPU 오버헤드",
+          "threshold": "\u003c 10%p",
+          "value": "5.0%p (capture 7.7% − baseline 2.7%)",
+          "numeric": 5.047134200000001,
+          "pass": true,
+          "applied": true
+        },
+        "CAP-6": {
+          "id": "CAP-6",
+          "name": "권한·설치",
+          "threshold": "9.3.5 요구와 일치",
+          "value": "관리자 권한으로 실행됨(요구와 일치)",
+          "numeric": 0,
+          "pass": true,
+          "applied": true,
+          "detail": "설치 비용(예: Npcap 별도 설치)은 수동 확인 항목"
+        }
+      },
+      "disposition": "폐기 — CAP-2 실패(오탐 발생). 부분 사용도 하지 않는다 (§10.4.3)"
+    },
+    {
+      "candidate": "wfp",
+      "scope": "process_attribution",
+      "measured": true,
+      "criteria": {
+        "CAP-1": {
+          "id": "CAP-1",
+          "name": "귀속 정확도",
+          "threshold": "≥ 95%",
+          "value": "0.0% (0/5 control ports)",
+          "numeric": 0,
+          "pass": false,
+          "applied": true,
+          "detail": "image(appId) 단위 귀속 — 동일 실행 파일의 프로세스 인스턴스는 구분 불가"
+        },
+        "CAP-2": {
+          "id": "CAP-2",
+          "name": "오탐(false attribution)",
+          "threshold": "= 0건",
+          "value": "0건",
+          "numeric": 0,
+          "pass": true,
+          "applied": true,
+          "detail": "통신하지 않은/다른 프로세스에 트래픽이 귀속된 사례"
+        },
+        "CAP-3": {
+          "id": "CAP-3",
+          "name": "손실률",
+          "threshold": "\u003c 1% 이고 카운터 노출 가능",
+          "value": "N/A",
+          "numeric": 0,
+          "pass": false,
+          "applied": false,
+          "detail": "이 후보에는 커널 손실 카운터가 없다(폴링/미해당)"
+        },
+        "CAP-4": {
+          "id": "CAP-4",
+          "name": "우회 탐지",
+          "threshold": "탐지 성공",
+          "value": "미탐지 (port 9328)",
+          "numeric": 0,
+          "pass": false,
+          "applied": true
+        },
+        "CAP-5": {
+          "id": "CAP-5",
+          "name": "CPU 오버헤드",
+          "threshold": "\u003c 10%p",
+          "value": "5.1%p (capture 7.8% − baseline 2.7%)",
+          "numeric": 5.0964598333333315,
+          "pass": true,
+          "applied": true
+        },
+        "CAP-6": {
+          "id": "CAP-6",
+          "name": "권한·설치",
+          "threshold": "9.3.5 요구와 일치",
+          "value": "관리자 권한으로 실행됨(요구와 일치)",
+          "numeric": 0,
+          "pass": true,
+          "applied": true,
+          "detail": "설치 비용(예: Npcap 별도 설치)은 수동 확인 항목"
+        }
+      },
+      "disposition": "coverage ratio 미지원 — CAP-1 미충족 (이 scope는 검증된 분모를 만들지 못함)"
+    },
+    {
+      "candidate": "tcp-owner",
+      "scope": "process_attribution",
+      "measured": true,
+      "criteria": {
+        "CAP-1": {
+          "id": "CAP-1",
+          "name": "귀속 정확도",
+          "threshold": "≥ 95%",
+          "value": "100.0% (5/5 control ports)",
+          "numeric": 100,
+          "pass": true,
+          "applied": true,
+          "detail": "PID 단위 귀속"
+        },
+        "CAP-2": {
+          "id": "CAP-2",
+          "name": "오탐(false attribution)",
+          "threshold": "= 0건",
+          "value": "0건",
+          "numeric": 0,
+          "pass": true,
+          "applied": true,
+          "detail": "통신하지 않은/다른 프로세스에 트래픽이 귀속된 사례"
+        },
+        "CAP-3": {
+          "id": "CAP-3",
+          "name": "손실률",
+          "threshold": "\u003c 1% 이고 카운터 노출 가능",
+          "value": "N/A",
+          "numeric": 0,
+          "pass": false,
+          "applied": false,
+          "detail": "이 후보에는 커널 손실 카운터가 없다(폴링/미해당)"
+        },
+        "CAP-4": {
+          "id": "CAP-4",
+          "name": "우회 탐지",
+          "threshold": "탐지 성공",
+          "value": "탐지됨 (port 9211, pid 18228)",
+          "numeric": 0,
+          "pass": true,
+          "applied": true
+        },
+        "CAP-5": {
+          "id": "CAP-5",
+          "name": "CPU 오버헤드",
+          "threshold": "\u003c 10%p",
+          "value": "14.4%p (capture 17.1% − baseline 2.7%)",
+          "numeric": 14.416022600000002,
+          "pass": false,
+          "applied": true
+        },
+        "CAP-6": {
+          "id": "CAP-6",
+          "name": "권한·설치",
+          "threshold": "9.3.5 요구와 일치",
+          "value": "관리자 권한으로 실행됨(요구와 일치)",
+          "numeric": 0,
+          "pass": true,
+          "applied": true,
+          "detail": "설치 비용(예: Npcap 별도 설치)은 수동 확인 항목"
+        }
+      },
+      "disposition": "coverage ratio 노출 가능, Confidence: high (§10.4.3)"
+    }
+  ],
+  "appendix_rows": [
+    {
+      "claim_id": "Q-WIN-ETW-PAYLOAD",
+      "fact": "payload: PID 단위 귀속 (ProcessID+sport+dport 존재); 손실률 0.000% (dropped=0, delivered=44458); 귀속 정확도 100.0% (5/5 control ports)",
+      "impact": "disposition: 폐기 — CAP-2 실패(오탐 발생). 부분 사용도 하지 않는다 (§10.4.3)",
+      "status": "fixed"
+    },
+    {
+      "claim_id": "Q-WIN-WFP-ATTR",
+      "fact": "WFP netEvents 귀속 정확도 0.0% (0/5 control ports); image(appId) 단위 귀속 — 동일 실행 파일의 프로세스 인스턴스는 구분 불가",
+      "impact": "disposition: coverage ratio 미지원 — CAP-1 미충족 (이 scope는 검증된 분모를 만들지 못함)",
+      "status": "partial"
+    }
+  ],
+  "overall_outcome": "최소 한 후보가 CAP-1~CAP-4를 통과했으므로 해당 scope에서 coverage ratio를 노출할 수 있다.",
+  "counter_fallback": false
+}
