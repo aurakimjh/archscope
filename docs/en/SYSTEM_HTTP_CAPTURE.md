@@ -702,7 +702,7 @@ the 9~13%p CPU boundary because the probe polls `Get-NetTCPConnection` via
 PowerShell at 1 s intervals; the production path must call `GetExtendedTcpTable`
 directly to remove that cost.
 
-**Still open (T-571):** run `loadgen.exe -role server` on a separate Windows
+**Open after the first measurement (T-571):** run `loadgen.exe -role server` on a separate Windows
 receiver and re-run ETW/WFP from the measurement host with
 `run-spike.ps1 -Target host:port` to settle ETW CAP-1/CAP-4. Worker PID and local
 port ground truth remain on the measurement host and do not depend on the remote
@@ -712,6 +712,41 @@ absolute coverage ratios are not exposed — only the five counters are kept. Th
 proxy mode's `confirmed` attribution basis (§4.1) is now measurement-backed,
 though polling-based TCP ownership misses connections shorter than the polling
 interval and does not replace full kernel observation for bypass detection.
+
+### 8.2 Real-NIC and Direct TCP-Owner Measurement (2026-07-27)
+
+The second measurement used a separate LAN receiver at `192.168.0.3:18080`
+and Windows build 26200.8894 on the measurement host. Five control processes
+drove approximately 497 tps, with all requests succeeding in each candidate
+pass. Raw evidence and generated reports are retained under
+`spikes/t571-windows-coverage/results-real-nic-20260727`.
+
+| Candidate | CAP-1 | CAP-2 | CAP-3 | CAP-4 | CAP-5 | Disposition |
+|---|---|---|---|---|---|---|
+| ETW Kernel-Network | **100% (5/5)** | **197 false attributions** | **0% loss** (44,458 delivered) | Detected | 5.0%p pass | **Discarded** under zero tolerance |
+| WFP netevents | **0% (0/5)** | 0 | N/A | Not detected | 5.1%p pass | No coverage ratio |
+| TCP endpoint ownership | **100% (5/5)** | **0** | N/A | **Detected** | **4.8%p pass** | Ratio eligible, high confidence |
+
+ETW observed every control port but repeatedly attributed those ports to PIDs
+other than the ground truth. The existence of PID fields is therefore distinct
+from correct process attribution, and ETW process attribution is discarded.
+WFP also failed to attribute the measured control flows.
+This pass did not separately enable an ALE audit policy. H-COV1 must therefore
+explicitly approve removing WFP on the measured evidence or require an
+audit-enabled rerun.
+
+The TCP-owner probe now calls IPv4 and IPv6
+`iphlpapi!GetExtendedTcpTable` directly, eliminating both the PowerShell table
+query and per-PID subprocesses. It completed 30 polls in 30 seconds, retained
+5/5 PID accuracy, zero false attribution, and bypass detection, and reduced
+the measured CPU delta from 14.4%p to **4.8%p** (8.0% capture minus 3.2%
+baseline). Connections shorter than the one-second polling interval remain an
+explicit structural limitation.
+
+The CAP-5 implementation and measurement are complete. T-571/H-RG2 remains in
+`REVIEW` until an independent `H-COV1` verdict approves the per-scope exposure
+disposition, the WFP removal-versus-audit-rerun decision, and reproducibility
+evidence.
 
 ## 9. HTTP Session Diff Contract (ko 12.4.1, T-575)
 

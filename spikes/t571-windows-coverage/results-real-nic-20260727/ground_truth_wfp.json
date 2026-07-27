@@ -1,0 +1,62 @@
+{
+  "started_at": "2026-07-27T21:22:34.8260278+09:00",
+  "ended_at": "2026-07-27T21:23:02.9814659+09:00",
+  "target_tps": 500,
+  "achieved_tps": 497.41722896508577,
+  "listener_addr": "192.168.0.3:18080",
+  "controls": [
+    {
+      "pid": 27496,
+      "label": "worker-0",
+      "image": "C:\\workspace\\archscope\\spikes\\t571-windows-coverage\\bin\\loadgen.exe",
+      "local_port": 9324,
+      "remote_host": "192.168.0.3",
+      "remote_port": 18080,
+      "goes_via_proxy": true,
+      "transactions": 2801
+    },
+    {
+      "pid": 5524,
+      "label": "worker-1",
+      "image": "C:\\workspace\\archscope\\spikes\\t571-windows-coverage\\bin\\loadgen.exe",
+      "local_port": 9325,
+      "remote_host": "192.168.0.3",
+      "remote_port": 18080,
+      "goes_via_proxy": true,
+      "transactions": 2801
+    },
+    {
+      "pid": 6320,
+      "label": "worker-2",
+      "image": "C:\\workspace\\archscope\\spikes\\t571-windows-coverage\\bin\\loadgen.exe",
+      "local_port": 9326,
+      "remote_host": "192.168.0.3",
+      "remote_port": 18080,
+      "goes_via_proxy": true,
+      "transactions": 2801
+    },
+    {
+      "pid": 34184,
+      "label": "worker-3",
+      "image": "C:\\workspace\\archscope\\spikes\\t571-windows-coverage\\bin\\loadgen.exe",
+      "local_port": 9327,
+      "remote_host": "192.168.0.3",
+      "remote_port": 18080,
+      "goes_via_proxy": true,
+      "transactions": 2801
+    },
+    {
+      "pid": 16912,
+      "label": "worker-4",
+      "image": "C:\\workspace\\archscope\\spikes\\t571-windows-coverage\\bin\\loadgen.exe",
+      "local_port": 9328,
+      "remote_host": "192.168.0.3",
+      "remote_port": 18080,
+      "goes_via_proxy": false,
+      "transactions": 2801
+    }
+  ],
+  "total_connections": 5,
+  "total_tx_attempted": 14005,
+  "total_tx_ok": 14005
+}

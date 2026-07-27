@@ -1,9 +1,8 @@
 // Command tcpownerprobe measures the TCP endpoint-ownership candidate from
-// §10.4.1. It polls the OS TCP table (Get-NetTCPConnection, which wraps
-// GetExtendedTcpTable) for owning PID + image. This is the most reliable PID
-// attribution on Windows and serves as the spike's cross-check: if a kernel
-// candidate (ETW/WFP) disagrees with the TCP table on a flow it observed, that
-// is a false-attribution signal.
+// §10.4.1. It polls the OS TCP table through iphlpapi!GetExtendedTcpTable for
+// owning PID. This is the most reliable PID attribution on Windows and serves
+// as the spike's cross-check: if a kernel candidate (ETW/WFP) disagrees with
+// the TCP table on a flow it observed, that is a false-attribution signal.
 //
 // Polling can miss sub-poll-interval connections; the loadgen workers hold
 // persistent keep-alive connections precisely so this scope can see them. The
@@ -12,11 +11,10 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
-	"os/exec"
+	"sort"
 	"time"
 
 	"github.com/aurakimjh/archscope/spikes/t571-windows-coverage/internal/capmodel"
@@ -35,7 +33,7 @@ func main() {
 		Host:      control.Hostname(),
 		OSVersion: control.OSVersion(),
 		Elevated:  control.IsElevated(),
-		Tool:      "Get-NetTCPConnection (poll)",
+		Tool:      "iphlpapi!GetExtendedTcpTable (direct poll, IPv4+IPv6)",
 		StartedAt: time.Now(),
 	}
 	if err := run(&obs, *window, *interval); err != nil {
@@ -50,18 +48,17 @@ func main() {
 }
 
 type netTCPRow struct {
-	LocalPort     int    `json:"LocalPort"`
-	RemotePort    int    `json:"RemotePort"`
-	RemoteAddress string `json:"RemoteAddress"`
-	OwningProcess int    `json:"OwningProcess"`
-	State         string `json:"State"`
+	LocalPort     int
+	RemotePort    int
+	RemoteAddress string
+	OwningProcess int
+	State         uint32
 }
 
 func run(obs *capmodel.Observation, window, interval time.Duration) error {
 	deadline := time.Now().Add(window)
 	type key struct{ lport, pid int }
 	agg := map[key]*capmodel.AttributedFlow{}
-	imageCache := map[int]string{}
 	polls := 0
 
 	cpuCh := make(chan float64, 1)
@@ -83,11 +80,6 @@ func run(obs *capmodel.Observation, window, interval time.Duration) error {
 			if r.OwningProcess == 0 || r.LocalPort == 0 {
 				continue
 			}
-			img := imageCache[r.OwningProcess]
-			if img == "" {
-				img = resolveImage(r.OwningProcess)
-				imageCache[r.OwningProcess] = img
-			}
 			k := key{r.LocalPort, r.OwningProcess}
 			fl := agg[k]
 			if fl == nil {
@@ -96,7 +88,6 @@ func run(obs *capmodel.Observation, window, interval time.Duration) error {
 					RemotePort: r.RemotePort,
 					RemoteHost: r.RemoteAddress,
 					PID:        r.OwningProcess,
-					Image:      img,
 				}
 				agg[k] = fl
 			}
@@ -111,61 +102,21 @@ func run(obs *capmodel.Observation, window, interval time.Duration) error {
 	for _, fl := range agg {
 		obs.Flows = append(obs.Flows, *fl)
 	}
+	sort.Slice(obs.Flows, func(i, j int) bool {
+		if obs.Flows[i].LocalPort != obs.Flows[j].LocalPort {
+			return obs.Flows[i].LocalPort < obs.Flows[j].LocalPort
+		}
+		if obs.Flows[i].PID != obs.Flows[j].PID {
+			return obs.Flows[i].PID < obs.Flows[j].PID
+		}
+		if obs.Flows[i].RemoteHost != obs.Flows[j].RemoteHost {
+			return obs.Flows[i].RemoteHost < obs.Flows[j].RemoteHost
+		}
+		return obs.Flows[i].RemotePort < obs.Flows[j].RemotePort
+	})
 	obs.EventsDelivered = int64(polls)
 	obs.KernelReportedDropped = -1 // polling has no kernel drop counter; gaps are structural, not "lost events"
 	obs.Notes = append(obs.Notes,
-		fmt.Sprintf("polled TCP table %d times at %s interval; sub-interval connections are not observable by this scope", polls, interval))
+		fmt.Sprintf("polled IPv4+IPv6 TCP owner tables directly %d times at %s interval; sub-interval connections are not observable by this scope", polls, interval))
 	return nil
-}
-
-func pollTCP() ([]netTCPRow, error) {
-	// -EA SilentlyContinue so a transient enumeration hiccup does not abort.
-	ps := `Get-NetTCPConnection -EA SilentlyContinue | ` +
-		`Select-Object LocalPort,RemotePort,RemoteAddress,OwningProcess,@{n='State';e={$_.State.ToString()}} | ` +
-		`ConvertTo-Json -Compress -Depth 3`
-	out, err := exec.Command("powershell", "-NoProfile", "-NonInteractive", "-Command", ps).Output()
-	if err != nil {
-		return nil, fmt.Errorf("Get-NetTCPConnection: %w", err)
-	}
-	trimmed := trimJSON(out)
-	if len(trimmed) == 0 {
-		return nil, nil
-	}
-	// ConvertTo-Json emits an object (not array) when there is a single row.
-	if trimmed[0] == '{' {
-		var one netTCPRow
-		if err := json.Unmarshal(trimmed, &one); err != nil {
-			return nil, err
-		}
-		return []netTCPRow{one}, nil
-	}
-	var rows []netTCPRow
-	if err := json.Unmarshal(trimmed, &rows); err != nil {
-		return nil, err
-	}
-	return rows, nil
-}
-
-func resolveImage(pid int) string {
-	ps := fmt.Sprintf(`(Get-Process -Id %d -EA SilentlyContinue).Path`, pid)
-	out, err := exec.Command("powershell", "-NoProfile", "-NonInteractive", "-Command", ps).Output()
-	if err != nil {
-		return ""
-	}
-	return trimSpace(string(out))
-}
-
-func trimJSON(b []byte) []byte {
-	i, j := 0, len(b)
-	for i < j && (b[i] == ' ' || b[i] == '\n' || b[i] == '\r' || b[i] == '\t' || b[i] == 0xEF || b[i] == 0xBB || b[i] == 0xBF) {
-		i++
-	}
-	for j > i && (b[j-1] == ' ' || b[j-1] == '\n' || b[j-1] == '\r' || b[j-1] == '\t') {
-		j--
-	}
-	return b[i:j]
-}
-
-func trimSpace(s string) string {
-	return string(trimJSON([]byte(s)))
 }

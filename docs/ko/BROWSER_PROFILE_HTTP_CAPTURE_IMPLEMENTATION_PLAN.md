@@ -69,7 +69,7 @@ handoff한다. Claude는 생성 binding을 수동 수정하지 않는다. Claude
 | 0 | `PLAN-RG0` 실행 계획 | **완료** | 본 문서와 `work_status.md`가 일치 |
 | 1 | `C-RG1` Chrome/V8 릴리스 구현 승인 | **완료 — PASS (2026-07-21)** | 독립 리뷰 `PASS` |
 | 2 | `H-RG1` HAR 오프라인 분석 완성 | **완료 — 통합 PASS (2026-07-21)** | 종료 |
-| 3 | `H-RG2` Windows coverage proof | 대기 | `H-RG1 PASS`; Windows 실 NIC 측정과 `H-COV1 PASS` |
+| 3 | `H-RG2` Windows coverage proof | **검토 — 실 NIC 증거 완료 (2026-07-27)** | `H-COV1 PASS` |
 | 4 | `H-RG3` 실시간 캡처 엔진 기반 | 계획 | `H-RG2 PASS`; 그룹 내부 `H-SEC2 PASS` |
 | 5 | `H-RG4` 실시간 UI 및 Windows E2E | 계획 | `H-RG3 PASS` |
 | 6 | `H-RG5` HTTP 세션 Diff | 계획 | `H-RG4 PASS` |
@@ -189,12 +189,14 @@ Phase 1 UI 게이트를 닫았고 더 깊은 Wails component fixture는 비차�
 
 #### Codex To-Do
 
-- [ ] Windows real-NIC target으로 ETW CAP-1/CAP-4를 재실측한다.
-- [ ] ALE audit 설정 후 WFP allow-path attribution을 재실측한다.
-- [ ] PowerShell polling 대신 직접 `GetExtendedTcpTable` 호출로 CAP-5 CPU overhead를
+- [x] Windows real-NIC target으로 ETW CAP-1/CAP-4를 재실측한다.
+- [x] 실 NIC WFP allow-path attribution을 재실측하고 measured configuration의
+  미지원 disposition을 기록한다. ALE audit policy는 활성화하지 않았으므로 제거
+  승인 대 audit 재측정은 H-COV1 판정에 남긴다.
+- [x] PowerShell polling 대신 직접 `GetExtendedTcpTable` 호출로 CAP-5 CPU overhead를
   재측정한다.
-- [ ] CAP-1~CAP-6 판정과 capability/fidelity matrix, source ledger를 갱신한다.
-- [ ] 실패한 scope의 absolute coverage ratio를 제거하고 self-observed five counters만
+- [x] CAP-1~CAP-6 판정과 capability/fidelity matrix, source ledger를 갱신한다.
+- [x] 실패한 scope의 absolute coverage ratio를 제거하고 self-observed five counters만
   남긴다.
 
 **PASS 기준:** false attribution 0, 측정 재현 절차와 raw evidence가 있고, UI에
@@ -289,6 +291,6 @@ HAR pseudo-process 비교에서 지원하지 않는 정규화/차원을 숨기�
 
 ## 8. 첫 실행 지점
 
-현재 다음 행동은 T-571 / `H-RG2`다. Windows 실 NIC ETW/WFP coverage와 direct
-`GetExtendedTcpTable` CAP-5 overhead를 측정한 뒤, live-capture 엔진 그룹을 시작하기
-전에 `H-COV1 PASS`를 획득한다.
+현재 다음 행동은 T-571 / `H-RG2`의 독립 `H-COV1` 검토다. Windows 실 NIC
+ETW/WFP coverage와 direct `GetExtendedTcpTable` CAP-5 증거는 완료됐으며,
+live-capture 엔진 그룹을 시작하기 전에 `H-COV1 PASS`를 획득한다.

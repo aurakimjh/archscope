@@ -1,0 +1,27 @@
+{
+  "candidate": "wfp",
+  "scope": "process_attribution",
+  "host": "DESKTOP-BLMKDKH",
+  "os_version": "Microsoft Windows [Version 10.0.26200.8894]",
+  "elevated": true,
+  "tool": "netsh wfp set options netevents=on; netsh wfp show netevents",
+  "started_at": "2026-07-27T21:22:34.0741169+09:00",
+  "ended_at": "2026-07-27T21:23:05.1302716+09:00",
+  "flows": [
+    {
+      "local_port": 9193,
+      "remote_port": 443,
+      "remote_host": "",
+      "pid": 0,
+      "image": "\\.d.e.v.i.c.e.\\.h.a.r.d.d.i.s.k.v.o.l.u.m.e.4.\\.p.r.o.g.r.a.m. .f.i.l.e.s.\\.p.o.w.e.r.s.h.e.l.l.\\.7.\\.p.w.s.h...e.x.e...",
+      "observed_events": 1
+    }
+  ],
+  "events_delivered": 1,
+  "kernel_reported_dropped": -1,
+  "cpu_overhead_pct": 7.7758442333333315,
+  "notes": [
+    "WFP has no kernel drop counter comparable to ETW; CAP-3 loss is not-applicable for this candidate",
+    "netEvent 유형 분포: FWPM_NET_EVENT_TYPE_PUBLIC_CLASSIFY_DROP=1"
+  ]
+}

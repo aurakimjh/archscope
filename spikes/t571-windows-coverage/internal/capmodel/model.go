@@ -16,7 +16,7 @@ const (
 	CandidateETW      Candidate = "etw-tcpip" // ETW Microsoft-Windows-Kernel-Network
 	CandidateWFP      Candidate = "wfp"       // netsh wfp netevents
 	CandidateNpcap    Candidate = "npcap"     // packet-level 5-tuple, no PID by design
-	CandidateTCPOwner Candidate = "tcp-owner" // GetExtendedTcpTable / Get-NetTCPConnection ownership
+	CandidateTCPOwner Candidate = "tcp-owner" // direct GetExtendedTcpTable ownership
 )
 
 // Scope mirrors CoverageEvidence.Scope in §10.1.2. It records the *kind* of
