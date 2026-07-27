@@ -112,6 +112,9 @@ cd spikes\t571-windows-coverage
 - `results\report.md` — `CAP-1`~`CAP-6` 판정표, 후보별 disposition(§10.4.3),
   종합 판정(counter fallback 여부), 부록 A 갱신 행
 - `results\report.json` — 같은 내용의 기계 판독용
+- `obs_*.json`은 probe가 정규화한 observation이다. source-level 재현 패키지에는
+  ETL/tracerpt 요약, WFP XML·audit 상태, poll별 TCP table, typeperf 표본,
+  실행 transcript와 binary hash를 별도로 보존해야 한다.
 
 ## CAP 기준 (§10.4.2)
 
@@ -128,6 +131,8 @@ disposition 은 §10.4.3 을 그대로 따른다: **CAP-2 실패 = 폐기**,
 CAP-1~4 통과 = ratio 노출(high), CAP-1 통과·CAP-3 실패 = ratio+손실률(medium),
 **전 후보 실패 = 절대 ratio 제거, 5개 카운터만 유지**. 마지막 경우가 T-571의
 실질적 안전장치이며, judge 가 `counter_fallback: true` 로 표시한다.
+`CAP-3 N/A`는 통과가 아니며, TCP-owner polling 결과는 성공한 개별 persistent
+endpoint 귀속에만 쓸 수 있다.
 
 ## 개별 도구 (수동 실행)
 
@@ -178,5 +183,5 @@ loopback 어댑터 필요). **출시 판정용 최종 측정은 `-Target <다른
 ## 판정 후
 
 `report.md` 의 부록 A 행을 `docs/ko/SYSTEM_HTTP_CAPTURE.md` 부록 A 에 반영하고,
-§9.3.1 의 `미검증` 칸과 §10 게이트(9번 행)를 갱신한 뒤 T-571 을 닫는다.
-영문 문서 parity(T-576)는 그 다음이다.
+§9.3.1 의 `미검증` 칸과 §10 게이트(9번 행)를 갱신한다. 구현자와 다른 독립
+검토자의 `H-COV1 PASS`를 받은 뒤에만 T-571을 닫는다.

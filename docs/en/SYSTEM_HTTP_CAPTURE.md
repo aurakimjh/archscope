@@ -609,6 +609,7 @@ The point is not what requires privilege but **what privileged code may do.**
 | CA install/remove | admin auth | **one-shot** | Cert-store manipulation only |
 | System proxy setting | admin auth (if OS requires) | one-shot | Proxy-setting key only |
 | ETW/WFP/pcap session | admin | **session only** | Helper — capture then file write only |
+| TCP endpoint ownership (`GetExtendedTcpTable`) | expected unprivileged; reverify in H-RG3 production path | none expected | no helper expected |
 
 Three invariants: **no resident elevated process** (the helper lives only for the
 session, never a service/daemon); **the helper only captures** (no analysis, no
@@ -683,6 +684,9 @@ of the coverage machinery — wrong is worse than merely inaccurate. If every
 candidate fails, absolute ratios are removed and only the five self-observed
 counters (`captured`/`passthrough`/`unattributed`/`dropped`/`unsupported`) remain,
 computed from the proxy's own observation with no verified denominator.
+`CAP-3: N/A` is not a pass: a polling endpoint table can support a successful
+individual persistent-endpoint lookup, but cannot create an absolute system or
+process coverage ratio without a measured loss rate and denominator.
 
 ### 8.1 First Measurement (2026-07-20, loopback smoke)
 
@@ -692,8 +696,8 @@ machine (Windows build 26200.8737), 5 control processes as loopback listeners at
 
 | Candidate | Scope | Result |
 |---|---|---|
-| TCP endpoint ownership | Process attribution | **CAP-1 100% (5/5), CAP-2 0, CAP-4 detected → CAP-1~4 pass** (Confidence: high); reconfirms `V-WIN-TCPTABLE` owner-PID lookup |
-| ETW Kernel-Network | Process attribution | Payload carries `Execution` PID + `sport`/`dport`, **0 loss over ~100k events** (100,541 in 30 s), but **does not observe loopback** — so ETW CAP-1/CAP-4 are **N/A in loopback mode** (not a failure) |
+| TCP endpoint ownership | Process attribution | **CAP-1 100% (5/5), CAP-2 0, CAP-4 detected, CAP-3 N/A**; individual persistent-endpoint lookup only, no absolute ratio |
+| ETW Kernel-Network | Process attribution | Event header carries `Execution@ProcessID` and payload carries `sport`/`dport`; **0 loss over ~100k events** (100,541 in 30 s), but **does not observe loopback** — so ETW CAP-1/CAP-4 are **N/A in loopback mode** (not a failure) |
 | WFP netevents | Process attribution | Default config logged **no ALLOW connections** (only 1 drop event); needs ALE connection audit enabled — undetermined |
 
 Notes: real-NIC traffic (140 flows) was observed with PID/ports normally, so ETW
@@ -718,22 +722,31 @@ interval and does not replace full kernel observation for bypass detection.
 The second measurement used a separate LAN receiver at `192.168.0.3:18080`
 and Windows build 26200.8894 on the measurement host. Five control processes
 drove approximately 497 tps, with all requests succeeding in each candidate
-pass. Raw evidence and generated reports are retained under
+pass. Normalized observations and generated reports are retained under
 `spikes/t571-windows-coverage/results-real-nic-20260727`.
+The committed package does not contain the source ETL/tracerpt summary, WFP
+XML/audit state, per-poll TCP tables, typeperf samples, command transcript, or
+binary hashes, so it is not claimed as a complete source-level raw-evidence
+reproduction package.
 
 | Candidate | CAP-1 | CAP-2 | CAP-3 | CAP-4 | CAP-5 | Disposition |
 |---|---|---|---|---|---|---|
-| ETW Kernel-Network | **100% (5/5)** | **197 false attributions** | **0% loss** (44,458 delivered) | Detected | 5.0%p pass | **Discarded** under zero tolerance |
-| WFP netevents | **0% (0/5)** | 0 | N/A | Not detected | 5.1%p pass | No coverage ratio |
-| TCP endpoint ownership | **100% (5/5)** | **0** | N/A | **Detected** | **4.8%p pass** | Ratio eligible, high confidence |
+| ETW Kernel-Network | **100% (5/5)** | **197 distinct false pairs** | **0% loss** (44,458 delivered) | Detected | 4.5%p¹ | **Discarded** under zero tolerance |
+| WFP netevents | N/A — no relevant ALLOW event | N/A | N/A | N/A | 4.6%p¹ | Measured configuration unsupported; removed |
+| TCP endpoint ownership | **100% (5/5 persistent endpoints)** | **0** | N/A | **Detected** | **4.8%p pass** | Individual endpoint attribution only; absolute ratio forbidden |
 
-ETW observed every control port but repeatedly attributed those ports to PIDs
-other than the ground truth. The existence of PID fields is therefore distinct
+¹ ETW/WFP CAP-5 values are non-gating composite references after their
+discarded/unsupported dispositions.
+
+The ETW parser uses the `Event/System/Execution@ProcessID` header PID together
+with event-payload `sport`/`dport`. It observed every control port but produced
+197 distinct flow pairs with a PID other than the ground truth. PID presence is
+therefore distinct
 from correct process attribution, and ETW process attribution is discarded.
-WFP also failed to attribute the measured control flows.
-This pass did not separately enable an ALE audit policy. H-COV1 must therefore
-explicitly approve removing WFP on the measured evidence or require an
-audit-enabled rerun.
+WFP had no relevant ALLOW events in the measured configuration. Because this
+pass did not separately enable ALE audit policy, the product removes WFP as a
+coverage candidate and makes no audit-enabled WFP capability claim; an
+audit-enabled rerun is not a prerequisite for that conservative removal.
 
 The TCP-owner probe now calls IPv4 and IPv6
 `iphlpapi!GetExtendedTcpTable` directly, eliminating both the PowerShell table
@@ -743,10 +756,13 @@ the measured CPU delta from 14.4%p to **4.8%p** (8.0% capture minus 3.2%
 baseline). Connections shorter than the one-second polling interval remain an
 explicit structural limitation.
 
-The CAP-5 implementation and measurement are complete. T-571/H-RG2 remains in
-`REVIEW` until an independent `H-COV1` verdict approves the per-scope exposure
-disposition, the WFP removal-versus-audit-rerun decision, and reproducibility
-evidence.
+The first independent `H-COV1` review on 2026-07-27 was `CONDITIONAL`. The judge
+now treats `CAP-3: N/A` as non-ratio-bearing and sets `counter_fallback: true`;
+only the five proxy self-observed integer counters and successful individual
+persistent-endpoint attribution are exposable. CAP-6 is partial, with helper
+lifetime/privilege/IPC/install validation deferred to H-SEC2/H-RG3. The
+same-day independent re-review verified all COV-1 through COV-6 remediations
+and returned `PASS`, closing T-571/H-RG2.
 
 ## 9. HTTP Session Diff Contract (ko 12.4.1, T-575)
 

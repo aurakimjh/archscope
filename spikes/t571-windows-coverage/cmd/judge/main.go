@@ -74,29 +74,13 @@ func main() {
 		if rep.OSVersion == "" {
 			rep.OSVersion = obs.OSVersion
 		}
-		cgt := gt
-		var pcg capmodel.GroundTruth
-		if err := control.ReadJSON(filepath.Join(*dir, gtFiles[cand]), &pcg); err == nil && len(pcg.Controls) > 0 {
-			cgt = pcg
-		}
+		cgt := candidateGroundTruth(*dir, cand, gt, gtFiles)
 		rep.Results = append(rep.Results, score(cand, obs, cgt, *baselineCPU))
 	}
 
 	// §10.4.3 last row: if no candidate earns a ratio-bearing disposition,
 	// remove absolute coverage ratios and keep only the five counters.
-	ratioBearing := false
-	for _, r := range rep.Results {
-		if strings.Contains(r.Disposition, "ratio 노출") {
-			ratioBearing = true
-		}
-	}
-	rep.CounterFallback = !ratioBearing
-	if ratioBearing {
-		rep.OverallOutcome = "최소 한 후보가 CAP-1~CAP-4를 통과했으므로 해당 scope에서 coverage ratio를 노출할 수 있다."
-	} else {
-		rep.OverallOutcome = "어떤 후보도 CAP-1~CAP-4를 통과하지 못했다. 절대 coverage ratio를 제거하고 " +
-			"captured/passthrough/unattributed/dropped/unsupported 5개 카운터만 유지한다 (§10.1.2)."
-	}
+	rep.CounterFallback, rep.OverallOutcome = summarizeCoverage(rep.Results)
 
 	rep.LoopbackMode = strings.HasPrefix(gt.ListenerAddr, "127.")
 	for _, r := range rep.Results {
@@ -128,6 +112,31 @@ func unmeasured(cand capmodel.Candidate, reason string) capmodel.CapResult {
 		Criteria:    map[string]capmodel.Verdict{},
 		Disposition: "미측정 — " + reason,
 	}
+}
+
+func candidateGroundTruth(
+	dir string,
+	cand capmodel.Candidate,
+	fallback capmodel.GroundTruth,
+	files map[capmodel.Candidate]string,
+) capmodel.GroundTruth {
+	var candidate capmodel.GroundTruth
+	if name := files[cand]; name != "" {
+		if err := control.ReadJSON(filepath.Join(dir, name), &candidate); err == nil && len(candidate.Controls) > 0 {
+			return candidate
+		}
+	}
+	return fallback
+}
+
+func summarizeCoverage(results []capmodel.CapResult) (bool, string) {
+	for _, result := range results {
+		if ratioBearing(result) {
+			return false, "최소 한 후보가 CAP-1~CAP-4를 통과했으므로 해당 scope에서 coverage ratio를 노출할 수 있다."
+		}
+	}
+	return true, "어떤 후보도 CAP-1~CAP-4를 통과하지 못했다. 절대 coverage ratio를 제거하고 " +
+		"captured/passthrough/unattributed/dropped/unsupported 5개 카운터만 유지한다 (§10.1.2)."
 }
 
 func base(p string) string { return strings.ToLower(filepath.Base(strings.ReplaceAll(p, `\`, `/`))) }
@@ -213,7 +222,7 @@ func score(cand capmodel.Candidate, obs capmodel.Observation, gt capmodel.Ground
 		ID: "CAP-2", Name: "오탐(false attribution)", Threshold: "= 0건",
 		Value:   fmt.Sprintf("%d건", falseAttr),
 		Numeric: float64(falseAttr), Applied: len(controls) > 0, Pass: falseAttr == 0,
-		Detail: "통신하지 않은/다른 프로세스에 트래픽이 귀속된 사례",
+		Detail: "control local port에 ground truth와 다른 PID/image가 붙은 distinct flow pair 수",
 	}
 
 	// CAP-3 loss rate.
@@ -289,17 +298,19 @@ func score(cand capmodel.Candidate, obs capmodel.Observation, gt capmodel.Ground
 	}
 	res.Criteria["CAP-5"] = capCPU
 
-	// CAP-6 privilege/install consistency.
+	// CAP-6 production privilege/install consistency. An elevated spike proves
+	// only that the probe ran; it cannot prove helper lifetime/scope, IPC peer
+	// verification, installation, or the future production privilege boundary.
 	capPriv := capmodel.Verdict{
 		ID: "CAP-6", Name: "권한·설치", Threshold: "9.3.5 요구와 일치",
-		Applied: true, Pass: obs.Elevated,
+		Applied: false, Pass: false,
 	}
 	if obs.Elevated {
-		capPriv.Value = "관리자 권한으로 실행됨(요구와 일치)"
+		capPriv.Value = "부분 확인 — 관리자 권한 실행; production 계약은 H-SEC2 이관"
 	} else {
-		capPriv.Value = "비관리자 실행 — 이 후보의 권한 요구와 불일치"
+		capPriv.Value = "부분 확인 — 비관리자 실행; production 계약은 H-SEC2 이관"
 	}
-	capPriv.Detail = "설치 비용(예: Npcap 별도 설치)은 수동 확인 항목"
+	capPriv.Detail = "helper 수명·권한 범위·IPC peer 검증·설치 계약은 이 spike에서 미측정"
 	res.Criteria["CAP-6"] = capPriv
 
 	// Loopback awareness: the Kernel-Network ETW provider (and possibly other
@@ -326,6 +337,17 @@ func score(cand capmodel.Candidate, obs capmodel.Observation, gt capmodel.Ground
 		res.Disposition = "loopback 미관측 — 귀속(CAP-1/2/4)은 실 NIC 재실행 필요; payload/손실/권한은 측정됨"
 		return res
 	}
+	if cand == capmodel.CandidateWFP && len(controls) > 0 && controlObserved == 0 {
+		for _, id := range []string{"CAP-1", "CAP-2", "CAP-4"} {
+			v := res.Criteria[id]
+			v.Applied = false
+			v.Pass = false
+			v.Value = "N/A — measured configuration에서 relevant ALLOW 이벤트 미관측"
+			res.Criteria[id] = v
+		}
+		res.Disposition = "측정 구성 미지원 — WFP를 제품 coverage 후보에서 제거; audit-enabled capability는 주장하지 않음"
+		return res
+	}
 
 	res.Disposition = disposition(res)
 	return res
@@ -350,18 +372,39 @@ func disposition(r capmodel.CapResult) string {
 	}
 	c1 := r.Criteria["CAP-1"]
 	c3 := r.Criteria["CAP-3"]
-	c4 := r.Criteria["CAP-4"]
-	cap14Pass := c1.Applied && c1.Pass && c4.Applied && c4.Pass && (!c3.Applied || c3.Pass)
-	if cap14Pass {
-		return "coverage ratio 노출 가능, Confidence: high (§10.4.3)"
+	if c1.Applied && c1.Pass && !c2.Applied {
+		return "부분 통과 — CAP-2 미측정; ratio 노출 보류"
 	}
-	if c1.Applied && c1.Pass && c3.Applied && !c3.Pass {
+	if ratioBearing(r) {
+		if c3.Pass {
+			return "coverage ratio 노출 가능, Confidence: high (§10.4.3)"
+		}
 		return "ratio 노출 + 손실률 병기, Confidence: medium (§10.4.3)"
 	}
 	if c1.Applied && c1.Pass {
+		if !c3.Applied {
+			return "개별 endpoint 귀속만 승인 — CAP-3 미측정; absolute coverage ratio 금지"
+		}
 		return "부분 통과 — CAP-1 통과이나 CAP-3/CAP-4 미충족; ratio 노출 보류"
 	}
 	return "coverage ratio 미지원 — CAP-1 미충족 (이 scope는 검증된 분모를 만들지 못함)"
+}
+
+func ratioBearing(r capmodel.CapResult) bool {
+	if !r.Measured {
+		return false
+	}
+	c1 := r.Criteria["CAP-1"]
+	c2 := r.Criteria["CAP-2"]
+	c3 := r.Criteria["CAP-3"]
+	c4 := r.Criteria["CAP-4"]
+	if c2.Applied && !c2.Pass {
+		return false
+	}
+	return c1.Applied && c1.Pass &&
+		c2.Applied && c2.Pass &&
+		c3.Applied &&
+		c4.Applied && c4.Pass
 }
 
 func appendixRows(results []capmodel.CapResult) []capmodel.AppendixRow {
@@ -386,7 +429,7 @@ func appendixRows(results []capmodel.CapResult) []capmodel.AppendixRow {
 	} else {
 		c1 := etw.Criteria["CAP-1"]
 		c3 := etw.Criteria["CAP-3"]
-		fact := fmt.Sprintf("payload: %s (ProcessID+sport+dport 존재); 손실률 %s", c1.Detail, valueOrNA(c3))
+		fact := fmt.Sprintf("Event/System/Execution@ProcessID header PID + event payload sport/dport 관측; 손실률 %s", valueOrNA(c3))
 		status := "partial"
 		switch {
 		case c1.Applied && c1.Pass:
@@ -406,6 +449,9 @@ func appendixRows(results []capmodel.CapResult) []capmodel.AppendixRow {
 	rows = append(rows, ledgerRow("Q-WIN-WFP-ATTR", wfp,
 		func(r *capmodel.CapResult) string {
 			c1 := r.Criteria["CAP-1"]
+			if !c1.Applied && strings.Contains(r.Disposition, "제품 coverage 후보에서 제거") {
+				return "measured configuration에서 relevant ALLOW 이벤트 미관측; audit-enabled capability는 주장하지 않음"
+			}
 			return fmt.Sprintf("WFP netEvents 귀속 정확도 %s; %s", valueOrNA(c1), c1.Detail)
 		}))
 
@@ -424,6 +470,8 @@ func ledgerRow(id string, r *capmodel.CapResult, fact func(*capmodel.CapResult) 
 	c1 := r.Criteria["CAP-1"]
 	status := "partial"
 	if c1.Applied && c1.Pass {
+		status = "fixed"
+	} else if strings.Contains(r.Disposition, "제품 coverage 후보에서 제거") {
 		status = "fixed"
 	}
 	return capmodel.AppendixRow{
@@ -506,7 +554,7 @@ func renderMarkdown(rep capmodel.Report) string {
 	b.WriteString("## 다음 단계\n\n")
 	b.WriteString("1. 위 부록 A 행을 `docs/ko/SYSTEM_HTTP_CAPTURE.md` 부록 A에 반영한다.\n")
 	b.WriteString("2. §9.3.1 fidelity 행렬의 `미검증` 칸을 측정값으로 확정한다.\n")
-	b.WriteString("3. 원시 증거와 scope별 disposition을 독립 H-COV1 검토에 제출한다.\n")
+	b.WriteString("3. 정규화 evidence, source-level 원본 미보존 한계, scope별 disposition을 독립 H-COV1 검토에 제출한다.\n")
 	b.WriteString("4. H-COV1 `PASS` 후에만 §10 게이트와 T-571을 닫는다.\n")
 	return b.String()
 }

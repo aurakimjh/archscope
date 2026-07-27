@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-27T21:52:58.0503288+09:00",
+  "generated_at": "2026-07-27T22:25:11.0365143+09:00",
   "host": "DESKTOP-BLMKDKH",
   "os_version": "Microsoft Windows [Version 10.0.26200.8894]",
   "loopback_mode": false,
@@ -89,7 +89,7 @@
           "numeric": 197,
           "pass": false,
           "applied": true,
-          "detail": "통신하지 않은/다른 프로세스에 트래픽이 귀속된 사례"
+          "detail": "control local port에 ground truth와 다른 PID/image가 붙은 distinct flow pair 수"
         },
         "CAP-3": {
           "id": "CAP-3",
@@ -122,11 +122,11 @@
           "id": "CAP-6",
           "name": "권한·설치",
           "threshold": "9.3.5 요구와 일치",
-          "value": "관리자 권한으로 실행됨(요구와 일치)",
+          "value": "부분 확인 — 관리자 권한 실행; production 계약은 H-SEC2 이관",
           "numeric": 0,
-          "pass": true,
-          "applied": true,
-          "detail": "설치 비용(예: Npcap 별도 설치)은 수동 확인 항목"
+          "pass": false,
+          "applied": false,
+          "detail": "helper 수명·권한 범위·IPC peer 검증·설치 계약은 이 spike에서 미측정"
         }
       },
       "disposition": "폐기 — CAP-2 실패(오탐 발생). 부분 사용도 하지 않는다 (§10.4.3)"
@@ -140,21 +140,21 @@
           "id": "CAP-1",
           "name": "귀속 정확도",
           "threshold": "≥ 95%",
-          "value": "0.0% (0/5 control ports)",
+          "value": "N/A — measured configuration에서 relevant ALLOW 이벤트 미관측",
           "numeric": 0,
           "pass": false,
-          "applied": true,
+          "applied": false,
           "detail": "image(appId) 단위 귀속 — 동일 실행 파일의 프로세스 인스턴스는 구분 불가"
         },
         "CAP-2": {
           "id": "CAP-2",
           "name": "오탐(false attribution)",
           "threshold": "= 0건",
-          "value": "0건",
+          "value": "N/A — measured configuration에서 relevant ALLOW 이벤트 미관측",
           "numeric": 0,
-          "pass": true,
-          "applied": true,
-          "detail": "통신하지 않은/다른 프로세스에 트래픽이 귀속된 사례"
+          "pass": false,
+          "applied": false,
+          "detail": "control local port에 ground truth와 다른 PID/image가 붙은 distinct flow pair 수"
         },
         "CAP-3": {
           "id": "CAP-3",
@@ -170,10 +170,10 @@
           "id": "CAP-4",
           "name": "우회 탐지",
           "threshold": "탐지 성공",
-          "value": "미탐지 (port 9328)",
+          "value": "N/A — measured configuration에서 relevant ALLOW 이벤트 미관측",
           "numeric": 0,
           "pass": false,
-          "applied": true
+          "applied": false
         },
         "CAP-5": {
           "id": "CAP-5",
@@ -188,14 +188,14 @@
           "id": "CAP-6",
           "name": "권한·설치",
           "threshold": "9.3.5 요구와 일치",
-          "value": "관리자 권한으로 실행됨(요구와 일치)",
+          "value": "부분 확인 — 관리자 권한 실행; production 계약은 H-SEC2 이관",
           "numeric": 0,
-          "pass": true,
-          "applied": true,
-          "detail": "설치 비용(예: Npcap 별도 설치)은 수동 확인 항목"
+          "pass": false,
+          "applied": false,
+          "detail": "helper 수명·권한 범위·IPC peer 검증·설치 계약은 이 spike에서 미측정"
         }
       },
-      "disposition": "coverage ratio 미지원 — CAP-1 미충족 (이 scope는 검증된 분모를 만들지 못함)"
+      "disposition": "측정 구성 미지원 — WFP를 제품 coverage 후보에서 제거; audit-enabled capability는 주장하지 않음"
     },
     {
       "candidate": "tcp-owner",
@@ -220,7 +220,7 @@
           "numeric": 0,
           "pass": true,
           "applied": true,
-          "detail": "통신하지 않은/다른 프로세스에 트래픽이 귀속된 사례"
+          "detail": "control local port에 ground truth와 다른 PID/image가 붙은 distinct flow pair 수"
         },
         "CAP-3": {
           "id": "CAP-3",
@@ -254,30 +254,30 @@
           "id": "CAP-6",
           "name": "권한·설치",
           "threshold": "9.3.5 요구와 일치",
-          "value": "관리자 권한으로 실행됨(요구와 일치)",
+          "value": "부분 확인 — 관리자 권한 실행; production 계약은 H-SEC2 이관",
           "numeric": 0,
-          "pass": true,
-          "applied": true,
-          "detail": "설치 비용(예: Npcap 별도 설치)은 수동 확인 항목"
+          "pass": false,
+          "applied": false,
+          "detail": "helper 수명·권한 범위·IPC peer 검증·설치 계약은 이 spike에서 미측정"
         }
       },
-      "disposition": "coverage ratio 노출 가능, Confidence: high (§10.4.3)"
+      "disposition": "개별 endpoint 귀속만 승인 — CAP-3 미측정; absolute coverage ratio 금지"
     }
   ],
   "appendix_rows": [
     {
       "claim_id": "Q-WIN-ETW-PAYLOAD",
-      "fact": "payload: PID 단위 귀속 (ProcessID+sport+dport 존재); 손실률 0.000% (dropped=0, delivered=44458); 귀속 정확도 100.0% (5/5 control ports)",
+      "fact": "Event/System/Execution@ProcessID header PID + event payload sport/dport 관측; 손실률 0.000% (dropped=0, delivered=44458); 귀속 정확도 100.0% (5/5 control ports)",
       "impact": "disposition: 폐기 — CAP-2 실패(오탐 발생). 부분 사용도 하지 않는다 (§10.4.3)",
       "status": "fixed"
     },
     {
       "claim_id": "Q-WIN-WFP-ATTR",
-      "fact": "WFP netEvents 귀속 정확도 0.0% (0/5 control ports); image(appId) 단위 귀속 — 동일 실행 파일의 프로세스 인스턴스는 구분 불가",
-      "impact": "disposition: coverage ratio 미지원 — CAP-1 미충족 (이 scope는 검증된 분모를 만들지 못함)",
-      "status": "partial"
+      "fact": "measured configuration에서 relevant ALLOW 이벤트 미관측; audit-enabled capability는 주장하지 않음",
+      "impact": "disposition: 측정 구성 미지원 — WFP를 제품 coverage 후보에서 제거; audit-enabled capability는 주장하지 않음",
+      "status": "fixed"
     }
   ],
-  "overall_outcome": "최소 한 후보가 CAP-1~CAP-4를 통과했으므로 해당 scope에서 coverage ratio를 노출할 수 있다.",
-  "counter_fallback": false
+  "overall_outcome": "어떤 후보도 CAP-1~CAP-4를 통과하지 못했다. 절대 coverage ratio를 제거하고 captured/passthrough/unattributed/dropped/unsupported 5개 카운터만 유지한다 (§10.1.2).",
+  "counter_fallback": true
 }

@@ -17,8 +17,8 @@ group and **the next group cannot start until the current group passes**.
 - **Part B — HTTP capture and analysis:** `H-RG1` offline HAR analysis is
   **complete — integrated PASS (2026-07-21)**, including engine and H-SEC1
   re-reviews, the bounded import UI, shared fixtures, and full engine/frontend
-  verification. Windows live capture remains blocked until the T-571 real-NIC
-  evidence closes.
+  verification. T-571/H-RG2 closed with independent `H-COV1 PASS` on
+  2026-07-27, so the H-RG3 Windows live-capture engine group is ready.
 
 ## 2. Ownership
 
@@ -64,8 +64,8 @@ Only high-consequence boundaries receive an extra per-item gate:
 | 0 | `PLAN-RG0` execution plan | **Complete** | This plan and `work_status.md` agree |
 | 1 | `C-RG1` Chrome/V8 release implementation acceptance | **Complete — PASS (2026-07-21)** | Independent `PASS` |
 | 2 | `H-RG1` complete offline HAR analysis | **Complete — integrated PASS (2026-07-21)** | Closed |
-| 3 | `H-RG2` Windows coverage proof | **Review — real-NIC evidence complete (2026-07-27)** | `H-COV1 PASS` |
-| 4 | `H-RG3` live-capture engine foundation | Planned | `H-RG2 PASS`; internal `H-SEC2 PASS` |
+| 3 | `H-RG2` Windows coverage proof | **Complete — H-COV1 PASS (2026-07-27)** | Closed |
+| 4 | `H-RG3` live-capture engine foundation | **Ready** | Internal `H-SEC2 PASS` |
 | 5 | `H-RG4` live UI and Windows E2E | Planned | `H-RG3 PASS` |
 | 6 | `H-RG5` HTTP session Diff | Planned | `H-RG4 PASS` |
 | 7 | `X-RG1` HTTP x profile/server-evidence correlation | Planned | `H-RG5 PASS` |
@@ -186,14 +186,24 @@ This important evidence group also serves as the `H-COV1` individual review.
 - [x] Re-run ETW CAP-1/CAP-4 against a Windows real-NIC target.
 - [x] Re-run WFP allow-path attribution on the real-NIC path and record the
   measured-configuration unsupported disposition. ALE audit policy was not
-  enabled, so H-COV1 retains the remove-versus-audit-rerun decision.
+  enabled, so no audit-enabled capability is claimed and WFP is removed as a
+  product coverage candidate.
 - [x] Replace PowerShell polling with direct `GetExtendedTcpTable` and remeasure CAP-5 CPU cost.
 - [x] Update CAP-1 through CAP-6, capability/fidelity matrices, and the source ledger.
 - [x] Remove absolute coverage ratios for failed scopes and retain only the five
   self-observed counters.
 
-**PASS:** zero false attribution, reproducible raw evidence, and an approved list
-of values the UI may and may not expose.
+**PASS:** zero false attribution, an honest reproducibility/evidence-tier record,
+and an approved list of values the UI may and may not expose.
+
+The first independent review on 2026-07-27 was `CONDITIONAL`. After remediation,
+TCP-owner with `CAP-3: N/A` supports only individual persistent-endpoint
+attribution; absolute coverage ratios are forbidden and `counter_fallback: true`
+retains only the five self-observed integer counters. Committed observations are
+normalized evidence, not a source-level raw package. CAP-6 helper
+lifetime/privilege/IPC/install validation is deferred to H-SEC2/H-RG3. The
+same-day independent re-review verified all COV-1 through COV-6 remediations
+and returned `PASS`.
 
 ### H-RG3 — Live-Capture Engine Foundation
 
@@ -283,6 +293,6 @@ HAR pseudo-process sessions.
 
 ## 8. First Execution Point
 
-The next action is the independent T-571 / `H-RG2` `H-COV1` review. The Windows
-real-NIC ETW/WFP coverage and direct `GetExtendedTcpTable` CAP-5 evidence are
-complete; obtain `H-COV1 PASS` before starting the live-capture engine group.
+The next action is T-580 / `H-RG3`, the live-capture engine foundation.
+T-571 / `H-RG2` is closed by independent `H-COV1 PASS`; production privilege
+validation now proceeds inside H-RG3 under `H-SEC2`.

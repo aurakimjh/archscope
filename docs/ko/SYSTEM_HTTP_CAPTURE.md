@@ -2868,9 +2868,9 @@ fidelity 등급을 모드 축으로 교차시킨 것이 이 절이며, Phase 0 �
 |---|---|---|---|
 | MITM 프록시 | 프록시 소켓의 peer endpoint → `GetExtendedTcpTable` 역조회 (`V-WIN-TCPTABLE`) | `confirmed` — 연결 수립 시점에 조회 성공 시 | 단명 연결에서 조회 전 endpoint 소멸 → `inferred` 또는 `unknown` (4.3) |
 | HAR 가져오기 | 없음. 생성 도구가 남긴 값이 있으면 승계 | `unknown` 기본 | 대부분의 방언이 PID를 남기지 않는다 |
-| ETW | 이벤트 payload의 `Execution` PID + `sport`/`dport` (`Q-WIN-ETW-PAYLOAD`) | payload·포트는 확인됐지만 실 NIC CAP-2 오탐 197건으로 **프로세스 귀속 후보 폐기 (2026-07-27)** | 같은 control port에 다른 PID가 반복 귀속됨(10.4.6); ratio 분모에 사용 금지 |
-| WFP | `netsh wfp` netevents 의 appId (`Q-WIN-WFP-ATTR`) | 실 NIC에서도 **0/5 귀속, ratio 미지원 (2026-07-27)** | 측정 구성에서 ALLOW control flow와 bypass를 관측하지 못함(10.4.6) |
-| TCP endpoint ownership | 직접 `iphlpapi!GetExtendedTcpTable` owner PID (`V-WIN-TCPTABLE`) | `confirmed` — 실 NIC PID 정확도 **100% (5/5), 오탐 0, CAP-5 4.8%p (2026-07-27)** | 폴링 간격보다 짧은 연결은 미관측(구조적, 4.3) |
+| ETW | `Event/System/Execution@ProcessID` header PID + event payload `sport`/`dport` (`Q-WIN-ETW-PAYLOAD`) | 포트는 확인됐지만 실 NIC CAP-2 오탐 197 distinct flow pair로 **프로세스 귀속 후보 폐기 (2026-07-27)** | 같은 control port에 다른 PID가 반복 귀속됨(10.4.6); ratio 분모에 사용 금지 |
+| WFP | `netsh wfp` netevents 의 appId (`Q-WIN-WFP-ATTR`) | relevant ALLOW 이벤트 미관측; **제품 coverage 후보에서 제거 (2026-07-27)** | audit-enabled capability를 주장하지 않음(10.4.6) |
+| TCP endpoint ownership | 직접 `iphlpapi!GetExtendedTcpTable` owner PID (`V-WIN-TCPTABLE`) | 알려진 persistent endpoint의 개별 귀속 확인 — 실 NIC **100% (5/5), 오탐 0, CAP-5 4.8%p (2026-07-27)** | CAP-3 N/A라 절대 ratio 금지; 폴링 간격보다 짧은 연결은 미관측(구조적, 4.3) |
 | Npcap | 없음 — 패킷에 PID가 없다 | `unknown`. endpoint table 대조 시 `inferred` | 폴링 한계 그대로 (4.3) |
 | pcap + 키 로그 | 키 로그를 남긴 프로세스로 한정 | `confirmed` (대상 프로세스에 한해) | 그 외 프로세스는 관측 대상 아님 |
 
@@ -2933,6 +2933,7 @@ HTTP/3로 붙으면 프록시 모드에서는 요청이 아예 보이지 않으�
 | Npcap | 일반 사용자 (드라이버가 처리) | 설치 시 관리자 | **Npcap** (`V-WIN-NPCAP-INSTALL`) | 예 |
 | ETW | 관리자 | 세션마다 | 없음 | 예 |
 | WFP | 관리자 | 세션마다 | 없음 | 예 |
+| TCP endpoint ownership (`GetExtendedTcpTable`) | 일반 사용자 예상 — H-RG3 운영 경로에서 재검증 | 없음 예상 | 없음 | 아니오 예상 |
 | pcap + 키 로그 | 일반 사용자 + Npcap | 위와 동일 | Npcap | 예 |
 
 **프록시만 상주 권한 승격이 없다.** 9.2의 헬퍼 구조가 필요한 모드와 그렇지 않은
@@ -3114,6 +3115,10 @@ Windows에서 프록시 우회 탐지에 쓸 수 있는 후보는 셋이며, **�
 | `CAP-2` 실패 | 그 후보를 **폐기한다.** 부분 사용도 하지 않는다 |
 | 전 후보 실패 | **절대적 coverage ratio 표시를 제거한다.** 10.1.2의 5개 카운터(`captured`/`passthrough`/`unattributed`/`dropped`/`unsupported`)만 남긴다 |
 
+`CAP-3`의 `N/A`는 통과가 아니다. 특히 폴링 기반 endpoint table은 알려진
+persistent endpoint의 개별 PID 귀속 근거로는 쓸 수 있지만, 손실률과 분모를
+측정하지 못했으므로 시스템·프로세스 단위의 절대 coverage ratio를 만들 수 없다.
+
 마지막 행이 T-571의 실질적 안전장치다. **비율을 못 만들어도 제품은 성립한다** —
 카운터는 프록시 자신의 관측만으로 산출되며 검증된 분모를 요구하지 않는다. 비율은
 있으면 좋은 것이지 없으면 안 되는 것이 아니고, **검증 못 한 분모로 만든 비율은
@@ -3139,7 +3144,7 @@ eBPF(Linux)와 Network Extension(macOS)이 더 나은 귀속을 줄 가능성은
 | 후보 | scope | CAP-1 | CAP-2 | CAP-3 | CAP-4 | CAP-5 | 요약 |
 |---|---|---|---|---|---|---|---|
 | ETW Kernel-Network | 프로세스 귀속 | N/A¹ | N/A¹ | 손실 0%² | N/A¹ | pass | payload·손실 확인; 귀속은 실 NIC 필요 |
-| TCP endpoint ownership | 프로세스 귀속 | **100% (5/5)** | **0건** | N/A | **탐지** | 경계³ | **CAP-1~4 통과 (Confidence: high)** |
+| TCP endpoint ownership | 프로세스 귀속 | **100% (5/5)** | **0건** | N/A | **탐지** | 경계³ | persistent endpoint 개별 귀속만 확인; 절대 ratio 금지 |
 | WFP netevents | 프로세스 귀속 | N/A⁴ | N/A⁴ | N/A | N/A⁴ | pass | 기본 구성 미확정 |
 
 - ¹ **ETW는 loopback(127.x) 트래픽을 관측하지 않는다.** 대조군 포트가 151 MB
@@ -3156,9 +3161,9 @@ eBPF(Linux)와 Network Extension(macOS)이 더 나은 귀속을 줄 가능성은
   않았다** — 드롭 이벤트 1건만 관측됐다. WFP 귀속을 쓰려면 ALE connection audit
   활성화가 선행되어야 하며, 그 전까지 WFP 행은 미확정이다.
 
-**결론.** 단일 머신 loopback 검증에서 **TCP endpoint ownership scope가 CAP-1~4를
-통과**했다 — `V-WIN-TCPTABLE`의 owner-PID 역조회를 실측으로 재확인한 것이며, 프록시
-모드의 귀속 근거(9.3.1의 `confirmed`)가 실측으로 뒷받침된다. 다만 이 scope는 폴링
+**결론.** 단일 머신 loopback 검증에서 TCP endpoint ownership은 알려진 persistent
+endpoint 5/5의 owner-PID 역조회를 확인했다. 다만 `CAP-3`가 N/A이므로
+`CAP-1`~`CAP-4` 전체 통과나 high-confidence ratio로 해석하지 않는다. 이 scope는 폴링
 기반이라 폴링 간격보다 짧은 연결을 놓치므로, 우회 탐지의 완전한 커널 관측을
 대체하지는 못한다. ETW는 payload·손실이 확인되어 ratio 노출의 payload 전제는
 충족하나, **귀속 정확도와 우회 탐지(CAP-1/4)는 실 NIC 재실측이 남았다.** WFP는
@@ -3178,21 +3183,28 @@ TCP-owner CAP-5를 재측정한다. (c) WFP는 ALE audit 활성 여부에 따라
 
 별도 LAN 수신 호스트 `192.168.0.3:18080`과 측정 호스트
 Windows 10.0.26200.8894를 사용했다. 5개 control 프로세스가 약 497 tps를
-발생시켰고 각 후보 패스의 모든 요청이 성공했다. 원시 증거와 생성 보고서는
+발생시켰고 각 후보 패스의 모든 요청이 성공했다. 정규화된 observation과 생성 보고서는
 `spikes/t571-windows-coverage/results-real-nic-20260727`에 보존한다.
+ETL/tracerpt 원본 요약, WFP XML·audit 상태, poll별 TCP table, typeperf 표본,
+실행 transcript와 binary hash는 이 커밋에 남지 않아 source-level 원시 증거의
+완전한 재현 패키지로 주장하지 않는다.
 
 | 후보 | CAP-1 | CAP-2 | CAP-3 | CAP-4 | CAP-5 | disposition |
 |---|---|---|---|---|---|---|
-| ETW Kernel-Network | **100% (5/5)** | **197건 fail** | **0%** (44,458 delivered, 0 dropped) | 탐지 | 5.0%p pass | **폐기** — 오탐 zero-tolerance 위반 |
-| WFP netevents | **0% (0/5)** | 0건 | N/A | 미탐지 | 5.1%p pass | coverage ratio 미지원 |
-| TCP endpoint ownership | **100% (5/5)** | **0건** | N/A | **탐지** | **4.8%p pass** | ratio 가능, Confidence: high |
+| ETW Kernel-Network | **100% (5/5)** | **197 distinct false pairs** | **0%** (44,458 delivered, 0 dropped) | 탐지 | 4.5%p¹ | **폐기** — 오탐 zero-tolerance 위반 |
+| WFP netevents | N/A — relevant ALLOW 미관측 | N/A | N/A | N/A | 4.6%p¹ | 측정 구성 미지원; 제품 후보에서 제거 |
+| TCP endpoint ownership | **100% (5/5 persistent endpoints)** | **0건** | N/A | **탐지** | **4.8%p pass** | 개별 endpoint 귀속만 승인; 절대 ratio 금지 |
 
-ETW는 control port를 모두 보았지만 동일 port에 ground truth와 다른 PID를
-반복 귀속해 CAP-2가 197건 발생했다. 따라서 payload에 PID가 있다는 사실과
+¹ ETW/WFP CAP-5는 후보 폐기·미지원 disposition을 바꾸지 않는 composite 참고값이다.
+
+ETW parser는 `Event/System/Execution@ProcessID` header PID와 event payload의
+`sport`/`dport`를 사용한다. control port를 모두 보았지만 동일 port에 ground
+truth와 다른 PID를 붙인 distinct flow pair가 197개였다. 따라서 PID가 있다는 사실과
 프로세스 귀속이 정확하다는 주장은 분리하며, ETW 프로세스 귀속은 부분 사용 없이
 폐기한다. WFP도 measured configuration에서 control flow를 귀속하지 못했다.
-이 패스는 ALE audit policy를 별도로 활성화하지 않았으므로, WFP 제거를 이
-증거로 승인할지 audit 활성 재측정을 요구할지는 H-COV1의 명시적 판정 항목이다.
+이 패스는 ALE audit policy를 별도로 활성화하지 않았으므로 audit-enabled WFP
+capability를 주장하지 않고 WFP를 제품 coverage 후보에서 제거한다. 이 보수적
+제거에는 audit 활성 재측정이 선행 조건이 아니다.
 
 TCP-owner probe는 PowerShell `Get-NetTCPConnection` 및 PID별 subprocess를
 제거하고 IPv4/IPv6 `iphlpapi!GetExtendedTcpTable`을 직접 호출한다. 직접 경로는
@@ -3200,9 +3212,12 @@ TCP-owner probe는 PowerShell `Get-NetTCPConnection` 및 PID별 subprocess를
 CPU delta를 기존 14.4%p에서 **4.8%p**(capture 8.0% - baseline 3.2%)로 낮춰
 CAP-5를 통과했다. 단 1초보다 짧은 연결의 구조적 미관측은 그대로 명시한다.
 
-이 결과로 CAP-5 보완 구현·실측은 완료됐다. T-571/H-RG2는 독립 `H-COV1`
-검토에서 scope별 공개/비공개 disposition, WFP 제거 대 audit 재측정, 재현 증거를
-승인받을 때까지 `REVIEW`다.
+2026-07-27 첫 독립 `H-COV1` 검토는 `CONDITIONAL`이었다. 판정기를 보완해
+`CAP-3 N/A`를 ratio 통과로 취급하지 않고 `counter_fallback: true`로 고정했으며,
+허용 노출은 proxy self-observed 5개 정수 카운터와 성공한 개별 persistent endpoint
+귀속뿐이다. `CAP-6`은 부분 확인으로 낮추고 helper 수명·권한·IPC·설치 계약은
+H-SEC2/H-RG3로 이관했다. 같은 날 독립 재검토가 COV-1~COV-6 보완을 확인해
+`PASS`를 반환했으므로 T-571/H-RG2를 닫는다.
 
 ## 11. 보안 및 프라이버시
 
@@ -3707,7 +3722,7 @@ H-RG2 → H-RG3 → H-RG4 → H-RG5 → X-RG1` 승인 순서를 따른다.
 | 6 | Phase 1 HAR importer | 방언·malformed·security fixture 코퍼스로 정규화·진단 검증 | **코퍼스 구축됨 (2026-07-20, T-572) + importer MVP 구현됨 (2026-07-20).** `../projects-assets/test-data/har-fixtures/` 합성 우선 20종, manifest에 기대 diagnostic 고정. **잔여: importer 골든 테스트를 코퍼스 manifest에 연결**하고 실기 export 보강 |
 | 7 | deterministic aggregate | 7.4.3의 순서 무관 property test 통과 | **완료 (2026-07-20, T-573).** 오프라인 start-order와 라이브 completion-order 집계 패리티 테스트 통과 |
 | 8 | 프록시 build-vs-integrate spike | 아래 참조 | **결정 완료 (2026-07-20, T-574).** 옵션 3(자체 H1 MVP+H2 passthrough) 채택; PoC(`spikes/t574-mitm-proxy-poc`) self-test 통과; 리스크 레지스터 작성 |
-| 9 | Windows 커버리지 proof | 10.4의 `CAP-1`~`CAP-6` 판정. 실패 시 절대 ratio 제거 | **1차 실측 완료 (2026-07-20, loopback smoke, 10.4.5).** TCP-owner CAP-1 100%(5/5)·CAP-2 0·CAP-4 탐지 → CAP-1~4 통과; ETW payload·손실 확인(귀속은 실 NIC 필요); WFP 허용경로 미확정. **잔여: ETW/WFP 실 NIC 재실측** |
+| 9 | Windows 커버리지 proof | 10.4의 `CAP-1`~`CAP-6` 판정. 실패 시 절대 ratio 제거 | **완료 — H-COV1 PASS (2026-07-27).** ETW 폐기, WFP 제품 후보 제거, TCP-owner는 개별 persistent endpoint 귀속만 승인. `CAP-3 N/A`에 따라 절대 ratio를 제거하고 5개 카운터 fallback을 확정 |
 | 10 | Windows Phase 2 캡처 | disk full/crash/event loss/CA failure/pinning/streaming E2E 통과 | 미착수 |
 | 11 | HTTP 전용 Diff | URL 템플릿화와 시간 정렬 신뢰도를 포함한 비교가 검증됨 (6.6) | **설계 확정 (2026-07-20, T-575).** 12.4.1 — `http_capture_diff` 계약, 템플릿화 규칙 버전, 정렬 등급, top-K 상한, Workspace 라우팅. 구현·검증은 Phase 4 항목 31 |
 
@@ -4133,8 +4148,8 @@ F-Secure·360 Total Security 각각에 대한 우회 코드를 changelog에 남�
 | `N-WIN-PERFCTR-PROC` | [net-sub-performance-counters](https://learn.microsoft.com/en-us/windows-server/networking/technologies/network-subsystem/net-sub-performance-counters) | Learn 문서 (개정일 미고정) | 2026-07-19 | byte 지표가 Network Interface/Adapter 단위다. **프로세스 단위 byte 카운터가 아니다** | 10.1.1 `bytesSystem` 전제 **철회** | fixed |
 | `V-WIN-TCPTABLE` | [GetExtendedTcpTable](https://learn.microsoft.com/en-us/windows/win32/api/iphlpapi/nf-iphlpapi-getextendedtcptable) | Win32 API 문서 | 2026-07-19 | owner PID가 붙은 **endpoint table**이며 연결별 누적 byte counter가 아니다 | 4.2 귀속 수단, 10.1.1 | fixed |
 | `V-WIN-ETW-TCPIP` | [etw/tcpip](https://learn.microsoft.com/en-us/windows/win32/etw/tcpip) | Win32 ETW 문서 | 2026-07-19 | TCP/IP 이벤트가 존재하며, **event header의 PID를 그대로 발신 프로세스로 쓰지 말라는 공식 주의**가 있다 | 10.1.1의 실측 선행 요구, T-571 spike 범위 | fixed |
-| `Q-WIN-ETW-PAYLOAD` | Microsoft-Windows-Kernel-Network ETW (logman/tracerpt 실측, 10.4.5~10.4.6) | 빌드 26200.8894 실 NIC 실측 | 2026-07-27 | PID·`sport`·`dport`와 손실 0%는 확인; control port 5/5를 보았지만 **다른 PID 귀속 197건** 발생 | CAP-2 zero-tolerance 위반으로 ETW 프로세스 귀속 후보 폐기; payload 존재와 귀속 정확성을 구분 | fixed |
-| `Q-WIN-WFP-ATTR` | `netsh wfp show netevents` (실측, 10.4.5~10.4.6) | 빌드 26200.8894 실 NIC 실측 | 2026-07-27 | control port 귀속 **0/5**, bypass 미탐지 | measured configuration에서 WFP coverage ratio 미지원 | partial |
+| `Q-WIN-ETW-PAYLOAD` | Microsoft-Windows-Kernel-Network ETW 정규화 observation (logman/tracerpt 경로, 10.4.5~10.4.6) | 빌드 26200.8894 실 NIC 실측; source ETL/tracerpt 원본 미보존 | 2026-07-27 | `Event/System/Execution@ProcessID` header PID와 payload `sport`/`dport`, 손실 0% 확인; control port 5/5를 보았지만 **다른 PID의 distinct flow pair 197개** | CAP-2 zero-tolerance 위반으로 ETW 프로세스 귀속 후보 폐기; payload 존재와 귀속 정확성을 구분 | fixed |
+| `Q-WIN-WFP-ATTR` | `netsh wfp show netevents` 정규화 observation (10.4.5~10.4.6) | 빌드 26200.8894 실 NIC 실측; WFP XML/audit 상태 미보존 | 2026-07-27 | measured configuration에서 relevant ALLOW event 미관측; audit-enabled capability는 미검증 | 제품 coverage 후보에서 제거하며 audit-enabled capability를 주장하지 않음 | fixed |
 | `V-WIN-NPCAP-INSTALL` | Npcap 배포 조건 | **라이선스 판본 미고정** | 2026-07-18 | 별도 설치가 필요하다 | 9.1의 Windows pcap `△` 등급, 배포 계획 | partial |
 
 ### A.4 원장 — HTTPAnalyzer 기능 레퍼런스

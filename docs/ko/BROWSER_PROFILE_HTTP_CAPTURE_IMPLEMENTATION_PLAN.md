@@ -18,8 +18,8 @@
 - **Part A — Chrome/V8 프로파일 분석:** `C-RG1`은 **완료 — PASS**다.
 - **Part B — HTTP 캡처 및 분석:** `H-RG1` 오프라인 HAR 분석은 엔진/H-SEC1
   재리뷰, bounded import UI, shared fixture, 전체 엔진/프런트 검증을 포함해
-  **완료 — 통합 PASS (2026-07-21)**다. 실시간 Windows 캡처는 T-571 실 NIC
-  증거가 닫히기 전에는 시작하지 않는다.
+  **완료 — 통합 PASS (2026-07-21)**다. T-571/H-RG2도 2026-07-27 독립
+  `H-COV1 PASS`로 닫혀 H-RG3 Windows 실시간 캡처 엔진 그룹을 시작할 수 있다.
 
 ## 2. 역할과 소유권
 
@@ -69,8 +69,8 @@ handoff한다. Claude는 생성 binding을 수동 수정하지 않는다. Claude
 | 0 | `PLAN-RG0` 실행 계획 | **완료** | 본 문서와 `work_status.md`가 일치 |
 | 1 | `C-RG1` Chrome/V8 릴리스 구현 승인 | **완료 — PASS (2026-07-21)** | 독립 리뷰 `PASS` |
 | 2 | `H-RG1` HAR 오프라인 분석 완성 | **완료 — 통합 PASS (2026-07-21)** | 종료 |
-| 3 | `H-RG2` Windows coverage proof | **검토 — 실 NIC 증거 완료 (2026-07-27)** | `H-COV1 PASS` |
-| 4 | `H-RG3` 실시간 캡처 엔진 기반 | 계획 | `H-RG2 PASS`; 그룹 내부 `H-SEC2 PASS` |
+| 3 | `H-RG2` Windows coverage proof | **완료 — H-COV1 PASS (2026-07-27)** | 종료 |
+| 4 | `H-RG3` 실시간 캡처 엔진 기반 | **착수 가능** | 그룹 내부 `H-SEC2 PASS` |
 | 5 | `H-RG4` 실시간 UI 및 Windows E2E | 계획 | `H-RG3 PASS` |
 | 6 | `H-RG5` HTTP 세션 Diff | 계획 | `H-RG4 PASS` |
 | 7 | `X-RG1` HTTP × 프로파일/서버 증거 교차 분석 | 계획 | `H-RG5 PASS` |
@@ -191,16 +191,23 @@ Phase 1 UI 게이트를 닫았고 더 깊은 Wails component fixture는 비차�
 
 - [x] Windows real-NIC target으로 ETW CAP-1/CAP-4를 재실측한다.
 - [x] 실 NIC WFP allow-path attribution을 재실측하고 measured configuration의
-  미지원 disposition을 기록한다. ALE audit policy는 활성화하지 않았으므로 제거
-  승인 대 audit 재측정은 H-COV1 판정에 남긴다.
+  미지원 disposition을 기록한다. ALE audit policy는 활성화하지 않았으므로
+  audit-enabled capability를 주장하지 않고 제품 coverage 후보에서 제거한다.
 - [x] PowerShell polling 대신 직접 `GetExtendedTcpTable` 호출로 CAP-5 CPU overhead를
   재측정한다.
 - [x] CAP-1~CAP-6 판정과 capability/fidelity matrix, source ledger를 갱신한다.
 - [x] 실패한 scope의 absolute coverage ratio를 제거하고 self-observed five counters만
   남긴다.
 
-**PASS 기준:** false attribution 0, 측정 재현 절차와 raw evidence가 있고, UI에
-노출 가능한 값과 노출 금지 값이 명확히 승인돼야 한다.
+**PASS 기준:** false attribution 0, 측정 재현 절차와 증거 tier/한계가 정직하게
+기록되고, UI에 노출 가능한 값과 노출 금지 값이 명확히 승인돼야 한다.
+
+2026-07-27 첫 독립 검토는 `CONDITIONAL`이었다. 보완 후 `CAP-3 N/A`인 TCP-owner는
+개별 persistent endpoint 귀속만 허용하고, absolute coverage ratio는 금지하며
+`counter_fallback: true`로 5개 self-observed 정수 카운터만 유지한다. 커밋된
+observation은 정규화 증거 tier이며 source-level 원본 패키지는 아니다. CAP-6의
+helper 수명·권한·IPC·설치 계약은 H-SEC2/H-RG3로 이관했다. 같은 날 독립
+재검토가 모든 COV-1~COV-6 보완을 확인하고 `PASS`를 반환했다.
 
 ### H-RG3 — 실시간 캡처 엔진 기반
 
@@ -291,6 +298,6 @@ HAR pseudo-process 비교에서 지원하지 않는 정규화/차원을 숨기�
 
 ## 8. 첫 실행 지점
 
-현재 다음 행동은 T-571 / `H-RG2`의 독립 `H-COV1` 검토다. Windows 실 NIC
-ETW/WFP coverage와 direct `GetExtendedTcpTable` CAP-5 증거는 완료됐으며,
-live-capture 엔진 그룹을 시작하기 전에 `H-COV1 PASS`를 획득한다.
+현재 다음 행동은 T-580 / `H-RG3` 실시간 캡처 엔진 기반이다. T-571 /
+`H-RG2`는 독립 `H-COV1 PASS`로 닫혔으며, H-RG3 안에서 production 권한 계약을
+`H-SEC2`로 검증한다.
