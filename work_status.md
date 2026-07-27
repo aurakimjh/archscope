@@ -120,7 +120,10 @@ same change so this overview remains the status source of truth.
   so T-578 is complete and H-RG1 is unblocked. Close the T-571 Windows real-NIC
   coverage proof before live HTTP capture. Codex owns
   engine work and Claude owns UI work; each review group must pass before the
-  next group starts.
+  next group starts. For T-582 and later, this is a hard execution boundary:
+  Codex stops after backend/engine contracts, generated bindings, fixtures, and
+  engine verification, while Claude exclusively owns React/UI/state/i18n and
+  visual/frontend regression work unless the user explicitly reassigns it.
 - Retired implementation: Python/FastAPI/browser sources are archived under
   `archive/python-engine` and `archive/web-frontend-python`.
 - Historical native POC module has been folded into `apps/engine-native`.

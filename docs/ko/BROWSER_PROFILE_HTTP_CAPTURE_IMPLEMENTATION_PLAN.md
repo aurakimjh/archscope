@@ -36,6 +36,10 @@ Codex가 Wails request/result/event 계약과 생성 binding을 커밋한 뒤 Cl
 handoff한다. Claude는 생성 binding을 수동 수정하지 않는다. Claude가 UI 구현 중
 계약 변경이 필요하다고 판단하면 UI에서 우회하지 않고 Codex에게 계약 변경을
 되돌려 보낸다.
+남은 그룹에서는 이 경계를 필수로 적용한다. Codex는 백엔드/엔진 계약, binding,
+fixture, 엔진 검증까지 끝나면 작업을 멈추고 Claude에게 handoff한다. 사용자가 UI
+작업을 명시적으로 재배정하지 않는 한 React/UI/state/i18n/시각 회귀 변경은 모두
+Claude가 담당한다.
 
 ## 3. 리뷰 게이트 운영 규칙
 

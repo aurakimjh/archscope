@@ -34,6 +34,10 @@ group and **the next group cannot start until the current group passes**.
 Codex commits Wails request/result/event contracts and generated bindings before
 the Claude handoff. Claude does not hand-edit generated bindings or hide a
 missing engine contract in UI-only logic; contract changes return to Codex.
+This boundary is mandatory for the remaining groups: Codex stops after the
+backend/engine contract, bindings, fixtures, and engine verification are ready,
+and leaves every React/UI/state/i18n/visual-regression change to Claude unless
+the user explicitly reassigns that UI work.
 
 ## 3. Review-Gate Rules
 
