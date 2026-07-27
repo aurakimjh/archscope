@@ -65,8 +65,8 @@ Only high-consequence boundaries receive an extra per-item gate:
 | 1 | `C-RG1` Chrome/V8 release implementation acceptance | **Complete — PASS (2026-07-21)** | Independent `PASS` |
 | 2 | `H-RG1` complete offline HAR analysis | **Complete — integrated PASS (2026-07-21)** | Closed |
 | 3 | `H-RG2` Windows coverage proof | **Complete — H-COV1 PASS (2026-07-27)** | Closed |
-| 4 | `H-RG3` live-capture engine foundation | **Ready** | Internal `H-SEC2 PASS` |
-| 5 | `H-RG4` live UI and Windows E2E | Planned | `H-RG3 PASS` |
+| 4 | `H-RG3` live-capture engine foundation | **Complete — H-SEC2 PASS (2026-07-28)** | Closed |
+| 5 | `H-RG4` live UI and Windows E2E | **Ready** | `H-RG3 PASS` |
 | 6 | `H-RG5` HTTP session Diff | Planned | `H-RG4 PASS` |
 | 7 | `X-RG1` HTTP x profile/server-evidence correlation | Planned | `H-RG5 PASS` |
 | 8 | `R-RG1` integrated release acceptance | Planned | `X-RG1 PASS` |
@@ -224,14 +224,22 @@ current-user ROOT trust backend rolls back partial installation, removes in
 reverse order, and persists only the public-certificate cleanup record so a
 post-crash restart can remove it. The proxy binds only to loopback and cannot
 disable upstream TLS verification. H2-only ALPN and explicitly approved hosts
-produce honest `unsupported` passthrough records. These checks complete the engine scope only:
-H-RG3 and T-580 remain incomplete until an independent `H-SEC2 PASS`.
+produce honest `unsupported` passthrough records. The independent `H-SEC2`
+review returned `PASS` on 2026-07-28, so H-RG3 and T-580 are complete and
+T-581 / H-RG4 is unblocked.
 
-#### Individual Gate H-SEC2
+#### Individual Gate H-SEC2 — `PASS` (2026-07-28)
 
 CA key storage, trust-store rollback/removal/expiry, upstream verification,
-pinning diagnosis, passthrough scope/expiry, and privilege IPC must pass the
-applicable SEC-1 through SEC-15 cases before live-control UI handoff.
+pinning diagnosis, passthrough scope/expiry, and privilege IPC passed the
+applicable SEC-1 through SEC-16 cases: redaction runs before every persistence
+and no plaintext body is stored, the CA private key is memory-only and
+non-exportable, session files are owner-only, trust removal is transactional,
+upstream TLS is always verified, the proxy is loopback-only, and no CLI/headless
+path starts a capture. Two conditions bind the next tier without reopening the
+gate: the SEC-10 crash-dump-exclusion preflight must precede any body-capture
+tier, and unknown-attribution retention (SEC-17) must sit behind an explicit
+metadata-only opt-in before the live UI exposes stored transactions.
 
 #### PASS Criteria
 
@@ -301,6 +309,8 @@ HAR pseudo-process sessions.
 
 ## 8. First Execution Point
 
-T-580 / `H-RG3` entered `REVIEW` on 2026-07-27. The next action is independent
-`H-SEC2` validation of the CA/TLS/privilege boundary; T-581 / H-RG4 must not
-start before that gate returns `PASS`.
+T-580 / `H-RG3` entered `REVIEW` on 2026-07-27 and passed the independent
+`H-SEC2` CA/TLS/privilege gate on 2026-07-28. The next action is T-581 / H-RG4:
+the Windows live-capture UI and E2E, carrying the two H-SEC2 conditions (SEC-17
+explicit unknown-attribution opt-in before the UI, SEC-10 dump-exclusion
+preflight before body capture).

@@ -70,8 +70,8 @@ handoff한다. Claude는 생성 binding을 수동 수정하지 않는다. Claude
 | 1 | `C-RG1` Chrome/V8 릴리스 구현 승인 | **완료 — PASS (2026-07-21)** | 독립 리뷰 `PASS` |
 | 2 | `H-RG1` HAR 오프라인 분석 완성 | **완료 — 통합 PASS (2026-07-21)** | 종료 |
 | 3 | `H-RG2` Windows coverage proof | **완료 — H-COV1 PASS (2026-07-27)** | 종료 |
-| 4 | `H-RG3` 실시간 캡처 엔진 기반 | **착수 가능** | 그룹 내부 `H-SEC2 PASS` |
-| 5 | `H-RG4` 실시간 UI 및 Windows E2E | 계획 | `H-RG3 PASS` |
+| 4 | `H-RG3` 실시간 캡처 엔진 기반 | **완료 — H-SEC2 PASS (2026-07-28)** | 종료 |
+| 5 | `H-RG4` 실시간 UI 및 Windows E2E | **착수 가능** | `H-RG3 PASS` |
 | 6 | `H-RG5` HTTP 세션 Diff | 계획 | `H-RG4 PASS` |
 | 7 | `X-RG1` HTTP × 프로파일/서버 증거 교차 분석 | 계획 | `H-RG5 PASS` |
 | 8 | `R-RG1` 통합 릴리스 승인 | 계획 | `X-RG1 PASS` |
@@ -227,14 +227,21 @@ helper 수명·권한·IPC·설치 계약은 H-SEC2/H-RG3로 이관했다. 같�
 backend는 설치 실패 rollback과 역순 제거를 사용하며, 공개 인증서 제거 기록을
 owner-scoped 앱 저장소에 남겨 crash 후에도 정리할 수 있다. 프록시는 loopback에만
 bind하며 upstream TLS 검증을 끌 수 없다. H2-only ALPN과 명시 승인 host는
-`unsupported` passthrough 기록을 남긴다. 이 완료 표시는 엔진 구현 범위이며,
-독립 `H-SEC2 PASS` 전에는 H-RG3 또는 T-580을 `DONE`으로 보지 않는다.
+`unsupported` passthrough 기록을 남긴다. 독립 `H-SEC2` 검토는 2026-07-28
+`PASS`를 반환했으며, 이에 따라 H-RG3과 T-580이 완료되고 T-581 / H-RG4가
+착수 가능해졌다.
 
-#### 개별 게이트 H-SEC2
+#### 개별 게이트 H-SEC2 — `PASS` (2026-07-28)
 
 CA 개인키 저장, trust-store 부분 실패 rollback, 제거/만료, upstream 검증, pinning
-진단, passthrough scope/expiry, privilege IPC가 SEC-1~SEC-15 해당 항목을 통과해야
-Claude에게 CA와 live-control UI 계약을 handoff한다.
+진단, passthrough scope/expiry, privilege IPC가 SEC-1~SEC-16 해당 항목을 통과했다:
+모든 저장 이전에 redaction이 실행되고 평문 body는 저장되지 않으며, CA 개인키는
+메모리 전용·비내보내기이고, 세션 파일은 owner-only, trust 제거는 트랜잭션적이며,
+upstream TLS는 항상 검증되고, 프록시는 loopback 전용이며, CLI/headless 캡처 시작
+경로가 없다. 두 조건이 게이트를 다시 열지 않으면서 다음 tier를 구속한다:
+SEC-10 crash-dump 제외 preflight는 body 캡처 tier 이전에 선행해야 하고,
+미귀속(SEC-17) 보존은 live UI가 저장 트랜잭션을 노출하기 전에 명시적
+metadata-only opt-in 뒤에 두어야 한다.
 
 #### 그룹 PASS 기준
 
@@ -305,6 +312,7 @@ HAR pseudo-process 비교에서 지원하지 않는 정규화/차원을 숨기�
 
 ## 8. 첫 실행 지점
 
-T-580 / `H-RG3` 엔진 구현은 2026-07-27 `REVIEW`에 진입했다. 다음 행동은
-CA/TLS/권한 경계를 독립 `H-SEC2`로 검증하는 것이며, `PASS` 전에는 T-581 /
-H-RG4를 시작하지 않는다.
+T-580 / `H-RG3` 엔진 구현은 2026-07-27 `REVIEW`에 진입했고 2026-07-28 독립
+`H-SEC2` CA/TLS/권한 게이트를 통과했다. 다음 행동은 T-581 / H-RG4의 Windows
+실시간 캡처 UI와 E2E이며, 두 H-SEC2 조건(UI 노출 전 SEC-17 명시적 미귀속
+opt-in, body 캡처 전 SEC-10 dump 제외 preflight)을 이어받는다.
