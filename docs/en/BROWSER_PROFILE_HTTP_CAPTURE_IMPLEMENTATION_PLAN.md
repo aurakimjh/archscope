@@ -64,7 +64,7 @@ Only high-consequence boundaries receive an extra per-item gate:
 | 0 | `PLAN-RG0` execution plan | **Complete** | This plan and `work_status.md` agree |
 | 1 | `C-RG1` Chrome/V8 release implementation acceptance | **Complete — PASS (2026-07-21)** | Independent `PASS` |
 | 2 | `H-RG1` complete offline HAR analysis | **Complete — integrated PASS (2026-07-21)** | Closed |
-| 3 | `H-RG2` Windows coverage proof | Waiting | `H-RG1 PASS`; real-NIC evidence and `H-COV1 PASS` |
+| 3 | `H-RG2` Windows coverage proof | **Review — real-NIC evidence complete (2026-07-27)** | `H-COV1 PASS` |
 | 4 | `H-RG3` live-capture engine foundation | Planned | `H-RG2 PASS`; internal `H-SEC2 PASS` |
 | 5 | `H-RG4` live UI and Windows E2E | Planned | `H-RG3 PASS` |
 | 6 | `H-RG5` HTTP session Diff | Planned | `H-RG4 PASS` |
@@ -183,11 +183,13 @@ This important evidence group also serves as the `H-COV1` individual review.
 
 #### Codex TODO
 
-- [ ] Re-run ETW CAP-1/CAP-4 against a Windows real-NIC target.
-- [ ] Re-run WFP allow-path attribution after ALE audit configuration.
-- [ ] Replace PowerShell polling with direct `GetExtendedTcpTable` and remeasure CAP-5 CPU cost.
-- [ ] Update CAP-1 through CAP-6, capability/fidelity matrices, and the source ledger.
-- [ ] Remove absolute coverage ratios for failed scopes and retain only the five
+- [x] Re-run ETW CAP-1/CAP-4 against a Windows real-NIC target.
+- [x] Re-run WFP allow-path attribution on the real-NIC path and record the
+  measured-configuration unsupported disposition. ALE audit policy was not
+  enabled, so H-COV1 retains the remove-versus-audit-rerun decision.
+- [x] Replace PowerShell polling with direct `GetExtendedTcpTable` and remeasure CAP-5 CPU cost.
+- [x] Update CAP-1 through CAP-6, capability/fidelity matrices, and the source ledger.
+- [x] Remove absolute coverage ratios for failed scopes and retain only the five
   self-observed counters.
 
 **PASS:** zero false attribution, reproducible raw evidence, and an approved list
@@ -281,6 +283,6 @@ HAR pseudo-process sessions.
 
 ## 8. First Execution Point
 
-The next action is T-571 / `H-RG2`: run the Windows real-NIC ETW/WFP coverage
-measurements and direct `GetExtendedTcpTable` CAP-5 overhead measurement, then
-obtain `H-COV1 PASS` before starting the live-capture engine group.
+The next action is the independent T-571 / `H-RG2` `H-COV1` review. The Windows
+real-NIC ETW/WFP coverage and direct `GetExtendedTcpTable` CAP-5 evidence are
+complete; obtain `H-COV1 PASS` before starting the live-capture engine group.

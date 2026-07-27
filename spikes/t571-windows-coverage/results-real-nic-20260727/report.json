@@ -1,69 +1,69 @@
 {
-  "generated_at": "2026-07-27T21:23:38.8902028+09:00",
+  "generated_at": "2026-07-27T21:52:58.0503288+09:00",
   "host": "DESKTOP-BLMKDKH",
   "os_version": "Microsoft Windows [Version 10.0.26200.8894]",
   "loopback_mode": false,
   "ground_truth": {
-    "started_at": "2026-07-27T21:23:06.2383091+09:00",
-    "ended_at": "2026-07-27T21:23:34.4045703+09:00",
+    "started_at": "2026-07-27T21:46:41.6885685+09:00",
+    "ended_at": "2026-07-27T21:47:09.8451295+09:00",
     "target_tps": 500,
-    "achieved_tps": 497.2260926132432,
+    "achieved_tps": 496.9356875649693,
     "listener_addr": "192.168.0.3:18080",
     "controls": [
       {
-        "pid": 15124,
+        "pid": 11680,
         "label": "worker-0",
         "image": "C:\\workspace\\archscope\\spikes\\t571-windows-coverage\\bin\\loadgen.exe",
-        "local_port": 9207,
+        "local_port": 7798,
         "remote_host": "192.168.0.3",
         "remote_port": 18080,
         "goes_via_proxy": true,
-        "transactions": 2801
+        "transactions": 2798
       },
       {
-        "pid": 29592,
+        "pid": 33316,
         "label": "worker-1",
         "image": "C:\\workspace\\archscope\\spikes\\t571-windows-coverage\\bin\\loadgen.exe",
-        "local_port": 9208,
+        "local_port": 7799,
         "remote_host": "192.168.0.3",
         "remote_port": 18080,
         "goes_via_proxy": true,
-        "transactions": 2801
+        "transactions": 2798
       },
       {
-        "pid": 16980,
+        "pid": 2368,
         "label": "worker-2",
         "image": "C:\\workspace\\archscope\\spikes\\t571-windows-coverage\\bin\\loadgen.exe",
-        "local_port": 9209,
+        "local_port": 7800,
         "remote_host": "192.168.0.3",
         "remote_port": 18080,
         "goes_via_proxy": true,
-        "transactions": 2801
+        "transactions": 2799
       },
       {
-        "pid": 31824,
+        "pid": 34968,
         "label": "worker-3",
         "image": "C:\\workspace\\archscope\\spikes\\t571-windows-coverage\\bin\\loadgen.exe",
-        "local_port": 9210,
+        "local_port": 7801,
         "remote_host": "192.168.0.3",
         "remote_port": 18080,
         "goes_via_proxy": true,
-        "transactions": 2801
+        "transactions": 2799
       },
       {
-        "pid": 18228,
+        "pid": 18516,
         "label": "worker-4",
         "image": "C:\\workspace\\archscope\\spikes\\t571-windows-coverage\\bin\\loadgen.exe",
-        "local_port": 9211,
+        "local_port": 7802,
         "remote_host": "192.168.0.3",
         "remote_port": 18080,
         "goes_via_proxy": false,
-        "transactions": 2801
+        "transactions": 2798
       }
     ],
     "total_connections": 5,
-    "total_tx_attempted": 14005,
-    "total_tx_ok": 14005
+    "total_tx_attempted": 13992,
+    "total_tx_ok": 13992
   },
   "results": [
     {
@@ -113,8 +113,8 @@
           "id": "CAP-5",
           "name": "CPU 오버헤드",
           "threshold": "\u003c 10%p",
-          "value": "5.0%p (capture 7.7% − baseline 2.7%)",
-          "numeric": 5.047134200000001,
+          "value": "4.5%p (capture 7.7% − baseline 3.2%)",
+          "numeric": 4.542780600000001,
           "pass": true,
           "applied": true
         },
@@ -179,8 +179,8 @@
           "id": "CAP-5",
           "name": "CPU 오버헤드",
           "threshold": "\u003c 10%p",
-          "value": "5.1%p (capture 7.8% − baseline 2.7%)",
-          "numeric": 5.0964598333333315,
+          "value": "4.6%p (capture 7.8% − baseline 3.2%)",
+          "numeric": 4.592106233333332,
           "pass": true,
           "applied": true
         },
@@ -236,7 +236,7 @@
           "id": "CAP-4",
           "name": "우회 탐지",
           "threshold": "탐지 성공",
-          "value": "탐지됨 (port 9211, pid 18228)",
+          "value": "탐지됨 (port 7802, pid 18516)",
           "numeric": 0,
           "pass": true,
           "applied": true
@@ -245,9 +245,9 @@
           "id": "CAP-5",
           "name": "CPU 오버헤드",
           "threshold": "\u003c 10%p",
-          "value": "14.4%p (capture 17.1% − baseline 2.7%)",
-          "numeric": 14.416022600000002,
-          "pass": false,
+          "value": "4.8%p (capture 8.0% − baseline 3.2%)",
+          "numeric": 4.823309533333333,
+          "pass": true,
           "applied": true
         },
         "CAP-6": {

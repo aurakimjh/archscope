@@ -506,6 +506,7 @@ func renderMarkdown(rep capmodel.Report) string {
 	b.WriteString("## 다음 단계\n\n")
 	b.WriteString("1. 위 부록 A 행을 `docs/ko/SYSTEM_HTTP_CAPTURE.md` 부록 A에 반영한다.\n")
 	b.WriteString("2. §9.3.1 fidelity 행렬의 `미검증` 칸을 측정값으로 확정한다.\n")
-	b.WriteString("3. §10 게이트(표의 9번 행)를 판정 결과에 맞춰 갱신하고 T-571을 닫는다.\n")
+	b.WriteString("3. 원시 증거와 scope별 disposition을 독립 H-COV1 검토에 제출한다.\n")
+	b.WriteString("4. H-COV1 `PASS` 후에만 §10 게이트와 T-571을 닫는다.\n")
 	return b.String()
 }

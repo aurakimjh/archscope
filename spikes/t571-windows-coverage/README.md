@@ -20,7 +20,7 @@
 |---|---|---|---|
 | ETW TCP/IP | process attribution | `etwprobe` | Kernel-Network provider 이벤트의 ProcessID (`V-WIN-ETW-TCPIP`) |
 | WFP | process attribution | `wfpprobe` | `netsh wfp` netEvents 의 appId(이미지 경로) |
-| TCP endpoint ownership | process attribution | `tcpownerprobe` | `Get-NetTCPConnection` 의 OwningProcess (교차검증 기준선) |
+| TCP endpoint ownership | process attribution | `tcpownerprobe` | `iphlpapi!GetExtendedTcpTable` 의 OwningPid (교차검증 기준선) |
 | Npcap | flow 5-tuple | (선택) | 5-tuple 만; **PID는 원리적으로 없음** — 별도 설치 필요 |
 
 Npcap 은 별도 설치가 필요해 기본 실행에는 빠져 있다. 실행하려면 packet 관측
@@ -30,7 +30,7 @@ Npcap 은 별도 설치가 필요해 기본 실행에는 빠져 있다. 실행�
 ## 요구사항
 
 - Windows 10 2004+ / Windows Server 2022+ (logman, tracerpt, netsh wfp,
-  expand, typeperf, Get-NetTCPConnection 는 모두 OS 기본 포함)
+  expand, typeperf, `iphlpapi!GetExtendedTcpTable` 는 모두 OS 기본 포함)
 - Go 1.26.x (리포 toolchain)
 - **관리자 권한 PowerShell** — 커널 ETW 세션과 WFP 캡처는 elevated 토큰 필수
 
@@ -159,8 +159,9 @@ bin\bypassclient.exe -target some-host:80 -count 20
   기록하고 해당 부록 A 행을 `open` 으로 남긴다. 못 잰 것을 통과로 위장하지 않는다.
 - **WFP 는 appId(이미지) 단위 귀속**이라 동일 실행 파일의 프로세스 인스턴스를
   구분하지 못한다. judge 는 이 한계를 CAP-1 detail 에 명시한다.
-- **TCP-owner 는 폴링**이라 poll 간격보다 짧은 연결을 못 본다. loadgen 워커가
-  persistent keep-alive 연결을 유지하는 이유이며, 이 구조적 누락은 note 로 남긴다.
+- **TCP-owner 는 `GetExtendedTcpTable` 직접 폴링**이라 subprocess 비용은 없지만
+  poll 간격보다 짧은 연결을 못 본다. loadgen 워커가 persistent keep-alive 연결을
+  유지하는 이유이며, 이 구조적 누락은 note 로 남긴다.
 - **검증 못 한 분모로 ratio 를 만들지 않는다** — 어떤 후보도 통과 못 하면
   judge 가 절대 ratio 를 제거하고 카운터만 남긴다.
 

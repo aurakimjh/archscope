@@ -4,73 +4,17 @@
   "host": "DESKTOP-BLMKDKH",
   "os_version": "Microsoft Windows [Version 10.0.26200.8894]",
   "elevated": true,
-  "tool": "Get-NetTCPConnection (poll)",
-  "started_at": "2026-07-27T21:23:05.4825826+09:00",
-  "ended_at": "2026-07-27T21:23:38.6415652+09:00",
+  "tool": "iphlpapi!GetExtendedTcpTable (direct poll, IPv4+IPv6)",
+  "started_at": "2026-07-27T21:46:40.4249242+09:00",
+  "ended_at": "2026-07-27T21:47:11.3145219+09:00",
   "flows": [
     {
-      "local_port": 49665,
+      "local_port": 135,
       "remote_port": 0,
-      "remote_host": "::",
-      "pid": 1644,
+      "remote_host": "0.0.0.0",
+      "pid": 1056,
       "image": "",
-      "observed_events": 6
-    },
-    {
-      "local_port": 9210,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 31824,
-      "image": "C:\\workspace\\archscope\\spikes\\t571-windows-coverage\\bin\\loadgen.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 6077,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 2268,
-      "image": "C:\\Program Files\\WindowsApps\\OpenAI.ChatGPT-Desktop_1.2026.190.0_x64__2p2nqsd0c76g0\\app\\ChatGPT Classic.exe",
-      "observed_events": 3
-    },
-    {
-      "local_port": 1114,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 17244,
-      "image": "C:\\Program Files\\ASUS\\ARMOURY CRATE Lite Service\\ArmouryCrate.UserSessionHelper.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 51010,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 30064,
-      "image": "C:\\Program Files (x86)\\Samsung\\Samsung DeX\\SamsungDeX.exe",
-      "observed_events": 3
-    },
-    {
-      "local_port": 13010,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 13216,
-      "image": "C:\\Program Files\\ASUS\\ARMOURY CRATE Lite Service\\ArmouryCrate.Service.exe",
-      "observed_events": 3
-    },
-    {
-      "local_port": 14998,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 31212,
-      "image": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-      "observed_events": 4
-    },
-    {
-      "local_port": 7679,
-      "remote_port": 0,
-      "remote_host": "::",
-      "pid": 28736,
-      "image": "C:\\Program Files\\Google\\Drive File Stream\\128.0.0.0\\GoogleDriveFS.exe",
-      "observed_events": 3
+      "observed_events": 60
     },
     {
       "local_port": 139,
@@ -78,239 +22,1207 @@
       "remote_host": "0.0.0.0",
       "pid": 4,
       "image": "",
-      "observed_events": 12
+      "observed_events": 120
     },
     {
-      "local_port": 12423,
+      "local_port": 445,
       "remote_port": 0,
       "remote_host": "0.0.0.0",
-      "pid": 31212,
-      "image": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-      "observed_events": 4
-    },
-    {
-      "local_port": 9091,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 31212,
-      "image": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-      "observed_events": 4
-    },
-    {
-      "local_port": 1645,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 31212,
-      "image": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-      "observed_events": 4
-    },
-    {
-      "local_port": 11434,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 32816,
-      "image": "C:\\Users\\aurak\\AppData\\Local\\Programs\\Ollama\\ollama.exe",
-      "observed_events": 3
-    },
-    {
-      "local_port": 8090,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 14716,
-      "image": "C:\\Users\\aurak\\AppData\\Local\\Wondershare\\Wondershare NativePush\\WsToastNotification.exe",
-      "observed_events": 3
-    },
-    {
-      "local_port": 49668,
-      "remote_port": 0,
-      "remote_host": "::",
-      "pid": 12848,
-      "image": "C:\\WINDOWS\\System32\\spoolsv.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 3632,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 6508,
-      "image": "C:\\Program Files\\WindowsApps\\OpenAI.Codex_26.721.4979.0_x64__2p2nqsd0c76g0\\app\\ChatGPT.exe",
-      "observed_events": 6
+      "pid": 4,
+      "image": "",
+      "observed_events": 60
     },
     {
       "local_port": 1042,
       "remote_port": 0,
       "remote_host": "0.0.0.0",
       "pid": 16356,
-      "image": "C:\\Program Files (x86)\\ASUS\\ArmouryDevice\\asus_framework.exe",
-      "observed_events": 15
+      "image": "",
+      "observed_events": 150
     },
     {
-      "local_port": 11763,
+      "local_port": 1043,
       "remote_port": 0,
       "remote_host": "0.0.0.0",
-      "pid": 31212,
-      "image": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-      "observed_events": 4
+      "pid": 16356,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 1065,
+      "remote_port": 13030,
+      "remote_host": "127.0.0.1",
+      "pid": 13488,
+      "image": "",
+      "observed_events": 30
     },
     {
       "local_port": 1068,
       "remote_port": 0,
-      "remote_host": "::",
+      "remote_host": "0.0.0.0",
       "pid": 1724,
       "image": "",
-      "observed_events": 6
+      "observed_events": 60
     },
     {
-      "local_port": 1646,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 28096,
-      "image": "C:\\Program Files\\LGHUB\\lghub_agent.exe",
-      "observed_events": 2
+      "local_port": 1069,
+      "remote_port": 1070,
+      "remote_host": "127.0.0.1",
+      "pid": 15820,
+      "image": "",
+      "observed_events": 30
     },
     {
-      "local_port": 11892,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 31212,
-      "image": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-      "observed_events": 6
+      "local_port": 1070,
+      "remote_port": 1069,
+      "remote_host": "127.0.0.1",
+      "pid": 15820,
+      "image": "",
+      "observed_events": 30
     },
     {
-      "local_port": 11055,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 2268,
-      "image": "C:\\Program Files\\WindowsApps\\OpenAI.ChatGPT-Desktop_1.2026.190.0_x64__2p2nqsd0c76g0\\app\\ChatGPT Classic.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 5921,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 4808,
-      "image": "C:\\Users\\aurak\\AppData\\Roaming\\fnm\\node-versions\\v22.15.1\\installation\\node_modules\\@openai\\codex\\node_modules\\@openai\\codex-win32-x64\\vendor\\x86_64-pc-windows-msvc\\bin\\codex.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 2401,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 12336,
-      "image": "C:\\Program Files (x86)\\Kings Online Security\\KOSSvc.exe",
-      "observed_events": 3
-    },
-    {
-      "local_port": 1732,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 27224,
-      "image": "C:\\Users\\aurak\\AppData\\Local\\NhNotifSys\\sonicstudio\\asusns.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 7362,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 13356,
-      "image": "C:\\WINDOWS\\system32\\svchost.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 2050,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 6508,
-      "image": "C:\\Program Files\\WindowsApps\\OpenAI.Codex_26.721.4979.0_x64__2p2nqsd0c76g0\\app\\ChatGPT.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 1726,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 26028,
-      "image": "C:\\Program Files (x86)\\ASUS\\ArmouryDevice\\asus_framework.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 1723,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 26028,
-      "image": "C:\\Program Files (x86)\\ASUS\\ArmouryDevice\\asus_framework.exe",
-      "observed_events": 6
+      "local_port": 1071,
+      "remote_port": 1072,
+      "remote_host": "127.0.0.1",
+      "pid": 15820,
+      "image": "",
+      "observed_events": 30
     },
     {
       "local_port": 1072,
+      "remote_port": 1071,
+      "remote_host": "127.0.0.1",
+      "pid": 15820,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 1113,
+      "remote_port": 17532,
+      "remote_host": "127.0.0.1",
+      "pid": 17244,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 1114,
+      "remote_port": 9012,
+      "remote_host": "127.0.0.1",
+      "pid": 17244,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 1119,
+      "remote_port": 443,
+      "remote_host": "4.213.25.242",
+      "pid": 13356,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 1645,
+      "remote_port": 443,
+      "remote_host": "74.125.22.94",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 1646,
+      "remote_port": 443,
+      "remote_host": "3.168.178.74",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 1649,
+      "remote_port": 443,
+      "remote_host": "160.79.104.10",
+      "pid": 8328,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 1655,
+      "remote_port": 443,
+      "remote_host": "142.250.197.99",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 1678,
+      "remote_port": 6850,
+      "remote_host": "127.0.0.1",
+      "pid": 13380,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 1697,
+      "remote_port": 6850,
+      "remote_host": "127.0.0.1",
+      "pid": 13380,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 1708,
+      "remote_port": 1042,
+      "remote_host": "127.0.0.1",
+      "pid": 5844,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 1723,
+      "remote_port": 1042,
+      "remote_host": "127.0.0.1",
+      "pid": 26028,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 1726,
+      "remote_port": 9013,
+      "remote_host": "127.0.0.1",
+      "pid": 26028,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 1732,
+      "remote_port": 443,
+      "remote_host": "104.18.36.61",
+      "pid": 27224,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 1736,
+      "remote_port": 1042,
+      "remote_host": "127.0.0.1",
+      "pid": 5872,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 1753,
+      "remote_port": 1042,
+      "remote_host": "127.0.0.1",
+      "pid": 25996,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 1755,
+      "remote_port": 443,
+      "remote_host": "4.213.25.242",
+      "pid": 18100,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 1771,
+      "remote_port": 443,
+      "remote_host": "3.171.185.4",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 2013,
+      "remote_port": 50912,
+      "remote_host": "127.0.0.1",
+      "pid": 30064,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 2014,
+      "remote_port": 50912,
+      "remote_host": "127.0.0.1",
+      "pid": 30064,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 2081,
+      "remote_port": 0,
+      "remote_host": "0.0.0.0",
+      "pid": 28076,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 2179,
+      "remote_port": 0,
+      "remote_host": "0.0.0.0",
+      "pid": 3228,
+      "image": "",
+      "observed_events": 60
+    },
+    {
+      "local_port": 2364,
+      "remote_port": 443,
+      "remote_host": "104.18.42.202",
+      "pid": 27224,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 2402,
+      "remote_port": 443,
+      "remote_host": "69.173.158.64",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 3210,
+      "remote_port": 443,
+      "remote_host": "3.171.185.77",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 3306,
+      "remote_port": 0,
+      "remote_host": "0.0.0.0",
+      "pid": 13316,
+      "image": "",
+      "observed_events": 60
+    },
+    {
+      "local_port": 3307,
       "remote_port": 0,
       "remote_host": "0.0.0.0",
       "pid": 15820,
-      "image": "C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysqld.exe",
-      "observed_events": 6
+      "image": "",
+      "observed_events": 60
     },
     {
-      "local_port": 9010,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
+      "local_port": 3340,
+      "remote_port": 443,
+      "remote_host": "142.250.198.163",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 3522,
+      "remote_port": 443,
+      "remote_host": "104.16.80.73",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 3537,
+      "remote_port": 443,
+      "remote_host": "110.93.158.195",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 3632,
+      "remote_port": 5228,
+      "remote_host": "142.250.157.188",
+      "pid": 6508,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 3765,
+      "remote_port": 443,
+      "remote_host": "142.250.198.200",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 3802,
+      "remote_port": 443,
+      "remote_host": "3.171.185.59",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 3893,
+      "remote_port": 443,
+      "remote_host": "3.168.178.51",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 4126,
+      "remote_port": 443,
+      "remote_host": "3.171.185.59",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 4161,
+      "remote_port": 443,
+      "remote_host": "35.213.7.90",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 4183,
+      "remote_port": 443,
+      "remote_host": "172.217.117.4",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 4194,
+      "remote_port": 443,
+      "remote_host": "142.250.197.78",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 4252,
+      "remote_port": 443,
+      "remote_host": "172.67.165.72",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 4255,
+      "remote_port": 28194,
+      "remote_host": "127.0.0.1",
       "pid": 28096,
-      "image": "C:\\Program Files\\LGHUB\\lghub_agent.exe",
+      "image": "",
+      "observed_events": 2
+    },
+    {
+      "local_port": 4256,
+      "remote_port": 6472,
+      "remote_host": "127.0.0.1",
+      "pid": 28096,
+      "image": "",
+      "observed_events": 2
+    },
+    {
+      "local_port": 4257,
+      "remote_port": 28194,
+      "remote_host": "127.0.0.1",
+      "pid": 28096,
+      "image": "",
       "observed_events": 3
+    },
+    {
+      "local_port": 4258,
+      "remote_port": 6463,
+      "remote_host": "127.0.0.1",
+      "pid": 28096,
+      "image": "",
+      "observed_events": 2
+    },
+    {
+      "local_port": 4356,
+      "remote_port": 443,
+      "remote_host": "142.250.198.33",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 4588,
+      "remote_port": 443,
+      "remote_host": "69.173.158.64",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 4590,
+      "remote_port": 443,
+      "remote_host": "142.250.197.129",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 4648,
+      "remote_port": 443,
+      "remote_host": "172.67.68.204",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 4909,
+      "remote_port": 443,
+      "remote_host": "142.250.197.33",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
     },
     {
       "local_port": 5040,
       "remote_port": 0,
       "remote_host": "0.0.0.0",
       "pid": 6540,
-      "image": "C:\\WINDOWS\\system32\\svchost.exe",
-      "observed_events": 3
+      "image": "",
+      "observed_events": 30
     },
     {
-      "local_port": 7336,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
+      "local_port": 5327,
+      "remote_port": 443,
+      "remote_host": "151.101.1.155",
       "pid": 31212,
-      "image": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-      "observed_events": 2
+      "image": "",
+      "observed_events": 30
     },
     {
-      "local_port": 9207,
+      "local_port": 5547,
+      "remote_port": 443,
+      "remote_host": "61.247.197.71",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 5658,
+      "remote_port": 443,
+      "remote_host": "3.170.221.14",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 5717,
+      "remote_port": 443,
+      "remote_host": "185.184.8.90",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 5805,
+      "remote_port": 443,
+      "remote_host": "104.18.86.42",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 5921,
+      "remote_port": 443,
+      "remote_host": "172.64.155.209",
+      "pid": 4808,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 5922,
+      "remote_port": 443,
+      "remote_host": "172.217.117.4",
+      "pid": 28736,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 5925,
+      "remote_port": 443,
+      "remote_host": "172.217.117.4",
+      "pid": 28736,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 6128,
+      "remote_port": 443,
+      "remote_host": "172.217.119.4",
+      "pid": 28736,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 6129,
+      "remote_port": 443,
+      "remote_host": "172.217.119.4",
+      "pid": 28736,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 6142,
+      "remote_port": 443,
+      "remote_host": "172.64.155.119",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 6546,
+      "remote_port": 443,
+      "remote_host": "54.238.222.96",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 6850,
       "remote_port": 0,
       "remote_host": "0.0.0.0",
-      "pid": 15124,
-      "image": "C:\\workspace\\archscope\\spikes\\t571-windows-coverage\\bin\\loadgen.exe",
-      "observed_events": 6
+      "pid": 24744,
+      "image": "",
+      "observed_events": 90
     },
     {
-      "local_port": 17945,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 17244,
-      "image": "C:\\Program Files\\ASUS\\ARMOURY CRATE Lite Service\\ArmouryCrate.UserSessionHelper.exe",
-      "observed_events": 3
+      "local_port": 7084,
+      "remote_port": 443,
+      "remote_host": "172.217.117.4",
+      "pid": 28736,
+      "image": "",
+      "observed_events": 20
     },
     {
-      "local_port": 13030,
-      "remote_port": 1065,
+      "local_port": 7118,
+      "remote_port": 28194,
       "remote_host": "127.0.0.1",
-      "pid": 13488,
-      "image": "C:\\Program Files\\ASUS\\ROG Live Service\\ROGLiveService.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 4148,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 31212,
-      "image": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-      "observed_events": 4
-    },
-    {
-      "local_port": 4471,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 31212,
-      "image": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+      "pid": 28096,
+      "image": "",
       "observed_events": 2
+    },
+    {
+      "local_port": 7119,
+      "remote_port": 6464,
+      "remote_host": "127.0.0.1",
+      "pid": 28096,
+      "image": "",
+      "observed_events": 2
+    },
+    {
+      "local_port": 7120,
+      "remote_port": 28194,
+      "remote_host": "127.0.0.1",
+      "pid": 28096,
+      "image": "",
+      "observed_events": 2
+    },
+    {
+      "local_port": 7121,
+      "remote_port": 6465,
+      "remote_host": "127.0.0.1",
+      "pid": 28096,
+      "image": "",
+      "observed_events": 2
+    },
+    {
+      "local_port": 7123,
+      "remote_port": 443,
+      "remote_host": "40.64.132.135",
+      "pid": 24992,
+      "image": "",
+      "observed_events": 16
+    },
+    {
+      "local_port": 7124,
+      "remote_port": 28194,
+      "remote_host": "127.0.0.1",
+      "pid": 28096,
+      "image": "",
+      "observed_events": 2
+    },
+    {
+      "local_port": 7125,
+      "remote_port": 6466,
+      "remote_host": "127.0.0.1",
+      "pid": 28096,
+      "image": "",
+      "observed_events": 2
+    },
+    {
+      "local_port": 7126,
+      "remote_port": 28194,
+      "remote_host": "127.0.0.1",
+      "pid": 28096,
+      "image": "",
+      "observed_events": 2
+    },
+    {
+      "local_port": 7127,
+      "remote_port": 6467,
+      "remote_host": "127.0.0.1",
+      "pid": 28096,
+      "image": "",
+      "observed_events": 2
+    },
+    {
+      "local_port": 7128,
+      "remote_port": 443,
+      "remote_host": "172.217.119.4",
+      "pid": 28736,
+      "image": "",
+      "observed_events": 10
+    },
+    {
+      "local_port": 7129,
+      "remote_port": 28194,
+      "remote_host": "127.0.0.1",
+      "pid": 28096,
+      "image": "",
+      "observed_events": 2
+    },
+    {
+      "local_port": 7130,
+      "remote_port": 6468,
+      "remote_host": "127.0.0.1",
+      "pid": 28096,
+      "image": "",
+      "observed_events": 2
+    },
+    {
+      "local_port": 7131,
+      "remote_port": 28194,
+      "remote_host": "127.0.0.1",
+      "pid": 28096,
+      "image": "",
+      "observed_events": 2
+    },
+    {
+      "local_port": 7132,
+      "remote_port": 6469,
+      "remote_host": "127.0.0.1",
+      "pid": 28096,
+      "image": "",
+      "observed_events": 2
+    },
+    {
+      "local_port": 7134,
+      "remote_port": 28194,
+      "remote_host": "127.0.0.1",
+      "pid": 28096,
+      "image": "",
+      "observed_events": 2
+    },
+    {
+      "local_port": 7135,
+      "remote_port": 6470,
+      "remote_host": "127.0.0.1",
+      "pid": 28096,
+      "image": "",
+      "observed_events": 2
+    },
+    {
+      "local_port": 7185,
+      "remote_port": 443,
+      "remote_host": "104.18.32.137",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 7223,
+      "remote_port": 443,
+      "remote_host": "172.217.119.4",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 7362,
+      "remote_port": 443,
+      "remote_host": "4.213.25.241",
+      "pid": 13356,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 7370,
+      "remote_port": 443,
+      "remote_host": "142.250.155.94",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 7456,
+      "remote_port": 443,
+      "remote_host": "104.18.32.47",
+      "pid": 6368,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 7463,
+      "remote_port": 443,
+      "remote_host": "142.250.197.110",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 7572,
+      "remote_port": 443,
+      "remote_host": "3.171.185.4",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 7609,
+      "remote_port": 443,
+      "remote_host": "104.18.86.42",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 7679,
+      "remote_port": 0,
+      "remote_host": "::",
+      "pid": 28736,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 7680,
+      "remote_port": 0,
+      "remote_host": "0.0.0.0",
+      "pid": 1716,
+      "image": "",
+      "observed_events": 60
+    },
+    {
+      "local_port": 7745,
+      "remote_port": 443,
+      "remote_host": "142.250.197.110",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 7765,
+      "remote_port": 443,
+      "remote_host": "223.130.192.248",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 7773,
+      "remote_port": 80,
+      "remote_host": "211.115.106.74",
+      "pid": 13524,
+      "image": "",
+      "observed_events": 1
+    },
+    {
+      "local_port": 7776,
+      "remote_port": 80,
+      "remote_host": "211.115.106.74",
+      "pid": 13524,
+      "image": "",
+      "observed_events": 1
+    },
+    {
+      "local_port": 7777,
+      "remote_port": 80,
+      "remote_host": "211.115.106.74",
+      "pid": 13524,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 7778,
+      "remote_port": 80,
+      "remote_host": "211.115.106.74",
+      "pid": 13524,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 7779,
+      "remote_port": 80,
+      "remote_host": "211.115.106.74",
+      "pid": 13524,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 7780,
+      "remote_port": 80,
+      "remote_host": "211.115.106.74",
+      "pid": 13524,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 7781,
+      "remote_port": 80,
+      "remote_host": "211.115.106.74",
+      "pid": 13524,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 7785,
+      "remote_port": 80,
+      "remote_host": "211.115.106.74",
+      "pid": 13524,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 7786,
+      "remote_port": 80,
+      "remote_host": "211.115.106.74",
+      "pid": 13524,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 7790,
+      "remote_port": 80,
+      "remote_host": "211.115.106.74",
+      "pid": 13524,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 7794,
+      "remote_port": 28194,
+      "remote_host": "127.0.0.1",
+      "pid": 28096,
+      "image": "",
+      "observed_events": 1
+    },
+    {
+      "local_port": 7795,
+      "remote_port": 6471,
+      "remote_host": "127.0.0.1",
+      "pid": 28096,
+      "image": "",
+      "observed_events": 2
+    },
+    {
+      "local_port": 7796,
+      "remote_port": 80,
+      "remote_host": "211.115.106.74",
+      "pid": 13524,
+      "image": "",
+      "observed_events": 29
+    },
+    {
+      "local_port": 7797,
+      "remote_port": 80,
+      "remote_host": "211.115.106.74",
+      "pid": 13524,
+      "image": "",
+      "observed_events": 29
+    },
+    {
+      "local_port": 7798,
+      "remote_port": 18080,
+      "remote_host": "192.168.0.3",
+      "pid": 11680,
+      "image": "",
+      "observed_events": 28
+    },
+    {
+      "local_port": 7799,
+      "remote_port": 18080,
+      "remote_host": "192.168.0.3",
+      "pid": 33316,
+      "image": "",
+      "observed_events": 28
+    },
+    {
+      "local_port": 7800,
+      "remote_port": 18080,
+      "remote_host": "192.168.0.3",
+      "pid": 2368,
+      "image": "",
+      "observed_events": 28
+    },
+    {
+      "local_port": 7801,
+      "remote_port": 18080,
+      "remote_host": "192.168.0.3",
+      "pid": 34968,
+      "image": "",
+      "observed_events": 28
+    },
+    {
+      "local_port": 7802,
+      "remote_port": 18080,
+      "remote_host": "192.168.0.3",
+      "pid": 18516,
+      "image": "",
+      "observed_events": 28
+    },
+    {
+      "local_port": 7891,
+      "remote_port": 443,
+      "remote_host": "142.250.198.170",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 8024,
+      "remote_port": 0,
+      "remote_host": "0.0.0.0",
+      "pid": 7364,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 8090,
+      "remote_port": 0,
+      "remote_host": "0.0.0.0",
+      "pid": 14716,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 8249,
+      "remote_port": 443,
+      "remote_host": "172.217.201.94",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 8369,
+      "remote_port": 443,
+      "remote_host": "108.177.97.155",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 8545,
+      "remote_port": 443,
+      "remote_host": "142.250.197.129",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 8551,
+      "remote_port": 443,
+      "remote_host": "104.18.32.47",
+      "pid": 4808,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 8918,
+      "remote_port": 443,
+      "remote_host": "18.182.213.99",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 9010,
+      "remote_port": 0,
+      "remote_host": "0.0.0.0",
+      "pid": 28096,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 9012,
+      "remote_port": 0,
+      "remote_host": "0.0.0.0",
+      "pid": 5844,
+      "image": "",
+      "observed_events": 60
+    },
+    {
+      "local_port": 9013,
+      "remote_port": 0,
+      "remote_host": "0.0.0.0",
+      "pid": 5844,
+      "image": "",
+      "observed_events": 60
+    },
+    {
+      "local_port": 9014,
+      "remote_port": 0,
+      "remote_host": "0.0.0.0",
+      "pid": 19916,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 9152,
+      "remote_port": 443,
+      "remote_host": "142.250.197.110",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 9180,
+      "remote_port": 0,
+      "remote_host": "0.0.0.0",
+      "pid": 13372,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 9192,
+      "remote_port": 21927,
+      "remote_host": "185.26.51.60",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 9306,
+      "remote_port": 443,
+      "remote_host": "18.97.36.8",
+      "pid": 23564,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 9322,
+      "remote_port": 443,
+      "remote_host": "3.171.185.77",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 9418,
+      "remote_port": 5228,
+      "remote_host": "64.233.187.188",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 9471,
+      "remote_port": 443,
+      "remote_host": "104.21.57.182",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 9515,
+      "remote_port": 443,
+      "remote_host": "13.225.134.4",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 9569,
+      "remote_port": 443,
+      "remote_host": "104.18.32.47",
+      "pid": 6508,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 9672,
+      "remote_port": 443,
+      "remote_host": "142.250.155.94",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 10204,
+      "remote_port": 443,
+      "remote_host": "23.55.51.199",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 27
+    },
+    {
+      "local_port": 10244,
+      "remote_port": 443,
+      "remote_host": "35.213.7.90",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 10353,
+      "remote_port": 443,
+      "remote_host": "151.101.193.229",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 10369,
+      "remote_port": 443,
+      "remote_host": "18.244.60.112",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 10594,
+      "remote_port": 443,
+      "remote_host": "146.75.49.140",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 10774,
+      "remote_port": 443,
+      "remote_host": "13.225.134.2",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 11038,
+      "remote_port": 443,
+      "remote_host": "3.168.167.52",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 11055,
+      "remote_port": 443,
+      "remote_host": "104.18.39.21",
+      "pid": 2268,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 11140,
+      "remote_port": 443,
+      "remote_host": "172.217.118.4",
+      "pid": 28736,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 11141,
+      "remote_port": 443,
+      "remote_host": "172.217.118.4",
+      "pid": 28736,
+      "image": "",
+      "observed_events": 30
     },
     {
       "local_port": 11300,
@@ -318,303 +1230,215 @@
       "remote_host": "0.0.0.0",
       "pid": 4,
       "image": "",
-      "observed_events": 3
+      "observed_events": 30
     },
     {
-      "local_port": 10283,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
+      "local_port": 11351,
+      "remote_port": 443,
+      "remote_host": "142.251.170.84",
       "pid": 31212,
-      "image": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 9204,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 13524,
-      "image": "C:\\Program Files\\AhnLab\\Safe Transaction\\ASDSvc.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 2483,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 28736,
-      "image": "C:\\Program Files\\Google\\Drive File Stream\\128.0.0.0\\GoogleDriveFS.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 13344,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 31212,
-      "image": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-      "observed_events": 4
-    },
-    {
-      "local_port": 10258,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 31212,
-      "image": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-      "observed_events": 4
-    },
-    {
-      "local_port": 49666,
-      "remote_port": 0,
-      "remote_host": "::",
-      "pid": 2508,
-      "image": "C:\\WINDOWS\\system32\\svchost.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 7070,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 31212,
-      "image": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 445,
-      "remote_port": 0,
-      "remote_host": "::",
-      "pid": 4,
       "image": "",
-      "observed_events": 3
+      "observed_events": 30
     },
     {
-      "local_port": 9330,
+      "local_port": 11408,
+      "remote_port": 443,
+      "remote_host": "54.192.183.74",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 11414,
+      "remote_port": 443,
+      "remote_host": "18.244.60.112",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 11434,
       "remote_port": 0,
       "remote_host": "0.0.0.0",
-      "pid": 13524,
-      "image": "C:\\Program Files\\AhnLab\\Safe Transaction\\ASDSvc.exe",
-      "observed_events": 6
+      "pid": 32816,
+      "image": "",
+      "observed_events": 30
     },
     {
-      "local_port": 1119,
+      "local_port": 11548,
+      "remote_port": 443,
+      "remote_host": "34.149.66.163",
+      "pid": 23564,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 12173,
+      "remote_port": 443,
+      "remote_host": "173.194.174.84",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 12504,
+      "remote_port": 443,
+      "remote_host": "142.250.197.72",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 12970,
+      "remote_port": 443,
+      "remote_host": "142.250.197.65",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 13010,
       "remote_port": 0,
       "remote_host": "0.0.0.0",
-      "pid": 13356,
-      "image": "C:\\WINDOWS\\system32\\svchost.exe",
-      "observed_events": 6
+      "pid": 13216,
+      "image": "",
+      "observed_events": 30
     },
     {
-      "local_port": 59869,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 19252,
-      "image": "C:\\Program Files\\LogiOptionsPlus\\logioptionsplus_agent.exe",
-      "observed_events": 3
-    },
-    {
-      "local_port": 1071,
-      "remote_port": 1072,
+      "local_port": 13030,
+      "remote_port": 1065,
       "remote_host": "127.0.0.1",
-      "pid": 15820,
-      "image": "C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysqld.exe",
-      "observed_events": 3
+      "pid": 13488,
+      "image": "",
+      "observed_events": 60
     },
     {
-      "local_port": 33060,
-      "remote_port": 0,
-      "remote_host": "::",
-      "pid": 15820,
-      "image": "C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysqld.exe",
-      "observed_events": 3
-    },
-    {
-      "local_port": 14806,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 31212,
-      "image": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 9569,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 6508,
-      "image": "C:\\Program Files\\WindowsApps\\OpenAI.Codex_26.721.4979.0_x64__2p2nqsd0c76g0\\app\\ChatGPT.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 1678,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 13380,
-      "image": "C:\\Program Files (x86)\\LightingService\\LightingService.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 13035,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 28096,
-      "image": "C:\\Program Files\\LGHUB\\lghub_agent.exe",
-      "observed_events": 2
-    },
-    {
-      "local_port": 13027,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 31212,
-      "image": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-      "observed_events": 2
-    },
-    {
-      "local_port": 42050,
-      "remote_port": 0,
-      "remote_host": "::",
-      "pid": 6380,
-      "image": "C:\\Users\\aurak\\AppData\\Local\\Microsoft\\OneDrive\\26.113.0614.0004\\OneDrive.Sync.Service.exe",
-      "observed_events": 3
-    },
-    {
-      "local_port": 14308,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 31212,
-      "image": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 9329,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 13524,
-      "image": "C:\\Program Files\\AhnLab\\Safe Transaction\\ASDSvc.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 8862,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 13524,
-      "image": "C:\\Program Files\\AhnLab\\Safe Transaction\\ASDSvc.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 8861,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 31212,
-      "image": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 2014,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 30064,
-      "image": "C:\\Program Files (x86)\\Samsung\\Samsung DeX\\SamsungDeX.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 2001,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 14976,
-      "image": "C:\\Windows\\ImmersiveControlPanel\\SystemSettings.exe",
-      "observed_events": 3
-    },
-    {
-      "local_port": 1113,
+      "local_port": 13031,
       "remote_port": 0,
       "remote_host": "0.0.0.0",
       "pid": 17244,
-      "image": "C:\\Program Files\\ASUS\\ARMOURY CRATE Lite Service\\ArmouryCrate.UserSessionHelper.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 7680,
-      "remote_port": 0,
-      "remote_host": "::",
-      "pid": 1716,
       "image": "",
-      "observed_events": 3
+      "observed_events": 30
     },
     {
-      "local_port": 9209,
+      "local_port": 13032,
       "remote_port": 0,
       "remote_host": "0.0.0.0",
-      "pid": 16980,
-      "image": "C:\\workspace\\archscope\\spikes\\t571-windows-coverage\\bin\\loadgen.exe",
-      "observed_events": 6
+      "pid": 17244,
+      "image": "",
+      "observed_events": 30
     },
     {
-      "local_port": 4133,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
+      "local_port": 13307,
+      "remote_port": 443,
+      "remote_host": "3.168.178.74",
       "pid": 31212,
-      "image": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-      "observed_events": 6
+      "image": "",
+      "observed_events": 30
     },
     {
-      "local_port": 2225,
+      "local_port": 13398,
+      "remote_port": 443,
+      "remote_host": "3.168.178.51",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 13703,
+      "remote_port": 443,
+      "remote_host": "3.170.221.86",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 13888,
+      "remote_port": 443,
+      "remote_host": "146.75.49.140",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 13929,
+      "remote_port": 443,
+      "remote_host": "23.55.51.199",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 27
+    },
+    {
+      "local_port": 14619,
+      "remote_port": 5228,
+      "remote_host": "108.177.97.188",
+      "pid": 6508,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 14876,
+      "remote_port": 443,
+      "remote_host": "23.55.51.199",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 27
+    },
+    {
+      "local_port": 14972,
+      "remote_port": 443,
+      "remote_host": "13.225.134.2",
+      "pid": 31212,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 16107,
       "remote_port": 0,
       "remote_host": "0.0.0.0",
-      "pid": 31212,
-      "image": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-      "observed_events": 6
+      "pid": 21204,
+      "image": "",
+      "observed_events": 30
     },
     {
-      "local_port": 1065,
+      "local_port": 16117,
+      "remote_port": 0,
+      "remote_host": "0.0.0.0",
+      "pid": 21204,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 17532,
+      "remote_port": 0,
+      "remote_host": "0.0.0.0",
+      "pid": 13216,
+      "image": "",
+      "observed_events": 60
+    },
+    {
+      "local_port": 17945,
+      "remote_port": 0,
+      "remote_host": "0.0.0.0",
+      "pid": 17244,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 21680,
+      "remote_port": 0,
+      "remote_host": "0.0.0.0",
+      "pid": 13332,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 22112,
       "remote_port": 0,
       "remote_host": "0.0.0.0",
       "pid": 13488,
-      "image": "C:\\Program Files\\ASUS\\ROG Live Service\\ROGLiveService.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 2107,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 31212,
-      "image": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-      "observed_events": 4
-    },
-    {
-      "local_port": 4187,
-      "remote_port": 0,
-      "remote_host": "::",
-      "pid": 35680,
-      "image": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 11124,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 31212,
-      "image": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 10662,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 8328,
-      "image": "C:\\Program Files\\WindowsApps\\Claude_1.24012.9.0_x64__pzs8sxrjxfjjc\\app\\Claude.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 7535,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 31212,
-      "image": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 54950,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 13436,
-      "image": "C:\\Program Files (x86)\\Brother\\iPrint\u0026Scan\\WorkflowAppControl\\WorkflowAppControl.exe",
-      "observed_events": 3
+      "image": "",
+      "observed_events": 30
     },
     {
       "local_port": 27339,
@@ -622,517 +1446,141 @@
       "remote_host": "0.0.0.0",
       "pid": 4,
       "image": "",
-      "observed_events": 3
+      "observed_events": 30
     },
     {
-      "local_port": 16117,
+      "local_port": 33060,
       "remote_port": 0,
       "remote_host": "0.0.0.0",
-      "pid": 21204,
-      "image": "C:\\program files (x86)\\wizvera\\delfino-g3\\delfino.exe",
-      "observed_events": 3
-    },
-    {
-      "local_port": 13032,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 17244,
-      "image": "C:\\Program Files\\ASUS\\ARMOURY CRATE Lite Service\\ArmouryCrate.UserSessionHelper.exe",
-      "observed_events": 3
-    },
-    {
-      "local_port": 9206,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 28096,
-      "image": "C:\\Program Files\\LGHUB\\lghub_agent.exe",
-      "observed_events": 2
-    },
-    {
-      "local_port": 9192,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 31212,
-      "image": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-      "observed_events": 2
-    },
-    {
-      "local_port": 5754,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 6368,
-      "image": "C:\\Program Files\\WindowsApps\\OpenAI.Codex_26.721.4979.0_x64__2p2nqsd0c76g0\\app\\resources\\codex.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 2013,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 30064,
-      "image": "C:\\Program Files (x86)\\Samsung\\Samsung DeX\\SamsungDeX.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 55920,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 19536,
-      "image": "C:\\Program Files\\AhnLab\\Safe Transaction\\stsess.exe",
-      "observed_events": 3
-    },
-    {
-      "local_port": 1069,
-      "remote_port": 1070,
-      "remote_host": "127.0.0.1",
       "pid": 15820,
-      "image": "C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysqld.exe",
-      "observed_events": 3
-    },
-    {
-      "local_port": 11690,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 31212,
-      "image": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-      "observed_events": 4
-    },
-    {
-      "local_port": 9306,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 23564,
-      "image": "C:\\Program Files\\WindowsApps\\Claude_1.24012.9.0_x64__pzs8sxrjxfjjc\\app\\Claude.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 2447,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 4808,
-      "image": "C:\\Users\\aurak\\AppData\\Roaming\\fnm\\node-versions\\v22.15.1\\installation\\node_modules\\@openai\\codex\\node_modules\\@openai\\codex-win32-x64\\vendor\\x86_64-pc-windows-msvc\\bin\\codex.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 9013,
-      "remote_port": 1726,
-      "remote_host": "127.0.0.1",
-      "pid": 5844,
-      "image": "C:\\Program Files (x86)\\ASUS\\ArmouryDevice\\dll\\ArmourySocketServer\\ArmourySocketServer.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 9012,
-      "remote_port": 1114,
-      "remote_host": "127.0.0.1",
-      "pid": 5844,
-      "image": "C:\\Program Files (x86)\\ASUS\\ArmouryDevice\\dll\\ArmourySocketServer\\ArmourySocketServer.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 135,
-      "remote_port": 0,
-      "remote_host": "::",
-      "pid": 1056,
-      "image": "C:\\WINDOWS\\system32\\svchost.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 2455,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 6368,
-      "image": "C:\\Program Files\\WindowsApps\\OpenAI.Codex_26.721.4979.0_x64__2p2nqsd0c76g0\\app\\resources\\codex.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 11935,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 31212,
-      "image": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-      "observed_events": 4
-    },
-    {
-      "local_port": 49664,
-      "remote_port": 0,
-      "remote_host": "::",
-      "pid": 1796,
       "image": "",
-      "observed_events": 6
-    },
-    {
-      "local_port": 7589,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 6508,
-      "image": "C:\\Program Files\\WindowsApps\\OpenAI.Codex_26.721.4979.0_x64__2p2nqsd0c76g0\\app\\ChatGPT.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 13034,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 28096,
-      "image": "C:\\Program Files\\LGHUB\\lghub_agent.exe",
-      "observed_events": 2
-    },
-    {
-      "local_port": 4708,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 23564,
-      "image": "C:\\Program Files\\WindowsApps\\Claude_1.24012.9.0_x64__pzs8sxrjxfjjc\\app\\Claude.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 50912,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 13444,
-      "image": "C:\\Program Files\\Samsung\\USB Drivers\\28_ssconn2\\conn\\ss_conn_service2.exe",
-      "observed_events": 9
-    },
-    {
-      "local_port": 3307,
-      "remote_port": 0,
-      "remote_host": "::",
-      "pid": 15820,
-      "image": "C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysqld.exe",
-      "observed_events": 3
-    },
-    {
-      "local_port": 9205,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 28096,
-      "image": "C:\\Program Files\\LGHUB\\lghub_agent.exe",
-      "observed_events": 2
-    },
-    {
-      "local_port": 8633,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 2268,
-      "image": "C:\\Program Files\\WindowsApps\\OpenAI.ChatGPT-Desktop_1.2026.190.0_x64__2p2nqsd0c76g0\\app\\ChatGPT Classic.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 1708,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 5844,
-      "image": "C:\\Program Files (x86)\\ASUS\\ArmouryDevice\\dll\\ArmourySocketServer\\ArmourySocketServer.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 52829,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 28076,
-      "image": "C:\\Users\\aurak\\AppData\\Local\\JetBrains\\Toolbox\\bin\\jetbrains-toolbox.exe",
-      "observed_events": 3
-    },
-    {
-      "local_port": 45654,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 28096,
-      "image": "C:\\Program Files\\LGHUB\\lghub_agent.exe",
-      "observed_events": 3
-    },
-    {
-      "local_port": 22112,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 13488,
-      "image": "C:\\Program Files\\ASUS\\ROG Live Service\\ROGLiveService.exe",
-      "observed_events": 3
-    },
-    {
-      "local_port": 16107,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 21204,
-      "image": "C:\\program files (x86)\\wizvera\\delfino-g3\\delfino.exe",
-      "observed_events": 3
-    },
-    {
-      "local_port": 14619,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 6508,
-      "image": "C:\\Program Files\\WindowsApps\\OpenAI.Codex_26.721.4979.0_x64__2p2nqsd0c76g0\\app\\ChatGPT.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 9208,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 29592,
-      "image": "C:\\workspace\\archscope\\spikes\\t571-windows-coverage\\bin\\loadgen.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 1736,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 5872,
-      "image": "C:\\Program Files (x86)\\ASUS\\ArmouryDevice\\dll\\AcPowerNotification\\AcPowerNotification.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 8024,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 7364,
-      "image": "C:\\Users\\aurak\\AppData\\Local\\Programs\\Ollama\\ollama app.exe",
-      "observed_events": 3
-    },
-    {
-      "local_port": 50911,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 13500,
-      "image": "C:\\Program Files\\Samsung\\USB Drivers\\27_ssconn\\conn\\ss_conn_service.exe",
-      "observed_events": 3
-    },
-    {
-      "local_port": 17532,
-      "remote_port": 1113,
-      "remote_host": "127.0.0.1",
-      "pid": 13216,
-      "image": "C:\\Program Files\\ASUS\\ARMOURY CRATE Lite Service\\ArmouryCrate.Service.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 7071,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 13524,
-      "image": "C:\\Program Files\\AhnLab\\Safe Transaction\\ASDSvc.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 1070,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 15820,
-      "image": "C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysqld.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 13031,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 17244,
-      "image": "C:\\Program Files\\ASUS\\ARMOURY CRATE Lite Service\\ArmouryCrate.UserSessionHelper.exe",
-      "observed_events": 3
-    },
-    {
-      "local_port": 2081,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 28076,
-      "image": "C:\\Users\\aurak\\AppData\\Local\\JetBrains\\Toolbox\\bin\\jetbrains-toolbox.exe",
-      "observed_events": 3
-    },
-    {
-      "local_port": 3306,
-      "remote_port": 0,
-      "remote_host": "::",
-      "pid": 13316,
-      "image": "C:\\Program Files\\MariaDB 10.5\\bin\\mysqld.exe",
-      "observed_events": 3
-    },
-    {
-      "local_port": 2179,
-      "remote_port": 0,
-      "remote_host": "::",
-      "pid": 3228,
-      "image": "C:\\WINDOWS\\system32\\vmms.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 13514,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 23564,
-      "image": "C:\\Program Files\\WindowsApps\\Claude_1.24012.9.0_x64__pzs8sxrjxfjjc\\app\\Claude.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 9418,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 31212,
-      "image": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 1697,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 13380,
-      "image": "C:\\Program Files (x86)\\LightingService\\LightingService.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 9180,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 13372,
-      "image": "C:\\Program Files\\LGHUB\\lghub_updater.exe",
-      "observed_events": 3
-    },
-    {
-      "local_port": 9211,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 18228,
-      "image": "C:\\workspace\\archscope\\spikes\\t571-windows-coverage\\bin\\loadgen.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 9203,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 13524,
-      "image": "C:\\Program Files\\AhnLab\\Safe Transaction\\ASDSvc.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 5442,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 23564,
-      "image": "C:\\Program Files\\WindowsApps\\Claude_1.24012.9.0_x64__pzs8sxrjxfjjc\\app\\Claude.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 1753,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 25996,
-      "image": "C:\\Program Files (x86)\\ASUS\\ArmouryDevice\\asus_framework.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 5571,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 31212,
-      "image": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-      "observed_events": 4
-    },
-    {
-      "local_port": 1647,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 28096,
-      "image": "C:\\Program Files\\LGHUB\\lghub_agent.exe",
-      "observed_events": 2
-    },
-    {
-      "local_port": 49667,
-      "remote_port": 0,
-      "remote_host": "::",
-      "pid": 3692,
-      "image": "C:\\WINDOWS\\System32\\svchost.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 5890,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 31212,
-      "image": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-      "observed_events": 2
-    },
-    {
-      "local_port": 21680,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 13332,
-      "image": "C:\\Program Files (x86)\\TILON\\DstationClient9\\DSSLCA.exe",
-      "observed_events": 3
-    },
-    {
-      "local_port": 3072,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 31212,
-      "image": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-      "observed_events": 4
-    },
-    {
-      "local_port": 10951,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 23564,
-      "image": "C:\\Program Files\\WindowsApps\\Claude_1.24012.9.0_x64__pzs8sxrjxfjjc\\app\\Claude.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 5758,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 6368,
-      "image": "C:\\Program Files\\WindowsApps\\OpenAI.Codex_26.721.4979.0_x64__2p2nqsd0c76g0\\app\\resources\\codex.exe",
-      "observed_events": 6
-    },
-    {
-      "local_port": 9197,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 23564,
-      "image": "C:\\Program Files\\WindowsApps\\Claude_1.24012.9.0_x64__pzs8sxrjxfjjc\\app\\Claude.exe",
-      "observed_events": 2
-    },
-    {
-      "local_port": 1755,
-      "remote_port": 0,
-      "remote_host": "0.0.0.0",
-      "pid": 18100,
-      "image": "C:\\Users\\aurak\\AppData\\Local\\Microsoft\\OneDrive\\OneDrive.exe",
-      "observed_events": 6
+      "observed_events": 60
     },
     {
       "local_port": 41343,
       "remote_port": 0,
       "remote_host": "0.0.0.0",
       "pid": 30204,
-      "image": "C:\\Program Files\\LM Studio\\LM Studio.exe",
-      "observed_events": 3
+      "image": "",
+      "observed_events": 30
     },
     {
-      "local_port": 9014,
+      "local_port": 42050,
+      "remote_port": 0,
+      "remote_host": "::",
+      "pid": 6380,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 45654,
       "remote_port": 0,
       "remote_host": "0.0.0.0",
-      "pid": 19916,
-      "image": "C:\\Program Files (x86)\\ASUS\\ArmouryDevice\\dll\\ArmourySocketServer\\ArmouryHtmlDebugServer.exe",
-      "observed_events": 3
+      "pid": 28096,
+      "image": "",
+      "observed_events": 30
     },
     {
-      "local_port": 6850,
-      "remote_port": 1678,
+      "local_port": 49664,
+      "remote_port": 0,
+      "remote_host": "0.0.0.0",
+      "pid": 1796,
+      "image": "",
+      "observed_events": 60
+    },
+    {
+      "local_port": 49665,
+      "remote_port": 0,
+      "remote_host": "0.0.0.0",
+      "pid": 1644,
+      "image": "",
+      "observed_events": 60
+    },
+    {
+      "local_port": 49666,
+      "remote_port": 0,
+      "remote_host": "0.0.0.0",
+      "pid": 2508,
+      "image": "",
+      "observed_events": 60
+    },
+    {
+      "local_port": 49667,
+      "remote_port": 0,
+      "remote_host": "0.0.0.0",
+      "pid": 3692,
+      "image": "",
+      "observed_events": 60
+    },
+    {
+      "local_port": 49668,
+      "remote_port": 0,
+      "remote_host": "0.0.0.0",
+      "pid": 12848,
+      "image": "",
+      "observed_events": 60
+    },
+    {
+      "local_port": 50911,
+      "remote_port": 0,
+      "remote_host": "0.0.0.0",
+      "pid": 13500,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 50912,
+      "remote_port": 2013,
       "remote_host": "127.0.0.1",
-      "pid": 24744,
-      "image": "C:\\Program Files\\ASUS\\AacAmbientHal\\AacAmbientLighting.exe",
-      "observed_events": 9
+      "pid": 13444,
+      "image": "",
+      "observed_events": 90
     },
     {
-      "local_port": 1043,
+      "local_port": 51010,
       "remote_port": 0,
       "remote_host": "0.0.0.0",
-      "pid": 16356,
-      "image": "C:\\Program Files (x86)\\ASUS\\ArmouryDevice\\asus_framework.exe",
-      "observed_events": 3
+      "pid": 30064,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 52829,
+      "remote_port": 0,
+      "remote_host": "0.0.0.0",
+      "pid": 28076,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 54950,
+      "remote_port": 0,
+      "remote_host": "0.0.0.0",
+      "pid": 13436,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 55920,
+      "remote_port": 0,
+      "remote_host": "0.0.0.0",
+      "pid": 19536,
+      "image": "",
+      "observed_events": 30
+    },
+    {
+      "local_port": 59869,
+      "remote_port": 0,
+      "remote_host": "0.0.0.0",
+      "pid": 19252,
+      "image": "",
+      "observed_events": 30
     }
   ],
-  "events_delivered": 3,
+  "events_delivered": 30,
   "kernel_reported_dropped": -1,
-  "cpu_overhead_pct": 17.095407,
+  "cpu_overhead_pct": 8.007047533333333,
   "notes": [
-    "polled TCP table 3 times at 1s interval; sub-interval connections are not observable by this scope"
+    "polled IPv4+IPv6 TCP owner tables directly 30 times at 1s interval; sub-interval connections are not observable by this scope"
   ]
 }
