@@ -10,6 +10,12 @@ import { Create as $Create } from "@wailsio/runtime";
 import * as api$0 from "../../api/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
+import * as aggregate$0 from "../../internal/capture/aggregate/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
+import * as store$0 from "../../internal/capture/store/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
 import * as models$0 from "../../internal/models/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
@@ -379,6 +385,180 @@ export class BrowserAuditRequest {
     }
 }
 
+export class CaptureAggregateEvent {
+    "sessionId": string;
+    "sequence": number;
+    "snapshotVersion": number;
+    "snapshot": aggregate$0.Snapshot;
+
+    /** Creates a new CaptureAggregateEvent instance. */
+    constructor($$source: Partial<CaptureAggregateEvent> = {}) {
+        if (!("sessionId" in $$source)) {
+            this["sessionId"] = "";
+        }
+        if (!("sequence" in $$source)) {
+            this["sequence"] = 0;
+        }
+        if (!("snapshotVersion" in $$source)) {
+            this["snapshotVersion"] = 0;
+        }
+        if (!("snapshot" in $$source)) {
+            this["snapshot"] = (new aggregate$0.Snapshot());
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new CaptureAggregateEvent instance from a string or object.
+     */
+    static createFrom($$source: any = {}): CaptureAggregateEvent {
+        const $$createField3_0 = $$createType4;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("snapshot" in $$parsedSource) {
+            $$parsedSource["snapshot"] = $$createField3_0($$parsedSource["snapshot"]);
+        }
+        return new CaptureAggregateEvent($$parsedSource as Partial<CaptureAggregateEvent>);
+    }
+}
+
+export class CaptureAnalyzeRequest {
+    "sessionId": string;
+    "topN"?: number;
+
+    /** Creates a new CaptureAnalyzeRequest instance. */
+    constructor($$source: Partial<CaptureAnalyzeRequest> = {}) {
+        if (!("sessionId" in $$source)) {
+            this["sessionId"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new CaptureAnalyzeRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): CaptureAnalyzeRequest {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new CaptureAnalyzeRequest($$parsedSource as Partial<CaptureAnalyzeRequest>);
+    }
+}
+
+export class CaptureErrorEvent {
+    "sessionId": string;
+    "message": string;
+
+    /** Creates a new CaptureErrorEvent instance. */
+    constructor($$source: Partial<CaptureErrorEvent> = {}) {
+        if (!("sessionId" in $$source)) {
+            this["sessionId"] = "";
+        }
+        if (!("message" in $$source)) {
+            this["message"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new CaptureErrorEvent instance from a string or object.
+     */
+    static createFrom($$source: any = {}): CaptureErrorEvent {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new CaptureErrorEvent($$parsedSource as Partial<CaptureErrorEvent>);
+    }
+}
+
+export class CaptureFetchRequest {
+    "sessionId": string;
+    "filter": store$0.Filter;
+    "cursor"?: string;
+    "limit"?: number;
+
+    /** Creates a new CaptureFetchRequest instance. */
+    constructor($$source: Partial<CaptureFetchRequest> = {}) {
+        if (!("sessionId" in $$source)) {
+            this["sessionId"] = "";
+        }
+        if (!("filter" in $$source)) {
+            this["filter"] = (new store$0.Filter());
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new CaptureFetchRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): CaptureFetchRequest {
+        const $$createField1_0 = $$createType5;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("filter" in $$parsedSource) {
+            $$parsedSource["filter"] = $$createField1_0($$parsedSource["filter"]);
+        }
+        return new CaptureFetchRequest($$parsedSource as Partial<CaptureFetchRequest>);
+    }
+}
+
+export class CaptureImportRequest {
+    "path": string;
+    "topN"?: number;
+
+    /** Creates a new CaptureImportRequest instance. */
+    constructor($$source: Partial<CaptureImportRequest> = {}) {
+        if (!("path" in $$source)) {
+            this["path"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new CaptureImportRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): CaptureImportRequest {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new CaptureImportRequest($$parsedSource as Partial<CaptureImportRequest>);
+    }
+}
+
+export class CaptureTransactionsEvent {
+    "sessionId": string;
+    "sequence": number;
+    "snapshotVersion": number;
+    "items": models$0.CaptureTransaction[];
+
+    /** Creates a new CaptureTransactionsEvent instance. */
+    constructor($$source: Partial<CaptureTransactionsEvent> = {}) {
+        if (!("sessionId" in $$source)) {
+            this["sessionId"] = "";
+        }
+        if (!("sequence" in $$source)) {
+            this["sequence"] = 0;
+        }
+        if (!("snapshotVersion" in $$source)) {
+            this["snapshotVersion"] = 0;
+        }
+        if (!("items" in $$source)) {
+            this["items"] = [];
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new CaptureTransactionsEvent instance from a string or object.
+     */
+    static createFrom($$source: any = {}): CaptureTransactionsEvent {
+        const $$createField3_0 = $$createType7;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("items" in $$parsedSource) {
+            $$parsedSource["items"] = $$createField3_0($$parsedSource["items"]);
+        }
+        return new CaptureTransactionsEvent($$parsedSource as Partial<CaptureTransactionsEvent>);
+    }
+}
+
 /**
  * ClassifyRequest classifies one collapsed-stack string. Returns the
  * runtime label (e.g. "JVM", "Node.js", "Application").
@@ -485,7 +665,7 @@ export class CollapsedResult {
      * Creates a new CollapsedResult instance from a string or object.
      */
     static createFrom($$source: any = {}): CollapsedResult {
-        const $$createField0_0 = $$createType4;
+        const $$createField0_0 = $$createType8;
         const $$createField1_0 = $$createType2;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("counts" in $$parsedSource) {
@@ -675,7 +855,7 @@ export class DrilldownRequest {
      */
     static createFrom($$source: any = {}): DrilldownRequest {
         const $$createField14_0 = $$createType3;
-        const $$createField15_0 = $$createType6;
+        const $$createField15_0 = $$createType10;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("timelineCategories" in $$parsedSource) {
             $$parsedSource["timelineCategories"] = $$createField14_0($$parsedSource["timelineCategories"]);
@@ -790,7 +970,7 @@ export class EngineDoneEvent {
      * Creates a new EngineDoneEvent instance from a string or object.
      */
     static createFrom($$source: any = {}): EngineDoneEvent {
-        const $$createField1_0 = $$createType7;
+        const $$createField1_0 = $$createType11;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("result" in $$parsedSource) {
             $$parsedSource["result"] = $$createField1_0($$parsedSource["result"]);
@@ -1199,7 +1379,7 @@ export class JenniferProfileRequest {
         const $$createField4_0 = $$createType2;
         const $$createField5_0 = $$createType2;
         const $$createField6_0 = $$createType3;
-        const $$createField7_0 = $$createType9;
+        const $$createField7_0 = $$createType13;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("paths" in $$parsedSource) {
             $$parsedSource["paths"] = $$createField1_0($$parsedSource["paths"]);
@@ -1587,9 +1767,13 @@ const $$createType0 = $Create.Map($Create.Any, $Create.Any);
 const $$createType1 = profiler$0.AnalysisResult.createFrom;
 const $$createType2 = $Create.Array($Create.Any);
 const $$createType3 = $Create.Map($Create.Any, $$createType2);
-const $$createType4 = $Create.Map($Create.Any, $Create.Any);
-const $$createType5 = profiler$0.DrilldownFilter.createFrom;
-const $$createType6 = $Create.Array($$createType5);
-const $$createType7 = models$0.AnalysisResult.createFrom;
-const $$createType8 = models$0.JenniferCustomAnalysisRule.createFrom;
-const $$createType9 = $Create.Array($$createType8);
+const $$createType4 = aggregate$0.Snapshot.createFrom;
+const $$createType5 = store$0.Filter.createFrom;
+const $$createType6 = models$0.CaptureTransaction.createFrom;
+const $$createType7 = $Create.Array($$createType6);
+const $$createType8 = $Create.Map($Create.Any, $Create.Any);
+const $$createType9 = profiler$0.DrilldownFilter.createFrom;
+const $$createType10 = $Create.Array($$createType9);
+const $$createType11 = models$0.AnalysisResult.createFrom;
+const $$createType12 = models$0.JenniferCustomAnalysisRule.createFrom;
+const $$createType13 = $Create.Array($$createType12);

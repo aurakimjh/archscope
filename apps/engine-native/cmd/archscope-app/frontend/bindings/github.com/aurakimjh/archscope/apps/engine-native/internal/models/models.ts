@@ -99,6 +99,239 @@ export class AnalysisResult {
 }
 
 /**
+ * CaptureTransaction is the common normalized transaction consumed by both
+ * offline HAR analysis and the later live-capture pipeline.
+ */
+export class CaptureTransaction {
+    "id": string;
+    "connectionId": string;
+    "sequence": number;
+    "streamId"?: number;
+    "method": string;
+    "url": string;
+    "scheme": string;
+    "host": string;
+    "path": string;
+    "query"?: string;
+    "httpVersion": string;
+    "statusCode": number;
+    "statusText"?: string;
+    "request": HTTPMessage;
+    "response": HTTPMessage;
+    "timings": TimingSet;
+    "usedExistingConnection": boolean;
+    "startedAt"?: string;
+    "endedAt"?: string;
+    "state": TxState;
+    "totalMs": number;
+    "captureMode": string;
+    "observationPoint": string;
+    "coverage": string;
+    "fidelity": string;
+    "process"?: ProcessInstance | null;
+    "error"?: string;
+
+    /** Creates a new CaptureTransaction instance. */
+    constructor($$source: Partial<CaptureTransaction> = {}) {
+        if (!("id" in $$source)) {
+            this["id"] = "";
+        }
+        if (!("connectionId" in $$source)) {
+            this["connectionId"] = "";
+        }
+        if (!("sequence" in $$source)) {
+            this["sequence"] = 0;
+        }
+        if (!("method" in $$source)) {
+            this["method"] = "";
+        }
+        if (!("url" in $$source)) {
+            this["url"] = "";
+        }
+        if (!("scheme" in $$source)) {
+            this["scheme"] = "";
+        }
+        if (!("host" in $$source)) {
+            this["host"] = "";
+        }
+        if (!("path" in $$source)) {
+            this["path"] = "";
+        }
+        if (!("httpVersion" in $$source)) {
+            this["httpVersion"] = "";
+        }
+        if (!("statusCode" in $$source)) {
+            this["statusCode"] = 0;
+        }
+        if (!("request" in $$source)) {
+            this["request"] = (new HTTPMessage());
+        }
+        if (!("response" in $$source)) {
+            this["response"] = (new HTTPMessage());
+        }
+        if (!("timings" in $$source)) {
+            this["timings"] = (new TimingSet());
+        }
+        if (!("usedExistingConnection" in $$source)) {
+            this["usedExistingConnection"] = false;
+        }
+        if (!("state" in $$source)) {
+            this["state"] = TxState.$zero;
+        }
+        if (!("totalMs" in $$source)) {
+            this["totalMs"] = 0;
+        }
+        if (!("captureMode" in $$source)) {
+            this["captureMode"] = "";
+        }
+        if (!("observationPoint" in $$source)) {
+            this["observationPoint"] = "";
+        }
+        if (!("coverage" in $$source)) {
+            this["coverage"] = "";
+        }
+        if (!("fidelity" in $$source)) {
+            this["fidelity"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new CaptureTransaction instance from a string or object.
+     */
+    static createFrom($$source: any = {}): CaptureTransaction {
+        const $$createField13_0 = $$createType2;
+        const $$createField14_0 = $$createType2;
+        const $$createField15_0 = $$createType3;
+        const $$createField25_0 = $$createType5;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("request" in $$parsedSource) {
+            $$parsedSource["request"] = $$createField13_0($$parsedSource["request"]);
+        }
+        if ("response" in $$parsedSource) {
+            $$parsedSource["response"] = $$createField14_0($$parsedSource["response"]);
+        }
+        if ("timings" in $$parsedSource) {
+            $$parsedSource["timings"] = $$createField15_0($$parsedSource["timings"]);
+        }
+        if ("process" in $$parsedSource) {
+            $$parsedSource["process"] = $$createField25_0($$parsedSource["process"]);
+        }
+        return new CaptureTransaction($$parsedSource as Partial<CaptureTransaction>);
+    }
+}
+
+export class Duration {
+    "ms": number;
+    "state": TimingState;
+
+    /** Creates a new Duration instance. */
+    constructor($$source: Partial<Duration> = {}) {
+        if (!("ms" in $$source)) {
+            this["ms"] = 0;
+        }
+        if (!("state" in $$source)) {
+            this["state"] = TimingState.$zero;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new Duration instance from a string or object.
+     */
+    static createFrom($$source: any = {}): Duration {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new Duration($$parsedSource as Partial<Duration>);
+    }
+}
+
+export class HTTPMessage {
+    "headers": HeaderField[];
+    "cookies": HeaderField[];
+    "headerSize": number;
+    "bodySize": number;
+    "bodyDecoded": number;
+    "transferSize": number;
+    "bodyEncoding"?: string;
+    "contentType"?: string;
+    "bodyStorage": string;
+    "bodyRef"?: string;
+    "bodyPreview"?: string;
+    "redacted"?: boolean;
+
+    /** Creates a new HTTPMessage instance. */
+    constructor($$source: Partial<HTTPMessage> = {}) {
+        if (!("headers" in $$source)) {
+            this["headers"] = [];
+        }
+        if (!("cookies" in $$source)) {
+            this["cookies"] = [];
+        }
+        if (!("headerSize" in $$source)) {
+            this["headerSize"] = 0;
+        }
+        if (!("bodySize" in $$source)) {
+            this["bodySize"] = 0;
+        }
+        if (!("bodyDecoded" in $$source)) {
+            this["bodyDecoded"] = 0;
+        }
+        if (!("transferSize" in $$source)) {
+            this["transferSize"] = 0;
+        }
+        if (!("bodyStorage" in $$source)) {
+            this["bodyStorage"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new HTTPMessage instance from a string or object.
+     */
+    static createFrom($$source: any = {}): HTTPMessage {
+        const $$createField0_0 = $$createType7;
+        const $$createField1_0 = $$createType7;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("headers" in $$parsedSource) {
+            $$parsedSource["headers"] = $$createField0_0($$parsedSource["headers"]);
+        }
+        if ("cookies" in $$parsedSource) {
+            $$parsedSource["cookies"] = $$createField1_0($$parsedSource["cookies"]);
+        }
+        return new HTTPMessage($$parsedSource as Partial<HTTPMessage>);
+    }
+}
+
+export class HeaderField {
+    "name": string;
+    "value": string;
+    "redacted"?: boolean;
+
+    /** Creates a new HeaderField instance. */
+    constructor($$source: Partial<HeaderField> = {}) {
+        if (!("name" in $$source)) {
+            this["name"] = "";
+        }
+        if (!("value" in $$source)) {
+            this["value"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new HeaderField instance from a string or object.
+     */
+    static createFrom($$source: any = {}): HeaderField {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new HeaderField($$parsedSource as Partial<HeaderField>);
+    }
+}
+
+/**
  * JenniferCustomAnalysisRule is a user-defined roll-up bucket. Source controls
  * which profile surface is matched: profile_application uses the profile URL
  * and charges the whole profile response time; method matches body method/event
@@ -148,6 +381,212 @@ export class JenniferCustomAnalysisRule {
  */
 export type Metadata = any;
 
+export class ProcessInstance {
+    "key": ProcessKey;
+    "name": string;
+    "execPath"?: string;
+    "commandLine"?: string;
+    "user"?: string;
+    "parentPid"?: number;
+    "attribution": string;
+
+    /** Creates a new ProcessInstance instance. */
+    constructor($$source: Partial<ProcessInstance> = {}) {
+        if (!("key" in $$source)) {
+            this["key"] = (new ProcessKey());
+        }
+        if (!("name" in $$source)) {
+            this["name"] = "";
+        }
+        if (!("attribution" in $$source)) {
+            this["attribution"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ProcessInstance instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ProcessInstance {
+        const $$createField0_0 = $$createType8;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("key" in $$parsedSource) {
+            $$parsedSource["key"] = $$createField0_0($$parsedSource["key"]);
+        }
+        return new ProcessInstance($$parsedSource as Partial<ProcessInstance>);
+    }
+}
+
+export class ProcessKey {
+    "pid": number;
+    "startTime": string;
+
+    /** Creates a new ProcessKey instance. */
+    constructor($$source: Partial<ProcessKey> = {}) {
+        if (!("pid" in $$source)) {
+            this["pid"] = 0;
+        }
+        if (!("startTime" in $$source)) {
+            this["startTime"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ProcessKey instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ProcessKey {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new ProcessKey($$parsedSource as Partial<ProcessKey>);
+    }
+}
+
+export class TimingPhases {
+    "blocked": Duration;
+    "dns": Duration;
+    "connect": Duration;
+    "tls": Duration;
+    "send": Duration;
+    "wait": Duration;
+    "receive": Duration;
+
+    /** Creates a new TimingPhases instance. */
+    constructor($$source: Partial<TimingPhases> = {}) {
+        if (!("blocked" in $$source)) {
+            this["blocked"] = (new Duration());
+        }
+        if (!("dns" in $$source)) {
+            this["dns"] = (new Duration());
+        }
+        if (!("connect" in $$source)) {
+            this["connect"] = (new Duration());
+        }
+        if (!("tls" in $$source)) {
+            this["tls"] = (new Duration());
+        }
+        if (!("send" in $$source)) {
+            this["send"] = (new Duration());
+        }
+        if (!("wait" in $$source)) {
+            this["wait"] = (new Duration());
+        }
+        if (!("receive" in $$source)) {
+            this["receive"] = (new Duration());
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new TimingPhases instance from a string or object.
+     */
+    static createFrom($$source: any = {}): TimingPhases {
+        const $$createField0_0 = $$createType9;
+        const $$createField1_0 = $$createType9;
+        const $$createField2_0 = $$createType9;
+        const $$createField3_0 = $$createType9;
+        const $$createField4_0 = $$createType9;
+        const $$createField5_0 = $$createType9;
+        const $$createField6_0 = $$createType9;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("blocked" in $$parsedSource) {
+            $$parsedSource["blocked"] = $$createField0_0($$parsedSource["blocked"]);
+        }
+        if ("dns" in $$parsedSource) {
+            $$parsedSource["dns"] = $$createField1_0($$parsedSource["dns"]);
+        }
+        if ("connect" in $$parsedSource) {
+            $$parsedSource["connect"] = $$createField2_0($$parsedSource["connect"]);
+        }
+        if ("tls" in $$parsedSource) {
+            $$parsedSource["tls"] = $$createField3_0($$parsedSource["tls"]);
+        }
+        if ("send" in $$parsedSource) {
+            $$parsedSource["send"] = $$createField4_0($$parsedSource["send"]);
+        }
+        if ("wait" in $$parsedSource) {
+            $$parsedSource["wait"] = $$createField5_0($$parsedSource["wait"]);
+        }
+        if ("receive" in $$parsedSource) {
+            $$parsedSource["receive"] = $$createField6_0($$parsedSource["receive"]);
+        }
+        return new TimingPhases($$parsedSource as Partial<TimingPhases>);
+    }
+}
+
+export class TimingSet {
+    "clientProxy"?: TimingPhases | null;
+    "proxyInternal"?: TimingPhases | null;
+    "proxyUpstream"?: TimingPhases | null;
+    "importedHar"?: TimingPhases | null;
+
+    /** Creates a new TimingSet instance. */
+    constructor($$source: Partial<TimingSet> = {}) {
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new TimingSet instance from a string or object.
+     */
+    static createFrom($$source: any = {}): TimingSet {
+        const $$createField0_0 = $$createType11;
+        const $$createField1_0 = $$createType11;
+        const $$createField2_0 = $$createType11;
+        const $$createField3_0 = $$createType11;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("clientProxy" in $$parsedSource) {
+            $$parsedSource["clientProxy"] = $$createField0_0($$parsedSource["clientProxy"]);
+        }
+        if ("proxyInternal" in $$parsedSource) {
+            $$parsedSource["proxyInternal"] = $$createField1_0($$parsedSource["proxyInternal"]);
+        }
+        if ("proxyUpstream" in $$parsedSource) {
+            $$parsedSource["proxyUpstream"] = $$createField2_0($$parsedSource["proxyUpstream"]);
+        }
+        if ("importedHar" in $$parsedSource) {
+            $$parsedSource["importedHar"] = $$createField3_0($$parsedSource["importedHar"]);
+        }
+        return new TimingSet($$parsedSource as Partial<TimingSet>);
+    }
+}
+
+export enum TimingState {
+    /**
+     * The Go zero value for the underlying type of the enum.
+     */
+    $zero = "",
+
+    TimingKnown = "known",
+    TimingNotApplicable = "not_applicable",
+    TimingUnknown = "unknown",
+};
+
+export enum TxState {
+    /**
+     * The Go zero value for the underlying type of the enum.
+     */
+    $zero = "",
+
+    TxRequestSent = "request_sent",
+    TxReceiving = "receiving",
+    TxComplete = "complete",
+    TxFailed = "failed",
+    TxAborted = "aborted",
+};
+
 // Private type creation functions
 const $$createType0 = $Create.Array($Create.Any);
 const $$createType1 = $Create.Map($Create.Any, $Create.Any);
+const $$createType2 = HTTPMessage.createFrom;
+const $$createType3 = TimingSet.createFrom;
+const $$createType4 = ProcessInstance.createFrom;
+const $$createType5 = $Create.Nullable($$createType4);
+const $$createType6 = HeaderField.createFrom;
+const $$createType7 = $Create.Array($$createType6);
+const $$createType8 = ProcessKey.createFrom;
+const $$createType9 = Duration.createFrom;
+const $$createType10 = TimingPhases.createFrom;
+const $$createType11 = $Create.Nullable($$createType10);

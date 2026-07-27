@@ -213,15 +213,22 @@ helper 수명·권한·IPC·설치 계약은 H-SEC2/H-RG3로 이관했다. 같�
 
 #### Codex 엔진 To-Do
 
-- [ ] session state machine과 idempotent start/stop/recovery API
-- [ ] append-only NDJSON/blob/manifest store, rebuildable index, versioned cursor paging
-- [ ] byte-bounded write/live/aggregate 3단 buffer와 disk slow/full 정책
-- [ ] captured/persisted/bodyOmitted/eventSkipped/kernelDropped/parseFailed counters
-- [ ] H1 semantic MITM + H2 passthrough `Proxy`/`Interceptor` production path
-- [ ] Windows direct TCP-owner process attribution과 짧은 연결의 불확실성 표시
-- [ ] live completion-order와 file replay aggregate parity
-- [ ] Wails `CaptureService`, sequence/snapshotVersion events, snapshot recovery
-- [ ] CA lifecycle, upstream TLS verify-always, 승인 기반 scoped passthrough
+- [x] session state machine과 idempotent start/stop/recovery API
+- [x] append-only NDJSON/blob/manifest store, rebuildable index, versioned cursor paging
+- [x] byte-bounded write/live/aggregate 3단 buffer와 disk slow/full 정책
+- [x] captured/persisted/bodyOmitted/eventSkipped/kernelDropped/parseFailed counters
+- [x] H1 semantic MITM + H2 passthrough `Proxy`/`Interceptor` production path
+- [x] Windows direct TCP-owner process attribution과 짧은 연결의 불확실성 표시
+- [x] live completion-order와 file replay aggregate parity
+- [x] Wails `CaptureService`, sequence/snapshotVersion events, snapshot recovery
+- [x] CA lifecycle, upstream TLS verify-always, 승인 기반 scoped passthrough
+
+2026-07-27 구현과 자체 검증을 완료했다. Windows 현재 사용자 ROOT trust
+backend는 설치 실패 rollback과 역순 제거를 사용하며, 공개 인증서 제거 기록을
+owner-scoped 앱 저장소에 남겨 crash 후에도 정리할 수 있다. 프록시는 loopback에만
+bind하며 upstream TLS 검증을 끌 수 없다. H2-only ALPN과 명시 승인 host는
+`unsupported` passthrough 기록을 남긴다. 이 완료 표시는 엔진 구현 범위이며,
+독립 `H-SEC2 PASS` 전에는 H-RG3 또는 T-580을 `DONE`으로 보지 않는다.
 
 #### 개별 게이트 H-SEC2
 
@@ -298,6 +305,6 @@ HAR pseudo-process 비교에서 지원하지 않는 정규화/차원을 숨기�
 
 ## 8. 첫 실행 지점
 
-현재 다음 행동은 T-580 / `H-RG3` 실시간 캡처 엔진 기반이다. T-571 /
-`H-RG2`는 독립 `H-COV1 PASS`로 닫혔으며, H-RG3 안에서 production 권한 계약을
-`H-SEC2`로 검증한다.
+T-580 / `H-RG3` 엔진 구현은 2026-07-27 `REVIEW`에 진입했다. 다음 행동은
+CA/TLS/권한 경계를 독립 `H-SEC2`로 검증하는 것이며, `PASS` 전에는 T-581 /
+H-RG4를 시작하지 않는다.

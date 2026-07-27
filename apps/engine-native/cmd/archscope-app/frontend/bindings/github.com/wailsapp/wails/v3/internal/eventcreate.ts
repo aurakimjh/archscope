@@ -9,15 +9,24 @@ import { Create as $Create } from "@wailsio/runtime";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
 import * as main$0 from "../../../../aurakimjh/archscope/apps/engine-native/cmd/archscope-app/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
+import * as capture$0 from "../../../../aurakimjh/archscope/apps/engine-native/internal/capture/models.js";
 
 function configure() {
     Object.freeze(Object.assign($Create.Events, {
         "analyze:cancelled": $$createType0,
         "analyze:done": $$createType1,
         "analyze:error": $$createType2,
-        "engine:cancelled": $$createType3,
-        "engine:done": $$createType4,
-        "engine:error": $$createType5,
+        "capture:aggregate": $$createType3,
+        "capture:error": $$createType4,
+        "capture:started": $$createType5,
+        "capture:stats": $$createType6,
+        "capture:stopped": $$createType5,
+        "capture:transactions": $$createType7,
+        "engine:cancelled": $$createType8,
+        "engine:done": $$createType9,
+        "engine:error": $$createType10,
     }));
 }
 
@@ -25,8 +34,13 @@ function configure() {
 const $$createType0 = main$0.AnalyzeCancelledEvent.createFrom;
 const $$createType1 = main$0.AnalyzeDoneEvent.createFrom;
 const $$createType2 = main$0.AnalyzeErrorEvent.createFrom;
-const $$createType3 = main$0.EngineCancelledEvent.createFrom;
-const $$createType4 = main$0.EngineDoneEvent.createFrom;
-const $$createType5 = main$0.EngineErrorEvent.createFrom;
+const $$createType3 = main$0.CaptureAggregateEvent.createFrom;
+const $$createType4 = main$0.CaptureErrorEvent.createFrom;
+const $$createType5 = capture$0.Session.createFrom;
+const $$createType6 = capture$0.Stats.createFrom;
+const $$createType7 = main$0.CaptureTransactionsEvent.createFrom;
+const $$createType8 = main$0.EngineCancelledEvent.createFrom;
+const $$createType9 = main$0.EngineDoneEvent.createFrom;
+const $$createType10 = main$0.EngineErrorEvent.createFrom;
 
 configure();

@@ -3,14 +3,14 @@
 //
 // 책임/목적
 //   통합 engine-native 데스크톱 앱(Wails v3) 진입점. frontend(React/Vite
-//   빌드 산출물) 를 embed 하고, ProfilerService/EngineService 두 서비스를
-//   등록해 renderer 에서 비동기 분석 호출이 가능하도록 한다.
+//   빌드 산출물) 를 embed 하고, ProfilerService/EngineService/CaptureService를
+//   등록해 renderer 에서 분석과 실시간 캡처를 호출할 수 있도록 한다.
 //
 // 핵심 구성
 //   - assets_* 파일             : production 에서는 frontend/dist 를 embed,
 //                                 dev/test 에서는 컴파일 가능한 DirFS fallback 사용
 //   - RegisterEvent[T]              : 타입드 이벤트 등록 (generated JS handler)
-//   - ProfilerService / EngineService : 분석 서비스 두 개를 노출
+//   - ProfilerService / EngineService / CaptureService : 분석·캡처 서비스 노출
 //
 // 등록 이벤트
 //   profiler 측 — analyze:done / analyze:error / analyze:cancelled
@@ -27,10 +27,11 @@ package main
 import (
 	"log"
 
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture"
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
-// [한글] init — 패키지 로드 시 frontend 와 주고받을 typed event 6개 등록.
+// [한글] init — 패키지 로드 시 frontend 와 주고받을 typed event 등록.
 // Wails 바인딩 생성기가 이 정보를 보고 강타입 JS 핸들러를 만든다.
 func init() {
 	// Register typed events so the binding generator can produce strongly
@@ -45,6 +46,13 @@ func init() {
 	application.RegisterEvent[EngineDoneEvent]("engine:done")
 	application.RegisterEvent[EngineErrorEvent]("engine:error")
 	application.RegisterEvent[EngineCancelledEvent]("engine:cancelled")
+
+	application.RegisterEvent[capture.Session]("capture:started")
+	application.RegisterEvent[CaptureTransactionsEvent]("capture:transactions")
+	application.RegisterEvent[CaptureAggregateEvent]("capture:aggregate")
+	application.RegisterEvent[capture.Stats]("capture:stats")
+	application.RegisterEvent[capture.Session]("capture:stopped")
+	application.RegisterEvent[CaptureErrorEvent]("capture:error")
 }
 
 // [한글] main — Wails 앱 인스턴스 생성, 서비스/윈도우/asset 설정 후 Run.
@@ -56,6 +64,7 @@ func main() {
 		Services: []application.Service{
 			application.NewService(&ProfilerService{}),
 			application.NewService(&EngineService{}),
+			application.NewService(NewCaptureService()),
 		},
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(assets),

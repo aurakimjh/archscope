@@ -209,15 +209,23 @@ and returned `PASS`.
 
 #### Codex Engine TODO
 
-- [ ] Session state machine and idempotent start/stop/recovery API
-- [ ] Append-only NDJSON/blob/manifest store, rebuildable index, versioned cursors
-- [ ] Byte-bounded write/live/aggregate buffers and disk slow/full policy
-- [ ] Captured/persisted/bodyOmitted/eventSkipped/kernelDropped/parseFailed counters
-- [ ] Production H1 semantic MITM plus H2 passthrough behind `Proxy`/`Interceptor`
-- [ ] Direct Windows TCP-owner attribution with short-connection uncertainty
-- [ ] Live completion-order versus file-replay aggregate parity
-- [ ] Wails `CaptureService`, sequenced/versioned events, snapshot recovery
-- [ ] CA lifecycle, verify-always upstream TLS, approved scoped passthrough
+- [x] Session state machine and idempotent start/stop/recovery API
+- [x] Append-only NDJSON/blob/manifest store, rebuildable index, versioned cursors
+- [x] Byte-bounded write/live/aggregate buffers and disk slow/full policy
+- [x] Captured/persisted/bodyOmitted/eventSkipped/kernelDropped/parseFailed counters
+- [x] Production H1 semantic MITM plus H2 passthrough behind `Proxy`/`Interceptor`
+- [x] Direct Windows TCP-owner attribution with short-connection uncertainty
+- [x] Live completion-order versus file-replay aggregate parity
+- [x] Wails `CaptureService`, sequenced/versioned events, snapshot recovery
+- [x] CA lifecycle, verify-always upstream TLS, approved scoped passthrough
+
+Implementation and self-validation completed on 2026-07-27. The Windows
+current-user ROOT trust backend rolls back partial installation, removes in
+reverse order, and persists only the public-certificate cleanup record so a
+post-crash restart can remove it. The proxy binds only to loopback and cannot
+disable upstream TLS verification. H2-only ALPN and explicitly approved hosts
+produce honest `unsupported` passthrough records. These checks complete the engine scope only:
+H-RG3 and T-580 remain incomplete until an independent `H-SEC2 PASS`.
 
 #### Individual Gate H-SEC2
 
@@ -293,6 +301,6 @@ HAR pseudo-process sessions.
 
 ## 8. First Execution Point
 
-The next action is T-580 / `H-RG3`, the live-capture engine foundation.
-T-571 / `H-RG2` is closed by independent `H-COV1 PASS`; production privilege
-validation now proceeds inside H-RG3 under `H-SEC2`.
+T-580 / `H-RG3` entered `REVIEW` on 2026-07-27. The next action is independent
+`H-SEC2` validation of the CA/TLS/privilege boundary; T-581 / H-RG4 must not
+start before that gate returns `PASS`.

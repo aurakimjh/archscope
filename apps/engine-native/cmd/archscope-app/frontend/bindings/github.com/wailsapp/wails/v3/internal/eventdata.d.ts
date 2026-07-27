@@ -8,6 +8,9 @@ import type { Events } from "@wailsio/runtime";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
 import type * as main$0 from "../../../../aurakimjh/archscope/apps/engine-native/cmd/archscope-app/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
+import type * as capture$0 from "../../../../aurakimjh/archscope/apps/engine-native/internal/capture/models.js";
 
 declare module "@wailsio/runtime" {
     namespace Events {
@@ -15,6 +18,12 @@ declare module "@wailsio/runtime" {
             "analyze:cancelled": main$0.AnalyzeCancelledEvent;
             "analyze:done": main$0.AnalyzeDoneEvent;
             "analyze:error": main$0.AnalyzeErrorEvent;
+            "capture:aggregate": main$0.CaptureAggregateEvent;
+            "capture:error": main$0.CaptureErrorEvent;
+            "capture:started": capture$0.Session;
+            "capture:stats": capture$0.Stats;
+            "capture:stopped": capture$0.Session;
+            "capture:transactions": main$0.CaptureTransactionsEvent;
             "engine:cancelled": main$0.EngineCancelledEvent;
             "engine:done": main$0.EngineDoneEvent;
             "engine:error": main$0.EngineErrorEvent;

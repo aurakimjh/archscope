@@ -3,7 +3,17 @@
 
 export {
     AnalysisResult,
-    JenniferCustomAnalysisRule
+    CaptureTransaction,
+    Duration,
+    HTTPMessage,
+    HeaderField,
+    JenniferCustomAnalysisRule,
+    ProcessInstance,
+    ProcessKey,
+    TimingPhases,
+    TimingSet,
+    TimingState,
+    TxState
 } from "./models.js";
 
 export type {
