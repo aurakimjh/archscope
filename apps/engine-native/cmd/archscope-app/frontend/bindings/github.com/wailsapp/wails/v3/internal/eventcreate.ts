@@ -20,13 +20,14 @@ function configure() {
         "analyze:error": $$createType2,
         "capture:aggregate": $$createType3,
         "capture:error": $$createType4,
-        "capture:started": $$createType5,
-        "capture:stats": $$createType6,
-        "capture:stopped": $$createType5,
-        "capture:transactions": $$createType7,
-        "engine:cancelled": $$createType8,
-        "engine:done": $$createType9,
-        "engine:error": $$createType10,
+        "capture:progress": $$createType5,
+        "capture:started": $$createType6,
+        "capture:stats": $$createType7,
+        "capture:stopped": $$createType6,
+        "capture:transactions": $$createType8,
+        "engine:cancelled": $$createType9,
+        "engine:done": $$createType10,
+        "engine:error": $$createType11,
     }));
 }
 
@@ -36,11 +37,12 @@ const $$createType1 = main$0.AnalyzeDoneEvent.createFrom;
 const $$createType2 = main$0.AnalyzeErrorEvent.createFrom;
 const $$createType3 = main$0.CaptureAggregateEvent.createFrom;
 const $$createType4 = main$0.CaptureErrorEvent.createFrom;
-const $$createType5 = capture$0.Session.createFrom;
-const $$createType6 = capture$0.Stats.createFrom;
-const $$createType7 = main$0.CaptureTransactionsEvent.createFrom;
-const $$createType8 = main$0.EngineCancelledEvent.createFrom;
-const $$createType9 = main$0.EngineDoneEvent.createFrom;
-const $$createType10 = main$0.EngineErrorEvent.createFrom;
+const $$createType5 = main$0.CaptureProgressEvent.createFrom;
+const $$createType6 = capture$0.Session.createFrom;
+const $$createType7 = capture$0.Stats.createFrom;
+const $$createType8 = main$0.CaptureTransactionsEvent.createFrom;
+const $$createType9 = main$0.EngineCancelledEvent.createFrom;
+const $$createType10 = main$0.EngineDoneEvent.createFrom;
+const $$createType11 = main$0.EngineErrorEvent.createFrom;
 
 configure();

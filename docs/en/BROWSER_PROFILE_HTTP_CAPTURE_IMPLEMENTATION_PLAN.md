@@ -19,7 +19,8 @@ group and **the next group cannot start until the current group passes**.
   re-reviews, the bounded import UI, shared fixtures, and full engine/frontend
   verification. T-571/H-RG2 closed with independent `H-COV1 PASS` on
   2026-07-27, and T-580/H-RG3 closed with independent `H-SEC2 PASS` on
-  2026-07-28, so T-581/H-RG4 Windows live UI and E2E is ready.
+  2026-07-28. T-581/H-RG4 Windows live UI and E2E implementation is complete
+  and in `REVIEW`, awaiting Windows evidence and an independent group verdict.
 
 ## 2. Ownership
 
@@ -67,7 +68,7 @@ Only high-consequence boundaries receive an extra per-item gate:
 | 2 | `H-RG1` complete offline HAR analysis | **Complete — integrated PASS (2026-07-21)** | Closed |
 | 3 | `H-RG2` Windows coverage proof | **Complete — H-COV1 PASS (2026-07-27)** | Closed |
 | 4 | `H-RG3` live-capture engine foundation | **Complete — H-SEC2 PASS (2026-07-28)** | Closed |
-| 5 | `H-RG4` live UI and Windows E2E | **Ready** | `H-RG3 PASS` |
+| 5 | `H-RG4` live UI and Windows E2E | **Implementation complete — REVIEW** | `H-RG3 PASS`; Windows evidence and group `PASS` pending |
 | 6 | `H-RG5` HTTP session Diff | Planned | `H-RG4 PASS` |
 | 7 | `X-RG1` HTTP x profile/server-evidence correlation | Planned | `H-RG5 PASS` |
 | 8 | `R-RG1` integrated release acceptance | Planned | `X-RG1 PASS` |
@@ -249,20 +250,32 @@ cancellation, streaming, H2 passthrough, and long-session memory-bound tests pas
 
 ### H-RG4 — Live UI and Windows E2E
 
-#### Codex Integration TODO
+**Status:** implementation complete — `REVIEW` (2026-07-28). The Windows-only
+E2E test cross-compiles, but an actual Windows browser/curl/JVM/Electron run and
+independent group verdict are still required.
 
-- [ ] Supply frozen CaptureService bindings and the Windows E2E harness.
-- [ ] Supply snapshot/cursor/filter acceptance fixtures.
-- [ ] Support packaging, signing, and privilege-boundary smoke tests.
+#### Codex Integration
 
-#### Claude UI TODO
+- [x] Supply frozen CaptureService bindings and the Windows E2E harness.
+- [x] Supply snapshot/cursor/filter acceptance fixtures.
+- [x] Support packaging, signing, and privilege-boundary smoke tests.
 
-- [ ] Start/stop, session state, CA install/remove, and first-use warning
-- [ ] Process tree, stable live list, and in-progress transaction state
-- [ ] User-scroll-respecting follow mode, batched updates, and row cap
-- [ ] Persistence/drop/backpressure/disk/recovery status
-- [ ] Honest fidelity, coverage, passthrough, and unattributed warnings
-- [ ] Same-page finalized-session lazy loading after stop
+#### Live UI
+
+- [x] Start/stop, session state, CA install/remove, and first-use warning
+- [x] Process tree, stable live list, and in-progress transaction state
+- [x] User-scroll-respecting follow mode, batched updates, and row cap
+- [x] Persistence/drop/backpressure/disk/recovery status
+- [x] Honest fidelity, coverage, passthrough, and unattributed warnings
+- [x] Same-page finalized-session lazy loading after stop
+
+SEC-17 is enforced below the renderer: unknown attribution is dropped by
+default before persistence or progress exposure, and the explicit opt-in keeps
+redacted metadata only. Bodies remain unconditionally omitted, so SEC-10 still
+gates any future body-capture tier. The acceptance package is
+`cmd/archscope-app/testdata/t581_live_capture_acceptance.json`,
+`capture_windows_e2e_test.go`, and
+`scripts/verify-windows-live-capture.ps1`.
 
 **PASS:** Windows supported-tier scenarios for browser/curl/JVM/Electron, page
 re-entry, long sessions, and recovery pass E2E; H2/QUIC/pinning limitations never
@@ -311,7 +324,7 @@ HAR pseudo-process sessions.
 ## 8. First Execution Point
 
 T-580 / `H-RG3` entered `REVIEW` on 2026-07-27 and passed the independent
-`H-SEC2` CA/TLS/privilege gate on 2026-07-28. The next action is T-581 / H-RG4:
-the Windows live-capture UI and E2E, carrying the two H-SEC2 conditions (SEC-17
-explicit unknown-attribution opt-in before the UI, SEC-10 dump-exclusion
-preflight before body capture).
+`H-SEC2` CA/TLS/privilege gate on 2026-07-28. T-581 / H-RG4 implementation is
+now in `REVIEW`. The next action is the actual Windows browser/curl/JVM/Electron,
+long-session, re-entry, recovery, and unsupported-tier run followed by an
+independent group verdict.

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -69,9 +70,14 @@ func NewManager(root string, sink EventSink) *Manager {
 }
 
 func (m *Manager) Modes() []Mode {
+	available := runtime.GOOS == "windows"
+	reason := ""
+	if !available {
+		reason = "supported live capture requires Windows TCP-owner process attribution"
+	}
 	return []Mode{
 		{
-			Name: "proxy_h1_mitm", Available: true,
+			Name: "proxy_h1_mitm", Available: available, Reason: reason,
 			RequiredPrivilege: PrivilegeNone,
 			Fidelity:          "HTTP/1.0 and HTTP/1.1 semantic interception; h2-only ALPN is explicit passthrough",
 		},
@@ -139,7 +145,8 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 	pipeline, err := stream.New(stream.Config{
 		SessionID: id, Store: st, EventSink: m.sink,
 		HighWater: cfg.WriteHighWaterBytes, HardLimit: cfg.WriteHardLimitBytes,
-		LiveWindow: cfg.LiveWindow,
+		LiveWindow:                 cfg.LiveWindow,
+		RetainUnattributedMetadata: cfg.RetainUnattributedMetadata,
 	})
 	if err != nil {
 		_ = st.Finalize(StateFailed)
@@ -162,6 +169,12 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 	capturer, err := proxy.New(proxy.Config{
 		ListenAddress: cfg.ListenAddress, Authority: m.authority,
 		Resolver: procmap.Resolver{}, AllowPassthrough: allowUntil,
+		Progress: func(tx models.CaptureTransaction) {
+			if !retainLiveMetadata(tx, cfg.RetainUnattributedMetadata) {
+				return
+			}
+			m.sink.Progress(id, pipeline.LiveMetadata(tx))
+		},
 	})
 	if err != nil {
 		_ = pipeline.Close()
@@ -275,6 +288,15 @@ func (m *Manager) Current() Session {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.session
+}
+
+func (m *Manager) LiveWindow(id SessionID) ([]models.CaptureTransaction, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	if id == "" || id != m.session.ID || m.pipeline == nil {
+		return nil, ErrSessionNotFound
+	}
+	return m.pipeline.LiveWindow(), nil
 }
 
 func (m *Manager) Stats(id SessionID) (Stats, error) {
@@ -396,6 +418,11 @@ func validSessionID(id SessionID) bool {
 
 func activeState(state SessionState) bool {
 	return state == StateStarting || state == StateRunning || state == StateStopping
+}
+
+func retainLiveMetadata(tx models.CaptureTransaction, retainUnattributed bool) bool {
+	return retainUnattributed ||
+		(tx.Process != nil && tx.Process.Attribution == "confirmed")
 }
 
 func newSessionID() (SessionID, error) {

@@ -45,17 +45,18 @@ const (
 )
 
 type Config struct {
-	ListenAddress         string         `json:"listenAddress,omitempty"`
-	StoreRoot             string         `json:"storeRoot,omitempty"`
-	MaxSessionBytes       int64          `json:"maxSessionBytes,omitempty"`
-	ReserveBytes          int64          `json:"reserveBytes,omitempty"`
-	BodyFraction          float64        `json:"bodyFraction,omitempty"`
-	OverflowPolicy        OverflowPolicy `json:"overflowPolicy,omitempty"`
-	WriteHighWaterBytes   int64          `json:"writeHighWaterBytes,omitempty"`
-	WriteHardLimitBytes   int64          `json:"writeHardLimitBytes,omitempty"`
-	LiveWindow            int            `json:"liveWindow,omitempty"`
-	AllowPassthrough      []string       `json:"allowPassthrough,omitempty"`
-	PassthroughTTLSeconds int            `json:"passthroughTtlSeconds,omitempty"`
+	ListenAddress              string         `json:"listenAddress,omitempty"`
+	StoreRoot                  string         `json:"storeRoot,omitempty"`
+	MaxSessionBytes            int64          `json:"maxSessionBytes,omitempty"`
+	ReserveBytes               int64          `json:"reserveBytes,omitempty"`
+	BodyFraction               float64        `json:"bodyFraction,omitempty"`
+	OverflowPolicy             OverflowPolicy `json:"overflowPolicy,omitempty"`
+	WriteHighWaterBytes        int64          `json:"writeHighWaterBytes,omitempty"`
+	WriteHardLimitBytes        int64          `json:"writeHardLimitBytes,omitempty"`
+	LiveWindow                 int            `json:"liveWindow,omitempty"`
+	AllowPassthrough           []string       `json:"allowPassthrough,omitempty"`
+	PassthroughTTLSeconds      int            `json:"passthroughTtlSeconds,omitempty"`
+	RetainUnattributedMetadata bool           `json:"retainUnattributedMetadata,omitempty"`
 }
 
 type Stats struct {
@@ -70,6 +71,7 @@ type Stats struct {
 	Unsupported     uint64       `json:"unsupported"`
 	Passthrough     uint64       `json:"passthrough"`
 	Unattributed    uint64       `json:"unattributed"`
+	Dropped         uint64       `json:"dropped"`
 	Backpressured   bool         `json:"backpressured"`
 	SnapshotVersion uint64       `json:"snapshotVersion"`
 	Sequence        uint64       `json:"sequence"`
@@ -96,6 +98,7 @@ type Mode struct {
 
 type EventSink interface {
 	Started(Session)
+	Progress(SessionID, models.CaptureTransaction)
 	Transactions(SessionID, uint64, uint64, []models.CaptureTransaction)
 	Aggregate(SessionID, uint64, uint64, any)
 	Stats(Stats)
@@ -106,6 +109,7 @@ type EventSink interface {
 type NopEventSink struct{}
 
 func (NopEventSink) Started(Session)                                                     {}
+func (NopEventSink) Progress(SessionID, models.CaptureTransaction)                       {}
 func (NopEventSink) Transactions(SessionID, uint64, uint64, []models.CaptureTransaction) {}
 func (NopEventSink) Aggregate(SessionID, uint64, uint64, any)                            {}
 func (NopEventSink) Stats(Stats)                                                         {}

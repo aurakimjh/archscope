@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "platform": "windows",
+  "supportedTier": [
+    {
+      "client": "browser",
+      "transport": "http/1.1",
+      "captureMode": "proxy_mitm",
+      "fidelity": "decoded_wire",
+      "coverage": "confirmed"
+    },
+    {
+      "client": "curl",
+      "transport": "http/1.1",
+      "captureMode": "proxy_mitm",
+      "fidelity": "decoded_wire",
+      "coverage": "confirmed"
+    },
+    {
+      "client": "jvm",
+      "transport": "http/1.1",
+      "captureMode": "proxy_mitm",
+      "fidelity": "decoded_wire",
+      "coverage": "confirmed"
+    },
+    {
+      "client": "electron",
+      "transport": "http/1.1",
+      "captureMode": "proxy_mitm",
+      "fidelity": "decoded_wire",
+      "coverage": "confirmed"
+    }
+  ],
+  "unsupportedTier": [
+    {
+      "scenario": "h2-only",
+      "fidelity": "unsupported",
+      "semanticCapture": false
+    },
+    {
+      "scenario": "quic",
+      "fidelity": "unsupported",
+      "semanticCapture": false
+    },
+    {
+      "scenario": "certificate-pinning",
+      "fidelity": "unsupported",
+      "semanticCapture": false
+    }
+  ],
+  "security": {
+    "retainUnattributedMetadataDefault": false,
+    "bodyStorage": "omitted",
+    "caRemovedOnStop": true
+  },
+  "renderer": {
+    "rowCap": 500,
+    "resyncOnEventSkip": true,
+    "restoreCurrentSessionOnPageReentry": true,
+    "finalizedSessionUsesAnalysisResult": true
+  },
+  "store": {
+    "stableSnapshotCursor": true,
+    "sessionBoundCursor": true,
+    "maxFetchLimit": 2000,
+    "filters": [
+      "host",
+      "method",
+      "statusCode",
+      "processId",
+      "errorsOnly"
+    ]
+  }
+}

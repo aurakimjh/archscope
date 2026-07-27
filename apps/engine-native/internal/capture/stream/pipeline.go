@@ -28,16 +28,17 @@ const (
 )
 
 type Config struct {
-	SessionID     capture.SessionID
-	Store         *store.Store
-	EventSink     capture.EventSink
-	HighWater     int64
-	HardLimit     int64
-	LiveWindow    int
-	QueueRecords  int
-	BatchInterval time.Duration
-	StatsInterval time.Duration
-	Redaction     *redact.Policy
+	SessionID                  capture.SessionID
+	Store                      *store.Store
+	EventSink                  capture.EventSink
+	HighWater                  int64
+	HardLimit                  int64
+	LiveWindow                 int
+	QueueRecords               int
+	BatchInterval              time.Duration
+	StatsInterval              time.Duration
+	Redaction                  *redact.Policy
+	RetainUnattributedMetadata bool
 }
 
 type request struct {
@@ -69,6 +70,7 @@ type Pipeline struct {
 	unsupported   atomic.Uint64
 	passthrough   atomic.Uint64
 	unattributed  atomic.Uint64
+	dropped       atomic.Uint64
 	backpressured atomic.Bool
 }
 
@@ -113,6 +115,13 @@ func New(cfg Config) (*Pipeline, error) {
 }
 
 func (p *Pipeline) Submit(ctx context.Context, tx models.CaptureTransaction) error {
+	if unattributed(tx) {
+		p.unattributed.Add(1)
+		if !p.cfg.RetainUnattributedMetadata {
+			p.dropped.Add(1)
+			return nil
+		}
+	}
 	p.captured.Add(1)
 	tx = p.redact(tx)
 	data, err := json.Marshal(tx)
@@ -272,6 +281,10 @@ func (p *Pipeline) LiveWindow() []models.CaptureTransaction {
 	return append([]models.CaptureTransaction(nil), p.ring...)
 }
 
+func (p *Pipeline) LiveMetadata(tx models.CaptureTransaction) models.CaptureTransaction {
+	return metadataOnly(p.redact(tx))
+}
+
 func (p *Pipeline) Snapshot() aggregate.Snapshot { return p.agg.Snapshot() }
 
 func (p *Pipeline) Stats(state capture.SessionState) capture.Stats {
@@ -282,7 +295,8 @@ func (p *Pipeline) Stats(state capture.SessionState) capture.Stats {
 		BodyOmitted: meta.Counters.BodyOmitted, EventSkipped: p.eventSkipped.Load(),
 		KernelDropped: p.kernelDropped.Load(), ParseFailed: p.parseFailed.Load(),
 		Unsupported: p.unsupported.Load(), Passthrough: p.passthrough.Load(),
-		Unattributed: p.unattributed.Load(), Backpressured: p.backpressured.Load(),
+		Unattributed: p.unattributed.Load(), Dropped: p.dropped.Load(),
+		Backpressured:   p.backpressured.Load(),
 		SnapshotVersion: meta.SnapshotVersion, Sequence: p.agg.Snapshot().Sequence,
 		StoreBytes: meta.StoreBytes,
 	}
@@ -317,10 +331,11 @@ func (p *Pipeline) redact(tx models.CaptureTransaction) models.CaptureTransactio
 	tx.Request.BodyPreview, tx.Request.Redacted = p.cfg.Redaction.RedactBody(tx.Request.ContentType, tx.Request.BodyPreview)
 	tx.Response.BodyPreview, tx.Response.Redacted = p.cfg.Redaction.RedactBody(tx.Response.ContentType, tx.Response.BodyPreview)
 	tx.Process = p.cfg.Redaction.RedactProcess(tx.Process)
-	if tx.Process == nil {
-		p.unattributed.Add(1)
-	}
 	return tx
+}
+
+func unattributed(tx models.CaptureTransaction) bool {
+	return tx.Process == nil || tx.Process.Attribution != "confirmed"
 }
 
 func metadataOnly(tx models.CaptureTransaction) models.CaptureTransaction {

@@ -21,6 +21,7 @@ export class Config {
     "liveWindow"?: number;
     "allowPassthrough"?: string[];
     "passthroughTtlSeconds"?: number;
+    "retainUnattributedMetadata"?: boolean;
 
     /** Creates a new Config instance. */
     constructor($$source: Partial<Config> = {}) {
@@ -164,6 +165,7 @@ export class Stats {
     "unsupported": number;
     "passthrough": number;
     "unattributed": number;
+    "dropped": number;
     "backpressured": boolean;
     "snapshotVersion": number;
     "sequence": number;
@@ -203,6 +205,9 @@ export class Stats {
         }
         if (!("unattributed" in $$source)) {
             this["unattributed"] = 0;
+        }
+        if (!("dropped" in $$source)) {
+            this["dropped"] = 0;
         }
         if (!("backpressured" in $$source)) {
             this["backpressured"] = false;

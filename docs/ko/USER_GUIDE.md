@@ -118,7 +118,7 @@ trace, contract를 분석하며, application source code를 정적 분석하거�
 | .NET evidence | clrstack, Environment.StackTrace, exception/IIS evidence, dotnet-trace speedscope export |
 | Ruby / PHP / Swift / native profile evidence | rbspy, StackProf, PHP Excimer/Tideways/Xdebug, Swift/async stack, perf collapsed/native stack을 지원 profile artifact로 제공한 경우 |
 | 브라우저 / 프론트엔드 evidence | Chrome Performance trace(`.json`/`.json.gz`), V8 `.cpuprofile`(브라우저, Node `--cpu-prof`, CDP `Profiler.stop`) — sampled CPU run 분석 포함. CPU 샘플만 다루며 네트워크·레이아웃·페인트 귀속은 없음 |
-| HTTP evidence | 방언 판별·가져오기 시점 리댁션이 있는 HAR 1.2 가져오기(`http_capture`); live capture는 Windows-first 로드맵 슬라이스 |
+| HTTP evidence | 방언 판별·가져오기 시점 리댁션이 있는 HAR 1.2 가져오기(`http_capture`); Windows 실시간 HTTP/1.x metadata 캡처는 구현되었으며 H-RG4 Windows acceptance 대기 중 |
 | 언어 중립 evidence | access/edge log, server log, OpenTelemetry log/trace, metrics snapshot, database/broker/platform evidence, OpenAPI, AsyncAPI, stitched evidence, architecture-doc draft |
 
 지원하지 않거나 보류된 범위:
@@ -128,6 +128,40 @@ trace, contract를 분석하며, application source code를 정적 분석하거�
 - Heap dump parsing(`.hprof`)과 live CPU/RSS/syscall sampling 같은
   process/system monitoring.
 - Roadmap에서 Active TO-DO로 승격되지 않은 direct SaaS APM connector.
+
+## Windows 실시간 HTTP 캡처
+
+HTTP Capture 화면에는 T-581 Windows 실시간 캡처 review candidate가 포함되어
+있습니다.
+
+1. 최초 사용 프록시/CA 경고를 읽고 동의합니다.
+2. HTTPS 가로채기가 필요하면 임시 캡처 CA를 설치합니다.
+3. 프로세스를 확정하지 못한 트래픽의 리댁션된 metadata가 명시적으로 필요하지
+   않다면 미귀속 보존을 끈 상태로 둡니다. 기본값은 drop입니다.
+4. 캡처를 시작하고 의도한 test client가 화면에 표시된 loopback proxy를
+   사용하도록 설정합니다.
+5. 캡처를 중지합니다. ArchScope는 임시 CA를 제거하며 같은 화면에서 종료된
+   세션을 일반 `http_capture` 분석 화면으로 불러올 수 있습니다.
+
+실시간 renderer는 최신 metadata-only 행 500개를 유지하며 renderer event가
+누락되면 권위 있는 live window를 다시 불러옵니다. 요청·응답 body는 항상
+생략하며 SEC-10 crash-dump 제외 preflight가 구현되기 전에는 body capture를
+활성화하지 않습니다. H2-only, QUIC, pinning, passthrough, unattributed 상태는
+성공한 decoded capture처럼 표시하지 않고 명시적으로 노출합니다.
+
+Windows acceptance와 package signature 증거 생성:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/verify-windows-live-capture.ps1 `
+  -ProxyAddress 127.0.0.1:43123 `
+  -TargetUrl http://127.0.0.1:8080/health `
+  -ArchScopeExe .\bin\archscope.exe
+```
+
+Harness는 설치된 browser/curl/JVM/Electron client를 사용할 수 있을 때 실행하고
+JSON operator-evidence checklist를 기록합니다. 실제 Windows 시나리오,
+long-session/re-entry/recovery와 독립 H-RG4 판정이 통과하기 전까지 T-581은
+`REVIEW` 상태입니다.
 
 ## 네이티브 앱
 

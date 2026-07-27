@@ -522,6 +522,35 @@ export class CaptureImportRequest {
     }
 }
 
+export class CaptureProgressEvent {
+    "sessionId": string;
+    "transaction": models$0.CaptureTransaction;
+
+    /** Creates a new CaptureProgressEvent instance. */
+    constructor($$source: Partial<CaptureProgressEvent> = {}) {
+        if (!("sessionId" in $$source)) {
+            this["sessionId"] = "";
+        }
+        if (!("transaction" in $$source)) {
+            this["transaction"] = (new models$0.CaptureTransaction());
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new CaptureProgressEvent instance from a string or object.
+     */
+    static createFrom($$source: any = {}): CaptureProgressEvent {
+        const $$createField1_0 = $$createType6;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("transaction" in $$parsedSource) {
+            $$parsedSource["transaction"] = $$createField1_0($$parsedSource["transaction"]);
+        }
+        return new CaptureProgressEvent($$parsedSource as Partial<CaptureProgressEvent>);
+    }
+}
+
 export class CaptureTransactionsEvent {
     "sessionId": string;
     "sequence": number;

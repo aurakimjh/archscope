@@ -43,6 +43,14 @@ import {
   emptyFilter,
 } from "./httpCapture.js";
 import {
+  buildLiveProcessGroups,
+  initialLiveCaptureState,
+  isLiveSessionActive,
+  LIVE_TRANSACTION_ROW_CAP,
+  liveHttpCaptureReducer,
+  type LiveCaptureTransaction,
+} from "./liveHttpCapture.js";
+import {
   addWorkspaceResult,
   clearWorkspaceResults,
   getWorkspaceEntry,
@@ -808,6 +816,165 @@ assert(reloaded?.result_type === "http_capture", "Workspace preserves the http_c
 assert(reloaded?.source_files.includes("chrome.har"), "Workspace preserves the source label/files");
 assert((reloaded?.result as any)?.summary?.total_transactions === 42, "Workspace retains the populated summary");
 clearWorkspaceResults();
+
+// ── T-581: live-capture renderer state and recovery contract ─────────
+const liveSession = {
+  sessionId: "cap-t581",
+  state: "running",
+  listenAddress: "127.0.0.1:43123",
+  storePath: "/capture/cap-t581",
+  startedAt: "2026-07-28T00:00:00Z",
+};
+let live = liveHttpCaptureReducer(initialLiveCaptureState, {
+  type: "started",
+  session: liveSession,
+});
+assert(isLiveSessionActive(live.session), "running live session is active");
+const pendingLiveRow: LiveCaptureTransaction = {
+  id: "live-pending",
+  sequence: 0,
+  method: "GET",
+  url: "https://example.test/pending",
+  host: "example.test",
+  path: "/pending",
+  statusCode: 0,
+  httpVersion: "HTTP/1.1",
+  state: "request_sent",
+  totalMs: 0,
+  captureMode: "proxy_mitm",
+  coverage: "confirmed",
+  fidelity: "semantic",
+};
+live = liveHttpCaptureReducer(live, {
+  type: "progress",
+  event: {
+    sessionId: liveSession.sessionId,
+    transaction: pendingLiveRow,
+  },
+});
+assert(
+  live.transactions[0]?.state === "request_sent",
+  "request progress appears before completion",
+);
+live = liveHttpCaptureReducer(live, {
+  type: "transactions",
+  event: {
+    sessionId: liveSession.sessionId,
+    sequence: 1,
+    snapshotVersion: 1,
+    items: [{ ...pendingLiveRow, state: "complete", statusCode: 200, totalMs: 12 }],
+  },
+});
+assert(
+  live.transactions.length === 1 &&
+    live.transactions[0]?.state === "complete" &&
+    live.transactions[0]?.statusCode === 200,
+  "completion replaces the stable in-progress row by transaction id",
+);
+
+const liveRows: LiveCaptureTransaction[] = Array.from(
+  { length: LIVE_TRANSACTION_ROW_CAP + 5 },
+  (_, index) => ({
+    id: `live-${index}`,
+    sequence: index + 1,
+    method: "GET",
+    url: `https://example.test/${index}`,
+    host: "example.test",
+    path: `/${index}`,
+    statusCode: index === 504 ? 500 : 200,
+    httpVersion: "HTTP/1.1",
+    state: "complete",
+    totalMs: index,
+    captureMode: "proxy_mitm",
+    coverage: "confirmed",
+    fidelity: "decoded_wire",
+    process: {
+      key: { pid: 4242, startTime: "2026-07-28T00:00:00Z" },
+      name: "chrome.exe",
+      attribution: "confirmed",
+    },
+  }),
+);
+live = liveHttpCaptureReducer(live, {
+  type: "transactions",
+  event: {
+    sessionId: liveSession.sessionId,
+    sequence: liveRows.length,
+    snapshotVersion: liveRows.length,
+    items: liveRows,
+  },
+});
+assert(
+  live.transactions.length === LIVE_TRANSACTION_ROW_CAP,
+  "live renderer applies the 500-row metadata cap",
+);
+assert(
+  live.transactions[0]?.id === "live-5",
+  "live row cap keeps the newest stable rows",
+);
+live = liveHttpCaptureReducer(live, {
+  type: "transactions",
+  event: {
+    sessionId: liveSession.sessionId,
+    sequence: liveRows.length + 1,
+    snapshotVersion: liveRows.length + 1,
+    items: [liveRows[liveRows.length - 1]!],
+  },
+});
+assert(
+  live.transactions.length === LIVE_TRANSACTION_ROW_CAP,
+  "duplicate transaction events do not duplicate live rows",
+);
+
+const liveStats = {
+  sessionId: liveSession.sessionId,
+  state: "running",
+  captured: 505,
+  persisted: 505,
+  bodyOmitted: 0,
+  eventSkipped: 2,
+  kernelDropped: 0,
+  parseFailed: 0,
+  unsupported: 0,
+  passthrough: 0,
+  unattributed: 0,
+  dropped: 0,
+  backpressured: false,
+  snapshotVersion: 505,
+  sequence: 505,
+  storeBytes: 4096,
+};
+live = liveHttpCaptureReducer(live, { type: "stats", stats: liveStats });
+assert(
+  live.needsResync,
+  "an advancing eventSkipped counter requires authoritative live-window resync",
+);
+live = liveHttpCaptureReducer(live, {
+  type: "resynced",
+  stats: liveStats,
+  transactions: liveRows.slice(-20),
+});
+assert(
+  !live.needsResync && live.transactions.length === 20,
+  "successful resync replaces rows and clears the recovery flag",
+);
+const processGroups = buildLiveProcessGroups(live.transactions);
+assert(
+  processGroups.length === 1 &&
+    processGroups[0]?.label === "chrome.exe" &&
+    processGroups[0]?.errors === 1,
+  "live process tree groups confirmed processes and retains error counts",
+);
+live = liveHttpCaptureReducer(live, { type: "follow", follow: false });
+assert(live.follow === false, "manual scroll can suspend live follow mode");
+live = liveHttpCaptureReducer(live, {
+  type: "stopped",
+  session: { ...liveSession, state: "finalized", endedAt: "2026-07-28T00:05:00Z" },
+});
+assert(
+  !isLiveSessionActive(live.session),
+  "finalized session exits the active capture state",
+);
 
 // ── T-586: populated browser_audit_evidence page derivations ───────────
 // Mirrors the frozen engine emit shape

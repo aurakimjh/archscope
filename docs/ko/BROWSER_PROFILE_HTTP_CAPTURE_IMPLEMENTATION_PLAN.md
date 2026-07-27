@@ -20,7 +20,8 @@
   재리뷰, bounded import UI, shared fixture, 전체 엔진/프런트 검증을 포함해
   **완료 — 통합 PASS (2026-07-21)**다. T-571/H-RG2는 2026-07-27 독립
   `H-COV1 PASS`로 닫혔고, T-580/H-RG3도 2026-07-28 독립 `H-SEC2 PASS`로
-  닫혀 T-581/H-RG4 Windows 실시간 UI와 E2E를 시작할 수 있다.
+  닫혔다. T-581/H-RG4 Windows 실시간 UI와 E2E 구현은 완료되어 `REVIEW`에
+  있으며 Windows 증거와 독립 그룹 판정을 기다린다.
 
 ## 2. 역할과 소유권
 
@@ -72,7 +73,7 @@ handoff한다. Claude는 생성 binding을 수동 수정하지 않는다. Claude
 | 2 | `H-RG1` HAR 오프라인 분석 완성 | **완료 — 통합 PASS (2026-07-21)** | 종료 |
 | 3 | `H-RG2` Windows coverage proof | **완료 — H-COV1 PASS (2026-07-27)** | 종료 |
 | 4 | `H-RG3` 실시간 캡처 엔진 기반 | **완료 — H-SEC2 PASS (2026-07-28)** | 종료 |
-| 5 | `H-RG4` 실시간 UI 및 Windows E2E | **착수 가능** | `H-RG3 PASS` |
+| 5 | `H-RG4` 실시간 UI 및 Windows E2E | **구현 완료 — REVIEW** | `H-RG3 PASS`; Windows 증거와 그룹 `PASS` 대기 |
 | 6 | `H-RG5` HTTP 세션 Diff | 계획 | `H-RG4 PASS` |
 | 7 | `X-RG1` HTTP × 프로파일/서버 증거 교차 분석 | 계획 | `H-RG5 PASS` |
 | 8 | `R-RG1` 통합 릴리스 승인 | 계획 | `X-RG1 PASS` |
@@ -251,20 +252,32 @@ streaming, H2 passthrough fixture와 long-session memory bound가 통과해야 �
 
 ### H-RG4 — 실시간 UI와 Windows E2E
 
-#### Codex 통합 To-Do
+**상태:** 구현 완료 — `REVIEW` (2026-07-28). Windows 전용 E2E test는
+cross-compile을 통과했지만 실제 Windows browser/curl/JVM/Electron 실행과 독립
+그룹 판정은 아직 필요하다.
 
-- [ ] 고정된 CaptureService binding과 Windows E2E harness 제공
-- [ ] 엔진 snapshot/cursor/filter semantics를 UI acceptance fixture로 제공
-- [ ] 패키지/서명/권한 경계 smoke 지원
+#### Codex 통합
 
-#### Claude UI To-Do
+- [x] 고정된 CaptureService binding과 Windows E2E harness 제공
+- [x] 엔진 snapshot/cursor/filter semantics를 UI acceptance fixture로 제공
+- [x] 패키지/서명/권한 경계 smoke 지원
 
-- [ ] 시작/정지, session state, CA 설치/제거와 최초 사용 위험 고지
-- [ ] process tree, 안정적인 live list, 진행 중 transaction 표시
-- [ ] 사용자 스크롤을 존중하는 auto-follow, batch update와 row cap
-- [ ] persisted/drop/backpressure/disk 상태와 recovery 표시
-- [ ] fidelity·coverage·passthrough·unattributed 경고를 숨기지 않는 UX
-- [ ] stop 후 같은 화면에서 finalized session lazy loading
+#### 실시간 UI
+
+- [x] 시작/정지, session state, CA 설치/제거와 최초 사용 위험 고지
+- [x] process tree, 안정적인 live list, 진행 중 transaction 표시
+- [x] 사용자 스크롤을 존중하는 auto-follow, batch update와 row cap
+- [x] persisted/drop/backpressure/disk 상태와 recovery 표시
+- [x] fidelity·coverage·passthrough·unattributed 경고를 숨기지 않는 UX
+- [x] stop 후 같은 화면에서 finalized session lazy loading
+
+SEC-17은 renderer 아래에서 강제된다. unknown attribution은 기본적으로 저장과
+progress 노출 전에 drop하며, 명시적 opt-in을 선택해도 리댁션된 metadata만
+보존한다. Body는 계속 무조건 생략하므로 미래 body-capture tier에는 SEC-10이
+여전히 선행되어야 한다. Acceptance package는
+`cmd/archscope-app/testdata/t581_live_capture_acceptance.json`,
+`capture_windows_e2e_test.go`,
+`scripts/verify-windows-live-capture.ps1`이다.
 
 **PASS 기준:** Windows에서 browser/curl/JVM/Electron의 지원 tier 시나리오, UI
 재진입, 장시간 세션, 실패 복구를 E2E로 통과하고 미지원 H2/QUIC/pinning을 성공처럼
@@ -314,6 +327,6 @@ HAR pseudo-process 비교에서 지원하지 않는 정규화/차원을 숨기�
 ## 8. 첫 실행 지점
 
 T-580 / `H-RG3` 엔진 구현은 2026-07-27 `REVIEW`에 진입했고 2026-07-28 독립
-`H-SEC2` CA/TLS/권한 게이트를 통과했다. 다음 행동은 T-581 / H-RG4의 Windows
-실시간 캡처 UI와 E2E이며, 두 H-SEC2 조건(UI 노출 전 SEC-17 명시적 미귀속
-opt-in, body 캡처 전 SEC-10 dump 제외 preflight)을 이어받는다.
+`H-SEC2` CA/TLS/권한 게이트를 통과했다. T-581 / H-RG4 구현은 현재
+`REVIEW`다. 다음 행동은 실제 Windows browser/curl/JVM/Electron,
+long-session, 재진입, 복구, 미지원 tier 실행과 독립 그룹 판정이다.

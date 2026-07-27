@@ -27,6 +27,7 @@ export {
     CaptureErrorEvent,
     CaptureFetchRequest,
     CaptureImportRequest,
+    CaptureProgressEvent,
     CaptureTransactionsEvent,
     ClassifyRequest,
     ClassifyResult,

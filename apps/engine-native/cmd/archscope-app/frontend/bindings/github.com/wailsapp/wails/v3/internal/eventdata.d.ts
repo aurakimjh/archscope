@@ -20,6 +20,7 @@ declare module "@wailsio/runtime" {
             "analyze:error": main$0.AnalyzeErrorEvent;
             "capture:aggregate": main$0.CaptureAggregateEvent;
             "capture:error": main$0.CaptureErrorEvent;
+            "capture:progress": main$0.CaptureProgressEvent;
             "capture:started": capture$0.Session;
             "capture:stats": capture$0.Stats;
             "capture:stopped": capture$0.Session;

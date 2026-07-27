@@ -2,8 +2,10 @@ package stream
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"reflect"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -21,7 +23,8 @@ type recordingSink struct {
 	aggregates   int
 }
 
-func (*recordingSink) Started(capture.Session) {}
+func (*recordingSink) Started(capture.Session)                               {}
+func (*recordingSink) Progress(capture.SessionID, models.CaptureTransaction) {}
 func (s *recordingSink) Transactions(_ capture.SessionID, _, _ uint64, tx []models.CaptureTransaction) {
 	s.mu.Lock()
 	s.transactions += len(tx)
@@ -43,6 +46,7 @@ func TestPipelinePersistsAllWhileBoundingLiveWindow(t *testing.T) {
 		SessionID: "s", Store: st, EventSink: sink, LiveWindow: 5,
 		BatchInterval: time.Millisecond, StatsInterval: 5 * time.Millisecond,
 		HighWater: 1024, HardLimit: 4096,
+		RetainUnattributedMetadata: true,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -112,6 +116,7 @@ func TestRendererBackpressureSkipsEventsWithoutLosingPersistence(t *testing.T) {
 		SessionID: "s", Store: st, EventSink: sink,
 		BatchInterval: time.Hour, StatsInterval: time.Hour,
 		HighWater: 1 << 20, HardLimit: 2 << 20,
+		RetainUnattributedMetadata: true,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -147,7 +152,10 @@ func TestRendererBackpressureSkipsEventsWithoutLosingPersistence(t *testing.T) {
 
 func TestPipelineRejectsSingleRecordOverHardLimit(t *testing.T) {
 	st := testStore(t)
-	p, err := New(Config{SessionID: "s", Store: st, HighWater: 10, HardLimit: 20})
+	p, err := New(Config{
+		SessionID: "s", Store: st, HighWater: 10, HardLimit: 20,
+		RetainUnattributedMetadata: true,
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -159,6 +167,95 @@ func TestPipelineRejectsSingleRecordOverHardLimit(t *testing.T) {
 	stats := p.Stats(capture.StateRunning)
 	if stats.Captured != 1 || stats.Persisted != 0 {
 		t.Fatalf("stats=%+v", stats)
+	}
+}
+
+func TestPipelineDropsUnattributedByDefaultAndRetainsOnlyWithOptIn(t *testing.T) {
+	newPipeline := func(t *testing.T, retain bool) (*Pipeline, *store.Store) {
+		t.Helper()
+		st := testStore(t)
+		p, err := New(Config{
+			SessionID: "s", Store: st,
+			BatchInterval: time.Hour, StatsInterval: time.Hour,
+			RetainUnattributedMetadata: retain,
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		return p, st
+	}
+	tx := models.CaptureTransaction{
+		ID: "unknown", Method: "GET", Host: "example.test", Path: "/",
+		State:    models.TxComplete,
+		Request:  models.HTTPMessage{BodyStorage: "omitted"},
+		Response: models.HTTPMessage{BodyStorage: "omitted"},
+	}
+
+	dropped, droppedStore := newPipeline(t, false)
+	if err := dropped.Submit(context.Background(), tx); err != nil {
+		t.Fatal(err)
+	}
+	if err := dropped.Close(); err != nil {
+		t.Fatal(err)
+	}
+	droppedStats := dropped.Stats(capture.StateFinalized)
+	if droppedStats.Unattributed != 1 || droppedStats.Dropped != 1 ||
+		droppedStats.Captured != 0 || droppedStats.Persisted != 0 {
+		t.Fatalf("default stats=%+v", droppedStats)
+	}
+	droppedPage, err := droppedStore.Fetch(store.Filter{}, "", 10)
+	if err != nil || len(droppedPage.Items) != 0 {
+		t.Fatalf("default page=%+v err=%v", droppedPage, err)
+	}
+
+	retained, retainedStore := newPipeline(t, true)
+	if err := retained.Submit(context.Background(), tx); err != nil {
+		t.Fatal(err)
+	}
+	if err := retained.Close(); err != nil {
+		t.Fatal(err)
+	}
+	retainedStats := retained.Stats(capture.StateFinalized)
+	if retainedStats.Unattributed != 1 || retainedStats.Dropped != 0 ||
+		retainedStats.Captured != 1 || retainedStats.Persisted != 1 {
+		t.Fatalf("opt-in stats=%+v", retainedStats)
+	}
+	retainedPage, err := retainedStore.Fetch(store.Filter{}, "", 10)
+	if err != nil || len(retainedPage.Items) != 1 {
+		t.Fatalf("opt-in page=%+v err=%v", retainedPage, err)
+	}
+}
+
+func TestLiveMetadataIsRedactedBeforeRendererExposure(t *testing.T) {
+	st := testStore(t)
+	p, err := New(Config{SessionID: "s", Store: st})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer p.Close()
+	live := p.LiveMetadata(models.CaptureTransaction{
+		URL:   "https://example.test/path?token=example-secret",
+		Query: "token=example-secret",
+		Process: &models.ProcessInstance{
+			Name:        "client",
+			CommandLine: "client --password example-secret",
+			User:        "example-user",
+			Attribution: "confirmed",
+		},
+		Request: models.HTTPMessage{
+			Headers:     []models.HeaderField{{Name: "Authorization", Value: "Bearer example-secret"}},
+			BodyPreview: "example-secret",
+			BodyRef:     "blob-secret",
+		},
+	})
+	encoded, err := json.Marshal(live)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(encoded), "example-secret") ||
+		strings.Contains(string(encoded), "example-user") ||
+		strings.Contains(string(encoded), "blob-secret") {
+		t.Fatalf("renderer metadata leaked sensitive content: %s", encoded)
 	}
 }
 

@@ -118,7 +118,7 @@ or modify application source code.
 | .NET evidence | clrstack, Environment.StackTrace, exception/IIS evidence, dotnet-trace speedscope exports |
 | Ruby / PHP / Swift / native profile evidence | rbspy, StackProf, PHP Excimer/Tideways/Xdebug, Swift/async stacks, perf collapsed/native stacks when supplied as supported profile artifacts |
 | Browser / frontend evidence | Chrome Performance traces (`.json`/`.json.gz`), V8 `.cpuprofile` (browser, Node `--cpu-prof`, CDP `Profiler.stop`) with sampled CPU run analysis; note these are CPU samples only — no network, layout, or paint attribution |
-| HTTP evidence | HAR 1.2 imports with dialect detection and import-time redaction (`http_capture`); live capture is a Windows-first roadmap slice |
+| HTTP evidence | HAR 1.2 imports with dialect detection and import-time redaction (`http_capture`); Windows live HTTP/1.x metadata capture is implemented and awaiting H-RG4 Windows acceptance |
 | Language-neutral evidence | access/edge logs, server logs, OpenTelemetry logs/traces, metrics snapshots, database/broker/platform evidence, OpenAPI, AsyncAPI, stitched evidence, architecture-doc drafts |
 
 Unsupported or deferred:
@@ -129,6 +129,41 @@ Unsupported or deferred:
   RSS, or syscall sampling.
 - Direct SaaS APM connectors unless promoted from the roadmap into an active
   implementation slice.
+
+## Windows Live HTTP Capture
+
+The HTTP Capture page includes the T-581 review candidate for Windows live
+capture:
+
+1. Read and accept the first-use proxy/CA warning.
+2. Install the temporary capture CA when HTTPS interception is required.
+3. Leave unattributed retention off unless redacted metadata for unknown
+   processes is explicitly needed. It is dropped by default.
+4. Start capture and point the intended test client at the displayed loopback
+   proxy.
+5. Stop capture. ArchScope removes the temporary CA and can load the finalized
+   session into the normal `http_capture` analysis view on the same page.
+
+The live renderer keeps the newest 500 metadata-only rows and reloads its
+authoritative live window if renderer events are skipped. Request/response
+bodies are always omitted; body capture remains blocked until the SEC-10
+crash-dump-exclusion preflight exists. H2-only, QUIC, pinned, passthrough, and
+unattributed states are disclosed rather than presented as successful decoded
+capture.
+
+For Windows acceptance and package-signature evidence:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/verify-windows-live-capture.ps1 `
+  -ProxyAddress 127.0.0.1:43123 `
+  -TargetUrl http://127.0.0.1:8080/health `
+  -ArchScopeExe .\bin\archscope.exe
+```
+
+The harness exercises installed browser/curl/JVM/Electron clients when
+available and writes a JSON operator-evidence checklist. T-581 remains in
+`REVIEW` until those scenarios, long-session/re-entry/recovery cases, and an
+independent H-RG4 verdict pass on Windows.
 
 ## Native App
 

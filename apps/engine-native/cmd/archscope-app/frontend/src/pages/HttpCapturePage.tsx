@@ -1,13 +1,14 @@
 // ─────────────────────────────────────────────────────────────────────
-// [한글] HttpCapturePage.tsx — 오프라인 HAR(HTTP capture) 분석 페이지.
+// [한글] HttpCapturePage.tsx — 실시간 HTTP 캡처 + 오프라인 HAR 분석 페이지.
 //
 // 책임/목적: engine `http_capture` 결과를 요약 메트릭, 캡처 충실도/리댁션
 // 배너, 요청 타임라인+브러시, 유사(pseudo) 프로세스 트리, 필터+트랜잭션
 // 목록/상세 로 렌더. 순수 파생 로직은 state/httpCapture.ts 에 있고 이
 // 파일은 표현/상호작용만 담당 (browserCpuProfile 패턴과 동일).
 //
-// 이 페이지는 의도적으로 import 전용입니다 — 라이브 프록시 능력을
-// 암시하지 않고 HAR 충실도/원본 형식을 그대로 노출합니다.
+// LiveHttpCapturePanel은 Wails CaptureService의 세션/CA/event 계약을
+// 담당하고 종료 후 동일한 AnalysisResult 렌더링 경로로 합류합니다.
+// HAR 영역은 원본 충실도/방언을 그대로 노출하는 import 전용 경로입니다.
 //
 // 분모 계약(H-RG1 U1): brush 선택이나 필터가 활성화되면 요약 카드는 engine
 // 전체 summary 대신 목록·트리와 동일한 필터링 행에서 재집계한 값을 보여주며,
@@ -20,11 +21,13 @@ import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "r
 import { engine } from "@/bridge/engine";
 import type {
   CaptureHTTPMessage,
+  HttpCaptureAnalysisResult,
   HttpCaptureTimelineBucket,
   HttpCaptureTransactionRow,
 } from "@/bridge/types";
 import { ErrorPanel } from "@/components/AnalyzerFeedback";
 import { DiagnosticsPanel } from "@/components/DiagnosticsPanel";
+import { LiveHttpCapturePanel } from "@/components/LiveHttpCapturePanel";
 import { MetricCard } from "@/components/MetricCard";
 import { SlideOverPanel } from "@/components/SlideOverPanel";
 import { WailsFileDock, type FileDockSelection } from "@/components/WailsFileDock";
@@ -118,6 +121,27 @@ export function HttpCapturePage(): React.JSX.Element {
     setFile(null);
     dispatch({ type: "reset" });
   }, []);
+  const onLiveStarted = useCallback(() => {
+    setFile(null);
+    dispatch({ type: "reset" });
+  }, []);
+  const onLiveFinalized = useCallback(
+    (next: HttpCaptureAnalysisResult, sessionId: string) => {
+      const source = `capture://${sessionId}`;
+      setFile(null);
+      dispatch({
+        type: "analyzeSuccess",
+        result: next,
+        source,
+      });
+      addWorkspaceResult({
+        result: next,
+        title: `http_capture: ${sessionId}`,
+        sourceLabel: source,
+      });
+    },
+    [],
+  );
 
   const summary = useMemo(() => selectHttpSummary(result), [result]);
   const captureMeta = useMemo(() => extractCaptureMeta(result), [result]);
@@ -157,6 +181,10 @@ export function HttpCapturePage(): React.JSX.Element {
 
   return (
     <main className="flex flex-col gap-5 p-5">
+      <LiveHttpCapturePanel
+        onStarted={onLiveStarted}
+        onFinalized={onLiveFinalized}
+      />
       <WailsFileDock
         label={t("httpCaptureLabel")}
         description={t("httpCaptureDescription")}

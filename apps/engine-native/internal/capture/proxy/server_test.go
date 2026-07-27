@@ -31,8 +31,12 @@ func TestMITMForwardsH1WithVerifiedUpstream(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer authority.Close()
+	progressed := make(chan models.CaptureTransaction, 1)
 	server, err := New(Config{
 		ListenAddress: "127.0.0.1:0", Authority: authority, UpstreamRoots: roots,
+		Progress: func(transaction models.CaptureTransaction) {
+			progressed <- transaction
+		},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -65,10 +69,22 @@ func TestMITMForwardsH1WithVerifiedUpstream(t *testing.T) {
 	if response.StatusCode != http.StatusOK || string(body) != "ok" {
 		t.Fatalf("status=%d body=%q", response.StatusCode, body)
 	}
+	var progress models.CaptureTransaction
+	select {
+	case progress = <-progressed:
+		if progress.State != models.TxRequestSent || progress.Path != "/ready" {
+			t.Fatalf("progress=%+v", progress)
+		}
+	case <-time.After(3 * time.Second):
+		t.Fatal("timed out waiting for progress transaction")
+	}
 	select {
 	case tx := <-captured:
 		if tx.CaptureMode != "proxy_mitm" || tx.Path != "/ready" || tx.StatusCode != http.StatusOK {
 			t.Fatalf("transaction=%+v", tx)
+		}
+		if tx.ID != progress.ID {
+			t.Fatalf("progress id=%q completion id=%q", progress.ID, tx.ID)
 		}
 	case <-time.After(3 * time.Second):
 		t.Fatal("timed out waiting for captured transaction")

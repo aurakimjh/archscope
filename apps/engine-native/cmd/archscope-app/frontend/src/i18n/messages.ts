@@ -893,6 +893,51 @@ export const messages = {
       "Export this browser audit as a self-contained report. It is also available in Export Center via Analysis Workspace.",
     lighthouseExportHtml: "Export HTML",
     lighthouseExportJson: "Export JSON",
+    liveCaptureTitle: "Windows live HTTP capture",
+    liveCaptureDescription:
+      "Capture HTTP/1.x metadata through a loopback proxy, then analyze the finalized session with the same HTTP evidence model.",
+    liveCaptureIdle: "idle",
+    liveCaptureFirstUseTitle: "Local proxy and temporary CA safety notice",
+    liveCaptureFirstUseBody:
+      "Only route intended test traffic through this proxy. HTTPS interception requires the temporary CA. The CA is removed when capture stops; pinned, H2-only, and QUIC traffic is never presented as successful semantic capture.",
+    liveCaptureFirstUseAccept: "I understand and want to enable capture controls.",
+    liveCaptureCATitle: "Temporary capture CA",
+    liveCaptureCAInstall: "Install CA",
+    liveCaptureCARemove: "Remove CA",
+    liveCaptureModeTitle: "Capture capability",
+    liveCaptureModeUnavailable: "No live-capture mode is available.",
+    liveCaptureBodyDisabled:
+      "Request and response bodies remain disabled. SEC-10 dump-exclusion preflight is required before any body-capture tier.",
+    liveCaptureUnknownOptIn: "Retain unattributed metadata",
+    liveCaptureUnknownOptInHint:
+      "Off by default. When enabled, only redacted metadata is retained for traffic whose process cannot be confirmed; bodies are still omitted.",
+    liveCaptureStart: "Start capture",
+    liveCaptureStop: "Stop capture",
+    liveCaptureLoadFinalized: "Load finalized analysis",
+    liveCaptureRecovery: "Recovered sessions",
+    liveCaptureRecords: "records",
+    liveCaptureDiscarded: "discarded tail",
+    liveCaptureCaptured: "Captured",
+    liveCapturePersisted: "Persisted",
+    liveCaptureDropped: "Dropped",
+    liveCaptureUnattributed: "Unattributed",
+    liveCaptureUnsupported: "Unsupported",
+    liveCapturePassthrough: "Passthrough",
+    liveCaptureEventSkipped: "UI events skipped",
+    liveCaptureStoreBytes: "Store size",
+    liveCaptureBackpressureWarning:
+      "Persistence is backpressured. Stop the session if this state does not clear.",
+    liveCaptureEventLossWarning:
+      "Renderer events were skipped; the live window was reloaded from the authoritative snapshot.",
+    liveCaptureFidelityWarning:
+      "Some traffic used passthrough or an unsupported protocol. Do not interpret it as decoded semantic capture.",
+    liveCaptureProcessTree: "Live process tree",
+    liveCaptureRows: "Stable live rows",
+    liveCaptureFollowing: "Following",
+    liveCaptureResumeFollow: "Resume follow",
+    liveCaptureNoRows: "No retained transactions yet.",
+    liveCaptureRowCap:
+      "The live renderer keeps the newest 500 metadata-only rows. The finalized store remains authoritative.",
     httpCaptureLabel: "HAR file",
     httpCaptureDescription:
       "Import a HAR export from Chrome, Firefox, Safari, Charles, Fiddler, and more. Sensitive tokens are redacted before analysis.",
@@ -1853,6 +1898,51 @@ export const messages = {
       "이 브라우저 감사를 독립 실행형 리포트로 내보냅니다. Analysis Workspace 를 통해 Export Center 에서도 사용할 수 있습니다.",
     lighthouseExportHtml: "HTML 내보내기",
     lighthouseExportJson: "JSON 내보내기",
+    liveCaptureTitle: "Windows 실시간 HTTP 캡처",
+    liveCaptureDescription:
+      "loopback 프록시로 HTTP/1.x 메타데이터를 캡처하고, 종료된 세션을 동일한 HTTP 증거 모델로 분석합니다.",
+    liveCaptureIdle: "대기",
+    liveCaptureFirstUseTitle: "로컬 프록시 및 임시 CA 안전 안내",
+    liveCaptureFirstUseBody:
+      "의도한 테스트 트래픽만 이 프록시로 보내십시오. HTTPS 가로채기에는 임시 CA가 필요합니다. 캡처를 중지하면 CA를 제거하며 pinning, H2-only, QUIC 트래픽을 성공한 의미 캡처로 표시하지 않습니다.",
+    liveCaptureFirstUseAccept: "내용을 이해했으며 캡처 제어를 활성화합니다.",
+    liveCaptureCATitle: "임시 캡처 CA",
+    liveCaptureCAInstall: "CA 설치",
+    liveCaptureCARemove: "CA 제거",
+    liveCaptureModeTitle: "캡처 capability",
+    liveCaptureModeUnavailable: "사용 가능한 실시간 캡처 모드가 없습니다.",
+    liveCaptureBodyDisabled:
+      "요청·응답 본문 캡처는 비활성화되어 있습니다. 본문 캡처 tier에는 SEC-10 dump 제외 사전검사가 먼저 필요합니다.",
+    liveCaptureUnknownOptIn: "미귀속 메타데이터 보존",
+    liveCaptureUnknownOptInHint:
+      "기본값은 꺼짐입니다. 활성화하면 프로세스를 확정하지 못한 트래픽의 리댁션된 메타데이터만 보존하며 본문은 계속 생략합니다.",
+    liveCaptureStart: "캡처 시작",
+    liveCaptureStop: "캡처 중지",
+    liveCaptureLoadFinalized: "종료 세션 분석 불러오기",
+    liveCaptureRecovery: "복구된 세션",
+    liveCaptureRecords: "레코드",
+    liveCaptureDiscarded: "폐기된 꼬리",
+    liveCaptureCaptured: "캡처",
+    liveCapturePersisted: "저장",
+    liveCaptureDropped: "드롭",
+    liveCaptureUnattributed: "미귀속",
+    liveCaptureUnsupported: "미지원",
+    liveCapturePassthrough: "패스스루",
+    liveCaptureEventSkipped: "UI 이벤트 누락",
+    liveCaptureStoreBytes: "저장 크기",
+    liveCaptureBackpressureWarning:
+      "저장 경로에 backpressure가 발생했습니다. 상태가 해소되지 않으면 세션을 중지하십시오.",
+    liveCaptureEventLossWarning:
+      "렌더러 이벤트가 누락되어 권위 있는 snapshot에서 live window를 다시 불러왔습니다.",
+    liveCaptureFidelityWarning:
+      "일부 트래픽은 passthrough 또는 미지원 프로토콜입니다. decoded semantic 캡처로 해석하지 마십시오.",
+    liveCaptureProcessTree: "실시간 프로세스 트리",
+    liveCaptureRows: "안정적인 실시간 행",
+    liveCaptureFollowing: "자동 추적 중",
+    liveCaptureResumeFollow: "자동 추적 재개",
+    liveCaptureNoRows: "보존된 트랜잭션이 아직 없습니다.",
+    liveCaptureRowCap:
+      "실시간 렌더러는 최신 metadata-only 행 500개를 유지합니다. 종료된 저장소가 권위 있는 원본입니다.",
     httpCaptureLabel: "HAR 파일",
     httpCaptureDescription:
       "Chrome, Firefox, Safari, Charles, Fiddler 등에서 내보낸 HAR 를 가져옵니다. 민감한 토큰은 분석 전에 리댁션됩니다.",

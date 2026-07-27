@@ -48,6 +48,7 @@ func init() {
 	application.RegisterEvent[EngineCancelledEvent]("engine:cancelled")
 
 	application.RegisterEvent[capture.Session]("capture:started")
+	application.RegisterEvent[CaptureProgressEvent]("capture:progress")
 	application.RegisterEvent[CaptureTransactionsEvent]("capture:transactions")
 	application.RegisterEvent[CaptureAggregateEvent]("capture:aggregate")
 	application.RegisterEvent[capture.Stats]("capture:stats")

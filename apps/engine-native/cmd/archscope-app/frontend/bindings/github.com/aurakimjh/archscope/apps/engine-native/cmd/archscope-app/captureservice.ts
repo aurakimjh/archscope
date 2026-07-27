@@ -46,15 +46,27 @@ export function GetCaptureCAStatus(): $CancellablePromise<certstore$0.Status> {
     });
 }
 
+export function GetCaptureLiveWindow(sessionID: string): $CancellablePromise<models$0.CaptureTransaction[]> {
+    return $Call.ByID(3068471271, sessionID).then(($result: any) => {
+        return $$createType4($result);
+    });
+}
+
 export function GetCaptureSnapshot(sessionID: string): $CancellablePromise<aggregate$0.Snapshot> {
     return $Call.ByID(1555410437, sessionID).then(($result: any) => {
-        return $$createType3($result);
+        return $$createType5($result);
     });
 }
 
 export function GetCaptureStats(sessionID: string): $CancellablePromise<capture$0.Stats> {
     return $Call.ByID(2953265700, sessionID).then(($result: any) => {
-        return $$createType4($result);
+        return $$createType6($result);
+    });
+}
+
+export function GetCurrentCaptureSession(): $CancellablePromise<capture$0.Session> {
+    return $Call.ByID(4250283592).then(($result: any) => {
+        return $$createType7($result);
     });
 }
 
@@ -72,13 +84,13 @@ export function InstallCaptureCA(): $CancellablePromise<certstore$0.Status> {
 
 export function ListCaptureModes(): $CancellablePromise<capture$0.Mode[]> {
     return $Call.ByID(1386420617).then(($result: any) => {
-        return $$createType6($result);
+        return $$createType9($result);
     });
 }
 
 export function RecoverCaptureSessions(): $CancellablePromise<store$0.RecoveryReport[]> {
     return $Call.ByID(740397896).then(($result: any) => {
-        return $$createType8($result);
+        return $$createType11($result);
     });
 }
 
@@ -90,13 +102,13 @@ export function RemoveCaptureCA(): $CancellablePromise<certstore$0.Status> {
 
 export function StartCapture(config: capture$0.Config): $CancellablePromise<capture$0.Session> {
     return $Call.ByID(2002208921, config).then(($result: any) => {
-        return $$createType9($result);
+        return $$createType7($result);
     });
 }
 
 export function StopCapture(sessionID: string): $CancellablePromise<capture$0.Session> {
     return $Call.ByID(328652407, sessionID).then(($result: any) => {
-        return $$createType9($result);
+        return $$createType7($result);
     });
 }
 
@@ -104,10 +116,12 @@ export function StopCapture(sessionID: string): $CancellablePromise<capture$0.Se
 const $$createType0 = models$0.AnalysisResult.createFrom;
 const $$createType1 = store$0.Page.createFrom;
 const $$createType2 = certstore$0.Status.createFrom;
-const $$createType3 = aggregate$0.Snapshot.createFrom;
-const $$createType4 = capture$0.Stats.createFrom;
-const $$createType5 = capture$0.Mode.createFrom;
-const $$createType6 = $Create.Array($$createType5);
-const $$createType7 = store$0.RecoveryReport.createFrom;
-const $$createType8 = $Create.Array($$createType7);
-const $$createType9 = capture$0.Session.createFrom;
+const $$createType3 = models$0.CaptureTransaction.createFrom;
+const $$createType4 = $Create.Array($$createType3);
+const $$createType5 = aggregate$0.Snapshot.createFrom;
+const $$createType6 = capture$0.Stats.createFrom;
+const $$createType7 = capture$0.Session.createFrom;
+const $$createType8 = capture$0.Mode.createFrom;
+const $$createType9 = $Create.Array($$createType8);
+const $$createType10 = store$0.RecoveryReport.createFrom;
+const $$createType11 = $Create.Array($$createType10);

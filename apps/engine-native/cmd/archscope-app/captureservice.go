@@ -47,6 +47,11 @@ type CaptureTransactionsEvent struct {
 	Items           []models.CaptureTransaction `json:"items"`
 }
 
+type CaptureProgressEvent struct {
+	SessionID   string                    `json:"sessionId"`
+	Transaction models.CaptureTransaction `json:"transaction"`
+}
+
 type CaptureAggregateEvent struct {
 	SessionID       string             `json:"sessionId"`
 	Sequence        uint64             `json:"sequence"`
@@ -63,6 +68,12 @@ type captureEventSink struct{}
 
 func (captureEventSink) Started(value capture.Session) {
 	emitEvent("capture:started", value)
+}
+
+func (captureEventSink) Progress(id capture.SessionID, transaction models.CaptureTransaction) {
+	emitEvent("capture:progress", CaptureProgressEvent{
+		SessionID: string(id), Transaction: transaction,
+	})
 }
 
 func (captureEventSink) Transactions(id capture.SessionID, sequence, version uint64, items []models.CaptureTransaction) {
@@ -131,6 +142,14 @@ func (s *CaptureService) StopCapture(sessionID string) (capture.Session, error) 
 
 func (s *CaptureService) GetCaptureStats(sessionID string) (capture.Stats, error) {
 	return s.manager.Stats(capture.SessionID(sessionID))
+}
+
+func (s *CaptureService) GetCurrentCaptureSession() capture.Session {
+	return s.manager.Current()
+}
+
+func (s *CaptureService) GetCaptureLiveWindow(sessionID string) ([]models.CaptureTransaction, error) {
+	return s.manager.LiveWindow(capture.SessionID(sessionID))
 }
 
 func (s *CaptureService) FetchCaptureTransactions(request CaptureFetchRequest) (store.Page, error) {

@@ -37,6 +37,7 @@ type Config struct {
 	Resolver         ProcessResolver
 	Interceptor      Interceptor
 	AllowPassthrough map[string]time.Time
+	Progress         func(models.CaptureTransaction)
 	Now              func() time.Time
 	DialContext      func(context.Context, string, string) (net.Conn, error)
 }
@@ -173,6 +174,8 @@ func (s *Server) transport() *http.Transport {
 func (s *Server) handlePlain(writer http.ResponseWriter, request *http.Request) {
 	started := s.cfg.Now()
 	process := s.resolve(request.RemoteAddr)
+	progress := progressTransaction(request, started, process, "proxy_mitm")
+	s.progress(progress)
 	out := request.Clone(request.Context())
 	out.RequestURI = ""
 	requestCounter := &countingReadCloser{ReadCloser: request.Body}
@@ -183,6 +186,8 @@ func (s *Server) handlePlain(writer http.ResponseWriter, request *http.Request) 
 	if err != nil {
 		http.Error(writer, "verified upstream TLS/HTTP failure", http.StatusBadGateway)
 		tx := failureTransaction(request, started, s.cfg.Now(), err)
+		tx.ID = progress.ID
+		tx.Process = process
 		s.emit(tx)
 		return
 	}
@@ -191,6 +196,7 @@ func (s *Server) handlePlain(writer http.ResponseWriter, request *http.Request) 
 	writer.WriteHeader(response.StatusCode)
 	responseBytes, _ := io.Copy(writer, response.Body)
 	tx := s.cfg.Interceptor.Transaction(parseAddr(request.RemoteAddr), request, response, started, s.cfg.Now(), requestCounter.n, responseBytes, process)
+	tx.ID = progress.ID
 	s.emit(tx)
 }
 
@@ -260,9 +266,18 @@ func (s *Server) passthroughApproved(host string) bool {
 func (s *Server) tunnel(ctx context.Context, client net.Conn, hostPort string, protocols []string, process *models.ProcessInstance, reason string) {
 	defer client.Close()
 	started := s.cfg.Now()
+	progress := progressTransaction(&http.Request{
+		Method: http.MethodConnect,
+		Host:   hostPort,
+		URL:    &url.URL{Scheme: "https", Host: hostPort},
+	}, started, process, "proxy_passthrough")
+	s.progress(progress)
 	upstream, err := s.cfg.DialContext(ctx, "tcp", hostPort)
 	if err != nil {
-		s.emit(failureTransaction(&http.Request{Method: http.MethodConnect, Host: hostPort}, started, s.cfg.Now(), err))
+		tx := failureTransaction(&http.Request{Method: http.MethodConnect, Host: hostPort}, started, s.cfg.Now(), err)
+		tx.ID = progress.ID
+		tx.Process = process
+		s.emit(tx)
 		return
 	}
 	defer upstream.Close()
@@ -273,6 +288,7 @@ func (s *Server) tunnel(ctx context.Context, client net.Conn, hostPort string, p
 	go func() { _, _ = io.Copy(clientCount, upstreamCount); done <- struct{}{} }()
 	<-done
 	tx := s.cfg.Interceptor.Passthrough(client.RemoteAddr(), hostPort, protocols, started, s.cfg.Now(), clientCount.read, upstreamCount.read, process, reason)
+	tx.ID = progress.ID
 	s.emit(tx)
 }
 
@@ -304,6 +320,8 @@ func (s *Server) intercept(client net.Conn, host, hostPort string, process *mode
 			return
 		}
 		started := s.cfg.Now()
+		progress := progressTransaction(request, started, process, "proxy_mitm")
+		s.progress(progress)
 		requestCounter := &countingReadCloser{ReadCloser: request.Body}
 		request.Body = requestCounter
 		request.URL.Scheme = "https"
@@ -314,6 +332,7 @@ func (s *Server) intercept(client net.Conn, host, hostPort string, process *mode
 		if err != nil {
 			writeGatewayError(tlsConn)
 			tx := failureTransaction(request, started, s.cfg.Now(), err)
+			tx.ID = progress.ID
 			tx.Process = process
 			s.emit(tx)
 			return
@@ -323,6 +342,7 @@ func (s *Server) intercept(client net.Conn, host, hostPort string, process *mode
 		writeErr := response.Write(tlsConn)
 		response.Body.Close()
 		tx := s.cfg.Interceptor.Transaction(client.RemoteAddr(), request, response, started, s.cfg.Now(), requestCounter.n, responseCounter.n, process)
+		tx.ID = progress.ID
 		s.emit(tx)
 		if writeErr != nil || request.Close || response.Close {
 			return
@@ -341,6 +361,39 @@ func (s *Server) resolve(remote string) *models.ProcessInstance {
 func (s *Server) emit(tx models.CaptureTransaction) {
 	if s.onTx != nil {
 		_ = s.onTx(tx)
+	}
+}
+
+func (s *Server) progress(tx models.CaptureTransaction) {
+	if s.cfg.Progress != nil {
+		s.cfg.Progress(tx)
+	}
+}
+
+func progressTransaction(request *http.Request, started time.Time, process *models.ProcessInstance, mode string) models.CaptureTransaction {
+	urlValue := ""
+	host := request.Host
+	path := "/"
+	scheme := ""
+	version := request.Proto
+	if request.URL != nil {
+		urlValue = request.URL.String()
+		if request.URL.Host != "" {
+			host = request.URL.Host
+		}
+		if request.URL.EscapedPath() != "" {
+			path = request.URL.EscapedPath()
+		}
+		scheme = request.URL.Scheme
+	}
+	return models.CaptureTransaction{
+		ID: newTransactionID(started), Method: request.Method, URL: urlValue,
+		Scheme: scheme, Host: hostOnly(host), Path: path, HTTPVersion: version,
+		StartedAt: started.UTC().Format(time.RFC3339Nano), State: models.TxRequestSent,
+		CaptureMode: mode, ObservationPoint: "proxy", Coverage: coverage(process),
+		Fidelity: "semantic", Process: process,
+		Request:  models.HTTPMessage{BodyStorage: "omitted"},
+		Response: models.HTTPMessage{BodyStorage: "omitted"},
 	}
 }
 
