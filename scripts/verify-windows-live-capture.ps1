@@ -22,6 +22,8 @@ param(
 
     [string]$ArchScopeExe = "",
 
+    [string]$ElectronCommand = "electron.cmd",
+
     [int]$WaitForStopSeconds = 180
 )
 
@@ -134,9 +136,15 @@ try {
     foreach ($transport in @("http", "https")) {
         $urls = if ($transport -eq "http") { $httpUrls } else { $httpsUrls }
         $marker = "curl-$transport"
-        Invoke-Client -Client "curl" -Transport $transport -Marker $marker -Command "curl.exe" -Arguments @(
-            "--fail", "--silent", "--show-error", "--http1.1", "--proxy", $proxyUrl, $urls["curl"]
-        )
+        $curlArguments = @("--fail", "--silent", "--show-error", "--http1.1")
+        if ($transport -eq "https") {
+            # The short-lived ArchScope leaf has no CRL distribution point.
+            # Schannel must still validate the temporary CA and every other
+            # certificate error; only unavailable revocation data is tolerated.
+            $curlArguments += "--ssl-revoke-best-effort"
+        }
+        $curlArguments += @("--proxy", $proxyUrl, $urls["curl"])
+        Invoke-Client -Client "curl" -Transport $transport -Marker $marker -Command "curl.exe" -Arguments $curlArguments
         Invoke-Edge -Transport $transport -Marker "browser-$transport" -Url $urls["browser"]
     }
 
@@ -173,10 +181,16 @@ public class ArchScopeT581Client {
 
     $electronSource = Join-Path $tempRoot "t581-electron.cjs"
     @"
-const { app, net, session } = require("electron");
+const { app, session } = require("electron");
+app.setPath("userData", process.env.ARCHSCOPE_T581_USER_DATA);
+app.disableHardwareAcceleration();
 app.whenReady().then(async () => {
-  await session.defaultSession.setProxy({ proxyRules: process.argv[3] });
-  const response = await net.fetch(process.argv[2]);
+  const clientSession = session.fromPartition("t581-acceptance", { cache: false });
+  await clientSession.setProxy({
+    mode: "fixed_servers",
+    proxyRules: process.env.ARCHSCOPE_T581_PROXY
+  });
+  const response = await clientSession.fetch(process.env.ARCHSCOPE_T581_URL);
   if (!response.ok) throw new Error("HTTP " + response.status);
   const body = await response.text();
   console.log(response.status + " " + body.length);
@@ -188,9 +202,25 @@ app.whenReady().then(async () => {
 "@ | Set-Content -Path $electronSource -Encoding ASCII
     foreach ($transport in @("http", "https")) {
         $urls = if ($transport -eq "http") { $httpUrls } else { $httpsUrls }
-        Invoke-Client -Client "electron" -Transport $transport -Marker "electron-$transport" -Command "electron.cmd" -Arguments @(
-            $electronSource, $urls["electron"], $proxyUrl
-        )
+        $savedElectronUrl = $env:ARCHSCOPE_T581_URL
+        $savedElectronProxy = $env:ARCHSCOPE_T581_PROXY
+        $savedElectronUserData = $env:ARCHSCOPE_T581_USER_DATA
+        try {
+            # Electron treats additional URL-shaped command-line arguments as
+            # launch targets on Windows. Pass probe data through the child
+            # environment so the application script always remains the sole
+            # positional launch target.
+            $env:ARCHSCOPE_T581_URL = $urls["electron"]
+            $env:ARCHSCOPE_T581_PROXY = $ProxyAddress
+            $env:ARCHSCOPE_T581_USER_DATA = Join-Path $tempRoot "electron-$transport"
+            Invoke-Client -Client "electron" -Transport $transport -Marker "electron-$transport" -Command $ElectronCommand -Arguments @(
+                $electronSource
+            )
+        } finally {
+            $env:ARCHSCOPE_T581_URL = $savedElectronUrl
+            $env:ARCHSCOPE_T581_PROXY = $savedElectronProxy
+            $env:ARCHSCOPE_T581_USER_DATA = $savedElectronUserData
+        }
     }
 
     Write-Host "Client probes finished. Stop the ArchScope capture in the UI."

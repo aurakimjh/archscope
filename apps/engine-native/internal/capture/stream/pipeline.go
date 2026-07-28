@@ -414,7 +414,7 @@ func (p *Pipeline) abortInflight(ended time.Time) {
 	aborted := make([]models.CaptureTransaction, 0)
 	for _, id := range p.liveOrder {
 		tx, ok := p.liveByID[id]
-		if !ok || tx.State != models.TxRequestSent {
+		if !ok || (tx.State != models.TxRequestSent && tx.State != models.TxReceiving) {
 			continue
 		}
 		tx.State = models.TxAborted

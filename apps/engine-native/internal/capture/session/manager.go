@@ -48,16 +48,17 @@ var (
 )
 
 type Manager struct {
-	mu        sync.RWMutex
-	root      string
-	sink      EventSink
-	session   Session
-	store     *store.Store
-	pipeline  *stream.Pipeline
-	capturer  Capturer
-	authority *proxy.Authority
-	cancel    context.CancelFunc
-	platform  string
+	mu          sync.RWMutex
+	root        string
+	sink        EventSink
+	session     Session
+	store       *store.Store
+	pipeline    *stream.Pipeline
+	capturer    Capturer
+	authority   *proxy.Authority
+	cancel      context.CancelFunc
+	platform    string
+	newCapturer func(proxy.Config) (Capturer, error)
 }
 
 func NewManager(root string, sink EventSink) *Manager {
@@ -74,7 +75,12 @@ func NewManagerForPlatform(root string, sink EventSink, platform string) *Manage
 	if sink == nil {
 		sink = NopEventSink{}
 	}
-	return &Manager{root: root, sink: sink, platform: strings.ToLower(strings.TrimSpace(platform))}
+	return &Manager{
+		root: root, sink: sink, platform: strings.ToLower(strings.TrimSpace(platform)),
+		newCapturer: func(config proxy.Config) (Capturer, error) {
+			return proxy.New(config)
+		},
+	}
 }
 
 func (m *Manager) Modes() []Mode {
@@ -178,7 +184,7 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 			allowUntil[host] = started.Add(ttl)
 		}
 	}
-	capturer, err := proxy.New(proxy.Config{
+	capturer, err := m.newCapturer(proxy.Config{
 		ListenAddress: cfg.ListenAddress, Authority: m.authority,
 		Resolver: procmap.Resolver{}, AllowPassthrough: allowUntil,
 		Progress: func(tx models.CaptureTransaction) {
@@ -258,12 +264,16 @@ func (m *Manager) Stop(ctx context.Context, id SessionID) (Session, error) {
 	}
 	m.session.State = StateStopping
 	_ = m.store.SetState(StateStopping)
-	if m.cancel != nil {
-		m.cancel()
-	}
 	var stopErr error
 	if m.capturer != nil {
 		stopErr = m.capturer.Stop(ctx)
+	}
+	// Drain the capture source before cancelling the pipeline submission
+	// context. A transaction may complete while the proxy is shutting down;
+	// cancelling first can count that transaction as captured but prevent it
+	// from entering the durable queue.
+	if m.cancel != nil {
+		m.cancel()
 	}
 	if m.pipeline != nil {
 		stopErr = errors.Join(stopErr, m.pipeline.Close())

@@ -3,10 +3,12 @@ package session
 import (
 	"context"
 	"errors"
+	"net/http"
 	"testing"
 	"time"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/proxy"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 )
 
@@ -43,6 +45,74 @@ func TestManagerEnforcesSingleActiveSessionAndIdempotentStop(t *testing.T) {
 	}
 	if again.State != capture.StateFinalized || !again.EndedAt.Equal(*stopped.EndedAt) {
 		t.Fatalf("idempotent stop changed session: first=%+v second=%+v", stopped, again)
+	}
+}
+
+type drainOnStopCapturer struct {
+	startContext  context.Context
+	onTransaction func(models.CaptureTransaction) error
+	contextAtStop error
+	submitError   error
+}
+
+func (*drainOnStopCapturer) Name() string                         { return "drain-on-stop" }
+func (*drainOnStopCapturer) Available() (bool, string)            { return true, "" }
+func (*drainOnStopCapturer) RequiredPrivilege() capture.Privilege { return capture.PrivilegeNone }
+func (c *drainOnStopCapturer) Start(
+	ctx context.Context,
+	_ capture.Config,
+	onTransaction func(models.CaptureTransaction) error,
+) (string, error) {
+	c.startContext = ctx
+	c.onTransaction = onTransaction
+	return "127.0.0.1:43123", nil
+}
+func (c *drainOnStopCapturer) Stop(context.Context) error {
+	c.contextAtStop = c.startContext.Err()
+	c.submitError = c.onTransaction(models.CaptureTransaction{
+		ID: "completed-during-stop", Method: http.MethodGet,
+		URL: "http://example.test/drain", Scheme: "http",
+		Host: "example.test", Path: "/drain", State: models.TxComplete,
+		CaptureMode: proxy.CaptureModeMITM, Fidelity: proxy.FidelityDecodedWire,
+		Coverage: "confirmed",
+		Process: &models.ProcessInstance{
+			Name: "test-client", Attribution: "confirmed",
+		},
+		Request:  models.HTTPMessage{BodyStorage: proxy.BodyStorageOmitted},
+		Response: models.HTTPMessage{BodyStorage: proxy.BodyStorageOmitted},
+	})
+	return c.submitError
+}
+
+func TestManagerDrainsCaptureSourceBeforeCancellingSubmissions(t *testing.T) {
+	manager := NewManagerForPlatform(t.TempDir(), capture.NopEventSink{}, "windows")
+	capturer := &drainOnStopCapturer{}
+	manager.newCapturer = func(proxy.Config) (Capturer, error) {
+		return capturer, nil
+	}
+	started, err := manager.Start(context.Background(), capture.Config{
+		ListenAddress: "127.0.0.1:0", ReserveBytes: 0,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	stopped, err := manager.Stop(context.Background(), started.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if capturer.contextAtStop != nil {
+		t.Fatalf("submission context was cancelled before source drain: %v", capturer.contextAtStop)
+	}
+	if capturer.submitError != nil {
+		t.Fatalf("transaction completed during stop was not persisted: %v", capturer.submitError)
+	}
+	stats, err := manager.Stats(started.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if stopped.State != capture.StateFinalized ||
+		stats.Captured != 1 || stats.Persisted != 1 {
+		t.Fatalf("stopped=%+v stats=%+v", stopped, stats)
 	}
 }
 

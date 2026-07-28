@@ -73,6 +73,9 @@ func main() {
 		Mac: application.MacOptions{
 			ApplicationShouldTerminateAfterLastWindowClosed: true,
 		},
+		Windows: application.WindowsOptions{
+			AdditionalBrowserArgs: windowsAdditionalBrowserArgs(),
+		},
 	})
 
 	app.Window.NewWithOptions(application.WebviewWindowOptions{

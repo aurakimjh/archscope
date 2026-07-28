@@ -321,6 +321,44 @@ func TestProgressIsBatchedStableAndAbortedOnClose(t *testing.T) {
 	}
 }
 
+func TestCloseAbortsEveryInflightTransactionState(t *testing.T) {
+	st := testStore(t)
+	p, err := New(Config{
+		SessionID: "s", Store: st, LiveWindow: 10,
+		BatchInterval: time.Hour, StatsInterval: time.Hour,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, state := range []models.TxState{models.TxRequestSent, models.TxReceiving} {
+		tx := models.CaptureTransaction{
+			ID:       string(state),
+			Method:   "GET",
+			Host:     "example.test",
+			Path:     "/" + string(state),
+			State:    state,
+			Fidelity: "pending",
+		}
+		if err := p.TrackProgress(tx); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	if err := p.Close(); err != nil {
+		t.Fatal(err)
+	}
+	window := p.LiveWindow()
+	if len(window) != 2 {
+		t.Fatalf("closed live window=%+v", window)
+	}
+	for _, tx := range window {
+		if tx.State != models.TxAborted || tx.EndedAt == "" ||
+			tx.Error != "capture stopped before the transaction completed" {
+			t.Fatalf("in-flight transaction was not terminal after close: %+v", tx)
+		}
+	}
+}
+
 func TestPipelineRedactionIsSafeAcrossConcurrentProgressAndPersistence(t *testing.T) {
 	st := testStore(t)
 	p, err := New(Config{
