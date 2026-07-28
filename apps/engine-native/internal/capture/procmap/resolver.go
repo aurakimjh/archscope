@@ -40,6 +40,26 @@ func (Resolver) Resolve(client, proxy net.Addr) (*models.ProcessInstance, error)
 	if err != nil {
 		return nil, err
 	}
+	pid, ok := matchingOwnerPID(rows, clientTCP, proxyTCP)
+	if !ok {
+		return nil, fmt.Errorf("TCP owner row disappeared before attribution")
+	}
+	process := processInstance(pid)
+	if process.Key.StartTime == "" {
+		return process, nil
+	}
+	verificationRows, err := ownerPIDRows()
+	if err != nil {
+		return process, nil
+	}
+	verifiedPID, ok := matchingOwnerPID(verificationRows, clientTCP, proxyTCP)
+	if ok && verifiedPID == pid {
+		process.Attribution = "confirmed"
+	}
+	return process, nil
+}
+
+func matchingOwnerPID(rows []tcpRow, clientTCP, proxyTCP *net.TCPAddr) (int32, bool) {
 	for _, row := range rows {
 		if row.LocalPort != clientTCP.Port || row.RemotePort != proxyTCP.Port {
 			continue
@@ -47,9 +67,9 @@ func (Resolver) Resolve(client, proxy net.Addr) (*models.ProcessInstance, error)
 		if !sameIP(row.RemoteAddress, proxyTCP.IP) {
 			continue
 		}
-		return processInstance(row.OwningPID), nil
+		return row.OwningPID, true
 	}
-	return nil, fmt.Errorf("TCP owner row disappeared before attribution")
+	return 0, false
 }
 
 func sameIP(rowIP, addressIP net.IP) bool {

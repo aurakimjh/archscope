@@ -105,6 +105,7 @@ export class Session {
     "startedAt": time$0.Time;
     "endedAt"?: time$0.Time | null;
     "error"?: string;
+    "retainUnattributedMetadata": boolean;
 
     /** Creates a new Session instance. */
     constructor($$source: Partial<Session> = {}) {
@@ -122,6 +123,9 @@ export class Session {
         }
         if (!("startedAt" in $$source)) {
             this["startedAt"] = null;
+        }
+        if (!("retainUnattributedMetadata" in $$source)) {
+            this["retainUnattributedMetadata"] = false;
         }
 
         Object.assign(this, $$source);
@@ -156,6 +160,7 @@ export enum SessionState {
 export class Stats {
     "sessionId": SessionID;
     "state": SessionState;
+    "observed": number;
     "captured": number;
     "persisted": number;
     "bodyOmitted": number;
@@ -178,6 +183,9 @@ export class Stats {
         }
         if (!("state" in $$source)) {
             this["state"] = SessionState.$zero;
+        }
+        if (!("observed" in $$source)) {
+            this["observed"] = 0;
         }
         if (!("captured" in $$source)) {
             this["captured"] = 0;

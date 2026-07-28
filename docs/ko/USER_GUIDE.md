@@ -132,7 +132,8 @@ trace, contract를 분석하며, application source code를 정적 분석하거�
 ## Windows 실시간 HTTP 캡처
 
 HTTP Capture 화면에는 T-581 Windows 실시간 캡처 review candidate가 포함되어
-있습니다.
+있습니다. 현재 H-RG4 판정은 `CONDITIONAL`이므로 릴리스된 capture tier가 아니라
+acceptance 작업 용도로 사용합니다.
 
 1. 최초 사용 프록시/CA 경고를 읽고 동의합니다.
 2. HTTPS 가로채기가 필요하면 임시 캡처 CA를 설치합니다.
@@ -146,22 +147,40 @@ HTTP Capture 화면에는 T-581 Windows 실시간 캡처 review candidate가 포
 실시간 renderer는 최신 metadata-only 행 500개를 유지하며 renderer event가
 누락되면 권위 있는 live window를 다시 불러옵니다. 요청·응답 body는 항상
 생략하며 SEC-10 crash-dump 제외 preflight가 구현되기 전에는 body capture를
-활성화하지 않습니다. H2-only, QUIC, pinning, passthrough, unattributed 상태는
-성공한 decoded capture처럼 표시하지 않고 명시적으로 노출합니다.
+활성화하지 않습니다. 백엔드는 아직 결정되지 않은 MITM progress 행에는
+`pending`, passthrough에는 `unsupported`를 사용하며 opaque in-flight 트래픽을
+semantic capture로 표시하지 않습니다. Windows CurrentUser root store는 Windows
+신뢰 저장소를 사용하는 client에만 적용됩니다. JVM/JSSE와 NSS 기반 client는 별도
+CA import가 필요하므로 acceptance harness의 JVM HTTPS에는 JVM truststore가
+필수입니다.
+
+`coverage: confirmed`의 의미는 제한적입니다. 동일 client/proxy endpoint tuple과
+owner PID를 연속 두 번의 TCP-owner table 조회에서 확인하고 process start time을
+얻었다는 뜻입니다. 전체 트래픽 coverage나 모든 PID 재사용 race 제거를 의미하지
+않습니다. 불안정하거나 사라진 row는 `inferred`/`unknown`이며 SEC-17 metadata
+보존을 명시적으로 켜지 않으면 drop합니다.
 
 Windows acceptance와 package signature 증거 생성:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/verify-windows-live-capture.ps1 `
   -ProxyAddress 127.0.0.1:43123 `
-  -TargetUrl http://127.0.0.1:8080/health `
+  -HttpTargetUrl http://127.0.0.1:8080/health `
+  -HttpsTargetUrl https://example.test/health `
+  -SessionPath "$env:LOCALAPPDATA\ArchScope\captures\cap-..." `
+  -ArchScopeEngineExe .\bin\archscope-engine.exe `
+  -JavaTrustStore .\tmp\archscope-t581.jks `
   -ArchScopeExe .\bin\archscope.exe
 ```
 
-Harness는 설치된 browser/curl/JVM/Electron client를 사용할 수 있을 때 실행하고
-JSON operator-evidence checklist를 기록합니다. 실제 Windows 시나리오,
-long-session/re-entry/recovery와 독립 H-RG4 판정이 통과하기 전까지 T-581은
-`REVIEW` 상태입니다.
+Harness는 browser/curl/JVM/Electron의 HTTP와 HTTPS를 모두 필수로 실행하고,
+operator가 UI capture를 중지할 때까지 기다린 뒤 read-only
+`http-capture acceptance-evidence` 엔진 명령으로 실제 제품 row/stats를
+readback합니다. 필수 client 부재, marker row 누락, mode/fidelity/coverage/body
+storage 계약 불일치가 있으면 실패합니다. 이 명령은 capture를 시작하지 않으며
+metadata-only 증거를 owner-only 권한으로 기록합니다. 남은 UI 수정,
+unsupported-tier/long-session/re-entry/recovery 시나리오와 독립 H-RG4 재리뷰가
+Windows에서 통과하기 전까지 T-581은 `REVIEW` 상태입니다.
 
 ## 네이티브 앱
 

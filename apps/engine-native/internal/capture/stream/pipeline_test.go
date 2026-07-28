@@ -3,6 +3,7 @@ package stream
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"reflect"
 	"strings"
@@ -12,19 +13,27 @@ import (
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/aggregate"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/redact"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/store"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 )
 
 type recordingSink struct {
-	mu           sync.Mutex
-	transactions int
-	stats        int
-	aggregates   int
+	mu            sync.Mutex
+	transactions  int
+	progressCalls int
+	progressItems int
+	stats         int
+	aggregates    int
 }
 
-func (*recordingSink) Started(capture.Session)                               {}
-func (*recordingSink) Progress(capture.SessionID, models.CaptureTransaction) {}
+func (*recordingSink) Started(capture.Session) {}
+func (s *recordingSink) Progress(_ capture.SessionID, tx []models.CaptureTransaction) {
+	s.mu.Lock()
+	s.progressCalls++
+	s.progressItems += len(tx)
+	s.mu.Unlock()
+}
 func (s *recordingSink) Transactions(_ capture.SessionID, _, _ uint64, tx []models.CaptureTransaction) {
 	s.mu.Lock()
 	s.transactions += len(tx)
@@ -53,7 +62,7 @@ func TestPipelinePersistsAllWhileBoundingLiveWindow(t *testing.T) {
 	}
 	for i := 0; i < 20; i++ {
 		tx := models.CaptureTransaction{
-			ID: "tx", Method: "GET", URL: "https://example.test/?token=secret",
+			ID: fmt.Sprintf("tx-%d", i), Method: "GET", URL: "https://example.test/?token=secret",
 			Host: "example.test", Path: "/", StatusCode: 200, State: models.TxComplete,
 			Request:  models.HTTPMessage{Headers: []models.HeaderField{{Name: "Authorization", Value: "Bearer secret"}}},
 			Response: models.HTTPMessage{},
@@ -66,7 +75,7 @@ func TestPipelinePersistsAllWhileBoundingLiveWindow(t *testing.T) {
 		t.Fatal(err)
 	}
 	stats := p.Stats(capture.StateFinalized)
-	if stats.Captured != 20 || stats.Persisted != 20 {
+	if stats.Observed != 20 || stats.Captured != 20 || stats.Persisted != 20 {
 		t.Fatalf("stats=%+v", stats)
 	}
 	if len(p.LiveWindow()) != 5 {
@@ -165,7 +174,7 @@ func TestPipelineRejectsSingleRecordOverHardLimit(t *testing.T) {
 		t.Fatalf("err=%v", err)
 	}
 	stats := p.Stats(capture.StateRunning)
-	if stats.Captured != 1 || stats.Persisted != 0 {
+	if stats.Observed != 1 || stats.Captured != 1 || stats.Persisted != 0 {
 		t.Fatalf("stats=%+v", stats)
 	}
 }
@@ -199,7 +208,7 @@ func TestPipelineDropsUnattributedByDefaultAndRetainsOnlyWithOptIn(t *testing.T)
 		t.Fatal(err)
 	}
 	droppedStats := dropped.Stats(capture.StateFinalized)
-	if droppedStats.Unattributed != 1 || droppedStats.Dropped != 1 ||
+	if droppedStats.Observed != 1 || droppedStats.Unattributed != 1 || droppedStats.Dropped != 1 ||
 		droppedStats.Captured != 0 || droppedStats.Persisted != 0 {
 		t.Fatalf("default stats=%+v", droppedStats)
 	}
@@ -216,7 +225,7 @@ func TestPipelineDropsUnattributedByDefaultAndRetainsOnlyWithOptIn(t *testing.T)
 		t.Fatal(err)
 	}
 	retainedStats := retained.Stats(capture.StateFinalized)
-	if retainedStats.Unattributed != 1 || retainedStats.Dropped != 0 ||
+	if retainedStats.Observed != 1 || retainedStats.Unattributed != 1 || retainedStats.Dropped != 0 ||
 		retainedStats.Captured != 1 || retainedStats.Persisted != 1 {
 		t.Fatalf("opt-in stats=%+v", retainedStats)
 	}
@@ -256,6 +265,136 @@ func TestLiveMetadataIsRedactedBeforeRendererExposure(t *testing.T) {
 		strings.Contains(string(encoded), "example-user") ||
 		strings.Contains(string(encoded), "blob-secret") {
 		t.Fatalf("renderer metadata leaked sensitive content: %s", encoded)
+	}
+}
+
+func TestProgressIsBatchedStableAndAbortedOnClose(t *testing.T) {
+	st := testStore(t)
+	sink := &recordingSink{}
+	p, err := New(Config{
+		SessionID: "s", Store: st, EventSink: sink, LiveWindow: 10,
+		BatchInterval: 10 * time.Millisecond, StatsInterval: time.Hour,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	process := &models.ProcessInstance{Name: "client", Attribution: "confirmed"}
+	first := models.CaptureTransaction{
+		ID: "first", Method: "GET", Host: "example.test", Path: "/first",
+		State: models.TxRequestSent, Fidelity: "pending", Process: process,
+	}
+	second := models.CaptureTransaction{
+		ID: "second", Method: "CONNECT", Host: "example.test", Path: "",
+		State: models.TxRequestSent, Fidelity: "unsupported", Process: process,
+	}
+	if err := p.TrackProgress(first); err != nil {
+		t.Fatal(err)
+	}
+	if err := p.TrackProgress(second); err != nil {
+		t.Fatal(err)
+	}
+	time.Sleep(30 * time.Millisecond)
+	sink.mu.Lock()
+	progressCalls, progressItems := sink.progressCalls, sink.progressItems
+	sink.mu.Unlock()
+	if progressCalls != 1 || progressItems != 2 {
+		t.Fatalf("progress calls=%d items=%d", progressCalls, progressItems)
+	}
+	first.State = models.TxComplete
+	first.Fidelity = "decoded_wire"
+	first.StatusCode = http.StatusOK
+	if err := p.Submit(context.Background(), first); err != nil {
+		t.Fatal(err)
+	}
+	window := p.LiveWindow()
+	if len(window) != 2 || window[0].ID != "first" ||
+		window[0].State != models.TxComplete || window[1].ID != "second" {
+		t.Fatalf("stable live window=%+v", window)
+	}
+	if err := p.Close(); err != nil {
+		t.Fatal(err)
+	}
+	window = p.LiveWindow()
+	if len(window) != 2 || window[1].State != models.TxAborted ||
+		window[1].Fidelity != "unsupported" {
+		t.Fatalf("closed live window=%+v", window)
+	}
+}
+
+func TestPipelineRedactionIsSafeAcrossConcurrentProgressAndPersistence(t *testing.T) {
+	st := testStore(t)
+	p, err := New(Config{
+		SessionID: "s", Store: st, LiveWindow: 64,
+		BatchInterval: time.Hour, StatsInterval: time.Hour,
+		Redaction: redact.NewPolicy(redact.Options{
+			CustomPatterns: []string{`example-secret`},
+			RuleTimeLimit:  time.Nanosecond,
+		}),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	const workers = 32
+	const transactionsPerWorker = 20
+	var wg sync.WaitGroup
+	errs := make(chan error, workers)
+	for worker := 0; worker < workers; worker++ {
+		wg.Add(1)
+		go func(worker int) {
+			defer wg.Done()
+			for index := 0; index < transactionsPerWorker; index++ {
+				tx := models.CaptureTransaction{
+					ID:  fmt.Sprintf("tx-%d-%d", worker, index),
+					URL: "https://example.test/path?token=example-secret",
+					Process: &models.ProcessInstance{
+						Name:        "client",
+						CommandLine: "client --password example-secret",
+						Attribution: "confirmed",
+					},
+					Request: models.HTTPMessage{
+						Headers: []models.HeaderField{
+							{Name: "Authorization", Value: "Bearer example-secret"},
+							{Name: "Cookie", Value: "session=example-secret"},
+						},
+						BodyStorage: "omitted",
+					},
+					Response: models.HTTPMessage{
+						Headers: []models.HeaderField{
+							{Name: "Set-Cookie", Value: "session=example-secret"},
+						},
+						BodyStorage: "omitted",
+					},
+				}
+				live := p.LiveMetadata(tx)
+				encoded, marshalErr := json.Marshal(live)
+				if marshalErr != nil {
+					errs <- marshalErr
+					return
+				}
+				if strings.Contains(string(encoded), "example-secret") {
+					errs <- fmt.Errorf("renderer metadata leaked a secret")
+					return
+				}
+				if submitErr := p.Submit(context.Background(), tx); submitErr != nil {
+					errs <- submitErr
+					return
+				}
+				_ = p.cfg.Redaction.Warnings()
+				_ = p.cfg.Redaction.Summary()
+			}
+		}(worker)
+	}
+	wg.Wait()
+	close(errs)
+	for err := range errs {
+		t.Error(err)
+	}
+	if err := p.Close(); err != nil {
+		t.Fatal(err)
+	}
+	stats := p.Stats(capture.StateFinalized)
+	if stats.Persisted != workers*transactionsPerWorker {
+		t.Fatalf("stats=%+v", stats)
 	}
 }
 

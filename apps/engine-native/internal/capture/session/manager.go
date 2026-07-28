@@ -57,20 +57,28 @@ type Manager struct {
 	capturer  Capturer
 	authority *proxy.Authority
 	cancel    context.CancelFunc
+	platform  string
 }
 
 func NewManager(root string, sink EventSink) *Manager {
+	return NewManagerForPlatform(root, sink, runtime.GOOS)
+}
+
+// NewManagerForPlatform creates a manager with a deterministic capability
+// platform. Production callers use NewManager; this constructor exists for
+// cross-platform contract tests and Windows cross-compilation acceptance.
+func NewManagerForPlatform(root string, sink EventSink, platform string) *Manager {
 	if strings.TrimSpace(root) == "" {
 		root = filepath.Join(os.TempDir(), "archscope-captures")
 	}
 	if sink == nil {
 		sink = NopEventSink{}
 	}
-	return &Manager{root: root, sink: sink}
+	return &Manager{root: root, sink: sink, platform: strings.ToLower(strings.TrimSpace(platform))}
 }
 
 func (m *Manager) Modes() []Mode {
-	available := runtime.GOOS == "windows"
+	available := m.platform == "windows"
 	reason := ""
 	if !available {
 		reason = "supported live capture requires Windows TCP-owner process attribution"
@@ -112,6 +120,9 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 	if activeState(m.session.State) {
 		return Session{}, ErrSessionActive
 	}
+	if m.platform != "windows" {
+		return Session{}, fmt.Errorf("%w: supported live capture requires Windows TCP-owner process attribution", capture.ErrModeUnavailable)
+	}
 	id, err := newSessionID()
 	if err != nil {
 		return Session{}, err
@@ -137,6 +148,7 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 	started := time.Now().UTC()
 	session := Session{
 		ID: id, State: StateStarting, StorePath: st.Path(), StartedAt: started,
+		RetainUnattributedMetadata: cfg.RetainUnattributedMetadata,
 	}
 	if err := st.SetState(StateStarting); err != nil {
 		_ = st.Finalize(StateFailed)
@@ -173,7 +185,7 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 			if !retainLiveMetadata(tx, cfg.RetainUnattributedMetadata) {
 				return
 			}
-			m.sink.Progress(id, pipeline.LiveMetadata(tx))
+			_ = pipeline.TrackProgress(tx)
 		},
 	})
 	if err != nil {
@@ -184,10 +196,10 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 	runCtx, cancel := context.WithCancel(ctx)
 	fatal := make(chan error, 1)
 	address, err := capturer.Start(runCtx, cfg, func(tx models.CaptureTransaction) error {
-		if tx.Fidelity == "unsupported" {
+		if tx.Fidelity == proxy.FidelityUnsupported {
 			pipeline.MarkUnsupported()
 		}
-		if tx.CaptureMode == "proxy_passthrough" {
+		if tx.CaptureMode == proxy.CaptureModePassthrough {
 			pipeline.MarkPassthrough()
 		}
 		err := pipeline.Submit(runCtx, tx)
@@ -270,6 +282,11 @@ func (m *Manager) Stop(ctx context.Context, id SessionID) (Session, error) {
 				"error": errorString(stopErr), "captured": stats.Captured, "persisted": stats.Persisted,
 			},
 		})
+	}
+	stats = m.pipeline.Stats(finalState)
+	if err := m.store.SetCaptureStats(stats); err != nil {
+		stopErr = errors.Join(stopErr, err)
+		finalState = StateRecoverable
 	}
 	if err := m.store.Finalize(finalState); err != nil {
 		stopErr = errors.Join(stopErr, err)

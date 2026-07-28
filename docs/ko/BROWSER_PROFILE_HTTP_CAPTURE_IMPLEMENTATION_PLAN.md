@@ -21,8 +21,8 @@
   **완료 — 통합 PASS (2026-07-21)**다. T-571/H-RG2는 2026-07-27 독립
   `H-COV1 PASS`로 닫혔고, T-580/H-RG3도 2026-07-28 독립 `H-SEC2 PASS`로
   닫혔다. T-581/H-RG4 Windows 실시간 UI와 E2E는 2026-07-28 독립
-  `CONDITIONAL` 판정 후 `REVIEW`에 남아 있다. L1–L3은 `PASS` 차단 항목이고,
-  L4–L7은 수정 또는 근거 있는 수용, L8–L14는 명시적 처리가 필요하다.
+  `CONDITIONAL` 판정 후 `REVIEW`에 남아 있다. Codex 소유 백엔드 수정은
+  완료됐으며 Claude 소유 UI/state 수정, 실제 Windows 증거, 독립 재리뷰가 남았다.
 
 ## 2. 역할과 소유권
 
@@ -78,7 +78,7 @@ Claude가 담당한다.
 | 2 | `H-RG1` HAR 오프라인 분석 완성 | **완료 — 통합 PASS (2026-07-21)** | 종료 |
 | 3 | `H-RG2` Windows coverage proof | **완료 — H-COV1 PASS (2026-07-27)** | 종료 |
 | 4 | `H-RG3` 실시간 캡처 엔진 기반 | **완료 — H-SEC2 PASS (2026-07-28)** | 종료 |
-| 5 | `H-RG4` 실시간 UI 및 Windows E2E | **REVIEW — CONDITIONAL (2026-07-28)** | 수정, Windows 증거, 독립 `PASS` 대기 |
+| 5 | `H-RG4` 실시간 UI 및 Windows E2E | **REVIEW — CONDITIONAL 후 백엔드 수정 완료** | Claude UI 수정, Windows 증거, 독립 `PASS` 대기 |
 | 6 | `H-RG5` HTTP 세션 Diff | 계획 | `H-RG4 PASS` |
 | 7 | `X-RG1` HTTP × 프로파일/서버 증거 교차 분석 | 계획 | `H-RG5 PASS` |
 | 8 | `R-RG1` 통합 릴리스 승인 | 계획 | `X-RG1 PASS` |
@@ -261,24 +261,28 @@ streaming, H2 passthrough fixture와 long-session memory bound가 통과해야 �
 차단한다. L1은 passthrough progress 행의 semantic fidelity 오표시, L2는 redaction
 policy의 확인된 동시성 race, L3은 실제 ArchScope 캡처를 readback·증명하지 못하는
 acceptance package다. L4–L7은 수정 또는 명시적 수용, L8–L14는 fix/defer 결정이
-필요하다.
+필요하다. 백엔드 범위는 수정됐지만 Claude UI handoff, 실제 Windows 증거, 독립
+재리뷰 없이는 `PASS`가 아니다.
 
 #### Codex 통합
 
 - [x] 고정된 CaptureService binding과 Windows E2E harness 제공
 - [x] 엔진 snapshot/cursor/filter semantics를 UI acceptance fixture로 제공
 - [x] 패키지/서명/권한 경계 smoke 지원
-- [ ] L2: redaction을 동시성 안전하게 만들고 stream race test로 고정
-- [ ] L1: passthrough progress에 비-semantic fidelity를 내보내고 stop-mid-tunnel 검증
-- [ ] L3: acceptance fixture를 제품 상수/transaction에 연결하고 Windows harness가
+- [x] L2: redaction을 동시성 안전하게 만들고 stream race test로 고정
+- [x] L1: passthrough progress에 비-semantic fidelity를 내보내고 stop-mid-tunnel 검증
+- [x] L3: acceptance fixture를 제품 상수/transaction에 연결하고 Windows harness가
   캡처 row/stats를 readback하며 필수 client 부재 시 실패하도록 개선
-- [ ] L4–L7 백엔드 계약: bounded progress batch, 진행 행 terminal reconciliation,
+- [x] L4–L7 백엔드 계약: bounded progress batch, 진행 행 terminal reconciliation,
   활성 SEC-17 정책 공개, observed/drop counter
-- [ ] L9/L11/L13: manager에서 platform availability 강제, CONNECT 가상 path 제거,
+- [x] L9/L11/L13: manager에서 platform availability 강제, CONNECT 가상 path 제거,
   confirmed attribution 보장 범위 문서화
 
-Codex는 위 백엔드 계약, 생성 binding, fixture, 엔진 검증을 고정한 뒤 작업을
-멈추고 handoff한다. React/UI/state/i18n 수정은 Claude가 담당한다.
+Codex는 위 백엔드 계약, 생성 binding, fixture, 엔진 검증을 고정하고 작업을
+멈췄다. 새 read-only `http-capture acceptance-evidence` 명령은 종료된 제품
+session에서 bounded metadata를 owner-only 권한으로 내보낸다. Windows harness는
+네 client의 HTTP/HTTPS row를 필수로 검증하고 누락·계약 불일치 시 실패한다.
+React/UI/state/i18n 수정은 Claude가 담당한다.
 
 #### 실시간 UI
 
@@ -290,7 +294,8 @@ Codex는 위 백엔드 계약, 생성 binding, fixture, 엔진 검증을 고정�
 - [x] stop 후 같은 화면에서 finalized session lazy loading
 
 Claude는 L1 표시, L4 renderer 동작, L5 unresolved-row UX, L6 authoritative SEC-17
-재진입 상태, L7 경고와 L8/L10/L12/L14의 fix/defer 처리를 담당한다.
+재진입 상태, L7 경고와 L8/L12/L14의 fix/defer 처리를 담당한다. L10은 paired
+user guide와 JVM truststore harness 계약으로 닫혔다.
 
 SEC-17은 renderer 아래에서 강제된다. unknown attribution은 기본적으로 저장과
 progress 노출 전에 drop하며, 명시적 opt-in을 선택해도 리댁션된 metadata만
@@ -349,7 +354,7 @@ HAR pseudo-process 비교에서 지원하지 않는 정규화/차원을 숨기�
 
 T-580 / `H-RG3` 엔진 구현은 2026-07-27 `REVIEW`에 진입했고 2026-07-28 독립
 `H-SEC2` CA/TLS/권한 게이트를 통과했다. T-581 / H-RG4는 2026-07-28
-`CONDITIONAL` 판정 후 `REVIEW`에 남아 있다. 다음 행동은 L1–L3 차단 항목 수정,
-L4–L7 해결/수용, L8–L14 처리 후 실제 제품 readback 기반 Windows
-browser/curl/JVM/Electron, long-session, 재진입, 복구, 미지원 tier 증거를 만들고
-독립 재리뷰를 받는 것이다.
+`CONDITIONAL` 판정 후 `REVIEW`에 남아 있다. Codex 백엔드 수정은 완료됐다.
+다음 행동은 Claude UI/state/i18n 수정과 finding 처리 후 실제 제품 readback 기반
+Windows browser/curl/JVM/Electron, long-session, 재진입, 복구, 미지원 tier
+증거를 만들고 독립 재리뷰를 받는 것이다.

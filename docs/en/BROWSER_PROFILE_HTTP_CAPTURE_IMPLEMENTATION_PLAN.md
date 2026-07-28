@@ -20,8 +20,9 @@ group and **the next group cannot start until the current group passes**.
   verification. T-571/H-RG2 closed with independent `H-COV1 PASS` on
   2026-07-27, and T-580/H-RG3 closed with independent `H-SEC2 PASS` on
   2026-07-28. T-581/H-RG4 Windows live UI and E2E remains in `REVIEW` after an
-  independent `CONDITIONAL` verdict on 2026-07-28. L1–L3 block `PASS`; L4–L7
-  require remediation or recorded acceptance; L8–L14 require disposition.
+  independent `CONDITIONAL` verdict on 2026-07-28. The Codex-owned backend
+  remediation is complete; Claude-owned UI/state remediation, real Windows
+  evidence, and independent re-review remain.
 
 ## 2. Ownership
 
@@ -73,7 +74,7 @@ Only high-consequence boundaries receive an extra per-item gate:
 | 2 | `H-RG1` complete offline HAR analysis | **Complete — integrated PASS (2026-07-21)** | Closed |
 | 3 | `H-RG2` Windows coverage proof | **Complete — H-COV1 PASS (2026-07-27)** | Closed |
 | 4 | `H-RG3` live-capture engine foundation | **Complete — H-SEC2 PASS (2026-07-28)** | Closed |
-| 5 | `H-RG4` live UI and Windows E2E | **REVIEW — CONDITIONAL (2026-07-28)** | Remediation, Windows evidence, and independent `PASS` pending |
+| 5 | `H-RG4` live UI and Windows E2E | **REVIEW — backend remediated after CONDITIONAL** | Claude UI remediation, Windows evidence, and independent `PASS` pending |
 | 6 | `H-RG5` HTTP session Diff | Planned | `H-RG4 PASS` |
 | 7 | `X-RG1` HTTP x profile/server-evidence correlation | Planned | `H-RG5 PASS` |
 | 8 | `R-RG1` integrated release acceptance | Planned | `X-RG1 PASS` |
@@ -260,25 +261,30 @@ block `PASS`: L1 passthrough progress rows claim semantic fidelity, L2 the
 redaction policy has a confirmed concurrency race, and L3 the acceptance
 package cannot read back and prove actual ArchScope captures. L4–L7 must be
 resolved or explicitly accepted; L8–L14 need a recorded fix/defer decision.
+The backend portions are now remediated; this does not constitute `PASS`
+without the Claude UI handoff, real Windows evidence, and independent re-review.
 
 #### Codex Integration
 
 - [x] Supply frozen CaptureService bindings and the Windows E2E harness.
 - [x] Supply snapshot/cursor/filter acceptance fixtures.
 - [x] Support packaging, signing, and privilege-boundary smoke tests.
-- [ ] L2: make redaction concurrency-safe and lock it with a stream race test.
-- [ ] L1: emit honest non-semantic progress fidelity for passthrough and cover
+- [x] L2: make redaction concurrency-safe and lock it with a stream race test.
+- [x] L1: emit honest non-semantic progress fidelity for passthrough and cover
   stop-mid-tunnel behavior.
-- [ ] L3: bind acceptance fixtures to product constants/transactions and make
+- [x] L3: bind acceptance fixtures to product constants/transactions and make
   the Windows harness read back capture rows/stats and fail on absent clients.
-- [ ] L4–L7 backend contracts: bounded progress batches, terminal in-flight
+- [x] L4–L7 backend contracts: bounded progress batches, terminal in-flight
   reconciliation, active SEC-17 policy disclosure, and observed/drop counters.
-- [ ] L9/L11/L13: enforce platform availability in the manager, avoid fabricated
+- [x] L9/L11/L13: enforce platform availability in the manager, avoid fabricated
   CONNECT paths, and document the confirmed-attribution guarantee boundary.
 
-Codex stops after these backend contracts, generated bindings, fixtures, and
-engine verification are frozen. React/UI/state/i18n remediation is handed to
-Claude.
+Codex has stopped after freezing these backend contracts, generated bindings,
+fixtures, and engine verification. The new read-only
+`http-capture acceptance-evidence` command exports bounded metadata from a
+stopped product session with owner-only permissions; the Windows harness
+requires HTTP/HTTPS rows for all four clients and fails on missing or
+contradictory evidence. React/UI/state/i18n remediation is handed to Claude.
 
 #### Live UI
 
@@ -291,7 +297,8 @@ Claude.
 
 Claude owns L1 presentation, L4 renderer behavior, L5 unresolved-row UX, L6
 authoritative SEC-17 re-entry state, L7 warnings, and the fix/defer disposition
-for L8/L10/L12/L14.
+for L8/L12/L14. L10 is closed in the paired user guides and JVM truststore
+harness contract.
 
 SEC-17 is enforced below the renderer: unknown attribution is dropped by
 default before persistence or progress exposure, and the explicit opt-in keeps
@@ -349,7 +356,8 @@ HAR pseudo-process sessions.
 
 T-580 / `H-RG3` entered `REVIEW` on 2026-07-27 and passed the independent
 `H-SEC2` CA/TLS/privilege gate on 2026-07-28. T-581 / H-RG4 remains in `REVIEW`
-after the 2026-07-28 `CONDITIONAL` verdict. The next action is L1–L3 blocker
-remediation, L4–L7 resolution/acceptance, and L8–L14 disposition, followed by
-real product-readback Windows browser/curl/JVM/Electron, long-session,
-re-entry, recovery, and unsupported-tier evidence and an independent re-review.
+after the 2026-07-28 `CONDITIONAL` verdict. Codex backend remediation is
+complete. The next action is Claude UI/state/i18n remediation and disposition,
+followed by real product-readback Windows browser/curl/JVM/Electron,
+long-session, re-entry, recovery, and unsupported-tier evidence and an
+independent re-review.

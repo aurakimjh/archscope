@@ -59,6 +59,17 @@
     "restoreCurrentSessionOnPageReentry": true,
     "finalizedSessionUsesAnalysisResult": true
   },
+  "acceptanceEvidence": {
+    "schemaVersion": 1,
+    "maxRows": 2000,
+    "requiresTerminalSession": true,
+    "productReadback": true,
+    "failsOnMissingClient": true,
+    "transports": [
+      "http",
+      "https"
+    ]
+  },
   "store": {
     "stableSnapshotCursor": true,
     "sessionBoundCursor": true,

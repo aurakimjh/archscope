@@ -34,6 +34,7 @@ var (
 	ErrSessionActive    = errors.New("a capture session is already active")
 	ErrSessionNotFound  = errors.New("capture session not found")
 	ErrBackpressureHard = errors.New("capture write queue reached its hard byte limit")
+	ErrModeUnavailable  = errors.New("live capture mode is unavailable on this platform")
 )
 
 type OverflowPolicy string
@@ -62,6 +63,7 @@ type Config struct {
 type Stats struct {
 	SessionID       SessionID    `json:"sessionId"`
 	State           SessionState `json:"state"`
+	Observed        uint64       `json:"observed"`
 	Captured        uint64       `json:"captured"`
 	Persisted       uint64       `json:"persisted"`
 	BodyOmitted     uint64       `json:"bodyOmitted"`
@@ -79,13 +81,14 @@ type Stats struct {
 }
 
 type Session struct {
-	ID            SessionID    `json:"sessionId"`
-	State         SessionState `json:"state"`
-	ListenAddress string       `json:"listenAddress"`
-	StorePath     string       `json:"storePath"`
-	StartedAt     time.Time    `json:"startedAt"`
-	EndedAt       *time.Time   `json:"endedAt,omitempty"`
-	Error         string       `json:"error,omitempty"`
+	ID                         SessionID    `json:"sessionId"`
+	State                      SessionState `json:"state"`
+	ListenAddress              string       `json:"listenAddress"`
+	StorePath                  string       `json:"storePath"`
+	StartedAt                  time.Time    `json:"startedAt"`
+	EndedAt                    *time.Time   `json:"endedAt,omitempty"`
+	Error                      string       `json:"error,omitempty"`
+	RetainUnattributedMetadata bool         `json:"retainUnattributedMetadata"`
 }
 
 type Mode struct {
@@ -98,7 +101,7 @@ type Mode struct {
 
 type EventSink interface {
 	Started(Session)
-	Progress(SessionID, models.CaptureTransaction)
+	Progress(SessionID, []models.CaptureTransaction)
 	Transactions(SessionID, uint64, uint64, []models.CaptureTransaction)
 	Aggregate(SessionID, uint64, uint64, any)
 	Stats(Stats)
@@ -109,7 +112,7 @@ type EventSink interface {
 type NopEventSink struct{}
 
 func (NopEventSink) Started(Session)                                                     {}
-func (NopEventSink) Progress(SessionID, models.CaptureTransaction)                       {}
+func (NopEventSink) Progress(SessionID, []models.CaptureTransaction)                     {}
 func (NopEventSink) Transactions(SessionID, uint64, uint64, []models.CaptureTransaction) {}
 func (NopEventSink) Aggregate(SessionID, uint64, uint64, any)                            {}
 func (NopEventSink) Stats(Stats)                                                         {}

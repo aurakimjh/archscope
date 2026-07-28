@@ -95,7 +95,7 @@ func processInstance(pid int32) *models.ProcessInstance {
 	process := &models.ProcessInstance{
 		Key:         models.ProcessKey{PID: pid},
 		Name:        "pid-" + strconv.FormatInt(int64(pid), 10),
-		Attribution: "confirmed",
+		Attribution: "inferred",
 	}
 	handle, err := windows.OpenProcess(windows.PROCESS_QUERY_LIMITED_INFORMATION, false, uint32(pid))
 	if err != nil {

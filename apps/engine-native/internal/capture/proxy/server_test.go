@@ -72,7 +72,8 @@ func TestMITMForwardsH1WithVerifiedUpstream(t *testing.T) {
 	var progress models.CaptureTransaction
 	select {
 	case progress = <-progressed:
-		if progress.State != models.TxRequestSent || progress.Path != "/ready" {
+		if progress.State != models.TxRequestSent || progress.Path != "/ready" ||
+			progress.Fidelity != FidelityPending {
 			t.Fatalf("progress=%+v", progress)
 		}
 	case <-time.After(3 * time.Second):
@@ -152,7 +153,11 @@ func TestH2OnlyALPNIsExplicitPassthrough(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer authority.Close()
-	server, err := New(Config{ListenAddress: "127.0.0.1:0", Authority: authority})
+	progressed := make(chan models.CaptureTransaction, 1)
+	server, err := New(Config{
+		ListenAddress: "127.0.0.1:0", Authority: authority,
+		Progress: func(tx models.CaptureTransaction) { progressed <- tx },
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -166,7 +171,6 @@ func TestH2OnlyALPNIsExplicitPassthrough(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer stopServer(t, server)
 	conn, err := net.Dial("tcp", address)
 	if err != nil {
 		t.Fatal(err)
@@ -192,10 +196,24 @@ func TestH2OnlyALPNIsExplicitPassthrough(t *testing.T) {
 	if tlsConn.ConnectionState().NegotiatedProtocol != "h2" {
 		t.Fatalf("ALPN=%q", tlsConn.ConnectionState().NegotiatedProtocol)
 	}
-	tlsConn.Close()
+	select {
+	case progress := <-progressed:
+		if progress.CaptureMode != CaptureModePassthrough ||
+			progress.Fidelity != FidelityUnsupported ||
+			progress.State != models.TxRequestSent ||
+			progress.Path != "" {
+			t.Fatalf("passthrough progress=%+v", progress)
+		}
+	case <-time.After(3 * time.Second):
+		t.Fatal("timed out waiting for h2 passthrough progress")
+	}
+	stopServer(t, server)
 	select {
 	case tx := <-captured:
-		if tx.CaptureMode != "proxy_passthrough" || tx.Fidelity != "unsupported" || tx.HTTPVersion != "h2" {
+		if tx.CaptureMode != CaptureModePassthrough ||
+			tx.Fidelity != FidelityUnsupported ||
+			tx.HTTPVersion != "h2" ||
+			tx.Path != "" {
 			t.Fatalf("transaction=%+v", tx)
 		}
 	case <-time.After(3 * time.Second):

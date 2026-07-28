@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/httpcapture"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/acceptance"
 )
 
 func init() {
@@ -41,6 +42,23 @@ func init() {
 	analyze.Flags().IntVar(&maxDecompressionRatio, "max-decompression-ratio", 0, "maximum gzip expansion ratio (0 = 1000)")
 	analyze.Flags().StringSliceVar(&customRedactionPatterns, "redact-pattern", nil, "additional bounded RE2 redaction pattern (repeatable)")
 	analyze.Flags().StringVar(&out, "out", "-", "output path; `-` for stdout")
-	group.AddCommand(analyze)
+	var sessionPath, evidenceOut string
+	evidence := &cobra.Command{
+		Use:   "acceptance-evidence",
+		Short: "Read bounded T-581 evidence from a stopped live-capture session.",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if sessionPath == "" {
+				return fmt.Errorf("--session-path is required")
+			}
+			result, err := acceptance.Build(sessionPath)
+			if err != nil {
+				return err
+			}
+			return writePrivateJSONAny(result, evidenceOut)
+		},
+	}
+	evidence.Flags().StringVar(&sessionPath, "session-path", "", "path to a stopped live-capture session")
+	evidence.Flags().StringVar(&evidenceOut, "out", "-", "output path; `-` for stdout")
+	group.AddCommand(analyze, evidence)
 	rootCmd.AddCommand(group)
 }

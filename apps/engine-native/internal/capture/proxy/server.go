@@ -30,6 +30,15 @@ type Interceptor interface {
 	Passthrough(client net.Addr, host string, protocols []string, started, ended time.Time, requestBytes, responseBytes int64, process *models.ProcessInstance, reason string) models.CaptureTransaction
 }
 
+const (
+	CaptureModeMITM        = "proxy_mitm"
+	CaptureModePassthrough = "proxy_passthrough"
+	FidelityPending        = "pending"
+	FidelityDecodedWire    = "decoded_wire"
+	FidelityUnsupported    = "unsupported"
+	BodyStorageOmitted     = "omitted"
+)
+
 type Config struct {
 	ListenAddress    string
 	Authority        *Authority
@@ -52,6 +61,7 @@ type Server struct {
 	stopDone    chan struct{}
 	stopErr     error
 	wg          sync.WaitGroup
+	handlerWG   sync.WaitGroup
 	connMu      sync.Mutex
 	connections map[net.Conn]struct{}
 }
@@ -148,6 +158,7 @@ func (s *Server) Stop(ctx context.Context) error {
 	}
 	s.closeHijackedConnections()
 	s.wg.Wait()
+	s.handlerWG.Wait()
 	s.stopErr = err
 	close(s.stopDone)
 	return err
@@ -156,6 +167,8 @@ func (s *Server) Stop(ctx context.Context) error {
 func (s *Server) Address() string { return s.addr }
 
 func (s *Server) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
+	s.handlerWG.Add(1)
+	defer s.handlerWG.Done()
 	if request.Method == http.MethodConnect {
 		s.handleConnect(writer, request)
 		return
@@ -174,7 +187,7 @@ func (s *Server) transport() *http.Transport {
 func (s *Server) handlePlain(writer http.ResponseWriter, request *http.Request) {
 	started := s.cfg.Now()
 	process := s.resolve(request.RemoteAddr)
-	progress := progressTransaction(request, started, process, "proxy_mitm")
+	progress := progressTransaction(request, started, process, CaptureModeMITM)
 	s.progress(progress)
 	out := request.Clone(request.Context())
 	out.RequestURI = ""
@@ -270,7 +283,7 @@ func (s *Server) tunnel(ctx context.Context, client net.Conn, hostPort string, p
 		Method: http.MethodConnect,
 		Host:   hostPort,
 		URL:    &url.URL{Scheme: "https", Host: hostPort},
-	}, started, process, "proxy_passthrough")
+	}, started, process, CaptureModePassthrough)
 	s.progress(progress)
 	upstream, err := s.cfg.DialContext(ctx, "tcp", hostPort)
 	if err != nil {
@@ -306,7 +319,7 @@ func (s *Server) intercept(client net.Conn, host, hostPort string, process *mode
 	})
 	if err := tlsConn.Handshake(); err != nil {
 		tx := failureTransaction(&http.Request{Method: http.MethodConnect, Host: hostPort}, s.cfg.Now(), s.cfg.Now(), fmt.Errorf("client TLS handshake: %w", err))
-		tx.Fidelity = "unsupported"
+		tx.Fidelity = FidelityUnsupported
 		tx.Error = "TLS interception failed; diagnose certificate pinning or trust and require explicit scoped passthrough"
 		s.emit(tx)
 		return
@@ -320,7 +333,7 @@ func (s *Server) intercept(client net.Conn, host, hostPort string, process *mode
 			return
 		}
 		started := s.cfg.Now()
-		progress := progressTransaction(request, started, process, "proxy_mitm")
+		progress := progressTransaction(request, started, process, CaptureModeMITM)
 		s.progress(progress)
 		requestCounter := &countingReadCloser{ReadCloser: request.Body}
 		request.Body = requestCounter
@@ -373,7 +386,7 @@ func (s *Server) progress(tx models.CaptureTransaction) {
 func progressTransaction(request *http.Request, started time.Time, process *models.ProcessInstance, mode string) models.CaptureTransaction {
 	urlValue := ""
 	host := request.Host
-	path := "/"
+	path := ""
 	scheme := ""
 	version := request.Proto
 	if request.URL != nil {
@@ -386,14 +399,18 @@ func progressTransaction(request *http.Request, started time.Time, process *mode
 		}
 		scheme = request.URL.Scheme
 	}
+	fidelity := FidelityPending
+	if mode == CaptureModePassthrough {
+		fidelity = FidelityUnsupported
+	}
 	return models.CaptureTransaction{
 		ID: newTransactionID(started), Method: request.Method, URL: urlValue,
 		Scheme: scheme, Host: hostOnly(host), Path: path, HTTPVersion: version,
 		StartedAt: started.UTC().Format(time.RFC3339Nano), State: models.TxRequestSent,
 		CaptureMode: mode, ObservationPoint: "proxy", Coverage: coverage(process),
-		Fidelity: "semantic", Process: process,
-		Request:  models.HTTPMessage{BodyStorage: "omitted"},
-		Response: models.HTTPMessage{BodyStorage: "omitted"},
+		Fidelity: fidelity, Process: process,
+		Request:  models.HTTPMessage{BodyStorage: BodyStorageOmitted},
+		Response: models.HTTPMessage{BodyStorage: BodyStorageOmitted},
 	}
 }
 
@@ -423,25 +440,25 @@ func (SemanticInterceptor) Transaction(_ net.Addr, request *http.Request, respon
 		ID: newTransactionID(started), Method: request.Method, URL: urlValue, Scheme: scheme,
 		Host: hostOnly(host), Path: pathValue, Query: query, HTTPVersion: request.Proto,
 		StatusCode: response.StatusCode, StatusText: response.Status,
-		Request:   models.HTTPMessage{Headers: modelHeaders(request.Header), BodySize: requestBytes, TransferSize: requestBytes, BodyStorage: "omitted", ContentType: request.Header.Get("Content-Type")},
-		Response:  models.HTTPMessage{Headers: modelHeaders(response.Header), BodySize: responseBytes, TransferSize: responseBytes, BodyStorage: "omitted", ContentType: response.Header.Get("Content-Type")},
+		Request:   models.HTTPMessage{Headers: modelHeaders(request.Header), BodySize: requestBytes, TransferSize: requestBytes, BodyStorage: BodyStorageOmitted, ContentType: request.Header.Get("Content-Type")},
+		Response:  models.HTTPMessage{Headers: modelHeaders(response.Header), BodySize: responseBytes, TransferSize: responseBytes, BodyStorage: BodyStorageOmitted, ContentType: response.Header.Get("Content-Type")},
 		StartedAt: started.UTC().Format(time.RFC3339Nano), EndedAt: ended.UTC().Format(time.RFC3339Nano),
 		State: models.TxComplete, TotalMS: float64(ended.Sub(started).Microseconds()) / 1000,
-		CaptureMode: "proxy_mitm", ObservationPoint: "proxy", Coverage: coverage(process),
-		Fidelity: "decoded_wire", Process: process,
+		CaptureMode: CaptureModeMITM, ObservationPoint: "proxy", Coverage: coverage(process),
+		Fidelity: FidelityDecodedWire, Process: process,
 	}
 }
 
 func (SemanticInterceptor) Passthrough(_ net.Addr, host string, protocols []string, started, ended time.Time, requestBytes, responseBytes int64, process *models.ProcessInstance, reason string) models.CaptureTransaction {
 	return models.CaptureTransaction{
 		ID: newTransactionID(started), Method: http.MethodConnect, URL: "https://" + host,
-		Scheme: "https", Host: hostOnly(host), Path: "/", HTTPVersion: strings.Join(protocols, ","),
-		Request:   models.HTTPMessage{TransferSize: requestBytes, BodyStorage: "omitted"},
-		Response:  models.HTTPMessage{TransferSize: responseBytes, BodyStorage: "omitted"},
+		Scheme: "https", Host: hostOnly(host), Path: "", HTTPVersion: strings.Join(protocols, ","),
+		Request:   models.HTTPMessage{TransferSize: requestBytes, BodyStorage: BodyStorageOmitted},
+		Response:  models.HTTPMessage{TransferSize: responseBytes, BodyStorage: BodyStorageOmitted},
 		StartedAt: started.UTC().Format(time.RFC3339Nano), EndedAt: ended.UTC().Format(time.RFC3339Nano),
 		State: models.TxComplete, TotalMS: float64(ended.Sub(started).Microseconds()) / 1000,
-		CaptureMode: "proxy_passthrough", ObservationPoint: "proxy", Coverage: coverage(process),
-		Fidelity: "unsupported", Process: process, Error: reason,
+		CaptureMode: CaptureModePassthrough, ObservationPoint: "proxy", Coverage: coverage(process),
+		Fidelity: FidelityUnsupported, Process: process, Error: reason,
 	}
 }
 
@@ -454,7 +471,7 @@ func newTransactionID(started time.Time) string {
 func failureTransaction(request *http.Request, started, ended time.Time, err error) models.CaptureTransaction {
 	host := request.Host
 	urlValue := ""
-	path := "/"
+	path := ""
 	if request.URL != nil {
 		urlValue = request.URL.String()
 		path = request.URL.EscapedPath()
@@ -463,9 +480,9 @@ func failureTransaction(request *http.Request, started, ended time.Time, err err
 		ID: newTransactionID(started), Method: request.Method, URL: urlValue, Host: hostOnly(host), Path: path,
 		StartedAt: started.UTC().Format(time.RFC3339Nano), EndedAt: ended.UTC().Format(time.RFC3339Nano),
 		State: models.TxFailed, TotalMS: float64(ended.Sub(started).Microseconds()) / 1000,
-		CaptureMode: "proxy_mitm", ObservationPoint: "proxy", Coverage: "unknown",
-		Fidelity: "semantic", Error: err.Error(),
-		Request: models.HTTPMessage{BodyStorage: "omitted"}, Response: models.HTTPMessage{BodyStorage: "omitted"},
+		CaptureMode: CaptureModeMITM, ObservationPoint: "proxy", Coverage: "unknown",
+		Fidelity: FidelityPending, Error: err.Error(),
+		Request: models.HTTPMessage{BodyStorage: BodyStorageOmitted}, Response: models.HTTPMessage{BodyStorage: BodyStorageOmitted},
 	}
 }
 

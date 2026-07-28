@@ -3,7 +3,6 @@ package session
 import (
 	"context"
 	"errors"
-	"runtime"
 	"testing"
 	"time"
 
@@ -12,15 +11,19 @@ import (
 )
 
 func TestManagerEnforcesSingleActiveSessionAndIdempotentStop(t *testing.T) {
-	manager := NewManager(t.TempDir(), capture.NopEventSink{})
+	manager := NewManagerForPlatform(t.TempDir(), capture.NopEventSink{}, "windows")
 	started, err := manager.Start(context.Background(), capture.Config{
 		ListenAddress: "127.0.0.1:0", ReserveBytes: 0,
+		RetainUnattributedMetadata: true,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 	if started.State != capture.StateRunning || started.ListenAddress == "" {
 		t.Fatalf("started=%+v", started)
+	}
+	if !started.RetainUnattributedMetadata || !manager.Current().RetainUnattributedMetadata {
+		t.Fatalf("active SEC-17 policy was not retained: %+v", started)
 	}
 	if _, err := manager.Start(context.Background(), capture.Config{ListenAddress: "127.0.0.1:0"}); !errors.Is(err, capture.ErrSessionActive) {
 		t.Fatalf("second start err=%v", err)
@@ -44,18 +47,19 @@ func TestManagerEnforcesSingleActiveSessionAndIdempotentStop(t *testing.T) {
 }
 
 func TestManagerAdvertisesOnlyWindowsAsSupportedLivePlatform(t *testing.T) {
-	modes := NewManager(t.TempDir(), capture.NopEventSink{}).Modes()
-	if len(modes) != 1 {
-		t.Fatalf("modes=%+v", modes)
+	windowsModes := NewManagerForPlatform(t.TempDir(), capture.NopEventSink{}, "windows").Modes()
+	if len(windowsModes) != 1 || !windowsModes[0].Available || windowsModes[0].Reason != "" {
+		t.Fatalf("windows modes=%+v", windowsModes)
 	}
-	if runtime.GOOS == "windows" {
-		if !modes[0].Available || modes[0].Reason != "" {
-			t.Fatalf("windows mode=%+v", modes[0])
-		}
-		return
+	other := NewManagerForPlatform(t.TempDir(), capture.NopEventSink{}, "darwin")
+	otherModes := other.Modes()
+	if len(otherModes) != 1 || otherModes[0].Available || otherModes[0].Reason == "" {
+		t.Fatalf("non-windows modes=%+v", otherModes)
 	}
-	if modes[0].Available || modes[0].Reason == "" {
-		t.Fatalf("non-windows mode=%+v", modes[0])
+	if _, err := other.Start(context.Background(), capture.Config{
+		ListenAddress: "127.0.0.1:0",
+	}); !errors.Is(err, capture.ErrModeUnavailable) {
+		t.Fatalf("non-windows start err=%v", err)
 	}
 }
 

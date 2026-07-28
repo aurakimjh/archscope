@@ -40,3 +40,19 @@ func TestDecodeTCPTableRejectsTruncatedRows(t *testing.T) {
 		t.Fatalf("err=%v, want truncated-table error", err)
 	}
 }
+
+func TestMatchingOwnerPIDRequiresExactEndpointTuple(t *testing.T) {
+	client := &net.TCPAddr{IP: net.ParseIP("127.0.0.1"), Port: 51000}
+	proxy := &net.TCPAddr{IP: net.ParseIP("127.0.0.1"), Port: 43123}
+	rows := []tcpRow{
+		{LocalAddress: client.IP, LocalPort: client.Port, RemoteAddress: proxy.IP, RemotePort: 9999, OwningPID: 10},
+		{LocalAddress: client.IP, LocalPort: client.Port, RemoteAddress: proxy.IP, RemotePort: proxy.Port, OwningPID: 20},
+	}
+	pid, ok := matchingOwnerPID(rows, client, proxy)
+	if !ok || pid != 20 {
+		t.Fatalf("pid=%d ok=%v", pid, ok)
+	}
+	if _, ok := matchingOwnerPID(rows, client, &net.TCPAddr{IP: proxy.IP, Port: 43124}); ok {
+		t.Fatal("mismatched proxy endpoint was attributed")
+	}
+}

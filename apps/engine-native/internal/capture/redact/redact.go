@@ -12,6 +12,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
@@ -51,6 +52,7 @@ type customRule struct {
 }
 
 type Policy struct {
+	mu            sync.RWMutex
 	maxScanBytes  int
 	ruleTimeLimit time.Duration
 	custom        []customRule
@@ -103,10 +105,14 @@ func NewPolicy(opts Options) *Policy {
 }
 
 func (p *Policy) Warnings() []Warning {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
 	return append([]Warning(nil), p.warnings...)
 }
 
 func (p *Policy) Summary() Summary {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
 	rules := make([]string, 0, len(p.counts))
 	counts := make(map[string]int, len(p.counts))
 	for rule, count := range p.counts {
@@ -311,7 +317,9 @@ func (p *Policy) applyCustom(value string) string {
 	}
 	prefix := value[:limitedLen]
 	for i := range p.custom {
-		rule := &p.custom[i]
+		p.mu.RLock()
+		rule := p.custom[i]
+		p.mu.RUnlock()
 		if rule.disabled {
 			continue
 		}
@@ -322,8 +330,12 @@ func (p *Policy) applyCustom(value string) string {
 			p.bumpN(rule.name, len(matches))
 		}
 		if time.Since(started) > p.ruleTimeLimit {
-			rule.disabled = true
-			p.warnings = append(p.warnings, Warning{Code: "HAR_REDACTION_RULE_DISABLED", Message: rule.name + " exceeded its execution budget"})
+			p.mu.Lock()
+			if !p.custom[i].disabled {
+				p.custom[i].disabled = true
+				p.addWarningLocked("HAR_REDACTION_RULE_DISABLED", rule.name+" exceeded its execution budget")
+			}
+			p.mu.Unlock()
 		}
 	}
 	if truncated {
@@ -340,6 +352,12 @@ func (p *Policy) bump(rule string) {
 }
 
 func (p *Policy) addWarning(code, message string) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	p.addWarningLocked(code, message)
+}
+
+func (p *Policy) addWarningLocked(code, message string) {
 	for _, warning := range p.warnings {
 		if warning.Code == code && warning.Message == message {
 			return
@@ -397,6 +415,8 @@ func luhnValid(digits string) bool {
 
 func (p *Policy) bumpN(rule string, count int) {
 	if count > 0 {
+		p.mu.Lock()
+		defer p.mu.Unlock()
 		p.counts[rule] += count
 	}
 }

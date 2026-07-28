@@ -524,15 +524,15 @@ export class CaptureImportRequest {
 
 export class CaptureProgressEvent {
     "sessionId": string;
-    "transaction": models$0.CaptureTransaction;
+    "items": models$0.CaptureTransaction[];
 
     /** Creates a new CaptureProgressEvent instance. */
     constructor($$source: Partial<CaptureProgressEvent> = {}) {
         if (!("sessionId" in $$source)) {
             this["sessionId"] = "";
         }
-        if (!("transaction" in $$source)) {
-            this["transaction"] = (new models$0.CaptureTransaction());
+        if (!("items" in $$source)) {
+            this["items"] = [];
         }
 
         Object.assign(this, $$source);
@@ -542,10 +542,10 @@ export class CaptureProgressEvent {
      * Creates a new CaptureProgressEvent instance from a string or object.
      */
     static createFrom($$source: any = {}): CaptureProgressEvent {
-        const $$createField1_0 = $$createType6;
+        const $$createField1_0 = $$createType7;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
-        if ("transaction" in $$parsedSource) {
-            $$parsedSource["transaction"] = $$createField1_0($$parsedSource["transaction"]);
+        if ("items" in $$parsedSource) {
+            $$parsedSource["items"] = $$createField1_0($$parsedSource["items"]);
         }
         return new CaptureProgressEvent($$parsedSource as Partial<CaptureProgressEvent>);
     }

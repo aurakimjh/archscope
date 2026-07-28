@@ -8,7 +8,10 @@ import (
 	"time"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/acceptance"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/certstore"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/proxy"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/store"
 )
 
 type memoryTrustBackend struct{}
@@ -17,7 +20,7 @@ func (memoryTrustBackend) Install(string, []byte) error { return nil }
 func (memoryTrustBackend) Remove(string, []byte) error  { return nil }
 
 func TestCaptureServiceSessionCanBeAnalyzedAfterStop(t *testing.T) {
-	service := newCaptureService(t.TempDir(), certstore.New(memoryTrustBackend{}, nil))
+	service := newCaptureServiceForPlatform(t.TempDir(), certstore.New(memoryTrustBackend{}, nil), "windows")
 	started, err := service.StartCapture(capture.Config{
 		ListenAddress: "127.0.0.1:0", ReserveBytes: 0,
 	})
@@ -39,6 +42,14 @@ func TestCaptureServiceSessionCanBeAnalyzedAfterStop(t *testing.T) {
 	}
 	if stopped.State != capture.StateFinalized {
 		t.Fatalf("stopped=%+v", stopped)
+	}
+	evidence, err := service.GetCaptureAcceptanceEvidence(string(started.ID))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if evidence.Session.SessionID != string(started.ID) ||
+		evidence.Stats.State != capture.StateFinalized {
+		t.Fatalf("evidence=%+v", evidence)
 	}
 	result, err := service.AnalyzeCaptureSession(CaptureAnalyzeRequest{SessionID: string(started.ID)})
 	if err != nil {
@@ -80,6 +91,14 @@ func TestT581LiveCaptureAcceptanceFixture(t *testing.T) {
 			RestoreCurrentSessionOnPageReentry bool
 			FinalizedSessionUsesAnalysisResult bool
 		}
+		AcceptanceEvidence struct {
+			SchemaVersion           int
+			MaxRows                 int
+			RequiresTerminalSession bool
+			ProductReadback         bool
+			FailsOnMissingClient    bool
+			Transports              []string
+		}
 		Store struct {
 			StableSnapshotCursor bool
 			SessionBoundCursor   bool
@@ -90,7 +109,7 @@ func TestT581LiveCaptureAcceptanceFixture(t *testing.T) {
 	if err := json.Unmarshal(data, &fixture); err != nil {
 		t.Fatal(err)
 	}
-	if fixture.SchemaVersion != 1 || fixture.Platform != "windows" {
+	if fixture.SchemaVersion != acceptance.SchemaVersion || fixture.Platform != "windows" {
 		t.Fatalf("fixture header=%+v", fixture)
 	}
 	expectedClients := map[string]bool{
@@ -102,8 +121,8 @@ func TestT581LiveCaptureAcceptanceFixture(t *testing.T) {
 		}
 		expectedClients[scenario.Client] = true
 		if scenario.Transport != "http/1.1" ||
-			scenario.CaptureMode != "proxy_mitm" ||
-			scenario.Fidelity != "decoded_wire" ||
+			scenario.CaptureMode != proxy.CaptureModeMITM ||
+			scenario.Fidelity != proxy.FidelityDecodedWire ||
 			scenario.Coverage != "confirmed" {
 			t.Fatalf("supported scenario=%+v", scenario)
 		}
@@ -114,12 +133,12 @@ func TestT581LiveCaptureAcceptanceFixture(t *testing.T) {
 		}
 	}
 	for _, scenario := range fixture.UnsupportedTier {
-		if scenario.Fidelity != "unsupported" || scenario.SemanticCapture {
+		if scenario.Fidelity != proxy.FidelityUnsupported || scenario.SemanticCapture {
 			t.Fatalf("unsupported scenario=%+v", scenario)
 		}
 	}
-	if fixture.Security.RetainUnattributedMetadataDefault ||
-		fixture.Security.BodyStorage != "omitted" ||
+	if fixture.Security.RetainUnattributedMetadataDefault != (capture.Config{}).RetainUnattributedMetadata ||
+		fixture.Security.BodyStorage != proxy.BodyStorageOmitted ||
 		!fixture.Security.CARemovedOnStop {
 		t.Fatalf("security=%+v", fixture.Security)
 	}
@@ -129,9 +148,19 @@ func TestT581LiveCaptureAcceptanceFixture(t *testing.T) {
 		!fixture.Renderer.FinalizedSessionUsesAnalysisResult {
 		t.Fatalf("renderer=%+v", fixture.Renderer)
 	}
+	if fixture.AcceptanceEvidence.SchemaVersion != acceptance.SchemaVersion ||
+		fixture.AcceptanceEvidence.MaxRows != acceptance.MaxEvidenceRows ||
+		!fixture.AcceptanceEvidence.RequiresTerminalSession ||
+		!fixture.AcceptanceEvidence.ProductReadback ||
+		!fixture.AcceptanceEvidence.FailsOnMissingClient ||
+		len(fixture.AcceptanceEvidence.Transports) != 2 ||
+		fixture.AcceptanceEvidence.Transports[0] != "http" ||
+		fixture.AcceptanceEvidence.Transports[1] != "https" {
+		t.Fatalf("acceptance evidence=%+v", fixture.AcceptanceEvidence)
+	}
 	if !fixture.Store.StableSnapshotCursor ||
 		!fixture.Store.SessionBoundCursor ||
-		fixture.Store.MaxFetchLimit != 2000 ||
+		fixture.Store.MaxFetchLimit != store.MaxFetchLimit ||
 		len(fixture.Store.Filters) != 5 {
 		t.Fatalf("store=%+v", fixture.Store)
 	}

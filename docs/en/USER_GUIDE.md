@@ -133,7 +133,8 @@ Unsupported or deferred:
 ## Windows Live HTTP Capture
 
 The HTTP Capture page includes the T-581 review candidate for Windows live
-capture:
+capture. H-RG4 currently has a `CONDITIONAL` verdict; use it for acceptance
+work, not as a released capture tier:
 
 1. Read and accept the first-use proxy/CA warning.
 2. Install the temporary capture CA when HTTPS interception is required.
@@ -147,23 +148,41 @@ capture:
 The live renderer keeps the newest 500 metadata-only rows and reloads its
 authoritative live window if renderer events are skipped. Request/response
 bodies are always omitted; body capture remains blocked until the SEC-10
-crash-dump-exclusion preflight exists. H2-only, QUIC, pinned, passthrough, and
-unattributed states are disclosed rather than presented as successful decoded
-capture.
+crash-dump-exclusion preflight exists. The backend uses `pending` for an
+undecided MITM progress row and `unsupported` for passthrough; it never labels
+opaque in-flight traffic as semantic capture. The current-user Windows root
+store covers clients that consume the Windows trust store. JVM/JSSE and
+NSS-based clients need their own explicit CA import; the acceptance harness
+therefore requires a JVM truststore for JVM HTTPS.
+
+`coverage: confirmed` is deliberately narrow: ArchScope observed the same
+client/proxy endpoint tuple and owner PID in two immediate TCP-owner table reads
+and obtained a process start time. It does not prove complete traffic coverage
+or eliminate every PID-reuse race; missing or unstable rows are
+`inferred`/`unknown` and are dropped unless SEC-17 metadata retention was
+explicitly enabled.
 
 For Windows acceptance and package-signature evidence:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/verify-windows-live-capture.ps1 `
   -ProxyAddress 127.0.0.1:43123 `
-  -TargetUrl http://127.0.0.1:8080/health `
+  -HttpTargetUrl http://127.0.0.1:8080/health `
+  -HttpsTargetUrl https://example.test/health `
+  -SessionPath "$env:LOCALAPPDATA\ArchScope\captures\cap-..." `
+  -ArchScopeEngineExe .\bin\archscope-engine.exe `
+  -JavaTrustStore .\tmp\archscope-t581.jks `
   -ArchScopeExe .\bin\archscope.exe
 ```
 
-The harness exercises installed browser/curl/JVM/Electron clients when
-available and writes a JSON operator-evidence checklist. T-581 remains in
-`REVIEW` until those scenarios, long-session/re-entry/recovery cases, and an
-independent H-RG4 verdict pass on Windows.
+The harness requires browser/curl/JVM/Electron over HTTP and HTTPS, waits for
+the operator to stop the UI capture, invokes the read-only
+`http-capture acceptance-evidence` engine command, and fails when a client is
+missing, a marker has no captured row, or mode/fidelity/coverage/body-storage
+evidence contradicts the supported tier. The command never starts capture and
+writes metadata-only evidence with owner-only permissions. T-581 remains in
+`REVIEW` until the remaining UI remediation, unsupported-tier/long-session/
+re-entry/recovery scenarios, and an independent H-RG4 re-review pass on Windows.
 
 ## Native App
 

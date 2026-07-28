@@ -69,7 +69,8 @@ func TestWindowsLiveCaptureE2E(t *testing.T) {
 			t.Fatal(statsErr)
 		}
 		if stats.Persisted == 1 {
-			if stats.Unattributed != 0 || stats.Dropped != 0 {
+			if stats.Observed != 1 || stats.Captured != 1 ||
+				stats.Unattributed != 0 || stats.Dropped != 0 {
 				t.Fatalf("confirmed Windows flow stats=%+v", stats)
 			}
 			break

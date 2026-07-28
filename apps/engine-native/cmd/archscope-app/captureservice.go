@@ -6,11 +6,13 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"time"
 
 	engineapi "github.com/aurakimjh/archscope/apps/engine-native/api"
 	httpanalyzer "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/httpcapture"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/acceptance"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/aggregate"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/certstore"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/session"
@@ -48,8 +50,8 @@ type CaptureTransactionsEvent struct {
 }
 
 type CaptureProgressEvent struct {
-	SessionID   string                    `json:"sessionId"`
-	Transaction models.CaptureTransaction `json:"transaction"`
+	SessionID string                      `json:"sessionId"`
+	Items     []models.CaptureTransaction `json:"items"`
 }
 
 type CaptureAggregateEvent struct {
@@ -70,9 +72,9 @@ func (captureEventSink) Started(value capture.Session) {
 	emitEvent("capture:started", value)
 }
 
-func (captureEventSink) Progress(id capture.SessionID, transaction models.CaptureTransaction) {
+func (captureEventSink) Progress(id capture.SessionID, items []models.CaptureTransaction) {
 	emitEvent("capture:progress", CaptureProgressEvent{
-		SessionID: string(id), Transaction: transaction,
+		SessionID: string(id), Items: items,
 	})
 }
 
@@ -114,8 +116,12 @@ func NewCaptureService() *CaptureService {
 }
 
 func newCaptureService(root string, trust *certstore.Lifecycle) *CaptureService {
+	return newCaptureServiceForPlatform(root, trust, runtime.GOOS)
+}
+
+func newCaptureServiceForPlatform(root string, trust *certstore.Lifecycle, platform string) *CaptureService {
 	return &CaptureService{
-		manager: session.NewManager(root, captureEventSink{}),
+		manager: session.NewManagerForPlatform(root, captureEventSink{}, platform),
 		trust:   trust,
 	}
 }
@@ -150,6 +156,14 @@ func (s *CaptureService) GetCurrentCaptureSession() capture.Session {
 
 func (s *CaptureService) GetCaptureLiveWindow(sessionID string) ([]models.CaptureTransaction, error) {
 	return s.manager.LiveWindow(capture.SessionID(sessionID))
+}
+
+func (s *CaptureService) GetCaptureAcceptanceEvidence(sessionID string) (acceptance.Evidence, error) {
+	path, err := s.manager.SessionPath(capture.SessionID(sessionID))
+	if err != nil {
+		return acceptance.Evidence{}, err
+	}
+	return acceptance.Build(path)
 }
 
 func (s *CaptureService) FetchCaptureTransactions(request CaptureFetchRequest) (store.Page, error) {

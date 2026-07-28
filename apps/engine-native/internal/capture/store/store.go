@@ -73,6 +73,7 @@ type Manifest struct {
 	StoreBytes      int64                  `json:"storeBytes"`
 	OverflowPolicy  capture.OverflowPolicy `json:"overflowPolicy"`
 	Counters        Counters               `json:"counters"`
+	CaptureStats    *capture.Stats         `json:"captureStats,omitempty"`
 	Findings        []Finding              `json:"findings"`
 }
 
@@ -211,6 +212,36 @@ func Open(dir string) (*Store, error) {
 	return s, nil
 }
 
+// OpenReadOnly opens a capture store without recovery or lifecycle writes.
+// Callers must tolerate an incomplete tail themselves or, as acceptance
+// evidence does, restrict use to a stopped session.
+func OpenReadOnly(dir string) (*Store, error) {
+	data, err := os.ReadFile(filepath.Join(dir, manifestFile))
+	if err != nil {
+		return nil, err
+	}
+	var manifest Manifest
+	if err := json.Unmarshal(data, &manifest); err != nil {
+		return nil, fmt.Errorf("decode capture manifest: %w", err)
+	}
+	cfg := Config{Root: filepath.Dir(dir), SessionID: manifest.SessionID, OverflowPolicy: manifest.OverflowPolicy}
+	normalizeConfig(&cfg)
+	f, err := os.Open(filepath.Join(dir, transactionsFile))
+	if err != nil {
+		return nil, err
+	}
+	index, err := os.Open(filepath.Join(dir, offsetIndexFile))
+	if err != nil {
+		f.Close()
+		return nil, err
+	}
+	return &Store{
+		cfg: cfg, dir: dir, file: f, writer: bufio.NewWriterSize(f, 64<<10),
+		index: index, indexWriter: bufio.NewWriterSize(index, 64<<10),
+		manifest: manifest, lastFlush: time.Now().UTC(),
+	}, nil
+}
+
 func normalizeConfig(cfg *Config) {
 	if cfg.Root == "" {
 		cfg.Root = filepath.Join(os.TempDir(), "archscope-captures")
@@ -247,6 +278,14 @@ func (s *Store) SetState(state capture.SessionState) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.manifest.State = state
+	return s.writeManifestLocked()
+}
+
+func (s *Store) SetCaptureStats(stats capture.Stats) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	next := stats
+	s.manifest.CaptureStats = &next
 	return s.writeManifestLocked()
 }
 
