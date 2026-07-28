@@ -8,11 +8,23 @@ export type LiveCaptureSession = {
   startedAt: string | null;
   endedAt?: string | null;
   error?: string;
+  /**
+   * Authoritative SEC-17 opt-in for the running session. The renderer checkbox
+   * is a request; this field is what the engine actually enforces, so the panel
+   * must display this value whenever a session exists (H-RG4 L6).
+   */
+  retainUnattributedMetadata?: boolean;
 };
 
 export type LiveCaptureStats = {
   sessionId: string;
   state: string;
+  /**
+   * Everything the proxy saw, before any privacy drop. This is the honest
+   * denominator for `dropped`/`unattributed` disclosure (H-RG4 L7); `captured`
+   * already excludes deliberately dropped records.
+   */
+  observed: number;
   captured: number;
   persisted: number;
   bodyOmitted: number;
@@ -66,9 +78,13 @@ export type LiveTransactionsEvent = {
   items: LiveCaptureTransaction[];
 };
 
+/**
+ * Progress arrives in engine-batched groups so one page load cannot produce one
+ * IPC message and one O(cap) rebuild per request (H-RG4 L4).
+ */
 export type LiveProgressEvent = {
   sessionId: string;
-  transaction: LiveCaptureTransaction;
+  items: LiveCaptureTransaction[];
 };
 
 export type LiveCaptureState = {
@@ -125,8 +141,17 @@ export function liveHttpCaptureReducer(
         error: action.session.error || null,
       };
     case "started":
+      // The panel dispatches "started" twice for one session: once from the
+      // StartCapture promise and once from the capture:started event. Resetting
+      // on the second dispatch would discard progress rows that landed in
+      // between, so only a genuinely new session clears the table. The follow
+      // preference is a user setting and survives every start (H-RG4 L12).
+      if (matchesSession(state, action.session.sessionId)) {
+        return { ...state, session: action.session, busy: false };
+      }
       return {
         ...initialLiveCaptureState,
+        follow: state.follow,
         session: action.session,
       };
     case "stopped":
@@ -147,15 +172,15 @@ export function liveHttpCaptureReducer(
         needsResync: state.needsResync || skippedAdvanced,
       };
     }
-    case "progress":
+    case "progress": {
       if (!matchesSession(state, action.event.sessionId)) return state;
+      const items = action.event.items ?? [];
+      if (items.length === 0) return state;
       return {
         ...state,
-        transactions: boundedDistinct([
-          ...state.transactions,
-          action.event.transaction,
-        ]),
+        transactions: boundedDistinct([...state.transactions, ...items]),
       };
+    }
     case "transactions":
       if (!matchesSession(state, action.event.sessionId)) return state;
       return {
@@ -188,20 +213,30 @@ function matchesSession(state: LiveCaptureState, sessionId: string): boolean {
   return Boolean(sessionId) && state.session?.sessionId === sessionId;
 }
 
+/**
+ * Deduplicates by transaction id, keeping the newest payload for each id **at
+ * the position where that id first appeared**. A finalized row therefore
+ * replaces its in-flight row in place instead of jumping to the tail, so
+ * completing requests never leapfrog still-pending neighbours (H-RG4 L8).
+ * The row cap keeps the newest rows, as before.
+ */
 function boundedDistinct(
   items: LiveCaptureTransaction[],
 ): LiveCaptureTransaction[] {
-  const seen = new Set<string>();
-  const reversed: LiveCaptureTransaction[] = [];
-  for (let index = items.length - 1; index >= 0; index -= 1) {
-    const item = items[index];
-    if (!item || seen.has(item.id)) continue;
-    seen.add(item.id);
-    reversed.push(item);
-    if (reversed.length === LIVE_TRANSACTION_ROW_CAP) break;
+  const positions = new Map<string, number>();
+  const ordered: LiveCaptureTransaction[] = [];
+  for (const item of items) {
+    if (!item) continue;
+    const position = positions.get(item.id);
+    if (position === undefined) {
+      positions.set(item.id, ordered.length);
+      ordered.push(item);
+      continue;
+    }
+    ordered[position] = item;
   }
-  reversed.reverse();
-  return reversed;
+  if (ordered.length <= LIVE_TRANSACTION_ROW_CAP) return ordered;
+  return ordered.slice(ordered.length - LIVE_TRANSACTION_ROW_CAP);
 }
 
 export type LiveProcessGroup = {
@@ -252,4 +287,113 @@ export function isLiveSessionActive(
     session?.state === "running" ||
     session?.state === "stopping"
   );
+}
+
+/**
+ * Closed set of fidelity grades the live view is allowed to present. Anything
+ * the engine emits that is not in this set resolves to `unknown`, which renders
+ * as "not yet determined" — never as a reassuring grade (H-RG4 L1).
+ */
+export type LiveFidelityToken =
+  | "pending"
+  | "decoded_wire"
+  | "semantic"
+  | "unsupported"
+  | "passthrough"
+  | "unknown";
+
+const LIVE_FIDELITY_TOKENS: Record<string, LiveFidelityToken> = {
+  pending: "pending",
+  decoded_wire: "decoded_wire",
+  semantic: "semantic",
+  unsupported: "unsupported",
+  passthrough: "passthrough",
+  proxy_passthrough: "passthrough",
+};
+
+export function resolveLiveFidelity(fidelity: string): LiveFidelityToken {
+  return LIVE_FIDELITY_TOKENS[fidelity] ?? "unknown";
+}
+
+/**
+ * True only for grades that assert ArchScope actually read the exchange. Used
+ * to keep in-flight, passthrough, and unrecognized rows out of any presentation
+ * that reads as successful semantic capture.
+ */
+export function isDecodedLiveFidelity(token: LiveFidelityToken): boolean {
+  return token === "decoded_wire" || token === "semantic";
+}
+
+const LIVE_TERMINAL_TX_STATES = new Set(["complete", "failed", "aborted"]);
+
+/**
+ * A row is in flight until the engine gives it a terminal state. In-flight rows
+ * have no meaningful duration or status yet, so the panel must not render their
+ * `0 ms` / `0` as measured values (H-RG4 L5).
+ */
+export function isLiveTransactionInFlight(
+  transaction: LiveCaptureTransaction,
+): boolean {
+  return !LIVE_TERMINAL_TX_STATES.has(transaction.state);
+}
+
+export function countLiveInFlight(
+  transactions: LiveCaptureTransaction[],
+): number {
+  return transactions.reduce(
+    (total, transaction) =>
+      total + (isLiveTransactionInFlight(transaction) ? 1 : 0),
+    0,
+  );
+}
+
+export type LiveCoverageDisclosure = {
+  observed: number;
+  captured: number;
+  dropped: number;
+  unattributed: number;
+  /** Share of observed traffic ArchScope deliberately discarded, 0-100. */
+  droppedPercent: number | null;
+  hasDrops: boolean;
+  hasUnattributed: boolean;
+};
+
+/**
+ * Derives the honest coverage picture from the stats snapshot. `captured`
+ * excludes deliberately dropped records while `unattributed` counts them, so
+ * `unattributed > captured` is a normal state; `observed` is the only
+ * denominator that makes the tiles mutually consistent (H-RG4 L7).
+ */
+export function buildLiveCoverageDisclosure(
+  stats: LiveCaptureStats | null,
+): LiveCoverageDisclosure | null {
+  if (!stats) return null;
+  const observed = stats.observed ?? 0;
+  const dropped = stats.dropped ?? 0;
+  return {
+    observed,
+    captured: stats.captured ?? 0,
+    dropped,
+    unattributed: stats.unattributed ?? 0,
+    droppedPercent: observed > 0 ? (dropped / observed) * 100 : null,
+    hasDrops: dropped > 0,
+    hasUnattributed: (stats.unattributed ?? 0) > 0,
+  };
+}
+
+/**
+ * The SEC-17 policy actually in force. While a session is active the engine's
+ * value is authoritative and the renderer must display it — on page re-entry
+ * the local checkbox is back to its default and would otherwise state the
+ * opposite of the running privacy policy (H-RG4 L6). The policy is fixed at
+ * start, so once the session ends the local choice seeds the next start again.
+ */
+export function activeUnattributedPolicy(
+  session: LiveCaptureSession | null,
+  pendingChoice: boolean,
+): boolean {
+  if (isLiveSessionActive(session)) {
+    return session?.retainUnattributedMetadata === true;
+  }
+  return pendingChoice;
 }

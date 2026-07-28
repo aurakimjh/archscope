@@ -21,14 +21,21 @@ import type { HttpCaptureAnalysisResult } from "@/bridge/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useI18n } from "@/i18n/I18nProvider";
+import type { MessageKey } from "@/i18n/messages";
 import {
+  activeUnattributedPolicy,
+  buildLiveCoverageDisclosure,
   buildLiveProcessGroups,
+  countLiveInFlight,
   initialLiveCaptureState,
   isLiveSessionActive,
+  isLiveTransactionInFlight,
   liveHttpCaptureReducer,
+  resolveLiveFidelity,
   type LiveCaptureSession,
   type LiveCaptureStats,
   type LiveCaptureTransaction,
+  type LiveFidelityToken,
   type LiveProgressEvent,
   type LiveTransactionsEvent,
 } from "@/state/liveHttpCapture";
@@ -61,6 +68,20 @@ type RecoverySummary = {
 type LiveHttpCapturePanelProps = {
   onStarted: () => void;
   onFinalized: (result: HttpCaptureAnalysisResult, sessionId: string) => void;
+};
+
+/**
+ * Every fidelity grade the live table can print. `resolveLiveFidelity` maps any
+ * unrecognized engine value to `unknown`, so an unexpected grade degrades to
+ * "not yet determined" instead of a reassuring string (H-RG4 L1).
+ */
+const FIDELITY_LABEL_KEYS: Record<LiveFidelityToken, MessageKey> = {
+  pending: "liveCaptureFidelityPending",
+  decoded_wire: "liveCaptureFidelityDecodedWire",
+  semantic: "liveCaptureFidelitySemantic",
+  unsupported: "liveCaptureFidelityUnsupported",
+  passthrough: "liveCaptureFidelityPassthrough",
+  unknown: "liveCaptureFidelityUnknown",
 };
 
 function eventData<T>(event: unknown): T | null {
@@ -329,6 +350,20 @@ export function LiveHttpCapturePanel({
     () => buildLiveProcessGroups(state.transactions),
     [state.transactions],
   );
+  const inFlightCount = useMemo(
+    () => countLiveInFlight(state.transactions),
+    [state.transactions],
+  );
+  const coverage = useMemo(
+    () => buildLiveCoverageDisclosure(state.stats),
+    [state.stats],
+  );
+  // While a session runs the engine's value is the policy in force; the local
+  // checkbox only seeds the next start (H-RG4 L6).
+  const effectiveRetainUnattributed = activeUnattributedPolicy(
+    state.session,
+    retainUnattributed,
+  );
   const mode = modes[0] ?? null;
   const caTrusted = caStatus.state === "trusted";
 
@@ -450,7 +485,7 @@ export function LiveHttpCapturePanel({
           <input
             type="checkbox"
             className="mt-0.5"
-            checked={retainUnattributed}
+            checked={effectiveRetainUnattributed}
             disabled={active}
             onChange={(event) => setRetainUnattributed(event.target.checked)}
           />
@@ -461,6 +496,14 @@ export function LiveHttpCapturePanel({
             <span className="text-muted-foreground">
               {t("liveCaptureUnknownOptInHint")}
             </span>
+            {active && (
+              <span className="mt-1 block font-medium text-amber-700 dark:text-amber-400">
+                {effectiveRetainUnattributed
+                  ? t("liveCaptureUnknownOptInOn")
+                  : t("liveCaptureUnknownOptInOff")}{" "}
+                {t("liveCaptureUnknownOptInLocked")}
+              </span>
+            )}
           </span>
         </label>
 
@@ -534,26 +577,54 @@ export function LiveHttpCapturePanel({
 
         {state.stats && (
           <>
-            <div className="grid gap-2 sm:grid-cols-4 lg:grid-cols-8">
+            <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-9">
+              <LiveStat label={t("liveCaptureObserved")} value={state.stats.observed} />
               <LiveStat label={t("liveCaptureCaptured")} value={state.stats.captured} />
               <LiveStat label={t("liveCapturePersisted")} value={state.stats.persisted} />
               <LiveStat label={t("liveCaptureDropped")} value={state.stats.dropped} warning={state.stats.dropped > 0} />
               <LiveStat label={t("liveCaptureUnattributed")} value={state.stats.unattributed} warning={state.stats.unattributed > 0} />
+              <LiveStat label={t("liveCaptureKernelDropped")} value={state.stats.kernelDropped} warning={state.stats.kernelDropped > 0} />
               <LiveStat label={t("liveCaptureUnsupported")} value={state.stats.unsupported} warning={state.stats.unsupported > 0} />
               <LiveStat label={t("liveCapturePassthrough")} value={state.stats.passthrough} warning={state.stats.passthrough > 0} />
               <LiveStat label={t("liveCaptureEventSkipped")} value={state.stats.eventSkipped} warning={state.stats.eventSkipped > 0} />
-              <LiveStat label={t("liveCaptureStoreBytes")} value={formatBytes(state.stats.storeBytes)} />
             </div>
+            <p className="text-[10px] text-muted-foreground">
+              {t("liveCaptureCoverageDenominator")}
+              {coverage?.droppedPercent !== null &&
+                coverage?.droppedPercent !== undefined && (
+                  <>
+                    {" "}
+                    <span className="font-mono">
+                      {coverage.droppedPercent.toFixed(1)}%
+                    </span>{" "}
+                    {t("liveCaptureDroppedShare")}.
+                  </>
+                )}{" "}
+              {t("liveCaptureStoreBytes")}:{" "}
+              <span className="font-mono">
+                {formatBytes(state.stats.storeBytes)}
+              </span>
+            </p>
             {(state.stats.backpressured ||
               state.stats.eventSkipped > 0 ||
               state.stats.unsupported > 0 ||
-              state.stats.passthrough > 0) && (
-              <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-2 text-xs text-amber-800 dark:text-amber-300">
+              state.stats.passthrough > 0 ||
+              state.stats.kernelDropped > 0 ||
+              coverage?.hasDrops ||
+              coverage?.hasUnattributed) && (
+              <div className="space-y-1 rounded-md border border-amber-500/40 bg-amber-500/10 p-2 text-xs text-amber-800 dark:text-amber-300">
                 {state.stats.backpressured && (
                   <p>{t("liveCaptureBackpressureWarning")}</p>
                 )}
                 {state.stats.eventSkipped > 0 && (
                   <p>{t("liveCaptureEventLossWarning")}</p>
+                )}
+                {coverage?.hasDrops && <p>{t("liveCaptureDropWarning")}</p>}
+                {coverage?.hasUnattributed && (
+                  <p>{t("liveCaptureUnattributedWarning")}</p>
+                )}
+                {state.stats.kernelDropped > 0 && (
+                  <p>{t("liveCaptureKernelDroppedWarning")}</p>
                 )}
                 {(state.stats.unsupported > 0 ||
                   state.stats.passthrough > 0) && (
@@ -603,7 +674,15 @@ export function LiveHttpCapturePanel({
 
             <div className="rounded-md border border-border p-3">
               <div className="mb-2 flex items-center justify-between gap-2">
-                <p className="text-sm font-medium">{t("liveCaptureRows")}</p>
+                <p className="text-sm font-medium">
+                  {t("liveCaptureRows")}
+                  {inFlightCount > 0 && (
+                    <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-[10px] font-normal text-muted-foreground">
+                      {formatNumber(inFlightCount)}{" "}
+                      {t("liveCaptureInFlightCount")}
+                    </span>
+                  )}
+                </p>
                 <Button
                   type="button"
                   size="sm"
@@ -634,45 +713,64 @@ export function LiveHttpCapturePanel({
                         <th className="px-2 py-1">{t("httpCaptureColMethod")}</th>
                         <th className="px-2 py-1">{t("httpCaptureColUrl")}</th>
                         <th className="px-2 py-1">{t("httpCaptureColStatus")}</th>
+                        <th className="px-2 py-1">{t("liveCaptureColState")}</th>
                         <th className="px-2 py-1">{t("httpCaptureColDuration")}</th>
                         <th className="px-2 py-1">{t("httpCaptureFidelityLabel")}</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {state.transactions.map((transaction) => (
-                        <tr
-                          key={transaction.id}
-                          className="border-b border-border/60"
-                        >
-                          <td className="px-2 py-1 font-mono">
-                            {transaction.method}
-                          </td>
-                          <td
-                            className="max-w-80 truncate px-2 py-1"
-                            title={transaction.url}
+                      {state.transactions.map((transaction) => {
+                        const inFlight =
+                          isLiveTransactionInFlight(transaction);
+                        const fidelity = resolveLiveFidelity(
+                          transaction.fidelity,
+                        );
+                        return (
+                          <tr
+                            key={transaction.id}
+                            className={`border-b border-border/60 ${
+                              inFlight ? "text-muted-foreground" : ""
+                            }`}
                           >
-                            {transaction.host}
-                            {transaction.path}
-                          </td>
-                          <td className="px-2 py-1 font-mono">
-                            {transaction.statusCode || transaction.state}
-                          </td>
-                          <td className="px-2 py-1 tabular-nums">
-                            {formatMilliseconds(
-                              Math.round(transaction.totalMs),
-                            )}
-                          </td>
-                          <td className="px-2 py-1">
-                            {transaction.fidelity}
-                          </td>
-                        </tr>
-                      ))}
+                            <td className="px-2 py-1 font-mono">
+                              {transaction.method}
+                            </td>
+                            <td
+                              className="max-w-80 truncate px-2 py-1"
+                              title={transaction.url}
+                            >
+                              {transaction.host}
+                              {transaction.path}
+                            </td>
+                            <td className="px-2 py-1 font-mono">
+                              {inFlight ? "—" : transaction.statusCode || "—"}
+                            </td>
+                            <td className="px-2 py-1" title={transaction.error}>
+                              {transaction.state}
+                              {inFlight && ` · ${t("liveCaptureInFlight")}`}
+                            </td>
+                            <td className="px-2 py-1 tabular-nums">
+                              {inFlight
+                                ? "—"
+                                : formatMilliseconds(
+                                    Math.round(transaction.totalMs),
+                                  )}
+                            </td>
+                            <td
+                              className="px-2 py-1"
+                              title={transaction.fidelity}
+                            >
+                              {t(FIDELITY_LABEL_KEYS[fidelity])}
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 )}
               </div>
               <p className="mt-2 text-[10px] text-muted-foreground">
-                {t("liveCaptureRowCap")}
+                {t("liveCaptureRowCap")} {t("liveCaptureInFlightHint")}
               </p>
             </div>
           </div>

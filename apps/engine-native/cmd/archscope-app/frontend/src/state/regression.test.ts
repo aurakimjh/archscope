@@ -1,3 +1,4 @@
+import { messages } from "../i18n/messages.js";
 import type { AnalysisWorkspaceEntry, WorkspaceAnalysisResult } from "./analysisWorkspace.js";
 import { evaluateAiInterpretation, extractAiInterpretation } from "./aiInterpretation.js";
 import {
@@ -43,11 +44,17 @@ import {
   emptyFilter,
 } from "./httpCapture.js";
 import {
+  activeUnattributedPolicy,
+  buildLiveCoverageDisclosure,
   buildLiveProcessGroups,
+  countLiveInFlight,
   initialLiveCaptureState,
+  isDecodedLiveFidelity,
   isLiveSessionActive,
+  isLiveTransactionInFlight,
   LIVE_TRANSACTION_ROW_CAP,
   liveHttpCaptureReducer,
+  resolveLiveFidelity,
   type LiveCaptureTransaction,
 } from "./liveHttpCapture.js";
 import {
@@ -824,6 +831,7 @@ const liveSession = {
   listenAddress: "127.0.0.1:43123",
   storePath: "/capture/cap-t581",
   startedAt: "2026-07-28T00:00:00Z",
+  retainUnattributedMetadata: true,
 };
 let live = liveHttpCaptureReducer(initialLiveCaptureState, {
   type: "started",
@@ -843,33 +851,178 @@ const pendingLiveRow: LiveCaptureTransaction = {
   totalMs: 0,
   captureMode: "proxy_mitm",
   coverage: "confirmed",
-  fidelity: "semantic",
+  fidelity: "pending",
 };
 live = liveHttpCaptureReducer(live, {
   type: "progress",
   event: {
     sessionId: liveSession.sessionId,
-    transaction: pendingLiveRow,
+    items: [pendingLiveRow],
   },
 });
 assert(
   live.transactions[0]?.state === "request_sent",
   "request progress appears before completion",
 );
+
+// H-RG4 L12: the panel dispatches "started" twice for one session (promise plus
+// capture:started event). The second dispatch must not discard rows that landed
+// in between, and it must not reset the user's follow preference.
+live = liveHttpCaptureReducer(live, { type: "follow", follow: false });
+live = liveHttpCaptureReducer(live, {
+  type: "started",
+  session: liveSession,
+});
+assert(
+  live.transactions.length === 1 && live.follow === false,
+  "a duplicate started dispatch keeps early rows and the follow preference",
+);
+live = liveHttpCaptureReducer(live, {
+  type: "started",
+  session: { ...liveSession, sessionId: "cap-t581-next" },
+});
+assert(
+  live.transactions.length === 0 && live.follow === false,
+  "a genuinely new session clears rows but carries the follow preference over",
+);
+live = liveHttpCaptureReducer(live, { type: "follow", follow: true });
+live = liveHttpCaptureReducer(live, {
+  type: "started",
+  session: liveSession,
+});
+live = liveHttpCaptureReducer(live, {
+  type: "progress",
+  event: {
+    sessionId: liveSession.sessionId,
+    items: [pendingLiveRow],
+  },
+});
+
+// H-RG4 L4: progress arrives batched, so one event carries many rows.
+live = liveHttpCaptureReducer(live, {
+  type: "progress",
+  event: {
+    sessionId: liveSession.sessionId,
+    items: [
+      { ...pendingLiveRow, id: "live-batch-a", url: "https://example.test/a" },
+      { ...pendingLiveRow, id: "live-batch-b", url: "https://example.test/b" },
+    ],
+  },
+});
+assert(
+  live.transactions.length === 3,
+  "a batched progress event applies every row in one dispatch",
+);
+
+// H-RG4 L5: in-flight rows are identifiable and have no measured duration yet.
+assert(
+  countLiveInFlight(live.transactions) === 3 &&
+    isLiveTransactionInFlight(pendingLiveRow),
+  "rows without a terminal state are reported as in flight",
+);
+live = liveHttpCaptureReducer(live, {
+  type: "progress",
+  event: {
+    sessionId: liveSession.sessionId,
+    items: [
+      {
+        ...pendingLiveRow,
+        id: "live-batch-a",
+        state: "aborted",
+        error: "capture stopped before the transaction completed",
+      },
+    ],
+  },
+});
+assert(
+  countLiveInFlight(live.transactions) === 2,
+  "an engine-supplied terminal state resolves the in-flight row",
+);
+
 live = liveHttpCaptureReducer(live, {
   type: "transactions",
   event: {
     sessionId: liveSession.sessionId,
     sequence: 1,
     snapshotVersion: 1,
-    items: [{ ...pendingLiveRow, state: "complete", statusCode: 200, totalMs: 12 }],
+    items: [
+      {
+        ...pendingLiveRow,
+        state: "complete",
+        statusCode: 200,
+        totalMs: 12,
+        fidelity: "decoded_wire",
+      },
+    ],
   },
 });
 assert(
-  live.transactions.length === 1 &&
+  live.transactions.length === 3 &&
     live.transactions[0]?.state === "complete" &&
     live.transactions[0]?.statusCode === 200,
   "completion replaces the stable in-progress row by transaction id",
+);
+// H-RG4 L8: the finalized row keeps the position its progress row held instead
+// of jumping to the tail past rows that are still pending.
+assert(
+  live.transactions[0]?.id === "live-pending" &&
+    live.transactions[1]?.id === "live-batch-a" &&
+    live.transactions[2]?.id === "live-batch-b",
+  "finalization replaces a row in place and does not reorder the live table",
+);
+live = liveHttpCaptureReducer(live, {
+  type: "started",
+  session: { ...liveSession, sessionId: "cap-t581-reset" },
+});
+live = liveHttpCaptureReducer(live, {
+  type: "started",
+  session: liveSession,
+});
+
+// H-RG4 L1: no in-flight, passthrough, or unrecognized grade may render as a
+// completed semantic decode. Unknown values degrade to "not yet determined".
+assert(
+  resolveLiveFidelity("pending") === "pending" &&
+    resolveLiveFidelity("proxy_passthrough") === "passthrough" &&
+    resolveLiveFidelity("unsupported") === "unsupported" &&
+    resolveLiveFidelity("decoded_wire") === "decoded_wire",
+  "known fidelity grades resolve to their own token",
+);
+assert(
+  resolveLiveFidelity("") === "unknown" &&
+    resolveLiveFidelity("h2") === "unknown" &&
+    resolveLiveFidelity("SEMANTIC") === "unknown",
+  "an unrecognized fidelity degrades to unknown rather than a positive grade",
+);
+assert(
+  !isDecodedLiveFidelity(resolveLiveFidelity("pending")) &&
+    !isDecodedLiveFidelity(resolveLiveFidelity("proxy_passthrough")) &&
+    !isDecodedLiveFidelity(resolveLiveFidelity("unsupported")) &&
+    !isDecodedLiveFidelity(resolveLiveFidelity("h2")) &&
+    isDecodedLiveFidelity(resolveLiveFidelity("decoded_wire")),
+  "only genuinely decoded grades claim successful capture",
+);
+
+// H-RG4 L6: the running session's SEC-17 policy is authoritative on re-entry,
+// where the renderer checkbox is back to its unchecked default.
+assert(
+  activeUnattributedPolicy(live.session, false) === true,
+  "page re-entry shows the running session's unattributed-retention policy",
+);
+assert(
+  activeUnattributedPolicy(
+    { ...liveSession, retainUnattributedMetadata: false },
+    true,
+  ) === false,
+  "the local checkbox never overstates a running session's retention policy",
+);
+assert(
+  activeUnattributedPolicy(null, true) === true &&
+    activeUnattributedPolicy(
+      { ...liveSession, state: "finalized", retainUnattributedMetadata: true },
+      false,
+    ) === false,
+  "with no active session the local choice seeds the next start",
 );
 
 const liveRows: LiveCaptureTransaction[] = Array.from(
@@ -929,6 +1082,7 @@ assert(
 const liveStats = {
   sessionId: liveSession.sessionId,
   state: "running",
+  observed: 1010,
   captured: 505,
   persisted: 505,
   bodyOmitted: 0,
@@ -937,13 +1091,30 @@ const liveStats = {
   parseFailed: 0,
   unsupported: 0,
   passthrough: 0,
-  unattributed: 0,
-  dropped: 0,
+  unattributed: 505,
+  dropped: 505,
   backpressured: false,
   snapshotVersion: 505,
   sequence: 505,
   storeBytes: 4096,
 };
+// H-RG4 L7: `captured` excludes deliberately dropped records while
+// `unattributed` counts them, so `observed` is the only denominator that makes
+// the tiles consistent — and mass drops must raise an explanatory warning.
+const liveCoverage = buildLiveCoverageDisclosure(liveStats);
+assert(
+  liveCoverage?.observed === 1010 &&
+    liveCoverage.droppedPercent === 50 &&
+    liveCoverage.hasDrops &&
+    liveCoverage.hasUnattributed,
+  "coverage disclosure reports the observed denominator and the drop share",
+);
+assert(
+  buildLiveCoverageDisclosure({ ...liveStats, observed: 0, dropped: 0 })
+    ?.droppedPercent === null,
+  "a zero denominator never produces a fabricated drop ratio",
+);
+assert(buildLiveCoverageDisclosure(null) === null, "no stats, no disclosure");
 live = liveHttpCaptureReducer(live, { type: "stats", stats: liveStats });
 assert(
   live.needsResync,
@@ -974,6 +1145,59 @@ live = liveHttpCaptureReducer(live, {
 assert(
   !isLiveSessionActive(live.session),
   "finalized session exits the active capture state",
+);
+
+// H-RG4 L1/L7/L14: every live-capture disclosure the panel can print must exist
+// in both locales. The review found drop and unattributed states with no
+// explanatory string in either language, which a key-parity check catches.
+const enKeys = Object.keys(messages.en);
+const koKeys = Object.keys(messages.ko);
+assert(
+  enKeys.length === koKeys.length &&
+    enKeys.every((key) => koKeys.includes(key)),
+  "en and ko message catalogs expose the identical key set",
+);
+const requiredLiveCaptureKeys = [
+  "liveCaptureObserved",
+  "liveCaptureDropped",
+  "liveCaptureKernelDropped",
+  "liveCaptureDropWarning",
+  "liveCaptureUnattributedWarning",
+  "liveCaptureKernelDroppedWarning",
+  "liveCaptureCoverageDenominator",
+  "liveCaptureDroppedShare",
+  "liveCaptureUnknownOptInLocked",
+  "liveCaptureUnknownOptInOn",
+  "liveCaptureUnknownOptInOff",
+  "liveCaptureColState",
+  "liveCaptureInFlight",
+  "liveCaptureInFlightCount",
+  "liveCaptureInFlightHint",
+  "liveCaptureFidelityPending",
+  "liveCaptureFidelityDecodedWire",
+  "liveCaptureFidelitySemantic",
+  "liveCaptureFidelityUnsupported",
+  "liveCaptureFidelityPassthrough",
+  "liveCaptureFidelityUnknown",
+];
+assert(
+  requiredLiveCaptureKeys.every(
+    (key) =>
+      typeof (messages.en as Record<string, string>)[key] === "string" &&
+      (messages.en as Record<string, string>)[key]!.length > 0 &&
+      typeof (messages.ko as Record<string, string>)[key] === "string" &&
+      (messages.ko as Record<string, string>)[key]!.length > 0,
+  ),
+  "live-capture honesty disclosures are localized in both languages",
+);
+// The two "dropped" counters mean opposite things — a privacy discard versus
+// real data loss — so their labels must not be interchangeable (H-RG4 L14).
+const enLabels = messages.en as Record<string, string>;
+const koLabels = messages.ko as Record<string, string>;
+assert(
+  enLabels.liveCaptureDropped !== enLabels.liveCaptureKernelDropped &&
+    koLabels.liveCaptureDropped !== koLabels.liveCaptureKernelDropped,
+  "policy discards and pre-capture loss are labeled distinctly",
 );
 
 // ── T-586: populated browser_audit_evidence page derivations ───────────

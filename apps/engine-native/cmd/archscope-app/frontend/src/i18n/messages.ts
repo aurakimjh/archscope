@@ -911,15 +911,21 @@ export const messages = {
     liveCaptureUnknownOptIn: "Retain unattributed metadata",
     liveCaptureUnknownOptInHint:
       "Off by default. When enabled, only redacted metadata is retained for traffic whose process cannot be confirmed; bodies are still omitted.",
+    liveCaptureUnknownOptInLocked:
+      "This is the policy the running session is enforcing. It was fixed when the session started and cannot be changed until it stops.",
+    liveCaptureUnknownOptInOn: "Unattributed metadata is being retained.",
+    liveCaptureUnknownOptInOff: "Unattributed traffic is being discarded.",
     liveCaptureStart: "Start capture",
     liveCaptureStop: "Stop capture",
     liveCaptureLoadFinalized: "Load finalized analysis",
     liveCaptureRecovery: "Recovered sessions",
     liveCaptureRecords: "records",
     liveCaptureDiscarded: "discarded tail",
+    liveCaptureObserved: "Observed",
     liveCaptureCaptured: "Captured",
     liveCapturePersisted: "Persisted",
-    liveCaptureDropped: "Dropped",
+    liveCaptureDropped: "Discarded by policy",
+    liveCaptureKernelDropped: "Lost before capture",
     liveCaptureUnattributed: "Unattributed",
     liveCaptureUnsupported: "Unsupported",
     liveCapturePassthrough: "Passthrough",
@@ -931,6 +937,15 @@ export const messages = {
       "Renderer events were skipped; the live window was reloaded from the authoritative snapshot.",
     liveCaptureFidelityWarning:
       "Some traffic used passthrough or an unsupported protocol. Do not interpret it as decoded semantic capture.",
+    liveCaptureDropWarning:
+      "ArchScope deliberately discarded traffic it could not attribute to a confirmed process. This is expected for short-lived connections on Windows, where direct TCP-owner attribution resolves persistent endpoints only. Discarded traffic is counted but never stored.",
+    liveCaptureUnattributedWarning:
+      "Some traffic could not be attributed to a confirmed process. Enable unattributed retention before starting a session to keep its redacted metadata.",
+    liveCaptureCoverageDenominator:
+      "Observed is everything the proxy saw. Captured excludes records discarded by policy, so Unattributed can exceed Captured.",
+    liveCaptureDroppedShare: "of observed traffic discarded",
+    liveCaptureKernelDroppedWarning:
+      "Data was lost before ArchScope could capture it. This is loss, not a privacy discard.",
     liveCaptureProcessTree: "Live process tree",
     liveCaptureRows: "Stable live rows",
     liveCaptureFollowing: "Following",
@@ -938,6 +953,17 @@ export const messages = {
     liveCaptureNoRows: "No retained transactions yet.",
     liveCaptureRowCap:
       "The live renderer keeps the newest 500 metadata-only rows. The finalized store remains authoritative.",
+    liveCaptureColState: "State",
+    liveCaptureInFlight: "in flight",
+    liveCaptureInFlightCount: "in-flight rows",
+    liveCaptureInFlightHint:
+      "In-flight rows have no measured status or duration yet. They resolve to complete, failed, or aborted; a session that stops mid-request marks them aborted.",
+    liveCaptureFidelityPending: "not yet determined",
+    liveCaptureFidelityDecodedWire: "decoded wire",
+    liveCaptureFidelitySemantic: "semantic",
+    liveCaptureFidelityUnsupported: "unsupported",
+    liveCaptureFidelityPassthrough: "passthrough (opaque)",
+    liveCaptureFidelityUnknown: "not yet determined",
     httpCaptureLabel: "HAR file",
     httpCaptureDescription:
       "Import a HAR export from Chrome, Firefox, Safari, Charles, Fiddler, and more. Sensitive tokens are redacted before analysis.",
@@ -1914,6 +1940,10 @@ export const messages = {
     liveCaptureBodyDisabled:
       "요청·응답 본문 캡처는 비활성화되어 있습니다. 본문 캡처 tier에는 SEC-10 dump 제외 사전검사가 먼저 필요합니다.",
     liveCaptureUnknownOptIn: "미귀속 메타데이터 보존",
+    liveCaptureUnknownOptInLocked:
+      "실행 중인 세션이 적용하고 있는 정책입니다. 세션 시작 시점에 확정되며 중지 전까지 변경할 수 없습니다.",
+    liveCaptureUnknownOptInOn: "미귀속 메타데이터를 보존하고 있습니다.",
+    liveCaptureUnknownOptInOff: "미귀속 트래픽을 폐기하고 있습니다.",
     liveCaptureUnknownOptInHint:
       "기본값은 꺼짐입니다. 활성화하면 프로세스를 확정하지 못한 트래픽의 리댁션된 메타데이터만 보존하며 본문은 계속 생략합니다.",
     liveCaptureStart: "캡처 시작",
@@ -1922,9 +1952,11 @@ export const messages = {
     liveCaptureRecovery: "복구된 세션",
     liveCaptureRecords: "레코드",
     liveCaptureDiscarded: "폐기된 꼬리",
+    liveCaptureObserved: "관측",
     liveCaptureCaptured: "캡처",
     liveCapturePersisted: "저장",
-    liveCaptureDropped: "드롭",
+    liveCaptureDropped: "정책상 폐기",
+    liveCaptureKernelDropped: "캡처 전 유실",
     liveCaptureUnattributed: "미귀속",
     liveCaptureUnsupported: "미지원",
     liveCapturePassthrough: "패스스루",
@@ -1936,6 +1968,15 @@ export const messages = {
       "렌더러 이벤트가 누락되어 권위 있는 snapshot에서 live window를 다시 불러왔습니다.",
     liveCaptureFidelityWarning:
       "일부 트래픽은 passthrough 또는 미지원 프로토콜입니다. decoded semantic 캡처로 해석하지 마십시오.",
+    liveCaptureDropWarning:
+      "확정된 프로세스로 귀속하지 못한 트래픽을 ArchScope가 의도적으로 폐기했습니다. Windows의 직접 TCP-owner 귀속은 지속 연결 엔드포인트만 해석하므로 수명이 짧은 연결에서는 정상적인 결과입니다. 폐기된 트래픽은 집계만 되고 저장되지 않습니다.",
+    liveCaptureUnattributedWarning:
+      "일부 트래픽을 확정된 프로세스로 귀속하지 못했습니다. 리댁션된 메타데이터를 남기려면 세션 시작 전에 미귀속 보존을 활성화하십시오.",
+    liveCaptureCoverageDenominator:
+      "관측은 프록시가 본 전체입니다. 캡처는 정책상 폐기된 레코드를 제외하므로 미귀속이 캡처보다 클 수 있습니다.",
+    liveCaptureDroppedShare: "관측 대비 폐기 비율",
+    liveCaptureKernelDroppedWarning:
+      "ArchScope가 캡처하기 전에 데이터가 유실되었습니다. 개인정보 보호를 위한 폐기가 아니라 유실입니다.",
     liveCaptureProcessTree: "실시간 프로세스 트리",
     liveCaptureRows: "안정적인 실시간 행",
     liveCaptureFollowing: "자동 추적 중",
@@ -1943,6 +1984,17 @@ export const messages = {
     liveCaptureNoRows: "보존된 트랜잭션이 아직 없습니다.",
     liveCaptureRowCap:
       "실시간 렌더러는 최신 metadata-only 행 500개를 유지합니다. 종료된 저장소가 권위 있는 원본입니다.",
+    liveCaptureColState: "상태",
+    liveCaptureInFlight: "진행 중",
+    liveCaptureInFlightCount: "진행 중 행",
+    liveCaptureInFlightHint:
+      "진행 중인 행은 아직 측정된 상태나 응답시간이 없습니다. 완료·실패·중단 중 하나로 확정되며, 요청 도중 세션을 중지하면 중단으로 표시됩니다.",
+    liveCaptureFidelityPending: "판정 전",
+    liveCaptureFidelityDecodedWire: "decoded wire",
+    liveCaptureFidelitySemantic: "semantic",
+    liveCaptureFidelityUnsupported: "미지원",
+    liveCaptureFidelityPassthrough: "패스스루(불투명)",
+    liveCaptureFidelityUnknown: "판정 전",
     httpCaptureLabel: "HAR 파일",
     httpCaptureDescription:
       "Chrome, Firefox, Safari, Charles, Fiddler 등에서 내보낸 HAR 를 가져옵니다. 민감한 토큰은 분석 전에 리댁션됩니다.",
