@@ -19,8 +19,9 @@ group and **the next group cannot start until the current group passes**.
   re-reviews, the bounded import UI, shared fixtures, and full engine/frontend
   verification. T-571/H-RG2 closed with independent `H-COV1 PASS` on
   2026-07-27, and T-580/H-RG3 closed with independent `H-SEC2 PASS` on
-  2026-07-28. T-581/H-RG4 Windows live UI and E2E implementation is complete
-  and in `REVIEW`, awaiting Windows evidence and an independent group verdict.
+  2026-07-28. T-581/H-RG4 Windows live UI and E2E remains in `REVIEW` after an
+  independent `CONDITIONAL` verdict on 2026-07-28. L1–L3 block `PASS`; L4–L7
+  require remediation or recorded acceptance; L8–L14 require disposition.
 
 ## 2. Ownership
 
@@ -72,7 +73,7 @@ Only high-consequence boundaries receive an extra per-item gate:
 | 2 | `H-RG1` complete offline HAR analysis | **Complete — integrated PASS (2026-07-21)** | Closed |
 | 3 | `H-RG2` Windows coverage proof | **Complete — H-COV1 PASS (2026-07-27)** | Closed |
 | 4 | `H-RG3` live-capture engine foundation | **Complete — H-SEC2 PASS (2026-07-28)** | Closed |
-| 5 | `H-RG4` live UI and Windows E2E | **Implementation complete — REVIEW** | `H-RG3 PASS`; Windows evidence and group `PASS` pending |
+| 5 | `H-RG4` live UI and Windows E2E | **REVIEW — CONDITIONAL (2026-07-28)** | Remediation, Windows evidence, and independent `PASS` pending |
 | 6 | `H-RG5` HTTP session Diff | Planned | `H-RG4 PASS` |
 | 7 | `X-RG1` HTTP x profile/server-evidence correlation | Planned | `H-RG5 PASS` |
 | 8 | `R-RG1` integrated release acceptance | Planned | `X-RG1 PASS` |
@@ -254,24 +255,43 @@ cancellation, streaming, H2 passthrough, and long-session memory-bound tests pas
 
 ### H-RG4 — Live UI and Windows E2E
 
-**Status:** implementation complete — `REVIEW` (2026-07-28). The Windows-only
-E2E test cross-compiles, but an actual Windows browser/curl/JVM/Electron run and
-independent group verdict are still required.
+**Status:** `REVIEW` — independent `CONDITIONAL` (2026-07-28). Three findings
+block `PASS`: L1 passthrough progress rows claim semantic fidelity, L2 the
+redaction policy has a confirmed concurrency race, and L3 the acceptance
+package cannot read back and prove actual ArchScope captures. L4–L7 must be
+resolved or explicitly accepted; L8–L14 need a recorded fix/defer decision.
 
 #### Codex Integration
 
 - [x] Supply frozen CaptureService bindings and the Windows E2E harness.
 - [x] Supply snapshot/cursor/filter acceptance fixtures.
 - [x] Support packaging, signing, and privilege-boundary smoke tests.
+- [ ] L2: make redaction concurrency-safe and lock it with a stream race test.
+- [ ] L1: emit honest non-semantic progress fidelity for passthrough and cover
+  stop-mid-tunnel behavior.
+- [ ] L3: bind acceptance fixtures to product constants/transactions and make
+  the Windows harness read back capture rows/stats and fail on absent clients.
+- [ ] L4–L7 backend contracts: bounded progress batches, terminal in-flight
+  reconciliation, active SEC-17 policy disclosure, and observed/drop counters.
+- [ ] L9/L11/L13: enforce platform availability in the manager, avoid fabricated
+  CONNECT paths, and document the confirmed-attribution guarantee boundary.
+
+Codex stops after these backend contracts, generated bindings, fixtures, and
+engine verification are frozen. React/UI/state/i18n remediation is handed to
+Claude.
 
 #### Live UI
 
 - [x] Start/stop, session state, CA install/remove, and first-use warning
-- [x] Process tree, stable live list, and in-progress transaction state
-- [x] User-scroll-respecting follow mode, batched updates, and row cap
-- [x] Persistence/drop/backpressure/disk/recovery status
-- [x] Honest fidelity, coverage, passthrough, and unattributed warnings
+- [ ] Process tree, stable live list, and terminal in-progress reconciliation
+- [ ] User-scroll-respecting follow mode, batched updates, and row cap
+- [ ] Persistence/drop/backpressure/disk/recovery status with explicit drop warning
+- [ ] Honest fidelity, coverage, passthrough, and unattributed warnings
 - [x] Same-page finalized-session lazy loading after stop
+
+Claude owns L1 presentation, L4 renderer behavior, L5 unresolved-row UX, L6
+authoritative SEC-17 re-entry state, L7 warnings, and the fix/defer disposition
+for L8/L10/L12/L14.
 
 SEC-17 is enforced below the renderer: unknown attribution is dropped by
 default before persistence or progress exposure, and the explicit opt-in keeps
@@ -328,7 +348,8 @@ HAR pseudo-process sessions.
 ## 8. First Execution Point
 
 T-580 / `H-RG3` entered `REVIEW` on 2026-07-27 and passed the independent
-`H-SEC2` CA/TLS/privilege gate on 2026-07-28. T-581 / H-RG4 implementation is
-now in `REVIEW`. The next action is the actual Windows browser/curl/JVM/Electron,
-long-session, re-entry, recovery, and unsupported-tier run followed by an
-independent group verdict.
+`H-SEC2` CA/TLS/privilege gate on 2026-07-28. T-581 / H-RG4 remains in `REVIEW`
+after the 2026-07-28 `CONDITIONAL` verdict. The next action is L1–L3 blocker
+remediation, L4–L7 resolution/acceptance, and L8–L14 disposition, followed by
+real product-readback Windows browser/curl/JVM/Electron, long-session,
+re-entry, recovery, and unsupported-tier evidence and an independent re-review.
