@@ -133,7 +133,7 @@ Unsupported or deferred:
 ## Windows Live HTTP Capture
 
 The HTTP Capture page includes the T-581 review candidate for Windows live
-capture. H-RG4 has a second `CONDITIONAL` verdict dated 2026-07-29; use it for
+capture. H-RG4 has a third `CONDITIONAL` verdict dated 2026-07-29; use it for
 acceptance work, not as a released capture tier:
 
 1. Read and accept the first-use proxy/CA warning.
@@ -161,7 +161,12 @@ HAR-import/foreign-tool/semantic metadata. TLS interception failures are
 retained as attributed `proxy_not_captured` / `unsupported` rows, while failed
 explicit or h2-only tunnels remain `proxy_passthrough` / `unsupported`.
 Capture-time redaction counts are persisted in the manifest and carried into
-the finalized analysis and acceptance evidence.
+the finalized analysis and acceptance evidence. The same flush checkpoint
+persists capture counters for crash recovery. A stopped in-flight row becomes
+`aborted` / `unsupported`; the progress-only `pending` grade never survives as
+a finalized transaction. For legacy stores without a checkpoint, backend
+evidence marks redaction as unknown and derives conservative counters from
+persisted rows; the finalized-card unknown label remains a Claude UI handoff.
 
 `coverage: confirmed` is deliberately narrow: ArchScope observed the same
 client/proxy endpoint tuple and owner PID in two immediate TCP-owner table reads
@@ -178,7 +183,7 @@ For Windows acceptance and package-signature evidence:
 powershell -ExecutionPolicy Bypass -File scripts/verify-windows-live-capture.ps1 `
   -ProxyAddress 127.0.0.1:43123 `
   -HttpTargetUrl http://127.0.0.1:8080/health `
-  -HttpsTargetUrl https://example.test/health `
+  -HttpsTargetUrl https://127.0.0.1:8443/health `
   -SessionPath "$env:LOCALAPPDATA\ArchScope\captures\cap-..." `
   -RecoverySessionPath "$env:LOCALAPPDATA\ArchScope\captures\cap-recovered-..." `
   -ArchScopeEngineExe .\bin\archscope-engine.exe `
@@ -189,17 +194,21 @@ powershell -ExecutionPolicy Bypass -File scripts/verify-windows-live-capture.ps1
 
 Build the acceptance app with the `t581e2e` tag and launch it with
 `ARCHSCOPE_E2E_CDP_PORT=9223`; production builds do not expose this debugging
-port. The HTTPS target must support h2 for the h2-only probe. The schema-v3
-harness requires browser/curl/JVM/Electron over HTTP and HTTPS, an attributed
-pinning failure, h2-only passthrough, at least 1,000 long-session requests,
+port. Both target URLs must be loopback fixture origins, and the HTTPS fixture
+must support h2 for the h2-only probe. The schema-v4 harness requires
+browser/curl/JVM/Electron over HTTP and HTTPS, an attributed pinning failure,
+h2-only passthrough, explicit QUIC/UDP invisibility, at least 1,000 long-session requests,
 WebView page re-entry, and a separate real crash-recovery session. It waits for
 the operator to stop the main UI capture, invokes the read-only
 `http-capture acceptance-evidence` command for both stores, and fails on absent
 or contradictory evidence. The command never starts capture and writes
-metadata-only evidence with owner-only permissions. Archive the generated JSON
-or record its repository path and checksum before requesting re-review. T-581
-remains in `REVIEW` until that Windows artifact, the Claude-owned R8/R9/R11 UI
-handoff, and an independent H-RG4 re-review pass.
+metadata-only evidence with owner-only permissions. The artifact omits local
+session paths, caps rows at 2,000, declares its loopback-fixture privacy scope,
+and must be reviewed before public archiving. Archive the generated JSON or
+record its repository path and checksum before requesting re-review. T-581
+remains in `REVIEW` until that Windows artifact, the Claude-owned S1/S4 and
+unknown-redaction finalized-card handoff, and an independent H-RG4 re-review
+pass.
 
 ## Native App
 

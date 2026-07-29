@@ -39,6 +39,24 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+$harnessContractPath = Join-Path $PSScriptRoot "t581-live-capture-harness-contract.json"
+if (-not (Test-Path $harnessContractPath -PathType Leaf)) {
+    throw "Harness contract does not exist: $harnessContractPath"
+}
+$harnessContract = Get-Content $harnessContractPath -Raw | ConvertFrom-Json
+if (
+    -not $harnessContract.requiresArchivedArtifact -or
+    -not $harnessContract.unsupportedH2 -or
+    -not $harnessContract.unsupportedPinning -or
+    -not $harnessContract.quicInvisibility -or
+    -not $harnessContract.pageReentry -or
+    -not $harnessContract.recovery -or
+    -not $harnessContract.fixtureTrafficOnly -or
+    -not $harnessContract.artifactOmitsLocalPaths
+) {
+    throw "Harness contract is incomplete or unsafe."
+}
+
 if ($ProxyAddress -notmatch "^(?<host>[^:]+):(?<port>[0-9]+)$") {
     throw "ProxyAddress must use host:port form."
 }
@@ -47,6 +65,12 @@ if (-not $HttpTargetUrl.StartsWith("http://")) {
 }
 if (-not $HttpsTargetUrl.StartsWith("https://")) {
     throw "HttpsTargetUrl must use https://."
+}
+$httpTargetUri = [Uri]$HttpTargetUrl
+$httpsTargetUri = [Uri]$HttpsTargetUrl
+$loopbackHosts = @("localhost", "127.0.0.1", "::1")
+if ($httpTargetUri.Host -notin $loopbackHosts -or $httpsTargetUri.Host -notin $loopbackHosts) {
+    throw "Acceptance traffic must use loopback fixture origins only."
 }
 if (-not (Test-Path $ArchScopeEngineExe -PathType Leaf)) {
     throw "ArchScopeEngineExe does not exist: $ArchScopeEngineExe"
@@ -63,8 +87,8 @@ if (-not (Test-Path $RecoverySessionPath -PathType Container)) {
 if ((Resolve-Path $RecoverySessionPath).Path -eq (Resolve-Path $SessionPath).Path) {
     throw "RecoverySessionPath must identify a separate crash-recovered session."
 }
-if ($LongSessionRequests -lt 1000) {
-    throw "LongSessionRequests must be at least 1000."
+if ($LongSessionRequests -lt [int]$harnessContract.minLongSessionRequests) {
+    throw "LongSessionRequests must be at least $($harnessContract.minLongSessionRequests)."
 }
 if ($ReentryMinimumRows -lt 1) {
     throw "ReentryMinimumRows must be positive."
@@ -120,6 +144,21 @@ function Add-UnsupportedResult {
         succeeded = $Succeeded
         detail = $Detail
     })
+}
+
+function Protect-Artifact {
+    param([string]$Path)
+    $identity = [System.Security.Principal.WindowsIdentity]::GetCurrent().User
+    $security = [System.Security.AccessControl.FileSecurity]::new()
+    $security.SetOwner($identity)
+    $security.SetAccessRuleProtection($true, $false)
+    $rule = [System.Security.AccessControl.FileSystemAccessRule]::new(
+        $identity,
+        [System.Security.AccessControl.FileSystemRights]::FullControl,
+        [System.Security.AccessControl.AccessControlType]::Allow
+    )
+    $security.AddAccessRule($rule)
+    Set-Acl -Path $Path -AclObject $security
 }
 
 function Invoke-Client {
@@ -356,6 +395,18 @@ app.whenReady().then(async () => {
         $pinningHandler.Dispose()
     }
 
+    $quicMarker = "quic-udp"
+    $quicClient = [System.Net.Sockets.UdpClient]::new()
+    try {
+        $quicPayload = [System.Text.Encoding]::UTF8.GetBytes(
+            "archscope_t581_client=$quicMarker"
+        )
+        $sent = $quicClient.Send($quicPayload, $quicPayload.Length, $proxyHost, [int]$proxyPort)
+        Add-UnsupportedResult -Scenario "quic" -Available $true -Succeeded ($sent -eq $quicPayload.Length) -Detail "UDP/QUIC marker sent to the TCP-only explicit-proxy endpoint; product readback must remain empty"
+    } finally {
+        $quicClient.Dispose()
+    }
+
     $h2Source = Join-Path $tempRoot "ArchScopeT581H2Only.java"
     @"
 import java.io.*;
@@ -437,14 +488,9 @@ public class ArchScopeT581H2Only {
 
     $reentryExpression = @'
 (() => new Promise((resolve, reject) => {
-  const buttons = Array.from(document.querySelectorAll("button"));
-  const httpButton = buttons.find((button) => button.textContent.trim() === "HTTP capture");
-  const otherButton = buttons.find((button) =>
-    button !== httpButton &&
-    button.closest("nav") &&
-    !button.classList.contains("nav-group-toggle") &&
-    button.textContent.trim().length > 0
-  );
+  const buttons = Array.from(document.querySelectorAll("nav button.nav-item"));
+  const httpButton = buttons.find((button) => button.getAttribute("aria-current") === "page");
+  const otherButton = buttons.find((button) => button !== httpButton);
   if (!httpButton || !otherButton) {
     reject(new Error("navigation buttons not found"));
     return;
@@ -453,14 +499,16 @@ public class ArchScopeT581H2Only {
   setTimeout(() => {
     httpButton.click();
     setTimeout(() => {
-      const rowCount = document.querySelectorAll("tbody tr").length;
-      resolve({ rowCount });
+      const firstTable = document.querySelector(".app-main tbody");
+      const rowCount = firstTable ? firstTable.querySelectorAll("tr").length : 0;
+      const restored = httpButton.getAttribute("aria-current") === "page";
+      resolve({ rowCount, restored });
     }, 1000);
   }, 500);
 }))()
 '@
     $reentry = Invoke-CDPEvaluate -Port $WebViewDebugPort -Expression $reentryExpression
-    if ([int]$reentry.rowCount -lt $ReentryMinimumRows) {
+    if (-not $reentry.restored -or [int]$reentry.rowCount -lt $ReentryMinimumRows) {
         throw "Page re-entry did not restore at least $ReentryMinimumRows live rows: $($reentry | ConvertTo-Json -Compress)"
     }
 
@@ -489,6 +537,9 @@ public class ArchScopeT581H2Only {
     if ($productEvidence.session.state -ne "finalized") {
         $contradictions.Add("capture session state is $($productEvidence.session.state), expected finalized")
     }
+    if ([int]$productEvidence.schemaVersion -ne [int]$harnessContract.productEvidenceSchemaVersion) {
+        $contradictions.Add("product evidence schema is $($productEvidence.schemaVersion), expected $($harnessContract.productEvidenceSchemaVersion)")
+    }
     if ([int64]$productEvidence.stats.observed -lt [int64]$productEvidence.stats.persisted) {
         $contradictions.Add("observed counter is smaller than persisted counter")
     }
@@ -501,8 +552,14 @@ public class ArchScopeT581H2Only {
     if ($longSucceeded -ne $LongSessionRequests) {
         $contradictions.Add("long-session probe completed $longSucceeded of $LongSessionRequests requests")
     }
-    if (-not $productEvidence.redaction.applied -or [int64]$productEvidence.redaction.counts.query_value -lt $LongSessionRequests) {
+    if (-not $productEvidence.redaction.known -or -not $productEvidence.redaction.applied -or [int64]$productEvidence.redaction.counts.query_value -lt $LongSessionRequests) {
         $contradictions.Add("capture-time redaction summary does not prove the long-session token substitutions")
+    }
+    if ([int64]$productEvidence.session.totalRows -lt [int64]$reentry.rowCount) {
+        $contradictions.Add("page re-entry restored more rows than the product store contains")
+    }
+    if (@($productEvidence.rows).Count -gt [int]$harnessContract.maxArtifactRows) {
+        $contradictions.Add("product evidence exceeds the contracted artifact row cap")
     }
     foreach ($result in $results) {
         if (-not $result.available) {
@@ -555,6 +612,12 @@ public class ArchScopeT581H2Only {
     if ($pinningRows.Count -eq 0) {
         $contradictions.Add("pinning probe has no attributed proxy_not_captured/unsupported product row")
     }
+    $quicRows = @($productEvidence.rows | Where-Object {
+        $_.url -like "*archscope_t581_client=$quicMarker*"
+    })
+    if ($quicRows.Count -gt 0) {
+        $contradictions.Add("UDP/QUIC marker unexpectedly appeared as an explicit-proxy HTTP transaction")
+    }
     $dishonestUnsupportedRows = @($productEvidence.rows | Where-Object {
         ($_.captureMode -eq "proxy_passthrough" -or $_.captureMode -eq "proxy_not_captured") -and
         $_.fidelity -eq "semantic"
@@ -562,8 +625,13 @@ public class ArchScopeT581H2Only {
     if ($dishonestUnsupportedRows.Count -gt 0) {
         $contradictions.Add("unsupported-tier product rows claim semantic fidelity")
     }
-    if ($recoveryEvidence.session.state -ne "recoverable" -or [int64]$recoveryEvidence.session.totalRows -lt 1) {
-        $contradictions.Add("recovery product readback is not recoverable or contains no stored row")
+    if (
+        $recoveryEvidence.session.state -ne "recoverable" -or
+        [int64]$recoveryEvidence.session.totalRows -lt 1 -or
+        -not $recoveryEvidence.redaction.known -or
+        [int64]$recoveryEvidence.stats.persisted -lt [int64]$recoveryEvidence.session.totalRows
+    ) {
+        $contradictions.Add("recovery product readback lacks a recoverable row, redaction checkpoint, or persisted counter")
     }
 
     $packageEvidence = $null
@@ -582,25 +650,39 @@ public class ArchScopeT581H2Only {
     }
 
     $evidence = [ordered]@{
-        schemaVersion = 3
+        schemaVersion = [int]$harnessContract.schemaVersion
         task = "T-581"
         generatedAt = [DateTime]::UtcNow.ToString("o")
         platform = [System.Environment]::OSVersion.VersionString
         proxyAddress = $ProxyAddress
-        sessionPath = (Resolve-Path $SessionPath).Path
+        sessionRef = Split-Path -Leaf (Resolve-Path $SessionPath).Path
+        privacy = [ordered]@{
+            trafficScope = "loopback_fixture_only"
+            fixtureTrafficOnly = $true
+            localPathsOmitted = $true
+            maxArtifactRows = [int]$harnessContract.maxArtifactRows
+            reviewBeforeArchive = $true
+        }
         clients = $results
         unsupportedProbes = $unsupportedProbes
         longSession = $longSession
-        pageReentry = $reentry
+        pageReentry = [ordered]@{
+            restored = [bool]$reentry.restored
+            restoredRows = [int]$reentry.rowCount
+            productRows = [int64]$productEvidence.session.totalRows
+            productReadback = $true
+        }
         capture = $productEvidence
         recovery = $recoveryEvidence
         contradictions = $contradictions
         package = $packageEvidence
     }
     $evidence | ConvertTo-Json -Depth 12 | Set-Content -Path $OutputPath -Encoding UTF8
+    Protect-Artifact -Path $OutputPath
     $artifactHash = (Get-FileHash -Algorithm SHA256 -Path $OutputPath).Hash.ToLowerInvariant()
     "$artifactHash  $([System.IO.Path]::GetFileName($OutputPath))" |
         Set-Content -Path ($OutputPath + ".sha256") -Encoding ASCII
+    Protect-Artifact -Path ($OutputPath + ".sha256")
     Write-Host "Wrote T-581 product-readback evidence to $OutputPath"
     Write-Host "SHA256 $artifactHash"
 

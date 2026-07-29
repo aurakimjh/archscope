@@ -15,11 +15,43 @@ import (
 )
 
 const (
-	SchemaVersion          = 2
-	HarnessSchemaVersion   = 3
+	SchemaVersion          = 3
+	HarnessSchemaVersion   = 4
 	MaxEvidenceRows        = store.MaxFetchLimit
 	MinLongSessionRequests = 1000
 )
+
+type HarnessContract struct {
+	SchemaVersion            int  `json:"schemaVersion"`
+	ProductEvidenceSchema    int  `json:"productEvidenceSchemaVersion"`
+	MinLongSessionRequests   int  `json:"minLongSessionRequests"`
+	RequiresArchivedArtifact bool `json:"requiresArchivedArtifact"`
+	UnsupportedH2            bool `json:"unsupportedH2"`
+	UnsupportedPinning       bool `json:"unsupportedPinning"`
+	QUICInvisibility         bool `json:"quicInvisibility"`
+	PageReentry              bool `json:"pageReentry"`
+	Recovery                 bool `json:"recovery"`
+	FixtureTrafficOnly       bool `json:"fixtureTrafficOnly"`
+	ArtifactOmitsLocalPaths  bool `json:"artifactOmitsLocalPaths"`
+	MaxArtifactRows          int  `json:"maxArtifactRows"`
+}
+
+func DefaultHarnessContract() HarnessContract {
+	return HarnessContract{
+		SchemaVersion:            HarnessSchemaVersion,
+		ProductEvidenceSchema:    SchemaVersion,
+		MinLongSessionRequests:   MinLongSessionRequests,
+		RequiresArchivedArtifact: true,
+		UnsupportedH2:            true,
+		UnsupportedPinning:       true,
+		QUICInvisibility:         true,
+		PageReentry:              true,
+		Recovery:                 true,
+		FixtureTrafficOnly:       true,
+		ArtifactOmitsLocalPaths:  true,
+		MaxArtifactRows:          MaxEvidenceRows,
+	}
+}
 
 type Evidence struct {
 	SchemaVersion int                         `json:"schemaVersion"`
@@ -80,6 +112,13 @@ func Build(sessionPath string) (Evidence, error) {
 	if meta.CaptureStats != nil {
 		stats = *meta.CaptureStats
 		stats.State = meta.State
+	} else {
+		stats.Observed = meta.Counters.Persisted
+		stats.Captured = meta.Counters.Persisted
+		stats.Persisted = meta.Counters.Persisted
+		stats.BodyOmitted = meta.Counters.BodyOmitted
+		stats.SnapshotVersion = meta.SnapshotVersion
+		stats.StoreBytes = meta.StoreBytes
 	}
 	result := Evidence{
 		SchemaVersion: SchemaVersion,
@@ -93,7 +132,7 @@ func Build(sessionPath string) (Evidence, error) {
 	if meta.Redaction != nil {
 		result.Redaction = *meta.Redaction
 	} else {
-		result.Redaction = redact.Summary{Version: redact.PolicyVersion, Rules: []string{}, Counts: map[string]int{}}
+		result.Redaction = redact.Summary{Known: false, Version: redact.PolicyVersion, Rules: []string{}, Counts: map[string]int{}}
 	}
 	cursor := ""
 	for {

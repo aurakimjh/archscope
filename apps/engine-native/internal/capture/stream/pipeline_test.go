@@ -365,8 +365,8 @@ func TestCloseAbortsEveryInflightTransactionState(t *testing.T) {
 		t.Fatalf("persisted aborted rows=%+v", persisted)
 	}
 	for _, tx := range persisted {
-		if tx.State != models.TxAborted {
-			t.Fatalf("non-terminal persisted row=%+v", tx)
+		if tx.State != models.TxAborted || tx.Fidelity != "unsupported" {
+			t.Fatalf("non-terminal or pending persisted row=%+v", tx)
 		}
 	}
 	stats := p.Stats(capture.StateFinalized)
@@ -449,6 +449,48 @@ func TestPipelineRedactionIsSafeAcrossConcurrentProgressAndPersistence(t *testin
 	stats := p.Stats(capture.StateFinalized)
 	if stats.Persisted != workers*transactionsPerWorker {
 		t.Fatalf("stats=%+v", stats)
+	}
+}
+
+func TestSubmitFlushesCrashRecoveryCheckpointWithPersistedRows(t *testing.T) {
+	st := testStore(t)
+	p, err := New(Config{
+		SessionID: "s", Store: st,
+		BatchInterval: time.Hour, StatsInterval: time.Hour,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	tx := models.CaptureTransaction{
+		ID: "checkpoint", Method: "GET",
+		URL:      "http://127.0.0.1/check?token=secret",
+		State:    models.TxComplete,
+		Fidelity: "decoded_wire",
+		Process:  &models.ProcessInstance{Name: "fixture", Attribution: "confirmed"},
+		Request:  models.HTTPMessage{BodyStorage: "omitted"},
+		Response: models.HTTPMessage{BodyStorage: "omitted"},
+	}
+	if err := p.Submit(context.Background(), tx); err != nil {
+		t.Fatal(err)
+	}
+	if err := st.Flush(); err != nil {
+		t.Fatal(err)
+	}
+	meta := st.Meta()
+	if meta.CaptureStats == nil ||
+		meta.CaptureStats.Observed != 1 ||
+		meta.CaptureStats.Captured != 1 ||
+		meta.CaptureStats.Persisted != 1 {
+		t.Fatalf("incremental capture checkpoint=%+v", meta.CaptureStats)
+	}
+	if meta.Redaction == nil ||
+		!meta.Redaction.Known ||
+		!meta.Redaction.Applied ||
+		meta.Redaction.Counts["query_value"] != 1 {
+		t.Fatalf("incremental redaction checkpoint=%+v", meta.Redaction)
+	}
+	if err := p.Close(); err != nil {
+		t.Fatal(err)
 	}
 }
 

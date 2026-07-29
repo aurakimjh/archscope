@@ -222,7 +222,10 @@ func (p *Pipeline) release(size int64) {
 func (p *Pipeline) writer() {
 	defer close(p.done)
 	for req := range p.queue {
-		item, err := p.cfg.Store.Append(req.tx)
+		item, err := p.cfg.Store.AppendWithCheckpoint(req.tx, store.CaptureCheckpoint{
+			Stats:     p.Stats(capture.StateRunning),
+			Redaction: p.RedactionSummary(),
+		})
 		if err == nil {
 			p.persisted.Add(1)
 			p.agg.ApplyBatch([]models.CaptureTransaction{item.Transaction})
@@ -420,6 +423,7 @@ func (p *Pipeline) abortInflight(ended time.Time) error {
 			continue
 		}
 		tx.State = models.TxAborted
+		tx.Fidelity = "unsupported"
 		tx.EndedAt = ended.Format(time.RFC3339Nano)
 		tx.Error = "capture stopped before the transaction completed"
 		p.liveByID[id] = tx

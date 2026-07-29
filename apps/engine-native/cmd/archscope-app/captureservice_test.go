@@ -8,6 +8,8 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"os"
+	"reflect"
+	"strings"
 	"testing"
 	"time"
 
@@ -136,6 +138,7 @@ func TestT581LiveCaptureAcceptanceFixture(t *testing.T) {
 		UnsupportedTier []struct {
 			Scenario        string
 			Fidelity        string
+			Visibility      string
 			SemanticCapture bool
 		}
 		Security struct {
@@ -158,16 +161,8 @@ func TestT581LiveCaptureAcceptanceFixture(t *testing.T) {
 			FailsOnMissingClient    bool
 			Transports              []string
 		}
-		Harness struct {
-			SchemaVersion            int
-			MinLongSessionRequests   int
-			RequiresArchivedArtifact bool
-			UnsupportedH2            bool
-			UnsupportedPinning       bool
-			PageReentry              bool
-			Recovery                 bool
-		}
-		Store struct {
+		Harness acceptance.HarnessContract
+		Store   struct {
 			StableSnapshotCursor bool
 			SessionBoundCursor   bool
 			MaxFetchLimit        int
@@ -201,7 +196,17 @@ func TestT581LiveCaptureAcceptanceFixture(t *testing.T) {
 		}
 	}
 	for _, scenario := range fixture.UnsupportedTier {
-		if scenario.Fidelity != proxy.FidelityUnsupported || scenario.SemanticCapture {
+		if scenario.Scenario == "quic" {
+			if scenario.Fidelity != "not_applicable" ||
+				scenario.Visibility != "not_observed" ||
+				scenario.SemanticCapture {
+				t.Fatalf("QUIC scenario=%+v", scenario)
+			}
+			continue
+		}
+		if scenario.Fidelity != proxy.FidelityUnsupported ||
+			scenario.Visibility != "observed" ||
+			scenario.SemanticCapture {
 			t.Fatalf("unsupported scenario=%+v", scenario)
 		}
 	}
@@ -228,14 +233,31 @@ func TestT581LiveCaptureAcceptanceFixture(t *testing.T) {
 		fixture.AcceptanceEvidence.Transports[1] != "https" {
 		t.Fatalf("acceptance evidence=%+v", fixture.AcceptanceEvidence)
 	}
-	if fixture.Harness.SchemaVersion != acceptance.HarnessSchemaVersion ||
-		fixture.Harness.MinLongSessionRequests != acceptance.MinLongSessionRequests ||
-		!fixture.Harness.RequiresArchivedArtifact ||
-		!fixture.Harness.UnsupportedH2 ||
-		!fixture.Harness.UnsupportedPinning ||
-		!fixture.Harness.PageReentry ||
-		!fixture.Harness.Recovery {
-		t.Fatalf("harness=%+v", fixture.Harness)
+	harnessContract := acceptance.DefaultHarnessContract()
+	if !reflect.DeepEqual(fixture.Harness, harnessContract) {
+		t.Fatalf("harness=%+v contract=%+v", fixture.Harness, harnessContract)
+	}
+	contractData, err := os.ReadFile("../../../../scripts/t581-live-capture-harness-contract.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var scriptContract acceptance.HarnessContract
+	if err := json.Unmarshal(contractData, &scriptContract); err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(scriptContract, harnessContract) {
+		t.Fatalf("script harness=%+v contract=%+v", scriptContract, harnessContract)
+	}
+	scriptData, err := os.ReadFile("../../../../scripts/verify-windows-live-capture.ps1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	script := string(scriptData)
+	if !strings.Contains(script, "t581-live-capture-harness-contract.json") ||
+		!strings.Contains(script, "$harnessContract.schemaVersion") ||
+		!strings.Contains(script, "$harnessContract.productEvidenceSchemaVersion") ||
+		!strings.Contains(script, "$harnessContract.quicInvisibility") {
+		t.Fatal("PowerShell harness does not consume the versioned harness contract")
 	}
 	if !fixture.Store.StableSnapshotCursor ||
 		!fixture.Store.SessionBoundCursor ||

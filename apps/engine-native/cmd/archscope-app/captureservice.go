@@ -205,7 +205,7 @@ func (s *CaptureService) AnalyzeCaptureSession(request CaptureAnalyzeRequest) (e
 	if err != nil {
 		return engineapi.AnalysisResult{}, err
 	}
-	redactionSummary := redact.Summary{Version: redact.PolicyVersion, Rules: []string{}, Counts: map[string]int{}}
+	redactionSummary := redact.Summary{Known: false, Version: redact.PolicyVersion, Rules: []string{}, Counts: map[string]int{}}
 	if manifest.Redaction != nil {
 		redactionSummary = *manifest.Redaction
 	}

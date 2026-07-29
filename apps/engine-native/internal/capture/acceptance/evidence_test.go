@@ -74,6 +74,7 @@ func TestBuildReadsFinalizedProductRowsAndStats(t *testing.T) {
 	if evidence.SchemaVersion != SchemaVersion ||
 		evidence.Session.TotalRows != 1 ||
 		evidence.Stats.Observed != 1 ||
+		!evidence.Redaction.Known ||
 		!evidence.Redaction.Applied ||
 		evidence.LiveContract.TransactionRowCap != capture.DefaultLiveTransactionRowCap ||
 		evidence.Counts["mode:"+proxy.CaptureModeMITM] != 1 ||
@@ -84,5 +85,40 @@ func TestBuildReadsFinalizedProductRowsAndStats(t *testing.T) {
 		evidence.Rows[0].ProcessName != "curl.exe" ||
 		evidence.Rows[0].RequestBodyStorage != "omitted" {
 		t.Fatalf("rows=%+v", evidence.Rows)
+	}
+}
+
+func TestBuildUsesStoredRowsAsConservativeFallbackForLegacyRecovery(t *testing.T) {
+	st, err := store.New(store.Config{
+		Root: t.TempDir(), SessionID: "legacy-recovery", ReserveBytes: -1,
+		FreeBytes: func(string) (uint64, error) { return ^uint64(0), nil },
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := st.Append(models.CaptureTransaction{
+		ID: "tx-recovered", Method: "GET", URL: "http://127.0.0.1/recovered",
+		State: models.TxComplete, CaptureMode: proxy.CaptureModeMITM,
+		Fidelity: proxy.FidelityDecodedWire,
+		Request:  models.HTTPMessage{BodyStorage: "omitted"},
+		Response: models.HTTPMessage{BodyStorage: "omitted"},
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if err := st.Finalize(capture.StateRecoverable); err != nil {
+		t.Fatal(err)
+	}
+
+	evidence, err := Build(st.Path())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if evidence.Stats.Observed != 1 ||
+		evidence.Stats.Captured != 1 ||
+		evidence.Stats.Persisted != 1 {
+		t.Fatalf("recovery fallback stats=%+v", evidence.Stats)
+	}
+	if evidence.Redaction.Known || evidence.Redaction.Applied {
+		t.Fatalf("missing legacy redaction checkpoint must remain unknown: %+v", evidence.Redaction)
 	}
 }

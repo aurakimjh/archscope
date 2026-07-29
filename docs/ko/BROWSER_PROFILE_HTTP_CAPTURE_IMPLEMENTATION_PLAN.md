@@ -258,12 +258,11 @@ streaming, H2 passthrough fixture와 long-session memory bound가 통과해야 �
 
 ### H-RG4 — 실시간 UI와 Windows E2E
 
-**상태:** `REVIEW` — 두 번째 독립 `CONDITIONAL` (2026-07-29). 기존 redaction
-race와 live table 지적은 닫혔다. 재리뷰는 finalized live 분석이 HAR semantic
-provenance를 재사용하는 문제(R1), Windows 증거를 검사할 수 없고 harness 범위가
-부족한 문제(R2), pinning/실패 tunnel 행의 attribution·mode·fidelity 오류(R3/R4),
-finalized redaction 공개 오류(R5)를 확인했다. R6–R8은 수정 또는 수용, R9–R12는
-처리 결정이 필요하다. 독립 `PASS` 전까지 T-582는 차단된다.
+**상태:** `REVIEW` — 세 번째 독립 `CONDITIONAL` (2026-07-29). 기존 R 지적
+10개는 닫혔고 R2 메커니즘은 완성됐지만 검사 가능한 Windows artifact는 아직
+없다. S1/S4 finalized card는 Claude가, S2/S3/S5–S9 terminal fidelity,
+recovery checkpoint, harness/privacy 강화는 Codex가 담당한다. 독립 `PASS`
+전까지 T-582는 차단된다.
 
 #### Codex 통합
 
@@ -294,6 +293,17 @@ finalized redaction 공개 오류(R5)를 확인했다. R6–R8은 수정 또는 
 - [x] R2 harness 메커니즘: acceptance WebView2 CDP port와 실제 recovery session을
   필수화하고 h2-only/pinning, 장시간 세션, page 재진입을 실행한 뒤 모든
   시나리오를 제품 store에서 readback. 새 Windows artifact 생성은 남음
+- [x] S2: 중지된 모든 진행 행을 `aborted` / `unsupported` terminal 등급으로
+  바꾸어 finalized store에 `pending`이 남지 않도록 처리
+- [x] S3: persisted 행과 같은 store flush lifecycle에 capture stats와 known
+  redaction summary를 checkpoint. 구형 manifest는 저장 행 count와 명시적
+  unknown redaction으로 보수적으로 복구해 거짓 0/clean 데이터를 금지
+- [x] S5–S8: fixture와 PowerShell을 schema-v4 harness 계약에 연결하고
+  loopback fixture origin만 허용, local path 제거, row cap, owner-only artifact
+  ACL, explicit-proxy QUIC 비가시성, locale 독립 page 재진입과 제품 row 대조를
+  강제
+- [x] S9: 사용되지 않는 generic `httpcapture.Build`를 제거해 live 행이 HAR
+  provenance 경로로 다시 들어갈 수 없도록 처리
 
 Codex는 위 백엔드 계약, 생성 binding, fixture, 엔진 검증을 고정한 뒤 UI로
 인계한다. read-only `http-capture acceptance-evidence` 명령은 종료된 제품
@@ -319,6 +329,12 @@ React/UI/state/i18n은 Claude가 담당한다.
   트래픽처럼 보이지 않는다.
 - [x] R11: transaction state, session state, CA state, process attribution을
   raw engine token 대신 EN/KO 폐쇄 label map으로 표기한다.
+- [ ] S1: finalized hint를 provenance별로 선택하여 live proxy evidence에
+  HAR/import 전용 문장이 절대 표시되지 않도록 처리
+- [ ] S4: finalized mode/fidelity/observation token을 번역하고 `mixed`와 최약
+  fidelity를 설명하는 token별 분포를 표시
+- [ ] S3 renderer 후속: `redaction.known=false`를 "민감 정보 없음"이 아니라
+  복구 metadata 확인 불가로 표시
 
 L10은 paired user guide와 JVM truststore harness 계약으로 닫혔다.
 
@@ -328,7 +344,8 @@ progress 노출 전에 drop하며, 명시적 opt-in을 선택해도 리댁션된
 여전히 선행되어야 한다. Acceptance package는
 `cmd/archscope-app/testdata/t581_live_capture_acceptance.json`,
 `capture_windows_e2e_test.go`,
-`scripts/verify-windows-live-capture.ps1`이다.
+`scripts/verify-windows-live-capture.ps1`이며 공유 계약은
+`scripts/t581-live-capture-harness-contract.json`이다.
 
 **PASS 기준:** Windows에서 browser/curl/JVM/Electron의 지원 tier 시나리오, UI
 재진입, 장시간 세션, 실패 복구를 E2E로 통과하고 미지원 H2/QUIC/pinning을 성공처럼
@@ -379,7 +396,8 @@ HAR pseudo-process 비교에서 지원하지 않는 정규화/차원을 숨기�
 
 T-580 / `H-RG3` 엔진 구현은 2026-07-27 `REVIEW`에 진입했고 2026-07-28 독립
 `H-SEC2` CA/TLS/권한 게이트를 통과했다. T-581 / H-RG4는 2026-07-28
-첫 판정과 2026-07-29 두 번째 `CONDITIONAL` 판정 후 `REVIEW`에 남아 있다.
-R1/R3–R7/R12 백엔드 수정, 확장된 R2 harness 메커니즘, Claude 소유 R8/R9/R11 UI
-인계는 모두 구현됐다. 다음 행동은 새 Windows schema-v3 artifact 생성·보관과
-독립 재리뷰다.
+첫 판정과 2026-07-29 세 번째 `CONDITIONAL` 판정 후 `REVIEW`에 남아 있다.
+R1/R3–R7/R12 및 S2/S3/S5–S9 백엔드 수정, schema-v4 privacy-bounded R2
+harness 메커니즘, Claude 소유 R8/R9/R11 UI 인계는 구현됐다. 다음 행동은 Claude
+S1/S4와 S3 unknown-redaction label 완료 후 새 Windows schema-v4 artifact
+생성·보관과 독립 재리뷰다.

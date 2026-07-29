@@ -84,6 +84,11 @@ type StoredTransaction struct {
 	Transaction models.CaptureTransaction `json:"transaction"`
 }
 
+type CaptureCheckpoint struct {
+	Stats     capture.Stats
+	Redaction redact.Summary
+}
+
 type Filter struct {
 	Host       string `json:"host,omitempty"`
 	Method     string `json:"method,omitempty"`
@@ -295,6 +300,7 @@ func (s *Store) SetRedactionSummary(summary redact.Summary) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	next := summary
+	next.Known = true
 	s.manifest.Redaction = &next
 	return s.writeManifestLocked()
 }
@@ -307,6 +313,14 @@ func (s *Store) AddFinding(finding Finding) error {
 }
 
 func (s *Store) Append(tx models.CaptureTransaction) (StoredTransaction, error) {
+	return s.append(tx, nil)
+}
+
+func (s *Store) AppendWithCheckpoint(tx models.CaptureTransaction, checkpoint CaptureCheckpoint) (StoredTransaction, error) {
+	return s.append(tx, &checkpoint)
+}
+
+func (s *Store) append(tx models.CaptureTransaction, checkpoint *CaptureCheckpoint) (StoredTransaction, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if s.closed {
@@ -335,6 +349,16 @@ func (s *Store) Append(tx models.CaptureTransaction) (StoredTransaction, error) 
 	s.manifest.StoreBytes += int64(n)
 	s.manifest.SnapshotVersion = next.Seq
 	s.manifest.Counters.Persisted++
+	if checkpoint != nil {
+		stats := checkpoint.Stats
+		stats.Persisted = s.manifest.Counters.Persisted
+		stats.SnapshotVersion = s.manifest.SnapshotVersion
+		stats.StoreBytes = s.manifest.StoreBytes
+		s.manifest.CaptureStats = &stats
+		summary := checkpoint.Redaction
+		summary.Known = true
+		s.manifest.Redaction = &summary
+	}
 	if s.pending >= s.cfg.FlushBytes || time.Since(s.lastFlush) >= s.cfg.FlushInterval {
 		if err := s.flushLocked(); err != nil {
 			return StoredTransaction{}, err
@@ -601,6 +625,7 @@ func (s *Store) Finalize(state capture.SessionState) error {
 func (s *Store) Recover() (RecoveryReport, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	checkpointSnapshot := s.manifest.SnapshotVersion
 	if err := s.writer.Flush(); err != nil {
 		return RecoveryReport{}, err
 	}
@@ -684,6 +709,31 @@ func (s *Store) Recover() (RecoveryReport, error) {
 	recovered := discarded > 0 || !terminal
 	if recovered {
 		s.manifest.State = capture.StateRecoverable
+	}
+	stats := capture.Stats{
+		SessionID: capture.SessionID(s.manifest.SessionID),
+		State:     s.manifest.State,
+	}
+	if s.manifest.CaptureStats != nil {
+		stats = *s.manifest.CaptureStats
+		stats.State = s.manifest.State
+	}
+	stats.Persisted = uint64(records)
+	stats.Observed = max(stats.Observed, stats.Persisted)
+	stats.Captured = max(stats.Captured, stats.Persisted)
+	stats.BodyOmitted = s.manifest.Counters.BodyOmitted
+	stats.SnapshotVersion = lastSeq
+	stats.StoreBytes = s.manifest.StoreBytes
+	s.manifest.CaptureStats = &stats
+	if lastSeq > checkpointSnapshot {
+		if s.manifest.Redaction == nil {
+			s.manifest.Redaction = &redact.Summary{
+				Known: false, Version: redact.PolicyVersion,
+				Rules: []string{}, Counts: map[string]int{},
+			}
+		} else {
+			s.manifest.Redaction.Known = false
+		}
 	}
 	if err := s.writeManifestLocked(); err != nil {
 		return RecoveryReport{}, err

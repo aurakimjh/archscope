@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 4,
+  "productEvidenceSchemaVersion": 3,
+  "minLongSessionRequests": 1000,
+  "requiresArchivedArtifact": true,
+  "unsupportedH2": true,
+  "unsupportedPinning": true,
+  "quicInvisibility": true,
+  "pageReentry": true,
+  "recovery": true,
+  "fixtureTrafficOnly": true,
+  "artifactOmitsLocalPaths": true,
+  "maxArtifactRows": 2000
+}

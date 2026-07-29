@@ -7,6 +7,7 @@ import { Create as $Create } from "@wailsio/runtime";
 
 export class Summary {
     "applied": boolean;
+    "known": boolean;
     "version": string;
     "rules": string[];
     "counts": { [_ in string]?: number };
@@ -15,6 +16,9 @@ export class Summary {
     constructor($$source: Partial<Summary> = {}) {
         if (!("applied" in $$source)) {
             this["applied"] = false;
+        }
+        if (!("known" in $$source)) {
+            this["known"] = false;
         }
         if (!("version" in $$source)) {
             this["version"] = "";
@@ -33,14 +37,14 @@ export class Summary {
      * Creates a new Summary instance from a string or object.
      */
     static createFrom($$source: any = {}): Summary {
-        const $$createField2_0 = $$createType0;
-        const $$createField3_0 = $$createType1;
+        const $$createField3_0 = $$createType0;
+        const $$createField4_0 = $$createType1;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("rules" in $$parsedSource) {
-            $$parsedSource["rules"] = $$createField2_0($$parsedSource["rules"]);
+            $$parsedSource["rules"] = $$createField3_0($$parsedSource["rules"]);
         }
         if ("counts" in $$parsedSource) {
-            $$parsedSource["counts"] = $$createField3_0($$parsedSource["counts"]);
+            $$parsedSource["counts"] = $$createField4_0($$parsedSource["counts"]);
         }
         return new Summary($$parsedSource as Partial<Summary>);
     }

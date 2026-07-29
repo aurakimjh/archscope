@@ -256,13 +256,11 @@ cancellation, streaming, H2 passthrough, and long-session memory-bound tests pas
 
 ### H-RG4 — Live UI and Windows E2E
 
-**Status:** `REVIEW` — second independent `CONDITIONAL` (2026-07-29). The
-original redaction race and live-table findings are closed. The re-review found
-that finalized live analysis still used HAR semantic provenance (R1), the
-Windows evidence was not inspectable or harness-complete (R2), pinning and
-failed-tunnel rows lost honest attribution/mode/fidelity (R3/R4), and finalized
-redaction disclosure was false (R5). R6–R8 require resolution or acceptance;
-R9–R12 require disposition. T-582 remains blocked until an independent `PASS`.
+**Status:** `REVIEW` — third independent `CONDITIONAL` (2026-07-29). Ten prior
+R-findings are closed and R2 is complete in mechanism, but no inspectable
+Windows artifact exists. S1/S4 remain Claude-owned finalized-card work. Codex
+owns S2/S3/S5–S9 terminal fidelity, recovery checkpoints, and harness/privacy
+hardening. T-582 remains blocked until an independent `PASS`.
 
 #### Codex Integration
 
@@ -296,6 +294,17 @@ R9–R12 require disposition. T-582 remains blocked until an independent `PASS`.
   recovery session, run h2-only and pinning probes, generate a bounded long
   session, verify page re-entry, and read every scenario back from product
   stores. A fresh Windows artifact is still required.
+- [x] S2: terminalize every stopped in-flight row as `aborted` /
+  `unsupported`; `pending` never survives in a finalized store.
+- [x] S3: checkpoint capture stats and the known redaction summary in the same
+  store flush lifecycle as persisted rows; legacy manifests fall back to stored
+  row counts and explicitly unknown redaction instead of false zero/clean data.
+- [x] S5–S8: bind fixture and PowerShell to the schema-v4 harness contract,
+  require loopback-only fixture origins, omit local paths, cap rows, apply an
+  owner-only artifact ACL, prove explicit-proxy QUIC invisibility, and make the
+  page re-entry probe locale-independent with product-row reconciliation.
+- [x] S9: remove the unused generic `httpcapture.Build` entry point so live rows
+  cannot accidentally re-enter the HAR provenance path.
 
 Codex freezes these backend contracts, generated bindings, fixtures, and engine
 verification before UI handoff. The read-only
@@ -322,6 +331,12 @@ contradictory product data. React/UI/state/i18n remains Claude-owned.
   styled as ordinary captured traffic.
 - [x] R11: transaction state, session state, CA state, and process attribution
   render through closed EN/KO label maps instead of raw engine tokens.
+- [ ] S1: select the finalized hint by provenance; live proxy evidence must
+  never display the HAR/import-only sentence.
+- [ ] S4: localize finalized mode/fidelity/observation tokens and render the
+  per-token distributions that explain `mixed` and weakest fidelity.
+- [ ] S3 renderer follow-up: render `redaction.known=false` as unavailable
+  recovery metadata, never as "no sensitive fields matched."
 
 L10 is closed in the paired user guides and JVM truststore harness contract.
 
@@ -331,7 +346,8 @@ redacted metadata only. Bodies remain unconditionally omitted, so SEC-10 still
 gates any future body-capture tier. The acceptance package is
 `cmd/archscope-app/testdata/t581_live_capture_acceptance.json`,
 `capture_windows_e2e_test.go`, and
-`scripts/verify-windows-live-capture.ps1`.
+`scripts/verify-windows-live-capture.ps1`, with its shared contract at
+`scripts/t581-live-capture-harness-contract.json`.
 
 **PASS:** Windows supported-tier scenarios for browser/curl/JVM/Electron, page
 re-entry, long sessions, and recovery pass E2E; H2/QUIC/pinning limitations never
@@ -381,7 +397,9 @@ HAR pseudo-process sessions.
 
 T-580 / `H-RG3` entered `REVIEW` on 2026-07-27 and passed the independent
 `H-SEC2` CA/TLS/privilege gate on 2026-07-28. T-581 / H-RG4 remains in `REVIEW`
-after the second 2026-07-29 `CONDITIONAL` verdict. The R1/R3–R7/R12 backend
-remediation, the expanded R2 harness mechanism, and the Claude-owned R8/R9/R11
-UI handoff are implemented. Next, generate and archive a fresh Windows
-schema-v3 artifact and request another independent re-review.
+after the third 2026-07-29 `CONDITIONAL` verdict. The R1/R3–R7/R12 and
+S2/S3/S5–S9 backend remediation, schema-v4 privacy-bounded R2 harness
+mechanism, and Claude-owned R8/R9/R11 UI handoff are implemented. Next, Claude
+completes S1/S4 and the S3 unknown-redaction label, then a Windows operator
+generates and archives a fresh
+schema-v4 artifact before another independent re-review.

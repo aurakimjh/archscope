@@ -14,10 +14,11 @@ import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/certstore"
 )
 
-// TestWindowsLiveCaptureE2E exercises the same explicit-proxy path used by
-// browser/curl/JVM/Electron clients. The Windows build tag is intentional:
-// the acceptance condition includes direct GetExtendedTcpTable attribution,
-// which cannot be truthfully validated on another OS.
+// TestWindowsLiveCaptureE2E is the in-process Windows plain-HTTP proxy smoke.
+// The external schema-v4 PowerShell harness separately proves the required
+// browser/curl/JVM/Electron, HTTPS, unsupported-tier, re-entry, long-session,
+// and recovery matrix. The Windows build tag is intentional because direct
+// GetExtendedTcpTable attribution cannot be truthfully validated on another OS.
 func TestWindowsLiveCaptureE2E(t *testing.T) {
 	origin := httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
 		response.Header().Set("Content-Type", "text/plain")

@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "platform": "windows",
   "supportedTier": [
     {
@@ -35,16 +35,19 @@
     {
       "scenario": "h2-only",
       "fidelity": "unsupported",
+      "visibility": "observed",
       "semanticCapture": false
     },
     {
       "scenario": "quic",
-      "fidelity": "unsupported",
+      "fidelity": "not_applicable",
+      "visibility": "not_observed",
       "semanticCapture": false
     },
     {
       "scenario": "certificate-pinning",
       "fidelity": "unsupported",
+      "visibility": "observed",
       "semanticCapture": false
     }
   ],
@@ -61,7 +64,7 @@
     "finalizedSessionUsesAnalysisResult": true
   },
   "acceptanceEvidence": {
-    "schemaVersion": 2,
+    "schemaVersion": 3,
     "maxRows": 2000,
     "requiresTerminalSession": true,
     "productReadback": true,
@@ -72,13 +75,18 @@
     ]
   },
   "harness": {
-    "schemaVersion": 3,
+    "schemaVersion": 4,
+    "productEvidenceSchemaVersion": 3,
     "minLongSessionRequests": 1000,
     "requiresArchivedArtifact": true,
     "unsupportedH2": true,
     "unsupportedPinning": true,
+    "quicInvisibility": true,
     "pageReentry": true,
-    "recovery": true
+    "recovery": true,
+    "fixtureTrafficOnly": true,
+    "artifactOmitsLocalPaths": true,
+    "maxArtifactRows": 2000
   },
   "store": {
     "stableSnapshotCursor": true,

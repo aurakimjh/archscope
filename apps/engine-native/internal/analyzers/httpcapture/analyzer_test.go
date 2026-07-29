@@ -5,6 +5,7 @@ import (
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/redact"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
+	parser "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/httpcapture"
 )
 
 func TestBuildHTTPHARAnalysisIsDeterministicAndBounded(t *testing.T) {
@@ -12,7 +13,14 @@ func TestBuildHTTPHARAnalysisIsDeterministicAndBounded(t *testing.T) {
 		{ID: "one", StartedAt: "2026-07-20T10:00:00Z", Method: "GET", Path: "/orders", Host: "api", StatusCode: 200, TotalMS: 25, State: models.TxComplete, Request: unknownMessage(), Response: unknownMessage(), Process: &models.ProcessInstance{Key: models.ProcessKey{PID: 42}, Name: "client", ExecPath: ".../client", CommandLine: "client --password=[REDACTED]", User: "should-not-export"}},
 		{ID: "two", StartedAt: "2026-07-20T10:00:05Z", Method: "GET", Path: "/orders", Host: "api", StatusCode: 503, TotalMS: 50, State: models.TxComplete, Request: unknownMessage(), Response: unknownMessage()},
 	}
-	result := Build(entries, "sample.har", "har", "chrome", Options{TopN: 1})
+	result := BuildParsed(parser.ParseResult{
+		Format: "har", Dialect: "chrome", Entries: entries,
+		Redaction: redact.Summary{
+			Known: true, Version: redact.PolicyVersion,
+			Rules: []string{}, Counts: map[string]int{},
+		},
+		TimelineAvailable: true,
+	}, "sample.har", Options{TopN: 1})
 	if result.Type != ResultType || result.Summary["total_transactions"] != 2 || result.Summary["error_transactions"] != 1 {
 		t.Fatalf("unexpected summary: %#v", result.Summary)
 	}
@@ -55,14 +63,15 @@ func TestBuildLiveDerivesWeakestFidelityAndArchScopeProvenance(t *testing.T) {
 		},
 	}
 	redactionSummary := redact.Summary{
-		Applied: true, Version: redact.PolicyVersion,
+		Applied: true, Known: true, Version: redact.PolicyVersion,
 		Rules: []string{"query_value"}, Counts: map[string]int{"query_value": 1},
 	}
 	result := BuildLive(entries, "capture://cap-test", "canonical-v1", redactionSummary, Options{})
 	metadata := result.Metadata.Extra["http_capture"].(map[string]any)
 	if metadata["capture_mode"] != "mixed" ||
 		metadata["observation_point"] != "proxy" ||
-		metadata["fidelity"] != "unsupported" {
+		metadata["fidelity"] != "unsupported" ||
+		metadata["redaction"].(redact.Summary).Known != true {
 		t.Fatalf("live metadata=%+v", metadata)
 	}
 	if metadata["capture_mode"] == "har_import" ||

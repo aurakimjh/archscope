@@ -40,6 +40,7 @@ type Warning struct {
 
 type Summary struct {
 	Applied bool           `json:"applied"`
+	Known   bool           `json:"known"`
 	Version string         `json:"version"`
 	Rules   []string       `json:"rules"`
 	Counts  map[string]int `json:"counts"`
@@ -123,7 +124,7 @@ func (p *Policy) Summary() Summary {
 		counts[rule] = count
 	}
 	sort.Strings(rules)
-	return Summary{Applied: len(rules) > 0, Version: PolicyVersion, Rules: rules, Counts: counts}
+	return Summary{Applied: len(rules) > 0, Known: true, Version: PolicyVersion, Rules: rules, Counts: counts}
 }
 
 func (p *Policy) RedactURL(raw string) string {

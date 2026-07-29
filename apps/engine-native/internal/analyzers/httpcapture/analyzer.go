@@ -66,20 +66,6 @@ func Analyze(path string, opts Options) (models.AnalysisResult, error) {
 	return BuildParsed(parsed, path, opts), nil
 }
 
-// Build is retained for callers that already hold normalized transactions.
-// New parser paths should use BuildParsed so diagnostics and redaction metadata
-// cannot be dropped.
-func Build(entries []models.CaptureTransaction, sourceFile, format, dialect string, opts Options) models.AnalysisResult {
-	parsed := parser.ParseResult{
-		Format:            format,
-		Dialect:           dialect,
-		Entries:           entries,
-		Redaction:         redact.Summary{Version: redact.PolicyVersion, Rules: []string{}, Counts: map[string]int{}},
-		TimelineAvailable: true,
-	}
-	return buildParsed(parsed, sourceFile, opts, harProvenance(len(entries)))
-}
-
 // BuildLive constructs a finalized analysis from ArchScope-owned live capture
 // transactions. Unlike the HAR path, provenance and aggregate fidelity are
 // derived from the persisted rows and never claim semantic foreign-tool input.
@@ -177,6 +163,7 @@ func buildParsed(parsed parser.ParseResult, sourceFile string, opts Options, pro
 		"dialect":                parsed.Dialect,
 		"timeline_available":     parsed.TimelineAvailable,
 		"redaction_applied":      parsed.Redaction.Applied,
+		"redaction_known":        parsed.Redaction.Known,
 	}
 	if parsed.TimelineAvailable {
 		result.Series["timeline"] = boundedTimelineRows(minutes, DefaultTimelineBuckets)
