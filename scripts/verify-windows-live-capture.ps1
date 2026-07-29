@@ -149,9 +149,15 @@ function Add-UnsupportedResult {
 function Protect-Artifact {
     param([string]$Path)
     $identity = [System.Security.Principal.WindowsIdentity]::GetCurrent().User
-    $security = [System.Security.AccessControl.FileSecurity]::new()
-    $security.SetOwner($identity)
+    $security = Get-Acl -Path $Path
     $security.SetAccessRuleProtection($true, $false)
+    foreach ($existingIdentity in @(
+        $security.Access |
+            ForEach-Object { $_.IdentityReference } |
+            Sort-Object -Unique
+    )) {
+        $security.PurgeAccessRules($existingIdentity)
+    }
     $rule = [System.Security.AccessControl.FileSystemAccessRule]::new(
         $identity,
         [System.Security.AccessControl.FileSystemRights]::FullControl,
@@ -197,7 +203,13 @@ function Invoke-Edge {
         Add-Result -Client "browser" -Transport $Transport -Marker $Marker -Available $false -Succeeded $false -ExitCode -1 -Detail "Microsoft Edge not found"
         return
     }
-    $output = & $edgePath "--headless=new" "--disable-gpu" "--proxy-server=$proxyUrl" "--dump-dom" $Url 2>&1 | Out-String
+    $output = & $edgePath `
+        "--headless=new" `
+        "--disable-gpu" `
+        "--proxy-server=$proxyUrl" `
+        "--proxy-bypass-list=<-loopback>" `
+        "--dump-dom" `
+        $Url 2>&1 | Out-String
     $exitCode = $LASTEXITCODE
     Add-Result -Client "browser" -Transport $Transport -Marker $Marker -Available $true -Succeeded ($exitCode -eq 0) -ExitCode $exitCode -Detail $output.Trim()
 }
@@ -222,7 +234,10 @@ function Invoke-CDPEvaluate {
     $socket = [System.Net.WebSockets.ClientWebSocket]::new()
     $token = [System.Threading.CancellationToken]::None
     try {
-        $socket.ConnectAsync([Uri]$target.webSocketDebuggerUrl, $token).GetAwaiter().GetResult()
+        [void]$socket.ConnectAsync(
+            [Uri]$target.webSocketDebuggerUrl,
+            $token
+        ).GetAwaiter().GetResult()
         $request = [ordered]@{
             id = 1
             method = "Runtime.evaluate"
@@ -233,7 +248,7 @@ function Invoke-CDPEvaluate {
             }
         } | ConvertTo-Json -Depth 8 -Compress
         $bytes = [System.Text.Encoding]::UTF8.GetBytes($request)
-        $socket.SendAsync(
+        [void]$socket.SendAsync(
             [ArraySegment[byte]]::new($bytes),
             [System.Net.WebSockets.WebSocketMessageType]::Text,
             $true,
@@ -260,7 +275,7 @@ function Invoke-CDPEvaluate {
         }
     } finally {
         if ($socket.State -eq [System.Net.WebSockets.WebSocketState]::Open) {
-            $socket.CloseAsync(
+            [void]$socket.CloseAsync(
                 [System.Net.WebSockets.WebSocketCloseStatus]::NormalClosure,
                 "done",
                 $token
@@ -339,7 +354,8 @@ app.whenReady().then(async () => {
   const clientSession = session.fromPartition("t581-acceptance", { cache: false });
   await clientSession.setProxy({
     mode: "fixed_servers",
-    proxyRules: process.env.ARCHSCOPE_T581_PROXY
+    proxyRules: process.env.ARCHSCOPE_T581_PROXY,
+    proxyBypassRules: "<-loopback>"
   });
   const response = await clientSession.fetch(process.env.ARCHSCOPE_T581_URL);
   if (!response.ok) throw new Error("HTTP " + response.status);
@@ -431,7 +447,8 @@ public class ArchScopeT581H2Only {
     }
     var head = response.toString(java.nio.charset.StandardCharsets.US_ASCII);
     if (!head.contains(" 200 ")) throw new IOException("CONNECT failed: " + head);
-    var ssl = (SSLSocket)SSLSocketFactory.getDefault().createSocket(socket, originHost, originPort, true);
+    var factory = (SSLSocketFactory)SSLSocketFactory.getDefault();
+    var ssl = (SSLSocket)factory.createSocket(socket, originHost, originPort, true);
     var parameters = ssl.getSSLParameters();
     parameters.setApplicationProtocols(new String[] {"h2"});
     ssl.setSSLParameters(parameters);
@@ -498,15 +515,25 @@ public class ArchScopeT581H2Only {
   otherButton.click();
   setTimeout(() => {
     httpButton.click();
-    setTimeout(() => {
+    const deadline = Date.now() + 10000;
+    const readRestoredState = () => {
       const firstTable = document.querySelector(".app-main tbody");
       const rowCount = firstTable ? firstTable.querySelectorAll("tr").length : 0;
       const restored = httpButton.getAttribute("aria-current") === "page";
-      resolve({ rowCount, restored });
-    }, 1000);
+      if ((restored && rowCount >= __MIN_ROWS__) || Date.now() >= deadline) {
+        resolve({ rowCount, restored });
+        return;
+      }
+      setTimeout(readRestoredState, 250);
+    };
+    readRestoredState();
   }, 500);
 }))()
 '@
+    $reentryExpression = $reentryExpression.Replace(
+        "__MIN_ROWS__",
+        [string]$ReentryMinimumRows
+    )
     $reentry = Invoke-CDPEvaluate -Port $WebViewDebugPort -Expression $reentryExpression
     if (-not $reentry.restored -or [int]$reentry.rowCount -lt $ReentryMinimumRows) {
         throw "Page re-entry did not restore at least $ReentryMinimumRows live rows: $($reentry | ConvertTo-Json -Compress)"
@@ -642,7 +669,7 @@ public class ArchScopeT581H2Only {
         $signature = Get-AuthenticodeSignature -FilePath $ArchScopeExe
         $version = (Get-Item $ArchScopeExe).VersionInfo
         $packageEvidence = [ordered]@{
-            path = (Resolve-Path $ArchScopeExe).Path
+            fileName = [System.IO.Path]::GetFileName($ArchScopeExe)
             signatureStatus = [string]$signature.Status
             productName = $version.ProductName
             productVersion = $version.ProductVersion

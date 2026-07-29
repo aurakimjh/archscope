@@ -1,0 +1,2 @@
+docs/review/evidence/*.json text eol=lf
+docs/review/evidence/*.sha256 text eol=lf

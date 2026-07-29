@@ -164,6 +164,11 @@ func (s *Server) Stop(ctx context.Context) error {
 		close(s.stopDone)
 		return nil
 	}
+	// Hijacked CONNECT tunnels are outside net/http's graceful-shutdown
+	// ownership. Close them before Shutdown so a live H2 passthrough or
+	// intercepted keep-alive cannot leave a handler blocked while the capture
+	// session is trying to terminalize.
+	s.closeHijackedConnections()
 	err := s.server.Shutdown(ctx)
 	if err != nil {
 		_ = s.server.Close()
