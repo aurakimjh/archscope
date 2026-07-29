@@ -222,6 +222,9 @@ export type HttpCaptureSummary = {
 
 export type HttpCaptureRedaction = {
   applied: boolean;
+  // False when no redaction summary survived to the manifest (a session that
+  // never reached `Stop`); absent on payloads that predate the field.
+  known?: boolean;
   version: string;
   rules: string[];
   counts: Record<string, number>;
@@ -231,8 +234,13 @@ export type HttpCaptureMeta = {
   capture_schema_version: number;
   dialect: string;
   capture_mode: string;
+  // Per-token distributions behind the aggregate grade, emitted by `BuildLive`
+  // and by the HAR path; absent on results produced before H-RG4 R1.
+  capture_mode_counts?: Record<string, number>;
   observation_point: string;
   fidelity: string;
+  fidelity_counts?: Record<string, number>;
+  coverage_counts?: Record<string, number>;
   redaction: HttpCaptureRedaction;
   detail_storage: string;
   table_limit: number;

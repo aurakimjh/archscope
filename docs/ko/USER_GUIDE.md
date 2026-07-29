@@ -164,7 +164,17 @@ manifest에 저장되어 finalized 분석과 acceptance evidence로 전달됩니
 진행 중인 행은 `aborted` / `unsupported`가 되며 progress 전용 `pending` 등급은
 finalized transaction에 남지 않습니다. Checkpoint가 없는 구형 store는 백엔드
 evidence에서 redaction을 unknown으로 표시하고 persisted 행에서 보수적인 counter를
-계산합니다. Finalized card의 unknown label은 Claude UI 인계로 남아 있습니다.
+계산하며, finalized card는 이 상태를 `기록 없음`으로 표시합니다. 리댁션 자체는
+모든 기록 전에 수행되므로 요약이 없는 것은 기록이 없는 것이지 "해당 민감 필드가
+없었다"로 표시하지 않습니다.
+
+Finalized 캡처 충실도 카드는 엔진이 보고한 provenance에 따라 설명 문구를
+선택합니다. 라이브 세션은 프록시가 직접 시간을 측정한 ArchScope 라이브 프록시
+캡처로 설명하고, 외부 도구에서 가져온 증거라는 설명은 HAR import 에만
+사용합니다. Fidelity, capture mode, 관측 지점, 상세 저장 방식은 두 언어 모두
+현지화된 라벨로 표시하며 원본 엔진 토큰은 hover 로 확인할 수 있습니다. 집계
+등급 아래에는 트랜잭션별 분포를 함께 표시하므로 `mixed`/`unsupported` 세션도
+실제 분포를 확인할 수 있습니다.
 
 `coverage: confirmed`의 의미는 제한적입니다. 동일 client/proxy endpoint tuple과
 owner PID를 연속 두 번의 TCP-owner table 조회에서 확인하고 두 번째 조회 전후의
@@ -201,8 +211,8 @@ readback하고 누락·계약 불일치 시 실패합니다. 이 명령은 captu
 않으며 metadata-only 증거를 owner-only 권한으로 기록합니다. Artifact는 local
 session path를 제외하고 행을 2,000개로 제한하며 loopback fixture privacy scope를
 명시합니다. 공개 보관 전 내용을 검토한 뒤 JSON 또는 repository path와 checksum을
-기록해야 합니다. 해당 Windows artifact, Claude 소유 S1/S4 및 unknown-redaction
-finalized-card 인계, 독립 H-RG4 재리뷰 `PASS` 전까지 T-581은 `REVIEW` 상태입니다.
+기록해야 합니다. 해당 Windows artifact 와 독립 H-RG4 재리뷰 `PASS` 전까지
+T-581은 `REVIEW` 상태입니다.
 
 ## 네이티브 앱
 

@@ -166,7 +166,18 @@ persists capture counters for crash recovery. A stopped in-flight row becomes
 `aborted` / `unsupported`; the progress-only `pending` grade never survives as
 a finalized transaction. For legacy stores without a checkpoint, backend
 evidence marks redaction as unknown and derives conservative counters from
-persisted rows; the finalized-card unknown label remains a Claude UI handoff.
+persisted rows, and the finalized card reports that redaction summary as
+`not recorded` — redaction still ran before every write, so a missing summary
+is a missing record and is never presented as "no sensitive fields matched".
+
+The finalized capture-fidelity card explains itself from the provenance the
+engine reported: a live session is described as an ArchScope proxy capture with
+proxy-measured timings, and only a HAR import is described as imported
+foreign-tool evidence. Its fidelity, capture mode, observation point, and detail
+storage render as localized labels in both languages, with the raw engine token
+available on hover, and the per-transaction distribution behind the aggregate
+grade is listed beneath them so a `mixed` or `unsupported` session shows how its
+transactions actually divide.
 
 `coverage: confirmed` is deliberately narrow: ArchScope observed the same
 client/proxy endpoint tuple and owner PID in two immediate TCP-owner table reads
@@ -206,9 +217,8 @@ metadata-only evidence with owner-only permissions. The artifact omits local
 session paths, caps rows at 2,000, declares its loopback-fixture privacy scope,
 and must be reviewed before public archiving. Archive the generated JSON or
 record its repository path and checksum before requesting re-review. T-581
-remains in `REVIEW` until that Windows artifact, the Claude-owned S1/S4 and
-unknown-redaction finalized-card handoff, and an independent H-RG4 re-review
-pass.
+remains in `REVIEW` until that Windows artifact and an independent H-RG4
+re-review pass.
 
 ## Native App
 

@@ -18,6 +18,7 @@
 // 의존성 주의: bridge/types 의 와이어 형식만 참조하며 런타임 코드 없음.
 // ─────────────────────────────────────────────────────────────────────
 
+import type { MessageKey } from "../i18n/messages";
 import type {
   CaptureHTTPMessage,
   CaptureTimingPhases,
@@ -76,9 +77,213 @@ export function extractCaptureMeta(result: Result): HttpCaptureMeta | null {
   return capture as HttpCaptureMeta;
 }
 
+// ── Finalized capture provenance (H-RG4 S1) ─────────────────────────
+
+/**
+ * Where a finalized result came from, as the engine reported it.
+ *
+ * The fidelity card explains its metadata in one sentence, and that sentence
+ * used to be a fixed HAR string — so a live session that had just been stopped
+ * was told it was "imported foreign-tool evidence, not a live proxy capture"
+ * directly beneath its own `observation_point: proxy` field (H-RG4 S1). The
+ * prose is now selected from the provenance instead of assumed, and an
+ * observation point the renderer does not recognize claims neither origin.
+ */
+export type CaptureProvenanceToken = "live_proxy" | "har_import" | "unknown";
+
+export function resolveCaptureProvenance(
+  meta: HttpCaptureMeta | null,
+): CaptureProvenanceToken {
+  switch (String(meta?.observation_point ?? "").trim()) {
+    case "proxy":
+      return "live_proxy";
+    case "foreign_tool":
+      return "har_import";
+    default:
+      return "unknown";
+  }
+}
+
+// ── Finalized capture tokens (H-RG4 S4) ─────────────────────────────
+
+/**
+ * Closed token sets for the engine enums the finalized card prints. Once
+ * `BuildLive` started deriving these from the stored rows (H-RG4 R1) they
+ * became values the user has never seen — `mixed`, `proxy_not_captured`,
+ * `unsupported` — rendered untranslated in both locales on the same screen
+ * where the live table resolves every token through a paired EN/KO map
+ * (H-RG4 R11). Anything unrecognized resolves to `unknown` rather than leaking
+ * the wire value, exactly as the live panel does.
+ */
+export type CaptureFidelityToken =
+  | "decoded_wire"
+  | "semantic"
+  | "unsupported"
+  | "pending"
+  | "unknown";
+
+const CAPTURE_FIDELITY_TOKENS = new Set<CaptureFidelityToken>([
+  "decoded_wire",
+  "semantic",
+  "unsupported",
+  "pending",
+]);
+
+export function resolveCaptureFidelity(value: string): CaptureFidelityToken {
+  const token = String(value ?? "").trim() as CaptureFidelityToken;
+  return CAPTURE_FIDELITY_TOKENS.has(token) ? token : "unknown";
+}
+
+export type CaptureModeToken =
+  | "proxy_mitm"
+  | "proxy_passthrough"
+  | "proxy_not_captured"
+  | "har_import"
+  | "mixed"
+  | "unknown";
+
+const CAPTURE_MODE_TOKENS = new Set<CaptureModeToken>([
+  "proxy_mitm",
+  "proxy_passthrough",
+  "proxy_not_captured",
+  "har_import",
+  "mixed",
+]);
+
+export function resolveCaptureMode(value: string): CaptureModeToken {
+  const token = String(value ?? "").trim() as CaptureModeToken;
+  return CAPTURE_MODE_TOKENS.has(token) ? token : "unknown";
+}
+
+export type CaptureObservationToken = "proxy" | "foreign_tool" | "unknown";
+
+export function resolveCaptureObservation(
+  value: string,
+): CaptureObservationToken {
+  const token = String(value ?? "").trim();
+  return token === "proxy" || token === "foreign_tool" ? token : "unknown";
+}
+
+export type CaptureDetailStorageToken = "bounded_inline" | "unknown";
+
+export function resolveCaptureDetailStorage(
+  value: string,
+): CaptureDetailStorageToken {
+  return String(value ?? "").trim() === "bounded_inline"
+    ? "bounded_inline"
+    : "unknown";
+}
+
+/** Per-row attribution coverage, as `coverage_counts` reports it. */
+export type CaptureCoverageToken = "confirmed" | "unknown";
+
+export function resolveCaptureCoverage(value: string): CaptureCoverageToken {
+  return String(value ?? "").trim() === "confirmed" ? "confirmed" : "unknown";
+}
+
+/**
+ * The per-token distributions `BuildLive` emits alongside the aggregate grade.
+ * They are what makes an aggregate of `mixed` / `unsupported` interpretable:
+ * without them a session where 200 of 201 rows decoded cleanly is
+ * indistinguishable from one where none did (H-RG4 S4).
+ */
+export type CaptureDistributionEntry<Token extends string> = {
+  token: Token;
+  count: number;
+};
+
+function captureDistribution<Token extends string>(
+  counts: Record<string, number> | undefined,
+  resolve: (value: string) => Token,
+): CaptureDistributionEntry<Token>[] {
+  const merged = new Map<Token, number>();
+  for (const [raw, value] of Object.entries(counts ?? {})) {
+    const count = Number(value) || 0;
+    if (count <= 0) continue;
+    const token = resolve(raw);
+    merged.set(token, (merged.get(token) ?? 0) + count);
+  }
+  return [...merged.entries()]
+    .map(([token, count]) => ({ token, count }))
+    .sort((left, right) => right.count - left.count || left.token.localeCompare(right.token));
+}
+
+export function selectCaptureFidelityDistribution(
+  meta: HttpCaptureMeta | null,
+): CaptureDistributionEntry<CaptureFidelityToken>[] {
+  return captureDistribution(meta?.fidelity_counts, resolveCaptureFidelity);
+}
+
+export function selectCaptureModeDistribution(
+  meta: HttpCaptureMeta | null,
+): CaptureDistributionEntry<CaptureModeToken>[] {
+  return captureDistribution(meta?.capture_mode_counts, resolveCaptureMode);
+}
+
+export function selectCaptureCoverageDistribution(
+  meta: HttpCaptureMeta | null,
+): CaptureDistributionEntry<CaptureCoverageToken>[] {
+  return captureDistribution(meta?.coverage_counts, resolveCaptureCoverage);
+}
+
+// ── Finalized card message keys (H-RG4 S1, S4) ──────────────────────
+//
+// The token → message-key mapping lives here rather than in the page so the
+// Node state harness can assert that a live result selects the live prose and
+// a HAR result selects the HAR prose, which is the property S1 is about. The
+// records are exhaustive over their token unions, so an engine enum that gains
+// a value fails the type check instead of reaching the screen untranslated.
+
+export const CAPTURE_PROVENANCE_HINT_KEYS: Record<CaptureProvenanceToken, MessageKey> = {
+  live_proxy: "httpCaptureFidelityHintLive",
+  har_import: "httpCaptureFidelityHintHar",
+  unknown: "httpCaptureFidelityHintUnknown",
+};
+
+/** The prose the fidelity card prints under the metadata block. */
+export function captureFidelityHintKey(meta: HttpCaptureMeta | null): MessageKey {
+  return CAPTURE_PROVENANCE_HINT_KEYS[resolveCaptureProvenance(meta)];
+}
+
+export const CAPTURE_FIDELITY_LABEL_KEYS: Record<CaptureFidelityToken, MessageKey> = {
+  decoded_wire: "httpCaptureFidelityValueDecodedWire",
+  semantic: "httpCaptureFidelityValueSemantic",
+  unsupported: "httpCaptureFidelityValueUnsupported",
+  pending: "httpCaptureFidelityValuePending",
+  unknown: "httpCaptureFidelityValueUnknown",
+};
+
+export const CAPTURE_MODE_LABEL_KEYS: Record<CaptureModeToken, MessageKey> = {
+  proxy_mitm: "httpCaptureModeValueProxyMitm",
+  proxy_passthrough: "httpCaptureModeValueProxyPassthrough",
+  proxy_not_captured: "httpCaptureModeValueProxyNotCaptured",
+  har_import: "httpCaptureModeValueHarImport",
+  mixed: "httpCaptureModeValueMixed",
+  unknown: "httpCaptureModeValueUnknown",
+};
+
+export const CAPTURE_OBSERVATION_LABEL_KEYS: Record<CaptureObservationToken, MessageKey> = {
+  proxy: "httpCaptureObservationValueProxy",
+  foreign_tool: "httpCaptureObservationValueForeignTool",
+  unknown: "httpCaptureObservationValueUnknown",
+};
+
+export const CAPTURE_DETAIL_STORAGE_LABEL_KEYS: Record<CaptureDetailStorageToken, MessageKey> = {
+  bounded_inline: "httpCaptureDetailStorageValueBoundedInline",
+  unknown: "httpCaptureDetailStorageValueUnknown",
+};
+
+export const CAPTURE_COVERAGE_LABEL_KEYS: Record<CaptureCoverageToken, MessageKey> = {
+  confirmed: "httpCaptureCoverageValueConfirmed",
+  unknown: "httpCaptureCoverageValueUnknown",
+};
+
 // ── Redaction ───────────────────────────────────────────────────────
 
-export type RedactionInfo = HttpCaptureRedaction & { total: number };
+export type RedactionInfo = HttpCaptureRedaction & {
+  total: number;
+  known: boolean;
+};
 
 export function extractRedaction(result: Result): RedactionInfo | null {
   const capture = extractCaptureMeta(result);
@@ -91,6 +296,13 @@ export function extractRedaction(result: Result): RedactionInfo | null {
   );
   return {
     applied: redaction.applied === true,
+    // A session that never reached `Stop` has no persisted redaction summary,
+    // and the engine reports that as `known: false` rather than as a clean
+    // sheet (H-RG4 S3). "No rule matched" and "the record did not survive" are
+    // different claims and must not render as the same sentence. Payloads that
+    // predate the field carry a determined summary, so an absent flag stays
+    // known.
+    known: redaction.known !== false,
     version: redaction.version ?? "",
     rules: Array.isArray(redaction.rules) ? redaction.rules : [],
     counts,

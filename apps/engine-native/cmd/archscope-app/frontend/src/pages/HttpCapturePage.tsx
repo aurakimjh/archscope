@@ -37,6 +37,12 @@ import { Input } from "@/components/ui/input";
 import { useI18n, type MessageKey } from "@/i18n/I18nProvider";
 import { addWorkspaceResult } from "@/state/analysisWorkspace";
 import {
+  CAPTURE_COVERAGE_LABEL_KEYS,
+  CAPTURE_DETAIL_STORAGE_LABEL_KEYS,
+  CAPTURE_FIDELITY_LABEL_KEYS,
+  CAPTURE_MODE_LABEL_KEYS,
+  CAPTURE_OBSERVATION_LABEL_KEYS,
+  CAPTURE_PROVENANCE_HINT_KEYS,
   availableFidelities,
   availableMethods,
   availableMimeTypes,
@@ -52,6 +58,14 @@ import {
   initialHttpCaptureState,
   isFilterActive,
   projectSummary,
+  resolveCaptureDetailStorage,
+  resolveCaptureFidelity,
+  resolveCaptureMode,
+  resolveCaptureObservation,
+  resolveCaptureProvenance,
+  selectCaptureCoverageDistribution,
+  selectCaptureFidelityDistribution,
+  selectCaptureModeDistribution,
   selectFindings,
   selectHttpSummary,
   selectTimeline,
@@ -67,6 +81,7 @@ import {
 import { formatMilliseconds, formatNumber } from "@/utils/formatters";
 
 const STATUS_CLASSES: StatusClass[] = ["2xx", "3xx", "4xx", "5xx", "other"];
+
 
 function statusColor(status: number): string {
   switch (statusClassOf(status)) {
@@ -419,6 +434,18 @@ function FidelityBanner({
   redaction: ReturnType<typeof extractRedaction>;
   t: Translate;
 }): React.JSX.Element {
+  // The card explains its own metadata in prose. That prose is provenance-
+  // dependent: a finalized live session must never be described as imported
+  // foreign-tool evidence (H-RG4 S1), and the values themselves render through
+  // closed EN/KO maps rather than as raw engine tokens (H-RG4 S4).
+  const provenance = resolveCaptureProvenance(meta);
+  const fidelityDistribution = selectCaptureFidelityDistribution(meta);
+  const modeDistribution = selectCaptureModeDistribution(meta);
+  const coverageDistribution = selectCaptureCoverageDistribution(meta);
+  const hasDistribution =
+    fidelityDistribution.length > 0 ||
+    modeDistribution.length > 0 ||
+    coverageDistribution.length > 0;
   return (
     <Card>
       <CardHeader>
@@ -426,13 +453,64 @@ function FidelityBanner({
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
         <dl className="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-5">
-          <Field label={t("httpCaptureFidelityLabel")} value={meta.fidelity} />
-          <Field label={t("httpCaptureModeLabel")} value={meta.capture_mode} />
-          <Field label={t("httpCaptureObservationLabel")} value={meta.observation_point} />
+          <Field
+            label={t("httpCaptureFidelityLabel")}
+            value={t(CAPTURE_FIDELITY_LABEL_KEYS[resolveCaptureFidelity(meta.fidelity)])}
+            title={meta.fidelity}
+          />
+          <Field
+            label={t("httpCaptureModeLabel")}
+            value={t(CAPTURE_MODE_LABEL_KEYS[resolveCaptureMode(meta.capture_mode)])}
+            title={meta.capture_mode}
+          />
+          <Field
+            label={t("httpCaptureObservationLabel")}
+            value={t(
+              CAPTURE_OBSERVATION_LABEL_KEYS[resolveCaptureObservation(meta.observation_point)],
+            )}
+            title={meta.observation_point}
+          />
           <Field label={t("httpCaptureDialectLabel")} value={meta.dialect} />
-          <Field label={t("httpCaptureDetailStorageLabel")} value={meta.detail_storage} />
+          <Field
+            label={t("httpCaptureDetailStorageLabel")}
+            value={t(
+              CAPTURE_DETAIL_STORAGE_LABEL_KEYS[resolveCaptureDetailStorage(meta.detail_storage)],
+            )}
+            title={meta.detail_storage}
+          />
         </dl>
-        <p className="text-xs text-muted-foreground">{t("httpCaptureFidelityHint")}</p>
+        <p className="text-xs text-muted-foreground">
+          {t(CAPTURE_PROVENANCE_HINT_KEYS[provenance])}
+        </p>
+        {hasDistribution && (
+          <div className="flex flex-col gap-2 rounded-md border border-border bg-muted/20 p-3">
+            <p className="text-xs text-muted-foreground">{t("httpCaptureDistributionHint")}</p>
+            <DistributionRow
+              title={t("httpCaptureFidelityDistributionTitle")}
+              entries={fidelityDistribution.map((entry) => ({
+                key: entry.token,
+                label: t(CAPTURE_FIDELITY_LABEL_KEYS[entry.token]),
+                count: entry.count,
+              }))}
+            />
+            <DistributionRow
+              title={t("httpCaptureModeDistributionTitle")}
+              entries={modeDistribution.map((entry) => ({
+                key: entry.token,
+                label: t(CAPTURE_MODE_LABEL_KEYS[entry.token]),
+                count: entry.count,
+              }))}
+            />
+            <DistributionRow
+              title={t("httpCaptureCoverageDistributionTitle")}
+              entries={coverageDistribution.map((entry) => ({
+                key: entry.token,
+                label: t(CAPTURE_COVERAGE_LABEL_KEYS[entry.token]),
+                count: entry.count,
+              }))}
+            />
+          </div>
+        )}
         {meta.truncated && (
           <p
             className="rounded-md border border-amber-500/50 bg-amber-500/10 p-2 text-xs text-amber-700 dark:text-amber-400"
@@ -446,7 +524,13 @@ function FidelityBanner({
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               {t("httpCaptureRedactionTitle")}
             </span>
-            {redaction?.applied ? (
+            {/* A session that never reached `Stop` has no persisted summary, and
+                "not recorded" must not render as "nothing matched" (H-RG4 S3). */}
+            {redaction && !redaction.known ? (
+              <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:text-amber-400">
+                {t("httpCaptureRedactionUnknownBadge")}
+              </span>
+            ) : redaction?.applied ? (
               <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:text-emerald-400">
                 {formatNumber(redaction.total)} · {redaction.version}
               </span>
@@ -456,10 +540,21 @@ function FidelityBanner({
               </span>
             )}
           </div>
-          <p className="text-xs text-muted-foreground">
-            {redaction?.applied ? t("httpCaptureRedactionApplied") : t("httpCaptureRedactionNone")}
+          <p
+            className={
+              redaction && !redaction.known
+                ? "text-xs text-amber-700 dark:text-amber-400"
+                : "text-xs text-muted-foreground"
+            }
+            role={redaction && !redaction.known ? "status" : undefined}
+          >
+            {redaction && !redaction.known
+              ? t("httpCaptureRedactionUnknown")
+              : redaction?.applied
+                ? t("httpCaptureRedactionApplied")
+                : t("httpCaptureRedactionNone")}
           </p>
-          {redaction?.applied && redaction.rules.length > 0 && (
+          {redaction?.known && redaction.applied && redaction.rules.length > 0 && (
             <ul className="mt-2 flex flex-wrap gap-1.5">
               {redaction.rules.map((rule) => (
                 <li
@@ -480,13 +575,49 @@ function FidelityBanner({
   );
 }
 
-function Field({ label, value }: { label: string; value: string }): React.JSX.Element {
+function Field({
+  label,
+  value,
+  title,
+}: {
+  label: string;
+  value: string;
+  // The raw engine token behind a translated value, kept reachable on hover so
+  // localizing the card does not hide what the engine actually reported.
+  title?: string;
+}): React.JSX.Element {
   return (
     <div className="min-w-0">
       <dt className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{label}</dt>
-      <dd className="truncate font-mono text-xs" title={value}>
+      <dd className="truncate font-mono text-xs" title={title ?? value}>
         {value || "-"}
       </dd>
+    </div>
+  );
+}
+
+function DistributionRow({
+  title,
+  entries,
+}: {
+  title: string;
+  entries: { key: string; label: string; count: number }[];
+}): React.JSX.Element | null {
+  if (entries.length === 0) return null;
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+        {title}
+      </span>
+      {entries.map((entry) => (
+        <span
+          key={entry.key}
+          className="rounded border border-border bg-background px-1.5 py-0.5 text-[11px]"
+        >
+          {entry.label}
+          <span className="ml-1 font-mono text-muted-foreground">×{formatNumber(entry.count)}</span>
+        </span>
+      ))}
     </div>
   );
 }
@@ -1125,7 +1256,11 @@ function TransactionDetail({
               label={t("httpCaptureDetailConnection")}
               value={`${transaction.connection_id}${transaction.used_existing_connection ? ` · ${t("httpCaptureDetailReused")}` : ""}`}
             />
-            <Field label={t("httpCaptureFidelityLabel")} value={transaction.fidelity} />
+            <Field
+              label={t("httpCaptureFidelityLabel")}
+              value={t(CAPTURE_FIDELITY_LABEL_KEYS[resolveCaptureFidelity(transaction.fidelity)])}
+              title={transaction.fidelity}
+            />
           </dl>
 
           <div role="tablist" aria-label={t("httpCaptureDetailTitle")} className="flex gap-1 border-b border-border">

@@ -25,12 +25,28 @@ import {
   selectScoreProvenance,
 } from "./browserAudit.js";
 import {
+  CAPTURE_COVERAGE_LABEL_KEYS,
+  CAPTURE_DETAIL_STORAGE_LABEL_KEYS,
+  CAPTURE_FIDELITY_LABEL_KEYS,
+  CAPTURE_MODE_LABEL_KEYS,
+  CAPTURE_OBSERVATION_LABEL_KEYS,
+  CAPTURE_PROVENANCE_HINT_KEYS,
   availableFidelities,
   availableMethods,
   availableMimeTypes,
   buildProcessTree,
+  captureFidelityHintKey,
   extractCaptureMeta,
   extractRedaction,
+  resolveCaptureCoverage,
+  resolveCaptureDetailStorage,
+  resolveCaptureFidelity,
+  resolveCaptureMode,
+  resolveCaptureObservation,
+  resolveCaptureProvenance,
+  selectCaptureCoverageDistribution,
+  selectCaptureFidelityDistribution,
+  selectCaptureModeDistribution,
   filterTransactions,
   httpCaptureReducer,
   initialHttpCaptureState,
@@ -700,6 +716,168 @@ const captureMeta = extractCaptureMeta(redacted);
 assert(captureMeta?.fidelity === "semantic", "capture fidelity should surface for the honesty banner");
 assert(captureMeta?.observation_point === "foreign_tool", "observation point should surface");
 assert(extractRedaction(httpResult({ metadata: {} })) === null, "missing capture metadata yields null redaction");
+
+// ── H-RG4 S1/S3/S4: the finalized fidelity card ─────────────────────
+//
+// The card explains its metadata in prose, labels its values, and states what
+// it knows about redaction. Each of those three was wrong for a finalized live
+// session: the prose was a fixed HAR sentence printed under an
+// `observation_point: proxy` field (S1), the values were raw engine tokens in
+// both locales (S4), and an absent redaction summary read as a clean sheet
+// (S3).
+const liveFinalized = httpResult({
+  metadata: {
+    http_capture: {
+      dialect: "archscope-live",
+      capture_mode: "mixed",
+      capture_mode_counts: { proxy_mitm: 200, proxy_not_captured: 1 },
+      observation_point: "proxy",
+      fidelity: "unsupported",
+      fidelity_counts: { decoded_wire: 200, unsupported: 1 },
+      coverage_counts: { confirmed: 195, unknown: 6 },
+      detail_storage: "bounded_inline",
+      truncated: false,
+      redaction: { applied: true, known: true, version: "capture_redaction_1.0.0", rules: ["query_value"], counts: { query_value: 2 } },
+    },
+  },
+});
+assert(
+  resolveCaptureProvenance(extractCaptureMeta(liveFinalized)) === "live_proxy",
+  "a proxy observation point is live provenance",
+);
+assert(
+  resolveCaptureProvenance(extractCaptureMeta(redacted)) === "har_import",
+  "a foreign-tool observation point is HAR provenance",
+);
+assert(
+  resolveCaptureProvenance(extractCaptureMeta(httpResult({ metadata: { http_capture: { observation_point: "sidecar" } } }))) === "unknown",
+  "an unrecognized observation point claims neither origin",
+);
+assert(
+  captureFidelityHintKey(extractCaptureMeta(liveFinalized)) === "httpCaptureFidelityHintLive",
+  "a finalized live session is explained as a live proxy capture",
+);
+assert(
+  captureFidelityHintKey(extractCaptureMeta(redacted)) === "httpCaptureFidelityHintHar",
+  "a HAR import keeps the imported-evidence explanation",
+);
+assert(
+  captureFidelityHintKey(null) === "httpCaptureFidelityHintUnknown",
+  "an unknown provenance asserts neither origin",
+);
+// The HAR sentence must be reachable only from the HAR path — an
+// unconditional key would put it back on every result (S1).
+assert(
+  !("httpCaptureFidelityHint" in messages.en) && !("httpCaptureFidelityHint" in messages.ko),
+  "no unconditional fidelity hint remains",
+);
+assert(
+  !/HAR|foreign-tool/.test((messages.en as Record<string, string>).httpCaptureFidelityHintLive!),
+  "the live explanation makes no HAR or foreign-tool claim",
+);
+
+// Raw engine tokens resolve through closed label maps, and anything the
+// renderer does not recognize says so instead of leaking the wire value.
+assert(
+  resolveCaptureFidelity("decoded_wire") === "decoded_wire" &&
+    resolveCaptureFidelity("proxy_passthrough") === "unknown" &&
+    resolveCaptureFidelity("") === "unknown",
+  "finalized fidelity resolves through a closed token set",
+);
+assert(
+  resolveCaptureMode("mixed") === "mixed" && resolveCaptureMode("har_export") === "unknown",
+  "finalized capture mode resolves through a closed token set",
+);
+assert(
+  resolveCaptureObservation("proxy") === "proxy" && resolveCaptureObservation("cdp") === "unknown",
+  "observation point resolves through a closed token set",
+);
+assert(
+  resolveCaptureDetailStorage("bounded_inline") === "bounded_inline" &&
+    resolveCaptureDetailStorage("full") === "unknown",
+  "detail storage resolves through a closed token set",
+);
+assert(
+  resolveCaptureCoverage("confirmed") === "confirmed" && resolveCaptureCoverage("inferred") === "unknown",
+  "attribution coverage resolves through a closed token set",
+);
+const captureLabelKeys = [
+  ...Object.values(CAPTURE_PROVENANCE_HINT_KEYS),
+  ...Object.values(CAPTURE_FIDELITY_LABEL_KEYS),
+  ...Object.values(CAPTURE_MODE_LABEL_KEYS),
+  ...Object.values(CAPTURE_OBSERVATION_LABEL_KEYS),
+  ...Object.values(CAPTURE_DETAIL_STORAGE_LABEL_KEYS),
+  ...Object.values(CAPTURE_COVERAGE_LABEL_KEYS),
+];
+assert(
+  captureLabelKeys.every(
+    (key) =>
+      typeof (messages.en as Record<string, string>)[key] === "string" &&
+      (messages.en as Record<string, string>)[key]!.length > 0 &&
+      typeof (messages.ko as Record<string, string>)[key] === "string" &&
+      (messages.ko as Record<string, string>)[key]!.length > 0,
+  ),
+  "every finalized-card token is localized in both languages",
+);
+
+// The distributions are what make an aggregate of `mixed` / `unsupported`
+// interpretable — 200 of 201 rows decoded is not the same session as none.
+const liveMeta = extractCaptureMeta(liveFinalized);
+const fidelitySplit = selectCaptureFidelityDistribution(liveMeta);
+assert(
+  fidelitySplit[0]?.token === "decoded_wire" && fidelitySplit[0]?.count === 200,
+  "the fidelity distribution leads with the dominant grade",
+);
+assert(
+  fidelitySplit[1]?.token === "unsupported" && fidelitySplit[1]?.count === 1,
+  "the fidelity distribution keeps the weakest grade visible",
+);
+assert(
+  selectCaptureModeDistribution(liveMeta).map((entry) => entry.token).join(",") ===
+    "proxy_mitm,proxy_not_captured",
+  "the capture-mode distribution is ordered by transaction count",
+);
+assert(
+  selectCaptureCoverageDistribution(liveMeta).some(
+    (entry) => entry.token === "unknown" && entry.count === 6,
+  ),
+  "unattributed rows stay visible in the coverage distribution",
+);
+// Unrecognized tokens merge into one honest `unknown` bucket rather than
+// each printing its own wire value.
+assert(
+  selectCaptureFidelityDistribution(
+    extractCaptureMeta(
+      httpResult({ metadata: { http_capture: { fidelity_counts: { weird: 2, alsoweird: 3, decoded_wire: 1 } } } }),
+    ),
+  ).find((entry) => entry.token === "unknown")?.count === 5,
+  "unrecognized grades merge into a single unknown bucket",
+);
+assert(
+  selectCaptureFidelityDistribution(extractCaptureMeta(httpResult({ metadata: { http_capture: {} } }))).length === 0,
+  "a result without per-token counts renders no distribution",
+);
+
+// S3: a session that never reached `Stop` has no persisted redaction summary.
+// "Not recorded" and "nothing matched" are different claims.
+const unknownRedaction = extractRedaction(
+  httpResult({
+    metadata: {
+      http_capture: {
+        redaction: { applied: false, known: false, version: "capture_redaction_1.0.0", rules: [], counts: {} },
+      },
+    },
+  }),
+);
+assert(unknownRedaction?.known === false, "an unrecorded redaction summary surfaces as unknown");
+assert(unknownRedaction?.applied === false, "an unrecorded summary asserts no redaction of its own");
+assert(redaction?.known === true, "a determined redaction summary stays known");
+assert(
+  extractRedaction(
+    httpResult({ metadata: { http_capture: { redaction: { applied: true, version: "v1", rules: [], counts: {} } } } }),
+  )?.known === true,
+  "payloads predating the known flag keep their determined summary",
+);
 
 // Timing breakdown flattens the imported HAR phases in order.
 const timed = harTx({

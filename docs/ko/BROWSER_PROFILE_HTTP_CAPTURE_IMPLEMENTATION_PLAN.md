@@ -260,8 +260,9 @@ streaming, H2 passthrough fixture와 long-session memory bound가 통과해야 �
 
 **상태:** `REVIEW` — 세 번째 독립 `CONDITIONAL` (2026-07-29). 기존 R 지적
 10개는 닫혔고 R2 메커니즘은 완성됐지만 검사 가능한 Windows artifact는 아직
-없다. S1/S4 finalized card는 Claude가, S2/S3/S5–S9 terminal fidelity,
-recovery checkpoint, harness/privacy 강화는 Codex가 담당한다. 독립 `PASS`
+없다. S2/S3/S5–S9 terminal fidelity, recovery checkpoint, harness/privacy
+강화는 Codex가 닫았고, S1/S4 finalized card와 S3 unknown-redaction label은
+Claude가 닫았다. 남은 항목은 Windows artifact와 독립 재리뷰뿐이다. 독립 `PASS`
 전까지 T-582는 차단된다.
 
 #### Codex 통합
@@ -329,12 +330,16 @@ React/UI/state/i18n은 Claude가 담당한다.
   트래픽처럼 보이지 않는다.
 - [x] R11: transaction state, session state, CA state, process attribution을
   raw engine token 대신 EN/KO 폐쇄 label map으로 표기한다.
-- [ ] S1: finalized hint를 provenance별로 선택하여 live proxy evidence에
-  HAR/import 전용 문장이 절대 표시되지 않도록 처리
-- [ ] S4: finalized mode/fidelity/observation token을 번역하고 `mixed`와 최약
-  fidelity를 설명하는 token별 분포를 표시
-- [ ] S3 renderer 후속: `redaction.known=false`를 "민감 정보 없음"이 아니라
-  복구 metadata 확인 불가로 표시
+- [x] S1: finalized hint를 provenance별로 선택한다
+  (`CAPTURE_PROVENANCE_HINT_KEYS`). live proxy evidence는 ArchScope 측정
+  문장을 사용하고, HAR/import 전용 문장은 `foreign_tool` 관측 지점에서만
+  도달할 수 있다.
+- [x] S4: finalized mode/fidelity/observation/detail-storage token을 EN/KO
+  폐쇄 label map으로 번역하고 원본 token은 hover로 노출하며,
+  `capture_mode_counts`/`fidelity_counts`/`coverage_counts` 분포를 집계 등급
+  아래에 표시해 `mixed`와 최약 fidelity를 해석 가능하게 한다.
+- [x] S3 renderer 후속: `redaction.known=false`를 "민감 정보 없음"이 아니라
+  기록되지 않은 복구 metadata로 주의 표기와 함께 표시한다.
 
 L10은 paired user guide와 JVM truststore harness 계약으로 닫혔다.
 
@@ -398,6 +403,5 @@ T-580 / `H-RG3` 엔진 구현은 2026-07-27 `REVIEW`에 진입했고 2026-07-28 
 `H-SEC2` CA/TLS/권한 게이트를 통과했다. T-581 / H-RG4는 2026-07-28
 첫 판정과 2026-07-29 세 번째 `CONDITIONAL` 판정 후 `REVIEW`에 남아 있다.
 R1/R3–R7/R12 및 S2/S3/S5–S9 백엔드 수정, schema-v4 privacy-bounded R2
-harness 메커니즘, Claude 소유 R8/R9/R11 UI 인계는 구현됐다. 다음 행동은 Claude
-S1/S4와 S3 unknown-redaction label 완료 후 새 Windows schema-v4 artifact
-생성·보관과 독립 재리뷰다.
+harness 메커니즘, Claude 소유 R8/R9/R11 및 S1/S4/S3-label UI 인계는 구현됐다.
+다음 행동은 새 Windows schema-v4 artifact 생성·보관과 독립 재리뷰다.

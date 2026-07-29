@@ -258,9 +258,10 @@ cancellation, streaming, H2 passthrough, and long-session memory-bound tests pas
 
 **Status:** `REVIEW` — third independent `CONDITIONAL` (2026-07-29). Ten prior
 R-findings are closed and R2 is complete in mechanism, but no inspectable
-Windows artifact exists. S1/S4 remain Claude-owned finalized-card work. Codex
-owns S2/S3/S5–S9 terminal fidelity, recovery checkpoints, and harness/privacy
-hardening. T-582 remains blocked until an independent `PASS`.
+Windows artifact exists. Codex closed S2/S3/S5–S9 terminal fidelity, recovery
+checkpoints, and harness/privacy hardening; Claude closed the S1/S4 finalized
+card and the S3 unknown-redaction label. Only the Windows artifact and an
+independent re-review remain. T-582 remains blocked until an independent `PASS`.
 
 #### Codex Integration
 
@@ -331,12 +332,17 @@ contradictory product data. React/UI/state/i18n remains Claude-owned.
   styled as ordinary captured traffic.
 - [x] R11: transaction state, session state, CA state, and process attribution
   render through closed EN/KO label maps instead of raw engine tokens.
-- [ ] S1: select the finalized hint by provenance; live proxy evidence must
-  never display the HAR/import-only sentence.
-- [ ] S4: localize finalized mode/fidelity/observation tokens and render the
-  per-token distributions that explain `mixed` and weakest fidelity.
-- [ ] S3 renderer follow-up: render `redaction.known=false` as unavailable
-  recovery metadata, never as "no sensitive fields matched."
+- [x] S1: the finalized hint is selected by provenance
+  (`CAPTURE_PROVENANCE_HINT_KEYS`), so live proxy evidence gets its own
+  ArchScope-measured sentence and the HAR/import-only sentence is reachable only
+  from a `foreign_tool` observation point.
+- [x] S4: finalized mode/fidelity/observation/detail-storage tokens resolve
+  through closed EN/KO label maps with the raw token on hover, and the
+  `capture_mode_counts`/`fidelity_counts`/`coverage_counts` distributions render
+  beneath the aggregate so `mixed` and weakest fidelity are interpretable.
+- [x] S3 renderer follow-up: `redaction.known=false` renders as unrecorded
+  recovery metadata with its own caution styling, never as "no sensitive fields
+  matched."
 
 L10 is closed in the paired user guides and JVM truststore harness contract.
 
@@ -399,7 +405,6 @@ T-580 / `H-RG3` entered `REVIEW` on 2026-07-27 and passed the independent
 `H-SEC2` CA/TLS/privilege gate on 2026-07-28. T-581 / H-RG4 remains in `REVIEW`
 after the third 2026-07-29 `CONDITIONAL` verdict. The R1/R3–R7/R12 and
 S2/S3/S5–S9 backend remediation, schema-v4 privacy-bounded R2 harness
-mechanism, and Claude-owned R8/R9/R11 UI handoff are implemented. Next, Claude
-completes S1/S4 and the S3 unknown-redaction label, then a Windows operator
-generates and archives a fresh
+mechanism, and the Claude-owned R8/R9/R11 plus S1/S4/S3-label UI handoff are
+implemented. Next, a Windows operator generates and archives a fresh
 schema-v4 artifact before another independent re-review.
