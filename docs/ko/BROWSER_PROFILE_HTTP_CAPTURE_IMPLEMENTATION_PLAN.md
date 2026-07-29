@@ -22,7 +22,8 @@
   `H-COV1 PASS`로 닫혔고, T-580/H-RG3도 2026-07-28 독립 `H-SEC2 PASS`로
   닫혔다. T-581/H-RG4 Windows 실시간 UI와 E2E는 2026-07-28 독립
   `CONDITIONAL` 판정 후 `REVIEW`에 남아 있다. Codex 소유 백엔드 수정은
-  완료됐으며 Claude 소유 UI/state 수정, 실제 Windows 증거, 독립 재리뷰가 남았다.
+  완료됐고 Claude 소유 R8/R9/R11 UI/state/i18n 수정도 완료됐다. 실제 Windows
+  증거와 독립 재리뷰가 남았다.
 
 ## 2. 역할과 소유권
 
@@ -78,7 +79,7 @@ Claude가 담당한다.
 | 2 | `H-RG1` HAR 오프라인 분석 완성 | **완료 — 통합 PASS (2026-07-21)** | 종료 |
 | 3 | `H-RG2` Windows coverage proof | **완료 — H-COV1 PASS (2026-07-27)** | 종료 |
 | 4 | `H-RG3` 실시간 캡처 엔진 기반 | **완료 — H-SEC2 PASS (2026-07-28)** | 종료 |
-| 5 | `H-RG4` 실시간 UI 및 Windows E2E | **REVIEW — CONDITIONAL 후 백엔드 수정 완료** | Claude UI 수정, Windows 증거, 독립 `PASS` 대기 |
+| 5 | `H-RG4` 실시간 UI 및 Windows E2E | **REVIEW — CONDITIONAL 후 백엔드·UI 수정 완료** | Windows 증거와 독립 `PASS` 대기 |
 | 6 | `H-RG5` HTTP 세션 Diff | 계획 | `H-RG4 PASS` |
 | 7 | `X-RG1` HTTP × 프로파일/서버 증거 교차 분석 | 계획 | `H-RG5 PASS` |
 | 8 | `R-RG1` 통합 릴리스 승인 | 계획 | `X-RG1 PASS` |
@@ -310,9 +311,16 @@ React/UI/state/i18n은 Claude가 담당한다.
 - [x] fidelity·coverage·passthrough·unattributed 경고를 숨기지 않는 UX
 - [x] stop 후 같은 화면에서 finalized session lazy loading
 
-Claude는 남은 R8 `LiveCaptureContract` production 소비, R9 미사용 positive
-fidelity helper 제거/사용, R11 engine state token 현지화를 담당한다. L10은
-paired user guide와 JVM truststore harness 계약으로 닫혔다.
+- [x] R8 renderer: 시작 시 `LiveCaptureContract`를 읽어 row cap, event-skip
+  resync, page 재진입 복원, finalized 인계를 계약에서 파생한다. 알 수 없는
+  schema는 내장 기본값으로 되돌리고 그 불일치를 사용자에게 공개한다.
+- [x] R9: `isDecodedLiveFidelity`가 `liveFidelityTone`을 통해 live table의
+  fidelity 강조를 결정하므로, 교환을 실제로 읽지 않은 등급은 일반 캡처
+  트래픽처럼 보이지 않는다.
+- [x] R11: transaction state, session state, CA state, process attribution을
+  raw engine token 대신 EN/KO 폐쇄 label map으로 표기한다.
+
+L10은 paired user guide와 JVM truststore harness 계약으로 닫혔다.
 
 SEC-17은 renderer 아래에서 강제된다. unknown attribution은 기본적으로 저장과
 progress 노출 전에 drop하며, 명시적 opt-in을 선택해도 리댁션된 metadata만
@@ -372,6 +380,6 @@ HAR pseudo-process 비교에서 지원하지 않는 정규화/차원을 숨기�
 T-580 / `H-RG3` 엔진 구현은 2026-07-27 `REVIEW`에 진입했고 2026-07-28 독립
 `H-SEC2` CA/TLS/권한 게이트를 통과했다. T-581 / H-RG4는 2026-07-28
 첫 판정과 2026-07-29 두 번째 `CONDITIONAL` 판정 후 `REVIEW`에 남아 있다.
-R1/R3–R7/R12 백엔드 수정과 확장된 R2 harness 메커니즘은 구현됐다. 다음 행동은
-새 Windows schema-v3 artifact 생성·보관, Claude 소유 R8/R9/R11 UI 인계 완료,
+R1/R3–R7/R12 백엔드 수정, 확장된 R2 harness 메커니즘, Claude 소유 R8/R9/R11 UI
+인계는 모두 구현됐다. 다음 행동은 새 Windows schema-v3 artifact 생성·보관과
 독립 재리뷰다.

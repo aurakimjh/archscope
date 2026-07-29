@@ -48,13 +48,22 @@ import {
   buildLiveCoverageDisclosure,
   buildLiveProcessGroups,
   countLiveInFlight,
+  DEFAULT_LIVE_CAPTURE_CONTRACT,
   initialLiveCaptureState,
   isDecodedLiveFidelity,
+  isLiveCaptureContractSupported,
   isLiveSessionActive,
   isLiveTransactionInFlight,
+  LIVE_CAPTURE_CONTRACT_SCHEMA_VERSION,
   LIVE_TRANSACTION_ROW_CAP,
+  liveFidelityTone,
   liveHttpCaptureReducer,
+  resolveLiveAttribution,
+  resolveLiveCAState,
+  resolveLiveCaptureContract,
   resolveLiveFidelity,
+  resolveLiveSessionState,
+  resolveLiveTransactionState,
   type LiveCaptureTransaction,
 } from "./liveHttpCapture.js";
 import {
@@ -1002,6 +1011,173 @@ assert(
     isDecodedLiveFidelity(resolveLiveFidelity("decoded_wire")),
   "only genuinely decoded grades claim successful capture",
 );
+// H-RG4 R9: the claimed positive-capture gate must exist in the product path.
+// The panel derives its caution emphasis from this tone, so a grade that never
+// read the exchange cannot be styled like ordinary captured traffic.
+assert(
+  liveFidelityTone(resolveLiveFidelity("decoded_wire")) === "decoded" &&
+    liveFidelityTone(resolveLiveFidelity("semantic")) === "decoded" &&
+    liveFidelityTone(resolveLiveFidelity("pending")) === "pending" &&
+    liveFidelityTone(resolveLiveFidelity("h2")) === "pending" &&
+    liveFidelityTone(resolveLiveFidelity("proxy_passthrough")) === "limited" &&
+    liveFidelityTone(resolveLiveFidelity("unsupported")) === "limited",
+  "fidelity tone separates decoded grades from limited and undetermined ones",
+);
+
+// ── H-RG4 R11: raw engine enums must never reach the user ──────────────
+// Every one of these was printed as its wire token, which left the columns
+// added to explain unresolved rows untranslated in both locales.
+assert(
+  resolveLiveTransactionState("request_sent") === "request_sent" &&
+    resolveLiveTransactionState("receiving") === "receiving" &&
+    resolveLiveTransactionState("complete") === "complete" &&
+    resolveLiveTransactionState("failed") === "failed" &&
+    resolveLiveTransactionState("aborted") === "aborted" &&
+    resolveLiveTransactionState("") === "unknown" &&
+    resolveLiveTransactionState("COMPLETE") === "unknown",
+  "transaction states resolve to a closed localizable token set",
+);
+assert(
+  resolveLiveSessionState("running") === "running" &&
+    resolveLiveSessionState("recoverable") === "recoverable" &&
+    resolveLiveSessionState("idle") === "unknown",
+  "session states resolve to a closed localizable token set",
+);
+assert(
+  resolveLiveCAState("trusted") === "trusted" &&
+    resolveLiveCAState("partial") === "partial" &&
+    resolveLiveCAState("loading") === "loading" &&
+    resolveLiveCAState("revoked") === "unknown",
+  "CA states resolve to a closed localizable token set",
+);
+assert(
+  resolveLiveAttribution("confirmed") === "confirmed" &&
+    resolveLiveAttribution("inferred") === "inferred" &&
+    resolveLiveAttribution("") === "unknown",
+  "process attribution resolves to a closed localizable token set",
+);
+
+// ── H-RG4 R8: the renderer contract is consumed, not restated ──────────
+// The engine publishes `capture.LiveCaptureContract`; the renderer derives its
+// row cap and recovery behaviour from it, so the acceptance fixture describes
+// what this component does instead of a literal that can drift from it.
+assert(
+  resolveLiveCaptureContract({
+    schemaVersion: LIVE_CAPTURE_CONTRACT_SCHEMA_VERSION,
+    transactionRowCap: 3,
+    resyncOnEventSkip: false,
+    restoreCurrentSessionOnPageReentry: false,
+    finalizedSessionUsesAnalysisResult: false,
+  }).transactionRowCap === 3,
+  "a well-formed engine contract is adopted verbatim",
+);
+assert(
+  resolveLiveCaptureContract({
+    schemaVersion: LIVE_CAPTURE_CONTRACT_SCHEMA_VERSION + 1,
+    transactionRowCap: 3,
+    resyncOnEventSkip: false,
+    restoreCurrentSessionOnPageReentry: false,
+    finalizedSessionUsesAnalysisResult: false,
+  }) === DEFAULT_LIVE_CAPTURE_CONTRACT &&
+    resolveLiveCaptureContract({
+      schemaVersion: LIVE_CAPTURE_CONTRACT_SCHEMA_VERSION,
+      transactionRowCap: 0,
+      resyncOnEventSkip: true,
+      restoreCurrentSessionOnPageReentry: true,
+      finalizedSessionUsesAnalysisResult: true,
+    }) === DEFAULT_LIVE_CAPTURE_CONTRACT &&
+    resolveLiveCaptureContract(null) === DEFAULT_LIVE_CAPTURE_CONTRACT,
+  "an unknown or malformed contract falls back to the built-in defaults",
+);
+assert(
+  !isLiveCaptureContractSupported({
+    schemaVersion: LIVE_CAPTURE_CONTRACT_SCHEMA_VERSION + 1,
+  }) &&
+    isLiveCaptureContractSupported({
+      schemaVersion: LIVE_CAPTURE_CONTRACT_SCHEMA_VERSION,
+    }),
+  "a contract this build cannot honour is reported as a mismatch",
+);
+assert(
+  LIVE_TRANSACTION_ROW_CAP === DEFAULT_LIVE_CAPTURE_CONTRACT.transactionRowCap,
+  "the renderer fallback cap is the default contract's cap",
+);
+
+let contracted = liveHttpCaptureReducer(initialLiveCaptureState, {
+  type: "contract",
+  contract: {
+    schemaVersion: LIVE_CAPTURE_CONTRACT_SCHEMA_VERSION,
+    transactionRowCap: 2,
+    resyncOnEventSkip: false,
+    restoreCurrentSessionOnPageReentry: true,
+    finalizedSessionUsesAnalysisResult: true,
+  },
+});
+assert(
+  contracted.contract.transactionRowCap === 2 && !contracted.contractMismatch,
+  "the reducer adopts the engine's contract",
+);
+contracted = liveHttpCaptureReducer(contracted, {
+  type: "started",
+  session: liveSession,
+});
+assert(
+  contracted.contract.transactionRowCap === 2,
+  "starting a session does not revert the renderer contract",
+);
+contracted = liveHttpCaptureReducer(contracted, {
+  type: "transactions",
+  event: {
+    sessionId: liveSession.sessionId,
+    sequence: 3,
+    snapshotVersion: 3,
+    items: ["c-1", "c-2", "c-3"].map((id, index) => ({
+      ...pendingLiveRow,
+      id,
+      sequence: index + 1,
+    })),
+  },
+});
+assert(
+  contracted.transactions.length === 2 &&
+    contracted.transactions[0]?.id === "c-2",
+  "the live row cap comes from the engine contract, not a renderer literal",
+);
+contracted = liveHttpCaptureReducer(contracted, {
+  type: "stats",
+  stats: {
+    sessionId: liveSession.sessionId,
+    state: "running",
+    observed: 3,
+    captured: 3,
+    persisted: 3,
+    bodyOmitted: 3,
+    eventSkipped: 9,
+    kernelDropped: 0,
+    parseFailed: 0,
+    unsupported: 0,
+    passthrough: 0,
+    unattributed: 0,
+    dropped: 0,
+    backpressured: false,
+    snapshotVersion: 3,
+    sequence: 3,
+    storeBytes: 0,
+  },
+});
+assert(
+  !contracted.needsResync,
+  "a contract that disables resync-on-skip disables the renderer recovery path",
+);
+const mismatched = liveHttpCaptureReducer(initialLiveCaptureState, {
+  type: "contract",
+  contract: { schemaVersion: LIVE_CAPTURE_CONTRACT_SCHEMA_VERSION + 1 },
+});
+assert(
+  mismatched.contractMismatch &&
+    mismatched.contract === DEFAULT_LIVE_CAPTURE_CONTRACT,
+  "an unhonourable contract is disclosed and the defaults stay in force",
+);
 
 // H-RG4 L6: the running session's SEC-17 policy is authoritative on re-entry,
 // where the renderer checkbox is back to its unchecked default.
@@ -1179,6 +1355,36 @@ const requiredLiveCaptureKeys = [
   "liveCaptureFidelityUnsupported",
   "liveCaptureFidelityPassthrough",
   "liveCaptureFidelityUnknown",
+  // H-RG4 R11: the raw engine enums the panel used to print verbatim.
+  "liveCaptureTxStateRequestSent",
+  "liveCaptureTxStateReceiving",
+  "liveCaptureTxStateComplete",
+  "liveCaptureTxStateFailed",
+  "liveCaptureTxStateAborted",
+  "liveCaptureTxStateUnknown",
+  "liveCaptureSessionStateCreated",
+  "liveCaptureSessionStateStarting",
+  "liveCaptureSessionStateRunning",
+  "liveCaptureSessionStateStopping",
+  "liveCaptureSessionStateFinalized",
+  "liveCaptureSessionStateFailed",
+  "liveCaptureSessionStateRecoverable",
+  "liveCaptureSessionStateUnknown",
+  "liveCaptureCAStateLoading",
+  "liveCaptureCAStateAbsent",
+  "liveCaptureCAStateInstalling",
+  "liveCaptureCAStateTrusted",
+  "liveCaptureCAStatePartial",
+  "liveCaptureCAStateFailed",
+  "liveCaptureCAStateExpired",
+  "liveCaptureCAStateUnknown",
+  "liveCaptureAttributionConfirmed",
+  "liveCaptureAttributionInferred",
+  "liveCaptureAttributionUnknown",
+  // H-RG4 R8: the row-cap hint is composed around the contract's value.
+  "liveCaptureRowCapPrefix",
+  "liveCaptureRowCapSuffix",
+  "liveCaptureContractMismatch",
 ];
 assert(
   requiredLiveCaptureKeys.every(

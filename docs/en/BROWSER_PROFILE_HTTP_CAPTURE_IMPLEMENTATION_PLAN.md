@@ -21,8 +21,8 @@ group and **the next group cannot start until the current group passes**.
   2026-07-27, and T-580/H-RG3 closed with independent `H-SEC2 PASS` on
   2026-07-28. T-581/H-RG4 Windows live UI and E2E remains in `REVIEW` after an
   independent `CONDITIONAL` verdict on 2026-07-28. The Codex-owned backend
-  remediation is complete; Claude-owned UI/state remediation, real Windows
-  evidence, and independent re-review remain.
+  remediation and the Claude-owned R8/R9/R11 UI/state/i18n remediation are
+  complete; real Windows evidence and independent re-review remain.
 
 ## 2. Ownership
 
@@ -74,7 +74,7 @@ Only high-consequence boundaries receive an extra per-item gate:
 | 2 | `H-RG1` complete offline HAR analysis | **Complete — integrated PASS (2026-07-21)** | Closed |
 | 3 | `H-RG2` Windows coverage proof | **Complete — H-COV1 PASS (2026-07-27)** | Closed |
 | 4 | `H-RG3` live-capture engine foundation | **Complete — H-SEC2 PASS (2026-07-28)** | Closed |
-| 5 | `H-RG4` live UI and Windows E2E | **REVIEW — backend remediated after CONDITIONAL** | Claude UI remediation, Windows evidence, and independent `PASS` pending |
+| 5 | `H-RG4` live UI and Windows E2E | **REVIEW — backend and UI remediated after CONDITIONAL** | Windows evidence and independent `PASS` pending |
 | 6 | `H-RG5` HTTP session Diff | Planned | `H-RG4 PASS` |
 | 7 | `X-RG1` HTTP x profile/server-evidence correlation | Planned | `H-RG5 PASS` |
 | 8 | `R-RG1` integrated release acceptance | Planned | `X-RG1 PASS` |
@@ -314,10 +314,16 @@ contradictory product data. React/UI/state/i18n remains Claude-owned.
 - [x] Honest fidelity, coverage, passthrough, and unattributed warnings
 - [x] Same-page finalized-session lazy loading after stop
 
-Claude owns the remaining R8 production consumption of
-`LiveCaptureContract`, R9 removal/use of the dead positive-fidelity helper, and
-R11 localization of engine state tokens. L10 is closed in the paired user
-guides and JVM truststore harness contract.
+- [x] R8 renderer: read `LiveCaptureContract` at startup and derive the row cap,
+  event-skip resync, page-re-entry restore, and finalized handoff from it;
+  reject an unknown schema to the built-in defaults and disclose the mismatch.
+- [x] R9: `isDecodedLiveFidelity` gates the live table's fidelity emphasis
+  through `liveFidelityTone`, so a grade that never read the exchange is never
+  styled as ordinary captured traffic.
+- [x] R11: transaction state, session state, CA state, and process attribution
+  render through closed EN/KO label maps instead of raw engine tokens.
+
+L10 is closed in the paired user guides and JVM truststore harness contract.
 
 SEC-17 is enforced below the renderer: unknown attribution is dropped by
 default before persistence or progress exposure, and the explicit opt-in keeps
@@ -376,6 +382,6 @@ HAR pseudo-process sessions.
 T-580 / `H-RG3` entered `REVIEW` on 2026-07-27 and passed the independent
 `H-SEC2` CA/TLS/privilege gate on 2026-07-28. T-581 / H-RG4 remains in `REVIEW`
 after the second 2026-07-29 `CONDITIONAL` verdict. The R1/R3–R7/R12 backend
-remediation and expanded R2 harness mechanism are implemented. Next, generate
-and archive a fresh Windows schema-v3 artifact, complete the Claude-owned
-R8/R9/R11 UI handoff, and request another independent re-review.
+remediation, the expanded R2 harness mechanism, and the Claude-owned R8/R9/R11
+UI handoff are implemented. Next, generate and archive a fresh Windows
+schema-v3 artifact and request another independent re-review.

@@ -1,4 +1,86 @@
-export const LIVE_TRANSACTION_ROW_CAP = 500;
+/**
+ * Renderer half of the live-capture contract the engine publishes through
+ * `CaptureService.GetLiveCaptureContract` (`capture.LiveCaptureContract`).
+ * The engine is authoritative: the renderer reads these values at startup and
+ * derives its own behaviour from them, so the acceptance fixture's `renderer`
+ * block describes what this component actually does rather than a literal that
+ * can drift from it (H-RG4 R8).
+ */
+export type LiveCaptureContract = {
+  schemaVersion: number;
+  transactionRowCap: number;
+  resyncOnEventSkip: boolean;
+  restoreCurrentSessionOnPageReentry: boolean;
+  finalizedSessionUsesAnalysisResult: boolean;
+};
+
+/** The only contract schema this renderer knows how to honour. */
+export const LIVE_CAPTURE_CONTRACT_SCHEMA_VERSION = 1;
+
+/**
+ * Used until the engine answers, and as the fail-safe when it answers with a
+ * schema this build cannot honour. These values must stay equal to
+ * `capture.DefaultLiveCaptureContract()`; they are a fallback, not the source
+ * of truth.
+ */
+export const DEFAULT_LIVE_CAPTURE_CONTRACT: LiveCaptureContract = {
+  schemaVersion: LIVE_CAPTURE_CONTRACT_SCHEMA_VERSION,
+  transactionRowCap: 500,
+  resyncOnEventSkip: true,
+  restoreCurrentSessionOnPageReentry: true,
+  finalizedSessionUsesAnalysisResult: true,
+};
+
+/** Fallback row cap. The running cap comes from the engine's contract. */
+export const LIVE_TRANSACTION_ROW_CAP =
+  DEFAULT_LIVE_CAPTURE_CONTRACT.transactionRowCap;
+
+/**
+ * Accepts an engine contract only when it declares the schema this renderer
+ * implements and every field is well formed. Anything else falls back to the
+ * defaults, because silently honouring half of an unknown contract would make
+ * the renderer's behaviour undescribed by either side.
+ */
+export function resolveLiveCaptureContract(raw: unknown): LiveCaptureContract {
+  if (!raw || typeof raw !== "object") return DEFAULT_LIVE_CAPTURE_CONTRACT;
+  const candidate = raw as Partial<LiveCaptureContract>;
+  if (candidate.schemaVersion !== LIVE_CAPTURE_CONTRACT_SCHEMA_VERSION) {
+    return DEFAULT_LIVE_CAPTURE_CONTRACT;
+  }
+  const rowCap = candidate.transactionRowCap;
+  if (
+    typeof rowCap !== "number" ||
+    !Number.isInteger(rowCap) ||
+    rowCap <= 0 ||
+    typeof candidate.resyncOnEventSkip !== "boolean" ||
+    typeof candidate.restoreCurrentSessionOnPageReentry !== "boolean" ||
+    typeof candidate.finalizedSessionUsesAnalysisResult !== "boolean"
+  ) {
+    return DEFAULT_LIVE_CAPTURE_CONTRACT;
+  }
+  return {
+    schemaVersion: candidate.schemaVersion,
+    transactionRowCap: rowCap,
+    resyncOnEventSkip: candidate.resyncOnEventSkip,
+    restoreCurrentSessionOnPageReentry:
+      candidate.restoreCurrentSessionOnPageReentry,
+    finalizedSessionUsesAnalysisResult:
+      candidate.finalizedSessionUsesAnalysisResult,
+  };
+}
+
+/**
+ * True when the engine offered a contract this renderer had to reject. The
+ * panel discloses it, because a rejected contract means the renderer is running
+ * on its own defaults rather than on what the engine described.
+ */
+export function isLiveCaptureContractSupported(raw: unknown): boolean {
+  if (!raw || typeof raw !== "object") return false;
+  return (
+    (raw as Partial<LiveCaptureContract>).schemaVersion ===
+    LIVE_CAPTURE_CONTRACT_SCHEMA_VERSION
+  );
+}
 
 export type LiveCaptureSession = {
   sessionId: string;
@@ -95,6 +177,10 @@ export type LiveCaptureState = {
   needsResync: boolean;
   busy: boolean;
   error: string | null;
+  /** Engine-published renderer contract in force (H-RG4 R8). */
+  contract: LiveCaptureContract;
+  /** True once the engine offered a contract this build cannot honour. */
+  contractMismatch: boolean;
 };
 
 export const initialLiveCaptureState: LiveCaptureState = {
@@ -105,9 +191,12 @@ export const initialLiveCaptureState: LiveCaptureState = {
   needsResync: false,
   busy: false,
   error: null,
+  contract: DEFAULT_LIVE_CAPTURE_CONTRACT,
+  contractMismatch: false,
 };
 
 export type LiveCaptureAction =
+  | { type: "contract"; contract: unknown }
   | {
       type: "hydrate";
       session: LiveCaptureSession;
@@ -130,12 +219,28 @@ export function liveHttpCaptureReducer(
   action: LiveCaptureAction,
 ): LiveCaptureState {
   switch (action.type) {
+    case "contract": {
+      const contract = resolveLiveCaptureContract(action.contract);
+      return {
+        ...state,
+        contract,
+        contractMismatch: !isLiveCaptureContractSupported(action.contract),
+        // A late contract must not leave a longer table than it allows.
+        transactions: boundedDistinct(
+          state.transactions,
+          contract.transactionRowCap,
+        ),
+      };
+    }
     case "hydrate":
       return {
         ...state,
         session: action.session,
         stats: action.stats,
-        transactions: boundedDistinct(action.transactions),
+        transactions: boundedDistinct(
+          action.transactions,
+          state.contract.transactionRowCap,
+        ),
         needsResync: false,
         busy: false,
         error: action.session.error || null,
@@ -152,6 +257,10 @@ export function liveHttpCaptureReducer(
       return {
         ...initialLiveCaptureState,
         follow: state.follow,
+        // The contract describes the renderer, not the session, so a new
+        // session must not silently revert it to the built-in defaults.
+        contract: state.contract,
+        contractMismatch: state.contractMismatch,
         session: action.session,
       };
     case "stopped":
@@ -164,7 +273,10 @@ export function liveHttpCaptureReducer(
       };
     case "stats": {
       if (!matchesSession(state, action.stats.sessionId)) return state;
+      // Resync-on-skip is a contract term, so a contract that turns it off
+      // turns off the renderer's recovery path with it (H-RG4 R8).
       const skippedAdvanced =
+        state.contract.resyncOnEventSkip &&
         action.stats.eventSkipped > (state.stats?.eventSkipped ?? 0);
       return {
         ...state,
@@ -178,24 +290,30 @@ export function liveHttpCaptureReducer(
       if (items.length === 0) return state;
       return {
         ...state,
-        transactions: boundedDistinct([...state.transactions, ...items]),
+        transactions: boundedDistinct(
+          [...state.transactions, ...items],
+          state.contract.transactionRowCap,
+        ),
       };
     }
     case "transactions":
       if (!matchesSession(state, action.event.sessionId)) return state;
       return {
         ...state,
-        transactions: boundedDistinct([
-          ...state.transactions,
-          ...action.event.items,
-        ]),
+        transactions: boundedDistinct(
+          [...state.transactions, ...action.event.items],
+          state.contract.transactionRowCap,
+        ),
       };
     case "resynced":
       if (!matchesSession(state, action.stats.sessionId)) return state;
       return {
         ...state,
         stats: action.stats,
-        transactions: boundedDistinct(action.transactions),
+        transactions: boundedDistinct(
+          action.transactions,
+          state.contract.transactionRowCap,
+        ),
         needsResync: false,
       };
     case "follow":
@@ -218,10 +336,12 @@ function matchesSession(state: LiveCaptureState, sessionId: string): boolean {
  * the position where that id first appeared**. A finalized row therefore
  * replaces its in-flight row in place instead of jumping to the tail, so
  * completing requests never leapfrog still-pending neighbours (H-RG4 L8).
- * The row cap keeps the newest rows, as before.
+ * The row cap comes from the engine's renderer contract and keeps the newest
+ * rows, as before.
  */
 function boundedDistinct(
   items: LiveCaptureTransaction[],
+  rowCap: number,
 ): LiveCaptureTransaction[] {
   const positions = new Map<string, number>();
   const ordered: LiveCaptureTransaction[] = [];
@@ -235,8 +355,8 @@ function boundedDistinct(
     }
     ordered[position] = item;
   }
-  if (ordered.length <= LIVE_TRANSACTION_ROW_CAP) return ordered;
-  return ordered.slice(ordered.length - LIVE_TRANSACTION_ROW_CAP);
+  if (ordered.length <= rowCap) return ordered;
+  return ordered.slice(ordered.length - rowCap);
 }
 
 export type LiveProcessGroup = {
@@ -322,6 +442,113 @@ export function resolveLiveFidelity(fidelity: string): LiveFidelityToken {
  */
 export function isDecodedLiveFidelity(token: LiveFidelityToken): boolean {
   return token === "decoded_wire" || token === "semantic";
+}
+
+/**
+ * How the live table must present a grade. `limited` covers every grade that
+ * says ArchScope did **not** read the exchange, so those rows carry a caution
+ * emphasis instead of reading like ordinary captured traffic; `pending` is the
+ * neutral "not yet determined" case. This is where `isDecodedLiveFidelity`
+ * gates the positive presentation in the product (H-RG4 R9).
+ */
+export type LiveFidelityTone = "decoded" | "pending" | "limited";
+
+export function liveFidelityTone(token: LiveFidelityToken): LiveFidelityTone {
+  if (isDecodedLiveFidelity(token)) return "decoded";
+  return token === "pending" || token === "unknown" ? "pending" : "limited";
+}
+
+/**
+ * Closed label token sets for the raw engine enums the panel prints. Every one
+ * of these was rendered as its wire token before, which broke the project's
+ * English/Korean parity guardrail exactly on the columns added to explain
+ * unresolved rows to the user (H-RG4 R11). Unrecognized values resolve to
+ * `unknown` for the same reason the fidelity map does.
+ */
+export type LiveTransactionStateToken =
+  | "request_sent"
+  | "receiving"
+  | "complete"
+  | "failed"
+  | "aborted"
+  | "unknown";
+
+const LIVE_TRANSACTION_STATE_TOKENS = new Set<LiveTransactionStateToken>([
+  "request_sent",
+  "receiving",
+  "complete",
+  "failed",
+  "aborted",
+]);
+
+export function resolveLiveTransactionState(
+  state: string,
+): LiveTransactionStateToken {
+  return LIVE_TRANSACTION_STATE_TOKENS.has(state as LiveTransactionStateToken)
+    ? (state as LiveTransactionStateToken)
+    : "unknown";
+}
+
+export type LiveSessionStateToken =
+  | "created"
+  | "starting"
+  | "running"
+  | "stopping"
+  | "finalized"
+  | "failed"
+  | "recoverable"
+  | "unknown";
+
+const LIVE_SESSION_STATE_TOKENS = new Set<LiveSessionStateToken>([
+  "created",
+  "starting",
+  "running",
+  "stopping",
+  "finalized",
+  "failed",
+  "recoverable",
+]);
+
+export function resolveLiveSessionState(state: string): LiveSessionStateToken {
+  return LIVE_SESSION_STATE_TOKENS.has(state as LiveSessionStateToken)
+    ? (state as LiveSessionStateToken)
+    : "unknown";
+}
+
+export type LiveCAStateToken =
+  | "loading"
+  | "absent"
+  | "installing"
+  | "trusted"
+  | "partial"
+  | "failed"
+  | "expired"
+  | "unknown";
+
+const LIVE_CA_STATE_TOKENS = new Set<LiveCAStateToken>([
+  "loading",
+  "absent",
+  "installing",
+  "trusted",
+  "partial",
+  "failed",
+  "expired",
+]);
+
+export function resolveLiveCAState(state: string): LiveCAStateToken {
+  return LIVE_CA_STATE_TOKENS.has(state as LiveCAStateToken)
+    ? (state as LiveCAStateToken)
+    : "unknown";
+}
+
+export type LiveAttributionToken = "confirmed" | "inferred" | "unknown";
+
+export function resolveLiveAttribution(
+  attribution: string,
+): LiveAttributionToken {
+  return attribution === "confirmed" || attribution === "inferred"
+    ? attribution
+    : "unknown";
 }
 
 const LIVE_TERMINAL_TX_STATES = new Set(["complete", "failed", "aborted"]);

@@ -30,13 +30,24 @@ import {
   initialLiveCaptureState,
   isLiveSessionActive,
   isLiveTransactionInFlight,
+  liveFidelityTone,
   liveHttpCaptureReducer,
+  resolveLiveAttribution,
+  resolveLiveCAState,
   resolveLiveFidelity,
+  resolveLiveSessionState,
+  resolveLiveCaptureContract,
+  resolveLiveTransactionState,
+  type LiveAttributionToken,
+  type LiveCAStateToken,
   type LiveCaptureSession,
   type LiveCaptureStats,
   type LiveCaptureTransaction,
   type LiveFidelityToken,
+  type LiveFidelityTone,
   type LiveProgressEvent,
+  type LiveSessionStateToken,
+  type LiveTransactionStateToken,
   type LiveTransactionsEvent,
 } from "@/state/liveHttpCapture";
 import { formatBytes } from "@/state/httpCapture";
@@ -82,6 +93,59 @@ const FIDELITY_LABEL_KEYS: Record<LiveFidelityToken, MessageKey> = {
   unsupported: "liveCaptureFidelityUnsupported",
   passthrough: "liveCaptureFidelityPassthrough",
   unknown: "liveCaptureFidelityUnknown",
+};
+
+/**
+ * A grade that does not assert ArchScope read the exchange must not be styled
+ * like ordinary captured traffic, so the caution emphasis is derived from
+ * `liveFidelityTone` rather than from the label text (H-RG4 R9).
+ */
+const FIDELITY_TONE_CLASSES: Record<LiveFidelityTone, string> = {
+  decoded: "",
+  pending: "text-muted-foreground",
+  limited: "text-amber-700 dark:text-amber-400",
+};
+
+/**
+ * Raw engine enums the panel prints. Rendering the wire token left these cells
+ * untranslated in both locales (H-RG4 R11); every token now resolves through a
+ * closed map, and anything unrecognized says so instead of leaking the token.
+ */
+const TX_STATE_LABEL_KEYS: Record<LiveTransactionStateToken, MessageKey> = {
+  request_sent: "liveCaptureTxStateRequestSent",
+  receiving: "liveCaptureTxStateReceiving",
+  complete: "liveCaptureTxStateComplete",
+  failed: "liveCaptureTxStateFailed",
+  aborted: "liveCaptureTxStateAborted",
+  unknown: "liveCaptureTxStateUnknown",
+};
+
+const SESSION_STATE_LABEL_KEYS: Record<LiveSessionStateToken, MessageKey> = {
+  created: "liveCaptureSessionStateCreated",
+  starting: "liveCaptureSessionStateStarting",
+  running: "liveCaptureSessionStateRunning",
+  stopping: "liveCaptureSessionStateStopping",
+  finalized: "liveCaptureSessionStateFinalized",
+  failed: "liveCaptureSessionStateFailed",
+  recoverable: "liveCaptureSessionStateRecoverable",
+  unknown: "liveCaptureSessionStateUnknown",
+};
+
+const CA_STATE_LABEL_KEYS: Record<LiveCAStateToken, MessageKey> = {
+  loading: "liveCaptureCAStateLoading",
+  absent: "liveCaptureCAStateAbsent",
+  installing: "liveCaptureCAStateInstalling",
+  trusted: "liveCaptureCAStateTrusted",
+  partial: "liveCaptureCAStatePartial",
+  failed: "liveCaptureCAStateFailed",
+  expired: "liveCaptureCAStateExpired",
+  unknown: "liveCaptureCAStateUnknown",
+};
+
+const ATTRIBUTION_LABEL_KEYS: Record<LiveAttributionToken, MessageKey> = {
+  confirmed: "liveCaptureAttributionConfirmed",
+  inferred: "liveCaptureAttributionInferred",
+  unknown: "liveCaptureAttributionUnknown",
 };
 
 function eventData<T>(event: unknown): T | null {
@@ -132,13 +196,19 @@ export function LiveHttpCapturePanel({
     let disposed = false;
     const initialize = async () => {
       try {
-        const [nextModes, nextCA, current, reports] = await Promise.all([
-          CaptureService.ListCaptureModes(),
-          CaptureService.GetCaptureCAStatus(),
-          CaptureService.GetCurrentCaptureSession(),
-          CaptureService.RecoverCaptureSessions(),
-        ]);
+        const [contract, nextModes, nextCA, current, reports] =
+          await Promise.all([
+            CaptureService.GetLiveCaptureContract(),
+            CaptureService.ListCaptureModes(),
+            CaptureService.GetCaptureCAStatus(),
+            CaptureService.GetCurrentCaptureSession(),
+            CaptureService.RecoverCaptureSessions(),
+          ]);
         if (disposed) return;
+        // The contract governs the row cap, the resync path, and the two
+        // handoffs below, so it is adopted before any of them runs (H-RG4 R8).
+        dispatch({ type: "contract", contract });
+        const renderer = resolveLiveCaptureContract(contract);
         setModes(nextModes as unknown as Mode[]);
         setCAStatus(nextCA as unknown as CAStatus);
         const recoveryReports = reports as unknown as Array<{
@@ -158,7 +228,9 @@ export function LiveHttpCapturePanel({
           });
         }
         const session = current as unknown as LiveCaptureSession;
-        if (session.sessionId) await hydrate(session);
+        if (renderer.restoreCurrentSessionOnPageReentry && session.sessionId) {
+          await hydrate(session);
+        }
       } catch (caught) {
         if (!disposed) {
           dispatch({
@@ -326,7 +398,14 @@ export function LiveHttpCapturePanel({
   }, []);
 
   const loadFinalized = useCallback(async () => {
-    if (!state.session?.sessionId || active || analysisBusy) return;
+    if (
+      !state.session?.sessionId ||
+      active ||
+      analysisBusy ||
+      !state.contract.finalizedSessionUsesAnalysisResult
+    ) {
+      return;
+    }
     setAnalysisBusy(true);
     try {
       const result = await CaptureService.AnalyzeCaptureSession({
@@ -344,7 +423,13 @@ export function LiveHttpCapturePanel({
     } finally {
       setAnalysisBusy(false);
     }
-  }, [active, analysisBusy, onFinalized, state.session?.sessionId]);
+  }, [
+    active,
+    analysisBusy,
+    onFinalized,
+    state.contract.finalizedSessionUsesAnalysisResult,
+    state.session?.sessionId,
+  ]);
 
   const processGroups = useMemo(
     () => buildLiveProcessGroups(state.transactions),
@@ -392,7 +477,9 @@ export function LiveHttpCapturePanel({
               : "bg-muted text-muted-foreground"
           }`}
         >
-          {state.session?.state || t("liveCaptureIdle")}
+          {state.session
+            ? t(SESSION_STATE_LABEL_KEYS[resolveLiveSessionState(state.session.state)])
+            : t("liveCaptureIdle")}
         </span>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
@@ -425,7 +512,7 @@ export function LiveHttpCapturePanel({
               <div>
                 <p className="text-sm font-medium">{t("liveCaptureCATitle")}</p>
                 <p className="text-xs text-muted-foreground">
-                  {caStatus.state}
+                  {t(CA_STATE_LABEL_KEYS[resolveLiveCAState(caStatus.state)])}
                   {caStatus.stores.length > 0
                     ? ` · ${caStatus.stores.join(", ")}`
                     : ""}
@@ -538,17 +625,19 @@ export function LiveHttpCapturePanel({
             )}
             {t("liveCaptureStop")}
           </Button>
-          {state.session && !active && (
-            <Button
-              type="button"
-              variant="outline"
-              disabled={analysisBusy}
-              onClick={() => void loadFinalized()}
-            >
-              {analysisBusy && <Loader2 className="h-4 w-4 animate-spin" />}
-              {t("liveCaptureLoadFinalized")}
-            </Button>
-          )}
+          {state.session &&
+            !active &&
+            state.contract.finalizedSessionUsesAnalysisResult && (
+              <Button
+                type="button"
+                variant="outline"
+                disabled={analysisBusy}
+                onClick={() => void loadFinalized()}
+              >
+                {analysisBusy && <Loader2 className="h-4 w-4 animate-spin" />}
+                {t("liveCaptureLoadFinalized")}
+              </Button>
+            )}
           {state.session?.listenAddress && (
             <span className="font-mono text-xs text-muted-foreground">
               proxy://{state.session.listenAddress}
@@ -562,6 +651,14 @@ export function LiveHttpCapturePanel({
             role="alert"
           >
             {state.error}
+          </div>
+        )}
+        {state.contractMismatch && (
+          <div
+            className="rounded-md border border-amber-500/40 bg-amber-500/10 p-2 text-xs text-amber-800 dark:text-amber-300"
+            role="status"
+          >
+            {t("liveCaptureContractMismatch")}
           </div>
         )}
         {recovery && (
@@ -656,7 +753,11 @@ export function LiveHttpCapturePanel({
                         {group.label}
                       </span>
                       <span className="text-[10px] text-muted-foreground">
-                        {group.attribution}
+                        {t(
+                          ATTRIBUTION_LABEL_KEYS[
+                            resolveLiveAttribution(group.attribution)
+                          ],
+                        )}
                       </span>
                       <span className="tabular-nums">
                         {group.count}
@@ -725,6 +826,9 @@ export function LiveHttpCapturePanel({
                         const fidelity = resolveLiveFidelity(
                           transaction.fidelity,
                         );
+                        const txState = resolveLiveTransactionState(
+                          transaction.state,
+                        );
                         return (
                           <tr
                             key={transaction.id}
@@ -746,7 +850,7 @@ export function LiveHttpCapturePanel({
                               {inFlight ? "—" : transaction.statusCode || "—"}
                             </td>
                             <td className="px-2 py-1" title={transaction.error}>
-                              {transaction.state}
+                              {t(TX_STATE_LABEL_KEYS[txState])}
                               {inFlight && ` · ${t("liveCaptureInFlight")}`}
                             </td>
                             <td className="px-2 py-1 tabular-nums">
@@ -757,7 +861,9 @@ export function LiveHttpCapturePanel({
                                   )}
                             </td>
                             <td
-                              className="px-2 py-1"
+                              className={`px-2 py-1 ${
+                                FIDELITY_TONE_CLASSES[liveFidelityTone(fidelity)]
+                              }`}
                               title={transaction.fidelity}
                             >
                               {t(FIDELITY_LABEL_KEYS[fidelity])}
@@ -770,7 +876,9 @@ export function LiveHttpCapturePanel({
                 )}
               </div>
               <p className="mt-2 text-[10px] text-muted-foreground">
-                {t("liveCaptureRowCap")} {t("liveCaptureInFlightHint")}
+                {t("liveCaptureRowCapPrefix")}{" "}
+                {formatNumber(state.contract.transactionRowCap)}{" "}
+                {t("liveCaptureRowCapSuffix")} {t("liveCaptureInFlightHint")}
               </p>
             </div>
           </div>
