@@ -72,6 +72,17 @@ $loopbackHosts = @("localhost", "127.0.0.1", "::1")
 if ($httpTargetUri.Host -notin $loopbackHosts -or $httpsTargetUri.Host -notin $loopbackHosts) {
     throw "Acceptance traffic must use loopback fixture origins only."
 }
+
+function Test-FixtureArtifactRow {
+    param([object]$Row)
+    try {
+        $uri = [Uri]$Row.url
+        return $uri.Host -in $loopbackHosts
+    } catch {
+        return $false
+    }
+}
+
 if (-not (Test-Path $ArchScopeEngineExe -PathType Leaf)) {
     throw "ArchScopeEngineExe does not exist: $ArchScopeEngineExe"
 }
@@ -203,9 +214,16 @@ function Invoke-Edge {
         Add-Result -Client "browser" -Transport $Transport -Marker $Marker -Available $false -Succeeded $false -ExitCode -1 -Detail "Microsoft Edge not found"
         return
     }
+    $edgeUserData = Join-Path $tempRoot "edge-$Transport"
     $output = & $edgePath `
         "--headless=new" `
         "--disable-gpu" `
+        "--disable-background-networking" `
+        "--disable-component-update" `
+        "--disable-default-apps" `
+        "--disable-sync" `
+        "--no-first-run" `
+        "--user-data-dir=$edgeUserData" `
         "--proxy-server=$proxyUrl" `
         "--proxy-bypass-list=<-loopback>" `
         "--dump-dom" `
@@ -349,6 +367,9 @@ public class ArchScopeT581Client {
     @"
 const { app, session } = require("electron");
 app.setPath("userData", process.env.ARCHSCOPE_T581_USER_DATA);
+app.commandLine.appendSwitch("disable-background-networking");
+app.commandLine.appendSwitch("disable-component-update");
+app.commandLine.appendSwitch("disable-sync");
 app.disableHardwareAcceleration();
 app.whenReady().then(async () => {
   const clientSession = session.fromPartition("t581-acceptance", { cache: false });
@@ -559,8 +580,18 @@ public class ArchScopeT581H2Only {
 
     $productEvidence = Get-ProductEvidence -Path $SessionPath -Label "main"
     $recoveryEvidence = Get-ProductEvidence -Path $RecoverySessionPath -Label "recovery"
+    $sourceProductRows = @($productEvidence.rows)
+    $artifactRows = @($sourceProductRows | Where-Object { Test-FixtureArtifactRow -Row $_ })
+    $omittedNonFixtureRows = $sourceProductRows.Count - $artifactRows.Count
+    $productEvidence.rows = $artifactRows
+    $fixtureTrafficOnly = @(
+        $artifactRows | Where-Object { -not (Test-FixtureArtifactRow -Row $_) }
+    ).Count -eq 0
 
     $contradictions = [System.Collections.Generic.List[string]]::new()
+    if ($harnessContract.fixtureTrafficOnly -and -not $fixtureTrafficOnly) {
+        $contradictions.Add("archived evidence contains a non-fixture traffic row")
+    }
     if ($productEvidence.session.state -ne "finalized") {
         $contradictions.Add("capture session state is $($productEvidence.session.state), expected finalized")
     }
@@ -684,9 +715,12 @@ public class ArchScopeT581H2Only {
         proxyAddress = $ProxyAddress
         sessionRef = Split-Path -Leaf (Resolve-Path $SessionPath).Path
         privacy = [ordered]@{
-            trafficScope = "loopback_fixture_only"
-            fixtureTrafficOnly = $true
-            localPathsOmitted = $true
+            trafficScope = if ($fixtureTrafficOnly) { "loopback_fixture_only" } else { "mixed" }
+            fixtureTrafficOnly = [bool]$fixtureTrafficOnly
+            sourceRows = [int]$sourceProductRows.Count
+            archivedRows = [int]$artifactRows.Count
+            omittedNonFixtureRows = [int]$omittedNonFixtureRows
+            localPathsOmitted = $false
             maxArtifactRows = [int]$harnessContract.maxArtifactRows
             reviewBeforeArchive = $true
         }
@@ -703,6 +737,12 @@ public class ArchScopeT581H2Only {
         recovery = $recoveryEvidence
         contradictions = $contradictions
         package = $packageEvidence
+    }
+    $evidenceJson = $evidence | ConvertTo-Json -Depth 12
+    $localPathsOmitted = $evidenceJson -notmatch '(?i)(?:^|[^A-Z0-9])(?:[A-Z]:\\\\|[A-Z]:/)'
+    $evidence.privacy.localPathsOmitted = [bool]$localPathsOmitted
+    if ($harnessContract.artifactOmitsLocalPaths -and -not $localPathsOmitted) {
+        $contradictions.Add("archived evidence contains a local Windows path")
     }
     $evidence | ConvertTo-Json -Depth 12 | Set-Content -Path $OutputPath -Encoding UTF8
     Protect-Artifact -Path $OutputPath

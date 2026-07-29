@@ -256,7 +256,10 @@ func TestT581LiveCaptureAcceptanceFixture(t *testing.T) {
 	if !strings.Contains(script, "t581-live-capture-harness-contract.json") ||
 		!strings.Contains(script, "$harnessContract.schemaVersion") ||
 		!strings.Contains(script, "$harnessContract.productEvidenceSchemaVersion") ||
-		!strings.Contains(script, "$harnessContract.quicInvisibility") {
+		!strings.Contains(script, "$harnessContract.quicInvisibility") ||
+		!strings.Contains(script, "Test-FixtureArtifactRow") ||
+		!strings.Contains(script, "omittedNonFixtureRows") ||
+		!strings.Contains(script, "$fixtureTrafficOnly") {
 		t.Fatal("PowerShell harness does not consume the versioned harness contract")
 	}
 	if !fixture.Store.StableSnapshotCursor ||

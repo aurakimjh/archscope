@@ -258,12 +258,12 @@ streaming, H2 passthrough fixture와 long-session memory bound가 통과해야 �
 
 ### H-RG4 — 실시간 UI와 Windows E2E
 
-**상태:** `REVIEW` — 세 번째 독립 `CONDITIONAL` (2026-07-29). 기존 R 지적
-10개는 닫혔고 R2 메커니즘은 완성됐지만 검사 가능한 Windows artifact는 아직
-없다. S2/S3/S5–S9 terminal fidelity, recovery checkpoint, harness/privacy
-강화는 Codex가 닫았고, S1/S4 finalized card와 S3 unknown-redaction label은
-Claude가 닫았다. 남은 항목은 Windows artifact와 독립 재리뷰뿐이다. 독립 `PASS`
-전까지 T-582는 차단된다.
+**상태:** `REVIEW` — 2026-07-29 세 번째 독립 재리뷰가 네 번째
+`CONDITIONAL`을 반환했다. 코드 측 S1–S9 조건은 검증됐지만 첫 schema-v4
+artifact가 `fixtureTrafficOnly: true` 선언과 달리 57개 Edge/Electron
+백그라운드 행을 포함해 V1에서 차단됐다. 하네스는 공개 행을 loopback fixture로
+필터링하고 privacy 값을 결과에서 계산하도록 수정됐으며 새 Windows artifact
+생성·체크섬과 좁은 독립 재리뷰가 남았다. 독립 `PASS` 전까지 T-582는 차단된다.
 
 #### Codex 통합
 
@@ -286,6 +286,10 @@ Claude가 닫았다. 남은 항목은 Windows artifact와 독립 재리뷰뿐이
   `proxy_passthrough`/`unsupported`와 process 기반 coverage 유지
 - [x] R6/R7: accepted client connection마다 TCP-owner attribution을 한 번만
   계산하고 두 번째 owner-table 조회에서 PID와 process start time을 모두 확인
+  - R6 resolver 비용 실측은 H-RG4의 correctness/privacy gate에서 보류하고
+    `R-RG1` Windows 통합 성능 확인으로 이관한다. 호출 수는 connection당 1회로
+    bounded되고 현재 long-session acceptance가 통과했으며, 별도 실측은 UI·client
+    부하와 분리된 전용 Windows run이 필요하기 때문이다.
 - [x] R8 백엔드: renderer row cap, event-skip resync, page 재진입, finalized
   handoff를 버전된 `LiveCaptureContract`로 노출하고 fixture를 Go 계약에 연결.
   production state 소비는 Claude가 담당
@@ -293,7 +297,8 @@ Claude가 닫았다. 남은 항목은 Windows artifact와 독립 재리뷰뿐이
   analysis, acceptance evidence에 포함
 - [x] R2 harness 메커니즘: acceptance WebView2 CDP port와 실제 recovery session을
   필수화하고 h2-only/pinning, 장시간 세션, page 재진입을 실행한 뒤 모든
-  시나리오를 제품 store에서 readback. 새 Windows artifact 생성은 남음
+  시나리오를 제품 store에서 readback. 첫 artifact는 생성됐지만 V1 privacy
+  불일치로 거부됐고, 수정된 하네스로 재생성하는 작업이 남음
 - [x] S2: 중지된 모든 진행 행을 `aborted` / `unsupported` terminal 등급으로
   바꾸어 finalized store에 `pending`이 남지 않도록 처리
 - [x] S3: persisted 행과 같은 store flush lifecycle에 capture stats와 known
@@ -303,6 +308,10 @@ Claude가 닫았다. 남은 항목은 Windows artifact와 독립 재리뷰뿐이
   loopback fixture origin만 허용, local path 제거, row cap, owner-only artifact
   ACL, explicit-proxy QUIC 비가시성, locale 독립 page 재진입과 제품 row 대조를
   강제
+- [x] V1 하네스: Edge/Electron을 임시 프로필과 background-networking 차단
+  플래그로 실행하고, 공개 `capture.rows`를 loopback fixture 행으로 제한하며
+  `fixtureTrafficOnly`, source/archive/제외 행 수, local-path 부재를 실제 출력에서
+  계산. 새 artifact 실행은 남음
 - [x] S9: 사용되지 않는 generic `httpcapture.Build`를 제거해 live 행이 HAR
   provenance 경로로 다시 들어갈 수 없도록 처리
 
@@ -400,8 +409,8 @@ HAR pseudo-process 비교에서 지원하지 않는 정규화/차원을 숨기�
 ## 8. 첫 실행 지점
 
 T-580 / `H-RG3` 엔진 구현은 2026-07-27 `REVIEW`에 진입했고 2026-07-28 독립
-`H-SEC2` CA/TLS/권한 게이트를 통과했다. T-581 / H-RG4는 2026-07-28
-첫 판정과 2026-07-29 세 번째 `CONDITIONAL` 판정 후 `REVIEW`에 남아 있다.
-R1/R3–R7/R12 및 S2/S3/S5–S9 백엔드 수정, schema-v4 privacy-bounded R2
-harness 메커니즘, Claude 소유 R8/R9/R11 및 S1/S4/S3-label UI 인계는 구현됐다.
-다음 행동은 새 Windows schema-v4 artifact 생성·보관과 독립 재리뷰다.
+`H-SEC2` CA/TLS/권한 게이트를 통과했다. T-581 / H-RG4는 2026-07-29 세 번째
+독립 재리뷰의 네 번째 `CONDITIONAL` 후 `REVIEW`에 남아 있다. 코드 측 조건은
+닫혔고 첫 schema-v4 artifact도 생성됐지만 V1 privacy-scope 불일치로 거부됐다.
+공개 행 필터와 privacy 파생 검사를 구현한 수정 하네스로 새 Windows artifact를
+생성·보관한 뒤 V1–V3에 한정한 독립 재리뷰를 요청하는 것이 다음 행동이다.
