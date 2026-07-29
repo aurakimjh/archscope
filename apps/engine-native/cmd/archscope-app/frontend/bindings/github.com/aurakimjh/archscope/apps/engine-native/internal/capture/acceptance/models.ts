@@ -10,6 +10,9 @@ import { Create as $Create } from "@wailsio/runtime";
 import * as capture$0 from "../models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
+import * as redact$0 from "../redact/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
 import * as models$0 from "../../models/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
@@ -21,6 +24,8 @@ export class Evidence {
     "generatedAt": time$0.Time;
     "session": SessionEvidence;
     "stats": capture$0.Stats;
+    "redaction": redact$0.Summary;
+    "liveContract": capture$0.LiveCaptureContract;
     "counts": { [_ in string]?: number };
     "rows": Row[];
     "rowsTruncated": boolean;
@@ -42,6 +47,12 @@ export class Evidence {
         if (!("stats" in $$source)) {
             this["stats"] = (new capture$0.Stats());
         }
+        if (!("redaction" in $$source)) {
+            this["redaction"] = (new redact$0.Summary());
+        }
+        if (!("liveContract" in $$source)) {
+            this["liveContract"] = (new capture$0.LiveCaptureContract());
+        }
         if (!("counts" in $$source)) {
             this["counts"] = {};
         }
@@ -62,7 +73,9 @@ export class Evidence {
         const $$createField3_0 = $$createType0;
         const $$createField4_0 = $$createType1;
         const $$createField5_0 = $$createType2;
-        const $$createField6_0 = $$createType4;
+        const $$createField6_0 = $$createType3;
+        const $$createField7_0 = $$createType4;
+        const $$createField8_0 = $$createType6;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("session" in $$parsedSource) {
             $$parsedSource["session"] = $$createField3_0($$parsedSource["session"]);
@@ -70,11 +83,17 @@ export class Evidence {
         if ("stats" in $$parsedSource) {
             $$parsedSource["stats"] = $$createField4_0($$parsedSource["stats"]);
         }
+        if ("redaction" in $$parsedSource) {
+            $$parsedSource["redaction"] = $$createField5_0($$parsedSource["redaction"]);
+        }
+        if ("liveContract" in $$parsedSource) {
+            $$parsedSource["liveContract"] = $$createField6_0($$parsedSource["liveContract"]);
+        }
         if ("counts" in $$parsedSource) {
-            $$parsedSource["counts"] = $$createField5_0($$parsedSource["counts"]);
+            $$parsedSource["counts"] = $$createField7_0($$parsedSource["counts"]);
         }
         if ("rows" in $$parsedSource) {
-            $$parsedSource["rows"] = $$createField6_0($$parsedSource["rows"]);
+            $$parsedSource["rows"] = $$createField8_0($$parsedSource["rows"]);
         }
         return new Evidence($$parsedSource as Partial<Evidence>);
     }
@@ -89,6 +108,7 @@ export class Row {
     "path": string;
     "statusCode": number;
     "state": models$0.TxState;
+    "error"?: string;
     "captureMode": string;
     "fidelity": string;
     "coverage": string;
@@ -191,6 +211,8 @@ export class SessionEvidence {
 // Private type creation functions
 const $$createType0 = SessionEvidence.createFrom;
 const $$createType1 = capture$0.Stats.createFrom;
-const $$createType2 = $Create.Map($Create.Any, $Create.Any);
-const $$createType3 = Row.createFrom;
-const $$createType4 = $Create.Array($$createType3);
+const $$createType2 = redact$0.Summary.createFrom;
+const $$createType3 = capture$0.LiveCaptureContract.createFrom;
+const $$createType4 = $Create.Map($Create.Any, $Create.Any);
+const $$createType5 = Row.createFrom;
+const $$createType6 = $Create.Array($$createType5);

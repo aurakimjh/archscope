@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "platform": "windows",
   "supportedTier": [
     {
@@ -54,13 +54,14 @@
     "caRemovedOnStop": true
   },
   "renderer": {
+    "schemaVersion": 1,
     "rowCap": 500,
     "resyncOnEventSkip": true,
     "restoreCurrentSessionOnPageReentry": true,
     "finalizedSessionUsesAnalysisResult": true
   },
   "acceptanceEvidence": {
-    "schemaVersion": 1,
+    "schemaVersion": 2,
     "maxRows": 2000,
     "requiresTerminalSession": true,
     "productReadback": true,
@@ -69,6 +70,15 @@
       "http",
       "https"
     ]
+  },
+  "harness": {
+    "schemaVersion": 3,
+    "minLongSessionRequests": 1000,
+    "requiresArchivedArtifact": true,
+    "unsupportedH2": true,
+    "unsupportedPinning": true,
+    "pageReentry": true,
+    "recovery": true
   },
   "store": {
     "stableSnapshotCursor": true,

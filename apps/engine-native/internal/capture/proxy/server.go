@@ -33,6 +33,7 @@ type Interceptor interface {
 const (
 	CaptureModeMITM        = "proxy_mitm"
 	CaptureModePassthrough = "proxy_passthrough"
+	CaptureModeNotCaptured = "proxy_not_captured"
 	FidelityPending        = "pending"
 	FidelityDecodedWire    = "decoded_wire"
 	FidelityUnsupported    = "unsupported"
@@ -65,6 +66,12 @@ type Server struct {
 	connMu      sync.Mutex
 	connections map[net.Conn]struct{}
 }
+
+type resolvedProcess struct {
+	process *models.ProcessInstance
+}
+
+type resolvedProcessContextKey struct{}
 
 func New(cfg Config) (*Server, error) {
 	if cfg.Authority == nil {
@@ -124,6 +131,11 @@ func (s *Server) Start(ctx context.Context, _ capture.Config, onTx func(models.C
 	s.onTx = onTx
 	s.server = &http.Server{
 		Handler: s, ReadHeaderTimeout: 10 * time.Second, IdleTimeout: 30 * time.Second,
+		ConnContext: func(ctx context.Context, connection net.Conn) context.Context {
+			return context.WithValue(ctx, resolvedProcessContextKey{}, resolvedProcess{
+				process: s.resolveAddr(connection.RemoteAddr()),
+			})
+		},
 	}
 	s.wg.Add(1)
 	go func() {
@@ -186,7 +198,7 @@ func (s *Server) transport() *http.Transport {
 
 func (s *Server) handlePlain(writer http.ResponseWriter, request *http.Request) {
 	started := s.cfg.Now()
-	process := s.resolve(request.RemoteAddr)
+	process := s.processForRequest(request)
 	progress := progressTransaction(request, started, process, CaptureModeMITM)
 	s.progress(progress)
 	out := request.Clone(request.Context())
@@ -198,9 +210,8 @@ func (s *Server) handlePlain(writer http.ResponseWriter, request *http.Request) 
 	response, err := transport.RoundTrip(out)
 	if err != nil {
 		http.Error(writer, "verified upstream TLS/HTTP failure", http.StatusBadGateway)
-		tx := failureTransaction(request, started, s.cfg.Now(), err)
+		tx := failureTransaction(request, started, s.cfg.Now(), err, CaptureModeMITM, FidelityDecodedWire, process)
 		tx.ID = progress.ID
-		tx.Process = process
 		s.emit(tx)
 		return
 	}
@@ -231,7 +242,7 @@ func (s *Server) handleConnect(writer http.ResponseWriter, request *http.Request
 	}
 	hostPort := request.Host
 	host := hostOnly(hostPort)
-	process := s.resolve(request.RemoteAddr)
+	process := s.processForRequest(request)
 	protocols, sni, replay, err := peekClientHello(client)
 	if err != nil {
 		s.tunnel(request.Context(), client, hostPort, nil, process, "unreadable ClientHello")
@@ -287,9 +298,12 @@ func (s *Server) tunnel(ctx context.Context, client net.Conn, hostPort string, p
 	s.progress(progress)
 	upstream, err := s.cfg.DialContext(ctx, "tcp", hostPort)
 	if err != nil {
-		tx := failureTransaction(&http.Request{Method: http.MethodConnect, Host: hostPort}, started, s.cfg.Now(), err)
+		tx := failureTransaction(&http.Request{
+			Method: http.MethodConnect,
+			Host:   hostPort,
+			URL:    &url.URL{Scheme: "https", Host: hostPort},
+		}, started, s.cfg.Now(), err, CaptureModePassthrough, FidelityUnsupported, process)
 		tx.ID = progress.ID
-		tx.Process = process
 		s.emit(tx)
 		return
 	}
@@ -307,6 +321,7 @@ func (s *Server) tunnel(ctx context.Context, client net.Conn, hostPort string, p
 
 func (s *Server) intercept(client net.Conn, host, hostPort string, process *models.ProcessInstance) {
 	defer client.Close()
+	started := s.cfg.Now()
 	tlsConn := tls.Server(client, &tls.Config{
 		MinVersion: tls.VersionTLS12, NextProtos: []string{"http/1.1"},
 		GetCertificate: func(hello *tls.ClientHelloInfo) (*tls.Certificate, error) {
@@ -318,8 +333,11 @@ func (s *Server) intercept(client net.Conn, host, hostPort string, process *mode
 		},
 	})
 	if err := tlsConn.Handshake(); err != nil {
-		tx := failureTransaction(&http.Request{Method: http.MethodConnect, Host: hostPort}, s.cfg.Now(), s.cfg.Now(), fmt.Errorf("client TLS handshake: %w", err))
-		tx.Fidelity = FidelityUnsupported
+		tx := failureTransaction(&http.Request{
+			Method: http.MethodConnect,
+			Host:   hostPort,
+			URL:    &url.URL{Scheme: "https", Host: hostPort},
+		}, started, s.cfg.Now(), fmt.Errorf("client TLS handshake: %w", err), CaptureModeNotCaptured, FidelityUnsupported, process)
 		tx.Error = "TLS interception failed; diagnose certificate pinning or trust and require explicit scoped passthrough"
 		s.emit(tx)
 		return
@@ -344,9 +362,8 @@ func (s *Server) intercept(client net.Conn, host, hostPort string, process *mode
 		response, err := transport.RoundTrip(request)
 		if err != nil {
 			writeGatewayError(tlsConn)
-			tx := failureTransaction(request, started, s.cfg.Now(), err)
+			tx := failureTransaction(request, started, s.cfg.Now(), err, CaptureModeMITM, FidelityDecodedWire, process)
 			tx.ID = progress.ID
-			tx.Process = process
 			s.emit(tx)
 			return
 		}
@@ -364,11 +381,22 @@ func (s *Server) intercept(client net.Conn, host, hostPort string, process *mode
 }
 
 func (s *Server) resolve(remote string) *models.ProcessInstance {
+	return s.resolveAddr(parseAddr(remote))
+}
+
+func (s *Server) resolveAddr(remote net.Addr) *models.ProcessInstance {
 	if s.cfg.Resolver == nil || s.listener == nil {
 		return nil
 	}
-	process, _ := s.cfg.Resolver.Resolve(parseAddr(remote), s.listener.Addr())
+	process, _ := s.cfg.Resolver.Resolve(remote, s.listener.Addr())
 	return process
+}
+
+func (s *Server) processForRequest(request *http.Request) *models.ProcessInstance {
+	if resolved, ok := request.Context().Value(resolvedProcessContextKey{}).(resolvedProcess); ok {
+		return resolved.process
+	}
+	return s.resolve(request.RemoteAddr)
 }
 
 func (s *Server) emit(tx models.CaptureTransaction) {
@@ -468,20 +496,23 @@ func newTransactionID(started time.Time) string {
 	return "live-" + strconv.FormatInt(started.UnixNano(), 36) + "-" + strconv.FormatUint(transactionSequence.Add(1), 36)
 }
 
-func failureTransaction(request *http.Request, started, ended time.Time, err error) models.CaptureTransaction {
+func failureTransaction(request *http.Request, started, ended time.Time, err error, mode, fidelity string, process *models.ProcessInstance) models.CaptureTransaction {
 	host := request.Host
 	urlValue := ""
 	path := ""
+	scheme := ""
 	if request.URL != nil {
 		urlValue = request.URL.String()
 		path = request.URL.EscapedPath()
+		scheme = request.URL.Scheme
 	}
 	return models.CaptureTransaction{
-		ID: newTransactionID(started), Method: request.Method, URL: urlValue, Host: hostOnly(host), Path: path,
+		ID: newTransactionID(started), Method: request.Method, URL: urlValue,
+		Scheme: scheme, Host: hostOnly(host), Path: path,
 		StartedAt: started.UTC().Format(time.RFC3339Nano), EndedAt: ended.UTC().Format(time.RFC3339Nano),
 		State: models.TxFailed, TotalMS: float64(ended.Sub(started).Microseconds()) / 1000,
-		CaptureMode: CaptureModeMITM, ObservationPoint: "proxy", Coverage: "unknown",
-		Fidelity: FidelityPending, Error: err.Error(),
+		CaptureMode: mode, ObservationPoint: "proxy", Coverage: coverage(process),
+		Fidelity: fidelity, Process: process, Error: err.Error(),
 		Request: models.HTTPMessage{BodyStorage: BodyStorageOmitted}, Response: models.HTTPMessage{BodyStorage: BodyStorageOmitted},
 	}
 }
@@ -497,7 +528,7 @@ func modelHeaders(headers http.Header) []models.HeaderField {
 }
 
 func coverage(process *models.ProcessInstance) string {
-	if process == nil {
+	if process == nil || process.Attribution != "confirmed" {
 		return "unknown"
 	}
 	return "confirmed"

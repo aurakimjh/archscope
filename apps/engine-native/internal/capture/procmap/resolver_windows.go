@@ -109,9 +109,23 @@ func processInstance(pid int32) *models.ProcessInstance {
 		process.ExecPath = windows.UTF16ToString(buffer[:size])
 		process.Name = filepath.Base(process.ExecPath)
 	}
+	process.Key.StartTime = processStartTimeFromHandle(handle)
+	return process
+}
+
+func processStartTime(pid int32) string {
+	handle, err := windows.OpenProcess(windows.PROCESS_QUERY_LIMITED_INFORMATION, false, uint32(pid))
+	if err != nil {
+		return ""
+	}
+	defer windows.CloseHandle(handle)
+	return processStartTimeFromHandle(handle)
+}
+
+func processStartTimeFromHandle(handle windows.Handle) string {
 	var created, exited, kernel, user windows.Filetime
 	if windows.GetProcessTimes(handle, &created, &exited, &kernel, &user) == nil {
-		process.Key.StartTime = time.Unix(0, created.Nanoseconds()).UTC().Format(time.RFC3339Nano)
+		return time.Unix(0, created.Nanoseconds()).UTC().Format(time.RFC3339Nano)
 	}
-	return process
+	return ""
 }

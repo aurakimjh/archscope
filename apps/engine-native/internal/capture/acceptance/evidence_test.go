@@ -7,6 +7,7 @@ import (
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/proxy"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/redact"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/store"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 )
@@ -44,6 +45,12 @@ func TestBuildReadsFinalizedProductRowsAndStats(t *testing.T) {
 	if err := st.SetCaptureStats(stats); err != nil {
 		t.Fatal(err)
 	}
+	if err := st.SetRedactionSummary(redact.Summary{
+		Applied: true, Version: redact.PolicyVersion,
+		Rules: []string{"query_value"}, Counts: map[string]int{"query_value": 1},
+	}); err != nil {
+		t.Fatal(err)
+	}
 	if err := st.Finalize(capture.StateFinalized); err != nil {
 		t.Fatal(err)
 	}
@@ -67,6 +74,8 @@ func TestBuildReadsFinalizedProductRowsAndStats(t *testing.T) {
 	if evidence.SchemaVersion != SchemaVersion ||
 		evidence.Session.TotalRows != 1 ||
 		evidence.Stats.Observed != 1 ||
+		!evidence.Redaction.Applied ||
+		evidence.LiveContract.TransactionRowCap != capture.DefaultLiveTransactionRowCap ||
 		evidence.Counts["mode:"+proxy.CaptureModeMITM] != 1 ||
 		evidence.Counts["fidelity:"+proxy.FidelityDecodedWire] != 1 {
 		t.Fatalf("evidence=%+v", evidence)

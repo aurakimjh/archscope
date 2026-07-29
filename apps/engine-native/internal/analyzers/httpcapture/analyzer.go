@@ -34,6 +34,20 @@ type Options struct {
 	CustomRedactionPatterns []string
 }
 
+type captureProvenance struct {
+	CaptureMode      string
+	ObservationPoint string
+	Fidelity         string
+	Product          string
+	ModeCounts       map[string]int
+	FidelityCounts   map[string]int
+	CoverageCounts   map[string]int
+	RedactionMessage string
+	AggregateID      string
+	EmptyMessage     string
+	TruncatedCode    string
+}
+
 func Analyze(path string, opts Options) (models.AnalysisResult, error) {
 	parsed, err := parser.ParseFile(path, parser.Options{
 		Format:                  opts.Format,
@@ -56,16 +70,35 @@ func Analyze(path string, opts Options) (models.AnalysisResult, error) {
 // New parser paths should use BuildParsed so diagnostics and redaction metadata
 // cannot be dropped.
 func Build(entries []models.CaptureTransaction, sourceFile, format, dialect string, opts Options) models.AnalysisResult {
-	return BuildParsed(parser.ParseResult{
+	parsed := parser.ParseResult{
 		Format:            format,
 		Dialect:           dialect,
 		Entries:           entries,
 		Redaction:         redact.Summary{Version: redact.PolicyVersion, Rules: []string{}, Counts: map[string]int{}},
 		TimelineAvailable: true,
-	}, sourceFile, opts)
+	}
+	return buildParsed(parsed, sourceFile, opts, harProvenance(len(entries)))
+}
+
+// BuildLive constructs a finalized analysis from ArchScope-owned live capture
+// transactions. Unlike the HAR path, provenance and aggregate fidelity are
+// derived from the persisted rows and never claim semantic foreign-tool input.
+func BuildLive(entries []models.CaptureTransaction, sourceFile, dialect string, redactionSummary redact.Summary, opts Options) models.AnalysisResult {
+	parsed := parser.ParseResult{
+		Format:            "archscope-live",
+		Dialect:           dialect,
+		Entries:           entries,
+		Redaction:         redactionSummary,
+		TimelineAvailable: true,
+	}
+	return buildParsed(parsed, sourceFile, opts, liveProvenance(entries, sourceFile))
 }
 
 func BuildParsed(parsed parser.ParseResult, sourceFile string, opts Options) models.AnalysisResult {
+	return buildParsed(parsed, sourceFile, opts, harProvenance(len(parsed.Entries)))
+}
+
+func buildParsed(parsed parser.ParseResult, sourceFile string, opts Options, provenance captureProvenance) models.AnalysisResult {
 	topN := normalizeTopN(opts.TopN)
 	entries := parsed.Entries
 	endpoints := map[string]*stat{}
@@ -161,9 +194,12 @@ func BuildParsed(parsed parser.ParseResult, sourceFile string, opts Options) mod
 	result.Metadata.Extra["http_capture"] = map[string]any{
 		"capture_schema_version": models.CaptureSchemaVersion,
 		"dialect":                parsed.Dialect,
-		"capture_mode":           "har_import",
-		"observation_point":      "foreign_tool",
-		"fidelity":               "semantic",
+		"capture_mode":           provenance.CaptureMode,
+		"capture_mode_counts":    provenance.ModeCounts,
+		"observation_point":      provenance.ObservationPoint,
+		"fidelity":               provenance.Fidelity,
+		"fidelity_counts":        provenance.FidelityCounts,
+		"coverage_counts":        provenance.CoverageCounts,
 		"redaction":              parsed.Redaction,
 		"detail_storage":         "bounded_inline",
 		"table_limit":            topN,
@@ -176,14 +212,14 @@ func BuildParsed(parsed parser.ParseResult, sourceFile string, opts Options) mod
 		"decompressed_bytes":     parsed.DecompressedBytes,
 	}
 
-	aggregator := aggregate.New("offline-har", topN)
+	aggregator := aggregate.New(provenance.AggregateID, topN)
 	aggregator.ApplyBatch(entries)
 	result.Metadata.Extra["capture_aggregate_snapshot"] = aggregator.Snapshot()
-	ingestion.AttachSourceMetadata(&result, ingestion.NewSourceMetadata(sourceFile, ingestion.SourceMetadataOptions{SourceKind: ingestion.SourceKindHTTPCapture, SourceFormat: parsed.Format, Product: "HAR import"}))
+	ingestion.AttachSourceMetadata(&result, ingestion.NewSourceMetadata(sourceFile, ingestion.SourceMetadataOptions{SourceKind: ingestion.SourceKindHTTPCapture, SourceFormat: parsed.Format, Product: provenance.Product}))
 
 	addDiagnosticFindings(&result)
 	if len(entries) == 0 {
-		result.AddFinding("warning", "CAPTURE_EMPTY", "HAR contains no transactions", nil)
+		result.AddFinding("warning", "CAPTURE_EMPTY", provenance.EmptyMessage, nil)
 	}
 	if errorCount > 0 {
 		result.AddFinding("warning", "HTTP_CAPTURE_ERRORS", "HTTP capture contains failed responses", map[string]any{"error_transactions": errorCount})
@@ -195,15 +231,97 @@ func BuildParsed(parsed parser.ParseResult, sourceFile string, opts Options) mod
 		result.AddFinding("info", "CAPTURE_TRUNCATED_BODIES", "One or more body previews were truncated", map[string]any{"transactions": truncatedBodies})
 	}
 	if parsed.Redaction.Applied {
-		result.AddFinding("info", "CAPTURE_REDACTED", "Sensitive HTTP fields were redacted during import", map[string]any{"policy_version": parsed.Redaction.Version, "rules": parsed.Redaction.Rules})
+		result.AddFinding("info", "CAPTURE_REDACTED", provenance.RedactionMessage, map[string]any{"policy_version": parsed.Redaction.Version, "rules": parsed.Redaction.Rules})
 	}
 	if truncated {
-		result.AddFinding("info", "HAR_DETAILS_TRUNCATED", "Inline transaction details are bounded", map[string]any{"rows": topN, "transactions": len(entries)})
+		result.AddFinding("info", provenance.TruncatedCode, "Inline transaction details are bounded", map[string]any{"rows": topN, "transactions": len(entries)})
 		if parsed.Diagnostics != nil {
-			parsed.Diagnostics.AddWarning(0, "HAR_DETAILS_TRUNCATED", "inline transaction detail rows are bounded", "", false)
+			parsed.Diagnostics.AddWarning(0, provenance.TruncatedCode, "inline transaction detail rows are bounded", "", false)
 		}
 	}
 	return result
+}
+
+func harProvenance(entries int) captureProvenance {
+	return captureProvenance{
+		CaptureMode:      "har_import",
+		ObservationPoint: "foreign_tool",
+		Fidelity:         "semantic",
+		Product:          "HAR import",
+		ModeCounts:       map[string]int{"har_import": entries},
+		FidelityCounts:   map[string]int{"semantic": entries},
+		CoverageCounts:   map[string]int{},
+		RedactionMessage: "Sensitive HTTP fields were redacted during import",
+		AggregateID:      "offline-har",
+		EmptyMessage:     "HAR contains no transactions",
+		TruncatedCode:    "HAR_DETAILS_TRUNCATED",
+	}
+}
+
+func liveProvenance(entries []models.CaptureTransaction, sourceFile string) captureProvenance {
+	modeCounts := map[string]int{}
+	fidelityCounts := map[string]int{}
+	coverageCounts := map[string]int{}
+	for _, entry := range entries {
+		modeCounts[valueOrUnknown(entry.CaptureMode)]++
+		fidelityCounts[valueOrUnknown(entry.Fidelity)]++
+		coverageCounts[valueOrUnknown(entry.Coverage)]++
+	}
+	return captureProvenance{
+		CaptureMode:      aggregateCaptureMode(modeCounts),
+		ObservationPoint: "proxy",
+		Fidelity:         weakestFidelity(fidelityCounts),
+		Product:          "ArchScope live capture",
+		ModeCounts:       modeCounts,
+		FidelityCounts:   fidelityCounts,
+		CoverageCounts:   coverageCounts,
+		RedactionMessage: "Sensitive HTTP fields were redacted during live capture",
+		AggregateID:      first(strings.TrimPrefix(sourceFile, "capture://"), "live-capture"),
+		EmptyMessage:     "Live capture contains no transactions",
+		TruncatedCode:    "CAPTURE_DETAILS_TRUNCATED",
+	}
+}
+
+func aggregateCaptureMode(counts map[string]int) string {
+	if len(counts) == 0 {
+		return "unknown"
+	}
+	if len(counts) == 1 {
+		for value := range counts {
+			return value
+		}
+	}
+	return "mixed"
+}
+
+func weakestFidelity(counts map[string]int) string {
+	if len(counts) == 0 {
+		return "unknown"
+	}
+	if counts["unsupported"] > 0 {
+		return "unsupported"
+	}
+	known := map[string]bool{
+		"unknown": true, "pending": true, "decoded_wire": true, "semantic": true,
+	}
+	for value := range counts {
+		if !known[value] {
+			return "unknown"
+		}
+	}
+	for _, candidate := range []string{"unknown", "pending", "decoded_wire", "semantic"} {
+		if counts[candidate] > 0 {
+			return candidate
+		}
+	}
+	return "unknown"
+}
+
+func valueOrUnknown(value string) string {
+	if strings.TrimSpace(value) == "" {
+		return "unknown"
+	}
+	return value
 }
 
 type stat struct {

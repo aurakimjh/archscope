@@ -15,6 +15,7 @@ import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/acceptance"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/aggregate"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/certstore"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/redact"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/session"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/store"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
@@ -130,6 +131,10 @@ func (s *CaptureService) ListCaptureModes() []capture.Mode {
 	return s.manager.Modes()
 }
 
+func (s *CaptureService) GetLiveCaptureContract() capture.LiveCaptureContract {
+	return capture.DefaultLiveCaptureContract()
+}
+
 func (s *CaptureService) StartCapture(config capture.Config) (capture.Session, error) {
 	// The renderer cannot choose an arbitrary filesystem destination. Capture
 	// data always stays under the application-owned root selected at startup.
@@ -196,7 +201,15 @@ func (s *CaptureService) AnalyzeCaptureSession(request CaptureAnalyzeRequest) (e
 		}
 	}
 	source := "capture://" + request.SessionID
-	result := httpanalyzer.Build(transactions, source, "archscope-live", "canonical-v1", httpanalyzer.Options{TopN: request.TopN})
+	manifest, err := s.manager.Manifest(capture.SessionID(request.SessionID))
+	if err != nil {
+		return engineapi.AnalysisResult{}, err
+	}
+	redactionSummary := redact.Summary{Version: redact.PolicyVersion, Rules: []string{}, Counts: map[string]int{}}
+	if manifest.Redaction != nil {
+		redactionSummary = *manifest.Redaction
+	}
+	result := httpanalyzer.BuildLive(transactions, source, "canonical-v1", redactionSummary, httpanalyzer.Options{TopN: request.TopN})
 	result.Metadata.Extra["capture_session_ref"] = map[string]any{
 		"session_id": request.SessionID, "snapshot_version": page.SnapshotVersion,
 		"transactions": len(transactions),

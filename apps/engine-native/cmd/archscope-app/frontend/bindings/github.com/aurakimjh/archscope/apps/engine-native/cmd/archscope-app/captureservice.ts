@@ -79,6 +79,12 @@ export function GetCurrentCaptureSession(): $CancellablePromise<capture$0.Sessio
     });
 }
 
+export function GetLiveCaptureContract(): $CancellablePromise<capture$0.LiveCaptureContract> {
+    return $Call.ByID(2314719557).then(($result: any) => {
+        return $$createType9($result);
+    });
+}
+
 export function ImportHar(request: $models.CaptureImportRequest): $CancellablePromise<api$0.AnalysisResult> {
     return $Call.ByID(1038261337, request).then(($result: any) => {
         return $$createType0($result);
@@ -93,13 +99,13 @@ export function InstallCaptureCA(): $CancellablePromise<certstore$0.Status> {
 
 export function ListCaptureModes(): $CancellablePromise<capture$0.Mode[]> {
     return $Call.ByID(1386420617).then(($result: any) => {
-        return $$createType10($result);
+        return $$createType11($result);
     });
 }
 
 export function RecoverCaptureSessions(): $CancellablePromise<store$0.RecoveryReport[]> {
     return $Call.ByID(740397896).then(($result: any) => {
-        return $$createType12($result);
+        return $$createType13($result);
     });
 }
 
@@ -131,7 +137,8 @@ const $$createType5 = $Create.Array($$createType4);
 const $$createType6 = aggregate$0.Snapshot.createFrom;
 const $$createType7 = capture$0.Stats.createFrom;
 const $$createType8 = capture$0.Session.createFrom;
-const $$createType9 = capture$0.Mode.createFrom;
-const $$createType10 = $Create.Array($$createType9);
-const $$createType11 = store$0.RecoveryReport.createFrom;
-const $$createType12 = $Create.Array($$createType11);
+const $$createType9 = capture$0.LiveCaptureContract.createFrom;
+const $$createType10 = capture$0.Mode.createFrom;
+const $$createType11 = $Create.Array($$createType10);
+const $$createType12 = store$0.RecoveryReport.createFrom;
+const $$createType13 = $Create.Array($$createType12);

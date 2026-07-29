@@ -357,6 +357,22 @@ func TestCloseAbortsEveryInflightTransactionState(t *testing.T) {
 			t.Fatalf("in-flight transaction was not terminal after close: %+v", tx)
 		}
 	}
+	persisted, err := st.LoadAll()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(persisted) != 2 {
+		t.Fatalf("persisted aborted rows=%+v", persisted)
+	}
+	for _, tx := range persisted {
+		if tx.State != models.TxAborted {
+			t.Fatalf("non-terminal persisted row=%+v", tx)
+		}
+	}
+	stats := p.Stats(capture.StateFinalized)
+	if stats.Observed != 2 || stats.Captured != 2 || stats.Persisted != 2 {
+		t.Fatalf("aborted persistence stats=%+v", stats)
+	}
 }
 
 func TestPipelineRedactionIsSafeAcrossConcurrentProgressAndPersistence(t *testing.T) {

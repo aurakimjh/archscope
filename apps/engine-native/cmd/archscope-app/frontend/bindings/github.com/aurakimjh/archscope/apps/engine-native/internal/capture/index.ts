@@ -3,6 +3,7 @@
 
 export {
     Config,
+    LiveCaptureContract,
     Mode,
     OverflowPolicy,
     Privilege,

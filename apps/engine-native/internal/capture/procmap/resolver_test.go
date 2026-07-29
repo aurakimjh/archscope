@@ -5,6 +5,8 @@ import (
 	"net"
 	"strings"
 	"testing"
+
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 )
 
 func TestDecodeIPv4TCPTable(t *testing.T) {
@@ -54,5 +56,75 @@ func TestMatchingOwnerPIDRequiresExactEndpointTuple(t *testing.T) {
 	}
 	if _, ok := matchingOwnerPID(rows, client, &net.TCPAddr{IP: proxy.IP, Port: 43124}); ok {
 		t.Fatal("mismatched proxy endpoint was attributed")
+	}
+}
+
+func TestResolverConfirmsStablePIDAndStartTime(t *testing.T) {
+	client := &net.TCPAddr{IP: net.ParseIP("127.0.0.1"), Port: 51000}
+	proxy := &net.TCPAddr{IP: net.ParseIP("127.0.0.1"), Port: 43123}
+	rowsCalls := 0
+	processCalls := 0
+	startCalls := 0
+	resolver := Resolver{
+		ownerRows: func() ([]tcpRow, error) {
+			rowsCalls++
+			return []tcpRow{{
+				LocalAddress: client.IP, LocalPort: client.Port,
+				RemoteAddress: proxy.IP, RemotePort: proxy.Port, OwningPID: 42,
+			}}, nil
+		},
+		process: func(pid int32) *models.ProcessInstance {
+			processCalls++
+			return &models.ProcessInstance{
+				Key:         models.ProcessKey{PID: pid, StartTime: "2026-07-29T00:00:00Z"},
+				Attribution: "inferred",
+			}
+		},
+		processStart: func(pid int32) string {
+			startCalls++
+			if pid != 42 {
+				t.Fatalf("pid=%d", pid)
+			}
+			return "2026-07-29T00:00:00Z"
+		},
+	}
+	process, err := resolver.Resolve(client, proxy)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if process.Attribution != "confirmed" ||
+		rowsCalls != 2 ||
+		processCalls != 1 ||
+		startCalls != 1 {
+		t.Fatalf("process=%+v rows=%d processCalls=%d startCalls=%d", process, rowsCalls, processCalls, startCalls)
+	}
+}
+
+func TestResolverRejectsPIDReuseAcrossStartTimes(t *testing.T) {
+	client := &net.TCPAddr{IP: net.ParseIP("127.0.0.1"), Port: 51000}
+	proxy := &net.TCPAddr{IP: net.ParseIP("127.0.0.1"), Port: 43123}
+	resolver := Resolver{
+		ownerRows: func() ([]tcpRow, error) {
+			return []tcpRow{{
+				LocalAddress: client.IP, LocalPort: client.Port,
+				RemoteAddress: proxy.IP, RemotePort: proxy.Port, OwningPID: 42,
+			}}, nil
+		},
+		process: func(pid int32) *models.ProcessInstance {
+			return &models.ProcessInstance{
+				Key:         models.ProcessKey{PID: pid, StartTime: "2026-07-29T00:00:00Z"},
+				Attribution: "inferred",
+			}
+		},
+		processStart: func(int32) string {
+			return "2026-07-29T00:00:01Z"
+		},
+	}
+	process, err := resolver.Resolve(client, proxy)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if process.Attribution != "inferred" {
+		t.Fatalf("PID reuse was confirmed: %+v", process)
 	}
 }

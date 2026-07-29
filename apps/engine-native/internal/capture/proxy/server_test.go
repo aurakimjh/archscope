@@ -5,18 +5,30 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"errors"
 	"fmt"
 	"io"
 	"net"
 	"net/http"
 	"net/http/httptest"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 )
+
+type fixedProcessResolver struct {
+	process *models.ProcessInstance
+	calls   atomic.Int32
+}
+
+func (r *fixedProcessResolver) Resolve(net.Addr, net.Addr) (*models.ProcessInstance, error) {
+	r.calls.Add(1)
+	return r.process, nil
+}
 
 func TestMITMForwardsH1WithVerifiedUpstream(t *testing.T) {
 	origin := httptest.NewTLSServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
@@ -218,6 +230,201 @@ func TestH2OnlyALPNIsExplicitPassthrough(t *testing.T) {
 		}
 	case <-time.After(3 * time.Second):
 		t.Fatal("timed out waiting for h2 passthrough record")
+	}
+}
+
+func TestTLSHandshakeFailureRetainsAttributionWithoutClaimingMITM(t *testing.T) {
+	authority, err := NewAuthority(time.Now().UTC())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer authority.Close()
+	process := &models.ProcessInstance{
+		Key:  models.ProcessKey{PID: 42, StartTime: "2026-07-29T00:00:00Z"},
+		Name: "pinned-client.exe", Attribution: "confirmed",
+	}
+	resolver := &fixedProcessResolver{process: process}
+	server, err := New(Config{
+		ListenAddress: "127.0.0.1:0", Authority: authority, Resolver: resolver,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	captured := make(chan models.CaptureTransaction, 1)
+	address, err := server.Start(context.Background(), capture.Config{}, func(tx models.CaptureTransaction) error {
+		captured <- tx
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer stopServer(t, server)
+	connection, err := net.Dial("tcp", address)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer connection.Close()
+	if _, err := fmt.Fprint(connection, "CONNECT example.test:443 HTTP/1.1\r\nHost: example.test:443\r\n\r\n"); err != nil {
+		t.Fatal(err)
+	}
+	response, err := http.ReadResponse(bufio.NewReader(connection), &http.Request{Method: http.MethodConnect})
+	if err != nil {
+		t.Fatal(err)
+	}
+	response.Body.Close()
+	tlsConnection := tls.Client(connection, &tls.Config{
+		ServerName: "example.test", MinVersion: tls.VersionTLS12,
+	})
+	if err := tlsConnection.Handshake(); err == nil {
+		t.Fatal("untrusted interception certificate unexpectedly succeeded")
+	}
+	select {
+	case tx := <-captured:
+		if tx.CaptureMode != CaptureModeNotCaptured ||
+			tx.Fidelity != FidelityUnsupported ||
+			tx.Coverage != "confirmed" ||
+			tx.Process == nil ||
+			tx.Process.Attribution != "confirmed" {
+			t.Fatalf("handshake failure=%+v", tx)
+		}
+	case <-time.After(3 * time.Second):
+		t.Fatal("timed out waiting for TLS handshake failure")
+	}
+}
+
+func TestFailedPassthroughTunnelPreservesTerminalModeAndCoverage(t *testing.T) {
+	authority, err := NewAuthority(time.Now().UTC())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer authority.Close()
+	process := &models.ProcessInstance{
+		Key:  models.ProcessKey{PID: 43, StartTime: "2026-07-29T00:00:00Z"},
+		Name: "h2-client.exe", Attribution: "confirmed",
+	}
+	resolver := &fixedProcessResolver{process: process}
+	progressed := make(chan models.CaptureTransaction, 1)
+	server, err := New(Config{
+		ListenAddress: "127.0.0.1:0", Authority: authority, Resolver: resolver,
+		AllowPassthrough: map[string]time.Time{"example.test": time.Now().Add(time.Minute)},
+		Progress:         func(tx models.CaptureTransaction) { progressed <- tx },
+		DialContext: func(context.Context, string, string) (net.Conn, error) {
+			return nil, errors.New("fixture upstream refused")
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	captured := make(chan models.CaptureTransaction, 1)
+	address, err := server.Start(context.Background(), capture.Config{}, func(tx models.CaptureTransaction) error {
+		captured <- tx
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer stopServer(t, server)
+	connection, err := net.Dial("tcp", address)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer connection.Close()
+	if _, err := fmt.Fprint(connection, "CONNECT example.test:443 HTTP/1.1\r\nHost: example.test:443\r\n\r\n"); err != nil {
+		t.Fatal(err)
+	}
+	response, err := http.ReadResponse(bufio.NewReader(connection), &http.Request{Method: http.MethodConnect})
+	if err != nil {
+		t.Fatal(err)
+	}
+	response.Body.Close()
+	tlsConnection := tls.Client(connection, &tls.Config{
+		InsecureSkipVerify: true, // upstream is never reached by this failure fixture.
+		ServerName:         "example.test",
+		NextProtos:         []string{"h2"},
+		MinVersion:         tls.VersionTLS12,
+	})
+	if err := tlsConnection.Handshake(); err == nil {
+		t.Fatal("failed upstream tunnel unexpectedly completed TLS")
+	}
+	var progress models.CaptureTransaction
+	select {
+	case progress = <-progressed:
+	case <-time.After(3 * time.Second):
+		t.Fatal("timed out waiting for failed-passthrough progress")
+	}
+	select {
+	case tx := <-captured:
+		if tx.ID != progress.ID ||
+			tx.CaptureMode != CaptureModePassthrough ||
+			tx.Fidelity != FidelityUnsupported ||
+			tx.State != models.TxFailed ||
+			tx.Coverage != "confirmed" ||
+			tx.Process == nil {
+			t.Fatalf("failed passthrough=%+v progress=%+v", tx, progress)
+		}
+	case <-time.After(3 * time.Second):
+		t.Fatal("timed out waiting for failed passthrough")
+	}
+}
+
+func TestPlainProxyResolvesProcessOncePerClientConnection(t *testing.T) {
+	origin := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, _ *http.Request) {
+		_, _ = io.WriteString(writer, "ok")
+	}))
+	defer origin.Close()
+	originHost := strings.TrimPrefix(origin.URL, "http://")
+	authority, err := NewAuthority(time.Now().UTC())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer authority.Close()
+	resolver := &fixedProcessResolver{process: &models.ProcessInstance{
+		Key:  models.ProcessKey{PID: 44, StartTime: "2026-07-29T00:00:00Z"},
+		Name: "keepalive.exe", Attribution: "confirmed",
+	}}
+	server, err := New(Config{
+		ListenAddress: "127.0.0.1:0", Authority: authority, Resolver: resolver,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	captured := make(chan models.CaptureTransaction, 2)
+	address, err := server.Start(context.Background(), capture.Config{}, func(tx models.CaptureTransaction) error {
+		captured <- tx
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer stopServer(t, server)
+	connection, err := net.Dial("tcp", address)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer connection.Close()
+	reader := bufio.NewReader(connection)
+	for index := 0; index < 2; index++ {
+		if _, err := fmt.Fprintf(connection,
+			"GET http://%s/request-%d HTTP/1.1\r\nHost: %s\r\nConnection: keep-alive\r\n\r\n",
+			originHost, index, originHost); err != nil {
+			t.Fatal(err)
+		}
+		response, err := http.ReadResponse(reader, &http.Request{Method: http.MethodGet})
+		if err != nil {
+			t.Fatal(err)
+		}
+		_, _ = io.ReadAll(response.Body)
+		response.Body.Close()
+	}
+	for index := 0; index < 2; index++ {
+		select {
+		case <-captured:
+		case <-time.After(3 * time.Second):
+			t.Fatal("timed out waiting for plain transaction")
+		}
+	}
+	if resolver.calls.Load() != 1 {
+		t.Fatalf("resolver calls=%d, want one per client connection", resolver.calls.Load())
 	}
 }
 

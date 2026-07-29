@@ -257,12 +257,12 @@ streaming, H2 passthrough fixture와 long-session memory bound가 통과해야 �
 
 ### H-RG4 — 실시간 UI와 Windows E2E
 
-**상태:** `REVIEW` — 독립 `CONDITIONAL` (2026-07-28). 세 항목이 `PASS`를
-차단한다. L1은 passthrough progress 행의 semantic fidelity 오표시, L2는 redaction
-policy의 확인된 동시성 race, L3은 실제 ArchScope 캡처를 readback·증명하지 못하는
-acceptance package다. L4–L7은 수정 또는 명시적 수용, L8–L14는 fix/defer 결정이
-필요하다. 백엔드 범위는 수정됐지만 Claude UI handoff, 실제 Windows 증거, 독립
-재리뷰 없이는 `PASS`가 아니다.
+**상태:** `REVIEW` — 두 번째 독립 `CONDITIONAL` (2026-07-29). 기존 redaction
+race와 live table 지적은 닫혔다. 재리뷰는 finalized live 분석이 HAR semantic
+provenance를 재사용하는 문제(R1), Windows 증거를 검사할 수 없고 harness 범위가
+부족한 문제(R2), pinning/실패 tunnel 행의 attribution·mode·fidelity 오류(R3/R4),
+finalized redaction 공개 오류(R5)를 확인했다. R6–R8은 수정 또는 수용, R9–R12는
+처리 결정이 필요하다. 독립 `PASS` 전까지 T-582는 차단된다.
 
 #### Codex 통합
 
@@ -277,25 +277,42 @@ acceptance package다. L4–L7은 수정 또는 명시적 수용, L8–L14는 fi
   활성 SEC-17 정책 공개, observed/drop counter
 - [x] L9/L11/L13: manager에서 platform availability 강제, CONNECT 가상 path 제거,
   confirmed attribution 보장 범위 문서화
+- [x] R1/R5: 저장 transaction에서 finalized live provenance와 최약 fidelity를
+  계산하고 capture-time redaction summary를 저장하며 HAR provenance는 HAR
+  경로에만 유지
+- [x] R3/R4: TLS handshake 실패를 attribution이 보존된
+  `proxy_not_captured`/`unsupported`로 기록하고 tunnel 실패에는 실제
+  `proxy_passthrough`/`unsupported`와 process 기반 coverage 유지
+- [x] R6/R7: accepted client connection마다 TCP-owner attribution을 한 번만
+  계산하고 두 번째 owner-table 조회에서 PID와 process start time을 모두 확인
+- [x] R8 백엔드: renderer row cap, event-skip resync, page 재진입, finalized
+  handoff를 버전된 `LiveCaptureContract`로 노출하고 fixture를 Go 계약에 연결.
+  production state 소비는 Claude가 담당
+- [x] R12 백엔드: terminal `aborted` 행을 저장하고 final stats, aggregate,
+  analysis, acceptance evidence에 포함
+- [x] R2 harness 메커니즘: acceptance WebView2 CDP port와 실제 recovery session을
+  필수화하고 h2-only/pinning, 장시간 세션, page 재진입을 실행한 뒤 모든
+  시나리오를 제품 store에서 readback. 새 Windows artifact 생성은 남음
 
-Codex는 위 백엔드 계약, 생성 binding, fixture, 엔진 검증을 고정하고 작업을
-멈췄다. 새 read-only `http-capture acceptance-evidence` 명령은 종료된 제품
+Codex는 위 백엔드 계약, 생성 binding, fixture, 엔진 검증을 고정한 뒤 UI로
+인계한다. read-only `http-capture acceptance-evidence` 명령은 종료된 제품
 session에서 bounded metadata를 owner-only 권한으로 내보낸다. Windows harness는
-네 client의 HTTP/HTTPS row를 필수로 검증하고 누락·계약 불일치 시 실패한다.
-React/UI/state/i18n 수정은 Claude가 담당한다.
+네 client의 HTTP/HTTPS뿐 아니라 h2-only, pinning, 장시간 세션, page 재진입,
+recovery 증거를 필수로 검증하고 누락·계약 불일치 시 실패한다.
+React/UI/state/i18n은 Claude가 담당한다.
 
 #### 실시간 UI
 
 - [x] 시작/정지, session state, CA 설치/제거와 최초 사용 위험 고지
-- [ ] process tree, 안정적인 live list, 진행 행 terminal reconciliation
-- [ ] 사용자 스크롤을 존중하는 auto-follow, batch update와 row cap
-- [ ] 명시적 drop 경고를 포함한 persisted/drop/backpressure/disk/recovery 상태
-- [ ] fidelity·coverage·passthrough·unattributed 경고를 숨기지 않는 UX
+- [x] process tree, 안정적인 live list, 진행 행 terminal reconciliation
+- [x] 사용자 스크롤을 존중하는 auto-follow, batch update와 row cap
+- [x] 명시적 drop 경고를 포함한 persisted/drop/backpressure/disk/recovery 상태
+- [x] fidelity·coverage·passthrough·unattributed 경고를 숨기지 않는 UX
 - [x] stop 후 같은 화면에서 finalized session lazy loading
 
-Claude는 L1 표시, L4 renderer 동작, L5 unresolved-row UX, L6 authoritative SEC-17
-재진입 상태, L7 경고와 L8/L12/L14의 fix/defer 처리를 담당한다. L10은 paired
-user guide와 JVM truststore harness 계약으로 닫혔다.
+Claude는 남은 R8 `LiveCaptureContract` production 소비, R9 미사용 positive
+fidelity helper 제거/사용, R11 engine state token 현지화를 담당한다. L10은
+paired user guide와 JVM truststore harness 계약으로 닫혔다.
 
 SEC-17은 renderer 아래에서 강제된다. unknown attribution은 기본적으로 저장과
 progress 노출 전에 drop하며, 명시적 opt-in을 선택해도 리댁션된 metadata만
@@ -354,7 +371,7 @@ HAR pseudo-process 비교에서 지원하지 않는 정규화/차원을 숨기�
 
 T-580 / `H-RG3` 엔진 구현은 2026-07-27 `REVIEW`에 진입했고 2026-07-28 독립
 `H-SEC2` CA/TLS/권한 게이트를 통과했다. T-581 / H-RG4는 2026-07-28
-`CONDITIONAL` 판정 후 `REVIEW`에 남아 있다. Codex 백엔드 수정은 완료됐다.
-다음 행동은 Claude UI/state/i18n 수정과 finding 처리 후 실제 제품 readback 기반
-Windows browser/curl/JVM/Electron, long-session, 재진입, 복구, 미지원 tier
-증거를 만들고 독립 재리뷰를 받는 것이다.
+첫 판정과 2026-07-29 두 번째 `CONDITIONAL` 판정 후 `REVIEW`에 남아 있다.
+R1/R3–R7/R12 백엔드 수정과 확장된 R2 harness 메커니즘은 구현됐다. 다음 행동은
+새 Windows schema-v3 artifact 생성·보관, Claude 소유 R8/R9/R11 UI 인계 완료,
+독립 재리뷰다.

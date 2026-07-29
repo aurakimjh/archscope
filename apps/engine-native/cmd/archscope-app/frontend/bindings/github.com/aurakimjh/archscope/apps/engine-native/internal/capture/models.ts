@@ -42,6 +42,43 @@ export class Config {
     }
 }
 
+export class LiveCaptureContract {
+    "schemaVersion": number;
+    "transactionRowCap": number;
+    "resyncOnEventSkip": boolean;
+    "restoreCurrentSessionOnPageReentry": boolean;
+    "finalizedSessionUsesAnalysisResult": boolean;
+
+    /** Creates a new LiveCaptureContract instance. */
+    constructor($$source: Partial<LiveCaptureContract> = {}) {
+        if (!("schemaVersion" in $$source)) {
+            this["schemaVersion"] = 0;
+        }
+        if (!("transactionRowCap" in $$source)) {
+            this["transactionRowCap"] = 0;
+        }
+        if (!("resyncOnEventSkip" in $$source)) {
+            this["resyncOnEventSkip"] = false;
+        }
+        if (!("restoreCurrentSessionOnPageReentry" in $$source)) {
+            this["restoreCurrentSessionOnPageReentry"] = false;
+        }
+        if (!("finalizedSessionUsesAnalysisResult" in $$source)) {
+            this["finalizedSessionUsesAnalysisResult"] = false;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new LiveCaptureContract instance from a string or object.
+     */
+    static createFrom($$source: any = {}): LiveCaptureContract {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new LiveCaptureContract($$parsedSource as Partial<LiveCaptureContract>);
+    }
+}
+
 export class Mode {
     "name": string;
     "available": boolean;

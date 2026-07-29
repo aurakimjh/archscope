@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/redact"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 )
 
@@ -74,6 +75,7 @@ type Manifest struct {
 	OverflowPolicy  capture.OverflowPolicy `json:"overflowPolicy"`
 	Counters        Counters               `json:"counters"`
 	CaptureStats    *capture.Stats         `json:"captureStats,omitempty"`
+	Redaction       *redact.Summary        `json:"redaction,omitempty"`
 	Findings        []Finding              `json:"findings"`
 }
 
@@ -286,6 +288,14 @@ func (s *Store) SetCaptureStats(stats capture.Stats) error {
 	defer s.mu.Unlock()
 	next := stats
 	s.manifest.CaptureStats = &next
+	return s.writeManifestLocked()
+}
+
+func (s *Store) SetRedactionSummary(summary redact.Summary) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	next := summary
+	s.manifest.Redaction = &next
 	return s.writeManifestLocked()
 }
 

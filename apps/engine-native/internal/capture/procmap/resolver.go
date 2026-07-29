@@ -25,9 +25,13 @@ type tcpRow struct {
 	State         uint32
 }
 
-type Resolver struct{}
+type Resolver struct {
+	ownerRows    func() ([]tcpRow, error)
+	process      func(int32) *models.ProcessInstance
+	processStart func(int32) string
+}
 
-func (Resolver) Resolve(client, proxy net.Addr) (*models.ProcessInstance, error) {
+func (r Resolver) Resolve(client, proxy net.Addr) (*models.ProcessInstance, error) {
 	clientTCP, ok := client.(*net.TCPAddr)
 	if !ok {
 		return nil, fmt.Errorf("client address is not TCP: %T", client)
@@ -36,7 +40,19 @@ func (Resolver) Resolve(client, proxy net.Addr) (*models.ProcessInstance, error)
 	if !ok {
 		return nil, fmt.Errorf("proxy address is not TCP: %T", proxy)
 	}
-	rows, err := ownerPIDRows()
+	ownerRows := r.ownerRows
+	if ownerRows == nil {
+		ownerRows = ownerPIDRows
+	}
+	processForPID := r.process
+	if processForPID == nil {
+		processForPID = processInstance
+	}
+	startForPID := r.processStart
+	if startForPID == nil {
+		startForPID = processStartTime
+	}
+	rows, err := ownerRows()
 	if err != nil {
 		return nil, err
 	}
@@ -44,16 +60,16 @@ func (Resolver) Resolve(client, proxy net.Addr) (*models.ProcessInstance, error)
 	if !ok {
 		return nil, fmt.Errorf("TCP owner row disappeared before attribution")
 	}
-	process := processInstance(pid)
+	process := processForPID(pid)
 	if process.Key.StartTime == "" {
 		return process, nil
 	}
-	verificationRows, err := ownerPIDRows()
+	verificationRows, err := ownerRows()
 	if err != nil {
 		return process, nil
 	}
 	verifiedPID, ok := matchingOwnerPID(verificationRows, clientTCP, proxyTCP)
-	if ok && verifiedPID == pid {
+	if ok && verifiedPID == pid && startForPID(pid) == process.Key.StartTime {
 		process.Attribution = "confirmed"
 	}
 	return process, nil

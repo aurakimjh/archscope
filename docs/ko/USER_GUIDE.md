@@ -132,8 +132,8 @@ trace, contract를 분석하며, application source code를 정적 분석하거�
 ## Windows 실시간 HTTP 캡처
 
 HTTP Capture 화면에는 T-581 Windows 실시간 캡처 review candidate가 포함되어
-있습니다. 현재 H-RG4 판정은 `CONDITIONAL`이므로 릴리스된 capture tier가 아니라
-acceptance 작업 용도로 사용합니다.
+있습니다. H-RG4는 2026-07-29 두 번째 `CONDITIONAL` 판정을 받았으므로 릴리스된
+capture tier가 아니라 acceptance 작업 용도로 사용합니다.
 
 1. 최초 사용 프록시/CA 경고를 읽고 동의합니다.
 2. HTTPS 가로채기가 필요하면 임시 캡처 CA를 설치합니다.
@@ -154,11 +154,20 @@ semantic capture로 표시하지 않습니다. Windows CurrentUser root store는
 CA import가 필요하므로 acceptance harness의 JVM HTTPS에는 JVM truststore가
 필수입니다.
 
+중지 후 finalized 분석은 저장된 행에서 capture mode와 최약 fidelity를
+계산합니다. mixed/unsupported 세션은 더 이상 HAR-import/foreign-tool/semantic
+metadata를 상속하지 않습니다. TLS interception 실패는 attribution이 보존된
+`proxy_not_captured` / `unsupported`로, 실패한 명시적 또는 h2-only tunnel은
+`proxy_passthrough` / `unsupported`로 기록됩니다. Capture-time redaction count는
+manifest에 저장되어 finalized 분석과 acceptance evidence로 전달됩니다.
+
 `coverage: confirmed`의 의미는 제한적입니다. 동일 client/proxy endpoint tuple과
-owner PID를 연속 두 번의 TCP-owner table 조회에서 확인하고 process start time을
-얻었다는 뜻입니다. 전체 트래픽 coverage나 모든 PID 재사용 race 제거를 의미하지
-않습니다. 불안정하거나 사라진 row는 `inferred`/`unknown`이며 SEC-17 metadata
-보존을 명시적으로 켜지 않으면 drop합니다.
+owner PID를 연속 두 번의 TCP-owner table 조회에서 확인하고 두 번째 조회 전후의
+process start time이 동일함을 확인했다는 뜻입니다. Attribution은 HTTP request마다
+반복하지 않고 accepted client connection마다 한 번 계산합니다. 전체 트래픽
+coverage나 모든 PID 재사용 race 제거를 의미하지 않습니다. 불안정하거나 사라진
+row는 `inferred`/`unknown`이며 SEC-17 metadata 보존을 명시적으로 켜지 않으면
+drop합니다.
 
 Windows acceptance와 package signature 증거 생성:
 
@@ -168,19 +177,25 @@ powershell -ExecutionPolicy Bypass -File scripts/verify-windows-live-capture.ps1
   -HttpTargetUrl http://127.0.0.1:8080/health `
   -HttpsTargetUrl https://example.test/health `
   -SessionPath "$env:LOCALAPPDATA\ArchScope\captures\cap-..." `
+  -RecoverySessionPath "$env:LOCALAPPDATA\ArchScope\captures\cap-recovered-..." `
   -ArchScopeEngineExe .\bin\archscope-engine.exe `
+  -WebViewDebugPort 9223 `
   -JavaTrustStore .\tmp\archscope-t581.jks `
   -ArchScopeExe .\bin\archscope.exe
 ```
 
-Harness는 browser/curl/JVM/Electron의 HTTP와 HTTPS를 모두 필수로 실행하고,
-operator가 UI capture를 중지할 때까지 기다린 뒤 read-only
-`http-capture acceptance-evidence` 엔진 명령으로 실제 제품 row/stats를
-readback합니다. 필수 client 부재, marker row 누락, mode/fidelity/coverage/body
-storage 계약 불일치가 있으면 실패합니다. 이 명령은 capture를 시작하지 않으며
-metadata-only 증거를 owner-only 권한으로 기록합니다. 남은 UI 수정,
-unsupported-tier/long-session/re-entry/recovery 시나리오와 독립 H-RG4 재리뷰가
-Windows에서 통과하기 전까지 T-581은 `REVIEW` 상태입니다.
+Acceptance 앱은 `t581e2e` tag로 빌드하고
+`ARCHSCOPE_E2E_CDP_PORT=9223`으로 실행합니다. Production build는 이 debugging
+port를 노출하지 않습니다. h2-only probe를 위해 HTTPS target은 h2를 지원해야
+합니다. Schema-v3 harness는 browser/curl/JVM/Electron HTTP/HTTPS, attribution이
+있는 pinning 실패, h2-only passthrough, 최소 1,000건 장시간 요청, WebView page
+재진입, 별도 실제 crash-recovery session을 필수로 검증합니다. Main UI capture
+중지를 기다린 뒤 두 store를 read-only `http-capture acceptance-evidence`로
+readback하고 누락·계약 불일치 시 실패합니다. 이 명령은 capture를 시작하지
+않으며 metadata-only 증거를 owner-only 권한으로 기록합니다. 재리뷰 전 생성
+JSON을 보관하거나 repository path와 checksum을 기록해야 합니다. 해당 Windows
+artifact, Claude 소유 R8/R9/R11 UI 인계, 독립 H-RG4 재리뷰 `PASS` 전까지 T-581은
+`REVIEW` 상태입니다.
 
 ## 네이티브 앱
 

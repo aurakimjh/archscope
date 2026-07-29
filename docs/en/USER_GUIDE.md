@@ -133,8 +133,8 @@ Unsupported or deferred:
 ## Windows Live HTTP Capture
 
 The HTTP Capture page includes the T-581 review candidate for Windows live
-capture. H-RG4 currently has a `CONDITIONAL` verdict; use it for acceptance
-work, not as a released capture tier:
+capture. H-RG4 has a second `CONDITIONAL` verdict dated 2026-07-29; use it for
+acceptance work, not as a released capture tier:
 
 1. Read and accept the first-use proxy/CA warning.
 2. Install the temporary capture CA when HTTPS interception is required.
@@ -155,10 +155,20 @@ store covers clients that consume the Windows trust store. JVM/JSSE and
 NSS-based clients need their own explicit CA import; the acceptance harness
 therefore requires a JVM truststore for JVM HTTPS.
 
+After stop, the finalized analysis derives its capture mode and weakest
+fidelity from the stored rows. Mixed or unsupported sessions no longer inherit
+HAR-import/foreign-tool/semantic metadata. TLS interception failures are
+retained as attributed `proxy_not_captured` / `unsupported` rows, while failed
+explicit or h2-only tunnels remain `proxy_passthrough` / `unsupported`.
+Capture-time redaction counts are persisted in the manifest and carried into
+the finalized analysis and acceptance evidence.
+
 `coverage: confirmed` is deliberately narrow: ArchScope observed the same
 client/proxy endpoint tuple and owner PID in two immediate TCP-owner table reads
-and obtained a process start time. It does not prove complete traffic coverage
-or eliminate every PID-reuse race; missing or unstable rows are
+and obtained the same process start time before and after the second read.
+Attribution is resolved once per accepted client connection rather than once
+per HTTP request. This does not prove complete traffic coverage or eliminate
+every PID-reuse race; missing or unstable rows are
 `inferred`/`unknown` and are dropped unless SEC-17 metadata retention was
 explicitly enabled.
 
@@ -170,19 +180,26 @@ powershell -ExecutionPolicy Bypass -File scripts/verify-windows-live-capture.ps1
   -HttpTargetUrl http://127.0.0.1:8080/health `
   -HttpsTargetUrl https://example.test/health `
   -SessionPath "$env:LOCALAPPDATA\ArchScope\captures\cap-..." `
+  -RecoverySessionPath "$env:LOCALAPPDATA\ArchScope\captures\cap-recovered-..." `
   -ArchScopeEngineExe .\bin\archscope-engine.exe `
+  -WebViewDebugPort 9223 `
   -JavaTrustStore .\tmp\archscope-t581.jks `
   -ArchScopeExe .\bin\archscope.exe
 ```
 
-The harness requires browser/curl/JVM/Electron over HTTP and HTTPS, waits for
-the operator to stop the UI capture, invokes the read-only
-`http-capture acceptance-evidence` engine command, and fails when a client is
-missing, a marker has no captured row, or mode/fidelity/coverage/body-storage
-evidence contradicts the supported tier. The command never starts capture and
-writes metadata-only evidence with owner-only permissions. T-581 remains in
-`REVIEW` until the remaining UI remediation, unsupported-tier/long-session/
-re-entry/recovery scenarios, and an independent H-RG4 re-review pass on Windows.
+Build the acceptance app with the `t581e2e` tag and launch it with
+`ARCHSCOPE_E2E_CDP_PORT=9223`; production builds do not expose this debugging
+port. The HTTPS target must support h2 for the h2-only probe. The schema-v3
+harness requires browser/curl/JVM/Electron over HTTP and HTTPS, an attributed
+pinning failure, h2-only passthrough, at least 1,000 long-session requests,
+WebView page re-entry, and a separate real crash-recovery session. It waits for
+the operator to stop the main UI capture, invokes the read-only
+`http-capture acceptance-evidence` command for both stores, and fails on absent
+or contradictory evidence. The command never starts capture and writes
+metadata-only evidence with owner-only permissions. Archive the generated JSON
+or record its repository path and checksum before requesting re-review. T-581
+remains in `REVIEW` until that Windows artifact, the Claude-owned R8/R9/R11 UI
+handoff, and an independent H-RG4 re-review pass.
 
 ## Native App
 

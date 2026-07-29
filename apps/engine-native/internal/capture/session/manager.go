@@ -277,6 +277,9 @@ func (m *Manager) Stop(ctx context.Context, id SessionID) (Session, error) {
 	}
 	if m.pipeline != nil {
 		stopErr = errors.Join(stopErr, m.pipeline.Close())
+		if err := m.store.SetRedactionSummary(m.pipeline.RedactionSummary()); err != nil {
+			stopErr = errors.Join(stopErr, err)
+		}
 	}
 	finalState := StateFinalized
 	stats := Stats{}
@@ -419,6 +422,27 @@ func (m *Manager) SessionPath(id SessionID) (string, error) {
 		return "", ErrSessionNotFound
 	}
 	return path, nil
+}
+
+func (m *Manager) Manifest(id SessionID) (store.Manifest, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	if !validSessionID(id) {
+		return store.Manifest{}, ErrSessionNotFound
+	}
+	if id == m.session.ID && m.store != nil {
+		return m.store.Meta(), nil
+	}
+	path := filepath.Join(m.root, string(id))
+	st, err := store.OpenReadOnly(path)
+	if os.IsNotExist(err) {
+		return store.Manifest{}, ErrSessionNotFound
+	}
+	if err != nil {
+		return store.Manifest{}, err
+	}
+	defer st.Close()
+	return st.Meta(), nil
 }
 
 func (m *Manager) openSession(id SessionID) (*store.Store, error) {

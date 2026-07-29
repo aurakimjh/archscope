@@ -9,24 +9,29 @@ import (
 	"time"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/redact"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/store"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 )
 
 const (
-	SchemaVersion   = 1
-	MaxEvidenceRows = store.MaxFetchLimit
+	SchemaVersion          = 2
+	HarnessSchemaVersion   = 3
+	MaxEvidenceRows        = store.MaxFetchLimit
+	MinLongSessionRequests = 1000
 )
 
 type Evidence struct {
-	SchemaVersion int               `json:"schemaVersion"`
-	Task          string            `json:"task"`
-	GeneratedAt   time.Time         `json:"generatedAt"`
-	Session       SessionEvidence   `json:"session"`
-	Stats         capture.Stats     `json:"stats"`
-	Counts        map[string]uint64 `json:"counts"`
-	Rows          []Row             `json:"rows"`
-	RowsTruncated bool              `json:"rowsTruncated"`
+	SchemaVersion int                         `json:"schemaVersion"`
+	Task          string                      `json:"task"`
+	GeneratedAt   time.Time                   `json:"generatedAt"`
+	Session       SessionEvidence             `json:"session"`
+	Stats         capture.Stats               `json:"stats"`
+	Redaction     redact.Summary              `json:"redaction"`
+	LiveContract  capture.LiveCaptureContract `json:"liveContract"`
+	Counts        map[string]uint64           `json:"counts"`
+	Rows          []Row                       `json:"rows"`
+	RowsTruncated bool                        `json:"rowsTruncated"`
 }
 
 type SessionEvidence struct {
@@ -46,6 +51,7 @@ type Row struct {
 	Path                string         `json:"path"`
 	StatusCode          int            `json:"statusCode"`
 	State               models.TxState `json:"state"`
+	Error               string         `json:"error,omitempty"`
 	CaptureMode         string         `json:"captureMode"`
 	Fidelity            string         `json:"fidelity"`
 	Coverage            string         `json:"coverage"`
@@ -80,8 +86,14 @@ func Build(sessionPath string) (Evidence, error) {
 		Task:          "T-581",
 		GeneratedAt:   time.Now().UTC(),
 		Stats:         stats,
+		LiveContract:  capture.DefaultLiveCaptureContract(),
 		Counts:        map[string]uint64{},
 		Rows:          make([]Row, 0, MaxEvidenceRows),
+	}
+	if meta.Redaction != nil {
+		result.Redaction = *meta.Redaction
+	} else {
+		result.Redaction = redact.Summary{Version: redact.PolicyVersion, Rules: []string{}, Counts: map[string]int{}}
 	}
 	cursor := ""
 	for {
@@ -118,7 +130,7 @@ func Build(sessionPath string) (Evidence, error) {
 func evidenceRow(tx models.CaptureTransaction) Row {
 	row := Row{
 		ID: tx.ID, Method: tx.Method, URL: tx.URL, Scheme: tx.Scheme,
-		Host: tx.Host, Path: tx.Path, StatusCode: tx.StatusCode, State: tx.State,
+		Host: tx.Host, Path: tx.Path, StatusCode: tx.StatusCode, State: tx.State, Error: tx.Error,
 		CaptureMode: tx.CaptureMode, Fidelity: tx.Fidelity, Coverage: tx.Coverage,
 		RequestBodyStorage:  tx.Request.BodyStorage,
 		ResponseBodyStorage: tx.Response.BodyStorage,

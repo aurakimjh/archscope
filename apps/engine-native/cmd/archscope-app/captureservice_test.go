@@ -3,6 +3,10 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"os"
 	"testing"
 	"time"
@@ -58,6 +62,60 @@ func TestCaptureServiceSessionCanBeAnalyzedAfterStop(t *testing.T) {
 	if result.Type != "http_capture" || result.Summary["total_transactions"] != 0 {
 		t.Fatalf("result type=%q summary=%+v", result.Type, result.Summary)
 	}
+	metadata := result.Metadata.Extra["http_capture"].(map[string]any)
+	if metadata["capture_mode"] == "har_import" ||
+		metadata["observation_point"] == "foreign_tool" ||
+		metadata["fidelity"] == "semantic" {
+		t.Fatalf("empty live session claimed imported semantic provenance: %+v", metadata)
+	}
+}
+
+func TestCaptureServiceFinalizedAnalysisUsesLiveProvenanceAndPersistedRedaction(t *testing.T) {
+	origin := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, _ *http.Request) {
+		_, _ = io.WriteString(writer, "ok")
+	}))
+	defer origin.Close()
+	service := newCaptureServiceForPlatform(t.TempDir(), certstore.New(memoryTrustBackend{}, nil), "windows")
+	started, err := service.StartCapture(capture.Config{
+		ListenAddress: "127.0.0.1:0", ReserveBytes: 0,
+		RetainUnattributedMetadata: true,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	proxyAddress, err := url.Parse("http://" + started.ListenAddress)
+	if err != nil {
+		t.Fatal(err)
+	}
+	client := &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyAddress)}}
+	response, err := client.Get(origin.URL + "/capture?token=example-secret")
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, _ = io.ReadAll(response.Body)
+	response.Body.Close()
+	if _, err := service.StopCapture(string(started.ID)); err != nil {
+		t.Fatal(err)
+	}
+	manifest, err := service.manager.Manifest(started.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if manifest.Redaction == nil || !manifest.Redaction.Applied ||
+		manifest.Redaction.Counts["query_value"] == 0 {
+		t.Fatalf("manifest redaction=%+v", manifest.Redaction)
+	}
+	result, err := service.AnalyzeCaptureSession(CaptureAnalyzeRequest{SessionID: string(started.ID)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	metadata := result.Metadata.Extra["http_capture"].(map[string]any)
+	if metadata["capture_mode"] != proxy.CaptureModeMITM ||
+		metadata["observation_point"] != "proxy" ||
+		metadata["fidelity"] != proxy.FidelityDecodedWire ||
+		result.Summary["redaction_applied"] != true {
+		t.Fatalf("finalized live result metadata=%+v summary=%+v", metadata, result.Summary)
+	}
 }
 
 func TestT581LiveCaptureAcceptanceFixture(t *testing.T) {
@@ -86,6 +144,7 @@ func TestT581LiveCaptureAcceptanceFixture(t *testing.T) {
 			CARemovedOnStop                   bool
 		}
 		Renderer struct {
+			SchemaVersion                      int
 			RowCap                             int
 			ResyncOnEventSkip                  bool
 			RestoreCurrentSessionOnPageReentry bool
@@ -98,6 +157,15 @@ func TestT581LiveCaptureAcceptanceFixture(t *testing.T) {
 			ProductReadback         bool
 			FailsOnMissingClient    bool
 			Transports              []string
+		}
+		Harness struct {
+			SchemaVersion            int
+			MinLongSessionRequests   int
+			RequiresArchivedArtifact bool
+			UnsupportedH2            bool
+			UnsupportedPinning       bool
+			PageReentry              bool
+			Recovery                 bool
 		}
 		Store struct {
 			StableSnapshotCursor bool
@@ -142,10 +210,12 @@ func TestT581LiveCaptureAcceptanceFixture(t *testing.T) {
 		!fixture.Security.CARemovedOnStop {
 		t.Fatalf("security=%+v", fixture.Security)
 	}
-	if fixture.Renderer.RowCap != 500 ||
-		!fixture.Renderer.ResyncOnEventSkip ||
-		!fixture.Renderer.RestoreCurrentSessionOnPageReentry ||
-		!fixture.Renderer.FinalizedSessionUsesAnalysisResult {
+	contract := capture.DefaultLiveCaptureContract()
+	if fixture.Renderer.SchemaVersion != contract.SchemaVersion ||
+		fixture.Renderer.RowCap != contract.TransactionRowCap ||
+		fixture.Renderer.ResyncOnEventSkip != contract.ResyncOnEventSkip ||
+		fixture.Renderer.RestoreCurrentSessionOnPageReentry != contract.RestoreCurrentSessionOnPageReentry ||
+		fixture.Renderer.FinalizedSessionUsesAnalysisResult != contract.FinalizedSessionUsesAnalysisResult {
 		t.Fatalf("renderer=%+v", fixture.Renderer)
 	}
 	if fixture.AcceptanceEvidence.SchemaVersion != acceptance.SchemaVersion ||
@@ -157,6 +227,15 @@ func TestT581LiveCaptureAcceptanceFixture(t *testing.T) {
 		fixture.AcceptanceEvidence.Transports[0] != "http" ||
 		fixture.AcceptanceEvidence.Transports[1] != "https" {
 		t.Fatalf("acceptance evidence=%+v", fixture.AcceptanceEvidence)
+	}
+	if fixture.Harness.SchemaVersion != acceptance.HarnessSchemaVersion ||
+		fixture.Harness.MinLongSessionRequests != acceptance.MinLongSessionRequests ||
+		!fixture.Harness.RequiresArchivedArtifact ||
+		!fixture.Harness.UnsupportedH2 ||
+		!fixture.Harness.UnsupportedPinning ||
+		!fixture.Harness.PageReentry ||
+		!fixture.Harness.Recovery {
+		t.Fatalf("harness=%+v", fixture.Harness)
 	}
 	if !fixture.Store.StableSnapshotCursor ||
 		!fixture.Store.SessionBoundCursor ||

@@ -18,3 +18,7 @@ func processInstance(pid int32) *models.ProcessInstance {
 		Attribution: "unknown",
 	}
 }
+
+func processStartTime(int32) string {
+	return ""
+}

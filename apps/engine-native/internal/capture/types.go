@@ -11,7 +11,29 @@ import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 )
 
-const LiveSchemaVersion = 1
+const (
+	LiveSchemaVersion            = 1
+	LiveCaptureContractVersion   = 1
+	DefaultLiveTransactionRowCap = 500
+)
+
+type LiveCaptureContract struct {
+	SchemaVersion                      int  `json:"schemaVersion"`
+	TransactionRowCap                  int  `json:"transactionRowCap"`
+	ResyncOnEventSkip                  bool `json:"resyncOnEventSkip"`
+	RestoreCurrentSessionOnPageReentry bool `json:"restoreCurrentSessionOnPageReentry"`
+	FinalizedSessionUsesAnalysisResult bool `json:"finalizedSessionUsesAnalysisResult"`
+}
+
+func DefaultLiveCaptureContract() LiveCaptureContract {
+	return LiveCaptureContract{
+		SchemaVersion:                      LiveCaptureContractVersion,
+		TransactionRowCap:                  DefaultLiveTransactionRowCap,
+		ResyncOnEventSkip:                  true,
+		RestoreCurrentSessionOnPageReentry: true,
+		FinalizedSessionUsesAnalysisResult: true,
+	}
+}
 
 type SessionID string
 type SessionState string

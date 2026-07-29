@@ -256,13 +256,13 @@ cancellation, streaming, H2 passthrough, and long-session memory-bound tests pas
 
 ### H-RG4 — Live UI and Windows E2E
 
-**Status:** `REVIEW` — independent `CONDITIONAL` (2026-07-28). Three findings
-block `PASS`: L1 passthrough progress rows claim semantic fidelity, L2 the
-redaction policy has a confirmed concurrency race, and L3 the acceptance
-package cannot read back and prove actual ArchScope captures. L4–L7 must be
-resolved or explicitly accepted; L8–L14 need a recorded fix/defer decision.
-The backend portions are now remediated; this does not constitute `PASS`
-without the Claude UI handoff, real Windows evidence, and independent re-review.
+**Status:** `REVIEW` — second independent `CONDITIONAL` (2026-07-29). The
+original redaction race and live-table findings are closed. The re-review found
+that finalized live analysis still used HAR semantic provenance (R1), the
+Windows evidence was not inspectable or harness-complete (R2), pinning and
+failed-tunnel rows lost honest attribution/mode/fidelity (R3/R4), and finalized
+redaction disclosure was false (R5). R6–R8 require resolution or acceptance;
+R9–R12 require disposition. T-582 remains blocked until an independent `PASS`.
 
 #### Codex Integration
 
@@ -278,27 +278,46 @@ without the Claude UI handoff, real Windows evidence, and independent re-review.
   reconciliation, active SEC-17 policy disclosure, and observed/drop counters.
 - [x] L9/L11/L13: enforce platform availability in the manager, avoid fabricated
   CONNECT paths, and document the confirmed-attribution guarantee boundary.
+- [x] R1/R5: derive finalized live provenance and weakest fidelity from stored
+  transactions, persist the capture-time redaction summary, and keep HAR import
+  provenance isolated to the HAR path.
+- [x] R3/R4: retain attributed TLS-handshake failures as
+  `proxy_not_captured`/`unsupported` and preserve
+  `proxy_passthrough`/`unsupported` plus process-derived coverage on tunnel
+  failures.
+- [x] R6/R7: resolve TCP-owner attribution once per accepted client connection,
+  and confirm both PID and process start time across the second owner-table read.
+- [x] R8 backend: expose a versioned `LiveCaptureContract` for renderer row cap,
+  event-skip resync, page re-entry, and finalized handoff; bind the fixture to
+  that Go contract. Claude must consume it in production state.
+- [x] R12 backend: persist terminal `aborted` rows and include them in final
+  stats, aggregate, analysis, and acceptance evidence.
+- [x] R2 harness mechanism: require an acceptance WebView2 CDP port and a real
+  recovery session, run h2-only and pinning probes, generate a bounded long
+  session, verify page re-entry, and read every scenario back from product
+  stores. A fresh Windows artifact is still required.
 
-Codex has stopped after freezing these backend contracts, generated bindings,
-fixtures, and engine verification. The new read-only
+Codex freezes these backend contracts, generated bindings, fixtures, and engine
+verification before UI handoff. The read-only
 `http-capture acceptance-evidence` command exports bounded metadata from a
 stopped product session with owner-only permissions; the Windows harness
-requires HTTP/HTTPS rows for all four clients and fails on missing or
-contradictory evidence. React/UI/state/i18n remediation is handed to Claude.
+requires HTTP/HTTPS rows for all four clients plus h2-only, pinning,
+long-session, page-re-entry, and recovery evidence and fails on missing or
+contradictory product data. React/UI/state/i18n remains Claude-owned.
 
 #### Live UI
 
 - [x] Start/stop, session state, CA install/remove, and first-use warning
-- [ ] Process tree, stable live list, and terminal in-progress reconciliation
-- [ ] User-scroll-respecting follow mode, batched updates, and row cap
-- [ ] Persistence/drop/backpressure/disk/recovery status with explicit drop warning
-- [ ] Honest fidelity, coverage, passthrough, and unattributed warnings
+- [x] Process tree, stable live list, and terminal in-progress reconciliation
+- [x] User-scroll-respecting follow mode, batched updates, and row cap
+- [x] Persistence/drop/backpressure/disk/recovery status with explicit drop warning
+- [x] Honest fidelity, coverage, passthrough, and unattributed warnings
 - [x] Same-page finalized-session lazy loading after stop
 
-Claude owns L1 presentation, L4 renderer behavior, L5 unresolved-row UX, L6
-authoritative SEC-17 re-entry state, L7 warnings, and the fix/defer disposition
-for L8/L12/L14. L10 is closed in the paired user guides and JVM truststore
-harness contract.
+Claude owns the remaining R8 production consumption of
+`LiveCaptureContract`, R9 removal/use of the dead positive-fidelity helper, and
+R11 localization of engine state tokens. L10 is closed in the paired user
+guides and JVM truststore harness contract.
 
 SEC-17 is enforced below the renderer: unknown attribution is dropped by
 default before persistence or progress exposure, and the explicit opt-in keeps
@@ -356,8 +375,7 @@ HAR pseudo-process sessions.
 
 T-580 / `H-RG3` entered `REVIEW` on 2026-07-27 and passed the independent
 `H-SEC2` CA/TLS/privilege gate on 2026-07-28. T-581 / H-RG4 remains in `REVIEW`
-after the 2026-07-28 `CONDITIONAL` verdict. Codex backend remediation is
-complete. The next action is Claude UI/state/i18n remediation and disposition,
-followed by real product-readback Windows browser/curl/JVM/Electron,
-long-session, re-entry, recovery, and unsupported-tier evidence and an
-independent re-review.
+after the second 2026-07-29 `CONDITIONAL` verdict. The R1/R3–R7/R12 backend
+remediation and expanded R2 harness mechanism are implemented. Next, generate
+and archive a fresh Windows schema-v3 artifact, complete the Claude-owned
+R8/R9/R11 UI handoff, and request another independent re-review.

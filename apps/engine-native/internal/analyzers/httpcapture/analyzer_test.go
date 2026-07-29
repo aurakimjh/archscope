@@ -3,6 +3,7 @@ package httpcapture
 import (
 	"testing"
 
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/redact"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 )
 
@@ -37,6 +38,50 @@ func TestBuildHTTPHARAnalysisIsDeterministicAndBounded(t *testing.T) {
 	}
 	if _, exists := process["user"]; exists {
 		t.Fatal("process user must not be exported by default")
+	}
+}
+
+func TestBuildLiveDerivesWeakestFidelityAndArchScopeProvenance(t *testing.T) {
+	entries := []models.CaptureTransaction{
+		{
+			ID: "decoded", State: models.TxComplete, CaptureMode: "proxy_mitm",
+			ObservationPoint: "proxy", Fidelity: "decoded_wire", Coverage: "confirmed",
+			Request: unknownMessage(), Response: unknownMessage(),
+		},
+		{
+			ID: "opaque", State: models.TxComplete, CaptureMode: "proxy_passthrough",
+			ObservationPoint: "proxy", Fidelity: "unsupported", Coverage: "confirmed",
+			Request: unknownMessage(), Response: unknownMessage(),
+		},
+	}
+	redactionSummary := redact.Summary{
+		Applied: true, Version: redact.PolicyVersion,
+		Rules: []string{"query_value"}, Counts: map[string]int{"query_value": 1},
+	}
+	result := BuildLive(entries, "capture://cap-test", "canonical-v1", redactionSummary, Options{})
+	metadata := result.Metadata.Extra["http_capture"].(map[string]any)
+	if metadata["capture_mode"] != "mixed" ||
+		metadata["observation_point"] != "proxy" ||
+		metadata["fidelity"] != "unsupported" {
+		t.Fatalf("live metadata=%+v", metadata)
+	}
+	if metadata["capture_mode"] == "har_import" ||
+		metadata["observation_point"] == "foreign_tool" ||
+		metadata["fidelity"] == "semantic" {
+		t.Fatalf("live analysis claimed HAR semantic provenance: %+v", metadata)
+	}
+	if result.Summary["redaction_applied"] != true {
+		t.Fatalf("redaction summary=%+v", result.Summary)
+	}
+	foundRedaction := false
+	for _, finding := range result.Metadata.Findings {
+		if finding["code"] == "CAPTURE_REDACTED" {
+			foundRedaction = true
+			break
+		}
+	}
+	if !foundRedaction {
+		t.Fatalf("findings=%+v", result.Metadata.Findings)
 	}
 }
 

@@ -358,6 +358,8 @@ func (p *Pipeline) TrackProgress(tx models.CaptureTransaction) error {
 
 func (p *Pipeline) Snapshot() aggregate.Snapshot { return p.agg.Snapshot() }
 
+func (p *Pipeline) RedactionSummary() redact.Summary { return p.cfg.Redaction.Summary() }
+
 func (p *Pipeline) Stats(state capture.SessionState) capture.Stats {
 	meta := p.cfg.Store.Meta()
 	return capture.Stats{
@@ -390,11 +392,11 @@ func (p *Pipeline) Close() error {
 	close(p.queue)
 	p.mu.Unlock()
 	<-p.done
-	p.abortInflight(time.Now().UTC())
+	abortErr := p.abortInflight(time.Now().UTC())
 	close(p.progress)
 	p.sendMu.Unlock()
 	<-p.published
-	return p.cfg.Store.Flush()
+	return errors.Join(abortErr, p.cfg.Store.Flush())
 }
 
 func (p *Pipeline) failLive(tx models.CaptureTransaction, err error) {
@@ -409,7 +411,7 @@ func (p *Pipeline) failLive(tx models.CaptureTransaction, err error) {
 	p.publishProgress(tx)
 }
 
-func (p *Pipeline) abortInflight(ended time.Time) {
+func (p *Pipeline) abortInflight(ended time.Time) error {
 	p.mu.Lock()
 	aborted := make([]models.CaptureTransaction, 0)
 	for _, id := range p.liveOrder {
@@ -424,13 +426,30 @@ func (p *Pipeline) abortInflight(ended time.Time) {
 		aborted = append(aborted, tx)
 	}
 	p.mu.Unlock()
+	var persistErr error
 	for _, tx := range aborted {
+		p.observed.Add(1)
+		p.captured.Add(1)
+		if tx.Fidelity == "unsupported" {
+			p.unsupported.Add(1)
+		}
+		if tx.CaptureMode == "proxy_passthrough" {
+			p.passthrough.Add(1)
+		}
+		item, err := p.cfg.Store.Append(tx)
+		if err != nil {
+			persistErr = errors.Join(persistErr, err)
+		} else {
+			p.persisted.Add(1)
+			p.agg.ApplyBatch([]models.CaptureTransaction{item.Transaction})
+		}
 		select {
 		case p.progress <- tx:
 		default:
 			p.eventSkipped.Add(1)
 		}
 	}
+	return persistErr
 }
 
 func (p *Pipeline) publishProgress(tx models.CaptureTransaction) {
