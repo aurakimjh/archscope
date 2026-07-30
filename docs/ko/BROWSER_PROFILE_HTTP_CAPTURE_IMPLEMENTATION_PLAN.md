@@ -20,10 +20,11 @@
   재리뷰, bounded import UI, shared fixture, 전체 엔진/프런트 검증을 포함해
   **완료 — 통합 PASS (2026-07-21)**다. T-571/H-RG2는 2026-07-27 독립
   `H-COV1 PASS`로 닫혔고, T-580/H-RG3도 2026-07-28 독립 `H-SEC2 PASS`로
-  닫혔다. T-581/H-RG4 Windows 실시간 UI와 E2E는 2026-07-28 독립
-  `CONDITIONAL` 판정 후 `REVIEW`에 남아 있다. 백엔드와 UI 수정은 완료됐고,
-  수정된 Windows 하네스가 contradiction이 없는 fixture-only 교체 artifact를
-  생성했다. V1–V3에 한정한 독립 재리뷰만 남았다.
+  닫혔다. T-581/H-RG4 Windows 실시간 UI와 E2E는 **완료 — 그룹 PASS
+  (2026-07-30)**다: V1–V3에 한정한 네 번째 독립 재리뷰가 fixture-only 교체
+  artifact에 대해 조건 해소를 검증했고, privacy 선언은 이제 공개된 출력에서
+  계산되고 contradiction 검사로 강제된다. `H-RG5` HTTP 세션 Diff가
+  해제됐다.
 
 ## 2. 역할과 소유권
 
@@ -79,8 +80,8 @@ Claude가 담당한다.
 | 2 | `H-RG1` HAR 오프라인 분석 완성 | **완료 — 통합 PASS (2026-07-21)** | 종료 |
 | 3 | `H-RG2` Windows coverage proof | **완료 — H-COV1 PASS (2026-07-27)** | 종료 |
 | 4 | `H-RG3` 실시간 캡처 엔진 기반 | **완료 — H-SEC2 PASS (2026-07-28)** | 종료 |
-| 5 | `H-RG4` 실시간 UI 및 Windows E2E | **REVIEW — 수정된 Windows 증거 보관 완료** | 좁은 독립 `PASS` 대기 |
-| 6 | `H-RG5` HTTP 세션 Diff | 계획 | `H-RG4 PASS` |
+| 5 | `H-RG4` 실시간 UI 및 Windows E2E | **완료 — PASS (2026-07-30)** | 종료 |
+| 6 | `H-RG5` HTTP 세션 Diff | 준비 완료 — `H-RG4 PASS` 충족 | `H-RG4 PASS` |
 | 7 | `X-RG1` HTTP × 프로파일/서버 증거 교차 분석 | 계획 | `H-RG5 PASS` |
 | 8 | `R-RG1` 통합 릴리스 승인 | 계획 | `X-RG1 PASS` |
 
@@ -258,13 +259,17 @@ streaming, H2 passthrough fixture와 long-session memory bound가 통과해야 �
 
 ### H-RG4 — 실시간 UI와 Windows E2E
 
-**상태:** `REVIEW` — 2026-07-29 세 번째 독립 재리뷰가 네 번째
-`CONDITIONAL`을 반환했다. 코드 측 S1–S9 조건은 검증됐고 수정된 하네스가
-거부된 artifact를 교체했다. 교체본은 source 1,023행 중 loopback fixture
-1,012행만 보관하고 백그라운드 11행을 제외했으며, confirmed attribution의
-fixture pinning 실패 1행과 빈 contradiction 집합을 포함한다. SHA-256은
+**상태:** **완료 — 그룹 `PASS` (2026-07-30)**. 2026-07-29 세 번째 독립
+재리뷰가 네 번째 `CONDITIONAL`을 반환했고, 코드 측 S1–S9 조건 검증 후
+수정된 하네스가 거부된 artifact를 교체했다. 교체본은 source 1,023행 중
+loopback fixture 1,012행만 보관하고 백그라운드 11행을 제외했으며,
+confirmed attribution의 fixture pinning 실패 1행과 빈 contradiction 집합을
+포함한다. SHA-256은
 `69565684d57b20d763ed477f731a9eb836bcc8fbde657cdff10bce0085030111`이다.
-V1–V3에 한정한 독립 재리뷰만 남았으며 독립 `PASS` 전까지 T-582는 차단된다.
+2026-07-30 V1–V3에 한정한 네 번째 독립 재리뷰가 조건 해소를 검증하고
+게이트를 닫았다
+(`docs/review/done/2026-07-30_claude-code_H-RG4_windows-live-capture-ui-e2e-fourth-re-review.md`).
+T-582는 해제됐고, 보류된 resolver 비용 실측은 `R-RG1`에서 수행한다.
 
 #### Codex 통합
 
@@ -411,7 +416,7 @@ HAR pseudo-process 비교에서 지원하지 않는 정규화/차원을 숨기�
 ## 8. 첫 실행 지점
 
 T-580 / `H-RG3` 엔진 구현은 2026-07-27 `REVIEW`에 진입했고 2026-07-28 독립
-`H-SEC2` CA/TLS/권한 게이트를 통과했다. T-581 / H-RG4는 2026-07-29 세 번째
-독립 재리뷰의 네 번째 `CONDITIONAL` 후 `REVIEW`에 남아 있다. 코드 측 조건은
-닫혔고 수정된 Windows 실행이 contradiction 없는 fixture-only 교체 artifact와
-체크섬을 보관했다. 다음 행동은 V1–V3에 한정한 독립 재리뷰다.
+`H-SEC2` CA/TLS/권한 게이트를 통과했다. T-581 / H-RG4는 2026-07-30 독립
+그룹 `PASS`로 닫혔다: 수정된 Windows 실행이 contradiction 없는 fixture-only
+교체 artifact와 체크섬을 보관했고, V1–V3에 한정한 네 번째 재리뷰가 조건
+해소를 검증했다. 다음 행동은 T-582 / `H-RG5` HTTP 세션 Diff다.

@@ -19,11 +19,11 @@ group and **the next group cannot start until the current group passes**.
   re-reviews, the bounded import UI, shared fixtures, and full engine/frontend
   verification. T-571/H-RG2 closed with independent `H-COV1 PASS` on
   2026-07-27, and T-580/H-RG3 closed with independent `H-SEC2 PASS` on
-  2026-07-28. T-581/H-RG4 Windows live UI and E2E remains in `REVIEW` after an
-  independent `CONDITIONAL` verdict on 2026-07-28. The backend and UI
-  remediations are complete, and the corrected Windows harness has produced a
-  fixture-only replacement artifact with an empty contradiction set. Only the
-  narrow independent V1–V3 re-review remains.
+  2026-07-28. T-581/H-RG4 Windows live UI and E2E is **complete — group PASS
+  (2026-07-30)**: the narrow independent fourth re-review verified V1–V3
+  resolved against the fixture-only replacement artifact, whose privacy
+  declaration is now derived from the published output and
+  contradiction-checked. `H-RG5` HTTP session Diff is unblocked.
 
 ## 2. Ownership
 
@@ -75,8 +75,8 @@ Only high-consequence boundaries receive an extra per-item gate:
 | 2 | `H-RG1` complete offline HAR analysis | **Complete — integrated PASS (2026-07-21)** | Closed |
 | 3 | `H-RG2` Windows coverage proof | **Complete — H-COV1 PASS (2026-07-27)** | Closed |
 | 4 | `H-RG3` live-capture engine foundation | **Complete — H-SEC2 PASS (2026-07-28)** | Closed |
-| 5 | `H-RG4` live UI and Windows E2E | **REVIEW — corrected Windows evidence archived** | Narrow independent `PASS` pending |
-| 6 | `H-RG5` HTTP session Diff | Planned | `H-RG4 PASS` |
+| 5 | `H-RG4` live UI and Windows E2E | **Complete — PASS (2026-07-30)** | Closed |
+| 6 | `H-RG5` HTTP session Diff | Ready — `H-RG4 PASS` satisfied | `H-RG4 PASS` |
 | 7 | `X-RG1` HTTP x profile/server-evidence correlation | Planned | `H-RG5 PASS` |
 | 8 | `R-RG1` integrated release acceptance | Planned | `X-RG1 PASS` |
 
@@ -257,15 +257,19 @@ cancellation, streaming, H2 passthrough, and long-session memory-bound tests pas
 
 ### H-RG4 — Live UI and Windows E2E
 
-**Status:** `REVIEW` — the third independent re-review on 2026-07-29 returned
-the fourth `CONDITIONAL`. The code-side S1–S9 conditions are verified, and the
-corrected harness has now replaced the rejected artifact. The replacement has
-1,012 loopback-only archived rows from 1,023 source rows, records 11 omitted
-background rows, contains one confirmed-attribution fixture pinning failure,
-has an empty contradiction set, and is pinned by SHA-256
+**Status:** **Complete — group `PASS` (2026-07-30)**. The third independent
+re-review on 2026-07-29 returned the fourth `CONDITIONAL`; the code-side
+S1–S9 conditions were verified, and the corrected harness replaced the
+rejected artifact. The replacement has 1,012 loopback-only archived rows from
+1,023 source rows, records 11 omitted background rows, contains one
+confirmed-attribution fixture pinning failure, has an empty contradiction
+set, and is pinned by SHA-256
 `69565684d57b20d763ed477f731a9eb836bcc8fbde657cdff10bce0085030111`.
-Only the narrow independent V1–V3 re-review remains. T-582 stays blocked until
-that review returns `PASS`.
+The narrow independent fourth re-review on 2026-07-30 verified V1–V3 resolved
+and closed the gate
+(`docs/review/done/2026-07-30_claude-code_H-RG4_windows-live-capture-ui-e2e-fourth-re-review.md`).
+T-582 is unblocked; the deferred resolver-cost measurement is owed at
+`R-RG1`.
 
 #### Codex Integration
 
@@ -418,8 +422,8 @@ HAR pseudo-process sessions.
 ## 8. First Execution Point
 
 T-580 / `H-RG3` entered `REVIEW` on 2026-07-27 and passed the independent
-`H-SEC2` CA/TLS/privilege gate on 2026-07-28. T-581 / H-RG4 remains in `REVIEW`
-after the third independent re-review returned the fourth `CONDITIONAL` on
-2026-07-29. The code-side conditions are closed and the corrected Windows run
-has archived a fixture-only replacement artifact and checksum with no
-contradictions. The next action is the narrow independent V1–V3 re-review.
+`H-SEC2` CA/TLS/privilege gate on 2026-07-28. T-581 / H-RG4 closed with the
+independent group `PASS` on 2026-07-30: the corrected Windows run archived a
+fixture-only replacement artifact and checksum with no contradictions, and
+the narrow fourth re-review verified V1–V3 resolved. The next action is
+T-582 / `H-RG5` HTTP session Diff.

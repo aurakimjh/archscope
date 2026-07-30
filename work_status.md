@@ -8,7 +8,7 @@ The previous long-form history was archived to
 
 ## Status Overview
 
-**Overall: 168 of 173 tracked tasks are `DONE` (97.1%).** **T-580 / H-RG3 is
+**Overall: 169 of 173 tracked tasks are `DONE` (97.7%).** **T-580 / H-RG3 is
 complete with an independent H-SEC2 `PASS`** on 2026-07-28: the live-capture
 engine foundation passed the CA/TLS/privilege gate. Redaction runs before every
 persistence, the MITM proxy never stores plaintext bodies, the CA private key is
@@ -16,9 +16,9 @@ memory-only and never exported, upstream TLS is always verified against the host
 trust store, the proxy binds only to loopback, and no CLI/headless path can start
 a capture. Two forward-looking conditions (SEC-10 dump-exclusion preflight before
 body capture, SEC-17 explicit unknown-attribution opt-in before the live UI) bind
-the next tier and do not reopen this gate. **T-581 / H-RG4 remains in `REVIEW`
-after a fourth independent `CONDITIONAL` verdict on 2026-07-29**. The re-review
-confirmed that the original L2 race and the live-table fidelity, batching,
+the next tier and do not reopen this gate. **T-581 / H-RG4 is complete with an
+independent `PASS` on 2026-07-30** after a narrow fourth re-review verified the
+V1–V3 conditions resolved. The earlier re-reviews confirmed that the original L2 race and the live-table fidelity, batching,
 terminal-row, SEC-17, denominator, row-stability, and labeling defects are
 resolved. The Codex follow-up now derives finalized live provenance and weakest
 fidelity from stored rows (R1), retains honest attributed pinning and failed
@@ -57,8 +57,13 @@ derives the privacy declaration from its published rows, suppresses client
 background networking, proves an attributed fixture pinning failure, and
 passes the full contradiction set. V2 is closed by the paired-plan update; V3
 explicitly defers the isolated resolver-cost measurement to the R-RG1 Windows
-performance check. Remaining: a narrow independent V1–V3 re-review. T-582
-stays blocked until H-RG4 `PASS`.
+performance check. **The 2026-07-30 narrow fourth re-review independently
+verified V1–V3 resolved and returned `PASS`**: every archived row is loopback,
+the whole artifact carries no background host, stable identifier, raw secret,
+or local path, the privacy declaration is derived and contradiction-checked
+rather than asserted, the Go fixture binds the harness mechanisms, and the
+checksum matches everywhere it is quoted. H-RG4 is closed and T-582 / H-RG5
+is unblocked.
 **T-586 is complete**:
 the dedicated Lighthouse desktop page now consumes only `AnalyzeBrowserAudit`
 and connects the result to Analysis Workspace and Evidence Board. **T-579 / H-RG1
@@ -74,11 +79,11 @@ completed the independent Lighthouse file-first engine slice.
 
 | Status | Count | Meaning |
 |---|---:|---|
-| `TODO` | 0 | Ready to start; prerequisites are satisfied |
+| `TODO` | 1 | Ready to start; prerequisites are satisfied |
 | `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
-| `REVIEW` | 1 | Review or required remediation is underway; the gate has not passed |
-| `PENDING` | 4 | Waiting for a prerequisite, external condition, or activation trigger |
-| `DONE` | 168 | Completion criteria and required review gates have passed |
+| `REVIEW` | 0 | Review or required remediation is underway; the gate has not passed |
+| `PENDING` | 3 | Waiting for a prerequisite, external condition, or activation trigger |
+| `DONE` | 169 | Completion criteria and required review gates have passed |
 
 The normal transition is `TODO → IN_PROGRESS → REVIEW → DONE`. A `PENDING`
 task returns to `TODO` when its dependency or trigger is satisfied. Task status
@@ -90,11 +95,10 @@ same change so this overview remains the status source of truth.
 
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
-| 1 | T-581 | P1 | `REVIEW` | Corrected fixture-only Windows artifact archived and checksummed with no contradictions; remaining: narrow independent V1–V3 re-review |
-| 2 | T-582 | P1 | `PENDING` | Requires T-581 `PASS` |
-| 3 | T-583 | P1 | `PENDING` | Requires T-582 `PASS` |
-| 4 | T-584 | P0 | `PENDING` | Requires T-583 `PASS`; final integrated release acceptance |
-| 5 | T-557 | P1 | `PENDING` | Activate only if repeated MSA drilldown use justifies a Go analyzer contract |
+| 1 | T-582 | P1 | `TODO` | Unblocked by T-581 / H-RG4 `PASS` (2026-07-30); implement H-RG5 HTTP session Diff |
+| 2 | T-583 | P1 | `PENDING` | Requires T-582 `PASS` |
+| 3 | T-584 | P0 | `PENDING` | Requires T-583 `PASS`; final integrated release acceptance |
+| 4 | T-557 | P1 | `PENDING` | Activate only if repeated MSA drilldown use justifies a Go analyzer contract |
 
 ## Current Baseline
 
@@ -107,19 +111,16 @@ same change so this overview remains the status source of truth.
 - Release baseline: `v0.3.5` is the latest stable GitHub release. The
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
-- Current execution focus: T-581 / H-RG4 Windows live-capture UI and E2E is in
-  `REVIEW` after the 2026-07-29 independent third re-review returned a fourth
-  `CONDITIONAL`. Every code-side condition (S1/S3 blocking-path fixes and the
-  S2/S4/S6–S9 dispositions) is independently verified closed with passing
-  suites, and the archived artifact's checksum, scenario coverage, and
-  redaction proof are confirmed. Blocking V1: the artifact contradicts its
-  own `fixtureTrafficOnly` declaration — operator Edge/Electron background
-  rows (including a decoded sync `client_id`) are archived because the
-  harness hardcodes its privacy block and checks no archived-row hosts.
-  V1 harness remediation now filters the published rows to loopback fixtures,
-  derives the privacy counters/booleans, and isolates Edge/Electron background
-  networking. V2/V3 are recorded. Remaining gate work: regenerate and checksum
-  the artifact, then request a narrow independent re-review.
+- Current execution focus: T-582 / H-RG5 HTTP-specific session Diff is
+  unblocked and ready to start. T-581 / H-RG4 Windows live-capture UI and E2E
+  closed with an independent `PASS` on 2026-07-30: the narrow fourth re-review
+  verified V1 (the replacement artifact's 1,012 rows are all loopback, the
+  privacy declaration is derived from the published output and
+  contradiction-checked, Edge/Electron run isolated from background
+  networking, and the Go acceptance fixture binds these mechanisms), V2
+  (paired plans synchronized), and V3 (resolver-cost measurement deferral to
+  R-RG1 recorded). The re-review is archived at
+  `docs/review/done/2026-07-30_claude-code_H-RG4_windows-live-capture-ui-e2e-fourth-re-review.md`.
   T-580 / H-RG3 closed with an independent H-SEC2
   `PASS` on 2026-07-28:
   redaction runs before every persistence, the MITM proxy stores no plaintext
@@ -476,24 +477,37 @@ filtered before analysis.
 
 ## Next Execution Queue
 
-1. **REVIEW — T-581 / H-RG4 replacement evidence ready for narrow review:**
-   - **Third re-review verdict:** S1/S3 and the S2/S4/S6–S9 dispositions are
-     independently verified closed; the artifact's checksum, empty
-     contradictions array, full scenario readback, and redaction proof are
-     confirmed. Blocking V1: the artifact's hardcoded
-     `fixtureTrafficOnly: true` declaration is false — 57 operator
-     Edge/Electron background rows (26 decoded, including a stable sync
-     `client_id` and MSA identity endpoints) are archived, and no harness
-     contradiction examines archived-row hosts. Low V2/V3: paired plans still
-     record the artifact as nonexistent, and R6's measurement deferral is
-     unrecorded. Required: enforce (derive or verify) the artifact privacy
-     scope in the harness, regenerate and re-checksum the artifact from a
-     background-isolated run, record V2/V3, then request a narrow independent
-     re-review. All three remediation inputs are now ready: V1's corrected run
-     archived 1,012 loopback rows from 1,023 source rows and omitted 11
-     background rows; V2 is closed in the paired plans; and V3 defers the
-     isolated resolver-cost measurement to the R-RG1 Windows performance
-     check. The remaining action is the narrow independent review.
+1. **TODO — T-582 / H-RG5 HTTP session Diff (unblocked):** T-581 / H-RG4
+   closed with an independent `PASS` on 2026-07-30 (narrow fourth re-review of
+   V1–V3, archived at
+   `docs/review/done/2026-07-30_claude-code_H-RG4_windows-live-capture-ui-e2e-fourth-re-review.md`).
+   Implement and review the HTTP-specific session Diff: versioned URL
+   templates, bounded dimensions, explicit rate denominators, time-alignment
+   grades, `http_capture_diff` findings, Workspace routing, and grade-aware
+   comparison UI. Codex owns the analyzer, Claude owns the comparison UI, and
+   reordered equivalent sessions must compare equal. Two obligations carry
+   forward from H-RG4: the isolated resolver-cost measurement is owed at
+   `R-RG1` (V3 deferral), and the fourth re-review's O1/O2 harness
+   observations (tautological `fixtureTrafficOnly` derivation, unfiltered
+   recovery rows) are optional hardening on the next harness change.
+2. **T-581 / H-RG4 closure record:**
+   - **Fourth re-review verdict (`PASS`, 2026-07-30):** V1 resolved — the
+     replacement artifact's 1,012 archived rows are all loopback with zero
+     background hosts, stable identifiers, raw secrets, or local paths in the
+     whole file; the harness filters published rows through
+     `Test-FixtureArtifactRow`, derives
+     `trafficScope`/`fixtureTrafficOnly`/row counters/`localPathsOmitted`
+     from the actual output, adds fail-closed scope contradictions, and runs
+     Edge/Electron isolated from background networking; the Go acceptance
+     fixture asserts these mechanisms remain connected; the checksum
+     `69565684d57b20d763ed477f731a9eb836bcc8fbde657cdff10bce0085030111`
+     matches the sidecar and every record. V2 resolved — paired plans
+     synchronized in both languages. V3 resolved — the R6 measurement deferral
+     to R-RG1 is recorded with rationale. The session counters reconcile the
+     archived/omitted split (1,023 = 1,012 + 11), the scenario matrix is
+     complete including the fixture-origin attributed pinning failure, and
+     `go build`/`go vet`/full `go test` plus uncached capture/app suites pass
+     natively on Windows.
    - **Codex backend — implemented:** R1 transaction-derived finalized
      provenance/weakest fidelity; R3/R4 attributed
      `proxy_not_captured`/`proxy_passthrough` terminal failures; R5 persisted
@@ -555,24 +569,24 @@ filtered before analysis.
      The third re-review re-ran the full suite (including the app package,
      capture race suite, Windows cross-vet/build, frontend state tests, and
      production build) and confirmed every claim except the first artifact's
-     privacy declaration (V1). The corrected artifact now satisfies the V1
-     scope locally; T-581 remains `REVIEW` only for the narrow independent
-     V1–V3 verdict, and T-582 stays blocked.
-2. **PENDING — T-582 through T-584:** continue in order through `H-RG5` HTTP Diff
-   (T-582), `X-RG1` cross-analysis (T-583), and `R-RG1` release acceptance
-   (T-584). Do not skip a failed or conditional gate.
-3. Review the long-term external APM import roadmap before assigning any new
+     privacy declaration (V1). The 2026-07-30 fourth re-review verified the
+     corrected artifact against the V1 scope and returned the group `PASS`;
+     T-581 is `DONE`.
+3. **PENDING — T-583 and T-584:** continue in order through `X-RG1`
+   cross-analysis (T-583) and `R-RG1` release acceptance (T-584). Do not skip
+   a failed or conditional gate.
+4. Review the long-term external APM import roadmap before assigning any new
    external-connector implementation range. Local file imports already cover
    OTLP, Zipkin, Elastic APM, Jaeger, and SkyWalking-style trace evidence;
    direct SaaS and product-specific connectors remain deferred until token
    storage, redaction, compliance, connector testability, and source-evidence
    contracts are clear.
-4. Keep security/compliance evidence as a roadmap candidate, not an active
+5. Keep security/compliance evidence as a roadmap candidate, not an active
    TO-DO range, until it is selected against the external APM roadmap and the
    next release objective.
-5. Continue pairing English/Korean docs whenever importer, analyzer, UI, or
+6. Continue pairing English/Korean docs whenever importer, analyzer, UI, or
    report-pack surfaces change.
-6. Reserve `v0.4.0` for a broader Evidence Studio roll-up after the remaining
+7. Reserve `v0.4.0` for a broader Evidence Studio roll-up after the remaining
    roadmap candidates are prioritized and the chosen source families stabilize
    as one coherent workflow.
 8. Keep release verification healthy before each release cut by repeating
@@ -591,8 +605,8 @@ The authoritative paired plan is
 | 2 | H-RG1 offline HAR analysis completion | Codex engine, Claude UI | DONE — integrated `PASS`, 2026-07-21; engine and H-SEC1 re-reviews `PASS`, UI R1/R2 dispositioned under the bounded Phase 1 contract | Closed |
 | 3 | H-RG2 Windows coverage proof | Codex | DONE — H-COV1 `PASS`, 2026-07-27 | Closed |
 | 4 | H-RG3 live-capture engine foundation | Codex | DONE — H-SEC2 `PASS`, 2026-07-28 | Closed |
-| 5 | H-RG4 live UI and Windows E2E | Claude UI, Codex integration | REVIEW — fourth `CONDITIONAL` (2026-07-29 third re-review): code side verified closed; artifact must be regenerated within its declared fixture-only privacy scope (V1) | Group PASS |
-| 6 | H-RG5 HTTP session Diff | Codex engine, Claude UI | PENDING — H-RG4 | Group PASS |
+| 5 | H-RG4 live UI and Windows E2E | Claude UI, Codex integration | DONE — group `PASS`, 2026-07-30 (narrow fourth re-review verified V1–V3 resolved) | Closed |
+| 6 | H-RG5 HTTP session Diff | Codex engine, Claude UI | TODO — unblocked by H-RG4 `PASS` (2026-07-30) | Group PASS |
 | 7 | X-RG1 HTTP/profile/server-evidence correlation | Codex engine, Claude UI | PENDING — H-RG5 | Group PASS |
 | 8 | R-RG1 integrated release acceptance | Codex + Claude + independent reviewer | PENDING — X-RG1 | Release PASS |
 
@@ -646,6 +660,7 @@ Long Task semantics).
 | 2026-07-29 H-RG4 T-581 Windows live-capture UI/E2E third re-review | Accepted a fourth `CONDITIONAL`. Independently verified closed: S1 (provenance-selected hint, unconditional key deleted, live/HAR/unknown regressions), S3 backend and renderer (per-flush capture/redaction checkpoints, recovery counter reconciliation, `known=false` renders as "not recorded"; the artifact's real crash-recovery block reads back `1/1/1` stats beside a checkpointed summary), S2 (aborted rows persist `unsupported`; a 200-decoded+1-aborted probe grades `unsupported` with interpretable distributions), S4 (closed EN/KO maps, hover raw tokens, rendered distributions), S6 (shared harness-contract JSON DeepEqual-bound in Go and referenced by the script), S7 (fail-closed QUIC invisibility probe plus product-readback contradiction), S8 (aria-current re-entry lookup with product reconciliation), S9 (generic `Build` removed). The artifact checksum matches, its contradictions array is empty, all scenarios have product readback, the raw long-session secret is absent, and redaction counts exceed the long session. Full Go suite (incl. app package), capture race suite ×2, Windows cross-vet/engine build, frontend state tests, and production build re-run and pass. Blocking V1: the artifact violates its own hardcoded `fixtureTrafficOnly: true` declaration — 57 operator Edge/Electron background rows are archived, 26 decoded with full query strings including a stable sync `client_id` and MSA identity endpoints, and no contradiction check examines archived-row hosts, so the privacy scope is asserted rather than enforced. Low V2: paired EN/KO plans still record the artifact as nonexistent. Low V3: R6's allowed measurement deferral has no recorded decision. | T-581 remains `REVIEW`; enforce the artifact privacy scope in the harness (derive `fixtureTrafficOnly` or isolate client background traffic), regenerate and re-checksum the Windows artifact, record V2/V3, then request a narrow independent re-review limited to V1–V3. T-582 remains blocked. Review archived at `docs/review/done/2026-07-29_claude-code_H-RG4_windows-live-capture-ui-e2e-third-re-review.md`. |
 | 2026-07-30 H-RG4 T-581 V1–V3 disposition | V1 harness remediation filters published evidence rows to loopback fixture hosts, derives `fixtureTrafficOnly` plus source/archive/omitted row counts from the output, derives local-path absence, and launches Edge/Electron with ephemeral profiles and background-networking suppression. The Go acceptance fixture now asserts these mechanisms remain connected. The unsafe artifact copy was immediately filtered to 1,010 loopback rows; 57 non-fixture rows were omitted, the quoted stable ID was redacted from the review, and checksum `0b2bfc99d8e54d15ec98278d500c7691f7fed79c149f33f2320343a906d44975` pins the safe copy. It intentionally contains a contradiction requiring a fresh fixture-origin pinning proof, so it cannot be mistaken for PASS evidence. V2 is closed by synchronizing the paired EN/KO implementation plans with the existing-but-rejected artifact and current remediation state. V3 explicitly defers isolated resolver-cost measurement to the R-RG1 Windows integrated performance check: resolution is already bounded to once per accepted connection, the long-session acceptance passed, and meaningful profiling must separate resolver cost from UI/client load. | Review archived. T-581 remains `REVIEW`; rerun the corrected Windows harness, replace/checksum the artifact, then request a narrow V1–V3 re-review. T-582 remains blocked. |
 | 2026-07-30 H-RG4 T-581 corrected Windows replacement execution | The privacy-hardened schema-v4 harness completed from a fresh `t581e2e` session with an empty contradiction set. It archived 1,012 loopback fixture rows from 1,023 product rows, recorded 11 omitted background rows, and derived `fixtureTrafficOnly: true` plus local-path absence from the published output. A deterministic Java explicit-CONNECT pinning probe replaced the loopback-bypassing/non-terminal client probes and produced one `proxy_not_captured` / `unsupported` fixture row with confirmed process attribution. H2-only passthrough, QUIC invisibility, curl/browser/JVM/Electron HTTP+HTTPS, 1,000/1,000 long-session requests, 500-row page re-entry, crash recovery, redaction, package metadata, raw-secret absence, and checksum parity passed. The replacement SHA-256 is `69565684d57b20d763ed477f731a9eb836bcc8fbde657cdff10bce0085030111`. | V1 replacement execution is complete and V2/V3 remain recorded. T-581 stays `REVIEW` only for the narrow independent V1–V3 verdict; T-582 remains blocked. |
+| 2026-07-30 H-RG4 T-581 Windows live-capture UI/E2E fourth re-review (narrow V1–V3) | Accepted `PASS`. V1 independently verified resolved: the replacement artifact's checksum `69565684…30111` matches the sidecar and every record; all 1,012 archived rows plus the recovery row are loopback; whole-file scans find zero non-loopback URLs, zero background hosts, zero stable identifiers, no raw `t581-secret`, and zero local Windows paths; the privacy block is derived from the published output (`1,023 = 1,012 + 11` reconciles across every counter family) and the fail-closed scope/local-path contradictions plus Edge/Electron background isolation are present in the harness and bound by the Go acceptance fixture; the scenario matrix is complete including the fixture-origin attributed `proxy_not_captured` pinning row, h2-only passthrough, QUIC absence, 1,000/1,000 long session, 500-row re-entry, and the checkpointed recovery block. V2 verified: paired EN/KO plans record the artifact lifecycle truthfully. V3 verified: the R6 measurement deferral to R-RG1 is recorded with rationale. `go build`/`go vet`/full `go test` plus uncached capture/app suites pass natively on Windows; no product source changed since the third re-review, so its race-suite pass stands. Non-blocking observations O1–O4 recorded (tautological `fixtureTrafficOnly` derivation, unfiltered recovery rows, literal `reviewBeforeArchive`, reused crash store). | H-RG4 closed with group `PASS`; T-581 `DONE`; T-582/H-RG5 unblocked. R-RG1 owes the deferred resolver-cost measurement. Review archived at `docs/review/done/2026-07-30_claude-code_H-RG4_windows-live-capture-ui-e2e-fourth-re-review.md`. |
 
 ## Mid-Term Plus Intake Plan
 
@@ -687,8 +702,8 @@ is complete and H-RG1 is unblocked.
 HTTP work began with bounded, sanitized HAR import. Phase 1 HAR import passed
 H-SEC1 and the full H-RG1 group gate on 2026-07-21. Live MITM capture is
 Windows-first; T-571/H-RG2 passed on 2026-07-27, T-580/H-RG3 passed on
-2026-07-28, and T-581/H-RG4 remains in `REVIEW` after a fourth independent
-`CONDITIONAL` verdict on 2026-07-29.
+2026-07-28, and T-581/H-RG4 passed on 2026-07-30 after a narrow fourth
+re-review verified the V1–V3 conditions resolved.
 Linux/macOS-generated supported
 HAR, profiles, and logs remain valid offline inputs to the Windows UI; Linux/macOS
 live-capture parity is not a first-release gate. The Korean design note was
@@ -714,8 +729,8 @@ deferred until explicitly promoted.
 | T-578 | P0 | DONE | Resolve the C-RG1 `CONDITIONAL` verdict and obtain independent re-review `PASS`. Codex A-E: reconcile the time-attribution contract with real Chrome semantics and add an exact convention-pinning golden plus tail handling; emit separate recording/active/idle/sampled durations without conflating `total_duration_us`; add Chrome-trace negative-delta diagnostic fixture/parity and hitCount cross-check; make first-sample handling independent of `startTime`. Claude U1-U5: render engine diagnostics and explicit suppressed/aggregated timeline states; add flamegraph/drilldown; expose `.json.gz`; add empty-state/i18n/table a11y; add Browser CPU regression tests for diagnostics, suppression, and the non-Long-Task wording. | T-565, T-577 | Completed 2026-07-21. Codex A-E landed in `5db8df8`, `ed01dd0`, `7b24206`, `40c6bde`, and `3249c27`; Claude U1-U5 landed in `b023040`; shared exact/negative-trace fixtures are in projects-assets `de7cf07` and `5531036`. Independent re-review at `b023040` returned `PASS` after verifying all ten findings, 16-fixture goldens, engine tests, frontend state tests, EN/KO i18n parity, `go vet`, and full builds. H-RG1/T-579 is unblocked. |
 | T-579 | P0 | DONE | Complete and review H-RG1 offline HAR analysis. Codex: canonical transaction/timing/fidelity model, staged dialect normalizer, resource limits, shared manifest goldens, dedicated redaction, bounded result and CLI/Wails parity. Claude: pseudo-process tree, timeline/brush, list/detail/filter, fidelity/diagnostics/redaction UX and Workspace regression. | T-578 PASS; T-568 through T-573 | Completed 2026-07-21 with integrated `PASS`. Engine remediation and H-SEC1 re-reviews are `PASS`; all 20 manifest fixtures, bounded/redacted `AnalysisResult`, CLI/Wails parity, and UI import-only behavior are retained. UI R1 was accepted under the disclosed bounded Phase 1 denominator contract; R2 was accepted from populated state, provenance/Workspace, type, and production-build evidence with deeper component fixtures left as non-blocking hardening. Full `go test ./...`, `go vet ./...`, `go build ./...`, frontend `npm run test:state`, and frontend `npm run build` pass. |
 | T-580 | P0 | DONE | Implement and review H-RG3 live-capture engine foundation: session lifecycle/recovery, versioned NDJSON/blob store and cursor API, bounded streaming/backpressure/loss counters, H1 semantic MITM with H2 passthrough, Windows process attribution, Wails snapshot/event recovery, and CA/TLS policy. | T-571/H-RG2 PASS, T-579 PASS | Completed 2026-07-28 with independent H-SEC2 `PASS`. Implemented 2026-07-27 with append-only recovery/index, bounded pipeline and loss counters, H1 verified-upstream MITM, honest H2 passthrough, direct Windows TCP-owner attribution, generated CaptureService bindings, and transactional current-user CA trust lifecycle. H-SEC2 verified SEC-1/2/3/6/7 redaction-before-persistence with no plaintext-body storage, SEC-8/9 memory-only non-exportable CA key, SEC-11 `0700`/`0600` perms with path-traversal-validated IDs, SEC-12 transactional trust rollback/removal, SEC-13/14 no auto-bypass, SEC-16 no CLI/headless start, verify-always upstream TLS, and loopback-only bind. SEC-10 dump-exclusion preflight (before body capture) and SEC-17 explicit unknown-attribution opt-in (before the live UI) bind the next tier without reopening the gate. `go test ./internal/capture/...`, `go test ./cmd/archscope-app/...`, `go vet`, and `go build ./...` pass. Review archived at `docs/review/done/2026-07-28_claude-code_H-SEC2_http-capture-live-engine-security-review.md`. |
-| T-581 | P1 | REVIEW | Implement and review H-RG4 Windows live-capture UI and E2E. Claude: capture controls, CA lifecycle UX, process tree, stable live rows, recovery/backpressure/coverage/fidelity states. Codex: frozen bindings, acceptance fixtures, Windows E2E and packaging support. Carry the H-SEC2 binding conditions: gate unknown-attribution retention behind an explicit metadata-only opt-in (SEC-17) before exposing stored transactions, and require the SEC-10 dump-exclusion preflight before enabling body capture. | T-580 PASS | Code-side conditions and corrected Windows execution are complete. The fixture-only replacement has 1,012 archived rows, 11 explicitly omitted background rows, confirmed fixture pinning evidence, no contradictions, and checksum `69565684…30111`. V2 plans are synchronized and V3 measurement is assigned to R-RG1. Remaining: narrow independent V1–V3 `PASS`. T-582 stays blocked. |
-| T-582 | P1 | PENDING | Implement and review H-RG5 HTTP-specific session Diff with versioned URL templates, bounded dimensions, explicit rate denominators, time-alignment grades, `http_capture_diff` findings, Workspace routing, and grade-aware comparison UI. | T-581 PASS, T-575 | Codex analyzer plus Claude comparison UI; reordered equivalent sessions must compare equal |
+| T-581 | P1 | DONE | Implement and review H-RG4 Windows live-capture UI and E2E. Claude: capture controls, CA lifecycle UX, process tree, stable live rows, recovery/backpressure/coverage/fidelity states. Codex: frozen bindings, acceptance fixtures, Windows E2E and packaging support. Carry the H-SEC2 binding conditions: gate unknown-attribution retention behind an explicit metadata-only opt-in (SEC-17) before exposing stored transactions, and require the SEC-10 dump-exclusion preflight before enabling body capture. | T-580 PASS | Completed 2026-07-30 with independent H-RG4 group `PASS` (narrow fourth re-review of V1–V3). The fixture-only replacement artifact has 1,012 loopback-only archived rows, 11 explicitly omitted background rows, confirmed fixture pinning evidence, no contradictions, and checksum `69565684…30111`; the harness derives its privacy declaration from the published output and the Go acceptance fixture binds the enforcement mechanisms. SEC-17 is enforced below the UI; SEC-10 continues to bind any future body-capture tier (this slice stores no bodies). The V3 resolver-cost measurement is owed at R-RG1. Review archived at `docs/review/done/2026-07-30_claude-code_H-RG4_windows-live-capture-ui-e2e-fourth-re-review.md`. |
+| T-582 | P1 | TODO | Implement and review H-RG5 HTTP-specific session Diff with versioned URL templates, bounded dimensions, explicit rate denominators, time-alignment grades, `http_capture_diff` findings, Workspace routing, and grade-aware comparison UI. | T-581 PASS, T-575 | Codex analyzer plus Claude comparison UI; reordered equivalent sessions must compare equal |
 | T-583 | P1 | PENDING | Implement and review X-RG1 HTTP correlation with Chrome/V8 CPU runs, Jennifer network-gap evidence, and access logs, including bounded alignment/confidence diagnostics and provenance-aware UI drilldown/overlay. | T-582 PASS | Codex engine plus Claude UI; incompatible clocks must never be presented as causal proof |
 | T-584 | P0 | PENDING | Run R-RG1 integrated release acceptance across Go test/vet/build, frontend test/build, Windows live E2E, macOS offline import/package smoke, paired documentation, support/security/performance matrices, and honest release notes. | T-583 PASS | No tag or GitHub release before independent release PASS |
 | T-585 | P1 | DONE | Implement the file-first Lighthouse report JSON engine slice as the browser-performance roadmap task that can proceed while T-571 waits for hardware: separate parser/analyzer packages, bounded/redacted projections, preserved report scoring, CLI, ingestion-family contract, Wails binding, tests, and paired documentation. | T-565; independent of T-571 | Completed 2026-07-21: `browser import --format lighthouse-json`, `browser_audit_evidence`, `AnalyzeBrowserAudit`, generated TypeScript bindings, Core Web Vitals/category/audit/resource outputs, report-authored score findings, 64 MiB default input guard, URL redaction, bounded audit/network tables, and targeted Go tests. |
