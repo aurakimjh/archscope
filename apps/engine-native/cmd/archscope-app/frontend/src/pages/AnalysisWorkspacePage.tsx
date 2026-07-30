@@ -1,10 +1,11 @@
-import { ClipboardPlus, FileText, Trash2 } from "lucide-react";
+import { ClipboardPlus, FileText, GitCompareArrows, Trash2 } from "lucide-react";
 
 import {
   AiInterpretationFindingsPanel,
   AiInterpretationSummary,
 } from "@/components/AiInterpretationPanel";
 import { HelpTip, HelpedTitle } from "@/components/HelpTip";
+import { HttpCaptureComparisonPanel } from "@/components/HttpCaptureComparisonPanel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getHelpText } from "@/help/helpCatalog";
@@ -18,6 +19,11 @@ import {
 } from "@/state/analysisWorkspace";
 import { getReportableAiFindings } from "@/state/aiInterpretation";
 import { addEvidenceCard } from "@/state/evidenceBoard";
+import {
+  HTTP_CAPTURE_RESULT_TYPE,
+  diffCandidateEntries,
+  dispatchHttpCaptureDiff,
+} from "@/state/httpCaptureDiff";
 
 export function AnalysisWorkspacePage(): React.JSX.Element {
   const { locale, t } = useI18n();
@@ -107,6 +113,11 @@ export function AnalysisWorkspacePage(): React.JSX.Element {
           ))}
         </div>
       )}
+
+      {/* H-RG5 HTTP session comparison entry: the backend routes the pair
+          (ResolveWorkspaceComparison); legacy Diff stays untouched and no new
+          NavKey is introduced. */}
+      {diffCandidateEntries(workspace.entries).length > 0 && <HttpCaptureComparisonPanel />}
     </main>
   );
 }
@@ -145,6 +156,30 @@ function WorkspaceResultCard({
             <ClipboardPlus className="nav-lucide-sm" />
             {t("evidenceAdd")}
           </Button>
+          {entry.result_type === HTTP_CAPTURE_RESULT_TYPE && (
+            <>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                title={t("httpCaptureDiffSetBaseline")}
+                onClick={() => dispatchHttpCaptureDiff({ type: "setBefore", id: entry.id })}
+              >
+                <GitCompareArrows className="nav-lucide-sm" />
+                {t("httpCaptureDiffSlotBaseline")}
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                title={t("httpCaptureDiffSetTarget")}
+                onClick={() => dispatchHttpCaptureDiff({ type: "setAfter", id: entry.id })}
+              >
+                <GitCompareArrows className="nav-lucide-sm" />
+                {t("httpCaptureDiffSlotTarget")}
+              </Button>
+            </>
+          )}
           {reportableAi.findings.length > 0 && (
             <Button type="button" size="sm" variant="outline" onClick={onAiEvidence}>
               <ClipboardPlus className="nav-lucide-sm" />

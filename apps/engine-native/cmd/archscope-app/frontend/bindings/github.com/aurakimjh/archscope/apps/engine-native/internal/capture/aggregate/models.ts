@@ -5,10 +5,6 @@
 // @ts-ignore: Unused imports
 import { Create as $Create } from "@wailsio/runtime";
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore: Unused imports
-import * as time$0 from "../../../../../../../../time/models.js";
-
 export class Row {
     "key": string;
     "count": number;
@@ -50,7 +46,7 @@ export class Snapshot {
     "session_id": string;
     "snapshot_version": number;
     "sequence": number;
-    "generated_at": time$0.Time;
+    "generated_at": string;
     "total": number;
     "errors": number;
     "top_endpoints": Row[];
@@ -68,7 +64,7 @@ export class Snapshot {
             this["sequence"] = 0;
         }
         if (!("generated_at" in $$source)) {
-            this["generated_at"] = null;
+            this["generated_at"] = "0001-01-01T00:00:00.000Z";
         }
         if (!("total" in $$source)) {
             this["total"] = 0;

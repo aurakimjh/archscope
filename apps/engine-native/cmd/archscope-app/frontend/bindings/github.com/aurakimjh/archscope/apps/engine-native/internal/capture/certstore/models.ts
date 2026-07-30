@@ -5,15 +5,11 @@
 // @ts-ignore: Unused imports
 import { Create as $Create } from "@wailsio/runtime";
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore: Unused imports
-import * as time$0 from "../../../../../../../../time/models.js";
-
 export class Status {
     "state": string;
     "fingerprint"?: string;
     "stores": string[];
-    "expiresAt"?: time$0.Time;
+    "expiresAt"?: string;
     "error"?: string;
 
     /** Creates a new Status instance. */

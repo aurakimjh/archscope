@@ -27,6 +27,7 @@ import type {
 } from "@/bridge/types";
 import { ErrorPanel } from "@/components/AnalyzerFeedback";
 import { DiagnosticsPanel } from "@/components/DiagnosticsPanel";
+import { HttpCaptureComparisonPanel } from "@/components/HttpCaptureComparisonPanel";
 import { LiveHttpCapturePanel } from "@/components/LiveHttpCapturePanel";
 import { MetricCard } from "@/components/MetricCard";
 import { SlideOverPanel } from "@/components/SlideOverPanel";
@@ -36,6 +37,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useI18n, type MessageKey } from "@/i18n/I18nProvider";
 import { addWorkspaceResult } from "@/state/analysisWorkspace";
+import { dispatchHttpCaptureDiff } from "@/state/httpCaptureDiff";
 import {
   CAPTURE_COVERAGE_LABEL_KEYS,
   CAPTURE_DETAIL_STORAGE_LABEL_KEYS,
@@ -103,18 +105,23 @@ export function HttpCapturePage(): React.JSX.Element {
   const [file, setFile] = useState<FileDockSelection | null>(null);
   const [state, dispatch] = useReducer(httpCaptureReducer, initialHttpCaptureState);
   const { running, result, error, filter, selectedId } = state;
+  // Workspace entry id of the currently rendered result, so the compare
+  // action can seed the comparison panel with "this" session (T-582).
+  const [resultEntryId, setResultEntryId] = useState<string | null>(null);
 
   const analyze = useCallback(async () => {
     if (!file || running) return;
     dispatch({ type: "analyzeStart" });
+    setResultEntryId(null);
     try {
       const next = await engine.analyzeHttpCapture({ path: file.filePath, format: "auto" });
       dispatch({ type: "analyzeSuccess", result: next, source: file.originalName });
-      addWorkspaceResult({
+      const entry = addWorkspaceResult({
         result: next,
         title: `http_capture: ${file.originalName}`,
         sourceLabel: file.originalName,
       });
+      setResultEntryId(entry.id);
     } catch (caught) {
       dispatch({
         type: "analyzeError",
@@ -131,14 +138,17 @@ export function HttpCapturePage(): React.JSX.Element {
   const onSelectFile = useCallback((selection: FileDockSelection) => {
     setFile(selection);
     dispatch({ type: "reset" });
+    setResultEntryId(null);
   }, []);
   const onClearFile = useCallback(() => {
     setFile(null);
     dispatch({ type: "reset" });
+    setResultEntryId(null);
   }, []);
   const onLiveStarted = useCallback(() => {
     setFile(null);
     dispatch({ type: "reset" });
+    setResultEntryId(null);
   }, []);
   const onLiveFinalized = useCallback(
     (next: HttpCaptureAnalysisResult, sessionId: string) => {
@@ -149,11 +159,12 @@ export function HttpCapturePage(): React.JSX.Element {
         result: next,
         source,
       });
-      addWorkspaceResult({
+      const entry = addWorkspaceResult({
         result: next,
         title: `http_capture: ${sessionId}`,
         sourceLabel: source,
       });
+      setResultEntryId(entry.id);
     },
     [],
   );
@@ -272,6 +283,28 @@ export function HttpCapturePage(): React.JSX.Element {
         </section>
       )}
 
+      {result && resultEntryId && (
+        <div className="flex flex-wrap items-center gap-2 text-xs" role="group" aria-label={t("httpCaptureDiffCompareCurrent")}>
+          <span className="text-muted-foreground">{t("httpCaptureDiffCompareCurrent")}</span>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={() => dispatchHttpCaptureDiff({ type: "setBefore", id: resultEntryId })}
+          >
+            {t("httpCaptureDiffSetBaseline")}
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={() => dispatchHttpCaptureDiff({ type: "setAfter", id: resultEntryId })}
+          >
+            {t("httpCaptureDiffSetTarget")}
+          </Button>
+        </div>
+      )}
+
       {captureMeta && <FidelityBanner meta={captureMeta} redaction={redaction} t={t} />}
 
       {result && (
@@ -339,6 +372,10 @@ export function HttpCapturePage(): React.JSX.Element {
           </CardContent>
         </Card>
       )}
+
+      {/* H-RG5 session comparison: selection is shared with the Analysis
+          Workspace entry through the httpCaptureDiff module store. */}
+      <HttpCaptureComparisonPanel />
 
       <TransactionDetail transaction={selected} onClose={closeDetail} t={t} />
     </main>

@@ -7,6 +7,9 @@ import { Create as $Create } from "@wailsio/runtime";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
+import * as httpcapture$0 from "../internal/analyzers/httpcapture/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
 import * as models$0 from "../internal/models/models.js";
 
 /**
@@ -18,3 +21,23 @@ export const AnalysisResult = models$0.AnalysisResult;
  * AnalysisResult is the universal envelope every analyzer emits.
  */
 export type AnalysisResult = models$0.AnalysisResult;
+
+/**
+ * HttpCaptureDiffContract is the renderer/Workspace routing contract.
+ */
+export const HttpCaptureDiffContract = httpcapture$0.HttpCaptureDiffContract;
+
+/**
+ * HttpCaptureDiffContract is the renderer/Workspace routing contract.
+ */
+export type HttpCaptureDiffContract = httpcapture$0.HttpCaptureDiffContract;
+
+/**
+ * WorkspaceComparisonRoute describes the backend-selected comparison path.
+ */
+export const WorkspaceComparisonRoute = httpcapture$0.WorkspaceComparisonRoute;
+
+/**
+ * WorkspaceComparisonRoute describes the backend-selected comparison path.
+ */
+export type WorkspaceComparisonRoute = httpcapture$0.WorkspaceComparisonRoute;

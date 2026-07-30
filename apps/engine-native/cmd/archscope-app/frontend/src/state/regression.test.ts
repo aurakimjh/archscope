@@ -1734,3 +1734,372 @@ assert(
   "Workspace retains the imported performance score",
 );
 clearWorkspaceResults();
+
+// ── HTTP capture session diff (H-RG5 / T-582) ───────────────────────
+
+import {
+  DIFF_ALIGNMENT_LABEL_KEYS,
+  DIFF_CHANGE_LABEL_KEYS,
+  DIFF_RATE_UNAVAILABLE_LABEL_KEYS,
+  DIFF_SOURCE_KIND_LABEL_KEYS,
+  HTTP_CAPTURE_DIFF_CONTRACT_SCHEMA_VERSION,
+  diffCandidateEntries,
+  diffHasChanges,
+  diffOverlayPolicy,
+  extractDiffEnvelope,
+  hasDiffSourceProjection,
+  httpCaptureDiffReducer,
+  initialHttpCaptureDiffState,
+  isDiffContractSupported,
+  resolveDiffAlignmentGrade,
+  resolveDiffChange,
+  resolveDiffRateUnavailable,
+  resolveDiffSourceKind,
+  selectDiffFindings,
+  selectDiffSummary,
+  selectDiffTable,
+} from "./httpCaptureDiff.js";
+import type { HttpCaptureDiffAnalysisResult, HttpCaptureDiffContract } from "../bridge/types.js";
+
+// Contract adoption: only the implemented schema is honored; anything else is
+// disabled with a disclosure rather than half-honored (H-RG4 R8 precedent).
+const supportedDiffContract: HttpCaptureDiffContract = {
+  schema_version: HTTP_CAPTURE_DIFF_CONTRACT_SCHEMA_VERSION,
+  source_result_type: "http_capture",
+  result_type: "http_capture_diff",
+  url_template_version: 1,
+  supported_source_versions: [1],
+  default_template_limit: 1000,
+  max_template_limit: 1000,
+  default_table_limit: 50,
+  max_table_limit: 500,
+  time_alignment_grades: ["aligned", "duration_only", "none"],
+  workspace_route: "http_capture_diff",
+  workspace_selection_count: 2,
+  compare_method: "AnalyzeHttpCaptureDiff",
+  legacy_diff_supported: false,
+  requires_new_nav_key: false,
+  store_rescan_on_diff_or_export: false,
+  process_requires_real_sources: true,
+};
+assert(isDiffContractSupported(supportedDiffContract), "the v1 diff contract is supported");
+assert(
+  !isDiffContractSupported({ ...supportedDiffContract, schema_version: 2 }),
+  "an unknown diff contract schema version is rejected, not half-honored",
+);
+assert(
+  !isDiffContractSupported({ ...supportedDiffContract, result_type: "something_else" }),
+  "a diff contract for another result type is rejected",
+);
+assert(!isDiffContractSupported(null), "a missing diff contract is not supported");
+
+// Closed token sets: every unrecognized wire value resolves to `unknown`
+// instead of leaking to the screen (H-RG4 R11 precedent).
+assert(resolveDiffAlignmentGrade("aligned") === "aligned", "aligned grade resolves");
+assert(resolveDiffAlignmentGrade("duration_only") === "duration_only", "duration_only grade resolves");
+assert(resolveDiffAlignmentGrade("none") === "none", "none grade resolves");
+assert(resolveDiffAlignmentGrade("brand_new_grade") === "unknown", "unrecognized grade resolves to unknown");
+assert(resolveDiffChange("added") === "added" && resolveDiffChange("removed") === "removed", "change tokens resolve");
+assert(resolveDiffChange("mutated") === "unknown", "unrecognized change resolves to unknown");
+assert(
+  resolveDiffRateUnavailable("timestamps_degenerate") === "timestamps_degenerate",
+  "degenerate-timestamp rate code resolves",
+);
+assert(
+  resolveDiffRateUnavailable("") === "unknown" && resolveDiffRateUnavailable("??") === "unknown",
+  "unrecognized rate codes resolve to unknown",
+);
+assert(resolveDiffSourceKind("live_capture") === "live_capture", "live source kind resolves");
+assert(resolveDiffSourceKind("har_import") === "har_import", "har source kind resolves");
+assert(resolveDiffSourceKind("ftp") === "unknown", "unrecognized source kind resolves to unknown");
+
+// Grade-aware overlay gating: the backend's verdict is followed exactly and
+// an uninterpretable verdict suppresses every overlay (fail closed).
+const alignedPolicy = diffOverlayPolicy({ grade: "aligned", overlay_allowed: true, reason: "" });
+assert(alignedPolicy.durations && alignedPolicy.perMinute, "aligned grade enables duration and per-minute overlays");
+const durationOnlyPolicy = diffOverlayPolicy({ grade: "duration_only", overlay_allowed: true, reason: "" });
+assert(
+  durationOnlyPolicy.durations && !durationOnlyPolicy.perMinute,
+  "duration_only grade enables durations but suppresses per-minute rates",
+);
+const nonePolicy = diffOverlayPolicy({ grade: "none", overlay_allowed: false, reason: "" });
+assert(!nonePolicy.durations && !nonePolicy.perMinute, "none grade suppresses every overlay");
+const disallowedPolicy = diffOverlayPolicy({ grade: "aligned", overlay_allowed: false, reason: "" });
+assert(
+  !disallowedPolicy.durations && !disallowedPolicy.perMinute,
+  "overlay_allowed=false suppresses overlays even for an aligned grade",
+);
+const unknownGradePolicy = diffOverlayPolicy({ grade: "novel", overlay_allowed: true, reason: "" });
+assert(
+  !unknownGradePolicy.durations && !unknownGradePolicy.perMinute,
+  "an unrecognized grade fails closed: no overlay renders",
+);
+assert(!diffOverlayPolicy(null).durations, "a missing alignment block suppresses overlays");
+
+// Envelope selectors over a representative diff result.
+const diffSideA = {
+  count: 100,
+  errors: 2,
+  error_rate: { numerator: 2, denominator: 100, value: 0.02 },
+  traffic_share: { numerator: 100, denominator: 100, value: 1 },
+  count_per_minute: { numerator: 100, denominator_minutes: 10, value_per_minute: 10 },
+  duration_p50_ms: 40,
+  duration_p95_ms: 120,
+  duration_p99_ms: 200,
+  duration_samples: 98,
+  request_bytes: 1000,
+  response_bytes: 4000,
+};
+const diffSideB = {
+  ...diffSideA,
+  count: 110,
+  errors: 9,
+  error_rate: { numerator: 9, denominator: 110, value: 0.0818 },
+  count_per_minute: { numerator: 110, denominator_minutes: 10, value_per_minute: 11 },
+  duration_p95_ms: 240,
+};
+const diffFixture = {
+  type: "http_capture_diff",
+  source_files: [],
+  created_at: "2026-07-30T00:00:00.000Z",
+  summary: {
+    before_session: { session_id: "har:before", source_kind: "har_import", transactions: 100 },
+    after_session: { session_id: "s-after", source_kind: "live_capture", transactions: 110 },
+    before: diffSideA,
+    after: diffSideB,
+    delta: {
+      count: 10,
+      errors: 7,
+      error_rate: 0.0618,
+      duration_p50_ms: 0,
+      duration_p95_ms: 120,
+      duration_p99_ms: 0,
+      request_bytes: 0,
+      response_bytes: 0,
+      count_per_minute: 1,
+    },
+    time_alignment: { grade: "aligned", overlay_allowed: true, reason: "both trusted" },
+    url_template_version: 1,
+    table_limit: 50,
+  },
+  series: {},
+  tables: {
+    endpoints_changed: [
+      { key: "GET api.test /orders/{id}", change: "changed", before: diffSideA, after: diffSideB, delta: { count: 10 } },
+    ],
+    endpoints_added: [
+      { key: "POST api.test /new", change: "added", before: { ...diffSideA, count: 0 }, after: diffSideB, delta: { count: 110 } },
+    ],
+    endpoints_removed: [],
+    hosts_changed: [],
+    processes_changed: [],
+  },
+  charts: {},
+  metadata: {
+    findings: [
+      { severity: "warning", code: "HTTP_DIFF_ERROR_RATE_UP", message: "HTTP error rate increased" },
+    ],
+    http_capture_diff: {
+      contract: supportedDiffContract,
+      before_session: { session_id: "har:before", source_kind: "har_import", transactions: 100 },
+      after_session: { session_id: "s-after", source_kind: "live_capture", transactions: 110 },
+      url_template_version: 1,
+      source_projection_version: 1,
+      table_limit: 50,
+      template_limit: 1000,
+      time_alignment: { grade: "aligned", overlay_allowed: true, reason: "both trusted" },
+      process_dimension: {
+        available: false,
+        reason: "HAR pseudo-process sessions do not provide comparable process attribution",
+      },
+      dimension_totals: {
+        before: { transactions: 100, endpoints: 100, hosts: 100, process_available: false, cross_check_passed: true },
+        after: { transactions: 110, endpoints: 110, hosts: 110, processes: 110, process_available: true, cross_check_passed: true },
+      },
+      store_rescanned: false,
+      export_projection: "analysis_result_envelope",
+      workspace_route: { supported: true, route: "http_capture_diff", method: "AnalyzeHttpCaptureDiff", result_type: "http_capture_diff" },
+      finding_thresholds: { traffic_share_delta: 0.1 },
+    },
+  },
+} as unknown as HttpCaptureDiffAnalysisResult;
+
+const diffSummary = selectDiffSummary(diffFixture);
+assert(diffSummary?.before.error_rate.denominator === 100, "diff summary keeps the explicit error-rate denominator");
+assert(diffSummary?.after.count_per_minute?.denominator_minutes === 10, "per-minute rates disclose their minute denominator");
+const diffEnvelope = extractDiffEnvelope(diffFixture);
+assert(diffEnvelope?.store_rescanned === false, "the envelope discloses that no store was rescanned");
+assert(diffEnvelope?.process_dimension.available === false, "HAR pairs disable the process dimension");
+assert(
+  (diffEnvelope?.process_dimension.reason ?? "").length > 0,
+  "a disabled process dimension carries its reason",
+);
+assert(selectDiffTable(diffFixture, "endpoints_changed").length === 1, "changed endpoints table is projected");
+assert(selectDiffTable(diffFixture, "endpoints_added").length === 1, "added (unmatched) endpoints table is projected");
+assert(selectDiffTable(diffFixture, "hosts_changed").length === 0, "empty host table projects as empty, not undefined");
+assert(diffHasChanges(diffFixture), "a fixture with table rows reports changes");
+assert(selectDiffFindings(diffFixture).length === 1, "HTTP_DIFF_* findings are projected");
+assert(
+  resolveDiffSourceKind(diffSummary!.before_session.source_kind) === "har_import" &&
+    resolveDiffSourceKind(diffSummary!.after_session.source_kind) === "live_capture",
+  "session refs resolve their source kinds through the closed set",
+);
+
+// Reordered-equivalent sessions produce empty tables (backend regression);
+// the renderer must show an explicit no-difference state for that shape.
+const equalDiffFixture = {
+  ...diffFixture,
+  tables: {
+    endpoints_changed: [],
+    endpoints_added: [],
+    endpoints_removed: [],
+    hosts_changed: [],
+    processes_changed: [],
+  },
+  metadata: { ...(diffFixture.metadata as object), findings: [] },
+} as unknown as HttpCaptureDiffAnalysisResult;
+assert(!diffHasChanges(equalDiffFixture), "all-empty comparison tables report no changes");
+assert(!diffHasChanges(null), "a missing diff result reports no changes");
+
+// Comparison candidates and the source-projection precondition.
+const withProjection = entry("hc-1", "http_capture", {
+  metadata: { http_capture_diff_source: { schema_version: 1 } } as never,
+});
+const withoutProjection = entry("hc-2", "http_capture", { metadata: {} as never });
+const otherType = entry("al-1", "access_log", {});
+const diffCandidates = diffCandidateEntries([withProjection, withoutProjection, otherType]);
+assert(diffCandidates.length === 2, "only http_capture entries are comparison candidates");
+assert(hasDiffSourceProjection(withProjection.result), "a projected result satisfies the source precondition");
+assert(
+  !hasDiffSourceProjection(withoutProjection.result),
+  "a result predating the projection fails the precondition and must be re-analyzed",
+);
+assert(!hasDiffSourceProjection(null), "a missing result fails the projection precondition");
+
+// Comparison lifecycle provenance: a result is only visible with the pair
+// that produced it.
+let diffState = httpCaptureDiffReducer(initialHttpCaptureDiffState, {
+  type: "contractLoaded",
+  contract: supportedDiffContract,
+});
+assert(diffState.contractSupported && !diffState.contractMismatch, "a supported contract enables comparison");
+const mismatchState = httpCaptureDiffReducer(initialHttpCaptureDiffState, {
+  type: "contractLoaded",
+  contract: { ...supportedDiffContract, schema_version: 99 },
+});
+assert(
+  !mismatchState.contractSupported && mismatchState.contractMismatch,
+  "an unimplemented contract version disables comparison and flags the mismatch",
+);
+diffState = httpCaptureDiffReducer(diffState, { type: "setBefore", id: "hc-1" });
+diffState = httpCaptureDiffReducer(diffState, { type: "setAfter", id: "hc-2" });
+diffState = httpCaptureDiffReducer(diffState, { type: "compareStart" });
+diffState = httpCaptureDiffReducer(diffState, {
+  type: "compareSuccess",
+  result: diffFixture,
+  pair: { beforeId: "hc-1", afterId: "hc-2" },
+});
+assert(diffState.result === diffFixture && diffState.resultPair?.beforeId === "hc-1", "a matching pair stores its result");
+// Race: the user changes a selection while a comparison is in flight; the
+// late success must not render under the new pair.
+let racedState = httpCaptureDiffReducer(diffState, { type: "compareStart" });
+racedState = httpCaptureDiffReducer(racedState, { type: "setBefore", id: "hc-3" });
+racedState = httpCaptureDiffReducer(racedState, {
+  type: "compareSuccess",
+  result: diffFixture,
+  pair: { beforeId: "hc-1", afterId: "hc-2" },
+});
+assert(
+  racedState.result === null && racedState.resultPair === null,
+  "a result that raced past a selection change never renders under the new pair",
+);
+const changedSelection = httpCaptureDiffReducer(diffState, { type: "setAfter", id: "hc-9" });
+assert(changedSelection.result === null && changedSelection.resultPair === null, "changing a selection drops the rendered result");
+const swapped = httpCaptureDiffReducer(diffState, { type: "swap" });
+assert(
+  swapped.beforeId === "hc-2" && swapped.afterId === "hc-1" && swapped.result === null,
+  "swap exchanges the pair and drops the stale result",
+);
+const errored = httpCaptureDiffReducer(diffState, {
+  type: "compareError",
+  error: { code: "HTTP_DIFF_ROUTE_UNSUPPORTED", message: "nope" },
+});
+assert(errored.result === null && errored.error?.code === "HTTP_DIFF_ROUTE_UNSUPPORTED", "a failed comparison drops the result");
+const resetState = httpCaptureDiffReducer(diffState, { type: "reset" });
+assert(
+  resetState.result === null && resetState.contractSupported,
+  "reset clears the comparison but keeps the adopted contract",
+);
+
+// Every diff label key must exist with a non-empty string in both locales.
+const diffLabelKeys = [
+  ...Object.values(DIFF_ALIGNMENT_LABEL_KEYS),
+  ...Object.values(DIFF_CHANGE_LABEL_KEYS),
+  ...Object.values(DIFF_RATE_UNAVAILABLE_LABEL_KEYS),
+  ...Object.values(DIFF_SOURCE_KIND_LABEL_KEYS),
+  "httpCaptureDiffTitle",
+  "httpCaptureDiffDescription",
+  "httpCaptureDiffContractMismatch",
+  "httpCaptureDiffNoCandidates",
+  "httpCaptureDiffBeforeLabel",
+  "httpCaptureDiffAfterLabel",
+  "httpCaptureDiffSelectPlaceholder",
+  "httpCaptureDiffSwap",
+  "httpCaptureDiffRun",
+  "httpCaptureDiffNeedTwo",
+  "httpCaptureDiffMissingProjection",
+  "httpCaptureDiffCompareCurrent",
+  "httpCaptureDiffSetBaseline",
+  "httpCaptureDiffSetTarget",
+  "httpCaptureDiffSlotBaseline",
+  "httpCaptureDiffSlotTarget",
+  "httpCaptureDiffSessionsTitle",
+  "httpCaptureDiffSessionBefore",
+  "httpCaptureDiffSessionAfter",
+  "httpCaptureDiffTransactions",
+  "httpCaptureDiffAlignmentTitle",
+  "httpCaptureDiffOverlaySuppressed",
+  "httpCaptureDiffOverlayPerMinuteSuppressed",
+  "httpCaptureDiffSummaryTitle",
+  "httpCaptureDiffDelta",
+  "httpCaptureDiffMetricCount",
+  "httpCaptureDiffMetricErrors",
+  "httpCaptureDiffMetricErrorRate",
+  "httpCaptureDiffMetricPerMinute",
+  "httpCaptureDiffMetricP50",
+  "httpCaptureDiffMetricP95",
+  "httpCaptureDiffMetricP99",
+  "httpCaptureDiffMetricRequestBytes",
+  "httpCaptureDiffMetricResponseBytes",
+  "httpCaptureDiffDurationSamples",
+  "httpCaptureDiffDetailSamplesNote",
+  "httpCaptureDiffDurationOverlayTitle",
+  "httpCaptureDiffTableChangedTitle",
+  "httpCaptureDiffTableAddedTitle",
+  "httpCaptureDiffTableRemovedTitle",
+  "httpCaptureDiffTableHostsTitle",
+  "httpCaptureDiffTableProcessesTitle",
+  "httpCaptureDiffProcessUnavailable",
+  "httpCaptureDiffNoChanges",
+  "httpCaptureDiffColKey",
+  "httpCaptureDiffColChange",
+  "httpCaptureDiffColCountAB",
+  "httpCaptureDiffColErrorRate",
+  "httpCaptureDiffColP95",
+  "httpCaptureDiffRowOpen",
+  "httpCaptureDiffDetailTitle",
+  "httpCaptureDiffSideAbsent",
+  "httpCaptureDiffTrafficShare",
+  "httpCaptureDiffFindingsTitle",
+  "httpCaptureDiffBoundsNote",
+  "httpCaptureDiffCrossCheckFailed",
+] as const;
+for (const key of diffLabelKeys) {
+  assert(
+    typeof (messages.en as Record<string, string>)[key] === "string" &&
+      (messages.en as Record<string, string>)[key]!.length > 0 &&
+      typeof (messages.ko as Record<string, string>)[key] === "string" &&
+      (messages.ko as Record<string, string>)[key]!.length > 0,
+    `diff message key ${key} must exist in both locales`,
+  );
+}

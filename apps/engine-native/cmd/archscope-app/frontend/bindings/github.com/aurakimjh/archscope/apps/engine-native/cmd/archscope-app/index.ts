@@ -50,6 +50,7 @@ export {
     ExportPprofRequest,
     ExportPprofResponse,
     GcLogRequest,
+    HttpCaptureDiffRequest,
     HttpCaptureRequest,
     JenniferProfileRequest,
     JfrRequest,
@@ -64,5 +65,6 @@ export {
     ServerLogRequest,
     StitchedEvidenceRequest,
     ThreadDumpRequest,
-    TraceImportRequest
+    TraceImportRequest,
+    WorkspaceComparisonRequest
 } from "./models.js";

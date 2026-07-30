@@ -1318,6 +1318,44 @@ export class GcLogRequest {
 }
 
 /**
+ * HttpCaptureDiffRequest carries two renderer/Workspace-owned AnalysisResult
+ * envelopes. The analyzer reads only their bounded diff projections.
+ */
+export class HttpCaptureDiffRequest {
+    "before": { [_ in string]?: any };
+    "after": { [_ in string]?: any };
+    "topN"?: number;
+
+    /** Creates a new HttpCaptureDiffRequest instance. */
+    constructor($$source: Partial<HttpCaptureDiffRequest> = {}) {
+        if (!("before" in $$source)) {
+            this["before"] = {};
+        }
+        if (!("after" in $$source)) {
+            this["after"] = {};
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new HttpCaptureDiffRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): HttpCaptureDiffRequest {
+        const $$createField0_0 = $$createType0;
+        const $$createField1_0 = $$createType0;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("before" in $$parsedSource) {
+            $$parsedSource["before"] = $$createField0_0($$parsedSource["before"]);
+        }
+        if ("after" in $$parsedSource) {
+            $$parsedSource["after"] = $$createField1_0($$parsedSource["after"]);
+        }
+        return new HttpCaptureDiffRequest($$parsedSource as Partial<HttpCaptureDiffRequest>);
+    }
+}
+
+/**
  * HttpCaptureRequest mirrors the file-first HAR analyzer. Live capture is not
  * exposed here: the desktop boundary intentionally begins with safe imports.
  */
@@ -1325,6 +1363,7 @@ export class HttpCaptureRequest {
     "path": string;
     "format"?: string;
     "topN"?: number;
+    "diffTemplateLimit"?: number;
     "maxEntries"?: number;
     "maxBytes"?: number;
     "maxStringBytes"?: number;
@@ -1347,10 +1386,10 @@ export class HttpCaptureRequest {
      * Creates a new HttpCaptureRequest instance from a string or object.
      */
     static createFrom($$source: any = {}): HttpCaptureRequest {
-        const $$createField10_0 = $$createType2;
+        const $$createField11_0 = $$createType2;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("customRedactionPatterns" in $$parsedSource) {
-            $$parsedSource["customRedactionPatterns"] = $$createField10_0($$parsedSource["customRedactionPatterns"]);
+            $$parsedSource["customRedactionPatterns"] = $$createField11_0($$parsedSource["customRedactionPatterns"]);
         }
         return new HttpCaptureRequest($$parsedSource as Partial<HttpCaptureRequest>);
     }
@@ -1788,6 +1827,31 @@ export class TraceImportRequest {
     static createFrom($$source: any = {}): TraceImportRequest {
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         return new TraceImportRequest($$parsedSource as Partial<TraceImportRequest>);
+    }
+}
+
+export class WorkspaceComparisonRequest {
+    "beforeType": string;
+    "afterType": string;
+
+    /** Creates a new WorkspaceComparisonRequest instance. */
+    constructor($$source: Partial<WorkspaceComparisonRequest> = {}) {
+        if (!("beforeType" in $$source)) {
+            this["beforeType"] = "";
+        }
+        if (!("afterType" in $$source)) {
+            this["afterType"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new WorkspaceComparisonRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): WorkspaceComparisonRequest {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new WorkspaceComparisonRequest($$parsedSource as Partial<WorkspaceComparisonRequest>);
     }
 }
 

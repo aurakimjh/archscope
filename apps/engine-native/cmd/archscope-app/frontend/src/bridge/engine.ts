@@ -66,7 +66,12 @@ import type {
   ExportPPTXRequest,
   GcLogRequest,
 	  HttpCaptureAnalysisResult,
+  HttpCaptureDiffAnalysisResult,
+  HttpCaptureDiffContract,
+  HttpCaptureDiffRequest,
   HttpCaptureRequest,
+  WorkspaceComparisonRequest,
+  WorkspaceComparisonRoute,
 	  ProfileEvidenceAnalysisResult,
 	  ProfileEvidenceRequest,
   JfrAnalysisResult,
@@ -153,6 +158,31 @@ export function analyzeHttpCapture(req: HttpCaptureRequest): CancellablePromise<
 
 export function analyzeProfileEvidence(req: ProfileEvidenceRequest): CancellablePromise<ProfileEvidenceAnalysisResult> {
   return call<ProfileEvidenceAnalysisResult>("AnalyzeProfileEvidence", req);
+}
+
+// ── HTTP capture session diff (H-RG5 / T-582) ─────────────────────
+// The diff analyzer consumes only the bounded `http_capture_diff_source`
+// projections already embedded in two http_capture results, so the request
+// carries the renderer/Workspace-owned result envelopes verbatim and no
+// session store is rescanned.
+
+export function analyzeHttpCaptureDiff(
+  req: HttpCaptureDiffRequest,
+): CancellablePromise<HttpCaptureDiffAnalysisResult> {
+  return call<HttpCaptureDiffAnalysisResult>("AnalyzeHttpCaptureDiff", req);
+}
+
+export function getHttpCaptureDiffContract(): CancellablePromise<HttpCaptureDiffContract> {
+  return call<HttpCaptureDiffContract>("GetHttpCaptureDiffContract");
+}
+
+// resolveWorkspaceComparison asks the backend which comparison path (if any)
+// serves a result-type pair. The renderer must not route comparisons itself —
+// legacy Diff stays unrelated to http_capture results.
+export function resolveWorkspaceComparison(
+  req: WorkspaceComparisonRequest,
+): CancellablePromise<WorkspaceComparisonRoute> {
+  return call<WorkspaceComparisonRoute>("ResolveWorkspaceComparison", req);
 }
 
 // analyzeBrowserAudit imports a local Lighthouse report (T-585/T-586).
@@ -284,6 +314,9 @@ export const engine = {
   analyzeOtel,
   analyzeTraceImport,
   analyzeHttpCapture,
+  analyzeHttpCaptureDiff,
+  getHttpCaptureDiffContract,
+  resolveWorkspaceComparison,
   analyzeProfileEvidence,
   analyzeBrowserAudit,
   analyzeJenniferProfile,

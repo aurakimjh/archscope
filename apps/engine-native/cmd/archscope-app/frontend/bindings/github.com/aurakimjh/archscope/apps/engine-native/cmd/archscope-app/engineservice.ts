@@ -28,6 +28,9 @@ import { Call as $Call, CancellablePromise as $CancellablePromise, Create as $Cr
 import * as api$0 from "../../api/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
+import * as httpcapture$0 from "../../internal/analyzers/httpcapture/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
 import * as models$0 from "../../internal/models/models.js";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -97,6 +100,12 @@ export function AnalyzeGcLog(req: $models.GcLogRequest): $CancellablePromise<api
 
 export function AnalyzeHttpCapture(req: $models.HttpCaptureRequest): $CancellablePromise<api$0.AnalysisResult> {
     return $Call.ByID(1316497525, req).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+export function AnalyzeHttpCaptureDiff(req: $models.HttpCaptureDiffRequest): $CancellablePromise<api$0.AnalysisResult> {
+    return $Call.ByID(1450384362, req).then(($result: any) => {
         return $$createType0($result);
     });
 }
@@ -322,9 +331,23 @@ export function ExportPPTX(req: $models.ExportPPTXRequest): $CancellablePromise<
     return $Call.ByID(3708449921, req);
 }
 
+export function GetHttpCaptureDiffContract(): $CancellablePromise<api$0.HttpCaptureDiffContract> {
+    return $Call.ByID(3827930008).then(($result: any) => {
+        return $$createType5($result);
+    });
+}
+
+export function ResolveWorkspaceComparison(req: $models.WorkspaceComparisonRequest): $CancellablePromise<api$0.WorkspaceComparisonRoute> {
+    return $Call.ByID(4088206667, req).then(($result: any) => {
+        return $$createType6($result);
+    });
+}
+
 // Private type creation functions
 const $$createType0 = models$0.AnalysisResult.createFrom;
 const $$createType1 = $models.EngineAsyncResponse.createFrom;
 const $$createType2 = $models.ClassifyResult.createFrom;
 const $$createType3 = $models.CollapsedResult.createFrom;
 const $$createType4 = $Create.Map($Create.Any, $Create.Any);
+const $$createType5 = httpcapture$0.HttpCaptureDiffContract.createFrom;
+const $$createType6 = httpcapture$0.WorkspaceComparisonRoute.createFrom;

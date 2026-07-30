@@ -14,14 +14,11 @@ import * as redact$0 from "../redact/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
 import * as models$0 from "../../models/models.js";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore: Unused imports
-import * as time$0 from "../../../../../../../../time/models.js";
 
 export class Evidence {
     "schemaVersion": number;
     "task": string;
-    "generatedAt": time$0.Time;
+    "generatedAt": string;
     "session": SessionEvidence;
     "stats": capture$0.Stats;
     "redaction": redact$0.Summary;
@@ -39,7 +36,7 @@ export class Evidence {
             this["task"] = "";
         }
         if (!("generatedAt" in $$source)) {
-            this["generatedAt"] = null;
+            this["generatedAt"] = "0001-01-01T00:00:00.000Z";
         }
         if (!("session" in $$source)) {
             this["session"] = (new SessionEvidence());

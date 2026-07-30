@@ -390,13 +390,37 @@ progress 노출 전에 drop하며, 명시적 opt-in을 선택해도 리댁션된
 차원별 합계 교차 검증, HAR process 차원 비활성화, 명시적 rate 분모, alignment
 동작, top-K 결과 상한, store-free JSON export, 순서만 다른 동일 세션의 equality를
 고정한다. 전체 Go test/vet/build가 통과했다. renderer 생성 바인딩은 Claude UI
-handoff 범위에 남긴다.
+handoff 범위로 이관되었고 아래에서 완료되었다.
 
-#### Claude UI To-Do
+#### Claude UI — 완료 (2026-07-30)
 
-- [ ] HttpCapturePage compare action과 Workspace 비교 진입
-- [ ] alignment grade에 따른 overlay 허용/억제
-- [ ] before/after delta, 분모, unmatched template, drilldown cursor UX
+- [x] HttpCapturePage compare action과 Workspace 비교 진입
+- [x] alignment grade에 따른 overlay 허용/억제
+- [x] before/after delta, 분모, unmatched template, drilldown cursor UX
+
+renderer 생성 바인딩은 module 고정 Wails CLI(alpha2.117)로 재생성되어 세
+메서드와 요청/계약 모델을 포함한다. 공유 비교 패널
+(`components/HttpCaptureComparisonPanel.tsx`)은 HttpCapturePage와 Analysis
+Workspace 양쪽에 마운트되고, 선택/실행 lifecycle은
+`state/httpCaptureDiff.ts`의 순수 reducer + module store가 관리해 두 표면이
+같은 A/B 선택을 공유한다. 비교 라우팅은 renderer가 추측하지 않고
+`ResolveWorkspaceComparison` 판정을 따르며, 시작 시점에
+`GetHttpCaptureDiffContract`를 채택해 구현하지 않은 schema 버전이면 비교를
+비활성화하고 mismatch를 공지한다(H-RG4 R8 패턴). overlay는 backend의
+`overlay_allowed`+grade 판정만 따르고 인식 불가 등급은 fail-closed로
+억제한다. 요약과 drilldown은 error rate/traffic share의 분자/분모, per-minute
+분모(분), duration sample 수를 그대로 노출하고, rate가 불가능한 세션은 그
+이유 코드를 닫힌 EN/KO 라벨로 표시한다. added/removed(unmatched template)
+행의 부재 측은 `0`이 아니라 `—`로 렌더되고, HAR pseudo-process 쌍의 process
+차원은 이유와 함께 비활성 카드로 노출된다. 비교 프로젝션이 없는(백엔드
+핸드오프 이전에 분석된) 결과는 재분석 안내와 함께 사전에 차단된다. 순서만
+다른 동일 세션의 빈 change 테이블은 명시적 "차이 없음" 상태로 렌더된다.
+state 회귀는 contract 채택/거부, 닫힌 토큰 세트, overlay fail-closed 게이트,
+race-safe 결과 provenance, 후보 필터링, projection 전제조건, 신규 키 전체의
+EN/KO 커버리지를 고정한다. `npm run test:state`, `npm run build`(tsc+vite),
+`go build ./...`, `go vet ./cmd/archscope-app/...`,
+`go test ./cmd/archscope-app/... ./internal/analyzers/httpcapture/...`가
+통과했다. Claude는 엔진 소스를 변경하지 않았다.
 
 **PASS 기준:** 순서가 다른 동일 세션은 차이가 없어야 하고, degenerate timestamp와
 HAR pseudo-process 비교에서 지원하지 않는 정규화/차원을 숨기거나 명시적으로

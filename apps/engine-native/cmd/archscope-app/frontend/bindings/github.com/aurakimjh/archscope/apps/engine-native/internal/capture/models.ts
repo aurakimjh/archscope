@@ -5,10 +5,6 @@
 // @ts-ignore: Unused imports
 import { Create as $Create } from "@wailsio/runtime";
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore: Unused imports
-import * as time$0 from "../../../../../../../time/models.js";
-
 export class Config {
     "listenAddress"?: string;
     "storeRoot"?: string;
@@ -139,8 +135,8 @@ export class Session {
     "state": SessionState;
     "listenAddress": string;
     "storePath": string;
-    "startedAt": time$0.Time;
-    "endedAt"?: time$0.Time | null;
+    "startedAt": string;
+    "endedAt"?: string | null;
     "error"?: string;
     "retainUnattributedMetadata": boolean;
 
@@ -159,7 +155,7 @@ export class Session {
             this["storePath"] = "";
         }
         if (!("startedAt" in $$source)) {
-            this["startedAt"] = null;
+            this["startedAt"] = "0001-01-01T00:00:00.000Z";
         }
         if (!("retainUnattributedMetadata" in $$source)) {
             this["retainUnattributedMetadata"] = false;

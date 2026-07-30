@@ -397,13 +397,43 @@ inputs and no new NavKey is required. Regression coverage fixes URL-template
 rules, cross-dimension totals, process disablement for HAR, explicit rate
 denominators, alignment behavior, top-K result bounds, store-free JSON export,
 and reordered-session equality. Full Go test/vet/build passes. Generated
-renderer bindings remain part of the Claude UI handoff.
+renderer bindings were assigned to the Claude UI handoff and are complete
+below.
 
-#### Claude UI TODO
+#### Claude UI — Complete (2026-07-30)
 
-- [ ] HttpCapturePage compare action and Workspace comparison entry
-- [ ] Grade-aware overlay enablement/suppression
-- [ ] Before/after deltas, denominators, unmatched templates, cursor drilldown
+- [x] HttpCapturePage compare action and Workspace comparison entry
+- [x] Grade-aware overlay enablement/suppression
+- [x] Before/after deltas, denominators, unmatched templates, cursor drilldown
+
+The renderer bindings were regenerated with the module-pinned Wails CLI
+(alpha2.117) and include the three methods plus their request/contract
+models. A shared comparison panel
+(`components/HttpCaptureComparisonPanel.tsx`) mounts on both HttpCapturePage
+and the Analysis Workspace; the selection/run lifecycle lives in a pure
+reducer plus module store (`state/httpCaptureDiff.ts`) so both surfaces share
+one A/B selection. Routing is never guessed by the renderer — it follows the
+`ResolveWorkspaceComparison` verdict — and the panel adopts
+`GetHttpCaptureDiffContract` at startup, disabling comparison with a
+disclosed mismatch for any schema version this build does not implement
+(the H-RG4 R8 pattern). Overlays follow only the backend's
+`overlay_allowed`+grade verdict and an unrecognized grade fails closed. The
+summary and cursor drilldown expose error-rate/traffic-share
+numerator/denominator pairs, per-minute denominators in minutes, and
+duration-sample counts; sessions without a trustable rate show the closed
+EN/KO label for their reason code. The absent side of added/removed
+(unmatched-template) rows renders `—`, never `0`, and the process dimension
+of a HAR pseudo-process pair renders as a disabled card with its reason.
+Results predating the diff source projection are blocked up front with a
+re-analyze notice, and the empty change tables of reordered equivalent
+sessions render an explicit no-difference state. State regressions pin
+contract adoption/rejection, the closed token sets, the fail-closed overlay
+gate, race-safe result provenance, candidate filtering, the projection
+precondition, and both-locale coverage of every new key. `npm run
+test:state`, `npm run build` (tsc + vite), `go build ./...`, `go vet
+./cmd/archscope-app/...`, and `go test ./cmd/archscope-app/...
+./internal/analyzers/httpcapture/...` pass. No engine source was changed by
+Claude.
 
 **PASS:** reordered equivalent sessions yield no change; unsupported normalization
 or dimensions are hidden or explicitly disabled for degenerate timestamps and

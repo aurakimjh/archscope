@@ -288,6 +288,192 @@ export type HttpCaptureAnalysisResult = AnalysisResult<
   AnalysisObject,
   HttpCaptureMetadata
 >;
+
+// ──────────────────────────────────────────────────────────────────
+// HTTP capture session diff typed shapes — H-RG5 / T-582.
+//
+// Mirrors the engine emit shape in
+// apps/engine-native/internal/analyzers/httpcapture/diff.go:
+//   - summary : buildDiffSummary (before/after/delta + time_alignment)
+//   - tables  : endpoints_changed / endpoints_added / endpoints_removed /
+//               hosts_changed / processes_changed comparison rows
+//   - metadata.http_capture_diff : versioned envelope with the contract,
+//     session refs, alignment, process-dimension availability, dimension
+//     totals, and the Workspace routing decision
+//   - metadata.findings : HTTP_DIFF_* finding rows
+// The analyzer compares only the bounded `http_capture_diff_source`
+// projections already carried by two http_capture results — it never
+// rescans a HAR file or live session store.
+// ──────────────────────────────────────────────────────────────────
+
+export type HttpCaptureDiffRequest = {
+  before: HttpCaptureAnalysisResult;
+  after: HttpCaptureAnalysisResult;
+  topN?: number;
+};
+
+export type WorkspaceComparisonRequest = {
+  beforeType: string;
+  afterType: string;
+};
+
+/** Backend routing decision for a Workspace comparison pair. */
+export type WorkspaceComparisonRoute = {
+  supported: boolean;
+  route?: string;
+  method?: string;
+  result_type?: string;
+  reason?: string;
+};
+
+export type HttpCaptureDiffContract = {
+  schema_version: number;
+  source_result_type: string;
+  result_type: string;
+  url_template_version: number;
+  supported_source_versions: number[];
+  default_template_limit: number;
+  max_template_limit: number;
+  default_table_limit: number;
+  max_table_limit: number;
+  time_alignment_grades: string[];
+  workspace_route: string;
+  workspace_selection_count: number;
+  compare_method: string;
+  legacy_diff_supported: boolean;
+  requires_new_nav_key: boolean;
+  store_rescan_on_diff_or_export: boolean;
+  process_requires_real_sources: boolean;
+};
+
+export type HttpCaptureDiffSessionRef = {
+  session_id: string;
+  source_kind: string;
+  source_format?: string;
+  snapshot_version?: number;
+  transactions: number;
+};
+
+/** A rate that always discloses its numerator and denominator. */
+export type HttpCaptureDiffExplicitRate = {
+  numerator: number;
+  denominator: number;
+  value: number;
+};
+
+export type HttpCaptureDiffPerMinuteRate = {
+  numerator: number;
+  denominator_minutes: number;
+  value_per_minute: number;
+};
+
+export type HttpCaptureDiffSideMetrics = {
+  count: number;
+  errors: number;
+  error_rate: HttpCaptureDiffExplicitRate;
+  traffic_share: HttpCaptureDiffExplicitRate;
+  // Present only when the session's absolute timeline is trusted; otherwise
+  // rate_unavailable_code says why a per-minute rate would be dishonest.
+  count_per_minute?: HttpCaptureDiffPerMinuteRate;
+  duration_p50_ms: number;
+  duration_p95_ms: number;
+  duration_p99_ms: number;
+  duration_samples: number;
+  request_bytes: number;
+  response_bytes: number;
+  rate_unavailable_code?: string;
+  capture_duration_ms?: number;
+};
+
+export type HttpCaptureDiffDeltaMetrics = {
+  count: number;
+  errors: number;
+  error_rate: number;
+  duration_p50_ms: number;
+  duration_p95_ms: number;
+  duration_p99_ms: number;
+  request_bytes: number;
+  response_bytes: number;
+  count_per_minute: number | null;
+};
+
+export type HttpCaptureDiffTimeAlignment = {
+  grade: string;
+  overlay_allowed: boolean;
+  reason: string;
+};
+
+export type HttpCaptureDiffSummary = {
+  before_session: HttpCaptureDiffSessionRef;
+  after_session: HttpCaptureDiffSessionRef;
+  before: HttpCaptureDiffSideMetrics;
+  after: HttpCaptureDiffSideMetrics;
+  delta: HttpCaptureDiffDeltaMetrics;
+  time_alignment: HttpCaptureDiffTimeAlignment;
+  url_template_version: number;
+  table_limit: number;
+};
+
+export type HttpCaptureDiffComparisonRow = {
+  key: string;
+  change: string;
+  before: HttpCaptureDiffSideMetrics;
+  after: HttpCaptureDiffSideMetrics;
+  delta: HttpCaptureDiffDeltaMetrics;
+};
+
+export type HttpCaptureDiffTables = {
+  endpoints_changed: HttpCaptureDiffComparisonRow[];
+  endpoints_added: HttpCaptureDiffComparisonRow[];
+  endpoints_removed: HttpCaptureDiffComparisonRow[];
+  hosts_changed: HttpCaptureDiffComparisonRow[];
+  processes_changed: HttpCaptureDiffComparisonRow[];
+};
+
+export type HttpCaptureDiffDimensionTotals = {
+  transactions: number;
+  endpoints: number;
+  hosts: number;
+  processes?: number;
+  process_available: boolean;
+  cross_check_passed: boolean;
+};
+
+export type HttpCaptureDiffEnvelope = {
+  contract: HttpCaptureDiffContract;
+  before_session: HttpCaptureDiffSessionRef;
+  after_session: HttpCaptureDiffSessionRef;
+  url_template_version: number;
+  source_projection_version: number;
+  table_limit: number;
+  template_limit: number;
+  time_alignment: HttpCaptureDiffTimeAlignment;
+  process_dimension: { available: boolean; reason: string };
+  dimension_totals: {
+    before: HttpCaptureDiffDimensionTotals;
+    after: HttpCaptureDiffDimensionTotals;
+  };
+  store_rescanned: boolean;
+  export_projection: string;
+  workspace_route: WorkspaceComparisonRoute;
+  finding_thresholds: Record<string, number>;
+};
+
+export type HttpCaptureDiffMetadata = {
+  parser?: string;
+  schema_version?: string;
+  findings?: HttpCaptureFinding[];
+  http_capture_diff?: HttpCaptureDiffEnvelope;
+};
+
+export type HttpCaptureDiffAnalysisResult = AnalysisResult<
+  "http_capture_diff",
+  HttpCaptureDiffSummary,
+  AnalysisObject,
+  HttpCaptureDiffTables,
+  AnalysisObject,
+  HttpCaptureDiffMetadata
+>;
 export type ProfileEvidenceRequest = { path: string; format?: string; topN?: number; intervalMs?: number; profileKind?: string; maxBytes?: number; maxSamples?: number };
 export type ProfileEvidenceAnalysisResult = AnalysisResult<"profile_evidence">;
 
