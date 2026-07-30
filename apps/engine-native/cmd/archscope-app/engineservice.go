@@ -242,6 +242,7 @@ type HttpCaptureRequest struct {
 	Path                    string   `json:"path"`
 	Format                  string   `json:"format,omitempty"`
 	TopN                    int      `json:"topN,omitempty"`
+	DiffTemplateLimit       int      `json:"diffTemplateLimit,omitempty"`
 	MaxEntries              int      `json:"maxEntries,omitempty"`
 	MaxBytes                int64    `json:"maxBytes,omitempty"`
 	MaxStringBytes          int      `json:"maxStringBytes,omitempty"`
@@ -250,6 +251,19 @@ type HttpCaptureRequest struct {
 	MaxFields               int      `json:"maxFields,omitempty"`
 	MaxDecompressionRatio   int      `json:"maxDecompressionRatio,omitempty"`
 	CustomRedactionPatterns []string `json:"customRedactionPatterns,omitempty"`
+}
+
+// HttpCaptureDiffRequest carries two renderer/Workspace-owned AnalysisResult
+// envelopes. The analyzer reads only their bounded diff projections.
+type HttpCaptureDiffRequest struct {
+	Before map[string]any `json:"before"`
+	After  map[string]any `json:"after"`
+	TopN   int            `json:"topN,omitempty"`
+}
+
+type WorkspaceComparisonRequest struct {
+	BeforeType string `json:"beforeType"`
+	AfterType  string `json:"afterType"`
 }
 
 // JenniferProfileRequest accepts a single Path or repeatable Paths
@@ -570,11 +584,27 @@ func (s *EngineService) AnalyzeHttpCapture(req HttpCaptureRequest) (engineapi.An
 		return engineapi.AnalysisResult{}, fmt.Errorf("path is required")
 	}
 	return engineapi.AnalyzeHttpCapture(req.Path, engineapi.HttpCaptureOptions{
-		Format: req.Format, TopN: req.TopN, MaxEntries: req.MaxEntries, MaxBytes: req.MaxBytes,
+		Format: req.Format, TopN: req.TopN, DiffTemplateLimit: req.DiffTemplateLimit,
+		MaxEntries: req.MaxEntries, MaxBytes: req.MaxBytes,
 		MaxStringBytes: req.MaxStringBytes, MaxBodyBytes: req.MaxBodyBytes, MaxDepth: req.MaxDepth,
 		MaxFields: req.MaxFields, MaxDecompressionRatio: req.MaxDecompressionRatio,
 		CustomRedactionPatterns: req.CustomRedactionPatterns,
 	})
+}
+
+func (s *EngineService) GetHttpCaptureDiffContract() engineapi.HttpCaptureDiffContract {
+	return engineapi.DefaultHttpCaptureDiffContract()
+}
+
+func (s *EngineService) ResolveWorkspaceComparison(req WorkspaceComparisonRequest) engineapi.WorkspaceComparisonRoute {
+	return engineapi.ResolveWorkspaceComparison(req.BeforeType, req.AfterType)
+}
+
+func (s *EngineService) AnalyzeHttpCaptureDiff(req HttpCaptureDiffRequest) (engineapi.AnalysisResult, error) {
+	if req.Before == nil || req.After == nil {
+		return engineapi.AnalysisResult{}, fmt.Errorf("before and after results are required")
+	}
+	return engineapi.AnalyzeHttpCaptureDiff(req.Before, req.After, engineapi.HttpCaptureDiffOptions{TopN: req.TopN})
 }
 
 func (s *EngineService) AnalyzeStitchedEvidence(req StitchedEvidenceRequest) (engineapi.AnalysisResult, error) {

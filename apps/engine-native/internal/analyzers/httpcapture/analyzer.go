@@ -24,6 +24,7 @@ const (
 type Options struct {
 	Format                  string
 	TopN                    int
+	DiffTemplateLimit       int
 	MaxEntries              int
 	MaxBytes                int64
 	MaxStringBytes          int
@@ -197,6 +198,25 @@ func buildParsed(parsed parser.ParseResult, sourceFile string, opts Options, pro
 		"timeline_available":     parsed.TimelineAvailable,
 		"input_bytes":            parsed.InputBytes,
 		"decompressed_bytes":     parsed.DecompressedBytes,
+	}
+	diffSource := buildDiffSourceProjection(entries, sourceFile, parsed.Format, provenance, parsed.TimelineAvailable, opts.DiffTemplateLimit)
+	result.Metadata.Extra["http_capture_diff_source"] = diffSource
+	result.Metadata.Extra["http_capture_diff_contract"] = DefaultDiffContract()
+	result.Metadata.Extra["capture_session_ref"] = diffSource.Session
+	if diffSource.TemplatesFolded > 0 || diffSource.HostsFolded > 0 || diffSource.ProcessesFolded > 0 {
+		evidence := map[string]any{
+			"dimension_limit":      diffSource.TemplateLimit,
+			"templates_folded":     diffSource.TemplatesFolded,
+			"hosts_folded":         diffSource.HostsFolded,
+			"processes_folded":     diffSource.ProcessesFolded,
+			"overflow_bucket":      "{other}",
+			"url_template_version": diffSource.URLTemplateVersion,
+		}
+		if result.Metadata.Diagnostics != nil {
+			result.Metadata.Diagnostics.AddWarning(0, "HTTP_DIFF_DIMENSIONS_FOLDED", "HTTP Diff source dimensions were folded into the bounded {other} bucket", "", false)
+		} else {
+			result.AddFinding("info", "HTTP_DIFF_DIMENSIONS_FOLDED", "HTTP Diff source dimensions were folded into the bounded {other} bucket", evidence)
+		}
 	}
 
 	aggregator := aggregate.New(provenance.AggregateID, topN)
@@ -498,7 +518,7 @@ func addDiagnosticFindings(result *models.AnalysisResult) {
 		seen[issue.Reason] = struct{}{}
 		severity := "warning"
 		switch issue.Reason {
-		case "HAR_DIALECT_UNKNOWN", "HAR_SIZES_UNAVAILABLE", "HAR_BODIES_ABSENT", "HAR_REDIRECTS_UNLINKABLE", "HAR_PRESANITIZED":
+		case "HAR_DIALECT_UNKNOWN", "HAR_SIZES_UNAVAILABLE", "HAR_BODIES_ABSENT", "HAR_REDIRECTS_UNLINKABLE", "HAR_PRESANITIZED", "HTTP_DIFF_DIMENSIONS_FOLDED":
 			severity = "info"
 		}
 		result.AddFinding(severity, issue.Reason, issue.Message, nil)

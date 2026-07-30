@@ -163,6 +163,25 @@ type HttpCaptureOptions = httpcapture.Options
 // AnalyzeHttpCapture imports a redacted HAR file into the common envelope.
 var AnalyzeHttpCapture = httpcapture.Analyze
 
+// HttpCaptureDiffOptions controls the bounded HTTP-specific comparison tables.
+type HttpCaptureDiffOptions = httpcapture.DiffOptions
+
+// HttpCaptureDiffContract is the renderer/Workspace routing contract.
+type HttpCaptureDiffContract = httpcapture.HttpCaptureDiffContract
+
+// WorkspaceComparisonRoute describes the backend-selected comparison path.
+type WorkspaceComparisonRoute = httpcapture.WorkspaceComparisonRoute
+
+// AnalyzeHttpCaptureDiff compares two bounded http_capture result projections.
+var AnalyzeHttpCaptureDiff = httpcapture.AnalyzeDiff
+
+// DefaultHttpCaptureDiffContract returns the versioned H-RG5 contract.
+var DefaultHttpCaptureDiffContract = httpcapture.DefaultDiffContract
+
+// ResolveWorkspaceComparison selects the HTTP-specific route when both inputs
+// are http_capture results.
+var ResolveWorkspaceComparison = httpcapture.ResolveWorkspaceComparison
+
 // ── JFR ─────────────────────────────────────────────────────────────
 
 // JfrOptions mirrors jfr.Options.

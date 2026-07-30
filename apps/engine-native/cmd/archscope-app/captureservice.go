@@ -210,6 +210,7 @@ func (s *CaptureService) AnalyzeCaptureSession(request CaptureAnalyzeRequest) (e
 		redactionSummary = *manifest.Redaction
 	}
 	result := httpanalyzer.BuildLive(transactions, source, "canonical-v1", redactionSummary, httpanalyzer.Options{TopN: request.TopN})
+	httpanalyzer.SetDiffCaptureSessionRef(&result, request.SessionID, page.SnapshotVersion, len(transactions))
 	result.Metadata.Extra["capture_session_ref"] = map[string]any{
 		"session_id": request.SessionID, "snapshot_version": page.SnapshotVersion,
 		"transactions": len(transactions),

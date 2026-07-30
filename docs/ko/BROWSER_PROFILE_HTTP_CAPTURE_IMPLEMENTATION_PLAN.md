@@ -374,13 +374,23 @@ progress 노출 전에 drop하며, 명시적 opt-in을 선택해도 리댁션된
 
 ### H-RG5 — HTTP 전용 세션 Diff
 
-#### Codex 엔진 To-Do
+#### Codex 엔진 — 완료 (2026-07-30)
 
-- [ ] versioned URL template과 `{other}` top-K projection
-- [ ] endpoint/host/process 차원과 명시적 numerator/denominator
-- [ ] `aligned`/`duration_only`/`none` 시간 정렬 등급
-- [ ] bounded `http_capture_diff` 결과와 `HTTP_DIFF_*` findings
-- [ ] store 재스캔 없는 export projection과 Workspace routing contract
+- [x] versioned URL template과 `{other}` top-K projection
+- [x] endpoint/host/process 차원과 명시적 numerator/denominator
+- [x] `aligned`/`duration_only`/`none` 시간 정렬 등급
+- [x] bounded `http_capture_diff` 결과와 `HTTP_DIFF_*` findings
+- [x] store 재스캔 없는 export projection과 Workspace routing contract
+
+분석기는 각 `http_capture` 결과에 버전이 지정된 top-1,000 source projection을
+붙이고 Diff 시 그 projection만 비교한다. Wails 백엔드는
+`AnalyzeHttpCaptureDiff`, `GetHttpCaptureDiffContract`,
+`ResolveWorkspaceComparison`을 노출하며, 이 입력에 legacy Diff를 사용하지 않고
+새 NavKey도 요구하지 않는다고 명시한다. 회귀 테스트는 URL template 규칙,
+차원별 합계 교차 검증, HAR process 차원 비활성화, 명시적 rate 분모, alignment
+동작, top-K 결과 상한, store-free JSON export, 순서만 다른 동일 세션의 equality를
+고정한다. 전체 Go test/vet/build가 통과했다. renderer 생성 바인딩은 Claude UI
+handoff 범위에 남긴다.
 
 #### Claude UI To-Do
 

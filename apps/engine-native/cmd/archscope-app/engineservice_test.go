@@ -19,6 +19,11 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	httpanalyzer "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/httpcapture"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/redact"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
+	httpparser "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/httpcapture"
 )
 
 func TestProfilerServiceLoadsV8ThroughUnifiedParser(t *testing.T) {
@@ -130,6 +135,84 @@ func TestEngineService_AnalyzeHttpCaptureUsesBoundedRequestContract(t *testing.T
 	}
 	if strings.Contains(string(encoded), "EXAMPLE-API-KEY-0000") || strings.Contains(string(encoded), "FAKE-SIGNATURE-EXAMPLE") {
 		t.Fatal("Wails result leaked a shared fixture secret")
+	}
+}
+
+func TestEngineService_HttpCaptureDiffContractRoutingAndStoreFreeAnalysis(t *testing.T) {
+	svc := &EngineService{}
+	contract := svc.GetHttpCaptureDiffContract()
+	if contract.SchemaVersion != 1 || contract.ResultType != "http_capture_diff" ||
+		contract.WorkspaceRoute != "http_capture_diff" || contract.LegacyDiffSupported ||
+		contract.RequiresNewNavKey || contract.StoreRescanOnDiffOrExport {
+		t.Fatalf("unexpected HTTP diff contract: %+v", contract)
+	}
+	route := svc.ResolveWorkspaceComparison(WorkspaceComparisonRequest{
+		BeforeType: "http_capture", AfterType: "http_capture",
+	})
+	if !route.Supported || route.Method != "AnalyzeHttpCaptureDiff" || route.ResultType != "http_capture_diff" {
+		t.Fatalf("HTTP Workspace route missing: %+v", route)
+	}
+	if unsupported := svc.ResolveWorkspaceComparison(WorkspaceComparisonRequest{
+		BeforeType: "http_capture", AfterType: "access_log",
+	}); unsupported.Supported || unsupported.Reason == "" {
+		t.Fatalf("mixed result types must not route to HTTP diff: %+v", unsupported)
+	}
+
+	before := httpanalyzer.BuildParsed(httpparser.ParseResult{
+		Format: "har", Dialect: "generic", TimelineAvailable: true,
+		Redaction: redact.Summary{Known: true},
+		Entries: []models.CaptureTransaction{
+			serviceDiffEntry("one", "2026-07-30T01:00:00Z", "/users/1", 200, 20),
+			serviceDiffEntry("two", "2026-07-30T01:00:01Z", "/users/2", 200, 30),
+		},
+	}, "before.har", httpanalyzer.Options{TopN: 1})
+	after := httpanalyzer.BuildParsed(httpparser.ParseResult{
+		Format: "har", Dialect: "generic", TimelineAvailable: true,
+		Redaction: redact.Summary{Known: true},
+		Entries: []models.CaptureTransaction{
+			serviceDiffEntry("three", "2026-07-30T01:00:00Z", "/users/3", 500, 120),
+			serviceDiffEntry("four", "2026-07-30T01:00:01Z", "/users/4", 200, 130),
+		},
+	}, "after.har", httpanalyzer.Options{TopN: 1})
+	result, err := svc.AnalyzeHttpCaptureDiff(HttpCaptureDiffRequest{
+		Before: resultToMap(t, before), After: resultToMap(t, after), TopN: 1,
+	})
+	if err != nil {
+		t.Fatalf("AnalyzeHttpCaptureDiff: %v", err)
+	}
+	payload := resultToMap(t, result)
+	requireResultEnvelope(t, "AnalyzeHttpCaptureDiff", "http_capture_diff", payload)
+	summary := payload["summary"].(map[string]any)
+	beforeSummary := summary["before"].(map[string]any)
+	if beforeSummary["count"] != float64(2) {
+		t.Fatalf("diff used the one-row inline table instead of the full bounded projection: %+v", beforeSummary)
+	}
+	metadata := payload["metadata"].(map[string]any)
+	diffMetadata := metadata["http_capture_diff"].(map[string]any)
+	if diffMetadata["store_rescanned"] != false || diffMetadata["export_projection"] != "analysis_result_envelope" {
+		t.Fatalf("store-free contract missing from renderer payload: %+v", diffMetadata)
+	}
+
+	output := filepath.Join(t.TempDir(), "http-capture-diff.json")
+	if err := svc.ExportJSON(ExportJSONRequest{Path: output, Result: result}); err != nil {
+		t.Fatalf("ExportJSON: %v", err)
+	}
+	body, err := os.ReadFile(output)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(body), `"http_capture_diff"`) || strings.Contains(string(body), "transactions.ndjson") {
+		t.Fatalf("diff export is not self-contained/store-free: %s", body)
+	}
+}
+
+func serviceDiffEntry(id, startedAt, path string, status int, durationMS float64) models.CaptureTransaction {
+	return models.CaptureTransaction{
+		ID: id, StartedAt: startedAt, EndedAt: startedAt,
+		Method: "GET", Host: "api.example", Path: path,
+		StatusCode: status, State: models.TxComplete, TotalMS: durationMS,
+		Request:  models.HTTPMessage{BodySize: 10, TransferSize: -1},
+		Response: models.HTTPMessage{BodySize: 20, TransferSize: 30},
 	}
 }
 

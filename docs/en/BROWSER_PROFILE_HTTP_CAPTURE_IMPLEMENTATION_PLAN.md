@@ -381,13 +381,23 @@ look like successful semantic capture.
 
 ### H-RG5 — HTTP-Specific Session Diff
 
-#### Codex Engine TODO
+#### Codex Engine — Complete (2026-07-30)
 
-- [ ] Versioned URL templates and bounded `{other}` projection
-- [ ] Endpoint/host/process dimensions with explicit numerators/denominators
-- [ ] `aligned`/`duration_only`/`none` grades
-- [ ] Bounded `http_capture_diff` and `HTTP_DIFF_*` findings
-- [ ] Store-free export projection and Workspace routing contract
+- [x] Versioned URL templates and bounded `{other}` projection
+- [x] Endpoint/host/process dimensions with explicit numerators/denominators
+- [x] `aligned`/`duration_only`/`none` grades
+- [x] Bounded `http_capture_diff` and `HTTP_DIFF_*` findings
+- [x] Store-free export projection and Workspace routing contract
+
+The analyzer attaches a versioned top-1,000 source projection to each
+`http_capture` result and compares only those projections. The Wails backend
+exposes `AnalyzeHttpCaptureDiff`, `GetHttpCaptureDiffContract`, and
+`ResolveWorkspaceComparison`; legacy Diff is explicitly unsupported for these
+inputs and no new NavKey is required. Regression coverage fixes URL-template
+rules, cross-dimension totals, process disablement for HAR, explicit rate
+denominators, alignment behavior, top-K result bounds, store-free JSON export,
+and reordered-session equality. Full Go test/vet/build passes. Generated
+renderer bindings remain part of the Claude UI handoff.
 
 #### Claude UI TODO
 
