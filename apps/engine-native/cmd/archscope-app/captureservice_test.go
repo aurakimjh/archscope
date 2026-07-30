@@ -259,7 +259,10 @@ func TestT581LiveCaptureAcceptanceFixture(t *testing.T) {
 		!strings.Contains(script, "$harnessContract.quicInvisibility") ||
 		!strings.Contains(script, "Test-FixtureArtifactRow") ||
 		!strings.Contains(script, "omittedNonFixtureRows") ||
-		!strings.Contains(script, "$fixtureTrafficOnly") {
+		!strings.Contains(script, "$fixtureTrafficOnly") ||
+		!strings.Contains(script, "ArchScopeT581Pinning") ||
+		!strings.Contains(script, "intentional T-581 pinning rejection") ||
+		!strings.Contains(script, "setApplicationProtocols(new String[] {\"http/1.1\"})") {
 		t.Fatal("PowerShell harness does not consume the versioned harness contract")
 	}
 	if !fixture.Store.StableSnapshotCursor ||

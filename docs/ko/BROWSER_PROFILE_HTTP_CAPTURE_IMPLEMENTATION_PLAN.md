@@ -21,9 +21,9 @@
   **완료 — 통합 PASS (2026-07-21)**다. T-571/H-RG2는 2026-07-27 독립
   `H-COV1 PASS`로 닫혔고, T-580/H-RG3도 2026-07-28 독립 `H-SEC2 PASS`로
   닫혔다. T-581/H-RG4 Windows 실시간 UI와 E2E는 2026-07-28 독립
-  `CONDITIONAL` 판정 후 `REVIEW`에 남아 있다. Codex 소유 백엔드 수정은
-  완료됐고 Claude 소유 R8/R9/R11 UI/state/i18n 수정도 완료됐다. 실제 Windows
-  증거와 독립 재리뷰가 남았다.
+  `CONDITIONAL` 판정 후 `REVIEW`에 남아 있다. 백엔드와 UI 수정은 완료됐고,
+  수정된 Windows 하네스가 contradiction이 없는 fixture-only 교체 artifact를
+  생성했다. V1–V3에 한정한 독립 재리뷰만 남았다.
 
 ## 2. 역할과 소유권
 
@@ -79,7 +79,7 @@ Claude가 담당한다.
 | 2 | `H-RG1` HAR 오프라인 분석 완성 | **완료 — 통합 PASS (2026-07-21)** | 종료 |
 | 3 | `H-RG2` Windows coverage proof | **완료 — H-COV1 PASS (2026-07-27)** | 종료 |
 | 4 | `H-RG3` 실시간 캡처 엔진 기반 | **완료 — H-SEC2 PASS (2026-07-28)** | 종료 |
-| 5 | `H-RG4` 실시간 UI 및 Windows E2E | **REVIEW — CONDITIONAL 후 백엔드·UI 수정 완료** | Windows 증거와 독립 `PASS` 대기 |
+| 5 | `H-RG4` 실시간 UI 및 Windows E2E | **REVIEW — 수정된 Windows 증거 보관 완료** | 좁은 독립 `PASS` 대기 |
 | 6 | `H-RG5` HTTP 세션 Diff | 계획 | `H-RG4 PASS` |
 | 7 | `X-RG1` HTTP × 프로파일/서버 증거 교차 분석 | 계획 | `H-RG5 PASS` |
 | 8 | `R-RG1` 통합 릴리스 승인 | 계획 | `X-RG1 PASS` |
@@ -259,11 +259,12 @@ streaming, H2 passthrough fixture와 long-session memory bound가 통과해야 �
 ### H-RG4 — 실시간 UI와 Windows E2E
 
 **상태:** `REVIEW` — 2026-07-29 세 번째 독립 재리뷰가 네 번째
-`CONDITIONAL`을 반환했다. 코드 측 S1–S9 조건은 검증됐지만 첫 schema-v4
-artifact가 `fixtureTrafficOnly: true` 선언과 달리 57개 Edge/Electron
-백그라운드 행을 포함해 V1에서 차단됐다. 하네스는 공개 행을 loopback fixture로
-필터링하고 privacy 값을 결과에서 계산하도록 수정됐으며 새 Windows artifact
-생성·체크섬과 좁은 독립 재리뷰가 남았다. 독립 `PASS` 전까지 T-582는 차단된다.
+`CONDITIONAL`을 반환했다. 코드 측 S1–S9 조건은 검증됐고 수정된 하네스가
+거부된 artifact를 교체했다. 교체본은 source 1,023행 중 loopback fixture
+1,012행만 보관하고 백그라운드 11행을 제외했으며, confirmed attribution의
+fixture pinning 실패 1행과 빈 contradiction 집합을 포함한다. SHA-256은
+`69565684d57b20d763ed477f731a9eb836bcc8fbde657cdff10bce0085030111`이다.
+V1–V3에 한정한 독립 재리뷰만 남았으며 독립 `PASS` 전까지 T-582는 차단된다.
 
 #### Codex 통합
 
@@ -295,10 +296,10 @@ artifact가 `fixtureTrafficOnly: true` 선언과 달리 57개 Edge/Electron
   production state 소비는 Claude가 담당
 - [x] R12 백엔드: terminal `aborted` 행을 저장하고 final stats, aggregate,
   analysis, acceptance evidence에 포함
-- [x] R2 harness 메커니즘: acceptance WebView2 CDP port와 실제 recovery session을
-  필수화하고 h2-only/pinning, 장시간 세션, page 재진입을 실행한 뒤 모든
-  시나리오를 제품 store에서 readback. 첫 artifact는 생성됐지만 V1 privacy
-  불일치로 거부됐고, 수정된 하네스로 재생성하는 작업이 남음
+- [x] R2 하네스와 교체 artifact: acceptance WebView2 CDP port와 실제 recovery
+  session을 필수화하고 h2-only 및 명시적 CONNECT pinning, 장시간 세션, page
+  재진입을 실행한 뒤 모든 시나리오를 제품 store에서 readback. 수정 실행은 빈
+  contradiction 집합과 갱신된 체크섬을 가진 fixture-only schema-v4 증거를 보관
 - [x] S2: 중지된 모든 진행 행을 `aborted` / `unsupported` terminal 등급으로
   바꾸어 finalized store에 `pending`이 남지 않도록 처리
 - [x] S3: persisted 행과 같은 store flush lifecycle에 capture stats와 known
@@ -311,7 +312,8 @@ artifact가 `fixtureTrafficOnly: true` 선언과 달리 57개 Edge/Electron
 - [x] V1 하네스: Edge/Electron을 임시 프로필과 background-networking 차단
   플래그로 실행하고, 공개 `capture.rows`를 loopback fixture 행으로 제한하며
   `fixtureTrafficOnly`, source/archive/제외 행 수, local-path 부재를 실제 출력에서
-  계산. 새 artifact 실행은 남음
+  계산. fresh 실행은 fixture 1,012행을 보관하고 백그라운드 11행을 제외했으며
+  local path와 장시간 세션 원문 secret을 포함하지 않음
 - [x] S9: 사용되지 않는 generic `httpcapture.Build`를 제거해 live 행이 HAR
   provenance 경로로 다시 들어갈 수 없도록 처리
 
@@ -411,6 +413,5 @@ HAR pseudo-process 비교에서 지원하지 않는 정규화/차원을 숨기�
 T-580 / `H-RG3` 엔진 구현은 2026-07-27 `REVIEW`에 진입했고 2026-07-28 독립
 `H-SEC2` CA/TLS/권한 게이트를 통과했다. T-581 / H-RG4는 2026-07-29 세 번째
 독립 재리뷰의 네 번째 `CONDITIONAL` 후 `REVIEW`에 남아 있다. 코드 측 조건은
-닫혔고 첫 schema-v4 artifact도 생성됐지만 V1 privacy-scope 불일치로 거부됐다.
-공개 행 필터와 privacy 파생 검사를 구현한 수정 하네스로 새 Windows artifact를
-생성·보관한 뒤 V1–V3에 한정한 독립 재리뷰를 요청하는 것이 다음 행동이다.
+닫혔고 수정된 Windows 실행이 contradiction 없는 fixture-only 교체 artifact와
+체크섬을 보관했다. 다음 행동은 V1–V3에 한정한 독립 재리뷰다.

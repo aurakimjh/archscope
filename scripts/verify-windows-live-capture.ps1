@@ -411,25 +411,77 @@ app.whenReady().then(async () => {
         }
     }
 
-    $pinningHandler = [System.Net.Http.HttpClientHandler]::new()
-    $pinningHandler.Proxy = [System.Net.WebProxy]::new($proxyUrl)
-    $pinningHandler.UseProxy = $true
-    $pinningHandler.ServerCertificateCustomValidationCallback = {
-        param($message, $certificate, $chain, $errors)
-        return $false
+    # Use an explicit CONNECT plus a rejecting Java TrustManager for the
+    # pinning probe. HttpClient can bypass loopback proxies, while SslStream
+    # can reject locally without sending the terminal TLS alert the product
+    # needs to archive. This client proves its certificate callback ran and
+    # offers only HTTP/1.1, so the proxy must take the interception path.
+    $pinningSource = Join-Path $tempRoot "ArchScopeT581Pinning.java"
+    @"
+import java.io.*;
+import java.net.*;
+import java.security.*;
+import java.security.cert.*;
+import java.util.concurrent.atomic.*;
+import javax.net.ssl.*;
+public class ArchScopeT581Pinning {
+  public static void main(String[] args) throws Exception {
+    var originHost = args[0];
+    var originPort = Integer.parseInt(args[1]);
+    var socket = new Socket(args[2], Integer.parseInt(args[3]));
+    var request = "CONNECT " + originHost + ":" + originPort + " HTTP/1.1\r\nHost: " + originHost + ":" + originPort + "\r\n\r\n";
+    socket.getOutputStream().write(request.getBytes(java.nio.charset.StandardCharsets.US_ASCII));
+    socket.getOutputStream().flush();
+    var response = new ByteArrayOutputStream();
+    var matched = 0;
+    while (matched < 4) {
+      var value = socket.getInputStream().read();
+      if (value < 0) throw new EOFException("proxy closed before CONNECT response");
+      response.write(value);
+      var expected = new int[] {13, 10, 13, 10};
+      matched = value == expected[matched] ? matched + 1 : (value == 13 ? 1 : 0);
     }
-    $pinningClient = [System.Net.Http.HttpClient]::new($pinningHandler)
+    var head = response.toString(java.nio.charset.StandardCharsets.US_ASCII);
+    if (!head.contains(" 200 ")) throw new IOException("CONNECT failed: " + head);
+    var callbackRan = new AtomicBoolean(false);
+    var context = SSLContext.getInstance("TLS");
+    context.init(null, new TrustManager[] {new X509TrustManager() {
+      public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
+      public void checkClientTrusted(X509Certificate[] chain, String authType) {}
+      public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+        callbackRan.set(true);
+        throw new CertificateException("intentional T-581 pinning rejection");
+      }
+    }}, new SecureRandom());
+    var ssl = (SSLSocket)context.getSocketFactory().createSocket(socket, originHost, originPort, true);
+    var parameters = ssl.getSSLParameters();
+    parameters.setApplicationProtocols(new String[] {"http/1.1"});
+    ssl.setSSLParameters(parameters);
     try {
-        try {
-            $pinningResponse = $pinningClient.GetAsync($HttpsTargetUrl).GetAwaiter().GetResult()
-            $pinningResponse.Dispose()
-            Add-UnsupportedResult -Scenario "certificate-pinning" -Available $true -Succeeded $false -Detail "request unexpectedly trusted the intercepted certificate"
-        } catch {
-            Add-UnsupportedResult -Scenario "certificate-pinning" -Available $true -Succeeded $true -Detail $_.Exception.Message
-        }
+      ssl.startHandshake();
+      throw new IOException("intercepted certificate unexpectedly trusted");
+    } catch (SSLHandshakeException expected) {
+      if (!callbackRan.get()) throw expected;
+      System.out.println(expected.getMessage());
     } finally {
-        $pinningClient.Dispose()
-        $pinningHandler.Dispose()
+      ssl.close();
+    }
+  }
+}
+"@ | Set-Content -Path $pinningSource -Encoding ASCII
+    $pinningJava = Get-Command "java.exe" -ErrorAction SilentlyContinue
+    if ($null -eq $pinningJava) {
+        Add-UnsupportedResult -Scenario "certificate-pinning" -Available $false -Succeeded $false -Detail "java.exe is required for the pinning probe"
+    } else {
+        $pinningPort = if ($httpsTargetUri.IsDefaultPort) { 443 } else { $httpsTargetUri.Port }
+        $pinningOutput = & $pinningJava.Source @(
+            $pinningSource,
+            $httpsTargetUri.Host,
+            [string]$pinningPort,
+            $proxyHost,
+            $proxyPort
+        ) 2>&1 | Out-String
+        Add-UnsupportedResult -Scenario "certificate-pinning" -Available $true -Succeeded ($LASTEXITCODE -eq 0) -Detail $pinningOutput.Trim()
     }
 
     $quicMarker = "quic-udp"
