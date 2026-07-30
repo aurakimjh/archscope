@@ -23,7 +23,11 @@ group and **the next group cannot start until the current group passes**.
   (2026-07-30)**: the narrow independent fourth re-review verified V1–V3
   resolved against the fixture-only replacement artifact, whose privacy
   declaration is now derived from the published output and
-  contradiction-checked. `H-RG5` HTTP session Diff is unblocked.
+  contradiction-checked. T-582/`H-RG5` HTTP session Diff is **complete —
+  group PASS (2026-07-30)**: the store-free diff engine, regenerated
+  bindings, and the grade-aware comparison UI were verified together, and
+  reordered equivalent sessions compare equal end to end. `X-RG1`
+  correlation is unblocked.
 
 ## 2. Ownership
 
@@ -76,8 +80,8 @@ Only high-consequence boundaries receive an extra per-item gate:
 | 3 | `H-RG2` Windows coverage proof | **Complete — H-COV1 PASS (2026-07-27)** | Closed |
 | 4 | `H-RG3` live-capture engine foundation | **Complete — H-SEC2 PASS (2026-07-28)** | Closed |
 | 5 | `H-RG4` live UI and Windows E2E | **Complete — PASS (2026-07-30)** | Closed |
-| 6 | `H-RG5` HTTP session Diff | Ready — `H-RG4 PASS` satisfied | `H-RG4 PASS` |
-| 7 | `X-RG1` HTTP x profile/server-evidence correlation | Planned | `H-RG5 PASS` |
+| 6 | `H-RG5` HTTP session Diff | **Complete — group PASS (2026-07-30)** | Closed |
+| 7 | `X-RG1` HTTP x profile/server-evidence correlation | Ready — `H-RG5 PASS` satisfied | `H-RG5 PASS` |
 | 8 | `R-RG1` integrated release acceptance | Planned | `X-RG1 PASS` |
 
 The two features stay in separate commits except for `X-RG1`, whose purpose is
@@ -465,5 +469,10 @@ T-580 / `H-RG3` entered `REVIEW` on 2026-07-27 and passed the independent
 `H-SEC2` CA/TLS/privilege gate on 2026-07-28. T-581 / H-RG4 closed with the
 independent group `PASS` on 2026-07-30: the corrected Windows run archived a
 fixture-only replacement artifact and checksum with no contradictions, and
-the narrow fourth re-review verified V1–V3 resolved. The next action is
-T-582 / `H-RG5` HTTP session Diff.
+the narrow fourth re-review verified V1–V3 resolved. T-582 / `H-RG5` HTTP
+session Diff closed with a group `PASS` on 2026-07-30: the Codex engine
+slice, regenerated bindings, and the Claude grade-aware comparison UI were
+verified together, with reordered equivalent sessions comparing equal end to
+end (review archived at
+`docs/review/done/2026-07-30_claude-code_H-RG5_http-session-diff-group-review.md`).
+The next action is T-583 / `X-RG1` correlation.

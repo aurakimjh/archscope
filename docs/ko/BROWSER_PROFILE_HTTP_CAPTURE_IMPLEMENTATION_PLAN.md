@@ -23,8 +23,10 @@
   닫혔다. T-581/H-RG4 Windows 실시간 UI와 E2E는 **완료 — 그룹 PASS
   (2026-07-30)**다: V1–V3에 한정한 네 번째 독립 재리뷰가 fixture-only 교체
   artifact에 대해 조건 해소를 검증했고, privacy 선언은 이제 공개된 출력에서
-  계산되고 contradiction 검사로 강제된다. `H-RG5` HTTP 세션 Diff가
-  해제됐다.
+  계산되고 contradiction 검사로 강제된다. T-582/`H-RG5` HTTP 세션 Diff는
+  **완료 — 그룹 PASS (2026-07-30)**다: store 재스캔 없는 diff 엔진,
+  재생성된 바인딩, grade-aware 비교 UI가 함께 검증되었고 순서만 다른
+  동등한 세션은 끝까지 동일하게 비교된다. `X-RG1` 교차 분석이 해제됐다.
 
 ## 2. 역할과 소유권
 
@@ -81,8 +83,8 @@ Claude가 담당한다.
 | 3 | `H-RG2` Windows coverage proof | **완료 — H-COV1 PASS (2026-07-27)** | 종료 |
 | 4 | `H-RG3` 실시간 캡처 엔진 기반 | **완료 — H-SEC2 PASS (2026-07-28)** | 종료 |
 | 5 | `H-RG4` 실시간 UI 및 Windows E2E | **완료 — PASS (2026-07-30)** | 종료 |
-| 6 | `H-RG5` HTTP 세션 Diff | 준비 완료 — `H-RG4 PASS` 충족 | `H-RG4 PASS` |
-| 7 | `X-RG1` HTTP × 프로파일/서버 증거 교차 분석 | 계획 | `H-RG5 PASS` |
+| 6 | `H-RG5` HTTP 세션 Diff | **완료 — 그룹 PASS (2026-07-30)** | 종료 |
+| 7 | `X-RG1` HTTP × 프로파일/서버 증거 교차 분석 | 준비 완료 — `H-RG5 PASS` 충족 | `H-RG5 PASS` |
 | 8 | `R-RG1` 통합 릴리스 승인 | 계획 | `X-RG1 PASS` |
 
 두 기능을 같은 커밋에 섞지 않는다. 단, `X-RG1`은 두 기능을 연결하는 것이 목적이므로
@@ -453,4 +455,9 @@ T-580 / `H-RG3` 엔진 구현은 2026-07-27 `REVIEW`에 진입했고 2026-07-28 
 `H-SEC2` CA/TLS/권한 게이트를 통과했다. T-581 / H-RG4는 2026-07-30 독립
 그룹 `PASS`로 닫혔다: 수정된 Windows 실행이 contradiction 없는 fixture-only
 교체 artifact와 체크섬을 보관했고, V1–V3에 한정한 네 번째 재리뷰가 조건
-해소를 검증했다. 다음 행동은 T-582 / `H-RG5` HTTP 세션 Diff다.
+해소를 검증했다. T-582 / `H-RG5` HTTP 세션 Diff는 2026-07-30 그룹 `PASS`로
+닫혔다: Codex 엔진 슬라이스, 재생성된 바인딩, Claude grade-aware 비교 UI가
+함께 검증되었고, 순서만 다른 동등한 세션은 끝까지 동일하게 비교된다
+(리뷰는
+`docs/review/done/2026-07-30_claude-code_H-RG5_http-session-diff-group-review.md`
+에 보관). 다음 행동은 T-583 / `X-RG1` 교차 분석이다.

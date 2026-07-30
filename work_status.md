@@ -8,7 +8,7 @@ The previous long-form history was archived to
 
 ## Status Overview
 
-**Overall: 169 of 173 tracked tasks are `DONE` (97.7%).** **T-580 / H-RG3 is
+**Overall: 170 of 173 tracked tasks are `DONE` (98.3%).** **T-580 / H-RG3 is
 complete with an independent H-SEC2 `PASS`** on 2026-07-28: the live-capture
 engine foundation passed the CA/TLS/privilege gate. Redaction runs before every
 persistence, the MITM proxy never stores plaintext bodies, the CA private key is
@@ -79,7 +79,15 @@ handling of unrecognized grades, exposes explicit numerator/denominator rates
 and per-minute denominators, renders unmatched-template sides as `—` rather
 than `0`, discloses the disabled HAR pseudo-process dimension with its reason,
 and renders reordered-equal sessions as an explicit no-difference state.
-T-582 remains `IN_PROGRESS` only for the H-RG5 group review.
+**The 2026-07-30 H-RG5 group review returned `PASS`**: reordered equivalent
+sessions were independently verified to yield empty change tables, zero
+findings, and a zero delta; degenerate timestamps and HAR pseudo-process
+pairs are explicitly disabled with reasons at both the engine and renderer
+layers; the fail-closed overlay gate, closed token sets, contract adoption,
+and result provenance are all pinned by executed regressions. Four
+non-blocking observations (O1–O4) were recorded. T-582 is `DONE` and
+T-583 / X-RG1 is unblocked. The review is archived at
+`docs/review/done/2026-07-30_claude-code_H-RG5_http-session-diff-group-review.md`.
 **T-586 is complete**:
 the dedicated Lighthouse desktop page now consumes only `AnalyzeBrowserAudit`
 and connects the result to Analysis Workspace and Evidence Board. **T-579 / H-RG1
@@ -95,11 +103,11 @@ completed the independent Lighthouse file-first engine slice.
 
 | Status | Count | Meaning |
 |---|---:|---|
-| `TODO` | 0 | Ready to start; prerequisites are satisfied |
-| `IN_PROGRESS` | 1 | Implementation or documentation work is actively underway |
+| `TODO` | 1 | Ready to start; prerequisites are satisfied |
+| `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
 | `REVIEW` | 0 | Review or required remediation is underway; the gate has not passed |
-| `PENDING` | 3 | Waiting for a prerequisite, external condition, or activation trigger |
-| `DONE` | 169 | Completion criteria and required review gates have passed |
+| `PENDING` | 2 | Waiting for a prerequisite, external condition, or activation trigger |
+| `DONE` | 170 | Completion criteria and required review gates have passed |
 
 The normal transition is `TODO → IN_PROGRESS → REVIEW → DONE`. A `PENDING`
 task returns to `TODO` when its dependency or trigger is satisfied. Task status
@@ -111,10 +119,9 @@ same change so this overview remains the status source of truth.
 
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
-| 1 | T-582 | P1 | `IN_PROGRESS` | Backend, generated bindings, and Claude comparison UI complete (2026-07-30); run the H-RG5 group review |
-| 2 | T-583 | P1 | `PENDING` | Requires T-582 `PASS` |
-| 3 | T-584 | P0 | `PENDING` | Requires T-583 `PASS`; final integrated release acceptance |
-| 4 | T-557 | P1 | `PENDING` | Activate only if repeated MSA drilldown use justifies a Go analyzer contract |
+| 1 | T-583 | P1 | `TODO` | Unblocked by T-582 / H-RG5 `PASS` (2026-07-30); start the X-RG1 cross-analysis slice |
+| 2 | T-584 | P0 | `PENDING` | Requires T-583 `PASS`; final integrated release acceptance |
+| 3 | T-557 | P1 | `PENDING` | Activate only if repeated MSA drilldown use justifies a Go analyzer contract |
 
 ## Current Baseline
 
@@ -127,9 +134,11 @@ same change so this overview remains the status source of truth.
 - Release baseline: `v0.3.5` is the latest stable GitHub release. The
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
-- Current execution focus: T-582 / H-RG5 HTTP-specific session Diff backend,
-  regenerated Wails bindings, and the Claude-owned grade-aware comparison UI
-  are implemented and verified; the H-RG5 group review remains. T-581 / H-RG4 Windows live-capture UI and E2E
+- Current execution focus: T-582 / H-RG5 HTTP-specific session Diff closed
+  with a group `PASS` on 2026-07-30 (backend, regenerated Wails bindings, and
+  the Claude-owned grade-aware comparison UI all verified; review archived at
+  `docs/review/done/2026-07-30_claude-code_H-RG5_http-session-diff-group-review.md`).
+  The next action is T-583 / X-RG1 cross-analysis. T-581 / H-RG4 Windows live-capture UI and E2E
   closed with an independent `PASS` on 2026-07-30: the narrow fourth re-review
   verified V1 (the replacement artifact's 1,012 rows are all loopback, the
   privacy declaration is derived from the published output and
@@ -494,27 +503,23 @@ filtered before analysis.
 
 ## Next Execution Queue
 
-1. **IN PROGRESS — T-582 / H-RG5 HTTP session Diff:** T-581 / H-RG4
-   closed with an independent `PASS` on 2026-07-30 (narrow fourth re-review of
-   V1–V3, archived at
-   `docs/review/done/2026-07-30_claude-code_H-RG4_windows-live-capture-ui-e2e-fourth-re-review.md`).
-   The Codex backend handoff is complete: versioned URL templates, bounded
-   `{other}` projections, endpoint/host/process dimensions, explicit
-   numerator/denominator rates, `aligned`/`duration_only`/`none` grades,
-   bounded `http_capture_diff` tables and `HTTP_DIFF_*` findings, store-free
-   export metadata, and Workspace routing are implemented. Reordered equivalent
-   sessions compare equal in regression tests. The Wails bindings were
-   regenerated with the module-pinned CLI (alpha2.117) and the Claude-owned
-   grade-aware comparison UI is complete (2026-07-30): a shared panel on
-   HttpCapturePage and the Analysis Workspace with backend-routed comparison,
-   startup contract adoption, fail-closed overlay gating, explicit
-   denominators, unmatched-template and drilldown rendering, and full
-   EN/KO state regressions. Remaining: run the
-   H-RG5 group review. Two obligations carry
-   forward from H-RG4: the isolated resolver-cost measurement is owed at
-   `R-RG1` (V3 deferral), and the fourth re-review's O1/O2 harness
-   observations (tautological `fixtureTrafficOnly` derivation, unfiltered
-   recovery rows) are optional hardening on the next harness change.
+1. **TODO — T-583 / X-RG1 HTTP/profile/server-evidence correlation:**
+   T-582 / H-RG5 closed with a group `PASS` on 2026-07-30 (archived at
+   `docs/review/done/2026-07-30_claude-code_H-RG5_http-session-diff-group-review.md`):
+   versioned URL templates, bounded `{other}` projections, explicit
+   numerator/denominator rates, alignment grades, bounded
+   `http_capture_diff` tables and `HTTP_DIFF_*` findings, store-free export
+   metadata, Workspace routing, regenerated bindings, and the grade-aware
+   comparison UI are all verified; reordered equivalent sessions compare
+   equal end to end. Next: the Codex X-RG1 engine slice (bounded
+   session/profile alignment, Jennifer `NETWORK_GAP` checks, access-log
+   client/server comparison, confidence and mismatch diagnostics) followed
+   by the Claude drilldown/overlay UI; incompatible clocks must never be
+   presented as causal proof. Obligations carried forward: the isolated
+   resolver-cost measurement is owed at `R-RG1` (H-RG4 V3 deferral); the
+   H-RG4 O1/O2 harness observations and the H-RG5 O1–O4 UI/coverage
+   observations are optional hardening on the next change to those
+   surfaces.
 2. **T-581 / H-RG4 closure record:**
    - **Fourth re-review verdict (`PASS`, 2026-07-30):** V1 resolved — the
      replacement artifact's 1,012 archived rows are all loopback with zero
@@ -631,8 +636,8 @@ The authoritative paired plan is
 | 3 | H-RG2 Windows coverage proof | Codex | DONE — H-COV1 `PASS`, 2026-07-27 | Closed |
 | 4 | H-RG3 live-capture engine foundation | Codex | DONE — H-SEC2 `PASS`, 2026-07-28 | Closed |
 | 5 | H-RG4 live UI and Windows E2E | Claude UI, Codex integration | DONE — group `PASS`, 2026-07-30 (narrow fourth re-review verified V1–V3 resolved) | Closed |
-| 6 | H-RG5 HTTP session Diff | Codex engine, Claude UI | TODO — unblocked by H-RG4 `PASS` (2026-07-30) | Group PASS |
-| 7 | X-RG1 HTTP/profile/server-evidence correlation | Codex engine, Claude UI | PENDING — H-RG5 | Group PASS |
+| 6 | H-RG5 HTTP session Diff | Codex engine, Claude UI | DONE — group `PASS`, 2026-07-30 | Closed |
+| 7 | X-RG1 HTTP/profile/server-evidence correlation | Codex engine, Claude UI | TODO — unblocked by H-RG5 `PASS` (2026-07-30) | Group PASS |
 | 8 | R-RG1 integrated release acceptance | Codex + Claude + independent reviewer | PENDING — X-RG1 | Release PASS |
 
 Group verdicts are PASS, CONDITIONAL, or FAIL. CONDITIONAL does not unblock the
@@ -688,6 +693,7 @@ Long Task semantics).
 | 2026-07-30 H-RG4 T-581 Windows live-capture UI/E2E fourth re-review (narrow V1–V3) | Accepted `PASS`. V1 independently verified resolved: the replacement artifact's checksum `69565684…30111` matches the sidecar and every record; all 1,012 archived rows plus the recovery row are loopback; whole-file scans find zero non-loopback URLs, zero background hosts, zero stable identifiers, no raw `t581-secret`, and zero local Windows paths; the privacy block is derived from the published output (`1,023 = 1,012 + 11` reconciles across every counter family) and the fail-closed scope/local-path contradictions plus Edge/Electron background isolation are present in the harness and bound by the Go acceptance fixture; the scenario matrix is complete including the fixture-origin attributed `proxy_not_captured` pinning row, h2-only passthrough, QUIC absence, 1,000/1,000 long session, 500-row re-entry, and the checkpointed recovery block. V2 verified: paired EN/KO plans record the artifact lifecycle truthfully. V3 verified: the R6 measurement deferral to R-RG1 is recorded with rationale. `go build`/`go vet`/full `go test` plus uncached capture/app suites pass natively on Windows; no product source changed since the third re-review, so its race-suite pass stands. Non-blocking observations O1–O4 recorded (tautological `fixtureTrafficOnly` derivation, unfiltered recovery rows, literal `reviewBeforeArchive`, reused crash store). | H-RG4 closed with group `PASS`; T-581 `DONE`; T-582/H-RG5 unblocked. R-RG1 owes the deferred resolver-cost measurement. Review archived at `docs/review/done/2026-07-30_claude-code_H-RG4_windows-live-capture-ui-e2e-fourth-re-review.md`. |
 | 2026-07-30 H-RG5 T-582 Codex backend handoff | Implemented versioned deterministic URL templating (`{id}`/`{uuid}`/`{hash}`/`{token}`/`{email}` plus sorted query keys only), bounded top-1,000 endpoint/host/process source projections with `{other}` disclosure, explicit numerator/denominator error/share/per-minute rates, independent p50/p95/p99 session projections, `aligned`/`duration_only`/`none` time grades, bounded `http_capture_diff` tables and five `HTTP_DIFF_*` finding families, real-process-only comparison with explicit HAR disablement, cross-dimension validation, store-free export metadata, and backend Workspace routing that leaves legacy Diff untouched. Wails methods are `AnalyzeHttpCaptureDiff`, `GetHttpCaptureDiffContract`, and `ResolveWorkspaceComparison`. Reordered equivalent sessions produce empty change tables and zero findings. Full `go test ./...`, `go vet ./...`, and `go build ./...` pass; targeted uncached analyzer/app tests pass. Windows `-race` was not runnable because the active Go environment has CGO disabled. | Codex backend complete. T-582 remains `IN_PROGRESS` for generated bindings, Claude comparison UI, and H-RG5 group review; no frontend source or generated binding was changed in this handoff. |
 | 2026-07-30 H-RG5 T-582 Claude UI handoff | Regenerated the Wails bindings with the module-pinned CLI (alpha2.117, `-ts`), adding `AnalyzeHttpCaptureDiff`/`GetHttpCaptureDiffContract`/`ResolveWorkspaceComparison` and their request/contract models. Implemented the Claude-owned comparison UI: a shared `HttpCaptureComparisonPanel` mounts on HttpCapturePage (compare action seeded from the just-analyzed session) and on the Analysis Workspace (per-entry A/B slots), with the selection/run lifecycle in a pure reducer + module store (`state/httpCaptureDiff.ts`) so both surfaces share one A/B pair and a result renders only with the pair that produced it (race-safe). The renderer never routes comparisons itself — it follows the backend `ResolveWorkspaceComparison` verdict — and adopts `GetHttpCaptureDiffContract` at startup, disabling comparison with a disclosed mismatch for unimplemented schema versions. Overlays follow only `overlay_allowed`+grade with unrecognized grades failing closed; per-minute rates render only at `aligned`. Error rate and traffic share render numerator/denominator pairs, per-minute rates disclose their minute denominator, rate-unavailable codes resolve through closed EN/KO maps, added/removed unmatched-template sides render `—` not `0`, the disabled HAR pseudo-process dimension shows its reason, results without the diff source projection are blocked with a re-analyze notice, cursor drilldown opens full per-side metrics, and empty change tables render an explicit no-difference state. State regressions cover contract adoption/rejection, closed token sets, the fail-closed overlay gate, provenance racing, candidate filtering, the projection precondition, and both-locale coverage of every new key. `npm run test:state`, `npm run build`, `go build ./...`, `go vet ./cmd/archscope-app/...`, and `go test ./cmd/archscope-app/... ./internal/analyzers/httpcapture/...` pass. | Claude UI handoff complete; no engine source changed. T-582 remains `IN_PROGRESS` solely for the independent H-RG5 group review. |
+| 2026-07-30 H-RG5 T-582 HTTP session Diff group review | Accepted `PASS`. Engine half verified independently: `TestAnalyzeDiffReorderedEquivalentSessionsCompareEqual` proves shuffled equivalent sessions yield empty change tables, zero findings, and a zero delta; URL template v1 rules and sorted-query-key folding are pinned; every rate carries an explicit numerator/denominator with `rate_unavailable_code` for untrusted timelines; HAR pseudo-process pairs disable the process dimension with a reason; projections are bounded (≤1,000 + `{other}`) with cross-dimension total validation; `store_rescanned: false` and Workspace routing leave legacy Diff untouched; `buildParsed` attaches the projection on both the HAR and live paths and `SetDiffCaptureSessionRef` binds the finalized snapshot. Renderer half verified by executed regressions: contract adoption/rejection, fail-closed grade-gated overlays, closed EN/KO token maps, race-safe result provenance, projection precondition blocking, unmatched-template `—` rendering, explicit no-difference state, and both-locale key coverage. Full Go suite (74 packages), uncached app/analyzer tests, `npm run test:state`, and the production build pass. Non-blocking O1–O4: duration_only per-minute suppression label precision, stale removed-entry selection, Workspace slot-button aria-labels, single Wails-layer diff test. | H-RG5 closed with group `PASS`; T-582 `DONE`; T-583 / X-RG1 unblocked. R-RG1 still owes the H-RG4 resolver-cost measurement. Review archived at `docs/review/done/2026-07-30_claude-code_H-RG5_http-session-diff-group-review.md`. |
 
 ## Mid-Term Plus Intake Plan
 
@@ -757,8 +763,8 @@ deferred until explicitly promoted.
 | T-579 | P0 | DONE | Complete and review H-RG1 offline HAR analysis. Codex: canonical transaction/timing/fidelity model, staged dialect normalizer, resource limits, shared manifest goldens, dedicated redaction, bounded result and CLI/Wails parity. Claude: pseudo-process tree, timeline/brush, list/detail/filter, fidelity/diagnostics/redaction UX and Workspace regression. | T-578 PASS; T-568 through T-573 | Completed 2026-07-21 with integrated `PASS`. Engine remediation and H-SEC1 re-reviews are `PASS`; all 20 manifest fixtures, bounded/redacted `AnalysisResult`, CLI/Wails parity, and UI import-only behavior are retained. UI R1 was accepted under the disclosed bounded Phase 1 denominator contract; R2 was accepted from populated state, provenance/Workspace, type, and production-build evidence with deeper component fixtures left as non-blocking hardening. Full `go test ./...`, `go vet ./...`, `go build ./...`, frontend `npm run test:state`, and frontend `npm run build` pass. |
 | T-580 | P0 | DONE | Implement and review H-RG3 live-capture engine foundation: session lifecycle/recovery, versioned NDJSON/blob store and cursor API, bounded streaming/backpressure/loss counters, H1 semantic MITM with H2 passthrough, Windows process attribution, Wails snapshot/event recovery, and CA/TLS policy. | T-571/H-RG2 PASS, T-579 PASS | Completed 2026-07-28 with independent H-SEC2 `PASS`. Implemented 2026-07-27 with append-only recovery/index, bounded pipeline and loss counters, H1 verified-upstream MITM, honest H2 passthrough, direct Windows TCP-owner attribution, generated CaptureService bindings, and transactional current-user CA trust lifecycle. H-SEC2 verified SEC-1/2/3/6/7 redaction-before-persistence with no plaintext-body storage, SEC-8/9 memory-only non-exportable CA key, SEC-11 `0700`/`0600` perms with path-traversal-validated IDs, SEC-12 transactional trust rollback/removal, SEC-13/14 no auto-bypass, SEC-16 no CLI/headless start, verify-always upstream TLS, and loopback-only bind. SEC-10 dump-exclusion preflight (before body capture) and SEC-17 explicit unknown-attribution opt-in (before the live UI) bind the next tier without reopening the gate. `go test ./internal/capture/...`, `go test ./cmd/archscope-app/...`, `go vet`, and `go build ./...` pass. Review archived at `docs/review/done/2026-07-28_claude-code_H-SEC2_http-capture-live-engine-security-review.md`. |
 | T-581 | P1 | DONE | Implement and review H-RG4 Windows live-capture UI and E2E. Claude: capture controls, CA lifecycle UX, process tree, stable live rows, recovery/backpressure/coverage/fidelity states. Codex: frozen bindings, acceptance fixtures, Windows E2E and packaging support. Carry the H-SEC2 binding conditions: gate unknown-attribution retention behind an explicit metadata-only opt-in (SEC-17) before exposing stored transactions, and require the SEC-10 dump-exclusion preflight before enabling body capture. | T-580 PASS | Completed 2026-07-30 with independent H-RG4 group `PASS` (narrow fourth re-review of V1–V3). The fixture-only replacement artifact has 1,012 loopback-only archived rows, 11 explicitly omitted background rows, confirmed fixture pinning evidence, no contradictions, and checksum `69565684…30111`; the harness derives its privacy declaration from the published output and the Go acceptance fixture binds the enforcement mechanisms. SEC-17 is enforced below the UI; SEC-10 continues to bind any future body-capture tier (this slice stores no bodies). The V3 resolver-cost measurement is owed at R-RG1. Review archived at `docs/review/done/2026-07-30_claude-code_H-RG4_windows-live-capture-ui-e2e-fourth-re-review.md`. |
-| T-582 | P1 | IN_PROGRESS | Implement and review H-RG5 HTTP-specific session Diff with versioned URL templates, bounded dimensions, explicit rate denominators, time-alignment grades, `http_capture_diff` findings, Workspace routing, and grade-aware comparison UI. | T-581 PASS, T-575 | Codex backend handoff, regenerated bindings, and Claude comparison UI complete 2026-07-30; the H-RG5 group review remains. Reordered equivalent sessions compare equal |
-| T-583 | P1 | PENDING | Implement and review X-RG1 HTTP correlation with Chrome/V8 CPU runs, Jennifer network-gap evidence, and access logs, including bounded alignment/confidence diagnostics and provenance-aware UI drilldown/overlay. | T-582 PASS | Codex engine plus Claude UI; incompatible clocks must never be presented as causal proof |
+| T-582 | P1 | DONE | Implement and review H-RG5 HTTP-specific session Diff with versioned URL templates, bounded dimensions, explicit rate denominators, time-alignment grades, `http_capture_diff` findings, Workspace routing, and grade-aware comparison UI. | T-581 PASS, T-575 | H-RG5 group `PASS` 2026-07-30; reordered equivalent sessions compare equal end to end; O1–O4 non-blocking observations recorded |
+| T-583 | P1 | TODO | Implement and review X-RG1 HTTP correlation with Chrome/V8 CPU runs, Jennifer network-gap evidence, and access logs, including bounded alignment/confidence diagnostics and provenance-aware UI drilldown/overlay. | T-582 PASS (2026-07-30) | Codex engine plus Claude UI; incompatible clocks must never be presented as causal proof |
 | T-584 | P0 | PENDING | Run R-RG1 integrated release acceptance across Go test/vet/build, frontend test/build, Windows live E2E, macOS offline import/package smoke, paired documentation, support/security/performance matrices, and honest release notes. | T-583 PASS | No tag or GitHub release before independent release PASS |
 | T-585 | P1 | DONE | Implement the file-first Lighthouse report JSON engine slice as the browser-performance roadmap task that can proceed while T-571 waits for hardware: separate parser/analyzer packages, bounded/redacted projections, preserved report scoring, CLI, ingestion-family contract, Wails binding, tests, and paired documentation. | T-565; independent of T-571 | Completed 2026-07-21: `browser import --format lighthouse-json`, `browser_audit_evidence`, `AnalyzeBrowserAudit`, generated TypeScript bindings, Core Web Vitals/category/audit/resource outputs, report-authored score findings, 64 MiB default input guard, URL redaction, bounded audit/network tables, and targeted Go tests. |
 | T-586 | P1 | DONE | Add the dedicated Lighthouse desktop page under Browser Performance, consuming only `AnalyzeBrowserAudit`; provide collection guidance, score/metric cards, category/audit/resource views, diagnostics, Analysis Workspace registration, Evidence Board capture, report export, and populated-state/provenance regressions. | T-585 | Backend handoff completed 2026-07-22: versioned `browser_audit_contract`, explicit imported-score/non-recalculation disclosure, stable row/finding `source_ref` values, source metadata, declared view/evidence/export surfaces, sanitized populated fixture, Wails payload/redaction regression, and JSON/HTML export regression. Frontend completed 2026-07-22: `LighthouseAuditPage` + `bridge/engine.ts` `analyzeBrowserAudit` wrapper + `state/browserAudit.ts` pure selectors, sidebar/App route wiring, EN/KO localized guidance/provenance/views, score-provenance disclosure banner, category/Core Web Vitals/audit/network/resource views, diagnostics, Analysis Workspace registration, Evidence Board finding/audit-row capture preserving `source_ref`, JSON/HTML report export, and populated-state/provenance regressions in `state/regression.test.ts`. `npm run test:state`, `npm run build`, and the Lighthouse Go tests pass; `browser_audit_evidence` stays separate from `profile_evidence`. |
