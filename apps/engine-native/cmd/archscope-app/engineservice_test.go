@@ -206,6 +206,53 @@ func TestEngineService_HttpCaptureDiffContractRoutingAndStoreFreeAnalysis(t *tes
 	}
 }
 
+func TestEngineService_HttpEvidenceCorrelationContractAndAnalysis(t *testing.T) {
+	svc := &EngineService{}
+	contract := svc.GetHttpEvidenceCorrelationContract()
+	if contract.SchemaVersion != 1 || contract.ResultType != "http_evidence_correlation" ||
+		contract.StoreOrFileRescan || contract.CausalClaimsAllowed ||
+		!contract.RequiresProfileWallAnchor {
+		t.Fatalf("unexpected HTTP evidence correlation contract: %+v", contract)
+	}
+
+	httpResult := map[string]any{
+		"type": "http_capture", "source_files": []any{"capture.har"},
+		"tables": map[string]any{
+			"transactions": []any{map[string]any{
+				"id": "http-1", "started_at": "2026-07-30T01:00:00Z",
+				"ended_at": "2026-07-30T01:00:00.200Z", "duration_ms": 200.0,
+				"method": "GET", "host": "api.example", "path": "/users/1", "status": 200.0,
+				"request": map[string]any{"headers": []any{}}, "timings": map[string]any{},
+			}},
+		},
+		"metadata": map[string]any{"schema_version": "1.0.0"},
+	}
+	accessResult := map[string]any{
+		"type": "access_log", "source_files": []any{"access.log"},
+		"tables": map[string]any{
+			"sample_records": []any{map[string]any{
+				"timestamp": "2026-07-30T01:00:00.025Z", "method": "GET",
+				"uri": "/users/2", "status": 200.0, "response_time_ms": 75.0,
+			}},
+		},
+		"metadata": map[string]any{"schema_version": "1.0.0"},
+	}
+	result, err := svc.AnalyzeHttpEvidenceCorrelation(HttpEvidenceCorrelationRequest{
+		HTTP: httpResult, AccessLog: accessResult, TopN: 5, TimeToleranceMS: 100,
+	})
+	if err != nil {
+		t.Fatalf("AnalyzeHttpEvidenceCorrelation: %v", err)
+	}
+	payload := resultToMap(t, result)
+	requireResultEnvelope(t, "AnalyzeHttpEvidenceCorrelation", "http_evidence_correlation", payload)
+	summary := payload["summary"].(map[string]any)
+	if summary["access_log_match_count"] != float64(1) ||
+		summary["causal_claims_allowed"] != false ||
+		summary["store_or_file_rescanned"] != false {
+		t.Fatalf("unexpected correlation summary: %+v", summary)
+	}
+}
+
 func serviceDiffEntry(id, startedAt, path string, status int, durationMS float64) models.CaptureTransaction {
 	return models.CaptureTransaction{
 		ID: id, StartedAt: startedAt, EndedAt: startedAt,

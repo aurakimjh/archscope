@@ -266,6 +266,20 @@ type WorkspaceComparisonRequest struct {
 	AfterType  string `json:"afterType"`
 }
 
+// HttpEvidenceCorrelationRequest carries Workspace-owned AnalysisResult
+// envelopes. HTTP is required; every secondary source is optional, but at
+// least one must be present. ProfileWallClockStart is the explicit RFC3339
+// anchor corresponding to the V8 profile startTime.
+type HttpEvidenceCorrelationRequest struct {
+	HTTP                  map[string]any `json:"http"`
+	Profile               map[string]any `json:"profile,omitempty"`
+	Jennifer              map[string]any `json:"jennifer,omitempty"`
+	AccessLog             map[string]any `json:"accessLog,omitempty"`
+	TopN                  int            `json:"topN,omitempty"`
+	TimeToleranceMS       float64        `json:"timeToleranceMs,omitempty"`
+	ProfileWallClockStart string         `json:"profileWallClockStart,omitempty"`
+}
+
 // JenniferProfileRequest accepts a single Path or repeatable Paths
 // for multi-file batches. FallbackCorrelationToTxid mirrors the
 // CLI flag of the same name.
@@ -605,6 +619,23 @@ func (s *EngineService) AnalyzeHttpCaptureDiff(req HttpCaptureDiffRequest) (engi
 		return engineapi.AnalysisResult{}, fmt.Errorf("before and after results are required")
 	}
 	return engineapi.AnalyzeHttpCaptureDiff(req.Before, req.After, engineapi.HttpCaptureDiffOptions{TopN: req.TopN})
+}
+
+func (s *EngineService) GetHttpEvidenceCorrelationContract() engineapi.HttpEvidenceCorrelationContract {
+	return engineapi.DefaultHttpEvidenceCorrelationContract()
+}
+
+func (s *EngineService) AnalyzeHttpEvidenceCorrelation(req HttpEvidenceCorrelationRequest) (engineapi.AnalysisResult, error) {
+	if req.HTTP == nil {
+		return engineapi.AnalysisResult{}, fmt.Errorf("http result is required")
+	}
+	return engineapi.AnalyzeHttpEvidenceCorrelation(
+		req.HTTP, req.Profile, req.Jennifer, req.AccessLog,
+		engineapi.HttpEvidenceCorrelationOptions{
+			TopN: req.TopN, TimeToleranceMS: req.TimeToleranceMS,
+			ProfileWallClockStart: req.ProfileWallClockStart,
+		},
+	)
 }
 
 func (s *EngineService) AnalyzeStitchedEvidence(req StitchedEvidenceRequest) (engineapi.AnalysisResult, error) {

@@ -78,6 +78,7 @@ import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/exception"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/gclog"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/httpcapture"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/httpcorrelation"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/jenniferprofile"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/jfr"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/lighthouse"
@@ -181,6 +182,20 @@ var DefaultHttpCaptureDiffContract = httpcapture.DefaultDiffContract
 // ResolveWorkspaceComparison selects the HTTP-specific route when both inputs
 // are http_capture results.
 var ResolveWorkspaceComparison = httpcapture.ResolveWorkspaceComparison
+
+// HttpEvidenceCorrelationOptions controls the bounded X-RG1 result and the
+// optional explicit V8-to-wall-clock anchor.
+type HttpEvidenceCorrelationOptions = httpcorrelation.Options
+
+// HttpEvidenceCorrelationContract describes the X-RG1 backend/UI boundary.
+type HttpEvidenceCorrelationContract = httpcorrelation.Contract
+
+// AnalyzeHttpEvidenceCorrelation joins bounded HTTP, CPU, Jennifer, and
+// access-log AnalysisResult projections without reopening source artifacts.
+var AnalyzeHttpEvidenceCorrelation = httpcorrelation.Analyze
+
+// DefaultHttpEvidenceCorrelationContract returns the versioned X-RG1 contract.
+var DefaultHttpEvidenceCorrelationContract = httpcorrelation.DefaultContract
 
 // ── JFR ─────────────────────────────────────────────────────────────
 

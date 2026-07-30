@@ -27,7 +27,10 @@ group and **the next group cannot start until the current group passes**.
   group PASS (2026-07-30)**: the store-free diff engine, regenerated
   bindings, and the grade-aware comparison UI were verified together, and
   reordered equivalent sessions compare equal end to end. `X-RG1`
-  correlation is unblocked.
+  correlation is in progress: the Codex backend now emits bounded
+  HTTP/CPU/Jennifer/access-log correlation with fail-closed clock grades,
+  confidence, provenance, and no-causality diagnostics; bindings, the Claude
+  drilldown/overlay UI, and group review remain.
 
 ## 2. Ownership
 
@@ -81,7 +84,7 @@ Only high-consequence boundaries receive an extra per-item gate:
 | 4 | `H-RG3` live-capture engine foundation | **Complete — H-SEC2 PASS (2026-07-28)** | Closed |
 | 5 | `H-RG4` live UI and Windows E2E | **Complete — PASS (2026-07-30)** | Closed |
 | 6 | `H-RG5` HTTP session Diff | **Complete — group PASS (2026-07-30)** | Closed |
-| 7 | `X-RG1` HTTP x profile/server-evidence correlation | Ready — `H-RG5 PASS` satisfied | `H-RG5 PASS` |
+| 7 | `X-RG1` HTTP x profile/server-evidence correlation | In progress — Codex backend complete; bindings/UI/review remain | `H-RG5 PASS` |
 | 8 | `R-RG1` integrated release acceptance | Planned | `X-RG1 PASS` |
 
 The two features stay in separate commits except for `X-RG1`, whose purpose is
@@ -475,4 +478,12 @@ slice, regenerated bindings, and the Claude grade-aware comparison UI were
 verified together, with reordered equivalent sessions comparing equal end to
 end (review archived at
 `docs/review/done/2026-07-30_claude-code_H-RG5_http-session-diff-group-review.md`).
-The next action is T-583 / `X-RG1` correlation.
+T-583 / `X-RG1` is now in progress. The Codex backend handoff adds the
+versioned `http_evidence_correlation` result, `AnalyzeHttpEvidenceCorrelation`
+and `GetHttpEvidenceCorrelationContract`, bounded HTTP/CPU overlaps, Jennifer
+network-gap checks, access-log client/server matches, and explicit
+alignment/confidence/provenance diagnostics. Incompatible clocks fail closed:
+V8 overlays require an explicit RFC3339 profile-start wall-clock anchor, and
+Jennifer's date-less ms-since-midnight evidence remains `duration_only`.
+Every output row forbids causal claims. Generated bindings, the Claude
+drilldown/overlay UI, full verification, and X-RG1 group review remain.

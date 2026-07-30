@@ -26,7 +26,10 @@
   계산되고 contradiction 검사로 강제된다. T-582/`H-RG5` HTTP 세션 Diff는
   **완료 — 그룹 PASS (2026-07-30)**다: store 재스캔 없는 diff 엔진,
   재생성된 바인딩, grade-aware 비교 UI가 함께 검증되었고 순서만 다른
-  동등한 세션은 끝까지 동일하게 비교된다. `X-RG1` 교차 분석이 해제됐다.
+  동등한 세션은 끝까지 동일하게 비교된다. `X-RG1` 교차 분석은 진행 중이다:
+  Codex 백엔드는 fail-closed 시계 등급, 신뢰도, provenance, 인과관계 금지
+  diagnostic을 포함한 bounded HTTP/CPU/Jennifer/access-log 교차 결과를
+  구현했고, binding·Claude drilldown/overlay UI·그룹 리뷰가 남았다.
 
 ## 2. 역할과 소유권
 
@@ -84,7 +87,7 @@ Claude가 담당한다.
 | 4 | `H-RG3` 실시간 캡처 엔진 기반 | **완료 — H-SEC2 PASS (2026-07-28)** | 종료 |
 | 5 | `H-RG4` 실시간 UI 및 Windows E2E | **완료 — PASS (2026-07-30)** | 종료 |
 | 6 | `H-RG5` HTTP 세션 Diff | **완료 — 그룹 PASS (2026-07-30)** | 종료 |
-| 7 | `X-RG1` HTTP × 프로파일/서버 증거 교차 분석 | 준비 완료 — `H-RG5 PASS` 충족 | `H-RG5 PASS` |
+| 7 | `X-RG1` HTTP × 프로파일/서버 증거 교차 분석 | 진행 중 — Codex 백엔드 완료, binding/UI/리뷰 남음 | `H-RG5 PASS` |
 | 8 | `R-RG1` 통합 릴리스 승인 | 계획 | `X-RG1 PASS` |
 
 두 기능을 같은 커밋에 섞지 않는다. 단, `X-RG1`은 두 기능을 연결하는 것이 목적이므로
@@ -460,4 +463,13 @@ T-580 / `H-RG3` 엔진 구현은 2026-07-27 `REVIEW`에 진입했고 2026-07-28 
 함께 검증되었고, 순서만 다른 동등한 세션은 끝까지 동일하게 비교된다
 (리뷰는
 `docs/review/done/2026-07-30_claude-code_H-RG5_http-session-diff-group-review.md`
-에 보관). 다음 행동은 T-583 / `X-RG1` 교차 분석이다.
+에 보관). T-583 / `X-RG1`은 이제 진행 중이다. Codex 백엔드 handoff는
+versioned `http_evidence_correlation` 결과,
+`AnalyzeHttpEvidenceCorrelation`/`GetHttpEvidenceCorrelationContract`,
+bounded HTTP/CPU overlap, Jennifer network-gap 검사, access-log
+client/server 매칭, 명시적 alignment/confidence/provenance diagnostic을
+추가한다. 호환되지 않는 시계는 fail closed한다: V8 overlay에는 명시적인
+RFC3339 profile-start wall-clock anchor가 필요하고, 날짜/offset이 없는 Jennifer
+ms-since-midnight 증거는 `duration_only`로 유지된다. 모든 출력 행은 인과관계
+주장을 금지한다. 생성 binding, Claude drilldown/overlay UI, 전체 검증,
+X-RG1 그룹 리뷰가 남았다.

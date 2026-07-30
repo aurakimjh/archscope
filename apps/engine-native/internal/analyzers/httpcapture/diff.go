@@ -364,6 +364,17 @@ func endpointTemplateKey(entry models.CaptureTransaction) string {
 	return method + " " + canonicalHost(entry.Host) + " " + templatePathAndQuery(entry.Path, entry.Query)
 }
 
+// NormalizeCorrelationEndpoint exposes the same versioned endpoint templating
+// used by HTTP Diff to cross-evidence analyzers. Keeping one implementation
+// prevents access-log and HTTP paths from drifting into incompatible keys.
+func NormalizeCorrelationEndpoint(method, host, path string) string {
+	method = strings.ToUpper(strings.TrimSpace(method))
+	if method == "" {
+		method = "GET"
+	}
+	return method + " " + canonicalHost(host) + " " + templatePathAndQuery(path, "")
+}
+
 func canonicalHost(value string) string {
 	value = strings.ToLower(strings.TrimSpace(value))
 	if value == "" {
