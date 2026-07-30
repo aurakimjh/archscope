@@ -179,7 +179,7 @@ func Analyze(httpResult, profileResult, jenniferResult, accessResult map[string]
 		diagnostics = append(diagnostics, diagnostic)
 		if diagnostic.AlignmentGrade == "none" {
 			result.AddFinding("info", "HTTP_CORRELATION_PROFILE_CLOCK_INCOMPATIBLE",
-				"CPU profile timestamps were not overlaid because no compatible wall-clock anchor was available.",
+				"CPU profile timestamps were not overlaid because no compatible wall-clock anchor and V8 timestamp base were available.",
 				map[string]any{"reason": diagnostic.Reason})
 		}
 	}
@@ -246,12 +246,16 @@ func correlateProfile(httpRows []httpTransaction, result map[string]any, anchorR
 		diagnostic.Reason = "V8 timestamps are monotonic; provide profileWallClockStart as an RFC3339 wall-clock anchor"
 		return []map[string]any{}, diagnostic
 	}
-	v8StartUS := int64(number(nested(result, "metadata", "parser_metadata", "v8_start_time_us")))
+	v8StartUS, ok := microseconds(nested(result, "metadata", "parser_metadata", "v8_start_time_us"))
+	if !ok {
+		diagnostic.Reason = "profile metadata is missing a valid numeric parser_metadata.v8_start_time_us timestamp base"
+		return []map[string]any{}, diagnostic
+	}
 	runs := make([]timedCPURun, 0, len(used))
 	for _, row := range used {
-		startUS := int64(number(row["start_us"]))
-		endUS := int64(number(row["end_us"]))
-		if endUS <= startUS {
+		startUS, startOK := microseconds(row["start_us"])
+		endUS, endOK := microseconds(row["end_us"])
+		if !startOK || !endOK || endUS <= startUS {
 			continue
 		}
 		start := anchor.Add(time.Duration(startUS-v8StartUS) * time.Microsecond)
@@ -390,13 +394,18 @@ func correlateAccess(httpRows []httpTransaction, result map[string]any, topN int
 		bestIndex := -1
 		bestDelta := math.MaxFloat64
 		bestBasis := ""
+		bestClockCompared := false
 		for index, record := range used {
 			if claimed[index] {
 				continue
 			}
 			requestID := text(record["request_id"])
 			if transaction.RequestID != "" && requestID != "" && strings.EqualFold(transaction.RequestID, requestID) {
-				bestIndex, bestDelta, bestBasis = index, 0, "request_id"
+				bestIndex, bestBasis = index, "request_id"
+				if recordTime, err := time.Parse(time.RFC3339Nano, text(record["timestamp"])); err == nil && transaction.HasTime {
+					bestDelta = math.Abs(float64(recordTime.Sub(transaction.Start)) / float64(time.Millisecond))
+					bestClockCompared = true
+				}
 				break
 			}
 			if !sameRequestShape(transaction, record) || !transaction.HasTime {
@@ -409,6 +418,7 @@ func correlateAccess(httpRows []httpTransaction, result map[string]any, topN int
 			delta := math.Abs(float64(recordTime.Sub(transaction.Start)) / float64(time.Millisecond))
 			if delta <= toleranceMS && delta < bestDelta {
 				bestIndex, bestDelta, bestBasis = index, delta, "method+path_template+status+time"
+				bestClockCompared = true
 			}
 		}
 		if bestIndex < 0 {
@@ -422,26 +432,52 @@ func correlateAccess(httpRows []httpTransaction, result map[string]any, topN int
 		if bestBasis == "request_id" {
 			confidence = "high"
 		}
-		matches = append(matches, map[string]any{
+		alignmentGrade := "duration_only"
+		if bestClockCompared && bestDelta <= toleranceMS {
+			alignmentGrade = "aligned"
+		}
+		match := map[string]any{
 			"http_id": transaction.ID, "endpoint": transaction.Template,
 			"access_uri": text(record["uri"]), "request_id": firstText(transaction.RequestID, text(record["request_id"])),
 			"http_duration_ms": transaction.Duration, "server_response_ms": serverMS,
-			"outside_server_ms": round(outsideMS, 3), "timestamp_delta_ms": round(bestDelta, 3),
-			"alignment_grade": "aligned", "confidence": confidence,
+			"outside_server_ms": round(outsideMS, 3),
+			"alignment_grade":   alignmentGrade, "confidence": confidence,
 			"match_basis": bestBasis, "causal_claim_allowed": false,
-		})
+			"clock_compared": bestClockCompared,
+		}
+		switch {
+		case bestClockCompared:
+			match["timestamp_delta_ms"] = round(bestDelta, 3)
+			if alignmentGrade != "aligned" {
+				match["timestamp_alignment_reason"] = "request identity matched, but the absolute timestamp delta exceeds the configured tolerance"
+			}
+		default:
+			match["timestamp_delta_unavailable_reason"] = "request identity matched, but both observations did not provide parseable absolute timestamps"
+		}
+		matches = append(matches, match)
 	}
 	if len(matches) > 0 {
-		diagnostic.AlignmentGrade = "aligned"
 		diagnostic.Confidence = strongestConfidence(matches)
-		diagnostic.OverlayAllowed = true
-		diagnostic.Reason = "request identity or compatible absolute timestamps align client and server observations"
+		if allRowsAligned(matches) {
+			diagnostic.AlignmentGrade = "aligned"
+			diagnostic.OverlayAllowed = true
+			diagnostic.Reason = "every emitted access-log match compared compatible absolute timestamps within the configured tolerance"
+		} else {
+			diagnostic.AlignmentGrade = "duration_only"
+			diagnostic.OverlayAllowed = false
+			diagnostic.Reason = "request identity paired client and server observations, but at least one pair lacked compatible absolute timestamps"
+		}
 	}
 	sort.SliceStable(matches, func(i, j int) bool {
 		if matches[i]["confidence"] != matches[j]["confidence"] {
 			return matches[i]["confidence"] == "high"
 		}
-		return number(matches[i]["timestamp_delta_ms"]) < number(matches[j]["timestamp_delta_ms"])
+		leftDelta, leftOK := optionalNumber(matches[i]["timestamp_delta_ms"])
+		rightDelta, rightOK := optionalNumber(matches[j]["timestamp_delta_ms"])
+		if leftOK != rightOK {
+			return leftOK
+		}
+		return leftOK && leftDelta < rightDelta
 	})
 	diagnostic.CandidateRows = len(matches)
 	diagnostic.OutputTruncated = len(matches) > topN
@@ -664,15 +700,44 @@ func number(value any) float64 {
 }
 
 func optionalNumber(value any) (float64, bool) {
-	if value == nil {
-		return 0, false
-	}
-	switch value.(type) {
-	case float64, float32, int, int64, int32, uint64, uint, json.Number:
-		return number(value), true
+	var parsed float64
+	switch typed := value.(type) {
+	case float64:
+		parsed = typed
+	case float32:
+		parsed = float64(typed)
+	case int:
+		parsed = float64(typed)
+	case int64:
+		parsed = float64(typed)
+	case int32:
+		parsed = float64(typed)
+	case uint64:
+		parsed = float64(typed)
+	case uint:
+		parsed = float64(typed)
+	case json.Number:
+		value, err := strconv.ParseFloat(string(typed), 64)
+		if err != nil {
+			return 0, false
+		}
+		parsed = value
 	default:
 		return 0, false
 	}
+	if math.IsNaN(parsed) || math.IsInf(parsed, 0) {
+		return 0, false
+	}
+	return parsed, true
+}
+
+func microseconds(value any) (int64, bool) {
+	parsed, ok := optionalNumber(value)
+	if !ok || math.Trunc(parsed) != parsed ||
+		parsed < float64(math.MinInt64) || parsed >= float64(math.MaxInt64) {
+		return 0, false
+	}
+	return int64(parsed), true
 }
 
 func canonicalHost(value string) string {
@@ -741,6 +806,18 @@ func strongestConfidence(rows []map[string]any) string {
 		}
 	}
 	return best
+}
+
+func allRowsAligned(rows []map[string]any) bool {
+	if len(rows) == 0 {
+		return false
+	}
+	for _, row := range rows {
+		if text(row["alignment_grade"]) != "aligned" || row["clock_compared"] != true {
+			return false
+		}
+	}
+	return true
 }
 
 func countAlignment(rows []sourceDiagnostic, grade string) int {

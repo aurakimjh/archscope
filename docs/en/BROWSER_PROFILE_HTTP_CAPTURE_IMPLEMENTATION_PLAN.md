@@ -31,7 +31,8 @@ group and **the next group cannot start until the current group passes**.
   HTTP/CPU/Jennifer/access-log correlation with fail-closed clock grades,
   confidence, provenance, and no-causality diagnostics; the regenerated
   bindings and the Claude drilldown/overlay UI are complete (2026-07-31),
-  and the X-RG1 group review remains.
+  and the first group review returned `CONDITIONAL`. Codex B1/B2 remediation
+  is complete; Claude unavailable-delta rendering and narrow re-review remain.
 
 ## 2. Ownership
 
@@ -85,7 +86,7 @@ Only high-consequence boundaries receive an extra per-item gate:
 | 4 | `H-RG3` live-capture engine foundation | **Complete — H-SEC2 PASS (2026-07-28)** | Closed |
 | 5 | `H-RG4` live UI and Windows E2E | **Complete — PASS (2026-07-30)** | Closed |
 | 6 | `H-RG5` HTTP session Diff | **Complete — group PASS (2026-07-30)** | Closed |
-| 7 | `X-RG1` HTTP x profile/server-evidence correlation | In progress — Codex backend, bindings, and Claude UI complete; group review remains | `H-RG5 PASS` |
+| 7 | `X-RG1` HTTP x profile/server-evidence correlation | In progress — first review `CONDITIONAL`; Codex B1/B2 remediation complete, Claude unavailable-delta rendering and narrow re-review remain | `H-RG5 PASS` |
 | 8 | `R-RG1` integrated release acceptance | Planned | `X-RG1 PASS` |
 
 The two features stay in separate commits except for `X-RG1`, whose purpose is
@@ -458,6 +459,35 @@ HAR pseudo-process sessions.
 - **Review:** never claim causality across incompatible clocks; always show the
   alignment grade and evidence provenance.
 
+#### X-RG1 Review — Conditional / Backend Remediation Complete (2026-07-31)
+
+The first group review returned `CONDITIONAL`. B1 found that request-ID
+access-log pairings could report a fabricated zero timestamp delta and enable
+an `aligned` overlay without comparing clocks. B2 found that a missing or
+non-numeric `metadata.parser_metadata.v8_start_time_us` silently defaulted to
+zero and could certify a false CPU overlap.
+
+The Codex backend remediation now keeps request identity and clock alignment
+independent. A request ID may pair observations, but `aligned` is emitted only
+after both absolute timestamps parse and their measured delta is within the
+configured tolerance. Missing timestamps omit `timestamp_delta_ms`, set
+`clock_compared: false`, provide
+`timestamp_delta_unavailable_reason`, grade the row/source `duration_only`,
+and suppress the source overlay. Measured deltas outside tolerance are also
+`duration_only` with an explicit mismatch reason. Source-level overlay
+permission is fail-closed if any emitted match lacks compatible clock
+evidence. Profile correlation now rejects a missing, non-numeric, non-finite,
+or non-integral V8 timestamp base with grade `none`, zero overlap rows, and an
+`HTTP_CORRELATION_PROFILE_CLOCK_INCOMPATIBLE` finding naming
+`v8_start_time_us`. Engine regressions cover a six-hour request-ID skew,
+unavailable client time, and missing/non-numeric V8 bases.
+
+The renderer follow-up remains Claude-owned: an omitted
+`timestamp_delta_ms` must render as `—` and expose its unavailable reason.
+After that handoff, the narrow B1/B2 re-review must rerun the full Go suite,
+frontend state tests, and frontend production build. Review observations
+O1–O5 are recorded as non-blocking hardening, not gate conditions.
+
 #### Claude UI — Complete (2026-07-31)
 
 The bindings were regenerated with the module-pinned Wails CLI and expose
@@ -508,12 +538,16 @@ slice, regenerated bindings, and the Claude grade-aware comparison UI were
 verified together, with reordered equivalent sessions comparing equal end to
 end (review archived at
 `docs/review/done/2026-07-30_claude-code_H-RG5_http-session-diff-group-review.md`).
-T-583 / `X-RG1` is now in progress. The Codex backend handoff adds the
+T-583 / `X-RG1` remains in progress after the first group review returned
+`CONDITIONAL`. The Codex backend handoff adds the
 versioned `http_evidence_correlation` result, `AnalyzeHttpEvidenceCorrelation`
 and `GetHttpEvidenceCorrelationContract`, bounded HTTP/CPU overlaps, Jennifer
 network-gap checks, access-log client/server matches, and explicit
 alignment/confidence/provenance diagnostics. Incompatible clocks fail closed:
 V8 overlays require an explicit RFC3339 profile-start wall-clock anchor, and
 Jennifer's date-less ms-since-midnight evidence remains `duration_only`.
-Every output row forbids causal claims. Generated bindings, the Claude
-drilldown/overlay UI, full verification, and X-RG1 group review remain.
+Every output row forbids causal claims. B1/B2 backend remediation now also
+requires an independently measured, in-tolerance absolute timestamp delta for
+access-log alignment and rejects a missing/invalid V8 timestamp base. The
+generated bindings and Claude drilldown/overlay UI are complete; Claude's
+unavailable-delta rendering handoff and the narrow X-RG1 re-review remain.

@@ -61,6 +61,10 @@ func TestAnalyzeCorrelatesBoundedProfileJenniferAndAccessEvidence(t *testing.T) 
 	if len(accessRows) != 1 || accessRows[0]["confidence"] != "high" || accessRows[0]["match_basis"] != "request_id" {
 		t.Fatalf("unexpected access correlation: %#v", accessRows)
 	}
+	if accessRows[0]["alignment_grade"] != "aligned" || accessRows[0]["clock_compared"] != true ||
+		accessRows[0]["timestamp_delta_ms"] != 50.0 {
+		t.Fatalf("request identity and clock alignment were not evaluated independently: %#v", accessRows[0])
+	}
 	if got.Summary["aligned_source_count"] != 2 || got.Summary["duration_only_source_count"] != 1 {
 		t.Fatalf("unexpected alignment summary: %#v", got.Summary)
 	}
@@ -91,6 +95,113 @@ func TestAnalyzeSuppressesProfileOverlayWithoutWallClockAnchor(t *testing.T) {
 	}
 	if len(got.Metadata.Findings) != 1 || got.Metadata.Findings[0]["code"] != "HTTP_CORRELATION_PROFILE_CLOCK_INCOMPATIBLE" {
 		t.Fatalf("missing incompatible-clock finding: %#v", got.Metadata.Findings)
+	}
+}
+
+func TestAnalyzeSuppressesProfileOverlayWithoutV8TimestampBase(t *testing.T) {
+	httpResult := result("http_capture", map[string]any{
+		"transactions": []map[string]any{
+			httpRow("h1", "2026-07-30T01:00:00Z", 500, "/api", 200, ""),
+		},
+	}, nil)
+
+	for _, testCase := range []struct {
+		name     string
+		metadata map[string]any
+	}{
+		{name: "missing", metadata: map[string]any{"parser_metadata": map[string]any{}}},
+		{name: "non-numeric", metadata: map[string]any{"parser_metadata": map[string]any{"v8_start_time_us": "not-a-number"}}},
+	} {
+		t.Run(testCase.name, func(t *testing.T) {
+			profile := result("profile_evidence", map[string]any{
+				"cpu_sample_runs": []map[string]any{
+					{"stack": "work", "start_us": int64(100_000), "end_us": int64(300_000), "duration_ms": 200.0},
+				},
+			}, testCase.metadata)
+
+			got, err := Analyze(httpResult, profile, nil, nil, Options{
+				ProfileWallClockStart: "2026-07-30T01:00:00Z",
+			})
+			if err != nil {
+				t.Fatal(err)
+			}
+			if rows := got.Tables["http_profile_overlaps"].([]map[string]any); len(rows) != 0 {
+				t.Fatalf("invalid V8 timestamp base must not produce overlays: %#v", rows)
+			}
+			diagnostics := got.Tables["alignment_diagnostics"].([]sourceDiagnostic)
+			if len(diagnostics) != 2 || diagnostics[1].AlignmentGrade != "none" || diagnostics[1].OverlayAllowed ||
+				!strings.Contains(diagnostics[1].Reason, "v8_start_time_us") {
+				t.Fatalf("invalid V8 timestamp base did not fail closed: %#v", diagnostics)
+			}
+			if len(got.Metadata.Findings) != 1 ||
+				got.Metadata.Findings[0]["code"] != "HTTP_CORRELATION_PROFILE_CLOCK_INCOMPATIBLE" ||
+				!strings.Contains(got.Metadata.Findings[0]["message"].(string), "V8 timestamp base") {
+				t.Fatalf("missing V8 timestamp-base finding: %#v", got.Metadata.Findings)
+			}
+		})
+	}
+}
+
+func TestAnalyzeRequestIdentityDoesNotClaimUnmeasuredClockAlignment(t *testing.T) {
+	for _, testCase := range []struct {
+		name              string
+		httpStartedAt     string
+		accessTimestamp   string
+		wantClockCompared bool
+		wantDelta         float64
+	}{
+		{
+			name: "large clock skew", httpStartedAt: "2026-07-30T01:00:00Z",
+			accessTimestamp: "2026-07-30T07:00:00Z", wantClockCompared: true, wantDelta: 21_600_000,
+		},
+		{
+			name: "missing client timestamp", httpStartedAt: "not-a-timestamp",
+			accessTimestamp: "2026-07-30T01:00:00Z", wantClockCompared: false,
+		},
+	} {
+		t.Run(testCase.name, func(t *testing.T) {
+			httpResult := result("http_capture", map[string]any{
+				"transactions": []map[string]any{
+					httpRow("h1", testCase.httpStartedAt, 100, "/api", 200, "req-1"),
+				},
+			}, nil)
+			access := result("access_log", map[string]any{
+				"sample_records": []map[string]any{
+					{
+						"timestamp": testCase.accessTimestamp, "method": "GET", "uri": "/api",
+						"status": 200, "response_time_ms": 80.0, "request_id": "req-1",
+					},
+				},
+			}, nil)
+
+			got, err := Analyze(httpResult, nil, nil, access, Options{TimeToleranceMS: 100})
+			if err != nil {
+				t.Fatal(err)
+			}
+			rows := got.Tables["access_log_matches"].([]map[string]any)
+			if len(rows) != 1 || rows[0]["match_basis"] != "request_id" ||
+				rows[0]["alignment_grade"] != "duration_only" ||
+				rows[0]["clock_compared"] != testCase.wantClockCompared {
+				t.Fatalf("request identity was misreported as clock alignment: %#v", rows)
+			}
+			if testCase.wantClockCompared {
+				if rows[0]["timestamp_delta_ms"] != testCase.wantDelta || rows[0]["timestamp_alignment_reason"] == nil {
+					t.Fatalf("measured incompatible timestamp delta was not disclosed: %#v", rows[0])
+				}
+			} else {
+				if _, exists := rows[0]["timestamp_delta_ms"]; exists ||
+					rows[0]["timestamp_delta_unavailable_reason"] == nil {
+					t.Fatalf("unmeasured timestamp delta must be explicitly unavailable: %#v", rows[0])
+				}
+			}
+			diagnostics := got.Tables["alignment_diagnostics"].([]sourceDiagnostic)
+			if diagnostics[1].AlignmentGrade != "duration_only" || diagnostics[1].OverlayAllowed {
+				t.Fatalf("access-log source did not fail closed: %#v", diagnostics[1])
+			}
+			if got.Summary["aligned_source_count"] != 0 || got.Summary["duration_only_source_count"] != 1 {
+				t.Fatalf("alignment summary hides the duration-only source: %#v", got.Summary)
+			}
+		})
 	}
 }
 
