@@ -86,7 +86,7 @@ windows/amd64 (Windows 11 Pro 10.0.26200, Go native, Node 22).
   `store_rescanned: false` and `export_projection:
   analysis_result_envelope` are recorded in the envelope.
 - **Workspace routing:** `ResolveWorkspaceComparison` returns a supported
-  route only for an `http_capture`/`http_capture_diff` pair and an explicit
+  route only for an `http_capture`/`http_capture` pair and an explicit
   reason otherwise; legacy Diff (`DiffPage`, `ProfilerService.Diff`) is
   untouched by both commits; no new NavKey exists.
 
