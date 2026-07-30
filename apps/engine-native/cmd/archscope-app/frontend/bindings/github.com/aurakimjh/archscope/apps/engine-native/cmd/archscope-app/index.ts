@@ -52,6 +52,7 @@ export {
     GcLogRequest,
     HttpCaptureDiffRequest,
     HttpCaptureRequest,
+    HttpEvidenceCorrelationRequest,
     JenniferProfileRequest,
     JfrRequest,
     LockContentionRequest,

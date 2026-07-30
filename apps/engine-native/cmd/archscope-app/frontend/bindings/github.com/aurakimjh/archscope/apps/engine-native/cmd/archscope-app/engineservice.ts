@@ -31,6 +31,9 @@ import * as api$0 from "../../api/models.js";
 import * as httpcapture$0 from "../../internal/analyzers/httpcapture/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
+import * as httpcorrelation$0 from "../../internal/analyzers/httpcorrelation/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
 import * as models$0 from "../../internal/models/models.js";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -106,6 +109,12 @@ export function AnalyzeHttpCapture(req: $models.HttpCaptureRequest): $Cancellabl
 
 export function AnalyzeHttpCaptureDiff(req: $models.HttpCaptureDiffRequest): $CancellablePromise<api$0.AnalysisResult> {
     return $Call.ByID(1450384362, req).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+export function AnalyzeHttpEvidenceCorrelation(req: $models.HttpEvidenceCorrelationRequest): $CancellablePromise<api$0.AnalysisResult> {
+    return $Call.ByID(4020249308, req).then(($result: any) => {
         return $$createType0($result);
     });
 }
@@ -337,9 +346,15 @@ export function GetHttpCaptureDiffContract(): $CancellablePromise<api$0.HttpCapt
     });
 }
 
+export function GetHttpEvidenceCorrelationContract(): $CancellablePromise<api$0.HttpEvidenceCorrelationContract> {
+    return $Call.ByID(1477035566).then(($result: any) => {
+        return $$createType6($result);
+    });
+}
+
 export function ResolveWorkspaceComparison(req: $models.WorkspaceComparisonRequest): $CancellablePromise<api$0.WorkspaceComparisonRoute> {
     return $Call.ByID(4088206667, req).then(($result: any) => {
-        return $$createType6($result);
+        return $$createType7($result);
     });
 }
 
@@ -350,4 +365,5 @@ const $$createType2 = $models.ClassifyResult.createFrom;
 const $$createType3 = $models.CollapsedResult.createFrom;
 const $$createType4 = $Create.Map($Create.Any, $Create.Any);
 const $$createType5 = httpcapture$0.HttpCaptureDiffContract.createFrom;
-const $$createType6 = httpcapture$0.WorkspaceComparisonRoute.createFrom;
+const $$createType6 = httpcorrelation$0.Contract.createFrom;
+const $$createType7 = httpcapture$0.WorkspaceComparisonRoute.createFrom;

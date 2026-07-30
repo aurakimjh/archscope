@@ -6,6 +6,7 @@ import {
 } from "@/components/AiInterpretationPanel";
 import { HelpTip, HelpedTitle } from "@/components/HelpTip";
 import { HttpCaptureComparisonPanel } from "@/components/HttpCaptureComparisonPanel";
+import { HttpCorrelationPanel } from "@/components/HttpCorrelationPanel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getHelpText } from "@/help/helpCatalog";
@@ -118,6 +119,11 @@ export function AnalysisWorkspacePage(): React.JSX.Element {
           (ResolveWorkspaceComparison); legacy Diff stays untouched and no new
           NavKey is introduced. */}
       {diffCandidateEntries(workspace.entries).length > 0 && <HttpCaptureComparisonPanel />}
+
+      {/* X-RG1 HTTP evidence correlation entry: HTTP capture is the required
+          primary source; overlays stay gated by the backend's per-source
+          alignment verdict and no row ever claims causality. */}
+      {diffCandidateEntries(workspace.entries).length > 0 && <HttpCorrelationPanel />}
     </main>
   );
 }

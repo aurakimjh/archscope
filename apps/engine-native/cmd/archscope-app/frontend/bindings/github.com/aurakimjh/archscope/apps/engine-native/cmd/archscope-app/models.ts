@@ -1396,6 +1396,55 @@ export class HttpCaptureRequest {
 }
 
 /**
+ * HttpEvidenceCorrelationRequest carries Workspace-owned AnalysisResult
+ * envelopes. HTTP is required; every secondary source is optional, but at
+ * least one must be present. ProfileWallClockStart is the explicit RFC3339
+ * anchor corresponding to the V8 profile startTime.
+ */
+export class HttpEvidenceCorrelationRequest {
+    "http": { [_ in string]?: any };
+    "profile"?: { [_ in string]?: any };
+    "jennifer"?: { [_ in string]?: any };
+    "accessLog"?: { [_ in string]?: any };
+    "topN"?: number;
+    "timeToleranceMs"?: number;
+    "profileWallClockStart"?: string;
+
+    /** Creates a new HttpEvidenceCorrelationRequest instance. */
+    constructor($$source: Partial<HttpEvidenceCorrelationRequest> = {}) {
+        if (!("http" in $$source)) {
+            this["http"] = {};
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new HttpEvidenceCorrelationRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): HttpEvidenceCorrelationRequest {
+        const $$createField0_0 = $$createType0;
+        const $$createField1_0 = $$createType0;
+        const $$createField2_0 = $$createType0;
+        const $$createField3_0 = $$createType0;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("http" in $$parsedSource) {
+            $$parsedSource["http"] = $$createField0_0($$parsedSource["http"]);
+        }
+        if ("profile" in $$parsedSource) {
+            $$parsedSource["profile"] = $$createField1_0($$parsedSource["profile"]);
+        }
+        if ("jennifer" in $$parsedSource) {
+            $$parsedSource["jennifer"] = $$createField2_0($$parsedSource["jennifer"]);
+        }
+        if ("accessLog" in $$parsedSource) {
+            $$parsedSource["accessLog"] = $$createField3_0($$parsedSource["accessLog"]);
+        }
+        return new HttpEvidenceCorrelationRequest($$parsedSource as Partial<HttpEvidenceCorrelationRequest>);
+    }
+}
+
+/**
  * JenniferProfileRequest accepts a single Path or repeatable Paths
  * for multi-file batches. FallbackCorrelationToTxid mirrors the
  * CLI flag of the same name.

@@ -10,6 +10,9 @@ import { Create as $Create } from "@wailsio/runtime";
 import * as httpcapture$0 from "../internal/analyzers/httpcapture/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
+import * as httpcorrelation$0 from "../internal/analyzers/httpcorrelation/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
 import * as models$0 from "../internal/models/models.js";
 
 /**
@@ -31,6 +34,16 @@ export const HttpCaptureDiffContract = httpcapture$0.HttpCaptureDiffContract;
  * HttpCaptureDiffContract is the renderer/Workspace routing contract.
  */
 export type HttpCaptureDiffContract = httpcapture$0.HttpCaptureDiffContract;
+
+/**
+ * HttpEvidenceCorrelationContract describes the X-RG1 backend/UI boundary.
+ */
+export const HttpEvidenceCorrelationContract = httpcorrelation$0.Contract;
+
+/**
+ * HttpEvidenceCorrelationContract describes the X-RG1 backend/UI boundary.
+ */
+export type HttpEvidenceCorrelationContract = httpcorrelation$0.Contract;
 
 /**
  * WorkspaceComparisonRoute describes the backend-selected comparison path.

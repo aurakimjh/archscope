@@ -27,10 +27,11 @@ group and **the next group cannot start until the current group passes**.
   group PASS (2026-07-30)**: the store-free diff engine, regenerated
   bindings, and the grade-aware comparison UI were verified together, and
   reordered equivalent sessions compare equal end to end. `X-RG1`
-  correlation is in progress: the Codex backend now emits bounded
+  correlation is in progress: the Codex backend emits bounded
   HTTP/CPU/Jennifer/access-log correlation with fail-closed clock grades,
-  confidence, provenance, and no-causality diagnostics; bindings, the Claude
-  drilldown/overlay UI, and group review remain.
+  confidence, provenance, and no-causality diagnostics; the regenerated
+  bindings and the Claude drilldown/overlay UI are complete (2026-07-31),
+  and the X-RG1 group review remains.
 
 ## 2. Ownership
 
@@ -84,7 +85,7 @@ Only high-consequence boundaries receive an extra per-item gate:
 | 4 | `H-RG3` live-capture engine foundation | **Complete — H-SEC2 PASS (2026-07-28)** | Closed |
 | 5 | `H-RG4` live UI and Windows E2E | **Complete — PASS (2026-07-30)** | Closed |
 | 6 | `H-RG5` HTTP session Diff | **Complete — group PASS (2026-07-30)** | Closed |
-| 7 | `X-RG1` HTTP x profile/server-evidence correlation | In progress — Codex backend complete; bindings/UI/review remain | `H-RG5 PASS` |
+| 7 | `X-RG1` HTTP x profile/server-evidence correlation | In progress — Codex backend, bindings, and Claude UI complete; group review remains | `H-RG5 PASS` |
 | 8 | `R-RG1` integrated release acceptance | Planned | `X-RG1 PASS` |
 
 The two features stay in separate commits except for `X-RG1`, whose purpose is
@@ -456,6 +457,35 @@ HAR pseudo-process sessions.
   server evidence in the same time window.
 - **Review:** never claim causality across incompatible clocks; always show the
   alignment grade and evidence provenance.
+
+#### Claude UI — Complete (2026-07-31)
+
+The bindings were regenerated with the module-pinned Wails CLI and expose
+`AnalyzeHttpEvidenceCorrelation` / `GetHttpEvidenceCorrelationContract`. A
+shared correlation panel (`components/HttpCorrelationPanel.tsx`) mounts on
+HttpCapturePage (with a "use in correlation" seed action) and the Analysis
+Workspace; slot selection (HTTP required, profile/Jennifer/access-log
+optional with at least one), the RFC3339 profile wall-clock anchor, and the
+time tolerance live in a pure reducer + module store
+(`state/httpCorrelation.ts`) whose provenance invariant drops the rendered
+result whenever any input changes, including raced completions. The panel
+adopts the versioned contract at startup and rejects unimplemented schemas —
+or any contract claiming causal claims are allowed — with a disclosed
+mismatch. Time overlays render only for a source whose
+`alignment_diagnostics` row certifies `overlay_allowed` at an `aligned`
+grade; unrecognized grades fail closed, Jennifer tables carry an explicit
+duration-only no-overlap note, and a suppressed CPU overlay shows the
+engine's reason (e.g. missing anchor). Every result surface repeats the
+no-causality disclosure, alignment grades / confidence / match bases /
+sources resolve through closed EN/KO label maps with raw tokens on hover,
+per-source diagnostics disclose rows used, output rows, and truncation, and
+the cursor drilldown shows full per-row evidence plus an aligned-only
+time-window overlay. State regressions pin contract adoption/rejection
+(including the causal-claims rejection), the fail-closed overlay gate,
+anchor validation, slot candidate filtering, the secondary-source minimum,
+race-safe provenance, and both-locale coverage of every new key. `npm run
+test:state`, `npm run build`, `go build ./...`, `go vet`, and uncached
+app/correlation Go tests pass. No engine source was changed by Claude.
 
 ### R-RG1 — Integrated Release Acceptance
 

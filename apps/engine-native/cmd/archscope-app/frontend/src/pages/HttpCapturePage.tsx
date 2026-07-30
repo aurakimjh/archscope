@@ -28,6 +28,7 @@ import type {
 import { ErrorPanel } from "@/components/AnalyzerFeedback";
 import { DiagnosticsPanel } from "@/components/DiagnosticsPanel";
 import { HttpCaptureComparisonPanel } from "@/components/HttpCaptureComparisonPanel";
+import { HttpCorrelationPanel } from "@/components/HttpCorrelationPanel";
 import { LiveHttpCapturePanel } from "@/components/LiveHttpCapturePanel";
 import { MetricCard } from "@/components/MetricCard";
 import { SlideOverPanel } from "@/components/SlideOverPanel";
@@ -38,6 +39,7 @@ import { Input } from "@/components/ui/input";
 import { useI18n, type MessageKey } from "@/i18n/I18nProvider";
 import { addWorkspaceResult } from "@/state/analysisWorkspace";
 import { dispatchHttpCaptureDiff } from "@/state/httpCaptureDiff";
+import { dispatchHttpCorrelation } from "@/state/httpCorrelation";
 import {
   CAPTURE_COVERAGE_LABEL_KEYS,
   CAPTURE_DETAIL_STORAGE_LABEL_KEYS,
@@ -302,6 +304,16 @@ export function HttpCapturePage(): React.JSX.Element {
           >
             {t("httpCaptureDiffSetTarget")}
           </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              dispatchHttpCorrelation({ type: "setSlot", slot: "http", id: resultEntryId })
+            }
+          >
+            {t("httpCorrelationUseAsHttp")}
+          </Button>
         </div>
       )}
 
@@ -376,6 +388,10 @@ export function HttpCapturePage(): React.JSX.Element {
       {/* H-RG5 session comparison: selection is shared with the Analysis
           Workspace entry through the httpCaptureDiff module store. */}
       <HttpCaptureComparisonPanel />
+
+      {/* X-RG1 evidence correlation: shares its selection with the Analysis
+          Workspace through the httpCorrelation module store. */}
+      <HttpCorrelationPanel />
 
       <TransactionDetail transaction={selected} onClose={closeDetail} t={t} />
     </main>

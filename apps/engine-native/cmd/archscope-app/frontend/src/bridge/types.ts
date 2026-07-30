@@ -474,6 +474,168 @@ export type HttpCaptureDiffAnalysisResult = AnalysisResult<
   AnalysisObject,
   HttpCaptureDiffMetadata
 >;
+
+// ──────────────────────────────────────────────────────────────────
+// HTTP evidence correlation typed shapes — X-RG1 / T-583.
+//
+// Mirrors the engine emit shape in
+// apps/engine-native/internal/analyzers/httpcorrelation/analyzer.go:
+//   - summary : per-source match counts and alignment tallies
+//   - tables  : http_profile_overlaps / jennifer_network_gap_checks /
+//               access_log_matches / alignment_diagnostics
+//   - metadata.http_evidence_correlation : versioned envelope (contract,
+//     bounds, anchor disclosure) and metadata.source_provenance
+// The analyzer consumes AnalysisResult envelopes only — it never reopens
+// source files or capture stores, and every row carries
+// `causal_claim_allowed: false`: temporal correlation is never causal proof.
+// ──────────────────────────────────────────────────────────────────
+
+export type HttpEvidenceCorrelationRequest = {
+  http: HttpCaptureAnalysisResult;
+  profile?: AnalysisResult;
+  jennifer?: AnalysisResult;
+  accessLog?: AnalysisResult;
+  topN?: number;
+  timeToleranceMs?: number;
+  /** RFC3339 wall-clock instant of the V8 profile startTime; without it CPU
+   *  overlays fail closed to alignment grade `none`. */
+  profileWallClockStart?: string;
+};
+
+export type HttpEvidenceCorrelationContract = {
+  schema_version: number;
+  result_type: string;
+  http_result_type: string;
+  optional_result_types: string[];
+  alignment_grades: string[];
+  confidence_grades: string[];
+  default_top_n: number;
+  max_top_n: number;
+  default_time_tolerance_ms: number;
+  max_time_tolerance_ms: number;
+  analyze_method: string;
+  requires_profile_wall_clock_anchor: boolean;
+  store_or_file_rescan: boolean;
+  causal_claims_allowed: boolean;
+};
+
+export type HttpCorrelationSourceDiagnostic = {
+  source: string;
+  result_type: string;
+  alignment_grade: string;
+  confidence: string;
+  overlay_allowed: boolean;
+  reason: string;
+  input_rows: number;
+  rows_used: number;
+  candidate_rows: number;
+  output_rows: number;
+  source_truncated: boolean;
+  output_truncated: boolean;
+};
+
+export type HttpCorrelationProfileOverlapRow = {
+  http_id: string;
+  endpoint: string;
+  http_started_at: string;
+  http_ended_at: string;
+  cpu_stack: string;
+  cpu_started_at: string;
+  cpu_ended_at: string;
+  overlap_ms: number;
+  overlap_ratio: number;
+  alignment_grade: string;
+  confidence: string;
+  match_basis: string;
+  causal_claim_allowed: boolean;
+};
+
+export type HttpCorrelationJenniferRow = {
+  http_id: string;
+  endpoint: string;
+  jennifer_guid: string;
+  target_host: string;
+  external_call_elapsed_ms: number;
+  http_duration_ms: number;
+  duration_delta_ms: number;
+  jennifer_network_gap_ms: number;
+  observed_network_phase_count: number;
+  http_observed_network_ms?: number;
+  network_gap_delta_ms?: number;
+  network_gap_unavailable_reason?: string;
+  alignment_grade: string;
+  confidence: string;
+  match_basis: string;
+  causal_claim_allowed: boolean;
+};
+
+export type HttpCorrelationAccessRow = {
+  http_id: string;
+  endpoint: string;
+  access_uri: string;
+  request_id: string;
+  http_duration_ms: number;
+  server_response_ms: number;
+  outside_server_ms: number;
+  timestamp_delta_ms: number;
+  alignment_grade: string;
+  confidence: string;
+  match_basis: string;
+  causal_claim_allowed: boolean;
+};
+
+export type HttpCorrelationSummary = {
+  http_transaction_rows: number;
+  profile_overlap_count: number;
+  jennifer_check_count: number;
+  access_log_match_count: number;
+  aligned_source_count: number;
+  duration_only_source_count: number;
+  incompatible_source_count: number;
+  causal_claims_allowed: boolean;
+  store_or_file_rescanned: boolean;
+};
+
+export type HttpCorrelationEnvelope = {
+  contract: HttpEvidenceCorrelationContract;
+  top_n: number;
+  time_tolerance_ms: number;
+  input_projection: string;
+  store_or_file_rescanned: boolean;
+  causal_claims_allowed: boolean;
+  profile_wall_clock_anchor: boolean;
+};
+
+export type HttpCorrelationProvenanceRow = {
+  result_type: string;
+  created_at: string;
+  schema_version: string;
+  source_files?: string[];
+};
+
+export type HttpCorrelationTables = {
+  http_profile_overlaps: HttpCorrelationProfileOverlapRow[];
+  jennifer_network_gap_checks: HttpCorrelationJenniferRow[];
+  access_log_matches: HttpCorrelationAccessRow[];
+  alignment_diagnostics: HttpCorrelationSourceDiagnostic[];
+};
+
+export type HttpCorrelationMetadata = {
+  parser?: string;
+  schema_version?: string;
+  findings?: HttpCaptureFinding[];
+  http_evidence_correlation?: HttpCorrelationEnvelope;
+  source_provenance?: HttpCorrelationProvenanceRow[];
+};
+
+export type HttpEvidenceCorrelationAnalysisResult = AnalysisResult<
+  "http_evidence_correlation",
+  HttpCorrelationSummary,
+  AnalysisObject,
+  HttpCorrelationTables,
+  AnalysisObject,
+  HttpCorrelationMetadata
+>;
 export type ProfileEvidenceRequest = { path: string; format?: string; topN?: number; intervalMs?: number; profileKind?: string; maxBytes?: number; maxSamples?: number };
 export type ProfileEvidenceAnalysisResult = AnalysisResult<"profile_evidence">;
 

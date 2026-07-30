@@ -70,6 +70,9 @@ import type {
   HttpCaptureDiffContract,
   HttpCaptureDiffRequest,
   HttpCaptureRequest,
+  HttpEvidenceCorrelationAnalysisResult,
+  HttpEvidenceCorrelationContract,
+  HttpEvidenceCorrelationRequest,
   WorkspaceComparisonRequest,
   WorkspaceComparisonRoute,
 	  ProfileEvidenceAnalysisResult,
@@ -183,6 +186,21 @@ export function resolveWorkspaceComparison(
   req: WorkspaceComparisonRequest,
 ): CancellablePromise<WorkspaceComparisonRoute> {
   return call<WorkspaceComparisonRoute>("ResolveWorkspaceComparison", req);
+}
+
+// ── HTTP evidence correlation (X-RG1 / T-583) ─────────────────────
+// Consumes Workspace-owned AnalysisResult envelopes (HTTP required, at least
+// one of profile/jennifer/accessLog). No source file or capture store is
+// reopened, and no output row ever claims causality.
+
+export function analyzeHttpEvidenceCorrelation(
+  req: HttpEvidenceCorrelationRequest,
+): CancellablePromise<HttpEvidenceCorrelationAnalysisResult> {
+  return call<HttpEvidenceCorrelationAnalysisResult>("AnalyzeHttpEvidenceCorrelation", req);
+}
+
+export function getHttpEvidenceCorrelationContract(): CancellablePromise<HttpEvidenceCorrelationContract> {
+  return call<HttpEvidenceCorrelationContract>("GetHttpEvidenceCorrelationContract");
 }
 
 // analyzeBrowserAudit imports a local Lighthouse report (T-585/T-586).
@@ -317,6 +335,8 @@ export const engine = {
   analyzeHttpCaptureDiff,
   getHttpCaptureDiffContract,
   resolveWorkspaceComparison,
+  analyzeHttpEvidenceCorrelation,
+  getHttpEvidenceCorrelationContract,
   analyzeProfileEvidence,
   analyzeBrowserAudit,
   analyzeJenniferProfile,

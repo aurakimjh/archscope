@@ -2103,3 +2103,349 @@ for (const key of diffLabelKeys) {
     `diff message key ${key} must exist in both locales`,
   );
 }
+
+// ── HTTP evidence correlation (X-RG1 / T-583) ───────────────────────
+
+import {
+  CORRELATION_ALIGNMENT_LABEL_KEYS,
+  CORRELATION_CONFIDENCE_LABEL_KEYS,
+  CORRELATION_MATCH_BASIS_LABEL_KEYS,
+  CORRELATION_SOURCE_LABEL_KEYS,
+  HTTP_CORRELATION_CONTRACT_SCHEMA_VERSION,
+  correlationAnchorState,
+  correlationCandidates,
+  correlationInputsOf,
+  correlationOverlayAllowed,
+  diagnosticForSource,
+  extractCorrelationEnvelope,
+  hasCorrelationSecondary,
+  httpCorrelationReducer,
+  initialHttpCorrelationState,
+  isCorrelationContractSupported,
+  resolveCorrelationAlignment,
+  resolveCorrelationConfidence,
+  resolveCorrelationMatchBasis,
+  resolveCorrelationSource,
+  selectCorrelationDiagnostics,
+  selectCorrelationFindings,
+  selectCorrelationSummary,
+  selectCorrelationTable,
+} from "./httpCorrelation.js";
+import type {
+  HttpCorrelationSourceDiagnostic,
+  HttpEvidenceCorrelationAnalysisResult,
+  HttpEvidenceCorrelationContract,
+} from "../bridge/types.js";
+
+// Contract adoption mirrors the diff/R8 pattern and additionally rejects a
+// contract that would permit causal claims.
+const supportedCorrelationContract: HttpEvidenceCorrelationContract = {
+  schema_version: HTTP_CORRELATION_CONTRACT_SCHEMA_VERSION,
+  result_type: "http_evidence_correlation",
+  http_result_type: "http_capture",
+  optional_result_types: ["profile_evidence", "jennifer_profile", "access_log"],
+  alignment_grades: ["aligned", "duration_only", "none"],
+  confidence_grades: ["high", "medium", "low", "none"],
+  default_top_n: 50,
+  max_top_n: 500,
+  default_time_tolerance_ms: 1000,
+  max_time_tolerance_ms: 60000,
+  analyze_method: "AnalyzeHttpEvidenceCorrelation",
+  requires_profile_wall_clock_anchor: true,
+  store_or_file_rescan: false,
+  causal_claims_allowed: false,
+};
+assert(isCorrelationContractSupported(supportedCorrelationContract), "the v1 correlation contract is supported");
+assert(
+  !isCorrelationContractSupported({ ...supportedCorrelationContract, schema_version: 2 }),
+  "an unknown correlation contract version is rejected",
+);
+assert(
+  !isCorrelationContractSupported({ ...supportedCorrelationContract, causal_claims_allowed: true }),
+  "a contract permitting causal claims is rejected outright",
+);
+assert(!isCorrelationContractSupported(null), "a missing correlation contract is not supported");
+
+// Closed token sets fail to `unknown` instead of leaking wire values.
+assert(resolveCorrelationAlignment("aligned") === "aligned", "aligned correlation grade resolves");
+assert(resolveCorrelationAlignment("brand_new") === "unknown", "unrecognized correlation grade resolves to unknown");
+assert(resolveCorrelationConfidence("medium") === "medium", "medium confidence resolves");
+assert(resolveCorrelationConfidence("certain") === "unknown", "unrecognized confidence resolves to unknown");
+assert(resolveCorrelationMatchBasis("request_id") === "request_id", "request_id basis resolves");
+assert(
+  resolveCorrelationMatchBasis("explicit_wall_clock_anchor+time_overlap") ===
+    "explicit_wall_clock_anchor+time_overlap",
+  "anchor+overlap basis resolves",
+);
+assert(resolveCorrelationMatchBasis("vibes") === "unknown", "unrecognized basis resolves to unknown");
+assert(resolveCorrelationSource("jennifer_profile") === "jennifer_profile", "jennifer source resolves");
+assert(resolveCorrelationSource("mystery") === "unknown", "unrecognized source resolves to unknown");
+
+// Overlay gating: only a backend-certified aligned overlay may render.
+const alignedDiag: HttpCorrelationSourceDiagnostic = {
+  source: "profile_evidence", result_type: "profile_evidence",
+  alignment_grade: "aligned", confidence: "high", overlay_allowed: true, reason: "",
+  input_rows: 1, rows_used: 1, candidate_rows: 1, output_rows: 1,
+  source_truncated: false, output_truncated: false,
+};
+assert(correlationOverlayAllowed(alignedDiag), "aligned + overlay_allowed enables the overlay");
+assert(
+  !correlationOverlayAllowed({ ...alignedDiag, overlay_allowed: false }),
+  "overlay_allowed=false suppresses the overlay even when aligned",
+);
+assert(
+  !correlationOverlayAllowed({ ...alignedDiag, alignment_grade: "duration_only" }),
+  "duration_only never renders a time overlay",
+);
+assert(
+  !correlationOverlayAllowed({ ...alignedDiag, alignment_grade: "novel", overlay_allowed: true }),
+  "an unrecognized grade fails closed: no overlay renders",
+);
+assert(!correlationOverlayAllowed(null), "a missing diagnostic suppresses the overlay");
+
+// Anchor validation is advisory but must reject non-RFC3339 text up front.
+assert(correlationAnchorState("") === "empty", "an empty anchor is empty, not invalid");
+assert(
+  correlationAnchorState("2026-07-30T12:00:00.000Z") === "valid",
+  "an RFC3339 UTC anchor validates",
+);
+assert(
+  correlationAnchorState("2026-07-30T12:00:00+09:00") === "valid",
+  "an RFC3339 offset anchor validates",
+);
+assert(correlationAnchorState("yesterday noon") === "invalid", "prose anchors are invalid");
+assert(correlationAnchorState("2026-07-30 12:00:00") === "invalid", "space-separated timestamps are invalid");
+
+// Selectors over a representative correlation result.
+const correlationFixture = {
+  type: "http_evidence_correlation",
+  source_files: [],
+  created_at: "2026-07-30T00:00:00.000Z",
+  summary: {
+    http_transaction_rows: 3,
+    profile_overlap_count: 1,
+    jennifer_check_count: 1,
+    access_log_match_count: 0,
+    aligned_source_count: 1,
+    duration_only_source_count: 1,
+    incompatible_source_count: 1,
+    causal_claims_allowed: false,
+    store_or_file_rescanned: false,
+  },
+  series: {},
+  tables: {
+    http_profile_overlaps: [
+      {
+        http_id: "tx-1", endpoint: "GET api.test /orders/{id}",
+        http_started_at: "2026-07-30T00:00:00.000Z", http_ended_at: "2026-07-30T00:00:00.200Z",
+        cpu_stack: "app.js;renderList", cpu_started_at: "2026-07-30T00:00:00.050Z",
+        cpu_ended_at: "2026-07-30T00:00:00.150Z",
+        overlap_ms: 100, overlap_ratio: 1, alignment_grade: "aligned", confidence: "high",
+        match_basis: "explicit_wall_clock_anchor+time_overlap", causal_claim_allowed: false,
+      },
+    ],
+    jennifer_network_gap_checks: [
+      {
+        http_id: "tx-2", endpoint: "GET api.test /users/{id}", jennifer_guid: "g-1",
+        target_host: "api.test", external_call_elapsed_ms: 120, http_duration_ms: 110,
+        duration_delta_ms: 10, jennifer_network_gap_ms: 40, observed_network_phase_count: 0,
+        network_gap_unavailable_reason: "HTTP transaction has no known DNS/connect/TLS/send/receive timing phases",
+        alignment_grade: "duration_only", confidence: "medium",
+        match_basis: "target_host+nearest_duration", causal_claim_allowed: false,
+      },
+    ],
+    access_log_matches: [],
+    alignment_diagnostics: [
+      {
+        source: "http_capture", result_type: "http_capture", alignment_grade: "aligned",
+        confidence: "high", overlay_allowed: false, reason: "primary observation source",
+        input_rows: 3, rows_used: 3, candidate_rows: 0, output_rows: 0,
+        source_truncated: false, output_truncated: false,
+      },
+      alignedDiag,
+      {
+        source: "jennifer_profile", result_type: "jennifer_profile", alignment_grade: "duration_only",
+        confidence: "low", overlay_allowed: false,
+        reason: "Jennifer edge timestamps are ms-since-midnight without a date/offset",
+        input_rows: 5, rows_used: 5, candidate_rows: 1, output_rows: 1,
+        source_truncated: false, output_truncated: false,
+      },
+    ],
+  },
+  charts: {},
+  metadata: {
+    findings: [
+      {
+        severity: "info", code: "HTTP_CORRELATION_PROFILE_CLOCK_INCOMPATIBLE",
+        message: "CPU profile timestamps were not overlaid because no compatible wall-clock anchor was available.",
+      },
+    ],
+    http_evidence_correlation: {
+      contract: supportedCorrelationContract,
+      top_n: 50, time_tolerance_ms: 1000,
+      input_projection: "analysis_result_envelope",
+      store_or_file_rescanned: false, causal_claims_allowed: false,
+      profile_wall_clock_anchor: true,
+    },
+    source_provenance: [
+      { result_type: "http_capture", created_at: "2026-07-30T00:00:00.000Z", schema_version: "0.1.0" },
+    ],
+  },
+} as unknown as HttpEvidenceCorrelationAnalysisResult;
+
+const correlationSummary = selectCorrelationSummary(correlationFixture);
+assert(correlationSummary?.causal_claims_allowed === false, "the summary discloses that causal claims are forbidden");
+const correlationEnvelope = extractCorrelationEnvelope(correlationFixture);
+assert(correlationEnvelope?.store_or_file_rescanned === false, "the envelope discloses no source rescan");
+const correlationDiags = selectCorrelationDiagnostics(correlationFixture);
+assert(correlationDiags.length === 3, "alignment diagnostics rows are projected");
+const profileDiagRow = diagnosticForSource(correlationDiags, "profile_evidence");
+assert(profileDiagRow !== null && correlationOverlayAllowed(profileDiagRow), "the profile diagnostic gates its overlay");
+const jenniferDiagRow = diagnosticForSource(correlationDiags, "jennifer_profile");
+assert(
+  jenniferDiagRow !== null && !correlationOverlayAllowed(jenniferDiagRow),
+  "the duration-only Jennifer diagnostic never overlays",
+);
+assert(
+  selectCorrelationTable(correlationFixture, "http_profile_overlaps").length === 1,
+  "profile overlap rows are projected",
+);
+assert(
+  selectCorrelationTable(correlationFixture, "access_log_matches").length === 0,
+  "an empty access table projects as empty, not undefined",
+);
+assert(selectCorrelationFindings(correlationFixture).length === 1, "correlation findings are projected");
+
+// Candidate filtering per slot.
+const correlationEntries = [
+  entry("hc-corr", "http_capture", {}),
+  entry("pe-corr", "profile_evidence", {}),
+  entry("jp-corr", "jennifer_profile", {}),
+  entry("al-corr", "access_log", {}),
+  entry("gc-corr", "gc_log", {}),
+];
+assert(correlationCandidates(correlationEntries, "http").length === 1, "http slot accepts only http_capture");
+assert(correlationCandidates(correlationEntries, "profile").length === 1, "profile slot accepts only profile_evidence");
+assert(correlationCandidates(correlationEntries, "jennifer").length === 1, "jennifer slot accepts only jennifer_profile");
+assert(correlationCandidates(correlationEntries, "accessLog").length === 1, "accessLog slot accepts only access_log");
+
+// Lifecycle provenance: any input change drops the rendered result; a raced
+// success never renders under changed inputs.
+let corrState = httpCorrelationReducer(initialHttpCorrelationState, {
+  type: "contractLoaded",
+  contract: supportedCorrelationContract,
+});
+assert(corrState.contractSupported, "a supported correlation contract enables the run");
+corrState = httpCorrelationReducer(corrState, { type: "setSlot", slot: "http", id: "hc-corr" });
+assert(!hasCorrelationSecondary(correlationInputsOf(corrState)), "http alone is not enough to run");
+corrState = httpCorrelationReducer(corrState, { type: "setSlot", slot: "profile", id: "pe-corr" });
+assert(hasCorrelationSecondary(correlationInputsOf(corrState)), "one secondary source satisfies the minimum");
+corrState = httpCorrelationReducer(corrState, { type: "setAnchor", anchor: "2026-07-30T12:00:00Z" });
+const corrInputs = correlationInputsOf(corrState);
+corrState = httpCorrelationReducer(corrState, { type: "runStart" });
+corrState = httpCorrelationReducer(corrState, {
+  type: "runSuccess",
+  result: correlationFixture,
+  inputs: corrInputs,
+});
+assert(corrState.result === correlationFixture, "a matching input snapshot stores its result");
+const corrChanged = httpCorrelationReducer(corrState, { type: "setAnchor", anchor: "" });
+assert(corrChanged.result === null, "changing the anchor drops the rendered correlation");
+let corrRaced = httpCorrelationReducer(corrState, { type: "runStart" });
+corrRaced = httpCorrelationReducer(corrRaced, { type: "setSlot", slot: "jennifer", id: "jp-corr" });
+corrRaced = httpCorrelationReducer(corrRaced, {
+  type: "runSuccess",
+  result: correlationFixture,
+  inputs: corrInputs,
+});
+assert(
+  corrRaced.result === null,
+  "a correlation that raced past an input change never renders under the new inputs",
+);
+const corrErr = httpCorrelationReducer(corrState, {
+  type: "runError",
+  error: { code: "HTTP_CORRELATION_FAILED", message: "boom" },
+});
+assert(corrErr.result === null && corrErr.error?.code === "HTTP_CORRELATION_FAILED", "a failed run drops the result");
+const corrReset = httpCorrelationReducer(corrState, { type: "reset" });
+assert(corrReset.result === null && corrReset.contractSupported, "reset keeps the adopted correlation contract");
+
+// Every correlation label key must exist non-empty in both locales.
+const correlationLabelKeys = [
+  ...Object.values(CORRELATION_ALIGNMENT_LABEL_KEYS),
+  ...Object.values(CORRELATION_CONFIDENCE_LABEL_KEYS),
+  ...Object.values(CORRELATION_MATCH_BASIS_LABEL_KEYS),
+  ...Object.values(CORRELATION_SOURCE_LABEL_KEYS),
+  "httpCorrelationTitle",
+  "httpCorrelationDescription",
+  "httpCorrelationContractMismatch",
+  "httpCorrelationNoHttp",
+  "httpCorrelationSlotHttp",
+  "httpCorrelationSlotProfile",
+  "httpCorrelationSlotJennifer",
+  "httpCorrelationSlotAccessLog",
+  "httpCorrelationSlotEmpty",
+  "httpCorrelationSlotPlaceholder",
+  "httpCorrelationAnchorLabel",
+  "httpCorrelationAnchorHint",
+  "httpCorrelationAnchorInvalid",
+  "httpCorrelationToleranceLabel",
+  "httpCorrelationRun",
+  "httpCorrelationNeedSecondary",
+  "httpCorrelationUseAsHttp",
+  "httpCorrelationNoCausalityNote",
+  "httpCorrelationMetricHttpRows",
+  "httpCorrelationMetricProfileOverlaps",
+  "httpCorrelationMetricJenniferChecks",
+  "httpCorrelationMetricAccessMatches",
+  "httpCorrelationMetricAligned",
+  "httpCorrelationMetricDurationOnly",
+  "httpCorrelationMetricIncompatible",
+  "httpCorrelationDiagnosticsTitle",
+  "httpCorrelationConfidenceLabel",
+  "httpCorrelationOverlayEnabled",
+  "httpCorrelationOverlaySuppressed",
+  "httpCorrelationRowsUsed",
+  "httpCorrelationOutputRows",
+  "httpCorrelationSourceTruncated",
+  "httpCorrelationOutputTruncated",
+  "httpCorrelationProfileTitle",
+  "httpCorrelationProfileSuppressed",
+  "httpCorrelationJenniferTitle",
+  "httpCorrelationJenniferDurationOnlyNote",
+  "httpCorrelationAccessTitle",
+  "httpCorrelationNoMatches",
+  "httpCorrelationColEndpoint",
+  "httpCorrelationColStack",
+  "httpCorrelationColOverlapMs",
+  "httpCorrelationColOverlapRatio",
+  "httpCorrelationColConfidence",
+  "httpCorrelationColTargetHost",
+  "httpCorrelationColDurations",
+  "httpCorrelationColGapDelta",
+  "httpCorrelationColClientServer",
+  "httpCorrelationColOutsideServer",
+  "httpCorrelationColBasis",
+  "httpCorrelationFindingsTitle",
+  "httpCorrelationBoundsNote",
+  "httpCorrelationRowOpen",
+  "httpCorrelationDetailTitle",
+  "httpCorrelationDetailAlignment",
+  "httpCorrelationDetailJenniferGap",
+  "httpCorrelationDetailObservedNetwork",
+  "httpCorrelationDetailObservedUnavailable",
+  "httpCorrelationDetailAccessUri",
+  "httpCorrelationDetailRequestId",
+  "httpCorrelationDetailTimestampDelta",
+  "httpCorrelationOverlayTitle",
+  "httpCorrelationOverlayUnavailable",
+] as const;
+for (const key of correlationLabelKeys) {
+  assert(
+    typeof (messages.en as Record<string, string>)[key] === "string" &&
+      (messages.en as Record<string, string>)[key]!.length > 0 &&
+      typeof (messages.ko as Record<string, string>)[key] === "string" &&
+      (messages.ko as Record<string, string>)[key]!.length > 0,
+    `correlation message key ${key} must exist in both locales`,
+  );
+}

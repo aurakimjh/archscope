@@ -29,7 +29,8 @@
   동등한 세션은 끝까지 동일하게 비교된다. `X-RG1` 교차 분석은 진행 중이다:
   Codex 백엔드는 fail-closed 시계 등급, 신뢰도, provenance, 인과관계 금지
   diagnostic을 포함한 bounded HTTP/CPU/Jennifer/access-log 교차 결과를
-  구현했고, binding·Claude drilldown/overlay UI·그룹 리뷰가 남았다.
+  구현했고, 재생성된 binding과 Claude drilldown/overlay UI는 완료(2026-07-31)
+  되었으며 X-RG1 그룹 리뷰가 남았다.
 
 ## 2. 역할과 소유권
 
@@ -87,7 +88,7 @@ Claude가 담당한다.
 | 4 | `H-RG3` 실시간 캡처 엔진 기반 | **완료 — H-SEC2 PASS (2026-07-28)** | 종료 |
 | 5 | `H-RG4` 실시간 UI 및 Windows E2E | **완료 — PASS (2026-07-30)** | 종료 |
 | 6 | `H-RG5` HTTP 세션 Diff | **완료 — 그룹 PASS (2026-07-30)** | 종료 |
-| 7 | `X-RG1` HTTP × 프로파일/서버 증거 교차 분석 | 진행 중 — Codex 백엔드 완료, binding/UI/리뷰 남음 | `H-RG5 PASS` |
+| 7 | `X-RG1` HTTP × 프로파일/서버 증거 교차 분석 | 진행 중 — Codex 백엔드·binding·Claude UI 완료, 그룹 리뷰 남음 | `H-RG5 PASS` |
 | 8 | `R-RG1` 통합 릴리스 승인 | 계획 | `X-RG1 PASS` |
 
 두 기능을 같은 커밋에 섞지 않는다. 단, `X-RG1`은 두 기능을 연결하는 것이 목적이므로
@@ -441,6 +442,32 @@ HAR pseudo-process 비교에서 지원하지 않는 정규화/차원을 숨기�
   오가는 drilldown 및 overlay를 만든다.
 - **리뷰:** 서로 다른 clock/offset에서 인과관계를 단정하지 않고 alignment grade와
   evidence provenance를 항상 보여 주는지 검증한다.
+
+#### Claude UI — 완료 (2026-07-31)
+
+binding은 module 고정 Wails CLI로 재생성되어
+`AnalyzeHttpEvidenceCorrelation` / `GetHttpEvidenceCorrelationContract`를
+노출한다. 공유 교차 분석 패널(`components/HttpCorrelationPanel.tsx`)은
+HttpCapturePage("교차 분석에 사용" seed 액션 포함)와 Analysis Workspace에
+마운트되고, 슬롯 선택(HTTP 필수, profile/Jennifer/access log 는 선택이되
+최소 1개), RFC3339 프로파일 벽시계 anchor, 시간 허용 오차는
+`state/httpCorrelation.ts`의 순수 reducer + module store가 관리한다.
+provenance 불변식은 어떤 입력이든 바뀌면(경합 완료 포함) 렌더된 결과를
+버린다. 패널은 시작 시 버전 계약을 채택하고, 구현하지 않은 schema — 또는
+인과 주장을 허용한다고 선언하는 계약 — 는 공지와 함께 거부한다. 시간
+오버레이는 해당 source의 `alignment_diagnostics` 행이 `aligned` 등급에서
+`overlay_allowed`를 인증할 때만 렌더되고, 인식 불가 등급은 fail-closed로
+억제되며, Jennifer 테이블은 duration-only(시간 겹침 증명 없음) 공지를,
+억제된 CPU 오버레이는 엔진의 사유(예: anchor 없음)를 표시한다. 모든 결과
+표면이 인과관계 금지 공지를 반복하고, 정렬 등급/신뢰도/매치 기준/소스는
+raw 토큰을 hover로 남기는 닫힌 EN/KO 라벨 맵으로 해석되며, per-source
+진단은 사용 행/출력 행/잘림을 공개하고, 커서 드릴다운은 행 전체 증거와
+aligned 전용 시간 창 오버레이를 보여준다. state 회귀는 계약 채택/거부
+(인과 주장 거부 포함), fail-closed 오버레이 게이트, anchor 검증, 슬롯 후보
+필터링, secondary 최소 조건, race-safe provenance, 신규 키 전체의 EN/KO
+커버리지를 고정한다. `npm run test:state`, `npm run build`,
+`go build ./...`, `go vet`, uncached app/correlation Go 테스트가 통과했다.
+Claude는 엔진 소스를 변경하지 않았다.
 
 ### R-RG1 — 통합 릴리스 승인
 
