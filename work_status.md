@@ -677,7 +677,7 @@ Long Task semantics).
 |---|---|---|---|
 | v0.3.5 | T-468 through T-555 | Stable Evidence Studio expansion | Released 2026-05-17 with Mid-Term Plus importers, API/event contract analysis, architecture docs drafts, advanced stitching, version metadata, changelog, release tag, and release workflow verification. |
 | Next candidate | T-560 through T-565 and T-578 complete | Chrome browser/V8 profile slice | C-RG1 returned independent `PASS` on 2026-07-21. Candidate version/tag selection remains a separate release decision; no release is cut by this status transition. |
-| Future candidate | T-571 and T-580 through T-584 review-gated | Windows-first HTTP capture and cross-OS evidence analysis slice | C-RG1/T-578, H-RG1/T-579, H-RG2/T-571, and H-RG3/T-580 have passed. Continue with H-RG4 live UI, HTTP Diff, cross-analysis, and integrated release acceptance in review-group order. Analyze Linux/macOS-generated supported evidence in the Windows UI. |
+| Future candidate | T-571 and T-580 through T-584 review-gated | Windows-first HTTP capture and cross-OS evidence analysis slice | C-RG1/T-578, H-RG1/T-579, H-RG2/T-571, H-RG3/T-580, and H-RG4/T-581 have passed. Continue with H-RG5 HTTP Diff, cross-analysis, and integrated release acceptance in review-group order. Analyze Linux/macOS-generated supported evidence in the Windows UI. |
 | v0.4.0 candidate | Not assigned | Evidence Studio roll-up | Full local evidence workflow is smoke-tested as one product story with sample packs, report exports, regression tests, AI gate checks, and release notes that present the expanded capability coherently. |
 
 ## Task Registry
