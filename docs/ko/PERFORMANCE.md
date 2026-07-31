@@ -39,6 +39,12 @@ SLO를 정하지 않았으므로 관측 후 임의의 PASS 기준을 만들지 �
 귀속 정확성을 검증합니다. Production 캡처는 HTTP request마다가 아니라 accepted
 connection마다 한 번 리졸버를 호출합니다.
 
+2026-07-31 최초 native R-RG1 실행
+([GitHub Actions 실행 30601745253](https://github.com/aurakimjh/archscope/actions/runs/30601745253))
+은 Windows amd64에서 50/50 sample의 귀속을 확인했습니다. 측정값은 mean
+`0.539 ms`, p50 `0.547 ms`, p95 `0.731 ms`, 최대 `0.857 ms`입니다. 이 값은
+해당 runner의 baseline이며 제품 SLO가 아닙니다.
+
 ## 예산
 
 - 데스크톱 바이너리는 현장 직접 배포가 가능한 크기를 유지합니다.

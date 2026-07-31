@@ -42,6 +42,12 @@ correct attribution rather than inventing a pass threshold after measurement.
 The production capture path resolves once per accepted connection, not once
 per HTTP request.
 
+The first native R-RG1 run on 2026-07-31
+([GitHub Actions run 30601745253](https://github.com/aurakimjh/archscope/actions/runs/30601745253))
+confirmed all 50/50 samples on Windows amd64. It measured mean `0.539 ms`,
+p50 `0.547 ms`, p95 `0.731 ms`, and maximum `0.857 ms`. These values are a
+runner-specific baseline, not a product SLO.
+
 ## Budget
 
 - Keep the desktop binary small enough for direct field distribution.

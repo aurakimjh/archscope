@@ -90,7 +90,7 @@ Only high-consequence boundaries receive an extra per-item gate:
 | 5 | `H-RG4` live UI and Windows E2E | **Complete — PASS (2026-07-30)** | Closed |
 | 6 | `H-RG5` HTTP session Diff | **Complete — group PASS (2026-07-30)** | Closed |
 | 7 | `X-RG1` HTTP x profile/server-evidence correlation | **Complete — PASS (2026-07-31)**; B1/B2/B3 closed | `H-RG5 PASS` |
-| 8 | `R-RG1` integrated release acceptance | In progress — backend handoff prepared (2026-07-31) | Independent `R-RG1 PASS` |
+| 8 | `R-RG1` integrated release acceptance | Review ready — backend/platform gates pass (2026-07-31) | Independent `R-RG1 PASS` |
 
 The two features stay in separate commits except for `X-RG1`, whose purpose is
 to join them.
@@ -564,7 +564,8 @@ app/correlation Go tests pass. No engine source was changed by Claude.
 
 ### R-RG1 — Integrated Release Acceptance
 
-- **Status: in progress — backend acceptance handoff prepared (2026-07-31).**
+- **Status: review ready — backend/platform acceptance gates pass
+  (2026-07-31).**
 - [x] Make full Go test/vet/build and frontend state tests/build explicit CI
   gates.
 - [x] Gate the native Windows in-process live-capture E2E and archive a
@@ -575,7 +576,10 @@ app/correlation Go tests pass. No engine source was changed by Claude.
 - [x] Align paired implementation, importer, user, and performance guidance;
   add honest unreleased notes separating offline HAR and the Windows live
   tier, including H2/QUIC/pinning and coverage limitations.
-- [ ] Review the pushed CI evidence and obtain an independent R-RG1 verdict.
+- [x] Review the pushed CI evidence: all five Engine Native jobs and the
+  parallel CI workflow passed; Windows resolver evidence confirmed 50/50
+  samples with mean 0.539 ms, p95 0.731 ms, and maximum 0.857 ms.
+- [ ] Obtain an independent R-RG1 verdict.
 - Do not create a version tag or GitHub release before `R-RG1 PASS`.
 
 ## 8. First Execution Point
