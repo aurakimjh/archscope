@@ -139,11 +139,18 @@ and UI observations O3/O5 closed, but found blocking B3: an earlier shape
 candidate's `bestDelta`/`bestClockCompared` state can leak into a later
 request-ID winner whose own timestamp is unusable, producing a delta and
 overlay certification attributed to the wrong record. O6–O10 are new
-non-blocking observations; O1/O2/O4 remain open. T-583 stays `IN_PROGRESS`
-for one more narrow re-review. **Codex B3 remediation is complete**: candidate
-selection no longer owns emitted clock state, and the delta/clock flag are
-recomputed only from the final selected record. The adversarial regression
-and full Go/frontend verification pass; no B3 renderer change is required.
+non-blocking observations; O1/O2/O4 remain open. **Codex B3 remediation is
+complete**: candidate selection no longer owns emitted clock state, and the
+delta/clock flag are recomputed only from the final selected record. The
+adversarial regression and full Go/frontend verification pass; no B3 renderer
+change is required.
+**The 2026-07-31 B3 narrow re-review returned `PASS`**: the prior probe no
+longer reproduces, the new regression fails against the pre-fix analyzer and
+passes now, nine adversarial access-path probes found no residual
+misattribution, and the same-class sweep of the profile/Jennifer correlators
+is clean. B1/B2/B3 are all closed, X-RG1 has no remaining blocking finding,
+and T-583 is `DONE`. O1/O2/O4/O6–O11 remain non-blocking hardening for the
+next relevant surface change. T-584 / R-RG1 is now unblocked.
 **T-586 is complete**:
 the dedicated Lighthouse desktop page now consumes only `AnalyzeBrowserAudit`
 and connects the result to Analysis Workspace and Evidence Board. **T-579 / H-RG1
@@ -159,11 +166,11 @@ completed the independent Lighthouse file-first engine slice.
 
 | Status | Count | Meaning |
 |---|---:|---|
-| `TODO` | 0 | Ready to start; prerequisites are satisfied |
-| `IN_PROGRESS` | 1 | Implementation or documentation work is actively underway |
+| `TODO` | 1 | Ready to start; prerequisites are satisfied |
+| `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
 | `REVIEW` | 0 | Review or required remediation is underway; the gate has not passed |
-| `PENDING` | 2 | Waiting for a prerequisite, external condition, or activation trigger |
-| `DONE` | 170 | Completion criteria and required review gates have passed |
+| `PENDING` | 1 | Waiting for a prerequisite, external condition, or activation trigger |
+| `DONE` | 171 | Completion criteria and required review gates have passed |
 
 The normal transition is `TODO → IN_PROGRESS → REVIEW → DONE`. A `PENDING`
 task returns to `TODO` when its dependency or trigger is satisfied. Task status
@@ -175,9 +182,8 @@ same change so this overview remains the status source of truth.
 
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
-| 1 | T-583 | P1 | `IN_PROGRESS` | X-RG1 re-review is `CONDITIONAL`; Codex B3 remediation and verification are complete, so run one more narrow re-review |
-| 2 | T-584 | P0 | `PENDING` | Requires T-583 `PASS`; final integrated release acceptance |
-| 3 | T-557 | P1 | `PENDING` | Activate only if repeated MSA drilldown use justifies a Go analyzer contract |
+| 1 | T-584 | P0 | `TODO` | X-RG1/T-583 passed; run final R-RG1 integrated release acceptance |
+| 2 | T-557 | P1 | `PENDING` | Activate only if repeated MSA drilldown use justifies a Go analyzer contract |
 
 ## Current Baseline
 
@@ -190,21 +196,16 @@ same change so this overview remains the status source of truth.
 - Release baseline: `v0.3.5` is the latest stable GitHub release. The
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
-- Current execution focus: T-583 / X-RG1 narrow B3 re-review after the second
-  2026-07-31 `CONDITIONAL` verdict. Codex B1/B2/B3 remediation is complete:
-  request-ID pairing no longer implies unmeasured clock alignment, and
-  missing/non-numeric `v8_start_time_us` suppresses CPU overlays. The Claude
-  renderer half is complete as well: an unmeasured timestamp delta renders as
-  `—` with the engine's reason in both the table and the drilldown, the
-  identity-only pairing is disclosed above the access card, the primary HTTP
-  timeline grade is named beside the secondary-source alignment counters, and
-  the UI-scope O3/O5 observations (rescan and vocabulary contract checks, the
-  correlation-owned Workspace selector, and a contract-bounded top-N input)
-  were taken in the same pass. The re-review found B3: candidate clock state
-  could survive when a later request-ID record replaced the selected access
-  record. Clock evidence is now recomputed exclusively from the selected
-  record, the adversarial engine regression passes, and no UI change is
-  required. Next: rerun the narrow X-RG1 re-review. T-582 /
+- Current execution focus: T-584 / R-RG1 final integrated release acceptance.
+  T-583 / X-RG1 closed with `PASS` on 2026-07-31 after the B3 narrow
+  re-review verified candidate selection and emitted clock evidence are
+  structurally separated, the regression is genuine against the pre-fix
+  analyzer, and nine adversarial probes found no residual misattribution.
+  Run the full Go/frontend gates, native Windows live E2E including the
+  deferred resolver-cost measurement, macOS offline-import/package smoke,
+  paired documentation and support/security/performance matrices, and honest
+  release notes. No tag or GitHub release before independent R-RG1 `PASS`.
+  T-582 /
   H-RG5 HTTP-specific session Diff closed
   with a group `PASS` on 2026-07-30 (backend, regenerated Wails bindings, and
   the Claude-owned grade-aware comparison UI all verified; review archived at
@@ -574,50 +575,18 @@ filtered before analysis.
 
 ## Next Execution Queue
 
-1. **IN_PROGRESS — T-583 / X-RG1 HTTP/profile/server-evidence correlation:**
-   T-582 / H-RG5 closed with a group `PASS` on 2026-07-30 (archived at
-   `docs/review/done/2026-07-30_claude-code_H-RG5_http-session-diff-group-review.md`):
-   versioned URL templates, bounded `{other}` projections, explicit
-   numerator/denominator rates, alignment grades, bounded
-   `http_capture_diff` tables and `HTTP_DIFF_*` findings, store-free export
-   metadata, Workspace routing, regenerated bindings, and the grade-aware
-   comparison UI are all verified; reordered equivalent sessions compare
-   equal end to end. The Codex backend slice is complete:
-   `AnalyzeHttpEvidenceCorrelation` and its versioned contract emit bounded
-   session/profile overlaps, Jennifer `NETWORK_GAP` checks, access-log
-   client/server matches, alignment/confidence diagnostics, provenance, and
-   mismatch findings without rescanning files or stores. Incompatible clocks
-   fail closed and every output row forbids causal claims. The bindings were
-   regenerated with the module-pinned CLI and the Claude drilldown/overlay
-   UI is complete (2026-07-31): a shared panel on HttpCapturePage and the
-   Analysis Workspace with startup contract adoption (rejecting causal-claim
-   contracts), per-source fail-closed overlay gating, anchor validation,
-   closed EN/KO token maps, no-causality disclosures, drilldown with
-   aligned-only time-window overlay, and full state regressions. The
-   2026-07-31 X-RG1 group review returned `CONDITIONAL`. Codex B1/B2
-   remediation and engine regressions are complete: access-log alignment now
-   requires a measured in-tolerance clock delta, and missing/invalid V8 bases
-   fail closed. The Claude renderer remediation is complete too: an omitted
-   `timestamp_delta_ms` renders as `—` with the engine's unavailable reason,
-   `accessClockComparison` fails closed on any inconsistent row, the
-   identity-only access source is disclosed above its table, the primary HTTP
-   timeline grade is stated beside the secondary-source counters, and O3/O5
-   were closed on the UI side (contract rescan/vocabulary checks, the
-   correlation-owned Workspace mount selector, and a contract-bounded top-N
-   input inside the provenance identity). `npm run test:state`,
-   `npm run build`, `go build ./...`, and `go test ./...` all pass. The narrow
-   re-review returned a second `CONDITIONAL`: B2, the main B1 paths, and the
-   renderer all hold, but B3 allows a prior shape candidate's delta/clock flag
-   to leak into a later request-ID winner. Codex B3 remediation now derives
-   emitted clock evidence from `used[bestIndex]` only, and the adversarial
-   regression plus full Go/frontend checks pass. Next: request another narrow
-   review. O1, O2, O4, and O6–O10 remain
-   non-blocking follow-up, not gate conditions. Obligations
-   carried forward: the isolated
-   resolver-cost measurement is owed at `R-RG1` (H-RG4 V3 deferral); the
-   H-RG4 O1/O2 harness observations and the H-RG5 O1–O4 UI/coverage
-   observations are optional hardening on the next change to those
-   surfaces.
+1. **TODO — T-584 / R-RG1 integrated release acceptance:**
+   T-583 / X-RG1 closed with a narrow B3 `PASS` on 2026-07-31. B1/B2/B3 are
+   all verified fixed; the backend clock/provenance contract, generated
+   bindings, and Claude drilldown/overlay UI have no blocking finding. Run the
+   complete release gate: full Go test/vet/build, frontend state tests and
+   production build, native Windows live-capture E2E, the deferred H-RG4
+   resolver-cost measurement, macOS offline-import/package smoke, paired
+   documentation, support/security/performance matrices, and release-note
+   limitation checks. Obtain an independent R-RG1 `PASS` before creating a
+   version tag or GitHub release. X-RG1 O1/O2/O4/O6–O11, H-RG4 O1/O2, and
+   H-RG5 O1–O4 remain optional hardening unless the acceptance run exposes
+   them as release-impacting.
 2. **T-581 / H-RG4 closure record:**
    - **Fourth re-review verdict (`PASS`, 2026-07-30):** V1 resolved — the
      replacement artifact's 1,012 archived rows are all loopback with zero
@@ -700,9 +669,9 @@ filtered before analysis.
      privacy declaration (V1). The 2026-07-30 fourth re-review verified the
      corrected artifact against the V1 scope and returned the group `PASS`;
      T-581 is `DONE`.
-3. **PENDING — T-583 and T-584:** continue in order through `X-RG1`
-   cross-analysis (T-583) and `R-RG1` release acceptance (T-584). Do not skip
-   a failed or conditional gate.
+3. **T-583 / X-RG1 closure record:** the final B3 narrow re-review returned
+   `PASS` on 2026-07-31, so T-583 is `DONE` and T-584 / R-RG1 is ready. Do
+   not create a tag or release before the remaining R-RG1 gate passes.
 4. Review the long-term external APM import roadmap before assigning any new
    external-connector implementation range. Local file imports already cover
    OTLP, Zipkin, Elastic APM, Jaeger, and SkyWalking-style trace evidence;
@@ -735,8 +704,8 @@ The authoritative paired plan is
 | 4 | H-RG3 live-capture engine foundation | Codex | DONE — H-SEC2 `PASS`, 2026-07-28 | Closed |
 | 5 | H-RG4 live UI and Windows E2E | Claude UI, Codex integration | DONE — group `PASS`, 2026-07-30 (narrow fourth re-review verified V1–V3 resolved) | Closed |
 | 6 | H-RG5 HTTP session Diff | Codex engine, Claude UI | DONE — group `PASS`, 2026-07-30 | Closed |
-| 7 | X-RG1 HTTP/profile/server-evidence correlation | Codex engine, Claude UI | IN PROGRESS — re-review `CONDITIONAL`; Codex B1/B2/B3 and Claude UI remediation complete, one narrow re-review remains | Group PASS |
-| 8 | R-RG1 integrated release acceptance | Codex + Claude + independent reviewer | PENDING — X-RG1 | Release PASS |
+| 7 | X-RG1 HTTP/profile/server-evidence correlation | Codex engine, Claude UI | DONE — narrow B3 re-review `PASS`, 2026-07-31; B1/B2/B3 closed | Closed |
+| 8 | R-RG1 integrated release acceptance | Codex + Claude + independent reviewer | TODO — X-RG1 passed | Release PASS |
 
 Group verdicts are PASS, CONDITIONAL, or FAIL. CONDITIONAL does not unblock the
 next group. Individual reviews are limited to H-SEC1 (HAR security), H-COV1
@@ -799,6 +768,7 @@ Long Task semantics).
 | 2026-07-31 X-RG1 T-583 Claude B1 renderer remediation handoff | B1 renderer half: `HttpCorrelationAccessRow` now carries `clock_compared` with an optional `timestamp_delta_ms` plus the engine's `timestamp_delta_unavailable_reason` / `timestamp_alignment_reason`, and the new pure selector `accessClockComparison` fails closed to "unavailable" whenever the flag, the delta, or its finiteness disagree — a delta without the flag, a flag without a delta, and a non-finite delta all render unmeasured. The access match table gained a Timestamp Δ column that prints `—` with the reason on hover for identity-only pairings, and the drilldown replaces the old unconditional `0.0ms` with the same `—` plus an explicit clock-comparison field. An access source the engine did not certify `aligned` now discloses identity-only pairing above its table. Because the summary's three alignment counters exclude the primary source, a new note names the primary HTTP timeline's own grade beside them (`correlationPrimaryAlignment`, failing closed to `unknown`). UI-scope observations closed in the same pass: contract adoption additionally rejects `store_or_file_rescan: true` and any `alignment_grades`/`confidence_grades` token the closed renderer sets cannot name (O3); the Workspace mount gates on `correlationCandidates(entries, "http")` instead of the Diff selector, and a contract-bounded top-N input (`correlationTopNState`, rejecting non-integers, zero, and values above `max_top_n`) joins the provenance input identity so changing it drops the rendered result (O5). New EN/KO keys carry both-locale coverage. Verified against the shipped engine with an out-of-repo probe: the six-hour request-ID skew emits a real 21,600,000 ms delta at `duration_only`, and an identity match with no parseable client timestamps omits the delta entirely with `clock_compared: false`. `npm run test:state`, `npm run build`, `go build ./...`, and `go test ./...` pass. | Claude renderer remediation complete with no engine source change. T-583 remains `IN_PROGRESS` solely for the narrow X-RG1 re-review; engine-scope O1/O2/O4 stay non-blocking. |
 | 2026-07-31 X-RG1 T-583 HTTP evidence correlation re-review | Accepted a second `CONDITIONAL`. B2 is independently verified fixed; B1's six-hour skew, missing-time, source-level fail-closed, summary disclosure, and Claude table/drilldown handling all hold; O3 contract rescan/vocabulary checks and O5 correlation-owned Workspace selector/top-N provenance are closed. Blocking B3: when an earlier shape candidate sets `bestDelta`/`bestClockCompared` and a later request-ID record wins without a usable timestamp, the emitted request-ID row can inherit the earlier record's delta, grade `aligned`, and enable overlay. This mixes evidence from two access records. New non-blocking O6–O10 cover match-vs-clock confidence wording, whole-source overlay utility, basis-specific reason wording, skipped-row disclosure, and saturated extreme deltas. O1/O2/O4 remain open; O2 should be prioritized on the next `sameRequestShape` change. | T-583 remains `IN_PROGRESS`. Codex must recompute/reset clock evidence from the selected access record and add the adversarial B3 regression; no renderer change is required. Then rerun `go test ./...`, frontend state/build checks, and one more narrow re-review. Review archived at `docs/review/done/2026-07-31_claude-code_X-RG1_http-evidence-correlation-re-review.md`. |
 | 2026-07-31 X-RG1 T-583 Codex B3 remediation handoff | Candidate selection and emitted clock evidence are now structurally separated. Shape candidates use `bestShapeDelta` only to choose the closest record; after the winner is fixed, `timestamp_delta_ms` and `clock_compared` are recomputed exclusively from `used[bestIndex]`. The exact adversarial case—an earlier in-tolerance shape record followed by a request-ID winner with an invalid timestamp—now selects the request-ID row but emits `clock_compared: false`, no delta, `duration_only`, and no source overlay. Targeted uncached analyzer tests, full `go test ./...`, `go vet ./...`, `go build ./...`, `npm run test:state`, and `npm run build` pass (macOS linker-version warnings only). | Codex B3 remediation complete with no frontend or binding change. One narrow B3 re-review remains; O1/O2/O4/O6–O10 do not gate it. |
+| 2026-07-31 X-RG1 T-583 B3 narrow re-review | Accepted `PASS`. The remediation structurally separates candidate selection from emitted clock evidence and recomputes delta/`clock_compared` exclusively from `used[bestIndex]`. The original B3 probe no longer reproduces; the new regression demonstrably fails against the pre-fix analyzer and passes now; nine adversarial access-path probes cover missing/skewed/valid request-ID timestamps, competing shape candidates, cross-transaction isolation, and legitimate alignment without residual misattribution; a same-class sweep found the profile and Jennifer correlators clean. Full Go test/vet/build, uncached correlation tests, frontend state tests, and production build pass. No blocking X-RG1 finding remains. O11 adds non-blocking coverage hardening for two-shape-candidate selection/emission agreement; O1/O2/O4/O6–O10 remain non-blocking. | X-RG1 closed with `PASS`; T-583 `DONE`; T-584/R-RG1 unblocked. Review archived at `docs/review/done/2026-07-31_claude-code_X-RG1_http-evidence-correlation-b3-narrow-re-review.md`. |
 
 ## Mid-Term Plus Intake Plan
 
@@ -869,8 +839,8 @@ deferred until explicitly promoted.
 | T-580 | P0 | DONE | Implement and review H-RG3 live-capture engine foundation: session lifecycle/recovery, versioned NDJSON/blob store and cursor API, bounded streaming/backpressure/loss counters, H1 semantic MITM with H2 passthrough, Windows process attribution, Wails snapshot/event recovery, and CA/TLS policy. | T-571/H-RG2 PASS, T-579 PASS | Completed 2026-07-28 with independent H-SEC2 `PASS`. Implemented 2026-07-27 with append-only recovery/index, bounded pipeline and loss counters, H1 verified-upstream MITM, honest H2 passthrough, direct Windows TCP-owner attribution, generated CaptureService bindings, and transactional current-user CA trust lifecycle. H-SEC2 verified SEC-1/2/3/6/7 redaction-before-persistence with no plaintext-body storage, SEC-8/9 memory-only non-exportable CA key, SEC-11 `0700`/`0600` perms with path-traversal-validated IDs, SEC-12 transactional trust rollback/removal, SEC-13/14 no auto-bypass, SEC-16 no CLI/headless start, verify-always upstream TLS, and loopback-only bind. SEC-10 dump-exclusion preflight (before body capture) and SEC-17 explicit unknown-attribution opt-in (before the live UI) bind the next tier without reopening the gate. `go test ./internal/capture/...`, `go test ./cmd/archscope-app/...`, `go vet`, and `go build ./...` pass. Review archived at `docs/review/done/2026-07-28_claude-code_H-SEC2_http-capture-live-engine-security-review.md`. |
 | T-581 | P1 | DONE | Implement and review H-RG4 Windows live-capture UI and E2E. Claude: capture controls, CA lifecycle UX, process tree, stable live rows, recovery/backpressure/coverage/fidelity states. Codex: frozen bindings, acceptance fixtures, Windows E2E and packaging support. Carry the H-SEC2 binding conditions: gate unknown-attribution retention behind an explicit metadata-only opt-in (SEC-17) before exposing stored transactions, and require the SEC-10 dump-exclusion preflight before enabling body capture. | T-580 PASS | Completed 2026-07-30 with independent H-RG4 group `PASS` (narrow fourth re-review of V1–V3). The fixture-only replacement artifact has 1,012 loopback-only archived rows, 11 explicitly omitted background rows, confirmed fixture pinning evidence, no contradictions, and checksum `69565684…30111`; the harness derives its privacy declaration from the published output and the Go acceptance fixture binds the enforcement mechanisms. SEC-17 is enforced below the UI; SEC-10 continues to bind any future body-capture tier (this slice stores no bodies). The V3 resolver-cost measurement is owed at R-RG1. Review archived at `docs/review/done/2026-07-30_claude-code_H-RG4_windows-live-capture-ui-e2e-fourth-re-review.md`. |
 | T-582 | P1 | DONE | Implement and review H-RG5 HTTP-specific session Diff with versioned URL templates, bounded dimensions, explicit rate denominators, time-alignment grades, `http_capture_diff` findings, Workspace routing, and grade-aware comparison UI. | T-581 PASS, T-575 | H-RG5 group `PASS` 2026-07-30; reordered equivalent sessions compare equal end to end; O1–O4 non-blocking observations recorded |
-| T-583 | P1 | IN_PROGRESS | Implement and review X-RG1 HTTP correlation with Chrome/V8 CPU runs, Jennifer network-gap evidence, and access logs, including bounded alignment/confidence diagnostics and provenance-aware UI drilldown/overlay. | T-582 PASS (2026-07-30) | Second `CONDITIONAL` on 2026-07-31; Codex B1/B2/B3 and Claude UI remediation now complete with full verification. One narrow B3 re-review remains. O1/O2/O4/O6–O10 are non-blocking; O3/O5 are closed |
-| T-584 | P0 | PENDING | Run R-RG1 integrated release acceptance across Go test/vet/build, frontend test/build, Windows live E2E, macOS offline import/package smoke, paired documentation, support/security/performance matrices, and honest release notes. | T-583 PASS | No tag or GitHub release before independent release PASS |
+| T-583 | P1 | DONE | Implement and review X-RG1 HTTP correlation with Chrome/V8 CPU runs, Jennifer network-gap evidence, and access logs, including bounded alignment/confidence diagnostics and provenance-aware UI drilldown/overlay. | T-582 PASS (2026-07-30) | Completed 2026-07-31 with B3 narrow re-review `PASS`. B1/B2/B3 are verified closed across engine and renderer; O1/O2/O4/O6–O11 remain non-blocking and O3/O5 are closed. Review archived at `docs/review/done/2026-07-31_claude-code_X-RG1_http-evidence-correlation-b3-narrow-re-review.md` |
+| T-584 | P0 | TODO | Run R-RG1 integrated release acceptance across Go test/vet/build, frontend test/build, Windows live E2E, macOS offline import/package smoke, paired documentation, support/security/performance matrices, and honest release notes. | T-583 PASS (2026-07-31) | No tag or GitHub release before independent release PASS; include the deferred H-RG4 resolver-cost measurement |
 | T-585 | P1 | DONE | Implement the file-first Lighthouse report JSON engine slice as the browser-performance roadmap task that can proceed while T-571 waits for hardware: separate parser/analyzer packages, bounded/redacted projections, preserved report scoring, CLI, ingestion-family contract, Wails binding, tests, and paired documentation. | T-565; independent of T-571 | Completed 2026-07-21: `browser import --format lighthouse-json`, `browser_audit_evidence`, `AnalyzeBrowserAudit`, generated TypeScript bindings, Core Web Vitals/category/audit/resource outputs, report-authored score findings, 64 MiB default input guard, URL redaction, bounded audit/network tables, and targeted Go tests. |
 | T-586 | P1 | DONE | Add the dedicated Lighthouse desktop page under Browser Performance, consuming only `AnalyzeBrowserAudit`; provide collection guidance, score/metric cards, category/audit/resource views, diagnostics, Analysis Workspace registration, Evidence Board capture, report export, and populated-state/provenance regressions. | T-585 | Backend handoff completed 2026-07-22: versioned `browser_audit_contract`, explicit imported-score/non-recalculation disclosure, stable row/finding `source_ref` values, source metadata, declared view/evidence/export surfaces, sanitized populated fixture, Wails payload/redaction regression, and JSON/HTML export regression. Frontend completed 2026-07-22: `LighthouseAuditPage` + `bridge/engine.ts` `analyzeBrowserAudit` wrapper + `state/browserAudit.ts` pure selectors, sidebar/App route wiring, EN/KO localized guidance/provenance/views, score-provenance disclosure banner, category/Core Web Vitals/audit/network/resource views, diagnostics, Analysis Workspace registration, Evidence Board finding/audit-row capture preserving `source_ref`, JSON/HTML report export, and populated-state/provenance regressions in `state/regression.test.ts`. `npm run test:state`, `npm run build`, and the Lighthouse Go tests pass; `browser_audit_evidence` stays separate from `profile_evidence`. |
 | T-566 | P0 | DONE | Add a reproducible source ledger for every HTTP-capture research claim marked `[V]`, including official URL or source commit, retrieval date, verified fact, and design impact; scope absolute competitive-gap claims to what was actually inspected. | None | Completed 2026-07-20: appendix A rewritten as a filled ledger — claim-ID scheme (`V`/`I`/`N`/`Q` × area × topic), `fixed`/`partial`/`open` status values, four ledger tables (platform/spec, Windows capture, HTTPAnalyzer, competitors), and a refresh procedure. Gate condition restated as "no design decision rests on an `open` row" rather than "all rows verified"; `Q-COMP-MITM-PID` and the 1.5.4 absolutes are recorded as `open` and withdrawn from use |

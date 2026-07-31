@@ -27,15 +27,15 @@ group and **the next group cannot start until the current group passes**.
   group PASS (2026-07-30)**: the store-free diff engine, regenerated
   bindings, and the grade-aware comparison UI were verified together, and
   reordered equivalent sessions compare equal end to end. `X-RG1`
-  correlation is in progress: the Codex backend emits bounded
+  correlation is **complete — PASS (2026-07-31)**: the Codex backend emits bounded
   HTTP/CPU/Jennifer/access-log correlation with fail-closed clock grades,
   confidence, provenance, and no-causality diagnostics; the regenerated
   bindings and the Claude drilldown/overlay UI are complete (2026-07-31),
   and the first group review returned `CONDITIONAL`. Codex B1/B2 remediation
   and the Claude unavailable-delta renderer remediation are both complete;
   the narrow re-review returned a second `CONDITIONAL` for B3 stale candidate
-  clock state. Codex B3 remediation is complete; one more narrow re-review
-  remains.
+  clock state. Codex B3 remediation then passed the final narrow re-review;
+  B1/B2/B3 are closed and R-RG1 is unblocked.
 
 ## 2. Ownership
 
@@ -89,8 +89,8 @@ Only high-consequence boundaries receive an extra per-item gate:
 | 4 | `H-RG3` live-capture engine foundation | **Complete — H-SEC2 PASS (2026-07-28)** | Closed |
 | 5 | `H-RG4` live UI and Windows E2E | **Complete — PASS (2026-07-30)** | Closed |
 | 6 | `H-RG5` HTTP session Diff | **Complete — group PASS (2026-07-30)** | Closed |
-| 7 | `X-RG1` HTTP x profile/server-evidence correlation | In progress — second `CONDITIONAL` found B3; Codex B3 remediation complete, one more narrow re-review remains | `H-RG5 PASS` |
-| 8 | `R-RG1` integrated release acceptance | Planned | `X-RG1 PASS` |
+| 7 | `X-RG1` HTTP x profile/server-evidence correlation | **Complete — PASS (2026-07-31)**; B1/B2/B3 closed | `H-RG5 PASS` |
+| 8 | `R-RG1` integrated release acceptance | Ready | `X-RG1 PASS` |
 
 The two features stay in separate commits except for `X-RG1`, whose purpose is
 to join them.
@@ -505,7 +505,7 @@ identity (O5). O1, O2, and O4 remain engine-scope non-blocking hardening, not
 gate conditions. The narrow B1/B2 re-review and its required Go/frontend
 suites were rerun; its B3 disposition follows.
 
-#### X-RG1 Re-Review — Conditional / B3 Remediation Complete (2026-07-31)
+#### X-RG1 B3 Remediation / Narrow Re-Review — PASS (2026-07-31)
 
 The narrow re-review independently verified B2 fixed, B1 substantially fixed,
 the Claude renderer behavior complete, and UI observations O3/O5 closed. It
@@ -526,8 +526,12 @@ Targeted uncached analyzer tests, `go test ./...`, `npm run test:state`, and
 `npm run build` pass; `go vet ./...` and `go build ./...` pass as well. No
 renderer or binding change is required for B3.
 
-O1/O2/O4 and new O6–O10 remain non-blocking hardening. One more narrow B3
-re-review is required before X-RG1 can pass.
+The final narrow review returned `PASS`. The original B3 probe no longer
+reproduces, the new regression fails against the pre-fix analyzer and passes
+now, nine adversarial access-path probes found no residual misattribution, and
+a same-class sweep found the profile and Jennifer correlators clean. B1/B2/B3
+are closed with no remaining X-RG1 review scope. O1/O2/O4/O6–O11 remain
+non-blocking hardening for the next relevant surface change.
 
 #### Claude UI — Complete (2026-07-31)
 
@@ -579,8 +583,9 @@ slice, regenerated bindings, and the Claude grade-aware comparison UI were
 verified together, with reordered equivalent sessions comparing equal end to
 end (review archived at
 `docs/review/done/2026-07-30_claude-code_H-RG5_http-session-diff-group-review.md`).
-T-583 / `X-RG1` remains in progress after the first review and narrow
-re-review returned `CONDITIONAL`. The Codex backend handoff adds the
+T-583 / `X-RG1` closed after the first review and narrow re-review returned
+`CONDITIONAL` and the final B3 narrow re-review returned `PASS`. The Codex
+backend handoff adds the
 versioned `http_evidence_correlation` result, `AnalyzeHttpEvidenceCorrelation`
 and `GetHttpEvidenceCorrelationContract`, bounded HTTP/CPU overlaps, Jennifer
 network-gap checks, access-log client/server matches, and explicit
@@ -595,4 +600,5 @@ Claude unavailable-delta renderer remediation now renders an unmeasured
 pairing as `—` with its reason on every surface. B3 remediation now also
 recomputes clock evidence solely from the selected access record, with the
 adversarial stale-candidate regression and full Go/frontend verification
-passing. One more narrow B3 re-review remains.
+passing. The final narrow review returned `PASS`; X-RG1/T-583 is closed and
+R-RG1/T-584 is ready.
