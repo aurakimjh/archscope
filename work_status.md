@@ -151,6 +151,17 @@ misattribution, and the same-class sweep of the profile/Jennifer correlators
 is clean. B1/B2/B3 are all closed, X-RG1 has no remaining blocking finding,
 and T-583 is `DONE`. O1/O2/O4/O6–O11 remain non-blocking hardening for the
 next relevant surface change. T-584 / R-RG1 is now unblocked.
+**T-584 / R-RG1 backend acceptance handoff is prepared as of 2026-07-31**:
+the existing platform matrix now names an uncached native Windows
+live-capture E2E, measures 50 real `GetExtendedTcpTable` resolver samples with
+two owner-table reads and process-start confirmation per sample, and archives
+bounded schema-v1 cost evidence without paths or session identifiers. The
+same gate now runs frontend state regressions as validation and adds a macOS
+offline access-log/Lighthouse import plus Wails package/signature smoke. Local
+full Go test/vet/build, frontend state/build, both offline imports, macOS
+package/signature verification, and Windows procmap test cross-compilation
+pass. The native Windows CI artifact and independent R-RG1 verdict remain
+required; no UI source, tag, or release was changed.
 **T-586 is complete**:
 the dedicated Lighthouse desktop page now consumes only `AnalyzeBrowserAudit`
 and connects the result to Analysis Workspace and Evidence Board. **T-579 / H-RG1
@@ -166,8 +177,8 @@ completed the independent Lighthouse file-first engine slice.
 
 | Status | Count | Meaning |
 |---|---:|---|
-| `TODO` | 1 | Ready to start; prerequisites are satisfied |
-| `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
+| `TODO` | 0 | Ready to start; prerequisites are satisfied |
+| `IN_PROGRESS` | 1 | Implementation or documentation work is actively underway |
 | `REVIEW` | 0 | Review or required remediation is underway; the gate has not passed |
 | `PENDING` | 1 | Waiting for a prerequisite, external condition, or activation trigger |
 | `DONE` | 171 | Completion criteria and required review gates have passed |
@@ -182,7 +193,7 @@ same change so this overview remains the status source of truth.
 
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
-| 1 | T-584 | P0 | `TODO` | X-RG1/T-583 passed; run final R-RG1 integrated release acceptance |
+| 1 | T-584 | P0 | `IN_PROGRESS` | Backend gates and local macOS acceptance pass; inspect pushed Windows resolver/live-E2E CI evidence, then request independent R-RG1 review |
 | 2 | T-557 | P1 | `PENDING` | Activate only if repeated MSA drilldown use justifies a Go analyzer contract |
 
 ## Current Baseline
@@ -197,6 +208,9 @@ same change so this overview remains the status source of truth.
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
 - Current execution focus: T-584 / R-RG1 final integrated release acceptance.
+  The backend acceptance handoff is implemented and locally verified; the
+  pushed native Windows resolver-cost/live-E2E evidence and independent review
+  are the remaining gates.
   T-583 / X-RG1 closed with `PASS` on 2026-07-31 after the B3 narrow
   re-review verified candidate selection and emitted clock evidence are
   structurally separated, the regression is genuine against the pre-fix
@@ -575,18 +589,16 @@ filtered before analysis.
 
 ## Next Execution Queue
 
-1. **TODO — T-584 / R-RG1 integrated release acceptance:**
-   T-583 / X-RG1 closed with a narrow B3 `PASS` on 2026-07-31. B1/B2/B3 are
-   all verified fixed; the backend clock/provenance contract, generated
-   bindings, and Claude drilldown/overlay UI have no blocking finding. Run the
-   complete release gate: full Go test/vet/build, frontend state tests and
-   production build, native Windows live-capture E2E, the deferred H-RG4
-   resolver-cost measurement, macOS offline-import/package smoke, paired
-   documentation, support/security/performance matrices, and release-note
-   limitation checks. Obtain an independent R-RG1 `PASS` before creating a
-   version tag or GitHub release. X-RG1 O1/O2/O4/O6–O11, H-RG4 O1/O2, and
-   H-RG5 O1–O4 remain optional hardening unless the acceptance run exposes
-   them as release-impacting.
+1. **IN_PROGRESS — T-584 / R-RG1 integrated release acceptance:**
+   The Codex backend gate is prepared and locally verified. Full Go
+   test/vet/build, frontend state/build validation, representative offline
+   imports, and the macOS Wails package/signature smoke pass. The Windows-only
+   test compiles and CI now explicitly runs the native live-capture E2E plus
+   50-sample resolver-cost measurement, archiving schema-v1 evidence. Next,
+   inspect that pushed Windows artifact and obtain an independent R-RG1
+   `PASS`. Do not create a version tag or GitHub release first. X-RG1
+   O1/O2/O4/O6–O11, H-RG4 O1/O2, and H-RG5 O1–O4 remain optional hardening
+   unless acceptance exposes release impact.
 2. **T-581 / H-RG4 closure record:**
    - **Fourth re-review verdict (`PASS`, 2026-07-30):** V1 resolved — the
      replacement artifact's 1,012 archived rows are all loopback with zero
@@ -705,7 +717,7 @@ The authoritative paired plan is
 | 5 | H-RG4 live UI and Windows E2E | Claude UI, Codex integration | DONE — group `PASS`, 2026-07-30 (narrow fourth re-review verified V1–V3 resolved) | Closed |
 | 6 | H-RG5 HTTP session Diff | Codex engine, Claude UI | DONE — group `PASS`, 2026-07-30 | Closed |
 | 7 | X-RG1 HTTP/profile/server-evidence correlation | Codex engine, Claude UI | DONE — narrow B3 re-review `PASS`, 2026-07-31; B1/B2/B3 closed | Closed |
-| 8 | R-RG1 integrated release acceptance | Codex + Claude + independent reviewer | TODO — X-RG1 passed | Release PASS |
+| 8 | R-RG1 integrated release acceptance | Codex + Claude + independent reviewer | IN_PROGRESS — backend gates/local macOS smoke pass; pushed Windows evidence and independent verdict pending | Release PASS |
 
 Group verdicts are PASS, CONDITIONAL, or FAIL. CONDITIONAL does not unblock the
 next group. Individual reviews are limited to H-SEC1 (HAR security), H-COV1
@@ -840,7 +852,7 @@ deferred until explicitly promoted.
 | T-581 | P1 | DONE | Implement and review H-RG4 Windows live-capture UI and E2E. Claude: capture controls, CA lifecycle UX, process tree, stable live rows, recovery/backpressure/coverage/fidelity states. Codex: frozen bindings, acceptance fixtures, Windows E2E and packaging support. Carry the H-SEC2 binding conditions: gate unknown-attribution retention behind an explicit metadata-only opt-in (SEC-17) before exposing stored transactions, and require the SEC-10 dump-exclusion preflight before enabling body capture. | T-580 PASS | Completed 2026-07-30 with independent H-RG4 group `PASS` (narrow fourth re-review of V1–V3). The fixture-only replacement artifact has 1,012 loopback-only archived rows, 11 explicitly omitted background rows, confirmed fixture pinning evidence, no contradictions, and checksum `69565684…30111`; the harness derives its privacy declaration from the published output and the Go acceptance fixture binds the enforcement mechanisms. SEC-17 is enforced below the UI; SEC-10 continues to bind any future body-capture tier (this slice stores no bodies). The V3 resolver-cost measurement is owed at R-RG1. Review archived at `docs/review/done/2026-07-30_claude-code_H-RG4_windows-live-capture-ui-e2e-fourth-re-review.md`. |
 | T-582 | P1 | DONE | Implement and review H-RG5 HTTP-specific session Diff with versioned URL templates, bounded dimensions, explicit rate denominators, time-alignment grades, `http_capture_diff` findings, Workspace routing, and grade-aware comparison UI. | T-581 PASS, T-575 | H-RG5 group `PASS` 2026-07-30; reordered equivalent sessions compare equal end to end; O1–O4 non-blocking observations recorded |
 | T-583 | P1 | DONE | Implement and review X-RG1 HTTP correlation with Chrome/V8 CPU runs, Jennifer network-gap evidence, and access logs, including bounded alignment/confidence diagnostics and provenance-aware UI drilldown/overlay. | T-582 PASS (2026-07-30) | Completed 2026-07-31 with B3 narrow re-review `PASS`. B1/B2/B3 are verified closed across engine and renderer; O1/O2/O4/O6–O11 remain non-blocking and O3/O5 are closed. Review archived at `docs/review/done/2026-07-31_claude-code_X-RG1_http-evidence-correlation-b3-narrow-re-review.md` |
-| T-584 | P0 | TODO | Run R-RG1 integrated release acceptance across Go test/vet/build, frontend test/build, Windows live E2E, macOS offline import/package smoke, paired documentation, support/security/performance matrices, and honest release notes. | T-583 PASS (2026-07-31) | No tag or GitHub release before independent release PASS; include the deferred H-RG4 resolver-cost measurement |
+| T-584 | P0 | IN_PROGRESS | Run R-RG1 integrated release acceptance across Go test/vet/build, frontend test/build, Windows live E2E, macOS offline import/package smoke, paired documentation, support/security/performance matrices, and honest release notes. | T-583 PASS (2026-07-31) | Backend acceptance handoff implemented: local full Go/frontend/offline-import/macOS package gates pass; Windows procmap test cross-compiles; CI now archives the native 50-sample resolver-cost evidence and reruns live E2E. Inspect pushed Windows evidence and obtain independent R-RG1 `PASS`; no tag or release first |
 | T-585 | P1 | DONE | Implement the file-first Lighthouse report JSON engine slice as the browser-performance roadmap task that can proceed while T-571 waits for hardware: separate parser/analyzer packages, bounded/redacted projections, preserved report scoring, CLI, ingestion-family contract, Wails binding, tests, and paired documentation. | T-565; independent of T-571 | Completed 2026-07-21: `browser import --format lighthouse-json`, `browser_audit_evidence`, `AnalyzeBrowserAudit`, generated TypeScript bindings, Core Web Vitals/category/audit/resource outputs, report-authored score findings, 64 MiB default input guard, URL redaction, bounded audit/network tables, and targeted Go tests. |
 | T-586 | P1 | DONE | Add the dedicated Lighthouse desktop page under Browser Performance, consuming only `AnalyzeBrowserAudit`; provide collection guidance, score/metric cards, category/audit/resource views, diagnostics, Analysis Workspace registration, Evidence Board capture, report export, and populated-state/provenance regressions. | T-585 | Backend handoff completed 2026-07-22: versioned `browser_audit_contract`, explicit imported-score/non-recalculation disclosure, stable row/finding `source_ref` values, source metadata, declared view/evidence/export surfaces, sanitized populated fixture, Wails payload/redaction regression, and JSON/HTML export regression. Frontend completed 2026-07-22: `LighthouseAuditPage` + `bridge/engine.ts` `analyzeBrowserAudit` wrapper + `state/browserAudit.ts` pure selectors, sidebar/App route wiring, EN/KO localized guidance/provenance/views, score-provenance disclosure banner, category/Core Web Vitals/audit/network/resource views, diagnostics, Analysis Workspace registration, Evidence Board finding/audit-row capture preserving `source_ref`, JSON/HTML report export, and populated-state/provenance regressions in `state/regression.test.ts`. `npm run test:state`, `npm run build`, and the Lighthouse Go tests pass; `browser_audit_evidence` stays separate from `profile_evidence`. |
 | T-566 | P0 | DONE | Add a reproducible source ledger for every HTTP-capture research claim marked `[V]`, including official URL or source commit, retrieval date, verified fact, and design impact; scope absolute competitive-gap claims to what was actually inspected. | None | Completed 2026-07-20: appendix A rewritten as a filled ledger — claim-ID scheme (`V`/`I`/`N`/`Q` × area × topic), `fixed`/`partial`/`open` status values, four ledger tables (platform/spec, Windows capture, HTTPAnalyzer, competitors), and a refresh procedure. Gate condition restated as "no design decision rests on an `open` row" rather than "all rows verified"; `Q-COMP-MITM-PID` and the 1.5.4 absolutes are recorded as `open` and withdrawn from use |

@@ -52,6 +52,25 @@ jobs:
       - name: go test
         run: go test ./... -race -count=1
 
+      - name: Windows live-capture E2E
+        if: runner.os == 'Windows'
+        run: go test -count=1 ./cmd/archscope-app -run '^TestWindowsLiveCaptureE2E$'
+
+      - name: Windows resolver-cost measurement
+        if: runner.os == 'Windows'
+        env:
+          ARCHSCOPE_RUN_RESOLVER_PERF: "1"
+          ARCHSCOPE_RESOLVER_PERF_OUT: ${{ runner.temp }}\archscope-resolver-cost.json
+        run: go test -count=1 -v ./internal/capture/procmap -run '^TestWindowsResolverCostMeasurement$'
+
+      - name: Upload Windows resolver-cost evidence
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v7
+        with:
+          name: r-rg1-windows-resolver-cost
+          path: ${{ runner.temp }}\archscope-resolver-cost.json
+          if-no-files-found: error
+
   wails-frontend:
     name: Wails frontend build
     runs-on: ubuntu-latest
@@ -72,5 +91,66 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: State tests
+        run: npm run test:state
+
       - name: Build
         run: npm run build
+
+  macos-release-smoke:
+    name: macOS offline import/package smoke
+    runs-on: macos-14
+    timeout-minutes: 35
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version: "1.26.x"
+          cache: true
+          cache-dependency-path: apps/engine-native/go.sum
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/engine-native/cmd/archscope-app/frontend/package-lock.json
+
+      - name: Install Wails CLI
+        run: go install github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0-alpha2.117
+
+      - name: Install Task runner
+        run: curl -sL https://taskfile.dev/install.sh | sh -s -- -d -b /usr/local/bin
+
+      - name: Install frontend dependencies
+        working-directory: apps/engine-native/cmd/archscope-app/frontend
+        run: npm ci
+
+      - name: Build engine CLI
+        working-directory: apps/engine-native
+        run: go build -o "${RUNNER_TEMP}/archscope-engine" ./cmd/archscope-engine
+
+      - name: Offline import smoke
+        run: |
+          "${RUNNER_TEMP}/archscope-engine" access-log analyze \
+            --in examples/access-logs/sample-nginx-access.log \
+            --out "${RUNNER_TEMP}/access-log-result.json"
+          "${RUNNER_TEMP}/archscope-engine" browser import \
+            --in apps/engine-native/internal/parsers/lighthouse/testdata/populated_report.json \
+            --format lighthouse-json \
+            --out "${RUNNER_TEMP}/lighthouse-result.json"
+
+      - name: Package macOS app
+        working-directory: apps/engine-native/cmd/archscope-app
+        run: task package
+
+      - name: Verify package
+        run: |
+          test -x apps/engine-native/cmd/archscope-app/bin/archscope.app/Contents/MacOS/archscope
+          codesign --verify --deep --strict apps/engine-native/cmd/archscope-app/bin/archscope.app

@@ -118,7 +118,7 @@ trace, contract를 분석하며, application source code를 정적 분석하거�
 | .NET evidence | clrstack, Environment.StackTrace, exception/IIS evidence, dotnet-trace speedscope export |
 | Ruby / PHP / Swift / native profile evidence | rbspy, StackProf, PHP Excimer/Tideways/Xdebug, Swift/async stack, perf collapsed/native stack을 지원 profile artifact로 제공한 경우 |
 | 브라우저 / 프론트엔드 evidence | Chrome Performance trace(`.json`/`.json.gz`), V8 `.cpuprofile`(브라우저, Node `--cpu-prof`, CDP `Profiler.stop`) — sampled CPU run 분석 포함. CPU 샘플만 다루며 네트워크·레이아웃·페인트 귀속은 없음 |
-| HTTP evidence | 방언 판별·가져오기 시점 리댁션이 있는 HAR 1.2 가져오기(`http_capture`); Windows 실시간 HTTP/1.x metadata 캡처는 구현되었으며 H-RG4 Windows acceptance 대기 중 |
+| HTTP evidence | 방언 판별·가져오기 시점 리댁션이 있는 HAR 1.2 가져오기(`http_capture`); Windows 실시간 HTTP/1.x metadata tier는 H-RG4를 통과했으며 R-RG1 통과 전까지 release candidate |
 | 언어 중립 evidence | access/edge log, server log, OpenTelemetry log/trace, metrics snapshot, database/broker/platform evidence, OpenAPI, AsyncAPI, stitched evidence, architecture-doc draft |
 
 지원하지 않거나 보류된 범위:
@@ -131,9 +131,10 @@ trace, contract를 분석하며, application source code를 정적 분석하거�
 
 ## Windows 실시간 HTTP 캡처
 
-HTTP Capture 화면에는 T-581 Windows 실시간 캡처 review candidate가 포함되어
-있습니다. H-RG4는 2026-07-29 세 번째 `CONDITIONAL` 판정을 받았으므로 릴리스된
-capture tier가 아니라 acceptance 작업 용도로 사용합니다.
+HTTP Capture 화면에는 Windows 실시간 캡처 candidate가 포함되어 있습니다.
+H-RG4는 fixture-only 교체 artifact와 V1-V3 narrow 네 번째 재리뷰를 거쳐
+2026-07-30 `PASS`로 종료되었습니다. 통합 R-RG1 acceptance 전까지는 릴리스된
+capture tier가 아니라 release candidate입니다.
 
 1. 최초 사용 프록시/CA 경고를 읽고 동의합니다.
 2. HTTPS 가로채기가 필요하면 임시 캡처 CA를 설치합니다.
@@ -211,8 +212,9 @@ readback하고 누락·계약 불일치 시 실패합니다. 이 명령은 captu
 않으며 metadata-only 증거를 owner-only 권한으로 기록합니다. Artifact는 local
 session path를 제외하고 행을 2,000개로 제한하며 loopback fixture privacy scope를
 명시합니다. 공개 보관 전 내용을 검토한 뒤 JSON 또는 repository path와 checksum을
-기록해야 합니다. 해당 Windows artifact 와 독립 H-RG4 재리뷰 `PASS` 전까지
-T-581은 `REVIEW` 상태입니다.
+기록해야 합니다. H-RG4 artifact와 독립 재리뷰는 통과했습니다. R-RG1은 이
+전체 외부 matrix를 재사용하고, 새로운 native in-process live-capture 검사와
+`docs/ko/PERFORMANCE.md`의 격리된 리졸버 비용 측정을 추가합니다.
 
 ## 네이티브 앱
 

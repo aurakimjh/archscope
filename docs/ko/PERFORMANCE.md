@@ -19,6 +19,26 @@ npm ci
 npm run build
 ```
 
+## Windows 리졸버 비용
+
+R-RG1은 실제 Windows endpoint-owner 경로를 unit test와 분리해 측정합니다. 하나의
+loopback TCP connection을 열린 상태로 유지하고 50회의 attribution sample을
+수집합니다. 각 sample에는 production 리졸버가 사용하는 연속 두 번의
+`GetExtendedTcpTable` 조회와 process start-time 확인이 포함됩니다.
+
+```powershell
+$env:ARCHSCOPE_RUN_RESOLVER_PERF = "1"
+$env:ARCHSCOPE_RESOLVER_PERF_OUT = "$env:TEMP\archscope-resolver-cost.json"
+go test -count=1 -v ./internal/capture/procmap `
+  -run '^TestWindowsResolverCostMeasurement$'
+```
+
+Schema-v1 artifact는 process path나 session identifier 없이 sample 수, 확인된
+sample 수, mean, p50, p95, 최대 시간을 기록합니다. R-RG1은 사전에 제품 latency
+SLO를 정하지 않았으므로 관측 후 임의의 PASS 기준을 만들지 않고 비용을 기록하며
+귀속 정확성을 검증합니다. Production 캡처는 HTTP request마다가 아니라 accepted
+connection마다 한 번 리졸버를 호출합니다.
+
 ## 예산
 
 - 데스크톱 바이너리는 현장 직접 배포가 가능한 크기를 유지합니다.

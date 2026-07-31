@@ -20,6 +20,28 @@ npm ci
 npm run build
 ```
 
+## Windows Resolver Cost
+
+R-RG1 measures the real Windows endpoint-owner path separately from unit tests.
+The measurement keeps one accepted loopback TCP connection open and performs
+50 attribution samples. Each sample includes the two immediate
+`GetExtendedTcpTable` reads and process start-time confirmation used by the
+production resolver.
+
+```powershell
+$env:ARCHSCOPE_RUN_RESOLVER_PERF = "1"
+$env:ARCHSCOPE_RESOLVER_PERF_OUT = "$env:TEMP\archscope-resolver-cost.json"
+go test -count=1 -v ./internal/capture/procmap `
+  -run '^TestWindowsResolverCostMeasurement$'
+```
+
+The schema-v1 artifact reports sample count, confirmed count, mean, p50, p95,
+and maximum duration without process paths or session identifiers. R-RG1 did
+not predeclare a product latency SLO, so this gate records cost and verifies
+correct attribution rather than inventing a pass threshold after measurement.
+The production capture path resolves once per accepted connection, not once
+per HTTP request.
+
 ## Budget
 
 - Keep the desktop binary small enough for direct field distribution.

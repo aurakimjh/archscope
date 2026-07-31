@@ -23,3 +23,9 @@ importer를 정리한다.
 
 모든 importer는 parser diagnostics를 `metadata.diagnostics` 아래 보존하고,
 Evidence Board와 report-pack capture에 적합한 bounded table을 생성한다.
+
+Windows 실시간 HTTP 캡처는 별도의 file importer가 아니다. 종료된 로컬 세션을
+같은 bounded `http_capture` 분석 계약으로 전달하지만 릴리스 범위는 더 좁다.
+Windows 전용 loopback proxy의 HTTP/1.x metadata만 다루고 body를 저장하지 않으며,
+HTTP/2와 QUIC는 passthrough/unsupported다. Endpoint 귀속은 개별 connection
+증거이며 시스템 전체 트래픽 coverage를 의미하지 않는다.

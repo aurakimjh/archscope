@@ -6,6 +6,29 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Added release-gate coverage for the Windows-native live-capture proxy,
+  including an isolated `GetExtendedTcpTable` resolver-cost measurement whose
+  bounded JSON evidence is archived by CI.
+- Added macOS release smoke coverage that imports representative offline access
+  log and Lighthouse evidence before building and verifying the ad-hoc-signed
+  Wails application bundle.
+
+### Changed
+
+- The frontend release gate now runs the state regression suite as well as the
+  production build. No UI behavior is changed by this release-gate work.
+
+### Security
+
+- Offline HAR analysis remains a file import with bounded parsing and
+  import-time redaction. Windows live capture remains Windows-only,
+  metadata-only, loopback-bound, and opt-in: request and response bodies are
+  omitted, HTTP/2 and QUIC are not decoded, pinning failures are retained only
+  as attributed unsupported/not-captured evidence, and endpoint ownership does
+  not claim complete machine traffic coverage.
+
 ## [0.3.5] — 2026-05-17
 
 This release completes the Mid-Term Plus evidence-analysis wave with broader

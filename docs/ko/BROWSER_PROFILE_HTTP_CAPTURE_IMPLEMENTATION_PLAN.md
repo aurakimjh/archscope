@@ -94,7 +94,7 @@ Claude가 담당한다.
 | 5 | `H-RG4` 실시간 UI 및 Windows E2E | **완료 — PASS (2026-07-30)** | 종료 |
 | 6 | `H-RG5` HTTP 세션 Diff | **완료 — 그룹 PASS (2026-07-30)** | 종료 |
 | 7 | `X-RG1` HTTP × 프로파일/서버 증거 교차 분석 | **완료 — PASS (2026-07-31)**; B1/B2/B3 종료 | `H-RG5 PASS` |
-| 8 | `R-RG1` 통합 릴리스 승인 | 시작 가능 | `X-RG1 PASS` |
+| 8 | `R-RG1` 통합 릴리스 승인 | 진행 중 — 백엔드 handoff 준비 완료 (2026-07-31) | 독립 `R-RG1 PASS` |
 
 두 기능을 같은 커밋에 섞지 않는다. 단, `X-RG1`은 두 기능을 연결하는 것이 목적이므로
 예외다.
@@ -543,12 +543,18 @@ Claude는 엔진 소스를 변경하지 않았다.
 
 ### R-RG1 — 통합 릴리스 승인
 
-- Go 전체 test/vet/build, frontend state test/build, Windows GUI/live-capture E2E,
-  macOS offline import/package smoke를 수행한다.
-- English/Korean 문서, importer matrix, user/security/performance guide와 실제 기능을
-  맞춘다.
-- release note에는 offline HAR, Windows live tier, H2/QUIC/pinning, coverage 한계를
-  구분해서 기록한다.
+- **상태: 진행 중 — 백엔드 acceptance handoff 준비 완료 (2026-07-31).**
+- [x] Go 전체 test/vet/build와 frontend state test/build를 명시적인 CI gate로
+  만든다.
+- [x] Native Windows in-process live-capture E2E를 gate로 연결하고 실제
+  `GetExtendedTcpTable` 호출의 schema-v1·path-free resolver-cost 측정을
+  artifact로 보관한다.
+- [x] macOS에서 offline access-log/Lighthouse import 후 Wails package와
+  code-signature smoke를 수행한다.
+- [x] 영문/한글 implementation, importer, user, performance 문서를 맞추고,
+  offline HAR와 Windows live tier 및 H2/QUIC/pinning/coverage 한계를 분리한
+  정직한 unreleased note를 추가한다.
+- [ ] Push된 CI evidence를 검토하고 독립 R-RG1 판정을 받는다.
 - `R-RG1 PASS` 전에는 버전 tag나 GitHub release를 만들지 않는다.
 
 ## 8. 첫 실행 지점

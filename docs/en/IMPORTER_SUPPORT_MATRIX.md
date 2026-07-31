@@ -23,3 +23,9 @@ Plus ingestion line as of `v0.3.5`.
 
 All importers preserve parser diagnostics under `metadata.diagnostics` and emit
 bounded tables suitable for Evidence Board and report-pack capture.
+
+Windows live HTTP capture is not an additional file importer. It produces the
+same bounded `http_capture` analysis contract after a finalized local session,
+but its release scope is narrower: Windows-only, loopback proxy, HTTP/1.x
+metadata, no bodies, HTTP/2 and QUIC passthrough/unsupported, and
+connection-specific endpoint attribution rather than whole-machine coverage.

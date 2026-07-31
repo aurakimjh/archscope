@@ -90,7 +90,7 @@ Only high-consequence boundaries receive an extra per-item gate:
 | 5 | `H-RG4` live UI and Windows E2E | **Complete — PASS (2026-07-30)** | Closed |
 | 6 | `H-RG5` HTTP session Diff | **Complete — group PASS (2026-07-30)** | Closed |
 | 7 | `X-RG1` HTTP x profile/server-evidence correlation | **Complete — PASS (2026-07-31)**; B1/B2/B3 closed | `H-RG5 PASS` |
-| 8 | `R-RG1` integrated release acceptance | Ready | `X-RG1 PASS` |
+| 8 | `R-RG1` integrated release acceptance | In progress — backend handoff prepared (2026-07-31) | Independent `R-RG1 PASS` |
 
 The two features stay in separate commits except for `X-RG1`, whose purpose is
 to join them.
@@ -564,11 +564,18 @@ app/correlation Go tests pass. No engine source was changed by Claude.
 
 ### R-RG1 — Integrated Release Acceptance
 
-- Run full Go test/vet/build, frontend state tests/build, Windows GUI/live E2E,
-  and macOS offline-import/package smoke.
-- Align paired docs, importer matrix, and user/security/performance guides.
-- Release notes distinguish offline HAR, Windows live tiers, H2/QUIC/pinning,
-  and coverage limitations.
+- **Status: in progress — backend acceptance handoff prepared (2026-07-31).**
+- [x] Make full Go test/vet/build and frontend state tests/build explicit CI
+  gates.
+- [x] Gate the native Windows in-process live-capture E2E and archive a
+  schema-v1, path-free resolver-cost measurement from real
+  `GetExtendedTcpTable` calls.
+- [x] Add macOS offline access-log/Lighthouse imports followed by Wails package
+  and code-signature smoke.
+- [x] Align paired implementation, importer, user, and performance guidance;
+  add honest unreleased notes separating offline HAR and the Windows live
+  tier, including H2/QUIC/pinning and coverage limitations.
+- [ ] Review the pushed CI evidence and obtain an independent R-RG1 verdict.
 - Do not create a version tag or GitHub release before `R-RG1 PASS`.
 
 ## 8. First Execution Point
