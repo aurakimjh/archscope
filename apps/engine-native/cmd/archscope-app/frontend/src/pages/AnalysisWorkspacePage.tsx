@@ -25,6 +25,7 @@ import {
   diffCandidateEntries,
   dispatchHttpCaptureDiff,
 } from "@/state/httpCaptureDiff";
+import { correlationCandidates } from "@/state/httpCorrelation";
 
 export function AnalysisWorkspacePage(): React.JSX.Element {
   const { locale, t } = useI18n();
@@ -122,8 +123,10 @@ export function AnalysisWorkspacePage(): React.JSX.Element {
 
       {/* X-RG1 HTTP evidence correlation entry: HTTP capture is the required
           primary source; overlays stay gated by the backend's per-source
-          alignment verdict and no row ever claims causality. */}
-      {diffCandidateEntries(workspace.entries).length > 0 && <HttpCorrelationPanel />}
+          alignment verdict and no row ever claims causality. The gate uses the
+          correlation feature's own slot selector — not the Diff selector — so
+          the two features stay independent even if their filters diverge. */}
+      {correlationCandidates(workspace.entries, "http").length > 0 && <HttpCorrelationPanel />}
     </main>
   );
 }

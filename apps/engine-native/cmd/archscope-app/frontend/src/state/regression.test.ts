@@ -2112,10 +2112,13 @@ import {
   CORRELATION_MATCH_BASIS_LABEL_KEYS,
   CORRELATION_SOURCE_LABEL_KEYS,
   HTTP_CORRELATION_CONTRACT_SCHEMA_VERSION,
+  accessClockComparison,
   correlationAnchorState,
   correlationCandidates,
   correlationInputsOf,
   correlationOverlayAllowed,
+  correlationPrimaryAlignment,
+  correlationTopNState,
   diagnosticForSource,
   extractCorrelationEnvelope,
   hasCorrelationSecondary,
@@ -2130,8 +2133,10 @@ import {
   selectCorrelationFindings,
   selectCorrelationSummary,
   selectCorrelationTable,
+  sameCorrelationInputs,
 } from "./httpCorrelation.js";
 import type {
+  HttpCorrelationAccessRow,
   HttpCorrelationSourceDiagnostic,
   HttpEvidenceCorrelationAnalysisResult,
   HttpEvidenceCorrelationContract,
@@ -2165,6 +2170,35 @@ assert(
   "a contract permitting causal claims is rejected outright",
 );
 assert(!isCorrelationContractSupported(null), "a missing correlation contract is not supported");
+// X-RG1 O3: the renderer states "no source file or capture store was reopened"
+// and renders grades/confidence through closed token sets, so a contract that
+// contradicts either must be refused rather than adopted behind that wording.
+assert(
+  !isCorrelationContractSupported({ ...supportedCorrelationContract, store_or_file_rescan: true }),
+  "a contract that reopens sources is rejected, not adopted behind the no-rescan disclosure",
+);
+assert(
+  !isCorrelationContractSupported({
+    ...supportedCorrelationContract,
+    alignment_grades: ["aligned", "duration_only", "none", "probably_aligned"],
+  }),
+  "a contract advertising a grade the renderer cannot name is rejected",
+);
+assert(
+  !isCorrelationContractSupported({
+    ...supportedCorrelationContract,
+    confidence_grades: ["high", "medium", "low", "none", "certain"],
+  }),
+  "a contract advertising an unknown confidence token is rejected",
+);
+
+// X-RG1 O5: top-N is bounded by the adopted contract before the run.
+assert(correlationTopNState(null, supportedCorrelationContract) === "empty", "an empty top-N uses the default");
+assert(correlationTopNState(50, supportedCorrelationContract) === "valid", "an in-range top-N is valid");
+assert(correlationTopNState(500, supportedCorrelationContract) === "valid", "the contract maximum is valid");
+assert(correlationTopNState(501, supportedCorrelationContract) === "invalid", "top-N above max_top_n is invalid");
+assert(correlationTopNState(0, supportedCorrelationContract) === "invalid", "a zero top-N is invalid");
+assert(correlationTopNState(12.5, supportedCorrelationContract) === "invalid", "a fractional top-N is invalid");
 
 // Closed token sets fail to `unknown` instead of leaking wire values.
 assert(resolveCorrelationAlignment("aligned") === "aligned", "aligned correlation grade resolves");
@@ -2202,6 +2236,47 @@ assert(
   "an unrecognized grade fails closed: no overlay renders",
 );
 assert(!correlationOverlayAllowed(null), "a missing diagnostic suppresses the overlay");
+
+// X-RG1 B1: a request-ID pairing identifies the same request without comparing
+// clocks. The renderer must show that as an unavailable delta — never as a
+// measured 0.0ms — and must fail closed when a row is internally inconsistent.
+const accessRowBase: HttpCorrelationAccessRow = {
+  http_id: "tx-9", endpoint: "GET api.test /orders/{id}", access_uri: "/orders/42",
+  request_id: "rid-42", http_duration_ms: 120, server_response_ms: 90, outside_server_ms: 30,
+  clock_compared: false, alignment_grade: "duration_only", confidence: "high",
+  match_basis: "request_id", causal_claim_allowed: false,
+  timestamp_delta_unavailable_reason:
+    "request identity matched, but both observations did not provide parseable absolute timestamps",
+};
+const identityOnlyClock = accessClockComparison(accessRowBase);
+assert(!identityOnlyClock.compared, "a request-ID-only pairing reports no clock comparison");
+assert(identityOnlyClock.deltaMs === null, "an unmeasured pairing exposes no timestamp delta to render");
+assert(
+  identityOnlyClock.reason?.includes("request identity") === true,
+  "the engine's unavailable reason reaches the renderer",
+);
+const measuredClock = accessClockComparison({
+  ...accessRowBase, clock_compared: true, timestamp_delta_ms: 12.5,
+  alignment_grade: "aligned", timestamp_delta_unavailable_reason: undefined,
+});
+assert(
+  measuredClock.compared && measuredClock.deltaMs === 12.5,
+  "a measured in-tolerance delta renders as measured",
+);
+assert(
+  !accessClockComparison({ ...accessRowBase, timestamp_delta_ms: 0 }).compared,
+  "a delta without the comparison flag fails closed to unavailable",
+);
+assert(
+  !accessClockComparison({ ...accessRowBase, clock_compared: true }).compared,
+  "the comparison flag alone, with no delta, still renders as unavailable",
+);
+assert(
+  !accessClockComparison({
+    ...accessRowBase, clock_compared: true, timestamp_delta_ms: Number.NaN,
+  }).compared,
+  "a non-finite delta never renders as a measured alignment",
+);
 
 // Anchor validation is advisory but must reject non-RFC3339 text up front.
 assert(correlationAnchorState("") === "empty", "an empty anchor is empty, not invalid");
@@ -2315,6 +2390,23 @@ assert(
   "an empty access table projects as empty, not undefined",
 );
 assert(selectCorrelationFindings(correlationFixture).length === 1, "correlation findings are projected");
+// The summary's alignment counters exclude the primary source, so the renderer
+// reads the HTTP timeline's own grade separately (X-RG1 B1 tile disclosure).
+assert(
+  correlationPrimaryAlignment(correlationDiags) === "aligned",
+  "the primary HTTP timeline grade is readable next to the secondary counters",
+);
+assert(
+  correlationPrimaryAlignment([
+    { ...correlationDiags[0], alignment_grade: "duration_only" },
+    ...correlationDiags.slice(1),
+  ]) === "duration_only",
+  "a duration-only primary timeline is reported as such, not hidden behind the counters",
+);
+assert(
+  correlationPrimaryAlignment([alignedDiag]) === "unknown",
+  "a missing primary diagnostic fails closed to unknown",
+);
 
 // Candidate filtering per slot.
 const correlationEntries = [
@@ -2351,6 +2443,15 @@ corrState = httpCorrelationReducer(corrState, {
 assert(corrState.result === correlationFixture, "a matching input snapshot stores its result");
 const corrChanged = httpCorrelationReducer(corrState, { type: "setAnchor", anchor: "" });
 assert(corrChanged.result === null, "changing the anchor drops the rendered correlation");
+const corrTopNChanged = httpCorrelationReducer(corrState, { type: "setTopN", topN: 25 });
+assert(
+  corrTopNChanged.result === null && corrTopNChanged.topN === 25,
+  "changing top-N drops the rendered correlation: the result is only shown with the inputs that produced it",
+);
+assert(
+  !sameCorrelationInputs(corrInputs, correlationInputsOf(corrTopNChanged)),
+  "top-N is part of the correlation input identity",
+);
 let corrRaced = httpCorrelationReducer(corrState, { type: "runStart" });
 corrRaced = httpCorrelationReducer(corrRaced, { type: "setSlot", slot: "jennifer", id: "jp-corr" });
 corrRaced = httpCorrelationReducer(corrRaced, {
@@ -2390,6 +2491,8 @@ const correlationLabelKeys = [
   "httpCorrelationAnchorHint",
   "httpCorrelationAnchorInvalid",
   "httpCorrelationToleranceLabel",
+  "httpCorrelationTopNLabel",
+  "httpCorrelationTopNInvalid",
   "httpCorrelationRun",
   "httpCorrelationNeedSecondary",
   "httpCorrelationUseAsHttp",
@@ -2401,6 +2504,7 @@ const correlationLabelKeys = [
   "httpCorrelationMetricAligned",
   "httpCorrelationMetricDurationOnly",
   "httpCorrelationMetricIncompatible",
+  "httpCorrelationPrimaryTimelineNote",
   "httpCorrelationDiagnosticsTitle",
   "httpCorrelationConfidenceLabel",
   "httpCorrelationOverlayEnabled",
@@ -2414,6 +2518,9 @@ const correlationLabelKeys = [
   "httpCorrelationJenniferTitle",
   "httpCorrelationJenniferDurationOnlyNote",
   "httpCorrelationAccessTitle",
+  "httpCorrelationAccessIdentityOnlyNote",
+  "httpCorrelationClockCompared",
+  "httpCorrelationClockNotCompared",
   "httpCorrelationNoMatches",
   "httpCorrelationColEndpoint",
   "httpCorrelationColStack",
@@ -2437,6 +2544,7 @@ const correlationLabelKeys = [
   "httpCorrelationDetailAccessUri",
   "httpCorrelationDetailRequestId",
   "httpCorrelationDetailTimestampDelta",
+  "httpCorrelationDetailClockBasis",
   "httpCorrelationOverlayTitle",
   "httpCorrelationOverlayUnavailable",
 ] as const;

@@ -30,8 +30,8 @@
   Codex 백엔드는 fail-closed 시계 등급, 신뢰도, provenance, 인과관계 금지
   diagnostic을 포함한 bounded HTTP/CPU/Jennifer/access-log 교차 결과를
   구현했고, 재생성된 binding과 Claude drilldown/overlay UI는 완료(2026-07-31)
-  되었다. 첫 그룹 리뷰는 `CONDITIONAL`이었고 Codex B1/B2 보완은 완료되었으며,
-  Claude unavailable-delta 렌더링과 narrow 재리뷰가 남았다.
+  되었다. 첫 그룹 리뷰는 `CONDITIONAL`이었고 Codex B1/B2 보완과 Claude
+  unavailable-delta 렌더러 보완이 모두 완료되어 narrow 재리뷰만 남았다.
 
 ## 2. 역할과 소유권
 
@@ -89,7 +89,7 @@ Claude가 담당한다.
 | 4 | `H-RG3` 실시간 캡처 엔진 기반 | **완료 — H-SEC2 PASS (2026-07-28)** | 종료 |
 | 5 | `H-RG4` 실시간 UI 및 Windows E2E | **완료 — PASS (2026-07-30)** | 종료 |
 | 6 | `H-RG5` HTTP 세션 Diff | **완료 — 그룹 PASS (2026-07-30)** | 종료 |
-| 7 | `X-RG1` HTTP × 프로파일/서버 증거 교차 분석 | 진행 중 — 첫 리뷰 `CONDITIONAL`; Codex B1/B2 보완 완료, Claude unavailable-delta 렌더링과 narrow 재리뷰 남음 | `H-RG5 PASS` |
+| 7 | `X-RG1` HTTP × 프로파일/서버 증거 교차 분석 | 진행 중 — 첫 리뷰 `CONDITIONAL`; Codex B1/B2 및 Claude unavailable-delta 렌더러 보완 완료, narrow 재리뷰 남음 | `H-RG5 PASS` |
 | 8 | `R-RG1` 통합 릴리스 승인 | 계획 | `X-RG1 PASS` |
 
 두 기능을 같은 커밋에 섞지 않는다. 단, `X-RG1`은 두 기능을 연결하는 것이 목적이므로
@@ -467,10 +467,24 @@ overlay 권한은 fail-closed로 억제된다. Profile 상관 분석은 누락·
 회귀는 6시간 request-ID clock skew, client timestamp 부재,
 V8 base 누락/비수치를 고정한다.
 
-renderer 후속 작업은 Claude 소유다. 생략된 `timestamp_delta_ms`는 `—`로
-렌더하고 unavailable 사유를 노출해야 한다. 이 handoff 뒤 B1/B2 narrow
-재리뷰에서 전체 Go suite, frontend state test, frontend production build를
-다시 실행한다. O1–O5는 gate 조건이 아닌 non-blocking hardening으로 기록한다.
+Claude renderer 후속 작업도 완료되었다. access-log wire 행은
+`clock_compared`와 선택적 `timestamp_delta_ms`를 함께 전달하고, 순수 selector
+`accessClockComparison`은 플래그·delta·유한성 중 하나라도 어긋나면
+"unavailable"로 fail-closed 한다 — 플래그 없는 delta, delta 없는 플래그,
+비유한 delta 모두 측정되지 않은 것으로 렌더된다. 매치 테이블의 Timestamp Δ
+열과 드릴다운은 측정된 것처럼 보이는 `0.0ms` 대신 `—`와 엔진의 unavailable
+사유를 표시하고, 엔진이 `aligned`로 인증하지 않은 access source는 테이블
+위에 identity-only 페어링을 공지하며, 보조 소스만 집계하는 정렬 카운터 3개
+옆에는 기준 HTTP 타임라인 자체의 등급을 명시하는 안내를 둔다.
+
+UI 범위의 관찰 사항도 같은 작업에서 종료했다. 계약 채택은
+`store_or_file_rescan: true`와 renderer 닫힌 토큰 집합이 이름 붙일 수 없는
+등급/신뢰도 토큰을 추가로 거부하고(O3), Workspace 마운트는 Diff selector
+대신 교차 분석 기능 자체의 슬롯 selector를 사용하며 계약 범위로 제한된
+top-N 입력이 provenance 입력 identity에 포함된다(O5). O1, O2, O4는 엔진
+범위의 non-blocking hardening으로 남으며 gate 조건이 아니다. B1/B2 narrow
+재리뷰는 여전히 전체 Go suite, frontend state test, frontend production
+build 재실행을 요구한다.
 
 #### Claude UI — 완료 (2026-07-31)
 
@@ -530,6 +544,6 @@ RFC3339 profile-start wall-clock anchor가 필요하고, 날짜/offset이 없는
 ms-since-midnight 증거는 `duration_only`로 유지된다. 모든 출력 행은 인과관계
 주장을 금지한다. B1/B2 백엔드 보완은 access-log alignment에 독립적으로
 측정된 허용 오차 이내의 절대 timestamp delta를 요구하고, 누락/무효 V8
-timestamp base를 거부한다. 생성 binding과 Claude drilldown/overlay UI는
-완료되었으며, Claude의 unavailable-delta 렌더링 handoff와 narrow X-RG1
-재리뷰가 남았다.
+timestamp base를 거부한다. 생성 binding과 Claude drilldown/overlay UI가
+완료되었고, Claude unavailable-delta 렌더러 보완도 모든 표면에서 측정되지
+않은 페어링을 사유와 함께 `—`로 렌더한다. narrow X-RG1 재리뷰만 남았다.

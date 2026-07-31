@@ -32,7 +32,8 @@ group and **the next group cannot start until the current group passes**.
   confidence, provenance, and no-causality diagnostics; the regenerated
   bindings and the Claude drilldown/overlay UI are complete (2026-07-31),
   and the first group review returned `CONDITIONAL`. Codex B1/B2 remediation
-  is complete; Claude unavailable-delta rendering and narrow re-review remain.
+  and the Claude unavailable-delta renderer remediation are both complete;
+  only the narrow re-review remains.
 
 ## 2. Ownership
 
@@ -86,7 +87,7 @@ Only high-consequence boundaries receive an extra per-item gate:
 | 4 | `H-RG3` live-capture engine foundation | **Complete — H-SEC2 PASS (2026-07-28)** | Closed |
 | 5 | `H-RG4` live UI and Windows E2E | **Complete — PASS (2026-07-30)** | Closed |
 | 6 | `H-RG5` HTTP session Diff | **Complete — group PASS (2026-07-30)** | Closed |
-| 7 | `X-RG1` HTTP x profile/server-evidence correlation | In progress — first review `CONDITIONAL`; Codex B1/B2 remediation complete, Claude unavailable-delta rendering and narrow re-review remain | `H-RG5 PASS` |
+| 7 | `X-RG1` HTTP x profile/server-evidence correlation | In progress — first review `CONDITIONAL`; Codex B1/B2 and Claude unavailable-delta renderer remediation complete, narrow re-review remains | `H-RG5 PASS` |
 | 8 | `R-RG1` integrated release acceptance | Planned | `X-RG1 PASS` |
 
 The two features stay in separate commits except for `X-RG1`, whose purpose is
@@ -482,11 +483,25 @@ or non-integral V8 timestamp base with grade `none`, zero overlap rows, and an
 `v8_start_time_us`. Engine regressions cover a six-hour request-ID skew,
 unavailable client time, and missing/non-numeric V8 bases.
 
-The renderer follow-up remains Claude-owned: an omitted
-`timestamp_delta_ms` must render as `—` and expose its unavailable reason.
-After that handoff, the narrow B1/B2 re-review must rerun the full Go suite,
-frontend state tests, and frontend production build. Review observations
-O1–O5 are recorded as non-blocking hardening, not gate conditions.
+The Claude renderer follow-up is complete as well. The access-log wire row
+carries `clock_compared` with an optional `timestamp_delta_ms`, and the pure
+selector `accessClockComparison` fails closed to "unavailable" whenever the
+flag, the delta, or its finiteness disagree — so a delta without the flag, a
+flag without a delta, and a non-finite delta all render unmeasured. Both the
+match table's Timestamp Δ column and the drilldown print `—` with the
+engine's unavailable reason instead of a measured-looking `0.0ms`, an access
+source the engine did not certify `aligned` discloses identity-only pairing
+above its table, and a note names the primary HTTP timeline's own grade
+beside the three alignment counters, which cover secondary sources only.
+
+The UI-scope observations were closed in the same pass: contract adoption
+additionally rejects `store_or_file_rescan: true` and any grade or confidence
+token the renderer's closed sets cannot name (O3), and the Workspace mount
+gates on the correlation feature's own slot selector rather than the Diff
+selector while a contract-bounded top-N input joins the provenance input
+identity (O5). O1, O2, and O4 remain engine-scope non-blocking hardening, not
+gate conditions. The narrow B1/B2 re-review still owes a rerun of the full Go
+suite, frontend state tests, and frontend production build.
 
 #### Claude UI — Complete (2026-07-31)
 
@@ -549,5 +564,7 @@ Jennifer's date-less ms-since-midnight evidence remains `duration_only`.
 Every output row forbids causal claims. B1/B2 backend remediation now also
 requires an independently measured, in-tolerance absolute timestamp delta for
 access-log alignment and rejects a missing/invalid V8 timestamp base. The
-generated bindings and Claude drilldown/overlay UI are complete; Claude's
-unavailable-delta rendering handoff and the narrow X-RG1 re-review remain.
+generated bindings and Claude drilldown/overlay UI are complete, and the
+Claude unavailable-delta renderer remediation now renders an unmeasured
+pairing as `—` with its reason on every surface. Only the narrow X-RG1
+re-review remains.

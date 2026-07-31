@@ -577,7 +577,14 @@ export type HttpCorrelationAccessRow = {
   http_duration_ms: number;
   server_response_ms: number;
   outside_server_ms: number;
-  timestamp_delta_ms: number;
+  /** true only when client and server absolute timestamps were actually
+   *  compared. A request-ID identity match alone leaves it false. */
+  clock_compared: boolean;
+  /** absent whenever `clock_compared` is false — an identity pairing measures
+   *  no delta, so the renderer must show it as unavailable, never as 0. */
+  timestamp_delta_ms?: number;
+  timestamp_delta_unavailable_reason?: string;
+  timestamp_alignment_reason?: string;
   alignment_grade: string;
   confidence: string;
   match_basis: string;

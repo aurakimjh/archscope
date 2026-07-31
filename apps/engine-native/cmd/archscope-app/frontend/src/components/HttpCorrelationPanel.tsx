@@ -48,10 +48,13 @@ import {
   CORRELATION_CONFIDENCE_LABEL_KEYS,
   CORRELATION_MATCH_BASIS_LABEL_KEYS,
   CORRELATION_SOURCE_LABEL_KEYS,
+  accessClockComparison,
   correlationAnchorState,
   correlationCandidates,
   correlationInputsOf,
   correlationOverlayAllowed,
+  correlationPrimaryAlignment,
+  correlationTopNState,
   diagnosticForSource,
   dispatchHttpCorrelation,
   extractCorrelationEnvelope,
@@ -118,12 +121,14 @@ export function HttpCorrelationPanel(): React.JSX.Element {
 
   const inputs = correlationInputsOf(state);
   const anchorState = correlationAnchorState(state.anchor);
+  const topNState = correlationTopNState(state.topN, state.contract);
   const canRun =
     state.contractSupported &&
     !state.running &&
     !!state.httpId &&
     hasCorrelationSecondary(inputs) &&
-    anchorState !== "invalid";
+    anchorState !== "invalid" &&
+    topNState !== "invalid";
 
   const run = useCallback(async () => {
     const http = getWorkspaceEntry(state.httpId);
@@ -139,6 +144,7 @@ export function HttpCorrelationPanel(): React.JSX.Element {
         profile: profile ? (profile.result as unknown as AnalysisResult) : undefined,
         jennifer: jennifer ? (jennifer.result as unknown as AnalysisResult) : undefined,
         accessLog: accessLog ? (accessLog.result as unknown as AnalysisResult) : undefined,
+        topN: snapshot.topN ?? undefined,
         timeToleranceMs: snapshot.toleranceMs ?? undefined,
         profileWallClockStart: snapshot.anchor.trim() || undefined,
       });
@@ -161,6 +167,7 @@ export function HttpCorrelationPanel(): React.JSX.Element {
   const profileDiag = diagnosticForSource(diagnostics, "profile_evidence");
   const jenniferDiag = diagnosticForSource(diagnostics, "jennifer_profile");
   const accessDiag = diagnosticForSource(diagnostics, "access_log");
+  const primaryAlignment = correlationPrimaryAlignment(diagnostics);
   const profileOverlayAllowed = correlationOverlayAllowed(profileDiag);
   const profileRows = useMemo(
     () =>
@@ -281,6 +288,25 @@ export function HttpCorrelationPanel(): React.JSX.Element {
                     aria-label={t("httpCorrelationToleranceLabel")}
                   />
                 </label>
+                <label className="flex flex-col gap-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                  {t("httpCorrelationTopNLabel")}
+                  <input
+                    type="number"
+                    min={1}
+                    max={state.contract?.max_top_n ?? undefined}
+                    inputMode="numeric"
+                    className="h-9 w-28 rounded-md border border-input bg-transparent px-2 text-sm normal-case tracking-normal focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    value={state.topN ?? ""}
+                    onChange={(event) =>
+                      dispatchHttpCorrelation({
+                        type: "setTopN",
+                        topN: event.target.value === "" ? null : Number(event.target.value),
+                      })
+                    }
+                    placeholder={String(state.contract?.default_top_n ?? "")}
+                    aria-label={t("httpCorrelationTopNLabel")}
+                  />
+                </label>
                 <Button type="button" size="sm" disabled={!canRun} onClick={() => void run()}>
                   {state.running ? (
                     <>
@@ -292,6 +318,14 @@ export function HttpCorrelationPanel(): React.JSX.Element {
                   )}
                 </Button>
               </div>
+              {topNState === "invalid" && (
+                <p className="text-xs text-amber-700 dark:text-amber-400" role="status">
+                  {t("httpCorrelationTopNInvalid").replace(
+                    "{max}",
+                    formatNumber(state.contract?.max_top_n ?? 0),
+                  )}
+                </p>
+              )}
               {!hasCorrelationSecondary(inputs) && (
                 <p className="text-xs text-muted-foreground">{t("httpCorrelationNeedSecondary")}</p>
               )}
@@ -323,6 +357,16 @@ export function HttpCorrelationPanel(): React.JSX.Element {
             <Tile label={t("httpCorrelationMetricDurationOnly")} value={formatNumber(summary.duration_only_source_count)} />
             <Tile label={t("httpCorrelationMetricIncompatible")} value={formatNumber(summary.incompatible_source_count)} />
           </div>
+
+          {/* The three alignment counters cover secondary sources only. Naming
+              the primary timeline's own grade next to them keeps a reader from
+              reading "Aligned sources: 1" as a verdict on the HTTP timeline. */}
+          <p className="text-[11px] text-muted-foreground">
+            {t("httpCorrelationPrimaryTimelineNote").replace(
+              "{grade}",
+              t(CORRELATION_ALIGNMENT_LABEL_KEYS[primaryAlignment]),
+            )}
+          </p>
 
           <DiagnosticsCard diagnostics={diagnostics} t={t} />
 
@@ -700,13 +744,21 @@ function AccessCard({
   onOpen: (row: HttpCorrelationAccessRow) => void;
   t: Translate;
 }): React.JSX.Element {
-  void diagnostic;
+  // A request-ID pairing identifies the same request without comparing clocks,
+  // so the source can carry matches while remaining unaligned. Say so above the
+  // table rather than letting the per-row `—` carry the whole disclosure.
+  const sourceAligned = resolveCorrelationAlignment(diagnostic.alignment_grade) === "aligned";
   return (
     <MatchTableShell
       title={t("httpCorrelationAccessTitle")}
       count={rows.length}
       emptyText={t("httpCorrelationNoMatches")}
     >
+      {!sourceAligned && rows.length > 0 && (
+        <p className="mb-2 text-[11px] text-amber-700 dark:text-amber-400" role="status">
+          {t("httpCorrelationAccessIdentityOnlyNote")}
+        </p>
+      )}
       <table className="w-full text-left text-xs">
         <caption className="sr-only">{t("httpCorrelationAccessTitle")}</caption>
         <thead>
@@ -714,34 +766,44 @@ function AccessCard({
             <th scope="col" className="p-2 font-medium">{t("httpCorrelationColEndpoint")}</th>
             <th scope="col" className="p-2 text-right font-medium">{t("httpCorrelationColClientServer")}</th>
             <th scope="col" className="p-2 text-right font-medium">{t("httpCorrelationColOutsideServer")}</th>
+            <th scope="col" className="p-2 text-right font-medium">{t("httpCorrelationDetailTimestampDelta")}</th>
             <th scope="col" className="p-2 font-medium">{t("httpCorrelationColBasis")}</th>
             <th scope="col" className="p-2 font-medium">{t("httpCorrelationColConfidence")}</th>
           </tr>
         </thead>
         <tbody>
-          {rows.map((row, index) => (
-            <tr
-              key={`${row.http_id}-${index}`}
-              className={rowClass}
-              {...rowInteraction(() => onOpen(row), `${t("httpCorrelationRowOpen")}: ${row.endpoint}`)}
-            >
-              <td className="max-w-xs truncate p-2 font-mono" title={row.endpoint}>{row.endpoint}</td>
-              <td className="p-2 text-right tabular-nums">
-                {formatMilliseconds(Math.round(row.http_duration_ms))} ↔{" "}
-                {formatMilliseconds(Math.round(row.server_response_ms))}
-              </td>
-              <td className="p-2 text-right tabular-nums">
-                {row.outside_server_ms > 0 ? "+" : ""}
-                {row.outside_server_ms.toFixed(1)}ms
-              </td>
-              <td className="p-2" title={row.match_basis}>
-                {t(CORRELATION_MATCH_BASIS_LABEL_KEYS[resolveCorrelationMatchBasis(row.match_basis)])}
-              </td>
-              <td className="p-2" title={row.confidence}>
-                {t(CORRELATION_CONFIDENCE_LABEL_KEYS[resolveCorrelationConfidence(row.confidence)])}
-              </td>
-            </tr>
-          ))}
+          {rows.map((row, index) => {
+            const clock = accessClockComparison(row);
+            return (
+              <tr
+                key={`${row.http_id}-${index}`}
+                className={rowClass}
+                {...rowInteraction(() => onOpen(row), `${t("httpCorrelationRowOpen")}: ${row.endpoint}`)}
+              >
+                <td className="max-w-xs truncate p-2 font-mono" title={row.endpoint}>{row.endpoint}</td>
+                <td className="p-2 text-right tabular-nums">
+                  {formatMilliseconds(Math.round(row.http_duration_ms))} ↔{" "}
+                  {formatMilliseconds(Math.round(row.server_response_ms))}
+                </td>
+                <td className="p-2 text-right tabular-nums">
+                  {row.outside_server_ms > 0 ? "+" : ""}
+                  {row.outside_server_ms.toFixed(1)}ms
+                </td>
+                <td
+                  className="p-2 text-right tabular-nums"
+                  title={clock.reason ?? (clock.compared ? undefined : t("httpCorrelationClockNotCompared"))}
+                >
+                  {clock.compared ? `${clock.deltaMs.toFixed(1)}ms` : "—"}
+                </td>
+                <td className="p-2" title={row.match_basis}>
+                  {t(CORRELATION_MATCH_BASIS_LABEL_KEYS[resolveCorrelationMatchBasis(row.match_basis)])}
+                </td>
+                <td className="p-2" title={row.confidence}>
+                  {t(CORRELATION_CONFIDENCE_LABEL_KEYS[resolveCorrelationConfidence(row.confidence)])}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </MatchTableShell>
@@ -830,10 +892,7 @@ function CorrelationDetail({
                   label={t("httpCorrelationColOutsideServer")}
                   value={`${drill.row.outside_server_ms.toFixed(1)}ms`}
                 />
-                <DetailField
-                  label={t("httpCorrelationDetailTimestampDelta")}
-                  value={`${drill.row.timestamp_delta_ms.toFixed(1)}ms`}
-                />
+                <AccessClockFields row={drill.row} t={t} />
               </>
             )}
           </dl>
@@ -850,6 +909,41 @@ function CorrelationDetail({
         </div>
       )}
     </SlideOverPanel>
+  );
+}
+
+/**
+ * Timestamp Δ for one access-log match. An identity-only pairing compared no
+ * clocks, so the delta renders as `—` with the engine's reason beside it — a
+ * measured-looking `0.0ms` there would assert an alignment nothing verified
+ * (X-RG1 B1).
+ */
+function AccessClockFields({
+  row,
+  t,
+}: {
+  row: HttpCorrelationAccessRow;
+  t: Translate;
+}): React.JSX.Element {
+  const clock = accessClockComparison(row);
+  return (
+    <>
+      <DetailField
+        label={t("httpCorrelationDetailTimestampDelta")}
+        value={clock.compared ? `${clock.deltaMs.toFixed(1)}ms` : "—"}
+        title={clock.compared ? undefined : t("httpCorrelationClockNotCompared")}
+      />
+      <DetailField
+        label={t("httpCorrelationDetailClockBasis")}
+        value={
+          clock.reason ??
+          (clock.compared
+            ? t("httpCorrelationClockCompared")
+            : t("httpCorrelationClockNotCompared"))
+        }
+        wide
+      />
+    </>
   );
 }
 

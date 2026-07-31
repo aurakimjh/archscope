@@ -23,6 +23,7 @@ import { useSyncExternalStore } from "react";
 
 import type { MessageKey } from "../i18n/messages";
 import type {
+  HttpCorrelationAccessRow,
   HttpCorrelationEnvelope,
   HttpCorrelationProvenanceRow,
   HttpCorrelationSourceDiagnostic,
@@ -47,20 +48,6 @@ export const CORRELATION_SLOT_RESULT_TYPES = {
 } as const;
 
 export type CorrelationSlot = keyof typeof CORRELATION_SLOT_RESULT_TYPES;
-
-// ── Contract adoption (H-RG4 R8 pattern) ────────────────────────────
-
-export function isCorrelationContractSupported(
-  contract: HttpEvidenceCorrelationContract | null | undefined,
-): boolean {
-  return (
-    !!contract &&
-    contract.schema_version === HTTP_CORRELATION_CONTRACT_SCHEMA_VERSION &&
-    contract.result_type === HTTP_CORRELATION_RESULT_TYPE &&
-    contract.http_result_type === CORRELATION_SLOT_RESULT_TYPES.http &&
-    contract.causal_claims_allowed === false
-  );
-}
 
 // ── Closed token sets ───────────────────────────────────────────────
 
@@ -160,6 +147,50 @@ export const CORRELATION_SOURCE_LABEL_KEYS: Record<CorrelationSourceToken, Messa
   unknown: "httpCorrelationSourceUnknown",
 };
 
+// ── Contract adoption (H-RG4 R8 pattern) ────────────────────────────
+//
+// Declared after the closed token sets because adoption also cross-checks the
+// contract's vocabularies against them: a contract that advertises a grade or
+// confidence this renderer cannot name would be rendered as `unknown` rows
+// with no way for the reader to tell an unimplemented token from a broken
+// one. Refusing the contract outright discloses that honestly instead.
+
+export function isCorrelationContractSupported(
+  contract: HttpEvidenceCorrelationContract | null | undefined,
+): boolean {
+  return (
+    !!contract &&
+    contract.schema_version === HTTP_CORRELATION_CONTRACT_SCHEMA_VERSION &&
+    contract.result_type === HTTP_CORRELATION_RESULT_TYPE &&
+    contract.http_result_type === CORRELATION_SLOT_RESULT_TYPES.http &&
+    contract.causal_claims_allowed === false &&
+    // The renderer states "no source file or capture store was reopened" as a
+    // safety disclosure; a contract that reopens sources must not be adopted
+    // silently behind that sentence.
+    contract.store_or_file_rescan === false &&
+    Array.isArray(contract.alignment_grades) &&
+    contract.alignment_grades.every((grade) => resolveCorrelationAlignment(grade) !== "unknown") &&
+    Array.isArray(contract.confidence_grades) &&
+    contract.confidence_grades.every(
+      (confidence) => resolveCorrelationConfidence(confidence) !== "unknown",
+    )
+  );
+}
+
+/** Top-N bound check against the adopted contract; `empty` uses the default. */
+export type CorrelationTopNState = "empty" | "valid" | "invalid";
+
+export function correlationTopNState(
+  topN: number | null,
+  contract: HttpEvidenceCorrelationContract | null | undefined,
+): CorrelationTopNState {
+  if (topN === null) return "empty";
+  if (!Number.isInteger(topN) || topN < 1) return "invalid";
+  const max = contract?.max_top_n;
+  if (typeof max === "number" && max > 0 && topN > max) return "invalid";
+  return "valid";
+}
+
 // ── Envelope selectors ──────────────────────────────────────────────
 
 export function extractCorrelationEnvelope(
@@ -219,6 +250,40 @@ export function diagnosticForSource(
   source: CorrelationSourceToken,
 ): HttpCorrelationSourceDiagnostic | null {
   return diagnostics.find((row) => resolveCorrelationSource(row.source) === source) ?? null;
+}
+
+/**
+ * The primary HTTP timeline's own grade. The summary counters cover secondary
+ * sources only, so the renderer reads this separately: a secondary source may
+ * never be presented as better-aligned than the timeline it was compared to
+ * without the reader being told what the primary grade was.
+ */
+export function correlationPrimaryAlignment(
+  diagnostics: HttpCorrelationSourceDiagnostic[],
+): CorrelationAlignmentGrade {
+  const primary = diagnosticForSource(diagnostics, "http_capture");
+  return primary ? resolveCorrelationAlignment(primary.alignment_grade) : "unknown";
+}
+
+// ── Access-log clock comparison ─────────────────────────────────────
+
+export type CorrelationClockComparison =
+  | { compared: true; deltaMs: number; reason: string | null }
+  | { compared: false; deltaMs: null; reason: string | null };
+
+/**
+ * A request-ID pairing identifies the same request on both sides; it does not
+ * compare clocks. The engine reports that as `clock_compared: false` and omits
+ * `timestamp_delta_ms` entirely, so the renderer must show the delta as
+ * unavailable rather than as a measured zero (X-RG1 B1). A row that claims a
+ * delta without the comparison flag fails closed to unavailable.
+ */
+export function accessClockComparison(row: HttpCorrelationAccessRow): CorrelationClockComparison {
+  const delta = row.timestamp_delta_ms;
+  if (row.clock_compared === true && typeof delta === "number" && Number.isFinite(delta)) {
+    return { compared: true, deltaMs: delta, reason: row.timestamp_alignment_reason ?? null };
+  }
+  return { compared: false, deltaMs: null, reason: row.timestamp_delta_unavailable_reason ?? null };
 }
 
 // ── Overlay gating ──────────────────────────────────────────────────
@@ -282,6 +347,8 @@ export type HttpCorrelationInputs = {
   accessLogId: string | null;
   anchor: string;
   toleranceMs: number | null;
+  /** null means "use the contract default"; any explicit value bounds output. */
+  topN: number | null;
 };
 
 export type HttpCorrelationState = HttpCorrelationInputs & {
@@ -305,6 +372,7 @@ export const initialHttpCorrelationState: HttpCorrelationState = {
   accessLogId: null,
   anchor: "",
   toleranceMs: null,
+  topN: null,
   running: false,
   result: null,
   resultInputs: null,
@@ -319,6 +387,7 @@ export function correlationInputsOf(state: HttpCorrelationInputs): HttpCorrelati
     accessLogId: state.accessLogId,
     anchor: state.anchor,
     toleranceMs: state.toleranceMs,
+    topN: state.topN,
   };
 }
 
@@ -332,7 +401,8 @@ export function sameCorrelationInputs(
     a.jenniferId === b.jenniferId &&
     a.accessLogId === b.accessLogId &&
     a.anchor === b.anchor &&
-    a.toleranceMs === b.toleranceMs
+    a.toleranceMs === b.toleranceMs &&
+    a.topN === b.topN
   );
 }
 
@@ -347,6 +417,7 @@ export type HttpCorrelationAction =
   | { type: "setSlot"; slot: CorrelationSlot; id: string | null }
   | { type: "setAnchor"; anchor: string }
   | { type: "setTolerance"; toleranceMs: number | null }
+  | { type: "setTopN"; topN: number | null }
   | { type: "runStart" }
   | {
       type: "runSuccess";
@@ -396,6 +467,9 @@ export function httpCorrelationReducer(
         resultInputs: null,
         error: null,
       };
+    case "setTopN":
+      if (state.topN === action.topN) return state;
+      return { ...state, topN: action.topN, result: null, resultInputs: null, error: null };
     case "runStart":
       return { ...state, running: true, result: null, resultInputs: null, error: null };
     case "runSuccess":

@@ -1216,6 +1216,9 @@ export const messages = {
     httpCorrelationAnchorInvalid:
       "Not a valid RFC3339 timestamp — the engine will refuse to overlay CPU runs with this anchor.",
     httpCorrelationToleranceLabel: "Time tolerance (ms)",
+    httpCorrelationTopNLabel: "Top N rows",
+    httpCorrelationTopNInvalid:
+      "Top N must be a whole number between 1 and {max}. Leave it empty to use the contract default.",
     httpCorrelationRun: "Correlate",
     httpCorrelationNeedSecondary:
       "Select at least one of CPU profile, Jennifer profile, or access log alongside the HTTP capture.",
@@ -1229,6 +1232,8 @@ export const messages = {
     httpCorrelationMetricAligned: "Aligned sources",
     httpCorrelationMetricDurationOnly: "Duration-only sources",
     httpCorrelationMetricIncompatible: "Incompatible sources",
+    httpCorrelationPrimaryTimelineNote:
+      "The three alignment counters above cover the secondary sources only. The primary HTTP timeline itself is graded: {grade}.",
     httpCorrelationDiagnosticsTitle: "Alignment diagnostics",
     httpCorrelationConfidenceLabel: "Confidence",
     httpCorrelationOverlayEnabled: "time overlay enabled",
@@ -1263,6 +1268,12 @@ export const messages = {
     httpCorrelationJenniferDurationOnlyNote:
       "Jennifer edge timestamps carry no date or offset — these matches compare durations only and prove no temporal overlap.",
     httpCorrelationAccessTitle: "Access-log client/server matches",
+    httpCorrelationAccessIdentityOnlyNote:
+      "At least one match paired client and server by request identity without comparing absolute timestamps — those rows show no timestamp delta and this source is not certified as clock-aligned.",
+    httpCorrelationClockCompared:
+      "Client and server absolute timestamps were compared within the configured tolerance.",
+    httpCorrelationClockNotCompared:
+      "No clock comparison was performed for this match — the pairing is request identity only.",
     httpCorrelationNoMatches: "No matches within the current tolerance.",
     httpCorrelationColEndpoint: "Endpoint",
     httpCorrelationColStack: "CPU stack",
@@ -1287,6 +1298,7 @@ export const messages = {
     httpCorrelationDetailAccessUri: "Access-log URI",
     httpCorrelationDetailRequestId: "Request ID",
     httpCorrelationDetailTimestampDelta: "Timestamp Δ",
+    httpCorrelationDetailClockBasis: "Clock comparison",
     httpCorrelationOverlayTitle: "Time-window overlay",
     httpCorrelationOverlayUnavailable: "Timestamps could not be parsed for the overlay.",
   },
@@ -2476,6 +2488,9 @@ export const messages = {
     httpCorrelationAnchorInvalid:
       "유효한 RFC3339 타임스탬프가 아닙니다 — 이 anchor로는 엔진이 CPU run 오버레이를 거부합니다.",
     httpCorrelationToleranceLabel: "시간 허용 오차 (ms)",
+    httpCorrelationTopNLabel: "상위 N행",
+    httpCorrelationTopNInvalid:
+      "상위 N은 1 이상 {max} 이하의 정수여야 합니다. 비워 두면 contract 기본값을 사용합니다.",
     httpCorrelationRun: "교차 분석",
     httpCorrelationNeedSecondary:
       "HTTP 캡처와 함께 CPU 프로파일, Jennifer 프로파일, 액세스 로그 중 최소 하나를 선택하세요.",
@@ -2489,6 +2504,8 @@ export const messages = {
     httpCorrelationMetricAligned: "정렬된 소스",
     httpCorrelationMetricDurationOnly: "지속시간만 소스",
     httpCorrelationMetricIncompatible: "비호환 소스",
+    httpCorrelationPrimaryTimelineNote:
+      "위의 정렬 카운터 3개는 보조 소스만 집계합니다. 기준이 되는 HTTP 타임라인 자체의 등급은 {grade} 입니다.",
     httpCorrelationDiagnosticsTitle: "정렬 진단",
     httpCorrelationConfidenceLabel: "신뢰도",
     httpCorrelationOverlayEnabled: "시간 오버레이 허용",
@@ -2523,6 +2540,12 @@ export const messages = {
     httpCorrelationJenniferDurationOnlyNote:
       "Jennifer edge 타임스탬프에는 날짜와 오프셋이 없습니다 — 이 매치는 지속시간만 비교하며 시간 겹침을 증명하지 않습니다.",
     httpCorrelationAccessTitle: "액세스 로그 클라이언트/서버 매치",
+    httpCorrelationAccessIdentityOnlyNote:
+      "절대 타임스탬프를 비교하지 않고 요청 식별자만으로 클라이언트와 서버를 짝지은 매치가 있습니다 — 해당 행은 타임스탬프 차이를 표시하지 않으며, 이 소스는 시계 정렬로 인증되지 않았습니다.",
+    httpCorrelationClockCompared:
+      "클라이언트와 서버의 절대 타임스탬프를 설정된 허용 오차 안에서 비교했습니다.",
+    httpCorrelationClockNotCompared:
+      "이 매치에서는 시계 비교를 수행하지 않았습니다 — 요청 식별자만으로 짝지은 결과입니다.",
     httpCorrelationNoMatches: "현재 허용 오차 안에서 매치가 없습니다.",
     httpCorrelationColEndpoint: "엔드포인트",
     httpCorrelationColStack: "CPU 스택",
@@ -2547,6 +2570,7 @@ export const messages = {
     httpCorrelationDetailAccessUri: "액세스 로그 URI",
     httpCorrelationDetailRequestId: "요청 ID",
     httpCorrelationDetailTimestampDelta: "타임스탬프 Δ",
+    httpCorrelationDetailClockBasis: "시계 비교",
     httpCorrelationOverlayTitle: "시간 창 오버레이",
     httpCorrelationOverlayUnavailable: "오버레이용 타임스탬프를 해석할 수 없습니다.",
   },
