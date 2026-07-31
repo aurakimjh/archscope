@@ -392,9 +392,8 @@ func correlateAccess(httpRows []httpTransaction, result map[string]any, topN int
 	claimed := map[int]bool{}
 	for _, transaction := range httpRows {
 		bestIndex := -1
-		bestDelta := math.MaxFloat64
+		bestShapeDelta := math.MaxFloat64
 		bestBasis := ""
-		bestClockCompared := false
 		for index, record := range used {
 			if claimed[index] {
 				continue
@@ -402,10 +401,6 @@ func correlateAccess(httpRows []httpTransaction, result map[string]any, topN int
 			requestID := text(record["request_id"])
 			if transaction.RequestID != "" && requestID != "" && strings.EqualFold(transaction.RequestID, requestID) {
 				bestIndex, bestBasis = index, "request_id"
-				if recordTime, err := time.Parse(time.RFC3339Nano, text(record["timestamp"])); err == nil && transaction.HasTime {
-					bestDelta = math.Abs(float64(recordTime.Sub(transaction.Start)) / float64(time.Millisecond))
-					bestClockCompared = true
-				}
 				break
 			}
 			if !sameRequestShape(transaction, record) || !transaction.HasTime {
@@ -416,9 +411,8 @@ func correlateAccess(httpRows []httpTransaction, result map[string]any, topN int
 				continue
 			}
 			delta := math.Abs(float64(recordTime.Sub(transaction.Start)) / float64(time.Millisecond))
-			if delta <= toleranceMS && delta < bestDelta {
-				bestIndex, bestDelta, bestBasis = index, delta, "method+path_template+status+time"
-				bestClockCompared = true
+			if delta <= toleranceMS && delta < bestShapeDelta {
+				bestIndex, bestShapeDelta, bestBasis = index, delta, "method+path_template+status+time"
 			}
 		}
 		if bestIndex < 0 {
@@ -426,6 +420,12 @@ func correlateAccess(httpRows []httpTransaction, result map[string]any, topN int
 		}
 		claimed[bestIndex] = true
 		record := used[bestIndex]
+		bestDelta := math.MaxFloat64
+		bestClockCompared := false
+		if recordTime, err := time.Parse(time.RFC3339Nano, text(record["timestamp"])); err == nil && transaction.HasTime {
+			bestDelta = math.Abs(float64(recordTime.Sub(transaction.Start)) / float64(time.Millisecond))
+			bestClockCompared = true
+		}
 		serverMS := number(record["response_time_ms"])
 		outsideMS := transaction.Duration - serverMS
 		confidence := "medium"

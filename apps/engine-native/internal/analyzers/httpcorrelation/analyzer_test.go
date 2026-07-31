@@ -205,6 +205,50 @@ func TestAnalyzeRequestIdentityDoesNotClaimUnmeasuredClockAlignment(t *testing.T
 	}
 }
 
+func TestAnalyzeRequestIdentityDoesNotReusePriorShapeCandidateClock(t *testing.T) {
+	httpResult := result("http_capture", map[string]any{
+		"transactions": []map[string]any{
+			httpRow("h1", "2026-07-30T01:00:00Z", 100, "/api", 200, "req-1"),
+		},
+	}, nil)
+	access := result("access_log", map[string]any{
+		"sample_records": []map[string]any{
+			{
+				"timestamp": "2026-07-30T01:00:00.050Z", "method": "GET", "uri": "/api",
+				"status": 200, "response_time_ms": 999.0,
+			},
+			{
+				"timestamp": "not-a-timestamp", "method": "GET", "uri": "/api",
+				"status": 200, "response_time_ms": 80.0, "request_id": "req-1",
+			},
+		},
+	}, nil)
+
+	got, err := Analyze(httpResult, nil, nil, access, Options{TimeToleranceMS: 100})
+	if err != nil {
+		t.Fatal(err)
+	}
+	rows := got.Tables["access_log_matches"].([]map[string]any)
+	if len(rows) != 1 || rows[0]["match_basis"] != "request_id" ||
+		rows[0]["server_response_ms"] != 80.0 {
+		t.Fatalf("request identity did not select the expected record: %#v", rows)
+	}
+	if rows[0]["clock_compared"] != false || rows[0]["alignment_grade"] != "duration_only" {
+		t.Fatalf("selected record inherited another candidate's clock evidence: %#v", rows[0])
+	}
+	if _, exists := rows[0]["timestamp_delta_ms"]; exists ||
+		rows[0]["timestamp_delta_unavailable_reason"] == nil {
+		t.Fatalf("selected record's unavailable clock was not preserved: %#v", rows[0])
+	}
+	diagnostics := got.Tables["alignment_diagnostics"].([]sourceDiagnostic)
+	if diagnostics[1].AlignmentGrade != "duration_only" || diagnostics[1].OverlayAllowed {
+		t.Fatalf("stale candidate clock enabled the access overlay: %#v", diagnostics[1])
+	}
+	if got.Summary["aligned_source_count"] != 0 || got.Summary["duration_only_source_count"] != 1 {
+		t.Fatalf("stale candidate clock polluted the alignment summary: %#v", got.Summary)
+	}
+}
+
 func TestAnalyzeValidatesTypesAndBoundsOutput(t *testing.T) {
 	if _, err := Analyze(result("access_log", nil, nil), result("profile_evidence", nil, nil), nil, nil, Options{}); err == nil ||
 		!strings.Contains(err.Error(), `want "http_capture"`) {

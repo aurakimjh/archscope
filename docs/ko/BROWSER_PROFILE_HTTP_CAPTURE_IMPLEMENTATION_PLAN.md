@@ -31,7 +31,9 @@
   diagnostic을 포함한 bounded HTTP/CPU/Jennifer/access-log 교차 결과를
   구현했고, 재생성된 binding과 Claude drilldown/overlay UI는 완료(2026-07-31)
   되었다. 첫 그룹 리뷰는 `CONDITIONAL`이었고 Codex B1/B2 보완과 Claude
-  unavailable-delta 렌더러 보완이 모두 완료되어 narrow 재리뷰만 남았다.
+  unavailable-delta 렌더러 보완이 모두 완료되었다. narrow 재리뷰는 B3 stale
+  candidate clock state로 두 번째 `CONDITIONAL`을 반환했으며, Codex B3
+  보완은 완료되어 한 번의 narrow 재리뷰가 남았다.
 
 ## 2. 역할과 소유권
 
@@ -89,7 +91,7 @@ Claude가 담당한다.
 | 4 | `H-RG3` 실시간 캡처 엔진 기반 | **완료 — H-SEC2 PASS (2026-07-28)** | 종료 |
 | 5 | `H-RG4` 실시간 UI 및 Windows E2E | **완료 — PASS (2026-07-30)** | 종료 |
 | 6 | `H-RG5` HTTP 세션 Diff | **완료 — 그룹 PASS (2026-07-30)** | 종료 |
-| 7 | `X-RG1` HTTP × 프로파일/서버 증거 교차 분석 | 진행 중 — 첫 리뷰 `CONDITIONAL`; Codex B1/B2 및 Claude unavailable-delta 렌더러 보완 완료, narrow 재리뷰 남음 | `H-RG5 PASS` |
+| 7 | `X-RG1` HTTP × 프로파일/서버 증거 교차 분석 | 진행 중 — 두 번째 `CONDITIONAL`에서 B3 발견; Codex B3 보완 완료, narrow 재리뷰 1회 남음 | `H-RG5 PASS` |
 | 8 | `R-RG1` 통합 릴리스 승인 | 계획 | `X-RG1 PASS` |
 
 두 기능을 같은 커밋에 섞지 않는다. 단, `X-RG1`은 두 기능을 연결하는 것이 목적이므로
@@ -483,8 +485,29 @@ UI 범위의 관찰 사항도 같은 작업에서 종료했다. 계약 채택은
 대신 교차 분석 기능 자체의 슬롯 selector를 사용하며 계약 범위로 제한된
 top-N 입력이 provenance 입력 identity에 포함된다(O5). O1, O2, O4는 엔진
 범위의 non-blocking hardening으로 남으며 gate 조건이 아니다. B1/B2 narrow
-재리뷰는 여전히 전체 Go suite, frontend state test, frontend production
-build 재실행을 요구한다.
+재리뷰와 필수 Go/frontend suite를 다시 실행했으며, B3 판정은 아래에 기록한다.
+
+#### X-RG1 재리뷰 — 조건부 / B3 보완 완료 (2026-07-31)
+
+narrow 재리뷰는 B2 수정, B1의 주요 경로, Claude renderer 동작, UI 관찰
+O3/O5 종료를 독립적으로 검증했다. 그러나 앞선 shape-match 후보가 loop의
+delta와 clock 비교 플래그를 설정한 뒤, timestamp를 사용할 수 없는 뒤쪽
+request-ID 레코드가 선택되면서 앞 레코드의 clock 증거를 상속할 수 있는
+B3 때문에 두 번째 `CONDITIONAL`을 반환했다.
+
+Codex 보완은 후보 선택과 출력 clock 증거를 분리한다. shape 후보는 index
+선택에만 로컬 nearest-delta 값을 사용한다. 선택 후 `timestamp_delta_ms`와
+`clock_compared`는 `used[bestIndex]`에서만 다시 계산되므로 출력 행이 두 access
+레코드의 증거를 섞을 수 없다. adversarial 회귀는 리뷰 probe를 그대로
+고정한다. 허용 오차 안의 앞쪽 shape 레코드 다음에 잘못된 timestamp를 가진
+request-ID 레코드가 있으면 request-ID 레코드를 선택하되
+`clock_compared: false`, delta 없음, `duration_only`, access overlay 억제를
+출력해야 한다. targeted uncached analyzer test, `go test ./...`,
+`npm run test:state`, `npm run build`가 통과했고, `go vet ./...`와
+`go build ./...`도 통과했다. B3에는 renderer나 binding 변경이 필요하지 않다.
+
+O1/O2/O4와 신규 O6–O10은 non-blocking hardening으로 남는다. X-RG1 PASS
+전 narrow B3 재리뷰가 한 번 더 필요하다.
 
 #### Claude UI — 완료 (2026-07-31)
 
@@ -533,8 +556,8 @@ T-580 / `H-RG3` 엔진 구현은 2026-07-27 `REVIEW`에 진입했고 2026-07-28 
 함께 검증되었고, 순서만 다른 동등한 세션은 끝까지 동일하게 비교된다
 (리뷰는
 `docs/review/done/2026-07-30_claude-code_H-RG5_http-session-diff-group-review.md`
-에 보관). T-583 / `X-RG1`은 첫 그룹 리뷰의 `CONDITIONAL` 판정 뒤 계속 진행
-중이다. Codex 백엔드 handoff는
+에 보관). T-583 / `X-RG1`은 첫 리뷰와 narrow 재리뷰의 `CONDITIONAL` 판정
+뒤 계속 진행 중이다. Codex 백엔드 handoff는
 versioned `http_evidence_correlation` 결과,
 `AnalyzeHttpEvidenceCorrelation`/`GetHttpEvidenceCorrelationContract`,
 bounded HTTP/CPU overlap, Jennifer network-gap 검사, access-log
@@ -546,4 +569,6 @@ ms-since-midnight 증거는 `duration_only`로 유지된다. 모든 출력 행�
 측정된 허용 오차 이내의 절대 timestamp delta를 요구하고, 누락/무효 V8
 timestamp base를 거부한다. 생성 binding과 Claude drilldown/overlay UI가
 완료되었고, Claude unavailable-delta 렌더러 보완도 모든 표면에서 측정되지
-않은 페어링을 사유와 함께 `—`로 렌더한다. narrow X-RG1 재리뷰만 남았다.
+않은 페어링을 사유와 함께 `—`로 렌더한다. B3 보완은 clock 증거를 선택된
+access 레코드에서만 재계산하며 adversarial stale-candidate 회귀와 전체
+Go/frontend 검증이 통과했다. narrow B3 재리뷰가 한 번 더 남았다.

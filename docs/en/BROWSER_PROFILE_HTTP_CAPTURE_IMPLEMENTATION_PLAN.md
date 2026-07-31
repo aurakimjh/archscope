@@ -33,7 +33,9 @@ group and **the next group cannot start until the current group passes**.
   bindings and the Claude drilldown/overlay UI are complete (2026-07-31),
   and the first group review returned `CONDITIONAL`. Codex B1/B2 remediation
   and the Claude unavailable-delta renderer remediation are both complete;
-  only the narrow re-review remains.
+  the narrow re-review returned a second `CONDITIONAL` for B3 stale candidate
+  clock state. Codex B3 remediation is complete; one more narrow re-review
+  remains.
 
 ## 2. Ownership
 
@@ -87,7 +89,7 @@ Only high-consequence boundaries receive an extra per-item gate:
 | 4 | `H-RG3` live-capture engine foundation | **Complete — H-SEC2 PASS (2026-07-28)** | Closed |
 | 5 | `H-RG4` live UI and Windows E2E | **Complete — PASS (2026-07-30)** | Closed |
 | 6 | `H-RG5` HTTP session Diff | **Complete — group PASS (2026-07-30)** | Closed |
-| 7 | `X-RG1` HTTP x profile/server-evidence correlation | In progress — first review `CONDITIONAL`; Codex B1/B2 and Claude unavailable-delta renderer remediation complete, narrow re-review remains | `H-RG5 PASS` |
+| 7 | `X-RG1` HTTP x profile/server-evidence correlation | In progress — second `CONDITIONAL` found B3; Codex B3 remediation complete, one more narrow re-review remains | `H-RG5 PASS` |
 | 8 | `R-RG1` integrated release acceptance | Planned | `X-RG1 PASS` |
 
 The two features stay in separate commits except for `X-RG1`, whose purpose is
@@ -500,8 +502,32 @@ token the renderer's closed sets cannot name (O3), and the Workspace mount
 gates on the correlation feature's own slot selector rather than the Diff
 selector while a contract-bounded top-N input joins the provenance input
 identity (O5). O1, O2, and O4 remain engine-scope non-blocking hardening, not
-gate conditions. The narrow B1/B2 re-review still owes a rerun of the full Go
-suite, frontend state tests, and frontend production build.
+gate conditions. The narrow B1/B2 re-review and its required Go/frontend
+suites were rerun; its B3 disposition follows.
+
+#### X-RG1 Re-Review — Conditional / B3 Remediation Complete (2026-07-31)
+
+The narrow re-review independently verified B2 fixed, B1 substantially fixed,
+the Claude renderer behavior complete, and UI observations O3/O5 closed. It
+returned a second `CONDITIONAL` for B3: an earlier shape-match candidate could
+set the loop's delta and clock-comparison flag, after which a later request-ID
+record with no usable timestamp could win while inheriting that earlier
+record's clock evidence.
+
+The Codex remediation separates candidate selection from emitted clock
+evidence. Shape candidates use a local nearest-delta value only to select an
+index. After selection, `timestamp_delta_ms` and `clock_compared` are
+recomputed exclusively from `used[bestIndex]`, so the emitted row cannot mix
+two access records. The adversarial regression fixes the exact review probe:
+an earlier in-tolerance shape record followed by a request-ID record with an
+invalid timestamp must select the request-ID record while emitting
+`clock_compared: false`, no delta, `duration_only`, and no access overlay.
+Targeted uncached analyzer tests, `go test ./...`, `npm run test:state`, and
+`npm run build` pass; `go vet ./...` and `go build ./...` pass as well. No
+renderer or binding change is required for B3.
+
+O1/O2/O4 and new O6–O10 remain non-blocking hardening. One more narrow B3
+re-review is required before X-RG1 can pass.
 
 #### Claude UI — Complete (2026-07-31)
 
@@ -553,8 +579,8 @@ slice, regenerated bindings, and the Claude grade-aware comparison UI were
 verified together, with reordered equivalent sessions comparing equal end to
 end (review archived at
 `docs/review/done/2026-07-30_claude-code_H-RG5_http-session-diff-group-review.md`).
-T-583 / `X-RG1` remains in progress after the first group review returned
-`CONDITIONAL`. The Codex backend handoff adds the
+T-583 / `X-RG1` remains in progress after the first review and narrow
+re-review returned `CONDITIONAL`. The Codex backend handoff adds the
 versioned `http_evidence_correlation` result, `AnalyzeHttpEvidenceCorrelation`
 and `GetHttpEvidenceCorrelationContract`, bounded HTTP/CPU overlaps, Jennifer
 network-gap checks, access-log client/server matches, and explicit
@@ -566,5 +592,7 @@ requires an independently measured, in-tolerance absolute timestamp delta for
 access-log alignment and rejects a missing/invalid V8 timestamp base. The
 generated bindings and Claude drilldown/overlay UI are complete, and the
 Claude unavailable-delta renderer remediation now renders an unmeasured
-pairing as `—` with its reason on every surface. Only the narrow X-RG1
-re-review remains.
+pairing as `—` with its reason on every surface. B3 remediation now also
+recomputes clock evidence solely from the selected access record, with the
+adversarial stale-candidate regression and full Go/frontend verification
+passing. One more narrow B3 re-review remains.
