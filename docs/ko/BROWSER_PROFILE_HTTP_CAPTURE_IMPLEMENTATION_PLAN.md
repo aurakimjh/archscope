@@ -34,8 +34,10 @@
   되었다. 첫 그룹 리뷰는 `CONDITIONAL`이었고 Codex B1/B2 보완과 Claude
   unavailable-delta 렌더러 보완이 모두 완료되었다. narrow 재리뷰는 B3 stale
   candidate clock state로 두 번째 `CONDITIONAL`을 반환했지만 Codex B3
-  보완이 최종 narrow 재리뷰 `PASS`를 받아 B1/B2/B3가 종료되고 R-RG1이
-  해제되었다.
+  보완이 최종 narrow 재리뷰 `PASS`를 받아 B1/B2/B3가 종료되었다. `R-RG1`
+  통합 릴리스 승인은 첫 리뷰 `CONDITIONAL`과 검증된 R1–R3 해소를 거쳐
+  **완료 — PASS (2026-08-03)**이며, 본 계획의 리뷰 그룹 사다리는 모두
+  종료되었다.
 
 ## 2. 역할과 소유권
 
@@ -94,7 +96,7 @@ Claude가 담당한다.
 | 5 | `H-RG4` 실시간 UI 및 Windows E2E | **완료 — PASS (2026-07-30)** | 종료 |
 | 6 | `H-RG5` HTTP 세션 Diff | **완료 — 그룹 PASS (2026-07-30)** | 종료 |
 | 7 | `X-RG1` HTTP × 프로파일/서버 증거 교차 분석 | **완료 — PASS (2026-07-31)**; B1/B2/B3 종료 | `H-RG5 PASS` |
-| 8 | `R-RG1` 통합 릴리스 승인 | 리뷰 준비 — 백엔드/platform gate 통과 (2026-07-31) | 독립 `R-RG1 PASS` |
+| 8 | `R-RG1` 통합 릴리스 승인 | **완료 — PASS (2026-08-03)**; R1–R3 종료 | 독립 `R-RG1 PASS` |
 
 두 기능을 같은 커밋에 섞지 않는다. 단, `X-RG1`은 두 기능을 연결하는 것이 목적이므로
 예외다.
@@ -546,8 +548,11 @@ Claude는 엔진 소스를 변경하지 않았다.
 
 ### R-RG1 — 통합 릴리스 승인
 
-- **상태: 조건부 지적 해소 — 독립 narrow 재리뷰 대기
-  (2026-08-03).**
+- **상태: 완료 — 그룹 `PASS` (2026-08-03)**. 첫 리뷰는 R1–R3에 대한
+  `CONDITIONAL`이었고, 해소 작업이 세 항목을 모두 종료했으며, 독립 narrow
+  재리뷰가 해소를 검증하고 `PASS`를 반환했다(리뷰는
+  `docs/review/done/2026-08-03_claude-code_R-RG1_integrated-release-acceptance-narrow-re-review.md`
+  에 보관).
 - [x] Go 전체 test/vet/build와 frontend state test/build를 명시적인 CI gate로
   만든다.
 - [x] Native Windows in-process live-capture E2E를 gate로 연결하고 실제
@@ -567,8 +572,10 @@ Claude는 엔진 소스를 변경하지 않았다.
 - [x] 첫 R-RG1 리뷰의 R1–R3를 해소한다. unreleased 기능 note를 완성하고,
   Windows GUI gate를 복원·실행하며, 원래 Windows CRLF digest provenance를
   보존한 채 보관 evidence pin을 repository LF 정규화 byte에 맞춘다.
-- [ ] 독립 R-RG1 판정을 받는다.
-- `R-RG1 PASS` 전에는 버전 tag나 GitHub release를 만들지 않는다.
+- [x] 독립 R-RG1 판정을 받는다: 2026-08-03 narrow 재리뷰가 `PASS`를
+  반환했고, blocking R-RG1 지적은 남아 있지 않다.
+- `R-RG1 PASS`를 획득했다. 버전 tag와 GitHub release는 이제 별도의
+  릴리스 의사결정이다.
 
 ## 8. 첫 실행 지점
 
@@ -597,4 +604,8 @@ timestamp base를 거부한다. 생성 binding과 Claude drilldown/overlay UI가
 않은 페어링을 사유와 함께 `—`로 렌더한다. B3 보완은 clock 증거를 선택된
 access 레코드에서만 재계산하며 adversarial stale-candidate 회귀와 전체
 Go/frontend 검증이 통과했다. 최종 narrow 재리뷰는 `PASS`였고
-X-RG1/T-583은 종료되었으며 R-RG1/T-584를 시작할 수 있다.
+X-RG1/T-583은 종료되었다. 이어서 R-RG1/T-584가 통합 릴리스 승인을
+완료했다: 첫 리뷰는 R1–R3에 대한 `CONDITIONAL`이었고, 해소 작업이 세
+항목을 모두 종료했으며, 2026-08-03 narrow 재리뷰가 이를 검증하고 `PASS`를
+반환했다. 본 계획의 리뷰 gate 사다리는 모두 종료되었고, 버전 tag와 GitHub
+release는 별도의 릴리스 의사결정으로 남는다.

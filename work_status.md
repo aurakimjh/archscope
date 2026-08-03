@@ -154,7 +154,7 @@ misattribution, and the same-class sweep of the profile/Jennifer correlators
 is clean. B1/B2/B3 are all closed, X-RG1 has no remaining blocking finding,
 and T-583 is `DONE`. O1/O2/O4/O6–O11 remain non-blocking hardening for the
 next relevant surface change. T-584 / R-RG1 is now unblocked.
-**T-584 / R-RG1 conditional findings are remediated as of 2026-08-03**:
+**T-584 / R-RG1 closed with the narrow re-review `PASS` on 2026-08-03**:
 the existing platform matrix now names an uncached native Windows
 live-capture E2E, measures 50 real `GetExtendedTcpTable` resolver samples with
 two owner-table reads and process-start confirmation per sample, and archives
@@ -171,8 +171,14 @@ returned `CONDITIONAL` on release-note coverage, the omitted Windows GUI smoke,
 and a CRLF/LF checksum mismatch. The unreleased notes now cover the full
 post-0.3.5 wave, Windows GUI smoke run `30809473903` passed at `f5efea8`, and
 the evidence sidecar pins the LF-normalized repository artifact while retaining
-the original CRLF digest as provenance. A narrow independent re-review is the
-remaining gate; no product source, tag, or release was changed.
+the original CRLF digest as provenance. The narrow independent re-review
+verified all three closures — release notes cross-checked against the full
+post-0.3.5 history, GUI smoke run `30809473903` confirmed from GitHub metadata
+at `f5efea8` with script-enforced 15-second liveness, and both digest forms
+recomputed from the archived bytes — and returned `PASS`. T-584 is `DONE`, no
+blocking R-RG1 finding remains, and the version tag / GitHub release is now an
+unblocked, separate release decision. No product source was changed by the
+gate.
 **T-586 is complete**:
 the dedicated Lighthouse desktop page now consumes only `AnalyzeBrowserAudit`
 and connects the result to Analysis Workspace and Evidence Board. **T-579 / H-RG1
@@ -190,9 +196,9 @@ completed the independent Lighthouse file-first engine slice.
 |---|---:|---|
 | `TODO` | 0 | Ready to start; prerequisites are satisfied |
 | `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
-| `REVIEW` | 1 | Review or required remediation is underway; the gate has not passed |
+| `REVIEW` | 0 | Review or required remediation is underway; the gate has not passed |
 | `PENDING` | 1 | Waiting for a prerequisite, external condition, or activation trigger |
-| `DONE` | 171 | Completion criteria and required review gates have passed |
+| `DONE` | 172 | Completion criteria and required review gates have passed |
 
 The normal transition is `TODO → IN_PROGRESS → REVIEW → DONE`. A `PENDING`
 task returns to `TODO` when its dependency or trigger is satisfied. Task status
@@ -204,8 +210,7 @@ same change so this overview remains the status source of truth.
 
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
-| 1 | T-584 | P0 | `REVIEW` | R1–R3 remediation complete; request narrow independent R-RG1 re-review |
-| 2 | T-557 | P1 | `PENDING` | Activate only if repeated MSA drilldown use justifies a Go analyzer contract |
+| 1 | T-557 | P1 | `PENDING` | Activate only if repeated MSA drilldown use justifies a Go analyzer contract |
 
 ## Current Baseline
 
@@ -218,20 +223,22 @@ same change so this overview remains the status source of truth.
 - Release baseline: `v0.3.5` is the latest stable GitHub release. The
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
-- Current execution focus: T-584 / R-RG1 final integrated release acceptance.
-  The backend acceptance handoff and pushed platform gates pass, and the first
-  review's R1–R3 findings are remediated. Native
-  Windows resolver cost is recorded from 50/50 confirmed samples; the
-  Windows GUI launch smoke passed in run `30809473903`; the narrow independent
-  R-RG1 re-review is the remaining gate.
+- Current execution focus: select the next roadmap objective. T-584 / R-RG1
+  integrated release acceptance closed with the narrow independent re-review
+  `PASS` on 2026-08-03: the first review's R1–R3 findings were remediated and
+  independently verified. Native Windows resolver cost is recorded from 50/50
+  confirmed samples, the Windows GUI launch smoke passed in run
+  `30809473903`, and the archived evidence pin verifies again. The version
+  tag and GitHub release are now an unblocked, separate release decision.
   T-583 / X-RG1 closed with `PASS` on 2026-07-31 after the B3 narrow
   re-review verified candidate selection and emitted clock evidence are
   structurally separated, the regression is genuine against the pre-fix
   analyzer, and nine adversarial probes found no residual misattribution.
-  Run the full Go/frontend gates, native Windows live E2E including the
-  deferred resolver-cost measurement, macOS offline-import/package smoke,
-  paired documentation and support/security/performance matrices, and honest
-  release notes. No tag or GitHub release before independent R-RG1 `PASS`.
+  The R-RG1 gate ran the full Go/frontend gates, native Windows live E2E
+  including the deferred resolver-cost measurement, macOS
+  offline-import/package smoke, paired documentation and
+  support/security/performance matrices, and honest release notes (reviews
+  archived under `docs/review/done/`).
   T-582 /
   H-RG5 HTTP-specific session Diff closed
   with a group `PASS` on 2026-07-30 (backend, regenerated Wails bindings, and
@@ -602,21 +609,21 @@ filtered before analysis.
 
 ## Next Execution Queue
 
-1. **REVIEW — T-584 / R-RG1 integrated release acceptance:**
-   The Codex backend gate is prepared and locally verified. Full Go
-   test/vet/build, frontend state/build validation, representative offline
-   imports, and the macOS Wails package/signature smoke pass. The Windows-only
-   test compiles and the pushed CI passed the native live-capture E2E plus
-   50-sample resolver-cost measurement, archiving schema-v1 evidence. The
-   Windows result confirmed 50/50 samples with mean 0.539 ms, p95 0.731 ms,
-   and maximum 0.857 ms. The first review's R1–R3 findings are remediated:
-   complete release notes now cover the feature wave, Windows GUI smoke run
-   `30809473903` passed at `f5efea8`, and the evidence pin matches the stored
-   LF-normalized artifact with the original CRLF digest retained. Next, obtain
-   a narrow independent R-RG1 `PASS`. Do not
-   create a version tag or GitHub release first. X-RG1
-   O1/O2/O4/O6–O11, H-RG4 O1/O2, and H-RG5 O1–O4 remain optional hardening
-   unless acceptance exposes release impact.
+1. **T-584 / R-RG1 closure record:** the first review returned `CONDITIONAL`
+   on R1–R3. The remediation completed the unreleased feature notes for the
+   whole post-0.3.5 wave, restored and ran the Windows GUI smoke (run
+   `30809473903` at `f5efea8`), and re-pinned the archived evidence to the
+   repository's LF-normalized bytes with the original CRLF digest retained as
+   provenance. The 2026-08-03 narrow independent re-review verified all three
+   closures and returned `PASS`: the platform gates from the first review
+   carry over because the remediation commit changes no buildable surface.
+   T-584 is `DONE`, and the version tag / GitHub release is now a separate,
+   unblocked release decision (`v0.4.0` remains reserved for the Evidence
+   Studio roll-up). X-RG1 O1/O2/O4/O6–O11, H-RG4 O1/O2, H-RG5 O1–O4, and
+   R-RG1 O1–O4/O6–O7 remain optional hardening. Reviews archived at
+   `docs/review/done/2026-07-31_claude-code_R-RG1_integrated-release-acceptance-review.md`
+   and
+   `docs/review/done/2026-08-03_claude-code_R-RG1_integrated-release-acceptance-narrow-re-review.md`.
 2. **T-581 / H-RG4 closure record:**
    - **Fourth re-review verdict (`PASS`, 2026-07-30):** V1 resolved — the
      replacement artifact's 1,012 archived rows are all loopback with zero
@@ -800,6 +807,7 @@ Long Task semantics).
 | 2026-07-31 X-RG1 T-583 Codex B3 remediation handoff | Candidate selection and emitted clock evidence are now structurally separated. Shape candidates use `bestShapeDelta` only to choose the closest record; after the winner is fixed, `timestamp_delta_ms` and `clock_compared` are recomputed exclusively from `used[bestIndex]`. The exact adversarial case—an earlier in-tolerance shape record followed by a request-ID winner with an invalid timestamp—now selects the request-ID row but emits `clock_compared: false`, no delta, `duration_only`, and no source overlay. Targeted uncached analyzer tests, full `go test ./...`, `go vet ./...`, `go build ./...`, `npm run test:state`, and `npm run build` pass (macOS linker-version warnings only). | Codex B3 remediation complete with no frontend or binding change. One narrow B3 re-review remains; O1/O2/O4/O6–O10 do not gate it. |
 | 2026-07-31 X-RG1 T-583 B3 narrow re-review | Accepted `PASS`. The remediation structurally separates candidate selection from emitted clock evidence and recomputes delta/`clock_compared` exclusively from `used[bestIndex]`. The original B3 probe no longer reproduces; the new regression demonstrably fails against the pre-fix analyzer and passes now; nine adversarial access-path probes cover missing/skewed/valid request-ID timestamps, competing shape candidates, cross-transaction isolation, and legitimate alignment without residual misattribution; a same-class sweep found the profile and Jennifer correlators clean. Full Go test/vet/build, uncached correlation tests, frontend state tests, and production build pass. No blocking X-RG1 finding remains. O11 adds non-blocking coverage hardening for two-shape-candidate selection/emission agreement; O1/O2/O4/O6–O10 remain non-blocking. | X-RG1 closed with `PASS`; T-583 `DONE`; T-584/R-RG1 unblocked. Review archived at `docs/review/done/2026-07-31_claude-code_X-RG1_http-evidence-correlation-b3-narrow-re-review.md`. |
 | 2026-08-03 R-RG1 T-584 conditional remediation handoff | R1: `[Unreleased]` now covers Chrome/V8 CPU analysis, Lighthouse, HAR, Windows live capture, HTTP Diff, and HTTP evidence correlation while retaining explicit live-tier security and fidelity limits; paired importer matrices no longer claim a stale v0.3.5-only scope. R2: manual Windows GUI smoke run `30809473903` built an 18,909,184-byte Wails executable from release-candidate commit `f5efea8` and kept it alive for the 15-second smoke window. R3: the evidence sidecar and active records now pin the repository's LF-normalized artifact digest `2737133818ee1881cfb6ee73f622e1ca6137b63b1818ee699a7eae5fc7218c7e`, while the original Windows CRLF digest `69565684…30111` remains recorded as provenance. | R1–R3 remediation complete without product source, tag, or release changes. T-584 remains `REVIEW` solely for a narrow independent R-RG1 re-review. |
+| 2026-08-03 R-RG1 T-584 narrow re-review | Accepted `PASS`. R1: the six `[Unreleased]` feature entries were cross-checked against `git log v0.3.5..HEAD` (138 non-merge commits) and cover every user-facing family; the Security paragraph and narrow live-tier qualifiers are retained, and the stale importer-matrix scope (O5) is fixed in both languages. R2: run `30809473903` was verified from GitHub metadata as a successful manually dispatched Windows GUI Smoke run on `f5efea8` whose pinned script enforces the ≥1 MiB size floor, launch, and 15-second liveness; the restored plan/registry scope matches, and the only commit after the smoked one is documentation, so the smoked binary matches the shipping product source. R3: the repository artifact recomputes to the pinned LF digest `27371338…7218c7e`, CRLF re-expansion recomputes the original `69565684…30111`, provenance notes accompany every pin, and the closed H-RG4 fourth re-review carries a dated correction note instead of a rewrite. `b48511d` changes no buildable surface, so the first review's platform verification carries over. R-RG1 O1–O4/O6–O7 remain non-blocking. | R-RG1 closed with `PASS`; T-584 `DONE`; the tag/release constraint is lifted as a separate decision. Review archived at `docs/review/done/2026-08-03_claude-code_R-RG1_integrated-release-acceptance-narrow-re-review.md`. |
 
 ## Mid-Term Plus Intake Plan
 
@@ -816,7 +824,7 @@ Long Task semantics).
 |---|---|---|---|
 | v0.3.5 | T-468 through T-555 | Stable Evidence Studio expansion | Released 2026-05-17 with Mid-Term Plus importers, API/event contract analysis, architecture docs drafts, advanced stitching, version metadata, changelog, release tag, and release workflow verification. |
 | Next candidate | T-560 through T-565 and T-578 complete | Chrome browser/V8 profile slice | C-RG1 returned independent `PASS` on 2026-07-21. Candidate version/tag selection remains a separate release decision; no release is cut by this status transition. |
-| Future candidate | T-571 and T-580 through T-584 review-gated | Windows-first HTTP capture and cross-OS evidence analysis slice | C-RG1/T-578 and H-RG1 through H-RG5/T-579, T-571, T-580, T-581, and T-582 have passed. Continue with X-RG1/T-583 cross-analysis and R-RG1/T-584 integrated release acceptance in review-group order. Analyze Linux/macOS-generated supported evidence in the Windows UI. |
+| Future candidate | T-571 and T-580 through T-584 review-gated | Windows-first HTTP capture and cross-OS evidence analysis slice | C-RG1/T-578, H-RG1 through H-RG5 (T-579, T-571, T-580, T-581, T-582), X-RG1/T-583, and R-RG1/T-584 integrated release acceptance have all passed; the review-group ladder is closed. Candidate version/tag selection remains a separate release decision. Analyze Linux/macOS-generated supported evidence in the Windows UI. |
 | v0.4.0 candidate | Not assigned | Evidence Studio roll-up | Full local evidence workflow is smoke-tested as one product story with sample packs, report exports, regression tests, AI gate checks, and release notes that present the expanded capability coherently. |
 
 ## Task Registry
@@ -871,7 +879,7 @@ deferred until explicitly promoted.
 | T-581 | P1 | DONE | Implement and review H-RG4 Windows live-capture UI and E2E. Claude: capture controls, CA lifecycle UX, process tree, stable live rows, recovery/backpressure/coverage/fidelity states. Codex: frozen bindings, acceptance fixtures, Windows E2E and packaging support. Carry the H-SEC2 binding conditions: gate unknown-attribution retention behind an explicit metadata-only opt-in (SEC-17) before exposing stored transactions, and require the SEC-10 dump-exclusion preflight before enabling body capture. | T-580 PASS | Completed 2026-07-30 with independent H-RG4 group `PASS` (narrow fourth re-review of V1–V3). The fixture-only replacement artifact has 1,012 loopback-only archived rows, 11 explicitly omitted background rows, confirmed fixture pinning evidence, no contradictions, and LF-normalized repository checksum `27371338…7218c7e` (original Windows CRLF checksum `69565684…30111`); the harness derives its privacy declaration from the published output and the Go acceptance fixture binds the enforcement mechanisms. SEC-17 is enforced below the UI; SEC-10 continues to bind any future body-capture tier (this slice stores no bodies). The V3 resolver-cost measurement is owed at R-RG1. Review archived at `docs/review/done/2026-07-30_claude-code_H-RG4_windows-live-capture-ui-e2e-fourth-re-review.md`. |
 | T-582 | P1 | DONE | Implement and review H-RG5 HTTP-specific session Diff with versioned URL templates, bounded dimensions, explicit rate denominators, time-alignment grades, `http_capture_diff` findings, Workspace routing, and grade-aware comparison UI. | T-581 PASS, T-575 | H-RG5 group `PASS` 2026-07-30; reordered equivalent sessions compare equal end to end; O1–O4 non-blocking observations recorded |
 | T-583 | P1 | DONE | Implement and review X-RG1 HTTP correlation with Chrome/V8 CPU runs, Jennifer network-gap evidence, and access logs, including bounded alignment/confidence diagnostics and provenance-aware UI drilldown/overlay. | T-582 PASS (2026-07-30) | Completed 2026-07-31 with B3 narrow re-review `PASS`. B1/B2/B3 are verified closed across engine and renderer; O1/O2/O4/O6–O11 remain non-blocking and O3/O5 are closed. Review archived at `docs/review/done/2026-07-31_claude-code_X-RG1_http-evidence-correlation-b3-narrow-re-review.md` |
-| T-584 | P0 | REVIEW | Run R-RG1 integrated release acceptance across Go test/vet/build, frontend test/build, Windows GUI/live E2E, macOS offline import/package smoke, paired documentation, support/security/performance matrices, and honest release notes. | T-583 PASS (2026-07-31) | Backend/platform acceptance passed locally and in Actions run `30601745253`; Windows live E2E and GUI smoke run `30809473903` passed, resolver evidence confirmed 50/50 samples (mean 0.539 ms, p95 0.731 ms, max 0.857 ms), and R1–R3 remediation is complete. Obtain narrow independent R-RG1 `PASS`; no tag or release first |
+| T-584 | P0 | DONE | Run R-RG1 integrated release acceptance across Go test/vet/build, frontend test/build, Windows GUI/live E2E, macOS offline import/package smoke, paired documentation, support/security/performance matrices, and honest release notes. | T-583 PASS (2026-07-31) | Backend/platform acceptance passed locally and in Actions run `30601745253`; Windows live E2E and GUI smoke run `30809473903` passed, resolver evidence confirmed 50/50 samples (mean 0.539 ms, p95 0.731 ms, max 0.857 ms), and the R1–R3 remediation passed the narrow independent re-review. R-RG1 `PASS` (2026-08-03); no tag or release was created by this gate |
 | T-585 | P1 | DONE | Implement the file-first Lighthouse report JSON engine slice as the browser-performance roadmap task that can proceed while T-571 waits for hardware: separate parser/analyzer packages, bounded/redacted projections, preserved report scoring, CLI, ingestion-family contract, Wails binding, tests, and paired documentation. | T-565; independent of T-571 | Completed 2026-07-21: `browser import --format lighthouse-json`, `browser_audit_evidence`, `AnalyzeBrowserAudit`, generated TypeScript bindings, Core Web Vitals/category/audit/resource outputs, report-authored score findings, 64 MiB default input guard, URL redaction, bounded audit/network tables, and targeted Go tests. |
 | T-586 | P1 | DONE | Add the dedicated Lighthouse desktop page under Browser Performance, consuming only `AnalyzeBrowserAudit`; provide collection guidance, score/metric cards, category/audit/resource views, diagnostics, Analysis Workspace registration, Evidence Board capture, report export, and populated-state/provenance regressions. | T-585 | Backend handoff completed 2026-07-22: versioned `browser_audit_contract`, explicit imported-score/non-recalculation disclosure, stable row/finding `source_ref` values, source metadata, declared view/evidence/export surfaces, sanitized populated fixture, Wails payload/redaction regression, and JSON/HTML export regression. Frontend completed 2026-07-22: `LighthouseAuditPage` + `bridge/engine.ts` `analyzeBrowserAudit` wrapper + `state/browserAudit.ts` pure selectors, sidebar/App route wiring, EN/KO localized guidance/provenance/views, score-provenance disclosure banner, category/Core Web Vitals/audit/network/resource views, diagnostics, Analysis Workspace registration, Evidence Board finding/audit-row capture preserving `source_ref`, JSON/HTML report export, and populated-state/provenance regressions in `state/regression.test.ts`. `npm run test:state`, `npm run build`, and the Lighthouse Go tests pass; `browser_audit_evidence` stays separate from `profile_evidence`. |
 | T-566 | P0 | DONE | Add a reproducible source ledger for every HTTP-capture research claim marked `[V]`, including official URL or source commit, retrieval date, verified fact, and design impact; scope absolute competitive-gap claims to what was actually inspected. | None | Completed 2026-07-20: appendix A rewritten as a filled ledger — claim-ID scheme (`V`/`I`/`N`/`Q` × area × topic), `fixed`/`partial`/`open` status values, four ledger tables (platform/spec, Windows capture, HTTPAnalyzer, competitors), and a refresh procedure. Gate condition restated as "no design decision rests on an `open` row" rather than "all rows verified"; `Q-COMP-MITM-PID` and the 1.5.4 absolutes are recorded as `open` and withdrawn from use |

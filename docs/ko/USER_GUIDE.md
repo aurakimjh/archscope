@@ -118,7 +118,7 @@ trace, contract를 분석하며, application source code를 정적 분석하거�
 | .NET evidence | clrstack, Environment.StackTrace, exception/IIS evidence, dotnet-trace speedscope export |
 | Ruby / PHP / Swift / native profile evidence | rbspy, StackProf, PHP Excimer/Tideways/Xdebug, Swift/async stack, perf collapsed/native stack을 지원 profile artifact로 제공한 경우 |
 | 브라우저 / 프론트엔드 evidence | Chrome Performance trace(`.json`/`.json.gz`), V8 `.cpuprofile`(브라우저, Node `--cpu-prof`, CDP `Profiler.stop`) — sampled CPU run 분석 포함. CPU 샘플만 다루며 네트워크·레이아웃·페인트 귀속은 없음 |
-| HTTP evidence | 방언 판별·가져오기 시점 리댁션이 있는 HAR 1.2 가져오기(`http_capture`); Windows 실시간 HTTP/1.x metadata tier는 H-RG4를 통과했으며 R-RG1 통과 전까지 release candidate |
+| HTTP evidence | 방언 판별·가져오기 시점 리댁션이 있는 HAR 1.2 가져오기(`http_capture`); Windows 실시간 HTTP/1.x metadata tier는 H-RG4와 통합 R-RG1 릴리스 승인(2026-08-03)을 통과했으며 다음 release tag 전까지는 unreleased |
 | 언어 중립 evidence | access/edge log, server log, OpenTelemetry log/trace, metrics snapshot, database/broker/platform evidence, OpenAPI, AsyncAPI, stitched evidence, architecture-doc draft |
 
 지원하지 않거나 보류된 범위:
@@ -133,8 +133,9 @@ trace, contract를 분석하며, application source code를 정적 분석하거�
 
 HTTP Capture 화면에는 Windows 실시간 캡처 candidate가 포함되어 있습니다.
 H-RG4는 fixture-only 교체 artifact와 V1-V3 narrow 네 번째 재리뷰를 거쳐
-2026-07-30 `PASS`로 종료되었습니다. 통합 R-RG1 acceptance 전까지는 릴리스된
-capture tier가 아니라 release candidate입니다.
+2026-07-30 `PASS`로 종료되었고, 통합 R-RG1 acceptance는 2026-08-03에
+통과했습니다. 다음 release tag가 만들어지기 전까지 이 tier는 unreleased
+상태입니다.
 
 1. 최초 사용 프록시/CA 경고를 읽고 동의합니다.
 2. HTTPS 가로채기가 필요하면 임시 캡처 CA를 설치합니다.
@@ -214,7 +215,8 @@ session path를 제외하고 행을 2,000개로 제한하며 loopback fixture pr
 명시합니다. 공개 보관 전 내용을 검토한 뒤 JSON 또는 repository path와 checksum을
 기록해야 합니다. H-RG4 artifact와 독립 재리뷰는 통과했습니다. R-RG1은 이
 전체 외부 matrix를 재사용하고, 새로운 native in-process live-capture 검사와
-`docs/ko/PERFORMANCE.md`의 격리된 리졸버 비용 측정을 추가합니다.
+`docs/ko/PERFORMANCE.md`의 격리된 리졸버 비용 측정을 추가해 2026-08-03에
+통과했습니다.
 
 ## 네이티브 앱
 

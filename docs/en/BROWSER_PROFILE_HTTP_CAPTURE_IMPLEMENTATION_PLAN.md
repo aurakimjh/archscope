@@ -35,7 +35,9 @@ group and **the next group cannot start until the current group passes**.
   and the Claude unavailable-delta renderer remediation are both complete;
   the narrow re-review returned a second `CONDITIONAL` for B3 stale candidate
   clock state. Codex B3 remediation then passed the final narrow re-review;
-  B1/B2/B3 are closed and R-RG1 is unblocked.
+  B1/B2/B3 are closed. `R-RG1` integrated release acceptance is **complete —
+  PASS (2026-08-03)** after a `CONDITIONAL` first review and verified R1–R3
+  remediation; the plan's review-group ladder is fully closed.
 
 ## 2. Ownership
 
@@ -90,7 +92,7 @@ Only high-consequence boundaries receive an extra per-item gate:
 | 5 | `H-RG4` live UI and Windows E2E | **Complete — PASS (2026-07-30)** | Closed |
 | 6 | `H-RG5` HTTP session Diff | **Complete — group PASS (2026-07-30)** | Closed |
 | 7 | `X-RG1` HTTP x profile/server-evidence correlation | **Complete — PASS (2026-07-31)**; B1/B2/B3 closed | `H-RG5 PASS` |
-| 8 | `R-RG1` integrated release acceptance | Review ready — backend/platform gates pass (2026-07-31) | Independent `R-RG1 PASS` |
+| 8 | `R-RG1` integrated release acceptance | **Complete — PASS (2026-08-03)**; R1–R3 closed | Independent `R-RG1 PASS` |
 
 The two features stay in separate commits except for `X-RG1`, whose purpose is
 to join them.
@@ -567,8 +569,11 @@ app/correlation Go tests pass. No engine source was changed by Claude.
 
 ### R-RG1 — Integrated Release Acceptance
 
-- **Status: conditional findings remediated — narrow independent re-review
-  pending (2026-08-03).**
+- **Status: Complete — group `PASS` (2026-08-03)**. The first review returned
+  `CONDITIONAL` on R1–R3; the remediation closed all three, and the narrow
+  independent re-review verified the closures and returned `PASS` (review
+  archived at
+  `docs/review/done/2026-08-03_claude-code_R-RG1_integrated-release-acceptance-narrow-re-review.md`).
 - [x] Make full Go test/vet/build and frontend state tests/build explicit CI
   gates.
 - [x] Gate the native Windows in-process live-capture E2E and archive a
@@ -589,8 +594,10 @@ app/correlation Go tests pass. No engine source was changed by Claude.
   feature notes, restore and run the Windows GUI gate, and correct the archived
   evidence pin to the repository's LF-normalized bytes while retaining the
   original Windows CRLF digest as provenance.
-- [ ] Obtain an independent R-RG1 verdict.
-- Do not create a version tag or GitHub release before `R-RG1 PASS`.
+- [x] Obtain an independent R-RG1 verdict: the narrow re-review returned
+  `PASS` on 2026-08-03; no blocking R-RG1 finding remains.
+- `R-RG1 PASS` is obtained; the version tag and GitHub release are now a
+  separate, unblocked release decision.
 
 ## 8. First Execution Point
 
@@ -621,5 +628,9 @@ Claude unavailable-delta renderer remediation now renders an unmeasured
 pairing as `—` with its reason on every surface. B3 remediation now also
 recomputes clock evidence solely from the selected access record, with the
 adversarial stale-candidate regression and full Go/frontend verification
-passing. The final narrow review returned `PASS`; X-RG1/T-583 is closed and
-R-RG1/T-584 is ready.
+passing. The final narrow review returned `PASS`; X-RG1/T-583 is closed.
+R-RG1/T-584 then completed the integrated release acceptance: the first
+review returned `CONDITIONAL` on R1–R3, the remediation closed all three, and
+the 2026-08-03 narrow re-review verified them and returned `PASS`. The review
+gate ladder for this plan is fully closed; the version tag and GitHub release
+remain a separate release decision.

@@ -118,7 +118,7 @@ or modify application source code.
 | .NET evidence | clrstack, Environment.StackTrace, exception/IIS evidence, dotnet-trace speedscope exports |
 | Ruby / PHP / Swift / native profile evidence | rbspy, StackProf, PHP Excimer/Tideways/Xdebug, Swift/async stacks, perf collapsed/native stacks when supplied as supported profile artifacts |
 | Browser / frontend evidence | Chrome Performance traces (`.json`/`.json.gz`), V8 `.cpuprofile` (browser, Node `--cpu-prof`, CDP `Profiler.stop`) with sampled CPU run analysis; note these are CPU samples only — no network, layout, or paint attribution |
-| HTTP evidence | HAR 1.2 imports with dialect detection and import-time redaction (`http_capture`); the Windows live HTTP/1.x metadata tier passed H-RG4 and remains a release candidate until R-RG1 passes |
+| HTTP evidence | HAR 1.2 imports with dialect detection and import-time redaction (`http_capture`); the Windows live HTTP/1.x metadata tier passed H-RG4 and the integrated R-RG1 release acceptance (2026-08-03) and remains unreleased until the next release tag is cut |
 | Language-neutral evidence | access/edge logs, server logs, OpenTelemetry logs/traces, metrics snapshots, database/broker/platform evidence, OpenAPI, AsyncAPI, stitched evidence, architecture-doc drafts |
 
 Unsupported or deferred:
@@ -134,8 +134,8 @@ Unsupported or deferred:
 
 The HTTP Capture page includes the Windows live-capture candidate. H-RG4 passed
 on 2026-07-30 after the replacement fixture-only artifact and narrow fourth
-re-review closed V1-V3. It remains a release candidate, not a released tier,
-until the integrated R-RG1 acceptance passes:
+re-review closed V1-V3, and the integrated R-RG1 acceptance passed on
+2026-08-03. The tier remains unreleased until the next release tag is cut:
 
 1. Read and accept the first-use proxy/CA warning.
 2. Install the temporary capture CA when HTTPS interception is required.
@@ -218,9 +218,10 @@ metadata-only evidence with owner-only permissions. The artifact omits local
 session paths, caps rows at 2,000, declares its loopback-fixture privacy scope,
 and must be reviewed before public archiving. Archive the generated JSON or
 record its repository path and checksum before requesting review. The H-RG4
-artifact and independent re-review passed; R-RG1 reuses that full external
-matrix and adds a fresh native in-process live-capture check plus the isolated
-resolver-cost measurement described in `docs/en/PERFORMANCE.md`.
+artifact and independent re-review passed; R-RG1 reused that full external
+matrix, added a fresh native in-process live-capture check plus the isolated
+resolver-cost measurement described in `docs/en/PERFORMANCE.md`, and passed
+on 2026-08-03.
 
 ## Native App
 
