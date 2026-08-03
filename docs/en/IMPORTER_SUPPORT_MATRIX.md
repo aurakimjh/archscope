@@ -1,7 +1,7 @@
 # Importer Support Matrix
 
-This matrix tracks the local evidence importers implemented for the Mid-Term
-Plus ingestion line as of `v0.3.5`.
+This matrix tracks the currently supported local evidence importers, including
+the unreleased browser-profile, Lighthouse, and HAR additions after `v0.3.5`.
 
 | Family | Result type | CLI | Representative inputs |
 |---|---|---|---|

@@ -276,7 +276,10 @@ streaming, H2 passthrough fixture와 long-session memory bound가 통과해야 �
 loopback fixture 1,012행만 보관하고 백그라운드 11행을 제외했으며,
 confirmed attribution의 fixture pinning 실패 1행과 빈 contradiction 집합을
 포함한다. SHA-256은
-`69565684d57b20d763ed477f731a9eb836bcc8fbde657cdff10bce0085030111`이다.
+`2737133818ee1881cfb6ee73f622e1ca6137b63b1818ee699a7eae5fc7218c7e`이다.
+이는 `.gitattributes`에 따라 저장된 repository LF 정규화본의 digest이며,
+Windows CRLF 원본 artifact의 digest는
+`69565684d57b20d763ed477f731a9eb836bcc8fbde657cdff10bce0085030111`이었다.
 2026-07-30 V1–V3에 한정한 네 번째 독립 재리뷰가 조건 해소를 검증하고
 게이트를 닫았다
 (`docs/review/done/2026-07-30_claude-code_H-RG4_windows-live-capture-ui-e2e-fourth-re-review.md`).
@@ -543,13 +546,16 @@ Claude는 엔진 소스를 변경하지 않았다.
 
 ### R-RG1 — 통합 릴리스 승인
 
-- **상태: 리뷰 준비 — 백엔드/platform acceptance gate 통과
-  (2026-07-31).**
+- **상태: 조건부 지적 해소 — 독립 narrow 재리뷰 대기
+  (2026-08-03).**
 - [x] Go 전체 test/vet/build와 frontend state test/build를 명시적인 CI gate로
   만든다.
 - [x] Native Windows in-process live-capture E2E를 gate로 연결하고 실제
   `GetExtendedTcpTable` 호출의 schema-v1·path-free resolver-cost 측정을
   artifact로 보관한다.
+- [x] Release-candidate commit에서 Windows Wails GUI를 빌드하고 실행한다.
+  수동 workflow run `30809473903`이 commit `f5efea8`에서 통과했고,
+  18,909,184-byte 실행 파일이 15초 smoke 구간 동안 정상 실행됐다.
 - [x] macOS에서 offline access-log/Lighthouse import 후 Wails package와
   code-signature smoke를 수행한다.
 - [x] 영문/한글 implementation, importer, user, performance 문서를 맞추고,
@@ -558,6 +564,9 @@ Claude는 엔진 소스를 변경하지 않았다.
 - [x] Push된 CI evidence를 검토한다. Engine Native 5개 job과 병렬 CI
   workflow가 모두 통과했고 Windows resolver evidence는 50/50 sample 확인,
   mean 0.539 ms, p95 0.731 ms, 최대 0.857 ms를 기록했다.
+- [x] 첫 R-RG1 리뷰의 R1–R3를 해소한다. unreleased 기능 note를 완성하고,
+  Windows GUI gate를 복원·실행하며, 원래 Windows CRLF digest provenance를
+  보존한 채 보관 evidence pin을 repository LF 정규화 byte에 맞춘다.
 - [ ] 독립 R-RG1 판정을 받는다.
 - `R-RG1 PASS` 전에는 버전 tag나 GitHub release를 만들지 않는다.
 

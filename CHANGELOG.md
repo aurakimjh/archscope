@@ -8,17 +8,34 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
-- Added release-gate coverage for the Windows-native live-capture proxy,
-  including an isolated `GetExtendedTcpTable` resolver-cost measurement whose
-  bounded JSON evidence is archived by CI.
-- Added macOS release smoke coverage that imports representative offline access
-  log and Lighthouse evidence before building and verifying the ad-hoc-signed
-  Wails application bundle.
+- Added Chrome Performance trace (`.json`/`.json.gz`) and V8 `.cpuprofile`
+  analysis with bounded sampled-CPU runs, timing diagnostics, flamegraph
+  drilldown, and a dedicated Browser CPU desktop workflow.
+- Added Lighthouse report JSON import with preserved report-authored scores,
+  Core Web Vitals, audit/resource projections, URL redaction, and a dedicated
+  browser-audit page.
+- Added bounded HAR 1.2 import with browser/tool dialect detection,
+  import-time redaction, explicit fidelity/timing diagnostics, and an offline
+  HTTP analysis workspace.
+- Added an opt-in Windows live HTTP capture tier with loopback-only proxying,
+  connection-specific process attribution, crash-safe bounded session storage,
+  CA lifecycle controls, and live/recovery UI state.
+- Added HTTP session Diff with versioned URL templates, explicit rate
+  denominators, time-alignment grades, and a grade-aware comparison UI.
+- Added HTTP evidence correlation with Chrome/V8 CPU runs, Jennifer
+  network-gap evidence, and access logs, including provenance-aware drilldown,
+  fail-closed clock alignment, and non-causal overlays.
 
 ### Changed
 
+- Expanded release acceptance with a named Windows-native live-capture E2E,
+  Windows GUI launch smoke, and an isolated `GetExtendedTcpTable`
+  resolver-cost measurement whose bounded JSON evidence is archived by CI.
+- Added macOS release smoke coverage that imports representative offline access
+  log and Lighthouse evidence before building and verifying the ad-hoc-signed
+  Wails application bundle.
 - The frontend release gate now runs the state regression suite as well as the
-  production build. No UI behavior is changed by this release-gate work.
+  production build.
 
 ### Security
 

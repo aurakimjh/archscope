@@ -276,6 +276,9 @@ rejected artifact. The replacement has 1,012 loopback-only archived rows from
 1,023 source rows, records 11 omitted background rows, contains one
 confirmed-attribution fixture pinning failure, has an empty contradiction
 set, and is pinned by SHA-256
+`2737133818ee1881cfb6ee73f622e1ca6137b63b1818ee699a7eae5fc7218c7e`.
+This is the repository's LF-normalized digest under `.gitattributes`; the
+original Windows CRLF artifact digest was
 `69565684d57b20d763ed477f731a9eb836bcc8fbde657cdff10bce0085030111`.
 The narrow independent fourth re-review on 2026-07-30 verified V1–V3 resolved
 and closed the gate
@@ -564,13 +567,16 @@ app/correlation Go tests pass. No engine source was changed by Claude.
 
 ### R-RG1 — Integrated Release Acceptance
 
-- **Status: review ready — backend/platform acceptance gates pass
-  (2026-07-31).**
+- **Status: conditional findings remediated — narrow independent re-review
+  pending (2026-08-03).**
 - [x] Make full Go test/vet/build and frontend state tests/build explicit CI
   gates.
 - [x] Gate the native Windows in-process live-capture E2E and archive a
   schema-v1, path-free resolver-cost measurement from real
   `GetExtendedTcpTable` calls.
+- [x] Build and launch the Windows Wails GUI from the release-candidate commit;
+  manual workflow run `30809473903` passed on commit `f5efea8`, producing an
+  18,909,184-byte executable that stayed alive for the 15-second smoke window.
 - [x] Add macOS offline access-log/Lighthouse imports followed by Wails package
   and code-signature smoke.
 - [x] Align paired implementation, importer, user, and performance guidance;
@@ -579,6 +585,10 @@ app/correlation Go tests pass. No engine source was changed by Claude.
 - [x] Review the pushed CI evidence: all five Engine Native jobs and the
   parallel CI workflow passed; Windows resolver evidence confirmed 50/50
   samples with mean 0.539 ms, p95 0.731 ms, and maximum 0.857 ms.
+- [x] Resolve the first R-RG1 review's R1–R3 findings: complete the unreleased
+  feature notes, restore and run the Windows GUI gate, and correct the archived
+  evidence pin to the repository's LF-normalized bytes while retaining the
+  original Windows CRLF digest as provenance.
 - [ ] Obtain an independent R-RG1 verdict.
 - Do not create a version tag or GitHub release before `R-RG1 PASS`.
 
