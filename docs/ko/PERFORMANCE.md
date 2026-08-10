@@ -44,6 +44,9 @@ connection마다 한 번 리졸버를 호출합니다.
 은 Windows amd64에서 50/50 sample의 귀속을 확인했습니다. 측정값은 mean
 `0.539 ms`, p50 `0.547 ms`, p95 `0.731 ms`, 최대 `0.857 ms`입니다. 이 값은
 해당 runner의 baseline이며 제품 SLO가 아닙니다.
+리졸버 시간은 각 조회가 IPv4/IPv6 TCP owner table 전체를 열거하고 반환 행을
+검색하므로 두 table의 전체 크기에 따라 증가합니다. 따라서 connection이 많은
+workstation은 거의 idle 상태인 hosted runner baseline보다 느릴 수 있습니다.
 
 ## 예산
 

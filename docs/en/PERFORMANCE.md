@@ -47,6 +47,9 @@ The first native R-RG1 run on 2026-07-31
 confirmed all 50/50 samples on Windows amd64. It measured mean `0.539 ms`,
 p50 `0.547 ms`, p95 `0.731 ms`, and maximum `0.857 ms`. These values are a
 runner-specific baseline, not a product SLO.
+Resolver time scales with the total IPv4 and IPv6 TCP owner-table size because
+each read enumerates both tables and matching scans the returned rows. A busy
+workstation can therefore exceed the near-idle hosted-runner baseline.
 
 ## Budget
 

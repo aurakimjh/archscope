@@ -145,6 +145,10 @@ jobs:
             --in apps/engine-native/internal/parsers/lighthouse/testdata/populated_report.json \
             --format lighthouse-json \
             --out "${RUNNER_TEMP}/lighthouse-result.json"
+          jq -e '.type == "access_log" and (.tables.sample_records | length > 0)' \
+            "${RUNNER_TEMP}/access-log-result.json"
+          jq -e '.type == "browser_audit_evidence" and (.tables.audits | length > 0)' \
+            "${RUNNER_TEMP}/lighthouse-result.json"
 
       - name: Package macOS app
         working-directory: apps/engine-native/cmd/archscope-app
