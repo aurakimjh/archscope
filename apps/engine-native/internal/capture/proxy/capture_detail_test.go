@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/dumppolicy"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 )
 
@@ -55,6 +56,22 @@ func proxyGet(t *testing.T, proxyAddress, target string, header http.Header) {
 			request.Header.Add(name, value)
 		}
 	}
+	client := &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL(proxyAddress))}}
+	response, err := client.Do(request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, _ = io.ReadAll(response.Body)
+	response.Body.Close()
+}
+
+func proxyPost(t *testing.T, proxyAddress, target, contentType, payload string) {
+	t.Helper()
+	request, err := http.NewRequest(http.MethodPost, target, strings.NewReader(payload))
+	if err != nil {
+		t.Fatal(err)
+	}
+	request.Header.Set("Content-Type", contentType)
 	client := &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL(proxyAddress))}}
 	response, err := client.Do(request)
 	if err != nil {
@@ -155,8 +172,9 @@ func TestReusedConnectionMarksHandshakePhasesNotApplicable(t *testing.T) {
 	}
 }
 
-// Bodies stay omitted in every startable session while SEC-10 is pending. This
-// must not regress into "captured because the dormant plumbing exists".
+// Bodies stay omitted unless the session explicitly opted in. Enabling the tier
+// must not turn into "captured because the plumbing is now reachable": the
+// default is still omission, independent of the preflight result.
 func TestBodiesStayOmittedWithoutOptIn(t *testing.T) {
 	origin := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, _ *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
@@ -180,7 +198,39 @@ func TestBodiesStayOmittedWithoutOptIn(t *testing.T) {
 	}
 }
 
-func TestDormantBodyCoreCapturesDecodedBodies(t *testing.T) {
+// The end-to-end reason the tier exists: with the preflight verified, an
+// opted-in session must actually be able to show the payload. The unit tests
+// below cover the recorder in isolation; this one covers the path a user takes.
+func TestVerifiedPreflightCapturesBodiesEndToEnd(t *testing.T) {
+	requestPayload := `{"order":{"id":42}}`
+	responsePayload := `{"status":"accepted"}`
+	origin := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		_, _ = io.ReadAll(request.Body)
+		writer.Header().Set("Content-Type", "application/json")
+		_, _ = io.WriteString(writer, responsePayload)
+	}))
+	defer origin.Close()
+
+	withDumpPolicy(t, dumppolicy.Result{State: dumppolicy.StateVerified})
+	address, captured := startPlainProxy(t, Config{CaptureBodies: true})
+	proxyPost(t, address, origin.URL+"/orders", "application/json", requestPayload)
+	tx := awaitTransaction(t, captured)
+
+	if tx.Response.BodyStorage != BodyStorageInline {
+		t.Fatalf("response bodyStorage=%q, want %q once the tier is verified", tx.Response.BodyStorage, BodyStorageInline)
+	}
+	if tx.Response.BodyPreview != responsePayload {
+		t.Fatalf("response bodyPreview=%q, want %q", tx.Response.BodyPreview, responsePayload)
+	}
+	if tx.Request.BodyStorage != BodyStorageInline {
+		t.Fatalf("request bodyStorage=%q, want %q", tx.Request.BodyStorage, BodyStorageInline)
+	}
+	if tx.Request.BodyPreview != requestPayload {
+		t.Fatalf("request bodyPreview=%q, want %q", tx.Request.BodyPreview, requestPayload)
+	}
+}
+
+func TestBodyRecorderCapturesDecodedBodies(t *testing.T) {
 	payload := `{"order":{"id":42}}`
 	recorder := newBodyRecorder(io.NopCloser(strings.NewReader(payload)), true, 0)
 	if _, err := io.Copy(io.Discard, recorder); err != nil {
@@ -202,7 +252,7 @@ func TestDormantBodyCoreCapturesDecodedBodies(t *testing.T) {
 
 // A body over the per-message cap must be reported as truncated rather than
 // presented as if it were the whole payload.
-func TestDormantBodyCoreTruncatesOversizedBodies(t *testing.T) {
+func TestBodyRecorderTruncatesOversizedBodies(t *testing.T) {
 	payload := strings.Repeat("A", 4096)
 	recorder := newBodyRecorder(io.NopCloser(strings.NewReader(payload)), true, 512)
 	if _, err := io.Copy(io.Discard, recorder); err != nil {
@@ -222,7 +272,7 @@ func TestDormantBodyCoreTruncatesOversizedBodies(t *testing.T) {
 	}
 }
 
-func TestDormantBodyCoreDecodesGzipBodies(t *testing.T) {
+func TestBodyRecorderDecodesGzipBodies(t *testing.T) {
 	payload := `{"compressed":true}`
 	var compressed bytes.Buffer
 	gzipWriter := gzip.NewWriter(&compressed)

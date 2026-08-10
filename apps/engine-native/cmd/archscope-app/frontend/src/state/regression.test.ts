@@ -99,6 +99,7 @@ import {
   resolveLiveAttribution,
   resolveLiveCAState,
   resolveLiveCaptureContract,
+  bodyGateReasonLabel,
   resolveLiveFidelity,
   resolveLiveSessionState,
   resolveLiveTransactionState,
@@ -1316,7 +1317,8 @@ let contracted = liveHttpCaptureReducer(initialLiveCaptureState, {
     restoreCurrentSessionOnPageReentry: true,
     finalizedSessionUsesAnalysisResult: true,
     bodyCaptureAvailable: true,
-    bodyCaptureGate: "sec10_preflight_pending",
+    bodyCaptureGate: "sec10_verified",
+    bodyCaptureGateReason: "",
     maxBodyBytes: 262144,
     upstreamTimingsAvailable: true,
   },
@@ -2809,6 +2811,8 @@ const analyzerLabelKeys = [
   "httpCaptureSectionSession",
   "liveCaptureBodyOptIn",
   "liveCaptureBodyGateWarning",
+  "liveCaptureBodyGateVerified",
+  "liveCaptureBodyUnavailable",
 ] as const;
 for (const key of analyzerLabelKeys) {
   assert(
@@ -2820,32 +2824,101 @@ for (const key of analyzerLabelKeys) {
   );
 }
 
-// The live-capture contract gained the body gate and timing availability. A
-// contract missing them is a schema this renderer cannot honour, and half-
-// honouring it would leave the renderer's behaviour described by neither side.
+// The live-capture contract carries the body gate, its reason, and timing
+// availability. A contract missing them is a schema this renderer cannot
+// honour, and half-honouring it would leave the renderer's behaviour described
+// by neither side.
+const v3Contract = {
+  schemaVersion: 3,
+  transactionRowCap: 500,
+  resyncOnEventSkip: true,
+  restoreCurrentSessionOnPageReentry: true,
+  finalizedSessionUsesAnalysisResult: true,
+  bodyCaptureAvailable: true,
+  bodyCaptureGate: "sec10_verified",
+  bodyCaptureGateReason: "",
+  maxBodyBytes: 262144,
+  upstreamTimingsAvailable: true,
+};
 assert(
-  resolveLiveCaptureContract({
-    schemaVersion: 2,
-    transactionRowCap: 500,
-    resyncOnEventSkip: true,
-    restoreCurrentSessionOnPageReentry: true,
-    finalizedSessionUsesAnalysisResult: true,
-    bodyCaptureAvailable: true,
-    bodyCaptureGate: "sec10_preflight_pending",
-    maxBodyBytes: 262144,
-    upstreamTimingsAvailable: true,
-  }).bodyCaptureGate === "sec10_preflight_pending",
-  "a complete v2 contract should be adopted verbatim",
+  resolveLiveCaptureContract(v3Contract).bodyCaptureGate === "sec10_verified" &&
+    resolveLiveCaptureContract(v3Contract).bodyCaptureAvailable === true,
+  "a complete v3 contract should be adopted verbatim",
+);
+// The schema bump must fail safe on a stale engine rather than silently
+// reading v2 fields as if they meant the same thing (RD-132).
+assert(
+  resolveLiveCaptureContract({ ...v3Contract, schemaVersion: 2 }) ===
+    DEFAULT_LIVE_CAPTURE_CONTRACT,
+  "a v2 contract must fall back once the renderer implements v3",
 );
 assert(
   resolveLiveCaptureContract({
-    schemaVersion: 2,
+    schemaVersion: 3,
     transactionRowCap: 500,
     resyncOnEventSkip: true,
     restoreCurrentSessionOnPageReentry: true,
     finalizedSessionUsesAnalysisResult: true,
   }) === DEFAULT_LIVE_CAPTURE_CONTRACT,
-  "a v2 contract missing the body-gate fields must fall back rather than half-adopt",
+  "a v3 contract missing the body-gate fields must fall back rather than half-adopt",
+);
+// The fail-closed default must never offer the tier.
+assert(
+  DEFAULT_LIVE_CAPTURE_CONTRACT.bodyCaptureAvailable === false &&
+    DEFAULT_LIVE_CAPTURE_CONTRACT.bodyCaptureGate === "sec10_unavailable",
+  "the renderer fallback must report body capture as unavailable",
+);
+// Availability and gate are two fields of one contract. If they disagree, the
+// renderer must resolve closed instead of trusting the permissive half.
+assert(
+  resolveLiveCaptureContract({
+    ...v3Contract,
+    bodyCaptureAvailable: true,
+    bodyCaptureGate: "sec10_unavailable",
+    bodyCaptureGateReason: "local_dumps_collecting",
+  }).bodyCaptureAvailable === false,
+  "an available flag without a verified gate must resolve to unavailable",
+);
+// A reason token this renderer cannot name would otherwise reach the operator
+// as machine text, so the whole contract is rejected instead.
+assert(
+  resolveLiveCaptureContract({
+    ...v3Contract,
+    bodyCaptureAvailable: false,
+    bodyCaptureGate: "sec10_unavailable",
+    bodyCaptureGateReason: "some_future_reason",
+  }) === DEFAULT_LIVE_CAPTURE_CONTRACT,
+  "an unrecognized gate reason must reject the contract rather than render raw",
+);
+assert(
+  resolveLiveCaptureContract({
+    ...v3Contract,
+    bodyCaptureAvailable: false,
+    bodyCaptureGate: "some_future_gate",
+  }) === DEFAULT_LIVE_CAPTURE_CONTRACT,
+  "an unrecognized gate token must reject the contract",
+);
+// Every reason the engine can emit must resolve to prose in both locales, and
+// an unknown token must degrade to a generic refusal rather than echo itself.
+for (const reason of [
+  "unsupported_platform",
+  "policy_unreadable",
+  "local_dumps_collecting",
+  "wer_exclusion_failed",
+  "wer_exclusion_unconfirmed",
+]) {
+  for (const language of ["en", "ko"] as const) {
+    const label = bodyGateReasonLabel(reason, language);
+    assert(
+      label.length > 0 && !label.includes(reason),
+      `gate reason ${reason} must render as ${language} prose, not the token`,
+    );
+  }
+}
+assert(
+  !bodyGateReasonLabel("some_future_reason", "en").includes("some_future_reason") &&
+    !bodyGateReasonLabel("some_future_reason", "ko").includes("some_future_reason"),
+  "an unknown gate reason must not be echoed to the operator",
 );
 
 // The running session's body policy is authoritative while it is active; the

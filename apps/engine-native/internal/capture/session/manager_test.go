@@ -5,10 +5,12 @@ import (
 	"errors"
 	"net/http"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/dumppolicy"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/proxy"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 )
@@ -16,6 +18,16 @@ import (
 func TestManagerRejectsBodyCaptureBeforeAllocatingSensitiveState(t *testing.T) {
 	root := t.TempDir()
 	manager := NewManagerForPlatform(root, capture.NopEventSink{}, "windows")
+	// Pinned rather than inherited from the host: on a Windows runner with no
+	// LocalDumps policy the real preflight verifies, and this test would then
+	// assert the accept path while claiming to cover the reject path.
+	manager.dumpPolicy = func() dumppolicy.Result {
+		return dumppolicy.Result{
+			State:  dumppolicy.StateUnavailable,
+			Reason: dumppolicy.ReasonLocalDumpsCollecting,
+			Detail: "a LocalDumps policy collects a crash dump for this application",
+		}
+	}
 	capturerConstructed := false
 	manager.newCapturer = func(proxy.Config) (Capturer, error) {
 		capturerConstructed = true
@@ -35,6 +47,85 @@ func TestManagerRejectsBodyCaptureBeforeAllocatingSensitiveState(t *testing.T) {
 	}
 	if len(entries) != 0 {
 		t.Fatalf("rejected start created %d session artifacts", len(entries))
+	}
+}
+
+// The other half of the gate: a verified preflight must actually enable the
+// tier, and the session plus its manifest must record which gate let it
+// through. Without this the fail-closed path could be satisfied by code that
+// simply always refuses.
+func TestManagerStartsBodyCaptureOnVerifiedPreflight(t *testing.T) {
+	root := t.TempDir()
+	manager := NewManagerForPlatform(root, capture.NopEventSink{}, "windows")
+	manager.dumpPolicy = func() dumppolicy.Result {
+		return dumppolicy.Result{State: dumppolicy.StateVerified, Detail: "no LocalDumps policy collects a dump"}
+	}
+	// proxy.New runs its own preflight against the real host, so this test
+	// would otherwise be blocked by the very independence it is not testing.
+	// The proxy-side accept path is covered in the proxy package instead.
+	manager.newCapturer = func(proxy.Config) (Capturer, error) {
+		return &drainOnStopCapturer{}, nil
+	}
+
+	started, err := manager.Start(context.Background(), capture.Config{
+		ListenAddress: "127.0.0.1:0", CaptureBodies: true,
+	})
+	if err != nil {
+		t.Fatalf("Start with a verified preflight failed: %v", err)
+	}
+	defer func() { _, _ = manager.Stop(context.Background(), started.ID) }()
+
+	if !started.CaptureBodies {
+		t.Fatal("session did not record that bodies were captured")
+	}
+	if started.BodyCaptureGate != capture.BodyGateVerified {
+		t.Fatalf("BodyCaptureGate=%q, want %q", started.BodyCaptureGate, capture.BodyGateVerified)
+	}
+	if started.BodyCaptureGateReason != "" {
+		t.Fatalf("a verified gate carried reason %q, want empty", started.BodyCaptureGateReason)
+	}
+}
+
+// An unavailable preflight must reach the operator with the reason attached.
+// A bare refusal would leave "why is the checkbox gone" unanswerable, which is
+// the state RD-134 objected to in the opposite direction.
+func TestManagerSurfacesPreflightReasonOnRejection(t *testing.T) {
+	manager := NewManagerForPlatform(t.TempDir(), capture.NopEventSink{}, "windows")
+	manager.dumpPolicy = func() dumppolicy.Result {
+		return dumppolicy.Result{
+			State:  dumppolicy.StateUnavailable,
+			Reason: dumppolicy.ReasonExclusionUnconfirmed,
+			Detail: "the exclusion was requested but is not present in the effective policy",
+		}
+	}
+
+	_, err := manager.Start(context.Background(), capture.Config{CaptureBodies: true})
+	if !errors.Is(err, capture.ErrBodyCapturePreflightPending) {
+		t.Fatalf("Start error=%v, want ErrBodyCapturePreflightPending", err)
+	}
+	if !strings.Contains(err.Error(), "not present in the effective policy") {
+		t.Fatalf("rejection did not carry the preflight detail: %v", err)
+	}
+}
+
+// A session that did not ask for bodies must not be described by the preflight
+// at all. Recording a verified gate on a body-less session would make the
+// manifest claim a check mattered to a session it did not govern.
+func TestManagerRecordsDisabledGateWhenBodiesNotRequested(t *testing.T) {
+	manager := NewManagerForPlatform(t.TempDir(), capture.NopEventSink{}, "windows")
+	manager.dumpPolicy = func() dumppolicy.Result {
+		t.Fatal("preflight ran for a session that did not request bodies")
+		return dumppolicy.Result{}
+	}
+
+	started, err := manager.Start(context.Background(), capture.Config{ListenAddress: "127.0.0.1:0"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _, _ = manager.Stop(context.Background(), started.ID) }()
+
+	if started.BodyCaptureGate != capture.BodyGateDisabled {
+		t.Fatalf("BodyCaptureGate=%q, want %q", started.BodyCaptureGate, capture.BodyGateDisabled)
 	}
 }
 

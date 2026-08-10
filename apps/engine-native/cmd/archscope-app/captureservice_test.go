@@ -156,6 +156,7 @@ func TestT581LiveCaptureAcceptanceFixture(t *testing.T) {
 			FinalizedSessionUsesAnalysisResult bool
 			BodyCaptureAvailable               bool
 			BodyCaptureGate                    string
+			BodyCaptureGateReason              string
 			MaxBodyBytes                       int
 			UpstreamTimingsAvailable           bool
 		}
@@ -222,7 +223,7 @@ func TestT581LiveCaptureAcceptanceFixture(t *testing.T) {
 		fixture.Security.BodyStorage != proxy.BodyStorageOmitted ||
 		!fixture.Security.CARemovedOnStop ||
 		fixture.Security.BodyCaptureDefault != (capture.Config{}).CaptureBodies ||
-		fixture.Security.BodyCaptureGate != capture.BodyGatePreflightPending {
+		fixture.Security.BodyCaptureGate != capture.BodyGateUnavailable {
 		t.Fatalf("security=%+v", fixture.Security)
 	}
 	contract := capture.DefaultLiveCaptureContract()
@@ -233,6 +234,7 @@ func TestT581LiveCaptureAcceptanceFixture(t *testing.T) {
 		fixture.Renderer.FinalizedSessionUsesAnalysisResult != contract.FinalizedSessionUsesAnalysisResult ||
 		fixture.Renderer.BodyCaptureAvailable != contract.BodyCaptureAvailable ||
 		fixture.Renderer.BodyCaptureGate != contract.BodyCaptureGate ||
+		fixture.Renderer.BodyCaptureGateReason != contract.BodyCaptureGateReason ||
 		fixture.Renderer.MaxBodyBytes != contract.MaxBodyBytes ||
 		fixture.Renderer.UpstreamTimingsAvailable != contract.UpstreamTimingsAvailable {
 		t.Fatalf("renderer=%+v", fixture.Renderer)

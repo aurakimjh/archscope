@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/dumppolicy"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 )
 
@@ -30,6 +31,15 @@ func (r *fixedProcessResolver) Resolve(net.Addr, net.Addr) (*models.ProcessInsta
 	return r.process, nil
 }
 
+// withDumpPolicy pins this package's preflight for one test. It is deliberately
+// test-local: production code has no way to substitute the check.
+func withDumpPolicy(t *testing.T, result dumppolicy.Result) {
+	t.Helper()
+	previous := dumpPolicyCurrent
+	dumpPolicyCurrent = func() dumppolicy.Result { return result }
+	t.Cleanup(func() { dumpPolicyCurrent = previous })
+}
+
 func TestNewRejectsBodyCaptureUntilSEC10PreflightPasses(t *testing.T) {
 	authority, err := NewAuthority(time.Now().UTC())
 	if err != nil {
@@ -37,9 +47,64 @@ func TestNewRejectsBodyCaptureUntilSEC10PreflightPasses(t *testing.T) {
 	}
 	defer authority.Close()
 
+	// Pinned rather than inherited: on a Windows runner with no LocalDumps
+	// policy the real preflight verifies, and this test would silently stop
+	// covering the rejection it names.
+	withDumpPolicy(t, dumppolicy.Result{
+		State:  dumppolicy.StateUnavailable,
+		Reason: dumppolicy.ReasonLocalDumpsCollecting,
+	})
+
 	_, err = New(Config{Authority: authority, CaptureBodies: true})
 	if !errors.Is(err, capture.ErrBodyCapturePreflightPending) {
 		t.Fatalf("New error=%v, want ErrBodyCapturePreflightPending", err)
+	}
+}
+
+// The proxy must reject a body-enabled construction on its own, without the
+// session manager having checked anything. This is the property that keeps a
+// stale or custom caller from reaching plaintext retention.
+func TestNewRunsItsOwnPreflightRatherThanTrustingTheCaller(t *testing.T) {
+	authority, err := NewAuthority(time.Now().UTC())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer authority.Close()
+
+	called := false
+	previous := dumpPolicyCurrent
+	dumpPolicyCurrent = func() dumppolicy.Result {
+		called = true
+		return dumppolicy.Result{State: dumppolicy.StateUnavailable, Reason: dumppolicy.ReasonPolicyUnreadable}
+	}
+	t.Cleanup(func() { dumpPolicyCurrent = previous })
+
+	if _, err := New(Config{Authority: authority, CaptureBodies: true}); !errors.Is(err, capture.ErrBodyCapturePreflightPending) {
+		t.Fatalf("New error=%v, want ErrBodyCapturePreflightPending", err)
+	}
+	if !called {
+		t.Fatal("New did not run the preflight; it accepted the caller's request without checking")
+	}
+}
+
+// A verified preflight must let construction through, otherwise the gate is
+// indistinguishable from code that always refuses and the tier could never be
+// activated.
+func TestNewAcceptsBodyCaptureOnVerifiedPreflight(t *testing.T) {
+	authority, err := NewAuthority(time.Now().UTC())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer authority.Close()
+
+	withDumpPolicy(t, dumppolicy.Result{State: dumppolicy.StateVerified})
+
+	server, err := New(Config{Authority: authority, CaptureBodies: true})
+	if err != nil {
+		t.Fatalf("New with a verified preflight failed: %v", err)
+	}
+	if server == nil {
+		t.Fatal("New returned no server on a verified preflight")
 	}
 }
 

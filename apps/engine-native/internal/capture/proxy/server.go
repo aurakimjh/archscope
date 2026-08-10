@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/dumppolicy"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 )
 
@@ -68,9 +69,9 @@ type Config struct {
 	Progress         func(models.CaptureTransaction)
 	Now              func() time.Time
 	DialContext      func(context.Context, string, string) (net.Conn, error)
-	// CaptureBodies requests the dormant body tier. New rejects it until the
-	// SEC-10 crash-dump exclusion preflight is implemented and can supply a
-	// verified gate result.
+	// CaptureBodies requests the body tier. New rejects it unless the SEC-10
+	// crash-dump exclusion preflight verifies independently at construction
+	// time; the flag is a request, never a grant.
 	CaptureBodies bool
 	// MaxBodyBytes caps a single retained message body. Zero selects
 	// DefaultMaxBodyBytes.
@@ -98,8 +99,14 @@ type resolvedProcess struct {
 
 type resolvedProcessContextKey struct{}
 
+// dumpPolicyCurrent is this package's own handle on the SEC-10 preflight.
+// New deliberately re-runs the check instead of accepting a result from its
+// caller: the session manager's rejection and this one must not share a single
+// point that a stale or custom caller could satisfy once.
+var dumpPolicyCurrent = dumppolicy.Current
+
 func New(cfg Config) (*Server, error) {
-	if cfg.CaptureBodies {
+	if cfg.CaptureBodies && !dumpPolicyCurrent().Verified() {
 		return nil, capture.ErrBodyCapturePreflightPending
 	}
 	if cfg.Authority == nil {

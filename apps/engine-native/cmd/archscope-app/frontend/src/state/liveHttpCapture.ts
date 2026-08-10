@@ -20,6 +20,11 @@ export type LiveCaptureContract = {
    */
   bodyCaptureAvailable: boolean;
   bodyCaptureGate: string;
+  /**
+   * Why the tier is unavailable, as a closed token resolved through the label
+   * maps below. Empty when the tier is available.
+   */
+  bodyCaptureGateReason: string;
   maxBodyBytes: number;
   /**
    * Whether finalized rows carry a `proxyUpstream` phase breakdown. When true,
@@ -30,7 +35,89 @@ export type LiveCaptureContract = {
 };
 
 /** The only contract schema this renderer knows how to honour. */
-export const LIVE_CAPTURE_CONTRACT_SCHEMA_VERSION = 2;
+export const LIVE_CAPTURE_CONTRACT_SCHEMA_VERSION = 3;
+
+export const BODY_GATE_VERIFIED = "sec10_verified";
+export const BODY_GATE_UNAVAILABLE = "sec10_unavailable";
+export const BODY_GATE_DISABLED = "disabled";
+/** Written by builds that predate the preflight; still readable, never emitted. */
+export const BODY_GATE_PREFLIGHT_PENDING = "sec10_preflight_pending";
+
+const KNOWN_BODY_CAPTURE_GATES = new Set([
+  BODY_GATE_VERIFIED,
+  BODY_GATE_UNAVAILABLE,
+  BODY_GATE_DISABLED,
+  BODY_GATE_PREFLIGHT_PENDING,
+]);
+
+/**
+ * The engine's closed reason vocabulary. A token outside this set means the
+ * engine and this renderer disagree about what can be said, so the contract is
+ * rejected wholesale rather than rendered as a raw token.
+ */
+const KNOWN_BODY_GATE_REASONS = new Set([
+  "",
+  "unsupported_platform",
+  "policy_unreadable",
+  "local_dumps_collecting",
+  "wer_exclusion_failed",
+  "wer_exclusion_unconfirmed",
+]);
+
+function isKnownBodyCaptureGate(value: string): boolean {
+  return KNOWN_BODY_CAPTURE_GATES.has(value);
+}
+
+function isKnownBodyGateReason(value: unknown): boolean {
+  if (value === undefined) return true;
+  return typeof value === "string" && KNOWN_BODY_GATE_REASONS.has(value);
+}
+
+/**
+ * Localized prose for an unavailable body tier. The operator's next question
+ * after "why is the checkbox gone" is answered here rather than by a token.
+ */
+export const BODY_GATE_REASON_LABELS: Record<
+  string,
+  { en: string; ko: string }
+> = {
+  unsupported_platform: {
+    en: "Live capture, and this check, run on Windows only.",
+    ko: "라이브 캡처와 이 검사는 Windows에서만 동작합니다.",
+  },
+  policy_unreadable: {
+    en: "The Windows Error Reporting dump policy could not be read, so exclusion could not be confirmed.",
+    ko: "Windows 오류 보고 덤프 정책을 읽을 수 없어 제외 여부를 확인하지 못했습니다.",
+  },
+  local_dumps_collecting: {
+    en: "This machine collects a crash dump for the application. Overriding it needs administrator rights.",
+    ko: "이 PC는 애플리케이션의 크래시 덤프를 수집합니다. 해제하려면 관리자 권한이 필요합니다.",
+  },
+  wer_exclusion_failed: {
+    en: "The application could not be registered as excluded from Windows Error Reporting.",
+    ko: "애플리케이션을 Windows 오류 보고 제외 목록에 등록하지 못했습니다.",
+  },
+  wer_exclusion_unconfirmed: {
+    en: "The exclusion was requested but is not present in the effective policy.",
+    ko: "제외를 요청했지만 유효 정책에 반영되지 않았습니다.",
+  },
+};
+
+/**
+ * Resolves an unavailable gate to prose. An unrecognized token yields a
+ * generic refusal rather than the token itself, so an engine/renderer version
+ * skew never surfaces as machine text.
+ */
+export function bodyGateReasonLabel(
+  reason: string,
+  language: "en" | "ko",
+): string {
+  const entry = BODY_GATE_REASON_LABELS[reason];
+  if (entry) return entry[language];
+  return language === "ko"
+    ? "크래시 덤프 제외 사전검사가 통과하지 않아 본문 수집을 사용할 수 없습니다."
+    : "Body capture is unavailable because the crash-dump exclusion preflight did not pass.";
+}
 
 /**
  * Used until the engine answers, and as the fail-safe when it answers with a
@@ -44,10 +131,12 @@ export const DEFAULT_LIVE_CAPTURE_CONTRACT: LiveCaptureContract = {
   resyncOnEventSkip: true,
   restoreCurrentSessionOnPageReentry: true,
   finalizedSessionUsesAnalysisResult: true,
-  // Fail closed if the engine contract cannot be loaded. SEC-10 is still
-  // pending, so a renderer fallback must never expose the body opt-in.
+  // Fail closed if the engine contract cannot be loaded. A renderer that could
+  // not read the preflight result has not established anything, so it must
+  // never expose the body opt-in on its own authority.
   bodyCaptureAvailable: false,
-  bodyCaptureGate: "sec10_preflight_pending",
+  bodyCaptureGate: "sec10_unavailable",
+  bodyCaptureGateReason: "unsupported_platform",
   maxBodyBytes: 256 * 1024,
   upstreamTimingsAvailable: true,
 };
@@ -78,6 +167,8 @@ export function resolveLiveCaptureContract(raw: unknown): LiveCaptureContract {
     typeof candidate.finalizedSessionUsesAnalysisResult !== "boolean" ||
     typeof candidate.bodyCaptureAvailable !== "boolean" ||
     typeof candidate.bodyCaptureGate !== "string" ||
+    !isKnownBodyCaptureGate(candidate.bodyCaptureGate) ||
+    !isKnownBodyGateReason(candidate.bodyCaptureGateReason) ||
     typeof candidate.maxBodyBytes !== "number" ||
     !Number.isInteger(candidate.maxBodyBytes) ||
     candidate.maxBodyBytes <= 0 ||
@@ -93,8 +184,14 @@ export function resolveLiveCaptureContract(raw: unknown): LiveCaptureContract {
       candidate.restoreCurrentSessionOnPageReentry,
     finalizedSessionUsesAnalysisResult:
       candidate.finalizedSessionUsesAnalysisResult,
-    bodyCaptureAvailable: candidate.bodyCaptureAvailable,
+    // An available tier with no verified gate is a contradiction between two
+    // fields of the same contract. Resolve it closed rather than picking the
+    // permissive half.
+    bodyCaptureAvailable:
+      candidate.bodyCaptureAvailable &&
+      candidate.bodyCaptureGate === BODY_GATE_VERIFIED,
     bodyCaptureGate: candidate.bodyCaptureGate,
+    bodyCaptureGateReason: candidate.bodyCaptureGateReason ?? "",
     maxBodyBytes: candidate.maxBodyBytes,
     upstreamTimingsAvailable: candidate.upstreamTimingsAvailable,
   };

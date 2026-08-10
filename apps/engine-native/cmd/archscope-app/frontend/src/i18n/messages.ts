@@ -1224,7 +1224,10 @@ export const messages = {
     liveCaptureBodyOptInHint:
       "Off by default. When enabled, bodies are captured up to a per-message size limit and run through the same redaction policy as headers before anything is written to disk.",
     liveCaptureBodyGateWarning:
-      "The SEC-10 crash-dump exclusion preflight is not implemented, so enabling this accepts that captured plaintext may reach an OS crash dump. The session records the gate as pending.",
+      "Captured bodies are held in memory as plaintext before redaction. The preflight keeps them out of OS crash dumps; it does not defend against an active debugger, kernel-level memory acquisition, or plaintext reaching the pagefile or a hibernation image.",
+    liveCaptureBodyGateVerified:
+      "Enabled by a verified SEC-10 crash-dump exclusion preflight: no dump policy collects this application, and it is registered as excluded from Windows Error Reporting.",
+    liveCaptureBodyUnavailable: "Body capture is unavailable on this machine.",
     liveCaptureBodyOptInOn: "This session is capturing bodies.",
     liveCaptureBodyOptInOff: "This session is not capturing bodies.",
     httpCaptureDiffTitle: "HTTP session comparison",
@@ -2602,7 +2605,10 @@ export const messages = {
     liveCaptureBodyOptInHint:
       "기본값은 꺼짐입니다. 켜면 메시지당 크기 상한 안에서 본문을 캡처하며, 디스크에 쓰기 전에 헤더와 동일한 리댁션 정책을 거칩니다.",
     liveCaptureBodyGateWarning:
-      "SEC-10 crash-dump 제외 사전검사가 아직 구현되지 않았습니다. 켜는 것은 캡처된 평문이 OS crash dump에 남을 수 있음을 감수한다는 뜻이며, 세션에는 게이트가 pending으로 기록됩니다.",
+      "캡처된 본문은 리댁션 이전에 평문으로 메모리에 존재합니다. 사전검사는 이를 OS crash dump에서 제외할 뿐이며, 활성 디버거·커널 수준 메모리 획득·pagefile이나 최대 절전 이미지에 남는 평문은 방어하지 않습니다.",
+    liveCaptureBodyGateVerified:
+      "검증된 SEC-10 crash-dump 제외 사전검사로 활성화됨: 이 애플리케이션의 덤프를 수집하는 정책이 없고, Windows 오류 보고 제외 목록에 등록되어 있습니다.",
+    liveCaptureBodyUnavailable: "이 PC에서는 본문 캡처를 사용할 수 없습니다.",
     liveCaptureBodyOptInOn: "이 세션은 본문을 캡처하고 있습니다.",
     liveCaptureBodyOptInOff: "이 세션은 본문을 캡처하지 않습니다.",
     httpCaptureDiffTitle: "HTTP 세션 비교",

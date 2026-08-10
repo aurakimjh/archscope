@@ -71,6 +71,26 @@ jobs:
           path: ${{ runner.temp }}\archscope-resolver-cost.json
           if-no-files-found: error
 
+      # SEC-10 acceptance. The preflight's policy read is not evidence on its
+      # own, so this crashes a process holding plaintext and inspects the OS
+      # artifacts. It runs from the repository root because the script resolves
+      # the engine directory itself.
+      - name: SEC-10 crash-dump exclusion evidence
+        if: runner.os == 'Windows'
+        working-directory: ${{ github.workspace }}
+        shell: pwsh
+        run: |
+          ./scripts/verify-sec10-dump-exclusion.ps1 `
+            -EvidenceOut "${{ runner.temp }}\sec10-dump-exclusion-evidence.json"
+
+      - name: Upload SEC-10 dump-exclusion evidence
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v7
+        with:
+          name: t588-sec10-dump-exclusion
+          path: ${{ runner.temp }}\sec10-dump-exclusion-evidence.json
+          if-no-files-found: error
+
   wails-frontend:
     name: Wails frontend build
     runs-on: ubuntu-latest

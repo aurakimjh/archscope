@@ -54,11 +54,17 @@ export class LiveCaptureContract {
 
     /**
      * BodyCaptureAvailable tells the renderer whether to offer the opt-in at
-     * all, and BodyCaptureGate names the gate the session will record. The
-     * renderer must not infer either from the absence of body previews.
+     * all. BodyCaptureGate names the capability gate the preflight established.
+     * The renderer must not infer either from the absence of body previews.
      */
     "bodyCaptureAvailable": boolean;
     "bodyCaptureGate": string;
+
+    /**
+     * BodyCaptureGateReason names why the tier is unavailable, as a closed
+     * token the renderer maps to localized prose. Empty when available.
+     */
+    "bodyCaptureGateReason"?: string;
     "maxBodyBytes": number;
 
     /**
@@ -183,6 +189,13 @@ export class Session {
      */
     "captureBodies": boolean;
     "bodyCaptureGate": string;
+
+    /**
+     * BodyCaptureGateReason is the closed token explaining an unavailable
+     * gate. It is empty for a verified gate and for the plain disabled policy,
+     * where there is nothing to explain.
+     */
+    "bodyCaptureGateReason"?: string;
     "maxBodyBytes"?: number;
 
     /** Creates a new Session instance. */

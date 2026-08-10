@@ -88,8 +88,9 @@ func (r *bodyRecorder) Transferred() int64 { return r.n }
 // state exactly why a body is or is not readable.
 func (r *bodyRecorder) apply(message *models.HTTPMessage, contentEncoding string) {
 	// The recorder owns the unredacted wire bytes. Clear them as soon as the
-	// canonical message has been built; SEC-10 is still required because the
-	// message itself briefly contains plaintext before pipeline redaction.
+	// canonical message has been built. This shortens the window rather than
+	// closing it — the message itself holds plaintext until pipeline redaction
+	// runs, which is the exposure the SEC-10 preflight bounds.
 	defer r.clearCaptured()
 	message.BodySize = r.n
 	message.TransferSize = r.n

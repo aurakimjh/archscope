@@ -15,6 +15,7 @@ import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/acceptance"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/aggregate"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/certstore"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/dumppolicy"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/redact"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/session"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/store"
@@ -136,8 +137,12 @@ func (s *CaptureService) ListCaptureModes() []capture.Mode {
 	return s.manager.Modes()
 }
 
+// GetLiveCaptureContract runs the SEC-10 preflight rather than reporting a
+// fixed capability. The renderer asks at startup and on page re-entry, so a
+// machine whose dump policy changed between sessions is described by the
+// policy in force now, not by the one that applied when the app launched.
 func (s *CaptureService) GetLiveCaptureContract() capture.LiveCaptureContract {
-	return capture.DefaultLiveCaptureContract()
+	return capture.LiveCaptureContractFor(dumppolicy.Current())
 }
 
 func (s *CaptureService) StartCapture(config capture.Config) (capture.Session, error) {

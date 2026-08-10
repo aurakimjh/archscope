@@ -148,8 +148,9 @@ re-review closed V1-V3, and the integrated R-RG1 acceptance passed on
 
 The live renderer keeps the newest 500 metadata-only rows and reloads its
 authoritative live window if renderer events are skipped. Request/response
-bodies are always omitted; body capture remains blocked until the SEC-10
-crash-dump-exclusion preflight exists. The backend uses `pending` for an
+bodies are omitted by default. Body capture is a per-session opt-in that
+appears only where the SEC-10 crash-dump-exclusion preflight verifies; where it
+does not, the panel states the reason instead of offering the choice. The backend uses `pending` for an
 undecided MITM progress row and `unsupported` for passthrough; it never labels
 opaque in-flight traffic as semantic capture. The current-user Windows root
 store covers clients that consume the Windows trust store. JVM/JSSE and

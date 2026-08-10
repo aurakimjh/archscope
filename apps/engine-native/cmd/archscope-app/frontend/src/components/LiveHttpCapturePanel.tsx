@@ -25,6 +25,7 @@ import type { MessageKey } from "@/i18n/messages";
 import {
   activeBodyCapturePolicy,
   activeUnattributedPolicy,
+  bodyGateReasonLabel,
   buildLiveCoverageDisclosure,
   buildLiveProcessGroups,
   countLiveInFlight,
@@ -159,7 +160,7 @@ export function LiveHttpCapturePanel({
   onStarted,
   onFinalized,
 }: LiveHttpCapturePanelProps): React.JSX.Element {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [state, dispatch] = useReducer(
     liveHttpCaptureReducer,
     initialLiveCaptureState,
@@ -171,9 +172,10 @@ export function LiveHttpCapturePanel({
   });
   const [firstUseAccepted, setFirstUseAccepted] = useState(false);
   const [retainUnattributed, setRetainUnattributed] = useState(false);
-  // This seeds a future per-session choice only when the engine publishes the
-  // capability as available. Today SEC-10 is pending, so the fail-closed
-  // contract hides the control and this value stays false.
+  // Seeds the per-session choice. The control renders only when the engine
+  // publishes the tier as available, which requires a verified SEC-10
+  // preflight; on any other result the fail-closed contract hides it and this
+  // value stays false.
   const [captureBodies, setCaptureBodies] = useState(false);
   const [recovery, setRecovery] = useState<RecoverySummary | null>(null);
   const [analysisBusy, setAnalysisBusy] = useState(false);
@@ -598,6 +600,12 @@ export function LiveHttpCapturePanel({
               <span className="mt-1 block text-amber-700 dark:text-amber-400">
                 {t("liveCaptureBodyGateWarning")}
               </span>
+              {/* Name the gate that permitted this, so an operator enabling
+                  plaintext retention can see what was actually established
+                  rather than only that a checkbox exists. */}
+              <span className="mt-1 block text-muted-foreground">
+                {t("liveCaptureBodyGateVerified")}
+              </span>
               {active && (
                 <span className="mt-1 block font-medium text-amber-700 dark:text-amber-400">
                   {effectiveCaptureBodies
@@ -608,6 +616,18 @@ export function LiveHttpCapturePanel({
               )}
             </span>
           </label>
+        )}
+
+        {/* An absent checkbox is not self-explanatory. When the preflight did
+            not verify, say so and say why — otherwise the operator reads a
+            missing capability as a missing feature. */}
+        {!state.contract.bodyCaptureAvailable && (
+          <div className="rounded-md border border-border bg-muted/30 p-3 text-xs">
+            <span className="block font-medium">{t("liveCaptureBodyUnavailable")}</span>
+            <span className="mt-1 block text-muted-foreground">
+              {bodyGateReasonLabel(state.contract.bodyCaptureGateReason, locale)}
+            </span>
+          </div>
         )}
 
         <label className="flex items-start gap-2 rounded-md border border-border p-3 text-xs">

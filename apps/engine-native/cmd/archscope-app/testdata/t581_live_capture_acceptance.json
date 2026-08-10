@@ -56,18 +56,19 @@
     "bodyStorage": "omitted",
     "caRemovedOnStop": true,
     "bodyCaptureDefault": false,
-    "bodyCaptureGate": "sec10_preflight_pending"
+    "bodyCaptureGate": "sec10_unavailable"
   },
   "renderer": {
-    "schemaVersion": 2,
+    "schemaVersion": 3,
     "rowCap": 500,
     "resyncOnEventSkip": true,
     "restoreCurrentSessionOnPageReentry": true,
     "finalizedSessionUsesAnalysisResult": true,
     "bodyCaptureAvailable": false,
-    "bodyCaptureGate": "sec10_preflight_pending",
+    "bodyCaptureGate": "sec10_unavailable",
     "maxBodyBytes": 262144,
-    "upstreamTimingsAvailable": true
+    "upstreamTimingsAvailable": true,
+    "bodyCaptureGateReason": "unsupported_platform"
   },
   "acceptanceEvidence": {
     "schemaVersion": 3,

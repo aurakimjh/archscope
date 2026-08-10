@@ -1297,30 +1297,33 @@ fixture가 위 ID 중 무엇을 검증하는지 매핑**하는 것이 Phase 0 �
 | 민감 패턴 감지 | `redacted` — 11.3 |
 | 사용자가 바디 수집 끔 | 전부 `omitted` |
 
-#### 6.4.1 바디 캡처 tier — 비활성, SEC-10 fail-closed
+#### 6.4.1 바디 캡처 tier — SEC-10 게이트
 
-바디 처리 코어는 구현되어 있지만 SEC-10이 미완인 동안 request/response body
-capture는 제품 capability가 아니다. MITM 프록시가 평문 페이로드를 들고 있는
-상태가 바로 **SEC-10 crash-dump 제외 사전검사**가 한계 짓는 노출이며, H-SEC2
-C1 조건은 이를 accepted risk로 기록하지 않고 fail-closed할 것을 요구한다.
+request/response body capture는 PC가 자격을 갖춘 경우에만 열리는 세션별
+opt-in이다. MITM 프록시가 평문 페이로드를 들고 있는 상태가 바로 **SEC-10
+crash-dump 제외 사전검사**가 한계 짓는 노출이며, H-SEC2 C1 조건은 이를
+accepted risk로 기록하지 않고 fail-closed할 것을 요구한다. 사전검사는
+구현되어 있고(T-588), 검증되지 않는 환경에서는 tier가 unavailable로 남고
+renderer가 그 이유를 밝힌다.
 
 | 항목 | 계약 |
 |---|---|
 | 기본값 | `captureBodies = false`, 모든 메시지 `omitted` |
-| 활성화 | SEC-10 통과 전까지 불가. `capture.Config.CaptureBodies = true`는 authority/session 할당 전에 session manager와 proxy constructor 양쪽에서 거부 |
-| 게이트 기록 | `LiveCaptureContract`가 `bodyCaptureAvailable = false`, `bodyCaptureGate = "sec10_preflight_pending"`를 게시. 일반 세션은 실제 강제된 disabled 정책을 기록 |
-| 크기 상한 | 비활성 처리 코어는 decoded expansion을 포함해 메시지당 상한(기본 256 KiB, 최대 4 MiB)을 지킴. body는 생략하면서 전송 바이트 수만 기록 |
+| 활성화 | 사전검사가 verified가 아니면 `capture.Config.CaptureBodies = true`는 authority/session 할당 전에 session manager와 proxy constructor 양쪽에서 거부. 두 경계는 서로를 신뢰하지 않고 각자 검사를 실행 |
+| 게이트 기록 | `LiveCaptureContract`가 `bodyCaptureAvailable`, `bodyCaptureGate`(`sec10_verified` / `sec10_unavailable`), `bodyCaptureGateReason`을 게시. 세션과 store manifest는 그 세션이 실제로 강제한 게이트를 기록 |
+| 크기 상한 | decoded expansion을 포함해 메시지당 상한(기본 256 KiB, 최대 4 MiB)을 지킴. body를 생략하는 동안에도 전송 바이트 수는 기록 |
 | 디코딩 | `identity`, `gzip`, `deflate`. 그 외는 `encoded` — 바이트는 봤지만 텍스트를 주장하지 않음 |
 | 리댁션 | 저장 전에 헤더와 동일한 정책을 통과. 정책이 제거하면 `redacted` |
 
-사전검사가 **아직 구현되지 않았으므로** pending gate는 운영자 위험 수락 표식이
-아니라 capability 차단 상태다. UI는 checkbox를 제공하지 않으며 stale/custom
-renderer가 계약을 우회해도 엔진의 두 경계가 시작을 거부한다. 향후 활성화에는
-SEC-10 사전검사 구현·실측과 추가 보안 재리뷰가 필요하다.
+unavailable gate는 운영자 위험 수락 표식이 아니라 capability 차단 상태다. UI는
+checkbox를 제공하지 않으며, 사전검사가 한계 짓지 못한 노출을 운영자가 수락할 수
+있게 하는 문구도 두지 않는다. stale/custom renderer가 계약을 우회해도 엔진의 두
+경계가 시작을 거부한다.
 
-##### 6.4.1.1 계획된 SEC-10 사전검사 — T-588, 미구현
+##### 6.4.1.1 SEC-10 사전검사
 
-live capture가 Windows 전용이므로(§9.4) 범위도 Windows 전용이다. 사전검사는
+live capture가 Windows 전용이므로(§9.4) 범위도 Windows 전용이며, 다른
+플랫폼은 검사한 척하지 않고 `unsupported_platform`을 보고한다. 사전검사는
 **authority 생성과 모든 평문 보관 이전에** 실행되며 약속이 아니라 결과를
 반환한다.
 
@@ -1339,16 +1342,19 @@ GC가 옮길 수 있는 일반 Go heap 할당이라 안정적인 범위를 등�
 관리자 권한 없이는 무효화할 수 없는 관리 대상 PC에서는 검증 불가능한 주장을
 안고 진행하는 대신 body capture가 **unavailable** 로 남는다.
 
-`bodyCaptureGate`는 검증된 결과를 `capture.Session`과 store manifest로
-전달하고, `bodyCaptureAvailable`은 하드코딩 대신 사전검사 실행 결과에서
-파생된다. 두 엔진 경계는 계속 body-enabled 시작을 거부하되, 거부가 무조건이
-아니라 사전검사 결과에 따라 조건부가 된다.
+`bodyCaptureGate`는 결과를 `capture.Session`과 store manifest로 전달하고,
+`bodyCaptureAvailable`은 하드코딩 대신 사전검사 실행 결과에서 파생된다.
+renderer는 추가로 `bodyCaptureAvailable`과 `bodyCaptureGate`가 서로 어긋나면
+계약을 닫힌 쪽으로 해석하고, 닫힌 집합 밖의 gate·reason token은 계약 전체를
+거부하므로 버전 skew가 기계 문자열로 노출되지 않는다.
 
-**검증.** 정책 읽기가 기대값을 반환한 것은 증거가 아니다. 활성화하려면 request와
-response body에 고유 canary를 흘리고 캡처 도중 프로세스를 강제로 크래시시킨 뒤
-`%LOCALAPPDATA%\CrashDumps`, WER `ReportQueue`·`ReportArchive`, Application
-event log에서 그 canary와 CA 키 자료를 검색해 **실제 OS artifact에** 없음을
-확인하는 강제 크래시 하네스가 필요하다.
+**검증.** 정책 읽기가 기대값을 반환한 것은 증거가 아니다.
+`scripts/verify-sec10-dump-exclusion.ps1`이 heap 메모리에 canary를 실제로 들고
+있는 프로세스를 크래시시킨 뒤 `%LOCALAPPDATA%\CrashDumps`와 WER
+`ReportQueue`·`ReportArchive`를 검사한다. 사전검사가 verified가 아니거나, probe가
+정상 종료하거나, canary를 들기 전에 죽거나, 새 artifact가 생기거나, canary가
+발견되면 실패한다. artifact 부재가 통과 조건이고 canary 검색은 backstop이다.
+Windows CI job에서 실행되며 개수와 파일명만 담은 정제된 증거를 보관한다.
 
 **이 메커니즘이 방어하지 않는 것** — 암시하지 않고 명시한다: 활성 디버거의
 프로세스 메모리 읽기(이미 SEC-10 매트릭스 행에서 제외), 세션 도중 관리자의

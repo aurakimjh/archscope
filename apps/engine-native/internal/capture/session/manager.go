@@ -15,6 +15,7 @@ import (
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/aggregate"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/dumppolicy"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/procmap"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/proxy"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/store"
@@ -59,6 +60,11 @@ type Manager struct {
 	cancel      context.CancelFunc
 	platform    string
 	newCapturer func(proxy.Config) (Capturer, error)
+	// dumpPolicy is the SEC-10 preflight. It is unexported and has no setter,
+	// so only this package's own tests can substitute it — a caller outside
+	// the package cannot hand the manager a forged pass. proxy.New performs
+	// the same check independently rather than trusting this one.
+	dumpPolicy func() dumppolicy.Result
 }
 
 func NewManager(root string, sink EventSink) *Manager {
@@ -80,6 +86,7 @@ func NewManagerForPlatform(root string, sink EventSink, platform string) *Manage
 		newCapturer: func(config proxy.Config) (Capturer, error) {
 			return proxy.New(config)
 		},
+		dumpPolicy: dumppolicy.Current,
 	}
 }
 
@@ -127,10 +134,18 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 		return Session{}, ErrSessionActive
 	}
 	// H-SEC2 C1 requires a verified crash-dump exclusion preflight before any
-	// plaintext body tier can start. A pending gate is not an accepted-risk
-	// bypass: reject before generating an authority or creating session files.
+	// plaintext body tier can start. The preflight runs here, before an
+	// authority is generated or any session file is created, so a rejected
+	// request leaves no artifact behind.
+	bodyGate := capture.BodyGateDisabled
+	bodyGateReason := ""
 	if cfg.CaptureBodies {
-		return Session{}, capture.ErrBodyCapturePreflightPending
+		result := m.dumpPolicy()
+		if !result.Verified() {
+			return Session{}, fmt.Errorf("%w: %s", capture.ErrBodyCapturePreflightPending, result.Detail)
+		}
+		bodyGate = capture.BodyGateVerified
+		bodyGateReason = result.Reason
 	}
 	if m.platform != "windows" {
 		return Session{}, fmt.Errorf("%w: supported live capture requires Windows TCP-owner process attribution", capture.ErrModeUnavailable)
@@ -158,15 +173,17 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 		return Session{}, err
 	}
 	started := time.Now().UTC()
-	// The body policy is fixed here and never re-read while the session runs.
-	// Until SEC-10 is implemented this is necessarily the disabled policy.
+	// The body policy is fixed here and never re-read while the session runs,
+	// so a mid-session policy change cannot retroactively describe what this
+	// session did. That the machine policy could change under a running
+	// session is a documented residual, not something this value hides.
 	maxBodyBytes := normalizeMaxBodyBytes(cfg.MaxBodyBytes)
-	bodyGate := capture.BodyGateDisabled
 	session := Session{
 		ID: id, State: StateStarting, StorePath: st.Path(), StartedAt: started,
 		RetainUnattributedMetadata: cfg.RetainUnattributedMetadata,
 		CaptureBodies:              cfg.CaptureBodies,
 		BodyCaptureGate:            bodyGate,
+		BodyCaptureGateReason:      bodyGateReason,
 		MaxBodyBytes:               maxBodyBytes,
 	}
 	if err := st.SetState(StateStarting); err != nil {
@@ -174,7 +191,8 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 		return Session{}, err
 	}
 	if err := st.SetBodyCapturePolicy(store.BodyCapturePolicy{
-		Enabled: cfg.CaptureBodies, Gate: bodyGate, MaxBodyBytes: maxBodyBytes,
+		Enabled: cfg.CaptureBodies, Gate: bodyGate, GateReason: bodyGateReason,
+		MaxBodyBytes: maxBodyBytes,
 	}); err != nil {
 		_ = st.Finalize(StateFailed)
 		return Session{}, err

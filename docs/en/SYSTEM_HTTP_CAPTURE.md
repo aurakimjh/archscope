@@ -99,33 +99,35 @@ analyzer renders a request line, header block, and body assembled from the
 canonical model, and labels it as such on every render. Presenting it as
 captured bytes would claim `raw_wire`.
 
-### 2.1 Body-Capture Tier (dormant; SEC-10 fail-closed)
+### 2.1 Body-Capture Tier (SEC-10 gated)
 
-The body-processing core exists, but request and response body capture is not a
-product capability while SEC-10 is pending. A MITM proxy holding plaintext
-payloads is the exposure the **SEC-10 crash-dump exclusion preflight** bounds,
-and the H-SEC2 C1 condition requires failure to be closed rather than recorded
-as accepted risk.
+Request and response body capture is a per-session opt-in that a machine
+qualifies for. A MITM proxy holding plaintext payloads is the exposure the
+**SEC-10 crash-dump exclusion preflight** bounds, and the H-SEC2 C1 condition
+requires failure to be closed rather than recorded as accepted risk. The
+preflight is implemented (T-588); where it does not verify, the tier stays
+unavailable and the renderer says why.
 
 | Aspect | Contract |
 |---|---|
 | Default | `captureBodies = false`; every message is `omitted` |
-| Enabling | Unavailable until SEC-10 passes; `capture.Config.CaptureBodies = true` is rejected by both the session manager and proxy constructor before authority/session allocation |
-| Gate record | `LiveCaptureContract` publishes `bodyCaptureAvailable = false` and `bodyCaptureGate = "sec10_preflight_pending"`; ordinary sessions record the enforced disabled policy |
-| Size bound | Dormant processing is capped per message (default 256 KiB, ceiling 4 MiB), including decoded expansion; transferred byte counts are recorded while bodies remain omitted |
+| Enabling | `capture.Config.CaptureBodies = true` is rejected by both the session manager and the proxy constructor, before authority/session allocation, unless the preflight verifies. Each runs the check independently rather than trusting the other |
+| Gate record | `LiveCaptureContract` publishes `bodyCaptureAvailable`, `bodyCaptureGate` (`sec10_verified` / `sec10_unavailable`), and `bodyCaptureGateReason`; the session and the store manifest record the gate the session actually enforced |
+| Size bound | Processing is capped per message (default 256 KiB, ceiling 4 MiB), including decoded expansion; transferred byte counts are recorded even while bodies are omitted |
 | Decoding | `identity`, `gzip`, `deflate`. Anything else is `encoded` — bytes were seen, no text is claimed |
 | Redaction | Bodies run through the same policy as headers before persistence; a suppressed body becomes `redacted` |
 
-Because the preflight is **not implemented**, a pending gate is a capability
-blocker, not an operator-risk acknowledgement. The UI does not offer the
-checkbox. Defense-in-depth rejection at both engine boundaries prevents a stale
-or custom renderer from bypassing that contract. Enabling the tier later
-requires an implemented/measured SEC-10 preflight and another security review.
+An unavailable gate is a capability blocker, not an operator-risk
+acknowledgement: the UI does not offer the checkbox, and no wording lets an
+operator accept an exposure the preflight could not bound. Defense-in-depth
+rejection at both engine boundaries prevents a stale or custom renderer from
+bypassing that contract.
 
-#### 2.1.1 Planned SEC-10 Preflight (T-588, not yet implemented)
+#### 2.1.1 SEC-10 Preflight
 
-Scope is Windows only, because live capture is Windows only (§9.4). The
-preflight runs **before authority generation or any plaintext retention** and
+Scope is Windows only, because live capture is Windows only (§9.4); every other
+platform reports `unsupported_platform` rather than pretending to have checked.
+The preflight runs **before authority generation or any plaintext retention** and
 returns a bound result rather than a promise.
 
 | Step | Action | Fail-closed when |
@@ -144,18 +146,22 @@ it. On a managed machine whose machine-wide policy forces heap-inclusive dumps
 and cannot be overridden without administrator rights, body capture therefore
 stays **unavailable** rather than proceeding on an unverifiable claim.
 
-`bodyCaptureGate` carries the verified result into `capture.Session` and the
-store manifest, and `bodyCaptureAvailable` is derived from a preflight run
-instead of being hardcoded. Both engine boundaries keep rejecting body-enabled
-starts — the rejection becomes conditional on the preflight result rather than
-unconditional.
+`bodyCaptureGate` carries the result into `capture.Session` and the store
+manifest, and `bodyCaptureAvailable` is derived from a preflight run instead of
+being hardcoded. The renderer additionally resolves a contract closed when
+`bodyCaptureAvailable` and `bodyCaptureGate` disagree, and rejects any gate or
+reason token outside the closed sets, so a version skew never renders as raw
+machine text.
 
 **Verification.** A policy read that returns the expected value is not
-evidence. Activation requires a forced-crash harness that pushes a unique
-canary through a request and a response body, crashes the process mid-capture,
-and then scans `%LOCALAPPDATA%\CrashDumps`, the WER `ReportQueue` and
-`ReportArchive`, and the Application event log for that canary and for CA key
-material, asserting absence in real OS artifacts.
+evidence. `scripts/verify-sec10-dump-exclusion.ps1` crashes a process that is
+genuinely holding a canary in heap memory and then inspects
+`%LOCALAPPDATA%\CrashDumps` and the WER `ReportQueue`/`ReportArchive`. The
+harness fails if the preflight does not verify, if the probe exits cleanly, if
+it crashes before holding the canary, if any new artifact appears, or if the
+canary is found. Artifact absence is the pass condition; the canary scan is the
+backstop. It runs on the Windows CI job and archives sanitized evidence
+containing counts and leaf names only.
 
 **Not defended by this mechanism**, and stated rather than implied: an active
 debugger reading process memory (already excluded by the SEC-10 matrix row), an

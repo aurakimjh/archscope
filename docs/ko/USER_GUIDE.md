@@ -148,8 +148,9 @@ H-RG4는 fixture-only 교체 artifact와 V1-V3 narrow 네 번째 재리뷰를 �
 
 실시간 renderer는 최신 metadata-only 행 500개를 유지하며 renderer event가
 누락되면 권위 있는 live window를 다시 불러옵니다. 요청·응답 body는 항상
-생략하며 SEC-10 crash-dump 제외 preflight가 구현되기 전에는 body capture를
-활성화하지 않습니다. 백엔드는 아직 결정되지 않은 MITM progress 행에는
+기본적으로 생략합니다. body capture는 SEC-10 crash-dump 제외 preflight가
+검증된 환경에서만 나타나는 세션별 opt-in이며, 검증되지 않으면 선택지를 주는
+대신 패널이 그 이유를 표시합니다. 백엔드는 아직 결정되지 않은 MITM progress 행에는
 `pending`, passthrough에는 `unsupported`를 사용하며 opaque in-flight 트래픽을
 semantic capture로 표시하지 않습니다. Windows CurrentUser root store는 Windows
 신뢰 저장소를 사용하는 client에만 적용됩니다. JVM/JSSE와 NSS 기반 client는 별도

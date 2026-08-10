@@ -85,8 +85,12 @@ type Manifest struct {
 // manifest predating the tier has no policy at all, which the reader reports as
 // unknown rather than as "bodies were disabled".
 type BodyCapturePolicy struct {
-	Enabled      bool   `json:"enabled"`
-	Gate         string `json:"gate"`
+	Enabled bool   `json:"enabled"`
+	Gate    string `json:"gate"`
+	// GateReason is the closed token behind an unavailable gate, kept so a
+	// stored session can say why bodies are absent rather than only that they
+	// are. Empty for a verified gate and for the plain disabled policy.
+	GateReason   string `json:"gateReason,omitempty"`
 	MaxBodyBytes int    `json:"maxBodyBytes"`
 }
 
