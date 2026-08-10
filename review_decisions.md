@@ -1,6 +1,6 @@
 # ArchScope Review Decisions
 
-Last updated: 2026-05-01
+Last updated: 2026-08-10
 
 ## Scope
 
@@ -23,6 +23,13 @@ This document records acceptance decisions for review findings extracted from:
 - `docs/review/done/2026-04-30_Phase5_AI_Interpretation_Independent_Review_by_Gemini.md`
 - `docs/review/done/2026-05-01_Phase5_AI_Interpretation_Review_by_Gemini.md`
 - `docs/review/done/2026-05-01_claude-code_archscope-final-review.md`
+
+It also records **implementation-sourced decisions** — choices made while
+building that changed a contract, a security premise, or a published vocabulary
+rather than merely implementing an already-approved design. These are recorded
+here because the design notes state the resulting behavior but not the
+alternatives that were rejected or the residual risk that was accepted, and a
+review gate needs both.
 
 Decision states:
 
@@ -164,6 +171,27 @@ Decision states:
 | RD-127 | Replace percentile sampling with T-Digest | Deferred | P3 | Algorithm Design | Algorithm R plus cached sorting fixes the current correctness issue without adding dependencies. | Reevaluate for real-time streaming analysis. |
 | RD-128 | Rewrite Python engine in Rust/Go | Rejected | P3 | Architecture | A language rewrite is not justified without measured Python bottlenecks. | No action until profiling proves Python itself is the limiting factor. |
 | RD-129 | Adopt Zod/generated IPC schema validation | Deferred | P3 | Contract Hardening | Manual guards are working; schema generation should wait for concrete contract drift pain. | Revisit if IPC mismatch defects recur. |
+| RD-130 | Live-capture request/response body tier versus the SEC-10 gate | Accepted as a per-session opt-in with the gate recorded as pending | P0 | HTTP Capture — Analyzer Surface | See the decision record below. Three options were put to the product owner on 2026-08-10. **(a) Enable body capture outright** — reopens the H-SEC2 premise "the MITM proxy stores no plaintext bodies" with no compensating disclosure, and makes every future session carry the exposure whether or not the operator wanted it. **(b) Per-session opt-in, default off, gate recorded as pending** — chosen. **(c) Leave bodies omitted and ship only the timing/row-budget/UI work** — keeps the security posture untouched, but the raw-protocol view can then never show a payload for a live capture, which is the capability the request was about. (b) was selected because it preserves (c)'s default posture for anyone who does not opt in, while making the accepted exposure explicit at the moment of choice rather than implicit in a build flag. | Independent security re-review of the tier before any release; implement the SEC-10 preflight to discharge the condition. |
+| RD-131 | Transaction table bounded by the aggregate top-N | Accepted as a defect, not a tuning parameter | P0 | HTTP Capture — Analyzer Surface | The transaction list shared the 50-row `TopN` that bounds the endpoint/host/slowest/error rankings, so an ordinary page load lost every image, stylesheet, script, and font before the renderer saw it. Raising `TopN` was rejected: it would inflate four aggregate tables to fix one list, and the two are different kinds of table — the aggregations *are* rankings, the transaction list is only useful as the whole session. A separate `transaction_row_limit` (default 20,000, ceiling 200,000) was added instead, with `transaction_rows` and `truncated` published alongside it so the renderer distinguishes "bounded" from "that was everything". | Covered by the T-587 review gate; confirm the default holds for the largest supported HAR without envelope-size regression. |
+| RD-132 | `LiveCaptureContract` schema version 2 | Accepted | P1 | HTTP Capture — Analyzer Surface | The renderer needs to distinguish "this session did not record bodies" from "this build cannot record bodies", and "this transaction has no observed timing phases" from "the engine never emits them". Neither is derivable from absent data. Adding the fields without a version bump was rejected because `resolveLiveCaptureContract` rejects an unknown schema wholesale rather than half-honouring it, which is the property that keeps renderer behavior described by one side or the other. The bump therefore fails safe on a stale renderer instead of silently degrading. | Keep `capture.DefaultLiveCaptureContract()` and `DEFAULT_LIVE_CAPTURE_CONTRACT` in sync; the T-581 acceptance fixture asserts both. |
+| RD-133 | Resource-kind classification vocabulary | Accepted as a renderer-side derivation | P2 | HTTP Capture — Analyzer Surface | A twelve-value taxonomy (document/stylesheet/script/image/font/media/json/form/text/binary/connect/other) is derived from the response MIME, then the path extension, then the request MIME. Emitting it from the engine was rejected: it is a presentation category, not an observation, and putting it on the wire would freeze the taxonomy into the stored contract. The extension fallback is load-bearing rather than cosmetic — a `.js` response with no `Content-Type` is a script, and a MIME-only classifier files it under "other", which is the failure the taxonomy exists to prevent. `CONNECT` is its own value because a passthrough tunnel is a different observation from an unclassifiable response. | Revisit only if the engine gains a first-class request-initiator signal, which would make the category an observation rather than a guess. |
+
+## Implementation Decision Record — 2026-08-10 body-capture tier (RD-130)
+
+Recorded separately because this decision changes the premise a passed security
+gate was granted on, and the design notes state only the outcome.
+
+| Field | Value |
+|---|---|
+| Decided | 2026-08-10, by the product owner, during T-587 implementation |
+| Prior state | `H-SEC2` `PASS` (2026-07-28) recorded "the MITM proxy stores no plaintext bodies" as an unconditional property. `SEC-10` (crash-dump exclusion preflight) was recorded as a binding condition on any future body-capture tier |
+| Decision | Bodies become a per-session opt-in. Default off. The preflight is **not** implemented, so the choice is recorded as accepted risk, not as a passed check |
+| Mechanism | `capture.Config.CaptureBodies` is fixed at session start and never re-read while running. Every session that enables it writes `bodyCaptureGate = "sec10_preflight_pending"` to `capture.Session` and to the store manifest. Bodies are capped per message (default 256 KiB, ceiling 4 MiB), decoded only for `identity`/`gzip`/`deflate`, and pass the existing redaction policy before persistence |
+| Residual risk accepted | Captured plaintext may reach an OS crash dump while the SEC-10 preflight is unimplemented. This is the specific exposure SEC-10 was written to bound |
+| Not accepted | Enabling by default; enabling without a per-message cap; enabling without redaction; presenting the tier as if SEC-10 had passed |
+| Disclosure | The live-capture panel states the gate in those terms before the checkbox can be used, and reports the policy the running session is actually enforcing rather than the local checkbox |
+| Release condition | An independent security re-review of the tier must pass before any tag or GitHub release. `R-RG1` acceptance closed with `PASS` on 2026-08-03, before this landed, so its evidence must also be re-run |
+| Discharge condition | Implement the SEC-10 crash-dump exclusion preflight, then change the recorded gate from `sec10_preflight_pending` to a passed value and re-run the security gate |
 
 ## Backlog Mapping
 
@@ -226,7 +254,13 @@ The executable TO-DO list is maintained in `work_status.md` under `Execution Bac
 | RD-110, RD-117, RD-118, RD-121, RD-123, RD-126, RD-127, RD-129 | Deferred | Larger runtime/protocol/schema/test-harness changes need benchmark evidence or harness readiness. |
 | RD-124 | T-071 | Existing nonce CSP compatibility spike remains the right tracking item. |
 | RD-128 | Rejected | No language rewrite without measured bottleneck evidence. |
+| RD-130 to RD-133 | T-587 | Implementation-sourced decisions from the HTTP Analyzer surface rework: the opt-in body tier and its recorded SEC-10 gate, the transaction row budget split, `LiveCaptureContract` v2, and the resource-kind taxonomy. |
 
 ## Open Decisions
 
 No review-sourced decisions are currently open. Research-sourced decisions are tracked in `docs/research/research_decisions.md`.
+
+RD-130 is `Accepted` but carries an undischarged condition: the SEC-10
+crash-dump exclusion preflight is not implemented, so the body tier ships with
+a recorded pending gate rather than a passed one. It stays listed here until
+that preflight lands or the tier is withdrawn.
