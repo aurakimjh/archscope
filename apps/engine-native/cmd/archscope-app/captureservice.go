@@ -36,11 +36,16 @@ type CaptureFetchRequest struct {
 type CaptureAnalyzeRequest struct {
 	SessionID string `json:"sessionId"`
 	TopN      int    `json:"topN,omitempty"`
+	// TransactionRows bounds the full transaction list independently of TopN.
+	// Zero selects the analyzer default, which is sized to hold a whole
+	// session rather than a top-N ranking.
+	TransactionRows int `json:"transactionRows,omitempty"`
 }
 
 type CaptureImportRequest struct {
-	Path string `json:"path"`
-	TopN int    `json:"topN,omitempty"`
+	Path            string `json:"path"`
+	TopN            int    `json:"topN,omitempty"`
+	TransactionRows int    `json:"transactionRows,omitempty"`
 }
 
 type CaptureTransactionsEvent struct {
@@ -209,7 +214,7 @@ func (s *CaptureService) AnalyzeCaptureSession(request CaptureAnalyzeRequest) (e
 	if manifest.Redaction != nil {
 		redactionSummary = *manifest.Redaction
 	}
-	result := httpanalyzer.BuildLive(transactions, source, "canonical-v1", redactionSummary, httpanalyzer.Options{TopN: request.TopN})
+	result := httpanalyzer.BuildLive(transactions, source, "canonical-v1", redactionSummary, httpanalyzer.Options{TopN: request.TopN, TransactionRows: request.TransactionRows})
 	httpanalyzer.SetDiffCaptureSessionRef(&result, request.SessionID, page.SnapshotVersion, len(transactions))
 	result.Metadata.Extra["capture_session_ref"] = map[string]any{
 		"session_id": request.SessionID, "snapshot_version": page.SnapshotVersion,
@@ -222,7 +227,7 @@ func (s *CaptureService) ImportHar(request CaptureImportRequest) (engineapi.Anal
 	if request.Path == "" {
 		return engineapi.AnalysisResult{}, fmt.Errorf("path is required")
 	}
-	return engineapi.AnalyzeHttpCapture(request.Path, engineapi.HttpCaptureOptions{TopN: request.TopN})
+	return engineapi.AnalyzeHttpCapture(request.Path, engineapi.HttpCaptureOptions{TopN: request.TopN, TransactionRows: request.TransactionRows})
 }
 
 func (s *CaptureService) InstallCaptureCA() (certstore.Status, error) {

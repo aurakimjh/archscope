@@ -1,6 +1,7 @@
 package httpcapture
 
 import (
+	"strconv"
 	"testing"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/redact"
@@ -20,7 +21,7 @@ func TestBuildHTTPHARAnalysisIsDeterministicAndBounded(t *testing.T) {
 			Rules: []string{}, Counts: map[string]int{},
 		},
 		TimelineAvailable: true,
-	}, "sample.har", Options{TopN: 1})
+	}, "sample.har", Options{TopN: 1, TransactionRows: 1})
 	if result.Type != ResultType || result.Summary["total_transactions"] != 2 || result.Summary["error_transactions"] != 1 {
 		t.Fatalf("unexpected summary: %#v", result.Summary)
 	}
@@ -96,4 +97,43 @@ func TestBuildLiveDerivesWeakestFidelityAndArchScopeProvenance(t *testing.T) {
 
 func unknownMessage() models.HTTPMessage {
 	return models.HTTPMessage{HeaderSize: -1, BodySize: -1, BodyDecoded: -1, TransferSize: -1, BodyStorage: "omitted"}
+}
+
+// The transaction table is the packet list, not a top-N ranking. It used to
+// share the 50-row TopN budget with the aggregate tables, which silently
+// dropped every image, stylesheet, and script of an ordinary page load before
+// the UI could show them.
+func TestTransactionListIsNotBoundedByTheAggregateTopN(t *testing.T) {
+	const total = 400
+	entries := make([]models.CaptureTransaction, 0, total)
+	for index := 0; index < total; index++ {
+		entries = append(entries, models.CaptureTransaction{
+			ID: "tx-" + strconv.Itoa(index), Method: "GET", Host: "cdn.example",
+			Path: "/assets/img-" + strconv.Itoa(index) + ".png", StatusCode: 200,
+			State: models.TxComplete, TotalMS: 5, Request: unknownMessage(), Response: unknownMessage(),
+		})
+	}
+	result := BuildParsed(parser.ParseResult{
+		Format: "har", Dialect: "chrome", Entries: entries,
+		Redaction: redact.Summary{Known: true}, TimelineAvailable: true,
+	}, "resources.har", Options{TopN: 50})
+
+	transactions, ok := result.Tables["transactions"].([]map[string]any)
+	if !ok || len(transactions) != total {
+		t.Fatalf("transaction rows=%d, want all %d resource requests", len(transactions), total)
+	}
+	meta := result.Metadata.Extra["http_capture"].(map[string]any)
+	if meta["truncated"] != false {
+		t.Fatalf("truncated=%v, want false when every row fits", meta["truncated"])
+	}
+	if meta["transaction_rows"] != total {
+		t.Fatalf("transaction_rows=%v, want %d", meta["transaction_rows"], total)
+	}
+	if meta["transaction_row_limit"] != DefaultTransactionRows {
+		t.Fatalf("transaction_row_limit=%v, want the dedicated default", meta["transaction_row_limit"])
+	}
+	// The aggregate tables keep their own, much smaller budget.
+	if slowest := result.Tables["slowest"].([]map[string]any); len(slowest) != 50 {
+		t.Fatalf("slowest rows=%d, want the 50-row TopN bound", len(slowest))
+	}
 }

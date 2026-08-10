@@ -40,7 +40,7 @@ func TestDiffSourceProjectionIsBoundedAndCrossDimensionTotalsReconcile(t *testin
 	result := BuildParsed(parser.ParseResult{
 		Format: "har", Dialect: "chrome", Entries: entries,
 		Redaction: redact.Summary{Known: true}, TimelineAvailable: true,
-	}, "bounded.har", Options{TopN: 1, DiffTemplateLimit: 2})
+	}, "bounded.har", Options{TopN: 1, TransactionRows: 1, DiffTemplateLimit: 2})
 	projection := result.Metadata.Extra["http_capture_diff_source"].(DiffSourceProjection)
 	if len(projection.Endpoints) != 3 {
 		t.Fatalf("expected two kept templates plus {other}, got %+v", projection.Endpoints)

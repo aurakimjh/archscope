@@ -19,12 +19,24 @@ const (
 	DefaultTopN            = 50
 	MaxTopN                = 500
 	DefaultTimelineBuckets = 1000
+
+	// The transaction table is the packet list, not a top-N ranking. Bounding
+	// it with the same 50-row TopN that bounds the endpoint/host aggregations
+	// dropped every image, stylesheet, and script of an ordinary page load
+	// before the UI ever saw it. It gets its own, far larger budget: the list
+	// is only useful if it is the whole session.
+	DefaultTransactionRows = 20_000
+	MaxTransactionRows     = 200_000
 )
 
 type Options struct {
-	Format                  string
-	TopN                    int
-	DiffTemplateLimit       int
+	Format string
+	// TopN bounds the aggregate tables (endpoints, hosts, slowest, errors).
+	TopN int
+	// TransactionRows bounds the full transaction list independently of TopN.
+	// Zero selects DefaultTransactionRows.
+	TransactionRows   int
+	DiffTemplateLimit int
 	MaxEntries              int
 	MaxBytes                int64
 	MaxStringBytes          int
@@ -87,6 +99,7 @@ func BuildParsed(parsed parser.ParseResult, sourceFile string, opts Options) mod
 
 func buildParsed(parsed parser.ParseResult, sourceFile string, opts Options, provenance captureProvenance) models.AnalysisResult {
 	topN := normalizeTopN(opts.TopN)
+	rowLimit := normalizeTransactionRows(opts.TransactionRows)
 	entries := parsed.Entries
 	endpoints := map[string]*stat{}
 	hosts := map[string]*stat{}
@@ -172,13 +185,13 @@ func buildParsed(parsed parser.ParseResult, sourceFile string, opts Options, pro
 		result.Series["timeline"] = []map[string]any{}
 	}
 	result.Tables = map[string]any{
-		"transactions": transactionRows(entries, topN),
+		"transactions": transactionRows(entries, rowLimit),
 		"slowest":      slowestRows(entries, topN),
 		"errors":       errorRows(entries, topN),
 		"endpoints":    rows(endpoints, "endpoint", topN),
 		"hosts":        rows(hosts, "host", topN),
 	}
-	truncated := len(entries) > topN
+	truncated := len(entries) > rowLimit
 	result.Metadata.Extra["http_capture"] = map[string]any{
 		"capture_schema_version": models.CaptureSchemaVersion,
 		"dialect":                parsed.Dialect,
@@ -191,8 +204,9 @@ func buildParsed(parsed parser.ParseResult, sourceFile string, opts Options, pro
 		"redaction":              parsed.Redaction,
 		"detail_storage":         "bounded_inline",
 		"table_limit":            topN,
+		"transaction_row_limit":  rowLimit,
 		"timeline_bucket_limit":  DefaultTimelineBuckets,
-		"transaction_rows":       min(len(entries), topN),
+		"transaction_rows":       min(len(entries), rowLimit),
 		"transactions":           len(entries),
 		"truncated":              truncated,
 		"timeline_available":     parsed.TimelineAvailable,
@@ -428,12 +442,17 @@ func transactionRow(entry models.CaptureTransaction) map[string]any {
 		"ended_at":                 entry.EndedAt,
 		"method":                   entry.Method,
 		"url":                      entry.URL,
+		"scheme":                   entry.Scheme,
 		"host":                     entry.Host,
 		"path":                     entry.Path,
+		"query":                    entry.Query,
 		"status":                   entry.StatusCode,
 		"status_text":              entry.StatusText,
 		"http_version":             entry.HTTPVersion,
 		"state":                    entry.State,
+		"stream_id":                entry.StreamID,
+		"observation_point":        entry.ObservationPoint,
+		"error":                    entry.Error,
 		"duration_ms":              entry.TotalMS,
 		"request_bytes":            entry.Request.BodySize,
 		"response_bytes":           preferredResponseSize(entry.Response),
@@ -573,6 +592,16 @@ func normalizeTopN(value int) int {
 	}
 	if value > MaxTopN {
 		return MaxTopN
+	}
+	return value
+}
+
+func normalizeTransactionRows(value int) int {
+	if value <= 0 {
+		return DefaultTransactionRows
+	}
+	if value > MaxTransactionRows {
+		return MaxTransactionRows
 	}
 	return value
 }

@@ -12,7 +12,7 @@ import (
 func init() {
 	group := &cobra.Command{Use: "http-capture", Short: "HTTP capture evidence analysis commands."}
 	var in, format, out string
-	var topN, maxEntries, maxStringBytes, maxBodyBytes, maxDepth, maxFields, maxDecompressionRatio int
+	var topN, transactionRows, maxEntries, maxStringBytes, maxBodyBytes, maxDepth, maxFields, maxDecompressionRatio int
 	var maxBytes int64
 	var customRedactionPatterns []string
 	analyze := &cobra.Command{Use: "analyze", Short: "Import and analyze a redacted HAR file.", RunE: func(cmd *cobra.Command, args []string) error {
@@ -20,7 +20,8 @@ func init() {
 			return fmt.Errorf("--in is required")
 		}
 		result, err := httpcapture.Analyze(in, httpcapture.Options{
-			Format: format, TopN: topN, MaxEntries: maxEntries, MaxBytes: maxBytes,
+			Format: format, TopN: topN, TransactionRows: transactionRows,
+			MaxEntries: maxEntries, MaxBytes: maxBytes,
 			MaxStringBytes: maxStringBytes, MaxBodyBytes: maxBodyBytes, MaxDepth: maxDepth,
 			MaxFields: maxFields, MaxDecompressionRatio: maxDecompressionRatio,
 			CustomRedactionPatterns: customRedactionPatterns,
@@ -32,7 +33,8 @@ func init() {
 	}}
 	analyze.Flags().StringVar(&in, "in", "", "path to HAR file (required)")
 	analyze.Flags().StringVar(&format, "format", "auto", "input format: auto, har")
-	analyze.Flags().IntVar(&topN, "top-n", 0, "maximum rows per table")
+	analyze.Flags().IntVar(&topN, "top-n", 0, "maximum rows per aggregate table (endpoints, hosts, slowest, errors)")
+	analyze.Flags().IntVar(&transactionRows, "transaction-rows", 0, "maximum rows in the full transaction list (0 = 20000)")
 	analyze.Flags().IntVar(&maxEntries, "max-entries", 0, "maximum HAR entries to import (0 = 100000)")
 	analyze.Flags().Int64Var(&maxBytes, "max-bytes", 0, "maximum input/decompressed bytes (0 = 256 MiB)")
 	analyze.Flags().IntVar(&maxStringBytes, "max-string-bytes", 0, "maximum JSON string bytes (0 = 16 MiB)")
