@@ -54,14 +54,20 @@
   "security": {
     "retainUnattributedMetadataDefault": false,
     "bodyStorage": "omitted",
-    "caRemovedOnStop": true
+    "caRemovedOnStop": true,
+    "bodyCaptureDefault": false,
+    "bodyCaptureGate": "sec10_preflight_pending"
   },
   "renderer": {
-    "schemaVersion": 1,
+    "schemaVersion": 2,
     "rowCap": 500,
     "resyncOnEventSkip": true,
     "restoreCurrentSessionOnPageReentry": true,
-    "finalizedSessionUsesAnalysisResult": true
+    "finalizedSessionUsesAnalysisResult": true,
+    "bodyCaptureAvailable": true,
+    "bodyCaptureGate": "sec10_preflight_pending",
+    "maxBodyBytes": 262144,
+    "upstreamTimingsAvailable": true
   },
   "acceptanceEvidence": {
     "schemaVersion": 3,

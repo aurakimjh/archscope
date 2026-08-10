@@ -25,8 +25,26 @@ type ProcessResolver interface {
 	Resolve(client, proxy net.Addr) (*models.ProcessInstance, error)
 }
 
+// Exchange is everything one intercepted request/response pair produced. It
+// replaces the former positional argument list so the timing recorder and the
+// optional body recorders can travel with the exchange instead of widening the
+// interface every time a new observation is added.
+type Exchange struct {
+	Client   net.Addr
+	Request  *http.Request
+	Response *http.Response
+	Started  time.Time
+	Ended    time.Time
+	// RequestBody/ResponseBody always carry the transferred byte counts; they
+	// carry retained bytes only when the session enabled body capture.
+	RequestBody  *bodyRecorder
+	ResponseBody *bodyRecorder
+	Trace        *upstreamTrace
+	Process      *models.ProcessInstance
+}
+
 type Interceptor interface {
-	Transaction(client net.Addr, request *http.Request, response *http.Response, started, ended time.Time, requestBytes, responseBytes int64, process *models.ProcessInstance) models.CaptureTransaction
+	Transaction(exchange Exchange) models.CaptureTransaction
 	Passthrough(client net.Addr, host string, protocols []string, started, ended time.Time, requestBytes, responseBytes int64, process *models.ProcessInstance, reason string) models.CaptureTransaction
 }
 
@@ -50,6 +68,12 @@ type Config struct {
 	Progress         func(models.CaptureTransaction)
 	Now              func() time.Time
 	DialContext      func(context.Context, string, string) (net.Conn, error)
+	// CaptureBodies is the opt-in body tier. It is off unless the session
+	// explicitly turned it on; see body.go for why the default is omission.
+	CaptureBodies bool
+	// MaxBodyBytes caps a single retained message body. Zero selects
+	// DefaultMaxBodyBytes.
+	MaxBodyBytes int
 }
 
 type Server struct {
@@ -206,10 +230,11 @@ func (s *Server) handlePlain(writer http.ResponseWriter, request *http.Request) 
 	process := s.processForRequest(request)
 	progress := progressTransaction(request, started, process, CaptureModeMITM)
 	s.progress(progress)
-	out := request.Clone(request.Context())
+	trace, traceCtx := newUpstreamTrace(request.Context())
+	out := request.Clone(traceCtx)
 	out.RequestURI = ""
-	requestCounter := &countingReadCloser{ReadCloser: request.Body}
-	out.Body = requestCounter
+	requestBody := s.newBodyRecorder(request.Body)
+	out.Body = requestBody
 	transport := s.transport()
 	defer transport.CloseIdleConnections()
 	response, err := transport.RoundTrip(out)
@@ -221,12 +246,27 @@ func (s *Server) handlePlain(writer http.ResponseWriter, request *http.Request) 
 		return
 	}
 	defer response.Body.Close()
+	responseBody := s.newBodyRecorder(response.Body)
+	response.Body = responseBody
 	copyHeaders(writer.Header(), response.Header)
 	writer.WriteHeader(response.StatusCode)
-	responseBytes, _ := io.Copy(writer, response.Body)
-	tx := s.cfg.Interceptor.Transaction(parseAddr(request.RemoteAddr), request, response, started, s.cfg.Now(), requestCounter.n, responseBytes, process)
+	_, _ = io.Copy(writer, responseBody)
+	tx := s.cfg.Interceptor.Transaction(Exchange{
+		Client: parseAddr(request.RemoteAddr), Request: request, Response: response,
+		Started: started, Ended: s.cfg.Now(),
+		RequestBody: requestBody, ResponseBody: responseBody, Trace: trace, Process: process,
+	})
 	tx.ID = progress.ID
 	s.emit(tx)
+}
+
+// newBodyRecorder wraps a message body with the session's body-capture policy.
+// A nil body still gets a recorder so byte accounting stays uniform.
+func (s *Server) newBodyRecorder(body io.ReadCloser) *bodyRecorder {
+	if body == nil {
+		body = http.NoBody
+	}
+	return newBodyRecorder(body, s.cfg.CaptureBodies, s.cfg.MaxBodyBytes)
 }
 
 func (s *Server) handleConnect(writer http.ResponseWriter, request *http.Request) {
@@ -358,8 +398,10 @@ func (s *Server) intercept(client net.Conn, host, hostPort string, process *mode
 		started := s.cfg.Now()
 		progress := progressTransaction(request, started, process, CaptureModeMITM)
 		s.progress(progress)
-		requestCounter := &countingReadCloser{ReadCloser: request.Body}
-		request.Body = requestCounter
+		trace, traceCtx := newUpstreamTrace(request.Context())
+		request = request.WithContext(traceCtx)
+		requestBody := s.newBodyRecorder(request.Body)
+		request.Body = requestBody
 		request.URL.Scheme = "https"
 		request.URL.Host = hostPort
 		request.RequestURI = ""
@@ -372,11 +414,15 @@ func (s *Server) intercept(client net.Conn, host, hostPort string, process *mode
 			s.emit(tx)
 			return
 		}
-		responseCounter := &countingReadCloser{ReadCloser: response.Body}
-		response.Body = responseCounter
+		responseBody := s.newBodyRecorder(response.Body)
+		response.Body = responseBody
 		writeErr := response.Write(tlsConn)
 		response.Body.Close()
-		tx := s.cfg.Interceptor.Transaction(client.RemoteAddr(), request, response, started, s.cfg.Now(), requestCounter.n, responseCounter.n, process)
+		tx := s.cfg.Interceptor.Transaction(Exchange{
+			Client: client.RemoteAddr(), Request: request, Response: response,
+			Started: started, Ended: s.cfg.Now(),
+			RequestBody: requestBody, ResponseBody: responseBody, Trace: trace, Process: process,
+		})
 		tx.ID = progress.ID
 		s.emit(tx)
 		if writeErr != nil || request.Close || response.Close {
@@ -449,7 +495,9 @@ func progressTransaction(request *http.Request, started time.Time, process *mode
 
 type SemanticInterceptor struct{}
 
-func (SemanticInterceptor) Transaction(_ net.Addr, request *http.Request, response *http.Response, started, ended time.Time, requestBytes, responseBytes int64, process *models.ProcessInstance) models.CaptureTransaction {
+func (SemanticInterceptor) Transaction(exchange Exchange) models.CaptureTransaction {
+	request, response := exchange.Request, exchange.Response
+	started, ended := exchange.Started, exchange.Ended
 	urlValue := ""
 	if request.URL != nil {
 		urlValue = request.URL.String()
@@ -469,17 +517,92 @@ func (SemanticInterceptor) Transaction(_ net.Addr, request *http.Request, respon
 			host = request.URL.Host
 		}
 	}
-	return models.CaptureTransaction{
+
+	requestMessage := models.HTTPMessage{
+		Headers:     modelHeaders(request.Header),
+		Cookies:     requestCookies(request),
+		HeaderSize:  headerBytes(request.Header),
+		BodyStorage: BodyStorageOmitted,
+		ContentType: request.Header.Get("Content-Type"),
+	}
+	responseMessage := models.HTTPMessage{
+		Headers:     modelHeaders(response.Header),
+		Cookies:     responseCookies(response),
+		HeaderSize:  headerBytes(response.Header),
+		BodyStorage: BodyStorageOmitted,
+		ContentType: response.Header.Get("Content-Type"),
+	}
+	applyBody(&requestMessage, exchange.RequestBody, request.Header.Get("Content-Encoding"))
+	applyBody(&responseMessage, exchange.ResponseBody, response.Header.Get("Content-Encoding"))
+
+	tx := models.CaptureTransaction{
 		ID: newTransactionID(started), Method: request.Method, URL: urlValue, Scheme: scheme,
 		Host: hostOnly(host), Path: pathValue, Query: query, HTTPVersion: request.Proto,
-		StatusCode: response.StatusCode, StatusText: response.Status,
-		Request:   models.HTTPMessage{Headers: modelHeaders(request.Header), BodySize: requestBytes, TransferSize: requestBytes, BodyStorage: BodyStorageOmitted, ContentType: request.Header.Get("Content-Type")},
-		Response:  models.HTTPMessage{Headers: modelHeaders(response.Header), BodySize: responseBytes, TransferSize: responseBytes, BodyStorage: BodyStorageOmitted, ContentType: response.Header.Get("Content-Type")},
+		StatusCode: response.StatusCode, StatusText: statusText(response),
+		Request:   requestMessage,
+		Response:  responseMessage,
 		StartedAt: started.UTC().Format(time.RFC3339Nano), EndedAt: ended.UTC().Format(time.RFC3339Nano),
 		State: models.TxComplete, TotalMS: float64(ended.Sub(started).Microseconds()) / 1000,
-		CaptureMode: CaptureModeMITM, ObservationPoint: "proxy", Coverage: coverage(process),
-		Fidelity: FidelityDecodedWire, Process: process,
+		CaptureMode: CaptureModeMITM, ObservationPoint: "proxy", Coverage: coverage(exchange.Process),
+		Fidelity: FidelityDecodedWire, Process: exchange.Process,
 	}
+	if trace := exchange.Trace; trace != nil && trace.observed() {
+		upstream := trace.Phases(ended)
+		internal := proxyInternalPhases(started, ended, trace)
+		tx.Timings = models.TimingSet{ProxyUpstream: &upstream, ProxyInternal: &internal}
+		tx.UsedExistingConnection = trace.Reused()
+	}
+	return tx
+}
+
+// applyBody transfers byte accounting and any retained payload from the
+// recorder onto the canonical message. A nil recorder means the path never
+// wrapped that body, which is reported as omission rather than as zero bytes.
+func applyBody(message *models.HTTPMessage, recorder *bodyRecorder, contentEncoding string) {
+	if recorder == nil {
+		message.BodySize = -1
+		message.BodyStorage = BodyStorageOmitted
+		return
+	}
+	recorder.apply(message, contentEncoding)
+}
+
+// statusText normalizes `Status` to the reason phrase alone. net/http reports
+// "404 Not Found"; the canonical model keeps the code in StatusCode, so
+// repeating it in StatusText would double-render it in every UI status cell.
+func statusText(response *http.Response) string {
+	text := strings.TrimSpace(response.Status)
+	code := strconv.Itoa(response.StatusCode)
+	return strings.TrimSpace(strings.TrimPrefix(text, code))
+}
+
+func headerBytes(headers http.Header) int64 {
+	var total int64
+	for name, values := range headers {
+		for _, value := range values {
+			// name + ": " + value + CRLF
+			total += int64(len(name) + len(value) + 4)
+		}
+	}
+	return total
+}
+
+func requestCookies(request *http.Request) []models.HeaderField {
+	cookies := request.Cookies()
+	out := make([]models.HeaderField, 0, len(cookies))
+	for _, cookie := range cookies {
+		out = append(out, models.HeaderField{Name: cookie.Name, Value: cookie.Value})
+	}
+	return out
+}
+
+func responseCookies(response *http.Response) []models.HeaderField {
+	cookies := response.Cookies()
+	out := make([]models.HeaderField, 0, len(cookies))
+	for _, cookie := range cookies {
+		out = append(out, models.HeaderField{Name: cookie.Name, Value: cookie.Value})
+	}
+	return out
 }
 
 func (SemanticInterceptor) Passthrough(_ net.Addr, host string, protocols []string, started, ended time.Time, requestBytes, responseBytes int64, process *models.ProcessInstance, reason string) models.CaptureTransaction {
@@ -558,17 +681,6 @@ type stringAddr string
 
 func (s stringAddr) Network() string { return "tcp" }
 func (s stringAddr) String() string  { return string(s) }
-
-type countingReadCloser struct {
-	io.ReadCloser
-	n int64
-}
-
-func (c *countingReadCloser) Read(data []byte) (int, error) {
-	n, err := c.ReadCloser.Read(data)
-	c.n += int64(n)
-	return n, err
-}
 
 type countingConn struct {
 	net.Conn

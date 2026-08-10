@@ -145,6 +145,8 @@ func TestT581LiveCaptureAcceptanceFixture(t *testing.T) {
 			RetainUnattributedMetadataDefault bool
 			BodyStorage                       string
 			CARemovedOnStop                   bool
+			BodyCaptureDefault                bool
+			BodyCaptureGate                   string
 		}
 		Renderer struct {
 			SchemaVersion                      int
@@ -152,6 +154,10 @@ func TestT581LiveCaptureAcceptanceFixture(t *testing.T) {
 			ResyncOnEventSkip                  bool
 			RestoreCurrentSessionOnPageReentry bool
 			FinalizedSessionUsesAnalysisResult bool
+			BodyCaptureAvailable               bool
+			BodyCaptureGate                    string
+			MaxBodyBytes                       int
+			UpstreamTimingsAvailable           bool
 		}
 		AcceptanceEvidence struct {
 			SchemaVersion           int
@@ -210,9 +216,14 @@ func TestT581LiveCaptureAcceptanceFixture(t *testing.T) {
 			t.Fatalf("unsupported scenario=%+v", scenario)
 		}
 	}
+	// Body capture is an opt-in tier: the default config must still produce
+	// omitted bodies, and the gate the opt-in records must be the pending SEC-10
+	// preflight rather than a passed check.
 	if fixture.Security.RetainUnattributedMetadataDefault != (capture.Config{}).RetainUnattributedMetadata ||
 		fixture.Security.BodyStorage != proxy.BodyStorageOmitted ||
-		!fixture.Security.CARemovedOnStop {
+		!fixture.Security.CARemovedOnStop ||
+		fixture.Security.BodyCaptureDefault != (capture.Config{}).CaptureBodies ||
+		fixture.Security.BodyCaptureGate != capture.BodyGatePreflightPending {
 		t.Fatalf("security=%+v", fixture.Security)
 	}
 	contract := capture.DefaultLiveCaptureContract()
@@ -220,7 +231,11 @@ func TestT581LiveCaptureAcceptanceFixture(t *testing.T) {
 		fixture.Renderer.RowCap != contract.TransactionRowCap ||
 		fixture.Renderer.ResyncOnEventSkip != contract.ResyncOnEventSkip ||
 		fixture.Renderer.RestoreCurrentSessionOnPageReentry != contract.RestoreCurrentSessionOnPageReentry ||
-		fixture.Renderer.FinalizedSessionUsesAnalysisResult != contract.FinalizedSessionUsesAnalysisResult {
+		fixture.Renderer.FinalizedSessionUsesAnalysisResult != contract.FinalizedSessionUsesAnalysisResult ||
+		fixture.Renderer.BodyCaptureAvailable != contract.BodyCaptureAvailable ||
+		fixture.Renderer.BodyCaptureGate != contract.BodyCaptureGate ||
+		fixture.Renderer.MaxBodyBytes != contract.MaxBodyBytes ||
+		fixture.Renderer.UpstreamTimingsAvailable != contract.UpstreamTimingsAvailable {
 		t.Fatalf("renderer=%+v", fixture.Renderer)
 	}
 	if fixture.AcceptanceEvidence.SchemaVersion != acceptance.SchemaVersion ||

@@ -76,7 +76,18 @@ type Manifest struct {
 	Counters        Counters               `json:"counters"`
 	CaptureStats    *capture.Stats         `json:"captureStats,omitempty"`
 	Redaction       *redact.Summary        `json:"redaction,omitempty"`
+	BodyCapture     *BodyCapturePolicy     `json:"bodyCapture,omitempty"`
 	Findings        []Finding              `json:"findings"`
+}
+
+// BodyCapturePolicy is the body tier this session enforced, written at start so
+// a finalized or recovered session can still say why its bodies are absent. A
+// manifest predating the tier has no policy at all, which the reader reports as
+// unknown rather than as "bodies were disabled".
+type BodyCapturePolicy struct {
+	Enabled      bool   `json:"enabled"`
+	Gate         string `json:"gate"`
+	MaxBodyBytes int    `json:"maxBodyBytes"`
 }
 
 type StoredTransaction struct {
@@ -288,6 +299,14 @@ func (s *Store) SetState(state capture.SessionState) error {
 	return s.writeManifestLocked()
 }
 
+func (s *Store) SetBodyCapturePolicy(policy BodyCapturePolicy) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	next := policy
+	s.manifest.BodyCapture = &next
+	return s.writeManifestLocked()
+}
+
 func (s *Store) SetCaptureStats(stats capture.Stats) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -401,10 +420,23 @@ func (s *Store) applyLimitsLocked(next *StoredTransaction, encoded *[]byte) erro
 	}
 }
 
+// carriesPayload lists every BodyStorage value that implies retained bytes.
+// `truncated` belongs here too: a capped body is still a body, and leaving it
+// out would let body_only degradation silently keep payloads it promised to
+// drop.
+func carriesPayload(storage string) bool {
+	switch storage {
+	case "inline", "blob", "truncated":
+		return true
+	default:
+		return false
+	}
+}
+
 func omitBodies(tx *models.CaptureTransaction) bool {
 	changed := false
 	for _, msg := range []*models.HTTPMessage{&tx.Request, &tx.Response} {
-		if msg.BodyPreview != "" || msg.BodyRef != "" || msg.BodyStorage == "inline" || msg.BodyStorage == "blob" {
+		if msg.BodyPreview != "" || msg.BodyRef != "" || carriesPayload(msg.BodyStorage) {
 			msg.BodyPreview = ""
 			msg.BodyRef = ""
 			msg.BodyStorage = "omitted"

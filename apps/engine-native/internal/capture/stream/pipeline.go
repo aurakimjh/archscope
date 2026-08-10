@@ -469,10 +469,22 @@ func (p *Pipeline) redact(tx models.CaptureTransaction) models.CaptureTransactio
 	tx.Query = ""
 	tx.Request.Headers = p.cfg.Redaction.RedactHeaders(tx.Request.Headers)
 	tx.Response.Headers = p.cfg.Redaction.RedactHeaders(tx.Response.Headers)
-	tx.Request.BodyPreview, tx.Request.Redacted = p.cfg.Redaction.RedactBody(tx.Request.ContentType, tx.Request.BodyPreview)
-	tx.Response.BodyPreview, tx.Response.Redacted = p.cfg.Redaction.RedactBody(tx.Response.ContentType, tx.Response.BodyPreview)
+	p.redactMessage(&tx.Request)
+	p.redactMessage(&tx.Response)
 	tx.Process = p.cfg.Redaction.RedactProcess(tx.Process)
 	return tx
+}
+
+// redactMessage runs the body policy and keeps BodyStorage truthful about the
+// result. The policy suppresses non-text and oversized-JSON payloads outright,
+// and a message left claiming `inline` with an empty preview would read as "the
+// body was empty" instead of "the body was suppressed".
+func (p *Pipeline) redactMessage(message *models.HTTPMessage) {
+	before := message.BodyPreview
+	message.BodyPreview, message.Redacted = p.cfg.Redaction.RedactBody(message.ContentType, before)
+	if before != "" && message.BodyPreview == "" {
+		message.BodyStorage = "redacted"
+	}
 }
 
 func unattributed(tx models.CaptureTransaction) bool {

@@ -13,8 +13,21 @@ import (
 
 const (
 	LiveSchemaVersion            = 1
-	LiveCaptureContractVersion   = 1
+	LiveCaptureContractVersion   = 2
 	DefaultLiveTransactionRowCap = 500
+)
+
+// Body-capture gate. Retaining plaintext request/response bodies in a MITM
+// proxy is the exact exposure the SEC-10 crash-dump exclusion preflight bounds,
+// so the tier is opt-in per session and every session records which gate was in
+// force. `BodyGatePreflightPending` is the honest state today: the preflight is
+// not implemented, so an operator who enables bodies is accepting the residual
+// risk rather than passing a check.
+const (
+	BodyGateDisabled         = "disabled"
+	BodyGatePreflightPending = "sec10_preflight_pending"
+
+	DefaultCaptureMaxBodyBytes = 256 << 10
 )
 
 type LiveCaptureContract struct {
@@ -23,6 +36,16 @@ type LiveCaptureContract struct {
 	ResyncOnEventSkip                  bool `json:"resyncOnEventSkip"`
 	RestoreCurrentSessionOnPageReentry bool `json:"restoreCurrentSessionOnPageReentry"`
 	FinalizedSessionUsesAnalysisResult bool `json:"finalizedSessionUsesAnalysisResult"`
+	// BodyCaptureAvailable tells the renderer whether to offer the opt-in at
+	// all, and BodyCaptureGate names the gate the session will record. The
+	// renderer must not infer either from the absence of body previews.
+	BodyCaptureAvailable bool   `json:"bodyCaptureAvailable"`
+	BodyCaptureGate      string `json:"bodyCaptureGate"`
+	MaxBodyBytes         int    `json:"maxBodyBytes"`
+	// UpstreamTimingsAvailable tells the renderer that finalized rows carry a
+	// `proxyUpstream` phase breakdown, so a missing waterfall means the phase
+	// was not observed rather than that the engine never emits one.
+	UpstreamTimingsAvailable bool `json:"upstreamTimingsAvailable"`
 }
 
 func DefaultLiveCaptureContract() LiveCaptureContract {
@@ -32,6 +55,10 @@ func DefaultLiveCaptureContract() LiveCaptureContract {
 		ResyncOnEventSkip:                  true,
 		RestoreCurrentSessionOnPageReentry: true,
 		FinalizedSessionUsesAnalysisResult: true,
+		BodyCaptureAvailable:               true,
+		BodyCaptureGate:                    BodyGatePreflightPending,
+		MaxBodyBytes:                       DefaultCaptureMaxBodyBytes,
+		UpstreamTimingsAvailable:           true,
 	}
 }
 
@@ -80,6 +107,10 @@ type Config struct {
 	AllowPassthrough           []string       `json:"allowPassthrough,omitempty"`
 	PassthroughTTLSeconds      int            `json:"passthroughTtlSeconds,omitempty"`
 	RetainUnattributedMetadata bool           `json:"retainUnattributedMetadata,omitempty"`
+	// CaptureBodies opts this session into retaining request/response payloads.
+	// Off by default; see the body-capture gate constants above.
+	CaptureBodies bool `json:"captureBodies,omitempty"`
+	MaxBodyBytes  int  `json:"maxBodyBytes,omitempty"`
 }
 
 type Stats struct {
@@ -111,6 +142,13 @@ type Session struct {
 	EndedAt                    *time.Time   `json:"endedAt,omitempty"`
 	Error                      string       `json:"error,omitempty"`
 	RetainUnattributedMetadata bool         `json:"retainUnattributedMetadata"`
+	// CaptureBodies / BodyCaptureGate are the policy this session actually
+	// enforced, fixed at start. The renderer shows these rather than the local
+	// checkbox so a running session can never be described by a setting that
+	// will only take effect on the next start.
+	CaptureBodies   bool   `json:"captureBodies"`
+	BodyCaptureGate string `json:"bodyCaptureGate"`
+	MaxBodyBytes    int    `json:"maxBodyBytes,omitempty"`
 }
 
 type Mode struct {

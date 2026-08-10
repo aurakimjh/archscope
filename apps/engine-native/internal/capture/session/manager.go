@@ -152,11 +152,27 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 		return Session{}, err
 	}
 	started := time.Now().UTC()
+	// The body policy is fixed here and never re-read while the session runs, so
+	// the value persisted in the manifest is exactly what the proxy enforced.
+	maxBodyBytes := normalizeMaxBodyBytes(cfg.MaxBodyBytes)
+	bodyGate := capture.BodyGateDisabled
+	if cfg.CaptureBodies {
+		bodyGate = capture.BodyGatePreflightPending
+	}
 	session := Session{
 		ID: id, State: StateStarting, StorePath: st.Path(), StartedAt: started,
 		RetainUnattributedMetadata: cfg.RetainUnattributedMetadata,
+		CaptureBodies:              cfg.CaptureBodies,
+		BodyCaptureGate:            bodyGate,
+		MaxBodyBytes:               maxBodyBytes,
 	}
 	if err := st.SetState(StateStarting); err != nil {
+		_ = st.Finalize(StateFailed)
+		return Session{}, err
+	}
+	if err := st.SetBodyCapturePolicy(store.BodyCapturePolicy{
+		Enabled: cfg.CaptureBodies, Gate: bodyGate, MaxBodyBytes: maxBodyBytes,
+	}); err != nil {
 		_ = st.Finalize(StateFailed)
 		return Session{}, err
 	}
@@ -187,6 +203,7 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 	capturer, err := m.newCapturer(proxy.Config{
 		ListenAddress: cfg.ListenAddress, Authority: m.authority,
 		Resolver: procmap.Resolver{}, AllowPassthrough: allowUntil,
+		CaptureBodies: cfg.CaptureBodies, MaxBodyBytes: maxBodyBytes,
 		Progress: func(tx models.CaptureTransaction) {
 			if !retainLiveMetadata(tx, cfg.RetainUnattributedMetadata) {
 				return
@@ -469,6 +486,16 @@ func validSessionID(id SessionID) bool {
 
 func activeState(state SessionState) bool {
 	return state == StateStarting || state == StateRunning || state == StateStopping
+}
+
+func normalizeMaxBodyBytes(value int) int {
+	if value <= 0 {
+		return proxy.DefaultMaxBodyBytes
+	}
+	if value > proxy.MaxMaxBodyBytes {
+		return proxy.MaxMaxBodyBytes
+	}
+	return value
 }
 
 func retainLiveMetadata(tx models.CaptureTransaction, retainUnattributed bool) bool {
