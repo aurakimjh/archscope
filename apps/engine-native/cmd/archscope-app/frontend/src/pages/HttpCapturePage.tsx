@@ -1,10 +1,15 @@
 // ─────────────────────────────────────────────────────────────────────
 // [한글] HttpCapturePage.tsx — 실시간 HTTP 캡처 + 오프라인 HAR 분석 페이지.
 //
-// 책임/목적: engine `http_capture` 결과를 요약 메트릭, 캡처 충실도/리댁션
-// 배너, 요청 타임라인+브러시, 유사(pseudo) 프로세스 트리, 필터+트랜잭션
-// 목록/상세 로 렌더. 순수 파생 로직은 state/httpCapture.ts 에 있고 이
-// 파일은 표현/상호작용만 담당 (browserCpuProfile 패턴과 동일).
+// 책임/목적: engine `http_capture` 결과를 HTTP Analyzer 계열 도구와 같은
+// 형태로 렌더. 화면은 두 층으로 나뉜다.
+//   1) 접이식 세션 층 — 캡처 소스(라이브/HAR), 요약 메트릭, 충실도·리댁션
+//      배너, 타임라인 브러시, 유사(pseudo) 프로세스 트리, 진단/비교/상관.
+//   2) 분석 층 — HttpAnalyzerView. 상단 패킷 그리드 + 하단 상세 탭이며
+//      이미지·CSS·스크립트를 포함한 모든 요청과 네트워크 타임 워터폴,
+//      raw HTTP 재구성 텍스트를 이 안에서 본다.
+// 순수 파생 로직은 state/httpCapture.ts 와 state/httpAnalyzer.ts 에 있고
+// 이 파일은 표현/상호작용만 담당 (browserCpuProfile 패턴과 동일).
 //
 // LiveHttpCapturePanel은 Wails CaptureService의 세션/CA/event 계약을
 // 담당하고 종료 후 동일한 AnalysisResult 렌더링 경로로 합류합니다.
@@ -15,27 +20,24 @@
 // 상세 행 상한 때문에 이 값이 하한임을 배너로 명시합니다. Provenance(U3)는
 // state/httpCapture.ts 의 순수 reducer 가 관리합니다.
 // ─────────────────────────────────────────────────────────────────────
-import { Loader2, Play } from "lucide-react";
+import { ChevronDown, ChevronRight, Loader2, Play } from "lucide-react";
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 
 import { engine } from "@/bridge/engine";
 import type {
-  CaptureHTTPMessage,
   HttpCaptureAnalysisResult,
   HttpCaptureTimelineBucket,
-  HttpCaptureTransactionRow,
 } from "@/bridge/types";
 import { ErrorPanel } from "@/components/AnalyzerFeedback";
 import { DiagnosticsPanel } from "@/components/DiagnosticsPanel";
 import { HttpCaptureComparisonPanel } from "@/components/HttpCaptureComparisonPanel";
+import { HttpAnalyzerView } from "@/components/HttpAnalyzerView";
 import { HttpCorrelationPanel } from "@/components/HttpCorrelationPanel";
 import { LiveHttpCapturePanel } from "@/components/LiveHttpCapturePanel";
 import { MetricCard } from "@/components/MetricCard";
-import { SlideOverPanel } from "@/components/SlideOverPanel";
 import { WailsFileDock, type FileDockSelection } from "@/components/WailsFileDock";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { useI18n, type MessageKey } from "@/i18n/I18nProvider";
 import { addWorkspaceResult } from "@/state/analysisWorkspace";
 import { dispatchHttpCaptureDiff } from "@/state/httpCaptureDiff";
@@ -74,33 +76,12 @@ import {
   selectHttpSummary,
   selectTimeline,
   selectTransactions,
-  statusClassOf,
   timelineWindow,
-  timingBreakdown,
   type ProcessTreeNode,
-  type StatusClass,
   type SummaryProjection,
   type TransactionFilter,
 } from "@/state/httpCapture";
 import { formatMilliseconds, formatNumber } from "@/utils/formatters";
-
-const STATUS_CLASSES: StatusClass[] = ["2xx", "3xx", "4xx", "5xx", "other"];
-
-
-function statusColor(status: number): string {
-  switch (statusClassOf(status)) {
-    case "2xx":
-      return "text-emerald-600 dark:text-emerald-400";
-    case "3xx":
-      return "text-sky-600 dark:text-sky-400";
-    case "4xx":
-      return "text-amber-600 dark:text-amber-400";
-    case "5xx":
-      return "text-red-600 dark:text-red-400";
-    default:
-      return "text-muted-foreground";
-  }
-}
 
 export function HttpCapturePage(): React.JSX.Element {
   const { t } = useI18n();
@@ -110,6 +91,11 @@ export function HttpCapturePage(): React.JSX.Element {
   // Workspace entry id of the currently rendered result, so the compare
   // action can seed the comparison panel with "this" session (T-582).
   const [resultEntryId, setResultEntryId] = useState<string | null>(null);
+  // The capture source collapses once a result is on screen so the analyzer
+  // grid owns the viewport; the session summary stays open by default because
+  // its fidelity and redaction disclosures are part of reading the data.
+  const [sourceOpen, setSourceOpen] = useState(true);
+  const [sessionOpen, setSessionOpen] = useState(true);
 
   const analyze = useCallback(async () => {
     if (!file || running) return;
@@ -171,6 +157,16 @@ export function HttpCapturePage(): React.JSX.Element {
     [],
   );
 
+  // Collapsing is a one-time transition on the first result, not a lock: a
+  // later reopen by the user is never undone by a subsequent analysis.
+  const collapsedFor = useRef<string>("");
+  useEffect(() => {
+    const source = state.resultSource;
+    if (!source || collapsedFor.current === source) return;
+    collapsedFor.current = source;
+    setSourceOpen(false);
+  }, [state.resultSource]);
+
   const summary = useMemo(() => selectHttpSummary(result), [result]);
   const captureMeta = useMemo(() => extractCaptureMeta(result), [result]);
   const redaction = useMemo(() => extractRedaction(result), [result]);
@@ -189,10 +185,6 @@ export function HttpCapturePage(): React.JSX.Element {
   const diagnostics = useMemo(() => extractHttpDiagnostics(result), [result]);
   const diagnosticIssues = httpDiagnosticIssueCount(diagnostics);
   const findings = useMemo(() => selectFindings(result), [result]);
-  const selected = useMemo(
-    () => allTransactions.find((row) => row.id === selectedId) ?? null,
-    [allTransactions, selectedId],
-  );
   // The inline detail table is bounded, so recomputed selection metrics are a
   // floor over the visible rows rather than the full session.
   const boundedDetail = captureMeta
@@ -205,44 +197,51 @@ export function HttpCapturePage(): React.JSX.Element {
   );
   const resetFilter = useCallback(() => dispatch({ type: "setFilter", filter: emptyFilter }), []);
   const openById = useCallback((id: string) => dispatch({ type: "select", id }), []);
-  const closeDetail = useCallback(() => dispatch({ type: "closeDetail" }), []);
 
   return (
-    <main className="flex flex-col gap-5 p-5">
-      <LiveHttpCapturePanel
-        onStarted={onLiveStarted}
-        onFinalized={onLiveFinalized}
-      />
-      <WailsFileDock
-        label={t("httpCaptureLabel")}
-        description={t("httpCaptureDescription")}
-        accept=".har,.json"
-        selected={file}
-        onSelect={onSelectFile}
-        onClear={onClearFile}
-        browseLabel={t("browseFile")}
-        dropHereLabel={t("dropHere")}
-        errorLabel={t("error")}
-        fileFilters={[
-          { displayName: t("httpCaptureFilterHar"), pattern: "*.har;*.json" },
-          { displayName: "All files", pattern: "*.*" },
-        ]}
-        rightSlot={
-          <Button type="button" size="sm" disabled={!file || running} onClick={() => void analyze()}>
-            {running ? (
-              <>
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                {t("analyzing")}
-              </>
-            ) : (
-              <>
-                <Play className="h-3.5 w-3.5" />
-                {t("analyze")}
-              </>
-            )}
-          </Button>
-        }
-      />
+    <main className="flex flex-col gap-4 p-4">
+      {/* Capture source. Once a session is loaded this collapses by default so
+          the analyzer gets the screen; reopening it is one click. */}
+      <Disclosure
+        title={t("httpCaptureSectionSource")}
+        open={sourceOpen}
+        onToggle={() => setSourceOpen((value) => !value)}
+      >
+        <div className="flex flex-col gap-4">
+          <LiveHttpCapturePanel onStarted={onLiveStarted} onFinalized={onLiveFinalized} />
+          <WailsFileDock
+            label={t("httpCaptureLabel")}
+            description={t("httpCaptureDescription")}
+            accept=".har,.json"
+            selected={file}
+            onSelect={onSelectFile}
+            onClear={onClearFile}
+            browseLabel={t("browseFile")}
+            dropHereLabel={t("dropHere")}
+            errorLabel={t("error")}
+            fileFilters={[
+              { displayName: t("httpCaptureFilterHar"), pattern: "*.har;*.json" },
+              { displayName: "All files", pattern: "*.*" },
+            ]}
+            rightSlot={
+              <Button type="button" size="sm" disabled={!file || running} onClick={() => void analyze()}>
+                {running ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    {t("analyzing")}
+                  </>
+                ) : (
+                  <>
+                    <Play className="h-3.5 w-3.5" />
+                    {t("analyze")}
+                  </>
+                )}
+              </Button>
+            }
+          />
+        </div>
+      </Disclosure>
+
       <ErrorPanel error={error} labels={{ title: t("analysisError"), code: t("errorCode") }} />
 
       {!result && !error && (
@@ -253,148 +252,193 @@ export function HttpCapturePage(): React.JSX.Element {
         </Card>
       )}
 
-      {result && summary && (
-        <section className="flex flex-col gap-2">
-          <ScopeBanner
-            active={filterActive}
-            bounded={boundedDetail}
-            shown={filtered.length}
-            detailTotal={allTransactions.length}
-            t={t}
-          />
-          <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
-            {filterActive ? (
-              <ProjectionCards projection={projection} t={t} />
-            ) : (
-              <>
-                <MetricCard label={t("httpCaptureMetricTransactions")} value={formatNumber(summary.total_transactions)} />
-                <MetricCard
-                  label={t("httpCaptureMetricErrorRate")}
-                  value={`${(summary.error_rate * 100).toFixed(1)}%`}
-                />
-                <MetricCard label={t("httpCaptureMetricHosts")} value={formatNumber(summary.unique_hosts)} />
-                <MetricCard label={t("httpCaptureMetricEndpoints")} value={formatNumber(summary.unique_endpoints)} />
-                <MetricCard
-                  label={t("httpCaptureMetricP95")}
-                  value={formatMilliseconds(Math.round(summary.duration_p95_ms))}
-                />
-                <MetricCard label={t("httpCaptureMetricResponseBytes")} value={formatBytes(summary.response_bytes)} />
-              </>
-            )}
-          </div>
-        </section>
-      )}
-
-      {result && resultEntryId && (
-        <div className="flex flex-wrap items-center gap-2 text-xs" role="group" aria-label={t("httpCaptureDiffCompareCurrent")}>
-          <span className="text-muted-foreground">{t("httpCaptureDiffCompareCurrent")}</span>
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            onClick={() => dispatchHttpCaptureDiff({ type: "setBefore", id: resultEntryId })}
-          >
-            {t("httpCaptureDiffSetBaseline")}
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            onClick={() => dispatchHttpCaptureDiff({ type: "setAfter", id: resultEntryId })}
-          >
-            {t("httpCaptureDiffSetTarget")}
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            onClick={() =>
-              dispatchHttpCorrelation({ type: "setSlot", slot: "http", id: resultEntryId })
-            }
-          >
-            {t("httpCorrelationUseAsHttp")}
-          </Button>
-        </div>
-      )}
-
-      {captureMeta && <FidelityBanner meta={captureMeta} redaction={redaction} t={t} />}
-
+      {/* The analyzer is the primary surface: every captured request — images,
+          stylesheets, scripts and all — with its network-time waterfall and
+          raw protocol text. It sits above the session panels rather than
+          below them. */}
       {result && (
-        <TimelineBrush
-          buckets={timeline}
-          available={summary?.timeline_available ?? false}
-          window={filter.window}
-          onSelect={(window) => patchFilter({ window })}
-          t={t}
+        <HttpAnalyzerView
+          transactions={filtered}
+          total={allTransactions.length}
+          methods={methods}
+          mimes={mimes}
+          fidelities={fidelities}
+          filter={filter}
+          filterActive={filterActive}
+          onFilter={patchFilter}
+          onReset={resetFilter}
+          selectedId={selectedId}
+          onSelect={openById}
+          bounded={boundedDetail}
+          boundedNote={t("httpCaptureScopeBoundedNote")}
         />
       )}
 
       {result && (
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
-          <ProcessTreePanel tree={tree} onOpen={openById} t={t} />
-          <TransactionListPanel
-            transactions={filtered}
-            total={allTransactions.length}
-            methods={methods}
-            mimes={mimes}
-            fidelities={fidelities}
-            filter={filter}
-            filterActive={filterActive}
-            onFilter={patchFilter}
-            onReset={resetFilter}
-            onOpen={openById}
-            t={t}
-          />
-        </div>
-      )}
-
-      {result && findings.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("httpCaptureFindingsTitle")}</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-2">
-            {findings.map((finding, index) => (
-              <div key={`${finding.code}-${index}`} className="flex items-start gap-2 text-sm">
-                <SeverityDot severity={finding.severity} />
-                <div className="min-w-0">
-                  <code className="text-xs font-semibold">{finding.code}</code>
-                  <p className="text-muted-foreground">{finding.message}</p>
+        <Disclosure
+          title={t("httpCaptureSectionSession")}
+          open={sessionOpen}
+          onToggle={() => setSessionOpen((value) => !value)}
+        >
+          <div className="flex flex-col gap-4">
+            {summary && (
+              <section className="flex flex-col gap-2">
+                <ScopeBanner
+                  active={filterActive}
+                  bounded={boundedDetail}
+                  shown={filtered.length}
+                  detailTotal={allTransactions.length}
+                  t={t}
+                />
+                <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
+                  {filterActive ? (
+                    <ProjectionCards projection={projection} t={t} />
+                  ) : (
+                    <>
+                      <MetricCard label={t("httpCaptureMetricTransactions")} value={formatNumber(summary.total_transactions)} />
+                      <MetricCard
+                        label={t("httpCaptureMetricErrorRate")}
+                        value={`${(summary.error_rate * 100).toFixed(1)}%`}
+                      />
+                      <MetricCard label={t("httpCaptureMetricHosts")} value={formatNumber(summary.unique_hosts)} />
+                      <MetricCard label={t("httpCaptureMetricEndpoints")} value={formatNumber(summary.unique_endpoints)} />
+                      <MetricCard
+                        label={t("httpCaptureMetricP95")}
+                        value={formatMilliseconds(Math.round(summary.duration_p95_ms))}
+                      />
+                      <MetricCard label={t("httpCaptureMetricResponseBytes")} value={formatBytes(summary.response_bytes)} />
+                    </>
+                  )}
                 </div>
+              </section>
+            )}
+
+            {resultEntryId && (
+              <div className="flex flex-wrap items-center gap-2 text-xs" role="group" aria-label={t("httpCaptureDiffCompareCurrent")}>
+                <span className="text-muted-foreground">{t("httpCaptureDiffCompareCurrent")}</span>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => dispatchHttpCaptureDiff({ type: "setBefore", id: resultEntryId })}
+                >
+                  {t("httpCaptureDiffSetBaseline")}
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => dispatchHttpCaptureDiff({ type: "setAfter", id: resultEntryId })}
+                >
+                  {t("httpCaptureDiffSetTarget")}
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() =>
+                    dispatchHttpCorrelation({ type: "setSlot", slot: "http", id: resultEntryId })
+                  }
+                >
+                  {t("httpCorrelationUseAsHttp")}
+                </Button>
               </div>
-            ))}
-          </CardContent>
-        </Card>
+            )}
+
+            {captureMeta && <FidelityBanner meta={captureMeta} redaction={redaction} t={t} />}
+
+            <TimelineBrush
+              buckets={timeline}
+              available={summary?.timeline_available ?? false}
+              window={filter.window}
+              onSelect={(window) => patchFilter({ window })}
+              t={t}
+            />
+
+            <ProcessTreePanel tree={tree} onOpen={openById} t={t} />
+
+            {findings.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("httpCaptureFindingsTitle")}</CardTitle>
+                </CardHeader>
+                <CardContent className="flex flex-col gap-2">
+                  {findings.map((finding, index) => (
+                    <div key={`${finding.code}-${index}`} className="flex items-start gap-2 text-sm">
+                      <SeverityDot severity={finding.severity} />
+                      <div className="min-w-0">
+                        <code className="text-xs font-semibold">{finding.code}</code>
+                        <p className="text-muted-foreground">{finding.message}</p>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="inline-flex items-center gap-2">
+                  {t("httpCaptureDiagnosticsTitle")}
+                  {diagnosticIssues > 0 && (
+                    <span className="rounded-full bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-bold text-amber-700 dark:text-amber-400">
+                      {diagnosticIssues}
+                    </span>
+                  )}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <DiagnosticsPanel diagnostics={diagnostics as never} />
+              </CardContent>
+            </Card>
+
+            {/* H-RG5 session comparison: selection is shared with the Analysis
+                Workspace entry through the httpCaptureDiff module store. */}
+            <HttpCaptureComparisonPanel />
+
+            {/* X-RG1 evidence correlation: shares its selection with the
+                Analysis Workspace through the httpCorrelation module store. */}
+            <HttpCorrelationPanel />
+          </div>
+        </Disclosure>
       )}
-
-      {result && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="inline-flex items-center gap-2">
-              {t("httpCaptureDiagnosticsTitle")}
-              {diagnosticIssues > 0 && (
-                <span className="rounded-full bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-bold text-amber-700 dark:text-amber-400">
-                  {diagnosticIssues}
-                </span>
-              )}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <DiagnosticsPanel diagnostics={diagnostics as never} />
-          </CardContent>
-        </Card>
-      )}
-
-      {/* H-RG5 session comparison: selection is shared with the Analysis
-          Workspace entry through the httpCaptureDiff module store. */}
-      <HttpCaptureComparisonPanel />
-
-      {/* X-RG1 evidence correlation: shares its selection with the Analysis
-          Workspace through the httpCorrelation module store. */}
-      <HttpCorrelationPanel />
-
-      <TransactionDetail transaction={selected} onClose={closeDetail} t={t} />
     </main>
+  );
+}
+
+/**
+ * Disclosure is the collapsible wrapper the session layer uses. The analyzer
+ * grid needs vertical room, and the capture source and session summary are
+ * both things an analyst sets up once and then stops looking at.
+ */
+function Disclosure({
+  title,
+  open,
+  onToggle,
+  children,
+}: {
+  title: string;
+  open: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}): React.JSX.Element {
+  return (
+    <section className="rounded-lg border border-border bg-card">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={open}
+        className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm font-medium hover:bg-accent"
+      >
+        {open ? (
+          <ChevronDown className="h-4 w-4 shrink-0" aria-hidden="true" />
+        ) : (
+          <ChevronRight className="h-4 w-4 shrink-0" aria-hidden="true" />
+        )}
+        {title}
+      </button>
+      {open && <div className="border-t border-border p-3">{children}</div>}
+    </section>
   );
 }
 
@@ -1037,446 +1081,5 @@ function TreeRow({
         </ul>
       )}
     </li>
-  );
-}
-
-// ── Transaction list + filter ───────────────────────────────────────
-
-function TransactionListPanel({
-  transactions,
-  total,
-  methods,
-  mimes,
-  fidelities,
-  filter,
-  filterActive,
-  onFilter,
-  onReset,
-  onOpen,
-  t,
-}: {
-  transactions: HttpCaptureTransactionRow[];
-  total: number;
-  methods: string[];
-  mimes: string[];
-  fidelities: string[];
-  filter: TransactionFilter;
-  filterActive: boolean;
-  onFilter: (patch: Partial<TransactionFilter>) => void;
-  onReset: () => void;
-  onOpen: (id: string) => void;
-  t: Translate;
-}): React.JSX.Element {
-  const selectClass =
-    "h-9 rounded-md border border-input bg-transparent px-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring";
-  const numberClass =
-    "h-9 w-20 rounded-md border border-input bg-transparent px-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring";
-  return (
-    <Card>
-      <CardHeader className="flex-row items-center justify-between gap-2">
-        <CardTitle>{t("httpCaptureListTitle")}</CardTitle>
-        <span className="tabular-nums text-xs text-muted-foreground">
-          {formatNumber(transactions.length)} / {formatNumber(total)}
-        </span>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <Input
-            value={filter.query}
-            onChange={(event) => onFilter({ query: event.target.value })}
-            placeholder={t("httpCaptureFilterQuery")}
-            className="min-w-40 flex-1"
-            aria-label={t("httpCaptureFilterQuery")}
-          />
-          <select
-            className={selectClass}
-            value={filter.method}
-            onChange={(event) => onFilter({ method: event.target.value })}
-            aria-label={t("httpCaptureFilterMethodAll")}
-          >
-            <option value="">{t("httpCaptureFilterMethodAll")}</option>
-            {methods.map((method) => (
-              <option key={method} value={method}>
-                {method}
-              </option>
-            ))}
-          </select>
-          <select
-            className={selectClass}
-            value={filter.statusClass}
-            onChange={(event) => onFilter({ statusClass: event.target.value as TransactionFilter["statusClass"] })}
-            aria-label={t("httpCaptureFilterStatusAll")}
-          >
-            <option value="">{t("httpCaptureFilterStatusAll")}</option>
-            {STATUS_CLASSES.map((statusClass) => (
-              <option key={statusClass} value={statusClass}>
-                {statusClass}
-              </option>
-            ))}
-          </select>
-          <select
-            className={selectClass}
-            value={filter.mime}
-            onChange={(event) => onFilter({ mime: event.target.value })}
-            aria-label={t("httpCaptureFilterMimeAll")}
-          >
-            <option value="">{t("httpCaptureFilterMimeAll")}</option>
-            {mimes.map((mime) => (
-              <option key={mime} value={mime}>
-                {mime}
-              </option>
-            ))}
-          </select>
-          <select
-            className={selectClass}
-            value={filter.fidelity}
-            onChange={(event) => onFilter({ fidelity: event.target.value })}
-            aria-label={t("httpCaptureFilterFidelityAll")}
-          >
-            <option value="">{t("httpCaptureFilterFidelityAll")}</option>
-            {fidelities.map((fidelity) => (
-              <option key={fidelity} value={fidelity}>
-                {fidelity}
-              </option>
-            ))}
-          </select>
-          <div
-            className="flex items-center gap-1"
-            role="group"
-            aria-label={t("httpCaptureFilterDurationRange")}
-          >
-            <input
-              type="number"
-              min={0}
-              inputMode="numeric"
-              className={numberClass}
-              value={filter.minDurationMs ?? ""}
-              onChange={(event) =>
-                onFilter({ minDurationMs: event.target.value === "" ? null : Number(event.target.value) })
-              }
-              placeholder={t("httpCaptureFilterMinDuration")}
-              aria-label={t("httpCaptureFilterMinDuration")}
-            />
-            <span className="text-muted-foreground">–</span>
-            <input
-              type="number"
-              min={0}
-              inputMode="numeric"
-              className={numberClass}
-              value={filter.maxDurationMs ?? ""}
-              onChange={(event) =>
-                onFilter({ maxDurationMs: event.target.value === "" ? null : Number(event.target.value) })
-              }
-              placeholder={t("httpCaptureFilterMaxDuration")}
-              aria-label={t("httpCaptureFilterMaxDuration")}
-            />
-          </div>
-          <label className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-            <input
-              type="checkbox"
-              checked={filter.errorsOnly}
-              onChange={(event) => onFilter({ errorsOnly: event.target.checked })}
-            />
-            {t("httpCaptureFilterErrorsOnly")}
-          </label>
-          {filterActive && (
-            <Button type="button" size="sm" variant="ghost" onClick={onReset}>
-              {t("httpCaptureFilterReset")}
-            </Button>
-          )}
-        </div>
-
-        <div className="overflow-x-auto">
-          {transactions.length === 0 ? (
-            <p className="py-6 text-center text-sm text-muted-foreground" role="status">
-              {t("httpCaptureListEmpty")}
-            </p>
-          ) : (
-            <table className="w-full text-left text-xs">
-              <caption className="sr-only">{t("httpCaptureListCaption")}</caption>
-              <thead>
-                <tr className="border-b border-border text-muted-foreground">
-                  <th scope="col" className="p-2 font-medium">
-                    {t("httpCaptureColMethod")}
-                  </th>
-                  <th scope="col" className="p-2 font-medium">
-                    {t("httpCaptureColUrl")}
-                  </th>
-                  <th scope="col" className="p-2 text-right font-medium">
-                    {t("httpCaptureColStatus")}
-                  </th>
-                  <th scope="col" className="p-2 text-right font-medium">
-                    {t("httpCaptureColDuration")}
-                  </th>
-                  <th scope="col" className="p-2 text-right font-medium">
-                    {t("httpCaptureColSize")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {transactions.slice(0, 200).map((tx) => (
-                  <tr
-                    key={tx.id}
-                    className="cursor-pointer border-t hover:bg-accent focus-visible:bg-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ring"
-                    role="button"
-                    tabIndex={0}
-                    aria-label={`${t("httpCaptureRowOpen")}: ${tx.method} ${tx.host}${tx.path} ${tx.status || tx.state}`}
-                    onClick={() => onOpen(tx.id)}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter" || event.key === " ") {
-                        event.preventDefault();
-                        onOpen(tx.id);
-                      }
-                    }}
-                  >
-                    <td className="p-2 font-mono">{tx.method}</td>
-                    <td className="max-w-sm truncate p-2" title={tx.url}>
-                      <span className="text-muted-foreground">{tx.host}</span>
-                      {tx.path}
-                    </td>
-                    <td className={`p-2 text-right font-mono tabular-nums ${statusColor(tx.status)}`}>
-                      {tx.status || tx.state}
-                    </td>
-                    <td className="p-2 text-right tabular-nums">{Math.round(tx.duration_ms)}</td>
-                    <td className="p-2 text-right tabular-nums text-muted-foreground">
-                      {formatBytes(tx.response_bytes)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-// ── Transaction detail slide-over (tabbed) ──────────────────────────
-
-type DetailTab = "request" | "response" | "timing" | "process";
-
-function TransactionDetail({
-  transaction,
-  onClose,
-  t,
-}: {
-  transaction: HttpCaptureTransactionRow | null;
-  onClose: () => void;
-  t: Translate;
-}): React.JSX.Element {
-  const [tab, setTab] = useState<DetailTab>("request");
-  // Reset to the request tab each time a different transaction opens.
-  const openId = transaction?.id ?? "";
-  const tabForId = useRef<string>("");
-  if (tabForId.current !== openId) {
-    tabForId.current = openId;
-    if (tab !== "request") setTab("request");
-  }
-
-  const phases = useMemo(() => timingBreakdown(transaction), [transaction]);
-  const maxPhase = phases.reduce((max, phase) => Math.max(max, phase.ms), 0);
-
-  const tabs: Array<{ key: DetailTab; label: string }> = [
-    { key: "request", label: t("httpCaptureDetailRequest") },
-    { key: "response", label: t("httpCaptureDetailResponse") },
-    { key: "timing", label: t("httpCaptureDetailTimings") },
-    { key: "process", label: t("httpCaptureDetailProcess") },
-  ];
-
-  return (
-    <SlideOverPanel
-      open={transaction !== null}
-      onClose={onClose}
-      title={
-        transaction
-          ? `${transaction.method ?? ""} ${transaction.path ?? ""}`.trim() || t("httpCaptureDetailTitle")
-          : t("httpCaptureDetailTitle")
-      }
-      width={560}
-    >
-      {transaction && (
-        <div className="flex flex-col gap-4 text-sm">
-          <div className="break-all rounded-md border border-border bg-muted/20 p-2 font-mono text-xs">
-            <span className={statusColor(transaction.status)}>{transaction.status || transaction.state}</span>{" "}
-            {transaction.url}
-          </div>
-
-          <dl className="grid grid-cols-2 gap-2 text-xs">
-            <Field label={t("httpCaptureColDuration")} value={`${Math.round(transaction.duration_ms)} ms`} />
-            <Field label={t("httpCaptureDialectLabel")} value={transaction.http_version} />
-            <Field
-              label={t("httpCaptureDetailConnection")}
-              value={`${transaction.connection_id}${transaction.used_existing_connection ? ` · ${t("httpCaptureDetailReused")}` : ""}`}
-            />
-            <Field
-              label={t("httpCaptureFidelityLabel")}
-              value={t(CAPTURE_FIDELITY_LABEL_KEYS[resolveCaptureFidelity(transaction.fidelity)])}
-              title={transaction.fidelity}
-            />
-          </dl>
-
-          <div role="tablist" aria-label={t("httpCaptureDetailTitle")} className="flex gap-1 border-b border-border">
-            {tabs.map((entry) => (
-              <button
-                key={entry.key}
-                type="button"
-                role="tab"
-                id={`http-detail-tab-${entry.key}`}
-                aria-selected={tab === entry.key}
-                aria-controls={`http-detail-panel-${entry.key}`}
-                onClick={() => setTab(entry.key)}
-                className={`-mb-px border-b-2 px-3 py-1.5 text-xs font-medium ${
-                  tab === entry.key
-                    ? "border-primary text-foreground"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {entry.label}
-              </button>
-            ))}
-          </div>
-
-          <div
-            role="tabpanel"
-            id={`http-detail-panel-${tab}`}
-            aria-labelledby={`http-detail-tab-${tab}`}
-          >
-            {tab === "request" && (
-              <MessagePanel message={transaction.request} t={t} />
-            )}
-            {tab === "response" && (
-              <MessagePanel message={transaction.response} t={t} />
-            )}
-            {tab === "timing" && (
-              <section>
-                {phases.length === 0 || maxPhase === 0 ? (
-                  <p className="text-xs text-muted-foreground">{t("httpCaptureDetailNoTimings")}</p>
-                ) : (
-                  <ul className="flex flex-col gap-1">
-                    {phases.map((phase) => (
-                      <li key={phase.phase} className="flex items-center gap-2">
-                        <span className="w-16 shrink-0 font-mono text-[11px] text-muted-foreground">{phase.phase}</span>
-                        <div className="h-3 flex-1 overflow-hidden rounded-sm bg-muted">
-                          <div
-                            className={`h-full ${phase.state === "known" ? "bg-primary/70" : "bg-muted-foreground/30"}`}
-                            style={{ width: `${maxPhase > 0 ? (phase.ms / maxPhase) * 100 : 0}%` }}
-                          />
-                        </div>
-                        <span className="w-14 shrink-0 text-right font-mono text-[11px] tabular-nums">
-                          {phase.state === "known" ? `${phase.ms.toFixed(1)}ms` : phase.state}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </section>
-            )}
-            {tab === "process" && (
-              <section>
-                {transaction.process ? (
-                  <p className="font-mono text-xs">
-                    {transaction.process.name} · pid {transaction.process.pid} · {transaction.process.attribution}
-                  </p>
-                ) : (
-                  <p className="text-xs text-muted-foreground">{t("httpCaptureDetailNoProcess")}</p>
-                )}
-              </section>
-            )}
-          </div>
-        </div>
-      )}
-    </SlideOverPanel>
-  );
-}
-
-// ── Request / response message panel (headers, cookies, body) ───────
-
-function MessagePanel({
-  message,
-  t,
-}: {
-  message: CaptureHTTPMessage | undefined;
-  t: Translate;
-}): React.JSX.Element {
-  return (
-    <div className="flex flex-col gap-3">
-      {message?.redacted && (
-        <p
-          className="rounded-md border border-amber-500/50 bg-amber-500/10 p-2 text-[11px] text-amber-700 dark:text-amber-400"
-          role="status"
-        >
-          {t("httpCaptureDetailMessageRedacted")}
-        </p>
-      )}
-      <dl className="grid grid-cols-2 gap-2 text-xs">
-        <Field label={t("httpCaptureDetailContentType")} value={message?.contentType ?? ""} />
-        <Field label={t("httpCaptureDetailBodyStorage")} value={message?.bodyStorage ?? ""} />
-        <Field label={t("httpCaptureDetailBodySize")} value={formatBytes(message?.bodySize)} />
-      </dl>
-
-      <KeyValueTable
-        title={t("httpCaptureDetailHeaders")}
-        fields={message?.headers ?? []}
-        emptyLabel={t("httpCaptureDetailNoHeaders")}
-        redactedLabel={t("httpCaptureDetailRedactedBadge")}
-      />
-      <KeyValueTable
-        title={t("httpCaptureDetailCookies")}
-        fields={message?.cookies ?? []}
-        emptyLabel={t("httpCaptureDetailNoCookies")}
-        redactedLabel={t("httpCaptureDetailRedactedBadge")}
-      />
-
-      {message?.bodyPreview && (
-        <div>
-          <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-            {t("httpCaptureDetailBodyPreview")}
-          </span>
-          <pre className="mt-0.5 max-h-40 overflow-auto rounded border border-border bg-muted/30 p-2 text-[11px]">
-            {message.bodyPreview}
-          </pre>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function KeyValueTable({
-  title,
-  fields,
-  emptyLabel,
-  redactedLabel,
-}: {
-  title: string;
-  fields: CaptureHTTPMessage["headers"];
-  emptyLabel: string;
-  redactedLabel: string;
-}): React.JSX.Element {
-  return (
-    <section>
-      <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{title}</h4>
-      {fields.length === 0 ? (
-        <p className="text-xs text-muted-foreground">{emptyLabel}</p>
-      ) : (
-        <table className="w-full text-left text-[11px]">
-          <tbody>
-            {fields.map((field, index) => (
-              <tr key={`${field.name}-${index}`} className="border-t border-border/50 align-top">
-                <td className="w-1/3 py-1 pr-2 font-mono font-medium">{field.name}</td>
-                <td className="break-all py-1 font-mono text-muted-foreground">
-                  {field.value}
-                  {field.redacted && (
-                    <span className="ml-1 rounded bg-amber-500/20 px-1 text-[10px] text-amber-700 dark:text-amber-400">
-                      {redactedLabel}
-                    </span>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-    </section>
   );
 }

@@ -19,6 +19,13 @@ export class Config {
     "passthroughTtlSeconds"?: number;
     "retainUnattributedMetadata"?: boolean;
 
+    /**
+     * CaptureBodies opts this session into retaining request/response payloads.
+     * Off by default; see the body-capture gate constants above.
+     */
+    "captureBodies"?: boolean;
+    "maxBodyBytes"?: number;
+
     /** Creates a new Config instance. */
     constructor($$source: Partial<Config> = {}) {
 
@@ -45,6 +52,22 @@ export class LiveCaptureContract {
     "restoreCurrentSessionOnPageReentry": boolean;
     "finalizedSessionUsesAnalysisResult": boolean;
 
+    /**
+     * BodyCaptureAvailable tells the renderer whether to offer the opt-in at
+     * all, and BodyCaptureGate names the gate the session will record. The
+     * renderer must not infer either from the absence of body previews.
+     */
+    "bodyCaptureAvailable": boolean;
+    "bodyCaptureGate": string;
+    "maxBodyBytes": number;
+
+    /**
+     * UpstreamTimingsAvailable tells the renderer that finalized rows carry a
+     * `proxyUpstream` phase breakdown, so a missing waterfall means the phase
+     * was not observed rather than that the engine never emits one.
+     */
+    "upstreamTimingsAvailable": boolean;
+
     /** Creates a new LiveCaptureContract instance. */
     constructor($$source: Partial<LiveCaptureContract> = {}) {
         if (!("schemaVersion" in $$source)) {
@@ -61,6 +84,18 @@ export class LiveCaptureContract {
         }
         if (!("finalizedSessionUsesAnalysisResult" in $$source)) {
             this["finalizedSessionUsesAnalysisResult"] = false;
+        }
+        if (!("bodyCaptureAvailable" in $$source)) {
+            this["bodyCaptureAvailable"] = false;
+        }
+        if (!("bodyCaptureGate" in $$source)) {
+            this["bodyCaptureGate"] = "";
+        }
+        if (!("maxBodyBytes" in $$source)) {
+            this["maxBodyBytes"] = 0;
+        }
+        if (!("upstreamTimingsAvailable" in $$source)) {
+            this["upstreamTimingsAvailable"] = false;
         }
 
         Object.assign(this, $$source);
@@ -140,6 +175,16 @@ export class Session {
     "error"?: string;
     "retainUnattributedMetadata": boolean;
 
+    /**
+     * CaptureBodies / BodyCaptureGate are the policy this session actually
+     * enforced, fixed at start. The renderer shows these rather than the local
+     * checkbox so a running session can never be described by a setting that
+     * will only take effect on the next start.
+     */
+    "captureBodies": boolean;
+    "bodyCaptureGate": string;
+    "maxBodyBytes"?: number;
+
     /** Creates a new Session instance. */
     constructor($$source: Partial<Session> = {}) {
         if (!("sessionId" in $$source)) {
@@ -159,6 +204,12 @@ export class Session {
         }
         if (!("retainUnattributedMetadata" in $$source)) {
             this["retainUnattributedMetadata"] = false;
+        }
+        if (!("captureBodies" in $$source)) {
+            this["captureBodies"] = false;
+        }
+        if (!("bodyCaptureGate" in $$source)) {
+            this["bodyCaptureGate"] = "";
         }
 
         Object.assign(this, $$source);

@@ -23,6 +23,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useI18n } from "@/i18n/I18nProvider";
 import type { MessageKey } from "@/i18n/messages";
 import {
+  activeBodyCapturePolicy,
   activeUnattributedPolicy,
   buildLiveCoverageDisclosure,
   buildLiveProcessGroups,
@@ -170,6 +171,9 @@ export function LiveHttpCapturePanel({
   });
   const [firstUseAccepted, setFirstUseAccepted] = useState(false);
   const [retainUnattributed, setRetainUnattributed] = useState(false);
+  // Body capture is off by default and stays a per-session decision: the
+  // engine records the SEC-10 gate as pending on every session that enables it.
+  const [captureBodies, setCaptureBodies] = useState(false);
   const [recovery, setRecovery] = useState<RecoverySummary | null>(null);
   const [analysisBusy, setAnalysisBusy] = useState(false);
   const listRef = useRef<HTMLDivElement | null>(null);
@@ -327,6 +331,8 @@ export function LiveHttpCapturePanel({
         listenAddress: "127.0.0.1:0",
         liveWindow: 5000,
         retainUnattributedMetadata: retainUnattributed,
+        captureBodies,
+        maxBodyBytes: state.contract.maxBodyBytes,
       });
       onStarted();
       dispatch({
@@ -341,10 +347,12 @@ export function LiveHttpCapturePanel({
     }
   }, [
     active,
+    captureBodies,
     firstUseAccepted,
     onStarted,
     retainUnattributed,
     state.busy,
+    state.contract.maxBodyBytes,
   ]);
 
   const stop = useCallback(async () => {
@@ -449,6 +457,7 @@ export function LiveHttpCapturePanel({
     state.session,
     retainUnattributed,
   );
+  const effectiveCaptureBodies = activeBodyCapturePolicy(state.session, captureBodies);
   const mode = modes[0] ?? null;
   const caTrusted = caStatus.state === "trusted";
 
@@ -563,10 +572,41 @@ export function LiveHttpCapturePanel({
               </p>
             )}
             <p className="mt-2 text-muted-foreground">
-              {t("liveCaptureBodyDisabled")}
+              {effectiveCaptureBodies
+                ? t("liveCaptureBodyOptInOn")
+                : t("liveCaptureBodyOptInOff")}
             </p>
           </div>
         </div>
+
+        {state.contract.bodyCaptureAvailable && (
+          <label className="flex items-start gap-2 rounded-md border border-amber-500/40 bg-amber-500/5 p-3 text-xs">
+            <input
+              type="checkbox"
+              className="mt-0.5"
+              checked={effectiveCaptureBodies}
+              disabled={active}
+              onChange={(event) => setCaptureBodies(event.target.checked)}
+            />
+            <span>
+              <span className="block font-medium">{t("liveCaptureBodyOptIn")}</span>
+              <span className="text-muted-foreground">{t("liveCaptureBodyOptInHint")}</span>
+              {/* The gate is named rather than implied: enabling this does not
+                  pass a check, it accepts a known-unmitigated exposure. */}
+              <span className="mt-1 block text-amber-700 dark:text-amber-400">
+                {t("liveCaptureBodyGateWarning")}
+              </span>
+              {active && (
+                <span className="mt-1 block font-medium text-amber-700 dark:text-amber-400">
+                  {effectiveCaptureBodies
+                    ? t("liveCaptureBodyOptInOn")
+                    : t("liveCaptureBodyOptInOff")}{" "}
+                  {t("liveCaptureUnknownOptInLocked")}
+                </span>
+              )}
+            </span>
+          </label>
+        )}
 
         <label className="flex items-start gap-2 rounded-md border border-border p-3 text-xs">
           <input

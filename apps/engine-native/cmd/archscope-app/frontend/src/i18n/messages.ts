@@ -1116,6 +1116,117 @@ export const messages = {
     httpCaptureDetailNoCookies: "No cookies captured.",
     httpCaptureDetailNoProcess: "HAR imports carry no OS process attribution.",
     httpCaptureDetailMessageRedacted: "This message was redacted before analysis.",
+
+    // ── HTTP Analyzer view (packet grid + detail pane) ──────────────
+    httpCaptureSectionSource: "Capture source",
+    httpCaptureSectionSession: "Session summary and evidence",
+    httpAnalyzerTitle: "Transactions",
+    httpAnalyzerGridCaption:
+      "Every captured request in capture order. Select a row to inspect it below.",
+    httpAnalyzerEmpty: "No transaction matches the current filter.",
+    httpAnalyzerNoSelection: "Select a request above to see its details.",
+    httpAnalyzerShown: "shown",
+    httpAnalyzerColSeq: "#",
+    httpAnalyzerColStarted: "Started",
+    httpAnalyzerColMethod: "Method",
+    httpAnalyzerColStatus: "Result",
+    httpAnalyzerColHost: "Host",
+    httpAnalyzerColPath: "Path",
+    httpAnalyzerColKind: "Type",
+    httpAnalyzerColSize: "Size",
+    httpAnalyzerColDuration: "Time",
+    httpAnalyzerColTimeline: "Timeline",
+    httpAnalyzerColProcess: "Process",
+    httpAnalyzerSortAsc: "ascending",
+    httpAnalyzerSortDesc: "descending",
+    httpAnalyzerFilterKindAll: "All types",
+    httpAnalyzerResourceBreakdown: "By type",
+    httpAnalyzerKeyboardHint:
+      "Arrow keys move between rows; Enter opens the detail pane.",
+    httpAnalyzerSplitHandle: "Resize the transaction list",
+    httpAnalyzerSplitHandleHint:
+      "Drag, or use the arrow keys, to change how much space the list gets.",
+
+    // Detail tabs
+    httpAnalyzerTabRaw: "Raw",
+    httpAnalyzerTabHeaders: "Headers",
+    httpAnalyzerTabBody: "Body",
+    httpAnalyzerTabTiming: "Timing",
+    httpAnalyzerTabCookies: "Cookies",
+    httpAnalyzerTabProcess: "Process",
+    httpAnalyzerRequestSide: "Request",
+    httpAnalyzerResponseSide: "Response",
+    httpAnalyzerCopy: "Copy",
+    httpAnalyzerCopied: "Copied",
+
+    // Raw-view honesty: this tier is graded `semantic`, not `raw_wire`.
+    httpAnalyzerRawReconstructed:
+      "Reconstructed from the canonical model. Header names, values, and duplicates are preserved; the original field order, casing, and framing are not — this capture tier is graded semantic, not raw wire.",
+
+    // Resource kinds
+    httpAnalyzerKindDocument: "Document",
+    httpAnalyzerKindStylesheet: "Stylesheet",
+    httpAnalyzerKindScript: "Script",
+    httpAnalyzerKindImage: "Image",
+    httpAnalyzerKindFont: "Font",
+    httpAnalyzerKindMedia: "Media",
+    httpAnalyzerKindJson: "JSON",
+    httpAnalyzerKindForm: "Form",
+    httpAnalyzerKindText: "Text",
+    httpAnalyzerKindBinary: "Binary",
+    httpAnalyzerKindConnect: "CONNECT",
+    httpAnalyzerKindOther: "Other",
+
+    // Body availability — each cause reads differently on purpose.
+    httpAnalyzerBodyOmitted:
+      "Body not recorded. Body capture is off for this session.",
+    httpAnalyzerBodyInline: "Body captured in full.",
+    httpAnalyzerBodyTruncated:
+      "Body truncated at the per-message capture limit; the bytes below are its start.",
+    httpAnalyzerBodyEncoded:
+      "Bytes were seen but the Content-Encoding is one this tier does not decode, so no text is claimed.",
+    httpAnalyzerBodyBinary: "Payload is not text; only its size is reported.",
+    httpAnalyzerBodyRedacted:
+      "Body was suppressed by the redaction policy before it was persisted.",
+    httpAnalyzerBodyBlob: "Body is stored out of line.",
+    httpAnalyzerBodyUnknown: "Body storage is not reported for this message.",
+    httpAnalyzerBodyEmpty: "This message had no body.",
+
+    // Timing perspectives — a single TimingSet cannot hold two of them.
+    httpAnalyzerTimingPerspective: "Perspective",
+    httpAnalyzerPerspectiveClientProxy: "Client → proxy",
+    httpAnalyzerPerspectiveProxyUpstream: "Proxy → upstream",
+    httpAnalyzerPerspectiveProxyInternal: "Proxy internal",
+    httpAnalyzerPerspectiveImportedHar: "Imported HAR",
+    httpAnalyzerPerspectiveNote:
+      "Phases are only comparable within one perspective; totals must never be summed across perspectives.",
+    httpAnalyzerPerspectiveUpstreamNote:
+      "These are the proxy's own network phases to the origin. They are not the original client's DNS, TCP, or TLS timings — a MITM proxy cannot observe those.",
+    httpAnalyzerNoTimings:
+      "No timing phases were recorded for this transaction.",
+    httpAnalyzerKnownSum: "Known total",
+    httpAnalyzerKnownSumFloor:
+      "At least one phase is unknown, so this is a lower bound.",
+    httpAnalyzerPhaseBlocked: "Blocked",
+    httpAnalyzerPhaseDns: "DNS",
+    httpAnalyzerPhaseConnect: "Connect",
+    httpAnalyzerPhaseTls: "TLS",
+    httpAnalyzerPhaseSend: "Send",
+    httpAnalyzerPhaseWait: "Wait (TTFB)",
+    httpAnalyzerPhaseReceive: "Receive",
+    httpAnalyzerPhaseNotApplicable: "n/a",
+    httpAnalyzerPhaseUnknown: "unknown",
+    httpAnalyzerReusedConnection: "Reused connection",
+    httpAnalyzerNewConnection: "New connection",
+
+    // Live-capture body opt-in
+    liveCaptureBodyOptIn: "Capture request and response bodies",
+    liveCaptureBodyOptInHint:
+      "Off by default. When enabled, bodies are captured up to a per-message size limit and run through the same redaction policy as headers before anything is written to disk.",
+    liveCaptureBodyGateWarning:
+      "The SEC-10 crash-dump exclusion preflight is not implemented, so enabling this accepts that captured plaintext may reach an OS crash dump. The session records the gate as pending.",
+    liveCaptureBodyOptInOn: "This session is capturing bodies.",
+    liveCaptureBodyOptInOff: "This session is not capturing bodies.",
     httpCaptureDiffTitle: "HTTP session comparison",
     httpCaptureDiffDescription:
       "Compares two http_capture sessions from their bounded, versioned projections — no HAR file or live session store is rescanned. Endpoints are matched by URL template, so reordered but equivalent sessions compare equal.",
@@ -2390,6 +2501,110 @@ export const messages = {
     httpCaptureDetailNoCookies: "캡처된 쿠키가 없습니다.",
     httpCaptureDetailNoProcess: "HAR 가져오기에는 OS 프로세스 귀속 정보가 없습니다.",
     httpCaptureDetailMessageRedacted: "이 메시지는 분석 전에 리댁션되었습니다.",
+
+    // ── HTTP Analyzer 뷰 (패킷 그리드 + 상세 패널) ─────────────────
+    httpCaptureSectionSource: "캡처 소스",
+    httpCaptureSectionSession: "세션 요약 및 근거",
+    httpAnalyzerTitle: "트랜잭션",
+    httpAnalyzerGridCaption:
+      "캡처된 모든 요청을 캡처 순서대로 표시합니다. 행을 선택하면 아래에서 상세를 확인합니다.",
+    httpAnalyzerEmpty: "현재 필터에 해당하는 트랜잭션이 없습니다.",
+    httpAnalyzerNoSelection: "위에서 요청을 선택하면 상세가 표시됩니다.",
+    httpAnalyzerShown: "표시",
+    httpAnalyzerColSeq: "#",
+    httpAnalyzerColStarted: "시작",
+    httpAnalyzerColMethod: "메서드",
+    httpAnalyzerColStatus: "결과",
+    httpAnalyzerColHost: "호스트",
+    httpAnalyzerColPath: "경로",
+    httpAnalyzerColKind: "종류",
+    httpAnalyzerColSize: "크기",
+    httpAnalyzerColDuration: "시간",
+    httpAnalyzerColTimeline: "타임라인",
+    httpAnalyzerColProcess: "프로세스",
+    httpAnalyzerSortAsc: "오름차순",
+    httpAnalyzerSortDesc: "내림차순",
+    httpAnalyzerFilterKindAll: "모든 종류",
+    httpAnalyzerResourceBreakdown: "종류별",
+    httpAnalyzerKeyboardHint:
+      "방향키로 행을 이동하고 Enter로 상세 패널을 엽니다.",
+    httpAnalyzerSplitHandle: "트랜잭션 목록 크기 조절",
+    httpAnalyzerSplitHandleHint:
+      "드래그하거나 방향키로 목록 영역의 높이를 조절합니다.",
+
+    httpAnalyzerTabRaw: "Raw",
+    httpAnalyzerTabHeaders: "헤더",
+    httpAnalyzerTabBody: "본문",
+    httpAnalyzerTabTiming: "타이밍",
+    httpAnalyzerTabCookies: "쿠키",
+    httpAnalyzerTabProcess: "프로세스",
+    httpAnalyzerRequestSide: "요청",
+    httpAnalyzerResponseSide: "응답",
+    httpAnalyzerCopy: "복사",
+    httpAnalyzerCopied: "복사됨",
+
+    httpAnalyzerRawReconstructed:
+      "정규화된 모델에서 재구성한 텍스트입니다. 헤더 이름·값·중복은 보존되지만 원본 필드 순서·대소문자·프레이밍은 보존되지 않습니다 — 이 캡처 tier는 raw wire가 아니라 semantic 등급입니다.",
+
+    httpAnalyzerKindDocument: "문서",
+    httpAnalyzerKindStylesheet: "스타일시트",
+    httpAnalyzerKindScript: "스크립트",
+    httpAnalyzerKindImage: "이미지",
+    httpAnalyzerKindFont: "폰트",
+    httpAnalyzerKindMedia: "미디어",
+    httpAnalyzerKindJson: "JSON",
+    httpAnalyzerKindForm: "폼",
+    httpAnalyzerKindText: "텍스트",
+    httpAnalyzerKindBinary: "바이너리",
+    httpAnalyzerKindConnect: "CONNECT",
+    httpAnalyzerKindOther: "기타",
+
+    httpAnalyzerBodyOmitted:
+      "본문이 기록되지 않았습니다. 이 세션은 본문 캡처가 꺼져 있습니다.",
+    httpAnalyzerBodyInline: "본문이 전부 캡처되었습니다.",
+    httpAnalyzerBodyTruncated:
+      "메시지당 캡처 상한에서 잘렸습니다. 아래 내용은 본문의 앞부분입니다.",
+    httpAnalyzerBodyEncoded:
+      "바이트는 관측했지만 이 tier가 해제하지 못하는 Content-Encoding이라 텍스트를 주장하지 않습니다.",
+    httpAnalyzerBodyBinary: "텍스트가 아닌 페이로드입니다. 크기만 보고합니다.",
+    httpAnalyzerBodyRedacted:
+      "저장 전에 리댁션 정책이 본문을 제거했습니다.",
+    httpAnalyzerBodyBlob: "본문이 별도 저장소에 보관되어 있습니다.",
+    httpAnalyzerBodyUnknown: "이 메시지의 본문 저장 방식이 보고되지 않았습니다.",
+    httpAnalyzerBodyEmpty: "본문이 없는 메시지입니다.",
+
+    httpAnalyzerTimingPerspective: "관점",
+    httpAnalyzerPerspectiveClientProxy: "클라이언트 → 프록시",
+    httpAnalyzerPerspectiveProxyUpstream: "프록시 → 원본 서버",
+    httpAnalyzerPerspectiveProxyInternal: "프록시 내부",
+    httpAnalyzerPerspectiveImportedHar: "가져온 HAR",
+    httpAnalyzerPerspectiveNote:
+      "구간(phase)은 같은 관점 안에서만 비교할 수 있으며, 서로 다른 관점의 값을 합산해서는 안 됩니다.",
+    httpAnalyzerPerspectiveUpstreamNote:
+      "프록시가 원본 서버로 나가는 자신의 네트워크 구간입니다. 원래 클라이언트의 DNS·TCP·TLS 시간이 아닙니다 — MITM 프록시는 그 구간을 관측할 수 없습니다.",
+    httpAnalyzerNoTimings: "이 트랜잭션에는 기록된 타이밍 구간이 없습니다.",
+    httpAnalyzerKnownSum: "확인된 합계",
+    httpAnalyzerKnownSumFloor:
+      "알 수 없는 구간이 있어 이 값은 하한입니다.",
+    httpAnalyzerPhaseBlocked: "대기",
+    httpAnalyzerPhaseDns: "DNS",
+    httpAnalyzerPhaseConnect: "연결",
+    httpAnalyzerPhaseTls: "TLS",
+    httpAnalyzerPhaseSend: "전송",
+    httpAnalyzerPhaseWait: "대기 (TTFB)",
+    httpAnalyzerPhaseReceive: "수신",
+    httpAnalyzerPhaseNotApplicable: "해당 없음",
+    httpAnalyzerPhaseUnknown: "알 수 없음",
+    httpAnalyzerReusedConnection: "재사용 연결",
+    httpAnalyzerNewConnection: "신규 연결",
+
+    liveCaptureBodyOptIn: "요청·응답 본문 캡처",
+    liveCaptureBodyOptInHint:
+      "기본값은 꺼짐입니다. 켜면 메시지당 크기 상한 안에서 본문을 캡처하며, 디스크에 쓰기 전에 헤더와 동일한 리댁션 정책을 거칩니다.",
+    liveCaptureBodyGateWarning:
+      "SEC-10 crash-dump 제외 사전검사가 아직 구현되지 않았습니다. 켜는 것은 캡처된 평문이 OS crash dump에 남을 수 있음을 감수한다는 뜻이며, 세션에는 게이트가 pending으로 기록됩니다.",
+    liveCaptureBodyOptInOn: "이 세션은 본문을 캡처하고 있습니다.",
+    liveCaptureBodyOptInOff: "이 세션은 본문을 캡처하지 않습니다.",
     httpCaptureDiffTitle: "HTTP 세션 비교",
     httpCaptureDiffDescription:
       "두 http_capture 세션을 각 결과에 내장된 경계 있는 버전 프로젝션만으로 비교합니다 — HAR 파일이나 라이브 세션 저장소를 다시 읽지 않습니다. 엔드포인트는 URL 템플릿으로 매칭되므로 순서만 다른 동등한 세션은 동일하게 비교됩니다.",

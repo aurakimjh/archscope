@@ -12,10 +12,25 @@ export type LiveCaptureContract = {
   resyncOnEventSkip: boolean;
   restoreCurrentSessionOnPageReentry: boolean;
   finalizedSessionUsesAnalysisResult: boolean;
+  /**
+   * Whether the engine offers the body-capture tier at all, and which gate a
+   * session that enables it will record. The renderer must not infer either
+   * from the absence of body previews: "bodies were not recorded" and "this
+   * build cannot record bodies" are different statements.
+   */
+  bodyCaptureAvailable: boolean;
+  bodyCaptureGate: string;
+  maxBodyBytes: number;
+  /**
+   * Whether finalized rows carry a `proxyUpstream` phase breakdown. When true,
+   * a transaction without a waterfall means the phases were not observed —
+   * not that the engine never emits them.
+   */
+  upstreamTimingsAvailable: boolean;
 };
 
 /** The only contract schema this renderer knows how to honour. */
-export const LIVE_CAPTURE_CONTRACT_SCHEMA_VERSION = 1;
+export const LIVE_CAPTURE_CONTRACT_SCHEMA_VERSION = 2;
 
 /**
  * Used until the engine answers, and as the fail-safe when it answers with a
@@ -29,6 +44,10 @@ export const DEFAULT_LIVE_CAPTURE_CONTRACT: LiveCaptureContract = {
   resyncOnEventSkip: true,
   restoreCurrentSessionOnPageReentry: true,
   finalizedSessionUsesAnalysisResult: true,
+  bodyCaptureAvailable: true,
+  bodyCaptureGate: "sec10_preflight_pending",
+  maxBodyBytes: 256 * 1024,
+  upstreamTimingsAvailable: true,
 };
 
 /** Fallback row cap. The running cap comes from the engine's contract. */
@@ -54,7 +73,13 @@ export function resolveLiveCaptureContract(raw: unknown): LiveCaptureContract {
     rowCap <= 0 ||
     typeof candidate.resyncOnEventSkip !== "boolean" ||
     typeof candidate.restoreCurrentSessionOnPageReentry !== "boolean" ||
-    typeof candidate.finalizedSessionUsesAnalysisResult !== "boolean"
+    typeof candidate.finalizedSessionUsesAnalysisResult !== "boolean" ||
+    typeof candidate.bodyCaptureAvailable !== "boolean" ||
+    typeof candidate.bodyCaptureGate !== "string" ||
+    typeof candidate.maxBodyBytes !== "number" ||
+    !Number.isInteger(candidate.maxBodyBytes) ||
+    candidate.maxBodyBytes <= 0 ||
+    typeof candidate.upstreamTimingsAvailable !== "boolean"
   ) {
     return DEFAULT_LIVE_CAPTURE_CONTRACT;
   }
@@ -66,6 +91,10 @@ export function resolveLiveCaptureContract(raw: unknown): LiveCaptureContract {
       candidate.restoreCurrentSessionOnPageReentry,
     finalizedSessionUsesAnalysisResult:
       candidate.finalizedSessionUsesAnalysisResult,
+    bodyCaptureAvailable: candidate.bodyCaptureAvailable,
+    bodyCaptureGate: candidate.bodyCaptureGate,
+    maxBodyBytes: candidate.maxBodyBytes,
+    upstreamTimingsAvailable: candidate.upstreamTimingsAvailable,
   };
 }
 
@@ -96,6 +125,14 @@ export type LiveCaptureSession = {
    * must display this value whenever a session exists (H-RG4 L6).
    */
   retainUnattributedMetadata?: boolean;
+  /**
+   * Authoritative body-capture policy for the running session, fixed at start.
+   * Like `retainUnattributedMetadata`, the renderer checkbox is only a request
+   * for the *next* session; this is what the proxy is enforcing now.
+   */
+  captureBodies?: boolean;
+  bodyCaptureGate?: string;
+  maxBodyBytes?: number;
 };
 
 export type LiveCaptureStats = {
@@ -606,6 +643,23 @@ export function buildLiveCoverageDisclosure(
     hasDrops: dropped > 0,
     hasUnattributed: (stats.unattributed ?? 0) > 0,
   };
+}
+
+/**
+ * The body-capture policy actually in force, resolved the same way as the
+ * SEC-17 policy below: while a session is active the engine's value wins, so a
+ * page re-entry can never describe a running capture by a checkbox that has
+ * reset to its default. A session that is not active reflects the local choice,
+ * which is what the next start will use.
+ */
+export function activeBodyCapturePolicy(
+  session: LiveCaptureSession | null,
+  pendingChoice: boolean,
+): boolean {
+  if (session && isLiveSessionActive(session)) {
+    return session.captureBodies === true;
+  }
+  return pendingChoice;
 }
 
 /**

@@ -19,6 +19,7 @@
 // ─────────────────────────────────────────────────────────────────────
 
 import type { MessageKey } from "../i18n/messages";
+import { resourceKindOf, type ResourceKind } from "./httpAnalyzer.js";
 import type {
   CaptureHTTPMessage,
   CaptureTimingPhases,
@@ -357,6 +358,12 @@ export type TransactionFilter = {
   mime: string;
   /** "" = all fidelities */
   fidelity: string;
+  /**
+   * "" = all resource kinds. This is the facet that makes an image- or
+   * script-heavy page load navigable: without it the only handle on a static
+   * asset is its file extension typed into the free-text query.
+   */
+  kind: "" | ResourceKind;
   /** inclusive lower bound on duration_ms; null = no lower bound */
   minDurationMs: number | null;
   /** inclusive upper bound on duration_ms; null = no upper bound */
@@ -371,6 +378,7 @@ export const emptyFilter: TransactionFilter = {
   window: null,
   mime: "",
   fidelity: "",
+  kind: "",
   minDurationMs: null,
   maxDurationMs: null,
 };
@@ -389,6 +397,7 @@ export function isFilterActive(filter: TransactionFilter): boolean {
     filter.window !== null ||
     filter.mime !== "" ||
     filter.fidelity !== "" ||
+    filter.kind !== "" ||
     filter.minDurationMs !== null ||
     filter.maxDurationMs !== null
   );
@@ -416,7 +425,8 @@ function matchesQuery(tx: HttpCaptureTransactionRow, query: string): boolean {
   if (!query) return true;
   const needle = query.trim().toLowerCase();
   if (!needle) return true;
-  const haystack = `${tx.method} ${tx.url} ${tx.host} ${tx.path} ${tx.status}`.toLowerCase();
+  const haystack =
+    `${tx.method} ${tx.url} ${tx.host} ${tx.path} ${tx.query ?? ""} ${tx.status} ${tx.status_text ?? ""}`.toLowerCase();
   return haystack.includes(needle);
 }
 
@@ -441,6 +451,7 @@ export function filterTransactions(
     if (filter.errorsOnly && !isErrorTransaction(tx)) return false;
     if (filter.mime && transactionMime(tx) !== filter.mime) return false;
     if (filter.fidelity && tx.fidelity !== filter.fidelity) return false;
+    if (filter.kind && resourceKindOf(tx) !== filter.kind) return false;
     if (filter.minDurationMs !== null || filter.maxDurationMs !== null) {
       const duration = Number(tx.duration_ms);
       // Unknown/NaN durations drop out of an explicit duration range.

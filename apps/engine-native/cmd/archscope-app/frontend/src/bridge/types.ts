@@ -153,12 +153,17 @@ export type HttpCaptureTransactionRow = {
   ended_at: string;
   method: string;
   url: string;
+  scheme?: string;
   host: string;
   path: string;
+  query?: string;
   status: number;
   status_text: string;
   http_version: string;
   state: string;
+  stream_id?: number;
+  observation_point?: string;
+  error?: string;
   duration_ms: number;
   request_bytes: number;
   response_bytes: number;
@@ -244,6 +249,9 @@ export type HttpCaptureMeta = {
   redaction: HttpCaptureRedaction;
   detail_storage: string;
   table_limit: number;
+  // Budget for the full transaction list, independent of `table_limit` which
+  // bounds the aggregate tables. Absent on results produced before the split.
+  transaction_row_limit?: number;
   timeline_bucket_limit: number;
   transaction_rows: number;
   transactions: number;

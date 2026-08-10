@@ -426,6 +426,13 @@ export class CaptureAnalyzeRequest {
     "sessionId": string;
     "topN"?: number;
 
+    /**
+     * TransactionRows bounds the full transaction list independently of TopN.
+     * Zero selects the analyzer default, which is sized to hold a whole
+     * session rather than a top-N ranking.
+     */
+    "transactionRows"?: number;
+
     /** Creates a new CaptureAnalyzeRequest instance. */
     constructor($$source: Partial<CaptureAnalyzeRequest> = {}) {
         if (!("sessionId" in $$source)) {
@@ -503,6 +510,7 @@ export class CaptureFetchRequest {
 export class CaptureImportRequest {
     "path": string;
     "topN"?: number;
+    "transactionRows"?: number;
 
     /** Creates a new CaptureImportRequest instance. */
     constructor($$source: Partial<CaptureImportRequest> = {}) {

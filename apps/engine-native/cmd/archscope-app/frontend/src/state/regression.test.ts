@@ -25,6 +25,27 @@ import {
   selectScoreProvenance,
 } from "./browserAudit.js";
 import {
+  BODY_STORAGE_LABEL_KEYS,
+  RESOURCE_KIND_LABEL_KEYS,
+  TIMING_PERSPECTIVE_LABEL_KEYS,
+  TIMING_PHASE_LABEL_KEYS,
+  availablePerspectives,
+  availableResourceKinds,
+  bodyUnavailableKey,
+  buildRawRequest,
+  buildRawResponse,
+  buildWaterfall,
+  defaultGridSort,
+  nextSelection,
+  placeOnSession,
+  resolveBodyStorage,
+  resourceKindBreakdown,
+  resourceKindOf,
+  sessionSpan,
+  sortTransactions,
+  toggleSort,
+} from "./httpAnalyzer.js";
+import {
   CAPTURE_COVERAGE_LABEL_KEYS,
   CAPTURE_DETAIL_STORAGE_LABEL_KEYS,
   CAPTURE_FIDELITY_LABEL_KEYS,
@@ -60,6 +81,7 @@ import {
   emptyFilter,
 } from "./httpCapture.js";
 import {
+  activeBodyCapturePolicy,
   activeUnattributedPolicy,
   buildLiveCoverageDisclosure,
   buildLiveProcessGroups,
@@ -1246,6 +1268,10 @@ assert(
     resyncOnEventSkip: false,
     restoreCurrentSessionOnPageReentry: false,
     finalizedSessionUsesAnalysisResult: false,
+    bodyCaptureAvailable: false,
+    bodyCaptureGate: "disabled",
+    maxBodyBytes: 1024,
+    upstreamTimingsAvailable: false,
   }).transactionRowCap === 3,
   "a well-formed engine contract is adopted verbatim",
 );
@@ -1289,6 +1315,10 @@ let contracted = liveHttpCaptureReducer(initialLiveCaptureState, {
     resyncOnEventSkip: false,
     restoreCurrentSessionOnPageReentry: true,
     finalizedSessionUsesAnalysisResult: true,
+    bodyCaptureAvailable: true,
+    bodyCaptureGate: "sec10_preflight_pending",
+    maxBodyBytes: 262144,
+    upstreamTimingsAvailable: true,
   },
 });
 assert(
@@ -2557,3 +2587,274 @@ for (const key of correlationLabelKeys) {
     `correlation message key ${key} must exist in both locales`,
   );
 }
+
+// ── HTTP Analyzer view: resource kinds, raw reconstruction, waterfall ─
+//
+// The complaints this covers are concrete: image/CSS/script calls were absent
+// from the list, there was no network-time breakdown, and there was no way to
+// read the raw protocol text. Each is asserted here as a property of the pure
+// derivation, so a regression fails in Node rather than on screen.
+
+const analyzerRows = [
+  harTx({
+    id: "a-doc",
+    sequence: 0,
+    method: "GET",
+    host: "shop.example.test",
+    path: "/",
+    status: 200,
+    status_text: "OK",
+    duration_ms: 120,
+    started_at: "2026-07-20T05:00:00.000Z",
+    response: { headers: [{ name: "Content-Type", value: "text/html; charset=utf-8" }], cookies: [], headerSize: 40, bodySize: 2048, bodyDecoded: 2048, transferSize: 2100, bodyStorage: "inline", contentType: "text/html; charset=utf-8", bodyPreview: "<html></html>" },
+  }),
+  harTx({
+    id: "a-css",
+    sequence: 1,
+    path: "/assets/app.css",
+    duration_ms: 30,
+    started_at: "2026-07-20T05:00:00.200Z",
+    response: { headers: [], cookies: [], headerSize: 0, bodySize: 512, bodyDecoded: 512, transferSize: 512, bodyStorage: "omitted", contentType: "text/css" },
+  }),
+  harTx({
+    id: "a-img",
+    sequence: 2,
+    path: "/assets/hero.png",
+    response_bytes: 40960,
+    duration_ms: 60,
+    started_at: "2026-07-20T05:00:00.400Z",
+    response: { headers: [], cookies: [], headerSize: 0, bodySize: 40960, bodyDecoded: 0, transferSize: 40960, bodyStorage: "binary", contentType: "image/png" },
+  }),
+  harTx({
+    id: "a-js-noctype",
+    sequence: 3,
+    path: "/assets/vendor.js",
+    duration_ms: 45,
+    started_at: "2026-07-20T05:00:00.600Z",
+    // No Content-Type at all: the extension has to carry the classification,
+    // which is exactly the case a MIME-only classifier drops into "other".
+    response: { headers: [], cookies: [], headerSize: 0, bodySize: 90, bodyDecoded: 0, transferSize: 90, bodyStorage: "omitted" },
+  }),
+  harTx({
+    id: "a-connect",
+    sequence: 4,
+    method: "CONNECT",
+    path: "",
+    status: 200,
+    duration_ms: 5,
+    started_at: "2026-07-20T05:00:00.800Z",
+    response: { headers: [], cookies: [], headerSize: 0, bodySize: 0, bodyDecoded: 0, transferSize: 0, bodyStorage: "omitted" },
+  }),
+];
+
+assert(resourceKindOf(analyzerRows[0]!) === "document", "text/html should classify as a document");
+assert(resourceKindOf(analyzerRows[1]!) === "stylesheet", "text/css should classify as a stylesheet");
+assert(resourceKindOf(analyzerRows[2]!) === "image", "image/* should classify as an image");
+assert(
+  resourceKindOf(analyzerRows[3]!) === "script",
+  "a typeless .js response should fall back to the path extension, not 'other'",
+);
+assert(resourceKindOf(analyzerRows[4]!) === "connect", "a CONNECT tunnel is its own kind, not 'other'");
+
+const kinds = availableResourceKinds(analyzerRows);
+assert(
+  kinds.join(",") === "document,stylesheet,script,image,connect",
+  `resource kinds should be listed in canonical order, got ${kinds.join(",")}`,
+);
+const breakdown = resourceKindBreakdown(analyzerRows);
+assert(
+  breakdown.find((entry) => entry.kind === "image")?.bytes === 40960,
+  "the breakdown should total response bytes per kind",
+);
+
+// Kind is a first-class filter facet: static assets must be reachable without
+// typing a file extension into the free-text query.
+assert(
+  filterTransactions(analyzerRows, { ...emptyFilter, kind: "image" }).length === 1,
+  "kind filter should narrow to the image request",
+);
+assert(isFilterActive({ ...emptyFilter, kind: "script" }), "a kind filter should count as active");
+
+// Raw protocol reconstruction.
+const rawRequest = buildRawRequest(
+  harTx({ method: "get", path: "/orders", query: "page=2", http_version: "http/1.1", host: "api.example.test" }),
+);
+assert(
+  rawRequest.startLine === "GET /orders?page=2 HTTP/1.1",
+  `request start line should carry the query and upper-case version, got ${rawRequest.startLine}`,
+);
+assert(
+  rawRequest.text.includes("Host: api.example.test"),
+  "a missing Host header should be synthesized from the transaction host",
+);
+assert(rawRequest.reconstructed === true, "the raw view must always declare itself reconstructed");
+
+// A captured Host header must never be overwritten by the synthesized one.
+const rawWithHost = buildRawRequest(
+  harTx({
+    host: "api.example.test",
+    request: { headers: [{ name: "Host", value: "vhost.internal" }], cookies: [], headerSize: 0, bodySize: 0, bodyDecoded: 0, transferSize: 0, bodyStorage: "omitted" },
+  }),
+);
+assert(
+  rawWithHost.text.includes("Host: vhost.internal") && !rawWithHost.text.includes("Host: api.example.test"),
+  "a captured Host header must win over the synthesized one",
+);
+
+const rawResponse = buildRawResponse(analyzerRows[0]!);
+assert(
+  rawResponse.startLine === "HTTP/1.1 200 OK",
+  `response start line should be version + code + reason, got ${rawResponse.startLine}`,
+);
+assert(rawResponse.hasBody, "a captured body should appear in the reconstructed response");
+assert(
+  rawResponse.text.includes("\r\n\r\n<html></html>"),
+  "the body should be separated from the headers by a blank line",
+);
+
+// "No body shown" has several distinct causes and they must read differently.
+assert(bodyUnavailableKey(analyzerRows[0]!.response) === null, "a present body needs no notice");
+assert(
+  bodyUnavailableKey(analyzerRows[1]!.response) === "httpAnalyzerBodyOmitted",
+  "an omitted body should say it was not recorded",
+);
+assert(
+  bodyUnavailableKey(analyzerRows[2]!.response) === "httpAnalyzerBodyBinary",
+  "a binary payload should say it is not text, not that it was omitted",
+);
+assert(
+  bodyUnavailableKey({ headers: [], cookies: [], headerSize: 0, bodySize: 0, bodyDecoded: 0, transferSize: 0, bodyStorage: "inline" }) ===
+    "httpAnalyzerBodyEmpty",
+  "a genuinely empty body should say so rather than claiming suppression",
+);
+assert(resolveBodyStorage("nonsense") === "unknown", "an unrecognized storage token must not leak to the screen");
+
+// Timing waterfall. A reused connection reports not_applicable handshakes and
+// those must occupy no width while still being listed (INV-5).
+const timedRow = harTx({
+  id: "timed",
+  duration_ms: 100,
+  used_existing_connection: true,
+  timings: {
+    proxyUpstream: {
+      blocked: { ms: 1, state: "known" },
+      dns: { ms: 0, state: "not_applicable" },
+      connect: { ms: 0, state: "not_applicable" },
+      tls: { ms: 0, state: "not_applicable" },
+      send: { ms: 2, state: "known" },
+      wait: { ms: 40, state: "known" },
+      receive: { ms: 7, state: "unknown" },
+    },
+  },
+});
+assert(
+  availablePerspectives(timedRow).join(",") === "proxyUpstream",
+  "only the perspectives actually present should be offered",
+);
+const waterfall = buildWaterfall(timedRow);
+assert(waterfall.perspective === "proxyUpstream", "the only available perspective should be selected");
+assert(waterfall.knownMs === 43, `known total should sum only the known phases, got ${waterfall.knownMs}`);
+assert(waterfall.hasUnknown === true, "an unknown phase must mark the total as a floor");
+const dnsSegment = waterfall.segments.find((segment) => segment.phase === "dns")!;
+assert(dnsSegment.widthPct === 0, "a not_applicable phase must occupy no width");
+assert(dnsSegment.state === "not_applicable", "a not_applicable phase must keep its state, not become 0 ms");
+const waitSegment = waterfall.segments.find((segment) => segment.phase === "wait")!;
+assert(Math.abs(waitSegment.offsetPct - (3 / 43) * 100) < 1e-9, "phases should be laid end to end within a perspective");
+assert(buildWaterfall(harTx({ timings: {} })).perspective === null, "no timings yields no waterfall");
+
+// Perspectives are never merged: asking for one that is absent falls back to a
+// present one rather than fabricating an empty set.
+assert(
+  buildWaterfall(timedRow, "importedHar").perspective === "proxyUpstream",
+  "an absent perspective should fall back to an available one",
+);
+
+// Session-relative placement drives the grid's timeline column.
+const span = sessionSpan(analyzerRows)!;
+assert(span.durationMs === 800 + 5, `session span should cover the whole cascade, got ${span.durationMs}`);
+const firstPlacement = placeOnSession(analyzerRows[0]!, span)!;
+assert(firstPlacement.offsetPct === 0, "the earliest request should start at the origin");
+assert(
+  placeOnSession(harTx({ started_at: "" }), span) === null,
+  "a row with no start time must not be drawn at the origin",
+);
+
+// Sorting is stable and total.
+const byDuration = sortTransactions(analyzerRows, { column: "duration", direction: "desc" });
+assert(byDuration[0]?.id === "a-doc", "descending duration should put the slowest first");
+const bySequence = sortTransactions(analyzerRows, defaultGridSort);
+assert(bySequence.map((row) => row.id).join(",") === "a-doc,a-css,a-img,a-js-noctype,a-connect", "the default sort is capture order");
+assert(toggleSort(defaultGridSort, "sequence").direction === "desc", "clicking the active column flips it");
+assert(toggleSort(defaultGridSort, "size").direction === "asc", "a new sort column starts ascending");
+
+// Keyboard navigation over the grid.
+assert(nextSelection(analyzerRows, "a-css", 1) === "a-img", "arrow-down should select the next row");
+assert(nextSelection(analyzerRows, "a-doc", -1) === null, "moving past the first row is a no-op");
+assert(nextSelection(analyzerRows, null, 1) === "a-doc", "with no selection, arrow-down selects the first row");
+assert(nextSelection([], null, 1) === null, "an empty grid has nothing to select");
+
+// Every analyzer label key must exist in both locales.
+const analyzerLabelKeys = [
+  ...Object.values(RESOURCE_KIND_LABEL_KEYS),
+  ...Object.values(BODY_STORAGE_LABEL_KEYS),
+  ...Object.values(TIMING_PERSPECTIVE_LABEL_KEYS),
+  ...Object.values(TIMING_PHASE_LABEL_KEYS),
+  "httpAnalyzerTitle",
+  "httpAnalyzerRawReconstructed",
+  "httpAnalyzerPerspectiveNote",
+  "httpAnalyzerPerspectiveUpstreamNote",
+  "httpAnalyzerBodyEmpty",
+  "httpAnalyzerNoTimings",
+  "httpCaptureSectionSource",
+  "httpCaptureSectionSession",
+  "liveCaptureBodyOptIn",
+  "liveCaptureBodyGateWarning",
+] as const;
+for (const key of analyzerLabelKeys) {
+  assert(
+    typeof (messages.en as Record<string, string>)[key] === "string" &&
+      (messages.en as Record<string, string>)[key]!.length > 0 &&
+      typeof (messages.ko as Record<string, string>)[key] === "string" &&
+      (messages.ko as Record<string, string>)[key]!.length > 0,
+    `analyzer message key ${key} must exist in both locales`,
+  );
+}
+
+// The live-capture contract gained the body gate and timing availability. A
+// contract missing them is a schema this renderer cannot honour, and half-
+// honouring it would leave the renderer's behaviour described by neither side.
+assert(
+  resolveLiveCaptureContract({
+    schemaVersion: 2,
+    transactionRowCap: 500,
+    resyncOnEventSkip: true,
+    restoreCurrentSessionOnPageReentry: true,
+    finalizedSessionUsesAnalysisResult: true,
+    bodyCaptureAvailable: true,
+    bodyCaptureGate: "sec10_preflight_pending",
+    maxBodyBytes: 262144,
+    upstreamTimingsAvailable: true,
+  }).bodyCaptureGate === "sec10_preflight_pending",
+  "a complete v2 contract should be adopted verbatim",
+);
+assert(
+  resolveLiveCaptureContract({
+    schemaVersion: 2,
+    transactionRowCap: 500,
+    resyncOnEventSkip: true,
+    restoreCurrentSessionOnPageReentry: true,
+    finalizedSessionUsesAnalysisResult: true,
+  }) === DEFAULT_LIVE_CAPTURE_CONTRACT,
+  "a v2 contract missing the body-gate fields must fall back rather than half-adopt",
+);
+
+// The running session's body policy is authoritative while it is active; the
+// local checkbox only seeds the next start.
+assert(
+  activeBodyCapturePolicy({ sessionId: "cap-1", state: "running", listenAddress: "", storePath: "", startedAt: null, captureBodies: true }, false) === true,
+  "a running session that captures bodies must be described as capturing them",
+);
+assert(
+  activeBodyCapturePolicy({ sessionId: "cap-1", state: "finalized", listenAddress: "", storePath: "", startedAt: null, captureBodies: true }, false) === false,
+  "once a session ends the local choice seeds the next start again",
+);
