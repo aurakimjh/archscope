@@ -381,7 +381,14 @@ progress 노출 전에 drop하며, 명시적 opt-in을 선택해도 리댁션된
 재리뷰는 `bodyCaptureGate = "sec10_preflight_pending"` 기록만으로 H-SEC2 C1을
 충족하지 못한다고 판정했다. 보완 후 renderer 계약은 tier를 unavailable로
 게시하고 두 엔진 경계가 body-enabled 시작을 거부하므로, 구현·실측된 SEC-10
-사전검사가 추가 보안 재리뷰를 통과할 때까지 body는 무조건 생략된다. Acceptance package는
+사전검사가 추가 보안 재리뷰를 통과할 때까지 body는 무조건 생략된다.
+**활성화는 T-588이 담당한다**: Windows 전용 사전검사가 WER `LocalDumps` 정책을
+읽고 재확인하며, 프로세스 전역으로 덤프 수집을 억제하고(영역별 제외는 Go에서
+사용 불가 — `RD-135`), `verified`/`unavailable(reason)` 결과를 세션과 manifest에
+바인딩한다. 수용 조건은 강제 크래시 하네스가 실제 OS artifact에서 canary body와
+CA 키 자료를 모두 찾지 못하는 것이다. 이 작업은 R-RG1 재실행 **이전에** 들어가야
+한다. R-RG1 증거는 T-587로 이미 한 번 무효화됐고, SEC-10을 재실행 뒤에 넣으면
+두 번째로 무효화된다. Acceptance package는
 `cmd/archscope-app/testdata/t581_live_capture_acceptance.json`,
 `capture_windows_e2e_test.go`,
 `scripts/verify-windows-live-capture.ps1`이며 공유 계약은

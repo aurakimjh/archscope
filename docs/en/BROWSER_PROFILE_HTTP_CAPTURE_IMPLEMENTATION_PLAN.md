@@ -390,7 +390,15 @@ gate. The 2026-08-10 T-587 re-review found that merely recording
 `bodyCaptureGate = "sec10_preflight_pending"` did not satisfy H-SEC2 C1. The
 remediation makes the contract unavailable and rejects body-enabled starts at
 both engine boundaries, so bodies remain unconditionally omitted until an
-implemented and measured SEC-10 preflight passes another security review. The acceptance package is
+implemented and measured SEC-10 preflight passes another security review.
+**T-588 carries that enablement**: a Windows-only preflight that reads and
+re-verifies the WER `LocalDumps` policy, suppresses dump collection
+process-wide (per-region exclusion is unusable from Go — `RD-135`), binds a
+`verified`/`unavailable(reason)` result to the session and manifest, and is
+accepted only against a forced-crash harness that finds neither a canary body
+nor CA key material in real OS artifacts. It must land **before** the R-RG1
+re-run: that acceptance evidence is already invalidated once by T-587, and
+sequencing SEC-10 after a re-run would invalidate it a second time. The acceptance package is
 `cmd/archscope-app/testdata/t581_live_capture_acceptance.json`,
 `capture_windows_e2e_test.go`, and
 `scripts/verify-windows-live-capture.ps1`, with its shared contract at

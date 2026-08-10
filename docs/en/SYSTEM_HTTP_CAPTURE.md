@@ -122,6 +122,46 @@ checkbox. Defense-in-depth rejection at both engine boundaries prevents a stale
 or custom renderer from bypassing that contract. Enabling the tier later
 requires an implemented/measured SEC-10 preflight and another security review.
 
+#### 2.1.1 Planned SEC-10 Preflight (T-588, not yet implemented)
+
+Scope is Windows only, because live capture is Windows only (§9.4). The
+preflight runs **before authority generation or any plaintext retention** and
+returns a bound result rather than a promise.
+
+| Step | Action | Fail-closed when |
+|---|---|---|
+| 1 | Read the WER `LocalDumps` machine policy and the per-executable subkey; interpret `DumpType` and `CustomDumpFlags` for heap inclusion | The policy cannot be read |
+| 2 | Register the process exclusion and disable snapshot/heap reporting | Registration fails, or the API is unavailable on this OS build |
+| 3 | Re-read the effective policy and confirm the exclusion took | The re-read does not show the expected state |
+| 4 | Return `verified` or `unavailable(reason)`, bound to the running session | Any step errors |
+
+The mechanism is deliberately **process-wide suppression, not per-region
+exclusion**. `WerRegisterExcludedMemoryBlock` covers a fixed address range,
+while body buffers are ordinary Go heap allocations the collector may move, so
+no stable range can be registered — see `RD-135`. The chosen mechanism is
+coarser but checkable: step 3 proves the resulting state instead of asserting
+it. On a managed machine whose machine-wide policy forces heap-inclusive dumps
+and cannot be overridden without administrator rights, body capture therefore
+stays **unavailable** rather than proceeding on an unverifiable claim.
+
+`bodyCaptureGate` carries the verified result into `capture.Session` and the
+store manifest, and `bodyCaptureAvailable` is derived from a preflight run
+instead of being hardcoded. Both engine boundaries keep rejecting body-enabled
+starts — the rejection becomes conditional on the preflight result rather than
+unconditional.
+
+**Verification.** A policy read that returns the expected value is not
+evidence. Activation requires a forced-crash harness that pushes a unique
+canary through a request and a response body, crashes the process mid-capture,
+and then scans `%LOCALAPPDATA%\CrashDumps`, the WER `ReportQueue` and
+`ReportArchive`, and the Application event log for that canary and for CA key
+material, asserting absence in real OS artifacts.
+
+**Not defended by this mechanism**, and stated rather than implied: an active
+debugger reading process memory (already excluded by the SEC-10 matrix row), an
+administrator enabling `LocalDumps` mid-session, kernel or hypervisor memory
+acquisition, and plaintext reaching the pagefile or a hibernation image.
+
 `BodyStorage` is the answer to that question and its values are deliberately
 distinct — `omitted`, `inline`, `truncated`, `encoded`, `binary`, `redacted`,
 `blob`. "Not recorded", "capped", "undecodable", "not text", and "suppressed"

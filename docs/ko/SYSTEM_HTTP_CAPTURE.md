@@ -1318,6 +1318,43 @@ C1 조건은 이를 accepted risk로 기록하지 않고 fail-closed할 것을 �
 renderer가 계약을 우회해도 엔진의 두 경계가 시작을 거부한다. 향후 활성화에는
 SEC-10 사전검사 구현·실측과 추가 보안 재리뷰가 필요하다.
 
+##### 6.4.1.1 계획된 SEC-10 사전검사 — T-588, 미구현
+
+live capture가 Windows 전용이므로(§9.4) 범위도 Windows 전용이다. 사전검사는
+**authority 생성과 모든 평문 보관 이전에** 실행되며 약속이 아니라 결과를
+반환한다.
+
+| 단계 | 동작 | fail-closed 조건 |
+|---|---|---|
+| 1 | WER `LocalDumps` machine 정책과 실행 파일별 subkey를 읽고 `DumpType`·`CustomDumpFlags`의 heap 포함 여부를 해석 | 정책을 읽을 수 없음 |
+| 2 | 프로세스 제외를 등록하고 snapshot/heap 보고를 비활성화 | 등록 실패 또는 해당 OS 빌드에 API 없음 |
+| 3 | 유효 정책을 다시 읽어 제외가 적용됐는지 확인 | 재확인 결과가 기대 상태와 다름 |
+| 4 | 실행 세션에 바인딩된 `verified` 또는 `unavailable(reason)` 반환 | 임의 단계의 오류 |
+
+메커니즘은 의도적으로 **영역별 제외가 아니라 프로세스 전역 억제**다.
+`WerRegisterExcludedMemoryBlock`은 고정 주소 범위를 제외하는데 body 버퍼는
+GC가 옮길 수 있는 일반 Go heap 할당이라 안정적인 범위를 등록할 수 없다 —
+`RD-135` 참조. 선택한 방식은 더 거칠지만 검증 가능하다. 3단계가 결과 상태를
+주장하는 대신 증명한다. 따라서 machine 정책이 heap 포함 덤프를 강제하고
+관리자 권한 없이는 무효화할 수 없는 관리 대상 PC에서는 검증 불가능한 주장을
+안고 진행하는 대신 body capture가 **unavailable** 로 남는다.
+
+`bodyCaptureGate`는 검증된 결과를 `capture.Session`과 store manifest로
+전달하고, `bodyCaptureAvailable`은 하드코딩 대신 사전검사 실행 결과에서
+파생된다. 두 엔진 경계는 계속 body-enabled 시작을 거부하되, 거부가 무조건이
+아니라 사전검사 결과에 따라 조건부가 된다.
+
+**검증.** 정책 읽기가 기대값을 반환한 것은 증거가 아니다. 활성화하려면 request와
+response body에 고유 canary를 흘리고 캡처 도중 프로세스를 강제로 크래시시킨 뒤
+`%LOCALAPPDATA%\CrashDumps`, WER `ReportQueue`·`ReportArchive`, Application
+event log에서 그 canary와 CA 키 자료를 검색해 **실제 OS artifact에** 없음을
+확인하는 강제 크래시 하네스가 필요하다.
+
+**이 메커니즘이 방어하지 않는 것** — 암시하지 않고 명시한다: 활성 디버거의
+프로세스 메모리 읽기(이미 SEC-10 매트릭스 행에서 제외), 세션 도중 관리자의
+`LocalDumps` 활성화, 커널·하이퍼바이저 수준 메모리 획득, 평문이 pagefile이나
+최대 절전 이미지에 남는 경우.
+
 `BodyStorage` 가 그 답이며 값은 의도적으로 서로 다르다 — `omitted`, `inline`,
 `truncated`, `encoded`, `binary`, `redacted`, `blob`. "기록 안 함", "상한에서
 잘림", "해제 불가", "텍스트 아님", "정책이 제거함"은 서로 다른 다섯 개의 주장이고
