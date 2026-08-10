@@ -377,10 +377,11 @@ L10은 paired user guide와 JVM truststore harness 계약으로 닫혔다.
 
 SEC-17은 renderer 아래에서 강제된다. unknown attribution은 기본적으로 저장과
 progress 노출 전에 drop하며, 명시적 opt-in을 선택해도 리댁션된 metadata만
-보존한다. 그 게이트 시점에는 body가 무조건 생략되었다. 2026-08-10 (T-587)에
-추가한 opt-in body tier는 기본값을 바꾸지 않으며 게이트를 통과했다고 주장하지도
-않는다 — 이 tier를 켠 모든 세션은 `bodyCaptureGate = "sec10_preflight_pending"`
-을 기록하므로, SEC-10은 여전히 미완이고 노출은 암시가 아니라 명시된다. Acceptance package는
+보존한다. 그 게이트 시점에는 body가 무조건 생략되었다. 2026-08-10 T-587
+재리뷰는 `bodyCaptureGate = "sec10_preflight_pending"` 기록만으로 H-SEC2 C1을
+충족하지 못한다고 판정했다. 보완 후 renderer 계약은 tier를 unavailable로
+게시하고 두 엔진 경계가 body-enabled 시작을 거부하므로, 구현·실측된 SEC-10
+사전검사가 추가 보안 재리뷰를 통과할 때까지 body는 무조건 생략된다. Acceptance package는
 `cmd/archscope-app/testdata/t581_live_capture_acceptance.json`,
 `capture_windows_e2e_test.go`,
 `scripts/verify-windows-live-capture.ps1`이며 공유 계약은

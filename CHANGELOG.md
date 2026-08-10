@@ -25,12 +25,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   carries a phase waterfall instead of only a total. Reused connections report
   the handshake phases as `not_applicable` and unobserved phases stay
   `unknown`, so a printed total is explicitly a lower bound.
-- Added an opt-in request/response body-capture tier for live capture, bounded
-  per message, gzip/deflate-decoded, and run through the existing redaction
-  policy. It is off by default and every session that enables it records
-  `bodyCaptureGate = "sec10_preflight_pending"` — the crash-dump exclusion
-  preflight is still outstanding, so enabling it accepts a known exposure
-  rather than passing a check.
+- Added the bounded request/response body-processing core for live capture,
+  including gzip/deflate decoding and existing-policy redaction. The product
+  capability remains unavailable while
+  `bodyCaptureGate = "sec10_preflight_pending"`: both the session manager and
+  proxy constructor reject body-enabled starts until the SEC-10 crash-dump
+  exclusion preflight is implemented and verified.
 - Added an HTTP Analyzer-style transaction view: a virtualized packet grid
   (sequence, start clock, method, result, host, path, resource type, size,
   time, session-relative timeline bar, process) over a resizable detail pane
@@ -74,11 +74,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   loopback-bound, and opt-in: HTTP/2 and QUIC are not decoded, pinning failures
   are retained only as attributed unsupported/not-captured evidence, and
   endpoint ownership does not claim complete machine traffic coverage.
-- Request and response bodies remain omitted by default. The new body tier is a
-  separate per-session opt-in, fixed at session start, bounded per message, and
-  redacted before persistence; the session and its manifest record
-  `bodyCaptureGate = "sec10_preflight_pending"` so a finalized capture always
-  discloses that the SEC-10 crash-dump exclusion preflight had not run.
+- Request and response bodies remain unconditionally omitted. The body tier is
+  fail-closed while SEC-10 is pending: the renderer contract marks it
+  unavailable, and direct body-enabled starts are rejected before a CA or
+  session artifact is allocated. The dormant decoder also caps decompressed
+  previews at the per-message limit and clears its unredacted wire buffer after
+  canonicalization.
 
 ## [0.3.5] — 2026-05-17
 

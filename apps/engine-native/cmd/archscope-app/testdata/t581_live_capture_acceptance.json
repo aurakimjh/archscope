@@ -64,7 +64,7 @@
     "resyncOnEventSkip": true,
     "restoreCurrentSessionOnPageReentry": true,
     "finalizedSessionUsesAnalysisResult": true,
-    "bodyCaptureAvailable": true,
+    "bodyCaptureAvailable": false,
     "bodyCaptureGate": "sec10_preflight_pending",
     "maxBodyBytes": 262144,
     "upstreamTimingsAvailable": true

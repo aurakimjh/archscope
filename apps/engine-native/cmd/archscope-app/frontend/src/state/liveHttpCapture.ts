@@ -44,7 +44,9 @@ export const DEFAULT_LIVE_CAPTURE_CONTRACT: LiveCaptureContract = {
   resyncOnEventSkip: true,
   restoreCurrentSessionOnPageReentry: true,
   finalizedSessionUsesAnalysisResult: true,
-  bodyCaptureAvailable: true,
+  // Fail closed if the engine contract cannot be loaded. SEC-10 is still
+  // pending, so a renderer fallback must never expose the body opt-in.
+  bodyCaptureAvailable: false,
   bodyCaptureGate: "sec10_preflight_pending",
   maxBodyBytes: 256 * 1024,
   upstreamTimingsAvailable: true,

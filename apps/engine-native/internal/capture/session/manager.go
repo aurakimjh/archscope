@@ -126,6 +126,12 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 	if activeState(m.session.State) {
 		return Session{}, ErrSessionActive
 	}
+	// H-SEC2 C1 requires a verified crash-dump exclusion preflight before any
+	// plaintext body tier can start. A pending gate is not an accepted-risk
+	// bypass: reject before generating an authority or creating session files.
+	if cfg.CaptureBodies {
+		return Session{}, capture.ErrBodyCapturePreflightPending
+	}
 	if m.platform != "windows" {
 		return Session{}, fmt.Errorf("%w: supported live capture requires Windows TCP-owner process attribution", capture.ErrModeUnavailable)
 	}
@@ -152,13 +158,10 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 		return Session{}, err
 	}
 	started := time.Now().UTC()
-	// The body policy is fixed here and never re-read while the session runs, so
-	// the value persisted in the manifest is exactly what the proxy enforced.
+	// The body policy is fixed here and never re-read while the session runs.
+	// Until SEC-10 is implemented this is necessarily the disabled policy.
 	maxBodyBytes := normalizeMaxBodyBytes(cfg.MaxBodyBytes)
 	bodyGate := capture.BodyGateDisabled
-	if cfg.CaptureBodies {
-		bodyGate = capture.BodyGatePreflightPending
-	}
 	session := Session{
 		ID: id, State: StateStarting, StorePath: st.Path(), StartedAt: started,
 		RetainUnattributedMetadata: cfg.RetainUnattributedMetadata,

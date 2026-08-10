@@ -68,8 +68,9 @@ type Config struct {
 	Progress         func(models.CaptureTransaction)
 	Now              func() time.Time
 	DialContext      func(context.Context, string, string) (net.Conn, error)
-	// CaptureBodies is the opt-in body tier. It is off unless the session
-	// explicitly turned it on; see body.go for why the default is omission.
+	// CaptureBodies requests the dormant body tier. New rejects it until the
+	// SEC-10 crash-dump exclusion preflight is implemented and can supply a
+	// verified gate result.
 	CaptureBodies bool
 	// MaxBodyBytes caps a single retained message body. Zero selects
 	// DefaultMaxBodyBytes.
@@ -98,6 +99,9 @@ type resolvedProcess struct {
 type resolvedProcessContextKey struct{}
 
 func New(cfg Config) (*Server, error) {
+	if cfg.CaptureBodies {
+		return nil, capture.ErrBodyCapturePreflightPending
+	}
 	if cfg.Authority == nil {
 		return nil, errors.New("proxy authority is required")
 	}

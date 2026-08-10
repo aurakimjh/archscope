@@ -1297,25 +1297,26 @@ fixture가 위 ID 중 무엇을 검증하는지 매핑**하는 것이 Phase 0 �
 | 민감 패턴 감지 | `redacted` — 11.3 |
 | 사용자가 바디 수집 끔 | 전부 `omitted` |
 
-#### 6.4.1 바디 캡처 tier — 세션별 opt-in (구현됨)
+#### 6.4.1 바디 캡처 tier — 비활성, SEC-10 fail-closed
 
-바디는 **세션별 opt-in** 이며 기본값은 수집하지 않음이다. 이것은 배관이 없어서
-비워 둔 자리가 아니다 — MITM 프록시가 평문 페이로드를 들고 있는 상태가 바로
-**SEC-10 crash-dump 제외 사전검사**가 한계 짓는 노출이다.
+바디 처리 코어는 구현되어 있지만 SEC-10이 미완인 동안 request/response body
+capture는 제품 capability가 아니다. MITM 프록시가 평문 페이로드를 들고 있는
+상태가 바로 **SEC-10 crash-dump 제외 사전검사**가 한계 짓는 노출이며, H-SEC2
+C1 조건은 이를 accepted risk로 기록하지 않고 fail-closed할 것을 요구한다.
 
 | 항목 | 계약 |
 |---|---|
 | 기본값 | `captureBodies = false`, 모든 메시지 `omitted` |
-| 활성화 | 세션 단위, 시작 시점에 확정, 실행 중 변경 불가 |
-| 게이트 기록 | 활성화한 세션은 manifest 와 `capture.Session` 에 `bodyCaptureGate = "sec10_preflight_pending"` 기록 |
-| 크기 상한 | 메시지당 상한(기본 256 KiB, 최대 4 MiB). 전송 바이트 수는 수집 여부와 무관하게 항상 기록 |
+| 활성화 | SEC-10 통과 전까지 불가. `capture.Config.CaptureBodies = true`는 authority/session 할당 전에 session manager와 proxy constructor 양쪽에서 거부 |
+| 게이트 기록 | `LiveCaptureContract`가 `bodyCaptureAvailable = false`, `bodyCaptureGate = "sec10_preflight_pending"`를 게시. 일반 세션은 실제 강제된 disabled 정책을 기록 |
+| 크기 상한 | 비활성 처리 코어는 decoded expansion을 포함해 메시지당 상한(기본 256 KiB, 최대 4 MiB)을 지킴. body는 생략하면서 전송 바이트 수만 기록 |
 | 디코딩 | `identity`, `gzip`, `deflate`. 그 외는 `encoded` — 바이트는 봤지만 텍스트를 주장하지 않음 |
 | 리댁션 | 저장 전에 헤더와 동일한 정책을 통과. 정책이 제거하면 `redacted` |
 
-사전검사가 **아직 구현되지 않았으므로**, 이 tier 를 켜는 것은 검사를 통과하는
-것이 아니라 운영자가 알려진 미완화 노출을 감수하는 행위다. UI 는 그 표현
-그대로 적고, 세션은 어떤 게이트가 적용됐는지 기록한다. 그래야 종료된 캡처가
-"이 본문은 왜 없는가"에 답할 수 있다.
+사전검사가 **아직 구현되지 않았으므로** pending gate는 운영자 위험 수락 표식이
+아니라 capability 차단 상태다. UI는 checkbox를 제공하지 않으며 stale/custom
+renderer가 계약을 우회해도 엔진의 두 경계가 시작을 거부한다. 향후 활성화에는
+SEC-10 사전검사 구현·실측과 추가 보안 재리뷰가 필요하다.
 
 `BodyStorage` 가 그 답이며 값은 의도적으로 서로 다르다 — `omitted`, `inline`,
 `truncated`, `encoded`, `binary`, `redacted`, `blob`. "기록 안 함", "상한에서

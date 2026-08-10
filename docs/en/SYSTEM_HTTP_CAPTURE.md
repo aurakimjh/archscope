@@ -99,26 +99,28 @@ analyzer renders a request line, header block, and body assembled from the
 canonical model, and labels it as such on every render. Presenting it as
 captured bytes would claim `raw_wire`.
 
-### 2.1 Body-Capture Tier (opt-in)
+### 2.1 Body-Capture Tier (dormant; SEC-10 fail-closed)
 
-Request and response bodies are a separate, per-session opt-in. The default is
-omission, and it is not a placeholder for missing plumbing: a MITM proxy holding
-plaintext payloads is the exposure the **SEC-10 crash-dump exclusion preflight**
-bounds.
+The body-processing core exists, but request and response body capture is not a
+product capability while SEC-10 is pending. A MITM proxy holding plaintext
+payloads is the exposure the **SEC-10 crash-dump exclusion preflight** bounds,
+and the H-SEC2 C1 condition requires failure to be closed rather than recorded
+as accepted risk.
 
 | Aspect | Contract |
 |---|---|
 | Default | `captureBodies = false`; every message is `omitted` |
-| Enabling | Per session, fixed at start, never changed while running |
-| Gate record | A session that enables it records `bodyCaptureGate = "sec10_preflight_pending"` in its manifest and in `capture.Session` |
-| Size bound | Per-message cap (default 256 KiB, ceiling 4 MiB); the transferred byte count is always recorded regardless |
+| Enabling | Unavailable until SEC-10 passes; `capture.Config.CaptureBodies = true` is rejected by both the session manager and proxy constructor before authority/session allocation |
+| Gate record | `LiveCaptureContract` publishes `bodyCaptureAvailable = false` and `bodyCaptureGate = "sec10_preflight_pending"`; ordinary sessions record the enforced disabled policy |
+| Size bound | Dormant processing is capped per message (default 256 KiB, ceiling 4 MiB), including decoded expansion; transferred byte counts are recorded while bodies remain omitted |
 | Decoding | `identity`, `gzip`, `deflate`. Anything else is `encoded` — bytes were seen, no text is claimed |
 | Redaction | Bodies run through the same policy as headers before persistence; a suppressed body becomes `redacted` |
 
-Because the preflight is **not implemented**, enabling the tier is an operator
-accepting a known-unmitigated exposure, not a check being passed. The UI states
-this in those terms and the session records which gate was in force, so a
-finalized capture can always answer "why is this body absent?".
+Because the preflight is **not implemented**, a pending gate is a capability
+blocker, not an operator-risk acknowledgement. The UI does not offer the
+checkbox. Defense-in-depth rejection at both engine boundaries prevents a stale
+or custom renderer from bypassing that contract. Enabling the tier later
+requires an implemented/measured SEC-10 preflight and another security review.
 
 `BodyStorage` is the answer to that question and its values are deliberately
 distinct — `omitted`, `inline`, `truncated`, `encoded`, `binary`, `redacted`,

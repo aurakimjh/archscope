@@ -30,6 +30,19 @@ func (r *fixedProcessResolver) Resolve(net.Addr, net.Addr) (*models.ProcessInsta
 	return r.process, nil
 }
 
+func TestNewRejectsBodyCaptureUntilSEC10PreflightPasses(t *testing.T) {
+	authority, err := NewAuthority(time.Now().UTC())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer authority.Close()
+
+	_, err = New(Config{Authority: authority, CaptureBodies: true})
+	if !errors.Is(err, capture.ErrBodyCapturePreflightPending) {
+		t.Fatalf("New error=%v, want ErrBodyCapturePreflightPending", err)
+	}
+}
+
 func TestMITMForwardsH1WithVerifiedUpstream(t *testing.T) {
 	origin := httptest.NewTLSServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		writer.Header().Set("X-Origin", "verified")

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"os"
 	"testing"
 	"time"
 
@@ -11,6 +12,31 @@ import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/proxy"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 )
+
+func TestManagerRejectsBodyCaptureBeforeAllocatingSensitiveState(t *testing.T) {
+	root := t.TempDir()
+	manager := NewManagerForPlatform(root, capture.NopEventSink{}, "windows")
+	capturerConstructed := false
+	manager.newCapturer = func(proxy.Config) (Capturer, error) {
+		capturerConstructed = true
+		return nil, errors.New("must not construct capturer")
+	}
+
+	_, err := manager.Start(context.Background(), capture.Config{CaptureBodies: true})
+	if !errors.Is(err, capture.ErrBodyCapturePreflightPending) {
+		t.Fatalf("Start error=%v, want ErrBodyCapturePreflightPending", err)
+	}
+	if capturerConstructed || manager.authority != nil || manager.Current().ID != "" {
+		t.Fatalf("rejected start allocated sensitive state: capturer=%v authority=%v session=%+v", capturerConstructed, manager.authority != nil, manager.Current())
+	}
+	entries, readErr := os.ReadDir(root)
+	if readErr != nil {
+		t.Fatal(readErr)
+	}
+	if len(entries) != 0 {
+		t.Fatalf("rejected start created %d session artifacts", len(entries))
+	}
+}
 
 func TestManagerEnforcesSingleActiveSessionAndIdempotentStop(t *testing.T) {
 	manager := NewManagerForPlatform(t.TempDir(), capture.NopEventSink{}, "windows")

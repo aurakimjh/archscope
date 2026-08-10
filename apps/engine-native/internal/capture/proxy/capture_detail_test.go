@@ -155,8 +155,8 @@ func TestReusedConnectionMarksHandshakePhasesNotApplicable(t *testing.T) {
 	}
 }
 
-// Bodies stay omitted unless the session opted in. This is the SEC-10 gate
-// default and must not regress into "captured because the plumbing exists".
+// Bodies stay omitted in every startable session while SEC-10 is pending. This
+// must not regress into "captured because the dormant plumbing exists".
 func TestBodiesStayOmittedWithoutOptIn(t *testing.T) {
 	origin := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, _ *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
@@ -180,52 +180,49 @@ func TestBodiesStayOmittedWithoutOptIn(t *testing.T) {
 	}
 }
 
-func TestOptInCapturesDecodedBodies(t *testing.T) {
+func TestDormantBodyCoreCapturesDecodedBodies(t *testing.T) {
 	payload := `{"order":{"id":42}}`
-	origin := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, _ *http.Request) {
-		writer.Header().Set("Content-Type", "application/json")
-		_, _ = io.WriteString(writer, payload)
-	}))
-	defer origin.Close()
-
-	address, captured := startPlainProxy(t, Config{CaptureBodies: true})
-	proxyGet(t, address, origin.URL+"/order", nil)
-	tx := awaitTransaction(t, captured)
-
-	if tx.Response.BodyStorage != BodyStorageInline {
-		t.Fatalf("response bodyStorage=%q, want %q", tx.Response.BodyStorage, BodyStorageInline)
+	recorder := newBodyRecorder(io.NopCloser(strings.NewReader(payload)), true, 0)
+	if _, err := io.Copy(io.Discard, recorder); err != nil {
+		t.Fatal(err)
 	}
-	if tx.Response.BodyPreview != payload {
-		t.Fatalf("response bodyPreview=%q, want %q", tx.Response.BodyPreview, payload)
+	message := models.HTTPMessage{}
+	recorder.apply(&message, "identity")
+
+	if message.BodyStorage != BodyStorageInline {
+		t.Fatalf("bodyStorage=%q, want %q", message.BodyStorage, BodyStorageInline)
+	}
+	if message.BodyPreview != payload {
+		t.Fatalf("bodyPreview=%q, want %q", message.BodyPreview, payload)
+	}
+	if recorder.buffer.Len() != 0 {
+		t.Fatalf("unredacted recorder buffer retained %d bytes after apply", recorder.buffer.Len())
 	}
 }
 
 // A body over the per-message cap must be reported as truncated rather than
 // presented as if it were the whole payload.
-func TestOptInTruncatesOversizedBodies(t *testing.T) {
+func TestDormantBodyCoreTruncatesOversizedBodies(t *testing.T) {
 	payload := strings.Repeat("A", 4096)
-	origin := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, _ *http.Request) {
-		writer.Header().Set("Content-Type", "text/plain")
-		_, _ = io.WriteString(writer, payload)
-	}))
-	defer origin.Close()
-
-	address, captured := startPlainProxy(t, Config{CaptureBodies: true, MaxBodyBytes: 512})
-	proxyGet(t, address, origin.URL+"/big", nil)
-	tx := awaitTransaction(t, captured)
-
-	if tx.Response.BodyStorage != BodyStorageTruncated {
-		t.Fatalf("response bodyStorage=%q, want %q", tx.Response.BodyStorage, BodyStorageTruncated)
+	recorder := newBodyRecorder(io.NopCloser(strings.NewReader(payload)), true, 512)
+	if _, err := io.Copy(io.Discard, recorder); err != nil {
+		t.Fatal(err)
 	}
-	if len(tx.Response.BodyPreview) != 512 {
-		t.Fatalf("preview length=%d, want the 512-byte cap", len(tx.Response.BodyPreview))
+	message := models.HTTPMessage{}
+	recorder.apply(&message, "identity")
+
+	if message.BodyStorage != BodyStorageTruncated {
+		t.Fatalf("bodyStorage=%q, want %q", message.BodyStorage, BodyStorageTruncated)
 	}
-	if tx.Response.BodySize != int64(len(payload)) {
-		t.Fatalf("bodySize=%d, want the full transferred size %d", tx.Response.BodySize, len(payload))
+	if len(message.BodyPreview) != 512 {
+		t.Fatalf("preview length=%d, want the 512-byte cap", len(message.BodyPreview))
+	}
+	if message.BodySize != int64(len(payload)) {
+		t.Fatalf("bodySize=%d, want the full transferred size %d", message.BodySize, len(payload))
 	}
 }
 
-func TestOptInDecodesGzipBodies(t *testing.T) {
+func TestDormantBodyCoreDecodesGzipBodies(t *testing.T) {
 	payload := `{"compressed":true}`
 	var compressed bytes.Buffer
 	gzipWriter := gzip.NewWriter(&compressed)
@@ -235,24 +232,41 @@ func TestOptInDecodesGzipBodies(t *testing.T) {
 	if err := gzipWriter.Close(); err != nil {
 		t.Fatal(err)
 	}
-	origin := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, _ *http.Request) {
-		writer.Header().Set("Content-Type", "application/json")
-		writer.Header().Set("Content-Encoding", "gzip")
-		_, _ = writer.Write(compressed.Bytes())
-	}))
-	defer origin.Close()
-
-	address, captured := startPlainProxy(t, Config{CaptureBodies: true})
-	// Ask for the compressed representation explicitly so the transport does not
-	// transparently decompress it before the recorder sees the bytes.
-	proxyGet(t, address, origin.URL+"/gz", http.Header{"Accept-Encoding": []string{"gzip"}})
-	tx := awaitTransaction(t, captured)
-
-	if tx.Response.BodyEncoding != "gzip" {
-		t.Fatalf("bodyEncoding=%q, want gzip", tx.Response.BodyEncoding)
+	recorder := newBodyRecorder(io.NopCloser(bytes.NewReader(compressed.Bytes())), true, 0)
+	if _, err := io.Copy(io.Discard, recorder); err != nil {
+		t.Fatal(err)
 	}
-	if tx.Response.BodyPreview != payload {
-		t.Fatalf("bodyPreview=%q, want the decoded payload %q", tx.Response.BodyPreview, payload)
+	message := models.HTTPMessage{}
+	recorder.apply(&message, "gzip")
+
+	if message.BodyEncoding != "gzip" {
+		t.Fatalf("bodyEncoding=%q, want gzip", message.BodyEncoding)
+	}
+	if message.BodyPreview != payload {
+		t.Fatalf("bodyPreview=%q, want the decoded payload %q", message.BodyPreview, payload)
+	}
+}
+
+func TestCompressedBodyExpansionUsesThePerMessageCap(t *testing.T) {
+	payload := strings.Repeat("Z", 4096)
+	var compressed bytes.Buffer
+	gzipWriter := gzip.NewWriter(&compressed)
+	if _, err := io.WriteString(gzipWriter, payload); err != nil {
+		t.Fatal(err)
+	}
+	if err := gzipWriter.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	recorder := newBodyRecorder(io.NopCloser(bytes.NewReader(compressed.Bytes())), true, 512)
+	if _, err := io.Copy(io.Discard, recorder); err != nil {
+		t.Fatal(err)
+	}
+	message := models.HTTPMessage{}
+	recorder.apply(&message, "gzip")
+
+	if message.BodyStorage != BodyStorageTruncated || len(message.BodyPreview) != 512 {
+		t.Fatalf("expanded body storage=%q preview=%d, want truncated at 512", message.BodyStorage, len(message.BodyPreview))
 	}
 }
 

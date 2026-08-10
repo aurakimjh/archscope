@@ -216,9 +216,8 @@ func TestT581LiveCaptureAcceptanceFixture(t *testing.T) {
 			t.Fatalf("unsupported scenario=%+v", scenario)
 		}
 	}
-	// Body capture is an opt-in tier: the default config must still produce
-	// omitted bodies, and the gate the opt-in records must be the pending SEC-10
-	// preflight rather than a passed check.
+	// Body capture remains unavailable until SEC-10 passes. The contract names
+	// the pending gate while the default config continues to omit bodies.
 	if fixture.Security.RetainUnattributedMetadataDefault != (capture.Config{}).RetainUnattributedMetadata ||
 		fixture.Security.BodyStorage != proxy.BodyStorageOmitted ||
 		!fixture.Security.CARemovedOnStop ||

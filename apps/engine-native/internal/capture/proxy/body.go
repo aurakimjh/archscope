@@ -35,9 +35,6 @@ const (
 	DefaultMaxBodyBytes = 256 << 10
 	// MaxMaxBodyBytes is the ceiling a session may raise the per-body cap to.
 	MaxMaxBodyBytes = 4 << 20
-	// maxDecompressedBodyBytes bounds the decode step so a compression bomb
-	// cannot expand into proxy memory.
-	maxDecompressedBodyBytes = 8 << 20
 )
 
 // bodyRecorder counts every byte that passes through a message body and, when
@@ -90,6 +87,10 @@ func (r *bodyRecorder) Transferred() int64 { return r.n }
 // classification, and truncation are all reflected in BodyStorage so the UI can
 // state exactly why a body is or is not readable.
 func (r *bodyRecorder) apply(message *models.HTTPMessage, contentEncoding string) {
+	// The recorder owns the unredacted wire bytes. Clear them as soon as the
+	// canonical message has been built; SEC-10 is still required because the
+	// message itself briefly contains plaintext before pipeline redaction.
+	defer r.clearCaptured()
 	message.BodySize = r.n
 	message.TransferSize = r.n
 	message.BodyEncoding = contentEncoding
@@ -103,18 +104,19 @@ func (r *bodyRecorder) apply(message *models.HTTPMessage, contentEncoding string
 	}
 
 	raw := r.buffer.Bytes()
-	decoded, ok := decodeBody(raw, contentEncoding, r.truncated)
+	decoded, decodedTruncated, ok := decodeBody(raw, contentEncoding, r.truncated, r.limit)
 	if !ok {
 		message.BodyStorage = BodyStorageEncoded
 		return
 	}
+	defer zeroBytes(decoded)
 	message.BodyDecoded = int64(len(decoded))
 	if !utf8.Valid(decoded) {
 		message.BodyStorage = BodyStorageBinary
 		return
 	}
 	message.BodyPreview = string(decoded)
-	if r.truncated {
+	if r.truncated || decodedTruncated {
 		message.BodyStorage = BodyStorageTruncated
 		return
 	}
@@ -124,42 +126,58 @@ func (r *bodyRecorder) apply(message *models.HTTPMessage, contentEncoding string
 // decodeBody inflates the encodings this tier understands. A body that was
 // truncated mid-stream cannot be decoded as a whole, so a partial compressed
 // payload is reported as `encoded` rather than as a corrupt decode.
-func decodeBody(raw []byte, contentEncoding string, truncated bool) ([]byte, bool) {
+func decodeBody(raw []byte, contentEncoding string, truncated bool, limit int) ([]byte, bool, bool) {
 	encoding := strings.ToLower(strings.TrimSpace(contentEncoding))
 	switch encoding {
 	case "", "identity":
-		return raw, true
+		return raw, truncated, true
 	case "gzip", "x-gzip":
 		if truncated {
-			return nil, false
+			return nil, false, false
 		}
 		reader, err := gzip.NewReader(bytes.NewReader(raw))
 		if err != nil {
-			return nil, false
+			return nil, false, false
 		}
 		defer reader.Close()
-		return readBounded(reader)
+		return readBounded(reader, limit)
 	case "deflate":
 		if truncated {
-			return nil, false
+			return nil, false, false
 		}
 		reader, err := zlib.NewReader(bytes.NewReader(raw))
 		if err != nil {
-			return nil, false
+			return nil, false, false
 		}
 		defer reader.Close()
-		return readBounded(reader)
+		return readBounded(reader, limit)
 	default:
 		// br, zstd, and anything else: bytes were seen but no readable text is
 		// claimed for them.
-		return nil, false
+		return nil, false, false
 	}
 }
 
-func readBounded(reader io.Reader) ([]byte, bool) {
-	decoded, err := io.ReadAll(io.LimitReader(reader, maxDecompressedBodyBytes))
+func readBounded(reader io.Reader, limit int) ([]byte, bool, bool) {
+	limit = normalizeBodyLimit(limit)
+	decoded, err := io.ReadAll(io.LimitReader(reader, int64(limit)+1))
 	if err != nil {
-		return nil, false
+		return nil, false, false
 	}
-	return decoded, true
+	if len(decoded) > limit {
+		zeroBytes(decoded[limit:])
+		return decoded[:limit], true, true
+	}
+	return decoded, false, true
+}
+
+func (r *bodyRecorder) clearCaptured() {
+	zeroBytes(r.buffer.Bytes())
+	r.buffer.Reset()
+}
+
+func zeroBytes(data []byte) {
+	for index := range data {
+		data[index] = 0
+	}
 }

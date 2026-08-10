@@ -18,11 +18,10 @@ const (
 )
 
 // Body-capture gate. Retaining plaintext request/response bodies in a MITM
-// proxy is the exact exposure the SEC-10 crash-dump exclusion preflight bounds,
-// so the tier is opt-in per session and every session records which gate was in
-// force. `BodyGatePreflightPending` is the honest state today: the preflight is
-// not implemented, so an operator who enables bodies is accepting the residual
-// risk rather than passing a check.
+// proxy is the exact exposure the SEC-10 crash-dump exclusion preflight bounds.
+// `BodyGatePreflightPending` is the honest state today: the preflight is not
+// implemented, so the engine must fail closed instead of treating the value as
+// an accepted-risk marker.
 const (
 	BodyGateDisabled         = "disabled"
 	BodyGatePreflightPending = "sec10_preflight_pending"
@@ -37,8 +36,9 @@ type LiveCaptureContract struct {
 	RestoreCurrentSessionOnPageReentry bool `json:"restoreCurrentSessionOnPageReentry"`
 	FinalizedSessionUsesAnalysisResult bool `json:"finalizedSessionUsesAnalysisResult"`
 	// BodyCaptureAvailable tells the renderer whether to offer the opt-in at
-	// all, and BodyCaptureGate names the gate the session will record. The
-	// renderer must not infer either from the absence of body previews.
+	// all. BodyCaptureGate names the capability gate; while it is pending,
+	// startable sessions record the disabled policy instead. The renderer must
+	// not infer either from the absence of body previews.
 	BodyCaptureAvailable bool   `json:"bodyCaptureAvailable"`
 	BodyCaptureGate      string `json:"bodyCaptureGate"`
 	MaxBodyBytes         int    `json:"maxBodyBytes"`
@@ -55,7 +55,7 @@ func DefaultLiveCaptureContract() LiveCaptureContract {
 		ResyncOnEventSkip:                  true,
 		RestoreCurrentSessionOnPageReentry: true,
 		FinalizedSessionUsesAnalysisResult: true,
-		BodyCaptureAvailable:               true,
+		BodyCaptureAvailable:               false,
 		BodyCaptureGate:                    BodyGatePreflightPending,
 		MaxBodyBytes:                       DefaultCaptureMaxBodyBytes,
 		UpstreamTimingsAvailable:           true,
@@ -80,10 +80,11 @@ const (
 )
 
 var (
-	ErrSessionActive    = errors.New("a capture session is already active")
-	ErrSessionNotFound  = errors.New("capture session not found")
-	ErrBackpressureHard = errors.New("capture write queue reached its hard byte limit")
-	ErrModeUnavailable  = errors.New("live capture mode is unavailable on this platform")
+	ErrSessionActive               = errors.New("a capture session is already active")
+	ErrSessionNotFound             = errors.New("capture session not found")
+	ErrBackpressureHard            = errors.New("capture write queue reached its hard byte limit")
+	ErrModeUnavailable             = errors.New("live capture mode is unavailable on this platform")
+	ErrBodyCapturePreflightPending = errors.New("body capture is unavailable until the SEC-10 crash-dump exclusion preflight passes")
 )
 
 type OverflowPolicy string

@@ -171,8 +171,9 @@ export function LiveHttpCapturePanel({
   });
   const [firstUseAccepted, setFirstUseAccepted] = useState(false);
   const [retainUnattributed, setRetainUnattributed] = useState(false);
-  // Body capture is off by default and stays a per-session decision: the
-  // engine records the SEC-10 gate as pending on every session that enables it.
+  // This seeds a future per-session choice only when the engine publishes the
+  // capability as available. Today SEC-10 is pending, so the fail-closed
+  // contract hides the control and this value stays false.
   const [captureBodies, setCaptureBodies] = useState(false);
   const [recovery, setRecovery] = useState<RecoverySummary | null>(null);
   const [analysisBusy, setAnalysisBusy] = useState(false);
@@ -591,8 +592,9 @@ export function LiveHttpCapturePanel({
             <span>
               <span className="block font-medium">{t("liveCaptureBodyOptIn")}</span>
               <span className="text-muted-foreground">{t("liveCaptureBodyOptInHint")}</span>
-              {/* The gate is named rather than implied: enabling this does not
-                  pass a check, it accepts a known-unmitigated exposure. */}
+              {/* This branch is reachable only when the engine contract makes
+                  the tier available. A pending SEC-10 contract is fail-closed
+                  and does not render the control. */}
               <span className="mt-1 block text-amber-700 dark:text-amber-400">
                 {t("liveCaptureBodyGateWarning")}
               </span>
