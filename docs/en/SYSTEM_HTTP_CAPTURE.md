@@ -94,6 +94,37 @@ stored as three distinct quantities — decoded entity bytes, transferred
 (compressed) bytes, framing-inclusive wire bytes — never collapsed into one
 `bodySize`.
 
+This grade is what makes the UI's raw-protocol view a *reconstruction*. The
+analyzer renders a request line, header block, and body assembled from the
+canonical model, and labels it as such on every render. Presenting it as
+captured bytes would claim `raw_wire`.
+
+### 2.1 Body-Capture Tier (opt-in)
+
+Request and response bodies are a separate, per-session opt-in. The default is
+omission, and it is not a placeholder for missing plumbing: a MITM proxy holding
+plaintext payloads is the exposure the **SEC-10 crash-dump exclusion preflight**
+bounds.
+
+| Aspect | Contract |
+|---|---|
+| Default | `captureBodies = false`; every message is `omitted` |
+| Enabling | Per session, fixed at start, never changed while running |
+| Gate record | A session that enables it records `bodyCaptureGate = "sec10_preflight_pending"` in its manifest and in `capture.Session` |
+| Size bound | Per-message cap (default 256 KiB, ceiling 4 MiB); the transferred byte count is always recorded regardless |
+| Decoding | `identity`, `gzip`, `deflate`. Anything else is `encoded` — bytes were seen, no text is claimed |
+| Redaction | Bodies run through the same policy as headers before persistence; a suppressed body becomes `redacted` |
+
+Because the preflight is **not implemented**, enabling the tier is an operator
+accepting a known-unmitigated exposure, not a check being passed. The UI states
+this in those terms and the session records which gate was in force, so a
+finalized capture can always answer "why is this body absent?".
+
+`BodyStorage` is the answer to that question and its values are deliberately
+distinct — `omitted`, `inline`, `truncated`, `encoded`, `binary`, `redacted`,
+`blob`. "Not recorded", "capped", "undecodable", "not text", and "suppressed"
+are five different claims and the UI renders five different sentences.
+
 ## 3. Transaction and Time Model
 
 ### 3.1 Transaction Boundaries (ko 6.3.1)
@@ -176,6 +207,25 @@ recorded in session metadata and not hidden by the UI. `Wait` is TTFB, **not
 "server processing time."** Perspectives are never summed together; doing so
 double-counts the proxy leg.
 
+**What the live proxy actually fills.** The MITM path instruments its own round
+trip with `net/http/httptrace` and populates two perspectives:
+
+| Perspective | Source | Phases |
+|---|---|---|
+| `ProxyUpstream` | httptrace hooks on the outbound round trip | `blocked` from the connection-pool wait, `dns`/`connect`/`tls` from the dial and handshake, `send` from connection-acquired to request-written, `wait` as this leg's TTFB, `receive` until the last body byte is read |
+| `ProxyInternal` | the proxy's own handling window | `blocked` before the transport engaged, `wait`, `receive`; `dns`/`connect`/`tls` are `not_applicable` at this observation point |
+
+`ClientProxy` stays empty: the proxy did not observe the client's own resolution
+or handshake and must not report the leg it can see as if it were that one.
+`UsedExistingConnection` comes from the transport rather than being assumed, and
+a reused connection reports `dns`/`connect`/`tls` as `not_applicable` (INV-5) —
+`0 ms` would let a waterfall imply the work happened instantly. A phase whose
+hook never fired stays `unknown`, so the known-phase sum the UI prints is
+explicitly a lower bound.
+
+The analyzer shows **one perspective at a time and names it**. Selecting rather
+than merging is what enforces INV-4 in the presentation layer.
+
 ### 3.5 Invariants and Golden Sets (ko 6.3.4)
 
 The model is a storage format, so it is versioned (`captureSchemaVersion`). The
@@ -246,7 +296,7 @@ self-contained contracts on either side of an arbitrary number.
 | `Type` | `"http_capture"` |
 | `SourceFiles` | Session directory or `.har` path |
 | `Summary` | Total transactions/processes/hosts, transfer volume, error rate, status distribution, duration percentiles, **coverage metrics** |
-| `Tables` | `transactions`, `processes`, `hosts`, `slowest`, `errors` — **top-N only**, N stated in the envelope |
+| `Tables` | `transactions` — the whole session up to its own row budget; `processes`, `hosts`, `slowest`, `errors` — **top-N only**, N stated in the envelope |
 | `Series` | Time-axis request rate/transfer/error rate, per-process stacks (bounded) |
 | `Charts` | Status distribution, per-host time contribution, timing-phase breakdown |
 | `Metadata.Findings` | Diagnostics |
@@ -261,6 +311,22 @@ type CaptureSessionRef struct {
     Truncated     bool   `json:"truncated"` // whether the envelope Tables were cut
 }
 ```
+
+**The transaction list has its own budget, separate from top-N.** It used to
+share the 50-row `TopN` that bounds the endpoint/host/slowest/error
+aggregations, which silently dropped every image, stylesheet, script, and font
+of an ordinary page load before the UI could show them. The two are different
+kinds of table: the aggregations *are* rankings, and the transaction list is the
+packet list, useful only if it is the whole session.
+
+| Table | Budget | Option |
+|---|---|---|
+| `transactions` | `transaction_row_limit`, default 20,000, ceiling 200,000 | `TransactionRows` / `--transaction-rows` |
+| `endpoints`, `hosts`, `slowest`, `errors` | `table_limit`, default 50, ceiling 500 | `TopN` / `--top-n` |
+
+`transaction_rows` (rows actually emitted), `transaction_row_limit`, and
+`truncated` all travel in `metadata.http_capture`, so the renderer can tell
+"bounded" from "that was everything" rather than inferring it.
 
 Detail transactions/processes/connections/bodies are read from the versioned
 store by **cursor pagination**. The Wails method is
@@ -346,6 +412,47 @@ prevents shifted/duplicate pages); `limit` is capped (default 500, max 2,000);
 truncated tail, rebuilds the index, promotes a recovery report to a finding);
 `Append` assumes a **single writer** — one active session, no file-lock races —
 while other processes may read (they discard anything past the last newline).
+
+### 4.4 Analyzer Presentation Contract (ko 8.2-8.5)
+
+The Korean note's §8 specifies an HTTPAnalyzer-style screen grammar: a packet
+grid over a detail pane, with the timeline as a first-class brushable view. This
+section records what the implementation guarantees, because several of those
+guarantees are honesty constraints rather than layout choices.
+
+**Layout.** The page is two layers: a collapsible session layer (capture source,
+summary metrics, fidelity and redaction disclosure, timeline brush, process
+tree, diagnostics, comparison, correlation) and the analyzer itself — a
+virtualized grid over a resizable detail pane. The grid holds a whole session,
+so only the visible window is mounted.
+
+**Grid columns.** `#`, start clock, method, result, host, path, resource type,
+size, time, a session-relative timeline bar, and process. Columns sort with a
+stable total order (ties fall back to capture sequence, then id) so a refresh
+never reshuffles equal rows. The default order is capture order.
+
+**Resource type is derived, not reported.** The engine sends a MIME type and a
+path; the category comes from the response MIME, then the path extension, then
+the request MIME. The extension fallback is load-bearing: a `.js` response with
+no `Content-Type` is a script, and a MIME-only classifier files it under
+"other". `CONNECT` is its own kind — a passthrough tunnel is a different
+observation from an unclassifiable response, not a worse one.
+
+**Detail tabs.** Raw, Headers, Body, Timing, Cookies, Process.
+
+| Tab | Guarantee |
+|---|---|
+| Raw | Request and response protocol text reconstructed from the canonical model, side by side, **labelled as reconstructed on every render** (§2). Field order, casing, and framing are not preserved; a captured `Host` header is never overwritten by the synthesized one |
+| Body | Renders the payload when present; otherwise names the specific reason from `BodyStorage` (§2.1) |
+| Timing | One perspective at a time, named (§3.4). `not_applicable` phases occupy no width but stay listed; an `unknown` phase marks the printed total as a floor |
+
+**What the UI must not infer.** `capture.LiveCaptureContract` publishes whether
+the body tier is available, which gate it records, and whether upstream timings
+are emitted. The renderer reads these rather than deducing them from absent
+data: "this session did not record bodies" and "this build cannot record bodies"
+are different statements, and only the contract can tell them apart. A contract
+whose schema this renderer does not implement is rejected wholesale rather than
+half-honoured.
 
 ## 5. Importer / Dialect Support Matrix (T-576)
 

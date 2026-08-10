@@ -1,6 +1,6 @@
 # ArchScope Work Status
 
-Last updated: 2026-08-03
+Last updated: 2026-08-10
 
 This file is the current execution status for the active ArchScope product line.
 The previous long-form history was archived to
@@ -8,7 +8,19 @@ The previous long-form history was archived to
 
 ## Status Overview
 
-**Overall: 171 of 173 tracked tasks are `DONE` (98.8%).** **T-580 / H-RG3 is
+**Overall: 172 of 174 tracked tasks are `DONE` (98.9%).** **T-587 / HTTP
+Analyzer presentation and capture-detail rework entered `REVIEW` on 2026-08-10,
+after T-584 / R-RG1 closed.** The live proxy now records
+proxy-upstream/proxy-internal timing phases, the transaction table no longer
+shares the aggregate top-N budget (so image, stylesheet, script, and font
+requests reach the UI), the desktop page is an HTTP Analyzer-style packet grid
+over a detail pane with a reconstructed raw-protocol tab, and request/response
+bodies became a per-session opt-in that records the still-outstanding SEC-10
+gate. **This landed after R-RG1 passed, so the release acceptance evidence
+predates it: R-RG1 must be re-run before any tag or GitHub release.** An
+independent security re-review of the body tier is also a required gate —
+H-SEC2 passed on the premise that "the MITM proxy stores no plaintext bodies,"
+which is now conditional on an explicit opt-in rather than unconditional. **T-580 / H-RG3 is
 complete with an independent H-SEC2 `PASS`** on 2026-07-28: the live-capture
 engine foundation passed the CA/TLS/privilege gate. Redaction runs before every
 persistence, the MITM proxy never stores plaintext bodies, the CA private key is
@@ -196,7 +208,7 @@ completed the independent Lighthouse file-first engine slice.
 |---|---:|---|
 | `TODO` | 0 | Ready to start; prerequisites are satisfied |
 | `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
-| `REVIEW` | 0 | Review or required remediation is underway; the gate has not passed |
+| `REVIEW` | 1 | Review or required remediation is underway; the gate has not passed |
 | `PENDING` | 1 | Waiting for a prerequisite, external condition, or activation trigger |
 | `DONE` | 172 | Completion criteria and required review gates have passed |
 
@@ -210,7 +222,8 @@ same change so this overview remains the status source of truth.
 
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
-| 1 | T-557 | P1 | `PENDING` | Activate only if repeated MSA drilldown use justifies a Go analyzer contract |
+| 1 | T-587 | P0 | `REVIEW` | Implementation and paired documentation complete; needs an independent security re-review of the opt-in body tier (H-SEC2's no-plaintext-bodies premise is now conditional), an independent UI/engine review of the analyzer surface, and a re-run of R-RG1 acceptance, which passed before these changes landed |
+| 2 | T-557 | P1 | `PENDING` | Activate only if repeated MSA drilldown use justifies a Go analyzer contract |
 
 ## Current Baseline
 
@@ -882,6 +895,7 @@ deferred until explicitly promoted.
 | T-584 | P0 | DONE | Run R-RG1 integrated release acceptance across Go test/vet/build, frontend test/build, Windows GUI/live E2E, macOS offline import/package smoke, paired documentation, support/security/performance matrices, and honest release notes. | T-583 PASS (2026-07-31) | Backend/platform acceptance passed locally and in Actions run `30601745253`; Windows live E2E and GUI smoke run `30809473903` passed, resolver evidence confirmed 50/50 samples (mean 0.539 ms, p95 0.731 ms, max 0.857 ms), and the R1–R3 remediation passed the narrow independent re-review. R-RG1 `PASS` (2026-08-03); no tag or release was created by this gate |
 | T-585 | P1 | DONE | Implement the file-first Lighthouse report JSON engine slice as the browser-performance roadmap task that can proceed while T-571 waits for hardware: separate parser/analyzer packages, bounded/redacted projections, preserved report scoring, CLI, ingestion-family contract, Wails binding, tests, and paired documentation. | T-565; independent of T-571 | Completed 2026-07-21: `browser import --format lighthouse-json`, `browser_audit_evidence`, `AnalyzeBrowserAudit`, generated TypeScript bindings, Core Web Vitals/category/audit/resource outputs, report-authored score findings, 64 MiB default input guard, URL redaction, bounded audit/network tables, and targeted Go tests. |
 | T-586 | P1 | DONE | Add the dedicated Lighthouse desktop page under Browser Performance, consuming only `AnalyzeBrowserAudit`; provide collection guidance, score/metric cards, category/audit/resource views, diagnostics, Analysis Workspace registration, Evidence Board capture, report export, and populated-state/provenance regressions. | T-585 | Backend handoff completed 2026-07-22: versioned `browser_audit_contract`, explicit imported-score/non-recalculation disclosure, stable row/finding `source_ref` values, source metadata, declared view/evidence/export surfaces, sanitized populated fixture, Wails payload/redaction regression, and JSON/HTML export regression. Frontend completed 2026-07-22: `LighthouseAuditPage` + `bridge/engine.ts` `analyzeBrowserAudit` wrapper + `state/browserAudit.ts` pure selectors, sidebar/App route wiring, EN/KO localized guidance/provenance/views, score-provenance disclosure banner, category/Core Web Vitals/audit/network/resource views, diagnostics, Analysis Workspace registration, Evidence Board finding/audit-row capture preserving `source_ref`, JSON/HTML report export, and populated-state/provenance regressions in `state/regression.test.ts`. `npm run test:state`, `npm run build`, and the Lighthouse Go tests pass; `browser_audit_evidence` stays separate from `profile_evidence`. |
+| T-587 | P0 | REVIEW | Rework HTTP capture presentation and capture detail so the desktop surface matches the §8 HTTPAnalyzer screen grammar: record proxy-upstream/proxy-internal timing phases in the live proxy, give the transaction table its own row budget so resource requests are not dropped, add resource-type classification and filtering, add an HTTP Analyzer-style packet grid over a resizable detail pane with a reconstructed raw-protocol tab, and add the opt-in body-capture tier behind an explicitly recorded SEC-10 gate. | T-581 PASS, T-582 PASS, T-584 PASS | Implemented 2026-08-10. Engine: `httptrace` instrumentation fills `TimingSet.ProxyUpstream`/`ProxyInternal` with reused connections marking dns/connect/tls `not_applicable` (INV-5) and unobserved phases staying `unknown`; `UsedExistingConnection` comes from the transport instead of being left false; the transaction table gets `transaction_row_limit` (default 20,000, ceiling 200,000) separate from `TopN`, exposed as `--transaction-rows`/`transactionRows`; rows carry scheme, query, stream id, observation point, and error; `LiveCaptureContract` is schema v2 and publishes the body gate, per-message cap, and timing availability. Bodies are a per-session opt-in with a per-message cap, gzip/deflate decoding, existing redaction, and `BodyStorage` values that distinguish omitted/inline/truncated/encoded/binary/redacted; every enabling session records `bodyCaptureGate = "sec10_preflight_pending"` in `capture.Session` and the store manifest. UI: `components/HttpAnalyzerView.tsx` virtualized grid + resizable detail pane (Raw/Headers/Body/Timing/Cookies/Process), `state/httpAnalyzer.ts` pure derivations, per-kind filter chips, one-perspective-at-a-time timing waterfall, and a live-panel body opt-in that names the pending gate. Paired EN/KO documentation updated (`SYSTEM_HTTP_CAPTURE` §2.1/§3.4/§4.2/§4.4 and ko §6.3/§6.4.1/§6.6/§8.2.2/§8.4). `go test ./...`, `go vet ./internal/...`, `npm run test:state`, and `npm run build` pass. **Open gates:** independent security re-review of the body tier (H-SEC2's unconditional no-plaintext-bodies premise is now conditional), an independent UI/engine review of the analyzer surface, and a re-run of R-RG1 acceptance, which passed on 2026-07-31 before these changes landed. The T-581 acceptance fixture was updated for contract v2 and the new body-gate assertions. |
 | T-566 | P0 | DONE | Add a reproducible source ledger for every HTTP-capture research claim marked `[V]`, including official URL or source commit, retrieval date, verified fact, and design impact; scope absolute competitive-gap claims to what was actually inspected. | None | Completed 2026-07-20: appendix A rewritten as a filled ledger — claim-ID scheme (`V`/`I`/`N`/`Q` × area × topic), `fixed`/`partial`/`open` status values, four ledger tables (platform/spec, Windows capture, HTTPAnalyzer, competitors), and a refresh procedure. Gate condition restated as "no design decision rests on an `open` row" rather than "all rows verified"; `Q-COMP-MITM-PID` and the 1.5.4 absolutes are recorded as `open` and withdrawn from use |
 | T-567 | P0 | DONE | Replace the global “all processes” requirement with a Windows-first platform/mode capability and fidelity matrix covering process attribution, HTTP versions, header/body fidelity, timing perspective, privileges, and explicit unsupported cases; separate Windows runtime support from cross-OS offline evidence compatibility. | T-566 | Completed 2026-07-20: §9.3 adds six per-mode matrices (attribution, HTTP versions, fidelity, timing perspective, privileges, explicit unsupported) across proxy/HAR/ETW/WFP/Npcap/keylog with `미검증` cells reserved for the T-571 spike; §9.4 splits runtime support (Windows only) from evidence compatibility (all OSes) with separate acceptance criteria, and records that HAR dialect differences are a function of the generating tool, not the generating OS |
 | T-568 | P0 | DONE | Redesign the HTTP capture model so unknown/not-applicable/zero timings, client-proxy versus proxy-upstream perspectives, transaction state, connection reuse, header semantics, decoded versus wire bytes, and fidelity are represented without overclaiming Go `net/http` guarantees. | T-567 | Completed 2026-07-20: §6.3.1 fixes transaction boundaries (start = first request byte, end = last response byte/terminal state) with eight ambiguous cases resolved; §6.3.2 separates monotonic durations from wall-clock instants and locks ms/`float64`; §6.3.3 adds the state machine with transitions and aggregation rules; §6.3.4 adds versioned invariants `INV-1`~`INV-7` plus opposing H1/H2 golden sets (`INV-H1-1` non-overlap vs `INV-H2-1` overlap-permitted) |

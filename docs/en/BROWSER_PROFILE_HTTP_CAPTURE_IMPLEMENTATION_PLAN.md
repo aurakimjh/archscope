@@ -385,8 +385,11 @@ L10 is closed in the paired user guides and JVM truststore harness contract.
 
 SEC-17 is enforced below the renderer: unknown attribution is dropped by
 default before persistence or progress exposure, and the explicit opt-in keeps
-redacted metadata only. Bodies remain unconditionally omitted, so SEC-10 still
-gates any future body-capture tier. The acceptance package is
+redacted metadata only. Bodies were unconditionally omitted at the time of that
+gate; the opt-in body tier added on 2026-08-10 (T-587) does not change the
+default and does not claim the gate passed — every session that enables it
+records `bodyCaptureGate = "sec10_preflight_pending"`, so SEC-10 remains
+outstanding and the exposure is explicit rather than implied. The acceptance package is
 `cmd/archscope-app/testdata/t581_live_capture_acceptance.json`,
 `capture_windows_e2e_test.go`, and
 `scripts/verify-windows-live-capture.ps1`, with its shared contract at

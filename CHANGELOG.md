@@ -20,6 +20,27 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Added an opt-in Windows live HTTP capture tier with loopback-only proxying,
   connection-specific process attribution, crash-safe bounded session storage,
   CA lifecycle controls, and live/recovery UI state.
+- Added proxy-upstream and proxy-internal network timing phases to live
+  capture (DNS, connect, TLS, send, TTFB, receive), so a finalized transaction
+  carries a phase waterfall instead of only a total. Reused connections report
+  the handshake phases as `not_applicable` and unobserved phases stay
+  `unknown`, so a printed total is explicitly a lower bound.
+- Added an opt-in request/response body-capture tier for live capture, bounded
+  per message, gzip/deflate-decoded, and run through the existing redaction
+  policy. It is off by default and every session that enables it records
+  `bodyCaptureGate = "sec10_preflight_pending"` — the crash-dump exclusion
+  preflight is still outstanding, so enabling it accepts a known exposure
+  rather than passing a check.
+- Added an HTTP Analyzer-style transaction view: a virtualized packet grid
+  (sequence, start clock, method, result, host, path, resource type, size,
+  time, session-relative timeline bar, process) over a resizable detail pane
+  with Raw, Headers, Body, Timing, Cookies, and Process tabs. The Raw tab
+  reconstructs the request and response protocol text and states that it is a
+  reconstruction, because this capture tier is graded `semantic` and does not
+  preserve field order, casing, or framing.
+- Added resource-type classification and filtering for captured transactions,
+  derived from the response MIME, the path extension, and the request MIME, so
+  image, stylesheet, script, font, and media calls are visible and filterable.
 - Added HTTP session Diff with versioned URL templates, explicit rate
   denominators, time-alignment grades, and a grade-aware comparison UI.
 - Added HTTP evidence correlation with Chrome/V8 CPU runs, Jennifer
@@ -36,15 +57,28 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   Wails application bundle.
 - The frontend release gate now runs the state regression suite as well as the
   production build.
+- The `http_capture` transaction table no longer shares the aggregate top-N
+  budget. It has its own limit (default 20,000 rows, ceiling 200,000, exposed
+  as `--transaction-rows` and `transactionRows`), because the 50-row top-N used
+  for endpoint and host rankings was dropping every image, stylesheet, script,
+  and font of an ordinary page load before the UI could show them.
+- `LiveCaptureContract` is now schema version 2 and publishes body-tier
+  availability, the gate a session will record, the per-message body cap, and
+  whether upstream timings are emitted, so the renderer reads these rather than
+  inferring them from absent data.
 
 ### Security
 
 - Offline HAR analysis remains a file import with bounded parsing and
   import-time redaction. Windows live capture remains Windows-only,
-  metadata-only, loopback-bound, and opt-in: request and response bodies are
-  omitted, HTTP/2 and QUIC are not decoded, pinning failures are retained only
-  as attributed unsupported/not-captured evidence, and endpoint ownership does
-  not claim complete machine traffic coverage.
+  loopback-bound, and opt-in: HTTP/2 and QUIC are not decoded, pinning failures
+  are retained only as attributed unsupported/not-captured evidence, and
+  endpoint ownership does not claim complete machine traffic coverage.
+- Request and response bodies remain omitted by default. The new body tier is a
+  separate per-session opt-in, fixed at session start, bounded per message, and
+  redacted before persistence; the session and its manifest record
+  `bodyCaptureGate = "sec10_preflight_pending"` so a finalized capture always
+  discloses that the SEC-10 crash-dump exclusion preflight had not run.
 
 ## [0.3.5] — 2026-05-17
 
