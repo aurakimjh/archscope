@@ -37,7 +37,8 @@ group and **the next group cannot start until the current group passes**.
   clock state. Codex B3 remediation then passed the final narrow re-review;
   B1/B2/B3 are closed. `R-RG1` integrated release acceptance is **complete —
   PASS (2026-08-03)** after a `CONDITIONAL` first review and verified R1–R3
-  remediation; the plan's review-group ladder is fully closed.
+  remediation. The required post-T-587/T-588 re-run also passed on 2026-08-11;
+  the plan's review-group ladder remains fully closed.
 
 ## 2. Ownership
 
@@ -92,7 +93,7 @@ Only high-consequence boundaries receive an extra per-item gate:
 | 5 | `H-RG4` live UI and Windows E2E | **Complete — PASS (2026-07-30)** | Closed |
 | 6 | `H-RG5` HTTP session Diff | **Complete — group PASS (2026-07-30)** | Closed |
 | 7 | `X-RG1` HTTP x profile/server-evidence correlation | **Complete — PASS (2026-07-31)**; B1/B2/B3 closed | `H-RG5 PASS` |
-| 8 | `R-RG1` integrated release acceptance | **Complete — PASS (2026-08-03)**; R1–R3 closed | Independent `R-RG1 PASS` |
+| 8 | `R-RG1` integrated release acceptance | **Complete — PASS; post-T-587/T-588 re-run PASS (2026-08-11)** | Closed |
 
 The two features stay in separate commits except for `X-RG1`, whose purpose is
 to join them.
@@ -391,14 +392,14 @@ gate. The 2026-08-10 T-587 re-review found that merely recording
 remediation makes the contract unavailable and rejects body-enabled starts at
 both engine boundaries, so bodies remain unconditionally omitted until an
 implemented and measured SEC-10 preflight passes another security review.
-**T-588 carries that enablement**: a Windows-only preflight that reads and
+**T-588 carried and completed that enablement on 2026-08-11**: a Windows-only preflight that reads and
 re-verifies the WER `LocalDumps` policy, suppresses dump collection
 process-wide (per-region exclusion is unusable from Go — `RD-135`), binds a
 `verified`/`unavailable(reason)` result to the session and manifest, and is
 accepted only against a forced-crash harness that finds neither a canary body
-nor CA key material in real OS artifacts. It must land **before** the R-RG1
-re-run: that acceptance evidence is already invalidated once by T-587, and
-sequencing SEC-10 after a re-run would invalidate it a second time. The acceptance package is
+nor CA key material in real OS artifacts. Engine Native run `31488911063`
+produced that evidence, and the activated-tier security review passed after
+remediation. The required post-T-587/T-588 R-RG1 re-run then passed. The acceptance package is
 `cmd/archscope-app/testdata/t581_live_capture_acceptance.json`,
 `capture_windows_e2e_test.go`, and
 `scripts/verify-windows-live-capture.ps1`, with its shared contract at
@@ -580,6 +581,13 @@ test:state`, `npm run build`, `go build ./...`, `go vet`, and uncached
 app/correlation Go tests pass. No engine source was changed by Claude.
 
 ### R-RG1 — Integrated Release Acceptance
+
+- **Post-T-587/T-588 re-run: PASS (2026-08-11).** Product commit `7af0f7a`
+  passed Engine Native run `31488911063`, general CI `31488911030`, and Windows
+  GUI Smoke `31489687652`; the GUI executable was 19,003,904 bytes and remained
+  alive for the 15-second smoke window. Review/status commits after that point
+  change no buildable product source. The re-run record is archived at
+  `docs/review/done/2026-08-11_codex_R-RG1_post-T587-T588-rerun.md`.
 
 - **Status: Complete — group `PASS` (2026-08-03)**. The first review returned
   `CONDITIONAL` on R1–R3; the remediation closed all three, and the narrow

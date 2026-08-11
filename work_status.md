@@ -1,6 +1,6 @@
 # ArchScope Work Status
 
-Last updated: 2026-08-10
+Last updated: 2026-08-11
 
 This file is the current execution status for the active ArchScope product line.
 The previous long-form history was archived to
@@ -8,32 +8,20 @@ The previous long-form history was archived to
 
 ## Status Overview
 
-**Overall: 172 of 175 tracked tasks are `DONE` (98.3%).** **T-587 / HTTP
-Analyzer presentation and capture-detail rework entered `REVIEW` on 2026-08-10,
-after T-584 / R-RG1 closed.** The live proxy now records
-proxy-upstream/proxy-internal timing phases, the transaction table no longer
-shares the aggregate top-N budget (so image, stylesheet, script, and font
-requests reach the UI), the desktop page is an HTTP Analyzer-style packet grid
-over a detail pane with a reconstructed raw-protocol tab. The first body-tier
-implementation made H-SEC2's unconditional no-plaintext-body premise
-conditional on an opt-in. The P0 independent re-review found that a recorded
-`sec10_preflight_pending` value did not satisfy H-SEC2 C1, and remediation now
-fails closed: the renderer contract marks the tier unavailable, the session
-manager and direct proxy constructor reject body-enabled starts before sensitive
-allocation, decoded expansion uses the per-message cap, and captured wire
-buffers are cleared after canonicalization. **The H-SEC2 body-tier re-review is
-`PASS AFTER REMEDIATION`, scoped only to this unavailable/dormant state.** This
-surface landed after R-RG1 passed, so the release acceptance evidence predates
-it: R-RG1 must be re-run before any tag or GitHub release. **T-588 was
-registered on 2026-08-10 to implement the SEC-10 preflight and actually activate
-the body tier**, because a capture that cannot show a payload does not answer
-the question the capture was opened for. Its design is recorded before
-implementation in `SYSTEM_HTTP_CAPTURE` §2.1.1 / ko §6.4.1.1 and `RD-135`:
-Windows-only, process-wide dump suppression verified by re-reading the effective
-policy, accepted only against a forced-crash harness that finds no canary body
-or CA key material in real OS artifacts. **T-588 must land before the R-RG1
-re-run** so that acceptance is not invalidated a second time; the T-587
-analyzer-surface review is independent and can run in parallel. **T-580 / H-RG3 is
+**Overall: 174 of 175 tracked tasks are `DONE` (99.4%).** **T-587 and T-588
+closed on 2026-08-11 after their required reviews and the post-change R-RG1
+re-run passed.** T-588's Windows forced-crash proof used real request and
+response recorders, a live CA key, and `RaiseFailFastException`; Engine Native
+run `31488911063` found zero new or modified crash artifacts and no body or
+CA-key canary in the dump roots or Application log, then restored the original
+`LocalDumps` policy. The activated-tier H-SEC2 review returned `PASS AFTER
+REMEDIATION`. The T-587 UI/engine review also returned `PASS AFTER REMEDIATION`
+after correcting connection-blocked timing, malformed contract-v3 fail-closed
+behavior, and resource-filter option derivation. Post-change R-RG1 acceptance
+then passed at product commit `7af0f7a`: Engine Native `31488911063`, general CI
+`31488911030`, and Windows GUI Smoke `31489687652` all succeeded. The archived
+evidence and review/status commits after that product commit change no buildable
+source. **T-580 / H-RG3 is
 complete with an independent H-SEC2 `PASS`** on 2026-07-28: the live-capture
 engine foundation passed the CA/TLS/privilege gate. Redaction runs before every
 persistence, the MITM proxy never stores plaintext bodies, the CA private key is
@@ -221,9 +209,9 @@ completed the independent Lighthouse file-first engine slice.
 |---|---:|---|
 | `TODO` | 0 | Ready to start; prerequisites are satisfied |
 | `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
-| `REVIEW` | 2 | Review or required remediation is underway; the gate has not passed |
+| `REVIEW` | 0 | Review or required remediation is underway; the gate has not passed |
 | `PENDING` | 1 | Waiting for a prerequisite, external condition, or activation trigger |
-| `DONE` | 172 | Completion criteria and required review gates have passed |
+| `DONE` | 174 | Completion criteria and required review gates have passed |
 
 The normal transition is `TODO → IN_PROGRESS → REVIEW → DONE`. A `PENDING`
 task returns to `TODO` when its dependency or trigger is satisfied. Task status
@@ -235,9 +223,7 @@ same change so this overview remains the status source of truth.
 
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
-| 1 | T-588 | P0 | `REVIEW` | Implementation complete on 2026-08-10: the preflight, both engine boundaries, the contract-v3 renderer surface, the forced-crash harness, and the paired documentation. Local gates pass, but the crash-dump evidence has **not been produced yet** — the harness only runs on the Windows CI job. Needs that run plus an independent H-SEC2 review of the activated tier, then the R-RG1 re-run |
-| 2 | T-587 | P0 | `REVIEW` | The independent H-SEC2 body-tier re-review passed after fail-closed remediation (`RD-134`): the tier is unavailable until SEC-10 is implemented and re-reviewed. Remaining gates are an independent UI/engine review of the analyzer surface — which does not depend on T-588 and can run in parallel — and then a re-run of R-RG1 acceptance, which must follow T-588. RD-130's enablement condition is carried by T-588 |
-| 3 | T-557 | P1 | `PENDING` | Activate only if repeated MSA drilldown use justifies a Go analyzer contract |
+| 1 | T-557 | P1 | `PENDING` | Activate only if repeated MSA drilldown use justifies a Go analyzer contract |
 
 ## Current Baseline
 
@@ -250,13 +236,11 @@ same change so this overview remains the status source of truth.
 - Release baseline: `v0.3.5` is the latest stable GitHub release. The
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
-- Current execution focus: select the next roadmap objective. T-584 / R-RG1
-  integrated release acceptance closed with the narrow independent re-review
-  `PASS` on 2026-08-03: the first review's R1–R3 findings were remediated and
-  independently verified. Native Windows resolver cost is recorded from 50/50
-  confirmed samples, the Windows GUI launch smoke passed in run
-  `30809473903`, and the archived evidence pin verifies again. The version
-  tag and GitHub release are now an unblocked, separate release decision.
+- Current execution focus: select the next roadmap objective. T-587 and T-588
+  are `DONE`; their post-remediation reviews passed, and the post-change R-RG1
+  re-run passed at product commit `7af0f7a` in Engine Native `31488911063`,
+  general CI `31488911030`, and Windows GUI Smoke `31489687652`. The version
+  tag and GitHub release remain an unblocked, separate release decision.
   T-583 / X-RG1 closed with `PASS` on 2026-07-31 after the B3 narrow
   re-review verified candidate selection and emitted clock evidence are
   structurally separated, the regression is genuine against the pre-fix
@@ -769,7 +753,7 @@ The authoritative paired plan is
 | 5 | H-RG4 live UI and Windows E2E | Claude UI, Codex integration | DONE — group `PASS`, 2026-07-30 (narrow fourth re-review verified V1–V3 resolved) | Closed |
 | 6 | H-RG5 HTTP session Diff | Codex engine, Claude UI | DONE — group `PASS`, 2026-07-30 | Closed |
 | 7 | X-RG1 HTTP/profile/server-evidence correlation | Codex engine, Claude UI | DONE — narrow B3 re-review `PASS`, 2026-07-31; B1/B2/B3 closed | Closed |
-| 8 | R-RG1 integrated release acceptance | Codex + Claude + independent reviewer | REVIEW — R1–R3 remediated; narrow independent re-review pending | Release PASS |
+| 8 | R-RG1 integrated release acceptance | Codex + Claude + reviewer | DONE — original PASS 2026-08-03; post-T-587/T-588 re-run PASS 2026-08-11 | Closed |
 
 Group verdicts are PASS, CONDITIONAL, or FAIL. CONDITIONAL does not unblock the
 next group. Individual reviews are limited to H-SEC1 (HAR security), H-COV1
@@ -911,8 +895,8 @@ deferred until explicitly promoted.
 | T-584 | P0 | DONE | Run R-RG1 integrated release acceptance across Go test/vet/build, frontend test/build, Windows GUI/live E2E, macOS offline import/package smoke, paired documentation, support/security/performance matrices, and honest release notes. | T-583 PASS (2026-07-31) | Backend/platform acceptance passed locally and in Actions run `30601745253`; Windows live E2E and GUI smoke run `30809473903` passed, resolver evidence confirmed 50/50 samples (mean 0.539 ms, p95 0.731 ms, max 0.857 ms), and the R1–R3 remediation passed the narrow independent re-review. R-RG1 `PASS` (2026-08-03); no tag or release was created by this gate |
 | T-585 | P1 | DONE | Implement the file-first Lighthouse report JSON engine slice as the browser-performance roadmap task that can proceed while T-571 waits for hardware: separate parser/analyzer packages, bounded/redacted projections, preserved report scoring, CLI, ingestion-family contract, Wails binding, tests, and paired documentation. | T-565; independent of T-571 | Completed 2026-07-21: `browser import --format lighthouse-json`, `browser_audit_evidence`, `AnalyzeBrowserAudit`, generated TypeScript bindings, Core Web Vitals/category/audit/resource outputs, report-authored score findings, 64 MiB default input guard, URL redaction, bounded audit/network tables, and targeted Go tests. |
 | T-586 | P1 | DONE | Add the dedicated Lighthouse desktop page under Browser Performance, consuming only `AnalyzeBrowserAudit`; provide collection guidance, score/metric cards, category/audit/resource views, diagnostics, Analysis Workspace registration, Evidence Board capture, report export, and populated-state/provenance regressions. | T-585 | Backend handoff completed 2026-07-22: versioned `browser_audit_contract`, explicit imported-score/non-recalculation disclosure, stable row/finding `source_ref` values, source metadata, declared view/evidence/export surfaces, sanitized populated fixture, Wails payload/redaction regression, and JSON/HTML export regression. Frontend completed 2026-07-22: `LighthouseAuditPage` + `bridge/engine.ts` `analyzeBrowserAudit` wrapper + `state/browserAudit.ts` pure selectors, sidebar/App route wiring, EN/KO localized guidance/provenance/views, score-provenance disclosure banner, category/Core Web Vitals/audit/network/resource views, diagnostics, Analysis Workspace registration, Evidence Board finding/audit-row capture preserving `source_ref`, JSON/HTML report export, and populated-state/provenance regressions in `state/regression.test.ts`. `npm run test:state`, `npm run build`, and the Lighthouse Go tests pass; `browser_audit_evidence` stays separate from `profile_evidence`. |
-| T-587 | P0 | REVIEW | Rework HTTP capture presentation and capture detail so the desktop surface matches the §8 HTTPAnalyzer screen grammar: record proxy-upstream/proxy-internal timing phases in the live proxy, give the transaction table its own row budget so resource requests are not dropped, add resource-type classification and filtering, add an HTTP Analyzer-style packet grid over a resizable detail pane with a reconstructed raw-protocol tab, and prepare a body-processing tier without violating SEC-10. | T-581 PASS, T-582 PASS, T-584 PASS | Implemented 2026-08-10. Timing, row-budget, model, and UI changes remain as described in the implementation handoff. The H-SEC2 body-tier re-review found the original pending-gate opt-in violated C1 and passed only after fail-closed remediation: `LiveCaptureContract`/renderer fallback publish the tier unavailable, both engine entry points reject body-enabled starts before sensitive allocation, decoded expansion shares the per-message cap, and recorder wire buffers are cleared after canonicalization. All startable sessions therefore retain the prior unconditional no-plaintext-body property. Review: `docs/review/done/2026-08-10_codex_H-SEC2_body-tier-security-rereview.md`; decision: `RD-134`. **Open gates:** independent UI/engine review of the analyzer surface, then R-RG1 acceptance re-run. SEC-10 implementation and another H-SEC2 review are required before the dormant tier may be activated; that work is registered as `T-588`, which must precede the R-RG1 re-run. |
-| T-588 | P0 | REVIEW | Implement the SEC-10 crash-dump exclusion preflight and activate the dormant body-capture tier, so the HTTP Analyzer raw/body view can show an actual payload. Windows only, because live capture is Windows only. Engine: a `capture/dumppolicy` package following the existing `_windows.go`/`_other.go` split that (1) reads the WER `LocalDumps` machine and per-executable policy and interprets `DumpType`/`CustomDumpFlags` for heap inclusion, (2) registers the process exclusion and disables snapshot/heap reporting, (3) re-reads the effective policy to confirm the exclusion took, and (4) returns a bound `verified`/`unavailable(reason)` result — all before authority generation or any plaintext retention. `session.Manager.Start` and `proxy.New` keep rejecting body-enabled starts, but on the preflight result instead of unconditionally; `bodyCaptureGate` carries the verified result and is written to `capture.Session` and the store manifest; `LiveCaptureContract.bodyCaptureAvailable` is derived from a preflight run rather than hardcoded `false`. Verification: a forced-crash harness that pushes a unique canary through a request and a response body, crashes the process mid-capture, then scans `%LOCALAPPDATA%\CrashDumps`, the WER `ReportQueue`/`ReportArchive`, and the Application event log for the canary and CA key material, asserting absence — archived as sanitized evidence with a checksum sidecar, following the R-RG1 GUI-smoke precedent. UI: restore the opt-in, rendering the verified state and the unavailable reason through closed EN/KO label maps, still failing closed on an absent or malformed contract. Paired EN/KO documentation for `SYSTEM_HTTP_CAPTURE` §2.1/§6.4.1 and the SEC-10 matrix row, and the implementation plan in both languages. | T-587 H-SEC2 body-tier `PASS AFTER REMEDIATION` (2026-08-10) | **Ownership: reassigned to Claude for the whole task by explicit user direction on 2026-08-10**, overriding the standing Codex-engine / Claude-UI boundary for T-588 only. Registered 2026-08-10 as the enablement carrier for `RD-130`, whose activation condition `RD-134` left open. Implemented 2026-08-10: `internal/capture/dumppolicy` with the `_windows.go`/`_other.go` split reads the WER `LocalDumps` machine and per-executable policy, registers the process exclusion, re-reads the effective policy, and returns a bound `verified`/`unavailable(reason)`; `session.Manager.Start` and `proxy.New` each call it independently so neither trusts the other; `LiveCaptureContract` is schema v3 carrying `bodyCaptureGateReason`, derived from a preflight run rather than hardcoded; the renderer resolves an available-flag/gate contradiction closed, rejects gate and reason tokens outside the closed sets, maps every reason to EN/KO prose, and states the reason where the tier is unavailable; `scripts/verify-sec10-dump-exclusion.ps1` plus the opt-in `TestSEC10ForcedCrashProbe` crash a process holding a canary and assert no OS artifact appears. Local `go test ./...`, `go test -race ./internal/capture/...`, `go vet ./...`, Windows cross-build and vet, `npm run test:state`, `npm run build`, and `tsc --noEmit` pass. **Not yet done:** the forced-crash evidence has never been produced — it requires the Windows runner, so the central SEC-10 claim is implemented but unproven. **Ordering:** must land before the R-RG1 re-run — R-RG1 acceptance evidence is already invalidated once by T-587, and letting SEC-10 land after a re-run would invalidate it a second time and buy two full Windows acceptance cycles. The T-587 analyzer-surface UI/engine review is independent of this task and can run in parallel. **Required gate:** another independent H-SEC2 review of the activated tier, per the 2026-08-10 re-review's residual condition. Explicitly out of defended scope and to be documented as such: an active debugger reading process memory, an administrator enabling `LocalDumps` mid-session, kernel or hypervisor memory acquisition, and plaintext reaching the pagefile or a hibernation image. |
+| T-587 | P0 | DONE | Rework HTTP capture presentation and capture detail so the desktop surface matches the §8 HTTPAnalyzer screen grammar: record proxy-upstream/proxy-internal timing phases in the live proxy, give the transaction table its own row budget so resource requests are not dropped, add resource-type classification and filtering, add an HTTP Analyzer-style packet grid over a resizable detail pane with a reconstructed raw-protocol tab, and prepare a body-processing tier without violating SEC-10. | T-581 PASS, T-582 PASS, T-584 PASS | Completed 2026-08-11. The UI/engine review closed connection-blocked timing, malformed contract-v3 fail-closed handling, and resource-filter option derivation, then returned `PASS AFTER REMEDIATION`. T-588 supplied the reviewed SEC-10 activation and the post-change R-RG1 re-run passed. Reviews: `docs/review/done/2026-08-10_codex_H-SEC2_body-tier-security-rereview.md` and `docs/review/done/2026-08-11_codex_T-587_http-analyzer-surface-review.md`. |
+| T-588 | P0 | DONE | Implement the SEC-10 crash-dump exclusion preflight and activate the dormant body-capture tier, so the HTTP Analyzer raw/body view can show an actual payload. Windows only, because live capture is Windows only. Engine: a `capture/dumppolicy` package following the existing `_windows.go`/`_other.go` split that reads and verifies WER policy before authority generation or plaintext retention; both engine entry points bind the verified result; contract v3 exposes a fail-closed renderer state; and a forced-crash harness scans Windows artifacts and the Application log. | T-587 H-SEC2 body-tier `PASS AFTER REMEDIATION` (2026-08-10) | Completed 2026-08-11. Engine Native run `31488911063` forced a fail-fast crash while real request/response recorders and live CA keys were resident, found zero new or modified artifacts and zero canary matches, restored the pre-existing `LocalDumps` policy, and archived checksummed evidence. The activated-tier H-SEC2 review returned `PASS AFTER REMEDIATION`; post-change R-RG1 passed. Review: `docs/review/done/2026-08-11_codex_T-588_H-SEC2_activated-body-tier-review.md`; evidence: `docs/review/evidence/2026-08-11_t588_sec10-dump-exclusion.json`. Residual scope remains active debugger access, mid-session administrator policy changes, kernel/hypervisor acquisition, and pagefile/hibernation exposure. |
 | T-566 | P0 | DONE | Add a reproducible source ledger for every HTTP-capture research claim marked `[V]`, including official URL or source commit, retrieval date, verified fact, and design impact; scope absolute competitive-gap claims to what was actually inspected. | None | Completed 2026-07-20: appendix A rewritten as a filled ledger — claim-ID scheme (`V`/`I`/`N`/`Q` × area × topic), `fixed`/`partial`/`open` status values, four ledger tables (platform/spec, Windows capture, HTTPAnalyzer, competitors), and a refresh procedure. Gate condition restated as "no design decision rests on an `open` row" rather than "all rows verified"; `Q-COMP-MITM-PID` and the 1.5.4 absolutes are recorded as `open` and withdrawn from use |
 | T-567 | P0 | DONE | Replace the global “all processes” requirement with a Windows-first platform/mode capability and fidelity matrix covering process attribution, HTTP versions, header/body fidelity, timing perspective, privileges, and explicit unsupported cases; separate Windows runtime support from cross-OS offline evidence compatibility. | T-566 | Completed 2026-07-20: §9.3 adds six per-mode matrices (attribution, HTTP versions, fidelity, timing perspective, privileges, explicit unsupported) across proxy/HAR/ETW/WFP/Npcap/keylog with `미검증` cells reserved for the T-571 spike; §9.4 splits runtime support (Windows only) from evidence compatibility (all OSes) with separate acceptance criteria, and records that HAR dialect differences are a function of the generating tool, not the generating OS |
 | T-568 | P0 | DONE | Redesign the HTTP capture model so unknown/not-applicable/zero timings, client-proxy versus proxy-upstream perspectives, transaction state, connection reuse, header semantics, decoded versus wire bytes, and fidelity are represented without overclaiming Go `net/http` guarantees. | T-567 | Completed 2026-07-20: §6.3.1 fixes transaction boundaries (start = first request byte, end = last response byte/terminal state) with eight ambiguous cases resolved; §6.3.2 separates monotonic durations from wall-clock instants and locks ms/`float64`; §6.3.3 adds the state machine with transitions and aggregation rules; §6.3.4 adds versioned invariants `INV-1`~`INV-7` plus opposing H1/H2 golden sets (`INV-H1-1` non-overlap vs `INV-H2-1` overlap-permitted) |

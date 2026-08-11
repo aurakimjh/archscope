@@ -36,8 +36,8 @@
   candidate clock state로 두 번째 `CONDITIONAL`을 반환했지만 Codex B3
   보완이 최종 narrow 재리뷰 `PASS`를 받아 B1/B2/B3가 종료되었다. `R-RG1`
   통합 릴리스 승인은 첫 리뷰 `CONDITIONAL`과 검증된 R1–R3 해소를 거쳐
-  **완료 — PASS (2026-08-03)**이며, 본 계획의 리뷰 그룹 사다리는 모두
-  종료되었다.
+  **완료 — PASS (2026-08-03)**다. 필수 post-T-587/T-588 재실행도
+  2026-08-11 통과했으며, 본 계획의 리뷰 그룹 사다리는 계속 종료 상태다.
 
 ## 2. 역할과 소유권
 
@@ -96,7 +96,7 @@ Claude가 담당한다.
 | 5 | `H-RG4` 실시간 UI 및 Windows E2E | **완료 — PASS (2026-07-30)** | 종료 |
 | 6 | `H-RG5` HTTP 세션 Diff | **완료 — 그룹 PASS (2026-07-30)** | 종료 |
 | 7 | `X-RG1` HTTP × 프로파일/서버 증거 교차 분석 | **완료 — PASS (2026-07-31)**; B1/B2/B3 종료 | `H-RG5 PASS` |
-| 8 | `R-RG1` 통합 릴리스 승인 | **완료 — PASS (2026-08-03)**; R1–R3 종료 | 독립 `R-RG1 PASS` |
+| 8 | `R-RG1` 통합 릴리스 승인 | **완료 — PASS; post-T-587/T-588 재실행 PASS (2026-08-11)** | 종료 |
 
 두 기능을 같은 커밋에 섞지 않는다. 단, `X-RG1`은 두 기능을 연결하는 것이 목적이므로
 예외다.
@@ -382,13 +382,13 @@ progress 노출 전에 drop하며, 명시적 opt-in을 선택해도 리댁션된
 충족하지 못한다고 판정했다. 보완 후 renderer 계약은 tier를 unavailable로
 게시하고 두 엔진 경계가 body-enabled 시작을 거부하므로, 구현·실측된 SEC-10
 사전검사가 추가 보안 재리뷰를 통과할 때까지 body는 무조건 생략된다.
-**활성화는 T-588이 담당한다**: Windows 전용 사전검사가 WER `LocalDumps` 정책을
+**T-588은 2026-08-11 이 활성화를 완료했다**: Windows 전용 사전검사가 WER `LocalDumps` 정책을
 읽고 재확인하며, 프로세스 전역으로 덤프 수집을 억제하고(영역별 제외는 Go에서
 사용 불가 — `RD-135`), `verified`/`unavailable(reason)` 결과를 세션과 manifest에
 바인딩한다. 수용 조건은 강제 크래시 하네스가 실제 OS artifact에서 canary body와
-CA 키 자료를 모두 찾지 못하는 것이다. 이 작업은 R-RG1 재실행 **이전에** 들어가야
-한다. R-RG1 증거는 T-587로 이미 한 번 무효화됐고, SEC-10을 재실행 뒤에 넣으면
-두 번째로 무효화된다. Acceptance package는
+CA 키 자료를 모두 찾지 못하는 것이다. Engine Native run `31488911063`이
+그 증거를 생성했고 활성화 tier 보안 재리뷰는 보완 후 통과했다. 이어서 필요한
+post-T-587/T-588 R-RG1 재실행도 통과했다. Acceptance package는
 `cmd/archscope-app/testdata/t581_live_capture_acceptance.json`,
 `capture_windows_e2e_test.go`,
 `scripts/verify-windows-live-capture.ps1`이며 공유 계약은
@@ -557,6 +557,13 @@ aligned 전용 시간 창 오버레이를 보여준다. state 회귀는 계약 �
 Claude는 엔진 소스를 변경하지 않았다.
 
 ### R-RG1 — 통합 릴리스 승인
+
+- **Post-T-587/T-588 재실행: PASS (2026-08-11).** 제품 commit `7af0f7a`가
+  Engine Native run `31488911063`, 일반 CI `31488911030`, Windows GUI Smoke
+  `31489687652`를 통과했다. GUI 실행 파일은 19,003,904 byte였고 15초 smoke
+  구간 동안 정상 실행됐다. 이후 review/status commit은 빌드 가능한 제품 소스를
+  변경하지 않는다. 재실행 기록은
+  `docs/review/done/2026-08-11_codex_R-RG1_post-T587-T588-rerun.md`에 보관한다.
 
 - **상태: 완료 — 그룹 `PASS` (2026-08-03)**. 첫 리뷰는 R1–R3에 대한
   `CONDITIONAL`이었고, 해소 작업이 세 항목을 모두 종료했으며, 독립 narrow
