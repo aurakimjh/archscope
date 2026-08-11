@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 2,
+  "check": "sec10_crash_dump_exclusion",
+  "verdict": "pass",
+  "preflightVerified": true,
+  "probeCrashedWithRequestAndResponseBodies": true,
+  "probeHeldLiveCAKeys": true,
+  "preExistingArtifactCount": 0,
+  "changedArtifactCount": 0,
+  "changedArtifactNames": [],
+  "bodyCanaryMatchCount": 0,
+  "caKeyCanaryMatchCount": 0,
+  "applicationEventCount": 0,
+  "applicationBodyCanaryMatchCount": 0,
+  "applicationCAKeyCanaryMatchCount": 0,
+  "scannedRootCount": 2,
+  "notDefended": [
+    "active debugger reading process memory",
+    "administrator enabling LocalDumps mid-session",
+    "kernel or hypervisor memory acquisition",
+    "plaintext reaching the pagefile or a hibernation image"
+  ]
+}
