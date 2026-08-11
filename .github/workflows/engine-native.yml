@@ -75,6 +75,15 @@ jobs:
       # own, so this crashes a process holding plaintext and inspects the OS
       # artifacts. It runs from the repository root because the script resolves
       # the engine directory itself.
+      - name: Prepare SEC-10 crash-dump policy
+        if: runner.os == 'Windows'
+        working-directory: ${{ github.workspace }}
+        shell: pwsh
+        run: |
+          ./scripts/set-sec10-ci-dump-policy.ps1 `
+            -Action Prepare `
+            -StatePath "${{ runner.temp }}\sec10-ci-policy-state.json"
+
       - name: SEC-10 crash-dump exclusion evidence
         if: runner.os == 'Windows'
         working-directory: ${{ github.workspace }}
@@ -82,6 +91,15 @@ jobs:
         run: |
           ./scripts/verify-sec10-dump-exclusion.ps1 `
             -EvidenceOut "${{ runner.temp }}\sec10-dump-exclusion-evidence.json"
+
+      - name: Restore SEC-10 crash-dump policy
+        if: runner.os == 'Windows' && always()
+        working-directory: ${{ github.workspace }}
+        shell: pwsh
+        run: |
+          ./scripts/set-sec10-ci-dump-policy.ps1 `
+            -Action Restore `
+            -StatePath "${{ runner.temp }}\sec10-ci-policy-state.json"
 
       - name: Upload SEC-10 dump-exclusion evidence
         if: runner.os == 'Windows'
