@@ -106,7 +106,9 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: t588-sec10-dump-exclusion
-          path: ${{ runner.temp }}\sec10-dump-exclusion-evidence.json
+          path: |
+            ${{ runner.temp }}\sec10-dump-exclusion-evidence.json
+            ${{ runner.temp }}\sec10-dump-exclusion-evidence.json.sha256
           if-no-files-found: error
 
   wails-frontend:

@@ -103,22 +103,27 @@ if ($Action -eq "Prepare") {
 
 $state = Read-State
 foreach ($entry in $state.entries) {
-    # The forced-crash probe can create a fresh per-user exclusion key. Remove
-    # only the exact active key before putting the preserved original back.
-    if (Test-Path -LiteralPath $entry.path) {
-        Remove-Item -LiteralPath $entry.path -Recurse -Force
-    }
-
     if ($entry.existed) {
-        if (-not (Test-Path -LiteralPath $entry.backupPath)) {
-            throw "SEC-10 backup registry key is missing for $($entry.id)."
+        if (Test-Path -LiteralPath $entry.backupPath) {
+            # The probe can create a fresh active key. Remove only that exact
+            # key before putting the preserved original back.
+            if (Test-Path -LiteralPath $entry.path) {
+                Remove-Item -LiteralPath $entry.path -Recurse -Force
+            }
+            Rename-Item -LiteralPath $entry.backupPath -NewName $entry.leaf
+        } elseif (-not (Test-Path -LiteralPath $entry.path)) {
+            throw "Both the original and backup registry keys are missing for $($entry.id)."
         }
-        Rename-Item -LiteralPath $entry.backupPath -NewName $entry.leaf
         if (-not (Test-Path -LiteralPath $entry.path)) {
             throw "SEC-10 policy restoration failed for $($entry.id)."
         }
-    } elseif (Test-Path -LiteralPath $entry.backupPath) {
-        throw "Unexpected SEC-10 backup registry key exists for $($entry.id)."
+    } else {
+        if (Test-Path -LiteralPath $entry.path) {
+            Remove-Item -LiteralPath $entry.path -Recurse -Force
+        }
+        if (Test-Path -LiteralPath $entry.backupPath) {
+            throw "Unexpected SEC-10 backup registry key exists for $($entry.id)."
+        }
     }
 }
 
