@@ -46,7 +46,6 @@ import {
   TIMING_PERSPECTIVE_LABEL_KEYS,
   TIMING_PHASE_LABEL_KEYS,
   availablePerspectives,
-  availableResourceKinds,
   buildRawRequest,
   buildRawResponse,
   buildWaterfall,
@@ -135,6 +134,7 @@ export type HttpAnalyzerViewProps = {
   methods: string[];
   mimes: string[];
   fidelities: string[];
+  kinds: ResourceKind[];
   filter: TransactionFilter;
   filterActive: boolean;
   onFilter: (patch: Partial<TransactionFilter>) => void;
@@ -152,6 +152,7 @@ export function HttpAnalyzerView({
   methods,
   mimes,
   fidelities,
+  kinds,
   filter,
   filterActive,
   onFilter,
@@ -168,7 +169,6 @@ export function HttpAnalyzerView({
 
   const rows = useMemo(() => sortTransactions(transactions, sort), [transactions, sort]);
   const span = useMemo(() => sessionSpan(rows), [rows]);
-  const kinds = useMemo(() => availableResourceKinds(transactions), [transactions]);
   const breakdown = useMemo(() => resourceKindBreakdown(transactions), [transactions]);
   const selected = useMemo(
     () => rows.find((row) => row.id === selectedId) ?? null,

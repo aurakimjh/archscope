@@ -42,6 +42,7 @@ import { useI18n, type MessageKey } from "@/i18n/I18nProvider";
 import { addWorkspaceResult } from "@/state/analysisWorkspace";
 import { dispatchHttpCaptureDiff } from "@/state/httpCaptureDiff";
 import { dispatchHttpCorrelation } from "@/state/httpCorrelation";
+import { availableResourceKinds } from "@/state/httpAnalyzer";
 import {
   CAPTURE_COVERAGE_LABEL_KEYS,
   CAPTURE_DETAIL_STORAGE_LABEL_KEYS,
@@ -175,6 +176,7 @@ export function HttpCapturePage(): React.JSX.Element {
   const methods = useMemo(() => availableMethods(allTransactions), [allTransactions]);
   const mimes = useMemo(() => availableMimeTypes(allTransactions), [allTransactions]);
   const fidelities = useMemo(() => availableFidelities(allTransactions), [allTransactions]);
+  const kinds = useMemo(() => availableResourceKinds(allTransactions), [allTransactions]);
   const filtered = useMemo(
     () => filterTransactions(allTransactions, filter),
     [allTransactions, filter],
@@ -263,6 +265,7 @@ export function HttpCapturePage(): React.JSX.Element {
           methods={methods}
           mimes={mimes}
           fidelities={fidelities}
+          kinds={kinds}
           filter={filter}
           filterActive={filterActive}
           onFilter={patchFilter}

@@ -145,6 +145,31 @@ export const DEFAULT_LIVE_CAPTURE_CONTRACT: LiveCaptureContract = {
 export const LIVE_TRANSACTION_ROW_CAP =
   DEFAULT_LIVE_CAPTURE_CONTRACT.transactionRowCap;
 
+function isWellFormedLiveCaptureContract(
+  raw: unknown,
+): raw is LiveCaptureContract {
+  if (!raw || typeof raw !== "object") return false;
+  const candidate = raw as Partial<LiveCaptureContract>;
+  const rowCap = candidate.transactionRowCap;
+  return (
+    candidate.schemaVersion === LIVE_CAPTURE_CONTRACT_SCHEMA_VERSION &&
+    typeof rowCap === "number" &&
+    Number.isInteger(rowCap) &&
+    rowCap > 0 &&
+    typeof candidate.resyncOnEventSkip === "boolean" &&
+    typeof candidate.restoreCurrentSessionOnPageReentry === "boolean" &&
+    typeof candidate.finalizedSessionUsesAnalysisResult === "boolean" &&
+    typeof candidate.bodyCaptureAvailable === "boolean" &&
+    typeof candidate.bodyCaptureGate === "string" &&
+    isKnownBodyCaptureGate(candidate.bodyCaptureGate) &&
+    isKnownBodyGateReason(candidate.bodyCaptureGateReason) &&
+    typeof candidate.maxBodyBytes === "number" &&
+    Number.isInteger(candidate.maxBodyBytes) &&
+    candidate.maxBodyBytes > 0 &&
+    typeof candidate.upstreamTimingsAvailable === "boolean"
+  );
+}
+
 /**
  * Accepts an engine contract only when it declares the schema this renderer
  * implements and every field is well formed. Anything else falls back to the
@@ -152,33 +177,14 @@ export const LIVE_TRANSACTION_ROW_CAP =
  * the renderer's behaviour undescribed by either side.
  */
 export function resolveLiveCaptureContract(raw: unknown): LiveCaptureContract {
-  if (!raw || typeof raw !== "object") return DEFAULT_LIVE_CAPTURE_CONTRACT;
-  const candidate = raw as Partial<LiveCaptureContract>;
-  if (candidate.schemaVersion !== LIVE_CAPTURE_CONTRACT_SCHEMA_VERSION) {
+  if (!isWellFormedLiveCaptureContract(raw)) {
     return DEFAULT_LIVE_CAPTURE_CONTRACT;
   }
-  const rowCap = candidate.transactionRowCap;
-  if (
-    typeof rowCap !== "number" ||
-    !Number.isInteger(rowCap) ||
-    rowCap <= 0 ||
-    typeof candidate.resyncOnEventSkip !== "boolean" ||
-    typeof candidate.restoreCurrentSessionOnPageReentry !== "boolean" ||
-    typeof candidate.finalizedSessionUsesAnalysisResult !== "boolean" ||
-    typeof candidate.bodyCaptureAvailable !== "boolean" ||
-    typeof candidate.bodyCaptureGate !== "string" ||
-    !isKnownBodyCaptureGate(candidate.bodyCaptureGate) ||
-    !isKnownBodyGateReason(candidate.bodyCaptureGateReason) ||
-    typeof candidate.maxBodyBytes !== "number" ||
-    !Number.isInteger(candidate.maxBodyBytes) ||
-    candidate.maxBodyBytes <= 0 ||
-    typeof candidate.upstreamTimingsAvailable !== "boolean"
-  ) {
-    return DEFAULT_LIVE_CAPTURE_CONTRACT;
-  }
+  const candidate = raw;
+  const reason = candidate.bodyCaptureGateReason ?? "";
   return {
     schemaVersion: candidate.schemaVersion,
-    transactionRowCap: rowCap,
+    transactionRowCap: candidate.transactionRowCap,
     resyncOnEventSkip: candidate.resyncOnEventSkip,
     restoreCurrentSessionOnPageReentry:
       candidate.restoreCurrentSessionOnPageReentry,
@@ -189,9 +195,10 @@ export function resolveLiveCaptureContract(raw: unknown): LiveCaptureContract {
     // permissive half.
     bodyCaptureAvailable:
       candidate.bodyCaptureAvailable &&
-      candidate.bodyCaptureGate === BODY_GATE_VERIFIED,
+      candidate.bodyCaptureGate === BODY_GATE_VERIFIED &&
+      reason === "",
     bodyCaptureGate: candidate.bodyCaptureGate,
-    bodyCaptureGateReason: candidate.bodyCaptureGateReason ?? "",
+    bodyCaptureGateReason: reason,
     maxBodyBytes: candidate.maxBodyBytes,
     upstreamTimingsAvailable: candidate.upstreamTimingsAvailable,
   };
@@ -203,11 +210,7 @@ export function resolveLiveCaptureContract(raw: unknown): LiveCaptureContract {
  * on its own defaults rather than on what the engine described.
  */
 export function isLiveCaptureContractSupported(raw: unknown): boolean {
-  if (!raw || typeof raw !== "object") return false;
-  return (
-    (raw as Partial<LiveCaptureContract>).schemaVersion ===
-    LIVE_CAPTURE_CONTRACT_SCHEMA_VERSION
-  );
+  return isWellFormedLiveCaptureContract(raw);
 }
 
 export type LiveCaptureSession = {

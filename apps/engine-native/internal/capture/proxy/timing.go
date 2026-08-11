@@ -38,11 +38,6 @@ type upstreamTrace struct {
 	firstByte    time.Time
 
 	reused bool
-	// idle is the connection-pool wait the transport reports for a reused
-	// connection. It is authoritative for `blocked` when present, because the
-	// GotConn callback fires after the wait rather than during it.
-	idle    time.Duration
-	hasIdle bool
 }
 
 // newUpstreamTrace returns the trace recorder and a context carrying the
@@ -75,8 +70,6 @@ func (t *upstreamTrace) hooks() *httptrace.ClientTrace {
 			t.mu.Lock()
 			defer t.mu.Unlock()
 			t.reused = info.Reused
-			t.idle = info.IdleTime
-			t.hasIdle = info.WasIdle
 		},
 	}
 }
@@ -119,12 +112,12 @@ func (t *upstreamTrace) Phases(ended time.Time) models.TimingPhases {
 		phases.TLS = span(t.tlsStart, t.tlsDone)
 	}
 
-	switch {
-	case t.hasIdle && t.idle > 0:
-		phases.Blocked = models.KnownDuration(millis(t.idle))
-	case !t.getConn.IsZero():
+	if !t.getConn.IsZero() {
 		// Time spent before the transport started any observable work for this
-		// exchange: pool wait on a fresh connection, or handler overhead.
+		// exchange. On a reused connection this is GetConn→GotConn, the actual
+		// pool-acquisition interval. GotConnInfo.IdleTime must not be used here:
+		// it is how long the connection sat idle before reuse, not how long this
+		// request waited for it.
 		phases.Blocked = span(t.getConn, firstNonZero(t.dnsStart, t.connectStart, t.tlsStart, t.gotConn))
 	}
 

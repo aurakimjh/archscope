@@ -1298,8 +1298,20 @@ assert(
   !isLiveCaptureContractSupported({
     schemaVersion: LIVE_CAPTURE_CONTRACT_SCHEMA_VERSION + 1,
   }) &&
+    !isLiveCaptureContractSupported({
+      schemaVersion: LIVE_CAPTURE_CONTRACT_SCHEMA_VERSION,
+    }) &&
     isLiveCaptureContractSupported({
       schemaVersion: LIVE_CAPTURE_CONTRACT_SCHEMA_VERSION,
+      transactionRowCap: 3,
+      resyncOnEventSkip: false,
+      restoreCurrentSessionOnPageReentry: false,
+      finalizedSessionUsesAnalysisResult: false,
+      bodyCaptureAvailable: false,
+      bodyCaptureGate: "disabled",
+      bodyCaptureGateReason: "",
+      maxBodyBytes: 1024,
+      upstreamTimingsAvailable: false,
     }),
   "a contract this build cannot honour is reported as a mismatch",
 );
@@ -2878,6 +2890,15 @@ assert(
     bodyCaptureGateReason: "local_dumps_collecting",
   }).bodyCaptureAvailable === false,
   "an available flag without a verified gate must resolve to unavailable",
+);
+assert(
+  resolveLiveCaptureContract({
+    ...v3Contract,
+    bodyCaptureAvailable: true,
+    bodyCaptureGate: "sec10_verified",
+    bodyCaptureGateReason: "local_dumps_collecting",
+  }).bodyCaptureAvailable === false,
+  "a verified gate carrying an unavailable reason must resolve to unavailable",
 );
 // A reason token this renderer cannot name would otherwise reach the operator
 // as machine text, so the whole contract is rejected instead.
