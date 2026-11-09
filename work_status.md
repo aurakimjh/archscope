@@ -263,6 +263,14 @@ event overwriting a completed grid row; a monotonic phase merge and failing-
 then-passing regression fixed it, and the rebuilt native app retained both
 clients' `200 OK` rows.
 
+The follow-up Windows CI also exposed a Clear boundary bug: requests admitted
+after Clear could share its wall-clock timestamp and be dropped. Requests now
+carry their admission generation through HTTP/HTTPS/tunnel completion; stale
+and paused admissions stay excluded. The exact-timestamp regression, HTTPS /
+passthrough generation checks, 100 Windows recording-control repetitions and
+the full Go/vet/build checks passed. SEC-10 CI cleanup now skips restoration
+when policy preparation never ran.
+
 **T-603 remains `TODO` only for outstanding acceptance, including an actual
 captured payload:** this machine's existing crash-dump policy disables body
 capture. The acknowledgment blocker is resolved. Local race execution needs

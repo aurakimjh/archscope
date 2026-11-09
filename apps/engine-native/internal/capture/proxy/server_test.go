@@ -124,6 +124,7 @@ func TestMITMForwardsH1WithVerifiedUpstream(t *testing.T) {
 	progressed := make(chan models.CaptureTransaction, 1)
 	server, err := New(Config{
 		ListenAddress: "127.0.0.1:0", Authority: authority, UpstreamRoots: roots,
+		Stamp: func(tx *models.CaptureTransaction) { tx.Generation = 7 },
 		Progress: func(transaction models.CaptureTransaction) {
 			progressed <- transaction
 		},
@@ -163,7 +164,7 @@ func TestMITMForwardsH1WithVerifiedUpstream(t *testing.T) {
 	select {
 	case progress = <-progressed:
 		if progress.State != models.TxRequestSent || progress.Path != "/ready" ||
-			progress.Fidelity != FidelityPending {
+			progress.Fidelity != FidelityPending || progress.Generation != 7 {
 			t.Fatalf("progress=%+v", progress)
 		}
 	case <-time.After(3 * time.Second):
@@ -174,7 +175,7 @@ func TestMITMForwardsH1WithVerifiedUpstream(t *testing.T) {
 		if tx.CaptureMode != "proxy_mitm" || tx.Path != "/ready" || tx.StatusCode != http.StatusOK {
 			t.Fatalf("transaction=%+v", tx)
 		}
-		if tx.ID != progress.ID {
+		if tx.ID != progress.ID || tx.Generation != progress.Generation {
 			t.Fatalf("progress id=%q completion id=%q", progress.ID, tx.ID)
 		}
 	case <-time.After(3 * time.Second):
@@ -246,6 +247,7 @@ func TestH2OnlyALPNIsExplicitPassthrough(t *testing.T) {
 	progressed := make(chan models.CaptureTransaction, 1)
 	server, err := New(Config{
 		ListenAddress: "127.0.0.1:0", Authority: authority,
+		Stamp:    func(tx *models.CaptureTransaction) { tx.Generation = 9 },
 		Progress: func(tx models.CaptureTransaction) { progressed <- tx },
 	})
 	if err != nil {
@@ -291,7 +293,7 @@ func TestH2OnlyALPNIsExplicitPassthrough(t *testing.T) {
 		if progress.CaptureMode != CaptureModePassthrough ||
 			progress.Fidelity != FidelityUnsupported ||
 			progress.State != models.TxRequestSent ||
-			progress.Path != "" {
+			progress.Path != "" || progress.Generation != 9 {
 			t.Fatalf("passthrough progress=%+v", progress)
 		}
 	case <-time.After(3 * time.Second):
@@ -303,7 +305,7 @@ func TestH2OnlyALPNIsExplicitPassthrough(t *testing.T) {
 		if tx.CaptureMode != CaptureModePassthrough ||
 			tx.Fidelity != FidelityUnsupported ||
 			tx.HTTPVersion != "h2" ||
-			tx.Path != "" {
+			tx.Path != "" || tx.Generation != 9 {
 			t.Fatalf("transaction=%+v", tx)
 		}
 	case <-time.After(3 * time.Second):

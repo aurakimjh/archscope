@@ -208,7 +208,8 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 		return Session{}, err
 	}
 	pipeline, err := stream.New(stream.Config{
-		SessionID: id, Store: st, EventSink: m.sink, AllowedProcesses: cfg.AllowedProcesses,
+		RequireGeneration: true,
+		SessionID:         id, Store: st, EventSink: m.sink, AllowedProcesses: cfg.AllowedProcesses,
 		HighWater: cfg.WriteHighWaterBytes, HardLimit: cfg.WriteHardLimitBytes,
 		LiveWindow:                 cfg.LiveWindow,
 		RetainUnattributedMetadata: cfg.RetainUnattributedMetadata,
@@ -232,6 +233,7 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 		}
 	}
 	capturer, err := m.newCapturer(proxy.Config{
+		Stamp:         pipeline.Stamp,
 		ListenAddress: cfg.ListenAddress, Authority: m.authority,
 		Resolver: procmap.Resolver{}, AllowPassthrough: allowUntil,
 		CaptureBodies: cfg.CaptureBodies, MaxBodyBytes: maxBodyBytes,

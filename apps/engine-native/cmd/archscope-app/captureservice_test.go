@@ -350,9 +350,34 @@ func TestCaptureServiceRecordingControls(t *testing.T) {
 		if e != nil {
 			t.Fatal(e)
 		}
-		r.Body.Close()
+		_, readErr := io.Copy(io.Discard, r.Body)
+		closeErr := r.Body.Close()
+		if readErr != nil || closeErr != nil {
+			t.Fatalf("read=%v close=%v", readErr, closeErr)
+		}
+	}
+	// HTTP response delivery can precede the proxy's final persistence callback.
+	// Wait on the store's acknowledgement instead of assuming client.Get is a
+	// persistence barrier, especially under the Windows race scheduler.
+	waitPersisted := func(want uint64) {
+		t.Helper()
+		deadline := time.Now().Add(3 * time.Second)
+		for {
+			stats, err := service.GetCaptureStats(string(session.ID))
+			if err != nil {
+				t.Fatal(err)
+			}
+			if stats.Persisted == want {
+				return
+			}
+			if stats.Persisted > want || time.Now().After(deadline) {
+				t.Fatalf("persisted=%d, want %d: %+v", stats.Persisted, want, stats)
+			}
+			time.Sleep(5 * time.Millisecond)
+		}
 	}
 	get("/before")
+	waitPersisted(1)
 	if _, e := service.SetCapturePaused(string(session.ID), true); e != nil {
 		t.Fatal(e)
 	}
@@ -369,6 +394,7 @@ func TestCaptureServiceRecordingControls(t *testing.T) {
 		t.Fatal(e)
 	}
 	get("/after")
+	waitPersisted(1)
 	page, e := service.FetchCaptureTransactions(CaptureFetchRequest{SessionID: string(session.ID)})
 	if e != nil || len(page.Items) != 1 || page.Items[0].Transaction.Path != "/after" {
 		t.Fatalf("after=%+v err=%v", page, e)

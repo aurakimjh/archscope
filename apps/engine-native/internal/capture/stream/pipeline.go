@@ -28,6 +28,9 @@ const (
 )
 
 type Config struct {
+	// RequireGeneration expects producers to call Stamp when each request begins.
+	// Legacy direct callers retain the timestamp boundary when this is false.
+	RequireGeneration          bool
 	AllowedProcesses           []models.ProcessKey
 	SessionID                  capture.SessionID
 	Store                      *store.Store
@@ -543,11 +546,26 @@ func (p *Pipeline) recording(tx models.CaptureTransaction) bool {
 	if p.paused {
 		return false
 	}
+	if p.cfg.RequireGeneration {
+		return tx.Generation == p.generation.Load()
+	}
 	if p.clearedAt.IsZero() {
 		return true
 	}
 	started, err := time.Parse(time.RFC3339Nano, tx.StartedAt)
 	return err == nil && started.After(p.clearedAt)
+}
+
+// Stamp binds admission to the log generation when the request begins. Wall
+// clocks can give Clear and a later request identical timestamps on Windows.
+// Requests begun while paused carry an invalid generation even after resume.
+func (p *Pipeline) Stamp(tx *models.CaptureTransaction) {
+	p.sendMu.RLock()
+	defer p.sendMu.RUnlock()
+	tx.Generation = p.generation.Load()
+	if p.paused {
+		tx.Generation = ^uint64(0)
+	}
 }
 
 func (p *Pipeline) SetPaused(paused bool) {

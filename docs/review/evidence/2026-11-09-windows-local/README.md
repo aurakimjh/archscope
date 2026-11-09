@@ -134,6 +134,36 @@ as well. The overall Engine Native workflow concluded `cancelled` because
 both macOS jobs failed to start with GitHub's diagnostic
 `The configuration 'macos-14-arm64-us-default' is not supported`.
 
+### Follow-up CI timing remediation
+
+At `2f5111e7`, the state/build CI passed, but the Windows race job exposed an
+intermittent timing assumption in `TestCaptureServiceRecordingControls`:
+the immediate post-`/after` fetch returned an empty page with snapshot version
+2. Adding a persistence wait alone did not resolve it: the 100-run diagnostic
+reproduced dropped post-clear requests with zero observed/persisted counts.
+The timestamp boundary could classify a request admitted after Clear as old
+when Windows gave it the same wall-clock timestamp as Clear.
+
+The product now stamps the request's log generation before attribution/I/O,
+preserves it across HTTP/HTTPS/tunnel completion and TLS failures, and checks
+that generation in the session pipeline. Requests from the prior generation
+and requests begun while paused remain excluded after Clear/resume. A
+deterministic regression gives old and new requests the exact same clear
+timestamp and verifies that only the new generation persists. HTTPS and H2
+passthrough tests also assert that completion retains the admitted generation.
+
+The service test drains/checks the response body and waits with a deadline for
+the acknowledged persisted count before checking pause and the post-clear
+row. It still requires the exact path, counts, generation and stopped-clear
+behavior. After the generation fix, 100 local Windows repetitions passed,
+along with the whole Go suite, vet and build.
+
+The same failed run also attempted SEC-10 policy restoration even though
+preparation had been skipped after the test failure, producing an unrelated
+missing-state-file error. The workflow now identifies preparation and runs
+its always-on restore only when that preparation was actually attempted;
+partial preparation failures still trigger restoration.
+
 The app requests a 1280×800 window. Computer Use returned a 1266×793 bounded
 native-window screenshot; it has not been resized or described as an exact
 1280×800 acceptance image:

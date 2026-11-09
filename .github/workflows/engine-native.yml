@@ -76,6 +76,7 @@ jobs:
       # artifacts. It runs from the repository root because the script resolves
       # the engine directory itself.
       - name: Prepare SEC-10 crash-dump policy
+        id: sec10_policy
         if: runner.os == 'Windows'
         working-directory: ${{ github.workspace }}
         shell: pwsh
@@ -93,7 +94,7 @@ jobs:
             -EvidenceOut "${{ runner.temp }}\sec10-dump-exclusion-evidence.json"
 
       - name: Restore SEC-10 crash-dump policy
-        if: runner.os == 'Windows' && always()
+        if: runner.os == 'Windows' && always() && steps.sec10_policy.outcome != 'skipped'
         working-directory: ${{ github.workspace }}
         shell: pwsh
         run: |

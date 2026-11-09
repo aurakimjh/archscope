@@ -592,6 +592,44 @@ func TestPauseClearAndResumeKeepLogConsistent(t *testing.T) {
 	}
 }
 
+func TestGenerationDistinguishesRequestsAtClearTimestamp(t *testing.T) {
+	st := testStore(t)
+	p, err := New(Config{SessionID: "s", Store: st, RequireGeneration: true, RetainUnattributedMetadata: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = p.Close() })
+	old := models.CaptureTransaction{ID: "old", State: models.TxComplete}
+	p.Stamp(&old)
+	if _, err := p.Clear(); err != nil {
+		t.Fatal(err)
+	}
+	// Match the clear boundary exactly: timestamp ordering cannot distinguish
+	// these requests, but only the request admitted after Clear may survive.
+	old.StartedAt = p.clearedAt.UTC().Format(time.RFC3339Nano)
+	fresh := old
+	fresh.ID = "fresh"
+	p.Stamp(&fresh)
+	if err := p.Submit(context.Background(), old); err != nil {
+		t.Fatal(err)
+	}
+	if err := p.Submit(context.Background(), fresh); err != nil {
+		t.Fatal(err)
+	}
+	p.SetPaused(true)
+	paused := fresh
+	paused.ID = "began-paused"
+	p.Stamp(&paused)
+	p.SetPaused(false)
+	if err := p.Submit(context.Background(), paused); err != nil {
+		t.Fatal(err)
+	}
+	page, err := st.Fetch(store.Filter{}, "", 10)
+	if err != nil || len(page.Items) != 1 || page.Items[0].Transaction.ID != "fresh" || page.Items[0].Transaction.Generation != 1 {
+		t.Fatalf("page=%+v err=%v", page, err)
+	}
+}
+
 func TestClearRejectsPreClearCursorAndSurvivesReopen(t *testing.T) {
 	st := testStore(t)
 	for _, id := range []string{"first", "second"} {

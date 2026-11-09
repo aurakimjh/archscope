@@ -67,8 +67,11 @@ type Config struct {
 	Interceptor      Interceptor
 	AllowPassthrough map[string]time.Time
 	Progress         func(models.CaptureTransaction)
-	Now              func() time.Time
-	DialContext      func(context.Context, string, string) (net.Conn, error)
+	// Stamp binds a request to the current log before attribution or I/O.
+	// Its generation is carried unchanged into the terminal transaction.
+	Stamp       func(*models.CaptureTransaction)
+	Now         func() time.Time
+	DialContext func(context.Context, string, string) (net.Conn, error)
 	// CaptureBodies requests the body tier. New rejects it unless the SEC-10
 	// crash-dump exclusion preflight verifies independently at construction
 	// time; the flag is a request, never a grant.
@@ -238,8 +241,11 @@ func (s *Server) transport() *http.Transport {
 
 func (s *Server) handlePlain(writer http.ResponseWriter, request *http.Request) {
 	started := s.cfg.Now()
+	progress := progressTransaction(request, started, nil, CaptureModeMITM)
+	s.stamp(&progress)
 	process := s.processForRequest(request)
-	progress := progressTransaction(request, started, process, CaptureModeMITM)
+	progress.Process = process
+	progress.Coverage = coverage(process)
 	s.progress(progress)
 	trace, traceCtx := newUpstreamTrace(request.Context())
 	out := request.Clone(traceCtx)
@@ -253,6 +259,7 @@ func (s *Server) handlePlain(writer http.ResponseWriter, request *http.Request) 
 		http.Error(writer, "verified upstream TLS/HTTP failure", http.StatusBadGateway)
 		tx := failureTransaction(request, started, s.cfg.Now(), err, CaptureModeMITM, FidelityDecodedWire, process)
 		tx.ID = progress.ID
+		tx.Generation = progress.Generation
 		s.emit(tx)
 		return
 	}
@@ -268,6 +275,7 @@ func (s *Server) handlePlain(writer http.ResponseWriter, request *http.Request) 
 		RequestBody: requestBody, ResponseBody: responseBody, Trace: trace, Process: process,
 	})
 	tx.ID = progress.ID
+	tx.Generation = progress.Generation
 	s.emit(tx)
 }
 
@@ -351,6 +359,7 @@ func (s *Server) tunnel(ctx context.Context, client net.Conn, hostPort string, p
 		Host:   hostPort,
 		URL:    &url.URL{Scheme: "https", Host: hostPort},
 	}, started, process, CaptureModePassthrough)
+	s.stamp(&progress)
 	s.progress(progress)
 	upstream, err := s.cfg.DialContext(ctx, "tcp", hostPort)
 	if err != nil {
@@ -360,6 +369,7 @@ func (s *Server) tunnel(ctx context.Context, client net.Conn, hostPort string, p
 			URL:    &url.URL{Scheme: "https", Host: hostPort},
 		}, started, s.cfg.Now(), err, CaptureModePassthrough, FidelityUnsupported, process)
 		tx.ID = progress.ID
+		tx.Generation = progress.Generation
 		s.emit(tx)
 		return
 	}
@@ -372,12 +382,15 @@ func (s *Server) tunnel(ctx context.Context, client net.Conn, hostPort string, p
 	<-done
 	tx := s.cfg.Interceptor.Passthrough(client.RemoteAddr(), hostPort, protocols, started, s.cfg.Now(), clientCount.read, upstreamCount.read, process, reason)
 	tx.ID = progress.ID
+	tx.Generation = progress.Generation
 	s.emit(tx)
 }
 
 func (s *Server) intercept(client net.Conn, host, hostPort string, process *models.ProcessInstance) {
 	defer client.Close()
 	started := s.cfg.Now()
+	admission := models.CaptureTransaction{}
+	s.stamp(&admission)
 	tlsConn := tls.Server(client, &tls.Config{
 		MinVersion: tls.VersionTLS12, NextProtos: []string{"http/1.1"},
 		GetCertificate: func(hello *tls.ClientHelloInfo) (*tls.Certificate, error) {
@@ -395,6 +408,7 @@ func (s *Server) intercept(client net.Conn, host, hostPort string, process *mode
 			URL:    &url.URL{Scheme: "https", Host: hostPort},
 		}, started, s.cfg.Now(), fmt.Errorf("client TLS handshake: %w", err), CaptureModeNotCaptured, FidelityUnsupported, process)
 		tx.Error = "TLS interception failed; diagnose certificate pinning or trust and require explicit scoped passthrough"
+		tx.Generation = admission.Generation
 		s.emit(tx)
 		return
 	}
@@ -408,6 +422,7 @@ func (s *Server) intercept(client net.Conn, host, hostPort string, process *mode
 		}
 		started := s.cfg.Now()
 		progress := progressTransaction(request, started, process, CaptureModeMITM)
+		s.stamp(&progress)
 		s.progress(progress)
 		trace, traceCtx := newUpstreamTrace(request.Context())
 		request = request.WithContext(traceCtx)
@@ -422,6 +437,7 @@ func (s *Server) intercept(client net.Conn, host, hostPort string, process *mode
 			writeGatewayError(tlsConn)
 			tx := failureTransaction(request, started, s.cfg.Now(), err, CaptureModeMITM, FidelityDecodedWire, process)
 			tx.ID = progress.ID
+			tx.Generation = progress.Generation
 			s.emit(tx)
 			return
 		}
@@ -435,6 +451,7 @@ func (s *Server) intercept(client net.Conn, host, hostPort string, process *mode
 			RequestBody: requestBody, ResponseBody: responseBody, Trace: trace, Process: process,
 		})
 		tx.ID = progress.ID
+		tx.Generation = progress.Generation
 		s.emit(tx)
 		if writeErr != nil || request.Close || response.Close {
 			return
@@ -464,6 +481,12 @@ func (s *Server) processForRequest(request *http.Request) *models.ProcessInstanc
 func (s *Server) emit(tx models.CaptureTransaction) {
 	if s.onTx != nil {
 		_ = s.onTx(tx)
+	}
+}
+
+func (s *Server) stamp(tx *models.CaptureTransaction) {
+	if s.cfg.Stamp != nil {
+		s.cfg.Stamp(tx)
 	}
 }
 
