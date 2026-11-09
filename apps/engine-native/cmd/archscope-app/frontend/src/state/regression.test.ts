@@ -3017,3 +3017,8 @@ const processEntries = httpGroupedEntries([selectedLiveRow,reusedPid], new Set()
 assert(processEntries.length === 4, "same name and PID with distinct start times must form distinct groups");
 const collapsedEntries = httpGroupedEntries([selectedLiveRow,reusedPid], new Set([httpProcessKey(selectedLiveRow)]));
 assert(collapsedEntries.length === 3 && collapsedEntries.filter(e=>e.kind==="request").length === 1, "collapsing a group must hide only its own requests");
+
+let clearedLive = liveHttpCaptureReducer(initialLiveCaptureState, {type:"started",session:{sessionId:"clear-test",state:"running",listenAddress:"",storePath:"",startedAt:null}});
+clearedLive = liveHttpCaptureReducer(clearedLive,{type:"session",session:{...clearedLive.session!,generation:1}});
+clearedLive = liveHttpCaptureReducer(clearedLive,{type:"transactions",event:{sessionId:"clear-test",sequence:1,snapshotVersion:1,items:[{id:"old-event",generation:0} as never]}});
+assert(clearedLive.transactions.length===0, "late pre-clear events must not repopulate the new log");

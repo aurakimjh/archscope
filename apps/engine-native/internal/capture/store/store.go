@@ -65,6 +65,7 @@ type Finding struct {
 }
 
 type Manifest struct {
+	ClearedVersion  uint64                 `json:"clearedVersion,omitempty"`
 	SchemaVersion   int                    `json:"schemaVersion"`
 	SessionID       string                 `json:"sessionId"`
 	State           capture.SessionState   `json:"state"`
@@ -509,6 +510,9 @@ func (s *Store) Fetch(filter Filter, opaque string, limit int) (Page, error) {
 		if decoded.SessionID != s.manifest.SessionID {
 			return Page{}, ErrStaleCursor
 		}
+		if decoded.Snapshot < s.manifest.ClearedVersion {
+			return Page{}, ErrStaleCursor
+		}
 		if decoded.Snapshot > s.manifest.SnapshotVersion || decoded.LastSeq > decoded.Snapshot {
 			return Page{}, errors.New("invalid capture cursor")
 		}
@@ -743,7 +747,7 @@ func (s *Store) Recover() (RecoveryReport, error) {
 	s.transactionBytes = validEnd
 	s.bodyBytes = bodyBytes
 	s.manifest.StoreBytes = validEnd + bodyBytes
-	s.manifest.SnapshotVersion = lastSeq
+	s.manifest.SnapshotVersion = max(lastSeq, s.manifest.ClearedVersion)
 	s.manifest.Counters.Persisted = uint64(records)
 	terminal := s.manifest.State == capture.StateFinalized || s.manifest.State == capture.StateFailed
 	recovered := discarded > 0 || !terminal
@@ -762,7 +766,7 @@ func (s *Store) Recover() (RecoveryReport, error) {
 	stats.Observed = max(stats.Observed, stats.Persisted)
 	stats.Captured = max(stats.Captured, stats.Persisted)
 	stats.BodyOmitted = s.manifest.Counters.BodyOmitted
-	stats.SnapshotVersion = lastSeq
+	stats.SnapshotVersion = s.manifest.SnapshotVersion
 	stats.StoreBytes = s.manifest.StoreBytes
 	s.manifest.CaptureStats = &stats
 	if lastSeq > checkpointSnapshot {
@@ -856,4 +860,54 @@ func SortedSessionDirs(root string) ([]string, error) {
 	}
 	sort.Strings(out)
 	return out, nil
+}
+
+// Clear removes recorded exchanges under the same append lock. Snapshot
+// versions keep increasing so a cursor opened before Clear cannot be reused.
+func (s *Store) Clear() error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.closed {
+		return errors.New("capture store is closed")
+	}
+	if err := s.writer.Flush(); err != nil {
+		return err
+	}
+	if err := s.indexWriter.Flush(); err != nil {
+		return err
+	}
+	if err := s.file.Truncate(0); err != nil {
+		return err
+	}
+	if _, err := s.file.Seek(0, io.SeekStart); err != nil {
+		return err
+	}
+	s.writer.Reset(s.file)
+	if err := s.index.Truncate(0); err != nil {
+		return err
+	}
+	if _, err := s.index.Seek(0, io.SeekStart); err != nil {
+		return err
+	}
+	s.indexWriter.Reset(s.index)
+	blobs, err := os.ReadDir(filepath.Join(s.dir, blobsDir))
+	if err != nil && !os.IsNotExist(err) {
+		return err
+	}
+	for _, blob := range blobs {
+		if err := os.Remove(filepath.Join(s.dir, blobsDir, blob.Name())); err != nil {
+			return err
+		}
+	}
+	s.transactionBytes = 0
+	s.bodyBytes = 0
+	s.pending = 0
+	s.manifest.StoreBytes = 0
+	s.manifest.Counters = Counters{}
+	s.manifest.CaptureStats = nil
+	s.manifest.Redaction = nil
+	s.manifest.Findings = []Finding{}
+	s.manifest.SnapshotVersion++
+	s.manifest.ClearedVersion = s.manifest.SnapshotVersion
+	return s.writeManifestLocked()
 }

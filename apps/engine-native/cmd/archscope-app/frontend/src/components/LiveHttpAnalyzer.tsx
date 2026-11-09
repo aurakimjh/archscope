@@ -32,7 +32,6 @@ export function LiveHttpAnalyzer({
   const rows = useMemo(() => filterTransactions(scoped, filter), [scoped, filter]);
   const selected = all.find((row) => row.id === selectedId);
   useEffect(() => {
-    setDetail(null);
     setError(null);
     if (!selectedId || !sessionId) return;
     let disposed = false;

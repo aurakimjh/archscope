@@ -157,6 +157,14 @@ func (s *CaptureService) StartCapture(config capture.Config) (capture.Session, e
 	return s.manager.Start(context.Background(), config)
 }
 
+func (s *CaptureService) SetCapturePaused(sessionID string, paused bool) (capture.Session, error) {
+	return s.manager.SetPaused(capture.SessionID(sessionID), paused)
+}
+
+func (s *CaptureService) ClearCapture(sessionID string) (capture.Session, error) {
+	return s.manager.Clear(capture.SessionID(sessionID))
+}
+
 func (s *CaptureService) StopCapture(sessionID string) (capture.Session, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()

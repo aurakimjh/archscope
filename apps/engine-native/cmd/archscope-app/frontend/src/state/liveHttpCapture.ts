@@ -215,6 +215,8 @@ export function isLiveCaptureContractSupported(raw: unknown): boolean {
 }
 
 export type LiveCaptureSession = {
+  generation?: number;
+  paused?: boolean;
   allowedProcesses?: { pid:number; startTime:string }[];
   sessionId: string;
   state: string;
@@ -240,6 +242,7 @@ export type LiveCaptureSession = {
 };
 
 export type LiveCaptureStats = {
+  generation?: number;
   sessionId: string;
   state: string;
   /**
@@ -276,6 +279,7 @@ export type LiveCaptureProcess = {
 };
 
 export type LiveCaptureTransaction = {
+  generation?: number;
   id: string;
   sequence: number;
   method: string;
@@ -346,6 +350,7 @@ export type LiveCaptureAction =
     }
   | { type: "started"; session: LiveCaptureSession }
   | { type: "stopped"; session: LiveCaptureSession }
+  | { type: "session"; session: LiveCaptureSession }
   | { type: "stats"; stats: LiveCaptureStats }
   | { type: "progress"; event: LiveProgressEvent }
   | { type: "transactions"; event: LiveTransactionsEvent }
@@ -404,6 +409,12 @@ export function liveHttpCaptureReducer(
         contractMismatch: state.contractMismatch,
         session: action.session,
       };
+    case "session":
+      if (!matchesSession(state, action.session.sessionId)) return state;
+      if ((action.session.generation ?? 0) < (state.session?.generation ?? 0)) return state;
+      return {...state, session:action.session, busy:false,
+        ...((action.session.generation ?? 0) > (state.session?.generation ?? 0)
+          ? {transactions:[], stats:null, needsResync:isLiveSessionActive(action.session)} : {})};
     case "stopped":
       if (!matchesSession(state, action.session.sessionId)) return state;
       return {
@@ -413,7 +424,7 @@ export function liveHttpCaptureReducer(
         error: action.session.error || state.error,
       };
     case "stats": {
-      if (!matchesSession(state, action.stats.sessionId)) return state;
+      if (!matchesSession(state, action.stats.sessionId) || (action.stats.generation ?? 0) !== (state.session?.generation ?? 0)) return state;
       // Resync-on-skip is a contract term, so a contract that turns it off
       // turns off the renderer's recovery path with it (H-RG4 R8).
       const skippedAdvanced =
@@ -427,7 +438,7 @@ export function liveHttpCaptureReducer(
     }
     case "progress": {
       if (!matchesSession(state, action.event.sessionId)) return state;
-      const items = action.event.items ?? [];
+      const items = (action.event.items ?? []).filter((item) => (item.generation ?? 0) >= (state.session?.generation ?? 0));
       if (items.length === 0) return state;
       return {
         ...state,
@@ -442,12 +453,12 @@ export function liveHttpCaptureReducer(
       return {
         ...state,
         transactions: boundedDistinct(
-          [...state.transactions, ...action.event.items],
+          [...state.transactions, ...action.event.items.filter((item) => (item.generation ?? 0) >= (state.session?.generation ?? 0))],
           state.contract.transactionRowCap,
         ),
       };
     case "resynced":
-      if (!matchesSession(state, action.stats.sessionId)) return state;
+      if (!matchesSession(state, action.stats.sessionId) || (action.stats.generation ?? 0) !== (state.session?.generation ?? 0)) return state;
       return {
         ...state,
         stats: action.stats,

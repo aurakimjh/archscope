@@ -49,16 +49,19 @@ type request struct {
 }
 
 type Pipeline struct {
-	cfg       Config
-	queue     chan request
-	stop      chan struct{}
-	done      chan struct{}
-	published chan struct{}
-	space     chan struct{}
-	batch     chan models.CaptureTransaction
-	progress  chan models.CaptureTransaction
-	agg       *aggregate.Aggregator
-	sendMu    sync.RWMutex
+	paused     bool      // protected by sendMu
+	clearedAt  time.Time // protected by sendMu
+	generation atomic.Uint64
+	cfg        Config
+	queue      chan request
+	stop       chan struct{}
+	done       chan struct{}
+	published  chan struct{}
+	space      chan struct{}
+	batch      chan models.CaptureTransaction
+	progress   chan models.CaptureTransaction
+	agg        *aggregate.Aggregator
+	sendMu     sync.RWMutex
 
 	mu          sync.RWMutex
 	liveOrder   []string
@@ -123,7 +126,19 @@ func New(cfg Config) (*Pipeline, error) {
 }
 
 func (p *Pipeline) Submit(ctx context.Context, tx models.CaptureTransaction) error {
+	p.sendMu.RLock()
+	defer p.sendMu.RUnlock()
+	if !p.recording(tx) {
+		return nil
+	}
+	tx.Generation = p.generation.Load()
 	p.observed.Add(1)
+	if tx.Fidelity == "unsupported" {
+		p.unsupported.Add(1)
+	}
+	if tx.CaptureMode == "proxy_passthrough" {
+		p.passthrough.Add(1)
+	}
 	if !p.allows(tx) {
 		p.dropped.Add(1)
 		return nil
@@ -135,8 +150,6 @@ func (p *Pipeline) Submit(ctx context.Context, tx models.CaptureTransaction) err
 			return nil
 		}
 	}
-	p.sendMu.RLock()
-	defer p.sendMu.RUnlock()
 	p.captured.Add(1)
 	tx = p.redact(tx)
 	data, err := json.Marshal(tx)
@@ -346,12 +359,16 @@ func (p *Pipeline) LiveMetadata(tx models.CaptureTransaction) models.CaptureTran
 }
 
 func (p *Pipeline) TrackProgress(tx models.CaptureTransaction) error {
+	p.sendMu.RLock()
+	defer p.sendMu.RUnlock()
+	if !p.recording(tx) {
+		return nil
+	}
+	tx.Generation = p.generation.Load()
 	if !p.allows(tx) {
 		return nil
 	}
 	tx = p.LiveMetadata(tx)
-	p.sendMu.RLock()
-	defer p.sendMu.RUnlock()
 	p.mu.RLock()
 	closed := p.closed
 	p.mu.RUnlock()
@@ -375,7 +392,7 @@ func (p *Pipeline) Stats(state capture.SessionState) capture.Stats {
 	meta := p.cfg.Store.Meta()
 	return capture.Stats{
 		SessionID: p.cfg.SessionID, State: state,
-		Observed: p.observed.Load(), Captured: p.captured.Load(), Persisted: p.persisted.Load(),
+		Generation: p.generation.Load(), Observed: p.observed.Load(), Captured: p.captured.Load(), Persisted: p.persisted.Load(),
 		BodyOmitted: meta.Counters.BodyOmitted, EventSkipped: p.eventSkipped.Load(),
 		KernelDropped: p.kernelDropped.Load(), ParseFailed: p.parseFailed.Load(),
 		Unsupported: p.unsupported.Load(), Passthrough: p.passthrough.Load(),
@@ -386,8 +403,6 @@ func (p *Pipeline) Stats(state capture.SessionState) capture.Stats {
 	}
 }
 
-func (p *Pipeline) MarkUnsupported()           { p.unsupported.Add(1) }
-func (p *Pipeline) MarkPassthrough()           { p.passthrough.Add(1) }
 func (p *Pipeline) MarkKernelDropped(n uint64) { p.kernelDropped.Add(n) }
 
 func (p *Pipeline) Close() error {
@@ -522,4 +537,56 @@ func (p *Pipeline) allows(tx models.CaptureTransaction) bool {
 		}
 	}
 	return false
+}
+
+func (p *Pipeline) recording(tx models.CaptureTransaction) bool {
+	if p.paused {
+		return false
+	}
+	if p.clearedAt.IsZero() {
+		return true
+	}
+	started, err := time.Parse(time.RFC3339Nano, tx.StartedAt)
+	return err == nil && started.After(p.clearedAt)
+}
+
+func (p *Pipeline) SetPaused(paused bool) {
+	p.sendMu.Lock()
+	defer p.sendMu.Unlock()
+	p.paused = paused
+}
+
+// Clear waits for acknowledged writes, removes the log and resets aggregation.
+// Old buffered events retain their generation and cannot repopulate the renderer.
+func (p *Pipeline) Clear() (uint64, error) {
+	p.sendMu.Lock()
+	defer p.sendMu.Unlock()
+	if p.closed {
+		return p.generation.Load(), errors.New("capture stream is closed")
+	}
+	if err := p.cfg.Store.Clear(); err != nil {
+		p.paused = true
+		return p.generation.Load(), err
+	}
+	p.clearedAt = time.Now().UTC()
+	generation := p.generation.Load() + 1
+	p.agg.Clear()
+	p.mu.Lock()
+	p.liveOrder = nil
+	p.liveByID = map[string]models.CaptureTransaction{}
+	p.mu.Unlock()
+	p.observed.Store(0)
+	p.captured.Store(0)
+	p.persisted.Store(0)
+	p.eventSkipped.Store(0)
+	p.parseFailed.Store(0)
+	p.kernelDropped.Store(0)
+	p.unsupported.Store(0)
+	p.passthrough.Store(0)
+	p.unattributed.Store(0)
+	p.dropped.Store(0)
+	p.cfg.Redaction.ClearCounts()
+
+	p.generation.Store(generation)
+	return generation, nil
 }

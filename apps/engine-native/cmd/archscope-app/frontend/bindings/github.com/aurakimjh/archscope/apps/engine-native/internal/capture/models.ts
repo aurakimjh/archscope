@@ -182,6 +182,8 @@ export enum Privilege {
 };
 
 export class Session {
+    "generation": number;
+    "paused": boolean;
     "allowedProcesses"?: models$0.ProcessKey[];
     "sessionId": SessionID;
     "state": SessionState;
@@ -211,6 +213,12 @@ export class Session {
 
     /** Creates a new Session instance. */
     constructor($$source: Partial<Session> = {}) {
+        if (!("generation" in $$source)) {
+            this["generation"] = 0;
+        }
+        if (!("paused" in $$source)) {
+            this["paused"] = false;
+        }
         if (!("sessionId" in $$source)) {
             this["sessionId"] = "";
         }
@@ -243,10 +251,10 @@ export class Session {
      * Creates a new Session instance from a string or object.
      */
     static createFrom($$source: any = {}): Session {
-        const $$createField0_0 = $$createType1;
+        const $$createField2_0 = $$createType1;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("allowedProcesses" in $$parsedSource) {
-            $$parsedSource["allowedProcesses"] = $$createField0_0($$parsedSource["allowedProcesses"]);
+            $$parsedSource["allowedProcesses"] = $$createField2_0($$parsedSource["allowedProcesses"]);
         }
         return new Session($$parsedSource as Partial<Session>);
     }
@@ -270,6 +278,7 @@ export enum SessionState {
 };
 
 export class Stats {
+    "generation": number;
     "sessionId": SessionID;
     "state": SessionState;
     "observed": number;
@@ -290,6 +299,9 @@ export class Stats {
 
     /** Creates a new Stats instance. */
     constructor($$source: Partial<Stats> = {}) {
+        if (!("generation" in $$source)) {
+            this["generation"] = 0;
+        }
         if (!("sessionId" in $$source)) {
             this["sessionId"] = "";
         }

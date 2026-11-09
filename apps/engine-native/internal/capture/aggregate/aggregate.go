@@ -124,3 +124,15 @@ func topRows(source map[string]*Row, limit int) []Row {
 	}
 	return out
 }
+
+// Clear preserves monotonic transport versions while resetting the log totals.
+func (a *Aggregator) Clear() {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	a.sequence++
+	a.snapshotVersion++
+	a.total = 0
+	a.errors = 0
+	a.endpoints = map[string]*Row{}
+	a.hosts = map[string]*Row{}
+}

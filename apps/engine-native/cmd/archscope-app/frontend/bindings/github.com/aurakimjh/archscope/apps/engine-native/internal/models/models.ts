@@ -103,6 +103,7 @@ export class AnalysisResult {
  * offline HAR analysis and the later live-capture pipeline.
  */
 export class CaptureTransaction {
+    "generation"?: number;
     "id": string;
     "connectionId": string;
     "sequence": number;
@@ -201,22 +202,22 @@ export class CaptureTransaction {
      * Creates a new CaptureTransaction instance from a string or object.
      */
     static createFrom($$source: any = {}): CaptureTransaction {
-        const $$createField13_0 = $$createType2;
         const $$createField14_0 = $$createType2;
-        const $$createField15_0 = $$createType3;
-        const $$createField25_0 = $$createType5;
+        const $$createField15_0 = $$createType2;
+        const $$createField16_0 = $$createType3;
+        const $$createField26_0 = $$createType5;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("request" in $$parsedSource) {
-            $$parsedSource["request"] = $$createField13_0($$parsedSource["request"]);
+            $$parsedSource["request"] = $$createField14_0($$parsedSource["request"]);
         }
         if ("response" in $$parsedSource) {
-            $$parsedSource["response"] = $$createField14_0($$parsedSource["response"]);
+            $$parsedSource["response"] = $$createField15_0($$parsedSource["response"]);
         }
         if ("timings" in $$parsedSource) {
-            $$parsedSource["timings"] = $$createField15_0($$parsedSource["timings"]);
+            $$parsedSource["timings"] = $$createField16_0($$parsedSource["timings"]);
         }
         if ("process" in $$parsedSource) {
-            $$parsedSource["process"] = $$createField25_0($$parsedSource["process"]);
+            $$parsedSource["process"] = $$createField26_0($$parsedSource["process"]);
         }
         return new CaptureTransaction($$parsedSource as Partial<CaptureTransaction>);
     }

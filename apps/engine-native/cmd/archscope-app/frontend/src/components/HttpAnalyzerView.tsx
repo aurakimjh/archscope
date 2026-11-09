@@ -218,7 +218,7 @@ export function HttpAnalyzerView({
       className={
         maximized
           ? "fixed inset-0 z-50 flex flex-col bg-background p-3"
-          : "flex h-[calc(100dvh-230px)] min-h-[420px] flex-col rounded-lg border border-border bg-card"
+          : "flex min-w-0 w-full h-[calc(100dvh-230px)] min-h-[420px] flex-col rounded-lg border border-border bg-card"
       }
       aria-label={t("httpAnalyzerTitle")}
     >

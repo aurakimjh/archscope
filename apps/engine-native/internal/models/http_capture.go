@@ -83,6 +83,7 @@ const (
 // CaptureTransaction is the common normalized transaction consumed by both
 // offline HAR analysis and the later live-capture pipeline.
 type CaptureTransaction struct {
+	Generation   uint64 `json:"generation,omitempty"`
 	ID           string `json:"id"`
 	ConnectionID string `json:"connectionId"`
 	Sequence     int    `json:"sequence"`

@@ -330,3 +330,57 @@ func TestCaptureServiceSelectedExchangeDuringCapture(t *testing.T) {
 		t.Fatal("detail stopped recording")
 	}
 }
+
+func TestCaptureServiceRecordingControls(t *testing.T) {
+	service := newCaptureServiceForPlatform(t.TempDir(), certstore.New(memoryTrustBackend{}, nil), "windows")
+	session, err := service.StartCapture(capture.Config{ListenAddress: "127.0.0.1:0", RetainUnattributedMetadata: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer service.StopCapture(string(session.ID))
+	origin := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.Header().Set("X-Path", r.URL.Path) }))
+	defer origin.Close()
+	proxyURL, _ := url.Parse("http://" + session.ListenAddress)
+	transport := &http.Transport{Proxy: http.ProxyURL(proxyURL)}
+	defer transport.CloseIdleConnections()
+	client := &http.Client{Transport: transport, Timeout: 3 * time.Second}
+	get := func(path string) {
+		t.Helper()
+		r, e := client.Get(origin.URL + path)
+		if e != nil {
+			t.Fatal(e)
+		}
+		r.Body.Close()
+	}
+	get("/before")
+	if _, e := service.SetCapturePaused(string(session.ID), true); e != nil {
+		t.Fatal(e)
+	}
+	get("/paused")
+	stats, e := service.GetCaptureStats(string(session.ID))
+	if e != nil || stats.Persisted != 1 {
+		t.Fatalf("paused=%+v err=%v", stats, e)
+	}
+	cleared, e := service.ClearCapture(string(session.ID))
+	if e != nil || cleared.Generation != 1 || !cleared.Paused {
+		t.Fatalf("cleared=%+v err=%v", cleared, e)
+	}
+	if _, e := service.SetCapturePaused(string(session.ID), false); e != nil {
+		t.Fatal(e)
+	}
+	get("/after")
+	page, e := service.FetchCaptureTransactions(CaptureFetchRequest{SessionID: string(session.ID)})
+	if e != nil || len(page.Items) != 1 || page.Items[0].Transaction.Path != "/after" {
+		t.Fatalf("after=%+v err=%v", page, e)
+	}
+	if _, e := service.StopCapture(string(session.ID)); e != nil {
+		t.Fatal(e)
+	}
+	if _, e := service.ClearCapture(string(session.ID)); e != nil {
+		t.Fatal(e)
+	}
+	stats, e = service.GetCaptureStats(string(session.ID))
+	if e != nil || stats.Persisted != 0 || stats.Generation != 2 {
+		t.Fatalf("stopped clear=%+v err=%v", stats, e)
+	}
+}

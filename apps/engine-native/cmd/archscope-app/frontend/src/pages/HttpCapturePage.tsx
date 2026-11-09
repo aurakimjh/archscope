@@ -201,7 +201,8 @@ export function HttpCapturePage(): React.JSX.Element {
   const openById = useCallback((id: string) => dispatch({ type: "select", id }), []);
 
   return (
-    <main className="flex flex-col gap-4 p-4">
+    <main className="flex min-w-0 flex-col gap-3 p-3">
+      <LiveHttpCapturePanel onStarted={onLiveStarted} onFinalized={onLiveFinalized} showAnalyzer={!result} />
       {/* Capture source. Once a session is loaded this collapses by default so
           the analyzer gets the screen; reopening it is one click. */}
       <Disclosure
@@ -210,7 +211,6 @@ export function HttpCapturePage(): React.JSX.Element {
         onToggle={() => setSourceOpen((value) => !value)}
       >
         <div className="flex flex-col gap-4">
-          <LiveHttpCapturePanel onStarted={onLiveStarted} onFinalized={onLiveFinalized} />
           <WailsFileDock
             label={t("httpCaptureLabel")}
             description={t("httpCaptureDescription")}

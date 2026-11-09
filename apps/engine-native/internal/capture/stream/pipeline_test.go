@@ -543,3 +543,85 @@ func TestSelectedProcessScopePrecedesPersistenceAndProgress(t *testing.T) {
 		t.Fatalf("stats=%+v", stats)
 	}
 }
+
+func TestPauseClearAndResumeKeepLogConsistent(t *testing.T) {
+	st := testStore(t)
+	p, err := New(Config{SessionID: "s", Store: st, RetainUnattributedMetadata: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	submit := func(id string, when time.Time) {
+		t.Helper()
+		e := p.Submit(context.Background(), models.CaptureTransaction{
+			ID: id, StartedAt: when.UTC().Format(time.RFC3339Nano), Method: "GET", State: models.TxComplete,
+		})
+		if e != nil {
+			t.Fatal(e)
+		}
+	}
+	before := time.Now()
+	submit("old", before)
+	p.SetPaused(true)
+	submit("paused", time.Now())
+	if p.Stats(capture.StateRunning).Persisted != 1 {
+		t.Fatal("pause persisted a request")
+	}
+	generation, e := p.Clear()
+	if e != nil || generation != 1 {
+		t.Fatalf("clear generation=%d err=%v", generation, e)
+	}
+	if len(p.LiveWindow()) != 0 || p.Snapshot().Total != 0 {
+		t.Fatal("clear retained rows or aggregates")
+	}
+	p.SetPaused(false)
+	submit("old-inflight", before)
+	submit("new", time.Now().Add(time.Millisecond))
+	if e := p.Close(); e != nil {
+		t.Fatal(e)
+	}
+	page, e := st.Fetch(store.Filter{}, "", 100)
+	if e != nil || len(page.Items) != 1 || page.Items[0].Transaction.ID != "new" {
+		t.Fatalf("page=%+v err=%v", page, e)
+	}
+	if page.Items[0].Transaction.Generation != 1 {
+		t.Fatal("missing log generation")
+	}
+	stats := p.Stats(capture.StateFinalized)
+	if stats.Captured != 1 || stats.Persisted != 1 || stats.Generation != 1 {
+		t.Fatalf("stats=%+v", stats)
+	}
+}
+
+func TestClearRejectsPreClearCursorAndSurvivesReopen(t *testing.T) {
+	st := testStore(t)
+	for _, id := range []string{"first", "second"} {
+		if _, e := st.Append(models.CaptureTransaction{ID: id}); e != nil {
+			t.Fatal(e)
+		}
+	}
+	page, e := st.Fetch(store.Filter{}, "", 1)
+	if e != nil || page.NextCursor == "" {
+		t.Fatalf("page=%+v err=%v", page, e)
+	}
+	if e := st.Clear(); e != nil {
+		t.Fatal(e)
+	}
+	if _, e := st.Fetch(store.Filter{}, page.NextCursor, 1); e == nil {
+		t.Fatal("old cursor survived clear")
+	}
+	if e := st.Finalize(capture.StateFinalized); e != nil {
+		t.Fatal(e)
+	}
+	opened, e := store.Open(st.Path())
+	if e != nil {
+		t.Fatal(e)
+	}
+	defer opened.Close()
+	if _, e := opened.Append(models.CaptureTransaction{ID: "new"}); e != nil {
+		t.Fatal(e)
+	}
+	after, e := opened.Fetch(store.Filter{}, "", 100)
+	if e != nil || len(after.Items) != 1 || after.Items[0].Transaction.ID != "new" {
+		t.Fatalf("reopened=%+v err=%v", after, e)
+	}
+}

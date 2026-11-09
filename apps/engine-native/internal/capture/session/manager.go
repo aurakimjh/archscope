@@ -250,12 +250,6 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 	runCtx, cancel := context.WithCancel(ctx)
 	fatal := make(chan error, 1)
 	address, err := capturer.Start(runCtx, cfg, func(tx models.CaptureTransaction) error {
-		if tx.Fidelity == proxy.FidelityUnsupported {
-			pipeline.MarkUnsupported()
-		}
-		if tx.CaptureMode == proxy.CaptureModePassthrough {
-			pipeline.MarkPassthrough()
-		}
 		err := pipeline.Submit(runCtx, tx)
 		if err != nil && runCtx.Err() == nil {
 			select {
@@ -362,6 +356,49 @@ func (m *Manager) Stop(ctx context.Context, id SessionID) (Session, error) {
 	return m.session, stopErr
 }
 
+func (m *Manager) SetPaused(id SessionID, paused bool) (Session, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if id != m.session.ID || !activeState(m.session.State) {
+		return Session{}, ErrSessionNotFound
+	}
+	m.pipeline.SetPaused(paused)
+	m.session.Paused = paused
+	return m.session, nil
+}
+
+func (m *Manager) Clear(id SessionID) (Session, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if id == "" || id != m.session.ID {
+		return Session{}, ErrSessionNotFound
+	}
+	if activeState(m.session.State) {
+		generation, err := m.pipeline.Clear()
+		if err != nil {
+			m.session.Paused = true
+			return m.session, err
+		}
+		m.session.Generation = generation
+	} else {
+		st, err := m.openSession(id)
+		if err != nil {
+			return m.session, err
+		}
+		defer st.Close()
+		if err := st.Clear(); err != nil {
+			return m.session, err
+		}
+		m.session.Generation++
+		meta := st.Meta()
+		if err := st.SetCaptureStats(Stats{SessionID: id, State: m.session.State, Generation: m.session.Generation, SnapshotVersion: meta.SnapshotVersion}); err != nil {
+			return m.session, err
+		}
+		m.pipeline = nil
+	}
+	return m.session, nil
+}
+
 func (m *Manager) Current() Session {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -381,10 +418,10 @@ func (m *Manager) Stats(id SessionID) (Stats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	if id == "" || id == m.session.ID {
-		if m.pipeline == nil {
-			return Stats{}, ErrSessionNotFound
+		if m.pipeline != nil {
+			return m.pipeline.Stats(m.session.State), nil
 		}
-		return m.pipeline.Stats(m.session.State), nil
+		id = m.session.ID
 	}
 	st, err := m.openSession(id)
 	if err != nil {
@@ -393,7 +430,7 @@ func (m *Manager) Stats(id SessionID) (Stats, error) {
 	defer st.Close()
 	meta := st.Meta()
 	return Stats{
-		SessionID: id, State: meta.State, Persisted: meta.Counters.Persisted,
+		Generation: m.session.Generation, SessionID: id, State: meta.State, Persisted: meta.Counters.Persisted,
 		BodyOmitted: meta.Counters.BodyOmitted, SnapshotVersion: meta.SnapshotVersion,
 		StoreBytes: meta.StoreBytes,
 	}, nil

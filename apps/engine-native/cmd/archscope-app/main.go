@@ -78,10 +78,26 @@ func main() {
 		},
 	})
 
+	menu := application.NewMenu()
+	captureMenu := menu.AddSubmenu("HTTP Capture")
+	for _, command := range []struct{ label, name, shortcut string }{
+		{"Start", "start", "F9"}, {"Stop", "stop", "F2"},
+		{"Pause / Resume", "pause", ""}, {"Clear", "clear", "Ctrl+L"},
+		{"Auto Scroll", "follow", ""},
+	} {
+		item := captureMenu.Add(command.label)
+		name := command.name
+		item.OnClick(func(_ *application.Context) { emitEvent("capture:command", map[string]string{"command": name}) })
+		if command.shortcut != "" {
+			item.SetAccelerator(command.shortcut)
+		}
+	}
+	app.Menu.Set(menu)
 	app.Window.NewWithOptions(application.WebviewWindowOptions{
-		Title:  "ArchScope",
-		Width:  1280,
-		Height: 800,
+		Windows: application.WindowsWindow{Menu: menu},
+		Title:   "ArchScope",
+		Width:   1280,
+		Height:  800,
 		Mac: application.MacWindow{
 			InvisibleTitleBarHeight: 50,
 			Backdrop:                application.MacBackdropTranslucent,

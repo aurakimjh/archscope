@@ -70,25 +70,8 @@ type RecoverySummary = {
 type LiveHttpCapturePanelProps = {
   onStarted: () => void;
   onFinalized: (result: HttpCaptureAnalysisResult, sessionId: string) => void;
+  showAnalyzer?: boolean;
 };
-
-/**
- * Every fidelity grade the live table can print. `resolveLiveFidelity` maps any
- * unrecognized engine value to `unknown`, so an unexpected grade degrades to
- * "not yet determined" instead of a reassuring string (H-RG4 L1).
- */
-
-/**
- * A grade that does not assert ArchScope read the exchange must not be styled
- * like ordinary captured traffic, so the caution emphasis is derived from
- * `liveFidelityTone` rather than from the label text (H-RG4 R9).
- */
-
-/**
- * Raw engine enums the panel prints. Rendering the wire token left these cells
- * untranslated in both locales (H-RG4 R11); every token now resolves through a
- * closed map, and anything unrecognized says so instead of leaking the token.
- */
 
 const SESSION_STATE_LABEL_KEYS: Record<LiveSessionStateToken, MessageKey> = {
   created: "liveCaptureSessionStateCreated",
@@ -122,6 +105,7 @@ function eventData<T>(event: unknown): T | null {
 export function LiveHttpCapturePanel({
   onStarted,
   onFinalized,
+  showAnalyzer = true,
 }: LiveHttpCapturePanelProps): React.JSX.Element {
   const { t, locale } = useI18n();
   const [state, dispatch] = useReducer(
@@ -356,6 +340,47 @@ export function LiveHttpCapturePanel({
     }
   }, [state.busy, state.session?.sessionId]);
 
+  const pause = useCallback(async () => {
+    if (!state.session || !active || state.busy) return;
+    dispatch({type:"busy",busy:true});
+    try {
+      const next=await CaptureService.SetCapturePaused(state.session.sessionId, !state.session.paused);
+      dispatch({type:"session",session:next as unknown as LiveCaptureSession});
+    } catch(caught) { dispatch({type:"error",message:String(caught)}); }
+  },[state.session,active,state.busy]);
+
+  const clear = useCallback(async () => {
+    if (!state.session || state.busy) return;
+    if (!window.confirm(t("httpCaptureClearConfirm").replace("{count}",String(state.stats?.persisted ?? state.transactions.length)))) return;
+    dispatch({type:"busy",busy:true});
+    try {
+      const next=await CaptureService.ClearCapture(state.session.sessionId);
+      onStarted();
+      dispatch({type:"session",session:next as unknown as LiveCaptureSession});
+    } catch(caught) { dispatch({type:"error",message:String(caught)}); }
+  },[state.session,state.busy,state.stats?.persisted,state.transactions.length,onStarted,t]);
+
+  useEffect(() => {
+    const command=(name:string) => {
+      if (name==="start") void start();
+      if (name==="stop") void stop();
+      if (name==="pause") void pause();
+      if (name==="clear") void clear();
+      if (name==="follow") dispatch({type:"follow",follow:!state.follow});
+    };
+    const off=Events.On("capture:command",(event:unknown) => {
+      const value=eventData<{command:string}>(event);
+      if (value) command(value.command);
+    });
+    const keydown=(event:KeyboardEvent) => {
+      const key=event.key.toLowerCase();
+      const name=key==="f9"?"start":key==="f2"?"stop":(event.ctrlKey||event.metaKey)&&key==="l"?"clear":null;
+      if (name) { event.preventDefault(); command(name); }
+    };
+    window.addEventListener("keydown",keydown);
+    return () => { off(); window.removeEventListener("keydown",keydown); };
+  },[start,stop,pause,clear,state.follow]);
+
   const installCA = useCallback(async () => {
     dispatch({ type: "busy", busy: true });
     try {
@@ -436,7 +461,7 @@ export function LiveHttpCapturePanel({
 
 
   return (
-    <Card>
+    <Card className="min-w-0">
       <CardHeader className="flex-row items-start justify-between gap-3">
         <div>
           <CardTitle>{t("liveCaptureTitle")}</CardTitle>
@@ -456,7 +481,7 @@ export function LiveHttpCapturePanel({
             : t("liveCaptureIdle")}
         </span>
       </CardHeader>
-      <CardContent className="flex flex-col gap-4">
+      <CardContent className="flex min-w-0 flex-col gap-2">
         <details className="rounded border p-2">
           <summary className="cursor-pointer text-xs">{t("httpCaptureSectionSource")}</summary>
           <div className="flex flex-col gap-2 pt-2">
@@ -686,6 +711,13 @@ export function LiveHttpCapturePanel({
             onClick={() => dispatch({ type: "follow", follow: !state.follow })}>
             {t(state.follow ? "liveCaptureFollowing" : "liveCaptureResumeFollow")}
           </Button>
+          <Button type="button" size="sm" variant="outline" disabled={!active || state.busy} onClick={() => void pause()}>
+            {t(state.session?.paused ? "httpCaptureResume" : "httpCapturePause")}
+          </Button>
+          <Button type="button" size="sm" variant="outline" disabled={!state.session || state.busy} onClick={() => void clear()}>
+            {t("httpCaptureClear")}
+          </Button>
+          {state.session?.paused && <span role="status" className="text-xs text-amber-700">{t("httpCapturePaused")}</span>}
           {state.session &&
             !active &&
             state.contract.finalizedSessionUsesAnalysisResult && (
@@ -706,9 +738,15 @@ export function LiveHttpCapturePanel({
           )}
         </div>
 
-        <LiveHttpAnalyzer key={state.session?.sessionId ?? "idle"}
+        {showAnalyzer && <LiveHttpAnalyzer key={`${state.session?.sessionId ?? "idle"}:${state.session?.generation ?? 0}`}
           sessionId={state.session?.sessionId ?? ""} transactions={state.transactions}
-          persisted={state.stats?.persisted ?? 0} follow={state.follow} />
+          persisted={state.stats?.persisted ?? 0} follow={state.follow} />}
+        <footer role="status" className="flex flex-wrap items-center gap-3 border-t pt-1 text-[11px]">
+          <span>{state.session ? t(SESSION_STATE_LABEL_KEYS[resolveLiveSessionState(state.session.state)]) : t("liveCaptureIdle")}</span>
+          <span>{t("liveCaptureCaptured")}: {state.stats?.captured ?? 0}</span>
+          <span>{t("liveCapturePersisted")}: {state.stats?.persisted ?? 0}</span>
+          {state.session?.allowedProcesses?.length ? <span>{t("httpCaptureSelectedProcesses")}: {state.session.allowedProcesses.length}</span> : null}
+        </footer>
         <details>
           <summary className="cursor-pointer text-xs">{t("httpCaptureSectionSession")}</summary>
         {state.error && (

@@ -496,3 +496,11 @@ func boundedPositive(value, fallback int) int {
 	}
 	return value
 }
+
+// ClearCounts resets the log disclosure while retaining configured rules.
+func (p *Policy) ClearCounts() {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	p.counts = map[string]int{}
+	p.warnings = nil
+}

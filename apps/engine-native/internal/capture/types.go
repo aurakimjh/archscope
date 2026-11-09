@@ -148,6 +148,7 @@ type Config struct {
 }
 
 type Stats struct {
+	Generation      uint64       `json:"generation"`
 	SessionID       SessionID    `json:"sessionId"`
 	State           SessionState `json:"state"`
 	Observed        uint64       `json:"observed"`
@@ -168,6 +169,8 @@ type Stats struct {
 }
 
 type Session struct {
+	Generation                 uint64              `json:"generation"`
+	Paused                     bool                `json:"paused"`
 	AllowedProcesses           []models.ProcessKey `json:"allowedProcesses,omitempty"`
 	ID                         SessionID           `json:"sessionId"`
 	State                      SessionState        `json:"state"`
