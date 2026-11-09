@@ -534,3 +534,11 @@ Access-log finding은 `metadata.findings` 아래의 bounded structured observati
   `HIGH_ERROR_SERVICE_EDGE`.
 
 Finding은 stable `code`, `severity`, 짧은 `message`, 작은 structured `evidence`를 포함해야 한다.
+
+### 프로파일러 순서 지정 정규식 검증
+
+순서 지정 정규식 필터는 스택 탐색 전에 전체 패턴의 제한을 검사하고 각 항을 한 번씩
+컴파일합니다. 입력에서 도달할 수 없는 항도 검증합니다. 잘못되거나 제한을 넘는
+포함·제외 필터는 `INVALID_REGEX` 또는 `UNSAFE_REGEX` 진단과 빈 단계를 반환합니다.
+정상적인 0건 결과나 필터가 적용되지 않은 제외 결과로 오인하지 않도록 하며,
+기존 순서·대소문자·루트 재설정 규칙은 유지합니다.

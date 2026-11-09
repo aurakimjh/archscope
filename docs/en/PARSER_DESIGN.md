@@ -476,3 +476,11 @@ Access-log findings are bounded structured observations under `metadata.findings
 - `HIGH_ERROR_SERVICE_EDGE` when an inferred caller-to-upstream service edge has elevated HTTP errors.
 
 Findings must include a stable `code`, `severity`, short `message`, and small structured `evidence`.
+
+### Ordered profiler regex validation
+
+Ordered regex filters validate the complete pattern budget and compile every
+term once before traversing stacks, including terms no input can reach.
+Invalid or unsafe include/exclude filters return an empty stage with
+`INVALID_REGEX` or `UNSAFE_REGEX`, never a valid-looking zero-match result or
+an unfiltered exclude result. Existing order, case, and reroot rules are retained.

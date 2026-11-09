@@ -40,7 +40,7 @@
 //     overly long pattern 은 컴파일 메모리 폭증 가능 → 500자 cap.
 //   • nestedQuantifierGuard 는 Python 측이 잡아내는 패턴과 동일한
 //     "위험 패턴" 을 거부해 byte-level 동등성 유지.
-//   • ordered 모드의 regex 는 term 별 lazy 컴파일 (frameMatchesTerm 안).
+//   • ordered 정규식도 탐색 전에 모든 항을 한 번씩 검증·컴파일합니다.
 //   • reroot_at_match 는 include 류에서만 의미있음. exclude 에 적용해도
 //     아무 의미 없음(매치된 부분이 아예 없으니).
 // ─────────────────────────────────────────────────────────────────────
@@ -280,7 +280,7 @@ type filteredPath struct {
 // matchedIndex 는 매치된 frame 의 인덱스 (-1 이면 매치 없음).
 // exclude 류는 매치 여부 반전. ViewMode=reroot_at_match + include 류 인 경우
 // path 를 매치 위치부터 잘라 새 root 를 생성(시각적으로 그 부분만 남는다).
-func iterFilteredPaths(root FlameNode, filter DrilldownFilter, compiled *regexp.Regexp) []filteredPath {
+func iterFilteredPaths(root FlameNode, filter DrilldownFilter, compiled *compiledFilter) []filteredPath {
 	out := []filteredPath{}
 	for _, leaf := range iterLeafPaths(root) {
 		matched := matchedIndex(leaf.Path, filter, compiled)
@@ -301,7 +301,7 @@ func iterFilteredPaths(root FlameNode, filter DrilldownFilter, compiled *regexp.
 	return out
 }
 
-func matchedIndex(path []string, filter DrilldownFilter, compiled *regexp.Regexp) int {
+func matchedIndex(path []string, filter DrilldownFilter, compiled *compiledFilter) int {
 	if filter.MatchMode == "ordered" {
 		return orderedMatchIndex(path, filter, compiled)
 	}
@@ -312,7 +312,7 @@ func matchedIndex(path []string, filter DrilldownFilter, compiled *regexp.Regexp
 // terms 가 path 위에서 순서대로 등장해야 매치. 첫 매치 frame 의 인덱스를 반환.
 // 예) pattern "Controller>Service>DAO" 는 path 에 그 셋이 순서 보존되어
 // 등장하는 경우만 매치 → MSA 호출 흐름 매칭에 유용.
-func orderedMatchIndex(path []string, filter DrilldownFilter, compiled *regexp.Regexp) int {
+func orderedMatchIndex(path []string, filter DrilldownFilter, compiled *compiledFilter) int {
 	terms := splitTerms(filter.Pattern)
 	if len(terms) == 0 {
 		return -1
@@ -320,7 +320,11 @@ func orderedMatchIndex(path []string, filter DrilldownFilter, compiled *regexp.R
 	startIndex := -1
 	termIndex := 0
 	for frameIndex, frame := range path {
-		if frameMatchesTerm(frame, terms[termIndex], filter, compiled) {
+		var termRegex *regexp.Regexp
+		if compiled != nil {
+			termRegex = compiled.ordered[termIndex]
+		}
+		if frameMatchesTerm(frame, terms[termIndex], filter, termRegex) {
 			if startIndex < 0 {
 				startIndex = frameIndex
 			}
@@ -333,9 +337,13 @@ func orderedMatchIndex(path []string, filter DrilldownFilter, compiled *regexp.R
 	return -1
 }
 
-func firstMatchingFrame(path []string, filter DrilldownFilter, compiled *regexp.Regexp) int {
+func firstMatchingFrame(path []string, filter DrilldownFilter, compiled *compiledFilter) int {
 	for index, frame := range path {
-		if frameMatchesTerm(frame, filter.Pattern, filter, compiled) {
+		var wholeRegex *regexp.Regexp
+		if compiled != nil {
+			wholeRegex = compiled.whole
+		}
+		if frameMatchesTerm(frame, filter.Pattern, filter, wholeRegex) {
 			return index
 		}
 	}
@@ -344,18 +352,7 @@ func firstMatchingFrame(path []string, filter DrilldownFilter, compiled *regexp.
 
 func frameMatchesTerm(frame, pattern string, filter DrilldownFilter, compiled *regexp.Regexp) bool {
 	if filter.FilterType == "regex_include" || filter.FilterType == "regex_exclude" {
-		patternToUse := compiled
-		if filter.MatchMode == "ordered" {
-			candidate, diag := compileRegex(pattern, filter)
-			if diag != nil {
-				return false
-			}
-			patternToUse = candidate
-		}
-		if patternToUse == nil {
-			return false
-		}
-		return patternToUse.MatchString(frame)
+		return compiled != nil && compiled.MatchString(frame)
 	}
 	if filter.CaseSensitive {
 		return strings.Contains(frame, pattern)
@@ -376,18 +373,41 @@ func splitTerms(pattern string) []string {
 	return out
 }
 
-// [한글] compileFilter — 필터의 regex 를 미리 컴파일(가능하면).
-// regex 가 아니면 nil/nil. ordered 모드의 regex 는 term 별 lazy 컴파일을
-// 위해 여기서 nil 만 반환하고, frameMatchesTerm 안에서 term 별 compileRegex.
-func compileFilter(filter DrilldownFilter) (*regexp.Regexp, *filterDiagnostic) {
+type compiledFilter struct {
+	whole   *regexp.Regexp
+	ordered []*regexp.Regexp
+}
+
+// compileFilter validates every regex term before examining any stack. This
+// also reports errors in unreachable terms and empty input without silently
+// turning an invalid include/exclude into an ordinary match result.
+func compileFilter(filter DrilldownFilter) (*compiledFilter, *filterDiagnostic) {
 	if filter.FilterType != "regex_include" && filter.FilterType != "regex_exclude" {
 		return nil, nil
 	}
-	if filter.MatchMode == "ordered" {
-		// Each term is compiled lazily inside frameMatchesTerm.
-		return nil, nil
+	if filter.MatchMode != "ordered" {
+		regex, diag := compileRegex(filter.Pattern, filter)
+		if diag != nil {
+			return nil, diag
+		}
+		return &compiledFilter{whole: regex}, nil
 	}
-	return compileRegex(filter.Pattern, filter)
+	if isUnsafeRegexPattern(filter.Pattern) {
+		return nil, &filterDiagnostic{Reason: "UNSAFE_REGEX", Message: "Ordered regex exceeds the pattern budget or contains a disabled nested quantifier."}
+	}
+	terms := splitTerms(filter.Pattern)
+	if len(terms) == 0 {
+		return nil, &filterDiagnostic{Reason: "INVALID_REGEX", Message: "Ordered regex requires at least one term."}
+	}
+	out := &compiledFilter{}
+	for _, term := range terms {
+		regex, diag := compileRegex(term, filter)
+		if diag != nil {
+			return nil, diag
+		}
+		out.ordered = append(out.ordered, regex)
+	}
+	return out, nil
 }
 
 func compileRegex(pattern string, filter DrilldownFilter) (*regexp.Regexp, *filterDiagnostic) {

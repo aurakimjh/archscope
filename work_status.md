@@ -8,7 +8,7 @@ The previous long-form history was archived to
 
 ## Status Overview
 
-**Overall: 178 of 180 tracked tasks are `DONE` (98.9%).** The 2026-11-09
+**Overall: 179 of 180 tracked tasks are `DONE` (99.4%).** The 2026-11-09
 GC/profiler revalidation confirmed five bugs (T-589 through T-593). Their
 current implementation status is recorded in the registry and snapshot below;
 T-557 remains trigger-dependent `PENDING`.
@@ -213,11 +213,11 @@ completed the independent Lighthouse file-first engine slice.
 
 | Status | Count | Meaning |
 |---|---:|---|
-| `TODO` | 1 | Ready to start; prerequisites are satisfied |
+| `TODO` | 0 | Ready to start; prerequisites are satisfied |
 | `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
 | `REVIEW` | 0 | Review or required remediation is underway; the gate has not passed |
 | `PENDING` | 1 | Waiting for a prerequisite, external condition, or activation trigger |
-| `DONE` | 178 | Completion criteria and required review gates have passed |
+| `DONE` | 179 | Completion criteria and required review gates have passed |
 
 The normal transition is `TODO → IN_PROGRESS → REVIEW → DONE`. A `PENDING`
 task returns to `TODO` when its dependency or trigger is satisfied. Task status
@@ -229,8 +229,7 @@ same change so this overview remains the status source of truth.
 
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
-| 1 | T-593 | P2 | `TODO` | Validate ordered regex terms once and surface invalid/unsafe patterns consistently |
-| 2 | T-557 | P1 | `PENDING` | Activate only if repeated MSA drilldown use justifies a Go analyzer contract |
+| 1 | T-557 | P1 | `PENDING` | Activate only if repeated MSA drilldown use justifies a Go analyzer contract |
 
 ## Current Baseline
 
@@ -243,8 +242,10 @@ same change so this overview remains the status source of truth.
 - Release baseline: `v0.3.5` is the latest stable GitHub release. The
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
-- Current execution focus: the confirmed GC/profiler bugs T-589 through T-593,
-  ordered above. On 2026-11-09 the user assigned all five fixes, including UI,
+- Current execution focus: T-589 through T-593 are DONE after task-specific
+  regressions, final local source review, and whole-engine/frontend validation.
+  No active bug TO-DO remains from this audit; choose the next roadmap objective
+  separately, with T-557 still waiting on its original usage trigger. On 2026-11-09 the user assigned all five fixes, including UI,
   to Codex and requested one commit per completed task, followed by a push only
   after all five are complete. This overrides the prior UI ownership for these
   five fixes only. T-587 and T-588
@@ -641,25 +642,25 @@ filtered before analysis.
 
 ## Next Execution Queue
 
-1. **T-589 (DONE; P1, Codex engine / Claude UI):** repair GC time extraction and
+1. **T-589 (DONE; P1, Codex engine and UI):** repair GC time extraction and
    measurement availability. Define the observation window before changing
    throughput/rate arithmetic, then align absolute versus elapsed chart axes.
-2. **T-590 (DONE; P1, Claude UI):** preserve inclusive and self sample accounting in
+2. **T-590 (DONE; P1, Codex UI):** preserve inclusive and self sample accounting in
    the shared Canvas flamegraph. Verify ordinary prefix stacks independently of
    pruning, then cover the pruned/hidden-weight representation with T-591.
-3. **T-591 (DONE; P1, Codex engine/contracts / Claude UI disclosure):** apply
+3. **T-591 (DONE; P1, Codex engine/contracts and UI):** apply
    drilldown filters to canonical evidence before bounded display pruning.
    Preserve the node/payload limits and distinguish hidden descendants from
    actual self samples; do not solve this by disabling memory guards.
-4. **T-592 (DONE; P1, Codex engine/contracts/export / Claude UI):** establish explicit
+4. **T-592 (DONE; P1, Codex engine/contracts/export and UI):** establish explicit
    counter-unit and aggregation provenance for legacy profiles before deriving
    durations. Keep the existing typed V8/profile-evidence units intact.
-5. **T-593 (P2, Codex engine):** prevalidate/precompile ordered regex terms and
+5. **T-593 (DONE; P2, Codex engine):** prevalidate/precompile ordered regex terms and
    return the same diagnostics as the non-ordered path. This is independent of
    the P1 fixes and can be implemented without changing filter semantics.
 
-The five tasks are independent; DONE entries above are closure records, and
-remaining open entries retain their displayed priority. This user-requested fix
+All five tasks above are DONE closure records. No active bug implementation
+remains from this audit; T-557 retains its original external usage trigger. This user-requested fix
 cycle uses targeted regressions, relevant engine/frontend checks, and a local
 source review for closure; no independent-review or platform-E2E verdict is
 claimed. Prior independently reviewed release gates retain their own scope. T-557 remains
@@ -905,7 +906,7 @@ Long Task semantics).
 
 | Review | Decision | Follow-up |
 |---|---|---|
-| 2026-11-09 GC / flamegraph bug revalidation requested by the user | Confirmed five actionable correctness/diagnostic bugs through source tracing and local synthetic probes. Narrowed the lock finding to counter-unit/aggregation provenance; retained peak-preserving downsampling and unexecuted UI lifecycle concerns outside the confirmed-bug queue. No implementation or independent closure review performed. | T-589 through T-593 are `TODO`; reproduction, acceptance criteria, ownership, and deferred candidates are recorded in the active execution queue. |
+| 2026-11-09 GC / flamegraph bug revalidation and requested implementation | Five confirmed bugs implemented by Codex under the user's explicit end-to-end assignment. Local regression/source review passed; independent reviewer, actual desktop E2E and fresh Windows evidence were not claimed. Optional downsampling and unexecuted lifecycle concerns remain separate. | T-589 through T-593 are `DONE`; original reproduction and current validation remain traceable in this file. |
 | 2026-05-16 mid-term roadmap review P0-1 through P0-6 | Accepted | T-452 through T-457 |
 | P1-7 UI-heavy derived analysis and P1-8 AnalysisResult drift | Accepted as phased remediation, not a single rewrite | T-458, T-459 |
 | P1-9 exporter recomputes analysis | Accepted | T-460 |
@@ -1031,7 +1032,7 @@ deferred until explicitly promoted.
 | T-590 | P1 | DONE | Preserve internal-frame self samples in the shared Canvas flamegraph so totals, widths, tooltips, and search use the original inclusive weights without double counting. | None; coordinate hidden-weight fixtures with T-591 | Completed 2026-11-09: Canvas derives self weights from inclusive nodes; shared layout/search helpers preserve prefix-stack totals and union recursive matches. Prefix, leaf, recursion, focus/search and synthetic-hidden-weight regressions plus frontend state suite/build passed; local source review completed. |
 | T-591 | P1 | DONE | Apply profiler drilldown filters to canonical evidence before display pruning; conserve/disclose omitted subtree weight while keeping every result stage within node/payload limits. | None; coordinate Canvas accounting with T-590 | Completed 2026-11-09: filters consume canonical Go-only evidence before each bounded display stage; pruning preserves explicit hidden-descendant weight without mutating later filter input. Service tests verify rare=10 at node budgets 1, 3 and 100; profiler budget/accounting tests, app tests, generated Wails bindings and frontend state/build passed; local source review completed. |
 | T-592 | P1 | DONE | Resolve legacy profile counter-unit and sample-count/total-metric provenance before converting lock weights to durations; keep summary, drilldown, and pprof export units consistent and disclose insufficient provenance. | None; source-unit contract must precede binding/UI changes within this task | Completed 2026-11-09: explicit counter units and aggregation provenance; known time weights convert directly, lock counts and unknown/non-time weights emit nullable durations. Summary, timeline, drilldown, Canvas labels and pprof agree. Unit/pprof-file tests, real CLI invocation, Wails propagation, CPU/wall/V8 regressions, generated bindings and frontend state/build passed; local semantic review completed. |
-| T-593 | P2 | TODO | Prevalidate and precompile every ordered-regex term; propagate INVALID_REGEX/UNSAFE_REGEX consistently instead of silently returning no matches or accepting invalid excludes. | None; existing filter behavior and RE2 guards | Pending: include/exclude, invalid/unreachable/oversized term regressions and unchanged ordered/reroot semantics; Codex engine scope. The anywhere-error/ordered-no-diagnostic contrast was reconfirmed 2026-11-09. |
+| T-593 | P2 | DONE | Prevalidate and precompile every ordered-regex term; propagate INVALID_REGEX/UNSAFE_REGEX consistently instead of silently returning no matches or accepting invalid excludes. | None; existing filter behavior and RE2 guards | Completed 2026-11-09: validates the full ordered-regex budget and precompiles every term before traversal; invalid or unsafe include/exclude filters emit diagnostics even on unreachable terms and empty input. Ordered/case/reroot/exclude regressions passed. Whole Go test suite, vet/build and frontend state/build passed; local source review completed. |
 | T-577 | P0 | DONE | Read the Chrome/V8 and system HTTP-capture designs and completed reviews, reconcile them with current code, and publish a paired English/Korean implementation plan with Codex engine ownership, Claude UI ownership, grouped review gates, and narrowly scoped individual security/semantic reviews. | T-558 through T-576 | Completed 2026-07-21: paired `BROWSER_PROFILE_HTTP_CAPTURE_IMPLEMENTATION_PLAN.md`; stale T-565 documentation status corrected; work status and execution queue aligned |
 | T-578 | P0 | DONE | Resolve the C-RG1 `CONDITIONAL` verdict and obtain independent re-review `PASS`. Codex A-E: reconcile the time-attribution contract with real Chrome semantics and add an exact convention-pinning golden plus tail handling; emit separate recording/active/idle/sampled durations without conflating `total_duration_us`; add Chrome-trace negative-delta diagnostic fixture/parity and hitCount cross-check; make first-sample handling independent of `startTime`. Claude U1-U5: render engine diagnostics and explicit suppressed/aggregated timeline states; add flamegraph/drilldown; expose `.json.gz`; add empty-state/i18n/table a11y; add Browser CPU regression tests for diagnostics, suppression, and the non-Long-Task wording. | T-565, T-577 | Completed 2026-07-21. Codex A-E landed in `5db8df8`, `ed01dd0`, `7b24206`, `40c6bde`, and `3249c27`; Claude U1-U5 landed in `b023040`; shared exact/negative-trace fixtures are in projects-assets `de7cf07` and `5531036`. Independent re-review at `b023040` returned `PASS` after verifying all ten findings, 16-fixture goldens, engine tests, frontend state tests, EN/KO i18n parity, `go vet`, and full builds. H-RG1/T-579 is unblocked. |
 | T-579 | P0 | DONE | Complete and review H-RG1 offline HAR analysis. Codex: canonical transaction/timing/fidelity model, staged dialect normalizer, resource limits, shared manifest goldens, dedicated redaction, bounded result and CLI/Wails parity. Claude: pseudo-process tree, timeline/brush, list/detail/filter, fidelity/diagnostics/redaction UX and Workspace regression. | T-578 PASS; T-568 through T-573 | Completed 2026-07-21 with integrated `PASS`. Engine remediation and H-SEC1 re-reviews are `PASS`; all 20 manifest fixtures, bounded/redacted `AnalysisResult`, CLI/Wails parity, and UI import-only behavior are retained. UI R1 was accepted under the disclosed bounded Phase 1 denominator contract; R2 was accepted from populated state, provenance/Workspace, type, and production-build evidence with deeper component fixtures left as non-blocking hardening. Full `go test ./...`, `go vet ./...`, `go build ./...`, frontend `npm run test:state`, and frontend `npm run build` pass. |
@@ -1209,6 +1210,16 @@ deferred until explicitly promoted.
 | T-555 | P2 | DONE | Update English/Korean docs, examples, and support matrix for architecture docs and advanced stitching work. | T-543 through T-554 | Completed 2026-05-17: updated data model, parser design, roadmap, importer matrix, and stitching examples |
 
 ## Verification Notes
+
+- 2026-11-09 fix-cycle integration passed `go test ./...`, `go vet ./...`,
+  `go build ./...`, frontend `npm run test:state`, and production `npm run build`.
+  Native macOS linking retains the existing SDK-versus-deployment-target
+  warning; all commands exited successfully. Evidence covers local tests and
+  builds, not actual desktop interaction, fresh Windows E2E or an independent
+  review verdict. The final source review also added a passing partial-uptime
+  regression so GC rates use one common clock throughout each result; the
+  complete validation set passed again after that change. Task-specific closure
+  details are in T-589 through T-593.
 
 - 2026-11-09 GC/profiler revalidation: uncached
   `go test -count=1 ./internal/parsers/gclog ./internal/analyzers/gclog ./internal/profiler`
