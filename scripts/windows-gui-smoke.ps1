@@ -32,7 +32,7 @@ Write-Host "Starting GUI smoke target: $ExePath"
 Write-Host "Working directory: $workDir"
 Write-Host "Binary size: $($item.Length) bytes"
 
-$process = Start-Process -FilePath $ExePath -WorkingDirectory $workDir -PassThru
+$process = Start-Process -FilePath $ExePath -WorkingDirectory $workDir -WindowStyle Hidden -PassThru
 
 try {
     $deadline = (Get-Date).AddSeconds($StartupSeconds)

@@ -245,6 +245,24 @@ same change so this overview remains the status source of truth.
 | 14 | T-613 | P3 | `PENDING` | Verify complete Stand-alone parity on Windows |
 | 15 | T-557 | P1 | `PENDING` | Promote the Jennifer MSA drilldown calculation from UI projection to a Go analyzer contract if repeated use shows it should be exported/reported outside the desktop page. |
 
+### Local Windows validation (2026-11-09)
+
+The Windows checkout was fast-forwarded from `d348bcb` to `a9896c3` (12
+commits) with no conflicts; the pre-existing untracked `.tmp/` was preserved.
+Native Go test/vet/build, frontend state/build, the pinned-Wails Windows build,
+and 15-second GUI startup smoke passed. A new native two-client regression
+confirms single/multiple PID-plus-start-time selection through persistence.
+Resolver measurement confirmed 50/50 samples (mean 3.314 ms, p95 6.116 ms).
+The sandboxed failures were rechecked outside the sandbox and passed.
+
+**T-603 remains `TODO`:** the native app renders, but this machine's existing
+crash-dump policy disables body capture and its safety acknowledgment remains
+for direct user operation. Running-screen Headers/Body inspection and the
+stop/reopen desktop sequence are not certified. Local race execution also
+requires a C toolchain that is not installed. Counts and prerequisite states
+are unchanged. Full commands, limits and native screenshot:
+[`2026-11-09-windows-local`](docs/review/evidence/2026-11-09-windows-local/README.md).
+
 ## Current Baseline
 
 - Active product: unified Go/Wails desktop implementation under

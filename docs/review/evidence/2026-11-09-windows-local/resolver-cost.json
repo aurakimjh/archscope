@@ -1,0 +1,14 @@
+{
+  "schema_version": "archscope.resolver-cost.v1",
+  "os": "windows",
+  "architecture": "amd64",
+  "connection_scope": "accepted_loopback_tcp_connection",
+  "owner_table_reads_per_sample": 2,
+  "samples": 50,
+  "confirmed_samples": 50,
+  "mean_ms": 3.314,
+  "p50_ms": 2.856,
+  "p95_ms": 6.116,
+  "max_ms": 7.411,
+  "acceptance_policy": "measurement_only_no_predeclared_product_slo"
+}
