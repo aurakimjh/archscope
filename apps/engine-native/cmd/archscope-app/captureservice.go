@@ -185,6 +185,22 @@ func (s *CaptureService) FetchCaptureTransactions(request CaptureFetchRequest) (
 	return s.manager.Fetch(capture.SessionID(request.SessionID), request.Filter, request.Cursor, request.Limit)
 }
 
+// GetCaptureTransaction reads one redacted, persisted exchange while recording
+// continues. Payloads remain outside the live ring and event stream.
+func (s *CaptureService) GetCaptureTransaction(sessionID, transactionID string) (*models.CaptureTransaction, error) {
+	if sessionID == "" || transactionID == "" {
+		return nil, fmt.Errorf("session and transaction IDs are required")
+	}
+	page, err := s.manager.Fetch(capture.SessionID(sessionID), store.Filter{TransactionID: transactionID}, "", 1)
+	if err != nil {
+		return nil, err
+	}
+	if len(page.Items) == 0 {
+		return nil, nil
+	}
+	return &page.Items[0].Transaction, nil
+}
+
 func (s *CaptureService) GetCaptureSnapshot(sessionID string) (aggregate.Snapshot, error) {
 	return s.manager.Snapshot(capture.SessionID(sessionID))
 }

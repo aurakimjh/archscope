@@ -1,3 +1,4 @@
+import type { CaptureHTTPMessage, CaptureTimingSet, HttpCaptureTransactionRow } from "../bridge/types";
 /**
  * Renderer half of the live-capture contract the engine publishes through
  * `CaptureService.GetLiveCaptureContract` (`capture.LiveCaptureContract`).
@@ -779,4 +780,44 @@ export function activeUnattributedPolicy(
     return session?.retainUnattributedMetadata === true;
   }
   return pendingChoice;
+}
+
+
+// The live transport uses the canonical camelCase exchange. The shared grid
+// uses analyzer rows. Keep conversion at this boundary, including process identity.
+export type LiveCaptureExchange = LiveCaptureTransaction & {
+  connectionId?: string;
+  startedAt?: string;
+  endedAt?: string;
+  query?: string;
+  scheme?: string;
+  usedExistingConnection?: boolean;
+  observationPoint?: string;
+  request?: CaptureHTTPMessage;
+  response?: CaptureHTTPMessage;
+  timings?: CaptureTimingSet;
+};
+
+export function liveAnalyzerRow(tx: LiveCaptureExchange): HttpCaptureTransactionRow {
+  const emptyMessage: CaptureHTTPMessage = {
+    headers: [], cookies: [], headerSize: 0, bodySize: 0, bodyDecoded: 0,
+    transferSize: 0, bodyStorage: "omitted",
+  };
+  return {
+    id: tx.id, sequence: tx.sequence, connection_id: tx.connectionId ?? "",
+    started_at: tx.startedAt ?? "", ended_at: tx.endedAt ?? "",
+    method: tx.method, url: tx.url, host: tx.host, path: tx.path, query: tx.query,
+    status: tx.statusCode, status_text: tx.statusText ?? "", state: tx.state,
+    http_version: tx.httpVersion, duration_ms: tx.totalMs,
+    request_bytes: tx.request?.transferSize ?? 0, response_bytes: tx.response?.transferSize ?? 0,
+    used_existing_connection: tx.usedExistingConnection ?? false,
+    capture_mode: tx.captureMode, coverage: tx.coverage, fidelity: tx.fidelity,
+    observation_point: tx.observationPoint, error: tx.error,
+    request: tx.request ?? emptyMessage, response: tx.response ?? emptyMessage,
+    timings: tx.timings ?? {},
+    process: tx.process ? {
+      pid: tx.process.key.pid, start_time: tx.process.key.startTime,
+      name: tx.process.name, exec_path: tx.process.execPath, attribution: tx.process.attribution,
+    } : null,
+  };
 }

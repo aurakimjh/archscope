@@ -3000,3 +3000,13 @@ assert(profileWeightUnit("nanoseconds") === "ns" && profileWeightUnit("bytes") =
 for (const key of ["profileCounterUnit","profileUnitAuto","profileUnitUnknown","profileWeight","profileDurationUnavailable"] as const) {
  assert(Boolean(messages.en[key]) && Boolean(messages.ko[key]), "profile counter contract localized");
 }
+
+import { liveAnalyzerRow } from "./liveHttpCapture.js";
+const selectedLiveRow = liveAnalyzerRow({
+  id:"selected-live", sequence:1, method:"GET", url:"http://example.test/one",
+  host:"example.test", path:"/one", statusCode:200, httpVersion:"HTTP/1.1",
+  state:"complete", totalMs:12, captureMode:"proxy_mitm", coverage:"confirmed", fidelity:"semantic",
+  process:{key:{pid:7,startTime:"2026-11-09T00:00:00Z"},name:"client.exe",attribution:"confirmed"},
+});
+assert(selectedLiveRow.process?.pid === 7 && selectedLiveRow.process.start_time !== "", "live adapter must preserve process instance identity");
+assert(selectedLiveRow.request.bodyStorage === "omitted", "absent live payload must not claim retained content");

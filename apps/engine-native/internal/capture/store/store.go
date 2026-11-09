@@ -105,11 +105,12 @@ type CaptureCheckpoint struct {
 }
 
 type Filter struct {
-	Host       string `json:"host,omitempty"`
-	Method     string `json:"method,omitempty"`
-	StatusCode int    `json:"statusCode,omitempty"`
-	ProcessID  int32  `json:"processId,omitempty"`
-	ErrorsOnly bool   `json:"errorsOnly,omitempty"`
+	TransactionID string `json:"transactionId,omitempty"`
+	Host          string `json:"host,omitempty"`
+	Method        string `json:"method,omitempty"`
+	StatusCode    int    `json:"statusCode,omitempty"`
+	ProcessID     int32  `json:"processId,omitempty"`
+	ErrorsOnly    bool   `json:"errorsOnly,omitempty"`
 }
 
 type Page struct {
@@ -552,6 +553,9 @@ func (s *Store) Fetch(filter Filter, opaque string, limit int) (Page, error) {
 }
 
 func matches(tx models.CaptureTransaction, f Filter) bool {
+	if f.TransactionID != "" && tx.ID != f.TransactionID {
+		return false
+	}
 	if f.Host != "" && !strings.EqualFold(tx.Host, f.Host) {
 		return false
 	}

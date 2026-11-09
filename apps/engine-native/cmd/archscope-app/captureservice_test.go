@@ -288,3 +288,45 @@ func TestT581LiveCaptureAcceptanceFixture(t *testing.T) {
 		t.Fatalf("store=%+v", fixture.Store)
 	}
 }
+
+// Reading selected detail must not stop recording or return an adjacent row.
+func TestCaptureServiceSelectedExchangeDuringCapture(t *testing.T) {
+	service := newCaptureServiceForPlatform(t.TempDir(), certstore.New(memoryTrustBackend{}, nil), "windows")
+	started, err := service.StartCapture(capture.Config{ListenAddress: "127.0.0.1:0", RetainUnattributedMetadata: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer service.StopCapture(string(started.ID))
+	origin := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Audit", r.URL.Path)
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer origin.Close()
+	u, _ := url.Parse("http://" + started.ListenAddress)
+	tr := &http.Transport{Proxy: http.ProxyURL(u)}
+	defer tr.CloseIdleConnections()
+	client := &http.Client{Transport: tr}
+	for _, path := range []string{"/one", "/two"} {
+		res, e := client.Get(origin.URL + path)
+		if e != nil {
+			t.Fatal(e)
+		}
+		res.Body.Close()
+	}
+	page, err := service.FetchCaptureTransactions(CaptureFetchRequest{SessionID: string(started.ID)})
+	if err != nil || len(page.Items) != 2 {
+		t.Fatalf("page=%+v err=%v", page, err)
+	}
+	want := page.Items[0].Transaction
+	got, err := service.GetCaptureTransaction(string(started.ID), want.ID)
+	if err != nil || got == nil || got.Path != "/one" {
+		t.Fatalf("selected=%+v err=%v", got, err)
+	}
+	missing, err := service.GetCaptureTransaction(string(started.ID), "absent")
+	if err != nil || missing != nil {
+		t.Fatalf("missing=%+v err=%v", missing, err)
+	}
+	if service.GetCurrentCaptureSession().State != capture.StateRunning {
+		t.Fatal("detail stopped recording")
+	}
+}

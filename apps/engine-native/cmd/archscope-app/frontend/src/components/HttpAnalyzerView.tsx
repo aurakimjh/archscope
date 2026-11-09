@@ -144,6 +144,8 @@ export type HttpAnalyzerViewProps = {
   /** True when the engine bounded the row list; drives the truncation note. */
   bounded?: boolean;
   boundedNote?: string;
+  selectedDetail?: HttpCaptureTransactionRow | null;
+  follow?: boolean;
 };
 
 export function HttpAnalyzerView({
@@ -161,6 +163,8 @@ export function HttpAnalyzerView({
   onSelect,
   bounded = false,
   boundedNote,
+  selectedDetail,
+  follow = false,
 }: HttpAnalyzerViewProps): React.JSX.Element {
   const { t } = useI18n();
   const [sort, setSort] = useState<GridSort>(defaultGridSort);
@@ -171,8 +175,8 @@ export function HttpAnalyzerView({
   const span = useMemo(() => sessionSpan(rows), [rows]);
   const breakdown = useMemo(() => resourceKindBreakdown(transactions), [transactions]);
   const selected = useMemo(
-    () => rows.find((row) => row.id === selectedId) ?? null,
-    [rows, selectedId],
+    () => (selectedDetail?.id === selectedId ? selectedDetail : rows.find((row) => row.id === selectedId)) ?? null,
+    [rows, selectedId, selectedDetail],
   );
 
   const onSort = useCallback(
@@ -185,7 +189,7 @@ export function HttpAnalyzerView({
       className={
         maximized
           ? "fixed inset-0 z-50 flex flex-col bg-background p-3"
-          : "flex h-[78dvh] min-h-[520px] flex-col rounded-lg border border-border bg-card"
+          : "flex h-[calc(100dvh-230px)] min-h-[420px] flex-col rounded-lg border border-border bg-card"
       }
       aria-label={t("httpAnalyzerTitle")}
     >
@@ -221,6 +225,7 @@ export function HttpAnalyzerView({
         sort={sort}
         onSort={onSort}
         selectedId={selectedId}
+        follow={follow}
         onSelect={onSelect}
         t={t}
       />
@@ -492,6 +497,7 @@ function TransactionGrid({
   sort,
   onSort,
   selectedId,
+  follow,
   onSelect,
   t,
 }: {
@@ -500,6 +506,7 @@ function TransactionGrid({
   sort: GridSort;
   onSort: (column: SortColumn) => void;
   selectedId: string | null;
+  follow: boolean;
   onSelect: (id: string) => void;
   t: Translate;
 }): React.JSX.Element {
@@ -519,6 +526,12 @@ function TransactionGrid({
     observer.observe(element);
     return () => observer.disconnect();
   }, []);
+
+  useEffect(() => {
+    if (follow && !selectedId && scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [rows, follow, selectedId]);
 
   const start = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - OVERSCAN);
   const end = Math.min(rows.length, Math.ceil((scrollTop + viewport) / ROW_HEIGHT) + OVERSCAN);

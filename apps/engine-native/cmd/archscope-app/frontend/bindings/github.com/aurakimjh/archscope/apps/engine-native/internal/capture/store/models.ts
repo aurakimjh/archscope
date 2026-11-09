@@ -10,6 +10,7 @@ import { Create as $Create } from "@wailsio/runtime";
 import * as models$0 from "../../models/models.js";
 
 export class Filter {
+    "transactionId"?: string;
     "host"?: string;
     "method"?: string;
     "statusCode"?: number;

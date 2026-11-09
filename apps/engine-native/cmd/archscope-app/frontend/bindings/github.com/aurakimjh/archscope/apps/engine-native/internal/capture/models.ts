@@ -54,8 +54,9 @@ export class LiveCaptureContract {
 
     /**
      * BodyCaptureAvailable tells the renderer whether to offer the opt-in at
-     * all. BodyCaptureGate names the capability gate the preflight established.
-     * The renderer must not infer either from the absence of body previews.
+     * all. BodyCaptureGate names the capability gate; while it is pending,
+     * startable sessions record the disabled policy instead. The renderer must
+     * not infer either from the absence of body previews.
      */
     "bodyCaptureAvailable": boolean;
     "bodyCaptureGate": string;

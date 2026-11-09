@@ -1,10 +1,10 @@
+import { LiveHttpAnalyzer } from "./LiveHttpAnalyzer";
 import { Events } from "@wailsio/runtime";
 import {
   AlertTriangle,
   CircleStop,
   Loader2,
   Play,
-  RotateCcw,
   ShieldCheck,
   ShieldOff,
 } from "lucide-react";
@@ -13,7 +13,6 @@ import {
   useEffect,
   useMemo,
   useReducer,
-  useRef,
   useState,
 } from "react";
 
@@ -27,33 +26,22 @@ import {
   activeUnattributedPolicy,
   bodyGateReasonLabel,
   buildLiveCoverageDisclosure,
-  buildLiveProcessGroups,
-  countLiveInFlight,
   initialLiveCaptureState,
   isLiveSessionActive,
-  isLiveTransactionInFlight,
-  liveFidelityTone,
   liveHttpCaptureReducer,
-  resolveLiveAttribution,
   resolveLiveCAState,
-  resolveLiveFidelity,
   resolveLiveSessionState,
   resolveLiveCaptureContract,
-  resolveLiveTransactionState,
-  type LiveAttributionToken,
   type LiveCAStateToken,
   type LiveCaptureSession,
   type LiveCaptureStats,
   type LiveCaptureTransaction,
-  type LiveFidelityToken,
-  type LiveFidelityTone,
   type LiveProgressEvent,
   type LiveSessionStateToken,
-  type LiveTransactionStateToken,
   type LiveTransactionsEvent,
 } from "@/state/liveHttpCapture";
 import { formatBytes } from "@/state/httpCapture";
-import { formatMilliseconds, formatNumber } from "@/utils/formatters";
+import { formatNumber } from "@/utils/formatters";
 import * as CaptureService from "../../bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/captureservice";
 
 type Mode = {
@@ -88,39 +76,18 @@ type LiveHttpCapturePanelProps = {
  * unrecognized engine value to `unknown`, so an unexpected grade degrades to
  * "not yet determined" instead of a reassuring string (H-RG4 L1).
  */
-const FIDELITY_LABEL_KEYS: Record<LiveFidelityToken, MessageKey> = {
-  pending: "liveCaptureFidelityPending",
-  decoded_wire: "liveCaptureFidelityDecodedWire",
-  semantic: "liveCaptureFidelitySemantic",
-  unsupported: "liveCaptureFidelityUnsupported",
-  passthrough: "liveCaptureFidelityPassthrough",
-  unknown: "liveCaptureFidelityUnknown",
-};
 
 /**
  * A grade that does not assert ArchScope read the exchange must not be styled
  * like ordinary captured traffic, so the caution emphasis is derived from
  * `liveFidelityTone` rather than from the label text (H-RG4 R9).
  */
-const FIDELITY_TONE_CLASSES: Record<LiveFidelityTone, string> = {
-  decoded: "",
-  pending: "text-muted-foreground",
-  limited: "text-amber-700 dark:text-amber-400",
-};
 
 /**
  * Raw engine enums the panel prints. Rendering the wire token left these cells
  * untranslated in both locales (H-RG4 R11); every token now resolves through a
  * closed map, and anything unrecognized says so instead of leaking the token.
  */
-const TX_STATE_LABEL_KEYS: Record<LiveTransactionStateToken, MessageKey> = {
-  request_sent: "liveCaptureTxStateRequestSent",
-  receiving: "liveCaptureTxStateReceiving",
-  complete: "liveCaptureTxStateComplete",
-  failed: "liveCaptureTxStateFailed",
-  aborted: "liveCaptureTxStateAborted",
-  unknown: "liveCaptureTxStateUnknown",
-};
 
 const SESSION_STATE_LABEL_KEYS: Record<LiveSessionStateToken, MessageKey> = {
   created: "liveCaptureSessionStateCreated",
@@ -144,11 +111,6 @@ const CA_STATE_LABEL_KEYS: Record<LiveCAStateToken, MessageKey> = {
   unknown: "liveCaptureCAStateUnknown",
 };
 
-const ATTRIBUTION_LABEL_KEYS: Record<LiveAttributionToken, MessageKey> = {
-  confirmed: "liveCaptureAttributionConfirmed",
-  inferred: "liveCaptureAttributionInferred",
-  unknown: "liveCaptureAttributionUnknown",
-};
 
 function eventData<T>(event: unknown): T | null {
   if (!event || typeof event !== "object") return null;
@@ -179,7 +141,7 @@ export function LiveHttpCapturePanel({
   const [captureBodies, setCaptureBodies] = useState(false);
   const [recovery, setRecovery] = useState<RecoverySummary | null>(null);
   const [analysisBusy, setAnalysisBusy] = useState(false);
-  const listRef = useRef<HTMLDivElement | null>(null);
+
   const active = isLiveSessionActive(state.session);
 
   const hydrate = useCallback(async (session: LiveCaptureSession) => {
@@ -319,12 +281,6 @@ export function LiveHttpCapturePanel({
     };
   }, [state.needsResync, state.session?.sessionId]);
 
-  useEffect(() => {
-    if (!state.follow) return;
-    const element = listRef.current;
-    if (element) element.scrollTop = element.scrollHeight;
-  }, [state.follow, state.transactions]);
-
   const start = useCallback(async () => {
     if (!firstUseAccepted || state.busy || active) return;
     dispatch({ type: "busy", busy: true });
@@ -442,14 +398,6 @@ export function LiveHttpCapturePanel({
     state.session?.sessionId,
   ]);
 
-  const processGroups = useMemo(
-    () => buildLiveProcessGroups(state.transactions),
-    [state.transactions],
-  );
-  const inFlightCount = useMemo(
-    () => countLiveInFlight(state.transactions),
-    [state.transactions],
-  );
   const coverage = useMemo(
     () => buildLiveCoverageDisclosure(state.stats),
     [state.stats],
@@ -464,14 +412,6 @@ export function LiveHttpCapturePanel({
   const mode = modes[0] ?? null;
   const caTrusted = caStatus.state === "trusted";
 
-  const onListScroll = useCallback(() => {
-    const element = listRef.current;
-    if (!element) return;
-    const distance =
-      element.scrollHeight - element.scrollTop - element.clientHeight;
-    const follow = distance < 32;
-    if (follow !== state.follow) dispatch({ type: "follow", follow });
-  }, [state.follow]);
 
   return (
     <Card>
@@ -495,6 +435,9 @@ export function LiveHttpCapturePanel({
         </span>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
+        <details className="rounded border p-2">
+          <summary className="cursor-pointer text-xs">{t("httpCaptureSectionSource")}</summary>
+          <div className="flex flex-col gap-2 pt-2">
         <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3">
           <div className="flex items-start gap-2">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
@@ -656,6 +599,8 @@ export function LiveHttpCapturePanel({
           </span>
         </label>
 
+          </div>
+        </details>
         <div className="flex flex-wrap items-center gap-2">
           <Button
             type="button"
@@ -687,6 +632,10 @@ export function LiveHttpCapturePanel({
             )}
             {t("liveCaptureStop")}
           </Button>
+          <Button type="button" size="sm" variant="outline"
+            onClick={() => dispatch({ type: "follow", follow: !state.follow })}>
+            {t(state.follow ? "liveCaptureFollowing" : "liveCaptureResumeFollow")}
+          </Button>
           {state.session &&
             !active &&
             state.contract.finalizedSessionUsesAnalysisResult && (
@@ -707,6 +656,11 @@ export function LiveHttpCapturePanel({
           )}
         </div>
 
+        <LiveHttpAnalyzer key={state.session?.sessionId ?? "idle"}
+          sessionId={state.session?.sessionId ?? ""} transactions={state.transactions}
+          persisted={state.stats?.persisted ?? 0} follow={state.follow} />
+        <details>
+          <summary className="cursor-pointer text-xs">{t("httpCaptureSectionSession")}</summary>
         {state.error && (
           <div
             className="rounded-md border border-red-500/40 bg-red-500/10 p-2 text-xs text-red-700 dark:text-red-400"
@@ -794,157 +748,8 @@ export function LiveHttpCapturePanel({
           </>
         )}
 
-        {state.session && (
-          <div className="grid gap-3 lg:grid-cols-[minmax(0,0.65fr)_minmax(0,1.35fr)]">
-            <div className="rounded-md border border-border p-3">
-              <p className="mb-2 text-sm font-medium">
-                {t("liveCaptureProcessTree")}
-              </p>
-              {processGroups.length === 0 ? (
-                <p className="text-xs text-muted-foreground">
-                  {t("liveCaptureNoRows")}
-                </p>
-              ) : (
-                <ul className="space-y-1">
-                  {processGroups.map((group) => (
-                    <li
-                      key={group.key}
-                      className="flex items-center gap-2 rounded bg-muted/40 px-2 py-1 text-xs"
-                    >
-                      <span className="min-w-0 flex-1 truncate">
-                        {group.label}
-                      </span>
-                      <span className="text-[10px] text-muted-foreground">
-                        {t(
-                          ATTRIBUTION_LABEL_KEYS[
-                            resolveLiveAttribution(group.attribution)
-                          ],
-                        )}
-                      </span>
-                      <span className="tabular-nums">
-                        {group.count}
-                        {group.errors > 0 && (
-                          <span className="ml-1 text-red-600">
-                            ({group.errors})
-                          </span>
-                        )}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
 
-            <div className="rounded-md border border-border p-3">
-              <div className="mb-2 flex items-center justify-between gap-2">
-                <p className="text-sm font-medium">
-                  {t("liveCaptureRows")}
-                  {inFlightCount > 0 && (
-                    <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-[10px] font-normal text-muted-foreground">
-                      {formatNumber(inFlightCount)}{" "}
-                      {t("liveCaptureInFlightCount")}
-                    </span>
-                  )}
-                </p>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant={state.follow ? "secondary" : "outline"}
-                  onClick={() =>
-                    dispatch({ type: "follow", follow: !state.follow })
-                  }
-                >
-                  <RotateCcw className="h-3.5 w-3.5" />
-                  {state.follow
-                    ? t("liveCaptureFollowing")
-                    : t("liveCaptureResumeFollow")}
-                </Button>
-              </div>
-              <div
-                ref={listRef}
-                className="max-h-72 overflow-auto"
-                onScroll={onListScroll}
-              >
-                {state.transactions.length === 0 ? (
-                  <p className="py-4 text-center text-xs text-muted-foreground">
-                    {t("liveCaptureNoRows")}
-                  </p>
-                ) : (
-                  <table className="w-full text-left text-xs">
-                    <thead className="sticky top-0 bg-background">
-                      <tr className="border-b border-border text-muted-foreground">
-                        <th className="px-2 py-1">{t("httpCaptureColMethod")}</th>
-                        <th className="px-2 py-1">{t("httpCaptureColUrl")}</th>
-                        <th className="px-2 py-1">{t("httpCaptureColStatus")}</th>
-                        <th className="px-2 py-1">{t("liveCaptureColState")}</th>
-                        <th className="px-2 py-1">{t("httpCaptureColDuration")}</th>
-                        <th className="px-2 py-1">{t("httpCaptureFidelityLabel")}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {state.transactions.map((transaction) => {
-                        const inFlight =
-                          isLiveTransactionInFlight(transaction);
-                        const fidelity = resolveLiveFidelity(
-                          transaction.fidelity,
-                        );
-                        const txState = resolveLiveTransactionState(
-                          transaction.state,
-                        );
-                        return (
-                          <tr
-                            key={transaction.id}
-                            className={`border-b border-border/60 ${
-                              inFlight ? "text-muted-foreground" : ""
-                            }`}
-                          >
-                            <td className="px-2 py-1 font-mono">
-                              {transaction.method}
-                            </td>
-                            <td
-                              className="max-w-80 truncate px-2 py-1"
-                              title={transaction.url}
-                            >
-                              {transaction.host}
-                              {transaction.path}
-                            </td>
-                            <td className="px-2 py-1 font-mono">
-                              {inFlight ? "—" : transaction.statusCode || "—"}
-                            </td>
-                            <td className="px-2 py-1" title={transaction.error}>
-                              {t(TX_STATE_LABEL_KEYS[txState])}
-                              {inFlight && ` · ${t("liveCaptureInFlight")}`}
-                            </td>
-                            <td className="px-2 py-1 tabular-nums">
-                              {inFlight
-                                ? "—"
-                                : formatMilliseconds(
-                                    Math.round(transaction.totalMs),
-                                  )}
-                            </td>
-                            <td
-                              className={`px-2 py-1 ${
-                                FIDELITY_TONE_CLASSES[liveFidelityTone(fidelity)]
-                              }`}
-                              title={transaction.fidelity}
-                            >
-                              {t(FIDELITY_LABEL_KEYS[fidelity])}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                )}
-              </div>
-              <p className="mt-2 text-[10px] text-muted-foreground">
-                {t("liveCaptureRowCapPrefix")}{" "}
-                {formatNumber(state.contract.transactionRowCap)}{" "}
-                {t("liveCaptureRowCapSuffix")} {t("liveCaptureInFlightHint")}
-              </p>
-            </div>
-          </div>
-        )}
+        </details>
       </CardContent>
     </Card>
   );
