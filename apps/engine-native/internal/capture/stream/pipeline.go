@@ -28,6 +28,8 @@ const (
 )
 
 type Config struct {
+	ProcessScope   string
+	ScopeSessionID *uint32
 	// RequireGeneration expects producers to call Stamp when each request begins.
 	// Legacy direct callers retain the timestamp boundary when this is false.
 	RequireGeneration          bool
@@ -528,8 +530,11 @@ func metadataOnly(tx models.CaptureTransaction) models.CaptureTransaction {
 // A selected recording scope fails closed for unknown or reused identities.
 // This check precedes redaction, persistence and publication.
 func (p *Pipeline) allows(tx models.CaptureTransaction) bool {
+	if p.cfg.ProcessScope == "current_session" {
+		return !unattributed(tx) && tx.Process.WindowsSessionID != nil && p.cfg.ScopeSessionID != nil && *tx.Process.WindowsSessionID == *p.cfg.ScopeSessionID
+	}
 	if len(p.cfg.AllowedProcesses) == 0 {
-		return true
+		return p.cfg.ProcessScope != "selected" && p.cfg.ProcessScope != "launch"
 	}
 	if unattributed(tx) {
 		return false
@@ -607,4 +612,11 @@ func (p *Pipeline) Clear() (uint64, error) {
 
 	p.generation.Store(generation)
 	return generation, nil
+}
+
+// SetSelectedProcesses is used before a newly launched, suspended process runs.
+func (p *Pipeline) SetSelectedProcesses(keys []models.ProcessKey) {
+	p.sendMu.Lock()
+	defer p.sendMu.Unlock()
+	p.cfg.AllowedProcesses = append([]models.ProcessKey(nil), keys...)
 }

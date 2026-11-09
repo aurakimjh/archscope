@@ -213,9 +213,9 @@ completed the independent Lighthouse file-first engine slice.
 
 | Status | Count | Meaning |
 |---|---:|---|
-| `TODO` | 6 | Ready to start; prerequisites are satisfied |
+| `TODO` | 5 | Ready to start; prerequisites are satisfied |
 | `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
-| `REVIEW` | 0 | Review or required remediation is underway; the gate has not passed |
+| `REVIEW` | 1 | Review or required remediation is underway; the gate has not passed |
 | `PENDING` | 8 | Waiting for a prerequisite, external condition, or activation trigger |
 | `DONE` | 186 | Completion criteria and required review gates have passed |
 
@@ -229,7 +229,7 @@ same change so this overview remains the status source of truth.
 
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
-| 1 | T-601 | P1 | `TODO` | Deliver the four Windows capture entry points and measure their reach |
+| 1 | T-601 | P1 | `REVIEW` | Deliver the four Windows capture entry points and measure their reach |
 | 2 | T-602 | P1 | `TODO` | Preserve the HTTP exchange and its intermediate responses |
 | 3 | T-598 | P2 | `TODO` | Add decoded query, POST form and JSON inspection |
 | 4 | T-604 | P2 | `TODO` | Configure columns, group and filter requests, and search the entire session |
@@ -1182,7 +1182,7 @@ deferred until explicitly promoted.
 | T-596 | P1 | DONE | Select single or multiple running processes before recording | Existing baseline | Completed 2026-11-09. Windows process snapshot exposes PID/start-time targets through Wails; selected keys enforce a pre-store and pre-publication scope. Unknown owners and PID reuse are rejected within selected scope. Stream/session regressions and frontend build passed. Native two-client selection verification remains part of T-603. |
 | T-597 | P1 | DONE | Make paths readable and retain the active detail tab | Existing baseline | Completed 2026-11-09. Explicit path width and horizontal grid scrolling preserve readable URLs. The active detail tab survives adjacent row changes; splitter height persists and clamps to available panel space. Production build and browser checks confirmed 224px path cells, retained Body tab and process-scoped selection. |
 | T-600 | P1 | DONE | Rebuild the desktop menu, recording toolbar and status bar | T-599, T-594 | Completed 2026-11-09. Native Wails HTTP Capture menu, F9/F2/Ctrl+L, toolbar and recording status share guarded commands. Engine pause and clear preserve the proxy address, reset log rows/totals and reject old cursors/events. Race capture/app suites, real proxy service control test, frontend state/build and browser controls passed. Native Windows command acceptance remains T-603. |
-| T-601 | P1 | TODO | Deliver the four Windows capture entry points and measure their reach | T-596 | Exercise current session, all sessions including system processes, launch/reopen and attach to running processes. Compare known requests from x86/x64 clients, a service and a proxy-ignoring client. Record HTTP/HTTPS visibility and attribution per mode. Any reference-supported case still missing stays open. |
+| T-601 | P1 | REVIEW | Deliver the four Windows capture entry points and measure their reach | T-596 | Entry points implemented 2026-11-10 for proxy-visible traffic: current Windows session, all sessions, selected running instances and suspended launch/reopen with inherited proxy settings. Local capture/app regressions, frontend build and Windows launch-test cross-compilation passed. Full parity remains open: proxy-ignoring app interception and the x86/x64/service native reach matrix require an additional Windows backend and measured evidence. |
 | T-602 | P1 | TODO | Preserve the HTTP exchange and its intermediate responses | Existing baseline | Extend live/store/detail contracts for connection ID, request stage, redirects, authentication exchanges, 1xx and final response, cookies and stream provenance. Verify ordered exchanges and an interrupted request against a Windows fixture. Preserve the shared AnalysisResult envelope. |
 | T-603 | P1 | DONE | Prove the everyday inspection workflow in the packaged Windows app | T-599, T-594, T-595, T-596, T-597, T-600 | Completed 2026-11-09 on native Windows Wails/WebView2: six synthetic POSTs from two PID/start-time clients; requested 1280×800 window (1266×793 bounded screenshots); process filtering; live Headers and actual request/response Body during arrivals; F9/F2; stopped-store reopening with identical markers and Korean text. Temporary dump policy and user WER exclusions restored with exact original tree hashes, including ACL metadata. Evidence: `docs/review/evidence/2026-11-09-windows-body/README.md`. |
 | T-598 | P2 | TODO | Add decoded query, POST form and JSON inspection | Existing baseline | Show request/response direction, original and decoded values, ordered duplicate keys, form fields and a navigable JSON tree. Exercise empty, truncated and redacted data. |

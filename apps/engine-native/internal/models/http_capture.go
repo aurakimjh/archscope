@@ -40,13 +40,14 @@ type ProcessKey struct {
 }
 
 type ProcessInstance struct {
-	Key         ProcessKey `json:"key"`
-	Name        string     `json:"name"`
-	ExecPath    string     `json:"execPath,omitempty"`
-	CommandLine string     `json:"commandLine,omitempty"`
-	User        string     `json:"user,omitempty"`
-	ParentPID   int32      `json:"parentPid,omitempty"`
-	Attribution string     `json:"attribution"`
+	WindowsSessionID *uint32    `json:"windowsSessionId,omitempty"`
+	Key              ProcessKey `json:"key"`
+	Name             string     `json:"name"`
+	ExecPath         string     `json:"execPath,omitempty"`
+	CommandLine      string     `json:"commandLine,omitempty"`
+	User             string     `json:"user,omitempty"`
+	ParentPID        int32      `json:"parentPid,omitempty"`
+	Attribution      string     `json:"attribution"`
 }
 
 type HeaderField struct {

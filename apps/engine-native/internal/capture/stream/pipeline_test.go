@@ -663,3 +663,23 @@ func TestClearRejectsPreClearCursorAndSurvivesReopen(t *testing.T) {
 		t.Fatalf("reopened=%+v err=%v", after, e)
 	}
 }
+
+func TestCurrentSessionScopeFailsClosed(t *testing.T) {
+	sessionID := uint32(4)
+	other := uint32(5)
+	p, err := New(Config{SessionID: "s", Store: testStore(t), ProcessScope: "current_session", ScopeSessionID: &sessionID, RetainUnattributedMetadata: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer p.Close()
+	for index, id := range []*uint32{&sessionID, &other, nil} {
+		tx := models.CaptureTransaction{ID: fmt.Sprint(index), State: models.TxComplete,
+			Process: &models.ProcessInstance{Key: models.ProcessKey{PID: 10}, Attribution: "confirmed", WindowsSessionID: id}}
+		if err := p.Submit(context.Background(), tx); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if p.Stats(capture.StateRunning).Persisted != 1 {
+		t.Fatal("session scope included another or unknown session")
+	}
+}

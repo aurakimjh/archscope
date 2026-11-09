@@ -110,6 +110,10 @@ func processInstance(pid int32) *models.ProcessInstance {
 		process.Name = filepath.Base(process.ExecPath)
 	}
 	process.Key.StartTime = processStartTimeFromHandle(handle)
+	var sessionID uint32
+	if windows.ProcessIdToSessionId(uint32(pid), &sessionID) == nil {
+		process.WindowsSessionID = &sessionID
+	}
 	return process
 }
 

@@ -10,6 +10,9 @@ import { Create as $Create } from "@wailsio/runtime";
 import * as models$0 from "../models/models.js";
 
 export class Config {
+    "processScope"?: string;
+    "launchPath"?: string;
+    "launchArgs"?: string[];
     "allowedProcesses"?: models$0.ProcessKey[];
     "listenAddress"?: string;
     "storeRoot"?: string;
@@ -41,14 +44,18 @@ export class Config {
      * Creates a new Config instance from a string or object.
      */
     static createFrom($$source: any = {}): Config {
-        const $$createField0_0 = $$createType1;
-        const $$createField10_0 = $$createType2;
+        const $$createField2_0 = $$createType0;
+        const $$createField3_0 = $$createType2;
+        const $$createField13_0 = $$createType0;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("launchArgs" in $$parsedSource) {
+            $$parsedSource["launchArgs"] = $$createField2_0($$parsedSource["launchArgs"]);
+        }
         if ("allowedProcesses" in $$parsedSource) {
-            $$parsedSource["allowedProcesses"] = $$createField0_0($$parsedSource["allowedProcesses"]);
+            $$parsedSource["allowedProcesses"] = $$createField3_0($$parsedSource["allowedProcesses"]);
         }
         if ("allowPassthrough" in $$parsedSource) {
-            $$parsedSource["allowPassthrough"] = $$createField10_0($$parsedSource["allowPassthrough"]);
+            $$parsedSource["allowPassthrough"] = $$createField13_0($$parsedSource["allowPassthrough"]);
         }
         return new Config($$parsedSource as Partial<Config>);
     }
@@ -182,6 +189,8 @@ export enum Privilege {
 };
 
 export class Session {
+    "processScope"?: string;
+    "scopeSessionId"?: number | null;
     "generation": number;
     "paused": boolean;
     "allowedProcesses"?: models$0.ProcessKey[];
@@ -251,10 +260,10 @@ export class Session {
      * Creates a new Session instance from a string or object.
      */
     static createFrom($$source: any = {}): Session {
-        const $$createField2_0 = $$createType1;
+        const $$createField4_0 = $$createType2;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("allowedProcesses" in $$parsedSource) {
-            $$parsedSource["allowedProcesses"] = $$createField2_0($$parsedSource["allowedProcesses"]);
+            $$parsedSource["allowedProcesses"] = $$createField4_0($$parsedSource["allowedProcesses"]);
         }
         return new Session($$parsedSource as Partial<Session>);
     }
@@ -367,6 +376,6 @@ export class Stats {
 }
 
 // Private type creation functions
-const $$createType0 = models$0.ProcessKey.createFrom;
-const $$createType1 = $Create.Array($$createType0);
-const $$createType2 = $Create.Array($Create.Any);
+const $$createType0 = $Create.Array($Create.Any);
+const $$createType1 = models$0.ProcessKey.createFrom;
+const $$createType2 = $Create.Array($$createType1);

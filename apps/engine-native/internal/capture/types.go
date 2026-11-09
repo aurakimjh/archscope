@@ -128,6 +128,10 @@ const (
 )
 
 type Config struct {
+	ProcessScope               string              `json:"processScope,omitempty"`
+	ScopeSessionID             *uint32             `json:"-"`
+	LaunchPath                 string              `json:"launchPath,omitempty"`
+	LaunchArgs                 []string            `json:"launchArgs,omitempty"`
 	AllowedProcesses           []models.ProcessKey `json:"allowedProcesses,omitempty"`
 	ListenAddress              string              `json:"listenAddress,omitempty"`
 	StoreRoot                  string              `json:"storeRoot,omitempty"`
@@ -169,6 +173,8 @@ type Stats struct {
 }
 
 type Session struct {
+	ProcessScope               string              `json:"processScope,omitempty"`
+	ScopeSessionID             *uint32             `json:"scopeSessionId,omitempty"`
 	Generation                 uint64              `json:"generation"`
 	Paused                     bool                `json:"paused"`
 	AllowedProcesses           []models.ProcessKey `json:"allowedProcesses,omitempty"`

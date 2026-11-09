@@ -16,6 +16,7 @@ import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/aggregate"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/certstore"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/dumppolicy"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/processlaunch"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/procmap"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/redact"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/session"
@@ -154,7 +155,44 @@ func (s *CaptureService) StartCapture(config capture.Config) (capture.Session, e
 	// The renderer cannot choose an arbitrary filesystem destination. Capture
 	// data always stays under the application-owned root selected at startup.
 	config.StoreRoot = ""
-	return s.manager.Start(context.Background(), config)
+	if config.ProcessScope == "current_session" {
+		id, err := procmap.CurrentSession()
+		if err != nil {
+			return capture.Session{}, err
+		}
+		config.ScopeSessionID = &id
+	}
+	if config.ProcessScope == "launch" {
+		if !filepath.IsAbs(config.LaunchPath) {
+			return capture.Session{}, fmt.Errorf("choose an absolute executable path")
+		}
+		info, err := os.Stat(config.LaunchPath)
+		if err != nil || info.IsDir() {
+			return capture.Session{}, fmt.Errorf("executable is unavailable")
+		}
+		if len(config.LaunchArgs) > 128 {
+			return capture.Session{}, fmt.Errorf("too many launch arguments")
+		}
+	}
+	started, err := s.manager.Start(context.Background(), config)
+	if err != nil || config.ProcessScope != "launch" {
+		return started, err
+	}
+	child, err := processlaunch.Prepare(config.LaunchPath, config.LaunchArgs, started.ListenAddress)
+	if err != nil {
+		_, _ = s.StopCapture(string(started.ID))
+		return capture.Session{}, err
+	}
+	selected, err := s.manager.SelectLaunchedProcess(started.ID, child.Key)
+	if err == nil {
+		err = child.Resume()
+	}
+	if err != nil {
+		child.Abort()
+		_, _ = s.StopCapture(string(started.ID))
+		return capture.Session{}, err
+	}
+	return selected, nil
 }
 
 func (s *CaptureService) SetCapturePaused(sessionID string, paused bool) (capture.Session, error) {

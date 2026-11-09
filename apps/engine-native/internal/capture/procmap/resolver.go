@@ -140,3 +140,6 @@ func decodeTCPTable(data []byte, rowSize int, decode func([]byte) tcpRow) ([]tcp
 func decodeNetworkPort(field []byte) int {
 	return int(binary.BigEndian.Uint16(field[:2]))
 }
+
+// Lookup reads an identity before a suspended child is allowed to issue traffic.
+func Lookup(pid int32) models.ProcessInstance { return *processInstance(pid) }

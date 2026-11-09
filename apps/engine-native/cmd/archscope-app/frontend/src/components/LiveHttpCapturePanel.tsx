@@ -1,5 +1,5 @@
 import { LiveHttpAnalyzer } from "./LiveHttpAnalyzer";
-import { Events } from "@wailsio/runtime";
+import { Dialogs, Events } from "@wailsio/runtime";
 import {
   AlertTriangle,
   CircleStop,
@@ -126,7 +126,13 @@ export function LiveHttpCapturePanel({
   const [captureBodies, setCaptureBodies] = useState(false);
   const [processes, setProcesses] = useState<LiveCaptureProcess[]>([]);
   const [selectedProcesses, setSelectedProcesses] = useState<LiveCaptureProcess[]>([]);
-  const [processScope, setProcessScope] = useState(false);
+  const [processScope, setProcessScope] = useState("all_sessions");
+  const [launchPath, setLaunchPath] = useState("");
+  const [launchArgs, setLaunchArgs] = useState("[]");
+  const chooseExecutable = async () => {
+    const selected=await Dialogs.OpenFile({Title:t("httpCaptureLaunch"),Filters:[{DisplayName:"Executable",Pattern:"*.exe"}]});
+    if (typeof selected==="string") setLaunchPath(selected);
+  };
   const loadProcesses = async () => {
     try {
       const next = await CaptureService.ListCaptureProcesses();
@@ -143,7 +149,7 @@ export function LiveHttpCapturePanel({
   useEffect(() => {
     if (!state.session) return;
     const keys = state.session.allowedProcesses ?? [];
-    setProcessScope(keys.length > 0);
+    setProcessScope(state.session.processScope ?? (keys.length ? "selected" : "all_sessions"));
     setSelectedProcesses(keys.map((key) => ({key, name:`PID ${key.pid}`, attribution:"confirmed"})));
   }, [state.session?.sessionId]);
 
@@ -285,14 +291,21 @@ export function LiveHttpCapturePanel({
   }, [state.needsResync, state.session?.sessionId]);
 
   const start = useCallback(async () => {
-    if (!firstUseAccepted || state.busy || active || (processScope && selectedProcesses.length === 0)) return;
+    if (!firstUseAccepted || state.busy || active || (processScope === "selected" && selectedProcesses.length === 0)) return;
     dispatch({ type: "busy", busy: true });
     dispatch({ type: "clearError" });
     try {
       const session = await CaptureService.StartCapture({
         listenAddress: "127.0.0.1:0",
         liveWindow: 5000,
-        allowedProcesses: processScope ? selectedProcesses.map((p) => p.key) : [],
+        processScope,
+        allowedProcesses: processScope === "selected" ? selectedProcesses.map((p) => p.key) : [],
+        launchPath,
+        launchArgs: processScope === "launch" ? (() => {
+          const args: unknown = JSON.parse(launchArgs);
+          if (!Array.isArray(args) || args.some(arg => typeof arg !== "string")) throw new Error(t("httpCaptureLaunchArgsError"));
+          return args as string[];
+        })() : [],
         retainUnattributedMetadata: retainUnattributed,
         captureBodies,
         maxBodyBytes: state.contract.maxBodyBytes,
@@ -313,6 +326,8 @@ export function LiveHttpCapturePanel({
     captureBodies,
     firstUseAccepted,
     processScope,
+    launchPath,
+    launchArgs,
     selectedProcesses,
     onStarted,
     retainUnattributed,
@@ -622,15 +637,21 @@ export function LiveHttpCapturePanel({
 
         <fieldset disabled={active} className="rounded border p-2 text-xs">
           <legend>{t("httpCaptureProcessScope")}</legend>
-          <label className="mr-4 inline-flex gap-2">
-            <input type="radio" name="captureScope" checked={!processScope} onChange={() => setProcessScope(false)} />
-            {t("httpLiveAllProcesses")}
-          </label>
-          <label className="inline-flex gap-2">
-            <input type="radio" name="captureScope" checked={processScope} onChange={() => { setProcessScope(true); void loadProcesses(); }} />
-            {t("httpCaptureSelectedProcesses")}
-          </label>
-          {processScope && (
+          <select aria-label={t("httpCaptureProcessScope")} value={processScope}
+            className="h-8 rounded border px-2"
+            onChange={(event) => { setProcessScope(event.target.value); if(event.target.value==="selected") void loadProcesses(); }}>
+            <option value="all_sessions">{t("httpCaptureAllSessions")}</option>
+            <option value="current_session">{t("httpCaptureCurrentSession")}</option>
+            <option value="selected">{t("httpCaptureSelectedProcesses")}</option>
+            <option value="launch">{t("httpCaptureLaunch")}</option>
+          </select>
+          <p className="mt-1 text-muted-foreground">{t("httpCaptureScopeCoverage")}</p>
+          {processScope==="launch" && <div className="mt-2 flex flex-col gap-2">
+            <Button type="button" size="sm" variant="outline" onClick={() => void chooseExecutable()}>{t("browseFile")}</Button>
+            <p className="break-all font-mono">{launchPath}</p>
+            <label>{t("httpCaptureLaunchArgs")}<input value={launchArgs} onChange={(event) => setLaunchArgs(event.target.value)} className="ml-2 rounded border px-2 py-1 font-mono" /></label>
+          </div>}
+          {processScope === "selected" && (
             <div className="mt-2">
               <Button type="button" size="sm" variant="outline" onClick={() => void loadProcesses()}>{t("httpCaptureRefreshProcesses")}</Button>
               <div className="mt-2 max-h-40 overflow-auto">
@@ -683,7 +704,7 @@ export function LiveHttpCapturePanel({
               state.busy ||
               active ||
               !firstUseAccepted ||
-              (!mode?.available) || (processScope && selectedProcesses.length === 0)
+              (!mode?.available) || (processScope === "selected" && selectedProcesses.length === 0) || (processScope === "launch" && !launchPath)
             }
             onClick={() => void start()}
           >

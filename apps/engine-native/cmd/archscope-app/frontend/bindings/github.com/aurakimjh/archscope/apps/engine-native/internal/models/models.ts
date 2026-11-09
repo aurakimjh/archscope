@@ -383,6 +383,7 @@ export class JenniferCustomAnalysisRule {
 export type Metadata = any;
 
 export class ProcessInstance {
+    "windowsSessionId"?: number | null;
     "key": ProcessKey;
     "name": string;
     "execPath"?: string;
@@ -410,10 +411,10 @@ export class ProcessInstance {
      * Creates a new ProcessInstance instance from a string or object.
      */
     static createFrom($$source: any = {}): ProcessInstance {
-        const $$createField0_0 = $$createType8;
+        const $$createField1_0 = $$createType8;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("key" in $$parsedSource) {
-            $$parsedSource["key"] = $$createField0_0($$parsedSource["key"]);
+            $$parsedSource["key"] = $$createField1_0($$parsedSource["key"]);
         }
         return new ProcessInstance($$parsedSource as Partial<ProcessInstance>);
     }

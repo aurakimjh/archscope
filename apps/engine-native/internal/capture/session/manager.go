@@ -137,6 +137,19 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 	// plaintext body tier can start. The preflight runs here, before an
 	// authority is generated or any session file is created, so a rejected
 	// request leaves no artifact behind.
+	switch cfg.ProcessScope {
+	case "", "all_sessions", "launch":
+	case "selected":
+		if len(cfg.AllowedProcesses) == 0 {
+			return Session{}, fmt.Errorf("select at least one process")
+		}
+	case "current_session":
+		if cfg.ScopeSessionID == nil {
+			return Session{}, fmt.Errorf("current Windows session is unavailable")
+		}
+	default:
+		return Session{}, fmt.Errorf("unknown recording scope")
+	}
 	if len(cfg.AllowedProcesses) > 1024 {
 		return Session{}, fmt.Errorf("too many selected processes")
 	}
@@ -188,6 +201,7 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 	// session is a documented residual, not something this value hides.
 	maxBodyBytes := normalizeMaxBodyBytes(cfg.MaxBodyBytes)
 	session := Session{
+		ProcessScope: cfg.ProcessScope, ScopeSessionID: cfg.ScopeSessionID,
 		AllowedProcesses: cfg.AllowedProcesses,
 		ID:               id, State: StateStarting, StorePath: st.Path(), StartedAt: started,
 		RetainUnattributedMetadata: cfg.RetainUnattributedMetadata,
@@ -209,7 +223,7 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 	}
 	pipeline, err := stream.New(stream.Config{
 		RequireGeneration: true,
-		SessionID:         id, Store: st, EventSink: m.sink, AllowedProcesses: cfg.AllowedProcesses,
+		SessionID:         id, Store: st, EventSink: m.sink, AllowedProcesses: cfg.AllowedProcesses, ProcessScope: cfg.ProcessScope, ScopeSessionID: cfg.ScopeSessionID,
 		HighWater: cfg.WriteHighWaterBytes, HardLimit: cfg.WriteHardLimitBytes,
 		LiveWindow:                 cfg.LiveWindow,
 		RetainUnattributedMetadata: cfg.RetainUnattributedMetadata,
@@ -356,6 +370,20 @@ func (m *Manager) Stop(ctx context.Context, id SessionID) (Session, error) {
 	m.sink.Stats(m.pipeline.Stats(finalState))
 	m.sink.Stopped(m.session)
 	return m.session, stopErr
+}
+
+func (m *Manager) SelectLaunchedProcess(id SessionID, key models.ProcessKey) (Session, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if id != m.session.ID || m.session.State != StateRunning || m.session.ProcessScope != "launch" {
+		return Session{}, ErrSessionNotFound
+	}
+	if key.PID <= 0 || key.StartTime == "" {
+		return Session{}, fmt.Errorf("launched process identity is unavailable")
+	}
+	m.pipeline.SetSelectedProcesses([]models.ProcessKey{key})
+	m.session.AllowedProcesses = []models.ProcessKey{key}
+	return m.session, nil
 }
 
 func (m *Manager) SetPaused(id SessionID, paused bool) (Session, error) {

@@ -41,3 +41,9 @@ func List() ([]models.ProcessInstance, error) {
 	})
 	return result, nil
 }
+
+func CurrentSession() (uint32, error) {
+	var id uint32
+	err := windows.ProcessIdToSessionId(windows.GetCurrentProcessId(), &id)
+	return id, err
+}
