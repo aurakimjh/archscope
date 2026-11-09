@@ -143,6 +143,16 @@ export function RemoveCaptureCA(): $CancellablePromise<certstore$0.Status> {
     });
 }
 
+/**
+ * SearchCaptureTransactions searches the authoritative redacted store, including
+ * exchanges outside the live ring. Result rows exclude payloads until selected.
+ */
+export function SearchCaptureTransactions(request: $models.CaptureFetchRequest): $CancellablePromise<store$0.Page> {
+    return $Call.ByID(3080393478, request).then(($result: any) => {
+        return $$createType2($result);
+    });
+}
+
 export function SetCapturePaused(sessionID: string, paused: boolean): $CancellablePromise<capture$0.Session> {
     return $Call.ByID(2070855159, sessionID, paused).then(($result: any) => {
         return $$createType1($result);

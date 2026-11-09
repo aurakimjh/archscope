@@ -1,3 +1,4 @@
+import { httpColumnValue } from "./httpColumns.js";
 // ─────────────────────────────────────────────────────────────────────
 // [한글] state/httpAnalyzer.ts — HTTP Analyzer 스타일 패킷 그리드/상세
 // 뷰의 순수(DOM 비의존) 파생 로직.
@@ -508,17 +509,7 @@ export function placeOnSession(
 
 // ── Grid sorting ────────────────────────────────────────────────────
 
-export type SortColumn =
-  | "sequence"
-  | "started"
-  | "method"
-  | "status"
-  | "host"
-  | "path"
-  | "kind"
-  | "size"
-  | "duration"
-  | "process";
+export type SortColumn = string;
 
 export type SortDirection = "asc" | "desc";
 
@@ -554,7 +545,7 @@ function sortValue(tx: HttpCaptureTransactionRow, column: SortColumn): number | 
     case "process":
       return tx.process?.name ?? "";
     default:
-      return 0;
+      return httpColumnValue(tx,column);
   }
 }
 
@@ -573,7 +564,7 @@ export function sortTransactions(
     const b = sortValue(right, sort.column);
     let comparison = 0;
     if (typeof a === "number" && typeof b === "number") comparison = a - b;
-    else comparison = String(a).localeCompare(String(b));
+    else comparison = String(a).localeCompare(String(b),undefined,{sensitivity:"base"});
     if (comparison !== 0) return comparison * factor;
     const sequence = (Number(left.sequence) || 0) - (Number(right.sequence) || 0);
     if (sequence !== 0) return sequence;
@@ -622,15 +613,17 @@ export type HttpGridEntry =
 export function httpGroupedEntries(
   rows: HttpCaptureTransactionRow[],
   collapsed: ReadonlySet<string>,
+  groupBy = "process",
 ): HttpGridEntry[] {
+  if (groupBy==="none") return rows.map((row,index) => ({kind:"request",row,index}));
   const groups = new Map<string, { header: Extract<HttpGridEntry, { kind: "process" }>; requests: HttpGridEntry[] }>();
   rows.forEach((row, index) => {
-    const key = httpProcessKey(row);
+    const key = groupBy==="process" ? httpProcessKey(row) : groupBy+":"+httpColumnValue(row,groupBy);
     let group = groups.get(key);
     if (!group) {
       group = {
         header: { kind:"process", key,
-          name: row.process ? `${row.process.name} [${row.process.pid}] · ${row.process.start_time}` : row.host,
+          name: groupBy==="process" ? (row.process ? `${row.process.name} [${row.process.pid}] · ${row.process.start_time}` : row.host) : String(httpColumnValue(row,groupBy)),
           count:0, sent:0, received:0 }, requests:[],
       };
       groups.set(key, group);

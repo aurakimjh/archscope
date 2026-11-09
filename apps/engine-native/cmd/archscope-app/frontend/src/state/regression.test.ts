@@ -3055,3 +3055,11 @@ assert(inspectForm({...formMessage,bodyStorage:"omitted"}).state === "unavailabl
 assert(inspectJson({...formMessage,bodyPreview:'{"a":'}).state === "invalid", "invalid JSON must be explicit");
 assert(inspectJson({...formMessage,bodyStorage:"truncated",bodyPreview:'{"a":'}).state === "limited", "truncated JSON must be disclosed");
 assert(inspectJson({...formMessage,bodyPreview:"null"}).value === null, "JSON null is a valid document");
+
+import { HTTP_COLUMNS, restoreHttpColumns, httpColumnMatches, httpColumnValue } from "./httpColumns.js";
+const restoredColumns = restoreHttpColumns([{key:"path",width:2,visible:false},{key:"path",width:400},{key:"removed",visible:true}]);
+assert(restoredColumns.length===HTTP_COLUMNS.length && restoredColumns[0]?.width===48, "column preferences must migrate and bound malformed widths");
+assert(restoredColumns.filter(c=>c.key==="path").length===1 && restoredColumns.some(c=>c.visible), "column preferences must keep unique keys and a visible column");
+assert(httpColumnValue({...selectedLiveRow,connection_id:"connection-7"},"connection")==="connection-7", "connection evidence must be available as a column");
+assert(httpColumnMatches(selectedLiveRow,"status","gte","200") && !httpColumnMatches(selectedLiveRow,"status","gte","bad"), "numeric field filtering must reject invalid thresholds");
+assert(httpGroupedEntries([selectedLiveRow,reusedPid],new Set(),"host").length===3, "host grouping must join requests from separate process instances");

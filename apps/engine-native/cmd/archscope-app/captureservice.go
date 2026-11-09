@@ -236,6 +236,26 @@ func (s *CaptureService) FetchCaptureTransactions(request CaptureFetchRequest) (
 	return s.manager.Fetch(capture.SessionID(request.SessionID), request.Filter, request.Cursor, request.Limit)
 }
 
+// SearchCaptureTransactions searches the authoritative redacted store, including
+// exchanges outside the live ring. Result rows exclude payloads until selected.
+func (s *CaptureService) SearchCaptureTransactions(request CaptureFetchRequest) (store.Page, error) {
+	if err := store.ValidateSearch(request.Filter.Query, request.Filter.SearchFields); err != nil {
+		return store.Page{}, err
+	}
+	if request.Limit <= 0 || request.Limit > 100 {
+		request.Limit = 25
+	}
+	page, err := s.manager.Fetch(capture.SessionID(request.SessionID), request.Filter, request.Cursor, request.Limit)
+	if err != nil {
+		return store.Page{}, err
+	}
+	for index := range page.Items {
+		page.Items[index].Transaction.Request.BodyPreview = ""
+		page.Items[index].Transaction.Response.BodyPreview = ""
+	}
+	return page, nil
+}
+
 // GetCaptureTransaction reads one redacted, persisted exchange while recording
 // continues. Payloads remain outside the live ring and event stream.
 func (s *CaptureService) GetCaptureTransaction(sessionID, transactionID string) (*models.CaptureTransaction, error) {

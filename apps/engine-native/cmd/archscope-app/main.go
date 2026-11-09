@@ -84,6 +84,7 @@ func main() {
 		{"Start", "start", "F9"}, {"Stop", "stop", "F2"},
 		{"Pause / Resume", "pause", ""}, {"Clear", "clear", "Ctrl+L"},
 		{"Auto Scroll", "follow", ""},
+		{"Find", "find", "Ctrl+F"},
 	} {
 		item := captureMenu.Add(command.label)
 		name := command.name

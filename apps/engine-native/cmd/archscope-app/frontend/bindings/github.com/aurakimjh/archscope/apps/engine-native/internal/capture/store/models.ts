@@ -10,6 +10,8 @@ import { Create as $Create } from "@wailsio/runtime";
 import * as models$0 from "../../models/models.js";
 
 export class Filter {
+    "query"?: string;
+    "searchFields"?: string[];
     "transactionId"?: string;
     "host"?: string;
     "method"?: string;
@@ -27,7 +29,11 @@ export class Filter {
      * Creates a new Filter instance from a string or object.
      */
     static createFrom($$source: any = {}): Filter {
+        const $$createField1_0 = $$createType0;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("searchFields" in $$parsedSource) {
+            $$parsedSource["searchFields"] = $$createField1_0($$parsedSource["searchFields"]);
+        }
         return new Filter($$parsedSource as Partial<Filter>);
     }
 }
@@ -57,7 +63,7 @@ export class Page {
      * Creates a new Page instance from a string or object.
      */
     static createFrom($$source: any = {}): Page {
-        const $$createField0_0 = $$createType1;
+        const $$createField0_0 = $$createType2;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("items" in $$parsedSource) {
             $$parsedSource["items"] = $$createField0_0($$parsedSource["items"]);
@@ -115,7 +121,7 @@ export class StoredTransaction {
      * Creates a new StoredTransaction instance from a string or object.
      */
     static createFrom($$source: any = {}): StoredTransaction {
-        const $$createField1_0 = $$createType2;
+        const $$createField1_0 = $$createType3;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("transaction" in $$parsedSource) {
             $$parsedSource["transaction"] = $$createField1_0($$parsedSource["transaction"]);
@@ -125,6 +131,7 @@ export class StoredTransaction {
 }
 
 // Private type creation functions
-const $$createType0 = StoredTransaction.createFrom;
-const $$createType1 = $Create.Array($$createType0);
-const $$createType2 = models$0.CaptureTransaction.createFrom;
+const $$createType0 = $Create.Array($Create.Any);
+const $$createType1 = StoredTransaction.createFrom;
+const $$createType2 = $Create.Array($$createType1);
+const $$createType3 = models$0.CaptureTransaction.createFrom;

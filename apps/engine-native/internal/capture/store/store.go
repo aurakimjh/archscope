@@ -106,12 +106,14 @@ type CaptureCheckpoint struct {
 }
 
 type Filter struct {
-	TransactionID string `json:"transactionId,omitempty"`
-	Host          string `json:"host,omitempty"`
-	Method        string `json:"method,omitempty"`
-	StatusCode    int    `json:"statusCode,omitempty"`
-	ProcessID     int32  `json:"processId,omitempty"`
-	ErrorsOnly    bool   `json:"errorsOnly,omitempty"`
+	Query         string   `json:"query,omitempty"`
+	SearchFields  []string `json:"searchFields,omitempty"`
+	TransactionID string   `json:"transactionId,omitempty"`
+	Host          string   `json:"host,omitempty"`
+	Method        string   `json:"method,omitempty"`
+	StatusCode    int      `json:"statusCode,omitempty"`
+	ProcessID     int32    `json:"processId,omitempty"`
+	ErrorsOnly    bool     `json:"errorsOnly,omitempty"`
 }
 
 type Page struct {
@@ -493,6 +495,9 @@ func (s *Store) Body(ref string) (io.ReadCloser, error) {
 }
 
 func (s *Store) Fetch(filter Filter, opaque string, limit int) (Page, error) {
+	if err := ValidateSearch(filter.Query, filter.SearchFields); err != nil {
+		return Page{}, err
+	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if limit <= 0 {
@@ -532,7 +537,7 @@ func (s *Store) Fetch(filter Filter, opaque string, limit int) (Page, error) {
 	more := false
 	for scanner.Scan() {
 		var item StoredTransaction
-		if json.Unmarshal(scanner.Bytes(), &item) != nil || item.Seq > cur.Snapshot || !matches(item.Transaction, filter) {
+		if json.Unmarshal(scanner.Bytes(), &item) != nil || item.Seq > cur.Snapshot || !Matches(item.Transaction, filter) {
 			continue
 		}
 		total++
@@ -556,7 +561,10 @@ func (s *Store) Fetch(filter Filter, opaque string, limit int) (Page, error) {
 	return page, nil
 }
 
-func matches(tx models.CaptureTransaction, f Filter) bool {
+func Matches(tx models.CaptureTransaction, f Filter) bool {
+	if !matchesSearch(tx, f.Query, f.SearchFields) {
+		return false
+	}
 	if f.TransactionID != "" && tx.ID != f.TransactionID {
 		return false
 	}

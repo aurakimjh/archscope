@@ -1,3 +1,4 @@
+import { HTTP_COLUMNS, restoreHttpColumns, httpColumnValue, httpColumnMatches, type HttpColumn } from "@/state/httpColumns";
 import { HttpParameterTable, HttpJsonTree } from "./HttpPayloadView";
 import { httpParameters, requestQuery, inspectForm, inspectJson } from "@/state/httpPayload";
 // ─────────────────────────────────────────────────────────────────────
@@ -53,6 +54,7 @@ import {
   buildWaterfall,
   bodyUnavailableKey,
   httpGroupedEntries,
+  httpProcessKey,
   defaultGridSort,
   nextSelection,
   placeOnSession,
@@ -201,7 +203,8 @@ export function HttpAnalyzerView({
   }, []);
   const [maximized, setMaximized] = useState(false);
 
-  const rows = useMemo(() => sortTransactions(transactions, sort), [transactions, sort]);
+  const [fieldFilter,setFieldFilter] = useState({key:"url",operator:"contains",value:""});
+  const rows = useMemo(() => sortTransactions(transactions.filter(row => httpColumnMatches(row,fieldFilter.key,fieldFilter.operator,fieldFilter.value)), sort), [transactions, sort,fieldFilter]);
   const span = useMemo(() => sessionSpan(rows), [rows]);
   const breakdown = useMemo(() => resourceKindBreakdown(transactions), [transactions]);
   const selected = useMemo(
@@ -250,6 +253,16 @@ export function HttpAnalyzerView({
         </p>
       )}
 
+      <div className="flex shrink-0 flex-wrap items-center gap-1 border-b px-2 py-1 text-xs">
+        <label>{t("httpGridFieldFilter")} <select aria-label={t("httpGridFieldFilter")} value={fieldFilter.key} onChange={(event)=>setFieldFilter(current=>({...current,key:event.target.value}))}>
+          {HTTP_COLUMNS.filter(column=>column.key!=="timeline"&&column.key!=="offset").map(column=><option key={column.key} value={column.key}>{column.labelKey?t(column.labelKey):column.label}</option>)}
+        </select></label>
+        <select aria-label={t("httpGridOperator")} value={fieldFilter.operator} onChange={(event)=>setFieldFilter(current=>({...current,operator:event.target.value}))}>
+          <option value="contains">{t("httpGridContains")}</option><option value="equals">=</option><option value="gte">≥</option><option value="lte">≤</option>
+        </select>
+        <input aria-label={t("httpGridFilterValue")} value={fieldFilter.value} onChange={(event)=>setFieldFilter(current=>({...current,value:event.target.value}))} className="rounded border px-1" />
+        {fieldFilter.value && <button type="button" onClick={()=>setFieldFilter(current=>({...current,value:""}))}>{t("httpCaptureFilterReset")}</button>}
+      </div>
       <TransactionGrid
         rows={rows}
         span={span}
@@ -500,28 +513,6 @@ function AnalyzerToolbar({
 
 // ── Virtualized packet grid ─────────────────────────────────────────
 
-type GridColumn = {
-  key: SortColumn | "timeline";
-  labelKey: MessageKey;
-  width: string;
-  align?: "right";
-  sortable: boolean;
-};
-
-const COLUMNS: GridColumn[] = [
-  { key: "sequence", labelKey: "httpAnalyzerColSeq", width: "3.5rem", align: "right", sortable: true },
-  { key: "started", labelKey: "httpAnalyzerColStarted", width: "7rem", sortable: true },
-  { key: "method", labelKey: "httpAnalyzerColMethod", width: "4.5rem", sortable: true },
-  { key: "status", labelKey: "httpAnalyzerColStatus", width: "4rem", align: "right", sortable: true },
-  { key: "host", labelKey: "httpAnalyzerColHost", width: "12rem", sortable: true },
-  { key: "path", labelKey: "httpAnalyzerColPath", width: "16rem", sortable: true },
-  { key: "kind", labelKey: "httpAnalyzerColKind", width: "6.5rem", sortable: true },
-  { key: "size", labelKey: "httpAnalyzerColSize", width: "5.5rem", align: "right", sortable: true },
-  { key: "duration", labelKey: "httpAnalyzerColDuration", width: "5rem", align: "right", sortable: true },
-  { key: "timeline", labelKey: "httpAnalyzerColTimeline", width: "14rem", sortable: false },
-  { key: "process", labelKey: "httpAnalyzerColProcess", width: "9rem", sortable: true },
-];
-
 function TransactionGrid({
   rows,
   span,
@@ -544,7 +535,41 @@ function TransactionGrid({
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [scrollTop, setScrollTop] = useState(0);
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
-  const entries = useMemo(() => httpGroupedEntries(rows, collapsed), [rows, collapsed]);
+  const [groupBy,setGroupBy] = useState("process");
+  const [columns,setColumns] = useState<HttpColumn[]>(() => {
+    try { return restoreHttpColumns(JSON.parse(localStorage.getItem("archscope.http.columns") ?? "null")); }
+    catch { return restoreHttpColumns(null); }
+  });
+  const visibleColumns=columns.filter(column => column.visible);
+  const updateColumns=(next: HttpColumn[]) => {
+    const normalized=restoreHttpColumns(next);
+    setColumns(normalized);
+    try { localStorage.setItem("archscope.http.columns",JSON.stringify(normalized)); } catch { /* Optional persistence. */ }
+  };
+  const dropColumn=(key:string,target:string) => {
+    const source=columns.findIndex(column=>column.key===key);
+    const destination=columns.findIndex(column=>column.key===target);
+    if(source<0||destination<0) return;
+    const next=[...columns];
+    const [item]=next.splice(source,1);
+    next.splice(destination,0,item);
+    updateColumns(next);
+  };
+  const moveColumn=(key:string,delta:number) => {
+    const next=[...columns];
+    const index=next.findIndex(column => column.key===key);
+    const other=Math.max(0,Math.min(next.length-1,index+delta));
+    [next[index],next[other]]=[next[other],next[index]];
+    updateColumns(next);
+  };
+  const groupKey=(row:HttpCaptureTransactionRow) => groupBy==="process"?httpProcessKey(row):groupBy==="none"?"":String(httpColumnValue(row,groupBy));
+  const starts=new Map<string,number>();
+  for(const row of rows) {
+    const started=Date.parse(row.started_at);
+    const key=groupKey(row);
+    if(Number.isFinite(started)) starts.set(key,Math.min(starts.get(key)??started,started));
+  }
+  const entries = useMemo(() => httpGroupedEntries(rows, collapsed,groupBy), [rows, collapsed,groupBy]);
   const [viewport, setViewport] = useState(600);
 
   // The grid holds a whole session — tens of thousands of rows once resource
@@ -565,6 +590,13 @@ function TransactionGrid({
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [rows, follow, selectedId]);
+
+  useEffect(() => {
+    const element=scrollRef.current;
+    if(!element) return;
+    const maximum=Math.max(0,entries.length*ROW_HEIGHT-element.clientHeight);
+    if(element.scrollTop>maximum) { element.scrollTop=maximum;setScrollTop(maximum); }
+  },[entries.length]);
 
   const start = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - OVERSCAN);
   const end = Math.min(entries.length, Math.ceil((scrollTop + viewport) / ROW_HEIGHT) + OVERSCAN);
@@ -591,26 +623,42 @@ function TransactionGrid({
       const delta =
         event.key === "ArrowDown" ? 1 : event.key === "ArrowUp" ? -1 : event.key === "PageDown" ? 10 : event.key === "PageUp" ? -10 : 0;
       if (delta === 0) return;
-      const next = nextSelection(rows, selectedId, delta);
+      const next = nextSelection(entries.flatMap(entry=>entry.kind==="request"?[entry.row]:[]), selectedId, delta);
       if (next === null) return;
       event.preventDefault();
       onSelect(next);
     },
-    [onSelect, rows, selectedId],
+    [onSelect, entries, selectedId],
   );
 
-  if (rows.length === 0) {
-    return (
-      <div className="flex flex-1 items-center justify-center">
-        <p className="text-sm text-muted-foreground" role="status">
-          {t("httpAnalyzerEmpty")}
-        </p>
-      </div>
-    );
-  }
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
+      <div className="flex shrink-0 items-start gap-2 border-b px-2 text-xs">
+        <select aria-label={t("httpGridGroup")} value={groupBy} onChange={(event) => { setGroupBy(event.target.value);setCollapsed(new Set());setScrollTop(0); }}>
+          <option value="process">{t("httpAnalyzerTabProcess")}</option>
+          <option value="host">{t("httpAnalyzerColHost")}</option>
+          <option value="method">{t("httpAnalyzerColMethod")}</option>
+          <option value="status">{t("httpAnalyzerColStatus")}</option>
+          <option value="mime">MIME</option><option value="none">{t("httpGridUngrouped")}</option>
+        </select>
+        <details className="min-w-0 flex-1">
+          <summary className="cursor-pointer">{t("httpGridColumns")}</summary>
+          <div className="max-h-40 overflow-auto">
+            {columns.map((column) => <div key={column.key} className="flex items-center gap-2 py-1" draggable
+              onDragStart={(event)=>event.dataTransfer.setData("application/x-http-column",column.key)}
+              onDragOver={(event)=>event.preventDefault()}
+              onDrop={(event)=>{event.preventDefault();dropColumn(event.dataTransfer.getData("application/x-http-column"),column.key);}}>
+              <label className="w-40"><input type="checkbox" checked={column.visible} onChange={(event) => updateColumns(columns.map(item => item.key===column.key ? {...item,visible:event.target.checked}:item))} /> {column.labelKey?t(column.labelKey):column.label}</label>
+              <input aria-label={`${column.labelKey?t(column.labelKey):column.label} ${t("httpGridWidth")}`} type="number" min={48} max={800} value={column.width}
+                className="w-20 rounded border px-1" onChange={(event) => updateColumns(columns.map(item => item.key===column.key?{...item,width:Number(event.target.value)}:item))} />
+              <button type="button" aria-label={`${column.key} ↑`} onClick={() => moveColumn(column.key,-1)}>↑</button>
+              <button type="button" aria-label={`${column.key} ↓`} onClick={() => moveColumn(column.key,1)}>↓</button>
+            </div>)}
+            <button type="button" onClick={() => updateColumns(HTTP_COLUMNS)}>{t("httpGridDefaults")}</button>
+          </div>
+        </details>
+      </div>
       <div
         ref={scrollRef}
         className="min-h-0 flex-1 overflow-auto focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ring"
@@ -620,17 +668,18 @@ function TransactionGrid({
         role="group"
         aria-label={t("httpAnalyzerTitle")}
       >
-        <table className="w-full min-w-[87rem] table-fixed border-collapse text-left text-[11px]">
+        <table className="w-full table-fixed border-collapse text-left text-[11px]" style={{minWidth:visibleColumns.reduce((sum,column)=>sum+column.width,0)}}>
           <caption className="sr-only">{t("httpAnalyzerGridCaption")}</caption>
           <colgroup>
-            {COLUMNS.map((column) => (
+            {visibleColumns.map((column) => (
               <col key={column.key} style={{ width: column.width }} />
             ))}
           </colgroup>
           <thead className="sticky top-0 z-10 bg-card">
             <tr className="border-b border-border text-muted-foreground">
-              {COLUMNS.map((column) => {
-                const active = column.sortable && sort.column === column.key;
+              {visibleColumns.map((column) => {
+                const sortable=column.key!=="timeline" && column.key!=="offset";
+                const active = sortable && sort.column === column.key;
                 return (
                   <th
                     key={column.key}
@@ -638,21 +687,21 @@ function TransactionGrid({
                     aria-sort={
                       active ? (sort.direction === "asc" ? "ascending" : "descending") : undefined
                     }
-                    className={`px-2 py-1 font-medium ${column.align === "right" ? "text-right" : ""}`}
+                    className={`px-2 py-1 font-medium ${["sequence","status","size","duration"].includes(column.key) ? "text-right" : ""}`}
                   >
-                    {column.sortable ? (
+                    {sortable ? (
                       <button
                         type="button"
                         onClick={() => onSort(column.key as SortColumn)}
                         className="inline-flex items-center gap-0.5 hover:text-foreground"
                       >
-                        {t(column.labelKey)}
+                        {column.labelKey ? t(column.labelKey) : column.label}
                         {active && (
                           <span aria-hidden="true">{sort.direction === "asc" ? "▲" : "▼"}</span>
                         )}
                       </button>
                     ) : (
-                      t(column.labelKey)
+                      (column.labelKey ? t(column.labelKey) : column.label)
                     )}
                   </th>
                 );
@@ -660,17 +709,18 @@ function TransactionGrid({
             </tr>
           </thead>
           <tbody>
+            {!entries.length && <tr><td colSpan={visibleColumns.length} className="p-4 text-center text-muted-foreground">{t("httpAnalyzerEmpty")}</td></tr>}
             {padTop > 0 && (
               <tr aria-hidden="true" style={{ height: padTop }}>
-                <td colSpan={COLUMNS.length} />
+                <td colSpan={visibleColumns.length} />
               </tr>
             )}
             {visible.map((entry) => entry.kind === "request" ? (
               <GridRow key={entry.row.id} tx={entry.row} index={entry.index}
-                span={span} selected={entry.row.id === selectedId} onSelect={onSelect} t={t} />
+                columns={visibleColumns} offsetSeconds={(Date.parse(entry.row.started_at)-(starts.get(groupKey(entry.row))??NaN))/1000} span={span} selected={entry.row.id === selectedId} onSelect={onSelect} t={t} />
             ) : (
               <tr key={"group:" + entry.key} style={{height: ROW_HEIGHT}} className="border-y bg-muted/60">
-                <td colSpan={COLUMNS.length} className="px-2">
+                <td colSpan={visibleColumns.length} className="px-2">
                   <button type="button" aria-expanded={!collapsed.has(entry.key)}
                     className="flex w-full items-center gap-3 text-left text-xs"
                     onClick={() => setCollapsed((current) => {
@@ -687,7 +737,7 @@ function TransactionGrid({
             ))}
             {padBottom > 0 && (
               <tr aria-hidden="true" style={{ height: padBottom }}>
-                <td colSpan={COLUMNS.length} />
+                <td colSpan={visibleColumns.length} />
               </tr>
             )}
           </tbody>
@@ -701,70 +751,27 @@ function TransactionGrid({
 }
 
 function GridRow({
-  tx,
-  index,
-  span,
-  selected,
-  onSelect,
-  t,
+ tx,index,span,columns,offsetSeconds,selected,onSelect,t,
 }: {
-  tx: HttpCaptureTransactionRow;
-  index: number;
-  span: ReturnType<typeof sessionSpan>;
-  selected: boolean;
-  onSelect: (id: string) => void;
-  t: Translate;
-}): React.JSX.Element {
-  const kind = resourceKindOf(tx);
-  const placement = placeOnSession(tx, span);
-  const duration = Number(tx.duration_ms);
-  return (
-    <tr
-      style={{ height: ROW_HEIGHT }}
-      aria-selected={selected}
-      className={`cursor-pointer border-b border-border/40 ${
-        selected ? "bg-primary/15" : `${rowTint(tx)} hover:bg-accent`
-      }`}
-      onClick={() => onSelect(tx.id)}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          onSelect(tx.id);
-        }
-      }}
-      tabIndex={-1}
-    >
-      <td className="px-2 text-right font-mono tabular-nums text-muted-foreground">{index + 1}</td>
-      <td className="truncate px-2 font-mono tabular-nums text-muted-foreground" title={tx.started_at}>
-        {clockOf(tx.started_at)}
-      </td>
-      <td className="px-2 font-mono">{tx.method}</td>
-      <td
-        className={`px-2 text-right font-mono tabular-nums ${statusColor(tx.status)}`}
-        title={tx.status_text || tx.error || tx.state}
-      >
-        {tx.status || "—"}
-      </td>
-      <td className="truncate px-2 text-muted-foreground" title={tx.host}>
-        {tx.host}
-      </td>
-      <td className="truncate px-2" title={tx.url || tx.path}>
-        {tx.path}
-        {tx.query ? <span className="text-muted-foreground">?{tx.query}</span> : null}
-      </td>
-      <td className="truncate px-2">
-        <span className="inline-flex items-center gap-1">
-          <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${KIND_DOT[kind]}`} aria-hidden="true" />
-          {t(RESOURCE_KIND_LABEL_KEYS[kind])}
-        </span>
-      </td>
-      <td className="px-2 text-right tabular-nums text-muted-foreground">
-        {formatBytes(tx.response_bytes)}
-      </td>
-      <td className="px-2 text-right tabular-nums">
-        {Number.isFinite(duration) ? `${Math.round(duration)} ms` : "—"}
-      </td>
-      <td className="px-2">
+ tx:HttpCaptureTransactionRow;index:number;span:ReturnType<typeof sessionSpan>;
+ columns:HttpColumn[];offsetSeconds:number;selected:boolean;onSelect:(id:string)=>void;t:Translate;
+}):React.JSX.Element {
+ const kind=resourceKindOf(tx);
+ const placement=placeOnSession(tx,span);
+ return <tr style={{height:ROW_HEIGHT}} aria-selected={selected} tabIndex={-1}
+   className={`cursor-pointer border-b border-border/40 ${selected?"bg-primary/15":rowTint(tx)+" hover:bg-accent"}`}
+   onClick={()=>onSelect(tx.id)}
+   onKeyDown={(event)=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();onSelect(tx.id);}}}>
+   {columns.map(column => {
+     let value=httpColumnValue(tx,column.key);
+     if(column.key==="sequence") value=tx.sequence||index+1;
+     if(column.key==="started"||column.key==="ended") value=clockOf(String(value));
+     if(["size","sent","bodySize"].includes(column.key)) value=Number(value)>=0?formatBytes(Number(value)):"—";
+     if(column.key==="duration") value=Number.isFinite(tx.duration_ms)?Math.round(tx.duration_ms)+" ms":"—";
+     if(column.key==="offset") value=Number.isFinite(offsetSeconds)?offsetSeconds.toFixed(3)+" s":"—";
+     return <td key={column.key} className={`truncate px-2 font-mono ${column.key==="status"?statusColor(tx.status):""}`} title={String(value)}>
+       {column.key==="kind" ? <span className="inline-flex items-center gap-1"><span className={`h-1.5 w-1.5 rounded-full ${KIND_DOT[kind]}`} />{t(RESOURCE_KIND_LABEL_KEYS[kind])}</span>
+        :column.key==="timeline"? (<>
         {placement ? (
           <div className="relative h-2 w-full overflow-hidden rounded-sm bg-muted/60" aria-hidden="true">
             <div
@@ -781,12 +788,11 @@ function GridRow({
         ) : (
           <span className="text-[10px] text-muted-foreground">—</span>
         )}
-      </td>
-      <td className="truncate px-2 text-muted-foreground" title={tx.process?.name ?? ""}>
-        {tx.process?.name ?? "—"}
-      </td>
-    </tr>
-  );
+
+        </>):value}
+     </td>;
+   })}
+ </tr>;
 }
 
 /** HH:MM:SS.mmm of an ISO instant, or the raw value when it will not parse. */

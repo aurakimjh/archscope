@@ -410,3 +410,49 @@ func TestCaptureServiceRecordingControls(t *testing.T) {
 		t.Fatalf("stopped clear=%+v err=%v", stats, e)
 	}
 }
+
+func TestStoredSearchFindsExchangesOutsideLiveWindow(t *testing.T) {
+	origin := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/oldest" {
+			w.Header().Set("X-Fixture", "oldest-marker")
+		}
+		w.WriteHeader(200)
+	}))
+	defer origin.Close()
+	service := newCaptureServiceForPlatform(t.TempDir(), certstore.New(memoryTrustBackend{}, nil), "windows")
+	started, err := service.StartCapture(capture.Config{ListenAddress: "127.0.0.1:0", LiveWindow: 2, RetainUnattributedMetadata: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer service.StopCapture(string(started.ID))
+	proxyURL, _ := url.Parse("http://" + started.ListenAddress)
+	transport := &http.Transport{Proxy: http.ProxyURL(proxyURL)}
+	defer transport.CloseIdleConnections()
+	client := &http.Client{Transport: transport}
+	for _, path := range []string{"/oldest", "/next", "/latest"} {
+		response, e := client.Get(origin.URL + path)
+		if e != nil {
+			t.Fatal(e)
+		}
+		response.Body.Close()
+	}
+	window, err := service.GetCaptureLiveWindow(string(started.ID))
+	if err != nil || len(window) != 2 {
+		t.Fatalf("window=%+v err=%v", window, err)
+	}
+	page, err := service.SearchCaptureTransactions(CaptureFetchRequest{SessionID: string(started.ID), Filter: store.Filter{Query: "oldest-marker", SearchFields: []string{"headers"}}})
+	if err != nil || page.Total != 1 || len(page.Items) != 1 || page.Items[0].Transaction.Path != "/oldest" {
+		t.Fatalf("search=%+v err=%v", page, err)
+	}
+	for _, tx := range window {
+		if tx.ID == page.Items[0].Transaction.ID {
+			t.Fatal("test did not cross the live-window boundary")
+		}
+	}
+	if page.Items[0].Transaction.Response.BodyPreview != "" {
+		t.Fatal("search returned unsolicited payload data")
+	}
+	if _, err := service.SearchCaptureTransactions(CaptureFetchRequest{SessionID: string(started.ID), Filter: store.Filter{SearchFields: []string{"invalid"}}}); err == nil {
+		t.Fatal("unknown search field accepted")
+	}
+}
