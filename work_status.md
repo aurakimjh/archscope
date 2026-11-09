@@ -1,6 +1,6 @@
 # ArchScope Work Status
 
-Last updated: 2026-08-11
+Last updated: 2026-11-09
 
 This file is the current execution status for the active ArchScope product line.
 The previous long-form history was archived to
@@ -8,7 +8,13 @@ The previous long-form history was archived to
 
 ## Status Overview
 
-**Overall: 174 of 175 tracked tasks are `DONE` (99.4%).** **T-587 and T-588
+**Overall: 175 of 180 tracked tasks are `DONE` (97.2%).** The 2026-11-09
+GC/profiler revalidation confirmed five bugs (T-589 through T-593). Their
+current implementation status is recorded in the registry and snapshot below;
+T-557 remains trigger-dependent `PENDING`.
+The earlier release acceptance below describes its recorded product baseline
+and does not certify these newly identified cases or future remediation.
+**T-587 and T-588
 closed on 2026-08-11 after their required reviews and the post-change R-RG1
 re-run passed.** T-588's Windows forced-crash proof used real request and
 response recorders, a live CA key, and `RaiseFailFastException`; Engine Native
@@ -207,11 +213,11 @@ completed the independent Lighthouse file-first engine slice.
 
 | Status | Count | Meaning |
 |---|---:|---|
-| `TODO` | 0 | Ready to start; prerequisites are satisfied |
+| `TODO` | 4 | Ready to start; prerequisites are satisfied |
 | `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
 | `REVIEW` | 0 | Review or required remediation is underway; the gate has not passed |
 | `PENDING` | 1 | Waiting for a prerequisite, external condition, or activation trigger |
-| `DONE` | 174 | Completion criteria and required review gates have passed |
+| `DONE` | 175 | Completion criteria and required review gates have passed |
 
 The normal transition is `TODO → IN_PROGRESS → REVIEW → DONE`. A `PENDING`
 task returns to `TODO` when its dependency or trigger is satisfied. Task status
@@ -223,7 +229,11 @@ same change so this overview remains the status source of truth.
 
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
-| 1 | T-557 | P1 | `PENDING` | Activate only if repeated MSA drilldown use justifies a Go analyzer contract |
+| 1 | T-590 | P1 | `TODO` | Preserve internal-frame self samples in Canvas flamegraph totals, widths, tooltips, and search |
+| 2 | T-591 | P1 | `TODO` | Filter canonical profile evidence before display pruning; preserve/disclose hidden weight without attributing it to real self samples |
+| 3 | T-592 | P1 | `TODO` | Distinguish legacy profile counter units and aggregation modes before converting lock weights into durations |
+| 4 | T-593 | P2 | `TODO` | Validate ordered regex terms once and surface invalid/unsafe patterns consistently |
+| 5 | T-557 | P1 | `PENDING` | Activate only if repeated MSA drilldown use justifies a Go analyzer contract |
 
 ## Current Baseline
 
@@ -236,11 +246,16 @@ same change so this overview remains the status source of truth.
 - Release baseline: `v0.3.5` is the latest stable GitHub release. The
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
-- Current execution focus: select the next roadmap objective. T-587 and T-588
+- Current execution focus: the confirmed GC/profiler bugs T-589 through T-593,
+  ordered above. On 2026-11-09 the user assigned all five fixes, including UI,
+  to Codex and requested one commit per completed task, followed by a push only
+  after all five are complete. This overrides the prior UI ownership for these
+  five fixes only. T-587 and T-588
   are `DONE`; their post-remediation reviews passed, and the post-change R-RG1
   re-run passed at product commit `7af0f7a` in Engine Native `31488911063`,
   general CI `31488911030`, and Windows GUI Smoke `31489687652`. The version
-  tag and GitHub release remain an unblocked, separate release decision.
+  tag and GitHub release remain a separate decision; the new bug queue and
+  verification of any remediation must be considered before a release cut.
   T-583 / X-RG1 closed with `PASS` on 2026-07-31 after the B3 narrow
   re-review verified candidate selection and emitted clock evidence are
   structurally separated, the regression is genuine against the pre-fix
@@ -549,6 +564,15 @@ same change so this overview remains the status source of truth.
 
 ## Current Risk
 
+The 2026-11-09 audit identified these correctness/diagnostic risks; see the
+Task Registry for closures and remaining work:
+GC measurements lose usable time coordinates, Canvas can drop internal self
+weight, drilldown can search display-pruned evidence, legacy lock counters lack
+unit-aware duration conversion, and ordered regex errors can be hidden. Their
+local reproductions and required closure checks are in the active queue below.
+The previous gate closures in this section remain historical baseline evidence;
+they do not resolve these newly registered cases.
+
 The C-RG1 risk is closed. Its 2026-07-21 independent re-review returned `PASS`
 after re-verifying all ten engine/UI remediation findings and the 16-fixture,
 engine, frontend, vet, and build evidence. The Codex H-RG1 engine implementation
@@ -619,6 +643,126 @@ filtered before analysis.
 | Collapsed profiler | 29 MB / 500k lines | 0.26s | 16 MB | 6.8 KB | Good baseline |
 
 ## Next Execution Queue
+
+1. **T-589 (DONE; P1, Codex engine / Claude UI):** repair GC time extraction and
+   measurement availability. Define the observation window before changing
+   throughput/rate arithmetic, then align absolute versus elapsed chart axes.
+2. **T-590 (P1, Claude UI):** preserve inclusive and self sample accounting in
+   the shared Canvas flamegraph. Verify ordinary prefix stacks independently of
+   pruning, then cover the pruned/hidden-weight representation with T-591.
+3. **T-591 (P1, Codex engine/contracts / Claude UI disclosure):** apply
+   drilldown filters to canonical evidence before bounded display pruning.
+   Preserve the node/payload limits and distinguish hidden descendants from
+   actual self samples; do not solve this by disabling memory guards.
+4. **T-592 (P1, Codex engine/contracts/export / Claude UI):** establish explicit
+   counter-unit and aggregation provenance for legacy profiles before deriving
+   durations. Keep the existing typed V8/profile-evidence units intact.
+5. **T-593 (P2, Codex engine):** prevalidate/precompile ordered regex terms and
+   return the same diagnostics as the non-ordered path. This is independent of
+   the P1 fixes and can be implemented without changing filter semantics.
+
+The five tasks are independent; DONE entries above are closure records, and
+remaining open entries retain their displayed priority. This user-requested fix
+cycle uses targeted regressions, relevant engine/frontend checks, and a local
+source review for closure; no independent-review or platform-E2E verdict is
+claimed. Prior independently reviewed release gates retain their own scope. T-557 remains
+pending its original usage trigger. No new feature range is activated here.
+
+### GC / Profiler Bug Revalidation — 2026-11-09
+
+The findings below are the original pre-fix reproduction record; current fix
+status and validation are in the Task Registry. They are not current failures
+for tasks subsequently marked DONE.
+
+The current source was rechecked with temporary synthetic Go API probes and
+the actual Canvas hierarchy expression evaluated with the installed
+`d3-hierarchy`. Temporary probes were removed. These are local semantic
+reproductions, not desktop GUI, real-JVM recording, Windows, or release E2E
+evidence. No unprocessed review document was present in `docs/review/`.
+
+- **T-589 — confirmed, fix required.** Unified GC records at `[1.000s]` and
+  `[11.000s]` parse two events but leave `uptime_sec` unavailable; their
+  timeline becomes `"0"`, `"1"`, and wall time, throughput, and allocation
+  rate all report zero. Adding dates preserves the displayed timestamps but
+  still leaves the rate denominator zero; date-only input has the same rate
+  defect. The input contains a measurable ten-second span and 30 ms of pauses,
+  so zero is not an honest unavailable state. Sources:
+  `internal/parsers/gclog/parser.go:712`,
+  `internal/analyzers/gclog/analyzer.go:566`, and
+  `frontend/src/charts/gcLogCharts.ts:175` (paths relative to the active engine
+  or its desktop app). Acceptance: uptime-only, date+uptime, date-only,
+  single-event, missing-time, and clock-reset inputs; explicit observation
+  window/numerator rules; correct axis units; unavailable metrics carry a
+  reason instead of measured-looking zeros; paired EN/KO contract docs and
+  engine/UI regressions. Oracle documents uptime as a default unified-log
+  decorator: [Java 21 logging decorations](https://docs.oracle.com/en/java/javase/21/docs/specs/man/java.html#decorations).
+- **T-590 — confirmed, fix required.** With inclusive `All=100`, `A=100`,
+  `A/B=40`, the current Canvas expression returns a total of 40 and presents B
+  as 100%, losing A's 60 self samples. A leaf-only control totaling 40 remains
+  correct, isolating the internal-self case. Source:
+  `frontend/src/components/CanvasFlameGraph.tsx:155`. Acceptance: render total
+  100 and B at 40% of the original total, preserve A's self weight, and avoid
+  double counting on prefix, recursive, focused, searched, and pruned trees.
+  Include ordinary non-pruned regressions so T-591 cannot mask this bug.
+- **T-591 — confirmed, fix required.** Input stacks `a;hot=100` and
+  `a;rare=10`, with `MaxFlamegraphNodes=3`, produce zero matches for an include
+  filter on `rare`; the unpruned control produces 10. The desktop service feeds
+  `result.Charts.Flamegraph` into the filter after analysis has pruned it.
+  The small budget exercises the same branch used beyond the default 100,000
+  node cap. At budget exhaustion the pruner can also omit the promised
+  synthetic `other` child, leaving hidden descendant weight indistinguishable
+  from real self weight. Sources: `cmd/archscope-app/profilerservice.go:392`,
+  `internal/profiler/analyzer.go:340`, and
+  `internal/profiler/flamegraph.go:245`. Acceptance: a retained canonical stack
+  matches with the same count regardless of display budget; filtering precedes
+  display pruning; hidden/omitted weight is conserved and explicitly disclosed;
+  every returned stage remains bounded. Parser-level input truncation remains
+  a distinct disclosed limitation, not a promise to recover discarded input.
+- **T-592 — confirmed unit-contract bug, fix required with narrower scope.**
+  A legacy `lock` counter of 1,000,000, explicitly interpreted as total
+  nanoseconds in the probe, is converted with `IntervalMS=100` into 100,000
+  seconds rather than 0.001 seconds. The legacy request has no counter-unit or
+  aggregation-mode field. This does **not** mean every lock counter is
+  nanoseconds: async-profiler supports sample-count and total-metric output.
+  Sources: `internal/profiler/analyzer.go:313`,
+  `internal/profiler/drilldown.go:214`, and `internal/profiler/pprof.go:65`.
+  Acceptance: explicit sample-count versus total-time provenance, direct
+  conversion for a known time unit, no interval multiplication of weighted
+  durations, unavailable duration when provenance is insufficient, consistent
+  summary/drilldown/export units, and unchanged supported CPU/wall/V8 semantics.
+  Resolve the contract before updating generated bindings or EN/KO labels.
+  References: [aggregation options](https://github.com/async-profiler/async-profiler/blob/master/docs/ProfilerOptions.md),
+  [lock profiling](https://github.com/async-profiler/async-profiler/blob/master/docs/ProfilingModes.md#lock-profiling).
+- **T-593 — confirmed, fix required.** Regex `[` in `anywhere` mode emits
+  `INVALID_REGEX`; ordered pattern `a>[` instead returns zero matches with
+  `diagnostics=null`. Ordered terms are compiled inside the frame loop and
+  their errors are discarded. Sources: `internal/profiler/drilldown.go:331`
+  and `:368`. Acceptance: validate all ordered terms before traversal,
+  including unreachable terms, apply consistent invalid/unsafe-pattern guards,
+  compile each term once per filter, preserve existing matching/reroot behavior,
+  and verify both include and exclude error cases cannot masquerade as valid
+  matches or non-matches.
+
+**Items deliberately not promoted to bug TO-DO:**
+
+- Peak-preserving GC downsampling is an optional visualization improvement.
+  A six-event/two-bucket probe retains 1 ms line points while the exact summary
+  still reports 1,000 ms and the critical alert retains the omitted peak's
+  timestamp/value. This follows the documented `event_bucket_last` policy;
+  the earlier suggestion alone does not establish lost summary/alert evidence.
+- Drilldown stale-result/race behavior remains a static-code concern; no
+  component lifecycle or desktop reproduction was executed in this audit.
+  Reproduce input changes, failed requests, and reversed completion order
+  before registering a separate confirmed bug.
+- GC interval analysis, collector-specific coverage expansion, streaming GC
+  aggregation, and profile caching remain optional feature/performance work.
+  Synthetic heap-less phase rejection proves a coverage limit, not complete
+  ZGC/Shenandoah support or an independently validated collector regression.
+
+### Prior Release Closure and Roadmap Notes
+
+The following records retain the earlier gates and roadmap decisions. They are
+historical context, not tasks ahead of the active bug queue above.
 
 1. **T-584 / R-RG1 closure record:** the first review returned `CONDITIONAL`
    on R1–R3. The remediation completed the unreleased feature notes for the
@@ -764,6 +908,7 @@ Long Task semantics).
 
 | Review | Decision | Follow-up |
 |---|---|---|
+| 2026-11-09 GC / flamegraph bug revalidation requested by the user | Confirmed five actionable correctness/diagnostic bugs through source tracing and local synthetic probes. Narrowed the lock finding to counter-unit/aggregation provenance; retained peak-preserving downsampling and unexecuted UI lifecycle concerns outside the confirmed-bug queue. No implementation or independent closure review performed. | T-589 through T-593 are `TODO`; reproduction, acceptance criteria, ownership, and deferred candidates are recorded in the active execution queue. |
 | 2026-05-16 mid-term roadmap review P0-1 through P0-6 | Accepted | T-452 through T-457 |
 | P1-7 UI-heavy derived analysis and P1-8 AnalysisResult drift | Accepted as phased remediation, not a single rewrite | T-458, T-459 |
 | P1-9 exporter recomputes analysis | Accepted | T-460 |
@@ -885,6 +1030,11 @@ deferred until explicitly promoted.
 
 | ID | Priority | Status | Task | Depends on | Output |
 |---|---|---|---|---|---|
+| T-589 | P1 | DONE | Restore unified GC uptime/date coordinates and valid throughput/allocation/promotion rate denominators; define observation-window rules, expose unavailable values honestly, and align absolute versus elapsed UI axes. | None; existing GC parser/analyzer and AnalysisResult envelope | Completed 2026-11-09: unified date/uptime parsing, monotonic observed-window accounting, nullable unavailable metrics with reasons, elapsed/absolute axes and EN/KO disclosure. GC parser/analyzer regressions, frontend state suite and production build passed; local source review completed (no independent or desktop E2E claim). |
+| T-590 | P1 | TODO | Preserve internal-frame self samples in the shared Canvas flamegraph so totals, widths, tooltips, and search use the original inclusive weights without double counting. | None; coordinate hidden-weight fixtures with T-591 | Pending: prefix/self, recursive, focus/search, and hidden-weight regressions; Claude owns React/UI changes and frontend verification. The 100-total/40-child failure was reconfirmed from the actual hierarchy expression on 2026-11-09. |
+| T-591 | P1 | TODO | Apply profiler drilldown filters to canonical evidence before display pruning; conserve/disclose omitted subtree weight while keeping every result stage within node/payload limits. | None; coordinate Canvas accounting with T-590 | Pending: display-budget-independent matching, bounded stage output, explicit hidden-versus-self provenance, Codex engine contract plus Claude disclosure, and independent review. The pruned-zero/unpruned-ten control was reconfirmed 2026-11-09. |
+| T-592 | P1 | TODO | Resolve legacy profile counter-unit and sample-count/total-metric provenance before converting lock weights to durations; keep summary, drilldown, and pprof export units consistent and disclose insufficient provenance. | None; source-unit contract must precede binding/UI changes within this task | Pending: known-nanosecond and count/unknown-unit cases, CPU/wall/V8 compatibility checks, paired EN/KO contract/docs, generated binding handoff if required, and independent semantic review. Do not assume every lock counter is nanoseconds. |
+| T-593 | P2 | TODO | Prevalidate and precompile every ordered-regex term; propagate INVALID_REGEX/UNSAFE_REGEX consistently instead of silently returning no matches or accepting invalid excludes. | None; existing filter behavior and RE2 guards | Pending: include/exclude, invalid/unreachable/oversized term regressions and unchanged ordered/reroot semantics; Codex engine scope. The anywhere-error/ordered-no-diagnostic contrast was reconfirmed 2026-11-09. |
 | T-577 | P0 | DONE | Read the Chrome/V8 and system HTTP-capture designs and completed reviews, reconcile them with current code, and publish a paired English/Korean implementation plan with Codex engine ownership, Claude UI ownership, grouped review gates, and narrowly scoped individual security/semantic reviews. | T-558 through T-576 | Completed 2026-07-21: paired `BROWSER_PROFILE_HTTP_CAPTURE_IMPLEMENTATION_PLAN.md`; stale T-565 documentation status corrected; work status and execution queue aligned |
 | T-578 | P0 | DONE | Resolve the C-RG1 `CONDITIONAL` verdict and obtain independent re-review `PASS`. Codex A-E: reconcile the time-attribution contract with real Chrome semantics and add an exact convention-pinning golden plus tail handling; emit separate recording/active/idle/sampled durations without conflating `total_duration_us`; add Chrome-trace negative-delta diagnostic fixture/parity and hitCount cross-check; make first-sample handling independent of `startTime`. Claude U1-U5: render engine diagnostics and explicit suppressed/aggregated timeline states; add flamegraph/drilldown; expose `.json.gz`; add empty-state/i18n/table a11y; add Browser CPU regression tests for diagnostics, suppression, and the non-Long-Task wording. | T-565, T-577 | Completed 2026-07-21. Codex A-E landed in `5db8df8`, `ed01dd0`, `7b24206`, `40c6bde`, and `3249c27`; Claude U1-U5 landed in `b023040`; shared exact/negative-trace fixtures are in projects-assets `de7cf07` and `5531036`. Independent re-review at `b023040` returned `PASS` after verifying all ten findings, 16-fixture goldens, engine tests, frontend state tests, EN/KO i18n parity, `go vet`, and full builds. H-RG1/T-579 is unblocked. |
 | T-579 | P0 | DONE | Complete and review H-RG1 offline HAR analysis. Codex: canonical transaction/timing/fidelity model, staged dialect normalizer, resource limits, shared manifest goldens, dedicated redaction, bounded result and CLI/Wails parity. Claude: pseudo-process tree, timeline/brush, list/detail/filter, fidelity/diagnostics/redaction UX and Workspace regression. | T-578 PASS; T-568 through T-573 | Completed 2026-07-21 with integrated `PASS`. Engine remediation and H-SEC1 re-reviews are `PASS`; all 20 manifest fixtures, bounded/redacted `AnalysisResult`, CLI/Wails parity, and UI import-only behavior are retained. UI R1 was accepted under the disclosed bounded Phase 1 denominator contract; R2 was accepted from populated state, provenance/Workspace, type, and production-build evidence with deeper component fixtures left as non-blocking hardening. Full `go test ./...`, `go vet ./...`, `go build ./...`, frontend `npm run test:state`, and frontend `npm run build` pass. |
@@ -1063,6 +1213,18 @@ deferred until explicitly promoted.
 
 ## Verification Notes
 
+- 2026-11-09 GC/profiler revalidation: uncached
+  `go test -count=1 ./internal/parsers/gclog ./internal/analyzers/gclog ./internal/profiler`
+  passed under `apps/engine-native`. Temporary public-API probes reproduced
+  unified GC time/rate loss, display-pruned versus full-tree filter divergence,
+  an explicitly nanosecond-weighted lock conversion error, and ordered-regex
+  diagnostic loss. The actual Canvas hierarchy expression, evaluated with the
+  installed `d3-hierarchy`, reproduced internal self-sample loss with a leaf-only
+  control. The peak probe also verified exact summary and retained critical
+  alert evidence, so peak-preserving downsampling was not classified as a
+  confirmed correctness bug. Existing tests passing is baseline evidence only;
+  it does not close T-589 through T-593. No product source, persistent test,
+  desktop lifecycle test, shared asset, release, commit, or push changed here.
 - 2026-07-21 Chrome/V8 release finishing passed the shared manifest golden test
   across 15 valid, malformed, and E2E fixtures, including 3.1s/210ms
   `renderList` parity between `.cpuprofile` and Chrome trace inputs.

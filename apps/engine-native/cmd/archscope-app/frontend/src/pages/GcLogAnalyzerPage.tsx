@@ -1,3 +1,4 @@
+import { gcUnavailableReasons, gcReasonKey } from "../state/gcClock";
 // ─────────────────────────────────────────────────────────────────────
 // [한글] pages/GcLogAnalyzerPage.tsx — JVM GC log 분석기 페이지.
 //
@@ -538,6 +539,9 @@ export function GcLogAnalyzerPage(): React.JSX.Element {
               value={formatNumber(summary?.oom_event_count)}
             />
           </section>
+          {gcUnavailableReasons(result).map((reason) => (
+            <p key={reason} className="mt-2 text-xs text-muted-foreground">{t(gcReasonKey(reason))}</p>
+          ))}
           {findings.length > 0 && (
             <Card className="mt-4">
               <CardHeader className="pb-3">

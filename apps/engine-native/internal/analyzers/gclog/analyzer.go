@@ -76,7 +76,7 @@ import (
 
 const (
 	// SchemaVersion mirrors Python `metadata.schema_version`.
-	SchemaVersion = "0.1.0"
+	SchemaVersion = "0.2.0"
 	// DefaultTopN mirrors Python `top_n=20` — caps the per-event
 	// `tables.events` list.
 	DefaultTopN = 20
@@ -183,8 +183,6 @@ func Build(
 		promotionRates        = make([]float64, 0)
 		eventRows             = make([]map[string]any, 0, topN)
 		alertRows             = make([]map[string]any, 0, DefaultMaxAlertRows)
-		firstUptimeSec        *float64
-		lastUptimeSec         *float64
 		humongousCount        int
 		cmfCount              int
 		promotionFailureCount int
@@ -209,10 +207,12 @@ func Build(
 	oomAlerts, oomEventCount := scanOutOfMemoryAlerts(sourceFile, opts.MaxLines, DefaultMaxAlertRows)
 	alertRows = append(alertRows, oomAlerts...)
 
+	clock := observeClock(events)
 	var prevEvent *gclog.Event
 
 	for index, event := range events {
 		event := event // capture for pointer
+		rateEvent := clock.rateEvent(event)
 		totalEvents++
 		typeCounts.add(strOrUnknown(event.GCType))
 		causeCounts.add(strPtrOrUnknown(event.Cause))
@@ -226,16 +226,7 @@ func Build(
 			pausesMS = append(pausesMS, *event.PauseMS)
 		}
 
-		if event.UptimeSec != nil {
-			if firstUptimeSec == nil {
-				v := *event.UptimeSec
-				firstUptimeSec = &v
-			}
-			v := *event.UptimeSec
-			lastUptimeSec = &v
-		}
-
-		timeLabel := eventTime(event, index)
+		timeLabel := clock.label(event, index)
 
 		var pauseValue float64
 		if event.PauseMS != nil {
@@ -304,11 +295,11 @@ func Build(
 			metaspaceAfterMB.add(index, map[string]any{"time": timeLabel, "value": *event.MetaspaceAfterMB})
 		}
 
-		if rate := allocationRateMBPerSec(prevEvent, &event); rate != nil {
+		if rate := allocationRateMBPerSec(prevEvent, &rateEvent); rate != nil && clock.reason == "" {
 			allocationRateTimeline.add(index, map[string]any{"time": timeLabel, "value": *rate})
 			allocationRates = append(allocationRates, *rate)
 		}
-		if rate := promotionRateMBPerSec(prevEvent, &event); rate != nil {
+		if rate := promotionRateMBPerSec(prevEvent, &rateEvent); rate != nil && clock.reason == "" {
 			promotionRateTimeline.add(index, map[string]any{"time": timeLabel, "value": *rate})
 			promotionRates = append(promotionRates, *rate)
 		}
@@ -326,11 +317,11 @@ func Build(
 		if len(eventRows) < topN {
 			eventRows = append(eventRows, eventToRow(&event))
 		}
-		prevEvent = &event
+		prevEvent = &rateEvent
 	}
 
-	wallTimeSec := computeWallTimeSec(firstUptimeSec, lastUptimeSec)
-	throughputPercent := computeThroughputPercent(totalPause, wallTimeSec)
+	wallTimeSec := clock.span
+	throughputPercent, throughputPause, throughputReason := windowThroughput(events, clock)
 	p50, p95, p99 := computePercentiles(pausesMS)
 
 	avgPauseMS := 0.0
@@ -339,7 +330,7 @@ func Build(
 		avgPauseMS = roundHalfEven(totalPause/float64(pauseCount), 3)
 		maxPauseMS = roundHalfEven(maxPause, 3)
 	}
-	wallTimeOut := 0.0
+	var wallTimeOut any
 	if wallTimeSec != nil {
 		wallTimeOut = roundHalfEven(*wallTimeSec, 3)
 	}
@@ -364,11 +355,12 @@ func Build(
 		"p95_pause_ms":                   p95,
 		"p99_pause_ms":                   p99,
 		"throughput_percent":             throughputPercent,
+		"throughput_pause_ms":            throughputPause,
 		"wall_time_sec":                  wallTimeOut,
 		"young_gc_count":                 youngGCCount,
 		"full_gc_count":                  fullGCCount,
-		"avg_allocation_rate_mb_per_sec": avgFloat(allocationRates),
-		"avg_promotion_rate_mb_per_sec":  avgFloat(promotionRates),
+		"avg_allocation_rate_mb_per_sec": optionalAverage(allocationRates),
+		"avg_promotion_rate_mb_per_sec":  optionalAverage(promotionRates),
 		"humongous_allocation_count":     humongousCount,
 		"concurrent_mode_failure_count":  cmfCount,
 		"promotion_failure_count":        promotionFailureCount,
@@ -430,6 +422,14 @@ func Build(
 		result.Metadata.Extra = map[string]any{}
 	}
 	result.Metadata.Extra["gc_format"] = gcFormat
+	result.Metadata.Extra["time_axis"] = clock.axis
+	result.Metadata.Extra["measurement_clock"] = clock.rateClock
+	result.Metadata.Extra["observation_window"] = "first_event_end_to_last_event_end"
+	result.Metadata.Extra["measurement_unavailable"] = map[string]string{
+		"wall_time_sec": clock.reason, "throughput_percent": throughputReason,
+		"avg_allocation_rate_mb_per_sec": rateUnavailable(allocationRates, clock.reason),
+		"avg_promotion_rate_mb_per_sec":  rateUnavailable(promotionRates, clock.reason),
+	}
 	if len(jvmInfo) > 0 {
 		result.Metadata.Extra["jvm_info"] = jvmInfo
 	}
@@ -563,28 +563,6 @@ func eventToRow(event *gclog.Event) map[string]any {
 
 // ─── Wall time / throughput / percentiles ────────────────────────────
 
-func computeWallTimeSec(first, last *float64) *float64 {
-	if first == nil || last == nil {
-		return nil
-	}
-	span := *last - *first
-	if span <= 0 {
-		return nil
-	}
-	return &span
-}
-
-func computeThroughputPercent(totalPauseMS float64, wallTimeSec *float64) float64 {
-	if wallTimeSec == nil || *wallTimeSec <= 0 {
-		return 0.0
-	}
-	pauseSec := totalPauseMS / 1000.0
-	if pauseSec >= *wallTimeSec {
-		return 0.0
-	}
-	return roundHalfEven((1.0-pauseSec/(*wallTimeSec))*100.0, 3)
-}
-
 func computePercentiles(pausesMS []float64) (float64, float64, float64) {
 	if len(pausesMS) == 0 {
 		return 0.0, 0.0, 0.0
@@ -632,10 +610,7 @@ func allocationRateMBPerSec(prev, curr *gclog.Event) *float64 {
 	if prev == nil {
 		return nil
 	}
-	if prev.UptimeSec == nil || curr.UptimeSec == nil {
-		return nil
-	}
-	dt := *curr.UptimeSec - *prev.UptimeSec
+	dt := eventDelta(prev, curr)
 	if dt <= 0 {
 		return nil
 	}
@@ -654,10 +629,7 @@ func promotionRateMBPerSec(prev, curr *gclog.Event) *float64 {
 	if prev == nil {
 		return nil
 	}
-	if prev.UptimeSec == nil || curr.UptimeSec == nil {
-		return nil
-	}
-	dt := *curr.UptimeSec - *prev.UptimeSec
+	dt := eventDelta(prev, curr)
 	if dt <= 0 {
 		return nil
 	}
@@ -932,7 +904,7 @@ func buildFindings(summary map[string]any) []map[string]any {
 
 	throughput := asFloat(summary["throughput_percent"])
 	wallTime := asFloat(summary["wall_time_sec"])
-	if wallTime > 0 && throughput < 95.0 {
+	if summary["throughput_percent"] != nil && wallTime > 0 && throughput < 95.0 {
 		findings = append(findings, map[string]any{
 			"severity": "warning",
 			"code":     "LOW_GC_THROUGHPUT",

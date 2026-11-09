@@ -1,3 +1,4 @@
+import { gcAxis, gcCoordinate, gcUnavailableReasons, gcReasonKey } from "./gcClock.js";
 import { messages } from "../i18n/messages.js";
 import type { AnalysisWorkspaceEntry, WorkspaceAnalysisResult } from "./analysisWorkspace.js";
 import { evaluateAiInterpretation, extractAiInterpretation } from "./aiInterpretation.js";
@@ -2952,3 +2953,15 @@ assert(
   activeBodyCapturePolicy({ sessionId: "cap-1", state: "finalized", listenAddress: "", storePath: "", startedAt: null, captureBodies: true }, false) === false,
   "once a session ends the local choice seeds the next start again",
 );
+
+// T-589: relative seconds must never be interpreted as calendar timestamps.
+for (const [axis, type, value] of [["uptime_seconds", "value", 11], ["event_index", "value", 11], ["absolute", "time", "11"]] as const) {
+ const result = {metadata: {time_axis: axis, measurement_unavailable: {wall_time_sec: "clock_reset", throughput_percent: "clock_reset"}}} as any;
+ assert(gcAxis(result).type === type, `GC axis ${axis}`);
+ assert(gcCoordinate(result, "11") === value, `GC coordinate ${axis}`);
+ assert(gcUnavailableReasons(result).length === 1, "GC reason deduplicated");
+}
+for (const reason of ["clock_reset", "pause_exceeds_window", "missing_time"]) {
+ const key = gcReasonKey(reason);
+ assert(Boolean(messages.en[key]) && Boolean(messages.ko[key]), "GC unavailable reason localized");
+}

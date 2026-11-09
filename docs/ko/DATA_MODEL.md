@@ -1526,3 +1526,16 @@ MSA 타임라인 매칭은 기존처럼 matched caller-to-callee edge를
 - 새 `tables.deadlock_cycles` — `{ cycle: string[] }` (lock graph DFS).
 - 새 `tables.dump_overview` — 덤프당 한 행: 쓰레드 수, 상태 분포,
   resolved parser plugin id.
+
+### GC 관측 시간 기준 (스키마 0.2.0)
+
+이벤트 날짜와 JVM 가동 시간은 독립적으로 추출합니다.
+`metadata.time_axis`는 `absolute`, `uptime_seconds`, `event_index` 중 하나이며,
+절대 시각만 날짜 축으로 표시합니다. 변화율은 공통된 단조 증가 시계가 필요합니다.
+`metadata.measurement_clock`는 계산 시계를 명시합니다. 일부 이벤트에만 가동 시간이
+있으면 모든 변화율에 날짜를 일관되게 사용하여 서로 다른 시계 기준을 섞지 않습니다.
+`wall_time_sec`는 첫 pause 종료부터 마지막 pause 종료까지의 구간입니다.
+처리율의 `throughput_pause_ms`는 시작이 관측 구간 밖에 있는 첫 pause를 제외합니다.
+pause 합계와 백분위는 모든 이벤트를 사용합니다. 시간 누락·역행·동일 시각·모순된
+증거는 지표를 null로 반환하고 `metadata.measurement_unavailable`에 이유를 기록합니다.
+할당률과 승격률은 인접한 힙 관측값으로 계산하며, 증거 부족과 실제 측정된 0을 구분합니다.

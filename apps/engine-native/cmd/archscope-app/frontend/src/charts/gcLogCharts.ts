@@ -18,6 +18,7 @@
 import type { EChartsOption } from "@/charts/echartsCore";
 
 import type { GcLogAnalysisResult } from "@/bridge/types";
+import { gcAxis, gcCoordinate } from "../state/gcClock";
 
 // EChartsOption builders for the GC log analyzer page.
 //
@@ -140,11 +141,11 @@ export function pauseTimelineOption(
   const fullGcMarks = events
     .filter(
       (row) =>
-        row.gc_type != null && /full/i.test(row.gc_type) && row.timestamp,
+        row.gc_type != null && /full/i.test(row.gc_type) && (row.timestamp != null || row.uptime_sec != null),
     )
     .map((row) => ({
       name: row.gc_type ?? "Full GC",
-      coord: [row.timestamp as string, row.pause_ms ?? 0] as [string, number],
+      coord: [gcCoordinate(result, row.timestamp ?? String(row.uptime_sec)), row.pause_ms ?? 0] as [string | number, number],
       value: row.gc_type ?? "Full GC",
       itemStyle: { color: "#f97316" },
       symbol: "pin",
@@ -160,7 +161,7 @@ export function pauseTimelineOption(
           : labels.longPauseMarker;
       return {
         name,
-        coord: [alert.time as string, alert.pause_ms ?? 0] as [string, number],
+        coord: [gcCoordinate(result, alert.time as string), alert.pause_ms ?? 0] as [string | number, number],
         value: `${name}: ${alert.pause_ms ?? 0} ms`,
         itemStyle: { color: isCritical ? "#e11d48" : "#f59e0b" },
         symbol: "pin",
@@ -174,7 +175,7 @@ export function pauseTimelineOption(
     tooltip: { trigger: "axis" },
     dataZoom: baseZoom,
     xAxis: {
-      type: "time",
+      ...gcAxis(result),
       axisLabel: { fontSize: 10 },
     },
     yAxis: {
@@ -188,7 +189,7 @@ export function pauseTimelineOption(
         type: "line",
         smooth: false,
         name: labels.pauseSeries,
-        data: rows.map((row) => [row.time, row.value] as [string, number]),
+        data: rows.map((row) => [gcCoordinate(result, row.time), row.value] as [string | number, number]),
         showSymbol: showSymbols(rows),
         symbolSize: 4,
         lineStyle: { color: "#ef4444", width: 1.5 },
@@ -244,7 +245,7 @@ export function heapUsageOption(
     const item: any = {
       type: "line",
       name: def.label,
-      data: points.map((p) => [p.time, p.value] as [string, number]),
+      data: points.map((p) => [gcCoordinate(result, p.time), p.value] as [string | number, number]),
       smooth: false,
       showSymbol: showSymbols(points),
       lineStyle: { color: def.color, width: 1.5, type: def.dashed ? "dashed" : undefined },
@@ -264,7 +265,7 @@ export function heapUsageOption(
     series.push({
       type: "line",
       name: labels.heapPauseOverlay,
-      data: pausePoints.map((p) => [p.time, p.value] as [string, number]),
+      data: pausePoints.map((p) => [gcCoordinate(result, p.time), p.value] as [string | number, number]),
       smooth: false,
       showSymbol: showSymbols(pausePoints),
       yAxisIndex: 1,
@@ -297,7 +298,7 @@ export function heapUsageOption(
     legend: { top: 0, textStyle: { fontSize: 10 } },
     dataZoom: baseZoom,
     xAxis: {
-      type: "time",
+      ...gcAxis(result),
       axisLabel: { fontSize: 10 },
     },
     yAxis: yAxes,
@@ -330,7 +331,7 @@ export function allocationRateOption(
     legend: { top: 0, textStyle: { fontSize: 10 } },
     dataZoom: baseZoom,
     xAxis: {
-      type: "time",
+      ...gcAxis(result),
       axisLabel: { fontSize: 10 },
     },
     yAxis: {
@@ -343,7 +344,7 @@ export function allocationRateOption(
       {
         type: "line",
         name: labels.allocSeries,
-        data: alloc.map((p) => [p.time, p.value] as [string, number]),
+        data: alloc.map((p) => [gcCoordinate(result, p.time), p.value] as [string | number, number]),
         smooth: true,
         showSymbol: showSymbols(alloc),
         lineStyle: { color: "#6366f1", width: 1.5 },
@@ -353,7 +354,7 @@ export function allocationRateOption(
       {
         type: "line",
         name: labels.promSeries,
-        data: prom.map((p) => [p.time, p.value] as [string, number]),
+        data: prom.map((p) => [gcCoordinate(result, p.time), p.value] as [string | number, number]),
         smooth: true,
         showSymbol: showSymbols(prom),
         lineStyle: { color: "#a855f7", width: 1.5 },

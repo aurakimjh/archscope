@@ -133,11 +133,11 @@ func TestAnalyzeFixtureSummaryParity(t *testing.T) {
 	if got := asFloat(result.Summary["avg_pause_ms"]); got != 107.56 {
 		t.Errorf("avg_pause_ms = %v, want 107.56", got)
 	}
-	// The fixture has no uptime info → wall_time_sec = 0, throughput 0.
-	if got := asFloat(result.Summary["wall_time_sec"]); got != 0 {
+	// Unified uptime is retained; throughput excludes the first pause.
+	if got := asFloat(result.Summary["wall_time_sec"]); got != 5 {
 		t.Errorf("wall_time_sec = %v, want 0", got)
 	}
-	if got := asFloat(result.Summary["throughput_percent"]); got != 0 {
+	if got := asFloat(result.Summary["throughput_percent"]); math.Abs(got-96.198) > 0.001 {
 		t.Errorf("throughput_percent = %v, want 0", got)
 	}
 }
@@ -236,10 +236,10 @@ func TestThroughputAndWallTimeFromUptimeSec(t *testing.T) {
 	if wall != 10 {
 		t.Errorf("wall_time_sec = %v, want 10", wall)
 	}
-	// total pause = 75ms → 0.075s → throughput 99.25%.
+	// Window is (first pause end, last pause end]: only 50ms is inside.
 	throughput := asFloat(result.Summary["throughput_percent"])
-	if math.Abs(throughput-99.25) > 0.01 {
-		t.Errorf("throughput_percent = %v, want ~99.25", throughput)
+	if math.Abs(throughput-99.5) > 0.01 {
+		t.Errorf("throughput_percent = %v, want ~99.5", throughput)
 	}
 }
 
@@ -441,7 +441,7 @@ func TestMarshalsToJSONWithJVMInfo(t *testing.T) {
 	for _, want := range []string{
 		`"type":"gc_log"`,
 		`"parser":"hotspot_unified_gc_log"`,
-		`"schema_version":"0.1.0"`,
+		`"schema_version":"0.2.0"`,
 		`"gc_format":"unified"`,
 		`"jvm_info":`,
 		`"analysis_options":`,

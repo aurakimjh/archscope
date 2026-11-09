@@ -723,9 +723,10 @@ func parseUnifiedGCLine(line string) (*Event, *int) {
 		return nil, nil
 	}
 
-	ts := parseTimestamp(groups["timestamp"])
+	ts, uptime := unifiedClock(line)
 	event := &Event{
 		Timestamp:    ts,
+		UptimeSec:    uptime,
 		GCType:       gcType,
 		Cause:        cause,
 		PauseMS:      &pauseMS,
@@ -1403,4 +1404,28 @@ func matchGroup(re *regexp.Regexp, match []string, name string) string {
 		}
 	}
 	return ""
+}
+
+// unifiedClock reads decorators independently: a date can precede uptime,
+// level, tags, pid, or tid. A relative clock is never parsed as a calendar date.
+func unifiedClock(line string) (*time.Time, *float64) {
+	var stamp *time.Time
+	var uptime *float64
+	for strings.HasPrefix(line, "[") {
+		end := strings.IndexByte(line, ']')
+		if end < 0 {
+			break
+		}
+		value := line[1:end]
+		if t := parseTimestamp(value); t != nil {
+			stamp = t
+		}
+		if strings.HasSuffix(value, "s") {
+			if n, err := strconv.ParseFloat(strings.TrimSuffix(value, "s"), 64); err == nil && n >= 0 && !math.IsNaN(n) && !math.IsInf(n, 0) {
+				uptime = &n
+			}
+		}
+		line = line[end+1:]
+	}
+	return stamp, uptime
 }

@@ -1028,12 +1028,12 @@ export type GcLogSummary = {
   p50_pause_ms: number;
   p95_pause_ms: number;
   p99_pause_ms: number;
-  throughput_percent: number;
-  wall_time_sec: number;
+  throughput_percent: number | null;
+  wall_time_sec: number | null;
   young_gc_count: number;
   full_gc_count: number;
-  avg_allocation_rate_mb_per_sec: number;
-  avg_promotion_rate_mb_per_sec: number;
+  avg_allocation_rate_mb_per_sec: number | null;
+  avg_promotion_rate_mb_per_sec: number | null;
   humongous_allocation_count: number;
   concurrent_mode_failure_count: number;
   promotion_failure_count: number;
@@ -1160,6 +1160,10 @@ export type GcJvmInfo = {
 };
 
 export type GcLogMetadata = JvmAnalyzerMetadata & {
+  time_axis?: "absolute" | "uptime_seconds" | "event_index";
+  measurement_unavailable?: Record<string, string>;
+  measurement_clock?: string;
+  observation_window?: string;
   gc_format?: string;
   jvm_info?: GcJvmInfo;
 };

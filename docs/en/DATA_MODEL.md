@@ -1376,3 +1376,18 @@ Event-category option timing:
   lock graph).
 - New `tables.dump_overview` — one row per dump with thread counts,
   state distribution, and the resolved parser plugin id.
+
+### GC observation clock (schema 0.2.0)
+
+GC event dates and JVM uptime are parsed independently. `metadata.time_axis`
+is `absolute`, `uptime_seconds`, or `event_index`; only absolute coordinates
+use a calendar axis. Rate calculations require a common monotonic clock.
+`metadata.measurement_clock` identifies that clock; partial uptime evidence
+uses dates consistently for every rate rather than mixing clock bases.
+`wall_time_sec` spans the first pause end to the last pause end; throughput's
+`throughput_pause_ms` excludes the first pause, whose start is outside that
+window. Pause totals/percentiles still include every parsed pause. Missing,
+reset, zero-span, or inconsistent evidence produces nullable measurements and
+`metadata.measurement_unavailable` reason codes, never a fabricated zero.
+Allocation/promotion rates use valid adjacent heap observations; absent heap
+measurements are unavailable, whereas a measured zero remains zero.
