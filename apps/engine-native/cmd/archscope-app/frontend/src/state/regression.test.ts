@@ -1,5 +1,5 @@
 import { partition } from "d3-hierarchy";
-import { buildFlameHierarchy, flameSearchCoverage, type FlameGraphNode } from "./flamegraphLayout.js";
+import { buildFlameHierarchy, flameSearchCoverage, hiddenFlameSamples, type FlameGraphNode } from "./flamegraphLayout.js";
 import { gcAxis, gcCoordinate, gcUnavailableReasons, gcReasonKey } from "./gcClock.js";
 import { messages } from "../i18n/messages.js";
 import type { AnalysisWorkspaceEntry, WorkspaceAnalysisResult } from "./analysisWorkspace.js";
@@ -2982,4 +2982,12 @@ for (const reason of ["clock_reset", "pause_exceeds_window", "missing_time"]) {
  assert(leaf.value === 40, "leaf-only control unchanged");
  const hidden = buildFlameHierarchy({name:"All",value:100,children:[{name:"A",value:40},{name:"…other",value:60}]});
  assert(hidden.value === 100, "synthetic hidden weight counted once");
+}
+
+// T-591: omitted descendants retain visible weight and explicit provenance.
+{
+ const hidden = {name:"All",value:110,children:[{name:"A",value:110,hiddenSamples:10,children:[{name:"hot",value:100}]}]};
+ assert(buildFlameHierarchy(hidden).value === 110, "pruned total preserved");
+ assert(hiddenFlameSamples(hidden) === 10, "hidden descendants disclosed separately");
+ assert(Boolean(messages.en.flamegraphHiddenSamples) && Boolean(messages.ko.flamegraphHiddenSamples), "hidden-weight disclosure localized");
 }

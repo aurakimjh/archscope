@@ -3,6 +3,7 @@ import { hierarchy, type HierarchyRectangularNode } from "d3-hierarchy";
 export type FlameGraphNode = {
   name: string;
   value: number;
+  hiddenSamples?: number;
   children?: FlameGraphNode[];
   category?: string | null;
   color?: string | null;
@@ -33,4 +34,9 @@ export function flameSearchCoverage(scopeRoot: HierarchyRectangularNode<FlameGra
   }
   const ratio = basisSamples > 0 ? Math.max(0, Math.min(1, coveredWidth / basisWidth)) : 0;
   return { frameCount: matches.length, matchedSamples: basisSamples * ratio, ratio, basisSamples };
+}
+
+// Omitted descendants have visible weight but unknown method identity.
+export function hiddenFlameSamples(node: FlameGraphNode): number {
+ return weight(node.hiddenSamples ?? 0) + (node.children ?? []).reduce((sum, child) => sum + hiddenFlameSamples(child), 0);
 }

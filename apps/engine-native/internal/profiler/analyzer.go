@@ -228,7 +228,7 @@ func AnalyzeJenniferTree(root FlameNode, sourceFile string, diagnostics ParserDi
 	if maxNodes == 0 {
 		maxNodes = defaultMaxFlamegraphNodes
 	}
-	if maxNodes > 0 {
+	if maxNodes > 0 && !options.ForDrilldown {
 		_, _ = pruneFlamegraph(&root, maxNodes)
 	}
 	rootStage := DrilldownStage{
@@ -347,7 +347,7 @@ func AnalyzeCollapsedStacks(stacks map[string]int, sourceFile string, diagnostic
 	if maxNodes == 0 {
 		maxNodes = defaultMaxFlamegraphNodes
 	}
-	if maxNodes > 0 {
+	if maxNodes > 0 && !options.ForDrilldown {
 		pl.Phase("prune-start", fmt.Sprintf("max_nodes=%d", maxNodes))
 		kept, dropped := pruneFlamegraph(&flamegraph, maxNodes)
 		if dropped > 0 {

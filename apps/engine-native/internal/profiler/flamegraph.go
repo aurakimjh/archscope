@@ -39,7 +39,6 @@
 package profiler
 
 import (
-	"fmt"
 	"hash/fnv"
 	"sort"
 	"strconv"
@@ -192,31 +191,10 @@ func countNodes(root FlameNode) int {
 	return n
 }
 
-// pruneFlamegraph caps the total node count of the tree by allocating
-// a per-subtree node budget proportional to that subtree's samples
-// share. The previous per-level cap (256 children) was insufficient
-// because deep trees still had 256^depth potential — a 60 MB wall
-// profile easily reached 1 M nodes after a "best effort" prune.
-//
-// Algorithm (greedy budget propagation):
-//   - Each call receives a remaining `budget`. The node itself
-//     consumes 1; the rest is split among children proportionally
-//     to child.samples / sum(child.samples).
-//   - Children whose allocation rounds to 0 are dropped; their
-//     samples are merged into a single "…other (N frames)" sibling.
-//   - Recursion uses the actual nodes-kept count so the next sibling
-//     still has accurate remaining budget.
-//
-// The function returns the actual kept-node count so callers can log
-// before/after for the progress trace.
-//
-// [한글] pruneFlamegraph — 트리 노드 수를 maxNodes 이하로 제한.
-// 알고리즘: greedy budget propagation. 각 subtree 가 자기 sample 비율
-// 만큼의 budget 을 받음. 옛 per-level cap (256 children) 은 deep tree
-// 에서 256^depth 폭주를 못 막았음 — 60MB wall profile 이 best-effort
-// prune 후에도 1M 노드 도달. budget 기반 알고리즘은 총 노드 수가 진짜로
-// maxNodes 이하임을 보장. 잘려나간 노드들은 "…other (N frames)" 하나로
-// merge 해 사용자가 무엇이 잘렸는지 인식 가능.
+// pruneFlamegraph caps display nodes using a proportional child budget.
+// Omitted descendant samples remain in the parent's inclusive Samples and
+// are disclosed separately as HiddenSamples, even with a one-node budget.
+// Fresh child slices keep canonical filter input untouched.
 func pruneFlamegraph(root *FlameNode, maxNodes int) (kept int, dropped int) {
 	if root == nil {
 		return 0, 0
@@ -233,77 +211,39 @@ func pruneFlamegraph(root *FlameNode, maxNodes int) (kept int, dropped int) {
 	return after, before - after
 }
 
-// pruneBudget consumes `budget` nodes (including this one). Recurses
-// into children with allocations derived from samples share; drops
-// children that don't fit. Returns the number of kept nodes in the
-// subtree (1 for self plus all kept descendants).
-//
-// [한글] pruneBudget — budget 노드 (자기 포함) 를 소비하고 keep 수 반환.
-// children 에게 sample 비율로 budget 분배, 매 child 는 최소 1 보장.
-// 못 들어간 children 은 droppedSamples 에 누적되고 마지막에 한 "…other"
-// sibling 으로 merge.
-func pruneBudget(node *FlameNode, budget int) int {
-	if budget <= 1 {
-		node.Children = nil
-		return 1
-	}
-	if len(node.Children) == 0 {
-		return 1
-	}
-	totalChildSamples := 0
-	for i := range node.Children {
-		totalChildSamples += node.Children[i].Samples
-	}
-	if totalChildSamples <= 0 {
-		node.Children = nil
-		return 1
+// boundedTree creates fresh child slices: pruning a display stage must never
+// mutate the canonical tree used by the next filter. Any omitted descendant
+// weight is explicit, even when there is no budget left for an "other" node.
+func boundedTree(node FlameNode, budget int) (FlameNode, int) {
+	out := node
+	out.Children = nil
+	used := 1
+	total := 0
+	for _, child := range node.Children {
+		total += child.Samples
 	}
 	remaining := budget - 1
-	used := 1
-
-	kept := node.Children[:0]
-	droppedSamples := 0
-	droppedCount := 0
-
-	for i := range node.Children {
-		c := node.Children[i]
+	for _, child := range node.Children {
 		if remaining <= 0 {
-			droppedSamples += c.Samples
-			droppedCount += 1 + countChildrenDeep(c)
+			out.HiddenSamples += child.Samples
 			continue
 		}
-		// Proportional share — but every kept child needs at least 1.
-		ratio := float64(c.Samples) / float64(totalChildSamples)
-		alloc := int(float64(budget-1) * ratio)
-		if alloc < 1 {
-			alloc = 1
+		allocation := 1
+		if total > 0 {
+			allocation = max(1, int(float64(budget-1)*float64(child.Samples)/float64(total)))
 		}
-		if alloc > remaining {
-			alloc = remaining
-		}
-		// One last guard: very small children (alloc would round to 0
-		// in the budget but we forced 1) still drop if there's no
-		// remaining budget for at least themselves.
-		if alloc < 1 {
-			droppedSamples += c.Samples
-			droppedCount += 1 + countChildrenDeep(c)
-			continue
-		}
-		actual := pruneBudget(&c, alloc)
-		kept = append(kept, c)
-		remaining -= actual
-		used += actual
+		allocation = min(allocation, remaining)
+		next, n := boundedTree(child, allocation)
+		out.Children = append(out.Children, next)
+		used += n
+		remaining -= n
 	}
-	if droppedSamples > 0 && remaining >= 1 {
-		kept = append(kept, FlameNode{
-			ID:      node.ID + "/...other",
-			Name:    fmt.Sprintf("…other (%d frames)", droppedCount),
-			Samples: droppedSamples,
-			Ratio:   float64(droppedSamples) / float64(maxInt(node.Samples, 1)),
-		})
-		used += 1
-	}
-	node.Children = kept
+	return out, used
+}
+
+func pruneBudget(node *FlameNode, budget int) int {
+	next, used := boundedTree(*node, budget)
+	*node = next
 	return used
 }
 
@@ -344,12 +284,9 @@ func iterLeafPaths(root FlameNode) []leafPath {
 		for _, child := range node.Children {
 			childTotal += child.Samples
 		}
-		exclusive := node.Samples - childTotal
+		exclusive := node.Samples - childTotal - node.HiddenSamples
 		if len(next) > 0 && exclusive > 0 {
 			out = append(out, leafPath{Path: append([]string(nil), next...), Samples: exclusive})
-		}
-		if len(node.Children) == 0 && len(next) > 0 && node.Samples > 0 && exclusive <= 0 {
-			out = append(out, leafPath{Path: append([]string(nil), next...), Samples: node.Samples})
 		}
 		for _, child := range node.Children {
 			walk(child, next, false)

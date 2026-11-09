@@ -38,6 +38,9 @@ package profiler
 // IntervalMS<=0 / TopN<=0 / ProfileKind="" 면 normalizeOptions 에서 default 로
 // 채워짐. ElapsedSec 가 nil 이면 elapsed_ratio 컬럼이 nil 로 남음.
 type Options struct {
+	// ForDrilldown keeps the canonical tree inside Go until filters are applied.
+	// It is never exposed as a request option; returned drilldown stages are bounded.
+	ForDrilldown       bool `json:"-"`
 	IntervalMS         float64
 	ElapsedSec         *float64
 	TopN               int
@@ -251,14 +254,16 @@ type TimelineWarning struct {
 // Children 은 sample DESC 정렬되어 직렬화. Metadata 는 profiler_diff 등
 // 부가 정보 부착 슬롯 (일반 분석에서는 nil).
 type FlameNode struct {
-	ID       string      `json:"id"`
-	ParentID *string     `json:"parentId"`
-	Name     string      `json:"name"`
-	Samples  int         `json:"samples"`
-	Ratio    float64     `json:"ratio"`
-	Category *string     `json:"category"`
-	Color    *string     `json:"color"`
-	Children []FlameNode `json:"children"`
+	// HiddenSamples belongs to omitted descendants, never to this frame itself.
+	HiddenSamples int         `json:"hidden_samples,omitempty"`
+	ID            string      `json:"id"`
+	ParentID      *string     `json:"parentId"`
+	Name          string      `json:"name"`
+	Samples       int         `json:"samples"`
+	Ratio         float64     `json:"ratio"`
+	Category      *string     `json:"category"`
+	Color         *string     `json:"color"`
+	Children      []FlameNode `json:"children"`
 	// Path is dropped from JSON serialization. It's only consumed
 	// internally by buildTimeline / iterLeafPaths during analysis;
 	// the renderer reconstructs paths from the parent → child Name

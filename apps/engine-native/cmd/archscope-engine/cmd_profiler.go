@@ -26,6 +26,7 @@ func init() {
 }
 
 type profilerFlags struct {
+	forDrilldown       bool
 	in                 string
 	collapsed          string
 	jenniferCSV        string
@@ -124,6 +125,7 @@ func newProfilerAnalyzeJenniferCommand() *cobra.Command {
 
 func newProfilerDrilldownCommand() *cobra.Command {
 	var f profilerFlags
+	f.forDrilldown = true
 	cmd := &cobra.Command{
 		Use:   "drilldown",
 		Short: "Apply one or more profiler drill-down filters.",
@@ -132,7 +134,7 @@ func newProfilerDrilldownCommand() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			stages := profiler.BuildDrilldownStages(result.Charts.Flamegraph, profilerFilters(f), opts.IntervalMS, opts.ElapsedSec, opts.TopN)
+			stages := profiler.BuildDrilldownStagesWithOptions(result.Charts.Flamegraph, profilerFilters(f), opts, result.Summary.TotalSamples)
 			return writeJSONAny(stages, f.out)
 		},
 	}
@@ -204,6 +206,7 @@ func analyzeProfilerInput(f profilerFlags) (profiler.AnalysisResult, profiler.Op
 
 func profilerOptions(f profilerFlags) profiler.Options {
 	opts := profiler.Options{
+		ForDrilldown:       f.forDrilldown,
 		IntervalMS:         f.intervalMS,
 		TopN:               f.topN,
 		ProfileKind:        f.profileKind,

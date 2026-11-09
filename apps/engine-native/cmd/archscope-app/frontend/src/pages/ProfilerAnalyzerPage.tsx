@@ -294,6 +294,7 @@ function adaptFlameNode(node: FlameNode | null | undefined): FlameGraphNode | nu
   return {
     name: node.name ?? "",
     value: node.samples ?? 0,
+      hiddenSamples: node.hidden_samples ?? 0,
     category: node.category ?? null,
     color: node.color ?? null,
     children,

@@ -1399,3 +1399,13 @@ Every node value includes its descendants. Canvas derives self weight as
 remains visible as unoccupied child space; widths, hover totals, and search
 percentages share the same inclusive denominator. Recursive matches are
 unioned rather than added repeatedly.
+
+### Bounded profiler drilldown
+
+The desktop service retains the canonical tree only inside Go while applying
+filters. It prunes each emitted stage after calculating metrics and before IPC;
+limits remain enabled. Display pruning never mutates input for later filters.
+`FlameNode.hidden_samples` is the inclusive weight of omitted descendants,
+not observed self samples. It stays within the node's inclusive `samples` and
+is disclosed in the Canvas notice/tooltip even when no extra node fits.
+Parser-discarded input remains unavailable and retains its own diagnostics.

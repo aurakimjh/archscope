@@ -394,6 +394,8 @@ func (s *ProfilerService) Drilldown(req DrilldownRequest) ([]profiler.DrilldownS
 	if err != nil {
 		return nil, err
 	}
+	// Canonical evidence stays in Go; BuildDrilldownStages bounds every emitted tree.
+	options.ForDrilldown = true
 	result, err := s.runAnalyze(req.AnalyzeRequest, options)
 	if err != nil {
 		return nil, err

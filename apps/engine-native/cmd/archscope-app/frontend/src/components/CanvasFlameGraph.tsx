@@ -40,7 +40,7 @@ import {
 import { useI18n } from "../i18n/I18nProvider";
 import { useTheme } from "../theme/ThemeProvider";
 
-import { buildFlameHierarchy, flameSearchCoverage, type FlameGraphNode } from "../state/flamegraphLayout";
+import { buildFlameHierarchy, flameSearchCoverage, hiddenFlameSamples, type FlameGraphNode } from "../state/flamegraphLayout";
 export type { FlameGraphNode } from "../state/flamegraphLayout";
 
 type RenderRect = {
@@ -133,6 +133,7 @@ export function CanvasFlameGraph({
     value: number;
     ratio: number;
     category: string | null;
+    hiddenSamples: number;
   } | null>(null);
 
   useEffect(() => {
@@ -298,6 +299,7 @@ export function CanvasFlameGraph({
         value: (found.node.value as number) ?? 0,
         ratio: ((found.node.value as number) ?? 0) / total,
         category: found.node.data.category ?? null,
+        hiddenSamples: found.node.data.hiddenSamples ?? 0,
       };
       setTooltip((prev) => {
         if (
@@ -353,6 +355,7 @@ export function CanvasFlameGraph({
 
   return (
     <div className="flamegraph">
+      {hiddenFlameSamples(data) > 0 && <p className="muted">{t("flamegraphHiddenSamples")}: {hiddenFlameSamples(data).toLocaleString()}</p>}
       <div className="flamegraph-toolbar">
         <div className="flamegraph-search">
           <input
@@ -419,6 +422,7 @@ export function CanvasFlameGraph({
             }}
           >
             <div className="flamegraph-tooltip-name">{tooltip.name}</div>
+            {tooltip.hiddenSamples > 0 && <div>{t("flamegraphHiddenSamples")}: {tooltip.hiddenSamples.toLocaleString()}</div>}
             <div className="flamegraph-tooltip-meta">
               {tooltip.value.toLocaleString()} samples · {(tooltip.ratio * 100).toFixed(2)}%
               {tooltip.category ? ` · ${tooltip.category}` : ""}

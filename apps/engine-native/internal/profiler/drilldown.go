@@ -183,9 +183,22 @@ func BuildDrilldownStagesWithOptions(root FlameNode, filters []DrilldownFilter, 
 	if totalSamples <= 0 {
 		totalSamples = root.Samples
 	}
-	stages := []DrilldownStage{createRootStageWithOptions(root, options, totalSamples)}
+	working := createRootStageWithOptions(root, options, totalSamples)
+	display := func(stage DrilldownStage) DrilldownStage {
+		// A shallow stage copy is safe because pruning allocates fresh child slices.
+		limit := options.MaxFlamegraphNodes
+		if limit == 0 {
+			limit = defaultMaxFlamegraphNodes
+		}
+		if limit > 0 {
+			pruneFlamegraph(&stage.Flamegraph, limit)
+		}
+		return stage
+	}
+	stages := []DrilldownStage{display(working)}
 	for _, filter := range filters {
-		stages = append(stages, applyDrilldownFilterWithOptions(stages[len(stages)-1], filter, options))
+		working = applyDrilldownFilterWithOptions(working, filter, options)
+		stages = append(stages, display(working))
 	}
 	return stages
 }
@@ -398,9 +411,9 @@ func compileRegex(pattern string, filter DrilldownFilter) (*regexp.Regexp, *filt
 }
 
 // [한글] isUnsafeRegexPattern — 정규식 거부 가드.
-// 1) 길이 > 500 → 메모리/시간 폭증 위험으로 거부
-// 2) nestedQuantifierGuard 매치 → Python 측의 catastrophic backtracking
-//    위험 패턴과 동일 거부 (Go RE2 는 안전하지만 byte-level parity 유지).
+//  1. 길이 > 500 → 메모리/시간 폭증 위험으로 거부
+//  2. nestedQuantifierGuard 매치 → Python 측의 catastrophic backtracking
+//     위험 패턴과 동일 거부 (Go RE2 는 안전하지만 byte-level parity 유지).
 func isUnsafeRegexPattern(pattern string) bool {
 	if len(pattern) > maxRegexPatternLength {
 		return true

@@ -387,6 +387,10 @@ export class ExecutionBreakdownRow {
  * 부가 정보 부착 슬롯 (일반 분석에서는 nil).
  */
 export class FlameNode {
+    /**
+     * HiddenSamples belongs to omitted descendants, never to this frame itself.
+     */
+    "hidden_samples"?: number;
     "id": string;
     "parentId": string | null;
     "name": string;
@@ -431,10 +435,10 @@ export class FlameNode {
      * Creates a new FlameNode instance from a string or object.
      */
     static createFrom($$source: any = {}): FlameNode {
-        const $$createField7_0 = $$createType16;
+        const $$createField8_0 = $$createType16;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("children" in $$parsedSource) {
-            $$parsedSource["children"] = $$createField7_0($$parsedSource["children"]);
+            $$parsedSource["children"] = $$createField8_0($$parsedSource["children"]);
         }
         return new FlameNode($$parsedSource as Partial<FlameNode>);
     }
