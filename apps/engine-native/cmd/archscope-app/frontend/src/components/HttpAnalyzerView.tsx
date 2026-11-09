@@ -169,7 +169,34 @@ export function HttpAnalyzerView({
 }: HttpAnalyzerViewProps): React.JSX.Element {
   const { t } = useI18n();
   const [sort, setSort] = useState<GridSort>(defaultGridSort);
-  const [detailHeight, setDetailHeight] = useState(DEFAULT_DETAIL_HEIGHT);
+  const containerRef = useRef<HTMLElement | null>(null);
+  const [detailHeight, setDetailHeight] = useState(() => {
+    try {
+      const stored = Number(localStorage.getItem("archscope.http.detailHeight"));
+      return Number.isFinite(stored) && stored >= MIN_DETAIL_HEIGHT ? stored : DEFAULT_DETAIL_HEIGHT;
+    } catch { return DEFAULT_DETAIL_HEIGHT; }
+  });
+  const resizeDetail = useCallback((height: number) => {
+    const container = containerRef.current;
+    const toolbar = (container?.firstElementChild as HTMLElement | null)?.offsetHeight ?? 100;
+    const maximum = Math.max(MIN_DETAIL_HEIGHT, (container?.clientHeight ?? window.innerHeight) - toolbar - MIN_GRID_HEIGHT - 48);
+    const boundedHeight = Math.max(MIN_DETAIL_HEIGHT, Math.min(height, maximum));
+    setDetailHeight(boundedHeight);
+    try { localStorage.setItem("archscope.http.detailHeight", String(boundedHeight)); } catch { /* Storage can be unavailable. */ }
+  }, []);
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const measure = () => {
+      const toolbar = (container.firstElementChild as HTMLElement | null)?.offsetHeight ?? 100;
+      const maximum = Math.max(MIN_DETAIL_HEIGHT, container.clientHeight - toolbar - MIN_GRID_HEIGHT - 48);
+      setDetailHeight((current) => Math.min(current, maximum));
+    };
+    const observer = new ResizeObserver(measure);
+    observer.observe(container);
+    measure();
+    return () => observer.disconnect();
+  }, []);
   const [maximized, setMaximized] = useState(false);
 
   const rows = useMemo(() => sortTransactions(transactions, sort), [transactions, sort]);
@@ -187,6 +214,7 @@ export function HttpAnalyzerView({
 
   return (
     <section
+      ref={containerRef}
       className={
         maximized
           ? "fixed inset-0 z-50 flex flex-col bg-background p-3"
@@ -233,7 +261,7 @@ export function HttpAnalyzerView({
 
       <SplitHandle
         height={detailHeight}
-        onResize={setDetailHeight}
+        onResize={resizeDetail}
         t={t}
       />
 
@@ -484,7 +512,7 @@ const COLUMNS: GridColumn[] = [
   { key: "method", labelKey: "httpAnalyzerColMethod", width: "4.5rem", sortable: true },
   { key: "status", labelKey: "httpAnalyzerColStatus", width: "4rem", align: "right", sortable: true },
   { key: "host", labelKey: "httpAnalyzerColHost", width: "12rem", sortable: true },
-  { key: "path", labelKey: "httpAnalyzerColPath", width: "auto", sortable: true },
+  { key: "path", labelKey: "httpAnalyzerColPath", width: "16rem", sortable: true },
   { key: "kind", labelKey: "httpAnalyzerColKind", width: "6.5rem", sortable: true },
   { key: "size", labelKey: "httpAnalyzerColSize", width: "5.5rem", align: "right", sortable: true },
   { key: "duration", labelKey: "httpAnalyzerColDuration", width: "5rem", align: "right", sortable: true },
@@ -590,7 +618,7 @@ function TransactionGrid({
         role="group"
         aria-label={t("httpAnalyzerTitle")}
       >
-        <table className="w-full table-fixed border-collapse text-left text-[11px]">
+        <table className="w-full min-w-[87rem] table-fixed border-collapse text-left text-[11px]">
           <caption className="sr-only">{t("httpAnalyzerGridCaption")}</caption>
           <colgroup>
             {COLUMNS.map((column) => (
@@ -855,13 +883,12 @@ function TransactionDetailPane({
   const perspectives = useMemo(() => availablePerspectives(transaction), [transaction]);
   const [perspective, setPerspective] = useState<TimingPerspective | null>(null);
 
-  // A new selection resets the pane so the tab and perspective always describe
-  // the row on screen.
+  // Keep the selected tab while switching rows. A new exchange resets only
+  // the timing perspective so it cannot borrow the previous observation point.
   const openId = transaction.id;
   const shownFor = useRef<string>("");
   if (shownFor.current !== openId) {
     shownFor.current = openId;
-    if (tab !== "raw") setTab("raw");
     if (perspective !== null) setPerspective(null);
   }
 

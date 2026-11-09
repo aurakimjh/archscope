@@ -8,7 +8,7 @@ The previous long-form history was archived to
 
 ## Status Overview
 
-**Overall: 183 of 200 tracked tasks are `DONE` (91.5%).** The Windows Wails v3 replacement for IEInspector HTTP Analyzer V7.6.4 Stand-alone has 16 open work items (T-594 through T-613), including the five original audit findings. The 2026-11-09
+**Overall: 184 of 200 tracked tasks are `DONE` (92.0%).** The Windows Wails v3 replacement for IEInspector HTTP Analyzer V7.6.4 Stand-alone has 15 open work items (T-594 through T-613), including the five original audit findings. The 2026-11-09
 GC/profiler revalidation confirmed five bugs (T-589 through T-593). Their
 current implementation status is recorded in the registry and snapshot below;
 T-557 remains trigger-dependent `PENDING`.
@@ -213,11 +213,11 @@ completed the independent Lighthouse file-first engine slice.
 
 | Status | Count | Meaning |
 |---|---:|---|
-| `TODO` | 8 | Ready to start; prerequisites are satisfied |
+| `TODO` | 7 | Ready to start; prerequisites are satisfied |
 | `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
 | `REVIEW` | 0 | Review or required remediation is underway; the gate has not passed |
 | `PENDING` | 9 | Waiting for a prerequisite, external condition, or activation trigger |
-| `DONE` | 183 | Completion criteria and required review gates have passed |
+| `DONE` | 184 | Completion criteria and required review gates have passed |
 
 The normal transition is `TODO → IN_PROGRESS → REVIEW → DONE`. A `PENDING`
 task returns to `TODO` when its dependency or trigger is satisfied. Task status
@@ -229,23 +229,22 @@ same change so this overview remains the status source of truth.
 
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
-| 1 | T-597 | P1 | `TODO` | Make paths readable and retain the active detail tab |
-| 2 | T-600 | P1 | `TODO` | Rebuild the desktop menu, recording toolbar and status bar |
-| 3 | T-601 | P1 | `TODO` | Deliver the four Windows capture entry points and measure their reach |
-| 4 | T-602 | P1 | `TODO` | Preserve the HTTP exchange and its intermediate responses |
-| 5 | T-603 | P1 | `PENDING` | Prove the everyday inspection workflow in the packaged Windows app |
-| 6 | T-598 | P2 | `TODO` | Add decoded query, POST form and JSON inspection |
-| 7 | T-604 | P2 | `TODO` | Configure columns, group and filter requests, and search the entire session |
-| 8 | T-605 | P2 | `PENDING` | Complete live timing charts and process/session summaries |
-| 9 | T-606 | P2 | `PENDING` | Extend Headers, Cookies, Stream and Content viewers |
-| 10 | T-607 | P2 | `TODO` | Open, save, clear and export capture sessions from the desktop |
-| 11 | T-608 | P2 | `PENDING` | Read and write legacy .halog files |
-| 12 | T-609 | P2 | `PENDING` | Integrate row hints, status help, stars and comments |
-| 13 | T-610 | P2 | `TODO` | Add the Stand-alone HTTP Request Builder |
-| 14 | T-611 | P3 | `PENDING` | Support Stand-alone automation and desktop launch switches |
-| 15 | T-612 | P3 | `PENDING` | Restore legacy content inspectors |
-| 16 | T-613 | P3 | `PENDING` | Verify complete Stand-alone parity on Windows |
-| 17 | T-557 | P1 | `PENDING` | Promote the Jennifer MSA drilldown calculation from UI projection to a Go analyzer contract if repeated use shows it should be exported/reported outside the desktop page. |
+| 1 | T-600 | P1 | `TODO` | Rebuild the desktop menu, recording toolbar and status bar |
+| 2 | T-601 | P1 | `TODO` | Deliver the four Windows capture entry points and measure their reach |
+| 3 | T-602 | P1 | `TODO` | Preserve the HTTP exchange and its intermediate responses |
+| 4 | T-603 | P1 | `PENDING` | Prove the everyday inspection workflow in the packaged Windows app |
+| 5 | T-598 | P2 | `TODO` | Add decoded query, POST form and JSON inspection |
+| 6 | T-604 | P2 | `TODO` | Configure columns, group and filter requests, and search the entire session |
+| 7 | T-605 | P2 | `PENDING` | Complete live timing charts and process/session summaries |
+| 8 | T-606 | P2 | `PENDING` | Extend Headers, Cookies, Stream and Content viewers |
+| 9 | T-607 | P2 | `TODO` | Open, save, clear and export capture sessions from the desktop |
+| 10 | T-608 | P2 | `PENDING` | Read and write legacy .halog files |
+| 11 | T-609 | P2 | `PENDING` | Integrate row hints, status help, stars and comments |
+| 12 | T-610 | P2 | `TODO` | Add the Stand-alone HTTP Request Builder |
+| 13 | T-611 | P3 | `PENDING` | Support Stand-alone automation and desktop launch switches |
+| 14 | T-612 | P3 | `PENDING` | Restore legacy content inspectors |
+| 15 | T-613 | P3 | `PENDING` | Verify complete Stand-alone parity on Windows |
+| 16 | T-557 | P1 | `PENDING` | Promote the Jennifer MSA drilldown calculation from UI projection to a Go analyzer contract if repeated use shows it should be exported/reported outside the desktop page. |
 
 ## Current Baseline
 
@@ -1141,7 +1140,7 @@ deferred until explicitly promoted.
 | T-594 | P1 | DONE | Keep capture controls, live grid and selected detail in one window | Existing baseline | Completed 2026-11-09. Live rows use the shared grid and inspector, one-ID redacted store fetch stays available during recording, and async detail ignores obsolete selections. Real local proxy/service regression and frontend build passed; browser renderer at 1280x800 showed selected headers/body while active. Native Windows integration remains T-603. |
 | T-595 | P1 | DONE | Make process grouping the default in the request grid | Existing baseline | Completed 2026-11-09. Shared virtual grid defaults to expandable process groups with request/byte totals; live process selector scopes incoming rows by PID plus start time and clears obsolete detail. Same-name PID reuse and collapse regressions, frontend state suite and production build passed. Native integration remains T-603. |
 | T-596 | P1 | DONE | Select single or multiple running processes before recording | Existing baseline | Completed 2026-11-09. Windows process snapshot exposes PID/start-time targets through Wails; selected keys enforce a pre-store and pre-publication scope. Unknown owners and PID reuse are rejected within selected scope. Stream/session regressions and frontend build passed. Native two-client selection verification remains part of T-603. |
-| T-597 | P1 | TODO | Make paths readable and retain the active detail tab | Existing baseline | At default width distinguish two short paths. Open Headers or Body, change rows with mouse and keyboard, and see the new row immediately in the same tab. Restore the splitter after resize and restart. |
+| T-597 | P1 | DONE | Make paths readable and retain the active detail tab | Existing baseline | Completed 2026-11-09. Explicit path width and horizontal grid scrolling preserve readable URLs. The active detail tab survives adjacent row changes; splitter height persists and clamps to available panel space. Production build and browser checks confirmed 224px path cells, retained Body tab and process-scoped selection. |
 | T-600 | P1 | TODO | Rebuild the desktop menu, recording toolbar and status bar | T-599, T-594 | Wire equivalent menu, toolbar and keyboard commands. Exercise Start, Pause/Resume logging, Stop, Clear and Follow in idle, active and stopped states. Clearing a dirty session discloses its scope. Pause and scroll-follow have independent effects. |
 | T-601 | P1 | TODO | Deliver the four Windows capture entry points and measure their reach | T-596 | Exercise current session, all sessions including system processes, launch/reopen and attach to running processes. Compare known requests from x86/x64 clients, a service and a proxy-ignoring client. Record HTTP/HTTPS visibility and attribution per mode. Any reference-supported case still missing stays open. |
 | T-602 | P1 | TODO | Preserve the HTTP exchange and its intermediate responses | Existing baseline | Extend live/store/detail contracts for connection ID, request stage, redirects, authentication exchanges, 1xx and final response, cookies and stream provenance. Verify ordered exchanges and an interrupted request against a Windows fixture. Preserve the shared AnalysisResult envelope. |
