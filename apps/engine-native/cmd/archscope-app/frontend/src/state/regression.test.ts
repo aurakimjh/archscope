@@ -3022,3 +3022,24 @@ let clearedLive = liveHttpCaptureReducer(initialLiveCaptureState, {type:"started
 clearedLive = liveHttpCaptureReducer(clearedLive,{type:"session",session:{...clearedLive.session!,generation:1}});
 clearedLive = liveHttpCaptureReducer(clearedLive,{type:"transactions",event:{sessionId:"clear-test",sequence:1,snapshotVersion:1,items:[{id:"old-event",generation:0} as never]}});
 assert(clearedLive.transactions.length===0, "late pre-clear events must not repopulate the new log");
+
+// Native Windows batching can publish persisted rows before older progress.
+for (const terminal of ["complete", "failed", "aborted"]) {
+  const finalized = { ...pendingLiveRow, state: terminal, statusCode: 200, totalMs: 12 };
+  let reordered = liveHttpCaptureReducer(initialLiveCaptureState, { type: "started", session: liveSession });
+  reordered = liveHttpCaptureReducer(reordered, { type: "transactions", event: {
+    sessionId: liveSession.sessionId, sequence: 1, snapshotVersion: 1, items: [finalized],
+  } });
+  for (const stale of ["request_sent", "receiving"]) {
+    reordered = liveHttpCaptureReducer(reordered, { type: "progress", event: {
+      sessionId: liveSession.sessionId, items: [{ ...pendingLiveRow, state: stale }],
+    } });
+    assert(reordered.transactions[0] === finalized,
+      `late ${stale} progress must preserve ${terminal} status, timings and row identity`);
+  }
+}
+let receiving = liveHttpCaptureReducer(initialLiveCaptureState, { type: "started", session: liveSession });
+receiving = liveHttpCaptureReducer(receiving, { type: "progress", event: {
+  sessionId: liveSession.sessionId, items: [{ ...pendingLiveRow, state: "receiving" }, pendingLiveRow],
+} });
+assert(receiving.transactions[0]?.state === "receiving", "older request progress must not reset response reception");

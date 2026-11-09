@@ -255,12 +255,22 @@ confirms single/multiple PID-plus-start-time selection through persistence.
 Resolver measurement confirmed 50/50 samples (mean 3.314 ms, p95 6.116 ms).
 The sandboxed failures were rechecked outside the sandbox and passed.
 
-**T-603 remains `TODO`:** the native app renders, but this machine's existing
-crash-dump policy disables body capture and its safety acknowledgment remains
-for direct user operation. Running-screen Headers/Body inspection and the
-stop/reopen desktop sequence are not certified. Local race execution also
-requires a C toolchain that is not installed. Counts and prerequisite states
-are unchanged. Full commands, limits and native screenshot:
+After the user directly acknowledged the notice, native WebView2 testing
+verified two real clients, process-scoped live rows, Headers inspection during
+new arrivals, the truthful omitted-Body view, active-tab retention, F9/F2 and
+stop/reopen detail for five persisted requests. It exposed a stale progress
+event overwriting a completed grid row; a monotonic phase merge and failing-
+then-passing regression fixed it, and the rebuilt native app retained both
+clients' `200 OK` rows.
+
+**T-603 remains `TODO` only for outstanding acceptance, including an actual
+captured payload:** this machine's existing crash-dump policy disables body
+capture. The acknowledgment blocker is resolved. Local race execution needs
+a C toolchain, but the first validation commit's Windows CI race/live E2E,
+SEC-10 and GUI smoke passed. Existing macOS runner configurations were
+unsupported, so the overall Engine Native workflow was cancelled despite its
+successful Windows/Linux/frontend jobs. Counts and prerequisite states are
+unchanged. Full commands, limits and native screenshots:
 [`2026-11-09-windows-local`](docs/review/evidence/2026-11-09-windows-local/README.md).
 
 ## Current Baseline

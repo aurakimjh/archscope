@@ -484,7 +484,7 @@ function matchesSession(state: LiveCaptureState, sessionId: string): boolean {
 }
 
 /**
- * Deduplicates by transaction id, keeping the newest payload for each id **at
+ * Deduplicates by transaction id, keeping the furthest phase for each id **at
  * the position where that id first appeared**. A finalized row therefore
  * replaces its in-flight row in place instead of jumping to the tail, so
  * completing requests never leapfrog still-pending neighbours (H-RG4 L8).
@@ -505,10 +505,27 @@ function boundedDistinct(
       ordered.push(item);
       continue;
     }
+    const previous = ordered[position];
+    // Progress and persisted transactions use separate engine batches. An
+    // older progress payload can arrive after completion in the same tick.
+    // Preserve terminal metadata and never move reception back to request.
+    if ((previous.generation ?? 0) === (item.generation ?? 0) &&
+        transactionPhase(previous.state) > transactionPhase(item.state)) continue;
     ordered[position] = item;
   }
   if (ordered.length <= rowCap) return ordered;
   return ordered.slice(ordered.length - rowCap);
+}
+
+function transactionPhase(state: string): number {
+  switch (state) {
+    case "request_sent": return 0;
+    case "receiving": return 1;
+    case "complete":
+    case "failed":
+    case "aborted": return 2;
+    default: return -1;
+  }
 }
 
 export type LiveProcessGroup = {
