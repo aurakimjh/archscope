@@ -75,6 +75,12 @@ jobs:
       # own, so this crashes a process holding plaintext and inspects the OS
       # artifacts. It runs from the repository root because the script resolves
       # the engine directory itself.
+      - name: Native registry policy rename regression
+        if: runner.os == 'Windows'
+        working-directory: ${{ github.workspace }}
+        shell: pwsh
+        run: ./scripts/test-windows-policy-registry.ps1
+
       - name: Prepare SEC-10 crash-dump policy
         id: sec10_policy
         if: runner.os == 'Windows'
@@ -84,6 +90,12 @@ jobs:
           ./scripts/set-sec10-ci-dump-policy.ps1 `
             -Action Prepare `
             -StatePath "${{ runner.temp }}\sec10-ci-policy-state.json"
+
+      - name: Windows request and response body capture E2E
+        if: runner.os == 'Windows'
+        env:
+          ARCHSCOPE_RUN_BODY_E2E: "1"
+        run: go test -count=1 -v ./cmd/archscope-app -run '^TestWindowsBodyCaptureE2E$'
 
       - name: SEC-10 crash-dump exclusion evidence
         if: runner.os == 'Windows'

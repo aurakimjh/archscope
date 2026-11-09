@@ -7,12 +7,89 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/certstore"
 )
+
+// This opt-in test uses both real SEC-10 preflights. The operator must isolate
+// and subsequently restore Windows dump policy; no policy mock is installed.
+func TestWindowsBodyCaptureE2E(t *testing.T) {
+	if os.Getenv("ARCHSCOPE_RUN_BODY_E2E") != "1" {
+		t.Skip("set ARCHSCOPE_RUN_BODY_E2E=1 under a verified temporary dump policy")
+	}
+	const requestBody = `{"marker":"T603-REQUEST","message":"본문 캡처 검증"}`
+	const responseBody = `{"marker":"T603-RESPONSE","ok":true}`
+	origin := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		body, err := io.ReadAll(r.Body)
+		if err != nil || string(body) != requestBody {
+			t.Errorf("origin request=%q err=%v", body, err)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = io.WriteString(w, responseBody)
+	}))
+	defer origin.Close()
+	service := newCaptureService(t.TempDir(), certstore.New(memoryTrustBackend{}, nil))
+	started, err := service.StartCapture(capture.Config{ListenAddress: "127.0.0.1:0", CaptureBodies: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _, _ = service.StopCapture(string(started.ID)) })
+	proxyURL, _ := url.Parse("http://" + started.ListenAddress)
+	transport := &http.Transport{Proxy: http.ProxyURL(proxyURL)}
+	defer transport.CloseIdleConnections()
+	client := &http.Client{Transport: transport, Timeout: 5 * time.Second}
+	response, err := client.Post(origin.URL+"/body", "application/json", strings.NewReader(requestBody))
+	if err != nil {
+		t.Fatal(err)
+	}
+	gotBody, readErr := io.ReadAll(response.Body)
+	closeErr := response.Body.Close()
+	if readErr != nil || closeErr != nil || string(gotBody) != responseBody {
+		t.Fatalf("response=%q read=%v close=%v", gotBody, readErr, closeErr)
+	}
+	deadline := time.Now().Add(5 * time.Second)
+	var transactionID string
+	for {
+		page, err := service.FetchCaptureTransactions(CaptureFetchRequest{SessionID: string(started.ID), Limit: 10})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(page.Items) == 1 {
+			transactionID = page.Items[0].Transaction.ID
+			tx, err := service.GetCaptureTransaction(string(started.ID), page.Items[0].Transaction.ID)
+			if err != nil || tx == nil {
+				t.Fatalf("detail=%+v err=%v", tx, err)
+			}
+			if !strings.Contains(tx.Request.BodyPreview, "T603-REQUEST") ||
+				!strings.Contains(tx.Request.BodyPreview, "본문 캡처 검증") ||
+				!strings.Contains(tx.Response.BodyPreview, "T603-RESPONSE") ||
+				tx.Request.BodyStorage == "omitted" || tx.Response.BodyStorage == "omitted" {
+				t.Fatalf("request=%+v response=%+v", tx.Request, tx.Response)
+			}
+			if tx.Process == nil || tx.Process.Attribution != "confirmed" {
+				t.Fatalf("process=%+v", tx.Process)
+			}
+			break
+		}
+		if time.Now().After(deadline) {
+			t.Fatal("body transaction was not persisted")
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+	if _, err := service.StopCapture(string(started.ID)); err != nil {
+		t.Fatal(err)
+	}
+	stored, err := service.GetCaptureTransaction(string(started.ID), transactionID)
+	if err != nil || stored == nil || !strings.Contains(stored.Request.BodyPreview, "T603-REQUEST") ||
+		!strings.Contains(stored.Response.BodyPreview, "T603-RESPONSE") {
+		t.Fatalf("finalized detail=%+v err=%v", stored, err)
+	}
+}
 
 // TestWindowsLiveCaptureE2E is the in-process Windows plain-HTTP proxy smoke.
 // The external schema-v4 PowerShell harness separately proves the required

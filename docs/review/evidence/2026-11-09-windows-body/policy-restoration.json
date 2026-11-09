@@ -1,0 +1,6 @@
+{
+  "policyRestored": true,
+  "machineValuesSubkeysAclMatch": true,
+  "userValuesSubkeysAclMatch": true,
+  "backupKeyRemoved": true
+}

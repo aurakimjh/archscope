@@ -63,9 +63,14 @@ checks were weakened to make them pass.
   Incidental generated-binding and npm lockfile changes were restored; neither
   dependency versions nor generated API contents were changed.
 
-## T-603 disposition: incomplete
+## T-603 disposition: completed in the subsequent body run
 
-T-603 remains `TODO`. The native app's source panel correctly reports that
+The limitations below describe this earlier metadata-only run. The subsequent
+[native body-capture acceptance](../2026-11-09-windows-body/README.md) completed
+T-603 with actual request/response payloads and verified restoration of all
+temporary policy changes.
+
+At this earlier checkpoint T-603 remained `TODO`. The native app's source panel correctly reported that
 the existing Windows crash-dump policy prevents body capture. No CA was
 installed, no system proxy was changed, and the machine dump policy was not
 relaxed. The user directly operated the safety acknowledgment and authorized
@@ -93,9 +98,9 @@ start time. Its loopback origin returned `X-ArchScope-Fixture: T603-local`,
 - The temporary origin/control servers and both fixture clients exited after
   the session stopped. The app was left on the finalized analysis.
 
-An actual **captured payload** remains unverified because the existing body
-gate is unavailable. The omitted-body UI check above is not payload-capture
-acceptance, so T-603 is not marked complete and task counts remain unchanged.
+An actual **captured payload** remained unverified at this checkpoint because the existing body
+gate was unavailable. The omitted-body UI check above was not payload-capture
+acceptance. The subsequent body run linked above supplies that missing evidence.
 
 ### Defect found and fixed during native verification
 

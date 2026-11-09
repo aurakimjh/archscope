@@ -24,6 +24,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
+. (Join-Path $PSScriptRoot 'windows-policy-registry.ps1')
 
 if ($env:GITHUB_ACTIONS -ne "true") {
     throw "This registry-isolation helper is CI-only and requires GITHUB_ACTIONS=true."
@@ -90,7 +91,7 @@ if ($Action -eq "Prepare") {
 
     foreach ($entry in $entries) {
         if ($entry.existed) {
-            Rename-Item -LiteralPath $entry.path -NewName $entry.backupLeaf
+            Rename-WindowsPolicyKey -Path $entry.path -NewName $entry.backupLeaf
         }
         if (Test-Path -LiteralPath $entry.path) {
             throw "SEC-10 policy isolation failed for $($entry.id)."
@@ -110,7 +111,7 @@ foreach ($entry in $state.entries) {
             if (Test-Path -LiteralPath $entry.path) {
                 Remove-Item -LiteralPath $entry.path -Recurse -Force
             }
-            Rename-Item -LiteralPath $entry.backupPath -NewName $entry.leaf
+            Rename-WindowsPolicyKey -Path $entry.backupPath -NewName $entry.leaf
         } elseif (-not (Test-Path -LiteralPath $entry.path)) {
             throw "Both the original and backup registry keys are missing for $($entry.id)."
         }
