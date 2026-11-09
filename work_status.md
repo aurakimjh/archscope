@@ -8,7 +8,7 @@ The previous long-form history was archived to
 
 ## Status Overview
 
-**Overall: 175 of 180 tracked tasks are `DONE` (97.2%).** The 2026-11-09
+**Overall: 176 of 180 tracked tasks are `DONE` (97.8%).** The 2026-11-09
 GC/profiler revalidation confirmed five bugs (T-589 through T-593). Their
 current implementation status is recorded in the registry and snapshot below;
 T-557 remains trigger-dependent `PENDING`.
@@ -213,11 +213,11 @@ completed the independent Lighthouse file-first engine slice.
 
 | Status | Count | Meaning |
 |---|---:|---|
-| `TODO` | 4 | Ready to start; prerequisites are satisfied |
+| `TODO` | 3 | Ready to start; prerequisites are satisfied |
 | `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
 | `REVIEW` | 0 | Review or required remediation is underway; the gate has not passed |
 | `PENDING` | 1 | Waiting for a prerequisite, external condition, or activation trigger |
-| `DONE` | 175 | Completion criteria and required review gates have passed |
+| `DONE` | 176 | Completion criteria and required review gates have passed |
 
 The normal transition is `TODO → IN_PROGRESS → REVIEW → DONE`. A `PENDING`
 task returns to `TODO` when its dependency or trigger is satisfied. Task status
@@ -229,11 +229,10 @@ same change so this overview remains the status source of truth.
 
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
-| 1 | T-590 | P1 | `TODO` | Preserve internal-frame self samples in Canvas flamegraph totals, widths, tooltips, and search |
-| 2 | T-591 | P1 | `TODO` | Filter canonical profile evidence before display pruning; preserve/disclose hidden weight without attributing it to real self samples |
-| 3 | T-592 | P1 | `TODO` | Distinguish legacy profile counter units and aggregation modes before converting lock weights into durations |
-| 4 | T-593 | P2 | `TODO` | Validate ordered regex terms once and surface invalid/unsafe patterns consistently |
-| 5 | T-557 | P1 | `PENDING` | Activate only if repeated MSA drilldown use justifies a Go analyzer contract |
+| 1 | T-591 | P1 | `TODO` | Filter canonical profile evidence before display pruning; preserve/disclose hidden weight without attributing it to real self samples |
+| 2 | T-592 | P1 | `TODO` | Distinguish legacy profile counter units and aggregation modes before converting lock weights into durations |
+| 3 | T-593 | P2 | `TODO` | Validate ordered regex terms once and surface invalid/unsafe patterns consistently |
+| 4 | T-557 | P1 | `PENDING` | Activate only if repeated MSA drilldown use justifies a Go analyzer contract |
 
 ## Current Baseline
 
@@ -647,7 +646,7 @@ filtered before analysis.
 1. **T-589 (DONE; P1, Codex engine / Claude UI):** repair GC time extraction and
    measurement availability. Define the observation window before changing
    throughput/rate arithmetic, then align absolute versus elapsed chart axes.
-2. **T-590 (P1, Claude UI):** preserve inclusive and self sample accounting in
+2. **T-590 (DONE; P1, Claude UI):** preserve inclusive and self sample accounting in
    the shared Canvas flamegraph. Verify ordinary prefix stacks independently of
    pruning, then cover the pruned/hidden-weight representation with T-591.
 3. **T-591 (P1, Codex engine/contracts / Claude UI disclosure):** apply
@@ -1031,7 +1030,7 @@ deferred until explicitly promoted.
 | ID | Priority | Status | Task | Depends on | Output |
 |---|---|---|---|---|---|
 | T-589 | P1 | DONE | Restore unified GC uptime/date coordinates and valid throughput/allocation/promotion rate denominators; define observation-window rules, expose unavailable values honestly, and align absolute versus elapsed UI axes. | None; existing GC parser/analyzer and AnalysisResult envelope | Completed 2026-11-09: unified date/uptime parsing, monotonic observed-window accounting, nullable unavailable metrics with reasons, elapsed/absolute axes and EN/KO disclosure. GC parser/analyzer regressions, frontend state suite and production build passed; local source review completed (no independent or desktop E2E claim). |
-| T-590 | P1 | TODO | Preserve internal-frame self samples in the shared Canvas flamegraph so totals, widths, tooltips, and search use the original inclusive weights without double counting. | None; coordinate hidden-weight fixtures with T-591 | Pending: prefix/self, recursive, focus/search, and hidden-weight regressions; Claude owns React/UI changes and frontend verification. The 100-total/40-child failure was reconfirmed from the actual hierarchy expression on 2026-11-09. |
+| T-590 | P1 | DONE | Preserve internal-frame self samples in the shared Canvas flamegraph so totals, widths, tooltips, and search use the original inclusive weights without double counting. | None; coordinate hidden-weight fixtures with T-591 | Completed 2026-11-09: Canvas derives self weights from inclusive nodes; shared layout/search helpers preserve prefix-stack totals and union recursive matches. Prefix, leaf, recursion, focus/search and synthetic-hidden-weight regressions plus frontend state suite/build passed; local source review completed. |
 | T-591 | P1 | TODO | Apply profiler drilldown filters to canonical evidence before display pruning; conserve/disclose omitted subtree weight while keeping every result stage within node/payload limits. | None; coordinate Canvas accounting with T-590 | Pending: display-budget-independent matching, bounded stage output, explicit hidden-versus-self provenance, Codex engine contract plus Claude disclosure, and independent review. The pruned-zero/unpruned-ten control was reconfirmed 2026-11-09. |
 | T-592 | P1 | TODO | Resolve legacy profile counter-unit and sample-count/total-metric provenance before converting lock weights to durations; keep summary, drilldown, and pprof export units consistent and disclose insufficient provenance. | None; source-unit contract must precede binding/UI changes within this task | Pending: known-nanosecond and count/unknown-unit cases, CPU/wall/V8 compatibility checks, paired EN/KO contract/docs, generated binding handoff if required, and independent semantic review. Do not assume every lock counter is nanoseconds. |
 | T-593 | P2 | TODO | Prevalidate and precompile every ordered-regex term; propagate INVALID_REGEX/UNSAFE_REGEX consistently instead of silently returning no matches or accepting invalid excludes. | None; existing filter behavior and RE2 guards | Pending: include/exclude, invalid/unreachable/oversized term regressions and unchanged ordered/reroot semantics; Codex engine scope. The anywhere-error/ordered-no-diagnostic contrast was reconfirmed 2026-11-09. |

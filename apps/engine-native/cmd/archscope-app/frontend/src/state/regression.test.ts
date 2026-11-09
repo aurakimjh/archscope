@@ -1,3 +1,5 @@
+import { partition } from "d3-hierarchy";
+import { buildFlameHierarchy, flameSearchCoverage, type FlameGraphNode } from "./flamegraphLayout.js";
 import { gcAxis, gcCoordinate, gcUnavailableReasons, gcReasonKey } from "./gcClock.js";
 import { messages } from "../i18n/messages.js";
 import type { AnalysisWorkspaceEntry, WorkspaceAnalysisResult } from "./analysisWorkspace.js";
@@ -2964,4 +2966,20 @@ for (const [axis, type, value] of [["uptime_seconds", "value", 11], ["event_inde
 for (const reason of ["clock_reset", "pause_exceeds_window", "missing_time"]) {
  const key = gcReasonKey(reason);
  assert(Boolean(messages.en[key]) && Boolean(messages.ko[key]), "GC unavailable reason localized");
+}
+
+// T-590: wire values are inclusive; early-ending stacks have internal self weight.
+{
+ const input = {name:"All",value:100,children:[{name:"A",value:100,children:[{name:"B",value:40}]}]};
+ const root = partition<FlameGraphNode>().size([1000, 100])(buildFlameHierarchy(input));
+ assert(root.value === 100 && root.children?.[0].value === 100, "internal self weight retained");
+ assert(Math.abs(root.children![0].children![0].x1 - 400) < 1e-6, "child width uses 40/100");
+ assert(flameSearchCoverage(root, "B").matchedSamples === 40, "search respects inclusive denominator");
+ assert(flameSearchCoverage(root.children![0], "B").ratio === 0.4, "focused search denominator");
+ const recursive = partition<any>().size([1000, 100])(buildFlameHierarchy({name:"All",value:100,children:[{name:"A",value:100,children:[{name:"A",value:40}]}]}));
+ assert(flameSearchCoverage(recursive, "A").matchedSamples === 100, "recursive matches counted once");
+ const leaf = buildFlameHierarchy({name:"All",value:40,children:[{name:"B",value:40}]});
+ assert(leaf.value === 40, "leaf-only control unchanged");
+ const hidden = buildFlameHierarchy({name:"All",value:100,children:[{name:"A",value:40},{name:"…other",value:60}]});
+ assert(hidden.value === 100, "synthetic hidden weight counted once");
 }

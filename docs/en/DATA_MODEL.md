@@ -1391,3 +1391,11 @@ reset, zero-span, or inconsistent evidence produces nullable measurements and
 `metadata.measurement_unavailable` reason codes, never a fabricated zero.
 Allocation/promotion rates use valid adjacent heap observations; absent heap
 measurements are unavailable, whereas a measured zero remains zero.
+
+### Flamegraph inclusive weights
+
+Every node value includes its descendants. Canvas derives self weight as
+`node.value - sum(child.value)` before d3 aggregation. Internal self weight
+remains visible as unoccupied child space; widths, hover totals, and search
+percentages share the same inclusive denominator. Recursive matches are
+unioned rather than added repeatedly.

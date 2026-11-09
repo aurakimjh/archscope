@@ -27,7 +27,7 @@
 // it can stand alone inside the slim Wails v3 shell. The web component stays
 // canonical; future fixes should be ported in both directions.
 
-import { hierarchy, partition, type HierarchyNode } from "d3-hierarchy";
+import { partition, type HierarchyNode } from "d3-hierarchy";
 import {
   useCallback,
   useEffect,
@@ -40,13 +40,8 @@ import {
 import { useI18n } from "../i18n/I18nProvider";
 import { useTheme } from "../theme/ThemeProvider";
 
-export type FlameGraphNode = {
-  name: string;
-  value: number;
-  children?: FlameGraphNode[];
-  category?: string | null;
-  color?: string | null;
-};
+import { buildFlameHierarchy, flameSearchCoverage, type FlameGraphNode } from "../state/flamegraphLayout";
+export type { FlameGraphNode } from "../state/flamegraphLayout";
 
 type RenderRect = {
   node: HierarchyNode<FlameGraphNode>;
@@ -154,9 +149,7 @@ export function CanvasFlameGraph({
 
   const root = useMemo(() => {
     if (!data) return null;
-    return hierarchy<FlameGraphNode>(data, (d) => d.children ?? null)
-      .sum((d) => (d.children && d.children.length > 0 ? 0 : d.value || 0))
-      .sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
+    return buildFlameHierarchy(data);
   }, [data]);
 
   const layoutInfo = useMemo(() => {
@@ -185,41 +178,7 @@ export function CanvasFlameGraph({
   const searchStats = useMemo(() => {
     if (!layoutInfo || !searchLower) return null;
     const scopeRoot = searchScope === "visible" ? layoutInfo.focused : layoutInfo.partitioned;
-    const basisSamples = Number(scopeRoot.value ?? 0);
-    const basisWidth = Math.max(1e-6, scopeRoot.x1 - scopeRoot.x0);
-    const matches = scopeRoot
-      .descendants()
-      .filter((node) => (node.data.name || "").toLowerCase().includes(searchLower));
-    if (matches.length === 0 || basisSamples <= 0) {
-      return {
-        frameCount: 0,
-        matchedSamples: 0,
-        ratio: 0,
-        basisSamples,
-      };
-    }
-    const intervals = matches
-      .map((node) => ({
-        start: Math.max(scopeRoot.x0, node.x0),
-        end: Math.min(scopeRoot.x1, node.x1),
-      }))
-      .filter((interval) => interval.end > interval.start)
-      .sort((a, b) => (a.start === b.start ? b.end - a.end : a.start - b.start));
-    let coveredWidth = 0;
-    let coveredEnd = -Infinity;
-    for (const interval of intervals) {
-      if (interval.end <= coveredEnd) continue;
-      const start = Math.max(interval.start, coveredEnd);
-      coveredWidth += interval.end - start;
-      coveredEnd = interval.end;
-    }
-    const ratio = Math.max(0, Math.min(1, coveredWidth / basisWidth));
-    return {
-      frameCount: matches.length,
-      matchedSamples: basisSamples * ratio,
-      ratio,
-      basisSamples,
-    };
+    return flameSearchCoverage(scopeRoot, searchLower);
   }, [layoutInfo, searchLower, searchScope]);
 
   // Render to canvas whenever layout changes.
