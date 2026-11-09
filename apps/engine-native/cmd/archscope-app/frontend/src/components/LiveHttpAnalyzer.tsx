@@ -6,7 +6,7 @@ import {
   availableFidelities, availableMethods, availableMimeTypes, emptyFilter,
   filterTransactions, isFilterActive, type TransactionFilter,
 } from "@/state/httpCapture";
-import { availableResourceKinds } from "@/state/httpAnalyzer";
+import { httpProcessKey, availableResourceKinds } from "@/state/httpAnalyzer";
 import { liveAnalyzerRow, type LiveCaptureExchange } from "@/state/liveHttpCapture";
 import * as CaptureService from "../../bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/captureservice";
 
@@ -20,11 +20,16 @@ export function LiveHttpAnalyzer({
 }): React.JSX.Element {
   const { t } = useI18n();
   const [filter, setFilter] = useState<TransactionFilter>(emptyFilter);
+  const [processKey, setProcessKey] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [detail, setDetail] = useState<HttpCaptureTransactionRow | null>(null);
   const [error, setError] = useState<string | null>(null);
   const all = useMemo(() => transactions.map(liveAnalyzerRow), [transactions]);
-  const rows = useMemo(() => filterTransactions(all, filter), [all, filter]);
+  const processes = useMemo(() => [...new Map(all.map((row) => [httpProcessKey(row),
+    row.process ? `${row.process.name} [${row.process.pid}] · ${row.process.start_time}` : t("liveCaptureAttributionUnknown")
+  ])).entries()], [all, t]);
+  const scoped = useMemo(() => processKey ? all.filter((row) => httpProcessKey(row) === processKey) : all, [all, processKey]);
+  const rows = useMemo(() => filterTransactions(scoped, filter), [scoped, filter]);
   const selected = all.find((row) => row.id === selectedId);
   useEffect(() => {
     setDetail(null);
@@ -40,6 +45,15 @@ export function LiveHttpAnalyzer({
   }, [sessionId, selectedId, selected?.state, persisted]);
   return (
     <>
+      <label className="flex items-center gap-2 text-xs">
+        {t("httpAnalyzerTabProcess")}
+        <select aria-label={t("httpAnalyzerTabProcess")} value={processKey} className="h-7 min-w-0 rounded border px-2"
+          onChange={(event) => { setProcessKey(event.target.value); setSelectedId(null); setDetail(null); }}>
+          <option value="">{t("httpLiveAllProcesses")}</option>
+          {processes.map(([key,label]) => <option key={key} value={key}>{label}</option>)}
+        </select>
+        <span className="font-mono">{rows.length} / {all.length}</span>
+      </label>
       {error && <p role="alert" className="text-xs text-red-600">{error}</p>}
       <HttpAnalyzerView
         transactions={rows} total={all.length}

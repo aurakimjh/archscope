@@ -3010,3 +3010,10 @@ const selectedLiveRow = liveAnalyzerRow({
 });
 assert(selectedLiveRow.process?.pid === 7 && selectedLiveRow.process.start_time !== "", "live adapter must preserve process instance identity");
 assert(selectedLiveRow.request.bodyStorage === "omitted", "absent live payload must not claim retained content");
+
+import { httpGroupedEntries, httpProcessKey } from "./httpAnalyzer.js";
+const reusedPid = {...selectedLiveRow, id:"new-instance", process:{...selectedLiveRow.process!,start_time:"2026-11-09T01:00:00Z"}};
+const processEntries = httpGroupedEntries([selectedLiveRow,reusedPid], new Set());
+assert(processEntries.length === 4, "same name and PID with distinct start times must form distinct groups");
+const collapsedEntries = httpGroupedEntries([selectedLiveRow,reusedPid], new Set([httpProcessKey(selectedLiveRow)]));
+assert(collapsedEntries.length === 3 && collapsedEntries.filter(e=>e.kind==="request").length === 1, "collapsing a group must hide only its own requests");

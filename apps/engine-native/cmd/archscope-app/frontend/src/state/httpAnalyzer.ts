@@ -606,3 +606,40 @@ export function nextSelection(
   if (next < 0 || next >= transactions.length) return null;
   return transactions[next]?.id ?? null;
 }
+
+// A process instance is stable across PID reuse. HAR origins are explicit
+// pseudo-processes so imported evidence never implies observed OS attribution.
+export function httpProcessKey(row: HttpCaptureTransactionRow): string {
+  return row.process
+    ? JSON.stringify([row.process.pid, row.process.start_time])
+    : "origin:" + row.host;
+}
+
+export type HttpGridEntry =
+  | { kind: "request"; row: HttpCaptureTransactionRow; index: number }
+  | { kind: "process"; key: string; name: string; count: number; sent: number; received: number };
+
+export function httpGroupedEntries(
+  rows: HttpCaptureTransactionRow[],
+  collapsed: ReadonlySet<string>,
+): HttpGridEntry[] {
+  const groups = new Map<string, { header: Extract<HttpGridEntry, { kind: "process" }>; requests: HttpGridEntry[] }>();
+  rows.forEach((row, index) => {
+    const key = httpProcessKey(row);
+    let group = groups.get(key);
+    if (!group) {
+      group = {
+        header: { kind:"process", key,
+          name: row.process ? `${row.process.name} [${row.process.pid}] · ${row.process.start_time}` : row.host,
+          count:0, sent:0, received:0 }, requests:[],
+      };
+      groups.set(key, group);
+    }
+    group.header.count++;
+    group.header.sent += row.request_bytes;
+    group.header.received += row.response_bytes;
+    group.requests.push({kind:"request",row,index});
+  });
+  return [...groups.values()].flatMap(({header,requests}) =>
+    collapsed.has(header.key) ? [header] : [header,...requests]);
+}

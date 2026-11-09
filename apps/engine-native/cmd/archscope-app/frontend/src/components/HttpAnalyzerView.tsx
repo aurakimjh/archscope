@@ -50,6 +50,7 @@ import {
   buildRawResponse,
   buildWaterfall,
   bodyUnavailableKey,
+  httpGroupedEntries,
   defaultGridSort,
   nextSelection,
   placeOnSession,
@@ -512,6 +513,8 @@ function TransactionGrid({
 }): React.JSX.Element {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [scrollTop, setScrollTop] = useState(0);
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  const entries = useMemo(() => httpGroupedEntries(rows, collapsed), [rows, collapsed]);
   const [viewport, setViewport] = useState(600);
 
   // The grid holds a whole session — tens of thousands of rows once resource
@@ -534,16 +537,16 @@ function TransactionGrid({
   }, [rows, follow, selectedId]);
 
   const start = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - OVERSCAN);
-  const end = Math.min(rows.length, Math.ceil((scrollTop + viewport) / ROW_HEIGHT) + OVERSCAN);
-  const visible = rows.slice(start, end);
+  const end = Math.min(entries.length, Math.ceil((scrollTop + viewport) / ROW_HEIGHT) + OVERSCAN);
+  const visible = entries.slice(start, end);
   const padTop = start * ROW_HEIGHT;
-  const padBottom = Math.max(0, (rows.length - end) * ROW_HEIGHT);
+  const padBottom = Math.max(0, (entries.length - end) * ROW_HEIGHT);
 
   // Keep the selected row reachable when the selection moves by keyboard.
   useEffect(() => {
     const element = scrollRef.current;
     if (!element || !selectedId) return;
-    const index = rows.findIndex((row) => row.id === selectedId);
+    const index = entries.findIndex((entry) => entry.kind === "request" && entry.row.id === selectedId);
     if (index < 0) return;
     const top = index * ROW_HEIGHT;
     const bottom = top + ROW_HEIGHT;
@@ -551,7 +554,7 @@ function TransactionGrid({
     else if (bottom > element.scrollTop + element.clientHeight) {
       element.scrollTop = bottom - element.clientHeight;
     }
-  }, [rows, selectedId]);
+  }, [entries, selectedId]);
 
   const onKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -632,16 +635,25 @@ function TransactionGrid({
                 <td colSpan={COLUMNS.length} />
               </tr>
             )}
-            {visible.map((tx, offset) => (
-              <GridRow
-                key={tx.id}
-                tx={tx}
-                index={start + offset}
-                span={span}
-                selected={tx.id === selectedId}
-                onSelect={onSelect}
-                t={t}
-              />
+            {visible.map((entry) => entry.kind === "request" ? (
+              <GridRow key={entry.row.id} tx={entry.row} index={entry.index}
+                span={span} selected={entry.row.id === selectedId} onSelect={onSelect} t={t} />
+            ) : (
+              <tr key={"group:" + entry.key} style={{height: ROW_HEIGHT}} className="border-y bg-muted/60">
+                <td colSpan={COLUMNS.length} className="px-2">
+                  <button type="button" aria-expanded={!collapsed.has(entry.key)}
+                    className="flex w-full items-center gap-3 text-left text-xs"
+                    onClick={() => setCollapsed((current) => {
+                      const next = new Set(current);
+                      if (next.has(entry.key)) next.delete(entry.key); else next.add(entry.key);
+                      return next;
+                    })}>
+                    <span>{collapsed.has(entry.key) ? "▸" : "▾"}</span>
+                    <span className="truncate font-medium">{entry.name}</span>
+                    <span className="shrink-0 font-mono">{entry.count} · ↑ {formatBytes(entry.sent)} · ↓ {formatBytes(entry.received)}</span>
+                  </button>
+                </td>
+              </tr>
             ))}
             {padBottom > 0 && (
               <tr aria-hidden="true" style={{ height: padBottom }}>

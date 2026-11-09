@@ -925,6 +925,7 @@ export const messages = {
     liveCaptureUnknownOptInOn: "Unattributed metadata is being retained.",
     liveCaptureUnknownOptInOff: "Unattributed traffic is being discarded.",
     liveCaptureStart: "Start capture",
+    httpLiveAllProcesses: "All processes",
     liveCaptureStop: "Stop capture",
     liveCaptureLoadFinalized: "Load finalized analysis",
     liveCaptureRecovery: "Recovered sessions",
@@ -2322,6 +2323,7 @@ export const messages = {
     liveCaptureUnknownOptInHint:
       "기본값은 꺼짐입니다. 활성화하면 프로세스를 확정하지 못한 트래픽의 리댁션된 메타데이터만 보존하며 본문은 계속 생략합니다.",
     liveCaptureStart: "캡처 시작",
+    httpLiveAllProcesses: "모든 프로세스",
     liveCaptureStop: "캡처 중지",
     liveCaptureLoadFinalized: "종료 세션 분석 불러오기",
     liveCaptureRecovery: "복구된 세션",
