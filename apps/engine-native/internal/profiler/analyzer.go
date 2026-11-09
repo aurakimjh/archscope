@@ -214,12 +214,13 @@ func AnalyzeJenniferFile(path string, options Options) (AnalysisResult, error) {
 // 입력 root 를 그대로 사용. component breakdown 을 위해 stacksFromTree 로
 // leaf path 를 collapsed map 으로 역추출해 사용.
 func AnalyzeJenniferTree(root FlameNode, sourceFile string, diagnostics ParserDiagnostics, options Options) AnalysisResult {
+	normalizeOptions(&options)
 	totalSamples := root.Samples
-	intervalSeconds := options.IntervalMS / 1000
-	estimatedSeconds := round(float64(totalSamples)*intervalSeconds, 3)
+	estimatedSeconds := weightDuration(totalSamples, options)
+	unit, aggregation, reason, factor := valueContract(options)
 	stacks := stacksFromTree(root)
 	timelineRows, timelineScope := buildTimeline(root, options, totalSamples)
-	topSeries, topTables := topStacksFromCollapsed(stacks, totalSamples, intervalSeconds, options)
+	topSeries, topTables := topStacksFromCollapsed(stacks, totalSamples, options)
 	rootTopStacks := topStacksFromTree(root, options.TopN)
 	topChildFramesRoot := topChildFrames(root, options.TopN)
 	// Same pruning + DrilldownStage de-duplication as the collapsed
@@ -255,6 +256,7 @@ func AnalyzeJenniferTree(root FlameNode, sourceFile string, diagnostics ParserDi
 		SourceFiles: []string{sourceFile},
 		CreatedAt:   time.Now().UTC().Format(time.RFC3339Nano),
 		Summary: Summary{
+			ValueUnit: unit, Aggregation: aggregation, DurationUnavailableReason: reason, SecondsPerWeight: factor,
 			ProfileKind:      options.ProfileKind,
 			TotalSamples:     totalSamples,
 			IntervalMS:       options.IntervalMS,
@@ -279,7 +281,7 @@ func AnalyzeJenniferTree(root FlameNode, sourceFile string, diagnostics ParserDi
 		},
 		Metadata: Metadata{
 			Parser:        "jennifer_flamegraph_csv",
-			SchemaVersion: "0.1.0",
+			SchemaVersion: "0.2.0",
 			Diagnostics:   diagnostics,
 			TimelineScope: timelineScope,
 		},
@@ -303,6 +305,7 @@ func stacksFromTree(root FlameNode) map[string]int {
 // breakdown / threads / drilldown root stage 를 모두 채워 AnalysisResult 반환.
 // 호출 전후로 Type/Parser 를 호출자가 덮어쓰는 것이 정상 (HTML/SVG 케이스).
 func AnalyzeCollapsedStacks(stacks map[string]int, sourceFile string, diagnostics ParserDiagnostics, options Options) AnalysisResult {
+	normalizeOptions(&options)
 	pl := options.ProgressLog
 	totalSamples := 0
 	for _, samples := range stacks {
@@ -310,8 +313,8 @@ func AnalyzeCollapsedStacks(stacks map[string]int, sourceFile string, diagnostic
 			totalSamples += samples
 		}
 	}
-	intervalSeconds := options.IntervalMS / 1000
-	estimatedSeconds := round(float64(totalSamples)*intervalSeconds, 3)
+	estimatedSeconds := weightDuration(totalSamples, options)
+	unit, aggregation, reason, factor := valueContract(options)
 	pl.Phase("build-flamegraph-start", fmt.Sprintf("stacks=%d total_samples=%d", len(stacks), totalSamples))
 	flamegraph := buildFlameTreeWithLog(stacks, pl)
 	rawNodes := countNodes(flamegraph)
@@ -321,7 +324,7 @@ func AnalyzeCollapsedStacks(stacks map[string]int, sourceFile string, diagnostic
 	timelineRows, timelineScope := buildTimeline(flamegraph, options, totalSamples)
 	pl.Phase("timeline-end", fmt.Sprintf("rows=%d", len(timelineRows)))
 	pl.Phase("topstacks-start")
-	topSeries, topTables := topStacksFromCollapsed(stacks, totalSamples, intervalSeconds, options)
+	topSeries, topTables := topStacksFromCollapsed(stacks, totalSamples, options)
 	pl.Phase("topstacks-end", fmt.Sprintf("rows=%d", len(topSeries)))
 	rootTopStacks := topStacksFromTree(flamegraph, options.TopN)
 	topChildFramesRoot := topChildFrames(flamegraph, options.TopN)
@@ -384,6 +387,7 @@ func AnalyzeCollapsedStacks(stacks map[string]int, sourceFile string, diagnostic
 		SourceFiles: []string{sourceFile},
 		CreatedAt:   time.Now().UTC().Format(time.RFC3339Nano),
 		Summary: Summary{
+			ValueUnit: unit, Aggregation: aggregation, DurationUnavailableReason: reason, SecondsPerWeight: factor,
 			ProfileKind:      options.ProfileKind,
 			TotalSamples:     totalSamples,
 			IntervalMS:       options.IntervalMS,
@@ -408,14 +412,14 @@ func AnalyzeCollapsedStacks(stacks map[string]int, sourceFile string, diagnostic
 		},
 		Metadata: Metadata{
 			Parser:        "async_profiler_collapsed",
-			SchemaVersion: "0.1.0",
+			SchemaVersion: "0.2.0",
 			Diagnostics:   diagnostics,
 			TimelineScope: timelineScope,
 		},
 	}
 }
 
-func topStacksFromCollapsed(stacks map[string]int, totalSamples int, intervalSeconds float64, options Options) ([]TopStackSeriesRow, []TopStackTableRow) {
+func topStacksFromCollapsed(stacks map[string]int, totalSamples int, options Options) ([]TopStackSeriesRow, []TopStackTableRow) {
 	type item struct {
 		Stack   string
 		Samples int
@@ -436,7 +440,7 @@ func topStacksFromCollapsed(stacks map[string]int, totalSamples int, intervalSec
 	series := make([]TopStackSeriesRow, 0, len(items))
 	tables := make([]TopStackTableRow, 0, len(items))
 	for _, item := range items {
-		estimated := round(float64(item.Samples)*intervalSeconds, 3)
+		estimated := weightDuration(item.Samples, options)
 		elapsed := elapsedRatio(estimated, options.ElapsedSec, 2)
 		sampleRatio := ratio(item.Samples, totalSamples, 2)
 		series = append(series, TopStackSeriesRow{

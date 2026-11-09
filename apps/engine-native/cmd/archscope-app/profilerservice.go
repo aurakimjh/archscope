@@ -134,6 +134,7 @@ type AnalyzeCancelledEvent struct {
 }
 
 type AnalyzeRequest struct {
+	ValueUnit          string  `json:"valueUnit,omitempty"`
 	Path               string  `json:"path"`
 	Format             string  `json:"format"`
 	IntervalMS         float64 `json:"intervalMs"`
@@ -409,7 +410,11 @@ func (s *ProfilerService) optionsFromRequest(req AnalyzeRequest) (profiler.Optio
 	if strings.TrimSpace(req.Path) == "" {
 		return profiler.Options{}, fmt.Errorf("path is required")
 	}
+	if err := profiler.ValidateValueUnit(req.ValueUnit); err != nil {
+		return profiler.Options{}, err
+	}
 	options := profiler.Options{
+		ValueUnit:          req.ValueUnit,
 		IntervalMS:         req.IntervalMS,
 		TopN:               req.TopN,
 		ProfileKind:        req.ProfileKind,
@@ -517,13 +522,14 @@ func (s *ProfilerService) ExportPprof(req ExportPprofRequest) (ExportPprofRespon
 	if err != nil {
 		return ExportPprofResponse{}, err
 	}
-	intervalMs := req.IntervalMS
-	if intervalMs <= 0 {
-		intervalMs = 100
-	}
-	if err := profiler.ExportToPprof(stacks, out, "samples", "count", intervalMs); err != nil {
+	options, err := s.optionsFromRequest(req.AnalyzeRequest)
+	if err != nil {
 		return ExportPprofResponse{}, err
 	}
+	if err := profiler.ExportToPprofWithOptions(stacks, out, options); err != nil {
+		return ExportPprofResponse{}, err
+	}
+
 	info, err := os.Stat(out)
 	if err != nil {
 		return ExportPprofResponse{}, err

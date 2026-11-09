@@ -39,11 +39,11 @@ func ratio(part, total int, places int) float64 {
 	return round(float64(part)/float64(total)*100, places)
 }
 
-func elapsedRatio(seconds float64, elapsed *float64, places int) *float64 {
-	if elapsed == nil || *elapsed <= 0 {
+func elapsedRatio(seconds *float64, elapsed *float64, places int) *float64 {
+	if seconds == nil || elapsed == nil || *elapsed <= 0 {
 		return nil
 	}
-	value := round(seconds/(*elapsed)*100, places)
+	value := round(*seconds/(*elapsed)*100, places)
 	return &value
 }
 

@@ -109,14 +109,17 @@ export type CanvasFlameGraphProps = {
   data: FlameGraphNode | null | undefined;
   rowHeight?: number;
   exportName?: string;
+  weightLabel?: string;
 };
 
 export function CanvasFlameGraph({
   data,
   rowHeight = 22,
   exportName = "archscope-flamegraph",
+  weightLabel,
 }: CanvasFlameGraphProps) {
   const { t } = useI18n();
+  const unitLabel = weightLabel ?? t("samples");
   const { resolvedTheme } = useTheme();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -379,9 +382,7 @@ export function CanvasFlameGraph({
             <div className="flamegraph-search-result">
               {searchStats.frameCount === 0
                 ? t("flamegraphSearchNoMatches")
-                : `${Math.round(searchStats.matchedSamples).toLocaleString()} ${t(
-                    "samples",
-                  )} · ${(searchStats.ratio * 100).toFixed(2)}% · ${searchStats.frameCount.toLocaleString()} ${t(
+                : `${Math.round(searchStats.matchedSamples).toLocaleString()} ${unitLabel} · ${(searchStats.ratio * 100).toFixed(2)}% · ${searchStats.frameCount.toLocaleString()} ${t(
                     "flamegraphSearchFrames",
                   )}`}
             </div>
@@ -424,7 +425,7 @@ export function CanvasFlameGraph({
             <div className="flamegraph-tooltip-name">{tooltip.name}</div>
             {tooltip.hiddenSamples > 0 && <div>{t("flamegraphHiddenSamples")}: {tooltip.hiddenSamples.toLocaleString()}</div>}
             <div className="flamegraph-tooltip-meta">
-              {tooltip.value.toLocaleString()} samples · {(tooltip.ratio * 100).toFixed(2)}%
+              {tooltip.value.toLocaleString()} {unitLabel} · {(tooltip.ratio * 100).toFixed(2)}%
               {tooltip.category ? ` · ${tooltip.category}` : ""}
             </div>
           </div>

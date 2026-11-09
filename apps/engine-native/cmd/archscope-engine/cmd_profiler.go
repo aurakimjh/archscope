@@ -26,6 +26,7 @@ func init() {
 }
 
 type profilerFlags struct {
+	valueUnit          string
 	forDrilldown       bool
 	in                 string
 	collapsed          string
@@ -174,6 +175,8 @@ func addProfilerInputChoiceFlags(cmd *cobra.Command, f *profilerFlags) {
 }
 
 func addProfilerCommonOptionFlags(cmd *cobra.Command, f *profilerFlags) {
+	cmd.Flags().StringVar(&f.valueUnit, "value-unit", "", "counter unit: samples|nanoseconds|microseconds|milliseconds|seconds|bytes|unknown (lock defaults to unknown)")
+	cmd.PreRunE = func(cmd *cobra.Command, args []string) error { return profiler.ValidateValueUnit(f.valueUnit) }
 	cmd.Flags().StringVar(&f.out, "out", "-", "output path; `-` for stdout")
 	cmd.Flags().Float64Var(&f.intervalMS, "interval-ms", 100, "sample interval in milliseconds")
 	cmd.Flags().Float64Var(&f.intervalMS, "wall-interval-ms", 100, "collapsed wall interval in milliseconds")
@@ -206,6 +209,7 @@ func analyzeProfilerInput(f profilerFlags) (profiler.AnalysisResult, profiler.Op
 
 func profilerOptions(f profilerFlags) profiler.Options {
 	opts := profiler.Options{
+		ValueUnit:          f.valueUnit,
 		ForDrilldown:       f.forDrilldown,
 		IntervalMS:         f.intervalMS,
 		TopN:               f.topN,

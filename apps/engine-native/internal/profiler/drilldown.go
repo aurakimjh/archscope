@@ -225,8 +225,8 @@ type stageInputs struct {
 }
 
 func buildDrilldownStage(in stageInputs) DrilldownStage {
-	intervalSeconds := in.Options.IntervalMS / 1000
-	estimatedSeconds := round(float64(in.Root.Samples)*intervalSeconds, 3)
+	estimatedSeconds := weightDuration(in.Root.Samples, in.Options)
+	unit, aggregation, reason, factor := valueContract(in.Options)
 	totalRatio := 0.0
 	if in.TotalSamples > 0 {
 		totalRatio = round(float64(in.Root.Samples)/float64(in.TotalSamples)*100, 4)
@@ -236,15 +236,16 @@ func buildDrilldownStage(in stageInputs) DrilldownStage {
 		parentRatio = round(float64(in.Root.Samples)/float64(*in.ParentSamples)*100, 4)
 	}
 	var elapsedRatio *float64
-	if in.Options.ElapsedSec != nil && *in.Options.ElapsedSec > 0 {
-		value := round(estimatedSeconds/(*in.Options.ElapsedSec)*100, 4)
+	if estimatedSeconds != nil && in.Options.ElapsedSec != nil && *in.Options.ElapsedSec > 0 {
+		value := round(*estimatedSeconds/(*in.Options.ElapsedSec)*100, 4)
 		elapsedRatio = &value
 	}
 	timelineRows, _ := buildTimeline(in.Root, in.Options, in.TotalSamples)
 	metrics := map[string]any{
-		"total_samples":      in.TotalSamples,
-		"matched_samples":    in.Root.Samples,
-		"estimated_seconds":  estimatedSeconds,
+		"total_samples":     in.TotalSamples,
+		"matched_samples":   in.Root.Samples,
+		"estimated_seconds": estimatedSeconds,
+		"value_unit":        unit, "aggregation": aggregation, "duration_unavailable_reason": reason, "seconds_per_weight": factor,
 		"total_ratio":        totalRatio,
 		"parent_stage_ratio": parentRatio,
 		"elapsed_ratio":      elapsedRatio,

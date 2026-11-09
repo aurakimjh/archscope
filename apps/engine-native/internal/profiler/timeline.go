@@ -141,7 +141,6 @@ func buildTimeline(root FlameNode, options Options, originalTotal int) ([]Timeli
 	}
 
 	rows := []TimelineRow{}
-	intervalSeconds := options.IntervalMS / 1000
 	emitted := map[string]bool{}
 	emit := func(index int, segment string) {
 		acc := accumulators[segment]
@@ -153,7 +152,7 @@ func buildTimeline(root FlameNode, options Options, originalTotal int) ([]Timeli
 		if label == "" {
 			label = segment
 		}
-		estimated := round(float64(acc.Samples)*intervalSeconds, 3)
+		estimated := weightDuration(acc.Samples, options)
 		rows = append(rows, TimelineRow{
 			Index:            index,
 			Segment:          segment,

@@ -52,10 +52,9 @@ func buildExecutionBreakdown(root FlameNode, options Options, originalTotal int,
 	}
 
 	rows := []ExecutionBreakdownRow{}
-	intervalSeconds := options.IntervalMS / 1000
 	for _, key := range sortedSegmentsBySamples(byCategory) {
 		samples := byCategory[key]
-		estimated := round(float64(samples)*intervalSeconds, 3)
+		estimated := weightDuration(samples, options)
 		classification := classifications[key]
 		rows = append(rows, ExecutionBreakdownRow{
 			Category:         key,

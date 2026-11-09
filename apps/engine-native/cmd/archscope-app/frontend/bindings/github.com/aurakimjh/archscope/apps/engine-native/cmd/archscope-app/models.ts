@@ -202,6 +202,7 @@ export class AnalyzeErrorEvent {
 }
 
 export class AnalyzeRequest {
+    "valueUnit"?: string;
     "path": string;
     "format": string;
     "intervalMs": number;
@@ -275,10 +276,10 @@ export class AnalyzeRequest {
      * Creates a new AnalyzeRequest instance from a string or object.
      */
     static createFrom($$source: any = {}): AnalyzeRequest {
-        const $$createField14_0 = $$createType3;
+        const $$createField15_0 = $$createType3;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("timelineCategories" in $$parsedSource) {
-            $$parsedSource["timelineCategories"] = $$createField14_0($$parsedSource["timelineCategories"]);
+            $$parsedSource["timelineCategories"] = $$createField15_0($$parsedSource["timelineCategories"]);
         }
         return new AnalyzeRequest($$parsedSource as Partial<AnalyzeRequest>);
     }
@@ -814,6 +815,7 @@ export class DiffRequest {
 }
 
 export class DrilldownRequest {
+    "valueUnit"?: string;
     "path": string;
     "format": string;
     "intervalMs": number;
@@ -891,14 +893,14 @@ export class DrilldownRequest {
      * Creates a new DrilldownRequest instance from a string or object.
      */
     static createFrom($$source: any = {}): DrilldownRequest {
-        const $$createField14_0 = $$createType3;
-        const $$createField15_0 = $$createType10;
+        const $$createField15_0 = $$createType3;
+        const $$createField16_0 = $$createType10;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("timelineCategories" in $$parsedSource) {
-            $$parsedSource["timelineCategories"] = $$createField14_0($$parsedSource["timelineCategories"]);
+            $$parsedSource["timelineCategories"] = $$createField15_0($$parsedSource["timelineCategories"]);
         }
         if ("filters" in $$parsedSource) {
-            $$parsedSource["filters"] = $$createField15_0($$parsedSource["filters"]);
+            $$parsedSource["filters"] = $$createField16_0($$parsedSource["filters"]);
         }
         return new DrilldownRequest($$parsedSource as Partial<DrilldownRequest>);
     }
@@ -1187,6 +1189,7 @@ export class ExportPPTXRequest {
 }
 
 export class ExportPprofRequest {
+    "valueUnit"?: string;
     "path": string;
     "format": string;
     "intervalMs": number;
@@ -1264,10 +1267,10 @@ export class ExportPprofRequest {
      * Creates a new ExportPprofRequest instance from a string or object.
      */
     static createFrom($$source: any = {}): ExportPprofRequest {
-        const $$createField14_0 = $$createType3;
+        const $$createField15_0 = $$createType3;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("timelineCategories" in $$parsedSource) {
-            $$parsedSource["timelineCategories"] = $$createField14_0($$parsedSource["timelineCategories"]);
+            $$parsedSource["timelineCategories"] = $$createField15_0($$parsedSource["timelineCategories"]);
         }
         return new ExportPprofRequest($$parsedSource as Partial<ExportPprofRequest>);
     }

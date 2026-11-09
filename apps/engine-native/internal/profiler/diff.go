@@ -332,7 +332,7 @@ func AnalyzeProfilerDiff(baseline, target map[string]int, baselinePath, targetPa
 			ProfileKind:      "diff",
 			TotalSamples:     totalSamples,
 			IntervalMS:       0,
-			EstimatedSeconds: 0,
+			EstimatedSeconds: nil,
 		},
 		Tables: Tables{
 			TopStacks:        []TopStackTableRow{},

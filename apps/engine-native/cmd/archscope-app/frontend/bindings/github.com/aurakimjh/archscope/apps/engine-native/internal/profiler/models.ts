@@ -318,7 +318,7 @@ export class ExecutionBreakdownRow {
     "primary_category": string;
     "wait_reason": string | null;
     "samples": number;
-    "estimated_seconds": number;
+    "estimated_seconds": number | null;
     "total_ratio": number;
     "parent_stage_ratio": number;
     "elapsed_ratio": number | null;
@@ -343,7 +343,7 @@ export class ExecutionBreakdownRow {
             this["samples"] = 0;
         }
         if (!("estimated_seconds" in $$source)) {
-            this["estimated_seconds"] = 0;
+            this["estimated_seconds"] = null;
         }
         if (!("total_ratio" in $$source)) {
             this["total_ratio"] = 0;
@@ -653,14 +653,27 @@ export class Series {
 }
 
 export class Summary {
+    "value_unit": string;
+    "aggregation": string;
+    "seconds_per_weight": number | null;
+    "duration_unavailable_reason"?: string;
     "profile_kind": string;
     "total_samples": number;
     "interval_ms": number;
-    "estimated_seconds": number;
+    "estimated_seconds": number | null;
     "elapsed_seconds": number | null;
 
     /** Creates a new Summary instance. */
     constructor($$source: Partial<Summary> = {}) {
+        if (!("value_unit" in $$source)) {
+            this["value_unit"] = "";
+        }
+        if (!("aggregation" in $$source)) {
+            this["aggregation"] = "";
+        }
+        if (!("seconds_per_weight" in $$source)) {
+            this["seconds_per_weight"] = null;
+        }
         if (!("profile_kind" in $$source)) {
             this["profile_kind"] = "";
         }
@@ -671,7 +684,7 @@ export class Summary {
             this["interval_ms"] = 0;
         }
         if (!("estimated_seconds" in $$source)) {
-            this["estimated_seconds"] = 0;
+            this["estimated_seconds"] = null;
         }
         if (!("elapsed_seconds" in $$source)) {
             this["elapsed_seconds"] = null;
@@ -797,7 +810,7 @@ export class TimelineRow {
     "segment": string;
     "label": string;
     "samples": number;
-    "estimated_seconds": number;
+    "estimated_seconds": number | null;
     "stage_ratio": number;
     "total_ratio": number;
     "elapsed_ratio": number | null;
@@ -820,7 +833,7 @@ export class TimelineRow {
             this["samples"] = 0;
         }
         if (!("estimated_seconds" in $$source)) {
-            this["estimated_seconds"] = 0;
+            this["estimated_seconds"] = null;
         }
         if (!("stage_ratio" in $$source)) {
             this["stage_ratio"] = 0;
@@ -1000,7 +1013,7 @@ export class TopItem {
 export class TopStackSeriesRow {
     "stack": string;
     "samples": number;
-    "estimated_seconds": number;
+    "estimated_seconds": number | null;
     "sample_ratio": number;
     "elapsed_ratio": number | null;
 
@@ -1013,7 +1026,7 @@ export class TopStackSeriesRow {
             this["samples"] = 0;
         }
         if (!("estimated_seconds" in $$source)) {
-            this["estimated_seconds"] = 0;
+            this["estimated_seconds"] = null;
         }
         if (!("sample_ratio" in $$source)) {
             this["sample_ratio"] = 0;
@@ -1037,7 +1050,7 @@ export class TopStackSeriesRow {
 export class TopStackTableRow {
     "stack": string;
     "samples": number;
-    "estimated_seconds": number;
+    "estimated_seconds": number | null;
     "sample_ratio": number;
     "elapsed_ratio": number | null;
     "frames": string[];
@@ -1051,7 +1064,7 @@ export class TopStackTableRow {
             this["samples"] = 0;
         }
         if (!("estimated_seconds" in $$source)) {
-            this["estimated_seconds"] = 0;
+            this["estimated_seconds"] = null;
         }
         if (!("sample_ratio" in $$source)) {
             this["sample_ratio"] = 0;

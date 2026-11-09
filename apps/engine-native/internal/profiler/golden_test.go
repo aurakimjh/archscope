@@ -55,7 +55,7 @@ func TestGoldenCollapsedSampleWall(t *testing.T) {
 	if result.Metadata.Parser != "async_profiler_collapsed" {
 		t.Fatalf("parser = %q, want async_profiler_collapsed", result.Metadata.Parser)
 	}
-	if result.Summary.EstimatedSeconds <= 0 {
+	if result.Summary.EstimatedSeconds == nil || *result.Summary.EstimatedSeconds <= 0 {
 		t.Fatalf("estimated_seconds should be positive; got %v", result.Summary.EstimatedSeconds)
 	}
 	if result.Summary.ElapsedSeconds == nil || *result.Summary.ElapsedSeconds != elapsed {

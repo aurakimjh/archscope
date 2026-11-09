@@ -1409,3 +1409,16 @@ limits remain enabled. Display pruning never mutates input for later filters.
 not observed self samples. It stays within the node's inclusive `samples` and
 is disclosed in the Canvas notice/tooltip even when no extra node fits.
 Parser-discarded input remains unavailable and retains its own diagnostics.
+
+### Legacy profile counter units (schema 0.2.0)
+
+CLI `--value-unit` and Wails `valueUnit` accept `samples`, `nanoseconds`,
+`microseconds`, `milliseconds`, `seconds`, `bytes`, or `unknown`. CPU/wall
+compatibility defaults to periodic sample counts; lock defaults to unknown.
+Lock sample counts are event counts, not periodic durations. Known total-time
+weights convert directly to seconds; bytes and unknown/lock-count durations
+remain null with `duration_unavailable_reason`. Summary and drilldown expose
+`value_unit`, `aggregation`, and nullable `seconds_per_weight`. All duration
+rows and elapsed ratios follow this contract. pprof export preserves original
+weighted units and adds no interval-derived duration/period for lock counters.
+The typed V8/Chrome microsecond contract is unchanged.

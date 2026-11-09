@@ -1,3 +1,4 @@
+import { formatProfileSeconds, profileWeightUnit } from "./profileDuration.js";
 import { partition } from "d3-hierarchy";
 import { buildFlameHierarchy, flameSearchCoverage, hiddenFlameSamples, type FlameGraphNode } from "./flamegraphLayout.js";
 import { gcAxis, gcCoordinate, gcUnavailableReasons, gcReasonKey } from "./gcClock.js";
@@ -2990,4 +2991,12 @@ for (const reason of ["clock_reset", "pause_exceeds_window", "missing_time"]) {
  assert(buildFlameHierarchy(hidden).value === 110, "pruned total preserved");
  assert(hiddenFlameSamples(hidden) === 10, "hidden descendants disclosed separately");
  assert(Boolean(messages.en.flamegraphHiddenSamples) && Boolean(messages.ko.flamegraphHiddenSamples), "hidden-weight disclosure localized");
+}
+
+// T-592: nullable duration is unavailable, not a zero-second measurement.
+assert(formatProfileSeconds(null) === "—" && formatProfileSeconds(undefined) === "—", "unknown duration not zero");
+assert(formatProfileSeconds(0) !== "—", "measured zero remains available");
+assert(profileWeightUnit("nanoseconds") === "ns" && profileWeightUnit("bytes") === "bytes", "physical input units preserved");
+for (const key of ["profileCounterUnit","profileUnitAuto","profileUnitUnknown","profileWeight","profileDurationUnavailable"] as const) {
+ assert(Boolean(messages.en[key]) && Boolean(messages.ko[key]), "profile counter contract localized");
 }

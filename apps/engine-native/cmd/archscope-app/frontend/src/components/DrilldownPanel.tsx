@@ -1,3 +1,4 @@
+import { formatProfileSeconds, profileWeightUnit } from "../state/profileDuration";
 // ─────────────────────────────────────────────────────────────────────
 // [한글] DrilldownPanel.tsx — 프로파일러 드릴다운(필터 누적) 패널.
 //
@@ -53,7 +54,7 @@ type DeveloperTimelineRow = {
   group: CompositionGroupId;
   order: number;
   samples: number;
-  estimatedSeconds: number;
+  estimatedSeconds: number | null;
   color: string;
   rawSegments: string[];
 };
@@ -185,14 +186,7 @@ function timelineDisplayRatio(row: any): number | undefined {
   return undefined;
 }
 
-function formatTimelineSeconds(value: unknown): string {
-  const n = Number(value);
-  if (!Number.isFinite(n)) return "—";
-  return `${n.toLocaleString(undefined, {
-    maximumFractionDigits: 3,
-    minimumFractionDigits: n > 0 && n < 1 ? 3 : 0,
-  })} s`;
-}
+function formatTimelineSeconds(value: unknown): string { return formatProfileSeconds(value); }
 
 function stageTimelineRows(stage: DrilldownStage | undefined): BarRow[] {
   return ((stage as any)?.timeline_analysis ?? [])
@@ -258,7 +252,7 @@ function stageDeveloperTimelineRows(
         rawSegments: [],
       } satisfies DeveloperTimelineRow);
     current.samples += Number(row?.samples ?? 0);
-    current.estimatedSeconds += Number(row?.estimated_seconds ?? 0);
+    current.estimatedSeconds = current.estimatedSeconds == null || row?.estimated_seconds == null ? null : current.estimatedSeconds + Number(row.estimated_seconds);
     const rawLabel = String(row?.label || row?.segment || bucket.key);
     if (!current.rawSegments.includes(rawLabel)) {
       current.rawSegments.push(rawLabel);
@@ -290,6 +284,8 @@ export function DrilldownPanel({ baseRequest, onError }: DrilldownPanelProps) {
   const [timelineMode, setTimelineMode] = useState<DrilldownTimelineMode>("developer");
 
   const lastStage = stages[stages.length - 1];
+  const unit = lastStage?.metrics?.value_unit;
+  const weightLabel = unit && unit !== "samples" ? `${t("profileWeight")} (${profileWeightUnit(unit)})` : t("samples");
   const stageFlamegraph = useMemo(() => adaptStageFlamegraph(lastStage), [lastStage]);
   const timelineRows = useMemo(() => stageTimelineRows(lastStage), [lastStage]);
   const developerTimelineRows = useMemo(
@@ -512,7 +508,7 @@ export function DrilldownPanel({ baseRequest, onError }: DrilldownPanelProps) {
                 rows={developerTimelineRows}
                 totalSamples={lastStage?.flamegraph?.samples ?? 0}
                 emptyLabel={t("timelineEmpty")}
-                samplesLabel={t("samples")}
+                samplesLabel={weightLabel}
                 groupLabels={{
                   database: t("drilldownDevGroupDatabase"),
                   external: t("drilldownDevGroupExternal"),
@@ -523,7 +519,7 @@ export function DrilldownPanel({ baseRequest, onError }: DrilldownPanelProps) {
               <HorizontalBarChart
                 rows={timelineRows}
                 emptyLabel={t("timelineEmpty")}
-                valueSuffix={t("samples")}
+                valueSuffix={weightLabel}
                 ratioFractionDigits={2}
               />
             )}
@@ -537,6 +533,7 @@ export function DrilldownPanel({ baseRequest, onError }: DrilldownPanelProps) {
               <CanvasFlameGraph
                 data={stageFlamegraph}
                 exportName={`drilldown-${stages.length - 1}`}
+                weightLabel={weightLabel}
               />
             </div>
           )}

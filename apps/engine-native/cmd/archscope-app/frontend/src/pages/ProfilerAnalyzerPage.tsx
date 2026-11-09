@@ -1,3 +1,4 @@
+import { PROFILE_VALUE_UNITS, profileWeightUnit, formatProfileSeconds } from "../state/profileDuration";
 // ─────────────────────────────────────────────────────────────────────
 // [한글] pages/ProfilerAnalyzerPage.tsx — 메인 프로파일러 분석 페이지.
 //
@@ -308,12 +309,7 @@ function timelineDisplayRatio(row: any): number | undefined {
 }
 
 function formatTimelineSeconds(value: unknown): string {
-  const n = Number(value);
-  if (!Number.isFinite(n)) return "—";
-  return `${n.toLocaleString(undefined, {
-    maximumFractionDigits: 3,
-    minimumFractionDigits: n > 0 && n < 1 ? 3 : 0,
-  })} s`;
+ return formatProfileSeconds(value);
 }
 
 function formatTimelinePercent(value: number | undefined): string {
@@ -406,7 +402,7 @@ function TimelineCompositionCard({
   emptyLabel: string;
   groupLabels: Record<TimelineCompositionGroupId, string>;
   scope: any;
-  intervalMs: number;
+  intervalMs: number | null;
   baseTimeLabel: string;
   totalTimeLabel: string;
   otherLabel: string;
@@ -430,7 +426,7 @@ function TimelineCompositionCard({
     const basisSamples = scopeSamples > 0 ? scopeSamples : nextRowsSamples;
     const missingSamples = Math.max(0, basisSamples - nextRowsSamples);
     if (missingSamples > 0) {
-      const otherSeconds = (missingSamples * intervalMs) / 1000;
+      const otherSeconds = intervalMs == null ? null : (missingSamples * intervalMs) / 1000;
       nextRows.push({
         index: 999,
         segment: "OTHER_INTERNAL_METHOD",
@@ -443,7 +439,7 @@ function TimelineCompositionCard({
     }
     const nextTotalSamples = Math.max(basisSamples, nextRowsSamples);
     const nextDenominatorSamples = Math.max(nextTotalSamples, 1);
-    const nextTotalSeconds = (nextTotalSamples * intervalMs) / 1000;
+    const nextTotalSeconds = intervalMs == null ? null : (nextTotalSamples * intervalMs) / 1000;
     const groupMap = new Map<
       TimelineCompositionGroupId,
       { id: TimelineCompositionGroupId; samples: number; seconds: number; rows: any[] }
@@ -505,7 +501,7 @@ function TimelineCompositionCard({
                     key={group.id}
                     className="relative h-9 px-1"
                     style={{ width: `${widthPct.toFixed(2)}%` }}
-                    title={`${label}: ${group.samples.toLocaleString()} samples · ${widthPct.toFixed(2)}% · ${formatTimelineSeconds(group.seconds)}`}
+                    title={`${label}: ${group.samples.toLocaleString()} samples · ${widthPct.toFixed(2)}% · ${formatTimelineSeconds(intervalMs == null ? null : group.seconds)}`}
                   >
                     <div
                       className="absolute inset-x-1 bottom-0 h-3 rounded-t-sm border-l border-r border-t"
@@ -623,6 +619,7 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
   const [format, setFormat] = useState<ProfileFormat>("collapsed");
   const [profileKind, setProfileKind] = useState<ProfileKind>(defaults.profileKind);
   const [intervalMs, setIntervalMs] = useState<number>(defaults.intervalMs);
+  const [valueUnit, setValueUnit] = useState<string>("");
   const [elapsedSec, setElapsedSec] = useState<string>("");
   const [topN, setTopN] = useState<number>(defaults.topN);
   const [timelineBaseMethod, setTimelineBaseMethod] = useState<string>("");
@@ -671,6 +668,7 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
           meta: {
             format,
             profileKind,
+            valueUnit,
             intervalMs,
             elapsedSec,
             topN,
@@ -729,6 +727,7 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
     const meta = entry.meta ?? {};
     if (typeof meta.format === "string") setFormat(meta.format as ProfileFormat);
     if (typeof meta.profileKind === "string") setProfileKind(meta.profileKind as ProfileKind);
+    if (typeof meta.valueUnit === "string") setValueUnit(meta.valueUnit);
     if (typeof meta.intervalMs === "number") setIntervalMs(meta.intervalMs);
     if (typeof meta.elapsedSec === "string") setElapsedSec(meta.elapsedSec);
     if (typeof meta.topN === "number") setTopN(meta.topN);
@@ -765,6 +764,7 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
         elapsedSec: Number.isFinite(elapsed) ? elapsed : -1,
         topN,
         profileKind,
+        valueUnit,
         timelineBaseMethod,
         maxUniqueStacks,
         maxStackDepth,
@@ -813,6 +813,7 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
         elapsedSec: -1,
         topN,
         profileKind,
+        valueUnit,
         timelineBaseMethod,
         outputPath: "",
       } as any);
@@ -845,6 +846,8 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
   const timelineScope = result?.metadata?.timeline_scope;
   const topStacks = (result?.series?.top_stacks ?? []).slice(0, 50);
   const topChildFrames = result?.tables?.top_child_frames ?? [];
+  const weightLabel = summary?.value_unit && summary.value_unit !== "samples" ? `${t("profileWeight")} (${profileWeightUnit(summary.value_unit)})` : t("samples");
+
   const flamegraph = useMemo(
     () => adaptFlameNode(result?.charts?.flamegraph),
     [result],
@@ -864,6 +867,7 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
         elapsedSec: elapsedSec.trim() === "" ? -1 : Number(elapsedSec) || -1,
         topN,
         profileKind,
+        valueUnit,
         timelineBaseMethod,
         maxUniqueStacks,
         maxStackDepth,
@@ -1010,6 +1014,13 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
               </select>
             </label>
           )}
+          <label className="flex flex-col gap-1.5 text-xs">
+            <span>{t("profileCounterUnit")}</span>
+            <select value={valueUnit} onChange={(e) => setValueUnit(e.target.value)} disabled={analyzing}>
+              <option value="">{t("profileUnitAuto")}</option>
+              {PROFILE_VALUE_UNITS.map((unit) => <option key={unit} value={unit}>{unit === "unknown" ? t("profileUnitUnknown") : profileWeightUnit(unit)}</option>)}
+            </select>
+          </label>
           <label className="flex flex-col gap-1.5 text-xs">
             <HelpedLabel help={getHelpText(locale, "optionInterval")} className="font-medium text-foreground/80">
               {t("intervalMs")} <span className="text-muted-foreground">(기본: 100)</span>
@@ -1220,21 +1231,22 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
           </Button>
         </div>
 
+        {summary?.duration_unavailable_reason && <p className="muted">{t("profileDurationUnavailable")}</p>}
         <TabsContent value="summary" className="mt-4">
           {summary ? (
             <div className="grid gap-4">
               <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
                 <MetricCard
-                  label={t("totalSamples")}
+                  label={summary?.value_unit === "samples" ? t("totalSamples") : weightLabel}
                   value={summary.total_samples.toLocaleString()}
                 />
                 <MetricCard
                   label={t("estimatedSeconds")}
-                  value={summary.estimated_seconds.toFixed(3)}
+                  value={formatProfileSeconds(summary.estimated_seconds)}
                 />
                 <MetricCard
                   label={t("intervalMsLabel")}
-                  value={summary.interval_ms.toString()}
+                  value={summary.aggregation === "sample_count" && summary.estimated_seconds != null ? summary.interval_ms.toString() : "—"}
                 />
                 <MetricCard
                   label={t("elapsedLabel")}
@@ -1318,7 +1330,7 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <CanvasFlameGraph data={flamegraph} exportName={exportName} />
+                <CanvasFlameGraph data={flamegraph} exportName={exportName} weightLabel={weightLabel} />
               </CardContent>
             </Card>
           ) : (
@@ -1382,11 +1394,11 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
                 runtime: t("executionGroupRuntime"),
               }}
               scope={timelineScope}
-              intervalMs={summary?.interval_ms ?? intervalMs}
+              intervalMs={summary?.seconds_per_weight == null ? null : summary.seconds_per_weight * 1000}
               baseTimeLabel={t("executionBaseMethodTime")}
               totalTimeLabel={t("executionTotalTime")}
               otherLabel={t("executionOther")}
-              samplesLabel={t("samples")}
+              samplesLabel={weightLabel}
             />
             <Card>
               <CardHeader className="pb-3">
@@ -1399,7 +1411,7 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
                 <HorizontalBarChart
                   rows={timelineRows}
                   emptyLabel={t("timelineEmpty")}
-                  valueSuffix={t("samples")}
+                  valueSuffix={weightLabel}
                   ratioFractionDigits={2}
                 />
               </CardContent>
@@ -1420,7 +1432,7 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
                           {t("timelineSegment")}
                         </th>
                         <th className="px-4 py-2 text-right font-medium">
-                          {t("samples")}
+                          {weightLabel}
                         </th>
                         <th className="px-4 py-2 text-right font-medium">
                           {t("ratio")}
@@ -1491,7 +1503,7 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
               <HorizontalBarChart
                 rows={breakdownRows}
                 emptyLabel={t("breakdownEmpty")}
-                valueSuffix={t("samples")}
+                valueSuffix={weightLabel}
                 ratioFractionDigits={2}
               />
             </CardContent>
@@ -1515,7 +1527,7 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
                         {t("topStacks")}
                       </th>
                       <th className="px-4 py-2 text-right font-medium">
-                        {t("samples")}
+                        {weightLabel}
                       </th>
                       <th className="px-4 py-2 text-right font-medium">
                         {t("ratio")}

@@ -38,6 +38,7 @@ package profiler
 // IntervalMS<=0 / TopN<=0 / ProfileKind="" 면 normalizeOptions 에서 default 로
 // 채워짐. ElapsedSec 가 nil 이면 elapsed_ratio 컬럼이 nil 로 남음.
 type Options struct {
+	ValueUnit string
 	// ForDrilldown keeps the canonical tree inside Go until filters are applied.
 	// It is never exposed as a request option; returned drilldown stages are bounded.
 	ForDrilldown       bool `json:"-"`
@@ -103,11 +104,15 @@ type AnalysisResult struct {
 }
 
 type Summary struct {
-	ProfileKind      string   `json:"profile_kind"`
-	TotalSamples     int      `json:"total_samples"`
-	IntervalMS       float64  `json:"interval_ms"`
-	EstimatedSeconds float64  `json:"estimated_seconds"`
-	ElapsedSeconds   *float64 `json:"elapsed_seconds"`
+	ValueUnit                 string   `json:"value_unit"`
+	Aggregation               string   `json:"aggregation"`
+	SecondsPerWeight          *float64 `json:"seconds_per_weight"`
+	DurationUnavailableReason string   `json:"duration_unavailable_reason,omitempty"`
+	ProfileKind               string   `json:"profile_kind"`
+	TotalSamples              int      `json:"total_samples"`
+	IntervalMS                float64  `json:"interval_ms"`
+	EstimatedSeconds          *float64 `json:"estimated_seconds"`
+	ElapsedSeconds            *float64 `json:"elapsed_seconds"`
 }
 
 type Series struct {
@@ -176,7 +181,7 @@ type DiagnosticSample struct {
 type TopStackSeriesRow struct {
 	Stack            string   `json:"stack"`
 	Samples          int      `json:"samples"`
-	EstimatedSeconds float64  `json:"estimated_seconds"`
+	EstimatedSeconds *float64 `json:"estimated_seconds"`
 	SampleRatio      float64  `json:"sample_ratio"`
 	ElapsedRatio     *float64 `json:"elapsed_ratio"`
 }
@@ -184,7 +189,7 @@ type TopStackSeriesRow struct {
 type TopStackTableRow struct {
 	Stack            string   `json:"stack"`
 	Samples          int      `json:"samples"`
-	EstimatedSeconds float64  `json:"estimated_seconds"`
+	EstimatedSeconds *float64 `json:"estimated_seconds"`
 	SampleRatio      float64  `json:"sample_ratio"`
 	ElapsedRatio     *float64 `json:"elapsed_ratio"`
 	Frames           []string `json:"frames"`
@@ -201,7 +206,7 @@ type ExecutionBreakdownRow struct {
 	PrimaryCategory  string    `json:"primary_category"`
 	WaitReason       *string   `json:"wait_reason"`
 	Samples          int       `json:"samples"`
-	EstimatedSeconds float64   `json:"estimated_seconds"`
+	EstimatedSeconds *float64  `json:"estimated_seconds"`
 	TotalRatio       float64   `json:"total_ratio"`
 	ParentStageRatio float64   `json:"parent_stage_ratio"`
 	ElapsedRatio     *float64  `json:"elapsed_ratio"`
@@ -225,7 +230,7 @@ type TimelineRow struct {
 	Segment          string             `json:"segment"`
 	Label            string             `json:"label"`
 	Samples          int                `json:"samples"`
-	EstimatedSeconds float64            `json:"estimated_seconds"`
+	EstimatedSeconds *float64           `json:"estimated_seconds"`
 	StageRatio       float64            `json:"stage_ratio"`
 	TotalRatio       float64            `json:"total_ratio"`
 	ElapsedRatio     *float64           `json:"elapsed_ratio"`

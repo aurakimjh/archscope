@@ -1555,3 +1555,15 @@ pause 합계와 백분위는 모든 이벤트를 사용합니다. 시간 누락�
 `FlameNode.hidden_samples`는 생략된 자손의 누적 가중치이며 관측된 자체 샘플이 아닙니다.
 노드의 `samples` 안에 포함되며, 추가 노드를 만들 공간이 없어도 Canvas 안내와 호버에
 생략 가중치를 표시합니다. 파서에서 버린 입력은 복구 대상으로 주장하지 않습니다.
+
+### 기존 프로파일러의 카운터 단위 (스키마 0.2.0)
+
+CLI `--value-unit`와 Wails `valueUnit`은 `samples`, `nanoseconds`,
+`microseconds`, `milliseconds`, `seconds`, `bytes`, `unknown`을 받습니다.
+CPU/wall의 기존 기본값은 주기적 샘플 건수이며, 잠금 프로파일의 기본값은 알 수 없음입니다.
+잠금 샘플 건수는 이벤트 횟수이므로 주기적 시간으로 환산하지 않습니다.
+누적 시간은 원본 단위를 직접 초로 변환하며, bytes·알 수 없는 단위·잠금 건수의 시간은
+null과 `duration_unavailable_reason`으로 반환합니다. 요약과 드릴다운은 `value_unit`,
+`aggregation`, nullable `seconds_per_weight`를 제공하며 시간 행과 경과 비율도 같은 계약을
+따릅니다. pprof는 가중치의 원본 단위를 유지하며 잠금 카운터에 샘플 간격 기반 시간이나
+주기를 추가하지 않습니다. V8/Chrome의 기존 마이크로초 계약은 유지합니다.
