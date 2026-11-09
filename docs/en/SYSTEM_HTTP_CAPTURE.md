@@ -3,6 +3,17 @@
 > The Korean note (`docs/ko/SYSTEM_HTTP_CAPTURE.md`) is the normative, fully
 > detailed design record; this English pair is the condensed reference.
 
+## Stand-alone desktop target (2026-11-09)
+
+IEInspector HTTP Analyzer V7.6.4 Stand-alone defines the required Windows
+desktop layout and observable behavior. The Wails v3 window must show incoming
+requests grouped by process, with the selected request and response in a lower
+inspector while capture continues. T-599 establishes the visual and command
+inventory, T-603 verifies the primary workflow in packaged WebView2, and T-613
+checks the complete inventory. The backlog includes Request Builder, legacy file
+compatibility and visible desktop automation. IE/Firefox add-on features remain
+outside this edition. [Execution backlog](../../work_status.md#open-work-snapshot) · [Vendor feature list](https://www.ieinspector.com/httpanalyzer/features)
+
 ## Status
 
 - **Phase 0 design gates 1-5 (T-566~T-570) are fixed as of 2026-07-20.** These
@@ -62,8 +73,8 @@ needed for path, timezone, and encoding differences — not for dialect.
 
 ## 2. Capability Tiers and Fidelity Grades
 
-The requirement is **not** "all processes." R1 is expressed as capability tiers,
-each with its own acceptance criterion. A single requirement that is
+The original R1 release contract uses capability tiers. T-601 tracks the wider
+Stand-alone capture requirement and its independent Windows verification. Each tier below has its own acceptance criterion. A single requirement that is
 simultaneously mandatory, partial, and future cannot serve as a release gate.
 
 | Tier | Scope | Acceptance |
@@ -800,9 +811,10 @@ apply from Phase 1** (HAR import) — they are valid without any capture.
 | SEC-17 | Local user | generate traffic outside host/process scope or with unknown process attribution | No out-of-scope headers/bodies in any store; unknown is dropped unless explicit metadata-only retention was selected |
 
 Related "does not do" rules (ko 11.4): no certificate-pinning bypass, no traffic
-tampering/injection/replay, no dedicated credential-harvesting feature, no
+tampering, injection or automatic replay in the capture path, no dedicated credential-harvesting feature, no
 external transmission of capture data (AI interpretation gets **redacted summary
 only** and keeps the localhost enforcement), no hidden/indicatorless operation.
+T-610 covers an explicit user send from a separate Request Builder copy.
 User regex rules run on a backtracking-free engine (Go `regexp`/RE2) with length,
 count, per-rule time, and scan-size limits. Imported HAR is bounded before
 parsing (file size, entry count, field count, string/body size, nesting depth,

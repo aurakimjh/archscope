@@ -8,7 +8,7 @@ The previous long-form history was archived to
 
 ## Status Overview
 
-**Overall: 179 of 180 tracked tasks are `DONE` (99.4%).** The 2026-11-09
+**Overall: 179 of 200 tracked tasks are `DONE` (89.5%).** The Windows Wails v3 replacement for IEInspector HTTP Analyzer V7.6.4 Stand-alone has 20 open work items (T-594 through T-613), including the five original audit findings. The 2026-11-09
 GC/profiler revalidation confirmed five bugs (T-589 through T-593). Their
 current implementation status is recorded in the registry and snapshot below;
 T-557 remains trigger-dependent `PENDING`.
@@ -213,10 +213,10 @@ completed the independent Lighthouse file-first engine slice.
 
 | Status | Count | Meaning |
 |---|---:|---|
-| `TODO` | 0 | Ready to start; prerequisites are satisfied |
+| `TODO` | 8 | Ready to start; prerequisites are satisfied |
 | `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
 | `REVIEW` | 0 | Review or required remediation is underway; the gate has not passed |
-| `PENDING` | 1 | Waiting for a prerequisite, external condition, or activation trigger |
+| `PENDING` | 13 | Waiting for a prerequisite, external condition, or activation trigger |
 | `DONE` | 179 | Completion criteria and required review gates have passed |
 
 The normal transition is `TODO → IN_PROGRESS → REVIEW → DONE`. A `PENDING`
@@ -229,7 +229,27 @@ same change so this overview remains the status source of truth.
 
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
-| 1 | T-557 | P1 | `PENDING` | Activate only if repeated MSA drilldown use justifies a Go analyzer contract |
+| 1 | T-599 | P1 | `TODO` | Establish the V7.6.4 Stand-alone visual and command reference |
+| 2 | T-594 | P1 | `TODO` | Keep capture controls, live grid and selected detail in one window |
+| 3 | T-595 | P1 | `TODO` | Make process grouping the default in the request grid |
+| 4 | T-596 | P1 | `TODO` | Select single or multiple running processes before recording |
+| 5 | T-597 | P1 | `TODO` | Make paths readable and retain the active detail tab |
+| 6 | T-600 | P1 | `PENDING` | Rebuild the desktop menu, recording toolbar and status bar |
+| 7 | T-601 | P1 | `PENDING` | Deliver the four Windows capture entry points and measure their reach |
+| 8 | T-602 | P1 | `TODO` | Preserve the HTTP exchange and its intermediate responses |
+| 9 | T-603 | P1 | `PENDING` | Prove the everyday inspection workflow in the packaged Windows app |
+| 10 | T-598 | P2 | `TODO` | Add decoded query, POST form and JSON inspection |
+| 11 | T-604 | P2 | `PENDING` | Configure columns, group and filter requests, and search the entire session |
+| 12 | T-605 | P2 | `PENDING` | Complete live timing charts and process/session summaries |
+| 13 | T-606 | P2 | `PENDING` | Extend Headers, Cookies, Stream and Content viewers |
+| 14 | T-607 | P2 | `TODO` | Open, save, clear and export capture sessions from the desktop |
+| 15 | T-608 | P2 | `PENDING` | Read and write legacy .halog files |
+| 16 | T-609 | P2 | `PENDING` | Integrate row hints, status help, stars and comments |
+| 17 | T-610 | P2 | `PENDING` | Add the Stand-alone HTTP Request Builder |
+| 18 | T-611 | P3 | `PENDING` | Support Stand-alone automation and desktop launch switches |
+| 19 | T-612 | P3 | `PENDING` | Restore legacy content inspectors |
+| 20 | T-613 | P3 | `PENDING` | Verify complete Stand-alone parity on Windows |
+| 21 | T-557 | P1 | `PENDING` | Activate only if repeated MSA drilldown use justifies a Go analyzer contract |
 
 ## Current Baseline
 
@@ -242,10 +262,11 @@ same change so this overview remains the status source of truth.
 - Release baseline: `v0.3.5` is the latest stable GitHub release. The
   `v0.3.1-rc1` prerelease remains available as the Jennifer MSA network-time
   release candidate.
-- Current execution focus: T-589 through T-593 are DONE after task-specific
+- Current execution focus: deliver the V7.6.4 Stand-alone workflow in Windows Wails v3 (T-594 through T-613).
+- Prior GC/profiler cycle: T-589 through T-593 are DONE after task-specific
   regressions, final local source review, and whole-engine/frontend validation.
-  No active bug TO-DO remains from this audit; choose the next roadmap objective
-  separately, with T-557 still waiting on its original usage trigger. On 2026-11-09 the user assigned all five fixes, including UI,
+  No active bug TO-DO remains from the GC/profiler audit. T-557 still waits
+  on its original usage trigger. On 2026-11-09 the user assigned all five fixes, including UI,
   to Codex and requested one commit per completed task, followed by a push only
   after all five are complete. This overrides the prior UI ownership for these
   five fixes only. T-587 and T-588
@@ -642,6 +663,98 @@ filtered before analysis.
 
 ## Next Execution Queue
 
+### IEInspector V7.6.4 Stand-alone replacement (2026-11-09)
+
+The requested baseline is the Stand-alone EXE. The default desktop view has a
+compact command bar, a process-grouped request grid, a lower request/response
+inspector and scoped summaries. The first visible result is a request arriving
+while the session is recording. Existing analysis cards, HAR import, comparison
+and correlation remain accessible as secondary actions. Keep the current Wails
+v3 shell, capture services, bounded store, redaction and AnalysisResult contract.
+
+The Open Work Snapshot gives execution order. The Task Registry gives the
+prerequisite IDs and an observable completion test for every item. T-603 is the
+first end-to-end desktop demonstration. T-613 is the full Stand-alone check.
+Features listed only for the browser add-ons (embedded browser panel, live
+page grouping, Tamper and IE cache-before/after comparison) are outside this
+backlog. T-610 supersedes the earlier Request Builder exclusion. T-611 addresses
+automation of the visible desktop application. Platform capture coverage and
+legacy file compatibility remain open until measured.
+
+The official references distinguish editions and describe V7 comments, connection
+IDs, content types, automation and file formats. [Stand-alone and Add-on features](https://www.ieinspector.com/httpanalyzer/features) · [Changes in V7](https://www.ieinspector.com/httpanalyzer/newinv7) · [Export formats and launch switches](https://www.ieinspector.com/httpanalyzer/manual/commandlineinterface.htm)
+
+#### Evidence from the initial desktop UI audit
+
+The Windows Wails v3 desktop app is the acceptance target. The official
+[V7.6.4 distribution](https://www.ieinspector.com/httpanalyzer/download),
+[Stand-alone screen tour](https://www.ieinspector.com/httpanalyzer/tour) and
+[session inspection walkthrough](https://www.ieinspector.com/httpanalyzer/manual/gettingstarted.htm)
+describe inspecting a selected request while logging. The project's own
+[screen and control specification](docs/ko/SYSTEM_HTTP_CAPTURE.md)
+covers the process tree, grid and lower detail pane in sections 8.2–8.5.
+
+At `6749406`, the production Wails target built locally against
+`v3.0.0-alpha2.117`. On macOS the native live mode reports unavailable.
+A local browser run exercised the actual React screen with synthetic Wails
+service responses for two distinct processes and two requests. At 1280×800
+with the sidebar expanded, the first running-session request started at y=822.
+Clicking a process left both requests visible. Clicking a live row opened zero
+detail tabs. After Stop and Load finalized analysis, selecting the same row
+showed both headers and the supplied response body. Changing rows from Body
+selected Raw again. The path cell was 17 px wide for a short path requiring
+51 px. These measurements apply to the browser renderer. The local Mac was
+locked when native interaction was attempted. No current Windows capture run
+was performed. Archived Windows WebView2 evidence covers live row restoration
+on re-entry; it does not exercise these selections. The targeted Go capture
+service/fixture tests and frontend state regression suite passed on this baseline.
+
+1. **T-594 (P1).** Combine capture controls, streaming rows and lower detail.
+   Collect first-use options before recording, then leave a compact status and
+   stop control visible. Pass when a Windows Wails window at 1280×800 can
+   select a completed request without stopping capture or scrolling the page,
+   inspect both headers and any permitted retained body, and keep the same
+   selection as new rows arrive. Show pending, omitted and truncated states.
+   The live ring/events strip payloads in `stream/pipeline.go:metadataOnly`.
+   Fetch only the selected permitted detail and keep existing caps and redaction.
+2. **T-595 (P1).** Use the existing process instance key (PID and start time)
+   to select or expand a process group in the main grid. Cover two processes,
+   same-name instances, All and unattributed rows. Verify count/byte summaries
+   and incoming rows follow display scope while recording continues. HAR origin
+   groups must remain visibly distinct from real OS processes.
+3. **T-596 (P1).** The Wails start request and engine capture config have no
+   target-process selector. Provide explicit single/multiple-process recording
+   scope for supported proxy traffic and distinguish it from display filtering.
+   Verify with two Windows loopback clients that excluded rows never reach the
+   store. Preserve unknown-attribution and body retention policy.
+4. **T-597 (P1).** Address the narrow path column and tab reset in
+   `HttpAnalyzerView.tsx`. Verify that two short paths can be distinguished at
+   default width and that selecting adjacent rows refreshes Headers or Body in
+   place without displaying a previous request's values.
+5. **T-598 (P2).** Extend the current text preview with decoded query pairs,
+   form fields and a JSON tree first. Cover ordered duplicate keys, encoding,
+   unavailable bodies and truncated JSON. Review safe XML, image and byte views
+   against what the retained evidence actually contains.
+
+Each item can start with the existing contracts/components. Final integrated
+verification of the live workflow requires T-594 and T-595 together in a
+Windows desktop session. The source and live panels, state and bindings are
+under `apps/engine-native/cmd/archscope-app`.
+
+The following work extends the five findings into a replacement plan.
+
+| Surface | Current ArchScope behavior | Remaining work |
+|---|---|---|
+| Window and commands | Recording controls and finalized analysis use separate panels. The Wails shell already provides the desktop host. | Match reference screen states, implement the command bar and demonstrate the complete recording workflow (T-599, T-600, T-603). |
+| Capture coverage | Windows HTTP/1.x proxy with process attribution, partial stages and explicit coverage grades. | Extend capture modes and exchange evidence, including proxy-independent Windows cases (T-601, T-602). |
+| Navigation and timing | Fixed columns, basic filters, a finalized waterfall and session metrics. | Field grouping, search, configurable columns, live phase charts and process totals (T-604, T-605). |
+| Details and diagnostics | Six detail tabs in the finalized grid, text preview, reconstructed Raw and session findings. | Content/stream viewers, per-row hints, annotations and legacy decoders (T-606, T-609, T-612). |
+| Session files | HAR input and an internal capture store. | Desktop save/export, legacy log exchange and format-specific round trips (T-607, T-608). |
+| Companion commands | Request Builder and desktop automation were outside the previous implementation. | Add explicit request composition and Windows desktop automation (T-610, T-611). |
+| Acceptance | Historical Windows tests cover capture/re-entry. The UI audit above used synthetic renderer data. | Compare native screenshots and observed actions with the Stand-alone reference (T-599, T-603, T-613). |
+
+### Completed GC / profiler cycle
+
 1. **T-589 (DONE; P1, Codex engine and UI):** repair GC time extraction and
    measurement availability. Define the observation window before changing
    throughput/rate arithmetic, then align absolute versus elapsed chart axes.
@@ -1028,6 +1141,26 @@ deferred until explicitly promoted.
 
 | ID | Priority | Status | Task | Depends on | Output |
 |---|---|---|---|---|---|
+| T-599 | P1 | TODO | Establish the V7.6.4 Stand-alone visual and command reference | Existing baseline | Inventory the EXE menus, toolbar, context actions, shortcuts, 36 grid columns, detail tabs and summary pane against vendor material. Pair each with its task and evidence for idle, recording, selected and stopped states. Resolve edition-ambiguous entries against the EXE or its manual, including selective cache/cookie clearing. |
+| T-594 | P1 | TODO | Keep capture controls, live grid and selected detail in one window | Existing baseline | At 1280×800 show incoming rows and both sides of the selected request without stopping or page scrolling. Load only selected retained detail and preserve selection during updates, resync and stop. |
+| T-595 | P1 | TODO | Make process grouping the default in the request grid | Existing baseline | Expand or collapse a process to see its children, counts and bytes. Switch between two processes, same-name instances and all traffic during capture. Distinguish unattributed traffic and HAR origin groups. |
+| T-596 | P1 | TODO | Select single or multiple running processes before recording | Existing baseline | Match PID plus process start time. With two Windows clients using the supported proxy, verify only included traffic reaches the store and new excluded rows stay excluded after display filters change. |
+| T-597 | P1 | TODO | Make paths readable and retain the active detail tab | Existing baseline | At default width distinguish two short paths. Open Headers or Body, change rows with mouse and keyboard, and see the new row immediately in the same tab. Restore the splitter after resize and restart. |
+| T-600 | P1 | PENDING | Rebuild the desktop menu, recording toolbar and status bar | T-599, T-594 | Wire equivalent menu, toolbar and keyboard commands. Exercise Start, Pause/Resume logging, Stop, Clear and Follow in idle, active and stopped states. Clearing a dirty session discloses its scope. Pause and scroll-follow have independent effects. |
+| T-601 | P1 | PENDING | Deliver the four Windows capture entry points and measure their reach | T-596 | Exercise current session, all sessions including system processes, launch/reopen and attach to running processes. Compare known requests from x86/x64 clients, a service and a proxy-ignoring client. Record HTTP/HTTPS visibility and attribution per mode. Any reference-supported case still missing stays open. |
+| T-602 | P1 | TODO | Preserve the HTTP exchange and its intermediate responses | Existing baseline | Extend live/store/detail contracts for connection ID, request stage, redirects, authentication exchanges, 1xx and final response, cookies and stream provenance. Verify ordered exchanges and an interrupted request against a Windows fixture. Preserve the shared AnalysisResult envelope. |
+| T-603 | P1 | PENDING | Prove the everyday inspection workflow in the packaged Windows app | T-599, T-594, T-595, T-596, T-597, T-600 | Record two identifiable local clients in WebView2. Capture idle and running screenshots at 1280×800, select a process, click a request, inspect both Headers and Body while another row arrives, then stop and reopen the session detail. Match expected IDs, values and reference pane placement. |
+| T-598 | P2 | TODO | Add decoded query, POST form and JSON inspection | Existing baseline | Show request/response direction, original and decoded values, ordered duplicate keys, form fields and a navigable JSON tree. Exercise empty, truncated and redacted data. |
+| T-604 | P2 | PENDING | Configure columns, group and filter requests, and search the entire session | T-599, T-595 | Account for each reference column including connection ID, stage and MIME icon. Toggle, resize, reorder and restore columns. Group and filter by field. Find next/previous in URL, headers, query, cookies, POST or retained content beyond the live ring. Filtering preserves stored totals. |
+| T-605 | P2 | PENDING | Complete live timing charts and process/session summaries | T-595, T-602 | Compare request phases, relative process waterfall and totals against known durations, byte counts, DNS, connections and status groups. Update as rows finish, show unavailable phases and filter the grid from a selected summary value. |
+| T-606 | P2 | PENDING | Extend Headers, Cookies, Stream and Content viewers | T-598, T-602 | Compare repeated headers, cookie attributes, sent/received stream views, syntax-colored text, XML/SOAP, byte offsets and image/HTML preview on fixtures. Show compressed and decoded sizes, source fidelity and omission/truncation. Previews stay local and inert. |
+| T-607 | P2 | TODO | Open, save, clear and export capture sessions from the desktop | Existing baseline | Round-trip redacted HAR 1.2 and saved sessions. Cover full/compact XML, URL list, text, HTML, XLS and response content to a directory. Verify fields per format and explicit all/filtered scope, cancellation and reopened selection. |
+| T-608 | P2 | PENDING | Read and write legacy .halog files | T-607 | Use genuine sanitized V7.6.4 logs and an independent reader or the reference EXE to verify both directions. Compare processes, headers, retained data and timing. Missing format evidence keeps compatibility unverified. |
+| T-609 | P2 | PENDING | Integrate row hints, status help, stars and comments | T-594, T-607 | Link a finding to its request, show the status/error explanation, filter starred rows and persist a per-row comment through save/reopen. Verify that annotations stay with the same ID after sorting. |
+| T-610 | P2 | PENDING | Add the Stand-alone HTTP Request Builder | T-594 | Compose a request or open a copy from the grid/drag and drop, edit method, URL, headers, form or multipart data, then explicitly send it. Check returned headers/body against a local fixture and keep the original transaction intact. |
+| T-611 | P3 | PENDING | Support Stand-alone automation and desktop launch switches | T-596, T-607 | Verify a Windows automation client can attach to a chosen test process, control visible recording, observe new/updated entries and read/save/reload transactions. Check the documented process, duration, destination and format switches. |
+| T-612 | P3 | PENDING | Restore legacy content inspectors | T-606 | Verify AMF0/AMF3 and ASP.NET ViewState against known decoded trees and their text forms. Handle truncated, invalid or oversized data without executing serialized objects. |
+| T-613 | P3 | PENDING | Verify complete Stand-alone parity on Windows | T-601, T-602, T-603, T-604, T-605, T-606, T-607, T-608, T-609, T-610, T-611, T-612 | Replay the T-599 inventory against a packaged Wails v3 desktop build. Record a Windows result for every applicable command and viewer, including file and automation interoperability, long captures, re-entry and restart. Leave any unverified or missing reference behavior open. |
 | T-589 | P1 | DONE | Restore unified GC uptime/date coordinates and valid throughput/allocation/promotion rate denominators; define observation-window rules, expose unavailable values honestly, and align absolute versus elapsed UI axes. | None; existing GC parser/analyzer and AnalysisResult envelope | Completed 2026-11-09: unified date/uptime parsing, monotonic observed-window accounting, nullable unavailable metrics with reasons, elapsed/absolute axes and EN/KO disclosure. GC parser/analyzer regressions, frontend state suite and production build passed; local source review completed (no independent or desktop E2E claim). |
 | T-590 | P1 | DONE | Preserve internal-frame self samples in the shared Canvas flamegraph so totals, widths, tooltips, and search use the original inclusive weights without double counting. | None; coordinate hidden-weight fixtures with T-591 | Completed 2026-11-09: Canvas derives self weights from inclusive nodes; shared layout/search helpers preserve prefix-stack totals and union recursive matches. Prefix, leaf, recursion, focus/search and synthetic-hidden-weight regressions plus frontend state suite/build passed; local source review completed. |
 | T-591 | P1 | DONE | Apply profiler drilldown filters to canonical evidence before display pruning; conserve/disclose omitted subtree weight while keeping every result stage within node/payload limits. | None; coordinate Canvas accounting with T-590 | Completed 2026-11-09: filters consume canonical Go-only evidence before each bounded display stage; pruning preserves explicit hidden-descendant weight without mutating later filter input. Service tests verify rare=10 at node budgets 1, 3 and 100; profiler budget/accounting tests, app tests, generated Wails bindings and frontend state/build passed; local source review completed. |
