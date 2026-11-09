@@ -7,6 +7,7 @@ export {
     Duration,
     HTTPMessage,
     HeaderField,
+    InformationalResponse,
     JenniferCustomAnalysisRule,
     ProcessInstance,
     ProcessKey,

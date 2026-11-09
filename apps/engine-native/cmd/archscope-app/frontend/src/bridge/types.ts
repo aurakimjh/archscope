@@ -145,7 +145,12 @@ export type CaptureProcessRow = {
   attribution: string;
 };
 
+export type HttpInformationalResponse = { status:number; receivedAt:string; headers:CaptureHeaderField[] };
 export type HttpCaptureTransactionRow = {
+  informational?: HttpInformationalResponse[];
+  informational_truncated?: boolean;
+  redirect_url?: string;
+  stream_provenance?: string;
   id: string;
   connection_id: string;
   sequence: number;

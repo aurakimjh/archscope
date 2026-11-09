@@ -339,3 +339,62 @@ func TestStatusTextExcludesTheNumericCode(t *testing.T) {
 		t.Fatalf("statusText=%q, want the reason phrase alone", tx.StatusText)
 	}
 }
+
+func TestInformationalRedirectAndConnectionEvidence(t *testing.T) {
+	origin := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/redirect" {
+			w.Header().Set("Link", "</style.css>; rel=preload")
+			w.WriteHeader(103)
+			w.Header().Del("Link")
+			w.Header().Set("Location", "/final")
+			w.WriteHeader(302)
+			return
+		}
+		w.Header().Set("Set-Cookie", "fixture=yes; HttpOnly")
+		_, _ = io.WriteString(w, "done")
+	}))
+	defer origin.Close()
+	address, captured := startPlainProxy(t, Config{})
+	transport := &http.Transport{Proxy: http.ProxyURL(proxyURL(address))}
+	defer transport.CloseIdleConnections()
+	client := &http.Client{Transport: transport}
+	response, err := client.Get(origin.URL + "/redirect")
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, _ = io.Copy(io.Discard, response.Body)
+	response.Body.Close()
+	first := awaitTransaction(t, captured)
+	second := awaitTransaction(t, captured)
+	if first.StatusCode != 302 || first.RedirectURL != "/final" || second.StatusCode != 200 {
+		t.Fatalf("redirect=%+v final=%+v", first, second)
+	}
+	if len(first.Informational) != 1 || first.Informational[0].Status != 103 {
+		t.Fatalf("intermediate=%+v", first.Informational)
+	}
+	if first.ConnectionID == "" || first.ConnectionID != second.ConnectionID || first.Sequence >= second.Sequence {
+		t.Fatalf("identities first=%+v second=%+v", first, second)
+	}
+	if first.StreamProvenance != "reconstructed_semantic" || len(second.Response.Cookies) != 1 {
+		t.Fatal("exchange metadata missing")
+	}
+}
+
+func TestIncompleteBodyIsFailedExchange(t *testing.T) {
+	origin := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Length", "100")
+		_, _ = io.WriteString(w, "short")
+	}))
+	defer origin.Close()
+	address, captured := startPlainProxy(t, Config{})
+	client := &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL(address))}}
+	response, err := client.Get(origin.URL)
+	if err == nil {
+		_, _ = io.Copy(io.Discard, response.Body)
+		response.Body.Close()
+	}
+	tx := awaitTransaction(t, captured)
+	if tx.State != models.TxFailed || tx.Error == "" {
+		t.Fatalf("incomplete=%+v", tx)
+	}
+}

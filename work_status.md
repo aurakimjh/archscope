@@ -8,7 +8,7 @@ The previous long-form history was archived to
 
 ## Status Overview
 
-**Overall: 186 of 200 tracked tasks are `DONE` (93.0%).** The Windows Wails v3 replacement for IEInspector HTTP Analyzer V7.6.4 Stand-alone has 13 open work items (T-594 through T-613), including the remaining audit findings. T-603 native Windows acceptance completed on 2026-11-09 with actual request/response bodies and verified policy restoration. The 2026-11-09
+**Overall: 187 of 200 tracked tasks are `DONE` (93.5%).** The Windows Wails v3 replacement for IEInspector HTTP Analyzer V7.6.4 Stand-alone has 12 open work items (T-594 through T-613), including the remaining audit findings. T-603 native Windows acceptance completed on 2026-11-09 with actual request/response bodies and verified policy restoration. The 2026-11-09
 GC/profiler revalidation confirmed five bugs (T-589 through T-593). Their
 current implementation status is recorded in the registry and snapshot below;
 T-557 remains trigger-dependent `PENDING`.
@@ -216,8 +216,8 @@ completed the independent Lighthouse file-first engine slice.
 | `TODO` | 5 | Ready to start; prerequisites are satisfied |
 | `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
 | `REVIEW` | 1 | Review or required remediation is underway; the gate has not passed |
-| `PENDING` | 8 | Waiting for a prerequisite, external condition, or activation trigger |
-| `DONE` | 186 | Completion criteria and required review gates have passed |
+| `PENDING` | 7 | Waiting for a prerequisite, external condition, or activation trigger |
+| `DONE` | 187 | Completion criteria and required review gates have passed |
 
 The normal transition is `TODO → IN_PROGRESS → REVIEW → DONE`. A `PENDING`
 task returns to `TODO` when its dependency or trigger is satisfied. Task status
@@ -230,19 +230,18 @@ same change so this overview remains the status source of truth.
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
 | 1 | T-601 | P1 | `REVIEW` | Deliver the four Windows capture entry points and measure their reach |
-| 2 | T-602 | P1 | `TODO` | Preserve the HTTP exchange and its intermediate responses |
-| 3 | T-598 | P2 | `TODO` | Add decoded query, POST form and JSON inspection |
-| 4 | T-604 | P2 | `TODO` | Configure columns, group and filter requests, and search the entire session |
-| 5 | T-605 | P2 | `PENDING` | Complete live timing charts and process/session summaries |
-| 6 | T-606 | P2 | `PENDING` | Extend Headers, Cookies, Stream and Content viewers |
-| 7 | T-607 | P2 | `TODO` | Open, save, clear and export capture sessions from the desktop |
-| 8 | T-608 | P2 | `PENDING` | Read and write legacy .halog files |
-| 9 | T-609 | P2 | `PENDING` | Integrate row hints, status help, stars and comments |
-| 10 | T-610 | P2 | `TODO` | Add the Stand-alone HTTP Request Builder |
-| 11 | T-611 | P3 | `PENDING` | Support Stand-alone automation and desktop launch switches |
-| 12 | T-612 | P3 | `PENDING` | Restore legacy content inspectors |
-| 13 | T-613 | P3 | `PENDING` | Verify complete Stand-alone parity on Windows |
-| 14 | T-557 | P1 | `PENDING` | Promote the Jennifer MSA drilldown calculation from UI projection to a Go analyzer contract if repeated use shows it should be exported/reported outside the desktop page. |
+| 2 | T-598 | P2 | `TODO` | Add decoded query, POST form and JSON inspection |
+| 3 | T-604 | P2 | `TODO` | Configure columns, group and filter requests, and search the entire session |
+| 4 | T-605 | P2 | `TODO` | Complete live timing charts and process/session summaries |
+| 5 | T-606 | P2 | `PENDING` | Extend Headers, Cookies, Stream and Content viewers |
+| 6 | T-607 | P2 | `TODO` | Open, save, clear and export capture sessions from the desktop |
+| 7 | T-608 | P2 | `PENDING` | Read and write legacy .halog files |
+| 8 | T-609 | P2 | `PENDING` | Integrate row hints, status help, stars and comments |
+| 9 | T-610 | P2 | `TODO` | Add the Stand-alone HTTP Request Builder |
+| 10 | T-611 | P3 | `PENDING` | Support Stand-alone automation and desktop launch switches |
+| 11 | T-612 | P3 | `PENDING` | Restore legacy content inspectors |
+| 12 | T-613 | P3 | `PENDING` | Verify complete Stand-alone parity on Windows |
+| 13 | T-557 | P1 | `PENDING` | Promote the Jennifer MSA drilldown calculation from UI projection to a Go analyzer contract if repeated use shows it should be exported/reported outside the desktop page. |
 
 ### Local Windows validation (2026-11-09)
 
@@ -1183,11 +1182,11 @@ deferred until explicitly promoted.
 | T-597 | P1 | DONE | Make paths readable and retain the active detail tab | Existing baseline | Completed 2026-11-09. Explicit path width and horizontal grid scrolling preserve readable URLs. The active detail tab survives adjacent row changes; splitter height persists and clamps to available panel space. Production build and browser checks confirmed 224px path cells, retained Body tab and process-scoped selection. |
 | T-600 | P1 | DONE | Rebuild the desktop menu, recording toolbar and status bar | T-599, T-594 | Completed 2026-11-09. Native Wails HTTP Capture menu, F9/F2/Ctrl+L, toolbar and recording status share guarded commands. Engine pause and clear preserve the proxy address, reset log rows/totals and reject old cursors/events. Race capture/app suites, real proxy service control test, frontend state/build and browser controls passed. Native Windows command acceptance remains T-603. |
 | T-601 | P1 | REVIEW | Deliver the four Windows capture entry points and measure their reach | T-596 | Entry points implemented 2026-11-10 for proxy-visible traffic: current Windows session, all sessions, selected running instances and suspended launch/reopen with inherited proxy settings. Local capture/app regressions, frontend build and Windows launch-test cross-compilation passed. Full parity remains open: proxy-ignoring app interception and the x86/x64/service native reach matrix require an additional Windows backend and measured evidence. |
-| T-602 | P1 | TODO | Preserve the HTTP exchange and its intermediate responses | Existing baseline | Extend live/store/detail contracts for connection ID, request stage, redirects, authentication exchanges, 1xx and final response, cookies and stream provenance. Verify ordered exchanges and an interrupted request against a Windows fixture. Preserve the shared AnalysisResult envelope. |
+| T-602 | P1 | DONE | Preserve the HTTP exchange and its intermediate responses | Existing baseline | Completed 2026-11-10. Accepted connections and admissions carry stable connection IDs and monotonic request numbers. Bounded 1xx evidence, redirect targets, receiving state and stream provenance survive model/store/analyzer/Wails detail. Incomplete body transfers fail explicitly. Redirect/intermediate/connection, HTTPS receiving-state and pre-store redaction regressions plus frontend state/build passed locally. |
 | T-603 | P1 | DONE | Prove the everyday inspection workflow in the packaged Windows app | T-599, T-594, T-595, T-596, T-597, T-600 | Completed 2026-11-09 on native Windows Wails/WebView2: six synthetic POSTs from two PID/start-time clients; requested 1280×800 window (1266×793 bounded screenshots); process filtering; live Headers and actual request/response Body during arrivals; F9/F2; stopped-store reopening with identical markers and Korean text. Temporary dump policy and user WER exclusions restored with exact original tree hashes, including ACL metadata. Evidence: `docs/review/evidence/2026-11-09-windows-body/README.md`. |
 | T-598 | P2 | TODO | Add decoded query, POST form and JSON inspection | Existing baseline | Show request/response direction, original and decoded values, ordered duplicate keys, form fields and a navigable JSON tree. Exercise empty, truncated and redacted data. |
 | T-604 | P2 | TODO | Configure columns, group and filter requests, and search the entire session | T-599, T-595 | Account for each reference column including connection ID, stage and MIME icon. Toggle, resize, reorder and restore columns. Group and filter by field. Find next/previous in URL, headers, query, cookies, POST or retained content beyond the live ring. Filtering preserves stored totals. |
-| T-605 | P2 | PENDING | Complete live timing charts and process/session summaries | T-595, T-602 | Compare request phases, relative process waterfall and totals against known durations, byte counts, DNS, connections and status groups. Update as rows finish, show unavailable phases and filter the grid from a selected summary value. |
+| T-605 | P2 | TODO | Complete live timing charts and process/session summaries | T-595, T-602 | Compare request phases, relative process waterfall and totals against known durations, byte counts, DNS, connections and status groups. Update as rows finish, show unavailable phases and filter the grid from a selected summary value. |
 | T-606 | P2 | PENDING | Extend Headers, Cookies, Stream and Content viewers | T-598, T-602 | Compare repeated headers, cookie attributes, sent/received stream views, syntax-colored text, XML/SOAP, byte offsets and image/HTML preview on fixtures. Show compressed and decoded sizes, source fidelity and omission/truncation. Previews stay local and inert. |
 | T-607 | P2 | TODO | Open, save, clear and export capture sessions from the desktop | Existing baseline | Round-trip redacted HAR 1.2 and saved sessions. Cover full/compact XML, URL list, text, HTML, XLS and response content to a directory. Verify fields per format and explicit all/filtered scope, cancellation and reopened selection. |
 | T-608 | P2 | PENDING | Read and write legacy .halog files | T-607 | Use genuine sanitized V7.6.4 logs and an independent reader or the reference EXE to verify both directions. Compare processes, headers, retained data and timing. Missing format evidence keeps compatibility unverified. |

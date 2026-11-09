@@ -3,7 +3,9 @@ package proxy
 import (
 	"context"
 	"crypto/tls"
+	"net/http"
 	"net/http/httptrace"
+	"net/textproto"
 	"sync"
 	"time"
 
@@ -24,7 +26,10 @@ import (
 // `0 ms`; a reused connection reports DNS/Connect/TLS as `not_applicable`
 // (invariant INV-5), which is a different claim from "took no time".
 type upstreamTrace struct {
-	mu sync.Mutex
+	informational          []models.InformationalResponse
+	informationalTruncated bool
+	forwardInformational   func(int, http.Header) error
+	mu                     sync.Mutex
 
 	getConn      time.Time
 	dnsStart     time.Time
@@ -56,6 +61,31 @@ func (t *upstreamTrace) hooks() *httptrace.ClientTrace {
 		}
 	}
 	return &httptrace.ClientTrace{
+		Got1xxResponse: func(code int, header textproto.MIMEHeader) error {
+			t.mu.Lock()
+			if len(t.informational) < 16 {
+				fields := modelHeaders(http.Header(header))
+				bytes := 0
+				kept := make([]models.HeaderField, 0, len(fields))
+				for _, field := range fields {
+					bytes += len(field.Name) + len(field.Value)
+					if bytes > 64<<10 {
+						t.informationalTruncated = true
+						break
+					}
+					kept = append(kept, field)
+				}
+				t.informational = append(t.informational, models.InformationalResponse{Status: code, ReceivedAt: time.Now().UTC().Format(time.RFC3339Nano), Headers: kept})
+			} else {
+				t.informationalTruncated = true
+			}
+			forward := t.forwardInformational
+			t.mu.Unlock()
+			if forward != nil && code > 100 {
+				return forward(code, http.Header(header))
+			}
+			return nil
+		},
 		GetConn:              func(string) { stamp(&t.getConn) },
 		DNSStart:             func(httptrace.DNSStartInfo) { stamp(&t.dnsStart) },
 		DNSDone:              func(httptrace.DNSDoneInfo) { stamp(&t.dnsDone) },
@@ -189,4 +219,10 @@ func firstNonZero(values ...time.Time) time.Time {
 		}
 	}
 	return time.Time{}
+}
+
+func (t *upstreamTrace) Informational() ([]models.InformationalResponse, bool) {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	return append([]models.InformationalResponse(nil), t.informational...), t.informationalTruncated
 }

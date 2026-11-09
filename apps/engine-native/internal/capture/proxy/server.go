@@ -97,7 +97,8 @@ type Server struct {
 }
 
 type resolvedProcess struct {
-	process *models.ProcessInstance
+	connectionID string
+	process      *models.ProcessInstance
 }
 
 type resolvedProcessContextKey struct{}
@@ -171,7 +172,7 @@ func (s *Server) Start(ctx context.Context, _ capture.Config, onTx func(models.C
 		Handler: s, ReadHeaderTimeout: 10 * time.Second, IdleTimeout: 30 * time.Second,
 		ConnContext: func(ctx context.Context, connection net.Conn) context.Context {
 			return context.WithValue(ctx, resolvedProcessContextKey{}, resolvedProcess{
-				process: s.resolveAddr(connection.RemoteAddr()),
+				process: s.resolveAddr(connection.RemoteAddr()), connectionID: newTransactionID(s.cfg.Now()),
 			})
 		},
 	}
@@ -242,12 +243,21 @@ func (s *Server) transport() *http.Transport {
 func (s *Server) handlePlain(writer http.ResponseWriter, request *http.Request) {
 	started := s.cfg.Now()
 	progress := progressTransaction(request, started, nil, CaptureModeMITM)
+	progress.ConnectionID = connectionID(request.Context())
 	s.stamp(&progress)
 	process := s.processForRequest(request)
 	progress.Process = process
 	progress.Coverage = coverage(process)
 	s.progress(progress)
 	trace, traceCtx := newUpstreamTrace(request.Context())
+	trace.forwardInformational = func(code int, header http.Header) error {
+		copyHeaders(writer.Header(), header)
+		writer.WriteHeader(code)
+		for key := range writer.Header() {
+			writer.Header().Del(key)
+		}
+		return nil
+	}
 	out := request.Clone(traceCtx)
 	out.RequestURI = ""
 	requestBody := s.newBodyRecorder(request.Body)
@@ -258,24 +268,38 @@ func (s *Server) handlePlain(writer http.ResponseWriter, request *http.Request) 
 	if err != nil {
 		http.Error(writer, "verified upstream TLS/HTTP failure", http.StatusBadGateway)
 		tx := failureTransaction(request, started, s.cfg.Now(), err, CaptureModeMITM, FidelityDecodedWire, process)
-		tx.ID = progress.ID
-		tx.Generation = progress.Generation
+		completeAdmission(&tx, progress, trace)
 		s.emit(tx)
 		return
 	}
 	defer response.Body.Close()
+	receiving := progress
+	receiving.State = models.TxReceiving
+	receiving.StatusCode = response.StatusCode
+	receiving.Response.Headers = modelHeaders(response.Header)
+	receiving.Informational, receiving.InformationalTruncated = trace.Informational()
+	s.progress(receiving)
 	responseBody := s.newBodyRecorder(response.Body)
 	response.Body = responseBody
 	copyHeaders(writer.Header(), response.Header)
 	writer.WriteHeader(response.StatusCode)
-	_, _ = io.Copy(writer, responseBody)
+	_, copyErr := io.Copy(writer, responseBody)
 	tx := s.cfg.Interceptor.Transaction(Exchange{
 		Client: parseAddr(request.RemoteAddr), Request: request, Response: response,
 		Started: started, Ended: s.cfg.Now(),
 		RequestBody: requestBody, ResponseBody: responseBody, Trace: trace, Process: process,
 	})
-	tx.ID = progress.ID
-	tx.Generation = progress.Generation
+	completeAdmission(&tx, progress, trace)
+	if copyErr != nil {
+		tx.State = models.TxFailed
+		if request.Context().Err() != nil {
+			tx.State = models.TxAborted
+		}
+		tx.Error = copyErr.Error()
+		if tx.Response.BodyStorage == "inline" {
+			tx.Response.BodyStorage = "truncated"
+		}
+	}
 	s.emit(tx)
 }
 
@@ -323,7 +347,7 @@ func (s *Server) handleConnect(writer http.ResponseWriter, request *http.Request
 		s.tunnel(request.Context(), replay, hostPort, protocols, process, "explicit scoped passthrough approval")
 		return
 	}
-	s.intercept(replay, host, hostPort, process)
+	s.intercept(replay, host, hostPort, process, connectionID(request.Context()))
 }
 
 func (s *Server) trackConnection(connection net.Conn) {
@@ -359,6 +383,7 @@ func (s *Server) tunnel(ctx context.Context, client net.Conn, hostPort string, p
 		Host:   hostPort,
 		URL:    &url.URL{Scheme: "https", Host: hostPort},
 	}, started, process, CaptureModePassthrough)
+	progress.ConnectionID = connectionID(ctx)
 	s.stamp(&progress)
 	s.progress(progress)
 	upstream, err := s.cfg.DialContext(ctx, "tcp", hostPort)
@@ -368,8 +393,7 @@ func (s *Server) tunnel(ctx context.Context, client net.Conn, hostPort string, p
 			Host:   hostPort,
 			URL:    &url.URL{Scheme: "https", Host: hostPort},
 		}, started, s.cfg.Now(), err, CaptureModePassthrough, FidelityUnsupported, process)
-		tx.ID = progress.ID
-		tx.Generation = progress.Generation
+		completeAdmission(&tx, progress, nil)
 		s.emit(tx)
 		return
 	}
@@ -381,15 +405,14 @@ func (s *Server) tunnel(ctx context.Context, client net.Conn, hostPort string, p
 	go func() { _, _ = io.Copy(clientCount, upstreamCount); done <- struct{}{} }()
 	<-done
 	tx := s.cfg.Interceptor.Passthrough(client.RemoteAddr(), hostPort, protocols, started, s.cfg.Now(), clientCount.read, upstreamCount.read, process, reason)
-	tx.ID = progress.ID
-	tx.Generation = progress.Generation
+	completeAdmission(&tx, progress, nil)
 	s.emit(tx)
 }
 
-func (s *Server) intercept(client net.Conn, host, hostPort string, process *models.ProcessInstance) {
+func (s *Server) intercept(client net.Conn, host, hostPort string, process *models.ProcessInstance, connID string) {
 	defer client.Close()
 	started := s.cfg.Now()
-	admission := models.CaptureTransaction{}
+	admission := models.CaptureTransaction{ConnectionID: connID}
 	s.stamp(&admission)
 	tlsConn := tls.Server(client, &tls.Config{
 		MinVersion: tls.VersionTLS12, NextProtos: []string{"http/1.1"},
@@ -408,7 +431,7 @@ func (s *Server) intercept(client net.Conn, host, hostPort string, process *mode
 			URL:    &url.URL{Scheme: "https", Host: hostPort},
 		}, started, s.cfg.Now(), fmt.Errorf("client TLS handshake: %w", err), CaptureModeNotCaptured, FidelityUnsupported, process)
 		tx.Error = "TLS interception failed; diagnose certificate pinning or trust and require explicit scoped passthrough"
-		tx.Generation = admission.Generation
+		completeAdmission(&tx, admission, nil)
 		s.emit(tx)
 		return
 	}
@@ -421,10 +444,23 @@ func (s *Server) intercept(client net.Conn, host, hostPort string, process *mode
 			return
 		}
 		started := s.cfg.Now()
+		request.URL.Scheme = "https"
+		request.URL.Host = hostPort
 		progress := progressTransaction(request, started, process, CaptureModeMITM)
+		progress.ConnectionID = connID
 		s.stamp(&progress)
 		s.progress(progress)
 		trace, traceCtx := newUpstreamTrace(request.Context())
+		trace.forwardInformational = func(code int, header http.Header) error {
+			if _, err := fmt.Fprintf(tlsConn, "HTTP/1.1 %d %s\r\n", code, http.StatusText(code)); err != nil {
+				return err
+			}
+			if err := header.Write(tlsConn); err != nil {
+				return err
+			}
+			_, err := io.WriteString(tlsConn, "\r\n")
+			return err
+		}
 		request = request.WithContext(traceCtx)
 		requestBody := s.newBodyRecorder(request.Body)
 		request.Body = requestBody
@@ -441,6 +477,12 @@ func (s *Server) intercept(client net.Conn, host, hostPort string, process *mode
 			s.emit(tx)
 			return
 		}
+		receiving := progress
+		receiving.State = models.TxReceiving
+		receiving.StatusCode = response.StatusCode
+		receiving.Response.Headers = modelHeaders(response.Header)
+		receiving.Informational, receiving.InformationalTruncated = trace.Informational()
+		s.progress(receiving)
 		responseBody := s.newBodyRecorder(response.Body)
 		response.Body = responseBody
 		writeErr := response.Write(tlsConn)
@@ -450,8 +492,11 @@ func (s *Server) intercept(client net.Conn, host, hostPort string, process *mode
 			Started: started, Ended: s.cfg.Now(),
 			RequestBody: requestBody, ResponseBody: responseBody, Trace: trace, Process: process,
 		})
-		tx.ID = progress.ID
-		tx.Generation = progress.Generation
+		completeAdmission(&tx, progress, trace)
+		if writeErr != nil {
+			tx.State = models.TxFailed
+			tx.Error = writeErr.Error()
+		}
 		s.emit(tx)
 		if writeErr != nil || request.Close || response.Close {
 			return
@@ -485,6 +530,8 @@ func (s *Server) emit(tx models.CaptureTransaction) {
 }
 
 func (s *Server) stamp(tx *models.CaptureTransaction) {
+	tx.Sequence = int(requestSequence.Add(1))
+	tx.StreamProvenance = "reconstructed_semantic"
 	if s.cfg.Stamp != nil {
 		s.cfg.Stamp(tx)
 	}
@@ -522,7 +569,7 @@ func progressTransaction(request *http.Request, started time.Time, process *mode
 		StartedAt: started.UTC().Format(time.RFC3339Nano), State: models.TxRequestSent,
 		CaptureMode: mode, ObservationPoint: "proxy", Coverage: coverage(process),
 		Fidelity: fidelity, Process: process,
-		Request:  models.HTTPMessage{BodyStorage: BodyStorageOmitted},
+		Request:  models.HTTPMessage{Headers: modelHeaders(request.Header), Cookies: requestCookies(request), BodyStorage: BodyStorageOmitted, ContentType: request.Header.Get("Content-Type")},
 		Response: models.HTTPMessage{BodyStorage: BodyStorageOmitted},
 	}
 }
@@ -579,6 +626,13 @@ func (SemanticInterceptor) Transaction(exchange Exchange) models.CaptureTransact
 		State: models.TxComplete, TotalMS: float64(ended.Sub(started).Microseconds()) / 1000,
 		CaptureMode: CaptureModeMITM, ObservationPoint: "proxy", Coverage: coverage(exchange.Process),
 		Fidelity: FidelityDecodedWire, Process: exchange.Process,
+	}
+	if response.StatusCode >= 300 && response.StatusCode < 400 {
+		tx.RedirectURL = response.Header.Get("Location")
+	}
+	tx.StreamProvenance = "reconstructed_semantic"
+	if exchange.Trace != nil {
+		tx.Informational, tx.InformationalTruncated = exchange.Trace.Informational()
 	}
 	if trace := exchange.Trace; trace != nil && trace.observed() {
 		upstream := trace.Phases(ended)
@@ -653,6 +707,7 @@ func (SemanticInterceptor) Passthrough(_ net.Addr, host string, protocols []stri
 }
 
 var transactionSequence atomic.Uint64
+var requestSequence atomic.Uint64
 
 func newTransactionID(started time.Time) string {
 	return "live-" + strconv.FormatInt(started.UnixNano(), 36) + "-" + strconv.FormatUint(transactionSequence.Add(1), 36)
@@ -746,4 +801,27 @@ func writeGatewayError(writer io.Writer) {
 func proxyURL(address string) *url.URL {
 	result, _ := url.Parse("http://" + address)
 	return result
+}
+
+func connectionID(ctx context.Context) string {
+	value, _ := ctx.Value(resolvedProcessContextKey{}).(resolvedProcess)
+	return value.connectionID
+}
+
+func completeAdmission(tx *models.CaptureTransaction, admission models.CaptureTransaction, trace *upstreamTrace) {
+	tx.ID = admission.ID
+	tx.Generation = admission.Generation
+	tx.ConnectionID = admission.ConnectionID
+	tx.Sequence = admission.Sequence
+	tx.StreamProvenance = "reconstructed_semantic"
+	if tx.CaptureMode == CaptureModePassthrough {
+		tx.StreamProvenance = "opaque_tunnel"
+	}
+	if len(tx.Request.Headers) == 0 {
+		tx.Request.Headers = admission.Request.Headers
+		tx.Request.Cookies = admission.Request.Cookies
+	}
+	if trace != nil {
+		tx.Informational, tx.InformationalTruncated = trace.Informational()
+	}
 }

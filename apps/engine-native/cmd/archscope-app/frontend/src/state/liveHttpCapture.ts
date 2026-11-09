@@ -1,4 +1,4 @@
-import type { CaptureHTTPMessage, CaptureTimingSet, HttpCaptureTransactionRow } from "../bridge/types";
+import type { CaptureHTTPMessage, CaptureTimingSet, HttpCaptureTransactionRow, HttpInformationalResponse } from "../bridge/types";
 /**
  * Renderer half of the live-capture contract the engine publishes through
  * `CaptureService.GetLiveCaptureContract` (`capture.LiveCaptureContract`).
@@ -817,6 +817,10 @@ export function activeUnattributedPolicy(
 // uses analyzer rows. Keep conversion at this boundary, including process identity.
 export type LiveCaptureExchange = LiveCaptureTransaction & {
   connectionId?: string;
+  informational?: HttpInformationalResponse[];
+  informationalTruncated?: boolean;
+  redirectUrl?: string;
+  streamProvenance?: string;
   startedAt?: string;
   endedAt?: string;
   query?: string;
@@ -834,6 +838,8 @@ export function liveAnalyzerRow(tx: LiveCaptureExchange): HttpCaptureTransaction
     transferSize: 0, bodyStorage: "omitted",
   };
   return {
+    informational:tx.informational, informational_truncated:tx.informationalTruncated,
+    redirect_url:tx.redirectUrl, stream_provenance:tx.streamProvenance,
     id: tx.id, sequence: tx.sequence, connection_id: tx.connectionId ?? "",
     started_at: tx.startedAt ?? "", ended_at: tx.endedAt ?? "",
     method: tx.method, url: tx.url, host: tx.host, path: tx.path, query: tx.query,

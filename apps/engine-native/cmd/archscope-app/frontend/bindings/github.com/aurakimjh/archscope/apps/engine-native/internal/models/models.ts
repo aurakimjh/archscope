@@ -99,10 +99,14 @@ export class AnalysisResult {
 }
 
 /**
- * CaptureTransaction is the common normalized transaction consumed by both
- * offline HAR analysis and the later live-capture pipeline.
+ * CaptureTransaction is a normalized semantic exchange, including bounded 1xx
+ * evidence. Its stream provenance states which bytes can be reconstructed.
  */
 export class CaptureTransaction {
+    "informational"?: InformationalResponse[];
+    "informationalTruncated"?: boolean;
+    "redirectUrl"?: string;
+    "streamProvenance"?: string;
     "generation"?: number;
     "id": string;
     "connectionId": string;
@@ -202,22 +206,26 @@ export class CaptureTransaction {
      * Creates a new CaptureTransaction instance from a string or object.
      */
     static createFrom($$source: any = {}): CaptureTransaction {
-        const $$createField14_0 = $$createType2;
-        const $$createField15_0 = $$createType2;
-        const $$createField16_0 = $$createType3;
-        const $$createField26_0 = $$createType5;
+        const $$createField0_0 = $$createType3;
+        const $$createField18_0 = $$createType4;
+        const $$createField19_0 = $$createType4;
+        const $$createField20_0 = $$createType5;
+        const $$createField30_0 = $$createType7;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("informational" in $$parsedSource) {
+            $$parsedSource["informational"] = $$createField0_0($$parsedSource["informational"]);
+        }
         if ("request" in $$parsedSource) {
-            $$parsedSource["request"] = $$createField14_0($$parsedSource["request"]);
+            $$parsedSource["request"] = $$createField18_0($$parsedSource["request"]);
         }
         if ("response" in $$parsedSource) {
-            $$parsedSource["response"] = $$createField15_0($$parsedSource["response"]);
+            $$parsedSource["response"] = $$createField19_0($$parsedSource["response"]);
         }
         if ("timings" in $$parsedSource) {
-            $$parsedSource["timings"] = $$createField16_0($$parsedSource["timings"]);
+            $$parsedSource["timings"] = $$createField20_0($$parsedSource["timings"]);
         }
         if ("process" in $$parsedSource) {
-            $$parsedSource["process"] = $$createField26_0($$parsedSource["process"]);
+            $$parsedSource["process"] = $$createField30_0($$parsedSource["process"]);
         }
         return new CaptureTransaction($$parsedSource as Partial<CaptureTransaction>);
     }
@@ -293,8 +301,8 @@ export class HTTPMessage {
      * Creates a new HTTPMessage instance from a string or object.
      */
     static createFrom($$source: any = {}): HTTPMessage {
-        const $$createField0_0 = $$createType7;
-        const $$createField1_0 = $$createType7;
+        const $$createField0_0 = $$createType9;
+        const $$createField1_0 = $$createType9;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("headers" in $$parsedSource) {
             $$parsedSource["headers"] = $$createField0_0($$parsedSource["headers"]);
@@ -329,6 +337,43 @@ export class HeaderField {
     static createFrom($$source: any = {}): HeaderField {
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         return new HeaderField($$parsedSource as Partial<HeaderField>);
+    }
+}
+
+/**
+ * CaptureTransaction is the common normalized transaction consumed by both
+ * offline HAR analysis and the later live-capture pipeline.
+ */
+export class InformationalResponse {
+    "status": number;
+    "receivedAt": string;
+    "headers": HeaderField[];
+
+    /** Creates a new InformationalResponse instance. */
+    constructor($$source: Partial<InformationalResponse> = {}) {
+        if (!("status" in $$source)) {
+            this["status"] = 0;
+        }
+        if (!("receivedAt" in $$source)) {
+            this["receivedAt"] = "";
+        }
+        if (!("headers" in $$source)) {
+            this["headers"] = [];
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new InformationalResponse instance from a string or object.
+     */
+    static createFrom($$source: any = {}): InformationalResponse {
+        const $$createField2_0 = $$createType9;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("headers" in $$parsedSource) {
+            $$parsedSource["headers"] = $$createField2_0($$parsedSource["headers"]);
+        }
+        return new InformationalResponse($$parsedSource as Partial<InformationalResponse>);
     }
 }
 
@@ -411,7 +456,7 @@ export class ProcessInstance {
      * Creates a new ProcessInstance instance from a string or object.
      */
     static createFrom($$source: any = {}): ProcessInstance {
-        const $$createField1_0 = $$createType8;
+        const $$createField1_0 = $$createType10;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("key" in $$parsedSource) {
             $$parsedSource["key"] = $$createField1_0($$parsedSource["key"]);
@@ -485,13 +530,13 @@ export class TimingPhases {
      * Creates a new TimingPhases instance from a string or object.
      */
     static createFrom($$source: any = {}): TimingPhases {
-        const $$createField0_0 = $$createType9;
-        const $$createField1_0 = $$createType9;
-        const $$createField2_0 = $$createType9;
-        const $$createField3_0 = $$createType9;
-        const $$createField4_0 = $$createType9;
-        const $$createField5_0 = $$createType9;
-        const $$createField6_0 = $$createType9;
+        const $$createField0_0 = $$createType11;
+        const $$createField1_0 = $$createType11;
+        const $$createField2_0 = $$createType11;
+        const $$createField3_0 = $$createType11;
+        const $$createField4_0 = $$createType11;
+        const $$createField5_0 = $$createType11;
+        const $$createField6_0 = $$createType11;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("blocked" in $$parsedSource) {
             $$parsedSource["blocked"] = $$createField0_0($$parsedSource["blocked"]);
@@ -534,10 +579,10 @@ export class TimingSet {
      * Creates a new TimingSet instance from a string or object.
      */
     static createFrom($$source: any = {}): TimingSet {
-        const $$createField0_0 = $$createType11;
-        const $$createField1_0 = $$createType11;
-        const $$createField2_0 = $$createType11;
-        const $$createField3_0 = $$createType11;
+        const $$createField0_0 = $$createType13;
+        const $$createField1_0 = $$createType13;
+        const $$createField2_0 = $$createType13;
+        const $$createField3_0 = $$createType13;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("clientProxy" in $$parsedSource) {
             $$parsedSource["clientProxy"] = $$createField0_0($$parsedSource["clientProxy"]);
@@ -582,13 +627,15 @@ export enum TxState {
 // Private type creation functions
 const $$createType0 = $Create.Array($Create.Any);
 const $$createType1 = $Create.Map($Create.Any, $Create.Any);
-const $$createType2 = HTTPMessage.createFrom;
-const $$createType3 = TimingSet.createFrom;
-const $$createType4 = ProcessInstance.createFrom;
-const $$createType5 = $Create.Nullable($$createType4);
-const $$createType6 = HeaderField.createFrom;
-const $$createType7 = $Create.Array($$createType6);
-const $$createType8 = ProcessKey.createFrom;
-const $$createType9 = Duration.createFrom;
-const $$createType10 = TimingPhases.createFrom;
-const $$createType11 = $Create.Nullable($$createType10);
+const $$createType2 = InformationalResponse.createFrom;
+const $$createType3 = $Create.Array($$createType2);
+const $$createType4 = HTTPMessage.createFrom;
+const $$createType5 = TimingSet.createFrom;
+const $$createType6 = ProcessInstance.createFrom;
+const $$createType7 = $Create.Nullable($$createType6);
+const $$createType8 = HeaderField.createFrom;
+const $$createType9 = $Create.Array($$createType8);
+const $$createType10 = ProcessKey.createFrom;
+const $$createType11 = Duration.createFrom;
+const $$createType12 = TimingPhases.createFrom;
+const $$createType13 = $Create.Nullable($$createType12);

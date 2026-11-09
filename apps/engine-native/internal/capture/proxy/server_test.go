@@ -121,7 +121,7 @@ func TestMITMForwardsH1WithVerifiedUpstream(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer authority.Close()
-	progressed := make(chan models.CaptureTransaction, 1)
+	progressed := make(chan models.CaptureTransaction, 2)
 	server, err := New(Config{
 		ListenAddress: "127.0.0.1:0", Authority: authority, UpstreamRoots: roots,
 		Stamp: func(tx *models.CaptureTransaction) { tx.Generation = 7 },
@@ -169,6 +169,10 @@ func TestMITMForwardsH1WithVerifiedUpstream(t *testing.T) {
 		}
 	case <-time.After(3 * time.Second):
 		t.Fatal("timed out waiting for progress transaction")
+	}
+	receiving := <-progressed
+	if receiving.State != models.TxReceiving || receiving.ID != progress.ID || receiving.ConnectionID == "" || receiving.Sequence != progress.Sequence {
+		t.Fatalf("receiving=%+v", receiving)
 	}
 	select {
 	case tx := <-captured:

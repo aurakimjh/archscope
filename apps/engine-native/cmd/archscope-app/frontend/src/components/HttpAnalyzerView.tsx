@@ -943,7 +943,15 @@ function TransactionDetailPane({
         className="p-3"
       >
         {tab === "raw" && <RawTab transaction={transaction} t={t} />}
-        {tab === "headers" && <HeadersTab transaction={transaction} t={t} />}
+        {tab === "headers" && <>
+          <HeadersTab transaction={transaction} t={t} />
+          {(transaction.informational ?? []).map((response,index) => <div key={index} className="mt-2">
+            <FieldTable title={`${response.status} · ${response.receivedAt}`} fields={response.headers}
+              emptyLabel={t("httpCaptureDetailNoHeaders")} redactedLabel={t("httpCaptureDetailRedactedBadge")} />
+          </div>)}
+          {transaction.informational_truncated && <p role="status">{t("httpCaptureInterimTruncated")}</p>}
+          {transaction.redirect_url && <p className="mt-2 break-all font-mono">{t("httpCaptureRedirect")}: {transaction.redirect_url}</p>}
+        </>}
         {tab === "body" && <BodyTab transaction={transaction} t={t} />}
         {tab === "timing" && (
           <TimingTab

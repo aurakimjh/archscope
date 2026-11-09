@@ -494,6 +494,11 @@ func (p *Pipeline) publishProgress(tx models.CaptureTransaction) {
 
 func (p *Pipeline) redact(tx models.CaptureTransaction) models.CaptureTransaction {
 	tx.URL = p.cfg.Redaction.RedactURL(tx.URL)
+	tx.RedirectURL = p.cfg.Redaction.RedactURL(tx.RedirectURL)
+	tx.Informational = append([]models.InformationalResponse(nil), tx.Informational...)
+	for index := range tx.Informational {
+		tx.Informational[index].Headers = p.cfg.Redaction.RedactHeaders(tx.Informational[index].Headers)
+	}
 	tx.Query = ""
 	tx.Request.Headers = p.cfg.Redaction.RedactHeaders(tx.Request.Headers)
 	tx.Response.Headers = p.cfg.Redaction.RedactHeaders(tx.Response.Headers)

@@ -683,3 +683,28 @@ func TestCurrentSessionScopeFailsClosed(t *testing.T) {
 		t.Fatal("session scope included another or unknown session")
 	}
 }
+
+func TestIntermediateEvidenceIsRedactedBeforeStore(t *testing.T) {
+	st := testStore(t)
+	p, err := New(Config{SessionID: "s", Store: st, RetainUnattributedMetadata: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	tx := models.CaptureTransaction{ID: "interim", State: models.TxComplete,
+		RedirectURL:   "https://example.test/?token=secret",
+		Informational: []models.InformationalResponse{{Status: 103, Headers: []models.HeaderField{{Name: "Set-Cookie", Value: "session=secret"}}}}}
+	if err := p.Submit(context.Background(), tx); err != nil {
+		t.Fatal(err)
+	}
+	if err := p.Close(); err != nil {
+		t.Fatal(err)
+	}
+	page, err := st.Fetch(store.Filter{}, "", 10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, _ := json.Marshal(page.Items)
+	if strings.Contains(string(data), "secret") {
+		t.Fatalf("unredacted intermediate evidence: %s", data)
+	}
+}

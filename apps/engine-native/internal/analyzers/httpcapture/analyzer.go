@@ -35,8 +35,8 @@ type Options struct {
 	TopN int
 	// TransactionRows bounds the full transaction list independently of TopN.
 	// Zero selects DefaultTransactionRows.
-	TransactionRows   int
-	DiffTemplateLimit int
+	TransactionRows         int
+	DiffTemplateLimit       int
 	MaxEntries              int
 	MaxBytes                int64
 	MaxStringBytes          int
@@ -437,6 +437,10 @@ func transactionRow(entry models.CaptureTransaction) map[string]any {
 	return map[string]any{
 		"id":                       entry.ID,
 		"connection_id":            entry.ConnectionID,
+		"informational":            entry.Informational,
+		"informational_truncated":  entry.InformationalTruncated,
+		"redirect_url":             entry.RedirectURL,
+		"stream_provenance":        entry.StreamProvenance,
 		"sequence":                 entry.Sequence,
 		"started_at":               entry.StartedAt,
 		"ended_at":                 entry.EndedAt,

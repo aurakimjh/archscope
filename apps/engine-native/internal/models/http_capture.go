@@ -83,12 +83,24 @@ const (
 
 // CaptureTransaction is the common normalized transaction consumed by both
 // offline HAR analysis and the later live-capture pipeline.
+type InformationalResponse struct {
+	Status     int           `json:"status"`
+	ReceivedAt string        `json:"receivedAt"`
+	Headers    []HeaderField `json:"headers"`
+}
+
+// CaptureTransaction is a normalized semantic exchange, including bounded 1xx
+// evidence. Its stream provenance states which bytes can be reconstructed.
 type CaptureTransaction struct {
-	Generation   uint64 `json:"generation,omitempty"`
-	ID           string `json:"id"`
-	ConnectionID string `json:"connectionId"`
-	Sequence     int    `json:"sequence"`
-	StreamID     int    `json:"streamId,omitempty"`
+	Informational          []InformationalResponse `json:"informational,omitempty"`
+	InformationalTruncated bool                    `json:"informationalTruncated,omitempty"`
+	RedirectURL            string                  `json:"redirectUrl,omitempty"`
+	StreamProvenance       string                  `json:"streamProvenance,omitempty"`
+	Generation             uint64                  `json:"generation,omitempty"`
+	ID                     string                  `json:"id"`
+	ConnectionID           string                  `json:"connectionId"`
+	Sequence               int                     `json:"sequence"`
+	StreamID               int                     `json:"streamId,omitempty"`
 
 	Method      string `json:"method"`
 	URL         string `json:"url"`
