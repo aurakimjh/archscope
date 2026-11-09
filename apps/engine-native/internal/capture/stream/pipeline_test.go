@@ -506,3 +506,40 @@ func testStore(t *testing.T) *store.Store {
 	t.Cleanup(func() { _ = st.Finalize(capture.StateFinalized) })
 	return st
 }
+
+func TestSelectedProcessScopePrecedesPersistenceAndProgress(t *testing.T) {
+	st := testStore(t)
+	key := models.ProcessKey{PID: 42, StartTime: "2026-11-09T00:00:00Z"}
+	p, err := New(Config{SessionID: "s", Store: st, AllowedProcesses: []models.ProcessKey{key}, RetainUnattributedMetadata: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for n, process := range []*models.ProcessInstance{
+		{Key: key, Name: "included", Attribution: "confirmed"},
+		{Key: models.ProcessKey{PID: 43, StartTime: key.StartTime}, Attribution: "confirmed"},
+		{Key: models.ProcessKey{PID: 42, StartTime: "reused"}, Attribution: "confirmed"},
+		nil,
+	} {
+		tx := models.CaptureTransaction{ID: fmt.Sprint(n), Method: "GET", Process: process, State: models.TxComplete}
+		if e := p.TrackProgress(tx); e != nil {
+			t.Fatal(e)
+		}
+		if e := p.Submit(context.Background(), tx); e != nil {
+			t.Fatal(e)
+		}
+	}
+	if e := p.Close(); e != nil {
+		t.Fatal(e)
+	}
+	page, e := st.Fetch(store.Filter{}, "", 100)
+	if e != nil || len(page.Items) != 1 || page.Items[0].Transaction.ID != "0" {
+		t.Fatalf("page=%+v err=%v", page, e)
+	}
+	if len(p.LiveWindow()) != 1 {
+		t.Fatalf("excluded progress published: %+v", p.LiveWindow())
+	}
+	stats := p.Stats(capture.StateFinalized)
+	if stats.Observed != 4 || stats.Dropped != 3 || stats.Persisted != 1 {
+		t.Fatalf("stats=%+v", stats)
+	}
+}

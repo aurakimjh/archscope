@@ -28,6 +28,7 @@ const (
 )
 
 type Config struct {
+	AllowedProcesses           []models.ProcessKey
 	SessionID                  capture.SessionID
 	Store                      *store.Store
 	EventSink                  capture.EventSink
@@ -123,6 +124,10 @@ func New(cfg Config) (*Pipeline, error) {
 
 func (p *Pipeline) Submit(ctx context.Context, tx models.CaptureTransaction) error {
 	p.observed.Add(1)
+	if !p.allows(tx) {
+		p.dropped.Add(1)
+		return nil
+	}
 	if unattributed(tx) {
 		p.unattributed.Add(1)
 		if !p.cfg.RetainUnattributedMetadata {
@@ -341,6 +346,9 @@ func (p *Pipeline) LiveMetadata(tx models.CaptureTransaction) models.CaptureTran
 }
 
 func (p *Pipeline) TrackProgress(tx models.CaptureTransaction) error {
+	if !p.allows(tx) {
+		return nil
+	}
 	tx = p.LiveMetadata(tx)
 	p.sendMu.RLock()
 	defer p.sendMu.RUnlock()
@@ -497,4 +505,21 @@ func metadataOnly(tx models.CaptureTransaction) models.CaptureTransaction {
 	tx.Request.BodyRef = ""
 	tx.Response.BodyRef = ""
 	return tx
+}
+
+// A selected recording scope fails closed for unknown or reused identities.
+// This check precedes redaction, persistence and publication.
+func (p *Pipeline) allows(tx models.CaptureTransaction) bool {
+	if len(p.cfg.AllowedProcesses) == 0 {
+		return true
+	}
+	if unattributed(tx) {
+		return false
+	}
+	for _, key := range p.cfg.AllowedProcesses {
+		if key == tx.Process.Key {
+			return true
+		}
+	}
+	return false
 }

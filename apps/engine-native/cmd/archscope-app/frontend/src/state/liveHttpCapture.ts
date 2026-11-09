@@ -215,6 +215,7 @@ export function isLiveCaptureContractSupported(raw: unknown): boolean {
 }
 
 export type LiveCaptureSession = {
+  allowedProcesses?: { pid:number; startTime:string }[];
   sessionId: string;
   state: string;
   listenAddress: string;

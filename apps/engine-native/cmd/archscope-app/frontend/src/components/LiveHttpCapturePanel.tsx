@@ -34,6 +34,7 @@ import {
   resolveLiveCaptureContract,
   type LiveCAStateToken,
   type LiveCaptureSession,
+  type LiveCaptureProcess,
   type LiveCaptureStats,
   type LiveCaptureTransaction,
   type LiveProgressEvent,
@@ -139,10 +140,28 @@ export function LiveHttpCapturePanel({
   // preflight; on any other result the fail-closed contract hides it and this
   // value stays false.
   const [captureBodies, setCaptureBodies] = useState(false);
+  const [processes, setProcesses] = useState<LiveCaptureProcess[]>([]);
+  const [selectedProcesses, setSelectedProcesses] = useState<LiveCaptureProcess[]>([]);
+  const [processScope, setProcessScope] = useState(false);
+  const loadProcesses = async () => {
+    try {
+      const next = await CaptureService.ListCaptureProcesses();
+      setProcesses(next as unknown as LiveCaptureProcess[]);
+    } catch (caught) {
+      dispatch({ type:"error", message:String(caught) });
+    }
+  };
   const [recovery, setRecovery] = useState<RecoverySummary | null>(null);
   const [analysisBusy, setAnalysisBusy] = useState(false);
 
   const active = isLiveSessionActive(state.session);
+
+  useEffect(() => {
+    if (!state.session) return;
+    const keys = state.session.allowedProcesses ?? [];
+    setProcessScope(keys.length > 0);
+    setSelectedProcesses(keys.map((key) => ({key, name:`PID ${key.pid}`, attribution:"confirmed"})));
+  }, [state.session?.sessionId]);
 
   const hydrate = useCallback(async (session: LiveCaptureSession) => {
     let stats: LiveCaptureStats | null = null;
@@ -282,13 +301,14 @@ export function LiveHttpCapturePanel({
   }, [state.needsResync, state.session?.sessionId]);
 
   const start = useCallback(async () => {
-    if (!firstUseAccepted || state.busy || active) return;
+    if (!firstUseAccepted || state.busy || active || (processScope && selectedProcesses.length === 0)) return;
     dispatch({ type: "busy", busy: true });
     dispatch({ type: "clearError" });
     try {
       const session = await CaptureService.StartCapture({
         listenAddress: "127.0.0.1:0",
         liveWindow: 5000,
+        allowedProcesses: processScope ? selectedProcesses.map((p) => p.key) : [],
         retainUnattributedMetadata: retainUnattributed,
         captureBodies,
         maxBodyBytes: state.contract.maxBodyBytes,
@@ -308,6 +328,8 @@ export function LiveHttpCapturePanel({
     active,
     captureBodies,
     firstUseAccepted,
+    processScope,
+    selectedProcesses,
     onStarted,
     retainUnattributed,
     state.busy,
@@ -573,6 +595,34 @@ export function LiveHttpCapturePanel({
           </div>
         )}
 
+        <fieldset disabled={active} className="rounded border p-2 text-xs">
+          <legend>{t("httpCaptureProcessScope")}</legend>
+          <label className="mr-4 inline-flex gap-2">
+            <input type="radio" name="captureScope" checked={!processScope} onChange={() => setProcessScope(false)} />
+            {t("httpLiveAllProcesses")}
+          </label>
+          <label className="inline-flex gap-2">
+            <input type="radio" name="captureScope" checked={processScope} onChange={() => { setProcessScope(true); void loadProcesses(); }} />
+            {t("httpCaptureSelectedProcesses")}
+          </label>
+          {processScope && (
+            <div className="mt-2">
+              <Button type="button" size="sm" variant="outline" onClick={() => void loadProcesses()}>{t("httpCaptureRefreshProcesses")}</Button>
+              <div className="mt-2 max-h-40 overflow-auto">
+                {processes.map((process) => (
+                  <label key={JSON.stringify(process.key)} className="flex gap-2 py-1">
+                    <input type="checkbox" checked={selectedProcesses.some((p) => p.key.pid === process.key.pid && p.key.startTime === process.key.startTime)}
+                      onChange={(event) => setSelectedProcesses((current) => event.target.checked
+                        ? [...current, process]
+                        : current.filter((p) => p.key.pid !== process.key.pid || p.key.startTime !== process.key.startTime))} />
+                    {process.name} [{process.key.pid}] · {process.key.startTime}
+                  </label>
+                ))}
+              </div>
+              <p>{selectedProcesses.length} {t("httpCaptureSelectedProcesses")}</p>
+            </div>
+          )}
+        </fieldset>
         <label className="flex items-start gap-2 rounded-md border border-border p-3 text-xs">
           <input
             type="checkbox"
@@ -608,7 +658,7 @@ export function LiveHttpCapturePanel({
               state.busy ||
               active ||
               !firstUseAccepted ||
-              (mode !== null && !mode.available)
+              (!mode?.available) || (processScope && selectedProcesses.length === 0)
             }
             onClick={() => void start()}
           >

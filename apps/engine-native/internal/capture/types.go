@@ -128,18 +128,19 @@ const (
 )
 
 type Config struct {
-	ListenAddress              string         `json:"listenAddress,omitempty"`
-	StoreRoot                  string         `json:"storeRoot,omitempty"`
-	MaxSessionBytes            int64          `json:"maxSessionBytes,omitempty"`
-	ReserveBytes               int64          `json:"reserveBytes,omitempty"`
-	BodyFraction               float64        `json:"bodyFraction,omitempty"`
-	OverflowPolicy             OverflowPolicy `json:"overflowPolicy,omitempty"`
-	WriteHighWaterBytes        int64          `json:"writeHighWaterBytes,omitempty"`
-	WriteHardLimitBytes        int64          `json:"writeHardLimitBytes,omitempty"`
-	LiveWindow                 int            `json:"liveWindow,omitempty"`
-	AllowPassthrough           []string       `json:"allowPassthrough,omitempty"`
-	PassthroughTTLSeconds      int            `json:"passthroughTtlSeconds,omitempty"`
-	RetainUnattributedMetadata bool           `json:"retainUnattributedMetadata,omitempty"`
+	AllowedProcesses           []models.ProcessKey `json:"allowedProcesses,omitempty"`
+	ListenAddress              string              `json:"listenAddress,omitempty"`
+	StoreRoot                  string              `json:"storeRoot,omitempty"`
+	MaxSessionBytes            int64               `json:"maxSessionBytes,omitempty"`
+	ReserveBytes               int64               `json:"reserveBytes,omitempty"`
+	BodyFraction               float64             `json:"bodyFraction,omitempty"`
+	OverflowPolicy             OverflowPolicy      `json:"overflowPolicy,omitempty"`
+	WriteHighWaterBytes        int64               `json:"writeHighWaterBytes,omitempty"`
+	WriteHardLimitBytes        int64               `json:"writeHardLimitBytes,omitempty"`
+	LiveWindow                 int                 `json:"liveWindow,omitempty"`
+	AllowPassthrough           []string            `json:"allowPassthrough,omitempty"`
+	PassthroughTTLSeconds      int                 `json:"passthroughTtlSeconds,omitempty"`
+	RetainUnattributedMetadata bool                `json:"retainUnattributedMetadata,omitempty"`
 	// CaptureBodies opts this session into retaining request/response payloads.
 	// Off by default; see the body-capture gate constants above.
 	CaptureBodies bool `json:"captureBodies,omitempty"`
@@ -167,14 +168,15 @@ type Stats struct {
 }
 
 type Session struct {
-	ID                         SessionID    `json:"sessionId"`
-	State                      SessionState `json:"state"`
-	ListenAddress              string       `json:"listenAddress"`
-	StorePath                  string       `json:"storePath"`
-	StartedAt                  time.Time    `json:"startedAt"`
-	EndedAt                    *time.Time   `json:"endedAt,omitempty"`
-	Error                      string       `json:"error,omitempty"`
-	RetainUnattributedMetadata bool         `json:"retainUnattributedMetadata"`
+	AllowedProcesses           []models.ProcessKey `json:"allowedProcesses,omitempty"`
+	ID                         SessionID           `json:"sessionId"`
+	State                      SessionState        `json:"state"`
+	ListenAddress              string              `json:"listenAddress"`
+	StorePath                  string              `json:"storePath"`
+	StartedAt                  time.Time           `json:"startedAt"`
+	EndedAt                    *time.Time          `json:"endedAt,omitempty"`
+	Error                      string              `json:"error,omitempty"`
+	RetainUnattributedMetadata bool                `json:"retainUnattributedMetadata"`
 	// CaptureBodies / BodyCaptureGate are the policy this session actually
 	// enforced, fixed at start. The renderer shows these rather than the local
 	// checkbox so a running session can never be described by a setting that

@@ -119,9 +119,15 @@ export function ListCaptureModes(): $CancellablePromise<capture$0.Mode[]> {
     });
 }
 
+export function ListCaptureProcesses(): $CancellablePromise<models$0.ProcessInstance[]> {
+    return $Call.ByID(2974709936).then(($result: any) => {
+        return $$createType14($result);
+    });
+}
+
 export function RecoverCaptureSessions(): $CancellablePromise<store$0.RecoveryReport[]> {
     return $Call.ByID(740397896).then(($result: any) => {
-        return $$createType14($result);
+        return $$createType16($result);
     });
 }
 
@@ -157,5 +163,7 @@ const $$createType9 = capture$0.Session.createFrom;
 const $$createType10 = capture$0.LiveCaptureContract.createFrom;
 const $$createType11 = capture$0.Mode.createFrom;
 const $$createType12 = $Create.Array($$createType11);
-const $$createType13 = store$0.RecoveryReport.createFrom;
+const $$createType13 = models$0.ProcessInstance.createFrom;
 const $$createType14 = $Create.Array($$createType13);
+const $$createType15 = store$0.RecoveryReport.createFrom;
+const $$createType16 = $Create.Array($$createType15);

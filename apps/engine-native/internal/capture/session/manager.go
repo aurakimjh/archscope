@@ -137,6 +137,15 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 	// plaintext body tier can start. The preflight runs here, before an
 	// authority is generated or any session file is created, so a rejected
 	// request leaves no artifact behind.
+	if len(cfg.AllowedProcesses) > 1024 {
+		return Session{}, fmt.Errorf("too many selected processes")
+	}
+	for _, key := range cfg.AllowedProcesses {
+		if key.PID <= 0 || key.StartTime == "" {
+			return Session{}, fmt.Errorf("selected process requires PID and start time")
+		}
+	}
+	cfg.AllowedProcesses = append([]models.ProcessKey(nil), cfg.AllowedProcesses...)
 	bodyGate := capture.BodyGateDisabled
 	bodyGateReason := ""
 	if cfg.CaptureBodies {
@@ -179,7 +188,8 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 	// session is a documented residual, not something this value hides.
 	maxBodyBytes := normalizeMaxBodyBytes(cfg.MaxBodyBytes)
 	session := Session{
-		ID: id, State: StateStarting, StorePath: st.Path(), StartedAt: started,
+		AllowedProcesses: cfg.AllowedProcesses,
+		ID:               id, State: StateStarting, StorePath: st.Path(), StartedAt: started,
 		RetainUnattributedMetadata: cfg.RetainUnattributedMetadata,
 		CaptureBodies:              cfg.CaptureBodies,
 		BodyCaptureGate:            bodyGate,
@@ -198,7 +208,7 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 		return Session{}, err
 	}
 	pipeline, err := stream.New(stream.Config{
-		SessionID: id, Store: st, EventSink: m.sink,
+		SessionID: id, Store: st, EventSink: m.sink, AllowedProcesses: cfg.AllowedProcesses,
 		HighWater: cfg.WriteHighWaterBytes, HardLimit: cfg.WriteHardLimitBytes,
 		LiveWindow:                 cfg.LiveWindow,
 		RetainUnattributedMetadata: cfg.RetainUnattributedMetadata,
