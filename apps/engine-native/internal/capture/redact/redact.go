@@ -140,19 +140,7 @@ func (p *Policy) RedactURL(raw string) string {
 		parsed.User = nil
 		p.bump("url_user_info")
 	}
-	query := parsed.Query()
-	for key, values := range query {
-		for i, value := range values {
-			if sensitiveKey(key) {
-				values[i] = "[REDACTED]"
-				p.bump("query_value")
-			} else {
-				values[i] = p.applyText(value)
-			}
-		}
-		query[key] = values
-	}
-	parsed.RawQuery = query.Encode()
+	parsed.RawQuery, _ = p.redactEncodedFields(parsed.RawQuery, "query_value")
 	parsed.Path = p.applyText(parsed.Path)
 	parsed.RawPath = ""
 	parsed.Fragment = p.applyText(parsed.Fragment)
@@ -219,16 +207,9 @@ func (p *Policy) RedactBody(mimeType, text string) (string, bool) {
 		}
 	}
 	if strings.Contains(strings.ToLower(mimeType), "x-www-form-urlencoded") {
-		if values, err := url.ParseQuery(trimmed); err == nil {
-			changed := false
-			for key, items := range values {
-				for i, item := range items {
-					items[i], changed = p.redactValueWithChange(key, item, changed)
-				}
-				values[key] = items
-			}
-			return p.applyText(values.Encode()), changed
-		}
+		result, changed := p.redactEncodedFields(limited, "named_value")
+		result = p.applyCustom(result)
+		return result, changed || result != text
 	}
 	result := p.applyText(limited)
 	return result, result != text
@@ -278,11 +259,6 @@ func (p *Policy) redactJSON(value *any, key string) {
 	case string:
 		*value = p.applyText(typed)
 	}
-}
-
-func (p *Policy) redactValueWithChange(key, value string, changed bool) (string, bool) {
-	redacted, itemChanged := p.RedactNamedValue(key, value)
-	return redacted, changed || itemChanged
 }
 
 func (p *Policy) applyText(value string) string {
@@ -503,4 +479,35 @@ func (p *Policy) ClearCounts() {
 	defer p.mu.Unlock()
 	p.counts = map[string]int{}
 	p.warnings = nil
+}
+
+// Keep encoded field order and spelling when no value needs redaction. URL
+// diagnostics depend on duplicate keys and percent-encoding provenance.
+func (p *Policy) redactEncodedFields(raw, rule string) (string, bool) {
+	parts := strings.Split(raw, "&")
+	changed := false
+	for index, part := range parts {
+		name, value, hasValue := strings.Cut(part, "=")
+		key, keyErr := url.QueryUnescape(name)
+		decoded, valueErr := url.QueryUnescape(value)
+		replacement := decoded
+		if keyErr != nil || valueErr != nil {
+			replacement = "[REDACTED_INVALID_ENCODING]"
+			p.bump(rule)
+		} else if sensitiveKey(key) {
+			replacement = "[REDACTED]"
+			p.bump(rule)
+		} else {
+			replacement = p.applyText(decoded)
+		}
+		if replacement != decoded || keyErr != nil || valueErr != nil {
+			if hasValue {
+				parts[index] = name + "=" + url.QueryEscape(replacement)
+			} else {
+				parts[index] = name
+			}
+			changed = true
+		}
+	}
+	return strings.Join(parts, "&"), changed
 }

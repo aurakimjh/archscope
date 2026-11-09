@@ -118,3 +118,16 @@ func TestStructuredJSONRedactsNumericHardSecretValues(t *testing.T) {
 		}
 	}
 }
+
+func TestEncodedParameterOrderAndSpellingSurviveRedaction(t *testing.T) {
+	policy := NewPolicy(Options{})
+	original := "z=%252F&a=first&z=second&space=a+b&token=private"
+	got := policy.RedactURL("https://example.test/?" + original)
+	if !strings.Contains(got, "?z=%252F&a=first&z=second&space=a+b&token=%5BREDACTED%5D") {
+		t.Fatalf("query normalized: %s", got)
+	}
+	form, changed := policy.RedactBody("application/x-www-form-urlencoded", original)
+	if !changed || form != "z=%252F&a=first&z=second&space=a+b&token=%5BREDACTED%5D" {
+		t.Fatalf("form normalized: %s", form)
+	}
+}

@@ -3043,3 +3043,15 @@ receiving = liveHttpCaptureReducer(receiving, { type: "progress", event: {
   sessionId: liveSession.sessionId, items: [{ ...pendingLiveRow, state: "receiving" }, pendingLiveRow],
 } });
 assert(receiving.transactions[0]?.state === "receiving", "older request progress must not reset response reception");
+
+import { httpParameters, inspectForm, inspectJson, requestQuery } from "./httpPayload.js";
+const pairs = httpParameters("a[]=1&a[]=2&space=a+b&bad=%GG&encoded=%252F&empty=");
+assert(pairs.length === 6 && pairs[0]?.name === "a[]" && pairs[1]?.value === "2", "query order and repeated names must survive");
+assert(pairs[2]?.value === "a b" && pairs[3]?.decodeError && pairs[4]?.value === "%2F", "decoding must preserve invalid and double encoded evidence");
+assert(requestQuery("", "http://example.test/?a=1&a=2#end") === "a=1&a=2", "redacted URL query fallback must retain duplicates");
+const formMessage = { ...selectedLiveRow.request, bodyStorage:"inline", contentType:"application/x-www-form-urlencoded", bodyPreview:"a=1&a=2" };
+assert(inspectForm(formMessage).fields.length === 2, "form inspection must keep duplicate fields");
+assert(inspectForm({...formMessage,bodyStorage:"omitted"}).state === "unavailable", "omitted form must not be parsed from stale preview");
+assert(inspectJson({...formMessage,bodyPreview:'{"a":'}).state === "invalid", "invalid JSON must be explicit");
+assert(inspectJson({...formMessage,bodyStorage:"truncated",bodyPreview:'{"a":'}).state === "limited", "truncated JSON must be disclosed");
+assert(inspectJson({...formMessage,bodyPreview:"null"}).value === null, "JSON null is a valid document");

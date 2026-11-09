@@ -1,3 +1,5 @@
+import { HttpParameterTable, HttpJsonTree } from "./HttpPayloadView";
+import { httpParameters, requestQuery, inspectForm, inspectJson } from "@/state/httpPayload";
 // ─────────────────────────────────────────────────────────────────────
 // [한글] HttpAnalyzerView.tsx — HTTP Analyzer / Wireshark 계열 도구와
 // 같은 형태의 "상단 패킷 그리드 + 하단 상세 패널" 뷰.
@@ -861,11 +863,13 @@ function SplitHandle({
 
 // ── Detail pane ─────────────────────────────────────────────────────
 
-type DetailTab = "raw" | "headers" | "body" | "timing" | "cookies" | "process";
+type DetailTab = "query" | "form" | "raw" | "headers" | "body" | "timing" | "cookies" | "process";
 
 const DETAIL_TABS: Array<{ key: DetailTab; labelKey: MessageKey }> = [
   { key: "raw", labelKey: "httpAnalyzerTabRaw" },
   { key: "headers", labelKey: "httpAnalyzerTabHeaders" },
+  { key: "query", labelKey: "httpPayloadQuery" },
+  { key: "form", labelKey: "httpPayloadForm" },
   { key: "body", labelKey: "httpAnalyzerTabBody" },
   { key: "timing", labelKey: "httpAnalyzerTabTiming" },
   { key: "cookies", labelKey: "httpAnalyzerTabCookies" },
@@ -942,6 +946,8 @@ function TransactionDetailPane({
         aria-labelledby={`http-analyzer-tab-${tab}`}
         className="p-3"
       >
+        {tab === "query" && <HttpParameterTable fields={httpParameters(requestQuery(transaction.query, transaction.url))} />}
+        {tab === "form" && <FormTab message={transaction.request} t={t} />}
         {tab === "raw" && <RawTab transaction={transaction} t={t} />}
         {tab === "headers" && <>
           <HeadersTab transaction={transaction} t={t} />
@@ -1151,6 +1157,14 @@ function BodyTab({
   );
 }
 
+function FormTab({message,t}: {message:CaptureHTTPMessage|undefined;t:Translate}): React.JSX.Element {
+  const form=useMemo(() => inspectForm(message),[message]);
+  return <>
+    {form.state!=="available" && <p role="status" className="mb-2 text-xs text-muted-foreground">{t(form.state==="limited"?"httpPayloadLimited":form.state==="unsupported"?"httpPayloadUnsupportedForm":"httpPayloadUnavailable")}</p>}
+    <HttpParameterTable fields={form.fields} />
+  </>;
+}
+
 function BodyPane({
   title,
   message,
@@ -1160,6 +1174,8 @@ function BodyPane({
   message: CaptureHTTPMessage | undefined;
   t: Translate;
 }): React.JSX.Element {
+  const [view,setView]=useState("raw");
+  const json=useMemo(() => inspectJson(message),[message]);
   const storage = resolveBodyStorage(message?.bodyStorage);
   const noticeKey = bodyUnavailableKey(message);
   return (
@@ -1181,6 +1197,14 @@ function BodyPane({
         )}
         {message?.bodyPreview && <CopyButton value={message.bodyPreview} t={t} />}
       </div>
+      <div className="mb-2 flex gap-2 text-xs">
+        <button type="button" aria-pressed={view==="raw"} onClick={() => setView("raw")}>Raw</button>
+        <button type="button" aria-pressed={view==="json"} onClick={() => setView("json")}>JSON</button>
+      </div>
+      {view==="json" && <>
+        {json.state!=="available" && <p role="status">{t(json.state==="limited"?"httpPayloadLimited":json.state==="invalid"?"httpPayloadInvalidJson":"httpPayloadUnavailable")}</p>}
+        {json.value!==undefined && <HttpJsonTree value={json.value} />}
+      </>}
       {message?.redacted && (
         <p
           className="mb-1 rounded border border-amber-500/50 bg-amber-500/10 p-1.5 text-[11px] text-amber-700 dark:text-amber-400"
@@ -1189,7 +1213,7 @@ function BodyPane({
           {t("httpCaptureDetailMessageRedacted")}
         </p>
       )}
-      {message?.bodyPreview ? (
+      {view==="raw" && (message?.bodyPreview ? (
         <>
           {storage === "truncated" && (
             <p className="mb-1 text-[11px] text-amber-700 dark:text-amber-400">
@@ -1204,7 +1228,7 @@ function BodyPane({
         <p className="rounded border border-border bg-muted/20 p-2 text-[11px] text-muted-foreground" role="status">
           {noticeKey ? t(noticeKey) : t("httpAnalyzerBodyUnknown")}
         </p>
-      )}
+      ))}
     </section>
   );
 }
