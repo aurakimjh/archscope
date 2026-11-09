@@ -14,6 +14,49 @@ checks the complete inventory. The backlog includes Request Builder, legacy file
 compatibility and visible desktop automation. IE/Firefox add-on features remain
 outside this edition. [Execution backlog](../../work_status.md#open-work-snapshot) · [Vendor feature list](https://www.ieinspector.com/httpanalyzer/features)
 
+### Stand-alone screen and command inventory (T-599)
+
+The official [Stand-alone tour image](https://www.ieinspector.com/httpanalyzer/images/hs_main_l.gif)
+shows a process-grouped grid above the inspector, a summary pane beside that
+inspector, and a bottom recording status. The image itself is labelled V4.
+The [V7 changes](https://www.ieinspector.com/httpanalyzer/newinv7) add comments,
+connection ID and MIME icons. The table below uses the maintained V7 manual
+to define the command behavior. Native Windows visual results belong to T-603.
+
+| State or surface | Expected behavior | Implementation task |
+|---|---|---|
+| Idle | Recording commands visible, request grid and lower selection prompt immediately available | T-594, T-600 |
+| Recording | New requests appear under the process name and PID. A selected row continues showing its own headers/body as subsequent requests arrive | T-594, T-595 |
+| Selected | Header, Request Timing, Response Content, Post Data, Query String, Cookies, Raw Stream, Hints, Status Code Definition and Comment have a request-specific target | T-597, T-598, T-606, T-609 |
+| Stopped | Rows and detail remain usable. Save and reload preserve recorded values | T-600, T-607 |
+| Toolbar and menu | Start, Stop, Pause/Resume, Load, Save, Auto Scroll, Clear, Find, View, Filter, Tools, Help | T-600, T-604, T-607, T-610 |
+| Start submenu | Current Session, All Sessions, New/Reopen Process, Select Running Processes | T-596, T-601 |
+| Context commands | Grid/column customization, star/comment, selected-request copy, Request Builder and content viewer commands | T-604, T-609, T-610 |
+| Summary | Current Process and All Captured scopes, elapsed time, round trips, bytes sent/received, compression saving, DNS, TCP connects and result distribution | T-605 |
+
+[Toolbar](https://www.ieinspector.com/httpanalyzer/manual/toolbar.htm) · [Selection](https://www.ieinspector.com/httpanalyzer/manual/sessiongrid.htm) · [Shortcuts](https://www.ieinspector.com/httpanalyzer/manual/usingkeyboardshotcuts.htm)
+
+The manual lists the following field inventory. The marketing count is 36;
+the current manual includes later fields, so T-604 must reconcile visibility
+against the target EXE. Standard fields are No., Offset, Timeline, Hints, Hint
+List, Duration, Method, Result, Received, Type, URL, Redirect URL, Process,
+Body-Size, Caching, Content-Length, Host, IP Address, Sent, TimeEnd, TimeStart,
+Cookie, Set-Cookie, User-Agent, UA-CPU, SOAPAction, Date, Server, P3P,
+Content-Type, Content-Encoding, Transfer-Encoding, ETag, Expires, Last-Modified,
+X-Powered-By, ConnectId and Comment. Stage and Webpage are explicitly marked
+Add-on-only by this manual. Internal progress states remain useful in ArchScope.
+[Column definitions](https://www.ieinspector.com/httpanalyzer/manual/sessiongrid.htm)
+
+Recording shortcuts are F9 Start, F2 Stop and Ctrl+L Clear. Ctrl+S Save,
+Ctrl+F Find and F1 Help address their corresponding desktop commands.
+Ctrl+Shift+Left collapses groups and Ctrl+Shift+Right expands them.
+[Keyboard reference](https://www.ieinspector.com/httpanalyzer/manual/usingkeyboardshotcuts.htm)
+
+Selective cache/cookie removal is also documented on the Stand-alone automation
+interface. T-611 tracks that command family. Browser Tamper and before/after IE
+cache comparison remain Add-on functions.
+[Stand-alone interface](https://www.ieinspector.com/httpanalyzer/manual/ihttpanalyzerstandalone.htm)
+
 ## Status
 
 - **Phase 0 design gates 1-5 (T-566~T-570) are fixed as of 2026-07-20.** These

@@ -29,6 +29,23 @@ Windows에서 실행하는 **Wails 3 데스크톱 앱**이 대상이다. 화면 
 
 우선순위, 선행 작업, 현재 상태와 개별 완료 판정은 [작업 현황](../../work_status.md#open-work-snapshot)에서 관리한다.
 
+#### T-599 화면·조작 기준 확정
+
+원본은 프로세스 이름·PID가 있는 그룹형 목록, 그 아래 상세 탭, 상세 옆 요약,
+창 하단의 기록 상태를 제공한다. 대기 상태에도 목록과 선택 안내를 표시하고,
+기록 중 행을 선택하면 새 요청이 들어와도 해당 요청의 헤더·본문을 유지한다.
+중지 후에도 행과 상세를 조회할 수 있다. 공식 대표 그림에는 V4가 표기되어 있어,
+V7 전용 변경 자료와 매뉴얼의 Connection ID·주석·콘텐츠 아이콘을 함께 반영한다.
+[원본 Stand-alone 그림](https://www.ieinspector.com/httpanalyzer/images/hs_main_l.gif) · [V7 변경](https://www.ieinspector.com/httpanalyzer/newinv7)
+
+기록 단축키는 F9 시작, F2 중지, Ctrl+L 비우기다. Ctrl+S는 저장, Ctrl+F는 검색,
+Ctrl+Shift+좌·우는 그룹 접기·펼치기다. Pause/Resume은 기록을 제어하며 Auto Scroll은
+화면 추적을 제어한다. 기본 탭과 전체 필드명, 각 조작의 작업 ID는 영문 짝 문서의
+T-599 표에서 대조한다. 매뉴얼의 필드 목록은 마케팅의 36개보다 확장되어 있으므로
+T-604에서 V7 EXE의 표시 설정과 대조한다. 매뉴얼에 Add-on 전용으로 표시된 Stage와
+Webpage 열은 Stand-alone 대응 필드로 계산하지 않는다.
+[도구 모음](https://www.ieinspector.com/httpanalyzer/manual/toolbar.htm) · [필드](https://www.ieinspector.com/httpanalyzer/manual/sessiongrid.htm) · [단축키](https://www.ieinspector.com/httpanalyzer/manual/usingkeyboardshotcuts.htm)
+
 > **개정 이력**
 >
 > - 2026-07-18: 경쟁 솔루션 조사 반영, R9~R12 추가, 라이브 뷰 필수 확정
