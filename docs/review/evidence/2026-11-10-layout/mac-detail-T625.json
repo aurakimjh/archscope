@@ -1,0 +1,104 @@
+{
+  "platform": "macOS native Wails 3.1.0",
+  "cases": [
+    {
+      "route": "diff",
+      "input": "same sanitized collapsed profile in both inputs",
+      "checked": [
+        "32629 samples per side",
+        "common paths and zero delta"
+      ]
+    },
+    {
+      "route": "access_log",
+      "input": "sample-nginx-access.log",
+      "checked": [
+        "Summary",
+        "Charts",
+        "URLs",
+        "Status",
+        "Diagnostics"
+      ]
+    },
+    {
+      "route": "jfr",
+      "input": "sample-jfr-print.json and synthetic native-memory.json",
+      "checked": [
+        "Recording",
+        "Major events",
+        "Stack profile",
+        "Wall-clock heatmap",
+        "Event type",
+        "Parser report",
+        "four native-memory events with allocation/free and leak views"
+      ]
+    },
+    {
+      "route": "exception",
+      "input": "sample-java-exception.txt",
+      "checked": [
+        "Events",
+        "Types",
+        "Signatures",
+        "Findings",
+        "Parser report",
+        "IllegalStateException and SQLTimeout detail stack",
+        "Escape closes drawer"
+      ]
+    },
+    {
+      "route": "thread_dump",
+      "input": "sample-java-thread-dump.txt, synthetic two-dump directory, lock-contention fixture",
+      "checked": [
+        "single-dump five tabs",
+        "multi-dump eight tabs including empty long-running/persistent-BLOCKED sections",
+        "repeat completion three times",
+        "fast error and retry recovery; see mac-detail-async.json"
+      ]
+    },
+    {
+      "route": "msa_profile",
+      "input": "sanitized Jennifer sample_two_tx.txt",
+      "checked": [
+        "Summary",
+        "MSA",
+        "Additional validation",
+        "Parser report"
+      ]
+    },
+    {
+      "route": "trace_import",
+      "input": "sample-otlp-traces.jsonl",
+      "checked": [
+        "Summary",
+        "Services",
+        "Traces",
+        "Spans",
+        "Parser report"
+      ]
+    },
+    {
+      "route": "browser_cpu",
+      "input": "shared sanitized valid/v8-basic.cpuprofile",
+      "checked": [
+        "flamegraph",
+        "top frames",
+        "runs",
+        "available evidence and timing limitations remain visible"
+      ]
+    },
+    {
+      "route": "browser_audit",
+      "input": "populated_report.json and invalid.json",
+      "checked": [
+        "visible invalid-input error",
+        "valid retry recovers with score 42",
+        "imported provenance and recomputed=false visible",
+        "critical findings remain visible with metadata collapsed"
+      ]
+    }
+  ],
+  "shared_controls": "Long-path/help/drawer/keyboard/small-window cases are in mac-detail-T622.json; locale/theme restored",
+  "density_adjudication": "Small analyzer fixtures are sparse and do not establish a universal 70% filled-area verdict. Their acceptance is readable results, reachable conditional tabs, errors and recovery. Populated profiler/GC/HTTP budgets have separate evidence.",
+  "result": "pass for Mac implementation and functional matrix; Windows native acceptance remains T-627"
+}
