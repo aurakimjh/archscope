@@ -133,7 +133,7 @@ export function LiveHttpCapturePanel({
   const [launchPath, setLaunchPath] = useState("");
   const [launchArgs, setLaunchArgs] = useState("[]");
   const chooseExecutable = async () => {
-    const selected=await Dialogs.OpenFile({Title:t("httpCaptureLaunch"),Filters:[{DisplayName:"Executable",Pattern:"*.exe"}]});
+    const selected=await Dialogs.OpenFile({Title:t("httpCaptureLaunch"),Filters:[{DisplayName:"Executable / Windows shortcut",Pattern:"*.exe;*.com;*.lnk"}]});
     if (typeof selected==="string") setLaunchPath(selected);
   };
   const loadProcesses = async () => {

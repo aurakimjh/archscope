@@ -21,11 +21,12 @@ type Options struct {
 }
 
 const Usage = `ArchScope desktop
-  --capture [--process ABS_EXE | --pid PID ... | --scope all_sessions|current_session]
+  --capture [--process ABS_EXE_OR_LNK | --pid PID ... | --scope all_sessions|current_session]
   [--duration 30s] [--destination ABS_PATH --format session|har|xml|xml_compact|urls|text|html|xls|responses]
   --open ABS_SESSION
   --automation-descriptor ABS_PATH   Enable authenticated loopback automation
-Legacy /p, /d, /t(minutes), /f are parsed. /f NATIVE (.halog) and .lnk are unavailable.
+Legacy /p, /d, /t(minutes), /f are parsed. Windows .lnk executable targets are supported.
+/f NATIVE (.halog), advertised/elevated shell activation remain unavailable.
 `
 
 func ParseOptions(args []string) (Options, error) {
@@ -133,9 +134,6 @@ func ParseOptions(args []string) (Options, error) {
 	}
 	if out.Process != "" && len(out.PIDs) > 0 {
 		return out, fmt.Errorf("choose process launch or running PIDs")
-	}
-	if out.Process != "" && strings.EqualFold(filepath.Ext(out.Process), ".lnk") {
-		return out, fmt.Errorf("Windows shortcut resolution is not implemented; choose the executable")
 	}
 	if len(out.PIDs) > 1024 {
 		return out, fmt.Errorf("too many PIDs")

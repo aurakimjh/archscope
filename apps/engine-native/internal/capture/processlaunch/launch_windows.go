@@ -17,14 +17,23 @@ import (
 
 // Prepare installs the inherited proxy environment before creating a suspended
 // process. The manager can bind its PID/start time before the first instruction.
-func Prepare(path string, args []string, proxy string) (*Suspended, error) {
-	command := syscall.EscapeArg(path)
-	for _, arg := range args {
+func Prepare(target Target, proxy string) (*Suspended, error) {
+	if err := validateTarget(target); err != nil {
+		return nil, err
+	}
+	command := syscall.EscapeArg(target.Path)
+	if target.RawArguments != "" {
+		command += " " + target.RawArguments
+	}
+	for _, arg := range target.Args {
 		command += " " + syscall.EscapeArg(arg)
 	}
 	commandLine, err := windows.UTF16FromString(command)
 	if err != nil {
 		return nil, err
+	}
+	if len(commandLine) > 32767 {
+		return nil, fmt.Errorf("Windows command line is too long")
 	}
 	environment := []string{}
 	for _, entry := range os.Environ() {
@@ -48,12 +57,19 @@ func Prepare(path string, args []string, proxy string) (*Suspended, error) {
 	encoded = append(encoded, 0)
 	startup := windows.StartupInfo{Cb: uint32(unsafe.Sizeof(windows.StartupInfo{}))}
 	var info windows.ProcessInformation
-	applicationName, err := windows.UTF16PtrFromString(path)
+	applicationName, err := windows.UTF16PtrFromString(target.Path)
 	if err != nil {
 		return nil, err
 	}
+	var directory *uint16
+	if target.WorkingDirectory != "" {
+		directory, err = windows.UTF16PtrFromString(target.WorkingDirectory)
+		if err != nil {
+			return nil, err
+		}
+	}
 	err = windows.CreateProcess(applicationName, &commandLine[0], nil, nil, false,
-		windows.CREATE_SUSPENDED|windows.CREATE_UNICODE_ENVIRONMENT, &encoded[0], nil, &startup, &info)
+		windows.CREATE_SUSPENDED|windows.CREATE_UNICODE_ENVIRONMENT, &encoded[0], directory, &startup, &info)
 	if err != nil {
 		return nil, err
 	}

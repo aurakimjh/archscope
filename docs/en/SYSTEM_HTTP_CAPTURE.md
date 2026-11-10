@@ -1210,11 +1210,11 @@ collapsing the grid. The visual result still needs unlocked native inspection.
 
 ### Desktop launch and local control (T-611 implementation)
 
-The visible Wails app accepts `--capture`, `--process ABS_EXE`, repeated `--pid`,
+The visible Wails app accepts `--capture`, `--process ABS_EXE_OR_LNK`, repeated `--pid`,
 `--scope`, `--duration`, `--destination`, `--format`, `--open`, and
 `--automation-descriptor ABS_PATH`. Legacy `/p`, `/d`, `/t` (minutes) and `/f`
-spellings are recognized; `/f NATIVE`, `.halog` output and `.lnk` launch are
-explicitly unavailable. Format aliases select ArchScope exporters; they do not
+spellings are recognized. Windows executable `.lnk` launch is implemented as described below;
+`/f NATIVE` and `.halog` output remain unavailable. Format aliases select ArchScope exporters; they do not
 claim the reference application's XML/native schema. A timed destination
 requires a duration. Recording stops before the timed all-store export; errors
 remain visible. Capture is still unavailable on macOS; the common command core
@@ -1243,8 +1243,8 @@ installation, browser cache/cookie deletion or hidden capture mode is exposed.
 Local real-proxy tests cover start/pause/resume/stop, stored reads, events,
 save/reload; protocol tests cover authentication, origin/descriptor validation,
 retry behavior, parsing and journal bounds. Windows x86/x64 compilation passes.
-This is ArchScope local control, **not the legacy COM interface**; Windows COM,
-shortcuts, cache/cookie commands and native client/window acceptance keep
+This is ArchScope local control, **not the legacy COM interface**; Legacy COM,
+cache/cookie commands and native client/window acceptance keep
 T-611 in REVIEW. [Reference switches](https://www.ieinspector.com/httpanalyzer/manual/commandlineinterface.htm).
 
 ### Stand-alone parity harness preparation (T-613)
@@ -1369,3 +1369,26 @@ IME composition, modal background commands and native/DOM accelerator echoes are
 filtered. Unmounting the workspace unregisters its handlers. State tests and
 frontend/Mac production builds verify wiring; native Windows interaction remains
 part of T-613.
+
+### Windows shortcut launch (T-611 follow-up, 2026-11-10)
+
+The launch file picker and `--process` / `/p` accept `.lnk` in addition to `.exe`
+and `.com`. Windows loads a bounded regular shortcut through the built-in
+[IShellLinkW](https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-ishelllinkw)
+and IPersistFile interfaces in an initialized COM apartment. It reads the target,
+raw arguments and working directory without invoking ShellExecute, target search,
+link updates or resolution dialogs. Target/directory environment variables expand;
+shortcut arguments remain verbatim and extra UI arguments are appended with Windows
+quoting. This preserves launcher-specific argument syntax rather than splitting it
+with shell rules. All three values stay out of capture events.
+
+Only existing absolute executable targets and existing absolute working directories
+are accepted. Empty working directory retains normal inherited-directory behavior.
+Broken, relative/unresolved, nested, advertised/MSI and elevated links fail before
+session allocation; shell activation, elevation and shortcut window-state settings
+are outside this direct-executable launcher. The manager creates the target suspended,
+records PID/start time and only then resumes it with inherited proxy settings.
+Portable resolution/header/refusal tests and Windows x86/x64 test compilation/vet
+pass on Mac. The native test creates a Unicode shortcut, verifies its arguments/cwd,
+and checks no execution before Resume; **it is prepared, not executed on Mac**.
+Windows native execution and capture reach remain T-613 acceptance.

@@ -22,7 +22,7 @@ func TestLaunchOptionsRejectAmbiguityAndFakeNative(t *testing.T) {
 	if err != nil || legacy.Format != "xml" || legacy.Duration.Minutes() != 2 {
 		t.Fatalf("%+v %v", legacy, err)
 	}
-	for _, args := range [][]string{{"--capture", "/fNATIVE"}, {"--capture", "--pid", "-1"}, {"--capture", "--process", exe, "--pid", "1"}, {"--capture", "--duration", "-1s"}, {"--capture", "--destination", filepath.Join(root, "fake.halog"), "--duration", "2s"}, {"--capture", "--destination", filepath.Join(root, "none.har")}, {"--open", exe, "--capture"}, {"--capture", "--pid", "1", "--pid", "1"}, {"--capture", "--process", filepath.Join(root, "link.lnk")}} {
+	for _, args := range [][]string{{"--capture", "/fNATIVE"}, {"--capture", "--pid", "-1"}, {"--capture", "--process", exe, "--pid", "1"}, {"--capture", "--duration", "-1s"}, {"--capture", "--destination", filepath.Join(root, "fake.halog"), "--duration", "2s"}, {"--capture", "--destination", filepath.Join(root, "none.har")}, {"--open", exe, "--capture"}, {"--capture", "--pid", "1", "--pid", "1"}} {
 		if _, err := ParseOptions(args); err == nil {
 			t.Fatalf("accepted %v", args)
 		}
@@ -108,5 +108,15 @@ func TestJournalIsBoundedAndReportsGaps(t *testing.T) {
 	result = j.Read(600, 1)
 	if !strings.Contains(string(result.Items[0].Data), "resyncRequired") {
 		t.Fatal("oversized event retained")
+	}
+}
+
+func TestLaunchOptionsAcceptExecutableShortcuts(t *testing.T) {
+	link := filepath.Join(t.TempDir(), "fixture.LNK")
+	for _, args := range [][]string{{"--process", link}, {"/p", link}} {
+		got, err := ParseOptions(args)
+		if err != nil || got.Process != link || !got.Capture {
+			t.Fatalf("%+v %v", got, err)
+		}
 	}
 }

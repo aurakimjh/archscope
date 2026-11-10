@@ -25,7 +25,7 @@ func TestPreparedProcessWaitsForScope(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	child, err := Prepare(executable, []string{"-test.run=^TestSuspendedLaunchFixture$"}, "127.0.0.1:12345")
+	child, err := Prepare(Target{Path: executable, Args: []string{"-test.run=^TestSuspendedLaunchFixture$"}}, "127.0.0.1:12345")
 	if err != nil {
 		t.Fatal(err)
 	}

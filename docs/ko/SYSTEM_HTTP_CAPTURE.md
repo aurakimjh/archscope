@@ -4520,10 +4520,10 @@ ViewState 분할/꼬리·텍스트·오류·미지원·원본 불변성·세션 
 
 ### 데스크톱 실행 옵션과 로컬 제어 (T-611 구현)
 
-표시되는 Wails 앱에서 `--capture`, `--process ABS_EXE`, 반복 `--pid`, `--scope`,
+표시되는 Wails 앱에서 `--capture`, `--process ABS_EXE_OR_LNK`, 반복 `--pid`, `--scope`,
 `--duration`, `--destination`, `--format`, `--open`, `--automation-descriptor ABS_PATH`를
-처리합니다. `/p`, `/d`, `/t`(분), `/f` 표기도 읽지만 `/f NATIVE`, `.halog` 출력,
-`.lnk` 실행은 미지원으로 명확히 반환합니다. 형식 별칭은 ArchScope 내보내기를 고르며
+처리합니다. `/p`, `/d`, `/t`(분), `/f` 표기도 읽습니다. Windows 실행 파일 `.lnk` 지원은
+아래와 같이 구현했고 `/f NATIVE`, `.halog` 출력은 계속 미지원입니다. 형식 별칭은 ArchScope 내보내기를 고르며
 원본 XML·네이티브 형식 호환성을 뜻하지 않습니다. 자동 저장 경로에는 제한 시간이
 필요하고 중지 후 저장소 전체를 저장하며 오류를 화면에 남깁니다. Mac 라이브 캡처는
 계속 미지원이고 공통 제어 로직만 로컬에서 검사할 수 있습니다.
@@ -4546,7 +4546,7 @@ events, list/detail/summary, save, open 명령을 지원합니다. start에는 �
 
 로컬 실제 프록시 검사로 제어·저장·재열기·이벤트를 확인하고 인증·Origin·descriptor·
 중복 실행·옵션·이벤트 상한을 검사했습니다. Windows x86/x64 컴파일을 확인했습니다.
-**원본 COM 인터페이스와 호환된다는 의미는 아닙니다.** Windows COM·바로가기·캐시/
+**원본 COM 인터페이스와 호환된다는 의미는 아닙니다.** 레거시 COM·캐시/
 쿠키 명령·클라이언트/실제 창 검증은 남아 T-611을 REVIEW로 유지합니다.
 [원본 실행 옵션](https://www.ieinspector.com/httpanalyzer/manual/commandlineinterface.htm).
 
@@ -4651,3 +4651,22 @@ x64는 `GOARCH=amd64`를 사용하며, 먼저 `frontend/`에서 `npm run build`�
 가져가지 않습니다. 키 반복·IME 조합·모달 배경 명령·네이티브/DOM 중복 이벤트를
 걸러내며 화면 이탈 시 핸들러를 해제합니다. 상태 테스트와 프런트엔드/Mac 빌드로
 연결을 확인했고 Windows 실제 상호작용은 T-613에서 확인합니다.
+
+### Windows 바로가기 실행 (T-611 후속, 2026-11-10)
+
+파일 선택과 `--process` / `/p`에서 `.exe`, `.com` 외에 `.lnk`를 받습니다. Windows의
+[IShellLinkW](https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-ishelllinkw)
+와 IPersistFile을 초기화한 COM apartment에서 사용해 크기가 제한된 일반 파일의
+실행 대상·원래 인수·작업 폴더를 읽습니다. ShellExecute·대상 검색·바로가기 갱신·해석
+대화상자를 호출하지 않습니다. 대상/폴더의 환경 변수는 확장하고 원래 인수 문자열은
+보존하며, UI의 추가 인수는 Windows 인용 규칙으로 뒤에 붙입니다. 세 값은 캡처
+이벤트에 추가하지 않습니다.
+
+기존 절대 경로 실행 파일과 작업 폴더만 받습니다. 빈 작업 폴더는 기존 상속 동작을
+유지합니다. 깨진/상대/미해결/중첩 바로가기, MSI advertised·권한 상승 바로가기는 세션
+생성 전에 거부합니다. 셸 활성화·권한 상승·바로가기 창 상태는 이 직접 실행 기능의
+범위에 포함하지 않습니다. 대상을 일시 정지 상태로 만들고 PID·시작 시간을 범위에
+연결한 뒤 프록시 환경을 상속해 재개합니다. 공통 해석·헤더·거부 테스트와 Windows
+x86/x64 테스트 컴파일/vet을 Mac에서 통과했습니다. 한글 바로가기를 생성해 인수·작업
+폴더·재개 전 실행 금지를 검사하는 네이티브 테스트도 준비했으나 **Mac에서는 실행하지
+않았습니다.** Windows 실행과 실제 포착 범위 확인은 T-613에 남아 있습니다.

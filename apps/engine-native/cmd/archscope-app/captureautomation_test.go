@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
 	"path/filepath"
 	"testing"
 )
@@ -99,5 +100,20 @@ func TestShutdownRejectsLaterCaptureCommands(t *testing.T) {
 	}
 	if service.GetCurrentCaptureSession().ID != "" {
 		t.Fatal("shutdown rejection allocated a session")
+	}
+}
+
+func TestInvalidShortcutDoesNotAllocateCaptureSession(t *testing.T) {
+	root := t.TempDir()
+	link := filepath.Join(root, "broken.lnk")
+	if err := os.WriteFile(link, []byte("invalid shortcut"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	service := newCaptureServiceForPlatform(root, certstore.New(memoryTrustBackend{}, nil), "windows")
+	if _, err := service.StartCapture(capture.Config{ProcessScope: "launch", LaunchPath: link}); err == nil {
+		t.Fatal("invalid shortcut accepted")
+	}
+	if service.GetCurrentCaptureSession().ID != "" {
+		t.Fatal("shortcut failure allocated a session")
 	}
 }

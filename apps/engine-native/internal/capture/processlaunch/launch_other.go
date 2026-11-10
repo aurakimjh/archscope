@@ -6,6 +6,6 @@ import (
 	"fmt"
 )
 
-func Prepare(string, []string, string) (*Suspended, error) {
+func Prepare(Target, string) (*Suspended, error) {
 	return nil, fmt.Errorf("process launching for capture requires Windows")
 }

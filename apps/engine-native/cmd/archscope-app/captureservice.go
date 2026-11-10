@@ -213,23 +213,19 @@ func (s *CaptureService) StartCapture(config capture.Config) (capture.Session, e
 		}
 		config.ScopeSessionID = &id
 	}
+	var launchTarget processlaunch.Target
 	if config.ProcessScope == "launch" {
-		if !filepath.IsAbs(config.LaunchPath) {
-			return capture.Session{}, fmt.Errorf("choose an absolute executable path")
-		}
-		info, err := os.Stat(config.LaunchPath)
-		if err != nil || info.IsDir() {
-			return capture.Session{}, fmt.Errorf("executable is unavailable")
-		}
-		if len(config.LaunchArgs) > 128 {
-			return capture.Session{}, fmt.Errorf("too many launch arguments")
+		var err error
+		launchTarget, err = processlaunch.Resolve(config.LaunchPath, config.LaunchArgs)
+		if err != nil {
+			return capture.Session{}, err
 		}
 	}
 	started, err := s.manager.Start(context.Background(), config)
 	if err != nil || config.ProcessScope != "launch" {
 		return started, err
 	}
-	child, err := processlaunch.Prepare(config.LaunchPath, config.LaunchArgs, started.ListenAddress)
+	child, err := processlaunch.Prepare(launchTarget, started.ListenAddress)
 	if err != nil {
 		_, _ = s.StopCapture(string(started.ID))
 		return capture.Session{}, err
