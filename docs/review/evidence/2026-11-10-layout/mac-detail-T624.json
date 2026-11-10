@@ -1,0 +1,44 @@
+{
+  "platform": "native macOS Wails 3.1.0",
+  "geometry": "mac-detail-geometry.json",
+  "profiler": {
+    "fixture": "shared sanitized db-bottleneck profiler.collapsed",
+    "viewport": [
+      1280,
+      800
+    ],
+    "first_data_y": 172,
+    "visible_data_union_ratio": 0.712,
+    "cases": [
+      "frame zoom after native resize",
+      "reset zoom restores root",
+      "OrderRepository drilldown",
+      "no-match filter reports no samples; clear recovers",
+      "native PNG file decoded"
+    ]
+  },
+  "gc": {
+    "fixture": "60 synthetic events; no diagnostic thresholds changed",
+    "viewport": [
+      1280,
+      800
+    ],
+    "first_data_y": 147,
+    "visible_data_union_ratio": 0.725,
+    "complete_preview_rows": 26,
+    "preview_cap": 32,
+    "top_n_default": 50,
+    "total_events": 60,
+    "counts": "Preview 32/60; full Events 50/60 with explicit retained count",
+    "cases": [
+      "all seven result tabs selected",
+      "full Events retains 15 columns",
+      "two-event no-clock input uses event index and visible unavailable-time reason",
+      "sparse original sample identified separately"
+    ]
+  },
+  "limits": [
+    "Ratios include plot axes and the union of clipped data surfaces; not a verdict on sparse fixtures",
+    "125% WebView zoom does not prove Windows OS DPI behavior"
+  ]
+}

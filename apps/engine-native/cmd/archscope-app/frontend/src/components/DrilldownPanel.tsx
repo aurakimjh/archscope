@@ -480,6 +480,19 @@ export function DrilldownPanel({ baseRequest, onError }: DrilldownPanelProps) {
               help={getGenericMetricHelpText(locale, t("drilldownStageParent"))}
             />
           </div>
+          {stageFlamegraph && (
+            <div className="drilldown-result-section">
+              <h3 className="inline-flex items-center gap-2 text-sm">
+                {t("flamegraphTitle")}
+                <HelpTip text={getHelpText(locale, "sectionFlamegraph")} />
+              </h3>
+              {stageFlamegraph.value <= 0 ? <p role="status">{t("drilldownNoMatches")}</p> : <CanvasFlameGraph
+                data={stageFlamegraph}
+                exportName={`drilldown-${stages.length - 1}`}
+                weightLabel={weightLabel}
+              />}
+            </div>
+          )}
           <div className="drilldown-result-section">
             <div className="drilldown-result-heading">
               <h3 className="inline-flex items-center gap-2 text-sm">
@@ -524,19 +537,7 @@ export function DrilldownPanel({ baseRequest, onError }: DrilldownPanelProps) {
               />
             )}
           </div>
-          {stageFlamegraph && (
-            <div className="drilldown-result-section">
-              <h3 className="inline-flex items-center gap-2 text-sm">
-                {t("flamegraphTitle")}
-                <HelpTip text={getHelpText(locale, "sectionFlamegraph")} />
-              </h3>
-              <CanvasFlameGraph
-                data={stageFlamegraph}
-                exportName={`drilldown-${stages.length - 1}`}
-                weightLabel={weightLabel}
-              />
-            </div>
-          )}
+
         </>
       )}
     </section>

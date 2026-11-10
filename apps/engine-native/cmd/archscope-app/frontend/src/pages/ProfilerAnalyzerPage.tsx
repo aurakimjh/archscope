@@ -1167,22 +1167,6 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
         </CardContent>
       </Card>
         </AnalyzerOptionsDock>
-      </div>
-
-      {error && (
-        <div
-          role="alert"
-          className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive"
-        >
-          <strong className="block">{t("error")}</strong>
-          <p className="mt-1 text-foreground">{error}</p>
-        </div>
-      )}
-      {exportNotice && (
-        <div className="rounded-md border border-primary/30 bg-primary/5 p-3 text-sm text-foreground">
-          {exportNotice}
-        </div>
-      )}
       <div className="profiler-secondary-tools flex flex-wrap items-start gap-2">
       <RecentFilesPanel
         entries={recent.entries}
@@ -1203,6 +1187,22 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
 
       </div>
 
+      </div>
+
+      {error && (
+        <div
+          role="alert"
+          className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive"
+        >
+          <strong className="block">{t("error")}</strong>
+          <p className="mt-1 text-foreground">{error}</p>
+        </div>
+      )}
+      {exportNotice && (
+        <div className="rounded-md border border-primary/30 bg-primary/5 p-3 text-sm text-foreground">
+          {exportNotice}
+        </div>
+      )}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <TabsList>
@@ -1346,14 +1346,8 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
         <TabsContent value="flame" className="mt-4">
           {flamegraph ? (
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="inline-flex items-center gap-2 text-sm">
-                  {t("flamegraphTitle")}
-                  <HelpTip text={getHelpText(locale, "sectionFlamegraph")} />
-                </CardTitle>
-              </CardHeader>
               <CardContent>
-                <CanvasFlameGraph data={flamegraph} exportName={exportName} weightLabel={weightLabel} />
+                <CanvasFlameGraph data={flamegraph} exportName={exportName} weightLabel={weightLabel} toolbarStart={<HelpTip text={getHelpText(locale, "sectionFlamegraph")} />} />
               </CardContent>
             </Card>
           ) : (

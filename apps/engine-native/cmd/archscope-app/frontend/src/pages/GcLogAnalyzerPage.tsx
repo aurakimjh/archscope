@@ -103,7 +103,7 @@ export function GcLogAnalyzerPage(): React.JSX.Element {
     null,
   );
   const [maxLines, setMaxLines] = useState("");
-  const [topN, setTopN] = useState("");
+  const [topN, setTopN] = useState("50");
   const [strict, setStrict] = useState(false);
   const [state, setState] = useState<AnalyzerState>("idle");
   const [result, setResult] = useState<GcLogAnalysisResult | null>(null);
@@ -421,7 +421,7 @@ export function GcLogAnalyzerPage(): React.JSX.Element {
             <Input
               type="number"
               min={1}
-              placeholder="20"
+              placeholder="50"
               value={topN}
               onChange={(event) => setTopN(event.target.value)}
             />
@@ -439,14 +439,14 @@ export function GcLogAnalyzerPage(): React.JSX.Element {
           </label>
           </div>
         </AnalyzerOptionsDock>
-      </div>
-
       <RecentFilesPanel
         entries={recent.entries}
         onSelect={handleRecentSelect}
         onRemove={recent.remove}
         onClear={recent.clear}
       />
+
+      </div>
 
       <ErrorPanel
         error={error}
@@ -472,8 +472,8 @@ export function GcLogAnalyzerPage(): React.JSX.Element {
           {result && <div className="gc-result-overview" data-result-surface>
             <ChartPanel title={t("gcPauseTimeline")} option={pauseOption} busy={state === "running"} height="clamp(300px, calc(100dvh - 220px), 650px)" />
             <section className="min-w-0 overflow-auto rounded border" aria-label={t("gcEventTable")}>
-              <GcEventsTable rows={eventRows.slice(0, 10)} t={t} />
-              {eventRows.length > 10 && <p className="p-1 text-xs">10 / {eventRows.length} · {t("tabEvents")}</p>}
+              <GcEventsTable rows={eventRows.slice(0, 32)} t={t} compact />
+              {(summary?.total_events ?? eventRows.length) > 32 && <p className="p-1 text-xs">32 / {summary?.total_events ?? eventRows.length} · {t("tabEvents")}</p>}
             </section>
           </div>}
           <details className="mt-2 rounded border p-2">
@@ -706,6 +706,7 @@ export function GcLogAnalyzerPage(): React.JSX.Element {
                 </CardTitle>
               </CardHeader>
               <CardContent className="overflow-x-auto p-0">
+                <p role="status" className="px-2 py-1 text-xs">{eventRows.length} / {summary?.total_events ?? eventRows.length} · {t("totalEvents")}</p>
                 <GcEventsTable rows={eventRows} t={t} />
               </CardContent>
             </Card>
@@ -1162,7 +1163,19 @@ function JvmInfoSection({
   );
 }
 
-function GcEventsTable({rows,t}: {rows: GcEventRow[]; t: ReturnType<typeof useI18n>["t"]}): React.JSX.Element {
+function GcEventsTable({rows,t,compact=false}: {rows: GcEventRow[]; t: ReturnType<typeof useI18n>["t"]; compact?: boolean}): React.JSX.Element {
+  if (compact) return <table className="w-full text-left text-[11px]">
+    <thead><tr className="border-b text-muted-foreground">
+      {[t("gcAlertSeverity"),t("timestampLabel"),t("gcTypeLabel"),t("pauseMsAxis"),t("heapAfterMb")].map(label=><th key={label} className="px-2 py-1">{label}</th>)}
+    </tr></thead>
+    <tbody>{rows.map((row,index)=><tr key={index} className={`border-b ${eventRowClass(row)}`}>
+      <td className="px-2 py-1">{row.severity ? <span className={severityBadgeClass(row.severity)}>{row.severity}</span> : "—"}</td>
+      <td className="whitespace-nowrap px-2 py-1 font-mono" title={row.timestamp ?? undefined}>{row.timestamp ? row.timestamp.slice(11,23) : row.uptime_sec != null ? `${row.uptime_sec.toFixed(3)} s` : `#${index+1}`}</td>
+      <td className="px-2 py-1" title={row.cause ?? undefined}>{row.gc_type ?? "—"}</td>
+      <td className="px-2 py-1 text-right tabular-nums">{row.pause_ms?.toFixed(2) ?? "—"}</td>
+      <td className="px-2 py-1 text-right tabular-nums">{row.heap_after_mb?.toFixed(1) ?? "—"}</td>
+    </tr>)}</tbody>
+  </table>;
   return (
                 <table className="w-full text-xs">
                   <thead>

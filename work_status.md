@@ -216,9 +216,9 @@ completed the independent Lighthouse file-first engine slice.
 |---|---:|---|
 | `TODO` | 0 | Ready to start; prerequisites are satisfied |
 | `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
-| `REVIEW` | 7 | Review or required remediation is underway; the gate has not passed |
+| `REVIEW` | 6 | Review or required remediation is underway; the gate has not passed |
 | `PENDING` | 2 | Waiting for a prerequisite, external condition, or activation trigger |
-| `DONE` | 205 | Completion criteria and required review gates have passed |
+| `DONE` | 206 | Completion criteria and required review gates have passed |
 
 The normal transition is `TODO → IN_PROGRESS → REVIEW → DONE`. A `PENDING`
 task returns to `TODO` when its dependency or trigger is satisfied. Task status
@@ -405,7 +405,6 @@ explicit rather than being inferred from builds or sparse fixtures.
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
 | 3 | T-623 | P1 | `REVIEW` | Mac imported HAR acceptance passes: 15 full request rows plus six header rows in a 184px inspector; first data y=175 and 70.7% visible-data union at observed 1281x801. All ten tabs, Body, filter reset, splitter clamp/Home and production native menus pass. Windows live recording, real process attribution and reentry remain. |
-| 4 | T-624 | P1 | `REVIEW` | Deep shared fixture fills window width; native resized frame zoom/reset and OrderRepository drilldown pass. GC shared fixture shows ten events. Progress notice collapsed and bundle log-path bug fixed/tested. No-clock/conditional cases and exact area adjudication remain. |
 | 5 | T-625 | P2 | `REVIEW` | All nine analyzer routes exercised with fixtures; Access defaults to URLs, Trace to traces, Lighthouse metadata/categories collapsed with provenance retained. Exhaustive conditional-tab, error/empty/long-input and density matrix remains. |
 | 6 | T-626 | P2 | `REVIEW` | All eight workspace routes and Settings reached via native menus. Handoff, evidence addition, profile/report comparison, HTML output file and Settings save verified. Chart-template/export-format and form-edge matrix remains. |
 | 7 | T-627 | P2 | `REVIEW` | Mac native menu/geometry sweep and representative populated flows recorded; passive audit transport corrected and QA resize/zoom isolated by build tag. Go test/vet, frontend state/build, package/signature and Windows cross-builds pass. Original before/after, remaining edge cases and Windows live/menu/OS scaling acceptance remain. Evidence: docs/review/evidence/2026-11-10-layout/mac-native-validation.json. |
@@ -1359,7 +1358,7 @@ deferred until explicitly promoted.
 | T-621 | P1 | DONE | Move global navigation to native menus | T-620 | Actual macOS native menus reached all 21 routes; Open dialog, Cmd+, locale/theme and About verified. Full-width flex regression fixed; menu-context and build checks pass. Windows acceptance remains in T-627. |
 | T-622 | P1 | DONE | Compact shared input controls and help | T-620 | Completed Mac native long Korean filename (182 UTF-8 bytes, 488-character path), 1024x768/125% viewport, pointer enter/transfer/leave, click pin/outside/Escape, Option-Tab/Enter/Escape and drawer close-focus restoration. Fixed unlayered flex:none overriding the file dock and macOS document-focus restoration. Evidence: mac-detail-T622.json. |
 | T-623 | P1 | REVIEW | Prioritize the HTTP grid and inspector | T-621, T-622 | Mac imported HAR acceptance passes: 15 full request rows plus six header rows in a 184px inspector; first data y=175 and 70.7% visible-data union at observed 1281x801. All ten tabs, Body, filter reset, splitter clamp/Home and production native menus pass. Windows live recording, real process attribution and reentry remain. |
-| T-624 | P1 | REVIEW | Prioritize profiler and GC results | T-621, T-622 | Deep shared fixture fills window width; native resized frame zoom/reset and OrderRepository drilldown pass. GC shared fixture shows ten events. Progress notice collapsed and bundle log-path bug fixed/tested. No-clock/conditional cases and exact area adjudication remain. |
+| T-624 | P1 | DONE | Prioritize profiler and GC results | T-621, T-622 | Completed Mac native detailed acceptance: deep profiler first data y=172, 71.2% visible-data union, resized frame zoom/reset and matched/empty drilldown. GC first data y=147, 72.5%, 26 full preview rows; no-clock and all seven tabs verified. Compact 32-row preview exposes total count and full 15-column Events retains explicit 50/60 top-N count. Evidence: mac-detail-T624.json. |
 | T-625 | P2 | REVIEW | Convert nine remaining analysis views | T-621, T-622 | All nine analyzer routes exercised with fixtures; Access defaults to URLs, Trace to traces, Lighthouse metadata/categories collapsed with provenance retained. Exhaustive conditional-tab, error/empty/long-input and density matrix remains. |
 | T-626 | P2 | REVIEW | Convert eight workspace views and Settings | T-621, T-622 | All eight workspace routes and Settings reached via native menus. Handoff, evidence addition, profile/report comparison, HTML output file and Settings save verified. Chart-template/export-format and form-edge matrix remains. |
 | T-627 | P2 | REVIEW | Verify all views in native desktop windows | T-623–T-626 | Mac native menu/geometry sweep and representative populated flows recorded; passive audit transport corrected and QA resize/zoom isolated by build tag. Go test/vet, frontend state/build, package/signature and Windows cross-builds pass. Original before/after, remaining edge cases and Windows live/menu/OS scaling acceptance remain. Evidence: docs/review/evidence/2026-11-10-layout/mac-native-validation.json. |
@@ -1852,3 +1851,7 @@ Chart Studio now saves PNG/SVG/CSV through native dialogs and an explicit engine
 ### HTTP density and capture order follow-up (2026-11-11)
 
 Combined collapsed file/filter controls leave the grid and selected inspector visible. Default detail height is 184px with double-click/Home reset. Missing HAR byte counts no longer display negative sizes. HAR request sequence now follows global 1-based capture order while retaining separate connection-reuse timing. Parser/analyzer and state regressions pass; production Wails native import confirms increasing request numbers and selected Headers. Evidence: mac-detail-T623.json.
+
+### Profiler and GC detailed acceptance (2026-11-11)
+
+T-624 is DONE. Recent/progress tools share the input row, duplicate plot headings are removed and drilldown places its graph before composition. Empty matching results have specific recovery text. The GC summary uses a compact preview with full detail retained on Events; preview and retained/total counts are explicit. Native 1280x800 results exceed the populated-view 70% target (profiler 71.2%, GC 72.5%). No-clock, sparse and all result-tab cases are recorded separately. Evidence: mac-detail-T624.json and mac-detail-geometry.json.
