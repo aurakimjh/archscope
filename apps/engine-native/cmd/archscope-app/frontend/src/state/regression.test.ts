@@ -1,3 +1,4 @@
+import { normalizeProfilerDefaults, validProfilerDefaults } from "./defaults.js";
 import { EarlyTaskEvents } from "./earlyTaskEvents.js";
 import { buildReportPackPayload, buildReportPackHTML } from "./reportPack.js";
 import { hasNativeDesktopBridge } from "./desktopRuntime.js";
@@ -3255,6 +3256,11 @@ assert(cappedPack.artifacts.incident_timeline.summary.critical_event_count===1 &
 assert(buildReportPackHTML(cappedPack).includes("omitted: 10 (critical: 1)"),"Report Pack HTML discloses hidden critical events");
 const uncappedTimeline=buildIncidentTimelineAnalysisResult([]);
 assert(!uncappedTimeline.summary.partial_result && uncappedTimeline.summary.omitted_event_count===0,"Empty timeline is complete, not truncated");
+
+assert(!validProfilerDefaults({intervalMs:-1,topN:20,profileKind:"wall"}), "negative settings interval rejected");
+assert(!validProfilerDefaults({intervalMs:100,topN:1.5,profileKind:"wall"}), "fractional Top N rejected before integer Go binding");
+assert(validProfilerDefaults({intervalMs:1.5,topN:100,profileKind:"cpu"}), "finite fractional sampling interval is supported");
+assert(normalizeProfilerDefaults({intervalMs:Infinity,topN:1001}).topN===20, "stale out-of-range saved settings normalized");
 
 {
  const gate=new EarlyTaskEvents();let id:string|null=null;let completed=0;

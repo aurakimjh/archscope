@@ -19,6 +19,7 @@ import { useRecentFiles } from "../hooks/useRecentFiles";
 import {
   loadDefaults,
   saveDefaults,
+  validProfilerDefaults,
   type ProfilerDefaults,
 } from "../state/defaults";
 
@@ -29,7 +30,10 @@ export function SettingsPage() {
   const { theme, setTheme } = useTheme();
   const { entries, clear } = useRecentFiles();
   const [defaults, setDefaults] = useState<ProfilerDefaults>(loadDefaults);
+  const [intervalDraft,setIntervalDraft] = useState(() => String(defaults.intervalMs));
+  const [topNDraft,setTopNDraft] = useState(() => String(defaults.topN));
   const [saved, setSaved] = useState(false);
+  const [saveError,setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!saved) return;
@@ -38,8 +42,11 @@ export function SettingsPage() {
   }, [saved]);
 
   const handleSave = () => {
-    saveDefaults(defaults);
-    setSaved(true);
+    setSaved(false);setSaveError(null);
+    const next={...defaults,intervalMs:Number(intervalDraft),topN:Number(topNDraft)};
+    if (!validProfilerDefaults(next)) {setSaveError(t("settingsInvalidDefaults"));return;}
+    if (!saveDefaults(next)) {setSaveError(t("settingsSaveFailed"));return;}
+    setDefaults(next);setSaved(true);
   };
 
   return (
@@ -98,9 +105,10 @@ export function SettingsPage() {
             <input
               type="number"
               min={1}
-              value={defaults.intervalMs}
+              step="any"
+              value={intervalDraft}
               onChange={(e) =>
-                setDefaults({ ...defaults, intervalMs: Number(e.target.value) || 100 })
+                (setIntervalDraft(e.target.value),setSaved(false),setSaveError(null))
               }
             />
           </div>
@@ -112,9 +120,9 @@ export function SettingsPage() {
               type="number"
               min={1}
               max={100}
-              value={defaults.topN}
+              value={topNDraft}
               onChange={(e) =>
-                setDefaults({ ...defaults, topN: Number(e.target.value) || 20 })
+                (setTopNDraft(e.target.value),setSaved(false),setSaveError(null))
               }
             />
           </div>
@@ -140,6 +148,7 @@ export function SettingsPage() {
           </div>
         </div>
         <div className="settings-actions">
+          {saveError && <p role="alert" className="text-xs text-destructive">{saveError}</p>}
           <button type="button" className="primary" onClick={handleSave}>
             {saved ? t("saved") : t("save")}
           </button>

@@ -1840,3 +1840,7 @@ replay against the bound ID and discard cancelled/superseded starts. Mode change
 input replacement and unmount invalidate old runs. Pure ordering/cancel/stale-ID
 regressions pass. Native one/two-dump, lock-contention, three quick profile runs,
 three two-dump runs, missing-file error and recovery pass without a stuck spinner.
+
+### Mac Settings edge validation (2026-11-11)
+
+Native negative interval and fractional Top N drafts now remain editable and are rejected at Save, before integer Go bindings. Saved defaults are normalized and storage failures no longer claim success. Original 100 ms / Top 20 values were restored and saved. State regressions and frontend build pass; T-626 final matrix is recorded in the follow-up evidence.

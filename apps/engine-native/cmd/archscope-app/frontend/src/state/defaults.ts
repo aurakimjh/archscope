@@ -23,36 +23,27 @@ export const FALLBACK_DEFAULTS: ProfilerDefaults = {
   profileKind: "wall",
 };
 
+export function validProfilerDefaults(value: ProfilerDefaults): boolean {
+  return Number.isFinite(value.intervalMs) && value.intervalMs >= 1 && Number.isInteger(value.topN) && value.topN >= 1 && value.topN <= 100 && ["wall","cpu","lock"].includes(value.profileKind);
+}
+
+export function normalizeProfilerDefaults(value: Partial<ProfilerDefaults>): ProfilerDefaults {
+  return {
+    intervalMs: typeof value.intervalMs === "number" && Number.isFinite(value.intervalMs) && value.intervalMs >= 1 ? value.intervalMs : FALLBACK_DEFAULTS.intervalMs,
+    topN: typeof value.topN === "number" && Number.isInteger(value.topN) && value.topN >= 1 && value.topN <= 100 ? value.topN : FALLBACK_DEFAULTS.topN,
+    profileKind: value.profileKind === "wall" || value.profileKind === "cpu" || value.profileKind === "lock" ? value.profileKind : FALLBACK_DEFAULTS.profileKind,
+  };
+}
+
 export function loadDefaults(): ProfilerDefaults {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return FALLBACK_DEFAULTS;
-    const parsed = JSON.parse(raw) as Partial<ProfilerDefaults>;
-    return {
-      intervalMs:
-        typeof parsed.intervalMs === "number" && parsed.intervalMs > 0
-          ? parsed.intervalMs
-          : FALLBACK_DEFAULTS.intervalMs,
-      topN:
-        typeof parsed.topN === "number" && parsed.topN > 0
-          ? parsed.topN
-          : FALLBACK_DEFAULTS.topN,
-      profileKind:
-        parsed.profileKind === "wall" ||
-        parsed.profileKind === "cpu" ||
-        parsed.profileKind === "lock"
-          ? parsed.profileKind
-          : FALLBACK_DEFAULTS.profileKind,
-    };
-  } catch {
-    return FALLBACK_DEFAULTS;
-  }
+    return raw ? normalizeProfilerDefaults(JSON.parse(raw)) : {...FALLBACK_DEFAULTS};
+  } catch { return {...FALLBACK_DEFAULTS}; }
 }
 
-export function saveDefaults(defaults: ProfilerDefaults) {
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(defaults));
-  } catch {
-    // ignore
-  }
+export function saveDefaults(defaults: ProfilerDefaults): boolean {
+  if (!validProfilerDefaults(defaults)) return false;
+  try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(defaults));return true; }
+  catch { return false; }
 }
