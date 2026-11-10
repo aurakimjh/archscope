@@ -1,3 +1,4 @@
+import { HttpSessionFiles, type HttpFileSource } from "./HttpSessionFiles";
 import { HTTP_COLUMNS, restoreHttpColumns, httpColumnValue, httpColumnMatches, type HttpColumn } from "@/state/httpColumns";
 import { HttpParameterTable, HttpJsonTree } from "./HttpPayloadView";
 import { httpParameters, requestQuery, inspectForm, inspectJson } from "@/state/httpPayload";
@@ -151,6 +152,7 @@ export type HttpAnalyzerViewProps = {
   boundedNote?: string;
   selectedDetail?: HttpCaptureTransactionRow | null;
   follow?: boolean;
+  exportSource?: HttpFileSource;
 };
 
 export function HttpAnalyzerView({
@@ -170,6 +172,7 @@ export function HttpAnalyzerView({
   boundedNote,
   selectedDetail,
   follow = false,
+  exportSource,
 }: HttpAnalyzerViewProps): React.JSX.Element {
   const { t } = useI18n();
   const [sort, setSort] = useState<GridSort>(defaultGridSort);
@@ -244,6 +247,7 @@ export function HttpAnalyzerView({
         t={t}
       />
 
+      {exportSource && <HttpSessionFiles source={exportSource} ids={rows.map(row=>row.id)} selectedId={selectedId} />}
       {bounded && boundedNote && (
         <p
           className="border-b border-amber-500/40 bg-amber-500/10 px-3 py-1.5 text-[11px] text-amber-800 dark:text-amber-300"

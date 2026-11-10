@@ -1047,3 +1047,33 @@ measurement moved `Q-WIN-ETW-PAYLOAD` and `Q-WIN-WFP-ATTR` from `open` to
 `partial`). The gate condition is not "all rows verified" but **"no design
 decision rests on an `open` row."** New `[V]` claims without a ledger row are
 rejected in review.
+
+### Portable session files (T-607)
+
+The desktop **Open session** command accepts native `.httpsession` JSON, full or
+compact ArchScope XML, and HAR. Save/export offers an explicit choice between
+all exchanges in the store (including rows outside the live window) and the
+currently displayed rows. The latter preserves the grid order; it does not mean
+all pages of a stored-search result. Native JSON, XML and ArchScope HAR preserve
+exchange IDs, connection IDs, process instances, timing perspectives, retained
+payloads, intermediate responses and the selected exchange. HAR 1.2 standard
+fields support other readers; `_archscope` preserves additional canonical data.
+These formats are unrelated to the legacy `.halog` format tracked by T-608.
+
+URL lists, quoted tab-separated text, escaped HTML and binary BIFF8 `.xls` are
+report exports rather than round-trip session formats. XLS writes string cells
+(including leading `=`), supports 65,535 exchanges, at most 4,000 UTF-16 units per
+cell and a 7 MiB compound container. Exceeding a limit returns an error before
+replacing the destination; use HAR/XML or narrow the scope. The XLS regression
+was independently read with xlrd 2.0.2, including Korean and a 1,000-row fixture.
+Compact XML explicitly marks bodies `export_omitted`. Response-directory export
+creates a new child directory containing retained redacted previews plus a
+manifest of storage/encoding and omissions. It does not claim original wire
+bytes or restore discarded binary data.
+
+Files are re-redacted on import/export, bounded to 256 MiB/100,000 exchanges,
+and contain no application blob paths. File writes use a private temporary file
+and rename; canceling the native destination dialog creates no output. Local
+round-trip, ordering, cancellation, original-session immutability and independent
+HAR/XLS reader checks pass. Native Windows dialog acceptance remains part of
+T-613, not evidence obtained on this macOS run.

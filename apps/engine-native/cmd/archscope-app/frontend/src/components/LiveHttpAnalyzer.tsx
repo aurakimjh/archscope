@@ -109,7 +109,7 @@ export function LiveHttpAnalyzer({
       </label>
       {error && <p role="alert" className="text-xs text-red-600">{error}</p>}
       <HttpAnalyzerView
-        transactions={rows} total={all.length}
+        exportSource={{sessionId}} transactions={rows} total={all.length}
         methods={availableMethods(all)} mimes={availableMimeTypes(all)}
         fidelities={availableFidelities(all)} kinds={availableResourceKinds(all)}
         filter={filter} filterActive={isFilterActive(filter)}

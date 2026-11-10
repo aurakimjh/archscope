@@ -208,6 +208,7 @@ export function resourceKindBreakdown(
 // the redaction policy suppressed. Each gets its own token and its own prose.
 
 export type BodyStorageToken =
+  | "export_omitted"
   | "omitted"
   | "inline"
   | "truncated"
@@ -218,6 +219,7 @@ export type BodyStorageToken =
   | "unknown";
 
 const BODY_STORAGE_TOKENS = new Set<BodyStorageToken>([
+  "export_omitted",
   "omitted",
   "inline",
   "truncated",
@@ -233,6 +235,7 @@ export function resolveBodyStorage(value: string | undefined): BodyStorageToken 
 }
 
 export const BODY_STORAGE_LABEL_KEYS: Record<BodyStorageToken, MessageKey> = {
+  export_omitted: "httpFilesOmitted",
   omitted: "httpAnalyzerBodyOmitted",
   inline: "httpAnalyzerBodyInline",
   truncated: "httpAnalyzerBodyTruncated",

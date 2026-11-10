@@ -1,3 +1,5 @@
+import * as CaptureService from "../../bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/captureservice";
+import { Dialogs } from "@wailsio/runtime";
 // ─────────────────────────────────────────────────────────────────────
 // [한글] HttpCapturePage.tsx — 실시간 HTTP 캡처 + 오프라인 HAR 분석 페이지.
 //
@@ -23,7 +25,6 @@
 import { ChevronDown, ChevronRight, Loader2, Play } from "lucide-react";
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 
-import { engine } from "@/bridge/engine";
 import type {
   HttpCaptureAnalysisResult,
   HttpCaptureTimelineBucket,
@@ -97,14 +98,28 @@ export function HttpCapturePage(): React.JSX.Element {
   // its fidelity and redaction disclosures are part of reading the data.
   const [sourceOpen, setSourceOpen] = useState(true);
   const [sessionOpen, setSessionOpen] = useState(true);
+  const openSession = async () => {
+    if (running) return;
+    try {
+      const picked=await Dialogs.OpenFile({Title:t("httpFilesOpen"),Filters:[{DisplayName:"HTTP session / HAR / XML",Pattern:"*.httpsession;*.har;*.json;*.xml"}]});
+      const path=Array.isArray(picked)?picked[0]:picked;if(!path)return;
+      dispatch({type:"analyzeStart"});
+      const opened=await CaptureService.OpenCaptureFile(path);
+      const next=opened.result as unknown as HttpCaptureAnalysisResult;
+      setFile(null);dispatch({type:"analyzeSuccess",result:next,source:path});
+      if(opened.selectedId)dispatch({type:"select",id:opened.selectedId});
+      const entry=addWorkspaceResult({result:next,title:`http_capture: ${path}`,sourceLabel:path});setResultEntryId(entry.id);
+    }catch(caught){dispatch({type:"analyzeError",error:{code:"HTTP_SESSION_OPEN_FAILED",message:String(caught)}})}
+  };
 
   const analyze = useCallback(async () => {
     if (!file || running) return;
     dispatch({ type: "analyzeStart" });
     setResultEntryId(null);
     try {
-      const next = await engine.analyzeHttpCapture({ path: file.filePath, format: "auto" });
-      dispatch({ type: "analyzeSuccess", result: next, source: file.originalName });
+      const opened = await CaptureService.OpenCaptureFile(file.filePath);
+      const next = opened.result as unknown as HttpCaptureAnalysisResult;
+      dispatch({ type: "analyzeSuccess", result: next, source: file.filePath });
       const entry = addWorkspaceResult({
         result: next,
         title: `http_capture: ${file.originalName}`,
@@ -202,6 +217,8 @@ export function HttpCapturePage(): React.JSX.Element {
 
   return (
     <main className="flex min-w-0 flex-col gap-3 p-3">
+      <div className="flex gap-2 text-xs"><Button variant="outline" size="sm" disabled={running} onClick={()=>void openSession()}>{t("httpFilesOpen")}</Button>
+        {result&&<Button variant="outline" size="sm" onClick={onClearFile}>{t("httpFilesClose")}</Button>}</div>
       <LiveHttpCapturePanel onStarted={onLiveStarted} onFinalized={onLiveFinalized} showAnalyzer={!result} />
       {/* Capture source. Once a session is loaded this collapses by default so
           the analyzer gets the screen; reopening it is one click. */}
@@ -260,6 +277,7 @@ export function HttpCapturePage(): React.JSX.Element {
           below them. */}
       {result && (
         <HttpAnalyzerView
+          exportSource={state.resultSource?.startsWith("capture://") ? {sessionId:state.resultSource.slice(10)} : state.resultSource ? {path:state.resultSource} : undefined}
           transactions={filtered}
           total={allTransactions.length}
           methods={methods}

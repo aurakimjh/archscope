@@ -43,6 +43,10 @@ export function ClearCapture(sessionID: string): $CancellablePromise<capture$0.S
     });
 }
 
+export function ExportCaptureFile(request: $models.CaptureExportRequest): $CancellablePromise<number> {
+    return $Call.ByID(2139328567, request);
+}
+
 export function FetchCaptureTransactions(request: $models.CaptureFetchRequest): $CancellablePromise<store$0.Page> {
     return $Call.ByID(1653085832, request).then(($result: any) => {
         return $$createType2($result);
@@ -131,9 +135,15 @@ export function ListCaptureProcesses(): $CancellablePromise<models$0.ProcessInst
     });
 }
 
+export function OpenCaptureFile(path: string): $CancellablePromise<$models.CaptureOpenResult> {
+    return $Call.ByID(166476653, path).then(($result: any) => {
+        return $$createType15($result);
+    });
+}
+
 export function RecoverCaptureSessions(): $CancellablePromise<store$0.RecoveryReport[]> {
     return $Call.ByID(740397896).then(($result: any) => {
-        return $$createType16($result);
+        return $$createType17($result);
     });
 }
 
@@ -187,5 +197,6 @@ const $$createType11 = capture$0.Mode.createFrom;
 const $$createType12 = $Create.Array($$createType11);
 const $$createType13 = models$0.ProcessInstance.createFrom;
 const $$createType14 = $Create.Array($$createType13);
-const $$createType15 = store$0.RecoveryReport.createFrom;
-const $$createType16 = $Create.Array($$createType15);
+const $$createType15 = $models.CaptureOpenResult.createFrom;
+const $$createType16 = store$0.RecoveryReport.createFrom;
+const $$createType17 = $Create.Array($$createType16);
