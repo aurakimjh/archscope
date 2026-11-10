@@ -108,7 +108,7 @@ export function IncidentTimelinePage(): React.JSX.Element {
   };
 
   return (
-    <main className="content">
+    <main className="content workspace-tool incidenttimeline">
       <section className="card workspace-header">
         <div>
           <h2>
@@ -116,7 +116,6 @@ export function IncidentTimelinePage(): React.JSX.Element {
               {t("navIncidentTimeline")}
             </HelpedTitle>
           </h2>
-          <p className="muted">{t("incidentTimelineDescription")}</p>
         </div>
       </section>
 

@@ -112,7 +112,7 @@ export function ServiceFlowPage(): React.JSX.Element {
   };
 
   return (
-    <main className="content">
+    <main className="content workspace-tool serviceflow">
       <section className="card workspace-header">
         <div>
           <h2>
@@ -120,7 +120,6 @@ export function ServiceFlowPage(): React.JSX.Element {
               {t("navServiceFlow")}
             </HelpedTitle>
           </h2>
-          <p className="muted">{t("serviceFlowDescription")}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button type="button" variant="outline" onClick={exportMermaid}>

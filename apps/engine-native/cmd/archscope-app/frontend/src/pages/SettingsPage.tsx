@@ -43,7 +43,7 @@ export function SettingsPage() {
   };
 
   return (
-    <main className="content settings-content">
+    <main className="content workspace-tool settings-content">
       <section className="card">
         <h2>
           <HelpedTitle help={getHelpText(locale, "pageSettings")}>
@@ -146,12 +146,12 @@ export function SettingsPage() {
         </div>
       </section>
 
-      <section className="card">
-        <h2>
+      <details className="card">
+        <summary className="cursor-pointer text-sm">
           <HelpedTitle help={getHelpText(locale, "settingsRecent")}>
             {t("settingsRecentFiles")}
           </HelpedTitle>
-        </h2>
+        </summary>
         {entries.length === 0 ? (
           <p className="muted">{t("recentFilesNone")}</p>
         ) : (
@@ -168,16 +168,16 @@ export function SettingsPage() {
             </button>
           </>
         )}
-      </section>
+      </details>
 
-      <section className="card">
-        <h2>
+      <details className="card">
+        <summary className="cursor-pointer text-sm">
           <HelpedTitle help={getHelpText(locale, "settingsAbout")}>
             {t("settingsAbout")}
           </HelpedTitle>
-        </h2>
+        </summary>
         <p className="muted">{t("settingsAboutBody")}</p>
-      </section>
+      </details>
     </main>
   );
 }

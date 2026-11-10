@@ -29,8 +29,8 @@ export function EvidenceBoardPage(): React.JSX.Element {
   }, []);
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-6">
-      <div className="mb-4 flex items-center justify-between gap-3">
+    <main className="workspace-tool evidence-board w-full min-w-0 p-2">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
         <div>
           <h1 className="text-xl font-semibold">
             <HelpedTitle help={getHelpText(locale, "pageEvidenceBoard")}>
@@ -41,7 +41,7 @@ export function EvidenceBoardPage(): React.JSX.Element {
             {cards.length.toLocaleString()} {t("evidenceCards")}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             type="button"
             variant="outline"

@@ -174,7 +174,7 @@ export function ChartStudioPage(): React.JSX.Element {
   const onReady = useCallback((next: ECharts | null) => setChart(next), []);
 
   return (
-    <main className="content">
+    <main className="content workspace-tool chartstudio">
       <section className="card">
         <h2>
           <HelpedTitle help={getHelpText(locale, "pageChartStudio")}>
@@ -234,7 +234,7 @@ export function ChartStudioPage(): React.JSX.Element {
           title={title}
           option={build.option}
           renderer={renderer}
-          height={380}
+          height="clamp(300px, calc(100dvh - 230px), 700px)"
           onReady={onReady}
           actions={
             <div className="workspace-card-actions">

@@ -90,7 +90,7 @@ export function ExportCenterPage(): React.JSX.Element {
   };
 
   return (
-    <main className="content">
+    <main className="content workspace-tool exportcenter">
       <section className="card">
         <h2>
           <HelpedTitle help={getHelpText(locale, "pageExportCenter")}>

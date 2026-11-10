@@ -77,7 +77,7 @@ export function AnalysisWorkspacePage(): React.JSX.Element {
   };
 
   return (
-    <main className="content">
+    <main className="content workspace-tool analysisworkspace">
       <section className="card workspace-header">
         <div>
           <h2>
@@ -85,7 +85,6 @@ export function AnalysisWorkspacePage(): React.JSX.Element {
               {t("navAnalysisWorkspace")}
             </HelpedTitle>
           </h2>
-          <p className="muted">{t("workspaceDescription")}</p>
         </div>
         <Button
           type="button"

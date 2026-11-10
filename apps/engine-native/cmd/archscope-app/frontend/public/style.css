@@ -2149,3 +2149,16 @@ table th.sortable-header.sort-desc::after {
 .tool-pane .metric-card > strong { white-space:nowrap; }
 .analysis-tool [role="tablist"] { width:100%; }
 .compact-input-form { padding:8px 12px; }
+
+.tool-pane > .content { gap:8px; padding:8px 12px; }
+.workspace-tool .card, .analysis-tool .card { padding:8px 12px; }
+.workspace-tool .card h2, .analysis-tool .card h2 { margin-bottom:6px; }
+.workspace-tool .workspace-form-grid { grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:8px; }
+.workspace-tool .workspace-field { gap:3px; }
+.workspace-tool .workspace-result-list { gap:6px; }
+.workspace-tool .workspace-meta-grid { gap:4px; }
+.workspace-tool .workspace-header { flex-wrap:wrap; align-items:center; }
+.workspace-tool .metric-grid, .analysis-tool .metric-grid { display:flex; flex-wrap:wrap; gap:4px; }
+.workspace-tool .metric, .analysis-tool .metric { display:flex; align-items:baseline; gap:8px; padding:4px 8px; }
+.workspace-tool .metric-value, .analysis-tool .metric-value { font-size:14px; }
+.settings-content .settings-row { padding:6px 0; }

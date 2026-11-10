@@ -71,7 +71,7 @@ export function ReportDiffPage(): React.JSX.Element {
     []) as MetricDeltaRow[];
 
   return (
-    <main className="content">
+    <main className="content workspace-tool reportdiff">
       <section className="card">
         <h2>
           <HelpedTitle help={getHelpText(locale, "pageReportDiff")}>

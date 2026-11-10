@@ -116,7 +116,7 @@ export function SloGoldenSignalsPage(): React.JSX.Element {
   const warningCount = sloAnalysis.violations_by_severity.warning;
 
   return (
-    <main className="content">
+    <main className="content workspace-tool slogoldensignals">
       <section className="card workspace-header">
         <div>
           <h2>
