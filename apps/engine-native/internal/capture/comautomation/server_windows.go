@@ -82,7 +82,7 @@ type exceptionInfo struct {
 type nativeObject struct {
 	// COM dereferences the interface address as a vtable pointer. Keep this
 	// field first; Go bookkeeping must never precede the native ABI prefix.
-	Table       *[7]uintptr
+	Table       *uintptr
 	nameIDs     map[string]int32
 	memberIDs   map[int32]string
 	references  atomic.Uint32
@@ -99,6 +99,7 @@ type nativeObject struct {
 var _ [0 - unsafe.Offsetof(nativeObject{}.Table)]byte
 
 type Server struct {
+	typeInfos map[string]uintptr
 	integrity uint32
 	elevated  bool
 	mu        sync.Mutex
@@ -119,6 +120,7 @@ func init() {
 	factoryTable = [7]uintptr{windows.NewCallback(query), windows.NewCallback(addRef), windows.NewCallback(release), windows.NewCallback(createInstance), windows.NewCallback(lockServer)}
 	enumTable = [7]uintptr{windows.NewCallback(query), windows.NewCallback(addRef), windows.NewCallback(release), windows.NewCallback(enumNext), windows.NewCallback(enumSkip), windows.NewCallback(enumReset), windows.NewCallback(enumClone)}
 
+	initDualTables()
 }
 
 // A process-wide table keeps callback receiver pointers alive until final Release.
@@ -132,12 +134,15 @@ func receiver(pointer uintptr) *nativeObject {
 	return value.(*nativeObject)
 }
 func (s *Server) wrap(object Object, enumeration *Enumeration, factory bool) *nativeObject {
-	n := &nativeObject{Table: &dispatchTable, server: s, object: object, enumeration: enumeration, factory: factory}
+	n := &nativeObject{Table: &dispatchTable[0], server: s, object: object, enumeration: enumeration, factory: factory}
 	if factory {
-		n.Table = &factoryTable
+		n.Table = &factoryTable[0]
 	} else if enumeration != nil {
-		n.Table = &enumTable
+		n.Table = &enumTable[0]
 	} else {
+		if table := dualTables[objectContract(object)]; len(table) > 0 {
+			n.Table = &table[0]
+		}
 		n.names = object.Members()
 		sort.Strings(n.names)
 		n.nameIDs = dispatchIDs(object)
@@ -164,6 +169,9 @@ func query(object *nativeObject, iid *windows.GUID, result *uintptr) uintptr {
 	*result = 0
 	id := *iid
 	supported := id == iidUnknown || (!n.factory && n.enumeration == nil && id == iidDispatch) || (n.factory && id == iidFactory) || (n.enumeration != nil && id == iidEnum)
+	if !supported && !n.factory && n.enumeration == nil && n.object != nil {
+		supported = supportsContract(n.object, id)
+	}
 	if !supported {
 		return noInterface
 	}
@@ -195,19 +203,9 @@ func release(object *nativeObject) uintptr {
 	}
 	return uintptr(remaining)
 }
-func typeInfoCount(object *nativeObject, count *uint32) uintptr {
-	this := uintptr(unsafe.Pointer(object))
-	if receiver(this) == nil || count == nil {
-		return pointerError
-	}
-	*count = 0
-	return ok
-}
-func typeInfo(this *nativeObject, index, locale uint32, result *uintptr) uintptr {
-	if result != nil {
-		*result = 0
-	}
-	return notImplemented
+func typeInfoCount(object *nativeObject, count *uint32) uintptr { return metadataCount(object, count) }
+func typeInfo(object *nativeObject, index, locale uint32, result *uintptr) uintptr {
+	return metadataInfo(object, index, locale, result)
 }
 func names(object *nativeObject, iid *windows.GUID, stringsPointer **uint16, count, locale uint32, idsPointer *int32) uintptr {
 	this := uintptr(unsafe.Pointer(object))
@@ -494,8 +492,17 @@ func Start(execute automation.Executor) (*Server, error) {
 				object.pin.Unpin()
 			}
 			server.objects = map[uintptr]*nativeObject{}
+			for _, info := range server.typeInfos {
+				releaseCOM(info)
+			}
+			server.typeInfos = nil
 			server.mu.Unlock()
 		}()
+		server.typeInfos, err = buildTypeInfos()
+		if err != nil {
+			ready <- err
+			return
+		}
 		server.thread = windows.GetCurrentThreadId()
 		var msg message
 		peekMessage.Call(uintptr(unsafe.Pointer(&msg)), 0, 0, 0, 0)

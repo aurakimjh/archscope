@@ -4882,3 +4882,24 @@ StillCaptureDataWhenHide는 자동화 Visible 변경에 적용합니다. 숨길 
 일시정지만 해제합니다. 수동 일시정지와 교체 세션 소유권은 보존합니다.
 Mac 공통·race 테스트와 Windows 테스트 교차 빌드로 확인했으며, Windows
 원본과의 실제 동작 비교는 T-611 검증 항목으로 남습니다.
+
+### T-611 dual ABI·형식 정보 (2026-11-11)
+
+선언된 custom IID와 상속된 safecall vtable 순서, HRESULT·출력 반환값
+변환을 구현하고 기존 동일 사용자·무결성 수준 검사를 유지했습니다.
+API 형식 정보인 28개 인터페이스·선언 메서드 225개를
+reference_contract.json에 정리했으며 업체 구현·바이너리는 배포하지
+않습니다. ArchScope 확장은 원본 Stand-alone 호출 순서 뒤에 둡니다.
+
+Windows STA에서 ICreateTypeLib2·ICreateTypeInfo로 메모리 내 dual
+ITypeInfo를 만듭니다. 인자와 [out, retval]을 명시해 단순 반환 규약과
+혼동하지 않고 서버 종료 시 해제합니다. 업체 클래스 등록을 변경하거나
+깨끗한 Windows의 custom IID 프로세스 간 마샬링을 검증한 것은 아닙니다.
+그 부분과 현재 원본·조기 바인딩 클라이언트 비교는 Windows 검증 항목으로
+남습니다. 데이터가 없는 getter는 명시적으로 실패하며 형식 정보가 없는
+원시·캐시 데이터를 생성하지 않습니다.
+
+Mac 선언·race 회귀와 Windows amd64·386 테스트 컴파일·vet가
+통과했습니다. Windows용 테스트에는 dual 플래그·상속 슬롯 수·SaveLog의
+HRESULT/BSTR/enum 형식 검사를 추가했으며, 그 실행을 Mac 검증으로
+계산하지 않습니다.

@@ -1932,3 +1932,13 @@ Common/race tests and Windows amd64/386 test cross-builds pass. Native Windows
 reference verification remains open; T-611 stays REVIEW with its other COM and
 foreign-process cookie requirements. Paired SYSTEM_HTTP_CAPTURE guides document
 the supported encoding and limits.
+
+### T-611 declared dual ABI and ITypeInfo (2026-11-11)
+
+Implemented custom-IID/inherited vtable shapes and HRESULT/out-result conversion
+from the factual 28-interface/225-method declarations, with native same-user gates.
+Added in-memory dual type descriptions and native ABI/metadata tests. Common
+race tests and Windows amd64/386 compilation/vet pass; Windows execution, clean-
+host custom-IID marshaling and current-reference early-bound interoperability
+remain unverified. Original ProgIDs/CLSID registrations are untouched. T-611
+stays REVIEW; event/ref-cancel and foreign-process cookie work is separate.

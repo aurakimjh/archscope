@@ -15,8 +15,10 @@ import (
 var reference embed.FS
 var referenceContracts struct {
 	Interfaces map[string]struct {
-		IID string           `json:"iid"`
-		IDs map[string]int32 `json:"dispatchIds"`
+		IID     string           `json:"iid"`
+		Base    string           `json:"base"`
+		Methods []abiMethod      `json:"methods"`
+		IDs     map[string]int32 `json:"dispatchIds"`
 	} `json:"interfaces"`
 	LogTypes map[string]string `json:"logTypes"`
 }
@@ -81,4 +83,40 @@ func namedLogType(value any) (string, error) {
 		return "", fmt.Errorf("unknown reference export enum")
 	}
 	return name, nil
+}
+
+// abiMethod records API shape and vtable order, not vendor implementation.
+type abiParam struct {
+	Name string `json:"name"`
+	Type string `json:"type"`
+}
+type abiMethod struct {
+	Name    string     `json:"name"`
+	Kind    string     `json:"kind"`
+	Returns string     `json:"returns"`
+	Params  []abiParam `json:"params"`
+}
+
+func interfaceMethods(name string) []abiMethod {
+	contract, ok := referenceContracts.Interfaces[name]
+	if !ok {
+		return nil
+	}
+	var methods []abiMethod
+	if contract.Base != "" && contract.Base != "IDispatch" {
+		methods = interfaceMethods(contract.Base)
+	}
+	methods = append(methods, contract.Methods...)
+	if name == "IHTTPAnalyzerStandAlone" {
+		for _, property := range []struct {
+			name, kind string
+			write      bool
+		}{{"Backend", "WideString", true}, {"SessionID", "WideString", false}, {"ProxyAddress", "WideString", false}, {"BuildCommit", "WideString", false}, {"CaptureBodies", "WordBool", true}} {
+			methods = append(methods, abiMethod{Name: property.name, Kind: "get", Returns: property.kind})
+			if property.write {
+				methods = append(methods, abiMethod{Name: property.name, Kind: "put", Returns: "void", Params: []abiParam{{Name: "Value", Type: property.kind}}})
+			}
+		}
+	}
+	return methods
 }

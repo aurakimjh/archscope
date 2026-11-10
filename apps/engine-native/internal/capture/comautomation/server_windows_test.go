@@ -5,8 +5,10 @@ package comautomation
 import (
 	"fmt"
 	ole "github.com/go-ole/go-ole"
+	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/registry"
 	"os"
+	"runtime"
 	"testing"
 	"time"
 	"unsafe"
@@ -40,6 +42,69 @@ func TestNativeDispatchObjectVariantAndReferenceABI(t *testing.T) {
 	}
 	if len(dispatchTable) != 7 || len(enumTable) != 7 || dispatchTable[6] == 0 {
 		t.Fatal("vtable ABI")
+	}
+}
+
+func TestNativeDualPrefixAndTypeInformation(t *testing.T) {
+	runtime.LockOSThread()
+	defer runtime.UnlockOSThread()
+	if e := windows.CoInitializeEx(0, windows.COINIT_APARTMENTTHREADED); e != nil {
+		t.Fatal(e)
+	}
+	defer windows.CoUninitialize()
+	infos, e := buildTypeInfos()
+	if e != nil {
+		t.Fatal(e)
+	}
+	defer func() {
+		for _, info := range infos {
+			releaseCOM(info)
+		}
+	}()
+	s := &Server{objects: map[uintptr]*nativeObject{}, typeInfos: infos}
+	n := s.wrap(New(nil), nil, false)
+	defer release(n)
+	for _, name := range []string{"IHTTPAnalyzerStandAlone", "IHTTPAnalyzer"} {
+		id := mustGUID(referenceContracts.Interfaces[name].IID)
+		var p uintptr
+		if query(n, &id, &p) != ok || p != uintptr(unsafe.Pointer(n)) {
+			t.Fatal(name)
+		}
+		release(n)
+	}
+	base, child := dualTables["IHTTPAnalyzer"], dualTables["IHTTPAnalyzerStandAlone"]
+	if len(base) != 27 || len(child) != 47 {
+		t.Fatal("incorrect inherited vtable size", len(base), len(child))
+	}
+	var count uint32
+	if typeInfoCount(n, &count) != ok || count != 1 {
+		t.Fatal("missing type info")
+	}
+	var info uintptr
+	if typeInfo(n, 0, 0, &info) != ok || info == 0 {
+		t.Fatal("GetTypeInfo")
+	}
+	defer releaseCOM(info)
+	var attr *ole.TYPEATTR
+	if e = comCall(info, 3, uintptr(unsafe.Pointer(&attr))); e != nil {
+		t.Fatal(e)
+	}
+	if attr == nil || attr.WTypeFlags&0x40 == 0 {
+		t.Fatal("not a dual interface")
+	}
+	comCall(info, 19, uintptr(unsafe.Pointer(attr)))
+	var fd *functionDescription
+	// SaveLog is the seventh custom method: HRESULT (BSTR, enum), no retval.
+	if e = comCall(info, 5, 6, uintptr(unsafe.Pointer(&fd))); e != nil {
+		t.Fatal(e)
+	}
+	if fd.ID != 212 || fd.Count != 2 || fd.Result.Type.VT != 25 {
+		t.Fatal("incorrect SaveLog ABI", fd)
+	}
+	comCall(info, 20, uintptr(unsafe.Pointer(fd)))
+	var bad uintptr
+	if typeInfo(n, 1, 0, &bad) != 0x8002000B || bad != 0 {
+		t.Fatal("bad type index accepted")
 	}
 }
 func TestRegistrationUsesOwnedTemporaryKeys(t *testing.T) {

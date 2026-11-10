@@ -1633,3 +1633,24 @@ Visible changes: hide pauses only an owned running, previously unpaused session;
 show resumes only that automatic pause. Manual pause and replacement-session
 ownership are preserved. Mac common/race tests and Windows test cross-builds
 cover these rules; native Windows reference behavior remains the T-611 gate.
+
+### T-611 dual ABI and type descriptions (2026-11-11)
+
+The adapter now provides the declared custom interface IIDs and inherited
+safecall vtable prefixes, with HRESULT/out-result conversion and the existing
+same-user/integrity gate. API-shape facts (28 interfaces, 225 declared methods)
+are recorded in reference_contract.json; no vendor implementation or binary is
+redistributed. ArchScope extensions follow the unchanged standalone prefix.
+
+The Windows STA builds in-memory dual ITypeInfo through ICreateTypeLib2/
+ICreateTypeInfo, using typed arguments and [out, retval] results rather than
+CreateDispTypeInfo's incompatible simplified return convention. Type descriptions
+are released with the server. This does not register vendor classes, replace
+their registrations, or establish custom-IID cross-process marshaling on a
+clean Windows host. That and current-reference binary/early-bound client checks
+remain native acceptance gates. Getters without captured evidence still fail
+explicitly; a declared interface does not invent missing raw/cache data.
+
+Mac declaration/race regressions and Windows amd64/386 test compilation/vet
+pass. Added native Windows tests inspect dual flags, inherited slot counts and
+the SaveLog HRESULT/BSTR/enum signature. Their execution is not a Mac result.

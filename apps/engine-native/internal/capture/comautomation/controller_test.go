@@ -238,3 +238,28 @@ func TestCOMBodyCaptureIsAnExplicitRequestThroughExistingGate(t *testing.T) {
 		t.Fatal("ambiguous body request accepted")
 	}
 }
+
+func TestDualDeclarationsPreserveInheritanceAndReturnShapes(t *testing.T) {
+	base, child := interfaceMethods("IHTTPAnalyzer"), interfaceMethods("IHTTPAnalyzerStandAlone")
+	if len(base) != 20 || len(child) != 40 {
+		t.Fatal(len(base), len(child))
+	}
+	for i, m := range base {
+		if child[i].Name != m.Name || child[i].Kind != m.Kind || child[i].Returns != m.Returns {
+			t.Fatal("base prefix changed", i)
+		}
+	}
+	if base[6].Name != "SaveLog" || len(base[6].Params) != 2 || base[6].Params[1].Type != "LogType" || base[6].Returns != "void" {
+		t.Fatal("wrong HRESULT/BSTR/enum signature")
+	}
+	for name, contract := range referenceContracts.Interfaces {
+		for _, m := range contract.Methods {
+			if len(m.Params) > 2 {
+				t.Fatal("unsupported ABI arity", name, m.Name)
+			}
+			if _, ok := contract.IDs[m.Name]; !ok {
+				t.Fatal("missing member ID", name, m.Name)
+			}
+		}
+	}
+}

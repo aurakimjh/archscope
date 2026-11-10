@@ -6,7 +6,22 @@
       "dispatchIds": {
         "Name": 201,
         "Value": 202
-      }
+      },
+      "base": "IDispatch",
+      "methods": [
+        {
+          "name": "Name",
+          "kind": "get",
+          "returns": "WideString",
+          "params": []
+        },
+        {
+          "name": "Value",
+          "kind": "get",
+          "returns": "WideString",
+          "params": []
+        }
+      ]
     },
     "INameValues": {
       "iid": "{FA2F39E7-6715-48EC-94D8-72F9425FD02F}",
@@ -14,7 +29,33 @@
         "Count": 201,
         "Item": 0,
         "_NewEnum": -4
-      }
+      },
+      "base": "IDispatch",
+      "methods": [
+        {
+          "name": "Count",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "Item",
+          "kind": "get",
+          "returns": "INameValue",
+          "params": [
+            {
+              "name": "Index",
+              "type": "Integer"
+            }
+          ]
+        },
+        {
+          "name": "_NewEnum",
+          "kind": "method",
+          "returns": "IUnknown",
+          "params": []
+        }
+      ]
     },
     "IPostParam": {
       "iid": "{6E25119F-8FF8-4080-A3F5-B60284E73E65}",
@@ -23,7 +64,34 @@
         "Value": 202,
         "FileName": 203,
         "Header": 204
-      }
+      },
+      "base": "IDispatch",
+      "methods": [
+        {
+          "name": "Name",
+          "kind": "get",
+          "returns": "WideString",
+          "params": []
+        },
+        {
+          "name": "Value",
+          "kind": "get",
+          "returns": "WideString",
+          "params": []
+        },
+        {
+          "name": "FileName",
+          "kind": "get",
+          "returns": "WideString",
+          "params": []
+        },
+        {
+          "name": "Header",
+          "kind": "get",
+          "returns": "WideString",
+          "params": []
+        }
+      ]
     },
     "IPostParams": {
       "iid": "{D4F9D9FB-658A-46B0-AE78-2BB0D81038C2}",
@@ -31,7 +99,33 @@
         "Count": 201,
         "Item": 0,
         "_NewEnum": -4
-      }
+      },
+      "base": "IDispatch",
+      "methods": [
+        {
+          "name": "Count",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "Item",
+          "kind": "get",
+          "returns": "IPostParam",
+          "params": [
+            {
+              "name": "Index",
+              "type": "Integer"
+            }
+          ]
+        },
+        {
+          "name": "_NewEnum",
+          "kind": "method",
+          "returns": "IUnknown",
+          "params": []
+        }
+      ]
     },
     "ISetCookie": {
       "iid": "{93FC48EB-0141-41E2-8D38-9F1FA951336F}",
@@ -41,7 +135,40 @@
         "Domain": 203,
         "Path": 204,
         "Expires": 205
-      }
+      },
+      "base": "IDispatch",
+      "methods": [
+        {
+          "name": "Name",
+          "kind": "get",
+          "returns": "WideString",
+          "params": []
+        },
+        {
+          "name": "Value",
+          "kind": "get",
+          "returns": "WideString",
+          "params": []
+        },
+        {
+          "name": "Domain",
+          "kind": "get",
+          "returns": "WideString",
+          "params": []
+        },
+        {
+          "name": "Path",
+          "kind": "get",
+          "returns": "WideString",
+          "params": []
+        },
+        {
+          "name": "Expires",
+          "kind": "get",
+          "returns": "WideString",
+          "params": []
+        }
+      ]
     },
     "ISetCookies": {
       "iid": "{5383E103-9F0E-49F4-9270-2193D6AF1CC0}",
@@ -49,7 +176,33 @@
         "Count": 201,
         "Item": 0,
         "_NewEnum": -4
-      }
+      },
+      "base": "IDispatch",
+      "methods": [
+        {
+          "name": "Count",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "Item",
+          "kind": "get",
+          "returns": "ISetCookie",
+          "params": [
+            {
+              "name": "Index",
+              "type": "Integer"
+            }
+          ]
+        },
+        {
+          "name": "_NewEnum",
+          "kind": "method",
+          "returns": "IUnknown",
+          "params": []
+        }
+      ]
     },
     "ICacheInfo": {
       "iid": "{2E97CB19-CA09-4EC8-A2E4-624DC51C6716}",
@@ -68,7 +221,94 @@
         "FileSize": 217,
         "FileExtension": 218,
         "ExemptDelta": 219
-      }
+      },
+      "base": "IDispatch",
+      "methods": [
+        {
+          "name": "URLInCache",
+          "kind": "get",
+          "returns": "WordBool",
+          "params": []
+        },
+        {
+          "name": "ExpireTime",
+          "kind": "get",
+          "returns": "TDateTime",
+          "params": []
+        },
+        {
+          "name": "LastAccessTime",
+          "kind": "get",
+          "returns": "TDateTime",
+          "params": []
+        },
+        {
+          "name": "LastModifiedTime",
+          "kind": "get",
+          "returns": "TDateTime",
+          "params": []
+        },
+        {
+          "name": "EntryType",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "UseCount",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "SourceUrlName",
+          "kind": "get",
+          "returns": "WideString",
+          "params": []
+        },
+        {
+          "name": "LocalFileName",
+          "kind": "get",
+          "returns": "WideString",
+          "params": []
+        },
+        {
+          "name": "LastSyncTime",
+          "kind": "get",
+          "returns": "TDateTime",
+          "params": []
+        },
+        {
+          "name": "HitRate",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "HeaderInfo",
+          "kind": "get",
+          "returns": "WideString",
+          "params": []
+        },
+        {
+          "name": "FileSize",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "FileExtension",
+          "kind": "get",
+          "returns": "WideString",
+          "params": []
+        },
+        {
+          "name": "ExemptDelta",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        }
+      ]
     },
     "IResponseContent": {
       "iid": "{6A4FD150-D026-4048-B9BE-AC349E596314}",
@@ -83,7 +323,75 @@
         "CompressRate": 209,
         "IsChunked": 210,
         "Data": 211
-      }
+      },
+      "base": "IDispatch",
+      "methods": [
+        {
+          "name": "Export",
+          "kind": "method",
+          "returns": "void",
+          "params": [
+            {
+              "name": "FileName",
+              "type": "WideString"
+            }
+          ]
+        },
+        {
+          "name": "MimeType",
+          "kind": "get",
+          "returns": "WideString",
+          "params": []
+        },
+        {
+          "name": "Size",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "IsFromCache",
+          "kind": "get",
+          "returns": "WordBool",
+          "params": []
+        },
+        {
+          "name": "IsCompressed",
+          "kind": "get",
+          "returns": "WordBool",
+          "params": []
+        },
+        {
+          "name": "CompressedSize",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "CompressionType",
+          "kind": "get",
+          "returns": "WideString",
+          "params": []
+        },
+        {
+          "name": "CompressRate",
+          "kind": "get",
+          "returns": "Double",
+          "params": []
+        },
+        {
+          "name": "IsChunked",
+          "kind": "get",
+          "returns": "WordBool",
+          "params": []
+        },
+        {
+          "name": "Data",
+          "kind": "get",
+          "returns": "OleVariant",
+          "params": []
+        }
+      ]
     },
     "IRequest": {
       "iid": "{8A9B7BDD-8510-4025-80D0-E69914881EF1}",
@@ -97,7 +405,64 @@
         "PostDataSize": 207,
         "RequestData": 210,
         "PostData": 211
-      }
+      },
+      "base": "IDispatch",
+      "methods": [
+        {
+          "name": "RequestLine",
+          "kind": "get",
+          "returns": "WideString",
+          "params": []
+        },
+        {
+          "name": "Cookies",
+          "kind": "get",
+          "returns": "INameValues",
+          "params": []
+        },
+        {
+          "name": "Headers",
+          "kind": "get",
+          "returns": "INameValues",
+          "params": []
+        },
+        {
+          "name": "PostParams",
+          "kind": "get",
+          "returns": "IPostParams",
+          "params": []
+        },
+        {
+          "name": "PostMimeType",
+          "kind": "get",
+          "returns": "WideString",
+          "params": []
+        },
+        {
+          "name": "QueryStringValues",
+          "kind": "get",
+          "returns": "INameValues",
+          "params": []
+        },
+        {
+          "name": "PostDataSize",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "RequestData",
+          "kind": "get",
+          "returns": "OleVariant",
+          "params": []
+        },
+        {
+          "name": "PostData",
+          "kind": "get",
+          "returns": "OleVariant",
+          "params": []
+        }
+      ]
     },
     "IResponse": {
       "iid": "{7C480C46-F340-4922-8DF3-D5C1DF51A2E2}",
@@ -106,7 +471,34 @@
         "Cookies": 202,
         "Headers": 203,
         "ResponseData": 205
-      }
+      },
+      "base": "IDispatch",
+      "methods": [
+        {
+          "name": "StatusLine",
+          "kind": "get",
+          "returns": "WideString",
+          "params": []
+        },
+        {
+          "name": "Cookies",
+          "kind": "get",
+          "returns": "ISetCookies",
+          "params": []
+        },
+        {
+          "name": "Headers",
+          "kind": "get",
+          "returns": "INameValues",
+          "params": []
+        },
+        {
+          "name": "ResponseData",
+          "kind": "get",
+          "returns": "OleVariant",
+          "params": []
+        }
+      ]
     },
     "ILogEntry": {
       "iid": "{5CA2DCA7-F2B4-4610-AA60-D97CF896D0FB}",
@@ -144,7 +536,208 @@
         "WebpageID": 231,
         "IsFiltered": 232,
         "Hints": 233
-      }
+      },
+      "base": "IDispatch",
+      "methods": [
+        {
+          "name": "URL",
+          "kind": "get",
+          "returns": "WideString",
+          "params": []
+        },
+        {
+          "name": "Method",
+          "kind": "get",
+          "returns": "WideString",
+          "params": []
+        },
+        {
+          "name": "TimeStart",
+          "kind": "get",
+          "returns": "TDateTime",
+          "params": []
+        },
+        {
+          "name": "TimeDuration",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "Result",
+          "kind": "get",
+          "returns": "WideString",
+          "params": []
+        },
+        {
+          "name": "CacheBefore",
+          "kind": "get",
+          "returns": "ICacheInfo",
+          "params": []
+        },
+        {
+          "name": "CacheAfter",
+          "kind": "get",
+          "returns": "ICacheInfo",
+          "params": []
+        },
+        {
+          "name": "Request",
+          "kind": "get",
+          "returns": "IRequest",
+          "params": []
+        },
+        {
+          "name": "Response",
+          "kind": "get",
+          "returns": "IResponse",
+          "params": []
+        },
+        {
+          "name": "Content",
+          "kind": "get",
+          "returns": "IResponseContent",
+          "params": []
+        },
+        {
+          "name": "BytesSent",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "BytesReceived",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "IsComplete",
+          "kind": "get",
+          "returns": "WordBool",
+          "params": []
+        },
+        {
+          "name": "HTTPStatusCode",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "IsRedirect",
+          "kind": "get",
+          "returns": "WordBool",
+          "params": []
+        },
+        {
+          "name": "RedirectURL",
+          "kind": "get",
+          "returns": "WideString",
+          "params": []
+        },
+        {
+          "name": "TimeEnd",
+          "kind": "get",
+          "returns": "TDateTime",
+          "params": []
+        },
+        {
+          "name": "ClientIP",
+          "kind": "get",
+          "returns": "WideString",
+          "params": []
+        },
+        {
+          "name": "ClientPort",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "ServerIP",
+          "kind": "get",
+          "returns": "WideString",
+          "params": []
+        },
+        {
+          "name": "ServerPort",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "HasError",
+          "kind": "get",
+          "returns": "WordBool",
+          "params": []
+        },
+        {
+          "name": "ErrorCode",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "ErrorMessage",
+          "kind": "get",
+          "returns": "WideString",
+          "params": []
+        },
+        {
+          "name": "ProcessName",
+          "kind": "get",
+          "returns": "WideString",
+          "params": []
+        },
+        {
+          "name": "TimeStartSecs",
+          "kind": "get",
+          "returns": "Double",
+          "params": []
+        },
+        {
+          "name": "TimeEndSecs",
+          "kind": "get",
+          "returns": "Double",
+          "params": []
+        },
+        {
+          "name": "TimingInfos",
+          "kind": "get",
+          "returns": "ITimingInfos",
+          "params": []
+        },
+        {
+          "name": "SeqNO",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "ProcessID",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "WebpageID",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "IsFiltered",
+          "kind": "get",
+          "returns": "WordBool",
+          "params": []
+        },
+        {
+          "name": "Hints",
+          "kind": "get",
+          "returns": "IHints",
+          "params": []
+        }
+      ]
     },
     "ILog": {
       "iid": "{474B05CB-F2DC-4A4D-978F-B543AF2F9406}",
@@ -169,7 +762,167 @@
         "DeleteUnGroupItems": 216,
         "__helpAddonPID": 217,
         "__helpCOMEventLinked": 218
-      }
+      },
+      "base": "IDispatch",
+      "methods": [
+        {
+          "name": "Count",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "Item",
+          "kind": "get",
+          "returns": "ILogEntry",
+          "params": [
+            {
+              "name": "Index",
+              "type": "Integer"
+            }
+          ]
+        },
+        {
+          "name": "_NewEnum",
+          "kind": "method",
+          "returns": "IUnknown",
+          "params": []
+        },
+        {
+          "name": "FilteredCount",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "DeletePersistentCookies",
+          "kind": "method",
+          "returns": "Word",
+          "params": []
+        },
+        {
+          "name": "DeleteCache",
+          "kind": "method",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "FilteredItem",
+          "kind": "get",
+          "returns": "ILogEntry",
+          "params": [
+            {
+              "name": "Index",
+              "type": "Integer"
+            }
+          ]
+        },
+        {
+          "name": "Summary",
+          "kind": "get",
+          "returns": "ISummary",
+          "params": []
+        },
+        {
+          "name": "WebPages",
+          "kind": "get",
+          "returns": "IWebpages",
+          "params": []
+        },
+        {
+          "name": "Processes",
+          "kind": "get",
+          "returns": "ILogEntryGroups",
+          "params": []
+        },
+        {
+          "name": "DeleteEntry",
+          "kind": "method",
+          "returns": "WordBool",
+          "params": [
+            {
+              "name": "AEntry",
+              "type": "ILogEntry"
+            }
+          ]
+        },
+        {
+          "name": "DeleteCompleteEntries",
+          "kind": "method",
+          "returns": "void",
+          "params": []
+        },
+        {
+          "name": "DeleteCacheForRecordedURLs",
+          "kind": "method",
+          "returns": "void",
+          "params": []
+        },
+        {
+          "name": "DeleteAllCache",
+          "kind": "method",
+          "returns": "void",
+          "params": []
+        },
+        {
+          "name": "DeleteCookiesForRecordedURLs",
+          "kind": "method",
+          "returns": "void",
+          "params": []
+        },
+        {
+          "name": "DeleteAllCookies",
+          "kind": "method",
+          "returns": "void",
+          "params": []
+        },
+        {
+          "name": "__HelpAddonVisible",
+          "kind": "get",
+          "returns": "WordBool",
+          "params": []
+        },
+        {
+          "name": "DeleteUnGroupItems",
+          "kind": "method",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "__helpAddonPID",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "__helpAddonPID",
+          "kind": "put",
+          "returns": "void",
+          "params": [
+            {
+              "name": "Value",
+              "type": "Integer"
+            }
+          ]
+        },
+        {
+          "name": "__helpCOMEventLinked",
+          "kind": "get",
+          "returns": "WordBool",
+          "params": []
+        },
+        {
+          "name": "__helpCOMEventLinked",
+          "kind": "put",
+          "returns": "void",
+          "params": [
+            {
+              "name": "Value",
+              "type": "WordBool"
+            }
+          ]
+        }
+      ]
     },
     "IHTTPAnalyzer": {
       "iid": "{CC4DFE61-D7FC-4871-8DFB-8F9686CA14BC}",
@@ -192,7 +945,169 @@
         "IsPaused": 216,
         "MaxLogSize": 217,
         "StillCaptureDataWhenHide": 218
-      }
+      },
+      "base": "IDispatch",
+      "methods": [
+        {
+          "name": "Stop",
+          "kind": "method",
+          "returns": "void",
+          "params": []
+        },
+        {
+          "name": "Clear",
+          "kind": "method",
+          "returns": "void",
+          "params": []
+        },
+        {
+          "name": "Log",
+          "kind": "get",
+          "returns": "ILog",
+          "params": []
+        },
+        {
+          "name": "IsLogging",
+          "kind": "get",
+          "returns": "WordBool",
+          "params": []
+        },
+        {
+          "name": "Start",
+          "kind": "method",
+          "returns": "void",
+          "params": []
+        },
+        {
+          "name": "LoadLog",
+          "kind": "method",
+          "returns": "void",
+          "params": [
+            {
+              "name": "FileName",
+              "type": "WideString"
+            }
+          ]
+        },
+        {
+          "name": "SaveLog",
+          "kind": "method",
+          "returns": "void",
+          "params": [
+            {
+              "name": "FileName",
+              "type": "WideString"
+            },
+            {
+              "name": "LogType",
+              "type": "LogType"
+            }
+          ]
+        },
+        {
+          "name": "SetFilter",
+          "kind": "method",
+          "returns": "void",
+          "params": [
+            {
+              "name": "FilterFile",
+              "type": "WideString"
+            }
+          ]
+        },
+        {
+          "name": "IsFiltered",
+          "kind": "get",
+          "returns": "WordBool",
+          "params": []
+        },
+        {
+          "name": "ClearFilter",
+          "kind": "method",
+          "returns": "void",
+          "params": []
+        },
+        {
+          "name": "DeleteUrlCache",
+          "kind": "method",
+          "returns": "WordBool",
+          "params": [
+            {
+              "name": "URL",
+              "type": "WideString"
+            }
+          ]
+        },
+        {
+          "name": "DeleteSessionCookies",
+          "kind": "method",
+          "returns": "void",
+          "params": []
+        },
+        {
+          "name": "DeletePersistentCookie",
+          "kind": "method",
+          "returns": "Word",
+          "params": [
+            {
+              "name": "URL",
+              "type": "WideString"
+            }
+          ]
+        },
+        {
+          "name": "Pause",
+          "kind": "method",
+          "returns": "void",
+          "params": []
+        },
+        {
+          "name": "Resume",
+          "kind": "method",
+          "returns": "void",
+          "params": []
+        },
+        {
+          "name": "IsPaused",
+          "kind": "get",
+          "returns": "WordBool",
+          "params": []
+        },
+        {
+          "name": "MaxLogSize",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "MaxLogSize",
+          "kind": "put",
+          "returns": "void",
+          "params": [
+            {
+              "name": "Value",
+              "type": "Integer"
+            }
+          ]
+        },
+        {
+          "name": "StillCaptureDataWhenHide",
+          "kind": "get",
+          "returns": "WordBool",
+          "params": []
+        },
+        {
+          "name": "StillCaptureDataWhenHide",
+          "kind": "put",
+          "returns": "void",
+          "params": [
+            {
+              "name": "Value",
+              "type": "WordBool"
+            }
+          ]
+        }
+      ]
     },
     "ITimingInfo": {
       "iid": "{DB079091-24CE-4262-AA79-36431504606C}",
@@ -200,7 +1115,28 @@
         "Start": 201,
         "Duration": 202,
         "IsValid": 203
-      }
+      },
+      "base": "IDispatch",
+      "methods": [
+        {
+          "name": "Start",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "Duration",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "IsValid",
+          "kind": "get",
+          "returns": "WordBool",
+          "params": []
+        }
+      ]
     },
     "ITimingInfos": {
       "iid": "{7F35D33F-72F9-4D2E-8381-B948C0C7EBE1}",
@@ -214,7 +1150,64 @@
         "TimeToFirstByte": 207,
         "NetWork": 208,
         "CacheRead": 209
-      }
+      },
+      "base": "IDispatch",
+      "methods": [
+        {
+          "name": "Block",
+          "kind": "get",
+          "returns": "ITimingInfo",
+          "params": []
+        },
+        {
+          "name": "DNSLookUp",
+          "kind": "get",
+          "returns": "ITimingInfo",
+          "params": []
+        },
+        {
+          "name": "Connect",
+          "kind": "get",
+          "returns": "ITimingInfo",
+          "params": []
+        },
+        {
+          "name": "Send",
+          "kind": "get",
+          "returns": "ITimingInfo",
+          "params": []
+        },
+        {
+          "name": "Wait",
+          "kind": "get",
+          "returns": "ITimingInfo",
+          "params": []
+        },
+        {
+          "name": "Receive",
+          "kind": "get",
+          "returns": "ITimingInfo",
+          "params": []
+        },
+        {
+          "name": "TimeToFirstByte",
+          "kind": "get",
+          "returns": "ITimingInfo",
+          "params": []
+        },
+        {
+          "name": "NetWork",
+          "kind": "get",
+          "returns": "ITimingInfo",
+          "params": []
+        },
+        {
+          "name": "CacheRead",
+          "kind": "get",
+          "returns": "ITimingInfo",
+          "params": []
+        }
+      ]
     },
     "ISummaryResult": {
       "iid": "{B7DA287B-88A4-448F-9064-1BABDBB3E9CB}",
@@ -222,7 +1215,28 @@
         "Result": 201,
         "Description": 202,
         "Count": 203
-      }
+      },
+      "base": "IDispatch",
+      "methods": [
+        {
+          "name": "Result",
+          "kind": "get",
+          "returns": "WideString",
+          "params": []
+        },
+        {
+          "name": "Description",
+          "kind": "get",
+          "returns": "WideString",
+          "params": []
+        },
+        {
+          "name": "Count",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        }
+      ]
     },
     "ISummaryResults": {
       "iid": "{4DDA3021-DF7E-4F72-891C-0F6510E4487C}",
@@ -230,7 +1244,33 @@
         "Count": 201,
         "Item": 0,
         "_NewEnum": -4
-      }
+      },
+      "base": "IDispatch",
+      "methods": [
+        {
+          "name": "Count",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "Item",
+          "kind": "get",
+          "returns": "ISummaryResult",
+          "params": [
+            {
+              "name": "Index",
+              "type": "Integer"
+            }
+          ]
+        },
+        {
+          "name": "_NewEnum",
+          "kind": "method",
+          "returns": "IUnknown",
+          "params": []
+        }
+      ]
     },
     "ISummary": {
       "iid": "{038334F0-ED29-411A-B4EA-828534D79E8F}",
@@ -247,7 +1287,82 @@
         "TotalHTTPSOverhead": 208,
         "AverageHTTPSOverhead": 209,
         "TimingSummaries": 212
-      }
+      },
+      "base": "IDispatch",
+      "methods": [
+        {
+          "name": "ElapsedTime",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "BytesReceived",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "BytesSent",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "CompressionSavedBytes",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "RoundTrips",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "DNSLookUps",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "TCPConnects",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "StatusCodes",
+          "kind": "get",
+          "returns": "ISummaryResults",
+          "params": []
+        },
+        {
+          "name": "Errors",
+          "kind": "get",
+          "returns": "ISummaryResults",
+          "params": []
+        },
+        {
+          "name": "TotalHTTPSOverhead",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "AverageHTTPSOverhead",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "TimingSummaries",
+          "kind": "get",
+          "returns": "ITimingSummaries",
+          "params": []
+        }
+      ]
     },
     "ILogEntryGroup": {
       "iid": "{E7D6E76C-7E3F-4FE4-985B-25DBF1FD4AA0}",
@@ -260,7 +1375,63 @@
         "StartDisplayText": 303,
         "StartSecs": 304,
         "StartDateTime": 305
-      }
+      },
+      "base": "IDispatch",
+      "methods": [
+        {
+          "name": "Count",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "Item",
+          "kind": "get",
+          "returns": "ILogEntry",
+          "params": [
+            {
+              "name": "Index",
+              "type": "Integer"
+            }
+          ]
+        },
+        {
+          "name": "_NewEnum",
+          "kind": "method",
+          "returns": "IUnknown",
+          "params": []
+        },
+        {
+          "name": "Summary",
+          "kind": "get",
+          "returns": "ISummary",
+          "params": []
+        },
+        {
+          "name": "Title",
+          "kind": "get",
+          "returns": "WideString",
+          "params": []
+        },
+        {
+          "name": "StartDisplayText",
+          "kind": "get",
+          "returns": "WideString",
+          "params": []
+        },
+        {
+          "name": "StartSecs",
+          "kind": "get",
+          "returns": "Double",
+          "params": []
+        },
+        {
+          "name": "StartDateTime",
+          "kind": "get",
+          "returns": "TDateTime",
+          "params": []
+        }
+      ]
     },
     "ILogEntryGroups": {
       "iid": "{31BBFAAD-E0AA-468D-9EEE-940B5EC0799D}",
@@ -268,7 +1439,33 @@
         "Count": 201,
         "Item": 0,
         "_NewEnum": -4
-      }
+      },
+      "base": "IDispatch",
+      "methods": [
+        {
+          "name": "Count",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "Item",
+          "kind": "get",
+          "returns": "ILogEntryGroup",
+          "params": [
+            {
+              "name": "Index",
+              "type": "Integer"
+            }
+          ]
+        },
+        {
+          "name": "_NewEnum",
+          "kind": "method",
+          "returns": "IUnknown",
+          "params": []
+        }
+      ]
     },
     "ITimingSummary": {
       "iid": "{E3AC90F7-EDBD-44A3-94F5-7F19C506DACF}",
@@ -278,7 +1475,40 @@
         "Average": 203,
         "Total": 204,
         "Occurrences": 205
-      }
+      },
+      "base": "IDispatch",
+      "methods": [
+        {
+          "name": "Minimum",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "Maximum",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "Average",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "Total",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "Occurrences",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        }
+      ]
     },
     "ITimingSummaries": {
       "iid": "{9E8021E8-3C2C-4E3A-91CA-55E07490BF57}",
@@ -292,7 +1522,64 @@
         "TimeToFirstByte": 207,
         "NetWork": 208,
         "CacheRead": 209
-      }
+      },
+      "base": "IDispatch",
+      "methods": [
+        {
+          "name": "Block",
+          "kind": "get",
+          "returns": "ITimingSummary",
+          "params": []
+        },
+        {
+          "name": "DNSLookUp",
+          "kind": "get",
+          "returns": "ITimingSummary",
+          "params": []
+        },
+        {
+          "name": "Connect",
+          "kind": "get",
+          "returns": "ITimingSummary",
+          "params": []
+        },
+        {
+          "name": "Send",
+          "kind": "get",
+          "returns": "ITimingSummary",
+          "params": []
+        },
+        {
+          "name": "Wait",
+          "kind": "get",
+          "returns": "ITimingSummary",
+          "params": []
+        },
+        {
+          "name": "Receive",
+          "kind": "get",
+          "returns": "ITimingSummary",
+          "params": []
+        },
+        {
+          "name": "TimeToFirstByte",
+          "kind": "get",
+          "returns": "ITimingSummary",
+          "params": []
+        },
+        {
+          "name": "NetWork",
+          "kind": "get",
+          "returns": "ITimingSummary",
+          "params": []
+        },
+        {
+          "name": "CacheRead",
+          "kind": "get",
+          "returns": "ITimingSummary",
+          "params": []
+        }
+      ]
     },
     "IWebpage": {
       "iid": "{7FB89A2C-760E-4C11-B600-2D180D601AB2}",
@@ -309,7 +1596,34 @@
         "StartDisplayText": 303,
         "StartSecs": 304,
         "StartDateTime": 305
-      }
+      },
+      "base": "ILogEntryGroup",
+      "methods": [
+        {
+          "name": "DOMReadyTime",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "PageLoadTime",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "NetworkTime",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "IsUnGroupPage",
+          "kind": "get",
+          "returns": "WordBool",
+          "params": []
+        }
+      ]
     },
     "IWebpages": {
       "iid": "{6F7AEA9E-30D9-451A-A7CE-7BD2BC2C0272}",
@@ -318,7 +1632,44 @@
         "Item": 0,
         "_NewEnum": -4,
         "ItemByID": 202
-      }
+      },
+      "base": "IDispatch",
+      "methods": [
+        {
+          "name": "Count",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "Item",
+          "kind": "get",
+          "returns": "IWebpage",
+          "params": [
+            {
+              "name": "Index",
+              "type": "Integer"
+            }
+          ]
+        },
+        {
+          "name": "_NewEnum",
+          "kind": "method",
+          "returns": "IUnknown",
+          "params": []
+        },
+        {
+          "name": "ItemByID",
+          "kind": "method",
+          "returns": "IWebpage",
+          "params": [
+            {
+              "name": "AWebpageID",
+              "type": "Integer"
+            }
+          ]
+        }
+      ]
     },
     "I_HttpAnalyzerAutoHelper": {
       "iid": "{1C6DA666-CC86-4509-B4AF-4FC9BC4FB692}",
@@ -332,7 +1683,96 @@
         "CurrentPID": 207,
         "Init": 208,
         "Version": 209
-      }
+      },
+      "base": "IDispatch",
+      "methods": [
+        {
+          "name": "Navigate",
+          "kind": "method",
+          "returns": "WordBool",
+          "params": [
+            {
+              "name": "URL",
+              "type": "WideString"
+            }
+          ]
+        },
+        {
+          "name": "ShowAddonBar",
+          "kind": "method",
+          "returns": "WordBool",
+          "params": [
+            {
+              "name": "Show",
+              "type": "WordBool"
+            }
+          ]
+        },
+        {
+          "name": "HTTPAnalyzer",
+          "kind": "get",
+          "returns": "IHTTPAnalyzer",
+          "params": []
+        },
+        {
+          "name": "BrowserWin",
+          "kind": "get",
+          "returns": "IUnknown",
+          "params": []
+        },
+        {
+          "name": "BrowserWin",
+          "kind": "put",
+          "returns": "void",
+          "params": [
+            {
+              "name": "Value",
+              "type": "IUnknown"
+            }
+          ]
+        },
+        {
+          "name": "DocLoaded",
+          "kind": "get",
+          "returns": "WordBool",
+          "params": []
+        },
+        {
+          "name": "Visible",
+          "kind": "get",
+          "returns": "WordBool",
+          "params": []
+        },
+        {
+          "name": "Visible",
+          "kind": "put",
+          "returns": "void",
+          "params": [
+            {
+              "name": "Value",
+              "type": "WordBool"
+            }
+          ]
+        },
+        {
+          "name": "CurrentPID",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "Init",
+          "kind": "method",
+          "returns": "void",
+          "params": []
+        },
+        {
+          "name": "Version",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        }
+      ]
     },
     "IHint": {
       "iid": "{45568484-192A-49E1-82AB-058370BEC7C1}",
@@ -340,7 +1780,28 @@
         "ID": 201,
         "Description": 202,
         "Category": 203
-      }
+      },
+      "base": "IDispatch",
+      "methods": [
+        {
+          "name": "ID",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "Description",
+          "kind": "get",
+          "returns": "WideString",
+          "params": []
+        },
+        {
+          "name": "Category",
+          "kind": "get",
+          "returns": "WideString",
+          "params": []
+        }
+      ]
     },
     "IHints": {
       "iid": "{66794437-FA18-4736-8B91-120D46EF7603}",
@@ -348,7 +1809,33 @@
         "Count": 201,
         "Item": 0,
         "_NewEnum": -4
-      }
+      },
+      "base": "IDispatch",
+      "methods": [
+        {
+          "name": "Count",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "Item",
+          "kind": "get",
+          "returns": "IHint",
+          "params": [
+            {
+              "name": "Index",
+              "type": "Integer"
+            }
+          ]
+        },
+        {
+          "name": "_NewEnum",
+          "kind": "method",
+          "returns": "IUnknown",
+          "params": []
+        }
+      ]
     },
     "IHTTPAnalyzerStandAlone": {
       "iid": "{C3283F65-5BAE-48F2-A377-E3C684323DE4}",
@@ -383,7 +1870,118 @@
         "IsPaused": 216,
         "MaxLogSize": 217,
         "StillCaptureDataWhenHide": 218
-      }
+      },
+      "base": "IHTTPAnalyzer",
+      "methods": [
+        {
+          "name": "Visible",
+          "kind": "get",
+          "returns": "WordBool",
+          "params": []
+        },
+        {
+          "name": "Visible",
+          "kind": "put",
+          "returns": "void",
+          "params": [
+            {
+              "name": "Value",
+              "type": "WordBool"
+            }
+          ]
+        },
+        {
+          "name": "AttachProcessByName",
+          "kind": "method",
+          "returns": "WordBool",
+          "params": [
+            {
+              "name": "ProcessName",
+              "type": "WideString"
+            }
+          ]
+        },
+        {
+          "name": "AttachProcessByID",
+          "kind": "method",
+          "returns": "WordBool",
+          "params": [
+            {
+              "name": "ProcessID",
+              "type": "Integer"
+            }
+          ]
+        },
+        {
+          "name": "AttachCurrentSession",
+          "kind": "method",
+          "returns": "void",
+          "params": []
+        },
+        {
+          "name": "AttachAllSessions",
+          "kind": "method",
+          "returns": "void",
+          "params": []
+        },
+        {
+          "name": "AttachNewProcess",
+          "kind": "method",
+          "returns": "void",
+          "params": [
+            {
+              "name": "ProcessName",
+              "type": "WideString"
+            }
+          ]
+        },
+        {
+          "name": "DetachProcessByID",
+          "kind": "method",
+          "returns": "WordBool",
+          "params": [
+            {
+              "name": "ProcessID",
+              "type": "Integer"
+            }
+          ]
+        },
+        {
+          "name": "DetachProcessByName",
+          "kind": "method",
+          "returns": "WordBool",
+          "params": [
+            {
+              "name": "ProcessName",
+              "type": "WideString"
+            }
+          ]
+        },
+        {
+          "name": "DeleteCacheForRecordedURLs",
+          "kind": "method",
+          "returns": "void",
+          "params": []
+        },
+        {
+          "name": "DeleteAllCache",
+          "kind": "method",
+          "returns": "void",
+          "params": []
+        },
+        {
+          "name": "DeleteCookiesForRecordedURLs",
+          "kind": "method",
+          "returns": "void",
+          "params": []
+        },
+        {
+          "name": "DeleteAllCookies",
+          "kind": "method",
+          "returns": "void",
+          "params": []
+        }
+      ]
     }
   },
   "logTypes": {
@@ -395,5 +1993,10 @@
     "5": "text",
     "6": "native",
     "7": "responses"
+  },
+  "events": {
+    "iid": "{B2077F52-4E22-4A6E-9055-1BE6DE830661}",
+    "OnNewEntry": 201,
+    "OnUpdateEntry": 202
   }
 }
