@@ -4,7 +4,7 @@
 // x86 stack slots in a guarded temporary SDK copy; never edit the module cache.
 import { spawnSync, execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { readFileSync, writeFileSync, mkdtempSync, rmSync, cpSync, chmodSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdtempSync, rmSync, cpSync, chmodSync, readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 const env = { ...process.env, GOOS: "windows", CGO_ENABLED: process.env.CGO_ENABLED ?? "0" };
@@ -12,6 +12,14 @@ const arch = env.GOARCH ?? { x64: "amd64", ia32: "386", arm64: "arm64" }[process
 if (!["386", "amd64", "arm64"].includes(arch)) throw new Error("Set GOARCH to 386, amd64 or arm64");
 env.GOARCH = arch;
 let temporary;
+function writableDirectories(directory) {
+  // Go's module cache uses read-only directories. cpSync retains those modes
+  // on Unix, where rm's force option does not grant directory write access.
+  chmodSync(directory, 0o700);
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    if (entry.isDirectory()) writableDirectories(path.join(directory, entry.name));
+  }
+}
 try {
   const args = process.argv.slice(2);
   if (arch === "386") {
@@ -69,5 +77,8 @@ func _iDropTargetDrop386(this uintptr, data *IDataObject, keys DWORD, x, y int32
   if (result.error) throw result.error;
   process.exitCode = result.status ?? 1;
 } finally {
-  if (temporary) rmSync(temporary, { recursive: true, force: true });
+  if (temporary) {
+    writableDirectories(temporary); // Confined to our mkdtemp tree; no symlinks.
+    rmSync(temporary, { recursive: true, force: true });
+  }
 }
