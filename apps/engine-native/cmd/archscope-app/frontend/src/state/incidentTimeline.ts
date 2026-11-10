@@ -695,15 +695,16 @@ function eventsFromTraceImport(entry: AnalysisWorkspaceEntry): IncidentTimelineE
 
   const criticalPaths = arrayOfObjects(entry.result.tables?.critical_paths);
   for (const [index, row] of criticalPaths.entries()) {
-    const duration = numberValue(row.critical_path_ms);
+    if (row.path_semantics !== "observed_span_chain_elapsed_estimate_v1" || typeof row.observed_path_elapsed_ms !== "number") continue;
+    const duration = numberValue(row.observed_path_elapsed_ms);
     if (duration < ACCESS_P95_THRESHOLD_MS) continue;
     events.push(
       makeEvent(entry, {
         idSuffix: `trace-critical-path-${stringValue(row.trace_id) || index}`,
         severity: duration >= 3_000 ? "critical" : "warning",
         category: "trace_latency",
-        label: "TRACE_CRITICAL_PATH",
-        description: `Critical path reached ${formatNumber(duration)} ms.`,
+        label: "TRACE_OBSERVED_PATH_ELAPSED",
+        description: `Observed path elapsed estimate reached ${formatNumber(duration)} ms.`,
         evidenceRef: "tables.critical_paths",
         payload: row,
         timeValue: firstTraceStart(entry.result, stringValue(row.trace_id)),

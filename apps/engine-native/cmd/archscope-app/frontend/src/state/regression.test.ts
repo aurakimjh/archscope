@@ -3194,3 +3194,13 @@ for (const sources of [[replacementPackSource],[{...oldPackSource,result:{...old
 const emptyPolicy = entry("empty-slo", "slo_golden_signals", buildSloAnalysisResultFromEntries([oldPackSource],[]));
 assert(buildReportPackPayload([],[replacementPackSource,emptyPolicy]).artifacts.slo_analysis.targets.length===0,"Explicit empty SLO policy is preserved");
 assert(buildReportPackPayload([],[oldTimeline]).artifacts.incident_timeline.summary.source_result_count===0,"Removed sources do not survive in an empty current pack");
+
+// T-615: only explicitly qualified observed elapsed values enter SLO/timeline.
+const elapsedTrace = entry("elapsed-trace","trace_import",{tables:{critical_paths:[
+  {trace_id:"known",critical_path_ms:9000,observed_path_elapsed_ms:100,path_semantics:"observed_span_chain_elapsed_estimate_v1"},
+  {trace_id:"missing",critical_path_ms:null,observed_path_elapsed_ms:null,path_semantics:"observed_span_chain_elapsed_estimate_v1"},
+  {trace_id:"legacy",critical_path_ms:9000},
+]}});
+const elapsedSignals = buildGoldenSignalInventory([elapsedTrace]).signals.filter(s=>s.evidence_ref==="tables.critical_paths");
+assert(elapsedSignals.length===1 && elapsedSignals[0].value===100,"SLO consumes qualified elapsed estimate, not old inclusive sums");
+assert(!buildIncidentTimelineEvents([elapsedTrace]).some(e=>e.label==="TRACE_OBSERVED_PATH_ELAPSED"),"Unknown/legacy path time cannot trigger a false incident");

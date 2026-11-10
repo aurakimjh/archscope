@@ -1259,7 +1259,10 @@ export type TraceImportServiceRow = {
 
 export type TraceImportCriticalPathRow = {
   trace_id: string;
-  critical_path_ms: number;
+  critical_path_ms: number | null;
+  observed_path_elapsed_ms?: number | null;
+  duration_unavailable_reason?: string;
+  path_semantics?: string;
   span_count: number;
   services: string[];
   span_names: string[];

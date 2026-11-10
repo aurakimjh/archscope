@@ -3,6 +3,7 @@
 package traceimport
 
 import (
+	"math"
 	"sort"
 	"strings"
 	"time"
@@ -15,7 +16,7 @@ import (
 const (
 	ResultType    = "trace_import"
 	ParserName    = "trace_import"
-	SchemaVersion = "0.1.0"
+	SchemaVersion = "0.2.0"
 	DefaultTopN   = 50
 
 	slowTraceP95ThresholdMS           = 1_000.0
@@ -70,7 +71,13 @@ func Build(spans []traceparser.Span, sourceFile, sourceFormat string, opts Optio
 	dependencies := buildDependencies(spans, spanByID)
 	missingParents := countMissingParents(spans, spanByID)
 	clockSkewCount := countClockSkewSuspects(spans, spanByID)
-	criticalPaths := buildCriticalPaths(spans, topN)
+	criticalPaths := buildCriticalPaths(spans, 0)
+	unavailablePaths := 0
+	for _, path := range criticalPaths {
+		if path.Unavailable != "" {
+			unavailablePaths++
+		}
+	}
 	traceDurations := make([]float64, 0, len(traceStats))
 	for _, trace := range traceStats {
 		traceDurations = append(traceDurations, nanosToMillis(trace.DurationNanos()))
@@ -96,19 +103,21 @@ func Build(spans []traceparser.Span, sourceFile, sourceFormat string, opts Optio
 	}
 
 	summary := map[string]any{
-		"source_format":              sourceFormat,
-		"total_spans":                len(spans),
-		"unique_traces":              len(traceStats),
-		"unique_services":            len(nonUnknownKeys(serviceStats)),
-		"unique_dependencies":        len(dependencies),
-		"root_spans":                 rootSpans,
-		"error_spans":                errorSpans,
-		"missing_parent_spans":       missingParents,
-		"clock_skew_suspected_spans": clockSkewCount,
-		"p95_trace_duration_ms":      p95TraceDurationMS,
-		"max_trace_duration_ms":      maxTraceDurationMS,
-		"unbalanced_service_count":   unbalancedServices,
-		"high_error_service_edges":   highErrorEdges,
+		"source_format":                   sourceFormat,
+		"total_spans":                     len(spans),
+		"unique_traces":                   len(traceStats),
+		"unique_services":                 len(nonUnknownKeys(serviceStats)),
+		"unique_dependencies":             len(dependencies),
+		"root_spans":                      rootSpans,
+		"error_spans":                     errorSpans,
+		"missing_parent_spans":            missingParents,
+		"clock_skew_suspected_spans":      clockSkewCount,
+		"p95_trace_duration_ms":           p95TraceDurationMS,
+		"max_trace_duration_ms":           maxTraceDurationMS,
+		"unbalanced_service_count":        unbalancedServices,
+		"high_error_service_edges":        highErrorEdges,
+		"path_elapsed_available_traces":   len(criticalPaths) - unavailablePaths,
+		"path_elapsed_unavailable_traces": unavailablePaths,
 	}
 
 	result := models.New(ResultType, ParserName)
@@ -128,6 +137,10 @@ func Build(spans []traceparser.Span, sourceFile, sourceFormat string, opts Optio
 		"critical_paths":       criticalPathRows(criticalPaths, topN),
 	}
 	result.Metadata.SchemaVersion = SchemaVersion
+	result.Metadata.Extra["path_latency"] = map[string]any{"version": "1.0.0", "semantics": "observed_span_chain_elapsed_estimate_v1", "causal_critical_path_proven": false, "available_traces": len(criticalPaths) - unavailablePaths, "unavailable_traces": unavailablePaths}
+	if unavailablePaths > 0 {
+		result.AddFinding("warning", "TRACE_PATH_LATENCY_UNAVAILABLE", "Some trace path elapsed estimates are unavailable because timestamps or graph structure could not be validated.", map[string]any{"trace_count": unavailablePaths})
+	}
 	result.Metadata.Extra["analysis_options"] = map[string]any{
 		"format": opts.Format,
 		"top_n":  topN,
@@ -344,12 +357,17 @@ func countClockSkewSuspects(spans []traceparser.Span, spanByID map[string]tracep
 	return count
 }
 
+// A trace export establishes ancestry and observed intervals, not scheduling
+// dependencies. This is an observed-chain elapsed estimate, never a causal
+// critical-path proof. Inclusive work is exposed separately for comparison.
 type criticalPath struct {
 	TraceID       string
 	DurationNanos int64
 	SpanCount     int
 	Services      map[string]struct{}
 	SpanNames     []string
+	CumulativeMS  float64
+	Unavailable   string
 }
 
 func buildCriticalPaths(spans []traceparser.Span, limit int) []criticalPath {
@@ -358,13 +376,13 @@ func buildCriticalPaths(spans []traceparser.Span, limit int) []criticalPath {
 		byTrace[span.TraceID] = append(byTrace[span.TraceID], span)
 	}
 	out := make([]criticalPath, 0, len(byTrace))
-	for traceID, traceSpans := range byTrace {
-		path := longestSpanChain(traceID, traceSpans)
-		if path.SpanCount > 0 {
-			out = append(out, path)
-		}
+	for id, rows := range byTrace {
+		out = append(out, longestSpanChain(id, rows))
 	}
 	sort.SliceStable(out, func(i, j int) bool {
+		if (out[i].Unavailable == "") != (out[j].Unavailable == "") {
+			return out[i].Unavailable == ""
+		}
 		if out[i].DurationNanos != out[j].DurationNanos {
 			return out[i].DurationNanos > out[j].DurationNanos
 		}
@@ -377,64 +395,99 @@ func buildCriticalPaths(spans []traceparser.Span, limit int) []criticalPath {
 }
 
 func longestSpanChain(traceID string, spans []traceparser.Span) criticalPath {
+	fail := func(reason string) criticalPath {
+		return criticalPath{TraceID: traceID, SpanCount: len(spans), Services: map[string]struct{}{}, SpanNames: []string{}, Unavailable: reason}
+	}
 	byID := map[string]traceparser.Span{}
 	children := map[string][]traceparser.Span{}
 	for _, span := range spans {
+		if span.SpanID == "" {
+			return fail("missing_span_id")
+		}
+		if _, exists := byID[span.SpanID]; exists {
+			return fail("duplicate_span_id")
+		}
+		if span.StartUnixNanos <= 0 {
+			return fail("missing_timestamp")
+		}
+		if span.DurationNanos < 0 || span.StartUnixNanos > math.MaxInt64-span.DurationNanos {
+			return fail("invalid_interval")
+		}
 		byID[span.SpanID] = span
 		children[span.ParentSpanID] = append(children[span.ParentSpanID], span)
 	}
-	for parentID := range children {
-		sort.SliceStable(children[parentID], func(i, j int) bool {
-			if children[parentID][i].StartUnixNanos != children[parentID][j].StartUnixNanos {
-				return children[parentID][i].StartUnixNanos < children[parentID][j].StartUnixNanos
-			}
-			return children[parentID][i].SpanID < children[parentID][j].SpanID
-		})
-	}
-	memo := map[string]criticalPath{}
-	var visit func(span traceparser.Span) criticalPath
-	visit = func(span traceparser.Span) criticalPath {
-		if cached, ok := memo[span.SpanID]; ok {
-			return cached
-		}
-		bestChild := criticalPath{}
-		for _, child := range children[span.SpanID] {
-			candidate := visit(child)
-			if candidate.DurationNanos > bestChild.DurationNanos {
-				bestChild = candidate
-			}
-		}
-		services := map[string]struct{}{}
-		for service := range bestChild.Services {
-			services[service] = struct{}{}
-		}
-		if span.ServiceName != "" {
-			services[span.ServiceName] = struct{}{}
-		}
-		names := append([]string{span.Name}, bestChild.SpanNames...)
-		path := criticalPath{
-			TraceID:       traceID,
-			DurationNanos: span.DurationNanos + bestChild.DurationNanos,
-			SpanCount:     1 + bestChild.SpanCount,
-			Services:      services,
-			SpanNames:     names,
-		}
-		memo[span.SpanID] = path
-		return path
-	}
-	best := criticalPath{}
+	// [한글] 재귀 대신 부모 포인터를 색칠하며 순환을 검사한다. 깊은 트리도
+	// 호출 스택을 늘리지 않는다. 시간 구간이 부모 밖이면 추정치를 만들지 않는다.
+	colors := map[string]int{}
 	for _, span := range spans {
-		if span.ParentSpanID != "" {
-			if _, ok := byID[span.ParentSpanID]; ok {
-				continue
-			}
+		if colors[span.SpanID] == 2 {
+			continue
 		}
-		candidate := visit(span)
-		if candidate.DurationNanos > best.DurationNanos {
-			best = candidate
+		chain := []string{}
+		id := span.SpanID
+		for id != "" {
+			node, exists := byID[id]
+			if !exists {
+				break
+			}
+			if colors[id] == 1 {
+				return fail("cyclic_parent_graph")
+			}
+			if colors[id] == 2 {
+				break
+			}
+			colors[id] = 1
+			chain = append(chain, id)
+			if parent, ok := byID[node.ParentSpanID]; ok && (node.StartUnixNanos < parent.StartUnixNanos || node.StartUnixNanos+node.DurationNanos > parent.StartUnixNanos+parent.DurationNanos) {
+				return fail("parent_child_clock_skew")
+			}
+			id = node.ParentSpanID
+		}
+		for _, id := range chain {
+			colors[id] = 2
 		}
 	}
-	return best
+	roots := []traceparser.Span{}
+	for _, span := range spans {
+		if _, ok := byID[span.ParentSpanID]; !ok {
+			roots = append(roots, span)
+		}
+	}
+	if len(roots) == 0 {
+		return fail("missing_root")
+	}
+	less := func(a, b traceparser.Span) bool {
+		if a.DurationNanos != b.DurationNanos {
+			return a.DurationNanos > b.DurationNanos
+		}
+		if a.StartUnixNanos != b.StartUnixNanos {
+			return a.StartUnixNanos < b.StartUnixNanos
+		}
+		return a.SpanID < b.SpanID
+	}
+	sort.SliceStable(roots, func(i, j int) bool { return less(roots[i], roots[j]) })
+	for id := range children {
+		rows := children[id]
+		sort.SliceStable(rows, func(i, j int) bool { return less(rows[i], rows[j]) })
+	}
+	root := roots[0]
+	path := criticalPath{TraceID: traceID, DurationNanos: root.DurationNanos, Services: map[string]struct{}{}, SpanNames: []string{}}
+	// All selected descendants are contained in the root interval, so their
+	// interval union has the root's duration. They must not be added again.
+	for node := root; ; {
+		path.SpanCount++
+		path.SpanNames = append(path.SpanNames, node.Name)
+		path.CumulativeMS += nanosToMillis(node.DurationNanos)
+		if node.ServiceName != "" {
+			path.Services[node.ServiceName] = struct{}{}
+		}
+		next := children[node.SpanID]
+		if len(next) == 0 {
+			break
+		}
+		node = next[0]
+	}
+	return path
 }
 
 func criticalPathRows(paths []criticalPath, limit int) []map[string]any {
@@ -443,13 +496,12 @@ func criticalPathRows(paths []criticalPath, limit int) []map[string]any {
 	}
 	rows := make([]map[string]any, 0, len(paths))
 	for _, path := range paths {
-		rows = append(rows, map[string]any{
-			"trace_id":         path.TraceID,
-			"critical_path_ms": nanosToMillis(path.DurationNanos),
-			"span_count":       path.SpanCount,
-			"services":         sortedSet(path.Services),
-			"span_names":       path.SpanNames,
-		})
+		var elapsed, work any
+		if path.Unavailable == "" {
+			elapsed = nanosToMillis(path.DurationNanos)
+			work = path.CumulativeMS
+		}
+		rows = append(rows, map[string]any{"trace_id": path.TraceID, "critical_path_ms": elapsed, "observed_path_elapsed_ms": elapsed, "selected_chain_cumulative_ms": work, "duration_unavailable_reason": path.Unavailable, "path_semantics": "observed_span_chain_elapsed_estimate_v1", "causal_critical_path_proven": false, "span_count": path.SpanCount, "services": sortedSet(path.Services), "span_names": path.SpanNames})
 	}
 	return rows
 }

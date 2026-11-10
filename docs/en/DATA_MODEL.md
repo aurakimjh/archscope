@@ -1460,3 +1460,13 @@ remain null with `duration_unavailable_reason`. Summary and drilldown expose
 rows and elapsed ratios follow this contract. pprof export preserves original
 weighted units and adds no interval-derived duration/period for lock counters.
 The typed V8/Chrome microsecond contract is unchanged.
+
+Trace path latency (T-615): `observed_path_elapsed_ms` is the elapsed interval
+of an observed ancestry chain, explicitly an estimate rather than proof of a
+causal critical path. Contained ancestor/descendant intervals are not summed.
+`critical_path_ms` is a compatibility alias; `selected_chain_cumulative_ms`
+separately preserves inclusive work. Missing timestamps, clock skew, duplicate
+span IDs or cycles yield null with `duration_unavailable_reason`. UI, SLO and
+incident projections consume only the qualified new semantics, never an
+unverified legacy inclusive sum. Overall available/unavailable trace counts
+remain separate from the top-N path table.

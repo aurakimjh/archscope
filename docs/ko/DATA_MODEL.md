@@ -1604,3 +1604,12 @@ null과 `duration_unavailable_reason`으로 반환합니다. 요약과 드릴다
 `aggregation`, nullable `seconds_per_weight`를 제공하며 시간 행과 경과 비율도 같은 계약을
 따릅니다. pprof는 가중치의 원본 단위를 유지하며 잠금 카운터에 샘플 간격 기반 시간이나
 주기를 추가하지 않습니다. V8/Chrome의 기존 마이크로초 계약은 유지합니다.
+
+Trace 경로 시간(T-615): `observed_path_elapsed_ms`는 관측된 부모·자식 호출
+경로의 경과 구간이며 정확한 인과 임계 경로의 증명이 아닌 추정값이다.
+포함 관계인 상위/하위 span 시간을 다시 합하지 않는다. `critical_path_ms`는
+호환용 별칭이고 `selected_chain_cumulative_ms`는 누적 작업량을 별도 보존한다.
+시간 누락·시계 불일치·중복 span ID·순환은 null과
+`duration_unavailable_reason`으로 반환한다. 화면·SLO·장애 타임라인은 새 의미가
+명시된 값만 사용하며 이전의 미검증 누적값은 사용하지 않는다. 전체 계산
+가능/불가 Trace 수는 top-N 경로 표와 별도로 유지한다.

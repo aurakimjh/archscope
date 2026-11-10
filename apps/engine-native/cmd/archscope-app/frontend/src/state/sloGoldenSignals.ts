@@ -284,14 +284,14 @@ export const DEFAULT_SLO_TARGETS: SloTarget[] = [
   },
   {
     id: "trace-critical-path-5s-critical",
-    name: "Trace critical path under 5s",
+    name: "Trace observed path elapsed estimate under 5s",
     severity: "critical",
     comparator: "lte",
     threshold: 5_000,
     unit: "ms",
     objective_percent: 99,
     window_label: "session",
-    match: { kind: "latency", units: ["ms"], nameIncludes: ["critical", "path"] },
+    match: { kind: "latency", units: ["ms"], nameIncludes: ["observed", "path"] },
   },
   {
     id: "msa-network-gap-avg-50ms-warning",
@@ -1019,9 +1019,10 @@ function signalsFromTraceImport(entry: AnalysisWorkspaceEntry): GoldenSignal[] {
   }
 
   for (const row of arrayOfObjects(entry.result.tables?.critical_paths).slice(0, MAX_ROW_SIGNALS)) {
+    if (row.path_semantics !== "observed_span_chain_elapsed_estimate_v1" || typeof row.observed_path_elapsed_ms !== "number") continue;
     addRowSignal(out, entry, row, {
-      key: "critical_path_ms",
-      name: "Trace critical-path latency",
+      key: "observed_path_elapsed_ms",
+      name: "Trace observed path elapsed estimate",
       kind: "latency",
       unit: "ms",
       aggregation: "max",
