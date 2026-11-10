@@ -235,8 +235,8 @@ export class AnalyzeRequest {
 
     /**
      * ProgressLogDir overrides where the analyzer writes its
-     * streaming progress log. Empty → next to the executable
-     * (archscope-logs/), with cwd / temp-dir fallbacks.
+     * streaming progress log. Empty uses the user cache directory
+     * (ArchScope/logs), with a temporary-directory fallback.
      */
     "progressLogDir"?: string;
 
@@ -1003,8 +1003,8 @@ export class DrilldownRequest {
 
     /**
      * ProgressLogDir overrides where the analyzer writes its
-     * streaming progress log. Empty → next to the executable
-     * (archscope-logs/), with cwd / temp-dir fallbacks.
+     * streaming progress log. Empty uses the user cache directory
+     * (ArchScope/logs), with a temporary-directory fallback.
      */
     "progressLogDir"?: string;
 
@@ -1377,8 +1377,8 @@ export class ExportPprofRequest {
 
     /**
      * ProgressLogDir overrides where the analyzer writes its
-     * streaming progress log. Empty → next to the executable
-     * (archscope-logs/), with cwd / temp-dir fallbacks.
+     * streaming progress log. Empty uses the user cache directory
+     * (ArchScope/logs), with a temporary-directory fallback.
      */
     "progressLogDir"?: string;
 

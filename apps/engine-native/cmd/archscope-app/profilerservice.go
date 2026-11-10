@@ -40,6 +40,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -156,8 +157,8 @@ type AnalyzeRequest struct {
 	MaxRSSMB           int `json:"maxRssMb,omitempty"`
 	MaxFlamegraphNodes int `json:"maxFlamegraphNodes,omitempty"`
 	// ProgressLogDir overrides where the analyzer writes its
-	// streaming progress log. Empty → next to the executable
-	// (archscope-logs/), with cwd / temp-dir fallbacks.
+	// streaming progress log. Empty uses the user cache directory
+	// (ArchScope/logs), with a temporary-directory fallback.
 	ProgressLogDir string `json:"progressLogDir,omitempty"`
 	// TimelineCategories carries user-supplied additional method
 	// patterns per timeline segment. Keys are segment IDs (e.g.
@@ -426,6 +427,14 @@ func (s *ProfilerService) optionsFromRequest(req AnalyzeRequest) (profiler.Optio
 		MaxFlamegraphNodes: req.MaxFlamegraphNodes,
 		TimelineCategories: req.TimelineCategories,
 		ProgressLogDir:     req.ProgressLogDir,
+	}
+	// 앱 번들은 서명된 실행 자산이다. 자동 로그는 사용자 쓰기 가능 캐시에 둔다.
+	if options.ProgressLogDir == "" {
+		cache, err := os.UserCacheDir()
+		if err != nil {
+			cache = os.TempDir()
+		}
+		options.ProgressLogDir = filepath.Join(cache, "ArchScope", "logs")
 	}
 	if req.ElapsedSec >= 0 {
 		elapsed := req.ElapsedSec
