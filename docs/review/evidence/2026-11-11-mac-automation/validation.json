@@ -1,14 +1,14 @@
 {
   "date": "2026-11-11",
   "host": "macOS arm64",
-  "scope": "Mac implementation and local verification; new Windows runtime tests prepared for CI",
+  "scope": "Mac implementation/local validation plus hosted Windows and macOS CI; remaining reference and target-process contracts explicit",
   "ci_runner": {
     "old": "macos-14",
     "new": "macos-15",
     "retirement_date": "2026-11-02",
     "source": "https://github.blog/changelog/2026-10-01-github-actions-macos-14-runner-image-retirement/",
     "workflow_yaml": "pass",
-    "hosted_run": "pending final push"
+    "hosted_run": "PASS: both macos-15 jobs at product commit 7709787; see ci-validation.json"
   },
   "local_checks": {
     "full_go_race": "pass",
@@ -23,7 +23,7 @@
     "windows_amd64_production_GUI_cross_build": "pass",
     "windows_386_production_GUI_cross_build": "pass"
   },
-  "native_Windows_tests": "compiled, not executed on Mac; dual flags, HRESULT signatures, connection lifetime, reversed VARIANT/by-ref callback, real separate-process IDispatch/ITypeInfo and 386 execution added to CI",
+  "native_Windows_tests": "PASS on hosted amd64-race and native 386: dual metadata, connection lifetime, event/by-ref ABI and real separate-process IDispatch/ITypeInfo. See ci-validation.json for exact scope.",
   "filter_presets": {
     "read_only_original_count": 17,
     "supported": 16,
@@ -58,5 +58,6 @@
       "bytes": 8135680,
       "sha256": "3a9446bf9e78b8ca80d88414493631030ddb57e3a3b2a4f3ca7acbda0ab8ae75"
     }
-  ]
+  ],
+  "artifact_build_source_commit": "a9e0d9b; local cross-build hashes below precede the subsequent native CI remediation. Final product source 7709787 passes GUI cross-builds and actual COM tests in CI."
 }

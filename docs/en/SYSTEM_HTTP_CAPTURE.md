@@ -1700,3 +1700,26 @@ records full Go race/vet, frontend state/build, macOS package/signature, desktop
 only checks and both Windows GUI cross-builds. T-611 remains REVIEW for the
 explicit remaining contracts above. macOS CI and Release now use macos-15;
 GitHub retired macos-14 on 2026-11-02.
+
+### Hosted native results (final product commit 7709787)
+
+Engine Native run 42909617678, Windows COM contract 42909617794 and general CI
+42909617793 all passed. Both macos-15 jobs now start and pass full Go checks,
+offline imports, app packaging and strict signature validation. Linux/Windows
+checks, frontend, both GUI cross-builds and existing Windows live/body/policy
+checks pass.
+
+The dedicated COM suite executes on native amd64 with race/checkptr and on 386.
+It verifies dual metadata/HRESULT signatures, connection-point identity/lifetime,
+event argument order/by-ref cancellation and real separate-process IDispatch/
+ITypeInfo. Earlier failures exposed token-buffer pointer/alignment and metadata
+parameter naming defects; both were corrected and the replacement runs passed.
+The original presets remain private/optional in public CI; the read-only Mac
+16-supported/1-explicit-refusal check is separate.
+
+[Scoped CI results](../review/evidence/2026-11-11-mac-automation/ci-validation.json)
+identify source, jobs and limits. T-611 remains REVIEW for clean-host custom-IID
+marshaling/current vendor early-bound clients, exact pre-storage cancel/physical
+retention, missing cache-origin filter evidence and target-process in-memory
+session-cookie integration. The new native tests neither capture real traffic
+nor delete browser data and are not a full GUI/reference parity verdict.
