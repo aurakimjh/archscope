@@ -1339,15 +1339,20 @@ sessions keep `.httpsession`. Local probe, refusal/immutability, CLI and fixture
 tests pass; **the proprietary codec is not implemented**. T-608 remains PENDING
 on genuine format evidence rather than being closed on synthetic self-roundtrips.
 
-### Cross-build verification limit (2026-11-10)
+### Windows architecture builds (2026-11-10)
 
-The complete production desktop cross-build succeeds for Windows amd64. The
-Windows 386 desktop build is blocked in pinned Wails v3 alpha2.117
-`pkg/updater/extract.go` (lines 252/293): the untyped 2 GiB
-`maxArchiveTotalSize` constant overflows `int` when passed to `fmt.Errorf`.
-The project's launch and automation helper tests compile for Windows 386;
-that narrower check must not be reported as a successful x86 desktop build.
-No SDK upgrade or module-cache patch was applied. This packaging limitation is
-separate from capturing a 32-bit client with a 64-bit desktop, which still needs
-native reach measurement. Mac production build, full Go tests/vet, focused race
-checks, frontend state/build and synthetic/report-contract checks pass locally.
+The native Windows Taskfile uses `node build/windows/build.mjs`. From the app
+folder, cross-build with `GOARCH=386 node build/windows/build.mjs -tags production
+-ldflags "-H windowsgui" -o /private/tmp/archscope-x86.exe .` (PowerShell:
+`$env:GOARCH="386"` then the same Node command with a local output path).
+Use `GOARCH=amd64` for x64. Build the frontend first with `npm run build` in
+`frontend/`. The wrapper sets GOOS=windows and defaults CGO_ENABLED=0.
+
+For 386 only, it creates a private module copy and temporary modfile for Wails alpha2.117,
+verified by version and the updater source SHA256. Two fmt arguments cast the
+existing 2 GiB constant to int64, preserving the archive limit. Unknown source,
+module replacement or external modfile/overlay fails explicitly. The module cache and
+SDK version remain untouched; temporary files are removed even on build failure.
+Direct `go build` bypasses this fix. Docker CGO builds currently support only
+amd64/arm64. Binary cross-build success does not prove native UI, installer,
+auto-update execution or capture of 32-bit clients.

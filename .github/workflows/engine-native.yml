@@ -19,6 +19,31 @@ defaults:
     working-directory: apps/engine-native
 
 jobs:
+  windows-cross:
+    name: Windows GUI cross-build (${{ matrix.arch }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [386, amd64]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: "1.26.x"
+          cache-dependency-path: apps/engine-native/go.sum
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+      - name: Frontend production assets
+        working-directory: apps/engine-native/cmd/archscope-app/frontend
+        run: npm ci && npm run build
+      - name: Build Windows GUI executable
+        working-directory: apps/engine-native/cmd/archscope-app
+        env:
+          GOARCH: ${{ matrix.arch }}
+        run: node build/windows/build.mjs -tags production -trimpath -ldflags "-H windowsgui" -o "${{ runner.temp }}/archscope-${{ matrix.arch }}.exe" .
+
   go:
     name: Go test/build (${{ matrix.os }})
     strategy:

@@ -4624,13 +4624,19 @@ Native `.halog`와 Full XML로 저장하며 버전 근거와 기대 값도 남�
 원본 보존·CLI·합성 트래픽 검사를 통과했지만 **독점 코덱은 미구현**입니다. T-608은
 합성 데이터의 자체 왕복으로 닫지 않고 실제 형식 근거를 기다리는 PENDING입니다.
 
-### 교차 빌드 검증 한계 (2026-11-10)
+### Windows 아키텍처별 빌드 (2026-11-10)
 
-전체 프로덕션 데스크톱의 Windows amd64 교차 빌드는 성공했습니다. Windows 386 앱은
-고정 Wails v3 alpha2.117의 `pkg/updater/extract.go` 252/293행에서 2 GiB의 비형식
-`maxArchiveTotalSize` 상수를 `fmt.Errorf`에 전달할 때 `int`가 넘쳐 실패합니다.
-프로젝트의 실행·자동화 도우미는 Windows 386 컴파일을 통과하지만 이를 전체 x86 앱
-빌드 통과로 보고하지 않습니다. SDK를 올리거나 모듈 캐시를 패치하지 않았습니다.
-이 패키징 제한은 64비트 앱에서 32비트 클라이언트를 캡처하는지와 별개이며 해당 범위는
-실기 검증이 필요합니다. Mac 빌드·전체 Go 테스트/vet·주요 race 검사·프런트엔드
-상태/빌드·합성 데이터와 결과 판정 규칙 검사는 로컬에서 통과했습니다.
+Windows Taskfile은 `node build/windows/build.mjs`를 사용합니다. 앱 폴더에서
+`GOARCH=386 node build/windows/build.mjs -tags production -ldflags "-H windowsgui"
+-o /private/tmp/archscope-x86.exe .`로 교차 빌드합니다. PowerShell에서는
+`$env:GOARCH="386"`을 먼저 설정하고 출력 경로를 로컬 경로로 바꿉니다.
+x64는 `GOARCH=amd64`를 사용하며, 먼저 `frontend/`에서 `npm run build`를 실행합니다.
+래퍼는 GOOS=windows를 설정하고 CGO_ENABLED 기본값을 0으로 둡니다.
+
+386에서만 고정 Wails alpha2.117의 버전과 updater 소스 SHA256을 확인한 뒤 임시 모듈
+사본과 별도의 go.mod를 만듭니다. fmt 인수 두 곳의 기존 2 GiB 상수만 int64로 변환하므로 압축 해제
+제한은 같습니다. 알 수 없는 소스·모듈 교체·외부 modfile/오버레이는 명시적으로 거부합니다.
+모듈 캐시와 SDK 버전은 그대로 유지하고 빌드 실패 시에도 임시 파일을 지웁니다.
+직접 `go build`하면 이 수정이 적용되지 않습니다. Docker CGO 빌드는 현재 amd64/arm64만
+지원합니다. 교차 빌드 성공은 네이티브 화면·설치·자동 업데이트 실행이나 32비트
+클라이언트 캡처 검증을 뜻하지 않습니다.

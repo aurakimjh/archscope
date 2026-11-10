@@ -1,6 +1,6 @@
 # ArchScope Work Status
 
-Last updated: 2026-11-09
+Last updated: 2026-11-10
 
 This file is the current execution status for the active ArchScope product line.
 The previous long-form history was archived to
@@ -239,9 +239,17 @@ T-611 local control, T-613 harness preparation, T-601 backend/lifecycle hardenin
 and T-608 format-evidence preparation are committed separately. Product gates
 remain open as recorded in the registry. Full Go tests/vet, focused race checks,
 frontend state/build, Mac production build and Windows amd64 desktop cross-build
-pass locally. Windows 386 desktop compilation is blocked by the pinned Wails
-updater's untyped 2 GiB constant in `fmt.Errorf`; successful 386 helper compilation
-is narrower evidence and does not prove the x86 desktop or 32-bit client reach.
+pass locally. The four additional Mac-executable follow-ups are tracked below;
+Windows runtime acceptance and genuine-format gates remain separate.
+
+### Mac follow-ups approved on 2026-11-10
+
+| Work | State | Evidence / remaining action |
+|---|---|---|
+| Windows x86 desktop build | DONE | Guarded temporary Wails module copy/modfile fixes the two overflowing fmt arguments without changing the 2 GiB limit, SDK pin or module cache. Full x86/x64 GUI-subsystem cross-builds pass; CI cross-build matrix added. Native execution/installer/client reach remain unverified. |
+| Desktop command wiring | TODO | Connect save/help/group commands and verify shared keyboard/menu dispatch. |
+| T-611 shortcut launch | TODO | Resolve .lnk target/arguments/working directory before suspended process creation; cross-compile and test portable parsing/contracts. |
+| T-613 resilience checks | TODO | Exercise repeat capture/re-entry, interruption/shutdown races and failure cleanup locally. |
 
 ### Open Work Snapshot
 
