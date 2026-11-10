@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"sync"
 	"time"
 
 	engineapi "github.com/aurakimjh/archscope/apps/engine-native/api"
@@ -26,9 +27,10 @@ import (
 )
 
 type CaptureService struct {
-	builder *requestbuilder.Client
-	manager *session.Manager
-	trust   *certstore.Lifecycle
+	annotationMu sync.Mutex
+	builder      *requestbuilder.Client
+	manager      *session.Manager
+	trust        *certstore.Lifecycle
 }
 
 type CaptureFetchRequest struct {
@@ -203,7 +205,17 @@ func (s *CaptureService) SetCapturePaused(sessionID string, paused bool) (captur
 }
 
 func (s *CaptureService) ClearCapture(sessionID string) (capture.Session, error) {
-	return s.manager.Clear(capture.SessionID(sessionID))
+	s.annotationMu.Lock()
+	defer s.annotationMu.Unlock()
+	result, err := s.manager.Clear(capture.SessionID(sessionID))
+	if err != nil {
+		return result, err
+	}
+	dir, err := s.manager.SessionPath(capture.SessionID(sessionID))
+	if err == nil {
+		err = store.WriteAnnotations(dir, map[string]models.HTTPAnnotation{})
+	}
+	return result, err
 }
 
 func (s *CaptureService) StopCapture(sessionID string) (capture.Session, error) {
@@ -301,6 +313,15 @@ func (s *CaptureService) AnalyzeCaptureSession(request CaptureAnalyzeRequest) (e
 		if err != nil {
 			return engineapi.AnalysisResult{}, err
 		}
+	}
+	annotations, annotationErr := s.GetCaptureAnnotations(request.SessionID)
+	if annotationErr != nil {
+		return engineapi.AnalysisResult{}, annotationErr
+	}
+	for i := range transactions {
+		value := annotations[transactions[i].ID]
+		transactions[i].Starred = value.Starred
+		transactions[i].Comment = value.Comment
 	}
 	source := "capture://" + request.SessionID
 	manifest, err := s.manager.Manifest(capture.SessionID(request.SessionID))

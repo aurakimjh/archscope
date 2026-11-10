@@ -1154,3 +1154,21 @@ HAR/response-directory export uses re-encoded PNG. Local fixtures cover the body
 opt-in, raster bounds, duplicate cookie attributes, masking, inert markup,
 UTF-8 offsets and all existing capture/parser/session regressions. Native visual
 acceptance is pending the unlocked Mac/Windows runs.
+
+### Request hints and annotations (T-609)
+
+Hints/Status/Comment detail explains the selected response class, recorded
+failure, omitted/truncated/redacted data and uncertain process attribution.
+Findings link to requests only when evidence explicitly contains their IDs;
+session-wide findings do not acquire invented targets. Hints, hint lists,
+comments and stars are available as grid fields, with a starred-only filter.
+
+Live stars/comments are stored atomically in a bounded sidecar keyed by exchange
+ID. The service verifies the ID still exists, masks comment text and clears notes
+with the capture log. Finalized analysis and native JSON/XML/ArchScope HAR export
+merge the annotations. Opened-file edits stay in memory until Save/export and
+never overwrite the input file implicitly. Comment saves ignore responses from
+obsolete sources. Sorting/filtering changes placement, not annotation identity.
+Local service and round-trip fixtures verify ordering, retained stars, redacted
+comments, unknown-ID rejection and reopened XML/native sessions; renderer state
+regressions verify row hints and explicit finding links.

@@ -6,6 +6,7 @@ export {
     CaptureTransaction,
     CookieAttribute,
     Duration,
+    HTTPAnnotation,
     HTTPMessage,
     HeaderField,
     InformationalResponse,

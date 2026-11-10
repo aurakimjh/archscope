@@ -3088,3 +3088,11 @@ assert(inert.includes("<p>safe</p>")&&!inert.includes("<img")&&!inert.includes("
 assert(coloredTokens('<soap:Envelope x="1">ok</soap:Envelope>').tokens.some(token=>token.kind==="tag"),"XML/SOAP must render as highlighted text");
 assert(streamText(selectedLiveRow,"sent").includes(selectedLiveRow.method)&&streamText(selectedLiveRow,"received").includes("HTTP/"),"stream directions must remain independently inspectable");
 assert(safeRaster({...selectedLiveRow.response,imagePreview:{mime:"image/svg+xml",base64:"fake",width:1,height:1}})===null,"renderer must reject active vector previews");
+
+import {rowHints,findingRequestIds,statusHelpKey} from "./httpAnnotations.js";
+const notedRows=[{...selectedLiveRow,id:"note-a",starred:false,comment:"first"},{...selectedLiveRow,id:"note-b",starred:true,comment:"second",status:503}];
+const notedSorted=sortTransactions(notedRows,{column:"status",direction:"desc"});
+assert(notedSorted[0]?.id==="note-b"&&notedSorted[0]?.starred&&httpColumnValue(notedSorted[0],"comment")==="second","annotations must remain attached to request IDs through sorting");
+assert(rowHints(notedRows[1]).some(hint=>hint.code==="HTTP_ERROR")&&statusHelpKey(503)==="httpStatus5xx","request hints and status help must reflect the selected row");
+assert(findingRequestIds({code:"fixture",message:"",severity:"info",evidence:{transaction_ids:["note-b","note-b"],transaction_id:"note-a"}}).length===2,"finding links must use explicit unique request IDs");
+assert(findingRequestIds({code:"global",message:"",severity:"info"}).length===0,"global findings must not invent a request link");

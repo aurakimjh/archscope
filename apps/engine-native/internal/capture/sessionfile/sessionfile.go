@@ -64,6 +64,10 @@ func Sanitize(doc *Document) (redact.Summary, error) {
 			tx.Scheme = u.Scheme
 		}
 		tx.Error, _ = p.RedactBody("text/plain", tx.Error)
+		if len(tx.Comment) > 4096 {
+			return p.Summary(), fmt.Errorf("comment exceeds 4096 bytes")
+		}
+		tx.Comment, _ = p.RedactBody("text/plain", tx.Comment)
 		tx.Process = p.RedactProcess(tx.Process)
 		for j := range tx.Informational {
 			tx.Informational[j].Headers = p.RedactHeaders(tx.Informational[j].Headers)

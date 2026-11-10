@@ -816,6 +816,7 @@ export function activeUnattributedPolicy(
 // The live transport uses the canonical camelCase exchange. The shared grid
 // uses analyzer rows. Keep conversion at this boundary, including process identity.
 export type LiveCaptureExchange = LiveCaptureTransaction & {
+ starred?:boolean;comment?:string;
   connectionId?: string;
   informational?: HttpInformationalResponse[];
   informationalTruncated?: boolean;
@@ -838,6 +839,7 @@ export function liveAnalyzerRow(tx: LiveCaptureExchange): HttpCaptureTransaction
     transferSize: 0, bodyStorage: "omitted",
   };
   return {
+    starred:tx.starred,comment:tx.comment,
     informational:tx.informational, informational_truncated:tx.informationalTruncated,
     redirect_url:tx.redirectUrl, stream_provenance:tx.streamProvenance,
     id: tx.id, sequence: tx.sequence, connection_id: tx.connectionId ?? "",

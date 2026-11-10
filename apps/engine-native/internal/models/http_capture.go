@@ -103,7 +103,13 @@ type InformationalResponse struct {
 
 // CaptureTransaction is a normalized semantic exchange, including bounded 1xx
 // evidence. Its stream provenance states which bytes can be reconstructed.
+type HTTPAnnotation struct {
+	Starred bool   `json:"starred"`
+	Comment string `json:"comment"`
+}
 type CaptureTransaction struct {
+	Starred                bool                    `json:"starred,omitempty"`
+	Comment                string                  `json:"comment,omitempty"`
 	Informational          []InformationalResponse `json:"informational,omitempty"`
 	InformationalTruncated bool                    `json:"informationalTruncated,omitempty"`
 	RedirectURL            string                  `json:"redirectUrl,omitempty"`

@@ -1,3 +1,7 @@
+import * as CaptureService from "../../bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/captureservice";
+import { HttpRowNotes } from "./HttpRowNotes";
+import type { HttpAnnotation } from "@/state/httpAnnotations";
+import type { HttpCaptureFinding } from "@/bridge/types";
 import { HttpStyledText, HttpHex, HttpPreview, HttpStreamView } from "./HttpContentView";
 import { HttpSessionSummary } from "./HttpSessionSummary";
 import { copyToHttpBuilder, HTTP_BUILDER_DRAG } from "@/state/httpRequestBuilder";
@@ -157,6 +161,7 @@ export type HttpAnalyzerViewProps = {
   selectedDetail?: HttpCaptureTransactionRow | null;
   follow?: boolean;
   exportSource?: HttpFileSource;
+  findings?: HttpCaptureFinding[];
 };
 
 export function HttpAnalyzerView({
@@ -177,6 +182,7 @@ export function HttpAnalyzerView({
   selectedDetail,
   follow = false,
   exportSource,
+  findings = [],
 }: HttpAnalyzerViewProps): React.JSX.Element {
   const { t } = useI18n();
   const [sort, setSort] = useState<GridSort>(defaultGridSort);
@@ -210,13 +216,22 @@ export function HttpAnalyzerView({
   }, []);
   const [maximized, setMaximized] = useState(false);
 
+  const [annotations,setAnnotations]=useState<Record<string,HttpAnnotation>>({});
+  const [annotationsFor,setAnnotationsFor]=useState("");
+  const [notesBusy,setNotesBusy]=useState(false),[notesError,setNotesError]=useState("");
+  const [starredOnly,setStarredOnly]=useState(false);
+  const sourceKey=exportSource?.sessionId??exportSource?.path??"builder";
+  const noteSourceRef=useRef(sourceKey);noteSourceRef.current=sourceKey;
+  useEffect(()=>{setNotesBusy(false);setAnnotations({});setAnnotationsFor("");setNotesError("");setStarredOnly(false);if(!exportSource?.sessionId){setAnnotationsFor(sourceKey);return};let disposed=false;void CaptureService.GetCaptureAnnotations(exportSource.sessionId).then(values=>{if(!disposed){const next:Record<string,HttpAnnotation>={};for(const [id,value] of Object.entries(values)){if(value)next[id]={starred:value.starred,comment:value.comment}};setAnnotations(next);setAnnotationsFor(sourceKey)}}).catch(caught=>{if(!disposed)setNotesError(String(caught))});return()=>{disposed=true}},[sourceKey,exportSource?.sessionId]);
+  const updateNote=async(value:HttpAnnotation)=>{if(!selected||notesBusy)return;const id=selected.id,key=sourceKey;setNotesBusy(true);setNotesError("");try{const saved=exportSource?.sessionId?await CaptureService.SetCaptureAnnotation(exportSource.sessionId,id,value):value;if(noteSourceRef.current===key)setAnnotations(current=>({...current,[id]:saved}));}catch(caught){if(noteSourceRef.current===key)setNotesError(String(caught))}finally{if(noteSourceRef.current===key)setNotesBusy(false)}};
+  const annotated=useMemo(()=>transactions.map(row=>annotationsFor===sourceKey&&annotations[row.id]?{...row,...annotations[row.id]}:row),[transactions,annotations,annotationsFor,sourceKey]);
   const [fieldFilter,setFieldFilter] = useState({key:"url",operator:"contains",value:""});
-  const rows = useMemo(() => sortTransactions(transactions.filter(row => httpColumnMatches(row,fieldFilter.key,fieldFilter.operator,fieldFilter.value)), sort), [transactions, sort,fieldFilter]);
+  const rows = useMemo(() => sortTransactions(annotated.filter(row => (!starredOnly||row.starred)&&httpColumnMatches(row,fieldFilter.key,fieldFilter.operator,fieldFilter.value)), sort), [annotated, sort,fieldFilter,starredOnly]);
   const span = useMemo(() => sessionSpan(rows), [rows]);
   const breakdown = useMemo(() => resourceKindBreakdown(transactions), [transactions]);
   const selected = useMemo(
-    () => (selectedDetail?.id === selectedId ? selectedDetail : rows.find((row) => row.id === selectedId)) ?? null,
-    [rows, selectedId, selectedDetail],
+    () => (selectedDetail?.id === selectedId ? {...selectedDetail,...(annotationsFor===sourceKey?annotations[selectedId]:{})} : rows.find((row) => row.id === selectedId)) ?? null,
+    [rows, selectedId, selectedDetail,annotations,annotationsFor,sourceKey],
   );
 
   const onSort = useCallback(
@@ -252,7 +267,7 @@ export function HttpAnalyzerView({
       />
 
       <HttpSessionSummary rows={rows} sessionId={exportSource?.sessionId} selected={selected} onSelect={onSelect} onFilter={onFilter} />
-      {exportSource && <HttpSessionFiles source={exportSource} ids={rows.map(row=>row.id)} selectedId={selectedId} />}
+      {exportSource && <HttpSessionFiles source={exportSource} ids={rows.map(row=>row.id)} selectedId={selectedId} annotations={annotationsFor===sourceKey?annotations:{}} />}
       {bounded && boundedNote && (
         <p
           className="border-b border-amber-500/40 bg-amber-500/10 px-3 py-1.5 text-[11px] text-amber-800 dark:text-amber-300"
@@ -272,6 +287,7 @@ export function HttpAnalyzerView({
         <input aria-label={t("httpGridFilterValue")} value={fieldFilter.value} onChange={(event)=>setFieldFilter(current=>({...current,value:event.target.value}))} className="rounded border px-1" />
         {fieldFilter.value && <button type="button" onClick={()=>setFieldFilter(current=>({...current,value:""}))}>{t("httpCaptureFilterReset")}</button>}
       </div>
+      <div className="flex shrink-0 gap-2 border-b px-2 py-1 text-xs"><label><input type="checkbox" checked={starredOnly} onChange={e=>setStarredOnly(e.target.checked)}/>{t("httpNotesStarredOnly")}</label>{notesError&&<span role="alert">{notesError}</span>}</div>
       <TransactionGrid
         builderSessionId={exportSource?.sessionId}
         rows={rows}
@@ -296,7 +312,7 @@ export function HttpAnalyzerView({
         style={{ height: detailHeight }}
       >
         {selected ? (
-          <TransactionDetailPane transaction={selected} t={t} />
+          <TransactionDetailPane transaction={selected} t={t} findings={findings} notesDisabled={notesBusy||annotationsFor!==sourceKey} onNote={updateNote} />
         ) : (
           <p className="p-6 text-center text-sm text-muted-foreground" role="status">
             {t("httpAnalyzerNoSelection")}
@@ -882,9 +898,10 @@ function SplitHandle({
 
 // ── Detail pane ─────────────────────────────────────────────────────
 
-type DetailTab = "stream" | "query" | "form" | "raw" | "headers" | "body" | "timing" | "cookies" | "process";
+type DetailTab = "notes" | "stream" | "query" | "form" | "raw" | "headers" | "body" | "timing" | "cookies" | "process";
 
 const DETAIL_TABS: Array<{ key: DetailTab; labelKey: MessageKey }> = [
+  { key: "notes", labelKey: "httpNotesTab" },
   { key: "raw", labelKey: "httpAnalyzerTabRaw" },
   { key: "stream", labelKey: "httpContentStream" },
   { key: "headers", labelKey: "httpAnalyzerTabHeaders" },
@@ -899,9 +916,11 @@ const DETAIL_TABS: Array<{ key: DetailTab; labelKey: MessageKey }> = [
 function TransactionDetailPane({
   transaction,
   t,
+  findings,notesDisabled,onNote,
 }: {
   transaction: HttpCaptureTransactionRow;
   t: Translate;
+  findings:HttpCaptureFinding[];notesDisabled:boolean;onNote:(value:HttpAnnotation)=>Promise<void>;
 }): React.JSX.Element {
   const paneId = useId();
   const [tab, setTab] = useState<DetailTab>("raw");
@@ -969,6 +988,7 @@ function TransactionDetailPane({
       >
         {tab === "query" && <HttpParameterTable fields={httpParameters(requestQuery(transaction.query, transaction.url))} />}
         {tab === "form" && <FormTab message={transaction.request} t={t} />}
+        {tab === "notes" && <HttpRowNotes row={transaction} findings={findings} disabled={notesDisabled} onSave={onNote} />}
         {tab === "stream" && <HttpStreamView row={transaction} />}
         {tab === "raw" && <RawTab transaction={transaction} t={t} />}
         {tab === "headers" && <>

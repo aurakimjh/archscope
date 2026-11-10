@@ -435,7 +435,8 @@ func errorRows(entries []models.CaptureTransaction, limit int) []map[string]any 
 
 func transactionRow(entry models.CaptureTransaction) map[string]any {
 	return map[string]any{
-		"id":                       entry.ID,
+		"id":      entry.ID,
+		"starred": entry.Starred, "comment": entry.Comment,
 		"connection_id":            entry.ConnectionID,
 		"informational":            entry.Informational,
 		"informational_truncated":  entry.InformationalTruncated,

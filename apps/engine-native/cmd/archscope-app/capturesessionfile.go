@@ -17,12 +17,13 @@ type CaptureFileSource struct {
 	Path      string `json:"path,omitempty"`
 }
 type CaptureExportRequest struct {
-	Source      CaptureFileSource `json:"source"`
-	Destination string            `json:"destination"`
-	Format      string            `json:"format"`
-	Scope       string            `json:"scope"`
-	IDs         []string          `json:"ids"`
-	SelectedID  string            `json:"selectedId,omitempty"`
+	Source      CaptureFileSource                `json:"source"`
+	Destination string                           `json:"destination"`
+	Format      string                           `json:"format"`
+	Scope       string                           `json:"scope"`
+	IDs         []string                         `json:"ids"`
+	SelectedID  string                           `json:"selectedId,omitempty"`
+	Annotations map[string]models.HTTPAnnotation `json:"annotations,omitempty"`
 }
 type CaptureOpenResult struct {
 	Result     engineapi.AnalysisResult `json:"result"`
@@ -68,6 +69,27 @@ func (s *CaptureService) ExportCaptureFile(request CaptureExportRequest) (int, e
 				break
 			}
 			cursor = page.NextCursor
+		}
+	}
+	if request.Source.SessionID != "" {
+		values, err := s.GetCaptureAnnotations(request.Source.SessionID)
+		if err != nil {
+			return 0, err
+		}
+		for i := range doc.Transactions {
+			v := values[doc.Transactions[i].ID]
+			doc.Transactions[i].Starred = v.Starred
+			doc.Transactions[i].Comment = v.Comment
+		}
+	}
+	for i := range doc.Transactions {
+		if value, ok := request.Annotations[doc.Transactions[i].ID]; ok {
+			value, err := cleanAnnotation(value)
+			if err != nil {
+				return 0, err
+			}
+			doc.Transactions[i].Starred = value.Starred
+			doc.Transactions[i].Comment = value.Comment
 		}
 	}
 	if request.Scope == "filtered" {

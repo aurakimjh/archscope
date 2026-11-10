@@ -484,6 +484,7 @@ export class CaptureExportRequest {
     "scope": string;
     "ids": string[];
     "selectedId"?: string;
+    "annotations"?: { [_ in string]?: models$0.HTTPAnnotation };
 
     /** Creates a new CaptureExportRequest instance. */
     constructor($$source: Partial<CaptureExportRequest> = {}) {
@@ -512,12 +513,16 @@ export class CaptureExportRequest {
     static createFrom($$source: any = {}): CaptureExportRequest {
         const $$createField0_0 = $$createType5;
         const $$createField4_0 = $$createType2;
+        const $$createField6_0 = $$createType7;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("source" in $$parsedSource) {
             $$parsedSource["source"] = $$createField0_0($$parsedSource["source"]);
         }
         if ("ids" in $$parsedSource) {
             $$parsedSource["ids"] = $$createField4_0($$parsedSource["ids"]);
+        }
+        if ("annotations" in $$parsedSource) {
+            $$parsedSource["annotations"] = $$createField6_0($$parsedSource["annotations"]);
         }
         return new CaptureExportRequest($$parsedSource as Partial<CaptureExportRequest>);
     }
@@ -545,7 +550,7 @@ export class CaptureFetchRequest {
      * Creates a new CaptureFetchRequest instance from a string or object.
      */
     static createFrom($$source: any = {}): CaptureFetchRequest {
-        const $$createField1_0 = $$createType6;
+        const $$createField1_0 = $$createType8;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("filter" in $$parsedSource) {
             $$parsedSource["filter"] = $$createField1_0($$parsedSource["filter"]);
@@ -616,7 +621,7 @@ export class CaptureOpenResult {
      * Creates a new CaptureOpenResult instance from a string or object.
      */
     static createFrom($$source: any = {}): CaptureOpenResult {
-        const $$createField0_0 = $$createType7;
+        const $$createField0_0 = $$createType9;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("result" in $$parsedSource) {
             $$parsedSource["result"] = $$createField0_0($$parsedSource["result"]);
@@ -645,7 +650,7 @@ export class CaptureProgressEvent {
      * Creates a new CaptureProgressEvent instance from a string or object.
      */
     static createFrom($$source: any = {}): CaptureProgressEvent {
-        const $$createField1_0 = $$createType9;
+        const $$createField1_0 = $$createType11;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("items" in $$parsedSource) {
             $$parsedSource["items"] = $$createField1_0($$parsedSource["items"]);
@@ -682,7 +687,7 @@ export class CaptureTransactionsEvent {
      * Creates a new CaptureTransactionsEvent instance from a string or object.
      */
     static createFrom($$source: any = {}): CaptureTransactionsEvent {
-        const $$createField3_0 = $$createType9;
+        const $$createField3_0 = $$createType11;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("items" in $$parsedSource) {
             $$parsedSource["items"] = $$createField3_0($$parsedSource["items"]);
@@ -797,7 +802,7 @@ export class CollapsedResult {
      * Creates a new CollapsedResult instance from a string or object.
      */
     static createFrom($$source: any = {}): CollapsedResult {
-        const $$createField0_0 = $$createType10;
+        const $$createField0_0 = $$createType12;
         const $$createField1_0 = $$createType2;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("counts" in $$parsedSource) {
@@ -988,7 +993,7 @@ export class DrilldownRequest {
      */
     static createFrom($$source: any = {}): DrilldownRequest {
         const $$createField15_0 = $$createType3;
-        const $$createField16_0 = $$createType12;
+        const $$createField16_0 = $$createType14;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("timelineCategories" in $$parsedSource) {
             $$parsedSource["timelineCategories"] = $$createField15_0($$parsedSource["timelineCategories"]);
@@ -1103,7 +1108,7 @@ export class EngineDoneEvent {
      * Creates a new EngineDoneEvent instance from a string or object.
      */
     static createFrom($$source: any = {}): EngineDoneEvent {
-        const $$createField1_0 = $$createType7;
+        const $$createField1_0 = $$createType9;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("result" in $$parsedSource) {
             $$parsedSource["result"] = $$createField1_0($$parsedSource["result"]);
@@ -1601,7 +1606,7 @@ export class JenniferProfileRequest {
         const $$createField4_0 = $$createType2;
         const $$createField5_0 = $$createType2;
         const $$createField6_0 = $$createType3;
-        const $$createField7_0 = $$createType14;
+        const $$createField7_0 = $$createType16;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("paths" in $$parsedSource) {
             $$parsedSource["paths"] = $$createField1_0($$parsedSource["paths"]);
@@ -2016,12 +2021,14 @@ const $$createType2 = $Create.Array($Create.Any);
 const $$createType3 = $Create.Map($Create.Any, $$createType2);
 const $$createType4 = aggregate$0.Snapshot.createFrom;
 const $$createType5 = CaptureFileSource.createFrom;
-const $$createType6 = store$0.Filter.createFrom;
-const $$createType7 = models$0.AnalysisResult.createFrom;
-const $$createType8 = models$0.CaptureTransaction.createFrom;
-const $$createType9 = $Create.Array($$createType8);
-const $$createType10 = $Create.Map($Create.Any, $Create.Any);
-const $$createType11 = profiler$0.DrilldownFilter.createFrom;
-const $$createType12 = $Create.Array($$createType11);
-const $$createType13 = models$0.JenniferCustomAnalysisRule.createFrom;
+const $$createType6 = models$0.HTTPAnnotation.createFrom;
+const $$createType7 = $Create.Map($Create.Any, $$createType6);
+const $$createType8 = store$0.Filter.createFrom;
+const $$createType9 = models$0.AnalysisResult.createFrom;
+const $$createType10 = models$0.CaptureTransaction.createFrom;
+const $$createType11 = $Create.Array($$createType10);
+const $$createType12 = $Create.Map($Create.Any, $Create.Any);
+const $$createType13 = profiler$0.DrilldownFilter.createFrom;
 const $$createType14 = $Create.Array($$createType13);
+const $$createType15 = models$0.JenniferCustomAnalysisRule.createFrom;
+const $$createType16 = $Create.Array($$createType15);

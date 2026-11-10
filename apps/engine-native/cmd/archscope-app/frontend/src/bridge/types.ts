@@ -149,6 +149,7 @@ export type CaptureProcessRow = {
 
 export type HttpInformationalResponse = { status:number; receivedAt:string; headers:CaptureHeaderField[] };
 export type HttpCaptureTransactionRow = {
+ starred?:boolean;comment?:string;
   informational?: HttpInformationalResponse[];
   informational_truncated?: boolean;
   redirect_url?: string;

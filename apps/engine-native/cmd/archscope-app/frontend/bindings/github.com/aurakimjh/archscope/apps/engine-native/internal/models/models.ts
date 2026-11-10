@@ -98,11 +98,9 @@ export class AnalysisResult {
     }
 }
 
-/**
- * CaptureTransaction is a normalized semantic exchange, including bounded 1xx
- * evidence. Its stream provenance states which bytes can be reconstructed.
- */
 export class CaptureTransaction {
+    "starred"?: boolean;
+    "comment"?: string;
     "informational"?: InformationalResponse[];
     "informationalTruncated"?: boolean;
     "redirectUrl"?: string;
@@ -206,26 +204,26 @@ export class CaptureTransaction {
      * Creates a new CaptureTransaction instance from a string or object.
      */
     static createFrom($$source: any = {}): CaptureTransaction {
-        const $$createField0_0 = $$createType3;
-        const $$createField18_0 = $$createType4;
-        const $$createField19_0 = $$createType4;
-        const $$createField20_0 = $$createType5;
-        const $$createField30_0 = $$createType7;
+        const $$createField2_0 = $$createType3;
+        const $$createField20_0 = $$createType4;
+        const $$createField21_0 = $$createType4;
+        const $$createField22_0 = $$createType5;
+        const $$createField32_0 = $$createType7;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("informational" in $$parsedSource) {
-            $$parsedSource["informational"] = $$createField0_0($$parsedSource["informational"]);
+            $$parsedSource["informational"] = $$createField2_0($$parsedSource["informational"]);
         }
         if ("request" in $$parsedSource) {
-            $$parsedSource["request"] = $$createField18_0($$parsedSource["request"]);
+            $$parsedSource["request"] = $$createField20_0($$parsedSource["request"]);
         }
         if ("response" in $$parsedSource) {
-            $$parsedSource["response"] = $$createField19_0($$parsedSource["response"]);
+            $$parsedSource["response"] = $$createField21_0($$parsedSource["response"]);
         }
         if ("timings" in $$parsedSource) {
-            $$parsedSource["timings"] = $$createField20_0($$parsedSource["timings"]);
+            $$parsedSource["timings"] = $$createField22_0($$parsedSource["timings"]);
         }
         if ("process" in $$parsedSource) {
-            $$parsedSource["process"] = $$createField30_0($$parsedSource["process"]);
+            $$parsedSource["process"] = $$createField32_0($$parsedSource["process"]);
         }
         return new CaptureTransaction($$parsedSource as Partial<CaptureTransaction>);
     }
@@ -278,6 +276,35 @@ export class Duration {
     static createFrom($$source: any = {}): Duration {
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         return new Duration($$parsedSource as Partial<Duration>);
+    }
+}
+
+/**
+ * CaptureTransaction is a normalized semantic exchange, including bounded 1xx
+ * evidence. Its stream provenance states which bytes can be reconstructed.
+ */
+export class HTTPAnnotation {
+    "starred": boolean;
+    "comment": string;
+
+    /** Creates a new HTTPAnnotation instance. */
+    constructor($$source: Partial<HTTPAnnotation> = {}) {
+        if (!("starred" in $$source)) {
+            this["starred"] = false;
+        }
+        if (!("comment" in $$source)) {
+            this["comment"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new HTTPAnnotation instance from a string or object.
+     */
+    static createFrom($$source: any = {}): HTTPAnnotation {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new HTTPAnnotation($$parsedSource as Partial<HTTPAnnotation>);
     }
 }
 

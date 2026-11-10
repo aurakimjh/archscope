@@ -1,3 +1,4 @@
+import { findingRequestIds } from "@/state/httpAnnotations";
 import { HttpRequestBuilder } from "@/components/HttpRequestBuilder";
 import * as CaptureService from "../../bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/captureservice";
 import { Dialogs } from "@wailsio/runtime";
@@ -280,6 +281,7 @@ export function HttpCapturePage(): React.JSX.Element {
       {result && (
         <HttpAnalyzerView
           exportSource={state.resultSource?.startsWith("capture://") ? {sessionId:state.resultSource.slice(10)} : state.resultSource ? {path:state.resultSource} : undefined}
+          findings={findings}
           transactions={filtered}
           total={allTransactions.length}
           methods={methods}
@@ -391,7 +393,7 @@ export function HttpCapturePage(): React.JSX.Element {
                       <SeverityDot severity={finding.severity} />
                       <div className="min-w-0">
                         <code className="text-xs font-semibold">{finding.code}</code>
-                        <p className="text-muted-foreground">{finding.message}</p>
+                        <p className="text-muted-foreground">{finding.message}</p>{findingRequestIds(finding).filter(id=>allTransactions.some(row=>row.id===id)).map(id=><button key={id} type="button" className="text-xs underline" onClick={()=>{resetFilter();openById(id)}}>{id}</button>)}
                       </div>
                     </div>
                   ))}

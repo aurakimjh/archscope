@@ -1,3 +1,4 @@
+import {rowHints} from "./httpAnnotations.js";
 import type { MessageKey } from "../i18n/messages";
 import type { HttpCaptureTransactionRow } from "../bridge/types";
 
@@ -17,7 +18,7 @@ export const HTTP_COLUMNS: HttpColumn[] = [
   ...[
     ["connection","ConnectId"],["url","URL"],["offset","Offset"],["redirect","Redirect URL"],
     ["sent","Sent"],["bodySize","Body-Size"],["ended","TimeEnd"],["mime","Type"],
-    ["hints","Hints"],["hintList","Hint List"],["comment","Comment"],["caching","Caching"],
+    ["starred","★"],["hints","Hints"],["hintList","Hint List"],["comment","Comment"],["caching","Caching"],
     ["content-length","Content-Length"],["ip","IP Address"],["cookie","Cookie"],["set-cookie","Set-Cookie"],
     ["user-agent","User-Agent"],["ua-cpu","UA-CPU"],["soapaction","SOAPAction"],["date","Date"],
     ["server","Server"],["p3p","P3P"],["content-type","Content-Type"],["content-encoding","Content-Encoding"],
@@ -68,7 +69,11 @@ export function httpColumnValue(row: HttpCaptureTransactionRow,key: string): str
     case "stage": return row.state;
     case "fidelity": return row.fidelity;
     case "mime": return row.response?.contentType || "—";
-    case "hints": case "hintList": case "comment": case "ip": return "—";
+    case "hints": return rowHints(row).length;
+    case "hintList": return rowHints(row).map(hint=>hint.code).join("; ")||"—";
+    case "comment": return row.comment||"—";
+    case "starred":return row.starred?"★":"☆";
+    case "ip":return "—";
     case "caching": key="cache-control"; break;
   }
   return headers?.filter(header => header.name.toLowerCase()===key).map(header => header.value).join("; ") || "—";
