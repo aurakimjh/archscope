@@ -454,6 +454,15 @@ Evidence: [Windows follow-up](docs/review/evidence/2026-11-11-windows/README.md)
 The counts now agree with all 214 registry rows; the old 202/214 opening headline
 was stale relative to the previous 208 DONE rows.
 
+Post-push follow-up: `cd01dff9` fixes read-only temporary SDK directory cleanup
+on Unix; `8ded194e` accepts native 8.3 shortcut aliases by filesystem identity
+while preserving argument checks. Engine Native run `42848607855` passed the
+Windows full race/live/body/SEC-10/restoration checks, Linux checks, frontend and
+both GUI cross-builds. Windows GUI Smoke `42848207160` passed amd64/386; general
+CI `42848607891` passed. Engine Native's overall conclusion is cancelled because
+two macOS jobs report unsupported `macos-14-arm64-us-default` before starting.
+Exact scoped verdicts: [CI evidence](docs/review/evidence/2026-11-11-windows/ci-validation.json).
+
 ### Local Windows validation (2026-11-09)
 
 The Windows checkout was fast-forwarded from `d348bcb` to `a9896c3` (12

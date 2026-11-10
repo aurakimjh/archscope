@@ -1,0 +1,579 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-11",
+  "timezone": "Asia/Seoul",
+  "engine": {
+    "sourceCommit": "8ded194ea7088a15db893dbf5775eca7b3ef1924",
+    "status": "completed",
+    "conclusion": "cancelled",
+    "url": "https://github.com/aurakimjh/archscope/actions/runs/42848607855",
+    "jobs": [
+      {
+        "name": "macOS offline import/package smoke",
+        "conclusion": "cancelled",
+        "url": "https://github.com/aurakimjh/archscope/actions/runs/42848607855/job/129942761570",
+        "steps": []
+      },
+      {
+        "name": "Go test/build (windows-latest)",
+        "conclusion": "success",
+        "url": "https://github.com/aurakimjh/archscope/actions/runs/42848607855/job/129942762061",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Checkout",
+            "conclusion": "success"
+          },
+          {
+            "name": "Set up Go",
+            "conclusion": "success"
+          },
+          {
+            "name": "Set up Node for desktop policy checks",
+            "conclusion": "success"
+          },
+          {
+            "name": "Linux WebKitGTK headers",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "go vet",
+            "conclusion": "success"
+          },
+          {
+            "name": "Enforce desktop-only product targets",
+            "conclusion": "success"
+          },
+          {
+            "name": "go build",
+            "conclusion": "success"
+          },
+          {
+            "name": "go test",
+            "conclusion": "success"
+          },
+          {
+            "name": "Windows live-capture E2E",
+            "conclusion": "success"
+          },
+          {
+            "name": "Windows resolver-cost measurement",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload Windows resolver-cost evidence",
+            "conclusion": "success"
+          },
+          {
+            "name": "Native registry policy rename regression",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prepare SEC-10 crash-dump policy",
+            "conclusion": "success"
+          },
+          {
+            "name": "Windows request and response body capture E2E",
+            "conclusion": "success"
+          },
+          {
+            "name": "SEC-10 crash-dump exclusion evidence",
+            "conclusion": "success"
+          },
+          {
+            "name": "Restore SEC-10 crash-dump policy",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload SEC-10 dump-exclusion evidence",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Set up Node for desktop policy checks",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Set up Go",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Checkout",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "Go test/build (macos-14)",
+        "conclusion": "cancelled",
+        "url": "https://github.com/aurakimjh/archscope/actions/runs/42848607855/job/129942762125",
+        "steps": []
+      },
+      {
+        "name": "Windows GUI cross-build (amd64)",
+        "conclusion": "success",
+        "url": "https://github.com/aurakimjh/archscope/actions/runs/42848607855/job/129942762187",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-go@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-node@v6",
+            "conclusion": "success"
+          },
+          {
+            "name": "Frontend production assets",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build Windows GUI executable",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-node@v6",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-go@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "Wails frontend build",
+        "conclusion": "success",
+        "url": "https://github.com/aurakimjh/archscope/actions/runs/42848607855/job/129942762262",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Checkout",
+            "conclusion": "success"
+          },
+          {
+            "name": "Set up Node",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install dependencies",
+            "conclusion": "success"
+          },
+          {
+            "name": "State tests",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Set up Node",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Checkout",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "Go test/build (ubuntu-latest)",
+        "conclusion": "success",
+        "url": "https://github.com/aurakimjh/archscope/actions/runs/42848607855/job/129942762394",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Checkout",
+            "conclusion": "success"
+          },
+          {
+            "name": "Set up Go",
+            "conclusion": "success"
+          },
+          {
+            "name": "Set up Node for desktop policy checks",
+            "conclusion": "success"
+          },
+          {
+            "name": "Linux WebKitGTK headers",
+            "conclusion": "success"
+          },
+          {
+            "name": "go vet",
+            "conclusion": "success"
+          },
+          {
+            "name": "Enforce desktop-only product targets",
+            "conclusion": "success"
+          },
+          {
+            "name": "go build",
+            "conclusion": "success"
+          },
+          {
+            "name": "go test",
+            "conclusion": "success"
+          },
+          {
+            "name": "Windows live-capture E2E",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Windows resolver-cost measurement",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Upload Windows resolver-cost evidence",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Native registry policy rename regression",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Prepare SEC-10 crash-dump policy",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Windows request and response body capture E2E",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "SEC-10 crash-dump exclusion evidence",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Restore SEC-10 crash-dump policy",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Upload SEC-10 dump-exclusion evidence",
+            "conclusion": "skipped"
+          },
+          {
+            "name": "Post Set up Node for desktop policy checks",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Set up Go",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Checkout",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "Windows GUI cross-build (386)",
+        "conclusion": "success",
+        "url": "https://github.com/aurakimjh/archscope/actions/runs/42848607855/job/129942763372",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-go@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-node@v6",
+            "conclusion": "success"
+          },
+          {
+            "name": "Frontend production assets",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build Windows GUI executable",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-node@v6",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-go@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      }
+    ]
+  },
+  "gui": {
+    "sourceCommit": "cd01dff970cc32f5241cb576b3af1b199f42172a",
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/aurakimjh/archscope/actions/runs/42848207160",
+    "jobs": [
+      {
+        "name": "Build and launch Wails exe (amd64)",
+        "conclusion": "success",
+        "url": "https://github.com/aurakimjh/archscope/actions/runs/42848207160/job/129941348168",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Checkout",
+            "conclusion": "success"
+          },
+          {
+            "name": "Set up Go",
+            "conclusion": "success"
+          },
+          {
+            "name": "Set up Node",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install Wails CLI",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install Task runner",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build Windows executable",
+            "conclusion": "success"
+          },
+          {
+            "name": "Launch GUI smoke",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Set up Node",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Set up Go",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Checkout",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "Build and launch Wails exe (386)",
+        "conclusion": "success",
+        "url": "https://github.com/aurakimjh/archscope/actions/runs/42848207160/job/129941348731",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Checkout",
+            "conclusion": "success"
+          },
+          {
+            "name": "Set up Go",
+            "conclusion": "success"
+          },
+          {
+            "name": "Set up Node",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install Wails CLI",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install Task runner",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build Windows executable",
+            "conclusion": "success"
+          },
+          {
+            "name": "Launch GUI smoke",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Set up Node",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Set up Go",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Checkout",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      }
+    ]
+  },
+  "general": {
+    "sourceCommit": "8ded194ea7088a15db893dbf5775eca7b3ef1924",
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/aurakimjh/archscope/actions/runs/42848607891",
+    "jobs": [
+      {
+        "name": "Go Engine Native",
+        "conclusion": "success",
+        "url": "https://github.com/aurakimjh/archscope/actions/runs/42848607891/job/129942760706",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Checkout",
+            "conclusion": "success"
+          },
+          {
+            "name": "Set up Go",
+            "conclusion": "success"
+          },
+          {
+            "name": "Linux WebKitGTK headers",
+            "conclusion": "success"
+          },
+          {
+            "name": "Test",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build CLIs",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Set up Go",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Checkout",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "Wails Frontend",
+        "conclusion": "success",
+        "url": "https://github.com/aurakimjh/archscope/actions/runs/42848607891/job/129942761186",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Checkout",
+            "conclusion": "success"
+          },
+          {
+            "name": "Set up Node",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install dependencies",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Set up Node",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Checkout",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      }
+    ]
+  },
+  "macCancellationReason": "The configuration 'macos-14-arm64-us-default' is not supported",
+  "followUpCommits": {
+    "temporaryReadonlyDirectoryCleanup": "cd01dff970cc32f5241cb576b3af1b199f42172a",
+    "shortcutFileIdentityAssertions": "8ded194ea7088a15db893dbf5775eca7b3ef1924"
+  },
+  "resolverCost": {
+    "schema_version": "archscope.resolver-cost.v1",
+    "os": "windows",
+    "architecture": "amd64",
+    "connection_scope": "accepted_loopback_tcp_connection",
+    "owner_table_reads_per_sample": 2,
+    "samples": 50,
+    "confirmed_samples": 50,
+    "mean_ms": 3.119,
+    "p50_ms": 3.106,
+    "p95_ms": 3.879,
+    "max_ms": 4.024,
+    "acceptance_policy": "measurement_only_no_predeclared_product_slo"
+  }
+}

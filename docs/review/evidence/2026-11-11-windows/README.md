@@ -111,3 +111,31 @@ uses the real service/proxy on Windows, not a continuously operated GUI.
 
 Public evidence contains synthetic traffic and metadata only. Raw reference
 logs/XML, user paths, controller tokens and private diagnostics are excluded.
+
+## Post-push CI follow-up
+
+CI exposed and resolved two portability issues after the initial local run:
+
+- `cd01dff9`: copied Go module directories retain read-only modes on Unix.
+  Cleanup now makes only directories in the owned temporary tree writable,
+  without following symlinks. The Linux-hosted 386 cross-build then passed.
+- `8ded194e`: the Windows runner's shortcut retained an 8.3 `RUNNER~1` alias.
+  The test now compares file/directory identity with `os.SameFile`; Unicode,
+  raw arguments, quoting and the child's working-directory checks stay strict.
+  Both local architectures and Windows CI passed.
+
+[Engine Native run 42848607855](https://github.com/aurakimjh/archscope/actions/runs/42848607855)
+at `8ded194e` passed Windows Go vet/build/full race tests, live-capture E2E,
+50/50 native resolver samples, protected registry rename, body-capture E2E,
+forced-crash dump exclusion and policy restoration. Linux Go/race, frontend
+and both GUI cross-build jobs also passed. The overall workflow is **cancelled**
+because its two macOS jobs never started: GitHub reports
+`The configuration 'macos-14-arm64-us-default' is not supported`.
+This pre-existing runner configuration is outside the Windows test changes.
+
+[Windows GUI Smoke 42848207160](https://github.com/aurakimjh/archscope/actions/runs/42848207160)
+at `cd01dff9` passed native production startup on both amd64 and 386.
+[General CI 42848607891](https://github.com/aurakimjh/archscope/actions/runs/42848607891)
+at `8ded194e` passed. The later test change has no buildable product changes.
+Exact step verdicts and resolver measurement (mean 3.119 ms, p95 3.879 ms;
+measurement only, no product SLO) are in [ci-validation.json](ci-validation.json).
