@@ -7,6 +7,7 @@ import (
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/httpcapture"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/acceptance"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/halog"
 )
 
 func init() {
@@ -61,6 +62,27 @@ func init() {
 	}
 	evidence.Flags().StringVar(&sessionPath, "session-path", "", "path to a stopped live-capture session")
 	evidence.Flags().StringVar(&evidenceOut, "out", "-", "output path; `-` for stdout")
-	group.AddCommand(analyze, evidence)
+	var nativePath, xmlPath, probeOut string
+	probe := &cobra.Command{Use: "halog-probe", Short: "Fingerprint unverified legacy logs; never claim codec compatibility.", RunE: func(cmd *cobra.Command, args []string) error {
+		if nativePath == "" {
+			return fmt.Errorf("--in is required")
+		}
+		if xmlPath != "" {
+			pair, err := halog.ProbePair(nativePath, xmlPath)
+			if err != nil {
+				return err
+			}
+			return writePrivateJSONAny(pair, probeOut)
+		}
+		value, err := halog.Probe(nativePath)
+		if err != nil {
+			return err
+		}
+		return writePrivateJSONAny(value, probeOut)
+	}}
+	probe.Flags().StringVar(&nativePath, "in", "", "legacy file path")
+	probe.Flags().StringVar(&xmlPath, "reference-xml", "", "optional full XML saved from the same reference capture")
+	probe.Flags().StringVar(&probeOut, "out", "-", "metadata-only evidence destination")
+	group.AddCommand(analyze, evidence, probe)
 	rootCmd.AddCommand(group)
 }

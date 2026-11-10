@@ -1299,3 +1299,55 @@ validate a transparent driver, proxy-ignoring capture or service reach. The
 reference vendor documents NetFilter technology; no vendor driver/SDK or WFP
 capability was silently introduced. T-601 remains REVIEW pending an implemented
 backend and native reach evidence.
+
+### Legacy .halog evidence preparation (T-608)
+
+No genuine sanitized V7.6.4 `.halog` sample is currently available. The official
+Stand-alone ZIP was downloaded and fingerprinted; its outer archive contains an
+installer and password notice. The installer was not executed and its nested
+contents were not inspected, so this does not prove that the installed product
+has no samples. Acquisition metadata is in
+`docs/review/evidence/2026-11-10-halog-research/source-manifest.json`; vendor
+binaries are not committed. The vendor documents Native as a distinct smaller
+format, not a published HAR/JSON/XML container schema.
+[Official download](https://www.ieinspector.com/httpanalyzer/download) ·
+[Format choices](https://www.ieinspector.com/httpanalyzer/manual/commandlineinterface.htm).
+
+`archscope-engine http-capture halog-probe --in FILE.halog --reference-xml
+SAME_CAPTURE_FULL.xml --out PRIVATE_METADATA.json` records streaming SHA256,
+size and a container signature only. The desktop has the same metadata probe.
+Neither tool decompresses unknown data, exports payload snippets, infers fields
+or claims interoperability. A pair remains UNVERIFIED until genuine writer
+provenance, field mapping and both reference read/write directions are verified.
+Probes are limited to regular files within 256 MiB.
+
+`scripts/halog-reference-fixture.mjs --out PRIVATE_EXPECTATIONS.json` starts a
+synthetic loopback fixture and prints its PID. In an already installed, licensed
+reference V7.6.4, select that PID and start capture, then press Enter in the
+fixture terminal. It generates 103/302, repeated query/form fields, duplicate
+cookie attributes, gzip and Korean response text. Stop the reference capture
+and save **the same rows** as Native `.halog` and Full XML; retain a version
+observation and the generated expectations. If the reference does not capture
+loopback traffic, record that limitation rather than substituting invented data.
+Review/sanitize the resulting files before sharing; keep originals private.
+`--run-now` is only a fixture self-test and never produces a genuine native log.
+
+Until that evidence exists, `.halog` input returns `HALOG_FORMAT_UNVERIFIED` and
+legacy/native output is rejected before any write. Saving ArchScope JSON/XML
+under `.halog` is forbidden, including existing-file overwrite. Native ArchScope
+sessions keep `.httpsession`. Local probe, refusal/immutability, CLI and fixture
+tests pass; **the proprietary codec is not implemented**. T-608 remains PENDING
+on genuine format evidence rather than being closed on synthetic self-roundtrips.
+
+### Cross-build verification limit (2026-11-10)
+
+The complete production desktop cross-build succeeds for Windows amd64. The
+Windows 386 desktop build is blocked in pinned Wails v3 alpha2.117
+`pkg/updater/extract.go` (lines 252/293): the untyped 2 GiB
+`maxArchiveTotalSize` constant overflows `int` when passed to `fmt.Errorf`.
+The project's launch and automation helper tests compile for Windows 386;
+that narrower check must not be reported as a successful x86 desktop build.
+No SDK upgrade or module-cache patch was applied. This packaging limitation is
+separate from capturing a 32-bit client with a 64-bit desktop, which still needs
+native reach measurement. Mac production build, full Go tests/vet, focused race
+checks, frontend state/build and synthetic/report-contract checks pass locally.

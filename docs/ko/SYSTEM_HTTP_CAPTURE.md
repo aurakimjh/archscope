@@ -4591,3 +4591,46 @@ suspend count를 확인합니다. 실패·동시성 검사와 Windows x86/x64 �
 **투명 드라이버·프록시 무시 앱·서비스 캡처를 구현/검증한 것은 아닙니다.** 원본 업체는
 NetFilter 사용을 명시하지만 업체 드라이버/SDK나 WFP 기능을 임의로 도입하지 않았습니다.
 실제 백엔드 구현과 Windows 캡처 범위 근거가 남아 T-601을 REVIEW로 유지합니다.
+
+### 레거시 .halog 근거 준비 (T-608)
+
+현재 개인정보를 제거한 실제 V7.6.4 `.halog` 샘플은 없습니다. 공식 Stand-alone ZIP을
+받아 지문을 기록했고 바깥 ZIP에는 설치 파일과 암호 안내가 있습니다. 설치 파일은
+실행하지 않았고 내부 설치 자료는 검사하지 않았으므로 설치 후 예제가 없다고 단정하지
+않습니다. 취득 메타데이터는 `docs/review/evidence/2026-11-10-halog-research/source-manifest.json`에
+있고 업체 바이너리는 커밋하지 않습니다. 공식 문서는 Native를 별도 작은 형식으로
+설명하며 HAR/JSON/XML 컨테이너 명세를 공개한 근거가 아닙니다.
+[공식 배포](https://www.ieinspector.com/httpanalyzer/download) ·
+[형식 선택](https://www.ieinspector.com/httpanalyzer/manual/commandlineinterface.htm).
+
+`archscope-engine http-capture halog-probe --in FILE.halog --reference-xml SAME_CAPTURE_FULL.xml --out PRIVATE_METADATA.json`
+으로 스트리밍 SHA256·크기·컨테이너 표식만 기록합니다. 데스크톱에서도 같은 파일 정보
+기능을 제공합니다. 미지 형식을 풀거나 본문을 출력하거나 필드를 추측하지 않습니다.
+원본 작성자·버전, 필드 매핑과 양방향 읽기/쓰기 검증 전까지 쌍 자료도 UNVERIFIED입니다.
+256 MiB 이하 일반 파일만 검사합니다.
+
+`scripts/halog-reference-fixture.mjs --out PRIVATE_EXPECTATIONS.json`을 실행하면
+합성 loopback 서버와 PID가 표시됩니다. 이미 설치·라이선스가 있는 V7.6.4에서 해당
+PID를 선택하고 기록을 시작한 뒤 fixture 터미널에서 Enter를 누릅니다. 103/302·중복
+쿼리/폼·쿠키 속성·gzip·한글 본문을 생성합니다. 원본에서 중지하고 **동일한 행**을
+Native `.halog`와 Full XML로 저장하며 버전 근거와 기대 값도 남깁니다. 원본이 loopback을
+포착하지 못하면 그 제한을 기록하고 임의 데이터를 대체하지 않습니다. 원본은 비공개로
+보관하고 공유 전 검토·정제합니다. `--run-now`는 fixture 자체 검사일 뿐 실제 원본
+로그를 만들지 않습니다.
+
+근거 확보 전에는 `.halog` 읽기가 `HALOG_FORMAT_UNVERIFIED`를 반환하고 레거시 저장은
+쓰기 전에 거부합니다. 기존 파일을 포함해 ArchScope JSON/XML을 `.halog`로 위장해
+저장하지 않습니다. ArchScope 고유 세션 확장자는 `.httpsession`입니다. 지문·거부/
+원본 보존·CLI·합성 트래픽 검사를 통과했지만 **독점 코덱은 미구현**입니다. T-608은
+합성 데이터의 자체 왕복으로 닫지 않고 실제 형식 근거를 기다리는 PENDING입니다.
+
+### 교차 빌드 검증 한계 (2026-11-10)
+
+전체 프로덕션 데스크톱의 Windows amd64 교차 빌드는 성공했습니다. Windows 386 앱은
+고정 Wails v3 alpha2.117의 `pkg/updater/extract.go` 252/293행에서 2 GiB의 비형식
+`maxArchiveTotalSize` 상수를 `fmt.Errorf`에 전달할 때 `int`가 넘쳐 실패합니다.
+프로젝트의 실행·자동화 도우미는 Windows 386 컴파일을 통과하지만 이를 전체 x86 앱
+빌드 통과로 보고하지 않습니다. SDK를 올리거나 모듈 캐시를 패치하지 않았습니다.
+이 패키징 제한은 64비트 앱에서 32비트 클라이언트를 캡처하는지와 별개이며 해당 범위는
+실기 검증이 필요합니다. Mac 빌드·전체 Go 테스트/vet·주요 race 검사·프런트엔드
+상태/빌드·합성 데이터와 결과 판정 규칙 검사는 로컬에서 통과했습니다.

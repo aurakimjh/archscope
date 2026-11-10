@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/content"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/halog"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/redact"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 	parser "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/httpcapture"
@@ -99,6 +100,13 @@ func Sanitize(doc *Document) (redact.Summary, error) {
 	return p.Summary(), nil
 }
 func Read(path string) (Document, redact.Summary, error) {
+	if halog.IsPath(path) {
+		fingerprint, err := halog.Probe(path)
+		if err != nil {
+			return Document{}, redact.Summary{}, err
+		}
+		return Document{}, redact.Summary{}, fmt.Errorf("%w (container=%s bytes=%d)", halog.ErrUnverified, fingerprint.Container, fingerprint.Bytes)
+	}
 	doc := Document{}
 	file, err := os.Open(path)
 	if err != nil {
@@ -187,6 +195,9 @@ func Read(path string) (Document, redact.Summary, error) {
 	return doc, summary, err
 }
 func Encode(doc Document, format string) ([]byte, error) {
+	if format == "halog" || format == "native" {
+		return nil, halog.ErrUnverified
+	}
 	// Copy through JSON: body omission/redaction must never mutate the open session.
 	raw, err := json.Marshal(doc)
 	if err != nil {
@@ -273,6 +284,9 @@ func Encode(doc Document, format string) ([]byte, error) {
 	}
 }
 func Write(ctx context.Context, path string, doc Document, format string) error {
+	if format == "halog" || format == "native" || (format != "responses" && halog.IsPath(path)) {
+		return halog.ErrUnverified
+	}
 	if path == "" {
 		return context.Canceled
 	}

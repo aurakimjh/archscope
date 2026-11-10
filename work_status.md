@@ -213,10 +213,10 @@ completed the independent Lighthouse file-first engine slice.
 
 | Status | Count | Meaning |
 |---|---:|---|
-| `TODO` | 1 | Ready to start; prerequisites are satisfied |
+| `TODO` | 0 | Ready to start; prerequisites are satisfied |
 | `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
 | `REVIEW` | 2 | Review or required remediation is underway; the gate has not passed |
-| `PENDING` | 2 | Waiting for a prerequisite, external condition, or activation trigger |
+| `PENDING` | 3 | Waiting for a prerequisite, external condition, or activation trigger |
 | `DONE` | 195 | Completion criteria and required review gates have passed |
 
 The normal transition is `TODO → IN_PROGRESS → REVIEW → DONE`. A `PENDING`
@@ -233,12 +233,22 @@ from visible-window acceptance. Desktop control twice returned a locked Mac
 with failed auto-unlock; window/dialog/splitter interaction awaits an unlocked
 remote session. T-605, T-606, T-609 and T-612 are implemented and locally verified; visible native interaction remains open.
 
+### Follow-up implementation verification (2026-11-10)
+
+T-611 local control, T-613 harness preparation, T-601 backend/lifecycle hardening
+and T-608 format-evidence preparation are committed separately. Product gates
+remain open as recorded in the registry. Full Go tests/vet, focused race checks,
+frontend state/build, Mac production build and Windows amd64 desktop cross-build
+pass locally. Windows 386 desktop compilation is blocked by the pinned Wails
+updater's untyped 2 GiB constant in `fmt.Errorf`; successful 386 helper compilation
+is narrower evidence and does not prove the x86 desktop or 32-bit client reach.
+
 ### Open Work Snapshot
 
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
 | 1 | T-601 | P1 | `REVIEW` | Deliver the four Windows capture entry points and measure their reach |
-| 2 | T-608 | P2 | `TODO` | Read and write legacy .halog files |
+| 2 | T-608 | P2 | `PENDING` | Read and write legacy .halog files |
 | 3 | T-611 | P3 | `REVIEW` | Support Stand-alone automation and desktop launch switches |
 | 4 | T-613 | P3 | `PENDING` | Verify complete Stand-alone parity on Windows |
 | 5 | T-557 | P1 | `PENDING` | Promote the Jennifer MSA drilldown calculation from UI projection to a Go analyzer contract if repeated use shows it should be exported/reported outside the desktop page. |
@@ -1189,7 +1199,7 @@ deferred until explicitly promoted.
 | T-605 | P2 | DONE | Complete live timing charts and process/session summaries | T-595, T-602 | Added displayed/store-wide/process summary scopes, measured/unknown byte totals, compression pairs, deduplicated TCP/DNS, separate phase perspectives and process-relative bounded waterfall with status-to-grid filtering. Store-wide boundary fixture, counts/timing/PID reuse regressions and frontend state/build pass locally; visible native acceptance remains explicitly unverified. |
 | T-606 | P2 | DONE | Extend Headers, Cookies, Stream and Content viewers | T-598, T-602 | Added ordered cookie attributes with pre-store value masking, sent/received/combined stream, bounded syntax/XML/SOAP and UTF-8 hex views, inert formatting-only HTML, and opt-in bounded re-encoded PNG previews for live/HAR/Builder. Pixel data is explicitly unredacted; originals, SVG and oversized/truncated rasters are not retained. Metadata/event/overflow/compact paths omit previews. Capture/parser/session, safety fixtures and frontend state/build pass; native visual acceptance remains unverified. |
 | T-607 | P2 | DONE | Open, save, clear and export capture sessions from the desktop | Existing baseline | Desktop open/save/export now supports canonical JSON, HAR 1.2, full/compact XML, URL/text/HTML, BIFF8 XLS and response-preview directories; explicit all-store/displayed-row scope, preserved identity/selection, redacted round trips and cancellation pass. XLS independently verified with xlrd including Korean/1000 rows; Windows native dialogs remain T-613 acceptance. |
-| T-608 | P2 | TODO | Read and write legacy .halog files | T-607 | Use genuine sanitized V7.6.4 logs and an independent reader or the reference EXE to verify both directions. Compare processes, headers, retained data and timing. Missing format evidence keeps compatibility unverified. |
+| T-608 | P2 | PENDING | Read and write legacy .halog files | T-607 | No genuine sanitized V7.6.4 sample is available (confirmed by user). Official outer archive fingerprint recorded without executing installer; no codec inferred. Added bounded metadata-only container/hash probe and pair evidence, CLI/desktop access, synthetic reference-traffic generator and prevention of ArchScope JSON/XML masquerading as .halog. Local refusal/immutability/probe/fixture checks prepared; proprietary decoder/encoder and both reference directions remain unimplemented/unverified pending genuine samples. |
 | T-609 | P2 | DONE | Integrate row hints, status help, stars and comments | T-594, T-607 | Added request-ID hints/status help, explicit evidence links, star/comment columns and starred-only filtering. Live annotations use an atomic bounded sidecar, verified IDs, redacted comments and Clear reset; finalized/native JSON/XML/ArchScope HAR preserve notes, while opened-file edits stay explicit export overrides. ID sorting, service and reopen regressions plus frontend state/build pass; native visual acceptance remains unverified. |
 | T-610 | P2 | DONE | Add the Stand-alone HTTP Request Builder | T-594 | Desktop Request Builder supports fresh requests, selected-row copies and a fixed drag/drop target, editable headers/raw/form/multipart files, explicit send/cancel and separate response inspection. Local raw/form/multipart/redirect/timeout/TLS/gzip fixtures, race detector, browser mouse copy/edit/send/drag with original-row preservation, Go suite/vet/build and frontend state/build pass; native Windows acceptance remains T-613. |
 | T-611 | P3 | REVIEW | Support Stand-alone automation and desktop launch switches | T-596, T-607 | Implemented visible desktop launch options, bounded authenticated opt-in loopback control/client, PID/start-time attach contract, timer-stop/export, stored reads and resynchronizable payload-free events. Local real-proxy start/pause/resume/stop/save/reload, auth/retry/origin/descriptor tests and frontend build pass; Windows x86/x64 compile checked. Legacy COM, .lnk/cache-cookie commands and native Windows client acceptance remain unimplemented/unverified. |

@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "task": "T-608",
+  "status": "UNVERIFIED",
+  "referenceVersion": "7.6.4",
+  "sourceUrl": "https://www.ieinspector.com/download.php?p=HttpAnalyzerStd_V7.6.4.zip",
+  "downloadPage": "https://www.ieinspector.com/httpanalyzer/download",
+  "zipSha256": "4de773d67ae419e216f6d07b5f59d781e8516f072ede4067417c9c54c3da5d51",
+  "installerSha256": "79755198eaa0d89aef549ed561d7a49c488055f20b25aeb5c3373379498d763e",
+  "outerArchiveEntries": ["HttpAnalyzerStd_V7.6.4.exe", "pwd-is-ieinspector.txt"],
+  "installerExecuted": false,
+  "nestedInstallerContentsInspected": false,
+  "genuineHalogSampleAvailable": false,
+  "codecImplemented": false,
+  "referenceReadVerified": false,
+  "referenceWriteVerified": false,
+  "note": "Outer archive and installer type only were inspected. No proprietary format was inferred; no installer or vendor driver is included in the repository."
+}

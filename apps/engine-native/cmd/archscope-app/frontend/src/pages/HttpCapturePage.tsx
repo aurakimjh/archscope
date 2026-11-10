@@ -1,3 +1,4 @@
+import { HttpLegacyFileProbe } from "@/components/HttpLegacyFileProbe";
 import { findingRequestIds } from "@/state/httpAnnotations";
 import { HttpRequestBuilder } from "@/components/HttpRequestBuilder";
 import * as CaptureService from "../../bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/captureservice";
@@ -164,7 +165,7 @@ export function HttpCapturePage(): React.JSX.Element {
         Filters: [
           {
             DisplayName: "HTTP session / HAR / XML",
-            Pattern: "*.httpsession;*.har;*.json;*.xml",
+            Pattern: "*.httpsession;*.har;*.json;*.xml;*.halog",
           },
         ],
       });
@@ -311,6 +312,7 @@ export function HttpCapturePage(): React.JSX.Element {
         >
           {t("httpFilesOpen")}
         </Button>
+        <HttpLegacyFileProbe />
         {result && (
           <Button variant="outline" size="sm" onClick={onClearFile}>
             {t("httpFilesClose")}

@@ -7,6 +7,7 @@ import (
 	engineapi "github.com/aurakimjh/archscope/apps/engine-native/api"
 	httpanalyzer "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/httpcapture"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/halog"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/sessionfile"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/store"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
@@ -39,6 +40,9 @@ func (s *CaptureService) OpenCaptureFile(path string) (CaptureOpenResult, error)
 	return CaptureOpenResult{Result: result, SelectedID: doc.SelectedID}, nil
 }
 func (s *CaptureService) ExportCaptureFile(request CaptureExportRequest) (int, error) {
+	if request.Format == "halog" || request.Format == "native" || (request.Format != "responses" && halog.IsPath(request.Destination)) {
+		return 0, halog.ErrUnverified
+	}
 	if request.Destination == "" {
 		return 0, context.Canceled
 	}
@@ -114,4 +118,8 @@ func (s *CaptureService) ExportCaptureFile(request CaptureExportRequest) (int, e
 		return 0, err
 	}
 	return len(doc.Transactions), nil
+}
+
+func (s *CaptureService) ProbeLegacyCapture(path string) (halog.Fingerprint, error) {
+	return halog.Probe(path)
 }

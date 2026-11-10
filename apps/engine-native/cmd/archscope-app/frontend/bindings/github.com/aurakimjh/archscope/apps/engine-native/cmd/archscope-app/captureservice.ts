@@ -25,6 +25,9 @@ import * as backend$0 from "../../internal/capture/backend/models.js";
 import * as certstore$0 from "../../internal/capture/certstore/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
+import * as halog$0 from "../../internal/capture/halog/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
 import * as requestbuilder$0 from "../../internal/capture/requestbuilder/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
@@ -190,9 +193,15 @@ export function OpenCaptureFile(path: string): $CancellablePromise<$models.Captu
     });
 }
 
+export function ProbeLegacyCapture(path: string): $CancellablePromise<halog$0.Fingerprint> {
+    return $Call.ByID(2180656902, path).then(($result: any) => {
+        return $$createType24($result);
+    });
+}
+
 export function RecoverCaptureSessions(): $CancellablePromise<store$0.RecoveryReport[]> {
     return $Call.ByID(740397896).then(($result: any) => {
-        return $$createType25($result);
+        return $$createType26($result);
     });
 }
 
@@ -270,5 +279,6 @@ const $$createType20 = $Create.Array($$createType19);
 const $$createType21 = models$0.ProcessInstance.createFrom;
 const $$createType22 = $Create.Array($$createType21);
 const $$createType23 = $models.CaptureOpenResult.createFrom;
-const $$createType24 = store$0.RecoveryReport.createFrom;
-const $$createType25 = $Create.Array($$createType24);
+const $$createType24 = halog$0.Fingerprint.createFrom;
+const $$createType25 = store$0.RecoveryReport.createFrom;
+const $$createType26 = $Create.Array($$createType25);

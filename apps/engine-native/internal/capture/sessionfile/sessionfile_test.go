@@ -3,6 +3,8 @@ package sessionfile
 import (
 	"bytes"
 	"context"
+	"errors"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/halog"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -150,5 +152,24 @@ func TestLegacyTreeRoundTripAndCompactOmission(t *testing.T) {
 	}
 	if original.Transactions[0].Response.LegacyPreview.Root.Children[0].Value != "private" {
 		t.Fatal("original tree mutated")
+	}
+}
+
+func TestLegacyExtensionCannotMasqueradeAsNativeJSON(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "keep.halog")
+	os.WriteFile(path, []byte("original"), 0600)
+	if err := Write(context.Background(), path, fixture(), "session"); !errors.Is(err, halog.ErrUnverified) {
+		t.Fatal(err)
+	}
+	data, _ := os.ReadFile(path)
+	if string(data) != "original" {
+		t.Fatal("legacy output overwritten")
+	}
+	os.WriteFile(path, []byte(`{"type":"archscope-http-session","schemaVersion":1,"transactions":[]}`), 0600)
+	if _, _, err := Read(path); !errors.Is(err, halog.ErrUnverified) {
+		t.Fatal("JSON disguised as .halog accepted")
+	}
+	if _, err := Encode(fixture(), "native"); !errors.Is(err, halog.ErrUnverified) {
+		t.Fatal(err)
 	}
 }
