@@ -144,10 +144,10 @@ func cookies(m *models.HTTPMessage, request bool) {
 			f.Attributes = append(f.Attributes, models.CookieAttribute{Name: "Domain", Value: c.Domain})
 		}
 		if c.HttpOnly {
-			f.Attributes = append(f.Attributes, models.CookieAttribute{Name: "HttpOnly"})
+			f.Attributes = append(f.Attributes, models.CookieAttribute{Name: "HttpOnly", Value: "true"})
 		}
 		if c.Secure {
-			f.Attributes = append(f.Attributes, models.CookieAttribute{Name: "Secure"})
+			f.Attributes = append(f.Attributes, models.CookieAttribute{Name: "Secure", Value: "true"})
 		}
 		if c.SameSite != 0 {
 			f.Attributes = append(f.Attributes, models.CookieAttribute{Name: "SameSite", Value: map[http.SameSite]string{http.SameSiteDefaultMode: "Default", http.SameSiteLaxMode: "Lax", http.SameSiteStrictMode: "Strict", http.SameSiteNoneMode: "None"}[c.SameSite]})

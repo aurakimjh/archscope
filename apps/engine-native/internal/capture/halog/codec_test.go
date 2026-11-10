@@ -104,6 +104,21 @@ func TestDiscardedBinaryBodiesConsumeDecodeBudget(t *testing.T) {
 	}
 }
 
+func TestCookieFlagsUseCanonicalBooleans(t *testing.T) {
+	m := models.HTTPMessage{Headers: []models.HeaderField{{Name: "Set-Cookie", Value: "session=one; Path=/; HttpOnly; Secure; SameSite=Lax"}}}
+	cookies(&m, false)
+	if len(m.Cookies) != 1 {
+		t.Fatal("native cookie missing")
+	}
+	attrs := map[string]string{}
+	for _, a := range m.Cookies[0].Attributes {
+		attrs[a.Name] = a.Value
+	}
+	if attrs["HttpOnly"] != "true" || attrs["Secure"] != "true" || attrs["Path"] != "/" || attrs["SameSite"] != "Lax" {
+		t.Fatal("cookie flags would be lost on canonical HAR export")
+	}
+}
+
 func TestCanonicalNativeRoundTripAndRefusals(t *testing.T) {
 	rows := []models.CaptureTransaction{{ID: "fixture", Method: "POST", URL: "https://example.test/a?x=1&x=2", HTTPVersion: "HTTP/1.1", StatusCode: 302, StatusText: "Found", StartedAt: "2026-11-10T00:00:00Z", EndedAt: "2026-11-10T00:00:00.125Z", TotalMS: 125, State: models.TxComplete, Starred: true, Request: models.HTTPMessage{BodyStorage: "inline", ContentType: "text/plain", BodyPreview: "한글"}, Response: models.HTTPMessage{BodyStorage: "inline", ContentType: "application/json", BodyPreview: `{"x":1}`}, RedirectURL: "https://example.test/b"}}
 	b, err := EncodeTransactions(rows)
