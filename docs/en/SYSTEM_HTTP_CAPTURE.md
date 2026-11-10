@@ -1246,3 +1246,34 @@ retry behavior, parsing and journal bounds. Windows x86/x64 compilation passes.
 This is ArchScope local control, **not the legacy COM interface**; Windows COM,
 shortcuts, cache/cookie commands and native client/window acceptance keep
 T-611 in REVIEW. [Reference switches](https://www.ieinspector.com/httpanalyzer/manual/commandlineinterface.htm).
+
+### Stand-alone parity harness preparation (T-613)
+
+`scripts/http-standalone-parity-contract.json` lists backend automation, process,
+exchange, body and file cases separately from visible native UI and reference
+interoperability cases. `node scripts/test-http-parity-report.mjs` checks verdict,
+provenance, artifact-hash and evidence-type rules on any host. A non-Windows run,
+unknown build commit, missing artifact, or control-only evidence cannot produce
+an overall native parity PASS. Unobserved cases remain UNVERIFIED.
+
+On Windows build the renderer, then build the desktop from `apps/engine-native`
+with `go build -tags production -ldflags "-X main.desktopBuildCommit=COMMIT" -o
+ABS_EXE ./cmd/archscope-app`, substituting the exact current `git rev-parse HEAD`.
+Run `scripts/verify-http-standalone.ps1 -ArchScopeExe ABS_EXE -OutputDirectory
+ABS_OUTPUT`. Node 22+ is required. The harness starts only its own visible app,
+attaches its real Node PID/start time, generates loopback-only 103/302/POST
+fixtures, compares persisted attribution/headers and native save/reopen IDs,
+then stops the capture and terminates only the spawned app. It makes no dump
+policy, global proxy, trust-store or browser-cache changes. `-RequireBodies`
+requires the existing verified body gate; it never changes that gate to pass.
+
+Automation instances store sessions under `.archscope-captures` beside their
+explicit descriptor, isolated from the normal desktop store/trust manifest.
+The descriptor is private and removed after the owned process exits. Share only
+`result.json` and the explicitly hashed fixture artifacts, not the private
+capture directory or descriptor. Reports omit tokens, local paths, raw command
+lines and private exception strings. The binary hash and embedded source commit
+are recorded; the harness **does not observe window layout or COM/.halog parity**.
+Those contract cases stay UNVERIFIED until independent native observations and
+reference artifacts are attached. This commit completes preparation, not the
+T-613 Windows acceptance gate.

@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "target": "IEInspector HTTP Analyzer V7.6.4 Stand-alone / Wails v3",
+  "cases": [
+    {"id":"CONTROL-01","task":"T-611","evidence":"automation","description":"Visible-app control start/pause/resume/stop and event reads"},
+    {"id":"PROCESS-01","task":"T-601","evidence":"automation","description":"Selected PID plus start-time attribution through explicit proxy"},
+    {"id":"EXCHANGE-01","task":"T-602","evidence":"automation","description":"103/302/final exchange preservation"},
+    {"id":"BODY-01","task":"T-606","evidence":"automation","description":"Retained request/response markers and duplicate cookie attributes"},
+    {"id":"SESSION-01","task":"T-607","evidence":"automation","description":"Native save/reload preserves IDs and selection"},
+    {"id":"WINDOW-01","task":"T-594","evidence":"native_observation","description":"Capture controls, process grid and selected detail in one native window"},
+    {"id":"GRID-01","task":"T-604","evidence":"native_observation","description":"Columns, grouping, full-store search and keyboard operations"},
+    {"id":"TIMING-01","task":"T-605","evidence":"native_observation","description":"Summary filters and process-relative waterfall"},
+    {"id":"CONTENT-01","task":"T-606","evidence":"native_observation","description":"Headers/cookies/streams and inert text/HTML/raster viewers"},
+    {"id":"NOTES-01","task":"T-609","evidence":"native_observation","description":"Star/comment identity through sort/save/reload"},
+    {"id":"BUILDER-01","task":"T-610","evidence":"native_observation","description":"Copy/drag/edit/explicit send without changing original"},
+    {"id":"LEGACY-VIEW-01","task":"T-612","evidence":"native_observation","description":"AMF/ViewState trees, text, error/limit/unsupported states"},
+    {"id":"COVERAGE-01","task":"T-601","evidence":"native_observation","description":"x86/x64/service/proxy-ignoring application reach"},
+    {"id":"HALOG-01","task":"T-608","evidence":"reference_interop","description":"Genuine .halog read/write validated against reference tool"},
+    {"id":"COM-01","task":"T-611","evidence":"reference_interop","description":"Legacy Windows COM/client command compatibility"},
+    {"id":"LONG-01","task":"T-613","evidence":"native_observation","description":"Long capture, page reentry, restart and recovery"}
+  ]
+}

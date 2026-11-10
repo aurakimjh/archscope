@@ -4549,3 +4549,28 @@ events, list/detail/summary, save, open 명령을 지원합니다. start에는 �
 **원본 COM 인터페이스와 호환된다는 의미는 아닙니다.** Windows COM·바로가기·캐시/
 쿠키 명령·클라이언트/실제 창 검증은 남아 T-611을 REVIEW로 유지합니다.
 [원본 실행 옵션](https://www.ieinspector.com/httpanalyzer/manual/commandlineinterface.htm).
+
+### Stand-alone 검증 도구 준비 (T-613)
+
+`scripts/http-standalone-parity-contract.json`은 자동화·프로세스·중간 응답·본문·파일
+검사를 실제 네이티브 UI 및 원본 호환성 검사와 구분합니다.
+`node scripts/test-http-parity-report.mjs`로 결과·커밋·근거 해시·검증 종류 규칙을
+어느 OS에서나 검사합니다. Windows가 아니거나 빌드 커밋/근거가 없거나 제어 명령만
+검사한 경우 전체 네이티브 호환 PASS가 될 수 없습니다. 미관측은 UNVERIFIED입니다.
+
+Windows에서 프런트엔드를 빌드한 뒤 `apps/engine-native`에서
+`go build -tags production -ldflags "-X main.desktopBuildCommit=COMMIT" -o ABS_EXE ./cmd/archscope-app`
+를 실행합니다. COMMIT에는 정확한 `git rev-parse HEAD` 값을 넣습니다. Node 22+
+환경에서 `scripts/verify-http-standalone.ps1 -ArchScopeExe ABS_EXE -OutputDirectory ABS_OUTPUT`
+를 실행합니다. 자신이 실행한 표시 앱에 실제 Node PID·시작 시간을 선택하고 loopback
+103/302/POST 데이터로 귀속·헤더·저장/재열기 ID를 비교한 뒤 해당 앱만 종료합니다.
+덤프 정책·전역 프록시·신뢰 저장소·브라우저 캐시를 바꾸지 않습니다. `-RequireBodies`는
+이미 검증된 본문 정책을 요구하며 통과를 위해 정책을 바꾸지 않습니다.
+
+자동화 인스턴스의 저장소와 신뢰 매니페스트는 descriptor 옆 `.archscope-captures`로
+분리합니다. 비공개 descriptor는 소유 앱 종료 후 제거합니다. 결과 JSON과 명시된
+fixture 근거만 공유하고 비공개 저장소·descriptor는 공유하지 않습니다. 토큰·로컬
+경로·명령줄·개인 예외 문자열은 결과에 넣지 않습니다. 바이너리 해시·소스 커밋을
+기록하지만 **실제 화면 배치·COM·`.halog` 호환성을 관측하는 도구는 아닙니다.** 해당
+항목은 실기·원본 근거를 붙일 때까지 UNVERIFIED입니다. 준비 작업이며 T-613 최종
+Windows 완료 판정은 아닙니다.

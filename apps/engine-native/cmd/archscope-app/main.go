@@ -27,8 +27,10 @@ package main
 import (
 	"fmt"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/automation"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/certstore"
 	"log"
 	"os"
+	"path/filepath"
 	"runtime"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture"
@@ -72,6 +74,10 @@ func main() {
 		return
 	}
 	captureService := NewCaptureService()
+	if options.Descriptor != "" {
+		root := filepath.Join(filepath.Dir(options.Descriptor), ".archscope-captures")
+		captureService = newCaptureService(root, certstore.NewSystem(filepath.Join(root, "ca-trust.json")))
+	}
 	captureService.launchOptions = options
 	app := application.New(application.Options{
 		Name:        "ArchScope",

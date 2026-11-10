@@ -15,6 +15,8 @@ import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 )
 
+var desktopBuildCommit = "unknown"
+
 type DesktopLaunchState struct {
 	ShowHTTP bool   `json:"showHttp"`
 	OpenPath string `json:"openPath,omitempty"`
@@ -128,7 +130,7 @@ func (s *CaptureService) executeAutomation(ctx context.Context, call automation.
 	}
 	switch call.Command {
 	case "capabilities":
-		return map[string]any{"contract": s.GetLiveCaptureContract(), "modes": s.ListCaptureModes()}, nil
+		return map[string]any{"buildCommit": desktopBuildCommit, "contract": s.GetLiveCaptureContract(), "modes": s.ListCaptureModes()}, nil
 	case "status":
 		return s.GetCurrentCaptureSession(), nil
 	case "processes":

@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {createReport,assessReport,setCase,contract} from './http-parity-report.mjs';
+const hash='a'.repeat(64),head='b'.repeat(40);
+const pending=createReport({platform:'win32',sourceCommit:head,buildCommit:head,binarySha256:hash});assert.equal(assessReport(pending).status,'UNVERIFIED');
+setCase(pending,'CONTROL-01','PASS','fixture',[hash]);assert.equal(assessReport(pending).status,'UNVERIFIED');
+const forged=createReport({platform:'darwin',sourceCommit:head,buildCommit:head,binarySha256:hash});for(const item of contract.cases)setCase(forged,item.id,'PASS','claimed',[hash]);assert.equal(assessReport(forged).status,'FAIL');
+const noArtifacts=structuredClone(pending);noArtifacts.cases[0].artifacts=[];assert.equal(assessReport(noArtifacts).status,'FAIL');
+const full=structuredClone(pending);full.nativeWindowVerified=true;for(const item of contract.cases)setCase(full,item.id,'PASS','observed',[hash]);assert.equal(assessReport(full).status,'PASS');
+full.buildCommit='c'.repeat(40);assert.equal(assessReport(full).status,'FAIL');
+console.log('HTTP parity report contract tests passed');
