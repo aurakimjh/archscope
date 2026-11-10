@@ -180,3 +180,34 @@ func (m Metadata) MarshalJSON() ([]byte, error) {
 	out["findings"] = findings
 	return json.Marshal(out)
 }
+
+// UnmarshalJSON is the inverse of the flattened wire contract. Unknown
+// analyzer fields must survive a CLI save/reload or Wails request, otherwise
+// scope/provenance metadata silently disappears on its way to an exporter.
+// [한글] 공통 필드는 타입 검증하고 나머지는 Extra에 보관한다. 임시 값에
+// 전부 읽은 뒤 대입하므로 오류가 나면 기존 메타데이터는 바뀌지 않는다.
+func (m *Metadata) UnmarshalJSON(data []byte) error {
+	type fields Metadata
+	var typed fields
+	if err := json.Unmarshal(data, &typed); err != nil {
+		return err
+	}
+	var raw map[string]json.RawMessage
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+	typed.Extra = map[string]any{}
+	for key, value := range raw {
+		switch key {
+		case "parser", "schema_version", "diagnostics", "findings":
+			continue
+		}
+		var decoded any
+		if err := json.Unmarshal(value, &decoded); err != nil {
+			return err
+		}
+		typed.Extra[key] = decoded
+	}
+	*m = Metadata(typed)
+	return nil
+}
