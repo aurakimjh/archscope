@@ -1,0 +1,64 @@
+{
+  "schema": "archscope.local-validation.v1",
+  "date": "2026-11-10",
+  "host": "darwin-arm64",
+  "scope": "Four Mac-executable follow-ups; source base plus file hashes below",
+  "sourceBaseCommit": "cbbd6988ea5d0bf40e9c6c2caf0c0443f3bbd638",
+  "sourceFilesSHA256": {
+    "apps/engine-native/cmd/archscope-app/captureautomation.go": "f427c67cb32241e94977589523164d668417ce554419b1b0e05011c14fb93433",
+    "apps/engine-native/cmd/archscope-app/captureresilience_test.go": "4ccbbbfd9428bf4f3d77ae4bac2adeddd318afcdde5ef20ae1eb9c0f663b064c",
+    "apps/engine-native/cmd/archscope-app/captureservice.go": "e9fa876ea9a0bd6d58a5064d4cf89acf50eece04ea397856a4b276d70e352eae",
+    "apps/engine-native/cmd/archscope-app/capturesoak_test.go": "1dd4169d9ffbc2bd0bc63339daf967369c773eac8ab327edfb5cd1f119733217",
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/LiveHttpCapturePanel.tsx": "4abf62e098ba0271257c695218bd5161e8606f02d94a146af0f65d50c08b9a58",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/liveHttpCapture.ts": "4efdb9b0186a2099b17485cc5157196bfe9da3e7fd8397ca48490ffb69dd55ac",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/regression.test.ts": "4f0cfc2e5c640f9ce6345e207584386b5d8fc9c011ca8f1f8524d9b280f828ef",
+    "apps/engine-native/internal/capture/automation/resilience_test.go": "0c0d8b7c58ffdeaf18e9365d0427301927e528d57ff0b14b0e7a2a9d37eb2b8c",
+    "apps/engine-native/internal/capture/automation/server.go": "8e6f468d6c724fe6064a9c726112d0e692ed7b088549e4a899c019df7094d1a7",
+    "apps/engine-native/internal/capture/session/manager.go": "f2be1bc2aeb30f2c14d668fe8f8295b612125f4eca2693743f371b409af9f312",
+    "apps/engine-native/internal/capture/session/resilience_test.go": "dd5182d137401ae5011cc1cad67fe258a3e4e1ae925a40914a119ff549fedec6"
+  },
+  "checks": {
+    "goTestAll": "PASS (86 package results)",
+    "goVetAll": "PASS",
+    "focusedRace": "PASS (automation/session/processlaunch/desktop)",
+    "frontendStateTests": "PASS",
+    "frontendProductionBuild": "PASS",
+    "macProductionBuild": "PASS",
+    "parityReportContract": "PASS",
+    "referenceFixtureSelfTest": "PASS"
+  },
+  "soak": {
+    "command": "ARCHSCOPE_CAPTURE_SOAK=60s go test -race ./cmd/archscope-app -run ^TestCaptureProxySoakAcrossClearPauseAndReentry$ -count=1 -timeout=120s -v",
+    "fixtureElapsedSeconds": 60.251,
+    "cycles": 72,
+    "syntheticRequests": 18720,
+    "liveRowBound": 64,
+    "postClearCapturedAndPersistedPerCycle": 128,
+    "exactListenerPortReuse": true,
+    "result": "PASS"
+  },
+  "builds": [
+    {
+      "target": "windows-x86",
+      "sha256": "11a8e5fc2eb253acd333b23162f5af694be007d7f82ef42b258dea2f5dc3036a",
+      "subsystem": "Windows GUI",
+      "executed": false
+    },
+    {
+      "target": "windows-x64",
+      "sha256": "78c93072a2f1278278df72bfe5117b606af1c372b31ef3974a576f38ff5ef14d",
+      "subsystem": "Windows GUI",
+      "executed": false
+    }
+  ],
+  "nativeWindowVerified": false,
+  "nativeWindowsExecution": false,
+  "completeStandaloneParity": false,
+  "remaining": [
+    "Native Windows shortcut/keyboard/window acceptance",
+    "Multi-hour native capture soak",
+    "Transparent capture backend",
+    "Legacy COM automation",
+    "Genuine .halog codec and reference interoperability"
+  ]
+}

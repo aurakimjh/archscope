@@ -99,7 +99,7 @@ func Start(path string, execute Executor) (*Server, error) {
 }
 func (s *Server) Close() error {
 	err := s.server.Close()
-	raw, readErr := os.ReadFile(s.path)
+	raw, readErr := readDescriptor(s.path)
 	var current Descriptor
 	if readErr == nil && json.Unmarshal(raw, &current) == nil && current.Token == s.descriptor.Token {
 		err2 := os.Remove(s.path)
@@ -139,6 +139,13 @@ func (s *Server) handle(w http.ResponseWriter, r *http.Request) {
 	// ID do not start/stop/save twice; different content under an ID is rejected.
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	// A request may disconnect while waiting behind another mutation. It has
+	// not executed yet, so do not consume its retry ID or mutate desktop state.
+	if err := r.Context().Err(); err != nil {
+		http.Error(w, "control request canceled before execution", 408)
+		return
+	}
+
 	raw, _ := json.Marshal(call)
 	hash := sha256.Sum256(raw)
 	write := func(reply Reply) { _ = json.NewEncoder(w).Encode(reply) }
@@ -182,10 +189,33 @@ func (s *Server) handle(w http.ResponseWriter, r *http.Request) {
 	write(reply)
 }
 
+func readDescriptor(path string) ([]byte, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+	info, err := file.Stat()
+	if err != nil {
+		return nil, err
+	}
+	if !info.Mode().IsRegular() || info.Size() > 4096 {
+		return nil, fmt.Errorf("invalid descriptor")
+	}
+	raw, err := io.ReadAll(io.LimitReader(file, 4097))
+	if err != nil {
+		return nil, err
+	}
+	if len(raw) > 4096 {
+		return nil, fmt.Errorf("invalid descriptor")
+	}
+	return raw, nil
+}
+
 // Invoke rejects non-loopback descriptors and never forwards local credentials
 // through redirects or an environment proxy.
 func Invoke(ctx context.Context, path string, call Call) (Reply, error) {
-	raw, err := os.ReadFile(path)
+	raw, err := readDescriptor(path)
 	if err != nil {
 		return Reply{}, err
 	}

@@ -156,7 +156,7 @@ export function LiveHttpCapturePanel({
     setSelectedProcesses(keys.map((key) => ({key, name:`PID ${key.pid}`, attribution:"confirmed"})));
   }, [state.session?.sessionId]);
 
-  const hydrate = useCallback(async (session: LiveCaptureSession) => {
+  const hydrate = useCallback(async (session: LiveCaptureSession, current: () => boolean) => {
     let stats: LiveCaptureStats | null = null;
     let transactions: LiveCaptureTransaction[] = [];
     try {
@@ -170,7 +170,7 @@ export function LiveHttpCapturePanel({
       // A finalized/recovered session may no longer have an in-memory live
       // window. Its analysis remains available through AnalyzeCaptureSession.
     }
-    dispatch({ type: "hydrate", session, stats, transactions });
+    if (current()) dispatch({ type: "hydrate", session, stats, transactions });
   }, []);
 
   useEffect(() => {
@@ -212,7 +212,7 @@ export function LiveHttpCapturePanel({
         }
         const session = current as unknown as LiveCaptureSession;
         if (renderer.restoreCurrentSessionOnPageReentry && session.sessionId) {
-          await hydrate(session);
+          await hydrate(session, () => !disposed);
         }
       } catch (caught) {
         if (!disposed) {
@@ -227,6 +227,10 @@ export function LiveHttpCapturePanel({
     const offStarted = Events.On("capture:started", (event: unknown) => {
       const data = eventData<LiveCaptureSession>(event);
       if (data) dispatch({ type: "started", session: data });
+    });
+    const offSession = Events.On("capture:session", (event: unknown) => {
+      const data = eventData<LiveCaptureSession>(event);
+      if (data) dispatch({type:"session",session:data});
     });
     const offTransactions = Events.On(
       "capture:transactions",
@@ -256,6 +260,7 @@ export function LiveHttpCapturePanel({
     return () => {
       disposed = true;
       offStarted?.();
+      offSession?.();
       offProgress?.();
       offTransactions?.();
       offStats?.();
@@ -293,7 +298,7 @@ export function LiveHttpCapturePanel({
     return () => {
       disposed = true;
     };
-  }, [state.needsResync, state.session?.sessionId]);
+  }, [state.needsResync, state.session?.sessionId, state.session?.generation]);
 
   const start = useCallback(async () => {
     if (!firstUseAccepted || state.busy || active || (processScope === "selected" && selectedProcesses.length === 0)) return;

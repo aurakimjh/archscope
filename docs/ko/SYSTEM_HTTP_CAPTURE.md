@@ -4559,8 +4559,9 @@ events, list/detail/summary, save, open 명령을 지원합니다. start에는 �
 검사한 경우 전체 네이티브 호환 PASS가 될 수 없습니다. 미관측은 UNVERIFIED입니다.
 
 Windows에서 프런트엔드를 빌드한 뒤 `apps/engine-native`에서
-`go build -tags production -ldflags "-X main.desktopBuildCommit=COMMIT" -o ABS_EXE ./cmd/archscope-app`
-를 실행합니다. COMMIT에는 정확한 `git rev-parse HEAD` 값을 넣습니다. Node 22+
+앱 폴더 `apps/engine-native/cmd/archscope-app`에서
+`node build/windows/build.mjs -tags production -ldflags "-H windowsgui -X main.desktopBuildCommit=COMMIT" -o ABS_EXE .`
+를 실행하고 GOARCH를 386 또는 amd64로 설정합니다. COMMIT에는 정확한 `git rev-parse HEAD` 값을 넣습니다. Node 22+
 환경에서 `scripts/verify-http-standalone.ps1 -ArchScopeExe ABS_EXE -OutputDirectory ABS_OUTPUT`
 를 실행합니다. 자신이 실행한 표시 앱에 실제 Node PID·시작 시간을 선택하고 loopback
 103/302/POST 데이터로 귀속·헤더·저장/재열기 ID를 비교한 뒤 해당 앱만 종료합니다.
@@ -4670,3 +4671,30 @@ x64는 `GOARCH=amd64`를 사용하며, 먼저 `frontend/`에서 `npm run build`�
 x86/x64 테스트 컴파일/vet을 Mac에서 통과했습니다. 한글 바로가기를 생성해 인수·작업
 폴더·재개 전 실행 금지를 검사하는 네이티브 테스트도 준비했으나 **Mac에서는 실행하지
 않았습니다.** Windows 실행과 실제 포착 범위 확인은 T-613에 남아 있습니다.
+
+### 로컬 장애 복구 검증 (T-613 준비, 2026-11-10)
+
+회귀 테스트로 이전 세션 중지의 새 세션 CA 제거, 신뢰 정리 전 재시작, 취소된 시작의
+자원 생성, 시작 도중 취소의 정리 누락, 실행 컨텍스트 취소 후 세션 미종료를 먼저
+재현했습니다. 시작·중지·CA 작업을 서비스 수명 잠금으로 직렬화하고 다른 세션 ID의
+중지가 현재 신뢰를 제거하지 못하게 했습니다. CA 제거에는 캡처 중지가 필요하며,
+종료 시 캡처 없이 준비한 신뢰도 정리합니다. 관리자는 취소된 시작을 생성 전에 거부하거나
+부분 자원을 정리하고 실행 중 컨텍스트 취소 시 저장소를 마무리합니다. 복구 검색 전체를
+관리자 잠금으로 보호하고 활성 저장소를 제외합니다.
+
+늦은 재진입 응답이 중지·비우기 이전 행을 되살리는 문제도 재현했습니다. 초기 복원은
+더 최신 상태나 화면 이탈을 덮어쓰지 않고 세대를 거르며 실행 중 세션은 구독 시작 후
+다시 동기화합니다. 일시 정지·비우기는 현재 세션 갱신을 알립니다. 동시 제어 재시도는
+한 번만 실행하고 대기 중 취소된 명령은 실행하거나 요청 ID를 소비하지 않습니다.
+Descriptor는 4096바이트 제한으로 읽고 교체된 파일은 종료 시 지우지 않습니다.
+동시 이벤트 저널의 순서·보관 한도도 확인했습니다.
+
+`apps/engine-native`에서 `ARCHSCOPE_CAPTURE_SOAK=60s go test -race ./cmd/archscope-app
+-run '^TestCaptureProxySoakAcrossClearPauseAndReentry$' -count=1 -timeout=120s -v`를 실행해
+합성 요청 18,720건·72회 주기를 60.251초 동안 통과했습니다. 각 주기에서 일시 정지·비우기
+세대, 동시 복구/재진입 조회, 실시간 64행 한도, 비운 후 캡처/저장 각 128건, 중복 중지,
+같은 수신 포트 재사용을 확인했습니다. 중지 실패 주입 후 복구 가능한 기록 보존과 다음
+세션 시작, 반복 재진입·종료 검사도 race를 통과했습니다. 이는 **로컬 백엔드 60초 반복
+검사**이며 여러 시간 지속 검사나 Windows 실제 화면 검증은 아닙니다. 전체 Go 테스트/vet,
+주요 race, 프런트엔드 상태/빌드, Mac 및 Windows x86/x64 빌드를 통과했습니다.
+T-613은 기존 수용 기준의 네이티브·원본 제품 근거를 기다리는 PENDING을 유지합니다.

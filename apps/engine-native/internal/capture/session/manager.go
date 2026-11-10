@@ -135,6 +135,9 @@ func (m *Manager) ReleaseAuthority() {
 func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
+	if err := ctx.Err(); err != nil {
+		return Session{}, err
+	}
 	if activeState(m.session.State) {
 		return Session{}, ErrSessionActive
 	}
@@ -309,6 +312,9 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 		}
 		return err
 	})
+	if err == nil {
+		err = runCtx.Err()
+	}
 	if err != nil {
 		cancel()
 		stopCtx, stopCancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -345,6 +351,9 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 			defer stopCancel()
 			_, _ = m.Stop(stopCtx, id)
 		case <-runCtx.Done():
+			stopCtx, stopCancel := context.WithTimeout(context.Background(), 10*time.Second)
+			defer stopCancel()
+			_, _ = m.Stop(stopCtx, id)
 		}
 	}()
 	return session, nil
@@ -529,12 +538,15 @@ func (m *Manager) Snapshot(id SessionID) (aggregate.Snapshot, error) {
 }
 
 func (m *Manager) RecoverSessions() ([]store.RecoveryReport, error) {
-	m.mu.RLock()
+	// store.Open may recover/truncate an unfinalized store. Serialize the entire
+	// scan with Start/Stop and other scans, not just the active-path snapshot.
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	activePath := ""
 	if activeState(m.session.State) {
 		activePath = m.session.StorePath
 	}
-	m.mu.RUnlock()
+
 	dirs, err := store.SortedSessionDirs(m.root)
 	if err != nil {
 		return nil, err

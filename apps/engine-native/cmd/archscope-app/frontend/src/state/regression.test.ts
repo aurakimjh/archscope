@@ -3136,3 +3136,18 @@ for (const grouping of ["process","host","method","status","mime","none"]) {
   assert(grouping === "none" ? collapsed.length === 2 : collapsed.every(entry => entry.kind === "process"), "Collapse respects grouping " + grouping);
   assert(httpGroupedEntries([selectedLiveRow,reusedPid],new Set(),grouping).filter(entry => entry.kind === "request").length === 2, "Expand restores requests " + grouping);
 }
+
+// A delayed re-entry snapshot must never resurrect stopped/cleared captures.
+const reentrySession = {...liveSession,generation:2};
+const reentryRunning = liveHttpCaptureReducer(initialLiveCaptureState,{type:"started",session:reentrySession});
+const reentryStopped = liveHttpCaptureReducer(reentryRunning,{type:"stopped",session:{...reentrySession,state:"finalized"}});
+const lateHydration = liveHttpCaptureReducer(reentryStopped,{type:"hydrate",session:{...liveSession,generation:0},stats:null,transactions:[pendingLiveRow]});
+assert(lateHydration === reentryStopped,"Delayed hydration cannot replace an authoritative stop/clear");
+const lateStart = liveHttpCaptureReducer(reentryStopped,{type:"started",session:reentrySession});
+assert(lateStart === reentryStopped,"Delayed start acknowledgement cannot restart a finalized session");
+const oldStop = liveHttpCaptureReducer(reentryRunning,{type:"stopped",session:{...liveSession,generation:0,state:"finalized"}});
+assert(oldStop === reentryRunning,"Old generation stop cannot overwrite a cleared session");
+const reentryTerminal = liveHttpCaptureReducer(initialLiveCaptureState,{type:"stopped",session:{...reentrySession,state:"finalized"}});
+assert(reentryTerminal.session?.state === "finalized","Stop arriving before initial hydration restores terminal state");
+const initialHydration = liveHttpCaptureReducer(initialLiveCaptureState,{type:"hydrate",session:reentrySession,stats:null,transactions:[{...pendingLiveRow,generation:2},{...pendingLiveRow,id:"old-generation",generation:0}]});
+assert(initialHydration.transactions.length === 1 && initialHydration.needsResync,"Re-entry filters old generation and refreshes running capture after lost early events");

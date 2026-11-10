@@ -1256,9 +1256,9 @@ provenance, artifact-hash and evidence-type rules on any host. A non-Windows run
 unknown build commit, missing artifact, or control-only evidence cannot produce
 an overall native parity PASS. Unobserved cases remain UNVERIFIED.
 
-On Windows build the renderer, then build the desktop from `apps/engine-native`
-with `go build -tags production -ldflags "-X main.desktopBuildCommit=COMMIT" -o
-ABS_EXE ./cmd/archscope-app`, substituting the exact current `git rev-parse HEAD`.
+On Windows build the renderer, then from `apps/engine-native/cmd/archscope-app`
+run `node build/windows/build.mjs -tags production -ldflags "-H windowsgui -X main.desktopBuildCommit=COMMIT" -o ABS_EXE .`,
+substituting the exact current `git rev-parse HEAD` (set GOARCH=386 or amd64).
 Run `scripts/verify-http-standalone.ps1 -ArchScopeExe ABS_EXE -OutputDirectory
 ABS_OUTPUT`. Node 22+ is required. The harness starts only its own visible app,
 attaches its real Node PID/start time, generates loopback-only 103/302/POST
@@ -1392,3 +1392,34 @@ Portable resolution/header/refusal tests and Windows x86/x64 test compilation/ve
 pass on Mac. The native test creates a Unicode shortcut, verifies its arguments/cwd,
 and checks no execution before Resume; **it is prepared, not executed on Mac**.
 Windows native execution and capture reach remain T-613 acceptance.
+
+### Local resilience verification (T-613 preparation, 2026-11-10)
+
+Regression tests first reproduced stale-stop CA removal, restart before trust
+cleanup, canceled start allocation, cancellation during start and a canceled
+running session that never finalized. Start/stop/CA operations now share the
+service lifecycle lock; wrong session IDs cannot clean another session's trust.
+CA removal requires stopped capture and shutdown removes prepared trust even
+without a capture. Manager cancellation rejects before allocation or stops partial
+resources; running-context cancellation finalizes the store. Recovery holds the
+manager lock throughout its mutable store scan, excluding the active store.
+
+A delayed re-entry snapshot also reproduced resurrecting stopped/cleared rows.
+Hydration now ignores obsolete events/unmounts, filters generation and resyncs a
+running session after subscription startup. Pause/clear publish current session
+updates. Concurrent controller retries execute once, queued canceled commands do
+not execute/consume IDs, descriptors are read with a 4096-byte bound, and cleanup
+preserves replacement descriptors. Concurrent journal replay stays ordered/bounded.
+
+`ARCHSCOPE_CAPTURE_SOAK=60s go test -race ./cmd/archscope-app -run
+'^TestCaptureProxySoakAcrossClearPauseAndReentry$' -count=1 -timeout=120s -v`
+(from `apps/engine-native`) passed in 60.251 seconds of fixture execution:
+72 cycles, 18,720 synthetic HTTP requests. Each cycle checks pause/clear generation,
+concurrent recovery/re-entry reads, a 64-row live bound, 128 captured/persisted
+post-clear rows, duplicate stop and exact listener-port reuse. Interrupted-stop
+fault injection preserves a recoverable record and permits a new session; repeated
+re-entry and shutdown checks pass under race detection. This is a **60-second local
+backend soak**, not a multi-hour test or native Windows/UI acceptance. Full Go
+suite/vet, focused race checks, frontend state/production build and Mac/Windows
+x86/x64 production cross-builds pass. T-613 remains PENDING on the native and
+reference evidence in its existing acceptance contract.

@@ -110,7 +110,10 @@ func (s *CaptureService) shutdownAutomation() {
 	s.controlMu.Unlock()
 	current := s.GetCurrentCaptureSession()
 	if current.State == capture.StateRunning || current.State == capture.StateStarting {
-		_, _ = s.StopCapture(string(current.ID))
+		_, _ = s.stopCaptureLocked(string(current.ID))
+	} else {
+		_, _ = s.trust.Remove()
+		s.manager.ReleaseAuthority()
 	}
 }
 func decodeControl(raw json.RawMessage, target any) error {

@@ -227,7 +227,7 @@ func (s *CaptureService) StartCapture(config capture.Config) (capture.Session, e
 	}
 	child, err := processlaunch.Prepare(launchTarget, started.ListenAddress)
 	if err != nil {
-		_, _ = s.StopCapture(string(started.ID))
+		_, _ = s.stopCaptureLocked(string(started.ID))
 		return capture.Session{}, err
 	}
 	selected, err := s.manager.SelectLaunchedProcess(started.ID, child.Key)
@@ -236,14 +236,18 @@ func (s *CaptureService) StartCapture(config capture.Config) (capture.Session, e
 	}
 	if err != nil {
 		child.Abort()
-		_, _ = s.StopCapture(string(started.ID))
+		_, _ = s.stopCaptureLocked(string(started.ID))
 		return capture.Session{}, err
 	}
 	return selected, nil
 }
 
 func (s *CaptureService) SetCapturePaused(sessionID string, paused bool) (capture.Session, error) {
-	return s.manager.SetPaused(capture.SessionID(sessionID), paused)
+	result, err := s.manager.SetPaused(capture.SessionID(sessionID), paused)
+	if err == nil {
+		emitEvent("capture:session", result)
+	}
+	return result, err
 }
 
 func (s *CaptureService) ClearCapture(sessionID string) (capture.Session, error) {
@@ -257,13 +261,28 @@ func (s *CaptureService) ClearCapture(sessionID string) (capture.Session, error)
 	if err == nil {
 		err = store.WriteAnnotations(dir, map[string]models.HTTPAnnotation{})
 	}
+	if err == nil {
+		emitEvent("capture:session", result)
+	}
 	return result, err
 }
 
 func (s *CaptureService) StopCapture(sessionID string) (capture.Session, error) {
+	s.lifecycleMu.Lock()
+	defer s.lifecycleMu.Unlock()
+	return s.stopCaptureLocked(sessionID)
+}
+
+// Start failure and shutdown already hold lifecycleMu. Keep finalization and
+// owned trust cleanup together so a new session cannot reuse a retiring CA.
+func (s *CaptureService) stopCaptureLocked(sessionID string) (capture.Session, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	stopped, stopErr := s.manager.Stop(ctx, capture.SessionID(sessionID))
+	// A stale/wrong session ID must never remove the current capture's trust.
+	if stopped.ID == "" {
+		return stopped, stopErr
+	}
 	_, trustErr := s.trust.Remove()
 	s.manager.ReleaseAuthority()
 	return stopped, errors.Join(stopErr, trustErr)
@@ -393,6 +412,11 @@ func (s *CaptureService) ImportHar(request CaptureImportRequest) (engineapi.Anal
 }
 
 func (s *CaptureService) InstallCaptureCA() (certstore.Status, error) {
+	s.lifecycleMu.Lock()
+	defer s.lifecycleMu.Unlock()
+	if s.closing {
+		return certstore.Status{}, fmt.Errorf("desktop capture service is shutting down")
+	}
 	der, expiresAt, err := s.manager.PrepareAuthority()
 	if err != nil {
 		return certstore.Status{}, err
@@ -401,6 +425,12 @@ func (s *CaptureService) InstallCaptureCA() (certstore.Status, error) {
 }
 
 func (s *CaptureService) RemoveCaptureCA() (certstore.Status, error) {
+	s.lifecycleMu.Lock()
+	defer s.lifecycleMu.Unlock()
+	current := s.manager.Current()
+	if current.State == capture.StateRunning || current.State == capture.StateStarting || current.State == capture.StateStopping {
+		return s.trust.Status(), fmt.Errorf("stop capture before removing its authority")
+	}
 	status, err := s.trust.Remove()
 	s.manager.ReleaseAuthority()
 	return status, err

@@ -381,15 +381,18 @@ export function liveHttpCaptureReducer(
       };
     }
     case "hydrate":
+      // Hydration is only an initial snapshot. Events/commands received while
+      // it was loading are authoritative and must not be rolled back.
+      if (state.session) return state;
       return {
         ...state,
         session: action.session,
-        stats: action.stats,
+        stats: action.stats?.sessionId === action.session.sessionId && (action.stats.generation ?? 0) === (action.session.generation ?? 0) ? action.stats : null,
         transactions: boundedDistinct(
-          action.transactions,
+          action.transactions.filter(item => (item.generation ?? 0) === (action.session.generation ?? 0)),
           state.contract.transactionRowCap,
         ),
-        needsResync: false,
+        needsResync: isLiveSessionActive(action.session),
         busy: false,
         error: action.session.error || null,
       };
@@ -400,7 +403,7 @@ export function liveHttpCaptureReducer(
       // between, so only a genuinely new session clears the table. The follow
       // preference is a user setting and survives every start (H-RG4 L12).
       if (matchesSession(state, action.session.sessionId)) {
-        return { ...state, session: action.session, busy: false };
+        return state.session && !isLiveSessionActive(state.session) ? state : { ...state, busy: false };
       }
       return {
         ...initialLiveCaptureState,
@@ -412,13 +415,15 @@ export function liveHttpCaptureReducer(
         session: action.session,
       };
     case "session":
+      if (!state.session) return {...state,session:action.session,needsResync:isLiveSessionActive(action.session),busy:false};
       if (!matchesSession(state, action.session.sessionId)) return state;
-      if ((action.session.generation ?? 0) < (state.session?.generation ?? 0)) return state;
+      if (staleSessionUpdate(state.session,action.session)) return state;
       return {...state, session:action.session, busy:false,
         ...((action.session.generation ?? 0) > (state.session?.generation ?? 0)
           ? {transactions:[], stats:null, needsResync:isLiveSessionActive(action.session)} : {})};
     case "stopped":
-      if (!matchesSession(state, action.session.sessionId)) return state;
+      if (!state.session) return {...state,session:action.session,busy:false,error:action.session.error || state.error};
+      if (!matchesSession(state, action.session.sessionId) || staleSessionUpdate(state.session,action.session)) return state;
       return {
         ...state,
         session: action.session,
@@ -479,6 +484,12 @@ export function liveHttpCaptureReducer(
     case "clearError":
       return { ...state, error: null };
   }
+}
+
+function staleSessionUpdate(current: LiveCaptureSession, incoming: LiveCaptureSession): boolean {
+  if ((incoming.generation ?? 0) !== (current.generation ?? 0)) return (incoming.generation ?? 0) < (current.generation ?? 0);
+  const rank = (state: string) => state === "starting" ? 1 : state === "running" ? 2 : state === "stopping" ? 3 : 4;
+  return rank(incoming.state) < rank(current.state);
 }
 
 function matchesSession(state: LiveCaptureState, sessionId: string): boolean {
