@@ -8,12 +8,17 @@ on:
     paths:
       - ".github/workflows/windows-gui-smoke.yml"
       - "scripts/windows-gui-smoke.ps1"
+      - "apps/engine-native/cmd/archscope-app/build/windows/**"
 
 jobs:
   smoke:
-    name: Build and launch Wails exe
+    name: Build and launch Wails exe (${{ matrix.arch }})
     runs-on: windows-latest
     timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [amd64, '386']
 
     steps:
       - name: Checkout
@@ -47,7 +52,7 @@ jobs:
       - name: Build Windows executable
         shell: pwsh
         working-directory: apps/engine-native/cmd/archscope-app
-        run: task windows:build ARCH=amd64
+        run: task windows:build ARCH=${{ matrix.arch }}
 
       - name: Launch GUI smoke
         shell: pwsh

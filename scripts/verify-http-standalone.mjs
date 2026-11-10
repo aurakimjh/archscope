@@ -11,7 +11,7 @@ if(process.platform!=='win32')throw new Error('Native Windows execution required
 if(!options.exe||!options.out)throw new Error('--exe and --out are required');
 const exe=path.resolve(options.exe),root=path.resolve(options.out);await mkdir(root,{recursive:true});const run=path.join(root,`http-parity-${Date.now()}-${randomUUID()}`);await mkdir(run,{mode:0o700});
 const descriptorPath=path.join(run,'.private-controller.json');const sourceCommit=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();const binarySha256=createHash('sha256').update(await readFile(exe)).digest('hex');
-let descriptor,child,origin,activeSession='',counter=0,report;
+let descriptor,child,origin,activeSession='',counter=0,report,childDiagnostic='';
 const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const artifact=async(name,value)=>{const raw=JSON.stringify(value,null,2);await writeFile(path.join(run,name),raw,{mode:0o600});return createHash('sha256').update(raw).digest('hex')};
 const control=async(command,params={})=>{
@@ -20,9 +20,13 @@ const control=async(command,params={})=>{
 };
 const request=(proxy,target,method='GET',body='')=>new Promise((resolve,reject)=>{const req=http.request({host:'127.0.0.1',port:Number(proxy.split(':').at(-1)),method,path:target,headers:{Host:new URL(target).host,'Content-Type':'application/x-www-form-urlencoded','Content-Length':Buffer.byteLength(body)},timeout:10000},res=>{const chunks=[];res.on('data',data=>chunks.push(data));res.on('error',reject);res.on('end',()=>resolve({status:res.statusCode,body:Buffer.concat(chunks).toString('utf8')}))});req.on('error',reject);req.on('timeout',()=>req.destroy(new Error('fixture timeout')));req.end(body)});
 try{
- child=spawn(exe,['--automation-descriptor',descriptorPath],{stdio:'ignore',windowsHide:false});let launchError;child.once('error',error=>launchError=error);
+ child=spawn(exe,['--automation-descriptor',descriptorPath],{stdio:['ignore','ignore','pipe'],windowsHide:false});let launchError;child.once('error',error=>launchError=error);
+ child.stderr.on('data',chunk=>{childDiagnostic=(childDiagnostic+chunk.toString('utf8')).slice(-65536)});
  for(let i=0;i<80;i++){if(launchError)throw launchError;if(child.exitCode!==null)throw new Error('desktop exited before controller readiness');try{descriptor=JSON.parse(await readFile(descriptorPath,'utf8'));break}catch{};await delay(250)};if(!descriptor)throw new Error('controller readiness timeout');
  const endpoint=new URL(descriptor.url);if(endpoint.protocol!=='http:'||endpoint.hostname!=='127.0.0.1'||endpoint.username||endpoint.password||endpoint.search||endpoint.hash||!(/^[a-f0-9]{64}$/).test(descriptor.token)||descriptor.schemaVersion!==1||endpoint.pathname!=='/v1/control'||descriptor.pid!==child.pid)throw new Error('unexpected descriptor');
+ // The controller starts before WebView2. Do not mistake backend readiness for
+ // a desktop process that survives native window initialization.
+ for(let i=0;i<60;i++){await delay(250);if(child.exitCode!==null)throw new Error('desktop exited during native startup interval')}
  const capabilities=await control('capabilities');report=createReport({platform:process.platform,sourceCommit,binarySha256,buildCommit:capabilities.buildCommit});
  const bodies=Boolean(options.bodies&&capabilities.contract.bodyCaptureAvailable);if(options.bodies&&!bodies)throw new Error('body preflight is unavailable; policy was not changed');
  const processes=await control('processes');const own=processes.find(item=>item.key.pid===process.pid&&item.key.startTime);if(!own)throw new Error('fixture process identity unavailable');await control('attach',{processes:[own.key]});
@@ -38,7 +42,7 @@ try{
  const redirect=detail.find(tx=>tx.statusCode===302),final=detail.find(tx=>tx.statusCode===201);const exchange=Boolean(redirect?.informational?.some(item=>item.status===103)&&redirect.redirectUrl&&final);setCase(report,'EXCHANGE-01',exchange?'PASS':'FAIL','103, redirect target and final response compared',[controlHash]);
  if(bodies){const retained=Boolean(final?.request.bodyPreview?.includes('fixture-request')&&final.response.bodyPreview?.includes('fixture-response')&&final.response.cookies?.length===2&&final.response.cookies.every(cookie=>cookie.attributes?.length));setCase(report,'BODY-01',retained?'PASS':'FAIL','Retained fixture markers and duplicate cookie attributes compared',[controlHash])}
  const destination=path.join(run,'fixture.httpsession');await control('save',{source:{sessionId:started.sessionId},destination,format:'session',scope:'all',selectedId:detail[0].id,ids:[]});const saved=JSON.parse(await readFile(destination,'utf8'));const opened=await control('open',{path:destination});const sessionHash=createHash('sha256').update(await readFile(destination)).digest('hex');const roundTrip=saved.transactions.length===2&&saved.selectedId===detail[0].id&&opened.selectedId===detail[0].id&&detail.every(tx=>saved.transactions.some(item=>item.id===tx.id));setCase(report,'SESSION-01',roundTrip?'PASS':'FAIL','Native stored IDs/selection compared after open',[sessionHash]);
-} catch(error){if(!report)report=createReport({platform:process.platform,sourceCommit,binarySha256,buildCommit:'unknown'});report.runError='Native fixture harness did not complete; inspect the local run privately';const row=report.cases.find(item=>item.status==='UNVERIFIED'&&item.evidenceType==='automation');if(row)Object.assign(row,{status:'FAIL',reason:'Harness execution failed; no private error text exported'});process.exitCode=1;
+} catch(error){await writeFile(path.join(run,'harness-diagnostic.txt'),`${error.stack??error}\n${childDiagnostic}`,{mode:0o600});if(!report)report=createReport({platform:process.platform,sourceCommit,binarySha256,buildCommit:'unknown'});report.runError='Native fixture harness did not complete; inspect the local run privately';const row=report.cases.find(item=>item.status==='UNVERIFIED'&&item.evidenceType==='automation');if(row)Object.assign(row,{status:'FAIL',reason:'Harness execution failed; no private error text exported'});process.exitCode=1;
 }finally{
  if(activeSession&&descriptor){try{await control('stop',{sessionId:activeSession})}catch{}}
  if(origin)await new Promise(resolve=>origin.close(resolve));if(child&&child.exitCode===null){child.kill();await Promise.race([new Promise(resolve=>child.once('exit',resolve)),delay(5000)]);if(child.exitCode===null)child.kill('SIGKILL')}
