@@ -1744,3 +1744,21 @@ reclamation. Change MaxLogSize while stopped before starting the next capture.
 Mac race tests exercise eviction, shared bodies, Clear, interrupted commits,
 missing committed data and reopen counters; a real local-proxy test verifies
 analysis and portable export. This is not Windows driver/UI acceptance.
+
+### Pre-storage cancellation (Mac follow-up 2, 2026-11-11)
+
+COM-owned captures now submit redacted, payload-free completion metadata to
+OnNewEntry on the server STA before durable Append. Any DiscardIt, RPC error,
+queue overflow or 500 ms deadline rejects that row; it never enters the durable
+log, aggregate or export. Already-visible in-flight metadata is removed on
+rejection. No subscriber preserves ordinary capture behavior. Pause, Clear,
+Stop, last Unadvise and owner release cancel pending decisions; generation
+checks prevent a pre-Clear completion from entering the new log. External calls
+run without controller, manager or store locks. An uncooperative external RPC
+can still occupy its STA, but capture waits and queue growth remain bounded.
+Post-persistence notifications for admitted rows are updates, avoiding a second
+new-entry cancellation. Public scripts do not receive the internal owner token.
+
+Common race tests and real synthetic local-proxy Stop/Clear/Pause tests pass on
+Mac. Native STA discard/reentrant-stop tests compile for amd64/386 and will run
+in Windows CI after the final push; this is not original-client acceptance.

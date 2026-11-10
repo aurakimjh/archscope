@@ -128,6 +128,7 @@ const (
 )
 
 type Config struct {
+	AdmissionOwner             string              `json:"admissionOwner,omitempty"`
 	Backend                    string              `json:"backend,omitempty"`
 	ProcessScope               string              `json:"processScope,omitempty"`
 	ScopeSessionID             *uint32             `json:"-"`

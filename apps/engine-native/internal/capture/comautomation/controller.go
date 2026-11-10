@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/admission"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/automation"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 	"math"
@@ -25,6 +26,14 @@ type Object interface {
 }
 type Enumeration struct{ Items []Object }
 type Controller struct {
+	admissionHub     *admission.Hub
+	admissionOwner   string
+	admissionRelease func()
+	nativeReferences atomic.Int64
+	listeners        atomic.Int32
+	preNotified      map[string]bool
+	preOrder         []string
+
 	filter                       *logFilter
 	maxLogSize                   int
 	stillCaptureWhenHidden       bool
@@ -319,7 +328,7 @@ func (c *Controller) Invoke(ctx context.Context, name string, args []any, put bo
 		if len(args) != 0 {
 			return nil, fmt.Errorf("unexpected arguments")
 		}
-		cfg := capture.Config{RetentionRows: c.maxLogSize, CaptureBodies: c.captureBodies, Backend: c.backend, ProcessScope: c.scope, LaunchPath: c.path, AllowedProcesses: append([]models.ProcessKey(nil), c.targets...)}
+		cfg := capture.Config{AdmissionOwner: c.admissionOwner, RetentionRows: c.maxLogSize, CaptureBodies: c.captureBodies, Backend: c.backend, ProcessScope: c.scope, LaunchPath: c.path, AllowedProcesses: append([]models.ProcessKey(nil), c.targets...)}
 		var started capture.Session
 		err := c.call(ctx, "start", cfg, &started)
 		if err == nil {
@@ -330,6 +339,8 @@ func (c *Controller) Invoke(ctx context.Context, name string, args []any, put bo
 			c.omittedIDs = map[string]bool{}
 			c.hidePaused = false
 			c.eventEpoch++
+			c.preNotified = nil
+			c.preOrder = nil
 		}
 		return nil, err
 	case "clear":
@@ -339,6 +350,8 @@ func (c *Controller) Invoke(ctx context.Context, name string, args []any, put bo
 		if c.loaded != "" {
 			c.loadedCleared = true
 			c.eventEpoch++
+			c.preNotified = nil
+			c.preOrder = nil
 			c.lastRows = nil
 			c.cachedLog = nil
 			return nil, nil
@@ -349,6 +362,8 @@ func (c *Controller) Invoke(ctx context.Context, name string, args []any, put bo
 		err := c.call(ctx, "clear", map[string]any{"sessionId": c.sessionID}, nil)
 		if err == nil {
 			c.eventEpoch++
+			c.preNotified = nil
+			c.preOrder = nil
 			c.lastRows = nil
 			c.cachedLog = nil
 			c.omittedIDs = map[string]bool{}
@@ -445,6 +460,8 @@ func (c *Controller) Invoke(ctx context.Context, name string, args []any, put bo
 		c.loadedCleared = false
 		c.cachedLog = nil
 		c.eventEpoch++
+		c.preNotified = nil
+		c.preOrder = nil
 		return nil, nil
 	case "savelog":
 		if len(args) < 1 || len(args) > 2 {

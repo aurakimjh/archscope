@@ -29,6 +29,7 @@ const (
 )
 
 type Config struct {
+	Admit          func(context.Context, models.CaptureTransaction) (bool, error)
 	ProcessScope   string
 	ScopeSessionID *uint32
 	// RequireGeneration expects producers to call Stamp when each request begins.
@@ -246,6 +247,11 @@ func (p *Pipeline) release(size int64) {
 func (p *Pipeline) writer() {
 	defer close(p.done)
 	for req := range p.queue {
+		if !p.admit(req.tx) {
+			p.release(req.size)
+			req.ack <- nil
+			continue
+		}
 		item, err := p.cfg.Store.AppendWithCheckpoint(req.tx, store.CaptureCheckpoint{
 			Stats:     p.Stats(capture.StateRunning),
 			Redaction: p.RedactionSummary(),
@@ -469,6 +475,9 @@ func (p *Pipeline) abortInflight(ended time.Time) error {
 		if tx.CaptureMode == "proxy_passthrough" {
 			p.passthrough.Add(1)
 		}
+		if !p.admit(tx) {
+			continue
+		}
 		item, err := p.cfg.Store.Append(tx)
 		if err != nil {
 			persistErr = errors.Join(persistErr, err)
@@ -633,4 +642,26 @@ func (p *Pipeline) SetSelectedProcesses(keys []models.ProcessKey) {
 	p.sendMu.Lock()
 	defer p.sendMu.Unlock()
 	p.cfg.AllowedProcesses = append([]models.ProcessKey(nil), keys...)
+}
+
+func (p *Pipeline) admit(tx models.CaptureTransaction) bool {
+	if p.cfg.Admit == nil {
+		return true
+	}
+	allowed, err := p.cfg.Admit(context.Background(), metadataOnly(tx))
+	if allowed && err == nil {
+		return true
+	}
+	p.captured.Add(^uint64(0))
+	p.dropped.Add(1)
+	p.mu.Lock()
+	delete(p.liveByID, tx.ID)
+	for i, id := range p.liveOrder {
+		if id == tx.ID {
+			p.liveOrder = append(p.liveOrder[:i], p.liveOrder[i+1:]...)
+			break
+		}
+	}
+	p.mu.Unlock()
+	return false
 }

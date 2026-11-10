@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/admission"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/aggregate"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/backend"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/dumppolicy"
@@ -50,6 +51,7 @@ var (
 )
 
 type Manager struct {
+	admissions  *admission.Hub
 	backends    *backend.Registry
 	mu          sync.RWMutex
 	root        string
@@ -83,7 +85,7 @@ func NewManagerForPlatform(root string, sink EventSink, platform string) *Manage
 	if sink == nil {
 		sink = NopEventSink{}
 	}
-	return &Manager{
+	return &Manager{admissions: admission.New(),
 		root: root, sink: sink, platform: strings.ToLower(strings.TrimSpace(platform)),
 		backends:   backend.Default(),
 		dumpPolicy: dumppolicy.Current,
@@ -172,6 +174,9 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 		}
 	}
 	cfg.AllowedProcesses = append([]models.ProcessKey(nil), cfg.AllowedProcesses...)
+	if err := m.admissions.Validate(cfg.AdmissionOwner); err != nil {
+		return Session{}, err
+	}
 	bodyGate := capture.BodyGateDisabled
 	bodyGateReason := ""
 	if cfg.CaptureBodies {
@@ -250,7 +255,18 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 	if cfg.RetentionRows > 0 && (cfg.LiveWindow <= 0 || cfg.LiveWindow > cfg.RetentionRows) {
 		cfg.LiveWindow = cfg.RetentionRows
 	}
-	pipeline, err := stream.New(stream.Config{
+	if err = m.admissions.Begin(string(id), cfg.AdmissionOwner, 0); err != nil {
+		_ = st.Finalize(StateFailed)
+		return Session{}, err
+	}
+	defer func() {
+		if !success {
+			m.admissions.Forget(string(id))
+		}
+	}()
+	pipeline, err := stream.New(stream.Config{Admit: func(ctx context.Context, tx models.CaptureTransaction) (bool, error) {
+		return m.admissions.Decide(ctx, string(id), tx)
+	},
 		RequireGeneration: true,
 		SessionID:         id, Store: st, EventSink: m.sink, AllowedProcesses: cfg.AllowedProcesses, ProcessScope: cfg.ProcessScope, ScopeSessionID: cfg.ScopeSessionID,
 		HighWater: cfg.WriteHighWaterBytes, HardLimit: cfg.WriteHardLimitBytes,
@@ -385,6 +401,7 @@ func (m *Manager) Stop(ctx context.Context, id SessionID) (Session, error) {
 	if m.session.State == StateFinalized || m.session.State == StateRecoverable || m.session.State == StateFailed {
 		return m.session, nil
 	}
+	m.admissions.End(string(m.session.ID))
 	m.session.State = StateStopping
 	_ = m.store.SetState(StateStopping)
 	var stopErr error
@@ -434,6 +451,7 @@ func (m *Manager) Stop(ctx context.Context, id SessionID) (Session, error) {
 	m.session.Error = errorString(stopErr)
 	m.sink.Stats(m.pipeline.Stats(finalState))
 	m.sink.Stopped(m.session)
+	m.admissions.Forget(string(m.session.ID))
 	return m.session, stopErr
 }
 
@@ -460,6 +478,9 @@ func (m *Manager) SetPaused(id SessionID, paused bool) (Session, error) {
 	if id != m.session.ID || !activeState(m.session.State) {
 		return Session{}, ErrSessionNotFound
 	}
+	if paused {
+		m.admissions.CancelPending(string(id))
+	}
 	m.pipeline.SetPaused(paused)
 	m.session.Paused = paused
 	return m.session, nil
@@ -472,12 +493,14 @@ func (m *Manager) Clear(id SessionID) (Session, error) {
 		return Session{}, ErrSessionNotFound
 	}
 	if activeState(m.session.State) {
+		m.admissions.CancelPending(string(id))
 		generation, err := m.pipeline.Clear()
 		if err != nil {
 			m.session.Paused = true
 			return m.session, err
 		}
 		m.session.Generation = generation
+		m.admissions.Advance(string(id), generation)
 	} else {
 		st, err := m.openSession(id)
 		if err != nil {
@@ -686,3 +709,5 @@ func errorString(err error) string {
 	}
 	return err.Error()
 }
+
+func (m *Manager) Admissions() *admission.Hub { return m.admissions }

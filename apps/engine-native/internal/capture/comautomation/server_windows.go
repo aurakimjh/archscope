@@ -7,6 +7,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/admission"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/automation"
 	ole "github.com/go-ole/go-ole"
 	"golang.org/x/sys/windows"
@@ -104,6 +105,8 @@ type nativeObject struct {
 var _ [0 - unsafe.Offsetof(nativeObject{}.Table)]byte
 
 type Server struct {
+	hub               *admission.Hub
+	admissionRequests chan *admissionRequest
 	typeInfos         map[string]uintptr
 	metadataDirectory string
 	integrity         uint32
@@ -157,6 +160,9 @@ func (s *Server) wrap(object Object, enumeration *Enumeration, factory bool) *na
 		for _, name := range n.names {
 			n.memberIDs[n.nameIDs[strings.ToLower(name)]] = name
 		}
+	}
+	if c := nativeController(object); c != nil {
+		c.nativeReferences.Add(1)
 	}
 	n.references.Store(1)
 	n.pin.Pin(n)
@@ -218,6 +224,9 @@ func release(object *nativeObject) uintptr {
 	remaining := n.references.Add(^uint32(0))
 	if remaining == 0 {
 		cleanupConnections(n)
+		if c := nativeController(n.object); c != nil && c.nativeReferences.Add(-1) == 0 && c.admissionRelease != nil {
+			c.admissionRelease()
+		}
 		receivers.Delete(this)
 		n.server.mu.Lock()
 		delete(n.server.objects, this)
@@ -495,14 +504,20 @@ func createInstance(factory *nativeObject, outer unsafe.Pointer, iid *windows.GU
 	if !n.server.sameUserClient() {
 		return accessDenied
 	}
-	object := n.server.wrap(New(n.server.execute), nil, false)
+	controller, err := n.server.newController()
+	if err != nil {
+		return exception
+	}
+	object := n.server.wrap(controller, nil, false)
 	status := query(object, iid, result)
 	release(object)
 	return status
 }
-func lockServer(this *nativeObject, lock int32) uintptr  { return ok }
-func Start(execute automation.Executor) (*Server, error) { return startWithClass(execute, ClassID) }
-func startWithClass(execute automation.Executor, classID string) (*Server, error) {
+func lockServer(this *nativeObject, lock int32) uintptr { return ok }
+func Start(execute automation.Executor, options ...Option) (*Server, error) {
+	return startWithClass(execute, ClassID, options...)
+}
+func startWithClass(execute automation.Executor, classID string, options ...Option) (*Server, error) {
 	user, err := windows.GetCurrentProcessToken().GetTokenUser()
 	if err != nil {
 		return nil, err
@@ -512,6 +527,10 @@ func startWithClass(execute automation.Executor, classID string) (*Server, error
 		return nil, err
 	}
 	server := &Server{integrity: level, elevated: windows.GetCurrentProcessToken().IsElevated(), execute: execute, owner: user.User.Sid.String(), objects: map[uintptr]*nativeObject{}, done: make(chan struct{})}
+	for _, option := range options {
+		option(server)
+	}
+	server.admissionRequests = make(chan *admissionRequest, 64)
 	ready := make(chan error, 1)
 	go func() {
 		runtime.LockOSThread()
@@ -532,6 +551,9 @@ func startWithClass(execute automation.Executor, classID string) (*Server, error
 				receivers.Delete(pointer)
 			}
 			for _, object := range objects {
+				if c := nativeController(object.object); c != nil && c.admissionRelease != nil {
+					c.admissionRelease()
+				}
 				cleanupConnections(object)
 				object.pin.Unpin()
 			}
@@ -584,7 +606,9 @@ func startWithClass(execute automation.Executor, classID string) (*Server, error
 			if result == 0 || int32(uint32(result)) == -1 {
 				break
 			}
-			if msg.Message == 0x8001 {
+			if msg.Message == 0x8002 {
+				server.serveAdmission()
+			} else if msg.Message == 0x8001 {
 				server.publishLogEvents()
 			} else {
 				dispatchMessage.Call(uintptr(unsafe.Pointer(&msg)))

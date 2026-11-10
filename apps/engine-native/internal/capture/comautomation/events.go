@@ -32,8 +32,8 @@ type eventCursor struct {
 	Seen   map[string][32]byte
 }
 
-// Events describe the redacted, persisted automation view. Discard suppresses
-// that view and its exports; it does not erase the independent durable journal.
+// Poll events describe the persisted view. The admission adapter sends new-entry
+// callbacks before storage; already-admitted rows produce only update events.
 // Prime an Advise subscription without replaying pre-existing rows.
 func (c *Controller) pollEvents(ctx context.Context, cursor *eventCursor, prime bool) ([]logEvent, error) {
 	if _, err := c.Invoke(ctx, "__snapshot", nil, false); err != nil {
@@ -61,7 +61,10 @@ func (c *Controller) pollEvents(ctx context.Context, cursor *eventCursor, prime 
 		}
 		entry := entryObject(row).(Typed)
 		entry.Object.(Properties)["IsFiltered"] = !c.filter.matches(row)
-		out = append(out, logEvent{row.ID, !exists, entry})
+		key := fmt.Sprintf("%s:%d:%s", c.sessionID, row.Generation, row.ID)
+		priorAdmission := c.preNotified[key]
+
+		out = append(out, logEvent{row.ID, !exists && !priorAdmission, entry})
 	}
 	cursor.Seen = next
 	return out, nil

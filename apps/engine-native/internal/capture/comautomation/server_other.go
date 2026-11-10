@@ -9,7 +9,7 @@ import (
 
 type Server struct{}
 
-func Start(automation.Executor) (*Server, error) {
+func Start(automation.Executor, ...Option) (*Server, error) {
 	return nil, fmt.Errorf("native COM automation requires Windows")
 }
 func (*Server) Close() error  { return nil }

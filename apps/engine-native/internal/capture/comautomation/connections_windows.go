@@ -134,6 +134,7 @@ func pointAdvise(n *nativeObject, sink unsafe.Pointer, cookie *uint32) uintptr {
 		n.point.Next++
 	}
 	n.point.Sinks[n.point.Next] = value
+	controller.listeners.Add(1)
 	*cookie = n.point.Next
 	return ok
 }
@@ -149,6 +150,7 @@ func pointUnadvise(n *nativeObject, cookie uint32) uintptr {
 		return 0x80040200
 	}
 	delete(n.point.Sinks, cookie)
+	listenerRemoved(logController(n.point.Owner), 1)
 	releaseCOM(value)
 	return 0
 }
@@ -317,6 +319,7 @@ func sendLogEvent(s *Server, sink uintptr, event logEvent) (bool, error) {
 
 func cleanupConnections(n *nativeObject) {
 	if n.point != nil {
+		listenerRemoved(logController(n.point.Owner), len(n.point.Sinks))
 		for k, p := range n.point.Sinks {
 			delete(n.point.Sinks, k)
 			releaseCOM(p)
@@ -344,4 +347,10 @@ func init() {
 	containerTable = [5]uintptr{windows.NewCallback(containerQuery), windows.NewCallback(containerAddRef), windows.NewCallback(containerRelease), windows.NewCallback(enumPoints), windows.NewCallback(findPoint)}
 	pointTable = [8]uintptr{windows.NewCallback(query), windows.NewCallback(addRef), windows.NewCallback(release), windows.NewCallback(pointInterface), windows.NewCallback(pointContainer), windows.NewCallback(pointAdvise), windows.NewCallback(pointUnadvise), windows.NewCallback(enumConnections)}
 	pointEnumTable = [7]uintptr{windows.NewCallback(query), windows.NewCallback(addRef), windows.NewCallback(release), windows.NewCallback(connectionNext), windows.NewCallback(connectionSkip), windows.NewCallback(connectionReset), windows.NewCallback(connectionClone)}
+}
+
+func listenerRemoved(c *Controller, count int) {
+	if c != nil && count > 0 && c.listeners.Add(-int32(count)) == 0 && c.admissionHub != nil {
+		c.admissionHub.CancelOwner(c.admissionOwner)
+	}
 }

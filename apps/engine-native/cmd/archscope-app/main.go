@@ -148,7 +148,7 @@ func main() {
 		return visible.Load(), nil
 	}
 	if options.COMServer {
-		server, err := comautomation.Start(captureService.executeAutomation)
+		server, err := comautomation.Start(captureService.executeAutomation, comautomation.WithAdmission(captureService.manager.Admissions()))
 		if err != nil {
 			log.Fatal(err)
 		}
