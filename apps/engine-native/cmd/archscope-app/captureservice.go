@@ -15,6 +15,7 @@ import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/acceptance"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/aggregate"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/automation"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/certstore"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/dumppolicy"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/processlaunch"
@@ -27,10 +28,17 @@ import (
 )
 
 type CaptureService struct {
-	annotationMu sync.Mutex
-	builder      *requestbuilder.Client
-	manager      *session.Manager
-	trust        *certstore.Lifecycle
+	controlMu      sync.Mutex
+	controlTargets []models.ProcessKey
+	launchOptions  automation.Options
+	launchState    DesktopLaunchState
+	launchOnce     sync.Once
+	launchCancel   context.CancelFunc
+	journal        *automation.Journal
+	annotationMu   sync.Mutex
+	builder        *requestbuilder.Client
+	manager        *session.Manager
+	trust          *certstore.Lifecycle
 }
 
 type CaptureFetchRequest struct {
@@ -79,25 +87,45 @@ type CaptureErrorEvent struct {
 	Message   string `json:"message"`
 }
 
-type captureEventSink struct{}
+type captureEventSink struct{ journal *automation.Journal }
 
-func (captureEventSink) Started(value capture.Session) {
+func (s captureEventSink) record(kind string, id capture.SessionID, value any) {
+	if s.journal != nil {
+		s.journal.Append(kind, string(id), value)
+	}
+}
+func controlRows(items []models.CaptureTransaction) []map[string]any {
+	out := make([]map[string]any, 0, len(items))
+	for _, tx := range items {
+		row := map[string]any{"id": tx.ID, "sequence": tx.Sequence, "connectionId": tx.ConnectionID, "method": tx.Method, "url": tx.URL, "state": tx.State, "statusCode": tx.StatusCode}
+		if tx.Process != nil {
+			row["process"] = map[string]any{"key": tx.Process.Key, "name": tx.Process.Name, "attribution": tx.Process.Attribution}
+		}
+		out = append(out, row)
+	}
+	return out
+}
+
+func (sink captureEventSink) Started(value capture.Session) {
+	sink.record("started", value.ID, value)
 	emitEvent("capture:started", value)
 }
 
-func (captureEventSink) Progress(id capture.SessionID, items []models.CaptureTransaction) {
+func (sink captureEventSink) Progress(id capture.SessionID, items []models.CaptureTransaction) {
+	sink.record("updated", id, controlRows(items))
 	emitEvent("capture:progress", CaptureProgressEvent{
 		SessionID: string(id), Items: items,
 	})
 }
 
-func (captureEventSink) Transactions(id capture.SessionID, sequence, version uint64, items []models.CaptureTransaction) {
+func (sink captureEventSink) Transactions(id capture.SessionID, sequence, version uint64, items []models.CaptureTransaction) {
+	sink.record("new", id, controlRows(items))
 	emitEvent("capture:transactions", CaptureTransactionsEvent{
 		SessionID: string(id), Sequence: sequence, SnapshotVersion: version, Items: items,
 	})
 }
 
-func (captureEventSink) Aggregate(id capture.SessionID, sequence, version uint64, value any) {
+func (sink captureEventSink) Aggregate(id capture.SessionID, sequence, version uint64, value any) {
 	snapshot, ok := value.(aggregate.Snapshot)
 	if !ok {
 		return
@@ -107,15 +135,17 @@ func (captureEventSink) Aggregate(id capture.SessionID, sequence, version uint64
 	})
 }
 
-func (captureEventSink) Stats(value capture.Stats) {
+func (sink captureEventSink) Stats(value capture.Stats) {
 	emitEvent("capture:stats", value)
 }
 
-func (captureEventSink) Stopped(value capture.Session) {
+func (sink captureEventSink) Stopped(value capture.Session) {
+	sink.record("stopped", value.ID, value)
 	emitEvent("capture:stopped", value)
 }
 
-func (captureEventSink) Error(id capture.SessionID, message string) {
+func (sink captureEventSink) Error(id capture.SessionID, message string) {
+	sink.record("error", id, map[string]string{"message": message})
 	emitEvent("capture:error", CaptureErrorEvent{SessionID: string(id), Message: message})
 }
 
@@ -133,9 +163,10 @@ func newCaptureService(root string, trust *certstore.Lifecycle) *CaptureService 
 }
 
 func newCaptureServiceForPlatform(root string, trust *certstore.Lifecycle, platform string) *CaptureService {
+	journal := &automation.Journal{}
 	return &CaptureService{
-		builder: requestbuilder.NewClient(),
-		manager: session.NewManagerForPlatform(root, captureEventSink{}, platform),
+		journal: journal, builder: requestbuilder.NewClient(),
+		manager: session.NewManagerForPlatform(root, captureEventSink{journal: journal}, platform),
 		trust:   trust,
 	}
 }

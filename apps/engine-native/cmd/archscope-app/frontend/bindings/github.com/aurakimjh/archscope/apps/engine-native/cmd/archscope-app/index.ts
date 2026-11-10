@@ -38,6 +38,7 @@ export {
     CollapsedResult,
     DatabaseLogRequest,
     DebugLogResult,
+    DesktopLaunchState,
     DiffRequest,
     DrilldownRequest,
     EngineAsyncResponse,

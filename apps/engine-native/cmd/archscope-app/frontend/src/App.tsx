@@ -1,3 +1,5 @@
+import { Events } from "@wailsio/runtime";
+import * as CaptureService from "../bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/captureservice";
 // ─────────────────────────────────────────────────────────────────────
 // [한글] App.tsx — Wails 데스크톱 프로파일러의 최상위 셸 컴포넌트.
 //
@@ -21,7 +23,7 @@
 // 주요 페이지: profiler / diff / access_log / gc_log / jfr /
 //   exception / thread_dump / msa_profile (Jennifer) / settings.
 // ─────────────────────────────────────────────────────────────────────
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useState, useEffect } from "react";
 
 import { useI18n } from "./i18n/I18nProvider";
 import { localeLabels, locales } from "./i18n/messages";
@@ -98,9 +100,11 @@ const ExceptionAnalyzerPage = lazy(() =>
   })),
 );
 const ThreadDumpAnalyzerPage = lazy(() =>
-  import("./pages/ThreadDumpAnalyzerPage").then(({ ThreadDumpAnalyzerPage }) => ({
-    default: ThreadDumpAnalyzerPage,
-  })),
+  import("./pages/ThreadDumpAnalyzerPage").then(
+    ({ ThreadDumpAnalyzerPage }) => ({
+      default: ThreadDumpAnalyzerPage,
+    }),
+  ),
 );
 const JenniferProfilePage = lazy(() =>
   import("./pages/JenniferProfilePage").then(({ JenniferProfilePage }) => ({
@@ -113,13 +117,19 @@ const TraceImportPage = lazy(() =>
   })),
 );
 const HttpCapturePage = lazy(() =>
-  import("./pages/HttpCapturePage").then(({ HttpCapturePage }) => ({ default: HttpCapturePage })),
+  import("./pages/HttpCapturePage").then(({ HttpCapturePage }) => ({
+    default: HttpCapturePage,
+  })),
 );
 const BrowserCpuProfilePage = lazy(() =>
-  import("./pages/BrowserCpuProfilePage").then(({ BrowserCpuProfilePage }) => ({ default: BrowserCpuProfilePage })),
+  import("./pages/BrowserCpuProfilePage").then(({ BrowserCpuProfilePage }) => ({
+    default: BrowserCpuProfilePage,
+  })),
 );
 const LighthouseAuditPage = lazy(() =>
-  import("./pages/LighthouseAuditPage").then(({ LighthouseAuditPage }) => ({ default: LighthouseAuditPage })),
+  import("./pages/LighthouseAuditPage").then(({ LighthouseAuditPage }) => ({
+    default: LighthouseAuditPage,
+  })),
 );
 const EvidenceBoardPage = lazy(() =>
   import("./pages/EvidenceBoardPage").then(({ EvidenceBoardPage }) => ({
@@ -139,6 +149,31 @@ function App() {
   const { locale, setLocale, t } = useI18n();
   const { theme, setTheme } = useTheme();
   const [active, setActive] = useState<NavKey>("profiler");
+  const [launchError, setLaunchError] = useState("");
+  useEffect(() => {
+    let disposed = false;
+    void CaptureService.ApplyDesktopLaunch()
+      .then((state) => {
+        if (disposed) return;
+        if (state.showHttp) setActive("http_capture");
+        if (state.error) setLaunchError(state.error);
+      })
+      .catch((caught) => {
+        if (!disposed) setLaunchError(String(caught));
+      });
+    const show = () => setActive("http_capture");
+    const off = Events.On("capture:show", show);
+    const open = Events.On("capture:open-file", show);
+    const errors = Events.On("capture:automation-error", (event) =>
+      setLaunchError((event.data as { message?: string })?.message ?? ""),
+    );
+    return () => {
+      disposed = true;
+      off();
+      open();
+      errors();
+    };
+  }, []);
   useSortableTables();
 
   const handleDrop = (path: string) => {
@@ -159,7 +194,11 @@ function App() {
         <div className="app-main">
           <header className="topbar">
             <div className="topbar-controls">
-              <div className="locale-switch" role="group" aria-label={t("themeLabel")}>
+              <div
+                className="locale-switch"
+                role="group"
+                aria-label={t("themeLabel")}
+              >
                 <HelpTip
                   text={getHelpText(locale, "themeControl")}
                   className="ml-0.5 mr-1 self-center"
@@ -168,15 +207,17 @@ function App() {
                   <button
                     key={value}
                     type="button"
-                    className={value === theme ? "locale-pill active" : "locale-pill"}
+                    className={
+                      value === theme ? "locale-pill active" : "locale-pill"
+                    }
                     onClick={() => setTheme(value)}
                     aria-pressed={value === theme}
                   >
                     {value === "light"
                       ? t("themeLight")
                       : value === "dark"
-                      ? t("themeDark")
-                      : t("themeSystem")}
+                        ? t("themeDark")
+                        : t("themeSystem")}
                   </button>
                 ))}
               </div>
@@ -189,7 +230,9 @@ function App() {
                   <button
                     key={value}
                     type="button"
-                    className={value === locale ? "locale-pill active" : "locale-pill"}
+                    className={
+                      value === locale ? "locale-pill active" : "locale-pill"
+                    }
                     onClick={() => setLocale(value)}
                     aria-pressed={value === locale}
                     title={localeLabels[value]}
@@ -202,6 +245,14 @@ function App() {
           </header>
 
           <Suspense fallback={<PageFallback />}>
+            {launchError && (
+              <p
+                role="alert"
+                className="m-3 rounded border border-red-500 p-2 text-sm"
+              >
+                {launchError}
+              </p>
+            )}
             {active === "profiler" && <ProfilerAnalyzerPage />}
             {active === "diff" && <DiffPage />}
             {active === "access_log" && <AccessLogAnalyzerPage />}

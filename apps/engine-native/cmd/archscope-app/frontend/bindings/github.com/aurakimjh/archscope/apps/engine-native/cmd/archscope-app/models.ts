@@ -868,6 +868,29 @@ export class DebugLogResult {
     }
 }
 
+export class DesktopLaunchState {
+    "showHttp": boolean;
+    "openPath"?: string;
+    "error"?: string;
+
+    /** Creates a new DesktopLaunchState instance. */
+    constructor($$source: Partial<DesktopLaunchState> = {}) {
+        if (!("showHttp" in $$source)) {
+            this["showHttp"] = false;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new DesktopLaunchState instance from a string or object.
+     */
+    static createFrom($$source: any = {}): DesktopLaunchState {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new DesktopLaunchState($$parsedSource as Partial<DesktopLaunchState>);
+    }
+}
+
 export class DiffRequest {
     "baselinePath": string;
     "targetPath": string;

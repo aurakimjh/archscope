@@ -4517,3 +4517,35 @@ ViewState 분할/꼬리·텍스트·오류·미지원·원본 불변성·세션 
 펼친 요약은 그리드의 남은 높이를 차지하지 않도록 겹쳐 표시합니다. 분할선의 상세
 높이 계산에는 줄바꿈한 내보내기·필터·주석 도구 모음 전체를 포함해 새 컨트롤 때문에
 그리드가 사라지는 것을 방지합니다. 실제 배치는 잠금 해제 후 네이티브 확인이 필요합니다.
+
+### 데스크톱 실행 옵션과 로컬 제어 (T-611 구현)
+
+표시되는 Wails 앱에서 `--capture`, `--process ABS_EXE`, 반복 `--pid`, `--scope`,
+`--duration`, `--destination`, `--format`, `--open`, `--automation-descriptor ABS_PATH`를
+처리합니다. `/p`, `/d`, `/t`(분), `/f` 표기도 읽지만 `/f NATIVE`, `.halog` 출력,
+`.lnk` 실행은 미지원으로 명확히 반환합니다. 형식 별칭은 ArchScope 내보내기를 고르며
+원본 XML·네이티브 형식 호환성을 뜻하지 않습니다. 자동 저장 경로에는 제한 시간이
+필요하고 중지 후 저장소 전체를 저장하며 오류를 화면에 남깁니다. Mac 라이브 캡처는
+계속 미지원이고 공통 제어 로직만 로컬에서 검사할 수 있습니다.
+
+로컬 자동화는 옵션을 명시한 경우에만 IPv4 loopback 임시 포트에서 동작합니다.
+URL과 인스턴스별 bearer 토큰을 담은 descriptor는 토큰을 쓰기 전에 Unix 0600 또는
+Windows 소유자 전용 보호 DACL을 적용합니다. 이 파일을 근거 자료·저장소에 넣지
+않습니다. 브라우저 Origin·외부 호스트·미인증 호출을 거부하고 제어 클라이언트는 환경
+프록시나 리다이렉트로 토큰을 보내지 않습니다. 최근 128개 변경 요청 ID는 중복 실행을
+막으며 같은 ID의 다른 명령은 거부합니다. 요청·결과·이벤트에는 상한을 적용하고
+이벤트 누락 시 재동기화를 요구합니다. 이벤트 행에는 본문·헤더·명령줄을 넣지 않습니다.
+
+`apps/engine-native`에서 `go build -o archscope-control ./cmd/archscope-control`로
+클라이언트를 빌드합니다. 절대 descriptor 경로를 지정해 앱을 실행한 뒤
+`archscope-control --descriptor PATH --id UNIQUE --command status`로 제어합니다.
+capabilities, processes, attach/detach, start, pause/resume, clear, stop, status/stats,
+events, list/detail/summary, save, open 명령을 지원합니다. start에는 명시적 범위나
+미리 선택한 PID·시작 시간이 필요합니다. `--params`는 기존 캡처·파일 계약의 JSON
+객체입니다. CA 자동 설치·브라우저 캐시/쿠키 삭제·숨겨진 캡처를 제공하지 않습니다.
+
+로컬 실제 프록시 검사로 제어·저장·재열기·이벤트를 확인하고 인증·Origin·descriptor·
+중복 실행·옵션·이벤트 상한을 검사했습니다. Windows x86/x64 컴파일을 확인했습니다.
+**원본 COM 인터페이스와 호환된다는 의미는 아닙니다.** Windows COM·바로가기·캐시/
+쿠키 명령·클라이언트/실제 창 검증은 남아 T-611을 REVIEW로 유지합니다.
+[원본 실행 옵션](https://www.ieinspector.com/httpanalyzer/manual/commandlineinterface.htm).

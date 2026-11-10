@@ -213,9 +213,9 @@ completed the independent Lighthouse file-first engine slice.
 
 | Status | Count | Meaning |
 |---|---:|---|
-| `TODO` | 2 | Ready to start; prerequisites are satisfied |
+| `TODO` | 1 | Ready to start; prerequisites are satisfied |
 | `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
-| `REVIEW` | 1 | Review or required remediation is underway; the gate has not passed |
+| `REVIEW` | 2 | Review or required remediation is underway; the gate has not passed |
 | `PENDING` | 2 | Waiting for a prerequisite, external condition, or activation trigger |
 | `DONE` | 195 | Completion criteria and required review gates have passed |
 
@@ -239,7 +239,7 @@ remote session. T-605, T-606, T-609 and T-612 are implemented and locally verifi
 |---:|---|---|---|---|
 | 1 | T-601 | P1 | `REVIEW` | Deliver the four Windows capture entry points and measure their reach |
 | 2 | T-608 | P2 | `TODO` | Read and write legacy .halog files |
-| 3 | T-611 | P3 | `TODO` | Support Stand-alone automation and desktop launch switches |
+| 3 | T-611 | P3 | `REVIEW` | Support Stand-alone automation and desktop launch switches |
 | 4 | T-613 | P3 | `PENDING` | Verify complete Stand-alone parity on Windows |
 | 5 | T-557 | P1 | `PENDING` | Promote the Jennifer MSA drilldown calculation from UI projection to a Go analyzer contract if repeated use shows it should be exported/reported outside the desktop page. |
 
@@ -1192,7 +1192,7 @@ deferred until explicitly promoted.
 | T-608 | P2 | TODO | Read and write legacy .halog files | T-607 | Use genuine sanitized V7.6.4 logs and an independent reader or the reference EXE to verify both directions. Compare processes, headers, retained data and timing. Missing format evidence keeps compatibility unverified. |
 | T-609 | P2 | DONE | Integrate row hints, status help, stars and comments | T-594, T-607 | Added request-ID hints/status help, explicit evidence links, star/comment columns and starred-only filtering. Live annotations use an atomic bounded sidecar, verified IDs, redacted comments and Clear reset; finalized/native JSON/XML/ArchScope HAR preserve notes, while opened-file edits stay explicit export overrides. ID sorting, service and reopen regressions plus frontend state/build pass; native visual acceptance remains unverified. |
 | T-610 | P2 | DONE | Add the Stand-alone HTTP Request Builder | T-594 | Desktop Request Builder supports fresh requests, selected-row copies and a fixed drag/drop target, editable headers/raw/form/multipart files, explicit send/cancel and separate response inspection. Local raw/form/multipart/redirect/timeout/TLS/gzip fixtures, race detector, browser mouse copy/edit/send/drag with original-row preservation, Go suite/vet/build and frontend state/build pass; native Windows acceptance remains T-613. |
-| T-611 | P3 | TODO | Support Stand-alone automation and desktop launch switches | T-596, T-607 | Verify a Windows automation client can attach to a chosen test process, control visible recording, observe new/updated entries and read/save/reload transactions. Check the documented process, duration, destination and format switches. |
+| T-611 | P3 | REVIEW | Support Stand-alone automation and desktop launch switches | T-596, T-607 | Implemented visible desktop launch options, bounded authenticated opt-in loopback control/client, PID/start-time attach contract, timer-stop/export, stored reads and resynchronizable payload-free events. Local real-proxy start/pause/resume/stop/save/reload, auth/retry/origin/descriptor tests and frontend build pass; Windows x86/x64 compile checked. Legacy COM, .lnk/cache-cookie commands and native Windows client acceptance remain unimplemented/unverified. |
 | T-612 | P3 | DONE | Restore legacy content inspectors | T-606 | Added bounded inert AMF0/AMF3 and remoting-packet readers, ViewState v1 token trees/text, references/traits/vectors/dictionaries, form/HTML chunk extraction and explicit invalid/limited/unsupported states. Classes/converters/binary objects are never instantiated; MAC/encryption remain unverified, opaque bytes omitted and secret trees/raw ViewState sources masked. Capture/HAR/Builder/portable paths, known-byte fixtures and 15-second fuzz pass; native/reference-EXE visual interoperability remains T-613. |
 | T-613 | P3 | PENDING | Verify complete Stand-alone parity on Windows | T-601, T-602, T-603, T-604, T-605, T-606, T-607, T-608, T-609, T-610, T-611, T-612 | Replay the T-599 inventory against a packaged Wails v3 desktop build. Record a Windows result for every applicable command and viewer, including file and automation interoperability, long captures, re-entry and restart. Leave any unverified or missing reference behavior open. |
 | T-589 | P1 | DONE | Restore unified GC uptime/date coordinates and valid throughput/allocation/promotion rate denominators; define observation-window rules, expose unavailable values honestly, and align absolute versus elapsed UI axes. | None; existing GC parser/analyzer and AnalysisResult envelope | Completed 2026-11-09: unified date/uptime parsing, monotonic observed-window accounting, nullable unavailable metrics with reasons, elapsed/absolute axes and EN/KO disclosure. GC parser/analyzer regressions, frontend state suite and production build passed; local source review completed (no independent or desktop E2E claim). |

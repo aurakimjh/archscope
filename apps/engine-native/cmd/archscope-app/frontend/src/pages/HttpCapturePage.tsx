@@ -1,7 +1,7 @@
 import { findingRequestIds } from "@/state/httpAnnotations";
 import { HttpRequestBuilder } from "@/components/HttpRequestBuilder";
 import * as CaptureService from "../../bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/captureservice";
-import { Dialogs } from "@wailsio/runtime";
+import { Events, Dialogs } from "@wailsio/runtime";
 // ─────────────────────────────────────────────────────────────────────
 // [한글] HttpCapturePage.tsx — 실시간 HTTP 캡처 + 오프라인 HAR 분석 페이지.
 //
@@ -25,7 +25,14 @@ import { Dialogs } from "@wailsio/runtime";
 // state/httpCapture.ts 의 순수 reducer 가 관리합니다.
 // ─────────────────────────────────────────────────────────────────────
 import { ChevronDown, ChevronRight, Loader2, Play } from "lucide-react";
-import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+} from "react";
 
 import type {
   HttpCaptureAnalysisResult,
@@ -38,7 +45,10 @@ import { HttpAnalyzerView } from "@/components/HttpAnalyzerView";
 import { HttpCorrelationPanel } from "@/components/HttpCorrelationPanel";
 import { LiveHttpCapturePanel } from "@/components/LiveHttpCapturePanel";
 import { MetricCard } from "@/components/MetricCard";
-import { WailsFileDock, type FileDockSelection } from "@/components/WailsFileDock";
+import {
+  WailsFileDock,
+  type FileDockSelection,
+} from "@/components/WailsFileDock";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useI18n, type MessageKey } from "@/i18n/I18nProvider";
@@ -90,7 +100,10 @@ import { formatMilliseconds, formatNumber } from "@/utils/formatters";
 export function HttpCapturePage(): React.JSX.Element {
   const { t } = useI18n();
   const [file, setFile] = useState<FileDockSelection | null>(null);
-  const [state, dispatch] = useReducer(httpCaptureReducer, initialHttpCaptureState);
+  const [state, dispatch] = useReducer(
+    httpCaptureReducer,
+    initialHttpCaptureState,
+  );
   const { running, result, error, filter, selectedId } = state;
   // Workspace entry id of the currently rendered result, so the compare
   // action can seed the comparison panel with "this" session (T-582).
@@ -100,18 +113,69 @@ export function HttpCapturePage(): React.JSX.Element {
   // its fidelity and redaction disclosures are part of reading the data.
   const [sourceOpen, setSourceOpen] = useState(true);
   const [sessionOpen, setSessionOpen] = useState(true);
+  const openAttempt = useRef(0);
+  const openPath = useCallback(async (path: string) => {
+    const attempt = ++openAttempt.current;
+    dispatch({ type: "analyzeStart" });
+    try {
+      const opened = await CaptureService.OpenCaptureFile(path);
+      if (attempt !== openAttempt.current) return;
+      const next = opened.result as unknown as HttpCaptureAnalysisResult;
+      setFile(null);
+      dispatch({ type: "analyzeSuccess", result: next, source: path });
+      if (opened.selectedId)
+        dispatch({ type: "select", id: opened.selectedId });
+      const entry = addWorkspaceResult({
+        result: next,
+        title: `http_capture: ${path}`,
+        sourceLabel: path,
+      });
+      setResultEntryId(entry.id);
+    } catch (caught) {
+      if (attempt === openAttempt.current)
+        dispatch({
+          type: "analyzeError",
+          error: { code: "HTTP_SESSION_OPEN_FAILED", message: String(caught) },
+        });
+    }
+  }, []);
+  useEffect(() => {
+    let disposed = false;
+    void CaptureService.GetDesktopLaunchState()
+      .then((state) => {
+        if (!disposed && state.openPath) void openPath(state.openPath);
+      })
+      .catch(() => {});
+    const off = Events.On("capture:open-file", (event) => {
+      const path = (event.data as { path?: string })?.path;
+      if (path) void openPath(path);
+    });
+    return () => {
+      disposed = true;
+      openAttempt.current++;
+      off();
+    };
+  }, [openPath]);
   const openSession = async () => {
     if (running) return;
     try {
-      const picked=await Dialogs.OpenFile({Title:t("httpFilesOpen"),Filters:[{DisplayName:"HTTP session / HAR / XML",Pattern:"*.httpsession;*.har;*.json;*.xml"}]});
-      const path=Array.isArray(picked)?picked[0]:picked;if(!path)return;
-      dispatch({type:"analyzeStart"});
-      const opened=await CaptureService.OpenCaptureFile(path);
-      const next=opened.result as unknown as HttpCaptureAnalysisResult;
-      setFile(null);dispatch({type:"analyzeSuccess",result:next,source:path});
-      if(opened.selectedId)dispatch({type:"select",id:opened.selectedId});
-      const entry=addWorkspaceResult({result:next,title:`http_capture: ${path}`,sourceLabel:path});setResultEntryId(entry.id);
-    }catch(caught){dispatch({type:"analyzeError",error:{code:"HTTP_SESSION_OPEN_FAILED",message:String(caught)}})}
+      const picked = await Dialogs.OpenFile({
+        Title: t("httpFilesOpen"),
+        Filters: [
+          {
+            DisplayName: "HTTP session / HAR / XML",
+            Pattern: "*.httpsession;*.har;*.json;*.xml",
+          },
+        ],
+      });
+      const path = Array.isArray(picked) ? picked[0] : picked;
+      if (path) await openPath(path);
+    } catch (caught) {
+      dispatch({
+        type: "analyzeError",
+        error: { code: "HTTP_SESSION_OPEN_FAILED", message: String(caught) },
+      });
+    }
   };
 
   const analyze = useCallback(async () => {
@@ -190,10 +254,22 @@ export function HttpCapturePage(): React.JSX.Element {
   const redaction = useMemo(() => extractRedaction(result), [result]);
   const timeline = useMemo(() => selectTimeline(result), [result]);
   const allTransactions = useMemo(() => selectTransactions(result), [result]);
-  const methods = useMemo(() => availableMethods(allTransactions), [allTransactions]);
-  const mimes = useMemo(() => availableMimeTypes(allTransactions), [allTransactions]);
-  const fidelities = useMemo(() => availableFidelities(allTransactions), [allTransactions]);
-  const kinds = useMemo(() => availableResourceKinds(allTransactions), [allTransactions]);
+  const methods = useMemo(
+    () => availableMethods(allTransactions),
+    [allTransactions],
+  );
+  const mimes = useMemo(
+    () => availableMimeTypes(allTransactions),
+    [allTransactions],
+  );
+  const fidelities = useMemo(
+    () => availableFidelities(allTransactions),
+    [allTransactions],
+  );
+  const kinds = useMemo(
+    () => availableResourceKinds(allTransactions),
+    [allTransactions],
+  );
   const filtered = useMemo(
     () => filterTransactions(allTransactions, filter),
     [allTransactions, filter],
@@ -211,18 +287,42 @@ export function HttpCapturePage(): React.JSX.Element {
     : false;
 
   const patchFilter = useCallback(
-    (patch: Partial<TransactionFilter>) => dispatch({ type: "patchFilter", patch }),
+    (patch: Partial<TransactionFilter>) =>
+      dispatch({ type: "patchFilter", patch }),
     [],
   );
-  const resetFilter = useCallback(() => dispatch({ type: "setFilter", filter: emptyFilter }), []);
-  const openById = useCallback((id: string) => dispatch({ type: "select", id }), []);
+  const resetFilter = useCallback(
+    () => dispatch({ type: "setFilter", filter: emptyFilter }),
+    [],
+  );
+  const openById = useCallback(
+    (id: string) => dispatch({ type: "select", id }),
+    [],
+  );
 
   return (
     <main className="flex min-w-0 flex-col gap-3 p-3">
-      <div className="flex gap-2 text-xs"><Button variant="outline" size="sm" disabled={running} onClick={()=>void openSession()}>{t("httpFilesOpen")}</Button>
-        {result&&<Button variant="outline" size="sm" onClick={onClearFile}>{t("httpFilesClose")}</Button>}</div>
+      <div className="flex gap-2 text-xs">
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={running}
+          onClick={() => void openSession()}
+        >
+          {t("httpFilesOpen")}
+        </Button>
+        {result && (
+          <Button variant="outline" size="sm" onClick={onClearFile}>
+            {t("httpFilesClose")}
+          </Button>
+        )}
+      </div>
       <HttpRequestBuilder />
-      <LiveHttpCapturePanel onStarted={onLiveStarted} onFinalized={onLiveFinalized} showAnalyzer={!result} />
+      <LiveHttpCapturePanel
+        onStarted={onLiveStarted}
+        onFinalized={onLiveFinalized}
+        showAnalyzer={!result}
+      />
       {/* Capture source. Once a session is loaded this collapses by default so
           the analyzer gets the screen; reopening it is one click. */}
       <Disclosure
@@ -242,11 +342,19 @@ export function HttpCapturePage(): React.JSX.Element {
             dropHereLabel={t("dropHere")}
             errorLabel={t("error")}
             fileFilters={[
-              { displayName: t("httpCaptureFilterHar"), pattern: "*.har;*.json" },
+              {
+                displayName: t("httpCaptureFilterHar"),
+                pattern: "*.har;*.json",
+              },
               { displayName: "All files", pattern: "*.*" },
             ]}
             rightSlot={
-              <Button type="button" size="sm" disabled={!file || running} onClick={() => void analyze()}>
+              <Button
+                type="button"
+                size="sm"
+                disabled={!file || running}
+                onClick={() => void analyze()}
+              >
                 {running ? (
                   <>
                     <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -264,7 +372,10 @@ export function HttpCapturePage(): React.JSX.Element {
         </div>
       </Disclosure>
 
-      <ErrorPanel error={error} labels={{ title: t("analysisError"), code: t("errorCode") }} />
+      <ErrorPanel
+        error={error}
+        labels={{ title: t("analysisError"), code: t("errorCode") }}
+      />
 
       {!result && !error && (
         <Card>
@@ -280,7 +391,13 @@ export function HttpCapturePage(): React.JSX.Element {
           below them. */}
       {result && (
         <HttpAnalyzerView
-          exportSource={state.resultSource?.startsWith("capture://") ? {sessionId:state.resultSource.slice(10)} : state.resultSource ? {path:state.resultSource} : undefined}
+          exportSource={
+            state.resultSource?.startsWith("capture://")
+              ? { sessionId: state.resultSource.slice(10) }
+              : state.resultSource
+                ? { path: state.resultSource }
+                : undefined
+          }
           findings={findings}
           transactions={filtered}
           total={allTransactions.length}
@@ -320,18 +437,32 @@ export function HttpCapturePage(): React.JSX.Element {
                     <ProjectionCards projection={projection} t={t} />
                   ) : (
                     <>
-                      <MetricCard label={t("httpCaptureMetricTransactions")} value={formatNumber(summary.total_transactions)} />
+                      <MetricCard
+                        label={t("httpCaptureMetricTransactions")}
+                        value={formatNumber(summary.total_transactions)}
+                      />
                       <MetricCard
                         label={t("httpCaptureMetricErrorRate")}
                         value={`${(summary.error_rate * 100).toFixed(1)}%`}
                       />
-                      <MetricCard label={t("httpCaptureMetricHosts")} value={formatNumber(summary.unique_hosts)} />
-                      <MetricCard label={t("httpCaptureMetricEndpoints")} value={formatNumber(summary.unique_endpoints)} />
+                      <MetricCard
+                        label={t("httpCaptureMetricHosts")}
+                        value={formatNumber(summary.unique_hosts)}
+                      />
+                      <MetricCard
+                        label={t("httpCaptureMetricEndpoints")}
+                        value={formatNumber(summary.unique_endpoints)}
+                      />
                       <MetricCard
                         label={t("httpCaptureMetricP95")}
-                        value={formatMilliseconds(Math.round(summary.duration_p95_ms))}
+                        value={formatMilliseconds(
+                          Math.round(summary.duration_p95_ms),
+                        )}
                       />
-                      <MetricCard label={t("httpCaptureMetricResponseBytes")} value={formatBytes(summary.response_bytes)} />
+                      <MetricCard
+                        label={t("httpCaptureMetricResponseBytes")}
+                        value={formatBytes(summary.response_bytes)}
+                      />
                     </>
                   )}
                 </div>
@@ -339,13 +470,24 @@ export function HttpCapturePage(): React.JSX.Element {
             )}
 
             {resultEntryId && (
-              <div className="flex flex-wrap items-center gap-2 text-xs" role="group" aria-label={t("httpCaptureDiffCompareCurrent")}>
-                <span className="text-muted-foreground">{t("httpCaptureDiffCompareCurrent")}</span>
+              <div
+                className="flex flex-wrap items-center gap-2 text-xs"
+                role="group"
+                aria-label={t("httpCaptureDiffCompareCurrent")}
+              >
+                <span className="text-muted-foreground">
+                  {t("httpCaptureDiffCompareCurrent")}
+                </span>
                 <Button
                   type="button"
                   size="sm"
                   variant="outline"
-                  onClick={() => dispatchHttpCaptureDiff({ type: "setBefore", id: resultEntryId })}
+                  onClick={() =>
+                    dispatchHttpCaptureDiff({
+                      type: "setBefore",
+                      id: resultEntryId,
+                    })
+                  }
                 >
                   {t("httpCaptureDiffSetBaseline")}
                 </Button>
@@ -353,7 +495,12 @@ export function HttpCapturePage(): React.JSX.Element {
                   type="button"
                   size="sm"
                   variant="outline"
-                  onClick={() => dispatchHttpCaptureDiff({ type: "setAfter", id: resultEntryId })}
+                  onClick={() =>
+                    dispatchHttpCaptureDiff({
+                      type: "setAfter",
+                      id: resultEntryId,
+                    })
+                  }
                 >
                   {t("httpCaptureDiffSetTarget")}
                 </Button>
@@ -362,7 +509,11 @@ export function HttpCapturePage(): React.JSX.Element {
                   size="sm"
                   variant="outline"
                   onClick={() =>
-                    dispatchHttpCorrelation({ type: "setSlot", slot: "http", id: resultEntryId })
+                    dispatchHttpCorrelation({
+                      type: "setSlot",
+                      slot: "http",
+                      id: resultEntryId,
+                    })
                   }
                 >
                   {t("httpCorrelationUseAsHttp")}
@@ -370,7 +521,9 @@ export function HttpCapturePage(): React.JSX.Element {
               </div>
             )}
 
-            {captureMeta && <FidelityBanner meta={captureMeta} redaction={redaction} t={t} />}
+            {captureMeta && (
+              <FidelityBanner meta={captureMeta} redaction={redaction} t={t} />
+            )}
 
             <TimelineBrush
               buckets={timeline}
@@ -389,11 +542,35 @@ export function HttpCapturePage(): React.JSX.Element {
                 </CardHeader>
                 <CardContent className="flex flex-col gap-2">
                   {findings.map((finding, index) => (
-                    <div key={`${finding.code}-${index}`} className="flex items-start gap-2 text-sm">
+                    <div
+                      key={`${finding.code}-${index}`}
+                      className="flex items-start gap-2 text-sm"
+                    >
                       <SeverityDot severity={finding.severity} />
                       <div className="min-w-0">
-                        <code className="text-xs font-semibold">{finding.code}</code>
-                        <p className="text-muted-foreground">{finding.message}</p>{findingRequestIds(finding).filter(id=>allTransactions.some(row=>row.id===id)).map(id=><button key={id} type="button" className="text-xs underline" onClick={()=>{resetFilter();openById(id)}}>{id}</button>)}
+                        <code className="text-xs font-semibold">
+                          {finding.code}
+                        </code>
+                        <p className="text-muted-foreground">
+                          {finding.message}
+                        </p>
+                        {findingRequestIds(finding)
+                          .filter((id) =>
+                            allTransactions.some((row) => row.id === id),
+                          )
+                          .map((id) => (
+                            <button
+                              key={id}
+                              type="button"
+                              className="text-xs underline"
+                              onClick={() => {
+                                resetFilter();
+                                openById(id);
+                              }}
+                            >
+                              {id}
+                            </button>
+                          ))}
                       </div>
                     </div>
                   ))}
@@ -476,7 +653,12 @@ function SeverityDot({ severity }: { severity: string }): React.JSX.Element {
       : severity === "warning"
         ? "bg-amber-500"
         : "bg-sky-500";
-  return <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${color}`} aria-hidden="true" />;
+  return (
+    <span
+      className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${color}`}
+      aria-hidden="true"
+    />
+  );
 }
 
 // ── Summary scope (shared denominator) ──────────────────────────────
@@ -495,7 +677,10 @@ function ScopeBanner({
   t: Translate;
 }): React.JSX.Element {
   return (
-    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs" role="status">
+    <div
+      className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs"
+      role="status"
+    >
       <span
         className={`rounded-full px-2 py-0.5 font-medium ${
           active
@@ -511,10 +696,14 @@ function ScopeBanner({
         </span>
       )}
       <span className="text-muted-foreground">
-        {active ? t("httpCaptureScopeSelectionNote") : t("httpCaptureScopeSessionNote")}
+        {active
+          ? t("httpCaptureScopeSelectionNote")
+          : t("httpCaptureScopeSessionNote")}
       </span>
       {active && bounded && (
-        <span className="text-amber-700 dark:text-amber-400">{t("httpCaptureScopeBoundedNote")}</span>
+        <span className="text-amber-700 dark:text-amber-400">
+          {t("httpCaptureScopeBoundedNote")}
+        </span>
       )}
     </div>
   );
@@ -529,18 +718,30 @@ function ProjectionCards({
 }): React.JSX.Element {
   return (
     <>
-      <MetricCard label={t("httpCaptureMetricTransactions")} value={formatNumber(projection.transactions)} />
+      <MetricCard
+        label={t("httpCaptureMetricTransactions")}
+        value={formatNumber(projection.transactions)}
+      />
       <MetricCard
         label={t("httpCaptureMetricErrorRate")}
         value={`${(projection.errorRate * 100).toFixed(1)}%`}
       />
-      <MetricCard label={t("httpCaptureMetricHosts")} value={formatNumber(projection.uniqueHosts)} />
-      <MetricCard label={t("httpCaptureMetricEndpoints")} value={formatNumber(projection.uniqueEndpoints)} />
+      <MetricCard
+        label={t("httpCaptureMetricHosts")}
+        value={formatNumber(projection.uniqueHosts)}
+      />
+      <MetricCard
+        label={t("httpCaptureMetricEndpoints")}
+        value={formatNumber(projection.uniqueEndpoints)}
+      />
       <MetricCard
         label={t("httpCaptureMetricP95")}
         value={formatMilliseconds(Math.round(projection.durationP95Ms))}
       />
-      <MetricCard label={t("httpCaptureMetricResponseBytes")} value={formatBytes(projection.responseBytes)} />
+      <MetricCard
+        label={t("httpCaptureMetricResponseBytes")}
+        value={formatBytes(projection.responseBytes)}
+      />
     </>
   );
 }
@@ -577,18 +778,26 @@ function FidelityBanner({
         <dl className="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-5">
           <Field
             label={t("httpCaptureFidelityLabel")}
-            value={t(CAPTURE_FIDELITY_LABEL_KEYS[resolveCaptureFidelity(meta.fidelity)])}
+            value={t(
+              CAPTURE_FIDELITY_LABEL_KEYS[
+                resolveCaptureFidelity(meta.fidelity)
+              ],
+            )}
             title={meta.fidelity}
           />
           <Field
             label={t("httpCaptureModeLabel")}
-            value={t(CAPTURE_MODE_LABEL_KEYS[resolveCaptureMode(meta.capture_mode)])}
+            value={t(
+              CAPTURE_MODE_LABEL_KEYS[resolveCaptureMode(meta.capture_mode)],
+            )}
             title={meta.capture_mode}
           />
           <Field
             label={t("httpCaptureObservationLabel")}
             value={t(
-              CAPTURE_OBSERVATION_LABEL_KEYS[resolveCaptureObservation(meta.observation_point)],
+              CAPTURE_OBSERVATION_LABEL_KEYS[
+                resolveCaptureObservation(meta.observation_point)
+              ],
             )}
             title={meta.observation_point}
           />
@@ -596,7 +805,9 @@ function FidelityBanner({
           <Field
             label={t("httpCaptureDetailStorageLabel")}
             value={t(
-              CAPTURE_DETAIL_STORAGE_LABEL_KEYS[resolveCaptureDetailStorage(meta.detail_storage)],
+              CAPTURE_DETAIL_STORAGE_LABEL_KEYS[
+                resolveCaptureDetailStorage(meta.detail_storage)
+              ],
             )}
             title={meta.detail_storage}
           />
@@ -606,7 +817,9 @@ function FidelityBanner({
         </p>
         {hasDistribution && (
           <div className="flex flex-col gap-2 rounded-md border border-border bg-muted/20 p-3">
-            <p className="text-xs text-muted-foreground">{t("httpCaptureDistributionHint")}</p>
+            <p className="text-xs text-muted-foreground">
+              {t("httpCaptureDistributionHint")}
+            </p>
             <DistributionRow
               title={t("httpCaptureFidelityDistributionTitle")}
               entries={fidelityDistribution.map((entry) => ({
@@ -676,21 +889,25 @@ function FidelityBanner({
                 ? t("httpCaptureRedactionApplied")
                 : t("httpCaptureRedactionNone")}
           </p>
-          {redaction?.known && redaction.applied && redaction.rules.length > 0 && (
-            <ul className="mt-2 flex flex-wrap gap-1.5">
-              {redaction.rules.map((rule) => (
-                <li
-                  key={rule}
-                  className="rounded border border-border bg-background px-1.5 py-0.5 font-mono text-[11px]"
-                >
-                  {rule}
-                  {typeof redaction.counts[rule] === "number" && (
-                    <span className="ml-1 text-muted-foreground">×{redaction.counts[rule]}</span>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )}
+          {redaction?.known &&
+            redaction.applied &&
+            redaction.rules.length > 0 && (
+              <ul className="mt-2 flex flex-wrap gap-1.5">
+                {redaction.rules.map((rule) => (
+                  <li
+                    key={rule}
+                    className="rounded border border-border bg-background px-1.5 py-0.5 font-mono text-[11px]"
+                  >
+                    {rule}
+                    {typeof redaction.counts[rule] === "number" && (
+                      <span className="ml-1 text-muted-foreground">
+                        ×{redaction.counts[rule]}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
         </div>
       </CardContent>
     </Card>
@@ -710,7 +927,9 @@ function Field({
 }): React.JSX.Element {
   return (
     <div className="min-w-0">
-      <dt className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{label}</dt>
+      <dt className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+        {label}
+      </dt>
       <dd className="truncate font-mono text-xs" title={title ?? value}>
         {value || "-"}
       </dd>
@@ -737,7 +956,9 @@ function DistributionRow({
           className="rounded border border-border bg-background px-1.5 py-0.5 text-[11px]"
         >
           {entry.label}
-          <span className="ml-1 font-mono text-muted-foreground">×{formatNumber(entry.count)}</span>
+          <span className="ml-1 font-mono text-muted-foreground">
+            ×{formatNumber(entry.count)}
+          </span>
         </span>
       ))}
     </div>
@@ -764,7 +985,10 @@ function TimelineBrush({
   const [drag, setDrag] = useState<{ lo: number; hi: number } | null>(null);
   // Keyboard-accessible start/end selection mirrored to the pointer brush.
   const lastBucket = Math.max(0, buckets.length - 1);
-  const [range, setRange] = useState<{ lo: number; hi: number }>({ lo: 0, hi: lastBucket });
+  const [range, setRange] = useState<{ lo: number; hi: number }>({
+    lo: 0,
+    hi: lastBucket,
+  });
 
   useEffect(() => {
     // Reset the sliders to the full extent whenever the dataset changes or the
@@ -783,7 +1007,10 @@ function TimelineBrush({
       if (!el || buckets.length === 0) return 0;
       const rect = el.getBoundingClientRect();
       const ratio = (clientX - rect.left) / rect.width;
-      return Math.max(0, Math.min(buckets.length - 1, Math.floor(ratio * buckets.length)));
+      return Math.max(
+        0,
+        Math.min(buckets.length - 1, Math.floor(ratio * buckets.length)),
+      );
     },
     [buckets.length],
   );
@@ -850,7 +1077,10 @@ function TimelineBrush({
   }
 
   const selection = drag
-    ? { loPct: (drag.lo / buckets.length) * 100, hiPct: ((drag.hi + 1) / buckets.length) * 100 }
+    ? {
+        loPct: (drag.lo / buckets.length) * 100,
+        hiPct: ((drag.hi + 1) / buckets.length) * 100,
+      }
     : null;
 
   return (
@@ -858,13 +1088,20 @@ function TimelineBrush({
       <CardHeader className="flex-row items-center justify-between gap-2">
         <CardTitle>{t("httpCaptureTimelineTitle")}</CardTitle>
         {window && (
-          <Button type="button" size="sm" variant="outline" onClick={() => onSelect(null)}>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={() => onSelect(null)}
+          >
             {t("httpCaptureClearSelection")}
           </Button>
         )}
       </CardHeader>
       <CardContent>
-        <p className="mb-2 text-xs text-muted-foreground">{t("httpCaptureTimelineHint")}</p>
+        <p className="mb-2 text-xs text-muted-foreground">
+          {t("httpCaptureTimelineHint")}
+        </p>
         <div
           ref={containerRef}
           className="relative flex h-32 cursor-col-resize touch-none items-end gap-px rounded-md border border-border bg-muted/20 p-1"
@@ -877,13 +1114,17 @@ function TimelineBrush({
           {selection && (
             <div
               className="pointer-events-none absolute inset-y-1 rounded-sm bg-primary/15 ring-1 ring-primary/40"
-              style={{ left: `${selection.loPct}%`, width: `${selection.hiPct - selection.loPct}%` }}
+              style={{
+                left: `${selection.loPct}%`,
+                width: `${selection.hiPct - selection.loPct}%`,
+              }}
               aria-hidden="true"
             />
           )}
           {buckets.map((bucket, index) => {
             const totalPct = maxCount > 0 ? (bucket.count / maxCount) * 100 : 0;
-            const errorPct = bucket.count > 0 ? (bucket.errors / bucket.count) * totalPct : 0;
+            const errorPct =
+              bucket.count > 0 ? (bucket.errors / bucket.count) * totalPct : 0;
             return (
               <div
                 key={`${bucket.start}-${index}`}
@@ -893,10 +1134,17 @@ function TimelineBrush({
               >
                 <div
                   className="w-full rounded-sm bg-primary/70"
-                  style={{ height: `${Math.max(totalPct, bucket.count > 0 ? 4 : 0)}%` }}
+                  style={{
+                    height: `${Math.max(totalPct, bucket.count > 0 ? 4 : 0)}%`,
+                  }}
                 >
                   {errorPct > 0 && (
-                    <div className="w-full rounded-sm bg-red-500" style={{ height: `${(errorPct / Math.max(totalPct, 1)) * 100}%` }} />
+                    <div
+                      className="w-full rounded-sm bg-red-500"
+                      style={{
+                        height: `${(errorPct / Math.max(totalPct, 1)) * 100}%`,
+                      }}
+                    />
                   )}
                 </div>
               </div>
@@ -910,13 +1158,17 @@ function TimelineBrush({
         {/* Keyboard-accessible equivalent of the pointer brush. */}
         <div className="mt-2 flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-3">
           <label className="flex flex-1 items-center gap-2 text-[11px] text-muted-foreground">
-            <span className="w-10 shrink-0">{t("httpCaptureTimelineStart")}</span>
+            <span className="w-10 shrink-0">
+              {t("httpCaptureTimelineStart")}
+            </span>
             <input
               type="range"
               min={0}
               max={lastBucket}
               value={Math.min(range.lo, lastBucket)}
-              onChange={(event) => commitRange(Number(event.target.value), range.hi)}
+              onChange={(event) =>
+                commitRange(Number(event.target.value), range.hi)
+              }
               aria-label={t("httpCaptureTimelineStart")}
               className="w-full"
             />
@@ -928,16 +1180,22 @@ function TimelineBrush({
               min={0}
               max={lastBucket}
               value={Math.min(range.hi, lastBucket)}
-              onChange={(event) => commitRange(range.lo, Number(event.target.value))}
+              onChange={(event) =>
+                commitRange(range.lo, Number(event.target.value))
+              }
               aria-label={t("httpCaptureTimelineEnd")}
               className="w-full"
             />
           </label>
         </div>
-        <p className="mt-1 text-[10px] text-muted-foreground">{t("httpCaptureTimelineKeyboardHint")}</p>
+        <p className="mt-1 text-[10px] text-muted-foreground">
+          {t("httpCaptureTimelineKeyboardHint")}
+        </p>
         {window && (
           <p className="mt-2 text-xs text-foreground">
-            <span className="font-medium">{t("httpCaptureTimelineSelection")}:</span>{" "}
+            <span className="font-medium">
+              {t("httpCaptureTimelineSelection")}:
+            </span>{" "}
             <span className="font-mono">
               {window.start} → {window.end}
             </span>
@@ -985,17 +1243,29 @@ function ProcessTreePanel({
         <CardTitle>{t("httpCaptureTreeTitle")}</CardTitle>
         {tree.length > 0 && (
           <div className="flex gap-1">
-            <Button type="button" size="sm" variant="ghost" onClick={() => setExpanded(new Set(allNodeIds))}>
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              onClick={() => setExpanded(new Set(allNodeIds))}
+            >
               {t("httpCaptureTreeExpandAll")}
             </Button>
-            <Button type="button" size="sm" variant="ghost" onClick={() => setExpanded(new Set())}>
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              onClick={() => setExpanded(new Set())}
+            >
               {t("httpCaptureTreeCollapseAll")}
             </Button>
           </div>
         )}
       </CardHeader>
       <CardContent>
-        <p className="mb-2 text-xs text-muted-foreground">{t("httpCaptureTreeHint")}</p>
+        <p className="mb-2 text-xs text-muted-foreground">
+          {t("httpCaptureTreeHint")}
+        </p>
         {tree.length === 0 ? (
           <p className="text-sm text-muted-foreground" role="status">
             {t("httpCaptureTreeEmpty")}
@@ -1072,7 +1342,10 @@ function TreeRow({
         <span className="w-3 shrink-0 text-muted-foreground">
           {hasChildren ? (isOpen ? "▾" : "▸") : isLeaf ? "•" : ""}
         </span>
-        <span className="min-w-0 flex-1 truncate font-medium" title={node.label}>
+        <span
+          className="min-w-0 flex-1 truncate font-medium"
+          title={node.label}
+        >
           {node.label}
         </span>
         {node.pseudo && node.kind === "process" && (
@@ -1080,12 +1353,16 @@ function TreeRow({
             {t("httpCaptureTreePseudo")}
           </span>
         )}
-        <span className="shrink-0 truncate font-mono text-[10px] text-muted-foreground">{node.sublabel}</span>
+        <span className="shrink-0 truncate font-mono text-[10px] text-muted-foreground">
+          {node.sublabel}
+        </span>
         {!isLeaf && (
           <span className="shrink-0 tabular-nums text-[10px] text-muted-foreground">
             {node.count}
             {node.errorCount > 0 && (
-              <span className="ml-1 text-red-600 dark:text-red-400">({node.errorCount})</span>
+              <span className="ml-1 text-red-600 dark:text-red-400">
+                ({node.errorCount})
+              </span>
             )}
           </span>
         )}

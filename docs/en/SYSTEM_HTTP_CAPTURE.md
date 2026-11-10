@@ -1207,3 +1207,42 @@ Expanded summary content overlays the grid rather than consuming its remaining
 height. Inspector splitter bounds include every fixed toolbar row, including
 wrapped export/filter/note controls; this prevents the new controls from silently
 collapsing the grid. The visual result still needs unlocked native inspection.
+
+### Desktop launch and local control (T-611 implementation)
+
+The visible Wails app accepts `--capture`, `--process ABS_EXE`, repeated `--pid`,
+`--scope`, `--duration`, `--destination`, `--format`, `--open`, and
+`--automation-descriptor ABS_PATH`. Legacy `/p`, `/d`, `/t` (minutes) and `/f`
+spellings are recognized; `/f NATIVE`, `.halog` output and `.lnk` launch are
+explicitly unavailable. Format aliases select ArchScope exporters; they do not
+claim the reference application's XML/native schema. A timed destination
+requires a duration. Recording stops before the timed all-store export; errors
+remain visible. Capture is still unavailable on macOS; the common command core
+is locally testable without changing that capability.
+
+Automation is opt-in and binds an ephemeral IPv4 loopback port. The private
+JSON descriptor contains the URL and a per-instance bearer token: Unix mode
+0600 or a protected Windows owner-only DACL is set before writing the token.
+Do not publish or copy that descriptor into evidence. Browser origins, remote
+hosts and unauthenticated calls are rejected. The control client never uses an
+environment proxy or forwards credentials through redirects. Mutation retries
+are deduplicated over the latest 128 request IDs; reusing an ID with different
+content is an error. Request/results and the event journal are bounded; journal
+gaps require resynchronization. Event rows omit payloads, headers and command
+lines; selected detail remains an explicit read.
+
+Build the client with `go build -o archscope-control ./cmd/archscope-control`
+from `apps/engine-native`. Start the desktop with an absolute descriptor path,
+then call `archscope-control --descriptor PATH --id UNIQUE --command status`.
+Commands are capabilities, processes, attach/detach, start, pause/resume, clear,
+stop, status/stats, events, list/detail/summary, save and open. Start requires an
+explicit scope or previously attached PID/start-time instances. `--params` is a
+JSON object matching the existing capture/file contracts. No automatic CA
+installation, browser cache/cookie deletion or hidden capture mode is exposed.
+
+Local real-proxy tests cover start/pause/resume/stop, stored reads, events,
+save/reload; protocol tests cover authentication, origin/descriptor validation,
+retry behavior, parsing and journal bounds. Windows x86/x64 compilation passes.
+This is ArchScope local control, **not the legacy COM interface**; Windows COM,
+shortcuts, cache/cookie commands and native client/window acceptance keep
+T-611 in REVIEW. [Reference switches](https://www.ieinspector.com/httpanalyzer/manual/commandlineinterface.htm).

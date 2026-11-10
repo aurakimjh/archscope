@@ -25,7 +25,10 @@
 package main
 
 import (
+	"fmt"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/automation"
 	"log"
+	"os"
 	"runtime"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture"
@@ -60,13 +63,23 @@ func init() {
 // [한글] main — Wails 앱 인스턴스 생성, 서비스/윈도우/asset 설정 후 Run.
 // Run 은 GUI 이벤트 루프 진입. 에러 시 즉시 log.Fatal.
 func main() {
+	options, err := automation.ParseOptions(os.Args[1:])
+	if err != nil {
+		log.Fatal(err)
+	}
+	if options.Help {
+		fmt.Print(automation.Usage)
+		return
+	}
+	captureService := NewCaptureService()
+	captureService.launchOptions = options
 	app := application.New(application.Options{
 		Name:        "ArchScope",
 		Description: "Local-first architecture diagnostics desktop",
 		Services: []application.Service{
 			application.NewService(&ProfilerService{}),
 			application.NewService(&EngineService{}),
-			application.NewService(NewCaptureService()),
+			application.NewService(captureService),
 		},
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(assets),
@@ -79,6 +92,14 @@ func main() {
 		},
 	})
 
+	app.OnShutdown(captureService.shutdownAutomation)
+	if options.Descriptor != "" {
+		controller, err := automation.Start(options.Descriptor, captureService.executeAutomation)
+		if err != nil {
+			log.Fatal(err)
+		}
+		app.OnShutdown(func() { _ = controller.Close() })
+	}
 	menu := application.NewMenu()
 	captureMenu := menu.AddSubmenu("HTTP Capture")
 	for _, command := range []struct{ label, name, shortcut string }{
