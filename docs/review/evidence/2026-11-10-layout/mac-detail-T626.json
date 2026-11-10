@@ -1,0 +1,41 @@
+{
+  "platform": "macOS native Wails 3.1.0",
+  "workspace_cases": {
+    "analysis_workspace": "registered results hand off into charts, SLO, incident and flow",
+    "export_center": "HTML, PPTX, JSON, CSV and CSV directory; cancel, directory-as-file write error and valid recovery",
+    "report_diff": "missing before JSON error then valid zero-change comparison",
+    "chart_studio": "all eight templates exported SVG/CSV; Canvas and SVG screen renderers both exported PNG/SVG; resized at 1024/125% and restored",
+    "incident_timeline": "result handoff and native menu route",
+    "slo_golden_signals": "result handoff and sparse SLO metrics retain evidence limitations",
+    "service_flow": "result handoff and native menu route",
+    "evidence_board": "Add latest HTTP increases existing one-card board to two; original evidence not cleared"
+  },
+  "chart_templates": [
+    "access.requests",
+    "access.p95",
+    "gc.pause",
+    "gc.heap",
+    "trace.services",
+    "trace.dependencies",
+    "profiler.components",
+    "comparison.deltas"
+  ],
+  "settings": [
+    "negative interval draft preserved and refused",
+    "fractional Top N draft preserved and refused",
+    "storage failure cannot claim saved",
+    "original interval 100 and Top N 20 restored and saved",
+    "locale Korean and System theme restored"
+  ],
+  "forms_adjudication": "Settings and Export are forms, excluded from populated-result area ratio; inputs, primary action and completion/error states were checked. Sparse workspaces do not claim a 70% ratio.",
+  "populated_chart_geometry": {
+    "observed_viewport": [
+      1281,
+      801
+    ],
+    "first_data_y": 184,
+    "visible_data_union_ratio": 0.723
+  },
+  "artifact_manifest": "mac-detail-exports.json",
+  "result": "pass for Mac implementation and functional matrix; Windows native gate is T-627"
+}
