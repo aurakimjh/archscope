@@ -120,3 +120,17 @@ func interfaceMethods(name string) []abiMethod {
 	}
 	return methods
 }
+
+func methodParameterNames(m abiMethod) []string {
+	names := []string{m.Name}
+	for _, p := range m.Params {
+		names = append(names, p.Name)
+	}
+	if m.Returns != "void" {
+		names = append(names, "result")
+	}
+	if m.Kind == "put" && len(names) > 1 {
+		names = names[:len(names)-1]
+	}
+	return names
+}

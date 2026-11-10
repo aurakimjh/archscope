@@ -270,7 +270,8 @@ func (s *Server) sameUserClient() bool {
 	return err == nil && levelErr == nil && user.User.Sid.String() == s.owner && level >= s.integrity && (!s.elevated || token.IsElevated())
 }
 func tokenIntegrity(token windows.Token) (uint32, error) {
-	buffer := make([]byte, 256)
+	backing := make([]uintptr, 64)
+	buffer := unsafe.Slice((*byte)(unsafe.Pointer(&backing[0])), len(backing)*int(unsafe.Sizeof(uintptr(0))))
 	var size uint32
 	if err := windows.GetTokenInformation(token, windows.TokenIntegrityLevel, &buffer[0], uint32(len(buffer)), &size); err != nil {
 		return 0, err
@@ -296,7 +297,7 @@ func tokenIntegrity(token windows.Token) (uint32, error) {
 	// subauthority helpers return interior addresses through uintptr, which
 	// checkptr correctly cannot associate with this caller-owned buffer.
 	value := binary.LittleEndian.Uint32(buffer[offset+8+4*(count-1):])
-	runtime.KeepAlive(buffer)
+	runtime.KeepAlive(backing)
 	return value, nil
 }
 

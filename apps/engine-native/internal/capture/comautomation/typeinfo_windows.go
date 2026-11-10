@@ -261,14 +261,7 @@ func addTypeMethod(creator uintptr, contract string, index int, m abiMethod, inf
 	if e := comCall(creator, 9, uintptr(index), uintptr(unsafe.Pointer(&fd))); e != nil {
 		return e
 	}
-	paramNames := []string{m.Name}
-	for _, p := range m.Params {
-		paramNames = append(paramNames, p.Name)
-	}
-	if m.Kind == "put" && len(paramNames) > 1 {
-		paramNames = paramNames[:len(paramNames)-1]
-	}
-	// Return values and the final property-put argument are unnamed.
+	paramNames := methodParameterNames(m)
 	names := make([]*uint16, len(paramNames))
 	for i, n := range paramNames {
 		names[i], _ = windows.UTF16PtrFromString(n)
@@ -281,8 +274,14 @@ func addTypeMethod(creator uintptr, contract string, index int, m abiMethod, inf
 		var attr *ole.TYPEATTR
 		if info := infos[contract]; info != 0 && comCall(info, 3, uintptr(unsafe.Pointer(&attr))) == nil {
 			count := attr.CFuncs
+			var copied *functionDescription
+			detail := ""
+			if comCall(info, 5, uintptr(index), uintptr(unsafe.Pointer(&copied))) == nil {
+				detail = fmt.Sprintf(" native-id=%d native-kind=%d native-invoke=%d native-args=%d native-return=%d", copied.ID, copied.Kind, copied.InvokeKind, copied.Count, copied.Result.Type.VT)
+				comCall(info, 20, uintptr(unsafe.Pointer(copied)))
+			}
 			comCall(info, 19, uintptr(unsafe.Pointer(attr)))
-			return fmt.Errorf("%w (index=%d functions=%d args=%d names=%d desc-size=%d)", e, index, count, fd.Count, len(names), unsafe.Sizeof(fd))
+			return fmt.Errorf("%w (index=%d functions=%d args=%d names=%d desc-size=%d)%s", e, index, count, fd.Count, len(names), unsafe.Sizeof(fd), detail)
 		}
 	}
 	return e

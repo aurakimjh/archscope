@@ -1980,3 +1980,9 @@ is used for 386. Added a dedicated amd64-race/386 COM workflow for focused nativ
 feedback. First run 42908152263 passed both macOS jobs and GUI cross-builds but
 failed Windows COM; replacement native results are required before claiming it
 fixed. Existing same-user/integrity comparisons remain enforced.
+
+Native follow-up: the focused workflow confirmed the SID copy also needs
+pointer-aligned storage under amd64 race instrumentation. It now uses a
+uintptr-backed buffer. Full function-name metadata includes the [out, retval]
+parameter name while property-put's final value remains unnamed; repeated
+Windows results are still required.
