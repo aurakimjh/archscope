@@ -65,7 +65,8 @@ func queryCOM(pointer uintptr, id windows.GUID) (uintptr, error) {
 	return out, e
 }
 
-func buildTypeInfos() (map[string]uintptr, error) {
+func buildTypeInfos() (map[string]uintptr, error) { return buildTypeInfosAt("") }
+func buildTypeInfosAt(destination string) (map[string]uintptr, error) {
 	// The library is in memory; SaveAllChanges and global typelib registration
 	// are deliberately not called. ITypeInfo references own their lifetimes.
 	var library, standard uintptr
@@ -84,7 +85,11 @@ func buildTypeInfos() (map[string]uintptr, error) {
 			}
 		}
 	}()
-	name, _ := windows.UTF16PtrFromString("ArchScope.Automation.tlb")
+	filename := destination
+	if filename == "" {
+		filename = "ArchScope.Automation.tlb"
+	}
+	name, _ := windows.UTF16PtrFromString(filename)
 	syskind := uintptr(3)
 	if unsafe.Sizeof(uintptr(0)) == 4 {
 		syskind = 0
@@ -165,6 +170,11 @@ func buildTypeInfos() (map[string]uintptr, error) {
 			if e := comCall(creator, 25); e != nil {
 				return nil, fmt.Errorf("layout %s: %w", n, e)
 			}
+		}
+	}
+	if destination != "" {
+		if e := comCall(library, 12); e != nil {
+			return nil, e
 		}
 	}
 	success = true

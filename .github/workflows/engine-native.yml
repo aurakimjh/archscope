@@ -87,6 +87,13 @@ jobs:
       - name: go test
         run: go test ./... -race -count=1
 
+      - name: Windows x86 COM ABI and remoting
+        if: runner.os == 'Windows'
+        env:
+          GOARCH: "386"
+          CGO_ENABLED: "0"
+        run: go test -count=1 ./internal/capture/comautomation
+
       - name: Windows live-capture E2E
         if: runner.os == 'Windows'
         run: go test -count=1 ./cmd/archscope-app -run '^TestWindowsLiveCaptureE2E$'

@@ -1683,3 +1683,20 @@ performed. Building this adapter on Mac does not complete that requirement.
 The Windows COM smoke uses NativeLog enum 6 and a .halog destination, matching
 the now-described typed SaveLog signature. Original raw IDispatch named export
 formats remain available to callers that bypass type-based argument conversion.
+
+### Native verification handoff
+
+The adapter materializes its generated type library in an owned temporary
+directory for the server lifetime, so external ITypeInfo clients can resolve
+metadata; it cleans up after releasing its type descriptions. It does not
+install a vendor typelib or overwrite registrations. A new isolated Windows
+test uses a random test CLSID, a separate fixture process and authenticated
+IDispatch/ITypeInfo calls; it never starts capture or modifies browser caches.
+The Engine Native workflow also executes the COM suite as a real x86 process.
+These tests are compiled locally and await hosted Windows execution after push.
+
+[Mac verification](../review/evidence/2026-11-11-mac-automation/validation.json)
+records full Go race/vet, frontend state/build, macOS package/signature, desktop-
+only checks and both Windows GUI cross-builds. T-611 remains REVIEW for the
+explicit remaining contracts above. macOS CI and Release now use macos-15;
+GitHub retired macos-14 on 2026-11-02.

@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-11",
+  "host": "macOS arm64",
+  "scope": "Mac implementation and local verification; new Windows runtime tests prepared for CI",
+  "ci_runner": {
+    "old": "macos-14",
+    "new": "macos-15",
+    "retirement_date": "2026-11-02",
+    "source": "https://github.blog/changelog/2026-10-01-github-actions-macos-14-runner-image-retirement/",
+    "workflow_yaml": "pass",
+    "hosted_run": "pending final push"
+  },
+  "local_checks": {
+    "full_go_race": "pass",
+    "full_go_vet": "pass",
+    "frontend_state": "pass",
+    "frontend_build": "pass",
+    "macos_package": "pass",
+    "macos_strict_codesign": "pass",
+    "desktop_only_and_server_build_refusal": "pass",
+    "windows_amd64_test_compilation_and_vet": "pass",
+    "windows_386_test_compilation_and_vet": "pass",
+    "windows_amd64_production_GUI_cross_build": "pass",
+    "windows_386_production_GUI_cross_build": "pass"
+  },
+  "native_Windows_tests": "compiled, not executed on Mac; dual flags, HRESULT signatures, connection lifetime, reversed VARIANT/by-ref callback, real separate-process IDispatch/ITypeInfo and 386 execution added to CI",
+  "filter_presets": {
+    "read_only_original_count": 17,
+    "supported": 16,
+    "explicitly_refused": "cache-origin preset requires absent source metadata",
+    "malformed_and_unknown_input_regressions": "pass"
+  },
+  "uncompleted_contracts": [
+    "clean-host custom-IID marshal and current-reference early-bound interoperability",
+    "original pre-persistence cancellation and physical rolling-journal retention",
+    "cache-origin filter evidence and unobserved filter encodings",
+    "target-process in-memory WinINet session-cookie integration"
+  ],
+  "task_status": "T-611 REVIEW; no promotion of cross-builds into Windows runtime evidence",
+  "artifacts": [
+    {
+      "file": "archscope-t611-amd64.exe",
+      "bytes": 28199424,
+      "sha256": "0799dda3bb264399dc3467f676b7bbc77824c326f3072b1f0c313ad9e1281e54"
+    },
+    {
+      "file": "archscope-t611-386.exe",
+      "bytes": 27156992,
+      "sha256": "2cfc1d428259030913aa23765549cd656509cac2e746c893c01ffac4fb2f9585"
+    },
+    {
+      "file": "archscope-com-remoting-amd64.test.exe",
+      "bytes": 8262144,
+      "sha256": "27f5b8eec9e88d0bae997666509dbdcc822a76eb7849dfe6e39a75d46f262c7b"
+    },
+    {
+      "file": "archscope-com-remoting-386.test.exe",
+      "bytes": 8135680,
+      "sha256": "3a9446bf9e78b8ca80d88414493631030ddb57e3a3b2a4f3ca7acbda0ab8ae75"
+    }
+  ]
+}

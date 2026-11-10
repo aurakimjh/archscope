@@ -1954,3 +1954,17 @@ existing rechecked plans. Foreign-process session-cookie reset returns an
 explicit unavailable error, without pretending persistent cleanup is equivalent.
 Common/race and Windows x86/x64 compile/vet pass; native callback/metadata tests
 and the updated typed SaveLog smoke await Windows execution. T-611 stays REVIEW.
+
+### Mac T-611 implementation verification and native-test handoff (2026-11-11)
+
+Full Go race/vet, frontend state/build, macOS packaging/strict signature, desktop-
+only/server refusal, Windows amd64/386 test compilation/vet and both guarded
+production GUI cross-builds pass. The server's own generated typelib now has a
+temporary backing file for remote metadata lookup. Added a separate-process,
+random-test-CLSID IDispatch/ITypeInfo test and native x86 COM CI execution. These
+Windows-only tests are prepared, not executed on Mac. Hosted results follow the
+final push. Evidence: docs/review/evidence/2026-11-11-mac-automation/validation.json.
+T-611 stays REVIEW for actual new Windows execution and the explicitly remaining
+custom marshal/reference, pre-storage cancel/physical retention, cache-origin
+filter and target-process session-cookie contracts. Counts remain 210 DONE,
+3 REVIEW and 1 PENDING out of 214.

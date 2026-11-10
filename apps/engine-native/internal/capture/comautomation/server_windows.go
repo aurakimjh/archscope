@@ -103,18 +103,19 @@ type nativeObject struct {
 var _ [0 - unsafe.Offsetof(nativeObject{}.Table)]byte
 
 type Server struct {
-	typeInfos map[string]uintptr
-	integrity uint32
-	elevated  bool
-	mu        sync.Mutex
-	objects   map[uintptr]*nativeObject
-	execute   automation.Executor
-	thread    uint32
-	cookie    uint32
-	owner     string
-	done      chan struct{}
-	closing   atomic.Bool
-	closeOnce sync.Once
+	typeInfos         map[string]uintptr
+	metadataDirectory string
+	integrity         uint32
+	elevated          bool
+	mu                sync.Mutex
+	objects           map[uintptr]*nativeObject
+	execute           automation.Executor
+	thread            uint32
+	cookie            uint32
+	owner             string
+	done              chan struct{}
+	closing           atomic.Bool
+	closeOnce         sync.Once
 }
 
 var dispatchTable, factoryTable, enumTable [7]uintptr
@@ -484,8 +485,9 @@ func createInstance(factory *nativeObject, outer unsafe.Pointer, iid *windows.GU
 	release(object)
 	return status
 }
-func lockServer(this *nativeObject, lock int32) uintptr { return ok }
-func Start(execute automation.Executor) (*Server, error) {
+func lockServer(this *nativeObject, lock int32) uintptr  { return ok }
+func Start(execute automation.Executor) (*Server, error) { return startWithClass(execute, ClassID) }
+func startWithClass(execute automation.Executor, classID string) (*Server, error) {
 	user, err := windows.GetCurrentProcessToken().GetTokenUser()
 	if err != nil {
 		return nil, err
@@ -522,8 +524,16 @@ func Start(execute automation.Executor) (*Server, error) {
 				releaseCOM(info)
 			}
 			server.typeInfos = nil
+			if server.metadataDirectory != "" {
+				_ = os.RemoveAll(server.metadataDirectory)
+			}
 		}()
-		server.typeInfos, err = buildTypeInfos()
+		server.metadataDirectory, err = os.MkdirTemp("", "archscope-com-types-")
+		if err != nil {
+			ready <- err
+			return
+		}
+		server.typeInfos, err = buildTypeInfosAt(filepath.Join(server.metadataDirectory, "ArchScope.Automation.tlb"))
 		if err != nil {
 			ready <- err
 			return
@@ -532,7 +542,7 @@ func Start(execute automation.Executor) (*Server, error) {
 		var msg message
 		peekMessage.Call(uintptr(unsafe.Pointer(&msg)), 0, 0, 0, 0)
 		factory := server.wrap(nil, nil, true)
-		class := mustGUID(ClassID)
+		class := mustGUID(classID)
 		result, _, _ := coRegister.Call(uintptr(unsafe.Pointer(&class)), uintptr(unsafe.Pointer(factory)), 4, 1, uintptr(unsafe.Pointer(&server.cookie)))
 		if int32(uint32(result)) < 0 {
 			release(factory)
