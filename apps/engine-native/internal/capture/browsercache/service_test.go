@@ -65,7 +65,7 @@ func TestPreviewExpiresAndChangedEntriesAreSkipped(t *testing.T) {
 }
 func TestCookiePathBoundaryAndUnknownTypes(t *testing.T) {
 	e := Entry{Key: "Cookie:user@example.test/app", Kind: "cookies"}
-	for _, raw := range []string{"https://example.test/apple", "https://notexample.test/app", "file:///app", "https://example.test/"} {
+	for _, raw := range []string{"https://example.test/apple", "https://example.test/app%2Fhidden", "https://notexample.test/app", "file:///app", "https://example.test/"} {
 		if matches(e, []string{raw}) {
 			t.Fatal(raw)
 		}

@@ -152,6 +152,7 @@ export function LiveHttpCapturePanel({
   useEffect(() => {
     if (!state.session) return;
     const keys = state.session.allowedProcesses ?? [];
+    setBackend(state.session.backend ?? "explicit_proxy");
     setProcessScope(state.session.processScope ?? (keys.length ? "selected" : "all_sessions"));
     setSelectedProcesses(keys.map((key) => ({key, name:`PID ${key.pid}`, attribution:"confirmed"})));
   }, [state.session?.sessionId]);
@@ -497,7 +498,7 @@ export function LiveHttpCapturePanel({
           <summary className="cursor-pointer text-xs">{t("httpCaptureSectionSource")}</summary>
           <div className="flex flex-col gap-2 pt-2">
           <label className="text-xs">{t("httpBackendTitle")} <select aria-label={t("httpBackendTitle")} value={backend} disabled={active} onChange={event=>setBackend(event.target.value)}>{backends.map(item=><option key={item.name} value={item.name} disabled={!item.available}>{t(item.transparent?"httpBackendTransparent":"httpBackendExplicit")}{item.available?"":` · ${t("httpBackendUnavailable")}`}</option>)}</select></label>
-          <p className="text-xs text-muted-foreground">{t("httpBackendCoverage")}</p>
+          <p className="text-xs text-muted-foreground">{t(backend === "windows_transparent" ? "httpBackendTransparentCoverage" : "httpBackendCoverage")}</p>
         <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3">
           <div className="flex items-start gap-2">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
@@ -643,7 +644,7 @@ export function LiveHttpCapturePanel({
             <option value="selected">{t("httpCaptureSelectedProcesses")}</option>
             <option value="launch">{t("httpCaptureLaunch")}</option>
           </select>
-          <p className="mt-1 text-muted-foreground">{t("httpCaptureScopeCoverage")}</p>
+          <p className="mt-1 text-muted-foreground">{t(backend === "windows_transparent" ? "httpBackendTransparentCoverage" : "httpCaptureScopeCoverage")}</p>
           {processScope==="launch" && <div className="mt-2 flex flex-col gap-2">
             <Button type="button" size="sm" variant="outline" onClick={() => void chooseExecutable()}>{t("browseFile")}</Button>
             <p className="break-all font-mono">{launchPath}</p>
@@ -702,7 +703,7 @@ export function LiveHttpCapturePanel({
               state.busy ||
               active ||
               !firstUseAccepted ||
-              (!mode?.available) || (processScope === "selected" && selectedProcesses.length === 0) || (processScope === "launch" && !launchPath)
+              (!mode?.available) || !backends.some(item=>item.name===backend&&item.available) || (processScope === "selected" && selectedProcesses.length === 0) || (processScope === "launch" && !launchPath)
             }
             onClick={() => void start()}
           >

@@ -1,5 +1,6 @@
 // Package backend separates capture transport selection from session lifecycle.
-// Production registration is static: no unverified driver/DLL is loaded.
+// Built-in transports include the explicit proxy and an opt-in exact-hash
+// Windows driver adapter; unsupported configurations fail before allocation.
 package backend
 
 import (

@@ -227,7 +227,7 @@ func matches(entry Entry, urls []string) bool {
 			continue
 		}
 		actual := strings.ToLower(u.Hostname())
-		requestPath := u.Path
+		requestPath := u.EscapedPath()
 		if requestPath == "" {
 			requestPath = "/"
 		}
