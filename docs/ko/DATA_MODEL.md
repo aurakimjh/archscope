@@ -1613,3 +1613,5 @@ Trace 경로 시간(T-615): `observed_path_elapsed_ms`는 관측된 부모·자�
 `duration_unavailable_reason`으로 반환한다. 화면·SLO·장애 타임라인은 새 의미가
 명시된 값만 사용하며 이전의 미검증 누적값은 사용하지 않는다. 전체 계산
 가능/불가 Trace 수는 top-N 경로 표와 별도로 유지한다.
+
+Trace 의존 호출(T-616)은 명시적인 CLIENT/SERVER 직접 부모 관계를 Trace/span ID로 연결한다. 일대일 쌍은 CLIENT 경과시간과 양쪽 중 하나라도 실패한 오류 상태를 한 번 집계한다. 한쪽만 있는 export도 유지한다. 집계 CLIENT 하나에 여러 SERVER 시도가 있으면 각 서버 시간·오류로 별도 집계하고 CLIENT를 다시 더하지 않는다. SERVER의 remote peer는 수신 관점으로 처리한다. kind가 불명확하면 서비스 이름만으로 중복을 제거하지 않는다. 정책은 `metadata.dependency_call_policy`에 버전으로 기록한다.

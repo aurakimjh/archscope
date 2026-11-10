@@ -1470,3 +1470,5 @@ span IDs or cycles yield null with `duration_unavailable_reason`. UI, SLO and
 incident projections consume only the qualified new semantics, never an
 unverified legacy inclusive sum. Overall available/unavailable trace counts
 remain separate from the top-N path table.
+
+Trace dependency calls (T-616) pair explicit direct CLIENT/SERVER spans by trace and span identity. A one-to-one pair uses CLIENT elapsed time and either-side error status once. Single-sided exports remain usable. Several SERVER children of one aggregate CLIENT remain separate attempts using their own server timings/errors; the aggregate client is not added again. A SERVER remote peer is incoming, not an outgoing dependency. Unspecified kinds are not deduplicated by service names alone. `metadata.dependency_call_policy` versions this policy.

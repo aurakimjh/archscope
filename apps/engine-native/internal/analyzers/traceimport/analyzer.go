@@ -137,6 +137,7 @@ func Build(spans []traceparser.Span, sourceFile, sourceFormat string, opts Optio
 		"critical_paths":       criticalPathRows(criticalPaths, topN),
 	}
 	result.Metadata.SchemaVersion = SchemaVersion
+	result.Metadata.Extra["dependency_call_policy"] = map[string]any{"version": "1.0.0", "identity": "trace_id_and_direct_client_server_parent", "paired_timing": "client", "paired_error": "either_side", "multiple_server_attempts": "individual_server_timing_and_error"}
 	result.Metadata.Extra["path_latency"] = map[string]any{"version": "1.0.0", "semantics": "observed_span_chain_elapsed_estimate_v1", "causal_critical_path_proven": false, "available_traces": len(criticalPaths) - unavailablePaths, "unavailable_traces": unavailablePaths}
 	if unavailablePaths > 0 {
 		result.AddFinding("warning", "TRACE_PATH_LATENCY_UNAVAILABLE", "Some trace path elapsed estimates are unavailable because timestamps or graph structure could not be validated.", map[string]any{"trace_count": unavailablePaths})
@@ -227,32 +228,67 @@ type dependencyStat struct {
 }
 
 func buildDependencies(spans []traceparser.Span, spanByID map[string]traceparser.Span) map[string]*dependencyStat {
+	// Pair only explicit direct CLIENT -> SERVER representations in one trace.
+	// Service-name equality alone would collapse distinct requests or retries.
+	servers := map[string][]traceparser.Span{}
+	for _, span := range spans {
+		if strings.ToUpper(span.Kind) != "SERVER" || span.ParentSpanID == "" {
+			continue
+		}
+		parent, ok := spanByID[spanKey(span.TraceID, span.ParentSpanID)]
+		if ok && strings.ToUpper(parent.Kind) == "CLIENT" && parent.ServiceName != "" && span.ServiceName != "" && parent.ServiceName != span.ServiceName && (parent.RemoteService == "" || parent.RemoteService == span.ServiceName) {
+			key := spanKey(parent.TraceID, parent.SpanID)
+			servers[key] = append(servers[key], span)
+		}
+	}
+	pairedServers := map[string]bool{}
+	for _, children := range servers {
+		if len(children) == 1 {
+			pairedServers[spanKey(children[0].TraceID, children[0].SpanID)] = true
+		}
+	}
 	out := map[string]*dependencyStat{}
 	for _, span := range spans {
-		caller := ""
-		callee := ""
-		if span.RemoteService != "" {
-			caller = labelOr(span.ServiceName, "(unknown)")
-			callee = span.RemoteService
-		} else if span.ParentSpanID != "" {
+		key := spanKey(span.TraceID, span.SpanID)
+		caller, callee := "", ""
+		duration, isError := span.DurationNanos, span.Error
+		kind := strings.ToUpper(span.Kind)
+		children := servers[key]
+		if kind == "CLIENT" && len(children) > 1 {
+			// Several distinct SERVER children are separately observed attempts. The
+			// aggregate CLIENT interval cannot be assigned once to every retry.
+			continue
+		}
+		if kind == "SERVER" {
 			parent, ok := spanByID[spanKey(span.TraceID, span.ParentSpanID)]
-			if ok && parent.ServiceName != "" && parent.ServiceName != span.ServiceName {
-				caller = parent.ServiceName
-				callee = labelOr(span.ServiceName, "(unknown)")
+			if pairedServers[key] {
+				continue
 			}
+			if ok && parent.ServiceName != "" && parent.ServiceName != span.ServiceName {
+				caller, callee = parent.ServiceName, span.ServiceName
+			} else if span.RemoteService != "" {
+				caller, callee = span.RemoteService, span.ServiceName
+			}
+		} else if len(children) == 1 {
+			caller, callee = span.ServiceName, children[0].ServiceName
+			isError = isError || children[0].Error
+		} else if span.RemoteService != "" {
+			caller, callee = labelOr(span.ServiceName, "(unknown)"), span.RemoteService
+		} else if parent, ok := spanByID[spanKey(span.TraceID, span.ParentSpanID)]; ok && parent.ServiceName != "" && parent.ServiceName != span.ServiceName {
+			caller, callee = parent.ServiceName, labelOr(span.ServiceName, "(unknown)")
 		}
 		if caller == "" || callee == "" || caller == callee {
 			continue
 		}
-		key := caller + "\x00" + callee
-		stat := out[key]
+		edgeKey := caller + "\x00" + callee
+		stat := out[edgeKey]
 		if stat == nil {
 			stat = &dependencyStat{Caller: caller, Callee: callee}
-			out[key] = stat
+			out[edgeKey] = stat
 		}
 		stat.Count++
-		stat.TotalDurationNanos += span.DurationNanos
-		if span.Error {
+		stat.TotalDurationNanos += duration
+		if isError {
 			stat.ErrorCount++
 		}
 	}

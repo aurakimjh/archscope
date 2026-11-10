@@ -8,7 +8,7 @@ The previous long-form history was archived to
 
 ## Status Overview
 
-**Overall: 198 of 205 tracked tasks are `DONE` (96.6%).** The Windows Wails v3 replacement for IEInspector HTTP Analyzer V7.6.4 Stand-alone has 4 open work items (T-594 through T-613), including the remaining audit findings. T-603 native Windows acceptance completed on 2026-11-09 with actual request/response bodies and verified policy restoration. The 2026-11-09
+**Overall: 199 of 205 tracked tasks are `DONE` (97.1%).** The Windows Wails v3 replacement for IEInspector HTTP Analyzer V7.6.4 Stand-alone has 4 open work items (T-594 through T-613), including the remaining audit findings. T-603 native Windows acceptance completed on 2026-11-09 with actual request/response bodies and verified policy restoration. The 2026-11-09
 GC/profiler revalidation confirmed five bugs (T-589 through T-593). Their
 current implementation status is recorded in the registry and snapshot below;
 T-557 is now DONE after the user requested its Go/CLI/report projection on 2026-11-10.
@@ -300,6 +300,7 @@ deployment-target warnings remain. Evidence:
 
 ### Other-feature fix completion (2026-11-10)
 
+- T-616 DONE: identity-based logical RPC pairing, defined perspective/error policy, incoming server-peer direction and preserved retry attempts; Go/CLI and Flow/SLI regressions pass.
 - T-615 DONE: validated observed-chain elapsed estimate, nullable unavailable paths and separately labeled cumulative work; Go/CLI, deep/malformed graph and frontend/SLO/timeline regressions pass.
 - T-614 DONE: rebuild current-source derived measurements and preserve validated saved SLO policies; frontend state regressions and production build pass.
 
@@ -334,7 +335,6 @@ and `docs/review/done/2026-11-10_other-features-audit.ko.md`.
 
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
-| 3 | T-616 | P1 | `PENDING` | Count paired CLIENT/SERVER spans once per logical dependency call |
 | 4 | T-617 | P1 | `PENDING` | Preserve measured versus unknown access-log latency through statistics and SLI/SLO |
 | 5 | T-601 | P1 | `REVIEW` | Deliver the four Windows capture entry points and measure their reach |
 | 6 | T-618 | P2 | `PENDING` | Disclose bounded Incident Timeline omissions and retain/qualify full-input summaries |
@@ -1289,7 +1289,7 @@ deferred until explicitly promoted.
 |---|---|---|---|---|---|
 | T-614 | P1 | DONE | Prevent stale derived artifacts from silently entering a current Report Pack | Existing Report Pack/timeline/SLO/service-flow contracts | Completed 2026-11-10: Report Pack rebuilds timeline, SLO metrics and service flow from current source results on every generation. Only validated saved SLO target settings are retained, including an intentional empty policy. Source replacement/removal/addition, same-ID content changes and customized threshold regressions plus frontend state/build pass. |
 | T-615 | P1 | DONE | Correct Trace Import elapsed critical-path calculation | Existing Trace Import and downstream latency contracts | Completed 2026-11-10: observed ancestry-chain elapsed estimate uses validated contained intervals, with inclusive work separate. New semantics explicitly do not prove a causal critical path. Missing/skewed/duplicate/cyclic input emits null/reason and availability counts; 20k-depth iterative graph, nested/sequential/parallel/zero and downstream SLO/timeline regressions pass with Go/CLI tests and frontend state/build. |
-| T-616 | P1 | PENDING | Avoid double-counting one RPC's CLIENT and SERVER spans | Existing Trace Import dependency and Service Flow/SLI contracts | Reproduced 2026-11-10: one paired frontend-to-backend RPC yields call_count=2 and total_duration_ms=150 (80+70), with mixed-perspective average 75 ms. Deduplicate by span relationships with explicit timing/error authority; preserve single-sided exports and distinct retries and verify downstream rates. |
+| T-616 | P1 | DONE | Avoid double-counting one RPC's CLIENT and SERVER spans | Existing Trace Import dependency and Service Flow/SLI contracts | Completed 2026-11-10: one-to-one explicit CLIENT/SERVER pairs use one logical call, client elapsed time and either-side error; single-sided exports, cross-trace identities, separate retry pairs and multiple server attempts remain distinct. SERVER remote peers use incoming direction. Go/CLI tests and frontend Flow/SLI counter regressions pass. |
 | T-617 | P1 | PENDING | Preserve missing access-log response time as unavailable rather than zero | Access-log parser/analyzer and SLI/SLO contracts | Reproduced 2026-11-10: one missing duration plus one 1000 ms sample yields average 500 and p95 950 ms, no warning. Carry availability/measured/unknown counts; exclude missing values from all latency reservoirs but preserve request/error/byte counts. Test true zero, all missing, mixed formats and SLI/SLO unavailable handling. |
 | T-618 | P2 | PENDING | Disclose Incident Timeline truncation and qualify severity/time summaries | Existing Incident Timeline/Report Pack contracts | Reproduced 2026-11-10: 130 ordered warning/critical events emit only the first 120, lose the last critical and report critical=0 without omission metadata. Maintain bounds with total/emitted/omitted counts and deterministic selection; preserve overall summaries or label retained-only scope. Test both 120/source and 1000/session caps through UI and exports. |
 | T-599 | P1 | DONE | Establish the V7.6.4 Stand-alone visual and command reference | Existing baseline | Completed 2026-11-09. Official screen, V7 additions, complete manual field inventory, state behavior, shortcuts and edition exceptions recorded in paired SYSTEM_HTTP_CAPTURE references. The tour image is explicitly V4; native Windows acceptance remains T-603. |

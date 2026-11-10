@@ -3204,3 +3204,9 @@ const elapsedTrace = entry("elapsed-trace","trace_import",{tables:{critical_path
 const elapsedSignals = buildGoldenSignalInventory([elapsedTrace]).signals.filter(s=>s.evidence_ref==="tables.critical_paths");
 assert(elapsedSignals.length===1 && elapsedSignals[0].value===100,"SLO consumes qualified elapsed estimate, not old inclusive sums");
 assert(!buildIncidentTimelineEvents([elapsedTrace]).some(e=>e.label==="TRACE_OBSERVED_PATH_ELAPSED"),"Unknown/legacy path time cannot trigger a false incident");
+
+// T-616: logical-call counters and the selected timing reach Flow/SLI unchanged.
+const logicalTrace = entry("logical-trace","trace_import",{tables:{service_dependencies:[{caller:"frontend",callee:"backend",call_count:1,total_duration_ms:80,avg_duration_ms:80,error_count:1,error_rate:1}]}});
+const logicalFlow = buildServiceFlowAnalysis([logicalTrace]);
+assert(logicalFlow.edge_model.total_call_count===1 && logicalFlow.edge_model.total_error_count===1,"Service Flow preserves one logical RPC");
+assert(buildGoldenSignalInventory([logicalTrace]).signals.some(s=>s.name==="Dependency call volume" && s.value===1),"SLI preserves one logical RPC");
