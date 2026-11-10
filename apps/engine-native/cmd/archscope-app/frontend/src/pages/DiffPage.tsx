@@ -119,8 +119,8 @@ export function DiffPage() {
   const decreases = (tables?.biggest_decreases ?? []) as Array<Record<string, any>>;
 
   return (
-    <main className="content">
-      <section className="card">
+    <main className="content analysis-tool">
+      <section className="card compact-input-form">
         <h2>
           <HelpedTitle help={getHelpText(locale, "pageDiff")}>
             {t("diffTitle")}

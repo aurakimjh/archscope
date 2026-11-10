@@ -171,7 +171,7 @@ export function LighthouseAuditPage(): React.JSX.Element {
       : null;
 
   return (
-    <main className="flex flex-col gap-5 p-5">
+    <main className="analysis-tool flex min-w-0 flex-col gap-2 p-2">
       <WailsFileDock
         label={t("lighthouseLabel")}
         description={t("lighthouseDescription")}
@@ -211,10 +211,8 @@ export function LighthouseAuditPage(): React.JSX.Element {
       )}
 
       {!result && !error && (
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("lighthouseGuidanceTitle")}</CardTitle>
-          </CardHeader>
+        <details className="rounded border p-2">
+          <summary className="cursor-pointer text-xs">{t("lighthouseGuidanceTitle")}</summary>
           <CardContent className="space-y-2 text-sm text-muted-foreground">
             <p>{t("lighthouseEmpty")}</p>
             <ul className="list-disc space-y-1 pl-5">
@@ -223,17 +221,15 @@ export function LighthouseAuditPage(): React.JSX.Element {
               <li>{t("lighthouseGuidanceStep3")}</li>
             </ul>
           </CardContent>
-        </Card>
+        </details>
       )}
 
       {result && (
         <>
           {/* Imported-score provenance — the page must be honest that these
               numbers come from the report, not from ArchScope. */}
-          <Card className="border-sky-500/50">
-            <CardHeader>
-              <CardTitle>{t("lighthouseProvenanceTitle")}</CardTitle>
-            </CardHeader>
+          <details className="rounded border border-sky-500/50 px-2 py-1 text-xs">
+            <summary className="cursor-pointer">{t("lighthouseProvenanceTitle")} · {provenance.scoreSource || "—"} · {t("lighthouseProvenanceRecomputed")}: {provenance.scoresRecomputed ? t("lighthouseRecomputedYes") : t("lighthouseRecomputedNo")}</summary>
             <CardContent className="space-y-1 text-sm text-muted-foreground">
               <p>{provenance.scoreDisclosure || t("lighthouseProvenanceFallback")}</p>
               <p className="font-mono text-xs">
@@ -243,7 +239,7 @@ export function LighthouseAuditPage(): React.JSX.Element {
                 {contract?.version ? ` · v${contract.version}` : ""}
               </p>
             </CardContent>
-          </Card>
+          </details>
 
           <section className="grid gap-3 sm:grid-cols-4">
             <MetricCard

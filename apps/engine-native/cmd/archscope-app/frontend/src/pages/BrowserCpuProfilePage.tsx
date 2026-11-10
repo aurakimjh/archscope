@@ -81,7 +81,7 @@ export function BrowserCpuProfilePage(): React.JSX.Element {
   }, [file]);
 
   return (
-    <main className="flex flex-col gap-5 p-5">
+    <main className="analysis-tool flex min-w-0 flex-col gap-2 p-2">
       <WailsFileDock
         label={t("browserCpuLabel")}
         description={t("browserCpuDescription")}

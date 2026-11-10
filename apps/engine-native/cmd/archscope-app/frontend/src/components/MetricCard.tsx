@@ -39,7 +39,7 @@ export function MetricCard({
   return (
     <div
       className={cn(
-        "flex flex-col gap-1 rounded-lg border border-border bg-card p-3 text-card-foreground shadow-sm",
+        "metric-card inline-flex items-center gap-2 rounded border border-border bg-card px-2 py-1 text-card-foreground",
         className,
       )}
     >
@@ -49,7 +49,7 @@ export function MetricCard({
         </span>
         {resolvedHelp && <HelpTip text={resolvedHelp} align="end" />}
       </div>
-      <strong className="text-base font-semibold tabular-nums">
+      <strong className="text-sm font-semibold tabular-nums">
         {value}
       </strong>
     </div>

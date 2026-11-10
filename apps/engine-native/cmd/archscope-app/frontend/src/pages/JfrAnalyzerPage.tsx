@@ -313,8 +313,8 @@ export function JfrAnalyzerPage(): React.JSX.Element {
   }, []);
 
   return (
-    <main className="flex flex-col gap-5 p-5">
-      <div className="flex items-stretch gap-3">
+    <main className="analysis-tool flex min-w-0 flex-col gap-2 p-2">
+      <div className="flex min-w-0 items-center gap-2">
         <WailsFileDock
           className="min-w-0 flex-1"
           label={t("selectJfrFile")}

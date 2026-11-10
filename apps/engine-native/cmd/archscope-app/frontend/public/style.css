@@ -2140,3 +2140,12 @@ table th.sortable-header.sort-desc::after {
 .gc-workspace .gc-result-overview td { white-space:nowrap; }
 .profiler-workspace [role="tabpanel"] { margin-top:8px; }
 @media (max-width:1050px) { .gc-result-overview { grid-template-columns:minmax(0,1fr); } }
+
+.tool-pane .result-card-header { padding:8px 12px; gap:4px; }
+.tool-pane .result-card-content:not(.p-0) { padding:8px 12px; }
+.tool-pane section:has(> .metric-card) { display:flex; flex-wrap:wrap; gap:4px; }
+.tool-pane .metric-card { flex:0 1 auto; min-width:0; }
+.tool-pane .metric-card > div { align-items:center; }
+.tool-pane .metric-card > strong { white-space:nowrap; }
+.analysis-tool [role="tablist"] { width:100%; }
+.compact-input-form { padding:8px 12px; }

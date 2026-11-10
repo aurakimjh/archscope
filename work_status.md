@@ -216,8 +216,8 @@ completed the independent Lighthouse file-first engine slice.
 |---|---:|---|
 | `TODO` | 0 | Ready to start; prerequisites are satisfied |
 | `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
-| `REVIEW` | 6 | Review or required remediation is underway; the gate has not passed |
-| `PENDING` | 6 | Waiting for a prerequisite, external condition, or activation trigger |
+| `REVIEW` | 7 | Review or required remediation is underway; the gate has not passed |
+| `PENDING` | 5 | Waiting for a prerequisite, external condition, or activation trigger |
 | `DONE` | 202 | Completion criteria and required review gates have passed |
 
 The normal transition is `TODO → IN_PROGRESS → REVIEW → DONE`. A `PENDING`
@@ -380,7 +380,7 @@ Desktop layout across all 21 routes: [Korean design](docs/ko/DESKTOP_CONTENT_LAY
 | 3 | T-622 | P1 | `REVIEW` | Compact shared input controls and help. After T-620. |
 | 4 | T-623 | P1 | `REVIEW` | Prioritize the HTTP grid and inspector. After T-621, T-622. |
 | 5 | T-624 | P1 | `REVIEW` | Prioritize profiler and GC results. After T-621, T-622. |
-| 6 | T-625 | P2 | `PENDING` | Convert nine remaining analysis views. After T-621, T-622. |
+| 6 | T-625 | P2 | `REVIEW` | Convert nine remaining analysis views. After T-621, T-622. |
 | 7 | T-626 | P2 | `PENDING` | Convert eight workspace views and Settings. After T-621, T-622. |
 | 8 | T-627 | P2 | `PENDING` | Verify all views in native desktop windows. After T-623–T-626. |
 | 9 | T-601 | P1 | `REVIEW` | Deliver the four Windows capture entry points and measure their reach |
@@ -1334,7 +1334,7 @@ deferred until explicitly promoted.
 | T-622 | P1 | REVIEW | Compact shared input controls and help | T-620 | Implemented compact source rows, inline options, collapsed recent files, viewport-positioned help with click pinning and delayed pointer transfer, and modal-aware Escape. Frontend production build and state regressions pass; hover/focus interaction and native clipping checks await evening unlock. |
 | T-623 | P1 | REVIEW | Prioritize the HTTP grid and inspector | T-621, T-622 | Implemented flexible imported/live HTTP grid height, 160px default inspector, grid row budget, collapsed file tools/advanced filters and bounded configuration drawers. Search opens filters and hidden-page shortcuts are scoped. Frontend state/build pass; ten-row/four-line and recording interaction acceptance awaits unlocked Mac/Windows. |
 | T-624 | P1 | REVIEW | Prioritize profiler and GC results | T-621, T-622 | Profiler now opens available flamegraph after analysis with summary fallback. GC Summary shows adaptive pause trend beside a shared ten-event table preview and collapses the long metric list. Input/options spacing reduced. Frontend build/state regressions pass. Real frame hit testing, narrow window geometry and no-clock fixtures await unlocked native verification. |
-| T-625 | P2 | PENDING | Convert nine remaining analysis views | T-621, T-622 | Check nine remaining analysis routes, including conditional tabs, multi-file inputs, overflow access, filter-no-match recovery and full long values in selected detail. |
+| T-625 | P2 | REVIEW | Convert nine remaining analysis views | T-621, T-622 | Applied dense result layouts to the nine remaining analyzers, compact shared metric/card rows and preserved conditional tabs, source labels and errors. Lighthouse guidance is on demand with imported-score origin/recomputed status visible. Frontend state/build pass; all-route/subview native row and clipping measurements await evening verification. |
 | T-626 | P2 | PENDING | Convert eight workspace views and Settings | T-621, T-622 | Check eight workspace views and Settings. Measure data-first layouts and test registration, evidence and export handoff. Verify chart template/renderer, output destination and Settings save at small sizes. |
 | T-627 | P2 | PENDING | Verify all views in native desktop windows | T-623–T-626 | Compare matching native before/after cases for all routes and inventoried subviews. Record ratio/row/plot or form verdict, keyboard/locale and resize checks. Validate OS menu navigation and actual Windows live re-entry separately. |
 | T-619 | P1 | DONE | Enforce the Wails 3.1.0 desktop-only product and remove unused launch templates | Existing native desktop packaging | Completed 2026-11-10: removed server hosting/mobile/preview paths, added compiler and frontend native-transport guards with CI enforcement, isolated opt-in external Electron HTTP probe without weakening full acceptance, and refreshed paired guides. Full Go/vet and frontend state/build, native macOS package/signature, Windows x86/x64 GUI builds and expected server build refusal pass; Windows runtime acceptance remains separate. |
