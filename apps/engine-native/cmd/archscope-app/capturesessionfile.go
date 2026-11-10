@@ -41,6 +41,9 @@ func (s *CaptureService) OpenCaptureFile(path string) (CaptureOpenResult, error)
 		return CaptureOpenResult{}, err
 	}
 	result := httpanalyzer.BuildLive(doc.Transactions, path, "portable-session-v1", summary, httpanalyzer.Options{TransactionRows: 100000})
+	if doc.Retention != nil {
+		result.Metadata.Extra["retention"] = doc.Retention
+	}
 	return CaptureOpenResult{Result: result, SelectedID: doc.SelectedID}, nil
 }
 func (s *CaptureService) ExportCaptureFile(request CaptureExportRequest) (int, error) {
@@ -75,6 +78,22 @@ func (s *CaptureService) ExportCaptureFile(request CaptureExportRequest) (int, e
 			}
 			cursor = page.NextCursor
 		}
+	}
+	if request.Source.SessionID != "" {
+		meta, err := s.manager.Manifest(capture.SessionID(request.Source.SessionID))
+		if err != nil {
+			return 0, err
+		}
+		if meta.RetentionRows > 0 {
+			doc.Retention = &sessionfile.Retention{LimitRows: meta.RetentionRows, Persisted: meta.Counters.Persisted, Retained: meta.RetainedRecords, Evicted: meta.Counters.Rotated}
+		}
+	}
+	if request.Source.Path != "" {
+		loaded, _, err := sessionfile.Read(request.Source.Path)
+		if err != nil {
+			return 0, err
+		}
+		doc.Retention = loaded.Retention
 	}
 	if request.Source.SessionID != "" {
 		values, err := s.GetCaptureAnnotations(request.Source.SessionID)

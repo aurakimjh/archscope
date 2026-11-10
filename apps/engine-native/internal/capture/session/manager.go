@@ -208,7 +208,7 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 		}
 	}
 	st, err := store.New(store.Config{
-		Root: root, SessionID: string(id), MaxBytes: cfg.MaxSessionBytes,
+		Root: root, SessionID: string(id), MaxBytes: cfg.MaxSessionBytes, MaxRecords: cfg.RetentionRows,
 		ReserveBytes: cfg.ReserveBytes, BodyFraction: cfg.BodyFraction,
 		OverflowPolicy: cfg.OverflowPolicy,
 	})
@@ -246,6 +246,9 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 	}); err != nil {
 		_ = st.Finalize(StateFailed)
 		return Session{}, err
+	}
+	if cfg.RetentionRows > 0 && (cfg.LiveWindow <= 0 || cfg.LiveWindow > cfg.RetentionRows) {
+		cfg.LiveWindow = cfg.RetentionRows
 	}
 	pipeline, err := stream.New(stream.Config{
 		RequireGeneration: true,
@@ -524,7 +527,7 @@ func (m *Manager) Stats(id SessionID) (Stats, error) {
 	}
 	defer st.Close()
 	meta := st.Meta()
-	return Stats{
+	return Stats{RetentionRows: meta.RetentionRows, Retained: meta.RetainedRecords, Evicted: meta.Counters.Rotated,
 		Generation: m.session.Generation, SessionID: id, State: meta.State, Persisted: meta.Counters.Persisted,
 		BodyOmitted: meta.Counters.BodyOmitted, SnapshotVersion: meta.SnapshotVersion,
 		StoreBytes: meta.StoreBytes,

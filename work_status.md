@@ -1998,3 +1998,19 @@ The final records are documentation-only after that product commit. T-611 remain
 REVIEW for the explicitly listed source-evidence/reference/target-process gaps.
 Full parity is not inferred from these fixture tests. Existing unrelated local
 changes are preserved separately. Counts remain 210 DONE / 3 REVIEW / 1 PENDING.
+
+### Five Mac follow-ups (2026-11-11)
+
+| Order | Scope | Status | Evidence / next action |
+|---:|---|---|---|
+| 1 | Physical row retention | DONE | Immutable row files plus atomic selection, bounded eviction/shared-blob reclamation, crash/reopen/Clear and stale-cursor tests; real local-proxy analysis/portable export pass. Cumulative and retained counters remain distinct. |
+| 2 | Pre-storage cancellation | TODO | Add bounded, cancelable admission dispatch without holding lifecycle locks during client callbacks. |
+| 3 | Clean-host custom-IID / early-bound COM | TODO | Owned proxy/type-library registration and native client coverage; preserve existing vendor registrations. |
+| 4 | Extended filter engine | TODO | Bounded normalized nested predicates and extra operators; keep unknown original encodings explicit. |
+| 5 | Long-run verification automation | TODO | Reproducible bounded soak and Windows/macOS execution tooling. |
+
+These are T-611/T-613 implementation follow-ups, not five new registry IDs.
+T-611 remains REVIEW until its remaining native/reference contracts pass.
+Task 1 also exposes retention in the existing compact status line and portable
+metadata. MaxLogSize changes require a stopped capture; Windows native acceptance
+and original format metadata limitations remain explicit.

@@ -5,8 +5,10 @@ package store
 
 import (
 	"bufio"
+	"crypto/rand"
 	"encoding/base64"
 	"encoding/binary"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -41,6 +43,7 @@ var (
 )
 
 type Config struct {
+	MaxRecords     int
 	Root           string
 	SessionID      string
 	MaxBytes       int64
@@ -65,6 +68,10 @@ type Finding struct {
 }
 
 type Manifest struct {
+	RetentionRows   int                    `json:"retentionRows,omitempty"`
+	RetainedRecords uint64                 `json:"retainedRecords,omitempty"`
+	RetentionFloor  uint64                 `json:"retentionFloor,omitempty"`
+	RetentionEpoch  uint64                 `json:"retentionEpoch,omitempty"`
 	CaptureBackend  string                 `json:"captureBackend,omitempty"`
 	ClearedVersion  uint64                 `json:"clearedVersion,omitempty"`
 	SchemaVersion   int                    `json:"schemaVersion"`
@@ -138,23 +145,30 @@ type cursor struct {
 }
 
 type Store struct {
-	mu               sync.RWMutex
-	cfg              Config
-	dir              string
-	file             *os.File
-	writer           *bufio.Writer
-	index            *os.File
-	indexWriter      *bufio.Writer
-	manifest         Manifest
-	lastFlush        time.Time
-	pending          int64
-	transactionBytes int64
-	bodyBytes        int64
-	closed           bool
+	rolling              []rollingRecord
+	rollingHead          int
+	rollingRefs          map[string]int
+	rollingCleanupNeeded bool
+	mu                   sync.RWMutex
+	cfg                  Config
+	dir                  string
+	file                 *os.File
+	writer               *bufio.Writer
+	index                *os.File
+	indexWriter          *bufio.Writer
+	manifest             Manifest
+	lastFlush            time.Time
+	pending              int64
+	transactionBytes     int64
+	bodyBytes            int64
+	closed               bool
 }
 
 func New(cfg Config) (*Store, error) {
 	normalizeConfig(&cfg)
+	if cfg.MaxRecords < 0 || cfg.MaxRecords > 100000 {
+		return nil, fmt.Errorf("retention requires 0..100000 rows")
+	}
 	if strings.TrimSpace(cfg.SessionID) == "" ||
 		filepath.Base(cfg.SessionID) != cfg.SessionID ||
 		strings.Contains(cfg.SessionID, "..") {
@@ -184,10 +198,19 @@ func New(cfg Config) (*Store, error) {
 		cfg: cfg, dir: dir, file: f, writer: bufio.NewWriterSize(f, 64<<10),
 		index: index, indexWriter: bufio.NewWriterSize(index, 64<<10), lastFlush: now,
 		manifest: Manifest{
+			RetentionRows: cfg.MaxRecords,
 			SchemaVersion: capture.LiveSchemaVersion, SessionID: cfg.SessionID,
 			State: capture.StateCreated, StartedAt: now, OverflowPolicy: cfg.OverflowPolicy,
 			Findings: []Finding{},
 		},
+	}
+	if cfg.MaxRecords > 0 {
+		if err := os.Mkdir(filepath.Join(dir, rollingDirectory), 0700); err != nil {
+			f.Close()
+			index.Close()
+			return nil, err
+		}
+		s.rollingRefs = map[string]int{}
 	}
 	if err := s.writeManifestLocked(); err != nil {
 		f.Close()
@@ -206,8 +229,11 @@ func Open(dir string) (*Store, error) {
 	if err := json.Unmarshal(data, &manifest); err != nil {
 		return nil, fmt.Errorf("decode capture manifest: %w", err)
 	}
-	cfg := Config{Root: filepath.Dir(dir), SessionID: manifest.SessionID, OverflowPolicy: manifest.OverflowPolicy}
+	cfg := Config{Root: filepath.Dir(dir), SessionID: manifest.SessionID, OverflowPolicy: manifest.OverflowPolicy, MaxRecords: manifest.RetentionRows}
 	normalizeConfig(&cfg)
+	if cfg.MaxRecords < 0 || cfg.MaxRecords > 100000 {
+		return nil, fmt.Errorf("invalid retained row count")
+	}
 	f, err := os.OpenFile(filepath.Join(dir, transactionsFile), os.O_RDWR, 0o600)
 	if err != nil {
 		return nil, err
@@ -252,8 +278,11 @@ func OpenReadOnly(dir string) (*Store, error) {
 	if err := json.Unmarshal(data, &manifest); err != nil {
 		return nil, fmt.Errorf("decode capture manifest: %w", err)
 	}
-	cfg := Config{Root: filepath.Dir(dir), SessionID: manifest.SessionID, OverflowPolicy: manifest.OverflowPolicy}
+	cfg := Config{Root: filepath.Dir(dir), SessionID: manifest.SessionID, OverflowPolicy: manifest.OverflowPolicy, MaxRecords: manifest.RetentionRows}
 	normalizeConfig(&cfg)
+	if cfg.MaxRecords < 0 || cfg.MaxRecords > 100000 {
+		return nil, fmt.Errorf("invalid retained row count")
+	}
 	f, err := os.Open(filepath.Join(dir, transactionsFile))
 	if err != nil {
 		return nil, err
@@ -361,6 +390,9 @@ func (s *Store) append(tx models.CaptureTransaction, checkpoint *CaptureCheckpoi
 	defer s.mu.Unlock()
 	if s.closed {
 		return StoredTransaction{}, errors.New("capture store is closed")
+	}
+	if s.cfg.MaxRecords > 0 {
+		return s.appendRollingLocked(tx, checkpoint)
 	}
 	next := StoredTransaction{Seq: s.manifest.SnapshotVersion + 1, Transaction: tx}
 	encoded, err := json.Marshal(next)
@@ -485,7 +517,11 @@ func (s *Store) PutBody(data []byte) (string, error) {
 		s.manifest.Counters.BodyOmitted++
 		return "", ErrSessionLimit
 	}
-	ref := fmt.Sprintf("%016x.blob", s.bodyBytes+1)
+	var random [16]byte
+	if _, err := rand.Read(random[:]); err != nil {
+		return "", err
+	}
+	ref := hex.EncodeToString(random[:]) + ".blob"
 	path := filepath.Join(s.dir, blobsDir, ref)
 	if err := os.WriteFile(path, data, 0o600); err != nil {
 		return "", err
@@ -511,6 +547,9 @@ func (s *Store) Fetch(filter Filter, opaque string, limit int) (Page, error) {
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	if s.cfg.MaxRecords > 0 {
+		return s.fetchRollingLocked(filter, opaque, limit)
+	}
 	if limit <= 0 {
 		limit = DefaultFetchLimit
 	}
@@ -696,6 +735,9 @@ func (s *Store) Finalize(state capture.SessionState) error {
 func (s *Store) Recover() (RecoveryReport, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	if s.cfg.MaxRecords > 0 {
+		return s.recoverRollingLocked()
+	}
 	checkpointSnapshot := s.manifest.SnapshotVersion
 	if err := s.writer.Flush(); err != nil {
 		return RecoveryReport{}, err
@@ -897,6 +939,9 @@ func (s *Store) Clear() error {
 	if s.closed {
 		return errors.New("capture store is closed")
 	}
+	if s.cfg.MaxRecords > 0 {
+		return s.clearRollingLocked()
+	}
 	if err := s.writer.Flush(); err != nil {
 		return err
 	}
@@ -926,6 +971,7 @@ func (s *Store) Clear() error {
 			return err
 		}
 	}
+
 	s.transactionBytes = 0
 	s.bodyBytes = 0
 	s.pending = 0

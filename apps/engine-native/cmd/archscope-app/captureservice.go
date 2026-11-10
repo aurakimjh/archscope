@@ -399,6 +399,9 @@ func (s *CaptureService) AnalyzeCaptureSession(request CaptureAnalyzeRequest) (e
 		redactionSummary = *manifest.Redaction
 	}
 	result := httpanalyzer.BuildLive(transactions, source, "canonical-v1", redactionSummary, httpanalyzer.Options{TopN: request.TopN, TransactionRows: request.TransactionRows})
+	if manifest.RetentionRows > 0 {
+		result.Metadata.Extra["retention"] = map[string]any{"limit_rows": manifest.RetentionRows, "retained_records": manifest.RetainedRecords, "persisted_records": manifest.Counters.Persisted, "evicted_records": manifest.Counters.Rotated, "partial": manifest.Counters.Rotated > 0}
+	}
 	httpanalyzer.SetDiffCaptureSessionRef(&result, request.SessionID, page.SnapshotVersion, len(transactions))
 	result.Metadata.Extra["capture_session_ref"] = map[string]any{
 		"session_id": request.SessionID, "snapshot_version": page.SnapshotVersion,

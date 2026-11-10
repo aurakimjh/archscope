@@ -396,7 +396,7 @@ func (p *Pipeline) RedactionSummary() redact.Summary { return p.cfg.Redaction.Su
 
 func (p *Pipeline) Stats(state capture.SessionState) capture.Stats {
 	meta := p.cfg.Store.Meta()
-	return capture.Stats{
+	return capture.Stats{RetentionRows: meta.RetentionRows, Retained: meta.RetainedRecords, Evicted: meta.Counters.Rotated,
 		SessionID: p.cfg.SessionID, State: state,
 		Generation: p.generation.Load(), Observed: p.observed.Load(), Captured: p.captured.Load(), Persisted: p.persisted.Load(),
 		BodyOmitted: meta.Counters.BodyOmitted, EventSkipped: p.eventSkipped.Load(),

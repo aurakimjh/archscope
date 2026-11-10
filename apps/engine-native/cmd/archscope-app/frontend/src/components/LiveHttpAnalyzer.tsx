@@ -11,12 +11,13 @@ import { liveAnalyzerRow, type LiveCaptureExchange } from "@/state/liveHttpCaptu
 import * as CaptureService from "../../bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/captureservice";
 
 export function LiveHttpAnalyzer({
-  sessionId, transactions, follow, persisted,
+  sessionId, transactions, follow, persisted, retentionRows=0,
 }: {
   sessionId: string;
   transactions: LiveCaptureExchange[];
   follow: boolean;
   persisted: number;
+  retentionRows?: number;
 }): React.JSX.Element {
   const { t } = useI18n();
   const [filter, setFilter] = useState<TransactionFilter>(emptyFilter);
@@ -66,11 +67,12 @@ export function LiveHttpAnalyzer({
     let disposed = false;
     void CaptureService.GetCaptureTransaction(sessionId, selectedId).then((exchange) => {
       if (!disposed && exchange) setDetail(liveAnalyzerRow(exchange as unknown as LiveCaptureExchange));
+      else if (!disposed && retentionRows) {setSelectedId(null);setDetail(null);}
     }).catch((caught: unknown) => {
-      if (!disposed) setError(String(caught));
+      if (!disposed) {setError(String(caught));if(retentionRows){setSelectedId(null);setDetail(null);}}
     });
     return () => { disposed = true; };
-  }, [sessionId, selectedId, selected?.state, persisted]);
+  }, [sessionId, selectedId, selected?.state, persisted, retentionRows]);
   return (
     <div className="http-live-analyzer">
       <div className="http-live-querybar">

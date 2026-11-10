@@ -244,6 +244,9 @@ export type LiveCaptureSession = {
 };
 
 export type LiveCaptureStats = {
+  retentionRows?: number;
+  retained?: number;
+  evicted?: number;
   generation?: number;
   sessionId: string;
   state: string;

@@ -750,11 +750,12 @@ export function LiveHttpCapturePanel({
         </div>
         {showAnalyzer && <LiveHttpAnalyzer key={`${state.session?.sessionId ?? "idle"}:${state.session?.generation ?? 0}`}
           sessionId={state.session?.sessionId ?? ""} transactions={state.transactions}
-          persisted={state.stats?.persisted ?? 0} follow={state.follow} />}
+          persisted={state.stats?.persisted ?? 0} retentionRows={state.stats?.retentionRows ?? 0} follow={state.follow} />}
         {(showAnalyzer || state.session || state.error) && <footer role="status" className="flex flex-wrap items-center gap-3 border-t pt-1 text-[11px]">
           <span>{state.session ? t(SESSION_STATE_LABEL_KEYS[resolveLiveSessionState(state.session.state)]) : t("liveCaptureIdle")}</span>
           <span>{t("liveCaptureCaptured")}: {state.stats?.captured ?? 0}</span>
           <span>{t("liveCapturePersisted")}: {state.stats?.persisted ?? 0}</span>
+          {!!state.stats?.retentionRows && <span>{t("liveCaptureRetained")}: {state.stats.retained ?? 0} · {t("liveCaptureEvicted")}: {state.stats.evicted ?? 0}</span>}
           {state.session?.allowedProcesses?.length ? <span>{t("httpCaptureSelectedProcesses")}: {state.session.allowedProcesses.length}</span> : null}
         {state.error && <p role="alert" className="shrink-0 text-xs text-red-600">{state.error}</p>}
         <details>

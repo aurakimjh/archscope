@@ -1723,3 +1723,24 @@ marshaling/current vendor early-bound clients, exact pre-storage cancel/physical
 retention, missing cache-origin filter evidence and target-process in-memory
 session-cookie integration. The new native tests neither capture real traffic
 nor delete browser data and are not a full GUI/reference parity verdict.
+
+### Physical row retention (Mac follow-up 1, 2026-11-11)
+
+A positive MaxLogSize now fixes a capture session's physical row limit at Start.
+The store commits immutable sequence files and an atomic manifest selection,
+then removes evicted files and unshared body blobs. Zero retains the original
+NDJSON store. The append path is independent of the retained row count; recovery
+validates committed counts, discards interrupted/unselected files and rebuilds
+references. Cleanup failure is disclosed and prevents unchecked growth. Clear
+commits its empty selection before unlinking data. Old paged cursors become
+stale at eviction, so callers must refresh rather than mix snapshots.
+
+Persisted counts remain cumulative, while retained/evicted counts are explicit
+in status and analysis metadata. Portable session/XML files preserve source
+retention counters; other export formats contain the retained rows and do not
+provide the portable session's full metadata contract. Shared blobs survive
+until their last retained owner is removed; blob names are never reused after
+reclamation. Change MaxLogSize while stopped before starting the next capture.
+Mac race tests exercise eviction, shared bodies, Clear, interrupted commits,
+missing committed data and reopen counters; a real local-proxy test verifies
+analysis and portable export. This is not Windows driver/UI acceptance.

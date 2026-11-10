@@ -129,6 +129,13 @@ func (c *Controller) Invoke(ctx context.Context, name string, args []any, put bo
 			if err != nil || n < 0 || n > 100000 {
 				return nil, fmt.Errorf("MaxLogSize requires 0..100000 rows")
 			}
+			var current capture.Session
+			if err := c.call(ctx, "status", map[string]any{}, &current); err != nil {
+				return nil, err
+			}
+			if c.loaded == "" && c.sessionID != "" && (current.State == capture.StateRunning || current.State == capture.StateStarting || current.State == capture.StateStopping) {
+				return nil, fmt.Errorf("stop capture before changing physical log retention")
+			}
 			c.maxLogSize = int(n)
 			c.cachedLog = nil
 		} else if len(args) != 0 {
@@ -312,7 +319,7 @@ func (c *Controller) Invoke(ctx context.Context, name string, args []any, put bo
 		if len(args) != 0 {
 			return nil, fmt.Errorf("unexpected arguments")
 		}
-		cfg := capture.Config{CaptureBodies: c.captureBodies, Backend: c.backend, ProcessScope: c.scope, LaunchPath: c.path, AllowedProcesses: append([]models.ProcessKey(nil), c.targets...)}
+		cfg := capture.Config{RetentionRows: c.maxLogSize, CaptureBodies: c.captureBodies, Backend: c.backend, ProcessScope: c.scope, LaunchPath: c.path, AllowedProcesses: append([]models.ProcessKey(nil), c.targets...)}
 		var started capture.Session
 		err := c.call(ctx, "start", cfg, &started)
 		if err == nil {

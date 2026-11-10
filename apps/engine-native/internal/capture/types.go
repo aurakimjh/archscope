@@ -136,6 +136,7 @@ type Config struct {
 	AllowedProcesses           []models.ProcessKey `json:"allowedProcesses,omitempty"`
 	ListenAddress              string              `json:"listenAddress,omitempty"`
 	StoreRoot                  string              `json:"storeRoot,omitempty"`
+	RetentionRows              int                 `json:"retentionRows,omitempty"`
 	MaxSessionBytes            int64               `json:"maxSessionBytes,omitempty"`
 	ReserveBytes               int64               `json:"reserveBytes,omitempty"`
 	BodyFraction               float64             `json:"bodyFraction,omitempty"`
@@ -153,6 +154,9 @@ type Config struct {
 }
 
 type Stats struct {
+	RetentionRows   int          `json:"retentionRows,omitempty"`
+	Retained        uint64       `json:"retained,omitempty"`
+	Evicted         uint64       `json:"evicted,omitempty"`
 	Generation      uint64       `json:"generation"`
 	SessionID       SessionID    `json:"sessionId"`
 	State           SessionState `json:"state"`

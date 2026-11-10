@@ -29,7 +29,14 @@ import (
 const MaxBytes = 256 << 20
 const Kind = "archscope-http-session"
 
+type Retention struct {
+	LimitRows int    `json:"limitRows"`
+	Persisted uint64 `json:"persisted"`
+	Retained  uint64 `json:"retained"`
+	Evicted   uint64 `json:"evicted"`
+}
 type Document struct {
+	Retention    *Retention                  `json:"retention,omitempty" xml:"Retention,omitempty"`
 	XMLName      xml.Name                    `json:"-" xml:"ArchScopeHttpSession"`
 	Type         string                      `json:"type"`
 	Version      int                         `json:"schemaVersion"`
@@ -45,6 +52,11 @@ func Sanitize(doc *Document) (redact.Summary, error) {
 	}
 	if len(doc.Transactions) > 100000 {
 		return p.Summary(), fmt.Errorf("session exceeds 100000 exchanges")
+	}
+	if r := doc.Retention; r != nil {
+		if r.LimitRows < 1 || r.LimitRows > 100000 || r.Retained > r.Persisted || r.Retained > uint64(r.LimitRows) || r.Evicted != r.Persisted-r.Retained || r.Retained < uint64(len(doc.Transactions)) {
+			return p.Summary(), fmt.Errorf("invalid source retention summary")
+		}
 	}
 	seen := map[string]bool{}
 	for i := range doc.Transactions {
