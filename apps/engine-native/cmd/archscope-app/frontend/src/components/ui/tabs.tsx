@@ -22,7 +22,7 @@ const TabsList = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      "inline-flex h-9 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground",
+      "inline-flex h-9 max-w-full items-center justify-start overflow-x-auto rounded-md bg-muted p-1 text-muted-foreground",
       className,
     )}
     {...props}
@@ -41,6 +41,10 @@ const TabsTrigger = React.forwardRef<
       className,
     )}
     {...props}
+    onFocus={event => {
+      event.currentTarget.scrollIntoView({block:"nearest",inline:"nearest"});
+      props.onFocus?.(event);
+    }}
   />
 ));
 TabsTrigger.displayName = TabsPrimitive.Trigger.displayName;

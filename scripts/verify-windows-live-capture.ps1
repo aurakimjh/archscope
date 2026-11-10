@@ -565,21 +565,19 @@ public class ArchScopeT581H2Only {
 
     $reentryExpression = @'
 (() => new Promise((resolve, reject) => {
-  const buttons = Array.from(document.querySelectorAll("nav button.nav-item"));
-  const httpButton = buttons.find((button) => button.getAttribute("aria-current") === "page");
-  const otherButton = buttons.find((button) => button !== httpButton);
-  if (!httpButton || !otherButton) {
-    reject(new Error("navigation buttons not found"));
-    return;
+  // Exercise page re-entry through the same route listener as the shell.
+  // Physical native menu clicks are a separate T-627 desktop acceptance case.
+  if (document.querySelector('.desktop-shell')?.getAttribute('data-active-route') !== 'http_capture') {
+    reject(new Error("HTTP workspace is not active"));return;
   }
-  otherButton.click();
+  window.dispatchEvent(new CustomEvent('desktop:navigate',{detail:'analysis_workspace'}));
   setTimeout(() => {
-    httpButton.click();
+    window.dispatchEvent(new CustomEvent('desktop:navigate',{detail:'http_capture'}));
     const deadline = Date.now() + 10000;
     const readRestoredState = () => {
       const firstTable = document.querySelector(".app-main tbody");
       const rowCount = firstTable ? firstTable.querySelectorAll("tr").length : 0;
-      const restored = httpButton.getAttribute("aria-current") === "page";
+      const restored = document.querySelector(".desktop-shell")?.getAttribute("data-active-route") === "http_capture";
       if ((restored && rowCount >= __MIN_ROWS__) || Date.now() >= deadline) {
         resolve({ rowCount, restored });
         return;

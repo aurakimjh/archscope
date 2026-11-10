@@ -23,7 +23,7 @@ export function AboutDialog({ open, onClose }: AboutDialogProps) {
   useEffect(() => {
     if (!open) return;
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+      if (!event.defaultPrevented && event.key === "Escape") { event.preventDefault();onClose(); }
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);

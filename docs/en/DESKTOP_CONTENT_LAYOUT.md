@@ -91,3 +91,34 @@ Record OS, outer window size, measured WebView width and height in CSS pixels, O
 - **T-625** Convert nine remaining analysis views (depends on T-621, T-622).
 - **T-626** Convert eight workspace views and Settings (depends on T-621, T-622).
 - **T-627** Verify all views in native desktop windows (depends on T-623–T-626).
+
+## Implementation and evening verification, 2026-11-10
+
+The T-621 through T-626 implementation is recorded in individual commits. Native
+menus, shortcuts, compact inputs/options/help, HTTP split panes, GC Summary,
+Profiler landing tabs, the remaining analyzers and workspace layouts are updated.
+Drop files on the tool's file picker. Tools remount on navigation as before and
+HTTP recording restores from the service. Opening a menu preserves the current page.
+
+Native collection produced no ready report while the Mac was locked. The user
+deferred interactive checks until the evening of 2026-11-10. T-620 baseline and
+T-627 native acceptance remain pending, and T-621 through T-626 remain REVIEW.
+The 70% result area and ten-row/four-line HTTP budgets are not yet measured.
+
+1. Open `apps/engine-native/cmd/archscope-app/bin/archscope.app` and reach every
+   menu route. Exercise Open, Recent Files, Settings, theme, locale and About.
+2. Populate the viewport/scale/locale matrix with real results. Compare baseline
+   commit `d98a958` in a separate checkout with current HEAD using identical
+   fixtures. The default `measure.js` collects initial view geometry and does
+   not populate results or automatically exercise every conditional tab.
+3. Verify hover, pin, pointer transfer, Escape, drawer dismissal, viewport edges,
+   long paths, empty/error states and clearing filters.
+4. Exercise GC trends/events and profiler drilldown, then resize and check hit
+   testing and selection against the displayed content.
+5. Inspect a saved HTTP file and the grid/detail splitter. On Windows check live
+   arrivals, process selection, disabled auto-scroll and return after navigation.
+
+The live-capture PowerShell harness now exercises re-entry through the shell route
+listener. Physical OS menu interaction needs separate verification. The retained
+untracked local `verify-http-desktop.mjs` expects the old sidebar and must be
+updated before it can validate the new UI.

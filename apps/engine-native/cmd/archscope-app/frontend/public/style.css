@@ -2162,3 +2162,9 @@ table th.sortable-header.sort-desc::after {
 .workspace-tool .metric, .analysis-tool .metric { display:flex; align-items:baseline; gap:8px; padding:4px 8px; }
 .workspace-tool .metric-value, .analysis-tool .metric-value { font-size:14px; }
 .settings-content .settings-row { padding:6px 0; }
+
+.http-live-querybar { display:flex; flex-wrap:wrap; align-items:center; gap:8px; flex:none; }
+.http-live-querybar > details[open] { flex-basis:100%; }
+.http-live-content > footer { flex:none; align-items:center; gap:8px; }
+.http-live-content > footer > details { margin-left:auto; }
+.http-live-content > footer > details[open] { flex-basis:100%; max-height:40vh; overflow:auto; }

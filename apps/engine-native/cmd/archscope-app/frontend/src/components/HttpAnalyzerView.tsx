@@ -317,7 +317,7 @@ export function HttpAnalyzerView({
         t={t}
       />
 
-      {selected && <button type="button" className="shrink-0 border-t px-2 py-1 text-left text-xs" onClick={()=>copyToHttpBuilder({row:selected,sessionId:exportSource?.sessionId})}>{t("httpBuilderCopy")}</button>}
+
       <SplitHandle
         height={detailHeight}
         onResize={resizeDetail}
@@ -329,6 +329,7 @@ export function HttpAnalyzerView({
         className="shrink-0 overflow-auto border-t border-border"
         style={{ height: detailHeight }}
       >
+        {selected && <button type="button" className="float-right rounded border px-2 py-1 text-xs" onClick={()=>copyToHttpBuilder({row:selected,sessionId:exportSource?.sessionId})}>{t("httpBuilderCopy")}</button>}
         {selected ? (
           <TransactionDetailPane transaction={selected} t={t} findings={findings} notesDisabled={notesBusy||annotationsFor!==sourceKey} onNote={updateNote} />
         ) : (

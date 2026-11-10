@@ -73,6 +73,7 @@ export function LiveHttpAnalyzer({
   }, [sessionId, selectedId, selected?.state, persisted]);
   return (
     <div className="http-live-analyzer">
+      <div className="http-live-querybar">
       <details ref={findRef} className="shrink-0 text-xs">
         <summary className="cursor-pointer">{t("httpSearchStored")}</summary>
         <form className="flex flex-wrap items-center gap-2 py-1" onSubmit={(event)=>{event.preventDefault();void search();}}>
@@ -98,6 +99,7 @@ export function LiveHttpAnalyzer({
         </select>
         <span className="font-mono">{rows.length} / {all.length}</span>
       </label>
+      </div>
       {error && <p role="alert" className="text-xs text-red-600">{error}</p>}
       <HttpAnalyzerView
         onFind={openFind} exportSource={{sessionId}} transactions={rows} total={all.length}

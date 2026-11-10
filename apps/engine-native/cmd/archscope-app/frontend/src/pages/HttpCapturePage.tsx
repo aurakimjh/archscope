@@ -325,7 +325,7 @@ function HttpCaptureWorkspace(): React.JSX.Element {
           variant="outline"
           size="sm"
           disabled={running}
-          onClick={() => void openSession()}
+          data-open-file="true" onClick={() => void openSession()}
         >
           {t("httpFilesOpen")}
         </Button>

@@ -226,6 +226,19 @@ is separate from review-group verdicts (`PASS`, `CONDITIONAL`, or `FAIL`). When
 a Task Registry status changes, update the counts and Open Work Snapshot in the
 same change so this overview remains the status source of truth.
 
+### Desktop layout implementation (2026-11-10)
+
+T-621 through T-626 are implemented in separate commits and remain REVIEW until
+native interaction acceptance. T-620 and T-627 remain PENDING for actual baseline
+and before/after geometry. The user deferred the locked-Mac checks until evening.
+Full Go test/vet, frontend state/build, macOS package/signature, Windows x86/x64
+GUI cross-builds and the native-only build guard pass. Menu context regression
+covers language, active route and disabled Open/capture actions. No browser UI
+was launched and no native measurements or screenshots are claimed. Source,
+implementation summary and the evening checklist are in paired
+DESKTOP_CONTENT_LAYOUT guides. Local verification evidence is
+[validation.json](docs/review/evidence/2026-11-10-layout/validation.json).
+
 ### Desktop-only cleanup (2026-11-10)
 
 T-619 is DONE. The product remains Wails 3.1.0 on macOS, Windows and Linux.
@@ -371,18 +384,18 @@ and `docs/review/done/2026-11-10_other-features-audit.ko.md`.
 
 ### Open Work Snapshot
 
-Desktop layout across all 21 routes: [Korean design](docs/ko/DESKTOP_CONTENT_LAYOUT.md) · [English design](docs/en/DESKTOP_CONTENT_LAYOUT.md). Start with T-620. The design recheck matched all 21 routes and refined the eight existing tasks to cover conditional views, actual menu dispatch, help pinning, viewport sizing, and form-specific acceptance. The four existing HTTP items can proceed independently as Windows and reference inputs become available.
+Desktop layout across all 21 routes: [Korean design](docs/ko/DESKTOP_CONTENT_LAYOUT.md) · [English design](docs/en/DESKTOP_CONTENT_LAYOUT.md). T-621 through T-626 are implemented and await native interaction review. The user deferred locked-Mac UI checks to the evening of 2026-11-10. The design recheck matched all 21 routes and refined the eight existing tasks to cover conditional views, actual menu dispatch, help pinning, viewport sizing, and form-specific acceptance. The four existing HTTP items can proceed independently as Windows and reference inputs become available.
 
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
-| 1 | T-620 | P1 | `PENDING` | Measure all 21 views at the default window size. Ready for native baseline measurement. |
-| 2 | T-621 | P1 | `REVIEW` | Move global navigation to native menus. After T-620. |
-| 3 | T-622 | P1 | `REVIEW` | Compact shared input controls and help. After T-620. |
-| 4 | T-623 | P1 | `REVIEW` | Prioritize the HTTP grid and inspector. After T-621, T-622. |
-| 5 | T-624 | P1 | `REVIEW` | Prioritize profiler and GC results. After T-621, T-622. |
-| 6 | T-625 | P2 | `REVIEW` | Convert nine remaining analysis views. After T-621, T-622. |
-| 7 | T-626 | P2 | `REVIEW` | Convert eight workspace views and Settings. After T-621, T-622. |
-| 8 | T-627 | P2 | `PENDING` | Verify all views in native desktop windows. After T-623–T-626. |
+| 1 | T-620 | P1 | `PENDING` | Prepared native collector; collect original baseline after evening unlock (reference commit d98a958). |
+| 2 | T-621 | P1 | `REVIEW` | Implementation committed; verify native menu and shortcut behavior after unlock. |
+| 3 | T-622 | P1 | `REVIEW` | Implementation committed; verify hover, pinning, focus and viewport edges after unlock. |
+| 4 | T-623 | P1 | `REVIEW` | Implementation committed; verify real row/split budgets and Windows recording behavior. |
+| 5 | T-624 | P1 | `REVIEW` | Implementation committed; verify native GC/profiler layout and resized hit testing. |
+| 6 | T-625 | P2 | `REVIEW` | Implementation committed; verify nine routes and conditional tabs with real fixtures. |
+| 7 | T-626 | P2 | `REVIEW` | Implementation committed; verify workspace handoff, export and Settings save. |
+| 8 | T-627 | P2 | `PENDING` | Run the native before/after matrix after unlock, then Windows live/menu acceptance. |
 | 9 | T-601 | P1 | `REVIEW` | Deliver the four Windows capture entry points and measure their reach |
 | 10 | T-608 | P2 | `PENDING` | Read and write legacy .halog files |
 | 11 | T-611 | P3 | `REVIEW` | Support Stand-alone automation and desktop launch switches |
@@ -1336,7 +1349,7 @@ deferred until explicitly promoted.
 | T-624 | P1 | REVIEW | Prioritize profiler and GC results | T-621, T-622 | Profiler now opens available flamegraph after analysis with summary fallback. GC Summary shows adaptive pause trend beside a shared ten-event table preview and collapses the long metric list. Input/options spacing reduced. Frontend build/state regressions pass. Real frame hit testing, narrow window geometry and no-clock fixtures await unlocked native verification. |
 | T-625 | P2 | REVIEW | Convert nine remaining analysis views | T-621, T-622 | Applied dense result layouts to the nine remaining analyzers, compact shared metric/card rows and preserved conditional tabs, source labels and errors. Lighthouse guidance is on demand with imported-score origin/recomputed status visible. Frontend state/build pass; all-route/subview native row and clipping measurements await evening verification. |
 | T-626 | P2 | REVIEW | Convert eight workspace views and Settings | T-621, T-622 | Compacted eight workspace routes and Settings, moved repetitive guidance to existing title help, reduced metadata/card spacing, adapted Chart Studio height and folded Settings history/About. Output destination, save/export actions, evidence counts and missing-data states retained. Frontend state/build pass; native form and export interactions await evening verification. |
-| T-627 | P2 | PENDING | Verify all views in native desktop windows | T-623–T-626 | Compare matching native before/after cases for all routes and inventoried subviews. Record ratio/row/plot or form verdict, keyboard/locale and resize checks. Validate OS menu navigation and actual Windows live re-entry separately. |
+| T-627 | P2 | PENDING | Verify all views in native desktop windows | T-623–T-626 | Completed full Go tests/vet, frontend state/build, macOS task package/strict codesign, Windows x86/x64 GUI cross-builds, desktop-only guard and layoutaudit/menu-context regression. Tracked Windows re-entry harness migrated. Native baseline/screenshots/geometry, OS-menu interaction and live acceptance deferred to evening. Evidence: docs/review/evidence/2026-11-10-layout/validation.json. |
 | T-619 | P1 | DONE | Enforce the Wails 3.1.0 desktop-only product and remove unused launch templates | Existing native desktop packaging | Completed 2026-11-10: removed server hosting/mobile/preview paths, added compiler and frontend native-transport guards with CI enforcement, isolated opt-in external Electron HTTP probe without weakening full acceptance, and refreshed paired guides. Full Go/vet and frontend state/build, native macOS package/signature, Windows x86/x64 GUI builds and expected server build refusal pass; Windows runtime acceptance remains separate. |
 | T-599 | P1 | DONE | Establish the V7.6.4 Stand-alone visual and command reference | Existing baseline | Completed 2026-11-09. Official screen, V7 additions, complete manual field inventory, state behavior, shortcuts and edition exceptions recorded in paired SYSTEM_HTTP_CAPTURE references. The tour image is explicitly V4; native Windows acceptance remains T-603. |
 | T-594 | P1 | DONE | Keep capture controls, live grid and selected detail in one window | Existing baseline | Completed 2026-11-09. Live rows use the shared grid and inspector, one-ID redacted store fetch stays available during recording, and async detail ignores obsolete selections. Real local proxy/service regression and frontend build passed; browser renderer at 1280x800 showed selected headers/body while active. Native Windows integration remains T-603. |

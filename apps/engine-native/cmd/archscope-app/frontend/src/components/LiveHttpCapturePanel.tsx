@@ -19,7 +19,7 @@ import {
 
 import type { HttpCaptureAnalysisResult } from "@/bridge/types";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { useI18n } from "@/i18n/I18nProvider";
 import type { MessageKey } from "@/i18n/messages";
 import {
@@ -474,23 +474,7 @@ export function LiveHttpCapturePanel({
 
   return (
     <Card className={showAnalyzer ? "http-live-panel min-w-0" : "http-live-panel http-live-compact min-w-0"}>
-      <CardHeader className="http-live-header flex-row items-center justify-between gap-2 p-2">
-        <div>
-          <CardTitle>{t("liveCaptureTitle")}</CardTitle>
 
-        </div>
-        <span
-          className={`rounded-full px-2 py-1 text-xs font-medium ${
-            active
-              ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
-              : "bg-muted text-muted-foreground"
-          }`}
-        >
-          {state.session
-            ? t(SESSION_STATE_LABEL_KEYS[resolveLiveSessionState(state.session.state)])
-            : t("liveCaptureIdle")}
-        </span>
-      </CardHeader>
       <CardContent className="http-live-content flex min-w-0 flex-col gap-1 p-2">
         <details className="rounded border p-2">
           <summary className="cursor-pointer text-xs">{t("httpCaptureSectionSource")}</summary>
@@ -764,7 +748,6 @@ export function LiveHttpCapturePanel({
           <span>{t("liveCaptureCaptured")}: {state.stats?.captured ?? 0}</span>
           <span>{t("liveCapturePersisted")}: {state.stats?.persisted ?? 0}</span>
           {state.session?.allowedProcesses?.length ? <span>{t("httpCaptureSelectedProcesses")}: {state.session.allowedProcesses.length}</span> : null}
-        </footer>
         {state.error && <p role="alert" className="shrink-0 text-xs text-red-600">{state.error}</p>}
         <details>
           <summary className="cursor-pointer text-xs">{t("httpCaptureSectionSession")}</summary>
@@ -857,6 +840,7 @@ export function LiveHttpCapturePanel({
 
 
         </details>
+        </footer>
       </CardContent>
     </Card>
   );

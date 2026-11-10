@@ -41,7 +41,11 @@ export function HelpTip({
   const [position, setPosition] = useState({left:8,top:8});
   const panelRef = useRef<HTMLSpanElement | null>(null);
   const leaveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const show = () => { clearTimeout(leaveTimer.current);setOpen(true); };
+  const show = () => {
+    clearTimeout(leaveTimer.current);
+    window.dispatchEvent(new CustomEvent("help:opened",{detail:tooltipId}));
+    setOpen(true);
+  };
   const leave = () => { leaveTimer.current=setTimeout(() => {if(!pinned) setOpen(false);},180); };
   const close = () => { setOpen(false);setPinned(false); };
   useEffect(() => () => clearTimeout(leaveTimer.current), []);
@@ -72,9 +76,13 @@ export function HelpTip({
         close();
       }
     };
+    const dismissOther = (event: Event) => {
+      if ((event as CustomEvent<string>).detail !== tooltipId) close();
+    };
+    window.addEventListener("help:opened", dismissOther);
     document.addEventListener("pointerdown", onPointerDown);
-    return () => document.removeEventListener("pointerdown", onPointerDown);
-  }, [open]);
+    return () => { document.removeEventListener("pointerdown", onPointerDown);window.removeEventListener("help:opened", dismissOther); };
+  }, [open,tooltipId]);
 
   const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
     if (event.key === "Escape") {

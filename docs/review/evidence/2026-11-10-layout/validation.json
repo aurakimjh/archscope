@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-10",
+  "scope": "T-620 through T-627 local implementation and non-interactive verification",
+  "checks": {
+    "go_test_all": "pass",
+    "go_vet_all": "pass",
+    "frontend_state": "pass",
+    "frontend_production_build": "pass",
+    "macos_task_package": "pass",
+    "macos_strict_codesign": "pass",
+    "windows_x86_gui_cross_build": "pass",
+    "windows_x64_gui_cross_build": "pass",
+    "desktop_only_policy_and_server_build_refusal": "pass",
+    "layoutaudit_build_and_menu_context_regression": "pass",
+    "route_and_design_inventory": 21
+  },
+  "artifacts": {
+    "macos": {
+      "bytes": 17920608,
+      "sha256": "e2ca36d08ad694fc134142ca8ef9127a6b21c573aeec336ed1365c8942b0b453"
+    },
+    "windows_x86": {
+      "bytes": 26783744,
+      "sha256": "e7a81de755f05006ef256a432f596d7b21ca296393e31064d2c99585a86ecb2d"
+    },
+    "windows_x64": {
+      "bytes": 27820544,
+      "sha256": "3ff875b76b09fa1019da85851491900e16caf76cca2127e21df5af30ce547e1a"
+    }
+  },
+  "native_acceptance": {
+    "status": "pending",
+    "reason": "Locked Mac did not produce a ready report; user deferred interactive checks to evening.",
+    "ratio_measured": false,
+    "screenshots_collected": false,
+    "physical_menu_verified": false,
+    "windows_live_capture_verified": false
+  },
+  "harness": {
+    "route_reentry": "updated for desktop:navigate; physical menu interaction is separate",
+    "windows_powershell_runtime": "not executed on this Mac",
+    "legacy_untracked_verifier": "preserved; expects old sidebar and requires migration"
+  },
+  "remaining": [
+    "T-620 original baseline on unlocked desktop",
+    "T-621 through T-626 native interaction review",
+    "T-627 native before/after matrix and Windows menu/live acceptance"
+  ]
+}
