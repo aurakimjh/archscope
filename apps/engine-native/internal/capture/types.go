@@ -128,6 +128,7 @@ const (
 )
 
 type Config struct {
+	Backend                    string              `json:"backend,omitempty"`
 	ProcessScope               string              `json:"processScope,omitempty"`
 	ScopeSessionID             *uint32             `json:"-"`
 	LaunchPath                 string              `json:"launchPath,omitempty"`
@@ -173,6 +174,7 @@ type Stats struct {
 }
 
 type Session struct {
+	Backend                    string              `json:"backend,omitempty"`
 	ProcessScope               string              `json:"processScope,omitempty"`
 	ScopeSessionID             *uint32             `json:"scopeSessionId,omitempty"`
 	Generation                 uint64              `json:"generation"`

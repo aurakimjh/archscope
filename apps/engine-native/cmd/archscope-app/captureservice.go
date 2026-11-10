@@ -16,6 +16,7 @@ import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/acceptance"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/aggregate"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/automation"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/backend"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/certstore"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/dumppolicy"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/processlaunch"
@@ -28,6 +29,8 @@ import (
 )
 
 type CaptureService struct {
+	lifecycleMu    sync.Mutex
+	closing        bool
 	controlMu      sync.Mutex
 	controlTargets []models.ProcessKey
 	launchOptions  automation.Options
@@ -171,6 +174,8 @@ func newCaptureServiceForPlatform(root string, trust *certstore.Lifecycle, platf
 	}
 }
 
+func (s *CaptureService) ListCaptureBackends() []backend.Capability { return s.manager.Backends() }
+
 func (s *CaptureService) ListCaptureModes() []capture.Mode {
 	return s.manager.Modes()
 }
@@ -188,9 +193,19 @@ func (s *CaptureService) ListCaptureProcesses() ([]models.ProcessInstance, error
 }
 
 func (s *CaptureService) StartCapture(config capture.Config) (capture.Session, error) {
+	s.lifecycleMu.Lock()
+	defer s.lifecycleMu.Unlock()
+	if s.closing {
+		return capture.Session{}, fmt.Errorf("desktop capture service is shutting down")
+	}
 	// The renderer cannot choose an arbitrary filesystem destination. Capture
 	// data always stays under the application-owned root selected at startup.
 	config.StoreRoot = ""
+	selectedBackend, backendErr := s.manager.ValidateBackend(config.Backend)
+	if backendErr != nil {
+		return capture.Session{}, backendErr
+	}
+	config.Backend = selectedBackend
 	if config.ProcessScope == "current_session" {
 		id, err := procmap.CurrentSession()
 		if err != nil {

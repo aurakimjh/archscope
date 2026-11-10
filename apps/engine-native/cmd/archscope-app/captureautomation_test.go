@@ -90,3 +90,14 @@ func TestLaunchOnMacFailsWithoutSideEffectsAndRunsOnlyOnce(t *testing.T) {
 		t.Fatalf("%+v %+v", first, second)
 	}
 }
+
+func TestShutdownRejectsLaterCaptureCommands(t *testing.T) {
+	service := newCaptureServiceForPlatform(t.TempDir(), certstore.New(memoryTrustBackend{}, nil), "windows")
+	service.shutdownAutomation()
+	if _, err := service.StartCapture(capture.Config{ProcessScope: "all_sessions"}); err == nil {
+		t.Fatal("capture started after shutdown")
+	}
+	if service.GetCurrentCaptureSession().ID != "" {
+		t.Fatal("shutdown rejection allocated a session")
+	}
+}

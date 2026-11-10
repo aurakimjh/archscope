@@ -100,6 +100,9 @@ func (s *CaptureService) setLaunchError(err error) {
 	emitEvent("capture:automation-error", map[string]string{"message": err.Error()})
 }
 func (s *CaptureService) shutdownAutomation() {
+	s.lifecycleMu.Lock()
+	defer s.lifecycleMu.Unlock()
+	s.closing = true
 	s.controlMu.Lock()
 	if s.launchCancel != nil {
 		s.launchCancel()
@@ -130,7 +133,7 @@ func (s *CaptureService) executeAutomation(ctx context.Context, call automation.
 	}
 	switch call.Command {
 	case "capabilities":
-		return map[string]any{"buildCommit": desktopBuildCommit, "contract": s.GetLiveCaptureContract(), "modes": s.ListCaptureModes()}, nil
+		return map[string]any{"buildCommit": desktopBuildCommit, "contract": s.GetLiveCaptureContract(), "modes": s.ListCaptureModes(), "backends": s.ListCaptureBackends()}, nil
 	case "status":
 		return s.GetCurrentCaptureSession(), nil
 	case "processes":

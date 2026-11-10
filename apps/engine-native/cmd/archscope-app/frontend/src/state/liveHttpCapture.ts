@@ -215,6 +215,7 @@ export function isLiveCaptureContractSupported(raw: unknown): boolean {
 }
 
 export type LiveCaptureSession = {
+ backend?:string;
   processScope?: string;
   generation?: number;
   paused?: boolean;

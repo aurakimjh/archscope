@@ -65,6 +65,7 @@ type Finding struct {
 }
 
 type Manifest struct {
+	CaptureBackend  string                 `json:"captureBackend,omitempty"`
 	ClearedVersion  uint64                 `json:"clearedVersion,omitempty"`
 	SchemaVersion   int                    `json:"schemaVersion"`
 	SessionID       string                 `json:"sessionId"`
@@ -305,6 +306,13 @@ func (s *Store) SetState(state capture.SessionState) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.manifest.State = state
+	return s.writeManifestLocked()
+}
+
+func (s *Store) SetCaptureBackend(name string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.manifest.CaptureBackend = name
 	return s.writeManifestLocked()
 }
 

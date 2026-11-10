@@ -113,6 +113,8 @@ export function LiveHttpCapturePanel({
     initialLiveCaptureState,
   );
   const [modes, setModes] = useState<Mode[]>([]);
+  const [backends,setBackends]=useState<{name:string;available:boolean;reason?:string;transparent:boolean}[]>([]);
+  const [backend,setBackend]=useState("explicit_proxy");
   const [caStatus, setCAStatus] = useState<CAStatus>({
     state: "loading",
     stores: [],
@@ -174,13 +176,14 @@ export function LiveHttpCapturePanel({
     let disposed = false;
     const initialize = async () => {
       try {
-        const [contract, nextModes, nextCA, current, reports] =
+        const [contract, nextModes, nextCA, current, reports,nextBackends] =
           await Promise.all([
             CaptureService.GetLiveCaptureContract(),
             CaptureService.ListCaptureModes(),
             CaptureService.GetCaptureCAStatus(),
             CaptureService.GetCurrentCaptureSession(),
             CaptureService.RecoverCaptureSessions(),
+            CaptureService.ListCaptureBackends(),
           ]);
         if (disposed) return;
         // The contract governs the row cap, the resync path, and the two
@@ -188,6 +191,7 @@ export function LiveHttpCapturePanel({
         dispatch({ type: "contract", contract });
         const renderer = resolveLiveCaptureContract(contract);
         setModes(nextModes as unknown as Mode[]);
+        setBackends(nextBackends);
         setCAStatus(nextCA as unknown as CAStatus);
         const recoveryReports = reports as unknown as Array<{
           recovered: boolean;
@@ -296,6 +300,7 @@ export function LiveHttpCapturePanel({
     dispatch({ type: "clearError" });
     try {
       const session = await CaptureService.StartCapture({
+        backend,
         listenAddress: "127.0.0.1:0",
         liveWindow: 5000,
         processScope,
@@ -326,6 +331,7 @@ export function LiveHttpCapturePanel({
     captureBodies,
     firstUseAccepted,
     processScope,
+    backend,
     launchPath,
     launchArgs,
     selectedProcesses,
@@ -500,6 +506,8 @@ export function LiveHttpCapturePanel({
         <details className="rounded border p-2">
           <summary className="cursor-pointer text-xs">{t("httpCaptureSectionSource")}</summary>
           <div className="flex flex-col gap-2 pt-2">
+          <label className="text-xs">{t("httpBackendTitle")} <select aria-label={t("httpBackendTitle")} value={backend} disabled={active} onChange={event=>setBackend(event.target.value)}>{backends.map(item=><option key={item.name} value={item.name} disabled={!item.available}>{t(item.transparent?"httpBackendTransparent":"httpBackendExplicit")}{item.available?"":` · ${t("httpBackendUnavailable")}`}</option>)}</select></label>
+          <p className="text-xs text-muted-foreground">{t("httpBackendCoverage")}</p>
         <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3">
           <div className="flex items-start gap-2">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />

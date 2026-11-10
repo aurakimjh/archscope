@@ -10,6 +10,7 @@ import { Create as $Create } from "@wailsio/runtime";
 import * as models$0 from "../models/models.js";
 
 export class Config {
+    "backend"?: string;
     "processScope"?: string;
     "launchPath"?: string;
     "launchArgs"?: string[];
@@ -44,18 +45,18 @@ export class Config {
      * Creates a new Config instance from a string or object.
      */
     static createFrom($$source: any = {}): Config {
-        const $$createField2_0 = $$createType0;
-        const $$createField3_0 = $$createType2;
-        const $$createField13_0 = $$createType0;
+        const $$createField3_0 = $$createType0;
+        const $$createField4_0 = $$createType2;
+        const $$createField14_0 = $$createType0;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("launchArgs" in $$parsedSource) {
-            $$parsedSource["launchArgs"] = $$createField2_0($$parsedSource["launchArgs"]);
+            $$parsedSource["launchArgs"] = $$createField3_0($$parsedSource["launchArgs"]);
         }
         if ("allowedProcesses" in $$parsedSource) {
-            $$parsedSource["allowedProcesses"] = $$createField3_0($$parsedSource["allowedProcesses"]);
+            $$parsedSource["allowedProcesses"] = $$createField4_0($$parsedSource["allowedProcesses"]);
         }
         if ("allowPassthrough" in $$parsedSource) {
-            $$parsedSource["allowPassthrough"] = $$createField13_0($$parsedSource["allowPassthrough"]);
+            $$parsedSource["allowPassthrough"] = $$createField14_0($$parsedSource["allowPassthrough"]);
         }
         return new Config($$parsedSource as Partial<Config>);
     }
@@ -189,6 +190,7 @@ export enum Privilege {
 };
 
 export class Session {
+    "backend"?: string;
     "processScope"?: string;
     "scopeSessionId"?: number | null;
     "generation": number;
@@ -260,10 +262,10 @@ export class Session {
      * Creates a new Session instance from a string or object.
      */
     static createFrom($$source: any = {}): Session {
-        const $$createField4_0 = $$createType2;
+        const $$createField5_0 = $$createType2;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("allowedProcesses" in $$parsedSource) {
-            $$parsedSource["allowedProcesses"] = $$createField4_0($$parsedSource["allowedProcesses"]);
+            $$parsedSource["allowedProcesses"] = $$createField5_0($$parsedSource["allowedProcesses"]);
         }
         return new Session($$parsedSource as Partial<Session>);
     }

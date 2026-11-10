@@ -11,14 +11,9 @@ import (
 	"unsafe"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/procmap"
-	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
+
 	"golang.org/x/sys/windows"
 )
-
-type Suspended struct {
-	info windows.ProcessInformation
-	Key  models.ProcessKey
-}
 
 // Prepare installs the inherited proxy environment before creating a suspended
 // process. The manager can bind its PID/start time before the first instruction.
@@ -53,31 +48,32 @@ func Prepare(path string, args []string, proxy string) (*Suspended, error) {
 	encoded = append(encoded, 0)
 	startup := windows.StartupInfo{Cb: uint32(unsafe.Sizeof(windows.StartupInfo{}))}
 	var info windows.ProcessInformation
-	err = windows.CreateProcess(nil, &commandLine[0], nil, nil, false,
+	applicationName, err := windows.UTF16PtrFromString(path)
+	if err != nil {
+		return nil, err
+	}
+	err = windows.CreateProcess(applicationName, &commandLine[0], nil, nil, false,
 		windows.CREATE_SUSPENDED|windows.CREATE_UNICODE_ENVIRONMENT, &encoded[0], nil, &startup, &info)
 	if err != nil {
 		return nil, err
 	}
-	child := &Suspended{info: info, Key: procmap.Lookup(int32(info.ProcessId)).Key}
+	child := &Suspended{Key: procmap.Lookup(int32(info.ProcessId)).Key, state: "prepared",
+		resume: func() error {
+			previous, err := windows.ResumeThread(info.Thread)
+			if err != nil {
+				return err
+			}
+			if previous != 1 {
+				return fmt.Errorf("launched thread was not in the expected suspended state")
+			}
+			return nil
+		},
+		abort:   func() { _ = windows.TerminateProcess(info.Process, 1) },
+		release: func() { _ = windows.CloseHandle(info.Thread); _ = windows.CloseHandle(info.Process) },
+	}
 	if child.Key.StartTime == "" {
 		child.Abort()
 		return nil, fmt.Errorf("cannot verify launched process identity")
 	}
 	return child, nil
-}
-
-func (s *Suspended) Resume() error {
-	_, err := windows.ResumeThread(s.info.Thread)
-	if err != nil {
-		return err
-	}
-	windows.CloseHandle(s.info.Thread)
-	windows.CloseHandle(s.info.Process)
-	return nil
-}
-
-func (s *Suspended) Abort() {
-	windows.TerminateProcess(s.info.Process, 1)
-	windows.CloseHandle(s.info.Thread)
-	windows.CloseHandle(s.info.Process)
 }

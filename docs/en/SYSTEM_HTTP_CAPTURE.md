@@ -1277,3 +1277,25 @@ are recorded; the harness **does not observe window layout or COM/.halog parity*
 Those contract cases stay UNVERIFIED until independent native observations and
 reference artifacts are attached. This commit completes preparation, not the
 T-613 Windows acceptance gate.
+
+### Capture backend boundary and launch cleanup (T-601 follow-up)
+
+The production registry now names `explicit_proxy` and the unavailable
+`windows_transparent` backend. Capability responses and the desktop source
+selector distinguish their reach. Unknown/unavailable backends fail before
+process lookup/launch, CA allocation, dump-policy/body activation or session-file
+creation; they never fall back to the proxy. The chosen backend is recorded in
+both runtime session and store manifest. The registry/factory boundary accepts
+the common capture contract while transport-specific setup stays separate.
+
+Partial capturer construction/start failures are stopped, their pipeline/store
+is finalized and a newly allocated authority is released. An authority already
+prepared by the user is preserved. Suspended child handles are synchronized,
+released exactly once, and cannot terminate a resumed child through a reused
+numeric handle. Windows CreateProcess receives an explicit application path;
+resume verifies the expected suspend count. Common concurrency/failure tests and
+Windows x86/x64 launch compilation pass. These changes do **not** implement or
+validate a transparent driver, proxy-ignoring capture or service reach. The
+reference vendor documents NetFilter technology; no vendor driver/SDK or WFP
+capability was silently introduced. T-601 remains REVIEW pending an implemented
+backend and native reach evidence.

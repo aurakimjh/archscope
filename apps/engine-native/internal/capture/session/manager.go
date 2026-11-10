@@ -15,6 +15,7 @@ import (
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/aggregate"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/backend"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/dumppolicy"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/procmap"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/proxy"
@@ -49,6 +50,7 @@ var (
 )
 
 type Manager struct {
+	backends    *backend.Registry
 	mu          sync.RWMutex
 	root        string
 	sink        EventSink
@@ -83,11 +85,14 @@ func NewManagerForPlatform(root string, sink EventSink, platform string) *Manage
 	}
 	return &Manager{
 		root: root, sink: sink, platform: strings.ToLower(strings.TrimSpace(platform)),
-		newCapturer: func(config proxy.Config) (Capturer, error) {
-			return proxy.New(config)
-		},
+		backends:   backend.Default(),
 		dumpPolicy: dumppolicy.Current,
 	}
+}
+
+func (m *Manager) Backends() []backend.Capability { return m.backends.Capabilities(m.platform) }
+func (m *Manager) ValidateBackend(name string) (string, error) {
+	return m.backends.Validate(m.platform, name)
 }
 
 func (m *Manager) Modes() []Mode {
@@ -133,6 +138,11 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 	if activeState(m.session.State) {
 		return Session{}, ErrSessionActive
 	}
+	backendName, backendErr := m.ValidateBackend(cfg.Backend)
+	if backendErr != nil {
+		return Session{}, backendErr
+	}
+	cfg.Backend = backendName
 	// H-SEC2 C1 requires a verified crash-dump exclusion preflight before any
 	// plaintext body tier can start. The preflight runs here, before an
 	// authority is generated or any session file is created, so a rejected
@@ -180,6 +190,14 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 	if strings.TrimSpace(root) == "" {
 		root = m.root
 	}
+	createdAuthority := m.authority == nil
+	success := false
+	defer func() {
+		if !success && createdAuthority && m.authority != nil {
+			m.authority.Close()
+			m.authority = nil
+		}
+	}()
 	if m.authority == nil {
 		m.authority, err = proxy.NewAuthority(time.Now().UTC())
 		if err != nil {
@@ -201,6 +219,7 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 	// session is a documented residual, not something this value hides.
 	maxBodyBytes := normalizeMaxBodyBytes(cfg.MaxBodyBytes)
 	session := Session{
+		Backend:      cfg.Backend,
 		ProcessScope: cfg.ProcessScope, ScopeSessionID: cfg.ScopeSessionID,
 		AllowedProcesses: cfg.AllowedProcesses,
 		ID:               id, State: StateStarting, StorePath: st.Path(), StartedAt: started,
@@ -209,6 +228,10 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 		BodyCaptureGate:            bodyGate,
 		BodyCaptureGateReason:      bodyGateReason,
 		MaxBodyBytes:               maxBodyBytes,
+	}
+	if err := st.SetCaptureBackend(cfg.Backend); err != nil {
+		_ = st.Finalize(StateFailed)
+		return Session{}, err
 	}
 	if err := st.SetState(StateStarting); err != nil {
 		_ = st.Finalize(StateFailed)
@@ -246,7 +269,7 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 			allowUntil[host] = started.Add(ttl)
 		}
 	}
-	capturer, err := m.newCapturer(proxy.Config{
+	proxyConfig := proxy.Config{
 		Stamp:         pipeline.Stamp,
 		ListenAddress: cfg.ListenAddress, Authority: m.authority,
 		Resolver: procmap.Resolver{}, AllowPassthrough: allowUntil,
@@ -257,8 +280,19 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 			}
 			_ = pipeline.TrackProgress(tx)
 		},
-	})
+	}
+	var capturer Capturer
+	if m.newCapturer != nil {
+		capturer, err = m.newCapturer(proxyConfig)
+	} else {
+		capturer, err = m.backends.Create(m.platform, cfg.Backend, proxyConfig)
+	}
 	if err != nil {
+		if capturer != nil {
+			stopCtx, stopCancel := context.WithTimeout(context.Background(), 5*time.Second)
+			_ = capturer.Stop(stopCtx)
+			stopCancel()
+		}
 		_ = pipeline.Close()
 		_ = st.Finalize(StateFailed)
 		return Session{}, err
@@ -277,6 +311,10 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 	})
 	if err != nil {
 		cancel()
+		stopCtx, stopCancel := context.WithTimeout(context.Background(), 5*time.Second)
+		stopErr := capturer.Stop(stopCtx)
+		stopCancel()
+		err = errors.Join(err, stopErr)
 		_ = pipeline.Close()
 		_ = st.Finalize(StateFailed)
 		return Session{}, err
@@ -297,6 +335,7 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 	m.pipeline = pipeline
 	m.capturer = capturer
 	m.cancel = cancel
+	success = true
 	m.sink.Started(session)
 	go func() {
 		select {

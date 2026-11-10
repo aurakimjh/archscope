@@ -276,3 +276,37 @@ func TestLiveMetadataRequiresConfirmedAttributionOrExplicitOptIn(t *testing.T) {
 		t.Fatal("confirmed process metadata was dropped")
 	}
 }
+
+type failedPartialCapturer struct{ stops int }
+
+func (*failedPartialCapturer) Name() string                         { return "fixture" }
+func (*failedPartialCapturer) Available() (bool, string)            { return true, "" }
+func (*failedPartialCapturer) RequiredPrivilege() capture.Privilege { return capture.PrivilegeNone }
+func (*failedPartialCapturer) Start(context.Context, capture.Config, func(models.CaptureTransaction) error) (string, error) {
+	return "", errors.New("partial start fixture")
+}
+func (c *failedPartialCapturer) Stop(context.Context) error { c.stops++; return nil }
+func TestBackendRejectedBeforeAnyAllocation(t *testing.T) {
+	root := t.TempDir()
+	manager := NewManagerForPlatform(root, capture.NopEventSink{}, "windows")
+	constructed := false
+	manager.newCapturer = func(proxy.Config) (Capturer, error) { constructed = true; return nil, errors.New("unexpected") }
+	if _, err := manager.Start(context.Background(), capture.Config{Backend: "windows_transparent", CaptureBodies: true}); !errors.Is(err, capture.ErrModeUnavailable) {
+		t.Fatal(err)
+	}
+	entries, _ := os.ReadDir(root)
+	if constructed || manager.authority != nil || len(entries) != 0 {
+		t.Fatal("unsupported backend allocated resources")
+	}
+}
+func TestPartialStartIsStoppedAndNewAuthorityReleased(t *testing.T) {
+	manager := NewManagerForPlatform(t.TempDir(), capture.NopEventSink{}, "windows")
+	capturer := &failedPartialCapturer{}
+	manager.newCapturer = func(proxy.Config) (Capturer, error) { return capturer, nil }
+	if _, err := manager.Start(context.Background(), capture.Config{}); err == nil {
+		t.Fatal("expected start failure")
+	}
+	if capturer.stops != 1 || manager.authority != nil || manager.Current().ID != "" {
+		t.Fatalf("stop=%d authority=%v", capturer.stops, manager.authority != nil)
+	}
+}
