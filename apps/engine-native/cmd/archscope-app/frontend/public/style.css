@@ -2135,3 +2135,8 @@ table th.sortable-header.sort-desc::after {
 .http-live-analyzer { display:flex; flex-direction:column; flex:1; min-height:0; gap:4px; }
 .http-live-analyzer > .http-analyzer { flex:1; min-height:0; }
 .http-live-content > details[open], .http-file-tools[open] { max-height:45vh; overflow:auto; }
+
+.gc-result-overview { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:8px; }
+.gc-workspace .gc-result-overview td { white-space:nowrap; }
+.profiler-workspace [role="tabpanel"] { margin-top:8px; }
+@media (max-width:1050px) { .gc-result-overview { grid-template-columns:minmax(0,1fr); } }

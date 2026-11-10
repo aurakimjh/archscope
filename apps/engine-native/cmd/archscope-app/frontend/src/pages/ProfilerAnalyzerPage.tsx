@@ -659,7 +659,7 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
         title: `profiler: ${selected?.originalName ?? data.result?.source_files?.[0] ?? ""}`,
         sourceLabel: selected?.originalName,
       });
-      setActiveTab("summary");
+      setActiveTab(adaptFlameNode(data.result?.charts?.flamegraph) ? "flame" : "summary");
       setAnalyzing(false);
       if (path) {
         recent.push({
@@ -906,8 +906,8 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
   const canAnalyze = !analyzing && !!path;
 
   return (
-    <main className="flex flex-col gap-5 p-5">
-      <div className="flex items-stretch gap-3">
+    <main className="profiler-workspace flex min-w-0 flex-col gap-2 p-2">
+      <div className="flex min-w-0 items-center gap-2">
         <WailsFileDock
           className="min-w-0 flex-1"
           label={t("filePathPlaceholder")}

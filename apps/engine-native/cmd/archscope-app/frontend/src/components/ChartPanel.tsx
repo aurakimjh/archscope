@@ -34,7 +34,7 @@ export type ChartPanelProps = {
   busy?: boolean;
   className?: string;
   /** Container height, defaults to 320px to give axis labels room. */
-  height?: number;
+  height?: number | string;
   renderer?: "canvas" | "svg";
   actions?: ReactNode;
   onReady?: (chart: ECharts | null) => void;
