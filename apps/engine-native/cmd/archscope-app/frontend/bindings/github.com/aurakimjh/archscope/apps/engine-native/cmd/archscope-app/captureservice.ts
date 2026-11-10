@@ -28,6 +28,9 @@ import * as requestbuilder$0 from "../../internal/capture/requestbuilder/models.
 import * as store$0 from "../../internal/capture/store/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
+import * as summary$0 from "../../internal/capture/summary/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
 import * as models$0 from "../../internal/models/models.js";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -90,13 +93,19 @@ export function GetCaptureStats(sessionID: string): $CancellablePromise<capture$
     });
 }
 
+export function GetCaptureSummary(sessionID: string, process: models$0.ProcessKey | null): $CancellablePromise<summary$0.Snapshot> {
+    return $Call.ByID(136213115, sessionID, process).then(($result: any) => {
+        return $$createType9($result);
+    });
+}
+
 /**
  * GetCaptureTransaction reads one redacted, persisted exchange while recording
  * continues. Payloads remain outside the live ring and event stream.
  */
 export function GetCaptureTransaction(sessionID: string, transactionID: string): $CancellablePromise<models$0.CaptureTransaction | null> {
     return $Call.ByID(974612923, sessionID, transactionID).then(($result: any) => {
-        return $$createType9($result);
+        return $$createType10($result);
     });
 }
 
@@ -114,7 +123,7 @@ export function GetCurrentCaptureSession(): $CancellablePromise<capture$0.Sessio
  */
 export function GetLiveCaptureContract(): $CancellablePromise<capture$0.LiveCaptureContract> {
     return $Call.ByID(2314719557).then(($result: any) => {
-        return $$createType10($result);
+        return $$createType11($result);
     });
 }
 
@@ -132,25 +141,25 @@ export function InstallCaptureCA(): $CancellablePromise<certstore$0.Status> {
 
 export function ListCaptureModes(): $CancellablePromise<capture$0.Mode[]> {
     return $Call.ByID(1386420617).then(($result: any) => {
-        return $$createType12($result);
+        return $$createType13($result);
     });
 }
 
 export function ListCaptureProcesses(): $CancellablePromise<models$0.ProcessInstance[]> {
     return $Call.ByID(2974709936).then(($result: any) => {
-        return $$createType14($result);
+        return $$createType15($result);
     });
 }
 
 export function OpenCaptureFile(path: string): $CancellablePromise<$models.CaptureOpenResult> {
     return $Call.ByID(166476653, path).then(($result: any) => {
-        return $$createType15($result);
+        return $$createType16($result);
     });
 }
 
 export function RecoverCaptureSessions(): $CancellablePromise<store$0.RecoveryReport[]> {
     return $Call.ByID(740397896).then(($result: any) => {
-        return $$createType17($result);
+        return $$createType18($result);
     });
 }
 
@@ -207,12 +216,13 @@ const $$createType5 = models$0.CaptureTransaction.createFrom;
 const $$createType6 = $Create.Array($$createType5);
 const $$createType7 = aggregate$0.Snapshot.createFrom;
 const $$createType8 = capture$0.Stats.createFrom;
-const $$createType9 = $Create.Nullable($$createType5);
-const $$createType10 = capture$0.LiveCaptureContract.createFrom;
-const $$createType11 = capture$0.Mode.createFrom;
-const $$createType12 = $Create.Array($$createType11);
-const $$createType13 = models$0.ProcessInstance.createFrom;
-const $$createType14 = $Create.Array($$createType13);
-const $$createType15 = $models.CaptureOpenResult.createFrom;
-const $$createType16 = store$0.RecoveryReport.createFrom;
-const $$createType17 = $Create.Array($$createType16);
+const $$createType9 = summary$0.Snapshot.createFrom;
+const $$createType10 = $Create.Nullable($$createType5);
+const $$createType11 = capture$0.LiveCaptureContract.createFrom;
+const $$createType12 = capture$0.Mode.createFrom;
+const $$createType13 = $Create.Array($$createType12);
+const $$createType14 = models$0.ProcessInstance.createFrom;
+const $$createType15 = $Create.Array($$createType14);
+const $$createType16 = $models.CaptureOpenResult.createFrom;
+const $$createType17 = store$0.RecoveryReport.createFrom;
+const $$createType18 = $Create.Array($$createType17);

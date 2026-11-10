@@ -1,3 +1,4 @@
+import { HttpSessionSummary } from "./HttpSessionSummary";
 import { copyToHttpBuilder, HTTP_BUILDER_DRAG } from "@/state/httpRequestBuilder";
 import { HttpSessionFiles, type HttpFileSource } from "./HttpSessionFiles";
 import { HTTP_COLUMNS, restoreHttpColumns, httpColumnValue, httpColumnMatches, type HttpColumn } from "@/state/httpColumns";
@@ -249,6 +250,7 @@ export function HttpAnalyzerView({
         t={t}
       />
 
+      <HttpSessionSummary rows={rows} sessionId={exportSource?.sessionId} selected={selected} onSelect={onSelect} onFilter={onFilter} />
       {exportSource && <HttpSessionFiles source={exportSource} ids={rows.map(row=>row.id)} selectedId={selectedId} />}
       {bounded && boundedNote && (
         <p

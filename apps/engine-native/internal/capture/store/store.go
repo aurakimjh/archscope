@@ -106,6 +106,7 @@ type CaptureCheckpoint struct {
 }
 
 type Filter struct {
+	MetadataOnly  bool     `json:"metadataOnly,omitempty"`
 	Query         string   `json:"query,omitempty"`
 	SearchFields  []string `json:"searchFields,omitempty"`
 	TransactionID string   `json:"transactionId,omitempty"`
@@ -547,6 +548,10 @@ func (s *Store) Fetch(filter Filter, opaque string, limit int) (Page, error) {
 		if len(items) >= limit {
 			more = true
 			continue
+		}
+		if filter.MetadataOnly {
+			item.Transaction.Request.BodyPreview = ""
+			item.Transaction.Response.BodyPreview = ""
 		}
 		items = append(items, item)
 		last = item.Seq

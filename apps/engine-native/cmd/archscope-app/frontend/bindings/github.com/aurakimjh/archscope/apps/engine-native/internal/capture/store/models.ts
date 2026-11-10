@@ -10,6 +10,7 @@ import { Create as $Create } from "@wailsio/runtime";
 import * as models$0 from "../../models/models.js";
 
 export class Filter {
+    "metadataOnly"?: boolean;
     "query"?: string;
     "searchFields"?: string[];
     "transactionId"?: string;
@@ -29,10 +30,10 @@ export class Filter {
      * Creates a new Filter instance from a string or object.
      */
     static createFrom($$source: any = {}): Filter {
-        const $$createField1_0 = $$createType0;
+        const $$createField2_0 = $$createType0;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("searchFields" in $$parsedSource) {
-            $$parsedSource["searchFields"] = $$createField1_0($$parsedSource["searchFields"]);
+            $$parsedSource["searchFields"] = $$createField2_0($$parsedSource["searchFields"]);
         }
         return new Filter($$parsedSource as Partial<Filter>);
     }

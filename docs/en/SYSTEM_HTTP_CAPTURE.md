@@ -1115,3 +1115,18 @@ locked Mac and failed automatic unlock; direct window, splitter, file-dialog and
 keyboard acceptance is therefore still unverified. Shell/build access remains
 available and is independent of the desktop lock. Do not treat build evidence
 as an observed native UI pass. Windows acceptance remains T-613.
+
+### Timing and summaries (T-605)
+
+The shared inspector has a collapsible timing/session summary. Displayed-row
+scope follows filters and progress updates; stored-all and selected-process
+scopes page the authoritative snapshot, including rows outside the live ring.
+Stored refresh runs only while expanded and ignores obsolete responses. Known
+body sizes retain an unknown-count suffix. Compression is decoded minus received
+bytes over measured pairs only; negative values indicate expansion. TCP IDs and
+observed DNS phases are deduplicated, and elapsed time uses observed endpoints.
+Phase totals never mix client/proxy/upstream/imported perspectives. Status
+buttons narrow the grid. The bounded process waterfall uses PID plus start time
+for separate origins and leaves unobserved phase space blank. Local fixtures
+verify bytes, reused connections, unknown phases, progress and process reuse;
+Windows/native interaction acceptance remains unverified in this Mac lock state.

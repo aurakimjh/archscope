@@ -455,4 +455,8 @@ func TestStoredSearchFindsExchangesOutsideLiveWindow(t *testing.T) {
 	if _, err := service.SearchCaptureTransactions(CaptureFetchRequest{SessionID: string(started.ID), Filter: store.Filter{SearchFields: []string{"invalid"}}}); err == nil {
 		t.Fatal("unknown search field accepted")
 	}
+	summary, err := service.GetCaptureSummary(string(started.ID), nil)
+	if err != nil || summary.Total != 3 || summary.Completed != 3 || summary.Connections != 1 {
+		t.Fatalf("stored summary=%+v error=%v", summary, err)
+	}
 }

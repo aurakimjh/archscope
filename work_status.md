@@ -8,7 +8,7 @@ The previous long-form history was archived to
 
 ## Status Overview
 
-**Overall: 191 of 200 tracked tasks are `DONE` (95.5%).** The Windows Wails v3 replacement for IEInspector HTTP Analyzer V7.6.4 Stand-alone has 8 open work items (T-594 through T-613), including the remaining audit findings. T-603 native Windows acceptance completed on 2026-11-09 with actual request/response bodies and verified policy restoration. The 2026-11-09
+**Overall: 192 of 200 tracked tasks are `DONE` (96.0%).** The Windows Wails v3 replacement for IEInspector HTTP Analyzer V7.6.4 Stand-alone has 7 open work items (T-594 through T-613), including the remaining audit findings. T-603 native Windows acceptance completed on 2026-11-09 with actual request/response bodies and verified policy restoration. The 2026-11-09
 GC/profiler revalidation confirmed five bugs (T-589 through T-593). Their
 current implementation status is recorded in the registry and snapshot below;
 T-557 remains trigger-dependent `PENDING`.
@@ -213,11 +213,11 @@ completed the independent Lighthouse file-first engine slice.
 
 | Status | Count | Meaning |
 |---|---:|---|
-| `TODO` | 5 | Ready to start; prerequisites are satisfied |
+| `TODO` | 4 | Ready to start; prerequisites are satisfied |
 | `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
 | `REVIEW` | 1 | Review or required remediation is underway; the gate has not passed |
 | `PENDING` | 3 | Waiting for a prerequisite, external condition, or activation trigger |
-| `DONE` | 191 | Completion criteria and required review gates have passed |
+| `DONE` | 192 | Completion criteria and required review gates have passed |
 
 The normal transition is `TODO → IN_PROGRESS → REVIEW → DONE`. A `PENDING`
 task returns to `TODO` when its dependency or trigger is satisfied. Task status
@@ -238,14 +238,13 @@ remote session. The requested four implementation tasks continue independently.
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
 | 1 | T-601 | P1 | `REVIEW` | Deliver the four Windows capture entry points and measure their reach |
-| 2 | T-605 | P2 | `TODO` | Complete live timing charts and process/session summaries |
-| 3 | T-606 | P2 | `TODO` | Extend Headers, Cookies, Stream and Content viewers |
-| 4 | T-608 | P2 | `TODO` | Read and write legacy .halog files |
-| 5 | T-609 | P2 | `TODO` | Integrate row hints, status help, stars and comments |
-| 6 | T-611 | P3 | `TODO` | Support Stand-alone automation and desktop launch switches |
-| 7 | T-612 | P3 | `PENDING` | Restore legacy content inspectors |
-| 8 | T-613 | P3 | `PENDING` | Verify complete Stand-alone parity on Windows |
-| 9 | T-557 | P1 | `PENDING` | Promote the Jennifer MSA drilldown calculation from UI projection to a Go analyzer contract if repeated use shows it should be exported/reported outside the desktop page. |
+| 2 | T-606 | P2 | `TODO` | Extend Headers, Cookies, Stream and Content viewers |
+| 3 | T-608 | P2 | `TODO` | Read and write legacy .halog files |
+| 4 | T-609 | P2 | `TODO` | Integrate row hints, status help, stars and comments |
+| 5 | T-611 | P3 | `TODO` | Support Stand-alone automation and desktop launch switches |
+| 6 | T-612 | P3 | `PENDING` | Restore legacy content inspectors |
+| 7 | T-613 | P3 | `PENDING` | Verify complete Stand-alone parity on Windows |
+| 8 | T-557 | P1 | `PENDING` | Promote the Jennifer MSA drilldown calculation from UI projection to a Go analyzer contract if repeated use shows it should be exported/reported outside the desktop page. |
 
 ### Local Windows validation (2026-11-09)
 
@@ -1190,7 +1189,7 @@ deferred until explicitly promoted.
 | T-603 | P1 | DONE | Prove the everyday inspection workflow in the packaged Windows app | T-599, T-594, T-595, T-596, T-597, T-600 | Completed 2026-11-09 on native Windows Wails/WebView2: six synthetic POSTs from two PID/start-time clients; requested 1280×800 window (1266×793 bounded screenshots); process filtering; live Headers and actual request/response Body during arrivals; F9/F2; stopped-store reopening with identical markers and Korean text. Temporary dump policy and user WER exclusions restored with exact original tree hashes, including ACL metadata. Evidence: `docs/review/evidence/2026-11-09-windows-body/README.md`. |
 | T-598 | P2 | DONE | Add decoded query, POST form and JSON inspection | Existing baseline | Completed 2026-11-10. Added ordered Query String and Post Data inspectors, raw/decoded parameter columns, bounded JSON tree navigation and explicit malformed/truncated/unavailable states. Redaction now preserves benign encoded field order and spelling. State/parser/redaction regressions, frontend build and actual renderer query/form/JSON interactions passed. |
 | T-604 | P2 | DONE | Configure columns, group and filter requests, and search the entire session | T-599, T-595 | Completed 2026-11-10. Migrating column preferences support visibility, width and order; process/host/method/status/MIME grouping and generic field comparisons share stable virtual rows. Bounded store-backed search covers URL, headers, retained bodies, cookies, query, POST and reconstructed streams beyond the live ring, with snapshot paging and selected-only payload fetch. State/migration, native service boundary tests, frontend build and renderer interactions passed. |
-| T-605 | P2 | TODO | Complete live timing charts and process/session summaries | T-595, T-602 | Compare request phases, relative process waterfall and totals against known durations, byte counts, DNS, connections and status groups. Update as rows finish, show unavailable phases and filter the grid from a selected summary value. |
+| T-605 | P2 | DONE | Complete live timing charts and process/session summaries | T-595, T-602 | Added displayed/store-wide/process summary scopes, measured/unknown byte totals, compression pairs, deduplicated TCP/DNS, separate phase perspectives and process-relative bounded waterfall with status-to-grid filtering. Store-wide boundary fixture, counts/timing/PID reuse regressions and frontend state/build pass locally; visible native acceptance remains explicitly unverified. |
 | T-606 | P2 | TODO | Extend Headers, Cookies, Stream and Content viewers | T-598, T-602 | Compare repeated headers, cookie attributes, sent/received stream views, syntax-colored text, XML/SOAP, byte offsets and image/HTML preview on fixtures. Show compressed and decoded sizes, source fidelity and omission/truncation. Previews stay local and inert. |
 | T-607 | P2 | DONE | Open, save, clear and export capture sessions from the desktop | Existing baseline | Desktop open/save/export now supports canonical JSON, HAR 1.2, full/compact XML, URL/text/HTML, BIFF8 XLS and response-preview directories; explicit all-store/displayed-row scope, preserved identity/selection, redacted round trips and cancellation pass. XLS independently verified with xlrd including Korean/1000 rows; Windows native dialogs remain T-613 acceptance. |
 | T-608 | P2 | TODO | Read and write legacy .halog files | T-607 | Use genuine sanitized V7.6.4 logs and an independent reader or the reference EXE to verify both directions. Compare processes, headers, retained data and timing. Missing format evidence keeps compatibility unverified. |
