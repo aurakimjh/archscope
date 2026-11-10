@@ -201,7 +201,7 @@ jobs:
           cache-dependency-path: apps/engine-native/cmd/archscope-app/frontend/package-lock.json
 
       - name: Install Wails CLI
-        run: go install github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0-alpha2.117
+        run: go install github.com/wailsapp/wails/v3/cmd/wails3@v3.1.0
 
       - name: Install Task runner
         run: curl -sL https://taskfile.dev/install.sh | sh -s -- -d -b /usr/local/bin

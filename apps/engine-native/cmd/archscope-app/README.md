@@ -77,10 +77,10 @@ service method.
 
 ## Build / run
 
-Wails v3 alpha2.117 and Task must be on `PATH`.
+Wails v3.1.0 and Task must be on `PATH`.
 
 ```bash
-go install github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0-alpha2.117
+go install github.com/wailsapp/wails/v3/cmd/wails3@v3.1.0
 brew install go-task
 
 # dev mode (hot reload)

@@ -5,9 +5,9 @@ go 1.26.3
 require (
 	github.com/google/pprof v0.0.0-20260402051712-545e8a4df936
 	github.com/spf13/cobra v1.10.2
-	github.com/wailsapp/wails/v3 v3.0.0-alpha2.117
-	golang.org/x/sys v0.43.0
-	golang.org/x/text v0.40.0
+	github.com/wailsapp/wails/v3 v3.1.0
+	golang.org/x/sys v0.48.0
+	golang.org/x/text v0.42.0
 )
 
 require (

@@ -1423,3 +1423,14 @@ backend soak**, not a multi-hour test or native Windows/UI acceptance. Full Go
 suite/vet, focused race checks, frontend state/production build and Mac/Windows
 x86/x64 production cross-builds pass. T-613 remains PENDING on the native and
 reference evidence in its existing acceptance contract.
+
+### Wails 3.1 upgrade (2026-11-10)
+
+The active app now pins Go Wails/CLI `v3.1.0` and npm `@wailsio/runtime` `3.1.0`.
+CI installs the same CLI and bindings are regenerated with it. Wails 3.1 types
+the updater's 2 GiB constant as int64, so the former guarded private-module patch
+is removed; the Windows wrapper now invokes ordinary `go build`. Mac production
+and Windows 386/amd64 GUI builds, frontend state/build and full Go tests pass.
+Earlier alpha2.117 build sizes and workaround evidence above are historical.
+Native window/runtime acceptance remains separate.
+[Official release](https://github.com/wailsapp/wails/releases/tag/v3.1.0).

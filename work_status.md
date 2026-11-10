@@ -255,6 +255,16 @@ The scoped implementation/verification above is complete; this does not close
 T-601/T-608/T-611/T-613. Hashed source/build and local validation evidence is in
 [`local-validation.json`](docs/review/evidence/2026-11-10-mac-followups/local-validation.json).
 
+### Remaining implementation and Wails 3.1 (2026-11-10)
+
+- Wails upgrade: DONE locally. Go/CLI v3.1.0 and npm runtime 3.1.0 pinned,
+  bindings regenerated, CI/packaging pins updated and obsolete x86 patch removed.
+  Full Go and frontend tests/builds plus Mac/Windows 386/amd64 GUI builds pass.
+- T-611: implement native automation and selective cache/cookie commands.
+- T-601: implement an opt-in transparent driver adapter; native reach remains open.
+- T-608: proprietary format implementation still requires genuine format evidence;
+  no sample is available and no synthetic compatibility claim is permitted.
+
 ### Open Work Snapshot
 
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |

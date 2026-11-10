@@ -4698,3 +4698,13 @@ Descriptor는 4096바이트 제한으로 읽고 교체된 파일은 종료 시 �
 검사**이며 여러 시간 지속 검사나 Windows 실제 화면 검증은 아닙니다. 전체 Go 테스트/vet,
 주요 race, 프런트엔드 상태/빌드, Mac 및 Windows x86/x64 빌드를 통과했습니다.
 T-613은 기존 수용 기준의 네이티브·원본 제품 근거를 기다리는 PENDING을 유지합니다.
+
+### Wails 3.1 업그레이드 (2026-11-10)
+
+활성 앱의 Go Wails/CLI를 `v3.1.0`, npm `@wailsio/runtime`을 `3.1.0`으로 고정했습니다.
+CI의 CLI도 같은 버전으로 맞추고 바인딩을 재생성했습니다. Wails 3.1은 updater의
+2 GiB 상수를 int64로 선언하므로 기존 임시 의존성 사본 패치는 제거하고 Windows
+래퍼에서 일반 `go build`를 실행합니다. Mac 프로덕션 및 Windows 386/amd64 GUI 빌드,
+프런트엔드 상태/빌드, 전체 Go 테스트를 통과했습니다. 위 alpha2.117 크기·우회 근거는
+이전 버전 기록입니다. 실제 화면·Windows 실행 검증은 별도로 남아 있습니다.
+[공식 릴리스](https://github.com/wailsapp/wails/releases/tag/v3.1.0).
