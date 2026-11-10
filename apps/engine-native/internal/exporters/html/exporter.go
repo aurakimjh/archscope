@@ -129,6 +129,10 @@ func MarshalWithOptions(result any, opts Options) ([]byte, error) {
 		return nil, err
 	}
 
+	if payload["type"] == "jennifer_profile" && asMap(payload["metadata"])["drilldown"] != nil {
+		return marshalJenniferDrilldown(payload)
+	}
+
 	title := opts.Title
 	if title == "" {
 		title = defaultTitle(payload)

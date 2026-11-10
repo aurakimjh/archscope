@@ -326,6 +326,11 @@ var AnalyzeJenniferProfile = jenniferprofile.AnalyzeFile
 // AnalyzeJenniferProfiles wraps jenniferprofile.AnalyzeFiles (multi).
 var AnalyzeJenniferProfiles = jenniferprofile.AnalyzeFiles
 
+// JenniferDrilldownOptions selects an existing MSA result without reopening files.
+type JenniferDrilldownOptions = jenniferprofile.DrilldownOptions
+
+var ProjectJenniferDrilldown = jenniferprofile.ProjectDrilldown
+
 // ── Thread-dump (single file, Java jstack only) ─────────────────────
 
 // ThreadDumpOptions mirrors threaddump.Options.

@@ -305,6 +305,17 @@ type JenniferProfileRequest struct {
 	CustomAnalysisRules []models.JenniferCustomAnalysisRule `json:"customAnalysisRules,omitempty"`
 }
 
+// JenniferDrilldownRequest carries the exact result currently shown by the UI.
+// Projection never reruns parsing or silently substitutes another selection.
+type JenniferDrilldownRequest struct {
+	Result    engineapi.AnalysisResult           `json:"result"`
+	Selection engineapi.JenniferDrilldownOptions `json:"selection"`
+}
+
+func (s *EngineService) ProjectJenniferDrilldown(req JenniferDrilldownRequest) (engineapi.AnalysisResult, error) {
+	return engineapi.ProjectJenniferDrilldown(req.Result, req.Selection)
+}
+
 // ThreadDumpRequest mirrors threaddump.Options + a Path.
 type ThreadDumpRequest struct {
 	Path string `json:"path"`

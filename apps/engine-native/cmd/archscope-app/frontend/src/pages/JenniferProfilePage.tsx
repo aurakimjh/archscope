@@ -38,6 +38,7 @@ import {
 } from "lucide-react";
 import {
   useCallback,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -45,6 +46,9 @@ import {
 } from "react";
 
 import { engine } from "../bridge/engine";
+import { Dialogs } from "@wailsio/runtime";
+import type { AnalysisResult } from "../bridge/types";
+import { readJenniferDrilldown, isCurrentJenniferProjection, type MsaDrilldownScope, type JenniferDrilldownSelection } from "../state/jenniferDrilldown";
 
 import {
   CustomCategoriesEditor,
@@ -211,19 +215,6 @@ type MsaDrilldownOption = {
   application?: string;
 };
 
-type MsaDrilldownScope = {
-  group: any;
-  profileRows: any[];
-  timelineEdges: any[];
-  topologyEdges: any[];
-  serviceNetworkEdges: any[];
-  slowSqlRows: any[];
-  networkTimeByTxid: Map<string, number>;
-  selectedValue: string;
-  selectedApplication: string;
-  selectedTxid?: string;
-  isWholeTransaction: boolean;
-};
 
 const CUSTOM_RULE_GROUPS: Array<{
   id: CustomAnalysisRuleGroup;
@@ -337,7 +328,10 @@ function buildNetworkTimeByTxid(groups: any[]): Map<string, number> {
     for (const edge of group?.call_graph ?? []) {
       const txid = String(edge?.caller_txid ?? "");
       if (!txid) continue;
-      out.set(txid, (out.get(txid) ?? 0) + Number(edge?.network_gap_ms ?? 0));
+      const guid = String(group?.guid ?? "");
+      const key = `${guid}\u0000${txid}`;
+      out.set(key, (out.get(key) ?? 0) + Number(edge?.network_gap_ms ?? 0));
+      if (guid.startsWith("standalone:") || guid === txid) out.set(`\u0000${txid}`, out.get(key)!);
     }
   }
   return out;
@@ -353,10 +347,6 @@ function txidOf(value: unknown): string {
 
 function profileResponseTime(row: any): number {
   return Math.max(0, Math.round(toFiniteNumber(row?.header?.response_time_ms) ?? 0));
-}
-
-function profileMetric(row: any, key: string): number {
-  return Math.max(0, Math.round(toFiniteNumber(row?.body_metrics?.[key]) ?? 0));
 }
 
 function usePreviewRows<T>(rows: T[], limit = MSA_TABLE_PREVIEW_LIMIT) {
@@ -492,359 +482,6 @@ function buildMsaAverageDrilldownOptions(rows: any[]): MsaDrilldownOption[] {
   ];
 }
 
-function buildMsaDrilldownScope({
-  group,
-  profileRows,
-  groupEdges,
-  slowSqlRows,
-  selectedValue,
-}: {
-  group: any;
-  profileRows: any[];
-  groupEdges: any[];
-  slowSqlRows: any[];
-  selectedValue: string;
-}): MsaDrilldownScope | undefined {
-  if (!group) return undefined;
-  const wholeSelected = !selectedValue || selectedValue === "__whole__";
-  const wholeTimelineEdges = uniqueTimelineEdges([
-    ...(group?.call_graph ?? []),
-    ...groupEdges.filter((edge) => edge?.match_status && edge.match_status !== "MATCHED"),
-  ]);
-  if (wholeSelected) {
-    return {
-      group,
-      profileRows,
-      timelineEdges: wholeTimelineEdges,
-      topologyEdges: group?.call_graph ?? [],
-      serviceNetworkEdges: wholeTimelineEdges,
-      slowSqlRows,
-      networkTimeByTxid: buildNetworkTimeByTxid([group]),
-      selectedValue: "__whole__",
-      selectedApplication: group?.root_application || "전체 트랜잭션",
-      isWholeTransaction: true,
-    };
-  }
-
-  const profileByTxid = new Map<string, any>();
-  for (const row of profileRows) {
-    const txid = txidOf(row?.txid);
-    if (txid) profileByTxid.set(txid, row);
-  }
-  const targetTxid = profileByTxid.has(selectedValue)
-    ? selectedValue
-    : txidOf(group?.root_txid);
-  if (!targetTxid) {
-    return {
-      group,
-      profileRows,
-      timelineEdges: wholeTimelineEdges,
-      topologyEdges: group?.call_graph ?? [],
-      serviceNetworkEdges: wholeTimelineEdges,
-      slowSqlRows,
-      networkTimeByTxid: buildNetworkTimeByTxid([group]),
-      selectedValue: "__whole__",
-      selectedApplication: group?.root_application || "전체 트랜잭션",
-      isWholeTransaction: true,
-    };
-  }
-
-  const adjacency = new Map<string, string[]>();
-  for (const edge of group?.call_graph ?? []) {
-    const caller = txidOf(edge?.caller_txid);
-    const callee = txidOf(edge?.callee_txid);
-    if (!caller || !callee) continue;
-    const next = adjacency.get(caller) ?? [];
-    next.push(callee);
-    adjacency.set(caller, next);
-  }
-
-  const subtreeTxids = new Set<string>();
-  const stack = [targetTxid];
-  while (stack.length > 0) {
-    const txid = stack.pop();
-    if (!txid || subtreeTxids.has(txid)) continue;
-    subtreeTxids.add(txid);
-    for (const child of adjacency.get(txid) ?? []) {
-      if (!subtreeTxids.has(child)) stack.push(child);
-    }
-  }
-
-  const scopedProfiles = profileRows.filter((row) => subtreeTxids.has(txidOf(row?.txid)));
-  const scopedMatchedEdges = (group?.call_graph ?? []).filter(
-    (edge: any) =>
-      subtreeTxids.has(txidOf(edge?.caller_txid)) &&
-      subtreeTxids.has(txidOf(edge?.callee_txid)),
-  );
-  const scopedUnmatchedEdges = groupEdges.filter(
-    (edge) =>
-      edge?.match_status &&
-      edge.match_status !== "MATCHED" &&
-      subtreeTxids.has(txidOf(edge?.caller_txid)),
-  );
-  const scopedSupplementalEdges = groupEdges.filter((edge) => {
-    const caller = txidOf(edge?.caller_txid);
-    if (!caller || !subtreeTxids.has(caller)) return false;
-    if (edge?.match_status !== "MATCHED") return true;
-    const callee = txidOf(edge?.callee_txid);
-    return !callee || subtreeTxids.has(callee);
-  });
-  const scopedServiceNetworkEdges = uniqueTimelineEdges([
-    ...scopedMatchedEdges,
-    ...scopedSupplementalEdges,
-  ]);
-  const scopedTimelineEdges = uniqueTimelineEdges([
-    ...scopedMatchedEdges,
-    ...scopedUnmatchedEdges,
-  ]);
-  const scopedSlowSqlRows = slowSqlRows.filter((row) =>
-    subtreeTxids.has(txidOf(row?.txid)),
-  );
-
-  const rootRow = profileByTxid.get(targetTxid);
-  const rootResponse = profileResponseTime(rootRow);
-  const rootApplication =
-    String(rootRow?.application || "") ||
-    String(group?.root_application || "선택 애플리케이션");
-  const totals = scopedProfiles.reduce(
-    (acc, row) => {
-      acc.sql += profileMetric(row, "sql_execute_cum_ms");
-      acc.checkQuery += profileMetric(row, "check_query_cum_ms");
-      acc.twoPc += profileMetric(row, "two_pc_cum_ms");
-      acc.fetch += profileMetric(row, "fetch_cum_ms");
-      acc.fetchRows += profileMetric(row, "fetch_total_rows");
-      acc.conn += profileMetric(row, "connection_acquire_cum_ms");
-      acc.networkPrep += profileMetric(row, "network_prep_cum_ms");
-      acc.servletDispatch += profileMetric(row, "servlet_dispatch_cum_ms");
-      return acc;
-    },
-    {
-      sql: 0,
-      checkQuery: 0,
-      twoPc: 0,
-      fetch: 0,
-      fetchRows: 0,
-      conn: 0,
-      networkPrep: 0,
-      servletDispatch: 0,
-    },
-  );
-  const networkMs = scopedMatchedEdges.reduce(
-    (sum: number, edge: any) => sum + Math.max(0, Math.round(Number(edge?.network_gap_ms ?? 0))),
-    0,
-  );
-  const matchedExternalMs = scopedMatchedEdges.reduce(
-    (sum: number, edge: any) =>
-      sum + Math.max(0, Math.round(Number(edge?.external_call_elapsed_ms ?? 0))),
-    0,
-  );
-  const unprofiledMs = scopedUnmatchedEdges.reduce(
-    (sum: number, edge: any) =>
-      sum + Math.max(0, Math.round(Number(edge?.external_call_elapsed_ms ?? 0))),
-    0,
-  );
-  const covered =
-    totals.sql +
-    totals.checkQuery +
-    totals.twoPc +
-    totals.fetch +
-    totals.conn +
-    totals.networkPrep +
-    totals.servletDispatch +
-    networkMs +
-    unprofiledMs;
-  const methodTime = Math.max(0, rootResponse - covered);
-  const syntheticGroup = {
-    ...group,
-    root_txid: targetTxid,
-    root_application: rootApplication,
-    root_response_time_ms: rootResponse,
-    root_body_start_ms:
-      targetTxid === txidOf(group?.root_txid) ? group?.root_body_start_ms : undefined,
-    profile_txids: Array.from(subtreeTxids),
-    profile_count: scopedProfiles.length,
-    matched_edge_count: scopedMatchedEdges.length,
-    unmatched_edge_count: scopedUnmatchedEdges.length,
-    call_graph: scopedMatchedEdges,
-    metrics: {
-      ...(group?.metrics ?? {}),
-      profile_count: scopedProfiles.length,
-      matched_external_call_count: scopedMatchedEdges.length,
-      unmatched_external_call_count: scopedUnmatchedEdges.length,
-      total_external_call_cumulative_ms: matchedExternalMs + unprofiledMs,
-      total_unprofiled_external_call_ms: unprofiledMs,
-      total_network_gap_cumulative_ms: networkMs,
-      total_sql_execute_ms: totals.sql,
-      total_check_query_ms: totals.checkQuery,
-      total_two_pc_ms: totals.twoPc,
-      total_fetch_ms: totals.fetch,
-      total_fetch_rows: totals.fetchRows,
-      total_connection_acquire_ms: totals.conn,
-      response_time_breakdown: {
-        root_response_time_ms: rootResponse,
-        sql_execute_ms: totals.sql,
-        check_query_ms: totals.checkQuery,
-        two_pc_ms: totals.twoPc,
-        fetch_ms: totals.fetch,
-        network_call_ms: networkMs,
-        unprofiled_external_call_ms: unprofiledMs,
-        network_prep_ms: totals.networkPrep,
-        servlet_dispatch_ms: totals.servletDispatch,
-        connection_acquire_ms: totals.conn,
-        method_time_ms: methodTime,
-        method_time_ratio: rootResponse > 0 ? methodTime / rootResponse : 0,
-        coverage: rootResponse > 0 ? covered / rootResponse : 0,
-        negative_method_time: covered > rootResponse,
-      },
-    },
-  };
-
-  return {
-    group: syntheticGroup,
-    profileRows: scopedProfiles,
-    timelineEdges: scopedTimelineEdges,
-    topologyEdges: scopedMatchedEdges,
-    serviceNetworkEdges: scopedServiceNetworkEdges,
-    slowSqlRows: scopedSlowSqlRows,
-    networkTimeByTxid: buildNetworkTimeByTxid([syntheticGroup]),
-    selectedValue: targetTxid,
-    selectedApplication: rootApplication,
-    selectedTxid: targetTxid,
-    isWholeTransaction: false,
-  };
-}
-
-function representativeProfileForApplication(rows: any[], application: string): any | undefined {
-  const candidates = rows.filter(
-    (row) => String(row?.application ?? "").trim() === application,
-  );
-  if (candidates.length === 0) return undefined;
-  return [...candidates].sort(
-    (a, b) => profileResponseTime(b) - profileResponseTime(a),
-  )[0];
-}
-
-function profileRowsForGroup(group: any, rows: any[]): any[] {
-  if (!group?.guid) return [];
-  const txids = new Set((group?.profile_txids ?? []).map((txid: unknown) => txidOf(txid)));
-  return rows.filter((row) => row?.guid === group.guid || txids.has(txidOf(row?.txid)));
-}
-
-function buildMsaAverageDrilldownScopes({
-  groups,
-  profileRows,
-  msaEdges,
-  slowSqlRows,
-  selectedApplication,
-}: {
-  groups: any[];
-  profileRows: any[];
-  msaEdges: any[];
-  slowSqlRows: any[];
-  selectedApplication: string;
-}): MsaDrilldownScope[] {
-  if (!selectedApplication || selectedApplication === "__whole__") return [];
-  const scopes: MsaDrilldownScope[] = [];
-  for (const group of groups) {
-    const groupProfileRows = profileRowsForGroup(group, profileRows);
-    const representative = representativeProfileForApplication(
-      groupProfileRows,
-      selectedApplication,
-    );
-    const txid = txidOf(representative?.txid);
-    if (!txid) continue;
-    const groupEdges = msaEdges.filter((edge) => edge?.guid === group?.guid);
-    const groupTxids = txidSetFromProfiles(groupProfileRows);
-    const groupSlowSqlRows = slowSqlRows.filter((row) =>
-      groupTxids.has(txidOf(row?.txid)),
-    );
-    const scope = buildMsaDrilldownScope({
-      group,
-      profileRows: groupProfileRows,
-      groupEdges,
-      slowSqlRows: groupSlowSqlRows,
-      selectedValue: txid,
-    });
-    if (scope && !scope.isWholeTransaction) scopes.push(scope);
-  }
-  return scopes;
-}
-
-function buildAverageEdgesFromTimelineEdges(edges: any[]): any[] {
-  type State = {
-    caller: string;
-    callee: string;
-    count: number;
-    elapsedTotal: number;
-    calleeResponseTotal: number;
-    networkTotal: number;
-  };
-  const byPair = new Map<string, State>();
-  for (const edge of edges) {
-    const caller = String(edge?.caller_application ?? "");
-    const callee = String(
-      edge?.callee_application ??
-        edge?.external_call_target ??
-        edge?.external_call_url ??
-        "",
-    );
-    if (!caller || !callee) continue;
-    const key = `${caller}\u0000${callee}`;
-    const state =
-      byPair.get(key) ?? {
-        caller,
-        callee,
-        count: 0,
-        elapsedTotal: 0,
-        calleeResponseTotal: 0,
-        networkTotal: 0,
-      };
-    const callCount = Math.max(1, Math.round(toFiniteNumber(edge?.call_count) ?? 1));
-    state.count += callCount;
-    state.elapsedTotal +=
-      Math.max(0, Number(edge?.external_call_elapsed_ms ?? 0)) * callCount;
-    state.calleeResponseTotal += Math.max(
-      0,
-      Number(edge?.callee_response_time_ms ?? 0),
-    ) * callCount;
-    state.networkTotal += Math.max(
-      0,
-      Number(edge?.network_gap_ms ?? edge?.adjusted_network_gap_ms ?? 0),
-    ) * callCount;
-    byPair.set(key, state);
-  }
-  let cursor = 0;
-  return Array.from(byPair.values())
-    .sort((a, b) => b.elapsedTotal - a.elapsedTotal)
-    .map((state, idx) => {
-      const elapsed = Math.round(state.elapsedTotal / Math.max(1, state.count));
-      const start = cursor;
-      cursor += elapsed;
-      return {
-        caller_application: state.caller,
-        callee_application: state.callee,
-        caller_txid: `avg-drill-${idx}-caller`,
-        callee_txid: `avg-drill-${idx}-callee`,
-        external_call_elapsed_ms: elapsed,
-        callee_response_time_ms: Math.round(
-          state.calleeResponseTotal / Math.max(1, state.count),
-        ),
-        network_gap_ms: Math.round(state.networkTotal / Math.max(1, state.count)),
-        caller_event_start_ms: start,
-        match_status: "MATCHED",
-        call_count: state.count,
-      };
-    })
-    .filter((edge) => edge.external_call_elapsed_ms > 0);
-}
-
-function averageRootResponseMs(groups: any[]): number | undefined {
-  const values = groups
-    .map((group) => toFiniteNumber(group?.root_response_time_ms))
-    .filter((value): value is number => value != null && value > 0);
-  if (values.length === 0) return undefined;
-  return values.reduce((sum, value) => sum + value, 0) / values.length;
-}
 
 function makeCustomRule(): CustomAnalysisRule {
   return {
@@ -1101,7 +738,7 @@ function TransactionProfilesTable({
               const bm = row.body_metrics ?? {};
               const hdr = row.header ?? {};
               const issues = (row.errors?.length ?? 0) + (row.warnings?.length ?? 0);
-              const networkMs = networkTimeByTxid.get(String(row.txid ?? "")) ?? 0;
+              const networkMs = networkTimeByTxid.get(`${String(row.guid ?? "")}\u0000${String(row.txid ?? "")}`) ?? 0;
               return (
                 <tr key={idx} className="border-b border-border last:border-0">
                   <td className="px-3 py-2 font-mono text-xs">{row.txid}</td>
@@ -2473,7 +2110,6 @@ export function JenniferProfilePage(): React.JSX.Element {
   const unprofiledExternalCallRows: any[] =
     result?.tables?.unprofiled_external_call_groups ?? [];
   const slowSqlRows: any[] = result?.tables?.slow_sql_events ?? [];
-  const methodHotspotRows: any[] = result?.tables?.method_hotspots ?? [];
   const customRuleRows: any[] = result?.tables?.custom_rule_stats ?? [];
   const signatureStats: any[] = result?.series?.signature_statistics ?? [];
   const hasResult = Boolean(result);
@@ -2507,23 +2143,13 @@ export function JenniferProfilePage(): React.JSX.Element {
     );
   }, [groupsWithCallGraph, guidGroups, selectedGuid]);
 
-  const singleGroupEdges: any[] = useMemo(() => {
-    if (!selectedGuidGroup?.guid) return [];
-    return msaEdges.filter((edge) => edge?.guid === selectedGuidGroup.guid);
-  }, [msaEdges, selectedGuidGroup]);
-
   const singleProfileRows: any[] = useMemo(() => {
     if (!selectedGuidGroup?.guid) return [];
     const txids = new Set((selectedGuidGroup?.profile_txids ?? []) as string[]);
     return profileRows.filter(
-      (row) => row?.guid === selectedGuidGroup.guid || txids.has(row?.txid),
+      (row) => row?.guid === selectedGuidGroup.guid || (!row?.guid && txids.has(row?.txid)),
     );
   }, [profileRows, selectedGuidGroup]);
-
-  const singleSlowSqlRows: any[] = useMemo(() => {
-    const txids = txidSetFromProfiles(singleProfileRows);
-    return slowSqlRows.filter((row) => txids.has(String(row?.txid ?? "")));
-  }, [singleProfileRows, slowSqlRows]);
 
   const msaDrilldownOptions = useMemo(
     () => buildMsaDrilldownOptions(selectedGuidGroup, singleProfileRows),
@@ -2536,24 +2162,6 @@ export function JenniferProfilePage(): React.JSX.Element {
       ? selectedMsaDrilldown
       : "__whole__";
   }, [msaDrilldownOptions, selectedMsaDrilldown]);
-
-  const singleDrilldownScope = useMemo(
-    () =>
-      buildMsaDrilldownScope({
-        group: selectedGuidGroup,
-        profileRows: singleProfileRows,
-        groupEdges: singleGroupEdges,
-        slowSqlRows: singleSlowSqlRows,
-        selectedValue: selectedMsaDrilldownValue,
-      }),
-    [
-      selectedGuidGroup,
-      singleProfileRows,
-      singleGroupEdges,
-      singleSlowSqlRows,
-      selectedMsaDrilldownValue,
-    ],
-  );
 
   const selectedSignature = useMemo(() => {
     if (signatureStats.length === 0) return undefined;
@@ -2595,7 +2203,7 @@ export function JenniferProfilePage(): React.JSX.Element {
       }
     }
     return profileRows.filter(
-      (row) => selectedSignatureGuidSet.has(row?.guid) || txids.has(row?.txid),
+      (row) => selectedSignatureGuidSet.has(row?.guid) || (!row?.guid && txids.has(row?.txid)),
     );
   }, [profileRows, selectedSignatureGuidSet, signatureGroups]);
 
@@ -2634,23 +2242,55 @@ export function JenniferProfilePage(): React.JSX.Element {
       : "__whole__";
   }, [averageDrilldownOptions, selectedAverageMsaDrilldown]);
 
-  const averageDrilldownScopes = useMemo(
-    () =>
-      buildMsaAverageDrilldownScopes({
-        groups: signatureGroups,
-        profileRows,
-        msaEdges,
-        slowSqlRows,
-        selectedApplication: selectedAverageMsaDrilldownValue,
-      }),
-    [
-      signatureGroups,
-      profileRows,
-      msaEdges,
-      slowSqlRows,
-      selectedAverageMsaDrilldownValue,
-    ],
-  );
+  const drilldownSelection = useMemo<JenniferDrilldownSelection | null>(() => {
+    if (!result) return null;
+    if (msaTimelineMode === "single") {
+      if (!selectedGuidGroup?.guid) return null;
+      return { mode: "single", guid: selectedGuidGroup.guid,
+        ...(selectedMsaDrilldownValue === "__whole__" ? {} : { txid: selectedMsaDrilldownValue }) };
+    }
+    if (!selectedSignature?.signature_hash) return null;
+    return { mode: "average", signature_hash: selectedSignature.signature_hash,
+      ...(selectedAverageMsaDrilldownValue === "__whole__" ? {} : { application: selectedAverageMsaDrilldownValue }) };
+  }, [result, msaTimelineMode, selectedGuidGroup, selectedSignature, selectedMsaDrilldownValue, selectedAverageMsaDrilldownValue]);
+  const drilldownKey = JSON.stringify(drilldownSelection);
+  const [drilldownSnapshot, setDrilldownSnapshot] = useState<{
+    source: unknown; key: string; projection?: AnalysisResult; scopes: MsaDrilldownScope[]; error?: string;
+  } | null>(null);
+  const [drilldownExporting, setDrilldownExporting] = useState(false);
+  const [drilldownNotice, setDrilldownNotice] = useState("");
+  useEffect(() => {
+    if (!result || !drilldownSelection) return;
+    let disposed = false;
+    setDrilldownNotice("");
+    // A changed selection/source invalidates the snapshot immediately.
+    // A late response cannot replace the current selection.
+    void engine.projectJenniferDrilldown({ result, selection: drilldownSelection }).then((projection) => {
+      if (disposed) return;
+      const scopes = readJenniferDrilldown(projection);
+      setDrilldownSnapshot({ source: result, key: drilldownKey, projection, scopes });
+    }).catch((caught: unknown) => {
+      if (!disposed) setDrilldownSnapshot({ source: result, key: drilldownKey, scopes: [], error: String(caught) });
+    });
+    return () => { disposed = true; };
+  }, [result, drilldownKey]);
+  const currentDrilldown = isCurrentJenniferProjection(drilldownSnapshot, result, drilldownKey) ? drilldownSnapshot : null;
+  const singleDrilldownScope = msaTimelineMode === "single" ? currentDrilldown?.scopes[0] : undefined;
+  const averageDrilldownScopes = msaTimelineMode === "average" ? currentDrilldown?.scopes ?? [] : [];
+  const exportDrilldown = async (format: "json" | "html") => {
+    const projection = currentDrilldown?.projection;
+    if (!projection || drilldownExporting) return;
+    setDrilldownExporting(true);
+    try {
+      const path = await Dialogs.SaveFile({ Title: t("exportChooseOutput"), Filename: `jennifer-drilldown.${format}`,
+        Filters: [{ DisplayName: format.toUpperCase(), Pattern: `*.${format}` }] });
+      if (!path) return;
+      if (format === "json") await engine.exportJSON({ path, result: projection });
+      else await engine.exportHTML({ path, result: projection });
+      setDrilldownNotice(`${t("exportCompleted")}: ${path}`);
+    } catch (caught) { setDrilldownNotice(String(caught)); }
+    finally { setDrilldownExporting(false); }
+  };
 
   const averageDrilldownGroups = useMemo(
     () =>
@@ -2682,9 +2322,10 @@ export function JenniferProfilePage(): React.JSX.Element {
     () =>
       selectedAverageMsaDrilldownValue === "__whole__"
         ? averageTimelineEdges
-        : buildAverageEdgesFromTimelineEdges(averageDrilldownActualEdges),
+        : (currentDrilldown?.projection?.series.drilldown_average_timeline_edges as any[] ?? []),
     [
       averageDrilldownActualEdges,
+      currentDrilldown,
       averageTimelineEdges,
       selectedAverageMsaDrilldownValue,
     ],
@@ -2698,7 +2339,7 @@ export function JenniferProfilePage(): React.JSX.Element {
   const averageDrilldownRootDurationMs =
     selectedAverageMsaDrilldownValue === "__whole__"
       ? statValue(selectedSignature?.metrics?.root_response_time_ms, "avg")
-      : averageRootResponseMs(averageDrilldownGroups);
+      : toFiniteNumber((currentDrilldown?.projection?.series.drilldown_average_breakdown as any)?.root_response_time_ms);
 
   // 부가/검증 탭에서 "MSA 드릴다운 기준" 토글이 켜져 있을 때 적용할
   // 활성 범위. 단일/평균 + 전체/드릴다운 4분면을 한 곳으로 모아
@@ -2746,61 +2387,25 @@ export function JenniferProfilePage(): React.JSX.Element {
     singleDrilldownScope,
   ]);
 
-  const profilesScopeActive =
-    profilesViewScope === "drilldown" && activeMsaScope.available;
-
-  const scopedProfileRows = useMemo(() => {
-    if (!profilesScopeActive) return profileRows;
-    return profileRows.filter((row: any) =>
-      activeMsaScope.txids.has(String(row?.txid ?? "")),
-    );
-  }, [activeMsaScope, profileRows, profilesScopeActive]);
-
-  const scopedNetworkPrepRows = useMemo(() => {
-    if (!profilesScopeActive) return networkPrepRows;
-    return networkPrepRows.filter((row: any) =>
-      activeMsaScope.txids.has(String(row?.txid ?? "")),
-    );
-  }, [activeMsaScope, networkPrepRows, profilesScopeActive]);
-
-  const scopedUnprofiledExternalCallRows = useMemo(() => {
-    if (!profilesScopeActive) return unprofiledExternalCallRows;
-    return unprofiledExternalCallRows.filter((row: any) => {
-      const guid = String(row?.guid ?? "");
-      if (guid && activeMsaScope.guids.has(guid)) {
-        // GUID 매칭 후, 평균 드릴다운(=특정 app) 모드면 caller_txids 가
-        // 선택된 앱의 TXID 와 겹쳐야만 표시 — guid 만으로 들어오면 같은
-        // 트랜잭션의 다른 앱 호출까지 따라들어오기 때문.
-        if (msaTimelineMode === "average" &&
-            selectedAverageMsaDrilldownValue !== "__whole__") {
-          const callerTxids = Array.isArray(row?.caller_txids)
-            ? (row.caller_txids as string[])
-            : [];
-          if (callerTxids.length === 0) return true;
-          return callerTxids.some((t) => activeMsaScope.txids.has(String(t)));
-        }
-        return true;
+  const profilesScopeActive = profilesViewScope === "drilldown";
+  const scopedProfileRows = profilesScopeActive
+    ? (currentDrilldown?.projection?.tables.profiles as any[] ?? []) : profileRows;
+  const scopedNetworkPrepRows = profilesScopeActive
+    ? (currentDrilldown?.projection?.tables.network_prep_methods as any[] ?? []) : networkPrepRows;
+  // Parent rollups cannot be relabeled as selected-subtree costs. Keep them
+  // in the whole-result view until the analyzer can recompute those rollups.
+  const scopedUnprofiledExternalCallRows = profilesScopeActive ? [] : unprofiledExternalCallRows;
+  const scopedCustomRuleRows = profilesScopeActive ? [] : customRuleRows;
+  const scopedProfileNetworkTime = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const scope of currentDrilldown?.scopes ?? []) {
+      for (const row of scope.profileRows) {
+        map.set(`${String(row.guid ?? "")}\u0000${String(row.txid ?? "")}`, scope.networkTimeByTxid.get(String(row.txid ?? "")) ?? 0);
       }
-      return false;
-    });
-  }, [
-    activeMsaScope,
-    msaTimelineMode,
-    profilesScopeActive,
-    selectedAverageMsaDrilldownValue,
-    unprofiledExternalCallRows,
-  ]);
-
-  const scopedCustomRuleRows = useMemo(() => {
-    if (!profilesScopeActive) return customRuleRows;
-    return customRuleRows.filter((row: any) => {
-      const matched = Array.isArray(row?.matched_txids)
-        ? (row.matched_txids as string[])
-        : [];
-      if (matched.length === 0) return false;
-      return matched.some((t) => activeMsaScope.txids.has(String(t)));
-    });
-  }, [activeMsaScope, customRuleRows, profilesScopeActive]);
+    }
+    return map;
+  }, [currentDrilldown]);
+  const scopedMethodHotspotRows = (currentDrilldown?.projection?.tables.method_hotspots as any[] ?? []);
 
   const msaTabApiEdges = useMemo(() => {
     if (msaTimelineMode === "single") {
@@ -3651,7 +3256,20 @@ export function JenniferProfilePage(): React.JSX.Element {
               </CardContent>
             </Card>
 
-            {msaTimelineMode === "single" ? (
+            <div className="flex flex-wrap items-center gap-2 text-xs" aria-live="polite">
+              {!currentDrilldown && drilldownSelection && <span>{locale === "ko" ? "선택 범위 계산 중…" : "Calculating selected scope…"}</span>}
+              {currentDrilldown?.error && <span role="alert" className="text-destructive">{currentDrilldown.error}</span>}
+              {currentDrilldown?.projection && <span>{locale === "ko" ? "Go 드릴다운 표본" : "Go drilldown samples"}: {String(currentDrilldown.projection.summary.sample_count)} / {String(currentDrilldown.projection.summary.candidate_group_count)}</span>}
+              <Button size="sm" variant="outline" disabled={!currentDrilldown?.projection || drilldownExporting} onClick={() => void exportDrilldown("json")}>{locale === "ko" ? "선택 범위 JSON 저장" : "Save scope JSON"}</Button>
+              <Button size="sm" variant="outline" disabled={!currentDrilldown?.projection || drilldownExporting} onClick={() => void exportDrilldown("html")}>{locale === "ko" ? "선택 범위 HTML 저장" : "Save scope HTML"}</Button>
+              <Button size="sm" variant="outline" disabled={!currentDrilldown?.projection} onClick={() => {
+                if (!currentDrilldown?.projection) return;
+                addWorkspaceResult({ result: currentDrilldown.projection, title: "Jennifer MSA drilldown" });
+                setDrilldownNotice(locale === "ko" ? "선택 범위를 Workspace에 추가했습니다." : "Selected scope added to Workspace.");
+              }}>{locale === "ko" ? "선택 범위 Workspace 추가" : "Add scope to Workspace"}</Button>
+              {drilldownNotice && <span>{drilldownNotice}</span>}
+            </div>
+            {!currentDrilldown?.projection ? null : msaTimelineMode === "single" ? (
               singleDrilldownScope ? (
                 <>
                   <MsaResponseTimeBreakdown
@@ -3675,7 +3293,7 @@ export function JenniferProfilePage(): React.JSX.Element {
                     sampleCount={msaTabApiSampleCount}
                   />
                   <MsaMethodHotspots
-                    rows={methodHotspotRows}
+                    rows={scopedMethodHotspotRows}
                     txids={activeMsaScope.available ? activeMsaScope.txids : null}
                     defaultAggregationMode="sum"
                     sampleCount={1}
@@ -3752,7 +3370,7 @@ export function JenniferProfilePage(): React.JSX.Element {
                   sampleCount={msaTabApiSampleCount}
                 />
                 <MsaMethodHotspots
-                  rows={methodHotspotRows}
+                  rows={scopedMethodHotspotRows}
                   txids={activeMsaScope.available ? activeMsaScope.txids : null}
                   defaultAggregationMode="avg"
                   sampleCount={Math.max(1, averageDrilldownGroups.length)}
@@ -3843,8 +3461,9 @@ export function JenniferProfilePage(): React.JSX.Element {
             </Card>
             <TransactionProfilesTable
               rows={scopedProfileRows}
-              networkTimeByTxid={allProfileNetworkTimeByTxid}
+              networkTimeByTxid={profilesScopeActive ? scopedProfileNetworkTime : allProfileNetworkTimeByTxid}
             />
+            {profilesScopeActive && <p className="text-xs text-muted-foreground">{locale === "ko" ? "사용자 규칙·미수집 외부 호출의 집계는 선택 범위에서 재계산하지 않습니다. 해당 집계는 전체 보기에서 확인하세요." : "Custom-rule and unprofiled-call rollups are available in the whole-result view; they are not recomputed for this scope."}</p>}
             <CustomRuleStatsPanel rows={scopedCustomRuleRows} />
             <NetworkPrepMethodsTable rows={scopedNetworkPrepRows} />
             <UnprofiledExternalCallGroupsTable rows={scopedUnprofiledExternalCallRows} />

@@ -25,6 +25,7 @@
 package jenniferprofile
 
 import (
+	"encoding/json"
 	"fmt"
 	"html"
 	"sort"
@@ -51,6 +52,7 @@ func RenderHTMLReport(result models.AnalysisResult) string {
 	}
 
 	renderSummarySection(&b, result.Summary)
+	renderDrilldownScope(&b, result)
 	renderFileSummary(&b, getMapSlice(result.Series, "file_summary"))
 	renderFileErrors(&b, getMapSlice(result.Tables, "file_errors"))
 	renderSignatureStats(&b, getMapSlice(result.Series, "signature_statistics"))
@@ -61,6 +63,27 @@ func RenderHTMLReport(result models.AnalysisResult) string {
 
 	b.WriteString("</body></html>\n")
 	return b.String()
+}
+
+func renderDrilldownScope(b *strings.Builder, result models.AnalysisResult) {
+	scope, ok := result.Metadata.Extra["drilldown"].(map[string]any)
+	if !ok {
+		return
+	}
+	selection, _ := json.Marshal(scope["selection"])
+	fmt.Fprintf(b, "<h2>Drilldown scope</h2><p>Contract %s · samples %s / candidates %s · excluded %s</p><p class=\"mono\">%s</p><p>Cumulative costs; one representative per GUID. This is not a critical-path duration.</p>\n",
+		html.EscapeString(fmtScalar(scope["version"])), html.EscapeString(fmtScalar(scope["sample_count"])), html.EscapeString(fmtScalar(scope["candidate_group_count"])), html.EscapeString(fmtScalar(scope["excluded_group_count"])), html.EscapeString(string(selection)))
+	average := getMap(result.Series, "drilldown_average_breakdown")
+	keys := []string{}
+	for key := range average {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	b.WriteString("<h2>Mean response-time composition per GUID (ms)</h2><table><thead><tr><th>Component</th><th>Value</th></tr></thead><tbody>")
+	for _, key := range keys {
+		fmt.Fprintf(b, "<tr><td>%s</td><td class=\"num\">%s</td></tr>", html.EscapeString(key), html.EscapeString(fmtScalar(average[key])))
+	}
+	b.WriteString("</tbody></table>\n")
 }
 
 func htmlHead() string {

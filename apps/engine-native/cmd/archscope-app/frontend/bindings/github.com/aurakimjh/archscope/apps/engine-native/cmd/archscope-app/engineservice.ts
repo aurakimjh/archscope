@@ -352,6 +352,12 @@ export function GetHttpEvidenceCorrelationContract(): $CancellablePromise<api$0.
     });
 }
 
+export function ProjectJenniferDrilldown(req: $models.JenniferDrilldownRequest): $CancellablePromise<api$0.AnalysisResult> {
+    return $Call.ByID(1998352314, req).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
 export function ResolveWorkspaceComparison(req: $models.WorkspaceComparisonRequest): $CancellablePromise<api$0.WorkspaceComparisonRoute> {
     return $Call.ByID(4088206667, req).then(($result: any) => {
         return $$createType7($result);

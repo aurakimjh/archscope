@@ -58,6 +58,7 @@ export {
     HttpCaptureDiffRequest,
     HttpCaptureRequest,
     HttpEvidenceCorrelationRequest,
+    JenniferDrilldownRequest,
     JenniferProfileRequest,
     JfrRequest,
     LockContentionRequest,

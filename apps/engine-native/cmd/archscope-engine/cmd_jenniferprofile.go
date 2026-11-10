@@ -12,27 +12,31 @@
 // 분석하는 것이 주 사용 케이스입니다.
 //
 // MVP 단계
-//   MVP1 : 단일 파일 → AnalysisResult JSON.
-//   MVP2 : 다중 파일 그룹화(GUID 또는 TXID 상관) + Network Gap 계산.
-//   MVP3 : 동일 호출 시그니처 통계(Timeline Signature stats).
-//   MVP4 : 병렬도(parallelism) 분석 + 자기 충족적 HTML 보고서.
+//
+//	MVP1 : 단일 파일 → AnalysisResult JSON.
+//	MVP2 : 다중 파일 그룹화(GUID 또는 TXID 상관) + Network Gap 계산.
+//	MVP3 : 동일 호출 시그니처 통계(Timeline Signature stats).
+//	MVP4 : 병렬도(parallelism) 분석 + 자기 충족적 HTML 보고서.
 //
 // 2개 리프 명령
-//   analyze     : 결과를 AnalysisResult JSON 으로 출력.
-//   report-html : 같은 파이프라인을 돌린 뒤 HTML 보고서 한 파일로 묶음.
+//
+//	analyze     : 결과를 AnalysisResult JSON 으로 출력.
+//	report-html : 같은 파이프라인을 돌린 뒤 HTML 보고서 한 파일로 묶음.
 //
 // 핵심 옵션
-//   --in (반복/콤마)              : 다중 입력. splitCommaSeparated 로
-//                                   정규화한 뒤 AnalyzeFiles 에 전달.
-//   --fallback-correlation-to-txid: GUID 가 없는 export(구버전 또는
-//                                   특정 환경)에서 TXID 를 상관 키로 대체.
-//   --header-body-tolerance-ms    : 헤더 사전 집계와 본문 합의 허용 오차.
-//                                   APM 라인 타임스탬프가 수 ms drift
-//                                   할 수 있어 0~수 ms 가 일반적.
+//
+//	--in (반복/콤마)              : 다중 입력. splitCommaSeparated 로
+//	                                정규화한 뒤 AnalyzeFiles 에 전달.
+//	--fallback-correlation-to-txid: GUID 가 없는 export(구버전 또는
+//	                                특정 환경)에서 TXID 를 상관 키로 대체.
+//	--header-body-tolerance-ms    : 헤더 사전 집계와 본문 합의 허용 오차.
+//	                                APM 라인 타임스탬프가 수 ms drift
+//	                                할 수 있어 0~수 ms 가 일반적.
 //
 // 흐름 (analyze)
-//   splitCommaSeparated → AnalyzeFiles(paths, opts) → AnalysisResult →
-//   writeJSONResult.
+//
+//	splitCommaSeparated → AnalyzeFiles(paths, opts) → AnalysisResult →
+//	writeJSONResult.
 package main
 
 import (
@@ -42,6 +46,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/jenniferprofile"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 )
 
 func init() {
@@ -58,6 +63,7 @@ func init() {
 		fallbackToTxid bool
 		toleranceMs    int
 		out            string
+		drilldown      jenniferprofile.DrilldownOptions
 	)
 
 	analyze := &cobra.Command{
@@ -73,6 +79,10 @@ func init() {
 				FallbackCorrelationToTxid: fallbackToTxid,
 				HeaderBodyToleranceMs:     toleranceMs,
 			})
+			if err != nil {
+				return err
+			}
+			result, err = applyJenniferDrilldown(result, drilldown)
 			if err != nil {
 				return err
 			}
@@ -103,6 +113,10 @@ func init() {
 			if err != nil {
 				return err
 			}
+			result, err = applyJenniferDrilldown(result, drilldown)
+			if err != nil {
+				return err
+			}
 			html := jenniferprofile.RenderHTMLReport(result)
 			if out == "" || out == "-" {
 				_, err := os.Stdout.WriteString(html)
@@ -119,7 +133,24 @@ func init() {
 		"max ms drift between header pre-aggregates and body sums (default 1)")
 	report.Flags().StringVar(&out, "out", "-", "output HTML path; `-` for stdout")
 
+	for _, command := range []*cobra.Command{analyze, report} {
+		command.Flags().StringVar(&drilldown.GUID, "guid", "", "project one MSA GUID (optional --txid)")
+		command.Flags().StringVar(&drilldown.TXID, "txid", "", "project this TXID and downstream calls inside --guid")
+		command.Flags().StringVar(&drilldown.SignatureHash, "signature", "", "project groups of this signature (optional --application)")
+		command.Flags().StringVar(&drilldown.Application, "application", "", "choose the slowest matching application URL once per GUID")
+	}
 	group.AddCommand(analyze)
 	group.AddCommand(report)
 	rootCmd.AddCommand(group)
+}
+
+func applyJenniferDrilldown(result models.AnalysisResult, selection jenniferprofile.DrilldownOptions) (models.AnalysisResult, error) {
+	if selection.GUID == "" && selection.TXID == "" && selection.SignatureHash == "" && selection.Application == "" {
+		return result, nil
+	}
+	selection.Mode = "single"
+	if selection.SignatureHash != "" {
+		selection.Mode = "average"
+	}
+	return jenniferprofile.ProjectDrilldown(result, selection)
 }

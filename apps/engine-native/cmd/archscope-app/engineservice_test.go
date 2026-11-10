@@ -20,6 +20,9 @@ import (
 	"strings"
 	"testing"
 
+	engineapi "github.com/aurakimjh/archscope/apps/engine-native/api"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/jenniferprofile"
+
 	httpanalyzer "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/httpcapture"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/redact"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
@@ -522,5 +525,57 @@ func TestEngineService_PathRequired(t *testing.T) {
 	}
 	if err := svc.ExportJSON(ExportJSONRequest{}); err == nil {
 		t.Fatalf("ExportJSON: expected error for empty path")
+	}
+}
+
+func TestJenniferDrilldownServiceExportParity(t *testing.T) {
+	svc := &EngineService{}
+	input := filepath.Join("..", "..", "internal", "parsers", "jenniferprofile", "testdata", "sample_two_tx.txt")
+	original, err := svc.AnalyzeJenniferProfile(JenniferProfileRequest{Path: input})
+	if err != nil {
+		t.Fatal(err)
+	}
+	groups := original.Series["guid_groups"].([]map[string]any)
+	selection := engineapi.JenniferDrilldownOptions{Mode: "single", GUID: groups[0]["guid"].(string), TXID: groups[0]["root_txid"].(string)}
+	direct, err := engineapi.ProjectJenniferDrilldown(original, selection)
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, _ := json.Marshal(JenniferDrilldownRequest{Result: original, Selection: selection})
+	var wire JenniferDrilldownRequest
+	if err = json.Unmarshal(raw, &wire); err != nil {
+		t.Fatal(err)
+	}
+	actual, err := svc.ProjectJenniferDrilldown(wire)
+	if err != nil {
+		t.Fatal(err)
+	}
+	a, _ := json.Marshal(direct)
+	b, _ := json.Marshal(actual)
+	if string(a) != string(b) {
+		t.Fatal("service/core result mismatch")
+	}
+	dir := t.TempDir()
+	jsonPath, htmlPath := filepath.Join(dir, "scope.json"), filepath.Join(dir, "scope.html")
+	if err = svc.ExportJSON(ExportJSONRequest{Path: jsonPath, Result: actual}); err != nil {
+		t.Fatal(err)
+	}
+	if err = svc.ExportHTML(ExportHTMLRequest{Path: htmlPath, Result: actual}); err != nil {
+		t.Fatal(err)
+	}
+	saved, err := os.ReadFile(jsonPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var restored models.AnalysisResult
+	if err = json.Unmarshal(saved, &restored); err != nil {
+		t.Fatal(err)
+	}
+	report, _ := os.ReadFile(htmlPath)
+	if string(report) != jenniferprofile.RenderHTMLReport(restored) {
+		t.Fatal("JSON roundtrip/HTML differ")
+	}
+	if !strings.Contains(string(report), "Drilldown scope") {
+		t.Fatal("scope label missing")
 	}
 }

@@ -237,6 +237,13 @@ export function analyzeJenniferProfile(
   return call<AnalysisResult>("AnalyzeJenniferProfile", req);
 }
 
+export function projectJenniferDrilldown(req: {
+  result: AnalysisResult;
+  selection: import("../state/jenniferDrilldown").JenniferDrilldownSelection;
+}): CancellablePromise<AnalysisResult> {
+  return call<AnalysisResult>("ProjectJenniferDrilldown", req);
+}
+
 export function analyzeThreadDump(
   req: ThreadDumpRequest,
 ): CancellablePromise<AnalysisResult> {
@@ -340,6 +347,7 @@ export const engine = {
   analyzeProfileEvidence,
   analyzeBrowserAudit,
   analyzeJenniferProfile,
+  projectJenniferDrilldown,
   analyzeThreadDump,
   analyzeMultiThread,
   analyzeLockContention,

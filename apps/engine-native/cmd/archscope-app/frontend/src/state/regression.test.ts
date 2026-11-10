@@ -1,3 +1,4 @@
+import { isCurrentJenniferProjection, readJenniferDrilldown } from "./jenniferDrilldown.js";
 import { HttpCommandRouter, httpCommandForKey, isHttpCommand } from "./httpCommands.js";
 import { formatProfileSeconds, profileWeightUnit } from "./profileDuration.js";
 import { partition } from "d3-hierarchy";
@@ -3151,3 +3152,24 @@ const reentryTerminal = liveHttpCaptureReducer(initialLiveCaptureState,{type:"st
 assert(reentryTerminal.session?.state === "finalized","Stop arriving before initial hydration restores terminal state");
 const initialHydration = liveHttpCaptureReducer(initialLiveCaptureState,{type:"hydrate",session:reentrySession,stats:null,transactions:[{...pendingLiveRow,generation:2},{...pendingLiveRow,id:"old-generation",generation:0}]});
 assert(initialHydration.transactions.length === 1 && initialHydration.needsResync,"Re-entry filters old generation and refreshes running capture after lost early events");
+
+// T-557: a new source or selector invalidates export eligibility immediately.
+const jenniferSource = {};
+const jenniferSnapshot = {source:jenniferSource,key:'single:g1:b'};
+assert(isCurrentJenniferProjection(jenniferSnapshot,jenniferSource,'single:g1:b'),"Current Jennifer projection is available");
+assert(!isCurrentJenniferProjection(jenniferSnapshot,{},'single:g1:b'),"Reanalysis rejects a stale Jennifer projection");
+assert(!isCurrentJenniferProjection(jenniferSnapshot,jenniferSource,'single:g1:c'),"Changed selection rejects stale Jennifer export");
+assert(!isCurrentJenniferProjection(null,jenniferSource,'single:g1:b'),"Pending Jennifer projection is unavailable");
+const jenniferWireScope = {
+  group:{guid:'g1'},profile_rows:[{txid:'b'}],timeline_edges:[],topology_edges:[],service_network_edges:[],slow_sql_rows:[],
+  network_time_by_txid:{b:10},selected_value:'b',selected_application:'/middle',selected_txid:'b',is_whole_transaction:false,
+};
+const jenniferProjection = {
+  type:'jennifer_profile',source_files:[],created_at:'',summary:{},series:{drilldown_scopes:[jenniferWireScope]},tables:{},charts:{},
+  metadata:{drilldown:{version:'1.0.0'}},
+};
+const adaptedJennifer = readJenniferDrilldown(jenniferProjection);
+assert(adaptedJennifer[0].selectedTxid==='b' && adaptedJennifer[0].networkTimeByTxid.get('b')===10,"Jennifer wire adapter preserves backend results");
+let rejectedJennifer = false;
+try { readJenniferDrilldown({...jenniferProjection,metadata:{drilldown:{version:'2.0.0'}}}); } catch { rejectedJennifer=true; }
+assert(rejectedJennifer,"Unknown Jennifer contract fails visibly");

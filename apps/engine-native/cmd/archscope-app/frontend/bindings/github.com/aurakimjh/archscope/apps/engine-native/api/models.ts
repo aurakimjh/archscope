@@ -13,6 +13,9 @@ import * as httpcapture$0 from "../internal/analyzers/httpcapture/models.js";
 import * as httpcorrelation$0 from "../internal/analyzers/httpcorrelation/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
+import * as jenniferprofile$0 from "../internal/analyzers/jenniferprofile/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
 import * as models$0 from "../internal/models/models.js";
 
 /**
@@ -44,6 +47,16 @@ export const HttpEvidenceCorrelationContract = httpcorrelation$0.Contract;
  * HttpEvidenceCorrelationContract describes the X-RG1 backend/UI boundary.
  */
 export type HttpEvidenceCorrelationContract = httpcorrelation$0.Contract;
+
+/**
+ * JenniferDrilldownOptions selects an existing MSA result without reopening files.
+ */
+export const JenniferDrilldownOptions = jenniferprofile$0.DrilldownOptions;
+
+/**
+ * JenniferDrilldownOptions selects an existing MSA result without reopening files.
+ */
+export type JenniferDrilldownOptions = jenniferprofile$0.DrilldownOptions;
 
 /**
  * WorkspaceComparisonRoute describes the backend-selected comparison path.

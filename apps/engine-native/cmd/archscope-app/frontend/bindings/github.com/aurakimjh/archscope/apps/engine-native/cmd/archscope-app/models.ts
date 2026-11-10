@@ -10,6 +10,9 @@ import { Create as $Create } from "@wailsio/runtime";
 import * as api$0 from "../../api/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
+import * as jenniferprofile$0 from "../../internal/analyzers/jenniferprofile/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
 import * as aggregate$0 from "../../internal/capture/aggregate/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
@@ -1611,6 +1614,43 @@ export class HttpEvidenceCorrelationRequest {
 }
 
 /**
+ * JenniferDrilldownRequest carries the exact result currently shown by the UI.
+ * Projection never reruns parsing or silently substitutes another selection.
+ */
+export class JenniferDrilldownRequest {
+    "result": api$0.AnalysisResult;
+    "selection": api$0.JenniferDrilldownOptions;
+
+    /** Creates a new JenniferDrilldownRequest instance. */
+    constructor($$source: Partial<JenniferDrilldownRequest> = {}) {
+        if (!("result" in $$source)) {
+            this["result"] = (new api$0.AnalysisResult());
+        }
+        if (!("selection" in $$source)) {
+            this["selection"] = (new api$0.JenniferDrilldownOptions());
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new JenniferDrilldownRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): JenniferDrilldownRequest {
+        const $$createField0_0 = $$createType9;
+        const $$createField1_0 = $$createType15;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("result" in $$parsedSource) {
+            $$parsedSource["result"] = $$createField0_0($$parsedSource["result"]);
+        }
+        if ("selection" in $$parsedSource) {
+            $$parsedSource["selection"] = $$createField1_0($$parsedSource["selection"]);
+        }
+        return new JenniferDrilldownRequest($$parsedSource as Partial<JenniferDrilldownRequest>);
+    }
+}
+
+/**
  * JenniferProfileRequest accepts a single Path or repeatable Paths
  * for multi-file batches. FallbackCorrelationToTxid mirrors the
  * CLI flag of the same name.
@@ -1662,7 +1702,7 @@ export class JenniferProfileRequest {
         const $$createField4_0 = $$createType2;
         const $$createField5_0 = $$createType2;
         const $$createField6_0 = $$createType3;
-        const $$createField7_0 = $$createType16;
+        const $$createField7_0 = $$createType17;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("paths" in $$parsedSource) {
             $$parsedSource["paths"] = $$createField1_0($$parsedSource["paths"]);
@@ -2086,5 +2126,6 @@ const $$createType11 = $Create.Array($$createType10);
 const $$createType12 = $Create.Map($Create.Any, $Create.Any);
 const $$createType13 = profiler$0.DrilldownFilter.createFrom;
 const $$createType14 = $Create.Array($$createType13);
-const $$createType15 = models$0.JenniferCustomAnalysisRule.createFrom;
-const $$createType16 = $Create.Array($$createType15);
+const $$createType15 = jenniferprofile$0.DrilldownOptions.createFrom;
+const $$createType16 = models$0.JenniferCustomAnalysisRule.createFrom;
+const $$createType17 = $Create.Array($$createType16);

@@ -5,5 +5,6 @@ export {
     AnalysisResult,
     HttpCaptureDiffContract,
     HttpEvidenceCorrelationContract,
+    JenniferDrilldownOptions,
     WorkspaceComparisonRoute
 } from "./models.js";
