@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "productCommit": "8fa42c7d2733e4aae7c7674fb415ec799e51fe82",
+  "engineRun": {
+    "id": 42864136819,
+    "url": "https://github.com/aurakimjh/archscope/actions/runs/42864136819",
+    "conclusion": "cancelled",
+    "jobs": [
+      {
+        "name": "macOS offline import/package smoke",
+        "conclusion": "cancelled"
+      },
+      {
+        "name": "Windows GUI cross-build (386)",
+        "conclusion": "success",
+        "steps": [
+          "Set up job",
+          "Run actions/checkout@v7",
+          "Run actions/setup-go@v7",
+          "Run actions/setup-node@v6",
+          "Frontend production assets",
+          "Build Windows GUI executable",
+          "Post Run actions/setup-node@v6",
+          "Post Run actions/setup-go@v7",
+          "Post Run actions/checkout@v7",
+          "Complete job"
+        ]
+      },
+      {
+        "name": "Go test/build (windows-latest)",
+        "conclusion": "success",
+        "steps": [
+          "Set up job",
+          "Checkout",
+          "Set up Go",
+          "Set up Node for desktop policy checks",
+          "go vet",
+          "Enforce desktop-only product targets",
+          "go build",
+          "go test",
+          "Windows live-capture E2E",
+          "Windows resolver-cost measurement",
+          "Upload Windows resolver-cost evidence",
+          "Native registry policy rename regression",
+          "Prepare SEC-10 crash-dump policy",
+          "Windows request and response body capture E2E",
+          "SEC-10 crash-dump exclusion evidence",
+          "Restore SEC-10 crash-dump policy",
+          "Upload SEC-10 dump-exclusion evidence",
+          "Post Set up Node for desktop policy checks",
+          "Post Set up Go",
+          "Post Checkout",
+          "Complete job"
+        ]
+      },
+      {
+        "name": "Wails frontend build",
+        "conclusion": "success",
+        "steps": [
+          "Set up job",
+          "Checkout",
+          "Set up Node",
+          "Install dependencies",
+          "State tests",
+          "Build",
+          "Post Set up Node",
+          "Post Checkout",
+          "Complete job"
+        ]
+      },
+      {
+        "name": "Windows GUI cross-build (amd64)",
+        "conclusion": "success",
+        "steps": [
+          "Set up job",
+          "Run actions/checkout@v7",
+          "Run actions/setup-go@v7",
+          "Run actions/setup-node@v6",
+          "Frontend production assets",
+          "Build Windows GUI executable",
+          "Post Run actions/setup-node@v6",
+          "Post Run actions/setup-go@v7",
+          "Post Run actions/checkout@v7",
+          "Complete job"
+        ]
+      },
+      {
+        "name": "Go test/build (ubuntu-latest)",
+        "conclusion": "success",
+        "steps": [
+          "Set up job",
+          "Checkout",
+          "Set up Go",
+          "Set up Node for desktop policy checks",
+          "Linux WebKitGTK headers",
+          "go vet",
+          "Enforce desktop-only product targets",
+          "go build",
+          "go test",
+          "Post Set up Node for desktop policy checks",
+          "Post Set up Go",
+          "Post Checkout",
+          "Complete job"
+        ]
+      },
+      {
+        "name": "Go test/build (macos-14)",
+        "conclusion": "cancelled"
+      }
+    ],
+    "macOSCancellation": "The configuration 'macos-14-arm64-us-default' is not supported"
+  },
+  "generalRun": {
+    "id": 42864136874,
+    "url": "https://github.com/aurakimjh/archscope/actions/runs/42864136874",
+    "conclusion": "success"
+  },
+  "budgetFollowup": {
+    "localAmd64And386Tests": "PASS",
+    "goVet": "PASS",
+    "private675EntryProjectionUnchanged": true,
+    "details": "Total decode work includes discarded binary and truncated output, with a regression for the former preview-only accounting bypass."
+  }
+}

@@ -73,7 +73,7 @@ func stream(v value) ([]byte, bool) {
 	}
 	return nil, false
 }
-func body(m *models.HTTPMessage, raw []byte, known bool, encoding string) {
+func body(m *models.HTTPMessage, raw []byte, known bool, encoding string) (decodedWork int64) {
 	m.BodyStorage = "omitted"
 	m.BodySize = -1
 	m.BodyDecoded = -1
@@ -110,6 +110,7 @@ func body(m *models.HTTPMessage, raw []byte, known bool, encoding string) {
 		defer closer.Close()
 	}
 	data, err := io.ReadAll(io.LimitReader(source, bodyLimit+1))
+	decodedWork = int64(len(data))
 	if err != nil || len(data) > bodyLimit {
 		m.BodyStorage = "truncated"
 		return
@@ -121,6 +122,7 @@ func body(m *models.HTTPMessage, raw []byte, known bool, encoding string) {
 	} else {
 		m.BodyStorage = "binary"
 	}
+	return
 }
 func cookies(m *models.HTTPMessage, request bool) {
 	h := http.Header{}
@@ -158,13 +160,17 @@ func cookies(m *models.HTTPMessage, request bool) {
 // process labels are retained, but PID and lifetime attribution are unavailable.
 // Cache paths, socket handles, GUIDs and raw streams never enter the projection.
 func (f *File) Transactions() ([]models.CaptureTransaction, error) {
+	return f.transactions(MaxBytes)
+}
+
+func (f *File) transactions(decodedLimit int64) ([]models.CaptureTransaction, error) {
 	decoder, err := charset(f.codepage)
 	if err != nil {
 		return nil, err
 	}
 	text := func(v value) string { data, _ := decoder.NewDecoder().Bytes(v.data); return string(data) }
 	out := make([]models.CaptureTransaction, 0, len(f.entries))
-	retained := int64(0)
+	decodedBytes := int64(0)
 	for i, v := range f.entries {
 		o := v.object
 		u, err := url.Parse(text(o.get("URL")))
@@ -207,7 +213,7 @@ func (f *File) Transactions() ([]models.CaptureTransaction, error) {
 				known = false
 			}
 		}
-		body(&tx.Request, post, known, header(tx.Request.Headers, "Content-Encoding"))
+		decodedBytes += body(&tx.Request, post, known, header(tx.Request.Headers, "Content-Encoding"))
 		raw, known := stream(o.extra[5])
 		responseBody := []byte(nil)
 		validBody := false
@@ -219,7 +225,7 @@ func (f *File) Transactions() ([]models.CaptureTransaction, error) {
 				validBody = parseErr == nil && len(responseBody) <= maxStream
 			}
 		}
-		body(&tx.Response, responseBody, validBody, header(tx.Response.Headers, "Content-Encoding"))
+		decodedBytes += body(&tx.Response, responseBody, validBody, header(tx.Response.Headers, "Content-Encoding"))
 		if known && len(raw) > 0 && !validBody {
 			tx.Response.BodyStorage = "truncated"
 		}
@@ -274,9 +280,10 @@ func (f *File) Transactions() ([]models.CaptureTransaction, error) {
 			tx.Process = &models.ProcessInstance{Name: name, Attribution: "foreign_tool"}
 		}
 		out = append(out, tx)
-		retained += int64(len(tx.Request.BodyPreview) + len(tx.Response.BodyPreview))
-		if retained > MaxBytes {
-			return nil, fmt.Errorf("HALOG_LIMIT: decoded bodies exceed 256 MiB")
+		// Charge binary and truncated decompression too, even when no preview
+		// survives. Otherwise many discarded compressed bodies bypass the budget.
+		if decodedBytes > decodedLimit {
+			return nil, fmt.Errorf("HALOG_LIMIT: total decoded body work exceeds %d bytes", decodedLimit)
 		}
 	}
 	return out, nil

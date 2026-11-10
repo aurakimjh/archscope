@@ -61,3 +61,15 @@ independently of the numeric request stage: native `IsComplete` is true for
 stage 4 or a nonzero RequestComplete tick. TimeEnd and SR_Result alone do not
 decide completion. All 675 private source records are complete according to
 the original API. Separate synthetic records exercise truly pending responses.
+
+At product commit `8fa42c7d`, Windows and Linux full race suites, native Windows
+body/live-capture checks, SEC-10 policy restoration, both Windows GUI cross-builds
+and frontend checks passed in CI. The general CI passed. Engine Native's overall
+run was cancelled only because its two macOS jobs report unsupported runner
+configuration `macos-14-arm64-us-default`; this also affected the prior baseline.
+Details are in `halog-codec-ci.json`.
+
+A subsequent aggregate decode-budget check charges discarded binary/truncated
+output as well as retained text. Its regression, amd64/386 focused suites and
+vet pass; the private 675-entry projection remains identical. The artifact hashes
+in `halog-codec-validation.json` identify the original interoperability binaries.

@@ -2,6 +2,7 @@ package halog
 
 import (
 	"bytes"
+	"compress/gzip"
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
@@ -73,6 +74,33 @@ func TestReferenceV764StateMatrix(t *testing.T) {
 		if row.TotalMS != wantMS {
 			t.Fatalf("native timing differs from reference case %d", i)
 		}
+	}
+}
+
+func TestDiscardedBinaryBodiesConsumeDecodeBudget(t *testing.T) {
+	b, _ := os.ReadFile("testdata/reference-v764.halog")
+	f, err := Decode(b)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var compressed bytes.Buffer
+	z := gzip.NewWriter(&compressed)
+	_, _ = z.Write(bytes.Repeat([]byte{0xff}, 256))
+	_ = z.Close()
+	o := f.entries[0].object
+	for i := range o.fields {
+		if o.fields[i].name == "RequestRawHeaders" {
+			o.fields[i].value = str("POST / HTTP/1.1\r\nContent-Encoding: gzip\r\n\r\n")
+		}
+	}
+	o.extra[3] = memory(compressed.Bytes())
+	o.extra[4] = memory(nil)
+	if _, err = f.transactions(128); err == nil {
+		t.Fatal("discarded decoded binary bypassed the aggregate work budget")
+	}
+	rows, err := f.transactions(1024)
+	if err != nil || rows[0].Request.BodyStorage != "binary" || rows[0].Request.BodyPreview != "" {
+		t.Fatal("binary omission changed", err)
 	}
 }
 
