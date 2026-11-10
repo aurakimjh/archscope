@@ -217,8 +217,8 @@ completed the independent Lighthouse file-first engine slice.
 | `TODO` | 0 | Ready to start; prerequisites are satisfied |
 | `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
 | `REVIEW` | 8 | Review or required remediation is underway; the gate has not passed |
-| `PENDING` | 4 | Waiting for a prerequisite, external condition, or activation trigger |
-| `DONE` | 202 | Completion criteria and required review gates have passed |
+| `PENDING` | 3 | Waiting for a prerequisite, external condition, or activation trigger |
+| `DONE` | 203 | Completion criteria and required review gates have passed |
 
 The normal transition is `TODO → IN_PROGRESS → REVIEW → DONE`. A `PENDING`
 task returns to `TODO` when its dependency or trigger is satisfied. Task status
@@ -226,18 +226,32 @@ is separate from review-group verdicts (`PASS`, `CONDITIONAL`, or `FAIL`). When
 a Task Registry status changes, update the counts and Open Work Snapshot in the
 same change so this overview remains the status source of truth.
 
-### Desktop layout implementation (2026-11-10)
+### Desktop layout native verification (2026-11-10 evening)
 
-T-621 through T-626 are implemented in separate commits and remain REVIEW until
-native interaction acceptance. T-620 and T-627 remain PENDING for actual baseline
-and before/after geometry. The user deferred the locked-Mac checks until evening.
-Full Go test/vet, frontend state/build, macOS package/signature, Windows x86/x64
-GUI cross-builds and the native-only build guard pass. Menu context regression
-covers language, active route and disabled Open/capture actions. No browser UI
-was launched and no native measurements or screenshots are claimed. Source,
-implementation summary and the evening checklist are in paired
-DESKTOP_CONTENT_LAYOUT guides. Local verification evidence is
-[validation.json](docs/review/evidence/2026-11-10-layout/validation.json).
+Actual Wails 3.1.0 macOS menu interaction reached all 21 routes. T-621 is DONE.
+Native testing found and fixed intrinsic-width layout, expanded HTTP metadata,
+help/drawer Escape handling, nested file-picker button roles and signed-bundle
+progress-log writes. Access/Trace now start on data tables; secondary Lighthouse
+and profiler explanations are collapsed. A 30-request imported HAR shows 12
+complete request rows plus a 160px inspector at 1280×800, 11 rows at observed
+1025×769 and 5 at 125% WebView zoom. Deep-stack frame zoom/reset and pattern
+drilldown, ten GC preview events, analyzer fixtures, comparisons, workspace
+handoff, evidence addition, HTML export, Settings save and locale/theme were
+exercised. No browser or Electron UI was used.
+
+The old collector also assumed an unavailable `window.wails` global; its missing
+report was not evidence that desktop locking was the only cause. The new passive
+observer records actual native interactions and no row contents. The separate
+original-UI app was not approved by Computer Use, so T-620 stays PENDING. T-627
+moves to REVIEW for the completed Mac portion. T-622 through T-626 remain REVIEW
+for outstanding acceptance cases; no full 70% area or exhaustive conditional-tab
+acceptance is claimed. Windows live recording and OS scaling remain untested.
+
+Evidence: [Mac cases](docs/review/evidence/2026-11-10-layout/mac-native-validation.json),
+[21-route geometry](docs/review/evidence/2026-11-10-layout/mac-native-geometry.json).
+The earlier [static verification](docs/review/evidence/2026-11-10-layout/validation.json)
+is retained as historical evidence. Paired DESKTOP_CONTENT_LAYOUT guides explain
+measurement limits and the remaining acceptance matrix.
 
 ### Desktop-only cleanup (2026-11-10)
 
@@ -384,22 +398,24 @@ and `docs/review/done/2026-11-10_other-features-audit.ko.md`.
 
 ### Open Work Snapshot
 
-Desktop layout across all 21 routes: [Korean design](docs/ko/DESKTOP_CONTENT_LAYOUT.md) · [English design](docs/en/DESKTOP_CONTENT_LAYOUT.md). T-621 through T-626 are implemented and await native interaction review. The user deferred locked-Mac UI checks to the evening of 2026-11-10. The design recheck matched all 21 routes and refined the eight existing tasks to cover conditional views, actual menu dispatch, help pinning, viewport sizing, and form-specific acceptance. The four existing HTTP items can proceed independently as Windows and reference inputs become available.
+Desktop layout: [Korean design](docs/ko/DESKTOP_CONTENT_LAYOUT.md) · [English design](docs/en/DESKTOP_CONTENT_LAYOUT.md).
+Mac native navigation and representative populated flows are verified. T-621 is
+complete; exact baseline, density and exhaustive edge-case acceptance remain
+explicit rather than being inferred from builds or sparse fixtures.
 
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
-| 1 | T-620 | P1 | `PENDING` | Prepared native collector; collect original baseline after evening unlock (reference commit d98a958). |
-| 2 | T-621 | P1 | `REVIEW` | Implementation committed; verify native menu and shortcut behavior after unlock. |
-| 3 | T-622 | P1 | `REVIEW` | Implementation committed; verify hover, pinning, focus and viewport edges after unlock. |
-| 4 | T-623 | P1 | `REVIEW` | Implementation committed; verify real row/split budgets and Windows recording behavior. |
-| 5 | T-624 | P1 | `REVIEW` | Implementation committed; verify native GC/profiler layout and resized hit testing. |
-| 6 | T-625 | P2 | `REVIEW` | Implementation committed; verify nine routes and conditional tabs with real fixtures. |
-| 7 | T-626 | P2 | `REVIEW` | Implementation committed; verify workspace handoff, export and Settings save. |
-| 8 | T-627 | P2 | `PENDING` | Run the native before/after matrix after unlock, then Windows live/menu acceptance. |
-| 9 | T-601 | P1 | `REVIEW` | Deliver the four Windows capture entry points and measure their reach |
-| 10 | T-608 | P2 | `PENDING` | Read and write legacy .halog files |
-| 11 | T-611 | P3 | `REVIEW` | Support Stand-alone automation and desktop launch switches |
-| 12 | T-613 | P3 | `PENDING` | Verify complete Stand-alone parity on Windows |
+| 1 | T-620 | P1 | `PENDING` | Original d98a958 baseline missing: Computer Use did not approve its separate comparison app. Actual current Mac 21-route geometry recorded; no before/after claim. |
+| 2 | T-622 | P1 | `REVIEW` | Fixed pinned-help Escape without focus, closed-help Escape trapping, drawer close-button focus and nested file-picker button roles. Native Open, pin/Esc and drawer close pass. Pointer-transfer, long-path and tooltip-edge matrix remains. |
+| 3 | T-623 | P1 | `REVIEW` | Collapsed initial session/file/field tools and compacted recording actions. Native HAR has 12 request rows plus 160px inspector at 1280x800, 11 at observed 1025x769; Headers/Body and splitter keys pass. Exact area/four-line matrix and Windows recording/process/reentry acceptance remain. |
+| 4 | T-624 | P1 | `REVIEW` | Deep shared fixture fills window width; native resized frame zoom/reset and OrderRepository drilldown pass. GC shared fixture shows ten events. Progress notice collapsed and bundle log-path bug fixed/tested. No-clock/conditional cases and exact area adjudication remain. |
+| 5 | T-625 | P2 | `REVIEW` | All nine analyzer routes exercised with fixtures; Access defaults to URLs, Trace to traces, Lighthouse metadata/categories collapsed with provenance retained. Exhaustive conditional-tab, error/empty/long-input and density matrix remains. |
+| 6 | T-626 | P2 | `REVIEW` | All eight workspace routes and Settings reached via native menus. Handoff, evidence addition, profile/report comparison, HTML output file and Settings save verified. Chart-template/export-format and form-edge matrix remains. |
+| 7 | T-627 | P2 | `REVIEW` | Mac native menu/geometry sweep and representative populated flows recorded; passive audit transport corrected and QA resize/zoom isolated by build tag. Go test/vet, frontend state/build, package/signature and Windows cross-builds pass. Original before/after, remaining edge cases and Windows live/menu/OS scaling acceptance remain. Evidence: docs/review/evidence/2026-11-10-layout/mac-native-validation.json. |
+| 8 | T-601 | P1 | `REVIEW` | Windows capture entry points and reach measurement. |
+| 9 | T-608 | P2 | `PENDING` | Legacy .halog reference compatibility; genuine sample unavailable. |
+| 10 | T-611 | P3 | `REVIEW` | Stand-alone automation and desktop launch switches; Windows runtime acceptance. |
+| 11 | T-613 | P3 | `PENDING` | Complete Stand-alone parity on Windows. |
 
 ### Local Windows validation (2026-11-09)
 
@@ -1342,14 +1358,14 @@ deferred until explicitly promoted.
 | T-616 | P1 | DONE | Avoid double-counting one RPC's CLIENT and SERVER spans | Existing Trace Import dependency and Service Flow/SLI contracts | Completed 2026-11-10: one-to-one explicit CLIENT/SERVER pairs use one logical call, client elapsed time and either-side error; single-sided exports, cross-trace identities, separate retry pairs and multiple server attempts remain distinct. SERVER remote peers use incoming direction. Go/CLI tests and frontend Flow/SLI counter regressions pass. |
 | T-617 | P1 | DONE | Preserve missing access-log response time as unavailable rather than zero | Access-log parser/analyzer and SLI/SLO contracts | Completed 2026-11-10: all supported parsers preserve response-time availability, including true zero; unknown samples are excluded from total/static/API/URL/minute/route/edge latency while full request/error/byte counts remain. Null empty stats, measured/unknown counts, warning finding, sample coverage UI and measured-only Flow weighting propagate to SLI/SLO; targets without evidence are explicitly not assessed. Parser/analyzer/CLI and frontend state/build regressions pass. |
 | T-618 | P2 | DONE | Disclose Incident Timeline truncation and qualify severity/time summaries | Existing Incident Timeline/Report Pack contracts | Completed 2026-11-10: 120/source and 1000/session row caps remain, with deterministic documented selection, total/emitted/omitted and per-source/severity loss counts. Severity/time/ranged/correlation summaries use all candidates; groups/narrative explicitly remain retained-only. Page/JSON/Report Pack HTML disclose partial output and omitted critical events. Both-cap, late-critical, empty-input and export regressions plus frontend state/build pass. |
-| T-620 | P1 | PENDING | Measure all 21 views at the default window size | — | Prepared opt-in native layoutaudit build and 21-route collector. Locked Mac produced no ready report; no native geometry or screenshot claimed. User deferred interactive checks until evening on 2026-11-10; implementation proceeds using the source baseline (224px sidebar, at least 54px topbar). |
-| T-621 | P1 | REVIEW | Move global navigation to native menus | T-620 | Implemented one native menu for all 21 routes, localized theme/locale/About, active open capability, retained tool state and macOS drag strip. Profiler Open/Settings no-op callbacks replaced, native accelerator duplication avoided. App Go tests and frontend state/build pass. Native menu interaction awaits evening unlock. |
-| T-622 | P1 | REVIEW | Compact shared input controls and help | T-620 | Implemented compact source rows, inline options, collapsed recent files, viewport-positioned help with click pinning and delayed pointer transfer, and modal-aware Escape. Frontend production build and state regressions pass; hover/focus interaction and native clipping checks await evening unlock. |
-| T-623 | P1 | REVIEW | Prioritize the HTTP grid and inspector | T-621, T-622 | Implemented flexible imported/live HTTP grid height, 160px default inspector, grid row budget, collapsed file tools/advanced filters and bounded configuration drawers. Search opens filters and hidden-page shortcuts are scoped. Frontend state/build pass; ten-row/four-line and recording interaction acceptance awaits unlocked Mac/Windows. |
-| T-624 | P1 | REVIEW | Prioritize profiler and GC results | T-621, T-622 | Profiler now opens available flamegraph after analysis with summary fallback. GC Summary shows adaptive pause trend beside a shared ten-event table preview and collapses the long metric list. Input/options spacing reduced. Frontend build/state regressions pass. Real frame hit testing, narrow window geometry and no-clock fixtures await unlocked native verification. |
-| T-625 | P2 | REVIEW | Convert nine remaining analysis views | T-621, T-622 | Applied dense result layouts to the nine remaining analyzers, compact shared metric/card rows and preserved conditional tabs, source labels and errors. Lighthouse guidance is on demand with imported-score origin/recomputed status visible. Frontend state/build pass; all-route/subview native row and clipping measurements await evening verification. |
-| T-626 | P2 | REVIEW | Convert eight workspace views and Settings | T-621, T-622 | Compacted eight workspace routes and Settings, moved repetitive guidance to existing title help, reduced metadata/card spacing, adapted Chart Studio height and folded Settings history/About. Output destination, save/export actions, evidence counts and missing-data states retained. Frontend state/build pass; native form and export interactions await evening verification. |
-| T-627 | P2 | PENDING | Verify all views in native desktop windows | T-623–T-626 | Completed full Go tests/vet, frontend state/build, macOS task package/strict codesign, Windows x86/x64 GUI cross-builds, desktop-only guard and layoutaudit/menu-context regression. Tracked Windows re-entry harness migrated. Native baseline/screenshots/geometry, OS-menu interaction and live acceptance deferred to evening. Evidence: docs/review/evidence/2026-11-10-layout/validation.json. |
+| T-620 | P1 | PENDING | Measure all 21 views at the default window size | — | Original d98a958 baseline missing: Computer Use did not approve its separate comparison app. Actual current Mac 21-route geometry recorded; no before/after claim. |
+| T-621 | P1 | DONE | Move global navigation to native menus | T-620 | Actual macOS native menus reached all 21 routes; Open dialog, Cmd+, locale/theme and About verified. Full-width flex regression fixed; menu-context and build checks pass. Windows acceptance remains in T-627. |
+| T-622 | P1 | REVIEW | Compact shared input controls and help | T-620 | Fixed pinned-help Escape without focus, closed-help Escape trapping, drawer close-button focus and nested file-picker button roles. Native Open, pin/Esc and drawer close pass. Pointer-transfer, long-path and tooltip-edge matrix remains. |
+| T-623 | P1 | REVIEW | Prioritize the HTTP grid and inspector | T-621, T-622 | Collapsed initial session/file/field tools and compacted recording actions. Native HAR has 12 request rows plus 160px inspector at 1280x800, 11 at observed 1025x769; Headers/Body and splitter keys pass. Exact area/four-line matrix and Windows recording/process/reentry acceptance remain. |
+| T-624 | P1 | REVIEW | Prioritize profiler and GC results | T-621, T-622 | Deep shared fixture fills window width; native resized frame zoom/reset and OrderRepository drilldown pass. GC shared fixture shows ten events. Progress notice collapsed and bundle log-path bug fixed/tested. No-clock/conditional cases and exact area adjudication remain. |
+| T-625 | P2 | REVIEW | Convert nine remaining analysis views | T-621, T-622 | All nine analyzer routes exercised with fixtures; Access defaults to URLs, Trace to traces, Lighthouse metadata/categories collapsed with provenance retained. Exhaustive conditional-tab, error/empty/long-input and density matrix remains. |
+| T-626 | P2 | REVIEW | Convert eight workspace views and Settings | T-621, T-622 | All eight workspace routes and Settings reached via native menus. Handoff, evidence addition, profile/report comparison, HTML output file and Settings save verified. Chart-template/export-format and form-edge matrix remains. |
+| T-627 | P2 | REVIEW | Verify all views in native desktop windows | T-623–T-626 | Mac native menu/geometry sweep and representative populated flows recorded; passive audit transport corrected and QA resize/zoom isolated by build tag. Go test/vet, frontend state/build, package/signature and Windows cross-builds pass. Original before/after, remaining edge cases and Windows live/menu/OS scaling acceptance remain. Evidence: docs/review/evidence/2026-11-10-layout/mac-native-validation.json. |
 | T-619 | P1 | DONE | Enforce the Wails 3.1.0 desktop-only product and remove unused launch templates | Existing native desktop packaging | Completed 2026-11-10: removed server hosting/mobile/preview paths, added compiler and frontend native-transport guards with CI enforcement, isolated opt-in external Electron HTTP probe without weakening full acceptance, and refreshed paired guides. Full Go/vet and frontend state/build, native macOS package/signature, Windows x86/x64 GUI builds and expected server build refusal pass; Windows runtime acceptance remains separate. |
 | T-599 | P1 | DONE | Establish the V7.6.4 Stand-alone visual and command reference | Existing baseline | Completed 2026-11-09. Official screen, V7 additions, complete manual field inventory, state behavior, shortcuts and edition exceptions recorded in paired SYSTEM_HTTP_CAPTURE references. The tour image is explicitly V4; native Windows acceptance remains T-603. |
 | T-594 | P1 | DONE | Keep capture controls, live grid and selected detail in one window | Existing baseline | Completed 2026-11-09. Live rows use the shared grid and inspector, one-ID redacted store fetch stays available during recording, and async detail ignores obsolete selections. Real local proxy/service regression and frontend build passed; browser renderer at 1280x800 showed selected headers/body while active. Native Windows integration remains T-603. |

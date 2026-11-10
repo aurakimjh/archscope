@@ -1,0 +1,179 @@
+{
+  "date": "2026-11-10",
+  "platform": "macOS arm64, native Wails 3.1.0",
+  "source_base": "816b9827b327152ab5d8df6f30de2b2ff874657c",
+  "ui_fixes_commit": "0672ff4",
+  "progress_log_fix_commit": "1d7a5c6",
+  "scope": "Representative native acceptance and defect remediation; full matrix remains REVIEW",
+  "checks": {
+    "go_test_all": "pass",
+    "go_vet_all": "pass",
+    "frontend_state": "pass",
+    "frontend_production_build": "pass",
+    "layoutaudit_app_tests": "pass",
+    "macos_task_package": "pass",
+    "macos_strict_codesign": "pass",
+    "qa_strict_codesign_after_analysis": "pass",
+    "windows_x86_gui_cross_build": "pass",
+    "windows_x64_gui_cross_build": "pass",
+    "desktop_only_policy_and_server_build_refusal": "pass",
+    "git_diff_check": "pass"
+  },
+  "native": {
+    "driver": "macOS accessibility and screenshots through Computer Use",
+    "browser_or_electron_launched": false,
+    "route_count": 21,
+    "route_source": "mac-native-geometry.json; all native menu items operated",
+    "screenshots_inspected": true,
+    "screenshot_files_saved": false,
+    "original_baseline_measured": false,
+    "original_baseline_blocker": "Computer Use did not approve the separate ArchScope Baseline QA app",
+    "qa_measurement": "Embedded passive observer; no navigation/input/focus mutation; build-tag excluded from production",
+    "transport_fix": "npm SDK has no window.wails global; observer emits through pinned runtime transport",
+    "webview_zoom_is_os_dpi_test": false
+  },
+  "cases": [
+    {
+      "case": "native menus, Open, Settings accelerator, language, theme, About",
+      "result": "pass",
+      "detail": "All 21 routes, real NSOpenPanel, Cmd+comma, English/Korean menus and theme selection; System/Korean restored."
+    },
+    {
+      "case": "profiler and drilldown",
+      "result": "pass_representative",
+      "detail": "Shared deep-stack fixture uses full window width; resize then click OrderRepository frame exposes zoom/reset; include-text OrderRepository drilldown produces composition and flamegraph."
+    },
+    {
+      "case": "GC",
+      "result": "pass_representative",
+      "detail": "Repository two-event fixture and shared gc-pressure fixture; pause plot, ten-event preview and Events tab; no-clock edge matrix remains."
+    },
+    {
+      "case": "nine other analysis routes",
+      "result": "pass_representative",
+      "detail": "Access URL, JFR recordings, exception stack drawer, thread BLOCKED, Jennifer transactions, Trace table, browser CPU frames, Lighthouse imported score 42 and profile comparison loaded."
+    },
+    {
+      "case": "help and drawer Escape",
+      "result": "pass",
+      "detail": "Mouse-pinned help closes with Escape while focus remains elsewhere; exception drawer initially focuses Close and one Escape closes without activating header help."
+    },
+    {
+      "case": "HTTP imported HAR",
+      "result": "pass_representative",
+      "detail": "30 sanitized requests grouped by example.test; select row, Headers and Body, splitter 160 to 184 to 160 via keyboard. File tools and metadata auto-collapse."
+    },
+    {
+      "case": "HTTP process attribution",
+      "result": "not_verified",
+      "detail": "HAR host grouping is pseudo-process only; no live Windows process or capture claim."
+    },
+    {
+      "case": "workspace",
+      "result": "pass_representative",
+      "detail": "Actual analyzed results handed off; Chart Studio canvas, incident events, SLO, Service Flow and Evidence Board; added one sanitized evidence card."
+    },
+    {
+      "case": "export and forms",
+      "result": "pass_representative",
+      "detail": "Native Settings save unchanged values, report JSON comparison, HTML export completed and output file exists; chart template output formats remain."
+    },
+    {
+      "case": "signed app remains intact after analysis",
+      "result": "pass",
+      "detail": "QA strict codesign verifies after native analysis; progress files found under user cache ArchScope/logs."
+    }
+  ],
+  "fixtures": [
+    {
+      "repository_path": "examples/profiler/sample-wall.collapsed",
+      "bytes": 636,
+      "sha256": "fb330b01e2437436d7055de0c551c0c3b0b7fecc61a89b11cb208b2717f2f51e"
+    },
+    {
+      "repository_path": "examples/gc-logs/sample-hotspot-gc.log",
+      "bytes": 170,
+      "sha256": "f4f7f3328ba8b843bfb20920ccf9ded2a4381b5c55eae5f7e065eaad84f11a32"
+    },
+    {
+      "repository_path": "examples/access-logs/sample-nginx-access.log",
+      "bytes": 636,
+      "sha256": "80a4ae0231b1eaa4983359d3740bade83153bc763cb21894fefd9bf4d7e27660"
+    },
+    {
+      "repository_path": "examples/jfr/sample-jfr-print.json",
+      "bytes": 1165,
+      "sha256": "58d81d9607db39a72c0d5075852da87461d22bef4ddcbf5ca7ca7c101dab6324"
+    },
+    {
+      "repository_path": "examples/exceptions/sample-java-exception.txt",
+      "bytes": 618,
+      "sha256": "83c73856ef8f1625edf993395330326d36c735544fa6ae19af8b7f184842d6d3"
+    },
+    {
+      "repository_path": "examples/thread-dumps/sample-java-thread-dump.txt",
+      "bytes": 634,
+      "sha256": "ea43da5d1643f2c64dca0fc7b931fdfbcc2fcfc6eef15ad17a938fc5e966d5d9"
+    },
+    {
+      "repository_path": "examples/traces/sample-otlp-traces.jsonl",
+      "bytes": 1507,
+      "sha256": "796031adc894f77020c6463d5cfd846cfd68e860bd947ad880cc98732d43f833"
+    },
+    {
+      "repository_path": "apps/engine-native/internal/parsers/jenniferprofile/testdata/sample_two_tx.txt",
+      "bytes": 5023,
+      "sha256": "d2e27fc079cd171ab1c6d8e3cbadbd4ade615f1b36d7830a0794b313654d6598"
+    },
+    {
+      "repository_path": "apps/engine-native/internal/parsers/lighthouse/testdata/populated_report.json",
+      "bytes": 2920,
+      "sha256": "40ae4338281ef79dbb10b956e48a122a98afebb2b0204bf56c9e226072d2aa40"
+    }
+  ],
+  "shared_fixtures": [
+    "projects-assets/test-data/demo-site/synthetic/db-bottleneck/profiler.collapsed",
+    "projects-assets/test-data/demo-site/synthetic/gc-pressure/gc.log",
+    "projects-assets/test-data/browser-profile-fixtures/valid/v8-basic.cpuprofile"
+  ],
+  "generated_http_fixture": {
+    "construction": "Repeat 3 entries from shared sanitized chrome-h1.har to 30; example.test/native-qa/request-NN; static JSON response, safe fixture headers, 1-second start spacing; no actual PID",
+    "sha256": "99dad6fb9c1acaad30e8d5bdf364292778ec921e9189c2efa9a602cb05173b13",
+    "rows": 30
+  },
+  "artifacts": {
+    "macos_app_executable": {
+      "bytes": 17920608,
+      "sha256": "8263e04f10d2637776ecd2857f4a3a7d542bea358d7c9535cf082f8f110b9d82"
+    },
+    "windows_x64_gui": {
+      "bytes": 27912192,
+      "sha256": "f97728203631366fe90c47a16405edf1f847cc140ff09e061e0738bfc60a4cb6"
+    },
+    "windows_x86_gui": {
+      "bytes": 26872832,
+      "sha256": "98e50cccaf109fa841b491b5a728681efc889b6f1017f89b3619f65ec2deb727"
+    },
+    "native_html_export": {
+      "bytes": 19694,
+      "sha256": "39ed32c0fc3ce944ccb7732d47bc368b908c344ab2e787d36235dfec7a5d3b53"
+    }
+  },
+  "measurement_limits": [
+    "Geometry contains row/canvas/detail union only; findings and metrics excluded. This is not a 70-percent acceptance verdict.",
+    "Only final geometry includes fullRequestRows and mainWidth. Intermediate geometry is from an earlier fix iteration, not the original baseline.",
+    "1024x768 native SetSize observed 1025x769 CSS pixels; 125-percent zoom observed 820x615 and dpr 2.5.",
+    "Default HTTP has 12 full request rows and 160px detail; small 100-percent window has 11, 125-percent small window has 5.",
+    "Representative populated workflows do not establish every conditional tab or four-line inspector case."
+  ],
+  "remaining": [
+    "T-620 original same-condition d98a958 baseline",
+    "T-622 pointer-transfer, long-path and tooltip-edge matrix",
+    "T-623 exact area/four-line acceptance and Windows recording/process/reentry",
+    "T-624 no-clock/conditional and exact area acceptance",
+    "T-625 exhaustive conditional, error/empty/long-input and density matrix",
+    "T-626 chart-template/export-format and form edges",
+    "T-627 original before/after, remaining edges, Windows native menu/live capture/OS DPI",
+    "T-601/T-611/T-613 Windows runtime and T-608 genuine legacy sample compatibility"
+  ]
+}

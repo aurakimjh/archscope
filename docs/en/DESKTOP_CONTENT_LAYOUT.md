@@ -122,3 +122,61 @@ The live-capture PowerShell harness now exercises re-entry through the shell rou
 listener. Physical OS menu interaction needs separate verification. The retained
 untracked local `verify-http-desktop.mjs` expects the old sidebar and must be
 updated before it can validate the new UI.
+
+
+## Mac native verification and fixes (2026-11-10 evening)
+
+Used the actual macOS menus and file picker of an isolated Wails 3.1.0 audit
+app. No browser or Electron was launched. All 21 routes were reached through
+native menus and filled the available width. Populated profiler, GC, access-log,
+JFR, exception, thread-dump, Jennifer, Trace, browser CPU, Lighthouse and HAR
+views were exercised. Profile/report comparison, workspace handoff, evidence
+addition, HTML export, Settings save, locale/theme and About were also checked.
+
+Native testing exposed and fixed the following issues:
+
+- The shared flex child used intrinsic content width, leaving the profiler in
+  half of the window. It now fills the window.
+- HTTP session explanations initially expanded and pushed the request grid out
+  of view. File tools, session tools and field filters now start collapsed, and
+  recording actions share one row.
+- Pinned help ignored Escape when macOS mouse clicks left focus elsewhere.
+  Closed help also swallowed Escape. Help now dismisses independently of focus,
+  and a detail drawer initially focuses its close button.
+- The file drop group nested multiple buttons inside a button role. Browse,
+  help and clear are now separate accessible controls.
+- Access logs open URLs and Trace opens traces; Lighthouse metadata/categories
+  and profiler progress logs start collapsed.
+- Desktop progress logs wrote inside the signed app bundle. Their default is
+  now the user cache `ArchScope/logs`, preserving explicit overrides.
+- The measurement script assumed `window.wails`, which the bundled npm SDK does
+  not expose. The earlier missing report was affected by this defect as well
+  as the locked desktop; that earlier run remains incomplete evidence.
+
+| State | Observed CSS viewport | First data y | Fully visible data rows | Inspector height |
+|---|---|---:|---:|---:|
+| HTTP 30-request HAR, default window | 1280×800 | 253 | 12 requests | 160 |
+| HTTP, small window | 1025×769 | 253 | 11 requests | 160 |
+| HTTP, small window with 125% WebView zoom | 820×615 | 251 | 5 requests | 160 |
+| GC, sufficient-event fixture | 1280×800 | 210 | 10 events | — |
+| Profiler, deep-stack fixture | 1280×800 | 254 | canvas | — |
+
+The native size menu requested 1024×768; observed CSS dimensions differed by one
+pixel after resize. WebView zoom is not Windows OS scaling. Headers/Body,
+160→184→160 keyboard splitter adjustment, resized frame zoom/reset, and an
+`OrderRepository` drilldown were checked. HAR host groups are pseudo-processes;
+this is not actual PID attribution or Windows live-capture evidence.
+
+See [final geometry](../review/evidence/2026-11-10-layout/mac-native-geometry.json)
+and [verification cases](../review/evidence/2026-11-10-layout/mac-native-validation.json).
+The observer records only geometry and counts while native controls are operated.
+The visible row/canvas/detail union was 60.7% for HTTP, 64.5% for the profiler and
+49.3% for GC. This conservative metric excludes findings and metric cards and
+does not establish the overall 70% content target.
+
+T-621 Mac native menu acceptance is complete. Remaining acceptance includes the
+same-condition original `d98a958` baseline, exhaustive conditional-tab/error/help
+edge cases, exact result-area adjudication, chart-template outputs, and Windows
+live/menu/scaling tests. Computer Use did not approve the separate original-UI
+comparison app, so that baseline could not be launched. T-620 remains PENDING;
+T-622 through T-627 remain REVIEW with their unverified conditions explicit.
