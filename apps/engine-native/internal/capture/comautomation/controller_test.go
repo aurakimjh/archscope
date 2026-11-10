@@ -54,7 +54,7 @@ func TestCOMControlPreservesScopeIdentityAndOwnSession(t *testing.T) {
 		t.Fatal("stale controller targeted another session")
 	}
 }
-func TestCOMLogSnapshotCaseEnumerationAndUnsupportedABI(t *testing.T) {
+func TestCOMLogSnapshotCaseAndEnumeration(t *testing.T) {
 	reads := 0
 	controller := New(func(ctx context.Context, call automation.Call) (any, error) {
 		switch call.Command {
@@ -97,8 +97,8 @@ func TestCOMLogSnapshotCaseEnumerationAndUnsupportedABI(t *testing.T) {
 	if _, err = log.Invoke(ctx, "Item", []any{-1}, false); err == nil {
 		t.Fatal("negative index accepted")
 	}
-	if _, err = controller.Invoke(ctx, "MaxLogSize", []any{10}, true); err == nil {
-		t.Fatal("unimplemented retention must not claim success")
+	if _, err = controller.Invoke(ctx, "MaxLogSize", []any{-1}, true); err == nil {
+		t.Fatal("negative retention accepted")
 	}
 }
 func TestCOMLoadedClearDoesNotMutateRunningCapture(t *testing.T) {

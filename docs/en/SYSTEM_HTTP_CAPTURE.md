@@ -1612,3 +1612,24 @@ The private source, raw round trips and reference exports stay outside Git.
 capturing network traffic and preserves/restores a stopped reference log.
 See [codec evidence](../review/evidence/2026-11-11-windows/HALOG_CODEC.md).
 T-601/T-611/T-613 and T-627 retain their separate remaining conditions.
+
+### T-611 filter and log-view implementation (2026-11-11)
+
+SetFilter reads bounded Delphi TPF0 TFilterWrapper criteria as data, without
+creating vendor objects. The observed v1/v2 flat AND/OR rules support method,
+status, response size and content type, exact/not-equal/greater-than/LIKE/not-LIKE
+comparisons. Sixteen of seventeen official presets parse; the cache-origin
+preset is refused because the common capture contract does not retain that
+origin flag. Unknown columns, operators, nesting, value types and trailing data
+fail explicitly. FilteredCount/FilteredItem and entry IsFiltered expose the view
+without deleting original capture evidence.
+
+MaxLogSize is a latest-row count (reference bundled manual), default zero. The
+automation snapshot and SaveLog use that retained view; increasing the limit
+does not resurrect evicted IDs. The implementation accepts 0..100000 rows, with
+the existing independent durable session byte cap still in force. It does not
+claim physical journal compaction. StillCaptureDataWhenHide controls automation
+Visible changes: hide pauses only an owned running, previously unpaused session;
+show resumes only that automatic pause. Manual pause and replacement-session
+ownership are preserved. Mac common/race tests and Windows test cross-builds
+cover these rules; native Windows reference behavior remains the T-611 gate.

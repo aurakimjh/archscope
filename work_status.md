@@ -1919,3 +1919,16 @@ T-626 is DONE for implementation and Mac native acceptance. All eight workspace 
 ### macOS runner migration (2026-11-11)
 
 Moved Engine Native test/package and Release arm64 packaging from retired macos-14 to macos-15. GitHub retired all macOS 14 Actions images on 2026-11-02: https://github.blog/changelog/2026-10-01-github-actions-macos-14-runner-image-retirement/. Existing architecture, tests, signature checks and release conditions are retained. Workflow structure checked locally; actual hosted execution follows the final push and is not inferred from the edit.
+
+### T-611 filter and retained automation view (2026-11-11)
+
+Implemented bounded original TPF0 preset reading, FilteredCount/FilteredItem and
+entry IsFiltered; 16/17 official presets parse, with cache-origin filtering
+explicitly unavailable because source evidence is absent. MaxLogSize counts
+latest rows in the automation/SaveLog view (0..100000); evicted IDs do not return
+when the limit rises. Durable session evidence/byte caps stay independent.
+StillCaptureDataWhenHide pauses/resumes only its own automatic visibility pause.
+Common/race tests and Windows amd64/386 test cross-builds pass. Native Windows
+reference verification remains open; T-611 stays REVIEW with its other COM and
+foreign-process cookie requirements. Paired SYSTEM_HTTP_CAPTURE guides document
+the supported encoding and limits.

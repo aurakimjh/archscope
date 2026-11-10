@@ -25,6 +25,12 @@ type Object interface {
 }
 type Enumeration struct{ Items []Object }
 type Controller struct {
+	filter                       *logFilter
+	maxLogSize                   int
+	stillCaptureWhenHidden       bool
+	hidePaused                   bool
+	lastRows                     []models.CaptureTransaction
+	omittedIDs                   map[string]bool
 	captureBodies                bool
 	sessionID                    string
 	cachedLog                    Object
@@ -38,7 +44,7 @@ type Controller struct {
 }
 
 func New(execute automation.Executor) *Controller {
-	return &Controller{execute: execute, scope: "all_sessions", backend: "windows_transparent"}
+	return &Controller{execute: execute, scope: "all_sessions", backend: "windows_transparent", stillCaptureWhenHidden: true, omittedIDs: map[string]bool{}}
 }
 func (c *Controller) call(ctx context.Context, name string, params any, target any) error {
 	raw, err := json.Marshal(params)
@@ -59,7 +65,7 @@ func (c *Controller) call(ctx context.Context, name string, params any, target a
 	return json.Unmarshal(raw, target)
 }
 func (c *Controller) Members() []string {
-	return []string{"AttachAllSessions", "AttachCurrentSession", "AttachNewProcess", "AttachProcessByID", "AttachProcessByName", "DetachProcessByID", "DetachProcessByName", "Start", "Stop", "Pause", "Resume", "Clear", "IsLogging", "IsPaused", "Visible", "Log", "SaveLog", "LoadLog", "DeleteAllCache", "DeleteAllCookies", "DeleteCacheForRecordedURLs", "DeleteCookiesForRecordedURLs", "Backend", "SessionID", "ProxyAddress", "BuildCommit", "CaptureBodies"}
+	return []string{"AttachAllSessions", "AttachCurrentSession", "AttachNewProcess", "AttachProcessByID", "AttachProcessByName", "DetachProcessByID", "DetachProcessByName", "Start", "Stop", "Pause", "Resume", "Clear", "IsLogging", "IsPaused", "Visible", "Log", "SaveLog", "LoadLog", "DeleteAllCache", "DeleteAllCookies", "DeleteCacheForRecordedURLs", "DeleteCookiesForRecordedURLs", "Backend", "SessionID", "ProxyAddress", "BuildCommit", "CaptureBodies", "SetFilter", "ClearFilter", "IsFiltered", "MaxLogSize", "StillCaptureDataWhenHide"}
 }
 func (c *Controller) Invoke(ctx context.Context, name string, args []any, put bool) (any, error) {
 	c.mu.Lock()
@@ -85,6 +91,62 @@ func (c *Controller) Invoke(ctx context.Context, name string, args []any, put bo
 		}
 	}
 	switch name {
+	case "setfilter":
+		if put || len(args) != 1 {
+			return nil, fmt.Errorf("SetFilter requires one filter file")
+		}
+		path, err := text(0)
+		if err != nil {
+			return nil, err
+		}
+		next, err := readLogFilter(path)
+		if err != nil {
+			return nil, err
+		}
+		c.filter = next
+		c.cachedLog = nil
+		return nil, nil
+	case "clearfilter":
+		if put || len(args) != 0 {
+			return nil, fmt.Errorf("unexpected filter arguments")
+		}
+		c.filter = nil
+		c.cachedLog = nil
+		return nil, nil
+	case "isfiltered":
+		if put || len(args) != 0 {
+			return nil, fmt.Errorf("IsFiltered is read-only")
+		}
+		return c.filter != nil && c.filter.active, nil
+	case "maxlogsize":
+		if put {
+			if len(args) != 1 {
+				return nil, fmt.Errorf("MaxLogSize requires one row count")
+			}
+			n, err := integer(args[0])
+			if err != nil || n < 0 || n > 100000 {
+				return nil, fmt.Errorf("MaxLogSize requires 0..100000 rows")
+			}
+			c.maxLogSize = int(n)
+			c.cachedLog = nil
+		} else if len(args) != 0 {
+			return nil, fmt.Errorf("unexpected arguments")
+		}
+		return c.maxLogSize, nil
+	case "stillcapturedatawhenhide":
+		if put {
+			if len(args) != 1 {
+				return nil, fmt.Errorf("boolean required")
+			}
+			v, ok := args[0].(bool)
+			if !ok {
+				return nil, fmt.Errorf("boolean required")
+			}
+			c.stillCaptureWhenHidden = v
+		} else if len(args) != 0 {
+			return nil, fmt.Errorf("unexpected arguments")
+		}
+		return c.stillCaptureWhenHidden, nil
 	case "capturebodies":
 		if put {
 			if len(args) != 1 {
@@ -139,6 +201,21 @@ func (c *Controller) Invoke(ctx context.Context, name string, args []any, put bo
 		}
 		var result bool
 		err := c.call(ctx, "visible", request, &result)
+		if err == nil && put && c.sessionID != "" && !c.stillCaptureWhenHidden {
+			var current capture.Session
+			if err = c.call(ctx, "status", map[string]any{}, &current); err == nil && string(current.ID) == c.sessionID && current.State == capture.StateRunning {
+				if !result && !current.Paused {
+					err = c.call(ctx, "pause", map[string]any{"sessionId": c.sessionID}, nil)
+					c.hidePaused = err == nil
+				}
+				if result && c.hidePaused {
+					err = c.call(ctx, "resume", map[string]any{"sessionId": c.sessionID}, nil)
+					if err == nil {
+						c.hidePaused = false
+					}
+				}
+			}
+		}
 		return result, err
 	case "attachallsessions", "attachcurrentsession":
 		if len(args) != 0 {
@@ -240,6 +317,9 @@ func (c *Controller) Invoke(ctx context.Context, name string, args []any, put bo
 			c.sessionID = string(started.ID)
 			c.loaded = ""
 			c.loadedCleared = false
+			c.cachedLog = nil
+			c.omittedIDs = map[string]bool{}
+			c.hidePaused = false
 		}
 		return nil, err
 	case "clear":
@@ -255,6 +335,7 @@ func (c *Controller) Invoke(ctx context.Context, name string, args []any, put bo
 		}
 		return nil, c.call(ctx, "clear", map[string]any{"sessionId": c.sessionID}, nil)
 	case "stop", "pause", "resume":
+		c.hidePaused = false
 		if len(args) != 0 {
 			return nil, fmt.Errorf("unexpected arguments")
 		}
@@ -302,11 +383,20 @@ func (c *Controller) Invoke(ctx context.Context, name string, args []any, put bo
 			if err := c.call(ctx, "legacy-log", map[string]any{"path": c.loaded, "sessionId": c.sessionID}, &rows); err != nil {
 				return nil, err
 			}
+			rows = c.retainRows(rows)
+			c.lastRows = rows
 			items := make([]Object, len(rows))
+			filtered := []Object{}
 			for i, row := range rows {
+				matches := c.filter.matches(row)
 				items[i] = entryObject(row)
+				entry := items[i].(Typed)
+				entry.Object.(Properties)["IsFiltered"] = !matches
+				if matches {
+					filtered = append(filtered, items[i])
+				}
 			}
-			c.cachedLog = Typed{"ILog", Collection{items}}
+			c.cachedLog = Typed{"ILog", filteredLog{all: Collection{items}, filtered: Collection{filtered}}}
 			c.cachedKey = key
 		}
 		if len(args) > 0 {
@@ -326,6 +416,7 @@ func (c *Controller) Invoke(ctx context.Context, name string, args []any, put bo
 			return nil, err
 		}
 		c.loaded = path
+		c.omittedIDs = map[string]bool{}
 		c.loadedCleared = false
 		c.cachedLog = nil
 		return nil, nil
@@ -364,10 +455,22 @@ func (c *Controller) Invoke(ctx context.Context, name string, args []any, put bo
 			}
 		}
 		scope := "all"
+		ids := []string{}
 		if c.loadedCleared {
 			scope = "filtered"
+		} else if c.maxLogSize > 0 || len(c.omittedIDs) > 0 {
+			// Read the current bounded automation view, not a previous snapshot.
+			var rows []models.CaptureTransaction
+			if err = c.call(ctx, "legacy-log", map[string]any{"path": c.loaded, "sessionId": source["sessionId"]}, &rows); err != nil {
+				return nil, err
+			}
+			rows = c.retainRows(rows)
+			for _, row := range rows {
+				ids = append(ids, row.ID)
+			}
+			scope = "filtered"
 		}
-		return nil, c.call(ctx, "save", map[string]any{"source": source, "destination": path, "format": format, "scope": scope, "ids": []string{}}, nil)
+		return nil, c.call(ctx, "save", map[string]any{"source": source, "destination": path, "format": format, "scope": scope, "ids": ids}, nil)
 	case "deleteallcache", "deleteallcookies", "deletecacheforrecordedurls", "deletecookiesforrecordedurls":
 		if len(args) != 0 {
 			return nil, fmt.Errorf("unexpected arguments")
