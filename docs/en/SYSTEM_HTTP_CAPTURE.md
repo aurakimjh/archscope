@@ -1448,3 +1448,41 @@ boundaries. No profile files, Chromium/Firefox stores, cookie values or other
 processes' in-memory session cookies are touched. The UI asks for confirmation
 before execution. Local selection/refusal/expiry/idempotence tests and Windows
 compile/vet pass; actual Windows WinINet mutation remains native acceptance.
+
+### Opt-in transparent Windows adapter (T-601, 2026-11-10)
+
+An experimental WinDivert 2.2.2-A adapter now redirects **new IPv4 TCP flows on
+ports 80/443**, without changing system/browser proxy settings. It verifies the
+DLL and matching driver hashes against the official archive, dynamically loads
+only that absolute DLL, opens the driver and reflects admitted flows to a private
+stream listener. The client/original destination 5-tuple and PID/start-time remain
+attached. Port collisions receive distinct reflected tuples. Only confirmed
+processes matching the selected/current-session/launch scope are admitted; the
+capture process itself is excluded to avoid upstream loops. Existing/unattributed,
+loopback, IPv6 and QUIC flows pass unchanged and are outside this adapter's reach.
+
+Set `ARCHSCOPE_WINDIVERT_DLL` to the official package's `x64/WinDivert.dll` (or x86
+for a 32-bit desktop), run the app with administrator rights and explicitly select
+`windows_transparent`. DLL/driver hashes must match the 2.2.2-A archive SHA256
+`63cb41763bb4b20f600b6de04e991a9c2be73279e317d4d82f237b150c5f3f15`.
+No binaries are bundled, downloaded or installed by build scripts. At runtime,
+WinDivertOpen may load its signed driver when the backend is explicitly started.
+Driver/security-policy failures return errors and cleanup; there is no proxy fallback.
+Use the official package with its LICENSE and distribution notices.
+
+Redirected HTTP/TLS streams reuse the common proxy parser/body policy, with upstream
+dialing fixed to the original IP/port while SNI/Host is preserved for verification.
+TLS requires client trust in the capture CA; pinning/H2-only traffic retains explicit
+unsupported/passthrough evidence. Stop closes admission/listeners/streams, then the
+driver handles and DLL; background driver errors terminalize the session. Packet
+mapping caps at 4096 flows and retains recently closed tuples for two minutes.
+
+Local packet/reflection/collision/scope tests, official binary fingerprints, direct
+HTTP/TLS stream integration, race checks and Windows x86 compilation/vet pass.
+**Driver packet injection, HVCI/antivirus compatibility and native client reach are
+unverified.** The opt-in `TestWindowsTransparentDirectClientE2E` launches its own
+proxy-ignoring child against an unauthenticated peer HTTP fixture on port 80 and
+asserts persisted PID/start-time attribution. Configure the DLL, peer fixture URL,
+and `ARCHSCOPE_RUN_TRANSPARENT_E2E=1` on elevated Windows before running it.
+[WinDivert API](https://reqrypt.org/windivert-doc.html) ·
+[Official distribution](https://reqrypt.org/windivert.html).

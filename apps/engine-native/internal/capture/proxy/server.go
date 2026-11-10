@@ -236,7 +236,12 @@ func (s *Server) transport() *http.Transport {
 	return &http.Transport{
 		TLSClientConfig:   &tls.Config{RootCAs: s.cfg.UpstreamRoots, MinVersion: tls.VersionTLS12},
 		ForceAttemptHTTP2: false,
-		DialContext:       s.cfg.DialContext,
+		DialContext: func(ctx context.Context, network, address string) (net.Conn, error) {
+			if destination, ok := ctx.Value(transparentDestinationKey{}).(string); ok && destination != "" {
+				address = destination
+			}
+			return s.cfg.DialContext(ctx, network, address)
+		},
 	}
 }
 
@@ -347,7 +352,7 @@ func (s *Server) handleConnect(writer http.ResponseWriter, request *http.Request
 		s.tunnel(request.Context(), replay, hostPort, protocols, process, "explicit scoped passthrough approval")
 		return
 	}
-	s.intercept(replay, host, hostPort, process, connectionID(request.Context()))
+	s.intercept(request.Context(), replay, host, hostPort, process, connectionID(request.Context()))
 }
 
 func (s *Server) trackConnection(connection net.Conn) {
@@ -409,7 +414,7 @@ func (s *Server) tunnel(ctx context.Context, client net.Conn, hostPort string, p
 	s.emit(tx)
 }
 
-func (s *Server) intercept(client net.Conn, host, hostPort string, process *models.ProcessInstance, connID string) {
+func (s *Server) intercept(ctx context.Context, client net.Conn, host, hostPort string, process *models.ProcessInstance, connID string) {
 	defer client.Close()
 	started := s.cfg.Now()
 	admission := models.CaptureTransaction{ConnectionID: connID}
@@ -443,6 +448,7 @@ func (s *Server) intercept(client net.Conn, host, hostPort string, process *mode
 		if err != nil {
 			return
 		}
+		request = request.WithContext(ctx)
 		started := s.cfg.Now()
 		request.URL.Scheme = "https"
 		request.URL.Host = hostPort

@@ -80,7 +80,7 @@ func matchingOwnerPID(rows []tcpRow, clientTCP, proxyTCP *net.TCPAddr) (int32, b
 		if row.LocalPort != clientTCP.Port || row.RemotePort != proxyTCP.Port {
 			continue
 		}
-		if !sameIP(row.RemoteAddress, proxyTCP.IP) {
+		if !sameIP(row.LocalAddress, clientTCP.IP) || !sameIP(row.RemoteAddress, proxyTCP.IP) {
 			continue
 		}
 		return row.OwningPID, true

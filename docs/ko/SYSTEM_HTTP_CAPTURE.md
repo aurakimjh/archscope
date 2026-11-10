@@ -4720,3 +4720,36 @@ Windows WinINet/IE 캐시·영구 쿠키 삭제를 구현했습니다. 기록 UR
 저장소·쿠키 값·다른 프로세스의 메모리 세션 쿠키는 다루지 않습니다. UI는 삭제 전
 확인합니다. 공통 범위/만료/재시도 테스트와 Windows 컴파일/vet을 통과했으며 실제
 WinINet 변경은 Windows 실기 검증에 남겨둡니다.
+
+### 명시적으로 선택하는 Windows 투명 어댑터 (T-601, 2026-11-10)
+
+실험적 WinDivert 2.2.2-A 어댑터는 전역/브라우저 프록시를 바꾸지 않고 **80/443 포트의
+새 IPv4 TCP 흐름**을 전환합니다. 공식 DLL/드라이버 지문을 확인한 절대 경로만 로드하고,
+허용한 흐름을 비공개 스트림 수신기로 반사합니다. 원래 출발지·목적지 5개 요소와
+PID/시작 시간을 보존하고 포트 충돌을 구분합니다. 확인된 프로세스 중 선택 범위·현재
+세션·새 실행 대상만 받으며 캡처 앱 자체는 제외해 상위 연결 재포착을 막습니다.
+기존/미귀속/loopback/IPv6/QUIC 흐름은 바꾸지 않으며 이 어댑터의 포착 범위 밖입니다.
+
+`ARCHSCOPE_WINDIVERT_DLL`을 공식 패키지의 `x64/WinDivert.dll`(32비트 앱은 x86) 절대
+경로로 설정하고 관리자 권한 앱에서 `windows_transparent`를 명시적으로 선택합니다.
+DLL/드라이버 지문은 배포 ZIP SHA256
+`63cb41763bb4b20f600b6de04e991a9c2be73279e317d4d82f237b150c5f3f15`의 2.2.2-A와 같아야
+합니다. 빌드 스크립트는 바이너리를 배포·다운로드·설치하지 않습니다. 실행 중 백엔드를
+선택해 시작하면 WinDivertOpen이 서명된 드라이버를 로드할 수 있습니다. 드라이버나 OS
+정책이 거부하면 오류를 반환하고 정리하며 프록시로 대체하지 않습니다. 공식 패키지의
+LICENSE와 배포 고지를 함께 유지합니다.
+
+HTTP/TLS는 기존 파서·본문 정책을 사용하며 원래 IP/포트로 연결하고 SNI/Host를 TLS
+검증에 유지합니다. TLS에는 클라이언트의 캡처 CA 신뢰가 필요하며 pinning/H2-only는
+명시적인 미지원·통과 근거를 남깁니다. 중지 시 새 흐름·수신기·스트림을 닫은 뒤 드라이버
+핸들과 DLL을 해제하고 드라이버 오류는 세션 종료로 전달합니다. 흐름은 4096개로 제한하고
+최근 종료한 매핑은 2분간 유지합니다.
+
+공통 패킷 반사·충돌·범위, 공식 바이너리 지문, 직접 HTTP/TLS 스트림, race 및 Windows
+x86 컴파일/vet을 통과했습니다. **드라이버 패킷 주입·HVCI/백신 호환·Windows 실제 포착은
+미검증**입니다. 준비한 `TestWindowsTransparentDirectClientE2E`는 프록시를 무시하는 자체
+자식 프로세스를 peer HTTP fixture(80 포트)에 연결해 저장된 PID/시작 시간을 확인합니다.
+관리자 Windows에서 DLL과 `ARCHSCOPE_TRANSPARENT_FIXTURE_URL`,
+`ARCHSCOPE_RUN_TRANSPARENT_E2E=1`을 설정해 실행합니다.
+[WinDivert API](https://reqrypt.org/windivert-doc.html) ·
+[공식 배포](https://reqrypt.org/windivert.html).

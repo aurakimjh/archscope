@@ -128,3 +128,13 @@ func TestResolverRejectsPIDReuseAcrossStartTimes(t *testing.T) {
 		t.Fatalf("PID reuse was confirmed: %+v", process)
 	}
 }
+
+func TestTCPAttributionUsesLocalAddressInFiveTuple(t *testing.T) {
+	client := &net.TCPAddr{IP: net.ParseIP("10.0.0.1"), Port: 50123}
+	remote := &net.TCPAddr{IP: net.ParseIP("203.0.113.1"), Port: 443}
+	rows := []tcpRow{{LocalAddress: net.ParseIP("10.0.0.2"), LocalPort: 50123, RemoteAddress: remote.IP, RemotePort: 443, OwningPID: 1}, {LocalAddress: client.IP, LocalPort: 50123, RemoteAddress: remote.IP, RemotePort: 443, OwningPID: 2}}
+	pid, ok := matchingOwnerPID(rows, client, remote)
+	if !ok || pid != 2 {
+		t.Fatal("wrong local interface attributed")
+	}
+}

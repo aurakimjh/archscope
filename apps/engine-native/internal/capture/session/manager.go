@@ -325,6 +325,20 @@ func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
 		_ = st.Finalize(StateFailed)
 		return Session{}, err
 	}
+	if source, ok := capturer.(interface{ Errors() <-chan error }); ok {
+		go func() {
+			select {
+			case err := <-source.Errors():
+				if err != nil {
+					select {
+					case fatal <- err:
+					default:
+					}
+				}
+			case <-runCtx.Done():
+			}
+		}()
+	}
 	session.State = StateRunning
 	session.ListenAddress = address
 	if err := st.SetState(StateRunning); err != nil {
@@ -428,6 +442,9 @@ func (m *Manager) SelectLaunchedProcess(id SessionID, key models.ProcessKey) (Se
 	}
 	if key.PID <= 0 || key.StartTime == "" {
 		return Session{}, fmt.Errorf("launched process identity is unavailable")
+	}
+	if selector, ok := m.capturer.(interface{ SetSelectedProcesses([]models.ProcessKey) }); ok {
+		selector.SetSelectedProcesses([]models.ProcessKey{key})
 	}
 	m.pipeline.SetSelectedProcesses([]models.ProcessKey{key})
 	m.session.AllowedProcesses = []models.ProcessKey{key}

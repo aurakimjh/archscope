@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/proxy"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/transparent"
 )
 
 const ExplicitProxy = "explicit_proxy"
@@ -27,7 +28,7 @@ type Factory interface {
 type Registry struct{ factories []Factory }
 
 func Default() *Registry {
-	return &Registry{factories: []Factory{explicitFactory{}, transparentUnavailable{}}}
+	return &Registry{factories: []Factory{explicitFactory{}, transparentFactory{}}}
 }
 func (r *Registry) Capabilities(platform string) []Capability {
 	out := []Capability{}
@@ -77,11 +78,17 @@ func (explicitFactory) Capability(platform string) Capability {
 }
 func (explicitFactory) New(config proxy.Config) (capture.Capturer, error) { return proxy.New(config) }
 
-type transparentUnavailable struct{}
+type transparentFactory struct{}
 
-func (transparentUnavailable) Capability(platform string) Capability {
-	return Capability{Name: TransparentWindows, Transparent: true, RequiresDriver: true, Reason: "No transparent Windows adapter/driver has been implemented or validated", Scopes: []string{}, Protocols: []string{}}
+func (transparentFactory) Capability(platform string) Capability {
+	_, err := transparent.DriverStatus()
+	available := platform == "windows" && err == nil
+	reason := "Experimental WinDivert 2.2.2-A IPv4 TCP ports 80/443; administrator rights required. New verified process flows only; IPv6/QUIC/existing connections are not redirected. Native Windows acceptance remains unverified."
+	if err != nil {
+		reason = err.Error()
+	}
+	return Capability{Name: TransparentWindows, Available: available, Transparent: true, RequiresDriver: true, Reason: reason, Scopes: []string{"all_sessions", "current_session", "selected", "launch"}, Protocols: []string{"IPv4 TCP HTTP/1.x", "TLS with trusted capture CA; opaque h2-only fallback"}}
 }
-func (transparentUnavailable) New(proxy.Config) (capture.Capturer, error) {
-	return nil, capture.ErrModeUnavailable
+func (transparentFactory) New(config proxy.Config) (capture.Capturer, error) {
+	return transparent.New(config)
 }
