@@ -51,6 +51,16 @@ export function SlideOverPanel({
 }: SlideOverPanelProps): React.JSX.Element {
   const panelRef = useRef<HTMLElement | null>(null);
   const restoreRef = useRef<HTMLElement | null>(null);
+  const pointerTriggerRef = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    if (open) return;
+    // macOS WebKit may leave keyboard focus on the document after a click.
+    const remember = (event: PointerEvent) => {
+      pointerTriggerRef.current = (event.target as Element | null)?.closest<HTMLElement>("button, [role=button], [tabindex]") ?? null;
+    };
+    document.addEventListener("pointerdown", remember, true);
+    return () => document.removeEventListener("pointerdown", remember, true);
+  }, [open]);
 
   // Close on Escape and keep Tab focus inside the dialog so keyboard and
   // assistive-tech users can't tab out into the (aria-hidden) background.
@@ -88,7 +98,9 @@ export function SlideOverPanel({
   // restore focus to the element that opened it.
   useEffect(() => {
     if (!open) return;
-    restoreRef.current = (document.activeElement as HTMLElement) ?? null;
+    const active = document.activeElement as HTMLElement | null;
+    restoreRef.current = active && active !== document.body && active !== document.documentElement
+      ? active : pointerTriggerRef.current;
     const focusables = focusableWithin(panelRef.current);
     (panelRef.current?.querySelector<HTMLElement>("[data-panel-close]") ?? focusables[0] ?? panelRef.current)?.focus();
     return () => {

@@ -277,7 +277,7 @@ export function WailsFileDock({
             aria-label={label}
             data-accept={accept}
             className={cn(
-              "group relative flex flex-1 items-center gap-3 rounded-lg border border-dashed border-input/80 bg-muted/30 px-2 py-1.5 text-sm transition-colors",
+              "group relative flex min-w-0 flex-1 items-center gap-2 rounded-lg border border-dashed border-input/80 bg-muted/30 px-2 py-0.5 text-sm transition-colors",
               "hover:border-primary/60 hover:bg-muted/50",
               isDragOver && "border-primary bg-primary/5",
               busy && "pointer-events-none opacity-80",
@@ -291,8 +291,8 @@ export function WailsFileDock({
               )}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="inline-flex max-w-full items-center gap-2 text-sm font-medium leading-tight">
-                <span className="truncate">{selectedItems.length ? selectedItems.map(item => item.originalName).join(" · ") : label}</span>
+              <p className="inline-flex min-w-0 max-w-full items-center gap-2 text-sm font-medium leading-tight">
+                <span className="min-w-0 truncate" title={selectedItems.map(item => item.filePath).join("\n") || label}>{selectedItems.length ? selectedItems.map(item => item.originalName).join(" · ") : label}</span>
                 {resolvedHelp && <HelpTip text={[description,resolvedHelp].filter(Boolean).join("\n")} />}
               </p>
               {selectedItems.length > 0 && (

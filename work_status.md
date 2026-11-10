@@ -216,9 +216,9 @@ completed the independent Lighthouse file-first engine slice.
 |---|---:|---|
 | `TODO` | 0 | Ready to start; prerequisites are satisfied |
 | `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
-| `REVIEW` | 8 | Review or required remediation is underway; the gate has not passed |
+| `REVIEW` | 7 | Review or required remediation is underway; the gate has not passed |
 | `PENDING` | 2 | Waiting for a prerequisite, external condition, or activation trigger |
-| `DONE` | 204 | Completion criteria and required review gates have passed |
+| `DONE` | 205 | Completion criteria and required review gates have passed |
 
 The normal transition is `TODO → IN_PROGRESS → REVIEW → DONE`. A `PENDING`
 task returns to `TODO` when its dependency or trigger is satisfied. Task status
@@ -404,7 +404,6 @@ explicit rather than being inferred from builds or sparse fixtures.
 
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
-| 2 | T-622 | P1 | `REVIEW` | Fixed pinned-help Escape without focus, closed-help Escape trapping, drawer close-button focus and nested file-picker button roles. Native Open, pin/Esc and drawer close pass. Pointer-transfer, long-path and tooltip-edge matrix remains. |
 | 3 | T-623 | P1 | `REVIEW` | Collapsed initial session/file/field tools and compacted recording actions. Native HAR has 12 request rows plus 160px inspector at 1280x800, 11 at observed 1025x769; Headers/Body and splitter keys pass. Exact area/four-line matrix and Windows recording/process/reentry acceptance remain. |
 | 4 | T-624 | P1 | `REVIEW` | Deep shared fixture fills window width; native resized frame zoom/reset and OrderRepository drilldown pass. GC shared fixture shows ten events. Progress notice collapsed and bundle log-path bug fixed/tested. No-clock/conditional cases and exact area adjudication remain. |
 | 5 | T-625 | P2 | `REVIEW` | All nine analyzer routes exercised with fixtures; Access defaults to URLs, Trace to traces, Lighthouse metadata/categories collapsed with provenance retained. Exhaustive conditional-tab, error/empty/long-input and density matrix remains. |
@@ -1358,7 +1357,7 @@ deferred until explicitly promoted.
 | T-618 | P2 | DONE | Disclose Incident Timeline truncation and qualify severity/time summaries | Existing Incident Timeline/Report Pack contracts | Completed 2026-11-10: 120/source and 1000/session row caps remain, with deterministic documented selection, total/emitted/omitted and per-source/severity loss counts. Severity/time/ranged/correlation summaries use all candidates; groups/narrative explicitly remain retained-only. Page/JSON/Report Pack HTML disclose partial output and omitted critical events. Both-cap, late-critical, empty-input and export regressions plus frontend state/build pass. |
 | T-620 | P1 | DONE | Measure all 21 views at the default window size | — | Completed same native 1280x800/100%/Korean 21-route original baseline at d98a958 using native sidebar and identical sanitized deep-profile, GC-pressure and 30-request HAR inputs. Original profiler first data y=484 (29.6% union); GC Events y=410, six full rows; HTTP zero full request rows. Evidence: docs/review/evidence/2026-11-10-layout/mac-original-baseline.json. |
 | T-621 | P1 | DONE | Move global navigation to native menus | T-620 | Actual macOS native menus reached all 21 routes; Open dialog, Cmd+, locale/theme and About verified. Full-width flex regression fixed; menu-context and build checks pass. Windows acceptance remains in T-627. |
-| T-622 | P1 | REVIEW | Compact shared input controls and help | T-620 | Fixed pinned-help Escape without focus, closed-help Escape trapping, drawer close-button focus and nested file-picker button roles. Native Open, pin/Esc and drawer close pass. Pointer-transfer, long-path and tooltip-edge matrix remains. |
+| T-622 | P1 | DONE | Compact shared input controls and help | T-620 | Completed Mac native long Korean filename (182 UTF-8 bytes, 488-character path), 1024x768/125% viewport, pointer enter/transfer/leave, click pin/outside/Escape, Option-Tab/Enter/Escape and drawer close-focus restoration. Fixed unlayered flex:none overriding the file dock and macOS document-focus restoration. Evidence: mac-detail-T622.json. |
 | T-623 | P1 | REVIEW | Prioritize the HTTP grid and inspector | T-621, T-622 | Collapsed initial session/file/field tools and compacted recording actions. Native HAR has 12 request rows plus 160px inspector at 1280x800, 11 at observed 1025x769; Headers/Body and splitter keys pass. Exact area/four-line matrix and Windows recording/process/reentry acceptance remain. |
 | T-624 | P1 | REVIEW | Prioritize profiler and GC results | T-621, T-622 | Deep shared fixture fills window width; native resized frame zoom/reset and OrderRepository drilldown pass. GC shared fixture shows ten events. Progress notice collapsed and bundle log-path bug fixed/tested. No-clock/conditional cases and exact area adjudication remain. |
 | T-625 | P2 | REVIEW | Convert nine remaining analysis views | T-621, T-622 | All nine analyzer routes exercised with fixtures; Access defaults to URLs, Trace to traces, Lighthouse metadata/categories collapsed with provenance retained. Exhaustive conditional-tab, error/empty/long-input and density matrix remains. |

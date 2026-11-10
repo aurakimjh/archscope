@@ -1,0 +1,42 @@
+{
+  "task": "T-622",
+  "status": "pass",
+  "native": true,
+  "checks": [
+    "long Korean filename, Browse and Analyze stay reachable at 125%",
+    "pinned pointer transfer, outside click and Escape",
+    "unpinned pointer entry, popup transfer and leave via native mouse movement",
+    "macOS Option-Tab/Enter/Escape",
+    "bottom/edge help within narrow options drawer",
+    "first Escape dismisses help only, second dismisses drawer",
+    "drawer returns focus to clicked Options button"
+  ],
+  "fixes": [
+    "CSS flex:none overriding flex-1 for long file names",
+    "restore the pointer trigger when macOS WebKit leaves focus on the document"
+  ],
+  "geometry": [
+    {
+      "canvasCount": 1,
+      "chromeHeight": 30,
+      "detailHeight": 0,
+      "dpr": 2,
+      "firstDataTop": 172,
+      "fullRequestRows": 0,
+      "fullRows": 0,
+      "height": 800,
+      "helpFitsViewport": true,
+      "helpOpen": true,
+      "mainScrollTop": 0,
+      "mainWidth": 1280,
+      "outerOverflow": false,
+      "renderedRows": 0,
+      "resultAreaRatio": 0.712,
+      "route": "profiler",
+      "selectedTabFits": true,
+      "sidebarWidth": 0,
+      "tab": "플레임그래프",
+      "width": 1280
+    }
+  ]
+}
