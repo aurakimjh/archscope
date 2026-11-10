@@ -28,10 +28,12 @@ import (
 	"fmt"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/automation"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/certstore"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/comautomation"
 	"log"
 	"os"
 	"path/filepath"
 	"runtime"
+	"sync/atomic"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture"
 	"github.com/wailsapp/wails/v3/pkg/application"
@@ -129,7 +131,7 @@ func main() {
 		}
 	}
 	app.Menu.Set(menu)
-	app.Window.NewWithOptions(application.WebviewWindowOptions{
+	window := app.Window.NewWithOptions(application.WebviewWindowOptions{
 		Windows: application.WindowsWindow{Menu: menu},
 		Title:   "ArchScope",
 		Width:   1280,
@@ -142,6 +144,39 @@ func main() {
 		BackgroundColour: application.NewRGB(15, 23, 42),
 		URL:              "/",
 	})
+
+	var visible atomic.Bool
+	visible.Store(true)
+	captureService.windowVisibility = func(value *bool) (bool, error) {
+		captureService.lifecycleMu.Lock()
+		defer captureService.lifecycleMu.Unlock()
+		if captureService.closing {
+			return false, fmt.Errorf("desktop is shutting down")
+		}
+		if value != nil {
+			requested := *value
+			visible.Store(requested)
+			application.InvokeAsync(func() {
+				if requested {
+					window.Show()
+				} else {
+					window.Hide()
+				}
+			})
+		}
+		return visible.Load(), nil
+	}
+	if options.COMServer {
+		server, err := comautomation.Start(captureService.executeAutomation)
+		if err != nil {
+			log.Fatal(err)
+		}
+		app.OnShutdown(func() {
+			if err := server.Close(); err != nil {
+				log.Print(err)
+			}
+		})
+	}
 
 	if err := app.Run(); err != nil {
 		log.Fatal(err)

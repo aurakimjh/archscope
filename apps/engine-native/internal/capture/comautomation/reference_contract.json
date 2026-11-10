@@ -1,0 +1,399 @@
+{
+  "source": "Bundled Delphi type-library export in official V7.6.4 automation samples; generated export dated 2009-05-05, library 5.0. Does not prove the current embedded typelib or binary interoperability.",
+  "interfaces": {
+    "INameValue": {
+      "iid": "{52CA0CB5-4FF6-4951-BE40-066A928B0836}",
+      "dispatchIds": {
+        "Name": 201,
+        "Value": 202
+      }
+    },
+    "INameValues": {
+      "iid": "{FA2F39E7-6715-48EC-94D8-72F9425FD02F}",
+      "dispatchIds": {
+        "Count": 201,
+        "Item": 0,
+        "_NewEnum": -4
+      }
+    },
+    "IPostParam": {
+      "iid": "{6E25119F-8FF8-4080-A3F5-B60284E73E65}",
+      "dispatchIds": {
+        "Name": 201,
+        "Value": 202,
+        "FileName": 203,
+        "Header": 204
+      }
+    },
+    "IPostParams": {
+      "iid": "{D4F9D9FB-658A-46B0-AE78-2BB0D81038C2}",
+      "dispatchIds": {
+        "Count": 201,
+        "Item": 0,
+        "_NewEnum": -4
+      }
+    },
+    "ISetCookie": {
+      "iid": "{93FC48EB-0141-41E2-8D38-9F1FA951336F}",
+      "dispatchIds": {
+        "Name": 201,
+        "Value": 202,
+        "Domain": 203,
+        "Path": 204,
+        "Expires": 205
+      }
+    },
+    "ISetCookies": {
+      "iid": "{5383E103-9F0E-49F4-9270-2193D6AF1CC0}",
+      "dispatchIds": {
+        "Count": 201,
+        "Item": 0,
+        "_NewEnum": -4
+      }
+    },
+    "ICacheInfo": {
+      "iid": "{2E97CB19-CA09-4EC8-A2E4-624DC51C6716}",
+      "dispatchIds": {
+        "URLInCache": 201,
+        "ExpireTime": 202,
+        "LastAccessTime": 205,
+        "LastModifiedTime": 206,
+        "EntryType": 210,
+        "UseCount": 211,
+        "SourceUrlName": 212,
+        "LocalFileName": 213,
+        "LastSyncTime": 214,
+        "HitRate": 215,
+        "HeaderInfo": 216,
+        "FileSize": 217,
+        "FileExtension": 218,
+        "ExemptDelta": 219
+      }
+    },
+    "IResponseContent": {
+      "iid": "{6A4FD150-D026-4048-B9BE-AC349E596314}",
+      "dispatchIds": {
+        "Export": 201,
+        "MimeType": 202,
+        "Size": 203,
+        "IsFromCache": 204,
+        "IsCompressed": 205,
+        "CompressedSize": 206,
+        "CompressionType": 207,
+        "CompressRate": 209,
+        "IsChunked": 210,
+        "Data": 211
+      }
+    },
+    "IRequest": {
+      "iid": "{8A9B7BDD-8510-4025-80D0-E69914881EF1}",
+      "dispatchIds": {
+        "RequestLine": 201,
+        "Cookies": 202,
+        "Headers": 203,
+        "PostParams": 204,
+        "PostMimeType": 205,
+        "QueryStringValues": 206,
+        "PostDataSize": 207,
+        "RequestData": 210,
+        "PostData": 211
+      }
+    },
+    "IResponse": {
+      "iid": "{7C480C46-F340-4922-8DF3-D5C1DF51A2E2}",
+      "dispatchIds": {
+        "StatusLine": 201,
+        "Cookies": 202,
+        "Headers": 203,
+        "ResponseData": 205
+      }
+    },
+    "ILogEntry": {
+      "iid": "{5CA2DCA7-F2B4-4610-AA60-D97CF896D0FB}",
+      "dispatchIds": {
+        "URL": 201,
+        "Method": 202,
+        "TimeStart": 205,
+        "TimeDuration": 206,
+        "Result": 207,
+        "CacheBefore": 208,
+        "CacheAfter": 209,
+        "Request": 214,
+        "Response": 215,
+        "Content": 216,
+        "BytesSent": 218,
+        "BytesReceived": 219,
+        "IsComplete": 220,
+        "HTTPStatusCode": 221,
+        "IsRedirect": 223,
+        "RedirectURL": 224,
+        "TimeEnd": 203,
+        "ClientIP": 204,
+        "ClientPort": 210,
+        "ServerIP": 211,
+        "ServerPort": 212,
+        "HasError": 213,
+        "ErrorCode": 217,
+        "ErrorMessage": 222,
+        "ProcessName": 225,
+        "TimeStartSecs": 226,
+        "TimeEndSecs": 227,
+        "TimingInfos": 228,
+        "SeqNO": 229,
+        "ProcessID": 230,
+        "WebpageID": 231,
+        "IsFiltered": 232,
+        "Hints": 233
+      }
+    },
+    "ILog": {
+      "iid": "{474B05CB-F2DC-4A4D-978F-B543AF2F9406}",
+      "dispatchIds": {
+        "Count": 204,
+        "Item": 0,
+        "_NewEnum": -4,
+        "FilteredCount": 201,
+        "DeletePersistentCookies": 203,
+        "DeleteCache": 205,
+        "FilteredItem": 202,
+        "Summary": 206,
+        "WebPages": 207,
+        "Processes": 208,
+        "DeleteEntry": 210,
+        "DeleteCompleteEntries": 211,
+        "DeleteCacheForRecordedURLs": 209,
+        "DeleteAllCache": 212,
+        "DeleteCookiesForRecordedURLs": 213,
+        "DeleteAllCookies": 214,
+        "__HelpAddonVisible": 215,
+        "DeleteUnGroupItems": 216,
+        "__helpAddonPID": 217,
+        "__helpCOMEventLinked": 218
+      }
+    },
+    "IHTTPAnalyzer": {
+      "iid": "{CC4DFE61-D7FC-4871-8DFB-8F9686CA14BC}",
+      "dispatchIds": {
+        "Stop": 201,
+        "Clear": 202,
+        "Log": 207,
+        "IsLogging": 208,
+        "Start": 210,
+        "LoadLog": 211,
+        "SaveLog": 212,
+        "SetFilter": 213,
+        "IsFiltered": 205,
+        "ClearFilter": 206,
+        "DeleteUrlCache": 209,
+        "DeleteSessionCookies": 214,
+        "DeletePersistentCookie": 215,
+        "Pause": 203,
+        "Resume": 204,
+        "IsPaused": 216,
+        "MaxLogSize": 217,
+        "StillCaptureDataWhenHide": 218
+      }
+    },
+    "ITimingInfo": {
+      "iid": "{DB079091-24CE-4262-AA79-36431504606C}",
+      "dispatchIds": {
+        "Start": 201,
+        "Duration": 202,
+        "IsValid": 203
+      }
+    },
+    "ITimingInfos": {
+      "iid": "{7F35D33F-72F9-4D2E-8381-B948C0C7EBE1}",
+      "dispatchIds": {
+        "Block": 201,
+        "DNSLookUp": 202,
+        "Connect": 203,
+        "Send": 204,
+        "Wait": 205,
+        "Receive": 206,
+        "TimeToFirstByte": 207,
+        "NetWork": 208,
+        "CacheRead": 209
+      }
+    },
+    "ISummaryResult": {
+      "iid": "{B7DA287B-88A4-448F-9064-1BABDBB3E9CB}",
+      "dispatchIds": {
+        "Result": 201,
+        "Description": 202,
+        "Count": 203
+      }
+    },
+    "ISummaryResults": {
+      "iid": "{4DDA3021-DF7E-4F72-891C-0F6510E4487C}",
+      "dispatchIds": {
+        "Count": 201,
+        "Item": 0,
+        "_NewEnum": -4
+      }
+    },
+    "ISummary": {
+      "iid": "{038334F0-ED29-411A-B4EA-828534D79E8F}",
+      "dispatchIds": {
+        "ElapsedTime": 201,
+        "BytesReceived": 202,
+        "BytesSent": 203,
+        "CompressionSavedBytes": 204,
+        "RoundTrips": 205,
+        "DNSLookUps": 206,
+        "TCPConnects": 207,
+        "StatusCodes": 210,
+        "Errors": 211,
+        "TotalHTTPSOverhead": 208,
+        "AverageHTTPSOverhead": 209,
+        "TimingSummaries": 212
+      }
+    },
+    "ILogEntryGroup": {
+      "iid": "{E7D6E76C-7E3F-4FE4-985B-25DBF1FD4AA0}",
+      "dispatchIds": {
+        "Count": 201,
+        "Item": 0,
+        "_NewEnum": -4,
+        "Summary": 301,
+        "Title": 302,
+        "StartDisplayText": 303,
+        "StartSecs": 304,
+        "StartDateTime": 305
+      }
+    },
+    "ILogEntryGroups": {
+      "iid": "{31BBFAAD-E0AA-468D-9EEE-940B5EC0799D}",
+      "dispatchIds": {
+        "Count": 201,
+        "Item": 0,
+        "_NewEnum": -4
+      }
+    },
+    "ITimingSummary": {
+      "iid": "{E3AC90F7-EDBD-44A3-94F5-7F19C506DACF}",
+      "dispatchIds": {
+        "Minimum": 201,
+        "Maximum": 202,
+        "Average": 203,
+        "Total": 204,
+        "Occurrences": 205
+      }
+    },
+    "ITimingSummaries": {
+      "iid": "{9E8021E8-3C2C-4E3A-91CA-55E07490BF57}",
+      "dispatchIds": {
+        "Block": 201,
+        "DNSLookUp": 202,
+        "Connect": 203,
+        "Send": 204,
+        "Wait": 205,
+        "Receive": 206,
+        "TimeToFirstByte": 207,
+        "NetWork": 208,
+        "CacheRead": 209
+      }
+    },
+    "IWebpage": {
+      "iid": "{7FB89A2C-760E-4C11-B600-2D180D601AB2}",
+      "dispatchIds": {
+        "DOMReadyTime": 306,
+        "PageLoadTime": 307,
+        "NetworkTime": 309,
+        "IsUnGroupPage": 308,
+        "Count": 201,
+        "Item": 0,
+        "_NewEnum": -4,
+        "Summary": 301,
+        "Title": 302,
+        "StartDisplayText": 303,
+        "StartSecs": 304,
+        "StartDateTime": 305
+      }
+    },
+    "IWebpages": {
+      "iid": "{6F7AEA9E-30D9-451A-A7CE-7BD2BC2C0272}",
+      "dispatchIds": {
+        "Count": 201,
+        "Item": 0,
+        "_NewEnum": -4,
+        "ItemByID": 202
+      }
+    },
+    "I_HttpAnalyzerAutoHelper": {
+      "iid": "{1C6DA666-CC86-4509-B4AF-4FC9BC4FB692}",
+      "dispatchIds": {
+        "Navigate": 201,
+        "ShowAddonBar": 202,
+        "HTTPAnalyzer": 203,
+        "BrowserWin": 204,
+        "DocLoaded": 205,
+        "Visible": 206,
+        "CurrentPID": 207,
+        "Init": 208,
+        "Version": 209
+      }
+    },
+    "IHint": {
+      "iid": "{45568484-192A-49E1-82AB-058370BEC7C1}",
+      "dispatchIds": {
+        "ID": 201,
+        "Description": 202,
+        "Category": 203
+      }
+    },
+    "IHints": {
+      "iid": "{66794437-FA18-4736-8B91-120D46EF7603}",
+      "dispatchIds": {
+        "Count": 201,
+        "Item": 0,
+        "_NewEnum": -4
+      }
+    },
+    "IHTTPAnalyzerStandAlone": {
+      "iid": "{C3283F65-5BAE-48F2-A377-E3C684323DE4}",
+      "dispatchIds": {
+        "Visible": 301,
+        "AttachProcessByName": 303,
+        "AttachProcessByID": 304,
+        "AttachCurrentSession": 305,
+        "AttachAllSessions": 306,
+        "AttachNewProcess": 307,
+        "DetachProcessByID": 308,
+        "DetachProcessByName": 309,
+        "DeleteCacheForRecordedURLs": 302,
+        "DeleteAllCache": 310,
+        "DeleteCookiesForRecordedURLs": 311,
+        "DeleteAllCookies": 312,
+        "Stop": 201,
+        "Clear": 202,
+        "Log": 207,
+        "IsLogging": 208,
+        "Start": 210,
+        "LoadLog": 211,
+        "SaveLog": 212,
+        "SetFilter": 213,
+        "IsFiltered": 205,
+        "ClearFilter": 206,
+        "DeleteUrlCache": 209,
+        "DeleteSessionCookies": 214,
+        "DeletePersistentCookie": 215,
+        "Pause": 203,
+        "Resume": 204,
+        "IsPaused": 216,
+        "MaxLogSize": 217,
+        "StillCaptureDataWhenHide": 218
+      }
+    }
+  },
+  "logTypes": {
+    "0": "xml",
+    "1": "xml_compact",
+    "2": "urls",
+    "3": "xls",
+    "4": "html",
+    "5": "text",
+    "6": "native",
+    "7": "responses"
+  }
+}

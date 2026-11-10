@@ -12,6 +12,7 @@ import (
 
 type Options struct {
 	Capture                                   bool
+	COMServer                                 bool
 	Process                                   string
 	PIDs                                      []int32
 	Scope                                     string
@@ -24,6 +25,7 @@ const Usage = `ArchScope desktop
   --capture [--process ABS_EXE_OR_LNK | --pid PID ... | --scope all_sessions|current_session]
   [--duration 30s] [--destination ABS_PATH --format session|har|xml|xml_compact|urls|text|html|xls|responses]
   --open ABS_SESSION
+  --com-server                     Enable same-user Windows COM activation
   --automation-descriptor ABS_PATH   Enable authenticated loopback automation
 Legacy /p, /d, /t(minutes), /f are parsed. Windows .lnk executable targets are supported.
 /f NATIVE (.halog), advertised/elevated shell activation remain unavailable.
@@ -33,8 +35,13 @@ func ParseOptions(args []string) (Options, error) {
 	out := Options{Format: "session", Scope: "all_sessions"}
 	seen := map[string]bool{}
 	legacy := false
+	embedding := false
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
+		if strings.EqualFold(arg, "/Embedding") || strings.EqualFold(arg, "-Embedding") {
+			embedding = true
+			continue
+		}
 		key, value, has := strings.Cut(arg, "=")
 		if strings.HasPrefix(arg, "/") && len(arg) >= 2 && strings.ContainsRune("pdtf", rune(strings.ToLower(arg)[1])) {
 			legacy = true
@@ -45,6 +52,13 @@ func ParseOptions(args []string) (Options, error) {
 		key = strings.ToLower(key)
 		if key == "--help" || key == "-h" {
 			out.Help = true
+			continue
+		}
+		if key == "--com-server" {
+			if has {
+				return out, fmt.Errorf("--com-server has no value")
+			}
+			out.COMServer = true
 			continue
 		}
 		if key == "--capture" {
@@ -128,6 +142,9 @@ func ParseOptions(args []string) (Options, error) {
 		case "--automation-descriptor":
 			out.Descriptor = value
 		}
+	}
+	if embedding && !out.COMServer {
+		return out, fmt.Errorf("COM embedding requires --com-server")
 	}
 	if out.Help {
 		return out, nil

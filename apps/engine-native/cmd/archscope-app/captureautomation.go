@@ -12,6 +12,8 @@ import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/automation"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/procmap"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/sessionfile"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/store"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 )
 
@@ -36,7 +38,7 @@ func (s *CaptureService) ApplyDesktopLaunch() DesktopLaunchState {
 		if openPath == "" {
 			openPath = s.launchState.OpenPath
 		}
-		s.launchState = DesktopLaunchState{ShowHTTP: opts.Capture || opts.OpenPath != "" || opts.Descriptor != "", OpenPath: openPath}
+		s.launchState = DesktopLaunchState{ShowHTTP: opts.Capture || opts.OpenPath != "" || opts.Descriptor != "" || opts.COMServer, OpenPath: openPath}
 		s.controlMu.Unlock()
 		if !opts.Capture {
 			return
@@ -135,6 +137,61 @@ func (s *CaptureService) executeAutomation(ctx context.Context, call automation.
 		return nil, err
 	}
 	switch call.Command {
+	case "visible":
+		var request struct {
+			Value *bool `json:"value"`
+		}
+		if err := decodeControl(call.Params, &request); err != nil {
+			return nil, err
+		}
+		if s.windowVisibility == nil {
+			return nil, fmt.Errorf("native window visibility is unavailable")
+		}
+		return s.windowVisibility(request.Value)
+	case "legacy-log":
+		var request struct {
+			Path      string `json:"path"`
+			SessionID string `json:"sessionId"`
+		}
+		if err := decodeControl(call.Params, &request); err != nil {
+			return nil, err
+		}
+		if request.Path != "" {
+			doc, _, err := sessionfile.Read(request.Path)
+			if err != nil {
+				return nil, err
+			}
+			if len(doc.Transactions) > 100000 {
+				return nil, fmt.Errorf("automation snapshot exceeds 100000 entries")
+			}
+			return doc.Transactions, nil
+		}
+		current := s.GetCurrentCaptureSession()
+		if request.SessionID != "" {
+			current.ID = capture.SessionID(request.SessionID)
+		}
+		if current.ID == "" {
+			return []models.CaptureTransaction{}, nil
+		}
+		var rows []models.CaptureTransaction
+		cursor := ""
+		for {
+			page, err := s.manager.Fetch(current.ID, store.Filter{MetadataOnly: true}, cursor, store.MaxFetchLimit)
+			if err != nil {
+				return nil, err
+			}
+			if page.Total > 100000 {
+				return nil, fmt.Errorf("automation snapshot exceeds 100000 entries")
+			}
+			for _, item := range page.Items {
+				rows = append(rows, item.Transaction)
+			}
+			if page.NextCursor == "" {
+				break
+			}
+			cursor = page.NextCursor
+		}
+		return rows, nil
 	case "capabilities":
 		return map[string]any{"buildCommit": desktopBuildCommit, "contract": s.GetLiveCaptureContract(), "modes": s.ListCaptureModes(), "backends": s.ListCaptureBackends()}, nil
 	case "status":

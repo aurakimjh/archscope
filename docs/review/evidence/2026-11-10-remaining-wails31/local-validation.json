@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-10",
+  "scope": "Wails 3.1 upgrade and remaining stand-alone implementation subset",
+  "versions": {
+    "wailsSDK": "3.1.0",
+    "wailsRuntime": "3.1.0",
+    "activeWailsCLI": "3.1.0",
+    "goToolchain": "1.26.10"
+  },
+  "checks": [
+    {
+      "scope": "go test ./... on Mac",
+      "result": "PASS",
+      "localLogSHA256": "cc1bfd83cfec0c81defdcfa002caf2af7d16c46f2ee53b391a3ada379fa4ee3c"
+    },
+    {
+      "scope": "capture/application race suite on Mac",
+      "result": "PASS",
+      "localLogSHA256": "b251a004d20cfd4403a2cc0235765045a9fc1221d0af8d8bb02d4f25ecadfc0a"
+    },
+    {
+      "scope": "final COM core/cache/application race tests on Mac",
+      "result": "PASS",
+      "localLogSHA256": "316a4d3fec057c81a20502595923a9e1ab410a11006166f0b75257f15b6d2efd"
+    },
+    {
+      "scope": "go vet ./... on Mac",
+      "result": "PASS",
+      "localLogSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "scope": "frontend state tests and production build",
+      "result": "PASS",
+      "localLogSHA256": "38821495241852943d735c215d9fd393fb3f79d0aae7ef4df2d95fa39547c953"
+    }
+  ],
+  "crossCompilation": {
+    "windowsGUI": [
+      "386",
+      "amd64"
+    ],
+    "windowsCOMTests": [
+      "386",
+      "amd64"
+    ],
+    "windowsCOMVet": "amd64",
+    "result": "PASS",
+    "abiVtableAtOffsetZero": "compile-time assertion"
+  },
+  "frontendAudit": {
+    "vulnerabilities": 0,
+    "scope": "npm audit fix within existing dependency ranges"
+  },
+  "binaries": [
+    {
+      "platform": "windows/386",
+      "sha256": "8076a08d89b42dfb9f8c1a5a3700a216a3a71493621bd1c86cd4c462f47fad69",
+      "bytes": 26586112,
+      "executed": false,
+      "peMachine": "0x14c",
+      "peSubsystem": 2
+    },
+    {
+      "platform": "windows/amd64",
+      "sha256": "080f71b2dc038acf597c18250b9c65ce25024c3b9c7802fee56e182919f348eb",
+      "bytes": 27627520,
+      "executed": false,
+      "peMachine": "0x8664",
+      "peSubsystem": 2
+    },
+    {
+      "platform": "darwin/arm64",
+      "sha256": "e14d925e9f879462a5f5016df13bb227ddcfe22f4349f056490bd15fcbe6d4a2",
+      "bytes": 25264786,
+      "executed": false
+    }
+  ],
+  "comSourceSHA256": {
+    "apps/engine-native/internal/capture/comautomation/contract.go": "7d5c019d5fc4efad937de01751caa24689fdd91273bfaa9a7e6e1481a80b86b7",
+    "apps/engine-native/internal/capture/comautomation/controller.go": "6cc632269ace730dc202c6f906940b7fe88893fd0ff8357b073272449be27078",
+    "apps/engine-native/internal/capture/comautomation/controller_test.go": "134b069e98b269bfe07bc47f47d8dd1160c8476c7fcfc51ae71bb52183df452c",
+    "apps/engine-native/internal/capture/comautomation/reference_contract.json": "3416e86594c45dd46a25bf2fc2b721e8eef6ed6238699bcfa1c3831a44f7be46",
+    "apps/engine-native/internal/capture/comautomation/server_other.go": "7dc812e8b10046e53f394e29c3b5ae89fceb640da6674cc2d1ca34da760d42b8",
+    "apps/engine-native/internal/capture/comautomation/server_windows.go": "bacc7d6a6248b615efacd40e46a4bf7be7d38cd1bf9e75fbefadabaac074cd38",
+    "apps/engine-native/internal/capture/comautomation/server_windows_test.go": "8d7cfb75cbfd674f1630674b97ca9e8d78b71f44110951be1b0497c58447477f"
+  },
+  "nativeWindowsExecuted": false,
+  "nativeVisualVerified": false,
+  "powershellScriptsExecuted": false,
+  "driverInstalledOrExecuted": false,
+  "vendorInstallerExecuted": false,
+  "fullStandAloneParity": false,
+  "remaining": [
+    "Native Windows driver/reach/cleanup/COM activation/cache/GUI acceptance",
+    "Original early-bound COM dual interfaces/typeinfo/events/byref cancellation/filter-file/retention/session-cookie semantics/raw streams",
+    "Genuine .halog decoder/encoder and reference read/write round trips",
+    "Complete T-613 Windows parity and long native soak"
+  ],
+  "notes": [
+    "Cross-compilation and API metadata do not prove Windows runtime behavior.",
+    "Known Mac linker warnings target macOS 11 while local objects were built for macOS 27.2; oldest supported macOS was not tested.",
+    "Binaries and local logs stay outside the repository; hashes identify this validation snapshot."
+  ]
+}

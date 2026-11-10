@@ -7,12 +7,22 @@
   "downloadPage": "https://www.ieinspector.com/httpanalyzer/download",
   "zipSha256": "4de773d67ae419e216f6d07b5f59d781e8516f072ede4067417c9c54c3da5d51",
   "installerSha256": "79755198eaa0d89aef549ed561d7a49c488055f20b25aeb5c3373379498d763e",
-  "outerArchiveEntries": ["HttpAnalyzerStd_V7.6.4.exe", "pwd-is-ieinspector.txt"],
+  "outerArchiveEntries": [
+    "HttpAnalyzerStd_V7.6.4.exe",
+    "pwd-is-ieinspector.txt"
+  ],
   "installerExecuted": false,
-  "nestedInstallerContentsInspected": false,
+  "nestedInstallerContentsInspected": true,
   "genuineHalogSampleAvailable": false,
   "codecImplemented": false,
   "referenceReadVerified": false,
   "referenceWriteVerified": false,
-  "note": "Outer archive and installer type only were inspected. No proprietary format was inferred; no installer or vendor driver is included in the repository."
+  "note": "Inno installer directory and bundled automation archive inspected without execution. Extracted only two metadata/sample archive files; no executable, driver, key or credential file extracted. No .halog sample in the installer directory or sample archive. Bundled Delphi export is dated 2009/library 5.0 and differs from the installed shared typelib hash; current binary interop remains unverified.",
+  "extractionTool": "innoextract 1.9 (private temporary tool, no global installation)",
+  "extractedMetadata": {
+    "app/HTTPAnalyzer.tlb": "88abae9fe873bd032365e8de89913749971172b6cf6f42afde976e1e0f12eaa5",
+    "samples/Delphi/HTTPAnalyzer.tlb": "24557881226938657470a7fad415b4458588fc05ee139e8b905f11c9683ec089",
+    "samples/Delphi/HTTPAnalyzerStd.tlb": "78b9f1e44e940924e6272435b7aae4b937e24fd3635b0a5550ff34a0e42a56bb",
+    "app/AutoLib_Samples/samples.zip": "9252b23449b195916a059c47ad69ddbcb0ba9eb15eac083e8527580a7fbb5c3f"
+  }
 }

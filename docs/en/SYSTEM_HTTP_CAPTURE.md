@@ -1486,3 +1486,72 @@ asserts persisted PID/start-time attribution. Configure the DLL, peer fixture UR
 and `ARCHSCOPE_RUN_TRANSPARENT_E2E=1` on elevated Windows before running it.
 [WinDivert API](https://reqrypt.org/windivert-doc.html) ·
 [Official distribution](https://reqrypt.org/windivert.html).
+
+### Native COM adapter and reference-contract inventory (T-611, 2026-11-10)
+
+The desktop opt-in `--com-server` now hosts a real Windows IClassFactory/IDispatch
+server on its own STA/message loop, with reference-counted dispatch/collection
+objects and IEnumVARIANT. `archscope-control --register-com ABS_DESKTOP_EXE` creates
+only ArchScope-owned per-user x86/x64 registry entries; `--unregister-com` removes
+only entries pointing to that executable. The ProgID is
+`ArchScope.HTTPAnalyzerStandAlone`; vendor ProgIDs/CLSID registrations are untouched.
+Calls require the same user SID and at least the server's integrity/elevation level.
+For transparent capture, prelaunch the configured desktop with `--com-server` and
+run the COM client at the same administrator level.
+
+Implemented members cover attach by exact PID/start time or name, session scopes,
+new executable/shortcut launch, Start/Stop/Pause/Resume/Clear, requested Visible,
+IsLogging/IsPaused, read-only log snapshots/Count/Item/ForEach and metadata/header
+objects, LoadLog/SaveLog and WinINet cleanup. A controller targets the session it
+started so stale commands cannot stop a replacement session. Attachment changes
+require stopped recording. `Backend`, `SessionID`, `ProxyAddress`, `BuildCommit` and `CaptureBodies`
+are ArchScope extensions. CaptureBodies defaults off and goes through the existing
+independent body-policy preflight; it never grants a bypass. The default backend is `windows_transparent`; choose
+`explicit_proxy` explicitly when that is the desired transport. Stable snapshots
+are cached, bounded at 100,000 entries and fail explicitly above that limit.
+
+Static extraction found the vendor automation TLBs and bundled Delphi declarations.
+The generated declaration is dated 2009/library 5.0 and differs in hash from the
+current shared TLB, so it is evidence for an API subset, not current binary parity.
+`reference_contract.json` records its factual GUIDs/DISPIDs/export enums without
+redistributing vendor source/binaries. Supported dispatch IDs and SaveLog enums
+match that declaration; NativeLog=6 remains refused without a verified codec.
+TimeDuration stays integer milliseconds and date getters use OLE DATE. Unknown
+metadata fails explicitly rather than inventing timestamps. Log snapshots expose
+canonical metadata/headers, not original raw binary streams.
+
+**Legacy custom-IID dual vtables, ITypeInfo, connection-point events/ref-cancel,
+filter-file commands, MaxLogSize retention and cross-process session-cookie cleanup
+are not implemented.** The server exposes IUnknown/IDispatch and IEnumVARIANT,
+not those unimplemented vendor interfaces. This is a functional late-bound adapter,
+not a drop-in binary replacement. Windows activation/marshalling/registry/GUI checks
+remain unverified. `scripts/verify-http-com.ps1` checks activation, lifecycle, native
+enumeration, PID attribution and a saved session against a supplied synthetic HTTP
+fixture. Its result explicitly excludes vendor interoperability and native UI parity.
+Portable core/contract/ownership tests and Windows ABI/test compilation/vet pass.
+
+The Wails 3.1 build also pins Go toolchain 1.26.10. Frontend audit fixes stay within
+the existing version ranges; the resulting npm audit reports zero vulnerabilities.
+
+### Genuine reference-pair collection after static research (T-608)
+
+The installer directory and its automation ZIP were inspected with a temporary
+innoextract tool without running the installer/vendor executables. The directory
+contains TLBs/examples but no `.halog` entry; the example ZIP likewise has none.
+Only metadata/sample archive files were extracted; vendor drivers/keys were not
+extracted or installed. Fingerprints and the older bundled-contract qualification
+are recorded in `docs/review/evidence/2026-11-10-halog-research/source-manifest.json`.
+
+On Windows with an already installed reference V7.6.4,
+`scripts/collect-halog-reference.ps1 -ReferenceExe ABS_EXE -FixtureURL FIXTURE_URL
+-OutputDirectory PRIVATE_OUTSIDE_REPO` validates the registered vendor executable
+version/path, refuses an active/nonempty reference log, attaches its own caller PID
+and generates only synthetic fixture traffic. It saves the same stopped capture
+using verified NativeLog=6 and XMLLogFull=0 enum values and records hashes/version.
+It never clears existing reference data or overwrites pair files. The default
+fixture can be started with `node scripts/halog-reference-fixture.mjs --out PRIVATE_EXPECTATIONS`;
+leave it waiting and use its loopback base URL from the collector. If the reference
+cannot capture loopback, record that limitation and use a controlled peer fixture.
+Review/sanitize both private files before sharing. The collector is prepared, not
+executed here. No proprietary codec or original read/write round trip is claimed;
+T-608 remains PENDING until genuine files and reference execution are available.

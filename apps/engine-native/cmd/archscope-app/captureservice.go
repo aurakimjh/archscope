@@ -30,20 +30,21 @@ import (
 )
 
 type CaptureService struct {
-	lifecycleMu    sync.Mutex
-	closing        bool
-	controlMu      sync.Mutex
-	controlTargets []models.ProcessKey
-	launchOptions  automation.Options
-	launchState    DesktopLaunchState
-	launchOnce     sync.Once
-	launchCancel   context.CancelFunc
-	journal        *automation.Journal
-	annotationMu   sync.Mutex
-	browserCache   *browsercache.Service
-	builder        *requestbuilder.Client
-	manager        *session.Manager
-	trust          *certstore.Lifecycle
+	lifecycleMu      sync.Mutex
+	windowVisibility func(*bool) (bool, error)
+	closing          bool
+	controlMu        sync.Mutex
+	controlTargets   []models.ProcessKey
+	launchOptions    automation.Options
+	launchState      DesktopLaunchState
+	launchOnce       sync.Once
+	launchCancel     context.CancelFunc
+	journal          *automation.Journal
+	annotationMu     sync.Mutex
+	browserCache     *browsercache.Service
+	builder          *requestbuilder.Client
+	manager          *session.Manager
+	trust            *certstore.Lifecycle
 }
 
 type CaptureFetchRequest struct {

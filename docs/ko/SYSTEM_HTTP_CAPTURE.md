@@ -4753,3 +4753,63 @@ x86 컴파일/vet을 통과했습니다. **드라이버 패킷 주입·HVCI/백�
 `ARCHSCOPE_RUN_TRANSPARENT_E2E=1`을 설정해 실행합니다.
 [WinDivert API](https://reqrypt.org/windivert-doc.html) ·
 [공식 배포](https://reqrypt.org/windivert.html).
+
+### 네이티브 COM 어댑터와 참조 계약 목록 (T-611, 2026-11-10)
+
+`--com-server`로 자체 STA/메시지 루프의 Windows IClassFactory/IDispatch 서버를 엽니다.
+참조 횟수를 관리하는 객체·컬렉션과 IEnumVARIANT를 제공합니다.
+`archscope-control --register-com ABS_DESKTOP_EXE`는 ArchScope 소유의 사용자별
+x86/x64 등록만 만들고 `--unregister-com`은 해당 실행 파일을 가리키는 등록만 지웁니다.
+ProgID는 `ArchScope.HTTPAnalyzerStandAlone`이며 원본 제품 등록은 그대로 둡니다.
+서버와 같은 사용자 SID, 같거나 높은 무결성/관리자 수준의 호출자만 받습니다. 투명
+캡처는 드라이버를 설정한 앱을 관리자 권한 `--com-server`로 미리 띄우고 같은 권한의
+COM 클라이언트로 사용합니다.
+
+PID/시작 시간 또는 이름 연결, 세션 범위, 실행 파일/바로가기 시작, 기록 제어·비우기,
+Visible 요청, IsLogging/IsPaused, 읽기 전용 Log 스냅샷·Count·Item·ForEach·메타데이터/
+헤더 객체, LoadLog/SaveLog와 WinINet 정리를 구현했습니다. 각 제어기는 자신이 시작한
+세션을 대상으로 하므로 늦은 명령이 새 세션을 중지하지 않습니다. 대상 변경에는 중지가
+필요합니다. Backend·SessionID·ProxyAddress·BuildCommit·CaptureBodies는 ArchScope 확장입니다.
+CaptureBodies는 기본 off이며 기존 본문 정책 검증을 그대로 거치고 우회 권한을 주지 않습니다.
+기본 백엔드는 windows_transparent이며 프록시를 원하면 explicit_proxy를 명시합니다.
+변하지 않은 스냅샷을 재사용하고 100,000건을 넘으면 오류로 알립니다.
+
+정적 추출로 원본 TLB와 번들 Delphi 선언을 찾았습니다. 선언은 2009년/library 5.0이며
+현재 공유 TLB와 해시가 달라 일부 API 근거로만 사용하고 현재 바이너리 호환 근거로
+삼지 않습니다. reference_contract.json은 원본 소스·바이너리 없이 사실인 GUID/DISPID/
+내보내기 열거값을 기록합니다. 지원 멤버의 DISPID와 SaveLog 열거값을 맞췄지만
+NativeLog=6은 검증한 코덱이 없어 거부합니다. TimeDuration은 정수 밀리초, 날짜는 OLE
+DATE로 전달하고 미지 날짜는 만들지 않습니다. Log 스냅샷은 정규화 메타데이터·헤더를
+제공하며 원본 바이너리 스트림을 대신하지 않습니다.
+
+**원본 custom-IID dual vtable·ITypeInfo·연결점 이벤트/ref 취소·필터 파일·MaxLogSize
+보관 정책·다른 프로세스의 메모리 세션 쿠키 삭제는 미구현**입니다. 해당 원본 인터페이스를
+지원한다고 응답하지 않습니다. 동작하는 late-binding 어댑터이며 원본 바이너리를 그대로
+대체하는 호환 구현으로 판정하지 않습니다. Windows 활성화·마샬링·등록·GUI는 미검증입니다.
+준비한 scripts/verify-http-com.ps1은 합성 HTTP fixture로 활성화·기록 제어·열거·PID 귀속·
+세션 저장을 검사하며 원본 호환·화면 수용 판정과 분리합니다. 공통 코어/계약/소유권 테스트와
+Windows ABI 테스트 컴파일/vet을 통과했습니다.
+
+Wails 3.1 빌드 도구 체인은 Go 1.26.10으로 고정했습니다. 기존 허용 버전 범위에서
+프런트엔드 감사 지적을 수정했고 npm audit의 취약점은 0건입니다.
+
+### 정적 조사 후 실제 원본 파일 쌍 수집 (T-608)
+
+임시 innoextract로 설치 파일과 자동화 ZIP 목록을 조사했으며 설치기나 원본 실행
+파일을 구동하지 않았습니다. TLB와 예제는 있지만 두 목록에 `.halog` 항목은 없습니다.
+메타데이터와 예제 ZIP만 추출하고 드라이버·키는 추출하거나 설치하지 않았습니다.
+지문과 오래된 번들 선언의 한계는
+`docs/review/evidence/2026-11-10-halog-research/source-manifest.json`에 기록했습니다.
+
+원본 V7.6.4가 이미 설치된 Windows에서
+`scripts/collect-halog-reference.ps1 -ReferenceExe ABS_EXE -FixtureURL FIXTURE_URL
+-OutputDirectory 저장소밖비공개경로`를 실행하면 원본 등록 경로·버전을 확인하고,
+기록 중이거나 기존 행이 있으면 거부합니다. 자신의 PID만 연결해 합성 트래픽을 만들고
+같은 중지 세션을 확인된 NativeLog=6·XMLLogFull=0으로 저장해 해시와 버전을 남깁니다.
+기존 로그를 비우거나 파일 쌍을 덮어쓰지 않습니다.
+`node scripts/halog-reference-fixture.mjs --out PRIVATE_EXPECTATIONS`를 대기 상태로
+두고 표시한 loopback 기본 URL을 수집기에 전달할 수 있습니다. 원본이 loopback을
+포착하지 못하면 그 제한을 기록하고 관리하는 peer fixture를 사용합니다. 두 비공개
+파일은 공유 전에 검토·정제합니다. 수집기는 준비만 했고 여기서 실행하지 않았습니다.
+독점 코덱과 원본 읽기/쓰기 왕복은 미구현·미검증이며 T-608은 실제 파일과 원본 실행
+근거를 기다리는 PENDING입니다.

@@ -120,3 +120,15 @@ func TestLaunchOptionsAcceptExecutableShortcuts(t *testing.T) {
 		}
 	}
 }
+
+func TestCOMEmbeddingIsExplicitAndSCMCompatible(t *testing.T) {
+	for _, embedding := range []string{"-Embedding", "/Embedding", "/embedding"} {
+		got, err := ParseOptions([]string{"--com-server", embedding})
+		if err != nil || !got.COMServer {
+			t.Fatal(got, err)
+		}
+		if _, err := ParseOptions([]string{embedding}); err == nil {
+			t.Fatal("implicit COM server activation accepted")
+		}
+	}
+}
