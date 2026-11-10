@@ -26,6 +26,7 @@ package main
 
 import (
 	"log"
+	"runtime"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture"
 	"github.com/wailsapp/wails/v3/pkg/application"
@@ -90,7 +91,11 @@ func main() {
 		name := command.name
 		item.OnClick(func(_ *application.Context) { emitEvent("capture:command", map[string]string{"command": name}) })
 		if command.shortcut != "" {
-			item.SetAccelerator(command.shortcut)
+			shortcut := command.shortcut
+			if runtime.GOOS == "darwin" && len(shortcut) > 5 && shortcut[:5] == "Ctrl+" {
+				shortcut = "Cmd+" + shortcut[5:]
+			}
+			item.SetAccelerator(shortcut)
 		}
 	}
 	app.Menu.Set(menu)

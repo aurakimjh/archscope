@@ -9,7 +9,6 @@ import { getHelpText } from "@/help/helpCatalog";
 import { useI18n } from "@/i18n/I18nProvider";
 import { cn } from "@/lib/utils";
 
-import { HelpTip } from "./HelpTip";
 import { SlideOverPanel } from "./SlideOverPanel";
 
 export type AnalyzerOptionsDockProps = {
@@ -62,7 +61,6 @@ export function AnalyzerOptionsDock({
       >
         <SlidersHorizontal className="h-3.5 w-3.5 shrink-0" />
         <span style={{ writingMode: "vertical-rl" }}>{label}</span>
-        {resolvedHelp && !fixed && <HelpTip text={resolvedHelp} align="end" />}
         {hasChanges && (
           <span
             className="absolute left-1 top-1 h-2 w-2 rounded-full bg-primary"

@@ -23,6 +23,7 @@ import { httpParameters, requestQuery, inspectForm, inspectJson } from "@/state/
 // ─────────────────────────────────────────────────────────────────────
 import { Check, Copy, Maximize2, Minimize2 } from "lucide-react";
 import {
+  useId,
   useCallback,
   useEffect,
   useMemo,
@@ -898,6 +899,7 @@ function TransactionDetailPane({
   transaction: HttpCaptureTransactionRow;
   t: Translate;
 }): React.JSX.Element {
+  const paneId = useId();
   const [tab, setTab] = useState<DetailTab>("raw");
   const perspectives = useMemo(() => availablePerspectives(transaction), [transaction]);
   const [perspective, setPerspective] = useState<TimingPerspective | null>(null);
@@ -940,9 +942,9 @@ function TransactionDetailPane({
             key={entry.key}
             type="button"
             role="tab"
-            id={`http-analyzer-tab-${entry.key}`}
+            id={`${paneId}-tab-${entry.key}`}
             aria-selected={tab === entry.key}
-            aria-controls={`http-analyzer-panel-${entry.key}`}
+            aria-controls={`${paneId}-panel-${entry.key}`}
             onClick={() => setTab(entry.key)}
             className={`-mb-px border-b-2 px-2.5 py-1 text-xs font-medium ${
               tab === entry.key
@@ -957,8 +959,8 @@ function TransactionDetailPane({
 
       <div
         role="tabpanel"
-        id={`http-analyzer-panel-${tab}`}
-        aria-labelledby={`http-analyzer-tab-${tab}`}
+        id={`${paneId}-panel-${tab}`}
+        aria-labelledby={`${paneId}-tab-${tab}`}
         className="p-3"
       >
         {tab === "query" && <HttpParameterTable fields={httpParameters(requestQuery(transaction.query, transaction.url))} />}

@@ -1104,3 +1104,14 @@ bounded gzip responses. Race detection passes. The browser UI check verifies
 copy/edit/explicit send, a real mouse drag into the fixed target, and original
 row preservation using a stubbed Wails bridge. It is not native Windows evidence;
 packaged Windows acceptance remains T-613.
+
+### macOS native UI preflight (2026-11-10)
+
+The macOS preflight removes nested interactive help from the options button,
+uses instance-specific inspector tab IDs when capture and Builder coexist, and
+uses Command accelerators for Find/Clear on macOS. Production renderer and Go
+builds validate the native Wails v3 path. Desktop automation twice reported a
+locked Mac and failed automatic unlock; direct window, splitter, file-dialog and
+keyboard acceptance is therefore still unverified. Shell/build access remains
+available and is independent of the desktop lock. Do not treat build evidence
+as an observed native UI pass. Windows acceptance remains T-613.

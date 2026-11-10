@@ -225,6 +225,14 @@ is separate from review-group verdicts (`PASS`, `CONDITIONAL`, or `FAIL`). When
 a Task Registry status changes, update the counts and Open Work Snapshot in the
 same change so this overview remains the status source of truth.
 
+### macOS UI preflight (2026-11-10)
+
+Native QA preparation fixed duplicate inspector tab IDs, nested option/help
+buttons and macOS Command accelerators. Production build checks are separate
+from visible-window acceptance. Desktop control twice returned a locked Mac
+with failed auto-unlock; window/dialog/splitter interaction awaits an unlocked
+remote session. The requested four implementation tasks continue independently.
+
 ### Open Work Snapshot
 
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
