@@ -8,10 +8,11 @@ The previous long-form history was archived to
 
 ## Status Overview
 
-**Overall: 196 of 200 tracked tasks are `DONE` (98.0%).** The Windows Wails v3 replacement for IEInspector HTTP Analyzer V7.6.4 Stand-alone has 4 open work items (T-594 through T-613), including the remaining audit findings. T-603 native Windows acceptance completed on 2026-11-09 with actual request/response bodies and verified policy restoration. The 2026-11-09
+**Overall: 196 of 205 tracked tasks are `DONE` (95.6%).** The Windows Wails v3 replacement for IEInspector HTTP Analyzer V7.6.4 Stand-alone has 4 open work items (T-594 through T-613), including the remaining audit findings. T-603 native Windows acceptance completed on 2026-11-09 with actual request/response bodies and verified policy restoration. The 2026-11-09
 GC/profiler revalidation confirmed five bugs (T-589 through T-593). Their
 current implementation status is recorded in the registry and snapshot below;
 T-557 is now DONE after the user requested its Go/CLI/report projection on 2026-11-10.
+The 2026-11-10 other-feature audit added five reproduced correctness bugs (T-614 through T-618); they are PENDING, with no implementation fixes applied.
 The earlier release acceptance below describes its recorded product baseline
 and does not certify these newly identified cases or future remediation.
 **T-587 and T-588
@@ -297,14 +298,46 @@ are not native Wails dialog/GUI or Windows execution evidence. Known macOS linke
 deployment-target warnings remain. Evidence:
 `docs/review/evidence/2026-11-10-t557/local-validation.json`.
 
+### Other-feature correctness audit (2026-11-10)
+
+Focused review outside HTTP Analyzer/T-557 reproduced five bugs at `406038d`:
+Report Pack reuses derived artifacts after their source is removed/replaced;
+Trace Import adds inclusive ancestor/descendant durations as critical-path
+latency and double-counts a paired CLIENT/SERVER RPC; missing access-log latency
+is treated as zero; and Incident Timeline caps can silently omit later severe
+events while publishing retained-only severity/time summaries.
+
+Reproductions: a contained 100/80/70 ms span chain gives 250 ms critical path
+for a 100 ms trace and two calls for one RPC through the actual Zipkin parser;
+one unknown plus one 1000 ms access duration gives average 500/p95 950 ms
+without a warning; 130 ordered incident events yield 120 emitted, zero critical
+instead of the final critical event; a freshly generated timeline can refer to
+REMOVED-SOURCE when the Report Pack lists only CURRENT-SOURCE.
+
+These are review findings, not completed fixes. Existing targeted analyzer/
+exporter tests and frontend state tests pass but do not cover these inputs.
+All five can be implemented and regression-tested on Mac. Preserve the common
+AnalysisResult contract and do not infer native desktop or Windows acceptance.
+CSV canonical-table export and stronger multi-thread identity were left as
+separate design/feature candidates, not promoted as newly proven defects.
+
+Evidence: `docs/review/evidence/2026-11-10-other-features/local-reproductions.json`.
+Processed EN/KO reviews: `docs/review/done/2026-11-10_other-features-audit.en.md`
+and `docs/review/done/2026-11-10_other-features-audit.ko.md`.
+
 ### Open Work Snapshot
 
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
-| 1 | T-601 | P1 | `REVIEW` | Deliver the four Windows capture entry points and measure their reach |
-| 2 | T-608 | P2 | `PENDING` | Read and write legacy .halog files |
-| 3 | T-611 | P3 | `REVIEW` | Support Stand-alone automation and desktop launch switches |
-| 4 | T-613 | P3 | `PENDING` | Verify complete Stand-alone parity on Windows |
+| 1 | T-614 | P1 | `PENDING` | Validate derived-artifact freshness/provenance before Report Pack reuse |
+| 2 | T-615 | P1 | `PENDING` | Correct elapsed critical-path semantics without summing inclusive durations |
+| 3 | T-616 | P1 | `PENDING` | Count paired CLIENT/SERVER spans once per logical dependency call |
+| 4 | T-617 | P1 | `PENDING` | Preserve measured versus unknown access-log latency through statistics and SLI/SLO |
+| 5 | T-601 | P1 | `REVIEW` | Deliver the four Windows capture entry points and measure their reach |
+| 6 | T-618 | P2 | `PENDING` | Disclose bounded Incident Timeline omissions and retain/qualify full-input summaries |
+| 7 | T-608 | P2 | `PENDING` | Read and write legacy .halog files |
+| 8 | T-611 | P3 | `REVIEW` | Support Stand-alone automation and desktop launch switches |
+| 9 | T-613 | P3 | `PENDING` | Verify complete Stand-alone parity on Windows |
 
 ### Local Windows validation (2026-11-09)
 
@@ -679,6 +712,12 @@ updated for T-603 above. Earlier commands, limits and native screenshots:
 
 ## Current Risk
 
+The 2026-11-10 active non-HTTP risks are incorrect critical-path/call-count and
+latency denominators, undisclosed timeline omissions, and stale Report Pack
+provenance (T-614 through T-618). Their local reproductions are confirmed, but
+implementation and regression closure are still pending. The older audit/gate
+statements below retain their historical scope and do not close these findings.
+
 The 2026-11-09 audit identified these correctness/diagnostic risks; see the
 Task Registry for closures and remaining work:
 GC measurements lose usable time coordinates, Canvas can drop internal self
@@ -758,6 +797,15 @@ filtered before analysis.
 | Collapsed profiler | 29 MB / 500k lines | 0.26s | 16 MB | 6.8 KB | Good baseline |
 
 ## Next Execution Queue
+
+### Other-feature correctness follow-ups (2026-11-10)
+
+Mac-ready queue: T-614 (Report Pack freshness), T-615 then T-616 (Trace Import
+elapsed-path semantics and logical calls), T-617 (access-log measurement
+availability), then T-618 (Incident Timeline omission accounting). T-615/T-616
+share analyzer/downstream contracts but are distinct acceptance units. None
+requires the Windows driver or genuine .halog fixtures. Keep the existing four
+HTTP tasks open; native/reference acceptance remains separate.
 
 ### IEInspector V7.6.4 Stand-alone replacement (2026-11-09)
 
@@ -1236,6 +1284,11 @@ deferred until explicitly promoted.
 
 | ID | Priority | Status | Task | Depends on | Output |
 |---|---|---|---|---|---|
+| T-614 | P1 | PENDING | Prevent stale derived artifacts from silently entering a current Report Pack | Existing Report Pack/timeline/SLO/service-flow contracts | Reproduced 2026-11-10: replacing a timeline source leaves removed-source events in a pack whose source inventory names only the replacement. Validate source identity/content/options or explicitly retain a historical snapshot with complete provenance; test removal/replacement/addition and valid custom SLO targets. |
+| T-615 | P1 | PENDING | Correct Trace Import elapsed critical-path calculation | Existing Trace Import and downstream latency contracts | Reproduced 2026-11-10 via Zipkin parsing: contained root/client/server 100/80/70 ms yields critical_path_ms=250 for a 100 ms trace. Define interval/self-time semantics and separate cumulative work; cover nested/sequential/parallel children, missing times, clock skew/malformed graphs and SLO/timeline/report propagation. |
+| T-616 | P1 | PENDING | Avoid double-counting one RPC's CLIENT and SERVER spans | Existing Trace Import dependency and Service Flow/SLI contracts | Reproduced 2026-11-10: one paired frontend-to-backend RPC yields call_count=2 and total_duration_ms=150 (80+70), with mixed-perspective average 75 ms. Deduplicate by span relationships with explicit timing/error authority; preserve single-sided exports and distinct retries and verify downstream rates. |
+| T-617 | P1 | PENDING | Preserve missing access-log response time as unavailable rather than zero | Access-log parser/analyzer and SLI/SLO contracts | Reproduced 2026-11-10: one missing duration plus one 1000 ms sample yields average 500 and p95 950 ms, no warning. Carry availability/measured/unknown counts; exclude missing values from all latency reservoirs but preserve request/error/byte counts. Test true zero, all missing, mixed formats and SLI/SLO unavailable handling. |
+| T-618 | P2 | PENDING | Disclose Incident Timeline truncation and qualify severity/time summaries | Existing Incident Timeline/Report Pack contracts | Reproduced 2026-11-10: 130 ordered warning/critical events emit only the first 120, lose the last critical and report critical=0 without omission metadata. Maintain bounds with total/emitted/omitted counts and deterministic selection; preserve overall summaries or label retained-only scope. Test both 120/source and 1000/session caps through UI and exports. |
 | T-599 | P1 | DONE | Establish the V7.6.4 Stand-alone visual and command reference | Existing baseline | Completed 2026-11-09. Official screen, V7 additions, complete manual field inventory, state behavior, shortcuts and edition exceptions recorded in paired SYSTEM_HTTP_CAPTURE references. The tour image is explicitly V4; native Windows acceptance remains T-603. |
 | T-594 | P1 | DONE | Keep capture controls, live grid and selected detail in one window | Existing baseline | Completed 2026-11-09. Live rows use the shared grid and inspector, one-ID redacted store fetch stays available during recording, and async detail ignores obsolete selections. Real local proxy/service regression and frontend build passed; browser renderer at 1280x800 showed selected headers/body while active. Native Windows integration remains T-603. |
 | T-595 | P1 | DONE | Make process grouping the default in the request grid | Existing baseline | Completed 2026-11-09. Shared virtual grid defaults to expandable process groups with request/byte totals; live process selector scopes incoming rows by PID plus start time and clears obsolete detail. Same-name PID reuse and collapse regressions, frontend state suite and production build passed. Native integration remains T-603. |

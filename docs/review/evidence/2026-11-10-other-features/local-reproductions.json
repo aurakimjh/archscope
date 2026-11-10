@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-10",
+  "baselineCommit": "406038d11018c81068088ef2003b843c2ad61ed0",
+  "scope": "Focused audit of non-HTTP features; not an exhaustive product certification",
+  "sourceSHA256": {
+    "apps/engine-native/internal/analyzers/traceimport/analyzer.go": "e2e72f0ab0b5f1cfb06803707c8960f4a8c5c30075f474e51f16d39ec74e8bc5",
+    "apps/engine-native/internal/parsers/traceimport/parser.go": "8388694610d57cc8e34207b52e420a0f670dac0bb41e20f38070003ee494a836",
+    "apps/engine-native/internal/parsers/accesslog/parser.go": "c25421f3af7e143a1a276e5dc83cff08c87ba9cbcda6cce7d90314a1986aaaf5",
+    "apps/engine-native/internal/analyzers/accesslog/analyzer.go": "23d47328ebc9672cdc7521ca0da8e042d71d09ed37cd30a69677c15f0ff95087",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/incidentTimeline.ts": "eba7097aea342e0690a8b9d094f82b43a2a8d2523fa94fdc6e11ef6fc0076d08",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/reportPack.ts": "248704263b41eef8a60fb931f311540d9b8d43e17d2619001fcdedfbb7cb595e"
+  },
+  "reproductions": [
+    {
+      "task": "T-614",
+      "feature": "Report Pack",
+      "observed": {
+        "sourceCount": 1,
+        "currentSources": [
+          "CURRENT-SOURCE"
+        ],
+        "embeddedTimelineSourceResults": [
+          {
+            "id": "REMOVED-SOURCE",
+            "title": "REMOVED-SOURCE",
+            "result_type": "access_log",
+            "source_files": [
+              "removed-old-source.log"
+            ],
+            "created_at": "2026-11-10T00:00:00Z",
+            "recorded_at": "2026-11-10T00:00:00Z"
+          }
+        ],
+        "embeddedTimelineEventSourceIds": [
+          "REMOVED-SOURCE"
+        ]
+      },
+      "expected": "Reuse derived artifacts only when their source identities/options match, or explicitly label the snapshot as historical with complete provenance."
+    },
+    {
+      "task": "T-615",
+      "feature": "Trace critical path",
+      "input": "Contained chain: root 100ms, CLIENT 80ms, SERVER 70ms",
+      "observedTraceMS": 100,
+      "observedCriticalPathMS": 250,
+      "expected": "Do not present inclusive ancestor+descendant sums as elapsed critical-path latency."
+    },
+    {
+      "task": "T-616",
+      "feature": "Trace dependencies",
+      "input": "One frontend->backend RPC, with both CLIENT and child SERVER spans",
+      "observed": {
+        "avg_duration_ms": 75,
+        "call_count": 2,
+        "callee": "backend",
+        "caller": "frontend",
+        "error_count": 0,
+        "error_rate": 0,
+        "total_duration_ms": 150
+      },
+      "expectedLogicalCallCount": 1,
+      "note": "A representative timing/error policy must be defined rather than mixing the two perspectives."
+    },
+    {
+      "task": "T-617",
+      "feature": "Access log latency",
+      "input": "Two valid nginx lines: one without duration and one with 1.000 seconds",
+      "observedAverageMS": 500,
+      "observedP95MS": 950,
+      "observedParserWarnings": 0,
+      "expectedMeasuredLatencySamples": 1,
+      "expectedMeasuredAverageMS": 1000,
+      "expectedMeasuredP95MS": 1000,
+      "expectedTotalRequests": 2
+    },
+    {
+      "task": "T-618",
+      "feature": "Incident Timeline",
+      "input": "130 time-ordered error-rate events; first 129 warning, last critical",
+      "observed": {
+        "input": 130,
+        "output": 120,
+        "critical": 0,
+        "latest": "2026-11-10T01:59:00.000Z",
+        "metadataKeys": [
+          "schema_version",
+          "parser",
+          "projection",
+          "diagnostics",
+          "findings",
+          "extra",
+          "source_results"
+        ],
+        "diagnostics": {
+          "source_count": 1,
+          "event_count": 120,
+          "group_count": 1,
+          "narrative_step_count": 1
+        },
+        "summary": {
+          "event_count": 120,
+          "group_count": 1,
+          "narrative_step_count": 1,
+          "ranged_event_count": 0,
+          "correlated_event_count": 0,
+          "critical_event_count": 0,
+          "warning_event_count": 120,
+          "info_event_count": 0,
+          "source_result_count": 1,
+          "earliest_timestamp": "2026-11-10T00:00:00.000Z",
+          "latest_timestamp": "2026-11-10T01:59:00.000Z"
+        }
+      },
+      "expected": "Disclose truncation/omission and preserve or explicitly qualify overall severity/time summaries."
+    }
+  ],
+  "baselineChecks": [
+    {
+      "command": "go test ./internal/analyzers/accesslog ./internal/analyzers/traceimport ./internal/analyzers/multithread ./internal/exporters/...",
+      "result": "PASS",
+      "localLogSHA256": "422ef0bfaee0ff46d961096bcedc031fdc211fb9bbeaa7be4f1c2123e37804c2"
+    },
+    {
+      "command": "npm run test:state",
+      "result": "PASS",
+      "localLogSHA256": "96ab3e7763edc1082d01e3a18afd8649d6c9bcdb89fb7b8a072303fcc49805cb"
+    }
+  ],
+  "externalSemanticsReferences": [
+    "https://opentelemetry.io/docs/specs/otel/trace/api/#spankind",
+    "https://opentelemetry.io/docs/concepts/signals/traces/#spans"
+  ],
+  "productionImplementationChanged": false,
+  "nativeGUIExecuted": false,
+  "windowsExecuted": false,
+  "notes": [
+    "Go reproduction also passed through the actual Zipkin v2 parser, not only a synthetic model Build call.",
+    "Report Pack stale timeline was produced by the real timeline builder before source replacement.",
+    "No production traffic/logs or external accounts were used.",
+    "Passing existing tests do not cover these newly reproduced cases."
+  ]
+}
