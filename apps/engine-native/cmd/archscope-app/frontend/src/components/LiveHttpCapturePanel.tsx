@@ -1,3 +1,4 @@
+import { useHttpCommands } from "@/hooks/useHttpCommands";
 import { LiveHttpAnalyzer } from "./LiveHttpAnalyzer";
 import { Dialogs, Events } from "@wailsio/runtime";
 import {
@@ -381,26 +382,10 @@ export function LiveHttpCapturePanel({
     } catch(caught) { dispatch({type:"error",message:String(caught)}); }
   },[state.session,state.busy,state.stats?.persisted,state.transactions.length,onStarted,t]);
 
-  useEffect(() => {
-    const command=(name:string) => {
-      if (name==="start") void start();
-      if (name==="stop") void stop();
-      if (name==="pause") void pause();
-      if (name==="clear") void clear();
-      if (name==="follow") dispatch({type:"follow",follow:!state.follow});
-    };
-    const off=Events.On("capture:command",(event:unknown) => {
-      const value=eventData<{command:string}>(event);
-      if (value) command(value.command);
-    });
-    const keydown=(event:KeyboardEvent) => {
-      const key=event.key.toLowerCase();
-      const name=key==="f9"?"start":key==="f2"?"stop":(event.ctrlKey||event.metaKey)&&key==="l"?"clear":null;
-      if (name) { event.preventDefault(); command(name); }
-    };
-    window.addEventListener("keydown",keydown);
-    return () => { off(); window.removeEventListener("keydown",keydown); };
-  },[start,stop,pause,clear,state.follow]);
+  useHttpCommands({
+    start: () => void start(), stop: () => void stop(), pause: () => void pause(),
+    clear: () => void clear(), follow: () => dispatch({type:"follow",follow:!state.follow}),
+  });
 
   const installCA = useCallback(async () => {
     dispatch({ type: "busy", busy: true });

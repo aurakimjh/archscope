@@ -28,6 +28,11 @@ export const localeLabels: Record<Locale, string> = {
 
 export const messages = {
   en: {
+    httpDesktopHelpTitle: "HTTP Help",
+    httpDesktopHelpCapture: "Choose a capture backend and process scope, then Start (F9). Stop (F2) finalizes the session. Clear asks before deleting recorded rows.",
+    httpDesktopHelpInspect: "Group the request grid by process or field. Select a request to inspect headers, data and timing below. Find searches stored live rows or filters an opened file. Save / Export uses the selected format and all/filtered scope.",
+    httpDesktopHelpKeys: "Ctrl/Cmd+S: Save / Export · Ctrl/Cmd+F: Find · Ctrl/Cmd+L: Clear · Ctrl/Cmd+Shift+Left/Right: collapse/expand groups · F1: Help. Group keys preserve text selection while editing.",
+    httpDesktopHelpLimits: "The explicit proxy captures applications that use it. Transparent capture, legacy COM and genuine .halog compatibility remain unavailable. Body capture depends on the displayed policy and coverage state.",
     appTitle: "ArchScope",
     eyebrow: "Application Architecture Analysis Toolkit",
     pickFile: "Pick file",
@@ -1568,6 +1573,11 @@ export const messages = {
     httpCorrelationOverlayUnavailable: "Timestamps could not be parsed for the overlay.",
   },
   ko: {
+    httpDesktopHelpTitle: "HTTP 도움말",
+    httpDesktopHelpCapture: "캡처 백엔드와 프로세스 범위를 선택한 뒤 시작(F9)합니다. 중지(F2)하면 세션을 마무리합니다. 비우기는 기록 삭제 전에 확인합니다.",
+    httpDesktopHelpInspect: "요청 목록을 프로세스나 필드로 묶고 행을 선택하면 아래에서 헤더·데이터·타이밍을 확인할 수 있습니다. 찾기는 실시간 저장 행을 검색하거나 열린 파일을 필터링합니다. 저장·내보내기는 선택한 형식과 전체/필터 범위를 사용합니다.",
+    httpDesktopHelpKeys: "Ctrl/Cmd+S: 저장·내보내기 · Ctrl/Cmd+F: 찾기 · Ctrl/Cmd+L: 비우기 · Ctrl/Cmd+Shift+왼쪽/오른쪽: 그룹 접기/펼치기 · F1: 도움말. 편집 중에는 그룹 키가 텍스트 선택을 방해하지 않습니다.",
+    httpDesktopHelpLimits: "명시적 프록시를 사용하는 앱을 캡처합니다. 투명 캡처·레거시 COM·실제 .halog 호환은 아직 사용할 수 없습니다. 본문 기록은 화면에 표시된 정책과 포착 상태에 따라 달라집니다.",
     appTitle: "ArchScope",
     eyebrow: "애플리케이션 아키텍처 분석 도구 모음",
     pickFile: "파일 선택",

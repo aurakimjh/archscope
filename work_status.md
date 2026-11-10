@@ -247,7 +247,7 @@ Windows runtime acceptance and genuine-format gates remain separate.
 | Work | State | Evidence / remaining action |
 |---|---|---|
 | Windows x86 desktop build | DONE | Guarded temporary Wails module copy/modfile fixes the two overflowing fmt arguments without changing the 2 GiB limit, SDK pin or module cache. Full x86/x64 GUI-subsystem cross-builds pass; CI cross-build matrix added. Native execution/installer/client reach remain unverified. |
-| Desktop command wiring | TODO | Connect save/help/group commands and verify shared keyboard/menu dispatch. |
+| Desktop command wiring | DONE | Shared active-workspace menu/keyboard routing now connects Save/Export, local Help, Find and group collapse/expand with IME/editing/modal/echo guards and single save dialog. State tests and frontend/Mac build pass; native interaction stays in T-613. |
 | T-611 shortcut launch | TODO | Resolve .lnk target/arguments/working directory before suspended process creation; cross-compile and test portable parsing/contracts. |
 | T-613 resilience checks | TODO | Exercise repeat capture/re-entry, interruption/shutdown races and failure cleanup locally. |
 

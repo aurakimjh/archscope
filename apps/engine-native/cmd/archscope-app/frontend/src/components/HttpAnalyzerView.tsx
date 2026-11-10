@@ -1,3 +1,4 @@
+import { useHttpCommands } from "@/hooks/useHttpCommands";
 import { HttpLegacyInspector } from "./HttpLegacyInspector";
 import * as CaptureService from "../../bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/captureservice";
 import { HttpRowNotes } from "./HttpRowNotes";
@@ -142,6 +143,8 @@ const KIND_DOT: Record<ResourceKind, string> = {
 };
 
 export type HttpAnalyzerViewProps = {
+  onFind?: () => void;
+  commandsEnabled?: boolean;
   /** Rows after filtering, in engine order. */
   transactions: HttpCaptureTransactionRow[];
   /** Unfiltered row count, for the "shown / total" readout. */
@@ -166,6 +169,8 @@ export type HttpAnalyzerViewProps = {
 };
 
 export function HttpAnalyzerView({
+  onFind,
+  commandsEnabled = true,
   transactions,
   total,
   methods,
@@ -188,6 +193,10 @@ export function HttpAnalyzerView({
   const { t } = useI18n();
   const [sort, setSort] = useState<GridSort>(defaultGridSort);
   const containerRef = useRef<HTMLElement | null>(null);
+  useHttpCommands(commandsEnabled ? {find: () => {
+    if (onFind) onFind();
+    else containerRef.current?.querySelector<HTMLInputElement>("[data-http-find]")?.focus();
+  }} : {});
   const [detailHeight, setDetailHeight] = useState(() => {
     try {
       const stored = Number(localStorage.getItem("archscope.http.detailHeight"));
@@ -290,6 +299,7 @@ export function HttpAnalyzerView({
       </div>
       <div className="flex shrink-0 gap-2 border-b px-2 py-1 text-xs"><label><input type="checkbox" checked={starredOnly} onChange={e=>setStarredOnly(e.target.checked)}/>{t("httpNotesStarredOnly")}</label>{notesError&&<span role="alert">{notesError}</span>}</div>
       <TransactionGrid
+        commandsEnabled={commandsEnabled}
         builderSessionId={exportSource?.sessionId}
         rows={rows}
         span={span}
@@ -366,6 +376,7 @@ function AnalyzerToolbar({
     <div className="flex shrink-0 flex-col gap-2 border-b border-border p-2">
       <div className="flex flex-wrap items-center gap-1.5">
         <Input
+          data-http-find
           value={filter.query}
           onChange={(event) => onFilter({ query: event.target.value })}
           placeholder={t("httpCaptureFilterQuery")}
@@ -543,6 +554,7 @@ function AnalyzerToolbar({
 // ── Virtualized packet grid ─────────────────────────────────────────
 
 function TransactionGrid({
+  commandsEnabled,
   builderSessionId,
   rows,
   span,
@@ -553,6 +565,7 @@ function TransactionGrid({
   onSelect,
   t,
 }: {
+  commandsEnabled: boolean;
   builderSessionId?: string;
   rows: HttpCaptureTransactionRow[];
   span: ReturnType<typeof sessionSpan>;
@@ -601,6 +614,10 @@ function TransactionGrid({
     if(Number.isFinite(started)) starts.set(key,Math.min(starts.get(key)??started,started));
   }
   const entries = useMemo(() => httpGroupedEntries(rows, collapsed,groupBy), [rows, collapsed,groupBy]);
+  useHttpCommands(commandsEnabled ? {
+    collapse: () => setCollapsed(new Set(httpGroupedEntries(rows, new Set(), groupBy).flatMap(entry => entry.kind === "process" ? [entry.key] : []))),
+    expand: () => setCollapsed(new Set()),
+  } : {});
   const [viewport, setViewport] = useState(600);
 
   // The grid holds a whole session — tens of thousands of rows once resource

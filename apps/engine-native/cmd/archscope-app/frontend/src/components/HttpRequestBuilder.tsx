@@ -388,6 +388,7 @@ export function HttpRequestBuilder(): React.JSX.Element {
           <div className="mt-2">
             <p className="text-xs">{t("httpBuilderResponse")}</p>
             <HttpAnalyzerView
+              commandsEnabled={false}
               transactions={[response]}
               total={1}
               methods={[response.method]}

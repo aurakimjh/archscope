@@ -1,4 +1,3 @@
-import { Events } from "@wailsio/runtime";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { HttpCaptureTransactionRow } from "@/bridge/types";
 import { HttpAnalyzerView } from "./HttpAnalyzerView";
@@ -35,15 +34,7 @@ export function LiveHttpAnalyzer({
   const findRef = useRef<HTMLDetailsElement|null>(null);
   const queryRef = useRef<HTMLInputElement|null>(null);
   useEffect(() => () => { attempt.current++; },[]);
-  useEffect(() => {
-    const open = () => { if(findRef.current) findRef.current.open=true; queryRef.current?.focus(); };
-    const off=Events.On("capture:command",(event:unknown) => {
-      if((event as {data?:{command?:string}}).data?.command==="find") open();
-    });
-    const key=(event:KeyboardEvent) => { if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==="f") { event.preventDefault();open(); } };
-    window.addEventListener("keydown",key);
-    return () => { off();window.removeEventListener("keydown",key); };
-  },[]);
+  const openFind = () => { if(findRef.current) findRef.current.open=true; queryRef.current?.focus(); };
   const search = async (nextCursor="") => {
     const current=++attempt.current;
     setSearchBusy(true);
@@ -109,7 +100,7 @@ export function LiveHttpAnalyzer({
       </label>
       {error && <p role="alert" className="text-xs text-red-600">{error}</p>}
       <HttpAnalyzerView
-        exportSource={{sessionId}} transactions={rows} total={all.length}
+        onFind={openFind} exportSource={{sessionId}} transactions={rows} total={all.length}
         methods={availableMethods(all)} mimes={availableMimeTypes(all)}
         fidelities={availableFidelities(all)} kinds={availableResourceKinds(all)}
         filter={filter} filterActive={isFilterActive(filter)}

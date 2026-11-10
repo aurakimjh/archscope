@@ -1,3 +1,5 @@
+import { HttpCommandProvider, useHttpCommands } from "@/hooks/useHttpCommands";
+import { SlideOverPanel } from "@/components/SlideOverPanel";
 import { HttpLegacyFileProbe } from "@/components/HttpLegacyFileProbe";
 import { findingRequestIds } from "@/state/httpAnnotations";
 import { HttpRequestBuilder } from "@/components/HttpRequestBuilder";
@@ -99,6 +101,12 @@ import {
 import { formatMilliseconds, formatNumber } from "@/utils/formatters";
 
 export function HttpCapturePage(): React.JSX.Element {
+  return <HttpCommandProvider><HttpCaptureWorkspace /></HttpCommandProvider>;
+}
+
+function HttpCaptureWorkspace(): React.JSX.Element {
+  const [helpOpen, setHelpOpen] = useState(false);
+  useHttpCommands({help: () => setHelpOpen(true)});
   const { t } = useI18n();
   const [file, setFile] = useState<FileDockSelection | null>(null);
   const [state, dispatch] = useReducer(
@@ -303,7 +311,14 @@ export function HttpCapturePage(): React.JSX.Element {
 
   return (
     <main className="flex min-w-0 flex-col gap-3 p-3">
+      <SlideOverPanel open={helpOpen} onClose={() => setHelpOpen(false)} title={t("httpDesktopHelpTitle")}>
+        <div className="space-y-4 p-4 text-sm">
+          <p>{t("httpDesktopHelpCapture")}</p><p>{t("httpDesktopHelpInspect")}</p>
+          <p>{t("httpDesktopHelpKeys")}</p><p>{t("httpDesktopHelpLimits")}</p>
+        </div>
+      </SlideOverPanel>
       <div className="flex gap-2 text-xs">
+        <Button variant="outline" size="sm" onClick={() => setHelpOpen(true)}>{t("httpDesktopHelpTitle")}</Button>
         <Button
           variant="outline"
           size="sm"

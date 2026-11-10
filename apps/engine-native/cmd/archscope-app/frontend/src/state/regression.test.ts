@@ -1,3 +1,4 @@
+import { HttpCommandRouter, httpCommandForKey, isHttpCommand } from "./httpCommands.js";
 import { formatProfileSeconds, profileWeightUnit } from "./profileDuration.js";
 import { partition } from "d3-hierarchy";
 import { buildFlameHierarchy, flameSearchCoverage, hiddenFlameSamples, type FlameGraphNode } from "./flamegraphLayout.js";
@@ -3096,3 +3097,42 @@ assert(notedSorted[0]?.id==="note-b"&&notedSorted[0]?.starred&&httpColumnValue(n
 assert(rowHints(notedRows[1]).some(hint=>hint.code==="HTTP_ERROR")&&statusHelpKey(503)==="httpStatus5xx","request hints and status help must reflect the selected row");
 assert(findingRequestIds({code:"fixture",message:"",severity:"info",evidence:{transaction_ids:["note-b","note-b"],transaction_id:"note-a"}}).length===2,"finding links must use explicit unique request IDs");
 assert(findingRequestIds({code:"global",message:"",severity:"info"}).length===0,"global findings must not invent a request link");
+
+
+// Desktop commands must behave the same through the menu and keyboard path.
+const httpKey = {key:"s",ctrlKey:true,metaKey:false,altKey:false,shiftKey:false,repeat:false,defaultPrevented:false,isComposing:false};
+assert(httpCommandForKey(httpKey, true) === "save", "Save remains available while editing");
+assert(httpCommandForKey({...httpKey,ctrlKey:false,metaKey:true}, false) === "save", "Mac Command routes Save");
+assert(httpCommandForKey({...httpKey,shiftKey:true}, false) === null, "Shift+Save must not invoke Save");
+assert(httpCommandForKey({...httpKey,repeat:true}, false) === null, "Holding Save must not open repeated dialogs");
+assert(httpCommandForKey({...httpKey,isComposing:true}, false) === null, "IME composition preserves its keys");
+assert(httpCommandForKey({...httpKey,defaultPrevented:true}, false) === null, "Earlier key consumers retain ownership");
+for (const [key,command] of [["F1","help"],["F2","stop"],["F9","start"]]) {
+  assert(httpCommandForKey({...httpKey,key,ctrlKey:false}, false) === command, "Function key dispatches " + command);
+  assert(httpCommandForKey({...httpKey,key}, false) === null, "Modified function keys are distinct");
+}
+for (const [key,command] of [["ArrowLeft","collapse"],["ArrowRight","expand"]]) {
+  assert(httpCommandForKey({...httpKey,key,shiftKey:true}, false) === command, "Group keyboard command " + command);
+  assert(httpCommandForKey({...httpKey,key,shiftKey:true}, true) === null, "Group keys preserve text selection");
+}
+assert(!isHttpCommand("delete") && !isHttpCommand({command:"save"}) && isHttpCommand("save"), "Reject unknown native commands");
+const httpRouter = new HttpCommandRouter(); let httpSaves = 0;
+const removeSave = httpRouter.register("save", () => httpSaves++);
+assert(httpRouter.dispatch("save","keyboard",1000), "Keyboard command handled");
+httpRouter.dispatch("save","native",1001);
+assert(httpSaves === 1, "Native accelerator echo must not save twice");
+httpRouter.dispatch("save","keyboard",1101);
+assert(Number(httpSaves) === 2, "A separate keystroke remains available");
+removeSave();
+assert(!httpRouter.dispatch("save","native",1200), "Unmounted views cannot keep handling commands");
+const removeNextSave = httpRouter.register("save", () => httpSaves++);
+httpRouter.dispatch("save","native",1201);
+assert(Number(httpSaves) === 3, "Re-entered view owns its command");
+removeNextSave();
+for (const grouping of ["process","host","method","status","mime","none"]) {
+  const entries = httpGroupedEntries([selectedLiveRow,reusedPid],new Set(),grouping);
+  const groupKeys = entries.flatMap(entry => entry.kind === "process" ? [entry.key] : []);
+  const collapsed = httpGroupedEntries([selectedLiveRow,reusedPid],new Set(groupKeys),grouping);
+  assert(grouping === "none" ? collapsed.length === 2 : collapsed.every(entry => entry.kind === "process"), "Collapse respects grouping " + grouping);
+  assert(httpGroupedEntries([selectedLiveRow,reusedPid],new Set(),grouping).filter(entry => entry.kind === "request").length === 2, "Expand restores requests " + grouping);
+}

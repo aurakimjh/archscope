@@ -1356,3 +1356,16 @@ SDK version remain untouched; temporary files are removed even on build failure.
 Direct `go build` bypasses this fix. Docker CGO builds currently support only
 amd64/arm64. Binary cross-build success does not prove native UI, installer,
 auto-update execution or capture of 32-bit clients.
+
+### Desktop command routing (2026-11-10)
+
+The active HTTP workspace owns one native-menu/keyboard router for recording,
+Save/Export, Find, Help and group collapse/expand. Save uses the displayed format
+and all/filtered scope, preserving notes and selection; concurrent save dialogs
+are suppressed. F1 opens local workflow/shortcut help. Ctrl/Cmd+Shift+Left/Right
+acts on the current grouping and preserves text-editing selection. Builder-only
+response grids do not take ownership of the main grid commands. Key repeat,
+IME composition, modal background commands and native/DOM accelerator echoes are
+filtered. Unmounting the workspace unregisters its handlers. State tests and
+frontend/Mac production builds verify wiring; native Windows interaction remains
+part of T-613.
