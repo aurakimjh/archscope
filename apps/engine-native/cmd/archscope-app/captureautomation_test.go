@@ -16,6 +16,17 @@ import (
 	"testing"
 )
 
+func TestAutomationURLCleanupRejectsInvalidTargetsBeforeBackend(t *testing.T) {
+	service := newCaptureServiceForPlatform(t.TempDir(), certstore.New(memoryTrustBackend{}, nil), "windows")
+	defer service.shutdownAutomation()
+	for _, target := range []string{"file:///private/path", "https://user:password@example.test/", "https:///missing-host", "not a URL"} {
+		raw, _ := json.Marshal(map[string]string{"kind": "cookies", "url": target})
+		if _, e := service.executeAutomation(context.Background(), automation.Call{Command: "cache-plan-url", Params: raw}); e == nil {
+			t.Fatal("invalid URL cleanup target accepted")
+		}
+	}
+}
+
 func TestDesktopControlCapturesSavesAndReloadsFixture(t *testing.T) {
 	root := t.TempDir()
 	service := newCaptureServiceForPlatform(root, certstore.New(memoryTrustBackend{}, nil), "windows")

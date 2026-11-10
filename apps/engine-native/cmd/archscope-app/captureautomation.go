@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/url"
 	"path/filepath"
 	"time"
 
@@ -296,6 +297,19 @@ func (s *CaptureService) executeAutomation(ctx context.Context, call automation.
 		return s.FetchCaptureTransactions(request)
 	case "cache-capability":
 		return s.GetCaptureCacheCapability(), nil
+	case "cache-plan-url":
+		var request struct {
+			Kind string `json:"kind"`
+			URL  string `json:"url"`
+		}
+		if err := decodeControl(call.Params, &request); err != nil {
+			return nil, err
+		}
+		parsed, err := url.ParseRequestURI(request.URL)
+		if err != nil || len(request.URL) > 32768 || parsed.Hostname() == "" || parsed.User != nil || (parsed.Scheme != "http" && parsed.Scheme != "https") {
+			return nil, fmt.Errorf("choose one HTTP(S) URL without credentials")
+		}
+		return s.browserCache.Plan(request.Kind, "recorded", []string{request.URL})
 	case "cache-plan":
 		var request CaptureCacheRequest
 		if err := decodeControl(call.Params, &request); err != nil {

@@ -82,17 +82,21 @@ type exceptionInfo struct {
 type nativeObject struct {
 	// COM dereferences the interface address as a vtable pointer. Keep this
 	// field first; Go bookkeeping must never precede the native ABI prefix.
-	Table       *uintptr
-	nameIDs     map[string]int32
-	memberIDs   map[int32]string
-	references  atomic.Uint32
-	pin         runtime.Pinner
-	server      *Server
-	object      Object
-	enumeration *Enumeration
-	position    int
-	names       []string
-	factory     bool
+	Table           *uintptr
+	container       *connectionContainer
+	connectionPoint *nativeObject
+	point           *pointState
+	connections     *connectionEnumeration
+	nameIDs         map[string]int32
+	memberIDs       map[int32]string
+	references      atomic.Uint32
+	pin             runtime.Pinner
+	server          *Server
+	object          Object
+	enumeration     *Enumeration
+	position        int
+	names           []string
+	factory         bool
 }
 
 // Fail the Windows build if a future edit moves the vtable off offset zero.
@@ -142,6 +146,7 @@ func (s *Server) wrap(object Object, enumeration *Enumeration, factory bool) *na
 	} else {
 		if table := dualTables[objectContract(object)]; len(table) > 0 {
 			n.Table = &table[0]
+			n.pin.Pin(&table[0])
 		}
 		n.names = object.Members()
 		sort.Strings(n.names)
@@ -168,7 +173,22 @@ func query(object *nativeObject, iid *windows.GUID, result *uintptr) uintptr {
 	}
 	*result = 0
 	id := *iid
+	if id == iidContainer && logController(n) != nil {
+		if n.container == nil {
+			n.container = &connectionContainer{Table: &containerTable[0], Owner: n}
+			n.pin.Pin(n.container)
+		}
+		n.references.Add(1)
+		*result = uintptr(unsafe.Pointer(n.container))
+		return ok
+	}
 	supported := id == iidUnknown || (!n.factory && n.enumeration == nil && id == iidDispatch) || (n.factory && id == iidFactory) || (n.enumeration != nil && id == iidEnum)
+	if n.point != nil {
+		supported = id == iidUnknown || id == iidPoint
+	}
+	if n.connections != nil {
+		supported = id == iidUnknown || (!n.connections.Points && id == iidConnectionEnum) || (n.connections.Points && id == iidPointEnum)
+	}
 	if !supported && !n.factory && n.enumeration == nil && n.object != nil {
 		supported = supportsContract(n.object, id)
 	}
@@ -195,6 +215,7 @@ func release(object *nativeObject) uintptr {
 	}
 	remaining := n.references.Add(^uint32(0))
 	if remaining == 0 {
+		cleanupConnections(n)
 		receivers.Delete(this)
 		n.server.mu.Lock()
 		delete(n.server.objects, this)
@@ -487,16 +508,20 @@ func Start(execute automation.Executor) (*Server, error) {
 		defer func() {
 			windows.CoUninitialize()
 			server.mu.Lock()
-			for pointer, object := range server.objects {
+			objects := server.objects
+			server.objects = map[uintptr]*nativeObject{}
+			server.mu.Unlock()
+			for pointer := range objects {
 				receivers.Delete(pointer)
+			}
+			for _, object := range objects {
+				cleanupConnections(object)
 				object.pin.Unpin()
 			}
-			server.objects = map[uintptr]*nativeObject{}
 			for _, info := range server.typeInfos {
 				releaseCOM(info)
 			}
 			server.typeInfos = nil
-			server.mu.Unlock()
 		}()
 		server.typeInfos, err = buildTypeInfos()
 		if err != nil {
@@ -515,12 +540,30 @@ func Start(execute automation.Executor) (*Server, error) {
 			return
 		}
 		ready <- nil
+		go func() {
+			ticker := time.NewTicker(250 * time.Millisecond)
+			defer ticker.Stop()
+			for {
+				select {
+				case <-server.done:
+					return
+				case <-ticker.C:
+					if !server.closing.Load() {
+						postMessage.Call(uintptr(server.thread), 0x8001, 0, 0)
+					}
+				}
+			}
+		}()
 		for {
 			result, _, _ := getMessage.Call(uintptr(unsafe.Pointer(&msg)), 0, 0, 0)
 			if result == 0 || int32(uint32(result)) == -1 {
 				break
 			}
-			dispatchMessage.Call(uintptr(unsafe.Pointer(&msg)))
+			if msg.Message == 0x8001 {
+				server.publishLogEvents()
+			} else {
+				dispatchMessage.Call(uintptr(unsafe.Pointer(&msg)))
+			}
 		}
 		server.closing.Store(true)
 		coRevoke.Call(uintptr(server.cookie))

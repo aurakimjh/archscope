@@ -45,6 +45,89 @@ func TestNativeDispatchObjectVariantAndReferenceABI(t *testing.T) {
 	}
 }
 
+func TestConnectionPointIdentityAndLifetime(t *testing.T) {
+	s := &Server{objects: map[uintptr]*nativeObject{}}
+	controller := New(nil)
+	owner := s.wrap(Typed{"ILog", liveLog{controller}}, nil, false)
+	var address uintptr
+	if query(owner, &iidContainer, &address) != ok || address == 0 {
+		t.Fatal("connection container missing")
+	}
+	c := (*connectionContainer)(foreignPointer(address))
+	var unknown uintptr
+	if containerQuery(c, &iidUnknown, &unknown) != ok || unknown != uintptr(unsafe.Pointer(owner)) {
+		t.Fatal("controlling unknown changed")
+	}
+	release(owner)
+	point := getPoint(owner)
+	var outgoing windows.GUID
+	if pointInterface(point, &outgoing) != ok || outgoing != iidLogEvents {
+		t.Fatal(outgoing)
+	}
+	enum := newConnectionEnum(s, true, []connectionData{{Unknown: uintptr(unsafe.Pointer(point))}})
+	if query(enum, &iidPointEnum, &address) != ok {
+		t.Fatal("point enumeration IID")
+	}
+	release(enum)
+	var clone uintptr
+	if connectionClone(enum, &clone) != ok {
+		t.Fatal("clone")
+	}
+	release(receiver(clone))
+	release(enum)
+	if containerRelease(c) != 2 {
+		t.Fatal("container reference")
+	}
+	release(point)
+	release(owner)
+	if len(s.objects) != 0 {
+		t.Fatal("connection objects leaked", len(s.objects))
+	}
+}
+
+type testEventSink struct {
+	Table        *uintptr
+	New, Updates int
+}
+
+var testEventTable [7]uintptr
+
+func TestNativeEventVariantOrderAndByRefCancel(t *testing.T) {
+	testEventTable[6] = windows.NewCallback(func(sink *testEventSink, id int32, iid *windows.GUID, locale uint32, flags uint16, params *dispatchParams, result *ole.VARIANT, info *exceptionInfo, arg *uint32) uintptr {
+		values := unsafe.Slice(params.Arguments, int(params.Count))
+		if id == 201 {
+			if len(values) != 2 || values[0].VT != ole.VT_BOOL|ole.VT_BYREF || values[1].VT != ole.VT_DISPATCH {
+				return invalidArg
+			}
+			*(*int16)(foreignPointer(uintptr(values[0].Val))) = -1
+			sink.New++
+		} else if id == 202 {
+			if len(values) != 1 || values[0].VT != ole.VT_DISPATCH {
+				return invalidArg
+			}
+			sink.Updates++
+		} else {
+			return memberNotFound
+		}
+		return ok
+	})
+	sink := &testEventSink{Table: &testEventTable[0]}
+	var pin runtime.Pinner
+	pin.Pin(sink)
+	defer pin.Unpin()
+	s := &Server{objects: map[uintptr]*nativeObject{}}
+	event := logEvent{ID: "one", New: true, Entry: Typed{"ILogEntry", Properties{"URL": "https://example.test"}}}
+	discard, e := sendLogEvent(s, uintptr(unsafe.Pointer(sink)), event)
+	if e != nil || !discard || sink.New != 1 {
+		t.Fatal(discard, e, sink.New)
+	}
+	event.New = false
+	discard, e = sendLogEvent(s, uintptr(unsafe.Pointer(sink)), event)
+	if e != nil || discard || sink.Updates != 1 || len(s.objects) != 0 {
+		t.Fatal(discard, e, sink.Updates, len(s.objects))
+	}
+}
+
 func TestNativeDualPrefixAndTypeInformation(t *testing.T) {
 	runtime.LockOSThread()
 	defer runtime.UnlockOSThread()

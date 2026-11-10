@@ -4903,3 +4903,32 @@ Mac 선언·race 회귀와 Windows amd64·386 테스트 컴파일·vet가
 통과했습니다. Windows용 테스트에는 dual 플래그·상속 슬롯 수·SaveLog의
 HRESULT/BSTR/enum 형식 검사를 추가했으며, 그 실행을 Mac 검증으로
 계산하지 않습니다.
+
+### T-611 연결점 이벤트·URL 지정 정리 (2026-11-11)
+
+ILog 참조는 계속 갱신되고 Count/Item/FilteredCount/FilteredItem과
+열거자는 불변 스냅샷을 읽습니다. 선언된 ILogEvents IID의 연결점 컨테이너·
+연결점·연결점 열거자·구독 열거자를 구현했습니다. Advise/Unadvise는
+최대 16개 sink의 참조를 관리합니다. 폴링과 OnNewEntry/OnUpdateEntry는
+서버 STA에서 실행하며 캡처·컨트롤러 잠금을 잡고 외부 코드를 부르지
+않습니다. OnNewEntry의 역순 인자와 by-ref VARIANT_BOOL로 받은
+DiscardIt은 자동화 뷰와 그 내보내기에 적용합니다. 구독 이전 항목을
+재전송하지 않고, 세션·세대 변경 시 커서를 초기화하며 이전 콜백의 폐기
+요청이 교체 세션에 적용되지 않게 검사합니다.
+
+이벤트는 저장 후 통지입니다. 취소가 영속 증거를 삭제하거나 원본의
+저장 전 수락 제어와 동일하다고 주장하지 않습니다. 콜백 시점·프로세스 간
+마샬링·현재 원본의 조기 바인딩 클라이언트·연결 수명은 Windows 실행이
+필요합니다. 공통 커서·폐기 회귀와 Windows 콜백 ABI·참조 수명 테스트를
+추가했습니다. Mac 공통·race와 Windows x86·x64 컴파일·vet는 통과했으며
+Windows 전용 테스트를 Mac에서 실행한 것으로 계산하지 않습니다.
+
+DeleteUrlCache와 DeletePersistentCookie는 검증한 HTTP(S) URL 하나와
+기존의 제한된 WinINet 계획·변경 재확인·실제 삭제 건수를 사용합니다.
+DeleteSessionCookies는 COM_SESSION_COOKIES_UNAVAILABLE을 반환합니다.
+다른 프로세스 메모리의 WinINet 세션은 대상 내부 연동이 필요합니다.
+DLL 주입·Chromium 프로필 삭제·영속 쿠키 대체 삭제를 하지 않으며,
+Mac에서 어댑터를 빌드했다고 이 요구사항이 완료되는 것은 아닙니다.
+Windows COM 검증 스크립트는 형식 정보에 맞춰 SaveLog의 NativeLog
+열거값 6과 .halog 경로를 사용합니다. 형식 기반 인자 변환을 거치지 않는
+직접 IDispatch 호출은 기존 이름 형식 내보내기도 사용할 수 있습니다.

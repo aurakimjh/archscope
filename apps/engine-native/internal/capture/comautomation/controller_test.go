@@ -263,3 +263,29 @@ func TestDualDeclarationsPreserveInheritanceAndReturnShapes(t *testing.T) {
 		}
 	}
 }
+
+func TestSingleURLCleanupUsesPlanAndReportsActualDeletion(t *testing.T) {
+	var commands []string
+	c := New(func(_ context.Context, call automation.Call) (any, error) {
+		commands = append(commands, call.Command)
+		switch call.Command {
+		case "cache-plan-url":
+			var r struct{ Kind, URL string }
+			json.Unmarshal(call.Params, &r)
+			if r.Kind != "cookies" || r.URL != "https://example.test/path" {
+				t.Fatal(r)
+			}
+			return map[string]string{"id": "plan"}, nil
+		case "cache-delete":
+			return map[string]int{"deleted": 2}, nil
+		}
+		return nil, nil
+	})
+	v, e := c.Invoke(context.Background(), "DeletePersistentCookie", []any{"https://example.test/path"}, false)
+	if e != nil || v != 2 || len(commands) != 2 || commands[0] != "cache-plan-url" || commands[1] != "cache-delete" {
+		t.Fatal(v, e, commands)
+	}
+	if _, e = c.Invoke(context.Background(), "DeleteSessionCookies", nil, false); e == nil {
+		t.Fatal("persistent cleanup claimed to reset a foreign process session")
+	}
+}

@@ -6,9 +6,8 @@ param(
     [ValidateSet('explicit_proxy','windows_transparent')][string]$Backend = 'explicit_proxy'
 )
 $ErrorActionPreference = 'Stop'
-# This server intentionally exposes late-bound IDispatch without ITypeInfo.
-# PowerShell's COM adapter silently returns null for property reads in that
-# case. Invoke the dispatch member explicitly so missing values cannot pass.
+# Use explicit dispatch property reads so failures cannot silently become null,
+# including when comparing older builds that did not expose ITypeInfo.
 function Get-ComProperty($Object, [string]$Name) {
     try {
         $value = $Object.GetType().InvokeMember($Name, [Reflection.BindingFlags]::GetProperty, $null, $Object, $null)
@@ -82,7 +81,7 @@ try {
     if (-not [string](Get-ComProperty $first 'URL')) { throw 'Indexed log lookup failed.' }
     [void][System.Runtime.InteropServices.Marshal]::FinalReleaseComObject($first)
     [void][System.Runtime.InteropServices.Marshal]::FinalReleaseComObject($log)
-    $controller.SaveLog((Join-Path ([IO.Path]::GetFullPath($OutputDirectory)) 'fixture.httpsession'), 'session')
+    $controller.SaveLog((Join-Path ([IO.Path]::GetFullPath($OutputDirectory)) 'fixture.halog'), 6)
     $report.entries = $count
     $report.attributedEntries = $matched
     $report.result = 'PASS'

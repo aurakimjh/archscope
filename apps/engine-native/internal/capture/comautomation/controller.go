@@ -29,6 +29,8 @@ type Controller struct {
 	maxLogSize                   int
 	stillCaptureWhenHidden       bool
 	hidePaused                   bool
+	snapshotSource               string
+	eventEpoch                   uint64
 	lastRows                     []models.CaptureTransaction
 	omittedIDs                   map[string]bool
 	captureBodies                bool
@@ -65,7 +67,7 @@ func (c *Controller) call(ctx context.Context, name string, params any, target a
 	return json.Unmarshal(raw, target)
 }
 func (c *Controller) Members() []string {
-	return []string{"AttachAllSessions", "AttachCurrentSession", "AttachNewProcess", "AttachProcessByID", "AttachProcessByName", "DetachProcessByID", "DetachProcessByName", "Start", "Stop", "Pause", "Resume", "Clear", "IsLogging", "IsPaused", "Visible", "Log", "SaveLog", "LoadLog", "DeleteAllCache", "DeleteAllCookies", "DeleteCacheForRecordedURLs", "DeleteCookiesForRecordedURLs", "Backend", "SessionID", "ProxyAddress", "BuildCommit", "CaptureBodies", "SetFilter", "ClearFilter", "IsFiltered", "MaxLogSize", "StillCaptureDataWhenHide"}
+	return []string{"AttachAllSessions", "AttachCurrentSession", "AttachNewProcess", "AttachProcessByID", "AttachProcessByName", "DetachProcessByID", "DetachProcessByName", "Start", "Stop", "Pause", "Resume", "Clear", "IsLogging", "IsPaused", "Visible", "Log", "SaveLog", "LoadLog", "DeleteAllCache", "DeleteAllCookies", "DeleteCacheForRecordedURLs", "DeleteCookiesForRecordedURLs", "Backend", "SessionID", "ProxyAddress", "BuildCommit", "CaptureBodies", "SetFilter", "ClearFilter", "IsFiltered", "MaxLogSize", "StillCaptureDataWhenHide", "DeleteUrlCache", "DeletePersistentCookie", "DeleteSessionCookies"}
 }
 func (c *Controller) Invoke(ctx context.Context, name string, args []any, put bool) (any, error) {
 	c.mu.Lock()
@@ -320,6 +322,7 @@ func (c *Controller) Invoke(ctx context.Context, name string, args []any, put bo
 			c.cachedLog = nil
 			c.omittedIDs = map[string]bool{}
 			c.hidePaused = false
+			c.eventEpoch++
 		}
 		return nil, err
 	case "clear":
@@ -328,12 +331,22 @@ func (c *Controller) Invoke(ctx context.Context, name string, args []any, put bo
 		}
 		if c.loaded != "" {
 			c.loadedCleared = true
+			c.eventEpoch++
+			c.lastRows = nil
+			c.cachedLog = nil
 			return nil, nil
 		}
 		if c.sessionID == "" {
 			return nil, fmt.Errorf("this controller has no capture session")
 		}
-		return nil, c.call(ctx, "clear", map[string]any{"sessionId": c.sessionID}, nil)
+		err := c.call(ctx, "clear", map[string]any{"sessionId": c.sessionID}, nil)
+		if err == nil {
+			c.eventEpoch++
+			c.lastRows = nil
+			c.cachedLog = nil
+			c.omittedIDs = map[string]bool{}
+		}
+		return nil, err
 	case "stop", "pause", "resume":
 		c.hidePaused = false
 		if len(args) != 0 {
@@ -353,15 +366,19 @@ func (c *Controller) Invoke(ctx context.Context, name string, args []any, put bo
 			return current.State == capture.StateRunning, err
 		}
 		return current.Paused, err
-	case "log":
+	case "log", "__snapshot":
+		if name == "log" && len(args) == 0 {
+			return Typed{"ILog", liveLog{c}}, nil
+		}
 		if c.loadedCleared {
 			empty := Collection{Items: []Object{}}
 			if len(args) > 0 {
 				return empty.Invoke(ctx, "Item", args, false)
 			}
-			return Typed{"ILog", empty}, nil
+			return Typed{"ILog", filteredLog{all: empty, filtered: empty}}, nil
 		}
 		key := c.loaded
+		c.snapshotSource = fmt.Sprintf("file:%s:%d", c.loaded, c.eventEpoch)
 		if c.loaded == "" {
 			var current capture.Session
 			if err := c.call(ctx, "status", map[string]any{}, &current); err != nil {
@@ -377,6 +394,7 @@ func (c *Controller) Invoke(ctx context.Context, name string, args []any, put bo
 				}
 			}
 			key = fmt.Sprintf("%s:%s:%d:%d", current.ID, current.State, current.Generation, stats.SnapshotVersion)
+			c.snapshotSource = fmt.Sprintf("session:%s:%d:%d", current.ID, current.Generation, c.eventEpoch)
 		}
 		if c.cachedLog == nil || key != c.cachedKey {
 			var rows []models.CaptureTransaction
@@ -419,6 +437,7 @@ func (c *Controller) Invoke(ctx context.Context, name string, args []any, put bo
 		c.omittedIDs = map[string]bool{}
 		c.loadedCleared = false
 		c.cachedLog = nil
+		c.eventEpoch++
 		return nil, nil
 	case "savelog":
 		if len(args) < 1 || len(args) > 2 {
@@ -471,6 +490,40 @@ func (c *Controller) Invoke(ctx context.Context, name string, args []any, put bo
 			scope = "filtered"
 		}
 		return nil, c.call(ctx, "save", map[string]any{"source": source, "destination": path, "format": format, "scope": scope, "ids": ids}, nil)
+	case "deletesessioncookies":
+		return nil, fmt.Errorf("COM_SESSION_COOKIES_UNAVAILABLE: cross-process WinINet in-memory session reset needs target-process integration; persistent-cookie deletion is not a substitute")
+	case "deleteurlcache", "deletepersistentcookie":
+		if put || len(args) != 1 {
+			return nil, fmt.Errorf("URL cleanup requires one HTTP(S) URL")
+		}
+		value, err := text(0)
+		if err != nil {
+			return nil, err
+		}
+		kind := "cache"
+		if name == "deletepersistentcookie" {
+			kind = "cookies"
+		}
+		var plan struct {
+			ID string `json:"id"`
+		}
+		if err = c.call(ctx, "cache-plan-url", map[string]string{"kind": kind, "url": value}, &plan); err != nil {
+			return nil, err
+		}
+		var result struct{ Deleted, Failed, Changed int }
+		if err = c.call(ctx, "cache-delete", map[string]string{"planId": plan.ID}, &result); err != nil {
+			return nil, err
+		}
+		if result.Failed > 0 || result.Changed > 0 {
+			return nil, fmt.Errorf("cleanup incomplete; entries changed or failed")
+		}
+		if name == "deleteurlcache" {
+			return result.Deleted > 0, nil
+		}
+		if result.Deleted > 65535 {
+			return nil, fmt.Errorf("cookie count exceeds WORD range")
+		}
+		return result.Deleted, nil
 	case "deleteallcache", "deleteallcookies", "deletecacheforrecordedurls", "deletecookiesforrecordedurls":
 		if len(args) != 0 {
 			return nil, fmt.Errorf("unexpected arguments")

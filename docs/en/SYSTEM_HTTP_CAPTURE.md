@@ -1654,3 +1654,32 @@ explicitly; a declared interface does not invent missing raw/cache data.
 Mac declaration/race regressions and Windows amd64/386 test compilation/vet
 pass. Added native Windows tests inspect dual flags, inherited slot counts and
 the SaveLog HRESULT/BSTR/enum signature. Their execution is not a Mac result.
+
+### T-611 connection points and targeted cleanup (2026-11-11)
+
+ILog now remains live while Count/Item/FilteredCount/FilteredItem and enumerators
+read immutable snapshots. It exposes IConnectionPointContainer, IConnectionPoint,
+IEnumConnectionPoints and IEnumConnections for the declared ILogEvents IID.
+Advise/Unadvise maintain bounded (16) reference-counted sinks; polling and outgoing
+OnNewEntry/OnUpdateEntry calls run on the server STA, without holding capture or
+controller locks. OnNewEntry carries the reversed entry/by-ref VARIANT_BOOL
+arguments and honors DiscardIt in the automation view and its exports. Existing
+rows are not replayed at Advise. Session/generation changes reset the cursor and
+stale cancellation cannot suppress a replacement session's entry.
+
+These are post-persistence notifications: cancellation does not undo durable
+evidence or claim original pre-storage admission parity. Callback timing,
+cross-process marshalling, current vendor early-bound clients and native
+connection lifetimes still need Windows execution. Added common cursor/discard
+regressions and native callback ABI/lifetime tests; Mac common/race and Windows
+x86/x64 compilation/vet pass. Native tests are not counted as executed on Mac.
+
+DeleteUrlCache and DeletePersistentCookie use a validated single HTTP(S) URL,
+the existing bounded WinINet plan, change recheck and actual deletion counts.
+DeleteSessionCookies explicitly returns COM_SESSION_COOKIES_UNAVAILABLE: another
+process's in-memory WinINet session requires integration inside that target.
+No DLL injection, Chromium profile deletion or persistent-cookie fallback is
+performed. Building this adapter on Mac does not complete that requirement.
+The Windows COM smoke uses NativeLog enum 6 and a .halog destination, matching
+the now-described typed SaveLog signature. Original raw IDispatch named export
+formats remain available to callers that bypass type-based argument conversion.

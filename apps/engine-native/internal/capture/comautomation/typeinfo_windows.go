@@ -40,6 +40,7 @@ type functionDescription struct {
 
 var iidTypeInfo = mustGUID("{00020401-0000-0000-C000-000000000046}")
 
+//go:uintptrescapes
 func comCall(pointer uintptr, slot int, args ...uintptr) error {
 	if pointer == 0 {
 		return fmt.Errorf("nil COM metadata interface")
@@ -172,9 +173,12 @@ func buildTypeInfos() (map[string]uintptr, error) {
 func addTypeMethod(creator uintptr, contract string, index int, m abiMethod, infos map[string]uintptr) error {
 	// Pointer descriptors stay alive until AddFuncDesc has copied their graphs.
 	var keep []*typeDescription
+	var pin runtime.Pinner
+	defer pin.Unpin()
 	ptr := func(t typeDescription) typeDescription {
 		p := new(typeDescription)
 		*p = t
+		pin.Pin(p)
 		keep = append(keep, p)
 		return typeDescription{Value: uintptr(unsafe.Pointer(p)), VT: 26}
 	}

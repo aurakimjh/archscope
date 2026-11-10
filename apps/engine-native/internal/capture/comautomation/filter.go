@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 )
@@ -200,6 +201,9 @@ func decodeLogFilter(b []byte) (*logFilter, error) {
 		}
 		if e != nil {
 			return nil, e
+		}
+		if !utf8.ValidString(rule.text) {
+			return nil, fmt.Errorf("unsupported non-UTF8 filter text")
 		}
 		if column == 4 && strings.EqualFold(rule.text, "(Cache)") {
 			return nil, fmt.Errorf("cache-origin filter requires metadata not retained in this capture contract")
