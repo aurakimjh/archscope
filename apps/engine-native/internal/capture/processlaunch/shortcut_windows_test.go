@@ -28,6 +28,18 @@ func TestShortcutLaunchFixture(t *testing.T) {
 		os.Exit(0)
 	}
 }
+
+// Shell links may expand or retain an 8.3 alias (for example RUNNER~1).
+// Compare filesystem identity while keeping the raw argument checks exact.
+func sameShortcutFile(a, b string) bool {
+	first, err := os.Stat(a)
+	if err != nil {
+		return false
+	}
+	second, err := os.Stat(b)
+	return err == nil && os.SameFile(first, second)
+}
+
 func TestNativeShortcutLaunchPreservesUnicodeArgumentsAndDirectory(t *testing.T) {
 	root := t.TempDir()
 	directory := filepath.Join(root, "한글 working folder")
@@ -74,7 +86,7 @@ func TestNativeShortcutLaunchPreservesUnicodeArgumentsAndDirectory(t *testing.T)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if target.Path != exe || target.RawArguments != raw || target.WorkingDirectory != directory {
+	if !sameShortcutFile(target.Path, exe) || target.RawArguments != raw || !sameShortcutFile(target.WorkingDirectory, directory) {
 		t.Fatalf("unexpected resolved shortcut: %+v", target)
 	}
 	child, err := Prepare(target, "127.0.0.1:12345")
@@ -99,7 +111,7 @@ func TestNativeShortcutLaunchPreservesUnicodeArgumentsAndDirectory(t *testing.T)
 			if json.Unmarshal(data, &got) != nil {
 				t.Fatal("invalid marker")
 			}
-			if got.Directory != directory || got.Proxy != "http://127.0.0.1:12345" || !reflect.DeepEqual(got.Args[1:], append(wanted, "extra argument")) {
+			if !sameShortcutFile(got.Directory, directory) || got.Proxy != "http://127.0.0.1:12345" || !reflect.DeepEqual(got.Args[1:], append(wanted, "extra argument")) {
 				t.Fatalf("%+v", got)
 			}
 			return
