@@ -152,6 +152,10 @@ func (p *Policy) RedactHeaders(headers []models.HeaderField) []models.HeaderFiel
 	out := make([]models.HeaderField, 0, len(headers))
 	for _, header := range headers {
 		next := header
+		next.Attributes = append([]models.CookieAttribute(nil), header.Attributes...)
+		for i := range next.Attributes {
+			next.Attributes[i].Value, _ = p.RedactNamedValue(next.Attributes[i].Name, next.Attributes[i].Value)
+		}
 		if sensitiveHeader(header.Name) {
 			next.Value = "[REDACTED]"
 			next.Redacted = true
@@ -510,4 +514,13 @@ func (p *Policy) redactEncodedFields(raw, rule string) (string, bool) {
 		}
 	}
 	return strings.Join(parts, "&"), changed
+}
+
+// RedactCookies masks values while preserving ordered, non-secret attributes.
+func (p *Policy) RedactCookies(cookies []models.HeaderField) []models.HeaderField {
+	out := p.RedactHeaders(cookies)
+	for i := range out {
+		out[i].Value, out[i].Redacted = p.RedactNamedValue("cookie", out[i].Value)
+	}
+	return out
 }

@@ -3080,3 +3080,11 @@ assert(totals.connections===1&&totals.elapsedMs===70&&totals.sent.bytes===10&&to
 const relativeRows=relativeProcessRows(summaryRows);
 assert(relativeRows.every(row=>row.offsetMs===0),"PID reuse must give each process instance its own time origin");
 assert(relativeProcessRows([{...selectedLiveRow,started_at:"invalid"}])[0]?.offsetMs===null,"unknown process time must not become zero");
+
+import {hexPreview,inertHtml,coloredTokens,streamText,safeRaster} from "./httpContent.js";
+assert(hexPreview("가A").lines[0]?.includes("ea b0 80 41"),"hex offsets must use UTF-8 bytes rather than character indexes");
+const inert=inertHtml('<p>safe</p><img src="https://external.invalid/track"><script>alert(1)</script><meta http-equiv="refresh" content="0;url=https://external.invalid"><form><input></form>');
+assert(inert.includes("<p>safe</p>")&&!inert.includes("<img")&&!inert.includes("<script>")&&!inert.includes("<form>"),"HTML preview must allow only attribute-free formatting without external or active elements");
+assert(coloredTokens('<soap:Envelope x="1">ok</soap:Envelope>').tokens.some(token=>token.kind==="tag"),"XML/SOAP must render as highlighted text");
+assert(streamText(selectedLiveRow,"sent").includes(selectedLiveRow.method)&&streamText(selectedLiveRow,"received").includes("HTTP/"),"stream directions must remain independently inspectable");
+assert(safeRaster({...selectedLiveRow.response,imagePreview:{mime:"image/svg+xml",base64:"fake",width:1,height:1}})===null,"renderer must reject active vector previews");

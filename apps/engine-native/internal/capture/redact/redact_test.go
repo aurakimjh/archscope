@@ -131,3 +131,12 @@ func TestEncodedParameterOrderAndSpellingSurviveRedaction(t *testing.T) {
 		t.Fatalf("form normalized: %s", form)
 	}
 }
+
+func TestCookiesKeepAttributesButNeverValues(t *testing.T) {
+	policy := NewPolicy(Options{})
+	input := []models.HeaderField{{Name: "session", Value: "private", Attributes: []models.CookieAttribute{{Name: "HttpOnly", Value: "true"}, {Name: "Path", Value: "/fixture"}}}}
+	out := policy.RedactCookies(input)
+	if out[0].Value == "private" || out[0].Attributes[0].Value != "true" || input[0].Value != "private" {
+		t.Fatalf("%+v", out)
+	}
+}

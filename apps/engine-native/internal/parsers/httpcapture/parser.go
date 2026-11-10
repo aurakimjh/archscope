@@ -5,9 +5,11 @@ package httpcapture
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/content"
 	"io"
 	"net/url"
 	"sort"
@@ -122,8 +124,14 @@ type harNameValue struct {
 }
 
 type harCookie struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
+	Path     string `json:"path"`
+	Domain   string `json:"domain"`
+	Expires  string `json:"expires"`
+	Secure   bool   `json:"secure"`
+	HTTPOnly bool   `json:"httpOnly"`
+	SameSite string `json:"sameSite"`
+	Name     string `json:"name"`
+	Value    string `json:"value"`
 }
 
 type harPostData struct {
@@ -441,7 +449,7 @@ func mapResponse(source harResponse, dialect Dialect, policy *redact.Policy) mod
 	if dialect == DialectFirefox && transferSize < 0 {
 		transferSize = bodySize
 	}
-	return models.HTTPMessage{
+	message := models.HTTPMessage{
 		Headers:      mapHeaders(source.Headers, policy),
 		Cookies:      mapCookies(source.Cookies, policy),
 		HeaderSize:   sizeValue(source.HeadersSize),
@@ -454,6 +462,17 @@ func mapResponse(source harResponse, dialect Dialect, policy *redact.Policy) mod
 		BodyPreview:  inlinePreview(preview),
 		Redacted:     bodyRedacted,
 	}
+
+	if source.Content.Encoding == "base64" && len(bodyText) <= base64.StdEncoding.EncodedLen(content.MaxImageBytes) {
+		if raw, err := base64.StdEncoding.DecodeString(bodyText); err == nil {
+			message.ImagePreview = content.Raster(raw, source.Content.MIMEType)
+			if message.ImagePreview != nil {
+				message.BodyPreview = ""
+				message.BodyStorage = "image_preview"
+			}
+		}
+	}
+	return message
 }
 
 func mapHeaders(source []harNameValue, policy *redact.Policy) []models.HeaderField {
@@ -471,7 +490,20 @@ func mapCookies(source []harCookie, policy *redact.Policy) []models.HeaderField 
 	cookies := make([]models.HeaderField, 0, len(source))
 	for _, cookie := range source {
 		value, changed := policy.RedactNamedValue("cookie", cookie.Value)
-		cookies = append(cookies, models.HeaderField{Name: cookie.Name, Value: value, Redacted: changed})
+		attrs := []models.CookieAttribute{}
+		for _, v := range []models.CookieAttribute{{Name: "Path", Value: cookie.Path}, {Name: "Domain", Value: cookie.Domain}, {Name: "Expires", Value: cookie.Expires}, {Name: "SameSite", Value: cookie.SameSite}} {
+			if v.Value != "" {
+				v.Value, _ = policy.RedactNamedValue(v.Name, v.Value)
+				attrs = append(attrs, v)
+			}
+		}
+		if cookie.Secure {
+			attrs = append(attrs, models.CookieAttribute{Name: "Secure", Value: "true"})
+		}
+		if cookie.HTTPOnly {
+			attrs = append(attrs, models.CookieAttribute{Name: "HttpOnly", Value: "true"})
+		}
+		cookies = append(cookies, models.HeaderField{Name: cookie.Name, Value: value, Redacted: changed, Attributes: attrs})
 	}
 	return cookies
 }

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"compress/zlib"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/content"
 	"io"
 	"strings"
 	"unicode/utf8"
@@ -112,6 +113,13 @@ func (r *bodyRecorder) apply(message *models.HTTPMessage, contentEncoding string
 	}
 	defer zeroBytes(decoded)
 	message.BodyDecoded = int64(len(decoded))
+	if !r.truncated && !decodedTruncated {
+		message.ImagePreview = content.Raster(decoded, message.ContentType)
+		if message.ImagePreview != nil {
+			message.BodyStorage = "image_preview"
+			return
+		}
+	}
 	if !utf8.Valid(decoded) {
 		message.BodyStorage = BodyStorageBinary
 		return

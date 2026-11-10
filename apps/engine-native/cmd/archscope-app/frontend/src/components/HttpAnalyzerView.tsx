@@ -1,3 +1,4 @@
+import { HttpStyledText, HttpHex, HttpPreview, HttpStreamView } from "./HttpContentView";
 import { HttpSessionSummary } from "./HttpSessionSummary";
 import { copyToHttpBuilder, HTTP_BUILDER_DRAG } from "@/state/httpRequestBuilder";
 import { HttpSessionFiles, type HttpFileSource } from "./HttpSessionFiles";
@@ -881,10 +882,11 @@ function SplitHandle({
 
 // ── Detail pane ─────────────────────────────────────────────────────
 
-type DetailTab = "query" | "form" | "raw" | "headers" | "body" | "timing" | "cookies" | "process";
+type DetailTab = "stream" | "query" | "form" | "raw" | "headers" | "body" | "timing" | "cookies" | "process";
 
 const DETAIL_TABS: Array<{ key: DetailTab; labelKey: MessageKey }> = [
   { key: "raw", labelKey: "httpAnalyzerTabRaw" },
+  { key: "stream", labelKey: "httpContentStream" },
   { key: "headers", labelKey: "httpAnalyzerTabHeaders" },
   { key: "query", labelKey: "httpPayloadQuery" },
   { key: "form", labelKey: "httpPayloadForm" },
@@ -967,6 +969,7 @@ function TransactionDetailPane({
       >
         {tab === "query" && <HttpParameterTable fields={httpParameters(requestQuery(transaction.query, transaction.url))} />}
         {tab === "form" && <FormTab message={transaction.request} t={t} />}
+        {tab === "stream" && <HttpStreamView row={transaction} />}
         {tab === "raw" && <RawTab transaction={transaction} t={t} />}
         {tab === "headers" && <>
           <HeadersTab transaction={transaction} t={t} />
@@ -1144,6 +1147,7 @@ function FieldTable({
                 <td className="w-1/3 py-0.5 pr-2 font-mono font-medium">{field.name}</td>
                 <td className="break-all py-0.5 font-mono text-muted-foreground">
                   {field.value}
+                  {field.attributes?.map((attr,i)=><span className="ml-2 inline-block rounded bg-muted px-1" key={i}>{attr.name}={attr.value}</span>)}
                   {field.redacted && (
                     <span className="ml-1 rounded bg-amber-500/20 px-1 text-[10px] text-amber-700 dark:text-amber-400">
                       {redactedLabel}
@@ -1209,6 +1213,7 @@ function BodyPane({
         <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
           {formatBytes(message?.bodySize)}
         </span>
+        <span className="text-[10px]">{t("httpSummaryDecoded")}: {formatBytes(message?.bodyDecoded)} · {t("httpContentTransfer")}: {formatBytes(message?.transferSize)}</span>
         {message?.bodyEncoding && (
           <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
             {message.bodyEncoding}
@@ -1218,8 +1223,12 @@ function BodyPane({
       </div>
       <div className="mb-2 flex gap-2 text-xs">
         <button type="button" aria-pressed={view==="raw"} onClick={() => setView("raw")}>Raw</button>
+        {(["styled","hex","preview"] as const).map(value=><button type="button" key={value} aria-pressed={view===value} onClick={()=>setView(value)}>{t(({styled:"httpContentStyled",hex:"httpContentHex",preview:"httpContentPreview"} as const)[value])}</button>)}
         <button type="button" aria-pressed={view==="json"} onClick={() => setView("json")}>JSON</button>
       </div>
+      {view==="styled" && <HttpStyledText text={message?.bodyPreview??""} />}
+      {view==="hex" && <HttpHex text={message?.bodyPreview??""} />}
+      {view==="preview" && message && <HttpPreview message={message} />}
       {view==="json" && <>
         {json.state!=="available" && <p role="status">{t(json.state==="limited"?"httpPayloadLimited":json.state==="invalid"?"httpPayloadInvalidJson":"httpPayloadUnavailable")}</p>}
         {json.value!==undefined && <HttpJsonTree value={json.value} />}

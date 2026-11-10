@@ -231,6 +231,31 @@ export class CaptureTransaction {
     }
 }
 
+export class CookieAttribute {
+    "name": string;
+    "value": string;
+
+    /** Creates a new CookieAttribute instance. */
+    constructor($$source: Partial<CookieAttribute> = {}) {
+        if (!("name" in $$source)) {
+            this["name"] = "";
+        }
+        if (!("value" in $$source)) {
+            this["value"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new CookieAttribute instance from a string or object.
+     */
+    static createFrom($$source: any = {}): CookieAttribute {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new CookieAttribute($$parsedSource as Partial<CookieAttribute>);
+    }
+}
+
 export class Duration {
     "ms": number;
     "state": TimingState;
@@ -257,6 +282,7 @@ export class Duration {
 }
 
 export class HTTPMessage {
+    "imagePreview"?: RasterPreview | null;
     "headers": HeaderField[];
     "cookies": HeaderField[];
     "headerSize": number;
@@ -302,19 +328,24 @@ export class HTTPMessage {
      */
     static createFrom($$source: any = {}): HTTPMessage {
         const $$createField0_0 = $$createType9;
-        const $$createField1_0 = $$createType9;
+        const $$createField1_0 = $$createType11;
+        const $$createField2_0 = $$createType11;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("imagePreview" in $$parsedSource) {
+            $$parsedSource["imagePreview"] = $$createField0_0($$parsedSource["imagePreview"]);
+        }
         if ("headers" in $$parsedSource) {
-            $$parsedSource["headers"] = $$createField0_0($$parsedSource["headers"]);
+            $$parsedSource["headers"] = $$createField1_0($$parsedSource["headers"]);
         }
         if ("cookies" in $$parsedSource) {
-            $$parsedSource["cookies"] = $$createField1_0($$parsedSource["cookies"]);
+            $$parsedSource["cookies"] = $$createField2_0($$parsedSource["cookies"]);
         }
         return new HTTPMessage($$parsedSource as Partial<HTTPMessage>);
     }
 }
 
 export class HeaderField {
+    "attributes"?: CookieAttribute[];
     "name": string;
     "value": string;
     "redacted"?: boolean;
@@ -335,7 +366,11 @@ export class HeaderField {
      * Creates a new HeaderField instance from a string or object.
      */
     static createFrom($$source: any = {}): HeaderField {
+        const $$createField0_0 = $$createType13;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("attributes" in $$parsedSource) {
+            $$parsedSource["attributes"] = $$createField0_0($$parsedSource["attributes"]);
+        }
         return new HeaderField($$parsedSource as Partial<HeaderField>);
     }
 }
@@ -368,7 +403,7 @@ export class InformationalResponse {
      * Creates a new InformationalResponse instance from a string or object.
      */
     static createFrom($$source: any = {}): InformationalResponse {
-        const $$createField2_0 = $$createType9;
+        const $$createField2_0 = $$createType11;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("headers" in $$parsedSource) {
             $$parsedSource["headers"] = $$createField2_0($$parsedSource["headers"]);
@@ -456,7 +491,7 @@ export class ProcessInstance {
      * Creates a new ProcessInstance instance from a string or object.
      */
     static createFrom($$source: any = {}): ProcessInstance {
-        const $$createField1_0 = $$createType10;
+        const $$createField1_0 = $$createType14;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("key" in $$parsedSource) {
             $$parsedSource["key"] = $$createField1_0($$parsedSource["key"]);
@@ -487,6 +522,39 @@ export class ProcessKey {
     static createFrom($$source: any = {}): ProcessKey {
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         return new ProcessKey($$parsedSource as Partial<ProcessKey>);
+    }
+}
+
+export class RasterPreview {
+    "mime": string;
+    "base64": string;
+    "width": number;
+    "height": number;
+
+    /** Creates a new RasterPreview instance. */
+    constructor($$source: Partial<RasterPreview> = {}) {
+        if (!("mime" in $$source)) {
+            this["mime"] = "";
+        }
+        if (!("base64" in $$source)) {
+            this["base64"] = "";
+        }
+        if (!("width" in $$source)) {
+            this["width"] = 0;
+        }
+        if (!("height" in $$source)) {
+            this["height"] = 0;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new RasterPreview instance from a string or object.
+     */
+    static createFrom($$source: any = {}): RasterPreview {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new RasterPreview($$parsedSource as Partial<RasterPreview>);
     }
 }
 
@@ -530,13 +598,13 @@ export class TimingPhases {
      * Creates a new TimingPhases instance from a string or object.
      */
     static createFrom($$source: any = {}): TimingPhases {
-        const $$createField0_0 = $$createType11;
-        const $$createField1_0 = $$createType11;
-        const $$createField2_0 = $$createType11;
-        const $$createField3_0 = $$createType11;
-        const $$createField4_0 = $$createType11;
-        const $$createField5_0 = $$createType11;
-        const $$createField6_0 = $$createType11;
+        const $$createField0_0 = $$createType15;
+        const $$createField1_0 = $$createType15;
+        const $$createField2_0 = $$createType15;
+        const $$createField3_0 = $$createType15;
+        const $$createField4_0 = $$createType15;
+        const $$createField5_0 = $$createType15;
+        const $$createField6_0 = $$createType15;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("blocked" in $$parsedSource) {
             $$parsedSource["blocked"] = $$createField0_0($$parsedSource["blocked"]);
@@ -579,10 +647,10 @@ export class TimingSet {
      * Creates a new TimingSet instance from a string or object.
      */
     static createFrom($$source: any = {}): TimingSet {
-        const $$createField0_0 = $$createType13;
-        const $$createField1_0 = $$createType13;
-        const $$createField2_0 = $$createType13;
-        const $$createField3_0 = $$createType13;
+        const $$createField0_0 = $$createType17;
+        const $$createField1_0 = $$createType17;
+        const $$createField2_0 = $$createType17;
+        const $$createField3_0 = $$createType17;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("clientProxy" in $$parsedSource) {
             $$parsedSource["clientProxy"] = $$createField0_0($$parsedSource["clientProxy"]);
@@ -633,9 +701,13 @@ const $$createType4 = HTTPMessage.createFrom;
 const $$createType5 = TimingSet.createFrom;
 const $$createType6 = ProcessInstance.createFrom;
 const $$createType7 = $Create.Nullable($$createType6);
-const $$createType8 = HeaderField.createFrom;
-const $$createType9 = $Create.Array($$createType8);
-const $$createType10 = ProcessKey.createFrom;
-const $$createType11 = Duration.createFrom;
-const $$createType12 = TimingPhases.createFrom;
-const $$createType13 = $Create.Nullable($$createType12);
+const $$createType8 = RasterPreview.createFrom;
+const $$createType9 = $Create.Nullable($$createType8);
+const $$createType10 = HeaderField.createFrom;
+const $$createType11 = $Create.Array($$createType10);
+const $$createType12 = CookieAttribute.createFrom;
+const $$createType13 = $Create.Array($$createType12);
+const $$createType14 = ProcessKey.createFrom;
+const $$createType15 = Duration.createFrom;
+const $$createType16 = TimingPhases.createFrom;
+const $$createType17 = $Create.Nullable($$createType16);

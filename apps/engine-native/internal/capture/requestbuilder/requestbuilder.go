@@ -22,6 +22,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/content"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/sessionfile"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 )
@@ -214,6 +215,13 @@ func message(headers http.Header, body []byte, truncated bool) models.HTTPMessag
 	}
 	if m.ContentType == "" && len(body) > 0 {
 		m.ContentType = http.DetectContentType(body)
+	}
+	if !truncated {
+		m.ImagePreview = content.Raster(body, m.ContentType)
+		if m.ImagePreview != nil {
+			m.BodyStorage = "image_preview"
+			return m
+		}
 	}
 	if utf8.Valid(body) {
 		m.BodyPreview = string(body)

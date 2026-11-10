@@ -14,6 +14,7 @@ import (
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/aggregate"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/content"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/redact"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/store"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
@@ -502,6 +503,8 @@ func (p *Pipeline) redact(tx models.CaptureTransaction) models.CaptureTransactio
 	tx.Query = ""
 	tx.Request.Headers = p.cfg.Redaction.RedactHeaders(tx.Request.Headers)
 	tx.Response.Headers = p.cfg.Redaction.RedactHeaders(tx.Response.Headers)
+	tx.Request.Cookies = p.cfg.Redaction.RedactCookies(tx.Request.Cookies)
+	tx.Response.Cookies = p.cfg.Redaction.RedactCookies(tx.Response.Cookies)
 	p.redactMessage(&tx.Request)
 	p.redactMessage(&tx.Response)
 	tx.Process = p.cfg.Redaction.RedactProcess(tx.Process)
@@ -513,6 +516,7 @@ func (p *Pipeline) redact(tx models.CaptureTransaction) models.CaptureTransactio
 // and a message left claiming `inline` with an empty preview would read as "the
 // body was empty" instead of "the body was suppressed".
 func (p *Pipeline) redactMessage(message *models.HTTPMessage) {
+	message.ImagePreview = content.Clean(message.ImagePreview)
 	before := message.BodyPreview
 	message.BodyPreview, message.Redacted = p.cfg.Redaction.RedactBody(message.ContentType, before)
 	if before != "" && message.BodyPreview == "" {
@@ -525,6 +529,8 @@ func unattributed(tx models.CaptureTransaction) bool {
 }
 
 func metadataOnly(tx models.CaptureTransaction) models.CaptureTransaction {
+	tx.Request.ImagePreview = nil
+	tx.Response.ImagePreview = nil
 	tx.Request.BodyPreview = ""
 	tx.Response.BodyPreview = ""
 	tx.Request.BodyRef = ""

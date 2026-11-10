@@ -435,7 +435,7 @@ func (s *Store) applyLimitsLocked(next *StoredTransaction, encoded *[]byte) erro
 // drop.
 func carriesPayload(storage string) bool {
 	switch storage {
-	case "inline", "blob", "truncated":
+	case "inline", "blob", "truncated", "image_preview":
 		return true
 	default:
 		return false
@@ -445,7 +445,8 @@ func carriesPayload(storage string) bool {
 func omitBodies(tx *models.CaptureTransaction) bool {
 	changed := false
 	for _, msg := range []*models.HTTPMessage{&tx.Request, &tx.Response} {
-		if msg.BodyPreview != "" || msg.BodyRef != "" || carriesPayload(msg.BodyStorage) {
+		if msg.ImagePreview != nil || msg.BodyPreview != "" || msg.BodyRef != "" || carriesPayload(msg.BodyStorage) {
+			msg.ImagePreview = nil
 			msg.BodyPreview = ""
 			msg.BodyRef = ""
 			msg.BodyStorage = "omitted"
@@ -550,6 +551,8 @@ func (s *Store) Fetch(filter Filter, opaque string, limit int) (Page, error) {
 			continue
 		}
 		if filter.MetadataOnly {
+			item.Transaction.Request.ImagePreview = nil
+			item.Transaction.Response.ImagePreview = nil
 			item.Transaction.Request.BodyPreview = ""
 			item.Transaction.Response.BodyPreview = ""
 		}

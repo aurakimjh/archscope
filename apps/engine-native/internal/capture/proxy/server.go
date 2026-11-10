@@ -688,7 +688,25 @@ func responseCookies(response *http.Response) []models.HeaderField {
 	cookies := response.Cookies()
 	out := make([]models.HeaderField, 0, len(cookies))
 	for _, cookie := range cookies {
-		out = append(out, models.HeaderField{Name: cookie.Name, Value: cookie.Value})
+		attrs := []models.CookieAttribute{}
+		for _, v := range []models.CookieAttribute{{Name: "Path", Value: cookie.Path}, {Name: "Domain", Value: cookie.Domain}, {Name: "SameSite", Value: map[http.SameSite]string{http.SameSiteDefaultMode: "Default", http.SameSiteLaxMode: "Lax", http.SameSiteStrictMode: "Strict", http.SameSiteNoneMode: "None"}[cookie.SameSite]}} {
+			if v.Value != "" {
+				attrs = append(attrs, v)
+			}
+		}
+		if !cookie.Expires.IsZero() {
+			attrs = append(attrs, models.CookieAttribute{Name: "Expires", Value: cookie.Expires.UTC().Format(time.RFC3339)})
+		}
+		if cookie.Secure {
+			attrs = append(attrs, models.CookieAttribute{Name: "Secure", Value: "true"})
+		}
+		if cookie.HttpOnly {
+			attrs = append(attrs, models.CookieAttribute{Name: "HttpOnly", Value: "true"})
+		}
+		if cookie.MaxAge != 0 {
+			attrs = append(attrs, models.CookieAttribute{Name: "Max-Age", Value: fmt.Sprint(cookie.MaxAge)})
+		}
+		out = append(out, models.HeaderField{Name: cookie.Name, Value: cookie.Value, Attributes: attrs})
 	}
 	return out
 }

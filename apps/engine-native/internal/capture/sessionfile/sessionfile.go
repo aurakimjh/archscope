@@ -5,6 +5,7 @@ package sessionfile
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
@@ -18,6 +19,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/content"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/redact"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 	parser "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/httpcapture"
@@ -70,9 +72,13 @@ func Sanitize(doc *Document) (redact.Summary, error) {
 			if len(m.BodyPreview) > 10<<20 {
 				return p.Summary(), fmt.Errorf("body exceeds 10 MiB")
 			}
+			m.ImagePreview = content.Clean(m.ImagePreview)
 			m.Headers = p.RedactHeaders(m.Headers)
 			for j := range m.Cookies {
-				m.Cookies[j].Value, m.Cookies[j].Redacted = p.RedactNamedValue(m.Cookies[j].Name, m.Cookies[j].Value)
+				m.Cookies[j].Value, m.Cookies[j].Redacted = p.RedactNamedValue("cookie", m.Cookies[j].Value)
+				for a := range m.Cookies[j].Attributes {
+					m.Cookies[j].Attributes[a].Value, _ = p.RedactNamedValue(m.Cookies[j].Attributes[a].Name, m.Cookies[j].Attributes[a].Value)
+				}
 			}
 			before := m.BodyPreview
 			m.BodyPreview, m.Redacted = p.RedactBody(m.ContentType, before)
@@ -197,6 +203,7 @@ func Encode(doc Document, format string) ([]byte, error) {
 				m.BodyPreview = ""
 				m.BodyRef = ""
 				m.BodyStorage = "export_omitted"
+				m.ImagePreview = nil
 			}
 		}
 		fallthrough
@@ -327,7 +334,7 @@ func writeResponses(ctx context.Context, parent string, doc Document) error {
 	manifest := struct {
 		Provenance string  `json:"provenance"`
 		Entries    []entry `json:"entries"`
-	}{Provenance: "Retained, redacted semantic previews; not original wire bytes"}
+	}{Provenance: "Retained semantic previews: text redacted, raster pixels unredacted; not original wire bytes"}
 	for i, tx := range doc.Transactions {
 		m := tx.Response
 		e := entry{ID: tx.ID, Storage: m.BodyStorage, Encoding: m.BodyEncoding}
@@ -336,6 +343,17 @@ func writeResponses(ctx context.Context, parent string, doc Document) error {
 			if err = atomicWrite(ctx, filepath.Join(dir, e.File), []byte(m.BodyPreview)); err != nil {
 				return err
 			}
+		}
+		if m.ImagePreview != nil {
+			e.File = fmt.Sprintf("%06d.preview.png", i+1)
+			imageBytes, decodeErr := base64.StdEncoding.DecodeString(m.ImagePreview.Base64)
+			if decodeErr != nil {
+				return decodeErr
+			}
+			if err = atomicWrite(ctx, filepath.Join(dir, e.File), imageBytes); err != nil {
+				return err
+			}
+			e.Encoding = "reencoded_png"
 		}
 		manifest.Entries = append(manifest.Entries, e)
 	}
@@ -359,6 +377,28 @@ func encodeHAR(doc Document) ([]byte, error) {
 			}
 			return v
 		}
+		cookies := func(h []models.HeaderField) []map[string]any {
+			values := make([]map[string]any, 0, len(h))
+			for _, cookie := range h {
+				value := map[string]any{"name": cookie.Name, "value": cookie.Value}
+				for _, attr := range cookie.Attributes {
+					key := strings.ToLower(attr.Name)
+					if key == "httponly" {
+						key = "httpOnly"
+					}
+					if key == "samesite" {
+						key = "sameSite"
+					}
+					if key == "httpOnly" || key == "secure" {
+						value[key] = attr.Value == "true"
+					} else {
+						value[key] = attr.Value
+					}
+				}
+				values = append(values, value)
+			}
+			return values
+		}
 		query := []map[string]string{}
 		if u, e := url.Parse(tx.URL); e == nil {
 			for _, part := range strings.Split(u.RawQuery, "&") {
@@ -371,11 +411,14 @@ func encodeHAR(doc Document) ([]byte, error) {
 				query = append(query, map[string]string{"name": k, "value": v})
 			}
 		}
-		request := map[string]any{"method": tx.Method, "url": tx.URL, "httpVersion": tx.HTTPVersion, "headers": fields(tx.Request.Headers), "cookies": fields(tx.Request.Cookies), "queryString": query, "headersSize": tx.Request.HeaderSize, "bodySize": tx.Request.BodySize}
+		request := map[string]any{"method": tx.Method, "url": tx.URL, "httpVersion": tx.HTTPVersion, "headers": fields(tx.Request.Headers), "cookies": cookies(tx.Request.Cookies), "queryString": query, "headersSize": tx.Request.HeaderSize, "bodySize": tx.Request.BodySize}
 		if tx.Request.BodyPreview != "" {
 			request["postData"] = map[string]any{"mimeType": tx.Request.ContentType, "text": tx.Request.BodyPreview}
 		}
-		response := map[string]any{"status": tx.StatusCode, "statusText": tx.StatusText, "httpVersion": tx.HTTPVersion, "headers": fields(tx.Response.Headers), "cookies": fields(tx.Response.Cookies), "redirectURL": tx.RedirectURL, "headersSize": tx.Response.HeaderSize, "bodySize": tx.Response.BodySize, "content": map[string]any{"size": tx.Response.BodyDecoded, "mimeType": tx.Response.ContentType, "text": tx.Response.BodyPreview}}
+		response := map[string]any{"status": tx.StatusCode, "statusText": tx.StatusText, "httpVersion": tx.HTTPVersion, "headers": fields(tx.Response.Headers), "cookies": cookies(tx.Response.Cookies), "redirectURL": tx.RedirectURL, "headersSize": tx.Response.HeaderSize, "bodySize": tx.Response.BodySize, "content": map[string]any{"size": tx.Response.BodyDecoded, "mimeType": tx.Response.ContentType, "text": tx.Response.BodyPreview}}
+		if tx.Response.ImagePreview != nil {
+			response["content"] = map[string]any{"size": tx.Response.BodyDecoded, "mimeType": "image/png", "text": tx.Response.ImagePreview.Base64, "encoding": "base64"}
+		}
 		phases := tx.Timings.ImportedHAR
 		if phases == nil {
 			phases = tx.Timings.ProxyUpstream

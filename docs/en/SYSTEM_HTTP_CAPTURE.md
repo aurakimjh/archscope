@@ -1130,3 +1130,27 @@ buttons narrow the grid. The bounded process waterfall uses PID plus start time
 for separate origins and leaves unobserved phase space blank. Local fixtures
 verify bytes, reused connections, unknown phases, progress and process reuse;
 Windows/native interaction acceptance remains unverified in this Mac lock state.
+
+### Extended content viewers (T-606)
+
+Headers keep duplicates; cookies also carry ordered Path/Domain/Expires/Max-Age,
+Secure/HttpOnly/SameSite attributes. Cookie values are masked before persistence.
+The Stream tab selects sent/received/combined semantic text, with UTF-8 hex
+positions explicitly distinguished from original wire offsets. Highlighting and
+XML/SOAP views render escaped text. The formatting-only HTML preview admits a
+small list of attribute-free tags in a sandbox with `default-src 'none'`, no
+forms or navigation markup; source, scripts and external-resource markup remain
+literal text. Text/hex/HTML rendering is capped at 64 KiB.
+
+When body capture is enabled, complete PNG/JPEG/GIF payloads may produce a static
+PNG preview. The same path supports HAR base64 raster input and Builder results.
+Input/output are bounded to 1 MiB and one megapixel; SVG, malformed, truncated,
+overlarge and MIME-mismatched images are rejected. Re-encoding removes metadata
+and animation, but **does not redact pixels**. This is disclosed in the viewer
+and export toolbar. Original raster bytes are not preserved. Preview data stays
+out of the live event ring/search rows/metadata-only summaries and is removed by
+body-only overflow/compact export. Native files retain the validated preview;
+HAR/response-directory export uses re-encoded PNG. Local fixtures cover the body
+opt-in, raster bounds, duplicate cookie attributes, masking, inert markup,
+UTF-8 offsets and all existing capture/parser/session regressions. Native visual
+acceptance is pending the unlocked Mac/Windows runs.

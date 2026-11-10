@@ -50,25 +50,37 @@ type ProcessInstance struct {
 	Attribution      string     `json:"attribution"`
 }
 
+type CookieAttribute struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+type RasterPreview struct {
+	MIME   string `json:"mime"`
+	Base64 string `json:"base64"`
+	Width  int    `json:"width"`
+	Height int    `json:"height"`
+}
 type HeaderField struct {
-	Name     string `json:"name"`
-	Value    string `json:"value"`
-	Redacted bool   `json:"redacted,omitempty"`
+	Attributes []CookieAttribute `json:"attributes,omitempty"`
+	Name       string            `json:"name"`
+	Value      string            `json:"value"`
+	Redacted   bool              `json:"redacted,omitempty"`
 }
 
 type HTTPMessage struct {
-	Headers      []HeaderField `json:"headers"`
-	Cookies      []HeaderField `json:"cookies"`
-	HeaderSize   int64         `json:"headerSize"`
-	BodySize     int64         `json:"bodySize"`
-	BodyDecoded  int64         `json:"bodyDecoded"`
-	TransferSize int64         `json:"transferSize"`
-	BodyEncoding string        `json:"bodyEncoding,omitempty"`
-	ContentType  string        `json:"contentType,omitempty"`
-	BodyStorage  string        `json:"bodyStorage"`
-	BodyRef      string        `json:"bodyRef,omitempty"`
-	BodyPreview  string        `json:"bodyPreview,omitempty"`
-	Redacted     bool          `json:"redacted,omitempty"`
+	ImagePreview *RasterPreview `json:"imagePreview,omitempty"`
+	Headers      []HeaderField  `json:"headers"`
+	Cookies      []HeaderField  `json:"cookies"`
+	HeaderSize   int64          `json:"headerSize"`
+	BodySize     int64          `json:"bodySize"`
+	BodyDecoded  int64          `json:"bodyDecoded"`
+	TransferSize int64          `json:"transferSize"`
+	BodyEncoding string         `json:"bodyEncoding,omitempty"`
+	ContentType  string         `json:"contentType,omitempty"`
+	BodyStorage  string         `json:"bodyStorage"`
+	BodyRef      string         `json:"bodyRef,omitempty"`
+	BodyPreview  string         `json:"bodyPreview,omitempty"`
+	Redacted     bool           `json:"redacted,omitempty"`
 }
 
 type TxState string

@@ -4,6 +4,7 @@
 export {
     AnalysisResult,
     CaptureTransaction,
+    CookieAttribute,
     Duration,
     HTTPMessage,
     HeaderField,
@@ -11,6 +12,7 @@ export {
     JenniferCustomAnalysisRule,
     ProcessInstance,
     ProcessKey,
+    RasterPreview,
     TimingPhases,
     TimingSet,
     TimingState,

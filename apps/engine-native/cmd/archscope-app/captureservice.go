@@ -253,6 +253,8 @@ func (s *CaptureService) SearchCaptureTransactions(request CaptureFetchRequest) 
 		return store.Page{}, err
 	}
 	for index := range page.Items {
+		page.Items[index].Transaction.Request.ImagePreview = nil
+		page.Items[index].Transaction.Response.ImagePreview = nil
 		page.Items[index].Transaction.Request.BodyPreview = ""
 		page.Items[index].Transaction.Response.BodyPreview = ""
 	}

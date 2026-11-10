@@ -116,12 +116,14 @@ export type CaptureTimingSet = {
 };
 
 export type CaptureHeaderField = {
+ attributes?:{name:string;value:string}[];
   name: string;
   value: string;
   redacted?: boolean;
 };
 
 export type CaptureHTTPMessage = {
+ imagePreview?: {mime:string;base64:string;width:number;height:number};
   headers: CaptureHeaderField[];
   cookies: CaptureHeaderField[];
   headerSize: number;
