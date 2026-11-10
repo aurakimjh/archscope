@@ -17,6 +17,7 @@ import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/aggregate"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/automation"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/backend"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/browsercache"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/certstore"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/dumppolicy"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/processlaunch"
@@ -39,6 +40,7 @@ type CaptureService struct {
 	launchCancel   context.CancelFunc
 	journal        *automation.Journal
 	annotationMu   sync.Mutex
+	browserCache   *browsercache.Service
 	builder        *requestbuilder.Client
 	manager        *session.Manager
 	trust          *certstore.Lifecycle
@@ -168,7 +170,7 @@ func newCaptureService(root string, trust *certstore.Lifecycle) *CaptureService 
 func newCaptureServiceForPlatform(root string, trust *certstore.Lifecycle, platform string) *CaptureService {
 	journal := &automation.Journal{}
 	return &CaptureService{
-		journal: journal, builder: requestbuilder.NewClient(),
+		journal: journal, builder: requestbuilder.NewClient(), browserCache: browsercache.New(nil),
 		manager: session.NewManagerForPlatform(root, captureEventSink{journal: journal}, platform),
 		trust:   trust,
 	}

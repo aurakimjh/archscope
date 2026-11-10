@@ -452,6 +452,39 @@ export class CaptureAnalyzeRequest {
     }
 }
 
+export class CaptureCacheRequest {
+    "source": CaptureFileSource;
+    "kind": string;
+    "scope": string;
+
+    /** Creates a new CaptureCacheRequest instance. */
+    constructor($$source: Partial<CaptureCacheRequest> = {}) {
+        if (!("source" in $$source)) {
+            this["source"] = (new CaptureFileSource());
+        }
+        if (!("kind" in $$source)) {
+            this["kind"] = "";
+        }
+        if (!("scope" in $$source)) {
+            this["scope"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new CaptureCacheRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): CaptureCacheRequest {
+        const $$createField0_0 = $$createType5;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("source" in $$parsedSource) {
+            $$parsedSource["source"] = $$createField0_0($$parsedSource["source"]);
+        }
+        return new CaptureCacheRequest($$parsedSource as Partial<CaptureCacheRequest>);
+    }
+}
+
 export class CaptureErrorEvent {
     "sessionId": string;
     "message": string;

@@ -22,6 +22,9 @@ import * as aggregate$0 from "../../internal/capture/aggregate/models.js";
 import * as backend$0 from "../../internal/capture/backend/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
+import * as browsercache$0 from "../../internal/capture/browsercache/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
 import * as certstore$0 from "../../internal/capture/certstore/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
@@ -65,55 +68,67 @@ export function ClearCapture(sessionID: string): $CancellablePromise<capture$0.S
     });
 }
 
+export function ExecuteCaptureCacheCleanup(planID: string): $CancellablePromise<browsercache$0.Result> {
+    return $Call.ByID(2816468938, planID).then(($result: any) => {
+        return $$createType3($result);
+    });
+}
+
 export function ExportCaptureFile(request: $models.CaptureExportRequest): $CancellablePromise<number> {
     return $Call.ByID(2139328567, request);
 }
 
 export function FetchCaptureTransactions(request: $models.CaptureFetchRequest): $CancellablePromise<store$0.Page> {
     return $Call.ByID(1653085832, request).then(($result: any) => {
-        return $$createType3($result);
+        return $$createType4($result);
     });
 }
 
 export function GetCaptureAcceptanceEvidence(sessionID: string): $CancellablePromise<acceptance$0.Evidence> {
     return $Call.ByID(309608699, sessionID).then(($result: any) => {
-        return $$createType4($result);
+        return $$createType5($result);
     });
 }
 
 export function GetCaptureAnnotations(sessionID: string): $CancellablePromise<{ [_ in string]?: models$0.HTTPAnnotation }> {
     return $Call.ByID(2543652793, sessionID).then(($result: any) => {
-        return $$createType6($result);
+        return $$createType7($result);
     });
 }
 
 export function GetCaptureCAStatus(): $CancellablePromise<certstore$0.Status> {
     return $Call.ByID(895633267).then(($result: any) => {
-        return $$createType7($result);
+        return $$createType8($result);
+    });
+}
+
+export function GetCaptureCacheCapability(): $CancellablePromise<browsercache$0.Capability> {
+    return $Call.ByID(1480910671).then(($result: any) => {
+        return $$createType9($result);
     });
 }
 
 export function GetCaptureLiveWindow(sessionID: string): $CancellablePromise<models$0.CaptureTransaction[]> {
     return $Call.ByID(3068471271, sessionID).then(($result: any) => {
-        return $$createType9($result);
+        return $$createType11($result);
     });
 }
 
 export function GetCaptureSnapshot(sessionID: string): $CancellablePromise<aggregate$0.Snapshot> {
     return $Call.ByID(1555410437, sessionID).then(($result: any) => {
-        return $$createType10($result);
+        return $$createType12($result);
     });
 }
 
 export function GetCaptureStats(sessionID: string): $CancellablePromise<capture$0.Stats> {
     return $Call.ByID(2953265700, sessionID).then(($result: any) => {
-        return $$createType11($result);
+        return $$createType13($result);
     });
 }
 
 export function GetCaptureSummary(sessionID: string, process: models$0.ProcessKey | null): $CancellablePromise<summary$0.Snapshot> {
     return $Call.ByID(136213115, sessionID, process).then(($result: any) => {
-        return $$createType12($result);
+        return $$createType14($result);
     });
 }
 
@@ -123,7 +138,7 @@ export function GetCaptureSummary(sessionID: string, process: models$0.ProcessKe
  */
 export function GetCaptureTransaction(sessionID: string, transactionID: string): $CancellablePromise<models$0.CaptureTransaction | null> {
     return $Call.ByID(974612923, sessionID, transactionID).then(($result: any) => {
-        return $$createType13($result);
+        return $$createType15($result);
     });
 }
 
@@ -147,7 +162,7 @@ export function GetDesktopLaunchState(): $CancellablePromise<$models.DesktopLaun
  */
 export function GetLiveCaptureContract(): $CancellablePromise<capture$0.LiveCaptureContract> {
     return $Call.ByID(2314719557).then(($result: any) => {
-        return $$createType14($result);
+        return $$createType16($result);
     });
 }
 
@@ -159,55 +174,61 @@ export function ImportHar(request: $models.CaptureImportRequest): $CancellablePr
 
 export function InspectLegacyContent(format: string, encoded: string): $CancellablePromise<models$0.LegacyPreview | null> {
     return $Call.ByID(639400891, format, encoded).then(($result: any) => {
-        return $$createType16($result);
+        return $$createType18($result);
     });
 }
 
 export function InstallCaptureCA(): $CancellablePromise<certstore$0.Status> {
     return $Call.ByID(1385602692).then(($result: any) => {
-        return $$createType7($result);
+        return $$createType8($result);
     });
 }
 
 export function ListCaptureBackends(): $CancellablePromise<backend$0.Capability[]> {
     return $Call.ByID(2324042738).then(($result: any) => {
-        return $$createType18($result);
+        return $$createType20($result);
     });
 }
 
 export function ListCaptureModes(): $CancellablePromise<capture$0.Mode[]> {
     return $Call.ByID(1386420617).then(($result: any) => {
-        return $$createType20($result);
+        return $$createType22($result);
     });
 }
 
 export function ListCaptureProcesses(): $CancellablePromise<models$0.ProcessInstance[]> {
     return $Call.ByID(2974709936).then(($result: any) => {
-        return $$createType22($result);
+        return $$createType24($result);
     });
 }
 
 export function OpenCaptureFile(path: string): $CancellablePromise<$models.CaptureOpenResult> {
     return $Call.ByID(166476653, path).then(($result: any) => {
-        return $$createType23($result);
+        return $$createType25($result);
+    });
+}
+
+export function PlanCaptureCacheCleanup(request: $models.CaptureCacheRequest): $CancellablePromise<browsercache$0.Plan> {
+    return $Call.ByID(167088892, request).then(($result: any) => {
+        return $$createType26($result);
     });
 }
 
 export function ProbeLegacyCapture(path: string): $CancellablePromise<halog$0.Fingerprint> {
     return $Call.ByID(2180656902, path).then(($result: any) => {
-        return $$createType24($result);
+        return $$createType27($result);
     });
 }
 
 export function RecoverCaptureSessions(): $CancellablePromise<store$0.RecoveryReport[]> {
     return $Call.ByID(740397896).then(($result: any) => {
-        return $$createType26($result);
+        return $$createType29($result);
     });
 }
 
 export function RemoveCaptureCA(): $CancellablePromise<certstore$0.Status> {
     return $Call.ByID(365362915).then(($result: any) => {
-        return $$createType7($result);
+        return $$createType8($result);
     });
 }
 
@@ -217,7 +238,7 @@ export function RemoveCaptureCA(): $CancellablePromise<certstore$0.Status> {
  */
 export function SearchCaptureTransactions(request: $models.CaptureFetchRequest): $CancellablePromise<store$0.Page> {
     return $Call.ByID(3080393478, request).then(($result: any) => {
-        return $$createType3($result);
+        return $$createType4($result);
     });
 }
 
@@ -226,13 +247,13 @@ export function SearchCaptureTransactions(request: $models.CaptureFetchRequest):
  */
 export function SendBuilderRequest(request: requestbuilder$0.Request): $CancellablePromise<models$0.CaptureTransaction> {
     return $Call.ByID(3102748573, request).then(($result: any) => {
-        return $$createType8($result);
+        return $$createType10($result);
     });
 }
 
 export function SetCaptureAnnotation(sessionID: string, id: string, value: models$0.HTTPAnnotation): $CancellablePromise<models$0.HTTPAnnotation> {
     return $Call.ByID(4096680452, sessionID, id, value).then(($result: any) => {
-        return $$createType5($result);
+        return $$createType6($result);
     });
 }
 
@@ -258,27 +279,30 @@ export function StopCapture(sessionID: string): $CancellablePromise<capture$0.Se
 const $$createType0 = models$0.AnalysisResult.createFrom;
 const $$createType1 = $models.DesktopLaunchState.createFrom;
 const $$createType2 = capture$0.Session.createFrom;
-const $$createType3 = store$0.Page.createFrom;
-const $$createType4 = acceptance$0.Evidence.createFrom;
-const $$createType5 = models$0.HTTPAnnotation.createFrom;
-const $$createType6 = $Create.Map($Create.Any, $$createType5);
-const $$createType7 = certstore$0.Status.createFrom;
-const $$createType8 = models$0.CaptureTransaction.createFrom;
-const $$createType9 = $Create.Array($$createType8);
-const $$createType10 = aggregate$0.Snapshot.createFrom;
-const $$createType11 = capture$0.Stats.createFrom;
-const $$createType12 = summary$0.Snapshot.createFrom;
-const $$createType13 = $Create.Nullable($$createType8);
-const $$createType14 = capture$0.LiveCaptureContract.createFrom;
-const $$createType15 = models$0.LegacyPreview.createFrom;
-const $$createType16 = $Create.Nullable($$createType15);
-const $$createType17 = backend$0.Capability.createFrom;
-const $$createType18 = $Create.Array($$createType17);
-const $$createType19 = capture$0.Mode.createFrom;
+const $$createType3 = browsercache$0.Result.createFrom;
+const $$createType4 = store$0.Page.createFrom;
+const $$createType5 = acceptance$0.Evidence.createFrom;
+const $$createType6 = models$0.HTTPAnnotation.createFrom;
+const $$createType7 = $Create.Map($Create.Any, $$createType6);
+const $$createType8 = certstore$0.Status.createFrom;
+const $$createType9 = browsercache$0.Capability.createFrom;
+const $$createType10 = models$0.CaptureTransaction.createFrom;
+const $$createType11 = $Create.Array($$createType10);
+const $$createType12 = aggregate$0.Snapshot.createFrom;
+const $$createType13 = capture$0.Stats.createFrom;
+const $$createType14 = summary$0.Snapshot.createFrom;
+const $$createType15 = $Create.Nullable($$createType10);
+const $$createType16 = capture$0.LiveCaptureContract.createFrom;
+const $$createType17 = models$0.LegacyPreview.createFrom;
+const $$createType18 = $Create.Nullable($$createType17);
+const $$createType19 = backend$0.Capability.createFrom;
 const $$createType20 = $Create.Array($$createType19);
-const $$createType21 = models$0.ProcessInstance.createFrom;
+const $$createType21 = capture$0.Mode.createFrom;
 const $$createType22 = $Create.Array($$createType21);
-const $$createType23 = $models.CaptureOpenResult.createFrom;
-const $$createType24 = halog$0.Fingerprint.createFrom;
-const $$createType25 = store$0.RecoveryReport.createFrom;
-const $$createType26 = $Create.Array($$createType25);
+const $$createType23 = models$0.ProcessInstance.createFrom;
+const $$createType24 = $Create.Array($$createType23);
+const $$createType25 = $models.CaptureOpenResult.createFrom;
+const $$createType26 = browsercache$0.Plan.createFrom;
+const $$createType27 = halog$0.Fingerprint.createFrom;
+const $$createType28 = store$0.RecoveryReport.createFrom;
+const $$createType29 = $Create.Array($$createType28);

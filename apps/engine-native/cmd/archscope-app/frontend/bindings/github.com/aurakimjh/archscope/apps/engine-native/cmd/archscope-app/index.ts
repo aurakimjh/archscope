@@ -24,6 +24,7 @@ export {
     BrowserAuditRequest,
     CaptureAggregateEvent,
     CaptureAnalyzeRequest,
+    CaptureCacheRequest,
     CaptureErrorEvent,
     CaptureExportRequest,
     CaptureFetchRequest,

@@ -260,7 +260,7 @@ T-601/T-608/T-611/T-613. Hashed source/build and local validation evidence is in
 - Wails upgrade: DONE locally. Go/CLI v3.1.0 and npm runtime 3.1.0 pinned,
   bindings regenerated, CI/packaging pins updated and obsolete x86 patch removed.
   Full Go and frontend tests/builds plus Mac/Windows 386/amd64 GUI builds pass.
-- T-611: implement native automation and selective cache/cookie commands.
+- T-611: selective WinINet cache/persistent-cookie preview/execute UI and control commands implemented; native automation adapter next. Windows mutation remains unverified.
 - T-601: implement an opt-in transparent driver adapter; native reach remains open.
 - T-608: proprietary format implementation still requires genuine format evidence;
   no sample is available and no synthetic compatibility claim is permitted.

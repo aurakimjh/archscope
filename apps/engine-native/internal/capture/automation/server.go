@@ -173,7 +173,7 @@ func (s *Server) handle(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	switch call.Command {
-	case "attach", "detach", "start", "pause", "resume", "clear", "stop", "save", "open":
+	case "attach", "detach", "start", "pause", "resume", "clear", "stop", "save", "open", "cache-delete":
 		if len(reply.Result) > 256<<10 {
 			reply.Result = nil
 			reply.OK = false

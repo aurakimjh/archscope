@@ -28,6 +28,7 @@ export const localeLabels: Record<Locale, string> = {
 
 export const messages = {
   en: {
+    httpCacheTitle:"WinINet cache and cookies",httpCacheScopeNote:"Windows WinINet / IE cache and persistent cookies only. Chromium/Firefox profiles and other apps' in-memory session cookies are separate. Preview first; changed entries are skipped.",httpCacheCache:"Cache",httpCacheCookies:"Persistent cookies",httpCacheRecorded:"Recorded URLs",httpCacheAll:"All WinINet entries",httpCachePreview:"Preview cleanup",httpCacheDelete:"Delete previewed entries",httpCacheWindows:"Available on Windows",httpCacheConfirm:"Delete {count} previewed WinINet entries?",httpCacheDeleted:"Deleted",httpCacheChanged:"Changed / absent",httpCacheFailed:"Failed",
     httpDesktopHelpTitle: "HTTP Help",
     httpDesktopHelpCapture: "Choose a capture backend and process scope, then Start (F9). Stop (F2) finalizes the session. Clear asks before deleting recorded rows.",
     httpDesktopHelpInspect: "Group the request grid by process or field. Select a request to inspect headers, data and timing below. Find searches stored live rows or filters an opened file. Save / Export uses the selected format and all/filtered scope.",
@@ -1573,6 +1574,7 @@ export const messages = {
     httpCorrelationOverlayUnavailable: "Timestamps could not be parsed for the overlay.",
   },
   ko: {
+    httpCacheTitle:"WinINet 캐시·쿠키",httpCacheScopeNote:"Windows WinINet / IE 캐시와 영구 쿠키만 대상입니다. Chromium/Firefox 프로필과 다른 앱의 메모리 세션 쿠키는 별도입니다. 먼저 대상을 확인하고, 이후 변경된 항목은 건너뜁니다.",httpCacheCache:"캐시",httpCacheCookies:"영구 쿠키",httpCacheRecorded:"기록된 URL",httpCacheAll:"WinINet 전체 항목",httpCachePreview:"삭제 대상 확인",httpCacheDelete:"확인한 항목 삭제",httpCacheWindows:"Windows에서 사용 가능",httpCacheConfirm:"확인한 WinINet 항목 {count}개를 삭제할까요?",httpCacheDeleted:"삭제",httpCacheChanged:"변경·없음",httpCacheFailed:"실패",
     httpDesktopHelpTitle: "HTTP 도움말",
     httpDesktopHelpCapture: "캡처 백엔드와 프로세스 범위를 선택한 뒤 시작(F9)합니다. 중지(F2)하면 세션을 마무리합니다. 비우기는 기록 삭제 전에 확인합니다.",
     httpDesktopHelpInspect: "요청 목록을 프로세스나 필드로 묶고 행을 선택하면 아래에서 헤더·데이터·타이밍을 확인할 수 있습니다. 찾기는 실시간 저장 행을 검색하거나 열린 파일을 필터링합니다. 저장·내보내기는 선택한 형식과 전체/필터 범위를 사용합니다.",

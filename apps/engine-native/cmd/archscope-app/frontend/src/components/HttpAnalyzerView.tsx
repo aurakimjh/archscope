@@ -1,3 +1,4 @@
+import { HttpCacheTools } from "./HttpCacheTools";
 import { useHttpCommands } from "@/hooks/useHttpCommands";
 import { HttpLegacyInspector } from "./HttpLegacyInspector";
 import * as CaptureService from "../../bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/captureservice";
@@ -278,6 +279,7 @@ export function HttpAnalyzerView({
 
       <HttpSessionSummary rows={rows} sessionId={exportSource?.sessionId} selected={selected} onSelect={onSelect} onFilter={onFilter} />
       {exportSource && <HttpSessionFiles source={exportSource} ids={rows.map(row=>row.id)} selectedId={selectedId} annotations={annotationsFor===sourceKey?annotations:{}} />}
+      {exportSource && <HttpCacheTools source={exportSource} />}
       {bounded && boundedNote && (
         <p
           className="border-b border-amber-500/40 bg-amber-500/10 px-3 py-1.5 text-[11px] text-amber-800 dark:text-amber-300"

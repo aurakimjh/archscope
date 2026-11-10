@@ -1434,3 +1434,17 @@ and Windows 386/amd64 GUI builds, frontend state/build and full Go tests pass.
 Earlier alpha2.117 build sizes and workaround evidence above are historical.
 Native window/runtime acceptance remains separate.
 [Official release](https://github.com/wailsapp/wails/releases/tag/v3.1.0).
+
+### Selective WinINet cleanup (T-611, 2026-11-10)
+
+The inspector's cache tools and local `cache-capability`, `cache-plan`,
+`cache-delete` commands now implement Windows WinINet/IE cache and persistent
+cookie deletion. Preview selects recorded URLs or all WinINet entries and expires
+in two minutes. Execution re-enumerates, skips changed/absent entries and caches
+its result so retries cannot delete twice. Plans are bounded (32 plans, 10,000
+entries each); preview lists cap at 256 and omit query strings/cookie usernames.
+Recorded cache matches use exact URLs; cookie matches respect domain and path
+boundaries. No profile files, Chromium/Firefox stores, cookie values or other
+processes' in-memory session cookies are touched. The UI asks for confirmation
+before execution. Local selection/refusal/expiry/idempotence tests and Windows
+compile/vet pass; actual Windows WinINet mutation remains native acceptance.

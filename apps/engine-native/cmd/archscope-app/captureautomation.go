@@ -237,6 +237,22 @@ func (s *CaptureService) executeAutomation(ctx context.Context, call automation.
 			request.Limit = 25
 		}
 		return s.FetchCaptureTransactions(request)
+	case "cache-capability":
+		return s.GetCaptureCacheCapability(), nil
+	case "cache-plan":
+		var request CaptureCacheRequest
+		if err := decodeControl(call.Params, &request); err != nil {
+			return nil, err
+		}
+		return s.PlanCaptureCacheCleanup(request)
+	case "cache-delete":
+		var request struct {
+			PlanID string `json:"planId"`
+		}
+		if err := decodeControl(call.Params, &request); err != nil {
+			return nil, err
+		}
+		return s.ExecuteCaptureCacheCleanup(request.PlanID)
 	case "save":
 		var request CaptureExportRequest
 		if err := decodeControl(call.Params, &request); err != nil {
