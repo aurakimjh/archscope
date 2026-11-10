@@ -145,6 +145,8 @@ func main() {
 		URL:              "/",
 	})
 
+	configureLayoutAudit(app, window)
+
 	var visible atomic.Bool
 	visible.Store(true)
 	captureService.windowVisibility = func(value *bool) (bool, error) {

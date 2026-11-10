@@ -7,6 +7,7 @@ historical unless they explicitly reference `archive/`.
 User-facing guides:
 
 - [Native App](./NATIVE_APP.md) — build, run, package, and CLI entry points.
+- [Desktop layout by feature](./DESKTOP_CONTENT_LAYOUT.md)
 - [User Guide](./USER_GUIDE.md) — current Go/Wails CLI and desktop workflow examples.
 - [Multi-language Thread Dumps](./MULTI_LANGUAGE_THREADS.md) — six-format support matrix and per-language enrichment rules.
 

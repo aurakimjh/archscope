@@ -18,6 +18,7 @@ historical note로 취급합니다.
 ## 사용자 문서
 
 - [**네이티브 앱 가이드**](./NATIVE_APP.md) — 현재 Go/Wails 빌드, 실행, 패키징, CLI
+- [기본 창과 기능별 화면 배치 설계](./DESKTOP_CONTENT_LAYOUT.md)
 - [사용자 가이드](./USER_GUIDE.md) — 현재 Go/Wails CLI와 데스크톱 workflow 예시
 - [멀티 언어 Thread Dump 프레임워크](./MULTI_LANGUAGE_THREADS.md) — 6개 포맷 + 언어별 enrichment 매트릭스
 

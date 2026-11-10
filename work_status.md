@@ -8,7 +8,7 @@ The previous long-form history was archived to
 
 ## Status Overview
 
-**Overall: 202 of 206 tracked tasks are `DONE` (98.1%).** The Windows Wails v3 replacement for IEInspector HTTP Analyzer V7.6.4 Stand-alone has 4 open work items (T-594 through T-613), including the remaining audit findings. T-603 native Windows acceptance completed on 2026-11-09 with actual request/response bodies and verified policy restoration. The 2026-11-09
+**Overall: 202 of 214 tracked tasks are `DONE` (94.4%).** The Windows Wails v3 replacement for IEInspector HTTP Analyzer V7.6.4 Stand-alone has 4 open work items (T-594 through T-613), including the remaining audit findings. T-603 native Windows acceptance completed on 2026-11-09 with actual request/response bodies and verified policy restoration. The 2026-11-09
 GC/profiler revalidation confirmed five bugs (T-589 through T-593). Their
 current implementation status is recorded in the registry and snapshot below;
 T-557 is now DONE after the user requested its Go/CLI/report projection on 2026-11-10.
@@ -217,7 +217,7 @@ completed the independent Lighthouse file-first engine slice.
 | `TODO` | 0 | Ready to start; prerequisites are satisfied |
 | `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
 | `REVIEW` | 2 | Review or required remediation is underway; the gate has not passed |
-| `PENDING` | 2 | Waiting for a prerequisite, external condition, or activation trigger |
+| `PENDING` | 10 | Waiting for a prerequisite, external condition, or activation trigger |
 | `DONE` | 202 | Completion criteria and required review gates have passed |
 
 The normal transition is `TODO → IN_PROGRESS → REVIEW → DONE`. A `PENDING`
@@ -371,12 +371,22 @@ and `docs/review/done/2026-11-10_other-features-audit.ko.md`.
 
 ### Open Work Snapshot
 
+Desktop layout across all 21 routes: [Korean design](docs/ko/DESKTOP_CONTENT_LAYOUT.md) · [English design](docs/en/DESKTOP_CONTENT_LAYOUT.md). Start with T-620. The design recheck matched all 21 routes and refined the eight existing tasks to cover conditional views, actual menu dispatch, help pinning, viewport sizing, and form-specific acceptance. The four existing HTTP items can proceed independently as Windows and reference inputs become available.
+
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
-| 1 | T-601 | P1 | `REVIEW` | Deliver the four Windows capture entry points and measure their reach |
-| 2 | T-608 | P2 | `PENDING` | Read and write legacy .halog files |
-| 3 | T-611 | P3 | `REVIEW` | Support Stand-alone automation and desktop launch switches |
-| 4 | T-613 | P3 | `PENDING` | Verify complete Stand-alone parity on Windows |
+| 1 | T-620 | P1 | `PENDING` | Measure all 21 views at the default window size. Ready for native baseline measurement. |
+| 2 | T-621 | P1 | `PENDING` | Move global navigation to native menus. After T-620. |
+| 3 | T-622 | P1 | `PENDING` | Compact shared input controls and help. After T-620. |
+| 4 | T-623 | P1 | `PENDING` | Prioritize the HTTP grid and inspector. After T-621, T-622. |
+| 5 | T-624 | P1 | `PENDING` | Prioritize profiler and GC results. After T-621, T-622. |
+| 6 | T-625 | P2 | `PENDING` | Convert nine remaining analysis views. After T-621, T-622. |
+| 7 | T-626 | P2 | `PENDING` | Convert eight workspace views and Settings. After T-621, T-622. |
+| 8 | T-627 | P2 | `PENDING` | Verify all views in native desktop windows. After T-623–T-626. |
+| 9 | T-601 | P1 | `REVIEW` | Deliver the four Windows capture entry points and measure their reach |
+| 10 | T-608 | P2 | `PENDING` | Read and write legacy .halog files |
+| 11 | T-611 | P3 | `REVIEW` | Support Stand-alone automation and desktop launch switches |
+| 12 | T-613 | P3 | `PENDING` | Verify complete Stand-alone parity on Windows |
 
 ### Local Windows validation (2026-11-09)
 
@@ -1319,6 +1329,14 @@ deferred until explicitly promoted.
 | T-616 | P1 | DONE | Avoid double-counting one RPC's CLIENT and SERVER spans | Existing Trace Import dependency and Service Flow/SLI contracts | Completed 2026-11-10: one-to-one explicit CLIENT/SERVER pairs use one logical call, client elapsed time and either-side error; single-sided exports, cross-trace identities, separate retry pairs and multiple server attempts remain distinct. SERVER remote peers use incoming direction. Go/CLI tests and frontend Flow/SLI counter regressions pass. |
 | T-617 | P1 | DONE | Preserve missing access-log response time as unavailable rather than zero | Access-log parser/analyzer and SLI/SLO contracts | Completed 2026-11-10: all supported parsers preserve response-time availability, including true zero; unknown samples are excluded from total/static/API/URL/minute/route/edge latency while full request/error/byte counts remain. Null empty stats, measured/unknown counts, warning finding, sample coverage UI and measured-only Flow weighting propagate to SLI/SLO; targets without evidence are explicitly not assessed. Parser/analyzer/CLI and frontend state/build regressions pass. |
 | T-618 | P2 | DONE | Disclose Incident Timeline truncation and qualify severity/time summaries | Existing Incident Timeline/Report Pack contracts | Completed 2026-11-10: 120/source and 1000/session row caps remain, with deterministic documented selection, total/emitted/omitted and per-source/severity loss counts. Severity/time/ranged/correlation summaries use all candidates; groups/narrative explicitly remain retained-only. Page/JSON/Report Pack HTML disclose partial output and omitted critical events. Both-cap, late-critical, empty-input and export regressions plus frontend state/build pass. |
+| T-620 | P1 | PENDING | Measure all 21 views at the default window size | — | Prepared opt-in native layoutaudit build and 21-route collector. Locked Mac produced no ready report; no native geometry or screenshot claimed. User deferred interactive checks until evening on 2026-11-10; implementation proceeds using the source baseline (224px sidebar, at least 54px topbar). |
+| T-621 | P1 | PENDING | Move global navigation to native menus | T-620 | Reach every NavKey and About. Wire active Open and Settings callbacks, synchronize localized menu labels/checkmarks and preserve macOS window dragging. Verify one dispatch, modal shortcut priority and native menu re-entry. |
+| T-622 | P1 | PENDING | Compact shared input controls and help | T-620 | Keep open/drop, analyze, supported cancel and retry reachable across input states. Fold sticky controls into one row, summarize changed options and verify hover-to-pin, keyboard dismissal and focus restoration. |
+| T-623 | P1 | PENDING | Prioritize the HTTP grid and inspector | T-621, T-622 | Size to remaining client height. In default layout show ten request rows plus four inspector lines. Recheck saved splitters, resize, process scope, body consent, selection and follow-off during recording and after stop. |
+| T-624 | P1 | PENDING | Prioritize profiler and GC results | T-621, T-622 | Drive first-result tab from available data. Verify flamegraph focus and hit testing after resize, shallow or absent trees, GC trend plus event preview, and logs without a usable time axis. |
+| T-625 | P2 | PENDING | Convert nine remaining analysis views | T-621, T-622 | Check nine remaining analysis routes, including conditional tabs, multi-file inputs, overflow access, filter-no-match recovery and full long values in selected detail. |
+| T-626 | P2 | PENDING | Convert eight workspace views and Settings | T-621, T-622 | Check eight workspace views and Settings. Measure data-first layouts and test registration, evidence and export handoff. Verify chart template/renderer, output destination and Settings save at small sizes. |
+| T-627 | P2 | PENDING | Verify all views in native desktop windows | T-623–T-626 | Compare matching native before/after cases for all routes and inventoried subviews. Record ratio/row/plot or form verdict, keyboard/locale and resize checks. Validate OS menu navigation and actual Windows live re-entry separately. |
 | T-619 | P1 | DONE | Enforce the Wails 3.1.0 desktop-only product and remove unused launch templates | Existing native desktop packaging | Completed 2026-11-10: removed server hosting/mobile/preview paths, added compiler and frontend native-transport guards with CI enforcement, isolated opt-in external Electron HTTP probe without weakening full acceptance, and refreshed paired guides. Full Go/vet and frontend state/build, native macOS package/signature, Windows x86/x64 GUI builds and expected server build refusal pass; Windows runtime acceptance remains separate. |
 | T-599 | P1 | DONE | Establish the V7.6.4 Stand-alone visual and command reference | Existing baseline | Completed 2026-11-09. Official screen, V7 additions, complete manual field inventory, state behavior, shortcuts and edition exceptions recorded in paired SYSTEM_HTTP_CAPTURE references. The tour image is explicitly V4; native Windows acceptance remains T-603. |
 | T-594 | P1 | DONE | Keep capture controls, live grid and selected detail in one window | Existing baseline | Completed 2026-11-09. Live rows use the shared grid and inspector, one-ID redacted store fetch stays available during recording, and async detail ignores obsolete selections. Real local proxy/service regression and frontend build passed; browser renderer at 1280x800 showed selected headers/body while active. Native Windows integration remains T-603. |
