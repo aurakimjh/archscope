@@ -81,7 +81,7 @@ func main() {
 	}
 	captureService.launchOptions = options
 	app := application.New(application.Options{
-		Name:        "ArchScope",
+		Name:        desktopApplicationName(),
 		Description: "Local-first architecture diagnostics desktop",
 		Services: []application.Service{
 			application.NewService(&ProfilerService{}),

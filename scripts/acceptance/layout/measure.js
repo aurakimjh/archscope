@@ -23,5 +23,8 @@
     }
     if (!report.views.length) throw new Error('No native routes found');
   } catch (error) { report.error = String(error); }
-  window.wails.Events.Emit('layout:audit', report);
+  await fetch(new URL('/wails/runtime',location.href), {
+    method:'POST',headers:{'Content-Type':'application/json','x-wails-client-id':window._wails.clientId},
+    body:JSON.stringify({object:3,method:0,args:{name:'layout:audit',data:report}})
+  });
 })();

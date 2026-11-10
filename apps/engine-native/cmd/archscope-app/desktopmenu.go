@@ -96,6 +96,7 @@ func buildDesktopMenu(state desktopMenuState) *application.Menu {
 		menu.AddRole(application.AppMenu)
 	}
 	populateDesktopMenu(menu, state)
+	decorateLayoutAuditMenu(menu)
 	return menu
 }
 
