@@ -29,6 +29,7 @@ export function HttpCommandProvider({
     const off = Events.On("capture:command", (event: unknown) => {
       const command = (event as { data?: { command?: unknown } })?.data
         ?.command;
+      if (document.querySelector(".desktop-shell")?.getAttribute("data-active-route") !== "http_capture") return;
       if (!isHttpCommand(command) || (modalOpen() && command !== "help"))
         return;
       if (
@@ -41,6 +42,7 @@ export function HttpCommandProvider({
       router.dispatch(command, "native", performance.now());
     });
     const keydown = (event: KeyboardEvent) => {
+      if (document.querySelector(".desktop-shell")?.getAttribute("data-active-route") !== "http_capture") return;
       const target = event.target instanceof HTMLElement ? event.target : null;
       const typing = !!target?.closest(
         'input,textarea,select,[contenteditable="true"]',

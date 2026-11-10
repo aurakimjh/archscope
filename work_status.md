@@ -216,8 +216,8 @@ completed the independent Lighthouse file-first engine slice.
 |---|---:|---|
 | `TODO` | 0 | Ready to start; prerequisites are satisfied |
 | `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
-| `REVIEW` | 4 | Review or required remediation is underway; the gate has not passed |
-| `PENDING` | 8 | Waiting for a prerequisite, external condition, or activation trigger |
+| `REVIEW` | 5 | Review or required remediation is underway; the gate has not passed |
+| `PENDING` | 7 | Waiting for a prerequisite, external condition, or activation trigger |
 | `DONE` | 202 | Completion criteria and required review gates have passed |
 
 The normal transition is `TODO → IN_PROGRESS → REVIEW → DONE`. A `PENDING`
@@ -378,7 +378,7 @@ Desktop layout across all 21 routes: [Korean design](docs/ko/DESKTOP_CONTENT_LAY
 | 1 | T-620 | P1 | `PENDING` | Measure all 21 views at the default window size. Ready for native baseline measurement. |
 | 2 | T-621 | P1 | `REVIEW` | Move global navigation to native menus. After T-620. |
 | 3 | T-622 | P1 | `REVIEW` | Compact shared input controls and help. After T-620. |
-| 4 | T-623 | P1 | `PENDING` | Prioritize the HTTP grid and inspector. After T-621, T-622. |
+| 4 | T-623 | P1 | `REVIEW` | Prioritize the HTTP grid and inspector. After T-621, T-622. |
 | 5 | T-624 | P1 | `PENDING` | Prioritize profiler and GC results. After T-621, T-622. |
 | 6 | T-625 | P2 | `PENDING` | Convert nine remaining analysis views. After T-621, T-622. |
 | 7 | T-626 | P2 | `PENDING` | Convert eight workspace views and Settings. After T-621, T-622. |
@@ -1332,7 +1332,7 @@ deferred until explicitly promoted.
 | T-620 | P1 | PENDING | Measure all 21 views at the default window size | — | Prepared opt-in native layoutaudit build and 21-route collector. Locked Mac produced no ready report; no native geometry or screenshot claimed. User deferred interactive checks until evening on 2026-11-10; implementation proceeds using the source baseline (224px sidebar, at least 54px topbar). |
 | T-621 | P1 | REVIEW | Move global navigation to native menus | T-620 | Implemented one native menu for all 21 routes, localized theme/locale/About, active open capability, retained tool state and macOS drag strip. Profiler Open/Settings no-op callbacks replaced, native accelerator duplication avoided. App Go tests and frontend state/build pass. Native menu interaction awaits evening unlock. |
 | T-622 | P1 | REVIEW | Compact shared input controls and help | T-620 | Implemented compact source rows, inline options, collapsed recent files, viewport-positioned help with click pinning and delayed pointer transfer, and modal-aware Escape. Frontend production build and state regressions pass; hover/focus interaction and native clipping checks await evening unlock. |
-| T-623 | P1 | PENDING | Prioritize the HTTP grid and inspector | T-621, T-622 | Size to remaining client height. In default layout show ten request rows plus four inspector lines. Recheck saved splitters, resize, process scope, body consent, selection and follow-off during recording and after stop. |
+| T-623 | P1 | REVIEW | Prioritize the HTTP grid and inspector | T-621, T-622 | Implemented flexible imported/live HTTP grid height, 160px default inspector, grid row budget, collapsed file tools/advanced filters and bounded configuration drawers. Search opens filters and hidden-page shortcuts are scoped. Frontend state/build pass; ten-row/four-line and recording interaction acceptance awaits unlocked Mac/Windows. |
 | T-624 | P1 | PENDING | Prioritize profiler and GC results | T-621, T-622 | Drive first-result tab from available data. Verify flamegraph focus and hit testing after resize, shallow or absent trees, GC trend plus event preview, and logs without a usable time axis. |
 | T-625 | P2 | PENDING | Convert nine remaining analysis views | T-621, T-622 | Check nine remaining analysis routes, including conditional tabs, multi-file inputs, overflow access, filter-no-match recovery and full long values in selected detail. |
 | T-626 | P2 | PENDING | Convert eight workspace views and Settings | T-621, T-622 | Check eight workspace views and Settings. Measure data-first layouts and test registration, evidence and export handoff. Verify chart template/renderer, output destination and Settings save at small sizes. |

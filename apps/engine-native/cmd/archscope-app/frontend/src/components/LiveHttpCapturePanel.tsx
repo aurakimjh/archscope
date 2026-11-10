@@ -473,13 +473,11 @@ export function LiveHttpCapturePanel({
 
 
   return (
-    <Card className="min-w-0">
-      <CardHeader className="flex-row items-start justify-between gap-3">
+    <Card className={showAnalyzer ? "http-live-panel min-w-0" : "http-live-panel http-live-compact min-w-0"}>
+      <CardHeader className="http-live-header flex-row items-center justify-between gap-2 p-2">
         <div>
           <CardTitle>{t("liveCaptureTitle")}</CardTitle>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {t("liveCaptureDescription")}
-          </p>
+
         </div>
         <span
           className={`rounded-full px-2 py-1 text-xs font-medium ${
@@ -493,7 +491,7 @@ export function LiveHttpCapturePanel({
             : t("liveCaptureIdle")}
         </span>
       </CardHeader>
-      <CardContent className="flex min-w-0 flex-col gap-2">
+      <CardContent className="http-live-content flex min-w-0 flex-col gap-1 p-2">
         <details className="rounded border p-2">
           <summary className="cursor-pointer text-xs">{t("httpCaptureSectionSource")}</summary>
           <div className="flex flex-col gap-2 pt-2">
@@ -767,6 +765,7 @@ export function LiveHttpCapturePanel({
           <span>{t("liveCapturePersisted")}: {state.stats?.persisted ?? 0}</span>
           {state.session?.allowedProcesses?.length ? <span>{t("httpCaptureSelectedProcesses")}: {state.session.allowedProcesses.length}</span> : null}
         </footer>
+        {state.error && <p role="alert" className="shrink-0 text-xs text-red-600">{state.error}</p>}
         <details>
           <summary className="cursor-pointer text-xs">{t("httpCaptureSectionSession")}</summary>
         {state.error && (

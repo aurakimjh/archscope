@@ -91,8 +91,8 @@ const ROW_HEIGHT = 26;
 const OVERSCAN = 12;
 
 const MIN_DETAIL_HEIGHT = 160;
-const MIN_GRID_HEIGHT = 160;
-const DEFAULT_DETAIL_HEIGHT = 320;
+const MIN_GRID_HEIGHT = 26 * 11 + 40;
+const DEFAULT_DETAIL_HEIGHT = 160;
 
 type Translate = (key: MessageKey) => string;
 
@@ -196,7 +196,11 @@ export function HttpAnalyzerView({
   const containerRef = useRef<HTMLElement | null>(null);
   useHttpCommands(commandsEnabled ? {find: () => {
     if (onFind) onFind();
-    else containerRef.current?.querySelector<HTMLInputElement>("[data-http-find]")?.focus();
+    else {
+      const filters = containerRef.current?.querySelector<HTMLDetailsElement>("[data-http-filters]");
+      if (filters) filters.open = true;
+      containerRef.current?.querySelector<HTMLInputElement>("[data-http-find]")?.focus();
+    }
   }} : {});
   const [detailHeight, setDetailHeight] = useState(() => {
     try {
@@ -256,7 +260,7 @@ export function HttpAnalyzerView({
       className={
         maximized
           ? "fixed inset-0 z-50 flex flex-col bg-background p-3"
-          : "flex min-w-0 w-full h-[calc(100dvh-230px)] min-h-[420px] flex-col rounded-lg border border-border bg-card"
+          : "http-analyzer flex min-h-0 min-w-0 w-full flex-1 flex-col rounded-lg border border-border bg-card"
       }
       aria-label={t("httpAnalyzerTitle")}
     >
@@ -375,7 +379,8 @@ function AnalyzerToolbar({
   const numberClass =
     "h-8 w-[4.5rem] rounded-md border border-input bg-transparent px-2 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring";
   return (
-    <div className="flex shrink-0 flex-col gap-2 border-b border-border p-2">
+    <details data-http-filters className="shrink-0 border-b border-border p-1.5">
+      <summary className="cursor-pointer text-xs">{t("httpCaptureFilterQuery")} · {shown} / {total}{filterActive ? " ●" : ""}</summary>
       <div className="flex flex-wrap items-center gap-1.5">
         <Input
           data-http-find
@@ -549,7 +554,7 @@ function AnalyzerToolbar({
           })}
         </div>
       )}
-    </div>
+    </details>
   );
 }
 

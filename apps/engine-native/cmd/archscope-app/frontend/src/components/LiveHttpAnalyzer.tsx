@@ -72,7 +72,7 @@ export function LiveHttpAnalyzer({
     return () => { disposed = true; };
   }, [sessionId, selectedId, selected?.state, persisted]);
   return (
-    <>
+    <div className="http-live-analyzer">
       <details ref={findRef} className="shrink-0 text-xs">
         <summary className="cursor-pointer">{t("httpSearchStored")}</summary>
         <form className="flex flex-wrap items-center gap-2 py-1" onSubmit={(event)=>{event.preventDefault();void search();}}>
@@ -110,6 +110,6 @@ export function LiveHttpAnalyzer({
         onSelect={setSelectedId} follow={follow}
         bounded boundedNote={searchRows===null?t("liveCaptureRowCapSuffix"):`${searchRows.length} / ${searchTotal} ${t("httpSearchMatches")}`}
       />
-    </>
+    </div>
   );
 }

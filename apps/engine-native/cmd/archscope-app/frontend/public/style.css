@@ -2121,3 +2121,17 @@ table th.sortable-header.sort-desc::after {
 .file-dock-content { padding:6px 8px; }
 .tool-pane [role="tablist"] { max-width:100%; overflow-x:auto; justify-content:flex-start; flex-shrink:0; }
 .tool-pane [role="tab"][data-state="active"] { scroll-margin-inline:12px; }
+
+/* HTTP uses the remaining client height, including imported and live sessions. */
+.tool-pane > .http-workspace { overflow:hidden; padding:6px 8px; }
+.http-workspace > * { flex-shrink:0; }
+.http-workspace > .http-analyzer { flex:1; min-height:0; }
+.http-live-panel { flex:1; min-height:0; display:flex; flex-direction:column; overflow:hidden; }
+.http-live-compact { flex:0 0 auto; }
+.http-live-header { flex:none; }
+.http-live-header h3 { font-size:12px; }
+.http-live-content { flex:1; min-height:0; overflow:auto; }
+.http-live-content > * { flex-shrink:0; }
+.http-live-analyzer { display:flex; flex-direction:column; flex:1; min-height:0; gap:4px; }
+.http-live-analyzer > .http-analyzer { flex:1; min-height:0; }
+.http-live-content > details[open], .http-file-tools[open] { max-height:45vh; overflow:auto; }
