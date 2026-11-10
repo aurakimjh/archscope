@@ -49,7 +49,7 @@ export function RecentFilesPanel({
   onSelect,
   onRemove,
   onClear,
-  emptyLabel = "최근 분석한 파일이 없습니다",
+  emptyLabel: _emptyLabel,
   title = "최근 분석",
   helpText,
   maxVisible = 6,
@@ -58,20 +58,13 @@ export function RecentFilesPanel({
   const resolvedHelp =
     helpText === null ? null : helpText ?? getHelpText(locale, "recentFiles");
 
-  if (entries.length === 0) {
-    return (
-      <div className="rounded-md border border-dashed border-border/60 bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
-        <Clock className="mr-1 inline-block h-3.5 w-3.5 align-text-bottom" />
-        {emptyLabel}
-        {resolvedHelp && <HelpTip text={resolvedHelp} className="ml-1 align-middle" />}
-      </div>
-    );
-  }
+  if (entries.length === 0) return null;
 
   const visible = entries.slice(0, maxVisible);
 
   return (
-    <div className="rounded-md border border-border bg-muted/20 p-2.5">
+    <details className="recent-files rounded-md border border-border bg-muted/20 px-2 py-1">
+      <summary className="cursor-pointer text-xs">{title} ({entries.length})</summary>
       <div className="mb-2 flex items-center justify-between">
         <span className="inline-flex min-w-0 items-center gap-1.5 text-xs font-semibold text-foreground/80">
           <Clock className="mr-1 inline-block h-3.5 w-3.5 align-text-bottom" />
@@ -124,6 +117,6 @@ export function RecentFilesPanel({
           </li>
         ))}
       </ul>
-    </div>
+    </details>
   );
 }

@@ -47,10 +47,10 @@ export function AnalyzerOptionsDock({
       <button
         type="button"
         className={cn(
-          "relative flex shrink-0 items-center gap-1.5 border border-border bg-background px-2 py-3 text-xs font-medium text-foreground shadow-md transition-colors",
+          "relative inline-flex h-8 shrink-0 items-center gap-1.5 rounded border border-border bg-background px-2 text-xs font-medium text-foreground transition-colors",
           fixed
-            ? "fixed right-0 top-[34vh] z-40 rounded-l-md border-r-0"
-            : "self-stretch rounded-md",
+            ? "ml-auto"
+            : "self-start",
           "hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
           disabled && "pointer-events-none opacity-50",
           className,
@@ -60,7 +60,7 @@ export function AnalyzerOptionsDock({
         disabled={disabled}
       >
         <SlidersHorizontal className="h-3.5 w-3.5 shrink-0" />
-        <span style={{ writingMode: "vertical-rl" }}>{label}</span>
+        <span>{label}</span>
         {hasChanges && (
           <span
             className="absolute left-1 top-1 h-2 w-2 rounded-full bg-primary"

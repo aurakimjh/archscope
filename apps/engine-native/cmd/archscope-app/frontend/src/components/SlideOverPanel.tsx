@@ -57,8 +57,9 @@ export function SlideOverPanel({
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
+      if (e.defaultPrevented) return;
       if (e.key === "Escape") {
-        onClose();
+        e.preventDefault();e.stopPropagation();onClose();
         return;
       }
       if (e.key !== "Tab") return;

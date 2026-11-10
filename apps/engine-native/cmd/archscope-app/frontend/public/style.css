@@ -2116,3 +2116,8 @@ table th.sortable-header.sort-desc::after {
 .tool-pane[hidden] { display:none; }
 .tool-pane > main, .tool-pane > .page-scroll { flex:1; min-height:0; overflow:auto; padding:10px 12px; }
 .tool-pane > .content { width:100%; max-width:none; }
+
+.file-dock { flex:none; }
+.file-dock-content { padding:6px 8px; }
+.tool-pane [role="tablist"] { max-width:100%; overflow-x:auto; justify-content:flex-start; flex-shrink:0; }
+.tool-pane [role="tab"][data-state="active"] { scroll-margin-inline:12px; }

@@ -259,14 +259,14 @@ export function WailsFileDock({
   return (
     <Card
       className={cn(
-        "border-dashed",
+        "file-dock",
         sticky &&
-          "sticky top-0 z-30 border-solid bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80",
+          "bg-background",
         className,
       )}
     >
-      <CardContent className="p-4">
-        <div className="flex flex-wrap items-stretch gap-3">
+      <CardContent className="file-dock-content">
+        <div className="flex flex-wrap items-center gap-2">
           <div
             onDragEnter={onDragEnter}
             onDragOver={onDragOver}
@@ -284,13 +284,13 @@ export function WailsFileDock({
               }
             }}
             className={cn(
-              "group relative flex flex-1 cursor-pointer items-center gap-3 rounded-lg border border-dashed border-input/80 bg-muted/30 px-4 py-3 text-sm transition-colors",
+              "group relative flex flex-1 cursor-pointer items-center gap-3 rounded-lg border border-dashed border-input/80 bg-muted/30 px-2 py-1.5 text-sm transition-colors",
               "hover:border-primary/60 hover:bg-muted/50",
               isDragOver && "border-primary bg-primary/5",
               busy && "pointer-events-none opacity-80",
             )}
           >
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
               {busy ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
@@ -299,16 +299,11 @@ export function WailsFileDock({
             </div>
             <div className="min-w-0 flex-1">
               <p className="inline-flex max-w-full items-center gap-2 text-sm font-medium leading-tight">
-                <span className="truncate">{label}</span>
-                {resolvedHelp && <HelpTip text={resolvedHelp} />}
+                <span className="truncate">{selectedItems.length ? selectedItems.map(item => item.originalName).join(" · ") : label}</span>
+                {resolvedHelp && <HelpTip text={[description,resolvedHelp].filter(Boolean).join("\n")} />}
               </p>
-              {description && (
-                <p className="truncate text-xs text-muted-foreground">
-                  {description}
-                </p>
-              )}
               {selectedItems.length > 0 && (
-                <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+                <div className="sr-only">
                   <FileIcon className="h-3 w-3 shrink-0" />
                   <span
                     className="truncate font-mono"

@@ -1,6 +1,8 @@
+import { createPortal } from "react-dom";
 import { CircleAlert, CircleHelp } from "lucide-react";
 import {
   useEffect,
+  useLayoutEffect,
   useId,
   useRef,
   useState,
@@ -24,11 +26,6 @@ export type HelpTipProps = {
   panelClassName?: string;
 };
 
-const alignClasses: Record<HelpTipAlign, string> = {
-  start: "left-0",
-  center: "left-1/2 -translate-x-1/2",
-  end: "right-0",
-};
 
 export function HelpTip({
   text,
@@ -40,6 +37,26 @@ export function HelpTip({
 }: HelpTipProps): React.JSX.Element {
   const { locale } = useI18n();
   const [open, setOpen] = useState(false);
+  const [pinned, setPinned] = useState(false);
+  const [position, setPosition] = useState({left:8,top:8});
+  const panelRef = useRef<HTMLSpanElement | null>(null);
+  const leaveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const show = () => { clearTimeout(leaveTimer.current);setOpen(true); };
+  const leave = () => { leaveTimer.current=setTimeout(() => {if(!pinned) setOpen(false);},180); };
+  const close = () => { setOpen(false);setPinned(false); };
+  useEffect(() => () => clearTimeout(leaveTimer.current), []);
+  useLayoutEffect(() => {
+    if (!open) return;
+    const place = () => {
+      const trigger = rootRef.current?.getBoundingClientRect();
+      const panel = panelRef.current?.getBoundingClientRect();
+      if (!trigger || !panel) return;
+      const desired = align === "end" ? trigger.right-panel.width : align === "center" ? trigger.left+(trigger.width-panel.width)/2 : trigger.left;
+      setPosition({left:Math.max(8,Math.min(innerWidth-panel.width-8,desired)),top:trigger.bottom+panel.height+12<innerHeight ? trigger.bottom+6 : Math.max(8,trigger.top-panel.height-6)});
+    };
+    place();window.addEventListener("resize",place);window.addEventListener("scroll",place,true);
+    return () => {window.removeEventListener("resize",place);window.removeEventListener("scroll",place,true);};
+  }, [open,text,align]);
   const tooltipId = useId();
   const rootRef = useRef<HTMLSpanElement | null>(null);
   const Icon = variant === "warning" ? CircleAlert : CircleHelp;
@@ -51,8 +68,8 @@ export function HelpTip({
   useEffect(() => {
     if (!open) return;
     const onPointerDown = (event: PointerEvent) => {
-      if (!rootRef.current?.contains(event.target as Node)) {
-        setOpen(false);
+      if (!rootRef.current?.contains(event.target as Node) && !panelRef.current?.contains(event.target as Node)) {
+        close();
       }
     };
     document.addEventListener("pointerdown", onPointerDown);
@@ -61,8 +78,9 @@ export function HelpTip({
 
   const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
     if (event.key === "Escape") {
+      event.preventDefault();
       event.stopPropagation();
-      setOpen(false);
+      close();
     }
   };
 
@@ -70,12 +88,12 @@ export function HelpTip({
     <span
       ref={rootRef}
       className={cn("relative inline-flex shrink-0 items-center", className)}
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-      onFocus={() => setOpen(true)}
+      onMouseEnter={show}
+      onMouseLeave={leave}
+      onFocus={show}
       onBlur={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
-          setOpen(false);
+          if (!pinned) setOpen(false);
         }
       }}
     >
@@ -94,25 +112,29 @@ export function HelpTip({
         aria-expanded={open}
         onClick={(event) => {
           event.stopPropagation();
-          setOpen((value) => !value);
+          setPinned(!pinned);
+          setOpen(!pinned);
         }}
         onKeyDown={handleKeyDown}
       >
         <Icon className="h-3.5 w-3.5" aria-hidden="true" />
       </button>
-      {open && (
+      {open && createPortal(
         <span
+          ref={panelRef}
+          onMouseEnter={show}
+          onMouseLeave={leave}
+          style={{position:"fixed",left:position.left,top:position.top}}
           id={tooltipId}
           role="tooltip"
           className={cn(
-            "absolute top-full z-[90] mt-2 w-72 max-w-[min(18rem,calc(100vw-2rem))] rounded-md border border-border bg-popover px-3 py-2 text-left text-xs font-normal leading-5 text-popover-foreground shadow-xl",
+            "z-[90] max-h-[min(24rem,calc(100dvh-16px))] overflow-y-auto w-72 max-w-[min(18rem,calc(100vw-2rem))] rounded-md border border-border bg-popover px-3 py-2 text-left text-xs font-normal leading-5 text-popover-foreground shadow-xl",
             "normal-case tracking-normal",
-            alignClasses[align],
             panelClassName,
           )}
         >
           {text}
-        </span>
+        </span>, document.body
       )}
     </span>
   );
