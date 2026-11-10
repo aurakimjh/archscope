@@ -1,3 +1,4 @@
+import { EarlyTaskEvents } from "@/state/earlyTaskEvents";
 import { PROFILE_VALUE_UNITS, profileWeightUnit, formatProfileSeconds } from "../state/profileDuration";
 // ─────────────────────────────────────────────────────────────────────
 // [한글] pages/ProfilerAnalyzerPage.tsx — 메인 프로파일러 분석 페이지.
@@ -26,7 +27,7 @@ import { PROFILE_VALUE_UNITS, profileWeightUnit, formatProfileSeconds } from "..
 // a consistent profiler page without porting every web sub-component.
 
 import { CircleHelp, Loader2, Play, Square } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Events } from "@wailsio/runtime";
 
 import {
@@ -645,13 +646,20 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
   const [progressLogNotice, setProgressLogNotice] = useState<string>("");
   const [activeTab, setActiveTab] = useState<string>("summary");
   const activeTaskRef = useRef<string | null>(null);
+  const taskEvents=useRef(new EarlyTaskEvents());
+  const retireTask=useCallback(() => {
+    taskEvents.current.cancel();const id=activeTaskRef.current;activeTaskRef.current=null;
+    if(id)void ProfilerService.Cancel(id).catch(()=>{});
+  },[]);
+  useEffect(()=>()=>retireTask(),[retireTask]);
 
   const path = selected?.filePath ?? "";
 
   useEffect(() => {
-    const offDone = Events.On("analyze:done", (event: any) => {
+    const done = (event: any) => {
       const data = event?.data ?? event;
-      if (!data || data.taskId !== activeTaskRef.current) return;
+      if (!data || taskEvents.current.defer(data.taskId,activeTaskRef.current,()=>done(event)) || data.taskId !== activeTaskRef.current) return;
+      taskEvents.current.cancel();
       activeTaskRef.current = null;
       setResult(data.result);
       addWorkspaceResult({
@@ -681,10 +689,11 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
           },
         });
       }
-    });
-    const offError = Events.On("analyze:error", (event: any) => {
+    };
+    const failed = (event: any) => {
       const data = event?.data ?? event;
-      if (!data || data.taskId !== activeTaskRef.current) return;
+      if (!data || taskEvents.current.defer(data.taskId,activeTaskRef.current,()=>failed(event)) || data.taskId !== activeTaskRef.current) return;
+      taskEvents.current.cancel();
       activeTaskRef.current = null;
       setError(data.message ?? "analysis failed");
       if (data.progressLogPath) {
@@ -692,13 +701,15 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
       }
       setResult(null);
       setAnalyzing(false);
-    });
-    const offCancelled = Events.On("analyze:cancelled", (event: any) => {
+    };
+    const cancelled = (event: any) => {
       const data = event?.data ?? event;
-      if (!data || data.taskId !== activeTaskRef.current) return;
+      if (!data || taskEvents.current.defer(data.taskId,activeTaskRef.current,()=>cancelled(event)) || data.taskId !== activeTaskRef.current) return;
+      taskEvents.current.cancel();
       activeTaskRef.current = null;
       setAnalyzing(false);
-    });
+    };
+    const offDone=Events.On("analyze:done",done),offError=Events.On("analyze:error",failed),offCancelled=Events.On("analyze:cancelled",cancelled);
     return () => {
       offDone?.();
       offError?.();
@@ -708,6 +719,7 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
   }, [path]);
 
   const handleSelect = (file: FileDockSelection) => {
+    retireTask();setAnalyzing(false);setResult(null);
     setSelected(file);
     setFormat(detectFormat(file.filePath));
     setError("");
@@ -719,6 +731,7 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
   // this is the "fast re-analysis" UX, so users don't have to
   // re-tune intervalMs/topN/etc on every revisit.
   const handleRecentSelect = (entry: { path: string; name?: string; meta?: Record<string, unknown> }) => {
+    retireTask();setAnalyzing(false);setResult(null);
     setSelected({
       filePath: entry.path,
       originalName: entry.name ?? entry.path,
@@ -744,6 +757,7 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
   };
 
   const handleClear = () => {
+    retireTask();setAnalyzing(false);
     setSelected(null);
     setResult(null);
     setError("");
@@ -751,7 +765,8 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
   };
 
   const handleAnalyze = async () => {
-    if (!path) return;
+    if (!path || analyzing) return;
+    const run=taskEvents.current.begin();
     setError("");
     setExportNotice("");
     setAnalyzing(true);
@@ -773,7 +788,8 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
         timelineCategories,
       } as any);
       const response = await ProfilerService.AnalyzeAsync(request);
-      activeTaskRef.current = response.taskId;
+      if (!taskEvents.current.isCurrent(run)) {void ProfilerService.Cancel(response.taskId).catch(()=>{});return;}
+      activeTaskRef.current = response.taskId;taskEvents.current.bind(run);
       const logPath = (response as any).progressLogPath;
       if (logPath) {
         setProgressLogNotice(`진행 로그: ${logPath}`);
@@ -781,6 +797,8 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
         setProgressLogNotice("");
       }
     } catch (err: any) {
+      if (!taskEvents.current.isCurrent(run)) return;
+      taskEvents.current.cancel();
       setError(String(err?.message ?? err));
       setResult(null);
       setAnalyzing(false);
@@ -789,7 +807,8 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
 
   const handleCancel = async () => {
     const taskId = activeTaskRef.current;
-    if (!taskId) return;
+    taskEvents.current.cancel();
+    if (!taskId) {setAnalyzing(false);return;}
     try {
       await ProfilerService.Cancel(taskId);
     } catch {

@@ -1831,3 +1831,12 @@ GC Events first-data y=410 with six full rows; original HTTP has zero full rows.
 HTTP source picking scrolls the original page, so its recordings include both
 after-load and subsequent scroll observations rather than a pristine top reset.
 T-620 is DONE; earlier approval-denied notes are historical, not the current blocker.
+
+### Mac detail follow-up: fast native completion race
+
+Reproduced a multi-thread dump stuck in Running because `engine:done` preceded
+the IPC task-ID reply. Thread-dump and profiler now buffer only handshake events,
+replay against the bound ID and discard cancelled/superseded starts. Mode changes,
+input replacement and unmount invalidate old runs. Pure ordering/cancel/stale-ID
+regressions pass. Native one/two-dump, lock-contention, three quick profile runs,
+three two-dump runs, missing-file error and recovery pass without a stuck spinner.

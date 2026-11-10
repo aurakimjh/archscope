@@ -1,3 +1,4 @@
+import { EarlyTaskEvents } from "@/state/earlyTaskEvents";
 // ─────────────────────────────────────────────────────────────────────
 // [한글] pages/ThreadDumpAnalyzerPage.tsx — 스레드 덤프 통합 분석기 페이지.
 //
@@ -177,6 +178,12 @@ export function ThreadDumpAnalyzerPage(): React.JSX.Element {
   // Tracks the inflight async taskId (multi/locks). For sync mode we
   // use a Symbol token instead, exactly like AccessLog does.
   const taskRef = useRef<string | null>(null);
+  const taskEvents = useRef(new EarlyTaskEvents());
+  const retireTask = useCallback(() => {
+    taskEvents.current.cancel();const id=taskRef.current;taskRef.current=null;
+    if (id) void engine.cancelEngineTask(id).catch(() => {});
+  }, []);
+  useEffect(() => () => retireTask(), [retireTask]);
   const inflightSyncRef = useRef<symbol | null>(null);
 
   // ────────────────────────────────────────────────────────────────
@@ -186,40 +193,26 @@ export function ThreadDumpAnalyzerPage(): React.JSX.Element {
   // run never updates this component's state.
   // ────────────────────────────────────────────────────────────────
   useEffect(() => {
-    const offDone = Events.On("engine:done", (event: unknown) => {
-      const data = extractData<EngineDoneEvent>(event);
-      if (!data || data.taskId !== taskRef.current) return;
-      taskRef.current = null;
+    const done = (event: unknown) => {
+      const data=extractData<EngineDoneEvent>(event);
+      if (!data || taskEvents.current.defer(data.taskId,taskRef.current,()=>done(event)) || data.taskId!==taskRef.current) return;
+      taskRef.current=null;taskEvents.current.cancel();
       setResult(data.result as unknown as AnyResult);
-      addWorkspaceResult({
-        result: data.result,
-        title: `${data.result.type}: ${data.result.source_files?.[0] ?? ""}`,
-        sourceLabel: data.result.source_files?.[0],
-      });
+      addWorkspaceResult({result:data.result,title:`${data.result.type}: ${data.result.source_files?.[0] ?? ""}`,sourceLabel:data.result.source_files?.[0]});
       setState("success");
-    });
-    const offError = Events.On("engine:error", (event: unknown) => {
-      const data = extractData<EngineErrorEvent>(event);
-      if (!data || data.taskId !== taskRef.current) return;
-      taskRef.current = null;
-      setError({ code: "ENGINE_FAILED", message: data.message });
-      setState("error");
-    });
-    const offCancelled = Events.On(
-      "engine:cancelled",
-      (event: unknown) => {
-        const data = extractData<EngineCancelledEvent>(event);
-        if (!data || data.taskId !== taskRef.current) return;
-        taskRef.current = null;
-        setState("ready");
-        setEngineMessages([t("analysisCanceled")]);
-      },
-    );
-    return () => {
-      offDone?.();
-      offError?.();
-      offCancelled?.();
     };
+    const failed = (event: unknown) => {
+      const data=extractData<EngineErrorEvent>(event);
+      if (!data || taskEvents.current.defer(data.taskId,taskRef.current,()=>failed(event)) || data.taskId!==taskRef.current) return;
+      taskRef.current=null;taskEvents.current.cancel();setError({code:"ENGINE_FAILED",message:data.message});setState("error");
+    };
+    const cancelled = (event: unknown) => {
+      const data=extractData<EngineCancelledEvent>(event);
+      if (!data || taskEvents.current.defer(data.taskId,taskRef.current,()=>cancelled(event)) || data.taskId!==taskRef.current) return;
+      taskRef.current=null;taskEvents.current.cancel();setState("ready");setEngineMessages([t("analysisCanceled")]);
+    };
+    const offDone=Events.On("engine:done",done),offError=Events.On("engine:error",failed),offCancelled=Events.On("engine:cancelled",cancelled);
+    return () => {offDone?.();offError?.();offCancelled?.();};
   }, [t]);
 
   // Resetting common state when mode flips so the single-file picker
@@ -227,13 +220,14 @@ export function ThreadDumpAnalyzerPage(): React.JSX.Element {
   const switchMode = useCallback(
     (next: AnalysisMode) => {
       if (next === mode) return;
+      retireTask();inflightSyncRef.current=null;
       setMode(next);
       setResult(null);
       setError(null);
       setEngineMessages([]);
       setState("idle");
     },
-    [mode],
+    [mode,retireTask],
   );
 
   const canAnalyze =
@@ -245,16 +239,18 @@ export function ThreadDumpAnalyzerPage(): React.JSX.Element {
   // ────────────────────────────────────────────────────────────────
 
   const handleSingleFile = useCallback((file: FileDockSelection) => {
+    retireTask();inflightSyncRef.current=null;setResult(null);
     setSingleFile(file);
     setState("ready");
     setError(null);
     setEngineMessages([]);
-  }, []);
+  }, [retireTask]);
 
   const handleClearSingle = useCallback(() => {
+    retireTask();inflightSyncRef.current=null;setResult(null);
     setSingleFile(null);
     setState("idle");
-  }, []);
+  }, [retireTask]);
 
   const pickMultipleFiles = useCallback(async () => {
     try {
@@ -268,6 +264,7 @@ export function ThreadDumpAnalyzerPage(): React.JSX.Element {
       });
       const paths = Array.isArray(result) ? result : [];
       if (paths.length === 0) return;
+      retireTask();setResult(null);setState("ready");
       setFiles((prev) => {
         const seen = new Set(prev.map((entry) => entry.filePath));
         const additions: FileDockSelection[] = [];
@@ -292,16 +289,18 @@ export function ThreadDumpAnalyzerPage(): React.JSX.Element {
         message: caught instanceof Error ? caught.message : String(caught),
       });
     }
-  }, [state, t]);
+  }, [state, t, retireTask]);
 
   const removeFile = useCallback((filePath: string) => {
+    retireTask();setResult(null);setState("ready");
     setFiles((prev) => prev.filter((file) => file.filePath !== filePath));
-  }, []);
+  }, [retireTask]);
 
   const clearFiles = useCallback(() => {
+    retireTask();setResult(null);
     setFiles([]);
     setState("idle");
-  }, []);
+  }, [retireTask]);
 
   // ────────────────────────────────────────────────────────────────
   // Run / cancel.
@@ -346,7 +345,8 @@ export function ThreadDumpAnalyzerPage(): React.JSX.Element {
       return;
     }
 
-    // Async modes — return a taskId; the result lands via engine:done.
+    // Bind early completion/error/cancellation events to this handshake.
+    const run=taskEvents.current.begin();
     try {
       const paths = files.map((file) => file.filePath);
       const fmt = formatOverride.trim() || undefined;
@@ -363,12 +363,12 @@ export function ThreadDumpAnalyzerPage(): React.JSX.Element {
               formatOverride: fmt,
               topN,
             });
-      taskRef.current = response.taskId;
+      if (!taskEvents.current.isCurrent(run)) {void engine.cancelEngineTask(response.taskId).catch(()=>{});return;}
+      taskRef.current = response.taskId;taskEvents.current.bind(run);
     } catch (caught) {
-      setError({
-        code: "ENGINE_FAILED",
-        message: caught instanceof Error ? caught.message : String(caught),
-      });
+      if (!taskEvents.current.isCurrent(run)) return;
+      taskEvents.current.cancel();
+      setError({code:"ENGINE_FAILED",message:caught instanceof Error ? caught.message : String(caught)});
       setState("error");
     }
   }, [canAnalyze, files, formatOverride, mode, singleFile, threshold, topN]);
@@ -383,7 +383,8 @@ export function ThreadDumpAnalyzerPage(): React.JSX.Element {
       return;
     }
     const taskId = taskRef.current;
-    if (!taskId) return;
+    taskEvents.current.cancel();
+    if (!taskId) {setState("ready");setEngineMessages([t("analysisCanceled")]);return;}
     void engine.cancelEngineTask(taskId).catch(() => {
       // Best-effort cancel: even if the registry rejects we already
       // told the renderer to stop spinning. The done/error event for
@@ -702,7 +703,7 @@ function MultiFileDock({
           </CardDescription>
         </div>
         <div className="flex items-center gap-2">
-          <Button type="button" size="sm" variant="secondary" onClick={onPick}>
+          <Button type="button" size="sm" variant="secondary" disabled={state === "running"} onClick={onPick}>
             <Upload className="h-3.5 w-3.5" />
             {t("threadDumpAdd")}
           </Button>

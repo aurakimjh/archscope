@@ -1,3 +1,4 @@
+import { EarlyTaskEvents } from "./earlyTaskEvents.js";
 import { buildReportPackPayload, buildReportPackHTML } from "./reportPack.js";
 import { hasNativeDesktopBridge } from "./desktopRuntime.js";
 import { buildIncidentTimelineAnalysisResult } from "./incidentTimeline.js";
@@ -3254,3 +3255,11 @@ assert(cappedPack.artifacts.incident_timeline.summary.critical_event_count===1 &
 assert(buildReportPackHTML(cappedPack).includes("omitted: 10 (critical: 1)"),"Report Pack HTML discloses hidden critical events");
 const uncappedTimeline=buildIncidentTimelineAnalysisResult([]);
 assert(!uncappedTimeline.summary.partial_result && uncappedTimeline.summary.omitted_event_count===0,"Empty timeline is complete, not truncated");
+
+{
+ const gate=new EarlyTaskEvents();let id:string|null=null;let completed=0;
+ const receive=(eventID:string)=>{if(gate.defer(eventID,id,()=>receive(eventID)))return;if(eventID===id)completed++;};
+ const run=gate.begin();receive("fast");receive("unrelated");assert(completed===0,"early task event held until ID binds");id="fast";gate.bind(run);assert(completed===1,"fast event replayed once and unrelated event ignored");
+ const cancelled=gate.begin();receive("old");gate.cancel();id="old";assert(!gate.bind(cancelled)&&completed===1,"cancelled handshake cannot replay late completion");
+ const stale=gate.begin();const current=gate.begin();assert(!gate.bind(stale)&&gate.bind(current),"old IPC reply cannot bind a newer run");
+}

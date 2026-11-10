@@ -1,0 +1,15 @@
+{
+  "native": true,
+  "reproduced": "multi-thread completion arrives before task-ID reply; UI remains Running",
+  "fix": "bounded handshake event replay, current-ID filtering, cancellation and supersession invalidation",
+  "tests": [
+    "pure early-event, unrelated-ID, cancelled-handshake and stale-reply regression",
+    "native one-dump completion",
+    "native two-dump completion repeated three times",
+    "native lock-contention completion",
+    "native tiny profile completion repeated three times",
+    "native missing-file fast error, restore file and retry",
+    "native multi-dump conditional result tabs including empty findings sections"
+  ],
+  "result": "pass"
+}
