@@ -3063,3 +3063,12 @@ assert(restoredColumns.filter(c=>c.key==="path").length===1 && restoredColumns.s
 assert(httpColumnValue({...selectedLiveRow,connection_id:"connection-7"},"connection")==="connection-7", "connection evidence must be available as a column");
 assert(httpColumnMatches(selectedLiveRow,"status","gte","200") && !httpColumnMatches(selectedLiveRow,"status","gte","bad"), "numeric field filtering must reject invalid thresholds");
 assert(httpGroupedEntries([selectedLiveRow,reusedPid],new Set(),"host").length===3, "host grouping must join requests from separate process instances");
+
+import { builderHeaders, parseBuilderHeaders } from "./httpRequestBuilder.js";
+const builderOriginal = JSON.stringify(selectedLiveRow);
+const copiedHeaders=builderHeaders({...selectedLiveRow,request:{...selectedLiveRow.request,headers:[{name:"Content-Length",value:"12"},{name:"X-Test",value:"one"},{name:"X-Test",value:"two"}]}});
+assert(copiedHeaders === "X-Test: one\nX-Test: two", "builder copy must keep duplicate editable headers and drop transport framing");
+assert(parseBuilderHeaders(copiedHeaders).length === 2, "builder header editor must preserve repeated names");
+let invalidBuilderHeader=false;try{parseBuilderHeaders("invalid")}catch{invalidBuilderHeader=true}
+assert(invalidBuilderHeader, "builder must reject malformed header lines before sending");
+assert(JSON.stringify(selectedLiveRow) === builderOriginal, "builder copy must keep original exchange unchanged");

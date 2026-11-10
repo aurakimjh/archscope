@@ -136,6 +136,7 @@ export function resolveCaptureFidelity(value: string): CaptureFidelityToken {
 }
 
 export type CaptureModeToken =
+  | "request_builder"
   | "proxy_mitm"
   | "proxy_passthrough"
   | "proxy_not_captured"
@@ -144,6 +145,7 @@ export type CaptureModeToken =
   | "unknown";
 
 const CAPTURE_MODE_TOKENS = new Set<CaptureModeToken>([
+  "request_builder",
   "proxy_mitm",
   "proxy_passthrough",
   "proxy_not_captured",
@@ -156,13 +158,13 @@ export function resolveCaptureMode(value: string): CaptureModeToken {
   return CAPTURE_MODE_TOKENS.has(token) ? token : "unknown";
 }
 
-export type CaptureObservationToken = "proxy" | "foreign_tool" | "unknown";
+export type CaptureObservationToken = "request_builder" | "proxy" | "foreign_tool" | "unknown";
 
 export function resolveCaptureObservation(
   value: string,
 ): CaptureObservationToken {
   const token = String(value ?? "").trim();
-  return token === "proxy" || token === "foreign_tool" ? token : "unknown";
+  return token === "proxy" || token === "foreign_tool" || token === "request_builder" ? token : "unknown";
 }
 
 export type CaptureDetailStorageToken = "bounded_inline" | "unknown";
@@ -176,10 +178,10 @@ export function resolveCaptureDetailStorage(
 }
 
 /** Per-row attribution coverage, as `coverage_counts` reports it. */
-export type CaptureCoverageToken = "confirmed" | "unknown";
+export type CaptureCoverageToken = "explicit_request" | "confirmed" | "unknown";
 
 export function resolveCaptureCoverage(value: string): CaptureCoverageToken {
-  return String(value ?? "").trim() === "confirmed" ? "confirmed" : "unknown";
+  const token=String(value??"").trim(); return token==="confirmed"||token==="explicit_request"?token:"unknown";
 }
 
 /**
@@ -255,6 +257,7 @@ export const CAPTURE_FIDELITY_LABEL_KEYS: Record<CaptureFidelityToken, MessageKe
 };
 
 export const CAPTURE_MODE_LABEL_KEYS: Record<CaptureModeToken, MessageKey> = {
+  request_builder: "httpBuilderTitle",
   proxy_mitm: "httpCaptureModeValueProxyMitm",
   proxy_passthrough: "httpCaptureModeValueProxyPassthrough",
   proxy_not_captured: "httpCaptureModeValueProxyNotCaptured",
@@ -264,6 +267,7 @@ export const CAPTURE_MODE_LABEL_KEYS: Record<CaptureModeToken, MessageKey> = {
 };
 
 export const CAPTURE_OBSERVATION_LABEL_KEYS: Record<CaptureObservationToken, MessageKey> = {
+  request_builder: "httpBuilderTitle",
   proxy: "httpCaptureObservationValueProxy",
   foreign_tool: "httpCaptureObservationValueForeignTool",
   unknown: "httpCaptureObservationValueUnknown",
@@ -275,6 +279,7 @@ export const CAPTURE_DETAIL_STORAGE_LABEL_KEYS: Record<CaptureDetailStorageToken
 };
 
 export const CAPTURE_COVERAGE_LABEL_KEYS: Record<CaptureCoverageToken, MessageKey> = {
+  explicit_request: "httpBuilderExplicit",
   confirmed: "httpCaptureCoverageValueConfirmed",
   unknown: "httpCaptureCoverageValueUnknown",
 };

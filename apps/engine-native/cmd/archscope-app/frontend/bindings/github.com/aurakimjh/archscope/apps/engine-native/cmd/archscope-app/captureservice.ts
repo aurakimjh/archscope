@@ -22,6 +22,9 @@ import * as aggregate$0 from "../../internal/capture/aggregate/models.js";
 import * as certstore$0 from "../../internal/capture/certstore/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
+import * as requestbuilder$0 from "../../internal/capture/requestbuilder/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
 import * as store$0 from "../../internal/capture/store/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
@@ -35,6 +38,10 @@ export function AnalyzeCaptureSession(request: $models.CaptureAnalyzeRequest): $
     return $Call.ByID(315565375, request).then(($result: any) => {
         return $$createType0($result);
     });
+}
+
+export function CancelBuilderRequest(id: string): $CancellablePromise<boolean> {
+    return $Call.ByID(4146142285, id);
 }
 
 export function ClearCapture(sessionID: string): $CancellablePromise<capture$0.Session> {
@@ -160,6 +167,15 @@ export function RemoveCaptureCA(): $CancellablePromise<certstore$0.Status> {
 export function SearchCaptureTransactions(request: $models.CaptureFetchRequest): $CancellablePromise<store$0.Page> {
     return $Call.ByID(3080393478, request).then(($result: any) => {
         return $$createType2($result);
+    });
+}
+
+/**
+ * SendBuilderRequest performs a user-triggered request outside the capture store.
+ */
+export function SendBuilderRequest(request: requestbuilder$0.Request): $CancellablePromise<models$0.CaptureTransaction> {
+    return $Call.ByID(3102748573, request).then(($result: any) => {
+        return $$createType5($result);
     });
 }
 

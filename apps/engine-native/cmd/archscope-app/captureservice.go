@@ -19,12 +19,14 @@ import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/processlaunch"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/procmap"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/redact"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/requestbuilder"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/session"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/store"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 )
 
 type CaptureService struct {
+	builder *requestbuilder.Client
 	manager *session.Manager
 	trust   *certstore.Lifecycle
 }
@@ -130,6 +132,7 @@ func newCaptureService(root string, trust *certstore.Lifecycle) *CaptureService 
 
 func newCaptureServiceForPlatform(root string, trust *certstore.Lifecycle, platform string) *CaptureService {
 	return &CaptureService{
+		builder: requestbuilder.NewClient(),
 		manager: session.NewManagerForPlatform(root, captureEventSink{}, platform),
 		trust:   trust,
 	}
@@ -343,3 +346,9 @@ func (s *CaptureService) GetCaptureCAStatus() certstore.Status {
 func (s *CaptureService) RecoverCaptureSessions() ([]store.RecoveryReport, error) {
 	return s.manager.RecoverSessions()
 }
+
+// SendBuilderRequest performs a user-triggered request outside the capture store.
+func (s *CaptureService) SendBuilderRequest(request requestbuilder.Request) (models.CaptureTransaction, error) {
+	return s.builder.Send(request)
+}
+func (s *CaptureService) CancelBuilderRequest(id string) bool { return s.builder.Cancel(id) }

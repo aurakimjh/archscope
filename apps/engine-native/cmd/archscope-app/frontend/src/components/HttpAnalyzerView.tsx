@@ -1,3 +1,4 @@
+import { copyToHttpBuilder, HTTP_BUILDER_DRAG } from "@/state/httpRequestBuilder";
 import { HttpSessionFiles, type HttpFileSource } from "./HttpSessionFiles";
 import { HTTP_COLUMNS, restoreHttpColumns, httpColumnValue, httpColumnMatches, type HttpColumn } from "@/state/httpColumns";
 import { HttpParameterTable, HttpJsonTree } from "./HttpPayloadView";
@@ -268,6 +269,7 @@ export function HttpAnalyzerView({
         {fieldFilter.value && <button type="button" onClick={()=>setFieldFilter(current=>({...current,value:""}))}>{t("httpCaptureFilterReset")}</button>}
       </div>
       <TransactionGrid
+        builderSessionId={exportSource?.sessionId}
         rows={rows}
         span={span}
         sort={sort}
@@ -278,6 +280,7 @@ export function HttpAnalyzerView({
         t={t}
       />
 
+      {selected && <button type="button" className="shrink-0 border-t px-2 py-1 text-left text-xs" onClick={()=>copyToHttpBuilder({row:selected,sessionId:exportSource?.sessionId})}>{t("httpBuilderCopy")}</button>}
       <SplitHandle
         height={detailHeight}
         onResize={resizeDetail}
@@ -518,6 +521,7 @@ function AnalyzerToolbar({
 // ── Virtualized packet grid ─────────────────────────────────────────
 
 function TransactionGrid({
+  builderSessionId,
   rows,
   span,
   sort,
@@ -527,6 +531,7 @@ function TransactionGrid({
   onSelect,
   t,
 }: {
+  builderSessionId?: string;
   rows: HttpCaptureTransactionRow[];
   span: ReturnType<typeof sessionSpan>;
   sort: GridSort;
@@ -721,7 +726,7 @@ function TransactionGrid({
             )}
             {visible.map((entry) => entry.kind === "request" ? (
               <GridRow key={entry.row.id} tx={entry.row} index={entry.index}
-                columns={visibleColumns} offsetSeconds={(Date.parse(entry.row.started_at)-(starts.get(groupKey(entry.row))??NaN))/1000} span={span} selected={entry.row.id === selectedId} onSelect={onSelect} t={t} />
+                builderSessionId={builderSessionId} columns={visibleColumns} offsetSeconds={(Date.parse(entry.row.started_at)-(starts.get(groupKey(entry.row))??NaN))/1000} span={span} selected={entry.row.id === selectedId} onSelect={onSelect} t={t} />
             ) : (
               <tr key={"group:" + entry.key} style={{height: ROW_HEIGHT}} className="border-y bg-muted/60">
                 <td colSpan={visibleColumns.length} className="px-2">
@@ -755,14 +760,14 @@ function TransactionGrid({
 }
 
 function GridRow({
- tx,index,span,columns,offsetSeconds,selected,onSelect,t,
+ tx,index,span,columns,offsetSeconds,selected,onSelect,t,builderSessionId,
 }: {
- tx:HttpCaptureTransactionRow;index:number;span:ReturnType<typeof sessionSpan>;
+ builderSessionId?:string;tx:HttpCaptureTransactionRow;index:number;span:ReturnType<typeof sessionSpan>;
  columns:HttpColumn[];offsetSeconds:number;selected:boolean;onSelect:(id:string)=>void;t:Translate;
 }):React.JSX.Element {
  const kind=resourceKindOf(tx);
  const placement=placeOnSession(tx,span);
- return <tr style={{height:ROW_HEIGHT}} aria-selected={selected} tabIndex={-1}
+ return <tr style={{height:ROW_HEIGHT}} aria-selected={selected} tabIndex={-1} draggable onDragStart={event=>event.dataTransfer.setData(HTTP_BUILDER_DRAG,JSON.stringify({row:tx,sessionId:builderSessionId}))}
    className={`cursor-pointer border-b border-border/40 ${selected?"bg-primary/15":rowTint(tx)+" hover:bg-accent"}`}
    onClick={()=>onSelect(tx.id)}
    onKeyDown={(event)=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();onSelect(tx.id);}}}>

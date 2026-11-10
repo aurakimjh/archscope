@@ -1077,3 +1077,30 @@ and rename; canceling the native destination dialog creates no output. Local
 round-trip, ordering, cancellation, original-session immutability and independent
 HAR/XLS reader checks pass. Native Windows dialog acceptance remains part of
 T-613, not evidence obtained on this macOS run.
+
+### HTTP Request Builder (T-610)
+
+The desktop provides an expandable Request Builder for new requests and copies
+from the selected exchange. Dragging a grid row reveals a fixed drop target so
+scrolling does not hide the destination. Live copies fetch the persisted detail,
+then enable editing; late asynchronous copies cannot overwrite an edited send.
+The original transaction stays in its capture session. Review the copy notice:
+credentials are redacted and discarded/truncated payloads cannot be restored.
+
+Edit method, absolute HTTP(S) URL, repeated headers, raw data, ordered/repeated
+form fields, or multipart text/files selected through a native dialog. Form and
+multipart modes generate their Content-Type; transport framing headers are
+managed by Go. Only **Send request** performs network I/O. Redirects are returned
+for inspection rather than replayed automatically; there is no shared cookie
+jar. Requests use normal TLS validation and the environment proxy. Uploads are
+regular files and total request data is bounded to 10 MiB. Cancellation and a
+1–120 second total timeout apply to each send. Returned headers and up to 1 MiB
+of decoded text are re-redacted; truncated/binary/unsupported-encoding states
+remain explicit. Builder results are separate from the capture store.
+
+Local HTTP fixtures verify edited raw requests, duplicate form values, multipart
+file names/data, redirect preservation, cancellation, timeout, TLS rejection and
+bounded gzip responses. Race detection passes. The browser UI check verifies
+copy/edit/explicit send, a real mouse drag into the fixed target, and original
+row preservation using a stubbed Wails bridge. It is not native Windows evidence;
+packaged Windows acceptance remains T-613.

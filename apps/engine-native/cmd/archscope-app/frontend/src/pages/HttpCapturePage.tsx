@@ -1,3 +1,4 @@
+import { HttpRequestBuilder } from "@/components/HttpRequestBuilder";
 import * as CaptureService from "../../bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/captureservice";
 import { Dialogs } from "@wailsio/runtime";
 // ─────────────────────────────────────────────────────────────────────
@@ -219,6 +220,7 @@ export function HttpCapturePage(): React.JSX.Element {
     <main className="flex min-w-0 flex-col gap-3 p-3">
       <div className="flex gap-2 text-xs"><Button variant="outline" size="sm" disabled={running} onClick={()=>void openSession()}>{t("httpFilesOpen")}</Button>
         {result&&<Button variant="outline" size="sm" onClick={onClearFile}>{t("httpFilesClose")}</Button>}</div>
+      <HttpRequestBuilder />
       <LiveHttpCapturePanel onStarted={onLiveStarted} onFinalized={onLiveFinalized} showAnalyzer={!result} />
       {/* Capture source. Once a session is loaded this collapses by default so
           the analyzer gets the screen; reopening it is one click. */}
