@@ -185,6 +185,8 @@ export type AffectedBreakdownRow = {
   evidence_refs: string[];
 };
 
+export type SloTargetEvaluation = {target_id:string; matched_metric_count:number; status:"no_evidence" | "satisfied" | "violated"};
+
 export type SloAnalysisResult = {
   generated_at: string;
   window_label: string;
@@ -192,6 +194,7 @@ export type SloAnalysisResult = {
   metric_count: number;
   violation_count: number;
   violations_by_severity: Record<SloSeverity, number>;
+  target_evaluations: SloTargetEvaluation[];
   targets: SloTarget[];
   metrics: SliMetric[];
   violations: SloViolation[];
@@ -209,6 +212,7 @@ export type SloAnalysisExportResult = WorkspaceAnalysisResult &
       signal_count: number;
       metric_count: number;
       target_count: number;
+      unevaluated_target_count: number;
       violation_count: number;
       critical_violation_count: number;
       warning_violation_count: number;
@@ -220,6 +224,7 @@ export type SloAnalysisExportResult = WorkspaceAnalysisResult &
     };
     tables: {
       targets: SloTarget[];
+      target_evaluations: SloTargetEvaluation[];
       signals: GoldenSignal[];
       metrics: SliMetric[];
       violations: SloViolation[];
@@ -515,6 +520,10 @@ export function analyzeSloViolations(
   return {
     generated_at: new Date().toISOString(),
     window_label: "session",
+    target_evaluations: targets.map(target => {
+      const count=metrics.filter(metric=>matchesTarget(metric,target)).length;
+      return {target_id:target.id,matched_metric_count:count,status:count===0 ? "no_evidence" : violations.some(v=>v.target_id===target.id) ? "violated" : "satisfied"};
+    }),
     target_count: targets.length,
     metric_count: metrics.length,
     violation_count: violations.length,
@@ -564,6 +573,7 @@ export function buildSloAnalysisResultFromEntries(
       signal_count: inventory.signal_count,
       metric_count: metricModel.metric_count,
       target_count: analysis.target_count,
+      unevaluated_target_count:analysis.target_evaluations.filter(row=>row.status==="no_evidence").length,
       violation_count: analysis.violation_count,
       critical_violation_count: analysis.violations_by_severity.critical,
       warning_violation_count: analysis.violations_by_severity.warning,
@@ -584,6 +594,7 @@ export function buildSloAnalysisResultFromEntries(
     },
     tables: {
       targets: analysis.targets,
+      target_evaluations:analysis.target_evaluations,
       signals: inventory.signals,
       metrics: metricModel.metrics,
       violations: analysis.violations,

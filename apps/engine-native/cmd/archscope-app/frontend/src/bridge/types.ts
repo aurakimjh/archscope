@@ -784,11 +784,13 @@ export type AccessLogFormat =
 
 export type AccessLogSummary = {
   total_requests: number;
-  avg_response_ms: number;
-  p50_response_ms?: number;
-  p90_response_ms?: number;
-  p95_response_ms: number;
-  p99_response_ms: number;
+  response_time_sample_count?: number;
+  response_time_unknown_count?: number;
+  avg_response_ms: number | null;
+  p50_response_ms?: number | null;
+  p90_response_ms?: number | null;
+  p95_response_ms: number | null;
+  p99_response_ms: number | null;
   error_rate: number;
   error_count?: number;
   total_bytes?: number;
@@ -799,9 +801,9 @@ export type AccessLogSummary = {
   api_count?: number;
   static_bytes?: number;
   api_bytes?: number;
-  static_avg_response_ms?: number;
-  api_avg_response_ms?: number;
-  api_p95_response_ms?: number;
+  static_avg_response_ms?: number | null;
+  api_avg_response_ms?: number | null;
+  api_p95_response_ms?: number | null;
   earliest_timestamp?: string | null;
   latest_timestamp?: string | null;
   unique_uris?: number;
@@ -809,11 +811,13 @@ export type AccessLogSummary = {
   upstream_service_count?: number;
   route_count?: number;
   service_edge_count?: number;
-  gateway_avg_latency_ms?: number;
-  gateway_p95_latency_ms?: number;
+  gateway_avg_latency_ms?: number | null;
+  gateway_p95_latency_ms?: number | null;
   retry_count?: number;
   termination_error_count?: number;
 };
+
+export type NullableTimeValuePoint = {time: string; value: number | null; sample_count?: number; unknown_count?: number};
 
 export type TimeValuePoint = {
   time: string;
@@ -832,7 +836,7 @@ export type TopUrlCountRow = {
 
 export type TopUrlAvgResponseRow = {
   uri: string;
-  avg_response_ms: number;
+  avg_response_ms: number | null;
   count: number;
 };
 
@@ -893,11 +897,11 @@ export type UpstreamServiceDistributionRow = {
 
 export type AccessLogSeries = {
   requests_per_minute: TimeValuePoint[];
-  avg_response_time_per_minute: TimeValuePoint[];
-  p50_response_time_per_minute?: TimeValuePoint[];
-  p90_response_time_per_minute?: TimeValuePoint[];
-  p95_response_time_per_minute: TimeValuePoint[];
-  p99_response_time_per_minute?: TimeValuePoint[];
+  avg_response_time_per_minute: NullableTimeValuePoint[];
+  p50_response_time_per_minute?: NullableTimeValuePoint[];
+  p90_response_time_per_minute?: NullableTimeValuePoint[];
+  p95_response_time_per_minute: NullableTimeValuePoint[];
+  p99_response_time_per_minute?: NullableTimeValuePoint[];
   status_class_per_minute?: StatusClassPerMinuteRow[];
   error_rate_per_minute?: ErrorRatePerMinuteRow[];
   bytes_per_minute?: TimeValuePoint[];
@@ -916,11 +920,11 @@ export type AccessLogUrlStatRow = {
   method?: string;
   classification?: "static" | "api" | string;
   count: number;
-  avg_response_ms: number;
-  p50_response_ms?: number;
-  p90_response_ms?: number;
-  p95_response_ms: number;
-  p99_response_ms?: number;
+  avg_response_ms: number | null;
+  p50_response_ms?: number | null;
+  p90_response_ms?: number | null;
+  p95_response_ms: number | null;
+  p99_response_ms?: number | null;
   total_bytes?: number;
   error_count?: number;
   status_2xx?: number;
@@ -939,7 +943,7 @@ export type AccessLogSampleRecordRow = {
   method: string;
   uri: string;
   status: number;
-  response_time_ms: number;
+  response_time_ms: number | null;
   source_format?: string;
   route?: string;
   upstream_service?: string;
@@ -951,9 +955,9 @@ export type AccessLogServiceDependencyRow = {
   caller: string;
   callee: string;
   call_count: number;
-  total_duration_ms: number;
-  avg_duration_ms: number;
-  max_duration_ms: number;
+  total_duration_ms: number | null;
+  avg_duration_ms: number | null;
+  max_duration_ms: number | null;
   error_count: number;
   error_rate: number;
   retry_count: number;
@@ -964,8 +968,8 @@ export type AccessLogServiceDependencyRow = {
 export type AccessLogRouteStatRow = {
   route: string;
   count: number;
-  avg_response_ms: number;
-  max_response_ms: number;
+  avg_response_ms: number | null;
+  max_response_ms: number | null;
   error_count: number;
   error_rate: number;
   source_formats: string[];

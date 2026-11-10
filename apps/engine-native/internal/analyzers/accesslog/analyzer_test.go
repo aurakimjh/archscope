@@ -313,7 +313,7 @@ func TestAnalyzeMarshalsToJSONWithExtraInline(t *testing.T) {
 	for _, want := range []string{
 		`"type":"access_log"`,
 		`"parser":"nginx_combined_with_response_time"`,
-		`"schema_version":"0.2.0"`,
+		`"schema_version":"0.3.0"`,
 		`"format":"nginx"`,
 		`"analysis_options":`,
 		`"diagnostics":`,

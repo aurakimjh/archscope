@@ -1472,3 +1472,15 @@ unverified legacy inclusive sum. Overall available/unavailable trace counts
 remain separate from the top-N path table.
 
 Trace dependency calls (T-616) pair explicit direct CLIENT/SERVER spans by trace and span identity. A one-to-one pair uses CLIENT elapsed time and either-side error status once. Single-sided exports remain usable. Several SERVER children of one aggregate CLIENT remain separate attempts using their own server timings/errors; the aggregate client is not added again. A SERVER remote peer is incoming, not an outgoing dependency. Unspecified kinds are not deduplicated by service names alone. `metadata.dependency_call_policy` versions this policy.
+
+Access-log latency availability (schema 0.3.0, T-617): missing, sentinel or
+malformed response durations remain unavailable; measured zero remains zero.
+`response_time_sample_count` / `response_time_unknown_count` accompany total
+latency statistics. Empty latency statistics and minute/sample values are null,
+not zero. URL/route rows carry the same denominators; dependency rows expose
+`duration_sample_count` / `duration_unknown_count`. Request/error/byte counts
+include all accepted requests. Service Flow weights latency by measured samples
+while retaining full traffic counts. SLO exports include per-target
+`target_evaluations` and `unevaluated_target_count`: no matched latency evidence
+means not assessed, rather than satisfied. Existing programmatic Record inputs
+remain measured by default; parsers explicitly mark unavailable durations.

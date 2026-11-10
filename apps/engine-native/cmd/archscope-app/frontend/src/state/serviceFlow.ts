@@ -22,6 +22,7 @@ export type ServiceFlowInputEdge = {
   caller: string;
   callee: string;
   call_count: number;
+  latency_sample_count?: number;
   total_latency_ms?: number;
   avg_latency_ms?: number;
   max_latency_ms?: number;
@@ -51,6 +52,7 @@ export type ServiceEdge = {
   caller: string;
   callee: string;
   call_count: number;
+  latency_sample_count?: number;
   total_latency_ms?: number;
   avg_latency_ms?: number;
   max_latency_ms?: number;
@@ -357,6 +359,7 @@ function accessLogEdges(entry: AnalysisWorkspaceEntry): ServiceFlowInputEdge[] {
       caller,
       callee,
       callCount: numberValue(row.call_count, 1),
+      latencySampleCount: optionalNumber(row.duration_sample_count),
       totalLatencyMs: optionalNumber(row.total_duration_ms),
       avgLatencyMs: optionalNumber(row.avg_duration_ms),
       maxLatencyMs: optionalNumber(row.max_duration_ms),
@@ -493,6 +496,7 @@ function makeInputEdge(
     caller: string;
     callee: string;
     callCount: number;
+    latencySampleCount?: number;
     totalLatencyMs?: number;
     avgLatencyMs?: number;
     maxLatencyMs?: number;
@@ -520,6 +524,7 @@ function makeInputEdge(
     caller: input.caller,
     callee: input.callee,
     call_count: Math.max(1, Math.round(input.callCount)),
+    latency_sample_count: input.latencySampleCount,
     total_latency_ms: input.totalLatencyMs,
     avg_latency_ms: input.avgLatencyMs,
     max_latency_ms: input.maxLatencyMs,
@@ -567,6 +572,7 @@ function groupServiceEdges(edges: ServiceFlowInputEdge[]): Map<string, ServiceEd
   for (const [key, bucket] of buckets.entries()) {
     const representative = bucket[0];
     const callCount = sum(bucket.map((edge) => edge.call_count));
+    const latencyCount = sum(bucket.map(edge => edge.latency_sample_count ?? (edge.avg_latency_ms === undefined && edge.total_latency_ms === undefined ? 0 : edge.call_count)));
     const totalLatency = sumOptional(bucket.map((edge) => edge.total_latency_ms ?? derivedTotalLatency(edge)));
     const maxLatency = maxOptional(bucket.flatMap((edge) => [edge.max_latency_ms, edge.avg_latency_ms]));
     const errorCount = Math.round(sum(bucket.map((edge) => edge.error_count ?? 0)));
@@ -583,9 +589,10 @@ function groupServiceEdges(edges: ServiceFlowInputEdge[]): Map<string, ServiceEd
       caller: representative.caller,
       callee: representative.callee,
       call_count: callCount,
+      latency_sample_count: latencyCount,
       total_latency_ms: roundOptional(totalLatency, 3),
       avg_latency_ms: roundOptional(
-        totalLatency === undefined ? avgOptional(bucket.map((edge) => edge.avg_latency_ms)) : totalLatency / callCount,
+        totalLatency === undefined || latencyCount === 0 ? avgOptional(bucket.map((edge) => edge.avg_latency_ms)) : totalLatency / latencyCount,
         3,
       ),
       max_latency_ms: roundOptional(maxLatency, 3),
@@ -635,7 +642,7 @@ function serviceIdentityKey(value: string): string {
 }
 
 function derivedTotalLatency(edge: ServiceFlowInputEdge): number | undefined {
-  return edge.avg_latency_ms === undefined ? undefined : edge.avg_latency_ms * Math.max(1, edge.call_count);
+  return edge.avg_latency_ms === undefined ? undefined : edge.avg_latency_ms * (edge.latency_sample_count ?? Math.max(1, edge.call_count));
 }
 
 function matchedCallCount(edge: ServiceFlowInputEdge): number {

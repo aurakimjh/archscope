@@ -67,12 +67,15 @@ type Record struct {
 	URI            string
 	Status         int
 	ResponseTimeMS float64
-	BytesSent      int
-	ClientIP       string
-	UserAgent      string
-	Referer        string
-	RawLine        string
-	SourceFormat   string
+	// ResponseTimeUnavailable distinguishes an absent/invalid duration from a measured zero.
+	// Its zero value preserves compatibility with programmatic measured records.
+	ResponseTimeUnavailable bool
+	BytesSent               int
+	ClientIP                string
+	UserAgent               string
+	Referer                 string
+	RawLine                 string
+	SourceFormat            string
 
 	Host              string
 	Protocol          string
@@ -277,18 +280,19 @@ func parseCombinedLikeLine(line, format string) (*Record, *parseError) {
 	}
 
 	return &Record{
-		Timestamp:      ts,
-		Method:         groups["method"],
-		URI:            groups["uri"],
-		Status:         status,
-		ResponseTimeMS: responseTimeMS,
-		BytesSent:      bytesSent,
-		ClientIP:       groups["client_ip"],
-		UserAgent:      groups["user_agent"],
-		Referer:        groups["referer"],
-		RawLine:        line,
-		SourceFormat:   format,
-		Protocol:       groups["protocol"],
+		Timestamp:               ts,
+		Method:                  groups["method"],
+		URI:                     groups["uri"],
+		Status:                  status,
+		ResponseTimeMS:          responseTimeMS,
+		ResponseTimeUnavailable: !(hasResponseTime),
+		BytesSent:               bytesSent,
+		ClientIP:                groups["client_ip"],
+		UserAgent:               groups["user_agent"],
+		Referer:                 groups["referer"],
+		RawLine:                 line,
+		SourceFormat:            format,
+		Protocol:                groups["protocol"],
 	}, nil
 }
 
@@ -577,23 +581,24 @@ func parseHAProxyLine(line, format string) (*Record, *parseError) {
 		uri = request
 	}
 	record := &Record{
-		Timestamp:         ts,
-		Method:            method,
-		URI:               uri,
-		Status:            status,
-		ResponseTimeMS:    totalMS,
-		BytesSent:         bytesSent,
-		ClientIP:          client,
-		RawLine:           line,
-		SourceFormat:      format,
-		BackendName:       backendName,
-		BackendServer:     serverName,
-		UpstreamService:   backendName,
-		UpstreamLatencyMS: upstreamMS,
-		GatewayLatencyMS:  math.Max(0, totalMS-upstreamMS),
-		TerminationState:  termination,
-		RetryCount:        retries,
-		ServiceName:       "haproxy",
+		Timestamp:               ts,
+		Method:                  method,
+		URI:                     uri,
+		Status:                  status,
+		ResponseTimeMS:          totalMS,
+		ResponseTimeUnavailable: !(durationAvailable(timings[4])),
+		BytesSent:               bytesSent,
+		ClientIP:                client,
+		RawLine:                 line,
+		SourceFormat:            format,
+		BackendName:             backendName,
+		BackendServer:           serverName,
+		UpstreamService:         backendName,
+		UpstreamLatencyMS:       upstreamMS,
+		GatewayLatencyMS:        math.Max(0, totalMS-upstreamMS),
+		TerminationState:        termination,
+		RetryCount:              retries,
+		ServiceName:             "haproxy",
 	}
 	return validateRecord(record)
 }
@@ -621,24 +626,25 @@ func parseEnvoyTextLine(line, format string) (*Record, *parseError) {
 		uri = request
 	}
 	record := &Record{
-		Timestamp:         ts,
-		Method:            method,
-		URI:               uri,
-		Status:            status,
-		ResponseTimeMS:    durationMS,
-		BytesSent:         bytesOut,
-		UserAgent:         groups["user_agent"],
-		RawLine:           line,
-		SourceFormat:      format,
-		Host:              groups["authority"],
-		UpstreamService:   normalizeClusterService(groups["upstream_cluster"]),
-		UpstreamCluster:   groups["upstream_cluster"],
-		ResponseFlags:     groups["flags"],
-		TraceID:           groups["request_id"],
-		RequestID:         groups["request_id"],
-		UpstreamLatencyMS: upstreamMS,
-		GatewayLatencyMS:  math.Max(0, durationMS-upstreamMS),
-		ServiceName:       "envoy",
+		Timestamp:               ts,
+		Method:                  method,
+		URI:                     uri,
+		Status:                  status,
+		ResponseTimeMS:          durationMS,
+		ResponseTimeUnavailable: !(durationAvailable(groups["duration_ms"])),
+		BytesSent:               bytesOut,
+		UserAgent:               groups["user_agent"],
+		RawLine:                 line,
+		SourceFormat:            format,
+		Host:                    groups["authority"],
+		UpstreamService:         normalizeClusterService(groups["upstream_cluster"]),
+		UpstreamCluster:         groups["upstream_cluster"],
+		ResponseFlags:           groups["flags"],
+		TraceID:                 groups["request_id"],
+		RequestID:               groups["request_id"],
+		UpstreamLatencyMS:       upstreamMS,
+		GatewayLatencyMS:        math.Max(0, durationMS-upstreamMS),
+		ServiceName:             "envoy",
 	}
 	return validateRecord(record)
 }
@@ -665,27 +671,28 @@ func parseEnvoyJSONLine(line, format string) (*Record, *parseError) {
 		method = "UNKNOWN"
 	}
 	record := &Record{
-		Timestamp:         ts,
-		Method:            method,
-		URI:               firstNonEmpty(pathFromMaybeURL(uri), "/"),
-		Status:            status,
-		ResponseTimeMS:    durationMS,
-		BytesSent:         intFromAny(firstAny(payload, "bytes_sent", "response_size", "response_bytes")),
-		ClientIP:          firstNonEmpty(stringValue(firstAny(payload, "downstream_remote_address", "client_ip")), hostPart(stringValue(firstAny(payload, "x_forwarded_for")))),
-		UserAgent:         stringValue(firstAny(payload, "user_agent")),
-		RawLine:           line,
-		SourceFormat:      format,
-		Host:              stringValue(firstAny(payload, "authority", "host", "request_host")),
-		Protocol:          stringValue(firstAny(payload, "protocol")),
-		Route:             stringValue(firstAny(payload, "route_name", "route")),
-		UpstreamCluster:   stringValue(firstAny(payload, "upstream_cluster")),
-		UpstreamService:   firstNonEmpty(stringValue(firstAny(payload, "upstream_service", "destination_service")), normalizeClusterService(stringValue(firstAny(payload, "upstream_cluster")))),
-		ResponseFlags:     stringValue(firstAny(payload, "response_flags")),
-		TraceID:           firstNonEmpty(stringValue(firstAny(payload, "trace_id")), stringValue(firstAny(payload, "x_b3_traceid"))),
-		RequestID:         firstNonEmpty(stringValue(firstAny(payload, "request_id")), stringValue(firstAny(payload, "x_request_id"))),
-		UpstreamLatencyMS: upstreamMS,
-		GatewayLatencyMS:  math.Max(0, durationMS-upstreamMS),
-		ServiceName:       firstNonEmpty(stringValue(firstAny(payload, "service_name", "source_service")), "envoy"),
+		Timestamp:               ts,
+		Method:                  method,
+		URI:                     firstNonEmpty(pathFromMaybeURL(uri), "/"),
+		Status:                  status,
+		ResponseTimeMS:          durationMS,
+		ResponseTimeUnavailable: !(durationAvailable(firstAny(payload, "duration", "duration_ms", "request_duration", "request_duration_ms"))),
+		BytesSent:               intFromAny(firstAny(payload, "bytes_sent", "response_size", "response_bytes")),
+		ClientIP:                firstNonEmpty(stringValue(firstAny(payload, "downstream_remote_address", "client_ip")), hostPart(stringValue(firstAny(payload, "x_forwarded_for")))),
+		UserAgent:               stringValue(firstAny(payload, "user_agent")),
+		RawLine:                 line,
+		SourceFormat:            format,
+		Host:                    stringValue(firstAny(payload, "authority", "host", "request_host")),
+		Protocol:                stringValue(firstAny(payload, "protocol")),
+		Route:                   stringValue(firstAny(payload, "route_name", "route")),
+		UpstreamCluster:         stringValue(firstAny(payload, "upstream_cluster")),
+		UpstreamService:         firstNonEmpty(stringValue(firstAny(payload, "upstream_service", "destination_service")), normalizeClusterService(stringValue(firstAny(payload, "upstream_cluster")))),
+		ResponseFlags:           stringValue(firstAny(payload, "response_flags")),
+		TraceID:                 firstNonEmpty(stringValue(firstAny(payload, "trace_id")), stringValue(firstAny(payload, "x_b3_traceid"))),
+		RequestID:               firstNonEmpty(stringValue(firstAny(payload, "request_id")), stringValue(firstAny(payload, "x_request_id"))),
+		UpstreamLatencyMS:       upstreamMS,
+		GatewayLatencyMS:        math.Max(0, durationMS-upstreamMS),
+		ServiceName:             firstNonEmpty(stringValue(firstAny(payload, "service_name", "source_service")), "envoy"),
 	}
 	return validateRecord(record)
 }
@@ -709,21 +716,22 @@ func parseAWSELBLine(line, format string) (*Record, *parseError) {
 	responseMS := parsePositiveFloat(fields[6]) * 1000
 	method, uri, _ := splitRequestLine(fields[11])
 	record := &Record{
-		Timestamp:         ts,
-		Method:            firstNonEmpty(method, "UNKNOWN"),
-		URI:               firstNonEmpty(pathFromMaybeURL(uri), "/"),
-		Status:            status,
-		ResponseTimeMS:    requestMS + targetMS + responseMS,
-		BytesSent:         bytesSent,
-		ClientIP:          hostPart(fields[2]),
-		UserAgent:         fieldAt(fields, 12),
-		RawLine:           line,
-		SourceFormat:      format,
-		CloudProvider:     "aws",
-		ServiceName:       "aws-elb",
-		UpstreamService:   fields[3],
-		UpstreamLatencyMS: targetMS,
-		GatewayLatencyMS:  requestMS + responseMS,
+		Timestamp:               ts,
+		Method:                  firstNonEmpty(method, "UNKNOWN"),
+		URI:                     firstNonEmpty(pathFromMaybeURL(uri), "/"),
+		Status:                  status,
+		ResponseTimeMS:          requestMS + targetMS + responseMS,
+		ResponseTimeUnavailable: !(durationAvailable(fields[4]) && durationAvailable(fields[5]) && durationAvailable(fields[6])),
+		BytesSent:               bytesSent,
+		ClientIP:                hostPart(fields[2]),
+		UserAgent:               fieldAt(fields, 12),
+		RawLine:                 line,
+		SourceFormat:            format,
+		CloudProvider:           "aws",
+		ServiceName:             "aws-elb",
+		UpstreamService:         fields[3],
+		UpstreamLatencyMS:       targetMS,
+		GatewayLatencyMS:        requestMS + responseMS,
 	}
 	return validateRecord(record)
 }
@@ -747,25 +755,26 @@ func parseAWSALBLine(line, format string) (*Record, *parseError) {
 	responseMS := parsePositiveFloat(fields[7]) * 1000
 	method, uri, _ := splitRequestLine(fields[12])
 	record := &Record{
-		Timestamp:         ts,
-		Method:            firstNonEmpty(method, "UNKNOWN"),
-		URI:               firstNonEmpty(pathFromMaybeURL(uri), "/"),
-		Status:            status,
-		ResponseTimeMS:    requestMS + targetMS + responseMS,
-		BytesSent:         bytesSent,
-		ClientIP:          hostPart(fields[3]),
-		UserAgent:         fieldAt(fields, 13),
-		RawLine:           line,
-		SourceFormat:      format,
-		CloudProvider:     "aws",
-		ServiceName:       "aws-alb",
-		UpstreamService:   fields[4],
-		UpstreamLatencyMS: targetMS,
-		GatewayLatencyMS:  requestMS + responseMS,
-		TLSCipher:         fieldAt(fields, 14),
-		TLSVersion:        fieldAt(fields, 15),
-		TraceID:           cleanTraceID(fieldAt(fields, 16)),
-		Host:              fieldAt(fields, 17),
+		Timestamp:               ts,
+		Method:                  firstNonEmpty(method, "UNKNOWN"),
+		URI:                     firstNonEmpty(pathFromMaybeURL(uri), "/"),
+		Status:                  status,
+		ResponseTimeMS:          requestMS + targetMS + responseMS,
+		ResponseTimeUnavailable: !(durationAvailable(fields[5]) && durationAvailable(fields[6]) && durationAvailable(fields[7])),
+		BytesSent:               bytesSent,
+		ClientIP:                hostPart(fields[3]),
+		UserAgent:               fieldAt(fields, 13),
+		RawLine:                 line,
+		SourceFormat:            format,
+		CloudProvider:           "aws",
+		ServiceName:             "aws-alb",
+		UpstreamService:         fields[4],
+		UpstreamLatencyMS:       targetMS,
+		GatewayLatencyMS:        requestMS + responseMS,
+		TLSCipher:               fieldAt(fields, 14),
+		TLSVersion:              fieldAt(fields, 15),
+		TraceID:                 cleanTraceID(fieldAt(fields, 16)),
+		Host:                    fieldAt(fields, 17),
 	}
 	return validateRecord(record)
 }
@@ -790,27 +799,28 @@ func parseCloudFrontLine(line, format string) (*Record, *parseError) {
 		uri += "?" + fields[11]
 	}
 	record := &Record{
-		Timestamp:        ts.UTC(),
-		Method:           fields[5],
-		URI:              firstNonEmpty(uri, "/"),
-		Status:           status,
-		ResponseTimeMS:   responseMS,
-		BytesSent:        bytesSent,
-		ClientIP:         fields[4],
-		UserAgent:        fields[10],
-		Referer:          fields[9],
-		RawLine:          line,
-		SourceFormat:     format,
-		CloudProvider:    "aws",
-		EdgeLocation:     fields[2],
-		Host:             fields[6],
-		ServiceName:      "cloudfront",
-		GatewayLatencyMS: responseMS,
-		TLSVersion:       fieldAt(fields, 20),
-		TLSCipher:        fieldAt(fields, 21),
-		ResponseFlags:    fieldAt(fields, 13),
-		RequestID:        fieldAt(fields, 14),
-		Protocol:         fieldAt(fields, 23),
+		Timestamp:               ts.UTC(),
+		Method:                  fields[5],
+		URI:                     firstNonEmpty(uri, "/"),
+		Status:                  status,
+		ResponseTimeMS:          responseMS,
+		ResponseTimeUnavailable: !(durationAvailable(fields[18])),
+		BytesSent:               bytesSent,
+		ClientIP:                fields[4],
+		UserAgent:               fields[10],
+		Referer:                 fields[9],
+		RawLine:                 line,
+		SourceFormat:            format,
+		CloudProvider:           "aws",
+		EdgeLocation:            fields[2],
+		Host:                    fields[6],
+		ServiceName:             "cloudfront",
+		GatewayLatencyMS:        responseMS,
+		TLSVersion:              fieldAt(fields, 20),
+		TLSCipher:               fieldAt(fields, 21),
+		ResponseFlags:           fieldAt(fields, 13),
+		RequestID:               fieldAt(fields, 14),
+		Protocol:                fieldAt(fields, 23),
 	}
 	return validateRecord(record)
 }
@@ -828,23 +838,24 @@ func parseGCPHTTPLBJSONLine(line, format string) (*Record, *parseError) {
 	resource := mapAt(payload, "resource")
 	labels := mapAt(resource, "labels")
 	record := &Record{
-		Timestamp:        ts,
-		Method:           firstNonEmpty(method, "UNKNOWN"),
-		URI:              firstNonEmpty(uri, "/"),
-		Status:           status,
-		ResponseTimeMS:   latencyMS,
-		BytesSent:        intFromAny(firstAny(httpReq, "responseSize")),
-		ClientIP:         stringValue(firstAny(httpReq, "remoteIp")),
-		UserAgent:        stringValue(firstAny(httpReq, "userAgent")),
-		Referer:          stringValue(firstAny(httpReq, "referer")),
-		RawLine:          line,
-		SourceFormat:     format,
-		CloudProvider:    "gcp",
-		Host:             hostFromURL(stringValue(firstAny(httpReq, "requestUrl"))),
-		ServiceName:      "gcp-http-lb",
-		UpstreamService:  firstNonEmpty(stringValue(firstAny(labels, "backend_service_name")), stringValue(firstAny(labels, "url_map_name"))),
-		GatewayLatencyMS: latencyMS,
-		RequestID:        stringValue(firstAny(payload, "insertId")),
+		Timestamp:               ts,
+		Method:                  firstNonEmpty(method, "UNKNOWN"),
+		URI:                     firstNonEmpty(uri, "/"),
+		Status:                  status,
+		ResponseTimeMS:          latencyMS,
+		ResponseTimeUnavailable: !(durationAvailable(firstAny(httpReq, "latency"))),
+		BytesSent:               intFromAny(firstAny(httpReq, "responseSize")),
+		ClientIP:                stringValue(firstAny(httpReq, "remoteIp")),
+		UserAgent:               stringValue(firstAny(httpReq, "userAgent")),
+		Referer:                 stringValue(firstAny(httpReq, "referer")),
+		RawLine:                 line,
+		SourceFormat:            format,
+		CloudProvider:           "gcp",
+		Host:                    hostFromURL(stringValue(firstAny(httpReq, "requestUrl"))),
+		ServiceName:             "gcp-http-lb",
+		UpstreamService:         firstNonEmpty(stringValue(firstAny(labels, "backend_service_name")), stringValue(firstAny(labels, "url_map_name"))),
+		GatewayLatencyMS:        latencyMS,
+		RequestID:               stringValue(firstAny(payload, "insertId")),
 	}
 	return validateRecord(record)
 }
@@ -867,23 +878,24 @@ func parseAzureJSONLine(line, format string) (*Record, *parseError) {
 	status := intFromAny(firstAny(props, "httpStatusCode", "statusCode", "status", "scStatus"))
 	latencyMS := durationToMS(firstAny(props, "timeTaken", "timeTaken_d", "durationMs", "backendResponseLatency"))
 	record := &Record{
-		Timestamp:        ts,
-		Method:           firstNonEmpty(method, "UNKNOWN"),
-		URI:              firstNonEmpty(uri, "/"),
-		Status:           status,
-		ResponseTimeMS:   latencyMS,
-		BytesSent:        intFromAny(firstAny(props, "responseBytes", "sentBytes")),
-		ClientIP:         firstNonEmpty(stringValue(firstAny(props, "clientIp", "clientIP", "clientIP_s")), stringValue(firstAny(payload, "clientIp"))),
-		UserAgent:        stringValue(firstAny(props, "userAgent")),
-		RawLine:          line,
-		SourceFormat:     format,
-		CloudProvider:    "azure",
-		Host:             firstNonEmpty(stringValue(firstAny(props, "hostName", "host", "requestHost")), hostFromURL(uri)),
-		Route:            stringValue(firstAny(props, "routingRuleName", "routeName")),
-		ServiceName:      azureServiceName(format),
-		UpstreamService:  stringValue(firstAny(props, "backendHostname", "backendPoolName", "originName")),
-		GatewayLatencyMS: latencyMS,
-		RequestID:        firstNonEmpty(stringValue(firstAny(props, "trackingReference")), stringValue(firstAny(payload, "operation_Id"))),
+		Timestamp:               ts,
+		Method:                  firstNonEmpty(method, "UNKNOWN"),
+		URI:                     firstNonEmpty(uri, "/"),
+		Status:                  status,
+		ResponseTimeMS:          latencyMS,
+		ResponseTimeUnavailable: !(durationAvailable(firstAny(props, "timeTaken", "timeTaken_d", "durationMs", "backendResponseLatency"))),
+		BytesSent:               intFromAny(firstAny(props, "responseBytes", "sentBytes")),
+		ClientIP:                firstNonEmpty(stringValue(firstAny(props, "clientIp", "clientIP", "clientIP_s")), stringValue(firstAny(payload, "clientIp"))),
+		UserAgent:               stringValue(firstAny(props, "userAgent")),
+		RawLine:                 line,
+		SourceFormat:            format,
+		CloudProvider:           "azure",
+		Host:                    firstNonEmpty(stringValue(firstAny(props, "hostName", "host", "requestHost")), hostFromURL(uri)),
+		Route:                   stringValue(firstAny(props, "routingRuleName", "routeName")),
+		ServiceName:             azureServiceName(format),
+		UpstreamService:         stringValue(firstAny(props, "backendHostname", "backendPoolName", "originName")),
+		GatewayLatencyMS:        latencyMS,
+		RequestID:               firstNonEmpty(stringValue(firstAny(props, "trackingReference")), stringValue(firstAny(payload, "operation_Id"))),
 	}
 	return validateRecord(record)
 }
@@ -898,20 +910,21 @@ func parseCaddyJSONLine(line, format string) (*Record, *parseError) {
 	status := intFromAny(firstAny(payload, "status", "resp_status"))
 	latencyMS := durationToMS(firstAny(payload, "duration", "duration_ms"))
 	record := &Record{
-		Timestamp:        ts,
-		Method:           firstNonEmpty(stringValue(firstAny(req, "method")), stringValue(firstAny(payload, "method")), "UNKNOWN"),
-		URI:              firstNonEmpty(stringValue(firstAny(req, "uri")), stringValue(firstAny(payload, "uri")), "/"),
-		Status:           status,
-		ResponseTimeMS:   latencyMS,
-		BytesSent:        intFromAny(firstAny(payload, "size", "resp_size")),
-		ClientIP:         firstNonEmpty(stringValue(firstAny(req, "remote_ip", "client_ip")), hostPart(stringValue(firstAny(req, "remote_addr")))),
-		UserAgent:        headerValue(req, "User-Agent"),
-		RawLine:          line,
-		SourceFormat:     format,
-		Host:             firstNonEmpty(headerValue(req, "Host"), stringValue(firstAny(req, "host"))),
-		ServiceName:      "caddy",
-		GatewayLatencyMS: latencyMS,
-		RequestID:        firstNonEmpty(headerValue(req, "X-Request-Id"), stringValue(firstAny(payload, "request_id"))),
+		Timestamp:               ts,
+		Method:                  firstNonEmpty(stringValue(firstAny(req, "method")), stringValue(firstAny(payload, "method")), "UNKNOWN"),
+		URI:                     firstNonEmpty(stringValue(firstAny(req, "uri")), stringValue(firstAny(payload, "uri")), "/"),
+		Status:                  status,
+		ResponseTimeMS:          latencyMS,
+		ResponseTimeUnavailable: !(durationAvailable(firstAny(payload, "duration", "duration_ms"))),
+		BytesSent:               intFromAny(firstAny(payload, "size", "resp_size")),
+		ClientIP:                firstNonEmpty(stringValue(firstAny(req, "remote_ip", "client_ip")), hostPart(stringValue(firstAny(req, "remote_addr")))),
+		UserAgent:               headerValue(req, "User-Agent"),
+		RawLine:                 line,
+		SourceFormat:            format,
+		Host:                    firstNonEmpty(headerValue(req, "Host"), stringValue(firstAny(req, "host"))),
+		ServiceName:             "caddy",
+		GatewayLatencyMS:        latencyMS,
+		RequestID:               firstNonEmpty(headerValue(req, "X-Request-Id"), stringValue(firstAny(payload, "request_id"))),
 	}
 	return validateRecord(record)
 }
@@ -925,23 +938,24 @@ func parseTraefikJSONLine(line, format string) (*Record, *parseError) {
 	durationMS := durationToMS(firstAny(payload, "Duration", "RequestDuration", "duration"))
 	upstreamMS := durationToMS(firstAny(payload, "OriginDuration"))
 	record := &Record{
-		Timestamp:         ts,
-		Method:            firstNonEmpty(stringValue(firstAny(payload, "RequestMethod")), "UNKNOWN"),
-		URI:               firstNonEmpty(stringValue(firstAny(payload, "RequestPath", "RequestAddr")), "/"),
-		Status:            intFromAny(firstAny(payload, "DownstreamStatus", "OriginStatus", "status")),
-		ResponseTimeMS:    durationMS,
-		BytesSent:         intFromAny(firstAny(payload, "DownstreamContentSize")),
-		ClientIP:          hostPart(stringValue(firstAny(payload, "ClientAddr", "ClientHost"))),
-		RawLine:           line,
-		SourceFormat:      format,
-		Host:              stringValue(firstAny(payload, "RequestHost")),
-		Route:             stringValue(firstAny(payload, "RouterName")),
-		ServiceName:       "traefik",
-		UpstreamService:   stringValue(firstAny(payload, "ServiceName")),
-		UpstreamLatencyMS: upstreamMS,
-		GatewayLatencyMS:  math.Max(0, durationMS-upstreamMS),
-		TLSVersion:        stringValue(firstAny(payload, "TLSVersion")),
-		RequestID:         stringValue(firstAny(payload, "RequestID")),
+		Timestamp:               ts,
+		Method:                  firstNonEmpty(stringValue(firstAny(payload, "RequestMethod")), "UNKNOWN"),
+		URI:                     firstNonEmpty(stringValue(firstAny(payload, "RequestPath", "RequestAddr")), "/"),
+		Status:                  intFromAny(firstAny(payload, "DownstreamStatus", "OriginStatus", "status")),
+		ResponseTimeMS:          durationMS,
+		ResponseTimeUnavailable: !(durationAvailable(firstAny(payload, "Duration", "RequestDuration", "duration"))),
+		BytesSent:               intFromAny(firstAny(payload, "DownstreamContentSize")),
+		ClientIP:                hostPart(stringValue(firstAny(payload, "ClientAddr", "ClientHost"))),
+		RawLine:                 line,
+		SourceFormat:            format,
+		Host:                    stringValue(firstAny(payload, "RequestHost")),
+		Route:                   stringValue(firstAny(payload, "RouterName")),
+		ServiceName:             "traefik",
+		UpstreamService:         stringValue(firstAny(payload, "ServiceName")),
+		UpstreamLatencyMS:       upstreamMS,
+		GatewayLatencyMS:        math.Max(0, durationMS-upstreamMS),
+		TLSVersion:              stringValue(firstAny(payload, "TLSVersion")),
+		RequestID:               stringValue(firstAny(payload, "RequestID")),
 	}
 	return validateRecord(record)
 }
@@ -962,24 +976,25 @@ func parseKongJSONLine(line, format string) (*Record, *parseError) {
 	requestMS := durationToMS(firstAny(latencies, "request"))
 	kongMS := durationToMS(firstAny(latencies, "kong"))
 	record := &Record{
-		Timestamp:         ts,
-		Method:            firstNonEmpty(stringValue(firstAny(req, "method")), "UNKNOWN"),
-		URI:               firstNonEmpty(stringValue(firstAny(req, "uri", "url", "path")), "/"),
-		Status:            intFromAny(firstAny(resp, "status", "status_code")),
-		ResponseTimeMS:    firstPositive(requestMS, proxyMS+kongMS),
-		BytesSent:         intFromAny(firstAny(resp, "size", "headers_size")),
-		ClientIP:          firstNonEmpty(stringValue(firstAny(req, "remote_addr", "client_ip")), hostPart(stringValue(firstAny(req, "forwarded_for")))),
-		UserAgent:         headerValue(req, "user-agent"),
-		RawLine:           line,
-		SourceFormat:      format,
-		Host:              firstNonEmpty(headerValue(req, "host"), stringValue(firstAny(req, "host"))),
-		Route:             stringValue(firstAny(route, "name", "id")),
-		ServiceName:       "kong",
-		UpstreamService:   firstNonEmpty(stringValue(firstAny(service, "name", "host")), stringValue(firstAny(payload, "upstream_uri"))),
-		UpstreamLatencyMS: proxyMS,
-		GatewayLatencyMS:  kongMS,
-		Consumer:          firstNonEmpty(stringValue(firstAny(consumer, "username", "custom_id", "id")), stringValue(firstAny(payload, "consumer"))),
-		RequestID:         firstNonEmpty(headerValue(req, "x-request-id"), stringValue(firstAny(payload, "request_id"))),
+		Timestamp:               ts,
+		Method:                  firstNonEmpty(stringValue(firstAny(req, "method")), "UNKNOWN"),
+		URI:                     firstNonEmpty(stringValue(firstAny(req, "uri", "url", "path")), "/"),
+		Status:                  intFromAny(firstAny(resp, "status", "status_code")),
+		ResponseTimeMS:          kongResponseTime(latencies, requestMS, proxyMS, kongMS),
+		ResponseTimeUnavailable: !(durationAvailable(firstAny(latencies, "request")) || (durationAvailable(firstAny(latencies, "proxy")) && durationAvailable(firstAny(latencies, "kong")))),
+		BytesSent:               intFromAny(firstAny(resp, "size", "headers_size")),
+		ClientIP:                firstNonEmpty(stringValue(firstAny(req, "remote_addr", "client_ip")), hostPart(stringValue(firstAny(req, "forwarded_for")))),
+		UserAgent:               headerValue(req, "user-agent"),
+		RawLine:                 line,
+		SourceFormat:            format,
+		Host:                    firstNonEmpty(headerValue(req, "host"), stringValue(firstAny(req, "host"))),
+		Route:                   stringValue(firstAny(route, "name", "id")),
+		ServiceName:             "kong",
+		UpstreamService:         firstNonEmpty(stringValue(firstAny(service, "name", "host")), stringValue(firstAny(payload, "upstream_uri"))),
+		UpstreamLatencyMS:       proxyMS,
+		GatewayLatencyMS:        kongMS,
+		Consumer:                firstNonEmpty(stringValue(firstAny(consumer, "username", "custom_id", "id")), stringValue(firstAny(payload, "consumer"))),
+		RequestID:               firstNonEmpty(headerValue(req, "x-request-id"), stringValue(firstAny(payload, "request_id"))),
 	}
 	return validateRecord(record)
 }
@@ -992,22 +1007,23 @@ func parseTykJSONLine(line, format string) (*Record, *parseError) {
 	ts := firstJSONTime(payload, "timestamp", "time", "request_time")
 	latencyMS := durationToMS(firstAny(payload, "latency", "total_time", "request_time_ms"))
 	record := &Record{
-		Timestamp:        ts,
-		Method:           firstNonEmpty(stringValue(firstAny(payload, "method", "http_method")), "UNKNOWN"),
-		URI:              firstNonEmpty(stringValue(firstAny(payload, "path", "uri", "request_path")), "/"),
-		Status:           intFromAny(firstAny(payload, "status", "status_code", "response_code")),
-		ResponseTimeMS:   latencyMS,
-		BytesSent:        intFromAny(firstAny(payload, "content_length", "response_size")),
-		ClientIP:         stringValue(firstAny(payload, "ip_address", "client_ip", "remote_addr")),
-		UserAgent:        stringValue(firstAny(payload, "user_agent")),
-		RawLine:          line,
-		SourceFormat:     format,
-		Route:            stringValue(firstAny(payload, "path", "route")),
-		ServiceName:      "tyk",
-		UpstreamService:  firstNonEmpty(stringValue(firstAny(payload, "api_name")), stringValue(firstAny(payload, "api_id"))),
-		GatewayLatencyMS: latencyMS,
-		Consumer:         firstNonEmpty(stringValue(firstAny(payload, "user_id", "oauth_id")), stringValue(firstAny(payload, "org_id"))),
-		RequestID:        stringValue(firstAny(payload, "request_id")),
+		Timestamp:               ts,
+		Method:                  firstNonEmpty(stringValue(firstAny(payload, "method", "http_method")), "UNKNOWN"),
+		URI:                     firstNonEmpty(stringValue(firstAny(payload, "path", "uri", "request_path")), "/"),
+		Status:                  intFromAny(firstAny(payload, "status", "status_code", "response_code")),
+		ResponseTimeMS:          latencyMS,
+		ResponseTimeUnavailable: !(durationAvailable(firstAny(payload, "latency", "total_time", "request_time_ms"))),
+		BytesSent:               intFromAny(firstAny(payload, "content_length", "response_size")),
+		ClientIP:                stringValue(firstAny(payload, "ip_address", "client_ip", "remote_addr")),
+		UserAgent:               stringValue(firstAny(payload, "user_agent")),
+		RawLine:                 line,
+		SourceFormat:            format,
+		Route:                   stringValue(firstAny(payload, "path", "route")),
+		ServiceName:             "tyk",
+		UpstreamService:         firstNonEmpty(stringValue(firstAny(payload, "api_name")), stringValue(firstAny(payload, "api_id"))),
+		GatewayLatencyMS:        latencyMS,
+		Consumer:                firstNonEmpty(stringValue(firstAny(payload, "user_id", "oauth_id")), stringValue(firstAny(payload, "org_id"))),
+		RequestID:               stringValue(firstAny(payload, "request_id")),
 	}
 	return validateRecord(record)
 }
@@ -1027,24 +1043,25 @@ func parseAPIGatewayJSONLine(line, format string) (*Record, *parseError) {
 	responseMS := durationToMS(firstAny(payload, "responseLatency", "latency", "duration"))
 	integrationMS := durationToMS(firstAny(payload, "integrationLatency"))
 	record := &Record{
-		Timestamp:         ts,
-		Method:            firstNonEmpty(method, "UNKNOWN"),
-		URI:               firstNonEmpty(uri, "/"),
-		Status:            intFromAny(firstAny(payload, "status", "statusCode")),
-		ResponseTimeMS:    responseMS,
-		BytesSent:         intFromAny(firstAny(payload, "responseLength")),
-		ClientIP:          firstNonEmpty(stringValue(firstAny(payload, "sourceIp", "ip")), stringValue(firstAny(mapAt(context, "identity"), "sourceIp"))),
-		UserAgent:         firstNonEmpty(stringValue(firstAny(payload, "userAgent")), stringValue(firstAny(mapAt(context, "identity"), "userAgent"))),
-		RawLine:           line,
-		SourceFormat:      format,
-		CloudProvider:     "aws",
-		Host:              stringValue(firstAny(payload, "domainName")),
-		Route:             firstNonEmpty(stringValue(firstAny(payload, "routeKey")), stringValue(firstAny(context, "routeKey"))),
-		ServiceName:       "aws-api-gateway",
-		UpstreamService:   stringValue(firstAny(payload, "integrationService", "apiName")),
-		UpstreamLatencyMS: integrationMS,
-		GatewayLatencyMS:  math.Max(0, responseMS-integrationMS),
-		RequestID:         firstNonEmpty(stringValue(firstAny(payload, "requestId")), stringValue(firstAny(context, "requestId"))),
+		Timestamp:               ts,
+		Method:                  firstNonEmpty(method, "UNKNOWN"),
+		URI:                     firstNonEmpty(uri, "/"),
+		Status:                  intFromAny(firstAny(payload, "status", "statusCode")),
+		ResponseTimeMS:          responseMS,
+		ResponseTimeUnavailable: !(durationAvailable(firstAny(payload, "responseLatency", "latency", "duration"))),
+		BytesSent:               intFromAny(firstAny(payload, "responseLength")),
+		ClientIP:                firstNonEmpty(stringValue(firstAny(payload, "sourceIp", "ip")), stringValue(firstAny(mapAt(context, "identity"), "sourceIp"))),
+		UserAgent:               firstNonEmpty(stringValue(firstAny(payload, "userAgent")), stringValue(firstAny(mapAt(context, "identity"), "userAgent"))),
+		RawLine:                 line,
+		SourceFormat:            format,
+		CloudProvider:           "aws",
+		Host:                    stringValue(firstAny(payload, "domainName")),
+		Route:                   firstNonEmpty(stringValue(firstAny(payload, "routeKey")), stringValue(firstAny(context, "routeKey"))),
+		ServiceName:             "aws-api-gateway",
+		UpstreamService:         stringValue(firstAny(payload, "integrationService", "apiName")),
+		UpstreamLatencyMS:       integrationMS,
+		GatewayLatencyMS:        math.Max(0, responseMS-integrationMS),
+		RequestID:               firstNonEmpty(stringValue(firstAny(payload, "requestId")), stringValue(firstAny(context, "requestId"))),
 	}
 	return validateRecord(record)
 }
@@ -1081,18 +1098,19 @@ func parseIISW3CLine(line string, fields []string) (*Record, *parseError) {
 		uri += "?" + query
 	}
 	record := &Record{
-		Timestamp:        ts.UTC(),
-		Method:           firstNonEmpty(row["cs-method"], "UNKNOWN"),
-		URI:              firstNonEmpty(uri, "/"),
-		Status:           status,
-		ResponseTimeMS:   parsePositiveFloat(row["time-taken"]),
-		ClientIP:         row["c-ip"],
-		UserAgent:        row["cs(User-Agent)"],
-		RawLine:          line,
-		SourceFormat:     "iis-w3c",
-		Host:             row["cs-host"],
-		ServiceName:      "iis",
-		GatewayLatencyMS: parsePositiveFloat(row["time-taken"]),
+		Timestamp:               ts.UTC(),
+		Method:                  firstNonEmpty(row["cs-method"], "UNKNOWN"),
+		URI:                     firstNonEmpty(uri, "/"),
+		Status:                  status,
+		ResponseTimeMS:          parsePositiveFloat(row["time-taken"]),
+		ResponseTimeUnavailable: !(durationAvailable(row["time-taken"])),
+		ClientIP:                row["c-ip"],
+		UserAgent:               row["cs(User-Agent)"],
+		RawLine:                 line,
+		SourceFormat:            "iis-w3c",
+		Host:                    row["cs-host"],
+		ServiceName:             "iis",
+		GatewayLatencyMS:        parsePositiveFloat(row["time-taken"]),
 	}
 	return validateRecord(record)
 }
@@ -1715,4 +1733,27 @@ func inTimeRange(value time.Time, start, end *time.Time) bool {
 		return false
 	}
 	return true
+}
+
+// Presence is checked before the permissive duration converter loses missing,
+// negative and malformed values as zero. Units do not affect availability.
+func durationAvailable(value any) bool {
+	text := strings.TrimSpace(fmt.Sprint(value))
+	if value == nil || text == "" || text == "-" {
+		return false
+	}
+	for _, unit := range []string{"ms", "us", "ns", "s"} {
+		if strings.HasSuffix(text, unit) {
+			text = strings.TrimSpace(strings.TrimSuffix(text, unit))
+			break
+		}
+	}
+	number, err := strconv.ParseFloat(text, 64)
+	return err == nil && number >= 0 && !math.IsNaN(number) && !math.IsInf(number, 0)
+}
+func kongResponseTime(latencies map[string]any, request, proxy, kong float64) float64 {
+	if durationAvailable(firstAny(latencies, "request")) {
+		return request
+	}
+	return proxy + kong
 }

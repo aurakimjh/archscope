@@ -136,6 +136,8 @@ export function SloGoldenSignalsPage(): React.JSX.Element {
         <MetricCard label={t("sloWarning")} value={warningCount.toLocaleString()} />
       </section>
 
+      <p className="text-xs text-muted-foreground" role="status">{t("sloUnevaluatedTargets")} {sloAnalysis.target_evaluations.filter(row=>row.status==="no_evidence").length}</p>
+
       <Card className="mt-4">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-sm">

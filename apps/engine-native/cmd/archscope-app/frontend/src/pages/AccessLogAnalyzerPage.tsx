@@ -389,6 +389,7 @@ export function AccessLogAnalyzerPage(): React.JSX.Element {
         </TabsList>
 
         <TabsContent value="summary" className="mt-4">
+          {summary?.response_time_sample_count != null && <p className="text-xs text-muted-foreground">{t("accessLogMeasuredLatency")} {summary.response_time_sample_count} / {summary.response_time_unknown_count ?? 0}</p>}
           <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
             <MetricCard
               label={t("totalRequests")}

@@ -3210,3 +3210,15 @@ const logicalTrace = entry("logical-trace","trace_import",{tables:{service_depen
 const logicalFlow = buildServiceFlowAnalysis([logicalTrace]);
 assert(logicalFlow.edge_model.total_call_count===1 && logicalFlow.edge_model.total_error_count===1,"Service Flow preserves one logical RPC");
 assert(buildGoldenSignalInventory([logicalTrace]).signals.some(s=>s.name==="Dependency call volume" && s.value===1),"SLI preserves one logical RPC");
+
+// T-617: null latency stays unavailable, true zero is measured, and mixed
+// edge latencies use measured samples without changing request/error counts.
+const unknownLatency = entry("unknown-latency","access_log",{summary:{total_requests:2,error_count:1,p95_response_ms:null,avg_response_ms:null,response_time_sample_count:0,response_time_unknown_count:2}});
+assert(!buildGoldenSignalInventory([unknownLatency]).signals.some(s=>s.kind==="latency"),"Unknown access latency cannot become a zero SLI");
+assert(buildGoldenSignalInventory([entry("zero-latency","access_log",{summary:{avg_response_ms:0}})]).signals.some(s=>s.kind==="latency" && s.value===0),"Measured zero latency remains a valid SLI");
+const partialLatencyEdge = entry("partial-edge","access_log",{tables:{service_dependencies:[{caller:"front",callee:"back",call_count:2,error_count:1,error_rate:0.5,total_duration_ms:1000,avg_duration_ms:1000,max_duration_ms:1000,duration_sample_count:1,duration_unknown_count:1}]}});
+const partialFlow=buildServiceFlowAnalysis([partialLatencyEdge]).edge_model.edges[0];
+assert(partialFlow.call_count===2 && partialFlow.error_count===1 && partialFlow.latency_sample_count===1 && partialFlow.avg_latency_ms===1000,"Service Flow preserves latency and traffic denominators independently");
+
+const missingLatencySlo=buildSloAnalysisResultFromEntries([unknownLatency],[DEFAULT_SLO_TARGETS[0]]);
+assert(missingLatencySlo.target_evaluations[0].status==="no_evidence" && missingLatencySlo.summary.unevaluated_target_count===1,"Missing latency means an unassessed SLO, never a satisfied one");

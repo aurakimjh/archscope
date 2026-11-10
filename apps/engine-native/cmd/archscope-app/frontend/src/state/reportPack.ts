@@ -291,6 +291,8 @@ export function buildReportPackHTML(payload: ReportPackPayload): string {
     <div class="metric"><span>Evidence cards</span><strong>${payload.card_count.toLocaleString()}</strong></div>
   </section>
 
+  <p class="subtle">SLO targets without matching evidence (not assessed): ${slo.summary.unevaluated_target_count}</p>
+
   <h2>Customer Summary</h2>
   ${renderCustomerSummary(payload.customer_summary)}
 

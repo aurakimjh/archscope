@@ -113,7 +113,7 @@ const (
 	// uses for "first 25 rows in this log".
 	SampleRecordLimit = 25
 	// SchemaVersion mirrors the Python access-log analyzer's bump.
-	SchemaVersion = "0.2.0"
+	SchemaVersion = "0.3.0"
 	// ParserName mirrors the Python `metadata.parser` literal.
 	ParserName = "nginx_combined_with_response_time"
 	// DefaultPercentileSeed mirrors Python `BoundedPercentile.seed=12345`.
@@ -210,19 +210,24 @@ func newURLStats() *urlStats {
 
 func (u *urlStats) add(record accesslog.Record) {
 	u.count++
-	u.totalResponseMS += record.ResponseTimeMS
+	if !record.ResponseTimeUnavailable {
+		u.totalResponseMS += record.ResponseTimeMS
+	}
 	u.totalBytes += record.BytesSent
 	if record.Status >= 400 {
 		u.errorCount++
 	}
 	u.statusCounts[statusFamily(record.Status)]++
-	u.rt.add(record.ResponseTimeMS)
+	if !record.ResponseTimeUnavailable {
+		u.rt.add(record.ResponseTimeMS)
+	}
 	if u.sampleMethod == "" {
 		u.sampleMethod = record.Method
 	}
 }
 
 type edgeStats struct {
+	latencyCount   int
 	caller         string
 	callee         string
 	count          int
@@ -245,9 +250,12 @@ func newEdgeStats(caller, callee string) *edgeStats {
 
 func (e *edgeStats) add(record accesslog.Record) {
 	e.count++
-	e.totalLatencyMS += record.ResponseTimeMS
-	if record.ResponseTimeMS > e.maxLatencyMS {
-		e.maxLatencyMS = record.ResponseTimeMS
+	if !record.ResponseTimeUnavailable {
+		e.latencyCount++
+		e.totalLatencyMS += record.ResponseTimeMS
+		if record.ResponseTimeMS > e.maxLatencyMS {
+			e.maxLatencyMS = record.ResponseTimeMS
+		}
 	}
 	if record.Status >= 400 {
 		e.errorCount++
@@ -264,6 +272,7 @@ func (e *edgeStats) add(record accesslog.Record) {
 }
 
 type routeStats struct {
+	latencyCount   int
 	route          string
 	count          int
 	errorCount     int
@@ -278,9 +287,12 @@ func newRouteStats(route string) *routeStats {
 
 func (r *routeStats) add(record accesslog.Record) {
 	r.count++
-	r.totalLatencyMS += record.ResponseTimeMS
-	if record.ResponseTimeMS > r.maxLatencyMS {
-		r.maxLatencyMS = record.ResponseTimeMS
+	if !record.ResponseTimeUnavailable {
+		r.latencyCount++
+		r.totalLatencyMS += record.ResponseTimeMS
+		if record.ResponseTimeMS > r.maxLatencyMS {
+			r.maxLatencyMS = record.ResponseTimeMS
+		}
 	}
 	if record.Status >= 400 {
 		r.errorCount++
@@ -391,7 +403,9 @@ func buildFromIterator(
 
 	if err := iter(func(record accesslog.Record) error {
 		total++
-		totalRT.add(record.ResponseTimeMS)
+		if !record.ResponseTimeUnavailable {
+			totalRT.add(record.ResponseTimeMS)
+		}
 		if record.Status >= 400 {
 			errorCount++
 		}
@@ -407,7 +421,7 @@ func buildFromIterator(
 		if record.UpstreamService != "" {
 			upstreamDistrib[record.UpstreamService]++
 		}
-		if record.GatewayLatencyMS > 0 {
+		if !record.ResponseTimeUnavailable && record.GatewayLatencyMS > 0 {
 			gatewayRT.add(record.GatewayLatencyMS)
 		}
 		if record.RetryCount > 0 {
@@ -430,11 +444,15 @@ func buildFromIterator(
 		if classification == "static" {
 			staticCount++
 			staticBytes += record.BytesSent
-			staticRT.add(record.ResponseTimeMS)
+			if !record.ResponseTimeUnavailable {
+				staticRT.add(record.ResponseTimeMS)
+			}
 		} else {
 			apiCount++
 			apiBytes += record.BytesSent
-			apiRT.add(record.ResponseTimeMS)
+			if !record.ResponseTimeUnavailable {
+				apiRT.add(record.ResponseTimeMS)
+			}
 		}
 
 		ts := record.Timestamp
@@ -455,7 +473,9 @@ func buildFromIterator(
 			stats = newResponseTimeStats()
 			rtByMin[minute] = stats
 		}
-		stats.add(record.ResponseTimeMS)
+		if !record.ResponseTimeUnavailable {
+			stats.add(record.ResponseTimeMS)
+		}
 		family := statusFamily(record.Status)
 		minBucket, ok := statusClassMin[minute]
 		if !ok {
@@ -478,16 +498,17 @@ func buildFromIterator(
 
 		if len(sampleRecords) < SampleRecordLimit {
 			sampleRecords = append(sampleRecords, map[string]any{
-				"timestamp":        record.Timestamp.Format(time.RFC3339Nano),
-				"method":           record.Method,
-				"uri":              record.URI,
-				"status":           record.Status,
-				"response_time_ms": roundHalfEven(record.ResponseTimeMS, 2),
-				"source_format":    record.SourceFormat,
-				"route":            record.Route,
-				"upstream_service": record.UpstreamService,
-				"trace_id":         record.TraceID,
-				"request_id":       record.RequestID,
+				"timestamp":               record.Timestamp.Format(time.RFC3339Nano),
+				"method":                  record.Method,
+				"uri":                     record.URI,
+				"status":                  record.Status,
+				"response_time_ms":        latencyValue(record.ResponseTimeMS, boolCount(!record.ResponseTimeUnavailable)),
+				"response_time_available": !record.ResponseTimeUnavailable,
+				"source_format":           record.SourceFormat,
+				"route":                   record.Route,
+				"upstream_service":        record.UpstreamService,
+				"trace_id":                record.TraceID,
+				"request_id":              record.RequestID,
 			})
 		}
 		return nil
@@ -512,11 +533,11 @@ func buildFromIterator(
 		count := requestsByMin[minute]
 		stats := rtByMin[minute]
 		requestsPerMinute = append(requestsPerMinute, map[string]any{"time": minute, "value": count})
-		avgRTPerMinute = append(avgRTPerMinute, map[string]any{"time": minute, "value": roundHalfEven(stats.average(), 2)})
-		p50PerMinute = append(p50PerMinute, map[string]any{"time": minute, "value": roundHalfEven(stats.percentile(50), 2)})
-		p90PerMinute = append(p90PerMinute, map[string]any{"time": minute, "value": roundHalfEven(stats.percentile(90), 2)})
-		p95PerMinute = append(p95PerMinute, map[string]any{"time": minute, "value": roundHalfEven(stats.percentile(95), 2)})
-		p99PerMinute = append(p99PerMinute, map[string]any{"time": minute, "value": roundHalfEven(stats.percentile(99), 2)})
+		avgRTPerMinute = append(avgRTPerMinute, map[string]any{"sample_count": stats.count, "unknown_count": count - stats.count, "time": minute, "value": latencyValue(stats.average(), stats.count)})
+		p50PerMinute = append(p50PerMinute, map[string]any{"sample_count": stats.count, "unknown_count": count - stats.count, "time": minute, "value": latencyValue(stats.percentile(50), stats.count)})
+		p90PerMinute = append(p90PerMinute, map[string]any{"sample_count": stats.count, "unknown_count": count - stats.count, "time": minute, "value": latencyValue(stats.percentile(90), stats.count)})
+		p95PerMinute = append(p95PerMinute, map[string]any{"sample_count": stats.count, "unknown_count": count - stats.count, "time": minute, "value": latencyValue(stats.percentile(95), stats.count)})
+		p99PerMinute = append(p99PerMinute, map[string]any{"sample_count": stats.count, "unknown_count": count - stats.count, "time": minute, "value": latencyValue(stats.percentile(99), stats.count)})
 		bytesPerMinute = append(bytesPerMinute, map[string]any{"time": minute, "value": bytesByMin[minute]})
 		throughputPerMinute = append(throughputPerMinute, map[string]any{
 			"time":             minute,
@@ -554,25 +575,27 @@ func buildFromIterator(
 	urlRows := make([]map[string]any, 0, len(urlBuckets))
 	for uri, bucket := range urlBuckets {
 		var avg float64
-		if bucket.count > 0 {
-			avg = bucket.totalResponseMS / float64(bucket.count)
+		if bucket.rt.count > 0 {
+			avg = bucket.totalResponseMS / float64(bucket.rt.count)
 		}
 		urlRows = append(urlRows, map[string]any{
-			"uri":             uri,
-			"method":          bucket.sampleMethod,
-			"classification":  bucket.classification,
-			"count":           bucket.count,
-			"avg_response_ms": roundHalfEven(avg, 2),
-			"p50_response_ms": roundHalfEven(bucket.rt.percentile(50), 2),
-			"p90_response_ms": roundHalfEven(bucket.rt.percentile(90), 2),
-			"p95_response_ms": roundHalfEven(bucket.rt.percentile(95), 2),
-			"p99_response_ms": roundHalfEven(bucket.rt.percentile(99), 2),
-			"total_bytes":     bucket.totalBytes,
-			"error_count":     bucket.errorCount,
-			"status_2xx":      bucket.statusCounts["2xx"],
-			"status_3xx":      bucket.statusCounts["3xx"],
-			"status_4xx":      bucket.statusCounts["4xx"],
-			"status_5xx":      bucket.statusCounts["5xx"],
+			"uri":                         uri,
+			"method":                      bucket.sampleMethod,
+			"classification":              bucket.classification,
+			"count":                       bucket.count,
+			"avg_response_ms":             latencyValue(avg, bucket.rt.count),
+			"response_time_sample_count":  bucket.rt.count,
+			"response_time_unknown_count": bucket.count - bucket.rt.count,
+			"p50_response_ms":             latencyValue(bucket.rt.percentile(50), bucket.rt.count),
+			"p90_response_ms":             latencyValue(bucket.rt.percentile(90), bucket.rt.count),
+			"p95_response_ms":             latencyValue(bucket.rt.percentile(95), bucket.rt.count),
+			"p99_response_ms":             latencyValue(bucket.rt.percentile(99), bucket.rt.count),
+			"total_bytes":                 bucket.totalBytes,
+			"error_count":                 bucket.errorCount,
+			"status_2xx":                  bucket.statusCounts["2xx"],
+			"status_3xx":                  bucket.statusCounts["3xx"],
+			"status_4xx":                  bucket.statusCounts["4xx"],
+			"status_5xx":                  bucket.statusCounts["5xx"],
 		})
 	}
 
@@ -620,36 +643,38 @@ func buildFromIterator(
 	}
 
 	summary := map[string]any{
-		"total_requests":          total,
-		"avg_response_ms":         roundHalfEven(totalRT.average(), 2),
-		"p50_response_ms":         roundHalfEven(totalRT.percentile(50), 2),
-		"p90_response_ms":         roundHalfEven(totalRT.percentile(90), 2),
-		"p95_response_ms":         roundHalfEven(totalRT.percentile(95), 2),
-		"p99_response_ms":         roundHalfEven(totalRT.percentile(99), 2),
-		"error_rate":              roundHalfEven(errorRate, 2),
-		"error_count":             errorCount,
-		"total_bytes":             totalBytes,
-		"wall_time_sec":           roundHalfEven(wallTimeSec, 3),
-		"avg_requests_per_sec":    avgRPS,
-		"avg_bytes_per_sec":       avgBPS,
-		"static_count":            staticCount,
-		"api_count":               apiCount,
-		"static_bytes":            staticBytes,
-		"api_bytes":               apiBytes,
-		"static_avg_response_ms":  roundHalfEven(staticRT.average(), 2),
-		"api_avg_response_ms":     roundHalfEven(apiRT.average(), 2),
-		"api_p95_response_ms":     roundHalfEven(apiRT.percentile(95), 2),
-		"earliest_timestamp":      earliestStr,
-		"latest_timestamp":        latestStr,
-		"unique_uris":             len(urlBuckets),
-		"detected_format_count":   len(formatDistrib),
-		"upstream_service_count":  len(upstreamDistrib),
-		"route_count":             len(routeBuckets),
-		"service_edge_count":      len(edgeBuckets),
-		"gateway_avg_latency_ms":  roundHalfEven(gatewayRT.average(), 2),
-		"gateway_p95_latency_ms":  roundHalfEven(gatewayRT.percentile(95), 2),
-		"retry_count":             retryCount,
-		"termination_error_count": terminationErr,
+		"total_requests":              total,
+		"response_time_sample_count":  totalRT.count,
+		"response_time_unknown_count": total - totalRT.count,
+		"avg_response_ms":             latencyValue(totalRT.average(), totalRT.count),
+		"p50_response_ms":             latencyValue(totalRT.percentile(50), totalRT.count),
+		"p90_response_ms":             latencyValue(totalRT.percentile(90), totalRT.count),
+		"p95_response_ms":             latencyValue(totalRT.percentile(95), totalRT.count),
+		"p99_response_ms":             latencyValue(totalRT.percentile(99), totalRT.count),
+		"error_rate":                  roundHalfEven(errorRate, 2),
+		"error_count":                 errorCount,
+		"total_bytes":                 totalBytes,
+		"wall_time_sec":               roundHalfEven(wallTimeSec, 3),
+		"avg_requests_per_sec":        avgRPS,
+		"avg_bytes_per_sec":           avgBPS,
+		"static_count":                staticCount,
+		"api_count":                   apiCount,
+		"static_bytes":                staticBytes,
+		"api_bytes":                   apiBytes,
+		"static_avg_response_ms":      latencyValue(staticRT.average(), staticRT.count),
+		"api_avg_response_ms":         latencyValue(apiRT.average(), apiRT.count),
+		"api_p95_response_ms":         latencyValue(apiRT.percentile(95), apiRT.count),
+		"earliest_timestamp":          earliestStr,
+		"latest_timestamp":            latestStr,
+		"unique_uris":                 len(urlBuckets),
+		"detected_format_count":       len(formatDistrib),
+		"upstream_service_count":      len(upstreamDistrib),
+		"route_count":                 len(routeBuckets),
+		"service_edge_count":          len(edgeBuckets),
+		"gateway_avg_latency_ms":      latencyValue(gatewayRT.average(), gatewayRT.count),
+		"gateway_p95_latency_ms":      latencyValue(gatewayRT.percentile(95), gatewayRT.count),
+		"retry_count":                 retryCount,
+		"termination_error_count":     terminationErr,
 	}
 
 	statusDistribOrdered := make([]map[string]any, 0, len(statusDistrib))
@@ -696,6 +721,9 @@ func buildFromIterator(
 
 	findings := buildFindings(summary, statusDistrib, urlRows, errorRatePerMinute, nonStandard)
 	findings = append(findings, buildEdgeFindings(edgeBuckets, summary)...)
+	if total > totalRT.count {
+		findings = append(findings, map[string]any{"severity": "warning", "code": "ACCESS_RESPONSE_TIME_UNAVAILABLE", "message": "Some requests have no measured response time; latency statistics exclude those requests.", "evidence": map[string]any{"measured_count": totalRT.count, "unknown_count": total - totalRT.count}})
+	}
 
 	if diags == nil {
 		diags = defaultDiagnostics(total)
@@ -932,21 +960,25 @@ func serviceDependencyRows(edges map[string]*edgeStats, limit int) []map[string]
 		avg := 0.0
 		errorRate := 0.0
 		if edge.count > 0 {
-			avg = edge.totalLatencyMS / float64(edge.count)
+			if edge.latencyCount > 0 {
+				avg = edge.totalLatencyMS / float64(edge.latencyCount)
+			}
 			errorRate = float64(edge.errorCount) / float64(edge.count)
 		}
 		rows = append(rows, map[string]any{
-			"caller":            edge.caller,
-			"callee":            edge.callee,
-			"call_count":        edge.count,
-			"total_duration_ms": roundHalfEven(edge.totalLatencyMS, 2),
-			"avg_duration_ms":   roundHalfEven(avg, 2),
-			"max_duration_ms":   roundHalfEven(edge.maxLatencyMS, 2),
-			"error_count":       edge.errorCount,
-			"error_rate":        roundHalfEven(errorRate, 4),
-			"retry_count":       edge.retryCount,
-			"routes":            sortedKeys(edge.routes),
-			"source_formats":    sortedKeys(edge.formats),
+			"caller":                 edge.caller,
+			"callee":                 edge.callee,
+			"call_count":             edge.count,
+			"total_duration_ms":      latencyValue(edge.totalLatencyMS, edge.latencyCount),
+			"duration_sample_count":  edge.latencyCount,
+			"duration_unknown_count": edge.count - edge.latencyCount,
+			"avg_duration_ms":        latencyValue(avg, edge.latencyCount),
+			"max_duration_ms":        latencyValue(edge.maxLatencyMS, edge.latencyCount),
+			"error_count":            edge.errorCount,
+			"error_rate":             roundHalfEven(errorRate, 4),
+			"retry_count":            edge.retryCount,
+			"routes":                 sortedKeys(edge.routes),
+			"source_formats":         sortedKeys(edge.formats),
 		})
 	}
 	sort.SliceStable(rows, func(i, j int) bool {
@@ -972,17 +1004,21 @@ func routeRows(routes map[string]*routeStats, limit int) []map[string]any {
 		avg := 0.0
 		errorRate := 0.0
 		if route.count > 0 {
-			avg = route.totalLatencyMS / float64(route.count)
+			if route.latencyCount > 0 {
+				avg = route.totalLatencyMS / float64(route.latencyCount)
+			}
 			errorRate = float64(route.errorCount) / float64(route.count) * 100
 		}
 		rows = append(rows, map[string]any{
-			"route":           route.route,
-			"count":           route.count,
-			"avg_response_ms": roundHalfEven(avg, 2),
-			"max_response_ms": roundHalfEven(route.maxLatencyMS, 2),
-			"error_count":     route.errorCount,
-			"error_rate":      roundHalfEven(errorRate, 2),
-			"source_formats":  sortedKeys(route.formats),
+			"route":                       route.route,
+			"count":                       route.count,
+			"avg_response_ms":             latencyValue(avg, route.latencyCount),
+			"response_time_sample_count":  route.latencyCount,
+			"response_time_unknown_count": route.count - route.latencyCount,
+			"max_response_ms":             latencyValue(route.maxLatencyMS, route.latencyCount),
+			"error_count":                 route.errorCount,
+			"error_rate":                  roundHalfEven(errorRate, 2),
+			"source_formats":              sortedKeys(route.formats),
 		})
 	}
 	sort.SliceStable(rows, func(i, j int) bool {
@@ -1262,4 +1298,17 @@ func joinInts(values []int, sep string) string {
 		parts[i] = strconv.Itoa(v)
 	}
 	return strings.Join(parts, sep)
+}
+
+func latencyValue(value float64, samples int) any {
+	if samples == 0 {
+		return nil
+	}
+	return roundHalfEven(value, 2)
+}
+func boolCount(value bool) int {
+	if value {
+		return 1
+	}
+	return 0
 }

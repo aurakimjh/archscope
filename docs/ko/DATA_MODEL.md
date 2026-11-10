@@ -1615,3 +1615,15 @@ Trace 경로 시간(T-615): `observed_path_elapsed_ms`는 관측된 부모·자�
 가능/불가 Trace 수는 top-N 경로 표와 별도로 유지한다.
 
 Trace 의존 호출(T-616)은 명시적인 CLIENT/SERVER 직접 부모 관계를 Trace/span ID로 연결한다. 일대일 쌍은 CLIENT 경과시간과 양쪽 중 하나라도 실패한 오류 상태를 한 번 집계한다. 한쪽만 있는 export도 유지한다. 집계 CLIENT 하나에 여러 SERVER 시도가 있으면 각 서버 시간·오류로 별도 집계하고 CLIENT를 다시 더하지 않는다. SERVER의 remote peer는 수신 관점으로 처리한다. kind가 불명확하면 서비스 이름만으로 중복을 제거하지 않는다. 정책은 `metadata.dependency_call_policy`에 버전으로 기록한다.
+
+액세스 로그 시간 가용성(schema 0.3.0, T-617): 응답시간 누락·센티널·잘못된
+형식은 미측정으로 유지하고 실측 0은 0으로 보존한다. 전체 지연 통계에
+`response_time_sample_count` / `response_time_unknown_count`를 붙인다.
+표본이 없는 지연 통계·분당 값·샘플 값은 0이 아닌 null이다. URL/route도 같은
+분모를 가지며 의존성 행은 `duration_sample_count` /
+`duration_unknown_count`를 노출한다. 요청·오류·바이트 수는 정상 수집한 모든
+요청을 포함한다. Service Flow는 지연만 실측 수로 가중하며 전체 호출 수는
+유지한다. SLO 내보내기의 `target_evaluations`와
+`unevaluated_target_count`는 증거 없는 목표를 통과가 아닌 미평가로 표시한다.
+기존 프로그램 생성 Record는 기본적으로 실측으로 취급하며 파서가 미측정을
+명시한다.
