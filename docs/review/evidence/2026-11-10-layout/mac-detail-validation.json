@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-11",
+  "platform": "macOS arm64 / Wails 3.1.0 native desktop",
+  "checks": {
+    "go_test_all": "pass",
+    "go_vet_all": "pass",
+    "layoutaudit_tests": "pass",
+    "frontend_state_tests": "pass",
+    "frontend_production_build": "pass",
+    "macos_task_package": "pass",
+    "production_strict_codesign_before_and_after_native_import": "pass",
+    "windows_amd64_gui_cross_build": "pass",
+    "windows_386_gui_cross_build": "pass",
+    "desktop_only_policy_and_expected_server_build_refusal": "pass"
+  },
+  "native": {
+    "driver": "Computer Use macOS accessibility and screenshots",
+    "current_routes": 21,
+    "original_routes": 21,
+    "original_source": "d98a958",
+    "baseline": "mac-original-baseline.json",
+    "latest_geometry": "mac-detail-geometry.json",
+    "history": "mac-detail-history.json",
+    "screenshots_inspected": true,
+    "screenshots_saved": false,
+    "production_menu_smoke": true,
+    "production_qa_menu_absent": true,
+    "production_HAR_capture_order_and_headers": true,
+    "browser_or_electron_ui_used": false,
+    "webview_zoom_is_os_dpi_evidence": false
+  },
+  "task_evidence": {
+    "T622": "mac-detail-T622.json",
+    "T623": "mac-detail-T623.json",
+    "T624": "mac-detail-T624.json",
+    "T625": "mac-detail-T625.json",
+    "T626": "mac-detail-T626.json"
+  },
+  "async_fix": "mac-detail-async.json",
+  "output_manifest": "mac-detail-exports.json",
+  "remaining": [
+    "T-623 Windows live capture/process/reentry",
+    "T-627 Windows native menu and OS DPI scaling",
+    "T-601 Windows capture reach",
+    "T-611 Windows automation activation/client/shortcut behavior",
+    "T-608 genuine proprietary halog sample/codec",
+    "T-613 overall Windows parity gate"
+  ]
+}

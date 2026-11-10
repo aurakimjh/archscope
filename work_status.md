@@ -226,31 +226,36 @@ is separate from review-group verdicts (`PASS`, `CONDITIONAL`, or `FAIL`). When
 a Task Registry status changes, update the counts and Open Work Snapshot in the
 same change so this overview remains the status source of truth.
 
-### Desktop layout native verification (2026-11-10 evening)
+### Desktop layout current acceptance (2026-11-11)
 
-Actual Wails 3.1.0 macOS menu interaction reached all 21 routes. T-621 is DONE.
-Native testing found and fixed intrinsic-width layout, expanded HTTP metadata,
-help/drawer Escape handling, nested file-picker button roles and signed-bundle
-progress-log writes. Access/Trace now start on data tables; secondary Lighthouse
-and profiler explanations are collapsed. A 30-request imported HAR shows 12
-complete request rows plus a 160px inspector at 1280×800, 11 rows at observed
-1025×769 and 5 at 125% WebView zoom. Deep-stack frame zoom/reset and pattern
-drilldown, ten GC preview events, analyzer fixtures, comparisons, workspace
-handoff, evidence addition, HTML export, Settings save and locale/theme were
-exercised. No browser or Electron UI was used.
+Mac implementation and detailed native functional verification are complete.
+T-620/T-621/T-622/T-624/T-625/T-626 are DONE. T-623 and T-627 retain only
+Windows live/process/reentry and native menu/OS scaling gates. Original native
+21-route baseline and current 21-route navigation were observed. Deep profiler
+71.2%, GC 60-event stress input 72.5%, selected HTTP inspector 70.7% and
+Chart Studio 72.3% visible-data union are recorded with exact observed sizes;
+sparse results and Settings/Export forms have explicit exclusions. GC baseline
+and final stress row counts use different inputs and are not a controlled
+row-count comparison.
 
-The old collector also assumed an unavailable `window.wails` global; its missing
-report was not evidence that desktop locking was the only cause. The new passive
-observer records actual native interactions and no row contents. The original-UI app was approved and measured on the follow-up run; T-620 is DONE. T-627
-moves to REVIEW for the completed Mac portion. T-622 through T-626 remain REVIEW
-for outstanding acceptance cases; no full 70% area or exhaustive conditional-tab
-acceptance is claimed. Windows live recording and OS scaling remain untested.
+The production Wails 3.1.0 app uses the macOS top menu bar and has no Layout QA
+menu. The sidebar screenshot was the d98a958 original reference app. No browser
+or Electron UI was used. Native production import confirms global request
+numbers and selected headers with the default 184px inspector.
 
-Evidence: [Mac cases](docs/review/evidence/2026-11-10-layout/mac-native-validation.json),
-[21-route geometry](docs/review/evidence/2026-11-10-layout/mac-native-geometry.json).
-The earlier [static verification](docs/review/evidence/2026-11-10-layout/validation.json)
-is retained as historical evidence. Paired DESKTOP_CONTENT_LAYOUT guides explain
-measurement limits and the remaining acceptance matrix.
+Fixed long-path flex, drawer focus, early task-completion event loss, HAR
+sequence/unknown bytes, native chart output and Settings draft validation.
+All nine analyzer and eight workspace functional matrices, conditional/empty/
+error recovery cases, chart templates/renderers and export formats were checked.
+Full Go/vet, frontend state/build, tagged tests, macOS package/signature, desktop-
+only checks and Windows x86/x64 GUI cross-builds pass; no new Windows runtime
+acceptance is claimed.
+
+Evidence: [final validation](docs/review/evidence/2026-11-10-layout/mac-detail-validation.json),
+[final geometry](docs/review/evidence/2026-11-10-layout/mac-detail-geometry.json),
+[original baseline](docs/review/evidence/2026-11-10-layout/mac-original-baseline.json).
+Earlier reports remain historical; the final follow-up supersedes their
+incomplete-Mac notes. Paired DESKTOP_CONTENT_LAYOUT documents give case limits.
 
 ### Desktop-only cleanup (2026-11-10)
 
@@ -398,18 +403,17 @@ and `docs/review/done/2026-11-10_other-features-audit.ko.md`.
 ### Open Work Snapshot
 
 Desktop layout: [Korean design](docs/ko/DESKTOP_CONTENT_LAYOUT.md) · [English design](docs/en/DESKTOP_CONTENT_LAYOUT.md).
-Mac native navigation and representative populated flows are verified. T-621 is
-complete; exact baseline, density and exhaustive edge-case acceptance remain
-explicit rather than being inferred from builds or sparse fixtures.
+Mac implementation and detailed native validation are complete. Remaining work
+requires Windows execution or a genuine legacy reference sample.
 
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
-| 3 | T-623 | P1 | `REVIEW` | Mac imported HAR acceptance passes: 15 full request rows plus six header rows in a 184px inspector; first data y=175 and 70.7% visible-data union at observed 1281x801. All ten tabs, Body, filter reset, splitter clamp/Home and production native menus pass. Windows live recording, real process attribution and reentry remain. |
-| 7 | T-627 | P2 | `REVIEW` | Mac native menu/geometry sweep and representative populated flows recorded; passive audit transport corrected and QA resize/zoom isolated by build tag. Go test/vet, frontend state/build, package/signature and Windows cross-builds pass. Original before/after, remaining edge cases and Windows live/menu/OS scaling acceptance remain. Evidence: docs/review/evidence/2026-11-10-layout/mac-native-validation.json. |
-| 8 | T-601 | P1 | `REVIEW` | Windows capture entry points and reach measurement. |
-| 9 | T-608 | P2 | `PENDING` | Legacy .halog reference compatibility; genuine sample unavailable. |
-| 10 | T-611 | P3 | `REVIEW` | Stand-alone automation and desktop launch switches; Windows runtime acceptance. |
-| 11 | T-613 | P3 | `PENDING` | Complete Stand-alone parity on Windows. |
+| 1 | T-601 | P1 | `REVIEW` | Windows capture entry points and reach measurement. |
+| 2 | T-623 | P1 | `REVIEW` | Mac imported grid/inspector acceptance is complete; Windows live recording, real process grouping and reentry remain. |
+| 3 | T-608 | P2 | `PENDING` | Legacy .halog codec/reference compatibility needs a genuine sanitized sample; none is available. |
+| 4 | T-627 | P2 | `REVIEW` | Mac native baseline/current matrix, production menus, geometry and detailed cases complete. Windows native menu/live/OS DPI acceptance remains. |
+| 5 | T-611 | P3 | `REVIEW` | Stand-alone automation/launch implementation still needs Windows native activation/client/shortcut acceptance. |
+| 6 | T-613 | P3 | `PENDING` | Overall Windows parity depends on capture, automation, reference and native acceptance gates. |
 
 ### Local Windows validation (2026-11-09)
 
@@ -1359,7 +1363,7 @@ deferred until explicitly promoted.
 | T-624 | P1 | DONE | Prioritize profiler and GC results | T-621, T-622 | Completed Mac native detailed acceptance: deep profiler first data y=172, 71.2% visible-data union, resized frame zoom/reset and matched/empty drilldown. GC first data y=147, 72.5%, 26 full preview rows; no-clock and all seven tabs verified. Compact 32-row preview exposes total count and full 15-column Events retains explicit 50/60 top-N count. Evidence: mac-detail-T624.json. |
 | T-625 | P2 | DONE | Convert nine remaining analysis views | T-621, T-622 | Completed Mac native matrix: all nine analyzers, normal and conditional tabs, sparse/empty states, malformed input and recovery, comparison and detail drawers. Fixed async completion-before-ID race with repeated native completion and error-retry checks. Shared long-path/keyboard/resize evidence is T-622; sparse fixtures do not prove a universal 70% area ratio. Evidence: mac-detail-T625.json and mac-detail-async.json. |
 | T-626 | P2 | DONE | Convert eight workspace views and Settings | T-621, T-622 | Completed Mac eight-route/result handoff matrix, all eight chart templates, Canvas/SVG cross-format native PNG/SVG/CSV writes, Export Center HTML/PPTX/JSON/CSV/directory/cancel/error recovery and invalid Settings drafts with restored defaults. Chart Studio first data y=184 and 72.3% visible-data union at observed 1281x801; forms/sparse results excluded with reasons. Evidence: mac-detail-T626.json and mac-detail-exports.json. |
-| T-627 | P2 | REVIEW | Verify all views in native desktop windows | T-623–T-626 | Mac native menu/geometry sweep and representative populated flows recorded; passive audit transport corrected and QA resize/zoom isolated by build tag. Go test/vet, frontend state/build, package/signature and Windows cross-builds pass. Original before/after, remaining edge cases and Windows live/menu/OS scaling acceptance remain. Evidence: docs/review/evidence/2026-11-10-layout/mac-native-validation.json. |
+| T-627 | P2 | REVIEW | Verify all views in native desktop windows | T-623–T-626 | Completed Mac original/current 21-route baseline, detailed conditional/empty/error cases, populated density, small viewport/125% WebView zoom, production native menus and file outputs. Passive observer and reproducible fixtures recorded. Full Go/vet, frontend state/build, package/signature, desktop-only refusal and Windows GUI cross-builds pass. Windows live/menu/OS DPI acceptance remains. Evidence: mac-detail-validation.json. |
 | T-619 | P1 | DONE | Enforce the Wails 3.1.0 desktop-only product and remove unused launch templates | Existing native desktop packaging | Completed 2026-11-10: removed server hosting/mobile/preview paths, added compiler and frontend native-transport guards with CI enforcement, isolated opt-in external Electron HTTP probe without weakening full acceptance, and refreshed paired guides. Full Go/vet and frontend state/build, native macOS package/signature, Windows x86/x64 GUI builds and expected server build refusal pass; Windows runtime acceptance remains separate. |
 | T-599 | P1 | DONE | Establish the V7.6.4 Stand-alone visual and command reference | Existing baseline | Completed 2026-11-09. Official screen, V7 additions, complete manual field inventory, state behavior, shortcuts and edition exceptions recorded in paired SYSTEM_HTTP_CAPTURE references. The tour image is explicitly V4; native Windows acceptance remains T-603. |
 | T-594 | P1 | DONE | Keep capture controls, live grid and selected detail in one window | Existing baseline | Completed 2026-11-09. Live rows use the shared grid and inspector, one-ID redacted store fetch stays available during recording, and async detail ignores obsolete selections. Real local proxy/service regression and frontend build passed; browser renderer at 1280x800 showed selected headers/body while active. Native Windows integration remains T-603. |

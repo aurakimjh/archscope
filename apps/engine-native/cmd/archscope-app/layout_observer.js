@@ -31,7 +31,7 @@
     if(!route || !main || (shell && main.closest('[data-route]')?.getAttribute('data-route') !== route)) return;
     const rowElements=[...main.querySelectorAll('tbody tr')].filter(row=>row.querySelectorAll('td').length>1);
     const rows=rowElements.map(row=>({request:!!row.closest("[data-http-grid]"),full:row.getBoundingClientRect(),visible:visibleRect(row)})).filter(row=>row.visible);
-    const charts=[...main.querySelectorAll('canvas')].map(visibleRect).filter(Boolean);
+    const charts=[...main.querySelectorAll('canvas, [data-chart-surface] svg')].map(visibleRect).filter(Boolean);
     const detail=main.querySelector('[data-http-detail]');
     const detailRect=detail && visibleRect(detail);
     const rectangles=[...rows.map(row=>row.visible),...charts,...(detailRect?[detailRect]:[])];
@@ -44,18 +44,27 @@
       firstDataTop:rectangles.length?Math.round(Math.min(...rectangles.map(r=>r.top))):null,
       fullRows:rows.filter(r=>Math.abs(r.full.top-r.visible.top)<1 && Math.abs(r.full.bottom-r.visible.bottom)<1).length,
       fullRequestRows:rows.filter(r=>r.request && Math.abs(r.full.top-r.visible.top)<1 && Math.abs(r.full.bottom-r.visible.bottom)<1).length,
-      renderedRows:rowElements.length,canvasCount:charts.length,
+      renderedRows:rowElements.length,plotCount:charts.length,
+      canvasCount:[...main.querySelectorAll("canvas")].filter(visibleRect).length,
+      svgCount:[...main.querySelectorAll("[data-chart-surface] svg")].filter(visibleRect).length,
+      mainHorizontalOverflow:main.scrollWidth>main.clientWidth,
       resultAreaRatio:Math.round(1000*area/(innerWidth*innerHeight))/1000,
       detailHeight:detailRect?Math.round(detailRect.bottom-detailRect.top):0,
       outerOverflow:document.documentElement.scrollWidth>innerWidth,
       helpOpen:!!document.querySelector('[role=tooltip]')};
+    const tooltip=document.querySelector('[role=tooltip]');
+    const tip=tooltip?.getBoundingClientRect();
+    observation.helpFitsViewport=!tip || (tip.left>=0 && tip.top>=0 && tip.right<=innerWidth && tip.bottom<=innerHeight);
+    observation.mainScrollTop=Math.round(main.scrollTop);
+    const selectedTabs=[...main.querySelectorAll('[role=tab][aria-selected=true]')];
+    observation.selectedTabFits=selectedTabs.every(tab=>{const rect=tab.getBoundingClientRect();return rect.left>=0 && rect.right<=innerWidth;});
     const key=JSON.stringify(observation);
     if(observations.has(key)) return;
-    if(observations.size>=200) observations.delete(observations.keys().next().value);
+    if(observations.size>=500) observations.delete(observations.keys().next().value);
     observations.set(key,observation);
     fetch(new URL('/wails/runtime',location.href), {
       method:'POST', headers:{'Content-Type':'application/json','x-wails-client-id':window._wails.clientId},
-      body:JSON.stringify({object:3,method:0,args:{name:'layout:audit',data:{mode:'passive',geometry:'clipped row/canvas/detail union; canvas includes axes',views:[...observations.values()]}}})
+      body:JSON.stringify({object:3,method:0,args:{name:'layout:audit',data:{mode:'passive',geometry:'clipped row/plot/detail union; plots include axes',views:[...observations.values()]}}})
     }).catch(error=>console.error('layout audit record failed',error));
   }
   let pending;

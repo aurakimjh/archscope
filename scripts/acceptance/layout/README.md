@@ -30,3 +30,18 @@ is an incomplete run. Build the original reference separately with the same
 fixtures to establish before/after evidence. A current UI sweep cannot substitute
 for the original baseline. Exercise populated states, conditional tabs and output
 files before claiming full feature acceptance.
+
+## Detailed follow-up inputs
+
+Run `python3 scripts/acceptance/layout/create_fixtures.py --out /private/tmp/archscope-native-fixtures`
+from the repository root. It references sanitized repository/shared examples and
+creates project-specific long Korean paths, 60 GC events, no-clock GC, tiny
+profile, paired thread dumps, native-memory JFR JSON and a 30-request HAR. It
+does not change shared assets or create production evidence.
+
+The observer also records horizontal overflow, selected-tab visibility, help
+popup containment and SVG chart surfaces. Original and intermediate sessions
+remain separate from final geometry. Use a selected populated inspector when
+adjudicating HTTP detail area; a blank detail box is not result evidence. The
+HTTP default is 184px, restored by Home or double-click; saved user heights are
+preserved within the available viewport.

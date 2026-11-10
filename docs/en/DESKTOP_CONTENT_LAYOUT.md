@@ -192,3 +192,58 @@ Original profiler first-data y=484, union 29.6%; GC Events shows six full rows
 at y=410; HTTP shows no complete request rows. Original HTTP source picking
 scrolls the page, so its observations are marked after-load/scroll states.
 The earlier denied-app note above is historical and no longer blocks T-620.
+
+### Detailed Mac acceptance completed (2026-11-11)
+
+This follow-up supersedes the earlier incomplete-Mac and denied-baseline notes.
+T-620, T-621, T-622, T-624, T-625 and T-626 are DONE. The Mac portion of
+T-623 and T-627 is complete; those tasks remain REVIEW for Windows live
+recording/process/reentry and native menus/OS scaling respectively.
+
+The production application uses the macOS menu bar: ArchScope, File, Edit,
+Analyze, Workspace, Capture, View and Help (localized in Korean). The old
+sidebar screenshot belongs to original reference d98a958. `Layout QA` and its
+size/zoom commands exist only in the audit build; they are absent from the
+production app. Native production HAR import and inspector were checked after
+packaging. No browser or Electron UI was used.
+
+| Populated final state | Observed CSS viewport | First data y | Visible data union | Additional result |
+|---|---:|---:|---:|---|
+| Deep profiler | 1280×800 | 172 | 71.2% | Frame zoom/reset and matching/empty drilldown |
+| GC 60-event stress input | 1280×800 | 147 | 72.5% | 26 full preview rows; full Events retained |
+| HTTP selected Headers | 1281×801 | 175 | 70.7% | 15 full requests plus six header rows; 184px inspector |
+| Chart Studio | 1281×801 | 184 | 72.3% | Both renderers and all eight templates |
+
+The original profiler measured y=484 and 29.6% with the same deep profile; the
+same 30-request HAR showed no full request rows in the recorded original
+after-load/scroll state. Original GC had six full Events rows with the shared
+GC-pressure input. The final GC density row above uses a separate 60-event
+stress input, so its row count is not a controlled before/after comparison.
+Ratios count the clipped union once, include plot axes, and exclude controls,
+metric cards and blank space; HTTP acceptance uses selected populated detail.
+Sparse analyzer/workspace fixtures do not establish a universal 70% verdict.
+Settings and Export are forms: required inputs, primary actions, cancellation,
+completion/error and recovery were checked instead. WebView zoom at 125% is
+recorded as WebView zoom, not OS DPI evidence.
+
+Detailed fixes include the completion-before-task-ID race, long-path flex and
+drawer-focus bugs, global HAR sequence numbers, unavailable byte counts,
+native chart saves across PNG/SVG/CSV, and editable Settings drafts validated
+on Save. GC preview counts expose 32/60 and the full Events tab exposes the
+retained 50/60; the preview has five compact columns, while Events keeps all
+15 columns. Diagnostic thresholds and the common AnalysisResult contract are
+unchanged. Native file outputs were decoded/parsed, not merely named.
+
+See [final validation](../review/evidence/2026-11-10-layout/mac-detail-validation.json),
+[final geometry](../review/evidence/2026-11-10-layout/mac-detail-geometry.json),
+[historical sessions](../review/evidence/2026-11-10-layout/mac-detail-history.json),
+and [output manifest](../review/evidence/2026-11-10-layout/mac-detail-exports.json).
+Per-task T622–T626 JSON records contain conditional-tab and recovery cases.
+The fixture generator and measurement instructions are in
+[scripts/acceptance/layout](../../scripts/acceptance/layout/README.md).
+
+Go test/vet, tagged audit tests, frontend state/build, native macOS package and
+strict signature checks, desktop-only/server-build refusal and Windows x86/x64
+GUI cross-builds pass. Cross-builds do not prove Windows runtime behavior.
+Windows capture reach/automation/parity and genuine legacy `.halog` reference
+compatibility remain external gates in work_status.md.
