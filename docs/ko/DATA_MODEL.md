@@ -1627,3 +1627,12 @@ Trace 의존 호출(T-616)은 명시적인 CLIENT/SERVER 직접 부모 관계를
 `unevaluated_target_count`는 증거 없는 목표를 통과가 아닌 미평가로 표시한다.
 기존 프로그램 생성 Record는 기본적으로 실측으로 취급하며 파서가 미측정을
 명시한다.
+
+장애 타임라인 완전성(T-618): 원본당 120개를 보존한 뒤 세션에서 가장 이른
+1000개 후보 행을 결정론적으로 표시한다. `summary.event_count`는 출력 행 수,
+`total_event_count`, `omitted_event_count`, `partial_result`는 전체 후보와
+누락 상태다. 심각도·시간·구간·상관관계 요약과 심각도/분류/분석기별 분포는
+전체 후보 기준이며 그룹·내러티브와 그 건수는 보존된 행 기준이다.
+`metadata.completeness`에 선택 정책, 원본별 전체/출력/누락 수, 누락 심각도
+수와 두 요약 범위를 기록한다. 화면과 Report Pack HTML에서 누락된 critical
+건수까지 알리며 JSON도 같은 정보를 보존한다.

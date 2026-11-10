@@ -17,9 +17,7 @@ import { useI18n } from "@/i18n/I18nProvider";
 import { useAnalysisWorkspace } from "@/state/analysisWorkspace";
 import { addEvidenceCard } from "@/state/evidenceBoard";
 import {
-  buildIncidentTimelineEvents,
-  buildIncidentTimelineGroups,
-  buildIncidentTimelineNarrative,
+  buildIncidentTimelineAnalysisResult,
   type IncidentTimelineEvent,
   type IncidentTimelineNarrativeStep,
 } from "@/state/incidentTimeline";
@@ -29,12 +27,9 @@ const ALL = "__all__";
 export function IncidentTimelinePage(): React.JSX.Element {
   const { locale, t } = useI18n();
   const workspace = useAnalysisWorkspace();
-  const events = useMemo(
-    () => buildIncidentTimelineEvents(workspace.entries),
-    [workspace.entries],
-  );
-  const groups = useMemo(() => buildIncidentTimelineGroups(events), [events]);
-  const narrative = useMemo(() => buildIncidentTimelineNarrative(events), [events]);
+  const analysis=useMemo(()=>buildIncidentTimelineAnalysisResult(workspace.entries),[workspace.entries]);
+  const {events,groups,narrative}=analysis.tables;
+  const completeness=analysis.metadata.completeness;
   const [analyzer, setAnalyzer] = useState(ALL);
   const [severity, setSeverity] = useState(ALL);
   const [group, setGroup] = useState(ALL);
@@ -75,11 +70,11 @@ export function IncidentTimelinePage(): React.JSX.Element {
     [analyzer, events, group, query, severity],
   );
 
-  const criticalCount = events.filter((event) => event.severity === "critical").length;
-  const warningCount = events.filter((event) => event.severity === "warning").length;
-  const sourceCount = new Set(events.map((event) => event.source_result_id)).size;
-  const rangedCount = events.filter((event) => event.duration_ms !== undefined || event.end_time !== undefined).length;
-  const timeWindow = eventWindow(events);
+  const criticalCount = analysis.summary.critical_event_count;
+  const warningCount = analysis.summary.warning_event_count;
+  const sourceCount = completeness.per_source.filter(source=>source.total>0).length;
+  const rangedCount = analysis.summary.ranged_event_count;
+  const timeWindow = `${analysis.summary.earliest_timestamp ?? "—"} - ${analysis.summary.latest_timestamp ?? "—"}`;
 
   const addEventEvidence = (event: IncidentTimelineEvent): void => {
     addEvidenceCard({
@@ -126,7 +121,7 @@ export function IncidentTimelinePage(): React.JSX.Element {
       </section>
 
       <section className="grid grid-cols-2 gap-3 xl:grid-cols-4">
-        <MetricCard label={t("incidentTimelineEvents")} value={events.length.toLocaleString()} />
+        <MetricCard label={t("incidentTimelineEvents")} value={`${events.length.toLocaleString()} / ${completeness.total_event_count.toLocaleString()}`} />
         <MetricCard label={t("incidentTimelineGroups")} value={groups.length.toLocaleString()} />
         <MetricCard
           label={t("incidentTimelineCritical")}
@@ -139,6 +134,8 @@ export function IncidentTimelinePage(): React.JSX.Element {
         <MetricCard label={t("incidentTimelineRanged")} value={rangedCount.toLocaleString()} />
         <MetricCard label={t("incidentTimelineSources")} value={sourceCount.toLocaleString()} />
       </section>
+
+      {completeness.partial_result && <p role="status" className="rounded border border-amber-500 p-3 text-sm">{t("incidentTimelinePartial")} {completeness.emitted_event_count} / {completeness.total_event_count} · {t("incidentTimelineOmitted")} {completeness.omitted_event_count} · {t("incidentTimelineCritical")} {completeness.omitted_by_severity.critical}</p>}
 
       <Card className="mt-4">
         <CardHeader className="pb-3">
@@ -401,14 +398,6 @@ function severityClass(severity: IncidentTimelineEvent["severity"]): string {
   }
 }
 
-function eventWindow(events: IncidentTimelineEvent[]): string {
-  if (events.length === 0) return "-";
-  const ordered = [...events].sort((left, right) => left.sort_time - right.sort_time);
-  const first = ordered[0];
-  const last = ordered[ordered.length - 1];
-  if (first.timestamp === last.timestamp) return first.time_label;
-  return `${first.time_label} - ${last.time_label}`;
-}
 
 function formatCorrelation(values: Record<string, string>): string {
   const entries = Object.entries(values);

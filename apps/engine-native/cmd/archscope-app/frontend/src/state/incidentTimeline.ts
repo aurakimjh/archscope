@@ -67,6 +67,9 @@ export type IncidentTimelineAnalysisResult = WorkspaceAnalysisResult & {
   type: "incident_timeline";
   summary: {
     event_count: number;
+    total_event_count: number;
+    omitted_event_count: number;
+    partial_result: boolean;
     group_count: number;
     narrative_step_count: number;
     ranged_event_count: number;
@@ -90,9 +93,10 @@ export type IncidentTimelineAnalysisResult = WorkspaceAnalysisResult & {
     events: IncidentTimelineEvent[];
   };
   metadata: {
-    schema_version: "0.1.0";
+    schema_version: "0.2.0";
     parser: "wails_session_incident_timeline";
     projection: "wails_session";
+    completeness: IncidentTimelineCompleteness;
     diagnostics: Record<string, unknown>;
     findings: Array<Record<string, unknown>>;
     extra: Record<string, unknown>;
@@ -119,54 +123,91 @@ const ACCESS_ERROR_RATE_THRESHOLD = 5;
 const ACCESS_P95_THRESHOLD_MS = 1_000;
 const JFR_PAUSE_THRESHOLD_MS = 100;
 
-export function buildIncidentTimelineEvents(
-  entries: AnalysisWorkspaceEntry[],
-): IncidentTimelineEvent[] {
-  const events = entries.flatMap((entry) => eventsFromEntry(entry));
-  return events
-    .sort((left, right) => {
-      if (left.sort_time !== right.sort_time) return left.sort_time - right.sort_time;
-      const severityDelta = severityRank(right.severity) - severityRank(left.severity);
-      if (severityDelta !== 0) return severityDelta;
-      return left.label.localeCompare(right.label);
-    })
-    .slice(0, 1_000);
+export type IncidentTimelineCompleteness = {
+  policy: "first_120_per_source_then_earliest_1000_v1";
+  total_event_count: number;
+  emitted_event_count: number;
+  omitted_event_count: number;
+  partial_result: boolean;
+  omitted_by_severity: Record<IncidentTimelineSeverity,number>;
+  per_source: Array<{source_result_id:string;total:number;emitted:number;omitted:number}>;
+  severity_time_summary_scope: "all_candidates";
+  group_narrative_scope: "retained_events";
+};
+
+function projectTimeline(entries: AnalysisWorkspaceEntry[]) {
+  const retained: IncidentTimelineEvent[]=[];
+  const bySeverity: Record<IncidentTimelineSeverity,number>={critical:0,warning:0,info:0};
+  const byCategory=new Map<string,number>(),byAnalyzer=new Map<string,number>();
+  const sources:IncidentTimelineCompleteness["per_source"]=[];
+  let first:IncidentTimelineEvent|undefined,last:IncidentTimelineEvent|undefined;
+  let total=0,ranged=0,correlated=0;
+  // [한글] 모든 후보의 요약은 상한 적용 전에 집계한다. 행만 제한하므로
+  // 후반부의 심각 이벤트도 전체 건수/심각도/시간 범위에서 사라지지 않는다.
+  for (const entry of entries) {
+    const candidates=eventsFromEntry(entry);
+    sources.push({source_result_id:entry.id,total:candidates.length,emitted:0,omitted:0});
+    total+=candidates.length;
+    for(const event of candidates) {
+      bySeverity[event.severity]++;
+      byCategory.set(event.category,(byCategory.get(event.category)??0)+1);
+      byAnalyzer.set(event.source_analyzer,(byAnalyzer.get(event.source_analyzer)??0)+1);
+      if(event.duration_ms!==undefined || event.end_time!==undefined)ranged++;
+      if(Object.keys(event.correlation_ids).length)correlated++;
+      if(!first || event.sort_time<first.sort_time)first=event;
+      if(!last || event.sort_time>last.sort_time)last=event;
+    }
+    retained.push(...candidates.slice(0,MAX_EVENTS_PER_RESULT));
+  }
+  const events=retained.sort((a,b)=>a.sort_time-b.sort_time || severityRank(b.severity)-severityRank(a.severity) || a.label.localeCompare(b.label) || a.id.localeCompare(b.id)).slice(0,1000);
+  const emitted=new Map<string,number>();const omittedBySeverity={...bySeverity};
+  for(const event of events) {emitted.set(event.source_result_id,(emitted.get(event.source_result_id)??0)+1);omittedBySeverity[event.severity]--;}
+  for(const source of sources) {source.emitted=emitted.get(source.source_result_id)??0;source.omitted=source.total-source.emitted;}
+  const completeness:IncidentTimelineCompleteness={policy:"first_120_per_source_then_earliest_1000_v1",total_event_count:total,emitted_event_count:events.length,omitted_event_count:total-events.length,partial_result:total>events.length,omitted_by_severity:omittedBySeverity,per_source:sources,severity_time_summary_scope:"all_candidates",group_narrative_scope:"retained_events"};
+  return {events,completeness,bySeverity,byCategory,byAnalyzer,ranged,correlated,first,last};
+}
+
+export function buildIncidentTimelineEvents(entries: AnalysisWorkspaceEntry[]): IncidentTimelineEvent[] {
+  return projectTimeline(entries).events;
 }
 
 export function buildIncidentTimelineAnalysisResult(
   entries: AnalysisWorkspaceEntry[],
 ): IncidentTimelineAnalysisResult {
-  const events = buildIncidentTimelineEvents(entries);
+  const projection=projectTimeline(entries);
+  const {events,completeness}=projection;
   const groups = buildIncidentTimelineGroups(events);
   const narrative = buildIncidentTimelineNarrative(events);
-  const ordered = [...events].sort((left, right) => left.sort_time - right.sort_time);
   return {
     type: "incident_timeline",
     source_files: uniqueStrings(entries.flatMap((entry) => entry.source_files)),
     created_at: new Date().toISOString(),
     summary: {
       event_count: events.length,
+      total_event_count:completeness.total_event_count,
+      omitted_event_count:completeness.omitted_event_count,
+      partial_result:completeness.partial_result,
       group_count: groups.length,
       narrative_step_count: narrative.length,
-      ranged_event_count: events.filter((event) => event.duration_ms !== undefined || event.end_time !== undefined).length,
-      correlated_event_count: events.filter((event) => Object.keys(event.correlation_ids).length > 0).length,
-      critical_event_count: events.filter((event) => event.severity === "critical").length,
-      warning_event_count: events.filter((event) => event.severity === "warning").length,
-      info_event_count: events.filter((event) => event.severity === "info").length,
+      ranged_event_count: projection.ranged,
+      correlated_event_count: projection.correlated,
+      critical_event_count: projection.bySeverity.critical,
+      warning_event_count: projection.bySeverity.warning,
+      info_event_count: projection.bySeverity.info,
       source_result_count: entries.length,
-      earliest_timestamp: ordered[0]?.timestamp ?? null,
-      latest_timestamp: ordered[ordered.length - 1]?.timestamp ?? null,
+      earliest_timestamp: projection.first?.timestamp ?? null,
+      latest_timestamp: projection.last?.timestamp ?? null,
     },
     series: {
-      events_by_severity: countEvents(events, "severity").map(([severity, count]) => ({
+      events_by_severity: Object.entries(projection.bySeverity).map(([severity, count]) => ({
         severity: severity as IncidentTimelineSeverity,
         count,
       })),
-      events_by_category: countEvents(events, "category").map(([category, count]) => ({
+      events_by_category: Array.from(projection.byCategory.entries()).map(([category, count]) => ({
         category,
         count,
       })),
-      events_by_source_analyzer: countEvents(events, "source_analyzer").map(([source_analyzer, count]) => ({
+      events_by_source_analyzer: Array.from(projection.byAnalyzer.entries()).map(([source_analyzer, count]) => ({
         source_analyzer,
         count,
       })),
@@ -183,16 +224,17 @@ export function buildIncidentTimelineAnalysisResult(
     },
     charts: {},
     metadata: {
-      schema_version: "0.1.0",
+      schema_version: "0.2.0",
       parser: "wails_session_incident_timeline",
       projection: "wails_session",
+      completeness,
       diagnostics: {
         source_count: entries.length,
         event_count: events.length,
         group_count: groups.length,
         narrative_step_count: narrative.length,
       },
-      findings: events
+      findings: [...(completeness.partial_result ? [{severity:"warning",code:"INCIDENT_TIMELINE_PARTIAL",message:"Incident event rows are bounded; overall severity/time summaries include omitted candidates.",evidence:{total:completeness.total_event_count,emitted:events.length,omitted:completeness.omitted_event_count,omitted_by_severity:completeness.omitted_by_severity}}] : []), ...events
         .filter((event) => event.severity !== "info")
         .map((event) => ({
           severity: event.severity,
@@ -200,7 +242,7 @@ export function buildIncidentTimelineAnalysisResult(
           message: event.description,
           evidence_ref: event.evidence_ref,
           event_id: event.id,
-        })),
+        }))],
       extra: {
         deterministic_projection: true,
       },
@@ -266,7 +308,7 @@ function eventsFromEntry(entry: AnalysisWorkspaceEntry): IncidentTimelineEvent[]
       events.push(...eventsFromApiContract(entry));
       break;
   }
-  return uniqueEvents(events).slice(0, MAX_EVENTS_PER_RESULT);
+  return uniqueEvents(events);
 }
 
 function eventsFromFindings(entry: AnalysisWorkspaceEntry): IncidentTimelineEvent[] {
@@ -1159,17 +1201,6 @@ function formatNumber(value: number): string {
     : String(value);
 }
 
-function countEvents(
-  events: IncidentTimelineEvent[],
-  key: "severity" | "category" | "source_analyzer",
-): Array<[string, number]> {
-  const counts = new Map<string, number>();
-  for (const event of events) {
-    const value = event[key];
-    counts.set(value, (counts.get(value) ?? 0) + 1);
-  }
-  return Array.from(counts.entries()).sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]));
-}
 
 function uniqueStrings(values: string[]): string[] {
   return Array.from(new Set(values.filter(Boolean))).sort((left, right) => left.localeCompare(right));

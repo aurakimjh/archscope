@@ -302,6 +302,7 @@ export function buildReportPackHTML(payload: ReportPackPayload): string {
   <h2>AI Interpretation</h2>
   ${renderAiInterpretation(payload.provenance.ai_interpretation)}
 
+  <p class="subtle">Incident display: ${timeline.summary.event_count} / ${timeline.summary.total_event_count}; omitted: ${timeline.summary.omitted_event_count} (critical: ${timeline.metadata.completeness.omitted_by_severity.critical}). Severity/time summaries cover all candidates; groups and narrative cover retained events. Policy: ${escapeHTML(timeline.metadata.completeness.policy)}.</p>
   <h2>Incident Narrative</h2>
   ${renderNarrativeTable(timeline.tables.narrative.slice(0, 20))}
 

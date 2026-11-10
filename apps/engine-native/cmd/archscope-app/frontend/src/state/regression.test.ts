@@ -1,4 +1,4 @@
-import { buildReportPackPayload } from "./reportPack.js";
+import { buildReportPackPayload, buildReportPackHTML } from "./reportPack.js";
 import { buildIncidentTimelineAnalysisResult } from "./incidentTimeline.js";
 import { buildSloAnalysisResultFromEntries, DEFAULT_SLO_TARGETS } from "./sloGoldenSignals.js";
 import { isCurrentJenniferProjection, readJenniferDrilldown } from "./jenniferDrilldown.js";
@@ -3222,3 +3222,24 @@ assert(partialFlow.call_count===2 && partialFlow.error_count===1 && partialFlow.
 
 const missingLatencySlo=buildSloAnalysisResultFromEntries([unknownLatency],[DEFAULT_SLO_TARGETS[0]]);
 assert(missingLatencySlo.target_evaluations[0].status==="no_evidence" && missingLatencySlo.summary.unevaluated_target_count===1,"Missing latency means an unassessed SLO, never a satisfied one");
+
+// T-618: both output caps disclose losses, while all-candidate severity/time
+// summaries retain a severe late event. Groups/narrative stay retained-only.
+function incidentRows(count:number,offset=0) {
+  return Array.from({length:count},(_,index)=>({time:new Date(Date.UTC(2026,10,10,0,index+offset)).toISOString(),value:index===count-1?100:5,errors:index===count-1?100:5,total:100}));
+}
+const cappedSource=entry("capped-source","access_log",{series:{error_rate_per_minute:incidentRows(130)}});
+const cappedTimeline=buildIncidentTimelineAnalysisResult([cappedSource]);
+assert(cappedTimeline.summary.event_count===120 && cappedTimeline.summary.total_event_count===130 && cappedTimeline.summary.omitted_event_count===10 && cappedTimeline.summary.partial_result,"Per-source timeline cap discloses exact loss");
+assert(cappedTimeline.summary.critical_event_count===1 && cappedTimeline.metadata.completeness.omitted_by_severity.critical===1,"Late critical event survives in full summary and loss accounting");
+assert(cappedTimeline.summary.latest_timestamp===new Date(Date.UTC(2026,10,10,0,129)).toISOString(),"Timeline full time range includes omitted late events");
+const cappedSources=Array.from({length:9},(_,index)=>entry(`cap-${index}`,"access_log",{series:{error_rate_per_minute:incidentRows(120,index*120)}}));
+const sessionCapped=buildIncidentTimelineAnalysisResult(cappedSources);
+assert(sessionCapped.tables.events.length===1000 && sessionCapped.summary.total_event_count===1080 && sessionCapped.summary.omitted_event_count===80,"Session cap keeps bounded rows with full total");
+assert(sessionCapped.metadata.completeness.per_source.reduce((sum,row)=>sum+row.omitted,0)===80,"Per-source loss sums match session loss");
+assert(sessionCapped.summary.critical_event_count===9 && sessionCapped.metadata.completeness.omitted_by_severity.critical===1,"Session summary includes a dropped last-source critical event");
+const cappedPack=buildReportPackPayload([],[cappedSource]);
+assert(cappedPack.artifacts.incident_timeline.summary.critical_event_count===1 && JSON.stringify(cappedPack).includes('"omitted_event_count":10'),"Report Pack JSON retains timeline completeness");
+assert(buildReportPackHTML(cappedPack).includes("omitted: 10 (critical: 1)"),"Report Pack HTML discloses hidden critical events");
+const uncappedTimeline=buildIncidentTimelineAnalysisResult([]);
+assert(!uncappedTimeline.summary.partial_result && uncappedTimeline.summary.omitted_event_count===0,"Empty timeline is complete, not truncated");

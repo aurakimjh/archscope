@@ -1484,3 +1484,14 @@ while retaining full traffic counts. SLO exports include per-target
 `target_evaluations` and `unevaluated_target_count`: no matched latency evidence
 means not assessed, rather than satisfied. Existing programmatic Record inputs
 remain measured by default; parsers explicitly mark unavailable durations.
+
+Incident Timeline completeness (T-618): event rows retain at most 120 per
+source, then the earliest 1000 session candidates (deterministic tie breaks).
+`summary.event_count` is emitted rows; `total_event_count`,
+`omitted_event_count` and `partial_result` disclose the full candidate set.
+Severity/time/ranged/correlation summaries and severity/category/analyzer
+distributions cover all candidates; groups/narrative and their counts cover
+retained rows only. `metadata.completeness` records selection policy, per-source
+total/emitted/omitted counts, omitted severity counts and both summary scopes.
+The page and Report Pack HTML disclose omissions, including omitted critical
+events; JSON retains the same metadata.
