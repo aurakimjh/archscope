@@ -139,6 +139,12 @@ export function ImportHar(request: $models.CaptureImportRequest): $CancellablePr
     });
 }
 
+export function InspectLegacyContent(format: string, encoded: string): $CancellablePromise<models$0.LegacyPreview | null> {
+    return $Call.ByID(639400891, format, encoded).then(($result: any) => {
+        return $$createType15($result);
+    });
+}
+
 export function InstallCaptureCA(): $CancellablePromise<certstore$0.Status> {
     return $Call.ByID(1385602692).then(($result: any) => {
         return $$createType6($result);
@@ -147,25 +153,25 @@ export function InstallCaptureCA(): $CancellablePromise<certstore$0.Status> {
 
 export function ListCaptureModes(): $CancellablePromise<capture$0.Mode[]> {
     return $Call.ByID(1386420617).then(($result: any) => {
-        return $$createType15($result);
+        return $$createType17($result);
     });
 }
 
 export function ListCaptureProcesses(): $CancellablePromise<models$0.ProcessInstance[]> {
     return $Call.ByID(2974709936).then(($result: any) => {
-        return $$createType17($result);
+        return $$createType19($result);
     });
 }
 
 export function OpenCaptureFile(path: string): $CancellablePromise<$models.CaptureOpenResult> {
     return $Call.ByID(166476653, path).then(($result: any) => {
-        return $$createType18($result);
+        return $$createType20($result);
     });
 }
 
 export function RecoverCaptureSessions(): $CancellablePromise<store$0.RecoveryReport[]> {
     return $Call.ByID(740397896).then(($result: any) => {
-        return $$createType20($result);
+        return $$createType22($result);
     });
 }
 
@@ -233,10 +239,12 @@ const $$createType10 = capture$0.Stats.createFrom;
 const $$createType11 = summary$0.Snapshot.createFrom;
 const $$createType12 = $Create.Nullable($$createType7);
 const $$createType13 = capture$0.LiveCaptureContract.createFrom;
-const $$createType14 = capture$0.Mode.createFrom;
-const $$createType15 = $Create.Array($$createType14);
-const $$createType16 = models$0.ProcessInstance.createFrom;
+const $$createType14 = models$0.LegacyPreview.createFrom;
+const $$createType15 = $Create.Nullable($$createType14);
+const $$createType16 = capture$0.Mode.createFrom;
 const $$createType17 = $Create.Array($$createType16);
-const $$createType18 = $models.CaptureOpenResult.createFrom;
-const $$createType19 = store$0.RecoveryReport.createFrom;
-const $$createType20 = $Create.Array($$createType19);
+const $$createType18 = models$0.ProcessInstance.createFrom;
+const $$createType19 = $Create.Array($$createType18);
+const $$createType20 = $models.CaptureOpenResult.createFrom;
+const $$createType21 = store$0.RecoveryReport.createFrom;
+const $$createType22 = $Create.Array($$createType21);

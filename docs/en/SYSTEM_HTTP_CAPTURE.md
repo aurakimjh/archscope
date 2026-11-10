@@ -1172,3 +1172,38 @@ obsolete sources. Sorting/filtering changes placement, not annotation identity.
 Local service and round-trip fixtures verify ordering, retained stars, redacted
 comments, unknown-ID rejection and reopened XML/native sessions; renderer state
 regressions verify row hints and explicit finding links.
+
+### AMF and ASP.NET ViewState inspection (T-612)
+
+The Body tab includes AMF/ViewState tree and bounded text inspection. Captured
+bodies, HAR payloads and Builder results feed the same inert decoder before
+raw non-text suppression; metadata-only/event/search paths and compact export
+remove decoded payloads too. Native JSON/XML/ArchScope HAR preserve the redacted
+tree. A separate base64 editor allows explicit AMF0, AMF3, AMF packet or ViewState
+inspection without sending a request.
+
+AMF support includes scalar values, ordered objects/arrays, AMF0 references and
+AMF3 string/object/trait references, vectors and dictionaries, plus bounded
+remoting envelopes. References stay symbolic rather than recursively expanding
+objects. ViewState reads ObjectStateFormatter v1 primitive values, pairs/triplets,
+arrays/dictionaries, indexed strings and type-name tokens; form/quoted HTML
+ViewState fields and numbered chunks are recognized. Class externalizers,
+BinaryFormatter, TypeConverter execution, encrypted ViewState and unknown tokens
+are explicitly unsupported. Type names are strings, never loaded classes.
+Unparsed tails are reported without claiming a valid MAC/signature.
+
+Limits are 1 MiB input/output text budget, 4,096 nodes, depth 32 and 64 KiB strings.
+Opaque byte arrays are omitted. Secret-named subtrees are masked before storage;
+raw ViewState form/HTML values are suppressed, including incomplete hidden-input
+values. Known byte fixtures verify trees, references, remoting lengths, ViewState
+chunks/tails, text forms, invalid/truncated/unsupported cases, source immutability
+and portable round trips. A local 15-second fuzz run completed without a panic.
+These are parser checks, not reference-EXE or native UI interoperability evidence.
+
+Format references: [Adobe AMF3 specification](https://veovera.github.io/enhanced-rtmp/docs/legacy/amf3-file-format-spec.pdf)
+and [Microsoft ObjectStateFormatter source](https://github.com/microsoft/referencesource/blob/main/System.Web/UI/ObjectStateFormatter.cs).
+
+Expanded summary content overlays the grid rather than consuming its remaining
+height. Inspector splitter bounds include every fixed toolbar row, including
+wrapped export/filter/note controls; this prevents the new controls from silently
+collapsing the grid. The visual result still needs unlocked native inspection.

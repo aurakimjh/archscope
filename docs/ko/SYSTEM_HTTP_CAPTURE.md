@@ -4488,3 +4488,32 @@ HAR base64 이미지와 Builder 응답에도 같은 검증을 적용합니다. �
 뒤 도착한 저장 응답은 무시합니다. 정렬·필터는 위치만 바꾸고 주석 ID는 유지합니다.
 서비스·왕복 검사로 순서·별표·주석 마스킹·잘못된 ID 거부·XML/네이티브 재열기를,
 프런트엔드 상태 검사로 힌트와 명시적 진단 연결을 검증했습니다.
+
+### AMF와 ASP.NET ViewState 검사 (T-612)
+
+본문 탭에 AMF/ViewState 트리와 상한이 있는 텍스트 검사를 추가했습니다. 캡처 본문·
+HAR·Builder가 같은 토큰 파서를 사용하고, 원본 비텍스트를 제외하기 전에 데이터를
+분석합니다. 메타데이터·이벤트·검색·compact 경로에서는 디코딩 본문도 제외합니다.
+JSON/XML/ArchScope HAR는 마스킹된 트리를 보존합니다. 별도 base64 편집기로 AMF0,
+AMF3, AMF 패킷, ViewState를 명시적으로 검사할 수도 있으며 요청을 전송하지 않습니다.
+
+AMF의 기본 값·순서가 있는 객체/배열, AMF0 참조와 AMF3 문자열/객체/trait 참조,
+벡터·딕셔너리 및 remoting 패킷을 지원합니다. 참조는 객체를 재귀 확장하지 않고 참조
+번호로 표시합니다. ViewState는 ObjectStateFormatter v1 기본 값·쌍/삼중 값·배열·
+딕셔너리·색인 문자열·타입명 토큰을 읽고 폼·따옴표 HTML 필드·번호 분할을 인식합니다.
+클래스 externalizer, BinaryFormatter, TypeConverter 실행, 암호화 ViewState와 미지원
+토큰은 명시적으로 구분합니다. 타입명은 문자열이며 클래스를 로드하지 않습니다.
+읽지 않은 꼬리를 표시하고 MAC·서명이 유효하다고 판단하지 않습니다.
+
+입출력 텍스트 1 MiB·4096 노드·깊이 32·문자열 64 KiB 상한을 적용하고 불투명 바이트
+배열은 제외합니다. 비밀 이름의 하위 트리는 저장 전에 마스킹하고 원본 ViewState 폼·
+HTML 값은 잘린 hidden 입력까지 제외합니다. 바이트 예제로 트리·참조·패킷 길이·
+ViewState 분할/꼬리·텍스트·오류·미지원·원본 불변성·세션 왕복을 검사했고 15초 fuzz를
+패닉 없이 마쳤습니다. 파서 검증이며 원본 EXE 또는 네이티브 화면 호환성 근거가 아닙니다.
+
+형식 근거: [Adobe AMF3 명세](https://veovera.github.io/enhanced-rtmp/docs/legacy/amf3-file-format-spec.pdf),
+[Microsoft ObjectStateFormatter 소스](https://github.com/microsoft/referencesource/blob/main/System.Web/UI/ObjectStateFormatter.cs).
+
+펼친 요약은 그리드의 남은 높이를 차지하지 않도록 겹쳐 표시합니다. 분할선의 상세
+높이 계산에는 줄바꿈한 내보내기·필터·주석 도구 모음 전체를 포함해 새 컨트롤 때문에
+그리드가 사라지는 것을 방지합니다. 실제 배치는 잠금 해제 후 네이티브 확인이 필요합니다.

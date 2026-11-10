@@ -77,6 +77,7 @@ func Sanitize(doc *Document) (redact.Summary, error) {
 				return p.Summary(), fmt.Errorf("body exceeds 10 MiB")
 			}
 			m.ImagePreview = content.Clean(m.ImagePreview)
+			m.LegacyPreview = content.CleanLegacy(m.LegacyPreview, p)
 			m.Headers = p.RedactHeaders(m.Headers)
 			for j := range m.Cookies {
 				m.Cookies[j].Value, m.Cookies[j].Redacted = p.RedactNamedValue("cookie", m.Cookies[j].Value)
@@ -207,6 +208,7 @@ func Encode(doc Document, format string) ([]byte, error) {
 				m.BodyPreview = ""
 				m.BodyRef = ""
 				m.BodyStorage = "export_omitted"
+				m.LegacyPreview = nil
 				m.ImagePreview = nil
 			}
 		}

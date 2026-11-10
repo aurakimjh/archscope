@@ -8,7 +8,7 @@ The previous long-form history was archived to
 
 ## Status Overview
 
-**Overall: 194 of 200 tracked tasks are `DONE` (97.0%).** The Windows Wails v3 replacement for IEInspector HTTP Analyzer V7.6.4 Stand-alone has 5 open work items (T-594 through T-613), including the remaining audit findings. T-603 native Windows acceptance completed on 2026-11-09 with actual request/response bodies and verified policy restoration. The 2026-11-09
+**Overall: 195 of 200 tracked tasks are `DONE` (97.5%).** The Windows Wails v3 replacement for IEInspector HTTP Analyzer V7.6.4 Stand-alone has 4 open work items (T-594 through T-613), including the remaining audit findings. T-603 native Windows acceptance completed on 2026-11-09 with actual request/response bodies and verified policy restoration. The 2026-11-09
 GC/profiler revalidation confirmed five bugs (T-589 through T-593). Their
 current implementation status is recorded in the registry and snapshot below;
 T-557 remains trigger-dependent `PENDING`.
@@ -213,11 +213,11 @@ completed the independent Lighthouse file-first engine slice.
 
 | Status | Count | Meaning |
 |---|---:|---|
-| `TODO` | 3 | Ready to start; prerequisites are satisfied |
+| `TODO` | 2 | Ready to start; prerequisites are satisfied |
 | `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
 | `REVIEW` | 1 | Review or required remediation is underway; the gate has not passed |
 | `PENDING` | 2 | Waiting for a prerequisite, external condition, or activation trigger |
-| `DONE` | 194 | Completion criteria and required review gates have passed |
+| `DONE` | 195 | Completion criteria and required review gates have passed |
 
 The normal transition is `TODO → IN_PROGRESS → REVIEW → DONE`. A `PENDING`
 task returns to `TODO` when its dependency or trigger is satisfied. Task status
@@ -231,7 +231,7 @@ Native QA preparation fixed duplicate inspector tab IDs, nested option/help
 buttons and macOS Command accelerators. Production build checks are separate
 from visible-window acceptance. Desktop control twice returned a locked Mac
 with failed auto-unlock; window/dialog/splitter interaction awaits an unlocked
-remote session. The requested four implementation tasks continue independently.
+remote session. T-605, T-606, T-609 and T-612 are implemented and locally verified; visible native interaction remains open.
 
 ### Open Work Snapshot
 
@@ -240,9 +240,8 @@ remote session. The requested four implementation tasks continue independently.
 | 1 | T-601 | P1 | `REVIEW` | Deliver the four Windows capture entry points and measure their reach |
 | 2 | T-608 | P2 | `TODO` | Read and write legacy .halog files |
 | 3 | T-611 | P3 | `TODO` | Support Stand-alone automation and desktop launch switches |
-| 4 | T-612 | P3 | `TODO` | Restore legacy content inspectors |
-| 5 | T-613 | P3 | `PENDING` | Verify complete Stand-alone parity on Windows |
-| 6 | T-557 | P1 | `PENDING` | Promote the Jennifer MSA drilldown calculation from UI projection to a Go analyzer contract if repeated use shows it should be exported/reported outside the desktop page. |
+| 4 | T-613 | P3 | `PENDING` | Verify complete Stand-alone parity on Windows |
+| 5 | T-557 | P1 | `PENDING` | Promote the Jennifer MSA drilldown calculation from UI projection to a Go analyzer contract if repeated use shows it should be exported/reported outside the desktop page. |
 
 ### Local Windows validation (2026-11-09)
 
@@ -1194,7 +1193,7 @@ deferred until explicitly promoted.
 | T-609 | P2 | DONE | Integrate row hints, status help, stars and comments | T-594, T-607 | Added request-ID hints/status help, explicit evidence links, star/comment columns and starred-only filtering. Live annotations use an atomic bounded sidecar, verified IDs, redacted comments and Clear reset; finalized/native JSON/XML/ArchScope HAR preserve notes, while opened-file edits stay explicit export overrides. ID sorting, service and reopen regressions plus frontend state/build pass; native visual acceptance remains unverified. |
 | T-610 | P2 | DONE | Add the Stand-alone HTTP Request Builder | T-594 | Desktop Request Builder supports fresh requests, selected-row copies and a fixed drag/drop target, editable headers/raw/form/multipart files, explicit send/cancel and separate response inspection. Local raw/form/multipart/redirect/timeout/TLS/gzip fixtures, race detector, browser mouse copy/edit/send/drag with original-row preservation, Go suite/vet/build and frontend state/build pass; native Windows acceptance remains T-613. |
 | T-611 | P3 | TODO | Support Stand-alone automation and desktop launch switches | T-596, T-607 | Verify a Windows automation client can attach to a chosen test process, control visible recording, observe new/updated entries and read/save/reload transactions. Check the documented process, duration, destination and format switches. |
-| T-612 | P3 | TODO | Restore legacy content inspectors | T-606 | Verify AMF0/AMF3 and ASP.NET ViewState against known decoded trees and their text forms. Handle truncated, invalid or oversized data without executing serialized objects. |
+| T-612 | P3 | DONE | Restore legacy content inspectors | T-606 | Added bounded inert AMF0/AMF3 and remoting-packet readers, ViewState v1 token trees/text, references/traits/vectors/dictionaries, form/HTML chunk extraction and explicit invalid/limited/unsupported states. Classes/converters/binary objects are never instantiated; MAC/encryption remain unverified, opaque bytes omitted and secret trees/raw ViewState sources masked. Capture/HAR/Builder/portable paths, known-byte fixtures and 15-second fuzz pass; native/reference-EXE visual interoperability remains T-613. |
 | T-613 | P3 | PENDING | Verify complete Stand-alone parity on Windows | T-601, T-602, T-603, T-604, T-605, T-606, T-607, T-608, T-609, T-610, T-611, T-612 | Replay the T-599 inventory against a packaged Wails v3 desktop build. Record a Windows result for every applicable command and viewer, including file and automation interoperability, long captures, re-entry and restart. Leave any unverified or missing reference behavior open. |
 | T-589 | P1 | DONE | Restore unified GC uptime/date coordinates and valid throughput/allocation/promotion rate denominators; define observation-window rules, expose unavailable values honestly, and align absolute versus elapsed UI axes. | None; existing GC parser/analyzer and AnalysisResult envelope | Completed 2026-11-09: unified date/uptime parsing, monotonic observed-window accounting, nullable unavailable metrics with reasons, elapsed/absolute axes and EN/KO disclosure. GC parser/analyzer regressions, frontend state suite and production build passed; local source review completed (no independent or desktop E2E claim). |
 | T-590 | P1 | DONE | Preserve internal-frame self samples in the shared Canvas flamegraph so totals, widths, tooltips, and search use the original inclusive weights without double counting. | None; coordinate hidden-weight fixtures with T-591 | Completed 2026-11-09: Canvas derives self weights from inclusive nodes; shared layout/search helpers preserve prefix-stack totals and union recursive matches. Prefix, leaf, recursion, focus/search and synthetic-hidden-weight regressions plus frontend state suite/build passed; local source review completed. |

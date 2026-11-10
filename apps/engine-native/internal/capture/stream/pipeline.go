@@ -517,6 +517,7 @@ func (p *Pipeline) redact(tx models.CaptureTransaction) models.CaptureTransactio
 // body was empty" instead of "the body was suppressed".
 func (p *Pipeline) redactMessage(message *models.HTTPMessage) {
 	message.ImagePreview = content.Clean(message.ImagePreview)
+	message.LegacyPreview = content.CleanLegacy(message.LegacyPreview, p.cfg.Redaction)
 	before := message.BodyPreview
 	message.BodyPreview, message.Redacted = p.cfg.Redaction.RedactBody(message.ContentType, before)
 	if before != "" && message.BodyPreview == "" {
@@ -529,6 +530,8 @@ func unattributed(tx models.CaptureTransaction) bool {
 }
 
 func metadataOnly(tx models.CaptureTransaction) models.CaptureTransaction {
+	tx.Request.LegacyPreview = nil
+	tx.Response.LegacyPreview = nil
 	tx.Request.ImagePreview = nil
 	tx.Response.ImagePreview = nil
 	tx.Request.BodyPreview = ""

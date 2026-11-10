@@ -445,7 +445,8 @@ func carriesPayload(storage string) bool {
 func omitBodies(tx *models.CaptureTransaction) bool {
 	changed := false
 	for _, msg := range []*models.HTTPMessage{&tx.Request, &tx.Response} {
-		if msg.ImagePreview != nil || msg.BodyPreview != "" || msg.BodyRef != "" || carriesPayload(msg.BodyStorage) {
+		if msg.LegacyPreview != nil || msg.ImagePreview != nil || msg.BodyPreview != "" || msg.BodyRef != "" || carriesPayload(msg.BodyStorage) {
+			msg.LegacyPreview = nil
 			msg.ImagePreview = nil
 			msg.BodyPreview = ""
 			msg.BodyRef = ""
@@ -551,6 +552,8 @@ func (s *Store) Fetch(filter Filter, opaque string, limit int) (Page, error) {
 			continue
 		}
 		if filter.MetadataOnly {
+			item.Transaction.Request.LegacyPreview = nil
+			item.Transaction.Response.LegacyPreview = nil
 			item.Transaction.Request.ImagePreview = nil
 			item.Transaction.Response.ImagePreview = nil
 			item.Transaction.Request.BodyPreview = ""

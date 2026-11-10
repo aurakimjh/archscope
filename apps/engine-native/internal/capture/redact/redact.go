@@ -180,12 +180,22 @@ func (p *Policy) RedactNamedValue(name, value string) (string, bool) {
 }
 
 func (p *Policy) RedactBody(mimeType, text string) (string, bool) {
+	sourceText := text
 	if text == "" {
 		return "", false
 	}
 	if !isTextMIME(mimeType) {
 		p.bump("non_text_body_omitted")
 		return "", true
+	}
+	if strings.Contains(strings.ToLower(mimeType), "html") {
+		text = viewStateInputs.ReplaceAllStringFunc(text, func(tag string) string {
+			if !viewStateNames.MatchString(tag) {
+				return tag
+			}
+			p.bump("viewstate_source")
+			return viewStateValues.ReplaceAllString(tag, `value="[REDACTED_VIEWSTATE]"`)
+		})
 	}
 	trimmedInput := strings.TrimSpace(text)
 	jsonBody := strings.Contains(strings.ToLower(mimeType), "json") || strings.HasPrefix(trimmedInput, "{") || strings.HasPrefix(trimmedInput, "[")
@@ -207,16 +217,17 @@ func (p *Policy) RedactBody(mimeType, text string) (string, bool) {
 			p.redactJSON(&value, "")
 			after, _ := json.Marshal(value)
 			result := p.applyText(string(after))
-			return result, string(before) != result
+			return result, string(before) != result || text != sourceText
 		}
 	}
 	if strings.Contains(strings.ToLower(mimeType), "x-www-form-urlencoded") {
 		result, changed := p.redactEncodedFields(limited, "named_value")
 		result = p.applyCustom(result)
-		return result, changed || result != text
+		return result, changed || result != sourceText
 	}
+
 	result := p.applyText(limited)
-	return result, result != text
+	return result, result != sourceText
 }
 
 func (p *Policy) RedactProcess(process *models.ProcessInstance) *models.ProcessInstance {
@@ -448,7 +459,7 @@ func sensitiveNormalizedKey(normalized string) bool {
 	case "auth", "authorization", "token", "accesstoken", "refreshtoken", "apikey", "servicekey", "password", "passwd", "pwd", "secret", "signature", "code", "cookie", "setcookie", "creditcard", "ssn", "session":
 		return true
 	}
-	return strings.HasSuffix(normalized, "password") ||
+	return strings.HasPrefix(normalized, "viewstate") || strings.HasSuffix(normalized, "password") ||
 		strings.HasSuffix(normalized, "passwd") ||
 		strings.HasSuffix(normalized, "token") ||
 		strings.HasSuffix(normalized, "secret") ||
@@ -524,3 +535,7 @@ func (p *Policy) RedactCookies(cookies []models.HeaderField) []models.HeaderFiel
 	}
 	return out
 }
+
+var viewStateInputs = regexp.MustCompile(`(?i)<input\b[^>]*(?:>|$)`)
+var viewStateNames = regexp.MustCompile(`(?i)\bname\s*=\s*(?:"__VIEWSTATE[^"]*"|'__VIEWSTATE[^']*')`)
+var viewStateValues = regexp.MustCompile(`(?i)\bvalue\s*=\s*(?:"[^"]*(?:"|$)|'[^']*(?:'|$))`)

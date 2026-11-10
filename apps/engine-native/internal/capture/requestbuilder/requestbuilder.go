@@ -213,6 +213,11 @@ func message(headers http.Header, body []byte, truncated bool) models.HTTPMessag
 			m.Headers = append(m.Headers, models.HeaderField{Name: name, Value: value})
 		}
 	}
+	m.LegacyPreview = content.DecodeLegacy(body, m.ContentType)
+	if truncated && m.LegacyPreview != nil {
+		m.LegacyPreview.State = "limited"
+		m.LegacyPreview.Error = "response preview was truncated"
+	}
 	if m.ContentType == "" && len(body) > 0 {
 		m.ContentType = http.DetectContentType(body)
 	}

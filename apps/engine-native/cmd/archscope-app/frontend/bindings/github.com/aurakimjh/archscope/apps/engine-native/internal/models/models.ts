@@ -229,6 +229,38 @@ export class CaptureTransaction {
     }
 }
 
+export class ContentNode {
+    "name"?: string;
+    "kind": string;
+    "value"?: string;
+    "offset": number;
+    "children"?: ContentNode[];
+
+    /** Creates a new ContentNode instance. */
+    constructor($$source: Partial<ContentNode> = {}) {
+        if (!("kind" in $$source)) {
+            this["kind"] = "";
+        }
+        if (!("offset" in $$source)) {
+            this["offset"] = 0;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ContentNode instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ContentNode {
+        const $$createField4_0 = $$createType9;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("children" in $$parsedSource) {
+            $$parsedSource["children"] = $$createField4_0($$parsedSource["children"]);
+        }
+        return new ContentNode($$parsedSource as Partial<ContentNode>);
+    }
+}
+
 export class CookieAttribute {
     "name": string;
     "value": string;
@@ -309,6 +341,7 @@ export class HTTPAnnotation {
 }
 
 export class HTTPMessage {
+    "legacyPreview"?: LegacyPreview | null;
     "imagePreview"?: RasterPreview | null;
     "headers": HeaderField[];
     "cookies": HeaderField[];
@@ -354,18 +387,22 @@ export class HTTPMessage {
      * Creates a new HTTPMessage instance from a string or object.
      */
     static createFrom($$source: any = {}): HTTPMessage {
-        const $$createField0_0 = $$createType9;
-        const $$createField1_0 = $$createType11;
-        const $$createField2_0 = $$createType11;
+        const $$createField0_0 = $$createType11;
+        const $$createField1_0 = $$createType13;
+        const $$createField2_0 = $$createType15;
+        const $$createField3_0 = $$createType15;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("legacyPreview" in $$parsedSource) {
+            $$parsedSource["legacyPreview"] = $$createField0_0($$parsedSource["legacyPreview"]);
+        }
         if ("imagePreview" in $$parsedSource) {
-            $$parsedSource["imagePreview"] = $$createField0_0($$parsedSource["imagePreview"]);
+            $$parsedSource["imagePreview"] = $$createField1_0($$parsedSource["imagePreview"]);
         }
         if ("headers" in $$parsedSource) {
-            $$parsedSource["headers"] = $$createField1_0($$parsedSource["headers"]);
+            $$parsedSource["headers"] = $$createField2_0($$parsedSource["headers"]);
         }
         if ("cookies" in $$parsedSource) {
-            $$parsedSource["cookies"] = $$createField2_0($$parsedSource["cookies"]);
+            $$parsedSource["cookies"] = $$createField3_0($$parsedSource["cookies"]);
         }
         return new HTTPMessage($$parsedSource as Partial<HTTPMessage>);
     }
@@ -393,7 +430,7 @@ export class HeaderField {
      * Creates a new HeaderField instance from a string or object.
      */
     static createFrom($$source: any = {}): HeaderField {
-        const $$createField0_0 = $$createType13;
+        const $$createField0_0 = $$createType17;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("attributes" in $$parsedSource) {
             $$parsedSource["attributes"] = $$createField0_0($$parsedSource["attributes"]);
@@ -430,7 +467,7 @@ export class InformationalResponse {
      * Creates a new InformationalResponse instance from a string or object.
      */
     static createFrom($$source: any = {}): InformationalResponse {
-        const $$createField2_0 = $$createType11;
+        const $$createField2_0 = $$createType15;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("headers" in $$parsedSource) {
             $$parsedSource["headers"] = $$createField2_0($$parsedSource["headers"]);
@@ -481,6 +518,46 @@ export class JenniferCustomAnalysisRule {
     }
 }
 
+export class LegacyPreview {
+    "format": string;
+    "state": string;
+    "error"?: string;
+    "consumed": number;
+    "trailingBytes": number;
+    "root"?: ContentNode | null;
+    "redacted"?: boolean;
+
+    /** Creates a new LegacyPreview instance. */
+    constructor($$source: Partial<LegacyPreview> = {}) {
+        if (!("format" in $$source)) {
+            this["format"] = "";
+        }
+        if (!("state" in $$source)) {
+            this["state"] = "";
+        }
+        if (!("consumed" in $$source)) {
+            this["consumed"] = 0;
+        }
+        if (!("trailingBytes" in $$source)) {
+            this["trailingBytes"] = 0;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new LegacyPreview instance from a string or object.
+     */
+    static createFrom($$source: any = {}): LegacyPreview {
+        const $$createField5_0 = $$createType18;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("root" in $$parsedSource) {
+            $$parsedSource["root"] = $$createField5_0($$parsedSource["root"]);
+        }
+        return new LegacyPreview($$parsedSource as Partial<LegacyPreview>);
+    }
+}
+
 /**
  * Metadata carries per-analyzer plumbing (parser name, schema
  * version, parser diagnostics, findings list, AI interpretation
@@ -518,7 +595,7 @@ export class ProcessInstance {
      * Creates a new ProcessInstance instance from a string or object.
      */
     static createFrom($$source: any = {}): ProcessInstance {
-        const $$createField1_0 = $$createType14;
+        const $$createField1_0 = $$createType19;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("key" in $$parsedSource) {
             $$parsedSource["key"] = $$createField1_0($$parsedSource["key"]);
@@ -625,13 +702,13 @@ export class TimingPhases {
      * Creates a new TimingPhases instance from a string or object.
      */
     static createFrom($$source: any = {}): TimingPhases {
-        const $$createField0_0 = $$createType15;
-        const $$createField1_0 = $$createType15;
-        const $$createField2_0 = $$createType15;
-        const $$createField3_0 = $$createType15;
-        const $$createField4_0 = $$createType15;
-        const $$createField5_0 = $$createType15;
-        const $$createField6_0 = $$createType15;
+        const $$createField0_0 = $$createType20;
+        const $$createField1_0 = $$createType20;
+        const $$createField2_0 = $$createType20;
+        const $$createField3_0 = $$createType20;
+        const $$createField4_0 = $$createType20;
+        const $$createField5_0 = $$createType20;
+        const $$createField6_0 = $$createType20;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("blocked" in $$parsedSource) {
             $$parsedSource["blocked"] = $$createField0_0($$parsedSource["blocked"]);
@@ -674,10 +751,10 @@ export class TimingSet {
      * Creates a new TimingSet instance from a string or object.
      */
     static createFrom($$source: any = {}): TimingSet {
-        const $$createField0_0 = $$createType17;
-        const $$createField1_0 = $$createType17;
-        const $$createField2_0 = $$createType17;
-        const $$createField3_0 = $$createType17;
+        const $$createField0_0 = $$createType22;
+        const $$createField1_0 = $$createType22;
+        const $$createField2_0 = $$createType22;
+        const $$createField3_0 = $$createType22;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("clientProxy" in $$parsedSource) {
             $$parsedSource["clientProxy"] = $$createField0_0($$parsedSource["clientProxy"]);
@@ -728,13 +805,18 @@ const $$createType4 = HTTPMessage.createFrom;
 const $$createType5 = TimingSet.createFrom;
 const $$createType6 = ProcessInstance.createFrom;
 const $$createType7 = $Create.Nullable($$createType6);
-const $$createType8 = RasterPreview.createFrom;
-const $$createType9 = $Create.Nullable($$createType8);
-const $$createType10 = HeaderField.createFrom;
-const $$createType11 = $Create.Array($$createType10);
-const $$createType12 = CookieAttribute.createFrom;
-const $$createType13 = $Create.Array($$createType12);
-const $$createType14 = ProcessKey.createFrom;
-const $$createType15 = Duration.createFrom;
-const $$createType16 = TimingPhases.createFrom;
-const $$createType17 = $Create.Nullable($$createType16);
+const $$createType8 = ContentNode.createFrom;
+const $$createType9 = $Create.Array($$createType8);
+const $$createType10 = LegacyPreview.createFrom;
+const $$createType11 = $Create.Nullable($$createType10);
+const $$createType12 = RasterPreview.createFrom;
+const $$createType13 = $Create.Nullable($$createType12);
+const $$createType14 = HeaderField.createFrom;
+const $$createType15 = $Create.Array($$createType14);
+const $$createType16 = CookieAttribute.createFrom;
+const $$createType17 = $Create.Array($$createType16);
+const $$createType18 = $Create.Nullable($$createType8);
+const $$createType19 = ProcessKey.createFrom;
+const $$createType20 = Duration.createFrom;
+const $$createType21 = TimingPhases.createFrom;
+const $$createType22 = $Create.Nullable($$createType21);

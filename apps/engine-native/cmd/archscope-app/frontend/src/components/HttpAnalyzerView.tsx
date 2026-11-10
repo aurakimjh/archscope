@@ -1,3 +1,4 @@
+import { HttpLegacyInspector } from "./HttpLegacyInspector";
 import * as CaptureService from "../../bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/captureservice";
 import { HttpRowNotes } from "./HttpRowNotes";
 import type { HttpAnnotation } from "@/state/httpAnnotations";
@@ -195,7 +196,7 @@ export function HttpAnalyzerView({
   });
   const resizeDetail = useCallback((height: number) => {
     const container = containerRef.current;
-    const toolbar = (container?.firstElementChild as HTMLElement | null)?.offsetHeight ?? 100;
+    const toolbar = container ? Array.from(container.children).filter(child=>!child.hasAttribute("data-http-grid")&&!child.hasAttribute("data-http-detail")&&child.getAttribute("role")!=="separator").reduce((sum,child)=>sum+child.getBoundingClientRect().height,0):100;
     const maximum = Math.max(MIN_DETAIL_HEIGHT, (container?.clientHeight ?? window.innerHeight) - toolbar - MIN_GRID_HEIGHT - 48);
     const boundedHeight = Math.max(MIN_DETAIL_HEIGHT, Math.min(height, maximum));
     setDetailHeight(boundedHeight);
@@ -205,14 +206,14 @@ export function HttpAnalyzerView({
     const container = containerRef.current;
     if (!container) return;
     const measure = () => {
-      const toolbar = (container.firstElementChild as HTMLElement | null)?.offsetHeight ?? 100;
+      const toolbar = Array.from(container.children).filter(child=>!child.hasAttribute("data-http-grid")&&!child.hasAttribute("data-http-detail")&&child.getAttribute("role")!=="separator").reduce((sum,child)=>sum+child.getBoundingClientRect().height,0);
       const maximum = Math.max(MIN_DETAIL_HEIGHT, container.clientHeight - toolbar - MIN_GRID_HEIGHT - 48);
       setDetailHeight((current) => Math.min(current, maximum));
     };
     const observer = new ResizeObserver(measure);
-    observer.observe(container);
-    measure();
-    return () => observer.disconnect();
+    const watch=()=>{observer.disconnect();observer.observe(container);for(const child of Array.from(container.children)){if(!child.hasAttribute("data-http-grid")&&!child.hasAttribute("data-http-detail"))observer.observe(child)};measure()};
+    const mutations=new MutationObserver(watch);mutations.observe(container,{childList:true});watch();
+    return () => {observer.disconnect();mutations.disconnect()};
   }, []);
   const [maximized, setMaximized] = useState(false);
 
@@ -308,6 +309,7 @@ export function HttpAnalyzerView({
       />
 
       <div
+        data-http-detail
         className="shrink-0 overflow-auto border-t border-border"
         style={{ height: detailHeight }}
       >
@@ -662,7 +664,7 @@ function TransactionGrid({
 
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div data-http-grid className="flex min-h-0 flex-1 flex-col">
       <div className="flex shrink-0 items-start gap-2 border-b px-2 text-xs">
         <select aria-label={t("httpGridGroup")} value={groupBy} onChange={(event) => { setGroupBy(event.target.value);setCollapsed(new Set());setScrollTop(0); }}>
           <option value="process">{t("httpAnalyzerTabProcess")}</option>
@@ -1243,9 +1245,10 @@ function BodyPane({
       </div>
       <div className="mb-2 flex gap-2 text-xs">
         <button type="button" aria-pressed={view==="raw"} onClick={() => setView("raw")}>Raw</button>
-        {(["styled","hex","preview"] as const).map(value=><button type="button" key={value} aria-pressed={view===value} onClick={()=>setView(value)}>{t(({styled:"httpContentStyled",hex:"httpContentHex",preview:"httpContentPreview"} as const)[value])}</button>)}
+        {(["styled","hex","preview","legacy"] as const).map(value=><button type="button" key={value} aria-pressed={view===value} onClick={()=>setView(value)}>{t(({styled:"httpContentStyled",hex:"httpContentHex",preview:"httpContentPreview",legacy:"httpLegacyTitle"} as const)[value])}</button>)}
         <button type="button" aria-pressed={view==="json"} onClick={() => setView("json")}>JSON</button>
       </div>
+      {view==="legacy" && <HttpLegacyInspector message={message} />}
       {view==="styled" && <HttpStyledText text={message?.bodyPreview??""} />}
       {view==="hex" && <HttpHex text={message?.bodyPreview??""} />}
       {view==="preview" && message && <HttpPreview message={message} />}

@@ -124,3 +124,31 @@ func TestLargeXLSIndependentReader(t *testing.T) {
 		t.Fatalf("%v %s", err, out)
 	}
 }
+
+func TestLegacyTreeRoundTripAndCompactOmission(t *testing.T) {
+	original := fixture()
+	original.Transactions[0].Response.LegacyPreview = &models.LegacyPreview{Format: "amf0", State: "available", Root: &models.ContentNode{Kind: "object", Children: []models.ContentNode{{Name: "password", Kind: "string", Value: "private"}, {Name: "x", Kind: "integer", Value: "2"}}}}
+	for _, format := range []string{"session", "xml", "har", "xml_compact"} {
+		path := filepath.Join(t.TempDir(), "legacy."+format)
+		if err := Write(context.Background(), path, original, format); err != nil {
+			t.Fatal(err)
+		}
+		doc, _, err := Read(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		tree := doc.Transactions[0].Response.LegacyPreview
+		if format == "xml_compact" {
+			if tree != nil {
+				t.Fatal("compact kept structured payload")
+			}
+			continue
+		}
+		if tree == nil || tree.Root.Children[0].Value != "[REDACTED]" || tree.Root.Children[1].Value != "2" {
+			t.Fatalf("%+v", tree)
+		}
+	}
+	if original.Transactions[0].Response.LegacyPreview.Root.Children[0].Value != "private" {
+		t.Fatal("original tree mutated")
+	}
+}

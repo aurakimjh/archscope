@@ -31,3 +31,19 @@ func TestCookieAttributesPreserveDuplicateNames(t *testing.T) {
 		t.Fatalf("%+v", cookies)
 	}
 }
+
+func TestLegacyPreviewRequiresBodyCapture(t *testing.T) {
+	raw := []byte{2, 0, 2, 'h', 'i'}
+	for _, enabled := range []bool{false, true} {
+		recorder := newBodyRecorder(io.NopCloser(bytes.NewReader(raw)), enabled, DefaultMaxBodyBytes)
+		io.Copy(io.Discard, recorder)
+		message := models.HTTPMessage{ContentType: "application/amf0"}
+		recorder.apply(&message, "")
+		if (message.LegacyPreview != nil) != enabled {
+			t.Fatalf("enabled=%v", enabled)
+		}
+		if enabled && message.LegacyPreview.Root.Children[0].Value != "hi" {
+			t.Fatalf("%+v", message.LegacyPreview)
+		}
+	}
+}

@@ -140,3 +140,12 @@ func TestCookiesKeepAttributesButNeverValues(t *testing.T) {
 		t.Fatalf("%+v", out)
 	}
 }
+
+func TestViewStateSourceMaskPrecedesScanLimit(t *testing.T) {
+	policy := NewPolicy(Options{})
+	html := `<input name="__VIEWSTATE" value="` + strings.Repeat("opaque", 20000)
+	out, changed := policy.RedactBody("text/html", html)
+	if !changed || strings.Contains(out, "opaque") {
+		t.Fatal("partial ViewState source was retained")
+	}
+}

@@ -122,7 +122,10 @@ export type CaptureHeaderField = {
   redacted?: boolean;
 };
 
+export type LegacyContentNode = {name?:string;kind:string;value?:string;offset:number;children?:LegacyContentNode[]};
+export type LegacyPreview = {format:string;state:string;error?:string;consumed:number;trailingBytes:number;root?:LegacyContentNode;redacted?:boolean};
 export type CaptureHTTPMessage = {
+ legacyPreview?:LegacyPreview;
  imagePreview?: {mime:string;base64:string;width:number;height:number};
   headers: CaptureHeaderField[];
   cookies: CaptureHeaderField[];

@@ -113,6 +113,11 @@ func (r *bodyRecorder) apply(message *models.HTTPMessage, contentEncoding string
 	}
 	defer zeroBytes(decoded)
 	message.BodyDecoded = int64(len(decoded))
+	message.LegacyPreview = content.DecodeLegacy(decoded, message.ContentType)
+	if message.LegacyPreview != nil && (r.truncated || decodedTruncated) {
+		message.LegacyPreview.State = "limited"
+		message.LegacyPreview.Error = "captured body was truncated"
+	}
 	if !r.truncated && !decodedTruncated {
 		message.ImagePreview = content.Raster(decoded, message.ContentType)
 		if message.ImagePreview != nil {

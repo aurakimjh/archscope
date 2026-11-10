@@ -54,6 +54,22 @@ type CookieAttribute struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
 }
+type ContentNode struct {
+	Name     string        `json:"name,omitempty"`
+	Kind     string        `json:"kind"`
+	Value    string        `json:"value,omitempty"`
+	Offset   int           `json:"offset"`
+	Children []ContentNode `json:"children,omitempty"`
+}
+type LegacyPreview struct {
+	Format        string       `json:"format"`
+	State         string       `json:"state"`
+	Error         string       `json:"error,omitempty"`
+	Consumed      int          `json:"consumed"`
+	TrailingBytes int          `json:"trailingBytes"`
+	Root          *ContentNode `json:"root,omitempty"`
+	Redacted      bool         `json:"redacted,omitempty"`
+}
 type RasterPreview struct {
 	MIME   string `json:"mime"`
 	Base64 string `json:"base64"`
@@ -68,19 +84,20 @@ type HeaderField struct {
 }
 
 type HTTPMessage struct {
-	ImagePreview *RasterPreview `json:"imagePreview,omitempty"`
-	Headers      []HeaderField  `json:"headers"`
-	Cookies      []HeaderField  `json:"cookies"`
-	HeaderSize   int64          `json:"headerSize"`
-	BodySize     int64          `json:"bodySize"`
-	BodyDecoded  int64          `json:"bodyDecoded"`
-	TransferSize int64          `json:"transferSize"`
-	BodyEncoding string         `json:"bodyEncoding,omitempty"`
-	ContentType  string         `json:"contentType,omitempty"`
-	BodyStorage  string         `json:"bodyStorage"`
-	BodyRef      string         `json:"bodyRef,omitempty"`
-	BodyPreview  string         `json:"bodyPreview,omitempty"`
-	Redacted     bool           `json:"redacted,omitempty"`
+	LegacyPreview *LegacyPreview `json:"legacyPreview,omitempty"`
+	ImagePreview  *RasterPreview `json:"imagePreview,omitempty"`
+	Headers       []HeaderField  `json:"headers"`
+	Cookies       []HeaderField  `json:"cookies"`
+	HeaderSize    int64          `json:"headerSize"`
+	BodySize      int64          `json:"bodySize"`
+	BodyDecoded   int64          `json:"bodyDecoded"`
+	TransferSize  int64          `json:"transferSize"`
+	BodyEncoding  string         `json:"bodyEncoding,omitempty"`
+	ContentType   string         `json:"contentType,omitempty"`
+	BodyStorage   string         `json:"bodyStorage"`
+	BodyRef       string         `json:"bodyRef,omitempty"`
+	BodyPreview   string         `json:"bodyPreview,omitempty"`
+	Redacted      bool           `json:"redacted,omitempty"`
 }
 
 type TxState string

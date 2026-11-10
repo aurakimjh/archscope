@@ -417,24 +417,25 @@ func mapRequest(source harRequest, policy *redact.Policy) models.HTTPMessage {
 		if bodyText == "" && len(source.PostData.Params) > 0 {
 			values := url.Values{}
 			for _, param := range source.PostData.Params {
-				value, _ := policy.RedactNamedValue(param.Name, param.Value)
-				values.Add(param.Name, value)
+				values.Add(param.Name, param.Value)
 			}
 			bodyText = values.Encode()
 		}
 	}
 	preview, bodyRedacted := policy.RedactBody(mimeType, bodyText)
+	legacyPreview := content.CleanLegacy(content.DecodeLegacy([]byte(bodyText), mimeType), policy)
 	return models.HTTPMessage{
-		Headers:      mapHeaders(source.Headers, policy),
-		Cookies:      mapCookies(source.Cookies, policy),
-		HeaderSize:   sizeValue(source.HeadersSize),
-		BodySize:     sizeValue(source.BodySize),
-		BodyDecoded:  unknownSize(),
-		TransferSize: unknownSize(),
-		ContentType:  mimeType,
-		BodyStorage:  bodyStorage(preview, bodyRedacted),
-		BodyPreview:  inlinePreview(preview),
-		Redacted:     bodyRedacted,
+		Headers:       mapHeaders(source.Headers, policy),
+		Cookies:       mapCookies(source.Cookies, policy),
+		HeaderSize:    sizeValue(source.HeadersSize),
+		BodySize:      sizeValue(source.BodySize),
+		BodyDecoded:   unknownSize(),
+		TransferSize:  unknownSize(),
+		ContentType:   mimeType,
+		LegacyPreview: legacyPreview,
+		BodyStorage:   bodyStorage(preview, bodyRedacted),
+		BodyPreview:   inlinePreview(preview),
+		Redacted:      bodyRedacted,
 	}
 }
 
@@ -449,18 +450,26 @@ func mapResponse(source harResponse, dialect Dialect, policy *redact.Policy) mod
 	if dialect == DialectFirefox && transferSize < 0 {
 		transferSize = bodySize
 	}
+	legacyBytes := []byte(bodyText)
+	if source.Content.Encoding == "base64" {
+		if raw, err := base64.StdEncoding.DecodeString(bodyText); err == nil {
+			legacyBytes = raw
+		}
+	}
+	legacyPreview := content.CleanLegacy(content.DecodeLegacy(legacyBytes, source.Content.MIMEType), policy)
 	message := models.HTTPMessage{
-		Headers:      mapHeaders(source.Headers, policy),
-		Cookies:      mapCookies(source.Cookies, policy),
-		HeaderSize:   sizeValue(source.HeadersSize),
-		BodySize:     bodySize,
-		BodyDecoded:  sizeValue(source.Content.Size),
-		TransferSize: transferSize,
-		BodyEncoding: source.Content.Encoding,
-		ContentType:  source.Content.MIMEType,
-		BodyStorage:  bodyStorage(preview, bodyRedacted),
-		BodyPreview:  inlinePreview(preview),
-		Redacted:     bodyRedacted,
+		Headers:       mapHeaders(source.Headers, policy),
+		Cookies:       mapCookies(source.Cookies, policy),
+		HeaderSize:    sizeValue(source.HeadersSize),
+		BodySize:      bodySize,
+		BodyDecoded:   sizeValue(source.Content.Size),
+		TransferSize:  transferSize,
+		BodyEncoding:  source.Content.Encoding,
+		ContentType:   source.Content.MIMEType,
+		LegacyPreview: legacyPreview,
+		BodyStorage:   bodyStorage(preview, bodyRedacted),
+		BodyPreview:   inlinePreview(preview),
+		Redacted:      bodyRedacted,
 	}
 
 	if source.Content.Encoding == "base64" && len(bodyText) <= base64.StdEncoding.EncodedLen(content.MaxImageBytes) {

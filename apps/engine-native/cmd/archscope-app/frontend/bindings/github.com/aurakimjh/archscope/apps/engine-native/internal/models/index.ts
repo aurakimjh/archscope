@@ -4,6 +4,7 @@
 export {
     AnalysisResult,
     CaptureTransaction,
+    ContentNode,
     CookieAttribute,
     Duration,
     HTTPAnnotation,
@@ -11,6 +12,7 @@ export {
     HeaderField,
     InformationalResponse,
     JenniferCustomAnalysisRule,
+    LegacyPreview,
     ProcessInstance,
     ProcessKey,
     RasterPreview,
