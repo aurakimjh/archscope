@@ -1,5 +1,6 @@
-import { normalizeProfilerDefaults, validProfilerDefaults } from "./defaults.js";
 import { EarlyTaskEvents } from "./earlyTaskEvents.js";
+import { normalizeProfilerDefaults, validProfilerDefaults } from "./defaults.js";
+import { formatBytes as formatHttpBytes } from "./httpCapture.js";
 import { buildReportPackPayload, buildReportPackHTML } from "./reportPack.js";
 import { hasNativeDesktopBridge } from "./desktopRuntime.js";
 import { buildIncidentTimelineAnalysisResult } from "./incidentTimeline.js";
@@ -3256,6 +3257,10 @@ assert(cappedPack.artifacts.incident_timeline.summary.critical_event_count===1 &
 assert(buildReportPackHTML(cappedPack).includes("omitted: 10 (critical: 1)"),"Report Pack HTML discloses hidden critical events");
 const uncappedTimeline=buildIncidentTimelineAnalysisResult([]);
 assert(!uncappedTimeline.summary.partial_result && uncappedTimeline.summary.omitted_event_count===0,"Empty timeline is complete, not truncated");
+
+// HAR uses -1 for unknown byte counts; preserve real zero and positive sizes.
+assert(formatHttpBytes(-1) === "-" && formatHttpBytes(Infinity) === "-", "unknown HTTP byte counts must not display negative or infinite sizes");
+assert(formatHttpBytes(0) === "0 B" && formatHttpBytes(1024) === "1.0 KiB", "known HTTP byte counts remain visible");
 
 assert(!validProfilerDefaults({intervalMs:-1,topN:20,profileKind:"wall"}), "negative settings interval rejected");
 assert(!validProfilerDefaults({intervalMs:100,topN:1.5,profileKind:"wall"}), "fractional Top N rejected before integer Go binding");

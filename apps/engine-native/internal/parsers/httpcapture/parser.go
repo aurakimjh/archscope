@@ -379,9 +379,11 @@ func mapEntry(source harEntry, index, sequence int, connectionID string, dialect
 		coverage = "headers_only"
 	}
 	return models.CaptureTransaction{
-		ID:                     fmt.Sprintf("har-%06d", index+1),
-		ConnectionID:           connectionID,
-		Sequence:               sequence,
+		ID:           fmt.Sprintf("har-%06d", index+1),
+		ConnectionID: connectionID,
+		// Sequence is capture order, matching live capture. Connection reuse
+		// still uses the separate per-connection sequence passed to this mapper.
+		Sequence:               index + 1,
 		Method:                 method,
 		URL:                    redactedURL,
 		Scheme:                 parsedURL.Scheme,

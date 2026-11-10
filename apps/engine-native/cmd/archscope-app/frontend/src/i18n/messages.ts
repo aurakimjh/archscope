@@ -1313,7 +1313,7 @@ export const messages = {
       "Arrow keys move between rows; Enter opens the detail pane.",
     httpAnalyzerSplitHandle: "Resize the transaction list",
     httpAnalyzerSplitHandleHint:
-      "Drag, or use the arrow keys, to change how much space the list gets.",
+      "Drag or use arrow keys to resize. Double-click or press Home to restore the default height.",
 
     // Detail tabs
     httpAnalyzerTabRaw: "Raw",
@@ -2869,7 +2869,7 @@ export const messages = {
       "방향키로 행을 이동하고 Enter로 상세 패널을 엽니다.",
     httpAnalyzerSplitHandle: "트랜잭션 목록 크기 조절",
     httpAnalyzerSplitHandleHint:
-      "드래그하거나 방향키로 목록 영역의 높이를 조절합니다.",
+      "드래그·방향키로 크기를 조절하고, 더블클릭·Home으로 기본 높이를 복원합니다.",
 
     httpAnalyzerTabRaw: "Raw",
     httpAnalyzerTabHeaders: "헤더",

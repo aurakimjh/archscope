@@ -92,7 +92,7 @@ const OVERSCAN = 12;
 
 const MIN_DETAIL_HEIGHT = 160;
 const MIN_GRID_HEIGHT = 26 * 11 + 40;
-const DEFAULT_DETAIL_HEIGHT = 160;
+const DEFAULT_DETAIL_HEIGHT = 184;
 
 type Translate = (key: MessageKey) => string;
 
@@ -264,6 +264,7 @@ export function HttpAnalyzerView({
       }
       aria-label={t("httpAnalyzerTitle")}
     >
+      <div className="http-inspection-tools flex shrink-0 flex-wrap items-start">
       <AnalyzerToolbar
         shown={rows.length}
         total={total}
@@ -311,6 +312,7 @@ export function HttpAnalyzerView({
       </div>
       <div className="flex shrink-0 gap-2 border-b px-2 py-1 text-xs"><label><input type="checkbox" checked={starredOnly} onChange={e=>setStarredOnly(e.target.checked)}/>{t("httpNotesStarredOnly")}</label></div>
       </details>
+      </div>
       </div>
       {notesError && <p role="alert" className="shrink-0 px-2 py-1 text-xs text-destructive">{notesError}</p>}
       <TransactionGrid
@@ -916,10 +918,12 @@ function SplitHandle({
       aria-valuenow={height}
       tabIndex={0}
       className="group flex h-2 shrink-0 cursor-row-resize items-center justify-center border-t border-border bg-muted/40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+      onDoubleClick={() => onResize(DEFAULT_DETAIL_HEIGHT)}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       onKeyDown={(event) => {
+        if (event.key === "Home") { event.preventDefault();onResize(DEFAULT_DETAIL_HEIGHT);return; }
         const delta = event.key === "ArrowUp" ? 24 : event.key === "ArrowDown" ? -24 : 0;
         if (delta === 0) return;
         event.preventDefault();

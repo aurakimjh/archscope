@@ -1,0 +1,48 @@
+{
+  "platform": "native macOS Wails 3.1.0",
+  "input": "30 sanitized HAR requests; imported hosts are not real process attribution",
+  "geometry": "mac-detail-geometry.json",
+  "selected_headers": {
+    "observed_viewport": [
+      1281,
+      801
+    ],
+    "detail_height": 184,
+    "first_data_y": 175,
+    "complete_request_rows": 15,
+    "complete_header_rows": 6,
+    "visible_data_union_ratio": 0.707
+  },
+  "cases": [
+    "all ten inspector tabs reached",
+    "four response-header rows visible with two request-header rows",
+    "four-line JSON body inspected",
+    "unknown bytes show dash, known zero remains zero",
+    "saved tall splitter clamps on small 1024/125% viewport",
+    "Home restores 184px after resizing",
+    "query empty result and Reset recovery",
+    "Korean and English menus and System theme restored"
+  ],
+  "production_smoke": {
+    "menu": [
+      "ArchScope",
+      "파일",
+      "편집",
+      "분석",
+      "워크스페이스",
+      "캡처",
+      "보기",
+      "도움말"
+    ],
+    "qa_menu_absent": true,
+    "native_har_import": true,
+    "global_sequence_1_based": true,
+    "selected_headers_home_reset_184": true
+  },
+  "remaining": [
+    "Windows live recording",
+    "real PID/start-time grouping",
+    "live page reentry",
+    "Windows OS DPI/menu acceptance"
+  ]
+}

@@ -184,3 +184,46 @@ func hasDiagnostic(diags *diagnostics.ParserDiagnostics, reason string) bool {
 	}
 	return false
 }
+
+func TestHARCaptureSequenceDoesNotResetAtConnectionBoundaries(t *testing.T) {
+	path := writeMinimalHAR(t, "https://example.test/fixture", 0)
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var doc map[string]any
+	if err = json.Unmarshal(raw, &doc); err != nil {
+		t.Fatal(err)
+	}
+	log := doc["log"].(map[string]any)
+	base := log["entries"].([]any)[0].(map[string]any)
+	var entries []any
+	for _, connection := range []string{"first", "second", "first"} {
+		next := map[string]any{}
+		for key, value := range base {
+			next[key] = value
+		}
+		next["connection"] = connection
+		entries = append(entries, next)
+	}
+	log["entries"] = entries
+	raw, err = json.Marshal(doc)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = os.WriteFile(path, raw, 0600); err != nil {
+		t.Fatal(err)
+	}
+	parsed, err := ParseFile(path, Options{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for i, entry := range parsed.Entries {
+		if entry.Sequence != i+1 {
+			t.Fatalf("capture order reset at entry %d: %d", i, entry.Sequence)
+		}
+		if entry.UsedExistingConnection != (i == 2) {
+			t.Fatalf("connection reuse changed at entry %d", i)
+		}
+	}
+}

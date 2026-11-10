@@ -15,6 +15,7 @@ import {
   useMemo,
   useReducer,
   useState,
+  type ReactNode,
 } from "react";
 
 import type { HttpCaptureAnalysisResult } from "@/bridge/types";
@@ -72,6 +73,7 @@ type LiveHttpCapturePanelProps = {
   onStarted: () => void;
   onFinalized: (result: HttpCaptureAnalysisResult, sessionId: string) => void;
   showAnalyzer?: boolean;
+  toolbarSlot?: ReactNode;
 };
 
 const SESSION_STATE_LABEL_KEYS: Record<LiveSessionStateToken, MessageKey> = {
@@ -107,6 +109,7 @@ export function LiveHttpCapturePanel({
   onStarted,
   onFinalized,
   showAnalyzer = true,
+  toolbarSlot,
 }: LiveHttpCapturePanelProps): React.JSX.Element {
   const { t, locale } = useI18n();
   const [state, dispatch] = useReducer(
@@ -477,6 +480,7 @@ export function LiveHttpCapturePanel({
 
       <CardContent className="http-live-content flex min-w-0 flex-col gap-1 p-2">
         <div className="http-capture-controls">
+        {toolbarSlot}
         <details className="http-capture-options">
           <summary className="cursor-pointer text-xs">{t("httpRecordingOptions")}</summary>
           <div className="flex flex-col gap-2 pt-2">
@@ -747,7 +751,7 @@ export function LiveHttpCapturePanel({
         {showAnalyzer && <LiveHttpAnalyzer key={`${state.session?.sessionId ?? "idle"}:${state.session?.generation ?? 0}`}
           sessionId={state.session?.sessionId ?? ""} transactions={state.transactions}
           persisted={state.stats?.persisted ?? 0} follow={state.follow} />}
-        <footer role="status" className="flex flex-wrap items-center gap-3 border-t pt-1 text-[11px]">
+        {(showAnalyzer || state.session || state.error) && <footer role="status" className="flex flex-wrap items-center gap-3 border-t pt-1 text-[11px]">
           <span>{state.session ? t(SESSION_STATE_LABEL_KEYS[resolveLiveSessionState(state.session.state)]) : t("liveCaptureIdle")}</span>
           <span>{t("liveCaptureCaptured")}: {state.stats?.captured ?? 0}</span>
           <span>{t("liveCapturePersisted")}: {state.stats?.persisted ?? 0}</span>
@@ -844,7 +848,7 @@ export function LiveHttpCapturePanel({
 
 
         </details>
-        </footer>
+        </footer>}
       </CardContent>
     </Card>
   );

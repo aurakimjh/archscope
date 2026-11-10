@@ -862,7 +862,7 @@ export function httpCaptureReducer(
 // ── Byte formatting (local — formatters.ts has no byte helper) ───────
 
 export function formatBytes(value: number | null | undefined): string {
-  if (typeof value !== "number" || Number.isNaN(value)) return "-";
+  if (typeof value !== "number" || !Number.isFinite(value) || value < 0) return "-";
   if (value < 1024) return `${value} B`;
   const units = ["KiB", "MiB", "GiB", "TiB"];
   let size = value / 1024;

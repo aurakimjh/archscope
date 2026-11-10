@@ -312,15 +312,8 @@ function HttpCaptureWorkspace(): React.JSX.Element {
     [],
   );
 
-  return (
-    <main className="http-workspace flex min-w-0 flex-col gap-2 p-2">
-      <SlideOverPanel open={helpOpen} onClose={() => setHelpOpen(false)} title={t("httpDesktopHelpTitle")}>
-        <div className="space-y-4 p-4 text-sm">
-          <p>{t("httpDesktopHelpCapture")}</p><p>{t("httpDesktopHelpInspect")}</p>
-          <p>{t("httpDesktopHelpKeys")}</p><p>{t("httpDesktopHelpLimits")}</p>
-        </div>
-      </SlideOverPanel>
-      <details ref={fileToolsRef} className="http-file-tools shrink-0">
+  const fileTools = (
+<details ref={fileToolsRef} className="http-file-tools shrink-0">
         <summary className="cursor-pointer text-xs">{t("httpFileTools")}</summary>
       <div className="flex gap-2 text-xs">
         <Button variant="outline" size="sm" onClick={() => setHelpOpen(true)}>{t("httpDesktopHelpTitle")}</Button>
@@ -408,7 +401,18 @@ function HttpCaptureWorkspace(): React.JSX.Element {
           raw protocol text. It sits above the session panels rather than
           below them. */}
       </details>
+  );
+
+  return (
+    <main className="http-workspace flex min-w-0 flex-col gap-2 p-2">
+      <SlideOverPanel open={helpOpen} onClose={() => setHelpOpen(false)} title={t("httpDesktopHelpTitle")}>
+        <div className="space-y-4 p-4 text-sm">
+          <p>{t("httpDesktopHelpCapture")}</p><p>{t("httpDesktopHelpInspect")}</p>
+          <p>{t("httpDesktopHelpKeys")}</p><p>{t("httpDesktopHelpLimits")}</p>
+        </div>
+      </SlideOverPanel>
       <LiveHttpCapturePanel
+        toolbarSlot={fileTools}
         onStarted={onLiveStarted}
         onFinalized={onLiveFinalized}
         showAnalyzer={!result}

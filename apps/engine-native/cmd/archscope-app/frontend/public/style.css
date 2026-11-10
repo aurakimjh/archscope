@@ -2183,3 +2183,9 @@ table th.sortable-header.sort-desc::after {
 .tool-pane .file-dock > .file-dock-content { padding:2px 4px; }
 .tool-pane .file-dock { min-width:0; max-width:100%; }
 .tool-pane .file-dock.flex-1 { flex:1 1 0%; }
+
+.tool-pane > .http-workspace { overflow:hidden; padding:6px 8px; }
+.http-inspection-tools > details, .http-inspection-tools > .http-secondary-tools { border:0; padding:2px 4px; }
+.http-inspection-tools > details[open], .http-inspection-tools > .http-secondary-tools:has(details[open]) { flex-basis:100%; max-height:35vh; overflow:auto; }
+.http-capture-controls > .http-file-tools[open] { flex-basis:100%; }
+.tool-pane > .http-workspace { padding-top:4px; padding-bottom:4px; gap:6px; }
