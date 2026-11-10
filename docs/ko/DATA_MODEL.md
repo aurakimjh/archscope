@@ -1443,6 +1443,43 @@ metadata.jvm_info = {
 
 ### Jennifer profile (`type: "jennifer_profile"`)
 
+#### MSA 드릴다운 결과 계약 (T-557, 버전 1.0.0)
+
+`ProjectJenniferDrilldown({result, selection})`은 원본
+`jennifer_profile` AnalysisResult를 사용하며 입력 파일을 다시 열지 않는다.
+`selection.mode`는 `single`(필수 `guid`, 선택 `txid`) 또는
+`average`(필수 `signature_hash`, 선택 `application` URL)다. 선택 필드를
+생략하면 그룹 전체를 사용한다. 잘못되거나 혼합된 선택, 없는 식별자,
+선택 그룹 안의 중복 TXID, 이미 드릴다운한 결과의 재투영은 오류로 처리한다.
+
+단일 TXID는 순환 방문을 막으며 matched 하위 호출을 탐색한다. 평균은
+기존 signature 통계에서 제외된 그룹을 먼저 빼고, GUID마다 해당 URL의
+가장 느린 프로파일 하나를 고른다. 응답시간 동률이면 입력 순서를 유지한다.
+SQL·메소드 조인은 GUID와 TXID를 함께 사용한다. GUID가 없는 행만 그룹의
+TXID 목록으로 연결한다.
+
+공통 봉투와 type은 유지한다. `series.drilldown_scopes`에 `group`,
+`profile_rows`, `timeline_edges`, `topology_edges`, `service_network_edges`,
+`slow_sql_rows`, `network_time_by_txid`, `selected_value`,
+`selected_application`, `selected_txid`, `is_whole_transaction`을 낸다.
+`series.guid_groups`와 `tables.profiles`, `msa_edges`, `slow_sql_events`,
+`network_prep_methods`, `method_hotspots`에는 선택 범위의 증거만 담는다.
+`series.drilldown_average_breakdown`은 선택 GUID당 평균 시간 구성이다.
+`drilldown_average_timeline_edges`는 `call_count`로 가중한 호출 쌍별 평균
+도식이며 실제 관측 시각이 아니다.
+
+`metadata.drilldown`에 버전·선택·대표 프로파일 규칙과 후보/표본/제외 수를
+기록한다. 수치는 `summary`에도 명시한다. 비용은 임계 경로가 아닌 누적값이다.
+병렬 작업으로 응답시간을 넘으면 coverage를 1보다 크게 표시하고 잔여 메소드
+시간을 0으로 둔다. 하위 범위에 상위 그룹의 병렬도·사용자 정의 시간 조각을
+복사하지 않는다. 전체 파일/signature·사용자 규칙·미수집 호출 집계는 선택
+범위로 이름만 바꿔 내보내지 않으며 화면의 전체 보기에서 확인할 수 있다.
+
+입력 제한은 직렬화 크기 64 MiB, 프로파일 100,000개, 그룹 10,000개, 각
+edge 컬렉션 500,000개다. 초과 시 잘라내지 않고 오류를 반환한다. 확장
+메타데이터는 JSON/Wails 저장·재로드에서도 보존한다.
+
+
 MSA 타임라인 매칭은 기존처럼 matched caller-to-callee edge를
 `tables.msa_edges`에 낸다. callee profile이 없는 외부호출은 이제
 잔여 `method_time_ms`에 섞지 않고 “프로파일 미수집 외부호출”로 별도

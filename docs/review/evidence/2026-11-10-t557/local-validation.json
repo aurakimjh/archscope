@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "task": "T-557",
+  "date": "2026-11-10",
+  "implementationCommit": "f72df03e12081821d42b57347acf1e39682e87fc",
+  "contractVersion": "1.0.0",
+  "checks": [
+    {
+      "command": "go test ./...",
+      "result": "PASS",
+      "localLogSHA256": "936f831c6877862dbcb91d79d8663ed8fb070cb5639b8ab9cba5e3b92acc6037"
+    },
+    {
+      "command": "go vet ./...",
+      "result": "PASS",
+      "localLogSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "go test -race ./internal/models ./internal/analyzers/jenniferprofile ./internal/exporters/html ./cmd/archscope-app",
+      "result": "PASS",
+      "localLogSHA256": "07c13400d4f5b39783a618897ee65a88522440dd64bee1a26b6ba0a3e34d6bbc"
+    },
+    {
+      "command": "npm run test:state",
+      "result": "PASS",
+      "localLogSHA256": "96ab3e7763edc1082d01e3a18afd8649d6c9bcdb89fb7b8a072303fcc49805cb"
+    },
+    {
+      "command": "npm run build",
+      "result": "PASS",
+      "localLogSHA256": "9a9a2c1c00f0e944cb11f73cc85275334b906fae5ccf1c2f31bfb48cb7d45a1a"
+    }
+  ],
+  "sourceSHA256": {
+    "apps/engine-native/internal/models/analysis_result.go": "75fd7c82104c8f063899f25e67ea5cfca8c7766af6c7b8ad84c142c76caafa60",
+    "apps/engine-native/internal/analyzers/jenniferprofile/drilldown.go": "736aa955bf8fe28d0e6c6b1139cb371b3d8b1342ed9092d3be22e29eb0bd2b8c",
+    "apps/engine-native/internal/analyzers/jenniferprofile/drilldown_test.go": "09940eab941929009addd1dda152db561e4fa9649426636898f102a251d3afc7",
+    "apps/engine-native/cmd/archscope-app/frontend/src/pages/JenniferProfilePage.tsx": "338b575513f335223def816db92ebbbc23ffe58834529d2a79e028733f2951f5",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/jenniferDrilldown.ts": "658b44536b0b0d963fd9d0e684112c7a4c38850d02a9fd4286813a75d7909c17",
+    "apps/engine-native/internal/exporters/html/jennifer.go": "da35794eb3dcd3432ab36654065dafa5071f4cb40de20d4a7ef67980af941b23"
+  },
+  "legacyRendererComparison": {
+    "baselineCommit": "ccb491db9fd637c125cf383bd6b7e742edc44c10",
+    "fixture": "apps/engine-native/internal/parsers/jenniferprofile/testdata/sample_two_tx.txt",
+    "legacyComparison": "PASS",
+    "singleScopes": 2,
+    "responseComponents": 28,
+    "averageSelections": 2
+  },
+  "browserSmoke": {
+    "result": "PASS",
+    "method": "isolated Playwright Chromium with actual Go result snapshots and mocked IPC",
+    "checks": [
+      "whole scope displayed and export controls enabled",
+      "selected TXID invalidated previous export immediately",
+      "rapid single-to-average switch ignored a delayed single reply",
+      "current average selected and added to Workspace"
+    ],
+    "excluded": [
+      "native Wails dialogs",
+      "native OS window interaction",
+      "actual browser file-save IO"
+    ],
+    "knownConsoleMessages": [
+      "Wails browser preview notice",
+      "existing ECharts api.style deprecation",
+      "favicon 404"
+    ]
+  },
+  "builds": [
+    {
+      "platform": "darwin/arm64",
+      "result": "PASS",
+      "sha256": "81e4f9d837d6e890e5738ff3af568f5b7f6353589ad4b064f9f33865d1973065",
+      "bytes": 25320738,
+      "executedAsDesktop": false
+    },
+    {
+      "platform": "windows/386",
+      "result": "PASS",
+      "sha256": "effcdf3ec9b2aa860bf9e4e30b8c5f425d4b4edda8ea78ef78267d3735eecb87",
+      "bytes": 26746880,
+      "executedAsDesktop": false,
+      "peMachine": "0x14c",
+      "peSubsystem": 2
+    },
+    {
+      "platform": "windows/amd64",
+      "result": "PASS",
+      "sha256": "161d803b7f3b8b2f18ff51303b557adec532993251c4373657e28e92ce0b237d",
+      "bytes": 27777536,
+      "executedAsDesktop": false,
+      "peMachine": "0x8664",
+      "peSubsystem": 2
+    }
+  ],
+  "windowsTestCrossCompilation": [
+    "386",
+    "amd64"
+  ],
+  "bindings": "generated with Wails CLI v3.1.0",
+  "nativeWindowsExecution": false,
+  "nativeWailsGUIExecution": false,
+  "fullHTTPAnalyzerParity": false,
+  "notes": [
+    "T-557 completion does not close T-601/T-608/T-611/T-613.",
+    "Local binaries and logs are outside the repository; no release was created.",
+    "Known local macOS object/deployment-target linker warnings remain; oldest supported macOS was not tested."
+  ]
+}

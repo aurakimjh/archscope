@@ -266,3 +266,25 @@ The initial policy allows only `localhost`, `127.0.0.1`, or `::1` Ollama
 endpoints. Models are user-installed and are not bundled with ArchScope. See
 `docs/en/AI_INTERPRETATION.md` for the full gate, redaction, prompt-injection,
 and reporting policy.
+
+
+## Exporting a Jennifer MSA drilldown
+
+In the MSA tab, choose a single GUID and optionally a TXID, or choose an average
+signature and optionally an application URL. The desktop asks the Go analyzer
+for that scope. Save scope JSON/HTML or add the same result to Workspace using
+the buttons below the selectors. Buttons stay disabled while the current
+selection is pending or invalid; an earlier result cannot be exported as the
+new selection. The sample/candidate counts disclose average exclusions.
+
+CLI uses the same projection for JSON and HTML:
+
+```bash
+archscope-engine jennifer-profile analyze --in profiles.txt --guid GUID --txid TXID --out scope.json
+archscope-engine jennifer-profile report-html --in profiles.txt --guid GUID --txid TXID --out scope.html
+archscope-engine jennifer-profile analyze --in profiles.txt --signature HASH --application /orders --out average-scope.json
+```
+
+Obtain GUIDs/signature hashes from an unscoped analysis. Omit `--txid` or
+`--application` to select the whole GUID/signature. Scope metadata stays in the
+saved result; HTML does not reread the original profile files.

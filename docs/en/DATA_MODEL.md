@@ -1291,6 +1291,44 @@ New optional `series` rows: `young_heap_before_per_event`,
 
 ### Jennifer profile (`type: "jennifer_profile"`)
 
+#### MSA drilldown projection (T-557, contract 1.0.0)
+
+`ProjectJenniferDrilldown({result, selection})` consumes the original
+`jennifer_profile` AnalysisResult without reopening inputs. `selection.mode`
+is `single` (required `guid`, optional `txid`) or `average` (required
+`signature_hash`, optional exact `application` URL). Empty optional selectors
+mean the whole group. Invalid/mixed selectors, unknown identities, duplicate
+TXIDs within a selected group and nested projections fail explicitly.
+
+Single TXID selection follows matched downstream edges with a cycle guard.
+Average selection excludes groups already excluded from signature statistics,
+then selects the slowest matching profile once per GUID; response-time ties
+preserve input order. SQL/method joins use GUID plus TXID. Missing-GUID rows
+use the group's TXID membership only.
+
+The result keeps the common envelope and type. `series.drilldown_scopes`
+contains `group`, `profile_rows`, `timeline_edges`, `topology_edges`,
+`service_network_edges`, `slow_sql_rows`, `network_time_by_txid`,
+`selected_value`, `selected_application`, `selected_txid` and
+`is_whole_transaction`. Canonical `series.guid_groups` and `tables.profiles`,
+`msa_edges`, `slow_sql_events`, `network_prep_methods`, `method_hotspots`
+contain only selected evidence. `series.drilldown_average_breakdown` holds
+mean duration components per selected GUID. `drilldown_average_timeline_edges`
+is a synthetic call-pair average weighted by `call_count`, not observed time.
+
+`metadata.drilldown` records the version, selection, representative policy and
+explicit candidate/sample/excluded counts (also present in `summary`). Costs
+are cumulative, not a critical path; overlapping work may exceed root response
+time, reported as coverage above 1 and zero residual method time. Parent
+parallelism/custom slices are not copied into a subtree. Global file/signature,
+custom-rule and unprofiled-call rollups are omitted rather than relabeled.
+Those rollups remain available in the whole-result desktop view.
+
+Limits: 64 MiB serialized input, 100,000 profiles, 10,000 groups and 500,000
+edges per input edge collection. Exceeding a limit fails without truncation.
+Flattened extension metadata survives JSON/Wails save/reload.
+
+
 MSA timeline matching still emits matched caller-to-callee edges in
 `tables.msa_edges`. External calls without a callee profile are now
 kept as first-class unprofiled external calls instead of being folded

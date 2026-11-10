@@ -8,10 +8,10 @@ The previous long-form history was archived to
 
 ## Status Overview
 
-**Overall: 195 of 200 tracked tasks are `DONE` (97.5%).** The Windows Wails v3 replacement for IEInspector HTTP Analyzer V7.6.4 Stand-alone has 4 open work items (T-594 through T-613), including the remaining audit findings. T-603 native Windows acceptance completed on 2026-11-09 with actual request/response bodies and verified policy restoration. The 2026-11-09
+**Overall: 196 of 200 tracked tasks are `DONE` (98.0%).** The Windows Wails v3 replacement for IEInspector HTTP Analyzer V7.6.4 Stand-alone has 4 open work items (T-594 through T-613), including the remaining audit findings. T-603 native Windows acceptance completed on 2026-11-09 with actual request/response bodies and verified policy restoration. The 2026-11-09
 GC/profiler revalidation confirmed five bugs (T-589 through T-593). Their
 current implementation status is recorded in the registry and snapshot below;
-T-557 remains trigger-dependent `PENDING`.
+T-557 is now DONE after the user requested its Go/CLI/report projection on 2026-11-10.
 The earlier release acceptance below describes its recorded product baseline
 and does not certify these newly identified cases or future remediation.
 **T-587 and T-588
@@ -268,6 +268,35 @@ Go suite/vet, capture/application race tests, frontend state/build and Windows x
 - T-608: proprietary format implementation still requires genuine format evidence;
   no sample is available and no synthetic compatibility claim is permitted.
 
+### T-557 Go drilldown / CLI / report completion (2026-11-10)
+
+The user activated the conditional follow-up. `ProjectJenniferDrilldown` now
+projects the existing AnalysisResult with contract 1.0.0; original inputs are
+never reopened. Single GUID/TXID and average signature/application selection,
+cycle-safe matched descendants, GUID+TXID table joins, one slowest matching
+profile per eligible GUID and explicit candidate/sample/excluded counts are
+shared by Wails, CLI and exports. The renderer no longer computes subtree
+costs or selected-application average edges. Whole-result custom/unprofiled
+rollups remain separate from the selected projection; unrecomputed parent
+parallelism/custom slices are omitted from subtree metrics.
+
+The MSA tab saves selected JSON/HTML or adds that same projection to Workspace.
+Changed selectors/results invalidate export immediately and ignore late replies.
+A required common Metadata fix preserves flattened extensions across JSON/Wails
+round trips. Full and desktop-compacted edge inputs now produce identical output.
+
+Validation: full Go suite/vet, model/analyzer/exporter/application race tests,
+CLI/core/service/JSON/HTML parity, frontend state/build, native Mac build and
+Windows x86/x64 cross-build pass. Original renderer comparison passed 2 TXID
+scopes / 28 response components / 2 average selections on the existing parser
+fixture. Isolated Playwright browser checks used real Go result snapshots with
+mocked IPC: pending export disabled, rapid mode changes rejected a stale reply,
+and current scope added to Workspace. Browser-only warnings were the Wails
+preview notice, existing ECharts deprecation and a missing favicon. These checks
+are not native Wails dialog/GUI or Windows execution evidence. Known macOS linker
+deployment-target warnings remain. Evidence:
+`docs/review/evidence/2026-11-10-t557/local-validation.json`.
+
 ### Open Work Snapshot
 
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
@@ -276,7 +305,6 @@ Go suite/vet, capture/application race tests, frontend state/build and Windows x
 | 2 | T-608 | P2 | `PENDING` | Read and write legacy .halog files |
 | 3 | T-611 | P3 | `REVIEW` | Support Stand-alone automation and desktop launch switches |
 | 4 | T-613 | P3 | `PENDING` | Verify complete Stand-alone parity on Windows |
-| 5 | T-557 | P1 | `PENDING` | Promote the Jennifer MSA drilldown calculation from UI projection to a Go analyzer contract if repeated use shows it should be exported/reported outside the desktop page. |
 
 ### Local Windows validation (2026-11-09)
 
@@ -334,8 +362,7 @@ updated for T-603 above. Earlier commands, limits and native screenshots:
 - Current execution focus: deliver the V7.6.4 Stand-alone workflow in Windows Wails v3 (T-594 through T-613).
 - Prior GC/profiler cycle: T-589 through T-593 are DONE after task-specific
   regressions, final local source review, and whole-engine/frontend validation.
-  No active bug TO-DO remains from the GC/profiler audit. T-557 still waits
-  on its original usage trigger. On 2026-11-09 the user assigned all five fixes, including UI,
+  No active bug TO-DO remains from the GC/profiler audit. T-557 was subsequently activated by the user and completed on 2026-11-10. On 2026-11-09 the user assigned all five fixes, including UI,
   to Codex and requested one commit per completed task, followed by a push only
   after all five are complete. This overrides the prior UI ownership for these
   five fixes only. T-587 and T-588
@@ -842,11 +869,10 @@ The following work extends the five findings into a replacement plan.
    the P1 fixes and can be implemented without changing filter semantics.
 
 All five tasks above are DONE closure records. No active bug implementation
-remains from this audit; T-557 retains its original external usage trigger. This user-requested fix
+remains from this audit; T-557 retained its external usage trigger at that audit; its later completion is recorded above. This user-requested fix
 cycle uses targeted regressions, relevant engine/frontend checks, and a local
 source review for closure; no independent-review or platform-E2E verdict is
-claimed. Prior independently reviewed release gates retain their own scope. T-557 remains
-pending its original usage trigger. No new feature range is activated here.
+claimed. Prior independently reviewed release gates retain their own scope. T-557 was still pending its usage trigger at that audit; it was activated and completed on 2026-11-10. That earlier audit did not activate a new feature range.
 
 ### GC / Profiler Bug Revalidation — 2026-11-09
 
@@ -1265,7 +1291,7 @@ deferred until explicitly promoted.
 | T-562 | P1 | DONE | Unify the JSON and hard-coded profiler classifiers behind a source-format-aware interface, then define where FlameNode category/color enrichment occurs without reclassifying Node V8 frames as browser frames. | T-559 | Completed 2026-07-20: analyzer-stage flamegraph enrichment assigns browser application/runtime/dependency versus Node runtime categories and colors from source format. |
 | T-563 | P1 | DONE | Harden V8 parsing with graph validation, optional-field policy, timestamp reconciliation, canonical per-frame script identity, redaction, and explicit parser/analyzer/Wails options. | T-558, T-559 | Completed 2026-07-20: node/parent graph validation, timestamped microsecond samples, canonical frame identity with URL redaction, and max-bytes/max-samples options flow through parser, analyzer, and Wails. |
 | T-564 | P1 | DONE | Replace whole-file/double-unmarshal assumptions with a size/gzip/streaming strategy for direct profiles and Chrome traces; define weighted downsampling and partial-result semantics. | T-558, T-563 | Completed 2026-07-21: V8/Chrome path selects a capped gzip reader before whole-file loading; Chrome trace walks `traceEvents` token-by-token and only decodes `ph:"P"` chunks (with a count-only first pass when bounded output is needed). Default 500k deterministic time-weighted buckets preserve total microsecond duration, emit `partial_result`/source-and-output counts plus `PROFILE_DOWNSAMPLED`, and Browser CPU visibly labels aggregated output. Gzip-stream, weighted-duration, and decompressed-limit regressions pass. |
-| T-557 | P1 | PENDING | Promote the Jennifer MSA drilldown calculation from UI projection to a Go analyzer contract if repeated use shows it should be exported/reported outside the desktop page. | T-556 | Planned follow-up: stable result schema for drilldown scopes |
+| T-557 | P1 | DONE | Promote Jennifer MSA drilldown calculation into a shared Go analyzer contract for desktop, CLI and reports. | T-556; user activation 2026-11-10 | Completed 2026-11-10: versioned existing-result projection for GUID/TXID and signature/application, cycle-safe downstream scope, representative-per-GUID average and explicit denominators; scoped canonical tables and synthetic average edges, Wails UI/Workspace/JSON/HTML and CLI wiring. Metadata extensions survive JSON/Wails round trips. Go/vet/race, legacy calculation parity, CLI/service/export integration, frontend state/build, isolated browser interaction and Mac/Windows cross-build checks pass. Native desktop interaction was not exercised for this change. |
 | T-576 | P2 | DONE | Pair the revised Korean HTTP capture note with English documentation, an importer/dialect support matrix, a data-model reference, and a security guide once the Phase 1 contracts are approved; keep the source ledger appendix filled as claims are re-verified. | T-566 through T-571 | Completed 2026-07-21: `docs/en/SYSTEM_HTTP_CAPTURE.md` added as the condensed English pair with dedicated sections for the data-model reference (bounded `http_capture` envelope, `CaptureSessionRef`, versioned `CaptureSessionStore`), the importer/dialect support matrix (7-step pipeline, verified dialect quirks, `HAR_*` diagnostic codes, NetLog rejection, T-572 corpus pointer), and the security guide (import-time redaction rationale with the Okta incident, value-preserving techniques, CA lifecycle, privilege contract, SEC-1~15); also covers the transaction/time model, capability tiers, T-575 Diff contract, phase status, and the T-571 measurement state. The Korean note stays normative and Appendix A remains the auditable claim ledger — English §8 must be refreshed when the T-571 real-NIC rerun lands |
 | T-565 | P2 | DONE | Add sanitized Chrome/Node/CDP malformed and end-to-end fixtures, then pair the Korean design with English documentation and update importer matrix, data model, user guide, and performance docs after the P0 contracts stabilize. | T-558 through T-564 | Completed 2026-07-21: synthetic browser-profile corpus at `../projects-assets/test-data/browser-profile-fixtures/` (6 valid — V8/Node/CDP/trace object/array/gzip; 7 malformed — broken children reference, hitCount-only, negative delta, unknown node, no-profile-chunk trace, truncated, empty; 2 e2e reproducing the Phase 3 acceptance scenario of a 210ms renderList run at 3.1s in both cpuprofile and trace form, doubling as the AC-1 parity input and reserving the trace `RunTask` as the Phase 4 `BROWSER_LONG_TASK` golden) with manifest-fixed expected formats/diagnostics/findings; `docs/en/CHROME_DEVTOOLS_CPUPROFILE.md` added as the condensed English pair (Korean note stays normative); importer matrix, data model, user guide, and performance docs updated in both languages with the implemented formats, 256 MiB/500k-sample guards, downsample suppression, and `http_capture` MVP envelope; CLI `profile import --format` help lists `v8-cpuprofile`/`chrome-trace-json`; Go golden tests now consume all 15 manifest entries and enforce Chrome trace/cpuprofile duration parity, diagnostics, findings, sampled-run location/duration, and hitCount-only temporal suppression. |
 | T-414 | P1 | DONE | Connect `trace_import` to the Wails UI with summary cards, service dependency view, trace table, span table, and findings panel. | Trace import MVP | Completed 2026-05-13: Trace Import desktop workflow |

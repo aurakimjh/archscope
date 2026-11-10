@@ -259,3 +259,26 @@ ollama pull qwen2.5-coder:7b
 Model은 사용자가 설치하며 ArchScope desktop package에 번들링하지 않습니다.
 전체 gate, redaction, prompt-injection, reporting 정책은
 `docs/ko/AI_INTERPRETATION.md`를 기준으로 확인합니다.
+
+
+## Jennifer MSA 드릴다운 내보내기
+
+MSA 탭에서 단일 GUID와 선택 TXID 또는 평균 signature와 선택 애플리케이션
+URL을 고른다. 화면은 해당 범위를 Go 분석기에 요청한다. 선택 항목 아래의
+JSON/HTML 저장 또는 Workspace 추가 버튼은 같은 분석 결과를 사용한다.
+현재 선택이 계산 중이거나 유효하지 않으면 버튼을 비활성화해 이전 결과를
+새 선택처럼 저장하지 않도록 한다. 표본/후보 수로 평균에서 제외된 그룹을
+확인할 수 있다.
+
+CLI의 JSON과 HTML도 같은 계산을 사용한다.
+
+```bash
+archscope-engine jennifer-profile analyze --in profiles.txt --guid GUID --txid TXID --out scope.json
+archscope-engine jennifer-profile report-html --in profiles.txt --guid GUID --txid TXID --out scope.html
+archscope-engine jennifer-profile analyze --in profiles.txt --signature HASH --application /orders --out average-scope.json
+```
+
+GUID와 signature hash는 범위를 지정하지 않은 분석 결과에서 확인한다.
+`--txid` 또는 `--application`을 생략하면 GUID/signature 전체를 선택한다.
+선택 메타데이터는 저장 결과에 유지되며 HTML 내보내기는 원본 프로파일
+파일을 다시 읽지 않는다.
