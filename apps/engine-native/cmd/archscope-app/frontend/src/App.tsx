@@ -1,40 +1,19 @@
 import { Events } from "@wailsio/runtime";
 import * as CaptureService from "../bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/captureservice";
-// ─────────────────────────────────────────────────────────────────────
-// [한글] App.tsx — Wails 데스크톱 프로파일러의 최상위 셸 컴포넌트.
-//
-// 책임/목적:
-//   - 좌측 Sidebar 의 NavKey 상태(active) 를 보유하고, 그에 맞는
-//     분석기 페이지(*.AnalyzerPage) 를 우측 영역에 렌더.
-//   - 상단 topbar 에서 테마(light/dark/system), 로케일(en/ko) 토글
-//     컨트롤을 노출. 실제 상태는 ThemeProvider / I18nProvider 가 보관.
-//   - 전체 화면을 DropZone 으로 감싸 OS-level 파일 드롭을 받지만,
-//     현재 구현은 path 를 단순히 `void` 처리하고 각 페이지가 자체
-//     Wails 다이얼로그를 통해 파일을 선택. (향후: 드롭 path 를 활성
-//     페이지로 브로드캐스트할 수 있는 채널 도입 예정.)
-//
-// 데이터 흐름:
-//   - Go EngineService 와의 통신은 여기서는 일어나지 않음.
-//     각 *AnalyzerPage 가 bridge/engine.ts 를 통해 Wails Call.ByName
-//     으로 분석을 트리거하고 결과(AnalysisResult) 를 받아 차트로 렌더.
-//   - active 상태가 바뀌면 해당 페이지가 새로 마운트되며, 페이지 로컬
-//     state(파일 경로, 결과 캐시 등)는 페이지 unmount 시 사라짐.
-//
-// 주요 페이지: profiler / diff / access_log / gc_log / jfr /
-//   exception / thread_dump / msa_profile (Jennifer) / settings.
-// ─────────────────────────────────────────────────────────────────────
+// 네이티브 메뉴가 화면 탐색을 담당하고, 방문한 도구의 상태는 숨긴 패널에 유지한다.
 import { lazy, Suspense, useState, useEffect } from "react";
 
 import { useI18n } from "./i18n/I18nProvider";
-import { localeLabels, locales } from "./i18n/messages";
+
 import { useTheme, type Theme } from "./theme/ThemeProvider";
 import { useSortableTables } from "./hooks/useSortableTables";
 import { DropZone } from "./components/DropZone";
-import { HelpTip } from "./components/HelpTip";
-import { Sidebar, type NavKey } from "./components/Sidebar";
+import { DESKTOP_ROUTES, type NavKey } from "./state/desktopNavigation";
+import { AboutDialog } from "./components/AboutDialog";
+import { SlideOverPanel } from "./components/SlideOverPanel";
 import { getHelpText } from "./help/helpCatalog";
 
-const THEME_OPTIONS: Theme[] = ["light", "dark", "system"];
+
 
 const ProfilerAnalyzerPage = lazy(() =>
   import("./pages/ProfilerAnalyzerPage").then(({ ProfilerAnalyzerPage }) => ({
@@ -149,6 +128,10 @@ function App() {
   const { locale, setLocale, t } = useI18n();
   const { theme, setTheme } = useTheme();
   const [active, setActive] = useState<NavKey>("profiler");
+  const [visited, setVisited] = useState<NavKey[]>(["profiler"]);
+  const [about, setAbout] = useState(false);
+  const [help, setHelp] = useState(false);
+  const [canOpen, setCanOpen] = useState(false);
   const [launchError, setLaunchError] = useState("");
   useEffect(() => {
     let disposed = false;
@@ -174,6 +157,35 @@ function App() {
       errors();
     };
   }, []);
+  const routes = DESKTOP_ROUTES.map(route => ({...route, label: "labelKey" in route ? t(route.labelKey) : route.key === "http_capture" ? (locale === "ko" ? "HTTP 캡처" : "HTTP Capture") : (locale === "ko" ? "브라우저 CPU" : "Browser CPU")}));
+  useEffect(() => {setVisited(current => current.includes(active) ? current : [...current, active]);}, [active]);
+  useEffect(() => {
+    const update = () => setCanOpen(!!document.querySelector(`[data-route="${active}"] [data-open-file]:not([disabled])`));
+    const observer = new MutationObserver(update);
+    observer.observe(document.getElementById("root")!, {childList:true,subtree:true,attributes:true,attributeFilter:["disabled"]});
+    update();return () => observer.disconnect();
+  }, [active]);
+  useEffect(() => {
+    void Events.Emit("desktop:state", {locale,theme,active,canOpen,routes});
+  }, [locale,theme,active,canOpen]);
+  useEffect(() => Events.On("desktop:command", event => {
+    const command = (event.data as {command?:string})?.command ?? "";
+    const [action,value] = command.split(":");
+    if (action === "navigate" && DESKTOP_ROUTES.some(route => route.key === value)) setActive(value as NavKey);
+    else if (action === "locale" && (value === "en" || value === "ko")) setLocale(value);
+    else if (action === "theme" && ["light","dark","system"].includes(value)) setTheme(value as Theme);
+    else if (action === "about") setAbout(true);
+    else if (action === "open") document.querySelector<HTMLButtonElement>(`[data-route="${active}"] [data-open-file]:not([disabled])`)?.click();
+    else if (action === "help") {
+      if (active === "http_capture") void Events.Emit("capture:command",{command:"help"});
+      else { const trigger = document.querySelector<HTMLButtonElement>(`[data-route="${active}"] [data-help-trigger]`); if(trigger) trigger.click();else setHelp(true); }
+    }
+  }), [active,setLocale,setTheme]);
+  useEffect(() => {
+    const navigate = (event: Event) => setActive((event as CustomEvent<NavKey>).detail);
+    window.addEventListener("desktop:navigate",navigate);
+    return () => window.removeEventListener("desktop:navigate",navigate);
+  }, []);
   useSortableTables();
 
   const handleDrop = (path: string) => {
@@ -189,61 +201,9 @@ function App() {
 
   return (
     <DropZone onDrop={handleDrop}>
-      <div className="app-shell with-sidebar">
-        <Sidebar active={active} onNavigate={setActive} />
+      <div className="app-shell desktop-shell" data-active-route={active}>
         <div className="app-main">
-          <header className="topbar">
-            <div className="topbar-controls">
-              <div
-                className="locale-switch"
-                role="group"
-                aria-label={t("themeLabel")}
-              >
-                <HelpTip
-                  text={getHelpText(locale, "themeControl")}
-                  className="ml-0.5 mr-1 self-center"
-                />
-                {THEME_OPTIONS.map((value) => (
-                  <button
-                    key={value}
-                    type="button"
-                    className={
-                      value === theme ? "locale-pill active" : "locale-pill"
-                    }
-                    onClick={() => setTheme(value)}
-                    aria-pressed={value === theme}
-                  >
-                    {value === "light"
-                      ? t("themeLight")
-                      : value === "dark"
-                        ? t("themeDark")
-                        : t("themeSystem")}
-                  </button>
-                ))}
-              </div>
-              <div className="locale-switch" role="group" aria-label="Locale">
-                <HelpTip
-                  text={getHelpText(locale, "localeControl")}
-                  className="ml-0.5 mr-1 self-center"
-                />
-                {locales.map((value) => (
-                  <button
-                    key={value}
-                    type="button"
-                    className={
-                      value === locale ? "locale-pill active" : "locale-pill"
-                    }
-                    onClick={() => setLocale(value)}
-                    aria-pressed={value === locale}
-                    title={localeLabels[value]}
-                  >
-                    {value.toUpperCase()}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </header>
-
+          <header className="desktop-titlebar"><span>{routes.find(route => route.key===active)?.label}</span></header>
           <Suspense fallback={<PageFallback />}>
             {launchError && (
               <p
@@ -253,30 +213,34 @@ function App() {
                 {launchError}
               </p>
             )}
-            {active === "profiler" && <ProfilerAnalyzerPage />}
-            {active === "diff" && <DiffPage />}
-            {active === "access_log" && <AccessLogAnalyzerPage />}
-            {active === "gc_log" && <GcLogAnalyzerPage />}
-            {active === "jfr" && <JfrAnalyzerPage />}
-            {active === "exception" && <ExceptionAnalyzerPage />}
-            {active === "thread_dump" && <ThreadDumpAnalyzerPage />}
-            {active === "msa_profile" && <JenniferProfilePage />}
-            {active === "trace_import" && <TraceImportPage />}
-            {active === "http_capture" && <HttpCapturePage />}
-            {active === "browser_cpu" && <BrowserCpuProfilePage />}
-            {active === "browser_audit" && <LighthouseAuditPage />}
-            {active === "analysis_workspace" && <AnalysisWorkspacePage />}
-            {active === "export_center" && <ExportCenterPage />}
-            {active === "report_diff" && <ReportDiffPage />}
-            {active === "chart_studio" && <ChartStudioPage />}
-            {active === "incident_timeline" && <IncidentTimelinePage />}
-            {active === "slo_golden_signals" && <SloGoldenSignalsPage />}
-            {active === "service_flow" && <ServiceFlowPage />}
-            {active === "evidence_board" && <EvidenceBoardPage />}
-            {active === "settings" && <SettingsPage />}
+            {(visited.includes("profiler") || active === "profiler") && <div className="tool-pane" data-route="profiler" hidden={active!=="profiler"} inert={active!=="profiler"}><ProfilerAnalyzerPage /></div>}
+            {(visited.includes("diff") || active === "diff") && <div className="tool-pane" data-route="diff" hidden={active!=="diff"} inert={active!=="diff"}><DiffPage /></div>}
+            {(visited.includes("access_log") || active === "access_log") && <div className="tool-pane" data-route="access_log" hidden={active!=="access_log"} inert={active!=="access_log"}><AccessLogAnalyzerPage /></div>}
+            {(visited.includes("gc_log") || active === "gc_log") && <div className="tool-pane" data-route="gc_log" hidden={active!=="gc_log"} inert={active!=="gc_log"}><GcLogAnalyzerPage /></div>}
+            {(visited.includes("jfr") || active === "jfr") && <div className="tool-pane" data-route="jfr" hidden={active!=="jfr"} inert={active!=="jfr"}><JfrAnalyzerPage /></div>}
+            {(visited.includes("exception") || active === "exception") && <div className="tool-pane" data-route="exception" hidden={active!=="exception"} inert={active!=="exception"}><ExceptionAnalyzerPage /></div>}
+            {(visited.includes("thread_dump") || active === "thread_dump") && <div className="tool-pane" data-route="thread_dump" hidden={active!=="thread_dump"} inert={active!=="thread_dump"}><ThreadDumpAnalyzerPage /></div>}
+            {(visited.includes("msa_profile") || active === "msa_profile") && <div className="tool-pane" data-route="msa_profile" hidden={active!=="msa_profile"} inert={active!=="msa_profile"}><JenniferProfilePage /></div>}
+            {(visited.includes("trace_import") || active === "trace_import") && <div className="tool-pane" data-route="trace_import" hidden={active!=="trace_import"} inert={active!=="trace_import"}><TraceImportPage /></div>}
+            {(visited.includes("http_capture") || active === "http_capture") && <div className="tool-pane" data-route="http_capture" hidden={active!=="http_capture"} inert={active!=="http_capture"}><HttpCapturePage /></div>}
+            {(visited.includes("browser_cpu") || active === "browser_cpu") && <div className="tool-pane" data-route="browser_cpu" hidden={active!=="browser_cpu"} inert={active!=="browser_cpu"}><BrowserCpuProfilePage /></div>}
+            {(visited.includes("browser_audit") || active === "browser_audit") && <div className="tool-pane" data-route="browser_audit" hidden={active!=="browser_audit"} inert={active!=="browser_audit"}><LighthouseAuditPage /></div>}
+            {(visited.includes("analysis_workspace") || active === "analysis_workspace") && <div className="tool-pane" data-route="analysis_workspace" hidden={active!=="analysis_workspace"} inert={active!=="analysis_workspace"}><AnalysisWorkspacePage /></div>}
+            {(visited.includes("export_center") || active === "export_center") && <div className="tool-pane" data-route="export_center" hidden={active!=="export_center"} inert={active!=="export_center"}><ExportCenterPage /></div>}
+            {(visited.includes("report_diff") || active === "report_diff") && <div className="tool-pane" data-route="report_diff" hidden={active!=="report_diff"} inert={active!=="report_diff"}><ReportDiffPage /></div>}
+            {(visited.includes("chart_studio") || active === "chart_studio") && <div className="tool-pane" data-route="chart_studio" hidden={active!=="chart_studio"} inert={active!=="chart_studio"}><ChartStudioPage /></div>}
+            {(visited.includes("incident_timeline") || active === "incident_timeline") && <div className="tool-pane" data-route="incident_timeline" hidden={active!=="incident_timeline"} inert={active!=="incident_timeline"}><IncidentTimelinePage /></div>}
+            {(visited.includes("slo_golden_signals") || active === "slo_golden_signals") && <div className="tool-pane" data-route="slo_golden_signals" hidden={active!=="slo_golden_signals"} inert={active!=="slo_golden_signals"}><SloGoldenSignalsPage /></div>}
+            {(visited.includes("service_flow") || active === "service_flow") && <div className="tool-pane" data-route="service_flow" hidden={active!=="service_flow"} inert={active!=="service_flow"}><ServiceFlowPage /></div>}
+            {(visited.includes("evidence_board") || active === "evidence_board") && <div className="tool-pane" data-route="evidence_board" hidden={active!=="evidence_board"} inert={active!=="evidence_board"}><EvidenceBoardPage /></div>}
+            {(visited.includes("settings") || active === "settings") && <div className="tool-pane" data-route="settings" hidden={active!=="settings"} inert={active!=="settings"}><SettingsPage /></div>}
           </Suspense>
         </div>
       </div>
+      <AboutDialog open={about} onClose={() => setAbout(false)} />
+      <SlideOverPanel open={help} onClose={() => setHelp(false)} title={routes.find(route => route.key===active)?.label ?? "ArchScope"}>
+        <p>{getHelpText(locale,"fileDock")}</p>
+      </SlideOverPanel>
     </DropZone>
   );
 }

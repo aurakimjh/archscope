@@ -180,7 +180,7 @@ function PathPicker({
   return (
     <div className="file-row">
       <Input value={value} onChange={(event) => onChange(event.target.value)} placeholder={label} />
-      <Button type="button" variant="outline" onClick={onPick}>
+      <Button type="button" variant="outline" data-open-file="true" onClick={onPick}>
         {t("browseFile")}
       </Button>
     </div>

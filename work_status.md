@@ -216,8 +216,8 @@ completed the independent Lighthouse file-first engine slice.
 |---|---:|---|
 | `TODO` | 0 | Ready to start; prerequisites are satisfied |
 | `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
-| `REVIEW` | 2 | Review or required remediation is underway; the gate has not passed |
-| `PENDING` | 10 | Waiting for a prerequisite, external condition, or activation trigger |
+| `REVIEW` | 3 | Review or required remediation is underway; the gate has not passed |
+| `PENDING` | 9 | Waiting for a prerequisite, external condition, or activation trigger |
 | `DONE` | 202 | Completion criteria and required review gates have passed |
 
 The normal transition is `TODO → IN_PROGRESS → REVIEW → DONE`. A `PENDING`
@@ -376,7 +376,7 @@ Desktop layout across all 21 routes: [Korean design](docs/ko/DESKTOP_CONTENT_LAY
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
 | 1 | T-620 | P1 | `PENDING` | Measure all 21 views at the default window size. Ready for native baseline measurement. |
-| 2 | T-621 | P1 | `PENDING` | Move global navigation to native menus. After T-620. |
+| 2 | T-621 | P1 | `REVIEW` | Move global navigation to native menus. After T-620. |
 | 3 | T-622 | P1 | `PENDING` | Compact shared input controls and help. After T-620. |
 | 4 | T-623 | P1 | `PENDING` | Prioritize the HTTP grid and inspector. After T-621, T-622. |
 | 5 | T-624 | P1 | `PENDING` | Prioritize profiler and GC results. After T-621, T-622. |
@@ -1330,7 +1330,7 @@ deferred until explicitly promoted.
 | T-617 | P1 | DONE | Preserve missing access-log response time as unavailable rather than zero | Access-log parser/analyzer and SLI/SLO contracts | Completed 2026-11-10: all supported parsers preserve response-time availability, including true zero; unknown samples are excluded from total/static/API/URL/minute/route/edge latency while full request/error/byte counts remain. Null empty stats, measured/unknown counts, warning finding, sample coverage UI and measured-only Flow weighting propagate to SLI/SLO; targets without evidence are explicitly not assessed. Parser/analyzer/CLI and frontend state/build regressions pass. |
 | T-618 | P2 | DONE | Disclose Incident Timeline truncation and qualify severity/time summaries | Existing Incident Timeline/Report Pack contracts | Completed 2026-11-10: 120/source and 1000/session row caps remain, with deterministic documented selection, total/emitted/omitted and per-source/severity loss counts. Severity/time/ranged/correlation summaries use all candidates; groups/narrative explicitly remain retained-only. Page/JSON/Report Pack HTML disclose partial output and omitted critical events. Both-cap, late-critical, empty-input and export regressions plus frontend state/build pass. |
 | T-620 | P1 | PENDING | Measure all 21 views at the default window size | — | Prepared opt-in native layoutaudit build and 21-route collector. Locked Mac produced no ready report; no native geometry or screenshot claimed. User deferred interactive checks until evening on 2026-11-10; implementation proceeds using the source baseline (224px sidebar, at least 54px topbar). |
-| T-621 | P1 | PENDING | Move global navigation to native menus | T-620 | Reach every NavKey and About. Wire active Open and Settings callbacks, synchronize localized menu labels/checkmarks and preserve macOS window dragging. Verify one dispatch, modal shortcut priority and native menu re-entry. |
+| T-621 | P1 | REVIEW | Move global navigation to native menus | T-620 | Implemented one native menu for all 21 routes, localized theme/locale/About, active open capability, retained tool state and macOS drag strip. Profiler Open/Settings no-op callbacks replaced, native accelerator duplication avoided. App Go tests and frontend state/build pass. Native menu interaction awaits evening unlock. |
 | T-622 | P1 | PENDING | Compact shared input controls and help | T-620 | Keep open/drop, analyze, supported cancel and retry reachable across input states. Fold sticky controls into one row, summarize changed options and verify hover-to-pin, keyboard dismissal and focus restoration. |
 | T-623 | P1 | PENDING | Prioritize the HTTP grid and inspector | T-621, T-622 | Size to remaining client height. In default layout show ten request rows plus four inspector lines. Recheck saved splitters, resize, process scope, body consent, selection and follow-off during recording and after stop. |
 | T-624 | P1 | PENDING | Prioritize profiler and GC results | T-621, T-622 | Drive first-result tab from available data. Verify flamegraph focus and hit testing after resize, shallow or absent trees, GC trend plus event preview, and logs without a usable time axis. |

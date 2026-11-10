@@ -252,7 +252,7 @@ function DiffFileRow({
         placeholder={label}
         disabled={disabled}
       />
-      <button type="button" className="primary" onClick={onPick} disabled={disabled}>
+      <button type="button" className="primary" data-open-file="true" onClick={onPick} disabled={disabled}>
         {t("pickFile")}
       </button>
     </div>

@@ -42,6 +42,7 @@ const isMac =
 export function useShortcuts(handlers: ShortcutHandlers) {
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
+      if (event.defaultPrevented || document.querySelector('[role="dialog"][aria-modal="true"]:not([aria-hidden="true"])') || document.querySelector('.desktop-shell')?.getAttribute('data-active-route') !== 'profiler') return;
       const meta = isMac ? event.metaKey : event.ctrlKey;
       // Don't hijack typing inside text inputs.
       const target = event.target as HTMLElement | null;
@@ -55,6 +56,8 @@ export function useShortcuts(handlers: ShortcutHandlers) {
       }
 
       if (!meta) return;
+      // OS 메뉴 accelerator가 소유하는 명령은 DOM 키 이벤트로 중복 실행하지 않는다.
+      if (["o", ","].includes(event.key.toLowerCase()) && document.querySelector(".desktop-shell")) return;
 
       // Allow Cmd+Letter even when focused on inputs — that's the OS
       // convention. We only block when the user is typing in a non-Cmd
@@ -63,7 +66,7 @@ export function useShortcuts(handlers: ShortcutHandlers) {
         case "o":
           if (isTyping && !meta) return;
           event.preventDefault();
-          handlers.onOpen?.();
+          document.querySelector<HTMLButtonElement>('[data-route="profiler"] [data-open-file]')?.click();
           break;
         case "r":
           event.preventDefault();
@@ -71,7 +74,7 @@ export function useShortcuts(handlers: ShortcutHandlers) {
           break;
         case ",":
           event.preventDefault();
-          handlers.onSettings?.();
+          window.dispatchEvent(new CustomEvent("desktop:navigate",{detail:"settings"}));
           break;
         case "1":
         case "2":

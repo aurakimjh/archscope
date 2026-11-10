@@ -32,7 +32,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"runtime"
 	"sync/atomic"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture"
@@ -108,28 +107,7 @@ func main() {
 		}
 		app.OnShutdown(func() { _ = controller.Close() })
 	}
-	menu := application.NewMenu()
-	captureMenu := menu.AddSubmenu("HTTP Capture")
-	for _, command := range []struct{ label, name, shortcut string }{
-		{"Start", "start", "F9"}, {"Stop", "stop", "F2"},
-		{"Pause / Resume", "pause", ""}, {"Clear", "clear", "Ctrl+L"},
-		{"Auto Scroll", "follow", ""},
-		{"Find", "find", "Ctrl+F"}, {"Save / Export", "save", "Ctrl+S"},
-		{"Collapse Groups", "collapse", "Ctrl+Shift+Left"},
-		{"Expand Groups", "expand", "Ctrl+Shift+Right"},
-		{"HTTP Help", "help", "F1"},
-	} {
-		item := captureMenu.Add(command.label)
-		name := command.name
-		item.OnClick(func(_ *application.Context) { emitEvent("capture:command", map[string]string{"command": name}) })
-		if command.shortcut != "" {
-			shortcut := command.shortcut
-			if runtime.GOOS == "darwin" && len(shortcut) > 5 && shortcut[:5] == "Ctrl+" {
-				shortcut = "Cmd+" + shortcut[5:]
-			}
-			item.SetAccelerator(shortcut)
-		}
-	}
+	menu := buildDesktopMenu(desktopMenuState{Locale: "en", Theme: "system", Active: "profiler"})
 	app.Menu.Set(menu)
 	window := app.Window.NewWithOptions(application.WebviewWindowOptions{
 		Windows: application.WindowsWindow{Menu: menu},
@@ -137,7 +115,7 @@ func main() {
 		Width:   1280,
 		Height:  800,
 		Mac: application.MacWindow{
-			InvisibleTitleBarHeight: 50,
+			InvisibleTitleBarHeight: 30,
 			Backdrop:                application.MacBackdropTranslucent,
 			TitleBar:                application.MacTitleBarHiddenInset,
 		},
@@ -145,6 +123,7 @@ func main() {
 		URL:              "/",
 	})
 
+	configureDesktopMenu(app, window)
 	configureLayoutAudit(app, window)
 
 	var visible atomic.Bool

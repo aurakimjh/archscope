@@ -81,6 +81,7 @@ export function HelpTip({
     >
       <button
         type="button"
+        data-help-trigger="true"
         className={cn(
           "inline-flex h-5 w-5 items-center justify-center rounded-full border bg-background text-muted-foreground shadow-sm transition-colors",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",

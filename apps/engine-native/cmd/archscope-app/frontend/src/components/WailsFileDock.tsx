@@ -338,6 +338,7 @@ export function WailsFileDock({
               <Button
                 type="button"
                 variant="secondary"
+                data-open-file="true"
                 size="sm"
                 disabled={busy}
                 onClick={(event) => {
