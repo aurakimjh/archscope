@@ -33,6 +33,7 @@ export {
     CaptureOpenResult,
     CaptureProgressEvent,
     CaptureTransactionsEvent,
+    ChartArtifactRequest,
     ClassifyRequest,
     ClassifyResult,
     CollapsedRequest,

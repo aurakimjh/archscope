@@ -1,7 +1,8 @@
+import { saveChartArtifact } from "@/bridge/chartExport";
 import { Download } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { type ECharts, type EChartsOption } from "@/charts/echartsCore";
+import { echarts, type ECharts, type EChartsOption } from "@/charts/echartsCore";
 import { ChartPanel } from "@/components/ChartPanel";
 import { HelpedLabel, HelpedTitle } from "@/components/HelpTip";
 import { Button } from "@/components/ui/button";
@@ -98,6 +99,8 @@ export function ChartStudioPage(): React.JSX.Element {
   const [renderer, setRenderer] = useState<Renderer>("canvas");
   const [chart, setChart] = useState<ECharts | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
 
   const compatibleEntries = useMemo(
     () =>
@@ -151,24 +154,22 @@ export function ChartStudioPage(): React.JSX.Element {
   const build = selectedEntry && selectedTemplate ? selectedTemplate.build(selectedEntry, labels) : null;
   const title = selectedTemplate ? t(selectedTemplate.labelKey) : t("navChartStudio");
 
-  const exportImage = (type: "png" | "svg"): void => {
-    if (!chart) return;
+  const save = async (type: "png" | "svg" | "csv"): Promise<void> => {
+    if (!chart || !build || saving) return;
+    setSaving(true);setError(null);setNotice(null);
+    let rendered: ECharts | null = null;
     try {
-      const url = chart.getDataURL({
-        type,
-        pixelRatio: type === "png" ? 2 : 1,
-        backgroundColor: "#ffffff",
-      });
-      downloadURL(url, `archscope-${selectedTemplate?.id ?? "chart"}.${type}`);
-      setError(null);
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : String(caught));
-    }
-  };
-
-  const exportCSV = (): void => {
-    if (!build) return;
-    downloadBlob(rowsToCSV(build.rows), `archscope-${selectedTemplate?.id ?? "chart"}.csv`, "text/csv");
+      let data = rowsToCSV(build.rows);
+      if (type !== "csv") {
+        // Render with the output format's renderer, independent of the on-screen renderer.
+        rendered = echarts.init(document.createElement("div"), undefined, {renderer:type === "svg" ? "svg" : "canvas",width:chart.getWidth(),height:chart.getHeight()});
+        rendered.setOption({...chart.getOption(),animation:false});
+        data = rendered.getDataURL({type,pixelRatio:type === "png" ? 2 : 1,backgroundColor:"#ffffff"});
+      }
+      const path = await saveChartArtifact(type,data,`archscope-${selectedTemplate?.id ?? "chart"}.${type}`,t("exportChooseOutput"));
+      if (path) setNotice(`${t("exportCompleted")}: ${path}`);
+    } catch (caught) { setError(caught instanceof Error ? caught.message : String(caught)); }
+    finally { rendered?.dispose();setSaving(false); }
   };
 
   const onReady = useCallback((next: ECharts | null) => setChart(next), []);
@@ -234,18 +235,18 @@ export function ChartStudioPage(): React.JSX.Element {
           title={title}
           option={build.option}
           renderer={renderer}
-          height="clamp(300px, calc(100dvh - 230px), 700px)"
+          height="clamp(300px, calc(100dvh - 190px), 700px)"
           onReady={onReady}
           actions={
             <div className="workspace-card-actions">
-              <Button type="button" size="sm" variant="outline" onClick={() => exportImage("png")}>
+              <Button type="button" size="sm" variant="outline" disabled={saving || !chart} onClick={() => void save("png")}>
                 <Download className="nav-lucide-sm" />
                 PNG
               </Button>
-              <Button type="button" size="sm" variant="outline" onClick={() => exportImage("svg")}>
+              <Button type="button" size="sm" variant="outline" disabled={saving || !chart} onClick={() => void save("svg")}>
                 SVG
               </Button>
-              <Button type="button" size="sm" variant="outline" onClick={exportCSV}>
+              <Button type="button" size="sm" variant="outline" disabled={saving || !chart} onClick={() => void save("csv")}>
                 CSV
               </Button>
             </div>
@@ -259,6 +260,7 @@ export function ChartStudioPage(): React.JSX.Element {
         </Card>
       )}
 
+      {notice && <p role="status" className="text-xs">{notice}</p>}
       {error ? (
         <div className="alert error">
           <strong>{t("error")}:</strong> {error}
@@ -391,20 +393,4 @@ function rowsToCSV(rows: Array<Record<string, string | number | null>>): string 
 function csvCell(value: string | number | null | undefined): string {
   const text = value == null ? "" : String(value);
   return /[",\n]/.test(text) ? `"${text.replace(/"/g, "\"\"")}"` : text;
-}
-
-function downloadBlob(content: string, filename: string, type: string): void {
-  const blob = new Blob([content], { type });
-  const url = URL.createObjectURL(blob);
-  downloadURL(url, filename);
-  URL.revokeObjectURL(url);
-}
-
-function downloadURL(url: string, filename: string): void {
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
 }

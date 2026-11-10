@@ -105,7 +105,7 @@ export function ChartPanel({
         {actions}
       </CardHeader>
       <CardContent className="p-3">
-        <div ref={chartRef} style={{ width: "100%", height }} />
+        <div data-chart-surface ref={chartRef} style={{ width: "100%", height }} />
       </CardContent>
     </Card>
   );

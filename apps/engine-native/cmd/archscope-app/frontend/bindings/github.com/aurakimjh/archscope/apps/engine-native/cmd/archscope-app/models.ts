@@ -733,6 +733,38 @@ export class CaptureTransactionsEvent {
 }
 
 /**
+ * ChartArtifactRequest carries an already-rendered chart, not an AnalysisResult.
+ */
+export class ChartArtifactRequest {
+    "path": string;
+    "format": string;
+    "data": string;
+
+    /** Creates a new ChartArtifactRequest instance. */
+    constructor($$source: Partial<ChartArtifactRequest> = {}) {
+        if (!("path" in $$source)) {
+            this["path"] = "";
+        }
+        if (!("format" in $$source)) {
+            this["format"] = "";
+        }
+        if (!("data" in $$source)) {
+            this["data"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ChartArtifactRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ChartArtifactRequest {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new ChartArtifactRequest($$parsedSource as Partial<ChartArtifactRequest>);
+    }
+}
+
+/**
  * ClassifyRequest classifies one collapsed-stack string. Returns the
  * runtime label (e.g. "JVM", "Node.js", "Application").
  */

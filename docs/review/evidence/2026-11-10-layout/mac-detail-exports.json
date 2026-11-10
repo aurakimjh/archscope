@@ -1,0 +1,181 @@
+{
+  "platform": "macOS Wails 3.1.0",
+  "method": "Native save dialogs; generated files inspected locally; sanitized fixtures only",
+  "artifacts": [
+    {
+      "file": "access-p95.csv",
+      "bytes": 43,
+      "sha256": "bc9c0a27fae7522be247c4a6b312e075e48821bdf509592650cbf44391437785",
+      "csv_rows_including_header": 2
+    },
+    {
+      "file": "access-p95.svg",
+      "bytes": 3261,
+      "sha256": "2e4e59dbd60b4ca6bc6d7e4b0d047b7fe8074395e4bdafdab3d98de2058cbefa",
+      "xml_root": "{http://www.w3.org/2000/svg}svg"
+    },
+    {
+      "file": "access-requests.csv",
+      "bytes": 38,
+      "sha256": "759da08e99ebd538d19b01fdd61417460ab9253c90fe763db26bd2ac5c41e455",
+      "csv_rows_including_header": 2
+    },
+    {
+      "file": "access-requests.svg",
+      "bytes": 3234,
+      "sha256": "0d9d107c0a5212ca1528c795540220ec877a4e9f0d52fafb029fc0a2d775a4c0",
+      "xml_root": "{http://www.w3.org/2000/svg}svg"
+    },
+    {
+      "file": "comparison-deltas.csv",
+      "bytes": 387,
+      "sha256": "0428645aa72b85f6a926e76b900986cd131e484e1fcec8e0739f77e28ac90c9f",
+      "csv_rows_including_header": 21
+    },
+    {
+      "file": "comparison-deltas.svg",
+      "bytes": 7329,
+      "sha256": "fae42e693126bfcd7da2be08b0e3546d5c77f89ded2913e3191b1906649121fb",
+      "xml_root": "{http://www.w3.org/2000/svg}svg"
+    },
+    {
+      "file": "gc-heap.csv",
+      "bytes": 482,
+      "sha256": "9d6f1dbd4be3161270d2c0467b335e4ddb75af7ca7de75b3a2a875eca76796f8",
+      "csv_rows_including_header": 61
+    },
+    {
+      "file": "gc-heap.svg",
+      "bytes": 22470,
+      "sha256": "de6598d96dc1b867efc3f1b73b81d9209c9d1bf2acfb885999e9d1c78de5b3b2",
+      "xml_root": "{http://www.w3.org/2000/svg}svg"
+    },
+    {
+      "file": "gc-pause.csv",
+      "bytes": 482,
+      "sha256": "5ea255811fccb49df5d56295c0cdd6fdff5c03a76b79a0587fdde7424606b843",
+      "csv_rows_including_header": 61
+    },
+    {
+      "file": "gc-pause.svg",
+      "bytes": 24011,
+      "sha256": "eb82d55267157155d425a3913ea40e14d6ad119ee971f605c6206957da1ce41c",
+      "xml_root": "{http://www.w3.org/2000/svg}svg"
+    },
+    {
+      "file": "missing-dir/report.html",
+      "bytes": 8255,
+      "sha256": "12384665c6a583ad576af811eeee1a28bcc915b26c7dc4330f2410c33a0aa256"
+    },
+    {
+      "file": "profiler-components-canvas.csv",
+      "bytes": 56,
+      "sha256": "ef0c8a8c022d920214100245e8551608f4fa41fdd924976959abd138d0c7fbec",
+      "csv_rows_including_header": 4
+    },
+    {
+      "file": "profiler-components-canvas.png",
+      "bytes": 68193,
+      "sha256": "45827dbe41c9a9e143f0d79f32b3a0982b9fc9bcfb560cd93eb439a0ced60663",
+      "dimensions": [
+        2460,
+        1140
+      ]
+    },
+    {
+      "file": "profiler-components-canvas.svg",
+      "bytes": 2945,
+      "sha256": "bcf28890305fe372f3a31caa14193b6c1ab6c6682684ebce5c8adf3c9511fd68",
+      "xml_root": "{http://www.w3.org/2000/svg}svg"
+    },
+    {
+      "file": "profiler-components-svg.png",
+      "bytes": 68193,
+      "sha256": "45827dbe41c9a9e143f0d79f32b3a0982b9fc9bcfb560cd93eb439a0ced60663",
+      "dimensions": [
+        2460,
+        1140
+      ]
+    },
+    {
+      "file": "profiler-components-svg.svg",
+      "bytes": 2945,
+      "sha256": "dd6c59442f97a5d3dff82b5021d80faba1fe733cae18fe66e5ecd8c9c1dd6fa2",
+      "xml_root": "{http://www.w3.org/2000/svg}svg"
+    },
+    {
+      "file": "profiler-deep.png",
+      "bytes": 411805,
+      "sha256": "5a7ed59a099e1af58a8436313fc8911418fbe2bb76c3aec5e8fb47fda8575cd7",
+      "dimensions": [
+        2456,
+        1188
+      ]
+    },
+    {
+      "file": "report-csv-dir/series_finding_count_comparison.csv",
+      "bytes": 36,
+      "sha256": "1a835cb627fc7a8474cb51110195068b7077944cc9ea7473387ca85224c6894b",
+      "csv_rows_including_header": 3
+    },
+    {
+      "file": "report-csv-dir/series_summary_metric_deltas.csv",
+      "bytes": 777,
+      "sha256": "60b54a49ed67615161a66fae130702257e5f322e73e974d7acceb9a0183ae1c1",
+      "csv_rows_including_header": 28
+    },
+    {
+      "file": "report-csv-dir/summary.csv",
+      "bytes": 131,
+      "sha256": "32017275a4523a5be8e686ebc058d5a274f32d5029a6cfa0ade8ab41b8f0cef5",
+      "csv_rows_including_header": 8
+    },
+    {
+      "file": "report.csv",
+      "bytes": 1021,
+      "sha256": "0e331a8b86910503606e16de39dc88568924a3961aa562c2721976478bc2baa9",
+      "csv_rows_including_header": 44
+    },
+    {
+      "file": "report.html",
+      "bytes": 8255,
+      "sha256": "12384665c6a583ad576af811eeee1a28bcc915b26c7dc4330f2410c33a0aa256"
+    },
+    {
+      "file": "report.json",
+      "bytes": 8889,
+      "sha256": "0b472f899e40a8e2b254ac14ebe7abda1255505c3f1b8b646f6bb9a98a9d9885",
+      "json_valid": true
+    },
+    {
+      "file": "report.pptx",
+      "bytes": 6003,
+      "sha256": "6f0ed7247d4a5693fe7d3211a29a2ed1677c2186a281d819dc5a5e94123ccf17",
+      "zip_entries": 13
+    },
+    {
+      "file": "trace-dependencies.csv",
+      "bytes": 31,
+      "sha256": "1a722117f44db1f03cb101598cfd99da417415723f802dd9c93e68215fce367b",
+      "csv_rows_including_header": 2
+    },
+    {
+      "file": "trace-dependencies.svg",
+      "bytes": 2957,
+      "sha256": "dc5b89f006e450d0649da0b319f3e0863dcddee4fe5eb7fbad16544df9cc39f8",
+      "xml_root": "{http://www.w3.org/2000/svg}svg"
+    },
+    {
+      "file": "trace-services.csv",
+      "bytes": 52,
+      "sha256": "9fcc28a6aa16da44a09f9214a3985d32dbad3c1130251b1b0b5b53cdd840885b",
+      "csv_rows_including_header": 3
+    },
+    {
+      "file": "trace-services.svg",
+      "bytes": 3233,
+      "sha256": "0a3838309fa3ecb87afa0d89ca3a70f17dab9866cbf66150ff4852de19ffcec6",
+      "xml_root": "{http://www.w3.org/2000/svg}svg"
+    }
+  ]
+}

@@ -364,6 +364,14 @@ export function ResolveWorkspaceComparison(req: $models.WorkspaceComparisonReque
     });
 }
 
+/**
+ * SaveChartArtifact persists output selected through the native Save dialog.
+ * WebView anchor downloads do not provide a portable desktop save contract.
+ */
+export function SaveChartArtifact(req: $models.ChartArtifactRequest): $CancellablePromise<void> {
+    return $Call.ByID(875242524, req);
+}
+
 // Private type creation functions
 const $$createType0 = models$0.AnalysisResult.createFrom;
 const $$createType1 = $models.EngineAsyncResponse.createFrom;

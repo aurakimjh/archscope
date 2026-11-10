@@ -1844,3 +1844,7 @@ three two-dump runs, missing-file error and recovery pass without a stuck spinne
 ### Mac Settings edge validation (2026-11-11)
 
 Native negative interval and fractional Top N drafts now remain editable and are rejected at Save, before integer Go bindings. Saved defaults are normalized and storage failures no longer claim success. Original 100 ms / Top 20 values were restored and saved. State regressions and frontend build pass; T-626 final matrix is recorded in the follow-up evidence.
+
+### Native chart file validation (2026-11-11)
+
+Chart Studio now saves PNG/SVG/CSV through native dialogs and an explicit engine write service; both on-screen renderers support both image formats. All eight chart templates produced valid SVG/CSV, both renderers produced PNG/SVG, and the profiler PNG was decoded. Export Center HTML/PPTX/JSON/CSV, directory output, cancel and write-error recovery were exercised. Artifact checksums and structural checks: mac-detail-exports.json. Go export tests, full Go/vet and frontend tests/build pass.

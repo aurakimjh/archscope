@@ -1,3 +1,4 @@
+import { saveChartArtifact } from "@/bridge/chartExport";
 // ─────────────────────────────────────────────────────────────────────
 // [한글] CanvasFlameGraph.tsx — HTML5 Canvas 기반 플레임그래프 렌더러.
 //
@@ -35,6 +36,7 @@ import {
   useRef,
   useState,
   type MouseEvent as ReactMouseEvent,
+  type ReactNode,
 } from "react";
 
 import { useI18n } from "../i18n/I18nProvider";
@@ -110,6 +112,7 @@ export type CanvasFlameGraphProps = {
   rowHeight?: number;
   exportName?: string;
   weightLabel?: string;
+  toolbarStart?: ReactNode;
 };
 
 export function CanvasFlameGraph({
@@ -117,8 +120,11 @@ export function CanvasFlameGraph({
   rowHeight = 22,
   exportName = "archscope-flamegraph",
   weightLabel,
+  toolbarStart,
 }: CanvasFlameGraphProps) {
   const { t } = useI18n();
+  const [saveError,setSaveError] = useState<string | null>(null);
+  const [saving,setSaving] = useState(false);
   const unitLabel = weightLabel ?? t("samples");
   const { resolvedTheme } = useTheme();
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -340,17 +346,14 @@ export function CanvasFlameGraph({
 
   const handleReset = useCallback(() => setFocusPath([]), []);
 
-  const handleSavePng = useCallback(() => {
+  const handleSavePng = useCallback(async () => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
-    const dataUrl = canvas.toDataURL("image/png");
-    const link = document.createElement("a");
-    link.href = dataUrl;
-    link.download = `${exportName}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }, [exportName]);
+    if (!canvas || saving) return;
+    setSaving(true);setSaveError(null);
+    try { await saveChartArtifact("png",canvas.toDataURL("image/png"),`${exportName}.png`,t("exportChooseOutput")); }
+    catch (caught) { setSaveError(caught instanceof Error ? caught.message : String(caught)); }
+    finally { setSaving(false); }
+  }, [exportName,saving,t]);
 
   if (!data) {
     return <p className="muted">{t("flamegraphEmpty")}</p>;
@@ -358,8 +361,10 @@ export function CanvasFlameGraph({
 
   return (
     <div className="flamegraph">
+      {saveError && <p role="alert" className="text-destructive text-xs">{saveError}</p>}
       {hiddenFlameSamples(data) > 0 && <p className="muted">{t("flamegraphHiddenSamples")}: {hiddenFlameSamples(data).toLocaleString()}</p>}
       <div className="flamegraph-toolbar">
+        {toolbarStart}
         <div className="flamegraph-search">
           <input
             type="search"
@@ -394,7 +399,7 @@ export function CanvasFlameGraph({
               {t("flamegraphReset")}
             </button>
           )}
-          <button type="button" className="ghost" onClick={handleSavePng}>
+          <button type="button" className="ghost" disabled={saving} onClick={() => void handleSavePng()}>
             {t("flamegraphSavePng")}
           </button>
         </div>
