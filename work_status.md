@@ -1915,3 +1915,7 @@ T-625 is DONE for implementation and the Mac native functional matrix. All nine 
 ### Workspace and Settings detailed acceptance (2026-11-11)
 
 T-626 is DONE for implementation and Mac native acceptance. All eight workspace routes, result handoffs, chart templates/renderers/formats and Settings edge cases were exercised. Native file outputs were checked structurally; file hashes, row counts and dimensions are recorded without committing generated binaries. Forms and sparse results have explicit geometry exclusions.
+
+### macOS runner migration (2026-11-11)
+
+Moved Engine Native test/package and Release arm64 packaging from retired macos-14 to macos-15. GitHub retired all macOS 14 Actions images on 2026-11-02: https://github.blog/changelog/2026-10-01-github-actions-macos-14-runner-image-retirement/. Existing architecture, tests, signature checks and release conditions are retained. Workflow structure checked locally; actual hosted execution follows the final push and is not inferred from the edit.
