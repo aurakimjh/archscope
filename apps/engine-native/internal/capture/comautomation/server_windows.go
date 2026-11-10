@@ -4,6 +4,7 @@ package comautomation
 
 import (
 	"context"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/automation"
@@ -278,10 +279,23 @@ func tokenIntegrity(token windows.Token) (uint32, error) {
 		return 0, fmt.Errorf("invalid token integrity label")
 	}
 	label := (*windows.Tokenmandatorylabel)(unsafe.Pointer(&buffer[0]))
-	if label.Label.Sid == nil || label.Label.Sid.SubAuthorityCount() == 0 {
-		return 0, fmt.Errorf("missing token integrity label")
+	if label.Label.Sid == nil {
+		return 0, fmt.Errorf("missing token integrity SID")
 	}
-	value := label.Label.Sid.SubAuthority(uint32(label.Label.Sid.SubAuthorityCount() - 1))
+	start := uintptr(unsafe.Pointer(&buffer[0]))
+	sid := uintptr(unsafe.Pointer(label.Label.Sid))
+	if sid < start || sid-start > uintptr(len(buffer)-8) {
+		return 0, fmt.Errorf("integrity SID is outside token buffer")
+	}
+	offset := int(sid - start)
+	count := int(buffer[offset+1])
+	if buffer[offset] != 1 || count < 1 || count > 15 || offset+8+4*count > len(buffer) {
+		return 0, fmt.Errorf("invalid integrity SID")
+	}
+	// Read the copied SID in the original Go allocation. x/sys's native
+	// subauthority helpers return interior addresses through uintptr, which
+	// checkptr correctly cannot associate with this caller-owned buffer.
+	value := binary.LittleEndian.Uint32(buffer[offset+8+4*(count-1):])
 	runtime.KeepAlive(buffer)
 	return value, nil
 }

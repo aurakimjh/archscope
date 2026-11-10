@@ -1,0 +1,51 @@
+name: Windows COM contract
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "apps/engine-native/internal/capture/comautomation/**"
+      - "apps/engine-native/internal/capture/automation/**"
+      - "apps/engine-native/internal/models/**"
+      - "apps/engine-native/go.*"
+      - ".github/workflows/windows-com.yml"
+  pull_request:
+    paths:
+      - "apps/engine-native/internal/capture/comautomation/**"
+      - "apps/engine-native/internal/capture/automation/**"
+      - "apps/engine-native/internal/models/**"
+      - "apps/engine-native/go.*"
+      - ".github/workflows/windows-com.yml"
+
+jobs:
+  contract:
+    name: Native COM (${{ matrix.arch }})
+    runs-on: windows-latest
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            cgo: "1"
+            flags: "-race"
+          - arch: "386"
+            cgo: "0"
+            flags: ""
+    defaults:
+      run:
+        working-directory: apps/engine-native
+    env:
+      GOARCH: ${{ matrix.arch }}
+      CGO_ENABLED: ${{ matrix.cgo }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: "1.26.x"
+          cache-dependency-path: apps/engine-native/go.sum
+      - name: Verify COM code
+        run: go vet ./internal/capture/comautomation
+      - name: Run ABI, lifetime and separate-process tests
+        run: go test ${{ matrix.flags }} -count=1 -v ./internal/capture/comautomation

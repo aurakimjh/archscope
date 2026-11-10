@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"unsafe"
 
+	ole "github.com/go-ole/go-ole"
 	"golang.org/x/sys/windows"
 )
 
@@ -67,8 +68,8 @@ func queryCOM(pointer uintptr, id windows.GUID) (uintptr, error) {
 
 func buildTypeInfos() (map[string]uintptr, error) { return buildTypeInfosAt("") }
 func buildTypeInfosAt(destination string) (map[string]uintptr, error) {
-	// The library is in memory; SaveAllChanges and global typelib registration
-	// are deliberately not called. ITypeInfo references own their lifetimes.
+	// Runtime metadata has an owned temporary backing file for remoting.
+	// In-process tests may omit it; no global typelib registration is changed.
 	var library, standard uintptr
 	var infos = map[string]uintptr{}
 	var creators = map[string]uintptr{}
@@ -92,7 +93,7 @@ func buildTypeInfosAt(destination string) (map[string]uintptr, error) {
 	name, _ := windows.UTF16PtrFromString(filename)
 	syskind := uintptr(3)
 	if unsafe.Sizeof(uintptr(0)) == 4 {
-		syskind = 0
+		syskind = 1
 	}
 	hr, _, _ := windows.NewLazySystemDLL("oleaut32.dll").NewProc("CreateTypeLib2").Call(syskind, uintptr(unsafe.Pointer(name)), uintptr(unsafe.Pointer(&library)))
 	if int32(uint32(hr)) < 0 {
@@ -138,7 +139,7 @@ func buildTypeInfosAt(destination string) (map[string]uintptr, error) {
 		if e := comCall(creator, 3, uintptr(unsafe.Pointer(&guid))); e != nil {
 			return nil, e
 		}
-		if e := comCall(creator, 4, 0x1140); e != nil {
+		if e := comCall(creator, 4, 0x100); e != nil {
 			return nil, e
 		} // dual, oleautomation, dispatchable
 		info, e := queryCOM(creator, iidTypeInfo)
@@ -167,6 +168,9 @@ func buildTypeInfosAt(destination string) (map[string]uintptr, error) {
 	}
 	for _, n := range keys {
 		if creator := creators[n]; creator != 0 {
+			if e := comCall(creator, 4, 0x1140); e != nil {
+				return nil, e
+			}
 			if e := comCall(creator, 25); e != nil {
 				return nil, fmt.Errorf("layout %s: %w", n, e)
 			}
@@ -261,7 +265,10 @@ func addTypeMethod(creator uintptr, contract string, index int, m abiMethod, inf
 	for _, p := range m.Params {
 		paramNames = append(paramNames, p.Name)
 	}
-	// SetFuncAndParamNames excludes the return-value parameter.
+	if m.Kind == "put" && len(paramNames) > 1 {
+		paramNames = paramNames[:len(paramNames)-1]
+	}
+	// Return values and the final property-put argument are unnamed.
 	names := make([]*uint16, len(paramNames))
 	for i, n := range paramNames {
 		names[i], _ = windows.UTF16PtrFromString(n)
@@ -270,6 +277,14 @@ func addTypeMethod(creator uintptr, contract string, index int, m abiMethod, inf
 	runtime.KeepAlive(params)
 	runtime.KeepAlive(keep)
 	runtime.KeepAlive(names)
+	if e != nil {
+		var attr *ole.TYPEATTR
+		if info := infos[contract]; info != 0 && comCall(info, 3, uintptr(unsafe.Pointer(&attr))) == nil {
+			count := attr.CFuncs
+			comCall(info, 19, uintptr(unsafe.Pointer(attr)))
+			return fmt.Errorf("%w (index=%d functions=%d args=%d names=%d desc-size=%d)", e, index, count, fd.Count, len(names), unsafe.Sizeof(fd))
+		}
+	}
 	return e
 }
 

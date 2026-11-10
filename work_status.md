@@ -1968,3 +1968,15 @@ T-611 stays REVIEW for actual new Windows execution and the explicitly remaining
 custom marshal/reference, pre-storage cancel/physical retention, cache-origin
 filter and target-process session-cookie contracts. Counts remain 210 DONE,
 3 REVIEW and 1 PENDING out of 214.
+
+### Native COM CI remediation (2026-11-11)
+
+The new Windows execution reproduced two defects hidden by cross-builds: an
+x/sys interior-SID pointer conversion tripped race/checkptr during the integrity
+check, and dual type construction rejected property naming. Integrity now reads
+the bounded copied SID in its original allocation; type flags are finalized
+after member definitions, property-put value names are omitted, and SYS_WIN32
+is used for 386. Added a dedicated amd64-race/386 COM workflow for focused native
+feedback. First run 42908152263 passed both macOS jobs and GUI cross-builds but
+failed Windows COM; replacement native results are required before claiming it
+fixed. Existing same-user/integrity comparisons remain enforced.

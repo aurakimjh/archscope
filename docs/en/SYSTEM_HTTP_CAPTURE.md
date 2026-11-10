@@ -1692,7 +1692,7 @@ metadata; it cleans up after releasing its type descriptions. It does not
 install a vendor typelib or overwrite registrations. A new isolated Windows
 test uses a random test CLSID, a separate fixture process and authenticated
 IDispatch/ITypeInfo calls; it never starts capture or modifies browser caches.
-The Engine Native workflow also executes the COM suite as a real x86 process.
+The dedicated Windows COM workflow also executes the suite as a real x86 process.
 These tests are compiled locally and await hosted Windows execution after push.
 
 [Mac verification](../review/evidence/2026-11-11-mac-automation/validation.json)
