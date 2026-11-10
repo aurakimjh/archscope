@@ -300,6 +300,14 @@ deployment-target warnings remain. Evidence:
 
 ### Other-feature fix completion (2026-11-10)
 
+All five fixes passed full Go tests/vet, changed-path/application race tests,
+frontend state/build and Mac arm64 / Windows x86+x64 GUI builds. Wails 3.1.0
+bindings regenerate without source changes. Isolated real-page browser smoke
+shows timeline 120/130 with omitted 10 (critical 1), and SLO targets without
+matching evidence explicitly not assessed. Final guards reject unknown legacy path display semantics and retain nginx dash-duration requests as unavailable latency. Native Wails/Windows execution was not performed.
+Known Mac deployment-target linker warnings remain. Evidence:
+`docs/review/evidence/2026-11-10-other-features/fix-validation.json`.
+
 - T-618 DONE: bounded timeline with full-candidate severity/time summaries and explicit loss accounting in UI/JSON/HTML; both caps, severe late event and empty-input regressions pass.
 - T-617 DONE: parser-level latency availability, nullable measured-only statistics with separate traffic denominators, coverage UI and explicit no-evidence SLO status; parser/analyzer/CLI/Flow/SLI/frontend regressions pass.
 - T-616 DONE: identity-based logical RPC pairing, defined perspective/error policy, incoming server-peer direction and preserved retry attempts; Go/CLI and Flow/SLI regressions pass.
@@ -322,8 +330,7 @@ without a warning; 130 ordered incident events yield 120 emitted, zero critical
 instead of the final critical event; a freshly generated timeline can refer to
 REMOVED-SOURCE when the Report Pack lists only CURRENT-SOURCE.
 
-The original reproductions below remain review history; current fixes are recorded in the Task Registry. Existing targeted analyzer/
-exporter tests and frontend state tests pass but do not cover these inputs.
+The original reproductions above remain review history; current fixes are recorded in the Task Registry. The pre-fix targeted suites passed without detecting these inputs; the new regressions now cover them.
 All five can be implemented and regression-tested on Mac. Preserve the common
 AnalysisResult contract and do not infer native desktop or Windows acceptance.
 CSV canonical-table export and stronger multi-thread identity were left as
@@ -715,11 +722,7 @@ updated for T-603 above. Earlier commands, limits and native screenshots:
 
 ## Current Risk
 
-The 2026-11-10 active non-HTTP risks are incorrect critical-path/call-count and
-latency denominators, undisclosed timeline omissions, and stale Report Pack
-provenance (T-614 through T-618). Their local reproductions are confirmed, but
-implementation and regression closure are still pending. The older audit/gate
-statements below retain their historical scope and do not close these findings.
+The 2026-11-10 non-HTTP correctness risks (T-614 through T-618) are closed locally after implementation and regressions. Trace elapsed values explicitly remain observed-chain estimates rather than causal critical-path proof. The four HTTP native/reference acceptance tasks remain open. The older audit/gate statements below retain their historical scope.
 
 The 2026-11-09 audit identified these correctness/diagnostic risks; see the
 Task Registry for closures and remaining work:
@@ -801,14 +804,9 @@ filtered before analysis.
 
 ## Next Execution Queue
 
-### Other-feature correctness follow-ups (2026-11-10)
+### Completed other-feature correctness follow-ups (2026-11-10)
 
-Mac-ready queue: T-614 (Report Pack freshness), T-615 then T-616 (Trace Import
-elapsed-path semantics and logical calls), T-617 (access-log measurement
-availability), then T-618 (Incident Timeline omission accounting). T-615/T-616
-share analyzer/downstream contracts but are distinct acceptance units. None
-requires the Windows driver or genuine .halog fixtures. Keep the existing four
-HTTP tasks open; native/reference acceptance remains separate.
+T-614 through T-618 are implemented in individual commits. Full Go/vet/race, frontend state/build, isolated browser UI checks and Mac/Windows cross-builds pass. Continue with the four open HTTP tasks in the snapshot; their native/reference acceptance remains separate.
 
 ### IEInspector V7.6.4 Stand-alone replacement (2026-11-09)
 

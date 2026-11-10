@@ -364,9 +364,13 @@ func fastParseNginxWithResponseTime(line string) (*Record, *parseError, bool) {
 			return nil, &parseError{Reason: ReasonInvalidNumber, Message: "Numeric field could not be parsed."}, true
 		}
 	}
-	sec, err := strconv.ParseFloat(responseTimeText, 64)
-	if err != nil {
-		return nil, &parseError{Reason: ReasonInvalidNumber, Message: "Numeric field could not be parsed."}, true
+	unavailable := responseTimeText == "-"
+	var sec float64
+	if !unavailable {
+		sec, err = strconv.ParseFloat(responseTimeText, 64)
+		if err != nil {
+			return nil, &parseError{Reason: ReasonInvalidNumber, Message: "Numeric field could not be parsed."}, true
+		}
 	}
 	responseTimeMS := sec * 1000
 	if status < 100 || status > 999 || bytesSent < 0 || math.IsNaN(responseTimeMS) || math.IsInf(responseTimeMS, 0) || responseTimeMS < 0 {
@@ -374,17 +378,18 @@ func fastParseNginxWithResponseTime(line string) (*Record, *parseError, bool) {
 	}
 
 	return &Record{
-		Timestamp:      ts,
-		Method:         method,
-		URI:            uri,
-		Status:         status,
-		ResponseTimeMS: responseTimeMS,
-		BytesSent:      bytesSent,
-		ClientIP:       clientIP,
-		UserAgent:      userAgent,
-		Referer:        referer,
-		RawLine:        line,
-		SourceFormat:   "nginx",
+		Timestamp:               ts,
+		Method:                  method,
+		URI:                     uri,
+		Status:                  status,
+		ResponseTimeMS:          responseTimeMS,
+		ResponseTimeUnavailable: unavailable,
+		BytesSent:               bytesSent,
+		ClientIP:                clientIP,
+		UserAgent:               userAgent,
+		Referer:                 referer,
+		RawLine:                 line,
+		SourceFormat:            "nginx",
 	}, nil, true
 }
 

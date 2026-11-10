@@ -508,7 +508,7 @@ function CriticalPathTable({
         {rows.map((row) => (
           <tr key={row.trace_id} className="border-b border-border last:border-0">
             <td className="px-3 py-1.5 font-mono text-[11px]">{row.trace_id}</td>
-            <td title={row.duration_unavailable_reason || row.path_semantics !== "observed_span_chain_elapsed_estimate_v1" ? t("tracePathUnknown") : undefined} className="px-3 py-1.5 text-right tabular-nums">{typeof row.observed_path_elapsed_ms === "number" ? row.observed_path_elapsed_ms.toFixed(2) : "—"}</td>
+            <td title={row.duration_unavailable_reason || row.path_semantics !== "observed_span_chain_elapsed_estimate_v1" ? t("tracePathUnknown") : undefined} className="px-3 py-1.5 text-right tabular-nums">{row.path_semantics === "observed_span_chain_elapsed_estimate_v1" && typeof row.observed_path_elapsed_ms === "number" ? row.observed_path_elapsed_ms.toFixed(2) : "—"}</td>
             <td className="px-3 py-1.5 text-right tabular-nums">{row.span_count}</td>
             <td className="px-3 py-1.5">{row.services.join(", ")}</td>
             <td className="max-w-[28rem] truncate px-3 py-1.5">{row.span_names.join(" > ")}</td>

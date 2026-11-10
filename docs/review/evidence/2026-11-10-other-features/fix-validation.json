@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-10",
+  "baselineCommit": "406038d11018c81068088ef2003b843c2ad61ed0",
+  "implementationCommits": {
+    "T-614": "8f66b1d",
+    "T-615": "e35abfd",
+    "T-616": "68db7a8",
+    "T-617": "feb6238",
+    "T-618": "c1863dd"
+  },
+  "sourceBaseCommit": "c1863ddc1c9d3a340883a436ee61095fbddc507f",
+  "sourceSnapshotIncludesFinalLegacyDisplayGuard": true,
+  "sourceSHA256": {
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/reportPack.ts": "5cc2e65e787cbf5f395f6044d2bdb1ecb38f1565dace3ab99827f852df6862c3",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/incidentTimeline.ts": "4bacf5f750dd2334063e86a875816c280e1a77bea976b2a836b11afea4f75db1",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/sloGoldenSignals.ts": "eb4c29b9da3d233694358fdad218d2885b964fbeb9078e5755a48979259f7684",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/serviceFlow.ts": "fea0670a7fec11dc512551ce3698408f79f08a77c6519094c15666cb983d8faf",
+    "apps/engine-native/cmd/archscope-app/frontend/src/pages/TraceImportPage.tsx": "827f6d38b41a18075444d79081ebd1aae7e07716210744bffb1ae4e8aa1a5f71",
+    "apps/engine-native/internal/analyzers/traceimport/analyzer.go": "53e7d2e6e91f4a0c475f566232b5f7b78544fa64804cdfcaa25ed7f93d64f381",
+    "apps/engine-native/internal/analyzers/accesslog/analyzer.go": "0631c48a5ed1b87a5f19ea84d2fa993be81460b593d8d3e795ace9cb5feb1a98",
+    "apps/engine-native/internal/parsers/accesslog/parser.go": "4e052622949745fd9cf725b9973de38a7a0137555e1425eb77d8c8684f099f28"
+  },
+  "checks": [
+    {
+      "command": "go test ./...",
+      "result": "PASS",
+      "localLogSHA256": "92e6f7672056bc83411ddd32e956a44e58d008e77fc050cbf773a9e07fb9e266"
+    },
+    {
+      "command": "go vet ./...",
+      "result": "PASS",
+      "localLogSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "go test -race ./internal/analyzers/traceimport ./internal/parsers/accesslog ./internal/analyzers/accesslog ./cmd/archscope-app",
+      "result": "PASS",
+      "localLogSHA256": "db91e4b3ad66f148bb2a73213e70f05498ed4c8c8fc6d666be14fbea04853688"
+    },
+    {
+      "command": "npm run test:state",
+      "result": "PASS",
+      "localLogSHA256": "96ab3e7763edc1082d01e3a18afd8649d6c9bcdb89fb7b8a072303fcc49805cb"
+    },
+    {
+      "command": "npm run build",
+      "result": "PASS",
+      "localLogSHA256": "494519c7e260564066d19d1844fa395a094cf8d93b6ff400574881706e16f310"
+    }
+  ],
+  "regressions": {
+    "T-614": [
+      "source removal/replacement/addition",
+      "same-ID content update",
+      "saved custom and empty SLO targets",
+      "rebuild instead of stale violations"
+    ],
+    "T-615": [
+      "contained 100/80/70ms chain -> 100ms observed elapsed and 250ms cumulative work",
+      "sequential/parallel children",
+      "20k depth without recursive traversal",
+      "missing timestamps/clock skew/cycles/duplicate IDs -> null reason",
+      "SLI/incident consumers reject unknown legacy semantics"
+    ],
+    "T-616": [
+      "paired CLIENT/SERVER -> one 80ms call, either-side failure",
+      "single-sided export and incoming SERVER peer",
+      "separate retries and trace identities",
+      "multiple SERVER attempts remain separate",
+      "unrelated child not skipped",
+      "Flow/SLI counter propagation"
+    ],
+    "T-617": [
+      "one unknown + 1000ms -> average/p95 1000ms",
+      "all missing -> null, not zero",
+      "real zero remains measured",
+      "request/error/byte and route/edge counts unchanged",
+      "JSON/IIS optional-duration inputs",
+      "measured-only Flow weighting",
+      "SLI excludes null and SLO explicitly not assessed",
+      "nginx '-' + 1000ms -> 2 requests, 1 unknown, 1000ms average"
+    ],
+    "T-618": [
+      "130 candidates -> 120 retained / 10 omitted, full critical count 1",
+      "1080 candidates -> 1000 retained / 80 omitted",
+      "per-source counts sum to global loss",
+      "full time bounds, omitted critical counts and empty input",
+      "Report Pack JSON/HTML loss disclosure"
+    ]
+  },
+  "browserSmoke": {
+    "result": "PASS",
+    "scope": "isolated Chromium, real IncidentTimelinePage and SloGoldenSignalsPage with synthetic Workspace data",
+    "timeline": "120 / 130 displayed, omitted 10 including critical 1; full warning count 129",
+    "slo": "17 targets without matching evidence explicitly not assessed",
+    "knownConsoleMessages": [
+      "React development notice",
+      "favicon 404"
+    ],
+    "nativeWailsDialogsTested": false
+  },
+  "binaries": [
+    {
+      "platform": "darwin/arm64",
+      "sha256": "732736126345ee08370b937521da6d1f1095427e2a7b3c144aead9f8d3af0b72",
+      "bytes": 25338578,
+      "desktopExecuted": false
+    },
+    {
+      "platform": "windows/386",
+      "sha256": "6c44300bc7301a92b253e9fc3cbba22183fbf340056ce72aa310288d9456c216",
+      "bytes": 26778624,
+      "desktopExecuted": false,
+      "peMachine": "0x14c",
+      "peSubsystem": 2
+    },
+    {
+      "platform": "windows/amd64",
+      "sha256": "1b4883658b8270264d4e2309011492410baf335c5ccd8f4561a28c561bf14590",
+      "bytes": 27809792,
+      "desktopExecuted": false,
+      "peMachine": "0x8664",
+      "peSubsystem": 2
+    }
+  ],
+  "nativeWindowsExecution": false,
+  "nativeWailsWindowExecution": false,
+  "fullHTTPAnalyzerParity": false,
+  "notes": [
+    "No native Windows acceptance or new release is claimed.",
+    "Known Mac linker deployment-target warnings remain; oldest macOS version was not exercised.",
+    "Local logs and binaries stay outside the repository.",
+    "The four existing HTTP Analyzer native/reference tasks remain open."
+  ],
+  "finalGuards": [
+    "legacy path display requires qualified semantics",
+    "nginx dash duration remains an accepted request with unavailable latency"
+  ]
+}

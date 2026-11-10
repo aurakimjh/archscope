@@ -75,3 +75,10 @@ func TestUnknownLatencyKeepsRouteEdgeAndErrorCounters(t *testing.T) {
 		t.Fatal(route)
 	}
 }
+
+func TestDashLatencyStillCountsRequest(t *testing.T) {
+	r := analyzeLatencyLines(t, latencyLine+" -", latencyLine+" 1.000")
+	if r.summary["total_requests"] != 2 || r.summary["response_time_unknown_count"] != 1 || r.summary["avg_response_ms"] != float64(1000) {
+		t.Fatal(r.summary)
+	}
+}
