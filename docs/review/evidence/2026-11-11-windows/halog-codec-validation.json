@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "task": "T-608",
+  "date": "2026-11-11",
+  "platform": "Windows",
+  "artifacts": [
+    {
+      "name": "archscope-engine.exe",
+      "bytes": 17682944,
+      "sha256": "7ced738e9e87c53e57d4a2bf57e96c82dc16106509fd3b679ce51517063329ee"
+    },
+    {
+      "name": "archscope-engine-386.exe",
+      "bytes": 17201152,
+      "sha256": "e3652cfc659167255366401192f34800480d70e8aed6b6f65ac50f7c0270a1d0"
+    },
+    {
+      "name": "archscope-amd64.exe",
+      "bytes": 27987456,
+      "sha256": "2d97ec76f9307db16fc5c992c5179614d65592a6d603573c28a1e26353a73f4e"
+    },
+    {
+      "name": "archscope-386.exe",
+      "bytes": 26947072,
+      "sha256": "671e90bbdc10320664dcda9132d43f6aa08dd321cff2846b222e817e6470d753"
+    }
+  ],
+  "checks": [
+    {
+      "command": "go test ./...",
+      "status": "PASS"
+    },
+    {
+      "command": "go vet ./...",
+      "status": "PASS"
+    },
+    {
+      "command": "GOARCH=386 go test (halog/sessionfile/parser/analyzer)",
+      "status": "PASS"
+    },
+    {
+      "command": "npm run test:state && npm run build",
+      "status": "PASS"
+    },
+    {
+      "command": "Go native codec/parser fuzzing (5s, two workers)",
+      "status": "PASS"
+    },
+    {
+      "status": "PASS",
+      "command": "production Wails GUI amd64/386 build and 15-second startup",
+      "shutdown": "forced after graceful timeout"
+    },
+    {
+      "reason": "CGO_ENABLED=0; no local C compiler",
+      "status": "NOT_RUN",
+      "command": "local go test -race"
+    }
+  ],
+  "unicodeReferenceCheck": {
+    "durationMS": 125,
+    "method": "native COM reopen of Go-generated CP949 metadata and UTF-8 text",
+    "requestText": "request 한글",
+    "status": "PASS",
+    "responseText": "synthetic Korean JSON",
+    "processName": "한글-fixture.exe"
+  },
+  "sourcePublished": false,
+  "limitations": [
+    "Observed V7.6.4.508 format 6/request schema 7 only",
+    "Semantic product export reconstructs retained text; unavailable binary/encoded data is omitted",
+    "Reference metadata follows host ANSI codepage; OLE DATE follows assumed host timezone",
+    "This does not close T-601/T-611/T-613/T-627"
+  ],
+  "referenceStateMatrix": {
+    "status": "PASS",
+    "sha256": "40bb5f2d57829fcd28f42d38624eafe3331246ef1e8968f8a10a782f4161b15c",
+    "isComplete": "stage=4 OR RequestComplete tick nonzero",
+    "rows": 16,
+    "sourceCompletedRows": 675
+  }
+}

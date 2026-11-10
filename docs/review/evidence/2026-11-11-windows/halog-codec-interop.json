@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "task": "T-608",
+  "referenceVersion": "7.6.4.508",
+  "sourceBytes": 35463916,
+  "sourceSHA256": "d2ed106e5bc8bc0f31509e6aad7fe09149b12d4ebd96fc19b3672f7858857bad",
+  "wireByteEquality": true,
+  "sourceUnchanged": true,
+  "referenceReadWrite": "PASS",
+  "checks": {
+    "wireReferenceRows": 675,
+    "sourceProjection": {
+      "responseBodiesCompared": 378,
+      "requestBodiesCompared": 669,
+      "metadata": "PASS",
+      "timing": "PASS",
+      "rows": 675
+    },
+    "synthetic": {
+      "timing": "PASS",
+      "completed": 6,
+      "metadata": "PASS",
+      "processLabels": "PASS",
+      "retainedBodies": "PASS",
+      "rows": 7
+    },
+    "redactedSample": {
+      "timing": "PASS",
+      "completed": 675,
+      "metadata": "PASS",
+      "processLabels": "PASS",
+      "retainedBodies": "PASS",
+      "rows": 675
+    }
+  },
+  "referenceReimport": {
+    "status": "PASS",
+    "fields": "method, URL, status, duration, retained request/response text",
+    "rows": {
+      "redactedSample": 675,
+      "synthetic": 7
+    }
+  },
+  "payloadsPublished": false
+}

@@ -101,11 +101,8 @@ func Sanitize(doc *Document) (redact.Summary, error) {
 }
 func Read(path string) (Document, redact.Summary, error) {
 	if halog.IsPath(path) {
-		fingerprint, err := halog.Probe(path)
-		if err != nil {
-			return Document{}, redact.Summary{}, err
-		}
-		return Document{}, redact.Summary{}, fmt.Errorf("%w (container=%s bytes=%d)", halog.ErrUnverified, fingerprint.Container, fingerprint.Bytes)
+		parsed, err := parser.ParseFile(path, parser.Options{Format: parser.FormatHALOG})
+		return Document{Type: Kind, Version: 1, Scope: "all", Transactions: parsed.Entries}, parsed.Redaction, err
 	}
 	doc := Document{}
 	file, err := os.Open(path)
@@ -195,9 +192,6 @@ func Read(path string) (Document, redact.Summary, error) {
 	return doc, summary, err
 }
 func Encode(doc Document, format string) ([]byte, error) {
-	if format == "halog" || format == "native" {
-		return nil, halog.ErrUnverified
-	}
 	// Copy through JSON: body omission/redaction must never mutate the open session.
 	raw, err := json.Marshal(doc)
 	if err != nil {
@@ -211,6 +205,8 @@ func Encode(doc Document, format string) ([]byte, error) {
 		return nil, err
 	}
 	switch format {
+	case "native", "halog":
+		return halog.EncodeTransactions(doc.Transactions)
 	case "session":
 		return json.MarshalIndent(doc, "", "  ")
 	case "xml_compact":
@@ -284,11 +280,11 @@ func Encode(doc Document, format string) ([]byte, error) {
 	}
 }
 func Write(ctx context.Context, path string, doc Document, format string) error {
-	if format == "halog" || format == "native" || (format != "responses" && halog.IsPath(path)) {
-		return halog.ErrUnverified
-	}
 	if path == "" {
 		return context.Canceled
+	}
+	if (halog.IsPath(path) && format != "halog" && format != "native") || ((format == "halog" || format == "native") && !halog.IsPath(path)) {
+		return fmt.Errorf("HALOG_FORMAT_MISMATCH: .halog requires the native HALOG codec")
 	}
 	if format == "responses" {
 		raw, err := json.Marshal(doc)

@@ -8,6 +8,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Added HTTP Analyzer V7.6.4 native `.halog` import and redacted retained-text
+  export in the desktop, CLI conversion and automation paths, with reference
+  read/write interoperability, explicit provenance and encoding/timezone limits.
 - Added Chrome Performance trace (`.json`/`.json.gz`) and V8 `.cpuprofile`
   analysis with bounded sampled-CPU runs, timing diagnostics, flamegraph
   drilldown, and a dedicated Browser CPU desktop workflow.

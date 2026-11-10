@@ -8,7 +8,7 @@ The previous long-form history was archived to
 
 ## Status Overview
 
-**Overall: 209 of 214 tracked tasks are `DONE` (97.7%).** T-623 Windows live/process/reentry acceptance completed on 2026-11-11. Five tasks remain open: T-601, T-608, T-611, T-613 and T-627. A genuine .halog sample is now available locally; its codec interoperability is still unverified. The Windows Wails v3 replacement for IEInspector HTTP Analyzer V7.6.4 Stand-alone has 4 open work items (T-594 through T-613), including the remaining audit findings. T-603 native Windows acceptance completed on 2026-11-09 with actual request/response bodies and verified policy restoration. The 2026-11-09
+**Overall: 210 of 214 tracked tasks are `DONE` (98.1%).** T-623 Windows live/process/reentry and T-608 native HALOG codec/reference interoperability completed on 2026-11-11. Four tasks remain open: T-601, T-611, T-613 and T-627. The private 675-entry sample round-trips byte-for-byte; decoded fields/bodies and redacted exports are verified against original V7.6.4.508. The Windows Wails v3 replacement for IEInspector HTTP Analyzer V7.6.4 Stand-alone has 3 open work items (T-594 through T-613), including the remaining audit findings. T-603 native Windows acceptance completed on 2026-11-09 with actual request/response bodies and verified policy restoration. The 2026-11-09
 GC/profiler revalidation confirmed five bugs (T-589 through T-593). Their
 current implementation status is recorded in the registry and snapshot below;
 T-557 is now DONE after the user requested its Go/CLI/report projection on 2026-11-10.
@@ -216,9 +216,9 @@ completed the independent Lighthouse file-first engine slice.
 |---|---:|---|
 | `TODO` | 0 | Ready to start; prerequisites are satisfied |
 | `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
-| `REVIEW` | 4 | Review or required remediation is underway; the gate has not passed |
+| `REVIEW` | 3 | Review or required remediation is underway; the gate has not passed |
 | `PENDING` | 1 | Waiting for a prerequisite, external condition, or activation trigger |
-| `DONE` | 209 | Completion criteria and required review gates have passed |
+| `DONE` | 210 | Completion criteria and required review gates have passed |
 
 The normal transition is `TODO → IN_PROGRESS → REVIEW → DONE`. A `PENDING`
 task returns to `TODO` when its dependency or trigger is satisfied. Task status
@@ -405,16 +405,15 @@ and `docs/review/done/2026-11-10_other-features-audit.ko.md`.
 
 Desktop layout: [Korean design](docs/ko/DESKTOP_CONTENT_LAYOUT.md) · [English design](docs/en/DESKTOP_CONTENT_LAYOUT.md).
 Mac implementation and detailed native validation are complete. Remaining work
-includes transparent capture reach, the legacy codec/automation contracts, the
+includes transparent capture reach, the remaining legacy automation contracts, the
 complete Windows menu/OS scaling matrix and full parity.
 
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
 | 1 | T-601 | P1 | `REVIEW` | Windows capture entry points and reach measurement. |
-| 2 | T-608 | P2 | `REVIEW` | Genuine local V7.6.4 sample loads 675 entries in the reference app. Native codec/mapping and both interoperability directions remain unimplemented; private Full XML export has an XML parse error. |
-| 3 | T-627 | P2 | `REVIEW` | Windows production menu locale/navigation and HTTP live checks pass. The complete menu/view/OS DPI matrix remains; audit-app Computer Use access was denied. |
-| 4 | T-611 | P3 | `REVIEW` | Native x86/x64 late-bound COM activation/client and Unicode shortcut checks pass. Vendor dual-IID/typeinfo/events/filter/retention/session-cookie compatibility remains. |
-| 5 | T-613 | P3 | `PENDING` | Overall Windows parity depends on capture, automation, reference and native acceptance gates. |
+| 2 | T-627 | P2 | `REVIEW` | Windows production menu locale/navigation and HTTP live checks pass. The complete menu/view/OS DPI matrix remains; audit-app Computer Use access was denied. |
+| 3 | T-611 | P3 | `REVIEW` | Native x86/x64 late-bound COM activation/client and Unicode shortcut checks pass. Vendor dual-IID/typeinfo/events/filter/retention/session-cookie compatibility remains. |
+| 4 | T-613 | P3 | `PENDING` | Overall Windows parity depends on capture, automation and native acceptance gates. |
 
 ### Native Windows follow-up (2026-11-11)
 
@@ -440,10 +439,13 @@ desktop-only refusal pass. A 120.998s service/proxy soak passed 98 cycles and
 25,480 requests; this is not a multi-hour desktop soak. Local race execution
 remains unavailable without a C toolchain.
 
-The user supplied a real legacy log. Reference version 7.6.4.508 loads 675
-entries, and the metadata-only probe leaves the input unchanged. The private
-Full XML export fails XML parsing, so codec/mapping and both interoperability
-directions remain open under T-608 REVIEW. Raw logs/XML, descriptors and tokens
+The user supplied a real legacy log. T-608 is now DONE: the bounded native
+format-6/schema-7 codec preserves all 675 entries byte-for-byte. Direct reference
+COM comparison verifies decoded fields, timings and retained bodies, and original
+read/write interoperability verifies redacted semantic exports. The malformed
+private Full XML export is not used as an oracle. Encoding, timezone and retained
+text limits are documented in `docs/review/evidence/2026-11-11-windows/HALOG_CODEC.md`.
+Raw logs/XML, descriptors and tokens
 are excluded from Git. T-601 still needs a verified driver plus a peer fixture
 for transparent/service reach; T-611 still needs its remaining vendor contract.
 T-627 retains the full OS DPI/menu matrix: Computer Use returned
@@ -836,7 +838,7 @@ updated for T-603 above. Earlier commands, limits and native screenshots:
 
 ## Current Risk
 
-The 2026-11-10 non-HTTP correctness risks (T-614 through T-618) are closed locally after implementation and regressions. Trace elapsed values explicitly remain observed-chain estimates rather than causal critical-path proof. The four HTTP native/reference acceptance tasks remain open. The older audit/gate statements below retain their historical scope.
+The 2026-11-10 non-HTTP correctness risks (T-614 through T-618) are closed locally after implementation and regressions. Trace elapsed values explicitly remain observed-chain estimates rather than causal critical-path proof. The three HTTP native/reference acceptance tasks T-601/T-611/T-613 remain open after T-608 completion. The older audit/gate statements below retain their historical scope.
 
 The 2026-11-09 audit identified these correctness/diagnostic risks; see the
 Task Registry for closures and remaining work:
@@ -1427,12 +1429,12 @@ deferred until explicitly promoted.
 | T-605 | P2 | DONE | Complete live timing charts and process/session summaries | T-595, T-602 | Added displayed/store-wide/process summary scopes, measured/unknown byte totals, compression pairs, deduplicated TCP/DNS, separate phase perspectives and process-relative bounded waterfall with status-to-grid filtering. Store-wide boundary fixture, counts/timing/PID reuse regressions and frontend state/build pass locally; visible native acceptance remains explicitly unverified. |
 | T-606 | P2 | DONE | Extend Headers, Cookies, Stream and Content viewers | T-598, T-602 | Added ordered cookie attributes with pre-store value masking, sent/received/combined stream, bounded syntax/XML/SOAP and UTF-8 hex views, inert formatting-only HTML, and opt-in bounded re-encoded PNG previews for live/HAR/Builder. Pixel data is explicitly unredacted; originals, SVG and oversized/truncated rasters are not retained. Metadata/event/overflow/compact paths omit previews. Capture/parser/session, safety fixtures and frontend state/build pass; native visual acceptance remains unverified. |
 | T-607 | P2 | DONE | Open, save, clear and export capture sessions from the desktop | Existing baseline | Desktop open/save/export now supports canonical JSON, HAR 1.2, full/compact XML, URL/text/HTML, BIFF8 XLS and response-preview directories; explicit all-store/displayed-row scope, preserved identity/selection, redacted round trips and cancellation pass. XLS independently verified with xlrd including Korean/1000 rows; Windows native dialogs remain T-613 acceptance. |
-| T-608 | P2 | REVIEW | Read and write legacy .halog files | T-607 | A genuine user-provided local sample became available on 2026-11-11. Reference executable 7.6.4.508 loads 675 entries through COM; immutable 35,463,916-byte native input and 98,068,037-byte reference Full XML export were fingerprinted without publishing payloads. Full XML has a parser error at line 16532/column 96 and cannot serve as an unchecked oracle. Existing probe/refusal tests pass. Proprietary decoder/encoder, verified field mapping and both reference interoperability directions remain unimplemented/unverified; sample absence no longer blocks investigation. Evidence: docs/review/evidence/2026-11-11-windows/halog-reference.json. |
+| T-608 | P2 | DONE | Read and write legacy .halog files | T-607 | Completed 2026-11-11: bounded format-6/schema-7 reader/writer; private 675-entry/35,463,916-byte sample re-encodes byte-identically. Original 7.6.4.508 COM validates decoded metadata/timing and 669 request/378 response text bodies. Desktop/CLI/automation apply redaction and export reconstructed retained-text streams. Native reference reopening/re-save/reimport, large chunk boundaries, duplicate headers, Korean text/metadata, redirect, failed/pending requests, malformed input/resource limits, x86/x64 Go/frontend/GUI validation pass. ANSI codepage/host timezone and unavailable binary/encoded content limits are explicit. Evidence: docs/review/evidence/2026-11-11-windows/HALOG_CODEC.md. |
 | T-609 | P2 | DONE | Integrate row hints, status help, stars and comments | T-594, T-607 | Added request-ID hints/status help, explicit evidence links, star/comment columns and starred-only filtering. Live annotations use an atomic bounded sidecar, verified IDs, redacted comments and Clear reset; finalized/native JSON/XML/ArchScope HAR preserve notes, while opened-file edits stay explicit export overrides. ID sorting, service and reopen regressions plus frontend state/build pass; native visual acceptance remains unverified. |
 | T-610 | P2 | DONE | Add the Stand-alone HTTP Request Builder | T-594 | Desktop Request Builder supports fresh requests, selected-row copies and a fixed drag/drop target, editable headers/raw/form/multipart files, explicit send/cancel and separate response inspection. Local raw/form/multipart/redirect/timeout/TLS/gzip fixtures, race detector, browser mouse copy/edit/send/drag with original-row preservation, Go suite/vet/build and frontend state/build pass; native Windows acceptance remains T-613. |
 | T-611 | P3 | REVIEW | Support Stand-alone automation and desktop launch switches | T-596, T-607 | Native Windows x86/x64 late-bound COM activation, property get/put, start/pause/resume/stop, log enumeration/Item, confirmed caller PID and saved session pass; PowerShell harness now explicitly invokes IDispatch property reads and preserves collection objects. Native Unicode/space/quote/empty-argument/cwd .lnk and suspended launch checks pass; authenticated desktop harness passes four automation cases on each architecture. Original dual-IID/typeinfo/events/filter/retention and cross-process session-cookie semantics remain unimplemented; destructive WinINet cache cleanup and vendor binary/client compatibility were not exercised. Evidence: docs/review/evidence/2026-11-11-windows/README.md. |
 | T-612 | P3 | DONE | Restore legacy content inspectors | T-606 | Added bounded inert AMF0/AMF3 and remoting-packet readers, ViewState v1 token trees/text, references/traits/vectors/dictionaries, form/HTML chunk extraction and explicit invalid/limited/unsupported states. Classes/converters/binary objects are never instantiated; MAC/encryption remain unverified, opaque bytes omitted and secret trees/raw ViewState sources masked. Capture/HAR/Builder/portable paths, known-byte fixtures and 15-second fuzz pass; native/reference-EXE visual interoperability remains T-613. |
-| T-613 | P3 | PENDING | Verify complete Stand-alone parity on Windows | T-601, T-602, T-603, T-604, T-605, T-606, T-607, T-608, T-609, T-610, T-611, T-612 | Windows x86/x64 production builds and 15-second startup/control intervals pass after fixing two Wails 3.1.0 x86 startup defects. Four of sixteen parity-contract cases pass per architecture; aggregate verdict remains UNVERIFIED. Native live/process/reentry and finalized Headers pass; 120.998s native-host service/proxy soak passed 98 cycles/25,480 requests with bounded rows/counters/port reuse. Multi-hour desktop soak, full native feature matrix, transparent/service reach, vendor automation and genuine .halog codec round trips remain open. Evidence: docs/review/evidence/2026-11-11-windows/README.md. |
+| T-613 | P3 | PENDING | Verify complete Stand-alone parity on Windows | T-601, T-602, T-603, T-604, T-605, T-606, T-607, T-608, T-609, T-610, T-611, T-612 | Windows x86/x64 production builds and 15-second startup/control intervals pass after fixing two Wails 3.1.0 x86 startup defects. Four of sixteen parity-contract cases pass per architecture; aggregate verdict remains UNVERIFIED. Native live/process/reentry and finalized Headers pass; 120.998s native-host service/proxy soak passed 98 cycles/25,480 requests with bounded rows/counters/port reuse. T-608 native codec round trips are complete. Multi-hour desktop soak, full native feature matrix, transparent/service reach and remaining vendor automation remain open. Evidence: docs/review/evidence/2026-11-11-windows/README.md. |
 | T-589 | P1 | DONE | Restore unified GC uptime/date coordinates and valid throughput/allocation/promotion rate denominators; define observation-window rules, expose unavailable values honestly, and align absolute versus elapsed UI axes. | None; existing GC parser/analyzer and AnalysisResult envelope | Completed 2026-11-09: unified date/uptime parsing, monotonic observed-window accounting, nullable unavailable metrics with reasons, elapsed/absolute axes and EN/KO disclosure. GC parser/analyzer regressions, frontend state suite and production build passed; local source review completed (no independent or desktop E2E claim). |
 | T-590 | P1 | DONE | Preserve internal-frame self samples in the shared Canvas flamegraph so totals, widths, tooltips, and search use the original inclusive weights without double counting. | None; coordinate hidden-weight fixtures with T-591 | Completed 2026-11-09: Canvas derives self weights from inclusive nodes; shared layout/search helpers preserve prefix-stack totals and union recursive matches. Prefix, leaf, recursion, focus/search and synthetic-hidden-weight regressions plus frontend state suite/build passed; local source review completed. |
 | T-591 | P1 | DONE | Apply profiler drilldown filters to canonical evidence before display pruning; conserve/disclose omitted subtree weight while keeping every result stage within node/payload limits. | None; coordinate Canvas accounting with T-590 | Completed 2026-11-09: filters consume canonical Go-only evidence before each bounded display stage; pruning preserves explicit hidden-descendant weight without mutating later filter input. Service tests verify rare=10 at node budgets 1, 3 and 100; profiler budget/accounting tests, app tests, generated Wails bindings and frontend state/build passed; local source review completed. |

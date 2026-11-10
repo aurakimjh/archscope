@@ -1,12 +1,11 @@
-// Package halog collects bounded format evidence without inventing a proprietary
-// codec. Container identification never establishes IEInspector compatibility.
+// Package halog reads and writes the observed HTTP Analyzer V7 native format.
+// The separate fingerprint probe never establishes compatibility by itself.
 package halog
 
 import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -15,8 +14,6 @@ import (
 )
 
 const MaxBytes = int64(256 << 20)
-
-var ErrUnverified = errors.New("HALOG_FORMAT_UNVERIFIED: genuine V7.6.4 read/write compatibility is not established; use .httpsession or HAR")
 
 type Fingerprint struct {
 	SchemaVersion int    `json:"schemaVersion"`

@@ -94,7 +94,21 @@ func BuildLive(entries []models.CaptureTransaction, sourceFile, dialect string, 
 }
 
 func BuildParsed(parsed parser.ParseResult, sourceFile string, opts Options) models.AnalysisResult {
+	if parsed.Format == parser.FormatHALOG {
+		return buildParsed(parsed, sourceFile, opts, nativeProvenance(len(parsed.Entries)))
+	}
 	return buildParsed(parsed, sourceFile, opts, harProvenance(len(parsed.Entries)))
+}
+
+func nativeProvenance(entries int) captureProvenance {
+	p := harProvenance(entries)
+	p.CaptureMode = "halog_import"
+	p.Product = "HTTP Analyzer native import"
+	p.ModeCounts = map[string]int{"halog_import": entries}
+	p.AggregateID = "offline-halog"
+	p.EmptyMessage = "Native log contains no transactions"
+	p.TruncatedCode = "HALOG_DETAILS_TRUNCATED"
+	return p
 }
 
 func buildParsed(parsed parser.ParseResult, sourceFile string, opts Options, provenance captureProvenance) models.AnalysisResult {
@@ -246,7 +260,7 @@ func buildParsed(parsed parser.ParseResult, sourceFile string, opts Options, pro
 		result.AddFinding("warning", "HTTP_CAPTURE_ERRORS", "HTTP capture contains failed responses", map[string]any{"error_transactions": errorCount})
 	}
 	if timingInconsistent > 0 {
-		result.AddFinding("warning", "CAPTURE_TIMING_INCONSISTENT", "Known HAR timing phases exceed transaction total", map[string]any{"transactions": timingInconsistent, "epsilon_ms": 1})
+		result.AddFinding("warning", "CAPTURE_TIMING_INCONSISTENT", "Known imported timing phases exceed transaction total", map[string]any{"transactions": timingInconsistent, "epsilon_ms": 1})
 	}
 	if truncatedBodies > 0 {
 		result.AddFinding("info", "CAPTURE_TRUNCATED_BODIES", "One or more body previews were truncated", map[string]any{"transactions": truncatedBodies})

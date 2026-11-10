@@ -5,9 +5,36 @@ import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/certstore"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/sessionfile"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
+	"os"
 	"path/filepath"
 	"testing"
 )
+
+func TestNativeCaptureOpenExportReferenceFixture(t *testing.T) {
+	root := t.TempDir()
+	data, err := os.ReadFile("../../internal/capture/halog/testdata/reference-v764.halog")
+	if err != nil {
+		t.Fatal(err)
+	}
+	source := filepath.Join(root, "reference.halog")
+	if err = os.WriteFile(source, data, 0600); err != nil {
+		t.Fatal(err)
+	}
+	service := newCaptureServiceForPlatform(root, certstore.New(memoryTrustBackend{}, nil), "windows")
+	opened, err := service.OpenCaptureFile(source)
+	if err != nil || opened.Result.Summary["total_transactions"] != 1 {
+		t.Fatal("native desktop open failed", err)
+	}
+	destination := filepath.Join(root, "export.halog")
+	count, err := service.ExportCaptureFile(CaptureExportRequest{Source: CaptureFileSource{Path: source}, Destination: destination, Scope: "all", Format: "native"})
+	if err != nil || count != 1 {
+		t.Fatal("native desktop export failed", err)
+	}
+	loaded, _, err := sessionfile.Read(destination)
+	if err != nil || len(loaded.Transactions) != 1 || loaded.Transactions[0].Request.BodyPreview != "request 한글" || loaded.Transactions[0].TotalMS != 125 {
+		t.Fatal("native desktop reopen failed", err)
+	}
+}
 
 func TestCaptureFileFilteredOrderReopenAndCancel(t *testing.T) {
 	root := t.TempDir()

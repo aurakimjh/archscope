@@ -607,6 +607,7 @@ export function nextSelection(
 // A process instance is stable across PID reuse. HAR origins are explicit
 // pseudo-processes so imported evidence never implies observed OS attribution.
 export function httpProcessKey(row: HttpCaptureTransactionRow): string {
+  if (row.process && row.process.pid === 0 && row.process.attribution === "foreign_tool") return "foreign-process:" + row.process.name;
   return row.process
     ? JSON.stringify([row.process.pid, row.process.start_time])
     : "origin:" + row.host;

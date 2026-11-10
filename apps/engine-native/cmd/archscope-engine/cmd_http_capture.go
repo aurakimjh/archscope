@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -8,6 +9,7 @@ import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/httpcapture"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/acceptance"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/halog"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/sessionfile"
 )
 
 func init() {
@@ -16,7 +18,7 @@ func init() {
 	var topN, transactionRows, maxEntries, maxStringBytes, maxBodyBytes, maxDepth, maxFields, maxDecompressionRatio int
 	var maxBytes int64
 	var customRedactionPatterns []string
-	analyze := &cobra.Command{Use: "analyze", Short: "Import and analyze a redacted HAR file.", RunE: func(cmd *cobra.Command, args []string) error {
+	analyze := &cobra.Command{Use: "analyze", Short: "Import and analyze a redacted HAR or native HALOG file.", RunE: func(cmd *cobra.Command, args []string) error {
 		if in == "" {
 			return fmt.Errorf("--in is required")
 		}
@@ -33,7 +35,7 @@ func init() {
 		return writeJSONResult(result, out)
 	}}
 	analyze.Flags().StringVar(&in, "in", "", "path to HAR file (required)")
-	analyze.Flags().StringVar(&format, "format", "auto", "input format: auto, har")
+	analyze.Flags().StringVar(&format, "format", "auto", "input format: auto, har, halog")
 	analyze.Flags().IntVar(&topN, "top-n", 0, "maximum rows per aggregate table (endpoints, hosts, slowest, errors)")
 	analyze.Flags().IntVar(&transactionRows, "transaction-rows", 0, "maximum rows in the full transaction list (0 = 20000)")
 	analyze.Flags().IntVar(&maxEntries, "max-entries", 0, "maximum HAR entries to import (0 = 100000)")
@@ -83,6 +85,20 @@ func init() {
 	probe.Flags().StringVar(&nativePath, "in", "", "legacy file path")
 	probe.Flags().StringVar(&xmlPath, "reference-xml", "", "optional full XML saved from the same reference capture")
 	probe.Flags().StringVar(&probeOut, "out", "-", "metadata-only evidence destination")
-	group.AddCommand(analyze, evidence, probe)
+	var convertIn, convertOut, convertFormat string
+	convert := &cobra.Command{Use: "convert", Short: "Convert redacted HTTP sessions, HAR or native HALOG.", RunE: func(cmd *cobra.Command, args []string) error {
+		if convertIn == "" || convertOut == "" {
+			return fmt.Errorf("--in and --out are required")
+		}
+		doc, _, err := sessionfile.Read(convertIn)
+		if err != nil {
+			return err
+		}
+		return sessionfile.Write(context.Background(), convertOut, doc, convertFormat)
+	}}
+	convert.Flags().StringVar(&convertIn, "in", "", "source session, HAR or native HALOG")
+	convert.Flags().StringVar(&convertOut, "out", "", "destination path")
+	convert.Flags().StringVar(&convertFormat, "format", "session", "session, har, native, xml, text or other supported export format")
+	group.AddCommand(analyze, evidence, probe, convert)
 	rootCmd.AddCommand(group)
 }

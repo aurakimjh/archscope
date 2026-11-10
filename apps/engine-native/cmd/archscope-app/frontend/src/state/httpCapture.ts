@@ -90,11 +90,12 @@ export function extractCaptureMeta(result: Result): HttpCaptureMeta | null {
  * prose is now selected from the provenance instead of assumed, and an
  * observation point the renderer does not recognize claims neither origin.
  */
-export type CaptureProvenanceToken = "live_proxy" | "har_import" | "unknown";
+export type CaptureProvenanceToken = "live_proxy" | "har_import" | "halog_import" | "unknown";
 
 export function resolveCaptureProvenance(
   meta: HttpCaptureMeta | null,
 ): CaptureProvenanceToken {
+  if (meta?.capture_mode === "halog_import" && meta.observation_point === "foreign_tool") return "halog_import";
   switch (String(meta?.observation_point ?? "").trim()) {
     case "proxy":
       return "live_proxy";
@@ -141,6 +142,7 @@ export type CaptureModeToken =
   | "proxy_passthrough"
   | "proxy_not_captured"
   | "har_import"
+  | "halog_import"
   | "mixed"
   | "unknown";
 
@@ -150,6 +152,7 @@ const CAPTURE_MODE_TOKENS = new Set<CaptureModeToken>([
   "proxy_passthrough",
   "proxy_not_captured",
   "har_import",
+  "halog_import",
   "mixed",
 ]);
 
@@ -240,6 +243,7 @@ export function selectCaptureCoverageDistribution(
 export const CAPTURE_PROVENANCE_HINT_KEYS: Record<CaptureProvenanceToken, MessageKey> = {
   live_proxy: "httpCaptureFidelityHintLive",
   har_import: "httpCaptureFidelityHintHar",
+  halog_import: "httpCaptureFidelityHintHalog",
   unknown: "httpCaptureFidelityHintUnknown",
 };
 
@@ -262,6 +266,7 @@ export const CAPTURE_MODE_LABEL_KEYS: Record<CaptureModeToken, MessageKey> = {
   proxy_passthrough: "httpCaptureModeValueProxyPassthrough",
   proxy_not_captured: "httpCaptureModeValueProxyNotCaptured",
   har_import: "httpCaptureModeValueHarImport",
+  halog_import: "httpCaptureModeValueHalogImport",
   mixed: "httpCaptureModeValueMixed",
   unknown: "httpCaptureModeValueUnknown",
 };
@@ -679,8 +684,8 @@ export function buildProcessTree(
         id: `proc-${processKey}`,
         kind: "process",
         label: process ? process.name || "(process)" : host,
-        sublabel: process ? `pid ${process.pid}` : "origin · pseudo-process",
-        pseudo: !process,
+        sublabel: process && process.pid !== 0 ? `pid ${process.pid}` : "origin · pseudo-process",
+        pseudo: !process || process.pid === 0,
         attribution: process?.attribution || "har_origin",
       });
       rootIndex.set(processKey, root);

@@ -22,10 +22,14 @@ func TestLaunchOptionsRejectAmbiguityAndFakeNative(t *testing.T) {
 	if err != nil || legacy.Format != "xml" || legacy.Duration.Minutes() != 2 {
 		t.Fatalf("%+v %v", legacy, err)
 	}
-	for _, args := range [][]string{{"--capture", "/fNATIVE"}, {"--capture", "--pid", "-1"}, {"--capture", "--process", exe, "--pid", "1"}, {"--capture", "--duration", "-1s"}, {"--capture", "--destination", filepath.Join(root, "fake.halog"), "--duration", "2s"}, {"--capture", "--destination", filepath.Join(root, "none.har")}, {"--open", exe, "--capture"}, {"--capture", "--pid", "1", "--pid", "1"}} {
+	for _, args := range [][]string{{"--capture", "--pid", "-1"}, {"--capture", "--process", exe, "--pid", "1"}, {"--capture", "--duration", "-1s"}, {"--capture", "--destination", filepath.Join(root, "fake.halog"), "--duration", "2s"}, {"--capture", "--destination", filepath.Join(root, "none.har")}, {"--open", exe, "--capture"}, {"--capture", "--pid", "1", "--pid", "1"}} {
 		if _, err := ParseOptions(args); err == nil {
 			t.Fatalf("accepted %v", args)
 		}
+	}
+	native, err := ParseOptions([]string{"--capture", "/fNATIVE"})
+	if err != nil || native.Format != "native" {
+		t.Fatal("native launch rejected", err)
 	}
 }
 func TestAuthenticatedControlReplayAndOriginRejection(t *testing.T) {

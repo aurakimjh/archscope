@@ -1,6 +1,6 @@
 # Native Windows follow-up — 2026-11-11
 
-T-623 is complete. T-601, T-608, T-611, T-613 and T-627 retain the specific
+T-623 and T-608 are complete. T-601, T-611, T-613 and T-627 retain the specific
 conditions below. This is native local evidence, not complete Stand-alone parity.
 
 ## Changes and reproducible checks
@@ -95,10 +95,10 @@ The native input's hash stayed unchanged after loading/probing. A Full XML expor
 was also saved privately. It fails XML parsing at line 16532, column 96; it is
 not a validated field-mapping oracle. Only hashes, sizes, parser location and
 entry count are archived in [halog-reference.json](halog-reference.json).
-The generic probe still correctly returns UNVERIFIED; writer/version evidence
-is supplied separately here. T-608 moves from PENDING to REVIEW because sample
-absence is resolved. A native codec, field comparison and ArchScope-generated
-file reopening in the reference tool remain unimplemented/unverified.
+The generic fingerprint probe still correctly returns UNVERIFIED by itself.
+The later [native codec evidence](HALOG_CODEC.md) supersedes the initial codec
+investigation: T-608 is DONE, with source/decoded-field comparisons and original
+reader/writer interoperability. Raw inputs remain private.
 
 T-601 still needs verified WinDivert binaries/privilege plus a peer IPv4 port-80
 fixture to prove proxy-ignoring/service reach. This host reported the transparent

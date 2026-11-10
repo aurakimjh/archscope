@@ -23,12 +23,12 @@ type Options struct {
 
 const Usage = `ArchScope desktop
   --capture [--process ABS_EXE_OR_LNK | --pid PID ... | --scope all_sessions|current_session]
-  [--duration 30s] [--destination ABS_PATH --format session|har|xml|xml_compact|urls|text|html|xls|responses]
+  [--duration 30s] [--destination ABS_PATH --format session|har|native|xml|xml_compact|urls|text|html|xls|responses]
   --open ABS_SESSION
   --com-server                     Enable same-user Windows COM activation
   --automation-descriptor ABS_PATH   Enable authenticated loopback automation
 Legacy /p, /d, /t(minutes), /f are parsed. Windows .lnk executable targets are supported.
-/f NATIVE (.halog), advertised/elevated shell activation remain unavailable.
+/f NATIVE writes a redacted semantic V7 .halog; advertised/elevated shell activation remains unavailable.
 `
 
 func ParseOptions(args []string) (Options, error) {
@@ -133,8 +133,8 @@ func ParseOptions(args []string) (Options, error) {
 			if mapped := aliases[format]; mapped != "" {
 				format = mapped
 			}
-			if format == "native" {
-				return out, fmt.Errorf("legacy NATIVE .halog format is unverified; choose --format session or HAR")
+			if format == "halog" {
+				format = "native"
 			}
 			out.Format = format
 		case "--open":
@@ -180,12 +180,15 @@ func ParseOptions(args []string) (Options, error) {
 		return out, fmt.Errorf("capture options require --capture")
 	}
 	switch out.Format {
-	case "session", "har", "xml", "xml_compact", "urls", "text", "html", "xls", "responses":
+	case "session", "har", "native", "xml", "xml_compact", "urls", "text", "html", "xls", "responses":
 	default:
 		return out, fmt.Errorf("unsupported export format")
 	}
-	if strings.EqualFold(filepath.Ext(out.Destination), ".halog") {
-		return out, fmt.Errorf(".halog is reserved for verified legacy files; choose another extension")
+	if strings.EqualFold(filepath.Ext(out.Destination), ".halog") && out.Format != "native" {
+		return out, fmt.Errorf(".halog requires --format native")
+	}
+	if out.Format == "native" && out.Destination != "" && !strings.EqualFold(filepath.Ext(out.Destination), ".halog") {
+		return out, fmt.Errorf("--format native requires a .halog destination")
 	}
 	if legacy && out.Capture && out.Duration == 0 {
 		out.Duration = 30 * time.Minute

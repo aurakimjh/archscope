@@ -713,6 +713,12 @@ assert(liveTree[0]?.pseudo === false, "OS process attribution should not be mark
 assert(liveTree[0]?.label === "chrome.exe", "process node should be labeled by process name");
 assert(liveTree[0]?.attribution === "etw_pid", "process attribution should carry through");
 
+const nativeTree = buildProcessTree([
+  harTx({ id: "native-1", process: { pid: 0, start_time: "", name: "fixture.exe", attribution: "foreign_tool" } }),
+  harTx({ id: "native-2", process: { pid: 0, start_time: "", name: "other.exe", attribution: "foreign_tool" } }),
+]);
+assert(nativeTree.length === 2 && nativeTree.every((node) => node.pseudo), "native serialized process labels must stay separate without claiming OS attribution");
+
 // Status classification + error predicate.
 assert(statusClassOf(200) === "2xx" && statusClassOf(404) === "4xx" && statusClassOf(503) === "5xx", "status classes should bucket by hundreds");
 assert(isErrorTransaction(harTransactions[1]!) === true, "failed state should be an error transaction");
@@ -759,6 +765,9 @@ assert(redaction?.applied === true, "redaction applied flag should surface");
 assert(redaction?.total === 4, "redaction total should sum per-rule counts");
 assert(redaction?.rules.includes("query_value"), "redaction rule list should surface");
 const captureMeta = extractCaptureMeta(redacted);
+const nativeMeta = extractCaptureMeta(httpResult({ metadata: { http_capture: { capture_mode: "halog_import", observation_point: "foreign_tool", fidelity: "semantic" } } }));
+assert(resolveCaptureProvenance(nativeMeta) === "halog_import", "native import must identify its actual source");
+assert(captureFidelityHintKey(nativeMeta) === "httpCaptureFidelityHintHalog", "native import must disclose reconstructed evidence");
 assert(captureMeta?.fidelity === "semantic", "capture fidelity should surface for the honesty banner");
 assert(captureMeta?.observation_point === "foreign_tool", "observation point should surface");
 assert(extractRedaction(httpResult({ metadata: {} })) === null, "missing capture metadata yields null redaction");

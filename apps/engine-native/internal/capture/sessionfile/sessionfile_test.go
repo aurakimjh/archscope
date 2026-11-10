@@ -3,7 +3,6 @@ package sessionfile
 import (
 	"bytes"
 	"context"
-	"errors"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/halog"
 	"os"
 	"os/exec"
@@ -158,7 +157,7 @@ func TestLegacyTreeRoundTripAndCompactOmission(t *testing.T) {
 func TestLegacyExtensionCannotMasqueradeAsNativeJSON(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "keep.halog")
 	os.WriteFile(path, []byte("original"), 0600)
-	if err := Write(context.Background(), path, fixture(), "session"); !errors.Is(err, halog.ErrUnverified) {
+	if err := Write(context.Background(), path, fixture(), "session"); err == nil {
 		t.Fatal(err)
 	}
 	data, _ := os.ReadFile(path)
@@ -166,10 +165,22 @@ func TestLegacyExtensionCannotMasqueradeAsNativeJSON(t *testing.T) {
 		t.Fatal("legacy output overwritten")
 	}
 	os.WriteFile(path, []byte(`{"type":"archscope-http-session","schemaVersion":1,"transactions":[]}`), 0600)
-	if _, _, err := Read(path); !errors.Is(err, halog.ErrUnverified) {
+	if _, _, err := Read(path); err == nil {
 		t.Fatal("JSON disguised as .halog accepted")
 	}
-	if _, err := Encode(fixture(), "native"); !errors.Is(err, halog.ErrUnverified) {
+	data, err := Encode(fixture(), "native")
+	if err != nil {
 		t.Fatal(err)
+	}
+	file, err := halog.Decode(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rows, err := file.Transactions()
+	if err != nil || len(rows) != 1 {
+		t.Fatal(err)
+	}
+	if bytes.Contains(data, []byte("private")) {
+		t.Fatal("native export leaked a secret")
 	}
 }

@@ -173,7 +173,7 @@ function HttpCaptureWorkspace(): React.JSX.Element {
         Title: t("httpFilesOpen"),
         Filters: [
           {
-            DisplayName: "HTTP session / HAR / XML",
+            DisplayName: "HTTP session / HAR / HALOG / XML",
             Pattern: "*.httpsession;*.har;*.json;*.xml;*.halog",
           },
         ],
@@ -345,7 +345,7 @@ function HttpCaptureWorkspace(): React.JSX.Element {
           <WailsFileDock
             label={t("httpCaptureLabel")}
             description={t("httpCaptureDescription")}
-            accept=".har,.json"
+            accept=".har,.json,.halog"
             selected={file}
             onSelect={onSelectFile}
             onClear={onClearFile}
@@ -355,7 +355,7 @@ function HttpCaptureWorkspace(): React.JSX.Element {
             fileFilters={[
               {
                 displayName: t("httpCaptureFilterHar"),
-                pattern: "*.har;*.json",
+                pattern: "*.har;*.json;*.halog",
               },
               { displayName: "All files", pattern: "*.*" },
             ]}

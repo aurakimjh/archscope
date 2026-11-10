@@ -269,5 +269,6 @@ denied access to the separate audit application, so no new Windows result-area
 ratio, exact CSS viewport or alternate OS-scale verdict is claimed. Production
 menu locale and Analyze/Capture routing were observed. T-601 transparent/service
 reach, the remaining vendor automation contract and full parity remain open.
-A genuine `.halog` sample is now available locally, but codec interoperability
-is still unverified. See the [Windows evidence](../review/evidence/2026-11-11-windows/README.md).
+T-608 native `.halog` codec/reference interoperability is complete for the
+observed V7.6.4 format. See the [codec evidence](../review/evidence/2026-11-11-windows/HALOG_CODEC.md)
+for retained-text, encoding and timezone limits.

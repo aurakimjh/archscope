@@ -32,6 +32,10 @@ type CaptureOpenResult struct {
 }
 
 func (s *CaptureService) OpenCaptureFile(path string) (CaptureOpenResult, error) {
+	if halog.IsPath(path) {
+		result, err := httpanalyzer.Analyze(path, httpanalyzer.Options{TransactionRows: 100000})
+		return CaptureOpenResult{Result: result}, err
+	}
 	doc, summary, err := sessionfile.Read(path)
 	if err != nil {
 		return CaptureOpenResult{}, err
@@ -40,9 +44,6 @@ func (s *CaptureService) OpenCaptureFile(path string) (CaptureOpenResult, error)
 	return CaptureOpenResult{Result: result, SelectedID: doc.SelectedID}, nil
 }
 func (s *CaptureService) ExportCaptureFile(request CaptureExportRequest) (int, error) {
-	if request.Format == "halog" || request.Format == "native" || (request.Format != "responses" && halog.IsPath(request.Destination)) {
-		return 0, halog.ErrUnverified
-	}
 	if request.Destination == "" {
 		return 0, context.Canceled
 	}

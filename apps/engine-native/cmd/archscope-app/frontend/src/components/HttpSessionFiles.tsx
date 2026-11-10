@@ -7,6 +7,7 @@ export type HttpFileSource = { sessionId?: string; path?: string };
 const formats = {
   session: ["ArchScope session", "httpsession"],
   har: ["HAR 1.2", "har"],
+  native: ["HTTP Analyzer native (retained text)", "halog"],
   xml: ["Full XML", "xml"],
   xml_compact: ["Compact XML", "xml"],
   urls: ["URL list", "txt"],

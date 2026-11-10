@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/content"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/halog"
 	"io"
 	"net/url"
 	"sort"
@@ -173,6 +174,13 @@ type harArchScope struct {
 
 func ParseFile(path string, opts Options) (result ParseResult, err error) {
 	effective := normalizeOptions(opts)
+	if effective.Format == FormatHALOG || (effective.Format == FormatAuto && halog.IsPath(path)) {
+		payload, info, err := readBoundedInput(path, effective)
+		if err != nil {
+			return ParseResult{}, err
+		}
+		return parseNative(payload, path, effective, info)
+	}
 	diags := diagnostics.New(FormatHAR)
 	diags.SetSourceFile(path)
 	defer recoverParsePanic(&result, &err, diags)

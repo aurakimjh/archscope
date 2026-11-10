@@ -1302,6 +1302,9 @@ backend and native reach evidence.
 
 ### Legacy .halog evidence preparation (T-608)
 
+Historical preparation notes below are superseded by the completed native codec
+follow-up at the end of this document (2026-11-11).
+
 No genuine sanitized V7.6.4 `.halog` sample is currently available. The official
 Stand-alone ZIP was downloaded and fingerprinted; its outer archive contains an
 installer and password notice. The installer was not executed and its nested
@@ -1576,3 +1579,36 @@ cannot capture loopback, record that limitation and use a controlled peer fixtur
 Review/sanitize both private files before sharing. The collector is prepared, not
 executed here. No proprietary codec or original read/write round trip is claimed;
 T-608 remains PENDING until genuine files and reference execution are available.
+
+### Native HALOG codec completed (T-608, 2026-11-11)
+
+T-608 is DONE for the observed V7.6.4.508 format 6/request schema 7. A bounded
+data-only Go reader/writer handles the private 675-entry sample; low-level
+decode/re-encode is byte-identical. Direct reference COM comparison verifies
+methods, URLs, statuses, process labels, timings and available UTF-8 bodies.
+Both interoperability directions include reference native re-save and ArchScope
+reimport. Synthetic cases cover ordered duplicate headers, Korean text/metadata,
+stream-length boundaries, redirects, failure and incomplete responses.
+
+Desktop open/analyze/export, `http-capture analyze --format auto|halog`,
+`http-capture convert --in INPUT --out OUTPUT.halog --format native`, and
+`/f NATIVE` use the codec. Product imports and exports apply existing redaction.
+Exports reconstruct HTTP/1.x framing and retain text previews. Binary/non-retained
+data, interim responses, cache paths, original handles and verified OS identity
+are not represented; comments/provenance disclose that semantic export contract.
+Pending responses retain their available status/body without becoming complete.
+Full session/HAR files preserve richer canonical metadata.
+
+Native ANSI metadata defaults to the host Windows codepage; CP949, CP1252 and
+UTF-8 are supported. The advisory `ArchScopeCodePage` attribute preserves decoding
+on ArchScope reimport; original V7 uses its host ANSI codepage. Unrepresentable
+metadata fails explicitly. OLE DATE has no timezone, so the current host timezone
+is assumed and disclosed. Process path/PID suffixes become unverified basename
+labels with no PID/start-time attribution.
+
+The checked-in fixture contains only synthetic data saved by the original tool.
+The private source, raw round trips and reference exports stay outside Git.
+`scripts/verify-halog-codec.ps1` reproduces original reader/writer checks without
+capturing network traffic and preserves/restores a stopped reference log.
+See [codec evidence](../review/evidence/2026-11-11-windows/HALOG_CODEC.md).
+T-601/T-611/T-613 and T-627 retain their separate remaining conditions.
