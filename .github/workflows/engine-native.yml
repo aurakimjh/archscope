@@ -5,6 +5,7 @@ on:
     paths:
       - "apps/engine-native/**"
       - "examples/**"
+      - "scripts/verify-desktop-only.mjs"
       - ".github/workflows/engine-native.yml"
   push:
     branches:
@@ -12,6 +13,7 @@ on:
     paths:
       - "apps/engine-native/**"
       - "examples/**"
+      - "scripts/verify-desktop-only.mjs"
       - ".github/workflows/engine-native.yml"
 
 defaults:
@@ -62,6 +64,11 @@ jobs:
           cache: true
           cache-dependency-path: apps/engine-native/go.sum
 
+      - name: Set up Node for desktop policy checks
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+
       - name: Linux WebKitGTK headers
         if: runner.os == 'Linux'
         run: |
@@ -70,6 +77,9 @@ jobs:
 
       - name: go vet
         run: go vet ./...
+
+      - name: Enforce desktop-only product targets
+        run: node ../../scripts/verify-desktop-only.mjs --check-server-build
 
       - name: go build
         run: go build ./cmd/archscope-engine ./cmd/archscope-app

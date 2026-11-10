@@ -7,6 +7,23 @@ The native app now lives inside the unified Go engine module:
 The former native POC module has been folded into
 `apps/engine-native/internal/profiler` and the Wails app command tree.
 
+ArchScope ships as a **Wails 3.1.0 native desktop application** on macOS,
+Windows and Linux. Start development from the repository root with
+`scripts/dev-desktop.sh` (macOS/Linux) or `scripts/dev-desktop.ps1` (Windows).
+These launch the native Wails window; Vite only supplies development assets.
+Opening the frontend URL in a browser does not initialize the product UI.
+
+Server/Docker hosting, browser preview, Electron shells and mobile targets are
+unsupported. The server/mobile build tags fail compilation. Cross-compilation
+Docker tooling remains a build tool for native desktop artifacts. WebKit,
+WebView2 and WebKitGTK are required native rendering components.
+
+Run `node scripts/verify-desktop-only.mjs --check-server-build` from the root
+before packaging. SDK build-asset updates must be reviewed in a temporary
+project and ported into the desktop platform files; do not regenerate all
+templates over this customized project. Retired Python/browser sources under
+`archive/` remain reference-only and are not packaged.
+
 ## Build
 
 ```bash
@@ -21,8 +38,7 @@ npm run build
 Package the desktop app:
 
 ```bash
-git clone --depth 1 --branch v3.0.0-alpha.87 https://github.com/wailsapp/wails.git /tmp/wails
-(cd /tmp/wails/v3 && go install ./cmd/wails3)
+go install github.com/wailsapp/wails/v3/cmd/wails3@v3.1.0
 cd apps/engine-native/cmd/archscope-app
 task package
 ```

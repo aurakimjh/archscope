@@ -88,7 +88,7 @@ wails3 dev
 
 # .app bundle (mac) at bin/archscope.app.
 # Codex/sandboxed runs should set GOCACHE to a writable path.
-GOCACHE=/tmp/aiservice-go-cache task package
+GOCACHE=/tmp/archscope-go-cache task package
 ```
 
 ## Binary size (darwin/arm64, alpha2.117)
@@ -100,11 +100,6 @@ GOCACHE=/tmp/aiservice-go-cache task package
 | Vite startup shell JS | 211.3 KB raw / 66.1 KB gzipped |
 | Lazy shared ECharts runtime | 698.8 KB raw / 235.6 KB gzipped |
 | npm audit | 0 vulnerabilities |
-
-Comparison (single distributable):
-
-- Electron desktop shell (retired): ~120 MB
-- Wails v3 alpha2.117 current app: **13.2 MiB raw / 15.0 MiB `.app`**
 
 The Wails frontend now uses route-level lazy loading. The startup shell stays
 small, and the chart runtime is loaded only when a chart-backed analyzer page is

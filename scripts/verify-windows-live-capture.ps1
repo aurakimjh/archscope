@@ -28,6 +28,9 @@ param(
 
     [string]$ArchScopeExe = "",
 
+    # External traffic generator only; never an ArchScope UI/runtime.
+    [switch]$IncludeElectronClient,
+
     [string]$ElectronCommand = "electron.cmd",
 
     [int]$LongSessionRequests = 5000,
@@ -363,51 +366,35 @@ public class ArchScopeT581Client {
         Add-Result -Client "jvm" -Transport "https" -Marker "jvm-https" -Available $false -Succeeded $false -ExitCode -1 -Detail "JavaTrustStore is required for JVM HTTPS acceptance"
     }
 
-    $electronSource = Join-Path $tempRoot "t581-electron.cjs"
-    @"
-const { app, session } = require("electron");
-app.setPath("userData", process.env.ARCHSCOPE_T581_USER_DATA);
-app.commandLine.appendSwitch("disable-background-networking");
-app.commandLine.appendSwitch("disable-component-update");
-app.commandLine.appendSwitch("disable-sync");
-app.disableHardwareAcceleration();
-app.whenReady().then(async () => {
-  const clientSession = session.fromPartition("t581-acceptance", { cache: false });
-  await clientSession.setProxy({
-    mode: "fixed_servers",
-    proxyRules: process.env.ARCHSCOPE_T581_PROXY,
-    proxyBypassRules: "<-loopback>"
-  });
-  const response = await clientSession.fetch(process.env.ARCHSCOPE_T581_URL);
-  if (!response.ok) throw new Error("HTTP " + response.status);
-  const body = await response.text();
-  console.log(response.status + " " + body.length);
-  app.quit();
-}).catch((error) => {
-  console.error(error);
-  app.exit(1);
-});
-"@ | Set-Content -Path $electronSource -Encoding ASCII
-    foreach ($transport in @("http", "https")) {
-        $urls = if ($transport -eq "http") { $httpUrls } else { $httpsUrls }
-        $savedElectronUrl = $env:ARCHSCOPE_T581_URL
-        $savedElectronProxy = $env:ARCHSCOPE_T581_PROXY
-        $savedElectronUserData = $env:ARCHSCOPE_T581_USER_DATA
-        try {
-            # Electron treats additional URL-shaped command-line arguments as
-            # launch targets on Windows. Pass probe data through the child
-            # environment so the application script always remains the sole
-            # positional launch target.
-            $env:ARCHSCOPE_T581_URL = $urls["electron"]
-            $env:ARCHSCOPE_T581_PROXY = $ProxyAddress
-            $env:ARCHSCOPE_T581_USER_DATA = Join-Path $tempRoot "electron-$transport"
-            Invoke-Client -Client "electron" -Transport $transport -Marker "electron-$transport" -Command $ElectronCommand -Arguments @(
-                $electronSource
-            )
-        } finally {
-            $env:ARCHSCOPE_T581_URL = $savedElectronUrl
-            $env:ARCHSCOPE_T581_PROXY = $savedElectronProxy
-            $env:ARCHSCOPE_T581_USER_DATA = $savedElectronUserData
+    # This optional external client is isolated from product startup/builds.
+    # Skipping it must still fail the full four-client acceptance contract.
+    if ($IncludeElectronClient) {
+        $electronSource = Join-Path $PSScriptRoot "acceptance/clients/electron-http-probe.cjs"
+        foreach ($transport in @("http", "https")) {
+            $urls = if ($transport -eq "http") { $httpUrls } else { $httpsUrls }
+            $savedElectronUrl = $env:ARCHSCOPE_T581_URL
+            $savedElectronProxy = $env:ARCHSCOPE_T581_PROXY
+            $savedElectronUserData = $env:ARCHSCOPE_T581_USER_DATA
+            try {
+                # Electron treats additional URL-shaped command-line arguments as
+                # launch targets on Windows. Pass probe data through the child
+                # environment so the application script always remains the sole
+                # positional launch target.
+                $env:ARCHSCOPE_T581_URL = $urls["electron"]
+                $env:ARCHSCOPE_T581_PROXY = $ProxyAddress
+                $env:ARCHSCOPE_T581_USER_DATA = Join-Path $tempRoot "electron-$transport"
+                Invoke-Client -Client "electron" -Transport $transport -Marker "electron-$transport" -Command $ElectronCommand -Arguments @(
+                    $electronSource
+                )
+            } finally {
+                $env:ARCHSCOPE_T581_URL = $savedElectronUrl
+                $env:ARCHSCOPE_T581_PROXY = $savedElectronProxy
+                $env:ARCHSCOPE_T581_USER_DATA = $savedElectronUserData
+            }
+        }
+    } else {
+        foreach ($transport in @("http", "https")) {
+            Add-Result -Client "electron" -Transport $transport -Marker "electron-$transport" -Available $false -Succeeded $false -ExitCode -1 -Detail "Optional external client skipped; use -IncludeElectronClient for full acceptance"
         }
     }
 

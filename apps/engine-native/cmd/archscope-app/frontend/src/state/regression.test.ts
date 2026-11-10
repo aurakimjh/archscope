@@ -1,4 +1,5 @@
 import { buildReportPackPayload, buildReportPackHTML } from "./reportPack.js";
+import { hasNativeDesktopBridge } from "./desktopRuntime.js";
 import { buildIncidentTimelineAnalysisResult } from "./incidentTimeline.js";
 import { buildSloAnalysisResultFromEntries, DEFAULT_SLO_TARGETS } from "./sloGoldenSignals.js";
 import { isCurrentJenniferProjection, readJenniferDrilldown } from "./jenniferDrilldown.js";
@@ -129,6 +130,16 @@ import {
   buildGoldenSignalInventory,
   buildSliMetricModel,
 } from "./sloGoldenSignals.js";
+
+// 일반 브라우저/런타임 모방 객체/Electron은 제품 UI를 기동하지 않는다.
+for (const host of [{}, { chrome: {} }, { webkit: { messageHandlers: { external: { postMessage: "stub" } } } },
+  { navigator: { userAgent: "Electron/40.0" }, chrome: { webview: { postMessage() {} } } }]) {
+  if (hasNativeDesktopBridge(host)) throw new Error("Non-native host accepted");
+}
+for (const host of [{ chrome: { webview: { postMessage() {} } } },
+  { webkit: { messageHandlers: { external: { postMessage() {} } } } }]) {
+  if (!hasNativeDesktopBridge(host)) throw new Error("Native Wails transport rejected");
+}
 
 function assert(condition: unknown, message: string): void {
   if (!condition) throw new Error(message);

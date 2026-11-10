@@ -19,8 +19,7 @@ npm run build
 For desktop packaging:
 
 ```bash
-git clone --depth 1 --branch v3.0.0-alpha.87 https://github.com/wailsapp/wails.git /tmp/wails
-(cd /tmp/wails/v3 && go install ./cmd/wails3)
+go install github.com/wailsapp/wails/v3/cmd/wails3@v3.1.0
 cd apps/engine-native/cmd/archscope-app
 task package
 ```
@@ -201,9 +200,17 @@ powershell -ExecutionPolicy Bypass -File scripts/verify-windows-live-capture.ps1
   -RecoverySessionPath "$env:LOCALAPPDATA\ArchScope\captures\cap-recovered-..." `
   -ArchScopeEngineExe .\bin\archscope-engine.exe `
   -WebViewDebugPort 9223 `
+  -IncludeElectronClient `
   -JavaTrustStore .\tmp\archscope-t581.jks `
   -ArchScopeExe .\bin\archscope.exe
 ```
+
+`-IncludeElectronClient` explicitly enables the isolated external traffic probe
+in `scripts/acceptance/clients/electron-http-probe.cjs`. It creates no product
+window and is never installed or bundled with ArchScope. Browser probes likewise
+generate fixture traffic only; UI checks target the native Wails window. Omitting
+the switch records the client as unavailable and cannot pass the unchanged full
+four-client acceptance matrix. No Electron dependency is installed automatically.
 
 Build the acceptance app with the `t581e2e` tag and launch it with
 `ARCHSCOPE_E2E_CDP_PORT=9223`; production builds do not expose this debugging

@@ -7,6 +7,22 @@
 기존 네이티브 POC 모듈은 `apps/engine-native/internal/profiler`와 Wails 앱
 command tree로 통합되었습니다.
 
+ArchScope는 macOS, Windows, Linux에서 실행하는 **Wails 3.1.0 네이티브
+데스크톱 앱**입니다. 저장소 루트에서 macOS/Linux는 `scripts/dev-desktop.sh`,
+Windows는 `scripts/dev-desktop.ps1`로 개발을 시작합니다. 이 명령은 Wails
+네이티브 창을 열며 Vite는 개발용 자산만 제공합니다. 프런트엔드 URL을
+브라우저에서 열어도 제품 UI는 초기화되지 않습니다.
+
+서버/Docker 호스팅, 브라우저 미리보기, Electron 셸, 모바일 빌드는 지원하지
+않습니다. 서버/모바일 빌드 태그는 컴파일 단계에서 차단합니다. Docker 교차
+컴파일 도구는 네이티브 데스크톱 산출물을 만드는 용도로 유지합니다.
+WebKit, WebView2, WebKitGTK는 네이티브 렌더링에 필요한 구성 요소입니다.
+
+패키징 전에 루트에서 `node scripts/verify-desktop-only.mjs --check-server-build`를
+실행하세요. SDK 빌드 자산 갱신은 임시 프로젝트에서 검토한 뒤 데스크톱 플랫폼
+파일에 반영합니다. 기존 프로젝트에 전체 템플릿을 다시 생성하지 마세요.
+`archive/`의 과거 Python/브라우저 소스는 참고용이며 제품에 포함하지 않습니다.
+
 ## 빌드
 
 ```bash
@@ -21,8 +37,7 @@ npm run build
 데스크톱 패키징:
 
 ```bash
-git clone --depth 1 --branch v3.0.0-alpha.87 https://github.com/wailsapp/wails.git /tmp/wails
-(cd /tmp/wails/v3 && go install ./cmd/wails3)
+go install github.com/wailsapp/wails/v3/cmd/wails3@v3.1.0
 cd apps/engine-native/cmd/archscope-app
 task package
 ```

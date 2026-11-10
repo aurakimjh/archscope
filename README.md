@@ -8,7 +8,7 @@ broker logs, platform/cloud evidence, metrics snapshots, traces, runtime
 profiles, JFR recordings, GC logs, exception stacks, and thread dumps across
 Java, Go, Python, Node.js, and .NET.
 
-The active product line is now **Go + Wails** under
+The active product line is a **Go + Wails 3.1.0 native desktop application** under
 `apps/engine-native/`. The former Python/FastAPI/web implementation is
 preserved under `archive/` for reference and migration audits only.
 
@@ -27,8 +27,7 @@ npm run build
 Desktop packaging:
 
 ```bash
-git clone --depth 1 --branch v3.0.0-alpha.87 https://github.com/wailsapp/wails.git /tmp/wails
-(cd /tmp/wails/v3 && go install ./cmd/wails3)
+go install github.com/wailsapp/wails/v3/cmd/wails3@v3.1.0
 cd apps/engine-native/cmd/archscope-app
 task package
 ```

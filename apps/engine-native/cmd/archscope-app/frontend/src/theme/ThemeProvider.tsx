@@ -8,13 +8,8 @@
 //   - resolved 변경 시 documentElement 에 .dark 클래스와 data-theme
 //     속성을 토글 → Tailwind dark variant 와 CSS variable 토큰 분기.
 //
-// 의존성 주의: localStorage 키는 'archscope.profiler.theme' 로
-// 네임스페이스되어 web 셸과 충돌하지 않습니다 (두 앱이 같은 머신에서
-// 실행되어도 독립 설정 유지).
+// 설정은 네이티브 앱 전용 localStorage 키에 보존한다.
 // ─────────────────────────────────────────────────────────────────────
-// Theme provider mirrored from apps/frontend/src/components/theme-provider.tsx.
-// Storage key is namespaced to the native app so toggling here does not
-// stomp the web app's preference if both run on the same machine.
 
 import {
   createContext,

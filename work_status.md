@@ -8,7 +8,7 @@ The previous long-form history was archived to
 
 ## Status Overview
 
-**Overall: 201 of 205 tracked tasks are `DONE` (98.0%).** The Windows Wails v3 replacement for IEInspector HTTP Analyzer V7.6.4 Stand-alone has 4 open work items (T-594 through T-613), including the remaining audit findings. T-603 native Windows acceptance completed on 2026-11-09 with actual request/response bodies and verified policy restoration. The 2026-11-09
+**Overall: 202 of 206 tracked tasks are `DONE` (98.1%).** The Windows Wails v3 replacement for IEInspector HTTP Analyzer V7.6.4 Stand-alone has 4 open work items (T-594 through T-613), including the remaining audit findings. T-603 native Windows acceptance completed on 2026-11-09 with actual request/response bodies and verified policy restoration. The 2026-11-09
 GC/profiler revalidation confirmed five bugs (T-589 through T-593). Their
 current implementation status is recorded in the registry and snapshot below;
 T-557 is now DONE after the user requested its Go/CLI/report projection on 2026-11-10.
@@ -217,14 +217,43 @@ completed the independent Lighthouse file-first engine slice.
 | `TODO` | 0 | Ready to start; prerequisites are satisfied |
 | `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
 | `REVIEW` | 2 | Review or required remediation is underway; the gate has not passed |
-| `PENDING` | 3 | Waiting for a prerequisite, external condition, or activation trigger |
-| `DONE` | 195 | Completion criteria and required review gates have passed |
+| `PENDING` | 2 | Waiting for a prerequisite, external condition, or activation trigger |
+| `DONE` | 202 | Completion criteria and required review gates have passed |
 
 The normal transition is `TODO → IN_PROGRESS → REVIEW → DONE`. A `PENDING`
 task returns to `TODO` when its dependency or trigger is satisfied. Task status
 is separate from review-group verdicts (`PASS`, `CONDITIONAL`, or `FAIL`). When
 a Task Registry status changes, update the counts and Open Work Snapshot in the
 same change so this overview remains the status source of truth.
+
+### Desktop-only cleanup (2026-11-10)
+
+T-619 is DONE. The product remains Wails 3.1.0 on macOS, Windows and Linux.
+Removed server/Docker-hosting tasks and Dockerfile, unused Android/iOS templates,
+mobile CSS fetch and bulk template-regeneration tasks, standalone npm preview,
+and unused starter images. Server/mobile build tags now fail compilation;
+the frontend imports and mounts App only after detecting the native desktop
+transport. CI checks the target/dependency policy and actual server build refusal.
+Vite and native WebKit/WebView2/WebKitGTK remain required desktop tooling.
+
+Electron HTTP traffic generation is isolated in an acceptance-only fixture and
+requires `-IncludeElectronClient`. Omitting it remains a failure of the full
+four-client acceptance contract. Historical evidence and archived source remain
+reference-only. Updated paired native/user guides and stale install commands.
+
+Validation: lockfile-based npm install (zero audit vulnerabilities), frontend
+state regressions/build, full Go tests/vet, actual macOS `task package` and strict
+codesign verification, Windows x86/x64 GUI cross-builds, and server compilation
+rejection passed. Native Wails transport cases and browser/Electron rejection
+are covered by state regressions. No browser product preview was launched.
+This is build/local contract evidence; native GUI interaction and the changed
+PowerShell acceptance flow were not re-run on Windows. T-601/T-608/T-611/T-613
+retain their existing acceptance requirements.
+
+Local-only cleanup stopped and removed the owned `/private/tmp/ArchScope-UI-Audit.app`
+and removed approximately 1.1 GiB of unused Playwright browser/media downloads.
+Shared cache metadata and user browsers were retained. Existing unrelated local
+HTTP notes and the native verifier were preserved outside this commit.
 
 ### macOS UI preflight (2026-11-10)
 
@@ -1290,6 +1319,7 @@ deferred until explicitly promoted.
 | T-616 | P1 | DONE | Avoid double-counting one RPC's CLIENT and SERVER spans | Existing Trace Import dependency and Service Flow/SLI contracts | Completed 2026-11-10: one-to-one explicit CLIENT/SERVER pairs use one logical call, client elapsed time and either-side error; single-sided exports, cross-trace identities, separate retry pairs and multiple server attempts remain distinct. SERVER remote peers use incoming direction. Go/CLI tests and frontend Flow/SLI counter regressions pass. |
 | T-617 | P1 | DONE | Preserve missing access-log response time as unavailable rather than zero | Access-log parser/analyzer and SLI/SLO contracts | Completed 2026-11-10: all supported parsers preserve response-time availability, including true zero; unknown samples are excluded from total/static/API/URL/minute/route/edge latency while full request/error/byte counts remain. Null empty stats, measured/unknown counts, warning finding, sample coverage UI and measured-only Flow weighting propagate to SLI/SLO; targets without evidence are explicitly not assessed. Parser/analyzer/CLI and frontend state/build regressions pass. |
 | T-618 | P2 | DONE | Disclose Incident Timeline truncation and qualify severity/time summaries | Existing Incident Timeline/Report Pack contracts | Completed 2026-11-10: 120/source and 1000/session row caps remain, with deterministic documented selection, total/emitted/omitted and per-source/severity loss counts. Severity/time/ranged/correlation summaries use all candidates; groups/narrative explicitly remain retained-only. Page/JSON/Report Pack HTML disclose partial output and omitted critical events. Both-cap, late-critical, empty-input and export regressions plus frontend state/build pass. |
+| T-619 | P1 | DONE | Enforce the Wails 3.1.0 desktop-only product and remove unused launch templates | Existing native desktop packaging | Completed 2026-11-10: removed server hosting/mobile/preview paths, added compiler and frontend native-transport guards with CI enforcement, isolated opt-in external Electron HTTP probe without weakening full acceptance, and refreshed paired guides. Full Go/vet and frontend state/build, native macOS package/signature, Windows x86/x64 GUI builds and expected server build refusal pass; Windows runtime acceptance remains separate. |
 | T-599 | P1 | DONE | Establish the V7.6.4 Stand-alone visual and command reference | Existing baseline | Completed 2026-11-09. Official screen, V7 additions, complete manual field inventory, state behavior, shortcuts and edition exceptions recorded in paired SYSTEM_HTTP_CAPTURE references. The tour image is explicitly V4; native Windows acceptance remains T-603. |
 | T-594 | P1 | DONE | Keep capture controls, live grid and selected detail in one window | Existing baseline | Completed 2026-11-09. Live rows use the shared grid and inspector, one-ID redacted store fetch stays available during recording, and async detail ignores obsolete selections. Real local proxy/service regression and frontend build passed; browser renderer at 1280x800 showed selected headers/body while active. Native Windows integration remains T-603. |
 | T-595 | P1 | DONE | Make process grouping the default in the request grid | Existing baseline | Completed 2026-11-09. Shared virtual grid defaults to expandable process groups with request/byte totals; live process selector scopes incoming rows by PID plus start time and clears obsolete detail. Same-name PID reuse and collapse regressions, frontend state suite and production build passed. Native integration remains T-603. |

@@ -19,8 +19,7 @@ npm run build
 데스크톱 패키징:
 
 ```bash
-git clone --depth 1 --branch v3.0.0-alpha.87 https://github.com/wailsapp/wails.git /tmp/wails
-(cd /tmp/wails/v3 && go install ./cmd/wails3)
+go install github.com/wailsapp/wails/v3/cmd/wails3@v3.1.0
 cd apps/engine-native/cmd/archscope-app
 task package
 ```
@@ -198,9 +197,17 @@ powershell -ExecutionPolicy Bypass -File scripts/verify-windows-live-capture.ps1
   -RecoverySessionPath "$env:LOCALAPPDATA\ArchScope\captures\cap-recovered-..." `
   -ArchScopeEngineExe .\bin\archscope-engine.exe `
   -WebViewDebugPort 9223 `
+  -IncludeElectronClient `
   -JavaTrustStore .\tmp\archscope-t581.jks `
   -ArchScopeExe .\bin\archscope.exe
 ```
+
+`-IncludeElectronClient`는 `scripts/acceptance/clients/electron-http-probe.cjs`의
+격리된 외부 트래픽 검증 클라이언트를 명시적으로 실행합니다. 제품 창을 만들지
+않으며 ArchScope와 함께 설치·패키징하지 않습니다. 브라우저 검증 클라이언트도
+fixture 트래픽만 생성합니다. 제품 UI 점검은 Wails 네이티브 창에서 수행합니다.
+옵션을 생략하면 해당 클라이언트를 사용 불가로 기록하고 기존 4종 클라이언트
+전체 수용 기준을 통과할 수 없습니다. Electron을 자동 설치하지 않습니다.
 
 Acceptance 앱은 `t581e2e` tag로 빌드하고
 `ARCHSCOPE_E2E_CDP_PORT=9223`으로 실행합니다. Production build는 이 debugging

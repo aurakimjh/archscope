@@ -20,17 +20,27 @@
 // ─────────────────────────────────────────────────────────────────────
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App";
+import { hasNativeDesktopBridge } from "./state/desktopRuntime";
 import { I18nProvider } from "./i18n/I18nProvider";
 import { ThemeProvider } from "./theme/ThemeProvider";
 import "./styles/tailwind.css";
 
-ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <React.StrictMode>
-    <ThemeProvider>
-      <I18nProvider>
-        <App />
-      </I18nProvider>
-    </ThemeProvider>
-  </React.StrictMode>,
-);
+const root = document.getElementById("root") as HTMLElement;
+if (!hasNativeDesktopBridge(window)) {
+  root.textContent = navigator.language.startsWith("ko")
+    ? "ArchScope 데스크톱 앱을 실행하세요. 브라우저 미리보기는 지원하지 않습니다."
+    : "Open the ArchScope desktop app. Browser preview is not supported.";
+} else {
+  // 브리지 확인 전에 App을 import하면 Wails 호출과 페이지 초기화가 먼저 실행된다.
+  void import("./App").then(({ default: App }) => {
+    ReactDOM.createRoot(root).render(
+      <React.StrictMode>
+        <ThemeProvider>
+          <I18nProvider>
+            <App />
+          </I18nProvider>
+        </ThemeProvider>
+      </React.StrictMode>,
+    );
+  });
+}
