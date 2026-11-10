@@ -1,3 +1,6 @@
+import { buildReportPackPayload } from "./reportPack.js";
+import { buildIncidentTimelineAnalysisResult } from "./incidentTimeline.js";
+import { buildSloAnalysisResultFromEntries, DEFAULT_SLO_TARGETS } from "./sloGoldenSignals.js";
 import { isCurrentJenniferProjection, readJenniferDrilldown } from "./jenniferDrilldown.js";
 import { HttpCommandRouter, httpCommandForKey, isHttpCommand } from "./httpCommands.js";
 import { formatProfileSeconds, profileWeightUnit } from "./profileDuration.js";
@@ -3173,3 +3176,21 @@ assert(adaptedJennifer[0].selectedTxid==='b' && adaptedJennifer[0].networkTimeBy
 let rejectedJennifer = false;
 try { readJenniferDrilldown({...jenniferProjection,metadata:{drilldown:{version:'2.0.0'}}}); } catch { rejectedJennifer=true; }
 assert(rejectedJennifer,"Unknown Jennifer contract fails visibly");
+
+// T-614: derived measurements must follow current sources, while saved SLO
+// targets remain report policy. ID equality alone is not freshness.
+const oldPackSource = entry("old-source", "access_log", {summary:{avg_response_ms:2000,p95_response_ms:2000,total_requests:1}});
+const oldTimeline = entry("old-timeline", "incident_timeline", buildIncidentTimelineAnalysisResult([oldPackSource]));
+const customPackTarget = {...DEFAULT_SLO_TARGETS[0],threshold:123,id:"custom-pack-target"};
+const oldPackSlo = entry("old-slo", "slo_golden_signals", buildSloAnalysisResultFromEntries([oldPackSource],[customPackTarget]));
+const replacementPackSource = entry("replacement", "access_log", {summary:{avg_response_ms:20,p95_response_ms:20,total_requests:1}});
+for (const sources of [[replacementPackSource],[{...oldPackSource,result:{...oldPackSource.result,summary:{p95_response_ms:20}}}],[replacementPackSource,oldPackSource]]) {
+  const pack = buildReportPackPayload([], [...sources,oldTimeline,oldPackSlo]);
+  const ids = (pack.artifacts.incident_timeline.metadata.source_results as Array<{id:string}>).map(row=>row.id).sort();
+  assert(JSON.stringify(ids)===JSON.stringify(sources.map(source=>source.id).sort()),"Report Pack rebuilds timeline from exactly current sources");
+  assert(pack.artifacts.slo_analysis.targets[0].threshold===123,"Report Pack preserves customized SLO thresholds");
+  if (sources.length===1) assert(pack.artifacts.slo_analysis.violations.length===0,"Report Pack cannot reuse stale violations");
+}
+const emptyPolicy = entry("empty-slo", "slo_golden_signals", buildSloAnalysisResultFromEntries([oldPackSource],[]));
+assert(buildReportPackPayload([],[replacementPackSource,emptyPolicy]).artifacts.slo_analysis.targets.length===0,"Explicit empty SLO policy is preserved");
+assert(buildReportPackPayload([],[oldTimeline]).artifacts.incident_timeline.summary.source_result_count===0,"Removed sources do not survive in an empty current pack");

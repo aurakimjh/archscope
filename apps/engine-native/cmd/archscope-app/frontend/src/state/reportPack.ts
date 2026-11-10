@@ -4,18 +4,19 @@ import {
   extractAiInterpretation,
   type AiEvaluationGate,
   type AiFinding,
-} from "@/state/aiInterpretation";
+} from "./aiInterpretation.js";
 import type { EvidenceCard } from "@/state/evidenceBoard";
-import { buildIncidentTimelineAnalysisResult } from "@/state/incidentTimeline";
+import { buildIncidentTimelineAnalysisResult } from "./incidentTimeline.js";
 import {
   buildServiceFlowAnalysis,
   buildServiceFlowExportPayload,
   type ServiceFlowExportPayload,
-} from "@/state/serviceFlow";
+} from "./serviceFlow.js";
 import {
   buildSloAnalysisResultFromEntries,
   type SloAnalysisExportResult,
-} from "@/state/sloGoldenSignals";
+  type SloTarget,
+} from "./sloGoldenSignals.js";
 
 export type ReportPackPayload = {
   type: "archscope_report_pack";
@@ -179,25 +180,34 @@ function resolveReportPackArtifacts(
   entries: AnalysisWorkspaceEntry[],
   sourceEntries: AnalysisWorkspaceEntry[],
 ): Omit<ReportPackPayload["artifacts"], "evidence_cards"> {
-  const existingTimeline = latestDerivedResult<ReturnType<typeof buildIncidentTimelineAnalysisResult>>(
-    entries,
-    "incident_timeline",
-  );
-  const existingSlo = latestDerivedResult<SloAnalysisExportResult>(entries, "slo_golden_signals");
-  const existingServiceFlow = latestDerivedResult<ServiceFlowExportPayload>(entries, "service_flow");
-  const serviceFlowAnalysis = existingServiceFlow ? null : buildServiceFlowAnalysis(sourceEntries);
+  // [한글] 파생 수치는 캐시로 재사용하지 않는다. 같은 ID의 원본 내용이나
+  // 분석 옵션까지 바뀔 수 있으므로 현재 원본에서 다시 계산한다. 사용자
+  // SLO 목표만 정책으로 보존하고 위반 수/측정값은 새 입력으로 평가한다.
+  const savedSlo = [...entries]
+    .filter((entry) => (entry.result.type || entry.result_type) === "slo_golden_signals")
+    .sort((a, b) => timestampValue(b.recorded_at) - timestampValue(a.recorded_at))[0];
+  const targets = savedSloTargets(savedSlo);
   return {
-    incident_timeline: existingTimeline ?? buildIncidentTimelineAnalysisResult(sourceEntries),
-    slo_analysis: existingSlo ?? buildSloAnalysisResultFromEntries(sourceEntries),
-    service_flow: existingServiceFlow ?? buildServiceFlowExportPayload(serviceFlowAnalysis ?? buildServiceFlowAnalysis(sourceEntries)),
+    incident_timeline: buildIncidentTimelineAnalysisResult(sourceEntries),
+    slo_analysis: buildSloAnalysisResultFromEntries(sourceEntries, targets),
+    service_flow: buildServiceFlowExportPayload(buildServiceFlowAnalysis(sourceEntries)),
   };
 }
 
-function latestDerivedResult<T>(entries: AnalysisWorkspaceEntry[], type: string): T | null {
-  const entry = [...entries]
-    .filter((candidate) => (candidate.result.type || candidate.result_type) === type)
-    .sort((left, right) => timestampValue(right.recorded_at) - timestampValue(left.recorded_at))[0];
-  return entry ? (entry.result as T) : null;
+function savedSloTargets(entry: AnalysisWorkspaceEntry | undefined): SloTarget[] | undefined {
+  const targets = entry?.result.tables?.targets ?? (entry?.result as SloAnalysisExportResult | undefined)?.targets;
+  if (!Array.isArray(targets)) return undefined;
+  // Empty targets intentionally means no SLO policy. Malformed imported policy
+  // falls back to defaults; it must not crash report generation.
+  const arrays = ["units", "aggregations", "scopeTypes", "sourceAnalyzers", "nameIncludes", "evidenceIncludes"];
+  if (!targets.every((target) => target && typeof target === "object" &&
+      typeof target.id === "string" && typeof target.name === "string" &&
+      ["critical", "warning", "info"].includes(target.severity) &&
+      ["lte", "gte"].includes(target.comparator) && Number.isFinite(target.threshold) &&
+      typeof target.unit === "string" && typeof target.window_label === "string" &&
+      target.match && typeof target.match === "object" &&
+      arrays.every((key) => target.match[key] === undefined || (Array.isArray(target.match[key]) && target.match[key].every((v: unknown) => typeof v === "string"))))) return undefined;
+  return targets as SloTarget[];
 }
 
 function reportPackSourceEntries(entries: AnalysisWorkspaceEntry[]): AnalysisWorkspaceEntry[] {

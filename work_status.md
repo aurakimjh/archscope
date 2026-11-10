@@ -8,11 +8,11 @@ The previous long-form history was archived to
 
 ## Status Overview
 
-**Overall: 196 of 205 tracked tasks are `DONE` (95.6%).** The Windows Wails v3 replacement for IEInspector HTTP Analyzer V7.6.4 Stand-alone has 4 open work items (T-594 through T-613), including the remaining audit findings. T-603 native Windows acceptance completed on 2026-11-09 with actual request/response bodies and verified policy restoration. The 2026-11-09
+**Overall: 197 of 205 tracked tasks are `DONE` (96.1%).** The Windows Wails v3 replacement for IEInspector HTTP Analyzer V7.6.4 Stand-alone has 4 open work items (T-594 through T-613), including the remaining audit findings. T-603 native Windows acceptance completed on 2026-11-09 with actual request/response bodies and verified policy restoration. The 2026-11-09
 GC/profiler revalidation confirmed five bugs (T-589 through T-593). Their
 current implementation status is recorded in the registry and snapshot below;
 T-557 is now DONE after the user requested its Go/CLI/report projection on 2026-11-10.
-The 2026-11-10 other-feature audit added five reproduced correctness bugs (T-614 through T-618); they are PENDING, with no implementation fixes applied.
+The 2026-11-10 other-feature audit added five reproduced correctness bugs (T-614 through T-618); current implementation/verification status is recorded in the registry below.
 The earlier release acceptance below describes its recorded product baseline
 and does not certify these newly identified cases or future remediation.
 **T-587 and T-588
@@ -298,6 +298,10 @@ are not native Wails dialog/GUI or Windows execution evidence. Known macOS linke
 deployment-target warnings remain. Evidence:
 `docs/review/evidence/2026-11-10-t557/local-validation.json`.
 
+### Other-feature fix completion (2026-11-10)
+
+- T-614 DONE: rebuild current-source derived measurements and preserve validated saved SLO policies; frontend state regressions and production build pass.
+
 ### Other-feature correctness audit (2026-11-10)
 
 Focused review outside HTTP Analyzer/T-557 reproduced five bugs at `406038d`:
@@ -329,7 +333,6 @@ and `docs/review/done/2026-11-10_other-features-audit.ko.md`.
 
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
-| 1 | T-614 | P1 | `PENDING` | Validate derived-artifact freshness/provenance before Report Pack reuse |
 | 2 | T-615 | P1 | `PENDING` | Correct elapsed critical-path semantics without summing inclusive durations |
 | 3 | T-616 | P1 | `PENDING` | Count paired CLIENT/SERVER spans once per logical dependency call |
 | 4 | T-617 | P1 | `PENDING` | Preserve measured versus unknown access-log latency through statistics and SLI/SLO |
@@ -1284,7 +1287,7 @@ deferred until explicitly promoted.
 
 | ID | Priority | Status | Task | Depends on | Output |
 |---|---|---|---|---|---|
-| T-614 | P1 | PENDING | Prevent stale derived artifacts from silently entering a current Report Pack | Existing Report Pack/timeline/SLO/service-flow contracts | Reproduced 2026-11-10: replacing a timeline source leaves removed-source events in a pack whose source inventory names only the replacement. Validate source identity/content/options or explicitly retain a historical snapshot with complete provenance; test removal/replacement/addition and valid custom SLO targets. |
+| T-614 | P1 | DONE | Prevent stale derived artifacts from silently entering a current Report Pack | Existing Report Pack/timeline/SLO/service-flow contracts | Completed 2026-11-10: Report Pack rebuilds timeline, SLO metrics and service flow from current source results on every generation. Only validated saved SLO target settings are retained, including an intentional empty policy. Source replacement/removal/addition, same-ID content changes and customized threshold regressions plus frontend state/build pass. |
 | T-615 | P1 | PENDING | Correct Trace Import elapsed critical-path calculation | Existing Trace Import and downstream latency contracts | Reproduced 2026-11-10 via Zipkin parsing: contained root/client/server 100/80/70 ms yields critical_path_ms=250 for a 100 ms trace. Define interval/self-time semantics and separate cumulative work; cover nested/sequential/parallel children, missing times, clock skew/malformed graphs and SLO/timeline/report propagation. |
 | T-616 | P1 | PENDING | Avoid double-counting one RPC's CLIENT and SERVER spans | Existing Trace Import dependency and Service Flow/SLI contracts | Reproduced 2026-11-10: one paired frontend-to-backend RPC yields call_count=2 and total_duration_ms=150 (80+70), with mixed-perspective average 75 ms. Deduplicate by span relationships with explicit timing/error authority; preserve single-sided exports and distinct retries and verify downstream rates. |
 | T-617 | P1 | PENDING | Preserve missing access-log response time as unavailable rather than zero | Access-log parser/analyzer and SLI/SLO contracts | Reproduced 2026-11-10: one missing duration plus one 1000 ms sample yields average 500 and p95 950 ms, no warning. Carry availability/measured/unknown counts; exclude missing values from all latency reservoirs but preserve request/error/byte counts. Test true zero, all missing, mixed formats and SLI/SLO unavailable handling. |

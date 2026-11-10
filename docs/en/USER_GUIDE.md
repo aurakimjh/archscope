@@ -288,3 +288,5 @@ archscope-engine jennifer-profile analyze --in profiles.txt --signature HASH --a
 Obtain GUIDs/signature hashes from an unscoped analysis. Omit `--txid` or
 `--application` to select the whole GUID/signature. Scope metadata stays in the
 saved result; HTML does not reread the original profile files.
+
+Report Pack regenerates derived measurements from the current Workspace sources. A saved SLO result supplies validated target settings only; its old measurements and violations are not reused. An intentionally empty target list remains empty.
