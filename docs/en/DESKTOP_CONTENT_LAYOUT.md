@@ -247,3 +247,27 @@ strict signature checks, desktop-only/server-build refusal and Windows x86/x64
 GUI cross-builds pass. Cross-builds do not prove Windows runtime behavior.
 Windows capture reach/automation/parity and genuine legacy `.halog` reference
 compatibility remain external gates in work_status.md.
+
+### Windows runtime follow-up (2026-11-11)
+
+T-623 is now DONE. The production Wails/WebView2 application showed two real
+PID/start-time groups and ten persisted synthetic exchanges. Process filtering,
+Headers/Body tab and request selection during arrivals, disabled follow, native
+Analyze/Capture menu navigation, same-session reentry, F2 stop and finalized
+Headers inspection passed. Page-local selection/filter/follow reset on remount;
+the running session and its rows restore. Bodies were not retained in this run.
+
+Both x86/x64 builds now survive native startup and pass authenticated automation.
+Native x86 execution found a POINT callback ABI error and Win32 Ptr API imports
+in Wails 3.1.0; the Windows build wrapper applies source-hash/version-guarded
+fixes in a temporary SDK copy. The COM smoke uses explicit late-bound property
+reads because PowerShell cannot infer properties without ITypeInfo. Unicode
+shortcut execution and both architecture COM clients pass.
+
+T-627 still requires the complete Windows view/menu/OS DPI matrix. Computer Use
+denied access to the separate audit application, so no new Windows result-area
+ratio, exact CSS viewport or alternate OS-scale verdict is claimed. Production
+menu locale and Analyze/Capture routing were observed. T-601 transparent/service
+reach, the remaining vendor automation contract and full parity remain open.
+A genuine `.halog` sample is now available locally, but codec interoperability
+is still unverified. See the [Windows evidence](../review/evidence/2026-11-11-windows/README.md).

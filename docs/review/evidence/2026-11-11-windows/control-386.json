@@ -1,0 +1,57 @@
+{
+  "sessionId": "cap-20261110T154204.512522300Z-f22f1f80c64cde8b",
+  "transactions": [
+    {
+      "id": "live-dmrn8qh47kwg-2",
+      "state": "complete",
+      "statusCode": 302,
+      "sequence": 1,
+      "process": {
+        "key": {
+          "pid": 2244,
+          "startTime": "2026-11-10T15:41:48.5441683Z"
+        },
+        "attribution": "confirmed"
+      },
+      "informational": [
+        103
+      ]
+    },
+    {
+      "id": "live-dmrn8qh8ui08-4",
+      "state": "complete",
+      "statusCode": 201,
+      "sequence": 2,
+      "process": {
+        "key": {
+          "pid": 2244,
+          "startTime": "2026-11-10T15:41:48.5441683Z"
+        },
+        "attribution": "confirmed"
+      },
+      "informational": []
+    }
+  ],
+  "events": [
+    {
+      "kind": "started",
+      "sequence": 1,
+      "sessionId": "cap-20261110T154204.512522300Z-f22f1f80c64cde8b"
+    },
+    {
+      "kind": "new",
+      "sequence": 2,
+      "sessionId": "cap-20261110T154204.512522300Z-f22f1f80c64cde8b"
+    },
+    {
+      "kind": "updated",
+      "sequence": 3,
+      "sessionId": "cap-20261110T154204.512522300Z-f22f1f80c64cde8b"
+    },
+    {
+      "kind": "stopped",
+      "sequence": 4,
+      "sessionId": "cap-20261110T154204.512522300Z-f22f1f80c64cde8b"
+    }
+  ]
+}

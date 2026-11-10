@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "scope": "ArchScope late-bound COM contract; not vendor binary compatibility or full native UI parity",
+  "platform": "win32",
+  "backend": "explicit_proxy",
+  "nativeWindowVerified": false,
+  "referenceInterop": false,
+  "result": "PASS",
+  "buildCommit": "7f698067afa899d2a95b5d6b79a0da2fd30e15c5",
+  "sessionId": "cap-20261110T154405.225170400Z-08d35535d7a2eabf",
+  "entries": 1,
+  "attributedEntries": 1
+}

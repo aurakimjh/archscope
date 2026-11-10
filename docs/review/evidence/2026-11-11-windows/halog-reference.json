@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "native": {
+    "schemaVersion": 1,
+    "bytes": 35463916,
+    "sha256": "d2ed106e5bc8bc0f31509e6aad7fe09149b12d4ebd96fc19b3672f7858857bad",
+    "container": "opaque",
+    "compatibility": "unverified"
+  },
+  "referenceFullXml": {
+    "schemaVersion": 1,
+    "bytes": 98068037,
+    "sha256": "a1f93b837d39e44031088e376a60b6d4f37ce73817b0175a2ccb406470abf083",
+    "container": "xml_text",
+    "compatibility": "unverified"
+  },
+  "referenceExecutableVersion": "7.6.4.508",
+  "referenceComLoadEntries": 675,
+  "inputUnchangedAfterLoadAndProbe": true,
+  "fullXmlParse": {
+    "status": "FAIL",
+    "line": 16532,
+    "column": 96,
+    "reason": "not well-formed (invalid token)"
+  },
+  "rawInputsKeptLocal": true,
+  "codecInteroperability": "UNVERIFIED",
+  "remaining": [
+    "native decoder/encoder",
+    "verified field mapping",
+    "reference-to-ArchScope comparison",
+    "ArchScope-to-reference reopening"
+  ]
+}

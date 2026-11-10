@@ -4756,6 +4756,19 @@ x86 컴파일/vet을 통과했습니다. **드라이버 패킷 주입·HVCI/백�
 
 ### 네이티브 COM 어댑터와 참조 계약 목록 (T-611, 2026-11-10)
 
+2026-11-11 후속 상태는 [Windows 검증 자료](../review/evidence/2026-11-11-windows/README.md)를
+참조하세요. x86·x64 실제 COM 활성화·시작/일시정지/재개/중지·로그 열거/인덱스·
+호출자 PID·저장 및 한글 `.lnk` 인수/작업 폴더/지연 실행은 통과했습니다.
+PowerShell 스모크는 ITypeInfo가 없는 속성을 IDispatch로 명시 조회합니다.
+원본 dual-IID·이벤트·필터·보존·프로세스 간 세션 쿠키 계약은 미구현입니다.
+Windows 빌드 래퍼가 Wails 3.1.0의 x86 POINT 콜백·Win32 Ptr 함수 오류를
+해시 검증된 임시 SDK 복사본에서 보정합니다. 양쪽 아키텍처의 시작 검증이
+통과했으며 전체 16항목 중 자동화 4항목 통과로 종합 판정은 UNVERIFIED입니다.
+T-623의 실제 라이브·프로세스·복귀는 완료했고 전체 OS 배율/메뉴·장시간
+데스크탑 검증은 남았습니다. 실제 비공개 `.halog`는 원본 7.6.4.508에서
+675건이 로드됩니다. 원본 Full XML의 구문 오류와 자체 코덱·필드 매핑·양방향
+호환성은 미해결이며 T-608은 샘플 부재가 해소된 REVIEW입니다.
+
 `--com-server`로 자체 STA/메시지 루프의 Windows IClassFactory/IDispatch 서버를 엽니다.
 참조 횟수를 관리하는 객체·컬렉션과 IEnumVARIANT를 제공합니다.
 `archscope-control --register-com ABS_DESKTOP_EXE`는 ArchScope 소유의 사용자별

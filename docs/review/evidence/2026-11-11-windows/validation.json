@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-11",
+  "timezone": "Asia/Seoul",
+  "sourceCommit": "7f698067afa899d2a95b5d6b79a0da2fd30e15c5",
+  "nativeVisualSourceCommit": "ecf42163e0a1d9d6a64544335b55311d85515469",
+  "platform": "windows/amd64",
+  "go": "go1.26.10",
+  "node": "v22.15.1",
+  "binaries": {
+    "amd64": {
+      "bytes": 27841024,
+      "sha256": "7a45cbe6e5ddd9786365a0664e48a702028d616504f939588c1350f6efacec00",
+      "buildCommit": "7f698067afa899d2a95b5d6b79a0da2fd30e15c5",
+      "startupSeconds": 15,
+      "startup": "PASS",
+      "forcedShutdownAfterGracefulTimeout": true
+    },
+    "386": {
+      "bytes": 26806784,
+      "sha256": "9434d9354b45dd49e943db70e8586b86d7329805a7c05f71b01b1fc0ae061434",
+      "buildCommit": "7f698067afa899d2a95b5d6b79a0da2fd30e15c5",
+      "startupSeconds": 15,
+      "startup": "PASS",
+      "forcedShutdownAfterGracefulTimeout": true
+    }
+  },
+  "checks": [
+    {
+      "command": "go test ./...",
+      "arch": "amd64",
+      "result": "PASS"
+    },
+    {
+      "command": "go vet ./...",
+      "arch": "amd64",
+      "result": "PASS"
+    },
+    {
+      "command": "go test -count=1 ./internal/capture/...",
+      "arch": "386",
+      "result": "PASS"
+    },
+    {
+      "command": "native processlaunch/comautomation/live-capture/process-selection targeted tests",
+      "result": "PASS"
+    },
+    {
+      "command": "npm ci; npm run test:state; npm run build",
+      "result": "PASS",
+      "auditVulnerabilities": 0
+    },
+    {
+      "command": "node scripts/verify-desktop-only.mjs --check-server-build",
+      "result": "PASS"
+    },
+    {
+      "command": "node scripts/test-http-parity-report.mjs; node scripts/test-http-reference-fixture.mjs",
+      "result": "PASS"
+    },
+    {
+      "command": "go test -race",
+      "result": "NOT_RUN",
+      "reason": "CGO_ENABLED=0; no C compiler discovered"
+    }
+  ],
+  "nativeUi": {
+    "result": "PASS for T-623 only",
+    "framework": "production Wails/WebView2; no browser/Electron UI",
+    "stored": {
+      "total": 10,
+      "persistedRows": 10,
+      "confirmedRows": 10,
+      "completeRows": 10,
+      "perProcess": [
+        5,
+        5
+      ]
+    },
+    "cases": [
+      "two real PID/start-time groups",
+      "Headers selection during arrivals",
+      "process B 4/8 scope",
+      "Body omitted disclosure",
+      "follow disabled during arrivals",
+      "native Analyze/Capture menu routing",
+      "running session and ten rows restored on reentry",
+      "F2 stop",
+      "finalized Headers retained",
+      "Korean-to-English native menu/page switch"
+    ],
+    "pageLocalSelectionFilterFollowResetOnRemount": true,
+    "bodyCapture": false,
+    "osDpiMatrix": "NOT_RUN",
+    "newWindowsAreaRatio": null,
+    "auditUi": "DENIED: Computer Use was not approved to use archscope-audit"
+  },
+  "serviceProxySoak": {
+    "result": "PASS",
+    "seconds": 120.998,
+    "cycles": 98,
+    "syntheticRequests": 25480,
+    "nativeHost": true,
+    "desktopUiSoak": false
+  },
+  "taskStates": {
+    "T-601": "REVIEW",
+    "T-608": "REVIEW",
+    "T-611": "REVIEW",
+    "T-613": "PENDING",
+    "T-623": "DONE",
+    "T-627": "REVIEW"
+  },
+  "registryCounts": {
+    "total": 214,
+    "DONE": 209,
+    "REVIEW": 4,
+    "PENDING": 1
+  },
+  "excluded": [
+    "raw reference log/XML",
+    "private descriptors/tokens",
+    "private diagnostics",
+    "unrelated foreground screenshots"
+  ]
+}

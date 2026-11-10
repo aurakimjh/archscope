@@ -1528,6 +1528,27 @@ not a drop-in binary replacement. Windows activation/marshalling/registry/GUI ch
 remain unverified. `scripts/verify-http-com.ps1` checks activation, lifecycle, native
 enumeration, PID attribution and a saved session against a supplied synthetic HTTP
 fixture. Its result explicitly excludes vendor interoperability and native UI parity.
+
+### Native Windows follow-up (2026-11-11)
+
+The [Windows evidence](../review/evidence/2026-11-11-windows/README.md) supersedes
+the earlier unexecuted-native statements for the tested subset. x86/x64 native
+COM activation, lifecycle, collection enumeration/indexing, caller attribution
+and session save pass. Explicit IDispatch property reads are required by the
+PowerShell smoke when ITypeInfo is absent. Unicode `.lnk` arguments/cwd and
+suspended launch pass. Vendor dual interfaces/events/filter/retention and
+cross-process session-cookie behavior remain outside the implemented subset.
+
+Native x86 startup required new guarded Wails 3.1.0 fixes for POINT callbacks
+and Win32 Ptr imports; use the checked-in Windows build wrapper. Both architecture
+startup/control intervals pass. The 16-case parity report remains UNVERIFIED,
+with four automation cases passing. Production live/process/reentry is complete
+under T-623; the full menu/OS DPI matrix and multi-hour desktop soak remain open.
+
+A genuine private legacy sample now loads 675 entries in reference 7.6.4.508.
+Only metadata/hash evidence is archived. The private reference Full XML export
+fails XML parsing, and native codec/mapping plus both `.halog` interoperability
+directions remain unverified. T-608 is REVIEW; sample absence is resolved.
 Portable core/contract/ownership tests and Windows ABI/test compilation/vet pass.
 
 The Wails 3.1 build also pins Go toolchain 1.26.10. Frontend audit fixes stay within
