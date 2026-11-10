@@ -121,7 +121,8 @@ function HttpCaptureWorkspace(): React.JSX.Element {
   // grid owns the viewport; the session summary stays open by default because
   // its fidelity and redaction disclosures are part of reading the data.
   const [sourceOpen, setSourceOpen] = useState(true);
-  const [sessionOpen, setSessionOpen] = useState(true);
+  const [sessionOpen, setSessionOpen] = useState(false);
+  const fileToolsRef = useRef<HTMLDetailsElement>(null);
   const openAttempt = useRef(0);
   const openPath = useCallback(async (path: string) => {
     const attempt = ++openAttempt.current;
@@ -256,6 +257,8 @@ function HttpCaptureWorkspace(): React.JSX.Element {
     if (!source || collapsedFor.current === source) return;
     collapsedFor.current = source;
     setSourceOpen(false);
+    setSessionOpen(false);
+    if (fileToolsRef.current) fileToolsRef.current.open=false;
   }, [state.resultSource]);
 
   const summary = useMemo(() => selectHttpSummary(result), [result]);
@@ -317,8 +320,8 @@ function HttpCaptureWorkspace(): React.JSX.Element {
           <p>{t("httpDesktopHelpKeys")}</p><p>{t("httpDesktopHelpLimits")}</p>
         </div>
       </SlideOverPanel>
-      <details className="http-file-tools shrink-0">
-        <summary className="cursor-pointer text-xs">{t("httpCaptureSectionSource")}</summary>
+      <details ref={fileToolsRef} className="http-file-tools shrink-0">
+        <summary className="cursor-pointer text-xs">{t("httpFileTools")}</summary>
       <div className="flex gap-2 text-xs">
         <Button variant="outline" size="sm" onClick={() => setHelpOpen(true)}>{t("httpDesktopHelpTitle")}</Button>
         <Button

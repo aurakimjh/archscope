@@ -431,7 +431,6 @@ export function CanvasFlameGraph({
           </div>
         )}
       </div>
-      <p className="flamegraph-hint">{t("flamegraphHint")}</p>
     </div>
   );
 }

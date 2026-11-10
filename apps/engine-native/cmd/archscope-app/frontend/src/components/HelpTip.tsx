@@ -80,12 +80,25 @@ export function HelpTip({
       if ((event as CustomEvent<string>).detail !== tooltipId) close();
     };
     window.addEventListener("help:opened", dismissOther);
+    // macOS WebKit의 마우스 클릭은 버튼으로 키보드 포커스를 옮기지 않을 수 있다.
+    // 포커스 위치와 관계없이 맨 위 도움말만 닫고 하위 취소 명령으로 전달하지 않는다.
+    const onEscape = (event: globalThis.KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      close();
+    };
+    document.addEventListener("keydown", onEscape, true);
     document.addEventListener("pointerdown", onPointerDown);
-    return () => { document.removeEventListener("pointerdown", onPointerDown);window.removeEventListener("help:opened", dismissOther); };
+    return () => {
+      document.removeEventListener("keydown", onEscape, true);
+      document.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("help:opened", dismissOther);
+    };
   }, [open,tooltipId]);
 
   const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
-    if (event.key === "Escape") {
+    if (event.key === "Escape" && open) {
       event.preventDefault();
       event.stopPropagation();
       close();

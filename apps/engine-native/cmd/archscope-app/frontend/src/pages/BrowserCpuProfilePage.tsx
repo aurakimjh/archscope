@@ -9,6 +9,7 @@ import { DiagnosticsPanel } from "@/components/DiagnosticsPanel";
 import { MetricCard } from "@/components/MetricCard";
 import { WailsFileDock, type FileDockSelection } from "@/components/WailsFileDock";
 import { Button } from "@/components/ui/button";
+import { HelpTip } from "@/components/HelpTip";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useI18n } from "@/i18n/I18nProvider";
 import { addWorkspaceResult } from "@/state/analysisWorkspace";
@@ -171,11 +172,10 @@ export function BrowserCpuProfilePage(): React.JSX.Element {
       {result && flamegraph && (flamegraph.value > 0 || (flamegraph.children?.length ?? 0) > 0) && (
         <Card>
           <CardHeader>
-            <CardTitle>{t("flamegraphTitle")}</CardTitle>
+            <CardTitle className="flex items-center gap-2">{t("flamegraphTitle")}<HelpTip text={t("browserCpuFlamegraphHint")} /></CardTitle>
           </CardHeader>
           <CardContent>
             <CanvasFlameGraph data={flamegraph} exportName={exportName} />
-            <p className="mt-2 text-xs text-muted-foreground">{t("browserCpuFlamegraphHint")}</p>
           </CardContent>
         </Card>
       )}

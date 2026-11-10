@@ -261,7 +261,8 @@ export function LighthouseAuditPage(): React.JSX.Element {
           </section>
 
           {(summary.requested_url || summary.final_url || summary.form_factor) && (
-            <Card>
+            <details className="rounded border px-2 py-1 text-xs">
+              <summary className="cursor-pointer">{t("lighthouseProvenanceTitle")}</summary>
               <CardContent className="grid gap-2 py-4 text-xs text-muted-foreground sm:grid-cols-2">
                 {summary.final_url ? (
                   <div>
@@ -288,14 +289,12 @@ export function LighthouseAuditPage(): React.JSX.Element {
                   </div>
                 ) : null}
               </CardContent>
-            </Card>
+            </details>
           )}
 
           {categories.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>{t("lighthouseCategoriesTitle")}</CardTitle>
-              </CardHeader>
+            <details className="rounded border px-2 py-1 text-xs">
+              <summary className="cursor-pointer">{t("lighthouseCategoriesTitle")}</summary>
               <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {categories.map((row, index) => {
                   const pct = typeof row.score_pct === "number" ? (row.score_pct as number) : null;
@@ -328,7 +327,7 @@ export function LighthouseAuditPage(): React.JSX.Element {
                   );
                 })}
               </CardContent>
-            </Card>
+            </details>
           )}
 
           {coreMetrics.length > 0 && (

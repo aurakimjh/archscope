@@ -272,19 +272,12 @@ export function WailsFileDock({
             onDragOver={onDragOver}
             onDragLeave={onDragLeave}
             onDrop={handleDrop}
-            onClick={() => void openDialog()}
-            role="button"
-            tabIndex={0}
+            role="group"
+            data-file-drop="true"
             aria-label={label}
             data-accept={accept}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" || event.key === " ") {
-                event.preventDefault();
-                void openDialog();
-              }
-            }}
             className={cn(
-              "group relative flex flex-1 cursor-pointer items-center gap-3 rounded-lg border border-dashed border-input/80 bg-muted/30 px-2 py-1.5 text-sm transition-colors",
+              "group relative flex flex-1 items-center gap-3 rounded-lg border border-dashed border-input/80 bg-muted/30 px-2 py-1.5 text-sm transition-colors",
               "hover:border-primary/60 hover:bg-muted/50",
               isDragOver && "border-primary bg-primary/5",
               busy && "pointer-events-none opacity-80",

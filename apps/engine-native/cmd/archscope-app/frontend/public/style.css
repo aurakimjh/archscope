@@ -2110,6 +2110,7 @@ table th.sortable-header.sort-desc::after {
 
 /* The native menu owns global navigation. Each visited tool keeps its state. */
 .desktop-shell { display:flex; height:100dvh; overflow:hidden; }
+.desktop-shell > .app-main { flex:1; width:100%; }
 .desktop-titlebar { height:30px; flex:none; padding:5px 12px; font-size:12px; color:var(--text-muted); -webkit-app-region:drag; }
 @supports (-webkit-backdrop-filter: blur(1px)) { .desktop-titlebar { padding-left:80px; } }
 .tool-pane { flex:1; min-width:0; min-height:0; overflow:auto; display:flex; flex-direction:column; }
@@ -2168,3 +2169,13 @@ table th.sortable-header.sort-desc::after {
 .http-live-content > footer { flex:none; align-items:center; gap:8px; }
 .http-live-content > footer > details { margin-left:auto; }
 .http-live-content > footer > details[open] { flex-basis:100%; max-height:40vh; overflow:auto; }
+
+/* One compact recording row; expanded options keep their own bounded scroll. */
+.http-capture-controls { display:flex; flex-wrap:wrap; align-items:center; gap:4px 12px; flex:none; }
+.http-capture-options { flex:none; }
+.http-capture-options[open] { flex-basis:100%; max-height:45vh; overflow:auto; padding:8px; border:1px solid var(--border); border-radius:4px; }
+.http-capture-actions { flex:1; }
+.http-secondary-tools > details[open] { flex-basis:100%; max-height:35vh; overflow:auto; }
+.http-secondary-tools > [role="status"] { flex-basis:100%; }
+
+.profiler-secondary-tools > details[open] { flex-basis:100%; }

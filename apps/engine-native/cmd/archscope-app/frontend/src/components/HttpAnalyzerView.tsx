@@ -281,9 +281,13 @@ export function HttpAnalyzerView({
         t={t}
       />
 
+      <div className="http-secondary-tools flex shrink-0 flex-wrap items-start gap-x-4 border-b px-2 py-1 text-xs">
+      <details>
+        <summary className="cursor-pointer">{t("httpSessionTools")}</summary>
       <HttpSessionSummary rows={rows} sessionId={exportSource?.sessionId} selected={selected} onSelect={onSelect} onFilter={onFilter} />
       {exportSource && <HttpSessionFiles source={exportSource} ids={rows.map(row=>row.id)} selectedId={selectedId} annotations={annotationsFor===sourceKey?annotations:{}} />}
       {exportSource && <HttpCacheTools source={exportSource} />}
+      </details>
       {bounded && boundedNote && (
         <p
           className="border-b border-amber-500/40 bg-amber-500/10 px-3 py-1.5 text-[11px] text-amber-800 dark:text-amber-300"
@@ -293,6 +297,8 @@ export function HttpAnalyzerView({
         </p>
       )}
 
+      <details>
+        <summary className="cursor-pointer">{t("httpGridFieldFilter")}{fieldFilter.value || starredOnly ? " ●" : ""}</summary>
       <div className="flex shrink-0 flex-wrap items-center gap-1 border-b px-2 py-1 text-xs">
         <label>{t("httpGridFieldFilter")} <select aria-label={t("httpGridFieldFilter")} value={fieldFilter.key} onChange={(event)=>setFieldFilter(current=>({...current,key:event.target.value}))}>
           {HTTP_COLUMNS.filter(column=>column.key!=="timeline"&&column.key!=="offset").map(column=><option key={column.key} value={column.key}>{column.labelKey?t(column.labelKey):column.label}</option>)}
@@ -303,7 +309,10 @@ export function HttpAnalyzerView({
         <input aria-label={t("httpGridFilterValue")} value={fieldFilter.value} onChange={(event)=>setFieldFilter(current=>({...current,value:event.target.value}))} className="rounded border px-1" />
         {fieldFilter.value && <button type="button" onClick={()=>setFieldFilter(current=>({...current,value:""}))}>{t("httpCaptureFilterReset")}</button>}
       </div>
-      <div className="flex shrink-0 gap-2 border-b px-2 py-1 text-xs"><label><input type="checkbox" checked={starredOnly} onChange={e=>setStarredOnly(e.target.checked)}/>{t("httpNotesStarredOnly")}</label>{notesError&&<span role="alert">{notesError}</span>}</div>
+      <div className="flex shrink-0 gap-2 border-b px-2 py-1 text-xs"><label><input type="checkbox" checked={starredOnly} onChange={e=>setStarredOnly(e.target.checked)}/>{t("httpNotesStarredOnly")}</label></div>
+      </details>
+      </div>
+      {notesError && <p role="alert" className="shrink-0 px-2 py-1 text-xs text-destructive">{notesError}</p>}
       <TransactionGrid
         commandsEnabled={commandsEnabled}
         builderSessionId={exportSource?.sessionId}
@@ -799,7 +808,7 @@ function TransactionGrid({
           </tbody>
         </table>
       </div>
-      <p className="shrink-0 border-t border-border/60 px-2 py-0.5 text-[10px] text-muted-foreground">
+      <p className="sr-only">
         {t("httpAnalyzerKeyboardHint")}
       </p>
     </div>

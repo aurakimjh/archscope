@@ -90,7 +90,7 @@ export function SlideOverPanel({
     if (!open) return;
     restoreRef.current = (document.activeElement as HTMLElement) ?? null;
     const focusables = focusableWithin(panelRef.current);
-    (focusables[0] ?? panelRef.current)?.focus();
+    (panelRef.current?.querySelector<HTMLElement>("[data-panel-close]") ?? focusables[0] ?? panelRef.current)?.focus();
     return () => {
       restoreRef.current?.focus?.();
     };
@@ -145,6 +145,7 @@ export function SlideOverPanel({
             variant="ghost"
             className="h-7 w-7 p-0"
             onClick={onClose}
+            data-panel-close
             aria-label="Close panel"
           >
             <X className="h-4 w-4" />

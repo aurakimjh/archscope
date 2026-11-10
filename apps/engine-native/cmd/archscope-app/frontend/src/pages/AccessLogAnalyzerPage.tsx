@@ -379,7 +379,7 @@ export function AccessLogAnalyzerPage(): React.JSX.Element {
         title={t("engineMessages")}
       />
 
-      <Tabs defaultValue="summary" className="w-full">
+      <Tabs defaultValue="urls" className="w-full">
         <TabsList>
           <TabsTrigger value="summary">{t("tabSummary")}</TabsTrigger>
           <TabsTrigger value="charts">{t("tabCharts")}</TabsTrigger>

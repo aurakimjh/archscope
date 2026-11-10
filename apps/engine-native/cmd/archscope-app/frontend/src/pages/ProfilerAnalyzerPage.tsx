@@ -1150,13 +1150,6 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
         </AnalyzerOptionsDock>
       </div>
 
-      <RecentFilesPanel
-        entries={recent.entries}
-        onSelect={handleRecentSelect}
-        onRemove={recent.remove}
-        onClear={recent.clear}
-      />
-
       {error && (
         <div
           role="alert"
@@ -1171,14 +1164,25 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
           {exportNotice}
         </div>
       )}
+      <div className="profiler-secondary-tools flex flex-wrap items-start gap-2">
+      <RecentFilesPanel
+        entries={recent.entries}
+        onSelect={handleRecentSelect}
+        onRemove={recent.remove}
+        onClear={recent.clear}
+      />
+
       {progressLogNotice && (
-        <div className="rounded-md border border-sky-500/30 bg-sky-500/5 p-2.5 text-xs text-foreground">
+        <details className="rounded-md border border-sky-500/30 bg-sky-500/5 px-2 py-1 text-xs text-foreground">
+          <summary className="cursor-pointer">{locale === "ko" ? "진행 로그" : "Progress log"}</summary>
           <code className="font-mono">{progressLogNotice}</code>
           <span className="ml-2 text-muted-foreground">
-            (분석 중 OS가 프로세스를 종료해도 이 파일에 진행 단계가 남습니다)
+            {locale === "ko" ? "(분석 중 종료되어도 이 파일에 진행 단계가 남습니다)" : "(Progress remains here if analysis is interrupted)"}
           </span>
-        </div>
+        </details>
       )}
+
+      </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="flex flex-wrap items-center justify-between gap-3">

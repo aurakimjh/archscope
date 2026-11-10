@@ -259,7 +259,7 @@ export function TraceImportPage(): React.JSX.Element {
       />
       <EngineMessagesPanel messages={engineMessages} title={t("engineMessages")} />
 
-      <Tabs defaultValue="summary">
+      <Tabs defaultValue="traces">
         <TabsList>
           <TabsTrigger value="summary">{t("tabSummaryGc")}</TabsTrigger>
           <TabsTrigger value="services">{t("traceTabServices")}</TabsTrigger>

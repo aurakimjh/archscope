@@ -476,8 +476,9 @@ export function LiveHttpCapturePanel({
     <Card className={showAnalyzer ? "http-live-panel min-w-0" : "http-live-panel http-live-compact min-w-0"}>
 
       <CardContent className="http-live-content flex min-w-0 flex-col gap-1 p-2">
-        <details className="rounded border p-2">
-          <summary className="cursor-pointer text-xs">{t("httpCaptureSectionSource")}</summary>
+        <div className="http-capture-controls">
+        <details className="http-capture-options">
+          <summary className="cursor-pointer text-xs">{t("httpRecordingOptions")}</summary>
           <div className="flex flex-col gap-2 pt-2">
           <label className="text-xs">{t("httpBackendTitle")} <select aria-label={t("httpBackendTitle")} value={backend} disabled={active} onChange={event=>setBackend(event.target.value)}>{backends.map(item=><option key={item.name} value={item.name} disabled={!item.available}>{t(item.transparent?"httpBackendTransparent":"httpBackendExplicit")}{item.available?"":` · ${t("httpBackendUnavailable")}`}</option>)}</select></label>
           <p className="text-xs text-muted-foreground">{t(backend === "windows_transparent" ? "httpBackendTransparentCoverage" : "httpBackendCoverage")}</p>
@@ -678,8 +679,9 @@ export function LiveHttpCapturePanel({
 
           </div>
         </details>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="http-capture-actions flex flex-wrap items-center gap-2">
           <Button
+            size="sm"
             type="button"
             disabled={
               state.busy ||
@@ -699,6 +701,7 @@ export function LiveHttpCapturePanel({
           <Button
             type="button"
             variant="destructive"
+            size="sm"
             disabled={state.busy || !active}
             onClick={() => void stop()}
           >
@@ -740,6 +743,7 @@ export function LiveHttpCapturePanel({
           )}
         </div>
 
+        </div>
         {showAnalyzer && <LiveHttpAnalyzer key={`${state.session?.sessionId ?? "idle"}:${state.session?.generation ?? 0}`}
           sessionId={state.session?.sessionId ?? ""} transactions={state.transactions}
           persisted={state.stats?.persisted ?? 0} follow={state.follow} />}
