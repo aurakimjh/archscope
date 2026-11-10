@@ -180,3 +180,15 @@ edge cases, exact result-area adjudication, chart-template outputs, and Windows
 live/menu/scaling tests. Computer Use did not approve the separate original-UI
 comparison app, so that baseline could not be launched. T-620 remains PENDING;
 T-622 through T-627 remain REVIEW with their unverified conditions explicit.
+
+
+### Original baseline follow-up
+
+The separate original-UI app became available on the detailed follow-up run.
+T-620 is complete: all 21 routes were measured at native 1280×800, Korean,
+100% WebView scale, with the same deep-profile, GC-pressure and 30-request HAR
+fixtures. See [original geometry](../review/evidence/2026-11-10-layout/mac-original-baseline.json).
+Original profiler first-data y=484, union 29.6%; GC Events shows six full rows
+at y=410; HTTP shows no complete request rows. Original HTTP source picking
+scrolls the page, so its observations are marked after-load/scroll states.
+The earlier denied-app note above is historical and no longer blocks T-620.

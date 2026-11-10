@@ -217,8 +217,8 @@ completed the independent Lighthouse file-first engine slice.
 | `TODO` | 0 | Ready to start; prerequisites are satisfied |
 | `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
 | `REVIEW` | 8 | Review or required remediation is underway; the gate has not passed |
-| `PENDING` | 3 | Waiting for a prerequisite, external condition, or activation trigger |
-| `DONE` | 203 | Completion criteria and required review gates have passed |
+| `PENDING` | 2 | Waiting for a prerequisite, external condition, or activation trigger |
+| `DONE` | 204 | Completion criteria and required review gates have passed |
 
 The normal transition is `TODO → IN_PROGRESS → REVIEW → DONE`. A `PENDING`
 task returns to `TODO` when its dependency or trigger is satisfied. Task status
@@ -241,8 +241,7 @@ exercised. No browser or Electron UI was used.
 
 The old collector also assumed an unavailable `window.wails` global; its missing
 report was not evidence that desktop locking was the only cause. The new passive
-observer records actual native interactions and no row contents. The separate
-original-UI app was not approved by Computer Use, so T-620 stays PENDING. T-627
+observer records actual native interactions and no row contents. The original-UI app was approved and measured on the follow-up run; T-620 is DONE. T-627
 moves to REVIEW for the completed Mac portion. T-622 through T-626 remain REVIEW
 for outstanding acceptance cases; no full 70% area or exhaustive conditional-tab
 acceptance is claimed. Windows live recording and OS scaling remain untested.
@@ -405,7 +404,6 @@ explicit rather than being inferred from builds or sparse fixtures.
 
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
-| 1 | T-620 | P1 | `PENDING` | Original d98a958 baseline missing: Computer Use did not approve its separate comparison app. Actual current Mac 21-route geometry recorded; no before/after claim. |
 | 2 | T-622 | P1 | `REVIEW` | Fixed pinned-help Escape without focus, closed-help Escape trapping, drawer close-button focus and nested file-picker button roles. Native Open, pin/Esc and drawer close pass. Pointer-transfer, long-path and tooltip-edge matrix remains. |
 | 3 | T-623 | P1 | `REVIEW` | Collapsed initial session/file/field tools and compacted recording actions. Native HAR has 12 request rows plus 160px inspector at 1280x800, 11 at observed 1025x769; Headers/Body and splitter keys pass. Exact area/four-line matrix and Windows recording/process/reentry acceptance remain. |
 | 4 | T-624 | P1 | `REVIEW` | Deep shared fixture fills window width; native resized frame zoom/reset and OrderRepository drilldown pass. GC shared fixture shows ten events. Progress notice collapsed and bundle log-path bug fixed/tested. No-clock/conditional cases and exact area adjudication remain. |
@@ -1358,7 +1356,7 @@ deferred until explicitly promoted.
 | T-616 | P1 | DONE | Avoid double-counting one RPC's CLIENT and SERVER spans | Existing Trace Import dependency and Service Flow/SLI contracts | Completed 2026-11-10: one-to-one explicit CLIENT/SERVER pairs use one logical call, client elapsed time and either-side error; single-sided exports, cross-trace identities, separate retry pairs and multiple server attempts remain distinct. SERVER remote peers use incoming direction. Go/CLI tests and frontend Flow/SLI counter regressions pass. |
 | T-617 | P1 | DONE | Preserve missing access-log response time as unavailable rather than zero | Access-log parser/analyzer and SLI/SLO contracts | Completed 2026-11-10: all supported parsers preserve response-time availability, including true zero; unknown samples are excluded from total/static/API/URL/minute/route/edge latency while full request/error/byte counts remain. Null empty stats, measured/unknown counts, warning finding, sample coverage UI and measured-only Flow weighting propagate to SLI/SLO; targets without evidence are explicitly not assessed. Parser/analyzer/CLI and frontend state/build regressions pass. |
 | T-618 | P2 | DONE | Disclose Incident Timeline truncation and qualify severity/time summaries | Existing Incident Timeline/Report Pack contracts | Completed 2026-11-10: 120/source and 1000/session row caps remain, with deterministic documented selection, total/emitted/omitted and per-source/severity loss counts. Severity/time/ranged/correlation summaries use all candidates; groups/narrative explicitly remain retained-only. Page/JSON/Report Pack HTML disclose partial output and omitted critical events. Both-cap, late-critical, empty-input and export regressions plus frontend state/build pass. |
-| T-620 | P1 | PENDING | Measure all 21 views at the default window size | — | Original d98a958 baseline missing: Computer Use did not approve its separate comparison app. Actual current Mac 21-route geometry recorded; no before/after claim. |
+| T-620 | P1 | DONE | Measure all 21 views at the default window size | — | Completed same native 1280x800/100%/Korean 21-route original baseline at d98a958 using native sidebar and identical sanitized deep-profile, GC-pressure and 30-request HAR inputs. Original profiler first data y=484 (29.6% union); GC Events y=410, six full rows; HTTP zero full request rows. Evidence: docs/review/evidence/2026-11-10-layout/mac-original-baseline.json. |
 | T-621 | P1 | DONE | Move global navigation to native menus | T-620 | Actual macOS native menus reached all 21 routes; Open dialog, Cmd+, locale/theme and About verified. Full-width flex regression fixed; menu-context and build checks pass. Windows acceptance remains in T-627. |
 | T-622 | P1 | REVIEW | Compact shared input controls and help | T-620 | Fixed pinned-help Escape without focus, closed-help Escape trapping, drawer close-button focus and nested file-picker button roles. Native Open, pin/Esc and drawer close pass. Pointer-transfer, long-path and tooltip-edge matrix remains. |
 | T-623 | P1 | REVIEW | Prioritize the HTTP grid and inspector | T-621, T-622 | Collapsed initial session/file/field tools and compacted recording actions. Native HAR has 12 request rows plus 160px inspector at 1280x800, 11 at observed 1025x769; Headers/Body and splitter keys pass. Exact area/four-line matrix and Windows recording/process/reentry acceptance remain. |
@@ -1823,3 +1821,14 @@ deferred until explicitly promoted.
 - Old work status: `archive/work_status_legacy_2026-05-09.md`
 - Archived Python engine: `archive/python-engine`
 - Archived browser frontend: `archive/web-frontend-python`
+
+### Mac detailed acceptance follow-up: original baseline
+
+The follow-up user request enabled the separate original-UI app. All 21 native
+sidebar routes were measured at 1280x800, Korean, 100% WebView scale. Populated
+original profiler, GC Events and HTTP HAR use the same sanitized inputs as the
+improved app. Original profiler first-data y=484 and union ratio 0.296; original
+GC Events first-data y=410 with six full rows; original HTTP has zero full rows.
+HTTP source picking scrolls the original page, so its recordings include both
+after-load and subsequent scroll observations rather than a pristine top reset.
+T-620 is DONE; earlier approval-denied notes are historical, not the current blocker.
