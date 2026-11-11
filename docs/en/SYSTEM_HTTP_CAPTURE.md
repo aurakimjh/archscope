@@ -1787,3 +1787,43 @@ Native fixtures cover owned/foreign keys, both target offsets and real separate-
 process custom-IID QI plus an inherited typed integer getter. Mac amd64/386
 cross-build/vet pass; hosted execution is recorded after final push. These
 fixtures do not establish compatibility with the current vendor binary/client.
+
+### Normalized nested filters (Mac follow-up 4, 2026-11-11)
+
+SetFilter accepts an explicit ArchScope JSON file in addition to the observed
+native TPF0 presets. This JSON format does not claim vendor .flt compatibility.
+For example, show failed POST requests from a known process:
+
+```json
+{
+  "format": "archscope.http-filter",
+  "version": 1,
+  "active": true,
+  "where": {
+    "all": [
+      {"field": "method", "op": "eq", "value": "POST"},
+      {"field": "status", "op": "gte", "value": 400},
+      {"not": {"field": "processName", "op": "contains", "value": "test", "ignoreCase": true}}
+    ]
+  }
+}
+```
+
+Each node contains exactly one `all`, `any`, `not`, or field/operator/value
+predicate. Empty groups, duplicate/unknown keys, unsupported types/operators and
+trailing data are errors. Limits: 256 KiB file, 16 node levels, 256 total nodes,
+4096-byte text values and 1024-byte RE2 patterns. Expressions are data, never
+executable scripts. Missing strings/process/status are unknown: `not` and `neq`
+cannot turn missing evidence into a positive match. AND/OR use three-valued
+logic; only a final true includes a row. Body sizes compare reported contract
+values, including zero, without inferring cache origin.
+
+| Fields | Operators |
+|---|---|
+| status, requestSize, responseSize, processPID | eq, neq, lt, lte, gt, gte; nonnegative int64 value |
+| url, host, path, method, mime, processName, scheme, httpVersion, coverage, fidelity | eq, neq, contains, startsWith, endsWith, regex, like; string value; optional ignoreCase |
+
+LIKE uses `%` for any sequence and `_` for one character; MIME excludes its
+parameter suffix. Filtering selects an immutable view and does not delete rows.
+The 16 observed supported native presets still pass; the cache-origin preset and
+unobserved native nested encodings retain explicit refusal.

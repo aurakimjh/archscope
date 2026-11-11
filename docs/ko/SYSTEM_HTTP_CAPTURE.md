@@ -5032,3 +5032,42 @@ ITypeInfo는 별도 backing 파일을 사용하며, 송신 dispinterface는 표�
 정수 getter 호출을 네이티브 테스트에 추가했습니다. Mac에서 amd64/386 교차
 컴파일·vet를 통과했으며 최종 푸시 후 CI 결과를 별도로 기록합니다. 현재 원본
 바이너리·클라이언트와의 호환성 판정은 이 합성 테스트와 구분합니다.
+
+### 정규화한 중첩 필터 (Mac 후속 작업 4, 2026-11-11)
+
+SetFilter는 관측된 원본 TPF0 프리셋 외에 명시적인 ArchScope JSON 파일을
+지원합니다. 이 형식이 원본 .flt와 호환된다고 주장하지 않습니다. 다음 예시는
+프로세스가 확인된 실패 POST 요청을 선택합니다.
+
+```json
+{
+  "format": "archscope.http-filter",
+  "version": 1,
+  "active": true,
+  "where": {
+    "all": [
+      {"field": "method", "op": "eq", "value": "POST"},
+      {"field": "status", "op": "gte", "value": 400},
+      {"not": {"field": "processName", "op": "contains", "value": "test", "ignoreCase": true}}
+    ]
+  }
+}
+```
+
+각 노드는 all·any·not·필드/연산자/값 조건 중 하나만 가집니다. 빈 그룹,
+중복·미지원 키, 잘못된 자료형·연산자, 뒤에 붙은 데이터는 거부합니다. 제한은
+파일 256 KiB, 깊이 16, 전체 노드 256, 문자열 4096바이트, RE2 패턴 1024바이트입니다.
+필터는 실행 코드가 아닙니다. 문자열·프로세스·상태가 없으면 unknown으로
+평가하여 NOT·neq로 누락 정보를 일치 항목으로 바꾸지 않습니다. AND·OR도
+3값 논리를 적용하고 최종 true만 선택합니다. 본문 크기는 0을 포함해 공통 계약의
+보고값을 비교하며 캐시 출처를 추정하지 않습니다.
+
+| 필드 | 연산자 |
+|---|---|
+| status, requestSize, responseSize, processPID | eq, neq, lt, lte, gt, gte; 음수가 아닌 int64 값 |
+| url, host, path, method, mime, processName, scheme, httpVersion, coverage, fidelity | eq, neq, contains, startsWith, endsWith, regex, like; 문자열 값; 선택적 ignoreCase |
+
+LIKE의 %는 임의 문자열, _는 한 글자이며 MIME은 매개변수 접미사를 제외합니다.
+필터는 행을 삭제하지 않고 불변 뷰를 선택합니다. 기존 원본 프리셋은 16개 지원,
+캐시 출처 프리셋 1개 거부 결과를 유지하며, 관측하지 못한 원본 중첩 인코딩은
+계속 명시적으로 거부합니다.

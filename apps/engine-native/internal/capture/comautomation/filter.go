@@ -18,6 +18,7 @@ import (
 // Legacy filters are data, never Delphi objects. Only the observed wrapper,
 // criteria versions and operators are accepted; unknown encodings fail closed.
 type logFilter struct {
+	root   *predicate
 	active bool
 	or     bool
 	rules  []filterRule
@@ -85,6 +86,9 @@ func readLogFilter(path string) (*logFilter, error) {
 func decodeLogFilter(b []byte) (*logFilter, error) {
 	if len(b) > 256<<10 {
 		return nil, fmt.Errorf("filter exceeds 256 KiB")
+	}
+	if bytes.HasPrefix(bytes.TrimSpace(b), []byte("{")) {
+		return decodeNormalizedFilter(b)
 	}
 	r := filterReader{bytes.NewReader(b)}
 	magic, e := r.take(4)
@@ -241,6 +245,9 @@ func (f *logFilter) matches(tx models.CaptureTransaction) bool {
 	if f == nil || !f.active {
 		return true
 	}
+	if f.root != nil {
+		return f.root.evaluate(tx) == matchTrue
+	}
 	for _, r := range f.rules {
 		value := ""
 		switch r.column {
@@ -301,8 +308,8 @@ func (f filteredLog) Invoke(ctx context.Context, name string, args []any, put bo
 }
 
 // MaxLogSize counts rows, not megabytes (reference manual). Evicted IDs stay
-// out of this controller's view even if its limit increases. Durable capture
-// evidence remains governed by the independent session byte limit.
+// out of this controller's loaded-document view even if its limit increases.
+// New captures also fix the physical store retention policy at Start.
 func (c *Controller) retainRows(input []models.CaptureTransaction) []models.CaptureTransaction {
 	rows := make([]models.CaptureTransaction, 0, len(input))
 	for _, row := range input {
