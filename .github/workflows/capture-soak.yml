@@ -1,0 +1,44 @@
+name: Capture common-engine soak
+
+on:
+  workflow_dispatch:
+    inputs:
+      duration:
+        description: "Synthetic common-engine duration (2s..6h; no GUI/driver acceptance)"
+        type: choice
+        options: ["120s", "30m", "3h", "6h"]
+        default: "120s"
+
+permissions:
+  contents: read
+
+jobs:
+  soak:
+    name: Synthetic proxy (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 390
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, windows-latest]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: "1.26.x"
+          cache-dependency-path: apps/engine-native/go.sum
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+      - name: Run bounded synthetic proxy soak
+        env:
+          SOAK_DURATION: ${{ inputs.duration }}
+        shell: bash
+        run: node scripts/capture-soak.mjs --duration "$SOAK_DURATION" --output artifacts/capture-soak.json --race
+      - name: Preserve scoped metrics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: capture-soak-${{ matrix.os }}
+          path: artifacts/capture-soak.json
+          if-no-files-found: warn

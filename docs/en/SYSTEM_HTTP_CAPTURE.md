@@ -1827,3 +1827,29 @@ LIKE uses `%` for any sequence and `_` for one character; MIME excludes its
 parameter suffix. Filtering selects an immutable view and does not delete rows.
 The 16 observed supported native presets still pass; the cache-origin preset and
 unobserved native nested encodings retain explicit refusal.
+
+### Repeatable stability runs (Mac follow-up 5, 2026-11-11)
+
+From the repository root, run:
+
+```sh
+node scripts/capture-soak.mjs --duration 120s --output /tmp/capture-soak.json --race
+```
+
+The same Node command runs on macOS and Windows (choose a suitable output path).
+Integer seconds/minutes/hours from 2s to 6h are accepted. The manual **Capture
+common-engine soak** workflow offers 120s, 30m, 3h and 6h on macos-15 and Windows
+with metrics artifacts. Duration controls workload time; build/shutdown add
+overhead. Reports include revision, actual OS/architecture, cycles/requests,
+sampled heap/goroutine peaks, store bytes and retention bounds. Samples occur at
+cycle boundaries; they are observations, not a performance SLO or leak proof.
+
+Each cycle uses four real loopback HTTP clients, pause/resume, Clear, concurrent
+status/recovery queries, deterministic pre-storage rejection, graceful/idempotent
+Stop, exact listener-port reuse, 64-row physical retention, counter invariants,
+store reopening and a portable export/re-import. Finalized fixture files are
+removed after verification so the harness's disk footprint stays bounded. The
+ordinary short regression retains its three-cycle baseline. No system proxy,
+trusted CA, user browser data, native GUI or transparent driver is configured.
+The fixture uses the common Windows capture service on Mac; report OS makes that
+scope explicit. Full native GUI/driver and original-client soak remain T-613.

@@ -1,0 +1,87 @@
+{
+  "schema": 1,
+  "date": "2026-11-11",
+  "baseCommit": "9418aeac773e54cc966d83ed2760d7accc785a09",
+  "scope": "Mac common-engine implementation and compile/package checks; includes uncommitted task 5 and regenerated bindings at this checkpoint",
+  "checks": [
+    {
+      "name": "full Go race",
+      "result": "pass",
+      "localLogSHA256": "041885d20b2f0afa99a796c34bb891b269511e58bee15124c2fbcb3412fec2e2"
+    },
+    {
+      "name": "full Go vet",
+      "result": "pass",
+      "localLogSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "admission race",
+      "result": "pass",
+      "localLogSHA256": "c75d97b02fc776d03fbb58a96ecb57e7f3047b620943603285459bfc7f29e0a7"
+    },
+    {
+      "name": "real-proxy admission lifecycle",
+      "result": "pass",
+      "localLogSHA256": "aee9a8a7170ae9ab1535cb19b03bfd968bcf183b1acbd8574a4acbffaa175965"
+    },
+    {
+      "name": "filter race + original 16 supported / 1 refused",
+      "result": "pass",
+      "localLogSHA256": "e5ef60f6848034a908a750c4049c8151ab7df44460d6387e1fcfe0edfcd821e0"
+    },
+    {
+      "name": "frontend state",
+      "result": "pass",
+      "localLogSHA256": "96ab3e7763edc1082d01e3a18afd8649d6c9bcdb89fb7b8a072303fcc49805cb"
+    },
+    {
+      "name": "frontend production",
+      "result": "pass",
+      "localLogSHA256": "89dccf7da9b6eee6162d9ecccd7c0d5a2445e211ca06b1e70606370199944300"
+    },
+    {
+      "name": "macOS package",
+      "result": "pass",
+      "localLogSHA256": "8ce6e300f643cae145c237eaccdf21d15d14623aab664c5918c6190a377a268f"
+    },
+    {
+      "name": "strict macOS signature",
+      "result": "pass",
+      "localLogSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "desktop-only / server build refusal",
+      "result": "pass",
+      "localLogSHA256": "2737e05db97102bfc69e4a94138f70b869f75db5874ac9581749568974f07e97"
+    },
+    {
+      "name": "Windows amd64 GUI cross-build",
+      "result": "pass",
+      "localLogSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "Windows 386 guarded GUI cross-build",
+      "result": "pass",
+      "localLogSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "120s race soak",
+      "result": "pass",
+      "localLogSHA256": "33a3b987336ad3282aaf1a8561bc7ae763a57a0e0dd4869360e259120de1fbe4"
+    }
+  ],
+  "additionalChecks": [
+    "Windows amd64/386 COM test compilation and vet passed",
+    "Node syntax and manual workflow YAML parse passed",
+    "Invalid soak duration refused before starting Go",
+    "No unprocessed review documents found"
+  ],
+  "nativeExecution": "new Windows COM and manual soak results pending final push",
+  "remaining": [
+    "current vendor early-bound binary/client interoperability",
+    "unobserved original filter encodings and cache-origin source evidence",
+    "foreign-process in-memory WinINet session-cookie integration",
+    "transparent capture driver reach / policy matrix",
+    "complete native menu/DPI matrix and GUI/driver long-run parity"
+  ]
+}

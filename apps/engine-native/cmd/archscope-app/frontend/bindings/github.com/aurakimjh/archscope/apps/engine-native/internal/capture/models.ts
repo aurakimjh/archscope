@@ -10,6 +10,7 @@ import { Create as $Create } from "@wailsio/runtime";
 import * as models$0 from "../models/models.js";
 
 export class Config {
+    "admissionOwner"?: string;
     "backend"?: string;
     "processScope"?: string;
     "launchPath"?: string;
@@ -17,6 +18,7 @@ export class Config {
     "allowedProcesses"?: models$0.ProcessKey[];
     "listenAddress"?: string;
     "storeRoot"?: string;
+    "retentionRows"?: number;
     "maxSessionBytes"?: number;
     "reserveBytes"?: number;
     "bodyFraction"?: number;
@@ -45,18 +47,18 @@ export class Config {
      * Creates a new Config instance from a string or object.
      */
     static createFrom($$source: any = {}): Config {
-        const $$createField3_0 = $$createType0;
-        const $$createField4_0 = $$createType2;
-        const $$createField14_0 = $$createType0;
+        const $$createField4_0 = $$createType0;
+        const $$createField5_0 = $$createType2;
+        const $$createField16_0 = $$createType0;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("launchArgs" in $$parsedSource) {
-            $$parsedSource["launchArgs"] = $$createField3_0($$parsedSource["launchArgs"]);
+            $$parsedSource["launchArgs"] = $$createField4_0($$parsedSource["launchArgs"]);
         }
         if ("allowedProcesses" in $$parsedSource) {
-            $$parsedSource["allowedProcesses"] = $$createField4_0($$parsedSource["allowedProcesses"]);
+            $$parsedSource["allowedProcesses"] = $$createField5_0($$parsedSource["allowedProcesses"]);
         }
         if ("allowPassthrough" in $$parsedSource) {
-            $$parsedSource["allowPassthrough"] = $$createField14_0($$parsedSource["allowPassthrough"]);
+            $$parsedSource["allowPassthrough"] = $$createField16_0($$parsedSource["allowPassthrough"]);
         }
         return new Config($$parsedSource as Partial<Config>);
     }
@@ -289,6 +291,9 @@ export enum SessionState {
 };
 
 export class Stats {
+    "retentionRows"?: number;
+    "retained"?: number;
+    "evicted"?: number;
     "generation": number;
     "sessionId": SessionID;
     "state": SessionState;

@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "os": "darwin",
+  "arch": "arm64",
+  "commit": "9418aeac773e54cc966d83ed2760d7accc785a09",
+  "scope": "synthetic loopback common engine; no native GUI/driver/body-tier acceptance",
+  "passed": true,
+  "cycles": 58,
+  "requests": 15080,
+  "elapsedSeconds": 120.56101075,
+  "sampledPeakHeapBytes": 10905912,
+  "sampledPeakGoroutines": 3,
+  "peakStoreBytes": 113673,
+  "maxRetained": 64,
+  "retentionRows": 64,
+  "admission": true,
+  "sourceInterpretation": "commit is the base HEAD; this run includes the uncommitted task-5 harness, identified by the source hash below",
+  "harnessSHA256": "aa2ac61a2c27ea6bd58eb0cd8a0ecdc4d832583c1ce052097604a8163f95e8af"
+}

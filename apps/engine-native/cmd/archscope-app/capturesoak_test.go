@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net"
@@ -8,12 +10,18 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"os"
+	"path/filepath"
+	"runtime"
+	"strconv"
 	"sync"
 	"testing"
 	"time"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/certstore"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/sessionfile"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/store"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 )
 
 // This is a local real-proxy soak, not native Windows/UI parity. Set
@@ -23,21 +31,80 @@ func TestCaptureProxySoakAcrossClearPauseAndReentry(t *testing.T) {
 	if value := os.Getenv("ARCHSCOPE_CAPTURE_SOAK"); value != "" {
 		var err error
 		duration, err = time.ParseDuration(value)
-		if err != nil || duration < time.Second || duration > time.Hour {
-			t.Fatal("ARCHSCOPE_CAPTURE_SOAK must be 1s..1h")
+		if err != nil || duration < 2*time.Second || duration > 6*time.Hour {
+			t.Fatal("ARCHSCOPE_CAPTURE_SOAK must be 2s..6h")
 		}
 	}
 	service := newCaptureServiceForPlatform(t.TempDir(), certstore.New(memoryTrustBackend{}, nil), "windows")
 	defer service.shutdownAutomation()
+	report := struct {
+		Schema         int     `json:"schema"`
+		OS             string  `json:"os"`
+		Arch           string  `json:"arch"`
+		Commit         string  `json:"commit"`
+		Scope          string  `json:"scope"`
+		Passed         bool    `json:"passed"`
+		Cycles         int     `json:"cycles"`
+		Requests       int     `json:"requests"`
+		ElapsedSeconds float64 `json:"elapsedSeconds"`
+		PeakHeapBytes  uint64  `json:"sampledPeakHeapBytes"`
+		PeakGoroutines int     `json:"sampledPeakGoroutines"`
+		PeakStoreBytes int64   `json:"peakStoreBytes"`
+		MaxRetained    uint64  `json:"maxRetained"`
+		RetentionRows  int     `json:"retentionRows"`
+		Admission      bool    `json:"admission"`
+	}{Schema: 1, OS: runtime.GOOS, Arch: runtime.GOARCH, Commit: os.Getenv("ARCHSCOPE_SOAK_COMMIT"), Scope: "synthetic loopback common engine; no native GUI/driver/body-tier acceptance"}
+	if duration > 0 {
+		report.RetentionRows = 64
+		report.Admission = true
+	}
+	key := ""
+	if report.Admission {
+		var release func()
+		var e error
+		key, release, e = service.manager.Admissions().Register(func(_ context.Context, _ string, tx models.CaptureTransaction) (bool, error) {
+			u, e := url.Parse(tx.URL)
+			if e != nil {
+				return false, e
+			}
+			n, e := strconv.Atoi(u.Query().Get("request"))
+			return e == nil && n%11 != 0, nil
+		})
+		if e != nil {
+			t.Fatal(e)
+		}
+		defer release()
+	}
+	sample := func() {
+		var m runtime.MemStats
+		runtime.ReadMemStats(&m)
+		report.PeakHeapBytes = max(report.PeakHeapBytes, m.HeapAlloc)
+		report.PeakGoroutines = max(report.PeakGoroutines, runtime.NumGoroutine())
+	}
+	sample()
 	origin := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-Fixture", "resilience")
 		io.WriteString(w, "synthetic response")
 	}))
 	defer origin.Close()
+	portable := filepath.Join(t.TempDir(), "soak.httpsession")
 	begin := time.Now()
+	t.Cleanup(func() {
+		report.Passed = !t.Failed()
+		report.ElapsedSeconds = time.Since(begin).Seconds()
+		if path := os.Getenv("ARCHSCOPE_SOAK_REPORT"); path != "" {
+			data, e := json.MarshalIndent(report, "", "  ")
+			if e == nil {
+				e = os.WriteFile(path, append(data, '\n'), 0600)
+			}
+			if e != nil {
+				t.Error("write soak report", e)
+			}
+		}
+	})
 	cycles, total := 0, 0
 	for cycles < 3 || time.Since(begin) < duration {
-		session, err := service.StartCapture(capture.Config{ListenAddress: "127.0.0.1:0", LiveWindow: 64, RetainUnattributedMetadata: true})
+		session, err := service.StartCapture(capture.Config{AdmissionOwner: key, RetentionRows: report.RetentionRows, ListenAddress: "127.0.0.1:0", LiveWindow: 64, RetainUnattributedMetadata: true})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -123,8 +190,65 @@ func TestCaptureProxySoakAcrossClearPauseAndReentry(t *testing.T) {
 			t.Fatal("stop failed", err)
 		}
 		stats, err := service.GetCaptureStats(string(session.ID))
-		if err != nil || stats.Captured != 128 || stats.Persisted != 128 || stats.Generation != 1 {
+		expected := uint64(128)
+		if report.Admission {
+			expected = 116
+		}
+		if err != nil || stats.Captured != expected || stats.Persisted != expected || stats.Generation != 1 {
 			t.Fatalf("inconsistent final counters: %+v %v", stats, err)
+		}
+		if report.Admission && stats.Dropped != 12 {
+			t.Fatalf("admission counter mismatch: %+v", stats)
+		}
+		if duration > 0 {
+			meta, e := service.manager.Manifest(session.ID)
+			if e != nil || meta.RetainedRecords != 64 || meta.Counters.Persisted != expected || meta.Counters.Rotated != expected-64 {
+				t.Fatal("retention invariant", meta, e)
+			}
+			report.MaxRetained = max(report.MaxRetained, meta.RetainedRecords)
+			entries, e := os.ReadDir(filepath.Join(session.StorePath, "rolling"))
+			if e != nil || len(entries) != 64 {
+				t.Fatal("physical row leak", len(entries), e)
+			}
+			reopened, e := store.Open(session.StorePath)
+			if e != nil {
+				t.Fatal(e)
+			}
+			page, e := reopened.Fetch(store.Filter{}, "", 100)
+			closeErr := reopened.Close()
+			if e != nil || closeErr != nil || len(page.Items) != 64 {
+				t.Fatal("reopen", len(page.Items), e, closeErr)
+			}
+			destination := portable
+			n, e := service.ExportCaptureFile(CaptureExportRequest{Source: CaptureFileSource{SessionID: string(session.ID)}, Destination: destination, Format: "session", Scope: "all"})
+			if e != nil || n != 64 {
+				t.Fatal("export", n, e)
+			}
+			doc, _, e := sessionfile.Read(destination)
+			if e != nil || doc.Retention == nil || doc.Retention.Retained != 64 || len(doc.Transactions) != 64 {
+				t.Fatal("portable retention", e)
+			}
+			var bytes int64
+			walkErr := filepath.WalkDir(session.StorePath, func(_ string, d os.DirEntry, e error) error {
+				if e != nil {
+					return e
+				}
+				if !d.IsDir() {
+					i, e := d.Info()
+					if e != nil {
+						return e
+					}
+					bytes += i.Size()
+				}
+				return nil
+			})
+			if walkErr != nil {
+				t.Fatal(walkErr)
+			}
+			report.PeakStoreBytes = max(report.PeakStoreBytes, bytes)
+			if e = os.Remove(destination); e != nil {
+				t.Fatal(e)
+			}
 		}
 		if _, err = service.StopCapture(string(session.ID)); err != nil {
 			t.Fatal("idempotent stop", err)
@@ -136,6 +260,16 @@ func TestCaptureProxySoakAcrossClearPauseAndReentry(t *testing.T) {
 		}
 		listener.Close()
 		cycles++
+		report.Cycles = cycles
+		report.Requests = total
+		sample()
+		// Keep the harness itself bounded over hours. Only this fixture's
+		// finalized temporary session is removed after reopen/export checks.
+		if duration > 0 {
+			if err = os.RemoveAll(session.StorePath); err != nil {
+				t.Fatal(err)
+			}
+		}
 		if t.Failed() {
 			return
 		}
