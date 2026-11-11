@@ -116,6 +116,7 @@ func (s *Service) Release(handle string) error {
 		return ingestion.Problem("IMPORT_IO_FAILED", "result release failed")
 	}
 	delete(s.stored, handle)
+	s.dropProjectionLocked(handle)
 	if !revision.reserved {
 		s.storedBytes -= revision.bytes
 	}

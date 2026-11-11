@@ -3,6 +3,7 @@
 package resultcontract
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
@@ -130,6 +131,9 @@ type Verdict struct {
 }
 
 func (r *Registry) Check(result models.AnalysisResult, operation string) Verdict {
+	return r.check(result, operation, false)
+}
+func (r *Registry) check(result models.AnalysisResult, operation string, validated bool) Verdict {
 	deny := func(reason string) Verdict { return Verdict{false, reason, true} }
 	d, ok := r.descriptor(result.Type, result.Metadata.SchemaVersion)
 	if !ok {
@@ -168,8 +172,10 @@ func (r *Registry) Check(result models.AnalysisResult, operation string) Verdict
 			return deny("unsupported_known_extension")
 		}
 	}
-	if e = r.Validate(result); e != nil {
-		return deny("invalid_result: " + e.Error())
+	if !validated {
+		if e = r.Validate(result); e != nil {
+			return deny("invalid_result: " + e.Error())
+		}
 	}
 	return Verdict{Allowed: true}
 }
@@ -272,6 +278,7 @@ func (r *Registry) Validate(result models.AnalysisResult) error {
 }
 
 func (r *Registry) validateUncached(result models.AnalysisResult) error {
+	refs, _ := references(context.Background(), result)
 	d, ok := r.descriptor(result.Type, result.Metadata.SchemaVersion)
 	if !ok {
 		return fmt.Errorf("unregistered result type")
@@ -306,7 +313,7 @@ func (r *Registry) validateUncached(result models.AnalysisResult) error {
 			if !ok || !exists || len(measurement.Columns) > 0 || measurement.AvailabilityColumn != "" || measurement.ReasonColumn != "" {
 				return fmt.Errorf("unknown scalar target")
 			}
-			if e = validateValue(result, value, measurement, schema); e != nil {
+			if e = validateValue(refs, value, measurement, schema); e != nil {
 				return e
 			}
 			continue
@@ -362,7 +369,7 @@ func (r *Registry) validateUncached(result models.AnalysisResult) error {
 				if cm.ReasonColumn != "" {
 					actual.Reason, _ = row[cm.ReasonColumn].(string)
 				}
-				if e = validateValue(result, value, actual, schema); e != nil {
+				if e = validateValue(refs, value, actual, schema); e != nil {
 					return e
 				}
 			}
@@ -402,26 +409,17 @@ func includes(list []string, s string) bool {
 	}
 	return false
 }
-func referenced(result models.AnalysisResult, key, id string) bool {
-	if id == "" {
-		return false
-	}
-	b, _ := json.Marshal(result.Metadata.Extra[key])
-	var ids []string
-	wirejson.Decode(b, &ids)
-	return includes(ids, id)
-}
-func validateValue(result models.AnalysisResult, value any, m Measurement, s ValueSchema) error {
+func validateValue(refs referenceIndex, value any, m Measurement, s ValueSchema) error {
 	if m.Kind == "" || m.Unit == "" || m.Scope == "" || m.Aggregation == "" || !includes(s.Kinds, m.Kind) || !includes(s.Units, m.Unit) || !includes(s.Encodings, m.Encoding) || !includes(s.Aggregations, m.Aggregation) {
 		return fmt.Errorf("measurement kind/unit/scope/encoding mismatch")
 	}
-	if m.Population != "" && !referenced(result, "population_ids", m.Population) {
+	if m.Population != "" && !refs.has("population_ids", m.Population) {
 		return fmt.Errorf("unknown population reference")
 	}
 	if s.RequirePopulation && m.Population == "" {
 		return fmt.Errorf("population reference required")
 	}
-	if m.Evidence != "" && !referenced(result, "evidence_ids", m.Evidence) {
+	if m.Evidence != "" && !refs.has("evidence_ids", m.Evidence) {
 		return fmt.Errorf("unknown evidence reference")
 	}
 	switch m.Availability {
@@ -555,9 +553,20 @@ type Delta struct {
 func (r *Registry) Compare(a, b models.AnalysisResult, path string) (Delta, error) {
 	for _, v := range []models.AnalysisResult{a, b} {
 		if verdict := r.Check(v, "compare"); !verdict.Allowed {
-			return Delta{}, fmt.Errorf("%s", verdict.Reason)
+			return Delta{}, comparisonError(ComparisonResultUnsupported, verdict.Reason)
 		}
 	}
+	leftHash, e := canonicalDigest(a)
+	if e != nil {
+		return Delta{}, e
+	}
+	rightHash, e := canonicalDigest(b)
+	if e != nil {
+		return Delta{}, e
+	}
+	return r.compareValidated(a, b, path, leftHash, rightHash)
+}
+func (r *Registry) compareValidated(a, b models.AnalysisResult, path, leftHash, rightHash string) (Delta, error) {
 	if a.Type != b.Type || a.Metadata.SchemaVersion != b.Metadata.SchemaVersion {
 		return Delta{}, comparisonError(ComparisonSemanticRevisionMismatch, "semantic revision mismatch; original reanalysis required")
 	}
@@ -577,7 +586,7 @@ func (r *Registry) Compare(a, b models.AnalysisResult, path string) (Delta, erro
 	if x.Kind != y.Kind || x.Unit != y.Unit || (x.Population == "") != (y.Population == "") || x.Scope != y.Scope || x.Aggregation != y.Aggregation {
 		return Delta{}, comparisonError(ComparisonMeasurementMismatch, "measurement population/unit/kind mismatch")
 	}
-	comparison, e := comparePopulations(a, b, x.Population, y.Population)
+	comparison, e := comparePopulationsAt(a, b, x.Population, y.Population, leftHash, rightHash)
 	if e != nil {
 		return Delta{}, e
 	}

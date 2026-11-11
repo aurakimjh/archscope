@@ -63,6 +63,13 @@ func (s *Service) ReleaseResultLease(leaseID string) error {
 	}
 	handle := s.leases[leaseID]
 	delete(s.leases, leaseID)
+	remaining := false
+	for _, owner := range s.leases {
+		remaining = remaining || owner == handle
+	}
+	if !remaining {
+		s.dropProjectionLocked(handle)
+	}
 	if rev, ok := s.stored[handle]; ok && rev.reserved {
 		for _, owner := range s.leases {
 			if owner == handle {
@@ -73,6 +80,7 @@ func (s *Service) ReleaseResultLease(leaseID string) error {
 			return e
 		}
 		delete(s.stored, handle)
+		s.dropProjectionLocked(handle)
 	}
 	return nil
 }

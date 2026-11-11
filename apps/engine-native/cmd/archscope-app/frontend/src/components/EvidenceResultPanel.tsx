@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n/I18nProvider";
 import * as bridge from "@/bridge/engine";
 import { addWorkspaceResult, getWorkspaceGeneration, reopenWorkspaceCase, type AnalysisWorkspaceEntry } from "@/state/analysisWorkspace";
-import { ResultRequestScope, startScopedImport, providerUsable, resultProblem, validateProviderPage, type ImportJob, type ProviderComparison, type ProviderPage, type ResultCapabilities } from "@/state/resultProviders";
+import { ResultRequestScope, safeDisplayText, comparisonEligibility, type ComparisonEligibility, startScopedImport, providerUsable, resultProblem, validateProviderPage, type ImportJob, type ProviderComparison, type ProviderPage, type ResultCapabilities } from "@/state/resultProviders";
 
 // The consumer understands provider schemas, never importer/result type names.
 export function EvidenceResultPanel({ entries, active }: { entries: AnalysisWorkspaceEntry[]; active?: AnalysisWorkspaceEntry }): React.JSX.Element {
@@ -14,7 +14,7 @@ export function EvidenceResultPanel({ entries, active }: { entries: AnalysisWork
   const viewLabel = (kind: string, path: string): string => {
     const labels: Record<string, string> = { summary: words("Summary", "요약"), diagnostics: words("Diagnostics", "진단"), table: words("Table", "표"), detail: words("Detail", "상세"), timeline: words("Timeline events", "타임라인 이벤트"), sli: words("Service indicators", "서비스 지표"), compare: words("Compare", "비교"), chart: words("Charts", "차트") };
     const key = path.split("/").pop()?.replace(/~1/g, "/").replace(/~0/g, "~") ?? "";
-    return [labels[kind] ?? kind, ["summary", "diagnostics", "chart"].includes(kind) ? "" : key].filter(Boolean).join(" · ");
+    return [labels[kind] ?? kind, ["summary", "diagnostics", "chart"].includes(kind) ? "" : key].filter(Boolean).map(safeDisplayText).join(" · ");
   };
   const [presetScope, setPresetScope] = useState("");
   const [path, setPath] = useState(""); const [importer, setImporter] = useState("auto");
@@ -27,6 +27,12 @@ export function EvidenceResultPanel({ entries, active }: { entries: AnalysisWork
   const [comparison, setComparison] = useState<ProviderComparison | null>(null); const [target, setTarget] = useState("");
   const [busy, setBusy] = useState(false); const [problem, setProblem] = useState<ReturnType<typeof resultProblem> | null>(null);
   const load = useRef(new ResultRequestScope()); const query = useRef(new ResultRequestScope());
+  const targetScope = useRef(new ResultRequestScope());
+  const [targetStates, setTargetStates] = useState<{ key: string; values: Record<string, ComparisonEligibility> }>({ key: "", values: {} });
+  const targetHandles = [...new Set(entries.flatMap(entry => entry.backend_result_handle ? [entry.backend_result_handle] : []))];
+  const targetKey = JSON.stringify(targetHandles);
+  const eligibilityKey = JSON.stringify([caps?.handle, caps?.result_sha256, provider, targetKey]);
+  const eligibleTargets = targetStates.key === eligibilityKey ? targetStates.values : {};
   const [reload, setReload] = useState(0);
   useEffect(() => { setHandle(active?.backend_result_handle ?? ""); setProblem(null); }, [active?.backend_result_handle]);
   useEffect(() => {
@@ -118,8 +124,25 @@ export function EvidenceResultPanel({ entries, active }: { entries: AnalysisWork
     } catch (error) { if (scope.current(revision)) setProblem(resultProblem(error)); }
     finally { if (scope.current(revision)) setBusy(false); }
   }
+  useEffect(() => {
+    const scope = targetScope.current; const revision = scope.begin();
+    setTarget(""); setTargetStates({ key: eligibilityKey, values: {} });
+    if (!caps || caps.providers.find(candidate => candidate.id === provider)?.kind !== "compare") return;
+    const handles: string[] = JSON.parse(targetKey); let cursor = 0;
+    async function worker(): Promise<void> {
+      while (scope.current(revision) && cursor < handles.length) {
+        const handle = handles[cursor++];
+        try {
+          const candidate = handle === caps!.handle ? caps! : await scope.wait(revision, bridge.describeEvidenceResult(handle));
+          if (scope.current(revision)) setTargetStates(previous => previous.key === eligibilityKey ? { key: eligibilityKey, values: { ...previous.values, [handle]: comparisonEligibility(caps!, candidate, provider) } } : previous);
+        } catch { if (scope.current(revision)) setTargetStates(previous => previous.key === eligibilityKey ? { key: eligibilityKey, values: { ...previous.values, [handle]: { allowed: false, reason: "target_unavailable" } } } : previous); }
+      }
+    }
+    void Promise.all([worker(), worker()]);
+    return () => scope.cancel();
+  }, [caps, provider, targetKey, eligibilityKey]);
   async function compare(): Promise<void> {
-    if (!caps || !target) return; const scope = query.current; const revision = scope.begin(); setBusy(true); setProblem(null); setComparison(null);
+    if (!caps || !target || !eligibleTargets[target]?.allowed) return; const scope = query.current; const revision = scope.begin(); setBusy(true); setProblem(null); setComparison(null);
     try { setComparison(await scope.wait(revision, bridge.compareEvidenceProvider(caps.handle, target, provider))); }
     catch (error) { if (scope.current(revision)) setProblem(resultProblem(error)); }
     finally { if (scope.current(revision)) setBusy(false); }
@@ -156,31 +179,32 @@ export function EvidenceResultPanel({ entries, active }: { entries: AnalysisWork
       {job.state === "needs_selection" && job.detection.candidates.map(c => <Button key={c.importerId} variant="outline" disabled={busy} onClick={() => void chooseImporter(c.importerId)}>{c.importerId} · {c.reason}</Button>)}
     </div>}
     {busy && <p role="status">{words("Working…", "처리 중…")}</p>}
-    {problem && <div role="alert" className="break-words"><p>{problem.code}: {problem.message}</p>{problem.stale && <p>{words("Reopen the saved result file or a saved case snapshot.", "저장 결과 파일 또는 저장된 케이스 스냅샷을 다시 열어 주세요.")}</p>}
+    {problem && <div role="alert" className="break-words"><p>{safeDisplayText(problem.code)}: {safeDisplayText(problem.message)}</p>{problem.stale && <p>{words("Reopen the saved result file or a saved case snapshot.", "저장 결과 파일 또는 저장된 케이스 스냅샷을 다시 열어 주세요.")}</p>}
       {problem.stale && active?.saved_case && <Button variant="outline" onClick={() => void reopenWorkspaceCase(active.saved_case!.case_id, active.saved_case!.result_id).catch(error => setProblem(resultProblem(error)))}>{words("Reopen case snapshot", "케이스 스냅샷 다시 열기")}</Button>}
       <Button variant="outline" disabled={busy} onClick={() => setReload(n => n + 1)}>{words("Retry result", "결과 다시 조회")}</Button>
     </div>}
     {caps && <>
-      <div className="flex flex-wrap items-center gap-2"><strong>{caps.type}</strong><Button size="sm" variant="outline" disabled={busy} onClick={() => void addToWorkspace()}>{words("Add to Workspace", "Workspace에 추가")}</Button>
+      <div className="flex flex-wrap items-center gap-2"><strong>{safeDisplayText(caps.type)}</strong><Button size="sm" variant="outline" disabled={busy} onClick={() => void addToWorkspace()}>{words("Add to Workspace", "Workspace에 추가")}</Button>
         <Button size="sm" variant="outline" disabled={busy} onClick={() => void (async () => { try { const destination = await Dialogs.SaveFile({ Title: words("Save exact result", "원본 정밀도 결과 저장"), Filename: "evidence.json" }); if (destination) await bridge.exportEvidenceResult(caps.handle, destination, "raw-json"); } catch (error) { setProblem(resultProblem(error)); } })()}>{words("Save result JSON", "결과 JSON 저장")}</Button>
       </div>
       <p className="text-xs">{words("Declared identity; original sources have not been verified by reimport.", "선언된 식별 정보이며 원본 재가져오기로 검증한 상태가 아닙니다.")}</p>
-      {!caps.compatibility.allowed && <p role="status">{words("Read-only fallback", "읽기 전용 기본 표시")}: {caps.compatibility.reason}</p>}
-      <details><summary>{words("Sources and revision", "출처 및 리비전")}</summary><code className="break-all text-xs">{caps.result_sha256}</code>{caps.sources.map((s, i) => <p className="break-words text-xs" key={i}>{s.text}</p>)}{caps.sources_truncated && <p>{words("Source labels limited.", "출처 표시가 제한되었습니다.")}</p>}</details>
+      {!caps.compatibility.allowed && <p role="status">{words("Read-only fallback", "읽기 전용 기본 표시")}: {safeDisplayText(caps.compatibility.reason || "")}</p>}
+      <details><summary>{words("Sources and revision", "출처 및 리비전")}</summary><code className="break-all text-xs">{caps.result_sha256}</code>{caps.sources.map((s, i) => <p className="break-words text-xs" key={i}><bdi>{s.text}</bdi>{s.escaped && <small> {words("Controls shown", "제어문자 표시")}</small>}</p>)}{caps.sources_truncated && <p>{words("Source labels limited.", "출처 표시가 제한되었습니다.")}</p>}</details>
       <select className="max-w-full rounded border border-border bg-background p-2" aria-label={words("Result view", "결과 보기")} value={provider} onChange={e => { query.current.cancel(); setProvider(e.target.value); }}>
-        {caps.providers.map(p => <option key={p.id} value={p.id} disabled={!providerUsable(p)}>{viewLabel(p.kind, p.payload_path)}{p.reason ? ` (${p.reason})` : ""}</option>)}
+        {caps.providers.map(p => <option key={p.id} value={p.id} disabled={!providerUsable(p)}>{viewLabel(p.kind, p.payload_path)}{p.reason ? ` (${safeDisplayText(p.reason)})` : ""}</option>)}
       </select>
       {caps.truncated && <p>{words("Provider list limited; use backend export for remaining data.", "기능 목록이 제한되었습니다. 나머지 자료는 내보내기로 확인하세요.")}</p>}
       {selected?.kind === "compare" && <div className="flex flex-wrap gap-2">
         <span>{words("Baseline: current result", "기준: 현재 결과")}</span>
-        <select aria-label={words("Comparison target", "비교 대상")} className="max-w-full rounded border border-border bg-background p-2" value={target} onChange={e => { query.current.cancel(); setBusy(false); setComparison(null); setTarget(e.target.value); }}><option value="">{words("Choose target", "대상 선택")}</option>{entries.filter(e => e.backend_result_handle).map(e => <option value={e.backend_result_handle} key={e.id}>{e.title}</option>)}</select>
-        <Button disabled={busy || !target || !providerUsable(selected)} onClick={() => void compare()}>{words("Compare", "비교")}</Button>
+        <select aria-label={words("Comparison target", "비교 대상")} className="max-w-full rounded border border-border bg-background p-2" value={target} onChange={e => { query.current.cancel(); setBusy(false); setComparison(null); setTarget(e.target.value); }}><option value="">{words("Choose target", "대상 선택")}</option>{entries.filter(e => e.backend_result_handle).map(e => { const status = eligibleTargets[e.backend_result_handle!]; return <option value={e.backend_result_handle} key={e.id} disabled={!status?.allowed}>{safeDisplayText(e.title)}{!status?.allowed ? ` (${status?.reason || words("Checking", "확인 중")})` : ""}</option>; })}</select>
+        <Button disabled={busy || !target || !eligibleTargets[target]?.allowed || !providerUsable(selected)} onClick={() => void compare()}>{words("Compare", "비교")}</Button>
       </div>}
       {comparison && <div role="status">{comparison.allowed ? <><p>Δ {comparison.delta?.value ?? "—"} · {comparison.delta?.percent ?? "—"}%</p><p className="text-xs break-all">{comparison.delta?.comparison?.baseline.result_sha256} → {comparison.delta?.comparison?.target.result_sha256}</p></> : <p>{words("Comparison refused", "비교 불가")}: {comparison.code || comparison.reason}</p>}{comparison.code && <p>{comparison.code}</p>}</div>}
       {page && <>
-        <div className="max-h-96 overflow-auto rounded border border-border"><table className="w-full text-left text-sm"><thead><tr>{page.columns.map(c => <th key={c} className="p-2">{c}</th>)}</tr></thead><tbody>{page.rows.map((row, i) => <tr key={page.offset + i}>{row.map((cell, j) => <td key={j} className="max-w-96 break-words border-t border-border p-2"><span>{cell.text}</span>{cell.unit && <small> {cell.unit}</small>}{(cell.availability || cell.reason || cell.population) && <p className="text-xs text-muted-foreground">{[cell.availability, cell.reason, cell.population].filter(Boolean).join(" · ")}</p>}{cell.truncated && <span>…</span>}</td>)}</tr>)}</tbody></table></div>
+        <div className="max-h-96 overflow-auto rounded border border-border"><table className="w-full text-left text-sm"><thead><tr>{page.columns.map(c => <th key={c} className="p-2">{c}</th>)}</tr></thead><tbody>{page.rows.map((row, i) => <tr key={page.offset + i}>{row.map((cell, j) => <td key={j} className="max-w-96 break-words border-t border-border p-2"><bdi>{cell.text}</bdi>{cell.escaped && <small> {words("Controls shown", "제어문자 표시")}</small>}{cell.unit && <small> {cell.unit}</small>}{(cell.availability || cell.reason || cell.population) && <p className="text-xs text-muted-foreground">{[cell.availability, cell.reason, cell.population].filter(Boolean).join(" · ")}</p>}{cell.truncated && <span>…</span>}</td>)}</tr>)}</tbody></table></div>
         {page.total === 0 && <p>{words("No rows", "표시할 행이 없습니다")}</p>}
         <div className="flex flex-wrap items-center gap-2"><Button variant="outline" disabled={busy || page.offset === 0} onClick={() => void readPage(Math.max(0, page.offset - 25))}>{words("Previous", "이전")}</Button><span>{page.offset + (page.rows.length ? 1 : 0)}–{page.offset + page.rows.length} / {page.total}</span><Button variant="outline" disabled={busy || page.next < 0} onClick={() => void readPage(page.next)}>{words("Next", "다음")}</Button></div>
+        {page.escaped && <p>{words("Control and bidirectional formatting characters are shown as code points. Original exports are unchanged.", "제어 및 양방향 서식 문자는 코드 포인트로 표시합니다. 내보내기 원본은 유지됩니다.")}</p>}
         {page.truncated && <p>{words("Display limited. Exact data remains in backend exports.", "표시가 제한되었습니다. 정밀 데이터는 백엔드 내보내기에 보존됩니다.")}</p>}
       </>}
     </>}

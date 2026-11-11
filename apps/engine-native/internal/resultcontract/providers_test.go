@@ -3,6 +3,7 @@ package resultcontract
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 	"testing"
 
@@ -136,7 +137,7 @@ func TestProviderOversizedFirstRowRefusesWithoutPagingLoop(t *testing.T) {
 	r := models.New("unknown", "synthetic")
 	row := map[string]any{}
 	for i := 0; i < 32; i++ {
-		row[string(rune('a'+i))] = strings.Repeat("\x01", MaxCellBytes)
+		row[strings.Repeat("\"", MaxCellBytes-2)+fmt.Sprintf("%02d", i)] = strings.Repeat("\"", MaxCellBytes)
 	}
 	r.Tables["escaped"] = []map[string]any{row}
 	if _, e := registry.Project(context.Background(), r, "generic:/tables/escaped", 0, 25); e == nil {

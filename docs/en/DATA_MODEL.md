@@ -2161,3 +2161,45 @@ activation does not reinterpret saved results. Unsigned presets require explicit
 user/case scope and conflicts require owner selection. See [Offline packs](OFFLINE_PACKS.md)
 for closed contracts, resource limits, atomic activation, revocation, mandatory
 fixture packaging, disconnected acceptance boundaries and the measured SQLite decision.
+
+### T-631 R8 review remediation (2026-11-12)
+
+Reference lists are decoded once into sets for semantic and measurement validation.
+Timeline/SLI rows use constant-time membership checks; malformed lists do not grant
+references. Provider requests share a private, byte-digest-bound decoded snapshot,
+validated capability list, measurements, and lazy stable column/key indexes. Only
+the requested row range is formatted after the initial index build. Public model
+APIs remain stateless; copied display DTOs cannot mutate cached models or indexes.
+
+The service retains at most four projections with 512 MiB of conservative structural
+admission units (decoded maps/strings/arrays plus source-byte and index reserve).
+This is a cache accounting bound, not an RSS guarantee. Oversized entries remain
+uncached; LRU pressure may evict a leased projection without deleting its result.
+Final lease release, result release, explicit cleanup and shutdown discard matching
+entries. Canceled/failed validation or index builds never publish a partial entry.
+
+Cold or fingerprint-changed reads verify the original SHA-256 before decoding. Warm
+reads check file identity, size, write time and native change time (macOS/Linux/Windows)
+without re-reading the payload; unavailable change stamps fall back to full hashing.
+A cache hit represents the already verified immutable snapshot, not a fresh cryptographic
+attestation of external disk bytes. Even an undetectable external edit cannot alter that
+private snapshot. Original exports continue to read and hash the complete stored file.
+Caches are per-service/registry and are not persisted across CLI invocations or restart.
+
+Compatibility failures now return `result_unsupported` with the compatibility reason
+and no numeric delta. Result descriptions add `payload_version`; the UI describes
+targets with at most two concurrent cancellable requests and disables unsupported
+type/revision/provider targets. Selection, population and unit policy refusals remain
+backend decisions, with ordered original result digests and declared identity.
+
+Display cells, column labels and source labels render C0/C1 and Unicode BiDi controls
+as visible `⟦U+XXXX⟧` tokens, bounded after expansion. `Cell.escaped`/`Page.escaped`
+disclose this rendering; the UI also isolates value text and sanitizes its own labels.
+Metric/source identity, exact numbers, null/absence and original export bytes are unchanged.
+
+Local race measurements on macOS arm64: 8k/16k timeline plus SLI validation took
+217/423 ms. A separate warm 100k-row, 19,689,335-byte table benchmark averaged
+108,454 ns for describe plus a 25-row last page (20 iterations). These are one-host
+measurements, not native Windows or cold-load latency guarantees. The regression
+has scheduling headroom for hosted race runs and separately tests cancellation,
+invalid references, DTO isolation, cache lifetime, tampering and exact exports.

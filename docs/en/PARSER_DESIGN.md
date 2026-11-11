@@ -935,3 +935,11 @@ its exact token: `case corrupt-delete-plan --store PATH --id ID`, then, only aft
 reviewing scope, `case purge-corrupt --store PATH --id ID --token TOKEN`. Normal
 case lifecycle remains separate. CLI cache maintenance asks the user to close the
 owning desktop app. No cleanup or purge runs automatically against user cases.
+
+### T-631 R8 consumer boundary
+
+Reference-set preparation and private projection/column caching belong to the
+result contract and analysis service, not parsers or analyzers. Display-only
+control escaping never rewrites normalized records, metric names, source identity
+or original exports. The cache is transient; durable source/search/baseline indexes
+remain T-635. See [Data model](DATA_MODEL.md#t-631-r8-review-remediation-2026-11-12).

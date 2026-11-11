@@ -1,0 +1,179 @@
+{
+  "task": "T-631 R8-01 to R8-04",
+  "status": "DONE under independent review conditional closure permission",
+  "recorded_at": "2026-11-12T06:36:30.400159+09:00",
+  "pull_before_work": {
+    "head": "34dbd8f500c212d4455137a519fea13225fb617a",
+    "result": "Already up to date before edits"
+  },
+  "source_base_commit": "e328d8dfbcc28ec656f4b8e7cb020affec50a4c6",
+  "review_verdict": "Original CONDITIONAL preserved; after-R8-01-remediation closure condition locally verified; final fixes not independently re-reviewed",
+  "source_sha256": {
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/internal/analysis/models.ts": "98e37bb2a66bc561615ad746c4fc6bc4f79a5dac84eb10f5636d79bd0df8dee9",
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/internal/resultcontract/models.ts": "720b5c4ca8698dea2adcbb546c3aa872182e8775bbdf7c68d32aaec96afe4b49",
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/EvidenceResultPanel.tsx": "75a99daa7ebf5e75fadb82c52c19175168556e112835b87c494e601265e483c0",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/regression.test.ts": "7bd29c71ef1e3f2ff7c4bef6e922f20ce3c99e1c705dc55002f7ea4cdc21e56c",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/resultProviders.ts": "c2de69cd252ea56b1b76a342ab91c4a9673260bcf0c507e26ac7bcd5eaa1a75c",
+    "apps/engine-native/internal/analysis/cache.go": "3c2cfb25fd6bd716ea5210f0318962bef9fa9efe3cc67d0aee11aab5463b14f2",
+    "apps/engine-native/internal/analysis/ownership.go": "5a71a84333eac6223f03c32b2d2ceca665bd9dcbd6db53ef7ca7e6703cd3a7eb",
+    "apps/engine-native/internal/analysis/projection_cache.go": "5377e121b24b7857b59a3e43386598a67c8c99ff87af3a135a52484a49cd46a4",
+    "apps/engine-native/internal/analysis/projection_stamp_darwin.go": "4e0fff38a2990a24987d9047fdcd9c91414c0e2bdefa0de58d56b56edbb68d7a",
+    "apps/engine-native/internal/analysis/projection_stamp_linux.go": "95d74cd78c12d535ba9a160b311c618765e0c72039563c25a72a4ae303abe37b",
+    "apps/engine-native/internal/analysis/projection_stamp_other.go": "62d0ec4700eaa597124d4dda4050c9c4deb66d058d529d4e10ac78a564e7ed04",
+    "apps/engine-native/internal/analysis/projection_stamp_windows.go": "9696f0706e7a0ac0f91af450b60e32bc4f811caab4c68fc8313c9511dde807e5",
+    "apps/engine-native/internal/analysis/providers.go": "a6594f809df62e7e7313af917eadf6fc02db814e5846ceee44cefdafbbd1914e",
+    "apps/engine-native/internal/analysis/review_r8_test.go": "e9b6ce26ef4dbb34aee5bcb6e1c5ef40075b704cf358e771c5678f2f10e20718",
+    "apps/engine-native/internal/analysis/service.go": "46430df3dd0ec13d40ccaf345622d52d922afa9a3410517cef6d7e79f6413b7b",
+    "apps/engine-native/internal/analysis/store.go": "79dac0440001cbb58b216ca3f593e31e5ca3be9cc1f62cfe5b06d468bfdab196",
+    "apps/engine-native/internal/resultcontract/comparison.go": "c10f76a54c7c1f637d96a94a8c42a86c411adb8d3cb248b47e7ba725b6f8f131",
+    "apps/engine-native/internal/resultcontract/contract.go": "e1247c2e4a8784b1becbb0684baaa976d58aba83c82b762e228ac3f0e88f2823",
+    "apps/engine-native/internal/resultcontract/projection.go": "de77b78c8136b13752fba375d1cb73418b2164882eda4068b43642bb4acb20e3",
+    "apps/engine-native/internal/resultcontract/providers.go": "a5e38cefa1b73cbe4ae5f1f0f90c1f6a65ebb38ae970459502ef19eb2a5d4184",
+    "apps/engine-native/internal/resultcontract/providers_test.go": "b2c8abac0a19147cdad29d1aa1572095825ff8610539b18198c221393e0592d9",
+    "apps/engine-native/internal/resultcontract/references.go": "7d8fc9b6638edf22d46a1d67bbe4c69a3d2ce498353287dd2466513605aac8b7",
+    "apps/engine-native/internal/resultcontract/review_r8_test.go": "c51bae1ed1f397c5c71b6bb6799bba266fed2477ecd6b317ffa4d09c09086823",
+    "docs/en/DATA_MODEL.md": "e3cd57cece54eb249ccce3e9b2452eff4f160f897b4ba800432e4d850da97aff",
+    "docs/en/PARSER_DESIGN.md": "563288a14cac01637b730e48d65345b779a6c8bf285d1a6dd60af1d61c0f7951",
+    "docs/ko/DATA_MODEL.md": "6c14049dc9cf4e763507608579a553a175607121b93a030b72622e0d2b0e7685",
+    "docs/ko/PARSER_DESIGN.md": "f4cb662d157aa28016edc29cb13591b81d585dbac3bd629323a5afd39d224e55",
+    "docs/review/README.md": "058e32b73d6d01b46c213bfdf0f2baedbb68b5e5318818f7ca0d00efdb273f15",
+    "docs/review/done/2026-11-12_claude-code_T-632_implementation-review.ko.md": "7ef036ca2d1a1d4b8ea900efa85bbd33c9dda061bec8abf0a8635c385d205ee3",
+    "work_status.md": "b85d75c3ba5d4247e7575aa6e65900aa7666ecb72670939fc539dfdfb5a895d6"
+  },
+  "review_archives": {
+    "2026-11-11_claude-code_T-631_implementation-review.ko.md": {
+      "sha256": "89037186b6f7bdeaa01d0131d68880234215e07077b6b7927f744b6e11b77f51",
+      "original_preserved": true
+    },
+    "2026-11-12_claude-code_T-632_implementation-review.ko.md": {
+      "sha256": "7ef036ca2d1a1d4b8ea900efa85bbd33c9dda061bec8abf0a8635c385d205ee3",
+      "original_preserved": true
+    }
+  },
+  "artifacts": {
+    "cli_darwin_arm64": {
+      "bytes": 30571522,
+      "sha256": "eee106b0f6e0e28d5600213cedfabbf15826f427aad9f32ae01396506c5c24aa"
+    },
+    "desktop_darwin_arm64": {
+      "bytes": 31237792,
+      "sha256": "90b6c123daaf11e6b6b4dd848d269f61d1e3d415b745373222f5feab75d2d978"
+    },
+    "desktop_windows_amd64": {
+      "bytes": 42606080,
+      "sha256": "95416d9ab834aa1f955d1f3ab8e2c07c0957b1ea9c42e7cc90152bc7c630918d"
+    },
+    "desktop_windows_386": {
+      "bytes": 41298944,
+      "sha256": "8c07d3397a5579c83975a69120fa0b43be07d6ff71e7010788fcf761e76cd9d7"
+    }
+  },
+  "checks": [
+    {
+      "check": "full Go race",
+      "result": "PASS"
+    },
+    {
+      "check": "host go vet/build",
+      "result": "PASS"
+    },
+    {
+      "check": "Windows amd64/386 go vet",
+      "result": "PASS"
+    },
+    {
+      "check": "Linux amd64 analysis/resultcontract go vet",
+      "result": "PASS"
+    },
+    {
+      "check": "Windows amd64/386 production builds using pinned SDK wrapper",
+      "result": "PASS"
+    },
+    {
+      "check": "generated Wails bindings",
+      "result": "PASS"
+    },
+    {
+      "check": "frontend state tests/build",
+      "result": "PASS"
+    },
+    {
+      "check": "fresh Mac production package/signature",
+      "result": "PASS"
+    },
+    {
+      "check": "mandatory offline resource parity",
+      "result": "PASS"
+    },
+    {
+      "check": "desktop-only product guard",
+      "result": "PASS"
+    },
+    {
+      "check": "actual CLI structured comparison refusal/exact fallback/self delta",
+      "result": "PASS"
+    },
+    {
+      "check": "scoped native Mac WebView control escaping/disabled target/self comparison",
+      "result": "PASS"
+    }
+  ],
+  "race": {
+    "command": "go test -race -count=1 -json ./...",
+    "packages_passed": 99,
+    "tests_passed": 1432,
+    "tests_skipped": 6,
+    "failures": [],
+    "skip_cases": [
+      "TestReferencePresetFiltersWhenProvided",
+      "TestPrivateReferenceSample",
+      "TestLargeXLSIndependentReader",
+      "TestOfficialDriverFingerprints",
+      "TestConvertJFRToJSONIntegration",
+      "TestR606LargePageMeasurement"
+    ]
+  },
+  "cache_policy": {
+    "entries": 4,
+    "structural_admission_units": 536870912,
+    "rss_guarantee": false,
+    "key": "handle plus original byte digest and immutable registry",
+    "warm_fingerprint": "file identity, size, mtime and native change time; full-hash fallback if unavailable",
+    "limits": "Warm cached content is the prior verified snapshot, not a new cryptographic assertion of disk bytes; raw exports still fully hash/read. Oversized projections remain uncached; LRU does not release result leases or delete files.",
+    "lifetime": "final lease release, explicit handle release, cleanup, shutdown and eviction; canceled/failed index builds not cached"
+  },
+  "native_mac_ui": {
+    "observed": true,
+    "isolated_diagnostics_root": true,
+    "cases": [
+      "visible U+202E / U+0007 markers and control-display disclosure",
+      "9007199254740993 preserved exactly; null and zero distinct",
+      "escaped source and Workspace title",
+      "unknown type target disabled with unknown_result_type",
+      "known target enabled",
+      "self comparison delta 0 / 0 percent with equal ordered byte digests"
+    ]
+  },
+  "not_claimed": [
+    "independent re-review or PASS for final R8 fixes",
+    "new native Windows runtime/UI tests",
+    "hosted CI execution for new commit",
+    "real timeline/SLI producer qualification",
+    "R9 pack remediation",
+    "RSS bound equal to cache admission units",
+    "warm performance across process restarts"
+  ],
+  "t632_review_intake": "R9-01 P2 then R9-02/R9-03/R9-04 P3 recorded before unchanged archival; T-632 REVIEW; independent review explicitly does not block T-633",
+  "status_counts": {
+    "DONE": 214,
+    "REVIEW": 4,
+    "TODO": 4,
+    "PENDING": 10
+  },
+  "preserved_unrelated": [
+    "docs/en/SYSTEM_HTTP_CAPTURE.md",
+    "docs/ko/SYSTEM_HTTP_CAPTURE.md",
+    "scripts/verify-http-desktop.mjs",
+    "original work_status.md HTTP paragraph"
+  ]
+}

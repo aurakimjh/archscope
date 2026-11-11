@@ -1,0 +1,15 @@
+{
+  "command": "go test -race -count=1 -json ./...",
+  "packages_passed": 99,
+  "tests_passed": 1432,
+  "tests_skipped": 6,
+  "failures": [],
+  "skip_cases": [
+    "TestReferencePresetFiltersWhenProvided",
+    "TestPrivateReferenceSample",
+    "TestLargeXLSIndependentReader",
+    "TestOfficialDriverFingerprints",
+    "TestConvertJFRToJSONIntegration",
+    "TestR606LargePageMeasurement"
+  ]
+}

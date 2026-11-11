@@ -1,9 +1,9 @@
 // Only bounded backend display DTOs enter this module. Stored result JSON stays
 // opaque; exact numbers, deltas, units and provenance travel as text.
-export type DisplayCell = { text: string; null: boolean; truncated: boolean; availability?: string; reason?: string; unit?: string; population?: string };
+export type DisplayCell = { escaped?: boolean; text: string; null: boolean; truncated: boolean; availability?: string; reason?: string; unit?: string; population?: string };
 export type ResultCapability = { id: string; version: string; kind: string; payload_path: string; schema: string; availability: string; reason?: string };
-export type ResultCapabilities = { handle: string; result_sha256: string; type: string; version: string; compatibility: { allowed: boolean; reason?: string }; identity_basis: string; providers: ResultCapability[]; sources: DisplayCell[]; sources_truncated: boolean; truncated: boolean };
-export type ProviderPage = { handle: string; result_sha256: string; provider: string; columns: string[]; rows: DisplayCell[][]; offset: number; next: number; total: number; truncated: boolean };
+export type ResultCapabilities = { payload_version?: string; handle: string; result_sha256: string; type: string; version: string; compatibility: { allowed: boolean; reason?: string }; identity_basis: string; providers: ResultCapability[]; sources: DisplayCell[]; sources_truncated: boolean; truncated: boolean };
+export type ProviderPage = { escaped?: boolean; handle: string; result_sha256: string; provider: string; columns: string[]; rows: DisplayCell[][]; offset: number; next: number; total: number; truncated: boolean };
 export type ProviderComparison = { allowed: boolean; code?: string; reason?: string; delta?: { value: string | null; percent: string | null; reason?: string; comparison?: { identity_basis: string; baseline: { handle: string; result_sha256: string }; target: { handle: string; result_sha256: string } } } };
 export type ImportJob = { packs?: Array<{ id: string; version: string; sha256: string; origin: string; scope: string }>; pack_state_revision?: string; id: string; generation: number; state: string; resultHandle?: string; cleanupPending?: boolean; problem?: { code: string; message: string }; detection: { candidates: Array<{ importerId: string; reason: string }> } };
 export type Cancelable<T> = Promise<T> & { cancel?: () => void };
@@ -47,4 +47,27 @@ export async function startScopedImport(scope: ResultRequestScope, revision: num
   const job = await start;
   if (!scope.current(revision)) { await cancel(job.id, job.generation); return null; }
   return job;
+}
+
+// Display labels only. IDs, hashes, options and original exports stay unchanged.
+export function safeDisplayText(value: string): string {
+  let out = "";
+  for (const character of value) {
+    const code = character.codePointAt(0)!;
+    const invisible = code < 32 || (code >= 127 && code <= 159) || [0x061c, 0x200e, 0x200f].includes(code) || (code >= 0x202a && code <= 0x202e) || (code >= 0x2066 && code <= 0x2069);
+    const part = invisible ? `⟦U+${code.toString(16).toUpperCase().padStart(4, "0")}⟧` : character;
+    if (out.length + part.length > 2048) return out + "…";
+    out += part;
+  }
+  return out;
+}
+export type ComparisonEligibility = { allowed: boolean; reason?: string };
+export function comparisonEligibility(baseline: ResultCapabilities, target: ResultCapabilities, provider: string): ComparisonEligibility {
+  const baselineProvider = baseline.providers.find(candidate => candidate.id === provider && candidate.kind === "compare");
+  if (baseline.version !== "1.0.0" || !baseline.compatibility.allowed || !baselineProvider || !providerUsable(baselineProvider)) return { allowed: false, reason: "result_unsupported" };
+  if (target.version !== "1.0.0" || !target.compatibility.allowed) return { allowed: false, reason: target.compatibility.reason || "result_unsupported" };
+  if (target.type !== baseline.type || !target.payload_version || target.payload_version !== baseline.payload_version) return { allowed: false, reason: "semantic_revision_mismatch" };
+  const capability = target.providers.find(candidate => candidate.id === provider && candidate.kind === "compare");
+  if (!capability || !providerUsable(capability)) return { allowed: false, reason: capability?.reason || "measurement_absent" };
+  return { allowed: true };
 }

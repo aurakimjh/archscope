@@ -1,0 +1,98 @@
+{
+  "payload_version": "0.1.0",
+  "handle": "result-5fea5f7d14fa46a8ba0fa5a352ccf362",
+  "result_sha256": "c5c6f584f9015466a652f608c6df6f64093430a257474a616b960e2c8800366e",
+  "type": "unregistered.r8",
+  "sources": [
+    {
+      "text": "source⟦U+202E⟧⟦U+0007⟧",
+      "null": false,
+      "truncated": false,
+      "escaped": true
+    }
+  ],
+  "sources_truncated": false,
+  "version": "1.0.0",
+  "compatibility": {
+    "allowed": false,
+    "reason": "unknown_result_type",
+    "readOnly": true
+  },
+  "identity_basis": "declared",
+  "providers": [
+    {
+      "id": "generic:summary",
+      "version": "1.0.0",
+      "kind": "summary",
+      "payload_path": "/summary",
+      "schema": "key-value-v1",
+      "availability": "available"
+    },
+    {
+      "id": "generic:diagnostics",
+      "version": "1.0.0",
+      "kind": "diagnostics",
+      "payload_path": "/metadata/diagnostics",
+      "schema": "key-value-v1",
+      "availability": "available"
+    },
+    {
+      "id": "generic:findings",
+      "version": "1.0.0",
+      "kind": "table",
+      "payload_path": "/metadata/findings",
+      "schema": "object-rows-v1",
+      "availability": "available"
+    },
+    {
+      "id": "generic:charts",
+      "version": "1.0.0",
+      "kind": "chart",
+      "payload_path": "/charts",
+      "schema": "unsupported",
+      "availability": "unavailable",
+      "reason": "renderer_not_registered"
+    },
+    {
+      "id": "generic:/tables/unsafe",
+      "version": "1.0.0",
+      "kind": "table",
+      "payload_path": "/tables/unsafe",
+      "schema": "object-rows-v1",
+      "availability": "available"
+    },
+    {
+      "id": "generic:/series/component_distribution",
+      "version": "1.0.0",
+      "kind": "table",
+      "payload_path": "/series/component_distribution",
+      "schema": "object-rows-v1",
+      "availability": "available"
+    },
+    {
+      "id": "generic:/series/event_type_distribution",
+      "version": "1.0.0",
+      "kind": "table",
+      "payload_path": "/series/event_type_distribution",
+      "schema": "object-rows-v1",
+      "availability": "available"
+    },
+    {
+      "id": "generic:/series/product_distribution",
+      "version": "1.0.0",
+      "kind": "table",
+      "payload_path": "/series/product_distribution",
+      "schema": "object-rows-v1",
+      "availability": "available"
+    },
+    {
+      "id": "generic:/series/severity_distribution",
+      "version": "1.0.0",
+      "kind": "table",
+      "payload_path": "/series/severity_distribution",
+      "schema": "object-rows-v1",
+      "availability": "available"
+    }
+  ],
+  "truncated": false
+}

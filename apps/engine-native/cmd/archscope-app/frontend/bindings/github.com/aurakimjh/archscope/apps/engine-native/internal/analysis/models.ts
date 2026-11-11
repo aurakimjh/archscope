@@ -226,6 +226,7 @@ export class ProviderPage {
     "next": number;
     "total": number;
     "truncated": boolean;
+    "escaped"?: boolean;
 
     /** Creates a new ProviderPage instance. */
     constructor($$source: Partial<ProviderPage> = {}) {
@@ -278,6 +279,7 @@ export class ProviderPage {
 }
 
 export class ResultCapabilities {
+    "payload_version": string;
     "handle": string;
     "result_sha256": string;
     "type": string;
@@ -291,6 +293,9 @@ export class ResultCapabilities {
 
     /** Creates a new ResultCapabilities instance. */
     constructor($$source: Partial<ResultCapabilities> = {}) {
+        if (!("payload_version" in $$source)) {
+            this["payload_version"] = "";
+        }
         if (!("handle" in $$source)) {
             this["handle"] = "";
         }
@@ -329,18 +334,18 @@ export class ResultCapabilities {
      * Creates a new ResultCapabilities instance from a string or object.
      */
     static createFrom($$source: any = {}): ResultCapabilities {
-        const $$createField3_0 = $$createType14;
-        const $$createField6_0 = $$createType16;
-        const $$createField8_0 = $$createType18;
+        const $$createField4_0 = $$createType14;
+        const $$createField7_0 = $$createType16;
+        const $$createField9_0 = $$createType18;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("sources" in $$parsedSource) {
-            $$parsedSource["sources"] = $$createField3_0($$parsedSource["sources"]);
+            $$parsedSource["sources"] = $$createField4_0($$parsedSource["sources"]);
         }
         if ("compatibility" in $$parsedSource) {
-            $$parsedSource["compatibility"] = $$createField6_0($$parsedSource["compatibility"]);
+            $$parsedSource["compatibility"] = $$createField7_0($$parsedSource["compatibility"]);
         }
         if ("providers" in $$parsedSource) {
-            $$parsedSource["providers"] = $$createField8_0($$parsedSource["providers"]);
+            $$parsedSource["providers"] = $$createField9_0($$parsedSource["providers"]);
         }
         return new ResultCapabilities($$parsedSource as Partial<ResultCapabilities>);
     }

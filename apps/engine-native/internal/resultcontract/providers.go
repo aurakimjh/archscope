@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strings"
 	"time"
+	"unicode"
 	"unicode/utf8"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
@@ -53,6 +54,7 @@ type Cell struct {
 	Text         string `json:"text"`
 	Null         bool   `json:"null"`
 	Truncated    bool   `json:"truncated"`
+	Escaped      bool   `json:"escaped,omitempty"`
 	Availability string `json:"availability,omitempty"`
 	Reason       string `json:"reason,omitempty"`
 	Unit         string `json:"unit,omitempty"`
@@ -66,6 +68,7 @@ type Page struct {
 	Next      int      `json:"next"`
 	Total     int      `json:"total"`
 	Truncated bool     `json:"truncated"`
+	Escaped   bool     `json:"escaped,omitempty"`
 }
 
 func validateProviders(ps []Provider) error {
@@ -148,7 +151,7 @@ func objectRow(v reflect.Value) (map[string]any, error) {
 	}
 	return row, e
 }
-func validateProvider(ctx context.Context, r models.AnalysisResult, p Provider) error {
+func validateProvider(ctx context.Context, r models.AnalysisResult, p Provider, refs referenceIndex) error {
 	rows, e := rowsAt(r, p.Path)
 	if e != nil {
 		return e
@@ -165,7 +168,7 @@ func validateProvider(ctx context.Context, r models.AnalysisResult, p Provider) 
 		switch p.Kind {
 		case "timeline":
 			timestamp, ok := row[p.Time].(string)
-			if _, e := time.Parse(time.RFC3339Nano, timestamp); !ok || e != nil || !text(p.Clock) || !text(p.Evidence) || !referenced(r, "clock_ids", fmt.Sprint(row[p.Clock])) || !referenced(r, "evidence_ids", fmt.Sprint(row[p.Evidence])) {
+			if _, e := time.Parse(time.RFC3339Nano, timestamp); !ok || e != nil || !text(p.Clock) || !text(p.Evidence) || !refs.has("clock_ids", fmt.Sprint(row[p.Clock])) || !refs.has("evidence_ids", fmt.Sprint(row[p.Evidence])) {
 				return fmt.Errorf("invalid timeline payload")
 			}
 		case "sli":
@@ -177,7 +180,7 @@ func validateProvider(ctx context.Context, r models.AnalysisResult, p Provider) 
 			if e != nil || d.Sign() <= 0 || !text(p.Unit) || !text(p.Population) {
 				return fmt.Errorf("invalid denominator/unit/population")
 			}
-			if !referenced(r, "population_ids", row[p.Population].(string)) {
+			if !refs.has("population_ids", row[p.Population].(string)) {
 				return fmt.Errorf("unknown SLI population")
 			}
 		}
@@ -186,6 +189,10 @@ func validateProvider(ctx context.Context, r models.AnalysisResult, p Provider) 
 }
 func (r *Registry) Capabilities(ctx context.Context, result models.AnalysisResult) (Capabilities, error) {
 	if e := ctx.Err(); e != nil {
+		return Capabilities{}, e
+	}
+	refs, e := references(ctx, result)
+	if e != nil {
 		return Capabilities{}, e
 	}
 	out := Capabilities{Version: "1.0.0", Compatibility: r.Check(result, "display"), IdentityBasis: "declared", Providers: []Capability{}}
@@ -224,7 +231,7 @@ func (r *Registry) Capabilities(ctx context.Context, result models.AnalysisResul
 			available := out.Compatibility.Allowed
 			if !available {
 				reason = out.Compatibility.Reason
-			} else if e := validateProvider(ctx, result, p); e != nil {
+			} else if e := validateProvider(ctx, result, p, refs); e != nil {
 				if ctx.Err() != nil {
 					return out, ctx.Err()
 				}
@@ -238,9 +245,9 @@ func (r *Registry) Capabilities(ctx context.Context, result models.AnalysisResul
 			paths = append(paths, path)
 		}
 		sort.Strings(paths)
+		v := r.check(result, "compare", out.Compatibility.Allowed)
+		measurements, e := Measurements(result)
 		for _, path := range paths {
-			v := r.Check(result, "compare")
-			measurements, e := Measurements(result)
 			_, exists := measurements[path]
 			reason := v.Reason
 			if v.Allowed && (!exists || e != nil) {
@@ -294,6 +301,29 @@ func boundedText(text string) (string, bool) {
 	}
 	return text, true
 }
+
+// DisplayText exposes invisible ordering/control characters, bounding the output
+// after expansion. It never changes an immutable result's original value.
+func DisplayText(text string) (string, bool, bool) {
+	var out strings.Builder
+	escaped := false
+	for i, c := range text {
+		part := string(c)
+		if unicode.IsControl(c) || c == 0x061c || c == 0x200e || c == 0x200f || c >= 0x202a && c <= 0x202e || c >= 0x2066 && c <= 0x2069 {
+			part = fmt.Sprintf("⟦U+%04X⟧", c)
+			escaped = true
+		}
+		if out.Len()+len(part) > MaxCellBytes {
+			return out.String(), true, escaped
+		}
+		out.WriteString(part)
+		if i+utf8.RuneLen(c) >= len(text) {
+			return out.String(), false, escaped
+		}
+	}
+	return out.String(), false, escaped
+}
+func DisplayCell(value any) Cell { return displayCell(value) }
 func displayCell(value any) Cell {
 	c := Cell{Null: value == nil}
 	if value == nil {
@@ -321,18 +351,29 @@ func displayCell(value any) Cell {
 			}
 		}
 	}
-	c.Text, c.Truncated = boundedText(c.Text)
+	c.Text, c.Truncated, c.Escaped = DisplayText(c.Text)
 	return c
 }
 func (r *Registry) Project(ctx context.Context, result models.AnalysisResult, id string, offset, limit int) (Page, error) {
+	if offset < 0 || limit < 1 || limit > MaxPageRows {
+		return Page{}, fmt.Errorf("invalid page bounds")
+	}
+	snapshot, e := r.prepare(ctx, result)
+	if e != nil {
+		return Page{}, e
+	}
+	return snapshot.Project(ctx, id, offset, limit)
+}
+func (snapshot *Projection) Project(ctx context.Context, id string, offset, limit int) (Page, error) {
 	page := Page{Provider: id, Columns: []string{}, Rows: [][]Cell{}, Offset: offset, Next: -1}
 	if offset < 0 || limit < 1 || limit > MaxPageRows {
 		return page, fmt.Errorf("invalid page bounds")
 	}
-	caps, e := r.Capabilities(ctx, result)
-	if e != nil {
+	if e := ctx.Err(); e != nil {
 		return page, e
 	}
+	caps := snapshot.capabilities
+
 	var p Provider
 	found := false
 	for _, c := range caps.Providers {
@@ -348,10 +389,8 @@ func (r *Registry) Project(ctx context.Context, result models.AnalysisResult, id
 	if !found || p.Kind == "compare" || p.Kind == "chart" {
 		return page, fmt.Errorf("unknown/non-display provider")
 	}
-	measurement, e := Measurements(result)
-	if e != nil || !caps.Compatibility.Allowed {
-		measurement = map[string]Measurement{}
-	}
+	measurement := snapshot.measurements
+	var e error
 	budget := 512 + len(id)
 	appendRow := func(cells []Cell) bool {
 		b, _ := json.Marshal(cells)
@@ -363,6 +402,7 @@ func (r *Registry) Project(ctx context.Context, result models.AnalysisResult, id
 		page.Rows = append(page.Rows, cells)
 		for _, c := range cells {
 			page.Truncated = page.Truncated || c.Truncated
+			page.Escaped = page.Escaped || c.Escaped
 		}
 		return true
 	}
@@ -372,30 +412,19 @@ func (r *Registry) Project(ctx context.Context, result models.AnalysisResult, id
 			dest  *string
 			value string
 		}{{&c.Availability, m.Availability}, {&c.Reason, m.Reason}, {&c.Unit, m.Unit}, {&c.Population, m.Population}} {
-			text, truncated := boundedText(field.value)
+			text, truncated, escaped := DisplayText(field.value)
 			*field.dest = text
 			c.Truncated = c.Truncated || truncated
+			c.Escaped = c.Escaped || escaped
 		}
 		return c
 	}
 	if p.Kind == "summary" || p.Kind == "diagnostics" {
-		values := result.Summary
-		if p.Kind == "diagnostics" {
-			values = map[string]any{}
-			if result.Metadata.Diagnostics != nil {
-				b, _ := json.Marshal(result.Metadata.Diagnostics)
-				dec := json.NewDecoder(strings.NewReader(string(b)))
-				dec.UseNumber()
-				if e = dec.Decode(&values); e != nil {
-					return page, e
-				}
-			}
+		index, e := snapshot.values(ctx, p)
+		if e != nil {
+			return page, e
 		}
-		keys := make([]string, 0, len(values))
-		for k := range values {
-			keys = append(keys, k)
-		}
-		sort.Strings(keys)
+		values, keys := index.values, index.keys
 		page.Total = len(keys)
 		page.Columns = []string{"key", "value"}
 		for i := offset; i < len(keys) && len(page.Rows) < limit; i++ {
@@ -412,67 +441,36 @@ func (r *Registry) Project(ctx context.Context, result models.AnalysisResult, id
 			}
 		}
 	} else {
-		var rows reflect.Value
-		if id == "generic:findings" {
-			rows = reflect.ValueOf(result.Metadata.Findings)
-		} else {
-			rows, e = rowsAt(result, p.Path)
-			if e != nil {
-				return page, e
-			}
+		index, e := snapshot.collection(ctx, p)
+		if e != nil {
+			return page, e
 		}
+		rows := index.rows
 		page.Total = rows.Len()
-		end := min(rows.Len(), offset+limit)
+		page.Truncated = index.truncated
+		page.Escaped = index.escaped
+		page.Columns = append(page.Columns, index.labels...)
+		end := rows.Len()
+		if offset < end && limit < end-offset {
+			end = offset + limit
+		}
 		selected := []map[string]any{}
-		columns := map[string]bool{}
-		// The same immutable collection exposes stable columns on every page.
-		// Keep only the lexicographically first 32; row×column width cannot
-		// create an unbounded union allocation.
-		for i := 0; i < rows.Len(); i++ {
-			if e = ctx.Err(); e != nil {
+		for i := offset; i < end; i++ {
+			if e := ctx.Err(); e != nil {
 				return page, e
 			}
 			row, e := objectRow(rows.Index(i))
 			if e != nil {
 				return page, e
 			}
-			if i >= offset && i < end {
-				selected = append(selected, row)
-			}
-			for k := range row {
-				if len(k) > MaxCellBytes {
-					page.Truncated = true
-					continue
-				}
-				if columns[k] {
-					continue
-				}
-				if len(columns) < MaxPageColumns {
-					columns[k] = true
-					continue
-				}
-				page.Truncated = true
-				largest := ""
-				for key := range columns {
-					if key > largest {
-						largest = key
-					}
-				}
-				if k < largest {
-					delete(columns, largest)
-					columns[k] = true
-				}
-			}
+			selected = append(selected, row)
 		}
-		for k := range columns {
-			page.Columns = append(page.Columns, k)
-		}
-		sort.Strings(page.Columns)
+
 		columnBytes, _ := json.Marshal(page.Columns)
 		budget += len(columnBytes)
 		for _, row := range selected {
 			cells := []Cell{}
-			for _, key := range page.Columns {
+			for _, key := range index.keys {
 				v, exists := row[key]
 				m := measurement[p.Path].Columns[key]
 				if m.AvailabilityColumn != "" {

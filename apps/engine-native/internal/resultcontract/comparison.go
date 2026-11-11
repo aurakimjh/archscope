@@ -1,7 +1,6 @@
 package resultcontract
 
 import (
-	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -11,6 +10,7 @@ import (
 )
 
 const (
+	ComparisonResultUnsupported        = "result_unsupported"
 	ComparisonSelectionMismatch        = "selection_mismatch"
 	ComparisonCoverageMismatch         = "coverage_mismatch"
 	ComparisonPartialNotComparable     = "partial_not_comparable"
@@ -62,23 +62,34 @@ type ComparisonEvidence struct {
 	Target        ComparisonReference   `json:"target"`
 }
 
+func canonicalDigest(result models.AnalysisResult) (string, error) {
+	body, e := json.Marshal(result)
+	if e != nil {
+		return "", e
+	}
+	sum := sha256.Sum256(body)
+	return hex.EncodeToString(sum[:]), nil
+}
 func comparePopulations(a, b models.AnalysisResult, aid, bid string) (*ComparisonEvidence, error) {
-	leftBytes, e := json.Marshal(a)
+	left, e := canonicalDigest(a)
 	if e != nil {
 		return nil, e
 	}
-	rightBytes, e := json.Marshal(b)
+	right, e := canonicalDigest(b)
 	if e != nil {
 		return nil, e
 	}
-	lh, rh := sha256.Sum256(leftBytes), sha256.Sum256(rightBytes)
-	out := &ComparisonEvidence{IdentityBasis: "declared", Mode: "same_input", Baseline: ComparisonReference{ResultSHA256: hex.EncodeToString(lh[:]), Population: aid}, Target: ComparisonReference{ResultSHA256: hex.EncodeToString(rh[:]), Population: bid}}
+	return comparePopulationsAt(a, b, aid, bid, left, right)
+}
+func comparePopulationsAt(a, b models.AnalysisResult, aid, bid, leftHash, rightHash string) (*ComparisonEvidence, error) {
+	out := &ComparisonEvidence{IdentityBasis: "declared", Mode: "same_input", Baseline: ComparisonReference{ResultSHA256: leftHash, Population: aid}, Target: ComparisonReference{ResultSHA256: rightHash, Population: bid}}
 	if aid == "" {
-		if !bytes.Equal(leftBytes, rightBytes) {
+		if leftHash != rightHash {
 			return nil, comparisonError(ComparisonIdentityMissing, "population reference required for cross-revision comparison")
 		}
 		return out, nil
 	}
+
 	left, e := populationIdentity(a, aid)
 	if e != nil {
 		return nil, e
@@ -93,7 +104,7 @@ func comparePopulations(a, b models.AnalysisResult, aid, bid string) (*Compariso
 	legacyLeft.Comparison, legacyRight.Comparison = nil, nil
 	lb, _ := json.Marshal(legacyLeft)
 	rb, _ := json.Marshal(legacyRight)
-	if bytes.Equal(lb, rb) {
+	if string(lb) == string(rb) {
 		return out, nil
 	}
 	const mismatch = "population comparison policy mismatch; original reanalysis may be required"

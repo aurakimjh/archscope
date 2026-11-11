@@ -1,0 +1,65 @@
+{
+  "handle": "result-ccbea7717ecee9eb0a1252a78252e9ac",
+  "result_sha256": "c5c6f584f9015466a652f608c6df6f64093430a257474a616b960e2c8800366e",
+  "provider": "generic:summary",
+  "columns": [
+    "key",
+    "value"
+  ],
+  "rows": [
+    [
+      {
+        "text": "exact",
+        "null": false,
+        "truncated": false
+      },
+      {
+        "text": "9007199254740993",
+        "null": false,
+        "truncated": false
+      }
+    ],
+    [
+      {
+        "text": "nothing",
+        "null": false,
+        "truncated": false
+      },
+      {
+        "text": "—",
+        "null": true,
+        "truncated": false
+      }
+    ],
+    [
+      {
+        "text": "text",
+        "null": false,
+        "truncated": false
+      },
+      {
+        "text": "abc⟦U+202E⟧def⟦U+0007⟧",
+        "null": false,
+        "truncated": false,
+        "escaped": true
+      }
+    ],
+    [
+      {
+        "text": "zero",
+        "null": false,
+        "truncated": false
+      },
+      {
+        "text": "0",
+        "null": false,
+        "truncated": false
+      }
+    ]
+  ],
+  "offset": 0,
+  "next": -1,
+  "total": 4,
+  "truncated": false,
+  "escaped": true
+}

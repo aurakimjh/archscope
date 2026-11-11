@@ -1,0 +1,11 @@
+{
+  "host": "macOS arm64, Apple M5 Max",
+  "full_race_measurements": [
+    "review_r8_test.go:60: rows=8000 timeline+sli Capabilities=217.237042ms",
+    "review_r8_test.go:60: rows=16000 timeline+sli Capabilities=423.44425ms",
+    "review_r8_test.go:103: rows=100000 bytes=5289334 charge=84758755 cold describe+page=2.093861625s warm 20 describe+last-page=9.974792ms"
+  ],
+  "warm_benchmark_command": "go test ./internal/analysis -run ^$ -bench BenchmarkR802WarmDescribeAndPage100k -benchtime=20x -count=1",
+  "warm_benchmark_output": "goos: darwin\ngoarch: arm64\npkg: github.com/aurakimjh/archscope/apps/engine-native/internal/analysis\ncpu: Apple M5 Max\nBenchmarkR802WarmDescribeAndPage100k-18    \t      20\t    108454 ns/op\t  119052 B/op\t     749 allocs/op\n--- BENCH: BenchmarkR802WarmDescribeAndPage100k-18\n    review_r8_test.go:244: bytes=19689335 projection_charge=223958757\n    review_r8_test.go:244: bytes=19689335 projection_charge=223958757\nPASS\nok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/analysis\t4.060s\n",
+  "scope": "Synthetic one-host cold/warm measurements; no general/Windows performance guarantee; public CLI invocations start cold."
+}

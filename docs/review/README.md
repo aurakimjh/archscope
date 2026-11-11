@@ -4,15 +4,14 @@
 
 ## 미처리
 
-| 날짜 | 문서 | 대상 | 판정 |
-|---|---|---|---|
-| 2026-11-12 | [T-632 서명 데이터 팩·오프라인 배포 구현 독립 리뷰](2026-11-12_claude-code_T-632_implementation-review.ko.md) | `34dbd8f` | 조건부 (P1 없음, P2 1, P3 3). R9-01 번들 부트스트랩 키 폐기 시 앱·`packs` CLI 시작 불가(닫기 전 해소). T-632 DONE은 R9-01 처리 후 가능. |
+없음.
 
 ## 처리 기록
 
 | 날짜 | 문서 | 대상 | 판정·처리 |
 |---|---|---|---|
-| 2026-11-11 | [T-631 구현 독립 리뷰](done/2026-11-11_claude-code_T-631_implementation-review.ko.md) | `ff06c54` | CONDITIONAL(P2 1/P3 3). R8-01→R8-02→R8-04→R8-03을 work_status.md 후속 큐에 반영 후 원문 보존. T-631 REVIEW; 첫 timeline/SLI producer 전 R8-01 해소 필요. T-632 범위에서 R8 수정·PASS·완료를 주장하지 않음. |
+| 2026-11-12 | [T-632 구현 독립 리뷰](done/2026-11-12_claude-code_T-632_implementation-review.ko.md) | `34dbd8f` | CONDITIONAL(P2 1/P3 3). R9-01→R9-02→R9-03→R9-04를 작업표에 반영 후 원문 보관. T-632 REVIEW; R9 수정은 T-631 R8 처리와 별도 후속 작업. |
+| 2026-11-11 | [T-631 구현 독립 리뷰](done/2026-11-11_claude-code_T-631_implementation-review.ko.md) | `ff06c54` | CONDITIONAL(P2 1/P3 3). R8-01→R8-02→R8-04→R8-03을 work_status.md 후속 큐에 반영 후 원문 보존. 2026-11-12 R8-01~R8-04 수정·로컬 검증 완료(선형 참조, 제한 캐시, 구조화 거절, 표시 제어문자). 리뷰의 R8-01 처리 후 허용 조건에 따라 T-631 DONE. 원 CONDITIONAL 유지; 최종 수정의 독립 재리뷰/PASS는 주장하지 않음. |
 | 2026-11-11 | [T-630 구현 재리뷰 R2](done/2026-11-11_claude-code_T-630_implementation-re-review-R2.ko.md) | `e2c1c7d` | CONDITIONAL(P3 1), R6-01~R6-07 해소 및 DONE 복귀 허용. R7-01을 작업표에 반영한 뒤 원문 보존·이동; 잠금 오류 분리·원인 안내 수정. T-630 DONE, 최종 P3 수정의 독립 재검증·PASS 주장 없음. |
 | 2026-11-11 | [T-630 구현 독립 리뷰](done/2026-11-11_claude-code_T-630_implementation-review.ko.md) | `82bc6a8` | CONDITIONAL(P2 2/P3 5). R6-01~R6-07을 우선순위·의존성 순으로 work_status.md에 반영한 뒤 원문 보관. R6-01~R6-07 수정·로컬 검증 완료(경로 식별자, 소유권 cache 정리/재열기, 저장 멱등, 손상 삭제 계획, 이관 안내, 원본 색인, 표시 이름). T-630은 독립 재리뷰 전 REVIEW 유지, 원 판정 CONDITIONAL 보존. T-631 비차단. |
 | 2026-11-11 | [T-629 구현 재리뷰 R2](done/2026-11-11_claude-code_T-629_implementation-re-review-R2.ko.md) | `27fcd3d` | CONDITIONAL(P3 2), R4-01~R4-05 해소 및 DONE 복귀 가능 확인. R5-01 수정·검증 완료, R5-02 T-634/T-635 계약·수용 조건 반영(현재 엄격 비교 유지). R2의 명시적 허용에 따라 T-629 DONE. 원문 보존; PASS로 변경하지 않음. |

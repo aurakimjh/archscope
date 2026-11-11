@@ -2,8 +2,6 @@ package analysis
 
 import (
 	"context"
-	"crypto/sha256"
-	"encoding/hex"
 	"errors"
 	"fmt"
 
@@ -11,6 +9,7 @@ import (
 )
 
 type ResultCapabilities struct {
+	PayloadVersion   string                `json:"payload_version"`
 	Handle           string                `json:"handle"`
 	ResultSHA256     string                `json:"result_sha256"`
 	Type             string                `json:"type"`
@@ -36,60 +35,42 @@ func (s *Service) DescribeResult(parent context.Context, handle string) (ResultC
 		return ResultCapabilities{}, e
 	}
 	defer finish()
-	body, result, e := s.Read(handle)
+	snapshot, e := s.projection(ctx, handle)
 	if e != nil {
 		return ResultCapabilities{}, e
 	}
-	capabilities, e := s.results.Capabilities(ctx, result)
-	if e != nil {
-		return ResultCapabilities{}, e
-	}
-	sum := sha256.Sum256(body)
-	out := ResultCapabilities{Handle: handle, ResultSHA256: hex.EncodeToString(sum[:]), Type: result.Type, Sources: []resultcontract.Cell{}, Capabilities: capabilities}
-	for i, source := range result.SourceFiles {
-		if i == 32 {
-			out.SourcesTruncated = true
-			break
-		}
-		if len(source) > 2048 {
-			source = "[source label exceeds display limit]"
-			out.SourcesTruncated = true
-		}
-		out.Sources = append(out.Sources, resultcontract.Cell{Text: source})
-	}
-	return out, nil
+	sources, truncated := snapshot.Sources()
+	return ResultCapabilities{Handle: handle, ResultSHA256: snapshot.Digest(), Type: snapshot.Type(), PayloadVersion: snapshot.PayloadVersion(), Sources: sources, SourcesTruncated: truncated, Capabilities: snapshot.Capabilities()}, nil
 }
+
 func (s *Service) QueryResult(parent context.Context, handle, provider string, offset, limit int) (ProviderPage, error) {
 	ctx, finish, e := s.beginLoad(parent)
 	if e != nil {
 		return ProviderPage{}, e
 	}
 	defer finish()
-	body, result, e := s.Read(handle)
+	snapshot, e := s.projection(ctx, handle)
 	if e != nil {
 		return ProviderPage{}, e
 	}
-	page, e := s.results.Project(ctx, result, provider, offset, limit)
+	page, e := snapshot.Project(ctx, provider, offset, limit)
 	if e != nil {
 		return ProviderPage{}, e
 	}
-	sum := sha256.Sum256(body)
-	return ProviderPage{Handle: handle, ResultSHA256: hex.EncodeToString(sum[:]), Page: page}, nil
+	return ProviderPage{Handle: handle, ResultSHA256: snapshot.Digest(), Page: page}, nil
 }
+
 func (s *Service) CompareResult(parent context.Context, baseline, target, provider string) (ProviderComparison, error) {
 	ctx, finish, e := s.beginLoad(parent)
 	if e != nil {
 		return ProviderComparison{}, e
 	}
 	defer finish()
-	_, result, e := s.Read(baseline)
+	snapshot, e := s.projection(ctx, baseline)
 	if e != nil {
 		return ProviderComparison{}, e
 	}
-	caps, e := s.results.Capabilities(ctx, result)
-	if e != nil {
-		return ProviderComparison{}, e
-	}
+	caps := snapshot.Capabilities()
 	for _, c := range caps.Providers {
 		if c.ID != provider || c.Kind != "compare" {
 			continue
@@ -100,13 +81,23 @@ func (s *Service) CompareResult(parent context.Context, baseline, target, provid
 		if e = ctx.Err(); e != nil {
 			return ProviderComparison{}, e
 		}
-		delta, e := s.Compare(baseline, target, c.Path)
+		other, e := s.projection(ctx, target)
+		if e != nil {
+			return ProviderComparison{}, e
+		}
+		delta, e := snapshot.Compare(ctx, other, c.Path)
 		if e != nil {
 			var refusal *resultcontract.ComparisonError
 			if errors.As(e, &refusal) {
 				return ProviderComparison{Code: refusal.Code, Reason: refusal.Message}, nil
 			}
 			return ProviderComparison{}, e
+		}
+		if delta.Comparison != nil {
+			delta.Comparison.Baseline.Handle = baseline
+			delta.Comparison.Baseline.ResultSHA256 = snapshot.Digest()
+			delta.Comparison.Target.Handle = target
+			delta.Comparison.Target.ResultSHA256 = other.Digest()
 		}
 		return ProviderComparison{Allowed: delta.Value != nil, Code: delta.Reason, Delta: &delta}, nil
 	}

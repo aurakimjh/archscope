@@ -960,3 +960,10 @@ Analysis Workspace에서 catalog 가져오기·옵션·명시적 부분 허용·
 그 token으로 `case purge-corrupt --store PATH --id ID --token TOKEN`을 명시적으로 실행한다.
 일반 사건 수명주기와 별도이며 CLI cache 정비는 저장소를 소유한 앱을 먼저 닫도록 안내한다.
 사용자 사건에 정리·purge를 자동 실행하지 않는다.
+
+### T-631 R8 소비자 경계
+
+참조 집합 준비와 비공개 표시/열 캐시는 파서/분석기가 아닌 result contract와
+분석 서비스의 책임이다. 표시용 제어문자 처리는 정규화 레코드, 메트릭 이름,
+출처 식별자나 원본 내보내기를 바꾸지 않는다. 캐시는 일시적이며 영구 원본/검색/
+baseline 색인은 T-635 범위다. [데이터 모델](DATA_MODEL.md)을 참조한다.

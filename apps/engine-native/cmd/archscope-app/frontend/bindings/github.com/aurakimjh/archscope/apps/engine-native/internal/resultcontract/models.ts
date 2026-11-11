@@ -63,6 +63,7 @@ export class Cell {
     "text": string;
     "null": boolean;
     "truncated": boolean;
+    "escaped"?: boolean;
     "availability"?: string;
     "reason"?: string;
     "unit"?: string;

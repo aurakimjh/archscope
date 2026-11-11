@@ -75,26 +75,29 @@ type cleanupRef struct {
 	job  *job
 }
 type Service struct {
-	catalogProvider CatalogProvider
-	storeMu         sync.Mutex
-	stored          map[string]storedRevision
-	storedBytes     int64
-	leases          map[string]string
-	lockFile        *os.File
-	ctx             context.Context
-	cancel          context.CancelFunc
-	closeOnce       sync.Once
-	slots           chan struct{}
-	pending         []cleanupRef
-	mu              sync.Mutex
-	root            string
-	catalog         *ingestion.Catalog
-	results         *resultcontract.Registry
-	policy          ingestion.Budgets
-	jobs            map[string]*job
-	history         []string
-	closed          bool
-	wait            sync.WaitGroup
+	projections      map[string]*projectionEntry
+	projectionCharge int64
+	projectionClock  uint64
+	catalogProvider  CatalogProvider
+	storeMu          sync.Mutex
+	stored           map[string]storedRevision
+	storedBytes      int64
+	leases           map[string]string
+	lockFile         *os.File
+	ctx              context.Context
+	cancel           context.CancelFunc
+	closeOnce        sync.Once
+	slots            chan struct{}
+	pending          []cleanupRef
+	mu               sync.Mutex
+	root             string
+	catalog          *ingestion.Catalog
+	results          *resultcontract.Registry
+	policy           ingestion.Budgets
+	jobs             map[string]*job
+	history          []string
+	closed           bool
+	wait             sync.WaitGroup
 }
 
 func New(root string, c *ingestion.Catalog, r *resultcontract.Registry) (*Service, error) {
@@ -346,6 +349,8 @@ func (s *Service) close() {
 		}
 	}
 	s.storeMu.Lock()
+	s.projections = nil
+	s.projectionCharge = 0
 	_ = s.lockFile.Close()
 	s.storeMu.Unlock()
 }

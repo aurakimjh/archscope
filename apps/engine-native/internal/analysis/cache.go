@@ -82,6 +82,7 @@ func (s *Service) CleanupEvidenceCache() (CacheCleanup, error) {
 			return out, ingestion.Problem("IMPORT_IO_FAILED", "cache cleanup partially completed; retry after closing unused screens")
 		}
 		delete(s.stored, key)
+		s.dropProjectionLocked(key)
 		if !rev.reserved {
 			s.storedBytes -= rev.bytes
 		}

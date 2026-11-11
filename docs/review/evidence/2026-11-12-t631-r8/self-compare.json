@@ -1,0 +1,27 @@
+{
+  "allowed": true,
+  "delta": {
+    "value": "0",
+    "percent": "0",
+    "comparison": {
+      "identity_basis": "declared",
+      "mode": "same_input",
+      "baseline": {
+        "handle": "result-a77a193c5801dbd0ee742269c8c5f0cf",
+        "result_sha256": "47837d8baede65dac18b50934f501024b451cd811ad6695a2aa79ec7a42c623e",
+        "population_ref": "imported_records",
+        "source_sha256": [
+          "110b73a148ffce7975611dd5872a2988301cbf39e4644d3683f88f4b3987635d"
+        ]
+      },
+      "target": {
+        "handle": "result-a77a193c5801dbd0ee742269c8c5f0cf",
+        "result_sha256": "47837d8baede65dac18b50934f501024b451cd811ad6695a2aa79ec7a42c623e",
+        "population_ref": "imported_records",
+        "source_sha256": [
+          "110b73a148ffce7975611dd5872a2988301cbf39e4644d3683f88f4b3987635d"
+        ]
+      }
+    }
+  }
+}

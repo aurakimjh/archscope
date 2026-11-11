@@ -3415,3 +3415,25 @@ async function testT631ProviderConsumers(): Promise<void> {
   }
 }
 void testT631ProviderConsumers().catch(error => { throw error; });
+
+
+// R8-03 / R8-04: labels are safe, values stay exact and incompatible targets
+// remain disabled until a backend description certifies their compare provider.
+import { safeDisplayText, comparisonEligibility } from "./resultProviders.js";
+const r8CompareProvider = { id: "compare:/summary/count", kind: "compare", version: "1.0.0", payload_path: "/summary/count", schema: "measurement-delta-v1", availability: "available" };
+const r8Description: ResultCapabilities = { handle: "r8-base", result_sha256: "digest", type: "known", payload_version: "0.1.0", version: "1.0.0", identity_basis: "declared", providers: [r8CompareProvider], compatibility: { allowed: true }, sources: [], sources_truncated: false, truncated: false };
+assert(safeDisplayText("abc\u202Edef\x07\u0085") === "abc⟦U+202E⟧def⟦U+0007⟧⟦U+0085⟧", "R8 unsafe label characters must be visible");
+assert(safeDisplayText("9007199254740993") === "9007199254740993", "R8 exact number labels must not coerce");
+assert(safeDisplayText("한글") === "한글", "R8 ordinary Unicode remains unchanged");
+assert(safeDisplayText("\u2066".repeat(10000)).length <= 2049, "R8 display expansion is bounded");
+assert(comparisonEligibility(r8Description, r8Description, r8CompareProvider.id).allowed, "R8 compatible self target remains selectable");
+for (const target of [
+  { ...r8Description, compatibility: { allowed: false, reason: "unknown_result_type" } },
+  { ...r8Description, type: "unknown" },
+  { ...r8Description, payload_version: "0.2.0" },
+  { ...r8Description, payload_version: undefined },
+  { ...r8Description, version: "9.0.0" },
+  { ...r8Description, providers: [] },
+  { ...r8Description, providers: [{ ...r8CompareProvider, availability: "unavailable", reason: "measurement_absent" }] },
+]) assert(!comparisonEligibility(r8Description, target, r8CompareProvider.id).allowed, "R8 incompatible target must be disabled");
+assert(!comparisonEligibility({ ...r8Description, compatibility: { allowed: false } }, r8Description, r8CompareProvider.id).allowed, "R8 invalid baseline cannot grant compare");
