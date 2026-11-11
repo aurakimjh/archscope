@@ -39,3 +39,12 @@ profile/metric을 명시하여 `profile_evidence` 0.2.0을 만든다. 번들 fix
 py-spy/Speedscope/pprof 입력의 수치 정정을 입증하지 않는다(T-634). generic 화면은
 T-631이다. normalized 문서 하나가 job의 record 바이트 상한도 따르므로 무제한 대용량
 producer adapter라고 표시하지 않는다.
+
+
+### 현재 정밀 비교의 제한 (R2 N-01)
+
+CompareEvidenceScalar와 ProfileSet 정밀 비교는 현재 동일 입력의 재현성 비교만
+지원한다. 원본 hash·선택·선언된 의미/수집 조건이 일치해야 하며 다른 원본 파일의
+배포 전후 비교 기능이 아니다. N-01은 OPEN으로 유지하며 T-631/T-635에서 서로 다른
+원본을 비교하기 전에 명시적 baseline/target 호환 조건과 provenance를 분리해야 한다.
+기존 legacy profiler diff는 별도의 호환 동작을 유지한다.

@@ -1469,7 +1469,7 @@ Long Task semantics).
 
 | Review | Decision | Follow-up |
 |---|---|---|
-| 2026-11-11 T-628 re-review R2 (claude-code) | Verified R-01–R-14 remediation at 63d3b6a (R-01 P1 resolved; deep 256–4000 frame CLI/evidence exports pass). R-04 only partially resolved. New findings: N-01 (P2, population identity includes source hash so different-source before/after scalar comparison is always refused), N-02–N-04 (P3). Verdict CONDITIONAL; T-629 can start; T-628 DONE return pending N-01. Not yet processed; WebView IPC/UI, Windows native execution and hosted CI remain unverified. | docs/review/2026-11-11_claude-code_T-628_implementation-re-review-R2.ko.md |
+| 2026-11-11 T-628 re-review R2 (claude-code) | Verified R-01–R-14 remediation at 63d3b6a (R-01 P1 resolved; deep 256–4000 frame CLI/evidence exports pass). R-04 only partially resolved. New findings: N-01 (P2, population identity includes source hash so different-source before/after scalar comparison is always refused), N-02–N-04 (P3). Verdict CONDITIONAL; T-629 can start; T-628 DONE return pending N-01. Not yet processed; WebView IPC/UI, Windows native execution and hosted CI remain unverified. | docs/review/done/2026-11-11_claude-code_T-628_implementation-re-review-R2.ko.md |
 | 2026-11-11 T-628 independent implementation review (claude-code) | Verdict CONDITIONAL: R-01 (P1, depth-64 JSON limit breaks 31+ frame profiler results in report/evidence export; regression vs eb3e782), R-02–R-04 (P2), R-05–R-14 (P3). T-628 DONE held. Processed R-01–R-14, archived the original unchanged, and locally verified fixes. T-628 remains REVIEW; T-629 is ready under the review's R-01 regression condition. No independent re-review PASS is claimed. WebView IPC/UI and Windows native execution remain unverified. | docs/review/done/2026-11-11_claude-code_T-628_implementation-review.ko.md |
 | 2026-11-11 local diagnostics evolution design review | Processed original `CONDITIONAL`; F-01–F-12 accepted with documented qualifications, 21 optional proposals dispositioned (G-11 superseded). KO/EN design and companion contracts revised. This is design remediation, not independent PASS or runtime completion. | See Local diagnostics improvement design above: D01–D18 mapped to T-628–T-645 and separate Q01–Q04 `DECISION_PENDING`; original archived unchanged under `docs/review/done/`. |
 | 2026-11-09 GC / flamegraph bug revalidation and requested implementation | Five confirmed bugs implemented by Codex under the user's explicit end-to-end assignment. Local regression/source review passed; independent reviewer, actual desktop E2E and fresh Windows evidence were not claimed. Optional downsampling and unexecuted lifecycle concerns remain separate. | T-589 through T-593 are `DONE`; original reproduction and current validation remain traceable in this file. |
@@ -2405,3 +2405,27 @@ a second full model; their retained decoder limitations are not called corrected
 T-629 moves to REVIEW for independent closure, not DONE/PASS. Current totals are
 210 DONE / 3 TODO / 14 PENDING / 5 REVIEW / 0 IN_PROGRESS = 232 (22 open).
 T-630–T-632 retain scoped readiness. Commit and push are authorized for this task.
+
+
+### T-628 R2 re-review intake after T-629 integration (2026-11-11)
+
+Read the full Claude re-review committed at 9f976b1 against 63d3b6a. Original
+verdict is CONDITIONAL (most findings resolved); it explicitly permits T-629.
+R-01–R-14 are reflected, with R-08's minimum scope and the N-01 comparison limitation
+retained. No independent PASS is inferred for T-628 or the new T-629 implementation.
+Record all new actions before archiving the original unchanged.
+
+| Priority/order | Finding | Required follow-up | Status/dependency |
+|---|---|---|---|
+| 1 / P2 | N-01 | Separate comparison compatibility from source provenance; deliver an explicit baseline/target comparison contract and different-source nonzero-delta regressions. Current CompareEvidenceScalar and ProfileSet comparison are limited to same-input reproducibility; support docs now say so. | OPEN in T-628 closure / before T-631 compare consumers and T-635 baselines. Does not block T-629. |
+| 2 / P3 | N-02 | Define caller/Workspace ownership of deduplicated handles before releasing shared revisions; either lease/refcount or remove public release until ownership is wired. | OPEN acceptance in T-630; protect consumers before T-631 invokes release. |
+| 3 / P3 | N-04 | Bound or compact rows × columns availability projection; explicit resource refusal on overflow. | OPEN export/provider hardening in T-631 before large generic collections. |
+| 4 / P3 | N-03 | Clarify max_lines as an applied option (not proof of truncation), or perform bounded lookahead before recording a truncation marker; cover exact-EOF equality. | OPEN server-log coverage follow-up; numerical legacy parity already holds. |
+
+The N-01 support clarification discloses current scope; it does not claim that
+cross-source baseline behavior is implemented or silently close the P2 finding.
+T-628 remains REVIEW for explicit closure. T-629 remains REVIEW after local
+implementation checks. Totals remain 210 DONE / 3 TODO / 14 PENDING / 5 REVIEW.
+Original R2 SHA-256: `2987d8db661af78c613ec0ac62ecbb023995b6c0b9e86cad3c4da40cf5aff392`.
+T-629 code commit f06673a and main integration 8b5a3e2 preserve the review commit.
+The original unrelated HTTP modifications stay outside these commits.

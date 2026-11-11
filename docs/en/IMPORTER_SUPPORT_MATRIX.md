@@ -40,3 +40,13 @@ The existing `profile import` route retains 0.1.x normalization semantics.
 corrected py-spy/Speedscope/pprof input semantics. Those remain T-634. New generic
 screens remain T-631. The one-document transport also respects the import job's
 record byte ceiling; it is not an unbounded large-file producer adapter.
+
+
+### Current exact-comparison limitation (R2 N-01)
+
+CompareEvidenceScalar and ProfileSet exact comparison currently support same-input
+reproducibility only: source hashes, selection and declared semantic/capture
+conditions must match. They are not before/after comparisons of different source
+files. N-01 remains open; explicit baseline/target compatibility and provenance
+must be separated before T-631/T-635 expose cross-source comparisons. Existing
+legacy profiler diff keeps its separate compatibility behavior.
