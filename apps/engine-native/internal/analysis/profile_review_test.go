@@ -60,6 +60,7 @@ func TestR4LargeProfileChunkImportOverFiftyThousandNodes(t *testing.T) {
 	if e != nil || job.State != "completed" {
 		t.Fatal(job, e)
 	}
+	cancel()
 	result, parsed, e := s.Read(job.ResultHandle)
 	if e != nil || parsed.Summary["total_weight"] != tc.Total {
 		t.Fatal(e, parsed.Summary)
@@ -79,7 +80,10 @@ func TestR4LargeProfileChunkImportOverFiftyThousandNodes(t *testing.T) {
 	}
 	saved := filepath.Join(t.TempDir(), "saved.json")
 	os.WriteFile(saved, result, 0600)
-	view, e := s.Load(ctx, saved)
+	// Reopening is another operation, not part of the import wait's deadline.
+	loadCtx, loadCancel := context.WithTimeout(context.Background(), 3*time.Minute)
+	defer loadCancel()
+	view, e := s.Load(loadCtx, saved)
 	if e != nil || !view.Compatibility.Allowed {
 		t.Fatal(view, e)
 	}
@@ -94,8 +98,12 @@ func TestR4LargeProfileChunkImportOverFiftyThousandNodes(t *testing.T) {
 	clean(t, root)
 	t.Logf("scale %s: model=%d result=%d ratio=%.3f nodes=%d", tc.ID, len(model), len(result), float64(len(result))/float64(len(model)), nodes)
 	// Lowering the caller's record ceiling still refuses a chunk atomically.
+	// This is a separate job. Large result reads/exports under -race can outlive
+	// the first job's wait deadline; they must not cancel this rejection check.
+	refusalCtx, refusalCancel := context.WithTimeout(context.Background(), 3*time.Minute)
+	defer refusalCancel()
 	refusedStart := start(t, s, analysis.Request{Path: path, Importer: "profile-set", Options: options, Budgets: ingestion.Budgets{RecordBytes: 128}})
-	refused, e := s.Wait(ctx, refusedStart.ID, refusedStart.Generation)
+	refused, e := s.Wait(refusalCtx, refusedStart.ID, refusedStart.Generation)
 	if e != nil {
 		t.Fatal(e)
 	}

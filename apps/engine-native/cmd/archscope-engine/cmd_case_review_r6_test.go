@@ -15,10 +15,7 @@ import (
 )
 
 func TestR6ActualCLISaveAliasGuardCorruptPlanAndCacheCleanup(t *testing.T) {
-	binary := filepath.Join(t.TempDir(), "engine")
-	if out, e := exec.Command("go", "build", "-o", binary, ".").CombinedOutput(); e != nil {
-		t.Fatal(e, string(out))
-	}
+	binary := buildBinary(t)
 	run := func(args ...string) []byte {
 		t.Helper()
 		out, e := exec.Command(binary, args...).CombinedOutput()
