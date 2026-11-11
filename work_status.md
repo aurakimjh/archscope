@@ -2895,3 +2895,25 @@ Evidence: `docs/review/evidence/2026-11-11-t631/local.json`.
 Current counts: 212 DONE / 1 TODO / 14 PENDING / 5 REVIEW / 0 IN_PROGRESS = 232
 (20 open). T-632 is the next ready implementation; T-630's ordered review queue
 must be addressed before its closure and R6-02 before T-635.
+
+### Windows HTTP follow-up: three reproduced failures fixed (2026-11-11)
+
+Fixed the embedded catalog/case contracts' CRLF checkout with scoped LF Git
+attributes, published the shortcut fixture's JSON marker by same-directory rename,
+and shared the guarded Wails 3.1.0 x86 SDK/modfile patches between production
+builds and native tests. Added `test.mjs`, `task windows:test` and a native 386
+full-suite CI job. Runtime hash checks and dependency pins remain unchanged.
+
+Physical Windows amd64 and 386 full Go suites both pass: 1,208 top-level tests
+pass, zero fail, 13 explicit skips per architecture. Both full vet runs pass.
+The shortcut regression passes 100/100 repetitions on each architecture. Both
+production builds and authenticated desktop harnesses pass their four automated
+cases; full parity stays UNVERIFIED. The native x86 Task entry point, twelve
+contract files' LF conversion with autocrlf=true, YAML/JS syntax and desktop-only
+server refusal pass. Original SDK cache hashes are unchanged.
+
+These are local working-tree results, not hosted CI or an independent review.
+New generic WebView UI, driver/body opt-in, local race (no C compiler), vendor
+client/clean-host COM and multi-hour GUI/DPI acceptance remain separate. No
+registry task is promoted by this follow-up. Evidence:
+`docs/review/evidence/2026-11-11-windows-http-fixes/README.md` and `validation.json`.

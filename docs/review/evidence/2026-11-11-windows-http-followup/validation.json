@@ -1,0 +1,777 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-11",
+  "timezone": "Asia/Seoul",
+  "sourceCommit": "82bc6a8c3fd86ebb99901892cdb41f56134d6800",
+  "scope": "Current physical Windows automated HTTP capture validation. Partial pass with explicit failures; no complete Stand-alone parity or native UI acceptance.",
+  "environment": {
+    "os": "windows",
+    "hostArch": "amd64",
+    "go": "go1.26.10",
+    "node": "v22.15.1",
+    "CGO_ENABLED": 0,
+    "cCompilerAvailable": false,
+    "elevated": false,
+    "windivertConfigured": false,
+    "peerFixtureConfigured": false,
+    "machineLocalDumpsPresent": true,
+    "referenceVersion": "7.6.4.508",
+    "python": "3.10",
+    "xlrdAvailable": false
+  },
+  "suites": {
+    "amd64": {
+      "logSHA256": "861e101f9569b5e575dab43df14d23d8588dc9882fad8469017e9ccbe7be6abc",
+      "packages": [
+        {
+          "package": "internal/capture",
+          "status": "pass",
+          "seconds": 0.639
+        },
+        {
+          "package": "internal/capture/acceptance",
+          "status": "pass",
+          "seconds": 0.925
+        },
+        {
+          "package": "internal/capture/admission",
+          "status": "pass",
+          "seconds": 0.751
+        },
+        {
+          "package": "internal/capture/aggregate",
+          "status": "pass",
+          "seconds": 0.794
+        },
+        {
+          "package": "internal/capture/automation",
+          "status": "pass",
+          "seconds": 1.371
+        },
+        {
+          "package": "internal/capture/backend",
+          "status": "pass",
+          "seconds": 0.855
+        },
+        {
+          "package": "internal/capture/browsercache",
+          "status": "pass",
+          "seconds": 0.904
+        },
+        {
+          "package": "internal/capture/certstore",
+          "status": "pass",
+          "seconds": 0.941
+        },
+        {
+          "package": "internal/capture/comautomation",
+          "status": "pass",
+          "seconds": 1.401
+        },
+        {
+          "package": "internal/capture/content",
+          "status": "pass",
+          "seconds": 0.83
+        },
+        {
+          "package": "internal/capture/dumppolicy",
+          "status": "pass",
+          "seconds": 0.848
+        },
+        {
+          "package": "internal/capture/halog",
+          "status": "pass",
+          "seconds": 0.445
+        },
+        {
+          "package": "internal/capture/legacy",
+          "status": "pass",
+          "seconds": 0.878
+        },
+        {
+          "package": "internal/capture/processlaunch",
+          "status": "pass",
+          "seconds": 1.512
+        },
+        {
+          "package": "internal/capture/procmap",
+          "status": "pass",
+          "seconds": 0.863
+        },
+        {
+          "package": "internal/capture/proxy",
+          "status": "pass",
+          "seconds": 1.677
+        },
+        {
+          "package": "internal/capture/redact",
+          "status": "pass",
+          "seconds": 0.801
+        },
+        {
+          "package": "internal/capture/requestbuilder",
+          "status": "pass",
+          "seconds": 2.8810000000000002
+        },
+        {
+          "package": "internal/capture/session",
+          "status": "pass",
+          "seconds": 1.5470000000000002
+        },
+        {
+          "package": "internal/capture/sessionfile",
+          "status": "pass",
+          "seconds": 1.275
+        },
+        {
+          "package": "internal/capture/store",
+          "status": "pass",
+          "seconds": 1.18
+        },
+        {
+          "package": "internal/capture/stream",
+          "status": "pass",
+          "seconds": 1.494
+        },
+        {
+          "package": "internal/capture/summary",
+          "status": "pass",
+          "seconds": 0.74
+        },
+        {
+          "package": "internal/capture/transparent",
+          "status": "pass",
+          "seconds": 0.951
+        },
+        {
+          "package": "internal/parsers/httpcapture",
+          "status": "pass",
+          "seconds": 1.518
+        },
+        {
+          "package": "internal/analyzers/httpcapture",
+          "status": "pass",
+          "seconds": 0.698
+        },
+        {
+          "package": "cmd/archscope-app",
+          "status": "fail",
+          "seconds": 6.49
+        }
+      ],
+      "topLevelTests": {
+        "pass": 260,
+        "fail": 9,
+        "skip": 12
+      },
+      "failedTests": [
+        "TestT630WailsSavedCaseExactReopenAfterCacheLoss",
+        "TestC4WailsJobBridgeAndBackendRevisionExport",
+        "TestW10LegacyProfilerThroughOpaqueBridgeAndReportPack",
+        "TestW07NullZeroAbsentThroughBridgeCSVHTMLAndExactDiff",
+        "TestReviewR01DeepWailsLoadEvidenceResultBridge",
+        "TestR2N02SharedResultHasNoPublicWailsDeletion",
+        "TestR3WailsCompareErrorCauseHasStableCode",
+        "TestT629WailsProfileSetExactHandleFlow",
+        "TestR4WailsProfileQualityAndEntityRefusal"
+      ],
+      "skippedTests": [
+        "TestReferencePresetFiltersWhenProvided",
+        "TestExplicitRegistrationLifecycleOnCleanHost",
+        "TestCOMRemotingHelper",
+        "TestCurrentIsUnavailableOffWindows",
+        "TestPrivateReferenceSample",
+        "TestWindowsResolverCostMeasurement",
+        "TestSEC10ForcedCrashProbe",
+        "TestLargeXLSIndependentReader",
+        "TestOfficialDriverFingerprints",
+        "TestWindowsBodyCaptureE2E",
+        "TestWindowsCaptureClientHelper",
+        "TestWindowsTransparentDirectClientE2E"
+      ]
+    },
+    "amd64Optional": {
+      "logSHA256": "a484c3d2ec0282a0e739ee1ea9dbd2bb1b6427528fa6b3b332954a9e60852b08",
+      "packages": [
+        {
+          "package": "internal/capture/comautomation",
+          "status": "pass",
+          "seconds": 1.141
+        },
+        {
+          "package": "internal/capture/procmap",
+          "status": "pass",
+          "seconds": 0.917
+        }
+      ],
+      "topLevelTests": {
+        "pass": 33,
+        "fail": 0,
+        "skip": 2
+      },
+      "failedTests": [],
+      "skippedTests": [
+        "TestExplicitRegistrationLifecycleOnCleanHost",
+        "TestCOMRemotingHelper"
+      ]
+    },
+    "x86": {
+      "logSHA256": "557560195a223e5824bbdcc50eea80477b2f3b264ee6f42aa13698e1bde00111",
+      "packages": [
+        {
+          "package": "internal/capture",
+          "status": "pass",
+          "seconds": 0.802
+        },
+        {
+          "package": "internal/capture/acceptance",
+          "status": "pass",
+          "seconds": 0.783
+        },
+        {
+          "package": "internal/capture/admission",
+          "status": "pass",
+          "seconds": 0.833
+        },
+        {
+          "package": "internal/capture/aggregate",
+          "status": "pass",
+          "seconds": 0.817
+        },
+        {
+          "package": "internal/capture/automation",
+          "status": "pass",
+          "seconds": 4.424
+        },
+        {
+          "package": "internal/capture/backend",
+          "status": "pass",
+          "seconds": 3.6
+        },
+        {
+          "package": "internal/capture/browsercache",
+          "status": "pass",
+          "seconds": 3.642
+        },
+        {
+          "package": "internal/capture/certstore",
+          "status": "pass",
+          "seconds": 3.6630000000000003
+        },
+        {
+          "package": "internal/capture/comautomation",
+          "status": "pass",
+          "seconds": 2.8289999999999997
+        },
+        {
+          "package": "internal/capture/content",
+          "status": "pass",
+          "seconds": 0.908
+        },
+        {
+          "package": "internal/capture/dumppolicy",
+          "status": "pass",
+          "seconds": 0.533
+        },
+        {
+          "package": "internal/capture/halog",
+          "status": "pass",
+          "seconds": 0.671
+        },
+        {
+          "package": "internal/capture/legacy",
+          "status": "pass",
+          "seconds": 0.877
+        },
+        {
+          "package": "internal/capture/processlaunch",
+          "status": "fail",
+          "seconds": 3.061
+        },
+        {
+          "package": "internal/capture/procmap",
+          "status": "pass",
+          "seconds": 4.596
+        },
+        {
+          "package": "internal/capture/proxy",
+          "status": "pass",
+          "seconds": 4.365
+        },
+        {
+          "package": "internal/capture/redact",
+          "status": "pass",
+          "seconds": 2.092
+        },
+        {
+          "package": "internal/capture/requestbuilder",
+          "status": "pass",
+          "seconds": 2.5629999999999997
+        },
+        {
+          "package": "internal/capture/session",
+          "status": "pass",
+          "seconds": 3.969
+        },
+        {
+          "package": "internal/capture/sessionfile",
+          "status": "pass",
+          "seconds": 4.03
+        },
+        {
+          "package": "internal/capture/store",
+          "status": "pass",
+          "seconds": 3.984
+        },
+        {
+          "package": "internal/capture/stream",
+          "status": "pass",
+          "seconds": 4.186
+        },
+        {
+          "package": "internal/capture/summary",
+          "status": "pass",
+          "seconds": 3.432
+        },
+        {
+          "package": "internal/capture/transparent",
+          "status": "pass",
+          "seconds": 3.662
+        },
+        {
+          "package": "internal/parsers/httpcapture",
+          "status": "pass",
+          "seconds": 4.145
+        },
+        {
+          "package": "internal/analyzers/httpcapture",
+          "status": "pass",
+          "seconds": 3.401
+        }
+      ],
+      "topLevelTests": {
+        "pass": 211,
+        "fail": 1,
+        "skip": 7
+      },
+      "failedTests": [
+        "TestNativeShortcutLaunchPreservesUnicodeArgumentsAndDirectory"
+      ],
+      "skippedTests": [
+        "TestExplicitRegistrationLifecycleOnCleanHost",
+        "TestCOMRemotingHelper",
+        "TestCurrentIsUnavailableOffWindows",
+        "TestPrivateReferenceSample",
+        "TestSEC10ForcedCrashProbe",
+        "TestLargeXLSIndependentReader",
+        "TestOfficialDriverFingerprints"
+      ]
+    },
+    "x86AppDirect": {
+      "logSHA256": "46331c1825afd6ec10f0e2415ea0f1254612b841dd246c99da124f4c01f42c44",
+      "packages": [
+        {
+          "package": "cmd/archscope-app",
+          "status": "fail",
+          "seconds": 2.811
+        }
+      ],
+      "topLevelTests": {
+        "pass": 0,
+        "fail": 0,
+        "skip": 0
+      },
+      "failedTests": [],
+      "skippedTests": []
+    },
+    "x86ShortcutRepeat": {
+      "logSHA256": "e6f93c95b1e8698333f89b3562ae9b8d7231d0cba5721ff06b46d569e729b0bb",
+      "packages": [
+        {
+          "package": "internal/capture/processlaunch",
+          "status": "pass",
+          "seconds": 2.705
+        }
+      ],
+      "topLevelTests": {
+        "pass": 10,
+        "fail": 0,
+        "skip": 0
+      },
+      "failedTests": [],
+      "skippedTests": []
+    },
+    "halogVerifiedSource": {
+      "logSHA256": "3460d82de4058904c8b06a6abd33d2755ee0d847ccba650422b42eb1ab15ca5d",
+      "packages": [
+        {
+          "package": "internal/capture/halog",
+          "status": "pass",
+          "seconds": 1.133
+        }
+      ],
+      "topLevelTests": {
+        "pass": 1,
+        "fail": 0,
+        "skip": 0
+      },
+      "failedTests": [],
+      "skippedTests": []
+    },
+    "staleHalogAttempt": {
+      "logSHA256": "0d29fa5becf1e9d6c04c61c0187c558aec6dd372dba62be74911391f12873194",
+      "packages": [
+        {
+          "package": "internal/capture/halog",
+          "status": "fail",
+          "seconds": 0.891
+        }
+      ],
+      "topLevelTests": {
+        "pass": 0,
+        "fail": 1,
+        "skip": 0
+      },
+      "failedTests": [
+        "TestPrivateReferenceSample"
+      ],
+      "skippedTests": []
+    }
+  },
+  "binaries": {
+    "386": {
+      "bytes": 29872640,
+      "sha256": "5a99242ba71891aefd4ba4e36e33ec9306dd5f061e5cf397eb2c0302b92017f6",
+      "build": "PASS",
+      "harnessExit": 0,
+      "parityStatus": "UNVERIFIED",
+      "nativeWindowVerified": false,
+      "cases": [
+        {
+          "id": "CONTROL-01",
+          "status": "PASS"
+        },
+        {
+          "id": "PROCESS-01",
+          "status": "PASS"
+        },
+        {
+          "id": "EXCHANGE-01",
+          "status": "PASS"
+        },
+        {
+          "id": "BODY-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "SESSION-01",
+          "status": "PASS"
+        },
+        {
+          "id": "WINDOW-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "GRID-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "TIMING-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "CONTENT-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "NOTES-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "BUILDER-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "LEGACY-VIEW-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "COVERAGE-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "HALOG-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "COM-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "LONG-01",
+          "status": "UNVERIFIED"
+        }
+      ]
+    },
+    "amd64": {
+      "bytes": 31124480,
+      "sha256": "381e96dfe6ea5c9277499486259791b7c76e12610aa3a186b7b8b0ad049cb359",
+      "build": "PASS",
+      "harnessExit": 0,
+      "parityStatus": "UNVERIFIED",
+      "nativeWindowVerified": false,
+      "cases": [
+        {
+          "id": "CONTROL-01",
+          "status": "PASS"
+        },
+        {
+          "id": "PROCESS-01",
+          "status": "PASS"
+        },
+        {
+          "id": "EXCHANGE-01",
+          "status": "PASS"
+        },
+        {
+          "id": "BODY-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "SESSION-01",
+          "status": "PASS"
+        },
+        {
+          "id": "WINDOW-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "GRID-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "TIMING-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "CONTENT-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "NOTES-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "BUILDER-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "LEGACY-VIEW-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "COVERAGE-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "HALOG-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "COM-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "LONG-01",
+          "status": "UNVERIFIED"
+        }
+      ]
+    }
+  },
+  "checks": {
+    "frontendState": "PASS",
+    "frontendProductionBuild": "PASS",
+    "httpParityReportContract": "PASS",
+    "httpReferenceSyntheticFixture": "PASS",
+    "desktopOnlyAndServerBuildRefusal": "PASS",
+    "goVetCaptureHttpApp": "PASS"
+  },
+  "resolver": {
+    "amd64": {
+      "schema_version": "archscope.resolver-cost.v1",
+      "os": "windows",
+      "architecture": "amd64",
+      "connection_scope": "accepted_loopback_tcp_connection",
+      "owner_table_reads_per_sample": 2,
+      "samples": 50,
+      "confirmed_samples": 50,
+      "mean_ms": 5.363,
+      "p50_ms": 5.324,
+      "p95_ms": 6.253,
+      "max_ms": 6.447,
+      "acceptance_policy": "measurement_only_no_predeclared_product_slo"
+    },
+    "x86": {
+      "schema_version": "archscope.resolver-cost.v1",
+      "os": "windows",
+      "architecture": "386",
+      "connection_scope": "accepted_loopback_tcp_connection",
+      "owner_table_reads_per_sample": 2,
+      "samples": 50,
+      "confirmed_samples": 50,
+      "mean_ms": 21.081,
+      "p50_ms": 20.745,
+      "p95_ms": 22.74,
+      "max_ms": 28.56,
+      "acceptance_policy": "measurement_only_no_predeclared_product_slo"
+    }
+  },
+  "soak": {
+    "schema": 1,
+    "os": "windows",
+    "arch": "amd64",
+    "commit": "82bc6a8c3fd86ebb99901892cdb41f56134d6800",
+    "scope": "synthetic loopback common engine; no native GUI/driver/body-tier acceptance",
+    "passed": true,
+    "cycles": 39,
+    "requests": 10140,
+    "elapsedSeconds": 120.3053639,
+    "sampledPeakHeapBytes": 14120224,
+    "sampledPeakGoroutines": 3,
+    "peakStoreBytes": 125136,
+    "maxRetained": 64,
+    "retentionRows": 64,
+    "admission": true
+  },
+  "originalFilterPresets": {
+    "amd64": "PASS",
+    "x86": "PASS",
+    "supported": 16,
+    "explicitlyRefusedCacheOrigin": 1,
+    "source": "installed reference Filter directory; read only"
+  },
+  "privateHalog": {
+    "verifiedSourceSHA256": "d2ed106e5bc8bc0f31509e6aad7fe09149b12d4ebd96fc19b3672f7858857bad",
+    "bytes": 35463916,
+    "rows": 675,
+    "decodeAndByteExactReencode": "PASS",
+    "newReferenceCOMInterop": "NOT_RUN",
+    "staleAttempt": {
+      "status": "REJECTED_INPUT",
+      "sha256": "e156ccda27a63298e7c9841df5b98cf905c566e2b83a7d9cfec3666be38ac4ce",
+      "bytes": 35463038,
+      "error": "HALOG_INVALID: unsupported chunk length at byte 24807",
+      "interpretation": "Old intermediate output differs from the accepted original hash. Correct source was identified by hash and passed."
+    }
+  },
+  "failures": [
+    {
+      "id": "CATALOG_CRLF",
+      "scope": "amd64 full app package",
+      "failedTests": 9,
+      "error": "IMPORT_REGISTRY_INVALID: bundled fixture/schema hash mismatch",
+      "diagnosis": [
+        {
+          "name": "wire-cases.json",
+          "expected": "de35513d4ed4eb6b308fcb723dd8a9f10d28d21c5816995a037c8851f8b32670",
+          "workingHash": "8d92c4b96b2c6367bb21d64d517b9daec10e66e8d71c5adba5cf5fc94b39c8ca",
+          "lfHash": "de35513d4ed4eb6b308fcb723dd8a9f10d28d21c5816995a037c8851f8b32670",
+          "containsCRLF": true
+        },
+        {
+          "name": "server.log",
+          "expected": "110b73a148ffce7975611dd5872a2988301cbf39e4644d3683f88f4b3987635d",
+          "workingHash": "6a92128c7aadb5667da386a115d4378743abfed54e3feeece477e09e36cd7774",
+          "lfHash": "110b73a148ffce7975611dd5872a2988301cbf39e4644d3683f88f4b3987635d",
+          "containsCRLF": true
+        },
+        {
+          "name": "measurement-descriptor.schema.json",
+          "expected": "e891e91791577ff6bd901fd801b73925405472671b9152180db2b81ca373762c",
+          "workingHash": "1dd615e70d77f55c2e0cc5eca8030c7375ba3b79e5ecb1564490d54deefc5bbd",
+          "lfHash": "e891e91791577ff6bd901fd801b73925405472671b9152180db2b81ca373762c",
+          "containsCRLF": true
+        }
+      ],
+      "preparation": "Enforce LF checkout for hashed catalog contracts, then rebuild and rerun the app tests. No product files changed in this task."
+    },
+    {
+      "id": "X86_SHORTCUT_MARKER",
+      "scope": "386 capture/processlaunch",
+      "error": "invalid marker",
+      "repeat": {
+        "iterations": 10,
+        "passed": 10,
+        "failed": 0
+      },
+      "diagnosis": "Fixture writes marker with os.WriteFile while parent reads immediately after file creation. Partial-read race is consistent with the failure; cause not independently proven.",
+      "preparation": "Publish marker atomically or wait for complete JSON, then rerun both architectures. Initial suite remains FAIL."
+    },
+    {
+      "id": "X86_DIRECT_WAILS_TEST",
+      "scope": "386 direct go test of app package",
+      "error": "panic: compileCallback: argument size is larger than uintptr",
+      "diagnosis": "Direct go test bypasses the guarded temporary Wails x86 patches used by build/windows/build.mjs. No test body executes.",
+      "preparation": "Use a test runner applying the same verified temporary SDK/modfile patches. Patched production build and desktop harness already pass."
+    }
+  ],
+  "remainingPreparations": [
+    {
+      "task": "T-601",
+      "requires": [
+        "Official hash-verified WinDivert 2.2.2-A DLL and architecture-appropriate SYS files",
+        "Elevated administrator token",
+        "Unauthenticated peer IPv4 HTTP origin on port 80, outside loopback",
+        "Set ARCHSCOPE_WINDIVERT_DLL and ARCHSCOPE_TRANSPARENT_FIXTURE_URL; opt in with ARCHSCOPE_RUN_TRANSPARENT_E2E=1",
+        "Separate service/proxy-ignoring and x86/x64 reach cases plus driver-policy matrix"
+      ]
+    },
+    {
+      "task": "T-611",
+      "requires": [
+        "Clean Windows user/VM with no conflicting COM/interface registration for explicit register/replace/unregister tests",
+        "Actual original early-bound client binary/sample and expected behavior",
+        "Observed original filter/cache-origin evidence beyond the 16 supported presets",
+        "Target foreign-process in-memory WinINet session-cookie test client"
+      ]
+    },
+    {
+      "task": "Body E2E / SEC-10 forced crash",
+      "requires": [
+        "Same-user elevated worker for temporary LocalDumps isolation",
+        "Verified restoration using scripts/with-windows-body-capture-policy.ps1",
+        "ARCHSCOPE_RUN_BODY_E2E=1 or ARCHSCOPE_SEC10_FORCED_CRASH=1 inside the controlled policy interval"
+      ]
+    },
+    {
+      "task": "Race detector",
+      "requires": [
+        "Go-compatible C compiler on PATH",
+        "CGO_ENABLED=1 for amd64 -race; 386 race is not claimed"
+      ]
+    },
+    {
+      "task": "Optional independent XLS reader",
+      "requires": [
+        "Python with xlrd available",
+        "ARCHSCOPE_XLS_READER set to that Python executable"
+      ]
+    },
+    {
+      "task": "T-613 / T-627",
+      "requires": [
+        "Prepared native feature/reference fixtures and original baseline",
+        "Actual native menu and OS DPI matrix; WebView zoom is separate",
+        "Multi-hour continuously operated desktop capture including reentry/restart/recovery and driver cases; current 120-second soak covers common service/proxy only"
+      ]
+    }
+  ],
+  "taskStatusChanges": [],
+  "exclusions": [
+    "No CA installation",
+    "No global proxy change",
+    "No dump-policy change",
+    "Existing reference/ArchScope COM registrations preserved",
+    "Private HALOG bodies/URLs/process paths/tokens not published"
+  ]
+}

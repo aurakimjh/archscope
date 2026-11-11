@@ -22,7 +22,13 @@ func TestShortcutLaunchFixture(t *testing.T) {
 			Args      []string
 			Proxy     string
 		}{cwd, os.Args, os.Getenv("HTTP_PROXY")})
-		if os.WriteFile(marker, data, 0600) != nil {
+		// Publish only a complete JSON document. The parent polls the final
+		// name and can otherwise read between file creation and WriteFile.
+		pending := marker + ".pending"
+		if os.WriteFile(pending, data, 0600) != nil {
+			os.Exit(2)
+		}
+		if os.Rename(pending, marker) != nil {
 			os.Exit(2)
 		}
 		os.Exit(0)

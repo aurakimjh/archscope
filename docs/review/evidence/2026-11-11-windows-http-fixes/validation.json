@@ -1,0 +1,1293 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-11",
+  "timezone": "Asia/Seoul",
+  "baseCommit": "82bc6a8c3fd86ebb99901892cdb41f56134d6800",
+  "uncommittedWorkingTree": true,
+  "scope": "Three Windows failures fixed and retested on the physical Windows host. Full native parity remains unverified.",
+  "sourceHashes": {
+    ".gitattributes": "d410c46a40336dd3cc644c8d193bf204207164550b8d3f2bb4742d2d16a3f2c6",
+    ".gitignore": "b75ea97b045c0bdb306a40c105abe1351b511c47adabcd4675b3422d4b3b5992",
+    ".github/workflows/engine-native.yml": "0f712c10cd8be4668638d37d981c4f15991f7e05cfe59a5e0eae9b8b02135636",
+    "apps/engine-native/README.md": "e201d66f41a4882df745fc8f0c99fd63396a0f9723a466e58d78fe1afc849d47",
+    "apps/engine-native/cmd/archscope-app/build/windows/Taskfile.yml": "528ba4ee243cb64795d0bc6274b1a539536f55faa3faa150e2de7ad5d00d671a",
+    "apps/engine-native/cmd/archscope-app/build/windows/build.mjs": "35aa474d472fe50dd22274cb62997486952d1f21589660c0041ce6abee0740a0",
+    "apps/engine-native/cmd/archscope-app/build/windows/go.mjs": "bd77c5af19065b861ea13d44e3315792d22b6e827d7377dcbc98adc0a00105be",
+    "apps/engine-native/cmd/archscope-app/build/windows/test.mjs": "4af5dc262446ca5a199ac0a9027b1dc201bca487b307a9e1755786bfcaf34831",
+    "apps/engine-native/internal/capture/processlaunch/shortcut_windows_test.go": "764fa6778460a0c7c37c2e29ff093386c5f2680837f519a65a1451c738096f95"
+  },
+  "fixes": {
+    "contractHash": "LF checkout fixed for embedded catalog and case contracts; runtime SHA-256 verification unchanged",
+    "shortcutMarker": "Closed JSON file renamed from same-directory .pending name before parent can read it",
+    "x86Wails": "Shared hash-guarded temporary SDK/modfile patches for both build and native test; Task command and native x86 CI job added"
+  },
+  "environment": {
+    "os": "windows",
+    "hostArch": "amd64",
+    "go": "go1.26.10",
+    "node": "v22.15.1",
+    "CGO_ENABLED": 0,
+    "cCompilerAvailable": false,
+    "elevated": false
+  },
+  "suites": {
+    "amd64": {
+      "command": "GOARCH=amd64 go test -json -count=1 -p 1 -timeout 5m ./...",
+      "status": "PASS",
+      "exitCode": 0,
+      "logSHA256": "395b31b18b4c83141912b80a168051fab53fc620ca7de56d5bf5a040d63856f4",
+      "packages": [
+        {
+          "package": "api",
+          "status": "skip"
+        },
+        {
+          "package": "cmd/archscope-app",
+          "status": "pass"
+        },
+        {
+          "package": "cmd/archscope-control",
+          "status": "skip"
+        },
+        {
+          "package": "cmd/archscope-engine",
+          "status": "pass"
+        },
+        {
+          "package": "internal/aiinterpretation",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analysis",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/accesslog",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/apicontract",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/archdoc",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/brokerlog",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/databaselog",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/exception",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/gclog",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/httpcapture",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/httpcorrelation",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/jenniferprofile",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/jfr",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/lighthouse",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/lockcontention",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/metrics",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/multithread",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/observability",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/otel",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/platform",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/profile",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/profileclassification",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/runtime",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/serverlog",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/stitching",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/threaddump",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/threaddumpcollapsed",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/traceimport",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/acceptance",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/admission",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/aggregate",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/automation",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/backend",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/browsercache",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/certstore",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/comautomation",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/content",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/dumppolicy",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/halog",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/legacy",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/processlaunch",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/procmap",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/proxy",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/redact",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/requestbuilder",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/session",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/sessionfile",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/store",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/stream",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/summary",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/transparent",
+          "status": "pass"
+        },
+        {
+          "package": "internal/cases",
+          "status": "pass"
+        },
+        {
+          "package": "internal/catalog",
+          "status": "pass"
+        },
+        {
+          "package": "internal/common",
+          "status": "skip"
+        },
+        {
+          "package": "internal/demosite",
+          "status": "pass"
+        },
+        {
+          "package": "internal/diagnostics",
+          "status": "pass"
+        },
+        {
+          "package": "internal/exporters/csv",
+          "status": "pass"
+        },
+        {
+          "package": "internal/exporters/html",
+          "status": "pass"
+        },
+        {
+          "package": "internal/exporters/json",
+          "status": "pass"
+        },
+        {
+          "package": "internal/exporters/pptx",
+          "status": "pass"
+        },
+        {
+          "package": "internal/exporters/reportdiff",
+          "status": "pass"
+        },
+        {
+          "package": "internal/ingestion",
+          "status": "pass"
+        },
+        {
+          "package": "internal/models",
+          "status": "pass"
+        },
+        {
+          "package": "internal/parsers/accesslog",
+          "status": "pass"
+        },
+        {
+          "package": "internal/parsers/apicontract",
+          "status": "pass"
+        },
+        {
+          "package": "internal/parsers/brokerlog",
+          "status": "pass"
+        },
+        {
+          "package": "internal/parsers/databaselog",
+          "status": "pass"
+        },
+        {
+          "package": "internal/parsers/exception",
+          "status": "pass"
+        },
+        {
+          "package": "internal/parsers/gclog",
+          "status": "pass"
+        },
+        {
+          "package": "internal/parsers/httpcapture",
+          "status": "pass"
+        },
+        {
+          "package": "internal/parsers/jenniferprofile",
+          "status": "pass"
+        },
+        {
+          "package": "internal/parsers/jfr",
+          "status": "pass"
+        },
+        {
+          "package": "internal/parsers/lighthouse",
+          "status": "pass"
+        },
+        {
+          "package": "internal/parsers/metrics",
+          "status": "pass"
+        },
+        {
+          "package": "internal/parsers/observability",
+          "status": "skip"
+        },
+        {
+          "package": "internal/parsers/otel",
+          "status": "pass"
+        },
+        {
+          "package": "internal/parsers/platform",
+          "status": "pass"
+        },
+        {
+          "package": "internal/parsers/profile",
+          "status": "pass"
+        },
+        {
+          "package": "internal/parsers/runtimestack",
+          "status": "pass"
+        },
+        {
+          "package": "internal/parsers/serverlog",
+          "status": "pass"
+        },
+        {
+          "package": "internal/parsers/traceimport",
+          "status": "pass"
+        },
+        {
+          "package": "internal/profilelegacy",
+          "status": "skip"
+        },
+        {
+          "package": "internal/profilemodel",
+          "status": "pass"
+        },
+        {
+          "package": "internal/profiler",
+          "status": "pass"
+        },
+        {
+          "package": "internal/resultcontract",
+          "status": "pass"
+        },
+        {
+          "package": "internal/statistics",
+          "status": "pass"
+        },
+        {
+          "package": "internal/textio",
+          "status": "pass"
+        },
+        {
+          "package": "internal/threaddump",
+          "status": "pass"
+        },
+        {
+          "package": "internal/threaddump/plugins/dotnetclrstack",
+          "status": "pass"
+        },
+        {
+          "package": "internal/threaddump/plugins/gogoroutine",
+          "status": "pass"
+        },
+        {
+          "package": "internal/threaddump/plugins/javajcmdjson",
+          "status": "pass"
+        },
+        {
+          "package": "internal/threaddump/plugins/javajstack",
+          "status": "pass"
+        },
+        {
+          "package": "internal/threaddump/plugins/nodejsreport",
+          "status": "pass"
+        },
+        {
+          "package": "internal/threaddump/plugins/pythondump",
+          "status": "pass"
+        },
+        {
+          "package": "internal/timeutil",
+          "status": "pass"
+        },
+        {
+          "package": "internal/wirejson",
+          "status": "pass"
+        }
+      ],
+      "tests": {
+        "pass": 1208,
+        "fail": 0,
+        "skip": 13
+      },
+      "skips": [
+        {
+          "test": "TestWindowsBodyCaptureE2E",
+          "reason": "capture_windows_e2e_test.go:23: set ARCHSCOPE_RUN_BODY_E2E=1 under a verified temporary dump policy"
+        },
+        {
+          "test": "TestWindowsCaptureClientHelper",
+          "reason": "capture_windows_process_e2e_test.go:182: subprocess helper"
+        },
+        {
+          "test": "TestWindowsTransparentDirectClientE2E",
+          "reason": "capturetransparent_windows_test.go:40: opt-in elevated Windows driver test with a peer HTTP fixture"
+        },
+        {
+          "test": "TestWritePrivateJSONAnyUsesOwnerOnlyPermissions",
+          "reason": "helpers_test.go:12: Windows ACL enforcement is covered by packaging acceptance"
+        },
+        {
+          "test": "TestReferencePresetFiltersWhenProvided",
+          "reason": "filter_test.go:191: optional read-only original preset validation"
+        },
+        {
+          "test": "TestExplicitRegistrationLifecycleOnCleanHost",
+          "reason": "registration_windows_test.go:139: existing machine registration preserved Interface\\{038334F0-ED29-411A-B4EA-828534D79E8F}"
+        },
+        {
+          "test": "TestCOMRemotingHelper",
+          "reason": "remoting_windows_test.go:26: subprocess fixture only"
+        },
+        {
+          "test": "TestCurrentIsUnavailableOffWindows",
+          "reason": "dumppolicy_test.go:14: this asserts the non-Windows contract"
+        },
+        {
+          "test": "TestPrivateReferenceSample",
+          "reason": "codec_test.go:286: private local reference sample"
+        },
+        {
+          "test": "TestWindowsResolverCostMeasurement",
+          "reason": "resolver_windows_performance_test.go:44: set ARCHSCOPE_RUN_RESOLVER_PERF=1 for the R-RG1 native Windows measurement"
+        },
+        {
+          "test": "TestSEC10ForcedCrashProbe",
+          "reason": "forcedcrash_windows_test.go:54: set ARCHSCOPE_SEC10_FORCED_CRASH=1 to run the forced-crash probe"
+        },
+        {
+          "test": "TestLargeXLSIndependentReader",
+          "reason": "sessionfile_test.go:111: optional independent XLS reader"
+        },
+        {
+          "test": "TestOfficialDriverFingerprints",
+          "reason": "nat_test.go:97: optional official binary fingerprint fixture"
+        }
+      ]
+    },
+    "x86": {
+      "command": "GOARCH=386 node cmd/archscope-app/build/windows/test.mjs -json -count=1 -p 1 -timeout 5m ./...",
+      "status": "PASS",
+      "exitCode": 0,
+      "logSHA256": "17c6eeed0747f662386801bbb2cd2b790fcb1e755757e6384f0d87abf7f4d7e8",
+      "packages": [
+        {
+          "package": "api",
+          "status": "skip"
+        },
+        {
+          "package": "cmd/archscope-app",
+          "status": "pass"
+        },
+        {
+          "package": "cmd/archscope-control",
+          "status": "skip"
+        },
+        {
+          "package": "cmd/archscope-engine",
+          "status": "pass"
+        },
+        {
+          "package": "internal/aiinterpretation",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analysis",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/accesslog",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/apicontract",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/archdoc",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/brokerlog",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/databaselog",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/exception",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/gclog",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/httpcapture",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/httpcorrelation",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/jenniferprofile",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/jfr",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/lighthouse",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/lockcontention",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/metrics",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/multithread",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/observability",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/otel",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/platform",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/profile",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/profileclassification",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/runtime",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/serverlog",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/stitching",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/threaddump",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/threaddumpcollapsed",
+          "status": "pass"
+        },
+        {
+          "package": "internal/analyzers/traceimport",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/acceptance",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/admission",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/aggregate",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/automation",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/backend",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/browsercache",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/certstore",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/comautomation",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/content",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/dumppolicy",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/halog",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/legacy",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/processlaunch",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/procmap",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/proxy",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/redact",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/requestbuilder",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/session",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/sessionfile",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/store",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/stream",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/summary",
+          "status": "pass"
+        },
+        {
+          "package": "internal/capture/transparent",
+          "status": "pass"
+        },
+        {
+          "package": "internal/cases",
+          "status": "pass"
+        },
+        {
+          "package": "internal/catalog",
+          "status": "pass"
+        },
+        {
+          "package": "internal/common",
+          "status": "skip"
+        },
+        {
+          "package": "internal/demosite",
+          "status": "pass"
+        },
+        {
+          "package": "internal/diagnostics",
+          "status": "pass"
+        },
+        {
+          "package": "internal/exporters/csv",
+          "status": "pass"
+        },
+        {
+          "package": "internal/exporters/html",
+          "status": "pass"
+        },
+        {
+          "package": "internal/exporters/json",
+          "status": "pass"
+        },
+        {
+          "package": "internal/exporters/pptx",
+          "status": "pass"
+        },
+        {
+          "package": "internal/exporters/reportdiff",
+          "status": "pass"
+        },
+        {
+          "package": "internal/ingestion",
+          "status": "pass"
+        },
+        {
+          "package": "internal/models",
+          "status": "pass"
+        },
+        {
+          "package": "internal/parsers/accesslog",
+          "status": "pass"
+        },
+        {
+          "package": "internal/parsers/apicontract",
+          "status": "pass"
+        },
+        {
+          "package": "internal/parsers/brokerlog",
+          "status": "pass"
+        },
+        {
+          "package": "internal/parsers/databaselog",
+          "status": "pass"
+        },
+        {
+          "package": "internal/parsers/exception",
+          "status": "pass"
+        },
+        {
+          "package": "internal/parsers/gclog",
+          "status": "pass"
+        },
+        {
+          "package": "internal/parsers/httpcapture",
+          "status": "pass"
+        },
+        {
+          "package": "internal/parsers/jenniferprofile",
+          "status": "pass"
+        },
+        {
+          "package": "internal/parsers/jfr",
+          "status": "pass"
+        },
+        {
+          "package": "internal/parsers/lighthouse",
+          "status": "pass"
+        },
+        {
+          "package": "internal/parsers/metrics",
+          "status": "pass"
+        },
+        {
+          "package": "internal/parsers/observability",
+          "status": "skip"
+        },
+        {
+          "package": "internal/parsers/otel",
+          "status": "pass"
+        },
+        {
+          "package": "internal/parsers/platform",
+          "status": "pass"
+        },
+        {
+          "package": "internal/parsers/profile",
+          "status": "pass"
+        },
+        {
+          "package": "internal/parsers/runtimestack",
+          "status": "pass"
+        },
+        {
+          "package": "internal/parsers/serverlog",
+          "status": "pass"
+        },
+        {
+          "package": "internal/parsers/traceimport",
+          "status": "pass"
+        },
+        {
+          "package": "internal/profilelegacy",
+          "status": "skip"
+        },
+        {
+          "package": "internal/profilemodel",
+          "status": "pass"
+        },
+        {
+          "package": "internal/profiler",
+          "status": "pass"
+        },
+        {
+          "package": "internal/resultcontract",
+          "status": "pass"
+        },
+        {
+          "package": "internal/statistics",
+          "status": "pass"
+        },
+        {
+          "package": "internal/textio",
+          "status": "pass"
+        },
+        {
+          "package": "internal/threaddump",
+          "status": "pass"
+        },
+        {
+          "package": "internal/threaddump/plugins/dotnetclrstack",
+          "status": "pass"
+        },
+        {
+          "package": "internal/threaddump/plugins/gogoroutine",
+          "status": "pass"
+        },
+        {
+          "package": "internal/threaddump/plugins/javajcmdjson",
+          "status": "pass"
+        },
+        {
+          "package": "internal/threaddump/plugins/javajstack",
+          "status": "pass"
+        },
+        {
+          "package": "internal/threaddump/plugins/nodejsreport",
+          "status": "pass"
+        },
+        {
+          "package": "internal/threaddump/plugins/pythondump",
+          "status": "pass"
+        },
+        {
+          "package": "internal/timeutil",
+          "status": "pass"
+        },
+        {
+          "package": "internal/wirejson",
+          "status": "pass"
+        }
+      ],
+      "tests": {
+        "pass": 1208,
+        "fail": 0,
+        "skip": 13
+      },
+      "skips": [
+        {
+          "test": "TestWindowsBodyCaptureE2E",
+          "reason": "capture_windows_e2e_test.go:23: set ARCHSCOPE_RUN_BODY_E2E=1 under a verified temporary dump policy"
+        },
+        {
+          "test": "TestWindowsCaptureClientHelper",
+          "reason": "capture_windows_process_e2e_test.go:182: subprocess helper"
+        },
+        {
+          "test": "TestWindowsTransparentDirectClientE2E",
+          "reason": "capturetransparent_windows_test.go:40: opt-in elevated Windows driver test with a peer HTTP fixture"
+        },
+        {
+          "test": "TestWritePrivateJSONAnyUsesOwnerOnlyPermissions",
+          "reason": "helpers_test.go:12: Windows ACL enforcement is covered by packaging acceptance"
+        },
+        {
+          "test": "TestReferencePresetFiltersWhenProvided",
+          "reason": "filter_test.go:191: optional read-only original preset validation"
+        },
+        {
+          "test": "TestExplicitRegistrationLifecycleOnCleanHost",
+          "reason": "registration_windows_test.go:139: existing machine registration preserved Interface\\{038334F0-ED29-411A-B4EA-828534D79E8F}"
+        },
+        {
+          "test": "TestCOMRemotingHelper",
+          "reason": "remoting_windows_test.go:26: subprocess fixture only"
+        },
+        {
+          "test": "TestCurrentIsUnavailableOffWindows",
+          "reason": "dumppolicy_test.go:14: this asserts the non-Windows contract"
+        },
+        {
+          "test": "TestPrivateReferenceSample",
+          "reason": "codec_test.go:286: private local reference sample"
+        },
+        {
+          "test": "TestWindowsResolverCostMeasurement",
+          "reason": "resolver_windows_performance_test.go:44: set ARCHSCOPE_RUN_RESOLVER_PERF=1 for the R-RG1 native Windows measurement"
+        },
+        {
+          "test": "TestSEC10ForcedCrashProbe",
+          "reason": "forcedcrash_windows_test.go:54: set ARCHSCOPE_SEC10_FORCED_CRASH=1 to run the forced-crash probe"
+        },
+        {
+          "test": "TestLargeXLSIndependentReader",
+          "reason": "sessionfile_test.go:111: optional independent XLS reader"
+        },
+        {
+          "test": "TestOfficialDriverFingerprints",
+          "reason": "nat_test.go:97: optional official binary fingerprint fixture"
+        }
+      ]
+    },
+    "x86FormerlyFailingPackages": {
+      "command": "GOARCH=386 node cmd/archscope-app/build/windows/test.mjs -json -count=1 -p 1 -timeout 5m ./internal/catalog ./internal/cases ./cmd/archscope-app",
+      "status": "PASS",
+      "exitCode": 0,
+      "logSHA256": "c816f2810dba405a72d4181817df95d1275400c076623d8b030e904db001bcbb",
+      "packages": [
+        {
+          "package": "internal/catalog",
+          "status": "pass"
+        },
+        {
+          "package": "internal/cases",
+          "status": "pass"
+        },
+        {
+          "package": "cmd/archscope-app",
+          "status": "pass"
+        }
+      ],
+      "tests": {
+        "pass": 78,
+        "fail": 0,
+        "skip": 3
+      },
+      "skips": [
+        {
+          "test": "TestWindowsBodyCaptureE2E",
+          "reason": "capture_windows_e2e_test.go:23: set ARCHSCOPE_RUN_BODY_E2E=1 under a verified temporary dump policy"
+        },
+        {
+          "test": "TestWindowsCaptureClientHelper",
+          "reason": "capture_windows_process_e2e_test.go:182: subprocess helper"
+        },
+        {
+          "test": "TestWindowsTransparentDirectClientE2E",
+          "reason": "capturetransparent_windows_test.go:40: opt-in elevated Windows driver test with a peer HTTP fixture"
+        }
+      ]
+    },
+    "shortcutAmd64": {
+      "command": "GOARCH=amd64 go test -json -count=100 -timeout 3m ./internal/capture/processlaunch -run ^TestNativeShortcutLaunchPreservesUnicodeArgumentsAndDirectory$",
+      "status": "PASS",
+      "exitCode": 0,
+      "logSHA256": "234174e46d6b9aca4daf0db5ce3fd8e2f4d022310e2e5b4505ad3d151474c09d",
+      "packages": [
+        {
+          "package": "internal/capture/processlaunch",
+          "status": "pass"
+        }
+      ],
+      "tests": {
+        "pass": 100,
+        "fail": 0,
+        "skip": 0
+      },
+      "skips": []
+    },
+    "shortcutX86": {
+      "command": "GOARCH=386 go test -json -count=100 -timeout 3m ./internal/capture/processlaunch -run ^TestNativeShortcutLaunchPreservesUnicodeArgumentsAndDirectory$",
+      "status": "PASS",
+      "exitCode": 0,
+      "logSHA256": "63632559bed8d2b8534f15cc07c701cf74dd927bd594bee4f96a439f58c3ec87",
+      "packages": [
+        {
+          "package": "internal/capture/processlaunch",
+          "status": "pass"
+        }
+      ],
+      "tests": {
+        "pass": 100,
+        "fail": 0,
+        "skip": 0
+      },
+      "skips": []
+    }
+  },
+  "binaries": {
+    "386": {
+      "build": "PASS",
+      "bytes": 29872128,
+      "sha256": "8e363823c9fbbe16f5ec6175f6713350d7f96be110e778b42b614f0e76d691eb",
+      "harnessExit": 0,
+      "parityStatus": "UNVERIFIED",
+      "nativeWindowVerified": false,
+      "cases": [
+        {
+          "id": "CONTROL-01",
+          "status": "PASS"
+        },
+        {
+          "id": "PROCESS-01",
+          "status": "PASS"
+        },
+        {
+          "id": "EXCHANGE-01",
+          "status": "PASS"
+        },
+        {
+          "id": "BODY-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "SESSION-01",
+          "status": "PASS"
+        },
+        {
+          "id": "WINDOW-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "GRID-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "TIMING-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "CONTENT-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "NOTES-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "BUILDER-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "LEGACY-VIEW-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "COVERAGE-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "HALOG-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "COM-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "LONG-01",
+          "status": "UNVERIFIED"
+        }
+      ]
+    },
+    "amd64": {
+      "build": "PASS",
+      "bytes": 31123456,
+      "sha256": "c3a9af92c86d87ebc3eea5f965154e5ae044ca534ead837933b1be2d4faac77c",
+      "harnessExit": 0,
+      "parityStatus": "UNVERIFIED",
+      "nativeWindowVerified": false,
+      "cases": [
+        {
+          "id": "CONTROL-01",
+          "status": "PASS"
+        },
+        {
+          "id": "PROCESS-01",
+          "status": "PASS"
+        },
+        {
+          "id": "EXCHANGE-01",
+          "status": "PASS"
+        },
+        {
+          "id": "BODY-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "SESSION-01",
+          "status": "PASS"
+        },
+        {
+          "id": "WINDOW-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "GRID-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "TIMING-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "CONTENT-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "NOTES-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "BUILDER-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "LEGACY-VIEW-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "COVERAGE-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "HALOG-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "COM-01",
+          "status": "UNVERIFIED"
+        },
+        {
+          "id": "LONG-01",
+          "status": "UNVERIFIED"
+        }
+      ]
+    }
+  },
+  "contracts": [
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/manifest.json",
+      "sha256": "b7ae72847391e749e428a30f20e24aa2b4d7857e69c76e27308a2c75122368a7",
+      "checkoutWithAutocrlfTrue": "LF; identical bytes"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/measurement-descriptor.schema.json",
+      "sha256": "e891e91791577ff6bd901fd801b73925405472671b9152180db2b81ca373762c",
+      "checkoutWithAutocrlfTrue": "LF; identical bytes"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/profile-origin.txt",
+      "sha256": "40d9150d23cd94c6e7f325511281db7c9b946e89b60d8c25a26868943102f291",
+      "checkoutWithAutocrlfTrue": "LF; identical bytes"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/profile-scale-cases.json",
+      "sha256": "6da5969a085ecc63436247f0f08ee974145ac07e6beeefc99bd4627eaa1cc17e",
+      "checkoutWithAutocrlfTrue": "LF; identical bytes"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/profile-set.json",
+      "sha256": "90e348518b20503d0efdd70f133747cd08dcfd06bbd8abfbae710e3b16afd2f8",
+      "checkoutWithAutocrlfTrue": "LF; identical bytes"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/profile-set.manifest.json",
+      "sha256": "00c424709e897bce4e6250aef0b7ffd3e31248614600e04b1f26c93f25f4b156",
+      "checkoutWithAutocrlfTrue": "LF; identical bytes"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/profile-set.schema.json",
+      "sha256": "2a7814678d750ebb56fcabb63016b4c966ba0f16819b44c6ff946ca2417d1423",
+      "checkoutWithAutocrlfTrue": "LF; identical bytes"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/server.log",
+      "sha256": "110b73a148ffce7975611dd5872a2988301cbf39e4644d3683f88f4b3987635d",
+      "checkoutWithAutocrlfTrue": "LF; identical bytes"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/wire-cases.json",
+      "sha256": "de35513d4ed4eb6b308fcb723dd8a9f10d28d21c5816995a037c8851f8b32670",
+      "checkoutWithAutocrlfTrue": "LF; identical bytes"
+    },
+    {
+      "file": "apps/engine-native/internal/cases/contracts/capture-context.schema.json",
+      "sha256": "ffa475072245596bfb0f9c67e6b1711c2392afaee68e7e9b6467ffeeb89316b4",
+      "checkoutWithAutocrlfTrue": "LF; identical bytes"
+    },
+    {
+      "file": "apps/engine-native/internal/cases/contracts/evidence-text-v1.json",
+      "sha256": "cb316f9a1f5eee71f9c4ac384ddaa0e1b8b8adce1cf3f67067965936910b55e4",
+      "checkoutWithAutocrlfTrue": "LF; identical bytes"
+    },
+    {
+      "file": "apps/engine-native/internal/cases/contracts/manifest.json",
+      "sha256": "a714640cb408d55c5d6201eca07828dacbe8dc41ee7564e56fd461f3ce53ba14",
+      "checkoutWithAutocrlfTrue": "LF; identical bytes"
+    }
+  ],
+  "sdk": {
+    "pkg/w32/idroptarget.go": {
+      "sha256": "c2ba3162f5697609df5158902c4ba1400dad839279ecc06175fd72e74eb7ed12",
+      "unchanged": true
+    },
+    "pkg/w32/user32.go": {
+      "sha256": "42d07d118ffc065ff408b57ab224c637f57e0bb4452b38da04708e5ec8e93d77",
+      "unchanged": true
+    }
+  },
+  "checks": {
+    "goVetAmd64": "PASS",
+    "goVetX86": "PASS",
+    "nativeTaskWindowsTestX86": "PASS",
+    "workflowAndTaskYamlParse": "PASS",
+    "nodeSyntax": "PASS",
+    "desktopOnlyAndServerCompilationRefusal": "PASS",
+    "gitDiffCheck": "PASS"
+  },
+  "hostedCI": "Configured native Windows x86 full suite; not pushed or executed in this task",
+  "remaining": [
+    "Local race detector needs a C compiler and CGO_ENABLED=1",
+    "Body/forced-crash tests need controlled elevated dump-policy isolation/restoration",
+    "Transparent driver tests need verified WinDivert, elevation and peer IPv4 port-80 fixture",
+    "Existing COM mappings preserved; clean-host registration and current vendor-client compatibility remain separate",
+    "Full native UI/DPI matrix and multi-hour GUI/driver parity remain T-613/T-627"
+  ],
+  "taskStatusChanges": [],
+  "privateTrafficPublished": false
+}

@@ -3,6 +3,7 @@ name: Engine Native (Go + Wails)
 on:
   pull_request:
     paths:
+      - ".gitattributes"
       - "apps/engine-native/**"
       - "examples/**"
       - "scripts/verify-desktop-only.mjs"
@@ -11,6 +12,7 @@ on:
     branches:
       - main
     paths:
+      - ".gitattributes"
       - "apps/engine-native/**"
       - "examples/**"
       - "scripts/verify-desktop-only.mjs"
@@ -45,6 +47,27 @@ jobs:
         env:
           GOARCH: ${{ matrix.arch }}
         run: node build/windows/build.mjs -tags production -trimpath -ldflags "-H windowsgui" -o "${{ runner.temp }}/archscope-${{ matrix.arch }}.exe" .
+
+  windows-x86:
+    name: Native Windows tests (386)
+    runs-on: windows-latest
+    timeout-minutes: 20
+    env:
+      GOARCH: '386'
+      CGO_ENABLED: '0'
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: "1.26.x"
+          cache-dependency-path: apps/engine-native/go.sum
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+      - name: Verify native x86 packages
+        run: go vet ./...
+      - name: Test native x86 packages with the production SDK fixes
+        run: node cmd/archscope-app/build/windows/test.mjs -count=1 -timeout 10m ./...
 
   go:
     name: Go test/build (${{ matrix.os }})
