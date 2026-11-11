@@ -2998,3 +2998,29 @@ maintenance UI execution, new Windows runtime/driver/native-case acceptance or
 production workload qualification. Existing macOS SDK linker warnings persist.
 Original HTTP dirty changes remain excluded. Commit and main-branch push are
 explicitly authorized by the user request.
+
+### Pulled T-630 R6 / T-631 Windows verification and CI remediation (2026-11-11)
+
+Validated pulled commit e2c1c7d9 on the physical Windows host. Reproduced two CLI
+test launch failures caused by extensionless Windows executables; both now reuse
+the existing OS-aware buildBinary helper. CI for 97e518dd and e2c1c7d9 also exposed
+the 54,001-node profile regression reusing one context across import wait, saved
+load and a later refusal wait. Independent per-operation contexts preserve all
+existing scale/byte/record-limit assertions and product budgets.
+
+Local amd64 full Go suite: 1,224 pass / zero fail / 14 explicit skips. Native 386
+app/CLI/analysis/cases/catalog/resultcontract suites: 151 pass / zero fail / five
+skips. Final three regressions pass on both architectures after the final load
+context split. Both full vet runs, frontend state/build, both production builds
+and the four-case desktop controller harness pass; parity remains UNVERIFIED.
+
+Fix commit 5b583745 passes Engine Native 43030540562 (all eight jobs) and General
+CI 43030540850. Hosted checks include Windows full race/live/body/SEC-10 and
+policy restoration, native 386 full tests, Linux/macOS full race, both Windows
+GUI cross-builds, frontend and macOS package smoke. This is actual hosted
+execution, distinct from the earlier Mac-only T-630/T-631 evidence.
+
+No independent review/task closure, complete generic native UI/DPI acceptance,
+driver reach or production long-run acceptance is inferred. Local race remains
+unrun without a C compiler. Evidence:
+`docs/review/evidence/2026-11-11-windows-pull-ci/README.md` and `validation.json`.
