@@ -8,7 +8,7 @@ The previous long-form history was archived to
 
 ## Status Overview
 
-**Overall: 212 of 232 tracked tasks are `DONE` (91.4%).** The user activated the local diagnostics backlog T-628–T-645 on 2026-11-11. T-628 is DONE after independent R3 confirmed R2 N-01–N-04 resolved and explicitly permitted closure with only nonblocking P3 findings; R3-01–R3-03 are now locally remediated and verified. The independent verdict remains CONDITIONAL, not PASS, and does not cover the final P3 fixes. T-629 is DONE under independent R2 closure permission: R4-01–R4-05 are independently resolved, R5-01 is locally fixed, and R5-02 is explicitly scoped to T-634/T-635; the original verdict remains CONDITIONAL. T-630 is REVIEW after local implementation and validation; independent review and actual new UI/Windows runtime evidence remain. T-631/T-632 are ready within their documented scope. Together with existing acceptance items, 20 tasks remain open. T-623 Windows live/process/reentry and T-608 native HALOG codec/reference interoperability completed on 2026-11-11. The four existing acceptance items are T-601, T-611, T-613 and T-627. The private 675-entry sample round-trips byte-for-byte; decoded fields/bodies and redacted exports are verified against original V7.6.4.508. The Windows Wails v3 replacement for IEInspector HTTP Analyzer V7.6.4 Stand-alone has 3 open work items (T-594 through T-613), including the remaining audit findings. T-603 native Windows acceptance completed on 2026-11-09 with actual request/response bodies and verified policy restoration. The 2026-11-09
+**Overall: 212 of 232 tracked tasks are `DONE` (91.4%).** The user activated the local diagnostics backlog T-628–T-645 on 2026-11-11. T-628 is DONE after independent R3 confirmed R2 N-01–N-04 resolved and explicitly permitted closure with only nonblocking P3 findings; R3-01–R3-03 are now locally remediated and verified. The independent verdict remains CONDITIONAL, not PASS, and does not cover the final P3 fixes. T-629 is DONE under independent R2 closure permission: R4-01–R4-05 are independently resolved, R5-01 is locally fixed, and R5-02 is explicitly scoped to T-634/T-635; the original verdict remains CONDITIONAL. T-630 remains REVIEW under its new independent CONDITIONAL review (R6-01/R6-02 P2 and five P3 follow-ups); its actual new case UI/Windows lifecycle evidence remains separate. T-631 is REVIEW after implementation, local regression and scoped native macOS UI checks; independent review and Windows-PC evidence remain separate. T-632 is ready within its documented scope. Together with existing acceptance items, 20 tasks remain open. T-623 Windows live/process/reentry and T-608 native HALOG codec/reference interoperability completed on 2026-11-11. The four existing acceptance items are T-601, T-611, T-613 and T-627. The private 675-entry sample round-trips byte-for-byte; decoded fields/bodies and redacted exports are verified against original V7.6.4.508. The Windows Wails v3 replacement for IEInspector HTTP Analyzer V7.6.4 Stand-alone has 3 open work items (T-594 through T-613), including the remaining audit findings. T-603 native Windows acceptance completed on 2026-11-09 with actual request/response bodies and verified policy restoration. The 2026-11-09
 GC/profiler revalidation confirmed five bugs (T-589 through T-593). Their
 current implementation status is recorded in the registry and snapshot below;
 T-557 is now DONE after the user requested its Go/CLI/report projection on 2026-11-10.
@@ -214,9 +214,9 @@ completed the independent Lighthouse file-first engine slice.
 
 | Status | Count | Meaning |
 |---|---:|---|
-| `TODO` | 2 | Ready to start; prerequisites are satisfied |
+| `TODO` | 1 | Ready to start; prerequisites are satisfied |
 | `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
-| `REVIEW` | 4 | Review or required remediation is underway; the gate has not passed |
+| `REVIEW` | 5 | Review or required remediation is underway; the gate has not passed |
 | `PENDING` | 14 | Waiting for a prerequisite, external condition, or activation trigger |
 | `DONE` | 212 | Completion criteria and required review gates have passed |
 
@@ -478,7 +478,7 @@ metrics) are accepted. Actual file/version choices remain separate decision hold
 #### Dependency-ordered implementation backlog
 
 At the user's request on 2026-11-11, all eighteen D items are registered as
-T-628–T-645. T-628 is `DONE` under R3's explicit closure permission; P3 follow-ups are locally verified and the independent verdict remains CONDITIONAL. T-629 is `DONE` under R2's explicit closure permission; T-630 is locally implemented and REVIEW; T-631/T-632 retain scoped readiness.
+T-628–T-645. T-628 is `DONE` under R3's explicit closure permission; P3 follow-ups are locally verified and the independent verdict remains CONDITIONAL. T-629 is `DONE` under R2's explicit closure permission; T-630 and T-631 are locally implemented and REVIEW; T-632 retains scoped readiness.
 The other thirteen are `PENDING` until their prerequisites and scoped input triggers are satisfied. Q01–Q04 remain separate
 `DECISION_PENDING` entries. Task registration does not claim implementation or
 independent design PASS. Existing acceptance task statuses are preserved.
@@ -493,7 +493,7 @@ and observable outputs are in the Task Registry.
 | 1 | D01 | T-628 | B0 | P1 | `DONE` | Implement importer, envelope, measurement and version contracts | Existing golden/compatibility inventory (part of this task) |
 | 2 | D02 | T-629 | B0 | P1 | `DONE` | Migrate profiles to ProfileSet with legacy facades | T-628 |
 | 3 | D03 | T-630 | B0 | P1 | `REVIEW` | Implement case lifecycle, capture context and safe evidence intake | T-628 |
-| 4 | D04 | T-631 | B0 | P1 | `TODO` | Add result capability providers and generic consumers | T-628 |
+| 4 | D04 | T-631 | B0 | P1 | `REVIEW` | Add result capability providers and generic consumers | T-628 |
 | 5 | D05 | T-632 | B0 | P1 | `TODO` | Deliver declarative packs and verifiable offline distribution | T-628 |
 | 6 | D06 | T-633 | B1 | P1 | `PENDING` | Guide input discovery, manual collection and local conversion | T-630, T-632 |
 | 7 | D07 | T-634 | B1 | P1 | `PENDING` | Correct py-spy, Speedscope and pprof measurement semantics | T-629, T-631 |
@@ -582,8 +582,7 @@ The table below retains those four acceptance items. The eighteen new local
 diagnostics tasks are listed in the [dependency-ordered implementation backlog](#dependency-ordered-implementation-backlog):
 T-628 is DONE after independent R3 accepted the R2 fixes with no P1/P2 blockers;
 R3 P3 follow-ups are locally remediated, without renaming CONDITIONAL to PASS.
-T-629 is DONE after independent R2 confirmed R4 remediation and allowed closure; R5 follow-ups are fixed or explicitly assigned to T-634/T-635, not renamed PASS. T-630 is REVIEW after local implementation; T-631/T-632 retain scoped
-readiness and the lifecycle/UI conditions below. The complete open snapshot is
+T-629 is DONE after independent R2 confirmed R4 remediation and allowed closure; R5 follow-ups are fixed or explicitly assigned to T-634/T-635, not renamed PASS. T-630 remains REVIEW under its independent CONDITIONAL review; T-631 is REVIEW after local implementation and scoped native Mac checks; T-632 retains scoped readiness. Lifecycle/UI conditions remain below. The complete open snapshot is
 20 tasks, matching the registry and status overview.
 
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
@@ -1104,8 +1103,9 @@ T-628 is DONE under R3's independent closure permission. R3's nonblocking P3
 follow-ups are locally verified; the recorded verdict remains CONDITIONAL. **T-629 is DONE under R2 closure permission**; R5-01 has local boundary/error
 regressions and R5-02 is a scoped T-634/T-635 acceptance requirement. Actual UI/
 Windows/CI evidence remains separate.
-T-630–T-632 retain scoped readiness, including the R-08 lifecycle and T-631 load
-cancellation acceptance below. Follow these boundaries before the remaining P1 core work and
+T-630/T-631 are REVIEW; T-632 is the next ready implementation. Before closing
+T-630, address R6-01/R6-02 and the ordered follow-ups below. R6-02 must close
+before T-635. T-631 load cancellation is implemented and locally verified. Follow these boundaries before the remaining P1 core work and
 P2 extensions in the [ordered backlog](#dependency-ordered-implementation-backlog).
 The first complete user workflow remains profile correctness → drilldown/comparison
 → image/table copying. Move a task from PENDING to TODO only when its registered
@@ -1473,7 +1473,7 @@ Long Task semantics).
 
 | Review | Decision | Follow-up |
 |---|---|---|
-| 2026-11-11 T-630 independent implementation review (claude-code) | Verdict CONDITIONAL, no P1. Exact numeric/null/zero snapshots survive save→export and portable pack→restore byte-for-byte; revision/HEAD, single-writer, token-gated purge and shared-asset digests verified at 82bc6a8 (96 Go packages, frontend tsc/state, Windows cross-vet pass). P2: R6-01 export-destination guard is bypassed by a case-differing path on case-insensitive volumes (macOS verified) and can overwrite a managed HEAD.json, making the case unreadable; R6-02 the shared evidence-cache moved to permanent app-data has no release/cleanup path and, when full (1,024 results/512 MiB), blocks new imports and reopening saved cases. P3: R6-03 repeated save duplicates result refs, R6-04 corrupt manifest/HEAD cannot be planned or purged, R6-05 fail-closed cache migration has no recovery path, R6-06 source page decodes the whole file per call and refuses >1M lines, R6-07 colon in a local file name is rejected. Not yet processed; WebView IPC/UI, Windows native execution and hosted CI remain unverified. | docs/review/2026-11-11_claude-code_T-630_implementation-review.ko.md |
+| 2026-11-11 T-630 independent implementation review (claude-code) | Verdict CONDITIONAL, no P1. Exact numeric/null/zero snapshots survive save→export and portable pack→restore byte-for-byte; revision/HEAD, single-writer, token-gated purge and shared-asset digests verified at 82bc6a8 (96 Go packages, frontend tsc/state, Windows cross-vet pass). P2: R6-01 export-destination guard is bypassed by a case-differing path on case-insensitive volumes (macOS verified) and can overwrite a managed HEAD.json, making the case unreadable; R6-02 the shared evidence-cache moved to permanent app-data has no release/cleanup path and, when full (1,024 results/512 MiB), blocks new imports and reopening saved cases. P3: R6-03 repeated save duplicates result refs, R6-04 corrupt manifest/HEAD cannot be planned or purged, R6-05 fail-closed cache migration has no recovery path, R6-06 source page decodes the whole file per call and refuses >1M lines, R6-07 colon in a local file name is rejected. Processed R6-01–R6-07 into the ordered T-630 follow-up queue before unchanged archival; implementation fixes remain TODO. T-631 is explicitly not blocked. Original verdict remains CONDITIONAL; WebView IPC/UI, Windows native execution and hosted CI remain unverified. | docs/review/done/2026-11-11_claude-code_T-630_implementation-review.ko.md |
 | 2026-11-11 T-629 re-review R2 (claude-code) | Verified R4-01–R4-05 remediation at 27fcd3d: 4.9 MB and 32.1 MB models now import (chunked transport; typed budget detail), lost-only profile comparisons succeed with quality-difference warnings, metadata.quality tampering rejected, validation cache cuts 7 MB Check from ~387 ms to ~25 ms. No P1/P2. P3: R5-01 (single string >4 MiB rejected as FORMAT_MISMATCH without budget detail), R5-02 (capture_options compared wholesale; pid/duration differences refuse). Processed before unchanged archival: R5-01 fixed/locally verified; R5-02 contract and acceptance assigned to T-634/T-635, runtime remains strict. T-629 DONE under explicit R2 permission; verdict remains CONDITIONAL. WebView IPC/UI, Windows native execution and hosted CI remain unverified. | docs/review/done/2026-11-11_claude-code_T-629_implementation-re-review-R2.ko.md |
 | 2026-11-11 T-629 independent implementation review (claude-code) | Verdict CONDITIONAL, no P1. Legacy CLI output identical to 63d3b6a; exact numeric/null/zero handling and recomputed-result validation verified. P2: R4-01 effective capacity far below documented budgets (1 MiB single-record cap, ~25k-node tree serialization cap; 4.9 MB normalized model fails with generic IMPORT_BUDGET_EXCEEDED), R4-02 comparison identity includes measured quality counts and process identity so differing captures are refused. P3: R4-03 per-Check full recomputation/result size, R4-04 metadata.quality mirror unverified, R4-05 >64 KiB models not auto-detected. Processed R4-01–R4-05 before unchanged archival; local fixes and scale/tamper/cache/compare regressions pass. R2 independently confirmed R4 resolution and permitted T-629 DONE; see latest disposition. WebView IPC/UI, Windows native execution and hosted CI remain unverified. | docs/review/done/2026-11-11_claude-code_T-629_implementation-review.ko.md |
 | 2026-11-11 T-628 re-review R3 (claude-code) | Verified R2 N-01–N-04 remediation at 6c3717d: different-source scalar comparison now works (delta 1, 100/3 percent, ordered baseline/target evidence), public Release removed, max_lines EOF lookahead, projection budgets. No new P1/P2; P3 R3-01 (undifferentiated comparison refusal reason), R3-02 (declared, unverified comparison identity), R3-03 (max_lines marker on blank-only suffix). Processed R3-01–R3-03 before archiving the unchanged review; locally remediated with regression evidence. T-628 DONE under explicit R3 permission; CONDITIONAL not renamed PASS. WebView IPC/UI, Windows native execution and hosted CI remain unverified. | docs/review/done/2026-11-11_claude-code_T-628_implementation-re-review-R3.ko.md |
@@ -1609,8 +1609,8 @@ deferred until explicitly promoted.
 |---|---|---|---|---|---|
 | T-628 | P1 | DONE | Implement importer, envelope, measurement and version contracts (D01) | Existing parser/profiler goldens and compatibility inventory | C1–C4, R-01–R-14 and R2 N-01–N-04 remediation implemented and locally verified: separate complete-result budgets, reclaimed job history, schema/result composition, population identity, patch compatibility, isolated detector diagnostics, bounded/deduplicated store and Load lifetime, legacy parity, executable fixture/schema assertions, export preservation and checked profiler TS facade. R2 adds source-independent compatibility with separate baseline/target references, removes unsafe public shared-handle deletion, bounds availability projection and corrects max_lines exact EOF. R3 independently confirmed N-01–N-04 resolved, no P1/P2, and explicitly permitted DONE. R3-01–R3-03 are locally addressed: stable refusal codes/JSON causes, declared identity basis, whitespace-only suffix coverage. Original R3 verdict remains CONDITIONAL; these final P3 fixes have no independent re-review. R3 evidence: docs/review/evidence/2026-11-11-t628-r3/local.json. R2 evidence: docs/review/evidence/2026-11-11-t628-r2/local.json. Earlier evidence: docs/review/evidence/2026-11-11-t628-remediation/local.json. Actual new WebView IPC/UI, Windows native execution and hosted CI remain unexecuted. |
 | T-629 | P1 | DONE | Migrate profiles to ProfileSet with legacy facades (D02) | T-628 / R-01 scoped condition met | Implemented from 63d3b6a: exact ProfileSet/identity/clock/quality and explicit selections; common trie and legacy compatibility catalog; canonical profile_evidence 0.2.0 importer/analyzer with disjoint version readers; exact tree/diff/drilldown and lossless tick-scaled pprof; CLI and opaque Wails handle paths; immutable saved-model validation and legacy normalization wrapper. Existing goldens and five baseline CLI comparisons pass. Local race: 95 packages ok / 5 without tests; frontend/bindings, Mac package/signature, Windows amd64/386 cross-vet/build and desktop guard pass. Independent review, actual new WebView UI and Windows native execution are not claimed. R4-01–R4-05 locally remediated: chunked 32 MiB transport with 54,001-node scale regression, exact tree-byte accounting and resource details; quality values preserved separately from comparison categories, entity mapping refusal codes, content-validation cache and checked quality copy; 64 KiB detection boundary documented. Independent R2 confirmed all R4 findings resolved with no P1/P2 and explicitly allowed DONE. R5-01 typed wire budgets/4 MiB boundary are locally fixed; R5-02 capture-key policy is specified for T-634/T-635 with current strict comparison retained. Original verdict remains CONDITIONAL; final R5 changes have no independent re-review. R2 evidence: docs/review/evidence/2026-11-11-t629-r2/local.json. Earlier review evidence: docs/review/evidence/2026-11-11-t629-review/local.json; original implementation evidence: docs/review/evidence/2026-11-11-t629/local.json. Producer corrections remain T-634; generic views T-631. |
-| T-630 | P1 | REVIEW | Implement case lifecycle, capture context and safe evidence intake (D03) | T-628 | Deliver versioned capture/case manifests, clock/entity provenance, vendor-neutral device identity, archive validation, encoding/source-position preservation, redaction and scoped deletion/restore. Cover CP949/EUC-KR and baseline/stale references. Add R-08 acceptance: durable saved-case references, cache migration/recovery, reference ownership before deduplicated-handle release, user retention/deletion/restore and index lifecycle. (§3, §11.6, §13, §17.1; F-07). C1–C4 locally implemented and verified; 96 Go packages/CLI/bridge/state/build checks pass. Independent review, actual new WebView UI and Windows runtime remain; evidence: docs/review/evidence/2026-11-11-t630/local.json. |
-| T-631 | P1 | TODO | Add result capability providers and generic consumers (D04) | T-628 | Validate ResultDescriptor generic/timeline/SLI/compare/detail providers and generic service wrappers. A bounded fallback precedes new result types; same-family importers avoid new service/CLI/UI switches. Consume typed comparison refusal codes and show declared identity without source-verification claims (R3-01/R3-02). Include cancellable per-load UI, stale-handle recovery and job/fallback views; direct Go bridge checks do not prove WebView IPC. (§16.10; F-05/F-12). |
+| T-630 | P1 | REVIEW | Implement case lifecycle, capture context and safe evidence intake (D03) | T-628 | Deliver versioned capture/case manifests, clock/entity provenance, vendor-neutral device identity, archive validation, encoding/source-position preservation, redaction and scoped deletion/restore. Cover CP949/EUC-KR and baseline/stale references. Add R-08 acceptance: durable saved-case references, cache migration/recovery, reference ownership before deduplicated-handle release, user retention/deletion/restore and index lifecycle. (§3, §11.6, §13, §17.1; F-07). C1–C4 locally implemented and verified; 96 Go packages/CLI/bridge/state/build checks pass. Independent review, actual new WebView UI and Windows runtime remain; evidence: docs/review/evidence/2026-11-11-t630/local.json. Independent review at 82bc6a8 returned CONDITIONAL: R6-01/R6-02 (P2) and R6-03–R6-07 (P3) are accepted, ordered below and still open. T-631 is not blocked; R6-02 must close before T-635. |
+| T-631 | P1 | REVIEW | Add result capability providers and generic consumers (D04) | T-628 | Compiled, payload-validated summary/table/detail/timeline/SLI/compare provider contracts; bounded fallback, exact text cells, typed comparison refusals and declared identity. Generic CLI/Wails services and Workspace import/job/selection/cancel/load/query/compare/export/reopen UI implemented. Full Go race/vet/build, bindings, state/build and scoped real macOS WebView import/detail/comparison/fallback/pagination/Workspace checks pass; final focused checks cover output-budget hardening. Independent review and Windows-PC runtime evidence remain separate. Evidence: docs/review/evidence/2026-11-11-t631/local.json. |
 | T-632 | P1 | TODO | Deliver declarative packs and verifiable offline distribution (D05) | T-628 | Implement data-only signed pack validation, staged activation, rollback and pinned jobs; package docs/fonts/runtime dependencies and a mandatory hashed fixture bundle. Validate clean installation and zero outbound attempts; decide SQLite packaging from a measured prototype (§17.3–17.4; F-04/F-08). |
 | T-633 | P1 | PENDING | Guide input discovery, manual collection and local conversion (D06) | T-630, T-632 | Show detected formats, missing context and supported capabilities; ship manual collection recipes/sidecars separately from data packs. Bound existing converter execution, cancellation and diagnostics, including the JDK JFR path; no automatic attach/download (§4.6, §15.1, §17.4; G-03/G-07). |
 | T-634 | P1 | PENDING | Correct py-spy, Speedscope and pprof measurement semantics (D07) | T-629, T-631 | Preserve fractional/zero weights, evented duration, every profile/worker and pprof value/unit choices through import, comparison and export. R5-02 acceptance: producer/version/format/metric-bound trusted capture-option key policy; keep unknown/no-policy options strict, retain sanitized originals and incidental-change disclosures, and test semantic mismatch/presence/null/zero/forged whitelists plus saved/CLI/Wails parity before each producer promotion. Do not globally ignore PID/duration or bypass entity/clock gates. Validate actual producers and update the support matrix; create new semantic revisions rather than relabel old results (§2.1, §4, §18). |
@@ -2801,3 +2801,97 @@ Current counts: 212 DONE / 2 TODO / 14 PENDING / 4 REVIEW / 0 IN_PROGRESS = 232
 (20 open). Next ready work is T-631 (T-632 is also scoped ready); independently
 review T-630 before closure. Original unrelated HTTP changes remain outside this
 commit. Main-branch commit and push are authorized by the user request.
+
+### T-631 implementation started (2026-11-11)
+
+User requested implementation and a completion commit. Windows native tests are
+running separately on the user Windows PC. Implement descriptor-owned providers,
+bounded generic consumers, compare refusal/declared identity, per-call load
+cancellation, stale-handle recovery and job UI without changing AnalysisResult.
+Existing HTTP documentation/verifier and its work-status hunk remain unrelated.
+Current counts: 212 DONE / 1 TODO / 14 PENDING / 4 REVIEW / 1 IN_PROGRESS = 232.
+
+### T-630 independent review intake during T-631 (2026-11-11)
+
+Independent review of `82bc6a8`, committed separately as `29eec49`, returned
+CONDITIONAL (no P1; two P2 and five P3 findings). T-630 remains REVIEW; no
+remediation or independent PASS is claimed. The review explicitly does not block
+T-631/T-633/T-635 implementation entry; R6-02 must close before T-635 case reuse.
+Its suggested earlier timing for R6-03/R6-04 is retained below; this T-631 change
+adds result consumption and uses the existing case reopen path, without adding
+new case mutation/deletion controls or claiming those lifecycle defects fixed.
+
+| Order | Finding | Priority | Action / dependency | Disposition |
+|---:|---|---|---|---|
+| 1 | R6-01 | P2 | Protect managed exports by filesystem identity/ancestor checks, including case aliases and hardlinks; regress overwrite refusal. | Accepted; TODO under T-630 before closure. |
+| 2 | R6-02 | P2 | Make saved-case reopen recover from evidence-cache capacity, provide safe owner-aware cleanup and actionable bounds/documentation. Test full-store reopen and import. | Accepted; TODO under T-630, before T-635. No eviction/deletion is added by T-631. |
+| 3 | R6-03 | P3 | Deduplicate identical saved-result references or block repeated UI saves; preserve selection/source/options identity. | Accepted; TODO before expanding case mutation UI/T-635. |
+| 4 | R6-04 | P3 | Provide explicit scoped deletion/recovery for corrupt manifest/HEAD cases, or document a bounded manual recovery path. | Accepted; TODO before expanding case deletion UI/T-635. |
+| 5 | R6-05 | P3 | Add explicit recovery/skip guidance for incomplete/corrupt legacy migration; never silently discard originals. | Accepted; TODO at next migration change. |
+| 6 | R6-06 | P3 | Cache revision-bound source indexes or read bounded byte windows; disclose line-index limits and measure allocation. | Accepted; mandatory T-635 source-link acceptance before provider promotion. |
+| 7 | R6-07 | P3 | Separate local display names from portable/archive name restrictions; explain name override for colon-containing local filenames. | Accepted; TODO at next source-intake change. |
+
+The original is archived unchanged only after these dispositions were recorded.
+Source: `docs/review/done/2026-11-11_claude-code_T-630_implementation-review.ko.md`.
+Original review SHA-256: `bc0eb4ecba7fff8c166bda482ad8ffcd6ada46150a7025608e060b5d0abae3d1`.
+
+### T-631 local implementation and verification (2026-11-11)
+
+T-631 is REVIEW: implementation and local acceptance are complete; independent
+review and the user's separate Windows-PC execution remain outstanding.
+
+- C1: compiled/frozen versioned providers with explicit ID/kind/path/schema and
+  availability/reason; descriptor/envelope/extension validation gates semantic
+  capabilities. Timeline time/clock/evidence and SLI numerator/denominator/unit/
+  population conformance is checked, never inferred from imported strings.
+  Server events and ProfileSet frame weights register detail providers. Unknown/
+  unsupported results retain read-only summary/table/diagnostic/source views;
+  unknown chart scripts never execute. No canonical AnalysisResult change.
+- C2: generic Describe/Query/Compare service, Wails bridge/generated bindings and
+  CLI describe/query/compare plus analyze alias. Existing Analyze* wrappers stay
+  compatible. Same-family fixture importer reuses detail provider/query without
+  service/CLI/UI switches. Comparisons retain exact values, ordered digests,
+  typed refusal codes and declared identity without source-verification claims.
+- C3: Workspace import/options/explicit partial opt-in, ambiguous selection,
+  job state/cancel, saved-result open, provider views/pagination, comparison,
+  exact JSON export and explicit Workspace insertion. Per-load Wails context
+  cancellation, superseded-response rejection, late Start cancellation, owned
+  lease release, revision/digest checks and stale/corrupt handle saved-file/case
+  reopen are wired. Workspace previews keep exact strings and source labels
+  separate from calculation payloads; clear-generation checks prevent late adds.
+- C4: independent output ceilings (128 providers/128 KiB descriptions, 32 source
+  labels, 100 rows/32 stable columns, 2 KiB per text field, 256 KiB per page),
+  honest truncation and oversized-first-row refusal prevent nonadvancing paging.
+  Null/zero/absent, unsafe integers, malformed semantic providers, stale/canceled
+  loads, compare refusal, fallback and same-family extension regressions pass.
+
+Executed: full Go race suite (96 packages, 1,380 passed test cases, 5 expected
+fixture/tool skips; no failures/races), Go vet/build, actual isolated CLI process
+integration, Wails binding generation, frontend state tests and production build,
+desktop-only/server-build refusal, ad-hoc macOS production package/strict signature.
+Final changes were checked with focused race tests for resultcontract/catalog/
+analysis/desktop bridge, and final frontend state/build/package checks. This adds
+one further oversized-row regression after the full-suite test-count snapshot.
+
+Actual native Wails/macOS Computer Use: import the bundled synthetic Tomcat log,
+view total_events=3 and INFO/WARN/ERROR detail rows, insert Workspace entry, select
+registered scalar comparison and observe exact self-delta 0 / 0% with ordered
+same-result digests. Open a synthetic unknown result with imported fake capabilities:
+show read-only fallback, exact 9007199254740993, null as em dash and zero as 0;
+chart is disabled and no compare/timeline capability appears. Native table pages
+show 1–25/61 and 26–50/61. The final rebuilt package additionally confirms Workspace
+source label and exact summary previews. This is scoped actual WebView IPC/UI
+execution, not exhaustive UI/cancellation/profile/OS coverage.
+
+Not executed here: Windows native runtime (owned by the user's Windows PC),
+hosted CI, independent T-631 review, exhaustive native cancellation/error/producer
+matrices and production performance qualification. Existing macOS SDK linker
+warnings persist. R6-01–R6-07 remain T-630 follow-ups; cache-full saved-case recovery
+is not certified by the normal reopen path. T-633 discovery, T-634 producer
+semantics/capture-key policy, T-635 indexes/search/verified durable baselines and
+T-632 offline packs remain separate. No unrequested push.
+
+Evidence: `docs/review/evidence/2026-11-11-t631/local.json`.
+Current counts: 212 DONE / 1 TODO / 14 PENDING / 5 REVIEW / 0 IN_PROGRESS = 232
+(20 open). T-632 is the next ready implementation; T-630's ordered review queue
+must be addressed before its closure and R6-02 before T-635.

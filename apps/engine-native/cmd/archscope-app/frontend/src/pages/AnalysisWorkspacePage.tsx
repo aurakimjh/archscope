@@ -1,3 +1,4 @@
+import { EvidenceResultPanel } from "@/components/EvidenceResultPanel";
 import { CaseWorkspaceActions } from "@/components/CaseWorkspaceActions";
 import { ClipboardPlus, FileText, GitCompareArrows, Trash2 } from "lucide-react";
 
@@ -98,6 +99,8 @@ export function AnalysisWorkspacePage(): React.JSX.Element {
           {t("workspaceClear")}
         </Button>
       </section>
+
+      <EvidenceResultPanel entries={workspace.entries} active={workspace.entries.find(e => e.id === workspace.active_id)} />
 
       {workspace.entries.length === 0 ? (
         <p className="muted">{t("workspaceEmpty")}</p>

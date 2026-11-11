@@ -107,7 +107,7 @@ func ResultRegistry() (*resultcontract.Registry, error) {
 	for _, entry := range []struct{ kind, from, before string }{{"profile_evidence", "0.1.0", "0.2.0"}, {"profiler_collapsed", "0.1.0", "0.3.0"}, {"profiler_jennifer", "0.2.0", "0.3.0"}, {"profiler_diff", "0.1.0", "0.2.0"}} {
 		descriptors = append(descriptors, resultcontract.Descriptor{Type: entry.kind, Payload: resultcontract.Range{Min: entry.from, Before: entry.before}, Envelope: resultcontract.Range{Min: "1.0.0", Before: "2.0.0"}, Operations: []string{"display", "save", "json", "csv", "html", "report-pack"}, LegacyFindingsOptional: true})
 	}
-	descriptors = append(descriptors, resultcontract.Descriptor{ValidatePayload: func(r models.AnalysisResult) error {
+	descriptors = append(descriptors, resultcontract.Descriptor{Providers: []resultcontract.Provider{{ID: "server:events", Version: "1.0.0", Kind: "detail", Path: "/tables/events", Schema: "object-rows-v1"}}, ValidatePayload: func(r models.AnalysisResult) error {
 		for _, key := range []string{"total_events", "error_count", "warning_count"} {
 			value, ok := r.Summary[key]
 			if !ok {

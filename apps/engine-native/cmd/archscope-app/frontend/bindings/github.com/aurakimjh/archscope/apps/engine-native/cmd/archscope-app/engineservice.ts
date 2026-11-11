@@ -99,6 +99,16 @@ export function AnalyzeDatabaseLog(req: $models.DatabaseLogRequest): $Cancellabl
 }
 
 /**
+ * AnalyzeEvidence and ImportEvidence share catalog orchestration. Existing
+ * Analyze* endpoints keep their compatibility contracts.
+ */
+export function AnalyzeEvidence(req: $models.EvidenceImportRequest): $CancellablePromise<analysis$0.JobSnapshot> {
+    return $Call.ByID(2161733992, req).then(($result: any) => {
+        return $$createType2($result);
+    });
+}
+
+/**
  * AnalyzeException wraps engineapi.AnalyzeException.
  */
 export function AnalyzeException(req: $models.ExceptionRequest): $CancellablePromise<api$0.AnalysisResult> {
@@ -159,7 +169,7 @@ export function AnalyzeJfr(req: $models.JfrRequest): $CancellablePromise<api$0.A
  */
 export function AnalyzeLockContention(req: $models.LockContentionRequest): $CancellablePromise<$models.EngineAsyncResponse> {
     return $Call.ByID(3950840739, req).then(($result: any) => {
-        return $$createType2($result);
+        return $$createType3($result);
     });
 }
 
@@ -182,7 +192,7 @@ export function AnalyzeMetrics(req: $models.MetricsRequest): $CancellablePromise
  */
 export function AnalyzeMultiThread(req: $models.MultiThreadRequest): $CancellablePromise<$models.EngineAsyncResponse> {
     return $Call.ByID(2580349754, req).then(($result: any) => {
-        return $$createType2($result);
+        return $$createType3($result);
     });
 }
 
@@ -277,7 +287,7 @@ export function CancelEngineTask(taskID: string): $CancellablePromise<boolean> {
 
 export function CancelImport(id: string, generation: number): $CancellablePromise<analysis$0.CancelOutcome> {
     return $Call.ByID(3490126032, id, generation).then(($result: any) => {
-        return $$createType3($result);
+        return $$createType4($result);
     });
 }
 
@@ -287,7 +297,7 @@ export function CancelImport(id: string, generation: number): $CancellablePromis
  */
 export function ClassifyStack(req: $models.ClassifyRequest): $CancellablePromise<$models.ClassifyResult> {
     return $Call.ByID(2929597827, req).then(($result: any) => {
-        return $$createType4($result);
+        return $$createType5($result);
     });
 }
 
@@ -295,12 +305,18 @@ export function CleanupCaseCache(): $CancellablePromise<void> {
     return $Call.ByID(2826624221);
 }
 
+export function CompareEvidenceProvider(baseline: string, target: string, provider: string): $CancellablePromise<analysis$0.ProviderComparison> {
+    return $Call.ByID(3887977806, baseline, target, provider).then(($result: any) => {
+        return $$createType6($result);
+    });
+}
+
 /**
  * CompareEvidenceScalar uses caller-selected baseline and target revisions.
  */
 export function CompareEvidenceScalar(baseline: string, target: string, path: string): $CancellablePromise<resultcontract$0.Delta> {
     return $Call.ByID(3792274739, baseline, target, path).then(($result: any) => {
-        return $$createType5($result);
+        return $$createType7($result);
     });
 }
 
@@ -316,7 +332,7 @@ export function CompareProfileSets(before: string, after: string): $CancellableP
  */
 export function ConvertToCollapsed(req: $models.CollapsedRequest): $CancellablePromise<$models.CollapsedResult> {
     return $Call.ByID(1593102112, req).then(($result: any) => {
-        return $$createType6($result);
+        return $$createType8($result);
     });
 }
 
@@ -328,6 +344,12 @@ export function CreateCase(title: string): $CancellablePromise<string> {
     return $Call.ByID(2458193755, title);
 }
 
+export function DescribeEvidenceResult(handle: string): $CancellablePromise<analysis$0.ResultCapabilities> {
+    return $Call.ByID(1099759658, handle).then(($result: any) => {
+        return $$createType9($result);
+    });
+}
+
 /**
  * DiffReports loads two AnalysisResult JSON files from disk and
  * returns the comparison_report payload. Mirrors Python's
@@ -335,7 +357,7 @@ export function CreateCase(title: string): $CancellablePromise<string> {
  */
 export function DiffReports(req: $models.EngineDiffRequest): $CancellablePromise<{ [_ in string]?: any }> {
     return $Call.ByID(3841388367, req).then(($result: any) => {
-        return $$createType7($result);
+        return $$createType10($result);
     });
 }
 
@@ -354,7 +376,7 @@ export function EditCase(requestJSON: string): $CancellablePromise<string> {
  */
 export function EvaluateAiInterpretation(req: $models.AiInterpretationGateRequest): $CancellablePromise<{ [_ in string]?: any }> {
     return $Call.ByID(756375120, req).then(($result: any) => {
-        return $$createType7($result);
+        return $$createType10($result);
     });
 }
 
@@ -428,7 +450,7 @@ export function GetCaseSourcePage(caseID: string, sourceID: string, optionsJSON:
 
 export function GetEvidenceResult(handle: string): $CancellablePromise<analysis$0.ResultView> {
     return $Call.ByID(3342174385, handle).then(($result: any) => {
-        return $$createType8($result);
+        return $$createType11($result);
     });
 }
 
@@ -441,25 +463,25 @@ export function GetEvidenceResultJSON(handle: string): $CancellablePromise<strin
 
 export function GetEvidenceScalar(handle: string, path: string): $CancellablePromise<resultcontract$0.ScalarView> {
     return $Call.ByID(2962122308, handle, path).then(($result: any) => {
-        return $$createType9($result);
+        return $$createType12($result);
     });
 }
 
 export function GetHttpCaptureDiffContract(): $CancellablePromise<api$0.HttpCaptureDiffContract> {
     return $Call.ByID(3827930008).then(($result: any) => {
-        return $$createType10($result);
+        return $$createType13($result);
     });
 }
 
 export function GetHttpEvidenceCorrelationContract(): $CancellablePromise<api$0.HttpEvidenceCorrelationContract> {
     return $Call.ByID(1477035566).then(($result: any) => {
-        return $$createType11($result);
+        return $$createType14($result);
     });
 }
 
 export function GetImportJob(id: string, generation: number): $CancellablePromise<analysis$0.JobSnapshot> {
     return $Call.ByID(195964419, id, generation).then(($result: any) => {
-        return $$createType12($result);
+        return $$createType2($result);
     });
 }
 
@@ -473,7 +495,7 @@ export function GetProfileSetTree(handle: string): $CancellablePromise<string> {
 
 export function ImportEvidence(req: $models.EvidenceImportRequest): $CancellablePromise<analysis$0.JobSnapshot> {
     return $Call.ByID(3697193583, req).then(($result: any) => {
-        return $$createType12($result);
+        return $$createType2($result);
     });
 }
 
@@ -483,18 +505,28 @@ export function ListCases(): $CancellablePromise<string> {
 
 export function ListEvidenceImporters(): $CancellablePromise<ingestion$0.ImporterDescriptor[]> {
     return $Call.ByID(1185952117).then(($result: any) => {
-        return $$createType14($result);
+        return $$createType16($result);
     });
 }
 
 export function LoadEvidenceResult(path: string): $CancellablePromise<analysis$0.ResultView> {
     return $Call.ByID(2656839899, path).then(($result: any) => {
-        return $$createType8($result);
+        return $$createType11($result);
     });
 }
 
 export function NormalizeLegacyProfileSet(path: string, format: string): $CancellablePromise<string> {
     return $Call.ByID(3489070610, path, format);
+}
+
+/**
+ * Context is supplied by Wails and canceled by the per-call cancel action.
+ * The older context-free endpoint is retained for Go callers.
+ */
+export function OpenEvidenceResult(path: string): $CancellablePromise<analysis$0.ResultView> {
+    return $Call.ByID(3774666167, path).then(($result: any) => {
+        return $$createType11($result);
+    });
 }
 
 export function PreviewCaseArchive(path: string): $CancellablePromise<string> {
@@ -511,6 +543,12 @@ export function PurgeCase(caseID: string, revision: string, token: string): $Can
     return $Call.ByID(2315482518, caseID, revision, token);
 }
 
+export function QueryEvidenceProvider(handle: string, provider: string, offset: number, limit: number): $CancellablePromise<analysis$0.ProviderPage> {
+    return $Call.ByID(2161125665, handle, provider, offset, limit).then(($result: any) => {
+        return $$createType17($result);
+    });
+}
+
 export function RebuildCaseIndex(): $CancellablePromise<string> {
     return $Call.ByID(422962230);
 }
@@ -525,7 +563,7 @@ export function ReopenCaseResult(caseID: string, resultID: string): $Cancellable
 
 export function ResolveWorkspaceComparison(req: $models.WorkspaceComparisonRequest): $CancellablePromise<api$0.WorkspaceComparisonRoute> {
     return $Call.ByID(4088206667, req).then(($result: any) => {
-        return $$createType15($result);
+        return $$createType18($result);
     });
 }
 
@@ -547,24 +585,27 @@ export function SaveChartArtifact(req: $models.ChartArtifactRequest): $Cancellab
 
 export function SelectImporter(id: string, generation: number, importer: string): $CancellablePromise<analysis$0.JobSnapshot> {
     return $Call.ByID(2871975417, id, generation, importer).then(($result: any) => {
-        return $$createType12($result);
+        return $$createType2($result);
     });
 }
 
 // Private type creation functions
 const $$createType0 = analysis$0.ResultLease.createFrom;
 const $$createType1 = models$0.AnalysisResult.createFrom;
-const $$createType2 = $models.EngineAsyncResponse.createFrom;
-const $$createType3 = analysis$0.CancelOutcome.createFrom;
-const $$createType4 = $models.ClassifyResult.createFrom;
-const $$createType5 = resultcontract$0.Delta.createFrom;
-const $$createType6 = $models.CollapsedResult.createFrom;
-const $$createType7 = $Create.Map($Create.Any, $Create.Any);
-const $$createType8 = analysis$0.ResultView.createFrom;
-const $$createType9 = resultcontract$0.ScalarView.createFrom;
-const $$createType10 = httpcapture$0.HttpCaptureDiffContract.createFrom;
-const $$createType11 = httpcorrelation$0.Contract.createFrom;
-const $$createType12 = analysis$0.JobSnapshot.createFrom;
-const $$createType13 = ingestion$0.ImporterDescriptor.createFrom;
-const $$createType14 = $Create.Array($$createType13);
-const $$createType15 = httpcapture$0.WorkspaceComparisonRoute.createFrom;
+const $$createType2 = analysis$0.JobSnapshot.createFrom;
+const $$createType3 = $models.EngineAsyncResponse.createFrom;
+const $$createType4 = analysis$0.CancelOutcome.createFrom;
+const $$createType5 = $models.ClassifyResult.createFrom;
+const $$createType6 = analysis$0.ProviderComparison.createFrom;
+const $$createType7 = resultcontract$0.Delta.createFrom;
+const $$createType8 = $models.CollapsedResult.createFrom;
+const $$createType9 = analysis$0.ResultCapabilities.createFrom;
+const $$createType10 = $Create.Map($Create.Any, $Create.Any);
+const $$createType11 = analysis$0.ResultView.createFrom;
+const $$createType12 = resultcontract$0.ScalarView.createFrom;
+const $$createType13 = httpcapture$0.HttpCaptureDiffContract.createFrom;
+const $$createType14 = httpcorrelation$0.Contract.createFrom;
+const $$createType15 = ingestion$0.ImporterDescriptor.createFrom;
+const $$createType16 = $Create.Array($$createType15);
+const $$createType17 = analysis$0.ProviderPage.createFrom;
+const $$createType18 = httpcapture$0.WorkspaceComparisonRoute.createFrom;

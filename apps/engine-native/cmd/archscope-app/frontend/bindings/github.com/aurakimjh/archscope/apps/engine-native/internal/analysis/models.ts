@@ -152,6 +152,164 @@ export class JobSnapshot {
     }
 }
 
+export class ProviderComparison {
+    "allowed": boolean;
+    "code"?: string;
+    "reason"?: string;
+    "delta"?: resultcontract$0.Delta | null;
+
+    /** Creates a new ProviderComparison instance. */
+    constructor($$source: Partial<ProviderComparison> = {}) {
+        if (!("allowed" in $$source)) {
+            this["allowed"] = false;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ProviderComparison instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ProviderComparison {
+        const $$createField3_0 = $$createType9;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("delta" in $$parsedSource) {
+            $$parsedSource["delta"] = $$createField3_0($$parsedSource["delta"]);
+        }
+        return new ProviderComparison($$parsedSource as Partial<ProviderComparison>);
+    }
+}
+
+export class ProviderPage {
+    "handle": string;
+    "result_sha256": string;
+    "provider": string;
+    "columns": string[];
+    "rows": resultcontract$0.Cell[][];
+    "offset": number;
+    "next": number;
+    "total": number;
+    "truncated": boolean;
+
+    /** Creates a new ProviderPage instance. */
+    constructor($$source: Partial<ProviderPage> = {}) {
+        if (!("handle" in $$source)) {
+            this["handle"] = "";
+        }
+        if (!("result_sha256" in $$source)) {
+            this["result_sha256"] = "";
+        }
+        if (!("provider" in $$source)) {
+            this["provider"] = "";
+        }
+        if (!("columns" in $$source)) {
+            this["columns"] = [];
+        }
+        if (!("rows" in $$source)) {
+            this["rows"] = [];
+        }
+        if (!("offset" in $$source)) {
+            this["offset"] = 0;
+        }
+        if (!("next" in $$source)) {
+            this["next"] = 0;
+        }
+        if (!("total" in $$source)) {
+            this["total"] = 0;
+        }
+        if (!("truncated" in $$source)) {
+            this["truncated"] = false;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ProviderPage instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ProviderPage {
+        const $$createField3_0 = $$createType10;
+        const $$createField4_0 = $$createType13;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("columns" in $$parsedSource) {
+            $$parsedSource["columns"] = $$createField3_0($$parsedSource["columns"]);
+        }
+        if ("rows" in $$parsedSource) {
+            $$parsedSource["rows"] = $$createField4_0($$parsedSource["rows"]);
+        }
+        return new ProviderPage($$parsedSource as Partial<ProviderPage>);
+    }
+}
+
+export class ResultCapabilities {
+    "handle": string;
+    "result_sha256": string;
+    "type": string;
+    "sources": resultcontract$0.Cell[];
+    "sources_truncated": boolean;
+    "version": string;
+    "compatibility": resultcontract$0.Verdict;
+    "identity_basis": string;
+    "providers": resultcontract$0.Capability[];
+    "truncated": boolean;
+
+    /** Creates a new ResultCapabilities instance. */
+    constructor($$source: Partial<ResultCapabilities> = {}) {
+        if (!("handle" in $$source)) {
+            this["handle"] = "";
+        }
+        if (!("result_sha256" in $$source)) {
+            this["result_sha256"] = "";
+        }
+        if (!("type" in $$source)) {
+            this["type"] = "";
+        }
+        if (!("sources" in $$source)) {
+            this["sources"] = [];
+        }
+        if (!("sources_truncated" in $$source)) {
+            this["sources_truncated"] = false;
+        }
+        if (!("version" in $$source)) {
+            this["version"] = "";
+        }
+        if (!("compatibility" in $$source)) {
+            this["compatibility"] = (new resultcontract$0.Verdict());
+        }
+        if (!("identity_basis" in $$source)) {
+            this["identity_basis"] = "";
+        }
+        if (!("providers" in $$source)) {
+            this["providers"] = [];
+        }
+        if (!("truncated" in $$source)) {
+            this["truncated"] = false;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ResultCapabilities instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ResultCapabilities {
+        const $$createField3_0 = $$createType12;
+        const $$createField6_0 = $$createType14;
+        const $$createField8_0 = $$createType16;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("sources" in $$parsedSource) {
+            $$parsedSource["sources"] = $$createField3_0($$parsedSource["sources"]);
+        }
+        if ("compatibility" in $$parsedSource) {
+            $$parsedSource["compatibility"] = $$createField6_0($$parsedSource["compatibility"]);
+        }
+        if ("providers" in $$parsedSource) {
+            $$parsedSource["providers"] = $$createField8_0($$parsedSource["providers"]);
+        }
+        return new ResultCapabilities($$parsedSource as Partial<ResultCapabilities>);
+    }
+}
+
 export class ResultLease {
     "id": string;
     "handle": string;
@@ -209,7 +367,7 @@ export class ResultView {
      * Creates a new ResultView instance from a string or object.
      */
     static createFrom($$source: any = {}): ResultView {
-        const $$createField4_0 = $$createType8;
+        const $$createField4_0 = $$createType14;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("compatibility" in $$parsedSource) {
             $$parsedSource["compatibility"] = $$createField4_0($$parsedSource["compatibility"]);
@@ -227,4 +385,12 @@ const $$createType4 = ingestion$0.DetectionSet.createFrom;
 const $$createType5 = ingestion$0.Budgets.createFrom;
 const $$createType6 = JobProblem.createFrom;
 const $$createType7 = $Create.Nullable($$createType6);
-const $$createType8 = resultcontract$0.Verdict.createFrom;
+const $$createType8 = resultcontract$0.Delta.createFrom;
+const $$createType9 = $Create.Nullable($$createType8);
+const $$createType10 = $Create.Array($Create.Any);
+const $$createType11 = resultcontract$0.Cell.createFrom;
+const $$createType12 = $Create.Array($$createType11);
+const $$createType13 = $Create.Array($$createType12);
+const $$createType14 = resultcontract$0.Verdict.createFrom;
+const $$createType15 = resultcontract$0.Capability.createFrom;
+const $$createType16 = $Create.Array($$createType15);

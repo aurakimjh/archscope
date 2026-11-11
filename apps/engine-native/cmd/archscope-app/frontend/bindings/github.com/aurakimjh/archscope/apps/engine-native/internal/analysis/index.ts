@@ -5,6 +5,9 @@ export {
     CancelOutcome,
     JobProblem,
     JobSnapshot,
+    ProviderComparison,
+    ProviderPage,
+    ResultCapabilities,
     ResultLease,
     ResultView
 } from "./models.js";

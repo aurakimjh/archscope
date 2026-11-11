@@ -3382,3 +3382,32 @@ async function testDurableWorkspaceCases(): Promise<void> {
   });
 }
 void testDurableWorkspaceCases().catch(error => { throw error; });
+
+// T-631: generation-scoped cancellation, stale handles and provider contracts.
+import { ResultRequestScope, startScopedImport, providerUsable, resultProblem, validateProviderPage, type ProviderPage, type ResultCapabilities } from "./resultProviders.js";
+async function testT631ProviderConsumers(): Promise<void> {
+  const scope = new ResultRequestScope();
+  const first = scope.begin(); let resolveOld: ((value: string) => void) | undefined; let cancellations = 0;
+  const delayed = Object.assign(new Promise<string>(resolve => { resolveOld = resolve; }), { cancel: () => { cancellations++; } });
+  const old = scope.wait(first, delayed).catch(error => String(error));
+  const current = scope.begin();
+  assert(cancellations === 1 && !scope.current(first) && scope.current(current), "new load cancels old IPC and invalidates before completion");
+  resolveOld!("late result");
+  assert((await old).includes("request_superseded"), "late load cannot overwrite current result");
+  assert(await scope.wait(current, Promise.resolve("current")) === "current", "current load succeeds");
+  let finishStart: ((value: import("./resultProviders.js").ImportJob) => void) | undefined; let canceledJob = "";
+  const pendingStart = startScopedImport(scope, current, new Promise(resolve => { finishStart = resolve; }), async id => { canceledJob = id; });
+  scope.cancel(); finishStart!({ id: "late-job", generation: 1, state: "queued", detection: { candidates: [] } });
+  assert(await pendingStart === null && canceledJob === "late-job", "late Start ID is canceled after unmount/cancel without orphaning worker");
+  const declared = { id: "generic:summary", version: "1.0.0", kind: "summary", payload_path: "/summary", schema: "key-value-v1", availability: "available" };
+  assert(providerUsable(declared), "known bounded summary schema supported");
+  for (const mutated of [{ ...declared, version: "99.0.0" }, { ...declared, schema: "script" }, { ...declared, availability: "unknown" }, { ...declared, kind: "timeline" }]) assert(!providerUsable(mutated), "unsupported schema/version/state fails closed");
+  assert(resultProblem({ cause: { code: "IMPORT_RESULT_STALE" } }).stale && resultProblem(new Error("IMPORT_RESULT_CORRUPT: changed")).stale, "stale and corrupted results offer snapshot recovery");
+  const caps = { handle: "result-a", result_sha256: "digest" } as ResultCapabilities;
+  const page: ProviderPage = { handle: "result-a", result_sha256: "digest", provider: declared.id, columns: ["value"], rows: [[{ text: "9007199254740993", null: false, truncated: false }]], total: 1, offset: 0, next: -1, truncated: false };
+  assert(validateProviderPage(page, caps, declared.id).rows[0][0].text === "9007199254740993", "display never coerces exact integers");
+  for (const mutated of [{ ...page, handle: "other" }, { ...page, result_sha256: "changed" }, { ...page, provider: "other" }, { ...page, columns: [] }]) {
+    let refused = false; try { validateProviderPage(mutated, caps, declared.id); } catch { refused = true; } assert(refused, "mismatched revision/provider/shape refused");
+  }
+}
+void testT631ProviderConsumers().catch(error => { throw error; });

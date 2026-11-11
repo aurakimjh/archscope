@@ -33,6 +33,7 @@ export type AnalysisWorkspaceSnapshot = {
 };
 
 type AddWorkspaceResultInput = {
+  displaySummary?: Array<{ key: string; value: string }>;
   backendResultHandle?: string;
   backendLeaseID?: string;
   result: WorkspaceAnalysisResult;
@@ -80,7 +81,7 @@ export function addWorkspaceResult(input: AddWorkspaceResultInput): AnalysisWork
     source_files: sourceFiles,
     created_at: input.result.created_at || new Date().toISOString(),
     recorded_at: new Date().toISOString(),
-    summary_preview: summaryPreview(input.result.summary),
+    summary_preview: input.displaySummary?.slice(0, 8).map(item => ({ ...item })) ?? summaryPreview(input.result.summary),
     result: input.result,
     ...(input.backendResultHandle ? { backend_result_handle: input.backendResultHandle } : {}),
   };
@@ -173,6 +174,7 @@ type CasePersistence = {
 let persistence: CasePersistence | null = null;
 const owners = new Map<string, string>();
 let workspaceGeneration = 0;
+export function getWorkspaceGeneration(): number { return workspaceGeneration; }
 export function configureCasePersistence(api: CasePersistence): void { persistence = api; }
 function ownWorkspaceEntry(entry: AnalysisWorkspaceEntry, ownedLease?: string): void {
   const api = persistence;

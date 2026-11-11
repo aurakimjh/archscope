@@ -81,6 +81,20 @@ func TestC4SameFamilyAdapterNeedsNoServiceCLIRendererSwitch(t *testing.T) {
 	if e != nil || j.State != "completed" {
 		t.Fatal(j, e)
 	}
+	caps, e := svc.DescribeResult(ctx, j.ResultHandle)
+	if e != nil {
+		t.Fatal(e)
+	}
+	found := false
+	for _, provider := range caps.Providers {
+		if provider.ID == "server:events" && provider.Availability == "available" {
+			found = true
+		}
+	}
+	page, e := svc.QueryResult(ctx, j.ResultHandle, "server:events", 0, 25)
+	if e != nil || !found || len(page.Rows) != 3 || page.ResultSHA256 != caps.ResultSHA256 {
+		t.Fatal("same-family provider not reused", page, e)
+	}
 	_, result, e := svc.Read(j.ResultHandle)
 	if e != nil || result.Type != "server_log" || result.Summary["total_events"] != json.Number("3") {
 		t.Fatal("same-family analyzer not reused", result.Summary, e)

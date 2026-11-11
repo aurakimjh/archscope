@@ -62,6 +62,7 @@ type ValueSchema struct {
 	RequirePopulation       bool
 }
 type Descriptor struct {
+	Providers              []Provider
 	ValidatePayload        func(models.AnalysisResult) error `json:"-"`
 	Operations             []string
 	LegacyFindingsOptional bool
@@ -88,6 +89,9 @@ func New(ds ...Descriptor) (*Registry, error) {
 	for _, d := range ds {
 		if d.Type == "" || !d.Payload.Accepts(d.Payload.Min) || !d.Envelope.Accepts(d.Envelope.Min) {
 			return nil, fmt.Errorf("invalid result descriptor")
+		}
+		if e := validateProviders(d.Providers); e != nil {
+			return nil, e
 		}
 		for _, prior := range r.types[d.Type] {
 			if prior.Payload.Accepts(d.Payload.Min) || d.Payload.Accepts(prior.Payload.Min) {

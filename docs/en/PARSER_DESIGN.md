@@ -880,3 +880,32 @@ as JSON text; typed lease IDs are strings. Go bridge tests are not WebView IPC/U
 execution or Windows runtime evidence. No independent review PASS is inferred.
 
 Case export destinations cannot overwrite the managed case store or current external original references/aliases.
+
+## T-631 generic consumer integration (2026-11-11)
+
+`AnalyzeEvidence` shares the existing `ImportEvidence` catalog/job pipeline;
+legacy `Analyze*` endpoints keep their contracts. A same-family adapter adds its
+package/schema/fixtures/registration and reuses its result descriptor and generic
+consumer without a new service/CLI/UI format switch. A new semantic provider
+requires a compiled declaration and payload conformance tests, not metadata claims.
+Timeline and SLI schemas are available as bounded row projections; no new overlay,
+SLO policy or cross-source stitching algorithm is implied by displaying them.
+
+CLI adds `evidence analyze` (import alias), `evidence describe --in result.json`,
+`evidence query --in result.json --provider ID --offset 0 --limit 25`, and
+`evidence compare --in baseline.json --target target.json --provider ID`. Structured
+comparison refusal is output data, not a fabricated zero. Wails adds cancellable
+`OpenEvidenceResult`, `DescribeEvidenceResult`, `QueryEvidenceProvider` and
+`CompareEvidenceProvider`; the prior load/export APIs remain compatible.
+
+Analysis Workspace offers catalog import/options/explicit partial opt-in,
+ambiguous-format selection, job state/cancel, saved-result open, provider selection,
+text-only summary/table/diagnostic/detail views, pagination, ordered comparison,
+exact JSON export, and explicit Workspace insertion. Saved-case snapshots use the
+same renderer. It owns one lease, releases late acquisitions, cancels each load/query
+through its Wails context, rejects superseded completions and validates page handle/
+digest/provider. A late Start response still receives CancelImport. Stale/corrupt
+handles offer saved-file or saved-case reopen. Backend-less legacy Workspace entries
+retain their existing display; they are not serialized as exact backend snapshots.
+Native Windows testing is owned by the separate Windows-PC run. Unit/Go bridge,
+state/build and CLI checks alone do not certify actual WebView interaction.

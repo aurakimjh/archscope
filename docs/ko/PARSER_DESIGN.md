@@ -912,3 +912,29 @@ manifest_reviewed/source_ids/result_ids/include_workspace이고 저장/복원이
 Windows runtime 증거가 아니며 작성자 검사로 독립 리뷰 PASS를 선언하지 않는다.
 
 사건 export는 managed 저장소와 현재 외부 원본 참조/alias를 덮어쓰는 경로를 거부한다.
+
+## T-631 공통 소비자 연결 (2026-11-11)
+
+`AnalyzeEvidence`는 기존 `ImportEvidence` catalog/job 경로를 재사용하고 기존 `Analyze*`
+계약을 보존한다. 같은 의미 family의 adapter는 패키지·스키마·fixture·등록을 추가하여
+결과 descriptor와 공통 화면을 재사용한다. service/CLI/UI에 포맷 switch를 추가하지 않는다.
+새 의미 provider는 컴파일된 선언과 payload 적합성 검증이 필요하며 metadata 주장으로
+활성화되지 않는다. timeline·SLI는 제한된 행 투영으로 표시하며 새로운 overlay·SLO 정책·
+출처 간 stitching 알고리즘을 추가한 것으로 해석하지 않는다.
+
+CLI는 `evidence analyze`(import 별칭), `evidence describe --in result.json`,
+`evidence query --in result.json --provider ID --offset 0 --limit 25`,
+`evidence compare --in baseline.json --target target.json --provider ID`를 제공한다.
+비교 거절은 구조화된 출력이며 0을 만들지 않는다. Wails에는 context 취소가 가능한
+`OpenEvidenceResult`·`DescribeEvidenceResult`·`QueryEvidenceProvider`·
+`CompareEvidenceProvider`를 추가하고 기존 load/export API를 보존한다.
+
+Analysis Workspace에서 catalog 가져오기·옵션·명시적 부분 허용·모호한 형식 선택·작업
+상태/취소·저장 결과 열기·기능 선택·문자 기반 요약/표/진단/상세·페이지 이동·순서가 명확한
+비교·정밀 JSON 저장·명시적 Workspace 추가를 제공한다. 케이스에서 연 snapshot도 같은
+화면을 사용한다. 화면은 자신의 lease만 소유하고 늦은 획득을 해제한다. Wails context로
+개별 load/query를 취소하고 이전 응답을 거부하며 페이지 handle/digest/provider를 확인한다.
+늦게 도착한 Start 응답도 CancelImport로 정리한다. 오래되거나 손상된 handle은 저장 파일
+또는 케이스 snapshot으로 복구한다. 백엔드 handle 없는 기존 Workspace 결과의 화면은
+유지하며 정밀 backend snapshot으로 직렬화하지 않는다. Windows 실기는 별도 Windows PC
+작업으로 남는다. 단위·Go bridge·상태·빌드·CLI 검사만으로 실제 WebView 조작을 인증하지 않는다.

@@ -5,6 +5,93 @@
 // @ts-ignore: Unused imports
 import { Create as $Create } from "@wailsio/runtime";
 
+export class Capability {
+    "id": string;
+    "version": string;
+    "kind": string;
+    "payload_path": string;
+    "schema": string;
+
+    /**
+     * Semantic columns are mandatory for timeline and SLI adapters. A timestamp
+     * alone never certifies cross-source alignment or a causal relationship.
+     */
+    "time_column"?: string;
+    "clock_column"?: string;
+    "evidence_column"?: string;
+    "numerator_column"?: string;
+    "denominator_column"?: string;
+    "unit_column"?: string;
+    "population_column"?: string;
+    "availability": string;
+    "reason"?: string;
+
+    /** Creates a new Capability instance. */
+    constructor($$source: Partial<Capability> = {}) {
+        if (!("id" in $$source)) {
+            this["id"] = "";
+        }
+        if (!("version" in $$source)) {
+            this["version"] = "";
+        }
+        if (!("kind" in $$source)) {
+            this["kind"] = "";
+        }
+        if (!("payload_path" in $$source)) {
+            this["payload_path"] = "";
+        }
+        if (!("schema" in $$source)) {
+            this["schema"] = "";
+        }
+        if (!("availability" in $$source)) {
+            this["availability"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new Capability instance from a string or object.
+     */
+    static createFrom($$source: any = {}): Capability {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new Capability($$parsedSource as Partial<Capability>);
+    }
+}
+
+export class Cell {
+    "text": string;
+    "null": boolean;
+    "truncated": boolean;
+    "availability"?: string;
+    "reason"?: string;
+    "unit"?: string;
+    "population"?: string;
+
+    /** Creates a new Cell instance. */
+    constructor($$source: Partial<Cell> = {}) {
+        if (!("text" in $$source)) {
+            this["text"] = "";
+        }
+        if (!("null" in $$source)) {
+            this["null"] = false;
+        }
+        if (!("truncated" in $$source)) {
+            this["truncated"] = false;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new Cell instance from a string or object.
+     */
+    static createFrom($$source: any = {}): Cell {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new Cell($$parsedSource as Partial<Cell>);
+    }
+}
+
 /**
  * References record the caller's ordered baseline and target. Comparing never
  * merges captures, equates entities, or certifies clock alignment/causality.

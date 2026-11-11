@@ -1,0 +1,116 @@
+{
+  "task": "T-631",
+  "status": "REVIEW",
+  "verification": "LOCAL_VERIFIED; scoped native macOS UI observed; independent review not performed",
+  "recorded_at": "2026-11-11T21:55:49.223891+09:00",
+  "implementation_base_commit": "82bc6a8",
+  "review_intake_commit": "29eec49b34c62da3c613e841fa2aaea5ebfcbd8e",
+  "source_sha256": {
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/engineservice.ts": "70383a42255c6dbcf14bb7b0360ac3ccdd52e8c56a8ebdfc972035947c2d9188",
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/internal/analysis/index.ts": "bdde1eaed8a7f247d3869b9b928c68609424e5fc3a18eedce9a9f0d5322f39d2",
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/internal/analysis/models.ts": "1daa35053f1806edb0846c7b54cbe23497bbd76bc50e22cf790d9cd878689c96",
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/internal/resultcontract/index.ts": "da737979e3f3b37c305ff71487bad77486dda4632e4c83b52eee20b13868851f",
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/internal/resultcontract/models.ts": "fc17c6d9257683c95e201335de2cec6df692cd07c4b2df247a77323f8ff15289",
+    "apps/engine-native/cmd/archscope-app/frontend/src/bridge/engine.ts": "63ee656a2df0d61c126b04d546b6d3185c47d003729c9cc2162e967884ddb837",
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/EvidenceResultPanel.tsx": "dc959aaa1b3d2058ddf0965e3b5a4e5a8ab84acb2dd3f39ec4d370304db30092",
+    "apps/engine-native/cmd/archscope-app/frontend/src/pages/AnalysisWorkspacePage.tsx": "3ae1dd1e053bf58bd96d26ca2bf9831e3e93770e94f50dbd1dbfaed10fb037f1",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/analysisWorkspace.ts": "0e42bc4eff65111957bfc13804773eb3344fe0d7b5685d34d7bcff8ef70420e9",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/regression.test.ts": "710436001b38f106e57a51dfe6f9b24c15852e3a9e67fcf8bb267cc56f01fd1e",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/resultProviders.ts": "74213470ea971b0d769b1ad50f8bb87762da603ccbfc5260acfddc445882f790",
+    "apps/engine-native/cmd/archscope-app/resultproviderservice.go": "42e0fd2a5bbf9d8f3fe951173bd353cfe8f8d4f6399520b9f372bf9343adeced",
+    "apps/engine-native/cmd/archscope-app/resultproviderservice_test.go": "321c4b7dffe3bb445020b3ac28b9cf155390ce947c55c6fefaf42cb4c37ceb82",
+    "apps/engine-native/cmd/archscope-engine/cmd_evidence.go": "ebd272731d921473f59da211c4a0f5524bf795e81837cac04bc586f4f0ec5b39",
+    "apps/engine-native/cmd/archscope-engine/cmd_resultproviders.go": "ec5490488948a2b7f019d9034e974d9c0e1dc324f22e4d73bd4640e9c092727f",
+    "apps/engine-native/cmd/archscope-engine/cmd_resultproviders_test.go": "35e048e40697e82c19581fc38b7355977bc879bafe944aa052f1694f6d408bec",
+    "apps/engine-native/internal/analysis/providers.go": "516f632cc4ee8404a5ad31ca8ad89d618099c46fa151b4ac19fcb9cf0b08236d",
+    "apps/engine-native/internal/analyzers/profile/model.go": "006dbeeaaae065b908751729ec9f104c71519f0ccbfd6f0b62425d68e35a2eed",
+    "apps/engine-native/internal/catalog/builtin.go": "234a9a044bb74192765f992e5c14591ce0b2d116978c9381a7878fbbff5af56f",
+    "apps/engine-native/internal/catalog/extension_test.go": "4b45421fa9c9c0875fdd3556221230c26131a95fd64a17593277ab618d0987e3",
+    "apps/engine-native/internal/resultcontract/contract.go": "879696b5de742c67f4412137230245794c755ed75570329337e0670626ac626e",
+    "apps/engine-native/internal/resultcontract/providers.go": "c4c0005dacfe529ae2d05585def3117a5252c63605b72d0f46d1b9675ca521f9",
+    "apps/engine-native/internal/resultcontract/providers_test.go": "f70072ee5b4d046e0c3dee597dbd7ff68f794c25874ec7abf7cca04366d2fcad",
+    "docs/en/DATA_MODEL.md": "f60863f39aeb483034a5777aee0e541510a2a8d4c032abaeb0f50ed0b793be77",
+    "docs/en/PARSER_DESIGN.md": "f5829c5888af959c6195c14acc37ac6f56038075907ed10da0d68d54c8db1569",
+    "docs/ko/DATA_MODEL.md": "7e4fcf7fce35d1d4cdac69e5ea66260b6b39d393f5f5e24b2efda75a65f419b7",
+    "docs/ko/PARSER_DESIGN.md": "0269a3e9427687ba14e1a862d75e3ae8e24d3453e17ed6bba7f1c17664581b5f"
+  },
+  "full_suite_summary": {
+    "package_skip": 5,
+    "test_pass": 1380,
+    "package_pass": 96,
+    "test_skip": 5
+  },
+  "expected_skips": [
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/comautomation",
+      "test": "TestReferencePresetFiltersWhenProvided"
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/halog",
+      "test": "TestPrivateReferenceSample"
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/sessionfile",
+      "test": "TestLargeXLSIndependentReader"
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/transparent",
+      "test": "TestOfficialDriverFingerprints"
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/jfr",
+      "test": "TestConvertJFRToJSONIntegration"
+    }
+  ],
+  "final_follow_up": "One oversized-first-row regression and byte-budget accounting were added after the full suite. Final focused race tests cover resultcontract/catalog/analysis/desktop bridge; final frontend state/build and signed native package pass.",
+  "evidence_levels": {
+    "unit": "Schema/version/availability gates, unknown capability forgery, null/zero/absent/exact strings, stable columns and output ceilings; semantic timeline/SLI payloads; immutable registry; oversized row refusal; generic same-family detail reuse.",
+    "go_bridge": "Actual Go EngineService analyze/import job, describe/query/compare, explicit refusal, canceled loads/queries, stale handles, exact fallback/export and reopen. Distinct from WebView tests.",
+    "cli": "Actual built CLI processes: analyze/import, describe, detail query, compare identical and mismatched selection; structured refusal has no delta; out-of-range page size rejected.",
+    "frontend": "State tests: per-call cancel and late-result suppression, late Start ID cleanup, schema/version fail-closed checks, stale/corrupt recovery signal, page handle/digest/provider binding; TypeScript/Vite production build.",
+    "native_macos": {
+      "status": "OBSERVED_SCOPED",
+      "surface": "Actual ad-hoc signed production Wails 3.1 app; Computer Use AX and screenshot; no browser or mock IPC",
+      "observed": [
+        "Bundled synthetic Tomcat import completed; total_events=3; detail INFO/WARN/ERROR rows",
+        "Workspace insertion and generic total_events self-compare delta=0, percent=0, ordered equal result digests",
+        "Unknown synthetic saved result: read-only fallback; exact 9007199254740993; null displayed as em dash; zero displayed as 0",
+        "Unknown chart disabled; forged imported timeline/compare strings grant no provider",
+        "61-row table page 1–25 followed by 26–50",
+        "Final rebuilt package: source label and exact display-only summary preserved in Workspace card"
+      ],
+      "not_exercised": [
+        "Exhaustive native cancellation/error matrices",
+        "Native profile producer UI",
+        "Case lifecycle/portable/purge UI",
+        "Windows native behavior"
+      ],
+      "final_binary_sha256": "f81a21fbf15b1fbd9dd33859aafb7949d2618ce93a81acc952558b2e12175e8c",
+      "synthetic_fallback_fixture_sha256": "c31e990c03607543f3423bf4d1d17eb53878481cb071161738eb8949c8257f61"
+    },
+    "builds": "Go vet/build; Wails generated bindings; frontend production; desktop-only/server build refusal; ad-hoc production macOS bundle and strict deep signature verification.",
+    "windows_native_runtime": "NOT_EXECUTED_HERE; user is testing on a separate Windows PC",
+    "hosted_ci": "NOT_EXECUTED",
+    "independent_review": "NOT_PERFORMED"
+  },
+  "limitations": [
+    "All source/entity identity remains declared; no original reimport verification or causality claim.",
+    "Generic timeline and SLI schemas project rows; no new domain overlay/SLO/stitching algorithm or inferred producer support.",
+    "Display cells are bounded text; nested objects require backend export; stored result JSON remains unchanged.",
+    "T-630 review R6-01–R6-07 are recorded and unremediated. Normal saved-case reopen does not certify recovery at a full evidence-cache.",
+    "Existing macOS SDK/deployment-target linker warning remains.",
+    "T-632/T-633/T-634/T-635 and Q01–Q04 are separate gates; Windows/CI results are not inferred from local checks."
+  ],
+  "logs_sha256": {
+    "full_go_race": "72046e2a29c260e7ae360e99ad5c0cd6b340de35480002dd9c22ef633015b177",
+    "full_go_race_stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "final_focused_race": "56c751f3592b894a691e87a4a3a5d3943d67e24528a1994c79889c9bf1fa8a08",
+    "go_vet": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "go_build": "0db44be1866b3a2f77bcdbac788dbd84506ca04da85e4507b575b50689cca891",
+    "frontend_state": "96ab3e7763edc1082d01e3a18afd8649d6c9bcdb89fb7b8a072303fcc49805cb",
+    "frontend_build": "41395512250869298c7072da4df58a8a3dfa0d4df5dfb1199a10e455c34e1aa1",
+    "bindings": "b99a455f79410fec5411b05f0a867696d316bcf73bef6f211db10e6b394ca783",
+    "desktop_guard": "2737e05db97102bfc69e4a94138f70b869f75db5874ac9581749568974f07e97",
+    "mac_package_signature": "80c37bd23f910e291f7c0ceac3cb09f7fd10886477a157c7a6a25b82d2bd414a"
+  }
+}

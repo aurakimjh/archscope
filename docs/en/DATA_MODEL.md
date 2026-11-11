@@ -2062,3 +2062,36 @@ filesystem traversal also caps entries. A fresh portable restore starts a new
 history. OS disk-full/I/O failures can still prevent a commit; callers reload HEAD
 on any uncertain write outcome. These are implementation resource ceilings, not
 diagnostic thresholds or automatic retention policy.
+
+## T-631 result providers and bounded consumers (2026-11-11)
+
+`resultcontract.Descriptor.Providers` owns compiled, frozen declarations with ID,
+version, kind, payload pointer and schema. Imported capability strings grant no
+operation. Supported payload/envelope/extensions and measurement contracts are
+checked before semantic providers are available. Timeline v1 requires RFC3339
+rows and declared clock/evidence references; SLI v1 requires nonnegative numerator,
+positive denominator, unit and declared population. These validate declared data,
+not source authenticity, alignment or causality. Invalid providers remain visibly
+unavailable. Table/detail v1 requires object rows. Unregistered chart scripts are
+never evaluated. Existing server-event and ProfileSet frame-weight projections
+register detail providers; producer-specific timelines/SLIs are not inferred.
+
+`DescribeResult`, `QueryResult` and `CompareResult` operate on immutable handles.
+Capabilities and pages carry the SHA-256 of exact stored bytes. Display cells carry
+text, null/truncation flags and validated availability/reason/unit/population;
+exact numbers are never decoded as JavaScript numbers. Unknown or unsupported
+results retain a read-only summary/table/diagnostic/source fallback with no semantic
+measurement grants. Output limits are 128 providers/128 KiB provider descriptions,
+32 source labels, 100 rows, 32 stable columns, 2 KiB per text field and 256 KiB per
+page. Display truncation is disclosed; underlying snapshots/exports are unchanged.
+Nested objects require backend export. Page offsets bind to the immutable handle
+and result digest; cancellation/deadlines bound scans. These are display projections,
+not new AnalysisResult revisions or calculation inputs.
+
+Comparison providers are generated only for registered scalar measurement paths.
+The existing exact population/comparison policy computes deltas, including ordered
+baseline/target digests and `identity_basis=declared`. Typed refusal codes return
+without a numeric delta. Unknown policies, selection/coverage/semantic mismatch,
+partial populations, unavailable values and zero-baseline percentages retain
+explicit refusals/reasons. Hash equality never asserts original reimport verification.
+T-634/T-635 capture-option and durable baseline qualification remain separate.

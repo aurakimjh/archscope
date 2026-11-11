@@ -133,6 +133,8 @@ func init() {
 	reopen.Flags().StringVar(&stored, "in", "", "saved AnalysisResult JSON")
 	reopen.Flags().StringVar(&destination, "out", "-", "output path or stdout")
 	reopen.Flags().StringVar(&kind, "export-format", "json", "json, raw-json, csv, html or report-pack")
+	run.Aliases = []string{"analyze"}
 	group.AddCommand(list, run, reopen)
+	group.AddCommand(resultProviderCommands()...)
 	rootCmd.AddCommand(group)
 }

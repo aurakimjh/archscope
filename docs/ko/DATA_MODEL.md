@@ -2164,3 +2164,29 @@ manifest 여유 공간으로 purge를 진행할 수 있다. 이력을 조용히 
 저장소 파일 수도 제한하며 portable 새 사건은 새 이력으로 시작한다. 실제 디스크 부족/I/O
 오류는 commit을 막을 수 있으므로 쓰기 결과가 불확실하면 HEAD를 재조회한다. 이 숫자는
 구현 자원 예산이며 진단 임계값이나 자동 삭제 정책이 아니다.
+
+## T-631 결과 provider와 제한된 공통 소비자 (2026-11-11)
+
+`resultcontract.Descriptor.Providers`에 ID·버전·종류·payload 포인터·스키마를 가진
+컴파일된 선언을 등록·고정한다. 가져온 capability 문자열은 기능을 부여하지 않는다.
+payload/envelope/extension 및 측정 계약을 확인한 뒤 의미 provider를 활성화한다.
+timeline v1은 RFC3339 시각과 선언된 clock/evidence 참조, SLI v1은 음수가 아닌 분자와
+양수 분모·단위·선언된 모집단을 요구한다. 선언 자료 검증이며 원본 진위·시간 정렬·인과
+검증이 아니다. 잘못된 provider는 사용 불가 사유를 표시한다. table/detail v1은 객체 행을
+요구한다. 미등록 chart script를 실행하지 않는다. 기존 서버 이벤트와 ProfileSet frame-weight에
+상세 provider를 등록하며 producer별 timeline/SLI를 추정하지 않는다.
+
+`DescribeResult`·`QueryResult`·`CompareResult`는 불변 handle을 사용한다. 기능 목록과
+페이지는 저장된 원본 바이트의 SHA-256을 포함한다. 셀은 문자열·null/잘림 표시와 검증된
+availability/reason/unit/population을 전달하므로 정밀 숫자를 JavaScript 숫자로 변환하지
+않는다. 모르는 타입·미지원 버전은 의미 측정 기능 없이 읽기 전용 요약·표·진단·출처를
+표시한다. 기능 목록 128개/128 KiB, 출처 32개, 페이지 100행·고정 32열·텍스트 필드별
+2 KiB·페이지 256 KiB로 제한하며 잘림을 알린다. 중첩 객체는 백엔드 내보내기로 확인한다.
+페이지는 불변 handle과 digest에 연결되고 취소·제한 시간으로 순회를 제한한다. 표시 투영이
+원본 snapshot·AnalysisResult·내보내기 또는 계산 입력을 바꾸지 않는다.
+
+비교 provider는 등록된 scalar 측정 경로에만 제공한다. 기존 정밀 모집단·비교 정책으로
+순서가 명확한 기준/대상 digest와 `identity_basis=declared`를 전달한다. 타입화된 거절 코드는
+숫자 delta 없이 반환한다. 미지원 정책·선택/범위/의미 불일치·부분 모집단·미측정 값·0인
+기준의 백분율은 명시적인 사유를 유지한다. 해시 일치로 원본 재가져오기 검증을 주장하지
+않는다. T-634/T-635의 수집 옵션 정책과 영속 baseline 검증은 별도다.

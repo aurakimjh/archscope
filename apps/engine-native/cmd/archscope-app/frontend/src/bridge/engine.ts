@@ -416,3 +416,19 @@ configureCasePersistence({
   acquire: handle => call<{ id: string }>("AcquireEvidenceResult", handle),
   release: leaseID => call<void>("ReleaseEvidenceLease", leaseID),
 });
+
+// Generic result consumers enumerate backend-validated providers, with no
+// importer/type switches. Cancellation propagates through Wails call context.
+import type { ImportJob, ProviderComparison, ProviderPage, ResultCapabilities } from "../state/resultProviders";
+export const listEvidenceImporters = () => call<Array<{ id: string; limitations: string[] }>>("ListEvidenceImporters");
+export const analyzeEvidence = (path: string, importer: string, optionsJSON: string, allowPartial: boolean) => call<ImportJob>("AnalyzeEvidence", { path, importer, optionsJSON, budgets: {}, allowPartial });
+export const getImportJob = (id: string, generation: number) => call<ImportJob>("GetImportJob", id, generation);
+export const selectEvidenceImporter = (id: string, generation: number, importer: string) => call<ImportJob>("SelectImporter", id, generation, importer);
+export const cancelEvidenceImport = (id: string, generation: number) => call<{ outcome: string; job: ImportJob }>("CancelImport", id, generation);
+export const openEvidenceResult = (path: string) => call<{ handle: string; type: string }>("OpenEvidenceResult", path);
+export const describeEvidenceResult = (handle: string) => call<ResultCapabilities>("DescribeEvidenceResult", handle);
+export const queryEvidenceProvider = (handle: string, provider: string, offset: number, limit: number) => call<ProviderPage>("QueryEvidenceProvider", handle, provider, offset, limit);
+export const compareEvidenceProvider = (baseline: string, target: string, provider: string) => call<ProviderComparison>("CompareEvidenceProvider", baseline, target, provider);
+export const acquireEvidenceResult = (handle: string) => call<{ id: string }>("AcquireEvidenceResult", handle);
+export const releaseEvidenceLease = (id: string) => call<void>("ReleaseEvidenceLease", id);
+export const exportEvidenceResult = (handle: string, path: string, format: string) => call<void>("ExportEvidenceResult", handle, path, format);
