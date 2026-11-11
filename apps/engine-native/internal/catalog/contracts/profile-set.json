@@ -1,0 +1,137 @@
+{
+  "schema_version": "1.0.0",
+  "producer": "synthetic-fixture",
+  "format": "profile-set-json",
+  "source_sha256": [
+    "40d9150d23cd94c6e7f325511281db7c9b946e89b60d8c25a26868943102f291"
+  ],
+  "capture_options": {
+    "fixture": true
+  },
+  "frames": [
+    {
+      "id": "frame-fae217c5d2ecf8f1159188566b1b6defb1e8616967d0a47ba311ea3cd9f35b8f",
+      "symbol": "synthetic.recursive",
+      "display": "recursive",
+      "module": "synthetic-main",
+      "build_id": "fixture-v1"
+    },
+    {
+      "id": "frame-ec3520c60e3cca968b5f524cdbf4479dbf3921f73d0e4804014be4a17c5b8b4b",
+      "symbol": "synthetic.handler",
+      "display": "handler",
+      "module": "synthetic-one",
+      "file": "synthetic.go",
+      "line": 11
+    },
+    {
+      "id": "frame-1ab9487615412edebd0eaaf8087fe727e7f67fe42ab9c44c26c335f5b534f995",
+      "symbol": "synthetic.handler",
+      "display": "handler",
+      "module": "synthetic-two",
+      "file": "synthetic.go",
+      "line": 11
+    }
+  ],
+  "stacks": [
+    {
+      "id": "stack-d95bbc5cc8a017a86206966365c53075144b49b47203a08430354bb5b0b3cf19",
+      "frames": [
+        "frame-fae217c5d2ecf8f1159188566b1b6defb1e8616967d0a47ba311ea3cd9f35b8f",
+        "frame-fae217c5d2ecf8f1159188566b1b6defb1e8616967d0a47ba311ea3cd9f35b8f",
+        "frame-ec3520c60e3cca968b5f524cdbf4479dbf3921f73d0e4804014be4a17c5b8b4b"
+      ]
+    },
+    {
+      "id": "stack-79b87c29baac91f995046cdc2806c821322e48f5da80e94252edb97c13b1dbec",
+      "frames": [
+        "frame-fae217c5d2ecf8f1159188566b1b6defb1e8616967d0a47ba311ea3cd9f35b8f",
+        "frame-1ab9487615412edebd0eaaf8087fe727e7f67fe42ab9c44c26c335f5b534f995"
+      ]
+    }
+  ],
+  "metrics": [
+    {
+      "id": "duration",
+      "kind": "wall_time",
+      "unit": "seconds",
+      "scale": "1",
+      "signed": false
+    },
+    {
+      "id": "samples",
+      "kind": "sample_count",
+      "unit": "count",
+      "scale": "1",
+      "signed": false
+    },
+    {
+      "id": "memory",
+      "kind": "bytes",
+      "unit": "bytes",
+      "scale": "1",
+      "signed": false
+    }
+  ],
+  "profiles": [
+    {
+      "id": "worker-a",
+      "process": "synthetic-process",
+      "thread": "thread-a",
+      "worker": "a",
+      "clock": "aggregate",
+      "samples": [
+        {
+          "stack_id": "stack-d95bbc5cc8a017a86206966365c53075144b49b47203a08430354bb5b0b3cf19",
+          "metric_id": "duration",
+          "weight": "0.25",
+          "source_ref": "synthetic:1"
+        },
+        {
+          "stack_id": "stack-d95bbc5cc8a017a86206966365c53075144b49b47203a08430354bb5b0b3cf19",
+          "metric_id": "samples",
+          "weight": "2"
+        },
+        {
+          "stack_id": "stack-d95bbc5cc8a017a86206966365c53075144b49b47203a08430354bb5b0b3cf19",
+          "metric_id": "memory",
+          "weight": "9007199254740993"
+        }
+      ]
+    },
+    {
+      "id": "worker-b",
+      "process": "synthetic-process",
+      "thread": "thread-b",
+      "worker": "b",
+      "clock": "aggregate",
+      "samples": [
+        {
+          "stack_id": "stack-79b87c29baac91f995046cdc2806c821322e48f5da80e94252edb97c13b1dbec",
+          "metric_id": "duration",
+          "weight": "0.10",
+          "source_ref": "synthetic:2"
+        },
+        {
+          "stack_id": "stack-79b87c29baac91f995046cdc2806c821322e48f5da80e94252edb97c13b1dbec",
+          "metric_id": "duration",
+          "weight": "0",
+          "source_ref": "synthetic:3"
+        },
+        {
+          "stack_id": "stack-79b87c29baac91f995046cdc2806c821322e48f5da80e94252edb97c13b1dbec",
+          "metric_id": "samples",
+          "weight": "3"
+        }
+      ]
+    }
+  ],
+  "quality": {
+    "lost": "0",
+    "unknown": null,
+    "truncated": null,
+    "symbol_resolution": null,
+    "clock_confidence": "unavailable",
+    "conversion_loss": []
+  }
+}

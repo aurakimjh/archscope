@@ -366,3 +366,21 @@ export const engine = {
 // T-628: keep backend source JSON opaque when adding a Report Pack appendix.
 import { configureBackendSourceReader } from "../state/evidenceImport";
 configureBackendSourceReader((handle) => call<string>("GetEvidenceResultJSON", handle));
+
+// ProfileSet queries use backend handles and opaque exact JSON. Generic views
+// can consume this contract without routing through legacy integer profiler DTOs.
+export function getProfileSetTree(handle: string): CancellablePromise<string> {
+  return call<string>("GetProfileSetTree", handle);
+}
+export function compareProfileSets(before: string, after: string): CancellablePromise<string> {
+  return call<string>("CompareProfileSets", before, after);
+}
+export function drilldownProfileSet(handle: string, filtersJSON: string): CancellablePromise<string> {
+  return call<string>("DrilldownProfileSet", handle, filtersJSON);
+}
+export function exportProfileSetPprof(handle: string, tickScale: string, path: string): CancellablePromise<void> {
+  return call<void>("ExportProfileSetPprof", handle, tickScale, path);
+}
+export function normalizeLegacyProfileSet(path: string, format: string): CancellablePromise<string> {
+  return call<string>("NormalizeLegacyProfileSet", path, format);
+}

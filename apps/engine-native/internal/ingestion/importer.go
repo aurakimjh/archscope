@@ -425,3 +425,14 @@ func (c *Catalog) OutputContracts() []OutputContract {
 	}
 	return out
 }
+
+// DetectOne is used by compatibility detection without resolving parser options.
+func (c *Catalog) DetectOne(ctx context.Context, id string, probe Probe) (Candidate, error) {
+	canonical, ok := c.Canonical(id)
+	if !ok {
+		return Candidate{}, Problem("IMPORT_FORMAT_UNSUPPORTED", "unknown importer")
+	}
+	d := c.descriptors[canonical]
+	probe.Head = append([]byte(nil), probe.Head[:min(len(probe.Head), d.ProbeBudget)]...)
+	return d.Detector(ctx, probe)
+}

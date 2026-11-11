@@ -1,0 +1,344 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:diagnostics:profile-set:1.0.0",
+  "title": "정밀 프로파일 내부 교환 모델",
+  "description": "합성·내부 교환 계약. 실제 producer 형식의 지원 근거가 아니며 참조·수치·선택의 의미 검증은 실행 코드가 수행한다.",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "producer": {
+      "type": "string"
+    },
+    "producer_version": {
+      "type": "string"
+    },
+    "format": {
+      "type": "string"
+    },
+    "source_sha256": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{64}$"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "capture_options": {
+      "type": "object"
+    },
+    "frames": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "symbol": {
+            "type": "string"
+          },
+          "display": {
+            "type": "string"
+          },
+          "module": {
+            "type": "string"
+          },
+          "build_id": {
+            "type": "string"
+          },
+          "file": {
+            "type": "string"
+          },
+          "runtime": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          },
+          "line": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "inline": {
+            "type": "boolean"
+          },
+          "native": {
+            "type": "boolean"
+          },
+          "kernel": {
+            "type": "boolean"
+          },
+          "async": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "symbol",
+          "display"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 100000
+    },
+    "stacks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "frames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "maxItems": 1024
+          }
+        },
+        "required": [
+          "id",
+          "frames"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 100000
+    },
+    "metrics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "base_kind": {
+            "type": "string"
+          },
+          "scale": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+            "maxLength": 1024
+          },
+          "signed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "unit",
+          "scale",
+          "signed"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 64
+    },
+    "profiles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "process": {
+            "type": "string"
+          },
+          "thread": {
+            "type": "string"
+          },
+          "worker": {
+            "type": "string"
+          },
+          "clock": {
+            "type": "string"
+          },
+          "time_unit": {
+            "type": "string"
+          },
+          "time_scale": {
+            "type": "string"
+          },
+          "samples": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "stack_id": {
+                  "type": "string"
+                },
+                "metric_id": {
+                  "type": "string"
+                },
+                "source_ref": {
+                  "type": "string"
+                },
+                "weight": {
+                  "type": "string",
+                  "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+                  "maxLength": 1024
+                },
+                "timestamp": {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+                      "maxLength": 1024
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "interval": {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+                      "maxLength": 1024
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "labels": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "stack_id",
+                "metric_id",
+                "weight"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 100000
+          }
+        },
+        "required": [
+          "id",
+          "clock",
+          "samples"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 1024
+    },
+    "quality": {
+      "type": "object",
+      "properties": {
+        "lost": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+              "maxLength": 1024
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "unknown": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+              "maxLength": 1024
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "truncated": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+              "maxLength": 1024
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "symbol_resolution": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+              "maxLength": 1024
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "clock_confidence": {
+          "type": "string"
+        },
+        "conversion_loss": {
+          "oneOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "lost",
+        "unknown",
+        "truncated",
+        "symbol_resolution",
+        "clock_confidence",
+        "conversion_loss"
+      ],
+      "additionalProperties": false
+    },
+    "extensions": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema_version",
+    "producer",
+    "format",
+    "source_sha256",
+    "capture_options",
+    "frames",
+    "stacks",
+    "metrics",
+    "profiles",
+    "quality"
+  ],
+  "additionalProperties": false
+}

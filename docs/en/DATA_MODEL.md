@@ -1769,3 +1769,65 @@ errors are refused before rendering. Null Go diagnostic arrays remain null.
 Bindings are regenerated, and frontend compile-time negative and runtime shape
 regressions supplement the original W01–W10 checks. These checks are distinct from
 actual WebView IPC/UI execution and independent re-review.
+
+## T-629 ProfileSet core contract (2026-11-11)
+
+`internal/profilemodel` is the canonical internal profile representation. Its
+versioned JSON transport is 1.0.0; it is not another AnalysisResult envelope.
+New canonical results use the existing `profile_evidence` type with payload 0.2.0.
+Legacy `profile_evidence` 0.1.x and typed profiler results retain their original
+readers, numbers and endpoints. Result readers now register disjoint payload
+ranges for one type; overlapping ranges fail composition. Editing a legacy schema
+number is insufficient: the new reader validates the retained model and recomputes
+its known summary/tree/table/measurement/population projections.
+
+| Contract | Meaning |
+|---|---|
+| ProfileSet | Declared producer/version/format, source hash set, opaque capture options/extensions, frames/stacks/metrics/profiles and quality |
+| Frame | Stable SHA-256 identity over original symbol/module/build/file/line/runtime/inline/native/kernel/async attributes; display text is excluded from identity |
+| Stack | Stable ordered frame-ID path; repeated recursive frames remain separate path occurrences |
+| Metric | Explicit kind, unit, positive decimal scale and sign contract; signed differences also declare base_kind |
+| Sample | Exact decimal-string weight and metric/stack IDs, labels/source reference and optional exact timestamp/interval |
+| Profile | Independent process/thread/worker and aggregate/relative/absolute clock context; measured times require explicit unit/scale |
+| Selection | Explicit profile-ID set and one metric; prefix/contains frame-ID paths and conjunctive drilldown filters |
+| Quality | Nullable lost/unknown/truncated counts and symbol resolution, clock confidence, and conversion-loss disclosure; unknown is not zero |
+
+Known zero, explicit null timing, and absent timing survive model round trips.
+A zero line number differs from an unknown line. Unknown model fields are refused;
+optional future content belongs in the opaque `extensions` map. Common result
+metadata retains its existing unknown-key precision/preservation behavior.
+Weights and scale remain exact decimal strings (1,024 characters, scale 128).
+Tree inclusive/self values are in the metric's declared physical unit, after exact
+scale multiplication; shares and percentages are rational strings. No float or
+minimum-one correction is used. Empty selections have unavailable total weight
+with a reason, while observed zero-weight records produce observed zero. The chart
+root's zero in an empty algebraic tree is qualified by the query availability;
+it is not a measured summary zero. Frame labels are resolved through the frame
+table rather than repeated along every tree path.
+
+Comparisons require identical metric ID/kind/unit/scale/sign and matching source,
+profile identity, producer/normalizer revision, quality, capture options and frame selection population. Source hashes
+are retained independently from the imported JSON container's lease provenance.
+This is a conservative comparison policy; cross-capture workload/entity/time
+baseline policy remains T-630/T-635. Zero-baseline percentages and unavailable
+comparisons are not fabricated. BuildSet freezes the model/selection before
+retaining them; queries do not mutate evidence or reuse pruned view trees.
+
+`LegacyStackProjection` requires an explicit integer-tick scale. It returns the
+scale, selected metric/profiles and aggregated dimensions. Display-name keys are
+allowed only without identity collisions or delimiter loss; stable frame-ID keys
+are available. Fractional integer projections, signed data and native-int/total
+range overflow are refused. pprof export similarly requires an explicit tick and
+exact int64 values, retaining zero records. A scaled export labels its unit `ticks`
+and embeds original metric/unit/scale, selection, frame identities, source hashes
+and quality in pprof Comments. Process/thread/worker and exact time context travel
+as reserved labels; collisions are errors. This is a selected-metric projection,
+not a full multimetric source backup; use JSON/Report Pack for that backup.
+
+Operational limits are 64 MiB input, 32 MiB referenced model strings, 100,000
+frames/stacks/samples, 1,024 profiles/stack depth, 64 metrics/filters, 200,000 tree
+nodes, 1,000,000 selected frame references, 8 MiB tree serialization and 32 MiB
+combined drilldown response. pprof identity comments are capped at 8 MiB and output
+at 64 MiB. Resource refusal never rounds or truncates data. The current catalog
+transport emits one normalized document and also respects the job's configured
+record ceiling (default 1 MiB). Larger streaming producer adapters are separate.

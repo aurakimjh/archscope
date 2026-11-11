@@ -475,3 +475,13 @@ and indexes remain mandatory. T-631 needs load cancellation and generic UI fallb
 T-632 retains offline distribution acceptance. Full ProfileSet and measurement
 corrections remain T-629/T-634. Q01–Q04 remain DECISION_PENDING. Actual native
 WebView flows, Windows execution and hosted CI are separate from local checks.
+
+### T-629 core implementation checkpoint
+
+The ProfileSet core, exact tree/selection/diff/drilldown/pprof path and legacy
+compatibility composition are implemented. See the paired DATA_MODEL and
+PARSER_DESIGN contracts for versions, resource bounds and refusal behavior.
+`profile_evidence` 0.2.0 is enabled only for validated canonical models; existing
+0.1.x producer paths retain legacy semantics. Actual producer corrections and
+qualification remain T-634, generic screens T-631, and case/baseline context
+T-630/T-635. Local checks and author verification do not grant independent PASS.

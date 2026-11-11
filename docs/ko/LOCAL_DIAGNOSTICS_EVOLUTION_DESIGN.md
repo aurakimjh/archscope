@@ -1206,3 +1206,11 @@ T-629 이후 전체 이행과 Q01–Q04 미정 항목은 이 완료에 포함하
 T-632에는 오프라인 배포 인수가 남는다. 전체 ProfileSet과 측정 수치 정정은
 T-629/T-634이며 Q01~Q04는 DECISION_PENDING을 유지한다. 실제 네이티브 WebView
 흐름, Windows 실행과 원격 CI는 로컬 검사와 별개다.
+
+### T-629 공통 코어 구현 시점
+
+ProfileSet 코어, 정밀 tree/selection/diff/drilldown/pprof 경로와 legacy 호환 조립을 구현했다.
+버전·자원 상한·거절 조건은 한·영 DATA_MODEL/PARSER_DESIGN 계약을 따른다.
+`profile_evidence` 0.2.0은 검증된 canonical 모델에만 활성화하고 기존 0.1.x producer
+경로는 기존 의미를 유지한다. 실제 producer 정정·적합성은 T-634, generic 화면은
+T-631, case/baseline 문맥은 T-630/T-635에 남는다. 로컬 검사·작성자 검증은 독립 PASS가 아니다.

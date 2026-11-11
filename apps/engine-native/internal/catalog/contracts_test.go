@@ -46,7 +46,7 @@ func TestBundledConformanceAssetsMatchManifest(t *testing.T) {
 		t.Fatal(e)
 	}
 	list := c.List()
-	if len(list) != 1 || list[0].ID != "server.tomcat" || list[0].SupportStatus != "limited" {
+	if len(list) != 2 || list[0].ID != "profile.set-json" || list[1].ID != "server.tomcat" || list[0].SupportStatus != "limited" || list[1].SupportStatus != "limited" {
 		t.Fatal("unqualified products were activated", list)
 	}
 }

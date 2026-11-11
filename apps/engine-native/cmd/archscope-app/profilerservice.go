@@ -47,7 +47,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	profileparser "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/profile"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/profilelegacy"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/profiler"
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
@@ -296,97 +296,7 @@ func (s *ProfilerService) Diff(req DiffRequest) (profiler.AnalysisResult, error)
 }
 
 func (s *ProfilerService) loadStacks(path, format string) (map[string]int, error) {
-	// Browser/V8 evidence must use the same parser normalization as the
-	// EngineService profile-evidence path. Do not add new formats to the
-	// legacy profiler switch below.
-	switch strings.ToLower(strings.TrimSpace(format)) {
-	case "v8-cpuprofile", "chrome-trace-json", "cpuprofile", "chrome-trace":
-		parsed, _, err := profileparser.ParseFile(path, format, profileparser.Options{})
-		if err != nil {
-			return nil, err
-		}
-		return stacksFromParsedProfile(parsed), nil
-	}
-	switch strings.ToLower(strings.TrimSpace(format)) {
-	case "jennifer", "jennifer_csv", "jennifer-csv":
-		result, err := profiler.ParseJenniferFlamegraphCSV(path, nil)
-		if err != nil {
-			return nil, err
-		}
-		return stacksFromFlameNode(result.Root), nil
-	case "flamegraph_svg", "svg":
-		result, err := profiler.ParseSvgFlamegraphFile(path, nil)
-		if err != nil {
-			return nil, err
-		}
-		return result.Stacks, nil
-	case "flamegraph_html", "html":
-		result, err := profiler.ParseHtmlProfilerFile(path, nil)
-		if err != nil {
-			return nil, err
-		}
-		return result.Stacks, nil
-	case "", "collapsed":
-		stacks, _, err := profiler.ParseCollapsedFile(path)
-		if err != nil {
-			return nil, err
-		}
-		return stacks, nil
-	default:
-		return nil, fmt.Errorf("unsupported format: %q", format)
-	}
-}
-
-func stacksFromParsedProfile(parsed profileparser.Parsed) map[string]int {
-	stacks := map[string]int{}
-	for _, sample := range parsed.Samples {
-		if sample.Value <= 0 {
-			continue
-		}
-		frames := make([]string, 0, len(sample.Stack))
-		for _, frame := range sample.Stack {
-			if strings.TrimSpace(frame.Name) != "" {
-				frames = append(frames, frame.Name)
-			}
-		}
-		if len(frames) > 0 {
-			stacks[strings.Join(frames, ";")] += int(sample.Value)
-		}
-	}
-	return stacks
-}
-
-func stacksFromFlameNode(root profiler.FlameNode) map[string]int {
-	// Walk leaf paths with exclusive samples — the flamegraph leaves carry
-	// the diff-meaningful counts.
-	stacks := map[string]int{}
-	var walk func(node profiler.FlameNode, path []string)
-	walk = func(node profiler.FlameNode, path []string) {
-		next := path
-		if len(node.Path) > 0 || node.Name != "All" {
-			next = append(append([]string{}, path...), node.Name)
-		}
-		if len(node.Children) == 0 {
-			if node.Samples > 0 && len(next) > 0 {
-				stacks[strings.Join(next, ";")] += node.Samples
-			}
-			return
-		}
-		// Inclusive node — record self-time as exclusive samples.
-		var childTotal int
-		for _, child := range node.Children {
-			childTotal += child.Samples
-		}
-		exclusive := node.Samples - childTotal
-		if exclusive > 0 && len(next) > 0 {
-			stacks[strings.Join(next, ";")] += exclusive
-		}
-		for _, child := range node.Children {
-			walk(child, next)
-		}
-	}
-	walk(root, nil)
-	return stacks
+	return profilelegacy.LoadStacks(path, format)
 }
 
 // [한글] Drilldown — 분석 + drilldown 필터 시퀀스 적용. 결과 stages 반환.
@@ -495,18 +405,7 @@ func (s *ProfilerService) WriteDebugLog(req AnalyzeRequest) (DebugLogResult, err
 }
 
 func (s *ProfilerService) runAnalyze(req AnalyzeRequest, options profiler.Options) (profiler.AnalysisResult, error) {
-	switch strings.ToLower(strings.TrimSpace(req.Format)) {
-	case "jennifer", "jennifer_csv", "jennifer-csv":
-		return profiler.AnalyzeJenniferFile(req.Path, options)
-	case "flamegraph_svg", "svg":
-		return profiler.AnalyzeFlamegraphSVGFile(req.Path, options)
-	case "flamegraph_html", "html":
-		return profiler.AnalyzeFlamegraphHTMLFile(req.Path, options)
-	case "", "collapsed":
-		return profiler.AnalyzeCollapsedFile(req.Path, options)
-	default:
-		return profiler.AnalysisResult{}, fmt.Errorf("unsupported format: %q (expected 'collapsed' / 'jennifer' / 'flamegraph_svg' / 'flamegraph_html')", req.Format)
-	}
+	return profilelegacy.Analyze(req.Path, req.Format, options)
 }
 
 // [한글] ExportPprof — collapsed map 을 pprof.gz 로 export.

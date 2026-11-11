@@ -731,3 +731,53 @@ alone is not a durable saved case. T-631 must wire per-load UI cancellation and
 job/fallback views. These requirements are recorded in work_status.md rather than
 being claimed as completed by this foundation fix. No new product/producer decision
 is made for Q01–Q04.
+
+## T-629 implementation and migration boundary (2026-11-11)
+
+The canonical path is `profile.set-json importer → ProfileSet → analyzers/profile.BuildSet
+→ AnalysisResult(profile_evidence 0.2.0)`. The internal JSON transport is registered
+with schema roles, fixture hashes and a compiled analyzer at the composition root.
+It needs explicit `profile_ids` and `metric_id` options. Existing formats are not
+added to ProfilerService format switches; its old Analyze/loadStacks functions now
+use `profilelegacy`'s explicit compatibility adapter catalog. The common generic
+trie is shared by exact model operations and old integer/float presentation adapters.
+This retains the large legacy input fast path without materializing a second model.
+Existing collapsed/Jennifer/SVG/HTML results keep their numeric semantics/versions.
+
+`parsers/profile.ParseLegacySet` snapshots inputs through SourceLease and wraps
+available normalized records, preserving recoverable frame identity, profiles,
+weights and opaque normalization metadata. Its quality block explicitly discloses
+legacy semantics and missing chronology; raw legacy timestamp values are labels,
+not invented measured intervals. It refuses truncated normalization. This wrapper
+cannot restore fractions, zero values, event duration or multivalue data already
+lost by an old producer decoder. Those decoder fixes, actual producer/version
+qualification and the support-matrix corrections remain T-634. No Q01–Q04 choice
+or new product support is made here.
+
+Examples:
+
+```sh
+archscope-engine evidence import --in model.json --importer profile-set \
+  --options '{"profile_ids":["worker-a","worker-b"],"metric_id":"duration"}' --out result.json
+archscope-engine profile-set tree --in result.json
+archscope-engine profile-set diff --in result.json --after result.json
+archscope-engine profile-set drilldown --in result.json --filters '[]'
+archscope-engine profile-set pprof --in result.json --tick-scale 0.01 --out selected.pprof
+archscope-engine profile-set normalize-legacy --in samples.collapsed --format collapsed --out normalized.json
+```
+
+Normalization writes a disclosed legacy-normalized model, not corrected producer
+support. EngineService adds NormalizeLegacyProfileSet, GetProfileSetTree,
+CompareProfileSets, DrilldownProfileSet and ExportProfileSetPprof. New Wails values
+cross as JSON text/handles with cancellable context; model quantities do not pass
+through JavaScript numbers or legacy typed integer results. Analysis, saved JSON,
+reopen, CSV/HTML, Report Pack and selected pprof share the retained selection.
+Queries share the service's bounded concurrency/lifetime and use the immutable model.
+
+Existing profile goldens remain unchanged. A baseline CLI comparison against
+63d3b6a covers collapsed, Jennifer, SVG, HTML and drilldown, excluding only creation
+and progress-log paths. Additional fixtures test decimals, zero, large integers,
+signed/recursive/colliding frames, multiple profiles/metrics, exact scale, refused
+projections, version relabeling and source/selection compatibility. Direct Wails
+method and generated-binding checks do not constitute actual WebView UI execution.
+Generic result screens remain T-631 and case/baseline lifecycle remains T-630/T-635.
