@@ -1240,6 +1240,7 @@ export class EngineErrorEvent {
 }
 
 export class EvidenceImportRequest {
+    "presetScope"?: string;
     "path": string;
     "importer": string;
     "optionsJSON": string;
@@ -1271,10 +1272,10 @@ export class EvidenceImportRequest {
      * Creates a new EvidenceImportRequest instance from a string or object.
      */
     static createFrom($$source: any = {}): EvidenceImportRequest {
-        const $$createField3_0 = $$createType15;
+        const $$createField4_0 = $$createType15;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("budgets" in $$parsedSource) {
-            $$parsedSource["budgets"] = $$createField3_0($$parsedSource["budgets"]);
+            $$parsedSource["budgets"] = $$createField4_0($$parsedSource["budgets"]);
         }
         return new EvidenceImportRequest($$parsedSource as Partial<EvidenceImportRequest>);
     }

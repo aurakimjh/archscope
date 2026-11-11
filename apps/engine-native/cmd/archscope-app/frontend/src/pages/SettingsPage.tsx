@@ -5,9 +5,9 @@
 // 기본값(intervalMs/topN/profileKind), 최근 파일 목록(LRU) 을 표시하고
 // 변경/초기화 가능. 모든 설정은 localStorage 에 영속 저장.
 //
-// 의존성 주의: 본 페이지에서는 EngineService / ProfilerService 호출
-// 없음 — 클라이언트 사이드 설정만 다룹니다.
+// 기본 설정은 클라이언트에 저장하며 PackSettings는 엔진의 팩 저장소를 관리합니다.
 // ─────────────────────────────────────────────────────────────────────
+import { PackSettings } from "../components/PackSettings";
 import { useEffect, useState } from "react";
 
 import { HelpedLabel, HelpedTitle } from "../components/HelpTip";
@@ -187,6 +187,7 @@ export function SettingsPage() {
         </summary>
         <p className="muted">{t("settingsAboutBody")}</p>
       </details>
+      <PackSettings />
     </main>
   );
 }

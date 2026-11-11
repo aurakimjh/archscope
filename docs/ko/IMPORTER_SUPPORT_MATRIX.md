@@ -70,3 +70,11 @@ T-635의 명시 매핑 전까지 entity_mapping_required로 거절한다. 과거
 초과 문자열은 json_string_bytes 예산 상세로 거절한다. 불투명 capture 옵션은 전체
 일치를 유지하며 의미/부수 key 정책은 T-634의 producer별 검증 및 T-635 baseline 연결이
 필요하다(DATA_MODEL R5). 현재 whitelist나 새 producer 지원을 주장하지 않는다.
+
+### 선언형 스냅샷 팩 (T-632)
+
+서명된 기본 팩은 `data.synthetic-metrics` / `synthetic-metrics`를 설치한다.
+명시적 `evidence --pack-store` 또는 데스크톱 카탈로그에서 metrics_snapshot 0.1.1을
+생성한다. synthetic.metrics 1.0.0 JSONL 합성 fixture 적합성만 검증했다.
+리터럴 조건/별칭/정확한 배율은 고정 해석기 기능이며 제품/시계열/임의 스크립트
+지원을 추가하지 않는다. [오프라인 팩](OFFLINE_PACKS.md)을 참조한다.

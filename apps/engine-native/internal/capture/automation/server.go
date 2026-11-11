@@ -9,6 +9,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/netpolicy"
 	"io"
 	"mime"
 	"net"
@@ -56,6 +57,9 @@ type Server struct {
 }
 
 func Start(path string, execute Executor) (*Server, error) {
+	if err := netpolicy.RequireOnline("automation.listen"); err != nil {
+		return nil, err
+	}
 	if !filepath.IsAbs(path) {
 		return nil, fmt.Errorf("automation descriptor must be absolute")
 	}
@@ -215,6 +219,9 @@ func readDescriptor(path string) ([]byte, error) {
 // Invoke rejects non-loopback descriptors and never forwards local credentials
 // through redirects or an environment proxy.
 func Invoke(ctx context.Context, path string, call Call) (Reply, error) {
+	if err := netpolicy.RequireOnline("automation.invoke"); err != nil {
+		return Reply{}, err
+	}
 	raw, err := readDescriptor(path)
 	if err != nil {
 		return Reply{}, err

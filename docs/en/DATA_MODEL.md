@@ -2150,3 +2150,14 @@ or CLI owns their kernel lock.
 Source display names allow local UTF-8 names such as `jstack_10:30:01.txt` but reject
 control characters. They never become archive/filesystem paths. ZIP/TAR entry and
 capture-file path restrictions remain unchanged; portable bytes use digest paths.
+
+## T-632 signed data packs (2026-11-11)
+
+The compiled JSONL snapshot interpreter accepts verified data mappings without
+changing AnalysisResult. New mappings emit metrics_snapshot 0.1.1 with exact
+decimal strings, typed units/kinds, selected-population identity and effective
+pack provenance. Job/catalog snapshots pin manifest digest and trust sequence;
+activation does not reinterpret saved results. Unsigned presets require explicit
+user/case scope and conflicts require owner selection. See [Offline packs](OFFLINE_PACKS.md)
+for closed contracts, resource limits, atomic activation, revocation, mandatory
+fixture packaging, disconnected acceptance boundaries and the measured SQLite decision.

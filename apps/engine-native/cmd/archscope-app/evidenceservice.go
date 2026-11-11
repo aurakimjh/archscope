@@ -14,6 +14,7 @@ import (
 )
 
 type EvidenceImportRequest struct {
+	PresetScope  string            `json:"presetScope,omitempty"`
 	Path         string            `json:"path"`
 	Importer     string            `json:"importer"`
 	OptionsJSON  string            `json:"optionsJSON"`
@@ -39,10 +40,21 @@ func (s *EngineService) evidence() (*analysis.Service, error) {
 	if e != nil {
 		return nil, e
 	}
-	service, e := analysis.OpenDurable(context.Background(), filepath.Join(root, "ArchScope", "evidence-imports"), filepath.Join(durable, "evidence-cache"), c, r)
+	legacy := filepath.Join(root, "ArchScope", "evidence-imports")
+	if os.Getenv("ARCHSCOPE_STATE_ROOT") != "" {
+		legacy = filepath.Join(durable, "legacy-cache")
+	}
+	session, e := catalog.OpenPackSession(context.Background(), durable, c)
 	if e != nil {
 		return nil, e
 	}
+	service, e := analysis.OpenDurable(context.Background(), legacy, filepath.Join(durable, "evidence-cache"), c, r)
+	if e != nil {
+		session.Manager.Close()
+		return nil, e
+	}
+	service.SetCatalogProvider(session.Provider)
+	s.packSession = session
 	s.evidenceService = service
 	return service, nil
 }
@@ -50,6 +62,7 @@ func (s *EngineService) closeEvidence() {
 	s.evidenceMu.Lock()
 	service := s.evidenceService
 	caseStore := s.caseService
+	packSession := s.packSession
 	s.evidenceMu.Unlock()
 	if service != nil {
 		service.Close()
@@ -57,20 +70,23 @@ func (s *EngineService) closeEvidence() {
 	if caseStore != nil {
 		caseStore.Close()
 	}
+	if packSession != nil {
+		packSession.Manager.Close()
+	}
 }
 func (s *EngineService) ListEvidenceImporters() ([]ingestion.ImporterDescriptor, error) {
 	service, e := s.evidence()
 	if e != nil {
 		return nil, e
 	}
-	return service.ListImporters(), nil
+	return service.CurrentImporters("")
 }
 func (s *EngineService) ImportEvidence(req EvidenceImportRequest) (analysis.JobSnapshot, error) {
 	service, e := s.evidence()
 	if e != nil {
 		return analysis.JobSnapshot{}, e
 	}
-	return service.Start(analysis.Request{Path: req.Path, Importer: req.Importer, Options: json.RawMessage(req.OptionsJSON), Budgets: req.Budgets, AllowPartial: req.AllowPartial})
+	return service.Start(analysis.Request{PresetScope: req.PresetScope, Path: req.Path, Importer: req.Importer, Options: json.RawMessage(req.OptionsJSON), Budgets: req.Budgets, AllowPartial: req.AllowPartial})
 }
 func (s *EngineService) GetImportJob(id string, generation uint64) (analysis.JobSnapshot, error) {
 	service, e := s.evidence()

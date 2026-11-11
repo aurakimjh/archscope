@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/netpolicy"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -135,6 +136,9 @@ func (m *Manager) ReleaseAuthority() {
 }
 
 func (m *Manager) Start(ctx context.Context, cfg Config) (Session, error) {
+	if err := netpolicy.RequireOnline("capture.start"); err != nil {
+		return Session{}, err
+	}
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	if err := ctx.Err(); err != nil {

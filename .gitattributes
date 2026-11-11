@@ -3,3 +3,11 @@ docs/review/evidence/*.sha256 text eol=lf
 # Embedded contracts are verified against byte-level SHA-256 manifests.
 apps/engine-native/internal/catalog/contracts/* text eol=lf
 apps/engine-native/internal/cases/contracts/* text eol=lf
+# Signed/hashed resources and upstream notices must keep their exact bytes.
+apps/engine-native/internal/packs/assets/* -text
+apps/engine-native/internal/distribution/assets/** -text whitespace=-blank-at-eol
+docs/en/OFFLINE_PACKS.md text eol=lf
+docs/ko/OFFLINE_PACKS.md text eol=lf
+# The shipped notice inventory pins these source lock bytes across platforms.
+apps/engine-native/go.sum text eol=lf
+apps/engine-native/cmd/archscope-app/frontend/package-lock.json text eol=lf

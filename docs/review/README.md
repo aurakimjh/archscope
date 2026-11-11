@@ -4,15 +4,14 @@
 
 ## 미처리
 
-| 날짜 | 문서 | 대상 | 판정 |
-|---|---|---|---|
-| 2026-11-11 | [T-631 결과 provider 구현 독립 리뷰](2026-11-11_claude-code_T-631_implementation-review.ko.md) | `ff06c54` | 조건부 (P1 없음, P2 1, P3 3). R8-01 timeline/SLI 검증의 제곱 비용(첫 producer 등록 전 해소). T-631 DONE은 R8-01 처리 후 가능. |
-| 2026-11-11 | [T-630 사건 수명주기 구현 재리뷰 R2](2026-11-11_claude-code_T-630_implementation-re-review-R2.ko.md) | `e2c1c7d` | 승인에 가까운 조건부 (P1·P2 없음, P3 1). R6-01~R6-07 해소 확인. T-630 DONE 복귀 가능. |
+없음.
 
 ## 처리 기록
 
 | 날짜 | 문서 | 대상 | 판정·처리 |
 |---|---|---|---|
+| 2026-11-11 | [T-631 구현 독립 리뷰](done/2026-11-11_claude-code_T-631_implementation-review.ko.md) | `ff06c54` | CONDITIONAL(P2 1/P3 3). R8-01→R8-02→R8-04→R8-03을 work_status.md 후속 큐에 반영 후 원문 보존. T-631 REVIEW; 첫 timeline/SLI producer 전 R8-01 해소 필요. T-632 범위에서 R8 수정·PASS·완료를 주장하지 않음. |
+| 2026-11-11 | [T-630 구현 재리뷰 R2](done/2026-11-11_claude-code_T-630_implementation-re-review-R2.ko.md) | `e2c1c7d` | CONDITIONAL(P3 1), R6-01~R6-07 해소 및 DONE 복귀 허용. R7-01을 작업표에 반영한 뒤 원문 보존·이동; 잠금 오류 분리·원인 안내 수정. T-630 DONE, 최종 P3 수정의 독립 재검증·PASS 주장 없음. |
 | 2026-11-11 | [T-630 구현 독립 리뷰](done/2026-11-11_claude-code_T-630_implementation-review.ko.md) | `82bc6a8` | CONDITIONAL(P2 2/P3 5). R6-01~R6-07을 우선순위·의존성 순으로 work_status.md에 반영한 뒤 원문 보관. R6-01~R6-07 수정·로컬 검증 완료(경로 식별자, 소유권 cache 정리/재열기, 저장 멱등, 손상 삭제 계획, 이관 안내, 원본 색인, 표시 이름). T-630은 독립 재리뷰 전 REVIEW 유지, 원 판정 CONDITIONAL 보존. T-631 비차단. |
 | 2026-11-11 | [T-629 구현 재리뷰 R2](done/2026-11-11_claude-code_T-629_implementation-re-review-R2.ko.md) | `27fcd3d` | CONDITIONAL(P3 2), R4-01~R4-05 해소 및 DONE 복귀 가능 확인. R5-01 수정·검증 완료, R5-02 T-634/T-635 계약·수용 조건 반영(현재 엄격 비교 유지). R2의 명시적 허용에 따라 T-629 DONE. 원문 보존; PASS로 변경하지 않음. |
 | 2026-11-11 | [T-629 ProfileSet 구현 독립 리뷰](done/2026-11-11_claude-code_T-629_implementation-review.ko.md) | `f06673a` / 확인 `a320881` | CONDITIONAL(P2 2/P3 3). R4-01~R4-05를 작업표에 우선순위·의존성 순으로 반영한 뒤 원문 보관. 5건 수정·회귀 검증 완료. 3,000-stack/54,001-node 규모, 품질 비교·매핑 거절, 캐시·quality 변조·감지 경계 검증. R2에서 5건 해소 확인 및 DONE 복귀 허용; 최종 R5 처리와 검증은 별도 기록. PASS 선언 없음. |

@@ -15,10 +15,24 @@ import (
 
 func init() {
 	group := &cobra.Command{Use: "evidence", Short: "Catalog-based bounded evidence import and backend export."}
+	group.PersistentFlags().StringVar(&evidencePackStore, "pack-store", "", "use an explicit persistent pack store; defaults preserve the legacy CLI catalog")
+	group.PersistentFlags().StringVar(&evidencePresetScope, "preset-scope", "", "explicit user/case preset scope, otherwise application packs only")
 	list := &cobra.Command{Use: "formats", RunE: func(cmd *cobra.Command, args []string) error {
 		c, _, e := catalog.Builtin()
 		if e != nil {
 			return e
+		}
+		if evidencePackStore != "" {
+			session, e := selectedPackSession(cmd.Context(), evidencePackStore)
+			if e != nil {
+				return e
+			}
+			defer session.Manager.Close()
+			snapshot, e := session.Provider(evidencePresetScope)
+			if e != nil {
+				return e
+			}
+			return writeJSONAny(snapshot.Catalog.List(), "-")
 		}
 		return writeJSONAny(c.List(), "-")
 	}}
@@ -44,7 +58,15 @@ func init() {
 			return e
 		}
 		defer service.Close()
-		job, e := service.Start(analysis.Request{Path: input, Importer: importer, Options: json.RawMessage(options), AllowPartial: partial})
+		if evidencePackStore != "" {
+			session, e := selectedPackSession(ctx, evidencePackStore)
+			if e != nil {
+				return e
+			}
+			defer session.Manager.Close()
+			service.SetCatalogProvider(session.Provider)
+		}
+		job, e := service.Start(analysis.Request{PresetScope: evidencePresetScope, Path: input, Importer: importer, Options: json.RawMessage(options), AllowPartial: partial})
 		if e != nil {
 			return e
 		}

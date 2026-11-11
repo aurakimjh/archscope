@@ -1,0 +1,11 @@
+{
+  "asset_id": "fonts.noto-sans-kr",
+  "family": "Noto Sans KR",
+  "upstream_commit": "b38c5c93af322c45f633e17ac440ec1e6c94d489",
+  "source": "https://raw.githubusercontent.com/google/fonts/b38c5c93af322c45f633e17ac440ec1e6c94d489/ofl/notosanskr/NotoSansKR%5Bwght%5D.ttf",
+  "license": "OFL-1.1",
+  "font_sha256": "194018e6b2b293a7964f037b25c0249ce1418bc9ab3c971060a03aa57861e252",
+  "font_bytes": 10414588,
+  "license_sha256": "1c05c68c34f9708415aada51f17e1b0092d2cea709bf4a94cd38114f9e73d7d9",
+  "description": "공식 원본 가변 글꼴. 오프라인 배포에는 동일 hash의 글꼴과 OFL 원문을 함께 포함한다. 파일은 서명된 배포 inventory로 검증하며 시스템 fallback은 다른 렌더링으로 기록한다."
+}

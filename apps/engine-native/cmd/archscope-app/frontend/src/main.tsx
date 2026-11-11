@@ -31,8 +31,26 @@ if (!hasNativeDesktopBridge(window)) {
     ? "ArchScope 데스크톱 앱을 실행하세요. 브라우저 미리보기는 지원하지 않습니다."
     : "Open the ArchScope desktop app. Browser preview is not supported.";
 } else {
+  document.addEventListener("securitypolicyviolation", () => {
+    void import("./bridge/engine").then(bridge => bridge.recordOfflineRendererViolation()).catch(() => {});
+  });
   // 브리지 확인 전에 App을 import하면 Wails 호출과 페이지 초기화가 먼저 실행된다.
-  void import("./App").then(({ default: App }) => {
+  void import("./bridge/engine").then(async bridge => {
+    const status = await bridge.getOfflineStatus();
+    if (status.offline) {
+      const deny = (): void => { void bridge.recordOfflineRendererViolation().catch(() => {}); };
+      document.addEventListener("click", event => {
+        const anchor = (event.target as Element | null)?.closest?.("a");
+        if (anchor && new URL(anchor.href, location.href).origin !== location.origin) { event.preventDefault(); event.stopImmediatePropagation(); deny(); }
+      }, true);
+      const originalOpen = window.open.bind(window);
+      window.open = ((url?: string | URL, target?: string, features?: string) => {
+        if (url && new URL(String(url), location.href).origin !== location.origin) { deny(); return null; }
+        return originalOpen(url, target, features);
+      }) as typeof window.open;
+    }
+    return import("./App");
+  }).then(({ default: App }) => {
     ReactDOM.createRoot(root).render(
       <React.StrictMode>
         <ThemeProvider>

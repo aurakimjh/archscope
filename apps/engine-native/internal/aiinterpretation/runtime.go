@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/netpolicy"
 	"net/http"
 	"net/url"
 	"strings"
@@ -24,6 +25,9 @@ type OllamaClient struct {
 }
 
 func (c OllamaClient) Execute(ctx context.Context, prompt PromptPayload, registry *EvidenceRegistry) (map[string]any, error) {
+	if err := netpolicy.RequireOnline("ai.ollama"); err != nil {
+		return nil, err
+	}
 	if !c.Config.Enabled {
 		return nil, fmt.Errorf("local LLM execution is disabled")
 	}

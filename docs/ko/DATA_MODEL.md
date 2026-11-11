@@ -2233,3 +2233,13 @@ backup 이름으로 변경 → 재시작 순서다. backup은 snapshot 명시적
 원본 표시 이름은 `jstack_10:30:01.txt` 같은 로컬 UTF-8 이름을 허용하고 제어 문자를 거부한다.
 표시 이름을 실제 파일·archive 경로로 사용하지 않는다. ZIP/TAR 항목·capture 파일의 경로
 제한은 유지하며 portable 본문은 digest 경로로 저장한다.
+
+## T-632 서명 데이터 팩 (2026-11-11)
+
+컴파일된 JSONL 스냅샷 해석기로 검증한 데이터 매핑을 추가하며 AnalysisResult는
+유지한다. 새 매핑은 정확한 소수 문자열, 단위/종류, 선택 population identity와
+실제 적용 팩 provenance를 담은 metrics_snapshot 0.1.1을 생성한다.
+작업/카탈로그 스냅샷은 manifest digest와 신뢰 순서를 고정한다. 활성화로 저장
+결과를 재해석하지 않는다. 미서명 프리셋은 명시적 사용자/케이스 범위를 요구하고
+충돌은 소유자가 선택한다. 닫힌 계약/예산/atomic 활성화/키 폐기/필수 fixture 배포,
+단절망 검증 경계와 SQLite 측정 결정은 [오프라인 팩](OFFLINE_PACKS.md)을 참조한다.

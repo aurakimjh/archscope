@@ -1,0 +1,8 @@
+{
+  "packages_passed": 99,
+  "tests_passed": 1421,
+  "tests_skipped": 6,
+  "failures": [],
+  "command": "go test -race -count=1 -json ./...",
+  "note": "Final focused race additionally covers final resource/font/license validation."
+}

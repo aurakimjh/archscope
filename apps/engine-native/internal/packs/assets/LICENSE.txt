@@ -1,0 +1,4 @@
+SPDX-License-Identifier: CC0-1.0
+Synthetic mapping and fixtures dedicated to the public domain under CC0 1.0.
+No customer or production data.
+https://creativecommons.org/publicdomain/zero/1.0/

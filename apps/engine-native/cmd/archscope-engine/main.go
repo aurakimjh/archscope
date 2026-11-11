@@ -46,6 +46,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/netpolicy"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -94,7 +95,11 @@ flags each leaf accepts.`,
 // `typer` 기본 에러 형식과 동일하게 맞춰져 있어, parity gate 가
 // "엔진별 에러 메시지가 같은 라인 형태인지" 까지 verify 할 수 있습니다.
 func main() {
-	if err := rootCmd.Execute(); err != nil {
+	err := rootCmd.Execute()
+	if reportErr := netpolicy.WriteReport(offlineReport); reportErr != nil && err == nil {
+		err = reportErr
+	}
+	if err != nil {
 		fmt.Fprintf(os.Stderr, "archscope-engine: %v\n", err)
 		os.Exit(1)
 	}

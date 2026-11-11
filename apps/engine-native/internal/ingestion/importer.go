@@ -151,6 +151,7 @@ type Analyzer struct {
 	Analyze                func(context.Context, RecordSource, SourceInfo, json.RawMessage, *diagnostics.ParserDiagnostics) (models.AnalysisResult, error)
 }
 type ImporterDescriptor struct {
+	Pack                 *PackPin                                        `json:"pack,omitempty"`
 	ReleaseEligible      bool                                            `json:"releaseEligible"`
 	ConverterRequirement string                                          `json:"converterRequirement,omitempty"`
 	ID                   string                                          `json:"id"`

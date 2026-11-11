@@ -41,6 +41,12 @@ type Summary struct {
 
 // DefaultRoot is app data, never a disposable OS cache directory.
 func DefaultRoot() (string, error) {
+	if override := os.Getenv("ARCHSCOPE_STATE_ROOT"); override != "" {
+		if !filepath.IsAbs(override) {
+			return "", problem("CASE_STORE_UNSAFE", "ARCHSCOPE_STATE_ROOT must be absolute")
+		}
+		return override, nil
+	}
 	root, e := os.UserConfigDir()
 	if e != nil {
 		return "", e

@@ -7,6 +7,7 @@ import (
 	"crypto/x509"
 	"errors"
 	"fmt"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/netpolicy"
 	"io"
 	"net"
 	"net/http"
@@ -158,6 +159,9 @@ func (s *Server) Available() (bool, string)            { return true, "" }
 func (s *Server) RequiredPrivilege() capture.Privilege { return capture.PrivilegeNone }
 
 func (s *Server) Start(ctx context.Context, _ capture.Config, onTx func(models.CaptureTransaction) error) (string, error) {
+	if err := netpolicy.RequireOnline("proxy.listen"); err != nil {
+		return "", err
+	}
 	if onTx == nil {
 		return "", errors.New("transaction sink is required")
 	}

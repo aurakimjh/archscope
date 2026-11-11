@@ -41,6 +41,7 @@ import (
 	"fmt"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analysis"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/cases"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/catalog"
 	"strings"
 	"sync"
 	"time"
@@ -65,6 +66,7 @@ import (
 // analyzers are synchronous because the µs–ms cost wouldn't justify the
 // round-trip ceremony.
 type EngineService struct {
+	packSession     *catalog.PackSession
 	evidenceMu      sync.Mutex
 	evidenceService *analysis.Service
 	caseService     *cases.Store

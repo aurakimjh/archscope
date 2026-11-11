@@ -66,7 +66,12 @@ func init() {
 // [한글] main — Wails 앱 인스턴스 생성, 서비스/윈도우/asset 설정 후 Run.
 // Run 은 GUI 이벤트 루프 진입. 에러 시 즉시 log.Fatal.
 func main() {
-	options, err := automation.ParseOptions(os.Args[1:])
+	offline, remaining, err := parseOffline(os.Args[1:])
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer writeOfflineReport(offline.Report)
+	options, err := automation.ParseOptions(remaining)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -90,13 +95,14 @@ func main() {
 			application.NewService(captureService),
 		},
 		Assets: application.AssetOptions{
-			Handler: application.AssetFileServerFS(assets),
+			Handler: desktopAssets(application.AssetFileServerFS(assets)),
 		},
 		Mac: application.MacOptions{
 			ApplicationShouldTerminateAfterLastWindowClosed: true,
 		},
 		Windows: application.WindowsOptions{
 			AdditionalBrowserArgs: windowsAdditionalBrowserArgs(),
+			WebviewBrowserPath:    offline.Webview,
 		},
 	})
 

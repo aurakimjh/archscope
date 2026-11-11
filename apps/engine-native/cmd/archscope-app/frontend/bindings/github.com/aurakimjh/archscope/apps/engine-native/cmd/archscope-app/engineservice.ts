@@ -55,6 +55,10 @@ export function AcquireEvidenceResult(handle: string): $CancellablePromise<analy
     });
 }
 
+export function ActivateDataPack(requestJSON: string): $CancellablePromise<string> {
+    return $Call.ByID(3006208979, requestJSON);
+}
+
 /**
  * AnalyzeAccessLog wraps engineapi.AnalyzeAccessLog. RFC3339 strings
  * on the request are parsed once and forwarded as *time.Time.
@@ -276,6 +280,10 @@ export function AnalyzeTraceImport(req: $models.TraceImportRequest): $Cancellabl
     });
 }
 
+export function ApplyOfflinePackTrust(expected: string, path: string, signaturePath: string): $CancellablePromise<void> {
+    return $Call.ByID(1358835293, expected, path, signaturePath);
+}
+
 /**
  * CancelEngineTask is the engine-side cancel hook. ProfilerService.Cancel
  * already covers profiler tasks; the registry is shared so either name
@@ -353,6 +361,10 @@ export function CreateCase(title: string): $CancellablePromise<string> {
     return $Call.ByID(2458193755, title);
 }
 
+export function DeactivateDataPack(expected: string, scope: string, id: string): $CancellablePromise<void> {
+    return $Call.ByID(3477380232, expected, scope, id);
+}
+
 export function DescribeEvidenceResult(handle: string): $CancellablePromise<analysis$0.ResultCapabilities> {
     return $Call.ByID(1099759658, handle).then(($result: any) => {
         return $$createType10($result);
@@ -410,6 +422,10 @@ export function ExportCaseArchive(caseID: string, optionsJSON: string, path: str
 
 export function ExportCaseResult(caseID: string, resultID: string, path: string): $CancellablePromise<void> {
     return $Call.ByID(3517398760, caseID, resultID, path);
+}
+
+export function ExportDataPack(scope: string, hash: string, destination: string): $CancellablePromise<void> {
+    return $Call.ByID(1046258536, scope, hash, destination);
 }
 
 export function ExportEvidenceResult(handle: string, path: string, format: string): $CancellablePromise<void> {
@@ -498,6 +514,14 @@ export function GetImportJob(id: string, generation: number): $CancellablePromis
     });
 }
 
+export function GetOfflineStatus(): $CancellablePromise<string> {
+    return $Call.ByID(3185092078);
+}
+
+export function GetPackState(): $CancellablePromise<string> {
+    return $Call.ByID(1905774697);
+}
+
 /**
  * Queries retain exact numbers as JSON text across Wails; existing typed legacy
  * endpoints remain compatibility facades. Generic screens belong to T-631.
@@ -512,6 +536,10 @@ export function ImportEvidence(req: $models.EvidenceImportRequest): $Cancellable
     });
 }
 
+export function InstallDataPack(path: string, optionsJSON: string): $CancellablePromise<string> {
+    return $Call.ByID(3784751023, path, optionsJSON);
+}
+
 export function ListCases(): $CancellablePromise<string> {
     return $Call.ByID(1639733976);
 }
@@ -520,6 +548,10 @@ export function ListEvidenceImporters(): $CancellablePromise<ingestion$0.Importe
     return $Call.ByID(1185952117).then(($result: any) => {
         return $$createType17($result);
     });
+}
+
+export function ListEvidenceImportersForScope(scope: string): $CancellablePromise<string> {
+    return $Call.ByID(1075260772, scope);
 }
 
 export function LoadEvidenceResult(path: string): $CancellablePromise<analysis$0.ResultView> {
@@ -568,6 +600,14 @@ export function QueryEvidenceProvider(handle: string, provider: string, offset: 
 
 export function RebuildCaseIndex(): $CancellablePromise<string> {
     return $Call.ByID(422962230);
+}
+
+export function RecordOfflineRendererViolation(): $CancellablePromise<void> {
+    return $Call.ByID(2592899593);
+}
+
+export function RegisterPackTrustKey(expected: string, keyJSON: string): $CancellablePromise<void> {
+    return $Call.ByID(2708733430, expected, keyJSON);
 }
 
 export function ReleaseEvidenceLease(leaseID: string): $CancellablePromise<void> {

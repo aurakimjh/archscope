@@ -5,7 +5,7 @@ export type ResultCapability = { id: string; version: string; kind: string; payl
 export type ResultCapabilities = { handle: string; result_sha256: string; type: string; version: string; compatibility: { allowed: boolean; reason?: string }; identity_basis: string; providers: ResultCapability[]; sources: DisplayCell[]; sources_truncated: boolean; truncated: boolean };
 export type ProviderPage = { handle: string; result_sha256: string; provider: string; columns: string[]; rows: DisplayCell[][]; offset: number; next: number; total: number; truncated: boolean };
 export type ProviderComparison = { allowed: boolean; code?: string; reason?: string; delta?: { value: string | null; percent: string | null; reason?: string; comparison?: { identity_basis: string; baseline: { handle: string; result_sha256: string }; target: { handle: string; result_sha256: string } } } };
-export type ImportJob = { id: string; generation: number; state: string; resultHandle?: string; cleanupPending?: boolean; problem?: { code: string; message: string }; detection: { candidates: Array<{ importerId: string; reason: string }> } };
+export type ImportJob = { packs?: Array<{ id: string; version: string; sha256: string; origin: string; scope: string }>; pack_state_revision?: string; id: string; generation: number; state: string; resultHandle?: string; cleanupPending?: boolean; problem?: { code: string; message: string }; detection: { candidates: Array<{ importerId: string; reason: string }> } };
 export type Cancelable<T> = Promise<T> & { cancel?: () => void };
 
 // One scope per mounted load/query surface. Invalidating before cancellation

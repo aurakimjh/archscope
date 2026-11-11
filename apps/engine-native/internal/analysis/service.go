@@ -24,6 +24,7 @@ import (
 )
 
 type Request struct {
+	PresetScope  string            `json:"preset_scope,omitempty"`
 	Path         string            `json:"path"`
 	Importer     string            `json:"importer"`
 	Options      json.RawMessage   `json:"options"`
@@ -39,24 +40,28 @@ type JobProblem struct {
 	Message   string                  `json:"message"`
 }
 type JobSnapshot struct {
-	CleanupPending bool                   `json:"cleanupPending,omitempty"`
-	ID             string                 `json:"id"`
-	Generation     uint64                 `json:"generation"`
-	State          string                 `json:"state"`
-	Source         ingestion.SourceInfo   `json:"source"`
-	Detection      ingestion.DetectionSet `json:"detection"`
-	Importer       string                 `json:"importer"`
-	OptionsHash    string                 `json:"optionsHash,omitempty"`
-	PolicyRevision string                 `json:"policyRevision"`
-	Budget         ingestion.Budgets      `json:"budget"`
-	ResultHandle   string                 `json:"resultHandle,omitempty"`
-	Problem        *JobProblem            `json:"problem,omitempty"`
+	Packs             []ingestion.PackPin    `json:"packs,omitempty"`
+	PackStateRevision string                 `json:"pack_state_revision,omitempty"`
+	PackTrustSequence string                 `json:"pack_trust_sequence,omitempty"`
+	CleanupPending    bool                   `json:"cleanupPending,omitempty"`
+	ID                string                 `json:"id"`
+	Generation        uint64                 `json:"generation"`
+	State             string                 `json:"state"`
+	Source            ingestion.SourceInfo   `json:"source"`
+	Detection         ingestion.DetectionSet `json:"detection"`
+	Importer          string                 `json:"importer"`
+	OptionsHash       string                 `json:"optionsHash,omitempty"`
+	PolicyRevision    string                 `json:"policyRevision"`
+	Budget            ingestion.Budgets      `json:"budget"`
+	ResultHandle      string                 `json:"resultHandle,omitempty"`
+	Problem           *JobProblem            `json:"problem,omitempty"`
 }
 type CancelOutcome struct {
 	Outcome string      `json:"outcome"`
 	Job     JobSnapshot `json:"job"`
 }
 type job struct {
+	catalog   *ingestion.Catalog
 	mu        sync.Mutex
 	snapshot  JobSnapshot
 	ctx       context.Context
@@ -70,25 +75,26 @@ type cleanupRef struct {
 	job  *job
 }
 type Service struct {
-	storeMu     sync.Mutex
-	stored      map[string]storedRevision
-	storedBytes int64
-	leases      map[string]string
-	lockFile    *os.File
-	ctx         context.Context
-	cancel      context.CancelFunc
-	closeOnce   sync.Once
-	slots       chan struct{}
-	pending     []cleanupRef
-	mu          sync.Mutex
-	root        string
-	catalog     *ingestion.Catalog
-	results     *resultcontract.Registry
-	policy      ingestion.Budgets
-	jobs        map[string]*job
-	history     []string
-	closed      bool
-	wait        sync.WaitGroup
+	catalogProvider CatalogProvider
+	storeMu         sync.Mutex
+	stored          map[string]storedRevision
+	storedBytes     int64
+	leases          map[string]string
+	lockFile        *os.File
+	ctx             context.Context
+	cancel          context.CancelFunc
+	closeOnce       sync.Once
+	slots           chan struct{}
+	pending         []cleanupRef
+	mu              sync.Mutex
+	root            string
+	catalog         *ingestion.Catalog
+	results         *resultcontract.Registry
+	policy          ingestion.Budgets
+	jobs            map[string]*job
+	history         []string
+	closed          bool
+	wait            sync.WaitGroup
 }
 
 func New(root string, c *ingestion.Catalog, r *resultcontract.Registry) (*Service, error) {
@@ -168,6 +174,22 @@ func (s *Service) Start(req Request) (JobSnapshot, error) {
 	if e != nil {
 		return JobSnapshot{}, e
 	}
+	s.mu.Lock()
+	provider := s.catalogProvider
+	s.mu.Unlock()
+	catalog := s.catalog
+	pin := CatalogSnapshot{Catalog: catalog}
+	if provider != nil {
+		pin, e = provider(req.PresetScope)
+		if e != nil {
+			return JobSnapshot{}, e
+		}
+		if pin.Catalog == nil {
+			return JobSnapshot{}, ingestion.Problem("IMPORT_REGISTRY_INVALID", "pack catalog snapshot is missing")
+		}
+		catalog = pin.Catalog
+		pin.Packs = append([]ingestion.PackPin(nil), pin.Packs...)
+	}
 	id, e := randomID("job-")
 	if e != nil {
 		return JobSnapshot{}, e
@@ -176,7 +198,7 @@ func (s *Service) Start(req Request) (JobSnapshot, error) {
 	ctx, cancelCause := context.WithCancelCause(context.Background())
 	cancel := func() { cancelCause(context.Canceled) }
 	queueTimer := time.AfterFunc(time.Duration(budget.QueueTimeoutMS)*time.Millisecond, func() { cancelCause(context.DeadlineExceeded) })
-	j := &job{ctx: ctx, cancel: cancel, selection: make(chan string, 1), done: make(chan struct{}), snapshot: JobSnapshot{ID: id, Generation: 1, State: "queued", PolicyRevision: "import-policy-v1", Budget: budget, Source: ingestion.SourceInfo{ID: id + "-source"}, Detection: ingestion.DetectionSet{Candidates: []ingestion.Candidate{}}}}
+	j := &job{catalog: catalog, ctx: ctx, cancel: cancel, selection: make(chan string, 1), done: make(chan struct{}), snapshot: JobSnapshot{Packs: pin.Packs, PackStateRevision: pin.Revision, PackTrustSequence: pin.TrustSequence, ID: id, Generation: 1, State: "queued", PolicyRevision: "import-policy-v1", Budget: budget, Source: ingestion.SourceInfo{ID: id + "-source"}, Detection: ingestion.DetectionSet{Candidates: []ingestion.Candidate{}}}}
 	s.mu.Lock()
 	// Reclaim only finished history. Active/waiting jobs and immutable result
 	// revisions are never removed to make room for another job.
@@ -209,7 +231,7 @@ func (s *Service) Start(req Request) (JobSnapshot, error) {
 	s.history = append(s.history, id)
 	s.wait.Add(1)
 	s.mu.Unlock()
-	initial := j.snapshot
+	initial := j.copy()
 	go func() {
 		defer s.wait.Done()
 		defer close(j.done)
@@ -247,7 +269,7 @@ func (s *Service) Select(id string, g uint64, importer string) (JobSnapshot, err
 	if e != nil {
 		return JobSnapshot{}, e
 	}
-	canonical, ok := s.catalog.Canonical(importer)
+	canonical, ok := j.catalog.Canonical(importer)
 	if !ok {
 		return JobSnapshot{}, ingestion.Problem("IMPORT_FORMAT_UNSUPPORTED", "unknown importer")
 	}
@@ -409,7 +431,7 @@ func (s *Service) run(j *job, req Request, queueTimer *time.Timer, cancelCause c
 		failure = e
 		return
 	}
-	detection, e := s.catalog.DetectCandidates(j.ctx, ingestion.Probe{Path: lease.Info().Name, Head: head, SizeBytes: lease.Info().Size, Extension: strings.ToLower(filepath.Ext(lease.Info().Name))})
+	detection, e := j.catalog.DetectCandidates(j.ctx, ingestion.Probe{Path: lease.Info().Name, Head: head, SizeBytes: lease.Info().Size, Extension: strings.ToLower(filepath.Ext(lease.Info().Name))})
 	if e != nil {
 		failure = e
 		return
@@ -439,12 +461,21 @@ func (s *Service) run(j *job, req Request, queueTimer *time.Timer, cancelCause c
 		}
 	}
 	j.stage("validating")
-	resolved, e := s.catalog.Resolve(selected, req.Options, j.snapshot.PolicyRevision)
+	resolved, e := j.catalog.Resolve(selected, req.Options, j.snapshot.PolicyRevision)
 	if e != nil {
 		failure = e
 		return
 	}
 	d := resolved.Descriptor
+	if d.Pack != nil {
+		identity, _ := json.Marshal(struct {
+			Options string
+			Pack    *ingestion.PackPin
+		}{resolved.OptionHash, d.Pack})
+		digest := sha256.Sum256(identity)
+		resolved.OptionHash = hex.EncodeToString(digest[:])
+	}
+
 	for _, diagnostic := range detection.Diagnostics {
 		if diagnostic.ImporterID == d.ID {
 			failure = ingestion.Problem(diagnostic.Code, "selected detector failed")
@@ -504,7 +535,7 @@ func (s *Service) run(j *job, req Request, queueTimer *time.Timer, cancelCause c
 		return
 	}
 	defer records.Close()
-	sink := &ingestion.BoundedSink{File: records, Family: d.NormalizerOutput, Schema: d.RecordSchema, Catalog: s.catalog, Budget: j.snapshot.Budget, TempUsed: lease.Info().Size}
+	sink := &ingestion.BoundedSink{File: records, Family: d.NormalizerOutput, Schema: d.RecordSchema, Catalog: j.catalog, Budget: j.snapshot.Budget, TempUsed: lease.Info().Size}
 	normalizer := ingestion.NormalizeSink{Family: d.RecordFamily, Output: d.NormalizerOutput, Normalize: d.Normalize, Next: sink}
 	j.stage("parsing")
 	parser := d.ParserFactory(append(json.RawMessage(nil), resolved.Options...))
@@ -555,6 +586,12 @@ func (s *Service) run(j *job, req Request, queueTimer *time.Timer, cancelCause c
 	if result.Metadata.Extra == nil {
 		result.Metadata.Extra = map[string]any{}
 	}
+	if len(j.snapshot.Packs) > 0 {
+		result.Metadata.Extra["pack_snapshot"] = map[string]any{"state_revision": j.snapshot.PackStateRevision, "trust_sequence": j.snapshot.PackTrustSequence, "packs": j.snapshot.Packs}
+	}
+	if d.Pack != nil {
+		result.Metadata.Extra["effective_pack"] = d.Pack
+	}
 	result.Metadata.Extra["import_provenance"] = map[string]any{"source_id": lease.Info().ID, "source_sha256": lease.Info().SHA256, "importer": d.ID, "adapter_version": d.AdapterVersion, "options_hash": resolved.OptionHash, "option_canonicalization": "options-v1", "policy_revision": resolved.PolicyRevision, "records": sink.Count, "partial": partial}
 	if resolved.Analyzer.BindSelection != nil {
 		if e = resolved.Analyzer.BindSelection(&result, lease.Info(), ingestion.AnalysisSelection{ImporterID: d.ID, AdapterVersion: d.AdapterVersion, OptionsHash: resolved.OptionHash, Records: sink.Count, Partial: partial, PartialReason: report.PartialReason, SelectionReason: report.SelectionReason}); e != nil {
@@ -587,7 +624,7 @@ func (s *Service) run(j *job, req Request, queueTimer *time.Timer, cancelCause c
 		failure = ingestion.Problem("IMPORT_RESULT_INVALID", "result envelope is invalid")
 		return
 	}
-	if e = s.catalog.Validate(d.ResultSchema, body); e != nil {
+	if e = j.catalog.Validate(d.ResultSchema, body); e != nil {
 		failure = ingestion.Problem("IMPORT_RESULT_INVALID", "result schema mismatch")
 		return
 	}

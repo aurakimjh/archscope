@@ -2195,3 +2195,7 @@ table th.sortable-header.sort-desc::after {
 .gc-result-overview .result-card-header { padding:4px 12px; }
 .drilldown .metric-grid { display:flex; flex-wrap:wrap; gap:4px; }
 .drilldown .metric { display:flex; align-items:baseline; gap:8px; padding:4px 8px; }
+
+/* Local OFL-1.1 Korean font; bytes and original notices are embedded offline. */
+@font-face { font-family: "Noto Sans KR"; src: url("/offline-assets/fonts/NotoSansKR.ttf") format("truetype"); font-style: normal; font-weight: 100 900; font-display: swap; }
+body { font-family: Inter, "Noto Sans KR", system-ui, sans-serif; }

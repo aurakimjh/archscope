@@ -107,6 +107,11 @@ jobs:
       - name: go build
         run: go build ./cmd/archscope-engine ./cmd/archscope-app
 
+      - name: Mandatory offline resource parity and fixture gate
+        run: |
+          python3 ../../scripts/build-offline-assets.py --check
+          go run ./cmd/archscope-engine offline fixtures
+
       - name: go test
         run: go test ./... -race -count=1
 

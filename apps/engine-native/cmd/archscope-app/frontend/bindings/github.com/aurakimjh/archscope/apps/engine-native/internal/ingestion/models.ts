@@ -198,6 +198,7 @@ export enum EvidenceGrade {
 };
 
 export class ImporterDescriptor {
+    "pack"?: PackPin | null;
     "releaseEligible": boolean;
     "converterRequirement"?: string;
     "id": string;
@@ -314,48 +315,93 @@ export class ImporterDescriptor {
      * Creates a new ImporterDescriptor instance from a string or object.
      */
     static createFrom($$source: any = {}): ImporterDescriptor {
-        const $$createField3_0 = $$createType4;
-        const $$createField5_0 = $$createType4;
-        const $$createField7_0 = $$createType4;
-        const $$createField9_0 = $$createType5;
-        const $$createField10_0 = $$createType5;
-        const $$createField11_0 = $$createType5;
-        const $$createField12_0 = $$createType5;
-        const $$createField17_0 = $$createType4;
-        const $$createField18_0 = $$createType4;
-        const $$createField20_0 = $$createType4;
+        const $$createField0_0 = $$createType5;
+        const $$createField4_0 = $$createType6;
+        const $$createField6_0 = $$createType6;
+        const $$createField8_0 = $$createType6;
+        const $$createField10_0 = $$createType7;
+        const $$createField11_0 = $$createType7;
+        const $$createField12_0 = $$createType7;
+        const $$createField13_0 = $$createType7;
+        const $$createField18_0 = $$createType6;
+        const $$createField19_0 = $$createType6;
+        const $$createField21_0 = $$createType6;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("pack" in $$parsedSource) {
+            $$parsedSource["pack"] = $$createField0_0($$parsedSource["pack"]);
+        }
         if ("aliases" in $$parsedSource) {
-            $$parsedSource["aliases"] = $$createField3_0($$parsedSource["aliases"]);
+            $$parsedSource["aliases"] = $$createField4_0($$parsedSource["aliases"]);
         }
         if ("extensions" in $$parsedSource) {
-            $$parsedSource["extensions"] = $$createField5_0($$parsedSource["extensions"]);
+            $$parsedSource["extensions"] = $$createField6_0($$parsedSource["extensions"]);
         }
         if ("verifiedVersions" in $$parsedSource) {
-            $$parsedSource["verifiedVersions"] = $$createField7_0($$parsedSource["verifiedVersions"]);
+            $$parsedSource["verifiedVersions"] = $$createField8_0($$parsedSource["verifiedVersions"]);
         }
         if ("inputSchema" in $$parsedSource) {
-            $$parsedSource["inputSchema"] = $$createField9_0($$parsedSource["inputSchema"]);
+            $$parsedSource["inputSchema"] = $$createField10_0($$parsedSource["inputSchema"]);
         }
         if ("optionSchema" in $$parsedSource) {
-            $$parsedSource["optionSchema"] = $$createField10_0($$parsedSource["optionSchema"]);
+            $$parsedSource["optionSchema"] = $$createField11_0($$parsedSource["optionSchema"]);
         }
         if ("recordSchema" in $$parsedSource) {
-            $$parsedSource["recordSchema"] = $$createField11_0($$parsedSource["recordSchema"]);
+            $$parsedSource["recordSchema"] = $$createField12_0($$parsedSource["recordSchema"]);
         }
         if ("resultSchema" in $$parsedSource) {
-            $$parsedSource["resultSchema"] = $$createField12_0($$parsedSource["resultSchema"]);
+            $$parsedSource["resultSchema"] = $$createField13_0($$parsedSource["resultSchema"]);
         }
         if ("measurementKinds" in $$parsedSource) {
-            $$parsedSource["measurementKinds"] = $$createField17_0($$parsedSource["measurementKinds"]);
+            $$parsedSource["measurementKinds"] = $$createField18_0($$parsedSource["measurementKinds"]);
         }
         if ("capabilities" in $$parsedSource) {
-            $$parsedSource["capabilities"] = $$createField18_0($$parsedSource["capabilities"]);
+            $$parsedSource["capabilities"] = $$createField19_0($$parsedSource["capabilities"]);
         }
         if ("limitations" in $$parsedSource) {
-            $$parsedSource["limitations"] = $$createField20_0($$parsedSource["limitations"]);
+            $$parsedSource["limitations"] = $$createField21_0($$parsedSource["limitations"]);
         }
         return new ImporterDescriptor($$parsedSource as Partial<ImporterDescriptor>);
+    }
+}
+
+/**
+ * PackPin is provenance, not an imported capability grant. Compiled catalog
+ * composition alone assigns it after pack verification and conformance.
+ */
+export class PackPin {
+    "id": string;
+    "version": string;
+    "sha256": string;
+    "origin": string;
+    "scope": string;
+
+    /** Creates a new PackPin instance. */
+    constructor($$source: Partial<PackPin> = {}) {
+        if (!("id" in $$source)) {
+            this["id"] = "";
+        }
+        if (!("version" in $$source)) {
+            this["version"] = "";
+        }
+        if (!("sha256" in $$source)) {
+            this["sha256"] = "";
+        }
+        if (!("origin" in $$source)) {
+            this["origin"] = "";
+        }
+        if (!("scope" in $$source)) {
+            this["scope"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new PackPin instance from a string or object.
+     */
+    static createFrom($$source: any = {}): PackPin {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new PackPin($$parsedSource as Partial<PackPin>);
     }
 }
 
@@ -426,5 +472,7 @@ const $$createType0 = DetectorProblem.createFrom;
 const $$createType1 = $Create.Array($$createType0);
 const $$createType2 = Candidate.createFrom;
 const $$createType3 = $Create.Array($$createType2);
-const $$createType4 = $Create.Array($Create.Any);
-const $$createType5 = SchemaRef.createFrom;
+const $$createType4 = PackPin.createFrom;
+const $$createType5 = $Create.Nullable($$createType4);
+const $$createType6 = $Create.Array($Create.Any);
+const $$createType7 = SchemaRef.createFrom;

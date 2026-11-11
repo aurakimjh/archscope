@@ -421,7 +421,7 @@ configureCasePersistence({
 // importer/type switches. Cancellation propagates through Wails call context.
 import type { ImportJob, ProviderComparison, ProviderPage, ResultCapabilities } from "../state/resultProviders";
 export const listEvidenceImporters = () => call<Array<{ id: string; limitations: string[] }>>("ListEvidenceImporters");
-export const analyzeEvidence = (path: string, importer: string, optionsJSON: string, allowPartial: boolean) => call<ImportJob>("AnalyzeEvidence", { path, importer, optionsJSON, budgets: {}, allowPartial });
+export const analyzeEvidence = (path: string, importer: string, optionsJSON: string, allowPartial: boolean, presetScope = "") => call<ImportJob>("AnalyzeEvidence", { path, importer, optionsJSON, budgets: {}, allowPartial, presetScope });
 export const getImportJob = (id: string, generation: number) => call<ImportJob>("GetImportJob", id, generation);
 export const selectEvidenceImporter = (id: string, generation: number, importer: string) => call<ImportJob>("SelectImporter", id, generation, importer);
 export const cancelEvidenceImport = (id: string, generation: number) => call<{ outcome: string; job: ImportJob }>("CancelImport", id, generation);
@@ -434,3 +434,16 @@ export const releaseEvidenceLease = (id: string) => call<void>("ReleaseEvidenceL
 export const exportEvidenceResult = (handle: string, path: string, format: string) => call<void>("ExportEvidenceResult", handle, path, format);
 
 export const cleanupEvidenceCache = () => call<{ removed: number; bytes_removed: number; retained_owned: number }>("CleanupEvidenceCache");
+
+export type PackRef = { id: string; version: string; sha256: string; origin: string; scope: string; signer: string };
+export type PackState = { revision: string; trust_sequence: string; keys: Record<string, { id: string; public_key: string; manage_trust: boolean; revoked: boolean }>; installed: Record<string, PackRef>; active: Record<string, string>; choices: Record<string, string> };
+export const getPackState = async (): Promise<PackState> => JSON.parse(await call<string>("GetPackState"));
+export const installDataPack = (path: string, scope: string, allowUnsigned: boolean) => call<string>("InstallDataPack", path, JSON.stringify({ scope, allow_unsigned: allowUnsigned }));
+export const activateDataPack = (revision: string, ref: PackRef, choices: string, rollback: boolean) => call<string>("ActivateDataPack", JSON.stringify({ expected_revision: revision, scope: ref.scope, sha256: ref.sha256, choices: JSON.parse(choices), rollback }));
+export const deactivateDataPack = (revision: string, ref: PackRef) => call<void>("DeactivateDataPack", revision, ref.scope, ref.id);
+export const registerPackTrustKey = (revision: string, key: string) => call<void>("RegisterPackTrustKey", revision, key);
+export const applyOfflinePackTrust = (revision: string, bodyPath: string, signaturePath: string) => call<void>("ApplyOfflinePackTrust", revision, bodyPath, signaturePath);
+export const exportDataPack = (ref: PackRef, path: string) => call<void>("ExportDataPack", ref.scope, ref.sha256, path);
+export const getOfflineStatus = async (): Promise<{ offline: boolean; denied_attempts: Record<string, number> }> => JSON.parse(await call<string>("GetOfflineStatus"));
+export const recordOfflineRendererViolation = () => call<void>("RecordOfflineRendererViolation");
+export const listScopedEvidenceImporters = async (scope: string): Promise<Array<{ id: string; limitations: string[] }>> => JSON.parse(await call<string>("ListEvidenceImportersForScope", scope));

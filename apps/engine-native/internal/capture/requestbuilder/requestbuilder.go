@@ -9,6 +9,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/netpolicy"
 	"io"
 	"mime"
 	"mime/multipart"
@@ -63,6 +64,9 @@ func (c *Client) Cancel(id string) bool {
 	return ok
 }
 func (c *Client) Send(input Request) (models.CaptureTransaction, error) {
+	if err := netpolicy.RequireOnline("http.request"); err != nil {
+		return models.CaptureTransaction{}, err
+	}
 	if input.ID == "" || len(input.ID) > 128 {
 		return models.CaptureTransaction{}, fmt.Errorf("request ID is required and limited to 128 bytes")
 	}

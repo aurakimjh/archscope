@@ -9,6 +9,7 @@ export {
     DetectorProblem,
     EvidenceGrade,
     ImporterDescriptor,
+    PackPin,
     SchemaRef,
     SourceInfo
 } from "./models.js";

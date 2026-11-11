@@ -64,6 +64,12 @@ jobs:
           cache: true
           cache-dependency-path: apps/engine-native/go.sum
 
+      - name: Gate mandatory standalone conformance resources
+        working-directory: apps/engine-native
+        run: |
+          python3 ../../scripts/build-offline-assets.py --check
+          go run ./cmd/archscope-engine offline fixtures
+
       - name: Set up Node
         uses: actions/setup-node@v7
         with:
@@ -258,6 +264,8 @@ jobs:
               [ -f "$f" ] && cp "$f" "$OUT/" || true
             done
           fi
+          # Required standalone corpus; missing files fail release assembly.
+          cp apps/engine-native/internal/distribution/assets/fixtures.zip "$OUT/archscope-conformance-v1.zip"
           ls -lh "$OUT"
 
       - name: Compute checksums

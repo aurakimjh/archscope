@@ -16,6 +16,7 @@ export function EvidenceResultPanel({ entries, active }: { entries: AnalysisWork
     const key = path.split("/").pop()?.replace(/~1/g, "/").replace(/~0/g, "~") ?? "";
     return [labels[kind] ?? kind, ["summary", "diagnostics", "chart"].includes(kind) ? "" : key].filter(Boolean).join(" · ");
   };
+  const [presetScope, setPresetScope] = useState("");
   const [path, setPath] = useState(""); const [importer, setImporter] = useState("auto");
   const [formats, setFormats] = useState<Array<{ id: string; limitations: string[] }>>([]);
   const [options, setOptions] = useState("{}"); const [partial, setPartial] = useState(false);
@@ -29,10 +30,10 @@ export function EvidenceResultPanel({ entries, active }: { entries: AnalysisWork
   const [reload, setReload] = useState(0);
   useEffect(() => { setHandle(active?.backend_result_handle ?? ""); setProblem(null); }, [active?.backend_result_handle]);
   useEffect(() => {
-    let alive = true; const request = bridge.listEvidenceImporters();
+    let alive = true; const request = bridge.listScopedEvidenceImporters(presetScope);
     void request.then(value => { if (alive) setFormats(value); }).catch(error => { if (alive) setProblem(resultProblem(error)); });
-    return () => { alive = false; request.cancel(); };
-  }, []);
+    return () => { alive = false;  };
+  }, [presetScope]);
   function cancel(): void {
     load.current.cancel(); query.current.cancel();
     const pending = jobRef.current;
@@ -101,7 +102,7 @@ export function EvidenceResultPanel({ entries, active }: { entries: AnalysisWork
     try {
       // Start is not canceled as an IPC call: a late job ID must still receive
       // CancelImport after cancellation/unmount, otherwise it runs orphaned.
-      const initial = await startScopedImport(scope, revision, bridge.analyzeEvidence(path, importer, options, partial), bridge.cancelEvidenceImport);
+      const initial = await startScopedImport(scope, revision, bridge.analyzeEvidence(path, importer, options, partial, presetScope), bridge.cancelEvidenceImport);
       if (!initial) return;
       await watchJob(initial, revision);
     } catch (error) { if (scope.current(revision)) setProblem(resultProblem(error)); }
@@ -146,11 +147,12 @@ export function EvidenceResultPanel({ entries, active }: { entries: AnalysisWork
       <Button variant="outline" disabled={!busy && !job} onClick={cancel}>{words("Cancel", "취소")}</Button>
     </div>
     <details><summary>{words("Import options", "가져오기 옵션")}</summary>
+      <label>{words("Preset scope (empty: application only)", "프리셋 범위 (빈 값: 앱 기본만)")} <input value={presetScope} onChange={e => { setPresetScope(e.target.value); setImporter("auto"); }} disabled={busy} placeholder="user / case:case-…" /></label>
       <textarea aria-label={words("JSON options", "JSON 옵션")} value={options} onChange={e => setOptions(e.target.value)} disabled={busy} className="w-full rounded border border-border bg-background p-2" />
       <label><input type="checkbox" checked={partial} disabled={busy} onChange={e => setPartial(e.target.checked)} /> {words("Allow explicitly bounded partial results", "명시적으로 제한된 부분 결과 허용")}</label>
       {selectedFormat?.limitations?.map(text => <p key={text} className="text-xs">{text}</p>)}
     </details>
-    {job && <div role="status"><span>{words("Import state", "가져오기 상태")}: {jobLabel(job.state)}</span>{job.cleanupPending && <p>{words("Temporary cleanup remains pending.", "임시 자료 정리가 남아 있습니다.")}</p>}
+    {job && <div role="status"><span>{words("Import state", "가져오기 상태")}: {jobLabel(job.state)}</span>{job.packs?.map(pack => <p key={`${pack.scope}|${pack.sha256}`} className="break-all">{pack.id} {pack.version} · {pack.origin} · {pack.scope} · SHA-256 {pack.sha256}</p>)}{job.cleanupPending && <p>{words("Temporary cleanup remains pending.", "임시 자료 정리가 남아 있습니다.")}</p>}
       {job.state === "needs_selection" && job.detection.candidates.map(c => <Button key={c.importerId} variant="outline" disabled={busy} onClick={() => void chooseImporter(c.importerId)}>{c.importerId} · {c.reason}</Button>)}
     </div>}
     {busy && <p role="status">{words("Working…", "처리 중…")}</p>}

@@ -1,0 +1,1 @@
+{"binary_bytes":3144994,"build_ms":64.17,"cgo":false,"database_bytes":2877780,"driver":"stdlib JSONL plus in-memory primary-key index","goarch":"arm64","goos":"darwin","lookup_1000_ms":0.057,"lookup_allocated_bytes":5184,"rows":100000,"scope":"synthetic primary-key lookup; index not persisted; no production analytical-query claim"}

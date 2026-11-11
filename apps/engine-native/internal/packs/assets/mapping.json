@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0.0",
+  "id": "data.synthetic-metrics",
+  "aliases": [
+    "synthetic-metrics"
+  ],
+  "producer": "synthetic.metrics",
+  "producer_versions": [
+    "1.0.0"
+  ],
+  "producer_path": "/producer",
+  "version_path": "/producer_version",
+  "match": {
+    "/producer": "synthetic.metrics",
+    "/producer_version": "1.0.0"
+  },
+  "name_paths": [
+    "/metric",
+    "/name"
+  ],
+  "value_paths": [
+    "/value_ms",
+    "/duration_ms"
+  ],
+  "scale": "0.001",
+  "unit": "seconds",
+  "measurement_kind": "gauge"
+}

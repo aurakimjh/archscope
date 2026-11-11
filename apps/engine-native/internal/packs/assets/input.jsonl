@@ -1,0 +1,2 @@
+{"producer":"synthetic.metrics","producer_version":"1.0.0","metric":"latency","value_ms":"12.50"}
+{"producer":"synthetic.metrics","producer_version":"1.0.0","name":"latency","duration_ms":0}

@@ -1,0 +1,1 @@
+{"binary_bytes":9964914,"build_ms":74.552,"cgo":false,"database_bytes":1384448,"driver":"modernc.org/sqlite@v1.53.0","goarch":"arm64","goos":"darwin","lookup_1000_ms":5.934,"lookup_allocated_bytes":943280,"rows":100000,"scope":"synthetic primary-key lookup prototype; no production integration or analytical-query benchmark"}

@@ -1,0 +1,208 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:diagnostics:data-pack:1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "pack_format",
+    "id",
+    "version",
+    "signer",
+    "app",
+    "adapter",
+    "extension",
+    "dependencies",
+    "license",
+    "license_file",
+    "changes",
+    "files",
+    "mappings",
+    "fixtures"
+  ],
+  "properties": {
+    "pack_format": {
+      "const": "1.0.0"
+    },
+    "id": {
+      "type": "string",
+      "maxLength": 96
+    },
+    "version": {
+      "type": "string"
+    },
+    "signer": {
+      "type": "string",
+      "maxLength": 96
+    },
+    "app": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "min",
+        "before"
+      ],
+      "properties": {
+        "min": {
+          "type": "string"
+        },
+        "before": {
+          "type": "string"
+        }
+      }
+    },
+    "adapter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "min",
+        "before"
+      ],
+      "properties": {
+        "min": {
+          "type": "string"
+        },
+        "before": {
+          "type": "string"
+        }
+      }
+    },
+    "extension": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "min",
+        "before"
+      ],
+      "properties": {
+        "min": {
+          "type": "string"
+        },
+        "before": {
+          "type": "string"
+        }
+      }
+    },
+    "dependencies": {
+      "type": "array",
+      "maxItems": 16,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "version",
+          "sha256"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "version": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "min",
+              "before"
+            ],
+            "properties": {
+              "min": {
+                "type": "string"
+              },
+              "before": {
+                "type": "string"
+              }
+            }
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      }
+    },
+    "license": {
+      "enum": [
+        "MIT",
+        "Apache-2.0",
+        "CC0-1.0",
+        "OFL-1.1"
+      ]
+    },
+    "license_file": {
+      "type": "string"
+    },
+    "changes": {
+      "type": "string"
+    },
+    "files": {
+      "type": "object",
+      "maxProperties": 126,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sha256",
+          "size",
+          "role"
+        ],
+        "properties": {
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4194304
+          },
+          "role": {
+            "enum": [
+              "mapping",
+              "schema",
+              "fixture",
+              "license",
+              "changes"
+            ]
+          }
+        }
+      }
+    },
+    "mappings": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "items": {
+        "type": "string"
+      }
+    },
+    "fixtures": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mapping",
+          "input",
+          "expected",
+          "accept"
+        ],
+        "properties": {
+          "mapping": {
+            "type": "string"
+          },
+          "input": {
+            "type": "string"
+          },
+          "expected": {
+            "type": "string"
+          },
+          "accept": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}

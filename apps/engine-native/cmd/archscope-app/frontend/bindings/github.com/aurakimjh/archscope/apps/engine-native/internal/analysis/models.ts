@@ -113,6 +113,9 @@ export class JobProblem {
 }
 
 export class JobSnapshot {
+    "packs"?: ingestion$0.PackPin[];
+    "pack_state_revision"?: string;
+    "pack_trust_sequence"?: string;
     "cleanupPending"?: boolean;
     "id": string;
     "generation": number;
@@ -160,22 +163,26 @@ export class JobSnapshot {
      * Creates a new JobSnapshot instance from a string or object.
      */
     static createFrom($$source: any = {}): JobSnapshot {
-        const $$createField4_0 = $$createType3;
-        const $$createField5_0 = $$createType4;
-        const $$createField9_0 = $$createType5;
-        const $$createField11_0 = $$createType7;
+        const $$createField0_0 = $$createType4;
+        const $$createField7_0 = $$createType5;
+        const $$createField8_0 = $$createType6;
+        const $$createField12_0 = $$createType7;
+        const $$createField14_0 = $$createType9;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("packs" in $$parsedSource) {
+            $$parsedSource["packs"] = $$createField0_0($$parsedSource["packs"]);
+        }
         if ("source" in $$parsedSource) {
-            $$parsedSource["source"] = $$createField4_0($$parsedSource["source"]);
+            $$parsedSource["source"] = $$createField7_0($$parsedSource["source"]);
         }
         if ("detection" in $$parsedSource) {
-            $$parsedSource["detection"] = $$createField5_0($$parsedSource["detection"]);
+            $$parsedSource["detection"] = $$createField8_0($$parsedSource["detection"]);
         }
         if ("budget" in $$parsedSource) {
-            $$parsedSource["budget"] = $$createField9_0($$parsedSource["budget"]);
+            $$parsedSource["budget"] = $$createField12_0($$parsedSource["budget"]);
         }
         if ("problem" in $$parsedSource) {
-            $$parsedSource["problem"] = $$createField11_0($$parsedSource["problem"]);
+            $$parsedSource["problem"] = $$createField14_0($$parsedSource["problem"]);
         }
         return new JobSnapshot($$parsedSource as Partial<JobSnapshot>);
     }
@@ -200,7 +207,7 @@ export class ProviderComparison {
      * Creates a new ProviderComparison instance from a string or object.
      */
     static createFrom($$source: any = {}): ProviderComparison {
-        const $$createField3_0 = $$createType9;
+        const $$createField3_0 = $$createType11;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("delta" in $$parsedSource) {
             $$parsedSource["delta"] = $$createField3_0($$parsedSource["delta"]);
@@ -257,8 +264,8 @@ export class ProviderPage {
      * Creates a new ProviderPage instance from a string or object.
      */
     static createFrom($$source: any = {}): ProviderPage {
-        const $$createField3_0 = $$createType10;
-        const $$createField4_0 = $$createType13;
+        const $$createField3_0 = $$createType12;
+        const $$createField4_0 = $$createType15;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("columns" in $$parsedSource) {
             $$parsedSource["columns"] = $$createField3_0($$parsedSource["columns"]);
@@ -322,9 +329,9 @@ export class ResultCapabilities {
      * Creates a new ResultCapabilities instance from a string or object.
      */
     static createFrom($$source: any = {}): ResultCapabilities {
-        const $$createField3_0 = $$createType12;
-        const $$createField6_0 = $$createType14;
-        const $$createField8_0 = $$createType16;
+        const $$createField3_0 = $$createType14;
+        const $$createField6_0 = $$createType16;
+        const $$createField8_0 = $$createType18;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("sources" in $$parsedSource) {
             $$parsedSource["sources"] = $$createField3_0($$parsedSource["sources"]);
@@ -396,7 +403,7 @@ export class ResultView {
      * Creates a new ResultView instance from a string or object.
      */
     static createFrom($$source: any = {}): ResultView {
-        const $$createField4_0 = $$createType14;
+        const $$createField4_0 = $$createType16;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("compatibility" in $$parsedSource) {
             $$parsedSource["compatibility"] = $$createField4_0($$parsedSource["compatibility"]);
@@ -409,17 +416,19 @@ export class ResultView {
 const $$createType0 = JobSnapshot.createFrom;
 const $$createType1 = ingestion$0.BudgetDetail.createFrom;
 const $$createType2 = $Create.Nullable($$createType1);
-const $$createType3 = ingestion$0.SourceInfo.createFrom;
-const $$createType4 = ingestion$0.DetectionSet.createFrom;
-const $$createType5 = ingestion$0.Budgets.createFrom;
-const $$createType6 = JobProblem.createFrom;
-const $$createType7 = $Create.Nullable($$createType6);
-const $$createType8 = resultcontract$0.Delta.createFrom;
+const $$createType3 = ingestion$0.PackPin.createFrom;
+const $$createType4 = $Create.Array($$createType3);
+const $$createType5 = ingestion$0.SourceInfo.createFrom;
+const $$createType6 = ingestion$0.DetectionSet.createFrom;
+const $$createType7 = ingestion$0.Budgets.createFrom;
+const $$createType8 = JobProblem.createFrom;
 const $$createType9 = $Create.Nullable($$createType8);
-const $$createType10 = $Create.Array($Create.Any);
-const $$createType11 = resultcontract$0.Cell.createFrom;
-const $$createType12 = $Create.Array($$createType11);
-const $$createType13 = $Create.Array($$createType12);
-const $$createType14 = resultcontract$0.Verdict.createFrom;
-const $$createType15 = resultcontract$0.Capability.createFrom;
-const $$createType16 = $Create.Array($$createType15);
+const $$createType10 = resultcontract$0.Delta.createFrom;
+const $$createType11 = $Create.Nullable($$createType10);
+const $$createType12 = $Create.Array($Create.Any);
+const $$createType13 = resultcontract$0.Cell.createFrom;
+const $$createType14 = $Create.Array($$createType13);
+const $$createType15 = $Create.Array($$createType14);
+const $$createType16 = resultcontract$0.Verdict.createFrom;
+const $$createType17 = resultcontract$0.Capability.createFrom;
+const $$createType18 = $Create.Array($$createType17);

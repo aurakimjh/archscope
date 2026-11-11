@@ -1,0 +1,14 @@
+[
+  {
+    "metric": "latency",
+    "value": "0.0125",
+    "unit": "seconds",
+    "measurement_kind": "gauge"
+  },
+  {
+    "metric": "latency",
+    "value": "0",
+    "unit": "seconds",
+    "measurement_kind": "gauge"
+  }
+]

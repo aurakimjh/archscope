@@ -1,0 +1,42 @@
+#!/usr/bin/env python3
+"""Observe a prebuilt Linux CLI in a network-none container, including failures.
+
+Prepare the observer image before disconnecting: python:3.12-alpine + apk strace.
+This gate covers the CLI process tree, not a desktop WebView or Windows host.
+"""
+import argparse,json,pathlib,re,subprocess,tempfile
+p=argparse.ArgumentParser();p.add_argument('--engine',required=True);p.add_argument('--image',default='archscope-t632-observer');p.add_argument('--out',required=True);a=p.parse_args()
+engine=pathlib.Path(a.engine).resolve();out=pathlib.Path(a.out).resolve();out.mkdir(parents=True,exist_ok=False)
+program=r'''
+import json,os,pathlib,re,socket,subprocess,zipfile
+out=pathlib.Path('/evidence');bundle=pathlib.Path('/clean-install')
+def run(args):
+ r=subprocess.run(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+ if r.returncode:raise RuntimeError(str(args)+': '+r.stderr)
+ return r.stdout
+run(['/input/engine','offline','build','--engine','/input/engine','--out',str(bundle)])
+# Only the new bundle and synthetic corpus remain visible to the tested process.
+with zipfile.ZipFile(bundle/'resources/fixtures.zip') as z:z.extract('packs/input.jsonl','/sources')
+cli=str(bundle/'archscope-engine');base=[cli,'--offline-root',str(bundle)]
+commands=[['offline','fixtures'],['evidence','formats','--pack-store','/state/packs'],['evidence','import','--pack-store','/state/packs','--importer','data.synthetic-metrics','--in','/sources/packs/input.jsonl'],['packs','list','--store','/state/packs']]
+reports=[]
+for i,args in enumerate(commands):
+ trace=out/f'operation-{i}.strace';report=out/f'operation-{i}.json'
+ result=run(['strace','-f','-qq','-e','trace=network','-o',str(trace)]+base+['--offline-report',str(report)]+args)
+ (out/f'operation-{i}.output.json').write_text(result)
+ lines=[l for l in trace.read_text().splitlines() if re.search(r'AF_INET6?|sockaddr_in|inet_addr\(|inet_pton\(',l)]
+ if lines:raise RuntimeError('network attempt, even if failed: '+str(lines))
+ counts=json.loads(report.read_text())['denied_attempts']
+ if any(counts.values()):raise RuntimeError('app-owned network attempt: '+str(counts))
+ reports.append({'operation':args[:2],'inet_syscalls':len(lines),'app_denied_attempts':counts})
+# Observer must detect a failed connection: no Internet is ever enabled here.
+positive=out/'positive-control.strace'
+run(['strace','-f','-qq','-e','trace=network','-o',str(positive),'python3','-c',"import socket; s=socket.socket(); s.settimeout(.2); print(s.connect_ex(('192.0.2.1',443))); s.close()"])
+positive_lines=[l for l in positive.read_text().splitlines() if 'AF_INET' in l]
+if not any('connect(' in l for l in positive_lines):raise RuntimeError('observer positive control failed')
+summary={'scope':'Linux CLI process trees only; no desktop/Windows outbound claim','network':'none','clean_install':True,'no_sibling_checkout':True,'operations':reports,'failed_network_positive_control_inet_syscalls':len(positive_lines)}
+(out/'summary.json').write_text(json.dumps(summary,indent=2)+'\n');print(json.dumps(summary))
+'''
+with tempfile.TemporaryDirectory(prefix='archscope-offline-observer-') as d:
+ script=pathlib.Path(d)/'observe.py';script.write_text(program)
+ subprocess.run(['docker','run','--rm','--network','none','--cap-add','SYS_PTRACE','--security-opt','seccomp=unconfined','-v',str(engine)+':/input/engine:ro','-v',str(script)+':/observe.py:ro','-v',str(out)+':/evidence',a.image,'python3','/observe.py'],check=True)
