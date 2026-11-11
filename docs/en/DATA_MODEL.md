@@ -1213,11 +1213,32 @@ AI output must pass runtime validation before it is shown. Validation includes n
 - Report-grade interpretations should be expressed as bounded structured findings, not prose-only blobs.
 - AI-assisted interpretations must include non-empty `evidence_refs` that point to existing raw evidence such as `raw_line`, `raw_block`, `raw_preview`, or `evidence_ref` rows.
 
+## Proposed local diagnostics extensions (2026-11-11, not implemented)
+
+The [evolution design §16](./LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN.md#16-extension-and-compatibility-contracts)
+preserves `AnalysisResult`. These proposals do not change current emitters.
+
+| Area | Proposed contract |
+|---|---|
+| Profile core | ProfileSet → profile analyzer → profile_evidence; legacy endpoints remain facades |
+| Measurements | JSON Pointer and collection-column descriptors; scalars stay scalar |
+| Corrected semantics | Proposed profile_evidence 0.2.0 separates fractional/zero weights, evented duration, multiple profiles and pprof semantics; reanalyze originals |
+| Unavailable | Only declared count/time/interval fields become nullable; preserve known zero through UI/export/diff |
+| Unknown metadata | Preserve common extensions and legacy typed-key precedence through json.RawMessage roundtrips; do not assume old binaries preserve new fields |
+| Versions | Separate result, envelope, extension, adapter, pack, index, case, bundle, capture, visual spec, and renderer/template/font axes |
+| Comparisons | Validate reader ranges, metric/unit/population and semantic revision before computation |
+| GPU and AI | GPU telemetry projects metrics_timeseries; LLM app semantics extend trace_import; serving references original evidence |
+
+Section 16.3 specifies owners, declarations, and read-only/reject/recompute behavior.
+Detail indexes are rebuildable caches; without originals, preserve snapshots and
+disable unavailable detail operations.
+
 ## Schema 0.2.0 — additive changes
 
-`schema_version` was bumped from `0.1.0` to `0.2.0` after the
-post-`0.2.0-beta` analyzer overhauls. All existing 0.1.0 fields remain
-present and required; the changes below are additive.
+This section records 0.2.0-family changes introduced by some analyzers after
+`0.2.0-beta`. It is not a global version migration. Check `schema_version`
+per result type and producing path; distinguish the additive entries below
+from subsequent nullable-field corrections and their compatibility rules.
 
 ### Access log (`type: "access_log"`)
 

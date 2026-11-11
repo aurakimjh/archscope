@@ -43,6 +43,7 @@ npm run build
 
 ## 문서
 
+- [로컬 장애 및 성능 분석 개선 설계](docs/ko/LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN.md)
 - [아키텍처](docs/ko/ARCHITECTURE.md)
 - [네이티브 앱 가이드](docs/ko/NATIVE_APP.md)
 - [AI 보조 해석](docs/ko/AI_INTERPRETATION.md)

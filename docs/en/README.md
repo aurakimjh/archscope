@@ -14,6 +14,7 @@ User-facing guides:
 Engineering / design references:
 
 - [Architecture](./ARCHITECTURE.md)
+- [Local Diagnostics Evolution Design](./LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN.md) — profile breadth, offline AI/GPU diagnostics, extension contracts, and report-ready images/tables; proposal revised after review.
 - [Native App](./NATIVE_APP.md)
 - [Roadmap](./ROADMAP.md)
 - [Data Model](./DATA_MODEL.md)

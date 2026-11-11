@@ -8,7 +8,7 @@ The previous long-form history was archived to
 
 ## Status Overview
 
-**Overall: 210 of 214 tracked tasks are `DONE` (98.1%).** T-623 Windows live/process/reentry and T-608 native HALOG codec/reference interoperability completed on 2026-11-11. Four tasks remain open: T-601, T-611, T-613 and T-627. The private 675-entry sample round-trips byte-for-byte; decoded fields/bodies and redacted exports are verified against original V7.6.4.508. The Windows Wails v3 replacement for IEInspector HTTP Analyzer V7.6.4 Stand-alone has 3 open work items (T-594 through T-613), including the remaining audit findings. T-603 native Windows acceptance completed on 2026-11-09 with actual request/response bodies and verified policy restoration. The 2026-11-09
+**Overall: 210 of 232 tracked tasks are `DONE` (90.5%).** The user requested activation of the local diagnostics backlog on 2026-11-11: T-628–T-645 add 18 open items (1 `TODO`, 17 `PENDING`). Together with the four existing acceptance items, 22 tasks remain open. T-623 Windows live/process/reentry and T-608 native HALOG codec/reference interoperability completed on 2026-11-11. The four existing acceptance items are T-601, T-611, T-613 and T-627. The private 675-entry sample round-trips byte-for-byte; decoded fields/bodies and redacted exports are verified against original V7.6.4.508. The Windows Wails v3 replacement for IEInspector HTTP Analyzer V7.6.4 Stand-alone has 3 open work items (T-594 through T-613), including the remaining audit findings. T-603 native Windows acceptance completed on 2026-11-09 with actual request/response bodies and verified policy restoration. The 2026-11-09
 GC/profiler revalidation confirmed five bugs (T-589 through T-593). Their
 current implementation status is recorded in the registry and snapshot below;
 T-557 is now DONE after the user requested its Go/CLI/report projection on 2026-11-10.
@@ -214,10 +214,10 @@ completed the independent Lighthouse file-first engine slice.
 
 | Status | Count | Meaning |
 |---|---:|---|
-| `TODO` | 0 | Ready to start; prerequisites are satisfied |
+| `TODO` | 1 | Ready to start; prerequisites are satisfied |
 | `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
 | `REVIEW` | 3 | Review or required remediation is underway; the gate has not passed |
-| `PENDING` | 1 | Waiting for a prerequisite, external condition, or activation trigger |
+| `PENDING` | 18 | Waiting for a prerequisite, external condition, or activation trigger |
 | `DONE` | 210 | Completion criteria and required review gates have passed |
 
 The normal transition is `TODO → IN_PROGRESS → REVIEW → DONE`. A `PENDING`
@@ -401,12 +401,151 @@ Evidence: `docs/review/evidence/2026-11-10-other-features/local-reproductions.js
 Processed EN/KO reviews: `docs/review/done/2026-11-10_other-features-audit.en.md`
 and `docs/review/done/2026-11-10_other-features-audit.ko.md`.
 
+### Local diagnostics improvement design (2026-11-11)
+
+[Korean design](docs/ko/LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN.md) ·
+[English companion](docs/en/LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN.md).
+Scope remains local incident/performance analysis for application architects and
+TA/DBA, broad profile inputs including py-spy, GPU/AI evidence, and report-ready
+PNG/SVG/table copying. PPT authoring/PPTX enhancement and heap-dump object-graph
+engines remain excluded.
+
+The 2026-11-11 Claude review is processed as a design review. Its original verdict
+is **CONDITIONAL** and is not upgraded to independent PASS by this remediation.
+All twelve findings are accepted at the design level, with the qualifications
+below. Code inspection confirmed the registry/dispatch gap, integer legacy stack
+core, fixed profiler metadata, JDK JFR conversion dependency, WebView-rendered chart
+saving, and release fixture availability gap. No runtime implementation or support
+claim is made by these document edits.
+
+Source review: [processed original](docs/review/done/2026-11-11_claude-code_local-diagnostics-evolution-design-review.ko.md).
+Reviewed design SHA-256: `72bb45064bfe96fd933dc1deece372b9bd770d1a5e1a234592ca79c5e24793d9`.
+Original review SHA-256: `15e65b520d3e9fd4791020646824499622ef2f5deb99b18dc9ec721166e16e07`.
+The original was moved unchanged after its dispositions and follow-ups were recorded
+here; the archived SHA-256 matches. No unprocessed review documents remain.
+
+#### Finding dispositions
+
+Section references below use the Korean design; corresponding English contracts
+and paired DATA_MODEL, PARSER_DESIGN, PACKAGING_PLAN, REPORT_EXPORT_DESIGN were aligned.
+
+| Finding | Decision and concrete remediation | Follow-up design reference |
+|---|---|---|
+| F-01 / P1 | Accept with scope qualification: §16.6 defines descriptor, catalog, parse sink and conformance. Package + fixture + registration is guaranteed only for existing semantic families/renderers, not every possible new visualization. | D01, D04 |
+| F-02 / P1 | Accept: §16.7 chooses ProfileSet → profile_evidence as the new canonical path, staged golden-backed migration, legacy facades, exact-scale projection or explicit refusal; no third envelope. | D02, D07 |
+| F-03 / P1 | Accept: §16.8 defines key-addressed measurement descriptors, legacy unknown-key roundtrips, explicit nullable fields and semantic-change versions/reanalysis. Correct DATA_MODEL's global-version wording. | D01, D02 |
+| F-04 / P1 | Accept: §17.3–17.4 specifies data-only signed packs, staged activation/rollback, offline docs/fonts/runtime, conversion location, SQLite tradeoff and mandatory release fixture bundle. | D05 |
+| F-05 / P2 | Accept: §16.10 adds ResultDescriptor providers, generic service wrappers and payload-validated capability consumers; generic fallback precedes new domain types. PARSER_DESIGN gets the extension checklist. | D04 |
+| F-06 / P2 | Accept: §16.9 names eleven version axes, owners, declarations and reject/read-only/recompute rules; snapshots stay immutable, indexes rebuild. | D01, D03, D09 |
+| F-07 / P2 | Accept: §3.3 defines capture sidecar, lifecycle/deletion, safe archive batch, CP949/EUC-KR and immutable baseline context; §18.5 adds tests. | D03, D08 |
+| F-08 / P2 | Accept: §17.3 evaluates declarative mapping → external conversion → compiled importer; bounded data packs cannot execute arbitrary code. | D01, D05 |
+| F-09 / P2 | Accept: §19 adds missing foundation, identity/clock/privacy, case, input assistance and TA work; B0/B1/B2 design bands distinguish review severity. Dependencies are explicit below. | D01–D18 |
+| F-10 / P2 | Accept: §14.6 selects desktop WebView rendering initially, explicit CLI image-render limitation, existing exporter relationship, bundled artifacts and old-template snapshot/new-revision rules. | D09 |
+| F-11 / P3 | Accept the useful English companion and indexes. Qualification: language-specific-file guidance does not by itself require a complete translation of every document. The new English companion covers operative scope/contracts; expanded catalogs remain in Korean. | Applied in documentation |
+| F-12 / P3 | Accept: §16.2 stores GPU telemetry in metrics_timeseries with semantic projections; LLM app traces extend trace_import. A dedicated screen alone does not justify another canonical type. | D10–D12 |
+
+#### Optional feature dispositions
+
+These are scope choices, not defects or promises of already-supported inputs.
+Review-recorded user needs (vLLM/NVIDIA, MacBook GPU, Python/Rust/Node and OTel AI
+metrics) are accepted. Actual file/version choices remain separate decision holds.
+
+| Proposal | Disposition and boundary | Design reference |
+|---|---|---|
+| G-01 Workload exports | Accept bounded comparison evidence; validate producer files, warmup/client scope; do not build a load generator. | §9.4 / D14 |
+| G-02 OS CPU + thread dump | Accept; TID/nid conversion requires host/namespace/lifetime/window evidence, not number equality alone. | §7.4 / D13 |
+| G-03 Offline collection kit | Accept manual recipes/sidecar generation, separate from data-only packs; no auto-attach or remote execution. | §17.4 / D06 |
+| G-04 AWR/ASH/Tibero TPR | Defer concrete adapters until demand, permitted sanitized files and versions are available. | §9.2–9.4 / D17 |
+| G-05 Case-wide search | Accept bounded indexed search with source positions, coverage and sanitization. | §13.4 / D08 |
+| G-06 hs_err_pid | Accept bounded text crash evidence after core inputs; no core/heap engine or automatic root-cause claim. | §9.4 / D14 |
+| G-07 Native JFR decoder | Partially accept: document existing JDK conversion and failure guidance now; defer pure-Go binary decoder. | §17.4 / D06 |
+| G-08 DB stats snapshots | Retain demand/fixture-dependent candidate using common counter/identity rules. | §9.4 / D17 |
+| G-09 Windows server exports | Retain candidate for PerfMon/event files; existing IIS support is not new adapter evidence. | §9.4 / D17 |
+| G-10 Network counters | Retain bounded ss/netstat export candidate; no pcap engine. | §9.4 / D17 |
+| G-11 Other inference engines | Superseded by G-15; no separate implementation item. | §12.7 |
+| G-12 APM exports | Defer platform adapters until real export shape/version fixtures; reuse trace/import mechanisms. | §9.4 / D17 |
+| G-13 Personal knowledge | Defer opt-in sanitized pattern library with provenance/retention; never auto-promote incident contents into shared rules. | §20.2 / later candidate |
+| G-14 LLM application traces | Accept common execution semantic layer in core scope; reuse trace_import/OTLP, exclude bodies by default; product adapters wait for Q01. | §12.8 / D12 |
+| G-15 Engine-neutral serving | Accept; vLLM first, capability/statistical-form contracts; other engines require actual files. | §12.7 / D11 |
+| G-16 Cold start/lifecycle | Accept observed lifecycle events and explicit warm/cold/recovery populations. | §12.9 / D12 |
+| G-17 Gateway | Accept routing/retry/fallback/token evidence through access/trace mapping; logical request and attempt remain distinct. | §12.9 / D12 |
+| G-18 Python and other runtimes | Accept Python/Node depth, async/worker evidence and allocation summaries; no heap object graph. | §7.4 / D13 |
+| G-19 NVIDIA process/memory/allocation | Accept candidates with producer/driver/process mapping fixtures; do not assume identical metric availability. | §11.6 / D11 |
+| G-20 Apple Silicon | Accept product scope and vendor-neutral model now; actual adapter waits for Q02. No NVIDIA identity/VRAM assumptions or automatic privileged collection. | §11.6 / D03, D15 |
+| G-21 Rust | Accept demangle, producer-based classification, panic/backtrace; preserve raw identity and reject blind hash stripping; async tasks need evidence. | §7.4 / D13 |
+| G-22 OTel GenAI metrics | Accept first-class metric path with temporality/start time/resource/scope and histogram fidelity. Refine review wording: delta is not differenced again but gaps/restarts still need validation; exponential is not Prometheus native format. Aliases wait for Q04 fixtures. | §10.3 / D10 |
+
+#### Dependency-ordered implementation backlog
+
+At the user's request on 2026-11-11, all eighteen D items are registered as
+T-628–T-645. T-628 is `TODO`; the other seventeen are `PENDING` until their listed
+prerequisites and scoped input triggers are satisfied. Q01–Q04 remain separate
+`DECISION_PENDING` entries. Task registration does not claim implementation or
+independent design PASS. Existing acceptance task statuses are preserved.
+
+B0/B1 items use execution priority P1 and B2 items P2. These are task priorities,
+not the source review's severity. Follow dependency order within each priority;
+D identifiers remain stable design references. Acceptance gates are in design §18
+and observable outputs are in the Task Registry.
+
+| Order | Design | Task | Band | Priority | Status | Next work | Dependencies / scoped trigger |
+|---:|---|---|---|---|---|---|---|
+| 1 | D01 | T-628 | B0 | P1 | `TODO` | Implement importer, envelope, measurement and version contracts | Existing golden/compatibility inventory (part of this task) |
+| 2 | D02 | T-629 | B0 | P1 | `PENDING` | Migrate profiles to ProfileSet with legacy facades | T-628 |
+| 3 | D03 | T-630 | B0 | P1 | `PENDING` | Implement case lifecycle, capture context and safe evidence intake | T-628 |
+| 4 | D04 | T-631 | B0 | P1 | `PENDING` | Add result capability providers and generic consumers | T-628 |
+| 5 | D05 | T-632 | B0 | P1 | `PENDING` | Deliver declarative packs and verifiable offline distribution | T-628 |
+| 6 | D06 | T-633 | B1 | P1 | `PENDING` | Guide input discovery, manual collection and local conversion | T-630, T-632 |
+| 7 | D07 | T-634 | B1 | P1 | `PENDING` | Correct py-spy, Speedscope and pprof measurement semantics | T-629, T-631 |
+| 8 | D08 | T-635 | B1 | P1 | `PENDING` | Unify drilldown, evidence indexing, case search and baselines | T-629, T-630, T-631 |
+| 9 | D09 | T-636 | B1 | P1 | `PENDING` | Copy reproducible report images and tables from the desktop | T-632, T-634, T-635 |
+| 10 | D18 | T-637 | B1 | P1 | `PENDING` | Add perf events and constrained BPF evidence adapters | T-629, T-630, T-635 |
+| 11 | D10 | T-638 | B1 | P1 | `PENDING` | Implement metric history and OTLP histogram semantics | T-628, T-630, T-631; Q04 gates actual OTel export/GenAI aliases |
+| 12 | D11 | T-639 | B1 | P1 | `PENDING` | Analyze NVIDIA and vLLM through neutral device/serving contracts | T-632, T-638; Q03 gates version-specific vLLM support |
+| 13 | D12 | T-640 | B1 | P1 | `PENDING` | Normalize LLM application traces, gateway attempts and lifecycle | T-630, T-631, T-638; Q01 gates Langfuse/LangSmith adapters |
+| 14 | D13 | T-641 | B1 | P1 | `PENDING` | Deepen Python, Node, Rust and existing runtime/log diagnostics | T-629, T-630, T-635 |
+| 15 | D14 | T-642 | B2 | P2 | `PENDING` | Import workload results and text crash context for comparisons | T-630, T-635, T-638 |
+| 16 | D15 | T-643 | B2 | P2 | `PENDING` | Implement the selected Apple Silicon evidence adapter | T-630, T-638; Q02 and actual Apple input fixtures |
+| 17 | D16 | T-644 | B2 | P2 | `PENDING` | Add PyTorch, Nsight and distributed-inference detail | T-635, T-638, T-639 |
+| 18 | D17 | T-645 | B2 | P2 | `PENDING` | Qualify additional profile, serving, DB, OS and APM adapters | T-628, T-629, T-630, T-631, T-632; Demand, permitted sanitized files and selected producer/version |
+
+#### Decisions pending input confirmation
+
+These are **DECISION_PENDING**, separate from implementation task statuses and Task Registry counts.
+They block only dependent product adapters, not structural design work. No values
+are assumed and no support is declared from a product name alone.
+
+| ID | Unresolved input decision | Evidence needed |
+|---|---|---|
+| Q01 | Langfuse/LangSmith hosting, export route and schema | Sanitized actual export and producer/version |
+| Q02 | MacBook engine/framework, macOS and available GPU output | Actual environment and manually obtainable file |
+| Q03 | Target vLLM version range | Version/config, startup/runtime logs and timestamped metrics |
+| Q04 | OTel AI metric export route (OTLP/Prometheus/range), encoding and instrumentation | Actual file, scope/schema URL, temporality and producer version |
+
+Design-remediation validation: checked 15 scoped Markdown documents, 65 new/changed local
+links and anchors, 39 tables in the new designs, balanced fences, the JSON example,
+and KO/EN/board D01–D18 plus Q01–Q04 coverage. `git diff --check` and new-file whitespace
+checks pass. Review archive integrity matches the original hash. Runtime tests,
+offline packaging, migration, GPU adapters and Office pasting are future acceptance
+work, not evidence from this edit. Shared assets are referenced only; no new reusable
+rule/schema/fixture was created. Unrelated HTTP-capture edits remain outside this work.
+
+Backlog activation validation (2026-11-11): all 232 registry rows reconcile with
+210 DONE, 1 TODO, 18 PENDING and 3 REVIEW; T-628–T-645 IDs are unique, dependency
+references resolve in order, and existing 214 registry rows are unchanged. The
+four input decisions remain outside task counts. Documentation links/anchors and
+whitespace checks are rerun before publication; no runtime code changed.
+
 ### Open Work Snapshot
 
 Desktop layout: [Korean design](docs/ko/DESKTOP_CONTENT_LAYOUT.md) · [English design](docs/en/DESKTOP_CONTENT_LAYOUT.md).
 Mac implementation and detailed native validation are complete. Remaining work
 includes transparent capture reach, the remaining legacy automation contracts, the
 complete Windows menu/OS scaling matrix and full parity.
+The table below retains those four acceptance items. The eighteen new local
+diagnostics tasks are listed in the [dependency-ordered implementation backlog](#dependency-ordered-implementation-backlog):
+T-628 is ready; T-629–T-645 are prerequisite/trigger-dependent. The complete open
+snapshot is therefore 22 tasks, matching the registry and status overview.
 
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
@@ -453,7 +592,7 @@ T-627 retains the full OS DPI/menu matrix: Computer Use returned
 continued, without claiming that denied audit matrix. T-613 remains PENDING.
 
 Evidence: [Windows follow-up](docs/review/evidence/2026-11-11-windows/README.md).
-The counts now agree with all 214 registry rows; the old 202/214 opening headline
+At that native follow-up checkpoint, counts agreed with all 214 registry rows; the old 202/214 opening headline
 was stale relative to the previous 208 DONE rows.
 
 Post-push follow-up: `cd01dff9` fixes read-only temporary SDK directory cleanup
@@ -920,9 +1059,21 @@ filtered before analysis.
 
 ## Next Execution Queue
 
+### Local diagnostics implementation (2026-11-11)
+
+Start with **T-628** (importer/envelope/measurement/version contracts). Then release
+T-629–T-632 as its contracts stabilize, followed by the remaining P1 core work and
+P2 extensions in the [ordered backlog](#dependency-ordered-implementation-backlog).
+The first complete user workflow remains profile correctness → drilldown/comparison
+→ image/table copying. Move a task from PENDING to TODO only when its registered
+prerequisites pass; Q01–Q04 gate only the corresponding input-specific adapters.
+T-645 also needs a selected producer and sanitized fixtures before activation.
+Existing HTTP/desktop acceptance tasks remain a separate stream; they do not block
+T-628 and are not closed by this documentation change.
+
 ### Completed other-feature correctness follow-ups (2026-11-10)
 
-T-614 through T-618 are implemented in individual commits. Full Go/vet/race, frontend state/build, isolated browser UI checks and Mac/Windows cross-builds pass. Continue with the four open HTTP tasks in the snapshot; their native/reference acceptance remains separate.
+T-614 through T-618 are implemented in individual commits. Full Go/vet/race, frontend state/build, isolated browser UI checks and Mac/Windows cross-builds pass. The four open HTTP acceptance tasks remain in the snapshot alongside the newly registered diagnostics backlog; their native/reference acceptance remains separate.
 
 ### IEInspector V7.6.4 Stand-alone replacement (2026-11-09)
 
@@ -1279,6 +1430,7 @@ Long Task semantics).
 
 | Review | Decision | Follow-up |
 |---|---|---|
+| 2026-11-11 local diagnostics evolution design review | Processed original `CONDITIONAL`; F-01–F-12 accepted with documented qualifications, 21 optional proposals dispositioned (G-11 superseded). KO/EN design and companion contracts revised. This is design remediation, not independent PASS or runtime completion. | See Local diagnostics improvement design above: D01–D18 mapped to T-628–T-645 and separate Q01–Q04 `DECISION_PENDING`; original archived unchanged under `docs/review/done/`. |
 | 2026-11-09 GC / flamegraph bug revalidation and requested implementation | Five confirmed bugs implemented by Codex under the user's explicit end-to-end assignment. Local regression/source review passed; independent reviewer, actual desktop E2E and fresh Windows evidence were not claimed. Optional downsampling and unexecuted lifecycle concerns remain separate. | T-589 through T-593 are `DONE`; original reproduction and current validation remain traceable in this file. |
 | 2026-05-16 mid-term roadmap review P0-1 through P0-6 | Accepted | T-452 through T-457 |
 | P1-7 UI-heavy derived analysis and P1-8 AnalysisResult drift | Accepted as phased remediation, not a single rewrite | T-458, T-459 |
@@ -1358,6 +1510,11 @@ Long Task semantics).
 
 ## Task Registry
 
+The 2026-11-11 local diagnostics review follow-up is registered as T-628–T-645
+at the user's request. The new rows are ordered by priority and prerequisite;
+Q01–Q04 are input decisions, not task IDs. Registration leaves the original review
+verdict CONDITIONAL and does not claim runtime completion.
+
 Post-T-555 work includes the Jennifer MSA drilldown follow-up, the Chrome
 DevTools/V8 CPU profile design gate reviewed on 2026-07-18, and the system HTTP
 capture design gate reviewed on 2026-07-19. The Chrome profile acquisition-format
@@ -1401,6 +1558,24 @@ deferred until explicitly promoted.
 
 | ID | Priority | Status | Task | Depends on | Output |
 |---|---|---|---|---|---|
+| T-628 | P1 | TODO | Implement importer, envelope, measurement and version contracts (D01) | Existing parser/profiler goldens and compatibility inventory | Register descriptor/catalog and bounded parse-sink contracts; preserve scalar semantics and unknown metadata through common/legacy roundtrips. Conformance covers ambiguous detection, reader ranges, nullable values and semantic-version gates (§16.6, §16.8–16.9; F-01/F-03/F-06). |
+| T-629 | P1 | PENDING | Migrate profiles to ProfileSet with legacy facades (D02) | T-628 | Use ProfileSet → profile_evidence as the canonical path; preserve exact weights/units/identity and reject lossy integer projections. Stage tree/diff/query/export migration against legacy and corrected-semantics goldens (§16.7; F-02). |
+| T-630 | P1 | PENDING | Implement case lifecycle, capture context and safe evidence intake (D03) | T-628 | Deliver versioned capture/case manifests, clock/entity provenance, vendor-neutral device identity, archive validation, encoding/source-position preservation, redaction and scoped deletion/restore. Cover CP949/EUC-KR and baseline/stale references (§3, §11.6, §13, §17.1; F-07). |
+| T-631 | P1 | PENDING | Add result capability providers and generic consumers (D04) | T-628 | Validate ResultDescriptor generic/timeline/SLI/compare/detail providers and generic service wrappers. A bounded fallback precedes new result types; same-family importers avoid new service/CLI/UI switches (§16.10; F-05/F-12). |
+| T-632 | P1 | PENDING | Deliver declarative packs and verifiable offline distribution (D05) | T-628 | Implement data-only signed pack validation, staged activation, rollback and pinned jobs; package docs/fonts/runtime dependencies and a mandatory hashed fixture bundle. Validate clean installation and zero outbound attempts; decide SQLite packaging from a measured prototype (§17.3–17.4; F-04/F-08). |
+| T-633 | P1 | PENDING | Guide input discovery, manual collection and local conversion (D06) | T-630, T-632 | Show detected formats, missing context and supported capabilities; ship manual collection recipes/sidecars separately from data packs. Bound existing converter execution, cancellation and diagnostics, including the JDK JFR path; no automatic attach/download (§4.6, §15.1, §17.4; G-03/G-07). |
+| T-634 | P1 | PENDING | Correct py-spy, Speedscope and pprof measurement semantics (D07) | T-629, T-631 | Preserve fractional/zero weights, evented duration, every profile/worker and pprof value/unit choices through import, comparison and export. Validate actual producers and update the support matrix; create new semantic revisions rather than relabel old results (§2.1, §4, §18). |
+| T-635 | P1 | PENDING | Unify drilldown, evidence indexing, case search and baselines (D08) | T-629, T-630, T-631 | Keep all views on the same selection/denominator; provide bounded revision-bound queries, source links, cancellation and case-wide search with coverage. Validate immutable baseline reuse, stale cursors, missing originals and index rebuilds (§6, §13.4, §16.3–16.4; G-05). |
+| T-636 | P1 | PENDING | Copy reproducible report images and tables from the desktop (D09) | T-632, T-634, T-635 | Render pinned views in a separate WebView surface, copy PNG/HTML/TSV and save SVG with provenance. Verify supported Office paste flows, old-template snapshots and explicit new revisions; keep CLI image-render limitations and existing exporter contracts (§14; F-10). |
+| T-637 | P1 | PENDING | Add perf events and constrained BPF evidence adapters (D18) | T-629, T-630, T-635 | Separate sampled stacks, on/off-CPU scheduler events and aggregate histograms. Validate event/period/loss/clock/entity semantics and bound source drilldown with producer fixtures; do not equate off-CPU time with lock contention (§5). |
+| T-638 | P1 | PENDING | Implement metric history and OTLP histogram semantics (D10) | T-628, T-630, T-631; Q04 gates actual OTel export/GenAI aliases | Preserve temporality, start/end time, resource/scope identity, resets/gaps and explicit/exponential histogram structure. Deduplicate with provenance; maintain snapshot compatibility and client/server separation. Common contracts can proceed before Q04; format/alias support needs actual files (§10; G-22). |
+| T-639 | P1 | PENDING | Analyze NVIDIA and vLLM through neutral device/serving contracts (D11) | T-632, T-638; Q03 gates version-specific vLLM support | Build GPU telemetry projections over metrics_timeseries and engine-neutral serving capabilities with vLLM first. Validate device/process/rank mapping, OOM distinctions, queue/TTFT/TPOT/token/cache/workload semantics using producer/version fixtures; Q03 does not block neutral contracts (§11–12; G-15/G-19). |
+| T-640 | P1 | PENDING | Normalize LLM application traces, gateway attempts and lifecycle (D12) | T-630, T-631, T-638; Q01 gates Langfuse/LangSmith adapters | Extend trace_import for LLM/RAG/tool/agent semantics, preserving parent/link and client/server boundaries; exclude sensitive bodies by default. Separate nested durations, logical requests/retries/fallback and warm/cold/recovery populations. Product adapters wait for Q01 (§12.8–12.9; G-14/G-16/G-17). |
+| T-641 | P1 | PENDING | Deepen Python, Node, Rust and existing runtime/log diagnostics (D13) | T-629, T-630, T-635 | Prioritize Python async/worker/allocation summaries and Node event-loop/worker evidence; correct Rust classification/demangling without identity collisions. Add verified CPU-TID/nid links and deepen thread/GC/access/TA/DB evidence with fixtures, not heap object graphs (§7–9; G-02/G-18/G-21). |
+| T-642 | P2 | PENDING | Import workload results and text crash context for comparisons (D14) | T-630, T-635, T-638 | Add validated load-test/LLM-benchmark exports and bounded hs_err_pid text analysis. Preserve arrival/concurrency/token/warmup/client conditions and baseline compatibility; no load generator or core-dump engine (§9.4; G-01/G-06). |
+| T-643 | P2 | PENDING | Implement the selected Apple Silicon evidence adapter (D15) | T-630, T-638; Q02 and actual Apple input fixtures | After Q02 selects engine/macOS/export, validate GPU and shared-memory observations with system pressure/swap and available power/thermal context. Do not require NVIDIA UUID/MIG/Xid or automatic privileged collection (§11.6; G-20). |
+| T-644 | P2 | PENDING | Add PyTorch, Nsight and distributed-inference detail (D16) | T-635, T-638, T-639 | Validate actual trace/export schemas, CPU/GPU clock mapping, overlapping kernels/streams, flow/rank identity and detailed visual export. Summary-only files remain summary-only; do not claim instruction-level tuning (§11.4, §12.6; producer fixtures required). |
+| T-645 | P2 | PENDING | Qualify additional profile, serving, DB, OS and APM adapters (D17) | T-628, T-629, T-630, T-631, T-632; Demand, permitted sanitized files and selected producer/version | Keep deferred product adapters gated on actual inputs. Select a concrete bounded batch, reuse declarative/converter/compiled paths, and publish per-producer conformance/limitations before support claims; this does not activate every optional vendor or a personal knowledge library (§9.4, §17–20; G-04/G-08/G-09/G-10/G-12). |
 | T-614 | P1 | DONE | Prevent stale derived artifacts from silently entering a current Report Pack | Existing Report Pack/timeline/SLO/service-flow contracts | Completed 2026-11-10: Report Pack rebuilds timeline, SLO metrics and service flow from current source results on every generation. Only validated saved SLO target settings are retained, including an intentional empty policy. Source replacement/removal/addition, same-ID content changes and customized threshold regressions plus frontend state/build pass. |
 | T-615 | P1 | DONE | Correct Trace Import elapsed critical-path calculation | Existing Trace Import and downstream latency contracts | Completed 2026-11-10: observed ancestry-chain elapsed estimate uses validated contained intervals, with inclusive work separate. New semantics explicitly do not prove a causal critical path. Missing/skewed/duplicate/cyclic input emits null/reason and availability counts; 20k-depth iterative graph, nested/sequential/parallel/zero and downstream SLO/timeline regressions pass with Go/CLI tests and frontend state/build. |
 | T-616 | P1 | DONE | Avoid double-counting one RPC's CLIENT and SERVER spans | Existing Trace Import dependency and Service Flow/SLI contracts | Completed 2026-11-10: one-to-one explicit CLIENT/SERVER pairs use one logical call, client elapsed time and either-side error; single-sided exports, cross-trace identities, separate retry pairs and multiple server attempts remain distinct. SERVER remote peers use incoming direction. Go/CLI tests and frontend Flow/SLI counter regressions pass. |

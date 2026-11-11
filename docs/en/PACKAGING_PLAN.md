@@ -1,5 +1,19 @@
 # Packaging Plan
 
+## Proposed offline distribution contract (2026-11-11, not implemented)
+
+The [evolution design §17](./LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN.md#17-offline-extension-storage-and-distribution)
+adds these requirements. Historical build evidence below does not validate them.
+
+- Bundle docs, schemas, verified fixtures, chart assets, and licensed pinned CJK fonts. Validate a supported offline/fixed WebView2 runtime route on Windows.
+- Data-only packs carry IDs/versions, compatibility ranges, hashes, licenses, fixtures and detached trusted signatures. Validate in staging, activate atomically, pin running jobs, and support rollback/offline key revocation.
+- Manual collection scripts are separate artifacts. Prefer perf/JDK/Nsight/.NET conversion at collection time; optionally use an explicitly configured installed converter. Never auto-download it.
+- SQLite remains a candidate. Prototype pure Go first; selecting cgo requires OS/architecture, size and license validation.
+- Release CI fails if its pinned mandatory conformance bundle is missing. Developer fixture skips when a sibling repository is absent are not release evidence.
+- A clean network-blocked installation must exercise import/export/help/pack import and verify zero outbound DNS/socket/updater/telemetry/font/symbol attempts.
+
+## Existing packaging context
+
 ArchScope is packaged as a Go/Wails desktop application. The former
 Python wheel and FastAPI browser server have been retired and moved
 under `archive/`.

@@ -43,6 +43,7 @@ npm run build
 ## Docs
 
 - [Architecture](docs/en/ARCHITECTURE.md)
+- [Local diagnostics evolution design](docs/en/LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN.md)
 - [Native app guide](docs/en/NATIVE_APP.md)
 - [AI interpretation](docs/en/AI_INTERPRETATION.md)
 - [Multi-language thread dumps](docs/en/MULTI_LANGUAGE_THREADS.md)

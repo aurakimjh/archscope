@@ -1,5 +1,19 @@
 # 파서 설계
 
+## 로컬 진단 확장 절차안 (2026-11-11, 미구현)
+
+[통합 설계 §16](./LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN.md#16-analysisresult와-확장-계약)의
+descriptor/catalog 기반 경로를 도입할 때 아래 순서를 따른다. 이후 본문의
+기존 `Analyze*`와 family별 CLI 설명은 현행 경로이며 새 구조의 완료 증거가 아니다.
+
+1. producer/버전/측정 의미·한계를 정의하고 선언형 → 외부 변환 → compiled importer 순서로 검토한다.
+2. 공유 자산에 비식별 fixture·기대 의미·manifest를 등록하고 `ASSET_INDEX.md`를 갱신한다.
+3. descriptor에 detector 예산, schema, record family, capability, 변환 의존성, adapter/fixture 버전을 선언한다.
+4. parser는 typed records·원본 위치·diagnostics, adapter는 단위·clock·identity, analyzer는 `AnalysisResult`를 만든다.
+5. composition root에 등록하고 ResultDescriptor의 generic/timeline/SLI/compare/detail provider를 검증한다. 기존 `Analyze*`는 wrapper로 유지한다.
+6. 감지 충돌·손실·미지 버전·취소·partial·metadata 왕복과 golden을 검증하고 지원표를 갱신한다.
+7. 기존 의미 계열과 renderer를 재사용하는 입력은 package + fixture + 등록으로 끝나야 한다. service/CLI/UI switch가 늘면 이유와 제거 계획을 남긴다. 새 의미·시각화는 별도 계약 변경으로 명시한다.
+
 Parser는 raw file을 typed record로 변환한다. Chart rendering이나 report formatting 책임은 갖지 않는다.
 
 ## 책임

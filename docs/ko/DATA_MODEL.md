@@ -1367,11 +1367,33 @@ AI output은 표시 전에 runtime validation을 통과해야 한다. Validation
 - 보고서용 interpretation은 prose-only blob이 아니라 bounded structured finding으로 표현한다.
 - AI-assisted interpretation은 기존 raw evidence를 가리키는 non-empty `evidence_refs`를 포함해야 한다. Evidence는 `raw_line`, `raw_block`, `raw_preview`, `evidence_ref` row 중 하나로 추적 가능해야 한다.
 
+## 로컬 진단 확장 계약안 (2026-11-11, 미구현)
+
+[통합 설계 §16](./LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN.md#16-analysisresult와-확장-계약)의
+새 계약은 기존 `AnalysisResult` envelope를 유지한다. 다음은 제안이며 현재
+emitter의 버전을 변경하거나 구현 완료로 선언하지 않는다.
+
+| 항목 | 제안과 호환 규칙 |
+|---|---|
+| 기준 프로파일 | `ProfileSet → profile analyzer → profile_evidence`; legacy endpoint는 facade로 유지 |
+| 측정 metadata | JSON Pointer/collection column descriptor; scalar를 객체로 일괄 교체하지 않음 |
+| 수치 정정 | 소수/0 weight·evented duration·복수 profile·pprof 의미 수정은 제안 `profile_evidence` 0.2.0으로 분리하고 원본 재계산 |
+| unavailable | schema가 선언한 sample count·시간·interval만 nullable; 0과 구별, UI/export/diff에 전파 |
+| 미지 metadata | common extension 보존과 legacy typed-key 우선 `json.RawMessage` 왕복 검증; 구버전 binary의 보존은 가정하지 않음 |
+| 버전 | result, envelope, extension, adapter, pack, index, case, bundle, capture, visual spec, renderer/template/font 축 구분 |
+| 신구 결과 비교 | reader range·metric·unit·모집단·semantic revision 확인 후 허용; 미지원 의미로 계산 금지 |
+| GPU와 AI | GPU telemetry는 `metrics_timeseries` semantic view; LLM 앱 trace는 `trace_import` 확장, serving은 원본 참조 |
+
+버전별 owner, 선언 위치, 읽기 전용·거부·재계산 정책은 통합 설계 §16.9를
+따른다. 상세 index는 재생성 가능한 cache이며 schema 불일치 시 원본에서 다시
+만든다. 원본이 없으면 snapshot은 보존하고 detail capability를 제한한다.
+
 ## Schema 0.2.0 — additive 변경
 
-`0.2.0-beta` 이후의 분석기 개편으로 `schema_version`은 `0.1.0`에서
-`0.2.0`으로 올랐다. 기존 0.1.0 필드는 모두 그대로 존재하고 required
-유지; 아래 변경은 모두 additive다.
+이 절은 `0.2.0-beta` 이후 일부 분석기에서 도입한 0.2.0 계열 변경을
+기록한다. 모든 결과가 같은 버전으로 전환된 것은 아니다. `schema_version`은
+result type과 생성 경로별로 확인해야 하며, 아래 additive 항목과 후속 nullable
+정정의 호환 조건을 구별한다.
 
 ### Access log (`type: "access_log"`)
 

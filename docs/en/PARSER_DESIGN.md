@@ -1,5 +1,19 @@
 # Parser Design
 
+## Proposed extension checklist (2026-11-11, not implemented)
+
+Use the [evolution design §16](./LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN.md#16-extension-and-compatibility-contracts)
+when introducing the descriptor/catalog path. Existing family-specific CLI and
+`Analyze*` descriptions below describe current behavior, not completion of this plan.
+
+1. Specify producer/version/measurement/limits; consider declarative mapping, external conversion, then compiled code.
+2. Register sanitized shared fixtures and expected semantics in projects-assets and update ASSET_INDEX.
+3. Declare detection budgets, schemas, record family, capabilities, converters and adapter/fixture versions.
+4. Keep decoding/source diagnostics, semantic normalization, and AnalysisResult analysis separate.
+5. Register in the composition root and validate generic/timeline/SLI/compare/detail providers; retain old methods as wrappers.
+6. Test ambiguity, loss, unknown versions, cancellation, partial results, metadata roundtrips and goldens; update the support matrix.
+7. Existing semantic families/renderers should need only package, fixtures and registration. Explain additional service/CLI/UI switches and removal plans. New semantics or visual grammars require explicit contract work.
+
 Parsers convert raw files into typed records. They should not own chart rendering or report formatting.
 
 ## Responsibilities

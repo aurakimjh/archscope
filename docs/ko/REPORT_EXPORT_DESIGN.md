@@ -105,7 +105,20 @@ Minimal PowerPoint exporter는 `AnalysisResult` JSON에서 `.pptx` package를 �
 archscope-engine report pptx --in result.json --out report.pptx
 ```
 
-MVP는 title, source metadata, summary metrics, findings slide를 포함한다. Chart image embedding과 slide-level theme editing은 후속 작업으로 남긴다.
+MVP는 title, source metadata, summary metrics, findings slide를 포함한다.
+2026-11-11 개선 범위는 [로컬 장애 및 성능 분석 개선 설계](./LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN.md)를 따른다.
+새 보고서 지원은 PNG 이미지 복사, SVG 저장, 표 복사와 시각 자료 재생성에 집중하며,
+PPT 파일 작성·슬라이드 편집·PPTX 기능 확대는 포함하지 않는다.
+
+## 시각 자료 렌더 계약안 (2026-11-11, 미구현)
+
+새 `VisualArtifactSpec` 경로는 [통합 설계 §14.6](./LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN.md#146-렌더러-위치와-기존-exporter-연결)을 따른다.
+
+- 초기 renderer는 고정 크기·선택 snapshot·font readiness를 사용하는 별도 desktop WebView render 영역이다. `SaveChartArtifact`는 이미 그린 bytes의 저장만 담당한다.
+- CLI는 기존 JSON/CSV/static HTML과 신규 spec 저장·검증 범위다. 신규 PNG/SVG 렌더와 clipboard는 초기 CLI 미지원이며 명확한 capability 오류를 반환한다. headless worker는 별도 배포 결정이다.
+- 기존 exporter 입력은 `AnalysisResult`를 유지한다. analyzer/query가 만든 선택 view를 사용하며 raw log 재파싱·수치 재계산을 하지 않는다. HTML/Report Pack은 이미 생성된 PNG/SVG·spec·caption·hash·근거 참조를 함께 묶을 수 있도록 확장한다.
+- 과거 이미지 bytes는 snapshot으로 보존한다. 원래 result/spec/template/renderer/font를 확보한 경우만 같은 버전으로 재생성한다. 없으면 snapshot을 열거나 명시적 새 revision으로 변환한다. OS별 rasterizer 차이와 수치·레이아웃 재현을 구분한다.
+- PNG·SVG·HTML/TSV 표는 지원 대상 Office에서 실제 붙여넣기·한글·크기·잘림·단위·선택 분모·비식별을 검증한다. 이 문서 개정은 해당 동작의 구현/검증을 의미하지 않는다.
 
 ## Export 출력 예시
 
@@ -159,7 +172,6 @@ MVP는 title, source metadata, summary metrics, findings slide를 포함한다. 
 | 1 | 제목 + source file + 생성일시 |
 | 2 | Summary Metrics (주요 지표 카드) |
 | 3 | Findings (발견 항목, severity별 색상 구분) |
-| 4+ | (향후) Chart image, detail tables |
 
 ### PDF Export에 대한 결정
 

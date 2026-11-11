@@ -111,7 +111,21 @@ archscope-engine report pptx --in result.json --out report.pptx
 ```
 
 The MVP includes title, source metadata, summary metrics, and findings slides.
-Chart image embedding and slide-level theme editing remain later work.
+The 2026-11-11 improvement scope follows the
+[local diagnostics evolution design](./LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN.md).
+New reporting support focuses on PNG image copying, SVG export, table copying,
+and reproducible visual artifacts. PPT authoring, slide editing, and PPTX
+enhancements are outside that scope.
+
+## Proposed visual rendering contract (2026-11-11, not implemented)
+
+The new path follows [evolution design §14](./LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN.md#14-visual-artifacts-and-renderer-boundary).
+
+- The initial renderer is a separate desktop WebView surface with fixed size, selection snapshot and font readiness. SaveChartArtifact only saves already-rendered bytes.
+- CLI retains JSON/CSV/static HTML and adds spec storage/validation. New PNG/SVG rendering and clipboard are initially unsupported; return an explicit capability error. A headless worker requires a separate packaging decision.
+- Existing exporters consume AnalysisResult. Selections come from analyzer/query views without reparsing logs or recalculating values. HTML/report packs may embed previously rendered PNG/SVG, spec, caption, hash and evidence references.
+- Preserve historical image bytes. Exact-version regeneration requires pinned result/spec/template/renderer/font dependencies; otherwise show the snapshot or explicitly create a new revision. Numeric/layout reproducibility differs from byte identity across rasterizers.
+- Validate PNG/SVG and HTML/TSV pasting, CJK fonts, clipping, units, denominators and redaction in supported Office versions. This documentation change is not runtime validation.
 
 ## Multilingual Export Direction
 
