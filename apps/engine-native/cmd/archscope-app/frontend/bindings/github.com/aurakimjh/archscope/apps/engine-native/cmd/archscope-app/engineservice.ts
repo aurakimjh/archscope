@@ -285,8 +285,11 @@ export function ClassifyStack(req: $models.ClassifyRequest): $CancellablePromise
     });
 }
 
-export function CompareEvidenceScalar(a: string, b: string, path: string): $CancellablePromise<resultcontract$0.Delta> {
-    return $Call.ByID(3792274739, a, b, path).then(($result: any) => {
+/**
+ * CompareEvidenceScalar uses caller-selected baseline and target revisions.
+ */
+export function CompareEvidenceScalar(baseline: string, target: string, path: string): $CancellablePromise<resultcontract$0.Delta> {
+    return $Call.ByID(3792274739, baseline, target, path).then(($result: any) => {
         return $$createType4($result);
     });
 }
@@ -448,10 +451,6 @@ export function ProjectJenniferDrilldown(req: $models.JenniferDrilldownRequest):
     return $Call.ByID(1998352314, req).then(($result: any) => {
         return $$createType0($result);
     });
-}
-
-export function ReleaseEvidenceResult(handle: string): $CancellablePromise<void> {
-    return $Call.ByID(3463863320, handle);
 }
 
 export function ResolveWorkspaceComparison(req: $models.WorkspaceComparisonRequest): $CancellablePromise<api$0.WorkspaceComparisonRoute> {

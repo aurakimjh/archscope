@@ -202,10 +202,21 @@ type DiffRow struct {
 	Percent    *string `json:"percent"`
 	Reason     string  `json:"reason,omitempty"`
 }
+type ProfileComparisonReference struct {
+	Handle       string   `json:"handle,omitempty"`
+	ResultSHA256 string   `json:"result_sha256,omitempty"`
+	ModelSHA256  string   `json:"model_sha256"`
+	Population   string   `json:"population"`
+	SourceHashes []string `json:"source_sha256"`
+}
+
 type Difference struct {
-	Metric     Metric    `json:"metric"`
-	Population string    `json:"population"`
-	Rows       []DiffRow `json:"rows"`
+	ComparisonMode string                     `json:"comparison_mode"`
+	Baseline       ProfileComparisonReference `json:"baseline"`
+	Target         ProfileComparisonReference `json:"target"`
+	Metric         Metric                     `json:"metric"`
+	Population     string                     `json:"population"`
+	Rows           []DiffRow                  `json:"rows"`
 }
 
 func Compare(ctx context.Context, a ProfileSet, as Selection, b ProfileSet, bs Selection) (Difference, error) {
@@ -223,7 +234,7 @@ func Compare(ctx context.Context, a ProfileSet, as Selection, b ProfileSet, bs S
 	if left.Metric != right.Metric {
 		return Difference{}, fmt.Errorf("measurement kind/unit/scale/sign mismatch")
 	}
-	if left.Population != right.Population {
+	if a.ComparisonIdentity(as) != b.ComparisonIdentity(bs) {
 		return Difference{}, fmt.Errorf("population/source/selection/capture conditions mismatch")
 	}
 	before, after := map[string]TreeNode{}, map[string]TreeNode{}
@@ -248,7 +259,16 @@ func Compare(ctx context.Context, a ProfileSet, as Selection, b ProfileSet, bs S
 		ordered = append(ordered, id)
 	}
 	sort.Strings(ordered)
-	out := Difference{Metric: left.Metric, Population: left.Population, Rows: []DiffRow{}}
+	mode := "same_input"
+	if left.Population != right.Population {
+		mode = "baseline_target"
+	}
+	ref := func(s ProfileSet, population string) ProfileComparisonReference {
+		sources := append([]string(nil), s.SourceHashes...)
+		sort.Strings(sources)
+		return ProfileComparisonReference{ModelSHA256: hash("", s), Population: population, SourceHashes: sources}
+	}
+	out := Difference{Metric: left.Metric, Population: left.Population, Rows: []DiffRow{}, ComparisonMode: mode, Baseline: ref(a, left.Population), Target: ref(b, right.Population)}
 	for _, id := range ordered {
 		if e := ctx.Err(); e != nil {
 			return out, e

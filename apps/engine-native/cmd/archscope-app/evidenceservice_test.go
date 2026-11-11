@@ -9,6 +9,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -253,5 +254,53 @@ func TestReviewR01DeepWailsLoadEvidenceResultBridge(t *testing.T) {
 		if body, e := svc.evidenceService.Export(view.Handle, format); e != nil || len(body) == 0 {
 			t.Fatal(format, e)
 		}
+	}
+}
+
+func TestR2N02SharedResultHasNoPublicWailsDeletion(t *testing.T) {
+	if _, exists := reflect.TypeOf(&EngineService{}).MethodByName("ReleaseEvidenceResult"); exists {
+		t.Fatal("unsafe shared deletion exposed to Wails")
+	}
+	svc := evidenceBridge(t, nil)
+	body, _ := catalog.Contracts.ReadFile("contracts/server.log")
+	path := filepath.Join(t.TempDir(), "server.log")
+	os.WriteFile(path, body, 0600)
+	job, e := svc.ImportEvidence(EvidenceImportRequest{Path: path, Importer: "tomcat", OptionsJSON: `{}`})
+	if e != nil {
+		t.Fatal(e)
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	job, e = svc.evidenceService.Wait(ctx, job.ID, job.Generation)
+	if e != nil || job.State != "completed" {
+		t.Fatal(job, e)
+	}
+	saved := filepath.Join(t.TempDir(), "result.json")
+	if e = svc.ExportEvidenceResult(job.ResultHandle, saved, "json"); e != nil {
+		t.Fatal(e)
+	}
+	for i := 0; i < 2; i++ {
+		view, e := svc.LoadEvidenceResult(saved)
+		if e != nil || view.Handle != job.ResultHandle {
+			t.Fatal(view, e)
+		}
+	}
+	if _, e = svc.GetEvidenceResultJSON(job.ResultHandle); e != nil {
+		t.Fatal(e)
+	}
+	// The ordered bridge inputs are the explicit baseline/target references.
+	targetPath := filepath.Join(t.TempDir(), "after.log")
+	os.WriteFile(targetPath, append(body, []byte("11-Nov-2026 10:00:03.000 ERROR [worker] org.apache.catalina.core.ContainerBase Synthetic later failure\n")...), 0600)
+	target, e := svc.ImportEvidence(EvidenceImportRequest{Path: targetPath, Importer: "tomcat", OptionsJSON: `{}`})
+	if e != nil {
+		t.Fatal(e)
+	}
+	target, e = svc.evidenceService.Wait(ctx, target.ID, target.Generation)
+	if e != nil || target.State != "completed" {
+		t.Fatal(target, e)
+	}
+	delta, e := svc.CompareEvidenceScalar(job.ResultHandle, target.ResultHandle, "/summary/total_events")
+	if e != nil || delta.Value == nil || *delta.Value != "1" || delta.Comparison == nil || delta.Comparison.Baseline.Handle != job.ResultHandle || delta.Comparison.Target.Handle != target.ResultHandle {
+		t.Fatal(delta, e)
 	}
 }

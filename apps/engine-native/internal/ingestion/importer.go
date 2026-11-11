@@ -127,9 +127,9 @@ type RecordSource interface {
 	ForEach(context.Context, func(Record) error) error
 }
 type AnalysisSelection struct {
-	ImporterID, AdapterVersion, OptionsHash, PartialReason string
-	Records                                                int64
-	Partial                                                bool
+	ImporterID, AdapterVersion, OptionsHash, PartialReason, SelectionReason string
+	Records                                                                 int64
+	Partial                                                                 bool
 }
 type Analyzer struct {
 	BindSelection          func(*models.AnalysisResult, SourceInfo, AnalysisSelection) error

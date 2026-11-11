@@ -1687,8 +1687,8 @@ limited to 1,024 bytes and decimal scale 128.
 resultcontract validates type-specific payload/envelope ranges, operations,
 required extensions and measurement schemas: target/column/kind/unit/aggregation/
 encoding/nullability/references. Evidence/population IDs resolve within the result;
-no URL/file is opened. Cross-revision comparison requires an explicit matching
-population identity resolved from its local reference (see R-04 below). Exact scalar deltas are rational strings; zero-baseline
+no URL/file is opened. Cross-revision comparison requires validated population provenance and compatible
+selection/measurement conditions (see R-04 / R2 N-01 below). Exact scalar deltas are rational strings; zero-baseline
 percentages and unavailable/absent deltas are null. Legacy float report-diff refuses
 new measurement results and directs callers to backend exact comparison. Existing
 legacy flows remain intact.
@@ -1729,19 +1729,33 @@ The R-01–R-14 remediation uses separate complete-result and opaque JSON budget
 see PARSER_DESIGN for exact ceilings. W05's depth-64 refusal applies to metadata,
 options and records, not to ordinary nested flame trees.
 
-**R-04:** A population_ref is a result-local label, never sufficient identity for
-cross-result arithmetic. `metadata.populations[ref]` resolves to `source_sha256`
-(a sorted unique set), `selection_hash` (options-v1 canonical hash),
-`semantic_revision` and explicit `coverage`. All fields must match for comparison.
-Missing/invalid identity or differing source/selection/semantic/coverage is refused.
-The pilot analyzer's trusted BindSelection hook attaches this identity after the
-service knows committed record count and partial coverage. The orchestration does
-not overwrite other analyzers' population definitions. Job/source IDs and created_at
-may differ between imports of the same population; their capture provenance is
-never merged. Options-v1 is conservative: omitted defaults and explicit defaults
-may have distinct hashes. Legacy snapshots without population descriptors retain
-only identical-revision self comparison; labels alone grant no cross-result compare.
-Broader capture/entity/time population policy remains T-630/T-635.
+**R-04 / R2 N-01:** A population_ref is a result-local label. The original
+`source_sha256`, `selection_hash`, `semantic_revision` and record-count `coverage`
+remain observation provenance. Equal identities retain same-input comparison,
+including old/new snapshots with or without the additive policy below.
+
+New imports add `metadata.populations[ref].comparison` with `version: "1.0.0"`,
+a source-independent `selection_hash` and `coverage_kind`. The pilot selection
+hash is the options-v1 canonical hash; omitted and explicit defaults may differ.
+Coverage kinds are `complete_records`, `selected_records:max_lines` and
+`complete_selected_model`. Record counts remain provenance, not compatibility
+requirements. Partial imports omit this policy and cannot grant cross-source
+comparison. Missing/unknown policies and differing semantic revision, selection,
+coverage kind, measurement kind/unit/scope/aggregation are refused.
+
+The ordered arguments to CompareEvidenceScalar are explicit baseline and target
+backend handles. For compatible different sources the response carries
+`comparison.mode=baseline_target`, the policy and separate baseline/target handle,
+exact saved-result SHA-256, source hashes and local population ref. Equal source
+identities use `same_input`; this does not assert equal snapshot bytes. No capture,
+entity or clock identity is merged/inferred. Registry-only callers get canonical
+result digests; service/CLI/Wails callers get exact stored-byte digests.
+
+Pre-policy snapshots keep their original numbers and identity rules: they remain
+readable/exportable, but cross-source scalar comparison requires reanalysis. No
+payload/measurement version is relabeled. ProfileSet's model-derived comparator
+can independently check the retained model as described below. Durable baseline
+selection/persistence and broader capture/entity/time matching remain T-630/T-635.
 
 **R-06/R-11:** The result descriptor's measurement range is the single version
 policy (the pilot supports [1.0.0, 1.1.0)). Patch 1.0.1 is accepted; 1.1.0/2.0.0
@@ -1760,6 +1774,13 @@ columns (path, row, column, availability, reason, unit, population, numeric enco
 HTML shows an unavailable null as an em dash, CSV keeps an empty cell, and observed
 zero stays zero. Existing series.measurement_availability causes an explicit export
 collision error; no source series is overwritten. Stored source JSON is unchanged.
+
+The R2 N-04 output budget is 100,000 availability entries and 16 MiB of serialized
+appendix JSON. Entry multiplication is checked before cloning the result; each
+entry is byte-accounted before append. Either overflow returns typed
+`ProjectionBudgetError` / `EXPORT_PROJECTION_BUDGET_EXCEEDED` with no truncated
+export or mutation of the stored result. JSON/Report Pack source exports are
+unaffected by this CSV/HTML presentation-only budget.
 
 **R-14:** Generated profiler Metadata remains opaque as required by custom Go
 marshaling. Manual ProfilerMetadata/ProfilerAnalysisResult/ProfilerDrilldownStage
@@ -1805,13 +1826,19 @@ root's zero in an empty algebraic tree is qualified by the query availability;
 it is not a measured summary zero. Frame labels are resolved through the frame
 table rather than repeated along every tree path.
 
-Comparisons require identical metric ID/kind/unit/scale/sign and matching source,
-profile identity, producer/normalizer revision, quality, capture options and frame selection population. Source hashes
-are retained independently from the imported JSON container's lease provenance.
-This is a conservative comparison policy; cross-capture workload/entity/time
-baseline policy remains T-630/T-635. Zero-baseline percentages and unavailable
-comparisons are not fabricated. BuildSet freezes the model/selection before
-retaining them; queries do not mutate evidence or reuse pruned view trees.
+Comparisons require identical metric ID/kind/unit/scale/sign and matching selected
+profile/entity dimensions, producer/normalizer revision, quality, capture options
+and ordered frame-selection rules. Source hashes are excluded only from the
+compatibility identity, retained in each population identity and in separate
+baseline/target references (model digest, and service-level handle/result digest).
+The old `Difference.population` field aliases the baseline population; consumers
+must use baseline/target for attribution. Different sources set
+`comparison_mode=baseline_target`; equal source populations use `same_input`.
+Old retained models can be checked without rewriting their saved metadata.
+Cross-capture entity remapping, clock alignment and durable baseline management
+remain T-630/T-635. Zero-baseline percentages and unavailable comparisons are not
+fabricated. BuildSet freezes the model/selection before retaining them; queries
+do not mutate evidence or reuse pruned view trees.
 
 `LegacyStackProjection` requires an explicit integer-tick scale. It returns the
 scale, selected metric/profiles and aggregated dimensions. Display-name keys are

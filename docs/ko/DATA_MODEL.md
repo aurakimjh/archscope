@@ -1831,8 +1831,8 @@ omitempty의 생략이 항상 우선한다. 알려진 큰 정수는 exact_intege
 resultcontract는 type별 payload/envelope range, operation, required extension과
 측정 schema를 검증한다. target·column·kind·unit·aggregation·encoding·nullable·참조를
 대조한다. population/evidence ID는 같은 결과에서 해석하며 URL/파일을 열지 않는다.
-서로 다른 리비전의 비교에는 local reference가 해석하는 명시적 population identity가
-일치해야 한다(아래 R-04 참조).
+서로 다른 리비전의 비교에는 population 출처와 선택/측정 호환 조건을 검증한다
+(아래 R-04 / R2 N-01 참조).
 정확한 scalar diff는 rational string으로 반환하고 baseline=0의 변화율은 null,
 unavailable/absent의 delta는 null이다. 기존 float 기반 report-diff는 신규 measurement
 결과를 거부하고 backend exact comparison을 안내한다. 기존 결과 흐름은 유지한다.
@@ -1872,17 +1872,32 @@ R-01~R-14 후속 수정에서는 전체 결과와 opaque JSON 예산을 분리�
 상한은 PARSER_DESIGN을 따른다. W05의 깊이 64 거절은 metadata/options/record에
 적용하며 일반적인 중첩 flame tree에 일괄 적용하지 않는다.
 
-**R-04:** population_ref는 결과 내부 label이며 그 자체로 결과 간 계산의 식별자가
-아니다. `metadata.populations[ref]`에서 `source_sha256`(정렬된 고유 집합),
-`selection_hash`(options-v1 정규화 hash), `semantic_revision`, 명시적 `coverage`를
-확인한다. 비교에는 모든 항목이 일치해야 한다. 식별자 누락·오류나 출처·선택·
-의미·범위 차이는 거절한다. pilot analyzer의 신뢰된 BindSelection hook은 서비스가
-확정한 레코드 수와 partial 범위를 받은 뒤 이를 구성한다. orchestration은 다른
-analyzer의 population 정의를 덮어쓰지 않는다. 같은 모집단을 다시 가져와도 job/
-source ID와 created_at은 다를 수 있으며 캡처 provenance를 병합하지 않는다.
-options-v1은 보수적이므로 기본값 생략과 명시가 다른 hash일 수 있다. 모집단
-기술이 없는 기존 결과는 동일 revision 자체 비교만 유지하고 label만으로 결과 간
-비교를 허용하지 않는다. 확장된 capture/entity/time 정책은 T-630/T-635 범위다.
+**R-04 / R2 N-01:** population_ref는 결과 내부 label이다. 기존 `source_sha256`,
+`selection_hash`, `semantic_revision`, 레코드 수를 포함한 `coverage`는 관측 출처로
+유지한다. 같은 identity의 재현 비교는 아래 선택 정책의 유무가 다른 과거/신규
+스냅샷 사이에서도 유지한다.
+
+새 import는 `metadata.populations[ref].comparison`에 `version: "1.0.0"`,
+원본에 독립적인 `selection_hash`, `coverage_kind`를 추가한다. pilot은 options-v1
+정규화 hash를 사용하므로 기본값 생략과 명시는 다를 수 있다. coverage 종류는
+`complete_records`, `selected_records:max_lines`, `complete_selected_model`이다.
+레코드 수는 호환 조건이 아닌 관측 정보다. partial import는 이 정책을 부여하지
+않으므로 다른 원본의 비교를 허용하지 않는다. 정책 누락·미지 버전 및 의미 버전·
+선택·coverage 종류·측정 종류/단위/scope/aggregation 차이는 거절한다.
+
+CompareEvidenceScalar의 두 인자는 명시적으로 선택한 baseline과 target backend
+handle이다. 호환되는 다른 원본이면 응답에 `comparison.mode=baseline_target`,
+적용 정책과 각각의 handle·저장 결과 원문 SHA-256·원본 hash·결과 내부 population
+ref를 남긴다. 출처 identity가 같으면 `same_input`이며 스냅샷 바이트가 같다는
+주장은 아니다. 캡처·entity·시계 identity는 추정하거나 병합하지 않는다. registry만
+호출하면 정규화된 결과 digest를, service/CLI/Wails에서는 실제 저장 바이트 digest를
+사용한다.
+
+선택 정책이 없는 과거 결과의 수치와 identity 규칙은 유지한다. 재읽기·내보내기는
+가능하지만 서로 다른 원본의 scalar 비교에는 재분석이 필요하다. payload/measurement
+버전 번호를 바꾸어 의미를 재해석하지 않는다. ProfileSet comparator는 아래와 같이
+보존된 모델에서 조건을 별도로 계산할 수 있다. 영속 baseline 선택·저장 및 확장된
+capture/entity/time matching은 T-630/T-635에 남긴다.
 
 **R-06/R-11:** measurement 버전 정책은 result descriptor의 허용 범위를 단일
 기준으로 삼는다(pilot: [1.0.0, 1.1.0)). 1.0.1은 허용하고 1.1.0/2.0.0은 거절한다.
@@ -1900,6 +1915,12 @@ schema digest를 고정한다.
 HTML은 unavailable null을 ‘—’, CSV는 빈 셀로 표현하며 관측된 0은 유지한다.
 기존 series.measurement_availability가 있으면 명시적인 export 충돌 오류를
 반환하고 원 series를 덮어쓰지 않는다. 저장된 원본 JSON도 변경하지 않는다.
+
+R2 N-04의 출력 예산은 availability 100,000항목 및 직렬화된 appendix JSON 16 MiB다.
+결과 사본 생성 전에 행×컬럼 수를 확인하고 각 항목을 추가하기 전에 바이트를 계산한다.
+초과하면 typed `ProjectionBudgetError` / `EXPORT_PROJECTION_BUDGET_EXCEEDED`로
+거절하며 부분 내보내기나 저장 결과 변경을 하지 않는다. CSV/HTML 표시 투영의
+예산이므로 JSON/Report Pack 원문 내보내기는 유지한다.
 
 **R-14:** Go의 custom marshal 보존을 위해 생성된 profiler Metadata는 opaque로
 유지한다. 수동 ProfilerMetadata/ProfilerAnalysisResult/ProfilerDrilldownStage facade와
@@ -1940,11 +1961,16 @@ scale을 정확히 곱한 선언 단위의 값이며 비중·변화율은 유리
 query availability로 한정하며 측정 summary 0을 뜻하지 않는다. frame 표에서 표시
 이름을 해석하므로 깊은 경로마다 이름을 반복 직렬화하지 않는다.
 
-비교에는 metric ID·종류·단위·scale·부호 및 원본·profile identity·producer/normalizer 버전·품질·수집 옵션·frame 선택
-모집단의 일치가 필요하다. 모델의 원본 hash와 import JSON 컨테이너의 lease provenance를
-분리 보존한다. 보수적인 비교 정책이며 서로 다른 수집의 workload/entity/time baseline
-정책은 T-630/T-635에 남긴다. 0 기준 변화율이나 unavailable 비교값을 만들지 않는다.
-BuildSet은 모델·선택을 복제하여 보존하고 query는 원본이나 잘라낸 표시 트리를 수정하지 않는다.
+비교에는 metric ID·종류·단위·scale·부호 및 선택한 profile/entity 차원·producer/
+normalizer 버전·품질·수집 옵션·순서 있는 frame 선택 규칙이 일치해야 한다. 원본 hash는
+호환 identity에서만 제외하고 각 population identity와 baseline/target 참조에 보존한다.
+참조에는 모델 digest와 service의 handle/저장 결과 digest를 남긴다. 기존
+`Difference.population`은 baseline의 별칭이며 소비자는 두 참조로 출처를 구분해야 한다.
+서로 다른 원본은 `comparison_mode=baseline_target`, 같은 출처 모집단은 `same_input`이다.
+과거 보존 모델도 저장 metadata를 고치지 않고 검증할 수 있다. 서로 다른 수집의 entity
+재매핑·시계 정렬·영속 baseline 관리는 T-630/T-635에 남긴다. 0 기준 변화율이나
+unavailable 비교값을 만들지 않는다. BuildSet은 모델/선택을 복사해 보존하며 질의는
+증거를 변경하거나 가지치기한 표시 트리를 다음 계산에 재사용하지 않는다.
 
 `LegacyStackProjection`에는 정수 tick scale을 명시한다. 결과에는 scale·선택한 metric/
 profile·집계된 차원을 포함한다. 이름 충돌·구분자 손실이 없을 때만 표시 이름을 key로

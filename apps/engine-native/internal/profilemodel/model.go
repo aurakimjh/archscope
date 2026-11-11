@@ -372,6 +372,16 @@ func (s ProfileSet) ValidateSelection(selection Selection) error {
 	return nil
 }
 func (s ProfileSet) SelectionIdentity(selection Selection) string {
+	return s.selectionIdentity(selection, true)
+}
+
+// ComparisonIdentity retains every normalization/selection/quality condition,
+// but source provenance belongs to the ordered baseline/target references.
+func (s ProfileSet) ComparisonIdentity(selection Selection) string {
+	return s.selectionIdentity(selection, false)
+}
+
+func (s ProfileSet) selectionIdentity(selection Selection, withSources bool) string {
 	selection = CopySelection(selection)
 	if len(selection.Path) == 0 {
 		selection.Path = nil
@@ -382,6 +392,9 @@ func (s ProfileSet) SelectionIdentity(selection Selection) string {
 	}
 	sources := append([]string(nil), s.SourceHashes...)
 	sort.Strings(sources)
+	if !withSources {
+		sources = nil
+	}
 	ids := append([]string(nil), selection.ProfileIDs...)
 	sort.Strings(ids)
 	profiles := []Profile{}

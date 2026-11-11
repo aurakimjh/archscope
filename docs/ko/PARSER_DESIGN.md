@@ -767,15 +767,18 @@ case 수명·cache 정리(T-630)와 Q01–Q04는 이 구현으로 완료되지 �
   원 예외·경로 문자열을 JobProblem에 노출하지 않는다. 신뢰된 실행 함수의
   시간 제한은 협력적 취소다.
 - **R-05/R-10:** `max_lines`는 완료된 사용자 선택이며
-  `import_coverage.selection=max_lines`로 범위를 기록한다. 다음 논리 줄을
-  읽기 전에 중단하며 allow-partial을 요구하는 자원 절단과 구분한다. 자원 예산
+  `import_coverage.selection=max_lines`로 범위를 기록한다. 1바이트의 bounded lookahead로 제외된 suffix가
+  있을 때만 selection 표지를 남긴다. 마지막 개행 유무와 무관하게 정확한 EOF에는
+  표지를 남기지 않는다. 추가 physical line을 parse/count하지 않으며 읽기 오류는
+  오류로 반환한다. allow-partial을 요구하는 자원 절단과 구분한다. 자원 예산
   절단은 기존의 importer 안전성 및 사용자 동의 조건을 유지한다. 기존 strict/
   top_n, summary/tables/correlation_keys와 마지막 빈 줄의 레코드 수를 검증한다.
 - **R-08:** import와 Load는 동시 실행 4개 및 종료 취소·대기를 공유한다.
   OS 프로세스 잠금으로 저장소를 보호하며 독점 소유자만 시작 시 이전 실행의
   staging을 회수한다. 동일 스냅샷의 중복 로드는 handle을 재사용한다. 결과는
-  1,024개 / 512 MiB로 제한하고 자동 삭제하지 않는다. ReleaseEvidenceResult로
-  미사용 handle을 명시 해제한다. 결과가 없으면 IMPORT_RESULT_STALE과 저장
+  1,024개 / 512 MiB로 제한하고 자동 삭제하지 않는다. R2 N-02에서
+  ReleaseEvidenceResult를 공개 Wails API/binding에서 제거한다. T-630의 호출자/
+  Workspace 소유권 설계 전까지 backend Release는 관리용 삭제이며 참조 해제가 아니다. 결과가 없으면 IMPORT_RESULT_STALE과 저장
   파일 재열기 안내를 반환한다. 사용자가 내보낸 파일은 이 backend 캐시와 별개다.
 
 T-630에는 영속 case manifest, 저장된 workspace 참조의 이전·복구, 중복 handle

@@ -200,7 +200,7 @@ func TestExactCompareConditionsAndImmutableDrilldown(t *testing.T) {
 	if !found {
 		t.Fatal("missing root difference")
 	}
-	for _, edit := range []func(*m.ProfileSet){func(s *m.ProfileSet) { s.SourceHashes = []string{strings.Repeat("f", 64)} }, func(s *m.ProfileSet) { s.CaptureOptions = json.RawMessage(`{"other":true}`) }, func(s *m.ProfileSet) { s.Metrics[0].Unit = "milliseconds" }, func(s *m.ProfileSet) { s.Metrics[0].Scale = "0.001" }, func(s *m.ProfileSet) { s.ProducerVersion = "other" }, func(s *m.ProfileSet) { s.Format = "different-normalization" }, func(s *m.ProfileSet) { s.Quality.ConversionLoss = []string{"different conversion"} }} {
+	for _, edit := range []func(*m.ProfileSet){func(s *m.ProfileSet) { s.CaptureOptions = json.RawMessage(`{"other":true}`) }, func(s *m.ProfileSet) { s.Metrics[0].Unit = "milliseconds" }, func(s *m.ProfileSet) { s.Metrics[0].Scale = "0.001" }, func(s *m.ProfileSet) { s.ProducerVersion = "other" }, func(s *m.ProfileSet) { s.Format = "different-normalization" }, func(s *m.ProfileSet) { s.Quality.ConversionLoss = []string{"different conversion"} }} {
 		other = copySet(t, set)
 		edit(&other)
 		if _, e = m.Compare(context.Background(), set, selection, other, selection); e == nil {
@@ -290,5 +290,35 @@ func TestLegacyGoldenCountsUseExactCoreWithoutInventedDuration(t *testing.T) {
 	value, _ := m.Number("0.123456789012345678901234567890")
 	if value.Cmp(new(big.Rat).SetFrac(big.NewInt(1), big.NewInt(10))) == 0 {
 		t.Fatal("decimal precision lost")
+	}
+}
+
+func TestR2N01DifferentSourceProfileComparisonKeepsReferences(t *testing.T) {
+	set, selection := fixture(t)
+	other := copySet(t, set)
+	other.SourceHashes = []string{strings.Repeat("f", 64)}
+	other.Profiles[0].Samples[0].Weight = "0.30"
+	diff, e := m.Compare(context.Background(), set, selection, other, selection)
+	if e != nil {
+		t.Fatal(e)
+	}
+	if diff.ComparisonMode != "baseline_target" || diff.Baseline.Population == diff.Target.Population || diff.Baseline.ModelSHA256 == diff.Target.ModelSHA256 || diff.Baseline.SourceHashes[0] == diff.Target.SourceHashes[0] {
+		t.Fatal(diff)
+	}
+	found := false
+	for _, row := range diff.Rows {
+		if row.ID == "root" {
+			found = true
+			if row.Delta != "0.05" {
+				t.Fatal(row)
+			}
+		}
+	}
+	if !found {
+		t.Fatal("missing root")
+	}
+	other.Profiles[0].Worker = "other-worker"
+	if _, e = m.Compare(context.Background(), set, selection, other, selection); e == nil {
+		t.Fatal("different entity mapping accepted implicitly")
 	}
 }

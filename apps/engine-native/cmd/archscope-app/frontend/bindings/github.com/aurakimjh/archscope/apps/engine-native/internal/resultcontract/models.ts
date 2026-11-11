@@ -5,10 +5,85 @@
 // @ts-ignore: Unused imports
 import { Create as $Create } from "@wailsio/runtime";
 
+/**
+ * References record the caller's ordered baseline and target. Comparing never
+ * merges captures, equates entities, or certifies clock alignment/causality.
+ */
+export class ComparisonEvidence {
+    "mode": string;
+    "policy"?: PopulationComparison | null;
+    "baseline": ComparisonReference;
+    "target": ComparisonReference;
+
+    /** Creates a new ComparisonEvidence instance. */
+    constructor($$source: Partial<ComparisonEvidence> = {}) {
+        if (!("mode" in $$source)) {
+            this["mode"] = "";
+        }
+        if (!("baseline" in $$source)) {
+            this["baseline"] = (new ComparisonReference());
+        }
+        if (!("target" in $$source)) {
+            this["target"] = (new ComparisonReference());
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ComparisonEvidence instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ComparisonEvidence {
+        const $$createField1_0 = $$createType1;
+        const $$createField2_0 = $$createType2;
+        const $$createField3_0 = $$createType2;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("policy" in $$parsedSource) {
+            $$parsedSource["policy"] = $$createField1_0($$parsedSource["policy"]);
+        }
+        if ("baseline" in $$parsedSource) {
+            $$parsedSource["baseline"] = $$createField2_0($$parsedSource["baseline"]);
+        }
+        if ("target" in $$parsedSource) {
+            $$parsedSource["target"] = $$createField3_0($$parsedSource["target"]);
+        }
+        return new ComparisonEvidence($$parsedSource as Partial<ComparisonEvidence>);
+    }
+}
+
+export class ComparisonReference {
+    "handle"?: string;
+    "result_sha256": string;
+    "population_ref"?: string;
+    "source_sha256"?: string[];
+
+    /** Creates a new ComparisonReference instance. */
+    constructor($$source: Partial<ComparisonReference> = {}) {
+        if (!("result_sha256" in $$source)) {
+            this["result_sha256"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ComparisonReference instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ComparisonReference {
+        const $$createField3_0 = $$createType3;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("source_sha256" in $$parsedSource) {
+            $$parsedSource["source_sha256"] = $$createField3_0($$parsedSource["source_sha256"]);
+        }
+        return new ComparisonReference($$parsedSource as Partial<ComparisonReference>);
+    }
+}
+
 export class Delta {
     "value": string | null;
     "percent": string | null;
     "reason"?: string;
+    "comparison"?: ComparisonEvidence | null;
 
     /** Creates a new Delta instance. */
     constructor($$source: Partial<Delta> = {}) {
@@ -26,8 +101,45 @@ export class Delta {
      * Creates a new Delta instance from a string or object.
      */
     static createFrom($$source: any = {}): Delta {
+        const $$createField3_0 = $$createType5;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("comparison" in $$parsedSource) {
+            $$parsedSource["comparison"] = $$createField3_0($$parsedSource["comparison"]);
+        }
         return new Delta($$parsedSource as Partial<Delta>);
+    }
+}
+
+/**
+ * PopulationComparison is additive metadata. Old snapshots retain their exact
+ * same-population semantics; they do not acquire a cross-source policy by guess.
+ */
+export class PopulationComparison {
+    "version": string;
+    "selection_hash": string;
+    "coverage_kind": string;
+
+    /** Creates a new PopulationComparison instance. */
+    constructor($$source: Partial<PopulationComparison> = {}) {
+        if (!("version" in $$source)) {
+            this["version"] = "";
+        }
+        if (!("selection_hash" in $$source)) {
+            this["selection_hash"] = "";
+        }
+        if (!("coverage_kind" in $$source)) {
+            this["coverage_kind"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new PopulationComparison instance from a string or object.
+     */
+    static createFrom($$source: any = {}): PopulationComparison {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new PopulationComparison($$parsedSource as Partial<PopulationComparison>);
     }
 }
 
@@ -88,3 +200,11 @@ export class Verdict {
         return new Verdict($$parsedSource as Partial<Verdict>);
     }
 }
+
+// Private type creation functions
+const $$createType0 = PopulationComparison.createFrom;
+const $$createType1 = $Create.Nullable($$createType0);
+const $$createType2 = ComparisonReference.createFrom;
+const $$createType3 = $Create.Array($Create.Any);
+const $$createType4 = ComparisonEvidence.createFrom;
+const $$createType5 = $Create.Nullable($$createType4);

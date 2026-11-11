@@ -82,7 +82,17 @@ func NewImporter(format string, d ingestion.ImporterDescriptor) ingestion.Import
 				}
 				if opts.MaxLines > 0 && line >= int64(opts.MaxLines) {
 					report.Complete = true
-					report.SelectionReason = "max_lines"
+					// One-byte lookahead distinguishes a real excluded suffix from
+					// exact EOF, without parsing or counting another physical line.
+					_, peekErr := reader.Peek(1)
+					if ctx.Err() != nil {
+						return report, ctx.Err()
+					}
+					if peekErr == nil {
+						report.SelectionReason = "max_lines"
+					} else if peekErr != io.EOF {
+						return report, ingestion.Problem("IMPORT_IO_FAILED", "source lookahead failed")
+					}
 					return report, nil
 				}
 				raw, e := reader.ReadSlice('\n')

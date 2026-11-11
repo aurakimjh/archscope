@@ -42,11 +42,14 @@ screens remain T-631. The one-document transport also respects the import job's
 record byte ceiling; it is not an unbounded large-file producer adapter.
 
 
-### Current exact-comparison limitation (R2 N-01)
+### Exact baseline/target comparison (R2 N-01)
 
-CompareEvidenceScalar and ProfileSet exact comparison currently support same-input
-reproducibility only: source hashes, selection and declared semantic/capture
-conditions must match. They are not before/after comparisons of different source
-files. N-01 remains open; explicit baseline/target compatibility and provenance
-must be separated before T-631/T-635 expose cross-source comparisons. Existing
-legacy profiler diff keeps its separate compatibility behavior.
+CompareEvidenceScalar accepts ordered baseline/target handles for complete or
+explicitly selected imports with matching versioned comparison policies. Different
+source hashes are retained in the response instead of blocking a nonzero delta.
+ProfileSet comparison checks source-independent model conditions and returns both
+model/source/result references. Unknown/missing policies keep old scalar snapshots
+on their original identity rules. Different selection, metric, semantic/capture or
+coverage conditions are refused; partial imports do not gain cross-source scalar
+comparison. Durable baseline management and entity/time matching remain T-630/T-635.
+Legacy profiler diff keeps its separate compatibility behavior.

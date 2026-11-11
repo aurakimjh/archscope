@@ -118,15 +118,23 @@ func (s *Service) Scalar(handle, path string) (resultcontract.ScalarView, error)
 	return resultcontract.Scalar(r, path)
 }
 func (s *Service) Compare(a, b, path string) (resultcontract.Delta, error) {
-	_, left, e := s.Read(a)
+	leftBody, left, e := s.Read(a)
 	if e != nil {
 		return resultcontract.Delta{}, e
 	}
-	_, right, e := s.Read(b)
+	rightBody, right, e := s.Read(b)
 	if e != nil {
 		return resultcontract.Delta{}, e
 	}
-	return s.results.Compare(left, right, path)
+	delta, e := s.results.Compare(left, right, path)
+	if e == nil && delta.Comparison != nil {
+		leftHash, rightHash := sha256.Sum256(leftBody), sha256.Sum256(rightBody)
+		delta.Comparison.Baseline.Handle = a
+		delta.Comparison.Baseline.ResultSHA256 = hex.EncodeToString(leftHash[:])
+		delta.Comparison.Target.Handle = b
+		delta.Comparison.Target.ResultSHA256 = hex.EncodeToString(rightHash[:])
+	}
+	return delta, e
 }
 func (s *Service) Export(handle, format string) ([]byte, error) {
 	body, r, e := s.Read(handle)

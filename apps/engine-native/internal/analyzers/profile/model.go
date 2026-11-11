@@ -83,7 +83,7 @@ func BuildSet(ctx context.Context, set profilemodel.ProfileSet, selection profil
 	result.Metadata.Extra["population_ids"] = []string{"selected"}
 	rawMetric, _ := json.Marshal(tree.Metric)
 	revision := sha256.Sum256(rawMetric)
-	result.Metadata.Extra["populations"] = map[string]resultcontract.PopulationIdentity{"selected": {SourceHashes: append([]string(nil), set.SourceHashes...), SelectionHash: strings.TrimPrefix(tree.Population, "population-"), SemanticRevision: ModelPayloadVersion + "/" + profilemodel.Version + "/" + hex.EncodeToString(revision[:]), Coverage: "complete_selected_model"}}
+	result.Metadata.Extra["populations"] = map[string]resultcontract.PopulationIdentity{"selected": {Comparison: &resultcontract.PopulationComparison{Version: "1.0.0", SelectionHash: strings.TrimPrefix(set.ComparisonIdentity(selection), "population-"), CoverageKind: "complete_selected_model"}, SourceHashes: append([]string(nil), set.SourceHashes...), SelectionHash: strings.TrimPrefix(tree.Population, "population-"), SemanticRevision: ModelPayloadVersion + "/" + profilemodel.Version + "/" + hex.EncodeToString(revision[:]), Coverage: "complete_selected_model"}}
 	return result, nil
 }
 func ReadCore(result models.AnalysisResult) (CoreEvidence, error) {
@@ -128,6 +128,20 @@ func ValidateModelResult(result models.AnalysisResult) error {
 	expected, e := BuildSet(context.Background(), core.Model, core.Selection, "")
 	if e != nil {
 		return e
+	}
+	var populations map[string]resultcontract.PopulationIdentity
+	populationBody, e := json.Marshal(result.Metadata.Extra["populations"])
+	if e != nil {
+		return e
+	}
+	if e = wirejson.Decode(populationBody, &populations); e != nil {
+		return e
+	}
+	if selected, exists := populations["selected"]; exists && selected.Comparison == nil {
+		old := expected.Metadata.Extra["populations"].(map[string]resultcontract.PopulationIdentity)
+		value := old["selected"]
+		value.Comparison = nil
+		old["selected"] = value
 	}
 	for _, pair := range [][2]any{{result.Summary, expected.Summary}, {result.Series, expected.Series}, {result.Tables, expected.Tables}, {result.Charts, expected.Charts}, {result.Metadata.Extra["measurement"], expected.Metadata.Extra["measurement"]}, {result.Metadata.Extra["populations"], expected.Metadata.Extra["populations"]}} {
 		a, e := json.Marshal(pair[0])

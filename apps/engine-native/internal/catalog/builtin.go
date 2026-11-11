@@ -125,9 +125,18 @@ func ResultRegistry() (*resultcontract.Registry, error) {
 }
 func Analyzer() ingestion.Analyzer {
 	return ingestion.Analyzer{BindSelection: func(result *models.AnalysisResult, info ingestion.SourceInfo, selection ingestion.AnalysisSelection) error {
+		coverage := "complete_records"
+		if selection.SelectionReason != "" {
+			coverage = "selected_records:" + selection.SelectionReason
+		}
+		var comparison *resultcontract.PopulationComparison
+		// Partial results require a future explicit baseline coverage policy.
+		if !selection.Partial {
+			comparison = &resultcontract.PopulationComparison{Version: "1.0.0", SelectionHash: selection.OptionsHash, CoverageKind: coverage}
+		}
 		result.Metadata.Extra["population_ids"] = []string{"imported_records"}
 		result.Metadata.Extra["populations"] = map[string]resultcontract.PopulationIdentity{"imported_records": {
-			SourceHashes: []string{info.SHA256}, SelectionHash: selection.OptionsHash,
+			Comparison: comparison, SourceHashes: []string{info.SHA256}, SelectionHash: selection.OptionsHash,
 			SemanticRevision: selection.ImporterID + "@" + selection.AdapterVersion + "/" + result.Type + "@" + result.Metadata.SchemaVersion,
 			Coverage:         fmt.Sprintf("records:%d/partial:%t/reason:%s", selection.Records, selection.Partial, selection.PartialReason),
 		}}

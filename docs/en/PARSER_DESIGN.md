@@ -712,14 +712,18 @@ verification does not grant an independent PASS or close T-628's REVIEW state.
   in JobProblem. Timeouts remain cooperative for trusted compiled functions.
 - **R-05/R-10:** `max_lines` is an intentional completed selection, with
   `import_coverage.selection=max_lines`, rather than unsafe truncation requiring
-  allow-partial. It stops before reading another logical line. Resource truncation
+  allow-partial. A bounded one-byte lookahead records selection only when an excluded suffix
+  exists; exact EOF with or without a final newline has no selection marker.
+  Lookahead does not parse/count another physical line; read errors remain errors. Resource truncation
   still needs importer safety plus caller consent. Legacy strict/top_n behavior,
   summary/tables/correlation keys, and trailing-empty-line records are checked.
 - **R-08:** Imports and Load share four slots and shutdown cancellation/waiting.
   A process-owned OS lock protects each store; only its exclusive owner collects
   crash-left staging at startup. Exact duplicate snapshots reuse a handle.
   Retention is bounded to 1,024 revisions / 512 MiB without silent eviction;
-  ReleaseEvidenceResult explicitly frees an unused handle. Missing revisions
+  R2 N-02 removes ReleaseEvidenceResult from the public Wails API/bindings
+  until T-630 defines caller/Workspace ownership. Backend Release is an
+  administrative deletion only, not a caller reference release. Missing revisions
   return IMPORT_RESULT_STALE with saved-file recovery guidance. Saved exports
   are independent of this backend cache.
 

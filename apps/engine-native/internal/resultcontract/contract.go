@@ -3,7 +3,6 @@
 package resultcontract
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"math/big"
@@ -502,9 +501,10 @@ func Scalar(result models.AnalysisResult, path string) (ScalarView, error) {
 }
 
 type Delta struct {
-	Value   *string `json:"value"`
-	Percent *string `json:"percent"`
-	Reason  string  `json:"reason,omitempty"`
+	Value      *string             `json:"value"`
+	Percent    *string             `json:"percent"`
+	Reason     string              `json:"reason,omitempty"`
+	Comparison *ComparisonEvidence `json:"comparison,omitempty"`
 }
 
 func (r *Registry) Compare(a, b models.AnalysisResult, path string) (Delta, error) {
@@ -532,24 +532,9 @@ func (r *Registry) Compare(a, b models.AnalysisResult, path string) (Delta, erro
 	if x.Kind != y.Kind || x.Unit != y.Unit || (x.Population == "") != (y.Population == "") || x.Scope != y.Scope || x.Aggregation != y.Aggregation {
 		return Delta{}, fmt.Errorf("measurement population/unit/kind mismatch")
 	}
-	if x.Population != "" {
-		left, e := populationIdentity(a, x.Population)
-		if e != nil {
-			return Delta{}, e
-		}
-		right, e := populationIdentity(b, y.Population)
-		if e != nil {
-			return Delta{}, e
-		}
-		if !bytes.Equal(left, right) {
-			return Delta{}, fmt.Errorf("population identity mismatch")
-		}
-	} else {
-		left, _ := json.Marshal(a)
-		right, _ := json.Marshal(b)
-		if !bytes.Equal(left, right) {
-			return Delta{}, fmt.Errorf("population reference required for cross-revision comparison")
-		}
+	comparison, e := comparePopulations(a, b, x.Population, y.Population)
+	if e != nil {
+		return Delta{}, e
 	}
 	av, e := Scalar(a, path)
 	if e != nil {
@@ -560,7 +545,7 @@ func (r *Registry) Compare(a, b models.AnalysisResult, path string) (Delta, erro
 		return Delta{}, e
 	}
 	if av.Value == nil || bv.Value == nil {
-		return Delta{Reason: "unavailable"}, nil
+		return Delta{Reason: "unavailable", Comparison: comparison}, nil
 	}
 	left, e := numeric(a.Summary[mustKey(path)], x.Encoding)
 	if e != nil {
@@ -572,7 +557,7 @@ func (r *Registry) Compare(a, b models.AnalysisResult, path string) (Delta, erro
 	}
 	delta := new(big.Rat).Sub(right, left)
 	text := delta.RatString()
-	out := Delta{Value: &text}
+	out := Delta{Value: &text, Comparison: comparison}
 	if left.Sign() == 0 {
 		out.Reason = "zero_baseline"
 		return out, nil
@@ -586,35 +571,36 @@ func mustKey(path string) string { _, key, _ := pointer(path); return key }
 // ExactNumber returns an owned exact rational without coercing strings or units.
 func ExactNumber(v any, encoding string) (*big.Rat, error) { return numeric(v, encoding) }
 
-// PopulationIdentity describes the selection used for a measurement. It grants
-// comparison only; matching bytes never merge source/capture provenance.
+// PopulationIdentity retains observation provenance. Cross-source comparison
+// additionally requires a supported, source-independent comparison policy.
 type PopulationIdentity struct {
-	SourceHashes     []string `json:"source_sha256"`
-	SelectionHash    string   `json:"selection_hash"`
-	SemanticRevision string   `json:"semantic_revision"`
-	Coverage         string   `json:"coverage"`
+	Comparison       *PopulationComparison `json:"comparison,omitempty"`
+	SourceHashes     []string              `json:"source_sha256"`
+	SelectionHash    string                `json:"selection_hash"`
+	SemanticRevision string                `json:"semantic_revision"`
+	Coverage         string                `json:"coverage"`
 }
 
 var sha256Text = regexp.MustCompile(`^[0-9a-f]{64}$`)
 
-func populationIdentity(result models.AnalysisResult, id string) ([]byte, error) {
+func populationIdentity(result models.AnalysisResult, id string) (PopulationIdentity, error) {
 	body, e := json.Marshal(result.Metadata.Extra["populations"])
 	if e != nil {
-		return nil, e
+		return PopulationIdentity{}, e
 	}
 	var all map[string]PopulationIdentity
 	if e = wirejson.Decode(body, &all); e != nil {
-		return nil, fmt.Errorf("population identity required")
+		return PopulationIdentity{}, fmt.Errorf("population identity required")
 	}
 	identity, exists := all[id]
 	if !exists || len(identity.SourceHashes) == 0 || !sha256Text.MatchString(identity.SelectionHash) || identity.SemanticRevision == "" || identity.Coverage == "" {
-		return nil, fmt.Errorf("population identity required")
+		return PopulationIdentity{}, fmt.Errorf("population identity required")
 	}
 	sort.Strings(identity.SourceHashes)
 	for i, hash := range identity.SourceHashes {
 		if !sha256Text.MatchString(hash) || (i > 0 && identity.SourceHashes[i-1] == hash) {
-			return nil, fmt.Errorf("invalid population source identity")
+			return PopulationIdentity{}, fmt.Errorf("invalid population source identity")
 		}
 	}
-	return json.Marshal(identity)
+	return identity, nil
 }

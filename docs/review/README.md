@@ -10,5 +10,5 @@
 
 | 날짜 | 문서 | 대상 | 판정·처리 |
 |---|---|---|---|
-| 2026-11-11 | [T-628 구현 재리뷰 R2](done/2026-11-11_claude-code_T-628_implementation-re-review-R2.ko.md) | `63d3b6a` | CONDITIONAL 유지. N-01~N-04를 작업표에 우선순위·후속 조건으로 반영한 뒤 원문 보관. T-629 비차단; 독립 PASS 선언 없음. |
+| 2026-11-11 | [T-628 구현 재리뷰 R2](done/2026-11-11_claude-code_T-628_implementation-re-review-R2.ko.md) | `63d3b6a` | CONDITIONAL 유지. N-01~N-04를 작업표에 반영한 뒤 원문 보관. R2 후속 수정·회귀 검증 완료(비교 출처/호환 분리, 공개 해제 제거, EOF 경계, 투영 예산); 수정분의 독립 재리뷰 대기. T-629 비차단; 독립 PASS 선언 없음. |
 | 2026-11-11 | [T-628 구현 독립 리뷰](done/2026-11-11_claude-code_T-628_implementation-review.ko.md) | `a698d26` | 원 판정 CONDITIONAL 유지. R-01~R-14를 work_status.md에 반영한 뒤 원문 보존·이동; R-01~R-14 후속 수정·로컬 검증 완료. 독립 재리뷰 전 T-628 REVIEW 유지; 원 리뷰의 R-01 조건을 충족하여 T-629 착수 가능. |

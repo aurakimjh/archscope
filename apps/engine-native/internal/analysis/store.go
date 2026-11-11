@@ -88,7 +88,8 @@ func (s *Service) publish(ctx context.Context, staged, handle string, body []byt
 }
 
 // Release removes only the named immutable backend revision. Persisted files
-// and other handles are unaffected. Workspace reference ownership is T-630.
+// and other handles are unaffected. This administrative backend operation is
+// intentionally absent from Wails until T-630 defines caller reference ownership.
 func (s *Service) Release(handle string) error {
 	if !handlePattern.MatchString(handle) {
 		return fmt.Errorf("invalid result handle")

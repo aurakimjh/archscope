@@ -114,12 +114,14 @@ func (s *EngineService) GetEvidenceScalar(handle, path string) (resultcontract.S
 	}
 	return service.Scalar(handle, path)
 }
-func (s *EngineService) CompareEvidenceScalar(a, b, path string) (resultcontract.Delta, error) {
+
+// CompareEvidenceScalar uses caller-selected baseline and target revisions.
+func (s *EngineService) CompareEvidenceScalar(baseline, target, path string) (resultcontract.Delta, error) {
 	service, e := s.evidence()
 	if e != nil {
 		return resultcontract.Delta{}, e
 	}
-	return service.Compare(a, b, path)
+	return service.Compare(baseline, target, path)
 }
 func (s *EngineService) ExportEvidenceResult(handle, path, format string) error {
 	service, e := s.evidence()
@@ -131,12 +133,4 @@ func (s *EngineService) ExportEvidenceResult(handle, path, format string) error 
 		return e
 	}
 	return analysis.AtomicExport(path, body)
-}
-
-func (s *EngineService) ReleaseEvidenceResult(handle string) error {
-	service, e := s.evidence()
-	if e != nil {
-		return e
-	}
-	return service.Release(handle)
 }

@@ -2,6 +2,8 @@ package analysis
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 
 	analyzer "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/profile"
@@ -59,7 +61,22 @@ func (s *Service) ProfileCompare(ctx context.Context, before, after string) (pro
 		if e != nil {
 			return profilemodel.Difference{}, e
 		}
-		return profilemodel.Compare(ctx, left.Model, left.Selection, right.Model, right.Selection)
+		difference, e := profilemodel.Compare(ctx, left.Model, left.Selection, right.Model, right.Selection)
+		if e != nil {
+			return difference, e
+		}
+		beforeBody, _, e := s.Read(before)
+		if e != nil {
+			return difference, e
+		}
+		afterBody, _, e := s.Read(after)
+		if e != nil {
+			return difference, e
+		}
+		bh, ah := sha256.Sum256(beforeBody), sha256.Sum256(afterBody)
+		difference.Baseline.Handle, difference.Target.Handle = before, after
+		difference.Baseline.ResultSHA256, difference.Target.ResultSHA256 = hex.EncodeToString(bh[:]), hex.EncodeToString(ah[:])
+		return difference, nil
 	})
 }
 

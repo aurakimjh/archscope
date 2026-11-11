@@ -539,7 +539,7 @@ func (s *Service) run(j *job, req Request, queueTimer *time.Timer, cancelCause c
 	}
 	result.Metadata.Extra["import_provenance"] = map[string]any{"source_id": lease.Info().ID, "source_sha256": lease.Info().SHA256, "importer": d.ID, "adapter_version": d.AdapterVersion, "options_hash": resolved.OptionHash, "option_canonicalization": "options-v1", "policy_revision": resolved.PolicyRevision, "records": sink.Count, "partial": partial}
 	if resolved.Analyzer.BindSelection != nil {
-		if e = resolved.Analyzer.BindSelection(&result, lease.Info(), ingestion.AnalysisSelection{ImporterID: d.ID, AdapterVersion: d.AdapterVersion, OptionsHash: resolved.OptionHash, Records: sink.Count, Partial: partial, PartialReason: report.PartialReason}); e != nil {
+		if e = resolved.Analyzer.BindSelection(&result, lease.Info(), ingestion.AnalysisSelection{ImporterID: d.ID, AdapterVersion: d.AdapterVersion, OptionsHash: resolved.OptionHash, Records: sink.Count, Partial: partial, PartialReason: report.PartialReason, SelectionReason: report.SelectionReason}); e != nil {
 			failure = ingestion.Problem("IMPORT_RESULT_INVALID", "analysis selection binding failed")
 			return
 		}

@@ -41,10 +41,13 @@ T-631이다. normalized 문서 하나가 job의 record 바이트 상한도 따�
 producer adapter라고 표시하지 않는다.
 
 
-### 현재 정밀 비교의 제한 (R2 N-01)
+### 정밀 baseline/target 비교 (R2 N-01)
 
-CompareEvidenceScalar와 ProfileSet 정밀 비교는 현재 동일 입력의 재현성 비교만
-지원한다. 원본 hash·선택·선언된 의미/수집 조건이 일치해야 하며 다른 원본 파일의
-배포 전후 비교 기능이 아니다. N-01은 OPEN으로 유지하며 T-631/T-635에서 서로 다른
-원본을 비교하기 전에 명시적 baseline/target 호환 조건과 provenance를 분리해야 한다.
-기존 legacy profiler diff는 별도의 호환 동작을 유지한다.
+CompareEvidenceScalar는 버전이 있는 비교 정책이 일치하는 완료/명시 선택 import의
+baseline/target handle을 순서대로 받는다. 서로 다른 원본 hash를 응답에 보존하면서
+0이 아닌 차이를 계산한다. ProfileSet 비교는 원본에 독립적인 모델 조건을 확인하고
+양쪽 모델/원본/결과 참조를 반환한다. 정책 누락·미지 버전인 과거 scalar 결과는 기존
+identity 규칙을 유지한다. 선택·측정·의미/수집·coverage 조건 차이는 거절하고 partial
+import에는 다른 원본의 scalar 비교 권한을 부여하지 않는다. 영속 baseline 관리와
+entity/time matching은 T-630/T-635에 남기며 legacy profiler diff는 기존 호환 동작을
+유지한다.
