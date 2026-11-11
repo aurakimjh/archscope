@@ -1388,6 +1388,161 @@ emitter의 버전을 변경하거나 구현 완료로 선언하지 않는다.
 따른다. 상세 index는 재생성 가능한 cache이며 schema 불일치 시 원본에서 다시
 만든다. 원본이 없으면 snapshot은 보존하고 detail capability를 제한한다.
 
+### T-628 측정과 호환 상세 계약
+
+2026-11-11 작성, 코드 대조 기준 `83b8ff9`. 이 절은 T-628의 설계 산출물이며
+새 버전 emitter·decoder·Wails 경로가 구현됐다는 뜻이 아니다. 실행 흐름은
+[파서 상세 설계](./PARSER_DESIGN.md#실행-인터페이스와-소유권)를 따른다.
+
+#### 유지할 외부 구조와 읽기 경계
+
+최상위 `type`, `source_files`, `created_at`, `summary`, `series`, `tables`,
+`charts`, `metadata`를 유지한다. 정상 결과의 빈 section은 `{}`, source 목록과
+findings는 `[]`를 사용한다. 실패·취소 상태는 별도 job 응답이며 정상 결과의
+section을 전부 비우는 방식으로 표현하지 않는다. 신규 필드는 `metadata`의
+versioned extension 또는 type별 payload schema 안에서만 추가한다.
+
+새 공통 read boundary는 파일 크기·depth·문자열/배열 예산과 중복 JSON key를 검사하고,
+`json.Decoder.UseNumber`에 해당하는 정밀도 보존 decode 후 type별 reader를 선택한다.
+중복 key의 last-wins 동작이나 NaN/Infinity를 허용하지 않는다. unknown optional
+extension은 bounded opaque data로 보존하며 문자열·수치에서 실행 코드나 경로를 추출하지 않는다.
+
+현재 `models.Metadata.UnmarshalJSON`은 unknown field를 보존하지만 `any`에 대한
+기본 `json.Unmarshal`을 사용한다. 따라서 unknown number의 큰 정수/소수 정밀도를
+보장하는 근거는 아니다. `profiler.Metadata`에는 unknown-field 저장 자체가 없다.
+두 경로를 별도로 보완하고 이미 배포된 binary가 같은 보존 능력을 갖는다고 가정하지 않는다.
+
+#### 측정 descriptor와 수치 표현
+
+`metadata.measurement`의 key는 결과 내부 JSON Pointer다. 첫 버전은 `/summary/<key>`의
+scalar와 `/series/<key>`, `/tables/<key>`의 collection descriptor만 허용한다.
+외부 URI, wildcard, 임의 식은 받지 않는다. `~0`/`~1` escape를 처리하고 잘못된 escape,
+없는 target, 정의하지 않은 collection column은 validation 오류다. 임의 중첩 chart
+payload는 해당 ResultDescriptor가 등록한 별도 schema로 검증한다.
+
+| descriptor 필드 | 의미와 validation |
+|---|---|
+| `measurement_kind`, `unit` | CPU/wall/count/bytes 등 실제 의미와 원래 단위. 이름 문자열만으로 unit 변환을 추론하지 않음 |
+| `scope`, `population_ref` | 선택 profile/기간/entity와 유효 관측 모집단의 참조. 다른 분모를 같은 비교로 처리하지 않음 |
+| `aggregation` | sum/count/observed 등 등록된 연산 의미. histogram percentile과 요청 원본 percentile을 구분 |
+| `numeric_encoding` | `json_number`, `exact_integer_string`, `decimal_string`. schema가 허용한 target type과 일치해야 함 |
+| `availability`, `reason` | observed/derived/estimated/unavailable. unavailable이면 명시적 null과 이유가 필요; derived/estimated는 산출 근거·방법 참조 필요 |
+| `evidence_ref` | 같은 결과/사건에서 해석되는 근거 ID. exporter가 임의 URL/파일을 열게 하지 않음 |
+| `columns` | collection의 column별 위 의미. row별 availability/reason을 담는 column 이름도 schema에 선언 |
+
+결과 전체의 합계와 선택 view의 합계를 구분한다. 저장된 결과의 total이 전체 입력 기준이면
+필터 적용 화면은 원본 total을 고치는 대신 selection revision과 분모가 고정된 view를 사용한다.
+`total_samples`를 duration으로 변경하지 않으며 evented 프로파일의 weight에는
+`total_weight`와 시간 descriptor를 사용한다. 실제 sampling count를 모르면 count는 null이다.
+
+정수는 내부에서 정확한 정수/scale로, 소수는 정밀 표현으로 계산한다. JavaScript 안전
+정수 범위를 넘는 **새 계약의 알려진 값**은 exact_integer_string으로 전달하고, 정확한
+소수 보존이 필요한 값은 decimal_string을 쓴다. 기존 number 필드의 type을 schema 변경 없이
+string으로 바꾸지 않는다. 표시용 부동소수 변환은 renderer 경계에서만 수행하며 그것으로
+다시 합계·diff·export 수치를 계산하지 않는다. 문자열 수치도 유효 문법·범위·scale을 검증한다.
+
+다음은 완결된 **설명용** `profile_evidence` 예다. 현재 구현의 출력이나 배포된 schema가
+아니며, evented duration과 sample count 부재의 분리를 보여 준다.
+
+```json
+{
+  "type": "profile_evidence",
+  "source_files": [],
+  "created_at": "2026-11-11T00:00:00Z",
+  "summary": {"total_weight": 1.25, "total_samples": null},
+  "series": {}, "tables": {}, "charts": {},
+  "metadata": {
+    "parser": "example-evented", "schema_version": "0.2.0",
+    "findings": [], "envelope_schema_version": "1.0.0",
+    "extensions": {"measurement": "1.0.0"},
+    "measurement": {
+      "/summary/total_weight": {
+        "measurement_kind": "wall_time", "unit": "seconds",
+        "scope": "profile", "aggregation": "sum",
+        "numeric_encoding": "json_number", "availability": "observed"
+      },
+      "/summary/total_samples": {
+        "measurement_kind": "sample_count", "unit": "count",
+        "scope": "profile", "aggregation": "count",
+        "numeric_encoding": "json_number", "availability": "unavailable",
+        "reason": "evented_profile_has_no_sample_count"
+      }
+    }
+  }
+}
+```
+
+실제 자료에는 해당 결과 schema가 요구하는 evidence/population reference를 추가한다.
+
+#### 미측정·0·잘못된 값의 구분
+
+| 입력 상태 | 저장과 표시 | 비교·export |
+|---|---|---|
+| 관측된 0 | number/string encoding에 따른 유효값 | 차이에 사용. baseline=0이면 변화율은 계산하지 않음 |
+| schema가 허용하는 미측정 | null + unavailable reason | UI는 `—`, chart는 gap, CSV는 빈 cell과 이유, diff는 unavailable |
+| optional 필드 자체가 없음 | key 생략, capability에 누락 이유 | null이나 0을 임의로 추가하지 않음 |
+| 잘못된 수치·단위·encoding | result validation 실패 | 정상 export·비교에 사용하지 않음 |
+
+#### Unknown metadata와 bridge 왕복
+
+common metadata는 Extra API와의 호환을 유지하면서 unknown number를 정밀도 보존 방식으로
+읽는다. legacy profiler에는 `map[string]json.RawMessage`의 unknown-key 저장과 custom
+marshal/unmarshal을 추가한다. 공통 typed key가 항상 우선하며, omitempty로 생략할 key도
+Extra에서 되살리지 않는다. decode 실패 시 수신 객체를 부분 수정하지 않고, 성공 시에는
+이전 객체의 unknown key가 남지 않게 한다.
+
+새 decoder의 `json.Number`를 기존 consumer의 `float64` type assertion에 그대로 전달하지
+않는다. number accessor에서 정수·scale·range를 검증하고, 기존 consumer에는 검증된 호환
+projection을 전달한다. 원래 값을 보존할 수 없으면 계산을 거부한다. wire 호환과 Go 내부
+자료형 호환을 별도로 검증한다.
+
+unknown extension의 큰 정수를 JavaScript object로 펼쳤다가 저장하면 정밀도가 손실될 수
+있다. 새 generic/job/detail 경로는 backend에 immutable 결과를 유지하고 UI에는 result
+handle과 bounded view를 전달한다. opaque metadata를 전달해야 하면 JSON text로 취급하며
+UI에서 parse/stringify해 다시 저장하지 않는다. JSON export는 backend의 원래 revision에서
+생성한다. 기존 Wails full-result 경로는 별도 왕복 검증 후 연결한다. Go serializer 수정만으로
+end-to-end 정밀도가 보장됐다고 판단하지 않는다.
+
+#### 호환 판정과 migration
+
+reader는 envelope → result payload → extension → 대상 operation 순서로 판정한다.
+`metadata.envelope_schema_version`이 없으면 legacy envelope로 읽지만 payload version까지
+0.1.0이라고 추정하지 않는다. type/version이 불명확하면 bounded 표시와 원본 보존으로
+제한한다. ResultDescriptor는 operation별 required extension과 reader range를 정의한다.
+새로운 필수 extension에 의존하면 payload semantic version도 갱신하며 optional block 추가로
+취급하지 않는다.
+
+| 조건 | 허용 동작 | 금지 동작 |
+|---|---|---|
+| 알려진 legacy payload | version 전용 reader·기존 snapshot 표시, 명확히 정의된 기존 계산 | 불명확한 unit/interval을 새 기본값으로 보충 |
+| 지원하는 새 payload·required extension | 검증된 capability의 계산·저장·비교 | imported capability 문자열만으로 기능 활성화 |
+| 미지 optional block만 있음 | opaque 보존, 알려진 독립 operation | unknown block 삭제·의미 추정·미지 script 실행 |
+| 미지원 payload/required block | 원본 보존·가능한 bounded snapshot 표시·업데이트 안내 | 수치 계산, 손실 있는 재저장, schema 번호만 변경 |
+| stale/rebuild 대상 index | hash가 일치하는 원본에서 재생성 | 다른 source를 같은 revision의 detail로 연결 |
+
+이 판정은 새 reader의 계약이며 미갱신 구형 binary에 강제할 수 없다. 새 payload를 구형 API로
+자동 역변환하지 않는다. migration은 원본 hash·capture/options를 검증해 새 revision으로
+재분석하거나 명시적인 lossless projection을 사용한다. 과거 weight에 duration label만 붙이지
+않는다. 비교는 kind/unit/population/semantic revision을 확인하고 정밀도·관측 조건이 부족하면
+이유와 함께 거부한다. 읽기 전용 표시와 계산 호환을 구분한다.
+
+#### T-628 wire 적합성 사례
+
+다음은 구현 테스트로 넘길 사례이며 이 문서 변경에서 실행한 테스트 결과가 아니다.
+
+| ID | 사례 | 필수 기대 결과 |
+|---|---|---|
+| W01 | metadata에 unknown object/array/null/9007199254740993 포함 | Go load-save의 의미·정수 일치, UI 경유 export에서도 정밀도 유지 |
+| W02 | 고정밀 decimal string과 알려진 0 | type/scale 보존, 표시 반올림으로 계산값 덮어쓰기 금지 |
+| W03 | typed key와 Extra 충돌, nil diagnostics | typed/생략 규칙 우선, Extra에서 되살리지 않음 |
+| W04 | 같은 객체에 두 번 decode, 두 번째 입력은 타입 오류 | 성공 시 stale extension 제거, 실패 시 이전 값 유지 |
+| W05 | duplicate key, 깊은 JSON, NaN/Infinity | bounded read에서 거부, 정상 결과 commit 없음 |
+| W06 | 잘못된 Pointer·없는 target·미정의 column·encoding 불일치 | result validation 실패 |
+| W07 | null/0/absent를 UI·CSV·HTML·diff로 전달 | availability·분모 유지, 미측정을 0으로 처리하지 않음 |
+| W08 | old/new payload, unknown optional/required block | 호환표에 따라 계산과 재저장 제어 |
+| W09 | result version만 바꾼 과거 profile | 원본 재분석 요구, 기존 count를 duration으로 재해석하지 않음 |
+| W10 | unknown JSON의 Wails/Report Pack 왕복 | backend 원본 또는 정밀도 보장 경로 사용, script/URL 실행 금지 |
+
 ## Schema 0.2.0 — additive 변경
 
 이 절은 `0.2.0-beta` 이후 일부 분석기에서 도입한 0.2.0 계열 변경을

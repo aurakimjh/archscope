@@ -1233,6 +1233,157 @@ Section 16.3 specifies owners, declarations, and read-only/reject/recompute beha
 Detail indexes are rebuildable caches; without originals, preserve snapshots and
 disable unavailable detail operations.
 
+### T-628 detailed measurement and compatibility contract
+
+Authored on 2026-11-11 against `83b8ff9`. This is the design portion of T-628,
+not evidence of implemented emitters, decoders or Wails behavior. Execution follows
+the [parser contract](./PARSER_DESIGN.md#execution-interfaces-and-ownership).
+
+#### Envelope and decoding boundary
+
+Retain type, source_files, created_at, summary, series, tables, charts and metadata.
+Empty successful sections remain objects; sources/findings remain arrays. Failure
+and cancellation use job responses, not empty successful results. Add fields only
+through versioned metadata extensions or the relevant result payload schema.
+
+The new shared decoder bounds bytes, depth, strings and arrays, rejects duplicate
+keys and nonfinite values, preserves number precision using json.Decoder.UseNumber
+or equivalent, then dispatches a type-specific reader. Unknown optional extensions
+remain bounded opaque data; they cannot supply executable code or file paths.
+
+Current models.Metadata.UnmarshalJSON retains unknown keys but decodes their values
+through default json.Unmarshal into any. This does not establish exact large-integer
+or decimal roundtrips. Legacy profiler.Metadata has no unknown-key storage. Address
+both paths and do not attribute new preservation behavior to existing binaries.
+
+#### Measurement descriptors and numeric representation
+
+metadata.measurement keys are internal JSON Pointers. The first contract supports
+summary scalar targets and series/tables collection descriptors. No external URIs,
+wildcards or expressions. Decode ~0/~1; reject invalid escapes, absent targets and
+undeclared columns. Nested chart payloads use separately registered schemas.
+
+| Field | Meaning and validation |
+|---|---|
+| measurement_kind, unit | Actual CPU/wall/count/bytes semantics; do not infer conversion from a name |
+| scope, population_ref | Selected profile/time/entity and valid observation population |
+| aggregation | Registered sum/count/observed semantics; distinguish histogram estimates from event-derived percentiles |
+| numeric_encoding | json_number, exact_integer_string or decimal_string; must match the declared target type |
+| availability, reason | observed/derived/estimated/unavailable; unavailable needs null and reason; derived/estimated need method/evidence references |
+| evidence_ref | Locally resolvable result/case evidence ID, not permission to fetch arbitrary URLs/files |
+| columns | Per-column semantics and schema-declared row availability/reason columns |
+
+Keep full-result totals separate from immutable selected views. Do not redefine
+total_samples as duration. Evented profiles use total_weight with a duration
+descriptor; unobservable sampling counts are null.
+
+Compute with exact integers/scales or precise decimals internally. Known values in
+the new contract exceeding JavaScript's safe integer range use exact_integer_string;
+precision-sensitive decimals use decimal_string. Existing number fields cannot
+become strings without a schema change. Floating-point rendering projections must
+not feed totals, diff or export calculations. Validate numeric-string syntax,
+range and scale as well as ordinary JSON numbers.
+
+This complete illustrative result separates observed duration from absent sample
+count. It is not current output or a shipped schema. Real results add the evidence
+and population references required by their payload schema.
+
+```json
+{
+  "type": "profile_evidence",
+  "source_files": [],
+  "created_at": "2026-11-11T00:00:00Z",
+  "summary": {"total_weight": 1.25, "total_samples": null},
+  "series": {}, "tables": {}, "charts": {},
+  "metadata": {
+    "parser": "example-evented", "schema_version": "0.2.0",
+    "findings": [], "envelope_schema_version": "1.0.0",
+    "extensions": {"measurement": "1.0.0"},
+    "measurement": {
+      "/summary/total_weight": {
+        "measurement_kind": "wall_time", "unit": "seconds",
+        "scope": "profile", "aggregation": "sum",
+        "numeric_encoding": "json_number", "availability": "observed"
+      },
+      "/summary/total_samples": {
+        "measurement_kind": "sample_count", "unit": "count",
+        "scope": "profile", "aggregation": "count",
+        "numeric_encoding": "json_number", "availability": "unavailable",
+        "reason": "evented_profile_has_no_sample_count"
+      }
+    }
+  }
+}
+```
+
+| Input state | Storage/display | Comparison/export |
+|---|---|---|
+| Observed zero | Valid declared numeric encoding | Compute differences; no percent change with zero baseline |
+| Schema-permitted unavailable | Null plus reason | UI dash, chart gap, CSV blank/reason, unavailable diff |
+| Absent optional field | Omitted key and missing capability reason | Do not synthesize null or zero |
+| Invalid value/unit/encoding | Result validation failure | No successful numeric export or comparison |
+
+#### Unknown metadata and bridge roundtrips
+
+Keep the common Extra API compatible while decoding unknown numbers precisely.
+Add map[string]json.RawMessage storage and custom marshal/unmarshal to legacy
+profiler metadata. Typed keys always win, including omitted optional keys: Extra
+must not resurrect them. Failed decode leaves the receiver unchanged; successful
+reuse removes stale unknown keys.
+
+Do not pass json.Number straight to existing float64 assertions. Numeric accessors
+validate integer/scale/range, and legacy consumers receive verified projections.
+Reject conversions that cannot preserve the value. Validate Go internal type
+compatibility separately from wire compatibility.
+
+JavaScript object parse/resave can lose large unknown numbers. New generic/job/detail
+paths keep immutable results in the backend and give UI result handles plus bounded
+views. Where opaque metadata must cross the bridge, use JSON text without UI
+parse/stringify persistence. JSON export reads the backend revision. Existing
+full-result Wails paths require separate roundtrip evidence; a serializer fix alone
+does not establish end-to-end precision.
+
+#### Compatibility and migration
+
+Evaluate envelope, payload, extensions, then the requested operation. Missing
+envelope_schema_version means legacy envelope, not an inferred payload 0.1.0.
+Unknown type/version permits only bounded viewing and original preservation.
+ResultDescriptor defines operation-specific required extensions and reader ranges.
+A new mandatory extension also changes payload semantic version; it is not merely
+an optional block addition.
+
+| Condition | Allowed | Prohibited |
+|---|---|---|
+| Known legacy payload | Version-specific reader, snapshots, well-defined existing calculations | Fill unknown unit/interval with new defaults |
+| Supported payload and required blocks | Validated capability operations | Trust imported capability strings alone |
+| Unknown optional block only | Opaque preservation and independent known operations | Delete/infer/execute the block |
+| Unsupported payload/required block | Original preservation, possible bounded snapshot, update guidance | Numeric computation, lossy resave, version-only relabeling |
+| Stale index | Rebuild from hash-matched originals | Attach different sources to the same revision |
+
+These rules apply to new readers and cannot be imposed on unupdated binaries.
+Do not automatically reverse-convert new payloads into old APIs. Migration verifies
+source hash and capture/options and reanalyzes into a new revision, or uses an
+explicit lossless projection. Do not label old counts as durations. Comparison
+requires compatible kind/unit/population/semantic revision and sufficient precision
+and observation context. Read-only display does not establish compute compatibility.
+
+#### T-628 wire conformance cases
+
+These are implementation handoff cases, not tests executed by this document change.
+
+| ID | Case | Required result |
+|---|---|---|
+| W01 | Unknown object/array/null/9007199254740993 | Exact semantic/integer Go and UI-mediated export roundtrips |
+| W02 | High-precision decimal string and observed zero | Preserve type/scale; display rounding never replaces calculation values |
+| W03 | Typed/Extra collision and nil diagnostics | Typed and omission rules win |
+| W04 | Reused receiver and failing second decode | Clear stale keys on success; retain previous value on failure |
+| W05 | Duplicate keys, excessive depth, NaN/Infinity | Bounded rejection without successful commit |
+| W06 | Invalid pointer/target/column/encoding | Result validation failure |
+| W07 | Null/zero/absent through UI/CSV/HTML/diff | Preserve availability and denominators |
+| W08 | Old/new payload, unknown optional/required blocks | Follow compatibility matrix for computation/resave |
+| W09 | Old profile with only version changed | Require source reanalysis; never reinterpret counts as duration |
+| W10 | Unknown JSON across Wails/report packs | Backend originals or proven precise path; no script/URL execution |
+
 ## Schema 0.2.0 — additive changes
 
 This section records 0.2.0-family changes introduced by some analyzers after

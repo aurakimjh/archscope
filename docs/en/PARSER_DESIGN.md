@@ -14,6 +14,127 @@ when introducing the descriptor/catalog path. Existing family-specific CLI and
 6. Test ambiguity, loss, unknown versions, cancellation, partial results, metadata roundtrips and goldens; update the support matrix.
 7. Existing semantic families/renderers should need only package, fixtures and registration. Explain additional service/CLI/UI switches and removal plans. New semantics or visual grammars require explicit contract work.
 
+### T-628 detailed design scope and baseline
+
+This is a pre-implementation contract checked against `83b8ff9` on 2026-11-11.
+The APIs/codes below are proposed, not currently callable. Writing them does not
+complete T-628 implementation or release dependent tasks.
+
+| Current evidence | Behavior | Migration boundary |
+|---|---|---|
+| internal/ingestion/registry.go | 64 KiB probe, highest confidence wins, first sorted entry wins a tie | Retain legacy Detect while adding a candidate-set API |
+| internal/ingestion/ingestion_test.go | Confidence, unknown format, HAR/NetLog tests | Add ambiguity, budget and explicit-selection cases |
+| internal/threaddump/registry.go | Plugins, default mixed-format rejection and explicit override | Preserve existing options through wrappers without claiming broader support |
+| internal/analyzers/profile/analyzer.go | profile_evidence 0.1.0 and legacy profiler calculations | T-628 wires contracts; T-629 migrates the core; T-634 corrects measurement semantics |
+
+### Registration and selection contract
+
+The proposed internal/catalog explicitly assembles and validates built-ins at
+startup, then freezes the registry. Do not rely on package init side effects.
+Separate executable handles from bounded descriptor views returned to consumers.
+
+| Contract | Required rule |
+|---|---|
+| IDs/aliases | Nonempty lowercase ASCII letters/digits/dot/underscore/hyphen; normalize only documented legacy aliases. Reject duplicate canonical/alias names and reserved auto |
+| Versions | Adapter version differs from verified producer versions; unknown producers are not assumed compatible |
+| Record family | Validate parser/normalizer/analyzer family at composition and for every batch |
+| Schemas | Resolve bundled ID/version/hash; never fetch external schema URLs |
+| Capabilities | Descriptor is an upper bound; actual time/symbol/comparison capability is reduced by file evidence |
+| Support evidence | Release registration requires fixture manifest/hash and conformance version |
+
+DetectCandidates returns all candidates and reasons. Verified structural/signature
+evidence differs from filename/extension hints. Confidence is a ranking aid, not
+a probability or sufficient auto-selection rule. Nonfinite/out-of-range scores
+are detector errors. Select automatically only when exactly one canonical importer
+is verified. Multiple verified candidates or hints alone require selection; no
+candidate is unsupported. Coalesce aliases before ranking by evidence, confidence,
+then stable ID.
+
+Explicit selection still validates structure, options and supported producer versions.
+A known contradictory signature returns IMPORT_FORMAT_MISMATCH. Do not silently
+retry another parser. Existing CLI aliases and thread overrides remain explicit
+compatibility options covered by fixtures.
+
+### Execution interfaces and ownership
+
+These are logical internal Go/Wails contracts, not HTTP endpoints or an external
+plugin ABI. DTO names may change without changing ownership or semantics.
+
+```text
+Catalog.List() -> bounded DescriptorView[]
+Catalog.DetectCandidates(ctx, Probe) -> DetectionSet
+Catalog.Resolve(importerID, options, policyRevision) -> ResolvedImporter
+ImportEvidence(ctx, sourceRef, importerSelection, options) -> ImportJobRef
+SelectImporter(jobID, generation, importerID) -> JobSnapshot
+Parser.Parse(ctx, SourceLease, RecordSink) -> ParseReport
+Normalizer.Normalize(ctx, RecordBatch, NormalizedSink) -> error
+Analyzer.Analyze(ctx, NormalizedRef, AnalysisOptions) -> AnalysisResult
+GetImportJob(jobID, generation) -> JobSnapshot
+CancelImport(jobID, generation) -> CancelOutcome
+```
+
+- The service owns SourceLease open/close, source ID, safe display name, fingerprint and bounded read/reopen. Parsers cannot open unrelated files, networks or converters. Seek requirements use declared bounded spooling or an unsupported response.
+- RecordBatch holds family-typed records, source byte/line/event positions and sequence. Ownership transfers to a synchronous, backpressured sink; parsers cannot mutate transferred batches or accumulate unbounded UI queues.
+- Probe and parse must use the same source; one file handle alone does not guarantee immutability. If lifetime/fingerprint, consumed bytes and final hash cannot reliably establish consistency, first create an owned immutable snapshot. Snapshot budget failure or mutation fails the job, including SOURCE_CHANGED where applicable. Byte equality does not merge collection provenance.
+- Freeze validated options and record a versioned canonical option hash. Do not expose secrets or raw paths through progress/hash explanations.
+- Record job budgets for source/expanded bytes, record size/count, depth, unique keys, time and temporary disk. Retain the current 64 KiB probe default and independently bound decompression. Reject importer/user limits exceeding policy.
+- Converters run in a separate explicitly selected local step with bounded arguments, output, time and temporary files, outside the parser.
+
+### Job state and failure contract
+
+```text
+queued -> probing -> needs_selection -> validating -> parsing -> normalizing
+       -> analyzing -> validating_result -> committing -> completed | partial
+```
+
+Stages are logical; streaming parse/normalize may overlap. Auto-selection skips
+needs_selection; no full parse starts before a selection. SelectImporter applies
+only to that waiting job/generation, and repeating the same choice is idempotent.
+Changing importer after parsing starts requires cancellation and a new job. Active stages may end
+failed/cancelled. All four final states are terminal. Atomic manifest publication
+is the commit point; later cancellation returns already_terminal. Cancellation
+for the same job/generation is idempotent.
+
+Validate staged schema, measurements and references before publication. Failure
+or cancellation cleans owned staging/leases and preserves prior revisions. Partial
+output requires complete usable records, importer-defined partial semantics and
+caller permission. Source mutation, family/schema errors, unknown required units
+and broken core structure cannot become partial success. Budget exhaustion may
+produce partial output only at a defined safe record boundary. Never invent missing
+event endpoints or weights.
+
+| Proposed code | Meaning and consumer response |
+|---|---|
+| IMPORT_REGISTRY_INVALID | Reject catalog activation on duplicate IDs, missing schemas or family mismatch |
+| IMPORT_SELECTION_REQUIRED | Display ambiguity/hints and await selection |
+| IMPORT_FORMAT_UNSUPPORTED / IMPORT_VERSION_UNSUPPORTED | Explain limits/conversion; do not create successful results |
+| IMPORT_FORMAT_MISMATCH / IMPORT_OPTIONS_INVALID | Correct selection/options without silent parser fallback |
+| IMPORT_BUDGET_EXCEEDED / SOURCE_CHANGED | Disclose actual constraint and partial availability |
+| IMPORT_RESULT_INVALID | Reject commit and preserve existing snapshots |
+
+Cancellation is a terminal job state, not a diagnostic finding. JobProblem contains
+code, stage, retryability, source ID, safe message and bounded diagnostic references.
+Failures cannot become empty successful AnalysisResults. Partial coverage also lives
+in result metadata so save/reload/export does not depend on job history.
+
+### T-628 implementation handoff
+
+| Stage | Change | Required evidence |
+|---|---|---|
+| C1 | Descriptor/catalog and compatibility wrappers | Existing detection/alias/thread behavior plus new registration/ambiguity checks |
+| C2 | Orchestration and bounded sinks | Selection, cancellation, partial safety, source mutation and cleanup regressions |
+| C3 | Models/profiler metadata and shared decoder | [Data-model contract](./DATA_MODEL.md#t-628-detailed-measurement-and-compatibility-contract) precision, unknown-field and version cases |
+| C4 | One existing importer end to end | CLI/Wails load-save-export fidelity and recorded switch count |
+
+T-628 proves C1–C4 with at least one existing importer. All-format core migration,
+generic rendering and semantic corrections remain T-629, T-631 and T-634.
+Preserve profile goldens, metadata roundtrips and thread mixed-format tests. Add
+duplicate/alias, hint-only, multiple verified, invalid score, cancellation around
+commit, unsafe partial, schema mismatch, stale generation and exact-number cases.
+Skipped required fixtures are not release evidence. Reusable fixtures and actual
+JSON Schemas go to indexed shared assets during implementation; this section is
+an ArchScope-specific execution contract, not a new shared schema file.
+
 Parsers convert raw files into typed records. They should not own chart rendering or report formatting.
 
 ## Responsibilities

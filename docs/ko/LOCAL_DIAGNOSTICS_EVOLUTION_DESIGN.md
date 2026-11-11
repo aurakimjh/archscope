@@ -772,6 +772,11 @@ GPU 분석에 필요한 GPU 자료와 로컬 AI 모델 실행에 필요한 자�
 
 ## 16 AnalysisResult와 확장 계약
 
+T-628의 구현 전 상세 계약은 [파서 설계](./PARSER_DESIGN.md#t-628-상세-설계-범위와-현재-기준)와
+[데이터 모델](./DATA_MODEL.md#t-628-측정과-호환-상세-계약)에 작성했다. 아래는 통합 방향이며,
+등록·선택·job 실패·정밀도·버전 판정의 상세 조건과 검증 인계는 해당 문서를 따른다.
+문서 작성만으로 T-628의 구현 완료나 후속 작업의 의존성 해제를 의미하지 않는다.
+
 ### 16.1 외부 envelope 보존
 
 기존 `type`, `source_files`, `created_at`, `summary`, `series`, `tables`, `charts`, `metadata`를 유지한다. [공통 모델](./DATA_MODEL.md)과 [Go 정의](../../apps/engine-native/internal/models/analysis_result.go)를 기준으로 additive extension을 사용한다. profiler 전용 typed envelope와의 round-trip도 함께 확인한다.

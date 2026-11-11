@@ -14,6 +14,126 @@ descriptor/catalog 기반 경로를 도입할 때 아래 순서를 따른다. �
 6. 감지 충돌·손실·미지 버전·취소·partial·metadata 왕복과 golden을 검증하고 지원표를 갱신한다.
 7. 기존 의미 계열과 renderer를 재사용하는 입력은 package + fixture + 등록으로 끝나야 한다. service/CLI/UI switch가 늘면 이유와 제거 계획을 남긴다. 새 의미·시각화는 별도 계약 변경으로 명시한다.
 
+### T-628 상세 설계 범위와 현재 기준
+
+2026-11-11, `83b8ff9`의 코드를 대조해 작성한 **구현 전 계약**이다. 아래 API와
+오류 코드는 제안이며 현재 실행 가능한 인터페이스가 아니다. T-628의 코드 구현,
+회귀 검증 및 T-629 이후 작업의 의존성 해제를 이 문서 작성으로 대체하지 않는다.
+
+| 현재 근거 | 확인한 동작 | 이행할 경계 |
+|---|---|---|
+| `internal/ingestion/registry.go` | 최대 64 KiB probe, confidence 최고값 하나 선택, 같은 점수는 등록 정렬 순서의 첫 항목 유지 | 기존 `Detect`는 호환 경로로 두고 새 다중 후보 선택 API 추가 |
+| `internal/ingestion/ingestion_test.go` | confidence·미지 형식·HAR/NetLog 구분 테스트 | 새로운 충돌·예산·강제 형식 계약은 별도 적합성 사례로 추가 |
+| `internal/threaddump/registry.go` | plugin 기반, 기본 mixed-format 거부와 명시적 override 경로 | wrapper가 현재 옵션 의미를 보존하고 지원 범위를 넓혔다고 선언하지 않음 |
+| `internal/analyzers/profile/analyzer.go` | `profile_evidence` 0.1.0 출력과 기존 profiler 연산 사용 | T-628은 실행 접점, T-629는 ProfileSet 코어, T-634는 의미 정정 책임 |
+
+### 등록과 형식 선택 계약
+
+`internal/catalog`가 시작 시 built-in descriptor를 명시적으로 조립하고 검증 후
+registry를 동결한다. parser package의 `init()` 부작용으로 순서를 정하지 않는다.
+descriptor는 실행 함수와 외부 표시용 설명을 분리한다. 목록·UI에는 함수 핸들,
+실행 파일 경로, 임의 코드가 노출되지 않는다.
+
+| 계약 | 구현 시 고정할 규칙 |
+|---|---|
+| ID와 alias | canonical ID는 소문자 ASCII 영숫자·`.`·`_`·`-`의 비어 있지 않은 값. 명시된 legacy alias만 같은 정규화 규칙으로 lookup; 중복 canonical/alias와 reserved `auto` 등록은 실패 |
+| 버전 | adapter version과 producer의 검증 범위를 분리. 미지 producer version을 최신 버전과 동일하게 간주하지 않음 |
+| 출력 family | descriptor의 record family, normalizer 입력, analyzer 입력을 조립 시 대조. 다른 family의 batch를 받으면 결과 생성 전 실패 |
+| schema 참조 | 앱에 포함된 ID/version/hash로 resolve. 옵션·record·결과 schema의 외부 URL을 자동 가져오지 않음 |
+| 능력 | descriptor는 가능한 능력의 상한. 파일별 시간·심볼·비교 능력은 parse/normalize 후 근거로 축소 |
+| 등록 증거 | fixture manifest ID/hash와 conformance version이 없는 importer는 release 지원 목록에 포함하지 않음 |
+
+새 `DetectCandidates`는 모든 유효 후보와 근거를 반환한다. 구조·signature 확인은
+`verified`, 확장자/파일명만 맞으면 `hint`로 구분한다. confidence는 화면 정렬용이며
+확률이나 자동 선택의 단독 근거가 아니다. 비유한 값과 범위 밖 점수는 detector 오류다.
+한 canonical importer만 verified이면 자동 선택하고, 둘 이상이면 `needs_selection`,
+hint만 있으면 확인 필요, 후보가 없으면 unsupported로 반환한다. alias가 같은 canonical
+ID를 가리키는 경우 먼저 합친다. 정렬은 근거 등급 → confidence → stable ID로 고정한다.
+
+사용자가 importer를 지정해도 schema·지원 버전·구조 검증은 생략하지 않는다.
+다른 형식의 확실한 signature와 충돌하면 `IMPORT_FORMAT_MISMATCH`로 종료한다.
+실패 뒤 다른 parser로 조용히 재시도하지 않는다. 기존 CLI의 format alias와
+thread override는 wrapper의 명시적 compatibility option으로 다루고 fixture로 고정한다.
+
+### 실행 인터페이스와 소유권
+
+다음은 Go 내부·Wails bridge가 공유할 논리 계약이다. HTTP endpoint나 외부 plugin ABI를
+추가하는 설계가 아니다. 세부 DTO 이름은 바꿀 수 있지만 입력·소유권·결과 의미는 유지한다.
+
+```text
+Catalog.List() -> bounded DescriptorView[]
+Catalog.DetectCandidates(ctx, Probe) -> DetectionSet
+Catalog.Resolve(importerID, options, policyRevision) -> ResolvedImporter
+ImportEvidence(ctx, sourceRef, importerSelection, options) -> ImportJobRef
+SelectImporter(jobID, generation, importerID) -> JobSnapshot
+Parser.Parse(ctx, SourceLease, RecordSink) -> ParseReport
+Normalizer.Normalize(ctx, RecordBatch, NormalizedSink) -> error
+Analyzer.Analyze(ctx, NormalizedRef, AnalysisOptions) -> AnalysisResult
+GetImportJob(jobID, generation) -> JobSnapshot
+CancelImport(jobID, generation) -> CancelOutcome
+```
+
+- `SourceLease`는 선택된 source ID, 표시용 이름, 크기·fingerprint와 bounded read/reopen 기능을 제공한다. service가 열고 닫으며 parser는 별도 파일·네트워크·converter를 열지 않는다. seek가 필요한 parser는 descriptor에서 선언하고 bounded spool 또는 미지원 응답을 받는다.
+- `RecordBatch`는 family별 typed record, 원본 byte/line/event 위치, sequence를 가진다. parser는 batch를 sink에 넘긴 뒤 재사용·변경하지 않는다. sink는 동기 backpressure를 제공하며 UI가 소비할 때까지 무한 queue에 쌓지 않는다.
+- source를 연 뒤 probe와 실제 parse의 대상이 바뀌지 않게 한다. 같은 file handle만으로 불변성을 보장하지 않는다. 수명·fingerprint·읽은 내용과 완료 hash로 일관성을 신뢰성 있게 검증할 수 없으면 먼저 앱 소유 immutable snapshot을 만든다. snapshot 예산 부족이나 변경 감지는 실패이며 `SOURCE_CHANGED` 등을 반환한다. hash가 같다는 사실만으로 수집 provenance를 합치지 않는다.
+- options는 schema 검증 후 immutable snapshot으로 고정한다. key 정렬과 버전 있는 canonicalization으로 option hash를 만들고, secret/원본 경로를 job progress나 hash 설명에 노출하지 않는다.
+- 최대 입력/해제 bytes, record 크기·수, stack 깊이, unique key 수, 시간·임시 디스크 예산을 job 시작 때 기록한다. 기본 probe는 현행 64 KiB를 유지하며 압축 입력의 해제 probe에도 별도 상한을 적용한다. 상위 policy보다 큰 importer/user 예산은 거부한다.
+- converter 실행은 parser 밖의 별도 승인된 local-conversion 단계다. collection kit와 설치된 executable의 허용 옵션을 사용하고, stdout/stderr·시간·임시 파일을 제한한다.
+
+### Job 상태와 실패 계약
+
+```text
+queued -> probing -> needs_selection -> validating -> parsing -> normalizing
+       -> analyzing -> validating_result -> committing -> completed | partial
+```
+
+이 흐름은 논리 단계이며 스트리밍 parse/normalize가 겹칠 수 있다. 자동 선택이면
+`needs_selection`을 건너뛰고, selection 전에는 원본 전체 파싱을 시작하지 않는다.
+`SelectImporter`는 해당 대기 job/generation에만 적용한다. 같은 선택의 재전송은 멱등이고
+파싱 시작 후 다른 선택으로 바꾸려면 기존 job을 취소하고 새 job을 만든다.
+진행 중 단계에서 `failed` 또는 `cancelled`로 끝날 수 있다. `completed`·`partial`·
+`failed`·`cancelled`는 terminal이다. manifest publish의 atomic 시점이 완료의 기준이며,
+그 뒤의 취소는 `already_terminal`을 반환한다. 같은 job ID/generation의 취소는 멱등이다.
+
+결과는 staging에서 schema·측정 의미·참조를 검증한 뒤 확정한다. 실패·취소는 staging과
+owned lease를 정리하고 이전 결과 revision을 유지한다. 부분 결과는 **분석 가능한 완결
+record가 있고 importer가 partial 의미를 정의했으며 호출자가 허용한 경우에만** 저장한다.
+source 변경, schema/family 오류, 필수 측정값의 단위 불명, 핵심 구조 손상은 partial로 성공 처리하지
+않는다. 예산 도달도 importer가 정의한 안전한 record 경계에서만 partial이 가능하다.
+누락 event의 종료 시각·stack weight를 임의 보충하지 않는다.
+
+| 제안 코드 | 반환 위치와 의미 | 소비자 동작 |
+|---|---|---|
+| `IMPORT_REGISTRY_INVALID` | 중복 ID/alias·미존재 schema·family 불일치 | 새 catalog 활성화 실패; 검증되지 않은 일부 등록으로 계속 진행하지 않음 |
+| `IMPORT_SELECTION_REQUIRED` | verified 충돌 또는 hint만 있음 | 후보와 근거 표시, 선택 전 재파싱 금지 |
+| `IMPORT_FORMAT_UNSUPPORTED` / `IMPORT_VERSION_UNSUPPORTED` | 형식 또는 producer 지원 범위 불충족 | 변환/제한 안내; 성공 결과 생성 금지 |
+| `IMPORT_FORMAT_MISMATCH` / `IMPORT_OPTIONS_INVALID` | 명시 선택 또는 옵션 검증 실패 | 해당 입력 정정, 자동 다른 parser fallback 금지 |
+| `IMPORT_BUDGET_EXCEEDED` / `SOURCE_CHANGED` | 자원 또는 동일 source 보장 실패 | 원인·실제 제한·부분 자료 가용성 표시 |
+| `IMPORT_RESULT_INVALID` | 정규화/결과 schema·단위·참조 위반 | commit 거부, 기존 snapshot 보존 |
+
+취소는 오류 finding을 만드는 대신 job의 별도 terminal 상태다. `JobProblem`은 code,
+stage, retryability, source ID, sanitized message와 bounded diagnostic references를 가진다.
+실패를 빈 정상 `AnalysisResult`로 바꾸지 않는다. partial의 coverage는 result metadata에도
+남겨 CLI 저장·재열기·export에서 job history 없이 확인할 수 있게 한다.
+
+### T-628 구현 순서와 검증 인계
+
+| 단계 | 변경 위치 | 완료 증거 |
+|---|---|---|
+| C1 | ingestion descriptor/catalog와 compatibility wrapper | 기존 confidence/alias/thread fixture 유지, 새 충돌·등록 실패 검증 |
+| C2 | service orchestration과 bounded sink | 선택/취소/부분 성공/동시 source 변경/cleanup의 결정적 회귀 |
+| C3 | models·profiler metadata 및 공통 decoder | [데이터 모델 상세 계약](./DATA_MODEL.md#t-628-측정과-호환-상세-계약)의 정밀도·unknown-field·버전 사례 통과 |
+| C4 | 기존 importer 하나의 전체 경로 연결 | CLI/Wails load-save-export에서 contract 유지, 새 형식별 switch 증가 여부 기록 |
+
+T-628은 최소 하나의 기존 importer를 새 등록 경로로 연결해 C1–C4를 검증하는 범위다.
+모든 형식의 코어 이행은 T-629, 공통 renderer는 T-631, 수치 정정은 T-634에 남긴다.
+기존 프로파일 goldens, 모델 roundtrip, thread mixed-format 테스트를 기준선으로 보존한다.
+새 적합성에는 duplicate/alias 충돌, hint-only, 두 verified 후보, 잘못된 detector 점수,
+cancel-before/after-commit, unsafe partial, schema mismatch, stale generation,
+큰 정수/소수·unknown block 왕복을 포함한다. fixture 실행을 생략한 통과는 release 근거가 아니다.
+재사용 fixture와 실제 JSON Schema는 구현 단계에 공유 자산으로 등록하고 인덱스를 갱신한다.
+이 절은 ArchScope 전용 실행 계약이며 새로운 범용 schema 파일을 생성하지 않는다.
+
 Parser는 raw file을 typed record로 변환한다. Chart rendering이나 report formatting 책임은 갖지 않는다.
 
 ## 책임

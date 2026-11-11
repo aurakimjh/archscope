@@ -536,6 +536,39 @@ references resolve in order, and existing 214 registry rows are unchanged. The
 four input decisions remain outside task counts. Documentation links/anchors and
 whitespace checks are rerun before publication; no runtime code changed.
 
+#### T-628 design authoring checkpoint (2026-11-11)
+
+The design contents were already registered in T-628–T-645 by commit `83b8ff9`.
+This follow-up fulfills the request to progress design authoring: the **design
+portion of T-628 is written**, while its implementation task remains `TODO`.
+No new task is counted and no downstream dependency is released by documentation.
+
+Detailed contracts: [Korean parser](docs/ko/PARSER_DESIGN.md#t-628-상세-설계-범위와-현재-기준),
+[Korean data model](docs/ko/DATA_MODEL.md#t-628-측정과-호환-상세-계약),
+[English parser](docs/en/PARSER_DESIGN.md#t-628-detailed-design-scope-and-baseline),
+[English data model](docs/en/DATA_MODEL.md#t-628-detailed-measurement-and-compatibility-contract).
+The integration design links to these details instead of duplicating them.
+
+| Portion | State | Deliverable / remaining evidence |
+|---|---|---|
+| Design authoring | Written, documentation only | Registry identity/alias/schema ownership; verified-vs-hint selection; source leases, bounded sinks, job/cancellation/partial/commit rules; stable proposed errors |
+| Wire/compatibility design | Written, documentation only | Pointer-addressed measurements, numeric encoding and null/zero/absent; exact unknown metadata, Go/JS bridge boundaries, reader matrix and explicit migration |
+| C1–C4 implementation | Not started | Registry/wrappers, job orchestration, decoder/metadata, one importer through CLI/Wails/export with conformance evidence |
+| W01–W10 cases | Specified, not executed | Large integers/decimals, typed-key precedence, receiver reuse, malformed JSON, pointer validation, availability, version gating and bridge fidelity |
+
+Code inspection found that common metadata retains unknown fields but uses default
+JSON number decoding, which does not establish exact large-integer/decimal fidelity;
+legacy profiler metadata still lacks unknown-key storage. The new design covers
+both and explicitly avoids treating a Go serializer change as proof of UI/export
+roundtrip precision. Existing confidence-based detection and thread override behavior
+remain compatibility baselines until their wrappers pass tests.
+
+Validation scope is documentation structure, links, mirrored examples/contracts and
+Task Registry consistency. No runtime tests, production support or independent PASS
+are claimed. The source review remains CONDITIONAL; Q01–Q04 remain unresolved and
+separate from task statuses. Counts remain 210 DONE / 1 TODO / 18 PENDING / 3 REVIEW
+out of 232. Unrelated HTTP-capture work is preserved outside this change.
+
 ### Open Work Snapshot
 
 Desktop layout: [Korean design](docs/ko/DESKTOP_CONTENT_LAYOUT.md) · [English design](docs/en/DESKTOP_CONTENT_LAYOUT.md).
@@ -544,7 +577,7 @@ includes transparent capture reach, the remaining legacy automation contracts, t
 complete Windows menu/OS scaling matrix and full parity.
 The table below retains those four acceptance items. The eighteen new local
 diagnostics tasks are listed in the [dependency-ordered implementation backlog](#dependency-ordered-implementation-backlog):
-T-628 is ready; T-629–T-645 are prerequisite/trigger-dependent. The complete open
+T-628 has its detailed design written and remains ready for implementation; T-629–T-645 are prerequisite/trigger-dependent. The complete open
 snapshot is therefore 22 tasks, matching the registry and status overview.
 
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
@@ -1061,7 +1094,7 @@ filtered before analysis.
 
 ### Local diagnostics implementation (2026-11-11)
 
-Start with **T-628** (importer/envelope/measurement/version contracts). Then release
+Start with **T-628** implementation using the authored paired parser/data-model contracts and C1–C4 handoff below. Its design portion is written; no runtime stage is complete. Then release
 T-629–T-632 as its contracts stabilize, followed by the remaining P1 core work and
 P2 extensions in the [ordered backlog](#dependency-ordered-implementation-backlog).
 The first complete user workflow remains profile correctness → drilldown/comparison
@@ -1558,7 +1591,7 @@ deferred until explicitly promoted.
 
 | ID | Priority | Status | Task | Depends on | Output |
 |---|---|---|---|---|---|
-| T-628 | P1 | TODO | Implement importer, envelope, measurement and version contracts (D01) | Existing parser/profiler goldens and compatibility inventory | Register descriptor/catalog and bounded parse-sink contracts; preserve scalar semantics and unknown metadata through common/legacy roundtrips. Conformance covers ambiguous detection, reader ranges, nullable values and semantic-version gates (§16.6, §16.8–16.9; F-01/F-03/F-06). |
+| T-628 | P1 | TODO | Implement importer, envelope, measurement and version contracts (D01) | Existing parser/profiler goldens and compatibility inventory | Design portion authored on 2026-11-11 in paired PARSER_DESIGN and DATA_MODEL (selection/job/precision/version contracts and C1–C4/W01–W10 handoff); runtime implementation and conformance remain TODO. Register descriptor/catalog and bounded parse-sink contracts; preserve scalar semantics and unknown metadata through common/legacy roundtrips. Conformance covers ambiguous detection, reader ranges, nullable values and semantic-version gates (§16.6, §16.8–16.9; F-01/F-03/F-06). |
 | T-629 | P1 | PENDING | Migrate profiles to ProfileSet with legacy facades (D02) | T-628 | Use ProfileSet → profile_evidence as the canonical path; preserve exact weights/units/identity and reject lossy integer projections. Stage tree/diff/query/export migration against legacy and corrected-semantics goldens (§16.7; F-02). |
 | T-630 | P1 | PENDING | Implement case lifecycle, capture context and safe evidence intake (D03) | T-628 | Deliver versioned capture/case manifests, clock/entity provenance, vendor-neutral device identity, archive validation, encoding/source-position preservation, redaction and scoped deletion/restore. Cover CP949/EUC-KR and baseline/stale references (§3, §11.6, §13, §17.1; F-07). |
 | T-631 | P1 | PENDING | Add result capability providers and generic consumers (D04) | T-628 | Validate ResultDescriptor generic/timeline/SLI/compare/detail providers and generic service wrappers. A bounded fallback precedes new result types; same-family importers avoid new service/CLI/UI switches (§16.10; F-05/F-12). |

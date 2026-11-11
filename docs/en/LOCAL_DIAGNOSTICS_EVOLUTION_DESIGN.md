@@ -260,6 +260,11 @@ required for core analysis or export.
 
 ## 16 Extension and compatibility contracts
 
+The T-628 pre-implementation specification is in [Parser Design](./PARSER_DESIGN.md#t-628-detailed-design-scope-and-baseline)
+and [Data Model](./DATA_MODEL.md#t-628-detailed-measurement-and-compatibility-contract).
+Those sections detail registration, selection, jobs, precision, compatibility and
+test handoff. Authoring them does not complete T-628 or release its dependencies.
+
 ### 16.1 Ownership and registration
 
 `internal/ingestion` owns descriptors/probes/records; `internal/catalog` explicitly
