@@ -633,8 +633,8 @@ func (s *Server) Close() error {
 		return fmt.Errorf("COM shutdown is waiting for an active call")
 	}
 }
-func Register(executable string) error   { return registerViews(executable, false) }
-func Unregister(executable string) error { return registerViews(executable, true) }
+func Register(executable string) error   { return registerWithMetadata(executable, false) }
+func Unregister(executable string) error { return registerWithMetadata(executable, true) }
 func registerViews(executable string, remove bool) error {
 	succeeded := false
 	for _, view := range []uint32{registry.WOW64_64KEY, registry.WOW64_32KEY} {

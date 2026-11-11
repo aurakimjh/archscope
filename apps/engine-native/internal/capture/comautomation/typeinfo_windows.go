@@ -68,6 +68,13 @@ func queryCOM(pointer uintptr, id windows.GUID) (uintptr, error) {
 
 func buildTypeInfos() (map[string]uintptr, error) { return buildTypeInfosAt("") }
 func buildTypeInfosAt(destination string) (map[string]uintptr, error) {
+	syskind := uintptr(3)
+	if unsafe.Sizeof(uintptr(0)) == 4 {
+		syskind = 1
+	}
+	return buildTypeInfosFor(destination, syskind)
+}
+func buildTypeInfosFor(destination string, syskind uintptr) (map[string]uintptr, error) {
 	// Runtime metadata has an owned temporary backing file for remoting.
 	// In-process tests may omit it; no global typelib registration is changed.
 	var library, standard uintptr
@@ -91,15 +98,11 @@ func buildTypeInfosAt(destination string) (map[string]uintptr, error) {
 		filename = "ArchScope.Automation.tlb"
 	}
 	name, _ := windows.UTF16PtrFromString(filename)
-	syskind := uintptr(3)
-	if unsafe.Sizeof(uintptr(0)) == 4 {
-		syskind = 1
-	}
 	hr, _, _ := windows.NewLazySystemDLL("oleaut32.dll").NewProc("CreateTypeLib2").Call(syskind, uintptr(unsafe.Pointer(name)), uintptr(unsafe.Pointer(&library)))
 	if int32(uint32(hr)) < 0 {
 		return nil, fmt.Errorf("create automation type library: 0x%x", hr)
 	}
-	libID := mustGUID("{02AAEB6C-A963-4D5D-9CFA-A2DBB6E5E233}")
+	libID := mustGUID(typeLibraryID)
 	if e := comCall(library, 6, uintptr(unsafe.Pointer(&libID))); e != nil {
 		return nil, e
 	}
@@ -161,7 +164,11 @@ func buildTypeInfosAt(destination string) (map[string]uintptr, error) {
 			return nil, e
 		}
 		for index, method := range interfaceMethods(n) {
-			if e := addTypeMethod(creator, n, index, method, infos); e != nil {
+			wordSize := 8
+			if syskind == 1 {
+				wordSize = 4
+			}
+			if e := addTypeMethod(creator, n, index, method, infos, wordSize); e != nil {
 				return nil, fmt.Errorf("%s.%s: %w", n, method.Name, e)
 			}
 		}
@@ -184,7 +191,7 @@ func buildTypeInfosAt(destination string) (map[string]uintptr, error) {
 	success = true
 	return infos, nil
 }
-func addTypeMethod(creator uintptr, contract string, index int, m abiMethod, infos map[string]uintptr) error {
+func addTypeMethod(creator uintptr, contract string, index int, m abiMethod, infos map[string]uintptr, wordSize int) error {
 	// Pointer descriptors stay alive until AddFuncDesc has copied their graphs.
 	var keep []*typeDescription
 	var pin runtime.Pinner
@@ -254,7 +261,7 @@ func addTypeMethod(creator uintptr, contract string, index int, m abiMethod, inf
 	if m.Kind == "put" {
 		invokeKind = 4
 	}
-	fd := functionDescription{ID: id, Kind: 1, InvokeKind: invokeKind, CallConvention: 4, Count: int16(len(params)), Offset: int16((7 + index) * int(unsafe.Sizeof(uintptr(0)))), Result: elementDescription{Type: typeDescription{VT: 25}}}
+	fd := functionDescription{ID: id, Kind: 1, InvokeKind: invokeKind, CallConvention: 4, Count: int16(len(params)), Offset: int16((7 + index) * wordSize), Result: elementDescription{Type: typeDescription{VT: 25}}}
 	if len(params) > 0 {
 		fd.Params = &params[0]
 	}

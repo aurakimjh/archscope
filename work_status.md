@@ -2005,7 +2005,7 @@ changes are preserved separately. Counts remain 210 DONE / 3 REVIEW / 1 PENDING.
 |---:|---|---|---|
 | 1 | Physical row retention | DONE | Immutable row files plus atomic selection, bounded eviction/shared-blob reclamation, crash/reopen/Clear and stale-cursor tests; real local-proxy analysis/portable export pass. Cumulative and retained counters remain distinct. |
 | 2 | Pre-storage cancellation | DONE | Redacted completion admission before Append, bounded 500 ms STA queue, fail-closed discard/error/deadline and lifecycle/generation cancellation; common race and local-proxy Stop/Clear/Pause pass. Native callback tests added; hosted execution follows final push. |
-| 3 | Clean-host custom-IID / early-bound COM | TODO | Owned proxy/type-library registration and native client coverage; preserve existing vendor registrations. |
+| 3 | Clean-host custom-IID / early-bound COM | DONE | Explicit per-user owned interface/proxy/type-library mappings, both target architectures, collision refusal and cleanup; separate-process typed custom-IID calls and owned-registry tests added. Mac cross-build/vet pass; native execution follows final push. |
 | 4 | Extended filter engine | TODO | Bounded normalized nested predicates and extra operators; keep unknown original encodings explicit. |
 | 5 | Long-run verification automation | TODO | Reproducible bounded soak and Windows/macOS execution tooling. |
 

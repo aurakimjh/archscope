@@ -1762,3 +1762,28 @@ new-entry cancellation. Public scripts do not receive the internal owner token.
 Common race tests and real synthetic local-proxy Stop/Clear/Pause tests pass on
 Mac. Native STA discard/reentrant-stop tests compile for amd64/386 and will run
 in Windows CI after the final push; this is not original-client acceptance.
+
+### Owned custom-IID registration (Mac follow-up 3, 2026-11-11)
+
+Explicit COM registration now creates owned per-user interface mappings for the
+universal Automation proxy and an ArchScope 1.0 type library. Separate win32 and
+win64 files describe target vtable offsets, independent of the registering
+process architecture. Files persist in the user's ArchScope Automation cache
+until owned unregister/replacement; runtime ITypeInfo still has its own backing
+file. The outgoing dispinterface uses the standard dispatch proxy.
+
+Both registry views are preflighted before mutation. Existing user/machine
+vendor IID mappings or another executable's owned mapping cause an explicit
+refusal; neither vendor classes nor interface registrations are replaced.
+A failed registry write rolls its individual view back; after a later-view
+failure an already-published earlier view may remain and can be unregistered.
+Unregister removes only known owned keys/files and never recursively deletes
+unknown registry subtrees. No administrator-wide registration is installed.
+This selective registration follows Microsoft's [proxy mapping contract](https://learn.microsoft.com/en-us/windows/win32/com/proxystubclsid32)
+and [type library registration layout](https://learn.microsoft.com/en-us/previous-versions/windows/desktop/automat/registering-a-type-library);
+a broad RegisterTypeLibForUser would conflict with the collision-preservation rule.
+
+Native fixtures cover owned/foreign keys, both target offsets and real separate-
+process custom-IID QI plus an inherited typed integer getter. Mac amd64/386
+cross-build/vet pass; hosted execution is recorded after final push. These
+fixtures do not establish compatibility with the current vendor binary/client.

@@ -69,6 +69,32 @@ func TestNativeOutOfProcessDispatchAndTypeInfo(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
+	// Exercise the universal marshaler on a clean user view, then remove only
+	// our own temporary mappings. Existing vendor registrations are untouched.
+	classes, _, e := registry.CreateKey(registry.CURRENT_USER, `Software\Classes`, registry.READ|registry.WRITE)
+	if e != nil {
+		t.Fatal(e)
+	}
+	defer classes.Close()
+	if e = metadataPreflight(classes, executable); e != nil {
+		t.Skip(e)
+	}
+	filename := filepath.Join(root, "client-types.tlb")
+	infos, e := buildTypeInfosAt(filename)
+	if e != nil {
+		t.Fatal(e)
+	}
+	for _, p := range infos {
+		releaseCOM(p)
+	}
+	if e = writeRegistryValues(classes, metadataValues(executable, filename, filename)); e != nil {
+		t.Fatal(e)
+	}
+	defer func() {
+		if e := removeOwnedMetadata(classes, executable); e != nil {
+			t.Error(e)
+		}
+	}()
 	keyPath := `Software\Classes\CLSID\` + class
 	key, _, e := registry.CreateKey(registry.CURRENT_USER, keyPath+`\LocalServer32`, registry.SET_VALUE)
 	if e != nil {
@@ -135,6 +161,30 @@ func TestNativeOutOfProcessDispatchAndTypeInfo(t *testing.T) {
 		t.Fatal("wrong remote controller")
 	}
 	value.Clear()
+	for _, name := range []string{"IHTTPAnalyzer", "IHTTPAnalyzerStandAlone"} {
+		custom, e := queryCOM(uintptr(unsafe.Pointer(dispatch)), mustGUID(referenceContracts.Interfaces[name].IID))
+		if e != nil {
+			t.Fatal("clean-host custom IID", name, e)
+		}
+		hr, _, _ = ole32.NewProc("CoSetProxyBlanket").Call(custom, 0xffffffff, 0xffffffff, 0, 0, 3, 0, 0)
+		if int32(uint32(hr)) < 0 {
+			t.Fatalf("custom proxy security: 0x%x", hr)
+		}
+		checked := false
+		for index, m := range interfaceMethods(name) {
+			if m.Name == "MaxLogSize" && m.Kind == "get" {
+				var count int32 = -1
+				if e = comCall(custom, 7+index, uintptr(unsafe.Pointer(&count))); e != nil || count != 0 {
+					t.Fatal("remote typed integer", count, e)
+				}
+				checked = true
+			}
+		}
+		releaseCOM(custom)
+		if !checked {
+			t.Fatal("fixture did not call an early-bound slot")
+		}
+	}
 	var count uint32
 	if e = comCall(uintptr(unsafe.Pointer(dispatch)), 3, uintptr(unsafe.Pointer(&count))); e != nil || count != 1 {
 		t.Fatal("remote type count", count, e)

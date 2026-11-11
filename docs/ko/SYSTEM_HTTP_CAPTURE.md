@@ -5008,3 +5008,27 @@ STA를 점유할 수 있지만 캡처의 대기 시간과 큐 크기는 제한�
 Mac의 공통 race 테스트와 실제 합성 로컬 프록시 Stop·Clear·Pause 테스트를
 통과했습니다. 네이티브 STA 취소·재진입 중지 테스트는 amd64/386 교차 컴파일했고
 최종 푸시 후 Windows CI에서 실행합니다. 원본 클라이언트 수용 검증은 별도입니다.
+
+### 소유권을 확인하는 custom IID 등록 (Mac 후속 작업 3, 2026-11-11)
+
+명시적인 COM 등록 시 사용자별 인터페이스·Automation 프록시·ArchScope 1.0
+형식 라이브러리 연결을 생성합니다. 등록 프로세스 비트수와 별개로 win32·win64
+대상 vtable 오프셋에 맞춘 파일을 각각 생성합니다. 파일은 사용자 ArchScope
+Automation 캐시에 유지하고, 소유 등록 해제·교체 시 정리합니다. 실행 중
+ITypeInfo는 별도 backing 파일을 사용하며, 송신 dispinterface는 표준 dispatch
+프록시를 사용합니다.
+
+두 레지스트리 뷰를 먼저 검사합니다. 기존 사용자·시스템의 원본 IID 등록이나
+다른 실행 파일 소유 등록이 있으면 변경 전에 거부합니다. 원본 클래스와
+인터페이스 키를 덮어쓰지 않습니다. 쓰기 실패 시 해당 뷰를 되돌립니다. 이후
+뷰에서 실패하면 앞서 등록한 뷰는 남을 수 있으며 등록 해제로 정리할 수 있습니다.
+알고 있는 소유 키·파일만 제거하고 알 수 없는 하위 트리를 재귀 삭제하지 않습니다.
+관리자 범위 등록은 생성하지 않습니다. Microsoft의
+[프록시 연결 규약](https://learn.microsoft.com/en-us/windows/win32/com/proxystubclsid32)과
+[형식 라이브러리 등록 구조](https://learn.microsoft.com/en-us/previous-versions/windows/desktop/automat/registering-a-type-library)를
+따릅니다. 광범위한 RegisterTypeLibForUser 호출은 기존 IID 보존과 충돌하여 사용하지 않습니다.
+
+소유·외부 키, 두 대상 오프셋, 실제 별도 프로세스 custom IID 조회와 상속된
+정수 getter 호출을 네이티브 테스트에 추가했습니다. Mac에서 amd64/386 교차
+컴파일·vet를 통과했으며 최종 푸시 후 CI 결과를 별도로 기록합니다. 현재 원본
+바이너리·클라이언트와의 호환성 판정은 이 합성 테스트와 구분합니다.
