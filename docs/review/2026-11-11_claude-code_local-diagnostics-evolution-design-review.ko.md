@@ -37,7 +37,7 @@ P1 4건(F-01~F-04)은 첫 구현 작업 전에 설계에 반영해야 한다. �
 | F-11 | P3 | 영문 설계 문서가 없음 | 문서 전체 |
 | F-12 | P3 | `gpu_metrics`와 `metrics_timeseries`의 경계가 모호함 | §16.2 |
 
-이와 별도로 6절에 기능 보완 제안 18건(G-01~G-19, G-11은 G-15로 통합)을 두었다. 결함이 아닌 범위 제안이므로 등급을 매기지 않았고, 채택 여부는 처리자가 다시 판단한다. 이 중 6.2의 6건(G-14~G-19)은 사용자가 직접 확인한 AI 서비스·다언어 수요다.
+이와 별도로 6절에 기능 보완 제안 20건(G-01~G-21, G-11은 G-15로 통합)을 두었다. 결함이 아닌 범위 제안이므로 등급을 매기지 않았고, 채택 여부는 처리자가 다시 판단한다. 이 중 6.2의 8건(G-14~G-21)은 사용자가 직접 확인한 AI 서비스·다언어 수요이며, 사용자 답변(vLLM·NVIDIA 위주, MacBook GPU, Python·Rust·Node)을 6.2에 기록했다.
 
 ## 3 P1 상세
 
@@ -192,11 +192,11 @@ P1 4건(F-01~F-04)은 첫 구현 작업 전에 설계에 반영해야 한다. �
 | ID | 항목 | 설계의 현재 상태 | 코드 확인 | 제안 범위 |
 |---|---|---|---|---|
 | G-14 | LLM 애플리케이션 trace 반입 (Langfuse, LangSmith, OpenTelemetry GenAI, OpenInference 계열) | §12.6에 "GenAI trace adapter는 버전과 schema URL을 보존한다"는 한 단락. 우선순위 P2 | Langfuse·LangSmith·GenAI 속성 관련 코드 없음. trace import는 OTLP JSON·Zipkin·Jaeger·Elastic APM·SkyWalking을 지원(`parsers/traceimport/parser.go:24-29`) | 제품별 분석기를 따로 만들지 않고 **공통 LLM 실행 trace 의미 계층**을 둔다. 단계 종류(LLM 호출, retriever, tool, chain/agent, embedding, reranker), 모델, 입력·출력 token, 시작·첫 토큰·종료 시각, 오류, 재시도를 정규화하고 제품별 adapter가 이 계층으로 변환. OTLP로 나온 자료는 기존 OTLP 경로에 semantic adapter만 추가. 결과는 기존 trace·timeline 화면과 §12의 서빙 분석에 연결 |
-| G-15 | 서빙 엔진 adapter 계약의 일반화 (G-11을 대체) | §12.3이 vLLM metric 이름으로 작성됨. §16.2의 `inference_serving`은 "vLLM 등"이라고만 표기 | vLLM을 포함해 서빙 엔진 metric 관련 코드 없음 | §12를 엔진 중립 구조로 재구성한다. 공통 신호(대기·실행 중 요청, TTFT, 토큰 간격, 요청 지연, 단계별 시간, token 처리량, cache)마다 엔진이 제공하는 **통계 형태**를 capability로 선언: histogram, 누적 counter, 요청별 로그 필드, 미제공. 대상 후보는 TGI, Triton(TensorRT-LLM 포함), NIM, SGLang, llama.cpp, Ollama와 그 앞단의 KServe·Ray Serve. 엔진별 이름·단위 mapping은 F-04의 지식 팩 데이터로 관리 |
+| G-15 | 서빙 엔진 adapter 계약의 일반화 (G-11을 대체) | §12.3이 vLLM metric 이름으로 작성됨. §16.2의 `inference_serving`은 "vLLM 등"이라고만 표기 | vLLM을 포함해 서빙 엔진 metric 관련 코드 없음 | §12를 엔진 중립 구조로 재구성한다. 공통 신호(대기·실행 중 요청, TTFT, 토큰 간격, 요청 지연, 단계별 시간, token 처리량, cache)마다 엔진이 제공하는 **통계 형태**를 capability로 선언: histogram, 누적 counter, 요청별 로그 필드, 미제공. 첫 adapter는 vLLM(사용자 확인). 이후 후보는 TGI, Triton(TensorRT-LLM 포함), NIM, SGLang, llama.cpp, Ollama와 그 앞단의 KServe·Ray Serve이며 실제 자료가 들어올 때 추가. 엔진별 이름·단위 mapping은 F-04의 지식 팩 데이터로 관리 |
 | G-16 | 모델 수명주기와 cold start 시나리오 | §12.5 조사 시나리오 표에 없음. §12.2에 startup log 입력만 있음 | 해당 없음 | 모델 로드 시간, 첫 요청 warmup, 모델 교체·메모리 회수, scale-from-zero, 재시작 후 복구 구간을 정상 구간과 분리. 이 구간의 요청을 일반 지연 분포에 섞지 않는다(§12.4의 집단 분리 원칙 확장) |
 | G-17 | LLM gateway 자료 | 설계에 없음. §12.6이 비용을 "사용자 단가 × token"으로만 언급 | LiteLLM 등 관련 코드 없음 | proxy·gateway 로그에서 모델 라우팅, rate limit 응답, 재시도, fallback 모델 전환, 요청별 token을 반입. 재시도 attempt와 논리 요청의 분리(§9.1)를 그대로 적용 |
 | G-18 | Python AI 서비스 런타임의 깊이와 다언어 대응 | §7.1 Python 행이 py-spy dump·record 연결까지. §4.1의 Python 기타 도구는 "후속 adapter" | Python 스레드 덤프 plugin 있음(`threaddump/plugins/pythondump`). memray·tracemalloc 없음 | Python을 JVM과 같은 깊이의 런타임으로 올린다: asyncio task 상태 자료, ASGI/WSGI worker 로그, 작업 큐 worker, 메모리 프로파일(memray, tracemalloc). Node/TypeScript·Rust·Go 기반 AI 구성요소는 언어별 분석기를 늘리지 않고 V8·pprof·perf 공통 형식으로 흡수(F-01 레지스트리 전제) |
-| G-19 | GPU 입력 범위 확장 | §11.5가 NVIDIA 한정. 타 vendor는 "fixture와 수요가 확보되면" | DCGM·NVIDIA 관련 코드 없음. §11 전체가 미구현 상태 | NVIDIA 범위 안에서 process 단위 관측(`nvidia-smi pmon`/`dmon`), CUDA OOM 메시지와 프레임워크 메모리 요약, Kubernetes GPU 할당 자료를 입력 후보에 추가. 비 NVIDIA 장치는 아래 확인 질문의 답에 따라 결정 |
+| G-19 | GPU 입력 범위 확장 | §11.5가 NVIDIA 한정. 타 vendor는 "fixture와 수요가 확보되면" | DCGM·NVIDIA 관련 코드 없음. §11 전체가 미구현 상태 | NVIDIA 범위 안에서 process 단위 관측(`nvidia-smi pmon`/`dmon`), CUDA OOM 메시지와 프레임워크 메모리 요약, Kubernetes GPU 할당 자료를 입력 후보에 추가. Apple Silicon GPU는 G-20에서 별도로 다룬다 |
 
 **G-14에서 지켜야 할 해석 규칙.** 설계의 기존 원칙을 이 자료에 적용한 것이다.
 
@@ -215,12 +215,32 @@ P1 4건(F-01~F-04)은 첫 구현 작업 전에 설계에 반영해야 한다. �
 - F-09: §19의 "분산 추론·RAG·Agent 심화"(P2) 행에서 LLM 애플리케이션 trace 반입을 분리해 상향하고, "vLLM 기본 성능 분석" 행을 "서빙 엔진 공통 계약 + 첫 엔진"으로 바꾼다.
 - F-12: `inference_serving` 타입은 엔진 중립으로 정의한다. 애플리케이션 trace는 새 타입보다 기존 trace 결과의 semantic 확장이 우선이다.
 
-**처리 전에 사용자에게 확인할 질문**
+**사용자 답변 (2026-11-11)**
 
-1. 실제로 다루는 서빙 엔진과 버전은 무엇인가. G-15의 첫 adapter 대상이 여기서 정해진다.
-2. LangSmith·Langfuse 자료를 어떤 형태(UI export, 일괄 export, OTLP)로 받을 수 있는가. 자체 호스팅인가.
-3. GPU는 NVIDIA만인가. 다른 가속기가 있다면 어떤 관측 도구의 출력을 받는가.
-4. 늘고 있는 언어는 무엇인가. Python·Node·Go·Rust 중 실제 프로파일·로그를 받은 것이 있는가.
+| 질문 | 답변 | 범위에 미치는 영향 |
+|---|---|---|
+| 서빙 엔진 | vLLM 위주 | G-15의 첫 adapter는 vLLM으로 확정. 다른 엔진 adapter는 지금 만들지 않는다. 단 계약은 엔진 중립으로 두어야 한다(아래 MacBook 항목 참조) |
+| GPU | NVIDIA 위주. **MacBook의 GPU 분석도 필요** | G-19는 NVIDIA 범위로 유지. Apple Silicon GPU를 G-20으로 추가. §11.5의 "다른 accelerator는 수요가 확보되면"에서 Apple GPU는 수요가 확인된 것으로 바뀐다 |
+| 언어 | Python, Rust, Node 등 | G-18은 Python을 1순위로 확정. Rust를 G-21로 추가. Node는 설계가 이미 다루는 범위(§4.1, §7.1, §8.1)의 구현 순서를 앞당기는 것으로 충분 |
+| LangSmith·Langfuse 자료 형태 | 답변 없음 | G-14의 adapter 순서를 정할 수 없다. 아래 남은 질문 1 |
+
+| ID | 항목 | 설계의 현재 상태 | 코드 확인 | 제안 범위 |
+|---|---|---|---|---|
+| G-20 | Apple Silicon(MacBook) GPU 분석 | 설계에 없음. macOS는 분석 PC로만 언급(§1.2, §18.3) | powermetrics·Metal·MLX 관련 코드 없음 | NVIDIA와 **별도의 vendor adapter**로 둔다. 입력 후보는 macOS 기본 도구의 전력·GPU 활동 출력, 프레임워크(Metal 백엔드)의 메모리 관측, 엔진 로그다. 장치 모델에 반영할 차이: ① 통합 메모리라 전용 GPU 메모리가 없고 시스템 메모리 압력·swap이 함께 봐야 할 지표다 ② GPU UUID·MIG·Xid·DCGM에 해당하는 개념이 없어 §11.3의 identity 규칙이 그대로 적용되지 않는다 ③ 노트북은 전원 상태·저전력 모드·발열 제한이 성능을 직접 바꾸므로 수집 조건(§3.3 capture)에 포함한다. NVIDIA metric을 이름만 바꿔 적용하지 않는다는 §11.5 원칙을 유지 |
+| G-21 | Rust 런타임 자료 | §4.1 Native 행에 "C/C++/Rust, 공통 형식 우선"으로만 표기 | 프레임 이름에 `rust` 또는 `::`가 있으면 Rust로 분류(`parsers/profile/parser.go:947-948`). `::`는 C++ 이름에도 있어 오분류 가능. symbol demangle 코드는 찾지 못함 | ① symbol demangle과 빌드별 hash 접미사 정규화. 이것이 없으면 §4.5의 버전 간 함수 비교 키가 빌드마다 달라진다 ② 런타임 분류를 이름 추측이 아닌 producer·binary 정보 기준으로 변경 ③ async 실행은 stack에 poll 호출로만 나타나므로, 논리적 task 관계는 별도 자료가 있을 때만 표시(§7.1의 "async task와 OS thread 구분" 원칙) ④ panic·backtrace 로그 구조화. 프로파일 자체는 perf·pprof·collapsed 공통 경로로 받는다 |
+
+**답변에서 생기는 설계 쟁점**
+
+- **MacBook에서 도는 서빙 엔진이 vLLM이 아닐 수 있다.** vLLM의 Apple GPU 지원 여부는 이 리뷰에서 확인하지 않았다. 지원하지 않는 버전이라면 MacBook의 추론은 다른 엔진(Metal 백엔드를 쓰는 로컬 엔진)으로 돌고, 그 엔진의 로그·metric이 입력이 된다. "vLLM 위주"와 "MacBook GPU"를 함께 만족하려면 G-15의 엔진 중립 계약이 선택이 아니라 필수다.
+- **vendor 중립 장치 모델을 두 번째 vendor로 조기에 검증할 수 있다.** §11.5는 내부 모델을 vendor 중립으로 둔다고 했지만 검증 대상이 NVIDIA뿐이었다. Apple GPU를 초기 fixture에 넣으면 identity·메모리·오류 모델이 NVIDIA 전용으로 굳는 것을 막는다.
+- **MacBook은 수집 대상이면서 분석 PC다.** 설계는 수집 환경과 분석 PC를 구분하고(§3.2) 실시간 수집기를 만들지 않는다(§19). 같은 기기에서 수집할 때도 이 원칙을 유지할지 정해야 한다. 권장은 유지다: 관리자 권한이 필요한 수집은 사용자가 직접 실행하는 스크립트(G-03)로 하고 ArchScope는 결과 파일만 읽는다.
+- **macOS native 프로파일 입력.** MacBook 분석이 범위에 들어오면 §4.1의 "Instruments export 후보"를 다시 평가한다. macOS 기본 도구의 텍스트 call tree 출력은 관련 코드를 찾지 못했고, 바이너리 trace보다 반입 비용이 낮은 후보다.
+
+**남은 질문**
+
+1. LangSmith·Langfuse 자료를 어떤 형태(UI export, 일괄 export, OTLP)로 받을 수 있는가. 자체 호스팅인가.
+2. MacBook에서 실제로 돌리는 추론 엔진과 프레임워크는 무엇인가. G-20의 입력과 G-15의 두 번째 adapter가 여기서 정해진다.
+3. vLLM의 대상 버전 범위는 무엇인가. metric 이름과 노출 조건이 버전마다 다르다(§12.3).
 
 ### 6.3 수요가 확인되면 추가할 항목
 
@@ -266,8 +286,8 @@ G-11(다른 추론 엔진)은 사용자 확인에 따라 6.2의 G-15로 옮겼�
 3. F-06 버전 축 표를 위 결과로 채운다.
 4. F-05·F-09·F-10은 §19 개정에 반영한다.
 5. F-07·F-11·F-12는 해당 절 보완으로 처리한다.
-6. 6절의 기능 제안(G-01~G-19)은 6.5의 기준으로 채택 여부를 다시 판단한다. 채택하더라도 1~2번의 구조 보완 뒤에 착수한다.
-7. 6.2(G-14~G-19)는 사용자가 직접 확인한 수요다. 채택 여부보다 범위와 순서를 정하는 문제이며, 6.2 끝의 확인 질문 4개에 대한 답을 먼저 받는다.
+6. 6절의 기능 제안(G-01~G-21)은 6.5의 기준으로 채택 여부를 다시 판단한다. 채택하더라도 1~2번의 구조 보완 뒤에 착수한다.
+7. 6.2(G-14~G-21)는 사용자가 직접 확인한 수요다. 채택 여부보다 범위와 순서를 정하는 문제다. 사용자 답변은 6.2에 기록했고, 6.2 끝의 남은 질문 3개는 해당 항목 착수 전에 확인한다.
 
 설계 보완이 끝나기 전에는 §19의 "가장 먼저 완결할 작은 구현 범위" 중 **정확성 회귀 fixture 확정**(§2.1)만 선행할 수 있다. 이 작업은 어떤 구조 결정과도 충돌하지 않는다.
 
@@ -275,6 +295,7 @@ G-11(다른 추론 엔진)은 사용자 확인에 따라 6.2의 G-15로 옮겼�
 
 - 6절의 "코드 확인"은 키워드 검색이다. 6.1·6.3 항목의 현장 수요와 우선순위는 리뷰어의 가정이다. 6.2는 사용자가 방향을 확인했지만 구체적인 엔진·버전·자료 형태는 확인하지 않았다.
 - LangSmith·Langfuse의 export 형식과 필드, 서빙 엔진별 metric 이름과 통계 형태는 실제 파일이나 공식 문서로 대조하지 않았다. 6.2는 필요한 의미 계층과 해석 규칙만 제안하며 구체적인 필드 mapping은 fixture 확보 후 정한다(§18.1).
+- vLLM의 Apple GPU 지원 여부, macOS 도구의 출력 형식과 필요한 권한, Rust symbol 표기 규칙은 실제 환경에서 확인하지 않았다. G-20·G-21의 입력 후보는 fixture로 확인한 뒤 확정한다.
 - 빌드, 테스트, 앱 실행, 성능 측정은 하지 않았다. 코드 근거는 파일과 줄 번호의 정적 확인이다.
 - "호출처를 찾지 못했다"는 판단(`FormatRegistry` 사용처, generic renderer, 프런트엔드 외부 URL)은 `grep` 결과이며 동적 등록이나 다른 명명은 배제하지 못한다.
 - 설계가 인용한 외부 사양(py-spy, pprof, Speedscope, DCGM, vLLM, Nsight, OTel) 내용의 정확성은 대조하지 않았다.
