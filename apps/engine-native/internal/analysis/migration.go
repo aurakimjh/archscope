@@ -39,6 +39,10 @@ func OpenDurable(ctx context.Context, legacy, durable string, c *ingestion.Catal
 	}
 	fail := func(e error) (*Service, error) {
 		dest.Close()
+		var issue *ingestion.ImportError
+		if errors.As(e, &issue) && issue.Code == "IMPORT_STORE_BUSY" {
+			return nil, e
+		}
 		if errors.Is(e, context.Canceled) || errors.Is(e, context.DeadlineExceeded) {
 			return nil, e
 		}
@@ -117,7 +121,7 @@ func OpenDurable(ctx context.Context, legacy, durable string, c *ingestion.Catal
 		}
 		body, _, e := source.Read(key)
 		if e != nil {
-			return fail(e)
+			return fail(fmt.Errorf("legacy result %s: %w", key, e))
 		}
 		view, e := dest.LoadSnapshot(ctx, body)
 		if e != nil {
@@ -148,6 +152,6 @@ type MigrationRecoveryError struct {
 }
 
 func (e *MigrationRecoveryError) Error() string {
-	return fmt.Sprintf("%s: %s Legacy: %s; durable: %s", e.Code, e.Action, e.LegacyPath, e.DurablePath)
+	return fmt.Sprintf("%s: %s Cause: %v. Legacy: %s; durable: %s", e.Code, e.Action, e.Cause, e.LegacyPath, e.DurablePath)
 }
 func (e *MigrationRecoveryError) Unwrap() error { return e.Cause }

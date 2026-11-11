@@ -222,3 +222,27 @@ func TestR605PartialLegacyAndActionableCorruptRecovery(t *testing.T) {
 		t.Fatal("recovery lost backup")
 	}
 }
+
+func TestR701LegacyBusyHasNoRenameGuidanceAndCorruptionNamesHandle(t *testing.T) {
+	c, _ := ingestion.NewCatalog(nil, nil, nil)
+	r, _ := resultcontract.New()
+	root := t.TempDir()
+	legacy := filepath.Join(root, "legacy")
+	dest := filepath.Join(root, "durable")
+	owner, e := New(legacy, c, r)
+	if e != nil {
+		t.Fatal(e)
+	}
+	_, e = OpenDurable(context.Background(), legacy, dest, c, r)
+	var busy *ingestion.ImportError
+	if !errors.As(e, &busy) || busy.Code != "IMPORT_STORE_BUSY" || strings.Contains(e.Error(), "rename") {
+		t.Fatal(e)
+	}
+	owner.Close()
+	key := "result-00000000000000000000000000000001"
+	os.WriteFile(filepath.Join(legacy, "results", key+".json"), []byte("invalid"), 0600)
+	_, e = OpenDurable(context.Background(), legacy, dest, c, r)
+	if e == nil || !strings.Contains(e.Error(), key) || !strings.Contains(e.Error(), "Cause:") {
+		t.Fatal(e)
+	}
+}
