@@ -514,7 +514,7 @@ func (r *Registry) Compare(a, b models.AnalysisResult, path string) (Delta, erro
 		}
 	}
 	if a.Type != b.Type || a.Metadata.SchemaVersion != b.Metadata.SchemaVersion {
-		return Delta{}, fmt.Errorf("semantic revision mismatch; original reanalysis required")
+		return Delta{}, comparisonError(ComparisonSemanticRevisionMismatch, "semantic revision mismatch; original reanalysis required")
 	}
 	am, e := Measurements(a)
 	if e != nil {
@@ -530,7 +530,7 @@ func (r *Registry) Compare(a, b models.AnalysisResult, path string) (Delta, erro
 		return Delta{Reason: "measurement_absent"}, nil
 	}
 	if x.Kind != y.Kind || x.Unit != y.Unit || (x.Population == "") != (y.Population == "") || x.Scope != y.Scope || x.Aggregation != y.Aggregation {
-		return Delta{}, fmt.Errorf("measurement population/unit/kind mismatch")
+		return Delta{}, comparisonError(ComparisonMeasurementMismatch, "measurement population/unit/kind mismatch")
 	}
 	comparison, e := comparePopulations(a, b, x.Population, y.Population)
 	if e != nil {
@@ -590,16 +590,16 @@ func populationIdentity(result models.AnalysisResult, id string) (PopulationIden
 	}
 	var all map[string]PopulationIdentity
 	if e = wirejson.Decode(body, &all); e != nil {
-		return PopulationIdentity{}, fmt.Errorf("population identity required")
+		return PopulationIdentity{}, comparisonError(ComparisonIdentityMissing, "population identity required")
 	}
 	identity, exists := all[id]
 	if !exists || len(identity.SourceHashes) == 0 || !sha256Text.MatchString(identity.SelectionHash) || identity.SemanticRevision == "" || identity.Coverage == "" {
-		return PopulationIdentity{}, fmt.Errorf("population identity required")
+		return PopulationIdentity{}, comparisonError(ComparisonIdentityMissing, "population identity required")
 	}
 	sort.Strings(identity.SourceHashes)
 	for i, hash := range identity.SourceHashes {
 		if !sha256Text.MatchString(hash) || (i > 0 && identity.SourceHashes[i-1] == hash) {
-			return PopulationIdentity{}, fmt.Errorf("invalid population source identity")
+			return PopulationIdentity{}, comparisonError(ComparisonIdentityInvalid, "invalid population source identity")
 		}
 	}
 	return identity, nil

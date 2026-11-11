@@ -1899,6 +1899,32 @@ ref를 남긴다. 출처 identity가 같으면 `same_input`이며 스냅샷 바�
 보존된 모델에서 조건을 별도로 계산할 수 있다. 영속 baseline 선택·저장 및 확장된
 capture/entity/time matching은 T-630/T-635에 남긴다.
 
+**R3-01 / R3-02:** scalar 비교 거절은 안정적인 `code`와 정제된 `message`를 가진
+`ComparisonError`다. Go 소비자는 `errors.As`, Wails 소비자는
+`CallError.cause.code`를 사용하며 표시 문장을 파싱하지 않는다. 동일 입력 호환
+확인 후 의미 버전 → partial 범위 → 정책 존재/지원 → 선택 → coverage 종류 순으로
+검사한다. 그 전에 측정/identity 유효성 검사도 수행한다.
+
+| 코드 | 의미 |
+|---|---|
+| `selection_mismatch` | 선택 hash 차이. 기본값 생략과 명시도 포함 |
+| `coverage_mismatch` | 지원되는 coverage 종류가 다름 |
+| `partial_not_comparable` | 다른 모집단 비교에 partial로 선언된 import가 포함됨 |
+| `semantic_revision_mismatch` | 결과 type/payload 또는 선언된 의미 버전 차이 |
+| `policy_missing` | 다른 모집단 비교의 버전 정책 누락 |
+| `policy_unsupported` | 정책 버전·hash·coverage 종류 미지원 |
+| `identity_missing` / `identity_invalid` | population 참조/identity 누락 또는 형식 오류 |
+| `measurement_mismatch` | 측정 종류·단위·scope·aggregation·population 존재 여부 차이 |
+
+성공한 scalar의 `comparison.identity_basis`와 ProfileSet difference의
+`identity_basis`는 현재 신규 import를 포함해 항상 `declared`다. backend가 설정하며
+저장 파일에 적힌 검증 주장은 신뢰하지 않는다. 모델/schema 검사는 내부 정합성,
+저장 결과/모델 SHA-256은 바이트 식별만 입증한다. 원본의 진위나 원본/옵션 결속을
+재계산한 증거가 아니다. 구조적으로 유효하게 편집된 identity/정책은 비교될 수 있지만
+선언값이라는 표시는 유지한다. `verified_by_reimport` 경로는 아직 없다. 그 주장을
+하려면 T-635에서 원본 재분석·옵션·결과 digest·영속 baseline 참조를 결속해야 한다.
+응답 필드는 추가 호환이며 기존 저장 수치와 버전은 변경하지 않는다.
+
 **R-06/R-11:** measurement 버전 정책은 result descriptor의 허용 범위를 단일
 기준으로 삼는다(pilot: [1.0.0, 1.1.0)). 1.0.1은 허용하고 1.1.0/2.0.0은 거절한다.
 미지의 선택 필드는 원 metadata에 보존하고 typed projection은 해석하지 않으며

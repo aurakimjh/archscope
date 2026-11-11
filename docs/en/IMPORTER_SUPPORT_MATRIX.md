@@ -53,3 +53,9 @@ on their original identity rules. Different selection, metric, semantic/capture 
 coverage conditions are refused; partial imports do not gain cross-source scalar
 comparison. Durable baseline management and entity/time matching remain T-630/T-635.
 Legacy profiler diff keeps its separate compatibility behavior.
+
+Comparison identity is explicitly `declared`, not original-source verification.
+Stable scalar refusal codes are available as Wails error `cause.code` (DATA_MODEL,
+R3-01/R3-02). Whitespace-only max_lines suffixes no longer mark selected coverage;
+existing saved coverage is preserved. Reimport is needed to correct old coverage
+when comparing different sources. T-635 owns verified durable baseline binding.

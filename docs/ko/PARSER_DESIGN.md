@@ -767,10 +767,14 @@ case 수명·cache 정리(T-630)와 Q01–Q04는 이 구현으로 완료되지 �
   원 예외·경로 문자열을 JobProblem에 노출하지 않는다. 신뢰된 실행 함수의
   시간 제한은 협력적 취소다.
 - **R-05/R-10:** `max_lines`는 완료된 사용자 선택이며
-  `import_coverage.selection=max_lines`로 범위를 기록한다. 1바이트의 bounded lookahead로 제외된 suffix가
-  있을 때만 selection 표지를 남긴다. 마지막 개행 유무와 무관하게 정확한 EOF에는
-  표지를 남기지 않는다. 추가 physical line을 parse/count하지 않으며 읽기 오류는
-  오류로 반환한다. allow-partial을 요구하는 자원 절단과 구분한다. 자원 예산
+  `import_coverage.selection=max_lines`로 범위를 기록한다. R3에서는 공백이 아닌 rune이 suffix에
+  남을 때만 selection을 표시한다. 정확한 EOF 및 빈 줄/Unicode 공백만 남으면
+  표지를 남기지 않는다. SourceLease 입력 바이트 예산과 job 취소/deadline 아래에서
+  고정 메모리로 검사하며 첫 비공백에서 중단한다. 나머지 공백 바이트를 읽을 수는
+  있지만 physical line을 추가 parse/count하거나 진단 수치를 바꾸지 않는다.
+  잘못된 UTF-8은 비공백으로 보고 제외된 입력을 파싱하지 않는다. 읽기 오류는
+  IMPORT_IO_FAILED다. 과거 저장 coverage는 보존하며 원본 재import로 수정된
+  공백 suffix coverage를 얻어 다른 원본과 비교할 수 있다. allow-partial을 요구하는 자원 절단과 구분한다. 자원 예산
   절단은 기존의 importer 안전성 및 사용자 동의 조건을 유지한다. 기존 strict/
   top_n, summary/tables/correlation_keys와 마지막 빈 줄의 레코드 수를 검증한다.
 - **R-08:** import와 Load는 동시 실행 4개 및 종료 취소·대기를 공유한다.

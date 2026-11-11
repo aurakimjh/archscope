@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -301,6 +302,46 @@ func TestR2N02SharedResultHasNoPublicWailsDeletion(t *testing.T) {
 	}
 	delta, e := svc.CompareEvidenceScalar(job.ResultHandle, target.ResultHandle, "/summary/total_events")
 	if e != nil || delta.Value == nil || *delta.Value != "1" || delta.Comparison == nil || delta.Comparison.Baseline.Handle != job.ResultHandle || delta.Comparison.Target.Handle != target.ResultHandle {
+		t.Fatal(delta, e)
+	}
+}
+
+func TestR3WailsCompareErrorCauseHasStableCode(t *testing.T) {
+	svc := evidenceBridge(t, nil)
+	body, _ := catalog.Contracts.ReadFile("contracts/server.log")
+	path := filepath.Join(t.TempDir(), "server.log")
+	os.WriteFile(path, body, 0600)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	handles := []string{}
+	for _, options := range []string{`{}`, `{"max_lines":2}`} {
+		job, e := svc.ImportEvidence(EvidenceImportRequest{Path: path, Importer: "tomcat", OptionsJSON: options})
+		if e != nil {
+			t.Fatal(e)
+		}
+		job, e = svc.evidenceService.Wait(ctx, job.ID, job.Generation)
+		if e != nil || job.State != "completed" {
+			t.Fatal(job, e)
+		}
+		handles = append(handles, job.ResultHandle)
+	}
+	_, e := svc.CompareEvidenceScalar(handles[0], handles[1], "/summary/total_events")
+	var refusal *c.ComparisonError
+	if !errors.As(e, &refusal) || refusal.Code != c.ComparisonSelectionMismatch {
+		t.Fatal(e)
+	}
+	cause, marshalErr := json.Marshal(&e)
+	if marshalErr != nil {
+		t.Fatal(marshalErr)
+	}
+	var wire struct {
+		Code string `json:"code"`
+	}
+	if marshalErr = json.Unmarshal(cause, &wire); marshalErr != nil || wire.Code != c.ComparisonSelectionMismatch {
+		t.Fatal(string(cause), marshalErr)
+	}
+	delta, e := svc.CompareEvidenceScalar(handles[0], handles[0], "/summary/total_events")
+	if e != nil || delta.Comparison == nil || delta.Comparison.IdentityBasis != "declared" {
 		t.Fatal(delta, e)
 	}
 }

@@ -712,9 +712,14 @@ verification does not grant an independent PASS or close T-628's REVIEW state.
   in JobProblem. Timeouts remain cooperative for trusted compiled functions.
 - **R-05/R-10:** `max_lines` is an intentional completed selection, with
   `import_coverage.selection=max_lines`, rather than unsafe truncation requiring
-  allow-partial. A bounded one-byte lookahead records selection only when an excluded suffix
-  exists; exact EOF with or without a final newline has no selection marker.
-  Lookahead does not parse/count another physical line; read errors remain errors. Resource truncation
+  allow-partial. R3 suffix inspection records selection only when a non-whitespace rune remains;
+  exact EOF and blank/Unicode-whitespace-only lines have no selection marker.
+  Inspection streams with fixed memory under the SourceLease input-byte budget
+  and job cancellation/deadline, and stops at the first nonblank rune. It may read
+  the remaining whitespace bytes but does not parse/count more physical lines or
+  alter diagnostics. Invalid UTF-8 is nonblank; excluded input stays unparsed.
+  Read errors remain IMPORT_IO_FAILED. Old saved coverage stays unchanged;
+  reimport obtains corrected blank-tail coverage for cross-source comparison. Resource truncation
   still needs importer safety plus caller consent. Legacy strict/top_n behavior,
   summary/tables/correlation keys, and trailing-empty-line records are checked.
 - **R-08:** Imports and Load share four slots and shutdown cancellation/waiting.

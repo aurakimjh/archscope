@@ -51,3 +51,9 @@ identity 규칙을 유지한다. 선택·측정·의미/수집·coverage 조건 
 import에는 다른 원본의 scalar 비교 권한을 부여하지 않는다. 영속 baseline 관리와
 entity/time matching은 T-630/T-635에 남기며 legacy profiler diff는 기존 호환 동작을
 유지한다.
+
+비교 identity는 원본 검증이 아닌 `declared`임을 응답에 명시한다. scalar 거절 사유는
+Wails 오류 `cause.code`로 구분한다(DATA_MODEL R3-01/R3-02). max_lines 뒤에 공백만
+남으면 선택된 coverage로 표시하지 않는다. 과거 저장 coverage는 유지하므로 다른
+원본 비교에 필요한 과거 coverage 정정은 재import로 한다. 검증된 영속 baseline
+결속은 T-635 범위다.

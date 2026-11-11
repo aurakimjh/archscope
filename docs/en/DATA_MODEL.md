@@ -1757,6 +1757,35 @@ payload/measurement version is relabeled. ProfileSet's model-derived comparator
 can independently check the retained model as described below. Durable baseline
 selection/persistence and broader capture/entity/time matching remain T-630/T-635.
 
+**R3-01 / R3-02:** Scalar comparison refusals use typed `ComparisonError`
+with stable `code` and sanitized `message`. Consumers use `errors.As` in Go or
+Wails `CallError.cause.code`; they do not parse the displayed sentence. After
+same-input compatibility, checks run in this order: semantic revision, partial
+coverage, policy presence/support, selection and coverage kind. Earlier
+measurement/identity validation still applies.
+
+| Code | Meaning |
+|---|---|
+| `selection_mismatch` | Comparison selection hashes differ, including omitted vs explicit defaults |
+| `coverage_mismatch` | Supported coverage kinds differ |
+| `partial_not_comparable` | Cross-population comparison includes declared partial import coverage |
+| `semantic_revision_mismatch` | Result type/payload or declared semantic revision differs |
+| `policy_missing` | Cross-population comparison lacks a versioned policy |
+| `policy_unsupported` | Policy version, hash or coverage kind is unsupported |
+| `identity_missing` / `identity_invalid` | Population reference/identity is missing or malformed |
+| `measurement_mismatch` | Measurement kind, unit, scope, aggregation or population presence differs |
+
+Successful scalar `comparison.identity_basis` and ProfileSet difference
+`identity_basis` are always `declared` in this implementation, including fresh
+imports. The backend sets the field and never trusts a saved file's claimed
+verification flag. Model/schema validation proves internal consistency; saved
+result/model SHA-256 identifies bytes. Neither proves source authenticity or
+recomputes original-source/options binding. Edited but structurally valid saved
+identity/policy declarations may remain comparable; their basis stays declared.
+No `verified_by_reimport` path exists yet. T-635 must bind original reimport,
+options, result digests and durable baseline references before making that claim.
+These response fields are additive; stored numbers and versions are unchanged.
+
 **R-06/R-11:** The result descriptor's measurement range is the single version
 policy (the pilot supports [1.0.0, 1.1.0)). Patch 1.0.1 is accepted; 1.1.0/2.0.0
 are refused. Unknown optional fields remain in the original metadata block and

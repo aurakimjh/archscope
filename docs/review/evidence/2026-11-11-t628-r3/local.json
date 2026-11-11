@@ -1,0 +1,223 @@
+{
+  "task": "T-628 R3 disposition and P3 follow-ups",
+  "baseline_commit": "2bd5e10b05829321327d45e4247fa43ac83d74bd",
+  "recorded_at_utc": "2026-11-11T07:33:59.070775+00:00",
+  "independent_review": {
+    "original": "docs/review/done/2026-11-11_claude-code_T-628_implementation-re-review-R3.ko.md",
+    "sha256": "4f99931495fc292207307bbaf4df4200d7a3921c86ad8191e4d61781789ea312",
+    "verdict": "CONDITIONAL, P3 only; explicitly allows T-628 DONE",
+    "R2_N01_N04": "independently confirmed resolved",
+    "review_of_final_P3_fixes": "not_performed",
+    "T629_review": "separate, not performed by R3"
+  },
+  "task_state": "DONE under explicit R3 closure permission; verdict not renamed PASS",
+  "checks": [
+    {
+      "name": "go_race",
+      "command": "go test -race ./... -count=1",
+      "exit_code": 0,
+      "log_sha256": "f02657a0a8ba06bffb8552027471c1a53b9600b69a16a952046b9601623b9102"
+    },
+    {
+      "name": "go_vet",
+      "command": "go vet ./...",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "go_build",
+      "command": "go build ./...",
+      "exit_code": 0,
+      "log_sha256": "9556cb1d286537985ad6c8ef60b4bef844ee6212bd240d2534179fb2d946ccbd"
+    },
+    {
+      "name": "windows_amd64_cross_vet",
+      "command": "GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go vet ./...",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "windows_386_cross_vet",
+      "command": "GOOS=windows GOARCH=386 CGO_ENABLED=0 go vet ./...",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "wails_bindings",
+      "command": "wails3 generate bindings -clean=true -ts",
+      "exit_code": 0,
+      "log_sha256": "d2492142c81cf6832cc495fa4479fa962e6bf3a78b02c946196cb07a75a90916"
+    },
+    {
+      "name": "frontend_state",
+      "command": "npm run test:state",
+      "exit_code": 0,
+      "log_sha256": "96ab3e7763edc1082d01e3a18afd8649d6c9bcdb89fb7b8a072303fcc49805cb"
+    },
+    {
+      "name": "frontend_build",
+      "command": "npm run build",
+      "exit_code": 0,
+      "log_sha256": "b3608ccf252d596ecb0a9511d923756b850aa221f5361aa728a8c89675b5f75e"
+    },
+    {
+      "name": "desktop_guard",
+      "command": "node scripts/verify-desktop-only.mjs --check-server-build",
+      "exit_code": 0,
+      "log_sha256": "2737e05db97102bfc69e4a94138f70b869f75db5874ac9581749568974f07e97"
+    },
+    {
+      "name": "macos_package",
+      "command": "task darwin:package",
+      "exit_code": 0,
+      "log_sha256": "38227835118c04fb2cc3af2a2ef8dfcd9d28750e314b6ff91dac96da12ce959a"
+    },
+    {
+      "name": "macos_signature",
+      "command": "codesign --verify --deep --strict bin/archscope.app",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "windows_amd64_cross_build",
+      "command": "GOARCH=amd64 node build/windows/build.mjs -tags production -o /private/tmp/archscope-t628-r3-amd64.exe",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "windows_386_cross_build",
+      "command": "GOARCH=386 node build/windows/build.mjs -tags production -o /private/tmp/archscope-t628-r3-386.exe",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "cli_build",
+      "command": "go build -o /private/tmp/archscope-t628-r3 ./cmd/archscope-engine",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "go_race_summary": {
+    "passed_packages": 95,
+    "without_tests": 5,
+    "failures": 0,
+    "races": 0
+  },
+  "regressions": {
+    "R3-01": [
+      "typed ComparisonError codes for selection/coverage/partial/semantic/missing-or-unsupported policy and identity failures",
+      "JSON marshaling error interface retains code/message",
+      "direct EngineService comparison returns same typed error and successful declared basis"
+    ],
+    "R3-02": [
+      "edited saved log result declares a forged source/policy and verification flag; comparison may succeed but backend response stays declared",
+      "response hash identifies exact edited bytes; JSON re-export remains byte-identical",
+      "ProfileSet diff also reports declared; no source-verification pathway added"
+    ],
+    "R3-03": [
+      "exact EOF, newline, blank LF/CRLF, Unicode-whitespace-only and >1 MiB suffixes retain complete_records and compare to zero",
+      "nonblank suffix remains selected and rejects incompatible coverage with coverage_mismatch",
+      "small-buffer Unicode boundaries, invalid UTF-8, sanitized read failures and cancellation tested"
+    ]
+  },
+  "wails_error_wire_scope": {
+    "basis": "pinned Wails 3.1.0 defaultMarshalError calls json.Marshal(&err); exercised same serialization and direct Go methods",
+    "sdk_source_sha256": "56785e06c84166c306877298b26c5b0011d04649b27790edb7ccebc2fa8aab22",
+    "actual_WebView_IPC_executed": false
+  },
+  "actual_cli": {
+    "scope": "actual built CLI; no UI/Windows runtime",
+    "checks": [
+      {
+        "operation": "max_lines-exact",
+        "exit_code": 0,
+        "total_events": 3,
+        "coverage_kind": "complete_records",
+        "result_sha256": "f9cc49f8c0a0a4e38cc90bacc068058bd27051afe8e70f8c8669d3560776b949"
+      },
+      {
+        "operation": "max_lines-blank",
+        "exit_code": 0,
+        "total_events": 3,
+        "coverage_kind": "complete_records",
+        "result_sha256": "ba64969d565851ec3115b4911ce616ebceec608b8115b20ed984cdc85aacdeb1"
+      },
+      {
+        "operation": "max_lines-unicode",
+        "exit_code": 0,
+        "total_events": 3,
+        "coverage_kind": "complete_records",
+        "result_sha256": "245f9919d09720b96e7db13b821acbd0db371eb1c945ee830010d35808129b00"
+      },
+      {
+        "operation": "profile-diff",
+        "exit_code": 0,
+        "identity_basis": "declared",
+        "root_delta": "0"
+      }
+    ]
+  },
+  "compatibility": {
+    "common_analysis_result": "preserved",
+    "stored_payload_or_measurement_versions_changed": false,
+    "numeric_reinterpretation": false,
+    "identity_basis": "declared only, response-owned; verification flag in saved metadata cannot promote it",
+    "saved_coverage": "preserved; reimport needed for corrected cross-source blank-tail coverage",
+    "legacy_profile_goldens_metadata_thread_mixed_format": "retained in full suite"
+  },
+  "documentation": {
+    "pairs": [
+      "DATA_MODEL",
+      "PARSER_DESIGN",
+      "IMPORTER_SUPPORT_MATRIX"
+    ],
+    "review_original_unchanged": true,
+    "registry_counts": {
+      "DONE": 211,
+      "REVIEW": 4,
+      "TODO": 3,
+      "PENDING": 14
+    },
+    "unique_task_ids": 232,
+    "diff_check": "passed"
+  },
+  "limitations": [
+    "no independent review of these final P3 fixes; R3 permission accepted without upgrading verdict to PASS",
+    "no actual new WebView IPC/UI; Go method and default-wire serialization checks only",
+    "no Windows native execution; cross-vet/build only",
+    "no hosted CI execution claimed",
+    "identity remains self-declared: original reimport/options/result binding and verified durable baselines are T-635",
+    "caller reference ownership T-630; generic consumers T-631; T-629 retains REVIEW",
+    "no real new producer qualification, full 64 MiB whitespace latency or production/long-term load measurement"
+  ],
+  "source_sha256": {
+    "apps/engine-native/cmd/archscope-app/evidenceservice_test.go": "7d466991ce26c178c682fc877d02cefc52294f92fa02db6c6fd624b2b04b920a",
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/internal/resultcontract/models.ts": "4b960b4dd7c20b889480e714a29fe6ba41f74c4bdf915c344485fa69cbf51f2c",
+    "apps/engine-native/internal/analysis/review_r3_test.go": "d0e5f2f15df891b1c48fd79fa13982b5d05ec47008cec3361c6f8c4e22bf9b6b",
+    "apps/engine-native/internal/parsers/serverlog/importer.go": "4dff63a08a73f98c77dc5d1fd54406f4806e787c28f8a54faf0654ab60fca162",
+    "apps/engine-native/internal/parsers/serverlog/selection_test.go": "6ba8c9e732d0e575d04d74078f301bcf797449d156f714711f1fbc68e58a8b48",
+    "apps/engine-native/internal/profilemodel/model_test.go": "ae14d912996d21e3b6ed2e67b9c8dadb80c9471bd84bd90f695b1d8d4a7bce56",
+    "apps/engine-native/internal/profilemodel/operations.go": "9312ee80a93b429a94ddff4690d62af23d59316738fcc20dc1cd7407397c358b",
+    "apps/engine-native/internal/resultcontract/comparison.go": "9be4fc310f497f29d724a7b06bcc397511b39679d218a44047ab9d2773a5249b",
+    "apps/engine-native/internal/resultcontract/contract.go": "c46639372eb4457371b7940b8423d44a41f7f0f53563e3ed83c86c0c244397e3",
+    "apps/engine-native/internal/resultcontract/review_r3_test.go": "3e1457bfe019c5ebf9d6a5610cebde1cecac7999bf365cee8359807ea8c73e7f"
+  },
+  "artifact_sha256": {
+    "cli": {
+      "sha256": "7be870c24097e90d390e75aca777ee9ccb3ce2159c8df7dc072f97f27a42144d",
+      "bytes": 18305058
+    },
+    "windows_amd64": {
+      "sha256": "26f6c3676ee9f5b37d21529cd70aa7c1b9bb3f889e0fc0e7059bdd5f4c7e01ae",
+      "bytes": 30445568
+    },
+    "windows_386": {
+      "sha256": "2b7ca3c3f8bb9b15bd16eaf7470bb4251ffc4b541a0fa7b1369d40c1e357b6fd",
+      "bytes": 29263872
+    },
+    "macos_app_executable": {
+      "sha256": "c8de7997cf1106116afc5220617e902eda73db8fa1e4752ae15ec997b25581ae",
+      "bytes": 19449440
+    }
+  }
+}

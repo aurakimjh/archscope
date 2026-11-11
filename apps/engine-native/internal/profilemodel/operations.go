@@ -211,6 +211,8 @@ type ProfileComparisonReference struct {
 }
 
 type Difference struct {
+	// Model validation checks consistency, not source authenticity.
+	IdentityBasis  string                     `json:"identity_basis"`
 	ComparisonMode string                     `json:"comparison_mode"`
 	Baseline       ProfileComparisonReference `json:"baseline"`
 	Target         ProfileComparisonReference `json:"target"`
@@ -268,7 +270,7 @@ func Compare(ctx context.Context, a ProfileSet, as Selection, b ProfileSet, bs S
 		sort.Strings(sources)
 		return ProfileComparisonReference{ModelSHA256: hash("", s), Population: population, SourceHashes: sources}
 	}
-	out := Difference{Metric: left.Metric, Population: left.Population, Rows: []DiffRow{}, ComparisonMode: mode, Baseline: ref(a, left.Population), Target: ref(b, right.Population)}
+	out := Difference{IdentityBasis: "declared", Metric: left.Metric, Population: left.Population, Rows: []DiffRow{}, ComparisonMode: mode, Baseline: ref(a, left.Population), Target: ref(b, right.Population)}
 	for _, id := range ordered {
 		if e := ctx.Err(); e != nil {
 			return out, e

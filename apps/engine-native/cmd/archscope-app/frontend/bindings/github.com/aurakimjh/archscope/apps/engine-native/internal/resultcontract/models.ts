@@ -10,6 +10,11 @@ import { Create as $Create } from "@wailsio/runtime";
  * merges captures, equates entities, or certifies clock alignment/causality.
  */
 export class ComparisonEvidence {
+    /**
+     * A digest identifies the result bytes, not the authenticity of its sources.
+     * Never derive a verification claim from fields in a loaded result file.
+     */
+    "identity_basis": string;
     "mode": string;
     "policy"?: PopulationComparison | null;
     "baseline": ComparisonReference;
@@ -17,6 +22,9 @@ export class ComparisonEvidence {
 
     /** Creates a new ComparisonEvidence instance. */
     constructor($$source: Partial<ComparisonEvidence> = {}) {
+        if (!("identity_basis" in $$source)) {
+            this["identity_basis"] = "";
+        }
         if (!("mode" in $$source)) {
             this["mode"] = "";
         }
@@ -34,18 +42,18 @@ export class ComparisonEvidence {
      * Creates a new ComparisonEvidence instance from a string or object.
      */
     static createFrom($$source: any = {}): ComparisonEvidence {
-        const $$createField1_0 = $$createType1;
-        const $$createField2_0 = $$createType2;
+        const $$createField2_0 = $$createType1;
         const $$createField3_0 = $$createType2;
+        const $$createField4_0 = $$createType2;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("policy" in $$parsedSource) {
-            $$parsedSource["policy"] = $$createField1_0($$parsedSource["policy"]);
+            $$parsedSource["policy"] = $$createField2_0($$parsedSource["policy"]);
         }
         if ("baseline" in $$parsedSource) {
-            $$parsedSource["baseline"] = $$createField2_0($$parsedSource["baseline"]);
+            $$parsedSource["baseline"] = $$createField3_0($$parsedSource["baseline"]);
         }
         if ("target" in $$parsedSource) {
-            $$parsedSource["target"] = $$createField3_0($$parsedSource["target"]);
+            $$parsedSource["target"] = $$createField4_0($$parsedSource["target"]);
         }
         return new ComparisonEvidence($$parsedSource as Partial<ComparisonEvidence>);
     }

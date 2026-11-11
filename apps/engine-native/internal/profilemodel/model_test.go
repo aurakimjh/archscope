@@ -302,7 +302,7 @@ func TestR2N01DifferentSourceProfileComparisonKeepsReferences(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	if diff.ComparisonMode != "baseline_target" || diff.Baseline.Population == diff.Target.Population || diff.Baseline.ModelSHA256 == diff.Target.ModelSHA256 || diff.Baseline.SourceHashes[0] == diff.Target.SourceHashes[0] {
+	if diff.IdentityBasis != "declared" || diff.ComparisonMode != "baseline_target" || diff.Baseline.Population == diff.Target.Population || diff.Baseline.ModelSHA256 == diff.Target.ModelSHA256 || diff.Baseline.SourceHashes[0] == diff.Target.SourceHashes[0] {
 		t.Fatal(diff)
 	}
 	found := false

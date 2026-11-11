@@ -7,6 +7,7 @@ import (
 	"errors"
 	"io"
 	"strings"
+	"unicode"
 	"unicode/utf8"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/diagnostics"
@@ -82,16 +83,14 @@ func NewImporter(format string, d ingestion.ImporterDescriptor) ingestion.Import
 				}
 				if opts.MaxLines > 0 && line >= int64(opts.MaxLines) {
 					report.Complete = true
-					// One-byte lookahead distinguishes a real excluded suffix from
-					// exact EOF, without parsing or counting another physical line.
-					_, peekErr := reader.Peek(1)
-					if ctx.Err() != nil {
-						return report, ctx.Err()
+					// Suffix inspection stays within the leased input-byte budget
+					// and job deadline; it parses/counts no more physical lines.
+					nonblank, lookaheadErr := nonblankSuffix(ctx, reader)
+					if lookaheadErr != nil {
+						return report, lookaheadErr
 					}
-					if peekErr == nil {
+					if nonblank {
 						report.SelectionReason = "max_lines"
-					} else if peekErr != io.EOF {
-						return report, ingestion.Problem("IMPORT_IO_FAILED", "source lookahead failed")
 					}
 					return report, nil
 				}
@@ -161,4 +160,29 @@ func NewImporter(format string, d ingestion.ImporterDescriptor) ingestion.Import
 	}
 	d.Normalize = func(ctx context.Context, r ingestion.Record) (ingestion.Record, error) { return r, ctx.Err() }
 	return d
+}
+
+// nonblankSuffix mirrors the parser's strings.TrimSpace empty-line semantics.
+// ReadRune keeps Unicode whitespace intact across buffer boundaries, allocates
+// no suffix-sized buffer, and stops at the first non-whitespace rune. Invalid
+// UTF-8 is nonblank, leaving excluded input unparsed rather than certifying it.
+func nonblankSuffix(ctx context.Context, reader *bufio.Reader) (bool, error) {
+	for {
+		if e := ctx.Err(); e != nil {
+			return false, e
+		}
+		r, _, e := reader.ReadRune()
+		if ctx.Err() != nil {
+			return false, ctx.Err()
+		}
+		if e == io.EOF {
+			return false, nil
+		}
+		if e != nil {
+			return false, ingestion.Problem("IMPORT_IO_FAILED", "source lookahead failed")
+		}
+		if !unicode.IsSpace(r) {
+			return true, nil
+		}
+	}
 }
