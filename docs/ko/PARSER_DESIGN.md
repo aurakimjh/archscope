@@ -784,3 +784,48 @@ T-630에는 영속 case manifest, 저장된 workspace 참조의 이전·복구, 
 영속 저장된 case라고 볼 수 없다. T-631에는 Load별 UI 취소와 job/fallback 화면
 연결이 남는다. 이 조건들은 work_status.md에 기록하며 이번 공통 기반 수정의
 완료 범위로 주장하지 않는다. Q01~Q04의 제품·입력 결정은 확정하지 않는다.
+
+## T-629 구현과 이행 경계 (2026-11-11)
+
+기준 경로는 `profile.set-json importer → ProfileSet → analyzers/profile.BuildSet
+→ AnalysisResult(profile_evidence 0.2.0)`이다. 내부 JSON 교환 경로는 composition root에
+schema 역할·fixture hash·compiled analyzer로 등록한다. `profile_ids`와 `metric_id`를
+명시해야 한다. ProfilerService의 기존 Analyze/loadStacks는 `profilelegacy`의 명시적
+호환 adapter catalog를 사용하며 형식별 service switch를 추가하지 않는다. 공통 generic
+trie를 정밀 모델 연산과 기존 정수·float 표시 adapter가 함께 사용한다. 큰 기존 입력에
+두 번째 전체 모델을 만들지 않는 경로를 유지하고 collapsed/Jennifer/SVG/HTML의 수치
+의미·버전도 유지한다.
+
+`parsers/profile.ParseLegacySet`은 SourceLease 스냅샷에서 기존 정규화 레코드를 감싸고
+복원 가능한 frame identity·profile·weight·opaque 정규화 metadata를 보존한다. 품질
+블록에는 기존 의미와 chronology 부재를 명시하고, 원래 timestamp 값은 label로 보존하며
+측정 interval로 추정하지 않는다. 정규화 과정에서 절단된 결과는 거절한다. 이 wrapper로
+기존 decoder가 이미 잃은 소수·0·event duration·다중 value를 복구할 수는 없다. 해당
+producer decoder 정정·실제 버전 적합성·지원표 정정은 T-634이며 Q01~Q04나 새 제품 지원을
+이번 작업에서 확정하지 않는다.
+
+사용 예:
+
+```sh
+archscope-engine evidence import --in model.json --importer profile-set \
+  --options '{"profile_ids":["worker-a","worker-b"],"metric_id":"duration"}' --out result.json
+archscope-engine profile-set tree --in result.json
+archscope-engine profile-set diff --in result.json --after result.json
+archscope-engine profile-set drilldown --in result.json --filters '[]'
+archscope-engine profile-set pprof --in result.json --tick-scale 0.01 --out selected.pprof
+archscope-engine profile-set normalize-legacy --in samples.collapsed --format collapsed --out normalized.json
+```
+
+normalize는 제한이 명시된 legacy-normalized 모델을 생성한다. EngineService에는
+NormalizeLegacyProfileSet/GetProfileSetTree/CompareProfileSets/DrilldownProfileSet/
+ExportProfileSetPprof를 추가한다. 새 Wails 값은 취소 가능한 context와 JSON text/handle로
+전달하며 모델 수치를 JavaScript number나 구형 정수 DTO로 왕복시키지 않는다. 분석·JSON
+저장·재읽기·CSV/HTML·Report Pack·선택한 pprof가 보존된 selection을 사용한다. query는
+서비스 동시 실행·수명 제한을 공유하고 immutable 모델을 읽는다.
+
+기존 profile golden은 변경하지 않는다. 63d3b6a 기준 CLI와 collapsed/Jennifer/SVG/HTML/
+drilldown을 비교하며 생성 시각·progress log 경로만 제외한다. 추가 fixture는 소수·0·큰 정수,
+signed/재귀/동명 frame, 여러 profile/metric, 정확한 scale, 불가 projection 거절, 버전 번호
+변경만으로 활성화하지 않는 조건, 원본·선택 호환을 검증한다. Wails 직접 메서드·생성
+binding 검사는 실제 WebView UI 실행과 별개다. generic 화면은 T-631, case/baseline
+수명주기는 T-630/T-635에 남는다.

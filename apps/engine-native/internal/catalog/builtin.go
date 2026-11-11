@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	profileanalyzer "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/profile"
 	analyzer "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/serverlog"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/diagnostics"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/ingestion"
@@ -119,6 +120,7 @@ func ResultRegistry() (*resultcontract.Registry, error) {
 		}
 		return nil
 	}, Type: "server_log", Payload: resultcontract.Range{Min: "0.1.0", Before: "0.2.0"}, Envelope: resultcontract.Range{Min: "1.0.0", Before: "2.0.0"}, Extensions: map[string]resultcontract.Range{"measurement": {Min: "1.0.0", Before: "1.1.0"}}, Scalars: map[string]resultcontract.ValueSchema{"/summary/total_events": scalar, "/summary/error_count": scalar, "/summary/warning_count": scalar}})
+	descriptors = append(descriptors, profileanalyzer.ModelDescriptor())
 	return resultcontract.New(descriptors...)
 }
 func Analyzer() ingestion.Analyzer {
@@ -183,7 +185,13 @@ func Builtin() (*ingestion.Catalog, *resultcontract.Registry, error) {
 		d := ingestion.ImporterDescriptor{ID: "server." + format, Aliases: aliases, Family: "server_log", Extensions: []string{".log", ".txt"}, Producer: format, VerifiedVersions: []string{}, AdapterVersion: "1.0.0", InputSchema: schemas[0].Ref, OptionSchema: schemas[1].Ref, RecordSchema: schemas[2].Ref, ResultSchema: schemas[3].Ref, RecordFamily: "server-log.record.v1", NormalizerInput: "server-log.record.v1", NormalizerOutput: "server-log.record.v1", AnalyzerID: "server-log.legacy", MeasurementKinds: []string{"record_count"}, Capabilities: []string{"summary", "table", "json_export"}, SupportStatus: "limited", Limitations: []string{"plain UTF-8 only; no compressed inputs", "legacy timestamp/severity semantics; no producer-version inference"}, FixtureManifest: "diagnostics.ingestion.foundation.v1", FixtureHash: hex.EncodeToString(sum[:]), ConformanceVersion: "1.0.0", ProbeBudget: ingestion.MaxProbeBytes, SupportsPartial: true}
 		descriptors = append(descriptors, parser.NewImporter(format, d))
 	}
-	c, e := ingestion.NewCatalog(descriptors, schemas, []ingestion.Analyzer{Analyzer()})
+	profileDescriptor, profileSchemas, profileAnalyzer, e := profileRegistration()
+	if e != nil {
+		return nil, nil, ingestion.Problem("IMPORT_REGISTRY_INVALID", "profile bundle composition failed")
+	}
+	descriptors = append(descriptors, profileDescriptor)
+	schemas = append(schemas, profileSchemas...)
+	c, e := ingestion.NewCatalog(descriptors, schemas, []ingestion.Analyzer{Analyzer(), profileAnalyzer})
 	if e != nil {
 		return nil, nil, e
 	}
@@ -232,13 +240,9 @@ func verifyBundle() error {
 func LegacyRegistry(c *ingestion.Catalog) (*ingestion.FormatRegistry, error) {
 	formats := []ingestion.SourceFormat{}
 	for _, view := range c.List() {
-		d, e := c.Resolve(view.ID, nil, "legacy")
-		if e != nil {
-			return nil, e
-		}
-		format := d.Descriptor
+		format := view
 		formats = append(formats, ingestion.SourceFormat{ID: format.ID, SourceKind: format.Family, Extensions: format.Extensions, Detector: func(p ingestion.Probe) ingestion.Detection {
-			v, e := format.Detector(context.Background(), p)
+			v, e := c.DetectOne(context.Background(), format.ID, p)
 			if e != nil {
 				return ingestion.Detection{}
 			}

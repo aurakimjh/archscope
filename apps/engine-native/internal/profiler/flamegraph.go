@@ -39,6 +39,7 @@
 package profiler
 
 import (
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/profilemodel"
 	"hash/fnv"
 	"sort"
 	"strconv"
@@ -59,13 +60,7 @@ import (
 // 메모리 회귀 주의: 과거에는 노드별 Path []string 복제본을 들고 있어
 // 60MB+ wall 입력 (1M+ 노드 × 50프레임 경로) 에서 multi-GB 폭주 발생.
 // 현재는 freezeNode 의 재귀 스택에서 path 재구성하므로 추가 비용 0.
-type mutableNode struct {
-	ID       string
-	ParentID *string
-	Name     string
-	Samples  int
-	Children map[string]*mutableNode
-}
+type mutableNode = profilemodel.TrieNode[int]
 
 // buildFlameTree builds the canonical flame tree from a stack→count
 // map. Hot path on 400 MB+ wall profiles, so the loop body is
@@ -91,56 +86,28 @@ func buildFlameTree(stacks map[string]int) FlameNode {
 // parse but explodes during tree construction still leaves a trail
 // in the log file. Cheap — one runtime.ReadMemStats per ~25k stacks.
 func buildFlameTreeWithLog(stacks map[string]int, pl *ProgressLog) FlameNode {
-	total := 0
-	for _, samples := range stacks {
-		if samples > 0 {
-			total += samples
-		}
-	}
-	root := &mutableNode{
-		ID:       "root",
-		Name:     "All",
-		Samples:  total,
-		Children: map[string]*mutableNode{},
-	}
+
+	trie := profilemodel.NewTrie("root", "All", func() int { return 0 }, func(a, b int) int { return a + b }, childNodeID)
 	path := make([]string, 0, 512)
 	consumed := 0
-	const tickEvery = 25_000
-	totalNodes := 0
 	for stack, samples := range stacks {
 		if samples <= 0 {
 			continue
 		}
-		current := root
 		frames := splitStackInto(path[:0], stack)
-		for _, frame := range frames {
-			child := current.Children[frame]
-			if child == nil {
-				parentID := current.ID
-				child = &mutableNode{
-					ID:       childNodeID(current.ID, frame),
-					ParentID: &parentID,
-					Name:     frame,
-					Children: map[string]*mutableNode{},
-				}
-				current.Children[frame] = child
-				totalNodes++
-			}
-			child.Samples += samples
-			current = child
-		}
+		trie.Add(frames, samples)
 		path = frames
 		consumed++
-		if pl != nil && consumed%tickEvery == 0 {
-			pl.Tick("build stacks=%d/%d nodes=%d", consumed, len(stacks), totalNodes)
+		if pl != nil && consumed%25_000 == 0 {
+			pl.Tick("build stacks=%d/%d nodes=%d", consumed, len(stacks), trie.Nodes-1)
 			pl.Mem("build")
 		}
 	}
 	if pl != nil {
-		pl.Tick("build done: stacks=%d nodes=%d total_samples=%d", consumed, totalNodes, total)
+		pl.Tick("build done: stacks=%d nodes=%d total_samples=%d", consumed, trie.Nodes-1, trie.Root.Value)
 		pl.Mem("build-end")
 	}
-	return freezeNode(root, max(total, 1))
+	return freezeNode(trie.Root, max(trie.Root.Value, 1))
 }
 
 // freezeNode reconstructs the immutable FlameNode from the in-progress
@@ -159,17 +126,17 @@ func freezeNode(node *mutableNode, total int) FlameNode {
 		children = append(children, child)
 	}
 	sort.Slice(children, func(i, j int) bool {
-		if children[i].Samples == children[j].Samples {
+		if children[i].Value == children[j].Value {
 			return children[i].Name < children[j].Name
 		}
-		return children[i].Samples > children[j].Samples
+		return children[i].Value > children[j].Value
 	})
 	out := FlameNode{
 		ID:       node.ID,
 		ParentID: node.ParentID,
 		Name:     node.Name,
-		Samples:  node.Samples,
-		Ratio:    ratio(node.Samples, total, 4),
+		Samples:  node.Value,
+		Ratio:    ratio(node.Value, total, 4),
 		Children: make([]FlameNode, 0, len(children)),
 	}
 	for _, child := range children {

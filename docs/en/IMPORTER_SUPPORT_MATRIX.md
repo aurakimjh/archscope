@@ -29,3 +29,14 @@ same bounded `http_capture` analysis contract after a finalized local session,
 but its release scope is narrower: Windows-only, loopback proxy, HTTP/1.x
 metadata, no bodies, HTTP/2 and QUIC passthrough/unsupported, and
 connection-specific endpoint attribution rather than whole-machine coverage.
+
+### Internal ProfileSet transport (T-629)
+
+`profile.set-json` / `profile-set` is a limited internal ProfileSet 1.0.0 JSON
+transport, producing `profile_evidence` 0.2.0 with explicit profile/metric selection.
+Its bundled fixture is synthetic and qualifies core behavior, not a producer/version.
+The existing `profile import` route retains 0.1.x normalization semantics.
+`profile-set normalize-legacy` discloses those limitations; it does not qualify
+corrected py-spy/Speedscope/pprof input semantics. Those remain T-634. New generic
+screens remain T-631. The one-document transport also respects the import job's
+record byte ceiling; it is not an unbounded large-file producer adapter.

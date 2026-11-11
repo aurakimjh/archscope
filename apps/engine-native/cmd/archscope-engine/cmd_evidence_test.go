@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	pprofprofile "github.com/google/pprof/profile"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -120,5 +121,71 @@ func TestReviewR01ActualCLIDeepProfilerReportsAndEvidenceExport(t *testing.T) {
 	run("report", "diff", "--before", saved, "--after", saved, "--out", filepath.Join(root, "diff.json"))
 	for _, format := range []string{"json", "html", "csv", "report-pack"} {
 		run("evidence", "export", "--in", saved, "--export-format", format, "--out", filepath.Join(root, "evidence."+format))
+	}
+}
+
+func TestT629ActualCLIProfileSetImportQueriesAndExports(t *testing.T) {
+	executable := filepath.Join(t.TempDir(), "engine.exe")
+	if out, e := exec.Command("go", "build", "-o", executable, ".").CombinedOutput(); e != nil {
+		t.Fatal(e, string(out))
+	}
+	run := func(args ...string) []byte {
+		t.Helper()
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+		defer cancel()
+		body, e := exec.CommandContext(ctx, executable, args...).CombinedOutput()
+		if e != nil {
+			t.Fatal(args, e, string(body))
+		}
+		return body
+	}
+	directory := t.TempDir()
+	input := filepath.Join(directory, "input.json")
+	saved := filepath.Join(directory, "saved.json")
+	fixture, _ := catalog.Contracts.ReadFile("contracts/profile-set.json")
+	os.WriteFile(input, fixture, 0600)
+	run("evidence", "import", "--in", input, "--importer", "profile-set", "--options", `{"profile_ids":["worker-a","worker-b"],"metric_id":"duration"}`, "--out", saved)
+	tree := run("profile-set", "tree", "--in", saved)
+	if !strings.Contains(string(tree), `"inclusive":"0.35"`) {
+		t.Fatal(string(tree))
+	}
+	diff := run("profile-set", "diff", "--in", saved, "--after", saved)
+	if !strings.Contains(string(diff), `"delta":"0"`) {
+		t.Fatal(string(diff))
+	}
+	stages := run("profile-set", "drilldown", "--in", saved)
+	if !strings.Contains(string(stages), `"inclusive":"0.35"`) {
+		t.Fatal(string(stages))
+	}
+	for _, format := range []string{"json", "csv", "html", "report-pack"} {
+		out := filepath.Join(directory, "out."+format)
+		run("evidence", "export", "--in", saved, "--export-format", format, "--out", out)
+		if info, e := os.Stat(out); e != nil || info.Size() == 0 {
+			t.Fatal(format, e)
+		}
+	}
+	pprof := filepath.Join(directory, "selected.pprof")
+	run("profile-set", "pprof", "--in", saved, "--tick-scale", "0.01", "--out", pprof)
+	raw, _ := os.ReadFile(pprof)
+	profile, e := pprofprofile.ParseData(raw)
+	if e != nil {
+		t.Fatal(e)
+	}
+	sum := int64(0)
+	for _, sample := range profile.Sample {
+		sum += sample.Value[0]
+	}
+	if sum != 35 || len(profile.Sample) != 3 {
+		t.Fatal(profile)
+	}
+	// Unsafe projection must not replace an existing artifact.
+	target := filepath.Join(directory, "prior.pprof")
+	os.WriteFile(target, []byte("prior"), 0600)
+	if out, e := exec.Command(executable, "profile-set", "pprof", "--in", saved, "--tick-scale", "1", "--out", target).CombinedOutput(); e == nil || !strings.Contains(string(out), "precision") {
+		t.Fatal(e, string(out))
+	}
+	prior, _ := os.ReadFile(target)
+	if string(prior) != "prior" {
+		t.Fatal("failed projection replaced prior artifact")
 	}
 }

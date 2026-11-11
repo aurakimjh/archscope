@@ -435,3 +435,32 @@ func TestReviewR03OpaqueStorageDoesNotRunSchemaArithmetic(t *testing.T) {
 		t.Fatal("opaque numeric text lost", e)
 	}
 }
+
+func TestT629PayloadReadersAreDisjointAndLegacyOperationsStayPinned(t *testing.T) {
+	legacy := c.Descriptor{Type: "version_fixture", Payload: c.Range{Min: "0.1.0", Before: "0.2.0"}, Envelope: c.Range{Min: "1.0.0", Before: "2.0.0"}, Operations: []string{"display", "save"}}
+	exact := legacy
+	exact.Payload = c.Range{Min: "0.2.0", Before: "0.3.0"}
+	exact.Operations = []string{"display", "save", "compute"}
+	registry, e := c.New(legacy, exact)
+	if e != nil {
+		t.Fatal(e)
+	}
+	r := models.New("version_fixture", "fixture")
+	r.Metadata.SchemaVersion = "0.1.0"
+	if registry.Check(r, "compute").Allowed {
+		t.Fatal("old payload activated new computation")
+	}
+	r.Metadata.SchemaVersion = "0.2.0"
+	if !registry.Check(r, "compute").Allowed {
+		t.Fatal("new reader not selected")
+	}
+	r.Metadata.SchemaVersion = "0.3.0"
+	if registry.Check(r, "display").Allowed {
+		t.Fatal("unsupported future payload accepted")
+	}
+	overlapping := exact
+	overlapping.Payload = c.Range{Min: "0.1.1", Before: "0.2.1"}
+	if _, e = c.New(legacy, overlapping); e == nil {
+		t.Fatal("ambiguous version readers activated")
+	}
+}

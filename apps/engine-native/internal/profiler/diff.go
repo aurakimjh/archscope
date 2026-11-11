@@ -38,6 +38,7 @@
 package profiler
 
 import (
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/profilemodel"
 	"math"
 	"sort"
 	"strings"
@@ -52,13 +53,8 @@ type DiffOptions struct {
 	Normalize bool
 }
 
-type diffNode struct {
-	Name     string
-	A        float64
-	B        float64
-	Path     []string
-	Children map[string]*diffNode
-}
+type diffValue struct{ A, B float64 }
+type diffNode = profilemodel.TrieNode[diffValue]
 
 type diffRow struct {
 	Path  string
@@ -95,45 +91,37 @@ func BuildDiffFlameTree(baseline, target map[string]int, options DiffOptions) (F
 		bScale = 1.0 / float64(targetTotal)
 	}
 
-	root := &diffNode{Name: "All", Children: map[string]*diffNode{}}
-
+	trie := profilemodel.NewTrie("root", "All", func() diffValue { return diffValue{} }, func(a, b diffValue) diffValue { return diffValue{a.A + b.A, a.B + b.B} }, nil)
 	add := func(stacks map[string]int, scale float64, side string) {
 		for stack, samples := range stacks {
 			if samples <= 0 {
 				continue
 			}
-			value := float64(samples) * scale
-			current := root
-			path := []string{}
+			frames := []string{}
 			for _, frame := range strings.Split(stack, ";") {
-				if frame == "" {
-					continue
+				if frame != "" {
+					frames = append(frames, frame)
 				}
-				path = append(path, frame)
-				child := current.Children[frame]
-				if child == nil {
-					child = &diffNode{
-						Name:     frame,
-						Path:     append([]string(nil), path...),
-						Children: map[string]*diffNode{},
-					}
-					current.Children[frame] = child
-				}
-				if side == "a" {
-					child.A += value
-				} else {
-					child.B += value
-				}
-				current = child
 			}
+			if len(frames) == 0 {
+				continue
+			}
+			value := diffValue{}
+			if side == "a" {
+				value.A = float64(samples) * scale
+			} else {
+				value.B = float64(samples) * scale
+			}
+			trie.Add(frames, value)
 		}
 	}
+	root := trie.Root
 
 	add(baseline, aScale, "a")
 	add(target, bScale, "b")
 
 	flat := []diffRow{}
-	flameRoot, rootTotal := freezeDiff(root, &flat)
+	flameRoot, rootTotal := freezeDiff(root, &flat, nil)
 
 	gains := append([]diffRow(nil), flat...)
 	losses := append([]diffRow(nil), flat...)
@@ -212,47 +200,50 @@ func BuildDiffFlameTree(baseline, target map[string]int, options DiffOptions) (F
 // root(Path=[]) 인 경우 자식 합으로 A/B 보정 (부모는 자식 누적치를 가져야
 // 정확한 delta 가 나오기 때문). FlameNode.Samples 는 max(A,B)*1e6 으로
 // 정수화해 ratio 가 매우 작은 경우에도 정밀도 보존.
-func freezeDiff(node *diffNode, flat *[]diffRow) (FlameNode, float64) {
+func freezeDiff(node *diffNode, flat *[]diffRow, path []string) (FlameNode, float64) {
 	children := make([]*diffNode, 0, len(node.Children))
 	for _, child := range node.Children {
 		children = append(children, child)
 	}
 	sort.Slice(children, func(i, j int) bool {
-		return math.Max(children[i].A, children[i].B) > math.Max(children[j].A, children[j].B)
+		return math.Max(children[i].Value.A, children[i].Value.B) > math.Max(children[j].Value.A, children[j].Value.B)
 	})
 
 	childNodes := make([]FlameNode, 0, len(children))
 	sumA, sumB := 0.0, 0.0
 	for _, child := range children {
-		sumA += child.A
-		sumB += child.B
-		if len(child.Path) > 0 {
+		childPath := make([]string, len(path)+1)
+		copy(childPath, path)
+		childPath[len(path)] = child.Name
+		sumA += child.Value.A
+		sumB += child.Value.B
+		if len(childPath) > 0 {
 			*flat = append(*flat, diffRow{
-				Path:  strings.Join(child.Path, ";"),
-				A:     child.A,
-				B:     child.B,
-				Delta: child.B - child.A,
+				Path:  strings.Join(childPath, ";"),
+				A:     child.Value.A,
+				B:     child.Value.B,
+				Delta: child.Value.B - child.Value.A,
 			})
 		}
-		childNode, _ := freezeDiff(child, flat)
+		childNode, _ := freezeDiff(child, flat, childPath)
 		childNodes = append(childNodes, childNode)
 	}
 
-	if len(node.Path) == 0 {
-		node.A = math.Max(node.A, sumA)
-		node.B = math.Max(node.B, sumB)
+	if len(path) == 0 {
+		node.Value.A = math.Max(node.Value.A, sumA)
+		node.Value.B = math.Max(node.Value.B, sumB)
 	}
 
-	delta := node.B - node.A
-	samples := math.Max(node.A, node.B)
+	delta := node.Value.B - node.Value.A
+	samples := math.Max(node.Value.A, node.Value.B)
 
 	id := "root"
 	var parentID *string
-	if len(node.Path) > 0 {
-		id = strings.Join(node.Path, ";")
+	if len(path) > 0 {
+		id = strings.Join(path, ";")
 		var pid string
-		if len(node.Path) > 1 {
-			pid = strings.Join(node.Path[:len(node.Path)-1], ";")
+		if len(path) > 1 {
+			pid = strings.Join(path[:len(path)-1], ";")
 		} else {
 			pid = "root"
 		}
@@ -270,15 +261,15 @@ func freezeDiff(node *diffNode, flat *[]diffRow) (FlameNode, float64) {
 		Name:     node.Name,
 		Samples:  samplesInt,
 		Ratio:    0.0,
-		Path:     append([]string(nil), node.Path...),
+		Path:     append([]string(nil), path...),
 		Children: childNodes,
 		Metadata: map[string]any{
-			"a":     round(node.A, 6),
-			"b":     round(node.B, 6),
+			"a":     round(node.Value.A, 6),
+			"b":     round(node.Value.B, 6),
 			"delta": round(delta, 6),
 		},
 	}
-	return flameNode, math.Max(node.A, node.B)
+	return flameNode, math.Max(node.Value.A, node.Value.B)
 }
 
 func rowToMap(row diffRow) map[string]any {

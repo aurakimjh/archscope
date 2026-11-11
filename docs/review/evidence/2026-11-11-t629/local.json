@@ -1,0 +1,215 @@
+{
+  "task": "T-629",
+  "baseline_commit": "63d3b6aaa1f529edf8f022b3054c81c306e7cdd9",
+  "recorded_at_utc": "2026-11-11T06:59:14.174422+00:00",
+  "scope": "canonical ProfileSet core, legacy facades, exact tree/selection/diff/drilldown/pprof and catalog/CLI/Wails saved-result flow",
+  "state": "REVIEW; implemented and author-verified; no independent PASS",
+  "shared_assets_commit": "e98fd96f01219ec1fdd44517b9bdaa2da8d8052b",
+  "contracts": {
+    "model": "1.0.0",
+    "new_payload": "profile_evidence 0.2.0",
+    "legacy_payload": "profile_evidence 0.1.x and typed legacy profiler unchanged",
+    "new_transport": "profile.set-json / profile-set; internal only; limited one-document record budget",
+    "new_producer_support_claimed": false
+  },
+  "checks": {
+    "go_race": {
+      "command": "go test -race ./... -count=1",
+      "exit_code": 0,
+      "ok_packages": 95,
+      "no_test_packages": 5,
+      "races": 0
+    },
+    "mac_vet_build": {
+      "commands": [
+        "go vet ./...",
+        "go build ./..."
+      ],
+      "exit_codes": [
+        0,
+        0
+      ]
+    },
+    "frontend": {
+      "commands": [
+        "wails3 generate bindings -clean=true -ts",
+        "npm run test:state",
+        "npm run build (task darwin:package)"
+      ],
+      "exit_codes": [
+        0,
+        0,
+        0
+      ]
+    },
+    "mac_package_and_signature": {
+      "package_exit_code": 0,
+      "strict_deep_codesign_exit_code": 0,
+      "app_launched": false,
+      "note": "nonfatal SDK/link deployment-target warnings are not runtime evidence"
+    },
+    "windows": {
+      "cross_vet": [
+        "amd64",
+        "386"
+      ],
+      "gui_cross_build": [
+        "amd64",
+        "386"
+      ],
+      "exit_codes": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "native_execution": false
+    },
+    "desktop_guard": {
+      "command": "node scripts/verify-desktop-only.mjs --check-server-build",
+      "exit_code": 0
+    },
+    "docs_assets": {
+      "unique_task_ids": 232,
+      "status_counts": {
+        "REVIEW": 5,
+        "TODO": 3,
+        "PENDING": 14,
+        "DONE": 210
+      },
+      "shared_bytes_and_hashes_equal": true
+    }
+  },
+  "baseline_cli_comparison": {
+    "commands": [
+      {
+        "case": "collapsed",
+        "baseline": "63d3b6a",
+        "equal": true,
+        "canonical_sha256": "8dd587ceef0d6942bb3550920d10827be0a91c2997ba4a2845b4786b727a9851"
+      },
+      {
+        "case": "jennifer",
+        "baseline": "63d3b6a",
+        "equal": true,
+        "canonical_sha256": "bf25afcce8182cb96a77bca6addd83f01096f348beb59f2ed6e955b103d0b0d6"
+      },
+      {
+        "case": "svg",
+        "baseline": "63d3b6a",
+        "equal": true,
+        "canonical_sha256": "051177645cce2809c874e0302b99ac6afc524518c586e0df28cf7d7317672e31"
+      },
+      {
+        "case": "html",
+        "baseline": "63d3b6a",
+        "equal": true,
+        "canonical_sha256": "37a9c1a6358daa000a162a377148db24a968ebcad865ceb243870614581edce3"
+      },
+      {
+        "case": "drilldown",
+        "baseline": "63d3b6a",
+        "equal": true,
+        "canonical_sha256": "fae0063ada5937428e40ef72547ad06ccd0ee7370e5d22fefe960bea3b28a06e"
+      }
+    ],
+    "excluded_fields": [
+      "created_at",
+      "progress_log_path"
+    ],
+    "other_fields_equal": true
+  },
+  "legacy_normalization_cli_flow": {
+    "normalization": "legacy-disclosed",
+    "source": "existing sanitized sample-wall.collapsed",
+    "profile_count": 1,
+    "metric": {
+      "id": "legacy-count",
+      "kind": "sample_count",
+      "unit": "count",
+      "scale": "1",
+      "signed": false
+    },
+    "weight": "32629",
+    "quality_disclosed": true
+  },
+  "regressions": [
+    "exact decimal and 9007199254740993 weights, observed zero and unavailable selection",
+    "explicit profiles/metric selection, multiple workers/metrics, recursive and colliding display frames",
+    "physical scale consistency across tree, native-int projection and int64 pprof",
+    "source/profile/producer/quality/options/selection/metric compatibility and zero baseline",
+    "immutable model, defensive selection copies, cumulative drilldown without pruned-tree reuse",
+    "integer/sign/range/collision refusal and explicit tick/provenance metadata",
+    "null/zero/absent time, source lines, opaque extensions and unknown result metadata",
+    "disjoint payload readers, overlapping-reader refusal, no relabel/forged projection activation",
+    "actual CLI import/query/export and direct Go Wails method save/reopen/JSON/pprof",
+    "existing golden, metadata roundtrip, thread mixed-format and T-628 regressions retained"
+  ],
+  "limitations": [
+    "independent T-629 review not performed",
+    "actual new WebView IPC/UI, Windows native execution and hosted CI not run",
+    "internal synthetic transport is not producer/version qualification",
+    "T-634 owns py-spy/Speedscope/pprof original decoder semantic corrections",
+    "T-631 owns generic screens; T-630/T-635 own cross-capture case/entity/time baseline policy",
+    "legacy fast paths retain shared-trie compatibility views and documented decoder limitations",
+    "pprof is selected metric/profile projection; full multimetric backup uses saved JSON/Report Pack",
+    "Q01-Q04 remain undecided"
+  ],
+  "source_sha256": {
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/engineservice.ts": "831359639edc8cc77ac554693d31cfecc3ba6b484c5162410dcbf067a5ffbd25",
+    "apps/engine-native/cmd/archscope-app/frontend/src/bridge/engine.ts": "ffc8adc52edce26705e7426515edf0e88ff794288303e697b0301544d6ca149f",
+    "apps/engine-native/cmd/archscope-app/profilerservice.go": "f671f6d64101a5be6d05ee33a8f05fdffe17ab03f6800eef714a5f27e2742924",
+    "apps/engine-native/cmd/archscope-app/profilesetservice.go": "b09d106aaf619e9aab9d18cbbed09bbfedca6ec2e268532ac33e0c225de6f73a",
+    "apps/engine-native/cmd/archscope-app/profilesetservice_test.go": "dfa79b0b0bf0f033780a9973ae3fc1b31cd3a464c32fe1c5807fd09dd7c6b38f",
+    "apps/engine-native/cmd/archscope-engine/cmd_evidence_test.go": "11036af42d33d95dca830046d786dac691096d09feb7c3de6bc75c91ac2302e7",
+    "apps/engine-native/cmd/archscope-engine/cmd_profile_set.go": "3afa7838eeb4659d7892781e27b4e200be0d9249c725a2a070ff3353e6774ca1",
+    "apps/engine-native/internal/analysis/profile.go": "0638511422928d165ba37e8e503f12cf36470ebc13f6070c9954d2a7a5e95370",
+    "apps/engine-native/internal/analysis/profile_test.go": "5418276c88d6e0bcea2fb8828c3268e3c4a69f704ebb60264b368e82e56eab6f",
+    "apps/engine-native/internal/analyzers/profile/model.go": "cd7825e699a25924472867601c655e445c0beda5e15c785cb3fa2422de39920e",
+    "apps/engine-native/internal/analyzers/profile/model_test.go": "ad00973efd6ccdb52fbb3c2ff4c6cd9105c71f1e016388f438783df23327ad59",
+    "apps/engine-native/internal/catalog/builtin.go": "3a05ed5d6e3317633ca30996839bb232da937648163510d4d658072455cf5ed1",
+    "apps/engine-native/internal/catalog/contracts/profile-origin.txt": "40d9150d23cd94c6e7f325511281db7c9b946e89b60d8c25a26868943102f291",
+    "apps/engine-native/internal/catalog/contracts/profile-set.json": "90e348518b20503d0efdd70f133747cd08dcfd06bbd8abfbae710e3b16afd2f8",
+    "apps/engine-native/internal/catalog/contracts/profile-set.manifest.json": "c8090a530658c11281cc72485dcd2d3b7c8f5202a6753d9af3d574a1e8f40503",
+    "apps/engine-native/internal/catalog/contracts/profile-set.schema.json": "2a7814678d750ebb56fcabb63016b4c966ba0f16819b44c6ff946ca2417d1423",
+    "apps/engine-native/internal/catalog/contracts_test.go": "4aed1acaf0dcde5e5879cfad4657875603dff8ab5ff851fc447993f22513673b",
+    "apps/engine-native/internal/catalog/profile_set.go": "43db265c84af4ac417d068a5a81f339bd608dced72414d5a82356992e9453555",
+    "apps/engine-native/internal/catalog/profile_set_test.go": "b28d21f40e1aeaf5ee34da22d314767aabc0d89de84735cdc6cda481c6c9e2c9",
+    "apps/engine-native/internal/ingestion/importer.go": "481c660c2bdfed1326e09f9d3367ea639ed50785538f394bf0d691ee2aee7693",
+    "apps/engine-native/internal/parsers/profile/model.go": "e29f232f582ddd9e127377554292ffc96d9f1f87f8ec86ecbf36628da46c2c6b",
+    "apps/engine-native/internal/parsers/profile/model_test.go": "00874b9cbcca36bbcb8332146bbf1141a84a2c60f30b66563320cfe483acf6c6",
+    "apps/engine-native/internal/profilelegacy/catalog.go": "d355579f01d0507ab8431780f4222eb87779a2374ab0f3770cbacfce1905a57e",
+    "apps/engine-native/internal/profilemodel/budget.go": "07a1ec0d3ff4fb4c6f170b20ff1130e78810260ba2885838b6e199d4b242978c",
+    "apps/engine-native/internal/profilemodel/errors.go": "da4a83ca406696ca45ba1a2c1efd493a11a5fb10ae83d6c232336e211499b58d",
+    "apps/engine-native/internal/profilemodel/legacy.go": "c01e819d9b3905679cc7ccb57ec4a0e6b8c6e72b5b2bba42787340350b7ff1da",
+    "apps/engine-native/internal/profilemodel/model.go": "33bd05c2df6d64d1b657f276789434667023b24d7dba68b30ee93d57dd3fd9da",
+    "apps/engine-native/internal/profilemodel/model_test.go": "917ee326160d34190a1ff1b7b4b5df04fdf54f5d8a521b8132be557fcdcd034f",
+    "apps/engine-native/internal/profilemodel/operations.go": "7fbb4668f8416eba798f59ad196ee470254d2c0d61e1e9852d2d6f75bd58a0d2",
+    "apps/engine-native/internal/profilemodel/pprof.go": "d4fa734c8b49afbb436c953c4f7b403e3df7b82e5f077c493146625c7ffc030b",
+    "apps/engine-native/internal/profilemodel/sample_json.go": "772873a8d6012541ec747f1488617588b28cdb6f546b48a31f771cc6cd85044c",
+    "apps/engine-native/internal/profilemodel/trie.go": "6a9c50cb7307e0fc99f0ee13bba5126a300761a18b3688696a33edcd00c0ed50",
+    "apps/engine-native/internal/profiler/diff.go": "ead09f4c96ab4394cd9502c202132c2cd136ed10e77edc97e058f88d4a5fa7d8",
+    "apps/engine-native/internal/profiler/flamegraph.go": "e40682f524879268c02037a5b0a90620e3166de24cfb779bb62e44e1e43d5d1c",
+    "apps/engine-native/internal/resultcontract/contract.go": "61a7a0946bd72839cfe3ecb2df4c7002c42728e474ba4fe91decdf56082c0a35",
+    "apps/engine-native/internal/resultcontract/contract_test.go": "7064453e59370c64d9b9622e6bf18d97043a02cfe2ca1c1a7c16c7cac8e52569"
+  },
+  "build_sha256": {
+    "mac_binary": "194a5aa5adf73f8837fdb80061d217ece11398c6f5a52a21bc4a15efd968335a",
+    "windows_amd64": "20bb2a76506c8071ce40f860e3fc2481f345c936419c77ec3260c06c6ff00725",
+    "windows_386": "29588db638be9ef9fa656f32b85aa471aaa87deadd48038592c85fdb20c8c257"
+  },
+  "log_sha256": {
+    "t629-race.log": "a23135f1fc9c9e505b69873b0e3eba77203fe1c89f02e3c282f909a7ef485242",
+    "t629-vet-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "t629-build.log": "b1f59cbc9d6b463daf9849c726ad25fb4415816580bc186d5a2da2692632c958",
+    "t629-vet-win64.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "t629-vet-win32.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "t629-bindings-final.log": "a0f93c80528243982cfc8f2426cf37a233d9b6b408a027190a0a6992de6782cd",
+    "t629-state-final.log": "96ab3e7763edc1082d01e3a18afd8649d6c9bcdb89fb7b8a072303fcc49805cb",
+    "t629-package-final.log": "9163b4a0701266bf8355c29c5844b2f07067587c314476e7b806f69bb6d634bc",
+    "t629-signature-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "t629-win64.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "t629-win32.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "t629-desktop.log": "2737e05db97102bfc69e4a94138f70b869f75db5874ac9581749568974f07e97"
+  }
+}

@@ -72,16 +72,18 @@ type Descriptor struct {
 	Scalars                map[string]ValueSchema
 	Collections            map[string]map[string]ValueSchema
 }
-type Registry struct{ types map[string]Descriptor }
+type Registry struct{ types map[string][]Descriptor }
 
 func New(ds ...Descriptor) (*Registry, error) {
-	r := &Registry{types: map[string]Descriptor{}}
+	r := &Registry{types: map[string][]Descriptor{}}
 	for _, d := range ds {
 		if d.Type == "" || !d.Payload.Accepts(d.Payload.Min) || !d.Envelope.Accepts(d.Envelope.Min) {
 			return nil, fmt.Errorf("invalid result descriptor")
 		}
-		if _, ok := r.types[d.Type]; ok {
-			return nil, fmt.Errorf("duplicate result type")
+		for _, prior := range r.types[d.Type] {
+			if prior.Payload.Accepts(d.Payload.Min) || d.Payload.Accepts(prior.Payload.Min) {
+				return nil, fmt.Errorf("overlapping result type payload ranges")
+			}
 		}
 		body, _ := json.Marshal(d)
 		var frozen Descriptor
@@ -89,15 +91,23 @@ func New(ds ...Descriptor) (*Registry, error) {
 			return nil, e
 		}
 		frozen.ValidatePayload = d.ValidatePayload
-		r.types[d.Type] = frozen
+		r.types[d.Type] = append(r.types[d.Type], frozen)
 	}
 	return r, nil
 }
 
-func (r *Registry) HasType(kind string) bool { _, ok := r.types[kind]; return ok }
+func (r *Registry) HasType(kind string) bool { return len(r.types[kind]) > 0 }
+func (r *Registry) descriptor(kind, version string) (Descriptor, bool) {
+	for _, d := range r.types[kind] {
+		if d.Payload.Accepts(version) {
+			return d, true
+		}
+	}
+	return Descriptor{}, false
+}
 func (r *Registry) SupportsPayload(kind, version string) bool {
-	d, ok := r.types[kind]
-	return ok && d.Payload.Accepts(version)
+	_, ok := r.descriptor(kind, version)
+	return ok
 }
 
 type Verdict struct {
@@ -108,8 +118,11 @@ type Verdict struct {
 
 func (r *Registry) Check(result models.AnalysisResult, operation string) Verdict {
 	deny := func(reason string) Verdict { return Verdict{false, reason, true} }
-	d, ok := r.types[result.Type]
+	d, ok := r.descriptor(result.Type, result.Metadata.SchemaVersion)
 	if !ok {
+		if r.HasType(result.Type) {
+			return deny("payload_requires_original_reanalysis")
+		}
 		return deny("unknown_result_type")
 	}
 	if envelope, exists := result.Metadata.Extra["envelope_schema_version"]; exists {
@@ -215,7 +228,7 @@ func DecodeWithLimits(b []byte, limits wirejson.Limits) (models.AnalysisResult, 
 	return r, nil
 }
 func (r *Registry) Validate(result models.AnalysisResult) error {
-	d, ok := r.types[result.Type]
+	d, ok := r.descriptor(result.Type, result.Metadata.SchemaVersion)
 	if !ok {
 		return fmt.Errorf("unregistered result type")
 	}

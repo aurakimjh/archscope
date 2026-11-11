@@ -291,6 +291,10 @@ export function CompareEvidenceScalar(a: string, b: string, path: string): $Canc
     });
 }
 
+export function CompareProfileSets(before: string, after: string): $CancellablePromise<string> {
+    return $Call.ByID(3893760870, before, after);
+}
+
 /**
  * ConvertToCollapsed parses each path through the engine plugin
  * registry and folds the snapshots into the FlameGraph collapsed
@@ -312,6 +316,10 @@ export function DiffReports(req: $models.EngineDiffRequest): $CancellablePromise
     return $Call.ByID(3841388367, req).then(($result: any) => {
         return $$createType6($result);
     });
+}
+
+export function DrilldownProfileSet(handle: string, filtersJSON: string): $CancellablePromise<string> {
+    return $Call.ByID(1290249415, handle, filtersJSON);
 }
 
 /**
@@ -365,6 +373,10 @@ export function ExportPPTX(req: $models.ExportPPTXRequest): $CancellablePromise<
     return $Call.ByID(3708449921, req);
 }
 
+export function ExportProfileSetPprof(handle: string, tickScale: string, path: string): $CancellablePromise<void> {
+    return $Call.ByID(2580236325, handle, tickScale, path);
+}
+
 export function GetEvidenceResult(handle: string): $CancellablePromise<analysis$0.ResultView> {
     return $Call.ByID(3342174385, handle).then(($result: any) => {
         return $$createType7($result);
@@ -402,6 +414,14 @@ export function GetImportJob(id: string, generation: number): $CancellablePromis
     });
 }
 
+/**
+ * Queries retain exact numbers as JSON text across Wails; existing typed legacy
+ * endpoints remain compatibility facades. Generic screens belong to T-631.
+ */
+export function GetProfileSetTree(handle: string): $CancellablePromise<string> {
+    return $Call.ByID(4065762134, handle);
+}
+
 export function ImportEvidence(req: $models.EvidenceImportRequest): $CancellablePromise<analysis$0.JobSnapshot> {
     return $Call.ByID(3697193583, req).then(($result: any) => {
         return $$createType11($result);
@@ -418,6 +438,10 @@ export function LoadEvidenceResult(path: string): $CancellablePromise<analysis$0
     return $Call.ByID(2656839899, path).then(($result: any) => {
         return $$createType7($result);
     });
+}
+
+export function NormalizeLegacyProfileSet(path: string, format: string): $CancellablePromise<string> {
+    return $Call.ByID(3489070610, path, format);
 }
 
 export function ProjectJenniferDrilldown(req: $models.JenniferDrilldownRequest): $CancellablePromise<api$0.AnalysisResult> {

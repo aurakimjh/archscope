@@ -29,3 +29,13 @@ Windows 실시간 HTTP 캡처는 별도의 file importer가 아니다. 종료된
 Windows 전용 loopback proxy의 HTTP/1.x metadata만 다루고 body를 저장하지 않으며,
 HTTP/2와 QUIC는 passthrough/unsupported다. Endpoint 귀속은 개별 connection
 증거이며 시스템 전체 트래픽 coverage를 의미하지 않는다.
+
+### 내부 ProfileSet 교환 경로 (T-629)
+
+`profile.set-json` / `profile-set`은 제한된 내부 ProfileSet 1.0.0 JSON 교환 경로다.
+profile/metric을 명시하여 `profile_evidence` 0.2.0을 만든다. 번들 fixture는 합성 자료이며
+공통 코어를 검증할 뿐 실제 producer/버전의 지원 근거가 아니다. 기존 `profile import`는
+0.1.x 정규화 의미를 유지한다. `profile-set normalize-legacy`도 그 제한을 명시하며
+py-spy/Speedscope/pprof 입력의 수치 정정을 입증하지 않는다(T-634). generic 화면은
+T-631이다. normalized 문서 하나가 job의 record 바이트 상한도 따르므로 무제한 대용량
+producer adapter라고 표시하지 않는다.

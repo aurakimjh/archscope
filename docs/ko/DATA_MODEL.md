@@ -1908,3 +1908,56 @@ any 대신 unknown이며 알려진 필드의 타입·구조 오류는 렌더링 
 Go의 null 진단 배열은 null로 유지한다. binding을 재생성하고 frontend의 타입 오류
 검증 및 실행 시 구조 검증을 W01~W10에 보탠다. 실제 WebView IPC/UI 실행과
 독립 재리뷰는 별도 검증이다.
+
+## T-629 ProfileSet 공통 코어 계약 (2026-11-11)
+
+`internal/profilemodel`을 공통 내부 프로파일 모델로 사용한다. 내부 JSON 교환 버전은
+1.0.0이며 새로운 AnalysisResult envelope가 아니다. 새 결과는 기존 type인
+`profile_evidence`의 payload 0.2.0을 사용한다. 기존 `profile_evidence` 0.1.x 및
+profiler typed 결과의 reader·수치·엔드포인트는 유지한다. 한 type에 서로 겹치지
+않는 payload 범위별 reader를 등록하며 겹치면 조립 시 거절한다. 구형 결과의
+schema 번호만 바꿔서는 새 계산을 활성화할 수 없다. 새 reader는 보존된 model과
+알려진 summary/tree/table/measurement/population projection을 재계산·대조한다.
+
+| 계약 | 의미 |
+|---|---|
+| ProfileSet | 선언된 producer/버전/형식, 원본 hash 집합, opaque 수집 옵션·확장, frame/stack/metric/profile 및 품질 |
+| Frame | 원본 symbol/module/build/file/line/runtime/inline/native/kernel/async 속성의 SHA-256 식별자. 표시 이름은 identity에서 제외 |
+| Stack | 순서가 있는 frame-ID 경로. 재귀 frame의 반복 출현은 별도 경로 위치로 유지 |
+| Metric | 종류·단위·양의 소수 scale·부호 계약. signed difference에는 base_kind 추가 |
+| Sample | 정밀 소수 문자열 weight와 metric/stack ID, label/원본 참조 및 선택적 timestamp/interval |
+| Profile | process/thread/worker와 aggregate/relative/absolute 시계. 측정된 시간에는 단위·scale 명시 |
+| Selection | 명시적 profile ID 집합과 metric 하나, frame-ID prefix/contains 경로 및 교집합 드릴다운 필터 |
+| Quality | nullable lost/unknown/truncated·심볼 해석률, 시계 신뢰도와 변환 손실. 미측정을 0으로 채우지 않음 |
+
+관측된 0, 명시적 null 시간, 시간 필드 부재를 왕복 보존한다. line 0과 line 미상도
+구분한다. 정의되지 않은 모델 필드는 거절하고 미래 선택 정보는 opaque `extensions`
+map에 보관한다. 공통 결과 metadata의 unknown-key 정밀도·보존 계약은 유지한다.
+weight·scale은 정밀 소수 문자열(최대 1,024자·소수 128자리)이다. 트리 inclusive/self는
+scale을 정확히 곱한 선언 단위의 값이며 비중·변화율은 유리수 문자열이다. float 변환과
+최소 1 보정을 하지 않는다. 관측이 없는 선택의 total_weight는 사유를 갖는 unavailable,
+0 weight 레코드가 실제 존재하는 선택은 observed 0이다. 빈 대수 트리의 root 0은
+query availability로 한정하며 측정 summary 0을 뜻하지 않는다. frame 표에서 표시
+이름을 해석하므로 깊은 경로마다 이름을 반복 직렬화하지 않는다.
+
+비교에는 metric ID·종류·단위·scale·부호 및 원본·profile identity·producer/normalizer 버전·품질·수집 옵션·frame 선택
+모집단의 일치가 필요하다. 모델의 원본 hash와 import JSON 컨테이너의 lease provenance를
+분리 보존한다. 보수적인 비교 정책이며 서로 다른 수집의 workload/entity/time baseline
+정책은 T-630/T-635에 남긴다. 0 기준 변화율이나 unavailable 비교값을 만들지 않는다.
+BuildSet은 모델·선택을 복제하여 보존하고 query는 원본이나 잘라낸 표시 트리를 수정하지 않는다.
+
+`LegacyStackProjection`에는 정수 tick scale을 명시한다. 결과에는 scale·선택한 metric/
+profile·집계된 차원을 포함한다. 이름 충돌·구분자 손실이 없을 때만 표시 이름을 key로
+사용하고 stable frame-ID key도 지원한다. 정수화할 수 없는 소수, signed 자료, 대상
+int 및 합계 범위 초과는 거절한다. pprof도 명시적 tick과 정확한 int64만 허용하며 0
+레코드를 유지한다. scale을 적용한 export는 단위를 `ticks`로 표시하고 원래 metric/
+unit/scale·선택·frame identity·원본 hash·품질을 Comments에 남긴다. process/thread/
+worker·정확한 시간 문맥은 예약 label로 보존하며 충돌은 오류다. 선택한 metric의
+projection이므로 전체 다중 metric 원본 백업에는 JSON/Report Pack을 사용한다.
+
+운영 상한은 입력 64 MiB, 참조 문자열 합 32 MiB, frame/stack/sample 각 100,000개,
+profile·stack 깊이 1,024, metric·filter 64개, tree node 200,000개, 선택 frame 참조
+1,000,000개, 트리 직렬화 8 MiB, 드릴다운 응답 합 32 MiB다. pprof identity Comments는
+8 MiB, 출력은 64 MiB로 제한한다. 자원 초과 시 반올림·절단 대신 거절한다. 현재
+catalog 교환 경로는 normalized 문서 하나를 내보내므로 job record 상한(기본 1 MiB)도
+따른다. 더 큰 producer streaming adapter는 별도 작업이다.
