@@ -1,6 +1,6 @@
 # Parser Design
 
-## Proposed extension checklist (2026-11-11, not implemented)
+## Extension checklist (2026-11-11, T-628 foundation implemented)
 
 Use the [evolution design §16](./LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN.md#16-extension-and-compatibility-contracts)
 when introducing the descriptor/catalog path. Existing family-specific CLI and
@@ -16,9 +16,10 @@ when introducing the descriptor/catalog path. Existing family-specific CLI and
 
 ### T-628 detailed design scope and baseline
 
-This is a pre-implementation contract checked against `83b8ff9` on 2026-11-11.
-The APIs/codes below are proposed, not currently callable. Writing them does not
-complete T-628 implementation or release dependent tasks.
+The detailed design was checked against `83b8ff9` and fixed at `eb3e782`.
+T-628 now implements C1–C4 with one pilot importer. The logical contract below
+is qualified by the implementation record at the end of this document; complete
+ProfileSet, renderer and measurement-correction migrations remain separate.
 
 | Current evidence | Behavior | Migration boundary |
 |---|---|---|
@@ -29,7 +30,7 @@ complete T-628 implementation or release dependent tasks.
 
 ### Registration and selection contract
 
-The proposed internal/catalog explicitly assembles and validates built-ins at
+internal/catalog explicitly assembles and validates built-ins at
 startup, then freezes the registry. Do not rely on package init side effects.
 Separate executable handles from bounded descriptor views returned to consumers.
 
@@ -619,3 +620,56 @@ term once before traversing stacks, including terms no input can reach.
 Invalid or unsafe include/exclude filters return an empty stage with
 `INVALID_REGEX` or `UNSAFE_REGEX`, never a valid-looking zero-match result or
 an unfiltered exclude result. Existing order, case, and reroot rules are retained.
+
+
+## T-628 implementation record (2026-11-11)
+
+The baseline is `eb3e782`. C1–C4 implement the common foundation and an existing
+Tomcat server-log pilot. No independent review was performed; test success is
+not an independent PASS verdict.
+
+| Stage | Implementation | Evidence |
+|---|---|---|
+| C1 | Immutable ingestion descriptors/catalog, ID/alias/schema ID-version-hash/family validation, verified/hint candidates and explicit selection, built-in composition and legacy confidence wrapper | Registration/ambiguity/options/deadline regressions; existing confidence and mixed-thread/override tests retained |
+| C2 | analysis.Service, owned snapshot/second hash-stat pass, synchronous normalization and sealed bounded sink, cancellation, safe partial, validation and atomic publish | Selection/idempotency/stale generation, forced mismatch, source edits, cancellation before/after publish, budgets, unsafe partial, prior revision and staging cleanup |
+| C3 | wirejson/resultcontract, common/legacy metadata, operation gates and opaque bridge | DATA_MODEL W01–W10 regressions plus separate bridge/frontend checks |
+| C4 | Existing server-log parser factory and streaming analyzer, evidence CLI and EngineService job/load/export | Actual CLI execution, direct Wails-method integration, and a same-family synthetic adapter added only by registration |
+
+Commands are `evidence formats`, `evidence import --in FILE --importer tomcat --out result.json`,
+and `evidence export --in result.json --export-format json|csv|html|report-pack --out FILE`.
+Options accept `--options '{"top_n":25,"max_lines":0,"strict":false}'` and `--allow-partial`.
+Hints/collisions print candidates and require selection. Existing family CLI aliases,
+thread overrides and AnalyzeServerLog remain unchanged. Only `server.tomcat`/`tomcat`
+is connected to the new built-in path; this is not an all-parser migration.
+
+Wails exposes ListEvidenceImporters, ImportEvidence, GetImportJob, SelectImporter,
+CancelImport, LoadEvidenceResult, GetEvidenceResult, GetEvidenceResultJSON,
+GetEvidenceScalar, CompareEvidenceScalar and ExportEvidenceResult. Options are
+JSON text; results use immutable backend handles and bounded views/opaque JSON.
+The backend catalog decides operations; imported capability strings grant none.
+
+Operational defaults: input/normalized data 64 MiB each, serialized record 1 MiB,
+100,000 records, stack depth 1,024, 100,000 unique keys, temporary disk 160 MiB,
+whole job 5 minutes, probe 64 KiB/one second per detector, options 64 KiB. Requests
+may lower these ceilings. Four jobs run concurrently, with 128 jobs per-process
+history. Timeouts are cooperative, not a sandbox or forced preemption of blocked
+OS I/O/trusted compiled functions. The lease closes outstanding readers; failed
+temporary cleanup is disclosed as cleanupPending and retried on shutdown.
+
+The atomic publication unit is the result revision JSON containing provenance.
+A same-filesystem rename is its commit marker; separate case/index manifests
+remain T-630. Failure/cancellation never replace a prior revision. Read-only
+retention of an unsupported original is distinct from normal analysis-job commit.
+
+The pilot supports uncompressed UTF-8 with a structurally verified record in the
+probe. Other encodings, empty/unverified prefixes, seek and approved converters
+use legacy paths or later adapters. No producer version is inferred from syntax.
+The synthetic `diagnostics.ingestion.foundation.v1` manifest and measurement schema
+are hashed and bundled. No general JSON Schema executor or remote schema fetch
+is introduced.
+
+Evidence distinguishes actual CLI, direct Go bridge integration, TS state/opaque
+transport, and package checks. No new generic job screen or actual WebView IPC
+execution was produced (T-631). Windows native execution was not performed on Mac;
+cross-builds are separate. ProfileSet (T-629), generic renderer (T-631), measurement
+corrections (T-634), case/cache lifecycle (T-630), and Q01–Q04 remain separate.

@@ -16,18 +16,9 @@ import { Create as $Create } from "@wailsio/runtime";
  * distribution). The renderer uses the `Type` field to decide which
  * keys to look for; the parity job just diffs the JSON.
  * 
- * [한글] 필드별 의미
- *   Type        : 분석기 식별자(예: "access_log", "thread_dump_multi").
- *                 UI 가 어떤 페이지·차트로 렌더할지 결정.
- *   SourceFiles : 분석기가 받은 입력 파일 경로들. 보고서에 출처를
- *                 표시할 때 사용.
- *   CreatedAt   : RFC3339Nano. parity gate 비교에서 노이즈가 되지
- *                 않도록 분석기 호출 직전이 아닌 결과 생성 시점.
- *   Summary     : 메트릭 카드(상단 KPI)에 표시할 스칼라 모음.
- *   Series      : 차트 시계열/배열 데이터.
- *   Tables      : shadcn/D3 표용 행 모음.
- *   Charts      : flame tree 같은 raw 차트 데이터.
- *   Metadata    : 파서·진단·findings 등 부수 정보(아래 참고).
+ * [한글] Type은 분석기 식별자, SourceFiles는 출처, CreatedAt은 RFC3339 시각이다.
+ * Summary는 scalar, Series/Tables/Charts는 family별 데이터이며 Metadata는
+ * typed 필드와 정밀도를 보존하는 unknown extension을 함께 유지한다.
  */
 export class AnalysisResult {
     "type": string;

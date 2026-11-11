@@ -14,6 +14,7 @@ export type WorkspaceAnalysisResult = {
 };
 
 export type AnalysisWorkspaceEntry = {
+  backend_result_handle?: string;
   id: string;
   title: string;
   result_type: string;
@@ -30,6 +31,7 @@ export type AnalysisWorkspaceSnapshot = {
 };
 
 type AddWorkspaceResultInput = {
+  backendResultHandle?: string;
   result: WorkspaceAnalysisResult;
   title?: string;
   sourceLabel?: string;
@@ -77,6 +79,7 @@ export function addWorkspaceResult(input: AddWorkspaceResultInput): AnalysisWork
     recorded_at: new Date().toISOString(),
     summary_preview: summaryPreview(input.result.summary),
     result: input.result,
+    ...(input.backendResultHandle ? { backend_result_handle: input.backendResultHandle } : {}),
   };
   entries = [entry, ...entries.filter((candidate) => candidate.id !== entry.id)].slice(0, MAX_ENTRIES);
   activeID = entry.id;

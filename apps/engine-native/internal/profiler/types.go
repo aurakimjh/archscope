@@ -34,6 +34,8 @@
 
 package profiler
 
+import "encoding/json"
+
 // [한글] Options — 분석 진입 함수에 전달되는 옵션 묶음.
 // IntervalMS<=0 / TopN<=0 / ProfileKind="" 면 normalizeOptions 에서 default 로
 // 채워짐. ElapsedSec 가 nil 이면 elapsed_ratio 컬럼이 nil 로 남음.
@@ -135,10 +137,11 @@ type Charts struct {
 }
 
 type Metadata struct {
-	Parser        string            `json:"parser"`
-	SchemaVersion string            `json:"schema_version"`
-	Diagnostics   ParserDiagnostics `json:"diagnostics"`
-	TimelineScope TimelineScope     `json:"timeline_scope"`
+	Extra         map[string]json.RawMessage `json:"-"`
+	Parser        string                     `json:"parser"`
+	SchemaVersion string                     `json:"schema_version"`
+	Diagnostics   ParserDiagnostics          `json:"diagnostics"`
+	TimelineScope TimelineScope              `json:"timeline_scope"`
 	// ProgressLogPath, when non-empty, points to the on-disk
 	// streaming log written during parse + analyze. Surfaced to the
 	// renderer so the user has a tailable artifact when a 400 MB

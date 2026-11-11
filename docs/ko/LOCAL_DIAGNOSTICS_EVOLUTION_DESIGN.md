@@ -1,7 +1,7 @@
 # ArchScope 로컬 장애 및 성능 분석 개선 설계
 
 - 작성일: 2026-11-11
-- 상태: 개선 설계 제안, 2026-11-11 리뷰 반영 개정
+- 상태: 전체 개선 설계 제안, 2026-11-11 리뷰 반영 개정; T-628 공통 기반만 구현
 - 대상: Application Architect 중심, TA·DBA 및 AI 서비스 성능 분석 담당자
 - 구현 대조 기준: Go/Wails 활성 코드와 작업 트리, 기준 커밋 `bbbe1ae`
 - 영문 요약 설계: [Local Diagnostics Evolution Design](../en/LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN.md)
@@ -1184,3 +1184,12 @@ Apple 장치 의미는 D03부터, LLM 앱 trace와 OTLP 메트릭은 B1부터 �
 이 문서는 제품 개선의 통합 설계다. 실제 계약 변경은 [데이터 모델](./DATA_MODEL.md), importer 추가는 [지원표](./IMPORTER_SUPPORT_MATRIX.md)와 [파서 설계](./PARSER_DESIGN.md), 탐색은 [차트 설계](./CHART_DESIGN.md)와 [Chart Studio](./CHART_STUDIO_DESIGN.md), 시각 자료 출력은 [보고서 export](./REPORT_EXPORT_DESIGN.md)에 반영한다. 기존 [고급 진단](./ADVANCED_DIAGNOSTICS.md), [AI 해석](./AI_INTERPRETATION.md), [성능 정책](./PERFORMANCE.md)의 원칙을 이어 간다.
 
 외부 사양은 본문 각 설계 근거 옆의 공식 문서 링크를 참조한다. 확인 기준일은 2026-11-11이다. `latest`·`main` 문서가 바뀌어도 이미 저장된 분석 결과의 의미가 바뀌지 않도록 구현 시 producer version, schema/adapter version, fixture hash를 고정한다. 외부 도구가 제공하는 기능과 ArchScope가 실제 검증한 기능을 지원표에서 별도로 표시한다.
+
+## T-628 구현 현황 (2026-11-11)
+
+공통 importer/job/측정·버전 계약과 기존 Tomcat pilot을 구현했다. 실제 경로·자원 상한·
+호환 제한은 [파서 구현 기록](./PARSER_DESIGN.md#t-628-구현-기록-2026-11-11),
+wire 적합성은 [모델 구현 기록](./DATA_MODEL.md#t-628-wire-구현과-검증-연결-2026-11-11)에 있다.
+별도 case manifest 대신 sealed 결과 JSON 리비전의 rename을 이번 단계의 atomic marker로
+사용하며 별도 manifest/cache 수명은 T-630에 남긴다. 테스트는 독립 리뷰 PASS가 아니다.
+T-629 이후 전체 이행과 Q01–Q04 미정 항목은 이 완료에 포함하지 않는다.

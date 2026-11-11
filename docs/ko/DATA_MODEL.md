@@ -1367,11 +1367,11 @@ AI output은 표시 전에 runtime validation을 통과해야 한다. Validation
 - 보고서용 interpretation은 prose-only blob이 아니라 bounded structured finding으로 표현한다.
 - AI-assisted interpretation은 기존 raw evidence를 가리키는 non-empty `evidence_refs`를 포함해야 한다. Evidence는 `raw_line`, `raw_block`, `raw_preview`, `evidence_ref` row 중 하나로 추적 가능해야 한다.
 
-## 로컬 진단 확장 계약안 (2026-11-11, 미구현)
+## 로컬 진단 확장 계약 (2026-11-11, T-628 공통 기반 구현)
 
 [통합 설계 §16](./LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN.md#16-analysisresult와-확장-계약)의
-새 계약은 기존 `AnalysisResult` envelope를 유지한다. 다음은 제안이며 현재
-emitter의 버전을 변경하거나 구현 완료로 선언하지 않는다.
+새 계약은 기존 `AnalysisResult` envelope를 유지한다. 공통 기반은 T-628에서
+구현했으며 전체 profile/metric 이행과 정정된 emitter는 후속 제안으로 남는다.
 
 | 항목 | 제안과 호환 규칙 |
 |---|---|
@@ -1390,8 +1390,9 @@ emitter의 버전을 변경하거나 구현 완료로 선언하지 않는다.
 
 ### T-628 측정과 호환 상세 계약
 
-2026-11-11 작성, 코드 대조 기준 `83b8ff9`. 이 절은 T-628의 설계 산출물이며
-새 버전 emitter·decoder·Wails 경로가 구현됐다는 뜻이 아니다. 실행 흐름은
+설계 기준은 `83b8ff9`와 상세 계약 커밋 `eb3e782`이다. T-628의 공통 decoder·
+metadata·handle 기반 bridge를 구현했으며, 실제 검증 범위는 문서 끝에 기록한다.
+새 profile_evidence 0.2.0 emitter는 구현하지 않았다. 실행 흐름은
 [파서 상세 설계](./PARSER_DESIGN.md#실행-인터페이스와-소유권)를 따른다.
 
 #### 유지할 외부 구조와 읽기 경계
@@ -1407,10 +1408,10 @@ versioned extension 또는 type별 payload schema 안에서만 추가한다.
 중복 key의 last-wins 동작이나 NaN/Infinity를 허용하지 않는다. unknown optional
 extension은 bounded opaque data로 보존하며 문자열·수치에서 실행 코드나 경로를 추출하지 않는다.
 
-현재 `models.Metadata.UnmarshalJSON`은 unknown field를 보존하지만 `any`에 대한
-기본 `json.Unmarshal`을 사용한다. 따라서 unknown number의 큰 정수/소수 정밀도를
-보장하는 근거는 아니다. `profiler.Metadata`에는 unknown-field 저장 자체가 없다.
-두 경로를 별도로 보완하고 이미 배포된 binary가 같은 보존 능력을 갖는다고 가정하지 않는다.
+설계 시점의 common metadata는 기본 숫자 decode를 사용했고 legacy profiler에는
+unknown-key 저장이 없었다. T-628은 bounded UseNumber decoder와 정확히 표현 가능한
+안전한 legacy projection, profiler RawMessage 저장을 추가했다. 기존 배포 바이너리의
+보존 능력까지 소급하지 않으며, JS object를 거치는 경로의 정밀도는 별도 계약이다.
 
 #### 측정 descriptor와 수치 표현
 
@@ -1528,7 +1529,8 @@ reader는 envelope → result payload → extension → 대상 operation 순서�
 
 #### T-628 wire 적합성 사례
 
-다음은 구현 테스트로 넘길 사례이며 이 문서 변경에서 실행한 테스트 결과가 아니다.
+다음 사례는 구현 회귀 테스트에 연결했다. Go·bridge·프런트엔드 수준과 실제 UI 실행을
+구분한 검증 기록은 문서 끝과 T-628 evidence에 있다.
 
 | ID | 사례 | 필수 기대 결과 |
 |---|---|---|
@@ -1813,3 +1815,52 @@ Trace 의존 호출(T-616)은 명시적인 CLIENT/SERVER 직접 부모 관계를
 `metadata.completeness`에 선택 정책, 원본별 전체/출력/누락 수, 누락 심각도
 수와 두 요약 범위를 기록한다. 화면과 Report Pack HTML에서 누락된 critical
 건수까지 알리며 JSON도 같은 정보를 보존한다.
+
+
+## T-628 wire 구현과 검증 연결 (2026-11-11)
+
+wirejson은 중복 key·비정상 JSON·깊이/문자열/배열/객체/byte 예산을 검사한 뒤
+UseNumber로 임시 객체에 decode하며 성공할 때만 receiver를 교체한다.
+JSON 기본 상한은 64 MiB, 깊이 64, 문자열 4 MiB, 배열 항목 1,000,000개,
+객체 key 100,000개다. common Extra의 기존 consumer에는 JS 안전 범위에서
+정확히 표현 가능한 숫자만 float64로 projection한다. 나머지는 json.Number이며
+Float64Exact는 손실을 거부한다. 산술 accessor는 숫자 문자열 1,024바이트와 exponent 절댓값 4,096을 넘으면 계산을 거부하며, unknown JSON 데이터의 원문 보존과 구분한다. profiler Extra는 RawMessage로 유지하고 typed key와
+omitempty의 생략이 항상 우선한다. 알려진 큰 정수는 exact_integer_string,
+고정밀 소수는 decimal_string으로 전달하며 문자열은 최대 1,024바이트/소수 scale 128이다.
+
+resultcontract는 type별 payload/envelope range, operation, required extension과
+측정 schema를 검증한다. target·column·kind·unit·aggregation·encoding·nullable·참조를
+대조한다. population/evidence ID는 같은 결과에서 해석하며 URL/파일을 열지 않는다.
+서로 다른 리비전의 비교에는 일치하는 명시적 population reference가 필요하다.
+정확한 scalar diff는 rational string으로 반환하고 baseline=0의 변화율은 null,
+unavailable/absent의 delta는 null이다. 기존 float 기반 report-diff는 신규 measurement
+결과를 거부하고 backend exact comparison을 안내한다. 기존 결과 흐름은 유지한다.
+
+새 server_log payload는 기존 0.1.0 수치를 유지하고 envelope/measurement 1.0.0 metadata를
+추가한다. profile_evidence 0.1.x 및 기존 profiler snapshot은 저장·표시·export용
+reader만 연결하며 새 계산·profile migration은 활성화하지 않는다. profile_evidence
+0.2.0은 아직 지원하지 않으므로 번호만 바꾸면 계산·일반 재저장을 거부한다.
+미지 optional metadata는 보존한다. 미지원 payload/필수 block은 bounded read-only
+view와 원본 raw-json 복사로 제한하며 정상 새 결과처럼 저장하지 않는다.
+
+| 사례 | 실행 테스트 |
+|---|---|
+| W01·W03·W04 | resultcontract의 common/profiler 정밀도·typed/Extra·receiver 원자성, 기존 metadata roundtrip |
+| W02 | decimal string의 type/scale와 0, exact accessor의 손실 거부 |
+| W05 | duplicate/depth/NaN/Infinity 거부와 transactional decoder; invalid record/result의 job commit 거부 |
+| W06 | 잘못된 Pointer·target·column·encoding·unit·population reference 거부, 정상 escape |
+| W07 | ScalarView와 TS 표시 helper, bridge CSV/HTML·exact diff의 null/0/absent·availability·분모 보존 |
+| W08·W09 | operation별 required block, optional unknown, reader range와 과거 profile 재해석 거부 |
+| W10 | 실제 CLI export, common·legacy profiler의 opaque Wails 문자열 전송 모사, backend Report Pack source appendix 및 TS appendix의 원문 보존·URL handle 거부 |
+
+GetEvidenceResultJSON의 문자열과 backend ExportEvidenceResult는 JS 숫자 object로
+펼치지 않는다. Workspace의 선택적 backend_result_handle을 사용하는 Report Pack은
+source JSON 원문을 appendix에 넣는다. backend pack은 source appendix이며 기존
+Evidence Board narrative 전체를 재구현한 exporter가 아니다. JS object로 이미 펼친
+기존 legacy full-result 경로 전체의 정밀도를 보장했다고 주장하지 않는다.
+
+custom Metadata marshaler는 Wails 3.1 generator에서 opaque type이 된다. 진단 패널은
+기존 수동 bridge의 동등한 diagnostic wire 타입을 사용하며 실제 wire key는 유지한다.
+Go 메서드 통합과 JSON 문자열 transport 모사·프런트엔드 실행은 실제 네이티브 IPC/UI
+실행 증거와 다르다. 실행 결과와 미실행 범위는
+[로컬 검증 기록](../review/evidence/2026-11-11-t628/local.json)에 구분한다.

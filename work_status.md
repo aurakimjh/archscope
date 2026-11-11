@@ -8,7 +8,7 @@ The previous long-form history was archived to
 
 ## Status Overview
 
-**Overall: 210 of 232 tracked tasks are `DONE` (90.5%).** The user requested activation of the local diagnostics backlog on 2026-11-11: T-628–T-645 add 18 open items (1 `TODO`, 17 `PENDING`). Together with the four existing acceptance items, 22 tasks remain open. T-623 Windows live/process/reentry and T-608 native HALOG codec/reference interoperability completed on 2026-11-11. The four existing acceptance items are T-601, T-611, T-613 and T-627. The private 675-entry sample round-trips byte-for-byte; decoded fields/bodies and redacted exports are verified against original V7.6.4.508. The Windows Wails v3 replacement for IEInspector HTTP Analyzer V7.6.4 Stand-alone has 3 open work items (T-594 through T-613), including the remaining audit findings. T-603 native Windows acceptance completed on 2026-11-09 with actual request/response bodies and verified policy restoration. The 2026-11-09
+**Overall: 211 of 232 tracked tasks are `DONE` (90.9%).** The user requested activation of the local diagnostics backlog on 2026-11-11: T-628–T-645 registered 18 implementation items. T-628 is now DONE; T-629–T-632 are ready (TODO), and thirteen downstream items remain PENDING. Together with the four existing acceptance items, 21 tasks remain open. T-623 Windows live/process/reentry and T-608 native HALOG codec/reference interoperability completed on 2026-11-11. The four existing acceptance items are T-601, T-611, T-613 and T-627. The private 675-entry sample round-trips byte-for-byte; decoded fields/bodies and redacted exports are verified against original V7.6.4.508. The Windows Wails v3 replacement for IEInspector HTTP Analyzer V7.6.4 Stand-alone has 3 open work items (T-594 through T-613), including the remaining audit findings. T-603 native Windows acceptance completed on 2026-11-09 with actual request/response bodies and verified policy restoration. The 2026-11-09
 GC/profiler revalidation confirmed five bugs (T-589 through T-593). Their
 current implementation status is recorded in the registry and snapshot below;
 T-557 is now DONE after the user requested its Go/CLI/report projection on 2026-11-10.
@@ -214,11 +214,11 @@ completed the independent Lighthouse file-first engine slice.
 
 | Status | Count | Meaning |
 |---|---:|---|
-| `TODO` | 1 | Ready to start; prerequisites are satisfied |
+| `TODO` | 4 | Ready to start; prerequisites are satisfied |
 | `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
 | `REVIEW` | 3 | Review or required remediation is underway; the gate has not passed |
-| `PENDING` | 18 | Waiting for a prerequisite, external condition, or activation trigger |
-| `DONE` | 210 | Completion criteria and required review gates have passed |
+| `PENDING` | 14 | Waiting for a prerequisite, external condition, or activation trigger |
+| `DONE` | 211 | Completion criteria and required review gates have passed |
 
 The normal transition is `TODO → IN_PROGRESS → REVIEW → DONE`. A `PENDING`
 task returns to `TODO` when its dependency or trigger is satisfied. Task status
@@ -478,8 +478,8 @@ metrics) are accepted. Actual file/version choices remain separate decision hold
 #### Dependency-ordered implementation backlog
 
 At the user's request on 2026-11-11, all eighteen D items are registered as
-T-628–T-645. T-628 is `TODO`; the other seventeen are `PENDING` until their listed
-prerequisites and scoped input triggers are satisfied. Q01–Q04 remain separate
+T-628–T-645. T-628 is `DONE`; T-629–T-632 are `TODO` after the common foundation conformance.
+The other thirteen are `PENDING` until their prerequisites and scoped input triggers are satisfied. Q01–Q04 remain separate
 `DECISION_PENDING` entries. Task registration does not claim implementation or
 independent design PASS. Existing acceptance task statuses are preserved.
 
@@ -490,11 +490,11 @@ and observable outputs are in the Task Registry.
 
 | Order | Design | Task | Band | Priority | Status | Next work | Dependencies / scoped trigger |
 |---:|---|---|---|---|---|---|---|
-| 1 | D01 | T-628 | B0 | P1 | `TODO` | Implement importer, envelope, measurement and version contracts | Existing golden/compatibility inventory (part of this task) |
-| 2 | D02 | T-629 | B0 | P1 | `PENDING` | Migrate profiles to ProfileSet with legacy facades | T-628 |
-| 3 | D03 | T-630 | B0 | P1 | `PENDING` | Implement case lifecycle, capture context and safe evidence intake | T-628 |
-| 4 | D04 | T-631 | B0 | P1 | `PENDING` | Add result capability providers and generic consumers | T-628 |
-| 5 | D05 | T-632 | B0 | P1 | `PENDING` | Deliver declarative packs and verifiable offline distribution | T-628 |
+| 1 | D01 | T-628 | B0 | P1 | `DONE` | Implement importer, envelope, measurement and version contracts | Existing golden/compatibility inventory (part of this task) |
+| 2 | D02 | T-629 | B0 | P1 | `TODO` | Migrate profiles to ProfileSet with legacy facades | T-628 |
+| 3 | D03 | T-630 | B0 | P1 | `TODO` | Implement case lifecycle, capture context and safe evidence intake | T-628 |
+| 4 | D04 | T-631 | B0 | P1 | `TODO` | Add result capability providers and generic consumers | T-628 |
+| 5 | D05 | T-632 | B0 | P1 | `TODO` | Deliver declarative packs and verifiable offline distribution | T-628 |
 | 6 | D06 | T-633 | B1 | P1 | `PENDING` | Guide input discovery, manual collection and local conversion | T-630, T-632 |
 | 7 | D07 | T-634 | B1 | P1 | `PENDING` | Correct py-spy, Speedscope and pprof measurement semantics | T-629, T-631 |
 | 8 | D08 | T-635 | B1 | P1 | `PENDING` | Unify drilldown, evidence indexing, case search and baselines | T-629, T-630, T-631 |
@@ -536,7 +536,10 @@ references resolve in order, and existing 214 registry rows are unchanged. The
 four input decisions remain outside task counts. Documentation links/anchors and
 whitespace checks are rerun before publication; no runtime code changed.
 
-#### T-628 design authoring checkpoint (2026-11-11)
+#### T-628 design authoring checkpoint (historical, 2026-11-11)
+
+This records the documentation-only checkpoint at eb3e782. The implementation
+completion record below supersedes its runtime status.
 
 The design contents were already registered in T-628–T-645 by commit `83b8ff9`.
 This follow-up fulfills the request to progress design authoring: the **design
@@ -577,7 +580,7 @@ includes transparent capture reach, the remaining legacy automation contracts, t
 complete Windows menu/OS scaling matrix and full parity.
 The table below retains those four acceptance items. The eighteen new local
 diagnostics tasks are listed in the [dependency-ordered implementation backlog](#dependency-ordered-implementation-backlog):
-T-628 has its detailed design written and remains ready for implementation; T-629–T-645 are prerequisite/trigger-dependent. The complete open
+T-628 common-foundation implementation and scoped C1–C4/W01–W10 conformance are DONE. T-629–T-632 are ready; later items remain prerequisite/trigger-dependent. The complete open
 snapshot is therefore 22 tasks, matching the registry and status overview.
 
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
@@ -1094,8 +1097,9 @@ filtered before analysis.
 
 ### Local diagnostics implementation (2026-11-11)
 
-Start with **T-628** implementation using the authored paired parser/data-model contracts and C1–C4 handoff below. Its design portion is written; no runtime stage is complete. Then release
-T-629–T-632 as its contracts stabilize, followed by the remaining P1 core work and
+T-628 foundation implementation and scoped conformance are complete. Start next with
+**T-629 ProfileSet migration**. T-630–T-632 are also ready after T-628; follow their
+responsibility boundaries before the remaining P1 core work and
 P2 extensions in the [ordered backlog](#dependency-ordered-implementation-backlog).
 The first complete user workflow remains profile correctness → drilldown/comparison
 → image/table copying. Move a task from PENDING to TODO only when its registered
@@ -1591,11 +1595,11 @@ deferred until explicitly promoted.
 
 | ID | Priority | Status | Task | Depends on | Output |
 |---|---|---|---|---|---|
-| T-628 | P1 | TODO | Implement importer, envelope, measurement and version contracts (D01) | Existing parser/profiler goldens and compatibility inventory | Design portion authored on 2026-11-11 in paired PARSER_DESIGN and DATA_MODEL (selection/job/precision/version contracts and C1–C4/W01–W10 handoff); runtime implementation and conformance remain TODO. Register descriptor/catalog and bounded parse-sink contracts; preserve scalar semantics and unknown metadata through common/legacy roundtrips. Conformance covers ambiguous detection, reader ranges, nullable values and semantic-version gates (§16.6, §16.8–16.9; F-01/F-03/F-06). |
-| T-629 | P1 | PENDING | Migrate profiles to ProfileSet with legacy facades (D02) | T-628 | Use ProfileSet → profile_evidence as the canonical path; preserve exact weights/units/identity and reject lossy integer projections. Stage tree/diff/query/export migration against legacy and corrected-semantics goldens (§16.7; F-02). |
-| T-630 | P1 | PENDING | Implement case lifecycle, capture context and safe evidence intake (D03) | T-628 | Deliver versioned capture/case manifests, clock/entity provenance, vendor-neutral device identity, archive validation, encoding/source-position preservation, redaction and scoped deletion/restore. Cover CP949/EUC-KR and baseline/stale references (§3, §11.6, §13, §17.1; F-07). |
-| T-631 | P1 | PENDING | Add result capability providers and generic consumers (D04) | T-628 | Validate ResultDescriptor generic/timeline/SLI/compare/detail providers and generic service wrappers. A bounded fallback precedes new result types; same-family importers avoid new service/CLI/UI switches (§16.10; F-05/F-12). |
-| T-632 | P1 | PENDING | Deliver declarative packs and verifiable offline distribution (D05) | T-628 | Implement data-only signed pack validation, staged activation, rollback and pinned jobs; package docs/fonts/runtime dependencies and a mandatory hashed fixture bundle. Validate clean installation and zero outbound attempts; decide SQLite packaging from a measured prototype (§17.3–17.4; F-04/F-08). |
+| T-628 | P1 | DONE | Implement importer, envelope, measurement and version contracts (D01) | Existing parser/profiler goldens and compatibility inventory | Implemented C1–C4 from eb3e782: immutable catalog/legacy confidence wrapper; owned source snapshots, bounded synchronous sinks and cancelable atomic jobs; precision/metadata/measurement/version contracts; existing Tomcat pilot through CLI and Wails backend revision/export. W01–W10 Go/CLI/bridge/frontend regressions and existing profile/thread goldens pass; Mac package/signature, desktop-only guard, Windows amd64/386 cross-build/vet pass. Actual new WebView IPC/UI and Windows native execution were not run; no independent review PASS. Evidence: docs/review/evidence/2026-11-11-t628/local.json. |
+| T-629 | P1 | TODO | Migrate profiles to ProfileSet with legacy facades (D02) | T-628 | Use ProfileSet → profile_evidence as the canonical path; preserve exact weights/units/identity and reject lossy integer projections. Stage tree/diff/query/export migration against legacy and corrected-semantics goldens (§16.7; F-02). |
+| T-630 | P1 | TODO | Implement case lifecycle, capture context and safe evidence intake (D03) | T-628 | Deliver versioned capture/case manifests, clock/entity provenance, vendor-neutral device identity, archive validation, encoding/source-position preservation, redaction and scoped deletion/restore. Cover CP949/EUC-KR and baseline/stale references (§3, §11.6, §13, §17.1; F-07). |
+| T-631 | P1 | TODO | Add result capability providers and generic consumers (D04) | T-628 | Validate ResultDescriptor generic/timeline/SLI/compare/detail providers and generic service wrappers. A bounded fallback precedes new result types; same-family importers avoid new service/CLI/UI switches (§16.10; F-05/F-12). |
+| T-632 | P1 | TODO | Deliver declarative packs and verifiable offline distribution (D05) | T-628 | Implement data-only signed pack validation, staged activation, rollback and pinned jobs; package docs/fonts/runtime dependencies and a mandatory hashed fixture bundle. Validate clean installation and zero outbound attempts; decide SQLite packaging from a measured prototype (§17.3–17.4; F-04/F-08). |
 | T-633 | P1 | PENDING | Guide input discovery, manual collection and local conversion (D06) | T-630, T-632 | Show detected formats, missing context and supported capabilities; ship manual collection recipes/sidecars separately from data packs. Bound existing converter execution, cancellation and diagnostics, including the JDK JFR path; no automatic attach/download (§4.6, §15.1, §17.4; G-03/G-07). |
 | T-634 | P1 | PENDING | Correct py-spy, Speedscope and pprof measurement semantics (D07) | T-629, T-631 | Preserve fractional/zero weights, evented duration, every profile/worker and pprof value/unit choices through import, comparison and export. Validate actual producers and update the support matrix; create new semantic revisions rather than relabel old results (§2.1, §4, §18). |
 | T-635 | P1 | PENDING | Unify drilldown, evidence indexing, case search and baselines (D08) | T-629, T-630, T-631 | Keep all views on the same selection/denominator; provide bounded revision-bound queries, source links, cancellation and case-wide search with coverage. Validate immutable baseline reuse, stale cursors, missing originals and index rebuilds (§6, §13.4, §16.3–16.4; G-05). |
@@ -2242,3 +2246,46 @@ file/registry cleanup and separate-process custom-IID typed calls (not skipped).
 These do not establish current vendor-client or native GUI/driver parity.
 Evidence: docs/review/evidence/2026-11-11-five-followups/ci.json. Registry remains
 210 DONE / 3 REVIEW / 1 PENDING; all five implementation sub-tasks are DONE.
+
+### T-628 implementation started (2026-11-11)
+
+C1–C4 implementation started from eb3e782. Existing HTTP documentation changes,
+local verifier and unrelated work-status notes are preserved separately and
+will be restored after the scoped commit. Q01–Q04 remain undecided; T-629,
+T-631 and T-634 semantic/renderer migrations are outside this change.
+
+### T-628 implementation completed (2026-11-11)
+
+C1–C4 and W01–W10 are implemented and verified locally from eb3e782. New code
+lives in ingestion/catalog/analysis/wirejson/resultcontract; legacy profile
+metadata gains RawMessage preservation without changing profile quantities.
+The existing Tomcat adapter is the limited pilot. New same-family adapters need
+parser factory + schema/fixture + composition registration, demonstrated without
+service/CLI/UI format-switch edits. Legacy confidence, CLI aliases, profile
+goldens and thread mixed-format/override tests remain intact.
+
+Actual CLI import/reopen/export, direct Wails Go-method integration, opaque
+JSON transport simulation, TS state/Report Pack source appendix and frontend
+production build pass. Full Go race/vet/build, macOS package/strict signature,
+desktop-only guard, Windows amd64/386 guarded GUI cross-build and full cross-vet
+pass. A pre-existing large integer literal in a thread test was made int64
+without changing its JSON value, removing its 386 compile failure.
+
+Evidence levels are distinct. No new native WebView IPC/UI session, Windows
+native execution or hosted CI run was performed for T-628; a new generic job
+screen remains T-631. No independent review was performed or declared PASS.
+Atomic publication uses a sealed result JSON revision as its marker; separate
+case/index manifests and persistent cache lifecycle remain T-630. The pilot
+is plain UTF-8/uncompressed with a verified probe record. ProfileSet (T-629),
+profile semantic correction (T-634), generic consumers (T-631) and Q01–Q04 remain
+outside this task. Implementation and conformance details are mirrored in the
+EN/KO parser/data-model/evolution documents.
+
+Shared synthetic manifest diagnostics.ingestion.foundation.v1 and measurement
+schema/index were updated; bundled copies have verified hashes. Evidence:
+docs/review/evidence/2026-11-11-t628/local.json. Registry totals: 211 DONE,
+4 TODO, 14 PENDING, 3 REVIEW, 0 IN_PROGRESS out of 232. T-629–T-632 are ready.
+
+T-628 supporting asset commit: 8936c2b (shared synthetic fixture/schema/index).
+Binding generation now watches internal/API/module inputs, avoiding stale DTOs
+when shared job/result types change outside the desktop entry-point directory.

@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:diagnostics:measurement-descriptor:1.0.0",
+  "title": "측정 스칼라 descriptor",
+  "type": "object",
+  "required": [
+    "measurement_kind",
+    "unit",
+    "scope",
+    "aggregation",
+    "numeric_encoding",
+    "availability"
+  ],
+  "properties": {
+    "measurement_kind": {
+      "type": "string"
+    },
+    "unit": {
+      "type": "string"
+    },
+    "scope": {
+      "type": "string"
+    },
+    "aggregation": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "evidence_ref": {
+      "type": "string"
+    },
+    "population_ref": {
+      "type": "string"
+    },
+    "numeric_encoding": {
+      "enum": [
+        "json_number",
+        "exact_integer_string",
+        "decimal_string"
+      ]
+    },
+    "availability": {
+      "enum": [
+        "observed",
+        "derived",
+        "estimated",
+        "unavailable"
+      ]
+    }
+  },
+  "additionalProperties": false
+}

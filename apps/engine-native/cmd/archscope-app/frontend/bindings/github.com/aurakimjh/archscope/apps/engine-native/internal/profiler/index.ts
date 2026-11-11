@@ -5,23 +5,22 @@ export {
     AnalysisResult,
     Charts,
     ComponentBreakdownRow,
-    DiagnosticSample,
     DrilldownFilter,
     DrilldownStage,
     ExecutionBreakdownRow,
     FlameNode,
-    Metadata,
-    ParserDiagnostics,
     Series,
     Summary,
     Tables,
     ThreadRow,
     TimelineChainRow,
     TimelineRow,
-    TimelineScope,
-    TimelineWarning,
     TopChildFrameRow,
     TopItem,
     TopStackSeriesRow,
     TopStackTableRow
+} from "./models.js";
+
+export type {
+    Metadata
 } from "./models.js";

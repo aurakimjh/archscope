@@ -1,3 +1,4 @@
+import { backendSourceAppendix, readBackendSource } from "./evidenceImport.js";
 import type { AnalysisWorkspaceEntry } from "@/state/analysisWorkspace";
 import {
   evaluateAiInterpretation,
@@ -242,6 +243,9 @@ export async function exportReportPackZip(
     { path: "slo-analysis.json", content: JSON.stringify(payload.artifacts.slo_analysis, null, 2) },
     { path: "service-flow.json", content: JSON.stringify(payload.artifacts.service_flow, null, 2) },
   ];
+  if (entries.some((entry) => entry.backend_result_handle)) {
+    files.push(...await backendSourceAppendix(entries, readBackendSource));
+  }
   downloadBlob(
     buildStoredZip(files),
     `archscope-report-pack-${timestampSlug()}.zip`,

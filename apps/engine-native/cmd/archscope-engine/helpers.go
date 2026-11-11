@@ -27,6 +27,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/wirejson"
 	"os"
 	"strings"
 	"time"
@@ -117,7 +118,7 @@ func readJSONFile(path string) (map[string]any, error) {
 		return nil, fmt.Errorf("read %s: %w", path, err)
 	}
 	var payload map[string]any
-	if err := json.Unmarshal(body, &payload); err != nil {
+	if err := wirejson.Decode(body, &payload); err != nil {
 		return nil, fmt.Errorf("decode %s: %w", path, err)
 	}
 	return payload, nil

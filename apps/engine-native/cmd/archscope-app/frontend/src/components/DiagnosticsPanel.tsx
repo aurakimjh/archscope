@@ -17,7 +17,9 @@
 // ─────────────────────────────────────────────────────────────────────
 import { useState } from "react";
 
-import type { ParserDiagnostics, DiagnosticSample } from "../../bindings/github.com/aurakimjh/archscope/apps/engine-native/internal/profiler/models";
+// Custom metadata JSON is opaque to the Wails generator; the stable diagnostic
+// wire fields remain shared with the existing bridge contract.
+import type { ParserDiagnostics, DiagnosticSample } from "../bridge/types";
 import { ProfilerService, AnalyzeRequest } from "../../bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app";
 import { useI18n } from "../i18n/I18nProvider";
 

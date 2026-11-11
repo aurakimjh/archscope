@@ -19,6 +19,9 @@ import * as aggregate$0 from "../../internal/capture/aggregate/models.js";
 import * as store$0 from "../../internal/capture/store/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
+import * as ingestion$0 from "../../internal/ingestion/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
 import * as models$0 from "../../internal/models/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
@@ -1236,6 +1239,47 @@ export class EngineErrorEvent {
     }
 }
 
+export class EvidenceImportRequest {
+    "path": string;
+    "importer": string;
+    "optionsJSON": string;
+    "budgets": ingestion$0.Budgets;
+    "allowPartial": boolean;
+
+    /** Creates a new EvidenceImportRequest instance. */
+    constructor($$source: Partial<EvidenceImportRequest> = {}) {
+        if (!("path" in $$source)) {
+            this["path"] = "";
+        }
+        if (!("importer" in $$source)) {
+            this["importer"] = "";
+        }
+        if (!("optionsJSON" in $$source)) {
+            this["optionsJSON"] = "";
+        }
+        if (!("budgets" in $$source)) {
+            this["budgets"] = (new ingestion$0.Budgets());
+        }
+        if (!("allowPartial" in $$source)) {
+            this["allowPartial"] = false;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new EvidenceImportRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): EvidenceImportRequest {
+        const $$createField3_0 = $$createType15;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("budgets" in $$parsedSource) {
+            $$parsedSource["budgets"] = $$createField3_0($$parsedSource["budgets"]);
+        }
+        return new EvidenceImportRequest($$parsedSource as Partial<EvidenceImportRequest>);
+    }
+}
+
 /**
  * ExceptionRequest mirrors exception.Options + a Path.
  */
@@ -1670,7 +1714,7 @@ export class JenniferDrilldownRequest {
      */
     static createFrom($$source: any = {}): JenniferDrilldownRequest {
         const $$createField0_0 = $$createType9;
-        const $$createField1_0 = $$createType15;
+        const $$createField1_0 = $$createType16;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("result" in $$parsedSource) {
             $$parsedSource["result"] = $$createField0_0($$parsedSource["result"]);
@@ -1734,7 +1778,7 @@ export class JenniferProfileRequest {
         const $$createField4_0 = $$createType2;
         const $$createField5_0 = $$createType2;
         const $$createField6_0 = $$createType3;
-        const $$createField7_0 = $$createType17;
+        const $$createField7_0 = $$createType18;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("paths" in $$parsedSource) {
             $$parsedSource["paths"] = $$createField1_0($$parsedSource["paths"]);
@@ -2158,6 +2202,7 @@ const $$createType11 = $Create.Array($$createType10);
 const $$createType12 = $Create.Map($Create.Any, $Create.Any);
 const $$createType13 = profiler$0.DrilldownFilter.createFrom;
 const $$createType14 = $Create.Array($$createType13);
-const $$createType15 = jenniferprofile$0.DrilldownOptions.createFrom;
-const $$createType16 = models$0.JenniferCustomAnalysisRule.createFrom;
-const $$createType17 = $Create.Array($$createType16);
+const $$createType15 = ingestion$0.Budgets.createFrom;
+const $$createType16 = jenniferprofile$0.DrilldownOptions.createFrom;
+const $$createType17 = models$0.JenniferCustomAnalysisRule.createFrom;
+const $$createType18 = $Create.Array($$createType17);

@@ -53,12 +53,19 @@ func Build(records []parser.Record, sourceFile, format string, diags *diagnostic
 	return result
 }
 
+// BuildStream reuses the legacy analyzer semantics without retaining all input
+// records. Import orchestration owns the iterator and its resource budgets.
+func BuildStream(sourceFile, format string, diags *diagnostics.ParserDiagnostics, opts Options, iter func(func(parser.Record) error) error, captured ...ingestion.SourceMetadata) (models.AnalysisResult, error) {
+	return buildFromIterator(sourceFile, format, diags, opts, iter, captured...)
+}
+
 func buildFromIterator(
 	sourceFile string,
 	format string,
 	diags *diagnostics.ParserDiagnostics,
 	opts Options,
 	iter func(func(parser.Record) error) error,
+	captured ...ingestion.SourceMetadata,
 ) (models.AnalysisResult, error) {
 	topN := opts.TopN
 	if topN <= 0 {
@@ -170,12 +177,16 @@ func buildFromIterator(
 		"max_lines": opts.MaxLines,
 		"top_n":     topN,
 	}
-	ingestion.AttachSourceMetadata(&result, ingestion.NewSourceMetadata(sourceFile, ingestion.SourceMetadataOptions{
-		SourceKind:   ingestion.SourceKindServerLog,
-		SourceFormat: firstNonEmpty(format, "auto"),
-		Product:      dominant(productCounts),
-	}))
-	ingestion.AttachCorrelationKeys(&result, correlationKeys)
+	if len(captured) > 0 {
+		ingestion.AttachSourceMetadata(&result, captured...)
+	} else {
+		ingestion.AttachSourceMetadata(&result, ingestion.NewSourceMetadata(sourceFile, ingestion.SourceMetadataOptions{
+			SourceKind:   ingestion.SourceKindServerLog,
+			SourceFormat: firstNonEmpty(format, "auto"),
+			Product:      dominant(productCounts),
+		}))
+		ingestion.AttachCorrelationKeys(&result, correlationKeys)
+	}
 	return result, nil
 }
 

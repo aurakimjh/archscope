@@ -1213,10 +1213,11 @@ AI output must pass runtime validation before it is shown. Validation includes n
 - Report-grade interpretations should be expressed as bounded structured findings, not prose-only blobs.
 - AI-assisted interpretations must include non-empty `evidence_refs` that point to existing raw evidence such as `raw_line`, `raw_block`, `raw_preview`, or `evidence_ref` rows.
 
-## Proposed local diagnostics extensions (2026-11-11, not implemented)
+## Local diagnostics extensions (2026-11-11, T-628 foundation implemented)
 
 The [evolution design §16](./LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN.md#16-extension-and-compatibility-contracts)
-preserves `AnalysisResult`. These proposals do not change current emitters.
+preserves `AnalysisResult`. T-628 implements the foundation subset documented below;
+full profile/metric migrations and corrected emitters remain proposals.
 
 | Area | Proposed contract |
 |---|---|
@@ -1235,8 +1236,9 @@ disable unavailable detail operations.
 
 ### T-628 detailed measurement and compatibility contract
 
-Authored on 2026-11-11 against `83b8ff9`. This is the design portion of T-628,
-not evidence of implemented emitters, decoders or Wails behavior. Execution follows
+The design baseline is `83b8ff9`, fixed at `eb3e782`. T-628 now implements the
+shared decoder, metadata and handle-based bridge; scoped evidence is recorded
+below. No corrected profile_evidence 0.2.0 emitter is introduced. Execution follows
 the [parser contract](./PARSER_DESIGN.md#execution-interfaces-and-ownership).
 
 #### Envelope and decoding boundary
@@ -1251,10 +1253,10 @@ keys and nonfinite values, preserves number precision using json.Decoder.UseNumb
 or equivalent, then dispatches a type-specific reader. Unknown optional extensions
 remain bounded opaque data; they cannot supply executable code or file paths.
 
-Current models.Metadata.UnmarshalJSON retains unknown keys but decodes their values
-through default json.Unmarshal into any. This does not establish exact large-integer
-or decimal roundtrips. Legacy profiler.Metadata has no unknown-key storage. Address
-both paths and do not attribute new preservation behavior to existing binaries.
+At design time, common metadata used default number decoding and legacy profiler
+metadata had no unknown-key storage. T-628 adds bounded UseNumber decoding, exact
+safe legacy projections and profiler RawMessage retention. Do not attribute this
+behavior to older binaries or equate Go serialization with JavaScript fidelity.
 
 #### Measurement descriptors and numeric representation
 
@@ -1369,7 +1371,8 @@ and observation context. Read-only display does not establish compute compatibil
 
 #### T-628 wire conformance cases
 
-These are implementation handoff cases, not tests executed by this document change.
+These cases now have implementation regressions. The implementation record and
+T-628 evidence distinguish Go, bridge and frontend checks from actual UI execution.
 
 | ID | Case | Required result |
 |---|---|---|
@@ -1667,3 +1670,54 @@ retained rows only. `metadata.completeness` records selection policy, per-source
 total/emitted/omitted counts, omitted severity counts and both summary scopes.
 The page and Report Pack HTML disclose omissions, including omitted critical
 events; JSON retains the same metadata.
+
+
+## T-628 wire implementation and conformance (2026-11-11)
+
+wirejson rejects duplicate keys, malformed/nonfinite JSON and byte/depth/string/
+array/object budgets, decodes with UseNumber into a temporary value, then replaces
+receivers only on success. Defaults are 64 MiB, depth 64, string 4 MiB, 1,000,000
+array items and 100,000 object keys. Common Extra projects only exactly representable
+JS-safe numbers for legacy consumers; others stay json.Number. Float64Exact rejects
+loss. Arithmetic accessors bound numeric text to 1,024 bytes and absolute exponent to 4,096; opaque JSON preservation is separate. Profiler Extra retains RawMessage, with typed/omitempty precedence. Known
+large integers use exact_integer_string; precise decimals use decimal_string,
+limited to 1,024 bytes and decimal scale 128.
+
+resultcontract validates type-specific payload/envelope ranges, operations,
+required extensions and measurement schemas: target/column/kind/unit/aggregation/
+encoding/nullability/references. Evidence/population IDs resolve within the result;
+no URL/file is opened. Cross-revision comparison requires an explicit matching
+population reference. Exact scalar deltas are rational strings; zero-baseline
+percentages and unavailable/absent deltas are null. Legacy float report-diff refuses
+new measurement results and directs callers to backend exact comparison. Existing
+legacy flows remain intact.
+
+server_log keeps its 0.1.0 values and adds envelope/measurement 1.0.0 metadata.
+profile_evidence 0.1.x and existing profiler snapshots have preservation/display/
+export readers only; new computations/profile migration are not activated.
+profile_evidence 0.2.0 remains unsupported: relabeling an old result cannot permit
+computation or normal resave. Unknown optional metadata survives. Unsupported
+payloads/required blocks get bounded read-only views and explicit original raw-json
+copy, not a successful new analysis revision.
+
+| Cases | Executed regressions |
+|---|---|
+| W01/W03/W04 | Common/profiler precision, typed precedence, stale-key replacement and receiver atomicity, existing metadata roundtrip |
+| W02 | Exact decimal type/scale and zero; rejection of lossy accessors |
+| W05 | Duplicate/depth/NaN/Infinity and transactional decode; invalid record/result commit refusal |
+| W06 | Invalid pointers/targets/columns/encoding/unit/population references and valid escaping |
+| W07 | ScalarView/TS presentation, bridge CSV/HTML/exact delta preserving null/zero/absence, availability and population |
+| W08/W09 | Operation-required versus optional blocks, reader ranges and relabel-only profile refusal |
+| W10 | Actual CLI export, opaque common/legacy-profiler bridge string simulation, backend pack and TS source appendix fidelity, URL-as-handle refusal |
+
+GetEvidenceResultJSON and backend ExportEvidenceResult never expand opaque JSON
+through JavaScript numbers. Report Pack preserves original source text for optional
+Workspace backend_result_handle references. The backend pack is a source appendix,
+not a replacement for the entire Evidence Board narrative exporter. Full fidelity
+is not claimed for legacy routes that already expanded results into JS objects.
+
+Custom Metadata marshalers become opaque to the Wails 3.1 generator. The diagnostic
+panel uses the existing equivalent manual bridge diagnostic type; wire keys remain
+unchanged. Direct Go-method integration, string-transport simulation and frontend
+execution are distinct from actual native IPC/UI execution. See the scoped
+[local verification record](../review/evidence/2026-11-11-t628/local.json).

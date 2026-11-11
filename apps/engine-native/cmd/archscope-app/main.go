@@ -80,12 +80,13 @@ func main() {
 		captureService = newCaptureService(root, certstore.NewSystem(filepath.Join(root, "ca-trust.json")))
 	}
 	captureService.launchOptions = options
+	engineService := &EngineService{}
 	app := application.New(application.Options{
 		Name:        desktopApplicationName(),
 		Description: "Local-first architecture diagnostics desktop",
 		Services: []application.Service{
 			application.NewService(&ProfilerService{}),
-			application.NewService(&EngineService{}),
+			application.NewService(engineService),
 			application.NewService(captureService),
 		},
 		Assets: application.AssetOptions{
@@ -100,6 +101,7 @@ func main() {
 	})
 
 	app.OnShutdown(captureService.shutdownAutomation)
+	app.OnShutdown(engineService.closeEvidence)
 	if options.Descriptor != "" {
 		controller, err := automation.Start(options.Descriptor, captureService.executeAutomation)
 		if err != nil {

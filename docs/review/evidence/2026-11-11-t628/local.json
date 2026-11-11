@@ -1,0 +1,239 @@
+{
+  "schema": 1,
+  "task": "T-628",
+  "date": "2026-11-11",
+  "baselineCommit": "eb3e782cd1deec8d8e326e3c0c85e9b3a8fc7eb1",
+  "sourceAtValidation": "pre-commit implementation working tree; hashes bind the changed runtime/test/binding files",
+  "sourceSHA256": {
+    "apps/engine-native/cmd/archscope-app/build/Taskfile.yml": "6acbc41c93b70021a7cb8976890ae3bee376c608a032e4ef38f1b5ce8a73f334",
+    "apps/engine-native/cmd/archscope-app/engineservice.go": "d7f7ee7a3643fd0063b326efd04fef2dce3318c1b8d9164679cf5d3a361af9b2",
+    "apps/engine-native/cmd/archscope-app/evidenceservice.go": "248b423c8c56eecc64ceea6cf177e5d19a1f2c00e69456245473f528251a5e40",
+    "apps/engine-native/cmd/archscope-app/evidenceservice_test.go": "2bfb3506158948b1afedb5eb4443a310ad547f66a9c131fccc4839ac0c05b942",
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/engineservice.ts": "8bbe2cf6202114ef9ae663307e35c2775962579e5c49cda450fc0000d82bb8ad",
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/index.ts": "50aa6f147c45595b4ccb977a3a39b0479376aaa18225cc9d03bfa597736990ee",
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/models.ts": "3ab2d8b55ed220688ca2f06b2805ad06e56aa280deb37827491dea6bf44a9e21",
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/internal/analysis/index.ts": "9ec71d12d6bf598b13723dd651647945d76f8e9227d60e7b4635061e3714e3c6",
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/internal/analysis/models.ts": "22830ca7766181aeb823e409459c957dcec825a9c44dd9a8cbc2f48e009f7392",
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/internal/ingestion/index.ts": "3794bae89f7becc0a2f496b94a57de295b7cd6bd9595db15096aaa68f522fb0a",
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/internal/ingestion/models.ts": "c286371e7d61d6b85eaa00e8434c27103ad3a9ca836dcd8e629eeac98da0fa24",
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/internal/models/models.ts": "657ac5d3f7a6ac19e1f812d6602accb0cbbaaee958de18c298ff9c75adb9b7c5",
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/internal/profiler/index.ts": "fce3662030659210ae7a644a91625b3612de74ed58de4aa7c5d36b7067f56c2e",
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/internal/profiler/models.ts": "132c41d69396a68a6a621e9b8a5c77b8e7a7d2143b5eb06d86fee518eb48e68a",
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/internal/resultcontract/index.ts": "aaf16884799d881cf359803c40fcf4d176d3f7dbc8f15c063b55c28dce72c7bb",
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/internal/resultcontract/models.ts": "1467b2ed91679c3cc8a3d4609bb9e883022e75c5dd67755f3da997ccf15423b5",
+    "apps/engine-native/cmd/archscope-app/frontend/src/bridge/engine.ts": "f75a2369411565cb335c685f43c4fd204a9cadd392db600cfa22d4a1800fcbab",
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/DiagnosticsPanel.tsx": "186c4ea09554eb3ce2ec5053da015a8c6f42037ab7e80a21a96216b17f5b31c6",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/analysisWorkspace.ts": "f1df2877de08fec706c956acc1828dcaf2b335fdda5c438701e00862e78662ec",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/evidenceImport.ts": "f8ff3d8dab6bfd6dd354bde10e08a616a804783d3f8b0065e52ce1baddee6b60",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/regression.test.ts": "04992da9e8a2abf206f39713b018dcc645e23b88407c9050601bf547998ece52",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/reportPack.ts": "1781ae6ff97f84c14f9fe69fc5806f56895439b8b5f0072510cfec8e529ddb96",
+    "apps/engine-native/cmd/archscope-app/main.go": "b808ebd1a6a0135c8c274f101127a5291e3a5256315f595596c9ebc69041b290",
+    "apps/engine-native/cmd/archscope-engine/cmd_evidence.go": "b6e8128605e1d3bed86d7ba29606fba17fef651d8d09688c8fead83a96d1e563",
+    "apps/engine-native/cmd/archscope-engine/cmd_evidence_test.go": "7da41dccce1f3e1afec07415595a7103e61265b449c53ca098709d934143d8e7",
+    "apps/engine-native/cmd/archscope-engine/helpers.go": "4c7ed06592f0cf7b440c634f9ca30df1de90819ebaf93a4bd71f0648167d67a9",
+    "apps/engine-native/internal/analysis/results.go": "ad9efa650bb26cf72748a3c63618a7fd1dd474bb3faac88e98facba239cc5f15",
+    "apps/engine-native/internal/analysis/service.go": "bd26df47b0ea688401c0dde74e501897f9989d7228b6c1da0ae06c8c3fcce73b",
+    "apps/engine-native/internal/analysis/service_test.go": "f1dfb5011f3aa0312b314e91a6fe5bd9f537caa1fa7e44468106cd9117c102ac",
+    "apps/engine-native/internal/analyzers/serverlog/analyzer.go": "762db913956edac488c105e6ceb442f64b571189670571135db738226d4e4678",
+    "apps/engine-native/internal/catalog/builtin.go": "0870d1229e8ef4c013ef323ccbe44a4807f3a7a0a34bba85ece75aec084c16c9",
+    "apps/engine-native/internal/catalog/contracts/manifest.json": "a57583f9029e1f1a7da975e941224fa4d9299cdd268d4b591ce47ef7b5327f71",
+    "apps/engine-native/internal/catalog/contracts/measurement-descriptor.schema.json": "eee75934f134c482838dab8f1870f899589af0c9bcd85a0f2f75cede7eafb69d",
+    "apps/engine-native/internal/catalog/contracts/server.log": "110b73a148ffce7975611dd5872a2988301cbf39e4644d3683f88f4b3987635d",
+    "apps/engine-native/internal/catalog/contracts/wire-cases.json": "de35513d4ed4eb6b308fcb723dd8a9f10d28d21c5816995a037c8851f8b32670",
+    "apps/engine-native/internal/catalog/contracts_test.go": "afacf1dc4111bf539ce4f804854aee137441df9b3b777d0e0a0cdc4784319963",
+    "apps/engine-native/internal/catalog/extension_test.go": "917635cbd03f707eea0a5699b02887e7c7e820e90f2ca923fbdf17b166de9df8",
+    "apps/engine-native/internal/exporters/html/exporter.go": "526eb88eb01cd1a9636df717686aa43550c9046b66f52a4a1abbb02c1e99a1c3",
+    "apps/engine-native/internal/exporters/reportdiff/exporter.go": "fe975219b9cb12ee40bc57bee1550c0bf1657801fa04c274083d0fc103ec22ae",
+    "apps/engine-native/internal/ingestion/importer.go": "0bae91752c0613c1030ff5d905a7fcd543b8f0805a63e17639de76a62aad3772",
+    "apps/engine-native/internal/ingestion/importer_test.go": "3f5607c902def5126ef46e25003111f33cf6e5418766b9ed14b09df9d89de0da",
+    "apps/engine-native/internal/ingestion/lease.go": "54154d81501a8110c9d45c2676c5638ce26873d302de87a69ebf453de99580f0",
+    "apps/engine-native/internal/ingestion/sink.go": "b4c1ee84bd12743761194186c201e059670512e6b6e7aba0785426eae5020d24",
+    "apps/engine-native/internal/ingestion/sink_test.go": "ae259fbdab3f1cec3d0b4000ff7d18ce484fead0cc801615115904d5c9e13f4b",
+    "apps/engine-native/internal/models/analysis_result.go": "a5cce729c9227a3f8d01e3b33e74c8c89ba71a1c4162339e45fef0557540f1ad",
+    "apps/engine-native/internal/parsers/serverlog/importer.go": "2207e97b643829bd0db48d469f2e858faf00fafd34d4d64580a4ec8ba5ae2430",
+    "apps/engine-native/internal/profiler/metadata_json.go": "5fc5264d286ff7ae4f5fa77c113c96b4bbc11136149c8b19e3ffe486fa80355d",
+    "apps/engine-native/internal/profiler/types.go": "9dbff30be85078172b69f77d354efb7c6779bee3fc67d4c8667d33885dc89f8c",
+    "apps/engine-native/internal/resultcontract/contract.go": "195ba18d18e44cbd128d594b35f5734eda1e28f6bf67053b3aab6b56b36837e1",
+    "apps/engine-native/internal/resultcontract/contract_test.go": "ce87a347c9dec7bda77a8c3dbf12f6e46218484840e4211a08d7296420d28584",
+    "apps/engine-native/internal/resultcontract/presentation.go": "a17d3f7577974a15fdfd392bc7a38801e783aa5e59934bbc67b3f8c4f8c5238c",
+    "apps/engine-native/internal/threaddump/plugins/javajcmdjson/parser_test.go": "176deafeceb276627eda2da18f1190f90bcec3eb3149ff3c55ce83a7f523ab2c",
+    "apps/engine-native/internal/wirejson/decode.go": "4148e33076a8c6152aeb9fd72ce52dd42a2f3b821dcb044e5d18bdcd57aab90a"
+  },
+  "sharedAssetCommit": "8936c2b875c4fe8d7bf3b9e1e2db357ed56bebd8",
+  "platform": {
+    "system": "Darwin",
+    "arch": "arm64"
+  },
+  "checks": [
+    {
+      "name": "full Go race",
+      "command": "go test -race ./... -count=1",
+      "result": "passed",
+      "localLogSHA256": "293bf94cf1bd0bcca975a675a0298943aac09d12cc433c1318a4d299429117a9"
+    },
+    {
+      "name": "full Go vet",
+      "command": "go vet ./...",
+      "result": "passed",
+      "localLogSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "full Go build",
+      "command": "go build ./...",
+      "result": "passed",
+      "localLogSHA256": "b9b1d8252da7184e3c318ea32d86ddb7298ef2dd7049a9e262ffb82b51ef7693"
+    },
+    {
+      "name": "final C1-C4/W01-W10 conformance",
+      "command": "go test -race ./internal/analysis ./internal/resultcontract ./internal/ingestion ./internal/catalog -count=1",
+      "result": "passed",
+      "localLogSHA256": "c583e70b4cf6bd641e85ffc12fe3767425cb035c724a34538571107837835c00"
+    },
+    {
+      "name": "direct Wails methods and actual CLI integration",
+      "command": "go test -race ./cmd/archscope-app ./cmd/archscope-engine",
+      "result": "passed",
+      "localLogSHA256": "d43b6d4ccd1c58f4331fedb7603bfe669cdf1bc9dff3c7fbdb1d661baade26d2"
+    },
+    {
+      "name": "Wails binding generation",
+      "command": "wails3 generate bindings -clean=true -ts",
+      "result": "passed",
+      "localLogSHA256": "1fb973aed7f68528f9daf31133eab7059078bc5c07f20356cc3ebb4ebbc3e2f9"
+    },
+    {
+      "name": "frontend state and opaque transport",
+      "command": "npm run test:state",
+      "result": "passed",
+      "localLogSHA256": "96ab3e7763edc1082d01e3a18afd8649d6c9bcdb89fb7b8a072303fcc49805cb"
+    },
+    {
+      "name": "frontend production",
+      "command": "npm run build",
+      "result": "passed",
+      "localLogSHA256": "82fd9fade85ed3cd4ad41045269235fb13ece5d308a91592dbd1051890cc76bd"
+    },
+    {
+      "name": "macOS native package",
+      "command": "task darwin:package",
+      "result": "passed",
+      "localLogSHA256": "b73bd0605d96106d48a697103353e87cc0e9af663ed2939035f31cf097793bbf"
+    },
+    {
+      "name": "macOS strict signature",
+      "command": "codesign --verify --deep --strict bin/archscope.app",
+      "result": "passed",
+      "localLogSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "Windows amd64 cross-vet",
+      "command": "GOOS=windows GOARCH=amd64 go vet ./...",
+      "result": "passed",
+      "localLogSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "Windows 386 cross-vet",
+      "command": "GOOS=windows GOARCH=386 go vet ./...",
+      "result": "passed",
+      "localLogSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "Windows amd64 production GUI cross-build",
+      "command": "GOARCH=amd64 node build/windows/build.mjs -tags production ...",
+      "result": "passed",
+      "localLogSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "Windows 386 guarded production GUI cross-build",
+      "command": "GOARCH=386 node build/windows/build.mjs -tags production ...",
+      "result": "passed",
+      "localLogSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "desktop-only target refusal",
+      "command": "node scripts/verify-desktop-only.mjs --check-server-build",
+      "result": "passed",
+      "localLogSHA256": "2737e05db97102bfc69e4a94138f70b869f75db5874ac9581749568974f07e97"
+    }
+  ],
+  "evidenceLevels": {
+    "documents": "paired contract updates, local links, registry counts and fixture/schema hashes checked",
+    "unit": "C1-C4 and W01-W10 tests plus existing profile goldens, metadata roundtrips and thread mixed/override cases",
+    "cliIntegration": "built and invoked the real CLI for import/reopen/JSON/CSV/HTML/source pack and refusal cases",
+    "bridgeIntegration": "direct EngineService method execution and opaque JSON string transport simulation; common and legacy profiler originals retained",
+    "frontend": "compiled and executed Node state helpers/Report Pack appendix; production build",
+    "nativePackaging": "macOS .app packaged and strict signature verified; Windows GUI cross-builds and cross-vet only",
+    "actualNativeWebViewIPC": false,
+    "actualNativeUIRun": false,
+    "windowsRuntimeExecuted": false,
+    "hostedCIExecuted": false,
+    "independentReviewPerformed": false
+  },
+  "conformance": {
+    "C1": [
+      "frozen identity/alias/schema/family catalog",
+      "verified/hint ambiguity and bad scores",
+      "immutable options/hash/deadline",
+      "legacy confidence/thread behavior retained"
+    ],
+    "C2": [
+      "source snapshots and concurrent edits/tampering",
+      "synchronous owned-byte sink, budgets and seal",
+      "selection/idempotency/stale generations",
+      "cancel-before/after publication and cleanup",
+      "unsafe partial, record/result schema failure and previous revision retention"
+    ],
+    "C3": [
+      "W01",
+      "W02",
+      "W03",
+      "W04",
+      "W05",
+      "W06",
+      "W07",
+      "W08",
+      "W09",
+      "W10"
+    ],
+    "C4": [
+      "existing Tomcat pilot",
+      "real CLI and direct Wails job/load/export",
+      "same-family synthetic adapter added without service/CLI/UI format switch"
+    ]
+  },
+  "implementationDecisions": [
+    "The sealed result JSON revision is this stage atomic publication marker; separate case/index manifests remain T-630.",
+    "Wails custom metadata is opaque; existing diagnostic wire types are mirrored by the pre-existing manual bridge types.",
+    "Binding task input dependencies now include shared internal/API DTOs and module files.",
+    "A pre-existing thread-test constant was typed int64 with the same JSON value to make full 386 vet compile.",
+    "Backend Report Pack is a source appendix; it does not replace the full Evidence Board narrative exporter."
+  ],
+  "limitations": [
+    "pilot catalog exposes only existing Tomcat syntax, plain uncompressed UTF-8 with a verified probe record; legacy entry points stay available",
+    "no producer version inferred; Q01-Q04 unchanged",
+    "cooperative cancellation/timeouts, no forced OS/trusted-code preemption",
+    "full ProfileSet, generic renderer and measurement corrections remain T-629/T-631/T-634",
+    "no actual new WebView IPC/UI session: new generic job screen belongs to T-631",
+    "Windows native execution and hosted CI were not run from this Mac-only task",
+    "no independent review or PASS verdict"
+  ],
+  "fixtureBundle": {
+    "id": "diagnostics.ingestion.foundation.v1",
+    "sharedAndBundledBytesMatch": true,
+    "manifestSHA256": "a57583f9029e1f1a7da975e941224fa4d9299cdd268d4b591ce47ef7b5327f71"
+  },
+  "registry": {
+    "total": 232,
+    "done": 211,
+    "todo": 4,
+    "pending": 14,
+    "review": 3,
+    "inProgress": 0
+  },
+  "nextReady": [
+    "T-629",
+    "T-630",
+    "T-631",
+    "T-632"
+  ]
+}

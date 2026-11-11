@@ -1,3 +1,4 @@
+import { evidenceScalarText, backendSourceAppendix } from "./evidenceImport.js";
 import { EarlyTaskEvents } from "./earlyTaskEvents.js";
 import { normalizeProfilerDefaults, validProfilerDefaults } from "./defaults.js";
 import { formatBytes as formatHttpBytes } from "./httpCapture.js";
@@ -3283,3 +3284,21 @@ assert(normalizeProfilerDefaults({intervalMs:Infinity,topN:1001}).topN===20, "st
  const cancelled=gate.begin();receive("old");gate.cancel();id="old";assert(!gate.bind(cancelled)&&completed===1,"cancelled handshake cannot replay late completion");
  const stale=gate.begin();const current=gate.begin();assert(!gate.bind(stale)&&gate.bind(current),"old IPC reply cannot bind a newer run");
 }
+
+// T-628 W01/W02/W07/W10: precision is carried as opaque backend JSON text.
+const opaqueEvidence = '{"metadata":{"future":{"integer":9007199254740993,"decimal":0.123456789012345678901234567890,"text":"<script>never execute</script>"}}}';
+const opaqueTransport = JSON.parse(JSON.stringify({ text: opaqueEvidence })) as { text: string };
+assert(opaqueTransport.text === opaqueEvidence, "opaque Wails string preserves exact JSON");
+assert(evidenceScalarText({ present: true, availability: "observed", value: "0" }) === "0", "known zero is displayed");
+assert(evidenceScalarText({ present: true, availability: "unavailable", reason: "not_measured", value: null }) === "—", "null remains unavailable");
+assert(evidenceScalarText({ present: false, availability: "absent", value: null }) === "—", "absent is not zero");
+assert(evidenceScalarText({ present: true, availability: "observed", value: "0.123456789012345678901234567890" }) === "0.123456789012345678901234567890", "display does not round stored decimals");
+async function testBackendEvidenceAppendix(): Promise<void> {
+const appendix = await backendSourceAppendix([{ backend_result_handle: "result-" + "a".repeat(32) }], async () => opaqueTransport.text);
+assert(appendix.length === 1 && appendix[0].content === opaqueEvidence, "Report Pack uses backend original without parse/stringify");
+let invalidBackendHandleRejected = false;
+try { await backendSourceAppendix([{ backend_result_handle: "https://example.invalid/source" }], async () => { throw new Error("must not fetch"); }); } catch { invalidBackendHandleRejected = true; }
+assert(invalidBackendHandleRejected, "metadata URL is never a backend handle");
+
+}
+void testBackendEvidenceAppendix().catch((error) => { throw error; });

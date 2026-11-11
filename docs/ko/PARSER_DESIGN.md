@@ -1,6 +1,6 @@
 # 파서 설계
 
-## 로컬 진단 확장 절차안 (2026-11-11, 미구현)
+## 로컬 진단 확장 절차 (2026-11-11, T-628 기반 구현)
 
 [통합 설계 §16](./LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN.md#16-analysisresult와-확장-계약)의
 descriptor/catalog 기반 경로를 도입할 때 아래 순서를 따른다. 이후 본문의
@@ -16,9 +16,9 @@ descriptor/catalog 기반 경로를 도입할 때 아래 순서를 따른다. �
 
 ### T-628 상세 설계 범위와 현재 기준
 
-2026-11-11, `83b8ff9`의 코드를 대조해 작성한 **구현 전 계약**이다. 아래 API와
-오류 코드는 제안이며 현재 실행 가능한 인터페이스가 아니다. T-628의 코드 구현,
-회귀 검증 및 T-629 이후 작업의 의존성 해제를 이 문서 작성으로 대체하지 않는다.
+상세 설계는 `83b8ff9`의 코드 대조를 거쳐 `eb3e782`에 고정했다. 이후 T-628의
+C1–C4 공통 기반과 한 importer를 구현했다. 아래는 논리 계약이며 실제 API·검증
+범위·제한은 문서 끝의 구현 기록을 따른다. 전체 ProfileSet·renderer·수치 정정은 후속 작업이다.
 
 | 현재 근거 | 확인한 동작 | 이행할 경계 |
 |---|---|---|
@@ -676,3 +676,54 @@ Finding은 stable `code`, `severity`, 짧은 `message`, 작은 structured `evide
 포함·제외 필터는 `INVALID_REGEX` 또는 `UNSAFE_REGEX` 진단과 빈 단계를 반환합니다.
 정상적인 0건 결과나 필터가 적용되지 않은 제외 결과로 오인하지 않도록 하며,
 기존 순서·대소문자·루트 재설정 규칙은 유지합니다.
+
+
+## T-628 구현 기록 (2026-11-11)
+
+기준 커밋은 `eb3e782`다. C1–C4는 공통 기반과 기존 Tomcat 서버 로그 pilot에
+연결했다. 독립 리뷰를 수행한 기록은 없으며 아래 테스트 결과가 독립 PASS를 뜻하지 않는다.
+
+| 단계 | 구현 | 검증 |
+|---|---|---|
+| C1 | ingestion의 immutable descriptor/catalog, ID·alias·schema ID/version/hash·family 대조, verified/hint 후보 집합과 명시 선택, catalog의 built-in 조립·legacy confidence wrapper | importer_test: 중복·reserved alias·schema/family 오류·잘못된 점수·hint/충돌·옵션 hash·deadline. 기존 confidence 및 thread mixed/override 테스트 유지 |
+| C2 | analysis.Service, owned SourceLease snapshot과 두 번째 hash/stat 확인, 동기 normalize/sink·seal, 자원 제한과 취소, 안전한 partial·검증·atomic publish | service/sink 테스트: 선택 전 파싱 금지, 동일 선택 멱등, stale generation, 강제 형식 충돌, source 변경, 취소 전/후 commit, budget/unsafe partial, 이전 리비전·cleanup 보존 |
+| C3 | wirejson/resultcontract, common·legacy metadata, operation별 호환 gate, opaque JSON bridge | DATA_MODEL의 W01–W10 회귀와 별도 bridge·frontend 검사 |
+| C4 | 기존 서버 로그 parser factory와 streaming analyzer 재사용, evidence CLI와 EngineService job/load/export 연결 | 실제 CLI 실행 및 Wails 메서드 통합 테스트, 같은 family의 합성 adapter를 등록만으로 추가하는 extension_test |
+
+새 CLI는 `evidence formats`, `evidence import --in FILE --importer tomcat --out result.json`,
+`evidence export --in result.json --export-format json|csv|html|report-pack --out FILE`이다.
+`--options '{"top_n":25,"max_lines":0,"strict":false}'`와 `--allow-partial`을 지원한다.
+hint/충돌은 후보를 출력하고 선택을 요구한다. 기존 family CLI alias와 thread override,
+기존 AnalyzeServerLog 등은 유지한다. 새 catalog의 pilot은 `server.tomcat`/`tomcat`뿐이며
+기존 parser 전체를 새 경로로 이행했다고 주장하지 않는다.
+
+Wails는 ListEvidenceImporters, ImportEvidence, GetImportJob, SelectImporter,
+CancelImport, LoadEvidenceResult, GetEvidenceResult, GetEvidenceResultJSON,
+GetEvidenceScalar, CompareEvidenceScalar, ExportEvidenceResult를 제공한다.
+options는 JSON 문자열, 결과는 immutable handle과 bounded view/JSON 문자열이다.
+사용 가능한 형식·operation은 backend catalog가 결정하며 imported capability가 활성화하지 않는다.
+
+운영 기본 상한은 입력/정규화 각 64 MiB, serialized record 1 MiB, record 100,000개,
+stack 깊이 1,024, unique key 100,000개, 임시 디스크 160 MiB, 전체 job 5분,
+probe 64 KiB/검출기당 1초, options 64 KiB다. 요청은 이를 낮출 수 있으며 올릴 수 없다.
+활성 job은 4개, process 내 job history는 128개로 제한한다. timeout은 협력적으로
+전파하며 OS 파일 I/O나 신뢰된 compiled 함수의 강제 선점·sandbox를 제공하지 않는다.
+lease는 parser가 반환하지 않은 reader도 종료 시 닫는다. 임시 파일 정리 실패는
+cleanupPending으로 노출하고 shutdown 때 재시도한다.
+
+이번 구현에서 atomic publish 단위는 provenance를 포함한 결과 JSON 리비전 파일이다.
+별도 case/index manifest는 T-630 책임으로 남겨 두었으며, 동일 파일시스템 rename이
+이 단계의 완료 marker 역할을 한다. 실패·취소는 기존 리비전을 덮어쓰지 않는다.
+원본을 보존하는 read-only Load는 정상 분석 job commit과 구분하며 미지원 의미를 계산하지 않는다.
+
+pilot은 비압축 UTF-8 및 probe 내 확인 가능한 서버 로그 record를 지원한다.
+다른 encoding·빈/미확인 prefix·seek·승인된 converter가 필요한 입력은 기존 경로 또는
+후속 adapter를 사용한다. producer 버전을 로그 형식만으로 추정하지 않는다.
+공유 합성 manifest `diagnostics.ingestion.foundation.v1`와 측정 schema를 해시로 묶어
+배포본에 포함한다. 일반 JSON Schema 실행기나 외부 schema 다운로드는 추가하지 않았다.
+
+실제 CLI와 Go bridge, TS 상태/opaque transport, 패키지 검증은 각각 기록한다.
+새 generic job 화면·실제 WebView IPC 실행 증거는 이 단계에서 만들지 않았다(T-631).
+Windows 네이티브 실행은 Mac에서 수행하지 않았으며 교차 빌드와 구분한다.
+전체 ProfileSet(T-629), generic renderer(T-631), 프로파일 수치 정정(T-634),
+case 수명·cache 정리(T-630)와 Q01–Q04는 이 구현으로 완료되지 않는다.

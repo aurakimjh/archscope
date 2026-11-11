@@ -44,7 +44,7 @@ export class AnalysisResult {
             this["charts"] = (new Charts());
         }
         if (!("metadata" in $$source)) {
-            this["metadata"] = (new Metadata());
+            this["metadata"] = null;
         }
 
         Object.assign(this, $$source);
@@ -59,7 +59,6 @@ export class AnalysisResult {
         const $$createField4_0 = $$createType2;
         const $$createField5_0 = $$createType3;
         const $$createField6_0 = $$createType4;
-        const $$createField7_0 = $$createType5;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("source_files" in $$parsedSource) {
             $$parsedSource["source_files"] = $$createField1_0($$parsedSource["source_files"]);
@@ -75,9 +74,6 @@ export class AnalysisResult {
         }
         if ("charts" in $$parsedSource) {
             $$parsedSource["charts"] = $$createField6_0($$parsedSource["charts"]);
-        }
-        if ("metadata" in $$parsedSource) {
-            $$parsedSource["metadata"] = $$createField7_0($$parsedSource["metadata"]);
         }
         return new AnalysisResult($$parsedSource as Partial<AnalysisResult>);
     }
@@ -103,8 +99,8 @@ export class Charts {
      * Creates a new Charts instance from a string or object.
      */
     static createFrom($$source: any = {}): Charts {
-        const $$createField0_0 = $$createType6;
-        const $$createField1_0 = $$createType8;
+        const $$createField0_0 = $$createType5;
+        const $$createField1_0 = $$createType7;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("flamegraph" in $$parsedSource) {
             $$parsedSource["flamegraph"] = $$createField0_0($$parsedSource["flamegraph"]);
@@ -138,39 +134,6 @@ export class ComponentBreakdownRow {
     static createFrom($$source: any = {}): ComponentBreakdownRow {
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         return new ComponentBreakdownRow($$parsedSource as Partial<ComponentBreakdownRow>);
-    }
-}
-
-export class DiagnosticSample {
-    "line_number": number;
-    "reason": string;
-    "message": string;
-    "raw_preview": string;
-
-    /** Creates a new DiagnosticSample instance. */
-    constructor($$source: Partial<DiagnosticSample> = {}) {
-        if (!("line_number" in $$source)) {
-            this["line_number"] = 0;
-        }
-        if (!("reason" in $$source)) {
-            this["reason"] = "";
-        }
-        if (!("message" in $$source)) {
-            this["message"] = "";
-        }
-        if (!("raw_preview" in $$source)) {
-            this["raw_preview"] = "";
-        }
-
-        Object.assign(this, $$source);
-    }
-
-    /**
-     * Creates a new DiagnosticSample instance from a string or object.
-     */
-    static createFrom($$source: any = {}): DiagnosticSample {
-        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
-        return new DiagnosticSample($$parsedSource as Partial<DiagnosticSample>);
     }
 }
 
@@ -284,11 +247,11 @@ export class DrilldownStage {
      */
     static createFrom($$source: any = {}): DrilldownStage {
         const $$createField2_0 = $$createType0;
-        const $$createField4_0 = $$createType9;
-        const $$createField5_0 = $$createType6;
-        const $$createField6_0 = $$createType11;
-        const $$createField7_0 = $$createType13;
-        const $$createField8_0 = $$createType15;
+        const $$createField4_0 = $$createType8;
+        const $$createField5_0 = $$createType5;
+        const $$createField6_0 = $$createType10;
+        const $$createField7_0 = $$createType12;
+        const $$createField8_0 = $$createType14;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("breadcrumb" in $$parsedSource) {
             $$parsedSource["breadcrumb"] = $$createField2_0($$parsedSource["breadcrumb"]);
@@ -368,8 +331,8 @@ export class ExecutionBreakdownRow {
      * Creates a new ExecutionBreakdownRow instance from a string or object.
      */
     static createFrom($$source: any = {}): ExecutionBreakdownRow {
-        const $$createField9_0 = $$createType13;
-        const $$createField10_0 = $$createType13;
+        const $$createField9_0 = $$createType12;
+        const $$createField10_0 = $$createType12;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("top_methods" in $$parsedSource) {
             $$parsedSource["top_methods"] = $$createField9_0($$parsedSource["top_methods"]);
@@ -435,7 +398,7 @@ export class FlameNode {
      * Creates a new FlameNode instance from a string or object.
      */
     static createFrom($$source: any = {}): FlameNode {
-        const $$createField8_0 = $$createType16;
+        const $$createField8_0 = $$createType15;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("children" in $$parsedSource) {
             $$parsedSource["children"] = $$createField8_0($$parsedSource["children"]);
@@ -444,156 +407,7 @@ export class FlameNode {
     }
 }
 
-export class Metadata {
-    "parser": string;
-    "schema_version": string;
-    "diagnostics": ParserDiagnostics;
-    "timeline_scope": TimelineScope;
-
-    /**
-     * ProgressLogPath, when non-empty, points to the on-disk
-     * streaming log written during parse + analyze. Surfaced to the
-     * renderer so the user has a tailable artifact when a 400 MB
-     * wall analysis crashes.
-     */
-    "progress_log_path"?: string;
-
-    /**
-     * Profiler-diff–specific payload. Empty for ordinary profiler results.
-     */
-    "diff_summary"?: { [_ in string]?: any };
-    "diff_tables"?: { [_ in string]?: any };
-
-    /** Creates a new Metadata instance. */
-    constructor($$source: Partial<Metadata> = {}) {
-        if (!("parser" in $$source)) {
-            this["parser"] = "";
-        }
-        if (!("schema_version" in $$source)) {
-            this["schema_version"] = "";
-        }
-        if (!("diagnostics" in $$source)) {
-            this["diagnostics"] = (new ParserDiagnostics());
-        }
-        if (!("timeline_scope" in $$source)) {
-            this["timeline_scope"] = (new TimelineScope());
-        }
-
-        Object.assign(this, $$source);
-    }
-
-    /**
-     * Creates a new Metadata instance from a string or object.
-     */
-    static createFrom($$source: any = {}): Metadata {
-        const $$createField2_0 = $$createType17;
-        const $$createField3_0 = $$createType18;
-        const $$createField5_0 = $$createType9;
-        const $$createField6_0 = $$createType9;
-        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
-        if ("diagnostics" in $$parsedSource) {
-            $$parsedSource["diagnostics"] = $$createField2_0($$parsedSource["diagnostics"]);
-        }
-        if ("timeline_scope" in $$parsedSource) {
-            $$parsedSource["timeline_scope"] = $$createField3_0($$parsedSource["timeline_scope"]);
-        }
-        if ("diff_summary" in $$parsedSource) {
-            $$parsedSource["diff_summary"] = $$createField5_0($$parsedSource["diff_summary"]);
-        }
-        if ("diff_tables" in $$parsedSource) {
-            $$parsedSource["diff_tables"] = $$createField6_0($$parsedSource["diff_tables"]);
-        }
-        return new Metadata($$parsedSource as Partial<Metadata>);
-    }
-}
-
-export class ParserDiagnostics {
-    "source_file": string | null;
-    "format": string;
-    "total_lines": number;
-    "parsed_records": number;
-    "skipped_lines": number;
-    "skipped_by_reason": { [_ in string]?: number };
-    "samples": DiagnosticSample[];
-    "warning_count": number;
-    "error_count": number;
-    "warnings": DiagnosticSample[];
-    "errors": DiagnosticSample[];
-
-    /**
-     * Memory-guard counters (T-WALL70). Populated when caps in
-     * Options trigger; rendered in the parser-report tab so the user
-     * can see exactly what the analyzer dropped to stay within budget.
-     */
-    "dropped_stacks"?: number;
-    "dropped_stack_reason"?: string;
-    "over_depth_records"?: number;
-    "max_observed_depth"?: number;
-    "bytes_read"?: number;
-
-    /** Creates a new ParserDiagnostics instance. */
-    constructor($$source: Partial<ParserDiagnostics> = {}) {
-        if (!("source_file" in $$source)) {
-            this["source_file"] = null;
-        }
-        if (!("format" in $$source)) {
-            this["format"] = "";
-        }
-        if (!("total_lines" in $$source)) {
-            this["total_lines"] = 0;
-        }
-        if (!("parsed_records" in $$source)) {
-            this["parsed_records"] = 0;
-        }
-        if (!("skipped_lines" in $$source)) {
-            this["skipped_lines"] = 0;
-        }
-        if (!("skipped_by_reason" in $$source)) {
-            this["skipped_by_reason"] = {};
-        }
-        if (!("samples" in $$source)) {
-            this["samples"] = [];
-        }
-        if (!("warning_count" in $$source)) {
-            this["warning_count"] = 0;
-        }
-        if (!("error_count" in $$source)) {
-            this["error_count"] = 0;
-        }
-        if (!("warnings" in $$source)) {
-            this["warnings"] = [];
-        }
-        if (!("errors" in $$source)) {
-            this["errors"] = [];
-        }
-
-        Object.assign(this, $$source);
-    }
-
-    /**
-     * Creates a new ParserDiagnostics instance from a string or object.
-     */
-    static createFrom($$source: any = {}): ParserDiagnostics {
-        const $$createField5_0 = $$createType19;
-        const $$createField6_0 = $$createType21;
-        const $$createField9_0 = $$createType21;
-        const $$createField10_0 = $$createType21;
-        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
-        if ("skipped_by_reason" in $$parsedSource) {
-            $$parsedSource["skipped_by_reason"] = $$createField5_0($$parsedSource["skipped_by_reason"]);
-        }
-        if ("samples" in $$parsedSource) {
-            $$parsedSource["samples"] = $$createField6_0($$parsedSource["samples"]);
-        }
-        if ("warnings" in $$parsedSource) {
-            $$parsedSource["warnings"] = $$createField9_0($$parsedSource["warnings"]);
-        }
-        if ("errors" in $$parsedSource) {
-            $$parsedSource["errors"] = $$createField10_0($$parsedSource["errors"]);
-        }
-        return new ParserDiagnostics($$parsedSource as Partial<ParserDiagnostics>);
-    }
-}
+export type Metadata = any;
 
 export class Series {
     "top_stacks": TopStackSeriesRow[];
@@ -627,11 +441,11 @@ export class Series {
      * Creates a new Series instance from a string or object.
      */
     static createFrom($$source: any = {}): Series {
-        const $$createField0_0 = $$createType23;
-        const $$createField1_0 = $$createType25;
-        const $$createField2_0 = $$createType27;
-        const $$createField3_0 = $$createType11;
-        const $$createField4_0 = $$createType29;
+        const $$createField0_0 = $$createType17;
+        const $$createField1_0 = $$createType19;
+        const $$createField2_0 = $$createType21;
+        const $$createField3_0 = $$createType10;
+        const $$createField4_0 = $$createType23;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("top_stacks" in $$parsedSource) {
             $$parsedSource["top_stacks"] = $$createField0_0($$parsedSource["top_stacks"]);
@@ -726,9 +540,9 @@ export class Tables {
      * Creates a new Tables instance from a string or object.
      */
     static createFrom($$source: any = {}): Tables {
-        const $$createField0_0 = $$createType31;
-        const $$createField1_0 = $$createType15;
-        const $$createField2_0 = $$createType11;
+        const $$createField0_0 = $$createType25;
+        const $$createField1_0 = $$createType14;
+        const $$createField2_0 = $$createType10;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("top_stacks" in $$parsedSource) {
             $$parsedSource["top_stacks"] = $$createField0_0($$parsedSource["top_stacks"]);
@@ -861,9 +675,9 @@ export class TimelineRow {
      * Creates a new TimelineRow instance from a string or object.
      */
     static createFrom($$source: any = {}): TimelineRow {
-        const $$createField8_0 = $$createType13;
-        const $$createField9_0 = $$createType33;
-        const $$createField10_0 = $$createType13;
+        const $$createField8_0 = $$createType12;
+        const $$createField9_0 = $$createType27;
+        const $$createField10_0 = $$createType12;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("top_methods" in $$parsedSource) {
             $$parsedSource["top_methods"] = $$createField8_0($$parsedSource["top_methods"]);
@@ -875,84 +689,6 @@ export class TimelineRow {
             $$parsedSource["top_stacks"] = $$createField10_0($$parsedSource["top_stacks"]);
         }
         return new TimelineRow($$parsedSource as Partial<TimelineRow>);
-    }
-}
-
-export class TimelineScope {
-    "mode": string;
-    "base_method": string | null;
-    "match_mode": string;
-    "view_mode": string;
-    "base_samples": number;
-    "total_samples": number;
-    "base_ratio_of_total": number | null;
-    "warnings": TimelineWarning[];
-
-    /** Creates a new TimelineScope instance. */
-    constructor($$source: Partial<TimelineScope> = {}) {
-        if (!("mode" in $$source)) {
-            this["mode"] = "";
-        }
-        if (!("base_method" in $$source)) {
-            this["base_method"] = null;
-        }
-        if (!("match_mode" in $$source)) {
-            this["match_mode"] = "";
-        }
-        if (!("view_mode" in $$source)) {
-            this["view_mode"] = "";
-        }
-        if (!("base_samples" in $$source)) {
-            this["base_samples"] = 0;
-        }
-        if (!("total_samples" in $$source)) {
-            this["total_samples"] = 0;
-        }
-        if (!("base_ratio_of_total" in $$source)) {
-            this["base_ratio_of_total"] = null;
-        }
-        if (!("warnings" in $$source)) {
-            this["warnings"] = [];
-        }
-
-        Object.assign(this, $$source);
-    }
-
-    /**
-     * Creates a new TimelineScope instance from a string or object.
-     */
-    static createFrom($$source: any = {}): TimelineScope {
-        const $$createField7_0 = $$createType35;
-        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
-        if ("warnings" in $$parsedSource) {
-            $$parsedSource["warnings"] = $$createField7_0($$parsedSource["warnings"]);
-        }
-        return new TimelineScope($$parsedSource as Partial<TimelineScope>);
-    }
-}
-
-export class TimelineWarning {
-    "code": string;
-    "message": string;
-
-    /** Creates a new TimelineWarning instance. */
-    constructor($$source: Partial<TimelineWarning> = {}) {
-        if (!("code" in $$source)) {
-            this["code"] = "";
-        }
-        if (!("message" in $$source)) {
-            this["message"] = "";
-        }
-
-        Object.assign(this, $$source);
-    }
-
-    /**
-     * Creates a new TimelineWarning instance from a string or object.
-     */
-    static createFrom($$source: any = {}): TimelineWarning {
-        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
-        return new TimelineWarning($$parsedSource as Partial<TimelineWarning>);
     }
 }
 
@@ -1098,34 +834,26 @@ const $$createType1 = Summary.createFrom;
 const $$createType2 = Series.createFrom;
 const $$createType3 = Tables.createFrom;
 const $$createType4 = Charts.createFrom;
-const $$createType5 = Metadata.createFrom;
-const $$createType6 = FlameNode.createFrom;
-const $$createType7 = DrilldownStage.createFrom;
-const $$createType8 = $Create.Array($$createType7);
-const $$createType9 = $Create.Map($Create.Any, $Create.Any);
-const $$createType10 = TimelineRow.createFrom;
-const $$createType11 = $Create.Array($$createType10);
-const $$createType12 = TopItem.createFrom;
-const $$createType13 = $Create.Array($$createType12);
-const $$createType14 = TopChildFrameRow.createFrom;
-const $$createType15 = $Create.Array($$createType14);
-const $$createType16 = $Create.Array($$createType6);
-const $$createType17 = ParserDiagnostics.createFrom;
-const $$createType18 = TimelineScope.createFrom;
-const $$createType19 = $Create.Map($Create.Any, $Create.Any);
-const $$createType20 = DiagnosticSample.createFrom;
+const $$createType5 = FlameNode.createFrom;
+const $$createType6 = DrilldownStage.createFrom;
+const $$createType7 = $Create.Array($$createType6);
+const $$createType8 = $Create.Map($Create.Any, $Create.Any);
+const $$createType9 = TimelineRow.createFrom;
+const $$createType10 = $Create.Array($$createType9);
+const $$createType11 = TopItem.createFrom;
+const $$createType12 = $Create.Array($$createType11);
+const $$createType13 = TopChildFrameRow.createFrom;
+const $$createType14 = $Create.Array($$createType13);
+const $$createType15 = $Create.Array($$createType5);
+const $$createType16 = TopStackSeriesRow.createFrom;
+const $$createType17 = $Create.Array($$createType16);
+const $$createType18 = ComponentBreakdownRow.createFrom;
+const $$createType19 = $Create.Array($$createType18);
+const $$createType20 = ExecutionBreakdownRow.createFrom;
 const $$createType21 = $Create.Array($$createType20);
-const $$createType22 = TopStackSeriesRow.createFrom;
+const $$createType22 = ThreadRow.createFrom;
 const $$createType23 = $Create.Array($$createType22);
-const $$createType24 = ComponentBreakdownRow.createFrom;
+const $$createType24 = TopStackTableRow.createFrom;
 const $$createType25 = $Create.Array($$createType24);
-const $$createType26 = ExecutionBreakdownRow.createFrom;
+const $$createType26 = TimelineChainRow.createFrom;
 const $$createType27 = $Create.Array($$createType26);
-const $$createType28 = ThreadRow.createFrom;
-const $$createType29 = $Create.Array($$createType28);
-const $$createType30 = TopStackTableRow.createFrom;
-const $$createType31 = $Create.Array($$createType30);
-const $$createType32 = TimelineChainRow.createFrom;
-const $$createType33 = $Create.Array($$createType32);
-const $$createType34 = TimelineWarning.createFrom;
-const $$createType35 = $Create.Array($$createType34);

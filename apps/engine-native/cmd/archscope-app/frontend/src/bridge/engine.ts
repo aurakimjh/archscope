@@ -362,3 +362,7 @@ export const engine = {
   exportCSVDir,
   diffReports,
 };
+
+// T-628: keep backend source JSON opaque when adding a Report Pack appendix.
+import { configureBackendSourceReader } from "../state/evidenceImport";
+configureBackendSourceReader((handle) => call<string>("GetEvidenceResultJSON", handle));

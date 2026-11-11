@@ -216,7 +216,7 @@ func TestParseLockedMonitorPromotesLockWait(t *testing.T) {
 					},
 					"lockInfo": map[string]any{
 						"className":        "java.util.concurrent.locks.ReentrantLock",
-						"identityHashCode": 31806272840, // decimal -> hex coercion
+						"identityHashCode": int64(31806272840), // decimal -> hex coercion
 					},
 				},
 			},

@@ -28,13 +28,22 @@ import { Call as $Call, CancellablePromise as $CancellablePromise, Create as $Cr
 import * as api$0 from "../../api/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
+import * as analysis$0 from "../../internal/analysis/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
 import * as httpcapture$0 from "../../internal/analyzers/httpcapture/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
 import * as httpcorrelation$0 from "../../internal/analyzers/httpcorrelation/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
+import * as ingestion$0 from "../../internal/ingestion/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
 import * as models$0 from "../../internal/models/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
+import * as resultcontract$0 from "../../internal/resultcontract/models.js";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
@@ -260,13 +269,25 @@ export function CancelEngineTask(taskID: string): $CancellablePromise<boolean> {
     return $Call.ByID(342848350, taskID);
 }
 
+export function CancelImport(id: string, generation: number): $CancellablePromise<analysis$0.CancelOutcome> {
+    return $Call.ByID(3490126032, id, generation).then(($result: any) => {
+        return $$createType2($result);
+    });
+}
+
 /**
  * ClassifyStack wraps engineapi.ClassifyStack. The package-level
  * default rules are used (matches Python's `rules=None`).
  */
 export function ClassifyStack(req: $models.ClassifyRequest): $CancellablePromise<$models.ClassifyResult> {
     return $Call.ByID(2929597827, req).then(($result: any) => {
-        return $$createType2($result);
+        return $$createType3($result);
+    });
+}
+
+export function CompareEvidenceScalar(a: string, b: string, path: string): $CancellablePromise<resultcontract$0.Delta> {
+    return $Call.ByID(3792274739, a, b, path).then(($result: any) => {
+        return $$createType4($result);
     });
 }
 
@@ -278,7 +299,7 @@ export function ClassifyStack(req: $models.ClassifyRequest): $CancellablePromise
  */
 export function ConvertToCollapsed(req: $models.CollapsedRequest): $CancellablePromise<$models.CollapsedResult> {
     return $Call.ByID(1593102112, req).then(($result: any) => {
-        return $$createType3($result);
+        return $$createType5($result);
     });
 }
 
@@ -289,7 +310,7 @@ export function ConvertToCollapsed(req: $models.CollapsedRequest): $CancellableP
  */
 export function DiffReports(req: $models.EngineDiffRequest): $CancellablePromise<{ [_ in string]?: any }> {
     return $Call.ByID(3841388367, req).then(($result: any) => {
-        return $$createType4($result);
+        return $$createType6($result);
     });
 }
 
@@ -300,7 +321,7 @@ export function DiffReports(req: $models.EngineDiffRequest): $CancellablePromise
  */
 export function EvaluateAiInterpretation(req: $models.AiInterpretationGateRequest): $CancellablePromise<{ [_ in string]?: any }> {
     return $Call.ByID(756375120, req).then(($result: any) => {
-        return $$createType4($result);
+        return $$createType6($result);
     });
 }
 
@@ -317,6 +338,10 @@ export function ExportCSV(req: $models.ExportCSVRequest): $CancellablePromise<vo
  */
 export function ExportCSVDir(req: $models.ExportCSVRequest): $CancellablePromise<void> {
     return $Call.ByID(3982576166, req);
+}
+
+export function ExportEvidenceResult(handle: string, path: string, format: string): $CancellablePromise<void> {
+    return $Call.ByID(2737054693, handle, path, format);
 }
 
 /**
@@ -340,15 +365,58 @@ export function ExportPPTX(req: $models.ExportPPTXRequest): $CancellablePromise<
     return $Call.ByID(3708449921, req);
 }
 
+export function GetEvidenceResult(handle: string): $CancellablePromise<analysis$0.ResultView> {
+    return $Call.ByID(3342174385, handle).then(($result: any) => {
+        return $$createType7($result);
+    });
+}
+
+/**
+ * JSON text is intentionally opaque across the Wails/JavaScript boundary.
+ */
+export function GetEvidenceResultJSON(handle: string): $CancellablePromise<string> {
+    return $Call.ByID(1959774383, handle);
+}
+
+export function GetEvidenceScalar(handle: string, path: string): $CancellablePromise<resultcontract$0.ScalarView> {
+    return $Call.ByID(2962122308, handle, path).then(($result: any) => {
+        return $$createType8($result);
+    });
+}
+
 export function GetHttpCaptureDiffContract(): $CancellablePromise<api$0.HttpCaptureDiffContract> {
     return $Call.ByID(3827930008).then(($result: any) => {
-        return $$createType5($result);
+        return $$createType9($result);
     });
 }
 
 export function GetHttpEvidenceCorrelationContract(): $CancellablePromise<api$0.HttpEvidenceCorrelationContract> {
     return $Call.ByID(1477035566).then(($result: any) => {
-        return $$createType6($result);
+        return $$createType10($result);
+    });
+}
+
+export function GetImportJob(id: string, generation: number): $CancellablePromise<analysis$0.JobSnapshot> {
+    return $Call.ByID(195964419, id, generation).then(($result: any) => {
+        return $$createType11($result);
+    });
+}
+
+export function ImportEvidence(req: $models.EvidenceImportRequest): $CancellablePromise<analysis$0.JobSnapshot> {
+    return $Call.ByID(3697193583, req).then(($result: any) => {
+        return $$createType11($result);
+    });
+}
+
+export function ListEvidenceImporters(): $CancellablePromise<ingestion$0.ImporterDescriptor[]> {
+    return $Call.ByID(1185952117).then(($result: any) => {
+        return $$createType13($result);
+    });
+}
+
+export function LoadEvidenceResult(path: string): $CancellablePromise<analysis$0.ResultView> {
+    return $Call.ByID(2656839899, path).then(($result: any) => {
+        return $$createType7($result);
     });
 }
 
@@ -360,7 +428,7 @@ export function ProjectJenniferDrilldown(req: $models.JenniferDrilldownRequest):
 
 export function ResolveWorkspaceComparison(req: $models.WorkspaceComparisonRequest): $CancellablePromise<api$0.WorkspaceComparisonRoute> {
     return $Call.ByID(4088206667, req).then(($result: any) => {
-        return $$createType7($result);
+        return $$createType14($result);
     });
 }
 
@@ -372,12 +440,25 @@ export function SaveChartArtifact(req: $models.ChartArtifactRequest): $Cancellab
     return $Call.ByID(875242524, req);
 }
 
+export function SelectImporter(id: string, generation: number, importer: string): $CancellablePromise<analysis$0.JobSnapshot> {
+    return $Call.ByID(2871975417, id, generation, importer).then(($result: any) => {
+        return $$createType11($result);
+    });
+}
+
 // Private type creation functions
 const $$createType0 = models$0.AnalysisResult.createFrom;
 const $$createType1 = $models.EngineAsyncResponse.createFrom;
-const $$createType2 = $models.ClassifyResult.createFrom;
-const $$createType3 = $models.CollapsedResult.createFrom;
-const $$createType4 = $Create.Map($Create.Any, $Create.Any);
-const $$createType5 = httpcapture$0.HttpCaptureDiffContract.createFrom;
-const $$createType6 = httpcorrelation$0.Contract.createFrom;
-const $$createType7 = httpcapture$0.WorkspaceComparisonRoute.createFrom;
+const $$createType2 = analysis$0.CancelOutcome.createFrom;
+const $$createType3 = $models.ClassifyResult.createFrom;
+const $$createType4 = resultcontract$0.Delta.createFrom;
+const $$createType5 = $models.CollapsedResult.createFrom;
+const $$createType6 = $Create.Map($Create.Any, $Create.Any);
+const $$createType7 = analysis$0.ResultView.createFrom;
+const $$createType8 = resultcontract$0.ScalarView.createFrom;
+const $$createType9 = httpcapture$0.HttpCaptureDiffContract.createFrom;
+const $$createType10 = httpcorrelation$0.Contract.createFrom;
+const $$createType11 = analysis$0.JobSnapshot.createFrom;
+const $$createType12 = ingestion$0.ImporterDescriptor.createFrom;
+const $$createType13 = $Create.Array($$createType12);
+const $$createType14 = httpcapture$0.WorkspaceComparisonRoute.createFrom;

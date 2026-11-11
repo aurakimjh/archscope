@@ -72,3 +72,6 @@ yarn-error.log*
 
 # Generated sample outputs are useful during development, but keep placeholders.
 examples/outputs/*.tmp.json
+
+# Bundled synthetic ingestion conformance fixture.
+!apps/engine-native/internal/catalog/contracts/server.log

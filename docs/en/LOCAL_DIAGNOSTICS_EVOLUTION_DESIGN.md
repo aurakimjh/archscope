@@ -1,6 +1,7 @@
 # Local Diagnostics Evolution Design
 
-Status: design proposal revised after the 2026-11-11 review; not an implementation or release claim.
+Status: overall design proposal revised after the 2026-11-11 review. T-628 foundation
+is implemented as recorded below; this is not completion or release of the full plan.
 
 This English companion records the same scope, architecture decisions, compatibility
 rules, and implementation dependencies as the [Korean design](../ko/LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN.md).
@@ -452,3 +453,12 @@ See [Data Model](./DATA_MODEL.md), [Parser Design](./PARSER_DESIGN.md),
 External specifications were consulted on 2026-11-11. Implementation must pin
 producer, adapter/schema, and fixture versions rather than treat latest/main
 documentation as a permanent support guarantee.
+
+## T-628 implementation status (2026-11-11)
+
+The common importer/job/measurement/version foundation and existing Tomcat pilot
+are implemented. See [parser implementation](./PARSER_DESIGN.md#t-628-implementation-record-2026-11-11)
+and [wire conformance](./DATA_MODEL.md#t-628-wire-implementation-and-conformance-2026-11-11)
+for paths, resource limits and compatibility. A sealed result JSON revision rename
+is this stage's atomic marker; separate case manifests/cache lifecycle remain T-630.
+Tests are not independent review PASS. T-629 onward and undecided Q01–Q04 remain separate.

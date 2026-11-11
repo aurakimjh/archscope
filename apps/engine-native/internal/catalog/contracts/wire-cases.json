@@ -1,0 +1,21 @@
+{
+  "id": "diagnostics.measurement.wire.v1",
+  "synthetic": true,
+  "unknown": {
+    "object": {
+      "integer": 9007199254740993,
+      "decimal": 0.123456789012345678901234567890
+    },
+    "array": [
+      null,
+      0,
+      true
+    ],
+    "null": null,
+    "inert_text": "<script>alert(1)</script>",
+    "inert_url": "https://example.invalid/never-fetch"
+  },
+  "exact_integer": "9007199254740993",
+  "decimal": "0.123456789012345678901234567890",
+  "known_zero": 0
+}

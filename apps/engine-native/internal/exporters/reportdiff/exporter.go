@@ -19,40 +19,42 @@
 // [한글] reportdiff exporter — before/after 분석 결과 비교 보고서 생성.
 //
 // 사용 시나리오
-//   • 동일 분석기를 두 시점에 돌리고(예: 배포 전/후), 어떤 메트릭이
+//   - 동일 분석기를 두 시점에 돌리고(예: 배포 전/후), 어떤 메트릭이
 //     얼마나 달라졌는지 한눈에 보고 싶을 때.
-//   • 실험 그룹 (A) 과 대조 그룹 (B) 의 결과 비교.
-//   • CI 의 회귀 게이트가 changed_metrics 0 보다 크면 fail.
+//   - 실험 그룹 (A) 과 대조 그룹 (B) 의 결과 비교.
+//   - CI 의 회귀 게이트가 changed_metrics 0 보다 크면 fail.
 //
 // 3개 layer API
-//   Diff(before, after)
-//     이미 로드된 AnalysisResult 두 개를 받아 diff payload 반환.
-//     map[string]any 로 반환하므로 호출 측에서 JSON exporter 로 직접
-//     마샬링 또는 추가 후처리 가능.
 //
-//   Marshal / Write
-//     JSON exporter 와 동일한 byte 형식 (2-space indent + trailing
-//     newline + raw UTF-8). 결국 Diff() + json.Marshal() 의 단축형.
+//	Diff(before, after)
+//	  이미 로드된 AnalysisResult 두 개를 받아 diff payload 반환.
+//	  map[string]any 로 반환하므로 호출 측에서 JSON exporter 로 직접
+//	  마샬링 또는 추가 후처리 가능.
 //
-//   BuildComparisonReport(beforePath, afterPath, label)
-//     디스크의 두 JSON 파일을 읽어서 한 번에 comparison_report 생성.
-//     Python `build_comparison_report` 와 같은 시그니처 — CLI 에서
-//     가장 일반적인 진입점.
+//	Marshal / Write
+//	  JSON exporter 와 동일한 byte 형식 (2-space indent + trailing
+//	  newline + raw UTF-8). 결국 Diff() + json.Marshal() 의 단축형.
+//
+//	BuildComparisonReport(beforePath, afterPath, label)
+//	  디스크의 두 JSON 파일을 읽어서 한 번에 comparison_report 생성.
+//	  Python `build_comparison_report` 와 같은 시그니처 — CLI 에서
+//	  가장 일반적인 진입점.
 //
 // 출력 envelope
-//   {
-//     type: "comparison_report",
-//     summary: {label, before_type, after_type, changed_metrics,
-//               before_findings, after_findings},
-//     series: { metric_deltas: [{key, before, after, delta, ...}] },
-//     metadata: {parser, schema_version, ...}
-//   }
+//
+//	{
+//	  type: "comparison_report",
+//	  summary: {label, before_type, after_type, changed_metrics,
+//	            before_findings, after_findings},
+//	  series: { metric_deltas: [{key, before, after, delta, ...}] },
+//	  metadata: {parser, schema_version, ...}
+//	}
 //
 // 메트릭 비교 규칙
-//   • summary 의 모든 키를 union 으로 모음.
-//   • 값이 숫자이면 delta = after - before 계산.
-//   • 비숫자(문자열/객체) 는 단순 같음/다름 비교.
-//   • 값이 한쪽에만 있으면 added/removed 마킹.
+//   - summary 의 모든 키를 union 으로 모음.
+//   - 값이 숫자이면 delta = after - before 계산.
+//   - 비숫자(문자열/객체) 는 단순 같음/다름 비교.
+//   - 값이 한쪽에만 있으면 added/removed 마킹.
 //
 // Diff shape mirrors the Python output exactly:
 //
@@ -109,6 +111,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/wirejson"
 	"math"
 	"os"
 	"path/filepath"
@@ -139,6 +142,9 @@ func Diff(before, after any, label string) (map[string]any, error) {
 	afterMap, err := toMap(after)
 	if err != nil {
 		return nil, fmt.Errorf("normalise after: %w", err)
+	}
+	if e := measurementCompatibility(beforeMap, afterMap); e != nil {
+		return nil, e
 	}
 	return buildReport(beforeMap, afterMap, label, nil), nil
 }
@@ -184,12 +190,15 @@ func BuildComparisonReport(beforePath, afterPath, label string) (map[string]any,
 		return nil, fmt.Errorf("read %s: %w", afterPath, err)
 	}
 	var beforeMap map[string]any
-	if err := json.Unmarshal(beforeBody, &beforeMap); err != nil {
+	if err := wirejson.Decode(beforeBody, &beforeMap); err != nil {
 		return nil, fmt.Errorf("decode %s: %w", beforePath, err)
 	}
 	var afterMap map[string]any
-	if err := json.Unmarshal(afterBody, &afterMap); err != nil {
+	if err := wirejson.Decode(afterBody, &afterMap); err != nil {
 		return nil, fmt.Errorf("decode %s: %w", afterPath, err)
+	}
+	if e := measurementCompatibility(beforeMap, afterMap); e != nil {
+		return nil, e
 	}
 	return buildReport(beforeMap, afterMap, label, []string{beforePath, afterPath}), nil
 }
@@ -391,7 +400,7 @@ func toMap(v any) (map[string]any, error) {
 		return nil, fmt.Errorf("marshal: %w", err)
 	}
 	var out map[string]any
-	if err := json.Unmarshal(body, &out); err != nil {
+	if err := wirejson.Decode(body, &out); err != nil {
 		return nil, fmt.Errorf("unmarshal: %w", err)
 	}
 	if out == nil {
@@ -426,4 +435,20 @@ func marshalIndented(v any) ([]byte, error) {
 		return nil, fmt.Errorf("encode: %w", err)
 	}
 	return buf.Bytes(), nil
+}
+
+// Versioned exact measurements use the backend result registry comparison, not
+// this legacy float-based report. Refusal prevents silently dropping null or
+// rounding an exact integer/decimal into a plausible legacy delta.
+func measurementCompatibility(a, b map[string]any) error {
+	for _, r := range []map[string]any{a, b} {
+		m, _ := r["metadata"].(map[string]any)
+		if _, ok := m["measurement"]; ok {
+			return fmt.Errorf("versioned measurements require backend exact scalar comparison")
+		}
+		if r["type"] == "profile_evidence" && m["schema_version"] != "0.1.0" {
+			return fmt.Errorf("unsupported profile semantics; original reanalysis required")
+		}
+	}
+	return nil
 }

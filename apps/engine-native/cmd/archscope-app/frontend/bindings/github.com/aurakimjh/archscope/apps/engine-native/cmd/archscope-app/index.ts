@@ -48,6 +48,7 @@ export {
     EngineDiffRequest,
     EngineDoneEvent,
     EngineErrorEvent,
+    EvidenceImportRequest,
     ExceptionRequest,
     ExportCSVRequest,
     ExportHTMLRequest,

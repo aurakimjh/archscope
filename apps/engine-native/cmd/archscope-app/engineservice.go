@@ -39,7 +39,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/analysis"
 	"strings"
+	"sync"
 	"time"
 
 	engineapi "github.com/aurakimjh/archscope/apps/engine-native/api"
@@ -61,7 +63,10 @@ import (
 // engine:done / engine:error / engine:cancelled events. Single-file
 // analyzers are synchronous because the µs–ms cost wouldn't justify the
 // round-trip ceremony.
-type EngineService struct{}
+type EngineService struct {
+	evidenceMu      sync.Mutex
+	evidenceService *analysis.Service
+}
 
 // EngineAsyncResponse mirrors AnalyzeAsyncResponse on the profiler side.
 type EngineAsyncResponse struct {
