@@ -1,0 +1,181 @@
+{
+  "schema": 1,
+  "date": "2026-11-11",
+  "productCommit": "3209bcc6342ce4f3bd25e2a1d7244d3ddfab4cd4",
+  "followupTestCommit": "4feed2d651781da4006d76eda19c025a3fd2e308",
+  "interpretation": "All five implementation commits passed native hosted product checks. The follow-up changes tests/comments only and adds real explicit register/replace/unregister coverage. Final documentation commits are outside this product snapshot.",
+  "runs": [
+    {
+      "runID": 42928859923,
+      "url": "https://github.com/aurakimjh/archscope/actions/runs/42928859923",
+      "jobs": [
+        {
+          "id": 130222211823,
+          "name": "macOS offline import/package smoke",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 130222211920,
+          "name": "Go test/build (windows-latest)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 130222211927,
+          "name": "Go test/build (ubuntu-latest)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 130222212041,
+          "name": "Wails frontend build",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 130222212065,
+          "name": "Go test/build (macos-15)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 130222212142,
+          "name": "Windows GUI cross-build (386)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 130222212265,
+          "name": "Windows GUI cross-build (amd64)",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "runID": 42928859913,
+      "url": "https://github.com/aurakimjh/archscope/actions/runs/42928859913",
+      "jobs": [
+        {
+          "id": 130222211346,
+          "name": "Go Engine Native",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 130222211847,
+          "name": "Wails Frontend",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "runID": 42928859864,
+      "url": "https://github.com/aurakimjh/archscope/actions/runs/42928859864",
+      "jobs": [
+        {
+          "id": 130222210765,
+          "name": "Native COM (386)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 130222211119,
+          "name": "Native COM (amd64)",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "runID": 42928876605,
+      "url": "https://github.com/aurakimjh/archscope/actions/runs/42928876605",
+      "jobs": [
+        {
+          "id": 130222269939,
+          "name": "Synthetic proxy (windows-latest)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 130222270296,
+          "name": "Synthetic proxy (macos-15)",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "runID": 42929282301,
+      "url": "https://github.com/aurakimjh/archscope/actions/runs/42929282301",
+      "jobs": [
+        {
+          "id": 130223620580,
+          "name": "Native COM (386)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 130223620956,
+          "name": "Native COM (amd64)",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "soak": {
+    "sourceCommit": "3209bcc6342ce4f3bd25e2a1d7244d3ddfab4cd4",
+    "durationRequestedSeconds": 120,
+    "retentionRows": 64,
+    "macOS": {
+      "cycles": 70,
+      "requests": 18200,
+      "elapsedSeconds": 121.246
+    },
+    "windows": {
+      "cycles": 37,
+      "requests": 9620,
+      "elapsedSeconds": 122.341
+    },
+    "artifacts": [
+      {
+        "id": 13815232169,
+        "name": "capture-soak-macos-15",
+        "digest": "sha256:309f3599a48c5783ec83cffcf3bcde9bd23476533be5aa4588ac380fb4fc310f",
+        "expiresAt": "2027-02-09T00:07:46Z"
+      },
+      {
+        "id": 13814504899,
+        "name": "capture-soak-windows-latest",
+        "digest": "sha256:a4776949766a8127965e4370e826735082387ce721679fec9dc9a053e843feff",
+        "expiresAt": "2027-02-09T00:07:46Z"
+      }
+    ]
+  },
+  "nativeExecuted": [
+    "STA pre-storage DiscardIt and reentrant Stop",
+    "owned/foreign registry mappings",
+    "win32/win64 target type-library offsets",
+    "separate-process custom-IID QI and inherited typed getter",
+    "explicit public clean-host Register, replacement and Unregister with registry/file cleanup (amd64 race and 386)"
+  ],
+  "expectedSkips": [
+    "private original filter presets not provided in public CI; 16-supported/1-refused run separately on Mac",
+    "child fixture helper is invoked by the parent remoting test"
+  ],
+  "remaining": [
+    "current vendor early-bound binary/client interoperability",
+    "unobserved native filter formats and cache-origin evidence",
+    "foreign-process in-memory session-cookie integration",
+    "transparent driver reach/policy and full native menu/DPI/GUI soak acceptance"
+  ],
+  "registry": {
+    "done": 210,
+    "review": 3,
+    "pending": 1,
+    "total": 214
+  }
+}

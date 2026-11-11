@@ -1853,3 +1853,19 @@ ordinary short regression retains its three-cycle baseline. No system proxy,
 trusted CA, user browser data, native GUI or transparent driver is configured.
 The fixture uses the common Windows capture service on Mac; report OS makes that
 scope explicit. Full native GUI/driver and original-client soak remain T-613.
+
+### Hosted follow-up results (2026-11-11)
+
+All five implementation commits at 3209bcc pass Engine Native 42928859923,
+general CI 42928859913 and native amd64-race/386 COM 42928859864. Manual
+common-engine soak 42928876605 passes on macOS (70 cycles, 18,200 requests)
+and Windows (37 cycles, 9,620 requests), with a 64-row physical bound.
+The test-only follow-up 4feed2d also passes COM 42929282301, including actual
+public Register/replacement/Unregister, owned registry/file cleanup and
+separate-process custom-IID typed calls on both architectures. These cases
+executed; only the private presets/child entry have expected standalone skips.
+[Scoped evidence and artifact digests](../review/evidence/2026-11-11-five-followups/ci.json)
+separate product checks, local and hosted soak, and the test-only follow-up.
+T-611 remains REVIEW for current vendor-client interoperability, missing native
+filter/cache-origin evidence and foreign-process in-memory cookies. Transparent
+driver reach, full native menu/DPI and GUI/driver long-run parity remain separate.
