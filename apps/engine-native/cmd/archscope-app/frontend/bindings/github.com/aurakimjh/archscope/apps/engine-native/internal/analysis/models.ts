@@ -12,6 +12,35 @@ import * as ingestion$0 from "../ingestion/models.js";
 // @ts-ignore: Unused imports
 import * as resultcontract$0 from "../resultcontract/models.js";
 
+export class CacheCleanup {
+    "removed": number;
+    "bytes_removed": number;
+    "retained_owned": number;
+
+    /** Creates a new CacheCleanup instance. */
+    constructor($$source: Partial<CacheCleanup> = {}) {
+        if (!("removed" in $$source)) {
+            this["removed"] = 0;
+        }
+        if (!("bytes_removed" in $$source)) {
+            this["bytes_removed"] = 0;
+        }
+        if (!("retained_owned" in $$source)) {
+            this["retained_owned"] = 0;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new CacheCleanup instance from a string or object.
+     */
+    static createFrom($$source: any = {}): CacheCleanup {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new CacheCleanup($$parsedSource as Partial<CacheCleanup>);
+    }
+}
+
 export class CancelOutcome {
     "outcome": string;
     "job": JobSnapshot;

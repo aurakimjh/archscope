@@ -1,0 +1,138 @@
+{
+  "task": "T-630",
+  "status": "REVIEW",
+  "verification": "R6-01 through R6-07 LOCALLY_REMEDIATED; original independent CONDITIONAL preserved; independent re-review not performed",
+  "recorded_at": "2026-11-11T22:24:34.703534+09:00",
+  "implementation_start_commit": "ff06c54",
+  "integration_merge_commit": "2e54e34a18fbb8188ec9a7c0f6384c21eec3f65c",
+  "integrated_windows_commit": "97e518dd0ad1e46aa29ea694cb40f5dbf50b9449",
+  "review": {
+    "path": "docs/review/done/2026-11-11_claude-code_T-630_implementation-review.ko.md",
+    "sha256": "bc0eb4ecba7fff8c166bda482ad8ffcd6ada46150a7025608e060b5d0abae3d1",
+    "original_verdict": "CONDITIONAL",
+    "original_bytes_preserved": true
+  },
+  "source_sha256": {
+    "apps/engine-native/cmd/archscope-app/case_review_r6_test.go": "a8bf53e227c2b043a18bce743039fe3ae083f7e951937c53bf1f57bb197e2de6",
+    "apps/engine-native/cmd/archscope-app/caseservice.go": "29bb1ce368d560460f10ae61a6232253ca0d1b56ecd0831972bdc90bd1059172",
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/engineservice.ts": "3e60dfb46ce4f23fc82b5aee17b4fa7ba0bcc8addd1ad9de9afa15e904c060a1",
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/internal/analysis/index.ts": "180678c3f21308eed3af8f03f194e2dcc3ab8a0ca5507f1ccc648caf8608ad2a",
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/internal/analysis/models.ts": "218db961983e097f92bc99d182fd55313deeb5cb6f637cfb28e81fbabbff109a",
+    "apps/engine-native/cmd/archscope-app/frontend/src/bridge/engine.ts": "f8eae46b15c110eadacc3944114a62f98f01df57586c067024f3028420bb119a",
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/CaseWorkspaceActions.tsx": "f0e257e4802e600b5a49e3adbf228b9ed029f0574deb0f27a4cf61b11a3d41fb",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/analysisWorkspace.ts": "6429482240bd1a8efb1a3e03c047347c080be91a729823eca4f3e139538bf9fa",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/regression.test.ts": "0d0596f9e1736ebc1fef630965af944d238f7567c97be50d267a5133bb9a6313",
+    "apps/engine-native/cmd/archscope-engine/cmd_cache.go": "c5f09e21d6c24d34d5eabbabd41673610f88cab8c10f646ae73b7e008cd4cd60",
+    "apps/engine-native/cmd/archscope-engine/cmd_case.go": "5bcb16172ba2a1cde178b66915bce49928a2edccba69753e83a1560437394b59",
+    "apps/engine-native/cmd/archscope-engine/cmd_case_review_r6_test.go": "fedfedbcdd9f237466f1d25f1dc4fd04183b54cdf4266fa81ccf475bbfe050af",
+    "apps/engine-native/cmd/archscope-engine/cmd_evidence.go": "664263856535f70b24dd1353d355055abcb7e4ab37de5ab0edb0d3abc23d63ca",
+    "apps/engine-native/internal/analysis/cache.go": "f53d1bc3aaf2e31b3726fcce0c7855eb46945b23415ea56034019cb11e11f288",
+    "apps/engine-native/internal/analysis/migration.go": "92bfb5e97901c2effc44635dda0560a347a5e50f2f5b1ff73663c7e1f7ea9dfb",
+    "apps/engine-native/internal/analysis/ownership.go": "efa508bfc1aeaf97d3472c1083ebbfe07ba8f1691dfb5a857cd0a1cfdb9d9c03",
+    "apps/engine-native/internal/analysis/review_r6_test.go": "8d3e9db75bd5fa8c930a003207db4dfaa7c69b5f516ea4a5bf6b72702a2a1595",
+    "apps/engine-native/internal/analysis/service.go": "fe4d2b57fda7e3dc4d6bbc44ce6717ee78b4f14ae1eb5a16076b61001bdfb6eb",
+    "apps/engine-native/internal/analysis/store.go": "6d536cf5d8d0afd61db613bbd2e958feeb23411f441609cb5268fb9023619d03",
+    "apps/engine-native/internal/cases/corrupt.go": "2c1c913b66b093d99add37a43689fbda89ff8509fd96b17bcd6e15ec15c0244b",
+    "apps/engine-native/internal/cases/edit.go": "1f234a8ccd27b139f969503003d052b208d88f60699e9d500d21ff2b66d2c341",
+    "apps/engine-native/internal/cases/encoding.go": "15f8ce849bdcad457e4e0714e3004592132acc73322cc1300392c1598c1dd925",
+    "apps/engine-native/internal/cases/export_guard.go": "37c5d8159aeb5d3e7d6adbbdeb7cd67435a627c70788261a2793753ff534a5e5",
+    "apps/engine-native/internal/cases/model.go": "88be0593176c4b0b17cd060d49bd94f6af7a81c3e09f37df787c8c13677b1694",
+    "apps/engine-native/internal/cases/review_r6_test.go": "532f451bc1339a49a15696389c78253f4853ad2749afbba3396ea1d08d031c6c",
+    "apps/engine-native/internal/cases/source_pages.go": "7725584ee8139e119705449ddc3808d7080fbf422c7adc90cc874c37c4d3f49c",
+    "apps/engine-native/internal/cases/store.go": "11bc214dc3c29ee7a2700e53b4fc06a6ddb36822849915521927e7e355a9c35f",
+    "docs/en/DATA_MODEL.md": "16f1f2daa67464dccb36e5c7fc4f36e273cd9c07b1f5394d940e474631e73320",
+    "docs/en/PARSER_DESIGN.md": "6ff55099652fa03a018588c052369841fcc0c535fb30df06bbeeb5b306e9da47",
+    "docs/ko/DATA_MODEL.md": "935f7431906dc4b1e67cff23eb9dbc6ffea9dfa4cbe62597e37ae77232ec47c9",
+    "docs/ko/PARSER_DESIGN.md": "19f5541e98408d21a5bc73d94fa2d2fae6278d3151a4e3a616a2eb0b58069044",
+    "docs/review/README.md": "b862658789a082eeb97cb47cff6020ce1b6de1c7aa9fd2bfc598e93ab3af1d95"
+  },
+  "findings": {
+    "R6-01": "Filesystem ancestor and managed-file identity checks. Native case-insensitive path aliases and outside hardlinks refused; original HEAD unchanged.",
+    "R6-02": "Explicit owner-aware evidence cleanup CLI/Wails/Workspace action; ordinary unsaved results are never automatically evicted. Atomic owned saved-case reopen has a separate bounded 32-result/64-MiB transient reserve, independent of full ordinary cache; final lease release/startup reclaim only transient copies. Cleanup preserves shared owners and durable snapshots, then new import succeeds.",
+    "R6-03": "Complete-identity backend save deduplication without revision/ref growth, including returning an earlier existing reference after another result was saved. Workspace reuses current saved refs and re-saves stale refs.",
+    "R6-04": "Separate corrupt-case managed-tree plan/token/purge. Readable cases require normal deletion, changed trees invalidate tokens, corrupt manifests never control deletion paths, external originals and other cases survive.",
+    "R6-05": "Empty/partial legacy layout initializes; corrupt migration remains fail-closed with typed legacy/durable preserve/backup-rename/restart guidance. Recovery executed; original corrupt bytes and absent completion marker preserved.",
+    "R6-06": "One compact revision/digest/options-bound decoded source index. Repeated pages stream-verify source hashes without full decode/allocation; mtime spoof refused. All bounded bytes validated/counted; 1M-line indexed prefix disclosed with total/indexed/truncated. Returned page text owns bounded copies, so it cannot pin the full decoded cache.",
+    "R6-07": "Local UTF-8 display labels allow colon filenames and remain separate from strict archive/capture paths. Portable objects keep digest paths and control-character labels remain refused."
+  },
+  "full_go_race_summary": {
+    "package_skip": 5,
+    "test_pass": 1400,
+    "package_pass": 96,
+    "test_skip": 6
+  },
+  "expected_skips": [
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/comautomation",
+      "test": "TestReferencePresetFiltersWhenProvided"
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/transparent",
+      "test": "TestOfficialDriverFingerprints"
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/halog",
+      "test": "TestPrivateReferenceSample"
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/sessionfile",
+      "test": "TestLargeXLSIndependentReader"
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/jfr",
+      "test": "TestConvertJFRToJSONIntegration"
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/cases",
+      "test": "TestR606LargePageMeasurement"
+    }
+  ],
+  "large_test_separately_executed": true,
+  "synthetic_page_measurement": {
+    "source_bytes": 62914488,
+    "total_lines": 806596,
+    "first_page_ms": 339.4,
+    "cached_three_pages_ms": 66.375,
+    "cached_three_allocated_bytes": 524120,
+    "used_compact_index_bytes": 12905536
+  },
+  "validation_levels": {
+    "unit": "All seven findings have executed regression coverage; old goldens, fixture byte/position parity, ownership/migration and parser tests retained.",
+    "bridge": "Actual Go EngineService: full ordinary cache -> exact durable saved case reopen with lease -> cleanup preserving owned snapshot -> real fresh import. Not WebView execution.",
+    "cli": "Actual isolated built CLI processes: idempotent save, native case-alias export refusal, corrupt tree plan/purge and evidence-cache cleanup. No default live-user store is cleaned or purged.",
+    "frontend": "State tests cover repeated save reuse and stale-reference re-save; TypeScript/Vite production build; generated Wails 3.1 bindings.",
+    "builds": "Full Go vet/build; desktop-only/server compilation refusal; final production macOS bundle plus strict deep ad-hoc signature; post-integration Windows amd64/386 targeted cross-vet and Windows build/go/test MJS syntax.",
+    "integration": "Windows commit 97e518d preserved by merge 2e54e34; only work_status append conflict resolved by retaining both histories. Full Mac race suite precedes this Windows-only/test/packaging integration; post-integration targeted Windows vet and final package/syntax checks pass. Final source-page race tests cover bounded returned strings after the full suite.",
+    "actual_new_native_ui": "NOT_EXECUTED in this remediation",
+    "new_windows_runtime": "NOT_EXECUTED_HERE; earlier Windows evidence is a separate code revision",
+    "hosted_ci": "NOT_EXECUTED_HERE",
+    "independent_re_review": "NOT_PERFORMED"
+  },
+  "final_mac_binary_sha256": "65a13635a455eee71c6fad319dd6d996f5c0aa3a2ec74082f35c5b9ebe1608f8",
+  "limitations": [
+    "T-630 remains REVIEW pending independent re-review; local checks do not rename CONDITIONAL to PASS.",
+    "Saved-case reserve is bounded and can require closing unused results or explicit ordinary-cache cleanup; no unlimited capacity promise.",
+    "Source pages expose at most the first 1M indexed lines with honest coverage; originals/export remain complete. T-635 must honor coverage or add byte windows for more.",
+    "Streaming source integrity checks still read bounded source bytes; the local 60 MiB measurement is not a production or controlled baseline speed guarantee.",
+    "Corrupt purge is explicit, tree-token-bound and limited to managed case files; symlinks, permissions and traversal/byte limits fail closed. It does not promise physical erasure.",
+    "Ordinary evidence cleanup can remove unowned unsaved result copies: users must save/export needed data first. No external originals, saved cases or legacy backups are removed.",
+    "Existing macOS SDK/deployment-target linker warning remains.",
+    "No changes to shared assets, AnalysisResult semantics, capture security, Q01-Q04 qualification or independent Windows parity gates."
+  ],
+  "logs_sha256": {
+    "full_go_race": "1f3d95dcadbf14ab2f0a6d678dfc1a3e03c1b2677acd4201b601f68624d57fa1",
+    "full_go_race_stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "focused_r6_race": "dbdc5a932819ec86c44532b249f4f1730b2001cadb1714e8e29d488840860753",
+    "final_source_page_race": "d4808be6374101a487d118edd94aad0c947e0f4727eeaccf1fa042ab005c1a57",
+    "go_vet": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "go_build": "3b86bca97f0b56496d296c2bbf106225ea68f4a34e8bbbf96fccb86c2c8d08f0",
+    "frontend_state": "96ab3e7763edc1082d01e3a18afd8649d6c9bcdb89fb7b8a072303fcc49805cb",
+    "frontend_build": "6ab898a410d7dde4ab45881a3a44eb33cd0e09b0ff634be99470b99ec810530e",
+    "bindings": "93b0afb8c85315a7933f2f4153e06a202eaea46e516cadf8bc3620973df97ae3",
+    "page_measurement": "d5ec094dad61fad2ae7a4e8fdc10eaf201d3a762bb6521e0fb95825c35b95124",
+    "windows_amd64_cross_vet": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "windows_386_cross_vet": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "mac_package_signature": "34f78f33ddfa0117bbea26efe850f93e0cc7a65742a04a2893965e121eec694d",
+    "desktop_guard": "2737e05db97102bfc69e4a94138f70b869f75db5874ac9581749568974f07e97"
+  }
+}

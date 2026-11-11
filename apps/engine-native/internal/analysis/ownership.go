@@ -21,6 +21,9 @@ type ResultLease struct {
 func (s *Service) AcquireResult(handle string) (ResultLease, error) {
 	s.storeMu.Lock()
 	defer s.storeMu.Unlock()
+	return s.acquireResultLocked(handle)
+}
+func (s *Service) acquireResultLocked(handle string) (ResultLease, error) {
 	s.mu.Lock()
 	closed := s.closed
 	s.mu.Unlock()
@@ -49,10 +52,28 @@ func (s *Service) AcquireResult(handle string) (ResultLease, error) {
 func (s *Service) ReleaseResultLease(leaseID string) error {
 	s.storeMu.Lock()
 	defer s.storeMu.Unlock()
+	s.mu.Lock()
+	closed := s.closed
+	s.mu.Unlock()
+	if closed {
+		return ingestion.Problem("IMPORT_SERVICE_CLOSED", "evidence service is closed")
+	}
 	if _, ok := s.leases[leaseID]; !ok {
 		return ingestion.Problem("IMPORT_LEASE_STALE", "caller lease missing or already released")
 	}
+	handle := s.leases[leaseID]
 	delete(s.leases, leaseID)
+	if rev, ok := s.stored[handle]; ok && rev.reserved {
+		for _, owner := range s.leases {
+			if owner == handle {
+				return nil
+			}
+		}
+		if e := os.Remove(s.resultPathLocked(handle)); e != nil && !os.IsNotExist(e) {
+			return e
+		}
+		delete(s.stored, handle)
+	}
 	return nil
 }
 

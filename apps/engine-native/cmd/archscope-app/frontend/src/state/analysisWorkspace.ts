@@ -161,7 +161,7 @@ function basename(path: string): string {
 export type SavedCaseReference = { case_id: string; result_id: string; result_sha256: string };
 export type CaseManifest = {
   id: string; revision: string; state: string;
-  results: Array<{ id: string; sha256: string; type: string }>;
+  results: Array<{ id: string; sha256: string; type: string; stale?: boolean }>;
 };
 type CasePersistence = {
   create: (title: string) => Promise<CaseManifest>;
@@ -196,6 +196,7 @@ export async function saveWorkspaceCase(entryID: string): Promise<SavedCaseRefer
   if (!entry?.backend_result_handle) throw new Error("A backend-owned result is required to preserve exact saved values");
   // Do not save result projections or JS-parsed unknown metadata.
   const manifest = entry.saved_case ? await persistence.get(entry.saved_case.case_id) : await persistence.create(entry.title);
+  if (entry.saved_case && ["active", "restored"].includes(manifest.state) && manifest.results.some(result => result.id === entry.saved_case!.result_id && result.sha256 === entry.saved_case!.result_sha256 && result.stale !== true)) return entry.saved_case;
   const saved = await persistence.save(entry.backend_result_handle, JSON.stringify({
     case_id: manifest.id, expected_revision: manifest.revision, source_ids: [], selection: null,
   }));

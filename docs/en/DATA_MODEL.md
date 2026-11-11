@@ -2095,3 +2095,58 @@ without a numeric delta. Unknown policies, selection/coverage/semantic mismatch,
 partial populations, unavailable values and zero-baseline percentages retain
 explicit refusals/reasons. Hash equality never asserts original reimport verification.
 T-634/T-635 capture-option and durable baseline qualification remain separate.
+
+## T-630 independent review remediation R6 (2026-11-11)
+
+Export protection compares the real identity of every destination ancestor with
+the managed store root, then checks existing destinations against managed file
+identities. Case aliases on case-insensitive filesystems and outside hardlinks
+cannot overwrite case files; external originals retain their identity guard.
+
+The ordinary evidence cache remains bounded at 1,024 results/512 MiB with no
+implicit eviction of unsaved results. `CleanupEvidenceCache` explicitly removes
+only unleased result copies and reports removed count/bytes and retained owners.
+Save/export needed results before cleanup. Workspace exposes this action in its
+saved-case menu; CLI `evidence cleanup-cache --cache-dir PATH` requires the app to
+be closed because the cache has a single writer. This differs from `case
+cleanup-cache`, which removes only case indexes/staging. Saved cases, external
+originals, exports and retained legacy cache copies are outside both evidence
+cleanup and the transient reserve.
+
+Saved-case reopen publishes and acquires its lease atomically. If the ordinary
+cache is full, it can use a separate session reserve of at most 32 results/64 MiB.
+Only copies read from durable case snapshots enter this path; ordinary import/load
+does not inherit transient handles. Each caller owns its own lease. The last
+reserve owner removes the transient copy, while the durable case remains intact;
+startup removes crash-left reserve copies under the exclusive cache lock. A full
+reserve reports `IMPORT_REOPEN_FULL` and asks the user to close unused results or
+explicitly clean the ordinary cache. Limits are operational, not an unlimited
+reopen guarantee. Ordinary imports recover after explicit cache cleanup.
+
+Saving an identical result with the same source set/hashes, capture, selection,
+options, versions and sharing approval returns the existing manifest/reference
+without consuming a revision or slot. A changed identity or stale reference creates
+a new revision. Workspace reuses a valid already-saved reference on repeat clicks.
+
+Unreadable HEAD/manifests have a separate `corrupt-delete-plan`/`purge-corrupt`
+flow. It lists the exact managed case directory, count/bytes and exclusions. Its
+token hashes the current bounded tree, including file contents; any change requires
+a fresh plan. Readable cases must use ordinary logical deletion. Corrupt manifests
+never supply paths for deletion. External originals, other cases and shared caches
+remain untouched. Symlinks/special files, unreadable permissions and bounds fail
+closed; preserve the directory, close the app and use manual recovery instead.
+No physical-erasure guarantee is added.
+
+Incomplete empty legacy cache layouts now initialize their missing directories.
+Corrupt snapshots still fail closed without writing a completion marker or deleting
+originals. `IMPORT_MIGRATION_RECOVERY_REQUIRED` identifies legacy/durable locations
+and gives explicit recovery: close ArchScope, preserve both directories, rename the
+legacy directory to a backup name, then restart. Keep the backup for explicit
+snapshot recovery; do not delete the case store. If the marker is corrupt, retain
+it with the backup information; bypassing the legacy location permits opening the
+already-preserved durable cache. Never edit/remove cache directories while an app
+or CLI owns their kernel lock.
+
+Source display names allow local UTF-8 names such as `jstack_10:30:01.txt` but reject
+control characters. They never become archive/filesystem paths. ZIP/TAR entry and
+capture-file path restrictions remain unchanged; portable bytes use digest paths.

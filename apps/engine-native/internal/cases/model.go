@@ -254,7 +254,7 @@ func (m Manifest) validate() error {
 		captures[c.ID] = true
 	}
 	for _, s := range m.Sources {
-		if !unique(s.ID, "source") || !digestRE.MatchString(s.SHA256) || !validSize(s.Size) || !safeName(s.Name) || s.Status != "available" && s.Status != "missing" && s.Status != "failed" {
+		if !unique(s.ID, "source") || !digestRE.MatchString(s.SHA256) || !validSize(s.Size) || !validSourceLabel(s.Name) || s.Status != "available" && s.Status != "missing" && s.Status != "failed" {
 			return problem("CASE_INVALID", "invalid source reference")
 		}
 		if s.Storage != "external" && s.Storage != "managed" && s.Storage != "omitted" {

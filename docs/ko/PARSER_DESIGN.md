@@ -938,3 +938,25 @@ Analysis Workspace에서 catalog 가져오기·옵션·명시적 부분 허용·
 또는 케이스 snapshot으로 복구한다. 백엔드 handle 없는 기존 Workspace 결과의 화면은
 유지하며 정밀 backend snapshot으로 직렬화하지 않는다. Windows 실기는 별도 Windows PC
 작업으로 남는다. 단위·Go bridge·상태·빌드·CLI 검사만으로 실제 WebView 조작을 인증하지 않는다.
+
+## T-630 R6 원본 페이지·복구 (2026-11-11)
+
+`Store.SourcePage`는 리비전·원본 digest·옵션에 연결된 compact 색인 한 개를 사용한다.
+디코딩 UTF-8 최대 64 MiB, 좌표 최대 1,000,000개(각 16바이트)다. 반복 페이지는 디코딩을
+재사용하고 제한된 스트리밍 hash로 현재 원본을 확인하므로 mtime만 신뢰하거나 전체 입력을
+다시 할당하지 않는다. 크기·mtime을 유지한 내용 변조도 거부한다. 사건 수정·삭제·정리·종료 시
+파생 텍스트를 폐기한다. 기존 유효 UTF-8/UTF-16/CP949/EUC-KR 입력의 좌표와
+`text-index-v1` 식별 의미를 유지한다.
+
+색인 한도에 도달해도 제한된 입력 전체를 검증·계수한다. `total_lines`·`indexed_lines`·
+`index_truncated`로 범위를 공개하고 파일 전체를 거부하지 않고 앞 100만 행을 읽는다.
+색인 뒤를 요청하면 빈 행과 명시적 잘림 flag를 반환하며 완전한 EOF를 주장하지 않는다.
+원본·내보내기는 완전하게 유지한다. T-635는 이 범위를 반영하거나 byte window 접근을 추가한
+뒤 더 넓은 원본 링크를 제공해야 한다. 페이지 200행·행별 4 KiB·텍스트 합계 64 KiB 한도는
+유지한다. 기존 전체 `ReadSource`는 Wails 페이지 경로가 아니며 더 큰 타입화된 색인을 할당할 수 있다.
+
+새 정비 API는 `CleanupEvidenceCache`·`GetCorruptCaseDeletionPlan`·`PurgeCorruptCase`다.
+손상 삭제는 `case corrupt-delete-plan --store PATH --id ID`로 최신 계획·범위를 확인한 뒤
+그 token으로 `case purge-corrupt --store PATH --id ID --token TOKEN`을 명시적으로 실행한다.
+일반 사건 수명주기와 별도이며 CLI cache 정비는 저장소를 소유한 앱을 먼저 닫도록 안내한다.
+사용자 사건에 정리·purge를 자동 실행하지 않는다.

@@ -1,6 +1,7 @@
 package cases
 
 import (
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -45,7 +46,51 @@ func (s *Store) CheckExportDestination(caseID, destination string) error {
 	if relative != ".." && !strings.HasPrefix(relative, ".."+string(filepath.Separator)) {
 		return problem("CASE_EXPORT_DESTINATION_UNSAFE", "export outside managed case storage")
 	}
+	// String relativity does not canonicalize case on APFS. Compare filesystem
+	// identity at every existing ancestor, including the destination itself.
+	rootInfo, e := os.Stat(root)
+	if e != nil {
+		return e
+	}
+	for ancestor := target; ; ancestor = filepath.Dir(ancestor) {
+		info, statErr := os.Stat(ancestor)
+		if statErr == nil && os.SameFile(rootInfo, info) {
+			return problem("CASE_EXPORT_DESTINATION_UNSAFE", "export outside managed case storage")
+		}
+		if statErr != nil && !os.IsNotExist(statErr) {
+			return statErr
+		}
+		if filepath.Dir(ancestor) == ancestor {
+			break
+		}
+	}
 	targetInfo, _ := os.Stat(target)
+	if targetInfo != nil {
+		entries := 0
+		e = fs.WalkDir(s.root.FS(), ".", func(p string, entry fs.DirEntry, walkErr error) error {
+			if walkErr != nil {
+				return walkErr
+			}
+			entries++
+			if entries > 32768+4*MaxCases {
+				return problem("CASE_BUDGET_EXCEEDED", "export identity scan limit")
+			}
+			if entry.IsDir() {
+				return nil
+			}
+			info, e := entry.Info()
+			if e != nil {
+				return e
+			}
+			if os.SameFile(targetInfo, info) {
+				return problem("CASE_EXPORT_DESTINATION_UNSAFE", "destination aliases managed case data")
+			}
+			return nil
+		})
+		if e != nil {
+			return e
+		}
+	}
 	for _, source := range m.Sources {
 		if source.ExternalPath == "" {
 			continue

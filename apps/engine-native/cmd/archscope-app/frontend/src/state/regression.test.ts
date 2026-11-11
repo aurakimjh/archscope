@@ -3345,12 +3345,12 @@ if (false) {
 // T-630: backend case bytes remain opaque; Workspace only owns caller leases.
 async function testDurableWorkspaceCases(): Promise<void> {
   clearWorkspaceResults();
-  let released: string[] = []; let next = 0; let savedRequest = "";
+  let released: string[] = []; let next = 0; let savedRequest = ""; let saveCalls = 0; let markSavedReferenceStale = false;
   let finishReopen: ((value: { handle: string; leaseID: string; type: string; summaryJSON: string }) => void) | undefined;
   const manifest = { id: "case-" + "a".repeat(32), revision: "9007199254740993", state: "active", results: [{ id: "result-" + "b".repeat(32), sha256: "c".repeat(64), type: "future" }] };
   configureCasePersistence({
-    create: async () => manifest, get: async () => manifest,
-    save: async (_handle, request) => { savedRequest = request; return manifest; },
+    create: async () => manifest, get: async () => ({ ...manifest, results: manifest.results.map(result => ({ ...result, stale: markSavedReferenceStale })) }),
+    save: async (_handle, request) => { saveCalls++; markSavedReferenceStale = false; savedRequest = request; return manifest; },
     acquire: async () => ({ id: `lease-${++next}` }),
     release: async id => { released.push(id); },
     reopen: async () => ({ handle: "result-" + "d".repeat(32), leaseID: "reopened-owner", type: "future", summaryJSON: "{}" }),
@@ -3359,6 +3359,10 @@ async function testDurableWorkspaceCases(): Promise<void> {
   await Promise.resolve();
   const reference = await saveWorkspaceCase(entry.id);
   assert(reference.result_sha256 === "c".repeat(64), "saved case pins exact result digest");
+  const repeated = await saveWorkspaceCase(entry.id);
+  assert(saveCalls === 1 && repeated.result_id === reference.result_id, "repeat Workspace save does not append duplicate references/revisions");
+  markSavedReferenceStale = true; await saveWorkspaceCase(entry.id);
+  assert(Number(saveCalls) === 2, "stale saved references are not reused as current");
   assert(savedRequest.includes('"expected_revision":"9007199254740993"') && !savedRequest.includes('"result":'), "save request never serializes renderer result or coerces revision");
   const reopened = await reopenWorkspaceCase(reference.case_id, reference.result_id);
   await Promise.resolve(); removeWorkspaceResult(entry.id);

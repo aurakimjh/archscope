@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/wirejson"
 	"io"
 	"os"
@@ -36,7 +37,13 @@ func OpenDurable(ctx context.Context, legacy, durable string, c *ingestion.Catal
 	if e != nil {
 		return nil, e
 	}
-	fail := func(e error) (*Service, error) { dest.Close(); return nil, e }
+	fail := func(e error) (*Service, error) {
+		dest.Close()
+		if errors.Is(e, context.Canceled) || errors.Is(e, context.DeadlineExceeded) {
+			return nil, e
+		}
+		return nil, &MigrationRecoveryError{Code: "IMPORT_MIGRATION_RECOVERY_REQUIRED", LegacyPath: legacy, DurablePath: durable, Cause: e, Action: "Close ArchScope, preserve both directories, rename the legacy directory to a backup name and restart. Keep that backup for explicit snapshot recovery; do not delete saved cases."}
+	}
 	info, e := os.Lstat(legacy)
 	if errors.Is(e, os.ErrNotExist) {
 		return dest, nil
@@ -81,6 +88,9 @@ func OpenDurable(ctx context.Context, legacy, durable string, c *ingestion.Catal
 	}
 	for _, p := range []string{"results", "staging"} {
 		i, e := os.Lstat(filepath.Join(legacy, p))
+		if errors.Is(e, os.ErrNotExist) {
+			continue
+		}
 		if e != nil {
 			return fail(e)
 		}
@@ -127,3 +137,17 @@ func OpenDurable(ctx context.Context, legacy, durable string, c *ingestion.Catal
 	}
 	return dest, nil
 }
+
+// Recovery is explicit; corrupt legacy bytes are never silently skipped/deleted.
+type MigrationRecoveryError struct {
+	Code        string `json:"code"`
+	LegacyPath  string `json:"legacy_path"`
+	DurablePath string `json:"durable_path"`
+	Action      string `json:"action"`
+	Cause       error  `json:"-"`
+}
+
+func (e *MigrationRecoveryError) Error() string {
+	return fmt.Sprintf("%s: %s Legacy: %s; durable: %s", e.Code, e.Action, e.LegacyPath, e.DurablePath)
+}
+func (e *MigrationRecoveryError) Unwrap() error { return e.Cause }

@@ -432,3 +432,5 @@ export const compareEvidenceProvider = (baseline: string, target: string, provid
 export const acquireEvidenceResult = (handle: string) => call<{ id: string }>("AcquireEvidenceResult", handle);
 export const releaseEvidenceLease = (id: string) => call<void>("ReleaseEvidenceLease", id);
 export const exportEvidenceResult = (handle: string, path: string, format: string) => call<void>("ExportEvidenceResult", handle, path, format);
+
+export const cleanupEvidenceCache = () => call<{ removed: number; bytes_removed: number; retained_owned: number }>("CleanupEvidenceCache");

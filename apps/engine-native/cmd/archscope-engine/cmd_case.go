@@ -149,5 +149,11 @@ func init() {
 		e := s.CleanupCache()
 		return map[string]bool{"cleaned": e == nil}, e
 	})
+	command("corrupt-delete-plan", "Inspect the exact managed-tree deletion scope for an unreadable case; does not delete.", func(ctx context.Context, s *cases.Store) (any, error) { return s.CorruptDeletionPlan(ctx, caseID) })
+	c = command("purge-corrupt", "Permanently remove only the corrupt case tree bound by the current explicit plan token.", func(ctx context.Context, s *cases.Store) (any, error) {
+		e := s.PurgeCorrupt(ctx, caseID, token)
+		return map[string]string{"purged_corrupt": caseID}, e
+	})
+	c.Flags().StringVar(&token, "token", "", "current corrupt-delete-plan token; invalidated by any managed tree change")
 	rootCmd.AddCommand(group)
 }

@@ -909,3 +909,29 @@ handles offer saved-file or saved-case reopen. Backend-less legacy Workspace ent
 retain their existing display; they are not serialized as exact backend snapshots.
 Native Windows testing is owned by the separate Windows-PC run. Unit/Go bridge,
 state/build and CLI checks alone do not certify actual WebView interaction.
+
+## T-630 R6 source paging and recovery (2026-11-11)
+
+`Store.SourcePage` uses one revision/source-digest/options-bound compact index:
+up to 64 MiB decoded UTF-8 and 1,000,000 offsets (16 bytes each). Repeated pages
+reuse decoding and verify the current source with a bounded streaming hash, rather
+than trusting mtime or allocating the full input again. Changing even same-size/
+mtime-spoofed source bytes fails closed. Case edits, deletion, cleanup and store
+close discard derived text. Decoder coordinates and `text-index-v1` identity for
+previous valid inputs are preserved across UTF-8/UTF-16/CP949/EUC-KR.
+
+The entire bounded input is validated and counted even when the index prefix is
+full. `total_lines`, `indexed_lines` and `index_truncated` disclose this limit;
+the first million lines remain readable instead of refusing the whole file. A
+request beyond the indexed prefix returns no rows with the explicit truncation
+flag, not an assertion of complete EOF. Original bytes and export remain complete.
+T-635 must honor this coverage or add byte-window access before broader source-link
+claims. Pages retain 200-line/4 KiB-per-line/64 KiB-text ceilings. The older full
+`ReadSource` API is not the Wails paging path and may allocate a larger typed index.
+
+New maintenance endpoints are `CleanupEvidenceCache`, `GetCorruptCaseDeletionPlan`
+and `PurgeCorruptCase`. Corrupt deletion requires inspection of a fresh plan and
+its exact token: `case corrupt-delete-plan --store PATH --id ID`, then, only after
+reviewing scope, `case purge-corrupt --store PATH --id ID --token TOKEN`. Normal
+case lifecycle remains separate. CLI cache maintenance asks the user to close the
+owning desktop app. No cleanup or purge runs automatically against user cases.

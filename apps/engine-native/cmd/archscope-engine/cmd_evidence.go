@@ -136,5 +136,6 @@ func init() {
 	run.Aliases = []string{"analyze"}
 	group.AddCommand(list, run, reopen)
 	group.AddCommand(resultProviderCommands()...)
+	group.AddCommand(evidenceCleanupCommand())
 	rootCmd.AddCommand(group)
 }

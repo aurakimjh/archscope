@@ -106,11 +106,7 @@ func (s *EngineService) ReopenCaseResult(caseID, resultID string) (string, error
 	if e != nil {
 		return "", e
 	}
-	view, e := service.LoadSnapshot(context.Background(), body)
-	if e != nil {
-		return "", e
-	}
-	owner, e := service.AcquireResult(view.Handle)
+	view, owner, e := service.LoadOwnedSnapshot(context.Background(), body)
 	if e != nil {
 		return "", e
 	}
@@ -206,7 +202,7 @@ func (s *EngineService) CleanupCaseCache() error {
 
 // A bounded source page, never a 64 MiB WebView payload. Byte offsets are decimal
 // strings into the selected source revision, not offsets into rendered text.
-func (s *EngineService) GetCaseSourcePage(caseID, sourceID, optionsJSON string, start, count int) (string, error) {
+func (s *EngineService) GetCaseSourcePage(ctx context.Context, caseID, sourceID, optionsJSON string, start, count int) (string, error) {
 	if start < 0 || count < 1 || count > 200 {
 		return "", fmt.Errorf("source page requires start >=0 and count 1..200")
 	}
@@ -218,9 +214,29 @@ func (s *EngineService) GetCaseSourcePage(caseID, sourceID, optionsJSON string, 
 	if e != nil {
 		return "", e
 	}
-	decoded, e := store.ReadSource(caseID, sourceID, opts)
+	return caseJSON(store.SourcePage(ctx, caseID, sourceID, opts, start, count))
+}
+
+// Explicit cache cleanup removes unowned result copies only, never case data.
+func (s *EngineService) CleanupEvidenceCache() (analysis.CacheCleanup, error) {
+	service, e := s.evidence()
+	if e != nil {
+		return analysis.CacheCleanup{}, e
+	}
+	return service.CleanupEvidenceCache()
+}
+
+func (s *EngineService) GetCorruptCaseDeletionPlan(ctx context.Context, caseID string) (string, error) {
+	store, e := s.cases()
 	if e != nil {
 		return "", e
 	}
-	return caseJSON(cases.SourcePage(decoded, start, count))
+	return caseJSON(store.CorruptDeletionPlan(ctx, caseID))
+}
+func (s *EngineService) PurgeCorruptCase(ctx context.Context, caseID, token string) error {
+	store, e := s.cases()
+	if e != nil {
+		return e
+	}
+	return store.PurgeCorrupt(ctx, caseID, token)
 }

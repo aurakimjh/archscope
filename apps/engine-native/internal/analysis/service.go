@@ -116,7 +116,16 @@ func New(root string, c *ingestion.Catalog, r *resultcontract.Registry) (*Servic
 	}
 	if e = lockStore(lockFile); e != nil {
 		lockFile.Close()
-		return nil, ingestion.Problem("IMPORT_STORE_BUSY", "evidence store is already in use")
+		return nil, ingestion.Problem("IMPORT_STORE_BUSY", "evidence store is already in use; close the desktop app or other cache owner before CLI maintenance")
+	}
+	// Reopened snapshots are session-only copies of durable saved case bytes.
+	// No caller lease can survive the exclusive kernel lock across restarts.
+	if e = os.RemoveAll(filepath.Join(root, "reopened")); e == nil {
+		e = os.Mkdir(filepath.Join(root, "reopened"), 0700)
+	}
+	if e != nil {
+		lockFile.Close()
+		return nil, e
 	}
 	// Exclusive ownership makes crash-left staging safe to collect.
 	entries, e := os.ReadDir(filepath.Join(root, "staging"))
@@ -294,7 +303,6 @@ func (s *Service) Wait(ctx context.Context, id string, g uint64) (JobSnapshot, e
 func (s *Service) Close() { s.closeOnce.Do(s.close) }
 func (s *Service) close() {
 	s.cancel()
-	defer s.lockFile.Close()
 	s.mu.Lock()
 	s.closed = true
 	for _, j := range s.jobs {
@@ -315,6 +323,9 @@ func (s *Service) close() {
 			entry.job.mu.Unlock()
 		}
 	}
+	s.storeMu.Lock()
+	_ = s.lockFile.Close()
+	s.storeMu.Unlock()
 }
 func (j *job) stage(state string) { j.mu.Lock(); j.snapshot.State = state; j.mu.Unlock() }
 func (s *Service) run(j *job, req Request, queueTimer *time.Timer, cancelCause context.CancelCauseFunc) {
@@ -632,7 +643,10 @@ func (s *Service) Read(handle string) ([]byte, models.AnalysisResult, error) {
 	}
 	s.storeMu.Lock()
 	defer s.storeMu.Unlock()
-	f, e := os.Open(filepath.Join(s.root, "results", handle+".json"))
+	if _, ok := s.stored[handle]; !ok {
+		return nil, models.AnalysisResult{}, ingestion.Problem("IMPORT_RESULT_STALE", "reopen a saved case or result file")
+	}
+	f, e := os.Open(s.resultPathLocked(handle))
 	if e != nil {
 		if os.IsNotExist(e) {
 			e = ingestion.Problem("IMPORT_RESULT_STALE", "result is no longer available; reopen the saved file")

@@ -2190,3 +2190,46 @@ availability/reason/unit/population을 전달하므로 정밀 숫자를 JavaScri
 숫자 delta 없이 반환한다. 미지원 정책·선택/범위/의미 불일치·부분 모집단·미측정 값·0인
 기준의 백분율은 명시적인 사유를 유지한다. 해시 일치로 원본 재가져오기 검증을 주장하지
 않는다. T-634/T-635의 수집 옵션 정책과 영속 baseline 검증은 별도다.
+
+## T-630 독립 리뷰 R6 후속 수정 (2026-11-11)
+
+내보내기는 대상의 실제 조상 디렉터리 식별자를 저장소 root와 대조하고 기존 대상 파일을
+managed 파일 식별자와 비교한다. 대소문자 비구분 볼륨의 경로 alias와 저장소 밖 hardlink로
+사건 파일을 덮어쓰지 못하며 외부 원본의 식별자 검사도 유지한다.
+
+일반 evidence-cache는 1,024개/512 MiB이며 미저장 결과를 자동 축출하지 않는다.
+`CleanupEvidenceCache`는 lease 없는 결과 사본만 명시적으로 정리하고 제거 개수·바이트와
+사용 중 보존 개수를 반환한다. 필요한 결과는 먼저 저장·내보내기한다. Workspace 저장 케이스
+메뉴에서 실행하며 CLI는 앱을 닫고 `evidence cleanup-cache --cache-dir PATH`를 사용한다.
+`case cleanup-cache`는 사건 색인·staging만 정리하는 별도 명령이다. 저장된 사건·외부 원본·
+별도 export·보존된 legacy 사본은 evidence 정리 및 임시 재열기 공간의 삭제 범위가 아니다.
+
+저장된 사건 재열기는 publish와 lease 획득을 원자적으로 처리한다. 일반 cache가 가득 차면
+최대 32개/64 MiB의 별도 세션 공간을 사용한다. 영속 사건에서 읽은 snapshot 사본만 이
+경로에 넣으며 일반 import/load가 임시 handle 수명에 의존하지 않는다. 각 호출자는 자신의
+lease를 소유하고 마지막 owner 해제 시 임시 사본만 제거한다. 시작 시 kernel lock 아래에서
+중단된 이전 세션 사본을 정리하며 사건 원본은 보존한다. 세션 공간도 가득 차면
+`IMPORT_REOPEN_FULL`로 불필요한 결과 닫기 또는 일반 cache의 명시적 정리를 안내한다.
+무제한 재열기를 보장하는 것은 아니며 일반 import는 명시적 cache 정리 후 재개한다.
+
+같은 본문·source 집합/hash·capture·selection·options·versions·공유 승인으로 다시 저장하면
+기존 참조와 manifest를 반환하고 revision·슬롯을 소비하지 않는다. 식별 조건이 달라지거나
+기존 참조가 stale이면 새 리비전이다. Workspace의 반복 저장은 이미 저장된 참조를 재사용한다.
+
+HEAD/manifest를 읽을 수 없는 사건은 별도 `corrupt-delete-plan`·`purge-corrupt` 경로로
+처리한다. 정확한 managed 사건 디렉터리·파일 수·바이트·제외 범위를 표시하고 현재 파일
+본문까지 포함한 제한된 트리 hash에 token을 연결한다. 바뀌면 계획을 다시 만든다. 정상 사건은
+기존 논리 삭제 경로를 사용하고 손상 manifest에서 삭제 경로를 가져오지 않는다. 외부 원본·
+다른 사건·공유 cache는 건드리지 않는다. 링크·특수 파일·접근 권한·상한 문제는 fail-closed로
+거부하므로 앱을 닫고 디렉터리를 보존한 뒤 수동 복구한다. 물리적 완전 삭제를 보장하지 않는다.
+
+비어 있거나 일부 디렉터리가 없는 legacy cache는 필요한 구조를 초기화한다. 손상 snapshot은
+원문을 지우거나 완료 marker를 쓰지 않고 계속 거부한다. `IMPORT_MIGRATION_RECOVERY_REQUIRED`는
+legacy/durable 위치와 조치를 안내한다. ArchScope 종료 → 두 위치 보존 → legacy 디렉터리를
+backup 이름으로 변경 → 재시작 순서다. backup은 snapshot 명시적 복구용으로 유지하고 사건
+저장소를 지우지 않는다. marker 손상도 정보를 보존하며 legacy 위치를 우회하면 이미 보존된
+영속 cache를 열 수 있다. 앱·CLI가 kernel lock을 소유한 동안 저장소를 수정·삭제하지 않는다.
+
+원본 표시 이름은 `jstack_10:30:01.txt` 같은 로컬 UTF-8 이름을 허용하고 제어 문자를 거부한다.
+표시 이름을 실제 파일·archive 경로로 사용하지 않는다. ZIP/TAR 항목·capture 파일의 경로
+제한은 유지하며 portable 본문은 digest 경로로 저장한다.

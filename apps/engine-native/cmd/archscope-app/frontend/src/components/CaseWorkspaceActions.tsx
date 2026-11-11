@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FolderClock, Save, FolderOpen } from "lucide-react";
-import { listCases, getCase } from "@/bridge/engine";
+import { listCases, getCase, cleanupEvidenceCache } from "@/bridge/engine";
 import { reopenWorkspaceCase, saveWorkspaceCase, type AnalysisWorkspaceSnapshot, type CaseManifest } from "@/state/analysisWorkspace";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n/I18nProvider";
@@ -24,6 +24,10 @@ export function CaseWorkspaceActions({ workspace }: { workspace: AnalysisWorkspa
       <Button variant="outline" disabled={busy} onClick={() => void run(async () => { setCases(JSON.parse(await listCases())); setSelected(null); })}><FolderOpen size={16} />{ko ? "케이스 열기" : "Open case"}</Button>
       {cases.map(c => <Button key={c.id} variant="ghost" disabled={busy || !!c.problem || c.state === "deleted"} title={c.problem || c.id} onClick={() => void run(async () => setSelected(JSON.parse(await getCase(c.id))))}>{c.title || c.id.slice(-8)} ({c.state})</Button>)}
       {selected?.results.map(r => <Button key={r.id} variant="outline" disabled={busy} onClick={() => void run(async () => { await reopenWorkspaceCase(selected.id, r.id); setMessage(ko ? "저장된 스냅샷을 열었습니다." : "Opened saved snapshot."); })}>{r.type} · {r.id.slice(-8)}</Button>)}
+      <details><summary>{ko ? "결과 캐시 관리" : "Result cache"}</summary>
+        <p className="text-xs">{ko ? "필요한 결과는 먼저 저장하거나 내보내세요. 정리하면 어느 화면도 소유하지 않은 캐시 결과만 제거합니다. 저장된 케이스와 원본은 유지됩니다." : "Save or export needed results first. Cleanup removes cached results with no screen owner; saved cases and originals remain."}</p>
+        <Button variant="outline" disabled={busy} onClick={() => void run(async () => { const report = await cleanupEvidenceCache(); setMessage(ko ? `${report.removed}개 정리, 사용 중 ${report.retained_owned}개 보존` : `Removed ${report.removed}; retained ${report.retained_owned} owned results`); })}>{ko ? "미사용 결과 캐시 정리" : "Clean unowned result cache"}</Button>
+      </details>
       {message && <p role="status" className="break-words text-xs">{message}</p>}
     </div>
   </details>;

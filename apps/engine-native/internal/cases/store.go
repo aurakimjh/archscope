@@ -23,6 +23,7 @@ type Store struct {
 	root   *os.Root
 	lock   *os.File
 	closed bool
+	page   *sourceIndex
 }
 type head struct {
 	Revision string `json:"revision"`
@@ -81,7 +82,7 @@ func Open(directory string) (*Store, error) {
 		return fail(e)
 	}
 	if e = lockStore(s.lock); e != nil {
-		return fail(problem("CASE_STORE_BUSY", "case storage is already open by another process"))
+		return fail(problem("CASE_STORE_BUSY", "case storage is already open by another process; close the desktop app before CLI maintenance"))
 	}
 	for _, dir := range []string{"cases", "staging", "indexes"} {
 		if e = root.MkdirAll(dir, 0700); e != nil {
@@ -111,6 +112,7 @@ func (s *Store) Close() error {
 		return nil
 	}
 	s.closed = true
+	s.page = nil
 	return errors.Join(s.lock.Close(), s.root.Close())
 }
 func (s *Store) check() error {
@@ -334,6 +336,7 @@ func (s *Store) commit(m Manifest, objects map[string][]byte) error {
 	return s.commitContext(context.Background(), m, objects)
 }
 func (s *Store) commitContext(ctx context.Context, m Manifest, objects map[string][]byte) error {
+	s.page = nil
 	if e := ctx.Err(); e != nil {
 		return e
 	}
@@ -577,6 +580,7 @@ func (s *Store) CleanupCache() error {
 	if e := s.check(); e != nil {
 		return e
 	}
+	s.page = nil
 	for _, d := range []string{"indexes", "staging"} {
 		if e := s.directory(d); e != nil {
 			return e
@@ -623,6 +627,7 @@ func (s *Store) Purge(caseID, expected, token string) error {
 	if m.State != "deleted" || token != plan(m).Token {
 		return problem("CASE_DELETE_SCOPE_REQUIRED", "logical deletion and current deletion-plan token required")
 	}
+	s.page = nil
 	if e = s.root.RemoveAll(path.Join("cases", caseID)); e != nil {
 		return e
 	}

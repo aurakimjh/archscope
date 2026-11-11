@@ -20,8 +20,9 @@ const maxStoredResults = 1024
 const maxStoredBytes int64 = 512 << 20
 
 type storedRevision struct {
-	hash  string
-	bytes int64
+	hash     string
+	bytes    int64
+	reserved bool
 }
 
 func (s *Service) initStore() error {
@@ -54,7 +55,7 @@ func (s *Service) initStore() error {
 		if closeErr != nil {
 			return closeErr
 		}
-		s.stored[name[:len(name)-5]] = storedRevision{hex.EncodeToString(hash.Sum(nil)), info.Size()}
+		s.stored[name[:len(name)-5]] = storedRevision{hash: hex.EncodeToString(hash.Sum(nil)), bytes: info.Size()}
 		s.storedBytes += info.Size()
 	}
 	return nil
@@ -71,18 +72,18 @@ func (s *Service) publish(ctx context.Context, staged, handle string, body []byt
 	sum := sha256.Sum256(body)
 	hash := hex.EncodeToString(sum[:])
 	for prior, revision := range s.stored {
-		if revision.hash == hash {
+		if !revision.reserved && revision.hash == hash {
 			return prior, nil
 		}
 	}
 	size := int64(len(body))
-	if len(s.stored) >= maxStoredResults || size > maxStoredBytes-s.storedBytes {
-		return "", ingestion.Problem("IMPORT_STORE_FULL", "release unused revisions or export a saved file")
+	if s.ordinaryCountLocked() >= maxStoredResults || size > maxStoredBytes-s.storedBytes {
+		return "", ingestion.Problem("IMPORT_STORE_FULL", "save/export needed results, release their screen leases, then use CleanupEvidenceCache or evidence cleanup-cache")
 	}
-	if e := os.Rename(staged, filepath.Join(s.root, "results", handle+".json")); e != nil {
+	if e := os.Rename(staged, s.resultPathLocked(handle)); e != nil {
 		return "", e
 	}
-	s.stored[handle] = storedRevision{hash, size}
+	s.stored[handle] = storedRevision{hash: hash, bytes: size}
 	s.storedBytes += size
 	return handle, nil
 }
@@ -111,11 +112,13 @@ func (s *Service) Release(handle string) error {
 	if !exists {
 		return ingestion.Problem("IMPORT_RESULT_STALE", "result is no longer available; reopen the saved file")
 	}
-	if e := os.Remove(filepath.Join(s.root, "results", handle+".json")); e != nil && !os.IsNotExist(e) {
+	if e := os.Remove(s.resultPathLocked(handle)); e != nil && !os.IsNotExist(e) {
 		return ingestion.Problem("IMPORT_IO_FAILED", "result release failed")
 	}
 	delete(s.stored, handle)
-	s.storedBytes -= revision.bytes
+	if !revision.reserved {
+		s.storedBytes -= revision.bytes
+	}
 	return nil
 }
 

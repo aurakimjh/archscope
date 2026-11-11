@@ -5,7 +5,10 @@ import (
 	"encoding/json"
 	"path"
 	"path/filepath"
+	"reflect"
+	"sort"
 	"strconv"
+	"unicode/utf8"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/common"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/ingestion"
@@ -327,8 +330,8 @@ func prepareSource(edit Edit) (Source, error) {
 	if name == "" {
 		name = filepath.Base(edit.Path)
 	}
-	if !safeName(name) {
-		return Source{}, problem("CASE_INVALID", "unsafe source name")
+	if !validSourceLabel(name) {
+		return Source{}, problem("CASE_INVALID", "source display name requires 1..1024 UTF-8 bytes without control characters; set name explicitly")
 	}
 	b, e := readLocal(edit.Path, MaxObjectBytes)
 	if e != nil {
@@ -417,6 +420,22 @@ func (s *Store) SaveResult(req SaveResult, body []byte) (Manifest, error) {
 		}
 		pinned[key] = sources[key]
 	}
+	// Repeating the same save does not consume a manifest slot or revision.
+	// Sharing approval and source hashes are part of identity as well.
+	canonicalSources := append([]string{}, req.SourceIDs...)
+	sort.Strings(canonicalSources)
+	for i := 1; i < len(canonicalSources); i++ {
+		if canonicalSources[i] == canonicalSources[i-1] {
+			return m, problem("CASE_INVALID", "duplicate result source reference")
+		}
+	}
+	for _, prior := range m.Results {
+		priorSources := append([]string{}, prior.SourceIDs...)
+		sort.Strings(priorSources)
+		if prior.SHA256 == hash(body) && reflect.DeepEqual(priorSources, canonicalSources) && equalStringMap(prior.SourceHashes, pinned) && prior.CaptureID == req.CaptureID && prior.OptionsHash == req.OptionsHash && equalJSON(prior.Selection, req.Selection) && equalStringMap(prior.Versions, req.Versions) && prior.SharingReviewed == req.SharingReviewed && !prior.Stale {
+			return m, nil
+		}
+	}
 	key, e := id("result")
 	if e != nil {
 		return m, e
@@ -465,4 +484,44 @@ func matchCapture(m Manifest, s Source) error {
 		return problem("CAPTURE_FILE_MISMATCH", "source name not declared in selected capture")
 	}
 	return problem("CAPTURE_INVALID", "selected capture not found")
+}
+
+// Source labels never become filesystem/ZIP paths. Archive entry names and
+// capture file names retain their separate portable path restrictions.
+func validSourceLabel(name string) bool {
+	if name == "" || len(name) > 1024 || !utf8.ValidString(name) {
+		return false
+	}
+	for _, r := range name {
+		if r < 32 || r == 127 {
+			return false
+		}
+	}
+	return true
+}
+func equalJSON(a, b json.RawMessage) bool {
+	var left, right any
+	if len(a) == 0 {
+		a = json.RawMessage("null")
+	}
+	if len(b) == 0 {
+		b = json.RawMessage("null")
+	}
+	if wirejson.Decode(a, &left) != nil || wirejson.Decode(b, &right) != nil {
+		return false
+	}
+	x, _ := json.Marshal(left)
+	y, _ := json.Marshal(right)
+	return string(x) == string(y)
+}
+func equalStringMap(a, b map[string]string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for k, v := range a {
+		if other, ok := b[k]; !ok || other != v {
+			return false
+		}
+	}
+	return true
 }

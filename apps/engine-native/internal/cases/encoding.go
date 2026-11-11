@@ -2,6 +2,7 @@ package cases
 
 import (
 	"bytes"
+	"context"
 	"encoding/binary"
 	"encoding/json"
 	"strconv"
@@ -25,10 +26,12 @@ type Line struct {
 	TextEnd   string `json:"text_end"`
 }
 type Decoded struct {
-	Text         string   `json:"text"`
-	Encoding     Encoding `json:"encoding"`
-	Lines        []Line   `json:"lines"`
-	SourceSHA256 string   `json:"source_sha256"`
+	Text           string   `json:"text"`
+	Encoding       Encoding `json:"encoding"`
+	Lines          []Line   `json:"lines"`
+	SourceSHA256   string   `json:"source_sha256"`
+	TotalLines     string   `json:"total_lines"`
+	IndexTruncated bool     `json:"index_truncated"`
 }
 
 func encodingName(s string) string {
@@ -62,25 +65,38 @@ func bom(b []byte) (string, int) {
 // DecodeText is bounded and keeps original byte coordinates. CP949 extensions
 // are deliberately not relabelled EUC-KR. Ambiguous legacy encodings need choice.
 func DecodeText(raw []byte, opts DecodeOptions) (Decoded, error) {
+	name, basis, skip, e := selectTextEncoding(context.Background(), raw, opts)
+	if e != nil {
+		return Decoded{}, e
+	}
+	result, e := decodeNamed(raw, name, skip, opts.AllowReplacement)
+	if e != nil {
+		return Decoded{}, e
+	}
+	result.Encoding = finishEncoding(raw, name, basis, opts.Encoding != "", result.Encoding.Replacements)
+	result.SourceSHA256 = hash(raw)
+	return result, nil
+}
+func selectTextEncoding(ctx context.Context, raw []byte, opts DecodeOptions) (string, string, int, error) {
 	if len(raw) > MaxObjectBytes {
-		return Decoded{}, problem("CASE_BUDGET_EXCEEDED", "source byte limit")
+		return "", "", 0, problem("CASE_BUDGET_EXCEEDED", "source byte limit")
 	}
 	if len(opts.Sniff) > 2 {
-		return Decoded{}, problem("ENCODING_UNSUPPORTED", "at most two permitted legacy sniff candidates")
+		return "", "", 0, problem("ENCODING_UNSUPPORTED", "at most two permitted legacy sniff candidates")
 	}
 	for _, candidate := range opts.Sniff {
 		n := encodingName(candidate)
 		if n != "cp949" && n != "euc-kr" {
-			return Decoded{}, problem("ENCODING_UNSUPPORTED", "sniff only accepts permitted legacy candidates")
+			return "", "", 0, problem("ENCODING_UNSUPPORTED", "sniff only accepts permitted legacy candidates")
 		}
 	}
 	name, basis := encodingName(opts.Encoding), "explicit"
 	detected, skip := bom(raw)
 	if opts.Encoding != "" && name == "" {
-		return Decoded{}, problem("ENCODING_UNSUPPORTED", "unsupported explicit encoding")
+		return "", "", 0, problem("ENCODING_UNSUPPORTED", "unsupported explicit encoding")
 	}
 	if name != "" && detected != "" && name != detected {
-		return Decoded{}, problem("ENCODING_BOM_CONFLICT", "explicit encoding conflicts with BOM")
+		return "", "", 0, problem("ENCODING_BOM_CONFLICT", "explicit encoding conflicts with BOM")
 	}
 	if name == "" {
 		if detected != "" {
@@ -92,14 +108,14 @@ func DecodeText(raw []byte, opts DecodeOptions) (Decoded, error) {
 			for _, v := range opts.Sniff {
 				n := encodingName(v)
 				if n != "cp949" && n != "euc-kr" {
-					return Decoded{}, problem("ENCODING_UNSUPPORTED", "sniff only accepts permitted legacy candidates")
+					return "", "", 0, problem("ENCODING_UNSUPPORTED", "sniff only accepts permitted legacy candidates")
 				}
-				if _, e := decodeNamed(raw, n, 0, false); e == nil {
+				if _, _, _, e := scanNamed(ctx, raw, n, 0, false, nil); e == nil {
 					candidates[n] = true
 				}
 			}
 			if len(candidates) != 1 {
-				return Decoded{}, problem("ENCODING_SELECTION_REQUIRED", "legacy encoding is unknown or ambiguous; select explicitly")
+				return "", "", 0, problem("ENCODING_SELECTION_REQUIRED", "legacy encoding is unknown or ambiguous; select explicitly")
 			}
 			for n := range candidates {
 				name = n
@@ -107,71 +123,89 @@ func DecodeText(raw []byte, opts DecodeOptions) (Decoded, error) {
 			basis = "permitted-sniff"
 		}
 	}
-	result, e := decodeNamed(raw, name, skip, opts.AllowReplacement)
+
+	return name, basis, skip, nil
+}
+func finishEncoding(raw []byte, name, basis string, override bool, replacements string) Encoding {
+	digest := hash(raw)
+	index, _ := json.Marshal(struct{ Digest, Encoding, Replacements, DecoderRevision string }{digest, name, replacements, "text-index-v1"})
+	return Encoding{Name: name, Basis: basis, Override: override, Replacements: replacements, IndexRevision: hash(index)}
+}
+
+const MaxIndexedLines = 1_000_000
+
+func decodeNamed(raw []byte, name string, skip int, allow bool) (Decoded, error) {
+	result := Decoded{Encoding: Encoding{Name: name}, Lines: []Line{}}
+	text, replaced, total, e := scanNamed(context.Background(), raw, name, skip, allow, func(number, startRaw, endRaw, startText, endText int) {
+		if len(result.Lines) < MaxIndexedLines {
+			result.Lines = append(result.Lines, Line{strconv.Itoa(number), strconv.Itoa(startRaw), strconv.Itoa(endRaw), strconv.Itoa(startText), strconv.Itoa(endText)})
+		} else {
+			result.IndexTruncated = true
+		}
+	})
 	if e != nil {
 		return Decoded{}, e
 	}
-	result.Encoding.Basis = basis
-	result.Encoding.Override = opts.Encoding != ""
-	result.SourceSHA256 = hash(raw)
-	index, _ := json.Marshal(struct{ Digest, Encoding, Replacements, DecoderRevision string }{result.SourceSHA256, name, result.Encoding.Replacements, "text-index-v1"})
-	result.Encoding.IndexRevision = hash(index)
+	result.Text = text
+	result.Encoding.Replacements = strconv.FormatUint(replaced, 10)
+	result.TotalLines = strconv.Itoa(total)
 	return result, nil
 }
-func decodeNamed(raw []byte, name string, skip int, allow bool) (Decoded, error) {
-	result := Decoded{Encoding: Encoding{Name: name}, Lines: []Line{}}
+func scanNamed(ctx context.Context, raw []byte, name string, skip int, allow bool, line func(int, int, int, int, int)) (string, uint64, int, error) {
 	var out strings.Builder
-	startRaw, startText := skip, 0
+	out.Grow(len(raw))
+	startRaw, startText, total := skip, 0, 0
 	replaced := uint64(0)
 	lastCR := false
-	flush := func(end int) error {
-		if len(result.Lines) >= 1_000_000 {
-			return problem("CASE_BUDGET_EXCEEDED", "source line index limit")
+	steps := 0
+	flush := func(end int) {
+		total++
+		if line != nil {
+			line(total, startRaw, end, startText, out.Len())
 		}
-		result.Lines = append(result.Lines, Line{strconv.Itoa(len(result.Lines) + 1), strconv.Itoa(startRaw), strconv.Itoa(end), strconv.Itoa(startText), strconv.Itoa(out.Len())})
 		startRaw = end
 		startText = out.Len()
-		return nil
 	}
 	for pos := skip; pos < len(raw); {
+		steps++
+		if steps&4095 == 0 {
+			if e := ctx.Err(); e != nil {
+				return "", 0, 0, e
+			}
+		}
 		r, n, bad := runeAt(raw[pos:], name)
 		if n < 1 {
-			return Decoded{}, problem("ENCODING_INVALID", "decoder made no progress")
+			return "", 0, 0, problem("ENCODING_INVALID", "decoder made no progress")
 		}
 		if bad {
 			if !allow {
-				return Decoded{}, problem("ENCODING_INVALID", "invalid bytes for selected encoding")
+				return "", 0, 0, problem("ENCODING_INVALID", "invalid bytes for selected encoding")
 			}
 			replaced++
 		}
 		if lastCR && r != '\n' {
-			if e := flush(pos); e != nil {
-				return Decoded{}, e
-			}
+			flush(pos)
 			lastCR = false
 		}
 		out.WriteRune(r)
 		pos += n
 		if out.Len() > MaxObjectBytes {
-			return Decoded{}, problem("CASE_BUDGET_EXCEEDED", "decoded UTF-8 byte limit")
+			return "", 0, 0, problem("CASE_BUDGET_EXCEEDED", "decoded UTF-8 byte limit")
 		}
 		if r == '\n' {
-			if e := flush(pos); e != nil {
-				return Decoded{}, e
-			}
+			flush(pos)
 			lastCR = false
 		} else {
 			lastCR = r == '\r'
 		}
 	}
 	if startRaw < len(raw) {
-		if e := flush(len(raw)); e != nil {
-			return Decoded{}, e
-		}
+		flush(len(raw))
 	}
-	result.Text = out.String()
-	result.Encoding.Replacements = strconv.FormatUint(replaced, 10)
-	return result, nil
+	if e := ctx.Err(); e != nil {
+		return "", 0, 0, e
+	}
+	return out.String(), replaced, total, nil
 }
 func runeAt(b []byte, name string) (rune, int, bool) {
 	switch name {
@@ -229,14 +263,19 @@ type SourceLine struct {
 	Truncated bool   `json:"truncated"`
 }
 type TextPage struct {
-	Encoding     Encoding     `json:"encoding"`
-	SourceSHA256 string       `json:"source_sha256"`
-	Lines        []SourceLine `json:"lines"`
-	TotalLines   string       `json:"total_lines"`
+	Encoding       Encoding     `json:"encoding"`
+	SourceSHA256   string       `json:"source_sha256"`
+	Lines          []SourceLine `json:"lines"`
+	TotalLines     string       `json:"total_lines"`
+	IndexedLines   string       `json:"indexed_lines"`
+	IndexTruncated bool         `json:"index_truncated"`
 }
 
 func SourcePage(d Decoded, start, count int) (TextPage, error) {
-	p := TextPage{Encoding: d.Encoding, SourceSHA256: d.SourceSHA256, Lines: []SourceLine{}, TotalLines: strconv.Itoa(len(d.Lines))}
+	p := TextPage{Encoding: d.Encoding, SourceSHA256: d.SourceSHA256, Lines: []SourceLine{}, TotalLines: strconv.Itoa(len(d.Lines)), IndexedLines: strconv.Itoa(len(d.Lines)), IndexTruncated: d.IndexTruncated}
+	if d.TotalLines != "" {
+		p.TotalLines = d.TotalLines
+	}
 	if start < 0 || count < 1 || count > 200 {
 		return p, problem("CASE_PAGE_INVALID", "source page requires start >=0 and count 1..200")
 	}
@@ -268,7 +307,7 @@ func SourcePage(d Decoded, start, count int) (TextPage, error) {
 			text = text[:at]
 			truncated = true
 		}
-		p.Lines = append(p.Lines, SourceLine{line, text, truncated})
+		p.Lines = append(p.Lines, SourceLine{line, strings.Clone(text), truncated})
 		budget -= len(text)
 		if budget == 0 {
 			break
