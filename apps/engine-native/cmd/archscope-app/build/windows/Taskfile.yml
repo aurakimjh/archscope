@@ -15,6 +15,14 @@ vars:
   CROSS_IMAGE: wails-cross
 
 tasks:
+  test:
+    summary: Runs native Windows tests with the guarded Wails x86 fixes
+    platforms: [windows]
+    cmds:
+      - node build/windows/test.mjs {{.CLI_ARGS}}
+    env:
+      GOARCH: '{{.ARCH | default ARCH}}'
+
   build:
     summary: Builds the application for Windows
     cmds:
