@@ -462,3 +462,16 @@ and [wire conformance](./DATA_MODEL.md#t-628-wire-implementation-and-conformance
 for paths, resource limits and compatibility. A sealed result JSON revision rename
 is this stage's atomic marker; separate case manifests/cache lifecycle remain T-630.
 Tests are not independent review PASS. T-629 onward and undecided Q01–Q04 remain separate.
+
+### T-628 review gate and remaining lifecycle boundary
+
+The independent implementation review is CONDITIONAL. R-01–R-14 remediation is
+recorded in work_status.md and the paired parser/data-model contracts; local test
+success does not close REVIEW. T-629 can start once R-01 is corrected and the deep-profile regressions pass,
+as permitted by the original review; independent T-628 closure remains separate. T-630 may proceed with case lifecycle work; bounded backend
+retention/deduplication/explicit release and store locking are only its foundation.
+Durable references, ownership before release, migration/recovery, deletion/restore
+and indexes remain mandatory. T-631 needs load cancellation and generic UI fallback;
+T-632 retains offline distribution acceptance. Full ProfileSet and measurement
+corrections remain T-629/T-634. Q01–Q04 remain DECISION_PENDING. Actual native
+WebView flows, Windows execution and hosted CI are separate from local checks.

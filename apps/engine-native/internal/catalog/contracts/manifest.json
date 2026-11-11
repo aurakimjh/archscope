@@ -1,6 +1,6 @@
 {
   "id": "diagnostics.ingestion.foundation.v1",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "synthetic": true,
   "description": "진단 입력 기반의 스냅샷·수치·opaque metadata 검증용 합성 자료. 실제 제품 버전 지원 근거가 아님.",
   "files": {
@@ -12,5 +12,5 @@
     "server_errors": 1,
     "server_warnings": 1
   },
-  "measurement_schema_sha256": "eee75934f134c482838dab8f1870f899589af0c9bcd85a0f2f75cede7eafb69d"
+  "measurement_schema_sha256": "e891e91791577ff6bd901fd801b73925405472671b9152180db2b81ca373762c"
 }

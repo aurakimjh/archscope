@@ -1821,7 +1821,7 @@ Trace 의존 호출(T-616)은 명시적인 CLIENT/SERVER 직접 부모 관계를
 
 wirejson은 중복 key·비정상 JSON·깊이/문자열/배열/객체/byte 예산을 검사한 뒤
 UseNumber로 임시 객체에 decode하며 성공할 때만 receiver를 교체한다.
-JSON 기본 상한은 64 MiB, 깊이 64, 문자열 4 MiB, 배열 항목 1,000,000개,
+opaque metadata/options/record JSON 기본 상한은 64 MiB, 깊이 64, 문자열 4 MiB, 배열 항목 1,000,000개,
 객체 key 100,000개다. common Extra의 기존 consumer에는 JS 안전 범위에서
 정확히 표현 가능한 숫자만 float64로 projection한다. 나머지는 json.Number이며
 Float64Exact는 손실을 거부한다. 산술 accessor는 숫자 문자열 1,024바이트와 exponent 절댓값 4,096을 넘으면 계산을 거부하며, unknown JSON 데이터의 원문 보존과 구분한다. profiler Extra는 RawMessage로 유지하고 typed key와
@@ -1831,7 +1831,8 @@ omitempty의 생략이 항상 우선한다. 알려진 큰 정수는 exact_intege
 resultcontract는 type별 payload/envelope range, operation, required extension과
 측정 schema를 검증한다. target·column·kind·unit·aggregation·encoding·nullable·참조를
 대조한다. population/evidence ID는 같은 결과에서 해석하며 URL/파일을 열지 않는다.
-서로 다른 리비전의 비교에는 일치하는 명시적 population reference가 필요하다.
+서로 다른 리비전의 비교에는 local reference가 해석하는 명시적 population identity가
+일치해야 한다(아래 R-04 참조).
 정확한 scalar diff는 rational string으로 반환하고 baseline=0의 변화율은 null,
 unavailable/absent의 delta는 null이다. 기존 float 기반 report-diff는 신규 measurement
 결과를 거부하고 backend exact comparison을 안내한다. 기존 결과 흐름은 유지한다.
@@ -1864,3 +1865,46 @@ custom Metadata marshaler는 Wails 3.1 generator에서 opaque type이 된다. �
 Go 메서드 통합과 JSON 문자열 transport 모사·프런트엔드 실행은 실제 네이티브 IPC/UI
 실행 증거와 다르다. 실행 결과와 미실행 범위는
 [로컬 검증 기록](../review/evidence/2026-11-11-t628/local.json)에 구분한다.
+
+### 리뷰 후 측정·wire 계약 보완 (2026-11-11)
+
+R-01~R-14 후속 수정에서는 전체 결과와 opaque JSON 예산을 분리한다. 구체적인
+상한은 PARSER_DESIGN을 따른다. W05의 깊이 64 거절은 metadata/options/record에
+적용하며 일반적인 중첩 flame tree에 일괄 적용하지 않는다.
+
+**R-04:** population_ref는 결과 내부 label이며 그 자체로 결과 간 계산의 식별자가
+아니다. `metadata.populations[ref]`에서 `source_sha256`(정렬된 고유 집합),
+`selection_hash`(options-v1 정규화 hash), `semantic_revision`, 명시적 `coverage`를
+확인한다. 비교에는 모든 항목이 일치해야 한다. 식별자 누락·오류나 출처·선택·
+의미·범위 차이는 거절한다. pilot analyzer의 신뢰된 BindSelection hook은 서비스가
+확정한 레코드 수와 partial 범위를 받은 뒤 이를 구성한다. orchestration은 다른
+analyzer의 population 정의를 덮어쓰지 않는다. 같은 모집단을 다시 가져와도 job/
+source ID와 created_at은 다를 수 있으며 캡처 provenance를 병합하지 않는다.
+options-v1은 보수적이므로 기본값 생략과 명시가 다른 hash일 수 있다. 모집단
+기술이 없는 기존 결과는 동일 revision 자체 비교만 유지하고 label만으로 결과 간
+비교를 허용하지 않는다. 확장된 capture/entity/time 정책은 T-630/T-635 범위다.
+
+**R-06/R-11:** measurement 버전 정책은 result descriptor의 허용 범위를 단일
+기준으로 삼는다(pilot: [1.0.0, 1.1.0)). 1.0.1은 허용하고 1.1.0/2.0.0은 거절한다.
+미지의 선택 필드는 원 metadata에 보존하고 typed projection은 해석하지 않으며
+필수 기능·operation을 부여하지 않는다. 공유·번들 descriptor schema 1.0.1은
+scalar/column/collection 및 availability_column/reason_column을 포함한다.
+collection에서 비어 있는 scalar 전용 Go 필드는 생략하며 유효한 scalar의 값이
+있는 wire 필드는 유지한다. JSON Schema는 구조를, 등록된 result validator는
+경로·단위·종류·참조·encoding·nullability·행 의미를 검증한다. schema 문서 버전과
+결과의 measurement extension 버전은 별개다. fixture manifest 1.0.1에 수정된
+schema digest를 고정한다.
+
+**R-12:** CSV/HTML projection은 scalar와 컬렉션 행·컬럼의 availability를
+전달한다(path, row, column, availability, reason, unit, population, numeric encoding).
+HTML은 unavailable null을 ‘—’, CSV는 빈 셀로 표현하며 관측된 0은 유지한다.
+기존 series.measurement_availability가 있으면 명시적인 export 충돌 오류를
+반환하고 원 series를 덮어쓰지 않는다. 저장된 원본 JSON도 변경하지 않는다.
+
+**R-14:** Go의 custom marshal 보존을 위해 생성된 profiler Metadata는 opaque로
+유지한다. 수동 ProfilerMetadata/ProfilerAnalysisResult/ProfilerDrilldownStage facade와
+실행 시 검증으로 profiler/diff/drilldown 화면이 읽는 필드를 확인한다. 미지 필드는
+any 대신 unknown이며 알려진 필드의 타입·구조 오류는 렌더링 전에 거절한다.
+Go의 null 진단 배열은 null로 유지한다. binding을 재생성하고 frontend의 타입 오류
+검증 및 실행 시 구조 검증을 W01~W10에 보탠다. 실제 WebView IPC/UI 실행과
+독립 재리뷰는 별도 검증이다.

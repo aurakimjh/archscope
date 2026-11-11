@@ -1,53 +1,227 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:diagnostics:measurement-descriptor:1.0.0",
-  "title": "측정 스칼라 descriptor",
-  "type": "object",
-  "required": [
-    "measurement_kind",
-    "unit",
-    "scope",
-    "aggregation",
-    "numeric_encoding",
-    "availability"
-  ],
-  "properties": {
-    "measurement_kind": {
-      "type": "string"
+  "$id": "urn:diagnostics:measurement-descriptor:1.0.1",
+  "title": "측정 스칼라·컬럼·컬렉션 descriptor",
+  "description": "알려진 필드는 검증하고 미지의 선택 필드는 보존한다. 단위·대상 경로·참조·버전 호환은 결과 registry가 검증한다.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/scalar"
     },
-    "unit": {
-      "type": "string"
-    },
-    "scope": {
-      "type": "string"
-    },
-    "aggregation": {
-      "type": "string"
-    },
-    "reason": {
-      "type": "string"
-    },
-    "evidence_ref": {
-      "type": "string"
-    },
-    "population_ref": {
-      "type": "string"
-    },
-    "numeric_encoding": {
-      "enum": [
-        "json_number",
-        "exact_integer_string",
-        "decimal_string"
-      ]
-    },
-    "availability": {
-      "enum": [
-        "observed",
-        "derived",
-        "estimated",
-        "unavailable"
-      ]
+    {
+      "$ref": "#/$defs/collection"
     }
-  },
-  "additionalProperties": false
+  ],
+  "$defs": {
+    "scalar": {
+      "type": "object",
+      "required": [
+        "measurement_kind",
+        "unit",
+        "scope",
+        "aggregation",
+        "numeric_encoding",
+        "availability"
+      ],
+      "properties": {
+        "measurement_kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scope": {
+          "type": "string",
+          "minLength": 1
+        },
+        "aggregation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidence_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "population_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "numeric_encoding": {
+          "enum": [
+            "json_number",
+            "exact_integer_string",
+            "decimal_string"
+          ]
+        },
+        "availability": {
+          "enum": [
+            "observed",
+            "derived",
+            "estimated",
+            "unavailable"
+          ]
+        }
+      },
+      "not": {
+        "anyOf": [
+          {
+            "required": [
+              "columns"
+            ]
+          },
+          {
+            "required": [
+              "availability_column"
+            ]
+          },
+          {
+            "required": [
+              "reason_column"
+            ]
+          }
+        ]
+      },
+      "additionalProperties": true
+    },
+    "column": {
+      "type": "object",
+      "required": [
+        "measurement_kind",
+        "unit",
+        "scope",
+        "aggregation",
+        "numeric_encoding",
+        "availability"
+      ],
+      "properties": {
+        "measurement_kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scope": {
+          "type": "string",
+          "minLength": 1
+        },
+        "aggregation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidence_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "population_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "numeric_encoding": {
+          "enum": [
+            "json_number",
+            "exact_integer_string",
+            "decimal_string"
+          ]
+        },
+        "availability": {
+          "enum": [
+            "observed",
+            "derived",
+            "estimated",
+            "unavailable"
+          ]
+        },
+        "availability_column": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reason_column": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "not": {
+        "required": [
+          "columns"
+        ]
+      },
+      "additionalProperties": true
+    },
+    "collection": {
+      "type": "object",
+      "required": [
+        "columns"
+      ],
+      "properties": {
+        "columns": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "#/$defs/column"
+          }
+        }
+      },
+      "not": {
+        "anyOf": [
+          {
+            "required": [
+              "measurement_kind"
+            ]
+          },
+          {
+            "required": [
+              "unit"
+            ]
+          },
+          {
+            "required": [
+              "scope"
+            ]
+          },
+          {
+            "required": [
+              "aggregation"
+            ]
+          },
+          {
+            "required": [
+              "reason"
+            ]
+          },
+          {
+            "required": [
+              "evidence_ref"
+            ]
+          },
+          {
+            "required": [
+              "population_ref"
+            ]
+          },
+          {
+            "required": [
+              "numeric_encoding"
+            ]
+          },
+          {
+            "required": [
+              "availability"
+            ]
+          }
+        ]
+      },
+      "additionalProperties": true
+    }
+  }
 }

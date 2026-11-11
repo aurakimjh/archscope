@@ -22,7 +22,9 @@ import {
   ProfilerService,
   DiffRequest,
 } from "../../bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app";
-import type { AnalysisResult } from "../../bindings/github.com/aurakimjh/archscope/apps/engine-native/internal/profiler/models";
+import type { ProfilerAnalysisResult as AnalysisResult } from "../bridge/profilerTypes";
+import type { ProfilerDiffRow } from "../bridge/types";
+import { checkedProfilerResult } from "../bridge/profilerContract";
 import type { FlameNode } from "../../bindings/github.com/aurakimjh/archscope/apps/engine-native/internal/profiler/models";
 
 import { useI18n } from "../i18n/I18nProvider";
@@ -102,7 +104,7 @@ export function DiffPage() {
         normalize,
       });
       const res = await ProfilerService.Diff(request);
-      setResult(res);
+      setResult(checkedProfilerResult(res));
     } catch (err: any) {
       setError(String(err?.message ?? err));
       setResult(null);
@@ -111,12 +113,10 @@ export function DiffPage() {
     }
   };
 
-  const summary = result?.metadata?.diff_summary as
-    | { [key: string]: any }
-    | undefined;
-  const tables = result?.metadata?.diff_tables as { [key: string]: any } | undefined;
-  const increases = (tables?.biggest_increases ?? []) as Array<Record<string, any>>;
-  const decreases = (tables?.biggest_decreases ?? []) as Array<Record<string, any>>;
+  const summary = result?.metadata.diff_summary;
+  const tables = result?.metadata.diff_tables;
+  const increases = tables?.biggest_increases ?? [];
+  const decreases = tables?.biggest_decreases ?? [];
 
   return (
     <main className="content analysis-tool">
@@ -259,7 +259,7 @@ function DiffFileRow({
   );
 }
 
-function DiffRowsTable({ rows }: { rows: Array<Record<string, any>> }) {
+function DiffRowsTable({ rows }: { rows: ProfilerDiffRow[] }) {
   return (
     <table className="data-table diff-table">
       <thead>

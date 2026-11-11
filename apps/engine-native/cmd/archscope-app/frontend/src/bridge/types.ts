@@ -735,6 +735,8 @@ export type DiagnosticSample = {
 };
 
 export type ParserDiagnostics = {
+  dropped_stacks?: number; dropped_stack_reason?: string;
+  over_depth_records?: number; max_observed_depth?: number; bytes_read?: number;
   source_file?: string | null;
   format?: string | null;
   total_lines: number;
@@ -2054,4 +2056,31 @@ export type BridgeError = {
   code: string;
   message: string;
   detail?: string;
+};
+
+// Custom Go metadata marshaling is opaque to generated bindings. Keep this
+// checked facade independent of the generator's Metadata=any alias.
+export type ProfilerDiffRow = { stack: string; delta: number; delta_ratio: number };
+export type ProfilerDiffSummary = {
+  baseline_total: number; target_total: number; common_paths: number;
+  added_paths: number; removed_paths: number;
+  max_increase?: ProfilerDiffRow | null; max_decrease?: ProfilerDiffRow | null;
+};
+export type ProfilerDiagnostics = Omit<ParserDiagnostics, "samples" | "warnings" | "errors" | "skipped_by_reason"> & {
+  samples: DiagnosticSample[] | null; warnings?: DiagnosticSample[] | null;
+  errors?: DiagnosticSample[] | null; skipped_by_reason: Record<string, number> | null;
+};
+export type ProfilerMetadata = {
+  parser: string;
+  schema_version: string;
+  diagnostics: ProfilerDiagnostics | null;
+  timeline_scope: {
+    mode: string; base_method: string | null; match_mode: string; view_mode: string;
+    base_samples: number; total_samples: number; base_ratio_of_total: number | null;
+    warnings: { code: string; message: string }[] | null;
+  };
+  progress_log_path?: string;
+  diff_summary?: ProfilerDiffSummary;
+  diff_tables?: { biggest_increases: ProfilerDiffRow[]; biggest_decreases: ProfilerDiffRow[] };
+  [key: string]: unknown;
 };

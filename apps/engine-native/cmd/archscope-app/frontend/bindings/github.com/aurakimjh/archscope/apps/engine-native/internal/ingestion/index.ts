@@ -5,6 +5,7 @@ export {
     Budgets,
     Candidate,
     DetectionSet,
+    DetectorProblem,
     EvidenceGrade,
     ImporterDescriptor,
     SchemaRef,

@@ -35,8 +35,9 @@ import {
   AnalyzeRequest,
   ExportPprofRequest,
 } from "../../bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app";
+import type { ProfilerAnalysisResult as AnalysisResult } from "../bridge/profilerTypes";
+import { checkedProfilerResult } from "../bridge/profilerContract";
 import type {
-  AnalysisResult,
   FlameNode,
 } from "../../bindings/github.com/aurakimjh/archscope/apps/engine-native/internal/profiler/models";
 
@@ -661,13 +662,17 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
       if (!data || taskEvents.current.defer(data.taskId,activeTaskRef.current,()=>done(event)) || data.taskId !== activeTaskRef.current) return;
       taskEvents.current.cancel();
       activeTaskRef.current = null;
-      setResult(data.result);
+      let checked: AnalysisResult;
+      try { checked=checkedProfilerResult<AnalysisResult>(data.result); } catch (error) {
+        setError(String(error)); setResult(null); setAnalyzing(false); return;
+      }
+      setResult(checked);
       addWorkspaceResult({
-        result: data.result as unknown as WorkspaceAnalysisResult,
-        title: `profiler: ${selected?.originalName ?? data.result?.source_files?.[0] ?? ""}`,
+        result: checked as unknown as WorkspaceAnalysisResult,
+        title: `profiler: ${selected?.originalName ?? checked.source_files[0] ?? ""}`,
         sourceLabel: selected?.originalName,
       });
-      setActiveTab(adaptFlameNode(data.result?.charts?.flamegraph) ? "flame" : "summary");
+      setActiveTab(adaptFlameNode(checked.charts.flamegraph) ? "flame" : "summary");
       setAnalyzing(false);
       if (path) {
         recent.push({

@@ -1676,7 +1676,8 @@ events; JSON retains the same metadata.
 
 wirejson rejects duplicate keys, malformed/nonfinite JSON and byte/depth/string/
 array/object budgets, decodes with UseNumber into a temporary value, then replaces
-receivers only on success. Defaults are 64 MiB, depth 64, string 4 MiB, 1,000,000
+receivers only on success. Opaque metadata/options/record defaults are 64 MiB,
+depth 64, string 4 MiB, 1,000,000
 array items and 100,000 object keys. Common Extra projects only exactly representable
 JS-safe numbers for legacy consumers; others stay json.Number. Float64Exact rejects
 loss. Arithmetic accessors bound numeric text to 1,024 bytes and absolute exponent to 4,096; opaque JSON preservation is separate. Profiler Extra retains RawMessage, with typed/omitempty precedence. Known
@@ -1687,7 +1688,7 @@ resultcontract validates type-specific payload/envelope ranges, operations,
 required extensions and measurement schemas: target/column/kind/unit/aggregation/
 encoding/nullability/references. Evidence/population IDs resolve within the result;
 no URL/file is opened. Cross-revision comparison requires an explicit matching
-population reference. Exact scalar deltas are rational strings; zero-baseline
+population identity resolved from its local reference (see R-04 below). Exact scalar deltas are rational strings; zero-baseline
 percentages and unavailable/absent deltas are null. Legacy float report-diff refuses
 new measurement results and directs callers to backend exact comparison. Existing
 legacy flows remain intact.
@@ -1721,3 +1722,50 @@ panel uses the existing equivalent manual bridge diagnostic type; wire keys rema
 unchanged. Direct Go-method integration, string-transport simulation and frontend
 execution are distinct from actual native IPC/UI execution. See the scoped
 [local verification record](../review/evidence/2026-11-11-t628/local.json).
+
+### Review corrections to measurement and wire contracts (2026-11-11)
+
+The R-01–R-14 remediation uses separate complete-result and opaque JSON budgets;
+see PARSER_DESIGN for exact ceilings. W05's depth-64 refusal applies to metadata,
+options and records, not to ordinary nested flame trees.
+
+**R-04:** A population_ref is a result-local label, never sufficient identity for
+cross-result arithmetic. `metadata.populations[ref]` resolves to `source_sha256`
+(a sorted unique set), `selection_hash` (options-v1 canonical hash),
+`semantic_revision` and explicit `coverage`. All fields must match for comparison.
+Missing/invalid identity or differing source/selection/semantic/coverage is refused.
+The pilot analyzer's trusted BindSelection hook attaches this identity after the
+service knows committed record count and partial coverage. The orchestration does
+not overwrite other analyzers' population definitions. Job/source IDs and created_at
+may differ between imports of the same population; their capture provenance is
+never merged. Options-v1 is conservative: omitted defaults and explicit defaults
+may have distinct hashes. Legacy snapshots without population descriptors retain
+only identical-revision self comparison; labels alone grant no cross-result compare.
+Broader capture/entity/time population policy remains T-630/T-635.
+
+**R-06/R-11:** The result descriptor's measurement range is the single version
+policy (the pilot supports [1.0.0, 1.1.0)). Patch 1.0.1 is accepted; 1.1.0/2.0.0
+are refused. Unknown optional fields remain in the original metadata block and
+are ignored by typed projections; they grant no required feature or operation.
+The shared/bundled descriptor schema 1.0.1 covers scalar, column and collection
+variants, including availability_column/reason_column. Empty scalar-only Go fields
+are omitted for a collection; valid nonempty scalar wire fields are unchanged.
+Schema execution checks structural variants; registered result validators continue
+to enforce paths, units, kinds, references, encoding, nullability and row semantics.
+The JSON Schema document version and a result's measurement extension version are
+separate contracts. Fixture manifest 1.0.1 pins the corrected schema digest.
+
+**R-12:** CSV/HTML presentation emits availability for scalar and per-row collection
+columns (path, row, column, availability, reason, unit, population, numeric encoding).
+HTML shows an unavailable null as an em dash, CSV keeps an empty cell, and observed
+zero stays zero. Existing series.measurement_availability causes an explicit export
+collision error; no source series is overwritten. Stored source JSON is unchanged.
+
+**R-14:** Generated profiler Metadata remains opaque as required by custom Go
+marshaling. Manual ProfilerMetadata/ProfilerAnalysisResult/ProfilerDrilldownStage
+facades and runtime checks cover the fields consumed by the profiler, diff and
+drilldown screens. Unknown keys are unknown rather than any; known type/shape
+errors are refused before rendering. Null Go diagnostic arrays remain null.
+Bindings are regenerated, and frontend compile-time negative and runtime shape
+regressions supplement the original W01–W10 checks. These checks are distinct from
+actual WebView IPC/UI execution and independent re-review.

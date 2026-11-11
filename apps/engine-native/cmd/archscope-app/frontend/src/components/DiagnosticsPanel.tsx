@@ -19,12 +19,12 @@ import { useState } from "react";
 
 // Custom metadata JSON is opaque to the Wails generator; the stable diagnostic
 // wire fields remain shared with the existing bridge contract.
-import type { ParserDiagnostics, DiagnosticSample } from "../bridge/types";
+import type { ParserDiagnostics, ProfilerDiagnostics, DiagnosticSample } from "../bridge/types";
 import { ProfilerService, AnalyzeRequest } from "../../bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app";
 import { useI18n } from "../i18n/I18nProvider";
 
 export type DiagnosticsPanelProps = {
-  diagnostics?: ParserDiagnostics | null;
+  diagnostics?: ParserDiagnostics | ProfilerDiagnostics | null;
   baseRequest?: AnalyzeRequest | null;
 };
 
@@ -85,7 +85,7 @@ export function DiagnosticsPanel({ diagnostics, baseRequest }: DiagnosticsPanelP
         <Metric label={t("warnings")} value={(diagnostics.warning_count ?? 0).toLocaleString()} />
         <Metric label={t("errors")} value={(diagnostics.error_count ?? 0).toLocaleString()} />
         {(() => {
-          const d = diagnostics as any;
+          const d = diagnostics;
           const cards: React.JSX.Element[] = [];
           if (d.bytes_read) {
             cards.push(<Metric key="bytes" label="Bytes read" value={Number(d.bytes_read).toLocaleString()} />);
@@ -103,7 +103,7 @@ export function DiagnosticsPanel({ diagnostics, baseRequest }: DiagnosticsPanelP
         })()}
       </div>
       {(() => {
-        const d = diagnostics as any;
+        const d = diagnostics;
         if (!d.dropped_stack_reason) return null;
         return (
           <p className="diagnostics-notice warn" style={{ marginTop: 8, padding: 8, borderRadius: 6 }}>

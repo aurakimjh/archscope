@@ -1193,3 +1193,16 @@ wire 적합성은 [모델 구현 기록](./DATA_MODEL.md#t-628-wire-구현과-�
 별도 case manifest 대신 sealed 결과 JSON 리비전의 rename을 이번 단계의 atomic marker로
 사용하며 별도 manifest/cache 수명은 T-630에 남긴다. 테스트는 독립 리뷰 PASS가 아니다.
 T-629 이후 전체 이행과 Q01–Q04 미정 항목은 이 완료에 포함하지 않는다.
+
+### T-628 리뷰 게이트와 수명주기 책임 경계
+
+독립 구현 리뷰 판정은 CONDITIONAL이다. R-01~R-14 후속 처리는 work_status.md와
+한·영 parser/data-model 계약에 기록하며 로컬 테스트 통과로 REVIEW를 종료하지
+않는다. 원 리뷰가 허용한 대로 R-01 수정과 깊은 프로파일 회귀 검증 후 T-629에 착수할 수
+있으며 T-628의 독립 종결 판정은 별개다. T-630의 case
+수명주기 구현은 착수할 수 있으나 backend의 제한된 보존·중복 제거·명시 해제와
+저장소 잠금은 그 공통 기반일 뿐이다. 영속 참조, 해제 전 소유권, 이전·복구,
+삭제·복원 및 index가 필수로 남는다. T-631에는 Load 취소와 generic fallback UI,
+T-632에는 오프라인 배포 인수가 남는다. 전체 ProfileSet과 측정 수치 정정은
+T-629/T-634이며 Q01~Q04는 DECISION_PENDING을 유지한다. 실제 네이티브 WebView
+흐름, Windows 실행과 원격 CI는 로컬 검사와 별개다.

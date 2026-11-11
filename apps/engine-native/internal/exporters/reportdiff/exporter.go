@@ -181,20 +181,22 @@ func Write(path string, before, after any) error {
 // The returned `source_files` list contains the two input paths
 // verbatim, matching the Python output.
 func BuildComparisonReport(beforePath, afterPath, label string) (map[string]any, error) {
-	beforeBody, err := os.ReadFile(beforePath)
-	if err != nil {
-		return nil, fmt.Errorf("read %s: %w", beforePath, err)
+	read := func(path string) (map[string]any, error) {
+		f, e := os.Open(path)
+		if e != nil {
+			return nil, e
+		}
+		defer f.Close()
+		var out map[string]any
+		e = wirejson.Read(f, &out, wirejson.LegacyResultLimits())
+		return out, e
 	}
-	afterBody, err := os.ReadFile(afterPath)
+	beforeMap, err := read(beforePath)
 	if err != nil {
-		return nil, fmt.Errorf("read %s: %w", afterPath, err)
-	}
-	var beforeMap map[string]any
-	if err := wirejson.Decode(beforeBody, &beforeMap); err != nil {
 		return nil, fmt.Errorf("decode %s: %w", beforePath, err)
 	}
-	var afterMap map[string]any
-	if err := wirejson.Decode(afterBody, &afterMap); err != nil {
+	afterMap, err := read(afterPath)
+	if err != nil {
 		return nil, fmt.Errorf("decode %s: %w", afterPath, err)
 	}
 	if e := measurementCompatibility(beforeMap, afterMap); e != nil {
@@ -400,7 +402,7 @@ func toMap(v any) (map[string]any, error) {
 		return nil, fmt.Errorf("marshal: %w", err)
 	}
 	var out map[string]any
-	if err := wirejson.Decode(body, &out); err != nil {
+	if err := wirejson.DecodeWithLimits(body, &out, wirejson.LegacyResultLimits()); err != nil {
 		return nil, fmt.Errorf("unmarshal: %w", err)
 	}
 	if out == nil {

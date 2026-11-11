@@ -83,7 +83,22 @@ func Schemas() []ingestion.Schema {
 		}
 		return nil
 	})
-	return []ingestion.Schema{input, options, record, result}
+	schemas := []ingestion.Schema{input, options, record, result}
+	for i := range schemas {
+		schemas[i].Role = []string{"input", "option", "record", "result"}[i]
+		schemas[i].Family = "server_log"
+	}
+	schemas[2].Family = "server-log.record.v1"
+	schemas[3].ResultType = "server_log"
+	schemas[3].PayloadVersion = "0.1.0"
+	schemas[0].Conformance = []ingestion.SchemaCase{{Value: json.RawMessage(`"synthetic"`), Valid: true}, {Value: json.RawMessage(`{}`), Valid: false}}
+	schemas[1].Conformance = []ingestion.SchemaCase{{Value: json.RawMessage(`{}`), Valid: true}, {Value: json.RawMessage(`{"strict":1}`), Valid: false}, {Value: json.RawMessage(`{"max_lines":-1}`), Valid: false}}
+	schemas[2].Conformance = []ingestion.SchemaCase{{Value: json.RawMessage(`{"Timestamp": "2026-11-11T00:00:00Z","Severity":"INFO","Product":"tomcat","Message":"synthetic","RawLine":"synthetic"}`), Valid: true}, {Value: json.RawMessage(`{}`), Valid: false}}
+	sample := models.New("server_log", "fixture")
+	sample.Summary = map[string]any{"total_events": 3, "error_count": 1, "warning_count": 1}
+	body, _ := json.Marshal(sample)
+	schemas[3].Conformance = []ingestion.SchemaCase{{Value: body, Valid: true}, {Value: json.RawMessage(`{}`), Valid: false}}
+	return schemas
 }
 func ResultRegistry() (*resultcontract.Registry, error) {
 	scalar := resultcontract.ValueSchema{Nullable: false, Encodings: []string{"json_number"}, Kinds: []string{"record_count"}, Aggregations: []string{"count"}, Units: []string{"count"}}
@@ -107,7 +122,15 @@ func ResultRegistry() (*resultcontract.Registry, error) {
 	return resultcontract.New(descriptors...)
 }
 func Analyzer() ingestion.Analyzer {
-	return ingestion.Analyzer{ID: "server-log.legacy", Family: "server-log.record.v1", ResultType: "server_log", Analyze: func(ctx context.Context, source ingestion.RecordSource, info ingestion.SourceInfo, raw json.RawMessage, diags *diagnostics.ParserDiagnostics) (models.AnalysisResult, error) {
+	return ingestion.Analyzer{BindSelection: func(result *models.AnalysisResult, info ingestion.SourceInfo, selection ingestion.AnalysisSelection) error {
+		result.Metadata.Extra["population_ids"] = []string{"imported_records"}
+		result.Metadata.Extra["populations"] = map[string]resultcontract.PopulationIdentity{"imported_records": {
+			SourceHashes: []string{info.SHA256}, SelectionHash: selection.OptionsHash,
+			SemanticRevision: selection.ImporterID + "@" + selection.AdapterVersion + "/" + result.Type + "@" + result.Metadata.SchemaVersion,
+			Coverage:         fmt.Sprintf("records:%d/partial:%t/reason:%s", selection.Records, selection.Partial, selection.PartialReason),
+		}}
+		return nil
+	}, ID: "server-log.legacy", Family: "server-log.record.v1", ResultType: "server_log", Analyze: func(ctx context.Context, source ingestion.RecordSource, info ingestion.SourceInfo, raw json.RawMessage, diags *diagnostics.ParserDiagnostics) (models.AnalysisResult, error) {
 		var opts parser.ImportOptions
 		if e := wirejson.Decode(raw, &opts); e != nil {
 			return models.AnalysisResult{}, e
@@ -132,7 +155,7 @@ func Analyzer() ingestion.Analyzer {
 		result.Metadata.Extra["extensions"] = map[string]string{"measurement": "1.0.0"}
 		measurements := map[string]resultcontract.Measurement{}
 		for _, key := range []string{"total_events", "error_count", "warning_count"} {
-			measurements["/summary/"+key] = resultcontract.Measurement{Kind: "record_count", Unit: "count", Scope: "imported_records", Aggregation: "count", Encoding: "json_number", Availability: "observed"}
+			measurements["/summary/"+key] = resultcontract.Measurement{Kind: "record_count", Unit: "count", Scope: "imported_records", Population: "imported_records", Aggregation: "count", Encoding: "json_number", Availability: "observed"}
 		}
 		result.Metadata.Extra["measurement"] = measurements
 		return result, nil

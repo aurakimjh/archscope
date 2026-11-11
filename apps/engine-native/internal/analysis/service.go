@@ -19,6 +19,7 @@ import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/ingestion"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/resultcontract"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/wirejson"
 )
 
 type Request struct {
@@ -67,28 +68,74 @@ type cleanupRef struct {
 	job  *job
 }
 type Service struct {
-	slots   chan struct{}
-	pending []cleanupRef
-	mu      sync.Mutex
-	root    string
-	catalog *ingestion.Catalog
-	results *resultcontract.Registry
-	policy  ingestion.Budgets
-	jobs    map[string]*job
-	closed  bool
-	wait    sync.WaitGroup
+	storeMu     sync.Mutex
+	stored      map[string]storedRevision
+	storedBytes int64
+	lockFile    *os.File
+	ctx         context.Context
+	cancel      context.CancelFunc
+	closeOnce   sync.Once
+	slots       chan struct{}
+	pending     []cleanupRef
+	mu          sync.Mutex
+	root        string
+	catalog     *ingestion.Catalog
+	results     *resultcontract.Registry
+	policy      ingestion.Budgets
+	jobs        map[string]*job
+	history     []string
+	closed      bool
+	wait        sync.WaitGroup
 }
 
 func New(root string, c *ingestion.Catalog, r *resultcontract.Registry) (*Service, error) {
 	if c == nil || r == nil {
 		return nil, fmt.Errorf("catalog and result registry required")
 	}
+	for _, kind := range c.ResultTypes() {
+		if !r.HasType(kind) {
+			return nil, ingestion.Problem("IMPORT_REGISTRY_INVALID", "analyzer output has no registered result descriptor")
+		}
+	}
+	for _, output := range c.OutputContracts() {
+		if !r.SupportsPayload(output.Type, output.PayloadVersion) {
+			return nil, ingestion.Problem("IMPORT_REGISTRY_INVALID", "result schema payload version has no compatible reader")
+		}
+	}
 	for _, name := range []string{"staging", "results"} {
 		if e := os.MkdirAll(filepath.Join(root, name), 0700); e != nil {
 			return nil, e
 		}
 	}
-	return &Service{slots: make(chan struct{}, 4), root: root, catalog: c, results: r, policy: ingestion.DefaultBudgets(), jobs: map[string]*job{}}, nil
+	lockFile, e := os.OpenFile(filepath.Join(root, ".store.lock"), os.O_CREATE|os.O_RDWR, 0600)
+	if e != nil {
+		return nil, e
+	}
+	if e = lockStore(lockFile); e != nil {
+		lockFile.Close()
+		return nil, ingestion.Problem("IMPORT_STORE_BUSY", "evidence store is already in use")
+	}
+	// Exclusive ownership makes crash-left staging safe to collect.
+	entries, e := os.ReadDir(filepath.Join(root, "staging"))
+	if e == nil {
+		for _, entry := range entries {
+			if e = os.RemoveAll(filepath.Join(root, "staging", entry.Name())); e != nil {
+				break
+			}
+		}
+	}
+	if e != nil {
+		lockFile.Close()
+		return nil, e
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	service := &Service{slots: make(chan struct{}, 4), root: root, catalog: c, results: r, policy: ingestion.DefaultBudgets(), jobs: map[string]*job{}, stored: map[string]storedRevision{}, lockFile: lockFile, ctx: ctx, cancel: cancel}
+	if e = service.initStore(); e != nil {
+		cancel()
+		lockFile.Close()
+		return nil, e
+	}
+	return service, nil
 }
 func randomID(prefix string) (string, error) {
 	var b [16]byte
@@ -114,19 +161,49 @@ func (s *Service) Start(req Request) (JobSnapshot, error) {
 		return JobSnapshot{}, e
 	}
 	req.Options = append(json.RawMessage(nil), req.Options...)
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(budget.TimeoutMS)*time.Millisecond)
+	ctx, cancelCause := context.WithCancelCause(context.Background())
+	cancel := func() { cancelCause(context.Canceled) }
+	queueTimer := time.AfterFunc(time.Duration(budget.QueueTimeoutMS)*time.Millisecond, func() { cancelCause(context.DeadlineExceeded) })
 	j := &job{ctx: ctx, cancel: cancel, selection: make(chan string, 1), done: make(chan struct{}), snapshot: JobSnapshot{ID: id, Generation: 1, State: "queued", PolicyRevision: "import-policy-v1", Budget: budget, Source: ingestion.SourceInfo{ID: id + "-source"}, Detection: ingestion.DetectionSet{Candidates: []ingestion.Candidate{}}}}
 	s.mu.Lock()
+	// Reclaim only finished history. Active/waiting jobs and immutable result
+	// revisions are never removed to make room for another job.
+	for len(s.jobs) >= 128 {
+		evicted := false
+		for i, old := range s.history {
+			prior := s.jobs[old]
+			select {
+			case <-prior.done:
+				delete(s.jobs, old)
+				s.history = append(s.history[:i], s.history[i+1:]...)
+				evicted = true
+			default:
+			}
+			if evicted {
+				break
+			}
+		}
+		if !evicted {
+			break
+		}
+	}
 	if s.closed || len(s.jobs) >= 128 {
 		s.mu.Unlock()
 		cancel()
+		queueTimer.Stop()
 		return JobSnapshot{}, ingestion.Problem("IMPORT_BUDGET_EXCEEDED", "service job capacity reached")
 	}
 	s.jobs[id] = j
+	s.history = append(s.history, id)
 	s.wait.Add(1)
 	s.mu.Unlock()
 	initial := j.snapshot
-	go func() { defer s.wait.Done(); defer close(j.done); defer cancel(); s.run(j, req) }()
+	go func() {
+		defer s.wait.Done()
+		defer close(j.done)
+		defer cancel()
+		s.run(j, req, queueTimer, cancelCause)
+	}()
 	return initial, nil
 }
 func (s *Service) find(id string, generation uint64) (*job, error) {
@@ -206,10 +283,15 @@ func (s *Service) Wait(ctx context.Context, id string, g uint64) (JobSnapshot, e
 	case <-ctx.Done():
 		return JobSnapshot{}, ctx.Err()
 	case <-j.done:
-		return s.Get(id, g)
+		j.mu.Lock()
+		defer j.mu.Unlock()
+		return j.copy(), nil
 	}
 }
-func (s *Service) Close() {
+func (s *Service) Close() { s.closeOnce.Do(s.close) }
+func (s *Service) close() {
+	s.cancel()
+	defer s.lockFile.Close()
 	s.mu.Lock()
 	s.closed = true
 	for _, j := range s.jobs {
@@ -232,7 +314,8 @@ func (s *Service) Close() {
 	}
 }
 func (j *job) stage(state string) { j.mu.Lock(); j.snapshot.State = state; j.mu.Unlock() }
-func (s *Service) run(j *job, req Request) {
+func (s *Service) run(j *job, req Request, queueTimer *time.Timer, cancelCause context.CancelCauseFunc) {
+	defer queueTimer.Stop()
 	var failure error
 	defer func() {
 		if recover() != nil {
@@ -243,7 +326,7 @@ func (s *Service) run(j *job, req Request) {
 		}
 		j.mu.Lock()
 		defer j.mu.Unlock()
-		if errors.Is(j.ctx.Err(), context.Canceled) {
+		if errors.Is(context.Cause(j.ctx), context.Canceled) {
 			j.snapshot.State = "cancelled"
 			j.snapshot.Problem = nil
 			return
@@ -253,12 +336,19 @@ func (s *Service) run(j *job, req Request) {
 		if errors.As(failure, &problem) {
 			code = problem.Code
 		}
-		if errors.Is(j.ctx.Err(), context.DeadlineExceeded) {
+		var pathError *os.PathError
+		if errors.As(failure, &pathError) || errors.Is(failure, io.ErrUnexpectedEOF) {
+			code = "IMPORT_IO_FAILED"
+		}
+		if errors.Is(context.Cause(j.ctx), context.DeadlineExceeded) {
 			code = "IMPORT_BUDGET_EXCEEDED"
+			if j.snapshot.State == "queued" {
+				code = "IMPORT_QUEUE_TIMEOUT"
+			}
 		}
 		stage := j.snapshot.State
 		j.snapshot.State = "failed"
-		j.snapshot.Problem = &JobProblem{code, stage, false, j.snapshot.Source.ID, "Import stopped; no result was published."}
+		j.snapshot.Problem = &JobProblem{code, stage, retryable(code), j.snapshot.Source.ID, "Import stopped; no result was published."}
 	}()
 	select {
 	case s.slots <- struct{}{}:
@@ -267,6 +357,13 @@ func (s *Service) run(j *job, req Request) {
 		failure = j.ctx.Err()
 		return
 	}
+	queueTimer.Stop()
+	if e := j.ctx.Err(); e != nil {
+		failure = e
+		return
+	}
+	runtimeTimer := time.AfterFunc(time.Duration(j.snapshot.Budget.TimeoutMS)*time.Millisecond, func() { cancelCause(context.DeadlineExceeded) })
+	defer runtimeTimer.Stop()
 	directory, e := os.MkdirTemp(filepath.Join(s.root, "staging"), j.snapshot.ID+"-")
 	if e != nil {
 		failure = e
@@ -306,6 +403,10 @@ func (s *Service) run(j *job, req Request) {
 	if selected == "" || selected == "auto" {
 		selected = detection.Selected
 		if selected == "" {
+			if detection.State == "detection_failed" {
+				failure = ingestion.Problem("IMPORT_DETECTOR_INVALID", "no usable detection result")
+				return
+			}
 			if detection.State == "unsupported" {
 				failure = ingestion.Problem("IMPORT_FORMAT_UNSUPPORTED", "source not recognized")
 				return
@@ -326,6 +427,12 @@ func (s *Service) run(j *job, req Request) {
 		return
 	}
 	d := resolved.Descriptor
+	for _, diagnostic := range detection.Diagnostics {
+		if diagnostic.ImporterID == d.ID {
+			failure = ingestion.Problem(diagnostic.Code, "selected detector failed")
+			return
+		}
+	}
 	verifiedOther, verifiedSelected := false, false
 	for _, c := range detection.Candidates {
 		if c.Grade == ingestion.Verified {
@@ -359,7 +466,12 @@ func (s *Service) run(j *job, req Request) {
 		return
 	}
 	if e = d.ValidateInput(j.ctx, lease); e != nil {
-		failure = ingestion.Problem("IMPORT_FORMAT_MISMATCH", "selected source fails structural validation")
+		var problem *ingestion.ImportError
+		if errors.As(e, &problem) || j.ctx.Err() != nil {
+			failure = e
+		} else {
+			failure = ingestion.Problem("IMPORT_IO_FAILED", "source validation read failed")
+		}
 		return
 	}
 	j.mu.Lock()
@@ -426,6 +538,15 @@ func (s *Service) run(j *job, req Request) {
 		result.Metadata.Extra = map[string]any{}
 	}
 	result.Metadata.Extra["import_provenance"] = map[string]any{"source_id": lease.Info().ID, "source_sha256": lease.Info().SHA256, "importer": d.ID, "adapter_version": d.AdapterVersion, "options_hash": resolved.OptionHash, "option_canonicalization": "options-v1", "policy_revision": resolved.PolicyRevision, "records": sink.Count, "partial": partial}
+	if resolved.Analyzer.BindSelection != nil {
+		if e = resolved.Analyzer.BindSelection(&result, lease.Info(), ingestion.AnalysisSelection{ImporterID: d.ID, AdapterVersion: d.AdapterVersion, OptionsHash: resolved.OptionHash, Records: sink.Count, Partial: partial, PartialReason: report.PartialReason}); e != nil {
+			failure = ingestion.Problem("IMPORT_RESULT_INVALID", "analysis selection binding failed")
+			return
+		}
+	}
+	if report.SelectionReason != "" {
+		result.Metadata.Extra["import_coverage"] = map[string]any{"partial": false, "selection": report.SelectionReason, "complete_records": sink.Count}
+	}
 	if partial {
 		result.Metadata.Extra["import_coverage"] = map[string]any{"partial": true, "reason": report.PartialReason, "complete_records": sink.Count}
 	}
@@ -439,7 +560,7 @@ func (s *Service) run(j *job, req Request) {
 		failure = ingestion.Problem("IMPORT_BUDGET_EXCEEDED", "result exceeds temp budget")
 		return
 	}
-	decoded, e := resultcontract.Decode(body)
+	decoded, e := resultcontract.DecodeWithLimits(body, wirejson.ResultLimits(s.policy.DecodedBytes, s.policy.StackDepth))
 	if e != nil {
 		failure = ingestion.Problem("IMPORT_RESULT_INVALID", "result envelope is invalid")
 		return
@@ -471,7 +592,7 @@ func (s *Service) run(j *job, req Request) {
 		failure = e
 		return
 	}
-	if e = os.Rename(staged, filepath.Join(s.root, "results", handle+".json")); e != nil {
+	if handle, e = s.publish(j.ctx, staged, handle, body); e != nil {
 		failure = e
 		return
 	}
@@ -498,8 +619,13 @@ func (s *Service) Read(handle string) ([]byte, models.AnalysisResult, error) {
 	if !handlePattern.MatchString(handle) {
 		return nil, models.AnalysisResult{}, fmt.Errorf("invalid result handle")
 	}
+	s.storeMu.Lock()
+	defer s.storeMu.Unlock()
 	f, e := os.Open(filepath.Join(s.root, "results", handle+".json"))
 	if e != nil {
+		if os.IsNotExist(e) {
+			e = ingestion.Problem("IMPORT_RESULT_STALE", "result is no longer available; reopen the saved file")
+		}
 		return nil, models.AnalysisResult{}, e
 	}
 	defer f.Close()
@@ -510,7 +636,7 @@ func (s *Service) Read(handle string) ([]byte, models.AnalysisResult, error) {
 	if int64(len(body)) > s.policy.DecodedBytes {
 		return nil, models.AnalysisResult{}, fmt.Errorf("stored result exceeds read budget")
 	}
-	r, e := resultcontract.Decode(body)
+	r, e := resultcontract.DecodeWithLimits(body, wirejson.ResultLimits(s.policy.DecodedBytes, s.policy.StackDepth))
 	return body, r, e
 }
 
@@ -527,4 +653,15 @@ func (s *Service) cleanup(path string, j *job) {
 	s.mu.Lock()
 	s.pending = append(s.pending, cleanupRef{path, j})
 	s.mu.Unlock()
+}
+
+// A retry may succeed for transient I/O, detector scheduling, queue pressure or
+// cleanup. Invalid contracts/input and exhausted input budgets need a changed
+// request, so repeating them is not advertised as retryable.
+func retryable(code string) bool {
+	switch code {
+	case "IMPORT_IO_FAILED", "IMPORT_DETECTOR_TIMEOUT", "IMPORT_QUEUE_TIMEOUT", "IMPORT_CLEANUP_PENDING":
+		return true
+	}
+	return false
 }

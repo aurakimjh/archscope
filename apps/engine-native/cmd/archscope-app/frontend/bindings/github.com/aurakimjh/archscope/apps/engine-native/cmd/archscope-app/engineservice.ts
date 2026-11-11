@@ -426,6 +426,10 @@ export function ProjectJenniferDrilldown(req: $models.JenniferDrilldownRequest):
     });
 }
 
+export function ReleaseEvidenceResult(handle: string): $CancellablePromise<void> {
+    return $Call.ByID(3463863320, handle);
+}
+
 export function ResolveWorkspaceComparison(req: $models.WorkspaceComparisonRequest): $CancellablePromise<api$0.WorkspaceComparisonRoute> {
     return $Call.ByID(4088206667, req).then(($result: any) => {
         return $$createType14($result);

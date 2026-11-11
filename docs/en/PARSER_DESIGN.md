@@ -625,8 +625,8 @@ an unfiltered exclude result. Existing order, case, and reroot rules are retaine
 ## T-628 implementation record (2026-11-11)
 
 The baseline is `eb3e782`. C1–C4 implement the common foundation and an existing
-Tomcat server-log pilot. No independent review was performed; test success is
-not an independent PASS verdict.
+Tomcat server-log pilot. At the initial checkpoint no independent review had been performed; see the
+review remediation below for the later CONDITIONAL verdict.
 
 | Stage | Implementation | Evidence |
 |---|---|---|
@@ -650,7 +650,7 @@ The backend catalog decides operations; imported capability strings grant none.
 
 Operational defaults: input/normalized data 64 MiB each, serialized record 1 MiB,
 100,000 records, stack depth 1,024, 100,000 unique keys, temporary disk 160 MiB,
-whole job 5 minutes, probe 64 KiB/one second per detector, options 64 KiB. Requests
+queue and execution 5 minutes each, probe 64 KiB/one second per detector, options 64 KiB. Requests
 may lower these ceilings. Four jobs run concurrently, with 128 jobs per-process
 history. Timeouts are cooperative, not a sandbox or forced preemption of blocked
 OS I/O/trusted compiled functions. The lease closes outstanding readers; failed
@@ -665,11 +665,69 @@ The pilot supports uncompressed UTF-8 with a structurally verified record in the
 probe. Other encodings, empty/unverified prefixes, seek and approved converters
 use legacy paths or later adapters. No producer version is inferred from syntax.
 The synthetic `diagnostics.ingestion.foundation.v1` manifest and measurement schema
-are hashed and bundled. No general JSON Schema executor or remote schema fetch
-is introduced.
+are hashed and bundled. Review remediation adds pinned conformance validation for bundled
+JSON Schema only; external schema loading remains disabled.
 
 Evidence distinguishes actual CLI, direct Go bridge integration, TS state/opaque
 transport, and package checks. No new generic job screen or actual WebView IPC
 execution was produced (T-631). Windows native execution was not performed on Mac;
 cross-builds are separate. ProfileSet (T-629), generic renderer (T-631), measurement
 corrections (T-634), case/cache lifecycle (T-630), and Q01–Q04 remain separate.
+
+### T-628 independent review remediation (2026-11-11)
+
+The Claude review of `a698d26` is **CONDITIONAL**. Its unchanged original is
+[archived](../review/done/2026-11-11_claude-code_T-628_implementation-review.ko.md).
+The following implementation supersedes the initial checkpoint above; local
+verification does not grant an independent PASS or close T-628's REVIEW state.
+
+- **R-01:** Complete result trees use `2 × stackDepth + 64` JSON levels (2,112
+  at the 1,024-frame policy), while metadata/options/records retain depth 64.
+  The import service's result byte ceiling remains its 64 MiB policy; legacy
+  report readers explicitly allow up to 512 MiB and refuse larger files with a
+  byte-budget error. This is a new operational ceiling compared with historical
+  unbounded report reads. A 65 MiB valid JSON test covers the old 64 MiB break;
+  256-frame actual CLI reports and direct Wails-method load/export tests cover
+  the tree regression. Over-budget trees/bytes and deep opaque metadata refuse.
+- **R-02/R-13:** Up to 128 job snapshots are retained. Oldest finished history
+  is reclaimed on admission; active jobs and result revisions are preserved.
+  Removed IDs return IMPORT_JOB_STALE. Queue and execution each have separate
+  five-minute ceilings (`queueTimeoutMs`, `timeoutMs`), independently lowerable.
+  Execution time starts only after a concurrency slot is acquired.
+- **R-03/R-11:** Trusted schema registrations declare input/option/record/result
+  roles, semantic family and result type. Catalog composition checks every slot,
+  normalizer/analyzer linkage, and both schema-definition and compiled-validator
+  conformance cases. Service activation also requires a registered result reader
+  for every analyzer output and a compatible reader for each declared payload
+  version (independent of the schema document revision). Composition-time JSON Schema draft 2020-12 conformance uses
+  the pinned compiler; runtime validation stays in trusted compiled adapters; external file/URL schema loading is disabled. Schema literals and conformance operands have bounded arithmetic independently
+  of opaque storage. Definition hashes identify data, not compiled function code. Fixture manifest expectations
+  are executed against the pilot, in addition to digest checks.
+- **R-07/R-09:** Detector failures become per-importer sanitized diagnostics (at
+  most the 256-entry catalog). An unrelated failure cannot block explicit valid
+  selection. Automatic selection is withheld if a detector failed; the user must
+  choose a usable candidate, and a failed selected detector is refused. Parent
+  cancellation, detector timeout, buffer overflow and source I/O are distinct.
+  Job retryability follows stable codes; raw exception/path text is not returned
+  in JobProblem. Timeouts remain cooperative for trusted compiled functions.
+- **R-05/R-10:** `max_lines` is an intentional completed selection, with
+  `import_coverage.selection=max_lines`, rather than unsafe truncation requiring
+  allow-partial. It stops before reading another logical line. Resource truncation
+  still needs importer safety plus caller consent. Legacy strict/top_n behavior,
+  summary/tables/correlation keys, and trailing-empty-line records are checked.
+- **R-08:** Imports and Load share four slots and shutdown cancellation/waiting.
+  A process-owned OS lock protects each store; only its exclusive owner collects
+  crash-left staging at startup. Exact duplicate snapshots reuse a handle.
+  Retention is bounded to 1,024 revisions / 512 MiB without silent eviction;
+  ReleaseEvidenceResult explicitly frees an unused handle. Missing revisions
+  return IMPORT_RESULT_STALE with saved-file recovery guidance. Saved exports
+  are independent of this backend cache.
+
+T-630 must still provide durable case manifests, migration/recovery of persisted
+workspace references, reference ownership before releasing deduplicated handles,
+user-controlled retention/deletion/restore and index lifecycle. The desktop store
+remains under the OS user cache directory and can be cleared externally; a handle
+alone is not a durable saved case. T-631 must wire per-load UI cancellation and
+job/fallback views. These requirements are recorded in work_status.md rather than
+being claimed as completed by this foundation fix. No new product/producer decision
+is made for Q01–Q04.

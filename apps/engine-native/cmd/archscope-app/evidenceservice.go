@@ -132,3 +132,11 @@ func (s *EngineService) ExportEvidenceResult(handle, path, format string) error 
 	}
 	return analysis.AtomicExport(path, body)
 }
+
+func (s *EngineService) ReleaseEvidenceResult(handle string) error {
+	service, e := s.evidence()
+	if e != nil {
+		return e
+	}
+	return service.Release(handle)
+}

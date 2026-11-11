@@ -18,6 +18,7 @@ export class Budgets {
     "uniqueKeys": number;
     "tempBytes": number;
     "timeoutMs": number;
+    "queueTimeoutMs": number;
     "probeBytes": number;
 
     /** Creates a new Budgets instance. */
@@ -45,6 +46,9 @@ export class Budgets {
         }
         if (!("timeoutMs" in $$source)) {
             this["timeoutMs"] = 0;
+        }
+        if (!("queueTimeoutMs" in $$source)) {
+            this["queueTimeoutMs"] = 0;
         }
         if (!("probeBytes" in $$source)) {
             this["probeBytes"] = 0;
@@ -97,6 +101,7 @@ export class Candidate {
 }
 
 export class DetectionSet {
+    "diagnostics"?: DetectorProblem[];
     "state": string;
     "selected"?: string;
     "candidates": Candidate[];
@@ -117,12 +122,41 @@ export class DetectionSet {
      * Creates a new DetectionSet instance from a string or object.
      */
     static createFrom($$source: any = {}): DetectionSet {
-        const $$createField2_0 = $$createType1;
+        const $$createField0_0 = $$createType1;
+        const $$createField3_0 = $$createType3;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("diagnostics" in $$parsedSource) {
+            $$parsedSource["diagnostics"] = $$createField0_0($$parsedSource["diagnostics"]);
+        }
         if ("candidates" in $$parsedSource) {
-            $$parsedSource["candidates"] = $$createField2_0($$parsedSource["candidates"]);
+            $$parsedSource["candidates"] = $$createField3_0($$parsedSource["candidates"]);
         }
         return new DetectionSet($$parsedSource as Partial<DetectionSet>);
+    }
+}
+
+export class DetectorProblem {
+    "importerId": string;
+    "code": string;
+
+    /** Creates a new DetectorProblem instance. */
+    constructor($$source: Partial<DetectorProblem> = {}) {
+        if (!("importerId" in $$source)) {
+            this["importerId"] = "";
+        }
+        if (!("code" in $$source)) {
+            this["code"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new DetectorProblem instance from a string or object.
+     */
+    static createFrom($$source: any = {}): DetectorProblem {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new DetectorProblem($$parsedSource as Partial<DetectorProblem>);
     }
 }
 
@@ -253,16 +287,16 @@ export class ImporterDescriptor {
      * Creates a new ImporterDescriptor instance from a string or object.
      */
     static createFrom($$source: any = {}): ImporterDescriptor {
-        const $$createField3_0 = $$createType2;
-        const $$createField5_0 = $$createType2;
-        const $$createField7_0 = $$createType2;
-        const $$createField9_0 = $$createType3;
-        const $$createField10_0 = $$createType3;
-        const $$createField11_0 = $$createType3;
-        const $$createField12_0 = $$createType3;
-        const $$createField17_0 = $$createType2;
-        const $$createField18_0 = $$createType2;
-        const $$createField20_0 = $$createType2;
+        const $$createField3_0 = $$createType4;
+        const $$createField5_0 = $$createType4;
+        const $$createField7_0 = $$createType4;
+        const $$createField9_0 = $$createType5;
+        const $$createField10_0 = $$createType5;
+        const $$createField11_0 = $$createType5;
+        const $$createField12_0 = $$createType5;
+        const $$createField17_0 = $$createType4;
+        const $$createField18_0 = $$createType4;
+        const $$createField20_0 = $$createType4;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("aliases" in $$parsedSource) {
             $$parsedSource["aliases"] = $$createField3_0($$parsedSource["aliases"]);
@@ -361,7 +395,9 @@ export class SourceInfo {
 }
 
 // Private type creation functions
-const $$createType0 = Candidate.createFrom;
+const $$createType0 = DetectorProblem.createFrom;
 const $$createType1 = $Create.Array($$createType0);
-const $$createType2 = $Create.Array($Create.Any);
-const $$createType3 = SchemaRef.createFrom;
+const $$createType2 = Candidate.createFrom;
+const $$createType3 = $Create.Array($$createType2);
+const $$createType4 = $Create.Array($Create.Any);
+const $$createType5 = SchemaRef.createFrom;

@@ -2,6 +2,8 @@ package ingestion_test
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"math"
 	"os"
 	"path/filepath"
@@ -91,8 +93,8 @@ func TestC1VerifiedHintCollisionScoresAndLegacyConfidence(t *testing.T) {
 		d.Detector = func(context.Context, ingestion.Probe) (ingestion.Candidate, error) {
 			return ingestion.Candidate{Grade: ingestion.Verified, Confidence: score}, nil
 		}
-		if _, e = registry(t, d).DetectCandidates(context.Background(), probe); e == nil {
-			t.Fatal("invalid confidence accepted")
+		if set, err := registry(t, d).DetectCandidates(context.Background(), probe); err != nil || set.State != "detection_failed" || len(set.Diagnostics) != 1 {
+			t.Fatal("invalid confidence not diagnosed", set, err)
 		}
 	}
 	legacy, e := catalog.LegacyRegistry(registry(t, first))
@@ -165,5 +167,67 @@ func TestC2LeaseDetectsConcurrentEditAndOwnsSnapshot(t *testing.T) {
 	}
 	if _, e = (ingestion.Budgets{InputBytes: b.InputBytes + 1}).Within(b); e == nil {
 		t.Fatal("policy budget raised")
+	}
+}
+
+func TestReviewR03SchemaRolesFamiliesOutputAndValidatorConformance(t *testing.T) {
+	original := descriptor(t)
+	for _, edit := range []func(*ingestion.ImporterDescriptor){
+		func(d *ingestion.ImporterDescriptor) { d.OptionSchema = d.RecordSchema },
+		func(d *ingestion.ImporterDescriptor) { d.Family = "gpu_metrics" },
+		func(d *ingestion.ImporterDescriptor) { d.ResultSchema = d.InputSchema },
+	} {
+		d := original
+		edit(&d)
+		if _, e := ingestion.NewCatalog([]ingestion.ImporterDescriptor{d}, catalog.Schemas(), []ingestion.Analyzer{catalog.Analyzer()}); e == nil {
+			t.Fatal("invalid composition accepted")
+		}
+	}
+	a := catalog.Analyzer()
+	a.ResultType = "unregistered_type"
+	if _, e := ingestion.NewCatalog([]ingestion.ImporterDescriptor{original}, catalog.Schemas(), []ingestion.Analyzer{a}); e == nil {
+		t.Fatal("analyzer/schema output mismatch accepted")
+	}
+	schemas := catalog.Schemas()
+	schemas[1].Validate = func(json.RawMessage) error { return nil }
+	if _, e := ingestion.NewCatalog([]ingestion.ImporterDescriptor{original}, schemas, []ingestion.Analyzer{catalog.Analyzer()}); e == nil {
+		t.Fatal("validator drift accepted")
+	}
+	schemas = catalog.Schemas()
+	schemas[1].Definition = json.RawMessage(`{"type":"array"}`)
+	schemas[1] = func() ingestion.Schema {
+		next := ingestion.NewSchema(schemas[1].Ref.ID, schemas[1].Ref.Version, schemas[1].Definition, schemas[1].Validate)
+		next.Role = schemas[1].Role
+		next.Family = schemas[1].Family
+		next.Conformance = schemas[1].Conformance
+		return next
+	}()
+	changed := original
+	changed.OptionSchema = schemas[1].Ref
+	if _, e := ingestion.NewCatalog([]ingestion.ImporterDescriptor{changed}, schemas, []ingestion.Analyzer{catalog.Analyzer()}); e == nil {
+		t.Fatal("definition drift accepted")
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	if _, e := registry(t, original).DetectCandidates(ctx, ingestion.Probe{}); !errors.Is(e, context.Canceled) {
+		t.Fatal("parent cancellation misclassified", e)
+	}
+}
+
+func TestReviewR03SchemaConformanceArithmeticAndExternalRefsAreBounded(t *testing.T) {
+	validate, e := ingestion.CompileSchema(json.RawMessage(`{"type":"integer","minimum":0}`))
+	if e != nil {
+		t.Fatal(e)
+	}
+	for _, raw := range []string{`1e1000000000`, `1e-1000000000`} {
+		if e = validate(json.RawMessage(raw)); e == nil {
+			t.Fatal("unbounded schema arithmetic accepted")
+		}
+	}
+	if _, e = ingestion.CompileSchema(json.RawMessage(`{"minimum":1e1000000000}`)); e == nil {
+		t.Fatal("unbounded schema literal accepted")
+	}
+	if _, e = ingestion.CompileSchema(json.RawMessage(`{"$ref":"https://example.invalid/not-loaded"}`)); e == nil {
+		t.Fatal("external schema reference accepted")
 	}
 }

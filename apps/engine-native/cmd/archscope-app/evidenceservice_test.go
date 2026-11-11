@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -14,6 +15,7 @@ import (
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analysis"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/catalog"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/ingestion"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/profiler"
 	c "github.com/aurakimjh/archscope/apps/engine-native/internal/resultcontract"
@@ -27,6 +29,11 @@ func evidenceBridge(t *testing.T, registry *c.Registry) *EngineService {
 	}
 	if registry == nil {
 		registry = defaults
+	} else {
+		cat, e = ingestion.NewCatalog(nil, nil, nil)
+		if e != nil {
+			t.Fatal(e)
+		}
 	}
 	service, e := analysis.New(t.TempDir(), cat, registry)
 	if e != nil {
@@ -212,6 +219,39 @@ func TestW07NullZeroAbsentThroughBridgeCSVHTMLAndExactDiff(t *testing.T) {
 					t.Fatal("CSV fabricated zero")
 				}
 			}
+		}
+	}
+}
+
+func TestReviewR01DeepWailsLoadEvidenceResultBridge(t *testing.T) {
+	svc := evidenceBridge(t, nil)
+	input := filepath.Join(t.TempDir(), "deep.collapsed")
+	frames := make([]string, 256)
+	for i := range frames {
+		frames[i] = fmt.Sprintf("synthetic.Frame%d", i)
+	}
+	os.WriteFile(input, []byte(strings.Join(frames, ";")+" 3\n"), 0600)
+	result, e := profiler.AnalyzeCollapsedFile(input, profiler.Options{})
+	if e != nil {
+		t.Fatal(e)
+	}
+	raw, e := json.Marshal(result)
+	if e != nil {
+		t.Fatal(e)
+	}
+	saved := filepath.Join(t.TempDir(), "deep.json")
+	os.WriteFile(saved, raw, 0600)
+	view, e := svc.LoadEvidenceResult(saved)
+	if e != nil || !view.Compatibility.Allowed {
+		t.Fatal(view, e)
+	}
+	again, e := svc.GetEvidenceResultJSON(view.Handle)
+	if e != nil || again != string(raw) {
+		t.Fatal("deep bridge roundtrip failed", e)
+	}
+	for _, format := range []string{"json", "html", "csv", "report-pack"} {
+		if body, e := svc.evidenceService.Export(view.Handle, format); e != nil || len(body) == 0 {
+			t.Fatal(format, e)
 		}
 	}
 }

@@ -1,0 +1,227 @@
+{
+  "task": "T-628",
+  "scope": "R-01 through R-14 independent review remediation",
+  "recorded_at_utc": "2026-11-11T05:35:58.086090+00:00",
+  "implementation_reviewed": "a698d268a2b21ba9459b8fa27d9e1ea232975a2f",
+  "review_intake_commit": "a5f581faa094e075313e9db586840c4ab12aad35",
+  "review_original_sha256": "18cf079c1120493f74d37db8a2ddbc2cc4054d9658b698c6ff1156b835977d78",
+  "review_verdict": "CONDITIONAL; unchanged; author local verification is not independent PASS",
+  "task_state": "REVIEW",
+  "T-629": "TODO: original review R-01 fix/deep regression condition satisfied",
+  "shared_assets_commit": "56255e2cd170bfe02da42115d479d437f1714edd",
+  "checks": {
+    "go_test_race_all": {
+      "command": "go test -race ./... -count=1",
+      "exit_code": 0,
+      "ok_packages": 94,
+      "no_test_packages": 4,
+      "failures": 0,
+      "races": 0
+    },
+    "go_vet_and_build": {
+      "commands": [
+        "go vet ./...",
+        "go build ./..."
+      ],
+      "exit_codes": [
+        0,
+        0
+      ]
+    },
+    "windows_cross_vet": {
+      "arches": [
+        "amd64",
+        "386"
+      ],
+      "exit_codes": [
+        0,
+        0
+      ],
+      "native_execution": false
+    },
+    "windows_gui_cross_build": {
+      "arches": [
+        "amd64",
+        "386"
+      ],
+      "driver": "build/windows/build.mjs",
+      "exit_codes": [
+        0,
+        0
+      ],
+      "native_execution": false
+    },
+    "frontend": {
+      "commands": [
+        "wails3 generate bindings -clean=true -ts",
+        "npm run test:state",
+        "npm run build (task darwin:package)"
+      ],
+      "exit_codes": [
+        0,
+        0,
+        0
+      ]
+    },
+    "mac_package": {
+      "command": "task darwin:package",
+      "exit_code": 0,
+      "codesign_deep_strict_exit_code": 0,
+      "app_launched": false,
+      "note": "SDK linker deployment-target warnings are build warnings, not native-runtime evidence"
+    },
+    "desktop_guard": {
+      "command": "node scripts/verify-desktop-only.mjs --check-server-build",
+      "exit_code": 0
+    },
+    "docs_assets": {
+      "status_counts": {
+        "REVIEW": 4,
+        "TODO": 4,
+        "PENDING": 14,
+        "DONE": 210
+      },
+      "registered_ids": 232,
+      "original_review_unchanged": true,
+      "shared_bytes_equal": true,
+      "schema_version": "1.0.1",
+      "manifest_version": "1.0.1"
+    }
+  },
+  "regressions": {
+    "R-01": [
+      "256-frame actual CLI report json/html/csv/pptx/diff and evidence exports",
+      "Service.Load/Read/Export and direct Wails LoadEvidenceResult",
+      "65 MiB valid legacy JSON; explicit lower tree/byte policies and deep opaque metadata refuse"
+    ],
+    "R-02": [
+      "200 failed jobs do not exhaust history",
+      "active job and immutable revision survive history reclamation"
+    ],
+    "R-03": [
+      "wrong schema slot/family/output type/unregistered or incompatible reader refused",
+      "JSON Schema and compiled-validator conformance cases both executed"
+    ],
+    "R-04": [
+      "same source independent imports compare",
+      "source/options/semantic/coverage mismatch refused even same label",
+      "equivalent structured identity allowed across different local labels",
+      "capture source IDs remain distinct"
+    ],
+    "R-05/R-10": [
+      "max_lines/strict/top_n legacy summary/table/correlation parity",
+      "requested max_lines completed with coverage",
+      "trailing empty line does not add a record"
+    ],
+    "R-06": [
+      "1.0.1 optional field and exact unknown number preserved",
+      "1.1.0 and 2.0.0 refused"
+    ],
+    "R-07": [
+      "unrelated detector failure does not block explicit usable importer",
+      "failed chosen detector refused",
+      "auto selection withheld on detector error"
+    ],
+    "R-08": [
+      "duplicate Load does not create copies",
+      "retention count/byte limits and explicit release",
+      "concurrent store refused and crash staging collected only under exclusive lock",
+      "Load queue cancel/timeout and service shutdown tracked"
+    ],
+    "R-09": [
+      "parent cancellation versus detector deadline",
+      "source read failure versus buffer overflow",
+      "sanitized retryable I/O JobProblem"
+    ],
+    "R-11": [
+      "manifest expected counters asserted",
+      "scalar/column/collection schema execution and public Go field coverage",
+      "shared schema/fixture hashes equal"
+    ],
+    "R-12": [
+      "existing availability series refused on collision",
+      "scalar and per-row collection null/zero/availability/reason projection",
+      "original result unchanged"
+    ],
+    "R-13": [
+      "queued time longer than execution allowance still succeeds after slot",
+      "queue expiry has distinct retryable problem"
+    ],
+    "R-14": [
+      "checked profiler/diff/drilldown facades consumed by UI",
+      "negative TS checks and malformed runtime shapes",
+      "Go null diagnostic arrays retained"
+    ]
+  },
+  "unexecuted": [
+    "actual new generic WebView IPC/UI; no T-631 job/fallback screen implemented",
+    "Windows native file locking/rename/cleanup/cache behavior",
+    "hosted CI and real producer/long-session production workloads",
+    "independent re-review of these changes"
+  ],
+  "followups": {
+    "T-630": "durable manifests/references, migration/recovery, ownership before deduplicated-handle release, user retention/deletion/restore, indexes",
+    "T-631": "per-load UI cancellation, generic job/fallback and stale-handle recovery"
+  },
+  "source_sha256": {
+    "apps/engine-native/cmd/archscope-app/evidenceservice.go": "e6a3fe277f2789a8968aa15b881aba13470607f6facec567ddeee80a998606a2",
+    "apps/engine-native/cmd/archscope-app/evidenceservice_test.go": "b38a344746816eee604f3e3bd3d112dd4057020b553c0a11891e03453a7f950b",
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/engineservice.ts": "fa409ddb9bede1dd29776286e9a24fc9925df4678611e1588281fd482b9485d1",
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/internal/ingestion/index.ts": "c75a98534fc9f13a0cbdcdd8576f388b11c6c2e32abe495b6c0fb2bf41ba5dfd",
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/internal/ingestion/models.ts": "4b3c9ffcd192496ab6267a9a75046feb1ee4e379a5b93f641df9626e86b7e64c",
+    "apps/engine-native/cmd/archscope-app/frontend/src/bridge/profilerContract.ts": "0b0f4fe65c9591811860631d3ad077879f3b87882e1e01c86548fee7e19bb25d",
+    "apps/engine-native/cmd/archscope-app/frontend/src/bridge/profilerTypes.ts": "d68f2f7f5661c7b6c824519c2fcecb51430e9f84c8fc19b0c7accce7fab98478",
+    "apps/engine-native/cmd/archscope-app/frontend/src/bridge/types.ts": "1cf78d350b4b040e77977eb98f37109edc7ff2f29675b398833706ac8cf2da5b",
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/DiagnosticsPanel.tsx": "50436bff226ced5c9d33a5e9410ff6ce8d04885d496dfd75b7671cb138bf839b",
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/DrilldownPanel.tsx": "458882a90c81ffbde90dcc41d2a221521978409f548701899110237badf30554",
+    "apps/engine-native/cmd/archscope-app/frontend/src/pages/DiffPage.tsx": "0e5207814592083ffb5e6ab3afa8da3c864732a781013aef8e8561e9e658e2b2",
+    "apps/engine-native/cmd/archscope-app/frontend/src/pages/ProfilerAnalyzerPage.tsx": "e3628fdaf0895d2483655c573ad8a4f54e3808d6d9590495408cfc2c5347a0f3",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/regression.test.ts": "6eab392756e90a5ee0f0174cf67441e74020179d94e1fed45ed083b0a77f5112",
+    "apps/engine-native/cmd/archscope-engine/cmd_evidence_test.go": "edd1a3bd813e21f8449e9cd67df69c2dd3eafb7a58bf895890fd4318ca237f8f",
+    "apps/engine-native/cmd/archscope-engine/helpers.go": "209f0531e0eb9b41e59e6837be4e86d949faf2dbb0561ac6ce0577cb38ba6993",
+    "apps/engine-native/go.mod": "393693e170946aa0f8ff5fb090b7a7b9645a79edd1567cee249de4a85d892396",
+    "apps/engine-native/go.sum": "0e1fb1519159fb559217a044dbba1edcd5625494d05a4ae463b383415346c4d9",
+    "apps/engine-native/internal/analysis/results.go": "8ec4ddbba4d7a7af778f337b4d30881c96e073618427c8d4c8bd1386c1f8d11c",
+    "apps/engine-native/internal/analysis/review_internal_test.go": "cba22341a7d9684f2fbc49d61aa1c1e3bdc3b6d40408b5c8825d580837e8e63e",
+    "apps/engine-native/internal/analysis/review_regression_test.go": "206addbe85046fcc7716853a9d7e3ff3ea5ec88e39090eb6a2e83ad349fe2410",
+    "apps/engine-native/internal/analysis/service.go": "8b2ceade5532bab57a55746437e4790ff643ab52856c11dd62f04c8faaf12a38",
+    "apps/engine-native/internal/analysis/store.go": "7f6ac366391f15b7a4c08cefd3a10bffcc131d4b18519450362d7f8f29a579f8",
+    "apps/engine-native/internal/analysis/store_lock_unix.go": "500edcc494738377165270e8bf7563954d931e9730447c63882ff6761ad49bb0",
+    "apps/engine-native/internal/analysis/store_lock_windows.go": "a1a2fb2a4ef6254d2c78ced9cd14654ac4cfaa356b179a694da6b5a61f95cc2a",
+    "apps/engine-native/internal/analyzers/serverlog/analyzer.go": "1a42020a97d8f654e6560dedb992deca0b4123b666c639b72cd320367d791320",
+    "apps/engine-native/internal/catalog/builtin.go": "f2bb3d2e3df59420c4d1f454be55fdf73639b003075fe6416e900747da1cbf44",
+    "apps/engine-native/internal/catalog/contracts/manifest.json": "b7ae72847391e749e428a30f20e24aa2b4d7857e69c76e27308a2c75122368a7",
+    "apps/engine-native/internal/catalog/contracts/measurement-descriptor.schema.json": "e891e91791577ff6bd901fd801b73925405472671b9152180db2b81ca373762c",
+    "apps/engine-native/internal/exporters/reportdiff/exporter.go": "0bd5609cdf8c4178c1d7ee298d16e6e51093fb66aad51f6d2f27f2d825b5d12b",
+    "apps/engine-native/internal/ingestion/importer.go": "09664441ab97a89050a94903edfbca0ae0d9af54a928f738f8c11cf89bc2e201",
+    "apps/engine-native/internal/ingestion/importer_test.go": "42be8c7d604790e61457f10687f8dbe353e39496490163f3583178264d5f0303",
+    "apps/engine-native/internal/ingestion/lease.go": "b34a3aa30f975abdfbfcf3c1c0b8dc0ea65aa51db629f2f205370f9b1cffbc06",
+    "apps/engine-native/internal/ingestion/schema.go": "904f57b77ae3e7ae2f67827a61e0c6bd973c4ed0ad39c065ceda5a6515d12060",
+    "apps/engine-native/internal/parsers/serverlog/importer.go": "76c70340d22fa14f47a9a9edfe66331aee711f9e39f3c9297b31b2e7f4eb0c70",
+    "apps/engine-native/internal/parsers/serverlog/importer_review_test.go": "b57dd7c296825e647b38843f290abfec450d0dc7e7f5ea9a1b1cf5d0377f38bd",
+    "apps/engine-native/internal/resultcontract/contract.go": "b8f008d994b34226f87a978aa43bdca3768cc60d78bc3b5923dda32547f7655b",
+    "apps/engine-native/internal/resultcontract/contract_test.go": "53cd6aed91dd7f940a86fc9a92fffc542f46caa2d95efd86d914e45b683a0c2a",
+    "apps/engine-native/internal/resultcontract/presentation.go": "fed30f236989e5fcaf4c2d7e469cd1648acd50b58fe14e873a572e45315dab75",
+    "apps/engine-native/internal/wirejson/decode.go": "bdb99220452b3ef115b173b98f1bb092e8f188ed9e69560fd5779953f36cb580",
+    "apps/engine-native/internal/wirejson/decode_test.go": "cbcc1f756e88dfa68d45c8147b22b125d2da44ba7dd84ac1260e24f112b2f051"
+  },
+  "local_build_sha256": {
+    "mac_binary": "545ec3277b35d115c95f2cddc1a7dfec3ceae24bf2eba9106ce2cbe7e5c5b069",
+    "windows_amd64": "8bddeb9e119f4413b812b6bd5b371a56e64e26fcd943fae2aa1aaa9c9fa9d0d2",
+    "windows_386": "dde4a8c48c7d35255be68c8eda0a48e40a01e3ceac2df3e1e9e7599923e7ada6"
+  },
+  "log_sha256": {
+    "t628-race-final.log": "d628cdaad7215b631d3b6a8094ce5e1e44c3082aac36e1b27f939b2c810f3c36",
+    "t628-vet-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "t628-build-final.log": "12f9446704dbc602716a5cd2560bd511da43fd9665a4f792559783a3b7bc6f37",
+    "t628-vet-win64-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "t628-vet-win32-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "t628-state-final.log": "96ab3e7763edc1082d01e3a18afd8649d6c9bcdb89fb7b8a072303fcc49805cb",
+    "t628-package-final.log": "0ac710977a42097ff10f5a78b6c08e9fd5378ed79d0a6793bbd027eda28abfea",
+    "t628-signature-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "t628-win64-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "t628-win32-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "t628-bindings-final.log": "7fb2366ea19b418e4083a1e0d529fea480a7afbac9934c0409ff6918a9f89278",
+    "t628-desktop-final.log": "2737e05db97102bfc69e4a94138f70b869f75db5874ac9581749568974f07e97"
+  }
+}

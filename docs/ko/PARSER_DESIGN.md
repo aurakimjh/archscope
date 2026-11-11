@@ -681,7 +681,8 @@ Finding은 stable `code`, `severity`, 짧은 `message`, 작은 structured `evide
 ## T-628 구현 기록 (2026-11-11)
 
 기준 커밋은 `eb3e782`다. C1–C4는 공통 기반과 기존 Tomcat 서버 로그 pilot에
-연결했다. 독립 리뷰를 수행한 기록은 없으며 아래 테스트 결과가 독립 PASS를 뜻하지 않는다.
+연결했다. 최초 구현 시점에는 독립 리뷰가 없었으며, 이후 CONDITIONAL 판정과
+후속 수정은 아래 리뷰 기록을 따른다. 테스트 통과가 독립 PASS를 뜻하지 않는다.
 
 | 단계 | 구현 | 검증 |
 |---|---|---|
@@ -704,7 +705,7 @@ options는 JSON 문자열, 결과는 immutable handle과 bounded view/JSON 문�
 사용 가능한 형식·operation은 backend catalog가 결정하며 imported capability가 활성화하지 않는다.
 
 운영 기본 상한은 입력/정규화 각 64 MiB, serialized record 1 MiB, record 100,000개,
-stack 깊이 1,024, unique key 100,000개, 임시 디스크 160 MiB, 전체 job 5분,
+stack 깊이 1,024, unique key 100,000개, 임시 디스크 160 MiB, 큐 대기·실행 각각 5분,
 probe 64 KiB/검출기당 1초, options 64 KiB다. 요청은 이를 낮출 수 있으며 올릴 수 없다.
 활성 job은 4개, process 내 job history는 128개로 제한한다. timeout은 협력적으로
 전파하며 OS 파일 I/O나 신뢰된 compiled 함수의 강제 선점·sandbox를 제공하지 않는다.
@@ -720,10 +721,66 @@ pilot은 비압축 UTF-8 및 probe 내 확인 가능한 서버 로그 record를 
 다른 encoding·빈/미확인 prefix·seek·승인된 converter가 필요한 입력은 기존 경로 또는
 후속 adapter를 사용한다. producer 버전을 로그 형식만으로 추정하지 않는다.
 공유 합성 manifest `diagnostics.ingestion.foundation.v1`와 측정 schema를 해시로 묶어
-배포본에 포함한다. 일반 JSON Schema 실행기나 외부 schema 다운로드는 추가하지 않았다.
+배포본에 포함한다. 후속 수정에서 고정 버전 실행기로 번들 JSON Schema의 조립 시 적합성을 검증하며
+외부 schema 로딩은 차단한다.
 
 실제 CLI와 Go bridge, TS 상태/opaque transport, 패키지 검증은 각각 기록한다.
 새 generic job 화면·실제 WebView IPC 실행 증거는 이 단계에서 만들지 않았다(T-631).
 Windows 네이티브 실행은 Mac에서 수행하지 않았으며 교차 빌드와 구분한다.
 전체 ProfileSet(T-629), generic renderer(T-631), 프로파일 수치 정정(T-634),
 case 수명·cache 정리(T-630)와 Q01–Q04는 이 구현으로 완료되지 않는다.
+
+### T-628 독립 리뷰 후속 수정 (2026-11-11)
+
+`a698d26`에 대한 Claude 리뷰 원 판정은 **CONDITIONAL**이다. 원문은 변경 없이
+[보관](../review/done/2026-11-11_claude-code_T-628_implementation-review.ko.md)했다.
+아래 내용은 앞의 최초 구현 시점 기록을 보완한다. 로컬 검증으로 독립 PASS를
+선언하거나 T-628의 REVIEW 상태를 종료하지 않는다.
+
+- **R-01:** 전체 결과 트리에는 `2 × stackDepth + 64` JSON 깊이(1,024프레임
+  정책에서 2,112)를 허용하고 metadata/options/record는 깊이 64를 유지한다.
+  import 서비스는 결과 바이트 정책 64 MiB를 유지한다. 기존 report reader는
+  별도 512 MiB 상한을 적용하고 초과 시 바이트 예산 오류로 거절한다. 과거
+  무제한 읽기에 비해 새 운영 상한이므로 명시한다. 유효한 65 MiB JSON과
+  256프레임 실제 CLI 보고서 및 Wails 직접 메서드 load/export를 검증한다.
+  트리·바이트 상한 초과와 과도하게 깊은 opaque metadata는 거절한다.
+- **R-02/R-13:** 작업 스냅샷은 최대 128개다. 새 작업 접수 시 가장 오래된
+  종료 이력부터 회수하며 실행 중 작업과 결과 revision은 보존한다. 회수된 ID는
+  IMPORT_JOB_STALE을 반환한다. 큐 대기와 실행은 각각 5분 상한
+  (`queueTimeoutMs`, `timeoutMs`)이며 독립적으로 낮출 수 있다. 실행 예산은
+  동시 실행 슬롯을 얻은 뒤 시작한다.
+- **R-03/R-11:** 신뢰된 schema 등록에 input/option/record/result 역할, 의미 계열,
+  결과 타입을 선언한다. catalog는 각 슬롯과 normalizer/analyzer 연결을 확인하고
+  schema 정의 및 컴파일된 validator 양쪽으로 적합성 사례를 실행한다. 서비스
+  활성화 시 모든 analyzer 출력의 result reader 등록과 선언한 payload 버전의
+  reader 호환 범위도 확인한다(schema 문서 revision과 분리). 고정 버전의
+  JSON Schema draft 2020-12 실행기를 조립 시 적합성 검증에 사용하며 실행 중에는
+  신뢰된 compiled adapter가 검증한다. 외부 파일·URL 로딩은 차단하고 schema
+  상수·적합성 피연산자의 연산 예산을 opaque 보존 경로와 분리한다. 정의 hash는
+  데이터 식별자이며 실행 함수의 hash가 아니다. fixture
+  manifest 기대 카운터도 pilot 결과와 대조하여 실행한다.
+- **R-07/R-09:** detector 오류는 importer별 정제된 진단으로 제한한다(최대
+  catalog 256개). 무관한 detector 오류로 명시 선택한 정상 importer를 막지 않는다.
+  detector가 실패하면 자동 선택은 보류하고 정상 후보의 명시 선택을 요구한다.
+  선택한 detector 자체가 실패한 경우 거절한다. 부모 취소·detector 시간 초과·
+  버퍼 초과·입력 I/O를 구분하며 JobProblem 재시도 여부는 오류 코드로 결정한다.
+  원 예외·경로 문자열을 JobProblem에 노출하지 않는다. 신뢰된 실행 함수의
+  시간 제한은 협력적 취소다.
+- **R-05/R-10:** `max_lines`는 완료된 사용자 선택이며
+  `import_coverage.selection=max_lines`로 범위를 기록한다. 다음 논리 줄을
+  읽기 전에 중단하며 allow-partial을 요구하는 자원 절단과 구분한다. 자원 예산
+  절단은 기존의 importer 안전성 및 사용자 동의 조건을 유지한다. 기존 strict/
+  top_n, summary/tables/correlation_keys와 마지막 빈 줄의 레코드 수를 검증한다.
+- **R-08:** import와 Load는 동시 실행 4개 및 종료 취소·대기를 공유한다.
+  OS 프로세스 잠금으로 저장소를 보호하며 독점 소유자만 시작 시 이전 실행의
+  staging을 회수한다. 동일 스냅샷의 중복 로드는 handle을 재사용한다. 결과는
+  1,024개 / 512 MiB로 제한하고 자동 삭제하지 않는다. ReleaseEvidenceResult로
+  미사용 handle을 명시 해제한다. 결과가 없으면 IMPORT_RESULT_STALE과 저장
+  파일 재열기 안내를 반환한다. 사용자가 내보낸 파일은 이 backend 캐시와 별개다.
+
+T-630에는 영속 case manifest, 저장된 workspace 참조의 이전·복구, 중복 handle
+해제 전 참조 소유권, 사용자 보존·삭제·복원 및 index 수명주기가 남는다. 데스크탑
+저장소는 OS 사용자 캐시 위치이므로 외부에서 지워질 수 있으며 handle만으로
+영속 저장된 case라고 볼 수 없다. T-631에는 Load별 UI 취소와 job/fallback 화면
+연결이 남는다. 이 조건들은 work_status.md에 기록하며 이번 공통 기반 수정의
+완료 범위로 주장하지 않는다. Q01~Q04의 제품·입력 결정은 확정하지 않는다.

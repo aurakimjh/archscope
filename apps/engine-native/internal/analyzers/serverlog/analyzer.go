@@ -185,8 +185,8 @@ func buildFromIterator(
 			SourceFormat: firstNonEmpty(format, "auto"),
 			Product:      dominant(productCounts),
 		}))
-		ingestion.AttachCorrelationKeys(&result, correlationKeys)
 	}
+	ingestion.AttachCorrelationKeys(&result, correlationKeys)
 	return result, nil
 }
 

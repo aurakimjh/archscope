@@ -21,6 +21,19 @@ type Limits struct {
 // Operational allocation bounds, not diagnostic thresholds.
 var DefaultLimits = Limits{64 << 20, 64, 4 << 20, 1_000_000, 100_000}
 
+// ResultLimits bounds an entire result tree. A stack frame uses an object and
+// a children array; metadata/options/records retain DefaultLimits independently.
+func ResultLimits(bytes int64, stackDepth int) Limits {
+	l := DefaultLimits
+	l.Bytes = bytes
+	l.Depth = 2*stackDepth + 64
+	return l
+}
+
+// Legacy reports historically accepted large files. Keep a separate, explicit
+// 512 MiB ceiling rather than imposing the import service's 64 MiB policy.
+func LegacyResultLimits() Limits { return ResultLimits(512<<20, 1024) }
+
 func Decode(data []byte, out any) error { return DecodeWithLimits(data, out, DefaultLimits) }
 func DecodeWithLimits(data []byte, out any, l Limits) error {
 	if !utf8.Valid(data) {

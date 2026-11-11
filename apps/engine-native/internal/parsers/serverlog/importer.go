@@ -80,9 +80,20 @@ func NewImporter(format string, d ingestion.ImporterDescriptor) ingestion.Import
 				if e = ctx.Err(); e != nil {
 					return report, e
 				}
+				if opts.MaxLines > 0 && line >= int64(opts.MaxLines) {
+					report.Complete = true
+					report.SelectionReason = "max_lines"
+					return report, nil
+				}
 				raw, e := reader.ReadSlice('\n')
 				if e != nil && e != io.EOF {
-					return report, ingestion.Problem("IMPORT_BUDGET_EXCEEDED", "line exceeds parser buffer")
+					if ctx.Err() != nil {
+						return report, ctx.Err()
+					}
+					if errors.Is(e, bufio.ErrBufferFull) {
+						return report, ingestion.Problem("IMPORT_BUDGET_EXCEEDED", "line exceeds parser buffer")
+					}
+					return report, ingestion.Problem("IMPORT_IO_FAILED", "source read failed")
 				}
 				if len(raw) == 0 && e == io.EOF {
 					break
@@ -90,11 +101,6 @@ func NewImporter(format string, d ingestion.ImporterDescriptor) ingestion.Import
 				line++
 				start := offset
 				offset += int64(len(raw))
-				if opts.MaxLines > 0 && line > int64(opts.MaxLines) {
-					report.SafeBoundary = true
-					report.PartialReason = "max_lines"
-					return report, nil
-				}
 				diags.TotalLines++
 				text := strings.TrimSuffix(strings.TrimSuffix(string(raw), "\n"), "\r")
 				if line == 1 {

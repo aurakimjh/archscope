@@ -34,8 +34,10 @@ import {
 } from "../../bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app";
 import {
   DrilldownFilter,
-  type DrilldownStage,
 } from "../../bindings/github.com/aurakimjh/archscope/apps/engine-native/internal/profiler/models";
+
+import type { ProfilerDrilldownStage as DrilldownStage } from "../bridge/profilerTypes";
+import { checkedProfilerStages } from "../bridge/profilerContract";
 
 import { CanvasFlameGraph, type FlameGraphNode } from "./CanvasFlameGraph";
 import { HelpTip, HelpedLabel, HelpedTitle } from "./HelpTip";
@@ -302,7 +304,7 @@ export function DrilldownPanel({ baseRequest, onError }: DrilldownPanelProps) {
         filters: nextFilters,
       } as any);
       const result = await ProfilerService.Drilldown(request);
-      setStages(result);
+      setStages(checkedProfilerStages(result));
     } catch (err: any) {
       onError?.(String(err?.message ?? err));
     } finally {
@@ -460,7 +462,7 @@ export function DrilldownPanel({ baseRequest, onError }: DrilldownPanelProps) {
           {lastStage?.diagnostics ? (
             <div className="alert error">
               <strong>{t("drilldownStageDiagnostic")}:</strong>{" "}
-              {(lastStage.diagnostics as any)?.message ?? String(lastStage.diagnostics)}
+              {lastStage.diagnostics.message}
             </div>
           ) : null}
           <div className="metric-grid">

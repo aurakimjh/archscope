@@ -34,6 +34,11 @@ type SchemaRef struct {
 	Hash    string `json:"hash"`
 }
 type Schema struct {
+	// The definition hash identifies data, not the compiled validator. These
+	// trusted composition declarations are checked before any job is active.
+	Role, Family, ResultType, PayloadVersion string
+	Conformance                              []SchemaCase
+
 	Ref        SchemaRef
 	Definition json.RawMessage
 	Validate   func(json.RawMessage) error
@@ -41,7 +46,12 @@ type Schema struct {
 
 func NewSchema(id, version string, definition json.RawMessage, validate func(json.RawMessage) error) Schema {
 	sum := sha256.Sum256(definition)
-	return Schema{SchemaRef{id, version, hex.EncodeToString(sum[:])}, append(json.RawMessage(nil), definition...), validate}
+	return Schema{Ref: SchemaRef{id, version, hex.EncodeToString(sum[:])}, Definition: append(json.RawMessage(nil), definition...), Validate: validate}
+}
+
+type SchemaCase struct {
+	Value json.RawMessage
+	Valid bool
 }
 
 type EvidenceGrade string
@@ -58,10 +68,15 @@ type Candidate struct {
 	Reason          string        `json:"reason"`
 	ProducerVersion string        `json:"producerVersion,omitempty"`
 }
+type DetectorProblem struct {
+	ImporterID string `json:"importerId"`
+	Code       string `json:"code"`
+}
 type DetectionSet struct {
-	State      string      `json:"state"`
-	Selected   string      `json:"selected,omitempty"`
-	Candidates []Candidate `json:"candidates"`
+	Diagnostics []DetectorProblem `json:"diagnostics,omitempty"`
+	State       string            `json:"state"`
+	Selected    string            `json:"selected,omitempty"`
+	Candidates  []Candidate       `json:"candidates"`
 }
 type SourceInfo struct {
 	ID     string `json:"id"`
@@ -93,10 +108,11 @@ type RecordSink interface {
 	Write(context.Context, Batch) error
 }
 type ParseReport struct {
-	Complete      bool
-	SafeBoundary  bool
-	PartialReason string
-	Diagnostics   *diagnostics.ParserDiagnostics
+	Complete        bool
+	SafeBoundary    bool
+	SelectionReason string
+	PartialReason   string
+	Diagnostics     *diagnostics.ParserDiagnostics
 }
 type Parser interface {
 	Parse(context.Context, Source, RecordSink) (ParseReport, error)
@@ -110,7 +126,13 @@ func (f ParserFunc) Parse(c context.Context, s Source, k RecordSink) (ParseRepor
 type RecordSource interface {
 	ForEach(context.Context, func(Record) error) error
 }
+type AnalysisSelection struct {
+	ImporterID, AdapterVersion, OptionsHash, PartialReason string
+	Records                                                int64
+	Partial                                                bool
+}
 type Analyzer struct {
+	BindSelection          func(*models.AnalysisResult, SourceInfo, AnalysisSelection) error
 	ID, Family, ResultType string
 	Analyze                func(context.Context, RecordSource, SourceInfo, json.RawMessage, *diagnostics.ParserDiagnostics) (models.AnalysisResult, error)
 }
@@ -180,6 +202,31 @@ func NewCatalog(importers []ImporterDescriptor, schemas []Schema, analyzers []An
 		if wirejson.Decode(s.Definition, &doc) != nil {
 			return invalid("invalid schema definition")
 		}
+		if (s.Role != "input" && s.Role != "option" && s.Role != "record" && s.Role != "result") || s.Family == "" || (s.Role == "result" && (s.ResultType == "" || !semver.MatchString(s.PayloadVersion))) || len(s.Conformance) == 0 {
+			return invalid("schema purpose and conformance cases required")
+		}
+		definitionValidator, e := CompileSchema(s.Definition)
+		if e != nil {
+			return invalid("invalid bundled JSON Schema")
+		}
+		for _, specimen := range s.Conformance {
+			if s.Role == "result" && specimen.Valid {
+				var result models.AnalysisResult
+				if wirejson.DecodeWithLimits(specimen.Value, &result, wirejson.LegacyResultLimits()) != nil || result.Type != s.ResultType || result.Metadata.SchemaVersion != s.PayloadVersion {
+					return invalid("result schema sample disagrees with declared payload type/version")
+				}
+			}
+			if (definitionValidator(specimen.Value) == nil) != specimen.Valid {
+				return invalid("schema definition disagrees with conformance case")
+			}
+			if (s.Validate(specimen.Value) == nil) != specimen.Valid {
+				return invalid("compiled schema validator disagrees with conformance case")
+			}
+		}
+		// The pinned JSON Schema engine checks trusted conformance cases at
+		// composition. Runtime validation stays in the trusted compiled adapter:
+		// opaque metadata must not be interpreted as schema numeric operands.
+		s.Definition = append(json.RawMessage(nil), s.Definition...)
 		c.schemas[s.Ref] = s
 	}
 	for _, a := range analyzers {
@@ -207,13 +254,19 @@ func NewCatalog(importers []ImporterDescriptor, schemas []Schema, analyzers []An
 			}
 			c.aliases[key] = d.ID
 		}
-		for _, ref := range []SchemaRef{d.InputSchema, d.OptionSchema, d.RecordSchema, d.ResultSchema} {
-			if _, ok := c.schemas[ref]; !ok {
-				return invalid("unresolved schema ID/version/hash")
+		for i, ref := range []SchemaRef{d.InputSchema, d.OptionSchema, d.RecordSchema, d.ResultSchema} {
+			schema, ok := c.schemas[ref]
+			roles := []string{"input", "option", "record", "result"}
+			family := d.Family
+			if i == 2 {
+				family = d.NormalizerOutput
+			}
+			if !ok || schema.Role != roles[i] || schema.Family != family {
+				return invalid("schema ID/version/hash/purpose/family mismatch")
 			}
 		}
 		a, ok := c.analyzers[d.AnalyzerID]
-		if !ok || d.RecordFamily == "" || d.RecordFamily != d.NormalizerInput || d.NormalizerOutput != a.Family {
+		if !ok || d.RecordFamily == "" || d.RecordFamily != d.NormalizerInput || d.NormalizerOutput != a.Family || c.schemas[d.ResultSchema].ResultType != a.ResultType {
 			return invalid("record/normalizer/analyzer family mismatch")
 		}
 		digest, digestErr := hex.DecodeString(d.FixtureHash)
@@ -257,20 +310,24 @@ func (c *Catalog) DetectCandidates(ctx context.Context, p Probe) (DetectionSet, 
 		v, e := d.Detector(detectorCtx, probe)
 		deadline := detectorCtx.Err()
 		cancel()
+		if parent := ctx.Err(); parent != nil {
+			return set, parent
+		}
+		code := ""
 		if deadline != nil {
-			return set, Problem("IMPORT_BUDGET_EXCEEDED", "detector time budget exceeded")
+			code = "IMPORT_DETECTOR_TIMEOUT"
+		} else if e != nil {
+			code = "IMPORT_DETECTOR_INVALID"
 		}
-		if e != nil {
-			return set, Problem("IMPORT_DETECTOR_INVALID", "detector failed")
+		if math.IsNaN(v.Confidence) || math.IsInf(v.Confidence, 0) || v.Confidence < 0 || v.Confidence > 1 || (v.Confidence > 0 && v.Grade != Verified && v.Grade != Hint) {
+			code = "IMPORT_DETECTOR_INVALID"
 		}
-		if math.IsNaN(v.Confidence) || math.IsInf(v.Confidence, 0) || v.Confidence < 0 || v.Confidence > 1 {
-			return set, Problem("IMPORT_DETECTOR_INVALID", "invalid confidence")
+		if code != "" {
+			set.Diagnostics = append(set.Diagnostics, DetectorProblem{d.ID, code})
+			continue
 		}
 		if v.Confidence == 0 {
 			continue
-		}
-		if v.Grade != Verified && v.Grade != Hint {
-			return set, Problem("IMPORT_DETECTOR_INVALID", "missing evidence grade")
 		}
 		v.ImporterID = d.ID
 		set.Candidates = append(set.Candidates, v)
@@ -292,13 +349,27 @@ func (c *Catalog) DetectCandidates(ctx context.Context, p Probe) (DetectionSet, 
 			set.Selected = v.ImporterID
 		}
 	}
-	if n == 1 {
+	if n == 1 && len(set.Diagnostics) == 0 {
 		set.State = "selected"
 	} else if len(set.Candidates) > 0 {
 		set.State = "needs_selection"
 		set.Selected = ""
 	}
+	if len(set.Diagnostics) > 0 && len(set.Candidates) == 0 {
+		set.State = "detection_failed"
+	}
 	return set, nil
+}
+
+// ResultTypes are trusted outputs of the composed analyzers, not capabilities
+// imported from a source file.
+func (c *Catalog) ResultTypes() []string {
+	out := []string{}
+	for _, a := range c.analyzers {
+		out = append(out, a.ResultType)
+	}
+	sort.Strings(out)
+	return out
 }
 func (c *Catalog) Resolve(id string, options json.RawMessage, policy string) (ResolvedImporter, error) {
 	if len(options) > MaxOptionBytes {
@@ -342,4 +413,15 @@ func (c *Catalog) Validate(ref SchemaRef, b json.RawMessage) error {
 		return fmt.Errorf("unresolved schema")
 	}
 	return s.Validate(b)
+}
+
+type OutputContract struct{ Type, PayloadVersion string }
+
+func (c *Catalog) OutputContracts() []OutputContract {
+	out := []OutputContract{}
+	for _, d := range c.list {
+		schema := c.schemas[d.ResultSchema]
+		out = append(out, OutputContract{schema.ResultType, schema.PayloadVersion})
+	}
+	return out
 }

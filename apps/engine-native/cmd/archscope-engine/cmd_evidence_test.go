@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -84,5 +85,40 @@ func TestC4ActualCLIImportReopenExportsAndSelection(t *testing.T) {
 	}
 	if out, e = run("evidence", "export", "--in", saved, "--export-format", "raw-json"); e != nil || string(out) != string(raw) {
 		t.Fatal("original unsupported snapshot not preserved", e)
+	}
+}
+
+func TestReviewR01ActualCLIDeepProfilerReportsAndEvidenceExport(t *testing.T) {
+	executable := filepath.Join(t.TempDir(), "engine.exe")
+	if out, e := exec.Command("go", "build", "-o", executable, ".").CombinedOutput(); e != nil {
+		t.Fatal(e, string(out))
+	}
+	run := func(args ...string) {
+		t.Helper()
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+		defer cancel()
+		if out, e := exec.CommandContext(ctx, executable, args...).CombinedOutput(); e != nil {
+			t.Fatal(args, e, string(out))
+		}
+	}
+	root := t.TempDir()
+	input := filepath.Join(root, "deep.collapsed")
+	saved := filepath.Join(root, "deep.json")
+	frames := make([]string, 256)
+	for i := range frames {
+		frames[i] = fmt.Sprintf("synthetic.Frame%d", i)
+	}
+	os.WriteFile(input, []byte(strings.Join(frames, ";")+" 3\n"), 0600)
+	run("profiler", "analyze-collapsed", "--in", input, "--out", saved)
+	for _, format := range []string{"json", "html", "csv", "pptx"} {
+		output := filepath.Join(root, "report."+format)
+		run("report", format, "--in", saved, "--out", output)
+		if info, e := os.Stat(output); e != nil || info.Size() == 0 {
+			t.Fatal(format, e)
+		}
+	}
+	run("report", "diff", "--before", saved, "--after", saved, "--out", filepath.Join(root, "diff.json"))
+	for _, format := range []string{"json", "html", "csv", "report-pack"} {
+		run("evidence", "export", "--in", saved, "--export-format", format, "--out", filepath.Join(root, "evidence."+format))
 	}
 }

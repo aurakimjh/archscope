@@ -1,3 +1,5 @@
+import { checkedProfilerResult, checkedProfilerStages } from "../bridge/profilerContract.js";
+import type { ProfilerMetadata } from "../bridge/types.js";
 import { evidenceScalarText, backendSourceAppendix } from "./evidenceImport.js";
 import { EarlyTaskEvents } from "./earlyTaskEvents.js";
 import { normalizeProfilerDefaults, validProfilerDefaults } from "./defaults.js";
@@ -3302,3 +3304,38 @@ assert(invalidBackendHandleRejected, "metadata URL is never a backend handle");
 
 }
 void testBackendEvidenceAppendix().catch((error) => { throw error; });
+
+// R-14: opaque generated Metadata must not disable checking in consumers.
+const profilerMetadataIsAny: (0 extends (1 & ProfilerMetadata) ? true : false) = false;
+assert(!profilerMetadataIsAny, "profiler facade must remain typed");
+const checkedMetadataFixture = {
+  parser: "synthetic", schema_version: "0.1.0",
+  diagnostics: { total_lines: 1, parsed_records: 1, skipped_lines: 0, skipped_by_reason: {}, samples: [], warnings: [], errors: [] },
+  timeline_scope: { mode: "full", base_method: null, match_mode: "anywhere", view_mode: "preserve_full_path", base_samples: 1, total_samples: 1, base_ratio_of_total: 1, warnings: [] },
+  future_optional: { raw: "9007199254740993" },
+};
+const profilerFacade = checkedProfilerResult({ metadata: checkedMetadataFixture });
+assert(profilerFacade.metadata.parser === "synthetic", "checked profiler metadata retains fields");
+assert(profilerFacade.metadata.future_optional === checkedMetadataFixture.future_optional, "future metadata remains opaque");
+const nilDiagnosticFacade = checkedProfilerResult({ metadata: { ...checkedMetadataFixture, diagnostics: { ...checkedMetadataFixture.diagnostics, samples: null, warnings: null, errors: null, skipped_by_reason: null } } });
+assert(nilDiagnosticFacade.metadata.diagnostics?.samples === null, "Go nil diagnostic arrays stay null");
+for (const invalid of [
+  { ...checkedMetadataFixture, parser: 7 },
+  { ...checkedMetadataFixture, timeline_scope: { ...checkedMetadataFixture.timeline_scope, base_samples: "1" } },
+  { ...checkedMetadataFixture, diagnostics: { ...checkedMetadataFixture.diagnostics, samples: ["invalid"] } },
+  { ...checkedMetadataFixture, diff_summary: { baseline_total: "1" } },
+]) {
+  let rejected = false;
+  try { checkedProfilerResult({ metadata: invalid }); } catch { rejected = true; }
+  assert(rejected, "invalid known profiler metadata is rejected before rendering");
+}
+assert(checkedProfilerStages([{ diagnostics: null }])[0].diagnostics === null, "nil drilldown diagnostic accepted");
+let badDrilldownRejected = false;
+try { checkedProfilerStages([{ diagnostics: { message: 7 } }]); } catch { badDrilldownRejected = true; }
+assert(badDrilldownRejected, "drilldown diagnostic has a checked message");
+if (false) {
+  // @ts-expect-error a known metadata field must not degrade to any
+  profilerFacade.metadata.parser = 42;
+  // @ts-expect-error unknown optional metadata cannot be dereferenced unchecked
+  profilerFacade.metadata.future_optional.unsafe;
+}

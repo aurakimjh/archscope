@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"math/big"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -93,6 +94,12 @@ func New(ds ...Descriptor) (*Registry, error) {
 	return r, nil
 }
 
+func (r *Registry) HasType(kind string) bool { _, ok := r.types[kind]; return ok }
+func (r *Registry) SupportsPayload(kind, version string) bool {
+	d, ok := r.types[kind]
+	return ok && d.Payload.Accepts(version)
+}
+
 type Verdict struct {
 	Allowed  bool   `json:"allowed"`
 	Reason   string `json:"reason,omitempty"`
@@ -162,13 +169,13 @@ func extensionVersions(r models.AnalysisResult) (map[string]string, error) {
 }
 
 type Measurement struct {
-	Kind               string                 `json:"measurement_kind"`
-	Unit               string                 `json:"unit"`
-	Scope              string                 `json:"scope"`
+	Kind               string                 `json:"measurement_kind,omitempty"`
+	Unit               string                 `json:"unit,omitempty"`
+	Scope              string                 `json:"scope,omitempty"`
 	Population         string                 `json:"population_ref,omitempty"`
-	Aggregation        string                 `json:"aggregation"`
-	Encoding           string                 `json:"numeric_encoding"`
-	Availability       string                 `json:"availability"`
+	Aggregation        string                 `json:"aggregation,omitempty"`
+	Encoding           string                 `json:"numeric_encoding,omitempty"`
+	Availability       string                 `json:"availability,omitempty"`
 	Reason             string                 `json:"reason,omitempty"`
 	Evidence           string                 `json:"evidence_ref,omitempty"`
 	Columns            map[string]Measurement `json:"columns,omitempty"`
@@ -186,19 +193,20 @@ func Measurements(r models.AnalysisResult) (map[string]Measurement, error) {
 	if e != nil {
 		return nil, e
 	}
-	if e = wirejson.Decode(b, &m); e == nil {
-		decoder := json.NewDecoder(bytes.NewReader(b))
-		decoder.DisallowUnknownFields()
-		e = decoder.Decode(&m)
-	}
+	// Unknown optional fields stay in Metadata.Extra's original block. The
+	// typed projection interprets only known fields within the declared range.
+	e = wirejson.Decode(b, &m)
 	if m == nil && e == nil {
 		e = fmt.Errorf("measurement must be an object")
 	}
 	return m, e
 }
 func Decode(b []byte) (models.AnalysisResult, error) {
+	return DecodeWithLimits(b, wirejson.LegacyResultLimits())
+}
+func DecodeWithLimits(b []byte, limits wirejson.Limits) (models.AnalysisResult, error) {
 	var r models.AnalysisResult
-	if e := wirejson.Decode(b, &r); e != nil {
+	if e := wirejson.DecodeWithLimits(b, &r, limits); e != nil {
 		return r, e
 	}
 	if r.Type == "" || r.CreatedAt == "" || r.SourceFiles == nil || r.Summary == nil || r.Series == nil || r.Tables == nil || r.Charts == nil {
@@ -227,7 +235,7 @@ func (r *Registry) Validate(result models.AnalysisResult) error {
 	if e != nil {
 		return e
 	}
-	if len(m) > 0 && versions["measurement"] != "1.0.0" {
+	if support, known := d.Extensions["measurement"]; len(m) > 0 && (!known || !support.Accepts(versions["measurement"])) {
 		return fmt.Errorf("measurement extension version required")
 	}
 	for path, measurement := range m {
@@ -508,10 +516,22 @@ func (r *Registry) Compare(a, b models.AnalysisResult, path string) (Delta, erro
 	if !ok || !ok2 {
 		return Delta{Reason: "measurement_absent"}, nil
 	}
-	if x.Kind != y.Kind || x.Unit != y.Unit || x.Population != y.Population || x.Scope != y.Scope || x.Aggregation != y.Aggregation {
+	if x.Kind != y.Kind || x.Unit != y.Unit || (x.Population == "") != (y.Population == "") || x.Scope != y.Scope || x.Aggregation != y.Aggregation {
 		return Delta{}, fmt.Errorf("measurement population/unit/kind mismatch")
 	}
-	if x.Population == "" {
+	if x.Population != "" {
+		left, e := populationIdentity(a, x.Population)
+		if e != nil {
+			return Delta{}, e
+		}
+		right, e := populationIdentity(b, y.Population)
+		if e != nil {
+			return Delta{}, e
+		}
+		if !bytes.Equal(left, right) {
+			return Delta{}, fmt.Errorf("population identity mismatch")
+		}
+	} else {
 		left, _ := json.Marshal(a)
 		right, _ := json.Marshal(b)
 		if !bytes.Equal(left, right) {
@@ -552,3 +572,36 @@ func mustKey(path string) string { _, key, _ := pointer(path); return key }
 
 // ExactNumber returns an owned exact rational without coercing strings or units.
 func ExactNumber(v any, encoding string) (*big.Rat, error) { return numeric(v, encoding) }
+
+// PopulationIdentity describes the selection used for a measurement. It grants
+// comparison only; matching bytes never merge source/capture provenance.
+type PopulationIdentity struct {
+	SourceHashes     []string `json:"source_sha256"`
+	SelectionHash    string   `json:"selection_hash"`
+	SemanticRevision string   `json:"semantic_revision"`
+	Coverage         string   `json:"coverage"`
+}
+
+var sha256Text = regexp.MustCompile(`^[0-9a-f]{64}$`)
+
+func populationIdentity(result models.AnalysisResult, id string) ([]byte, error) {
+	body, e := json.Marshal(result.Metadata.Extra["populations"])
+	if e != nil {
+		return nil, e
+	}
+	var all map[string]PopulationIdentity
+	if e = wirejson.Decode(body, &all); e != nil {
+		return nil, fmt.Errorf("population identity required")
+	}
+	identity, exists := all[id]
+	if !exists || len(identity.SourceHashes) == 0 || !sha256Text.MatchString(identity.SelectionHash) || identity.SemanticRevision == "" || identity.Coverage == "" {
+		return nil, fmt.Errorf("population identity required")
+	}
+	sort.Strings(identity.SourceHashes)
+	for i, hash := range identity.SourceHashes {
+		if !sha256Text.MatchString(hash) || (i > 0 && identity.SourceHashes[i-1] == hash) {
+			return nil, fmt.Errorf("invalid population source identity")
+		}
+	}
+	return json.Marshal(identity)
+}

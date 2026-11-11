@@ -113,12 +113,13 @@ func parseTimeFlag(name, value string) (*time.Time, error) {
 // generic map 으로 디코드하기 때문에 AnalysisResult 의 임의 확장
 // 필드도 잃지 않고 그대로 전달되는 round-trip 이 보장됩니다.
 func readJSONFile(path string) (map[string]any, error) {
-	body, err := os.ReadFile(path)
+	f, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("read %s: %w", path, err)
 	}
+	defer f.Close()
 	var payload map[string]any
-	if err := wirejson.Decode(body, &payload); err != nil {
+	if err := wirejson.Read(f, &payload, wirejson.LegacyResultLimits()); err != nil {
 		return nil, fmt.Errorf("decode %s: %w", path, err)
 	}
 	return payload, nil

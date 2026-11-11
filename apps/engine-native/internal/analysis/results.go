@@ -7,16 +7,17 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/ingestion"
 	"io"
 	"os"
 	"path/filepath"
-	"time"
 
 	csvexport "github.com/aurakimjh/archscope/apps/engine-native/internal/exporters/csv"
 	htmlexport "github.com/aurakimjh/archscope/apps/engine-native/internal/exporters/html"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/resultcontract"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/wirejson"
 )
 
 type ResultView struct {
@@ -42,9 +43,19 @@ func (s *Service) View(handle string) (ResultView, error) {
 	}
 	return ResultView{handle, r.Type, string(body), truncated, s.results.Check(r, "save")}, nil
 }
-func (s *Service) Load(ctx context.Context, path string) (ResultView, error) {
-	ctx, cancel := context.WithTimeout(ctx, time.Duration(s.policy.TimeoutMS)*time.Millisecond)
-	defer cancel()
+func (s *Service) Load(ctx context.Context, path string) (view ResultView, failure error) {
+	ctx, finish, e := s.beginLoad(ctx)
+	if e != nil {
+		return ResultView{}, e
+	}
+	defer finish()
+	defer func() {
+		if failure != nil && errors.Is(context.Cause(ctx), context.DeadlineExceeded) {
+			failure = ingestion.Problem("IMPORT_BUDGET_EXCEEDED", "load execution deadline exceeded")
+		} else if failure != nil && context.Cause(ctx) != nil {
+			failure = context.Cause(ctx)
+		}
+	}()
 	directory, e := os.MkdirTemp(filepath.Join(s.root, "staging"), "load-")
 	if e != nil {
 		return ResultView{}, e
@@ -71,7 +82,7 @@ func (s *Service) Load(ctx context.Context, path string) (ResultView, error) {
 	if int64(len(body)) > s.policy.DecodedBytes {
 		return ResultView{}, fmt.Errorf("result byte budget exceeded")
 	}
-	if _, e = resultcontract.Decode(body); e != nil {
+	if _, e = resultcontract.DecodeWithLimits(body, wirejson.ResultLimits(s.policy.DecodedBytes, s.policy.StackDepth)); e != nil {
 		return ResultView{}, e
 	}
 	if e = ctx.Err(); e != nil {
@@ -87,7 +98,7 @@ func (s *Service) Load(ctx context.Context, path string) (ResultView, error) {
 	if e = ctx.Err(); e != nil {
 		return ResultView{}, e
 	}
-	if e = os.Rename(staged, filepath.Join(s.root, "results", handle+".json")); e != nil {
+	if handle, e = s.publish(ctx, staged, handle, body); e != nil {
 		return ResultView{}, e
 	}
 	return s.View(handle)

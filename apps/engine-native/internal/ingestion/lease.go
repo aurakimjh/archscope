@@ -15,25 +15,26 @@ import (
 // Budgets are operational ceilings fixed before a job starts. Importer/user
 // requests may lower, but never raise, the service policy.
 type Budgets struct {
-	InputBytes   int64 `json:"inputBytes"`
-	DecodedBytes int64 `json:"decodedBytes"`
-	RecordBytes  int64 `json:"recordBytes"`
-	Records      int64 `json:"records"`
-	StackDepth   int   `json:"stackDepth"`
-	UniqueKeys   int   `json:"uniqueKeys"`
-	TempBytes    int64 `json:"tempBytes"`
-	TimeoutMS    int64 `json:"timeoutMs"`
-	ProbeBytes   int   `json:"probeBytes"`
+	InputBytes     int64 `json:"inputBytes"`
+	DecodedBytes   int64 `json:"decodedBytes"`
+	RecordBytes    int64 `json:"recordBytes"`
+	Records        int64 `json:"records"`
+	StackDepth     int   `json:"stackDepth"`
+	UniqueKeys     int   `json:"uniqueKeys"`
+	TempBytes      int64 `json:"tempBytes"`
+	TimeoutMS      int64 `json:"timeoutMs"`
+	QueueTimeoutMS int64 `json:"queueTimeoutMs"`
+	ProbeBytes     int   `json:"probeBytes"`
 }
 
 func DefaultBudgets() Budgets {
-	return Budgets{64 << 20, 64 << 20, 1 << 20, 100_000, 1024, 100_000, 160 << 20, int64((5 * time.Minute) / time.Millisecond), MaxProbeBytes}
+	return Budgets{64 << 20, 64 << 20, 1 << 20, 100_000, 1024, 100_000, 160 << 20, int64((5 * time.Minute) / time.Millisecond), int64((5 * time.Minute) / time.Millisecond), MaxProbeBytes}
 }
 func (b Budgets) Within(p Budgets) (Budgets, error) {
 	ints := []struct {
 		value *int64
 		max   int64
-	}{{&b.InputBytes, p.InputBytes}, {&b.DecodedBytes, p.DecodedBytes}, {&b.RecordBytes, p.RecordBytes}, {&b.Records, p.Records}, {&b.TempBytes, p.TempBytes}, {&b.TimeoutMS, p.TimeoutMS}}
+	}{{&b.InputBytes, p.InputBytes}, {&b.DecodedBytes, p.DecodedBytes}, {&b.RecordBytes, p.RecordBytes}, {&b.Records, p.Records}, {&b.TempBytes, p.TempBytes}, {&b.TimeoutMS, p.TimeoutMS}, {&b.QueueTimeoutMS, p.QueueTimeoutMS}}
 	for _, v := range ints {
 		if *v.value == 0 {
 			*v.value = v.max
