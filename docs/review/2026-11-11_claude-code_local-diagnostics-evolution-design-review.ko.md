@@ -37,7 +37,7 @@ P1 4건(F-01~F-04)은 첫 구현 작업 전에 설계에 반영해야 한다. �
 | F-11 | P3 | 영문 설계 문서가 없음 | 문서 전체 |
 | F-12 | P3 | `gpu_metrics`와 `metrics_timeseries`의 경계가 모호함 | §16.2 |
 
-이와 별도로 6절에 기능 보완 제안 20건(G-01~G-21, G-11은 G-15로 통합)을 두었다. 결함이 아닌 범위 제안이므로 등급을 매기지 않았고, 채택 여부는 처리자가 다시 판단한다. 이 중 6.2의 8건(G-14~G-21)은 사용자가 직접 확인한 AI 서비스·다언어 수요이며, 사용자 답변(vLLM·NVIDIA 위주, MacBook GPU, Python·Rust·Node)을 6.2에 기록했다.
+이와 별도로 6절에 기능 보완 제안 21건(G-01~G-22, G-11은 G-15로 통합)을 두었다. 결함이 아닌 범위 제안이므로 등급을 매기지 않았고, 채택 여부는 처리자가 다시 판단한다. 이 중 6.2의 9건(G-14~G-22)은 사용자가 직접 확인한 AI 서비스·다언어 수요이며, 사용자 답변(vLLM·NVIDIA 위주, MacBook GPU, Python·Rust·Node, OpenTelemetry AI metric)을 6.2에 기록했다.
 
 ## 3 P1 상세
 
@@ -229,6 +229,23 @@ P1 4건(F-01~F-04)은 첫 구현 작업 전에 설계에 반영해야 한다. �
 | G-20 | Apple Silicon(MacBook) GPU 분석 | 설계에 없음. macOS는 분석 PC로만 언급(§1.2, §18.3) | powermetrics·Metal·MLX 관련 코드 없음 | NVIDIA와 **별도의 vendor adapter**로 둔다. 입력 후보는 macOS 기본 도구의 전력·GPU 활동 출력, 프레임워크(Metal 백엔드)의 메모리 관측, 엔진 로그다. 장치 모델에 반영할 차이: ① 통합 메모리라 전용 GPU 메모리가 없고 시스템 메모리 압력·swap이 함께 봐야 할 지표다 ② GPU UUID·MIG·Xid·DCGM에 해당하는 개념이 없어 §11.3의 identity 규칙이 그대로 적용되지 않는다 ③ 노트북은 전원 상태·저전력 모드·발열 제한이 성능을 직접 바꾸므로 수집 조건(§3.3 capture)에 포함한다. NVIDIA metric을 이름만 바꿔 적용하지 않는다는 §11.5 원칙을 유지 |
 | G-21 | Rust 런타임 자료 | §4.1 Native 행에 "C/C++/Rust, 공통 형식 우선"으로만 표기 | 프레임 이름에 `rust` 또는 `::`가 있으면 Rust로 분류(`parsers/profile/parser.go:947-948`). `::`는 C++ 이름에도 있어 오분류 가능. symbol demangle 코드는 찾지 못함 | ① symbol demangle과 빌드별 hash 접미사 정규화. 이것이 없으면 §4.5의 버전 간 함수 비교 키가 빌드마다 달라진다 ② 런타임 분류를 이름 추측이 아닌 producer·binary 정보 기준으로 변경 ③ async 실행은 stack에 poll 호출로만 나타나므로, 논리적 task 관계는 별도 자료가 있을 때만 표시(§7.1의 "async task와 OS thread 구분" 원칙) ④ panic·backtrace 로그 구조화. 프로파일 자체는 perf·pprof·collapsed 공통 경로로 받는다 |
 
+사용자가 이어서 **OpenTelemetry에서 생산된 AI metric 자료도 있다**고 밝혔다. G-14가 trace를 다루는 것과 별개로 metric 경로가 필요하다.
+
+| ID | 항목 | 설계의 현재 상태 | 코드 확인 | 제안 범위 |
+|---|---|---|---|---|
+| G-22 | OpenTelemetry GenAI metric 반입 | §10.1-4가 OTLP metric export를 "별도로 검증"할 adapter로만 언급. §12.6은 GenAI **trace** adapter만 언급하고 metric은 없음. §12.3은 vLLM 자체 metric만 대상 | OTel 파서는 JSONL log·span만 처리(`parsers/otel/parser.go` 패키지 주석). metrics 파서는 Prometheus/OpenMetrics 텍스트만 처리. OTLP metric과 GenAI 속성 관련 코드 없음 | ① §10의 메트릭 시계열 기반에 OTLP metric 입력을 정식 경로로 올린다: temporality(delta/cumulative), start time, histogram 경계, resource 속성 기반 identity 보존 ② 그 위에 GenAI semantic adapter를 둔다: 작업 시간, token 사용량, 첫 토큰 시간, 출력 token당 시간 등을 G-15의 공통 신호에 대응 ③ client 측 계측과 server 측 계측을 §12.4의 client/server 구분으로 분리 |
+
+**G-22에서 지켜야 할 해석 규칙**
+
+- **같은 metric이 두 가지 이름으로 들어온다.** OTLP로 받으면 원래 이름과 단위가 유지되고, Prometheus 형식으로 변환된 것을 받으면 이름 표기와 단위 접미사가 바뀐다. 두 형태를 같은 canonical 신호로 잇는 alias를 F-04의 지식 팩 데이터로 관리하고, 원본 이름은 그대로 보존한다(§11.2의 alias 원칙과 동일).
+- **GenAI 규약은 아직 바뀌고 있다.** §12.6이 trace에 대해 적은 대로 metric에도 instrumentation 라이브러리·버전·schema URL을 보존하고 이름을 고정 상수로 두지 않는다. 표준 규약 이전의 라이브러리별 이름은 별도 adapter 버전으로 다룬다.
+- **histogram 종류를 구분한다.** 고정 bucket histogram과 지수 bucket histogram은 다른 자료다. 지수 bucket은 §10.2의 native histogram 행과 같은 규칙(지원 여부 선언, 미지원을 다른 형태로 가장하지 않음)을 따른다.
+- **delta temporality는 누적 counter와 계산이 다르다.** delta 값에 증가분 계산을 다시 적용하지 않는다. reset 처리(§10.2)는 cumulative에만 적용한다.
+- **같은 현상의 세 가지 관측을 독립 증거로 세지 않는다.** 첫 토큰 지연은 vLLM 자체 metric, OTel server 측 metric, 애플리케이션 trace(G-14)에서 각각 나올 수 있다. 측정 지점이 다르므로 값을 합치거나 평균하지 않고 나란히 표시하며, 같은 사건의 복제본을 세 개의 근거로 계산하지 않는다(§13.3).
+- **분포에서 추정한 percentile과 요청 원본에서 계산한 percentile을 구분한다**(§10.2). metric에서 온 값과 trace에서 온 값의 차이는 오류가 아니라 자료 형태의 차이로 표시한다.
+
+**G-22가 우선순위에 미치는 영향**: §19의 "메트릭 history와 histogram 처리"는 Prometheus 중심으로 쓰였다. OTLP metric을 같은 행의 범위에 넣고, GPU·vLLM 분석의 선행 조건으로 유지한다. OTel 경로가 있으면 vLLM 이외의 엔진이나 애플리케이션 계층도 엔진별 adapter 없이 같은 신호로 들어오므로 G-15의 엔진 추가 부담이 줄어든다.
+
 **답변에서 생기는 설계 쟁점**
 
 - **MacBook에서 도는 서빙 엔진이 vLLM이 아닐 수 있다.** vLLM의 Apple GPU 지원 여부는 이 리뷰에서 확인하지 않았다. 지원하지 않는 버전이라면 MacBook의 추론은 다른 엔진(Metal 백엔드를 쓰는 로컬 엔진)으로 돌고, 그 엔진의 로그·metric이 입력이 된다. "vLLM 위주"와 "MacBook GPU"를 함께 만족하려면 G-15의 엔진 중립 계약이 선택이 아니라 필수다.
@@ -241,6 +258,7 @@ P1 4건(F-01~F-04)은 첫 구현 작업 전에 설계에 반영해야 한다. �
 1. LangSmith·Langfuse 자료를 어떤 형태(UI export, 일괄 export, OTLP)로 받을 수 있는가. 자체 호스팅인가.
 2. MacBook에서 실제로 돌리는 추론 엔진과 프레임워크는 무엇인가. G-20의 입력과 G-15의 두 번째 adapter가 여기서 정해진다.
 3. vLLM의 대상 버전 범위는 무엇인가. metric 이름과 노출 조건이 버전마다 다르다(§12.3).
+4. OpenTelemetry AI metric은 어떤 형태로 받는가: collector가 파일로 쓴 OTLP, Prometheus 형식으로 변환된 것, 백엔드의 range query export 중 무엇인가. 어떤 계측 라이브러리가 생산했는가. G-22의 입력 경로와 alias 범위가 여기서 정해진다.
 
 ### 6.3 수요가 확인되면 추가할 항목
 
@@ -286,8 +304,8 @@ G-11(다른 추론 엔진)은 사용자 확인에 따라 6.2의 G-15로 옮겼�
 3. F-06 버전 축 표를 위 결과로 채운다.
 4. F-05·F-09·F-10은 §19 개정에 반영한다.
 5. F-07·F-11·F-12는 해당 절 보완으로 처리한다.
-6. 6절의 기능 제안(G-01~G-21)은 6.5의 기준으로 채택 여부를 다시 판단한다. 채택하더라도 1~2번의 구조 보완 뒤에 착수한다.
-7. 6.2(G-14~G-21)는 사용자가 직접 확인한 수요다. 채택 여부보다 범위와 순서를 정하는 문제다. 사용자 답변은 6.2에 기록했고, 6.2 끝의 남은 질문 3개는 해당 항목 착수 전에 확인한다.
+6. 6절의 기능 제안(G-01~G-22)은 6.5의 기준으로 채택 여부를 다시 판단한다. 채택하더라도 1~2번의 구조 보완 뒤에 착수한다.
+7. 6.2(G-14~G-22)는 사용자가 직접 확인한 수요다. 채택 여부보다 범위와 순서를 정하는 문제다. 사용자 답변은 6.2에 기록했고, 6.2 끝의 남은 질문 4개는 해당 항목 착수 전에 확인한다.
 
 설계 보완이 끝나기 전에는 §19의 "가장 먼저 완결할 작은 구현 범위" 중 **정확성 회귀 fixture 확정**(§2.1)만 선행할 수 있다. 이 작업은 어떤 구조 결정과도 충돌하지 않는다.
 
@@ -296,6 +314,7 @@ G-11(다른 추론 엔진)은 사용자 확인에 따라 6.2의 G-15로 옮겼�
 - 6절의 "코드 확인"은 키워드 검색이다. 6.1·6.3 항목의 현장 수요와 우선순위는 리뷰어의 가정이다. 6.2는 사용자가 방향을 확인했지만 구체적인 엔진·버전·자료 형태는 확인하지 않았다.
 - LangSmith·Langfuse의 export 형식과 필드, 서빙 엔진별 metric 이름과 통계 형태는 실제 파일이나 공식 문서로 대조하지 않았다. 6.2는 필요한 의미 계층과 해석 규칙만 제안하며 구체적인 필드 mapping은 fixture 확보 후 정한다(§18.1).
 - vLLM의 Apple GPU 지원 여부, macOS 도구의 출력 형식과 필요한 권한, Rust symbol 표기 규칙은 실제 환경에서 확인하지 않았다. G-20·G-21의 입력 후보는 fixture로 확인한 뒤 확정한다.
+- OpenTelemetry GenAI metric의 현재 이름·단위·안정성 단계와 Prometheus 변환 시의 표기 규칙은 공식 사양으로 대조하지 않았다. G-22는 구체적인 metric 이름을 적지 않았으며 실제 export 파일로 확정한다.
 - 빌드, 테스트, 앱 실행, 성능 측정은 하지 않았다. 코드 근거는 파일과 줄 번호의 정적 확인이다.
 - "호출처를 찾지 못했다"는 판단(`FormatRegistry` 사용처, generic renderer, 프런트엔드 외부 URL)은 `grep` 결과이며 동적 등록이나 다른 명명은 배제하지 못한다.
 - 설계가 인용한 외부 사양(py-spy, pprof, Speedscope, DCGM, vLLM, Nsight, OTel) 내용의 정확성은 대조하지 않았다.
