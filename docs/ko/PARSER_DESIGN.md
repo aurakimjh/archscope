@@ -859,3 +859,56 @@ R5-01에서 wire 디코더의 자원 오류를 ProfileSet 입력 경계까지 �
 문자열/key 4 MiB 초과는 형식 불일치가 아닌 상세 예산 거절이고, 경계와 초과 import를
 검증한다. 잘못된 JSON은 형식 오류를 유지한다. R5-02 capture key 정책은 DATA_MODEL의
 T-634/T-635 인계 계약을 따르며 현재 불투명 옵션 전체 비교는 유지한다.
+
+## T-630 안전한 intake·adapter 경계 (2026-11-11)
+
+`internal/cases`는 기존 analysis 바깥의 context/저장/intake 책임이며 profile parsing,
+weight 재해석, T-631 generic renderer를 구현하지 않는다. ZIP/TAR/tar.gz preview는 전체
+항목을 검사하고 archive SHA256으로 실제 intake를 고정한다. 파일 128개, 경로 16요소,
+파일당 64 MiB, 압축/해제 전체 256 MiB로 제한하며 ZIP central directory도 표준 라이브러리
+할당 전에 검증한다. split/ZIP64·암호화·link/특수 파일·TAR extended/sparse, 절대/탈출/
+Windows 예약 경로, Unicode·대소문자 정규화 중복, 파일-부모 충돌, 중첩 압축을 거부한다.
+실제 크기/CRC도 확인한다. archive 권한·소유자·mtime은 적용하지 않는다. 선택 내용은
+상한이 있는 메모리에 staging하고 구조 검사를 모두 통과한 뒤 object와 한 manifest HEAD를
+확정한다. capture/명시 hash 실패는 failed/omitted 원본 기록으로 남기며 성공 object로
+발행하지 않는다. 구조 오류·취소는 revision을 발행하지 않는다. basename/mtime이 아닌
+명시 capture file/entity 관계로만 구분한다.
+
+별도 decoder는 명시 encoding → BOM → 유효 UTF-8 → 명시 허용 legacy sniff 순이다.
+CP949 확장은 strict EUC-KR에서 거부하며 모호하면 사용자가 선택해야 한다. 손실 대체는
+명시 허용 시에만 수행하고 수를 기록한다. UTF-16 surrogate pair/BOM 위치/CRLF를 검증한다.
+행별 원본 반개구간 byte와 디코딩 UTF-8 위치는 decimal string이다. source digest, decoder
+revision, encoding, replacement 수를 index revision에 고정한다. encoding 수정은 재구축과
+종속 artifact stale 처리를 동반한다. source page는 최대 200행·행당 4 KiB·전체 64 KiB다.
+비식별 복사본은 parent digest·redaction profile을 가진 별도 UTF-8 source이며 좌표는 그
+복사본 기준이다. 바뀐 길이를 원본 좌표라고 주장하지 않는다. 외부 원본은 읽기 전용 regular file이며 filesystem link는 명시적으로 해소해야 한다.
+내용/hash·stat을 재대조해 읽는 중 변경을 거부한다. HEAD 확정 직전 취소를 확인하고
+이미 확정한 revision은 되돌리지 않는다. 기존 textio 및 parser golden 동작은 유지한다.
+
+`analysis.OpenDurable`은 양쪽 커널 lock 하에 기존 OS cache를 앱 데이터로 이관한다.
+결과별 decode/publish 뒤 최종 버전 marker를 쓰며 중단된 복사는 content dedup으로 재시도한다.
+원본 cache는 유지하고 case purge 제외 범위로 명시한다. 완료 marker는 이후 의도적으로 지운
+cache를 재생하지 않는다. saved case는 결과 바이트를 직접 소유하고 `LoadSnapshot`으로
+재개하므로 예전 handle/cache 부재와 독립적이다. 호출자별 opaque lease를 획득/해제하며
+administrative Release는 owner가 남으면 거부한다. 위험한 공개 ReleaseEvidenceResult는
+계속 노출하지 않는다. Workspace는 자기 lease만 관리하고 clear 이후 늦은 reopen을 거부하며
+작은 saved-case 메뉴로 저장/열기를 제공한다. JS projection 대신 backend 원본을 저장하고
+backend handle이 없는 legacy 항목은 메모리에만 둔다. 원본 연결·수명주기·portable 조작은
+CLI/Wails에서 제공하며 generic 사건 화면·탐색·통합 검색은 T-631/T-633/T-635 범위다.
+
+CLI는 `case create --title ...`, `case list`, `case show --id ...`,
+`case edit --request edit.json`, `case save-result --in result.json --request refs.json`,
+`case export-result --id ... --result ... --out ...`, `case preview --in bundle.zip`,
+`case pack --id ... --request reviewed-selection.json --out case.zip`,
+`case restore --in case.zip --sha256 <preview digest>`, `case delete-plan --id ...`,
+`case purge --id ... --revision ... --token ...`, `case rebuild-index`, `case cleanup-cache`를
+제공한다. `--store`는 격리 저장소를 지정한다. edit JSON은 case_id/expected_revision과
+operation(details/retention/workspace/capture/source/replace-source/encoding/omit-source/
+archive-intake/review-source/review-result/artifact/baseline/archive/restore/delete)을 사용한다.
+SaveResult는 case_id/expected_revision/source_ids/capture_id/selection/options_hash/versions로
+참조를 고정하며 원본 없는 snapshot 저장은 source_ids가 빈 배열이다. portable 선택은
+manifest_reviewed/source_ids/result_ids/include_workspace이고 저장/복원이 공유를 자동 승인하지
+않는다. Wails는 JSON 문자열과 문자열 lease를 사용한다. Go bridge 검증은 실제 WebView IPC/UI,
+Windows runtime 증거가 아니며 작성자 검사로 독립 리뷰 PASS를 선언하지 않는다.
+
+사건 export는 managed 저장소와 현재 외부 원본 참조/alias를 덮어쓰는 경로를 거부한다.

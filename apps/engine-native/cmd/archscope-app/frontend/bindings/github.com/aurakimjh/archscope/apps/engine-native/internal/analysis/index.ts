@@ -5,5 +5,6 @@ export {
     CancelOutcome,
     JobProblem,
     JobSnapshot,
+    ResultLease,
     ResultView
 } from "./models.js";

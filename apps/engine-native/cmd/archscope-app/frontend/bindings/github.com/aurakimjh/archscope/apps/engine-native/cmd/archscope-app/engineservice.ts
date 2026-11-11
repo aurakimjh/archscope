@@ -49,31 +49,37 @@ import * as resultcontract$0 from "../../internal/resultcontract/models.js";
 // @ts-ignore: Unused imports
 import * as $models from "./models.js";
 
+export function AcquireEvidenceResult(handle: string): $CancellablePromise<analysis$0.ResultLease> {
+    return $Call.ByID(4180968857, handle).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
 /**
  * AnalyzeAccessLog wraps engineapi.AnalyzeAccessLog. RFC3339 strings
  * on the request are parsed once and forwarded as *time.Time.
  */
 export function AnalyzeAccessLog(req: $models.AccessLogRequest): $CancellablePromise<api$0.AnalysisResult> {
     return $Call.ByID(1960996887, req).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
 export function AnalyzeApiContract(req: $models.ApiContractRequest): $CancellablePromise<api$0.AnalysisResult> {
     return $Call.ByID(837906317, req).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
 export function AnalyzeArchitectureDocs(req: $models.ArchitectureDocsRequest): $CancellablePromise<api$0.AnalysisResult> {
     return $Call.ByID(1213908473, req).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
 export function AnalyzeBrokerLog(req: $models.BrokerLogRequest): $CancellablePromise<api$0.AnalysisResult> {
     return $Call.ByID(3528065178, req).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
@@ -82,13 +88,13 @@ export function AnalyzeBrokerLog(req: $models.BrokerLogRequest): $CancellablePro
  */
 export function AnalyzeBrowserAudit(req: $models.BrowserAuditRequest): $CancellablePromise<api$0.AnalysisResult> {
     return $Call.ByID(3499237002, req).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
 export function AnalyzeDatabaseLog(req: $models.DatabaseLogRequest): $CancellablePromise<api$0.AnalysisResult> {
     return $Call.ByID(4066669974, req).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
@@ -97,7 +103,7 @@ export function AnalyzeDatabaseLog(req: $models.DatabaseLogRequest): $Cancellabl
  */
 export function AnalyzeException(req: $models.ExceptionRequest): $CancellablePromise<api$0.AnalysisResult> {
     return $Call.ByID(3396329610, req).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
@@ -106,25 +112,25 @@ export function AnalyzeException(req: $models.ExceptionRequest): $CancellablePro
  */
 export function AnalyzeGcLog(req: $models.GcLogRequest): $CancellablePromise<api$0.AnalysisResult> {
     return $Call.ByID(797849915, req).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
 export function AnalyzeHttpCapture(req: $models.HttpCaptureRequest): $CancellablePromise<api$0.AnalysisResult> {
     return $Call.ByID(1316497525, req).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
 export function AnalyzeHttpCaptureDiff(req: $models.HttpCaptureDiffRequest): $CancellablePromise<api$0.AnalysisResult> {
     return $Call.ByID(1450384362, req).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
 export function AnalyzeHttpEvidenceCorrelation(req: $models.HttpEvidenceCorrelationRequest): $CancellablePromise<api$0.AnalysisResult> {
     return $Call.ByID(4020249308, req).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
@@ -135,7 +141,7 @@ export function AnalyzeHttpEvidenceCorrelation(req: $models.HttpEvidenceCorrelat
  */
 export function AnalyzeJenniferProfile(req: $models.JenniferProfileRequest): $CancellablePromise<api$0.AnalysisResult> {
     return $Call.ByID(3749926873, req).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
@@ -144,7 +150,7 @@ export function AnalyzeJenniferProfile(req: $models.JenniferProfileRequest): $Ca
  */
 export function AnalyzeJfr(req: $models.JfrRequest): $CancellablePromise<api$0.AnalysisResult> {
     return $Call.ByID(2738048237, req).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
@@ -153,13 +159,13 @@ export function AnalyzeJfr(req: $models.JfrRequest): $CancellablePromise<api$0.A
  */
 export function AnalyzeLockContention(req: $models.LockContentionRequest): $CancellablePromise<$models.EngineAsyncResponse> {
     return $Call.ByID(3950840739, req).then(($result: any) => {
-        return $$createType1($result);
+        return $$createType2($result);
     });
 }
 
 export function AnalyzeMetrics(req: $models.MetricsRequest): $CancellablePromise<api$0.AnalysisResult> {
     return $Call.ByID(253438314, req).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
@@ -176,7 +182,7 @@ export function AnalyzeMetrics(req: $models.MetricsRequest): $CancellablePromise
  */
 export function AnalyzeMultiThread(req: $models.MultiThreadRequest): $CancellablePromise<$models.EngineAsyncResponse> {
     return $Call.ByID(2580349754, req).then(($result: any) => {
-        return $$createType1($result);
+        return $$createType2($result);
     });
 }
 
@@ -185,13 +191,13 @@ export function AnalyzeMultiThread(req: $models.MultiThreadRequest): $Cancellabl
  */
 export function AnalyzeNativeMemory(req: $models.JfrRequest): $CancellablePromise<api$0.AnalysisResult> {
     return $Call.ByID(68926921, req).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
 export function AnalyzeObservability(req: $models.ObservabilityRequest): $CancellablePromise<api$0.AnalysisResult> {
     return $Call.ByID(1834544218, req).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
@@ -200,19 +206,19 @@ export function AnalyzeObservability(req: $models.ObservabilityRequest): $Cancel
  */
 export function AnalyzeOtel(req: $models.OtelRequest): $CancellablePromise<api$0.AnalysisResult> {
     return $Call.ByID(2612578331, req).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
 export function AnalyzePlatform(req: $models.PlatformRequest): $CancellablePromise<api$0.AnalysisResult> {
     return $Call.ByID(4187656606, req).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
 export function AnalyzeProfileEvidence(req: $models.ProfileEvidenceRequest): $CancellablePromise<api$0.AnalysisResult> {
     return $Call.ByID(1440460347, req).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
@@ -222,7 +228,7 @@ export function AnalyzeProfileEvidence(req: $models.ProfileEvidenceRequest): $Ca
  */
 export function AnalyzeRuntimeStack(req: $models.RuntimeRequest): $CancellablePromise<api$0.AnalysisResult> {
     return $Call.ByID(866070465, req).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
@@ -231,13 +237,13 @@ export function AnalyzeRuntimeStack(req: $models.RuntimeRequest): $CancellablePr
  */
 export function AnalyzeServerLog(req: $models.ServerLogRequest): $CancellablePromise<api$0.AnalysisResult> {
     return $Call.ByID(1729292708, req).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
 export function AnalyzeStitchedEvidence(req: $models.StitchedEvidenceRequest): $CancellablePromise<api$0.AnalysisResult> {
     return $Call.ByID(1484341432, req).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
@@ -247,7 +253,7 @@ export function AnalyzeStitchedEvidence(req: $models.StitchedEvidenceRequest): $
  */
 export function AnalyzeThreadDump(req: $models.ThreadDumpRequest): $CancellablePromise<api$0.AnalysisResult> {
     return $Call.ByID(1802405455, req).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
@@ -256,7 +262,7 @@ export function AnalyzeThreadDump(req: $models.ThreadDumpRequest): $CancellableP
  */
 export function AnalyzeTraceImport(req: $models.TraceImportRequest): $CancellablePromise<api$0.AnalysisResult> {
     return $Call.ByID(1034762711, req).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
@@ -271,7 +277,7 @@ export function CancelEngineTask(taskID: string): $CancellablePromise<boolean> {
 
 export function CancelImport(id: string, generation: number): $CancellablePromise<analysis$0.CancelOutcome> {
     return $Call.ByID(3490126032, id, generation).then(($result: any) => {
-        return $$createType2($result);
+        return $$createType3($result);
     });
 }
 
@@ -281,8 +287,12 @@ export function CancelImport(id: string, generation: number): $CancellablePromis
  */
 export function ClassifyStack(req: $models.ClassifyRequest): $CancellablePromise<$models.ClassifyResult> {
     return $Call.ByID(2929597827, req).then(($result: any) => {
-        return $$createType3($result);
+        return $$createType4($result);
     });
+}
+
+export function CleanupCaseCache(): $CancellablePromise<void> {
+    return $Call.ByID(2826624221);
 }
 
 /**
@@ -290,7 +300,7 @@ export function ClassifyStack(req: $models.ClassifyRequest): $CancellablePromise
  */
 export function CompareEvidenceScalar(baseline: string, target: string, path: string): $CancellablePromise<resultcontract$0.Delta> {
     return $Call.ByID(3792274739, baseline, target, path).then(($result: any) => {
-        return $$createType4($result);
+        return $$createType5($result);
     });
 }
 
@@ -306,8 +316,16 @@ export function CompareProfileSets(before: string, after: string): $CancellableP
  */
 export function ConvertToCollapsed(req: $models.CollapsedRequest): $CancellablePromise<$models.CollapsedResult> {
     return $Call.ByID(1593102112, req).then(($result: any) => {
-        return $$createType5($result);
+        return $$createType6($result);
     });
+}
+
+/**
+ * Case DTOs cross Wails as JSON text: revision/count/byte/clock values never
+ * travel through a JavaScript floating point projection as authoritative data.
+ */
+export function CreateCase(title: string): $CancellablePromise<string> {
+    return $Call.ByID(2458193755, title);
 }
 
 /**
@@ -317,12 +335,16 @@ export function ConvertToCollapsed(req: $models.CollapsedRequest): $CancellableP
  */
 export function DiffReports(req: $models.EngineDiffRequest): $CancellablePromise<{ [_ in string]?: any }> {
     return $Call.ByID(3841388367, req).then(($result: any) => {
-        return $$createType6($result);
+        return $$createType7($result);
     });
 }
 
 export function DrilldownProfileSet(handle: string, filtersJSON: string): $CancellablePromise<string> {
     return $Call.ByID(1290249415, handle, filtersJSON);
+}
+
+export function EditCase(requestJSON: string): $CancellablePromise<string> {
+    return $Call.ByID(889252191, requestJSON);
 }
 
 /**
@@ -332,7 +354,7 @@ export function DrilldownProfileSet(handle: string, filtersJSON: string): $Cance
  */
 export function EvaluateAiInterpretation(req: $models.AiInterpretationGateRequest): $CancellablePromise<{ [_ in string]?: any }> {
     return $Call.ByID(756375120, req).then(($result: any) => {
-        return $$createType6($result);
+        return $$createType7($result);
     });
 }
 
@@ -349,6 +371,14 @@ export function ExportCSV(req: $models.ExportCSVRequest): $CancellablePromise<vo
  */
 export function ExportCSVDir(req: $models.ExportCSVRequest): $CancellablePromise<void> {
     return $Call.ByID(3982576166, req);
+}
+
+export function ExportCaseArchive(caseID: string, optionsJSON: string, path: string): $CancellablePromise<void> {
+    return $Call.ByID(103594753, caseID, optionsJSON, path);
+}
+
+export function ExportCaseResult(caseID: string, resultID: string, path: string): $CancellablePromise<void> {
+    return $Call.ByID(3517398760, caseID, resultID, path);
 }
 
 export function ExportEvidenceResult(handle: string, path: string, format: string): $CancellablePromise<void> {
@@ -380,9 +410,25 @@ export function ExportProfileSetPprof(handle: string, tickScale: string, path: s
     return $Call.ByID(2580236325, handle, tickScale, path);
 }
 
+export function GetCase(caseID: string): $CancellablePromise<string> {
+    return $Call.ByID(4143716909, caseID);
+}
+
+export function GetCaseDeletionPlan(caseID: string): $CancellablePromise<string> {
+    return $Call.ByID(136138944, caseID);
+}
+
+/**
+ * A bounded source page, never a 64 MiB WebView payload. Byte offsets are decimal
+ * strings into the selected source revision, not offsets into rendered text.
+ */
+export function GetCaseSourcePage(caseID: string, sourceID: string, optionsJSON: string, start: number, count: number): $CancellablePromise<string> {
+    return $Call.ByID(1213663835, caseID, sourceID, optionsJSON, start, count);
+}
+
 export function GetEvidenceResult(handle: string): $CancellablePromise<analysis$0.ResultView> {
     return $Call.ByID(3342174385, handle).then(($result: any) => {
-        return $$createType7($result);
+        return $$createType8($result);
     });
 }
 
@@ -395,25 +441,25 @@ export function GetEvidenceResultJSON(handle: string): $CancellablePromise<strin
 
 export function GetEvidenceScalar(handle: string, path: string): $CancellablePromise<resultcontract$0.ScalarView> {
     return $Call.ByID(2962122308, handle, path).then(($result: any) => {
-        return $$createType8($result);
+        return $$createType9($result);
     });
 }
 
 export function GetHttpCaptureDiffContract(): $CancellablePromise<api$0.HttpCaptureDiffContract> {
     return $Call.ByID(3827930008).then(($result: any) => {
-        return $$createType9($result);
+        return $$createType10($result);
     });
 }
 
 export function GetHttpEvidenceCorrelationContract(): $CancellablePromise<api$0.HttpEvidenceCorrelationContract> {
     return $Call.ByID(1477035566).then(($result: any) => {
-        return $$createType10($result);
+        return $$createType11($result);
     });
 }
 
 export function GetImportJob(id: string, generation: number): $CancellablePromise<analysis$0.JobSnapshot> {
     return $Call.ByID(195964419, id, generation).then(($result: any) => {
-        return $$createType11($result);
+        return $$createType12($result);
     });
 }
 
@@ -427,19 +473,23 @@ export function GetProfileSetTree(handle: string): $CancellablePromise<string> {
 
 export function ImportEvidence(req: $models.EvidenceImportRequest): $CancellablePromise<analysis$0.JobSnapshot> {
     return $Call.ByID(3697193583, req).then(($result: any) => {
-        return $$createType11($result);
+        return $$createType12($result);
     });
+}
+
+export function ListCases(): $CancellablePromise<string> {
+    return $Call.ByID(1639733976);
 }
 
 export function ListEvidenceImporters(): $CancellablePromise<ingestion$0.ImporterDescriptor[]> {
     return $Call.ByID(1185952117).then(($result: any) => {
-        return $$createType13($result);
+        return $$createType14($result);
     });
 }
 
 export function LoadEvidenceResult(path: string): $CancellablePromise<analysis$0.ResultView> {
     return $Call.ByID(2656839899, path).then(($result: any) => {
-        return $$createType7($result);
+        return $$createType8($result);
     });
 }
 
@@ -447,16 +497,44 @@ export function NormalizeLegacyProfileSet(path: string, format: string): $Cancel
     return $Call.ByID(3489070610, path, format);
 }
 
+export function PreviewCaseArchive(path: string): $CancellablePromise<string> {
+    return $Call.ByID(2681488525, path);
+}
+
 export function ProjectJenniferDrilldown(req: $models.JenniferDrilldownRequest): $CancellablePromise<api$0.AnalysisResult> {
     return $Call.ByID(1998352314, req).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
+}
+
+export function PurgeCase(caseID: string, revision: string, token: string): $CancellablePromise<void> {
+    return $Call.ByID(2315482518, caseID, revision, token);
+}
+
+export function RebuildCaseIndex(): $CancellablePromise<string> {
+    return $Call.ByID(422962230);
+}
+
+export function ReleaseEvidenceLease(leaseID: string): $CancellablePromise<void> {
+    return $Call.ByID(318836909, leaseID);
+}
+
+export function ReopenCaseResult(caseID: string, resultID: string): $CancellablePromise<string> {
+    return $Call.ByID(2119780979, caseID, resultID);
 }
 
 export function ResolveWorkspaceComparison(req: $models.WorkspaceComparisonRequest): $CancellablePromise<api$0.WorkspaceComparisonRoute> {
     return $Call.ByID(4088206667, req).then(($result: any) => {
-        return $$createType14($result);
+        return $$createType15($result);
     });
+}
+
+export function RestoreCaseArchive(path: string, digest: string): $CancellablePromise<string> {
+    return $Call.ByID(4277339971, path, digest);
+}
+
+export function SaveCaseResult(handle: string, requestJSON: string): $CancellablePromise<string> {
+    return $Call.ByID(692627503, handle, requestJSON);
 }
 
 /**
@@ -469,23 +547,24 @@ export function SaveChartArtifact(req: $models.ChartArtifactRequest): $Cancellab
 
 export function SelectImporter(id: string, generation: number, importer: string): $CancellablePromise<analysis$0.JobSnapshot> {
     return $Call.ByID(2871975417, id, generation, importer).then(($result: any) => {
-        return $$createType11($result);
+        return $$createType12($result);
     });
 }
 
 // Private type creation functions
-const $$createType0 = models$0.AnalysisResult.createFrom;
-const $$createType1 = $models.EngineAsyncResponse.createFrom;
-const $$createType2 = analysis$0.CancelOutcome.createFrom;
-const $$createType3 = $models.ClassifyResult.createFrom;
-const $$createType4 = resultcontract$0.Delta.createFrom;
-const $$createType5 = $models.CollapsedResult.createFrom;
-const $$createType6 = $Create.Map($Create.Any, $Create.Any);
-const $$createType7 = analysis$0.ResultView.createFrom;
-const $$createType8 = resultcontract$0.ScalarView.createFrom;
-const $$createType9 = httpcapture$0.HttpCaptureDiffContract.createFrom;
-const $$createType10 = httpcorrelation$0.Contract.createFrom;
-const $$createType11 = analysis$0.JobSnapshot.createFrom;
-const $$createType12 = ingestion$0.ImporterDescriptor.createFrom;
-const $$createType13 = $Create.Array($$createType12);
-const $$createType14 = httpcapture$0.WorkspaceComparisonRoute.createFrom;
+const $$createType0 = analysis$0.ResultLease.createFrom;
+const $$createType1 = models$0.AnalysisResult.createFrom;
+const $$createType2 = $models.EngineAsyncResponse.createFrom;
+const $$createType3 = analysis$0.CancelOutcome.createFrom;
+const $$createType4 = $models.ClassifyResult.createFrom;
+const $$createType5 = resultcontract$0.Delta.createFrom;
+const $$createType6 = $models.CollapsedResult.createFrom;
+const $$createType7 = $Create.Map($Create.Any, $Create.Any);
+const $$createType8 = analysis$0.ResultView.createFrom;
+const $$createType9 = resultcontract$0.ScalarView.createFrom;
+const $$createType10 = httpcapture$0.HttpCaptureDiffContract.createFrom;
+const $$createType11 = httpcorrelation$0.Contract.createFrom;
+const $$createType12 = analysis$0.JobSnapshot.createFrom;
+const $$createType13 = ingestion$0.ImporterDescriptor.createFrom;
+const $$createType14 = $Create.Array($$createType13);
+const $$createType15 = httpcapture$0.WorkspaceComparisonRoute.createFrom;

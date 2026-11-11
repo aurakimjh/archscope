@@ -1,0 +1,7 @@
+{
+  "source": "workspace shared reusable asset repository",
+  "sha256": {
+    "schemas/capture-context.schema.json": "ffa475072245596bfb0f9c67e6b1711c2392afaee68e7e9b6467ffeeb89316b4",
+    "samples/encoding/evidence-text-v1.json": "cb316f9a1f5eee71f9c4ac384ddaa0e1b8b8adce1cf3f67067965936910b55e4"
+  }
+}

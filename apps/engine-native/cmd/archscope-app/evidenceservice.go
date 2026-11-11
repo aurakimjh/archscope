@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analysis"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/cases"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/catalog"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/ingestion"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/resultcontract"
@@ -34,7 +35,11 @@ func (s *EngineService) evidence() (*analysis.Service, error) {
 	if e != nil {
 		return nil, e
 	}
-	service, e := analysis.New(filepath.Join(root, "ArchScope", "evidence-imports"), c, r)
+	durable, e := cases.DefaultRoot()
+	if e != nil {
+		return nil, e
+	}
+	service, e := analysis.OpenDurable(context.Background(), filepath.Join(root, "ArchScope", "evidence-imports"), filepath.Join(durable, "evidence-cache"), c, r)
 	if e != nil {
 		return nil, e
 	}
@@ -44,9 +49,13 @@ func (s *EngineService) evidence() (*analysis.Service, error) {
 func (s *EngineService) closeEvidence() {
 	s.evidenceMu.Lock()
 	service := s.evidenceService
+	caseStore := s.caseService
 	s.evidenceMu.Unlock()
 	if service != nil {
 		service.Close()
+	}
+	if caseStore != nil {
+		caseStore.Close()
 	}
 }
 func (s *EngineService) ListEvidenceImporters() ([]ingestion.ImporterDescriptor, error) {

@@ -4,6 +4,7 @@ package analysis
 import (
 	"context"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -72,6 +73,7 @@ type Service struct {
 	storeMu     sync.Mutex
 	stored      map[string]storedRevision
 	storedBytes int64
+	leases      map[string]string
 	lockFile    *os.File
 	ctx         context.Context
 	cancel      context.CancelFunc
@@ -130,7 +132,7 @@ func New(root string, c *ingestion.Catalog, r *resultcontract.Registry) (*Servic
 		return nil, e
 	}
 	ctx, cancel := context.WithCancel(context.Background())
-	service := &Service{slots: make(chan struct{}, 4), root: root, catalog: c, results: r, policy: ingestion.DefaultBudgets(), jobs: map[string]*job{}, stored: map[string]storedRevision{}, lockFile: lockFile, ctx: ctx, cancel: cancel}
+	service := &Service{slots: make(chan struct{}, 4), root: root, catalog: c, results: r, policy: ingestion.DefaultBudgets(), jobs: map[string]*job{}, stored: map[string]storedRevision{}, leases: map[string]string{}, lockFile: lockFile, ctx: ctx, cancel: cancel}
 	if e = service.initStore(); e != nil {
 		cancel()
 		lockFile.Close()
@@ -644,6 +646,11 @@ func (s *Service) Read(handle string) ([]byte, models.AnalysisResult, error) {
 	}
 	if int64(len(body)) > s.policy.DecodedBytes {
 		return nil, models.AnalysisResult{}, fmt.Errorf("stored result exceeds read budget")
+	}
+	sum := sha256.Sum256(body)
+	rev, ok := s.stored[handle]
+	if !ok || rev.hash != hex.EncodeToString(sum[:]) {
+		return nil, models.AnalysisResult{}, ingestion.Problem("IMPORT_RESULT_CORRUPT", "stored revision changed; reopen the saved case snapshot")
 	}
 	r, e := resultcontract.DecodeWithLimits(body, wirejson.ResultLimits(s.policy.DecodedBytes, s.policy.StackDepth))
 	return body, r, e

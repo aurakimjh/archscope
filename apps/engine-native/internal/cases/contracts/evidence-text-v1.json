@@ -1,0 +1,96 @@
+{
+  "version": "1.0.0",
+  "description": "합성 한국어 인코딩 및 원본 위치 검증. 실제 로그/고객 식별자 없음. hex는 원본 바이트이며 좌표는 반개구간.",
+  "cases": [
+    {
+      "id": "utf8-bom-crlf",
+      "encoding": "utf-8",
+      "hex": "efbbbfeab0800d0aeb82980a",
+      "text": "가\r\n나\n",
+      "lines": [
+        [
+          "3",
+          "8"
+        ],
+        [
+          "8",
+          "12"
+        ]
+      ]
+    },
+    {
+      "id": "utf16le-bom",
+      "encoding": "utf-16le",
+      "hex": "fffe00ac3dd800de0d000a0098b0",
+      "text": "가😀\r\n나",
+      "lines": [
+        [
+          "2",
+          "12"
+        ],
+        [
+          "12",
+          "14"
+        ]
+      ]
+    },
+    {
+      "id": "utf16be-bom",
+      "encoding": "utf-16be",
+      "hex": "feffac00000ab098",
+      "text": "가\n나",
+      "lines": [
+        [
+          "2",
+          "6"
+        ],
+        [
+          "6",
+          "8"
+        ]
+      ]
+    },
+    {
+      "id": "euckr-basic",
+      "encoding": "euc-kr",
+      "hex": "b0a1b3aab4d90d0ab5d1",
+      "text": "가나다\r\n둘",
+      "lines": [
+        [
+          "0",
+          "8"
+        ],
+        [
+          "8",
+          "10"
+        ]
+      ]
+    },
+    {
+      "id": "cp949-extension",
+      "encoding": "cp949",
+      "hex": "81410a",
+      "text": "갂\n",
+      "lines": [
+        [
+          "0",
+          "3"
+        ]
+      ]
+    },
+    {
+      "id": "unknown-byte",
+      "encoding": "utf-8",
+      "hex": "ff",
+      "text": "�",
+      "allow_replacement": true,
+      "replacements": "1",
+      "lines": [
+        [
+          "0",
+          "1"
+        ]
+      ]
+    }
+  ]
+}

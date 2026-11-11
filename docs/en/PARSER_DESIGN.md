@@ -816,3 +816,67 @@ boundary: a single string/key above 4 MiB is a detailed budget refusal, not a
 format mismatch. Exactly-at-limit and above-limit imports are tested; malformed
 JSON retains format classification. R5-02 capture-key policy is explicitly handed
 to T-634/T-635 in DATA_MODEL; current opaque equality is unchanged.
+
+## T-630 safe intake and adapter boundary (2026-11-11)
+
+`internal/cases` adds context/storage/intake around the existing analysis service;
+it does not parse profiles, reinterpret weights or implement the T-631 renderer.
+ZIP/TAR/tar.gz preview validates all entries and binds intake to the archive SHA256.
+At most 128 entries, 16 path components, 64 MiB per file and 256 MiB compressed/
+expanded archive are permitted. ZIP central-directory allocation is bounded before
+using archive/zip. Split/ZIP64, encryption, links/special files, TAR extended/sparse
+formats, absolute/traversing/Windows-reserved paths, Unicode/case-normalized
+collisions, parent-file collisions and nested archives are refused. Content streams
+must match sizes/CRC. No archive permissions, ownership or timestamps are applied.
+Selected bytes are staged in bounded memory; only after the entire structural scan
+passes can immutable objects and one manifest HEAD be published. Capture/explicit
+hash failures are retained as per-source failed/omitted records, not successful
+objects. Structural failures/cancellation publish no revision. Group only by explicit
+capture file/entity references, never basename or mtime.
+
+The separate decoder chooses explicit encoding → BOM → validated UTF-8 → explicitly
+permitted legacy sniff candidates. CP949 extensions are rejected by strict EUC-KR;
+ambiguous legacy inputs require selection. Lossy replacement is opt-in and counted.
+UTF-16 surrogate pairs, BOM offsets and CRLF are covered. Each line records original
+half-open byte coordinates and decoded UTF-8 offsets as decimal strings. The index
+revision pins source digest, decoder revision, encoding and replacement count;
+encoding edits regenerate it and invalidate dependent artifacts. Source pages have
+at most 200 lines, 4 KiB per line and 64 KiB text. A sanitized copy is a distinct UTF-8
+source with parent digest/redaction profile; its coordinates describe that copy,
+never a false original offset. External originals are read-only regular files (resolve filesystem links explicitly);
+a second content/stat pass refuses changes during a read. Cancellation is checked
+before the HEAD commit point; an already committed revision is not rolled back. Existing legacy
+textio behavior and existing parser golden tests are unchanged.
+
+`analysis.OpenDurable` migrates the old OS cache to app data under both kernel locks.
+Every result is decoded and published before the final versioned migration marker;
+partial copies retry through content deduplication. Originals remain untouched and
+are explicitly outside case purge scope. A completed marker prevents resurrection
+of cache files intentionally removed later. Saved cases own their own immutable
+result bytes and reopen through `LoadSnapshot`, independently of old handles/cache
+loss. Callers acquire distinct opaque leases for shared handles and release only
+those leases; administrative Release refuses any remaining owner. Public Wails
+ReleaseEvidenceResult remains absent. Workspace acquires/releases its own owners,
+rejects late reopen after clear, and has a compact saved-case menu. It saves backend
+snapshots rather than JS projections; legacy entries without backend handles remain
+in-memory. Case source binding/lifecycle/portable actions are available through CLI
+and Wails; generic case presentation/discovery/search remain T-631/T-633/T-635.
+
+CLI: `case create --title ...`, `case list`, `case show --id ...`,
+`case edit --request edit.json`, `case save-result --in result.json --request refs.json`,
+`case export-result --id ... --result ... --out ...`, `case preview --in bundle.zip`,
+`case pack --id ... --request reviewed-selection.json --out case.zip`,
+`case restore --in case.zip --sha256 <preview digest>`, `case delete-plan --id ...`,
+`case purge --id ... --revision ... --token ...`, `case rebuild-index`,
+`case cleanup-cache`. `--store` selects an isolated local store. Edit JSON uses
+case_id/expected_revision and one explicit operation: details, retention, workspace,
+capture, source, replace-source, encoding, omit-source, archive-intake,
+review-source, review-result, artifact, baseline, archive, restore or delete.
+SaveResult refs use case_id/expected_revision/source_ids/capture_id/selection/
+options_hash/versions; source_ids may be empty for a snapshot-only save. Portable
+selection uses manifest_reviewed/source_ids/result_ids/include_workspace. No export
+or restore auto-approves content for sharing. Wails exposes these requests/results
+as JSON text; typed lease IDs are strings. Go bridge tests are not WebView IPC/UI
+execution or Windows runtime evidence. No independent review PASS is inferred.
+
+Case export destinations cannot overwrite the managed case store or current external original references/aliases.

@@ -1,0 +1,128 @@
+{
+  "task": "T-630",
+  "status": "REVIEW",
+  "verification": "LOCAL_VERIFIED; independent review not performed",
+  "recorded_at": "2026-11-11T09:24:39.148486+00:00",
+  "base_commit": "57f2d652fe2da8e3f0cff5393f405ab7035a7e97",
+  "source_sha256": {
+    "apps/engine-native/cmd/archscope-app/caseservice.go": "7f5c6e6e2b6560cf32c4846b9d4f147e31e564f16bc7c9720df84712bc327ca2",
+    "apps/engine-native/cmd/archscope-app/caseservice_test.go": "542c38f2a66e77dfb80a24dc8b028274b1e5f1cf021df3bce0ce78b57c1a2f70",
+    "apps/engine-native/cmd/archscope-app/engineservice.go": "7685770b82f20e5ffe0c85d4ba2accab70385e964119eeb45c875603ea4ac731",
+    "apps/engine-native/cmd/archscope-app/evidenceservice.go": "fd9155634c6a7cea884321a7514f6ff5e388cd773dddbbac328d86aac762eadf",
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/engineservice.ts": "cd60ed4bf5cefdcd982a126db937af972521db357e2f3d8b1e9b7c7e5a5f368a",
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/internal/analysis/index.ts": "f8d7ce7492c46e47cb6a0b5feeec97198e86a64f25d2773d7df50604125247eb",
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/internal/analysis/models.ts": "df1311bc9663ce0964f5c287222a63c393d30022e9b209fcf8d53353a8cb34fa",
+    "apps/engine-native/cmd/archscope-app/frontend/src/bridge/engine.ts": "8925a4a3380ed1d959c4b73a15f1bd6875aeaef6d4a9efb957c541bf41ed35a4",
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/CaseWorkspaceActions.tsx": "037591621f0891f10c9e6aa7723e97f7087fbf29d03efd3b740429054f573dbd",
+    "apps/engine-native/cmd/archscope-app/frontend/src/pages/AnalysisWorkspacePage.tsx": "c282b1aa1275c06ea656cf876de3fe2fbb05b2634f463d517b288a4d0fa06cd6",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/analysisWorkspace.ts": "72e29b864cb58260dc4f30bd5187a091c52905c0dce19578d460c500d5812dfd",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/regression.test.ts": "948810838b17819e3cc1148e456c15914972f0be65939cb4e150507ff2438e25",
+    "apps/engine-native/cmd/archscope-engine/cmd_case.go": "d854d377d772a82fbc8f6a5289c3fba223916d530c422eed9a1c8abcc632c989",
+    "apps/engine-native/internal/analysis/migration.go": "6bc34fb01b018a50420e52d236987a269d58982237e8f1453d3595eb2c2278cf",
+    "apps/engine-native/internal/analysis/ownership.go": "bb622bb6c3878d6d75514b95ff16e5765c19722cccbb45c42cb6d07432b67186",
+    "apps/engine-native/internal/analysis/ownership_test.go": "43bf6ae8c54726abaa1ff44ccc5d2b5e332415b56bab5d2d41243bb9b07b2774",
+    "apps/engine-native/internal/analysis/service.go": "3bdd52c29b28a7f14083bd175aa9a54a06331c754aba784d544c0cc70f572b0a",
+    "apps/engine-native/internal/analysis/store.go": "dc3f2a76922f22e810ced846a05561dbdd570d985f106eb1e50b94653dae0279",
+    "apps/engine-native/internal/cases/archive.go": "1af214d268b3a9149e775cc2aeab0947a788e344ed3660d32fe14ab72e4e6b67",
+    "apps/engine-native/internal/cases/capture.go": "101a95f51289d321426a18090b15377cd570d93e685c2d88ef0f665fbf968c94",
+    "apps/engine-native/internal/cases/cases_test.go": "2cc63dcfa65ba65feefddf09b178623f271930a9d863718a6fd9aac6908d628e",
+    "apps/engine-native/internal/cases/contracts.go": "2ce6a1c84f1b2c9f690dff8f3f93eaf5f5978fefe88c33610f46dc26e5ff7fee",
+    "apps/engine-native/internal/cases/contracts/capture-context.schema.json": "ffa475072245596bfb0f9c67e6b1711c2392afaee68e7e9b6467ffeeb89316b4",
+    "apps/engine-native/internal/cases/contracts/evidence-text-v1.json": "cb316f9a1f5eee71f9c4ac384ddaa0e1b8b8adce1cf3f67067965936910b55e4",
+    "apps/engine-native/internal/cases/contracts/manifest.json": "a714640cb408d55c5d6201eca07828dacbe8dc41ee7564e56fd461f3ce53ba14",
+    "apps/engine-native/internal/cases/edit.go": "72b8e47c1008dd9c6144af2a78875ce66310e3d51ddf24eb303a9a72a59e0e88",
+    "apps/engine-native/internal/cases/encoding.go": "1a3398b3c29b9a654ac659f2eaff3e398ad31d9b2b0f426e0ce00ac891001e4b",
+    "apps/engine-native/internal/cases/export_guard.go": "4b8b043d993e6dbcd7bbf1620674784198c39d811d83f473321577c7ff24c685",
+    "apps/engine-native/internal/cases/lock_unix.go": "e251181198f300e44124f755dc02fe96637efcbbdec1844c5b54c020e9f53b0e",
+    "apps/engine-native/internal/cases/lock_windows.go": "90b4daa215cec4a7a10d38dd4cbaecdcaf9857fb13817e8f19db5a48b86d756f",
+    "apps/engine-native/internal/cases/model.go": "7970d07ce1d721a39f0b943421cd16124575d2ff4f908da5f1a38618aef3d8db",
+    "apps/engine-native/internal/cases/portable.go": "3694038849712ae1992d4c2cd78f0725915a1a7da86648ec494d0da82013164a",
+    "apps/engine-native/internal/cases/source_unix.go": "a6d30e1401e4782ee4218be41c05cc094f0bee3069c6a111b33d35fcdfc2110f",
+    "apps/engine-native/internal/cases/source_windows.go": "d2aa01ac28bce0bd6d93ff08443ddd1a40c5fb7f8ee4bd9470cbf9b6144a9f83",
+    "apps/engine-native/internal/cases/store.go": "694b1ed44009e3066173266370f291874ac35e55062af0f8adb84a51009b2557"
+  },
+  "test_summary": {
+    "packages_passed": 96,
+    "packages_without_tests": 5,
+    "test_cases_passed": 1376,
+    "test_cases_skipped": [
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/halog",
+        "test": "TestPrivateReferenceSample"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/comautomation",
+        "test": "TestReferencePresetFiltersWhenProvided"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/transparent",
+        "test": "TestOfficialDriverFingerprints"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/sessionfile",
+        "test": "TestLargeXLSIndependentReader"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/jfr",
+        "test": "TestConvertJFRToJSONIntegration"
+      }
+    ],
+    "failures": 0,
+    "race_reports": 0
+  },
+  "evidence_levels": {
+    "documents": "Paired EN/KO design/model/parser contracts and status counts checked.",
+    "unit": "Case storage/manifest/capture/encoding/archive/atomic recovery/scoped purge/export overwrite guards; shared fixture pins; lease ownership/cache migration; original profile goldens/metadata/thread regressions retained.",
+    "cli": {
+      "status": "LOCAL_VERIFIED",
+      "kind": "actual isolated CLI process integration, not WebView/UI",
+      "commands_executed": 22,
+      "expected_security_refusals": 2,
+      "snapshot_sha256": "5a18c1b357702fd66f8bcd34afc53095dd228d4cc3e24640caa9ea193a7217c2",
+      "roundtrip_equal": true,
+      "missing_original_baseline_unavailable": true,
+      "external_source_and_managed_head_overwrite_refused": true,
+      "purge_external_source_preserved": true,
+      "portable_new_case": true,
+      "case_cache_cleanup_preserves_saved_snapshot": true
+    },
+    "bridge": "Actual Go EngineService import/save/cache-loss reopen/exact JSON/export/profile query and shared lease tests, not WebView IPC.",
+    "frontend": "State tests including exact revision transport, own-lease release and late reopen rejection; production TypeScript/Vite build.",
+    "builds": "Go vet/build; Wails 3.1 bindings; desktop-only/server refusal; macOS ad-hoc package/strict deep signature; Windows amd64/386 cross-vet and guarded GUI builds.",
+    "actual_new_ui": "NOT_EXECUTED",
+    "windows_native_runtime": "NOT_EXECUTED",
+    "hosted_ci": "NOT_EXECUTED",
+    "independent_review": "NOT_PERFORMED"
+  },
+  "limitations": [
+    "Generic case rendering/discovery/search and verified original reimport remain T-631/T-633/T-635.",
+    "Backend-less legacy Workspace projections remain in-memory; only exact backend snapshots are saved.",
+    "Text masking is heuristic; portable sharing requires explicit manifest/source/result review.",
+    "Case purge excludes external originals, exports, clipboard, OS backups, shared analysis cache/caller leases and legacy migration copies.",
+    "No automatic retention, physical-erasure guarantee, signed offline pack qualification or Q01-Q04 producer decision.",
+    "Existing macOS SDK/deployment-target linker warning remains; no new runtime claim."
+  ],
+  "logs_sha256": {
+    "full_go_race": "16ca31fcb0214a426bc8c59122dd00c8a7422f68b6d7fe22cc8537c27f5b3b32",
+    "go_test_stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "go_vet": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "go_build": "d868be8499c744498f81a36b4eaaadd76c35bd6d56db5d52014aa856d593b8d7",
+    "wails_bindings": "846e286bec21dcab79cc1bf757ad10e33094162399cb5be6cf50259ec0466dc6",
+    "frontend_state": "96ab3e7763edc1082d01e3a18afd8649d6c9bcdb89fb7b8a072303fcc49805cb",
+    "frontend_build": "5b00ad213e106b175f1f9384f2b013a54175246f5030e86e1f499d212e10ca95",
+    "desktop_only_server_refusal": "2737e05db97102bfc69e4a94138f70b869f75db5874ac9581749568974f07e97",
+    "macos_package": "a1a5800b69c3dc604c7ed58c14ca63c123655c610c4eaadba76cf5fcb56ee9de",
+    "macos_codesign": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "windows_amd64_vet": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "windows_386_vet": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "windows_amd64_build": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "windows_386_build": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "artifacts_sha256": {
+    "macos_arm64": "7b9702953c645734146f166e74a5ff0d78871e518f2a5af6299bc1569cf12ace",
+    "windows_amd64": "2f9128987954ff766b967a5c783e0d5ea0466b7127dadae9eb16b1c91cad9997",
+    "windows_386": "17d82c9286b1f2085f260a2aee012d53675a20b5105e8579db4598bf16a1eae2",
+    "cli": "16c18d3e47addee33d414fed31af6aa54ebbf2f9f582aa33d942de520e6e356b"
+  },
+  "shared_asset_commit": "d240ac64d405acb61c97240a0a0468477ea411af"
+}

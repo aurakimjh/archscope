@@ -125,6 +125,7 @@ import {
   addWorkspaceResult,
   clearWorkspaceResults,
   getWorkspaceEntry,
+  configureCasePersistence, saveWorkspaceCase, reopenWorkspaceCase, removeWorkspaceResult,
 } from "./analysisWorkspace.js";
 import { buildIncidentTimelineEvents } from "./incidentTimeline.js";
 import {
@@ -3339,3 +3340,45 @@ if (false) {
   // @ts-expect-error unknown optional metadata cannot be dereferenced unchecked
   profilerFacade.metadata.future_optional.unsafe;
 }
+
+
+// T-630: backend case bytes remain opaque; Workspace only owns caller leases.
+async function testDurableWorkspaceCases(): Promise<void> {
+  clearWorkspaceResults();
+  let released: string[] = []; let next = 0; let savedRequest = "";
+  let finishReopen: ((value: { handle: string; leaseID: string; type: string; summaryJSON: string }) => void) | undefined;
+  const manifest = { id: "case-" + "a".repeat(32), revision: "9007199254740993", state: "active", results: [{ id: "result-" + "b".repeat(32), sha256: "c".repeat(64), type: "future" }] };
+  configureCasePersistence({
+    create: async () => manifest, get: async () => manifest,
+    save: async (_handle, request) => { savedRequest = request; return manifest; },
+    acquire: async () => ({ id: `lease-${++next}` }),
+    release: async id => { released.push(id); },
+    reopen: async () => ({ handle: "result-" + "d".repeat(32), leaseID: "reopened-owner", type: "future", summaryJSON: "{}" }),
+  });
+  const entry = addWorkspaceResult({ backendResultHandle: "result-" + "d".repeat(32), result: { type: "future" } });
+  await Promise.resolve();
+  const reference = await saveWorkspaceCase(entry.id);
+  assert(reference.result_sha256 === "c".repeat(64), "saved case pins exact result digest");
+  assert(savedRequest.includes('"expected_revision":"9007199254740993"') && !savedRequest.includes('"result":'), "save request never serializes renderer result or coerces revision");
+  const reopened = await reopenWorkspaceCase(reference.case_id, reference.result_id);
+  await Promise.resolve(); removeWorkspaceResult(entry.id);
+  await Promise.resolve(); assert(released.includes("lease-1") && !released.includes("reopened-owner"), "one Workspace caller cannot release another owner's lease");
+  clearWorkspaceResults(); await Promise.resolve(); assert(released.includes("reopened-owner"), "clear releases its own reopened lease");
+  assert(!getWorkspaceEntry(reopened.id), "removed Workspace entries disappear");
+  configureCasePersistence({
+    create: async () => manifest, get: async () => manifest, save: async () => manifest,
+    acquire: async () => ({ id: "unused" }), release: async id => { released.push(id); },
+    reopen: () => new Promise(resolve => { finishReopen = resolve; }),
+  });
+  const pending = reopenWorkspaceCase(reference.case_id, reference.result_id);
+  await Promise.resolve(); await Promise.resolve(); clearWorkspaceResults();
+  assert(!!finishReopen, "reopen reached pending backend");
+  finishReopen!({ handle: "result-" + "d".repeat(32), leaseID: "late-owner", type: "future", summaryJSON: "{}" });
+  let staleRejected = false; try { await pending; } catch { staleRejected = true; }
+  assert(staleRejected && released.includes("late-owner"), "late reopen cannot repopulate cleared Workspace or leak owner");
+  configureCasePersistence({
+    create: async () => manifest, get: async () => manifest, save: async () => manifest,
+    reopen: async () => { throw new Error("not used"); }, acquire: async () => ({ id: "final" }), release: async () => {},
+  });
+}
+void testDurableWorkspaceCases().catch(error => { throw error; });

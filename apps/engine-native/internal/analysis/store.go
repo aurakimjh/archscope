@@ -89,7 +89,7 @@ func (s *Service) publish(ctx context.Context, staged, handle string, body []byt
 
 // Release removes only the named immutable backend revision. Persisted files
 // and other handles are unaffected. This administrative backend operation is
-// intentionally absent from Wails until T-630 defines caller reference ownership.
+// absent from Wails. Leases guard shared snapshots; saved cases own durable copies.
 func (s *Service) Release(handle string) error {
 	if !handlePattern.MatchString(handle) {
 		return fmt.Errorf("invalid result handle")
@@ -101,6 +101,11 @@ func (s *Service) Release(handle string) error {
 	s.mu.Unlock()
 	if closed {
 		return ingestion.Problem("IMPORT_SERVICE_CLOSED", "evidence service is closed")
+	}
+	for _, owned := range s.leases {
+		if owned == handle {
+			return ingestion.Problem("IMPORT_RESULT_IN_USE", "a caller still owns a result lease")
+		}
 	}
 	revision, exists := s.stored[handle]
 	if !exists {

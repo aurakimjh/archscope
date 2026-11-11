@@ -1,3 +1,4 @@
+import { configureCasePersistence } from "../state/analysisWorkspace";
 // ─────────────────────────────────────────────────────────────────────
 // [한글] bridge/engine.ts — Wails v3 EngineService 바인딩 래퍼.
 //
@@ -384,3 +385,34 @@ export function exportProfileSetPprof(handle: string, tickScale: string, path: s
 export function normalizeLegacyProfileSet(path: string, format: string): CancellablePromise<string> {
   return call<string>("NormalizeLegacyProfileSet", path, format);
 }
+
+
+// T-630 case manifests are opaque JSON text; exact snapshots never pass through
+// a frontend deserialize/serialize round trip.
+export const createCase = (title: string) => call<string>("CreateCase", title);
+export const listCases = () => call<string>("ListCases");
+export const getCase = (id: string) => call<string>("GetCase", id);
+export const editCase = (requestJSON: string) => call<string>("EditCase", requestJSON);
+export const saveCaseResult = (handle: string, requestJSON: string) => call<string>("SaveCaseResult", handle, requestJSON);
+export const reopenCaseResult = (caseID: string, resultID: string) => call<string>("ReopenCaseResult", caseID, resultID);
+export const previewCaseArchive = (path: string) => call<string>("PreviewCaseArchive", path);
+export const restoreCaseArchive = (path: string, sha256: string) => call<string>("RestoreCaseArchive", path, sha256);
+export const exportCaseArchive = (caseID: string, optionsJSON: string, path: string) => call<void>("ExportCaseArchive", caseID, optionsJSON, path);
+export const exportCaseResult = (caseID: string, resultID: string, path: string) => call<void>("ExportCaseResult", caseID, resultID, path);
+export const getCaseDeletionPlan = (caseID: string) => call<string>("GetCaseDeletionPlan", caseID);
+export const purgeCase = (caseID: string, revision: string, token: string) => call<void>("PurgeCase", caseID, revision, token);
+export const rebuildCaseIndex = () => call<string>("RebuildCaseIndex");
+export const cleanupCaseCache = () => call<void>("CleanupCaseCache");
+export const getCaseSourcePage = (caseID: string, sourceID: string, optionsJSON: string, start: number, count: number) => call<string>("GetCaseSourcePage", caseID, sourceID, optionsJSON, start, count);
+
+configureCasePersistence({
+  create: async title => JSON.parse(await createCase(title)),
+  get: async id => JSON.parse(await getCase(id)),
+  save: async (handle, request) => JSON.parse(await saveCaseResult(handle, request)),
+  reopen: async (caseID, resultID) => {
+    const result = JSON.parse(await reopenCaseResult(caseID, resultID));
+    return { handle: result.view.handle, type: result.view.type, summaryJSON: result.view.summaryJSON, leaseID: result.lease.id };
+  },
+  acquire: handle => call<{ id: string }>("AcquireEvidenceResult", handle),
+  release: leaseID => call<void>("ReleaseEvidenceLease", leaseID),
+});

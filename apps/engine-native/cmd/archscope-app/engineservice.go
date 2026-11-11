@@ -40,6 +40,7 @@ package main
 import (
 	"fmt"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analysis"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/cases"
 	"strings"
 	"sync"
 	"time"
@@ -66,6 +67,7 @@ import (
 type EngineService struct {
 	evidenceMu      sync.Mutex
 	evidenceService *analysis.Service
+	caseService     *cases.Store
 }
 
 // EngineAsyncResponse mirrors AnalyzeAsyncResponse on the profiler side.

@@ -152,6 +152,31 @@ export class JobSnapshot {
     }
 }
 
+export class ResultLease {
+    "id": string;
+    "handle": string;
+
+    /** Creates a new ResultLease instance. */
+    constructor($$source: Partial<ResultLease> = {}) {
+        if (!("id" in $$source)) {
+            this["id"] = "";
+        }
+        if (!("handle" in $$source)) {
+            this["handle"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ResultLease instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ResultLease {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new ResultLease($$parsedSource as Partial<ResultLease>);
+    }
+}
+
 export class ResultView {
     "handle": string;
     "type": string;

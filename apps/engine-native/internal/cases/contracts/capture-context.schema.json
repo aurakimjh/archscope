@@ -1,0 +1,404 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:local-diagnostics:capture-context:1.0.0",
+  "title": "Versioned capture context with explicit evidence basis",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^capture-[0-9a-f]{32}$"
+    },
+    "producer": {
+      "type": "string",
+      "maxLength": 256
+    },
+    "producer_version": {
+      "type": "string",
+      "maxLength": 256
+    },
+    "identity_basis": {
+      "enum": [
+        "observed",
+        "user",
+        "estimated",
+        "unknown"
+      ]
+    },
+    "files": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "maxItems": 128,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "size": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]*)$"
+          },
+          "format_hint": {
+            "type": "string"
+          },
+          "entity_ids": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "maxItems": 128,
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "sha256",
+          "size"
+        ]
+      }
+    },
+    "entities": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "maxItems": 128,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "host": {
+            "$ref": "#/$defs/claim"
+          },
+          "boot": {
+            "$ref": "#/$defs/claim"
+          },
+          "process_start": {
+            "$ref": "#/$defs/claim"
+          },
+          "pid": {
+            "$ref": "#/$defs/claim"
+          },
+          "tid_namespace": {
+            "$ref": "#/$defs/claim"
+          },
+          "container": {
+            "$ref": "#/$defs/claim"
+          },
+          "pod": {
+            "$ref": "#/$defs/claim"
+          },
+          "worker": {
+            "$ref": "#/$defs/claim"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    "devices": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "maxItems": 128,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "vendor": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "type": "string"
+          },
+          "memory_model": {
+            "enum": [
+              "unknown",
+              "unified",
+              "dedicated"
+            ]
+          },
+          "parent_id": {
+            "type": "string"
+          },
+          "mapping_basis": {
+            "enum": [
+              "observed",
+              "user",
+              "estimated",
+              "unknown"
+            ]
+          },
+          "properties": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "maxProperties": 64,
+            "additionalProperties": {
+              "$ref": "#/$defs/claim"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "vendor",
+          "kind",
+          "memory_model",
+          "mapping_basis",
+          "properties"
+        ]
+      }
+    },
+    "clock": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "domain": {
+          "enum": [
+            "unknown",
+            "wall",
+            "monotonic",
+            "relative"
+          ]
+        },
+        "start": {
+          "$ref": "#/$defs/claim"
+        },
+        "end": {
+          "$ref": "#/$defs/claim"
+        },
+        "timezone": {
+          "$ref": "#/$defs/claim"
+        },
+        "anchor_utc": {
+          "$ref": "#/$defs/claim"
+        },
+        "relative_tick": {
+          "$ref": "#/$defs/claim"
+        },
+        "offset": {
+          "$ref": "#/$defs/claim"
+        },
+        "drift": {
+          "$ref": "#/$defs/claim"
+        },
+        "uncertainty": {
+          "$ref": "#/$defs/claim"
+        }
+      },
+      "required": [
+        "domain"
+      ]
+    },
+    "options": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "sample_interval": {},
+        "include": {},
+        "exclude": {},
+        "workload": {},
+        "warmup": {},
+        "duration": {},
+        "units": {}
+      }
+    },
+    "quality": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "maxProperties": 32,
+      "additionalProperties": {
+        "$ref": "#/$defs/claim"
+      }
+    },
+    "conversions": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "maxItems": 128,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tool": {
+            "type": "string",
+            "minLength": 1
+          },
+          "version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "location": {
+            "type": "string"
+          },
+          "input_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "output_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "lost_capabilities": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "maxItems": 128,
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "tool",
+          "version",
+          "location",
+          "input_sha256",
+          "output_sha256",
+          "lost_capabilities"
+        ]
+      }
+    },
+    "redaction": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "profile": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "applied": {
+          "type": "boolean"
+        },
+        "reviewed_for_sharing": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "profile",
+        "version",
+        "applied",
+        "reviewed_for_sharing"
+      ]
+    },
+    "warnings": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "maxItems": 128,
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "id",
+    "producer",
+    "producer_version",
+    "identity_basis",
+    "files",
+    "entities",
+    "devices",
+    "clock",
+    "options",
+    "quality",
+    "conversions",
+    "redaction",
+    "warnings"
+  ],
+  "$defs": {
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "basis"
+      ],
+      "properties": {
+        "value": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 4096
+        },
+        "basis": {
+          "enum": [
+            "observed",
+            "user",
+            "estimated",
+            "unknown"
+          ]
+        },
+        "evidence": {
+          "type": "string",
+          "maxLength": 4096
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "basis": {
+                "const": "unknown"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "value": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

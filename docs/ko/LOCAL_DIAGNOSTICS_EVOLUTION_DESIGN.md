@@ -1221,3 +1221,13 @@ R4 리뷰 후속은 수치 의미를 유지하며 32 MiB 이하 JSON을 bounded 
 내용 검증은 immutable registry 수명에서 캐시하고 metadata.quality 사본도 대조한다.
 실효 복합 상한과 측정된 크기 증폭은 DATA_MODEL에 명시한다. T-634 producer 수치
 정정, T-635 entity 매핑, T-631 실제 generic 화면은 별도 범위다.
+
+
+## T-630 로컬 구현 체크포인트 (2026-11-11)
+
+사건/capture 저장·안전한 intake·원본 좌표·immutable baseline 참조·호출자 lease·cache
+복구를 구현했다. 구체적 계약과 자원 상한은 [DATA_MODEL](DATA_MODEL.md)의 T-630
+저장 계약과 [PARSER_DESIGN](PARSER_DESIGN.md)의 T-630 intake/adapter 절을 따른다.
+작업 상태는 REVIEW다. 로컬 Go/CLI/bridge/state 검사와 native/cross-build는 독립 승인,
+실제 새 WebView 조작, Windows runtime과 구분한다. generic 화면·입력 탐색·통합 검색은
+T-631/T-633/T-635 범위이며 선택적 producer/Q01–Q04 결정이나 전체 설계 완료를 뜻하지 않는다.

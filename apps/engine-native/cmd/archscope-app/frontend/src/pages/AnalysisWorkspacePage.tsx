@@ -1,3 +1,4 @@
+import { CaseWorkspaceActions } from "@/components/CaseWorkspaceActions";
 import { ClipboardPlus, FileText, GitCompareArrows, Trash2 } from "lucide-react";
 
 import {
@@ -86,6 +87,7 @@ export function AnalysisWorkspacePage(): React.JSX.Element {
             </HelpedTitle>
           </h2>
         </div>
+        <CaseWorkspaceActions workspace={workspace} />
         <Button
           type="button"
           variant="outline"

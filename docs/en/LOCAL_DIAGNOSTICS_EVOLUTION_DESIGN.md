@@ -496,3 +496,15 @@ preserve both quality snapshots. Content validation is cached within an immutabl
 registry, including the checked metadata.quality copy. DATA_MODEL states effective
 joint limits and measured amplification. T-634 producer corrections, T-635 entity
 mapping and T-631 actual generic screens remain separate.
+
+
+## T-630 local implementation checkpoint (2026-11-11)
+
+Case/capture storage, safe intake, original coordinates, immutable baseline refs,
+caller leases and cache recovery now have a local implementation. The exact
+contracts and operational limits are recorded in [DATA_MODEL](DATA_MODEL.md#t-630-case-and-capture-storage-contract-2026-11-11)
+and [PARSER_DESIGN](PARSER_DESIGN.md#t-630-safe-intake-and-adapter-boundary-2026-11-11).
+The task remains REVIEW: local Go/CLI/bridge/state tests and native/cross-builds
+are distinct from independent approval, actual new WebView interaction and Windows
+runtime. Generic presentation/discovery/search remain T-631/T-633/T-635. This
+checkpoint does not activate optional producer decisions or the entire design.

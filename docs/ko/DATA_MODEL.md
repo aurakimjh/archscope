@@ -2101,3 +2101,66 @@ v2 hash는 유지하며 새 정책 버전 또는 명시 재import로 적용한�
 부수 항목만 다른 허용 사례, 의미 차이 거절, 정책 누락/미지 정책/key, 버전/metric 차이,
 nil/0/부재, 위조 입력 whitelist, 저장 왕복과 CLI/Wails 일치를 검증한다. Q01~Q04와
 실제 producer 버전/key 목록은 이번 공통 기반에서 결정하지 않는다.
+
+## T-630 사건·capture 저장 계약 (2026-11-11)
+
+`internal/cases`의 case/capture manifest 버전은 `1.0.0`이며 AnalysisResult,
+ProfileSet, importer schema와 별도 이름 공간이다. 미래 버전은 원본을 고치지
+않고 거부한다. AnalysisResult는 원본 바이트를 그대로 저장하므로 unknown
+metadata, 큰 정수·고정밀 소수, null·0·필드 부재가 재시작·Wails 문자열 전송·
+portable 복원에서도 유지된다. 사건 작업은 측정값을 바꾸거나 새 producer 지원을
+인증하지 않는다.
+
+사건은 source/result digest, capture, selection, immutable baseline pin과 artifact
+명세를 묶는다. 결과 참조는 source ID/hash, options digest와 선택적 구성요소 버전을
+고정한다. 원본 교체·생략·encoding 변경은 종속 결과/artifact를 stale로 표시하며
+기존 snapshot과 baseline 조건은 바꾸지 않는다. `snapshot-only`는 원본 부재·사용
+불가 또는 조건 변경을 뜻한다. `originals-present-unverified`는 원본 hash 일치이며
+importer 재실행·비교 호환 인증을 뜻하지 않는다. 재검증·매칭·사건 검색·재사용 gate는
+T-635 범위다. 원본 참조가 없는 snapshot은 원본 가용성을 주장하지 않는다.
+
+capture 값은 `observed`, `user`, `estimated`, `unknown` 근거를 가진다. 미측정은
+null 또는 부재이며 0으로 바꾸지 않는다. header 충돌은 경고만 추가하고 sidecar를
+덮어쓰지 않는다. clock은 provenance이며 자동 시간 정렬이 아니다. 파일 mtime을
+수집 시각/anchor로 추정하지 않는다. 장치 vendor/kind, unified/dedicated/unknown
+메모리 모델, 계층과 매핑 근거는 중립적이며 Apple에 NVIDIA 식별자를 요구하지
+않는다. 순환·미해결 참조를 거부한다. capture 파일은 전체 상대 경로·hash·size로
+대조하며 host가 다른 동일 basename/bytes의 provenance를 합치지 않는다.
+options는 제한된 의미별 scalar와 include/exclude 문자열 목록만 허용하며 전체
+command/environment 객체와 미등록 key는 거부한다. 설명성 option 문자열에는 기존
+text mask를 적용하지만 공유 안전성을 보증하지 않으며 별도 사용자 검토가 필요하다.
+공유 자산의 capture schema·합성 인코딩 fixture는 byte-identical offline bundle로
+제공하고 `internal/cases/contracts/manifest.json`에서 digest를 고정한다. 구조 schema
+외에 경로·참조·순환·필드 간 관계를 코드로 검증한다.
+
+권위 저장소는 `UserConfigDir()/ArchScope/diagnostics/case-store`이며 macOS는
+Application Support, Windows는 Roaming AppData를 사용한다. 커널 lock으로 단일
+writer를 보장한다. object와 immutable revision을 쓰고 sync한 다음 revision/hash를
+담은 HEAD를 atomic 교체한다. 수정에는 decimal-string expected revision이 필요하다.
+시작 시 소유 staging만 정리하며 중단된 다음 revision은 HEAD가 가리키지 않으면
+채택하지 않는다. hash 불일치는 오류이며 다른 근거로 대체하지 않는다. 이력과 object는
+명시적 purge까지 유지한다. cache 정리는 index/staging만 제거하며 index 재구축은
+손상 사건을 누락하지 않고 진단으로 표시한다.
+
+상태는 active → archived → restored, 삭제는 복원 가능한 deleted이다. deleted 결과는
+복원 전 읽지 못한다. 보존 일수는 기본 null이며 마지막 수정 이후 사용자 알림만
+제공하고 자동 삭제하지 않는다. purge는 논리 삭제와 현재 사건/revision에 고정된 삭제
+계획 token이 필요하다. 계획은 managed source/result, 이력, Workspace/AI·visual 명세와
+사건 index/staging을 포함한다. 외부 원본·별도 export·clipboard·OS backup·이관 전
+legacy cache와 다른 호출자가 공유하는 analysis cache/lease는 제외한다. SSD 물리적
+완전 삭제를 약속하지 않는다. object 손상 시에도 논리 삭제·purge는 가능하지만 복원은
+유효한 object가 필요하다.
+
+portable ZIP은 명시적으로 고른 공유 검토 완료 source/result만 포함한다. title/context/
+spec에는 별도 manifest 공유 검토가 필요하다. 외부 경로를 제거하며 source와 Workspace는
+기본 생략하고 선택하지 않은 result/baseline/artifact 참조를 제외한다. 복원은 버전·hash·
+source size·결과 envelope·외부 경로/미참조 object를 검사한 뒤 새 ID로 한 번에 commit하며
+공유 승인을 해제한다. 이는 로컬 내용 검증이고 T-632의 서명 pack/발행자 신뢰 검증이 아니다.
+
+운영 자원 상한은 사건 128개, collection별 참조 128개, manifest 2 MiB, object/source/
+디코딩 UTF-8 64 MiB, 사건별 선언 source/참조 object 512 MiB, 일반 저장소 4 GiB,
+일반 revision 1,024개다. 한도 도달 후에도 최대 두 번의 archive/delete revision과 제한된
+manifest 여유 공간으로 purge를 진행할 수 있다. 이력을 조용히 제거하지 않는다. 전체
+저장소 파일 수도 제한하며 portable 새 사건은 새 이력으로 시작한다. 실제 디스크 부족/I/O
+오류는 commit을 막을 수 있으므로 쓰기 결과가 불확실하면 HEAD를 재조회한다. 이 숫자는
+구현 자원 예산이며 진단 임계값이나 자동 삭제 정책이 아니다.

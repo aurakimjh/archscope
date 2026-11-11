@@ -1985,3 +1985,80 @@ same-policy incidental-only changes, semantic mismatch, no/unknown policy and
 keys, policy/version/metric mismatch, nil/zero/absence, forged input whitelists,
 round trips and CLI/Wails parity before promoting each actual producer. Q01–Q04
 and producer versions/real keys remain undecided by this foundation change.
+
+## T-630 case and capture storage contract (2026-11-11)
+
+The `internal/cases` implementation stores case/capture manifests at version
+`1.0.0`. This is a separate version namespace from AnalysisResult payloads,
+ProfileSet and importer schemas. Future case/sidecar versions are refused without
+rewriting their source. AnalysisResult objects are saved as exact original bytes;
+unknown metadata, large integer and decimal tokens, null, zero and absent fields
+survive save, restart, Wails string transport and portable restore. No case operation
+changes diagnostic measurements or qualifies a new producer/version.
+
+A case contains immutable source/result digests, captures, selections, immutable
+baseline pins and artifact specifications. Result references pin source IDs and
+hashes, options digest and optional component versions. Source replacement,
+omission and encoding edits mark dependent results/artifacts stale; old result
+bytes and baseline conditions remain unchanged. `snapshot-only` means originals
+are absent/unusable or context changed. `originals-present-unverified` means their
+bytes match the declared hashes, **not** that an importer re-executed them or that
+comparison compatibility was established. T-635 owns that verification, matching,
+case-wide search and reuse gate. A source-less saved snapshot cannot claim original
+availability. A baseline never changes to a newer result implicitly.
+
+Capture claims distinguish `observed`, `user`, `estimated` and `unknown` basis;
+unknown values are null or absent, not zero. Header conflicts produce warnings
+without replacing sidecar claims. Clock declarations are provenance, not automatic
+alignment. No file mtime becomes a capture time or anchor. Device vendor, kind,
+`unified`/`dedicated`/`unknown` memory model, hierarchy and mapping basis are neutral;
+Apple devices require no NVIDIA UUID. Hierarchy cycles and unresolved identities
+are rejected. Capture files match complete relative names, hashes and sizes;
+identical bytes in different host paths keep distinct source/capture provenance.
+Options use bounded semantic allowlisted scalars and include/exclude string lists;
+command/environment objects and unrecognized option keys are refused. Descriptive
+option strings use the existing text mask. Masking does not establish sharing
+safety: explicit review is still required. The bundled capture JSON Schema and
+synthetic encoding fixtures are byte-identical offline copies of the shared assets;
+`internal/cases/contracts/manifest.json` pins their digests. Reference/cycle/path and
+cross-field checks supplement the structural schema.
+
+The authoritative store is `UserConfigDir()/ArchScope/diagnostics/case-store`
+(macOS Application Support, Windows Roaming AppData). Kernel locking permits one
+writer. Objects and immutable revision JSON are written/synced before an atomic
+`HEAD.json` replacement containing revision and digest. Every edit requires the
+expected decimal-string revision. Startup discards only owned staging; committed
+HEAD ignores interrupted next revisions. Hash mismatch is an error, not a fallback
+to different evidence. Immutable history/objects are retained until explicit purge;
+cache cleanup touches only rebuildable indexes and owned staging. Rebuild scans
+committed manifests and reports unreadable cases instead of silently omitting them.
+
+Lifecycle is active → archived → restored; deleted is a reversible logical state.
+Deleted snapshots cannot be read until restored. Retention days are nullable,
+user-selected reminders measured since last committed update, never automatic
+expiry. Purge requires logical deletion plus a token bound to the current case and
+revision. Its plan enumerates managed sources, results, history, workspace/AI and
+visual specifications, and disposable case indexes/staging. External originals,
+separately exported files, clipboard, OS backups, legacy cache copies and shared
+analysis-cache snapshots/caller leases are explicitly outside this case-scoped
+operation. Physical SSD erasure is not promised. Deleted cases can be purged even
+when an evidence object is corrupt; restoration still requires valid objects.
+
+Portable ZIP export includes only explicitly selected sharing-reviewed sources and
+result snapshots. Case context/specifications require a separate explicit manifest
+review. External paths are removed, sources default to omitted, Workspace defaults
+to omitted, and unselected result/baseline/artifact references are filtered. Restore
+checks versions, entry/content hashes, source sizes and result envelopes before a
+single new-case commit. It rejects external paths/unreferenced objects, assigns a
+new local case ID and clears sharing approvals. This is local content validation,
+not a signed package/trusted publisher claim (T-632).
+
+Operational allocation bounds: 128 cases; 128 references per collection; 2 MiB
+manifest; 64 MiB object/source/decoded UTF-8; 512 MiB declared sources and referenced
+objects per case; 4 GiB normal store budget; 1,024 ordinary revisions. Up to two
+extra archive/delete revisions and bounded manifest reserve permit explicit purge
+at those logical limits. History is never silently evicted. Bounded full-store
+filesystem traversal also caps entries. A fresh portable restore starts a new
+history. OS disk-full/I/O failures can still prevent a commit; callers reload HEAD
+on any uncertain write outcome. These are implementation resource ceilings, not
+diagnostic thresholds or automatic retention policy.
