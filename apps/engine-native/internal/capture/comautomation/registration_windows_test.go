@@ -100,3 +100,86 @@ func TestBothArchitectureTypeLibrariesDescribeTargetOffsets(t *testing.T) {
 		}
 	}
 }
+
+// Run the explicit public lifecycle only when all affected product/interface
+// keys are absent. Never commandeer an installed product's registration.
+func TestExplicitRegistrationLifecycleOnCleanHost(t *testing.T) {
+	exe, e := os.Executable()
+	if e != nil {
+		t.Fatal(e)
+	}
+	roots := []registry.Key{}
+	defer func() {
+		for _, root := range roots {
+			root.Close()
+		}
+	}()
+	for _, view := range []uint32{registry.WOW64_64KEY, registry.WOW64_32KEY} {
+		root, _, e := registry.CreateKey(registry.CURRENT_USER, `Software\Classes`, registry.READ|registry.WRITE|view)
+		if e != nil {
+			t.Fatal(e)
+		}
+		roots = append(roots, root)
+		for _, p := range append(metadataRoots(), `CLSID\`+ClassID, ProgID) {
+			k, e := registry.OpenKey(root, p, registry.READ)
+			if e == nil {
+				k.Close()
+				t.Skip("existing registration preserved", p)
+			}
+		}
+		machine, e := registry.OpenKey(registry.LOCAL_MACHINE, `Software\Classes`, registry.READ|view)
+		if e != nil {
+			t.Fatal(e)
+		}
+		for _, p := range metadataRoots() {
+			k, e := registry.OpenKey(machine, p, registry.READ)
+			if e == nil {
+				k.Close()
+				machine.Close()
+				t.Skip("existing machine registration preserved", p)
+			}
+		}
+		machine.Close()
+	}
+	if e = Register(exe); e != nil {
+		t.Fatal(e)
+	}
+	registered := true
+	defer func() {
+		if registered {
+			if e := Unregister(exe); e != nil {
+				t.Error("cleanup", e)
+			}
+		}
+	}()
+	first := registeredMetadataFiles(roots)
+	if len(first) != 2 {
+		t.Fatal("missing architecture libraries", first)
+	}
+	if e = Register(exe); e != nil {
+		t.Fatal("replace", e)
+	}
+	for _, p := range first {
+		if _, e = os.Stat(p); !os.IsNotExist(e) {
+			t.Fatal("replaced library retained", p, e)
+		}
+	}
+	second := registeredMetadataFiles(roots)
+	if e = Unregister(exe); e != nil {
+		t.Fatal("unregister", e)
+	}
+	registered = false
+	for _, p := range second {
+		if _, e = os.Stat(p); !os.IsNotExist(e) {
+			t.Fatal("unregistered library retained", p, e)
+		}
+	}
+	for _, root := range roots {
+		for _, p := range append(metadataRoots(), `CLSID\`+ClassID, ProgID) {
+			if k, e := registry.OpenKey(root, p, registry.READ); e == nil {
+				k.Close()
+				t.Error("owned registration leaked", p)
+			}
+		}
+	}
+}

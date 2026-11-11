@@ -51,7 +51,8 @@ func TestCOMRemotingHelper(t *testing.T) {
 }
 
 // Real out-of-process activation/IDispatch/ITypeInfo, with a random test CLSID.
-// No product or vendor registration, capture, cache cleanup or GUI is touched.
+// Only missing interface mappings are temporarily owned by this fixture. No
+// existing registration, capture, browser cache or GUI is changed.
 func TestNativeOutOfProcessDispatchAndTypeInfo(t *testing.T) {
 	runtime.LockOSThread()
 	defer runtime.UnlockOSThread()
