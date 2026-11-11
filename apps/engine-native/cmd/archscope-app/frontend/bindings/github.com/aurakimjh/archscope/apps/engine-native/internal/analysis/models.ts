@@ -42,6 +42,7 @@ export class CancelOutcome {
 }
 
 export class JobProblem {
+    "detail"?: ingestion$0.BudgetDetail | null;
     "code": string;
     "stage": string;
     "retryable": boolean;
@@ -73,7 +74,11 @@ export class JobProblem {
      * Creates a new JobProblem instance from a string or object.
      */
     static createFrom($$source: any = {}): JobProblem {
+        const $$createField0_0 = $$createType2;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("detail" in $$parsedSource) {
+            $$parsedSource["detail"] = $$createField0_0($$parsedSource["detail"]);
+        }
         return new JobProblem($$parsedSource as Partial<JobProblem>);
     }
 }
@@ -126,10 +131,10 @@ export class JobSnapshot {
      * Creates a new JobSnapshot instance from a string or object.
      */
     static createFrom($$source: any = {}): JobSnapshot {
-        const $$createField4_0 = $$createType1;
-        const $$createField5_0 = $$createType2;
-        const $$createField9_0 = $$createType3;
-        const $$createField11_0 = $$createType5;
+        const $$createField4_0 = $$createType3;
+        const $$createField5_0 = $$createType4;
+        const $$createField9_0 = $$createType5;
+        const $$createField11_0 = $$createType7;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("source" in $$parsedSource) {
             $$parsedSource["source"] = $$createField4_0($$parsedSource["source"]);
@@ -179,7 +184,7 @@ export class ResultView {
      * Creates a new ResultView instance from a string or object.
      */
     static createFrom($$source: any = {}): ResultView {
-        const $$createField4_0 = $$createType6;
+        const $$createField4_0 = $$createType8;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("compatibility" in $$parsedSource) {
             $$parsedSource["compatibility"] = $$createField4_0($$parsedSource["compatibility"]);
@@ -190,9 +195,11 @@ export class ResultView {
 
 // Private type creation functions
 const $$createType0 = JobSnapshot.createFrom;
-const $$createType1 = ingestion$0.SourceInfo.createFrom;
-const $$createType2 = ingestion$0.DetectionSet.createFrom;
-const $$createType3 = ingestion$0.Budgets.createFrom;
-const $$createType4 = JobProblem.createFrom;
-const $$createType5 = $Create.Nullable($$createType4);
-const $$createType6 = resultcontract$0.Verdict.createFrom;
+const $$createType1 = ingestion$0.BudgetDetail.createFrom;
+const $$createType2 = $Create.Nullable($$createType1);
+const $$createType3 = ingestion$0.SourceInfo.createFrom;
+const $$createType4 = ingestion$0.DetectionSet.createFrom;
+const $$createType5 = ingestion$0.Budgets.createFrom;
+const $$createType6 = JobProblem.createFrom;
+const $$createType7 = $Create.Nullable($$createType6);
+const $$createType8 = resultcontract$0.Verdict.createFrom;

@@ -465,15 +465,17 @@ Tests are not independent review PASS. T-629 onward and undecided Q01–Q04 rema
 
 ### T-628 review gate and remaining lifecycle boundary
 
-The independent implementation review is CONDITIONAL. R-01–R-14 remediation is
-recorded in work_status.md and the paired parser/data-model contracts; local test
-success does not close REVIEW. T-629 can start once R-01 is corrected and the deep-profile regressions pass,
-as permitted by the original review; independent T-628 closure remains separate. T-630 may proceed with case lifecycle work; bounded backend
-retention/deduplication/explicit release and store locking are only its foundation.
-Durable references, ownership before release, migration/recovery, deletion/restore
-and indexes remain mandatory. T-631 needs load cancellation and generic UI fallback;
-T-632 retains offline distribution acceptance. Full ProfileSet and measurement
-corrections remain T-629/T-634. Q01–Q04 remain DECISION_PENDING. Actual native
+The original independent T-628 verdict remains CONDITIONAL. R3 confirmed the
+R2 findings resolved with no P1/P2 and explicitly permitted DONE; work_status.md
+records closure and the final locally verified P3 follow-ups without claiming
+an independent PASS for those changes. T-629 now has its own CONDITIONAL review
+and R4 remediation checkpoint. T-630 may proceed with case lifecycle work;
+bounded backend retention/deduplication, administrative deletion and store locking
+are only its foundation. Unsafe public Wails release is removed until ownership
+exists. Durable references, reference ownership, migration/recovery,
+deletion/restore and indexes remain mandatory. T-631 needs load cancellation and
+generic UI fallback; T-632 retains offline distribution acceptance. Full producer
+measurement correction remains T-634. Q01–Q04 stay DECISION_PENDING. Actual native
 WebView flows, Windows execution and hosted CI are separate from local checks.
 
 ### T-629 core implementation checkpoint
@@ -485,3 +487,12 @@ PARSER_DESIGN contracts for versions, resource bounds and refusal behavior.
 0.1.x producer paths retain legacy semantics. Actual producer corrections and
 qualification remain T-634, generic screens T-631, and case/baseline context
 T-630/T-635. Local checks and author verification do not grant independent PASS.
+
+R4 review remediation keeps the same semantic model while transporting <=32 MiB
+JSON via bounded chunks. Exact tree-byte accounting replaces the old conservative
+8 MiB estimate. Comparison conditions separate quality categories from measured
+counts/ratios and require explicit mapping for differing entities; references
+preserve both quality snapshots. Content validation is cached within an immutable
+registry, including the checked metadata.quality copy. DATA_MODEL states effective
+joint limits and measured amplification. T-634 producer corrections, T-635 entity
+mapping and T-631 actual generic screens remain separate.

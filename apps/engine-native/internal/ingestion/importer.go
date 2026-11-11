@@ -10,6 +10,7 @@ import (
 	"math"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -20,13 +21,26 @@ import (
 
 const MaxOptionBytes = 64 * 1024
 
+type BudgetDetail struct {
+	ReasonCode string  `json:"reasonCode"`
+	Resource   string  `json:"resource"`
+	Actual     *string `json:"actual,omitempty"`
+	Limit      *string `json:"limit,omitempty"`
+}
+
 type ImportError struct {
+	Detail  *BudgetDetail `json:"detail,omitempty"`
 	Code    string
 	Message string
 }
 
 func (e *ImportError) Error() string     { return e.Code + ": " + e.Message }
-func Problem(code, message string) error { return &ImportError{code, message} }
+func Problem(code, message string) error { return &ImportError{Code: code, Message: message} }
+
+func BudgetProblem(reason, resource string, actual, limit int64) error {
+	a, l := strconv.FormatInt(actual, 10), strconv.FormatInt(limit, 10)
+	return &ImportError{Code: "IMPORT_BUDGET_EXCEEDED", Message: fmt.Sprintf("%s: %s %d exceeds %d", reason, resource, actual, limit), Detail: &BudgetDetail{ReasonCode: reason, Resource: resource, Actual: &a, Limit: &l}}
+}
 
 type SchemaRef struct {
 	ID      string `json:"id"`

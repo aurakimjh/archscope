@@ -1,0 +1,537 @@
+{
+  "task": "T-629 independent implementation review remediation R4-01 through R4-05",
+  "baseline_commit": "c7a15706f86b2cd22e68d3a3bd2effd709c1f33c",
+  "recorded_at_utc": "2026-11-11T08:27:01.722888+00:00",
+  "review": {
+    "path": "docs/review/done/2026-11-11_claude-code_T-629_implementation-review.ko.md",
+    "sha256": "b7e48b23b48e8f45c4a4d6af49a1220dee075b37991a6d916f8703ab89d75ee5",
+    "original_verdict": "CONDITIONAL; P2 two, P3 three",
+    "independent_review_of_these_fixes": "not_performed",
+    "task_state": "REVIEW"
+  },
+  "shared_assets_commit": "d3a145665e730469e8e3bf8262a8b5e9bd8f5b01",
+  "checks": [
+    {
+      "name": "full_final_race",
+      "command": "go test -race ./... -count=1",
+      "exit_code": 0,
+      "log_sha256": "4ac0116a3758e04f4332e82558e496b9a329545a65c5783238e6467cc773dd32"
+    },
+    {
+      "name": "go_vet",
+      "command": "go vet ./...",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "go_build",
+      "command": "go build ./...",
+      "exit_code": 0,
+      "log_sha256": "f23d54b5cfe8b15c9bdd835433a6e93352c9106d4eeab86716445d5b4768727e"
+    },
+    {
+      "name": "windows_amd64_vet",
+      "command": "GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go vet ./...",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "windows_386_vet",
+      "command": "GOOS=windows GOARCH=386 CGO_ENABLED=0 go vet ./...",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "bindings",
+      "command": "wails3 generate bindings -clean=true -ts",
+      "exit_code": 0,
+      "log_sha256": "2186ca6a1bf5aa566bc0f5879d9726c79a6c790890821077afc2d52635e5dcf4"
+    },
+    {
+      "name": "frontend_state",
+      "command": "npm run test:state",
+      "exit_code": 0,
+      "log_sha256": "96ab3e7763edc1082d01e3a18afd8649d6c9bcdb89fb7b8a072303fcc49805cb"
+    },
+    {
+      "name": "frontend_build",
+      "command": "npm run build",
+      "exit_code": 0,
+      "log_sha256": "db287b8342bdcfb70f1ca351b8b330d22ba2bb9c2ce1a5a858a1477e3313951e"
+    },
+    {
+      "name": "desktop_guard",
+      "command": "node scripts/verify-desktop-only.mjs --check-server-build",
+      "exit_code": 0,
+      "log_sha256": "2737e05db97102bfc69e4a94138f70b869f75db5874ac9581749568974f07e97"
+    },
+    {
+      "name": "macos_package",
+      "command": "task darwin:package",
+      "exit_code": 0,
+      "log_sha256": "77a99822817395ad062fe81fdc8c1d5a1864ec421d4ebefb00893aa97ad15b49"
+    },
+    {
+      "name": "macos_signature",
+      "command": "codesign --verify --deep --strict bin/archscope.app",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "windows_amd64_build",
+      "command": "GOARCH=amd64 node build/windows/build.mjs -tags production -o /private/tmp/archscope-t629-review-amd64.exe",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "windows_386_build",
+      "command": "GOARCH=386 node build/windows/build.mjs -tags production -o /private/tmp/archscope-t629-review-386.exe",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "cli_build",
+      "command": "go build -o /private/tmp/archscope-t629-review ./cmd/archscope-engine",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "actual_cli_flow",
+      "command": "python3 /private/tmp/t629_review_cli.py",
+      "exit_code": 0,
+      "log_sha256": "e2ab558414869ae6b05dec94e574b12d149376da0a52efdb35cb737f7b399296"
+    },
+    {
+      "name": "final_focused_race",
+      "command": "go test -race -count=1 ./internal/ingestion ./internal/catalog ./internal/profilemodel ./internal/analyzers/profile ./internal/analysis ./cmd/archscope-app -run 'TestBudgetDetail|TestR4'",
+      "exit_code": 0,
+      "log_sha256": "0713888f540d5262bf072b6adbfc5528eff27dc90d14ccb256d9699bdd230c0e"
+    }
+  ],
+  "full_final_race": {
+    "passed_packages": 95,
+    "without_tests": 5,
+    "failures": 0,
+    "races": 0
+  },
+  "regressions": {
+    "R4-01": [
+      "32 MiB bounded model, <=256 KiB raw chunks under original 1 MiB record/64 MiB normalized-result/160 MiB temp policy",
+      "chunk order/size/reassembly and numeric refusal details; caller lower record/stack limits fail atomically and staging cleans",
+      "3000 stacks/depth18: 4961619-byte core model -> 28894739-byte result, 54001 tree nodes, exact total 3000, save/read/export unchanged",
+      "exact JSON node-shell + separator accounting; 64 MiB tree ceiling; model cardinality/string/resource limits independent",
+      "transport cap and record/stack/model limits identify actual/limit; job detail uses exact decimal strings and preserves 2^54+1"
+    ],
+    "R4-02": [
+      "lost/unknown/truncated/resolution measurements remain in both independent reference snapshots; numeric changes disclosed",
+      "format-only numeric strings do not create quality warnings; nil and observed zero remain distinct",
+      "category/revision/selection/capture/clock mismatches have typed reasons; PID changes return entity_mapping_required",
+      "v2 comparison conditions separate from original provenance; old saved policy recomputed exactly and not rewritten"
+    ],
+    "R4-03": [
+      "successful semantic validation cached by real serialized-content digest; maximum 64 digests per immutable registry, no retained models",
+      "operation/required-extension checks still execute, changed content misses, failed checks not cached, eviction bounded",
+      "size amplification measured in core and actual CLI cases; duplicate stored compatibility projections retained"
+    ],
+    "R4-04": [
+      "metadata.quality checked against retained model before success caching",
+      "edited quality mirror cannot compute/compare or normal-json/csv/html/pack export; original cache/bytes unaffected"
+    ],
+    "R4-05": [
+      "complete <=64 KiB model verified; larger truncated probe remains hint with explicit selection required",
+      "larger valid-model actual CLI auto import refuses selection-required; explicit import validates full source"
+    ]
+  },
+  "actual_cli": {
+    "checks": [
+      {
+        "command": [
+          "profile-set",
+          "normalize-legacy",
+          "--in",
+          "temporary/wide-3000-depth14.collapsed",
+          "--format",
+          "collapsed",
+          "--out",
+          "temporary/wide-3000-depth14-model.json"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.527
+      },
+      {
+        "command": [
+          "evidence",
+          "import",
+          "--in",
+          "temporary/wide-3000-depth14-model.json",
+          "--importer",
+          "profile-set",
+          "--options",
+          "{\"profile_ids\": [\"profile-dde43b2eddcd53d7203454bb38b9ba8e6d2e89301e4edf65d484c2c3e23b30a5\"], \"metric_id\": \"legacy-count\"}",
+          "--out",
+          "temporary/wide-3000-depth14-result.json"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 4.398,
+        "model_bytes": 4603851,
+        "result_bytes": 23452268,
+        "tree_nodes": 42001,
+        "total_weight": "3000",
+        "amplification": 5.094,
+        "result_sha256": "2ba3cafa5952afe8ded9700e6f5584bdc7d893a51eebdfac01423ce75732934b"
+      },
+      {
+        "command": [
+          "evidence",
+          "export",
+          "--in",
+          "temporary/wide-3000-depth14-result.json",
+          "--export-format",
+          "report-pack",
+          "--out",
+          "temporary/wide-3000-depth14.zip"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 3.219
+      },
+      {
+        "command": [
+          "profile-set",
+          "normalize-legacy",
+          "--in",
+          "temporary/wide-3000-depth18.collapsed",
+          "--format",
+          "collapsed",
+          "--out",
+          "temporary/wide-3000-depth18-model.json"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.091
+      },
+      {
+        "command": [
+          "evidence",
+          "import",
+          "--in",
+          "temporary/wide-3000-depth18-model.json",
+          "--importer",
+          "profile-set",
+          "--options",
+          "{\"profile_ids\": [\"profile-dde43b2eddcd53d7203454bb38b9ba8e6d2e89301e4edf65d484c2c3e23b30a5\"], \"metric_id\": \"legacy-count\"}",
+          "--out",
+          "temporary/wide-3000-depth18-result.json"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 5.19,
+        "model_bytes": 5480531,
+        "result_bytes": 29561628,
+        "tree_nodes": 54001,
+        "total_weight": "3000",
+        "amplification": 5.394,
+        "result_sha256": "237e3a2779815be28266432d7147fb03798391c200247696dff1dea0c7e64e19"
+      },
+      {
+        "command": [
+          "evidence",
+          "export",
+          "--in",
+          "temporary/wide-3000-depth18-result.json",
+          "--export-format",
+          "report-pack",
+          "--out",
+          "temporary/wide-3000-depth18.zip"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 4.037
+      },
+      {
+        "command": [
+          "evidence",
+          "export",
+          "--in",
+          "temporary/wide-3000-depth18-result.json",
+          "--export-format",
+          "html",
+          "--out",
+          "temporary/too-wide.html"
+        ],
+        "exit_code": 1,
+        "elapsed_seconds": 3.253,
+        "expected_refusal": "existing independent availability appendix entry ceiling"
+      },
+      {
+        "command": [
+          "evidence",
+          "import",
+          "--in",
+          "temporary/before.json",
+          "--importer",
+          "profile-set",
+          "--options",
+          "{\"profile_ids\": [\"worker-a\", \"worker-b\"], \"metric_id\": \"duration\"}",
+          "--out",
+          "temporary/before-result.json"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.037
+      },
+      {
+        "command": [
+          "evidence",
+          "import",
+          "--in",
+          "temporary/quality-after.json",
+          "--importer",
+          "profile-set",
+          "--options",
+          "{\"profile_ids\": [\"worker-a\", \"worker-b\"], \"metric_id\": \"duration\"}",
+          "--out",
+          "temporary/quality-after-result.json"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.035
+      },
+      {
+        "command": [
+          "evidence",
+          "import",
+          "--in",
+          "temporary/entity-after.json",
+          "--importer",
+          "profile-set",
+          "--options",
+          "{\"profile_ids\": [\"worker-a\", \"worker-b\"], \"metric_id\": \"duration\"}",
+          "--out",
+          "temporary/entity-after-result.json"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.041
+      },
+      {
+        "command": [
+          "profile-set",
+          "diff",
+          "--in",
+          "temporary/before-result.json",
+          "--after",
+          "temporary/quality-after-result.json"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.035
+      },
+      {
+        "command": [
+          "profile-set",
+          "diff",
+          "--in",
+          "temporary/before-result.json",
+          "--after",
+          "temporary/entity-after-result.json"
+        ],
+        "exit_code": 1,
+        "elapsed_seconds": 0.033
+      },
+      {
+        "command": [
+          "evidence",
+          "import",
+          "--in",
+          "temporary/detection.json",
+          "--options",
+          "{\"profile_ids\": [\"worker-a\", \"worker-b\"], \"metric_id\": \"duration\"}"
+        ],
+        "exit_code": 1,
+        "elapsed_seconds": 0.02
+      }
+    ],
+    "quality_comparison": {
+      "quality_differences": [
+        "lost"
+      ],
+      "warnings": [
+        "quality_measurements_differ"
+      ],
+      "identity_basis": "declared",
+      "comparison_mode": "baseline_target",
+      "baseline": {
+        "quality": {
+          "lost": "0",
+          "unknown": null,
+          "truncated": null,
+          "symbol_resolution": null,
+          "clock_confidence": "unavailable",
+          "conversion_loss": []
+        },
+        "handle": "result-ef72e3c4c87fff6a801fc6bc14fc0bb5",
+        "result_sha256": "8a24c95cdca617acd6c0107ad703ec44a9ce59cec24348d10939b8c8ed445dfb",
+        "model_sha256": "66953bf6a7ad18ca76744539a87885a6ee2160f2b2a2529b4a281811857b0617",
+        "population": "population-360efce3a9a6951494bc951cdb47f5ab4ce4adc86dcb1a80f950d7aaae68294c",
+        "source_sha256": [
+          "40d9150d23cd94c6e7f325511281db7c9b946e89b60d8c25a26868943102f291"
+        ]
+      },
+      "target": {
+        "quality": {
+          "lost": "3",
+          "unknown": null,
+          "truncated": null,
+          "symbol_resolution": null,
+          "clock_confidence": "unavailable",
+          "conversion_loss": []
+        },
+        "handle": "result-5c14b01b8569cee16505fda4887b93e4",
+        "result_sha256": "4029466fb551ec6b673fce3a0eae8caf37906b1c77efc2a719b735df5e4485d9",
+        "model_sha256": "759c11318ccdffcdadc8a18dbfa2ff38dfa61c9430f1ba12c0ddd081a79caee5",
+        "population": "population-feb0a4b2ff6c56abe22173a85f543ccc8b4e8c828406a7f1e63ab21083f954fc",
+        "source_sha256": [
+          "40d9150d23cd94c6e7f325511281db7c9b946e89b60d8c25a26868943102f291"
+        ]
+      },
+      "metric": {
+        "id": "duration",
+        "kind": "wall_time",
+        "unit": "seconds",
+        "scale": "1",
+        "signed": false
+      },
+      "population": "population-360efce3a9a6951494bc951cdb47f5ab4ce4adc86dcb1a80f950d7aaae68294c",
+      "rows": [
+        {
+          "id": "node-882ac35b7f7f00523481e26b2d517800d1316c8451872fe0ba74f87e9542a840",
+          "frame_id": "frame-ec3520c60e3cca968b5f524cdbf4479dbf3921f73d0e4804014be4a17c5b8b4b",
+          "before": "0.25",
+          "after": "0.25",
+          "delta": "0",
+          "share_delta": "0",
+          "percent": "0"
+        },
+        {
+          "id": "node-8ac952d118a2fceca0c5519fef2ea92a3f6be84e8e01d8c45844074b6c2fd028",
+          "frame_id": "frame-1ab9487615412edebd0eaaf8087fe727e7f67fe42ab9c44c26c335f5b534f995",
+          "before": "0.1",
+          "after": "0.1",
+          "delta": "0",
+          "share_delta": "0",
+          "percent": "0"
+        },
+        {
+          "id": "node-8d3e0ae7da30fa367119a9ddcc447823e69d8322560330423673547e4ec274ee",
+          "frame_id": "frame-fae217c5d2ecf8f1159188566b1b6defb1e8616967d0a47ba311ea3cd9f35b8f",
+          "before": "0.35",
+          "after": "0.35",
+          "delta": "0",
+          "share_delta": "0",
+          "percent": "0"
+        },
+        {
+          "id": "node-d2bbd731d3821a0258795e1a620c2d6e83b204693fcb11b3a119ecf7f06b3e14",
+          "frame_id": "frame-fae217c5d2ecf8f1159188566b1b6defb1e8616967d0a47ba311ea3cd9f35b8f",
+          "before": "0.25",
+          "after": "0.25",
+          "delta": "0",
+          "share_delta": "0",
+          "percent": "0"
+        },
+        {
+          "id": "root",
+          "before": "0.35",
+          "after": "0.35",
+          "delta": "0",
+          "share_delta": "0",
+          "percent": "0"
+        }
+      ]
+    },
+    "scope": "actual built CLI, synthetic inputs only; no actual UI or Windows execution"
+  },
+  "compatibility": {
+    "common_analysis_result": "preserved",
+    "ProfileSet_schema": "1.0.0 unchanged",
+    "profile_evidence_payload": "0.2.0 unchanged",
+    "internal_adapter": "1.0.1",
+    "normalized_record_family": "profile-set.chunk.v1",
+    "semantic_numeric_reinterpretation": false,
+    "legacy_goldens_metadata_thread_mixed_format": "retained in final full suite",
+    "identity_basis": "declared; no entity mapping or original-reimport verification invented"
+  },
+  "documentation": {
+    "pairs": [
+      "DATA_MODEL",
+      "PARSER_DESIGN",
+      "IMPORTER_SUPPORT_MATRIX",
+      "LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN"
+    ],
+    "review_unchanged": true,
+    "registry": {
+      "DONE": 211,
+      "REVIEW": 4,
+      "TODO": 3,
+      "PENDING": 14
+    },
+    "unique_task_ids": 232,
+    "diff_check": "passed"
+  },
+  "limitations": [
+    "no independent closure of R4 fixes; original CONDITIONAL not promoted to PASS",
+    "no actual new WebView IPC/UI; direct Go Wails method/error JSON checks only",
+    "no Windows native execution; cross-vet/build only",
+    "no hosted CI or real new producer conformance claimed",
+    "32 MiB transport + model/reference/result/temp/drilldown/projection ceilings apply jointly; no simultaneous-maximum or production memory/latency guarantee",
+    "large 54001-node HTML is explicitly refused by existing 100000-entry appendix cap; JSON/Report Pack succeeds; no full large HTML/CSV success claimed",
+    "model/tree/frame/weight-row result duplication retained, observed 5.82x core and 5.39x CLI amplification for depth18",
+    "cold concurrent cache misses may revalidate; only successful validation is cached for one immutable registry",
+    "T-634 owns producer numeric corrections, T-635 entity mapping/verified baselines; Q01-Q04 remain undecided"
+  ],
+  "iterations": [
+    "first added quality test expected nil although shared fixture declares observed lost=0; assertion corrected; final suites pass"
+  ],
+  "source_sha256": {
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/internal/analysis/models.ts": "9ca8d56762f95d7813c0f16365cb19ba3d1003934c3c5c2ff61052e94e277469",
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/internal/ingestion/index.ts": "fe0079eb63510f10b582377dcdee4fd43029a59bbec6c08d2cc5a49d58522f30",
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/internal/ingestion/models.ts": "3a87ab456590a27c812289d6764569747890d3ebe71bae1c1867573f29e2484a",
+    "apps/engine-native/cmd/archscope-app/profilesetservice_test.go": "088ba394cedf2ddf71c224ea60638da31a710e7bb5d537548ac6ec1f9984c17f",
+    "apps/engine-native/internal/analysis/profile_review_test.go": "b707d601e1e7305dbe3e2d0685e668edbcde0939df60b6b17b6361c4588657e7",
+    "apps/engine-native/internal/analysis/service.go": "2876ccfc9dab1695ff17d327086ba2f29bdada46806abc63371ea0dadff33e38",
+    "apps/engine-native/internal/analyzers/profile/model.go": "708aa12f9361d41cbb0813769cc1e7e191a27f12a7aebc6c90ad07293bc7752c",
+    "apps/engine-native/internal/analyzers/profile/review_test.go": "c2f558f5172383c9217ddfdec5e3928d6fa55c4fd8e16477af90b09fbc9144b0",
+    "apps/engine-native/internal/catalog/profile_review_test.go": "5f8c058e3a2f7095b70571c134b7e69fd33268b3d2a64ac41b66f2d01ffde70e",
+    "apps/engine-native/internal/catalog/profile_set.go": "b57a87d78ab805f75d4fcc9a1116950b05782b15adc478719a6f85164d5cae6e",
+    "apps/engine-native/internal/catalog/profile_transport.go": "912bc42da64522036ce7a5d8c88f193c015f0334bad61f0b54010e77b6a7690f",
+    "apps/engine-native/internal/ingestion/budget_detail_test.go": "f106df189e654812beda8632f66590ee81343a2bd2b4de47d5ad11cbc5cc743a",
+    "apps/engine-native/internal/ingestion/importer.go": "dea598c19c198941ad6c336e1467bbdaa489b00d18452a6e49d95db6e2f88b7a",
+    "apps/engine-native/internal/ingestion/lease.go": "5c9fd18d1375c8141834c9ef3162692958b78ff496c4737d228e44a68119b211",
+    "apps/engine-native/internal/ingestion/sink.go": "b521f86ed82739f15d0fdca1bd7a4b2e57ae544d4f312bf2ab9477bfd425d504",
+    "apps/engine-native/internal/profilemodel/budget.go": "eb72a7f29a0558233f0a0d43b6f6e840e4634119992cc75671f880e1e528ca10",
+    "apps/engine-native/internal/profilemodel/comparison.go": "616f55849f4d65afc1a0310d7ae5c00be2bd8fda46b5e2e1593f57e69dbbca4d",
+    "apps/engine-native/internal/profilemodel/errors.go": "5d139f73ae8be282f39e8caf901df273347e838de2acb52f1184263c86bdf736",
+    "apps/engine-native/internal/profilemodel/model.go": "aa80a8a9c21f64c57837f84941a1e38c3125029189a140fbe9e43b1f81ae335d",
+    "apps/engine-native/internal/profilemodel/operations.go": "fc9e9194d2aef66205f41d59be8ca3be7063dcc0c23c5da0a639087dd761310e",
+    "apps/engine-native/internal/profilemodel/review_test.go": "32066a5c8d18a3d93342815c6010091ebbcc3f0a4e0cc4867b3bc560f287f041",
+    "apps/engine-native/internal/resultcontract/cache_test.go": "bce31c7db5c558e276154574055934c2c1391fe7277f226670d5a39b68af4a8d",
+    "apps/engine-native/internal/resultcontract/contract.go": "c2460a8b6cb9c135102ec0175d54580ebe4a69c233a9bea37e3a54b810b65f24"
+  },
+  "shared_bundle_sha256": {
+    "profile-set.json": "90e348518b20503d0efdd70f133747cd08dcfd06bbd8abfbae710e3b16afd2f8",
+    "profile-origin.txt": "40d9150d23cd94c6e7f325511281db7c9b946e89b60d8c25a26868943102f291",
+    "profile-scale-cases.json": "6da5969a085ecc63436247f0f08ee974145ac07e6beeefc99bd4627eaa1cc17e",
+    "profile-set.manifest.json": "00c424709e897bce4e6250aef0b7ffd3e31248614600e04b1f26c93f25f4b156"
+  },
+  "artifact_sha256": {
+    "cli": {
+      "sha256": "8b81422d28aa45950a1831b89d4e73abb55e2099afae6fcbde710209a66ecee9",
+      "bytes": 18357970
+    },
+    "windows_amd64": {
+      "sha256": "171b06cfb606999a6f5d05587877bf6a7a4f8aca8a5c10b672009ffd809a9db4",
+      "bytes": 30491648
+    },
+    "windows_386": {
+      "sha256": "33fecbbfa44ba99291cda46bb78eb67cb55a962fb865df8ae883178b21cdf619",
+      "bytes": 29304320
+    },
+    "macos_app_executable": {
+      "sha256": "336ea69b71df6106ea85b7c8349b6d22d47b2964c6a67091546a6728f5a4b7df",
+      "bytes": 19482320
+    }
+  }
+}

@@ -1196,16 +1196,16 @@ T-629 이후 전체 이행과 Q01–Q04 미정 항목은 이 완료에 포함하
 
 ### T-628 리뷰 게이트와 수명주기 책임 경계
 
-독립 구현 리뷰 판정은 CONDITIONAL이다. R-01~R-14 후속 처리는 work_status.md와
-한·영 parser/data-model 계약에 기록하며 로컬 테스트 통과로 REVIEW를 종료하지
-않는다. 원 리뷰가 허용한 대로 R-01 수정과 깊은 프로파일 회귀 검증 후 T-629에 착수할 수
-있으며 T-628의 독립 종결 판정은 별개다. T-630의 case
-수명주기 구현은 착수할 수 있으나 backend의 제한된 보존·중복 제거·명시 해제와
-저장소 잠금은 그 공통 기반일 뿐이다. 영속 참조, 해제 전 소유권, 이전·복구,
-삭제·복원 및 index가 필수로 남는다. T-631에는 Load 취소와 generic fallback UI,
-T-632에는 오프라인 배포 인수가 남는다. 전체 ProfileSet과 측정 수치 정정은
-T-629/T-634이며 Q01~Q04는 DECISION_PENDING을 유지한다. 실제 네이티브 WebView
-흐름, Windows 실행과 원격 CI는 로컬 검사와 별개다.
+T-628의 원 독립 판정은 CONDITIONAL로 보존한다. R3에서 R2 finding 해소와
+P1/P2 없음 및 DONE 복귀 허용을 확인했고 work_status.md에 종결을 기록한다. 최종
+P3 후속 수정은 로컬 검증이며 그 변경의 독립 PASS를 주장하지 않는다. T-629는 별도의
+CONDITIONAL 리뷰와 R4 후속 처리 시점을 갖는다. T-630의 case 수명주기는 착수할 수
+있으나 backend 제한 보존·중복 제거·관리용 삭제·저장소 잠금은 공통 기반일 뿐이다.
+소유권 확정 전 안전하지 않은 공개 Wails 해제는 제거했다. 영속 참조·참조 소유권·
+이전/복구·삭제/복원·index가 필수로 남는다. T-631에는 Load 취소와 generic fallback
+UI, T-632에는 오프라인 배포 인수가 남는다. producer 측정 수치 정정은 T-634이며
+Q01~Q04는 DECISION_PENDING이다. 실제 네이티브 WebView 흐름·Windows 실행·원격
+CI는 로컬 검사와 구분한다.
 
 ### T-629 공통 코어 구현 시점
 
@@ -1214,3 +1214,10 @@ ProfileSet 코어, 정밀 tree/selection/diff/drilldown/pprof 경로와 legacy �
 `profile_evidence` 0.2.0은 검증된 canonical 모델에만 활성화하고 기존 0.1.x producer
 경로는 기존 의미를 유지한다. 실제 producer 정정·적합성은 T-634, generic 화면은
 T-631, case/baseline 문맥은 T-630/T-635에 남는다. 로컬 검사·작성자 검증은 독립 PASS가 아니다.
+
+R4 리뷰 후속은 수치 의미를 유지하며 32 MiB 이하 JSON을 bounded chunk로 전송한다.
+보수적 8 MiB 추정 대신 정확한 tree 바이트 계산을 적용한다. 비교는 품질 범주와 측정
+수/비율을 분리하고 entity가 다르면 명시 매핑을 요구하며 양쪽 품질을 참조에 보존한다.
+내용 검증은 immutable registry 수명에서 캐시하고 metadata.quality 사본도 대조한다.
+실효 복합 상한과 측정된 크기 증폭은 DATA_MODEL에 명시한다. T-634 producer 수치
+정정, T-635 entity 매핑, T-631 실제 generic 화면은 별도 범위다.

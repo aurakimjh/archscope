@@ -790,3 +790,23 @@ signed/recursive/colliding frames, multiple profiles/metrics, exact scale, refus
 projections, version relabeling and source/selection compatibility. Direct Wails
 method and generated-binding checks do not constitute actual WebView UI execution.
 Generic result screens remain T-631 and case/baseline lifecycle remains T-630/T-635.
+
+## T-629 review remediation: bounded scale and comparison (R4)
+
+Internal profile adapter 1.0.1 keeps ProfileSet input 1.0.0 and AnalysisResult
+profile_evidence 0.2.0 numerical semantics. The parser validates one bounded model,
+then emits profile-set.chunk.v1 records (<=256 KiB raw data + exact byte offset).
+The analyzer reassembles under 32 MiB and validates the completed model. Common
+1 MiB record, 64 MiB normalized/result and 160 MiB temp policies are unchanged;
+base64 overhead counts toward spool/temp. This is bounded transport, not a fully
+streaming producer decoder. Source lease consistency, backpressure, cancellation,
+atomic commit and failure cleanup remain on the common path. Limits/size
+amplification and budget details are listed in DATA_MODEL.
+
+The 64 KiB detector verifies only a complete model within its probe. Larger JSON
+remains a hint requiring explicit importer plus profile/metric selection and full
+input validation; truncated prefix JSON never grants verified support. Shared
+scale cases cover 3,000 stacks and >=50,000 tree nodes. R4 quality comparison,
+legacy saved-policy compatibility and registry validation cache are specified in
+DATA_MODEL; the metadata.quality copy is now authoritative-model checked. No new
+producer support or entity mapping is claimed (T-634/T-635).

@@ -37,8 +37,11 @@ profile/metric을 명시하여 `profile_evidence` 0.2.0을 만든다. 번들 fix
 공통 코어를 검증할 뿐 실제 producer/버전의 지원 근거가 아니다. 기존 `profile import`는
 0.1.x 정규화 의미를 유지한다. `profile-set normalize-legacy`도 그 제한을 명시하며
 py-spy/Speedscope/pprof 입력의 수치 정정을 입증하지 않는다(T-634). generic 화면은
-T-631이다. normalized 문서 하나가 job의 record 바이트 상한도 따르므로 무제한 대용량
-producer adapter라고 표시하지 않는다.
+T-631이다. 내부 adapter 1.0.1은 32 MiB 이하 모델을 raw 256 KiB 이하 chunk record로
+나눠 공통 직렬화 record 1 MiB 정책을 유지한다. normalized/결과/temp ceiling은 함께
+적용한다. 실효 상한과 3,000 stack/54,001 node 검증 사례는 DATA_MODEL을 따른다
+(생산 부하 보증이 아님). verified 자동 감지는 64 KiB probe 안의 완전한 문서에 한정하고
+더 큰 문서는 profile-set 명시 선택과 전체 검증을 요구한다.
 
 
 ### 정밀 baseline/target 비교 (R2 N-01)
@@ -57,3 +60,8 @@ Wails 오류 `cause.code`로 구분한다(DATA_MODEL R3-01/R3-02). max_lines 뒤
 남으면 선택된 coverage로 표시하지 않는다. 과거 저장 coverage는 유지하므로 다른
 원본 비교에 필요한 과거 coverage 정정은 재import로 한다. 검증된 영속 baseline
 결속은 T-635 범위다.
+
+R4 profile 비교는 측정된 quality 수/비율 차이를 허용하고 양쪽 값과 변화 경고를
+보존한다. clock/심볼/conversion 범주는 일치해야 하며 process/thread/worker 차이는
+T-635의 명시 매핑 전까지 entity_mapping_required로 거절한다. 과거 저장 정책 hash는
+보존하며 새로운 scalar 정책으로 자동 승격하지 않는다.

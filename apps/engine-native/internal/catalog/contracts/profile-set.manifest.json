@@ -1,11 +1,12 @@
 {
   "id": "diagnostics.profile-core.v1",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "synthetic": true,
   "description": "정밀 소수·0·큰 정수·재귀 프레임·동명 심볼·다중 프로파일/측정 검증용 합성 자료. 제품 지원을 주장하지 않는다.",
   "files": {
     "profile-set.json": "90e348518b20503d0efdd70f133747cd08dcfd06bbd8abfbae710e3b16afd2f8",
-    "profile-origin.txt": "40d9150d23cd94c6e7f325511281db7c9b946e89b60d8c25a26868943102f291"
+    "profile-origin.txt": "40d9150d23cd94c6e7f325511281db7c9b946e89b60d8c25a26868943102f291",
+    "profile-scale-cases.json": "6da5969a085ecc63436247f0f08ee974145ac07e6beeefc99bd4627eaa1cc17e"
   },
   "schema_sha256": "2a7814678d750ebb56fcabb63016b4c966ba0f16819b44c6ff946ca2417d1423",
   "expected": {

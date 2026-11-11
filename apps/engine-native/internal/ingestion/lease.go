@@ -165,8 +165,11 @@ func Acquire(ctx context.Context, path, directory, id string, b Budgets) (*Sourc
 	if e != nil || !before.Mode().IsRegular() {
 		return nil, Problem("IMPORT_SOURCE_UNAVAILABLE", "source must be a regular file")
 	}
-	if before.Size() > b.InputBytes || before.Size() > b.TempBytes {
-		return nil, Problem("IMPORT_BUDGET_EXCEEDED", "snapshot exceeds input/temp budget")
+	if before.Size() > b.InputBytes {
+		return nil, BudgetProblem("input_bytes", "input_bytes", before.Size(), b.InputBytes)
+	}
+	if before.Size() > b.TempBytes {
+		return nil, BudgetProblem("temporary_bytes", "temporary_bytes", before.Size(), b.TempBytes)
 	}
 	target := filepath.Join(directory, "source.snapshot")
 	out, e := os.OpenFile(target, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0600)
@@ -186,8 +189,11 @@ func Acquire(ctx context.Context, path, directory, id string, b Budgets) (*Sourc
 	if e != nil {
 		return nil, e
 	}
-	if n > b.InputBytes || n > b.TempBytes {
-		return nil, Problem("IMPORT_BUDGET_EXCEEDED", "source grew beyond budget")
+	if n > b.InputBytes {
+		return nil, BudgetProblem("input_bytes", "input_bytes", n, b.InputBytes)
+	}
+	if n > b.TempBytes {
+		return nil, BudgetProblem("temporary_bytes", "temporary_bytes", n, b.TempBytes)
 	}
 	after, e := source.Stat()
 	if e != nil {

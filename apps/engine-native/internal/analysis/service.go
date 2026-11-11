@@ -30,11 +30,12 @@ type Request struct {
 	AllowPartial bool              `json:"allowPartial"`
 }
 type JobProblem struct {
-	Code      string `json:"code"`
-	Stage     string `json:"stage"`
-	Retryable bool   `json:"retryable"`
-	SourceID  string `json:"sourceId"`
-	Message   string `json:"message"`
+	Detail    *ingestion.BudgetDetail `json:"detail,omitempty"`
+	Code      string                  `json:"code"`
+	Stage     string                  `json:"stage"`
+	Retryable bool                    `json:"retryable"`
+	SourceID  string                  `json:"sourceId"`
+	Message   string                  `json:"message"`
 }
 type JobSnapshot struct {
 	CleanupPending bool                   `json:"cleanupPending,omitempty"`
@@ -348,7 +349,11 @@ func (s *Service) run(j *job, req Request, queueTimer *time.Timer, cancelCause c
 		}
 		stage := j.snapshot.State
 		j.snapshot.State = "failed"
-		j.snapshot.Problem = &JobProblem{code, stage, retryable(code), j.snapshot.Source.ID, "Import stopped; no result was published."}
+		j.snapshot.Problem = &JobProblem{Code: code, Stage: stage, Retryable: retryable(code), SourceID: j.snapshot.Source.ID, Message: "Import stopped; no result was published."}
+		if problem != nil && problem.Detail != nil && context.Cause(j.ctx) == nil {
+			j.snapshot.Problem.Detail = problem.Detail
+			j.snapshot.Problem.Message = problem.Message
+		}
 	}()
 	select {
 	case s.slots <- struct{}{}:
@@ -556,8 +561,12 @@ func (s *Service) run(j *job, req Request, queueTimer *time.Timer, cancelCause c
 		failure = e
 		return
 	}
-	if int64(len(body)) > j.snapshot.Budget.DecodedBytes || int64(len(body))+lease.Info().Size+sink.Bytes > j.snapshot.Budget.TempBytes {
-		failure = ingestion.Problem("IMPORT_BUDGET_EXCEEDED", "result exceeds temp budget")
+	if int64(len(body)) > j.snapshot.Budget.DecodedBytes {
+		failure = ingestion.BudgetProblem("result_bytes", "result_bytes", int64(len(body)), j.snapshot.Budget.DecodedBytes)
+		return
+	}
+	if int64(len(body))+lease.Info().Size+sink.Bytes > j.snapshot.Budget.TempBytes {
+		failure = ingestion.BudgetProblem("temporary_bytes", "temporary_bytes", int64(len(body))+lease.Info().Size+sink.Bytes, j.snapshot.Budget.TempBytes)
 		return
 	}
 	decoded, e := resultcontract.DecodeWithLimits(body, wirejson.ResultLimits(s.policy.DecodedBytes, s.policy.StackDepth))

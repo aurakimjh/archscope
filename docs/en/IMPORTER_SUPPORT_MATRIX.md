@@ -38,8 +38,12 @@ Its bundled fixture is synthetic and qualifies core behavior, not a producer/ver
 The existing `profile import` route retains 0.1.x normalization semantics.
 `profile-set normalize-legacy` discloses those limitations; it does not qualify
 corrected py-spy/Speedscope/pprof input semantics. Those remain T-634. New generic
-screens remain T-631. The one-document transport also respects the import job's
-record byte ceiling; it is not an unbounded large-file producer adapter.
+screens remain T-631. Internal adapter 1.0.1 chunks a bounded <=32 MiB model into
+<=256 KiB raw records, retaining the common 1 MiB serialized-record ceiling.
+Normalized/result/temp ceilings apply jointly; see DATA_MODEL for the effective
+limits and the verified 3,000-stack/54,001-node case (not a production guarantee).
+Automatic verified detection is limited to complete documents within the 64 KiB
+probe; larger documents require explicit profile-set selection and full validation.
 
 
 ### Exact baseline/target comparison (R2 N-01)
@@ -59,3 +63,9 @@ Stable scalar refusal codes are available as Wails error `cause.code` (DATA_MODE
 R3-01/R3-02). Whitespace-only max_lines suffixes no longer mark selected coverage;
 existing saved coverage is preserved. Reimport is needed to correct old coverage
 when comparing different sources. T-635 owns verified durable baseline binding.
+
+R4 profile comparison accepts differing measured quality counters/ratios and
+preserves both snapshots plus change warnings. Clock/symbol/conversion categories
+still gate comparison; process/thread/worker differences return
+entity_mapping_required until T-635 supplies explicit mapping. Existing stored
+policy hashes are preserved, not silently promoted to the new scalar policy.

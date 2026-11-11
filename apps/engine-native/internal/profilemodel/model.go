@@ -23,6 +23,7 @@ const MaxFrames = 100_000
 const MaxSamples = 100_000
 const MaxDepth = 1024
 const MaxNodes = 200_000
+const MaxTreeBytes = 64 << 20
 
 type Frame struct {
 	ID       string `json:"id"`
@@ -154,21 +155,35 @@ func hash(prefix string, value any) string {
 func FrameID(f Frame) string         { f.ID = ""; f.Display = ""; return hash("frame-", f) }
 func StackID(frames []string) string { return hash("stack-", frames) }
 func (s ProfileSet) Validate() error {
+	for _, bound := range []struct {
+		resource        string
+		actual, ceiling int
+	}{
+		{"frames", len(s.Frames), MaxFrames}, {"stacks", len(s.Stacks), MaxSamples}, {"profiles", len(s.Profiles), 1024}, {"source_hashes", len(s.SourceHashes), 1024}, {"metrics", len(s.Metrics), 64}, {"extensions", len(s.Extensions), 128}, {"quality_categories", len(s.Quality.ConversionLoss), 1024},
+	} {
+		if bound.actual > bound.ceiling {
+			return limit(bound.resource, int64(bound.actual), int64(bound.ceiling))
+		}
+	}
+
 	if s.SchemaVersion != Version || s.Producer == "" || s.Format == "" || len(s.SourceHashes) == 0 || len(s.SourceHashes) > 1024 || len(s.Frames) > MaxFrames || len(s.Stacks) > MaxSamples || len(s.Profiles) == 0 || len(s.Profiles) > 1024 {
 		return budget("invalid ProfileSet header or budget")
 	}
 	references := 0
 	for _, stack := range s.Stacks {
 		references += len(stack.Frames)
-		if len(stack.Frames) > MaxDepth || references > 1_000_000 {
-			return budget("stack frame-reference budget exceeded")
+		if len(stack.Frames) > MaxDepth {
+			return limit("stack_depth", int64(len(stack.Frames)), MaxDepth)
+		}
+		if references > 1_000_000 {
+			return limit("frame_references", int64(references), 1_000_000)
 		}
 	}
 	records := 0
 	for _, p := range s.Profiles {
 		records += len(p.Samples)
 		if records > MaxSamples {
-			return budget("sample budget exceeded")
+			return limit("samples", int64(records), MaxSamples)
 		}
 	}
 	if len(s.Extensions) > 128 || len(s.Quality.ConversionLoss) > 1024 {
@@ -234,7 +249,7 @@ func (s ProfileSet) Validate() error {
 			}
 			count++
 			if count > MaxSamples {
-				return budget("sample budget exceeded")
+				return limit("samples", int64(count), MaxSamples)
 			}
 			metric, ok := metrics[sample.MetricID]
 			weight, e := Number(sample.Weight)
@@ -375,9 +390,15 @@ func (s ProfileSet) SelectionIdentity(selection Selection) string {
 	return s.selectionIdentity(selection, true)
 }
 
-// ComparisonIdentity retains every normalization/selection/quality condition,
-// but source provenance belongs to the ordered baseline/target references.
+// ComparisonIdentity v2 compares conditions, not measured quality counters.
+// Original selection/source identity remains unchanged for provenance.
 func (s ProfileSet) ComparisonIdentity(selection Selection) string {
+	return hash("population-", []any{"profile-conditions-v2", s.comparisonConditions(selection)})
+}
+
+// LegacyComparisonIdentity validates pre-v2 saved declarations without rewriting
+// their hashes or granting the new scalar policy to an old snapshot.
+func (s ProfileSet) LegacyComparisonIdentity(selection Selection) string {
 	return s.selectionIdentity(selection, false)
 }
 

@@ -1987,16 +1987,30 @@ scale을 정확히 곱한 선언 단위의 값이며 비중·변화율은 유리
 query availability로 한정하며 측정 summary 0을 뜻하지 않는다. frame 표에서 표시
 이름을 해석하므로 깊은 경로마다 이름을 반복 직렬화하지 않는다.
 
-비교에는 metric ID·종류·단위·scale·부호 및 선택한 profile/entity 차원·producer/
-normalizer 버전·품질·수집 옵션·순서 있는 frame 선택 규칙이 일치해야 한다. 원본 hash는
-호환 identity에서만 제외하고 각 population identity와 baseline/target 참조에 보존한다.
-참조에는 모델 digest와 service의 handle/저장 결과 digest를 남긴다. 기존
-`Difference.population`은 baseline의 별칭이며 소비자는 두 참조로 출처를 구분해야 한다.
-서로 다른 원본은 `comparison_mode=baseline_target`, 같은 출처 모집단은 `same_input`이다.
-과거 보존 모델도 저장 metadata를 고치지 않고 검증할 수 있다. 서로 다른 수집의 entity
-재매핑·시계 정렬·영속 baseline 관리는 T-630/T-635에 남긴다. 0 기준 변화율이나
-unavailable 비교값을 만들지 않는다. BuildSet은 모델/선택을 복사해 보존하며 질의는
-증거를 변경하거나 가지치기한 표시 트리를 다음 계산에 재사용하지 않는다.
+비교에는 metric ID·종류·단위·scale·부호, producer/normalizer 버전, 수집 옵션,
+순서 있는 frame 선택 규칙이 일치해야 한다. R4-02 조건에서는 측정된 lost/unknown/
+truncated 수와 symbol-resolution 비율을 제외한다. clock confidence, 심볼 해석
+가능 범주(unknown/unresolved/resolved: null/0/양수), conversion-loss 범주는 일치해야
+한다. 양쪽 참조에 nullable quality 수치를 보존하고 `quality_differences`로 바뀐 필드를,
+`quality_measurements_differ`로 변화 사실을 알린다. 이는 진단 임계값이나 보정 정책이
+아닌 차이 공개다.
+
+profile/process/thread/worker는 여전히 정확 일치를 요구하며 다르면 typed
+`ComparisonError`의 `entity_mapping_required`를 반환한다. 그 밖의 모델 비교 사유는
+`semantic_revision_mismatch`, `selection_mismatch`, `clock_class_mismatch`,
+`quality_class_mismatch`, `capture_options_mismatch`, `measurement_mismatch`다.
+역할/entity 매핑이나 시계 정렬은 추정하지 않는다. `profile-conditions-v2` hash는
+원 모집단 출처와 분리한다. validator는 과거 저장 정책 hash도 모델에서 정확히
+재계산해 대조하며 저장 값을 바꾸지 않는다. 새 generic scalar 정책은 v2 hash를
+사용하므로 과거/신규 정책 비교는 재import가 필요할 수 있고, 모델 comparator는
+과거 보존 모델을 직접 확인할 수 있다. schema/payload 번호를 바꿔 수치를 재해석하지 않는다.
+
+baseline/target에 원본/모집단 identity와 모델/service 결과 digest를 보존한다.
+`Difference.population`은 baseline 별칭이다. 모집단 identity가 다르면
+`comparison_mode=baseline_target`, 같으면 `same_input`이다. identity basis는
+계속 declared다. entity 재매핑·확장된 수집 정책·영속 baseline은 T-630/T-635다.
+0 기준/unavailable 값을 만들지 않고 모델/선택을 복사해 보존한다. 가지치기한 표시
+트리를 재사용하거나 증거를 변경하지 않는다.
 
 `LegacyStackProjection`에는 정수 tick scale을 명시한다. 결과에는 scale·선택한 metric/
 profile·집계된 차원을 포함한다. 이름 충돌·구분자 손실이 없을 때만 표시 이름을 key로
@@ -2007,9 +2021,46 @@ unit/scale·선택·frame identity·원본 hash·품질을 Comments에 남긴다
 worker·정확한 시간 문맥은 예약 label로 보존하며 충돌은 오류다. 선택한 metric의
 projection이므로 전체 다중 metric 원본 백업에는 JSON/Report Pack을 사용한다.
 
-운영 상한은 입력 64 MiB, 참조 문자열 합 32 MiB, frame/stack/sample 각 100,000개,
-profile·stack 깊이 1,024, metric·filter 64개, tree node 200,000개, 선택 frame 참조
-1,000,000개, 트리 직렬화 8 MiB, 드릴다운 응답 합 32 MiB다. pprof identity Comments는
-8 MiB, 출력은 64 MiB로 제한한다. 자원 초과 시 반올림·절단 대신 거절한다. 현재
-catalog 교환 경로는 normalized 문서 하나를 내보내므로 job record 상한(기본 1 MiB)도
-따른다. 더 큰 producer streaming adapter는 별도 작업이다.
+운영 상한은 서로 독립적인 ceiling이며 모든 최댓값을 동시에 수용한다는 보장이 아니다.
+모델 라이브러리는 wire 입력 64 MiB, 참조 문자열 합 32 MiB, frame/stack/sample 각
+100,000개, profile/stack 깊이 1,024, metric/filter 64개, tree node 200,000개,
+선택 frame 참조 1,000,000개를 제한한다. tree JSON은 각 node 자체 바이트와 구분자를
+정확히 합산해 64 MiB까지 허용한다. subtree를 반복 직렬화하지 않는다. 드릴다운 합
+32 MiB, pprof Comments/출력 8/64 MiB 상한은 유지한다. 단일 tree가 유효하더라도
+다중 드릴다운 또는 저장 결과 한계를 넘을 수 있다.
+
+catalog 경로의 실효 상한은 다음을 함께 따른다.
+
+| 자원 | 상한 / 동작 |
+|---|---|
+| 원 normalized JSON 문서 | 32 MiB; 내부 adapter 1.0.1 |
+| 정규화 record | raw 256 KiB 이하 chunk를 byte offset과 base64로 인코딩. 공통 직렬화 record ceiling(기본 1 MiB)을 유지 |
+| 정규화 spool / 결과 JSON | service 정책 각각 64 MiB; 요청으로 정책을 올리지 않음 |
+| 임시 디스크 | source + spool + 결과 합 160 MiB. base64 spool 증폭 포함 |
+| 선택 CSV/HTML appendix | 별도의 기존 100,000항목 / 16 MiB 투영 ceiling |
+
+chunk 순서·크기·취소·전체 재조립 바이트를 확인한다. 잘리거나 순서가 틀린 문서는
+partial 모델을 publish하지 않는다. `import_provenance.records`는 샘플이 아닌 전송
+chunk 수이고 분석 `sample_records`는 유지한다. IMPORT_BUDGET_EXCEEDED의
+`JobProblem.detail`은 전송/record/spool/결과/temp 및 상세 모델 tree/string 거절에
+reasonCode·resource·actual·limit를 제공한다. actual/limit는 JS number 대신 정확한
+십진 문자열이며 모델 cardinality도 구분한다. 메시지에는 경로나 원 예외 대신 자원명과
+숫자만 넣고 어떤 상한도 반올림·절단으로 우회하지 않는다.
+
+공유 합성 3,000 stack/깊이 18 core 테스트(FromLegacyCollapsed)는
+4,961,619바이트 모델을 가져와 54,001개 tree
+node와 정확한 합계 3,000을 보존한다. 저장 결과는 약 28.9 MB(모델의 5.82배)다.
+모델/tree/frame 표/weight 행의 호환 projection 중복은 유지하며 이 수치를 생산 부하
+처리량이나 메모리 보증으로 사용하지 않는다. 실제 legacy 정규화 CLI는 같은 구조에
+정규화 metadata를 포함해 모델 5,480,531바이트, 결과 29,561,628바이트(5.39배)를
+만든다. JSON/Report Pack 내보내기는 통과한다. 이 규모의 전체 CSV/HTML 투영은
+기존 appendix 100,000항목 ceiling을 넘어 명시 거절될 수 있다. 더 작은 모집단을
+선택하거나 JSON/pack을 보존하며 대규모 HTML 성공으로 기록하지 않는다.
+
+R4-03은 실제 결과 값을 직렬화한 SHA-256으로 성공한 의미 검증을 immutable registry
+수명 안에서 캐시한다(최대 64개 digest, 모델은 보관하지 않음). 매 호출마다 현재 내용을
+hash하므로 quality/metadata/payload가 바뀌면 이전 판정을 재사용하지 않는다. 실패는
+캐시하지 않고 operation/version/required block 검사는 매 Check마다 수행한다. 새
+registry나 캐시 회수는 검증 이력만 지우며 저장 결과와 정책을 바꾸지 않는다. 동시 cold
+miss는 각각 검증할 수 있다. R4-04에서 metadata.quality도 모델에서 재계산·대조한 뒤
+캐시하므로 사본 변조는 compute/compare/export에서 거절된다.

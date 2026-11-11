@@ -72,3 +72,44 @@ func TestT629WailsProfileSetExactHandleFlow(t *testing.T) {
 		t.Fatal("unknown filter key ignored")
 	}
 }
+
+func TestR4WailsProfileQualityAndEntityRefusal(t *testing.T) {
+	svc := evidenceBridge(t, nil)
+	original, _ := catalog.Contracts.ReadFile("contracts/profile-set.json")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	importSet := func(body []byte) string {
+		path := filepath.Join(t.TempDir(), "model.json")
+		os.WriteFile(path, body, 0600)
+		job, e := svc.ImportEvidence(EvidenceImportRequest{Path: path, Importer: "profile-set", OptionsJSON: `{"profile_ids":["worker-a","worker-b"],"metric_id":"duration"}`})
+		if e != nil {
+			t.Fatal(e)
+		}
+		job, e = svc.evidenceService.Wait(ctx, job.ID, job.Generation)
+		if e != nil || job.State != "completed" {
+			t.Fatal(job, e)
+		}
+		return job.ResultHandle
+	}
+	baseline := importSet(original)
+	set, e := profilemodel.Decode(original)
+	if e != nil {
+		t.Fatal(e)
+	}
+	lost := "3"
+	set.Quality.Lost = &lost
+	modified, _ := json.Marshal(set)
+	target := importSet(modified)
+	text, e := svc.CompareProfileSets(ctx, baseline, target)
+	if e != nil || !strings.Contains(text, `"quality_differences":["lost"]`) || !strings.Contains(text, `"lost":"3"`) {
+		t.Fatal(text, e)
+	}
+	set.Profiles[0].Process = "pid-200"
+	modified, _ = json.Marshal(set)
+	target = importSet(modified)
+	_, e = svc.CompareProfileSets(ctx, baseline, target)
+	cause, marshalErr := json.Marshal(&e)
+	if marshalErr != nil || !strings.Contains(string(cause), `"code":"entity_mapping_required"`) {
+		t.Fatal(string(cause), e, marshalErr)
+	}
+}

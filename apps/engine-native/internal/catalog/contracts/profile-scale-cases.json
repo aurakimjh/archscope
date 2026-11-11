@@ -1,0 +1,21 @@
+{
+  "version": "1.0.0",
+  "synthetic": true,
+  "description": "서로 다른 첫 프레임 뒤에 공유 phase 프레임을 연결한 합성 규모 회귀 자료. 제품 지원·성능 보증이 아니다.",
+  "cases": [
+    {
+      "id": "wide-3000-depth14",
+      "stacks": 3000,
+      "depth": 14,
+      "total_weight": "3000",
+      "tree_nodes": 42001
+    },
+    {
+      "id": "wide-3000-depth18",
+      "stacks": 3000,
+      "depth": 18,
+      "total_weight": "3000",
+      "tree_nodes": 54001
+    }
+  ]
+}

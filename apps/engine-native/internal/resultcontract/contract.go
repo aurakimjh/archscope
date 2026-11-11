@@ -3,6 +3,7 @@
 package resultcontract
 
 import (
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"math/big"
@@ -10,6 +11,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/wirejson"
@@ -71,7 +73,15 @@ type Descriptor struct {
 	Scalars                map[string]ValueSchema
 	Collections            map[string]map[string]ValueSchema
 }
-type Registry struct{ types map[string][]Descriptor }
+type Registry struct {
+	types        map[string][]Descriptor
+	validationMu sync.Mutex
+	validated    map[[32]byte]struct{}
+}
+
+// Successful content validations only; no results/models are retained. A new
+// immutable registry (e.g. after pack activation) starts with an empty cache.
+const maxValidationCacheEntries = 64
 
 func New(ds ...Descriptor) (*Registry, error) {
 	r := &Registry{types: map[string][]Descriptor{}}
@@ -227,6 +237,37 @@ func DecodeWithLimits(b []byte, limits wirejson.Limits) (models.AnalysisResult, 
 	return r, nil
 }
 func (r *Registry) Validate(result models.AnalysisResult) error {
+	d, ok := r.descriptor(result.Type, result.Metadata.SchemaVersion)
+	if !ok || d.ValidatePayload == nil {
+		return r.validateUncached(result)
+	}
+	body, e := json.Marshal(result)
+	if e != nil {
+		return e
+	}
+	key := sha256.Sum256(body)
+	r.validationMu.Lock()
+	_, cached := r.validated[key]
+	r.validationMu.Unlock()
+	if cached {
+		return nil
+	}
+	if e = r.validateUncached(result); e != nil {
+		return e
+	}
+	r.validationMu.Lock()
+	if len(r.validated) >= maxValidationCacheEntries {
+		r.validated = nil
+	}
+	if r.validated == nil {
+		r.validated = make(map[[32]byte]struct{})
+	}
+	r.validated[key] = struct{}{}
+	r.validationMu.Unlock()
+	return nil
+}
+
+func (r *Registry) validateUncached(result models.AnalysisResult) error {
 	d, ok := r.descriptor(result.Type, result.Metadata.SchemaVersion)
 	if !ok {
 		return fmt.Errorf("unregistered result type")

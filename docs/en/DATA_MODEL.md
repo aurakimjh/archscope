@@ -1855,19 +1855,33 @@ root's zero in an empty algebraic tree is qualified by the query availability;
 it is not a measured summary zero. Frame labels are resolved through the frame
 table rather than repeated along every tree path.
 
-Comparisons require identical metric ID/kind/unit/scale/sign and matching selected
-profile/entity dimensions, producer/normalizer revision, quality, capture options
-and ordered frame-selection rules. Source hashes are excluded only from the
-compatibility identity, retained in each population identity and in separate
-baseline/target references (model digest, and service-level handle/result digest).
-The old `Difference.population` field aliases the baseline population; consumers
-must use baseline/target for attribution. Different sources set
-`comparison_mode=baseline_target`; equal source populations use `same_input`.
-Old retained models can be checked without rewriting their saved metadata.
-Cross-capture entity remapping, clock alignment and durable baseline management
-remain T-630/T-635. Zero-baseline percentages and unavailable comparisons are not
-fabricated. BuildSet freezes the model/selection before retaining them; queries
-do not mutate evidence or reuse pruned view trees.
+Comparisons require identical metric ID/kind/unit/scale/sign, producer/normalizer
+revision, capture options and ordered frame-selection rules. R4-02 conditions
+exclude measured lost/unknown/truncated counters and symbol-resolution ratios.
+Quality categories still match: clock confidence, symbol availability
+(unknown/unresolved/resolved: null/zero/positive) and conversion-loss categories.
+Both reference objects preserve nullable quality measurements; `quality_differences`
+lists changed fields and `quality_measurements_differ` warns of any such change.
+This is disclosure, not an invented diagnostic threshold or normalization policy.
+
+Profile/process/thread/worker identities still require exact matching; differences
+return typed `ComparisonError` code `entity_mapping_required`. Other model compare
+refusals distinguish `semantic_revision_mismatch`, `selection_mismatch`,
+`clock_class_mismatch`, `quality_class_mismatch`, `capture_options_mismatch` and
+`measurement_mismatch`. No role/entity mapping or clock alignment is inferred.
+R4's `profile-conditions-v2` hash is separate from original population provenance.
+The validator accepts the exactly recomputed older policy hash on saved results
+without rewriting it. New generic scalar policies use the v2 hash; old-vs-new
+policy mismatch can require reimport, while model-derived comparison can validate
+old retained models directly. No payload/schema-number relabeling changes numbers.
+
+Source/population identities and both model/service result digests remain in
+baseline/target references; `Difference.population` aliases the baseline. Different
+population identities set `comparison_mode=baseline_target`, equal populations use
+`same_input`. Identity basis remains declared. Entity remapping, broader capture
+policy and durable baselines remain T-630/T-635. Zero-baseline/unavailable values
+are not fabricated. BuildSet freezes models/selections; queries never reuse pruned
+view trees or mutate evidence.
 
 `LegacyStackProjection` requires an explicit integer-tick scale. It returns the
 scale, selected metric/profiles and aggregated dimensions. Display-name keys are
@@ -1880,10 +1894,49 @@ and quality in pprof Comments. Process/thread/worker and exact time context trav
 as reserved labels; collisions are errors. This is a selected-metric projection,
 not a full multimetric source backup; use JSON/Report Pack for that backup.
 
-Operational limits are 64 MiB input, 32 MiB referenced model strings, 100,000
-frames/stacks/samples, 1,024 profiles/stack depth, 64 metrics/filters, 200,000 tree
-nodes, 1,000,000 selected frame references, 8 MiB tree serialization and 32 MiB
-combined drilldown response. pprof identity comments are capped at 8 MiB and output
-at 64 MiB. Resource refusal never rounds or truncates data. The current catalog
-transport emits one normalized document and also respects the job's configured
-record ceiling (default 1 MiB). Larger streaming producer adapters are separate.
+Operational bounds are independent ceilings, not a promise that every maximum
+can be reached simultaneously. The model library accepts at most 64 MiB wire
+input, 32 MiB referenced strings, 100,000 frames/stacks/samples, 1,024 profiles/
+stack depth, 64 metrics/filters, 200,000 tree nodes and 1,000,000 selected frame
+references. Tree JSON is accounted exactly (own node bytes + separators, no
+quadratic subtree serialization) up to 64 MiB. Combined drilldown output remains
+32 MiB; pprof comments/output remain 8/64 MiB. A large tree may therefore be valid
+for one query yet exceed a combined drilldown or saved-result limit.
+
+The effective catalog transport has these additional limits:
+
+| Resource | Ceiling / behavior |
+|---|---|
+| Original normalized JSON document | 32 MiB; internal adapter 1.0.1 |
+| Normalized record | Raw chunks <=256 KiB, base64 encoded with byte offsets; each still obeys the common serialized-record ceiling (default 1 MiB) |
+| Normalized spool / result JSON | 64 MiB each by service policy; no request raises policy |
+| Temporary disk | 160 MiB combined source + spool + result; base64 spool expansion is included |
+| Selected CSV/HTML appendix | Existing independent 100,000-entry / 16 MiB projection ceiling |
+
+Chunk order/size, cancellation and total reassembly bytes are checked. Incomplete
+or out-of-order documents never publish a partial model. `import_provenance.records`
+counts transport chunks, not samples; analytic `sample_records` remains unchanged.
+Structured `JobProblem.detail` under IMPORT_BUDGET_EXCEEDED exposes reasonCode,
+resource, actual and limit (exact decimal strings, never JS numbers) for
+transport/record/spool/result/temp and model cardinality/tree/string refusals. Messages contain resource names/numbers, not paths.
+No limit silently truncates or rounds data.
+
+The shared synthetic 3,000-stack/depth-18 core test (FromLegacyCollapsed) imports a
+4,961,619-byte model and
+retains 54,001 tree nodes / exact total 3,000. Its stored result is approximately
+28.9 MB (5.82x model size); these model/tree/frame-table/weight-row copies remain
+intentional compatibility projections, not production throughput or memory claims.
+The actual legacy-normalization CLI produces a 5,480,531-byte model and a
+29,561,628-byte result for the same geometry (5.39x), including normalization
+metadata. JSON/Report Pack export passes; full CSV/HTML projection at this size
+can exceed the existing 100,000-entry appendix ceiling and refuses explicitly.
+Select a smaller population or retain JSON/pack; no large HTML success is claimed.
+
+R4-03 caches successful semantic validations by SHA-256 of the actual serialized
+result value within one immutable registry (at most 64 digest entries, no models).
+Every call hashes current content; changed quality/metadata/payload cannot reuse
+an old verdict. Failed validations are not cached. Operation/version/required-block
+checks still run for every Check. Eviction/new registry drops only validation
+knowledge; saved results and policy are unchanged. Concurrent cold misses may
+validate independently. R4-04 also recomputes and compares metadata.quality against
+the retained model before caching; forged copies fail compute/compare/export.

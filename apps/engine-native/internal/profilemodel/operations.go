@@ -95,7 +95,7 @@ func (s ProfileSet) each(ctx context.Context, selection Selection, yield func(Pr
 			}
 			references += len(path)
 			if references > 1_000_000 {
-				return budget("selected frame-reference budget exceeded")
+				return limit("selected_frame_references", int64(references), 1_000_000)
 			}
 			value, e := Number(sample.Weight)
 			if e != nil {
@@ -123,7 +123,7 @@ func BuildTree(ctx context.Context, s ProfileSet, selection Selection) (Tree, er
 		trie.Add(path, new(big.Rat).Mul(value, scale))
 		records++
 		if trie.Nodes > MaxNodes {
-			return budget("tree node budget exceeded")
+			return limit("tree_nodes", int64(trie.Nodes), MaxNodes)
 		}
 		return nil
 	})
@@ -174,12 +174,17 @@ func BuildTree(ctx context.Context, s ProfileSet, selection Selection) (Tree, er
 			ratio := new(big.Rat).Quo(new(big.Rat).Set(node.Value), trie.Root.Value).RatString()
 			out.Share = &ratio
 		}
-		if out.Share != nil {
-			encodedBytes += len(*out.Share)
+		// Sum each node's own JSON plus child separators exactly once. Marshaling
+		// entire subtrees here would be quadratic for deep profiles.
+		shell := out
+		shell.Children = []TreeNode{}
+		body, e := json.Marshal(shell)
+		if e != nil {
+			return TreeNode{}, e
 		}
-		encodedBytes += len(out.ID) + len(out.FrameID) + len(out.Inclusive) + len(out.Self) + 256
-		if encodedBytes > 8<<20 {
-			return TreeNode{}, budget("tree serialization budget exceeded")
+		encodedBytes += len(body) + max(0, len(out.Children)-1)
+		if encodedBytes > MaxTreeBytes {
+			return TreeNode{}, limit("tree_bytes", int64(encodedBytes), MaxTreeBytes)
 		}
 		return out, nil
 	}
@@ -203,6 +208,7 @@ type DiffRow struct {
 	Reason     string  `json:"reason,omitempty"`
 }
 type ProfileComparisonReference struct {
+	Quality      Quality  `json:"quality"`
 	Handle       string   `json:"handle,omitempty"`
 	ResultSHA256 string   `json:"result_sha256,omitempty"`
 	ModelSHA256  string   `json:"model_sha256"`
@@ -211,6 +217,8 @@ type ProfileComparisonReference struct {
 }
 
 type Difference struct {
+	QualityDifferences []string `json:"quality_differences"`
+	Warnings           []string `json:"warnings"`
 	// Model validation checks consistency, not source authenticity.
 	IdentityBasis  string                     `json:"identity_basis"`
 	ComparisonMode string                     `json:"comparison_mode"`
@@ -234,10 +242,10 @@ func Compare(ctx context.Context, a ProfileSet, as Selection, b ProfileSet, bs S
 		return Difference{}, fmt.Errorf("comparison unavailable: no selected observations")
 	}
 	if left.Metric != right.Metric {
-		return Difference{}, fmt.Errorf("measurement kind/unit/scale/sign mismatch")
+		return Difference{}, comparisonRefusal("measurement_mismatch", "metric ID/kind/unit/scale/sign differs")
 	}
-	if a.ComparisonIdentity(as) != b.ComparisonIdentity(bs) {
-		return Difference{}, fmt.Errorf("population/source/selection/capture conditions mismatch")
+	if e = comparable(a, as, b, bs); e != nil {
+		return Difference{}, e
 	}
 	before, after := map[string]TreeNode{}, map[string]TreeNode{}
 	var walk func(TreeNode, map[string]TreeNode)
@@ -268,9 +276,14 @@ func Compare(ctx context.Context, a ProfileSet, as Selection, b ProfileSet, bs S
 	ref := func(s ProfileSet, population string) ProfileComparisonReference {
 		sources := append([]string(nil), s.SourceHashes...)
 		sort.Strings(sources)
-		return ProfileComparisonReference{ModelSHA256: hash("", s), Population: population, SourceHashes: sources}
+		return ProfileComparisonReference{Quality: copyQuality(s.Quality), ModelSHA256: hash("", s), Population: population, SourceHashes: sources}
 	}
-	out := Difference{IdentityBasis: "declared", Metric: left.Metric, Population: left.Population, Rows: []DiffRow{}, ComparisonMode: mode, Baseline: ref(a, left.Population), Target: ref(b, right.Population)}
+	qualityChanges := qualityDifferences(a.Quality, b.Quality)
+	warnings := []string{}
+	if len(qualityChanges) > 0 {
+		warnings = append(warnings, "quality_measurements_differ")
+	}
+	out := Difference{QualityDifferences: qualityChanges, Warnings: warnings, IdentityBasis: "declared", Metric: left.Metric, Population: left.Population, Rows: []DiffRow{}, ComparisonMode: mode, Baseline: ref(a, left.Population), Target: ref(b, right.Population)}
 	for _, id := range ordered {
 		if e := ctx.Err(); e != nil {
 			return out, e

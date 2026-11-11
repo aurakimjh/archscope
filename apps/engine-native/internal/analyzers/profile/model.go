@@ -143,7 +143,19 @@ func ValidateModelResult(result models.AnalysisResult) error {
 		value.Comparison = nil
 		old["selected"] = value
 	}
-	for _, pair := range [][2]any{{result.Summary, expected.Summary}, {result.Series, expected.Series}, {result.Tables, expected.Tables}, {result.Charts, expected.Charts}, {result.Metadata.Extra["measurement"], expected.Metadata.Extra["measurement"]}, {result.Metadata.Extra["populations"], expected.Metadata.Extra["populations"]}} {
+	// Accept the exactly recomputed legacy policy of existing snapshots. It is
+	// not rewritten or treated as a new source-independent scalar policy.
+	if saved, ok := populations["selected"]; ok && saved.Comparison != nil {
+		legacyHash := strings.TrimPrefix(core.Model.LegacyComparisonIdentity(core.Selection), "population-")
+		if saved.Comparison.Version == "1.0.0" && saved.Comparison.SelectionHash == legacyHash && saved.Comparison.CoverageKind == "complete_selected_model" {
+			expectedPop := expected.Metadata.Extra["populations"].(map[string]resultcontract.PopulationIdentity)
+			item := expectedPop["selected"]
+			copyPolicy := *saved.Comparison
+			item.Comparison = &copyPolicy
+			expectedPop["selected"] = item
+		}
+	}
+	for _, pair := range [][2]any{{result.Summary, expected.Summary}, {result.Series, expected.Series}, {result.Tables, expected.Tables}, {result.Charts, expected.Charts}, {result.Metadata.Extra["measurement"], expected.Metadata.Extra["measurement"]}, {result.Metadata.Extra["populations"], expected.Metadata.Extra["populations"]}, {result.Metadata.Extra["quality"], expected.Metadata.Extra["quality"]}} {
 		a, e := json.Marshal(pair[0])
 		if e != nil {
 			return e

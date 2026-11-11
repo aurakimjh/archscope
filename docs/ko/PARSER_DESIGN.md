@@ -836,3 +836,21 @@ signed/재귀/동명 frame, 여러 profile/metric, 정확한 scale, 불가 proje
 변경만으로 활성화하지 않는 조건, 원본·선택 호환을 검증한다. Wails 직접 메서드·생성
 binding 검사는 실제 WebView UI 실행과 별개다. generic 화면은 T-631, case/baseline
 수명주기는 T-630/T-635에 남는다.
+
+## T-629 리뷰 후속: bounded 규모와 비교 (R4)
+
+내부 profile adapter 1.0.1은 ProfileSet 입력 1.0.0과 AnalysisResult profile_evidence
+0.2.0의 수치 의미를 유지한다. parser가 bounded 모델을 확인한 뒤 raw 256 KiB 이하
+데이터와 정확한 byte offset의 profile-set.chunk.v1 record를 내보내고 analyzer가
+32 MiB 안에서 재조립한 완성 모델을 검증한다. 공통 record 1 MiB, 정규화/결과 각
+64 MiB, temp 160 MiB 정책은 올리지 않으며 base64 증폭도 spool/temp에 계산한다.
+bounded 전송이며 producer decoder의 완전 streaming 이행은 아니다. 공통 source
+lease 일관성·backpressure·취소·atomic commit·실패 cleanup을 유지한다. 실효 상한,
+크기 증폭, 예산 세부 사유는 DATA_MODEL에 명시한다.
+
+64 KiB detector는 probe 안에서 끝나는 완전한 모델만 검증한다. 더 큰 JSON은 hint로
+명시 importer 및 profile/metric 선택과 전체 입력 검증을 요구한다. 잘린 JSON 접두부로
+verified 지원을 부여하지 않는다. 공유 규모 사례는 3,000 stack 및 50,000개 이상 tree
+node를 검증한다. 품질 비교·과거 저장 정책 호환·registry 검증 캐시는 DATA_MODEL을
+따르며 metadata.quality 사본도 모델과 대조한다. 새로운 producer 지원이나 entity
+매핑은 주장하지 않는다(T-634/T-635).

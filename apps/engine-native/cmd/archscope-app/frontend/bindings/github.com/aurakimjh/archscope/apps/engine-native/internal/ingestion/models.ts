@@ -5,6 +5,33 @@
 // @ts-ignore: Unused imports
 import { Create as $Create } from "@wailsio/runtime";
 
+export class BudgetDetail {
+    "reasonCode": string;
+    "resource": string;
+    "actual"?: string | null;
+    "limit"?: string | null;
+
+    /** Creates a new BudgetDetail instance. */
+    constructor($$source: Partial<BudgetDetail> = {}) {
+        if (!("reasonCode" in $$source)) {
+            this["reasonCode"] = "";
+        }
+        if (!("resource" in $$source)) {
+            this["resource"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new BudgetDetail instance from a string or object.
+     */
+    static createFrom($$source: any = {}): BudgetDetail {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new BudgetDetail($$parsedSource as Partial<BudgetDetail>);
+    }
+}
+
 /**
  * Budgets are operational ceilings fixed before a job starts. Importer/user
  * requests may lower, but never raise, the service policy.

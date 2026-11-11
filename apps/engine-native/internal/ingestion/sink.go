@@ -44,10 +44,10 @@ func (s *BoundedSink) Write(ctx context.Context, b Batch) error {
 			return Problem("IMPORT_RESULT_INVALID", "invalid record position/sequence")
 		}
 		if r.StackDepth > s.Budget.StackDepth {
-			return Problem("IMPORT_BUDGET_EXCEEDED", "stack depth exceeded")
+			return BudgetProblem("stack_depth", "stack_depth", int64(r.StackDepth), int64(s.Budget.StackDepth))
 		}
 		if int64(len(r.Payload)) > s.Budget.RecordBytes {
-			return Problem("IMPORT_BUDGET_EXCEEDED", "record byte limit exceeded")
+			return BudgetProblem("record_bytes", "record_bytes", int64(len(r.Payload)), s.Budget.RecordBytes)
 		}
 		if e := s.Catalog.Validate(s.Schema, r.Payload); e != nil {
 			return Problem("IMPORT_RESULT_INVALID", "record schema mismatch")
@@ -58,7 +58,7 @@ func (s *BoundedSink) Write(ctx context.Context, b Batch) error {
 		for _, key := range r.Keys {
 			s.keys[key] = true
 			if len(s.keys) > s.Budget.UniqueKeys {
-				return Problem("IMPORT_BUDGET_EXCEEDED", "unique key budget exceeded")
+				return BudgetProblem("unique_keys", "unique_keys", int64(len(s.keys)), int64(s.Budget.UniqueKeys))
 			}
 		}
 		data, e := json.Marshal(r)
@@ -67,10 +67,16 @@ func (s *BoundedSink) Write(ctx context.Context, b Batch) error {
 		}
 		size := int64(len(data) + 1)
 		if size > s.Budget.RecordBytes {
-			return Problem("IMPORT_BUDGET_EXCEEDED", "serialized record byte limit exceeded")
+			return BudgetProblem("serialized_record_bytes", "record_bytes", size, s.Budget.RecordBytes)
 		}
-		if s.Count >= s.Budget.Records || s.Bytes+size > s.Budget.DecodedBytes || s.TempUsed+s.Bytes+size > s.Budget.TempBytes {
-			return Problem("IMPORT_BUDGET_EXCEEDED", "record/decoded/temp budget exceeded")
+		if s.Count >= s.Budget.Records {
+			return BudgetProblem("record_count", "records", s.Count+1, s.Budget.Records)
+		}
+		if s.Bytes+size > s.Budget.DecodedBytes {
+			return BudgetProblem("normalized_bytes", "normalized_bytes", s.Bytes+size, s.Budget.DecodedBytes)
+		}
+		if s.TempUsed+s.Bytes+size > s.Budget.TempBytes {
+			return BudgetProblem("temporary_bytes", "temporary_bytes", s.TempUsed+s.Bytes+size, s.Budget.TempBytes)
 		}
 		if _, e = s.File.Write(append(data, '\n')); e != nil {
 			return e

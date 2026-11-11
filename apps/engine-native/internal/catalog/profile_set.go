@@ -18,7 +18,8 @@ import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/resultcontract"
 )
 
-const profileFamily = "profile-set.document.v1"
+const profileFamily = "profile-set.chunk.v1"
+const profileAdapterVersion = "1.0.1"
 
 func profileRegistration() (ingestion.ImporterDescriptor, []ingestion.Schema, ingestion.Analyzer, error) {
 	fixture, e := Contracts.ReadFile("contracts/profile-set.json")
@@ -77,7 +78,7 @@ func profileRegistration() (ingestion.ImporterDescriptor, []ingestion.Schema, in
 	}
 	input := ingestion.NewSchema("profile-set.input", profilemodel.Version, definition, inputValidate)
 	options := ingestion.NewSchema("profile-set.selection", profilemodel.Version, json.RawMessage(`{"type":"object","required":["profile_ids","metric_id"],"additionalProperties":false,"properties":{"profile_ids":{"type":"array","minItems":1,"items":{"type":"string"}},"metric_id":{"type":"string","minLength":1},"path":{"type":"array","items":{"type":"string"}},"match":{"enum":["prefix","contains"]},"filters":{"type":"array","items":{"type":"object","required":["path","match"],"additionalProperties":false,"properties":{"path":{"type":"array","items":{"type":"string"}},"match":{"enum":["prefix","contains"]}}}}}}`), selectionValidate)
-	record := ingestion.NewSchema("profile-set.record", profilemodel.Version, definition, inputValidate)
+	record := ingestion.NewSchema("profile-set.chunk", "1.0.0", json.RawMessage(`{"type":"object","required":["offset","data"],"additionalProperties":false,"properties":{"offset":{"type":"integer","minimum":0},"data":{"type":"string","minLength":4,"maxLength":349528,"pattern":"^[A-Za-z0-9+/]*={0,2}$"}}}`), func(raw json.RawMessage) error { _, e := decodeProfileChunk(raw); return e })
 	result := ingestion.NewSchema("profile-set.result", analyzer.ModelPayloadVersion, json.RawMessage(`{"type":"object","required":["type","summary","series","tables","charts","metadata","source_files","created_at"]}`), resultValidate)
 	schemas := []ingestion.Schema{input, options, record, result}
 	for i := range schemas {
@@ -85,6 +86,8 @@ func profileRegistration() (ingestion.ImporterDescriptor, []ingestion.Schema, in
 		schemas[i].Family = "profile_evidence"
 		schemas[i].Conformance = []ingestion.SchemaCase{{Value: fixture, Valid: true}, {Value: json.RawMessage(`{}`), Valid: false}}
 	}
+	chunkFixture, _ := json.Marshal(profileChunk{Offset: 0, Data: fixture})
+	schemas[2].Conformance = []ingestion.SchemaCase{{Value: chunkFixture, Valid: true}, {Value: json.RawMessage(`{"offset":-1,"data":"AA=="}`), Valid: false}, {Value: json.RawMessage(`{"offset":0,"data":"!bad"}`), Valid: false}}
 	selection := profilemodel.Selection{ProfileIDs: []string{"worker-a", "worker-b"}, MetricID: "duration"}
 	selectionJSON, _ := json.Marshal(selection)
 	schemas[1].Conformance = []ingestion.SchemaCase{{Value: selectionJSON, Valid: true}, {Value: json.RawMessage(`{}`), Valid: false}}
@@ -102,19 +105,22 @@ func profileRegistration() (ingestion.ImporterDescriptor, []ingestion.Schema, in
 	resultJSON, _ := json.Marshal(sampleResult)
 	schemas[3].Conformance = []ingestion.SchemaCase{{Value: resultJSON, Valid: true}, {Value: json.RawMessage(`{}`), Valid: false}}
 	manifestHash := sha256.Sum256(manifest)
-	d := ingestion.ImporterDescriptor{ID: "profile.set-json", Aliases: []string{"profile-set"}, Family: "profile_evidence", Extensions: []string{".json"}, Producer: "internal ProfileSet transport", AdapterVersion: profilemodel.Version, InputSchema: schemas[0].Ref, OptionSchema: schemas[1].Ref, RecordSchema: schemas[2].Ref, ResultSchema: schemas[3].Ref, RecordFamily: profileFamily, NormalizerInput: profileFamily, NormalizerOutput: profileFamily, AnalyzerID: "profile-set.exact", MeasurementKinds: []string{"sample_count", "cpu_time", "wall_time", "duration", "bytes", "signed_difference"}, Capabilities: []string{"summary", "exact_tree", "selection", "exact_compare", "pprof_export"}, SupportStatus: "limited", Limitations: []string{"internal versioned JSON transport; not producer conformance", "one normalized document within the configured record budget", "explicit profile and metric selection; original producer corrections remain separate"}, FixtureManifest: "diagnostics.profile-core.v1", FixtureHash: hex.EncodeToString(manifestHash[:]), ConformanceVersion: profilemodel.Version, ProbeBudget: ingestion.MaxProbeBytes}
+	d := ingestion.ImporterDescriptor{ID: "profile.set-json", Aliases: []string{"profile-set"}, Family: "profile_evidence", Extensions: []string{".json"}, Producer: "internal ProfileSet transport", AdapterVersion: profileAdapterVersion, InputSchema: schemas[0].Ref, OptionSchema: schemas[1].Ref, RecordSchema: schemas[2].Ref, ResultSchema: schemas[3].Ref, RecordFamily: profileFamily, NormalizerInput: profileFamily, NormalizerOutput: profileFamily, AnalyzerID: "profile-set.exact", MeasurementKinds: []string{"sample_count", "cpu_time", "wall_time", "duration", "bytes", "signed_difference"}, Capabilities: []string{"summary", "exact_tree", "selection", "exact_compare", "pprof_export"}, SupportStatus: "limited", Limitations: []string{"internal versioned JSON transport; not producer conformance", "bounded 32 MiB model transported as <=256 KiB chunks within common record/normalized/result/temp ceilings", "explicit profile and metric selection; original producer corrections remain separate"}, FixtureManifest: "diagnostics.profile-core.v1", FixtureHash: hex.EncodeToString(manifestHash[:]), ConformanceVersion: profilemodel.Version, ProbeBudget: ingestion.MaxProbeBytes}
 	read := func(ctx context.Context, source ingestion.Source) ([]byte, error) {
+		if source.Info().Size > MaxProfileTransportBytes {
+			return nil, ingestion.BudgetProblem("profile_transport_bytes", "profile_transport_bytes", source.Info().Size, MaxProfileTransportBytes)
+		}
 		f, e := source.Open(ctx)
 		if e != nil {
 			return nil, e
 		}
 		defer f.Close()
-		body, e := io.ReadAll(io.LimitReader(f, 64<<20+1))
+		body, e := io.ReadAll(io.LimitReader(f, MaxProfileTransportBytes+1))
 		if e != nil {
 			return nil, e
 		}
-		if len(body) > 64<<20 {
-			return nil, ingestion.Problem("IMPORT_BUDGET_EXCEEDED", "ProfileSet byte budget exceeded")
+		if len(body) > MaxProfileTransportBytes {
+			return nil, ingestion.BudgetProblem("profile_transport_bytes", "profile_transport_bytes", int64(len(body)), MaxProfileTransportBytes)
 		}
 		return body, ctx.Err()
 	}
@@ -136,6 +142,10 @@ func profileRegistration() (ingestion.ImporterDescriptor, []ingestion.Schema, in
 			return e
 		}
 		if e = inputValidate(body); e != nil {
+			var b *profilemodel.BudgetError
+			if errors.As(e, &b) {
+				return modelBudgetProblem(b)
+			}
 			return ingestion.Problem("IMPORT_FORMAT_MISMATCH", "invalid ProfileSet model")
 		}
 		return nil
@@ -157,8 +167,25 @@ func profileRegistration() (ingestion.ImporterDescriptor, []ingestion.Schema, in
 			if selectionErr = set.ValidateSelection(selection); selectionErr != nil {
 				return ingestion.ParseReport{}, ingestion.Problem("IMPORT_OPTIONS_INVALID", "selection is not valid for this model")
 			}
-			e = sink.Write(ctx, ingestion.Batch{Family: profileFamily, Records: []ingestion.Record{{Sequence: 1, Position: ingestion.Position{Event: 1}, Payload: body}}})
-			return ingestion.ParseReport{Complete: e == nil}, e
+			depth := 0
+			for _, stack := range set.Stacks {
+				depth = max(depth, len(stack.Frames))
+			}
+			for offset, sequence := 0, uint64(1); offset < len(body); sequence++ {
+				if e = ctx.Err(); e != nil {
+					return ingestion.ParseReport{}, e
+				}
+				end := min(offset+profileChunkBytes, len(body))
+				payload, marshalErr := json.Marshal(profileChunk{Offset: int64(offset), Data: body[offset:end]})
+				if marshalErr != nil {
+					return ingestion.ParseReport{}, marshalErr
+				}
+				if e = sink.Write(ctx, ingestion.Batch{Family: profileFamily, Records: []ingestion.Record{{Sequence: sequence, Position: ingestion.Position{Byte: int64(offset), Event: int64(sequence)}, StackDepth: depth, Payload: payload}}}); e != nil {
+					return ingestion.ParseReport{}, e
+				}
+				offset = end
+			}
+			return ingestion.ParseReport{Complete: true}, nil
 		})
 	}
 	d.Normalize = func(ctx context.Context, r ingestion.Record) (ingestion.Record, error) { return r, ctx.Err() }
@@ -167,27 +194,30 @@ func profileRegistration() (ingestion.ImporterDescriptor, []ingestion.Schema, in
 		if e != nil {
 			return models.AnalysisResult{}, e
 		}
-		var set profilemodel.ProfileSet
-		count := 0
+		var body []byte
 		e = records.ForEach(ctx, func(r ingestion.Record) error {
-			count++
-			if count != 1 {
-				return fmt.Errorf("ProfileSet requires one document")
+			c, e := decodeProfileChunk(r.Payload)
+			if e != nil {
+				return e
 			}
-			var decodeErr error
-			set, decodeErr = profilemodel.Decode(r.Payload)
-			return decodeErr
+			body, e = appendProfileChunk(body, c)
+			return e
 		})
 		if e != nil {
 			return models.AnalysisResult{}, e
 		}
-		if count != 1 {
-			return models.AnalysisResult{}, fmt.Errorf("missing ProfileSet document")
+		set, e := profilemodel.Decode(body)
+		if e != nil {
+			var b *profilemodel.BudgetError
+			if errors.As(e, &b) {
+				return models.AnalysisResult{}, modelBudgetProblem(b)
+			}
+			return models.AnalysisResult{}, e
 		}
 		result, e := analyzer.BuildSet(ctx, set, selection, info.Name)
 		var limit *profilemodel.BudgetError
 		if errors.As(e, &limit) {
-			return result, ingestion.Problem("IMPORT_BUDGET_EXCEEDED", "profile model resource budget exceeded")
+			return result, modelBudgetProblem(limit)
 		}
 		if e == nil {
 			ingestion.AttachSourceMetadata(&result, ingestion.SourceMetadata{SourceKind: ingestion.SourceKindRuntimeProfile, SourceFormat: "profile-set-json", Product: "internal ProfileSet transport", File: ingestion.FileIdentity{BaseName: info.Name, Extension: filepath.Ext(info.Name), SizeBytes: info.Size, SanitizedID: info.ID, SanitizedIDVersion: "lease-source-v1"}})
@@ -195,4 +225,11 @@ func profileRegistration() (ingestion.ImporterDescriptor, []ingestion.Schema, in
 		return result, e
 	}}
 	return d, schemas, a, nil
+}
+
+func modelBudgetProblem(b *profilemodel.BudgetError) error {
+	if b.Resource != "" {
+		return ingestion.BudgetProblem("profile_"+b.Resource, b.Resource, b.Actual, b.Limit)
+	}
+	return ingestion.Problem("IMPORT_BUDGET_EXCEEDED", "profile model resource budget exceeded: "+b.Reason)
 }
