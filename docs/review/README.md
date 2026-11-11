@@ -6,6 +6,7 @@
 
 | 날짜 | 문서 | 대상 | 판정 |
 |---|---|---|---|
+| 2026-11-11 | [T-631 결과 provider 구현 독립 리뷰](2026-11-11_claude-code_T-631_implementation-review.ko.md) | `ff06c54` | 조건부 (P1 없음, P2 1, P3 3). R8-01 timeline/SLI 검증의 제곱 비용(첫 producer 등록 전 해소). T-631 DONE은 R8-01 처리 후 가능. |
 | 2026-11-11 | [T-630 사건 수명주기 구현 재리뷰 R2](2026-11-11_claude-code_T-630_implementation-re-review-R2.ko.md) | `e2c1c7d` | 승인에 가까운 조건부 (P1·P2 없음, P3 1). R6-01~R6-07 해소 확인. T-630 DONE 복귀 가능. |
 
 ## 처리 기록
