@@ -810,3 +810,9 @@ scale cases cover 3,000 stacks and >=50,000 tree nodes. R4 quality comparison,
 legacy saved-policy compatibility and registry validation cache are specified in
 DATA_MODEL; the metadata.quality copy is now authoritative-model checked. No new
 producer support or entity mapping is claimed (T-634/T-635).
+
+R5-01 preserves the wire decoder's resource error through the ProfileSet input
+boundary: a single string/key above 4 MiB is a detailed budget refusal, not a
+format mismatch. Exactly-at-limit and above-limit imports are tested; malformed
+JSON retains format classification. R5-02 capture-key policy is explicitly handed
+to T-634/T-635 in DATA_MODEL; current opaque equality is unchanged.

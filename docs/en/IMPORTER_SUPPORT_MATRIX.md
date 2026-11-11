@@ -69,3 +69,9 @@ preserves both snapshots plus change warnings. Clock/symbol/conversion categorie
 still gate comparison; process/thread/worker differences return
 entity_mapping_required until T-635 supplies explicit mapping. Existing stored
 policy hashes are preserved, not silently promoted to the new scalar policy.
+
+The effective wire limit includes 4 MiB per decoded UTF-8 string/key in addition
+to aggregate/document bounds. Oversize strings report json_string_bytes budget
+detail. Opaque capture options remain strictly equal; semantic/incidental key
+policies require producer-specific T-634 qualification and T-635 baseline wiring
+(DATA_MODEL R5). No current option whitelist or new producer support is claimed.

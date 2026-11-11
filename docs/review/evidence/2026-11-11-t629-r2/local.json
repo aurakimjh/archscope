@@ -1,0 +1,197 @@
+{
+  "task": "T-629 R2 disposition and R5 follow-ups",
+  "baseline_commit": "f08869e055ced3f101515f6b3affd86f2a9a4033",
+  "recorded_at_utc": "2026-11-11T08:44:35.149795+00:00",
+  "review": {
+    "path": "docs/review/done/2026-11-11_claude-code_T-629_implementation-re-review-R2.ko.md",
+    "sha256": "31486b1464e33f7b5a66d94823e6853871402555139f44e4f812863d983707eb",
+    "verdict": "CONDITIONAL, P3 only; R4-01 through R4-05 independently resolved; explicitly permits T-629 DONE",
+    "independent_review_of_final_R5_changes": "not_performed",
+    "task_state": "DONE under explicit R2 permission; not PASS"
+  },
+  "disposition": {
+    "R5-01": "implemented and locally verified: typed JSON resource errors -> ProfileSet model budget -> exact-string JobProblem detail; per-string/key limit documented",
+    "R5-02": "scoped to producer-specific T-634 adapter and T-635 consumers; acceptance contract documented, no runtime whitelist or incidental-option comparison implemented"
+  },
+  "checks": [
+    {
+      "name": "full_race",
+      "command": "go test -race ./... -count=1",
+      "exit_code": 0,
+      "log_sha256": "6b6d0787bbfdbc7245034a0a4c62ce088a4202ba5874ee84a9957b6b18b15809"
+    },
+    {
+      "name": "go_vet",
+      "command": "go vet ./...",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "go_build",
+      "command": "go build ./...",
+      "exit_code": 0,
+      "log_sha256": "10d6df5c6905da36d0e9d660a831a0463bc58143989538a886060b7a977b9dda"
+    },
+    {
+      "name": "windows_amd64_cross_vet",
+      "command": "GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go vet ./...",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "windows_386_cross_vet",
+      "command": "GOOS=windows GOARCH=386 CGO_ENABLED=0 go vet ./...",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "frontend_state",
+      "command": "npm run test:state",
+      "exit_code": 0,
+      "log_sha256": "96ab3e7763edc1082d01e3a18afd8649d6c9bcdb89fb7b8a072303fcc49805cb"
+    },
+    {
+      "name": "frontend_build",
+      "command": "npm run build",
+      "exit_code": 0,
+      "log_sha256": "84bbff9a58ef65d5004db3ff463f642b003a63db8c72d4cf6f594a3d036dbb98"
+    },
+    {
+      "name": "desktop_guard",
+      "command": "node scripts/verify-desktop-only.mjs --check-server-build",
+      "exit_code": 0,
+      "log_sha256": "2737e05db97102bfc69e4a94138f70b869f75db5874ac9581749568974f07e97"
+    },
+    {
+      "name": "macos_package",
+      "command": "task darwin:package",
+      "exit_code": 0,
+      "log_sha256": "37b5a1db60530db2a7c45e0451b9506eea113e0c5a35e37ac3ce91113410d955"
+    },
+    {
+      "name": "macos_signature",
+      "command": "codesign --verify --deep --strict bin/archscope.app",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "windows_amd64_cross_build",
+      "command": "GOARCH=amd64 node build/windows/build.mjs -tags production -o /private/tmp/archscope-t629-r2-amd64.exe",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "windows_386_cross_build",
+      "command": "GOARCH=386 node build/windows/build.mjs -tags production -o /private/tmp/archscope-t629-r2-386.exe",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "cli_build",
+      "command": "go build -o /private/tmp/archscope-t629-r2 ./cmd/archscope-engine",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "actual_cli_boundary",
+      "command": "python3 /private/tmp/t629_r2_cli.py",
+      "exit_code": 0,
+      "log_sha256": "0f96b8f11247df6894691483a370d2ebbc2f109c7b7fea1d2b130f0b5be618dd"
+    }
+  ],
+  "full_race": {
+    "passed_packages": 95,
+    "without_tests": 5,
+    "failures": 0,
+    "races": 0
+  },
+  "regressions": [
+    "typed resource/actual/limit for JSON bytes, depth, strings/keys, array items and object-key count",
+    "UTF-8 decoded byte counting; failed decoder leaves destination unchanged; malformed/duplicate/invalid-UTF-8 remain non-budget format errors",
+    "ProfileSet decoded extension 4194303 and 4194304 bytes round-trip; 4194305 rejected with json_string_bytes model budget",
+    "job reports IMPORT_BUDGET_EXCEEDED, profile_json_string_bytes, actual=4194305/limit=4194304 as exact decimal strings; no result, staging cleaned",
+    "input comparison_keys declaration cannot authorize ignoring changed opaque pid/duration options; capture_options_mismatch retained"
+  ],
+  "actual_cli": {
+    "scope": "actual built CLI; synthetic exact boundary, no UI/Windows execution",
+    "checks": [
+      {
+        "decoded_string_bytes": 4194303,
+        "exit_code": 0,
+        "elapsed_seconds": 0.924,
+        "outcome": "accepted_exactly"
+      },
+      {
+        "decoded_string_bytes": 4194304,
+        "exit_code": 0,
+        "elapsed_seconds": 0.756,
+        "outcome": "accepted_exactly"
+      },
+      {
+        "decoded_string_bytes": 4194305,
+        "exit_code": 1,
+        "elapsed_seconds": 0.038,
+        "outcome": "budget_refusal_with_resource_and_limit"
+      }
+    ]
+  },
+  "compatibility": {
+    "limits_raised": false,
+    "numeric_or_schema_reinterpretation": false,
+    "common_analysis_result": "unchanged",
+    "wire_error_messages": "existing resource messages preserved; oversized object keys now correctly resource-classified",
+    "capture_policy_runtime": "unchanged strict opaque equality; no producer/version/key decisions made",
+    "legacy_profile_goldens_metadata_thread_mixed_format": "retained in final full suite"
+  },
+  "documentation": {
+    "pairs": [
+      "DATA_MODEL",
+      "PARSER_DESIGN",
+      "IMPORTER_SUPPORT_MATRIX"
+    ],
+    "T634_T635_acceptance": "trusted producer/format/version/normalizer/metric-bound policy, semantic/incidental/unknown behavior, sanitized originals, presence/null/zero and old snapshot semantics; future implementation",
+    "review_archived_unchanged": true,
+    "task_counts": {
+      "DONE": 212,
+      "TODO": 3,
+      "PENDING": 14,
+      "REVIEW": 3
+    },
+    "unique_task_ids": 232,
+    "diff_check": "passed"
+  },
+  "limitations": [
+    "no independent review of final R5 fix/design; original CONDITIONAL not renamed PASS",
+    "R5-02 producer option-key implementation/qualification remains T-634; baseline binding T-635",
+    "no actual new WebView IPC/UI; no Windows native runtime; cross-vet/build only",
+    "no hosted CI, real new producer qualification, original reimport verification or production memory/latency measurement claimed",
+    "existing large HTML/CSV appendix limits remain; no blanket export success; Q01-Q04 undecided"
+  ],
+  "source_sha256": {
+    "apps/engine-native/internal/analysis/profile_review_r2_test.go": "aa754cbeb671ff774266c39d3921101a9e02892bfa63fb498a9249153177721b",
+    "apps/engine-native/internal/profilemodel/errors.go": "6da14999c8eb9ee3017518d9381e7c3980675f4f2dac0bb07360042056150596",
+    "apps/engine-native/internal/profilemodel/model.go": "fb4672536d0fe91e9b7d5e18250297551a960186c5729bc59c8bda1d59c58f55",
+    "apps/engine-native/internal/profilemodel/review_r2_test.go": "c4ada74fc847687bf1a5aaa49783c5bb325b5745b8d2e58958ed80eeb3691a94",
+    "apps/engine-native/internal/wirejson/budget_test.go": "e6eee4aa4cbbf3940b172e3d78f32a106fe0389d6662c60a36765679eaf984c9",
+    "apps/engine-native/internal/wirejson/decode.go": "638f9598e05a8e46a1a36e688bb86d32b5ca548cae8b00c3453ddbba8efd641a",
+    "apps/engine-native/internal/wirejson/errors.go": "979038d6b1bf1b62240cc6a851526063a8a346cc647458209c184f20eaf81607"
+  },
+  "artifact_sha256": {
+    "cli": {
+      "sha256": "68b54df4f7667d9def8dc5b02aa5be45753498b496c4eefed08e5bd28ced49fd",
+      "bytes": 18358514
+    },
+    "windows_amd64": {
+      "sha256": "3830a12cd87949a5ba8a4be2c010c0f8ae584711c8968d8d66c4f5987961338c",
+      "bytes": 30494208
+    },
+    "windows_386": {
+      "sha256": "4c7e7ba9f02f3567f0cb759e29a24d83b92439a122df05cd66d5d90693521a82",
+      "bytes": 29307904
+    },
+    "macos_app_executable": {
+      "sha256": "c69bc72db244956458e3d4248edad26eb348b283080611d7100fbed876115eb8",
+      "bytes": 19498736
+    }
+  }
+}

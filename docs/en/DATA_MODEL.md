@@ -1940,3 +1940,48 @@ checks still run for every Check. Eviction/new registry drops only validation
 knowledge; saved results and policy are unchanged. Concurrent cold misses may
 validate independently. R4-04 also recomputes and compares metadata.quality against
 the retained model before caching; forged copies fail compute/compare/export.
+
+### T-629 R2: wire budgets and capture-policy handoff (R5)
+
+The JSON wire boundary also caps each decoded UTF-8 string **or object key** at
+4 MiB (4,194,304 bytes), independently of the 32 MiB aggregate referenced-string
+budget and 32 MiB internal transport cap. Exactly 4 MiB is accepted; the next
+byte is refused. The count is decoded bytes, not Unicode characters or JSON
+escape-text length. Input bytes/depth/array items/object keys retain their
+existing limits. `wirejson.LimitError` identifies resource/actual/limit, and
+ProfileSet decoding translates it to a model budget refusal. Import returns
+IMPORT_BUDGET_EXCEEDED with detail.resource=json_string_bytes,
+reasonCode=profile_json_string_bytes and exact decimal-string actual/limit.
+Malformed JSON/duplicate keys/invalid UTF-8 remain format errors. A refused
+model publishes no result and staging is cleaned. No budget is raised.
+
+**R5-02 disposition: producer-specific implementation belongs to T-634, with
+baseline consumers in T-635.** The current v2 comparator still compares the whole
+opaque capture_options object. An input-provided comparison_keys/ignore list
+has no authority. PID/duration/output-path keys are not globally ignored.
+This documented limitation does not block T-629 closure under the independent R2.
+
+T-634 acceptance must include a trusted compiled adapter (or approved signed
+schema/pack) policy bound to producer, format, supported version, normalizer
+revision and selected metric semantics (kind/unit/scale/sign). The policy has a
+stable ID/revision/hash and classifies **known** keys as semantic or incidental.
+Unknown keys remain strict or cause explicit refusal; missing policies keep full
+opaque equality. Unsupported policies cannot relax comparison. Capture metadata
+itself cannot declare the policy or supply a whitelist.
+
+Semantic values, including presence/null/observed zero, exact integers/decimals,
+interval/event/weight interpretation and metric-dependent duration/denominators,
+are compared under that versioned contract. Duration may be incidental for one
+metric and semantic for another; real producer fixtures must decide it. Entity
+values such as PID must also bind to the capture/entity model and cannot bypass
+entity_mapping_required or clock/quality checks merely by being incidental here.
+
+Both comparison references must retain sanitized complete original options,
+policy identity, semantic projection and incidental differences with a disclosure
+warning. This grants neither original-source verification nor automatic entity
+mapping. Preserve saved bytes and old v2 hashes; apply a new policy revision or
+explicit reimport instead of silently reinterpreting old snapshots. Validate
+same-policy incidental-only changes, semantic mismatch, no/unknown policy and
+keys, policy/version/metric mismatch, nil/zero/absence, forged input whitelists,
+round trips and CLI/Wails parity before promoting each actual producer. Q01–Q04
+and producer versions/real keys remain undecided by this foundation change.

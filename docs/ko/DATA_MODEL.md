@@ -2064,3 +2064,40 @@ hash하므로 quality/metadata/payload가 바뀌면 이전 판정을 재사용�
 registry나 캐시 회수는 검증 이력만 지우며 저장 결과와 정책을 바꾸지 않는다. 동시 cold
 miss는 각각 검증할 수 있다. R4-04에서 metadata.quality도 모델에서 재계산·대조한 뒤
 캐시하므로 사본 변조는 compute/compare/export에서 거절된다.
+
+### T-629 R2: wire 예산과 capture 정책 인계 (R5)
+
+JSON wire 경계는 개별 디코딩된 UTF-8 문자열 **또는 객체 key**도 4 MiB
+(4,194,304바이트)로 제한한다. 참조 문자열 합 32 MiB 및 내부 전송 32 MiB와 독립적이다.
+정확히 4 MiB는 허용하고 한 바이트 초과하면 거절한다. 문자 수나 JSON escape 표기
+길이가 아닌 디코딩된 바이트 수다. 입력 바이트/깊이/배열 항목/객체 key 개수의 기존
+상한은 유지한다. wirejson.LimitError가 resource/actual/limit를 제공하고 ProfileSet
+디코더가 모델 예산 오류로 변환한다. import는 IMPORT_BUDGET_EXCEEDED와
+ detail.resource=json_string_bytes, reasonCode=profile_json_string_bytes 및 정확한
+십진 문자열 actual/limit를 반환한다. 잘못된 JSON/중복 key/잘못된 UTF-8은 형식
+오류로 유지한다. 거절된 모델은 결과를 publish하지 않고 staging을 정리하며 예산을 올리지 않는다.
+
+**R5-02 처리 범위: producer별 구현은 T-634, baseline 소비자는 T-635다.** 현재 v2
+comparator는 불투명 capture_options 전체를 비교한다. 입력에 적힌 comparison_keys/
+ignore 목록에는 권한이 없다. PID/duration/출력 경로를 전역으로 무시하지 않는다.
+독립 R2가 허용한 T-629 종결을 이 문서화된 한계로 막지 않는다.
+
+T-634의 수용 조건에는 신뢰된 compiled adapter(또는 승인된 signed schema/pack)의
+정책을 포함한다. producer/format/지원 버전/normalizer 버전/선택 metric의 kind·unit·
+scale·sign에 결속하고 ID/revision/hash를 고정한다. 알려진 key만 의미/부수 항목으로
+분류하며 미지 key는 strict 비교하거나 명시 거절한다. 정책이 없으면 전체 불투명 비교를
+유지하고 미지원 정책으로 비교를 완화하지 않는다. capture metadata 자체가 정책이나
+whitelist를 지정할 수 없다.
+
+의미 값은 존재/null/관측된 0, 정밀 정수/소수, interval/event/weight 해석 및 metric별
+기간/분모를 포함해 버전 계약으로 비교한다. duration은 metric에 따라 부수 정보나
+의미 조건일 수 있으므로 실제 producer fixture로 결정한다. PID 같은 entity 값은
+capture/entity 모델에도 결속하며 여기서 부수 항목이라고 entity_mapping_required나
+clock/quality 검사를 우회하지 않는다.
+
+양쪽 참조에는 정제된 전체 원 옵션, 정책 식별, 의미 projection, 부수 차이와 공개
+경고를 보존한다. 원본 검증이나 자동 entity 매핑을 부여하지 않는다. 과거 저장 bytes와
+v2 hash는 유지하며 새 정책 버전 또는 명시 재import로 적용한다. producer 승격 전에
+부수 항목만 다른 허용 사례, 의미 차이 거절, 정책 누락/미지 정책/key, 버전/metric 차이,
+nil/0/부재, 위조 입력 whitelist, 저장 왕복과 CLI/Wails 일치를 검증한다. Q01~Q04와
+실제 producer 버전/key 목록은 이번 공통 기반에서 결정하지 않는다.

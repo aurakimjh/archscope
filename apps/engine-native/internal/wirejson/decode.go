@@ -40,7 +40,7 @@ func DecodeWithLimits(data []byte, out any, l Limits) error {
 		return fmt.Errorf("JSON must be UTF-8")
 	}
 	if int64(len(data)) > l.Bytes {
-		return fmt.Errorf("JSON byte budget exceeded")
+		return exceeded("json_bytes", int64(len(data)), l.Bytes, "JSON byte budget exceeded")
 	}
 	d := json.NewDecoder(bytes.NewReader(data))
 	d.UseNumber()
@@ -72,14 +72,14 @@ func Read(r io.Reader, out any, l Limits) error {
 }
 func walk(d *json.Decoder, depth int, l Limits) error {
 	if depth > l.Depth {
-		return fmt.Errorf("JSON depth budget exceeded")
+		return exceeded("json_depth", int64(depth), int64(l.Depth), "JSON depth budget exceeded")
 	}
 	t, e := d.Token()
 	if e != nil {
 		return e
 	}
 	if s, ok := t.(string); ok && len(s) > l.StringBytes {
-		return fmt.Errorf("JSON string budget exceeded")
+		return exceeded("json_string_bytes", int64(len(s)), int64(l.StringBytes), "JSON string budget exceeded")
 	}
 	delim, ok := t.(json.Delim)
 	if !ok {
@@ -92,15 +92,18 @@ func walk(d *json.Decoder, depth int, l Limits) error {
 		for d.More() {
 			count++
 			if count > l.ObjectKeys {
-				return fmt.Errorf("JSON key budget exceeded")
+				return exceeded("json_object_keys", int64(count), int64(l.ObjectKeys), "JSON key budget exceeded")
 			}
 			k, e := d.Token()
 			if e != nil {
 				return e
 			}
 			key, ok := k.(string)
-			if !ok || seen[key] || len(key) > l.StringBytes {
+			if !ok || seen[key] {
 				return fmt.Errorf("duplicate or invalid JSON key")
+			}
+			if len(key) > l.StringBytes {
+				return exceeded("json_string_bytes", int64(len(key)), int64(l.StringBytes), "JSON string budget exceeded")
 			}
 			seen[key] = true
 			if e = walk(d, depth+1, l); e != nil {
@@ -111,7 +114,7 @@ func walk(d *json.Decoder, depth int, l Limits) error {
 		for d.More() {
 			count++
 			if count > l.ArrayItems {
-				return fmt.Errorf("JSON array budget exceeded")
+				return exceeded("json_array_items", int64(count), int64(l.ArrayItems), "JSON array budget exceeded")
 			}
 			if e = walk(d, depth+1, l); e != nil {
 				return e

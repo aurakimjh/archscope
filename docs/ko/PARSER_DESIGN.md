@@ -854,3 +854,8 @@ verified 지원을 부여하지 않는다. 공유 규모 사례는 3,000 stack �
 node를 검증한다. 품질 비교·과거 저장 정책 호환·registry 검증 캐시는 DATA_MODEL을
 따르며 metadata.quality 사본도 모델과 대조한다. 새로운 producer 지원이나 entity
 매핑은 주장하지 않는다(T-634/T-635).
+
+R5-01에서 wire 디코더의 자원 오류를 ProfileSet 입력 경계까지 보존한다. 개별
+문자열/key 4 MiB 초과는 형식 불일치가 아닌 상세 예산 거절이고, 경계와 초과 import를
+검증한다. 잘못된 JSON은 형식 오류를 유지한다. R5-02 capture key 정책은 DATA_MODEL의
+T-634/T-635 인계 계약을 따르며 현재 불투명 옵션 전체 비교는 유지한다.

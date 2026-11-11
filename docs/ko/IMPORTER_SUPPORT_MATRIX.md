@@ -65,3 +65,8 @@ R4 profile 비교는 측정된 quality 수/비율 차이를 허용하고 양쪽 
 보존한다. clock/심볼/conversion 범주는 일치해야 하며 process/thread/worker 차이는
 T-635의 명시 매핑 전까지 entity_mapping_required로 거절한다. 과거 저장 정책 hash는
 보존하며 새로운 scalar 정책으로 자동 승격하지 않는다.
+
+실효 wire 상한에는 합계/문서 한도 외에 디코딩된 UTF-8 문자열/key별 4 MiB도 있다.
+초과 문자열은 json_string_bytes 예산 상세로 거절한다. 불투명 capture 옵션은 전체
+일치를 유지하며 의미/부수 key 정책은 T-634의 producer별 검증 및 T-635 baseline 연결이
+필요하다(DATA_MODEL R5). 현재 whitelist나 새 producer 지원을 주장하지 않는다.

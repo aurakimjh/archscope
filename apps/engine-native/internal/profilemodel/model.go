@@ -299,7 +299,7 @@ func Decode(body []byte) (ProfileSet, error) {
 	var s ProfileSet
 
 	var fields map[string]json.RawMessage
-	if e := wirejson.Decode(body, &fields); e != nil {
+	if e := decodeModelJSON(body, &fields); e != nil {
 		return s, e
 	}
 	for _, key := range []string{"schema_version", "producer", "format", "source_sha256", "capture_options", "frames", "stacks", "metrics", "profiles", "quality"} {
@@ -309,7 +309,7 @@ func Decode(body []byte) (ProfileSet, error) {
 		}
 	}
 	var quality map[string]json.RawMessage
-	if e := wirejson.Decode(fields["quality"], &quality); e != nil {
+	if e := decodeModelJSON(fields["quality"], &quality); e != nil {
 		return s, e
 	}
 	for _, key := range []string{"lost", "unknown", "truncated", "symbol_resolution", "clock_confidence", "conversion_loss"} {
