@@ -9,7 +9,7 @@
     },
     {
       "file": "README.md",
-      "sha256": "4e74e3bdae39e23f87738f6b74df920f4b678183754605982b90f44e2e304403"
+      "sha256": "071fa758c69c607651424034bb389f2b8f25a93383f0ed359c90e2a7ee5c3704"
     },
     {
       "file": "apple-empty-model.json",
@@ -26,6 +26,10 @@
     {
       "file": "apple-multi.json",
       "sha256": "90b00b35dcde554a133579846d5854d0cec89047284289e671f4dc5aa60f351d"
+    },
+    {
+      "file": "apple-sustained-multi.json",
+      "sha256": "4cf74f5cad8e830c3c806148dc7bfb18d459479ff26beae4d976d672673d91d4"
     },
     {
       "file": "apple-unmatched-model.json",
@@ -46,6 +50,10 @@
     {
       "file": "metric-model.json",
       "sha256": "7b8adbebab29b524d4b62571ec6a44480f79dddccda4c87ff9fe2c95502ef08b"
+    },
+    {
+      "file": "qualification.json",
+      "sha256": "7cb17f773445c672b3d0c42bbd35314bea5e2c6711e92e384f5e2fbd3d5d7b88"
     }
   ]
 }

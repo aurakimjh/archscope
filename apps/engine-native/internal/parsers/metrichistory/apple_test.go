@@ -275,3 +275,23 @@ func TestR2002AppleInvariantsWithoutIdentityRewriting(t *testing.T) {
 		})
 	}
 }
+
+func TestR2004ActualSustainedMultiCapture(t *testing.T) {
+	raw, err := os.ReadFile("../../catalog/contracts/apple-ollama-apple-sustained-multi.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	set := parse(t, raw, p.Options{})
+	if len(set.Points) != 16*12 {
+		t.Fatal(len(set.Points))
+	}
+	names := map[string]string{}
+	for _, s := range set.Series {
+		names[s.ID] = s.Name
+	}
+	for _, point := range set.Points {
+		if strings.HasPrefix(names[point.SeriesID], "ollama.selection.") && (point.Value == nil || *point.Value != "1") {
+			t.Fatal(point)
+		}
+	}
+}

@@ -1,0 +1,30 @@
+{
+  "producer": "Ollama 0.40.16",
+  "environment": {
+    "macos_version": "27.2.1",
+    "macos_build": "26B131",
+    "hardware_model": "Mac17,6",
+    "chip": "Apple M5 Max"
+  },
+  "actual_capture": {
+    "file": "apple-sustained-multi.json",
+    "sha256": "4cf74f5cad8e830c3c806148dc7bfb18d459479ff26beae4d976d672673d91d4",
+    "samples": 12,
+    "read_window_span_ns": "22434121000",
+    "matched": "1",
+    "excluded": "1",
+    "swap_used_bytes": [
+      "0"
+    ],
+    "pressure_raw_codes": [
+      "1"
+    ],
+    "models_unloaded_after_capture": true
+  },
+  "pending": [
+    "실제 swap 사용 또는 pressure 상승 상태의 승인된 자연 관측 표본",
+    "다른 Ollama/macOS/chip 조합",
+    "장시간 부하 관측"
+  ],
+  "limitations": "raw pressure code 1을 상승/정상 enum으로 해석하지 않는다. 12회 2초 간격 관측은 장시간·swap/pressure 검증이 아니다. 강제 메모리 스트레스 없음."
+}

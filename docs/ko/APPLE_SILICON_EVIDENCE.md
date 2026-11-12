@@ -72,3 +72,5 @@ host/boot/local-device·하드웨어·OS/build·수집기/엔진 버전·공유 
 R20-01: 수집기1.1.0은 model_selection_sha256 및 필수 스냅샷 excluded_model_count / selected_model_match_count(0/1)를 추가합니다. 제외한 모델 이름/digest는 저장하지 않습니다. 선택0과 호스트 전체가 빈 상태를 구분하며 실제 이중 로드/미로드 선택/빈 상태가1/1,0/2,0/0으로 검증됐습니다. 구버전1.0의 정규화와 저장 projection은 유지하고 inspection에 누락 범위 미상이라는 read-time 경고를 추가합니다. R20-02/03/04는 후속 큐이며 다중 로드는04 일부만 해소합니다. swap/pressure 상승·다른 환경은 미검증입니다.
 
 새 입력은 각 VM 범주 ≤ 물리 capacity, size_vram ≤ size, swap_used ≤ total을 개별 확인합니다. 범주 합산은 하지 않습니다. host/boot/device는 정제 태그, 텍스트는 제어 문자 없음, digest는 소문자 hex를 요구합니다. 기존 저장 identity는 재작성하지 않습니다.
+
+추가 실제 다중 로드 표본은 12회 2초 간격, 선택1/제외1이며 수집 뒤 두 모델을 내리고 빈 상태를 확인했습니다. swap_used=0, pressure raw code=1을 상승 상태로 해석하지 않습니다. 실제 swap 사용/pressure 상승, 다른 producer/platform 및 장시간 관측은 아직 미검증입니다. 강제 메모리 스트레스 없이 승인된 자연 관측 표본이 필요합니다.

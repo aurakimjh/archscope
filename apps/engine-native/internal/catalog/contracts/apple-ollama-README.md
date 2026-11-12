@@ -49,3 +49,5 @@ https://github.com/apple-oss-distributions/xnu/blob/main/bsd/sys/sysctl.h.
 해석하면 안 된다. 실제 다중 로드는 확인했지만 pressure/swap 상승·타장비는 미검증이다.
 
 가져오기는 각 VM 범주 ≤ 물리 capacity, size_vram ≤ size, swap_used ≤ total을 개별 확인한다. 범주는 합산하지 않는다. host/boot/device는 정제 태그만, 모든 텍스트는 제어 문자 없이, 모델 digest는 소문자 hex만 허용한다. 기존 저장 모델의 identity를 재작성하지 않으며 새 입력을 거절한다.
+
+apple-sustained-multi.json은 같은 장비/0.40.16에서 12회 2초 간격 실제 관측(선택1/제외1)이다. 이후 소유 모델을 모두 내리고 빈 상태를 확인했다. swap_used=0, pressure raw code=1이며 상승 상태라는 뜻이 아니다. qualification.json의 미확보 실제 입력은 계속 보류하며 강제 메모리 스트레스는 하지 않는다.

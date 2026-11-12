@@ -1,0 +1,483 @@
+{
+  "contract": "apple-ollama-capture.v1",
+  "collector_version": "1.1.0",
+  "model_selection_sha256": "f4eb8162b2320d24e69824d3d35d6dddcdba77b5da8228dfedeae6e4f1f528c0",
+  "host_id": "fixture-host-a",
+  "boot_id": "fixture-boot-a",
+  "device_local_id": "apple-integrated-0",
+  "macos_version": "27.2.1",
+  "macos_build": "26B131",
+  "hardware_model": "Mac17,6",
+  "chip": "Apple M5 Max",
+  "ollama_version": "0.40.16",
+  "snapshots": [
+    {
+      "capture_start_ns": "1794520457827486000",
+      "memory_capacity_bytes": "137438953472",
+      "vm_free_bytes": "47041101824",
+      "vm_active_bytes": "33039007744",
+      "vm_inactive_bytes": "47308046336",
+      "vm_wired_bytes": "6820855808",
+      "vm_compressor_bytes": "0",
+      "swap_total_bytes": "0",
+      "swap_used_bytes": "0",
+      "pressure_level": {
+        "value": "1"
+      },
+      "thermal_warning_level": {
+        "value": null,
+        "unavailable_reason": "not_recorded"
+      },
+      "gpu_utilization": {
+        "value": null,
+        "unavailable_reason": "not_collected"
+      },
+      "power_watts": {
+        "value": null,
+        "unavailable_reason": "permission_required"
+      },
+      "models": [
+        {
+          "name": "gemma:2b",
+          "digest": "b50d6c999e592ae4f79acae23b4feaefbdfceaa7cd366df2610e3072c052a160",
+          "size": 1799817788,
+          "size_vram": 1799817788,
+          "context_length": 512,
+          "quantization_level": "Q4_0"
+        }
+      ],
+      "selected_model_match_count": "1",
+      "excluded_model_count": "1",
+      "capture_end_ns": "1794520457846815000"
+    },
+    {
+      "capture_start_ns": "1794520459853785000",
+      "memory_capacity_bytes": "137438953472",
+      "vm_free_bytes": "47218311168",
+      "vm_active_bytes": "33162002432",
+      "vm_inactive_bytes": "47308685312",
+      "vm_wired_bytes": "6519996416",
+      "vm_compressor_bytes": "0",
+      "swap_total_bytes": "0",
+      "swap_used_bytes": "0",
+      "pressure_level": {
+        "value": "1"
+      },
+      "thermal_warning_level": {
+        "value": null,
+        "unavailable_reason": "not_recorded"
+      },
+      "gpu_utilization": {
+        "value": null,
+        "unavailable_reason": "not_collected"
+      },
+      "power_watts": {
+        "value": null,
+        "unavailable_reason": "permission_required"
+      },
+      "models": [
+        {
+          "name": "gemma:2b",
+          "digest": "b50d6c999e592ae4f79acae23b4feaefbdfceaa7cd366df2610e3072c052a160",
+          "size": 1799817788,
+          "size_vram": 1799817788,
+          "context_length": 512,
+          "quantization_level": "Q4_0"
+        }
+      ],
+      "selected_model_match_count": "1",
+      "excluded_model_count": "1",
+      "capture_end_ns": "1794520459885014000"
+    },
+    {
+      "capture_start_ns": "1794520461885579000",
+      "memory_capacity_bytes": "137438953472",
+      "vm_free_bytes": "47081390080",
+      "vm_active_bytes": "33297661952",
+      "vm_inactive_bytes": "47308750848",
+      "vm_wired_bytes": "6521159680",
+      "vm_compressor_bytes": "0",
+      "swap_total_bytes": "0",
+      "swap_used_bytes": "0",
+      "pressure_level": {
+        "value": "1"
+      },
+      "thermal_warning_level": {
+        "value": null,
+        "unavailable_reason": "not_recorded"
+      },
+      "gpu_utilization": {
+        "value": null,
+        "unavailable_reason": "not_collected"
+      },
+      "power_watts": {
+        "value": null,
+        "unavailable_reason": "permission_required"
+      },
+      "models": [
+        {
+          "name": "gemma:2b",
+          "digest": "b50d6c999e592ae4f79acae23b4feaefbdfceaa7cd366df2610e3072c052a160",
+          "size": 1799817788,
+          "size_vram": 1799817788,
+          "context_length": 512,
+          "quantization_level": "Q4_0"
+        }
+      ],
+      "selected_model_match_count": "1",
+      "excluded_model_count": "1",
+      "capture_end_ns": "1794520461915167000"
+    },
+    {
+      "capture_start_ns": "1794520463917598000",
+      "memory_capacity_bytes": "137438953472",
+      "vm_free_bytes": "47103705088",
+      "vm_active_bytes": "32860028928",
+      "vm_inactive_bytes": "47308931072",
+      "vm_wired_bytes": "6936313856",
+      "vm_compressor_bytes": "0",
+      "swap_total_bytes": "0",
+      "swap_used_bytes": "0",
+      "pressure_level": {
+        "value": "1"
+      },
+      "thermal_warning_level": {
+        "value": null,
+        "unavailable_reason": "not_recorded"
+      },
+      "gpu_utilization": {
+        "value": null,
+        "unavailable_reason": "not_collected"
+      },
+      "power_watts": {
+        "value": null,
+        "unavailable_reason": "permission_required"
+      },
+      "models": [
+        {
+          "name": "gemma:2b",
+          "digest": "b50d6c999e592ae4f79acae23b4feaefbdfceaa7cd366df2610e3072c052a160",
+          "size": 1799817788,
+          "size_vram": 1799817788,
+          "context_length": 512,
+          "quantization_level": "Q4_0"
+        }
+      ],
+      "selected_model_match_count": "1",
+      "excluded_model_count": "1",
+      "capture_end_ns": "1794520463952780000"
+    },
+    {
+      "capture_start_ns": "1794520465954135000",
+      "memory_capacity_bytes": "137438953472",
+      "vm_free_bytes": "47212789760",
+      "vm_active_bytes": "32780828672",
+      "vm_inactive_bytes": "47309176832",
+      "vm_wired_bytes": "6906298368",
+      "vm_compressor_bytes": "0",
+      "swap_total_bytes": "0",
+      "swap_used_bytes": "0",
+      "pressure_level": {
+        "value": "1"
+      },
+      "thermal_warning_level": {
+        "value": null,
+        "unavailable_reason": "not_recorded"
+      },
+      "gpu_utilization": {
+        "value": null,
+        "unavailable_reason": "not_collected"
+      },
+      "power_watts": {
+        "value": null,
+        "unavailable_reason": "permission_required"
+      },
+      "models": [
+        {
+          "name": "gemma:2b",
+          "digest": "b50d6c999e592ae4f79acae23b4feaefbdfceaa7cd366df2610e3072c052a160",
+          "size": 1799817788,
+          "size_vram": 1799817788,
+          "context_length": 512,
+          "quantization_level": "Q4_0"
+        }
+      ],
+      "selected_model_match_count": "1",
+      "excluded_model_count": "1",
+      "capture_end_ns": "1794520465990390000"
+    },
+    {
+      "capture_start_ns": "1794520467996680000",
+      "memory_capacity_bytes": "137438953472",
+      "vm_free_bytes": "47330050048",
+      "vm_active_bytes": "33052016640",
+      "vm_inactive_bytes": "47309193216",
+      "vm_wired_bytes": "6517833728",
+      "vm_compressor_bytes": "0",
+      "swap_total_bytes": "0",
+      "swap_used_bytes": "0",
+      "pressure_level": {
+        "value": "1"
+      },
+      "thermal_warning_level": {
+        "value": null,
+        "unavailable_reason": "not_recorded"
+      },
+      "gpu_utilization": {
+        "value": null,
+        "unavailable_reason": "not_collected"
+      },
+      "power_watts": {
+        "value": null,
+        "unavailable_reason": "permission_required"
+      },
+      "models": [
+        {
+          "name": "gemma:2b",
+          "digest": "b50d6c999e592ae4f79acae23b4feaefbdfceaa7cd366df2610e3072c052a160",
+          "size": 1799817788,
+          "size_vram": 1799817788,
+          "context_length": 512,
+          "quantization_level": "Q4_0"
+        }
+      ],
+      "selected_model_match_count": "1",
+      "excluded_model_count": "1",
+      "capture_end_ns": "1794520468030196000"
+    },
+    {
+      "capture_start_ns": "1794520470037487000",
+      "memory_capacity_bytes": "137438953472",
+      "vm_free_bytes": "47474294784",
+      "vm_active_bytes": "32907575296",
+      "vm_inactive_bytes": "47309225984",
+      "vm_wired_bytes": "6517997568",
+      "vm_compressor_bytes": "0",
+      "swap_total_bytes": "0",
+      "swap_used_bytes": "0",
+      "pressure_level": {
+        "value": "1"
+      },
+      "thermal_warning_level": {
+        "value": null,
+        "unavailable_reason": "not_recorded"
+      },
+      "gpu_utilization": {
+        "value": null,
+        "unavailable_reason": "not_collected"
+      },
+      "power_watts": {
+        "value": null,
+        "unavailable_reason": "permission_required"
+      },
+      "models": [
+        {
+          "name": "gemma:2b",
+          "digest": "b50d6c999e592ae4f79acae23b4feaefbdfceaa7cd366df2610e3072c052a160",
+          "size": 1799817788,
+          "size_vram": 1799817788,
+          "context_length": 512,
+          "quantization_level": "Q4_0"
+        }
+      ],
+      "selected_model_match_count": "1",
+      "excluded_model_count": "1",
+      "capture_end_ns": "1794520470072804000"
+    },
+    {
+      "capture_start_ns": "1794520472079310000",
+      "memory_capacity_bytes": "137438953472",
+      "vm_free_bytes": "47353937920",
+      "vm_active_bytes": "33026146304",
+      "vm_inactive_bytes": "47309389824",
+      "vm_wired_bytes": "6519652352",
+      "vm_compressor_bytes": "0",
+      "swap_total_bytes": "0",
+      "swap_used_bytes": "0",
+      "pressure_level": {
+        "value": "1"
+      },
+      "thermal_warning_level": {
+        "value": null,
+        "unavailable_reason": "not_recorded"
+      },
+      "gpu_utilization": {
+        "value": null,
+        "unavailable_reason": "not_collected"
+      },
+      "power_watts": {
+        "value": null,
+        "unavailable_reason": "permission_required"
+      },
+      "models": [
+        {
+          "name": "gemma:2b",
+          "digest": "b50d6c999e592ae4f79acae23b4feaefbdfceaa7cd366df2610e3072c052a160",
+          "size": 1799817788,
+          "size_vram": 1799817788,
+          "context_length": 512,
+          "quantization_level": "Q4_0"
+        }
+      ],
+      "selected_model_match_count": "1",
+      "excluded_model_count": "1",
+      "capture_end_ns": "1794520472108104000"
+    },
+    {
+      "capture_start_ns": "1794520474111924000",
+      "memory_capacity_bytes": "137438953472",
+      "vm_free_bytes": "47265742848",
+      "vm_active_bytes": "32714080256",
+      "vm_inactive_bytes": "47309340672",
+      "vm_wired_bytes": "6919962624",
+      "vm_compressor_bytes": "0",
+      "swap_total_bytes": "0",
+      "swap_used_bytes": "0",
+      "pressure_level": {
+        "value": "1"
+      },
+      "thermal_warning_level": {
+        "value": null,
+        "unavailable_reason": "not_recorded"
+      },
+      "gpu_utilization": {
+        "value": null,
+        "unavailable_reason": "not_collected"
+      },
+      "power_watts": {
+        "value": null,
+        "unavailable_reason": "permission_required"
+      },
+      "models": [
+        {
+          "name": "gemma:2b",
+          "digest": "b50d6c999e592ae4f79acae23b4feaefbdfceaa7cd366df2610e3072c052a160",
+          "size": 1799817788,
+          "size_vram": 1799817788,
+          "context_length": 512,
+          "quantization_level": "Q4_0"
+        }
+      ],
+      "selected_model_match_count": "1",
+      "excluded_model_count": "1",
+      "capture_end_ns": "1794520474140382000"
+    },
+    {
+      "capture_start_ns": "1794520476147916000",
+      "memory_capacity_bytes": "137438953472",
+      "vm_free_bytes": "47288745984",
+      "vm_active_bytes": "32704757760",
+      "vm_inactive_bytes": "47309357056",
+      "vm_wired_bytes": "6906265600",
+      "vm_compressor_bytes": "0",
+      "swap_total_bytes": "0",
+      "swap_used_bytes": "0",
+      "pressure_level": {
+        "value": "1"
+      },
+      "thermal_warning_level": {
+        "value": null,
+        "unavailable_reason": "not_recorded"
+      },
+      "gpu_utilization": {
+        "value": null,
+        "unavailable_reason": "not_collected"
+      },
+      "power_watts": {
+        "value": null,
+        "unavailable_reason": "permission_required"
+      },
+      "models": [
+        {
+          "name": "gemma:2b",
+          "digest": "b50d6c999e592ae4f79acae23b4feaefbdfceaa7cd366df2610e3072c052a160",
+          "size": 1799817788,
+          "size_vram": 1799817788,
+          "context_length": 512,
+          "quantization_level": "Q4_0"
+        }
+      ],
+      "selected_model_match_count": "1",
+      "excluded_model_count": "1",
+      "capture_end_ns": "1794520476182078000"
+    },
+    {
+      "capture_start_ns": "1794520478190356000",
+      "memory_capacity_bytes": "137438953472",
+      "vm_free_bytes": "47677980672",
+      "vm_active_bytes": "32709820416",
+      "vm_inactive_bytes": "47309389824",
+      "vm_wired_bytes": "6512590848",
+      "vm_compressor_bytes": "0",
+      "swap_total_bytes": "0",
+      "swap_used_bytes": "0",
+      "pressure_level": {
+        "value": "1"
+      },
+      "thermal_warning_level": {
+        "value": null,
+        "unavailable_reason": "not_recorded"
+      },
+      "gpu_utilization": {
+        "value": null,
+        "unavailable_reason": "not_collected"
+      },
+      "power_watts": {
+        "value": null,
+        "unavailable_reason": "permission_required"
+      },
+      "models": [
+        {
+          "name": "gemma:2b",
+          "digest": "b50d6c999e592ae4f79acae23b4feaefbdfceaa7cd366df2610e3072c052a160",
+          "size": 1799817788,
+          "size_vram": 1799817788,
+          "context_length": 512,
+          "quantization_level": "Q4_0"
+        }
+      ],
+      "selected_model_match_count": "1",
+      "excluded_model_count": "1",
+      "capture_end_ns": "1794520478228628000"
+    },
+    {
+      "capture_start_ns": "1794520480233961000",
+      "memory_capacity_bytes": "137438953472",
+      "vm_free_bytes": "47755231232",
+      "vm_active_bytes": "32632815616",
+      "vm_inactive_bytes": "47309389824",
+      "vm_wired_bytes": "6512345088",
+      "vm_compressor_bytes": "0",
+      "swap_total_bytes": "0",
+      "swap_used_bytes": "0",
+      "pressure_level": {
+        "value": "1"
+      },
+      "thermal_warning_level": {
+        "value": null,
+        "unavailable_reason": "not_recorded"
+      },
+      "gpu_utilization": {
+        "value": null,
+        "unavailable_reason": "not_collected"
+      },
+      "power_watts": {
+        "value": null,
+        "unavailable_reason": "permission_required"
+      },
+      "models": [
+        {
+          "name": "gemma:2b",
+          "digest": "b50d6c999e592ae4f79acae23b4feaefbdfceaa7cd366df2610e3072c052a160",
+          "size": 1799817788,
+          "size_vram": 1799817788,
+          "context_length": 512,
+          "quantization_level": "Q4_0"
+        }
+      ],
+      "selected_model_match_count": "1",
+      "excluded_model_count": "1",
+      "capture_end_ns": "1794520480261607000"
+    }
+  ]
+}
