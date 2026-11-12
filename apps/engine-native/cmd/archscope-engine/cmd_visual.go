@@ -110,7 +110,7 @@ func init() {
 		if e = doc.Spec.Validate(doc.View, true); e != nil {
 			return e
 		}
-		body, e = json.Marshal(map[string]any{"valid": true, "exact_dependencies_available": doc.Spec.Reproducible(), "new_image_rendering": "desktop_only", "view_sha256": doc.Spec.ViewSHA256})
+		body, e = json.Marshal(map[string]any{"valid": true, "required_images": visuals.Pages(doc.View, doc.Spec.Presentation), "exact_dependencies_available": doc.Spec.Reproducible(), "new_image_rendering": "desktop_only", "view_sha256": doc.Spec.ViewSHA256})
 		if e != nil {
 			return e
 		}

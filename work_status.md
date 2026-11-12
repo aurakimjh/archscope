@@ -3811,7 +3811,7 @@ Record all findings before moving original bytes (SHA-256: `8d4fc9a82b842592feb1
 | 1 / P2 | R14-01 | Narrow spreadsheet protection to actual formula/numeric/date risks; distinguish HTML/TSV/header behavior and disclose changed-cell counts. Locally fixed and verified: narrow 0.2.0 policy, per-format counts in artifact/bridge/UI, formula-only header treatment and current table reconstruction for old ZIPs. T-636 closure condition satisfied; independent final PASS not claimed. |
 | 2 / P3 | R14-02 | LOCALLY_FIXED; before new diff template expansion: pin delta/name ordering and zero-delta policy; label inclusive columns explicitly. Existing strict comparison values remain exact. |
 | 3 / P3 | R14-03 | LOCALLY_FIXED: refuse nonzero offset for profile views or bind a validated cursor; currently only cursor controls profile paging. |
-| 4 / P3 | R14-04 | Follow-up: validate required image count ≤5 during spec creation/validation, not only rendering. |
+| 4 / P3 | R14-04 | LOCALLY_FIXED: validate required image count ≤5 during spec creation/validation, not only rendering. |
 | 5 / P3 | R14-05 | Follow-up: stronger generator/pixel provenance or deterministic SVG comparison. Correct docs now: checksums detect corruption/partial changes, not authenticated authorship or PNG/view equivalence. |
 | 6 / P3 | R14-06 | Follow-up: font subsetting/dedup tradeoff. Document practical 5-page ~33 MB bundles / ~16 artifacts / at most 2 such Report Packs under current byte ceilings. |
 | 7 / P3 | R14-07 | Follow-up with R13-06: richer metric value projection for generic views/exports. Correct docs now: 0.2 generic detail/HTML/Report Pack contain point IDs/status and time/clock/ref; exact values remain dedicated metric query output. |
@@ -4806,3 +4806,5 @@ User authorized the21 remaining review follow-ups in listed order, one commit/it
 R14-02 LOCALLY_FIXED: Exact delta_abs/delta/name ordering, zero-delta policy pinned before paging, target-only frame names and inclusive columns; comparison percentages stay in the exact API. Targeted visual/profile integration tests passed. No new independent PASS; original parent verdicts and existing saved revisions are preserved.
 
 R14-03 LOCALLY_FIXED: Nonzero profile_top/profile_flamegraph offsets fail explicitly before result acquisition; profile.cursor remains the paging contract; diff/provider offsets and historical views unchanged. Targeted integration tests passed. No new independent PASS; original parent verdicts and existing saved revisions are preserved.
+
+R14-04 LOCALLY_FIXED: NewSpec/Spec.Validate reject more than5 images before rendering; required_images included in CLI validation and refusal guidance. Exact5/over5 boundary tests passed. No new independent PASS; original parent verdicts and existing saved revisions are preserved.

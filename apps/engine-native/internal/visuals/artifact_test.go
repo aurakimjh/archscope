@@ -259,3 +259,22 @@ func TestVisualDeepSelectedPageKeepsVisibleVerticalOrigin(t *testing.T) {
 		t.Fatal("deep query page rendered outside fixed canvas")
 	}
 }
+
+func TestR1404SpecRejectsTooManyImages(t *testing.T) {
+	view, spec, _, _ := sample(t)
+	row := view.Rows[0]
+	view.Rows = nil
+	for i := 0; i < 26; i++ {
+		view.Rows = append(view.Rows, row)
+	}
+	view.Total = 26
+	if _, e := v.NewSpec(view, spec.Presentation, ""); e == nil || !strings.Contains(e.Error(), "required_images=6") {
+		t.Fatal("late-only page refusal", e)
+	}
+	view.Rows = view.Rows[:25]
+	view.Total = 25
+	s, e := v.NewSpec(view, spec.Presentation, "")
+	if e != nil || v.Pages(view, s.Presentation) != 5 {
+		t.Fatal(e)
+	}
+}

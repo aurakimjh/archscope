@@ -166,3 +166,5 @@ R15-06: spreadsheet-text-0.2.1 leaves ordinary decimal numbers (0.1, 1.5, 3.14, 
 New profile_diff views default to sort=delta_abs and omit_zero_delta=true; delta (descending signed) and name are explicit alternatives. Ties use frame name and node ID. Policies are stored in the view/spec before paging. Columns are explicitly inclusive. Percent/share deltas remain in the exact comparison API; the six-column image does not add them. Saved frozen views remain unchanged.
 
 Profile visual queries require offset=0 and page through profile.cursor. Nonzero offsets fail VISUAL_QUERY_INVALID before acquiring a result; diff/provider views continue to use offset. Historical saved views are read without reinterpretation.
+
+Spec creation and validation enforce required_images ≤5 before rendering. CLI visual validate returns required_images; over-budget errors include the needed image count and limit.

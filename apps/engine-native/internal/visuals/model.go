@@ -175,6 +175,9 @@ func (s Spec) Validate(view View, historical bool) error {
 	if e := s.Presentation.Validate(); e != nil {
 		return e
 	}
+	if needed := Pages(view, s.Presentation); needed > 5 {
+		return fmt.Errorf("VISUAL_PAGE_BUDGET: required_images=%d limit=5; choose fewer rows or increase rows_per_page", needed)
+	}
 	if s.Version != Version || s.ViewSHA256 != Hash(view) || s.Template != view.Kind || Hash(s.Sources) != Hash(view.Sources) || Hash(s.Query) != Hash(view.Query) || len(s.Parent) > 96 {
 		return fmt.Errorf("VISUAL_SPEC_BINDING_MISMATCH")
 	}
