@@ -191,8 +191,9 @@ func TestActivationRollbackPinsAndOfflineRevocation(t *testing.T) {
 	if e = m.ApplyTrustUpdate(context.Background(), state(t, m).Revision, body, sig); e != nil {
 		t.Fatal(e)
 	}
-	if _, e = m.Snapshot(context.Background(), ""); e == nil {
-		t.Fatal("revoked active signer remained available to new jobs")
+	dormant, e := m.Snapshot(context.Background(), "")
+	if e != nil || len(dormant.Mappings) != 0 || len(dormant.Refs) != 0 || len(dormant.Unavailable) != 1 || dormant.Unavailable[0].Code != "PACK_SIGNER_UNTRUSTED" {
+		t.Fatal("revoked pack must be dormant without blocking administration", dormant, e)
 	}
 	if _, e = m.Rollback(context.Background(), state(t, m).Revision, "application", first.SHA256, nil); e == nil {
 		t.Fatal("revoked rollback accepted")

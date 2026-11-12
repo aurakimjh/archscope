@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/resultcontract"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/wirejson"
 	"math/big"
 	"regexp"
@@ -158,6 +159,9 @@ func (m Mapping) Evaluate(raw []byte) (Record, error) {
 	metric, ok := name.(string)
 	if !ok || metric == "" || len(metric) > 256 {
 		return Record{}, problem("PACK_INPUT_INVALID", "metric name must be bounded text")
+	}
+	if resultcontract.ContainsDisplayControls(metric) {
+		return Record{}, problem("PACK_INPUT_INVALID", "metric name contains control or bidirectional formatting characters")
 	}
 	value, e := aliases(obj, m.ValuePaths)
 	if e != nil {

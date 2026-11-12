@@ -44,7 +44,8 @@ func readPackInput(path string, limit int) ([]byte, error) {
 }
 func init() {
 	var store, scope, hash, revision, choices, input, output, signature string
-	var unsigned bool
+	var unsigned, previewOnly bool
+	var reviewedSHA string
 	group := &cobra.Command{Use: "packs", Short: "Offline data-only packs, explicit trust, conformance, activation and rollback."}
 	group.PersistentFlags().StringVar(&store, "store", "", "pack-store override, distinct from case-store")
 	open := func(ctx context.Context) (*catalog.PackSession, error) {
@@ -74,7 +75,7 @@ func init() {
 		group.AddCommand(cmd)
 		return cmd
 	}
-	command("list", "List installed versions, scopes, active revisions and explicit alias choices.", func(_ context.Context, m *packs.Manager) (any, error) { return m.State() })
+	command("list", "List installed versions, scopes, active revisions and explicit alias choices.", func(ctx context.Context, m *packs.Manager) (any, error) { return m.Status(ctx) })
 	cmd := command("install", "Verify signature/compatibility/data budgets and conformance, then stage an immutable revision without activation.", func(ctx context.Context, m *packs.Manager) (any, error) {
 		b, e := readPackInput(input, packs.MaxArchiveBytes)
 		if e != nil {
@@ -132,12 +133,28 @@ func init() {
 		if e != nil {
 			return nil, e
 		}
-		e = m.ApplyTrustUpdate(ctx, revision, b, sig)
+		preview, e := m.PreviewTrustUpdate(ctx, revision, b, sig)
+		if e != nil {
+			return nil, e
+		}
+		if previewOnly {
+			return preview, nil
+		}
+		if reviewedSHA == "" && (len(preview.Affected) > 0 || len(preview.Problems) > 0) {
+			return nil, &packs.Error{Code: "PACK_TRUST_REVIEW_REQUIRED", Message: "run update-trust --preview, review affected packs, then pass --reviewed-sha256 " + preview.ReviewSHA256}
+		}
+		reviewed := reviewedSHA
+		if reviewed == "" {
+			reviewed = preview.ReviewSHA256
+		}
+		e = m.ApplyReviewedTrustUpdate(ctx, revision, b, sig, reviewed)
 		return map[string]bool{"updated": e == nil}, e
 	})
 	cmd.Flags().StringVar(&revision, "revision", "", "current state revision")
 	cmd.Flags().StringVar(&input, "in", "", "TrustUpdate JSON")
 	cmd.Flags().StringVar(&signature, "signature", "", "detached signature envelope JSON")
+	cmd.Flags().BoolVar(&previewOnly, "preview", false, "validate and show exact-byte trust update impact without changing state")
+	cmd.Flags().StringVar(&reviewedSHA, "reviewed-sha256", "", "review_sha256 from the exact preview; required when active packs are affected")
 	cmd = command("export", "Export a retained verified pack or explicitly scoped local preset unchanged.", func(ctx context.Context, m *packs.Manager) (any, error) {
 		b, e := m.Export(ctx, scope, hash)
 		if e != nil {

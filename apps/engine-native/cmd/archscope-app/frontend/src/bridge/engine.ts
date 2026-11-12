@@ -436,7 +436,9 @@ export const exportEvidenceResult = (handle: string, path: string, format: strin
 export const cleanupEvidenceCache = () => call<{ removed: number; bytes_removed: number; retained_owned: number }>("CleanupEvidenceCache");
 
 export type PackRef = { id: string; version: string; sha256: string; origin: string; scope: string; signer: string };
-export type PackState = { revision: string; trust_sequence: string; keys: Record<string, { id: string; public_key: string; manage_trust: boolean; revoked: boolean }>; installed: Record<string, PackRef>; active: Record<string, string>; choices: Record<string, string> };
+export type UnavailablePack = { pack: PackRef; code: string; dependency?: string };
+export type PackTrustPreview = { expected_revision: string; sequence: string; review_sha256: string; signer: string; add: Array<{id: string; public_key: string; manage_trust: boolean}>; revoke: string[]; affected: UnavailablePack[]; problems: Array<{scope: string; code: string}> };
+export type PackState = { unavailable?: UnavailablePack[]; problems?: Array<{scope: string; code: string}>; revision: string; trust_sequence: string; keys: Record<string, { id: string; public_key: string; manage_trust: boolean; revoked: boolean }>; installed: Record<string, PackRef>; active: Record<string, string>; choices: Record<string, string> };
 export const getPackState = async (): Promise<PackState> => JSON.parse(await call<string>("GetPackState"));
 export const installDataPack = (path: string, scope: string, allowUnsigned: boolean) => call<string>("InstallDataPack", path, JSON.stringify({ scope, allow_unsigned: allowUnsigned }));
 export const activateDataPack = (revision: string, ref: PackRef, choices: string, rollback: boolean) => call<string>("ActivateDataPack", JSON.stringify({ expected_revision: revision, scope: ref.scope, sha256: ref.sha256, choices: JSON.parse(choices), rollback }));
@@ -447,3 +449,6 @@ export const exportDataPack = (ref: PackRef, path: string) => call<void>("Export
 export const getOfflineStatus = async (): Promise<{ offline: boolean; denied_attempts: Record<string, number> }> => JSON.parse(await call<string>("GetOfflineStatus"));
 export const recordOfflineRendererViolation = () => call<void>("RecordOfflineRendererViolation");
 export const listScopedEvidenceImporters = async (scope: string): Promise<Array<{ id: string; limitations: string[] }>> => JSON.parse(await call<string>("ListEvidenceImportersForScope", scope));
+
+export const previewOfflinePackTrust = async (revision: string, bodyPath: string, signaturePath: string): Promise<PackTrustPreview> => JSON.parse(await call<string>("PreviewOfflinePackTrust", revision, bodyPath, signaturePath));
+export const commitOfflinePackTrust = (preview: PackTrustPreview, bodyPath: string, signaturePath: string) => call<void>("CommitOfflinePackTrust", preview.expected_revision, bodyPath, signaturePath, preview.review_sha256);

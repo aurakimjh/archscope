@@ -128,7 +128,22 @@ type Revision struct {
 	Mappings  []Mapping
 	Ref       Ref
 }
+type UnavailablePack struct {
+	Pack       Ref    `json:"pack"`
+	Code       string `json:"code"`
+	Dependency string `json:"dependency,omitempty"`
+}
+type ScopeProblem struct {
+	Scope string `json:"scope"`
+	Code  string `json:"code"`
+}
+type Status struct {
+	State
+	Unavailable []UnavailablePack `json:"unavailable"`
+	Problems    []ScopeProblem    `json:"problems"`
+}
 type Snapshot struct {
+	Unavailable   []UnavailablePack `json:"unavailable,omitempty"`
 	Revision      string            `json:"revision"`
 	TrustSequence string            `json:"trust_sequence"`
 	Refs          []Ref             `json:"packs"`
@@ -215,4 +230,15 @@ func nextRevision(v string) (string, error) {
 		return "", fmt.Errorf("invalid revision")
 	}
 	return strconv.FormatUint(n+1, 10), nil
+}
+
+func validStoredRef(ref Ref) bool {
+	_, versionOK := resultcontract.Version(ref.Version)
+	if !ID.MatchString(ref.ID) || !versionOK || ref.Bytes <= 0 || ref.Bytes > MaxExpandedBytes {
+		return false
+	}
+	if ref.Origin == "signed" {
+		return ref.Scope == "application" && ID.MatchString(ref.Signer)
+	}
+	return ref.Origin == "locally_authored" && ref.Scope != "application" && ref.Signer == ""
 }

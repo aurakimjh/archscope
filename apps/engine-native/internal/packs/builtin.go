@@ -4,6 +4,7 @@ import (
 	"context"
 	"embed"
 	"encoding/json"
+	"errors"
 )
 
 //go:embed assets/*
@@ -34,6 +35,12 @@ func OpenDefault(ctx context.Context, root string, check func(Snapshot) error) (
 	}
 	r, e := m.Install(ctx, b, InstallOptions{})
 	if e != nil {
+		var issue *Error
+		// Administrative recovery must remain usable after an intentional owner
+		// rotation. Never resurrect bundled trust or rewrite desired active state.
+		if errors.As(e, &issue) && issue.Code == "PACK_SIGNER_UNTRUSTED" {
+			return m, nil
+		}
 		return closeFail(e)
 	}
 	s, e := m.State()

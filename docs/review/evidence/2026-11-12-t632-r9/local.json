@@ -1,0 +1,169 @@
+{
+  "task": "T-632 R9-01 to R9-04",
+  "status": "DONE under original independent review conditional closure permission",
+  "recorded_at": "2026-11-12T08:59:51.416509+09:00",
+  "pull_before_work": {
+    "head": "0f7e41d958c2d4b2a97f8d222d19e011427c83af",
+    "result": "Already up to date before edits; fetch/pull repeated before commit"
+  },
+  "source_base_commit": "0f7e41d958c2d4b2a97f8d222d19e011427c83af",
+  "review_verdict": "Original CONDITIONAL preserved; explicit after-R9-01-remediation closure condition locally verified; final fixes not independently re-reviewed",
+  "source_sha256": {
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/engineservice.ts": "3daf179a7613d20272bc8d262da33a20b9a7ebc72d969fb3c1b89e6f91e3560b",
+    "apps/engine-native/cmd/archscope-app/frontend/src/bridge/engine.ts": "7fe9c929139325ee74d6bb7269d676a0134ed2969c7d49a7fd168d15a7701e0d",
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/PackSettings.tsx": "59887d1bcfe5288751233fe87d5051c2e6bf3bcf122c29c3bb7dd4897e257a89",
+    "apps/engine-native/cmd/archscope-app/pack_review_r9_test.go": "2e66cf225ddba8cc39fe1cb6956bfa491bf49e5a19a7b676a10a1bf7761db474",
+    "apps/engine-native/cmd/archscope-app/packservice.go": "760780086a97a66da0a6742b6ab1b36505060d3e79bc69c13c8581f183c09100",
+    "apps/engine-native/cmd/archscope-engine/cmd_packs.go": "d0b87c239f3916a5e9c1fef76aa443efde7565de3bf8317d192981ae840bc42c",
+    "apps/engine-native/cmd/archscope-engine/cmd_packs_r9_test.go": "86aadd971ba45f4dc2602aa1fc6207dbfaa395e6c34ce5ab86ba59b710b5381b",
+    "apps/engine-native/internal/catalog/review_r9_test.go": "4784a4172422d9d815d0732db7b16cfc735d1020e73a6692ad69179ad309842d",
+    "apps/engine-native/internal/distribution/assets/docs/en/OFFLINE_PACKS.md": "b065014d3c3914518986ba7a2cb625fb6e648cfbc07a678e80a9bc0f5ff30613",
+    "apps/engine-native/internal/distribution/assets/docs/ko/OFFLINE_PACKS.md": "abb2d64645048fd022fff30ad46416e39c4927dbae570dd8393d749ce8e53cc6",
+    "apps/engine-native/internal/packs/builtin.go": "5b13a6c348fab1d584cdf897fae188a0140cb17515bd2ebb755e9be4b30ad420",
+    "apps/engine-native/internal/packs/cache.go": "c2cd9042c589dac355365df9bf7633d2bc4cbd82c9ef2c346389dec5f4baa95d",
+    "apps/engine-native/internal/packs/mapping.go": "c469b58b0dd6d6cdd499447c202a0f0e1aaebeebcc569d80b898c5f6bba01b60",
+    "apps/engine-native/internal/packs/model.go": "b4ad2416fb00505976380a630956cd3dcae1d9f55656e59a17be7feb0169301b",
+    "apps/engine-native/internal/packs/packs_test.go": "51af7e2761c090e276bf71fc911f203c5a03cb39a853109f8c3844456cf15baa",
+    "apps/engine-native/internal/packs/review_r9_test.go": "dd01cb6c701db7e6a7d054921f486f1d01459768e8a56f84c66cb82a16f91a02",
+    "apps/engine-native/internal/packs/store.go": "faf087af0c79e39469cd231770b10fd547aa145926e68c42aa4c6b8d0ecdcc82",
+    "apps/engine-native/internal/packs/trust.go": "7ca483d1381cc0802ae8ec1503a605e737a12eaaf3c7951923194134accd15ab",
+    "apps/engine-native/internal/resultcontract/providers.go": "156d0294d011b35eb3b74e38fc8427c7cb48aa96ddf02b272b73024d214bf2f3",
+    "docs/en/OFFLINE_PACKS.md": "b065014d3c3914518986ba7a2cb625fb6e648cfbc07a678e80a9bc0f5ff30613",
+    "docs/ko/OFFLINE_PACKS.md": "abb2d64645048fd022fff30ad46416e39c4927dbae570dd8393d749ce8e53cc6",
+    "docs/review/README.md": "da8d1c5a39e741f9de9d00c71d39c3ab327eb7e286201dfbac0bcf3d646450fd",
+    "work_status.md": "b0ccb9e0044cf08298f8ea13df14475905154d1b7581d7f91d1a0d01f05348d6"
+  },
+  "review_archive": {
+    "path": "docs/review/done/2026-11-12_claude-code_T-632_implementation-review.ko.md",
+    "sha256": "7ef036ca2d1a1d4b8ea900efa85bbd33c9dda061bec8abf0a8635c385d205ee3",
+    "original_preserved": true
+  },
+  "findings": {
+    "R9-01": "Bootstrap revoked/missing signer skips bundled install only. Recovery remains open; dormant desired packs/dependents excluded from fresh snapshots, unaffected and builtin imports survive, prior pins persist. Exact state/update/signature review SHA prevents applying stale or changed previews. Raw retained-byte backup does not grant activation trust. Restart/register/deactivate/replacement/CLI/bridge/import tests pass.",
+    "R9-02": "Application activation and rollback validate every active user/case scope before commit. Four order/scope cases assert failure leaves exact state unchanged. Previously usable dependents cannot be silently suspended by activation.",
+    "R9-03": "One load per usable revision per Snapshot; bounded 64-entry/80 MiB charge verification LRU keyed by scope, archive SHA, trust sequence and key fingerprint. Every access hashes disk bytes, current signer is checked before cache, mappings copied to callers. Cache clears on trust commit and Close. Admission units are not measured RSS.",
+    "R9-04": "Shared display-control predicate rejects C0/C1/BiDi in newly mapped metric names; Unicode and decimals remain exact. Saved legacy unsafe names remain readable, escaped by display providers and exact on raw export."
+  },
+  "checks": [
+    {
+      "check": "Full Go race: 99 passing packages, 1445 passing tests, six explicit skips, zero failures",
+      "result": "PASS"
+    },
+    {
+      "check": "Host go vet ./... and go build ./...",
+      "result": "PASS"
+    },
+    {
+      "check": "Windows amd64 and 386 go vet ./...",
+      "result": "PASS"
+    },
+    {
+      "check": "Windows amd64 and 386 production desktop builds using pinned SDK wrapper",
+      "result": "PASS"
+    },
+    {
+      "check": "Wails bindings regenerated (context injected; JS GetPackState still has no arguments)",
+      "result": "PASS"
+    },
+    {
+      "check": "Frontend npm run test:state and npm run build",
+      "result": "PASS"
+    },
+    {
+      "check": "Production macOS package and codesign --verify --deep --strict",
+      "result": "PASS"
+    },
+    {
+      "check": "Mandatory embedded offline asset parity",
+      "result": "PASS"
+    },
+    {
+      "check": "Desktop-only check with server build refusal",
+      "result": "PASS"
+    },
+    {
+      "check": "Fresh Linux arm64 CLI network-none fixture/formats/import/list process trees and failed-network positive control",
+      "result": "PASS"
+    },
+    {
+      "check": "Actual CLI reviewed trust update / restart / backup / builtin import / recovery regression",
+      "result": "PASS"
+    },
+    {
+      "check": "Desktop bridge preview / commit / reopen / importer list / deactivate integration",
+      "result": "PASS"
+    }
+  ],
+  "race_summary": "race-summary.json",
+  "artifacts": {
+    "desktop_darwin_arm64": {
+      "bytes": 31270656,
+      "sha256": "d162cb0674d5edf2fd2caaa707fb50f62612c7dd519be5ffa11a9d897323e931"
+    },
+    "desktop_windows_amd64": {
+      "bytes": 42677248,
+      "sha256": "413893c90b11ca756a888c626884a76b168e48758ffbf82c4becf6bc7b56b9b5"
+    },
+    "desktop_windows_386": {
+      "bytes": 41357312,
+      "sha256": "2ce5544e02f4682047216a75ac986e8fa25414354b1924725829d4e781dedaf3"
+    },
+    "cli_linux_arm64": {
+      "bytes": 30025055,
+      "sha256": "eb8699c4a60b1e530ec0d9cf880861e73316c9ccf72019705ada5e53839e74f6"
+    }
+  },
+  "performance": {
+    "scope": "single local warm synthetic fixture under race; not a general benchmark or Windows/RSS guarantee",
+    "expanded_bytes": 13345958,
+    "active_packs": 2,
+    "warm_snapshots": 20,
+    "elapsed_ms": 4.323084,
+    "cache_entries": 2,
+    "cache_admission_charge_bytes": 26822988
+  },
+  "offline_observation": "offline-summary.json",
+  "native_mac_ui": {
+    "result": "NOT OBSERVED",
+    "reason": "CUA reported the Mac locked and automatic unlock unavailable. No new R9 UI interaction or native browser outbound claim. Production package and actual bridge integration passed separately."
+  },
+  "not_run": [
+    "Native Windows Fixed Version launch/UI/browser outbound observation (Windows-PC acceptance)",
+    "Independent final R9 re-review",
+    "Hosted CI",
+    "Real producer qualification",
+    "Hardware power-loss durability",
+    "Desktop outbound syscall observation"
+  ],
+  "preserved_unrelated_work": [
+    "docs/en/SYSTEM_HTTP_CAPTURE.md",
+    "docs/ko/SYSTEM_HTTP_CAPTURE.md",
+    "scripts/verify-http-desktop.mjs",
+    "original HTTP work_status.md paragraph"
+  ],
+  "status_counts": {
+    "DONE": 215,
+    "TODO": 4,
+    "PENDING": 10,
+    "REVIEW": 3,
+    "IN_PROGRESS": 0,
+    "total": 232
+  },
+  "evidence_sha256": {
+    "offline-operation-0.json": "19e55c88003b10713a7bcb75b83166608adb2a0ec775aa8af63c8b66f906bfc2",
+    "offline-operation-0.output.json": "3f7b56b437c97576a791533dcef61871d394b4437e6fd116c1cc98197944319c",
+    "offline-operation-0.strace": "4ba5b80a2f268f30e1544f74ee9c1fbe57f791eb94436480236879175b3bd026",
+    "offline-operation-1.json": "19e55c88003b10713a7bcb75b83166608adb2a0ec775aa8af63c8b66f906bfc2",
+    "offline-operation-1.output.json": "2bb59ee05a1177f30957061634e41998e18d505e7f191a4c48294f68f526f6ce",
+    "offline-operation-1.strace": "6a796ea4719203ddb14b79aaa37412ff30a798711acaf54adb6c50f78ac84ef8",
+    "offline-operation-2.json": "19e55c88003b10713a7bcb75b83166608adb2a0ec775aa8af63c8b66f906bfc2",
+    "offline-operation-2.output.json": "88cf2a5d16d8f233599278cd76c609134476bf9a7caae9621460ac8fc87844d9",
+    "offline-operation-2.strace": "8e8c22f328e94158bb9486567bc59116a3b0fdfb6876ea2a73161c8ee7a99560",
+    "offline-operation-3.json": "19e55c88003b10713a7bcb75b83166608adb2a0ec775aa8af63c8b66f906bfc2",
+    "offline-operation-3.output.json": "4403ae63f7f811c71695158ed098717efa71cb93342cd1d2aa7edb058a07f725",
+    "offline-operation-3.strace": "61a0e99daf5617b62b382edccbf8c48cd8ada7046d0fcca0b8b2a6a3a2f0cb67",
+    "offline-positive-control.strace": "64ee16fa2276a55eca2007d794977d5bf1a2952af4efb5122b4d30401e92cbb1",
+    "offline-summary.json": "05d224f1b709b558106c9e2e27ebde9f357b84168b865d29e3b7162f92b38714",
+    "race-summary.json": "e89dfe84332f92e8af85cd73337fee17b939e1be012f1920d9bddd15b5b93d5e"
+  }
+}

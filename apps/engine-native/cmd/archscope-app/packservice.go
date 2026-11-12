@@ -40,12 +40,12 @@ func packFile(p string, limit int) ([]byte, error) {
 	}
 	return b, e
 }
-func (s *EngineService) GetPackState() (string, error) {
+func (s *EngineService) GetPackState(ctx context.Context) (string, error) {
 	m, e := s.packManager()
 	if e != nil {
 		return "", e
 	}
-	return caseJSON(m.State())
+	return caseJSON(m.Status(ctx))
 }
 func (s *EngineService) InstallDataPack(ctx context.Context, path, optionsJSON string) (string, error) {
 	var opts packs.InstallOptions
@@ -100,12 +100,30 @@ func (s *EngineService) RegisterPackTrustKey(ctx context.Context, expected, keyJ
 	}
 	return m.RegisterKey(ctx, expected, key)
 }
-func (s *EngineService) ApplyOfflinePackTrust(ctx context.Context, expected, path, signaturePath string) error {
+func trustFiles(path, signaturePath string) ([]byte, []byte, error) {
 	body, e := packFile(path, packs.MaxManifestBytes)
 	if e != nil {
-		return e
+		return nil, nil, e
 	}
-	sig, e := packFile(signaturePath, 2048)
+	signature, e := packFile(signaturePath, 2048)
+	return body, signature, e
+}
+func (s *EngineService) PreviewOfflinePackTrust(ctx context.Context, expected, path, signaturePath string) (string, error) {
+	body, signature, e := trustFiles(path, signaturePath)
+	if e != nil {
+		return "", e
+	}
+	m, e := s.packManager()
+	if e != nil {
+		return "", e
+	}
+	return caseJSON(m.PreviewTrustUpdate(ctx, expected, body, signature))
+}
+
+// Keep the legacy entry point for non-impacting updates, while refusing silent
+// suspension of active packs. New clients review and commit exact bytes below.
+func (s *EngineService) ApplyOfflinePackTrust(ctx context.Context, expected, path, signaturePath string) error {
+	body, signature, e := trustFiles(path, signaturePath)
 	if e != nil {
 		return e
 	}
@@ -113,7 +131,25 @@ func (s *EngineService) ApplyOfflinePackTrust(ctx context.Context, expected, pat
 	if e != nil {
 		return e
 	}
-	return m.ApplyTrustUpdate(ctx, expected, body, sig)
+	preview, e := m.PreviewTrustUpdate(ctx, expected, body, signature)
+	if e != nil {
+		return e
+	}
+	if len(preview.Affected) > 0 || len(preview.Problems) > 0 {
+		return &packs.Error{Code: "PACK_TRUST_REVIEW_REQUIRED", Message: "preview affected packs, then commit the reviewed update"}
+	}
+	return m.ApplyReviewedTrustUpdate(ctx, expected, body, signature, preview.ReviewSHA256)
+}
+func (s *EngineService) CommitOfflinePackTrust(ctx context.Context, expected, path, signaturePath, reviewedSHA string) error {
+	body, signature, e := trustFiles(path, signaturePath)
+	if e != nil {
+		return e
+	}
+	m, e := s.packManager()
+	if e != nil {
+		return e
+	}
+	return m.ApplyReviewedTrustUpdate(ctx, expected, body, signature, reviewedSHA)
 }
 func (s *EngineService) ExportDataPack(ctx context.Context, scope, hash, destination string) error {
 	m, e := s.packManager()

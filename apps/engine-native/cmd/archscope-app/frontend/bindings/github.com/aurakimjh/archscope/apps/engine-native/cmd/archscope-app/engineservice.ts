@@ -280,6 +280,10 @@ export function AnalyzeTraceImport(req: $models.TraceImportRequest): $Cancellabl
     });
 }
 
+/**
+ * Keep the legacy entry point for non-impacting updates, while refusing silent
+ * suspension of active packs. New clients review and commit exact bytes below.
+ */
 export function ApplyOfflinePackTrust(expected: string, path: string, signaturePath: string): $CancellablePromise<void> {
     return $Call.ByID(1358835293, expected, path, signaturePath);
 }
@@ -320,6 +324,10 @@ export function CleanupEvidenceCache(): $CancellablePromise<analysis$0.CacheClea
     return $Call.ByID(2184553234).then(($result: any) => {
         return $$createType6($result);
     });
+}
+
+export function CommitOfflinePackTrust(expected: string, path: string, signaturePath: string, reviewedSHA: string): $CancellablePromise<void> {
+    return $Call.ByID(1662684990, expected, path, signaturePath, reviewedSHA);
 }
 
 export function CompareEvidenceProvider(baseline: string, target: string, provider: string): $CancellablePromise<analysis$0.ProviderComparison> {
@@ -576,6 +584,10 @@ export function OpenEvidenceResult(path: string): $CancellablePromise<analysis$0
 
 export function PreviewCaseArchive(path: string): $CancellablePromise<string> {
     return $Call.ByID(2681488525, path);
+}
+
+export function PreviewOfflinePackTrust(expected: string, path: string, signaturePath: string): $CancellablePromise<string> {
+    return $Call.ByID(2430853, expected, path, signaturePath);
 }
 
 export function ProjectJenniferDrilldown(req: $models.JenniferDrilldownRequest): $CancellablePromise<api$0.AnalysisResult> {

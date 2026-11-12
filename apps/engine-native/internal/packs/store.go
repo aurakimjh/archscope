@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"sort"
@@ -25,12 +26,15 @@ type State struct {
 	Choices       map[string]string `json:"choices"`
 }
 type Manager struct {
-	mu     sync.Mutex
-	root   *os.Root
-	lock   *os.File
-	state  State
-	check  func(Snapshot) error
-	closed bool
+	verified       map[string]*verifiedEntry
+	verifiedCharge int64
+	verifiedClock  uint64
+	mu             sync.Mutex
+	root           *os.Root
+	lock           *os.File
+	state          State
+	check          func(Snapshot) error
+	closed         bool
 }
 
 func Open(directory string, bootstrap []Key, check func(Snapshot) error) (*Manager, error) {
@@ -116,6 +120,7 @@ func (m *Manager) Close() error {
 		return nil
 	}
 	m.closed = true
+	m.clearVerified()
 	return errors.Join(m.lock.Close(), m.root.Close())
 }
 func (m *Manager) read(p string, limit int) ([]byte, error) {
@@ -156,7 +161,7 @@ func (m *Manager) validateState() error {
 		}
 	}
 	for key, ref := range m.state.Installed {
-		if key != ref.Scope+"|"+ref.SHA256 || !scopeOK(ref.Scope) || !hashRE.MatchString(ref.SHA256) || !hashRE.MatchString(ref.ArchiveSHA256) {
+		if !validStoredRef(ref) || key != ref.Scope+"|"+ref.SHA256 || !scopeOK(ref.Scope) || !hashRE.MatchString(ref.SHA256) || !hashRE.MatchString(ref.ArchiveSHA256) {
 			return problem("PACK_STORE_INVALID", "invalid installed reference")
 		}
 	}
@@ -227,6 +232,9 @@ func (m *Manager) commit(ctx context.Context, s State) error {
 	}
 	if e = m.root.Rename("state.next", "state.json"); e != nil {
 		return e
+	}
+	if m.state.TrustSequence != s.TrustSequence {
+		m.clearVerified()
 	}
 	m.state = s
 	return nil
@@ -311,24 +319,46 @@ func (m *Manager) Install(ctx context.Context, body []byte, opts InstallOptions)
 	return r.Ref, nil
 }
 func (m *Manager) load(ctx context.Context, s State, scope, hash string) (Revision, error) {
+	if e := ctx.Err(); e != nil {
+		return Revision{}, e
+	}
 	ref, ok := s.Installed[scope+"|"+hash]
 	if !ok {
 		return Revision{}, problem("PACK_NOT_INSTALLED", "install a verified revision before activation")
 	}
-	b, e := m.read("versions/"+hash+".zip", MaxArchiveBytes)
+	if ref.Origin == "signed" {
+		key, exists := s.Keys[ref.Signer]
+		if !exists || key.Revoked {
+			return Revision{}, problem("PACK_SIGNER_UNTRUSTED", "pack "+ref.ID+" in "+scope+" is dormant; deactivate it in Settings or with packs deactivate --scope "+scope+" --id "+ref.ID)
+		}
+	}
+	body, e := m.read("versions/"+hash+".zip", MaxArchiveBytes)
 	if e != nil {
 		return Revision{}, e
 	}
-	if Hash(b) != ref.ArchiveSHA256 {
+	if Hash(body) != ref.ArchiveSHA256 {
 		return Revision{}, problem("PACK_HASH_MISMATCH", "stored immutable archive changed")
 	}
-	r, e := Validate(ctx, b, s.Keys, InstallOptions{AllowUnsigned: ref.Origin == "locally_authored", Scope: scope})
+	if e = ctx.Err(); e != nil {
+		return Revision{}, e
+	}
+	key := verificationKey(s, ref)
+	if cached := m.verified[key]; cached != nil && cached.revision.Ref == ref {
+		m.verifiedClock++
+		cached.used = m.verifiedClock
+		return cached.revision, nil
+	}
+	r, e := Validate(ctx, body, s.Keys, InstallOptions{AllowUnsigned: ref.Origin == "locally_authored", Scope: scope})
 	if e != nil {
 		return r, e
 	}
 	if r.Ref != ref {
 		return r, problem("PACK_STORE_INVALID", "stored revision identity changed")
 	}
+	if e = ctx.Err(); e != nil {
+		return Revision{}, e
+	}
+	m.cacheRevision(ctx, key, r)
 	return r, nil
 }
 func (m *Manager) snapshot(ctx context.Context, s State, scope string) (Snapshot, error) {
@@ -338,7 +368,7 @@ func (m *Manager) snapshot(ctx context.Context, s State, scope string) (Snapshot
 	if !scopeOK(scope) {
 		return Snapshot{}, problem("PACK_SCOPE_INVALID", "select application/user/case scope explicitly")
 	}
-	out := Snapshot{Revision: s.Revision, TrustSequence: s.TrustSequence, Refs: []Ref{}, Mappings: []Mapping{}, Choices: map[string]string{}}
+	out := Snapshot{Revision: s.Revision, TrustSequence: s.TrustSequence, Refs: []Ref{}, Mappings: []Mapping{}, Choices: map[string]string{}, Unavailable: []UnavailablePack{}}
 	keys := []string{}
 	for key := range s.Active {
 		if strings.HasPrefix(key, "application|") || strings.HasPrefix(key, scope+"|") {
@@ -346,54 +376,66 @@ func (m *Manager) snapshot(ctx context.Context, s State, scope string) (Snapshot
 		}
 	}
 	sort.Strings(keys)
+	revisions := map[string]Revision{}
+	unavailable := map[string]UnavailablePack{}
 	total := 0
-	ids := map[string]Ref{}
 	for _, key := range keys {
 		if e := ctx.Err(); e != nil {
 			return out, e
 		}
-		p := strings.SplitN(key, "|", 2)
-		r, e := m.load(ctx, s, p[0], s.Active[key])
-		if e != nil {
-			return out, e
-		}
-		if r.Ref.ID != p[1] {
+		parts := strings.SplitN(key, "|", 2)
+		ref, ok := s.Installed[parts[0]+"|"+s.Active[key]]
+		if !ok || ref.ID != parts[1] {
 			return out, problem("PACK_STORE_INVALID", "active identity mismatch")
 		}
-		if _, ok := ids[r.Ref.ID]; ok {
-			return out, problem("PACK_ALIAS_CONFLICT", "same pack ID in selected scopes; select a distinct local ID")
-		}
-		ids[r.Ref.ID] = r.Ref
-		total += r.Ref.Bytes
+		total += ref.Bytes
 		if total > MaxActiveBytes {
 			return out, problem("PACK_BUDGET_EXCEEDED", "active pack memory budget")
 		}
-		out.Refs = append(out.Refs, r.Ref)
-		out.Mappings = append(out.Mappings, r.Mappings...)
-	}
-	for _, key := range keys {
-		p := strings.SplitN(key, "|", 2)
-		r, e := m.load(ctx, s, p[0], s.Active[key])
-		if e != nil {
-			return out, e
-		}
-		for _, d := range r.Manifest.Dependencies {
-			ref, ok := ids[d.ID]
-			if !ok || ref.SHA256 != d.SHA256 || !d.Version.accepts(ref.Version) {
-				return out, problem("PACK_DEPENDENCY_UNSATISFIED", "activate exact compatible dependency revisions first")
+		if ref.Origin == "signed" {
+			signer, ok := s.Keys[ref.Signer]
+			if !ok || signer.Revoked {
+				unavailable[key] = UnavailablePack{Pack: ref, Code: "PACK_SIGNER_UNTRUSTED"}
+				continue
 			}
 		}
-	}
-	// Dependency cycles are forbidden even if every version is present.
-	graph := map[string][]string{}
-	for _, key := range keys {
-		p := strings.SplitN(key, "|", 2)
-		r, e := m.load(ctx, s, p[0], s.Active[key])
+		r, e := m.load(ctx, s, parts[0], s.Active[key])
 		if e != nil {
 			return out, e
 		}
-		for _, d := range r.Manifest.Dependencies {
-			graph[r.Ref.ID] = append(graph[r.Ref.ID], d.ID)
+		revisions[key] = r
+	}
+	// One decoded revision per selected pack. Dependency checks and cycle checks
+	// reuse these values; dormant dependencies propagate without executing them.
+	ids := map[string]Revision{}
+	owners := map[string]string{}
+	for _, key := range keys {
+		r, ok := revisions[key]
+		if !ok {
+			continue
+		}
+		if _, exists := ids[r.Ref.ID]; exists {
+			return out, problem("PACK_ALIAS_CONFLICT", "same pack ID in selected scopes; choose a distinct local ID")
+		}
+		ids[r.Ref.ID] = r
+		owners[r.Ref.ID] = key
+	}
+	for changed := true; changed; {
+		changed = false
+		for _, key := range keys {
+			r, ok := revisions[key]
+			if !ok || unavailable[key].Code != "" {
+				continue
+			}
+			for _, dependency := range r.Manifest.Dependencies {
+				target, exists := ids[dependency.ID]
+				targetKey := owners[dependency.ID]
+				if !exists || target.Ref.SHA256 != dependency.SHA256 || !dependency.Version.accepts(target.Ref.Version) || unavailable[targetKey].Code != "" {
+					unavailable[key] = UnavailablePack{Pack: r.Ref, Code: "PACK_DEPENDENCY_UNSATISFIED", Dependency: dependency.ID}
+					changed = true
+					break
+				}
+			}
 		}
 	}
 	visiting, done := map[string]bool{}, map[string]bool{}
@@ -406,8 +448,8 @@ func (m *Manager) snapshot(ctx context.Context, s State, scope string) (Snapshot
 			return true
 		}
 		visiting[id] = true
-		for _, dep := range graph[id] {
-			if !walk(dep) {
+		for _, dep := range ids[id].Manifest.Dependencies {
+			if unavailable[owners[dep.ID]].Code == "" && !walk(dep.ID) {
 				return false
 			}
 		}
@@ -415,24 +457,82 @@ func (m *Manager) snapshot(ctx context.Context, s State, scope string) (Snapshot
 		done[id] = true
 		return true
 	}
-	for id := range ids {
-		if !walk(id) {
+	for _, key := range keys {
+		r, ok := revisions[key]
+		if !ok || unavailable[key].Code != "" {
+			continue
+		}
+		if !walk(r.Ref.ID) {
 			return out, problem("PACK_DEPENDENCY_CYCLE", "dependency cycle")
 		}
 	}
-	for key, v := range s.Choices {
-		if strings.HasPrefix(key, "application|") {
-			out.Choices[strings.TrimPrefix(key, "application|")] = v
+	for _, key := range keys {
+		if issue, ok := unavailable[key]; ok {
+			out.Unavailable = append(out.Unavailable, issue)
+			continue
+		}
+		r := revisions[key]
+		out.Refs = append(out.Refs, r.Ref)
+		for _, mapping := range r.Mappings {
+			out.Mappings = append(out.Mappings, mapping.Copy())
 		}
 	}
-	for key, v := range s.Choices {
+	for key, value := range s.Choices {
+		if strings.HasPrefix(key, "application|") {
+			out.Choices[strings.TrimPrefix(key, "application|")] = value
+		}
+	}
+	for key, value := range s.Choices {
 		if strings.HasPrefix(key, scope+"|") {
-			out.Choices[strings.TrimPrefix(key, scope+"|")] = v
+			out.Choices[strings.TrimPrefix(key, scope+"|")] = value
 		}
 	}
 	if m.check != nil {
 		if e := m.check(out); e != nil {
 			return out, e
+		}
+	}
+	return out, nil
+}
+func activeScopes(s State) []string {
+	scopes := map[string]bool{"application": true}
+	for key := range s.Active {
+		scopes[strings.SplitN(key, "|", 2)[0]] = true
+	}
+	out := []string{}
+	for scope := range scopes {
+		out = append(out, scope)
+	}
+	sort.Strings(out)
+	return out
+}
+func (m *Manager) Status(ctx context.Context) (Status, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.closed {
+		return Status{}, problem("PACK_STORE_CLOSED", "pack store closed")
+	}
+	out := Status{State: m.copyState(), Unavailable: []UnavailablePack{}, Problems: []ScopeProblem{}}
+	seen := map[string]bool{}
+	for _, scope := range activeScopes(m.state) {
+		snapshot, e := m.snapshot(ctx, m.state, scope)
+		if ctx.Err() != nil {
+			return out, ctx.Err()
+		}
+		for _, issue := range snapshot.Unavailable {
+			key := issue.Pack.Scope + "|" + issue.Pack.SHA256
+			if !seen[key] {
+				out.Unavailable = append(out.Unavailable, issue)
+				seen[key] = true
+			}
+		}
+		if e != nil {
+			code := "PACK_SCOPE_UNAVAILABLE"
+			var issue *Error
+			if errors.As(e, &issue) {
+				code = issue.Code
+			}
+			out.Problems = append(out.Problems, ScopeProblem{Scope: scope, Code: code})
 		}
 	}
 	return out, nil
@@ -474,13 +574,44 @@ func (m *Manager) Activate(ctx context.Context, expected, scope, hash string, ch
 		}
 		next.Choices[scope+"|"+alias] = winner
 	}
-	if _, e = m.snapshot(ctx, next, scope); e != nil {
-		return Snapshot{}, e
+	scopes := []string{scope}
+	if scope == "application" {
+		scopes = activeScopes(next)
+	}
+	var selected Snapshot
+	for _, affected := range scopes {
+		candidate, e := m.snapshot(ctx, next, affected)
+		if e != nil {
+			return Snapshot{}, fmt.Errorf("activation would invalidate scope %s: %w", affected, e)
+		}
+		if affected == scope {
+			selected = candidate
+			usable := false
+			for _, ref := range candidate.Refs {
+				usable = usable || ref.Scope == scope && ref.SHA256 == hash
+			}
+			if !usable {
+				return Snapshot{}, problem("PACK_DEPENDENCY_UNSATISFIED", "activate exact compatible dependencies before this pack")
+			}
+		}
+		previous, e := m.snapshot(ctx, m.state, affected)
+		if e == nil {
+			wasUsable := map[string]bool{}
+			for _, ref := range previous.Refs {
+				wasUsable[ref.Scope+"|"+ref.ID] = true
+			}
+			for _, issue := range candidate.Unavailable {
+				if wasUsable[issue.Pack.Scope+"|"+issue.Pack.ID] {
+					return Snapshot{}, problem("PACK_SCOPE_CONFLICT", "activation would suspend "+issue.Pack.ID+" in "+affected+"; deactivate or replace dependent packs explicitly")
+				}
+			}
+		}
 	}
 	if e = m.commit(ctx, next); e != nil {
 		return Snapshot{}, e
 	}
-	return m.snapshot(ctx, m.state, scope)
+	selected.Revision = m.state.Revision
+	return selected, nil
 }
 
 // Rollback validates trust/compatibility/conformance again; revoked old revisions

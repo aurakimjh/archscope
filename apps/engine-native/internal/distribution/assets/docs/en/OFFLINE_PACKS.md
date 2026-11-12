@@ -12,14 +12,43 @@ closed schemas, all declared file hashes and positive/negative fixture outputs.
 Keys inside a ZIP never establish trust. An owner may register a public key;
 management keys sign sequential offline rotation/revocation documents. Keep private
 keys outside the application. The bundled bootstrap private key is not distributed.
-A revoked key cannot activate or roll back a pack. Removing trust may make new
-imports unavailable until the owner deactivates/replaces the affected pack.
+A revoked key cannot activate or roll back a pack. Revoked/missing signers make
+that pack dormant; unsatisfied dependent packs become dormant too. Their desired
+activation and retained archives remain visible, but their mappings are excluded
+from new jobs. Builtin importers and unaffected packs remain usable. Restart never
+reintroduces removed/revoked bootstrap trust. Pack administration stays open for
+registration, replacement, deactivation and retained-byte backup. Already pinned
+jobs/results retain their exact prior interpretation; revocation does not rewrite them.
+
+Before applying a signed trust change, Settings displays its sequence, signer,
+added/revoked public keys, affected active packs/dependencies and scope problems.
+Apply only after reviewing that preview. CLI equivalent:
+
+```sh
+archscope-engine packs update-trust --revision REV --in update.json --signature signature.json --preview
+archscope-engine packs update-trust --revision REV --in update.json --signature signature.json --reviewed-sha256 REVIEW_SHA256
+```
+
+Use `review_sha256` from the preview; it binds the current state revision and exact
+update/signature bytes. Changed files or state require a new preview. Updates with
+active impact or scope problems refuse unreviewed CLI application. Rotation still
+requires a current management signature and exactly the next trust sequence.
+Run `packs list` to inspect `unavailable` / `problems`, then use
+`packs deactivate --revision REV --scope SCOPE --id PACK_ID`, or install/activate
+a replacement signed by current owner trust. `packs export` copies a retained
+archive only after its stored SHA-256 matches, including after signer revocation;
+this backup does not grant current trust or permit revoked activation. Existing
+unresolved alias choices may still require explicit scope repair; no automatic
+alias winner is selected.
 
 Install stages data without activating it. Activation requires the current state
 revision; errors leave the previous active state. Retained versions allow rollback
 through the same signature, compatibility and conformance gates. Interrupted
 staging is removed on reopen. State uses sync then atomic rename under a kernel
 lock; process-restart recovery is tested, not an assurance about hardware power loss.
+Application activation/rollback validates every active user/case scope before
+commit. Both activation orders reject canonical/alias collisions; replacing an
+application dependency cannot silently suspend a previously usable local pack.
 Dependencies require a pinned digest and version range. Application, interpreter
 and extension ranges are checked. The application version is currently 0.3.5.
 
@@ -38,7 +67,20 @@ Budgets: archive 8 MiB, expanded 16 MiB, entry 4 MiB, 128 ZIP entries, manifest
 256 KiB, 64 retained versions, 32 MiB active snapshot, 10,000 conformance records,
 64 KiB JSONL rows and the existing job/record/result budgets. Decimal strings
 preserve fractional, zero and large values. This emits metrics_snapshot 0.1.1;
-legacy metrics_snapshot 0.1.0 interpretation remains unchanged.
+legacy metrics_snapshot 0.1.0 interpretation remains unchanged. New mapped metric
+names reject C0/C1 and bidirectional controls using the same predicate as the R8
+display boundary. Ordinary Unicode names remain exact. Older saved payloads remain
+readable and byte-preserving on raw export; display providers escape unsafe text.
+
+Snapshots load each usable revision once and reuse it for dependency/cycle checks.
+The process-local verified cache has at most 64 entries and 80 MiB admission charge
+(two times expanded archive bytes plus 64 KiB per entry, not a measured RSS limit).
+It is keyed by scope, compressed archive SHA-256, trust sequence and signer-key
+fingerprint. Every access rereads and hashes the bounded compressed archive, even
+on a warm hit; trust changes clear cached verification. Invalid, cancelled or
+partial verification is never admitted. Callers receive copied mapping fields;
+close/restart clears the cache. First access and cold startup still run complete
+signature/schema/conformance validation.
 
 ## Build and use a disconnected bundle
 

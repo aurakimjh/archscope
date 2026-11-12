@@ -302,6 +302,20 @@ func boundedText(text string) (string, bool) {
 	return text, true
 }
 
+// ContainsDisplayControls is shared by display DTOs and constrained identifier
+// interpreters. Ordinary Unicode letters, accents and joiners stay unchanged.
+func ContainsDisplayControls(text string) bool {
+	for _, c := range text {
+		if displayControl(c) {
+			return true
+		}
+	}
+	return false
+}
+func displayControl(c rune) bool {
+	return unicode.IsControl(c) || c == 0x061c || c == 0x200e || c == 0x200f || c >= 0x202a && c <= 0x202e || c >= 0x2066 && c <= 0x2069
+}
+
 // DisplayText exposes invisible ordering/control characters, bounding the output
 // after expansion. It never changes an immutable result's original value.
 func DisplayText(text string) (string, bool, bool) {
@@ -309,7 +323,7 @@ func DisplayText(text string) (string, bool, bool) {
 	escaped := false
 	for i, c := range text {
 		part := string(c)
-		if unicode.IsControl(c) || c == 0x061c || c == 0x200e || c == 0x200f || c >= 0x202a && c <= 0x202e || c >= 0x2066 && c <= 0x2069 {
+		if displayControl(c) {
 			part = fmt.Sprintf("⟦U+%04X⟧", c)
 			escaped = true
 		}
