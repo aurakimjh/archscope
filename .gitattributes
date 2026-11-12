@@ -78,6 +78,7 @@ docs/review/evidence/2026-11-12-t644/*.svg text eol=lf
 docs/review/evidence/2026-11-12-t644/*.png -text
 
 # Manual DB/OS documentation and evidence pin LF source hashes.
+scripts/subset-nsight-sqlite.py text eol=lf
 docs/en/SYSTEM_DB_SNAPSHOTS.md text eol=lf
 docs/ko/SYSTEM_DB_SNAPSHOTS.md text eol=lf
 docs/review/evidence/2026-11-12-t645/*.json text eol=lf
