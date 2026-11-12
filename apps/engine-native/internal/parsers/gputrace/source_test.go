@@ -6,6 +6,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	a "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/gputrace"
 	g "github.com/aurakimjh/archscope/apps/engine-native/internal/gputracemodel"
 	p "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/gputrace"
@@ -50,6 +51,9 @@ func TestActualProducerFixturesAndNoRawContent(t *testing.T) {
 			want, e := g.Decode(ctx, fixture(t, c.stem+"-set.json"))
 			if e != nil {
 				t.Fatal(e)
+			}
+			if c.stem == "nsight" {
+				want.Warnings = append([]string{"Nsight supported table CUPTI_ACTIVITY_KIND_RUNTIME: present", "Nsight supported table CUPTI_ACTIVITY_KIND_KERNEL: present", "Nsight supported table CUPTI_ACTIVITY_KIND_MEMCPY: present", "Nsight supported table NVTX_EVENTS: absent; unavailable, not proof of zero activity"}, want.Warnings...)
 			}
 			expected, _ := json.Marshal(want)
 			if !bytes.Equal(b, expected) {
@@ -258,5 +262,44 @@ func TestR2101IgnoredRawRecordsDoNotConsumeRetainedEventBudget(t *testing.T) {
 	raw, _ = json.Marshal(root)
 	if _, e = p.ParseBytes(context.Background(), raw, options); e == nil || !strings.Contains(e.Error(), "GPU_TRACE_TORCH_SCHEMA_REQUIRED") {
 		t.Fatal("schema error not distinct", e)
+	}
+}
+
+func TestR2102OptionalTablePresenceAndViewRefusal(t *testing.T) {
+	o, _ := p.DecodeOptions(fixture(t, "nsight-options.json"))
+	for _, table := range []string{"CUPTI_ACTIVITY_KIND_RUNTIME", "CUPTI_ACTIVITY_KIND_KERNEL", "CUPTI_ACTIVITY_KIND_MEMCPY", "NVTX_EVENTS"} {
+		for _, view := range []bool{false, true} {
+			t.Run(table+fmt.Sprint(view), func(t *testing.T) {
+				path := filepath.Join(t.TempDir(), "source.sqlite")
+				os.WriteFile(path, fixture(t, "nsight-sanitized.sqlite"), 0600)
+				db, e := sql.Open("sqlite", path)
+				if e != nil {
+					t.Fatal(e)
+				}
+				if _, e = db.Exec("DROP TABLE IF EXISTS " + table); e != nil {
+					t.Fatal(e)
+				}
+				if view {
+					if _, e = db.Exec("CREATE VIEW " + table + " AS SELECT 0 AS start, 1 AS end"); e != nil {
+						t.Fatal(e)
+					}
+				}
+				db.Close()
+				raw, _ := os.ReadFile(path)
+				set, e := p.ParseBytes(context.Background(), raw, o)
+				if view {
+					if e == nil || !strings.Contains(e.Error(), "SELECTED_OBJECT_REFUSED") {
+						t.Fatal(e)
+					}
+					return
+				}
+				if e != nil {
+					t.Fatal(e)
+				}
+				if !strings.Contains(strings.Join(set.Warnings, "\n"), table+": absent; unavailable") {
+					t.Fatal(set.Warnings)
+				}
+			})
+		}
 	}
 }

@@ -31,3 +31,5 @@ Parser는 collector나 nsys를 실행하지 않는다. 이미 집계된 CSV는 s
 
 공식 근거: https://docs.pytorch.org/docs/2.15/profiler.html 및
 https://docs.nvidia.com/nsight-systems/AnalysisGuide/index.html#sqlite-schema-reference.
+
+지원 SQLite 테이블 4종의 present/absent를 명시하며 누락을 활동 0으로 해석하지 않는다. 선택 이름의 VIEW/가상 테이블 및 생성 열은 거절한다. 기존 저장 모델 경고는 변경하지 않는다.

@@ -46,6 +46,7 @@ func (b *builder) sqlite(raw []byte) error {
 		}
 	}
 	tables := map[string]bool{}
+	objects := map[string]string{}
 	rows, e := db.QueryContext(b.ctx, "SELECT name,type,sql FROM sqlite_schema LIMIT 257")
 	if e != nil {
 		return fmt.Errorf("GPU_TRACE_SQLITE_SCHEMA")
@@ -59,6 +60,7 @@ func (b *builder) sqlite(raw []byte) error {
 			return e
 		}
 		count++
+		objects[name] = kind
 		if len(ddl.String) > 16<<10 {
 			rows.Close()
 			return fmt.Errorf("GPU_TRACE_SQLITE_SCHEMA_BYTES_BUDGET")
@@ -74,6 +76,18 @@ func (b *builder) sqlite(raw []byte) error {
 	}
 	if count > 256 {
 		return fmt.Errorf("GPU_TRACE_SQLITE_TABLE_BUDGET")
+	}
+	for _, table := range []string{"META_DATA_EXPORT", "StringIds", "CUPTI_ACTIVITY_KIND_RUNTIME", "CUPTI_ACTIVITY_KIND_KERNEL", "CUPTI_ACTIVITY_KIND_MEMCPY", "NVTX_EVENTS"} {
+		if objects[table] != "" && !tables[table] {
+			return fmt.Errorf("GPU_TRACE_NSYS_SELECTED_OBJECT_REFUSED: %s must be an ordinary table; views/virtual tables refused", table)
+		}
+	}
+	for _, table := range []string{"CUPTI_ACTIVITY_KIND_RUNTIME", "CUPTI_ACTIVITY_KIND_KERNEL", "CUPTI_ACTIVITY_KIND_MEMCPY", "NVTX_EVENTS"} {
+		state := "present"
+		if !tables[table] {
+			state = "absent; unavailable, not proof of zero activity"
+		}
+		b.set.Warnings = append(b.set.Warnings, "Nsight supported table "+table+": "+state)
 	}
 	if !tables["META_DATA_EXPORT"] || !tables["StringIds"] {
 		return fmt.Errorf("GPU_TRACE_NSYS_SCHEMA_REQUIRED: official SQLite tables, not views")
