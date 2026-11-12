@@ -1,0 +1,83 @@
+{
+  "platform": "win32",
+  "architectures": {
+    "amd64": {
+      "status": "PASS",
+      "checks": {
+        "postgres": {
+          "series": 15,
+          "points": 75,
+          "paged_rows": 5,
+          "statuses": [
+            "first_cumulative_point",
+            "start_time_unavailable",
+            "derived",
+            "reset",
+            "derived"
+          ],
+          "rates": [
+            "875000/151411",
+            "3500000/600051"
+          ]
+        },
+        "linux-ss": {
+          "series": 21,
+          "points": 63,
+          "paged_rows": 63,
+          "gauge_only": true,
+          "established": [
+            "0",
+            "8",
+            "0"
+          ]
+        },
+        "merge": {
+          "series": 36,
+          "points": 138
+        }
+      },
+      "command_count": 61,
+      "expected_error_commands": 6,
+      "command_receipt_sha256": "35a60b423859e6060a871d63ec115f070d9cda5c3963aaf05add297cbc89278a"
+    },
+    "386": {
+      "status": "PASS",
+      "checks": {
+        "postgres": {
+          "series": 15,
+          "points": 75,
+          "paged_rows": 5,
+          "statuses": [
+            "first_cumulative_point",
+            "start_time_unavailable",
+            "derived",
+            "reset",
+            "derived"
+          ],
+          "rates": [
+            "875000/151411",
+            "3500000/600051"
+          ]
+        },
+        "linux-ss": {
+          "series": 21,
+          "points": 63,
+          "paged_rows": 63,
+          "gauge_only": true,
+          "established": [
+            "0",
+            "8",
+            "0"
+          ]
+        },
+        "merge": {
+          "series": 36,
+          "points": 138
+        }
+      },
+      "command_count": 61,
+      "expected_error_commands": 6,
+      "command_receipt_sha256": "35a60b423859e6060a871d63ec115f070d9cda5c3963aaf05add297cbc89278a"
+    }
+  }
+}

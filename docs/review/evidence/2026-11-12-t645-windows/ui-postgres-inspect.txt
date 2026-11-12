@@ -1,0 +1,162 @@
+Window: "ArchScope", App: t645-archscope-amd64.exe.
+	0 window (창) ArchScope Secondary Actions: Raise
+		15 pane (창) ArchScope
+			16 pane (창) (disabled)
+			17 pane (영역) ArchScope - 웹 콘텐츠
+				18 pane (영역)
+					19 pane (영역)
+					20 pane (영역)
+						21 pane (영역)
+							22 pane (영역)
+							23 pane (영역)
+								24 pane (영역)
+									25 pane (영역)
+										26 pane (영역)
+											27 pane (영역)
+											28 document (문서) ArchScope Value: http://wails.localhost/ ID: RootWebArea
+												39 group (그룹) ID: root
+													40 group (머리글)
+														41 text (텍스트) 분석 작업 공간
+													71 group (기본)
+														72 text (제목) 분석 작업 공간 도움말 보기
+															73 button (단추) 도움말 보기
+														74 group (세부정보)
+															75 button (펼치기/접기 삼각형) 저장된 케이스 Description: 저장된 케이스
+														76 button (단추) (disabled) 작업 공간 비우기
+														77 group (세부정보)
+															78 button (펼치기/접기 삼각형) 케이스 검색과 재사용 baseline
+																79 text (텍스트) 케이스 검색과 재사용 baseline
+														80 group (지역) 근거 결과
+															81 text (제목) 근거 가져오기 및 조회
+															82 text field (편집) (settable, string) 로컬 근거 경로 Description: 로컬 파일 Value: C:\workspace\archscope\apps\engine-native\internal\catalog\contracts\system-db-postgres-capture.json
+															83 button (단추) 파일 선택
+															84 combo box (콤보 상자) (settable, string) 가져오기 형식 Value: 형식 감지
+															85 button (단추) 분석
+															86 button (단추) 저장 결과 열기
+															87 button (단추) (disabled) 취소
+															88 group (세부정보)
+																89 button (펼치기/접기 삼각형) CPU/GPU 실행: PyTorch / Nsight / rank 문맥
+																	90 text (텍스트) CPU/GPU 실행: PyTorch / Nsight / rank 문맥
+															91 group (세부정보)
+																92 button (펼치기/접기 삼각형) 부하 / LLM 벤치마크 / JVM 크래시 원본
+																	93 text (텍스트) 부하 / LLM 벤치마크 / JVM 크래시 원본
+															94 group (세부정보)
+																95 button (펼치기/접기 삼각형) 런타임 / 스레드 / TA / 실행계획 근거
+																	96 text (텍스트) 런타임 / 스레드 / TA / 실행계획 근거
+															97 group (세부정보)
+																98 button (펼치기/접기 삼각형) LLM / gateway trace 근거
+																	99 text (텍스트) LLM / gateway trace 근거
+															100 group (세부정보)
+																101 button (펼치기/접기 삼각형) GPU / 추론 서빙 근거
+																	102 text (텍스트) GPU / 추론 서빙 근거
+															103 group (세부정보)
+																104 button (펼치기/접기 삼각형) perf / 제한된 BPF 근거
+																	105 text (텍스트) perf / 제한된 BPF 근거
+															106 group (세부정보)
+																107 button (펼치기/접기 삼각형) 메트릭 이력: OTLP / snapshots / Prometheus / Apple / DB / Linux
+																	108 text (텍스트) 메트릭 이력: OTLP / snapshots / Prometheus / Apple / DB / Linux
+																119 text (텍스트) 수동 저장한 PostgreSQL16.14 또는 iproute2-6.1.0 스냅샷을 여세요. Counter 초기화 시각·읽기 구간과 host/boot/instance/namespace는 파일에서 읽습니다. PostgreSQL epoch가 없으면 rate를 만들지 않고, ss 요약은 커널 공용 수치가 포함될 수 있는 gauge로 유지합니다. 가져오기 중 SQL·도구를 실행하지 않습니다.
+																120 text (텍스트) 원본 형식
+																121 combo box (콤보 상자) (settable, string) 원본 형식 Value: postgres-stat-database-json
+																128 button (단추) 메트릭 원본 확인
+																150 text (텍스트) SHA-256
+																151 text (텍스트) dd9d4a76f921b4f110fde3aed6b77ec9308c05aceb077f3cc9ecad8c37d939ff
+																152 text (텍스트) ·
+																153 text (텍스트) 75
+																154 text (텍스트)
+																155 text (텍스트) 관측점
+																156 checkbox (확인란) (settable, string) postgres.database.tup_deleted · {tuple} · sum/cumulative
+																157 group (세부정보)
+																	158 button (펼치기/접기 삼각형) 식별자
+																		159 text (텍스트) 식별자
+																160 checkbox (확인란) (settable, string) postgres.database.xact_commit · {transaction} · sum/cumulative
+																161 group (세부정보)
+																	162 button (펼치기/접기 삼각형) 식별자
+																		163 text (텍스트) 식별자
+																164 checkbox (확인란) (settable, string) postgres.database.temp_bytes · By · sum/cumulative
+																165 group (세부정보)
+																	166 button (펼치기/접기 삼각형) 식별자
+																		167 text (텍스트) 식별자
+																168 checkbox (확인란) (settable, string) postgres.database.tup_inserted · {tuple} · sum/cumulative
+																169 group (세부정보)
+																	170 button (펼치기/접기 삼각형) 식별자
+																		171 text (텍스트) 식별자
+																172 checkbox (확인란) (settable, string) postgres.database.numbackends · {backend} · gauge/unspecified
+																173 group (세부정보)
+																	174 button (펼치기/접기 삼각형) 식별자
+																		175 text (텍스트) 식별자
+																176 checkbox (확인란) (settable, string) postgres.database.tup_updated · {tuple} · sum/cumulative
+																177 group (세부정보)
+																	178 button (펼치기/접기 삼각형) 식별자
+																		179 text (텍스트) 식별자
+																180 checkbox (확인란) (settable, string) postgres.database.deadlocks · {deadlock} · sum/cumulative
+																181 group (세부정보)
+																	182 button (펼치기/접기 삼각형) 식별자
+																		183 text (텍스트) 식별자
+																184 checkbox (확인란) (settable, string) postgres.database.conflicts · {conflict} · sum/cumulative
+																185 group (세부정보)
+																	186 button (펼치기/접기 삼각형) 식별자
+																		187 text (텍스트) 식별자
+																188 checkbox (확인란) (settable, string) postgres.database.temp_files · {file} · sum/cumulative
+																189 group (세부정보)
+																	190 button (펼치기/접기 삼각형) 식별자
+																		191 text (텍스트) 식별자
+																192 checkbox (확인란) (settable, string) postgres.database.xact_rollback · {transaction} · sum/cumulative
+																193 group (세부정보)
+																	194 button (펼치기/접기 삼각형) 식별자
+																		195 text (텍스트) 식별자
+																196 checkbox (확인란) (settable, string) postgres.database.tup_returned · {tuple} · sum/cumulative
+																197 group (세부정보)
+																	198 button (펼치기/접기 삼각형) 식별자
+																		199 text (텍스트) 식별자
+																200 checkbox (확인란) (settable, string) postgres.database.tup_fetched · {tuple} · sum/cumulative
+																201 group (세부정보)
+																	202 button (펼치기/접기 삼각형) 식별자
+																		203 text (텍스트) 식별자
+																204 checkbox (확인란) (settable, string) postgres.database.blks_hit · {block} · sum/cumulative
+																205 group (세부정보)
+																	206 button (펼치기/접기 삼각형) 식별자
+																		207 text (텍스트) 식별자
+																208 checkbox (확인란) (settable, string) postgres.database.blks_read · {block} · sum/cumulative
+																209 group (세부정보)
+																	210 button (펼치기/접기 삼각형) 식별자
+																		211 text (텍스트) 식별자
+																212 checkbox (확인란) (settable, string) postgres.database.sessions · {session} · sum/cumulative
+																213 group (세부정보)
+																	214 button (펼치기/접기 삼각형) 식별자
+																		215 text (텍스트) 식별자
+																216 text (텍스트) Source producer/export/query identity is declared; no original-publisher authentication or GenAI alias qualification.
+																217 text (텍스트) PostgreSQL16.14 counters are delayed cumulative statistics; capture windows are read skew, not workload or aggregation intervals. numbackends is an instantaneous gauge including the collector. SQL text/database names are excluded.
+																218 text (텍스트) stats_reset, including null/unknown, is preserved as the cumulative start; postmaster start scopes instance lifetime and never substitutes for a missing reset. Clean restarts may retain older statistics. Unknown starts/decreases do not yield valid rates. Known reset rates cover only the post-reset epoch, not the missing pre-reset interval.
+																219 text (텍스트) blks_hit measures PostgreSQL buffer hits; blks_read is not proven physical disk I/O. No inferred cache percentage, I/O latency, query percentile, replication lag or bottleneck. Tags and producer identity are declarations, without authentication or cross-source clock alignment.
+																220 button (단추) (disabled) 새 모델 저장 후 선택 적용
+															109 group (세부정보)
+																110 button (펼치기/접기 삼각형) 원본 py-spy / Speedscope / pprof 프로파일
+																	111 text (텍스트) 원본 py-spy / Speedscope / pprof 프로파일
+															112 group (세부정보)
+																113 button (펼치기/접기 삼각형) 입력 안내와 수동 수집
+																	114 text (텍스트) 입력 안내와 수동 수집
+															115 group (세부정보)
+																116 button (펼치기/접기 삼각형) 가져오기 옵션
+																	117 text (텍스트) 가져오기 옵션
+														118 text (텍스트) 아직 작업 공간에 분석 결과가 없습니다.
+							29 pane (영역)
+					30 pane (영역)
+		1 title bar (제목 표시줄) (settable, string) Value: ArchScope
+			2 menu bar (메뉴 모음) 시스템 ID: MenuBar
+				3 menu item (메뉴 항목) 시스템
+			4 button (단추) 최소화
+			5 button (단추) 최대화
+			6 button (단추) 닫기
+		31 menu bar (메뉴 모음) 응용 프로그램 ID: MenuBar
+			32 menu item (메뉴 항목) 파일
+			33 menu item (메뉴 항목) 편집
+			34 menu item (메뉴 항목) 분석
+			35 menu item (메뉴 항목) 워크스페이스
+			36 menu item (메뉴 항목) 캡처
+			37 menu item (메뉴 항목) 보기
+			38 menu item (메뉴 항목) 도움말
+
+Document text: ```
+C:\workspace\archscope\apps\engine-native\internal\catalog\contracts\system-db-postgres-capture.json
+```

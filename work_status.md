@@ -4658,3 +4658,32 @@ The later independent T-644 review and T-645 implementation arrived while these
 receipts were being recorded. Their current task totals/statuses are preserved;
 the successful Windows source scope here remains 97501f86, not the later T-645
 implementation.
+
+### 2026-11-12 — T-645 native Windows follow-up
+
+Imported the qualified PostgreSQL16.14 and Linux iproute2-6.1.0 captures on native
+Windows 11 amd64 and 386. Both architectures pass all seven affected Go packages
+(261 passing test-completion events including subtests, zero failures, four skips
+each), vet, 61 actual CLI commands each, exact query paging/rational rates/reset
+semantics, Unicode/space paths, exports, 36-series/138-point merge and byte-exact
+snapshot-only case save/export. Frontend state/build, both GUI builds and eleven
+offline fixture importers pass. Actual amd64 Wails app verifies both source
+formats, saved result loading, gauge query and next-page rendering. Native 386
+startup survives 15 seconds; the smoke subsequently forces its owned process
+after the graceful-close timeout, so graceful shutdown is not claimed.
+
+Fixed a Windows checkout issue in `6317b804`: the manual Nsight subset script
+was converted to CRLF while its embedded offline copy remains LF. Pinning the
+source script to LF restores resource byte parity without changing script logic
+or bundle hashes. Fresh committed `core.autocrlf=true` checkout and resource
+checks pass. The tool also passes Unicode-path subsetting and seven negative
+checks with unchanged original bytes.
+
+Tested binaries: `c83740a1`; T-645 source: `b36d83e0`. Their entire engine tree is
+identical to `6317b804`. Upstream source CI passed all eight Engine Native jobs
+and both general CI jobs, including hosted Windows full race/live/body/crash and
+policy-restoration checks. The checkout fix has separate CI runs and is not
+silently assigned the upstream verdict. No new local full-race/live/body/crash,
+complete DPI/layout or multi-hour parity claim. T-645 remains REVIEW pending
+independent review; other optional adapters remain gated. Evidence and exact
+scope: `docs/review/evidence/2026-11-12-t645-windows/README.md`.
