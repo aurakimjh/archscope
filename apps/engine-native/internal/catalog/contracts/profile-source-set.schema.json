@@ -1,0 +1,344 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:profile-source-set:1.0.0",
+  "title": "\uc815\ubc00 \ud504\ub85c\ud30c\uc77c \ub0b4\ubd80 \uad50\ud658 \ubaa8\ub378",
+  "description": "\ud569\uc131\u00b7\ub0b4\ubd80 \uad50\ud658 \uacc4\uc57d. \uc2e4\uc81c producer \ud615\uc2dd\uc758 \uc9c0\uc6d0 \uadfc\uac70\uac00 \uc544\ub2c8\uba70 \ucc38\uc870\u00b7\uc218\uce58\u00b7\uc120\ud0dd\uc758 \uc758\ubbf8 \uac80\uc99d\uc740 \uc2e4\ud589 \ucf54\ub4dc\uac00 \uc218\ud589\ud55c\ub2e4.",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "producer": {
+      "type": "string"
+    },
+    "producer_version": {
+      "type": "string"
+    },
+    "format": {
+      "type": "string"
+    },
+    "source_sha256": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{64}$"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "capture_options": {
+      "type": "object"
+    },
+    "frames": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "symbol": {
+            "type": "string"
+          },
+          "display": {
+            "type": "string"
+          },
+          "module": {
+            "type": "string"
+          },
+          "build_id": {
+            "type": "string"
+          },
+          "file": {
+            "type": "string"
+          },
+          "runtime": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          },
+          "line": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "inline": {
+            "type": "boolean"
+          },
+          "native": {
+            "type": "boolean"
+          },
+          "kernel": {
+            "type": "boolean"
+          },
+          "async": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "symbol",
+          "display"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 100000
+    },
+    "stacks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "frames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "maxItems": 1024
+          }
+        },
+        "required": [
+          "id",
+          "frames"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 100000
+    },
+    "metrics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "base_kind": {
+            "type": "string"
+          },
+          "scale": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+            "maxLength": 1024
+          },
+          "signed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "unit",
+          "scale",
+          "signed"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 64
+    },
+    "profiles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "process": {
+            "type": "string"
+          },
+          "thread": {
+            "type": "string"
+          },
+          "worker": {
+            "type": "string"
+          },
+          "clock": {
+            "type": "string"
+          },
+          "time_unit": {
+            "type": "string"
+          },
+          "time_scale": {
+            "type": "string"
+          },
+          "samples": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "stack_id": {
+                  "type": "string"
+                },
+                "metric_id": {
+                  "type": "string"
+                },
+                "source_ref": {
+                  "type": "string"
+                },
+                "weight": {
+                  "type": "string",
+                  "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+                  "maxLength": 1024
+                },
+                "timestamp": {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+                      "maxLength": 1024
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "interval": {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+                      "maxLength": 1024
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "labels": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "stack_id",
+                "metric_id",
+                "weight"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 100000
+          }
+        },
+        "required": [
+          "id",
+          "clock",
+          "samples"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 1024
+    },
+    "quality": {
+      "type": "object",
+      "properties": {
+        "lost": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+              "maxLength": 1024
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "unknown": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+              "maxLength": 1024
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "truncated": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+              "maxLength": 1024
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "symbol_resolution": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+              "maxLength": 1024
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "clock_confidence": {
+          "type": "string"
+        },
+        "conversion_loss": {
+          "oneOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "lost",
+        "unknown",
+        "truncated",
+        "symbol_resolution",
+        "clock_confidence",
+        "conversion_loss"
+      ],
+      "additionalProperties": false
+    },
+    "extensions": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema_version",
+    "producer",
+    "format",
+    "source_sha256",
+    "capture_options",
+    "frames",
+    "stacks",
+    "metrics",
+    "profiles",
+    "quality"
+  ],
+  "additionalProperties": false
+}

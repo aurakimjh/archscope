@@ -560,6 +560,14 @@ export function ImportEvidence(req: $models.EvidenceImportRequest): $Cancellable
     });
 }
 
+/**
+ * Sources stay backend-owned; inspection returns bounded inventory only, and
+ * normalization writes a new model file for the existing generic import jobs.
+ */
+export function InspectProfileSource(path: string, optionsJSON: string): $CancellablePromise<string> {
+    return $Call.ByID(200477639, path, optionsJSON);
+}
+
 export function InstallDataPack(path: string, optionsJSON: string): $CancellablePromise<string> {
     return $Call.ByID(3784751023, path, optionsJSON);
 }
@@ -586,6 +594,10 @@ export function LoadEvidenceResult(path: string): $CancellablePromise<analysis$0
 
 export function NormalizeLegacyProfileSet(path: string, format: string): $CancellablePromise<string> {
     return $Call.ByID(3489070610, path, format);
+}
+
+export function NormalizeProfileSource(path: string, optionsJSON: string, expectedSHA256: string, output: string): $CancellablePromise<string> {
+    return $Call.ByID(1868428930, path, optionsJSON, expectedSHA256, output);
 }
 
 /**

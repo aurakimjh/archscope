@@ -89,6 +89,19 @@ func comparable(a ProfileSet, as Selection, b ProfileSet, bs Selection) error {
 	if !sameConditions(x.Quality, y.Quality) {
 		return comparisonRefusal("quality_class_mismatch", "clock confidence, symbol availability or conversion-loss categories differ")
 	}
+	ac, ap, _ := a.SourceContract()
+	bc, bp, _ := b.SourceContract()
+	if ap != bp || ap && ac.Revision != bc.Revision {
+		return comparisonRefusal("semantic_revision_mismatch", "source normalizer revision differs")
+	}
+	pa, pb := a.CapturePolicy(as.MetricID), b.CapturePolicy(bs.MetricID)
+	if (pa == nil) != (pb == nil) || pa != nil && pa.SHA256 != pb.SHA256 {
+		return comparisonRefusal("capture_policy_mismatch", "compiled capture policies differ")
+	}
+	if pa != nil {
+		x.Capture = []any{pa.Semantic, pa.StrictUnknown}
+		y.Capture = []any{pb.Semantic, pb.StrictUnknown}
+	}
 	if !sameConditions(x.Capture, y.Capture) {
 		return comparisonRefusal("capture_options_mismatch", "declared capture options differ")
 	}

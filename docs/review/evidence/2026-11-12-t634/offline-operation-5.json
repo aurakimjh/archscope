@@ -1,0 +1,6 @@
+{
+  "version": "1.0.0",
+  "offline": true,
+  "denied_attempts": {},
+  "scope": "app-owned guarded operations; OS/WebView requires syscall/packet observation"
+}

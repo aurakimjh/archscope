@@ -1,0 +1,5 @@
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/profile	9.967s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/profilemodel	3.222s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/catalog	3.262s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/distribution	4.263s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app	11.081s

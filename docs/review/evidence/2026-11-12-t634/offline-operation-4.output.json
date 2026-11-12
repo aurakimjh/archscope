@@ -1,0 +1,341 @@
+{
+  "mapping_previews": [
+    {
+      "importer": "data.synthetic-metrics",
+      "pack_sha256": "ff5d7263cb411431d7382fe1a8d208a59fc8e374e65358ef30e1f07eefb7f79c",
+      "status": "sample_only",
+      "metric": "latency",
+      "source_value": "12.50",
+      "normalized_value": "0.0125",
+      "unit": "seconds",
+      "kind": "gauge",
+      "escaped": false
+    }
+  ],
+  "version": "1.0.0",
+  "source": {
+    "id": "discovery-source",
+    "name": "input.jsonl",
+    "size": 191,
+    "sha256": "37fab97aafba6a98e41f48a738b849f7e43af0971bf6290177f59dc43b1c62a7"
+  },
+  "probe_bytes": 191,
+  "detection": {
+    "state": "selected",
+    "selected": "data.synthetic-metrics",
+    "candidates": [
+      {
+        "importerId": "data.synthetic-metrics",
+        "grade": "verified",
+        "confidence": 1,
+        "reason": "bounded literal producer/version and mapped JSON record match",
+        "producerVersion": "1.0.0"
+      }
+    ]
+  },
+  "importers": [
+    {
+      "pack": {
+        "id": "diagnostics.snapshot-foundation",
+        "version": "1.0.0",
+        "sha256": "ff5d7263cb411431d7382fe1a8d208a59fc8e374e65358ef30e1f07eefb7f79c",
+        "origin": "signed",
+        "scope": "application"
+      },
+      "releaseEligible": true,
+      "id": "data.synthetic-metrics",
+      "aliases": [
+        "synthetic-metrics"
+      ],
+      "family": "metrics_snapshot",
+      "extensions": [
+        ".jsonl",
+        ".ndjson"
+      ],
+      "producer": "synthetic.metrics",
+      "verifiedVersions": [
+        "1.0.0"
+      ],
+      "adapterVersion": "1.0.0",
+      "inputSchema": {
+        "id": "data-metrics.input",
+        "version": "1.0.0",
+        "hash": "00404e686415370f1711c4d7acfa2905444d3cf23cef2e10c47d445ebe690f96"
+      },
+      "optionSchema": {
+        "id": "data-metrics.option",
+        "version": "1.0.0",
+        "hash": "60bdb601f7e6923bc3f81d77edb5d211b403c7fddf6faa1d5f26666627791f08"
+      },
+      "recordSchema": {
+        "id": "data-metrics.record",
+        "version": "1.0.0",
+        "hash": "c8d2e3a503e00673adf33585492fcb193550bd843c607cb894ec6a25f5dd9b66"
+      },
+      "resultSchema": {
+        "id": "data-metrics.result",
+        "version": "0.1.1",
+        "hash": "1fc84901c083a266af96adc6062b596ab4403088427e922f23e04480aaaba848"
+      },
+      "recordFamily": "declarative.metric-record.v1",
+      "normalizerInput": "declarative.metric-record.v1",
+      "normalizerOutput": "declarative.metric-record.v1",
+      "analyzerId": "data-metrics.v1",
+      "measurementKinds": [
+        "gauge"
+      ],
+      "capabilities": [
+        "summary",
+        "table",
+        "json_export"
+      ],
+      "supportStatus": "limited",
+      "limitations": [
+        "declarative JSONL snapshots only; no time-series/temporality inference",
+        "literal producer conditions and fixture conformance are not real-producer qualification"
+      ],
+      "fixtureManifest": "diagnostics.snapshot-foundation@1.0.0",
+      "fixtureHash": "ff5d7263cb411431d7382fe1a8d208a59fc8e374e65358ef30e1f07eefb7f79c",
+      "conformanceVersion": "1.0.0",
+      "probeBudget": 65536,
+      "supportsPartial": false,
+      "needsSeek": false
+    },
+    {
+      "releaseEligible": true,
+      "id": "profile.set-json",
+      "aliases": [
+        "profile-set"
+      ],
+      "family": "profile_evidence",
+      "extensions": [
+        ".json"
+      ],
+      "producer": "internal ProfileSet transport",
+      "verifiedVersions": null,
+      "adapterVersion": "1.0.1",
+      "inputSchema": {
+        "id": "profile-set.input",
+        "version": "1.0.0",
+        "hash": "2a7814678d750ebb56fcabb63016b4c966ba0f16819b44c6ff946ca2417d1423"
+      },
+      "optionSchema": {
+        "id": "profile-set.selection",
+        "version": "1.0.0",
+        "hash": "ba19db15faaed1bb341066acadfc50ed206156c1e385721639ef72caeccc759d"
+      },
+      "recordSchema": {
+        "id": "profile-set.chunk",
+        "version": "1.0.0",
+        "hash": "dfed493fbd4abc0468ace00306d839ba2ff1b38e9ab7ea124ccc459aaa05d23d"
+      },
+      "resultSchema": {
+        "id": "profile-set.result",
+        "version": "0.2.0",
+        "hash": "1fc84901c083a266af96adc6062b596ab4403088427e922f23e04480aaaba848"
+      },
+      "recordFamily": "profile-set.chunk.v1",
+      "normalizerInput": "profile-set.chunk.v1",
+      "normalizerOutput": "profile-set.chunk.v1",
+      "analyzerId": "profile-set.exact",
+      "measurementKinds": [
+        "sample_count",
+        "cpu_time",
+        "wall_time",
+        "duration",
+        "bytes",
+        "cycles",
+        "signed_difference"
+      ],
+      "capabilities": [
+        "summary",
+        "exact_tree",
+        "selection",
+        "exact_compare",
+        "pprof_export"
+      ],
+      "supportStatus": "limited",
+      "limitations": [
+        "internal versioned JSON transport; not producer conformance",
+        "bounded 32 MiB model transported as \u003c=256 KiB chunks within common record/normalized/result/temp ceilings",
+        "explicit profile and metric selection; original producer corrections remain separate"
+      ],
+      "fixtureManifest": "diagnostics.profile-core.v1",
+      "fixtureHash": "00c424709e897bce4e6250aef0b7ffd3e31248614600e04b1f26c93f25f4b156",
+      "conformanceVersion": "1.0.0",
+      "probeBudget": 65536,
+      "supportsPartial": false,
+      "needsSeek": false
+    },
+    {
+      "releaseEligible": true,
+      "id": "profile.source-set-json",
+      "aliases": [
+        "profile-source-set"
+      ],
+      "family": "profile_evidence",
+      "extensions": [
+        ".json"
+      ],
+      "producer": "internal ProfileSet transport",
+      "verifiedVersions": null,
+      "adapterVersion": "1.0.1",
+      "inputSchema": {
+        "id": "profile-source-set.input",
+        "version": "1.0.0",
+        "hash": "57b8db33bf8b065b81c68563935086dab6826f01a66c8660cddcc92a5a9b57d9"
+      },
+      "optionSchema": {
+        "id": "profile-source-set.selection",
+        "version": "1.0.0",
+        "hash": "ba19db15faaed1bb341066acadfc50ed206156c1e385721639ef72caeccc759d"
+      },
+      "recordSchema": {
+        "id": "profile-source-set.chunk",
+        "version": "1.0.0",
+        "hash": "dfed493fbd4abc0468ace00306d839ba2ff1b38e9ab7ea124ccc459aaa05d23d"
+      },
+      "resultSchema": {
+        "id": "profile-source-set.result",
+        "version": "0.3.0",
+        "hash": "1fc84901c083a266af96adc6062b596ab4403088427e922f23e04480aaaba848"
+      },
+      "recordFamily": "profile-set.chunk.v1",
+      "normalizerInput": "profile-set.chunk.v1",
+      "normalizerOutput": "profile-set.chunk.v1",
+      "analyzerId": "profile-source-set.exact",
+      "measurementKinds": [
+        "sample_count",
+        "cpu_time",
+        "wall_time",
+        "duration",
+        "bytes",
+        "cycles",
+        "signed_difference"
+      ],
+      "capabilities": [
+        "summary",
+        "exact_tree",
+        "selection",
+        "exact_compare",
+        "pprof_export"
+      ],
+      "supportStatus": "limited",
+      "limitations": [
+        "source normalizer 1.0.0 transport / result 0.3.0; producer qualification is limited to pinned original fixtures",
+        "bounded 32 MiB model transported as \u003c=256 KiB chunks within common ceilings",
+        "explicit profile/metric selection; generic scalar comparison retains strict capture equality"
+      ],
+      "fixtureManifest": "diagnostics.profile-source-transport.v1",
+      "fixtureHash": "f3adba5061fb8f6127e6a4bc750d89cfcf66c7196ac657ec71ab9872138a44d3",
+      "conformanceVersion": "1.0.0",
+      "probeBudget": 65536,
+      "supportsPartial": false,
+      "needsSeek": false
+    },
+    {
+      "releaseEligible": true,
+      "id": "server.tomcat",
+      "aliases": [
+        "tomcat"
+      ],
+      "family": "server_log",
+      "extensions": [
+        ".log",
+        ".txt"
+      ],
+      "producer": "tomcat",
+      "verifiedVersions": [],
+      "adapterVersion": "1.0.0",
+      "inputSchema": {
+        "id": "server-log.utf8",
+        "version": "1.0.0",
+        "hash": "7a45484294fb9774a6b48903a2d46f546302cb739d64649a9b0bc7efd9e8923d"
+      },
+      "optionSchema": {
+        "id": "server-log.options",
+        "version": "1.0.0",
+        "hash": "f0f475611c5203853b582dc377785cbb798a74b2dfdf5fb35abb8851a635713c"
+      },
+      "recordSchema": {
+        "id": "server-log.record",
+        "version": "1.0.0",
+        "hash": "cec0db4af15fffbcb15a9737d1a44acbfa5a85fd6cb3c3468fe7ed34c32361ff"
+      },
+      "resultSchema": {
+        "id": "server-log.result",
+        "version": "0.1.0",
+        "hash": "811ff1675e07d9bc790a5e9444f9f2149daf20fd82c3e11c9dfa365b9f84ccab"
+      },
+      "recordFamily": "server-log.record.v1",
+      "normalizerInput": "server-log.record.v1",
+      "normalizerOutput": "server-log.record.v1",
+      "analyzerId": "server-log.legacy",
+      "measurementKinds": [
+        "record_count"
+      ],
+      "capabilities": [
+        "summary",
+        "table",
+        "json_export"
+      ],
+      "supportStatus": "limited",
+      "limitations": [
+        "plain UTF-8 only; no compressed inputs",
+        "legacy timestamp/severity semantics; no producer-version inference"
+      ],
+      "fixtureManifest": "diagnostics.ingestion.foundation.v1",
+      "fixtureHash": "b7ae72847391e749e428a30f20e24aa2b4d7857e69c76e27308a2c75122368a7",
+      "conformanceVersion": "1.0.0",
+      "probeBudget": 65536,
+      "supportsPartial": true,
+      "needsSeek": false
+    }
+  ],
+  "context": {
+    "status": "absent",
+    "missing": [
+      "producer",
+      "producer_version",
+      "collection_start",
+      "collection_end",
+      "clock_domain",
+      "timezone",
+      "host_identity",
+      "process_lifetime",
+      "identity_basis"
+    ]
+  },
+  "advice": [],
+  "capture_draft": {
+    "schema_version": "1.0.0",
+    "id": "capture-756f3707e611b691d60e6f606cbd5dd5",
+    "producer": "unknown",
+    "producer_version": "unknown",
+    "identity_basis": "unknown",
+    "files": [
+      {
+        "name": "input.jsonl",
+        "sha256": "37fab97aafba6a98e41f48a738b849f7e43af0971bf6290177f59dc43b1c62a7",
+        "size": "191"
+      }
+    ],
+    "entities": [],
+    "devices": [],
+    "clock": {
+      "domain": "unknown"
+    },
+    "options": {},
+    "quality": {},
+    "conversions": [],
+    "redaction": {
+      "profile": "",
+      "version": "",
+      "applied": false,
+      "reviewed_for_sharing": false
+    },
+    "warnings": [
+      "Generated draft: file hash/size are observed; capture identity, producer and clock require explicit review. File mtime is not collection time."
+    ]
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "id": "diagnostics.profile-producers.v1",
+  "version": "1.0.0",
+  "synthetic": true,
+  "producer_fixtures": [
+    {
+      "file": "pyspy-speedscope.json",
+      "producer": "py-spy",
+      "version": "0.4.1",
+      "format": "speedscope-json",
+      "profiles": 3
+    },
+    {
+      "file": "pyspy.raw",
+      "producer": "py-spy",
+      "version": "0.4.1",
+      "format": "pyspy-raw",
+      "profile_scope": "aggregate; process labels are stack frames"
+    },
+    {
+      "file": "go-heap.json",
+      "producer": "go.runtime/pprof",
+      "version": "go1.26.10",
+      "format": "pprof",
+      "value_types": [
+        "alloc_objects/count",
+        "alloc_space/bytes",
+        "inuse_objects/count",
+        "inuse_space/bytes"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "file": "go-heap.json",
+      "sha256": "d7744eb367466011d5cb93a95a4cbee3664839fa345ab2760f36c6a96d1c85a0"
+    },
+    {
+      "file": "heap-generator.go",
+      "sha256": "441878eb6b6d4f162d6dce0e37f745b72d9dcada3f227f7f1c2b96faaf36474f"
+    },
+    {
+      "file": "pyspy-speedscope.json",
+      "sha256": "8c442f7f9766a7ac8b2719fe058a3da160a2aaccb47e017055ea1f2c786564fb"
+    },
+    {
+      "file": "pyspy.raw",
+      "sha256": "ed80c37b69acb7ac555a7bff7f2ca26beefd9b2dae07d2f725348b9e74effa1c"
+    },
+    {
+      "file": "workload.py",
+      "sha256": "437cb7620ac7ff5f629a8bcb7df83cde209c89015af698f1a2ce63f761e79311"
+    }
+  ],
+  "scenario": "exact-original-profile-producers",
+  "description": "실제 producer로 수집한 합성 py-spy 다중 프로세스 및 Go heap 원본 단위 계약"
+}

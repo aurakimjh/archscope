@@ -22,15 +22,33 @@ const profileFamily = "profile-set.chunk.v1"
 const profileAdapterVersion = "1.0.1"
 
 func profileRegistration() (ingestion.ImporterDescriptor, []ingestion.Schema, ingestion.Analyzer, error) {
-	fixture, e := Contracts.ReadFile("contracts/profile-set.json")
+	return profileRegistrationFor(false)
+}
+func profileSourceRegistration() (ingestion.ImporterDescriptor, []ingestion.Schema, ingestion.Analyzer, error) {
+	return profileRegistrationFor(true)
+}
+func profileRegistrationFor(source bool) (ingestion.ImporterDescriptor, []ingestion.Schema, ingestion.Analyzer, error) {
+	name := "profile-set"
+	payload := analyzer.ModelPayloadVersion
+	descriptorID := "profile.set-json"
+	alias := "profile-set"
+	analyzerID := "profile-set.exact"
+	if source {
+		name = "profile-source-set"
+		payload = analyzer.SourceModelPayloadVersion
+		descriptorID = "profile.source-set-json"
+		alias = "profile-source-set"
+		analyzerID = "profile-source-set.exact"
+	}
+	fixture, e := Contracts.ReadFile("contracts/" + name + ".json")
 	if e != nil {
 		return ingestion.ImporterDescriptor{}, nil, ingestion.Analyzer{}, e
 	}
-	definition, e := Contracts.ReadFile("contracts/profile-set.schema.json")
+	definition, e := Contracts.ReadFile("contracts/" + name + ".schema.json")
 	if e != nil {
 		return ingestion.ImporterDescriptor{}, nil, ingestion.Analyzer{}, e
 	}
-	manifest, e := Contracts.ReadFile("contracts/profile-set.manifest.json")
+	manifest, e := Contracts.ReadFile("contracts/" + name + ".manifest.json")
 	if e != nil {
 		return ingestion.ImporterDescriptor{}, nil, ingestion.Analyzer{}, e
 	}
@@ -58,7 +76,20 @@ func profileRegistration() (ingestion.ImporterDescriptor, []ingestion.Schema, in
 	if hex.EncodeToString(sum[:]) != bundle.Schema {
 		return ingestion.ImporterDescriptor{}, nil, ingestion.Analyzer{}, fmt.Errorf("profile schema digest mismatch")
 	}
-	inputValidate := func(raw json.RawMessage) error { _, e := profilemodel.Decode(raw); return e }
+	inputValidate := func(raw json.RawMessage) error {
+		model, e := profilemodel.Decode(raw)
+		if e != nil {
+			return e
+		}
+		_, present, e := model.SourceContract()
+		if e != nil {
+			return e
+		}
+		if present != source {
+			return fmt.Errorf("use the matching legacy/source ProfileSet importer")
+		}
+		return nil
+	}
 	selectionValidate := func(raw json.RawMessage) error {
 		selection, e := profilemodel.DecodeSelection(raw)
 		if e != nil {
@@ -76,10 +107,10 @@ func profileRegistration() (ingestion.ImporterDescriptor, []ingestion.Schema, in
 		}
 		return analyzer.ValidateModelResult(result)
 	}
-	input := ingestion.NewSchema("profile-set.input", profilemodel.Version, definition, inputValidate)
-	options := ingestion.NewSchema("profile-set.selection", profilemodel.Version, json.RawMessage(`{"type":"object","required":["profile_ids","metric_id"],"additionalProperties":false,"properties":{"profile_ids":{"type":"array","minItems":1,"items":{"type":"string"}},"metric_id":{"type":"string","minLength":1},"path":{"type":"array","items":{"type":"string"}},"match":{"enum":["prefix","contains"]},"filters":{"type":"array","items":{"type":"object","required":["path","match"],"additionalProperties":false,"properties":{"path":{"type":"array","items":{"type":"string"}},"match":{"enum":["prefix","contains"]}}}}}}`), selectionValidate)
-	record := ingestion.NewSchema("profile-set.chunk", "1.0.0", json.RawMessage(`{"type":"object","required":["offset","data"],"additionalProperties":false,"properties":{"offset":{"type":"integer","minimum":0},"data":{"type":"string","minLength":4,"maxLength":349528,"pattern":"^[A-Za-z0-9+/]*={0,2}$"}}}`), func(raw json.RawMessage) error { _, e := decodeProfileChunk(raw); return e })
-	result := ingestion.NewSchema("profile-set.result", analyzer.ModelPayloadVersion, json.RawMessage(`{"type":"object","required":["type","summary","series","tables","charts","metadata","source_files","created_at"]}`), resultValidate)
+	input := ingestion.NewSchema(name+".input", profilemodel.Version, definition, inputValidate)
+	options := ingestion.NewSchema(name+".selection", profilemodel.Version, json.RawMessage(`{"type":"object","required":["profile_ids","metric_id"],"additionalProperties":false,"properties":{"profile_ids":{"type":"array","minItems":1,"items":{"type":"string"}},"metric_id":{"type":"string","minLength":1},"path":{"type":"array","items":{"type":"string"}},"match":{"enum":["prefix","contains"]},"filters":{"type":"array","items":{"type":"object","required":["path","match"],"additionalProperties":false,"properties":{"path":{"type":"array","items":{"type":"string"}},"match":{"enum":["prefix","contains"]}}}}}}`), selectionValidate)
+	record := ingestion.NewSchema(name+".chunk", "1.0.0", json.RawMessage(`{"type":"object","required":["offset","data"],"additionalProperties":false,"properties":{"offset":{"type":"integer","minimum":0},"data":{"type":"string","minLength":4,"maxLength":349528,"pattern":"^[A-Za-z0-9+/]*={0,2}$"}}}`), func(raw json.RawMessage) error { _, e := decodeProfileChunk(raw); return e })
+	result := ingestion.NewSchema(name+".result", payload, json.RawMessage(`{"type":"object","required":["type","summary","series","tables","charts","metadata","source_files","created_at"]}`), resultValidate)
 	schemas := []ingestion.Schema{input, options, record, result}
 	for i := range schemas {
 		schemas[i].Role = []string{"input", "option", "record", "result"}[i]
@@ -89,11 +120,14 @@ func profileRegistration() (ingestion.ImporterDescriptor, []ingestion.Schema, in
 	chunkFixture, _ := json.Marshal(profileChunk{Offset: 0, Data: fixture})
 	schemas[2].Conformance = []ingestion.SchemaCase{{Value: chunkFixture, Valid: true}, {Value: json.RawMessage(`{"offset":-1,"data":"AA=="}`), Valid: false}, {Value: json.RawMessage(`{"offset":0,"data":"!bad"}`), Valid: false}}
 	selection := profilemodel.Selection{ProfileIDs: []string{"worker-a", "worker-b"}, MetricID: "duration"}
+	if source {
+		selection = profilemodel.Selection{ProfileIDs: []string{"profile-0", "profile-1"}, MetricID: "sampled-seconds"}
+	}
 	selectionJSON, _ := json.Marshal(selection)
 	schemas[1].Conformance = []ingestion.SchemaCase{{Value: selectionJSON, Valid: true}, {Value: json.RawMessage(`{}`), Valid: false}}
 	schemas[2].Family = profileFamily
 	schemas[3].ResultType = analyzer.ResultType
-	schemas[3].PayloadVersion = analyzer.ModelPayloadVersion
+	schemas[3].PayloadVersion = payload
 	set, e := profilemodel.Decode(fixture)
 	if e != nil {
 		return ingestion.ImporterDescriptor{}, nil, ingestion.Analyzer{}, e
@@ -105,7 +139,12 @@ func profileRegistration() (ingestion.ImporterDescriptor, []ingestion.Schema, in
 	resultJSON, _ := json.Marshal(sampleResult)
 	schemas[3].Conformance = []ingestion.SchemaCase{{Value: resultJSON, Valid: true}, {Value: json.RawMessage(`{}`), Valid: false}}
 	manifestHash := sha256.Sum256(manifest)
-	d := ingestion.ImporterDescriptor{ID: "profile.set-json", Aliases: []string{"profile-set"}, Family: "profile_evidence", Extensions: []string{".json"}, Producer: "internal ProfileSet transport", AdapterVersion: profileAdapterVersion, InputSchema: schemas[0].Ref, OptionSchema: schemas[1].Ref, RecordSchema: schemas[2].Ref, ResultSchema: schemas[3].Ref, RecordFamily: profileFamily, NormalizerInput: profileFamily, NormalizerOutput: profileFamily, AnalyzerID: "profile-set.exact", MeasurementKinds: []string{"sample_count", "cpu_time", "wall_time", "duration", "bytes", "signed_difference"}, Capabilities: []string{"summary", "exact_tree", "selection", "exact_compare", "pprof_export"}, SupportStatus: "limited", Limitations: []string{"internal versioned JSON transport; not producer conformance", "bounded 32 MiB model transported as <=256 KiB chunks within common record/normalized/result/temp ceilings", "explicit profile and metric selection; original producer corrections remain separate"}, FixtureManifest: "diagnostics.profile-core.v1", FixtureHash: hex.EncodeToString(manifestHash[:]), ConformanceVersion: profilemodel.Version, ProbeBudget: ingestion.MaxProbeBytes}
+	d := ingestion.ImporterDescriptor{ID: descriptorID, Aliases: []string{alias}, Family: "profile_evidence", Extensions: []string{".json"}, Producer: "internal ProfileSet transport", AdapterVersion: profileAdapterVersion, InputSchema: schemas[0].Ref, OptionSchema: schemas[1].Ref, RecordSchema: schemas[2].Ref, ResultSchema: schemas[3].Ref, RecordFamily: profileFamily, NormalizerInput: profileFamily, NormalizerOutput: profileFamily, AnalyzerID: analyzerID, MeasurementKinds: []string{"sample_count", "cpu_time", "wall_time", "duration", "bytes", "cycles", "signed_difference"}, Capabilities: []string{"summary", "exact_tree", "selection", "exact_compare", "pprof_export"}, SupportStatus: "limited", Limitations: []string{"internal versioned JSON transport; not producer conformance", "bounded 32 MiB model transported as <=256 KiB chunks within common record/normalized/result/temp ceilings", "explicit profile and metric selection; original producer corrections remain separate"}, FixtureManifest: "diagnostics.profile-core.v1", FixtureHash: hex.EncodeToString(manifestHash[:]), ConformanceVersion: profilemodel.Version, ProbeBudget: ingestion.MaxProbeBytes}
+	if source {
+		d.FixtureManifest = "diagnostics.profile-source-transport.v1"
+		d.Limitations = []string{"source normalizer 1.0.0 transport / result 0.3.0; producer qualification is limited to pinned original fixtures", "bounded 32 MiB model transported as <=256 KiB chunks within common ceilings", "explicit profile/metric selection; generic scalar comparison retains strict capture equality"}
+	}
+
 	read := func(ctx context.Context, source ingestion.Source) ([]byte, error) {
 		if source.Info().Size > MaxProfileTransportBytes {
 			return nil, ingestion.BudgetProblem("profile_transport_bytes", "profile_transport_bytes", source.Info().Size, MaxProfileTransportBytes)
@@ -128,7 +167,7 @@ func profileRegistration() (ingestion.ImporterDescriptor, []ingestion.Schema, in
 		if e := ctx.Err(); e != nil {
 			return ingestion.Candidate{}, e
 		}
-		if _, e := profilemodel.Decode(probe.Head); e == nil {
+		if e := inputValidate(probe.Head); e == nil {
 			return ingestion.Candidate{Grade: ingestion.Verified, Confidence: 1, Reason: "validated internal ProfileSet structure"}, nil
 		}
 		if probe.Extension == ".json" {

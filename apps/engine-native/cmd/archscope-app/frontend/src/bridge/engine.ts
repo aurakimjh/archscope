@@ -480,3 +480,16 @@ function parseAssistance<T>(request: CancellablePromise<string>): Cancelable<T> 
   const parsed = request.then(text => JSON.parse(text) as T);
   return Object.assign(parsed, { cancel: () => request.cancel() });
 }
+
+export interface ProfileSourceInventory {
+  source_sha256: string; producer: string; producer_version: string; format: string;
+  profiles: { id: string; name: string; metrics: string[] }[];
+  metrics: { id: string; kind: string; unit: string; scale: string }[];
+  warnings: string[];
+}
+export function inspectProfileSource(path: string, options: string): Cancelable<ProfileSourceInventory> {
+  return parseAssistance(call<string>("InspectProfileSource", path, options));
+}
+export function normalizeProfileSource(path: string, options: string, hash: string, output: string): Cancelable<ProfileSourceInventory> {
+  return parseAssistance(call<string>("NormalizeProfileSource", path, options, hash, output));
+}

@@ -37,8 +37,8 @@ transport, producing `profile_evidence` 0.2.0 with explicit profile/metric selec
 Its bundled fixture is synthetic and qualifies core behavior, not a producer/version.
 The existing `profile import` route retains 0.1.x normalization semantics.
 `profile-set normalize-legacy` discloses those limitations; it does not qualify
-corrected py-spy/Speedscope/pprof input semantics. Those remain T-634. New generic
-screens remain T-631. Internal adapter 1.0.1 chunks a bounded <=32 MiB model into
+corrected py-spy/Speedscope/pprof input semantics. The separate T-634 source path
+below supplies new semantics; T-631 supplies generic screens. Internal adapter 1.0.1 chunks a bounded <=32 MiB model into
 <=256 KiB raw records, retaining the common 1 MiB serialized-record ceiling.
 Normalized/result/temp ceilings apply jointly; see DATA_MODEL for the effective
 limits and the verified 3,000-stack/54,001-node case (not a production guarantee).
@@ -73,8 +73,8 @@ policy hashes are preserved, not silently promoted to the new scalar policy.
 The effective wire limit includes 4 MiB per decoded UTF-8 string/key in addition
 to aggregate/document bounds. Oversize strings report json_string_bytes budget
 detail. Opaque capture options remain strictly equal; semantic/incidental key
-policies require producer-specific T-634 qualification and T-635 baseline wiring
-(DATA_MODEL R5). No current option whitelist or new producer support is claimed.
+policies apply only to T-634 qualified canonical source models below. Old models
+and generic scalar comparison remain strict; durable baseline wiring is T-635.
 
 ### Declarative snapshot pack (T-632)
 
@@ -91,3 +91,24 @@ legacy entry points. It adds no producer support claim. Binary JFR uses explicit
 absolute installed JDK configuration with bounded execution and provenance; JSON
 analysis remains available without a converter. Offline sessions require
 preconverted JSON. See [Input assistance](INPUT_ASSISTANCE.md).
+
+### Exact original-source profiles (T-634)
+
+`profile inspect-source`, `normalize-source` and `import-source` preserve exact
+weights/units and require explicit profile/metric selection. Desktop Workspace
+normalizes originals to `profile.source-set-json` / `profile-source-set`, producing
+`profile_evidence` 0.3.0. `profile import` retains legacy semantics. Evented
+Speedscope uses exclusive elapsed intervals and explicit unattributed gaps, not
+event counts; sampled time weights are duration, not inferred CPU time. pprof
+keeps all columns, signed values, labels and period metadata without double scaling.
+
+| Slice | Qualification | Capture policy |
+|---|---|---|
+| py-spy 0.4.1 raw / sampled Speedscope seconds | Actual synthetic subprocess producer fixtures, digest pinned | Compiled 1.0.0 policy for these metric/format bindings |
+| Go runtime/pprof go1.26.10 heap | Actual synthetic four-column producer fixture, digest pinned | Compiled 1.0.0 policy for alloc/inuse objects and space |
+| Other structurally supported sampled/evented Speedscope / supported-unit pprof | Synthetic format regressions; producer/platform/option coverage unqualified | Unknown/no-policy options remain strict |
+
+No broad vendor/platform promotion, dump-text support or original-source
+identity authentication follows from these fixtures. Native Windows/UI acceptance
+and independent review are separate. See [Exact profile sources](PROFILE_SOURCE_IMPORT.md)
+for bounds, CLI examples, projection limits, policy keys and evidence scope.

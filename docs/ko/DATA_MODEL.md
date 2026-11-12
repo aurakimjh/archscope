@@ -2283,3 +2283,17 @@ macOS arm64 로컬 race 측정에서 timeline+SLI 8천/1만6천 행 검증은 21
 20회 평균 108,454 ns였다. 단일 호스트 측정이며 Windows 실행이나 최초 로드 지연을
 보장하지 않는다. 회귀 테스트는 hosted race 스케줄링 여유를 두며 취소, 잘못된 참조,
 DTO 격리, 캐시 수명, 변조와 원본 내보내기도 검증한다.
+
+### T-634 원본 의미 버전
+
+정확한 원본 normalizer는 ProfileSet schema 1.0.0에
+`org.archscope.profile_source.v1` revision 1.0.0을 추가하고 AnalysisResult
+profile_evidence 0.3.0을 생성합니다. 기존 facade·결과·v2 hash 의미는 유지합니다.
+새 공통 transport `profile.source-set-json` (별칭 profile-source-set)은 기존
+profile.set-json / payload 0.2.0과 분리됩니다. 모든 profile과 값·단위를 보존하고
+선택을 명시합니다. fixture로 검증한 컴파일 정책과 v3 canonical 비교는 양쪽 원래
+옵션 및 incidental 변경을 공개합니다. 알 수 없는 binding은 strict이며 일반
+scalar 비교도 T-635 연결 전까지 전체 capture 동등성을 유지합니다. 기존 R5의
+“구현 대기” 설명은 이번에 검증한 canonical 원본 범위에서만 갱신됩니다.
+형식 의미·한도·검증·정책 key·CLI/화면은
+[정확한 원본 프로파일 가져오기](PROFILE_SOURCE_IMPORT.md)를 참고하세요.

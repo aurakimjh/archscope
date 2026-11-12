@@ -1,0 +1,41 @@
+{
+  "packages": {
+    "start": 107,
+    "pass": 102,
+    "skip": 5,
+    "fail": 0
+  },
+  "tests": {
+    "run": 1485,
+    "pass": 1479,
+    "skip": 6,
+    "fail": 0
+  },
+  "skips": [
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/halog",
+      "test": "TestPrivateReferenceSample"
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/comautomation",
+      "test": "TestReferencePresetFiltersWhenProvided"
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/transparent",
+      "test": "TestOfficialDriverFingerprints"
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/sessionfile",
+      "test": "TestLargeXLSIndependentReader"
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/jfr",
+      "test": "TestConvertJFRToJSONIntegration"
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/cases",
+      "test": "TestR606LargePageMeasurement"
+    }
+  ],
+  "scope": "Full uncached race, followed by final focused race after exact capture-number hash and source transport fixture changes; final corpus manifest-only representation checked by focused fixture test."
+}

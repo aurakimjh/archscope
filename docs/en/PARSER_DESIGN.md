@@ -953,3 +953,18 @@ provenance; JFR parsing and analysis retain their separate responsibilities.
 The generic catalog and common AnalysisResult contract remain unchanged.
 See [Input assistance](INPUT_ASSISTANCE.md) for limits, refusal codes and manual
 kit/CLI/UI usage. Runtime assets are embedded; no sibling checkout is needed.
+
+### T-634 original-source semantic revision
+
+The exact source normalizer adds `org.archscope.profile_source.v1` revision
+1.0.0 to ProfileSet schema 1.0.0 and emits AnalysisResult profile_evidence 0.3.0.
+Old source facades/results and v2 hashes keep their semantics. The new generic
+transport is `profile.source-set-json` (alias profile-source-set), disjoint from
+profile.set-json / payload 0.2.0. Every profile and value/unit choice survives;
+selection is explicit. Compiled fixture-qualified capture policies and v3 canonical
+comparison retain both original options and incidental-difference disclosure.
+Unknown bindings stay strict; generic scalar consumers stay on strict capture
+identity pending T-635. This supersedes the implementation-pending R5 statement
+only for these qualified canonical source slices. See
+[Exact profile sources](PROFILE_SOURCE_IMPORT.md) for format semantics, bounds,
+qualification, policy keys and CLI/desktop behavior.

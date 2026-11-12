@@ -1,0 +1,147 @@
+{
+  "extensions": {
+    "org.archscope.profile_source.v1": {
+      "revision": "1.0.0",
+      "producer_basis": "declared",
+      "format_version": "speedscope.schema.v1",
+      "metrics": [
+        {
+          "id": "sampled-seconds",
+          "type": "sampled",
+          "unit": "seconds"
+        }
+      ],
+      "profiles": [
+        {
+          "id": "profile-0",
+          "name": "worker-a",
+          "type": "sampled",
+          "start": "0",
+          "end": "1",
+          "unit": "seconds"
+        },
+        {
+          "id": "profile-1",
+          "name": "worker-b",
+          "type": "sampled",
+          "start": "0",
+          "end": "1",
+          "unit": "seconds"
+        }
+      ],
+      "attributes": {
+        "exporter": ""
+      }
+    }
+  },
+  "schema_version": "1.0.0",
+  "producer": "internal.source-fixture",
+  "producer_version": "1.0.0",
+  "format": "speedscope-json",
+  "source_sha256": [
+    "35ce44c3792b2603702cf05faaa8234151f00fceb0e7110d199df10afe44e0c0"
+  ],
+  "capture_options": {
+    "source_profile_bounds": [
+      {
+        "id": "profile-0",
+        "name": "worker-a",
+        "type": "sampled",
+        "start": "0",
+        "end": "1",
+        "unit": "seconds"
+      },
+      {
+        "id": "profile-1",
+        "name": "worker-b",
+        "type": "sampled",
+        "start": "0",
+        "end": "1",
+        "unit": "seconds"
+      }
+    ]
+  },
+  "frames": [
+    {
+      "id": "frame-95cd87e35c88d34daf063d210d3fea9990e0eb62eddb50cb4189bfd9d7ae0f78",
+      "symbol": "root",
+      "display": "root"
+    },
+    {
+      "id": "frame-94c7618a6d6532e6560b01a8329b935cad0e29b8a9c2a561a079abe89452dae1",
+      "symbol": "leaf",
+      "display": "leaf",
+      "file": "/synthetic/a.py",
+      "line": 2
+    }
+  ],
+  "stacks": [
+    {
+      "id": "stack-e369a94b3e6b7fd59416b1f55d9c92ba52c0264a39e518e97b20ed5d9e281fd2",
+      "frames": [
+        "frame-95cd87e35c88d34daf063d210d3fea9990e0eb62eddb50cb4189bfd9d7ae0f78",
+        "frame-94c7618a6d6532e6560b01a8329b935cad0e29b8a9c2a561a079abe89452dae1"
+      ]
+    },
+    {
+      "id": "stack-bb114e2c39e3dd30e58efb066841c0ab0f69c04f0a1327b5e1d64f1de917be43",
+      "frames": [
+        "frame-95cd87e35c88d34daf063d210d3fea9990e0eb62eddb50cb4189bfd9d7ae0f78"
+      ]
+    }
+  ],
+  "metrics": [
+    {
+      "id": "sampled-seconds",
+      "kind": "duration",
+      "unit": "seconds",
+      "scale": "1",
+      "signed": false
+    }
+  ],
+  "profiles": [
+    {
+      "id": "profile-0",
+      "worker": "worker-a",
+      "clock": "aggregate",
+      "samples": [
+        {
+          "metric_id": "sampled-seconds",
+          "source_ref": "profile:0/sample:0",
+          "stack_id": "stack-e369a94b3e6b7fd59416b1f55d9c92ba52c0264a39e518e97b20ed5d9e281fd2",
+          "weight": "0.25"
+        },
+        {
+          "metric_id": "sampled-seconds",
+          "source_ref": "profile:0/sample:1",
+          "stack_id": "stack-bb114e2c39e3dd30e58efb066841c0ab0f69c04f0a1327b5e1d64f1de917be43",
+          "weight": "0"
+        }
+      ]
+    },
+    {
+      "id": "profile-1",
+      "worker": "worker-b",
+      "clock": "aggregate",
+      "samples": [
+        {
+          "metric_id": "sampled-seconds",
+          "source_ref": "profile:1/sample:0",
+          "stack_id": "stack-bb114e2c39e3dd30e58efb066841c0ab0f69c04f0a1327b5e1d64f1de917be43",
+          "weight": "0.1"
+        }
+      ]
+    }
+  ],
+  "quality": {
+    "lost": null,
+    "unknown": null,
+    "truncated": null,
+    "symbol_resolution": null,
+    "clock_confidence": "unavailable",
+    "conversion_loss": [
+      "producer/context identity is declared, not original-source authentication",
+      "sampled weights remain aggregate observations; evented gaps are unattributed elapsed intervals; no CPU-time inference"
+    ]
+  }
+}

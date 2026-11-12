@@ -189,6 +189,9 @@ func (s ProfileSet) Validate() error {
 	if len(s.Extensions) > 128 || len(s.Quality.ConversionLoss) > 1024 {
 		return budget("extension/quality budget exceeded")
 	}
+	if _, _, e := s.SourceContract(); e != nil {
+		return e
+	}
 	if e := s.checkStrings(); e != nil {
 		return e
 	}
@@ -393,7 +396,10 @@ func (s ProfileSet) SelectionIdentity(selection Selection) string {
 // ComparisonIdentity v2 compares conditions, not measured quality counters.
 // Original selection/source identity remains unchanged for provenance.
 func (s ProfileSet) ComparisonIdentity(selection Selection) string {
-	return hash("population-", []any{"profile-conditions-v2", s.comparisonConditions(selection)})
+	if _, present, _ := s.SourceContract(); present {
+		return hash("population-", []any{"profile-conditions-v3", s.comparisonPolicyConditions(selection)})
+	}
+	return s.StrictComparisonIdentity(selection)
 }
 
 // LegacyComparisonIdentity validates pre-v2 saved declarations without rewriting

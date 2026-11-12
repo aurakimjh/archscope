@@ -1,3 +1,4 @@
+import { ProfileSourceAssistance } from "@/components/ProfileSourceAssistance";
 import { InputAssistance } from "@/components/InputAssistance";
 import { useEffect, useRef, useState } from "react";
 import { Dialogs } from "@wailsio/runtime";
@@ -170,6 +171,7 @@ export function EvidenceResultPanel({ entries, active }: { entries: AnalysisWork
       <Button variant="outline" disabled={busy || !path} onClick={() => void openSaved()}>{words("Open saved result", "저장 결과 열기")}</Button>
       <Button variant="outline" disabled={!busy && !job} onClick={cancel}>{words("Cancel", "취소")}</Button>
     </div>
+    <ProfileSourceAssistance path={path} disabled={busy} useNormalized={(file, selection) => { setPath(file); setImporter("profile.source-set-json"); setOptions(selection); }} />
     <InputAssistance path={path} scope={presetScope} chooseImporter={setImporter} />
     <details><summary>{words("Import options", "가져오기 옵션")}</summary>
       <label>{words("Preset scope (empty: application only)", "프리셋 범위 (빈 값: 앱 기본만)")} <input value={presetScope} onChange={e => { setPresetScope(e.target.value); setImporter("auto"); }} disabled={busy} placeholder="user / case:case-…" /></label>

@@ -1,0 +1,174 @@
+{
+  "task": "T-634",
+  "status": "REVIEW; local implementation and validation completed, independent review pending",
+  "recorded_at": "2026-11-12T10:22:23.930591+09:00",
+  "source_base_commit": "e650b53bcb3677ae602e6c9304602f3fc4bfaff4",
+  "pull_before_edits": "Already up to date; refreshed before commit, again already current",
+  "source_sha256": {
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/engineservice.ts": "b60802f926b52fdb6b19aee8b35561b4a8299dd1fc336388e5d5eb9b61f62507",
+    "apps/engine-native/cmd/archscope-app/frontend/src/bridge/engine.ts": "be676f7a97f0a5e58d8f146c21337e7f290dcb25b18ed326a4cefd83c98eb6a8",
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/EvidenceResultPanel.tsx": "46a1c08c809864767cb825bc6b68bcd543401789974660374ed306402f680bc4",
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/ProfileSourceAssistance.tsx": "b6808d54133e30533fb4371447b7ed3878daafdde5ce23489072f17ce6ddb280",
+    "apps/engine-native/cmd/archscope-app/profilesourceservice.go": "917fbde09d649dec54a3f2d1811ea37ca800229f7611e9b69bf0e449177b097d",
+    "apps/engine-native/cmd/archscope-app/profilesourceservice_test.go": "e0ed5386ff8f69d0f4df1164b9f4ef290211dbee9454c716252e282b318813ee",
+    "apps/engine-native/cmd/archscope-engine/cmd_profile.go": "4bfe6ef81b296d070c752c6e252f7bc223d78c68a62e6700f0a6a27fdd449722",
+    "apps/engine-native/cmd/archscope-engine/cmd_profile_source.go": "f60fc0abac0308d823bb16695a1c4ece7ebb742c5a67d958ee3a9a17bb613726",
+    "apps/engine-native/internal/analyzers/profile/model.go": "38af4f461313a8105515fd30aae0e595e7d69f7005fe38b986cacead2e338b2b",
+    "apps/engine-native/internal/analyzers/profile/source_model.go": "65c6e44201ed29192daa661346e6a7172e6cfbdacecc5904f7c13bdf11f06411",
+    "apps/engine-native/internal/catalog/builtin.go": "79998d343eada81459e9137f1568a5b96dc28e28069a1660924a2747c94e4b70",
+    "apps/engine-native/internal/catalog/contracts/profile-source-set.json": "6a0921bf56ac1da6d3eb946fdff81bdcef47f60730ae0659a961bbf4eef211b7",
+    "apps/engine-native/internal/catalog/contracts/profile-source-set.manifest.json": "f3adba5061fb8f6127e6a4bc750d89cfcf66c7196ac657ec71ab9872138a44d3",
+    "apps/engine-native/internal/catalog/contracts/profile-source-set.schema.json": "57b8db33bf8b065b81c68563935086dab6826f01a66c8660cddcc92a5a9b57d9",
+    "apps/engine-native/internal/catalog/contracts_test.go": "c65df72511c158b09c7ef4960914b81ca0e85cd07bfdaed5ac6a5711f4d2d541",
+    "apps/engine-native/internal/catalog/profile_set.go": "e6225f9c7038fab025adeaa3f83fd3b163da57831bbb03383d60590ae129a514",
+    "apps/engine-native/internal/distribution/assets/fixtures.sha256": "bf8ffa01d40211f94b6ecf7d71160c4324fa32774b52de7a52d6fdb7aa4c0970",
+    "apps/engine-native/internal/distribution/assets/fixtures.zip": "653b0d75a7d719f25d8cfff41100754eee44fc0b7f22fd066e68c9ccd9ac5d4b",
+    "apps/engine-native/internal/distribution/bundle_test.go": "c82e17e1d3494696da2f2cffd97dcf3fda0161a824dca46add3450171ea7e648",
+    "apps/engine-native/internal/parsers/profile/source.go": "ee1e02add2cc86259516284a0e80e31fda302c3c5d94b81f4de195b27075dbdf",
+    "apps/engine-native/internal/parsers/profile/source_pprof.go": "0fa70551f96459c163c54acd1ad55261ab029ab56e8b34305d83249c886c8af4",
+    "apps/engine-native/internal/parsers/profile/source_speedscope.go": "e0e7f9b17d8cd7eaf74ffdb14f76ac2019357c2e8c50ea03457a1f8c0679ad05",
+    "apps/engine-native/internal/parsers/profile/source_test.go": "6063639f9db9e64630f2be0959a725430cf92b629c26e3b55c125333c77fd1bf",
+    "apps/engine-native/internal/parsers/profile/testdata/source-producers/go-heap.json": "d7744eb367466011d5cb93a95a4cbee3664839fa345ab2760f36c6a96d1c85a0",
+    "apps/engine-native/internal/parsers/profile/testdata/source-producers/manifest.json": "56a5df696c329cc074046f2b5e925e165547dc674e06de217a68d177ca0433a6",
+    "apps/engine-native/internal/parsers/profile/testdata/source-producers/pyspy-speedscope.json": "8c442f7f9766a7ac8b2719fe058a3da160a2aaccb47e017055ea1f2c786564fb",
+    "apps/engine-native/internal/parsers/profile/testdata/source-producers/pyspy.raw": "ed80c37b69acb7ac555a7bff7f2ca26beefd9b2dae07d2f725348b9e74effa1c",
+    "apps/engine-native/internal/profilemodel/comparison.go": "643da64b6856c19da9b06db3b17718f0b0e8f6dba351ac42763cf5b66999a598",
+    "apps/engine-native/internal/profilemodel/model.go": "48924b9f856dd525a275e0a408dfacb8c0f6c46b799c5d4203a8f591b06acb5e",
+    "apps/engine-native/internal/profilemodel/operations.go": "2ea42c5ab1838147d75ce54b95577fd9d9f218e84692596af00afb2e51f8fd7d",
+    "apps/engine-native/internal/profilemodel/source_contract.go": "886c3b34116b17922f0034c9a510c33bcb75b0188fff809e1d8ce700e6009200",
+    "apps/engine-native/internal/profilemodel/source_policy_test.go": "eece7c76cbef6a6dcd9de8b93ec3bcb3fd8de7c7a2f0ab71ec01fc172719d8f1",
+    "docs/en/DATA_MODEL.md": "0596cfad83ed82d38ecbfe7d9a9a751d91e5fa35fdb80d032977f2f09ed67261",
+    "docs/en/IMPORTER_SUPPORT_MATRIX.md": "904b4f7fe11db2263c3c987d8948c3aa56ee74bffca29f90784d44ce39b57958",
+    "docs/en/PARSER_DESIGN.md": "98d2e095cf1754fc7a8db9f4ec72a371ac0381a06a258a714c3aaa40e51ac06b",
+    "docs/en/PROFILE_SOURCE_IMPORT.md": "0617834142dcc660f2ed86839afff161751cad4f39b5290732698ea9611b24a2",
+    "docs/ko/DATA_MODEL.md": "b49ece4f9bd8894eaed41e3382ba26c67d705e965f2cfaacdeb7699890817f98",
+    "docs/ko/IMPORTER_SUPPORT_MATRIX.md": "736a2ce0f63fb91d0269a7803bfc32650fdc1fd165c620d4ac911d5a5e74a956",
+    "docs/ko/PARSER_DESIGN.md": "4790946241b339f5b6a4e656c1ba2e452b67f6f5adc63f002698981a37b68dcf",
+    "docs/ko/PROFILE_SOURCE_IMPORT.md": "a0a9e762798578174da95e9681175daf0fef2636b4dd5df6a4a0260ea8c54351",
+    "scripts/build-offline-assets.py": "1ca63180679c27df6776be8625d710d371235cc99c57d0b44e955261c63cdea6",
+    "work_status.md": "36301f901084cd71fb9d2cb2793cec79fef82e3c1ef8261939c812823c6432a7"
+  },
+  "shared_assets": {
+    "id": "diagnostics.profile-producers.v1",
+    "commit": "08d3752435f5441ccae8e7e0647c9baf8e5a56c1",
+    "remote_main_verified": true,
+    "manifest_sha256": "56a5df696c329cc074046f2b5e925e165547dc674e06de217a68d177ca0433a6",
+    "scope": "Actual synthetic py-spy 0.4.1 subprocess Speedscope/raw and Go runtime/pprof go1.26.10 heap; sanitized source paths/mapping/time only, no blanket producer/platform promotion"
+  },
+  "semantics": {
+    "old": "Legacy profile import and saved 0.1.x/0.2.0 semantics and v2 identities remain intact",
+    "new": "Original-source extension normalizer 1.0.0, result payload 0.3.0, disjoint profile.source-set-json importer; explicit profile/metric selection",
+    "capture_policy": "Compiled version/format/normalizer/metric binding; original options, semantic/incidental/strict_unknown projections, policy hash and incidental differences retained. Unknown bindings strict; no global PID/duration skip. PID entity gate preserved. Generic scalar strict until T-635.",
+    "identity_basis": "declared; no original-source authentication",
+    "pprof_export": "Exact selected aggregate/tick projection; unsupported ticks original reimport and inexact/overflow export refused"
+  },
+  "checks": [
+    {
+      "check": "full uncached Go race; see race-summary.json",
+      "result": "PASS"
+    },
+    {
+      "check": "final focused race parser/model/catalog/distribution/Wails; exact capture numbers, original producer totals and decompression/observation ceilings",
+      "result": "PASS"
+    },
+    {
+      "check": "host go vet/build plus final focused vet",
+      "result": "PASS"
+    },
+    {
+      "check": "Windows amd64/386 cross-vet and production cross-build",
+      "result": "PASS; not native execution"
+    },
+    {
+      "check": "frontend state / TypeScript production build / generated Wails TypeScript bindings",
+      "result": "PASS"
+    },
+    {
+      "check": "macOS production package and codesign --verify --deep --strict",
+      "result": "PASS; new native UI not observed"
+    },
+    {
+      "check": "CLI original/direct/generic import, saved tree, diff, export, explicit selection/inexact export refusals",
+      "result": "PASS; see cli-report.json"
+    },
+    {
+      "check": "four importer standalone fixture bundle and resource/desktop-only checks",
+      "result": "PASS"
+    },
+    {
+      "check": "network-none clean Linux CLI process-tree observation + failed-network positive control",
+      "result": "PASS; see offline-summary.json"
+    },
+    {
+      "check": "new reusable corpus manifest/schema fields/hash/byte-identical standalone copies",
+      "result": "PASS"
+    },
+    {
+      "check": "shared repository full validate-assets.py",
+      "result": "BLOCKED by pre-existing profile-core-v1 map-style files / AttributeError in check_test_data_manifests; unchanged HEAD manifest verified; no general validator PASS"
+    }
+  ],
+  "artifacts": {
+    "archscope-t634-engine": {
+      "sha256": "42e676294018fd754243cf945ec95c86464286747e818ea185f03b2e3adb8d17",
+      "bytes": 31001106
+    },
+    "archscope-t634-engine-linux": {
+      "sha256": "bc170475fe9161121b76fb7ccba03eee867210d518bca5762d119ebde18b448f",
+      "bytes": 32083846
+    },
+    "archscope-t634-app-amd64.exe": {
+      "sha256": "f0b592fc00c57c050cfa9c6a725102bab5d89321292ed3d9565356ade8077995",
+      "bytes": 34695680
+    },
+    "archscope-t634-app-386.exe": {
+      "sha256": "78fcaab3811eee6e8d417b242129cd402ef4f34c19b3ffefcb991ed25b79f551",
+      "bytes": 33537536
+    },
+    "macOS-production-app-executable": {
+      "sha256": "e904222ddcce3010b84f955c626971b7a02730f156040266f88563003b8ed893",
+      "bytes": 31533504
+    }
+  },
+  "not_executed": [
+    "Independent review",
+    "Native Windows app/WebView execution for this change (separate user Windows PC acceptance)",
+    "New native macOS UI flow: CUA reported locked Mac; no unlock requested because backend/build work can complete",
+    "Broad producer versions/platforms/options, py-spy dump parsing, durable baseline/entity mapping/policy adoption in generic scalar UI (T-635)"
+  ],
+  "preserved_unrelated": [
+    "docs/en/SYSTEM_HTTP_CAPTURE.md",
+    "docs/ko/SYSTEM_HTTP_CAPTURE.md",
+    "scripts/verify-http-desktop.mjs",
+    "original HTTP First implementation cycle block in work_status.md"
+  ],
+  "review_intake": "Only docs/review/README.md was unprocessed at start and final refresh; no new review archived",
+  "next": "T-635; T-634 awaits independent review; neutral T-638 remains ready; 216 DONE / 2 TODO / 10 PENDING / 4 REVIEW / 0 IN_PROGRESS = 232 (16 open)",
+  "evidence_sha256": {
+    "cli-report.json": "17c99870dc34a8749067aa9a8326d931ddefef71f24f0ff46a61930e9561240e",
+    "final-focused.txt": "15350f05ebc911b6e6f109fbfc85dba0e54d12cacb1f5ec3f675ac9eafcc6b40",
+    "offline-conversion-denied.json": "ffe4710fb113af5c2f7d969a5e7d2e46dbb58baa18457afa3ea6d6c7502c3400",
+    "offline-conversion-denied.strace": "fc4adf0941176aa2e25dd8d44a401a39f5d5e088ff2e40f6e2bd191d04c0c3cd",
+    "offline-operation-0.json": "19e55c88003b10713a7bcb75b83166608adb2a0ec775aa8af63c8b66f906bfc2",
+    "offline-operation-0.output.json": "4e19fb5c27cc4c75f40875fe22a493bb3607fa7b12ab2fd9c34075b81530da0a",
+    "offline-operation-0.strace": "4d68414848d7d37deaf2ca411bdbfa443e19efab08be4d851b0f1180202e4d6b",
+    "offline-operation-1.json": "19e55c88003b10713a7bcb75b83166608adb2a0ec775aa8af63c8b66f906bfc2",
+    "offline-operation-1.output.json": "9927b989ecacd8443fae2064657ff7bf2d68ec4cc41a8c12036f2c0315a5f458",
+    "offline-operation-1.strace": "8d00cfc8c82e78ba3c5a764343acb71a73c91621237d33207102376c51f2edc1",
+    "offline-operation-2.json": "19e55c88003b10713a7bcb75b83166608adb2a0ec775aa8af63c8b66f906bfc2",
+    "offline-operation-2.output.json": "fac92b6276118c7a9325bbd071a5c778e0c652cfec19b187f095392c5dc8a37e",
+    "offline-operation-2.strace": "2b940b7b947b5f8df4f6216b94c99a5629e373ae1c2b93c37ead9b2c40ebb00e",
+    "offline-operation-3.json": "19e55c88003b10713a7bcb75b83166608adb2a0ec775aa8af63c8b66f906bfc2",
+    "offline-operation-3.output.json": "4403ae63f7f811c71695158ed098717efa71cb93342cd1d2aa7edb058a07f725",
+    "offline-operation-3.strace": "566e98dda7c3ab6b300749bc99e65c67daeacd3c953e822db78189b2bfa1a1f1",
+    "offline-operation-4.json": "19e55c88003b10713a7bcb75b83166608adb2a0ec775aa8af63c8b66f906bfc2",
+    "offline-operation-4.output.json": "686e3562c23c20b8ea55775104862305e3ddd3ed072ad10cba474d6a43edbcea",
+    "offline-operation-4.strace": "0780554b75a7494c452f9de55df86b1b70f7797db1d17c9aff2946e82d006292",
+    "offline-operation-5.json": "19e55c88003b10713a7bcb75b83166608adb2a0ec775aa8af63c8b66f906bfc2",
+    "offline-operation-5.output.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "offline-operation-5.strace": "35b000f8cd6e8a7d790a7ec9923fff49e5c778c252a6c7368a0f5762543fcb55",
+    "offline-positive-control.strace": "d0d6efdc5a0b6c9989f03e736ca3ade9921a7dee7c42551b1080b70e99e42198",
+    "offline-summary.json": "c24c803284e9af41185b427d92f7aed8334ee7423fa10071bd551f52d2889eed",
+    "race-summary.json": "cfafff369c478664a9a92c43a5caf5d20c55ddf218221097f7e4b28aac3e1c95"
+  }
+}

@@ -85,3 +85,26 @@ T-635의 명시 매핑 전까지 entity_mapping_required로 거절한다. 과거
 지원을 주장하지 않는다. 바이너리 JFR은 절대 경로로 명시한 설치 JDK를 제한적으로
 실행하고 provenance를 기록한다. JSON 분석에는 변환기가 필요하지 않으며 오프라인
 세션에는 미리 변환한 JSON을 사용한다. [입력 안내](INPUT_ASSISTANCE.md)를 참조한다.
+
+### 정확한 원본 프로파일 경로 (T-634)
+
+기존 T-629 설명의 “T-634에서 수행” 범위는 별도 원본 경로로 구현했습니다.
+`profile inspect-source`, `normalize-source`, `import-source`는 정확한 가중치와
+단위를 보존하고 profile/metric을 명시적으로 선택합니다. Desktop Workspace는
+원본을 새 `profile.source-set-json` / `profile-source-set` 모델로 정규화해
+`profile_evidence` 0.3.0을 생성합니다. `profile import`는 기존 의미를 유지합니다.
+Evented Speedscope는 이벤트 개수 대신 exclusive 경과 구간과 unattributed gap을
+사용하며 sampled 시간 가중치를 CPU 시간으로 추정하지 않습니다. pprof는 모든
+column, 음수, label과 period를 보존하고 period를 이중 적용하지 않습니다.
+
+| 범위 | 검증 | 수집 옵션 정책 |
+|---|---|---|
+| py-spy 0.4.1 raw / sampled Speedscope seconds | 실제 합성 subprocess 수집 fixture와 고정 digest | 해당 metric/형식 binding의 컴파일된 1.0.0 정책 |
+| Go runtime/pprof go1.26.10 heap | 실제 합성 4-column 수집 fixture와 고정 digest | alloc/inuse objects·space의 컴파일된 1.0.0 정책 |
+| 그 밖에 구조가 지원되는 sampled/evented Speedscope / 지원 단위 pprof | 합성 형식 회귀, producer/platform/option 전면 검증 없음 | unknown/no-policy 옵션은 strict |
+
+기존 모델과 일반 scalar 비교는 엄격한 전체 capture 비교를 유지하며 영속 baseline
+연결은 T-635입니다. fixture로 도구·플랫폼 전체 지원, dump text 지원이나 원본 정체성
+인증을 주장하지 않습니다. Windows 네이티브/UI 수용과 독립 리뷰는 별도입니다.
+한도·CLI 예시·projection 제약·정책 key·근거 범위는
+[정확한 원본 프로파일 가져오기](PROFILE_SOURCE_IMPORT.md)를 참고하세요.

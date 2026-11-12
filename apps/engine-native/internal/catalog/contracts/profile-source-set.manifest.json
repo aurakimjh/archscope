@@ -1,0 +1,9 @@
+{
+  "version": "1.0.0",
+  "schema_sha256": "57b8db33bf8b065b81c68563935086dab6826f01a66c8660cddcc92a5a9b57d9",
+  "files": {
+    "profile-source-set.json": "6a0921bf56ac1da6d3eb946fdff81bdcef47f60730ae0659a961bbf4eef211b7"
+  },
+  "synthetic": true,
+  "qualification": "internal normalized transport only"
+}

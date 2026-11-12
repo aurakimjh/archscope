@@ -208,17 +208,19 @@ type DiffRow struct {
 	Reason     string  `json:"reason,omitempty"`
 }
 type ProfileComparisonReference struct {
-	Quality      Quality  `json:"quality"`
-	Handle       string   `json:"handle,omitempty"`
-	ResultSHA256 string   `json:"result_sha256,omitempty"`
-	ModelSHA256  string   `json:"model_sha256"`
-	Population   string   `json:"population"`
-	SourceHashes []string `json:"source_sha256"`
+	CapturePolicy *CapturePolicy `json:"capture_policy,omitempty"`
+	Quality       Quality        `json:"quality"`
+	Handle        string         `json:"handle,omitempty"`
+	ResultSHA256  string         `json:"result_sha256,omitempty"`
+	ModelSHA256   string         `json:"model_sha256"`
+	Population    string         `json:"population"`
+	SourceHashes  []string       `json:"source_sha256"`
 }
 
 type Difference struct {
-	QualityDifferences []string `json:"quality_differences"`
-	Warnings           []string `json:"warnings"`
+	IncidentalDifferences []string `json:"incidental_differences,omitempty"`
+	QualityDifferences    []string `json:"quality_differences"`
+	Warnings              []string `json:"warnings"`
 	// Model validation checks consistency, not source authenticity.
 	IdentityBasis  string                     `json:"identity_basis"`
 	ComparisonMode string                     `json:"comparison_mode"`
@@ -273,17 +275,21 @@ func Compare(ctx context.Context, a ProfileSet, as Selection, b ProfileSet, bs S
 	if left.Population != right.Population {
 		mode = "baseline_target"
 	}
-	ref := func(s ProfileSet, population string) ProfileComparisonReference {
+	ref := func(s ProfileSet, population string, metricID string) ProfileComparisonReference {
 		sources := append([]string(nil), s.SourceHashes...)
 		sort.Strings(sources)
-		return ProfileComparisonReference{Quality: copyQuality(s.Quality), ModelSHA256: hash("", s), Population: population, SourceHashes: sources}
+		return ProfileComparisonReference{CapturePolicy: s.CapturePolicy(metricID), Quality: copyQuality(s.Quality), ModelSHA256: hash("", s), Population: population, SourceHashes: sources}
 	}
 	qualityChanges := qualityDifferences(a.Quality, b.Quality)
+	incidental := incidentalDifferences(a.CapturePolicy(as.MetricID), b.CapturePolicy(bs.MetricID))
 	warnings := []string{}
+	if len(incidental) > 0 {
+		warnings = append(warnings, "incidental_capture_options_differ")
+	}
 	if len(qualityChanges) > 0 {
 		warnings = append(warnings, "quality_measurements_differ")
 	}
-	out := Difference{QualityDifferences: qualityChanges, Warnings: warnings, IdentityBasis: "declared", Metric: left.Metric, Population: left.Population, Rows: []DiffRow{}, ComparisonMode: mode, Baseline: ref(a, left.Population), Target: ref(b, right.Population)}
+	out := Difference{IncidentalDifferences: incidental, QualityDifferences: qualityChanges, Warnings: warnings, IdentityBasis: "declared", Metric: left.Metric, Population: left.Population, Rows: []DiffRow{}, ComparisonMode: mode, Baseline: ref(a, left.Population, as.MetricID), Target: ref(b, right.Population, bs.MetricID)}
 	for _, id := range ordered {
 		if e := ctx.Err(); e != nil {
 			return out, e

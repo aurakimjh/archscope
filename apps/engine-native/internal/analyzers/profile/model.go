@@ -42,7 +42,7 @@ func BuildSet(ctx context.Context, set profilemodel.ProfileSet, selection profil
 	}
 	result := models.New(ResultType, "profile_set")
 	result.SourceFiles = []string{source}
-	result.Metadata.SchemaVersion = ModelPayloadVersion
+	result.Metadata.SchemaVersion = modelPayload(set)
 	result.Summary = map[string]any{"total_weight": tree.Root.Inclusive, "total_samples": nil, "sample_records": tree.SampleRecords, "metric_id": tree.Metric.ID, "measurement_kind": tree.Metric.Kind, "unit": tree.Metric.Unit, "scale": tree.Metric.Scale, "profile_count": len(selection.ProfileIDs)}
 	if tree.Availability == "observed" && tree.Metric.Kind == "sample_count" {
 		n, _ := profilemodel.Number(tree.Root.Inclusive)
@@ -81,14 +81,18 @@ func BuildSet(ctx context.Context, set profilemodel.ProfileSet, selection profil
 	}
 	result.Metadata.Extra["measurement"] = map[string]resultcontract.Measurement{"/summary/total_weight": metric, "/summary/total_samples": count, "/series/frame_weights": {Columns: map[string]resultcontract.Measurement{"weight": metric, "self_weight": metric}}}
 	result.Metadata.Extra["population_ids"] = []string{"selected"}
+	if _, present, _ := set.SourceContract(); present {
+		result.Metadata.Extra["capture_policy"] = set.CapturePolicy(selection.MetricID)
+		result.Metadata.Extra["comparison_policy_scope"] = "canonical_profile_operations_only; generic scalar comparison retains strict capture equality"
+	}
 	rawMetric, _ := json.Marshal(tree.Metric)
 	revision := sha256.Sum256(rawMetric)
-	result.Metadata.Extra["populations"] = map[string]resultcontract.PopulationIdentity{"selected": {Comparison: &resultcontract.PopulationComparison{Version: "1.0.0", SelectionHash: strings.TrimPrefix(set.ComparisonIdentity(selection), "population-"), CoverageKind: "complete_selected_model"}, SourceHashes: append([]string(nil), set.SourceHashes...), SelectionHash: strings.TrimPrefix(tree.Population, "population-"), SemanticRevision: ModelPayloadVersion + "/" + profilemodel.Version + "/" + hex.EncodeToString(revision[:]), Coverage: "complete_selected_model"}}
+	result.Metadata.Extra["populations"] = map[string]resultcontract.PopulationIdentity{"selected": {Comparison: &resultcontract.PopulationComparison{Version: "1.0.0", SelectionHash: strings.TrimPrefix(set.StrictComparisonIdentity(selection), "population-"), CoverageKind: "complete_selected_model"}, SourceHashes: append([]string(nil), set.SourceHashes...), SelectionHash: strings.TrimPrefix(tree.Population, "population-"), SemanticRevision: modelPayload(set) + "/" + profilemodel.Version + "/" + hex.EncodeToString(revision[:]), Coverage: "complete_selected_model"}}
 	return result, nil
 }
 func ReadCore(result models.AnalysisResult) (CoreEvidence, error) {
 	var core CoreEvidence
-	if result.Type != ResultType || result.Metadata.SchemaVersion != ModelPayloadVersion {
+	if result.Type != ResultType || (result.Metadata.SchemaVersion != ModelPayloadVersion && result.Metadata.SchemaVersion != SourceModelPayloadVersion) {
 		return core, fmt.Errorf("profile result requires original reanalysis into ProfileSet")
 	}
 
@@ -114,6 +118,9 @@ func ReadCore(result models.AnalysisResult) (CoreEvidence, error) {
 
 	if core.Version != profilemodel.Version {
 		return core, fmt.Errorf("unsupported profile core revision")
+	}
+	if result.Metadata.SchemaVersion != modelPayload(core.Model) {
+		return core, fmt.Errorf("profile semantic revision/model mismatch; reimport original")
 	}
 	return core, core.Model.ValidateSelection(core.Selection)
 }
@@ -155,7 +162,12 @@ func ValidateModelResult(result models.AnalysisResult) error {
 			expectedPop["selected"] = item
 		}
 	}
-	for _, pair := range [][2]any{{result.Summary, expected.Summary}, {result.Series, expected.Series}, {result.Tables, expected.Tables}, {result.Charts, expected.Charts}, {result.Metadata.Extra["measurement"], expected.Metadata.Extra["measurement"]}, {result.Metadata.Extra["populations"], expected.Metadata.Extra["populations"]}, {result.Metadata.Extra["quality"], expected.Metadata.Extra["quality"]}} {
+	pairs := [][2]any{}
+	if result.Metadata.SchemaVersion == SourceModelPayloadVersion {
+		pairs = append(pairs, [2]any{result.Metadata.Extra["capture_policy"], expected.Metadata.Extra["capture_policy"]}, [2]any{result.Metadata.Extra["comparison_policy_scope"], expected.Metadata.Extra["comparison_policy_scope"]})
+	}
+	pairs = append(pairs, [][2]any{{result.Summary, expected.Summary}, {result.Series, expected.Series}, {result.Tables, expected.Tables}, {result.Charts, expected.Charts}, {result.Metadata.Extra["measurement"], expected.Metadata.Extra["measurement"]}, {result.Metadata.Extra["populations"], expected.Metadata.Extra["populations"]}, {result.Metadata.Extra["quality"], expected.Metadata.Extra["quality"]}}...)
+	for _, pair := range pairs {
 		a, e := json.Marshal(pair[0])
 		if e != nil {
 			return e

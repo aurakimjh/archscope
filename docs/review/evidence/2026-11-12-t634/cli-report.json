@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "source_sha256": "8c442f7f9766a7ac8b2719fe058a3da160a2aaccb47e017055ea1f2c786564fb",
+  "actual_pyspy_profiles": 3,
+  "exact_actual_pyspy_total_seconds": "5.9",
+  "checks": [
+    "original inventory",
+    "new model no overwrite",
+    "generic source import",
+    "direct import parity",
+    "explicit selection refusal",
+    "saved exact tree",
+    "canonical incidental diff disclosure",
+    "exact ticks export",
+    "inexact export refusal",
+    "actual multi-process Speedscope total against independent Decimal sum"
+  ],
+  "final_build_actual_source_import": "PASS",
+  "final_engine_sha256": "42e676294018fd754243cf945ec95c86464286747e818ea185f03b2e3adb8d17"
+}

@@ -1,0 +1,31 @@
+{
+  "version": "1.0.0",
+  "revision": "3",
+  "trust_sequence": "0",
+  "keys": {
+    "bundled-bootstrap-20261111": {
+      "id": "bundled-bootstrap-20261111",
+      "public_key": "uQ0AbeAdPA65KxvijyMgZU8ijXHxXT3aOYDF5FHa3/A=",
+      "manage_trust": true,
+      "revoked": false
+    }
+  },
+  "installed": {
+    "application|ff5d7263cb411431d7382fe1a8d208a59fc8e374e65358ef30e1f07eefb7f79c": {
+      "id": "diagnostics.snapshot-foundation",
+      "version": "1.0.0",
+      "sha256": "ff5d7263cb411431d7382fe1a8d208a59fc8e374e65358ef30e1f07eefb7f79c",
+      "archive_sha256": "88a380b7ead09ba7bf3893d7698b66bccf8d3132bbee5c55a64b00e2fb4d1108",
+      "signer": "bundled-bootstrap-20261111",
+      "origin": "signed",
+      "scope": "application",
+      "bytes": 5345
+    }
+  },
+  "active": {
+    "application|diagnostics.snapshot-foundation": "ff5d7263cb411431d7382fe1a8d208a59fc8e374e65358ef30e1f07eefb7f79c"
+  },
+  "choices": {},
+  "unavailable": [],
+  "problems": []
+}

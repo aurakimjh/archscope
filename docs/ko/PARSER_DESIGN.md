@@ -976,3 +976,17 @@ baseline 색인은 T-635 범위다. [데이터 모델](DATA_MODEL.md)을 참조�
 각각의 책임을 유지한다. 일반 카탈로그와 공통 AnalysisResult 계약은 바꾸지 않는다.
 한도/거부 코드와 수동 키트·CLI·UI 사용은 [입력 안내](INPUT_ASSISTANCE.md)를 따른다.
 런타임 자산은 내장하며 형제 체크아웃이 필요하지 않다.
+
+### T-634 원본 의미 버전
+
+정확한 원본 normalizer는 ProfileSet schema 1.0.0에
+`org.archscope.profile_source.v1` revision 1.0.0을 추가하고 AnalysisResult
+profile_evidence 0.3.0을 생성합니다. 기존 facade·결과·v2 hash 의미는 유지합니다.
+새 공통 transport `profile.source-set-json` (별칭 profile-source-set)은 기존
+profile.set-json / payload 0.2.0과 분리됩니다. 모든 profile과 값·단위를 보존하고
+선택을 명시합니다. fixture로 검증한 컴파일 정책과 v3 canonical 비교는 양쪽 원래
+옵션 및 incidental 변경을 공개합니다. 알 수 없는 binding은 strict이며 일반
+scalar 비교도 T-635 연결 전까지 전체 capture 동등성을 유지합니다. 기존 R5의
+“구현 대기” 설명은 이번에 검증한 canonical 원본 범위에서만 갱신됩니다.
+형식 의미·한도·검증·정책 key·CLI/화면은
+[정확한 원본 프로파일 가져오기](PROFILE_SOURCE_IMPORT.md)를 참고하세요.
