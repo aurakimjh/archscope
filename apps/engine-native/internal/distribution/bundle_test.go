@@ -10,7 +10,9 @@ import (
 )
 
 func TestStandaloneFixturesRequiredAndComplete(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	// Run all registered importers under race instrumentation as well; this is
+	// a conformance check, not a twenty-second performance requirement.
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
 	defer cancel()
 	ids, e := CheckFixtures(ctx)
 	if e != nil {
@@ -29,7 +31,7 @@ func TestStandaloneFixturesRequiredAndComplete(t *testing.T) {
 	}
 }
 func TestCleanBundleAndPreflightRefuseMissingTamperAndUndeclared(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
 	defer cancel()
 	source, e := os.Executable()
 	if e != nil {
