@@ -11,7 +11,7 @@
     },
     {
       "file": "README.md",
-      "sha256": "4730bf070c34dbdd3c90a152dd82ac51a16d305fdff977166c7cbaa5aab43b10"
+      "sha256": "e9cc005feefc6a282f6b1d7711b8a509a2a0a93bd5524ce0cead08f240bf0d29"
     },
     {
       "file": "bpftrace-capture.json",
@@ -71,8 +71,8 @@
     },
     {
       "file": "system-evidence-set.schema.json",
-      "sha256": "536d4848039682885043a74de338f1b873223a4fc94c294ed7dfe5b90b9af81c"
+      "sha256": "14177e2d91e0223b4f2384535159a804774b80aa6bb25a83a642aa73a4a97989"
     }
   ],
-  "schema_sha256": "536d4848039682885043a74de338f1b873223a4fc94c294ed7dfe5b90b9af81c"
+  "schema_sha256": "14177e2d91e0223b4f2384535159a804774b80aa6bb25a83a642aa73a4a97989"
 }

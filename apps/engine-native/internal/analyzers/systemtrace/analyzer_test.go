@@ -3,6 +3,7 @@ package systemtrace_test
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	a "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/systemtrace"
 	p "github.com/aurakimjh/archscope/apps/engine-native/internal/profilemodel"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/resultcontract"
@@ -191,5 +192,37 @@ func TestHistogramPagesKeepFullScaleAndNoTemporalProjection(t *testing.T) {
 	}
 	if _, e = a.Histogram(context.Background(), s, "immutable", s.Records[0].ID, -1, 25); e == nil {
 		t.Fatal("negative page")
+	}
+}
+
+func TestR1504IgnoredTIDsRetainRawEvidenceButExcludeCosts(t *testing.T) {
+	s := model(t, "system-evidence-set.json")
+	ctx := context.Background()
+	tid := s.Capture.Entities[0].TID
+	id := s.Capture.Entities[0].ID
+	s.Capture.IgnoredTIDs = []string{tid}
+	if e := s.Validate(ctx); e != nil {
+		t.Fatal(e)
+	}
+	before := len(s.Records)
+	rows, e := a.Intervals(ctx, s)
+	if e != nil {
+		t.Fatal(e)
+	}
+	for _, row := range rows {
+		if row.Entity == id {
+			t.Fatal("ignored interval leaked")
+		}
+	}
+	result, e := a.Build(ctx, s, "ignored")
+	if e != nil {
+		t.Fatal(e)
+	}
+	if result.Summary["record_count"] != fmt.Sprint(before) {
+		t.Fatal("raw records dropped")
+	}
+	s.Capture.IgnoredTIDs = []string{"999999"}
+	if s.Validate(ctx) == nil {
+		t.Fatal("undeclared ignored lifetime accepted")
 	}
 }

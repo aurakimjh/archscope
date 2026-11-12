@@ -124,3 +124,5 @@ event 입력만 off-CPU 호출 구조를 갖는다. 현재 off_cpu는 sleeping/r
 고유 frame이 매번 바뀌는 perf 입력은 sample당 고유 25 frame에서 약 4,012 sample로 모델 16 MiB 제한에 도달할 수 있다. 반복 stack 2만/2.4만 검증을 고유 stack 수용량으로 해석하지 않는다. 오류의 byte 제한을 기준으로 perf script --time으로 원본 시간 구간을 분할한 뒤 각각 정규화한다.
 
 original_sha256은 상위 변환 전 바이너리 출처 선언이며 텍스트 해시 단언이 아닙니다. 선택적 capture.imported_sha256은 실제 입력 바이트(gzip은 압축 바이트)와 파싱 전·모델 검증 시 대조하고 불일치하면 SYSTEM_CAPTURE_IMPORTED_MISMATCH로 거부합니다. 필드가 없는 기존 캡처의 식별자·바이트는 유지합니다.
+
+선택적 ignored_tids로 선언된 TID lifetime을 구간 요약·수치 프로파일에서 제외하되 원본 record·좌표는 보존합니다. idle0/0을 한 번 선언하고 TID0을 제외하면 CPU 간 idle 잡음을 제거합니다. 미선언 제외 대상은 거부합니다. scheduler waker header는 관측 대상 entity가 아니므로 payload 대상 TID와 sample PID/TID만 일치 선언을 요구합니다. idle·waker를 추정하지 않습니다.

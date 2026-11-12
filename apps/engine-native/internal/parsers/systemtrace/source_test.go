@@ -172,3 +172,16 @@ func TestR1503SeparateBinaryAndImportedHashes(t *testing.T) {
 		t.Fatal("saved assertion mismatch accepted")
 	}
 }
+
+func TestR1504WakerHeaderIsNotAnObservedEntity(t *testing.T) {
+	s := load(t, "events.jsonl", "events-jsonl", "events-capture.json")
+	s.Capture.Tool = "perf"
+	s.Capture.ToolVersion = "6.1.190"
+	s.Capture.Fields = m.PerfSchedulerFields
+	s.Capture.ScriptSHA256 = ""
+	raw := []byte("waker 1/1 [000] 1.000000001: 1 sched:sched_wakeup: comm=synthetic pid=124 prio=120 target_cpu=000\n")
+	got, e := p.ParseBytes(context.Background(), raw, p.Options{Format: "perf-script", Capture: s.Capture})
+	if e != nil || len(got.Records) != 1 || got.Records[0].Entity != "worker-generation-a" {
+		t.Fatal(got, e)
+	}
+}

@@ -46,6 +46,7 @@ type HistogramDefinition struct {
 	To          *string `json:"to_ns"`
 }
 type Capture struct {
+	IgnoredTIDs    []string              `json:"ignored_tids,omitempty"`
 	ImportedSHA256 string                `json:"imported_sha256,omitempty"`
 	OriginalSHA256 string                `json:"original_sha256,omitempty"`
 	ExportOptions  []string              `json:"export_options,omitempty"`
@@ -181,6 +182,20 @@ func (c Capture) Validate() error {
 		}
 		ids[e.ID] = true
 		pairs[pair] = true
+	}
+	if len(c.IgnoredTIDs) > 1024 {
+		return fmt.Errorf("SYSTEM_IGNORED_TIDS_INVALID")
+	}
+	ignored := map[string]bool{}
+	declared := map[string]bool{}
+	for _, entity := range c.Entities {
+		declared[entity.TID] = true
+	}
+	for _, tid := range c.IgnoredTIDs {
+		if !UInt(tid) || ignored[tid] || !declared[tid] {
+			return fmt.Errorf("SYSTEM_IGNORED_TIDS_INVALID: unique canonical TIDs require a declared lifetime")
+		}
+		ignored[tid] = true
 	}
 	names := map[string]bool{}
 	for _, e := range c.Events {

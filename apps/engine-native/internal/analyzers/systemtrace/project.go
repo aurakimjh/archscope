@@ -92,7 +92,14 @@ func Project(ctx context.Context, s m.Set, metricID string, entityIDs []string) 
 		entity[e.ID] = e
 	}
 	frames, stacks := map[string]bool{}, map[string]bool{}
+	ignored := map[string]bool{}
+	for _, tid := range s.Capture.IgnoredTIDs {
+		ignored[tid] = true
+	}
 	add := func(r m.Record, weight string, interval *string, stack []m.Frame) error {
+		if ignored[entity[r.Entity].TID] {
+			return nil
+		}
 		if !allowed[r.Entity] {
 			return nil
 		}

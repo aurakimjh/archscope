@@ -163,10 +163,7 @@ func ParseBytes(ctx context.Context, original []byte, o Options) (m.Set, error) 
 				if e != nil {
 					return fail(e)
 				}
-				entity, e := findEntity(o.Capture, pid, tid)
-				if e != nil {
-					return fail(e)
-				}
+				entity := ""
 				kind := ""
 				for _, d := range o.Capture.Events {
 					if d.Name == name {
@@ -174,6 +171,11 @@ func ParseBytes(ctx context.Context, original []byte, o Options) (m.Set, error) 
 					}
 				}
 				if kind == "sample" {
+					var e error
+					entity, e = findEntity(o.Capture, pid, tid)
+					if e != nil {
+						return fail(e)
+					}
 					if o.Capture.Fields != m.PerfFields {
 						return fail(fmt.Errorf("SYSTEM_PERF_SAMPLE_FIELDS_REQUIRED"))
 					}

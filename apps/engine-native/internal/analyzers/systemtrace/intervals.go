@@ -82,11 +82,18 @@ func Intervals(ctx context.Context, s m.Set) ([]Interval, error) {
 		r.ID = "interval-" + m.Hash(r)
 		out = append(out, r)
 	}
+	ignored := map[string]bool{}
+	for _, tid := range s.Capture.IgnoredTIDs {
+		ignored[tid] = true
+	}
 	byEntity := map[string][]*m.Record{}
 	for i := range s.Records {
 		r := &s.Records[i]
 		if e := ctx.Err(); e != nil {
 			return nil, e
+		}
+		if ignored[entities[r.Entity].TID] {
+			continue
 		}
 		switch r.Kind {
 		case "duration":
