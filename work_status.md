@@ -1133,8 +1133,7 @@ priority/dependency-ordered P3 queue; multi-load evidence covers only part of R2
 T-644 is DONE under R21 explicit P2-remediation permission. R21-01/03 are locally
 fixed and verified; R21-02/04 follow existing dependency-ordered P3 review work.
 T-645 is DONE under R22 explicit no-blocker closure permission; its P3 follow-ups
-are queued after older findings. R13-02 is now locally fixed and verified; the next ready P3 is R13-04
-(coordinate-bearing bounded metric numeric/shape errors), before R13-03/05/06/07.
+are queued after older findings. R13-02/03 are locally fixed and verified. User-directed batch order is R13-03 → R13-05 → R13-06 → R13-07, with individual commits and one final push. R13-04 (coordinate-bearing bounded metric numeric/shape errors) is next after this batch.
 No numbered implementation is TODO. Other D17 candidates require their own demand,
 permitted input and producer/version qualification. Original independent CONDITIONAL verdicts and native
 UI/GPU/serving/producer/Office/Windows acceptance remain separate.
@@ -3719,7 +3718,7 @@ review bytes. T-636 proceeds; resolve the payload P2 before more consumers.
 | 1 / P2 | R13-01 | Locally fixed: selected-series compact payload 0.2.0, minimal projections, compact CLI result output and measured actionable limits; 0.1.0 saved bytes/readers retained. Actual 100k-point CLI import/readback and one-series storage reduction verified; permits T-638 closure under original review condition. |
 | 2 / P3 | R13-02 | LOCALLY_FIXED: verified result-byte rehash on every request, owned model/interval index and binary-search window paging;2 entries/192MiB structural admission/fixed2-minute lazy expiry/LRU, oversized valid entries uncached. Caller isolation, stale cursors, cancellation, cleanup,0.1/0.2 exact readers and stateless CLI verified.100k local cold4.160s/warm3 pages73.320ms, no RSS/general latency claim. Evidence: docs/review/evidence/2026-11-12-metric-cache/local.json. |
 | 3 / P3 | R13-04 | Follow-up: stable bounded numeric/shape errors with point coordinates; keep explicit whole-file refusal for out-of-exact-range values until a new point-status contract is reviewed. |
-| 4 / P3 | R13-03 | Follow-up: mark range gauge cadence gaps without interpolation. Current range step binds identity only; document this limitation explicitly. |
+| 4 / P3 | R13-03 | LOCALLY_FIXED: normalizer 1.1.0 range gauges expose declared-cadence gaps; no interpolation/rates; saved 1.0.0 semantics preserved. |
 | 5 / P3 | R13-05 | Follow-up: distinguish identical cross-export observations from conflicting values without silently merging provenance or deriving ambiguous rates. |
 | 6 / P3 | R13-06 | Follow-up: dedicated interval CSV projection. Existing generic CSV is summary/availability only; correct consumer documentation now. |
 | 7 / P3 | R13-07 | Follow-up: series search/filtered select-all/pagination and selection-size guidance; existing UI is a bounded full inventory list. |
@@ -4772,3 +4771,10 @@ The Windows receipt above records its tested pre-review snapshot. Current T-645
 status is DONE under R22 explicit permission; it does not qualify the later R13-02
 cache on native Windows. Final documentation-only integration:8060406; tested Go
 source bytes and all119-package race/CLI/build results are unchanged.
+
+
+### R13 user-directed follow-up batch — 2026-11-12
+
+Requested order R13-03 → R13-05 → R13-06 → R13-07 overrides the ordinary P3 queue for this batch; R13-04 remains next afterwards. Each item is committed separately, with push only after all four. Initial git pull --ff-only: already up to date at ae79e4b. Unrelated HTTP work remains excluded.
+
+R13-03 LOCALLY_FIXED: range parser emits normalizer 1.1.0; adjacent known end timestamps separated by more than declared positive step set gap independently of value/conflict status. No interpolation, inferred cadence or gauge rates. Saved normalizer 1.0.0 retains its original projections. Explicit merge preserves the newest input revision. Targeted model/parser/analyzer/service tests verify gaps, reordered/duplicate/nonfinite observations, optional cadence, window predecessor context, prepared/stateless equality and saved-result validation. Original independent verdict and native Windows acceptance remain unchanged.

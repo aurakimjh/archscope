@@ -37,7 +37,7 @@ rate를 만들지 않습니다. Non-monotonic sum은 음수 변화를 보존하�
 
 종료 시각으로 정렬해 계산하면서 원래 좌표와 순서 변경 여부를 유지합니다. 명시적 cadence보다
 긴 sum/histogram 구간은 전체 구간 평균이며 보간하지 않습니다. Delta 사이의 누락 구간은 gap으로 표시합니다.
-Range-query gauge는 현재 `step_ns`를 식별자에만 반영하며 빠진 cadence slot은 표시하지 않습니다(R13-03 후속).
+새 range-query 모델은 normalizer 1.1.0을 사용합니다. 연속 관측 종료 시각 차이가 선언한 양의 `step_ns`보다 크면 `gap=true`입니다. 값과 기존 상태(결측·충돌 포함)는 보존하며 보간·가상 샘플·gauge rate를 만들지 않습니다. 시간창 밖의 선행 관측도 판정에 사용합니다. 저장된 1.0.0 모델은 종전 해석을 유지하고 명시적 merge는 입력 중 최신 normalizer를 보존합니다.
 Cadence가 없는 cumulative에 임의 주기를 만들지 않습니다. OTLP의 0/누락 시각은 알 수 없음이며,
 중립 snapshot/range의 Unix epoch 0은 보존합니다. 시각 없는 관측은 상세 표에 남기고 timeline에서
 제외합니다.

@@ -48,8 +48,12 @@ once over their own interval. Every overlapping delta interval is unavailable.
 Points are ordered by end time for calculation, with original positions and
 reordering flags retained. Declared cadence gaps in sum/histogram intervals expose
 an average across the whole interval without interpolation. Missing delta
-intervals are disclosed as gaps. Range-query gauges currently bind `step_ns` to
-identity but do **not** mark missing cadence slots (R13-03 follow-up). No cadence is invented for arbitrary cumulative exports. OTLP zero/absent
+intervals are disclosed as gaps. New range-query models use normalizer 1.1.0: `gap=true` when consecutive observed
+end times differ by more than the declared positive `step_ns`. Values and statuses
+(including unavailable/conflicting observations) are retained; no missing samples,
+interpolation or gauge rates are invented. Selection windows retain predecessor
+context. Saved normalizer 1.0.0 keeps its original gap interpretation; an explicit
+merge retains the newest input normalizer. No cadence is invented for arbitrary cumulative exports. OTLP zero/absent
 time means unavailable; neutral snapshots/range exports can retain Unix epoch
 zero. Untimed points remain in detail and are excluded from timeline projection.
 

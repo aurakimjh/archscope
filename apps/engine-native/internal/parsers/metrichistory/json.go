@@ -97,6 +97,7 @@ func (b *builder) snapshots(body []byte) error {
 	return nil
 }
 func (b *builder) rangeQuery(body []byte) error {
+	b.set.Normalizer = m.CadenceNormalizer
 	var input struct {
 		Status   string   `json:"status"`
 		Warnings []string `json:"warnings"`

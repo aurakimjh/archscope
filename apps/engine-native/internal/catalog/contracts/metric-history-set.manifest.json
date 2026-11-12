@@ -4,7 +4,7 @@
   "synthetic": true,
   "producer": "opentelemetry-python",
   "producer_version": "1.38.0",
-  "schema_sha256": "b5fbc193683aafe569b23ed8097850f0c8b09970e50e2d1df056508714b4e766",
+  "schema_sha256": "1c5352a63711c33962ff52fd8622ceaca186f8cc855a118ad4a41ca6e5a123b1",
   "files": [
     {
       "file": "LICENSE.txt",
@@ -24,7 +24,7 @@
     },
     {
       "file": "metric-history-set.schema.json",
-      "sha256": "b5fbc193683aafe569b23ed8097850f0c8b09970e50e2d1df056508714b4e766"
+      "sha256": "1c5352a63711c33962ff52fd8622ceaca186f8cc855a118ad4a41ca6e5a123b1"
     },
     {
       "file": "prometheus-query.json",

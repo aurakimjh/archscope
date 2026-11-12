@@ -341,6 +341,13 @@ func Intervals(ctx context.Context, set Set) ([]Interval, error) {
 				previous = &points[i-1]
 			}
 			derive(&row, p, previous, series)
+			if set.Normalizer != Normalizer && series.Kind == "gauge" && series.ExpectedStep != nil && previous != nil {
+				end, ok := Time(p.End)
+				before, known := Time(previous.End)
+				step, _ := Time(series.ExpectedStep)
+				// A gap describes observed cadence, independently of value availability.
+				row.Gap = ok && known && end > before && end-before > step
+			}
 			out = append(out, row)
 		}
 		// Conflicting equal timestamps never select an arbitrary writer/predecessor.

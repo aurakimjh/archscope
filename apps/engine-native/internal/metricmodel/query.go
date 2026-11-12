@@ -137,6 +137,10 @@ func Merge(ctx context.Context, sets []Set) (Set, error) {
 		if e := set.Validate(ctx); e != nil {
 			return out, e
 		}
+		// An explicit merge creates a new model; preserve the newest input semantics.
+		if set.Normalizer > out.Normalizer {
+			out.Normalizer = set.Normalizer
+		}
 		mapping := map[string]string{}
 		if len(out.Sources)+len(set.Sources) > 128 {
 			return out, fmt.Errorf("METRIC_BUDGET_EXCEEDED: merged sources")

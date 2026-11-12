@@ -18,7 +18,13 @@ import (
 )
 
 const Version = "1.0.0"
+
+// Normalizer is the original saved-result interpretation; never rewrite it on read.
 const Normalizer = "1.0.0"
+const CadenceNormalizer = "1.1.0"
+
+func supportedNormalizer(v string) bool { return v == Normalizer || v == CadenceNormalizer }
+
 const MaxBytes = 32 << 20
 const MaxPoints = 100_000
 const MaxSeries = 10_000
@@ -155,7 +161,7 @@ func Strict(raw []byte, out any) error {
 	return d.Decode(out)
 }
 func (s Set) Validate(ctx context.Context) error {
-	if s.Version != Version || s.Normalizer != Normalizer {
+	if s.Version != Version || !supportedNormalizer(s.Normalizer) {
 		return fmt.Errorf("METRIC_VERSION_UNSUPPORTED")
 	}
 	if len(s.Sources) == 0 || s.Duplicates < 0 {
