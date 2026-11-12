@@ -426,6 +426,19 @@
           },
           "success": {
             "type": "boolean"
+          },
+          "timing_warnings": {
+            "type": "array",
+            "maxItems": 4,
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "suspect_epoch_milliseconds",
+                "first_byte_exceeds_elapsed",
+                "connect_exceeds_first_byte",
+                "connect_exceeds_elapsed"
+              ]
+            }
           }
         }
       },

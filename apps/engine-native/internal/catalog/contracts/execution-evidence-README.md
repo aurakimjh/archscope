@@ -47,3 +47,5 @@ label·16 MiB 모델/64 MiB 입력 한도가 먼저 적용된다. 한도를 넘�
 줄여야 하며 나눈 파일의 백분위는 합성할 수 없다. 기존 1.0.0 schema/model은 읽기 호환된다.
 
 `hs-err-21.0.10-full-sections.txt`는 core dump를 끈 별도 JVM의 실제 합성 crash에서 header·inline elapsed·problematic/native/java frame만 허용 목록으로 남긴 정제 발췌입니다. wallclock/PID를 치환하고 환경·인자·사용자 경로·원시 메모리를 제외했습니다. `producer-provenance.json`에 원본·발췌 SHA를 기록합니다. 구역이 다른 동일 심볼은 별도 관측으로 보존합니다.
+
+JTL timing 정책은 `jtl-timing-policy.json`에 고정합니다. 선언된 epoch ms가 2000~2100 범위 밖이면 단위 추정 없이 경고하고 원래 ms→ns 값을 보존합니다. first-byte>elapsed 또는 Connect>first-byte/elapsed는 해당 모순 수치를 null로 하고 sample.timing_warnings와 전체 affected_rows에 기록합니다. 큰 입력의 분포 압축 뒤에도 경고 수를 유지하며 elapsed 통계는 바꾸지 않습니다.

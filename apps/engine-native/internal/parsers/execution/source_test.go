@@ -161,3 +161,24 @@ func TestR1902ActualHotSpotSectionExcerpt(t *testing.T) {
 		t.Fatal(set.Crash)
 	}
 }
+
+func TestR1903JTLWarnsWithoutGuessingUnitsAndNullsBadDurations(t *testing.T) {
+	o, err := p.DecodeOptions(fixture(t, "jmeter-options.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw := []byte("timeStamp,elapsed,label,success,Latency,Connect\n1700000000,100,synthetic,true,500,600\n1700000000000,100,synthetic,true,40,50\n")
+	set, err := p.ParseBytes(context.Background(), raw, o)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if *set.Samples[0].Start != "1700000000000000" || set.Samples[0].FirstByte != nil || set.Samples[0].Connect != nil || len(set.Samples[0].TimingWarnings) != 4 {
+		t.Fatal(set.Samples)
+	}
+	if set.Samples[1].FirstByte == nil || *set.Samples[1].FirstByte != "1/25" || set.Samples[1].Connect != nil {
+		t.Fatal(set.Samples[1])
+	}
+	if !strings.Contains(strings.Join(set.Limitations, " "), "affected_rows=") {
+		t.Fatal("aggregate warnings absent")
+	}
+}

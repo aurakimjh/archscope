@@ -133,16 +133,17 @@ func MetricID(v Metric) string {
 }
 
 type Sample struct {
-	ID           string  `json:"id"`
-	GroupSHA     string  `json:"group_sha256"`
-	Start        *string `json:"start_unix_ns"`
-	Latency      *string `json:"latency_seconds"`
-	FirstByte    *string `json:"first_byte_seconds"`
-	Connect      *string `json:"connect_seconds"`
-	Success      bool    `json:"success"`
-	ResponseCode string  `json:"response_code"`
-	Concurrency  *string `json:"observed_threads"`
-	Position     string  `json:"source_position"`
+	TimingWarnings []string `json:"timing_warnings,omitempty"`
+	ID             string   `json:"id"`
+	GroupSHA       string   `json:"group_sha256"`
+	Start          *string  `json:"start_unix_ns"`
+	Latency        *string  `json:"latency_seconds"`
+	FirstByte      *string  `json:"first_byte_seconds"`
+	Connect        *string  `json:"connect_seconds"`
+	Success        bool     `json:"success"`
+	ResponseCode   string   `json:"response_code"`
+	Concurrency    *string  `json:"observed_threads"`
+	Position       string   `json:"source_position"`
 }
 
 func SampleID(v Sample) string { v.ID = ""; return "sample-" + Hash(v) }
@@ -306,6 +307,16 @@ func (s Set) Validate(ctx context.Context) error {
 	for _, v := range s.Samples {
 		if e := ctx.Err(); e != nil {
 			return e
+		}
+		if len(v.TimingWarnings) > 4 {
+			return fmt.Errorf("EXECUTION_SAMPLE_TIMING_WARNINGS_INVALID")
+		}
+		seenWarnings := map[string]bool{}
+		for _, warning := range v.TimingWarnings {
+			if !In(warning, "suspect_epoch_milliseconds", "first_byte_exceeds_elapsed", "connect_exceeds_first_byte", "connect_exceeds_elapsed") || seenWarnings[warning] {
+				return fmt.Errorf("EXECUTION_SAMPLE_TIMING_WARNINGS_INVALID")
+			}
+			seenWarnings[warning] = true
 		}
 		if v.ID != SampleID(v) || ids[v.ID] || !Digest(v.GroupSHA) || !Uint(v.Start) || !Uint(v.Concurrency) || !Known(v.Position) || !Text(v.ResponseCode) {
 			return fmt.Errorf("EXECUTION_SAMPLE_INVALID")

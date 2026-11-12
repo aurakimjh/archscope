@@ -4,7 +4,9 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	_ "embed"
 	"encoding/csv"
+	"encoding/json"
 	"fmt"
 	e "github.com/aurakimjh/archscope/apps/engine-native/internal/executionmodel"
 	"io"
@@ -14,10 +16,25 @@ import (
 	"strings"
 )
 
+//go:embed contracts/jtl-timing-policy.json
+var jtlTimingBytes []byte
+var jtlTimingPolicy = func() struct {
+	Version string `json:"version"`
+	Min     uint64 `json:"min_epoch_ms"`
+	Max     uint64 `json:"max_epoch_ms"`
+} { var p struct {
+	Version string `json:"version"`
+	Min     uint64 `json:"min_epoch_ms"`
+	Max     uint64 `json:"max_epoch_ms"`
+}; if e := json.Unmarshal(jtlTimingBytes, &p); e != nil || p.Min >= p.Max {
+	panic("invalid JTL timing policy")
+}; return p }()
+
 func parseJTL(ctx context.Context, raw []byte, s *e.Set) error {
 	if s.Context.Kind != "http" {
 		return fmt.Errorf("EXECUTION_JTL_HTTP_CONTEXT_REQUIRED")
 	}
+	warnings := map[string]int{}
 	lines := bufio.NewScanner(bytes.NewReader(raw))
 	lines.Buffer(make([]byte, 64<<10), 1<<20)
 	for lines.Scan() {
@@ -125,7 +142,36 @@ func parseJTL(ctx context.Context, raw []byte, s *e.Set) error {
 				break
 			}
 		}
-		v := e.Sample{GroupSHA: Digest([]byte(get("label"))), Start: e.Ptr(strconv.FormatUint(n*1000000, 10)), Latency: elapsed, FirstByte: first, Connect: connect, Success: success == "true", Concurrency: concurrency, ResponseCode: code, Position: fmt.Sprintf("csv-row/%d", line)}
+		rowWarnings := []string{}
+		warn := func(code string) { rowWarnings = append(rowWarnings, code); warnings[code]++ }
+		if n < jtlTimingPolicy.Min || n > jtlTimingPolicy.Max {
+			warn("suspect_epoch_milliseconds")
+		}
+		compare := func(a, b *string) bool {
+			if a == nil || b == nil {
+				return false
+			}
+			x, _ := e.Number(*a)
+			y, _ := e.Number(*b)
+			return x.Cmp(y) > 0
+		}
+		badFirst := compare(first, elapsed)
+		badConnectFirst := compare(connect, first)
+		badConnectElapsed := compare(connect, elapsed)
+		if badFirst {
+			warn("first_byte_exceeds_elapsed")
+			first = nil
+		}
+		if badConnectFirst {
+			warn("connect_exceeds_first_byte")
+		}
+		if badConnectElapsed {
+			warn("connect_exceeds_elapsed")
+		}
+		if badConnectFirst || badConnectElapsed {
+			connect = nil
+		}
+		v := e.Sample{TimingWarnings: rowWarnings, GroupSHA: Digest([]byte(get("label"))), Start: e.Ptr(strconv.FormatUint(n*1000000, 10)), Latency: elapsed, FirstByte: first, Connect: connect, Success: success == "true", Concurrency: concurrency, ResponseCode: code, Position: fmt.Sprintf("csv-row/%d", line)}
 		if rows <= e.RetainedJTLSamples {
 			v.ID = e.SampleID(v)
 			s.Samples = append(s.Samples, v)
@@ -183,6 +229,16 @@ func parseJTL(ctx context.Context, raw []byte, s *e.Set) error {
 	if rows > e.RetainedJTLSamples {
 		s.Version = e.DistributionVersion
 		s.Limitations = append(s.Limitations, "Large JTL retains exact per-label latency distributions and error counts, not per-request timestamps/first-byte/connect/concurrency/code or timeline. No percentile composition across split files. Row limit 1000000, total distinct latency bins 100000, groups 128, model 16 MiB.")
+	}
+	if len(warnings) > 0 {
+		keys := []string{}
+		for code := range warnings {
+			keys = append(keys, code)
+		}
+		sort.Strings(keys)
+		for _, code := range keys {
+			s.Limitations = append(s.Limitations, fmt.Sprintf("JTL timing policy=%s warning=%s affected_rows=%d; timestamp units retained as declared milliseconds, inconsistent first-byte/connect values are unavailable", jtlTimingPolicy.Version, code, warnings[code]))
+		}
 	}
 	s.Limitations = append(s.Limitations, "JTL timeStamp is explicitly epoch milliseconds. Label populations are SHA-256 scoped; response/failure messages, URL and thread names are excluded. Latency quantiles use nearest-rank.v1 per label; exported summary percentiles are never merged.")
 	return nil

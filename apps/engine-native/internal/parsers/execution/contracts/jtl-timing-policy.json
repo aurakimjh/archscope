@@ -1,0 +1,6 @@
+{
+  "version": "epoch-ms-plausibility.1.0.0",
+  "min_epoch_ms": 946684800000,
+  "max_epoch_ms": 4102444800000,
+  "action": "warn_without_unit_inference"
+}
