@@ -40,10 +40,24 @@ func (s *Service) DescribeResult(parent context.Context, handle string) (ResultC
 		return ResultCapabilities{}, e
 	}
 	sources, truncated := snapshot.Sources()
-	return ResultCapabilities{Handle: handle, ResultSHA256: snapshot.Digest(), Type: snapshot.Type(), PayloadVersion: snapshot.PayloadVersion(), Sources: sources, SourcesTruncated: truncated, Capabilities: snapshot.Capabilities()}, nil
+	caps := snapshot.Capabilities()
+	if snapshot.Type() == "metrics_timeseries" && caps.Compatibility.Allowed {
+		inv, err := s.MetricInventory(ctx, handle)
+		if err != nil {
+			return ResultCapabilities{}, err
+		}
+		if inv.ResultSHA256 != snapshot.Digest() {
+			return ResultCapabilities{}, fmt.Errorf("METRIC_RESULT_STALE")
+		}
+		caps.Providers = append(caps.Providers, resultcontract.Capability{Provider: resultcontract.Provider{ID: metricIntervalsProvider, Version: "1.0.0", Kind: "detail", Path: "/metadata/metrics_core", Schema: "object-rows-v1"}, Availability: "available"})
+	}
+	return ResultCapabilities{Handle: handle, ResultSHA256: snapshot.Digest(), Type: snapshot.Type(), PayloadVersion: snapshot.PayloadVersion(), Sources: sources, SourcesTruncated: truncated, Capabilities: caps}, nil
 }
 
 func (s *Service) QueryResult(parent context.Context, handle, provider string, offset, limit int) (ProviderPage, error) {
+	if provider == metricIntervalsProvider {
+		return s.metricIntervalPage(parent, handle, offset, limit)
+	}
 	ctx, finish, e := s.beginLoad(parent)
 	if e != nil {
 		return ProviderPage{}, e

@@ -148,5 +148,8 @@ func ExportPresentation(r models.AnalysisResult, html bool) (models.AnalysisResu
 		}
 	}
 	copy.Series["measurement_availability"] = rows
+	if html {
+		return addMetricIntervals(copy)
+	}
 	return copy, nil
 }

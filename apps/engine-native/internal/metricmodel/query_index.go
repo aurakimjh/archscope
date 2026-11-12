@@ -215,3 +215,22 @@ func (i *QueryIndex) Query(ctx context.Context, digest string, q Query) (Page, e
 	}
 	return out, ctx.Err()
 }
+
+// ProjectOffset adapts bounded generic table paging to the same digest-bound
+// interval query. It never exposes the private retained model or row slices.
+func (index *QueryIndex) ProjectOffset(ctx context.Context, digest string, selection Selection, offset, limit int) (Page, error) {
+	if offset < 0 {
+		return Page{}, fmt.Errorf("METRIC_QUERY_INVALID")
+	}
+	q := Query{Selection: selection, Limit: limit}
+	q.Selection.SeriesIDs = append([]string(nil), selection.SeriesIDs...)
+	sort.Strings(q.Selection.SeriesIDs)
+	if offset > 0 {
+		raw, _ := json.Marshal(struct {
+			Result, Query string
+			Offset        int
+		}{digest, Hash(q), offset})
+		q.Cursor = base64.RawURLEncoding.EncodeToString(raw)
+	}
+	return index.Query(ctx, digest, q)
+}

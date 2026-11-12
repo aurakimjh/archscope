@@ -3814,7 +3814,7 @@ Record all findings before moving original bytes (SHA-256: `8d4fc9a82b842592feb1
 | 4 / P3 | R14-04 | LOCALLY_FIXED: validate required image count ≤5 during spec creation/validation, not only rendering. |
 | 5 / P3 | R14-05 | LOCALLY_FIXED: stronger generator/pixel provenance or deterministic SVG comparison. Correct docs now: checksums detect corruption/partial changes, not authenticated authorship or PNG/view equivalence. |
 | 6 / P3 | R14-06 | LOCALLY_FIXED: font subsetting/dedup tradeoff. Document practical 5-page ~33 MB bundles / ~16 artifacts / at most 2 such Report Packs under current byte ceilings. |
-| 7 / P3 | R14-07 | Follow-up with R13-06: richer metric value projection for generic views/exports. Correct docs now: 0.2 generic detail/HTML/Report Pack contain point IDs/status and time/clock/ref; exact values remain dedicated metric query output. |
+| 7 / P3 | R14-07 | LOCALLY_FIXED; with R13-06: richer metric value projection for generic views/exports. Correct docs now: 0.2 generic detail/HTML/Report Pack contain point IDs/status and time/clock/ref; exact values remain dedicated metric query output. |
 
 T-637 continues. Original CONDITIONAL is preserved; native WebView/clipboard/Office/
 Windows acceptance remains separate. R13-01 was independently reconfirmed at
@@ -4812,3 +4812,5 @@ R14-04 LOCALLY_FIXED: NewSpec/Spec.Validate reject more than5 images before rend
 R14-05 LOCALLY_FIXED: Supported SVGs are deterministically regenerated from frozen view/spec/pinned font and byte-compared on build/read; consistently rehashed modified SVG refused. Historical unsupported renderers remain hash/structure-only. PNG equivalence/authorship explicitly not certified. Artifact/tamper regressions passed. No new independent PASS; original parent verdicts and existing saved revisions are preserved.
 
 R14-06 LOCALLY_FIXED: Resolved reviewed font tradeoff by retaining full self-contained Unicode font; no lossy subsetting or external dependency. Actual compressed/expanded byte sizes exposed in descriptors/UI; concrete Report Pack byte refusals and practical five-image16-library/2-pack capacity documented. Save/list byte consistency tests passed. No new independent PASS; original parent verdicts and existing saved revisions are preserved.
+
+R14-07 LOCALLY_FIXED: Added compiled paged metrics:intervals detail via verified cache, disposable rich HTML interval/bucket projection and hash-linked Report Pack presentations. Original saved JSON remains byte-identical; presentation-budget fallback explicitly disclosed in packs. Provider/paging/HTML/pack/immutability tests passed. No new independent PASS; original parent verdicts and existing saved revisions are preserved.

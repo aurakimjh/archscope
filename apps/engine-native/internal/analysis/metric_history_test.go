@@ -1,6 +1,7 @@
 package analysis_test
 
 import (
+	"archive/zip"
 	"bytes"
 	"context"
 	"encoding/json"
@@ -170,5 +171,71 @@ func TestT638MetricTimelineScaleAndUntimedAvailability(t *testing.T) {
 				t.Fatal("untimed point lost", e)
 			}
 		})
+	}
+}
+
+func TestR1407GenericIntervalsDoNotExpandSavedResult(t *testing.T) {
+	s, _, _ := setup(t, nil)
+	ctx := context.Background()
+	raw, e := catalog.Contracts.ReadFile("contracts/metric-history-set.json")
+	if e != nil {
+		t.Fatal(e)
+	}
+	model, e := m.Decode(raw)
+	if e != nil {
+		t.Fatal(e)
+	}
+	selection := m.Selection{SeriesIDs: []string{model.Series[0].ID}}
+	result, e := a.Build(ctx, model, selection, "synthetic")
+	if e != nil {
+		t.Fatal(e)
+	}
+	body, _ := json.Marshal(result)
+	view, lease, e := s.LoadOwnedSnapshot(ctx, body)
+	if e != nil {
+		t.Fatal(e)
+	}
+	defer s.ReleaseResultLease(lease.ID)
+	caps, e := s.DescribeResult(ctx, view.Handle)
+	if e != nil {
+		t.Fatal(e)
+	}
+	found := false
+	for _, p := range caps.Providers {
+		found = found || p.ID == "metrics:intervals"
+	}
+	if !found {
+		t.Fatal("compiled interval provider missing")
+	}
+	first, e := s.QueryResult(ctx, view.Handle, "metrics:intervals", 0, 1)
+	if e != nil || first.Total != 2 || first.Next != 1 || first.Columns[2] != "value" {
+		t.Fatal(first, e)
+	}
+	second, e := s.QueryResult(ctx, view.Handle, "metrics:intervals", 1, 1)
+	if e != nil || len(second.Rows) != 1 || second.Rows[0][2].Text == "" {
+		t.Fatal(second, e)
+	}
+	html, e := s.Export(view.Handle, "html")
+	if e != nil || !strings.Contains(string(html), "metric_intervals") || !strings.Contains(string(html), model.Series[0].Name) {
+		t.Fatal("rich HTML absent", e)
+	}
+	pack, e := s.ReportPack([]string{view.Handle})
+	if e != nil {
+		t.Fatal(e)
+	}
+	z, e := zip.NewReader(bytes.NewReader(pack), int64(len(pack)))
+	if e != nil {
+		t.Fatal(e)
+	}
+	hasHTML := false
+	for _, f := range z.File {
+		hasHTML = hasHTML || strings.HasPrefix(f.Name, "presentations/")
+	}
+	if !hasHTML {
+		t.Fatal("report presentation absent")
+	}
+	saved, _, e := s.Read(view.Handle)
+	if e != nil || !bytes.Equal(saved, body) {
+		t.Fatal("saved bytes expanded", e)
 	}
 }

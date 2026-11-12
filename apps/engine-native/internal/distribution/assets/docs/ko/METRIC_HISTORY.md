@@ -176,3 +176,5 @@ METRIC_INTEGER_RANGE: path=/resourceMetrics/0/scopeMetrics/0/metrics/0/sum/dataP
 안정 숫자 코드는 `METRIC_NUMBER_EXPONENT_BUDGET`(지수 -128…128 밖), `METRIC_NUMBER_EXACT_BUDGET`(정규화 exact 수치 한도), `METRIC_INTEGER_RANGE`(signed/unsigned 64-bit 범위), `METRIC_NUMBER_INVALID`/`METRIC_INTEGER_INVALID`입니다. JSON 타입/구조는 `METRIC_JSON_SHAPE_INVALID`, 문법 오류는 `METRIC_JSON_INVALID`입니다. `resource_metrics`에는 lowerCamelCase `resourceMetrics`가 필요하다고 안내합니다. 관측값·중첩 속성·bucket은 개별 필드 경로를, 최종 모델의 관측/구조 오류는 실패 시에만 원본 관측 경로를 찾습니다.
 
 오류 시 파일 전체를 거부하고 부분 모델이나 정규화/결과 파일을 게시하지 않습니다. `1e-200`·지수308 같은 유한 값도 기존 exact 한도대로 거부하며 반올림·누락·새 관측 상태로 바꾸지 않습니다. 성공한 모델/normalizer 버전·point/ref ID·저장0.1.0/0.2.0 reader·공통 AnalysisResult는 그대로입니다. Apple/DB/Linux 전용 어댑터의 의미 오류 계약은 유지하며 JSON 타입 오류에는 공통 안전 decoder를 적용합니다.
+
+R14-07: 컴파일된 공통 상세 provider metrics:intervals가 검증된 메트릭 캐시로 정확한 값/delta/rate/시각/상태/ref 페이지를 제공합니다. HTML에는 관측·파생 bucket JSON을 포함한 일회성 metric_intervals를 추가하고 Report Pack은 원본 SHA에 연결한 별도 표시 자료를 포함합니다. 저장0.2 최소 표·JSON 바이트는 유지합니다. 표시 한도를 넘으면 단독 HTML은 거부하고 Report Pack은 원본 JSON을 보존하면서 표시 불가·한도 사유를 명시합니다. 전체 선택은 전용 구간 CSV를 사용합니다.

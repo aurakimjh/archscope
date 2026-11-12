@@ -178,6 +178,7 @@ func (s *Service) ReportPack(handles []string) ([]byte, error) {
 	var buffer bytes.Buffer
 	z := zip.NewWriter(&buffer)
 	entries := []map[string]string{}
+	presentations := []map[string]string{}
 	var total int64
 	for _, handle := range handles {
 		body, r, e := s.Read(handle)
@@ -201,8 +202,37 @@ func (s *Service) ReportPack(handles []string) ([]byte, error) {
 		}
 		sum := sha256.Sum256(body)
 		entries = append(entries, map[string]string{"path": name, "sha256": hex.EncodeToString(sum[:])})
+		if r.Type == "metrics_timeseries" {
+			view, err := resultcontract.ExportPresentation(r, true)
+			if err != nil {
+				var budget *resultcontract.ProjectionBudgetError
+				if errors.As(err, &budget) {
+					presentations = append(presentations, map[string]string{"source_sha256": hex.EncodeToString(sum[:]), "status": "unavailable", "reason": err.Error()})
+					continue
+				}
+				return nil, err
+			}
+			htmlBody, err := htmlexport.Marshal(view)
+			if err != nil {
+				return nil, err
+			}
+			total += int64(len(htmlBody))
+			if total > s.policy.DecodedBytes {
+				return nil, fmt.Errorf("pack byte budget exceeded")
+			}
+			path := "presentations/" + handle + ".html"
+			file, err := z.Create(path)
+			if err != nil {
+				return nil, err
+			}
+			if _, err = file.Write(htmlBody); err != nil {
+				return nil, err
+			}
+			presentations = append(presentations, map[string]string{"path": path, "sha256": bytesDigest(htmlBody), "source_sha256": hex.EncodeToString(sum[:])})
+		}
+
 	}
-	manifest, _ := json.Marshal(map[string]any{"type": "archscope_report_pack", "schema_version": "0.1.0", "scope": "backend_source_appendix", "source_results": entries})
+	manifest, _ := json.Marshal(map[string]any{"type": "archscope_report_pack", "schema_version": "0.1.0", "scope": "backend_source_appendix", "source_results": entries, "presentations": presentations})
 	w, e := z.Create("report-pack.json")
 	if e != nil {
 		return nil, e
