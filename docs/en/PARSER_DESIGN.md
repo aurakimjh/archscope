@@ -968,3 +968,19 @@ identity pending T-635. This supersedes the implementation-pending R5 statement
 only for these qualified canonical source slices. See
 [Exact profile sources](PROFILE_SOURCE_IMPORT.md) for format semantics, bounds,
 qualification, policy keys and CLI/desktop behavior.
+
+### T-635 canonical queries, verified baseline and R11 revision
+
+[Case evidence queries](CASE_EVIDENCE_QUERIES.md) defines bounded cursor-bound
+profile views/evidence, source/summary case search with indexed coverage, original
+coordinate links, immutable selected results, and baseline replay/mapping gates.
+R11 correction emits source normalizer 1.1.0 / result 0.4.0: original type/unit is
+part of metric identity without a producer policy; unitless Speedscope weights
+are generic count, not proven samples. Source 0.3.0 snapshots keep old bytes and
+hashes/read/save/query/export, but comparisons require new original reimport.
+New compiled policy snapshots disclose declared/file-exporter basis and warnings.
+Durable verified reuse replays both original sources every time and preserves
+identity_basis=declared. Existing generic scalar comparison stays strict; the new
+canonical/baseline consumer uses qualified policies. Clock alignment and unknown
+producer promotion are not inferred. Native Windows/UI and independent review
+remain separate from local implementation verification.

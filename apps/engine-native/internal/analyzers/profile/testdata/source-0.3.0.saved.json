@@ -1,0 +1,332 @@
+{
+  "type": "profile_evidence",
+  "source_files": [
+    "/synthetic/legacy.raw"
+  ],
+  "created_at": "2026-11-12T01:18:44.161649Z",
+  "summary": {
+    "measurement_kind": "sample_count",
+    "metric_id": "samples",
+    "profile_count": 1,
+    "sample_records": 2,
+    "scale": "1",
+    "total_samples": null,
+    "total_weight": "0.25",
+    "unit": "count"
+  },
+  "series": {
+    "frame_weights": [
+      {
+        "frame_id": "frame-7492751dc9926953d0d349eb6cd32cae30545ec561d9612fc9aafd34c7f4ac09",
+        "node_id": "node-cf129e11897305a1cedd247fc0902a65099c4167ff0011b73ce52708d0211b94",
+        "self_weight": "0",
+        "share": "1",
+        "weight": "0.25"
+      },
+      {
+        "frame_id": "frame-9a6bbeb084e1a8d8c0fe8910bb618101fea7995ac52c8ec83092ee99fba24167",
+        "node_id": "node-3d358809b609f8a3b195eb24ecc41a92c563ae82b0b6e5abe127107acaf2d923",
+        "self_weight": "0.25",
+        "share": "1",
+        "weight": "0.25"
+      }
+    ]
+  },
+  "tables": {
+    "frames": [
+      {
+        "id": "frame-7492751dc9926953d0d349eb6cd32cae30545ec561d9612fc9aafd34c7f4ac09",
+        "symbol": "root",
+        "display": "root",
+        "runtime": "Python",
+        "language": "Python"
+      },
+      {
+        "id": "frame-9a6bbeb084e1a8d8c0fe8910bb618101fea7995ac52c8ec83092ee99fba24167",
+        "symbol": "leaf",
+        "display": "leaf",
+        "runtime": "Python",
+        "language": "Python"
+      }
+    ]
+  },
+  "charts": {
+    "flamegraph": {
+      "id": "root",
+      "name": "All",
+      "inclusive": "0.25",
+      "self": "0",
+      "share": "1",
+      "children": [
+        {
+          "id": "node-cf129e11897305a1cedd247fc0902a65099c4167ff0011b73ce52708d0211b94",
+          "frame_id": "frame-7492751dc9926953d0d349eb6cd32cae30545ec561d9612fc9aafd34c7f4ac09",
+          "inclusive": "0.25",
+          "self": "0",
+          "share": "1",
+          "children": [
+            {
+              "id": "node-3d358809b609f8a3b195eb24ecc41a92c563ae82b0b6e5abe127107acaf2d923",
+              "frame_id": "frame-9a6bbeb084e1a8d8c0fe8910bb618101fea7995ac52c8ec83092ee99fba24167",
+              "inclusive": "0.25",
+              "self": "0.25",
+              "share": "1",
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "metadata": {
+    "capture_policy": {
+      "id": "capture.py-spy.0.4.1",
+      "revision": "1.0.0",
+      "sha256": "7c0dc8698b8b37503f408778005b42df616fb72b3cc6c13759b507d0fa23abac",
+      "producer": "py-spy",
+      "producer_version": "0.4.1",
+      "format": "pyspy-raw",
+      "normalizer": "1.0.0",
+      "metric": {
+        "id": "samples",
+        "kind": "sample_count",
+        "unit": "count",
+        "scale": "1",
+        "signed": false
+      },
+      "original_options": {
+        "rate": 100,
+        "output_path": "a"
+      },
+      "semantic": {
+        "rate": 100
+      },
+      "incidental": {
+        "output_path": "a"
+      },
+      "strict_unknown": {}
+    },
+    "comparison_policy_scope": "canonical_profile_operations_only; generic scalar comparison retains strict capture equality",
+    "envelope_schema_version": "1.0.0",
+    "extensions": {
+      "measurement": "1.0.0",
+      "profile_core": "1.0.0"
+    },
+    "findings": [],
+    "import_provenance": {
+      "adapter_version": "1.0.1",
+      "importer": "profile.source-set-json",
+      "option_canonicalization": "options-v1",
+      "options_hash": "95a22be2643575630376f4f3347c6fd69d8378699d23c41f29fe50d89adea5ed",
+      "partial": false,
+      "policy_revision": "import-policy-v1",
+      "records": 1,
+      "source_id": "job-235f39491aaed1b927c61050ba5d2fc9-source",
+      "source_sha256": "8ae2110657103e4153c469329773735c9ec0299df8143246d50a52d1889c4003"
+    },
+    "measurement": {
+      "/series/frame_weights": {
+        "columns": {
+          "self_weight": {
+            "measurement_kind": "sample_count",
+            "unit": "count",
+            "scope": "selected_profile_set",
+            "population_ref": "selected",
+            "aggregation": "sum",
+            "numeric_encoding": "decimal_string",
+            "availability": "observed"
+          },
+          "weight": {
+            "measurement_kind": "sample_count",
+            "unit": "count",
+            "scope": "selected_profile_set",
+            "population_ref": "selected",
+            "aggregation": "sum",
+            "numeric_encoding": "decimal_string",
+            "availability": "observed"
+          }
+        }
+      },
+      "/summary/total_samples": {
+        "measurement_kind": "sample_count",
+        "unit": "count",
+        "scope": "selected_profile_set",
+        "population_ref": "selected",
+        "aggregation": "sum",
+        "numeric_encoding": "exact_integer_string",
+        "availability": "unavailable",
+        "reason": "selected_metric_does_not_supply_sample_count"
+      },
+      "/summary/total_weight": {
+        "measurement_kind": "sample_count",
+        "unit": "count",
+        "scope": "selected_profile_set",
+        "population_ref": "selected",
+        "aggregation": "sum",
+        "numeric_encoding": "decimal_string",
+        "availability": "observed"
+      }
+    },
+    "parser": "profile_set",
+    "population_ids": [
+      "selected"
+    ],
+    "populations": {
+      "selected": {
+        "comparison": {
+          "version": "1.0.0",
+          "selection_hash": "3f578ea01fae7df07691ed54d7204afec6783324b9314d56e0d4182f1ad6ad99",
+          "coverage_kind": "complete_selected_model"
+        },
+        "source_sha256": [
+          "54e8b50e8659197e4d5572e40ae2179af81f0bc3eedbfc474685327fcd699383"
+        ],
+        "selection_hash": "8bb1715e8788f05ab47ff48222cb9d60b7f5e18ae9eba728ac8d9a2125b6fa29",
+        "semantic_revision": "0.3.0/1.0.0/98b3d194aa9d826d2b03cee72d746215908ed62d66ebf516f6d51392a59881fb",
+        "coverage": "complete_selected_model"
+      }
+    },
+    "profile_core": {
+      "version": "1.0.0",
+      "model": {
+        "extensions": {
+          "org.archscope.profile_source.v1": {
+            "revision": "1.0.0",
+            "producer_basis": "declared",
+            "format_version": "collapsed.v1",
+            "metrics": [
+              {
+                "id": "samples",
+                "type": "sampled",
+                "unit": "count"
+              }
+            ],
+            "profiles": [
+              {
+                "id": "profile-0",
+                "name": "aggregate",
+                "type": "collapsed",
+                "start": "",
+                "end": "",
+                "unit": "count"
+              }
+            ],
+            "attributes": {}
+          }
+        },
+        "schema_version": "1.0.0",
+        "producer": "py-spy",
+        "producer_version": "0.4.1",
+        "format": "pyspy-raw",
+        "source_sha256": [
+          "54e8b50e8659197e4d5572e40ae2179af81f0bc3eedbfc474685327fcd699383"
+        ],
+        "capture_options": {
+          "rate": 100,
+          "output_path": "a"
+        },
+        "frames": [
+          {
+            "id": "frame-7492751dc9926953d0d349eb6cd32cae30545ec561d9612fc9aafd34c7f4ac09",
+            "symbol": "root",
+            "display": "root",
+            "runtime": "Python",
+            "language": "Python"
+          },
+          {
+            "id": "frame-9a6bbeb084e1a8d8c0fe8910bb618101fea7995ac52c8ec83092ee99fba24167",
+            "symbol": "leaf",
+            "display": "leaf",
+            "runtime": "Python",
+            "language": "Python"
+          }
+        ],
+        "stacks": [
+          {
+            "id": "stack-733969d48c5e92ecba58a4aae04552b35c0e909500143c191f3725c365dc02e3",
+            "frames": [
+              "frame-7492751dc9926953d0d349eb6cd32cae30545ec561d9612fc9aafd34c7f4ac09",
+              "frame-9a6bbeb084e1a8d8c0fe8910bb618101fea7995ac52c8ec83092ee99fba24167"
+            ]
+          },
+          {
+            "id": "stack-36191aca6a45a32cb88e76485eab394efdb61708efc2bcf6d781cd8c741450a9",
+            "frames": [
+              "frame-7492751dc9926953d0d349eb6cd32cae30545ec561d9612fc9aafd34c7f4ac09"
+            ]
+          }
+        ],
+        "metrics": [
+          {
+            "id": "samples",
+            "kind": "sample_count",
+            "unit": "count",
+            "scale": "1",
+            "signed": false
+          }
+        ],
+        "profiles": [
+          {
+            "id": "profile-0",
+            "clock": "aggregate",
+            "samples": [
+              {
+                "metric_id": "samples",
+                "source_ref": "line:1",
+                "stack_id": "stack-733969d48c5e92ecba58a4aae04552b35c0e909500143c191f3725c365dc02e3",
+                "weight": "0.25"
+              },
+              {
+                "metric_id": "samples",
+                "source_ref": "line:2",
+                "stack_id": "stack-36191aca6a45a32cb88e76485eab394efdb61708efc2bcf6d781cd8c741450a9",
+                "weight": "0"
+              }
+            ]
+          }
+        ],
+        "quality": {
+          "lost": null,
+          "unknown": null,
+          "truncated": null,
+          "symbol_resolution": null,
+          "clock_confidence": "unavailable",
+          "conversion_loss": [
+            "producer/context identity is declared, not original-source authentication"
+          ]
+        }
+      },
+      "selection": {
+        "profile_ids": [
+          "profile-0"
+        ],
+        "metric_id": "samples"
+      }
+    },
+    "quality": {
+      "lost": null,
+      "unknown": null,
+      "truncated": null,
+      "symbol_resolution": null,
+      "clock_confidence": "unavailable",
+      "conversion_loss": [
+        "producer/context identity is declared, not original-source authentication"
+      ]
+    },
+    "schema_version": "0.3.0",
+    "source_metadata": [
+      {
+        "source_kind": "runtime_profile",
+        "source_format": "profile-set-json",
+        "product": "internal ProfileSet transport",
+        "file": {
+          "base_name": "before.model.json",
+          "extension": ".json",
+          "size_bytes": 2695,
+          "sanitized_id": "job-235f39491aaed1b927c61050ba5d2fc9-source",
+          "sanitized_id_version": "lease-source-v1"
+        }
+      }
+    ]
+  }
+}

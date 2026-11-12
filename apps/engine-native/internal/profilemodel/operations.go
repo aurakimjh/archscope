@@ -283,6 +283,9 @@ func Compare(ctx context.Context, a ProfileSet, as Selection, b ProfileSet, bs S
 	qualityChanges := qualityDifferences(a.Quality, b.Quality)
 	incidental := incidentalDifferences(a.CapturePolicy(as.MetricID), b.CapturePolicy(bs.MetricID))
 	warnings := []string{}
+	if p := a.CapturePolicy(as.MetricID); p != nil && p.Basis != "" {
+		warnings = append(warnings, "capture_policy_uses_declared_producer")
+	}
 	if len(incidental) > 0 {
 		warnings = append(warnings, "incidental_capture_options_differ")
 	}

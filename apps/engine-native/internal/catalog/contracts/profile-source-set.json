@@ -1,7 +1,7 @@
 {
   "extensions": {
     "org.archscope.profile_source.v1": {
-      "revision": "1.0.0",
+      "revision": "1.1.0",
       "producer_basis": "declared",
       "format_version": "speedscope.schema.v1",
       "metrics": [
@@ -96,7 +96,9 @@
       "kind": "duration",
       "unit": "seconds",
       "scale": "1",
-      "signed": false
+      "signed": false,
+      "source_type": "sampled",
+      "source_unit": "seconds"
     }
   ],
   "profiles": [

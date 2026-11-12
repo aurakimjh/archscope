@@ -33,7 +33,7 @@ export function ProfileSourceAssistance({ path, disabled, useNormalized }: { pat
   }
   return <details className="rounded border border-border p-3" aria-busy={busy}>
     <summary>{words("Original py-spy / Speedscope / pprof profile", "원본 py-spy / Speedscope / pprof 프로파일")}</summary>
-    <p>{words("Preserves exact weights and all profiles. Select a metric and profiles, save a new model, then Analyze. New results use semantics 0.3.0; existing results retain their revision.", "정확한 가중치와 모든 프로파일을 보존합니다. metric과 프로파일을 선택해 새 모델을 저장한 뒤 분석하세요. 새 결과는 의미 버전 0.3.0을 사용하며 기존 결과는 원래 버전을 유지합니다.")}</p>
+    <p>{words("Preserves exact weights and all profiles. Select a metric and profiles, save a new model, then Analyze. New results use semantics 0.4.0; existing results retain their revision.", "정확한 가중치와 모든 프로파일을 보존합니다. metric과 프로파일을 선택해 새 모델을 저장한 뒤 분석하세요. 새 결과는 의미 버전 0.4.0을 사용하며 기존 결과는 원래 버전을 유지합니다.")}</p>
     <fieldset disabled={disabled || busy} className="space-y-2 my-2">
       <label>{words("Source format", "원본 형식")} <select value={format} onChange={e => setFormat(e.target.value)}>{["auto", "speedscope-json", "pyspy-raw", "pprof"].map(id => <option key={id}>{id}</option>)}</select></label>
       <label className="block">{words("Declared producer (optional)", "선언된 생성 도구 (선택)")} <input value={producer} onChange={e => setProducer(e.target.value)} placeholder="py-spy / go.runtime/pprof" /></label>
@@ -42,7 +42,7 @@ export function ProfileSourceAssistance({ path, disabled, useNormalized }: { pat
       <Button variant="outline" disabled={!path} onClick={() => void inspect()}>{words("Inspect original profile", "원본 프로파일 확인")}</Button>
       {inventory && <div className="space-y-2">
         <p className="break-all">{safeDisplayText(inventory.producer)} {safeDisplayText(inventory.producer_version)} · SHA-256 {inventory.source_sha256}</p>
-        <label>{words("Metric (explicit selection required)", "metric (명시적 선택 필수)")} <select value={metric} onChange={e => { setMetric(e.target.value); setProfiles([]); }}><option value="">{words("Choose metric", "metric 선택")}</option>{inventory.metrics.map(m => <option key={m.id} value={m.id}>{safeDisplayText(`${m.id} · ${m.kind} · ${m.unit} × ${m.scale}`)}</option>)}</select></label>
+        <label>{words("Metric (explicit selection required)", "metric (명시적 선택 필수)")} <select value={metric} onChange={e => { setMetric(e.target.value); setProfiles([]); }}><option value="">{words("Choose metric", "metric 선택")}</option>{inventory.metrics.map(m => <option key={m.id} value={m.id}>{safeDisplayText(`${m.id} · ${m.source_type ?? ""}/${m.source_unit ?? ""} · ${m.kind} · ${m.unit} × ${m.scale}`)}</option>)}</select></label>
         {inventory.profiles.map(p => <label key={p.id} className="block"><input type="checkbox" disabled={!metric || !p.metrics.includes(metric)} checked={profiles.includes(p.id)} onChange={e => setProfiles(ids => e.target.checked ? [...ids, p.id] : ids.filter(id => id !== p.id))} /> {safeDisplayText(p.name || p.id)} · {safeDisplayText(p.id)}</label>)}
         {inventory.warnings.map((warning, i) => <p key={i}>{safeDisplayText(warning)}</p>)}
         <Button disabled={!metric || profiles.length === 0} onClick={() => void save()}>{words("Save new model and use selection", "새 모델 저장 후 선택 적용")}</Button>

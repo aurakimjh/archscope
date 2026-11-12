@@ -1,0 +1,41 @@
+{
+  "packages": {
+    "start": 107,
+    "pass": 102,
+    "skip": 5,
+    "fail": 0
+  },
+  "tests": {
+    "run": 1499,
+    "pass": 1493,
+    "skip": 6,
+    "fail": 0
+  },
+  "skipped_tests": [
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/comautomation",
+      "test": "TestReferencePresetFiltersWhenProvided"
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/halog",
+      "test": "TestPrivateReferenceSample"
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/transparent",
+      "test": "TestOfficialDriverFingerprints"
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/sessionfile",
+      "test": "TestLargeXLSIndependentReader"
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/jfr",
+      "test": "TestConvertJFRToJSONIntegration"
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/cases",
+      "test": "TestR606LargePageMeasurement"
+    }
+  ],
+  "scope": "Full uncached race after R11 semantics revision, followed by focused race after the final isolated CLI error propagation fix, original-coordinate/option-binding regressions, million-line prefix boundary and typed case time/frame indexing. No claim that the earlier full run contains later added tests."
+}

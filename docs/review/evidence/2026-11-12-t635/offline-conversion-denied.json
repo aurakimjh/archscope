@@ -1,0 +1,8 @@
+{
+  "version": "1.0.0",
+  "offline": true,
+  "denied_attempts": {
+    "converter.jfr": 1
+  },
+  "scope": "app-owned guarded operations; OS/WebView requires syscall/packet observation"
+}

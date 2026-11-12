@@ -349,6 +349,10 @@ export function CompareProfileSets(before: string, after: string): $CancellableP
     return $Call.ByID(3893760870, before, after);
 }
 
+export function CompareVerifiedCaseBaseline(requestJSON: string): $CancellablePromise<string> {
+    return $Call.ByID(2603728285, requestJSON);
+}
+
 export function ConvertEvidenceJFR(path: string, tool: string, output: string): $CancellablePromise<string> {
     return $Call.ByID(434817255, path, tool, output);
 }
@@ -381,6 +385,10 @@ export function DescribeEvidenceResult(handle: string): $CancellablePromise<anal
     return $Call.ByID(1099759658, handle).then(($result: any) => {
         return $$createType10($result);
     });
+}
+
+export function DescribeProfileQuery(handle: string): $CancellablePromise<string> {
+    return $Call.ByID(2622781381, handle);
 }
 
 /**
@@ -592,12 +600,20 @@ export function LoadEvidenceResult(path: string): $CancellablePromise<analysis$0
     });
 }
 
+export function MaterializeProfileView(handle: string, digest: string, selectionJSON: string): $CancellablePromise<string> {
+    return $Call.ByID(89147784, handle, digest, selectionJSON);
+}
+
 export function NormalizeLegacyProfileSet(path: string, format: string): $CancellablePromise<string> {
     return $Call.ByID(3489070610, path, format);
 }
 
 export function NormalizeProfileSource(path: string, optionsJSON: string, expectedSHA256: string, output: string): $CancellablePromise<string> {
     return $Call.ByID(1868428930, path, optionsJSON, expectedSHA256, output);
+}
+
+export function OpenCaseEvidence(caseID: string, revision: string, sourceID: string, sourceSHA: string, line: string): $CancellablePromise<string> {
+    return $Call.ByID(3013190154, caseID, revision, sourceID, sourceSHA, line);
 }
 
 /**
@@ -608,6 +624,14 @@ export function OpenEvidenceResult(path: string): $CancellablePromise<analysis$0
     return $Call.ByID(3774666167, path).then(($result: any) => {
         return $$createType12($result);
     });
+}
+
+export function OpenProfileEvidence(caseID: string, revision: string, resultID: string, resultSHA: string, sourceID: string, sourceSHA: string, reference: string): $CancellablePromise<string> {
+    return $Call.ByID(3521847889, caseID, revision, resultID, resultSHA, sourceID, sourceSHA, reference);
+}
+
+export function PinVerifiedCaseBaseline(requestJSON: string): $CancellablePromise<string> {
+    return $Call.ByID(814802181, requestJSON);
 }
 
 export function PreviewCaseArchive(path: string): $CancellablePromise<string> {
@@ -636,6 +660,10 @@ export function QueryEvidenceProvider(handle: string, provider: string, offset: 
     return $Call.ByID(2161125665, handle, provider, offset, limit).then(($result: any) => {
         return $$createType18($result);
     });
+}
+
+export function QueryProfileEvidence(handle: string, digest: string, requestJSON: string): $CancellablePromise<string> {
+    return $Call.ByID(2616882255, handle, digest, requestJSON);
 }
 
 export function RebuildCaseIndex(): $CancellablePromise<string> {
@@ -678,6 +706,10 @@ export function SaveCaseResult(handle: string, requestJSON: string): $Cancellabl
  */
 export function SaveChartArtifact(req: $models.ChartArtifactRequest): $CancellablePromise<void> {
     return $Call.ByID(875242524, req);
+}
+
+export function SearchCaseEvidence(requestJSON: string): $CancellablePromise<string> {
+    return $Call.ByID(1047777422, requestJSON);
 }
 
 export function SelectImporter(id: string, generation: number, importer: string): $CancellablePromise<analysis$0.JobSnapshot> {

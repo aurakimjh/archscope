@@ -81,9 +81,12 @@ func profileRegistrationFor(source bool) (ingestion.ImporterDescriptor, []ingest
 		if e != nil {
 			return e
 		}
-		_, present, e := model.SourceContract()
+		contract, present, e := model.SourceContract()
 		if e != nil {
 			return e
+		}
+		if source && present && contract.Revision != profilemodel.SourceNormalizer {
+			return fmt.Errorf("reimport original into current source normalizer; saved old results remain readable")
 		}
 		if present != source {
 			return fmt.Errorf("use the matching legacy/source ProfileSet importer")
@@ -142,7 +145,7 @@ func profileRegistrationFor(source bool) (ingestion.ImporterDescriptor, []ingest
 	d := ingestion.ImporterDescriptor{ID: descriptorID, Aliases: []string{alias}, Family: "profile_evidence", Extensions: []string{".json"}, Producer: "internal ProfileSet transport", AdapterVersion: profileAdapterVersion, InputSchema: schemas[0].Ref, OptionSchema: schemas[1].Ref, RecordSchema: schemas[2].Ref, ResultSchema: schemas[3].Ref, RecordFamily: profileFamily, NormalizerInput: profileFamily, NormalizerOutput: profileFamily, AnalyzerID: analyzerID, MeasurementKinds: []string{"sample_count", "cpu_time", "wall_time", "duration", "bytes", "cycles", "signed_difference"}, Capabilities: []string{"summary", "exact_tree", "selection", "exact_compare", "pprof_export"}, SupportStatus: "limited", Limitations: []string{"internal versioned JSON transport; not producer conformance", "bounded 32 MiB model transported as <=256 KiB chunks within common record/normalized/result/temp ceilings", "explicit profile and metric selection; original producer corrections remain separate"}, FixtureManifest: "diagnostics.profile-core.v1", FixtureHash: hex.EncodeToString(manifestHash[:]), ConformanceVersion: profilemodel.Version, ProbeBudget: ingestion.MaxProbeBytes}
 	if source {
 		d.FixtureManifest = "diagnostics.profile-source-transport.v1"
-		d.Limitations = []string{"source normalizer 1.0.0 transport / result 0.3.0; producer qualification is limited to pinned original fixtures", "bounded 32 MiB model transported as <=256 KiB chunks within common ceilings", "explicit profile/metric selection; generic scalar comparison retains strict capture equality"}
+		d.Limitations = []string{"source normalizer 1.1.0 transport / result 0.4.0; producer qualification is limited to pinned original fixtures", "bounded 32 MiB model transported as <=256 KiB chunks within common ceilings", "explicit profile/metric selection; generic scalar comparison retains strict capture equality"}
 	}
 
 	read := func(ctx context.Context, source ingestion.Source) ([]byte, error) {

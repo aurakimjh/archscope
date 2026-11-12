@@ -1,3 +1,4 @@
+import { ProfileEvidenceExplorer } from "@/components/ProfileEvidenceExplorer";
 import { ProfileSourceAssistance } from "@/components/ProfileSourceAssistance";
 import { InputAssistance } from "@/components/InputAssistance";
 import { useEffect, useRef, useState } from "react";
@@ -191,6 +192,7 @@ export function EvidenceResultPanel({ entries, active }: { entries: AnalysisWork
       <div className="flex flex-wrap items-center gap-2"><strong>{safeDisplayText(caps.type)}</strong><Button size="sm" variant="outline" disabled={busy} onClick={() => void addToWorkspace()}>{words("Add to Workspace", "Workspace에 추가")}</Button>
         <Button size="sm" variant="outline" disabled={busy} onClick={() => void (async () => { try { const destination = await Dialogs.SaveFile({ Title: words("Save exact result", "원본 정밀도 결과 저장"), Filename: "evidence.json" }); if (destination) await bridge.exportEvidenceResult(caps.handle, destination, "raw-json"); } catch (error) { setProblem(resultProblem(error)); } })()}>{words("Save result JSON", "결과 JSON 저장")}</Button>
       </div>
+      {caps.type === "profile_evidence" && ["0.2.0", "0.3.0", "0.4.0"].includes(caps.payload_version ?? "") && <ProfileEvidenceExplorer handle={caps.handle} caseRef={active?.saved_case} />}
       <p className="text-xs">{words("Declared identity; original sources have not been verified by reimport.", "선언된 식별 정보이며 원본 재가져오기로 검증한 상태가 아닙니다.")}</p>
       {!caps.compatibility.allowed && <p role="status">{words("Read-only fallback", "읽기 전용 기본 표시")}: {safeDisplayText(caps.compatibility.reason || "")}</p>}
       <details><summary>{words("Sources and revision", "출처 및 리비전")}</summary><code className="break-all text-xs">{caps.result_sha256}</code>{caps.sources.map((s, i) => <p className="break-words text-xs" key={i}><bdi>{s.text}</bdi>{s.escaped && <small> {words("Controls shown", "제어문자 표시")}</small>}</p>)}{caps.sources_truncated && <p>{words("Source labels limited.", "출처 표시가 제한되었습니다.")}</p>}</details>

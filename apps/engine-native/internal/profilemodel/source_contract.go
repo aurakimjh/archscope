@@ -9,7 +9,8 @@ import (
 )
 
 const SourceExtension = "org.archscope.profile_source.v1"
-const SourceNormalizer = "1.0.0"
+const SourceNormalizer = "1.1.0"
+const LegacySourceNormalizer = "1.0.0"
 
 type SourceMetric struct {
 	ID   string `json:"id"`
@@ -44,7 +45,7 @@ func (s ProfileSet) SourceContract() (SourceContract, bool, error) {
 	if e := d.Decode(&c); e != nil {
 		return c, true, e
 	}
-	if c.Revision != SourceNormalizer || len(c.Metrics) != len(s.Metrics) || len(c.Profiles) != len(s.Profiles) || len(c.Attributes) > 32 {
+	if (c.Revision != SourceNormalizer && c.Revision != LegacySourceNormalizer) || len(c.Metrics) != len(s.Metrics) || len(c.Profiles) != len(s.Profiles) || len(c.Attributes) > 32 {
 		return c, true, fmt.Errorf("unsupported source normalizer contract")
 	}
 	expected := map[string]string{"pprof": "profile.proto.v1", "speedscope-json": "speedscope.schema.v1", "pyspy-raw": "collapsed.v1"}[s.Format]
@@ -55,7 +56,7 @@ func (s ProfileSet) SourceContract() (SourceContract, bool, error) {
 		return c, true, fmt.Errorf("invalid producer basis")
 	}
 	for i, m := range c.Metrics {
-		if m.ID != s.Metrics[i].ID || m.Type == "" || m.Unit == "" {
+		if m.ID != s.Metrics[i].ID || m.Type == "" || m.Unit == "" || c.Revision == SourceNormalizer && (s.Metrics[i].SourceType != m.Type || s.Metrics[i].SourceUnit != m.Unit) {
 			return c, true, fmt.Errorf("source metric binding mismatch")
 		}
 	}
@@ -68,6 +69,7 @@ func (s ProfileSet) SourceContract() (SourceContract, bool, error) {
 }
 
 type CapturePolicy struct {
+	Basis           string                     `json:"basis,omitempty"`
 	ID              string                     `json:"id"`
 	Revision        string                     `json:"revision"`
 	SHA256          string                     `json:"sha256"`
@@ -128,6 +130,9 @@ func (s ProfileSet) CapturePolicy(metricID string) *CapturePolicy {
 	if json.Unmarshal(s.CaptureOptions, &options) != nil {
 		return nil
 	}
+	if contract.Revision == SourceNormalizer {
+		policy.Basis = contract.ProducerBasis
+	}
 	for key, value := range options {
 		switch {
 		case containsKey(semantic, key):
@@ -149,6 +154,9 @@ func containsKey(keys []string, key string) bool {
 	return false
 }
 func (s ProfileSet) StrictComparisonIdentity(selection Selection) string {
+	if c, present, _ := s.SourceContract(); present && c.Revision == SourceNormalizer {
+		return hash("population-", []any{"profile-source-conditions-v4", s.comparisonConditions(selection), s.sourceMeasurement(selection.MetricID)})
+	}
 	return hash("population-", []any{"profile-conditions-v2", s.comparisonConditions(selection)})
 }
 func (s ProfileSet) comparisonPolicyConditions(selection Selection) any {
@@ -188,4 +196,17 @@ func incidentalDifferences(a, b *CapturePolicy) []string {
 	}
 	sort.Strings(out)
 	return out
+}
+
+func (s ProfileSet) sourceMeasurement(metricID string) any {
+	c, present, e := s.SourceContract()
+	if e != nil || !present {
+		return nil
+	}
+	for _, m := range c.Metrics {
+		if m.ID == metricID {
+			return []any{c.Revision, c.FormatVersion, m}
+		}
+	}
+	return nil
 }

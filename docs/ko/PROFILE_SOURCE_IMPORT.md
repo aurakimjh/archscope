@@ -2,9 +2,9 @@
 
 T-634는 원본 전용 경로를 추가합니다. `profile import`, legacy facade, 저장된
 결과, 내부 ProfileSet 0.2.0 결과의 의미는 유지합니다. 원본을 재분석해야
-`profile_evidence` payload 0.3.0을 얻으며 저장된 근거의 버전만 바꾸면 안 됩니다.
+`profile_evidence` payload 0.4.0을 얻으며 저장된 근거의 버전만 바꾸면 안 됩니다.
 공통 AnalysisResult envelope와 ProfileSet schema 1.0.0은 유지합니다.
-예약 extension `org.archscope.profile_source.v1`은 normalizer 1.0.0, 형식 버전,
+예약 extension `org.archscope.profile_source.v1`은 normalizer 1.1.0, 형식 버전,
 원래 metric/profile 선언과 원본 메타데이터를 고정합니다.
 
 ## 화면과 CLI
@@ -91,11 +91,11 @@ Speedscope 포함)은 구조가 지원되면 해석하지만 완화 정책을 �
 분류하지 않은 옵션은 모두 strict입니다. 전역 PID/duration 무시 규칙은 없습니다.
 원본 정체성은 선언 또는 파일 exporter 근거이며 원본 인증으로 표시하지 않습니다.
 
-새 canonical 비교 identity는 `profile-conditions-v3`이며 기존 v2 hash는 유지합니다.
+새 canonical 비교 identity는 `profile-conditions-v4`이며 기존 v2 hash는 유지합니다.
 저장된 0.3.0 메타데이터는 내장 모델·정책을 재계산해 검사합니다. 일반 scalar
 비교는 전체 capture의 엄격한 동등성을 유지하고 그 범위를 공개합니다. 검증된
-incidental 차이에는 canonical ProfileSet diff를 사용하세요. 영속 baseline binding,
-명시적 entity mapping, 일반 소비자의 정책 반영은 T-635 범위입니다.
+incidental 차이에는 canonical ProfileSet diff를 사용하세요. 영속 baseline binding과 선언된 entity mapping은
+[케이스 근거 조회](CASE_EVIDENCE_QUERIES.md)에 구현했으며 기존 일반 scalar 경로는 strict를 유지합니다.
 
 ## 검증 근거
 
@@ -111,3 +111,21 @@ Digest로 고정한 재사용 corpus `diagnostics.profile-producers.v1`은 실�
 형식 근거: [Speedscope 명세](https://github.com/jlfwong/speedscope/blob/main/src/lib/file-format-spec.ts),
 [py-spy 0.4.1 exporter](https://github.com/benfred/py-spy/blob/v0.4.1/src/speedscope.rs),
 [pprof proto](https://github.com/google/pprof/blob/main/proto/profile.proto).
+
+## R11 의미 버전 경계 (2026-11-12)
+
+Normalizer 1.1.0 / payload 0.4.0은 모든 원본 metric, inventory, 화면, 결과 summary에
+원래 type/unit을 드러냅니다. Column ID는 파일 안에서 유지하되 비교 identity가
+정책 유무와 무관하게 원래 type/unit·형식 버전을 포함합니다. Producer를 선언하지
+않거나 검증되지 않은 버전이어도 alloc_space와 inuse_space를 비교하지 못합니다.
+기존 0.3.0 스냅샷은 원래 v2/v3 hash와 읽기·저장·조회·내보내기를 유지합니다.
+비교하려면 원본을 명시적으로 재분석해 새 결과를 만들어야 하며 버전만 바꾸지 않습니다.
+
+Speedscope none은 일반 count 가중치(kind=count)로 표시하고 source_unit=none을
+보존하며 total_samples를 주장하지 않습니다. 새 정책은 basis=declared/file_exporter를
+노출하고 비교는 capture_policy_uses_declared_producer 경고를 남깁니다. 재분석은
+바이트·옵션·모델 검증이며 producer 인증이 아닙니다. 100k 관측 한도는 관측/frame/depth의
+실제 수와 한도를 표시합니다. 100 Hz에서 100k sampled 관측은 단일 worker 약
+1,000초, 같은 빈도의 4개 worker 약 250초이며 pprof는 column마다 관측을 소비합니다.
+관측 원본 참조를 잃는 자동 병합은 하지 않습니다. 검증된 baseline 재사용은
+[케이스 근거 조회](CASE_EVIDENCE_QUERIES.md)를 참고하세요.

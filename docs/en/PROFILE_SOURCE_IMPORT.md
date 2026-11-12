@@ -2,9 +2,9 @@
 
 T-634 adds a separate original-source path. It does not change `profile import`,
 legacy facades, saved results, or internal ProfileSet 0.2.0 results. Reimport the
-original to obtain `profile_evidence` payload 0.3.0; do not relabel saved evidence.
+original to obtain `profile_evidence` payload 0.4.0; do not relabel saved evidence.
 The common AnalysisResult envelope and ProfileSet schema 1.0.0 remain intact.
-The reserved `org.archscope.profile_source.v1` extension pins normalizer 1.0.0,
+The reserved `org.archscope.profile_source.v1` extension pins normalizer 1.1.0,
 format revision, original metric/profile declarations and source metadata.
 
 ## Desktop and CLI
@@ -98,12 +98,13 @@ receive no relaxed policy. Every unclassified option remains strict. There is no
 global PID/duration ignore rule. Source identity is declared or file-exporter
 based, never original-source authentication.
 
-New canonical comparison identity uses `profile-conditions-v3`; existing model
-v2 hashes remain unchanged. Saved 0.3.0 metadata is recomputed and checked against
+New canonical comparison identity uses `profile-conditions-v4`; existing model
+v2 hashes remain unchanged. Saved 0.4.0 metadata is recomputed and checked against
 the embedded model/policy. Generic scalar comparison deliberately retains opaque
 strict capture equality and discloses this scope; use canonical ProfileSet diff
-for qualified incidental differences. Durable baseline binding, explicit entity
-mapping and generic consumer policy adoption remain T-635.
+for qualified incidental differences. Durable baseline binding and declared entity mapping are implemented in
+[Case evidence queries](CASE_EVIDENCE_QUERIES.md); the older generic scalar path
+retains strict capture equality.
 
 ## Qualification evidence
 
@@ -120,3 +121,23 @@ round trips. Native Windows UI execution and independent review are separate.
 Format references: [Speedscope specification](https://github.com/jlfwong/speedscope/blob/main/src/lib/file-format-spec.ts),
 [py-spy 0.4.1 exporter](https://github.com/benfred/py-spy/blob/v0.4.1/src/speedscope.rs),
 [pprof proto](https://github.com/google/pprof/blob/main/proto/profile.proto).
+
+## R11 revision boundary (2026-11-12)
+
+Normalizer 1.1.0 / payload 0.4.0 adds original source type/unit to every source
+metric, inventory, UI and result summary. Column IDs remain stable within the
+file, but identity also binds the original type/unit and format revision without
+requiring a capture policy. `alloc_space` and `inuse_space` cannot compare under
+an undeclared or unqualified producer. Old 0.3.0 snapshots keep their original
+v2/v3 hashes and can be read, saved, queried and exported; comparison requires
+explicit original reimport into a new result. No old result is relabeled.
+
+Speedscope `none` maps to generic count-weight (`kind=count`), preserves
+`source_unit=none` and never asserts total_samples. New policy snapshots expose
+basis=declared/file_exporter and comparisons warn capture_policy_uses_declared_producer.
+Replay checks bytes/options/model, not producer authenticity. The 100k observation
+ceiling now reports actual/limit values for observations/frames/depth. At 100 Hz,
+100k sampled observations are about 1,000 seconds for one worker or 250 seconds
+for four equally sampled workers; pprof columns each consume an observation.
+No automatic coalescing loses original observation references. See
+[Case evidence queries](CASE_EVIDENCE_QUERIES.md) for verified baseline reuse.

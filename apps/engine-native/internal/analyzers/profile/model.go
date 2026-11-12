@@ -80,6 +80,10 @@ func BuildSet(ctx context.Context, set profilemodel.ProfileSet, selection profil
 		count.Reason = "selected_metric_does_not_supply_sample_count"
 	}
 	result.Metadata.Extra["measurement"] = map[string]resultcontract.Measurement{"/summary/total_weight": metric, "/summary/total_samples": count, "/series/frame_weights": {Columns: map[string]resultcontract.Measurement{"weight": metric, "self_weight": metric}}}
+	if c, present, _ := set.SourceContract(); present && c.Revision == profilemodel.SourceNormalizer {
+		result.Summary["source_type"] = tree.Metric.SourceType
+		result.Summary["source_unit"] = tree.Metric.SourceUnit
+	}
 	result.Metadata.Extra["population_ids"] = []string{"selected"}
 	if _, present, _ := set.SourceContract(); present {
 		result.Metadata.Extra["capture_policy"] = set.CapturePolicy(selection.MetricID)
@@ -92,7 +96,7 @@ func BuildSet(ctx context.Context, set profilemodel.ProfileSet, selection profil
 }
 func ReadCore(result models.AnalysisResult) (CoreEvidence, error) {
 	var core CoreEvidence
-	if result.Type != ResultType || (result.Metadata.SchemaVersion != ModelPayloadVersion && result.Metadata.SchemaVersion != SourceModelPayloadVersion) {
+	if result.Type != ResultType || (result.Metadata.SchemaVersion != ModelPayloadVersion && result.Metadata.SchemaVersion != SourceModelPayloadVersion && result.Metadata.SchemaVersion != LegacySourceModelPayloadVersion) {
 		return core, fmt.Errorf("profile result requires original reanalysis into ProfileSet")
 	}
 
@@ -163,7 +167,7 @@ func ValidateModelResult(result models.AnalysisResult) error {
 		}
 	}
 	pairs := [][2]any{}
-	if result.Metadata.SchemaVersion == SourceModelPayloadVersion {
+	if result.Metadata.SchemaVersion == SourceModelPayloadVersion || result.Metadata.SchemaVersion == LegacySourceModelPayloadVersion {
 		pairs = append(pairs, [2]any{result.Metadata.Extra["capture_policy"], expected.Metadata.Extra["capture_policy"]}, [2]any{result.Metadata.Extra["comparison_policy_scope"], expected.Metadata.Extra["comparison_policy_scope"]})
 	}
 	pairs = append(pairs, [][2]any{{result.Summary, expected.Summary}, {result.Series, expected.Series}, {result.Tables, expected.Tables}, {result.Charts, expected.Charts}, {result.Metadata.Extra["measurement"], expected.Metadata.Extra["measurement"]}, {result.Metadata.Extra["populations"], expected.Metadata.Extra["populations"]}, {result.Metadata.Extra["quality"], expected.Metadata.Extra["quality"]}}...)

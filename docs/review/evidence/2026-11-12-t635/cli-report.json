@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "checks": [
+    "new payload 0.4.0 original type/unit disclosure",
+    "immutable source-bound saved results",
+    "exact profile query denominator and paged full-tree geometry",
+    "fresh original reimport for both baseline and target",
+    "exact policy/basis/incidental disclosure",
+    "paged comparison across CLI restarts with immutable pin",
+    "revision-bound text/ID search with raw coordinates and coverage",
+    "stale query refusal",
+    "durable cache rebuild preserves index identity",
+    "old 0.3.0 snapshot readable with comparison reimport gate",
+    "changed original rejects verified reuse",
+    "saved result bytes remain unchanged"
+  ],
+  "source_payload": "0.4.0",
+  "normalizer": "1.1.0",
+  "exact_baseline": "0.25",
+  "exact_target": "0.5",
+  "baseline_rows": 3,
+  "search_matches": 8,
+  "original_identity_basis": "declared",
+  "source_verification": "verified_by_reimport",
+  "engine_sha256": "f3c2f4a371da48cc3c1519896ea1bbd22b6aec03ed24168408d97872f327e5cc"
+}

@@ -198,6 +198,10 @@ func ParseSourceBytes(ctx context.Context, original []byte, options SourceOption
 	if e != nil {
 		return b.set, e
 	}
+	for i, m := range b.contract.Metrics {
+		b.set.Metrics[i].SourceType = m.Type
+		b.set.Metrics[i].SourceUnit = m.Unit
+	}
 	b.set.Extensions[profilemodel.SourceExtension] = raw
 	if e = b.set.Validate(); e != nil {
 		return b.set, e
@@ -256,7 +260,7 @@ func (b *sourceBuilder) sample(p int, frames []string, metric, weight string, ti
 	}
 	b.observations++
 	if b.observations > profilemodel.MaxSamples || len(frames) > profilemodel.MaxDepth || len(b.set.Frames) > profilemodel.MaxFrames {
-		return ingestion.Problem("IMPORT_BUDGET_EXCEEDED", "exact profile observation/frame/depth budget exceeded")
+		return ingestion.Problem("IMPORT_BUDGET_EXCEEDED", fmt.Sprintf("exact profile limit exceeded: observations=%d (limit %d), frames=%d (limit %d), depth=%d (limit %d); reduce collection duration/rate/workers or explicitly split the source; no observations were coalesced", b.observations, profilemodel.MaxSamples, len(b.set.Frames), profilemodel.MaxFrames, len(frames), profilemodel.MaxDepth))
 	}
 	if len(frames) == 0 {
 		frames = []string{b.frame(profilemodel.Frame{Symbol: "[unattributed]", Display: "[unattributed]"})}

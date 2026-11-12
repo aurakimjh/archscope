@@ -87,14 +87,14 @@ func (b *sourceBuilder) speedscope(body []byte, options SourceOptions) error {
 		switch unit {
 		case "none":
 			unit = "count"
-			kind = "sample_count"
+			kind = "count"
 		case "bytes":
 			kind = "bytes"
 		case "seconds", "milliseconds", "microseconds", "nanoseconds":
 		default:
 			return fmt.Errorf("PROFILE_UNIT_UNSUPPORTED")
 		}
-		if p.Type == "evented" && (kind == "sample_count" || kind == "bytes") {
+		if p.Type == "evented" && (kind == "count" || kind == "bytes") {
 			return fmt.Errorf("PROFILE_EVENT_UNIT_UNSUPPORTED: evented clock must be time")
 		}
 		metricID := p.Type + "-" + unit

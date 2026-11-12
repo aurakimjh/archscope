@@ -94,6 +94,9 @@ func comparable(a ProfileSet, as Selection, b ProfileSet, bs Selection) error {
 	if ap != bp || ap && ac.Revision != bc.Revision {
 		return comparisonRefusal("semantic_revision_mismatch", "source normalizer revision differs")
 	}
+	if !sameConditions(a.sourceMeasurement(as.MetricID), b.sourceMeasurement(bs.MetricID)) {
+		return comparisonRefusal("source_measurement_mismatch", "original source sample type/unit or format revision differs; reimport compatible originals")
+	}
 	pa, pb := a.CapturePolicy(as.MetricID), b.CapturePolicy(bs.MetricID)
 	if (pa == nil) != (pb == nil) || pa != nil && pa.SHA256 != pb.SHA256 {
 		return comparisonRefusal("capture_policy_mismatch", "compiled capture policies differ")

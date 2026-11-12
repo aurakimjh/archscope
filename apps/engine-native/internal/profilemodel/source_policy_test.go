@@ -28,7 +28,7 @@ func TestCompiledCapturePolicyStrictUnknownPresenceAndDisclosures(t *testing.T) 
 	if e != nil {
 		t.Fatal(e)
 	}
-	if len(d.IncidentalDifferences) != 1 || d.IncidentalDifferences[0] != "output_path" || len(d.Warnings) != 1 || d.IdentityBasis != "declared" || d.Baseline.CapturePolicy == nil || d.Target.CapturePolicy == nil {
+	if len(d.IncidentalDifferences) != 1 || d.IncidentalDifferences[0] != "output_path" || len(d.Warnings) < 1 || d.IdentityBasis != "declared" || d.Baseline.CapturePolicy == nil || d.Target.CapturePolicy == nil {
 		t.Fatal(d)
 	}
 	if string(d.Baseline.CapturePolicy.Original) != string(a.CaptureOptions) || string(d.Target.CapturePolicy.Original) != string(b.CaptureOptions) {

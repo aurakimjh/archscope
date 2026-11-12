@@ -63,7 +63,7 @@ func TestSourceSampledFractionsZerosProfilesAndSavedRevision(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	if result.Metadata.SchemaVersion != "0.3.0" {
+	if result.Metadata.SchemaVersion != "0.4.0" {
 		t.Fatal(result.Metadata)
 	}
 	if e = analyzer.ValidateModelResult(result); e != nil {
@@ -342,5 +342,46 @@ func TestSourceBudgetsRejectInsteadOfTruncating(t *testing.T) {
 	}
 	if _, e = parser.ParseSourceBytes(context.Background(), []byte(strings.Repeat("root 0\n", m.MaxSamples+1)), parser.SourceOptions{Format: "pyspy-raw"}); e == nil || !strings.Contains(e.Error(), "IMPORT_BUDGET_EXCEEDED") {
 		t.Fatal("observation budget did not refuse", e)
+	}
+}
+
+func TestR1101NoPolicyOriginalTypeUnitCannotCompare(t *testing.T) {
+	makeSet := func(kind string) m.ProfileSet {
+		f := &pp.Function{ID: 1, Name: "root"}
+		loc := &pp.Location{ID: 1, Line: []pp.Line{{Function: f}}}
+		p := &pp.Profile{SampleType: []*pp.ValueType{{Type: kind, Unit: "bytes"}}, Function: []*pp.Function{f}, Location: []*pp.Location{loc}, Sample: []*pp.Sample{{Location: []*pp.Location{loc}, Value: []int64{42}}}}
+		s, e := parser.ParseSourceBytes(context.Background(), pprofBody(t, p), parser.SourceOptions{Format: "pprof"})
+		if e != nil {
+			t.Fatal(e)
+		}
+		return s
+	}
+	a, b := makeSet("alloc_space"), makeSet("inuse_space")
+	sel := m.Selection{ProfileIDs: []string{"profile-0"}, MetricID: "pprof-0"}
+	if a.CapturePolicy(sel.MetricID) != nil || b.CapturePolicy(sel.MetricID) != nil {
+		t.Fatal("unexpected producer policy")
+	}
+	if a.Metrics[0].SourceType != "alloc_space" || parser.Inventory(b).Metrics[0].SourceType != "inuse_space" {
+		t.Fatal("hidden original sample type")
+	}
+	if a.StrictComparisonIdentity(sel) == b.StrictComparisonIdentity(sel) || a.ComparisonIdentity(sel) == b.ComparisonIdentity(sel) {
+		t.Fatal("source type absent from comparison identity")
+	}
+	if _, e := m.Compare(context.Background(), a, sel, b, sel); e == nil {
+		t.Fatal("alloc_space compared with inuse_space")
+	}
+	result, e := analyzer.BuildSet(context.Background(), a, sel, "original")
+	if e != nil || result.Metadata.SchemaVersion != "0.4.0" || result.Summary["source_type"] != "alloc_space" || result.Summary["source_unit"] != "bytes" {
+		t.Fatal(result.Summary, e)
+	}
+}
+func TestR1104UnitlessWeightIsNotProvenSampleCount(t *testing.T) {
+	s := parse(t, scopeHeader+`[{"type":"sampled","unit":"none","startValue":0,"endValue":1,"samples":[[0]],"weights":[0.25]}]}`, "auto")
+	if s.Metrics[0].Kind != "count" || s.Metrics[0].SourceUnit != "none" {
+		t.Fatal(s.Metrics)
+	}
+	result, e := analyzer.BuildSet(context.Background(), s, m.Selection{ProfileIDs: []string{"profile-0"}, MetricID: s.Metrics[0].ID}, "none")
+	if e != nil || result.Summary["total_samples"] != nil {
+		t.Fatal(result.Summary, e)
 	}
 }

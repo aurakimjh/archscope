@@ -133,6 +133,14 @@
           },
           "signed": {
             "type": "boolean"
+          },
+          "source_type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_unit": {
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -140,7 +148,9 @@
           "kind",
           "unit",
           "scale",
-          "signed"
+          "signed",
+          "source_type",
+          "source_unit"
         ],
         "additionalProperties": false
       },

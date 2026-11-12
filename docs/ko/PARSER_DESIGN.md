@@ -990,3 +990,16 @@ scalar 비교도 T-635 연결 전까지 전체 capture 동등성을 유지합니
 “구현 대기” 설명은 이번에 검증한 canonical 원본 범위에서만 갱신됩니다.
 형식 의미·한도·검증·정책 key·CLI/화면은
 [정확한 원본 프로파일 가져오기](PROFILE_SOURCE_IMPORT.md)를 참고하세요.
+
+### T-635 공통 조회·검증 baseline과 R11 의미 버전
+
+[케이스 근거 조회](CASE_EVIDENCE_QUERIES.md)는 제한된 cursor 기반 profile 보기·근거,
+색인 범위를 공개하는 원본/summary 검색, 원본 좌표, 선택한 불변 결과와 baseline
+재분석·매핑 gate를 정의합니다. R11 수정은 normalizer 1.1.0 / 결과 0.4.0을 생성하고
+원래 type/unit을 producer 정책 없이 metric identity에 포함합니다. Speedscope none은
+일반 count 가중치이며 표본 수를 단정하지 않습니다. 기존 0.3.0은 바이트·hash·읽기·저장·
+조회·내보내기를 유지하되 비교에는 새 원본 재분석이 필요합니다. 새 정책은 선언/
+file-exporter basis와 경고를 공개합니다. 영속 baseline 검증은 매번 양쪽 원본을 다시
+분석하고 identity_basis=declared를 유지합니다. 일반 scalar 비교는 계속 strict이며
+새 canonical/baseline 화면이 검증 정책을 소비합니다. 시계 정렬·미검증 producer 지원을
+추정하지 않습니다. Windows 네이티브/UI 및 독립 리뷰는 별도입니다.

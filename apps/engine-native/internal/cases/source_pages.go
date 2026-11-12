@@ -28,6 +28,9 @@ type sourceIndex struct {
 func (s *Store) SourcePage(ctx context.Context, caseID, sourceID string, opts DecodeOptions, start, count int) (TextPage, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	return s.sourcePage(ctx, caseID, sourceID, opts, start, count)
+}
+func (s *Store) sourcePage(ctx context.Context, caseID, sourceID string, opts DecodeOptions, start, count int) (TextPage, error) {
 	if start < 0 || count < 1 || count > 200 {
 		return TextPage{}, problem("CASE_PAGE_INVALID", "source page requires start >=0 and count 1..200")
 	}

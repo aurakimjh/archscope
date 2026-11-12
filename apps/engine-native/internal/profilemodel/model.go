@@ -50,8 +50,10 @@ type Metric struct {
 	Kind     string `json:"kind"`
 	Unit     string `json:"unit"`
 	// Scale maps a stored weight to the declared unit. It is explicit and exact.
-	Scale  string `json:"scale"`
-	Signed bool   `json:"signed"`
+	Scale      string `json:"scale"`
+	Signed     bool   `json:"signed"`
+	SourceType string `json:"source_type,omitempty"`
+	SourceUnit string `json:"source_unit,omitempty"`
 }
 type Sample struct {
 	TimestampNull bool                `json:"-"`
@@ -396,7 +398,10 @@ func (s ProfileSet) SelectionIdentity(selection Selection) string {
 // ComparisonIdentity v2 compares conditions, not measured quality counters.
 // Original selection/source identity remains unchanged for provenance.
 func (s ProfileSet) ComparisonIdentity(selection Selection) string {
-	if _, present, _ := s.SourceContract(); present {
+	if c, present, _ := s.SourceContract(); present {
+		if c.Revision == SourceNormalizer {
+			return hash("population-", []any{"profile-conditions-v4", s.comparisonPolicyConditions(selection), s.sourceMeasurement(selection.MetricID)})
+		}
 		return hash("population-", []any{"profile-conditions-v3", s.comparisonPolicyConditions(selection)})
 	}
 	return s.StrictComparisonIdentity(selection)

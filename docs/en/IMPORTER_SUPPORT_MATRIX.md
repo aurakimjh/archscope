@@ -97,7 +97,7 @@ preconverted JSON. See [Input assistance](INPUT_ASSISTANCE.md).
 `profile inspect-source`, `normalize-source` and `import-source` preserve exact
 weights/units and require explicit profile/metric selection. Desktop Workspace
 normalizes originals to `profile.source-set-json` / `profile-source-set`, producing
-`profile_evidence` 0.3.0. `profile import` retains legacy semantics. Evented
+`profile_evidence` 0.4.0. `profile import` retains legacy semantics. Evented
 Speedscope uses exclusive elapsed intervals and explicit unattributed gaps, not
 event counts; sampled time weights are duration, not inferred CPU time. pprof
 keeps all columns, signed values, labels and period metadata without double scaling.
@@ -112,3 +112,19 @@ No broad vendor/platform promotion, dump-text support or original-source
 identity authentication follows from these fixtures. Native Windows/UI acceptance
 and independent review are separate. See [Exact profile sources](PROFILE_SOURCE_IMPORT.md)
 for bounds, CLI examples, projection limits, policy keys and evidence scope.
+
+### T-635 canonical queries, verified baseline and R11 revision
+
+[Case evidence queries](CASE_EVIDENCE_QUERIES.md) defines bounded cursor-bound
+profile views/evidence, source/summary case search with indexed coverage, original
+coordinate links, immutable selected results, and baseline replay/mapping gates.
+R11 correction emits source normalizer 1.1.0 / result 0.4.0: original type/unit is
+part of metric identity without a producer policy; unitless Speedscope weights
+are generic count, not proven samples. Source 0.3.0 snapshots keep old bytes and
+hashes/read/save/query/export, but comparisons require new original reimport.
+New compiled policy snapshots disclose declared/file-exporter basis and warnings.
+Durable verified reuse replays both original sources every time and preserves
+identity_basis=declared. Existing generic scalar comparison stays strict; the new
+canonical/baseline consumer uses qualified policies. Clock alignment and unknown
+producer promotion are not inferred. Native Windows/UI and independent review
+remain separate from local implementation verification.

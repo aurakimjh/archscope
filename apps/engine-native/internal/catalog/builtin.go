@@ -120,7 +120,7 @@ func ResultRegistry() (*resultcontract.Registry, error) {
 		}
 		return nil
 	}, Type: "server_log", Payload: resultcontract.Range{Min: "0.1.0", Before: "0.2.0"}, Envelope: resultcontract.Range{Min: "1.0.0", Before: "2.0.0"}, Extensions: map[string]resultcontract.Range{"measurement": {Min: "1.0.0", Before: "1.1.0"}}, Scalars: map[string]resultcontract.ValueSchema{"/summary/total_events": scalar, "/summary/error_count": scalar, "/summary/warning_count": scalar}})
-	descriptors = append(descriptors, profileanalyzer.ModelDescriptor(), profileanalyzer.SourceModelDescriptor(), MappedMetricDescriptor())
+	descriptors = append(descriptors, profileanalyzer.ModelDescriptor(), profileanalyzer.LegacySourceModelDescriptor(), profileanalyzer.SourceModelDescriptor(), MappedMetricDescriptor())
 	return resultcontract.New(descriptors...)
 }
 func Analyzer() ingestion.Analyzer {

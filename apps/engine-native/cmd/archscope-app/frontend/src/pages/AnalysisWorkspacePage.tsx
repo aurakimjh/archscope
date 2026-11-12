@@ -1,3 +1,4 @@
+import { CaseEvidencePanel } from "@/components/CaseEvidencePanel";
 import { EvidenceResultPanel } from "@/components/EvidenceResultPanel";
 import { CaseWorkspaceActions } from "@/components/CaseWorkspaceActions";
 import { ClipboardPlus, FileText, GitCompareArrows, Trash2 } from "lucide-react";
@@ -100,6 +101,7 @@ export function AnalysisWorkspacePage(): React.JSX.Element {
         </Button>
       </section>
 
+      <CaseEvidencePanel handle={workspace.entries.find(e => e.id === workspace.active_id)?.backend_result_handle ?? ""} />
       <EvidenceResultPanel entries={workspace.entries} active={workspace.entries.find(e => e.id === workspace.active_id)} />
 
       {workspace.entries.length === 0 ? (

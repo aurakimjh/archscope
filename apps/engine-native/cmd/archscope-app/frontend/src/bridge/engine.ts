@@ -484,7 +484,7 @@ function parseAssistance<T>(request: CancellablePromise<string>): Cancelable<T> 
 export interface ProfileSourceInventory {
   source_sha256: string; producer: string; producer_version: string; format: string;
   profiles: { id: string; name: string; metrics: string[] }[];
-  metrics: { id: string; kind: string; unit: string; scale: string }[];
+  metrics: { id: string; source_type?: string; source_unit?: string; kind: string; unit: string; scale: string }[];
   warnings: string[];
 }
 export function inspectProfileSource(path: string, options: string): Cancelable<ProfileSourceInventory> {
@@ -493,3 +493,17 @@ export function inspectProfileSource(path: string, options: string): Cancelable<
 export function normalizeProfileSource(path: string, options: string, hash: string, output: string): Cancelable<ProfileSourceInventory> {
   return parseAssistance(call<string>("NormalizeProfileSource", path, options, hash, output));
 }
+
+export type ProfileSelection = { profile_ids: string[]; metric_id: string; path?: string[]; match?: string; filters?: { path: string[]; match: string }[] };
+export type ProfileQueryInventory = { result_sha256: string; selection: ProfileSelection; profiles: { id: string; worker?: string; process?: string; thread?: string }[]; metrics: { id: string; source_type?: string; source_unit?: string; kind: string; unit: string; scale: string }[]; capture_policy: unknown };
+export type ProfileQueryPage = { version: string; result_sha256: string; query_sha256: string; population: string; selection: ProfileSelection; metric: { id: string; unit: string; scale: string }; denominator: string; availability: string; reason?: string; untimed_observations: number; total: number; matched: number; next: string; rows: { depth: number; layout_x?: number; layout_width?: number; id: string; frame_id?: string; name?: string; inclusive: string; self: string; profile_id?: string; source_ref?: string; source_sha256?: string[]; path?: string[]; timestamp?: string; interval?: string }[] };
+export const describeProfileQuery = (handle: string): Cancelable<ProfileQueryInventory> => parseAssistance(call<string>("DescribeProfileQuery", handle));
+export const queryProfileEvidence = (handle: string, digest: string, query: string): Cancelable<ProfileQueryPage> => parseAssistance(call<string>("QueryProfileEvidence", handle, digest, query));
+export const materializeProfileView = (handle: string, digest: string, selection: string) => call<string>("MaterializeProfileView", handle, digest, selection);
+export type CaseEvidenceManifest = { id: string; revision: string; state: string; sources: { id: string; name: string; sha256: string; status: string }[]; results: { id: string; type: string; sha256: string; source_ids: string[]; stale: boolean }[]; baselines: { id: string; result_id: string; result_sha256: string; conditions: unknown }[] };
+export type CaseSearchPage = { version: string; untimed_rows: number; case_id: string; revision: string; query_sha256: string; index_sha256: string; matched: number; next: string; rows: { timestamp?: string; clock?: string; time_unit?: string; source_ref?: string; profile_id?: string; frame_ids?: string[]; id: string; kind: string; source_id?: string; result_id?: string; sha256: string; field: string; text: string; truncated: boolean; line?: { number: string; raw_start: string; raw_end: string } }[]; coverage: { id: string; kind: string; indexed: number; total: number; reason?: string }[] };
+export const searchCaseEvidence = (query: string): Cancelable<CaseSearchPage> => parseAssistance(call<string>("SearchCaseEvidence", query));
+export const pinVerifiedCaseBaseline = (query: string): Cancelable<CaseEvidenceManifest> => parseAssistance(call<string>("PinVerifiedCaseBaseline", query));
+export const compareVerifiedCaseBaseline = (query: string): Cancelable<{ next: string; total: number; source_verification: string; difference: { identity_basis: string; warnings: string[]; incidental_differences?: string[]; rows: { id: string; before: string; after: string; delta: string; percent?: string; reason?: string }[] }; baseline: unknown; target: unknown; mapping: unknown[] }> => parseAssistance(call<string>("CompareVerifiedCaseBaseline", query));
+export const openCaseEvidence = (id: string, revision: string, source: string, digest: string, line: string): Cancelable<{ source_sha256: string; indexed_lines: string; total_lines: string; index_truncated: boolean; lines: { number: string; raw_start: string; raw_end: string; text: string; truncated: boolean }[] }> => parseAssistance(call<string>("OpenCaseEvidence", id, revision, source, digest, line));
+export const openProfileEvidence = (caseID: string, revision: string, resultID: string, resultSHA: string, sourceID: string, sourceSHA: string, reference: string): Cancelable<{ source_sha256: string; lines: { number: string; raw_start: string; raw_end: string; text: string }[] }> => parseAssistance(call<string>("OpenProfileEvidence", caseID, revision, resultID, resultSHA, sourceID, sourceSHA, reference));

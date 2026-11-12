@@ -1,0 +1,180 @@
+{
+  "task": "T-635 plus necessary T-634 R11 prerequisite correction",
+  "status": "T-635 REVIEW; local implementation/validation complete. T-634 DONE under independent R11 explicit after-R11-01 remediation permission; original verdict CONDITIONAL preserved.",
+  "recorded_at": "2026-11-12T10:57:46.664136+09:00",
+  "initial_source_base_commit": "eaa8c5418c5f7b12bb416872bda84878a9722d9e",
+  "review_intake_commit": "1847b77",
+  "parent_commit": "1847b77996beb8fb48c74ef7e0042cca5aea6d46",
+  "pull": "Ran before edits (already current), refreshed after review intake and before final commit (already current). Review author committed its isolated review during shared-workspace execution; original preserved.",
+  "source_sha256": {
+    "apps/engine-native/cmd/archscope-app/evidencequeryservice.go": "844c4b17aa584b23208aed011c35aa259b407f79d1eade060fd0ac7faaea5a3f",
+    "apps/engine-native/cmd/archscope-app/evidencequeryservice_test.go": "578675d3c996b798e4e6b59d51fc4105cc9b5f61f6628c9fe43da0f2b76b6c8f",
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/engineservice.ts": "57e56baefd6b26028acf98a7ef548c716bf2064f60b278d8eb3bca459e054a88",
+    "apps/engine-native/cmd/archscope-app/frontend/src/bridge/engine.ts": "43fce5628d762caa1bb623fb55b4e6a485a4e739007df7795cbcde14d2420ded",
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/CaseEvidencePanel.tsx": "362e8899d6151b2d42e5816e584456158559233512d79d5c21a3c7730c85f4db",
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/EvidenceResultPanel.tsx": "a7e4e2d4fd43a842cb158ade5bbc8715cd5fee116d87ee7ad4222867124c290c",
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/ProfileEvidenceExplorer.tsx": "8ae1f3130ab47faacde46dcaf38337de9024511dd96305ac888f5058fdbb0c8c",
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/ProfileSourceAssistance.tsx": "93a3b50ac5a1726702e7d3c51ff05d76275e3a79ef62a115664b2a0edc609e58",
+    "apps/engine-native/cmd/archscope-app/frontend/src/pages/AnalysisWorkspacePage.tsx": "a3b65101fc34c4a966a64be5654e94888b1fca1a636bb4f458dcb23fdcfc3bce",
+    "apps/engine-native/cmd/archscope-engine/cmd_case_query.go": "8dd13e0ffae04ed04aa370b108d90404becdc1504f2d1e78941fe3fd95e46242",
+    "apps/engine-native/cmd/archscope-engine/cmd_case_query_test.go": "b9da45f60a955ca18051c723042ab4ba865998be6e1543561833ec1959b0f575",
+    "apps/engine-native/internal/analysis/case_baselines.go": "2477fa4aef3e390c56cc29b39748a138ab2202135ca1415cb3f431d998cb9a08",
+    "apps/engine-native/internal/analysis/case_baselines_test.go": "03d62b3e635a23b22e1f9e5a6bdf6f19f892e7c53e20576559fd420f4cc434a6",
+    "apps/engine-native/internal/analysis/profile_query.go": "61496b315c510cbd16b2966aa7362e0c60e07ff88dd7da7c0d7dc795f521da18",
+    "apps/engine-native/internal/analyzers/profile/model.go": "7e9fa50d66d47d0fdb56e2aa1e7898f9e3d80bd6851c0231a89e880bb04df59a",
+    "apps/engine-native/internal/analyzers/profile/source_legacy_test.go": "20daf61b2d0b8175fae54e2b90da62e592b127e00bb3e71480e965b30dbe8802",
+    "apps/engine-native/internal/analyzers/profile/source_model.go": "fdf7184f315a357bf260f871e8b9ce5c7175fa37910623605ad7e3b6975194a4",
+    "apps/engine-native/internal/analyzers/profile/testdata/source-0.3.0.saved.json": "a67bfa107fe1ed57d47abbc68c9e148b6459aeebb643889cff831f2f2eac304f",
+    "apps/engine-native/internal/cases/baseline_source.go": "4d0a3f161de05b0ce97325d2bd32c654d9dfb00fc48dbfafb8ca73f7f7931b0f",
+    "apps/engine-native/internal/cases/search.go": "83b493f9f9f386ce1055876c041cfdcdf69f4c4cccb2b13c13926573d0d9b63a",
+    "apps/engine-native/internal/cases/search_test.go": "a93de3f13c08be8e4a417fa568d18a4de162aa5ff5267842436655eb1fb4ea83",
+    "apps/engine-native/internal/cases/source_pages.go": "d6563911563c5739cc12f55dd6855af3a61ba0723100d7bf086df23109225038",
+    "apps/engine-native/internal/catalog/builtin.go": "2f2dd43c33d559a807e31c62f0c5d3839b73aba04e6e7913c7f6dc68658c017b",
+    "apps/engine-native/internal/catalog/contracts/profile-source-set.json": "d4503f650dbbecd1ecc0de3c7a0b98e7bc34aaa37a6e20f3cf63d00b65540ad8",
+    "apps/engine-native/internal/catalog/contracts/profile-source-set.manifest.json": "00d98d94384e2440ae6ae3f1e04a71e66f04d06b0476ee8f504edf4fd402fb7f",
+    "apps/engine-native/internal/catalog/contracts/profile-source-set.schema.json": "ad228a40252eeb50d7a9f7aeb991ef8b8804e072d46568732968930ca9ca33b0",
+    "apps/engine-native/internal/catalog/profile_set.go": "3135e3008280c43c968f4eb1968e28b64e7b1787ec714173bdb814521879ae58",
+    "apps/engine-native/internal/distribution/assets/fixtures.sha256": "291223074816c831360878a91ef77712b5dad0c2adecbe0b60de8d8c3f7e142a",
+    "apps/engine-native/internal/distribution/assets/fixtures.zip": "113297f43625d9a0bdc55aeaa760e7a79cfa8b38330606692374a4d3e50bbb28",
+    "apps/engine-native/internal/parsers/profile/source.go": "5f95b6ee6e4ae090197d03bd56b36a763006c43a8bb1bddc4133313d9e735c0d",
+    "apps/engine-native/internal/parsers/profile/source_speedscope.go": "af869e12bb99294cfa8f93b9a7a53469716914047a1687b17702deae65a26973",
+    "apps/engine-native/internal/parsers/profile/source_test.go": "37465e6332ea52d8f63b87f5f4a6a05fa2080504ecd962d53401f2482a761dec",
+    "apps/engine-native/internal/profilemodel/comparison.go": "373ed042b56ac095e54c9dbf0e94f55424a2564a64ff8b343b8672b160c9925e",
+    "apps/engine-native/internal/profilemodel/evidence_index.go": "95514b6c81601a223303e31bed8999d089034fd24b781d081a80d340d00e86c8",
+    "apps/engine-native/internal/profilemodel/mapping.go": "581422edcb0930f01a5f81abc4fb1b3fdab4d9c5d728bad37c94663223cdd407",
+    "apps/engine-native/internal/profilemodel/model.go": "4b07708c377c7320f02bd469f9b43538542b9b5e4a35a7fc7e3e1a9e94eb4a3e",
+    "apps/engine-native/internal/profilemodel/operations.go": "5aa196b40c0120b8369c3ca3af5280f24893204041641d713ba828d9030469ef",
+    "apps/engine-native/internal/profilemodel/query.go": "d9118c0893fb8d5b49801fa1a2530a01cae56d514771493d926927750989b344",
+    "apps/engine-native/internal/profilemodel/query_test.go": "d02cfef0c2963560eb8dbed8d685c64d7e5478391ee1c4f7da790e2dcf42bd01",
+    "apps/engine-native/internal/profilemodel/source_contract.go": "31f85bd77a66329c44ce25d86b4c709aa7b53f0620382f0c4c365b39c1717c67",
+    "apps/engine-native/internal/profilemodel/source_policy_test.go": "9d294440214c5ecf91d3414e8700c31aa44c870ca7cc1b12befdad9f65ebd3e9",
+    "docs/en/CASE_EVIDENCE_QUERIES.md": "5d9963ea862a3b950cd3f399d0ae1680e3a7bd36768e38f931e8feb9a1774b49",
+    "docs/en/DATA_MODEL.md": "07d092fef48cb45e65663dc5d33d5781ee74f13cb306b58a0ea3c7976014952d",
+    "docs/en/IMPORTER_SUPPORT_MATRIX.md": "945c03a4f706e2397fb7f50f8171768c8fbc90dd7e692f1e6474fd845cff91f5",
+    "docs/en/PARSER_DESIGN.md": "d0acbce6db92e53de1dd060c0f00d40bd760ddc762df6bdfd1ebb8985904cebc",
+    "docs/en/PROFILE_SOURCE_IMPORT.md": "7d3fcc9fd722a2b8c943c88b0f6d6537f65a018d49ac7471a875bce02d9f362d",
+    "docs/ko/CASE_EVIDENCE_QUERIES.md": "e224f5c421d806d36f762ec3f56ba440d67e7ec360ad667f1d7b8d29ff419b91",
+    "docs/ko/DATA_MODEL.md": "6695b9debc778e882df5694baddb04015e53e4c842304aa58992c2f83029a350",
+    "docs/ko/IMPORTER_SUPPORT_MATRIX.md": "31c9e1f8aa2ef0b5226d4475c72620724e9b282c2f91ae0ede8ebf9874a92ff5",
+    "docs/ko/PARSER_DESIGN.md": "3eb7349a41f4f533ec62d47f8a8f18ad0d7b98b4e5dc3441cb9d458252d2642d",
+    "docs/ko/PROFILE_SOURCE_IMPORT.md": "b98b009ded8b2f94f39256beff13f127bcdff2e3bf7f48cf2be82cbecd900d2e",
+    "docs/review/README.md": "b15de077a8a8bf3409f80b738542b0ae7c4d780aa40afe197a64c604523384f0",
+    "docs/review/done/2026-11-12_claude-code_T-634_implementation-review.ko.md": "214262b44ed5a1f2addc6236e71d7903f74f92e3141124884569aeb70d64a86d",
+    "work_status.md": "63c84bb59698f8457baab3b204baa5bdce873f7d0d28705c3e7e6b7d05c2adb7"
+  },
+  "review": {
+    "path": "docs/review/done/2026-11-12_claude-code_T-634_implementation-review.ko.md",
+    "sha256": "214262b44ed5a1f2addc6236e71d7903f74f92e3141124884569aeb70d64a86d",
+    "workflow": "All four findings entered work_status.md before unchanged archival. R11-01 blocked baseline qualification until corrected; P3 findings also locally fixed. No self-awarded independent PASS or final re-review.",
+    "R11-01": "New source normalizer 1.1.0/result payload 0.4.0 exposes original type/unit in metric, inventory/UI/result summary and policy-independent strict/v4 identities. Actual no-policy Go heap alloc_space vs inuse_space refuses. Old 0.3.0 byte/hash/read/save/query/export preserved, comparison requires explicit original reimport.",
+    "R11-02": "Numeric observation/frame/depth actuals and ceilings with reduction/splitting guidance; paired duration examples; no silent observation coalescing.",
+    "R11-03": "New compiled policy basis (declared/file_exporter) and comparison warning; source replay never authenticates producer or process lifetime.",
+    "R11-04": "New unitless Speedscope metric kind=count, original source_unit=none; total_samples unavailable."
+  },
+  "contracts": {
+    "profile_query": "1.0.0; exact selection/population/denominator/quality; result/query bound cursor; top/tree/paged full-denominator flamegraph/callers/callees/evidence; timestamp-start half-open windows with exact scale and mixed-clock refusal; immutable selected result",
+    "case_search": "1.1.0; canonical typed profile visitor plus source and summary; 100k rows/16 MiB derived index, masked 2 KiB snippets, structured frame IDs and original byte/line/structural refs; prefix/decoder/budget/missing coverage; byte-verified cache hits and rebuild. Typed windows require one result plus clock/unit, untimed counts; no relative cross-capture alignment",
+    "baseline": "profile-baseline 1.0.0 immutable result/source/options/model/selection/policy/capture/clock pins; every reuse reimports both originals and checks binding/current sources. Verification stays separate from declared identity, entity/context mapping and producer authenticity. Old/forged/stale/absent/mismatched claims refuse. 50 default /200 max comparison rows, 1 MiB response.",
+    "compatibility": "No relabeling saved results. Legacy facade/internal 0.2.0 semantics preserved. New .4 imports use current source extension; old .3 snapshot reader/hash fixture retained but comparison/replay qualification requires original reimport. Existing generic scalar comparison retains strict capture equality; new canonical/baseline UI consumes qualified policies."
+  },
+  "checks": [
+    {
+      "check": "Full uncached Go race after R11; see race-summary.json",
+      "result": "PASS: 102 packages, 1493 tests, 6 explicit skips, 0 failures; 5 packages without tests"
+    },
+    {
+      "check": "Final focused race including CLI service refusal, immutable selection, replay/forgery/options/coordinates, million-line and 100k-row prefix budgets, typed frame/time case search and Wails flows",
+      "result": "PASS; final-focused.txt"
+    },
+    {
+      "check": "Actual final CLI profile/case search/save/pin/restart/compare/rebuild/missing-original/legacy-reader flow",
+      "result": "PASS; cli-report.json"
+    },
+    {
+      "check": "Actual Go heap four/two-column variants without producer declaration",
+      "result": "PASS: source types visible, cross-type diff refused; r11-cli-report.json"
+    },
+    {
+      "check": "Host vet/build and Windows amd64/386 vet/production cross-build",
+      "result": "PASS; cross validation is not native Windows execution"
+    },
+    {
+      "check": "Frontend state/TypeScript/production build, generated TypeScript Wails bindings, signed Mac production package and codesign strict verification",
+      "result": "PASS; native new UI not observed"
+    },
+    {
+      "check": "Embedded offline-resource consistency, desktop-only guard and disconnected clean four-importer Linux CLI process trees",
+      "result": "PASS; zero IPv4/IPv6 attempts plus failed-network positive control; scope is the standard offline operations, not every new case-query command"
+    },
+    {
+      "check": "Tracker registry/counters/backlog/open snapshot/queue and scoped staging",
+      "result": "PASS: 217 DONE / 1 TODO / 10 PENDING / 4 REVIEW / 0 IN_PROGRESS =232; 15 open. Original HTTP block/files/script excluded."
+    }
+  ],
+  "artifacts": {
+    "host-engine": {
+      "sha256": "f3c2f4a371da48cc3c1519896ea1bbd22b6aec03ed24168408d97872f327e5cc",
+      "bytes": 31173714
+    },
+    "linux-engine": {
+      "sha256": "871f06067a1bac252898cd533996de7b62efa28e446f453343c4416bb4bc5e84",
+      "bytes": 32289453
+    },
+    "windows-amd64-app": {
+      "sha256": "220584df6b7b157192692cb23716fd88acdddd238bd84d1f24cdae5b2423e8dd",
+      "bytes": 34899968
+    },
+    "windows-386-app": {
+      "sha256": "0f9786bfb0f6cfe054dc874fcaa76a8b426c46928be886aeb72b0d221cc574e5",
+      "bytes": 33707520
+    },
+    "macOS-production-app": {
+      "sha256": "cab7f0174b1973c4f2c9351791d0d4fa6efc135f359ebed44565f1b71b6c166f",
+      "bytes": 31697792
+    }
+  },
+  "limitations": [
+    "Native Mac UI blocked by locked screen; final CUA availability check recorded and ended",
+    "Native Windows app/WebView execution and independent T-635/final R11 review not performed",
+    "No clock alignment, cross-capture relative-time search, arbitrary unparsed log-field/time inference, generalized secret detector or new vendor qualification",
+    "Existing text-mask 0.1.0 covers known patterns; other sensitive values require sanitized intake; IDs/digests/coordinates are separate",
+    "Only current source-profile .4 normalizer can qualify new replay-verified baselines; snapshots without bound originals remain readable and cannot assert verification"
+  ],
+  "assets": "Existing digest-pinned synthetic producer corpus reused unchanged. No reusable diagnostic rule added and no sibling checkout needed at runtime.",
+  "preserved_unrelated": [
+    "docs/en/SYSTEM_HTTP_CAPTURE.md",
+    "docs/ko/SYSTEM_HTTP_CAPTURE.md",
+    "scripts/verify-http-desktop.mjs",
+    "work_status.md original HTTP First implementation cycle block"
+  ],
+  "publication": "User requested commit only for T-635; no push performed.",
+  "next": "T-635 independent review; neutral T-638 ready; T-636 still pending T-635 review closure.",
+  "evidence_sha256": {
+    "cli-report.json": "682348e6cd11c6e81370e194f863fddf7904cacf418ea9e3f5d68ea32b8c9753",
+    "final-focused.txt": "2843d55e26cf7d6249bf88c49d4339813876fe54ce84af1b997d29f1e6d1667e",
+    "offline-conversion-denied.json": "ffe4710fb113af5c2f7d969a5e7d2e46dbb58baa18457afa3ea6d6c7502c3400",
+    "offline-conversion-denied.strace": "1bd3823aa0208d4d4486d790cb80645026e514ef0f336e94ad1f4f009348526f",
+    "offline-operation-0.json": "19e55c88003b10713a7bcb75b83166608adb2a0ec775aa8af63c8b66f906bfc2",
+    "offline-operation-0.output.json": "4e19fb5c27cc4c75f40875fe22a493bb3607fa7b12ab2fd9c34075b81530da0a",
+    "offline-operation-0.strace": "67f78f908e465425c25097e13b825f0933f1f0875943c31cac1c6bcc82a45985",
+    "offline-operation-1.json": "19e55c88003b10713a7bcb75b83166608adb2a0ec775aa8af63c8b66f906bfc2",
+    "offline-operation-1.output.json": "63eb6e463a9c3d0a710a3ecda37954df6a7077806e87744ab479a3f1071fa70c",
+    "offline-operation-1.strace": "dd77c98ba0a2b2158c5ca09837025e5ba1505c25a0dfb33c21c865bcf747b3dc",
+    "offline-operation-2.json": "19e55c88003b10713a7bcb75b83166608adb2a0ec775aa8af63c8b66f906bfc2",
+    "offline-operation-2.output.json": "9efc04a67776c2f854bca81034378527eacd1c02220e1bab8d2567e4572e1a13",
+    "offline-operation-2.strace": "323811d2cd6c4e95eec4e341587df7f42363686ffc0062090b95b5046cd71262",
+    "offline-operation-3.json": "19e55c88003b10713a7bcb75b83166608adb2a0ec775aa8af63c8b66f906bfc2",
+    "offline-operation-3.output.json": "4403ae63f7f811c71695158ed098717efa71cb93342cd1d2aa7edb058a07f725",
+    "offline-operation-3.strace": "c97a84d19fae17aaa5e2dab3f921193bacb88823aae45ebb0162dfca4d1527cf",
+    "offline-operation-4.json": "19e55c88003b10713a7bcb75b83166608adb2a0ec775aa8af63c8b66f906bfc2",
+    "offline-operation-4.output.json": "b1b6faa059ba00407586cbce1fc0b4c8b8e1358bcdd6321f913385f493fbf98a",
+    "offline-operation-4.strace": "382a624f2b972df6cce4fd167723ccec34cf8c800b32edfc97d53513bdbfbea9",
+    "offline-operation-5.json": "19e55c88003b10713a7bcb75b83166608adb2a0ec775aa8af63c8b66f906bfc2",
+    "offline-operation-5.output.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "offline-operation-5.strace": "3b92abc5eb265755c81530263c47b5c01a6883880c7621ee450cf61c1ba1ddc1",
+    "offline-positive-control.strace": "5aec0ddeea00b33fae33f024e2b1dcda2b2caea6678e41e93e6dfff9627d9e0d",
+    "offline-summary.json": "c24c803284e9af41185b427d92f7aed8334ee7423fa10071bd551f52d2889eed",
+    "r11-cli-report.json": "92b26dc408729dbecf75b4b8f54318824069e03452172dacc537c8735ab13cbf",
+    "race-summary.json": "005fd686471169977cfcbe3868c0ef1b95734729696a31fd15437f54a7ffe1ae"
+  }
+}

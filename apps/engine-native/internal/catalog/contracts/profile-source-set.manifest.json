@@ -1,8 +1,8 @@
 {
   "version": "1.0.0",
-  "schema_sha256": "57b8db33bf8b065b81c68563935086dab6826f01a66c8660cddcc92a5a9b57d9",
+  "schema_sha256": "ad228a40252eeb50d7a9f7aeb991ef8b8804e072d46568732968930ca9ca33b0",
   "files": {
-    "profile-source-set.json": "6a0921bf56ac1da6d3eb946fdff81bdcef47f60730ae0659a961bbf4eef211b7"
+    "profile-source-set.json": "d4503f650dbbecd1ecc0de3c7a0b98e7bc34aaa37a6e20f3cf63d00b65540ad8"
   },
   "synthetic": true,
   "qualification": "internal normalized transport only"

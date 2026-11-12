@@ -92,7 +92,7 @@ T-635의 명시 매핑 전까지 entity_mapping_required로 거절한다. 과거
 `profile inspect-source`, `normalize-source`, `import-source`는 정확한 가중치와
 단위를 보존하고 profile/metric을 명시적으로 선택합니다. Desktop Workspace는
 원본을 새 `profile.source-set-json` / `profile-source-set` 모델로 정규화해
-`profile_evidence` 0.3.0을 생성합니다. `profile import`는 기존 의미를 유지합니다.
+`profile_evidence` 0.4.0을 생성합니다. `profile import`는 기존 의미를 유지합니다.
 Evented Speedscope는 이벤트 개수 대신 exclusive 경과 구간과 unattributed gap을
 사용하며 sampled 시간 가중치를 CPU 시간으로 추정하지 않습니다. pprof는 모든
 column, 음수, label과 period를 보존하고 period를 이중 적용하지 않습니다.
@@ -108,3 +108,16 @@ column, 음수, label과 period를 보존하고 period를 이중 적용하지 �
 인증을 주장하지 않습니다. Windows 네이티브/UI 수용과 독립 리뷰는 별도입니다.
 한도·CLI 예시·projection 제약·정책 key·근거 범위는
 [정확한 원본 프로파일 가져오기](PROFILE_SOURCE_IMPORT.md)를 참고하세요.
+
+### T-635 공통 조회·검증 baseline과 R11 의미 버전
+
+[케이스 근거 조회](CASE_EVIDENCE_QUERIES.md)는 제한된 cursor 기반 profile 보기·근거,
+색인 범위를 공개하는 원본/summary 검색, 원본 좌표, 선택한 불변 결과와 baseline
+재분석·매핑 gate를 정의합니다. R11 수정은 normalizer 1.1.0 / 결과 0.4.0을 생성하고
+원래 type/unit을 producer 정책 없이 metric identity에 포함합니다. Speedscope none은
+일반 count 가중치이며 표본 수를 단정하지 않습니다. 기존 0.3.0은 바이트·hash·읽기·저장·
+조회·내보내기를 유지하되 비교에는 새 원본 재분석이 필요합니다. 새 정책은 선언/
+file-exporter basis와 경고를 공개합니다. 영속 baseline 검증은 매번 양쪽 원본을 다시
+분석하고 identity_basis=declared를 유지합니다. 일반 scalar 비교는 계속 strict이며
+새 canonical/baseline 화면이 검증 정책을 소비합니다. 시계 정렬·미검증 producer 지원을
+추정하지 않습니다. Windows 네이티브/UI 및 독립 리뷰는 별도입니다.
