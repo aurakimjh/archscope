@@ -131,6 +131,7 @@ func main() {
 		URL:              "/",
 	})
 
+	configureVisualRenderer(app, engineService)
 	configureDesktopMenu(app, window)
 	configureLayoutAudit(app, window)
 

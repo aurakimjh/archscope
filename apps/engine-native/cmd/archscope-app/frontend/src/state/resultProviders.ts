@@ -24,7 +24,8 @@ export class ResultRequestScope {
   cancel(): void { this.revision++; for (const request of this.pending) request.cancel?.(); this.pending.clear(); }
 }
 export function providerUsable(capability: ResultCapability): boolean {
-  return capability.availability === "available" && capability.version === "1.0.0" &&
+  const knownMetricProjection = capability.version === "2.0.0" && ((capability.id === "metrics:points" && capability.kind === "detail" && capability.schema === "object-rows-v1") || (capability.id === "metrics:timeline" && capability.kind === "timeline" && capability.schema === "timeline-v1"));
+  return capability.availability === "available" && (capability.version === "1.0.0" || knownMetricProjection) &&
     ((["table", "detail"].includes(capability.kind) && capability.schema === "object-rows-v1") ||
       (["summary", "diagnostics"].includes(capability.kind) && capability.schema === "key-value-v1") ||
       (capability.kind === "timeline" && capability.schema === "timeline-v1") ||

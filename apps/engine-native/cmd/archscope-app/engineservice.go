@@ -50,6 +50,7 @@ import (
 	engineapi "github.com/aurakimjh/archscope/apps/engine-native/api"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/aiinterpretation"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/visuals"
 )
 
 // EngineService exposes the Tier-3/4 analyzers and exporters from
@@ -67,10 +68,16 @@ import (
 // analyzers are synchronous because the µs–ms cost wouldn't justify the
 // round-trip ceremony.
 type EngineService struct {
-	packSession     *catalog.PackSession
-	evidenceMu      sync.Mutex
-	evidenceService *analysis.Service
-	caseService     *cases.Store
+	visualMu             sync.Mutex
+	visualClosed         bool
+	visualArtifacts      *visuals.Store
+	visualJobs           map[string]*visualJob
+	launchVisual         func(string, int, int) (visualRenderWindow, error)
+	visualCallerOverride func(context.Context, string) bool
+	packSession          *catalog.PackSession
+	evidenceMu           sync.Mutex
+	evidenceService      *analysis.Service
+	caseService          *cases.Store
 }
 
 // EngineAsyncResponse mirrors AnalyzeAsyncResponse on the profiler side.

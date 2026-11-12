@@ -228,6 +228,8 @@ Do not interpolate low-resolution telemetry into exact request or kernel timing.
 
 ## 14 Visual artifacts and renderer boundary
 
+Implementation T-636 and its qualified template/CLI/native acceptance scope are documented in [Pinned report images and tables](VISUAL_ARTIFACTS.md).
+
 A visual spec pins result/hash, selection/query, metric/unit/denominator, annotations,
 redaction, and template/renderer/font versions. Generate high-resolution PNG,
 SVG files, and tables with readable labels, source, time range, quality, and scope.

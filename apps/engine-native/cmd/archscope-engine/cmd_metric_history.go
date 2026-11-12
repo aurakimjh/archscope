@@ -84,7 +84,7 @@ func metricHistoryCommands() []*cobra.Command {
 				return writeJSONAny(parser.Inspect(set), output)
 			}
 			if operation == "history-normalize" || operation == "history-merge" {
-				body, e := json.MarshalIndent(set, "", "  ")
+				body, e := json.Marshal(set)
 				if e != nil {
 					return e
 				}
@@ -112,7 +112,19 @@ func metricHistoryCommands() []*cobra.Command {
 			if e != nil {
 				return e
 			}
-			return writeJSONResult(result, output)
+			body, e := json.Marshal(result)
+			if e != nil {
+				return e
+			}
+			if output == "-" {
+				_, e = cmd.OutOrStdout().Write(append(body, '\n'))
+				return e
+			}
+			root, e := cases.DefaultRoot()
+			if e != nil {
+				return e
+			}
+			return localfiles.Publish(ctx, output, append(body, '\n'), root)
 		}}
 		command.Flags().StringVar(&input, "in", "", "original source or saved result")
 		command.Flags().StringVar(&output, "out", "-", "destination; normalization refuses existing output")

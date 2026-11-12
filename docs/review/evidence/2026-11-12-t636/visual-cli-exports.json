@@ -1,0 +1,50 @@
+{
+  "scope": "actual CLI export of saved browser-generated artifact; no new CLI image render",
+  "bundle_sha256": "22517325d5a22b395f730bb8334707aec90a42ca30078f5e49b66d9cd59a853a",
+  "exact_saved_png_preserved": true,
+  "html_formula_text_protection": true,
+  "exports": [
+    {
+      "format": "png",
+      "bytes": 120644,
+      "sha256": "3f0d60a0be2fc471347d62b07cf3e756f7492743ab10ba281ec1159faf05c136",
+      "seconds": 0.437
+    },
+    {
+      "format": "svg",
+      "bytes": 13892680,
+      "sha256": "3c3fe238f6a588133d402428202827841b4facbf473a0063ef82d44cebd09d77",
+      "seconds": 0.167
+    },
+    {
+      "format": "html",
+      "bytes": 1133,
+      "sha256": "c2864ed58a455b5e191c5bbab5557aa3f16d85669d5865036ff179f923109261",
+      "seconds": 0.153
+    },
+    {
+      "format": "tsv",
+      "bytes": 102,
+      "sha256": "fef52a7e16352abdca30915abbf992bc990476cf51514e3247b72e095b1c4bc9",
+      "seconds": 0.16
+    },
+    {
+      "format": "zip",
+      "bytes": 6783031,
+      "sha256": "22517325d5a22b395f730bb8334707aec90a42ca30078f5e49b66d9cd59a853a",
+      "seconds": 0.161
+    },
+    {
+      "format": "spec",
+      "bytes": 648,
+      "sha256": "45c666f4ccc9cd8693656ad62d870a6d679a108b37f4e8773ad5330871f64ab0",
+      "seconds": 0.154
+    },
+    {
+      "format": "view",
+      "bytes": 885,
+      "sha256": "4134712d25a9b300a3124ec80b903d27583b4537b8ca727bde67b30c94c03a86",
+      "seconds": 0.156
+    }
+  ]
+}

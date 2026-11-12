@@ -1,0 +1,49 @@
+- generic [active] [ref=f7e1]:
+  - heading "Actual report actions with synthetic IPC" [level=1] [ref=f7e2]
+  - paragraph [ref=f7e3]: UI behavior only; no OS clipboard claim.
+  - group [ref=f7e5]:
+    - generic "Report image and table" [ref=f7e6]
+    - paragraph [ref=f7e7]: This fixed view pins its result, query, unit, denominator and quality. Images include the selected row range; long labels are shortened in images and retained in the table. PNG is the primary paste format; SVG insertion depends on the report application.
+    - group "Report columns (1–8)" [ref=f7e8]:
+      - generic [ref=f7e10]:
+        - checkbox "name" [checked] [disabled] [ref=f7e11]
+        - text: name
+      - generic [ref=f7e12]:
+        - checkbox "value" [checked] [disabled] [ref=f7e13]
+        - text: value
+    - group [ref=f7e14]:
+      - textbox "Visual title" [disabled] [ref=f7e15]: Synthetic report
+      - combobox "Image width" [disabled] [ref=f7e16]:
+        - option "1600px" [disabled]
+        - option "2400px" [disabled] [selected]
+        - option "3200px" [disabled]
+      - generic [ref=f7e17]:
+        - text: Height
+        - spinbutton "Image height" [disabled] [ref=f7e18]: "1600"
+      - generic [ref=f7e19]:
+        - text: Font
+        - spinbutton "Font" [disabled] [ref=f7e20]: "26"
+      - generic [ref=f7e21]:
+        - text: Rows per image
+        - spinbutton "Rows per image" [disabled] [ref=f7e22]: "20"
+      - generic [ref=f7e23]:
+        - checkbox "Transparent background" [disabled] [ref=f7e24]
+        - text: Transparent background
+      - textbox "Visual annotation" [disabled] [ref=f7e25]:
+        - /placeholder: Optional annotation (does not change values)
+      - button "Render pinned view" [disabled]
+    - paragraph [ref=f7e27]: visual-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa · 1/1 · 4134712d25a9b300a3124ec80b903d27583b4537b8ca727bde67b30c94c03a86
+    - img "Synthetic report" [ref=f7e28]
+    - generic [ref=f7e29]:
+      - button "Previous image" [disabled]
+      - button "Next image" [disabled]
+      - button "Copy image" [disabled]
+      - button "Copy complete selected table" [disabled]
+      - button "PNG save" [disabled]
+      - button "SVG save" [disabled]
+      - button "TSV save" [disabled]
+      - button "HTML save" [disabled]
+      - button "Save all images and provenance" [disabled]
+      - button "Keep on Evidence Board" [disabled]
+    - paragraph [ref=f7e38]: Copy table includes every row in this pinned selection, across images. HTML retains text formatting; both table formats add spreadsheet text protection where needed. Review before sharing.
+    - button "Cancel" [ref=f7e41]

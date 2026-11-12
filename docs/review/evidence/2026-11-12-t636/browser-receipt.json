@@ -1,0 +1,36 @@
+{
+  "scope": "Chromium actual visualRaster.ts over synthetic fixed SVG; no native WebView/clipboard/Office claim",
+  "browser": "157.0.8103.39",
+  "samples": [
+    {
+      "digest": "3f0d60a0be2fc471347d62b07cf3e756f7492743ab10ba281ec1159faf05c136",
+      "viewport": [
+        640,
+        480
+      ],
+      "dpr": 1
+    },
+    {
+      "digest": "3f0d60a0be2fc471347d62b07cf3e756f7492743ab10ba281ec1159faf05c136",
+      "viewport": [
+        1280,
+        960
+      ],
+      "dpr": 1
+    },
+    {
+      "digest": "3f0d60a0be2fc471347d62b07cf3e756f7492743ab10ba281ec1159faf05c136",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "dpr": 2
+    }
+  ],
+  "refusals": {
+    "badFont": "Error: visual_font_hash_mismatch",
+    "cancelled": "AbortError: signal is aborted without reason",
+    "writes": 0
+  },
+  "splitImages": 3
+}

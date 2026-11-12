@@ -1,0 +1,11 @@
+import React from "react";
+import { createRoot } from "react-dom/client";
+import {setTransport} from "@wailsio/runtime";
+import {I18nProvider} from "/src/i18n/I18nProvider.tsx";
+import {VisualArtifactActions} from "/src/components/VisualArtifactActions.tsx";
+import "/src/styles/tailwind.css";
+const spec=await(await fetch('./spec.json')).json(); const blob=await(await fetch('./browser.png')).blob();const png=await new Promise(resolve=>{let reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.readAsDataURL(blob);});
+const descriptor={id:'visual-'+'a'.repeat(64),title:'Synthetic report',pages:1,spec,reproducible:true,created_at:'2026-11-12T00:00:00Z'};
+window.calls=[]; window.releaseCopy=null;
+setTransport({async call(object,method,name,args){window.calls.push({object,method,name:args?.methodName});if(object!==0)return null;const operation=args.methodName.split('.').at(-1);switch(operation){case 'VisualCapabilities':return JSON.stringify({version:'1.0.0',renderer:true,native_clipboard:true});case 'RenderVisual':await new Promise(resolve=>setTimeout(resolve,150));return JSON.stringify(descriptor);case 'GetVisualArtifact':return JSON.stringify({id:descriptor.id,pages:1,spec,png,reproducible:true});case 'CopyVisualArtifact':return await new Promise((resolve,reject)=>{window.releaseCopy=ok=>ok?resolve(null):reject(Error('CLIPBOARD_BUSY: synthetic refusal'));});default:throw Error('unhandled '+operation);}}});
+createRoot(document.querySelector('#root')).render(<I18nProvider><VisualArtifactActions handle="synthetic-handle" query={{kind:'provider_table',provider:'synthetic',offset:0,limit:25,columns:['name','value']}} title="Synthetic report" availableColumns={['name','value']}/></I18nProvider>);

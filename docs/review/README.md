@@ -6,12 +6,13 @@
 
 | 날짜 | 문서 | 대상 | 판정 |
 |---|---|---|---|
-| 2026-11-12 | [T-638 정확한 메트릭 이력 구현 독립 리뷰](2026-11-12_claude-code_T-638_implementation-review.ko.md) | `2454987` | CONDITIONAL(P2 1/P3 6, P1 없음). R13-01(결과 payload 크기 설계)을 먼저 처리한 뒤 DONE 복귀 허용, 나머지는 후속 큐 |
+| — | 없음 | — | 모든 원문을 작업표에 기록 후 보관함으로 이동 |
 
 ## 처리 기록
 
 | 날짜 | 문서 | 대상 | 판정·처리 |
 |---|---|---|---|
+| 2026-11-12 | [T-638 메트릭 이력 독립 리뷰](done/2026-11-12_claude-code_T-638_implementation-review.ko.md) | `2454987` | CONDITIONAL(P2 1/P3 6). R13-01–R13-07을 작업표에 기록한 뒤 원문 보관. R13-01은 selected-series compact payload 0.2.0·최소 투영·compact CLI·한도 안내로 로컬 수정/검증. 10만 point 실제 CLI 재열기 및 0.1.0 저장 reader 검증. 원 리뷰의 P2 처리 후 종결 허용에 따라 T-638 DONE, P3 6건은 후속 큐 유지. 원 CONDITIONAL·native 범위 보존; 최종 독립 PASS 주장 없음. 근거: evidence/2026-11-12-t636/local.json. |
 | 2026-11-12 | [T-635 정규 조회·케이스 검색·재분석 baseline 독립 리뷰](done/2026-11-12_claude-code_T-635_implementation-review.ko.md) | `befd5f3` | CONDITIONAL(P3 4, 차단 없음). R12-01→R12-03→R12-02→R12-04를 작업표에 기록한 뒤 원문 보관. T-638 진행 중 R12-01–R12-04 로컬 수정·검증 완료. 원 리뷰의 후속 큐 기록 후 종결 허용에 따라 T-635 DONE. 원 CONDITIONAL 및 네이티브 UI/Windows 범위 보존, 최종 독립 PASS 주장 없음. 근거: evidence/2026-11-12-t638/local.json. |
 | 2026-11-12 | [T-634 원본 측정 의미 독립 리뷰](done/2026-11-12_claude-code_T-634_implementation-review.ko.md) | `eaa8c54` | CONDITIONAL(P2 1/P3 3). R11-01→R11-02→R11-03/R11-04를 작업표에 기록 후 원문 보관. T-635 baseline 선행 조건으로 normalizer 1.1.0 / payload 0.4.0의 원본 type·unit 및 정책 독립 비교 identity를 추가하고 기존 0.3.0 hash/저장 reader는 보존, 비교는 재분석 필요로 제한. 수치 한도·정책 basis/경고·none 단위도 로컬 수정. 원 R11-01 처리 후 종결 허용에 따라 T-634 DONE; 원 판정은 CONDITIONAL, 최종 독립 PASS는 주장하지 않음. 근거: evidence/2026-11-12-t635/local.json. |
 | 2026-11-12 | [T-633 입력 안내·수동 수집·로컬 JFR 변환 구현 독립 리뷰](done/2026-11-12_claude-code_T-633_implementation-review.ko.md) | `3d443d3` | CONDITIONAL(P2 1/P3 4). R10-01→R10-04/R10-03→R10-02→R10-05를 작업표에 반영 후 원문 보관. R10-01–R10-05 로컬 수정·검증 완료. 원 리뷰의 R10-01 수정 후 종결 허용에 따라 T-633 DONE. 원 CONDITIONAL 유지, 최종 수정의 독립 재리뷰·Windows 네이티브 관측은 별도. 근거: evidence/2026-11-12-t633-r10/local.json. |

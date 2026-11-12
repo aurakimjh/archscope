@@ -1,0 +1,14 @@
+{
+  "scope": "actual VisualArtifactActions with synthetic Wails custom transport, not OS clipboard/native IPC",
+  "render_preview": true,
+  "pending_copy_success_not_shown": true,
+  "rejected_write_error": "Error: CLIPBOARD_BUSY: synthetic refusal",
+  "resolved_copy_success_shown": true,
+  "presentation_change_cleared_preview_and_status": true,
+  "native_clipboard_written": false,
+  "observed_snapshot_files": [
+    "page-2026-11-12T04-16-39-589Z.yml",
+    "page-2026-11-12T04-17-01-200Z.yml",
+    "page-2026-11-12T04-17-29-152Z.yml"
+  ]
+}

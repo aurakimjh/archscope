@@ -27,6 +27,8 @@ commands.extend([
  ['metrics','history-normalize','--in','/sources/catalog/metric-history-sdk-python-1.38.0.otlp.json','--out','/evidence/normalized.json'],
  ['evidence','import','--importer','metrics.history-json','--in','/sources/catalog/metric-history-set.json','--options',json.dumps(selection),'--out','/evidence/history-result.json'],
  ['metrics','history-query','--in','/evidence/history-result.json','--query',json.dumps({'selection':selection,'limit':1})],
+ ['visual','create-spec','--in','/evidence/history-result.json','--query',json.dumps({'kind':'provider_table','provider':'generic:summary','offset':0,'limit':25}),'--out','/evidence/visual-spec.json'],
+ ['visual','validate','--in','/evidence/visual-spec.json'],
 ])
 reports=[]
 for i,args in enumerate(commands):

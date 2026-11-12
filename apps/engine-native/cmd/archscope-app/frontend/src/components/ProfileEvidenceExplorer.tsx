@@ -1,3 +1,5 @@
+import { VisualArtifactActions } from "@/components/VisualArtifactActions";
+import type { VisualQuery } from "@/bridge/visuals";
 import { useEffect, useRef, useState } from "react";
 import * as bridge from "@/bridge/engine";
 import { Button } from "@/components/ui/button";
@@ -14,6 +16,7 @@ export function ProfileEvidenceExplorer({ handle, caseRef }: { handle: string; c
   const [view, setView] = useState("top"); const [frame, setFrame] = useState(""); const [text, setText] = useState("");
   const [filters, setFilters] = useState("[]"); const [from, setFrom] = useState(""); const [to, setTo] = useState("");
   const [original, setOriginal] = useState<Awaited<ReturnType<typeof bridge.openProfileEvidence>> | null>(null);
+  const [visualQuery, setVisualQuery] = useState<VisualQuery | null>(null);
   const [page, setPage] = useState<bridge.ProfileQueryPage | null>(null); const [busy, setBusy] = useState(false); const [error, setError] = useState("");
   useEffect(() => { const r = scope.current.begin(); setInventory(null); setPage(null); setOriginal(null); setBusy(true); setError(""); void scope.current.wait(r, bridge.describeProfileQuery(handle)).then(value => { setInventory(value); setSelection(value.selection); setFilters(JSON.stringify(value.selection.filters ?? [])); }).catch(e => { if (scope.current.current(r)) setError(String(e)); }).finally(() => { if (scope.current.current(r)) setBusy(false); }); return () => scope.current.cancel(); }, [handle]);
   const key = JSON.stringify([selection, view, sort, frame, text, filters, from, to]);
@@ -24,7 +27,7 @@ export function ProfileEvidenceExplorer({ handle, caseRef }: { handle: string; c
       // Filter paths are IDs only. No weights or unknown metadata pass through JS.
       const q = { selection: { ...selection, filters: JSON.parse(filters) as unknown }, view, ...(view === "top" ? { sort } : {}), frame_id: frame, text, cursor, limit: 25, ...(from ? { time_from: from } : {}), ...(to ? { time_to: to } : {}) };
       const value = await scope.current.wait(r, bridge.queryProfileEvidence(handle, inventory.result_sha256, JSON.stringify(q)));
-      if (value.version !== "1.0.0" || value.result_sha256 !== inventory.result_sha256) throw new Error("stale_profile_query"); setPage(value);
+      if (value.version !== "1.0.0" || value.result_sha256 !== inventory.result_sha256) throw new Error("stale_profile_query"); setPage(value); setVisualQuery({ kind: view === "tree" ? "profile_flamegraph" : "profile_top", offset: 0, limit: 25, profile: q });
     } catch (e) { if (scope.current.current(r)) setError(String(e)); }
     finally { if (scope.current.current(r)) setBusy(false); }
   }
@@ -59,7 +62,8 @@ export function ProfileEvidenceExplorer({ handle, caseRef }: { handle: string; c
       </fieldset>
     </>}
     {busy && <Button variant="outline" onClick={() => { scope.current.cancel(); setBusy(false); }}>{w("Cancel", "취소")}</Button>}
-    {page && <><p>{w("Selected total", "선택 전체 합계")}: {page.denominator} {page.metric.unit} · {safeDisplayText(page.availability)} · {page.matched}/{page.total} · {w("Untimed", "시각 없음")}: {page.untimed_observations}</p>
+    {page && <>
+      {visualQuery && <VisualArtifactActions handle={handle} title={w("Selected profile", "선택한 프로파일")} query={visualQuery} />}<p>{w("Selected total", "선택 전체 합계")}: {page.denominator} {page.metric.unit} · {safeDisplayText(page.availability)} · {page.matched}/{page.total} · {w("Untimed", "시각 없음")}: {page.untimed_observations}</p>
       {view === "tree" && <div className="max-h-96 overflow-auto"><p className="text-xs">{w("Paged flamegraph: hidden nodes keep their original space. Areas are approximate layout; labels retain exact selected values. Click a frame to focus its path.", "페이지 단위 flamegraph: 숨긴 노드의 공간을 유지합니다. 면적은 표시용 근삿값이며 값은 정확한 선택 결과입니다. Frame을 누르면 경로를 focus합니다.")}</p><svg role="img" aria-label={w("Selected profile flamegraph", "선택한 프로파일 flamegraph")} viewBox={`0 0 1000 ${Math.max(1, ...page.rows.map(row => row.depth + 1)) * 28}`} className="w-full" style={{ minHeight: 56 }}>{page.rows.filter(row => row.layout_x != null && row.layout_width != null && row.layout_width > 0).map(row => <g key={row.id} onClick={() => { if (row.path) setFilters(JSON.stringify([...(JSON.parse(filters) as object[]), { path: row.path, match: "prefix" }])); }}><title>{safeDisplayText(row.name || row.id)} · {row.inclusive} {page.metric.unit} · self {row.self}</title><rect x={row.layout_x! * 1000} width={row.layout_width! * 1000} y={row.depth * 28} height={26} fill={`hsl(${(row.depth * 43) % 360} 65% 50%)`} stroke="currentColor" /><text x={row.layout_x! * 1000 + 3} y={row.depth * 28 + 18} fontSize={12} style={{ pointerEvents: "none" }}>{row.layout_width! > 0.08 ? safeDisplayText(row.name || "").slice(0, Math.floor(row.layout_width! * 120)) : ""}</text></g>)}</svg></div>}
       <code className="break-all text-xs">{page.population} · {page.query_sha256}</code>
       <div className="max-h-96 overflow-auto"><table className="w-full text-sm"><thead><tr><th>{w("Frame / evidence", "Frame / 근거")}</th><th>{w("Inclusive", "포함 값")}</th><th>{w("Self", "자체 값")}</th><th>{w("Original coordinate", "원본 좌표")}</th></tr></thead><tbody>{page.rows.map(row => <tr key={row.id}><td className="max-w-96 break-words"><button onClick={() => { if (row.frame_id) setFrame(row.frame_id); }}><bdi>{safeDisplayText(row.name || row.id)}</bdi></button>{row.frame_id && <code className="block text-xs">{row.frame_id}</code>}{row.path && <Button size="sm" variant="outline" onClick={() => { setFilters(JSON.stringify([...(JSON.parse(filters) as object[]), { path: row.path, match: "prefix" }])); setFrom(""); setTo(""); }}>{w("Focus path", "경로 focus")}</Button>}</td><td>{row.inclusive}</td><td>{row.self}</td><td className="max-w-72 break-all">{safeDisplayText(row.source_ref || "")} {row.timestamp ?? ""}<small className="block">{row.source_sha256?.join(", ")}</small>{caseRef && row.source_ref?.startsWith("line:") && <Button size="sm" variant="outline" disabled={busy} onClick={() => void openSource(row)}>{w("Open case original", "케이스 원본 열기")}</Button>}</td></tr>)}</tbody></table></div>

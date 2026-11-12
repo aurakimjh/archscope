@@ -1,0 +1,8 @@
+{
+  "probe": "cua.getState",
+  "observed_error": "Native apps: Error: The Mac is locked and automatic unlock could not unlock it.",
+  "native_webview_observed": false,
+  "native_clipboard_write_observed": false,
+  "office_paste_observed": false,
+  "windows_acceptance": "separate Windows PC; not observed in this run"
+}

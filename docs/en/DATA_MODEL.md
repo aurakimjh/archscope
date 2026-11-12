@@ -2240,7 +2240,7 @@ remain separate from local implementation verification.
 ### T-638 metric history
 
 [Exact metric history](METRIC_HISTORY.md) defines MetricHistory model/normalizer
-1.0.0, `metrics.history-json` transport and `metrics_timeseries` payload 0.1.0.
+1.0.0, `metrics.history-json` transport and `metrics_timeseries` payload 0.2.0 (saved 0.1.0 reader retained).
 Neutral snapshot sequences, explicit-provenance Prometheus range matrices and
 OTLP JSON preserve exact values, resource/scope/schema/attribute identity and
 temporality. Delta/cumulative/reset/gap/overlap and explicit/exponential buckets
@@ -2248,3 +2248,15 @@ remain distinct. Generic detail/timeline and saved-result query/export share the
 common envelope. SDK Python 1.38.0 synthetic fixtures qualify only that slice;
 Q04/GenAI aliases and native acceptance stay separate. Legacy metrics_snapshot
 semantics are unchanged; there is no automatic cross-series sum or quantile math.
+
+## Pinned visual artifact 1.0.0 (T-636)
+
+The private reporting view is not a new AnalysisResult envelope. It freezes
+existing query cells/layout, source result SHA-256/type/payload, exact values,
+units, denominator, population, quality and limitations. VisualArtifactSpec binds
+the view hash, actual query, template/renderer/font/masking versions, presentation
+and optional parent artifact. The manifest hashes spec/view/PNG/SVG/table/license
+files. Saved images stay immutable; missing pinned dependencies refuse exact
+regeneration, and explicit upgrades create a new revision. Shared schema is
+embedded for offline validation. See [visual artifacts](VISUAL_ARTIFACTS.md) for
+bounds, native/CLI boundaries and unobserved Office acceptance.

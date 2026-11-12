@@ -1,6 +1,6 @@
 # Exact metric history
 
-T-638 adds `metrics_timeseries` payload 0.1.0 and MetricHistory model / normalizer
+T-638 adds `metrics_timeseries` payload 0.2.0 (saved 0.1.0 remains readable) and MetricHistory model / normalizer
 1.0.0. Legacy `metrics_snapshot` import and saved readers retain their semantics.
 The common AnalysisResult envelope, parser/analyzer/exporter separation and
 backend-owned exact values remain unchanged.
@@ -46,9 +46,10 @@ Non-monotonic sums retain signed changes. Delta points use their supplied value
 once over their own interval. Every overlapping delta interval is unavailable.
 
 Points are ordered by end time for calculation, with original positions and
-reordering flags retained. Explicit cadence gaps expose an average across the
-whole interval without interpolation. Missing delta intervals are disclosed as
-gaps. No cadence is invented for arbitrary cumulative exports. OTLP zero/absent
+reordering flags retained. Declared cadence gaps in sum/histogram intervals expose
+an average across the whole interval without interpolation. Missing delta
+intervals are disclosed as gaps. Range-query gauges currently bind `step_ns` to
+identity but do **not** mark missing cadence slots (R13-03 follow-up). No cadence is invented for arbitrary cumulative exports. OTLP zero/absent
 time means unavailable; neutral snapshots/range exports can retain Unix epoch
 zero. Untimed points remain in detail and are excluded from timeline projection.
 
@@ -86,7 +87,20 @@ and a five-minute deadline. Common jobs retain their independent lower configure
 budgets and use ≤256 KiB chunks, not a single oversized record. Queries allow
 1–200 rows and 1 MiB; generic providers retain 100 rows / 256 KiB. Requests and
 options are bounded; very large selections may require a smaller series set.
-Limits fail explicitly without dropping observations to fit.
+Payload 0.2.0 stores only explicitly selected series and all their points needed
+for predecessor/overlap context, including points outside the selected window.
+The result's series inventory is therefore limited to that retained subset;
+reopen the original/model to select excluded series. Minimal point/status and
+time/clock/reference tables avoid duplicating detailed interval/bucket rows.
+Detailed queries calculate from the pinned model. CLI normalization/merge and
+`history-import` write compact JSON, so accepted output can be read within the
+same byte ceiling. Oversized results report measured bytes, point/series counts
+and the action to reduce series or split the export; time filtering alone need
+not shrink retained interval context. Limits fail explicitly without dropping
+observations to fit. Synthetic scale evidence: 100,000 timed points/10 series,
+model 27,670,574 bytes, result 58,573,608 bytes; 40,000 points/4 series result
+23,424,243 bytes versus 5,857,892 bytes for one retained series. Bucket/attribute
+size still matters; these measurements do not guarantee all 100k-point inputs fit.
 
 ## CLI and desktop
 
@@ -110,8 +124,10 @@ provenance** exposes identity, exact values/rates, original and derived buckets,
 status, coordinates, windows and paged queries. **Add selection as new result**
 creates a new owned result; late canceled results release their leases. Query
 cursors bind result digest and selection/window/page identity. Saved case bytes
-and JSON exports remain unchanged. Generic detail/timeline, CSV/HTML/report-pack
-work without adding a product-specific result envelope. Metric comparison/SLI
+and JSON exports preserve their saved revision. Generic detail/timeline and
+HTML/report-pack work without adding a product-specific result envelope.
+Generic CSV currently exports summary/availability only, **not interval rows**;
+use `history-query` JSON for exact interval/bucket output until R13-06. Metric comparison/SLI
 policy, automatic source alignment and native UI/Windows acceptance remain separate.
 
 Exact decimal literals are limited to 1,024 characters, exponent ±128 and
@@ -119,3 +135,16 @@ Exact decimal literals are limited to 1,024 characters, exponent ±128 and
 
 Desktop series identities travel as opaque `identity_json` strings, keeping large
 numeric attributes exact during JavaScript display. Selection uses backend IDs.
+
+## Recorded follow-ups (R13)
+
+The independent CONDITIONAL review permits closure after its P2 payload fix with
+P3 work queued. Queries currently decode/validate/recalculate the retained model
+on each page (no warm metric cache); large models may be slow. Numeric/shape
+errors can lack point coordinates, and out-of-range exact values refuse the
+whole file. Identical observations from different exports remain separate and
+can receive `conflicting_timestamp`, even if values match. The original series
+picker lists the bounded full inventory without search/pagination. These are
+R13-02/04/05/07 follow-ups, not completed features. R13-03 and R13-06 limitations
+are stated above. Native WebView/Windows and real user export acceptance remain
+separate from local unit/CLI and synthetic SDK qualification.

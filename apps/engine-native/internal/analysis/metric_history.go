@@ -44,7 +44,7 @@ func withMetric[T any](s *Service, parent context.Context, handle, digest string
 }
 func (s *Service) MetricInventory(ctx context.Context, handle string) (MetricInventory, error) {
 	return withMetric(s, ctx, handle, "", func(ctx context.Context, core a.Core, digest string) (MetricInventory, error) {
-		return MetricInventory{digest, core.Selection, core.Model.Series, core.Model.Sources, core.Model.Warnings}, ctx.Err()
+		return MetricInventory{digest, core.Selection, core.Model.Series, core.Model.Sources, append(append([]string(nil), core.Model.Warnings...), "Queries use only series retained in this result; reopen the original to add omitted series.")}, ctx.Err()
 	})
 }
 func (s *Service) QueryMetricHistory(ctx context.Context, handle, digest string, q m.Query) (m.Page, error) {

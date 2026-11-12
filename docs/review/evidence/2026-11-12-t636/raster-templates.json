@@ -1,0 +1,32 @@
+{
+  "scope": "actual Chromium rasterizeVisual and manually inspected synthetic template PNGs",
+  "source": "TestVisualFixtureForRealBrowserRaster emits fixed SVG/font input; renderer-harness imports actual visualRaster.ts",
+  "base": "browser.png; equal across three viewport/DPR combinations in browser-receipt.json",
+  "split": {
+    "images": [
+      "split-0.png",
+      "split-1.png",
+      "split-2.png"
+    ],
+    "row_ranges": [
+      "1\u20135 / 12",
+      "6\u201310 / 12",
+      "11\u201312 / 12"
+    ]
+  },
+  "flame": {
+    "image": "flame-0.png",
+    "transparent": true,
+    "depth_caption": "1\u20132 of 2; vertical origin follows selected query page",
+    "sha256": "0b597ad97add34c116876b84bcf512b29796b7b8215496351ef9f3a84b08a399"
+  },
+  "diff": {
+    "image": "diff-0.png",
+    "negative": "-6",
+    "positive": "3",
+    "source_count": 2,
+    "zero_centered_axis": true,
+    "sha256": "f4e6f54688e151fa1879d2e96922dfd10d0ac6175a566bd81c03a4d75fc3d11f"
+  },
+  "native_office_acceptance": false
+}

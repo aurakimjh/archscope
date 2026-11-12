@@ -1,0 +1,1380 @@
+{
+  "type": "metrics_timeseries",
+  "source_files": [
+    "internal/parsers/metrichistory/testdata/sdk-python-1.38.0.otlp.json"
+  ],
+  "created_at": "2026-11-12T03:51:33.221924Z",
+  "summary": {
+    "deduplicated_point_count": "0",
+    "derived_interval_count": "4",
+    "point_count": "8",
+    "series_count": "4",
+    "untimed_point_count": "0"
+  },
+  "series": {},
+  "tables": {
+    "points": [
+      {
+        "observed_start_ns": "1794449991808759000",
+        "id": "interval-point-9040dc462c388a70b93b9350fb7c3ac2821ceec5d42be040b15972ab9a71e126",
+        "series_id": "metric-584a7c17748755916a682d32bd5a7bd7d2683827ac3ad257525233e3c880147c",
+        "name": "request.active",
+        "unit": "{request}",
+        "kind": "sum",
+        "temporality": "cumulative",
+        "start_ns": "1794449991808759000",
+        "end_ns": "1794449991808849000",
+        "time": "2026-11-12T02:19:51.808849Z",
+        "clock": "unix",
+        "value": "3",
+        "delta": null,
+        "rate": null,
+        "rate_meaning": "",
+        "status": "first_cumulative_point",
+        "gap": false,
+        "reordered": false,
+        "point_id": "point-9040dc462c388a70b93b9350fb7c3ac2821ceec5d42be040b15972ab9a71e126",
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "resourceMetrics/0/scopeMetrics/0/metrics/1/dataPoints/0"
+          }
+        ]
+      },
+      {
+        "observed_start_ns": "1794449991808759000",
+        "id": "interval-point-f81544c4932275a546da4f0fe4c734b97bb1ddb94add4a743e64f9ed88bb8b17",
+        "series_id": "metric-584a7c17748755916a682d32bd5a7bd7d2683827ac3ad257525233e3c880147c",
+        "name": "request.active",
+        "unit": "{request}",
+        "kind": "sum",
+        "temporality": "cumulative",
+        "start_ns": "1794449991808849000",
+        "end_ns": "1794449991809065000",
+        "time": "2026-11-12T02:19:51.809065Z",
+        "clock": "unix",
+        "value": "2",
+        "delta": "-1",
+        "rate": "-125000/27",
+        "rate_meaning": "signed_change_per_second",
+        "status": "derived",
+        "gap": false,
+        "reordered": false,
+        "point_id": "point-f81544c4932275a546da4f0fe4c734b97bb1ddb94add4a743e64f9ed88bb8b17",
+        "previous_point_id": "point-9040dc462c388a70b93b9350fb7c3ac2821ceec5d42be040b15972ab9a71e126",
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "resourceMetrics/1/scopeMetrics/0/metrics/1/dataPoints/0"
+          }
+        ]
+      },
+      {
+        "observed_start_ns": "1794449991808810000",
+        "observed_histogram": {
+          "count": "3",
+          "sum": "10",
+          "min": "0",
+          "max": "8",
+          "scale": 3,
+          "zero_count": "1",
+          "zero_threshold": "0",
+          "positive": {
+            "offset": 7,
+            "counts": [
+              "1",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "1",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0"
+            ]
+          },
+          "negative": {
+            "offset": 0,
+            "counts": [
+              "0"
+            ]
+          }
+        },
+        "id": "interval-point-49cc0f448611a9846d72e5a9d1176636e1f98658696b9285607689f52b081e0f",
+        "series_id": "metric-5e0bec2b8f7c8b833fcaa19dad9af2f224a81320553478af545072e94a933ac5",
+        "name": "payload.size",
+        "unit": "By",
+        "kind": "exponential_histogram",
+        "temporality": "cumulative",
+        "start_ns": "1794449991808810000",
+        "end_ns": "1794449991808849000",
+        "time": "2026-11-12T02:19:51.808849Z",
+        "clock": "unix",
+        "value": null,
+        "delta": null,
+        "rate": null,
+        "rate_meaning": "",
+        "status": "first_cumulative_point",
+        "gap": false,
+        "reordered": false,
+        "point_id": "point-49cc0f448611a9846d72e5a9d1176636e1f98658696b9285607689f52b081e0f",
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "resourceMetrics/0/scopeMetrics/0/metrics/3/dataPoints/0"
+          }
+        ]
+      },
+      {
+        "observed_start_ns": "1794449991808810000",
+        "observed_histogram": {
+          "count": "6",
+          "sum": "20",
+          "min": "0",
+          "max": "8",
+          "scale": 3,
+          "zero_count": "2",
+          "zero_threshold": "0",
+          "positive": {
+            "offset": 7,
+            "counts": [
+              "2",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "2",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0"
+            ]
+          },
+          "negative": {
+            "offset": 0,
+            "counts": [
+              "0"
+            ]
+          }
+        },
+        "id": "interval-point-87714bd914821ef7b1a42261a8a5a6d9312d70afd52064445e04080b3deee49c",
+        "series_id": "metric-5e0bec2b8f7c8b833fcaa19dad9af2f224a81320553478af545072e94a933ac5",
+        "name": "payload.size",
+        "unit": "By",
+        "kind": "exponential_histogram",
+        "temporality": "cumulative",
+        "start_ns": "1794449991808849000",
+        "end_ns": "1794449991809065000",
+        "time": "2026-11-12T02:19:51.809065Z",
+        "clock": "unix",
+        "value": null,
+        "delta": "3",
+        "rate": "125000/9",
+        "rate_meaning": "observations_per_second",
+        "histogram": {
+          "count": "3",
+          "sum": "10",
+          "min": null,
+          "max": null,
+          "scale": 3,
+          "zero_count": "1",
+          "zero_threshold": "0",
+          "positive": {
+            "offset": 7,
+            "counts": [
+              "1",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "1",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0"
+            ]
+          },
+          "negative": {
+            "offset": 0,
+            "counts": [
+              "0"
+            ]
+          }
+        },
+        "status": "derived",
+        "gap": false,
+        "reordered": false,
+        "point_id": "point-87714bd914821ef7b1a42261a8a5a6d9312d70afd52064445e04080b3deee49c",
+        "previous_point_id": "point-49cc0f448611a9846d72e5a9d1176636e1f98658696b9285607689f52b081e0f",
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "resourceMetrics/1/scopeMetrics/0/metrics/3/dataPoints/0"
+          }
+        ]
+      },
+      {
+        "observed_start_ns": "1794449991808785000",
+        "observed_histogram": {
+          "count": "3",
+          "sum": "10",
+          "min": "0",
+          "max": "8",
+          "bounds": [
+            "1",
+            "5",
+            "10"
+          ],
+          "counts": [
+            "1",
+            "1",
+            "1",
+            "0"
+          ]
+        },
+        "id": "interval-point-a45e9dbc9073635fe68117b48fd72edce48b00fec93deff42707e55c5e2607ef",
+        "series_id": "metric-6974a58fa06c98c40ce46c88ac2d65d9d2c974afd9a9100b45b0aaea476558c7",
+        "name": "request.duration",
+        "unit": "ms",
+        "kind": "histogram",
+        "temporality": "cumulative",
+        "start_ns": "1794449991808785000",
+        "end_ns": "1794449991808849000",
+        "time": "2026-11-12T02:19:51.808849Z",
+        "clock": "unix",
+        "value": null,
+        "delta": null,
+        "rate": null,
+        "rate_meaning": "",
+        "status": "first_cumulative_point",
+        "gap": false,
+        "reordered": false,
+        "point_id": "point-a45e9dbc9073635fe68117b48fd72edce48b00fec93deff42707e55c5e2607ef",
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "resourceMetrics/0/scopeMetrics/0/metrics/2/dataPoints/0"
+          }
+        ]
+      },
+      {
+        "observed_start_ns": "1794449991808785000",
+        "observed_histogram": {
+          "count": "6",
+          "sum": "20",
+          "min": "0",
+          "max": "8",
+          "bounds": [
+            "1",
+            "5",
+            "10"
+          ],
+          "counts": [
+            "2",
+            "2",
+            "2",
+            "0"
+          ]
+        },
+        "id": "interval-point-1789980e01a58d99fdde921c188d137b086036d4d76eb1fa5040ea18169ee48c",
+        "series_id": "metric-6974a58fa06c98c40ce46c88ac2d65d9d2c974afd9a9100b45b0aaea476558c7",
+        "name": "request.duration",
+        "unit": "ms",
+        "kind": "histogram",
+        "temporality": "cumulative",
+        "start_ns": "1794449991808849000",
+        "end_ns": "1794449991809065000",
+        "time": "2026-11-12T02:19:51.809065Z",
+        "clock": "unix",
+        "value": null,
+        "delta": "3",
+        "rate": "125000/9",
+        "rate_meaning": "observations_per_second",
+        "histogram": {
+          "count": "3",
+          "sum": "10",
+          "min": null,
+          "max": null,
+          "bounds": [
+            "1",
+            "5",
+            "10"
+          ],
+          "counts": [
+            "1",
+            "1",
+            "1",
+            "0"
+          ]
+        },
+        "status": "derived",
+        "gap": false,
+        "reordered": false,
+        "point_id": "point-1789980e01a58d99fdde921c188d137b086036d4d76eb1fa5040ea18169ee48c",
+        "previous_point_id": "point-a45e9dbc9073635fe68117b48fd72edce48b00fec93deff42707e55c5e2607ef",
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "resourceMetrics/1/scopeMetrics/0/metrics/2/dataPoints/0"
+          }
+        ]
+      },
+      {
+        "observed_start_ns": "1794449991808740000",
+        "id": "interval-point-6bfd545aa1b00d43f09f7df898c67233d046b3af9fdbba1e1bdea265d8ae4e71",
+        "series_id": "metric-da58d2605e61d8cea797f621d998089e00fce806321455e2c2771313dae5d177",
+        "name": "request.count",
+        "unit": "{request}",
+        "kind": "sum",
+        "temporality": "cumulative",
+        "start_ns": "1794449991808740000",
+        "end_ns": "1794449991808849000",
+        "time": "2026-11-12T02:19:51.808849Z",
+        "clock": "unix",
+        "value": "9007199254740993",
+        "delta": null,
+        "rate": null,
+        "rate_meaning": "",
+        "status": "first_cumulative_point",
+        "gap": false,
+        "reordered": false,
+        "point_id": "point-6bfd545aa1b00d43f09f7df898c67233d046b3af9fdbba1e1bdea265d8ae4e71",
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "resourceMetrics/0/scopeMetrics/0/metrics/0/dataPoints/0"
+          }
+        ]
+      },
+      {
+        "observed_start_ns": "1794449991808740000",
+        "id": "interval-point-7dab2c5643fd93f0f76bbd40b5894df31e9cf3e800bd6397f35ff200c761e51c",
+        "series_id": "metric-da58d2605e61d8cea797f621d998089e00fce806321455e2c2771313dae5d177",
+        "name": "request.count",
+        "unit": "{request}",
+        "kind": "sum",
+        "temporality": "cumulative",
+        "start_ns": "1794449991808849000",
+        "end_ns": "1794449991809065000",
+        "time": "2026-11-12T02:19:51.809065Z",
+        "clock": "unix",
+        "value": "9007199254741000",
+        "delta": "7",
+        "rate": "875000/27",
+        "rate_meaning": "increment_per_second",
+        "status": "derived",
+        "gap": false,
+        "reordered": false,
+        "point_id": "point-7dab2c5643fd93f0f76bbd40b5894df31e9cf3e800bd6397f35ff200c761e51c",
+        "previous_point_id": "point-6bfd545aa1b00d43f09f7df898c67233d046b3af9fdbba1e1bdea265d8ae4e71",
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "resourceMetrics/1/scopeMetrics/0/metrics/0/dataPoints/0"
+          }
+        ]
+      }
+    ],
+    "timed_points": [
+      {
+        "observed_start_ns": "1794449991808759000",
+        "id": "interval-point-9040dc462c388a70b93b9350fb7c3ac2821ceec5d42be040b15972ab9a71e126",
+        "series_id": "metric-584a7c17748755916a682d32bd5a7bd7d2683827ac3ad257525233e3c880147c",
+        "name": "request.active",
+        "unit": "{request}",
+        "kind": "sum",
+        "temporality": "cumulative",
+        "start_ns": "1794449991808759000",
+        "end_ns": "1794449991808849000",
+        "time": "2026-11-12T02:19:51.808849Z",
+        "clock": "unix",
+        "value": "3",
+        "delta": null,
+        "rate": null,
+        "rate_meaning": "",
+        "status": "first_cumulative_point",
+        "gap": false,
+        "reordered": false,
+        "point_id": "point-9040dc462c388a70b93b9350fb7c3ac2821ceec5d42be040b15972ab9a71e126",
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "resourceMetrics/0/scopeMetrics/0/metrics/1/dataPoints/0"
+          }
+        ]
+      },
+      {
+        "observed_start_ns": "1794449991808759000",
+        "id": "interval-point-f81544c4932275a546da4f0fe4c734b97bb1ddb94add4a743e64f9ed88bb8b17",
+        "series_id": "metric-584a7c17748755916a682d32bd5a7bd7d2683827ac3ad257525233e3c880147c",
+        "name": "request.active",
+        "unit": "{request}",
+        "kind": "sum",
+        "temporality": "cumulative",
+        "start_ns": "1794449991808849000",
+        "end_ns": "1794449991809065000",
+        "time": "2026-11-12T02:19:51.809065Z",
+        "clock": "unix",
+        "value": "2",
+        "delta": "-1",
+        "rate": "-125000/27",
+        "rate_meaning": "signed_change_per_second",
+        "status": "derived",
+        "gap": false,
+        "reordered": false,
+        "point_id": "point-f81544c4932275a546da4f0fe4c734b97bb1ddb94add4a743e64f9ed88bb8b17",
+        "previous_point_id": "point-9040dc462c388a70b93b9350fb7c3ac2821ceec5d42be040b15972ab9a71e126",
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "resourceMetrics/1/scopeMetrics/0/metrics/1/dataPoints/0"
+          }
+        ]
+      },
+      {
+        "observed_start_ns": "1794449991808810000",
+        "observed_histogram": {
+          "count": "3",
+          "sum": "10",
+          "min": "0",
+          "max": "8",
+          "scale": 3,
+          "zero_count": "1",
+          "zero_threshold": "0",
+          "positive": {
+            "offset": 7,
+            "counts": [
+              "1",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "1",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0"
+            ]
+          },
+          "negative": {
+            "offset": 0,
+            "counts": [
+              "0"
+            ]
+          }
+        },
+        "id": "interval-point-49cc0f448611a9846d72e5a9d1176636e1f98658696b9285607689f52b081e0f",
+        "series_id": "metric-5e0bec2b8f7c8b833fcaa19dad9af2f224a81320553478af545072e94a933ac5",
+        "name": "payload.size",
+        "unit": "By",
+        "kind": "exponential_histogram",
+        "temporality": "cumulative",
+        "start_ns": "1794449991808810000",
+        "end_ns": "1794449991808849000",
+        "time": "2026-11-12T02:19:51.808849Z",
+        "clock": "unix",
+        "value": null,
+        "delta": null,
+        "rate": null,
+        "rate_meaning": "",
+        "status": "first_cumulative_point",
+        "gap": false,
+        "reordered": false,
+        "point_id": "point-49cc0f448611a9846d72e5a9d1176636e1f98658696b9285607689f52b081e0f",
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "resourceMetrics/0/scopeMetrics/0/metrics/3/dataPoints/0"
+          }
+        ]
+      },
+      {
+        "observed_start_ns": "1794449991808810000",
+        "observed_histogram": {
+          "count": "6",
+          "sum": "20",
+          "min": "0",
+          "max": "8",
+          "scale": 3,
+          "zero_count": "2",
+          "zero_threshold": "0",
+          "positive": {
+            "offset": 7,
+            "counts": [
+              "2",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "2",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0"
+            ]
+          },
+          "negative": {
+            "offset": 0,
+            "counts": [
+              "0"
+            ]
+          }
+        },
+        "id": "interval-point-87714bd914821ef7b1a42261a8a5a6d9312d70afd52064445e04080b3deee49c",
+        "series_id": "metric-5e0bec2b8f7c8b833fcaa19dad9af2f224a81320553478af545072e94a933ac5",
+        "name": "payload.size",
+        "unit": "By",
+        "kind": "exponential_histogram",
+        "temporality": "cumulative",
+        "start_ns": "1794449991808849000",
+        "end_ns": "1794449991809065000",
+        "time": "2026-11-12T02:19:51.809065Z",
+        "clock": "unix",
+        "value": null,
+        "delta": "3",
+        "rate": "125000/9",
+        "rate_meaning": "observations_per_second",
+        "histogram": {
+          "count": "3",
+          "sum": "10",
+          "min": null,
+          "max": null,
+          "scale": 3,
+          "zero_count": "1",
+          "zero_threshold": "0",
+          "positive": {
+            "offset": 7,
+            "counts": [
+              "1",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "1",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0",
+              "0"
+            ]
+          },
+          "negative": {
+            "offset": 0,
+            "counts": [
+              "0"
+            ]
+          }
+        },
+        "status": "derived",
+        "gap": false,
+        "reordered": false,
+        "point_id": "point-87714bd914821ef7b1a42261a8a5a6d9312d70afd52064445e04080b3deee49c",
+        "previous_point_id": "point-49cc0f448611a9846d72e5a9d1176636e1f98658696b9285607689f52b081e0f",
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "resourceMetrics/1/scopeMetrics/0/metrics/3/dataPoints/0"
+          }
+        ]
+      },
+      {
+        "observed_start_ns": "1794449991808785000",
+        "observed_histogram": {
+          "count": "3",
+          "sum": "10",
+          "min": "0",
+          "max": "8",
+          "bounds": [
+            "1",
+            "5",
+            "10"
+          ],
+          "counts": [
+            "1",
+            "1",
+            "1",
+            "0"
+          ]
+        },
+        "id": "interval-point-a45e9dbc9073635fe68117b48fd72edce48b00fec93deff42707e55c5e2607ef",
+        "series_id": "metric-6974a58fa06c98c40ce46c88ac2d65d9d2c974afd9a9100b45b0aaea476558c7",
+        "name": "request.duration",
+        "unit": "ms",
+        "kind": "histogram",
+        "temporality": "cumulative",
+        "start_ns": "1794449991808785000",
+        "end_ns": "1794449991808849000",
+        "time": "2026-11-12T02:19:51.808849Z",
+        "clock": "unix",
+        "value": null,
+        "delta": null,
+        "rate": null,
+        "rate_meaning": "",
+        "status": "first_cumulative_point",
+        "gap": false,
+        "reordered": false,
+        "point_id": "point-a45e9dbc9073635fe68117b48fd72edce48b00fec93deff42707e55c5e2607ef",
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "resourceMetrics/0/scopeMetrics/0/metrics/2/dataPoints/0"
+          }
+        ]
+      },
+      {
+        "observed_start_ns": "1794449991808785000",
+        "observed_histogram": {
+          "count": "6",
+          "sum": "20",
+          "min": "0",
+          "max": "8",
+          "bounds": [
+            "1",
+            "5",
+            "10"
+          ],
+          "counts": [
+            "2",
+            "2",
+            "2",
+            "0"
+          ]
+        },
+        "id": "interval-point-1789980e01a58d99fdde921c188d137b086036d4d76eb1fa5040ea18169ee48c",
+        "series_id": "metric-6974a58fa06c98c40ce46c88ac2d65d9d2c974afd9a9100b45b0aaea476558c7",
+        "name": "request.duration",
+        "unit": "ms",
+        "kind": "histogram",
+        "temporality": "cumulative",
+        "start_ns": "1794449991808849000",
+        "end_ns": "1794449991809065000",
+        "time": "2026-11-12T02:19:51.809065Z",
+        "clock": "unix",
+        "value": null,
+        "delta": "3",
+        "rate": "125000/9",
+        "rate_meaning": "observations_per_second",
+        "histogram": {
+          "count": "3",
+          "sum": "10",
+          "min": null,
+          "max": null,
+          "bounds": [
+            "1",
+            "5",
+            "10"
+          ],
+          "counts": [
+            "1",
+            "1",
+            "1",
+            "0"
+          ]
+        },
+        "status": "derived",
+        "gap": false,
+        "reordered": false,
+        "point_id": "point-1789980e01a58d99fdde921c188d137b086036d4d76eb1fa5040ea18169ee48c",
+        "previous_point_id": "point-a45e9dbc9073635fe68117b48fd72edce48b00fec93deff42707e55c5e2607ef",
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "resourceMetrics/1/scopeMetrics/0/metrics/2/dataPoints/0"
+          }
+        ]
+      },
+      {
+        "observed_start_ns": "1794449991808740000",
+        "id": "interval-point-6bfd545aa1b00d43f09f7df898c67233d046b3af9fdbba1e1bdea265d8ae4e71",
+        "series_id": "metric-da58d2605e61d8cea797f621d998089e00fce806321455e2c2771313dae5d177",
+        "name": "request.count",
+        "unit": "{request}",
+        "kind": "sum",
+        "temporality": "cumulative",
+        "start_ns": "1794449991808740000",
+        "end_ns": "1794449991808849000",
+        "time": "2026-11-12T02:19:51.808849Z",
+        "clock": "unix",
+        "value": "9007199254740993",
+        "delta": null,
+        "rate": null,
+        "rate_meaning": "",
+        "status": "first_cumulative_point",
+        "gap": false,
+        "reordered": false,
+        "point_id": "point-6bfd545aa1b00d43f09f7df898c67233d046b3af9fdbba1e1bdea265d8ae4e71",
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "resourceMetrics/0/scopeMetrics/0/metrics/0/dataPoints/0"
+          }
+        ]
+      },
+      {
+        "observed_start_ns": "1794449991808740000",
+        "id": "interval-point-7dab2c5643fd93f0f76bbd40b5894df31e9cf3e800bd6397f35ff200c761e51c",
+        "series_id": "metric-da58d2605e61d8cea797f621d998089e00fce806321455e2c2771313dae5d177",
+        "name": "request.count",
+        "unit": "{request}",
+        "kind": "sum",
+        "temporality": "cumulative",
+        "start_ns": "1794449991808849000",
+        "end_ns": "1794449991809065000",
+        "time": "2026-11-12T02:19:51.809065Z",
+        "clock": "unix",
+        "value": "9007199254741000",
+        "delta": "7",
+        "rate": "875000/27",
+        "rate_meaning": "increment_per_second",
+        "status": "derived",
+        "gap": false,
+        "reordered": false,
+        "point_id": "point-7dab2c5643fd93f0f76bbd40b5894df31e9cf3e800bd6397f35ff200c761e51c",
+        "previous_point_id": "point-6bfd545aa1b00d43f09f7df898c67233d046b3af9fdbba1e1bdea265d8ae4e71",
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "resourceMetrics/1/scopeMetrics/0/metrics/0/dataPoints/0"
+          }
+        ]
+      }
+    ]
+  },
+  "charts": {},
+  "metadata": {
+    "clock_ids": [
+      "unix"
+    ],
+    "comparison_scope": "metric-level comparison policy not qualified; cross-unit/client-server/OTLP-Prometheus aggregation is unavailable",
+    "envelope_schema_version": "1.0.0",
+    "evidence_ids": [
+      "point-9040dc462c388a70b93b9350fb7c3ac2821ceec5d42be040b15972ab9a71e126",
+      "point-f81544c4932275a546da4f0fe4c734b97bb1ddb94add4a743e64f9ed88bb8b17",
+      "point-49cc0f448611a9846d72e5a9d1176636e1f98658696b9285607689f52b081e0f",
+      "point-87714bd914821ef7b1a42261a8a5a6d9312d70afd52064445e04080b3deee49c",
+      "point-a45e9dbc9073635fe68117b48fd72edce48b00fec93deff42707e55c5e2607ef",
+      "point-1789980e01a58d99fdde921c188d137b086036d4d76eb1fa5040ea18169ee48c",
+      "point-6bfd545aa1b00d43f09f7df898c67233d046b3af9fdbba1e1bdea265d8ae4e71",
+      "point-7dab2c5643fd93f0f76bbd40b5894df31e9cf3e800bd6397f35ff200c761e51c"
+    ],
+    "extensions": {
+      "measurement": "1.0.0",
+      "metrics_core": "1.0.0"
+    },
+    "findings": [],
+    "identity_basis": "declared",
+    "measurement": {
+      "/summary/deduplicated_point_count": {
+        "measurement_kind": "record_count",
+        "unit": "count",
+        "scope": "selected_metric_points",
+        "aggregation": "count",
+        "numeric_encoding": "exact_integer_string",
+        "availability": "observed"
+      },
+      "/summary/derived_interval_count": {
+        "measurement_kind": "record_count",
+        "unit": "count",
+        "scope": "selected_metric_points",
+        "aggregation": "count",
+        "numeric_encoding": "exact_integer_string",
+        "availability": "observed"
+      },
+      "/summary/point_count": {
+        "measurement_kind": "record_count",
+        "unit": "count",
+        "scope": "selected_metric_points",
+        "aggregation": "count",
+        "numeric_encoding": "exact_integer_string",
+        "availability": "observed"
+      },
+      "/summary/series_count": {
+        "measurement_kind": "record_count",
+        "unit": "count",
+        "scope": "selected_metric_points",
+        "aggregation": "count",
+        "numeric_encoding": "exact_integer_string",
+        "availability": "observed"
+      },
+      "/summary/untimed_point_count": {
+        "measurement_kind": "record_count",
+        "unit": "count",
+        "scope": "selected_metric_points",
+        "aggregation": "count",
+        "numeric_encoding": "exact_integer_string",
+        "availability": "observed"
+      }
+    },
+    "metrics_core": {
+      "version": "1.0.0",
+      "model": {
+        "schema_version": "1.0.0",
+        "normalizer": "1.0.0",
+        "sources": [
+          {
+            "id": "source-0",
+            "sha256": "6dfa5439a2780d28ceda8af4e2058c1e7e3651ed28addf2969901c368d16b9b2",
+            "name": "sdk-python-1.38.0.otlp.json",
+            "format": "otlp-json",
+            "producer": "opentelemetry-python",
+            "producer_version": "1.38.0",
+            "query": {}
+          }
+        ],
+        "series": [
+          {
+            "id": "metric-584a7c17748755916a682d32bd5a7bd7d2683827ac3ad257525233e3c880147c",
+            "name": "request.active",
+            "description": "",
+            "unit": "{request}",
+            "kind": "sum",
+            "temporality": "cumulative",
+            "monotonic": false,
+            "origin": "otlp-json:opentelemetry-python:1.38.0",
+            "resource": {
+              "attributes": {
+                "deployment.environment.name": {
+                  "stringValue": "fixture"
+                },
+                "service.name": {
+                  "stringValue": "synthetic-checkout"
+                }
+              },
+              "dropped_attributes": "0"
+            },
+            "resource_schema_url": "",
+            "scope": {
+              "name": "synthetic.instrumentation",
+              "version": "1.0.0",
+              "schema_url": "https://opentelemetry.io/schemas/1.37.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            },
+            "attributes": {
+              "http.request.method": {
+                "stringValue": "GET"
+              },
+              "service.role": {
+                "stringValue": "server"
+              }
+            }
+          },
+          {
+            "id": "metric-5e0bec2b8f7c8b833fcaa19dad9af2f224a81320553478af545072e94a933ac5",
+            "name": "payload.size",
+            "description": "",
+            "unit": "By",
+            "kind": "exponential_histogram",
+            "temporality": "cumulative",
+            "monotonic": false,
+            "origin": "otlp-json:opentelemetry-python:1.38.0",
+            "resource": {
+              "attributes": {
+                "deployment.environment.name": {
+                  "stringValue": "fixture"
+                },
+                "service.name": {
+                  "stringValue": "synthetic-checkout"
+                }
+              },
+              "dropped_attributes": "0"
+            },
+            "resource_schema_url": "",
+            "scope": {
+              "name": "synthetic.instrumentation",
+              "version": "1.0.0",
+              "schema_url": "https://opentelemetry.io/schemas/1.37.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            },
+            "attributes": {
+              "http.request.method": {
+                "stringValue": "GET"
+              },
+              "service.role": {
+                "stringValue": "server"
+              }
+            }
+          },
+          {
+            "id": "metric-6974a58fa06c98c40ce46c88ac2d65d9d2c974afd9a9100b45b0aaea476558c7",
+            "name": "request.duration",
+            "description": "",
+            "unit": "ms",
+            "kind": "histogram",
+            "temporality": "cumulative",
+            "monotonic": false,
+            "origin": "otlp-json:opentelemetry-python:1.38.0",
+            "resource": {
+              "attributes": {
+                "deployment.environment.name": {
+                  "stringValue": "fixture"
+                },
+                "service.name": {
+                  "stringValue": "synthetic-checkout"
+                }
+              },
+              "dropped_attributes": "0"
+            },
+            "resource_schema_url": "",
+            "scope": {
+              "name": "synthetic.instrumentation",
+              "version": "1.0.0",
+              "schema_url": "https://opentelemetry.io/schemas/1.37.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            },
+            "attributes": {
+              "http.request.method": {
+                "stringValue": "GET"
+              },
+              "service.role": {
+                "stringValue": "server"
+              }
+            }
+          },
+          {
+            "id": "metric-da58d2605e61d8cea797f621d998089e00fce806321455e2c2771313dae5d177",
+            "name": "request.count",
+            "description": "",
+            "unit": "{request}",
+            "kind": "sum",
+            "temporality": "cumulative",
+            "monotonic": true,
+            "origin": "otlp-json:opentelemetry-python:1.38.0",
+            "resource": {
+              "attributes": {
+                "deployment.environment.name": {
+                  "stringValue": "fixture"
+                },
+                "service.name": {
+                  "stringValue": "synthetic-checkout"
+                }
+              },
+              "dropped_attributes": "0"
+            },
+            "resource_schema_url": "",
+            "scope": {
+              "name": "synthetic.instrumentation",
+              "version": "1.0.0",
+              "schema_url": "https://opentelemetry.io/schemas/1.37.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            },
+            "attributes": {
+              "http.request.method": {
+                "stringValue": "GET"
+              },
+              "service.role": {
+                "stringValue": "server"
+              }
+            }
+          }
+        ],
+        "points": [
+          {
+            "id": "point-6bfd545aa1b00d43f09f7df898c67233d046b3af9fdbba1e1bdea265d8ae4e71",
+            "series_id": "metric-da58d2605e61d8cea797f621d998089e00fce806321455e2c2771313dae5d177",
+            "start_ns": "1794449991808740000",
+            "end_ns": "1794449991808849000",
+            "value": "9007199254740993",
+            "flags": 0,
+            "refs": [
+              {
+                "source_id": "source-0",
+                "position": "resourceMetrics/0/scopeMetrics/0/metrics/0/dataPoints/0"
+              }
+            ]
+          },
+          {
+            "id": "point-9040dc462c388a70b93b9350fb7c3ac2821ceec5d42be040b15972ab9a71e126",
+            "series_id": "metric-584a7c17748755916a682d32bd5a7bd7d2683827ac3ad257525233e3c880147c",
+            "start_ns": "1794449991808759000",
+            "end_ns": "1794449991808849000",
+            "value": "3",
+            "flags": 0,
+            "refs": [
+              {
+                "source_id": "source-0",
+                "position": "resourceMetrics/0/scopeMetrics/0/metrics/1/dataPoints/0"
+              }
+            ]
+          },
+          {
+            "id": "point-a45e9dbc9073635fe68117b48fd72edce48b00fec93deff42707e55c5e2607ef",
+            "series_id": "metric-6974a58fa06c98c40ce46c88ac2d65d9d2c974afd9a9100b45b0aaea476558c7",
+            "start_ns": "1794449991808785000",
+            "end_ns": "1794449991808849000",
+            "value": null,
+            "flags": 0,
+            "histogram": {
+              "count": "3",
+              "sum": "10",
+              "min": "0",
+              "max": "8",
+              "bounds": [
+                "1",
+                "5",
+                "10"
+              ],
+              "counts": [
+                "1",
+                "1",
+                "1",
+                "0"
+              ]
+            },
+            "refs": [
+              {
+                "source_id": "source-0",
+                "position": "resourceMetrics/0/scopeMetrics/0/metrics/2/dataPoints/0"
+              }
+            ]
+          },
+          {
+            "id": "point-49cc0f448611a9846d72e5a9d1176636e1f98658696b9285607689f52b081e0f",
+            "series_id": "metric-5e0bec2b8f7c8b833fcaa19dad9af2f224a81320553478af545072e94a933ac5",
+            "start_ns": "1794449991808810000",
+            "end_ns": "1794449991808849000",
+            "value": null,
+            "flags": 0,
+            "histogram": {
+              "count": "3",
+              "sum": "10",
+              "min": "0",
+              "max": "8",
+              "scale": 3,
+              "zero_count": "1",
+              "zero_threshold": "0",
+              "positive": {
+                "offset": 7,
+                "counts": [
+                  "1",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "1",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0"
+                ]
+              },
+              "negative": {
+                "offset": 0,
+                "counts": [
+                  "0"
+                ]
+              }
+            },
+            "refs": [
+              {
+                "source_id": "source-0",
+                "position": "resourceMetrics/0/scopeMetrics/0/metrics/3/dataPoints/0"
+              }
+            ]
+          },
+          {
+            "id": "point-7dab2c5643fd93f0f76bbd40b5894df31e9cf3e800bd6397f35ff200c761e51c",
+            "series_id": "metric-da58d2605e61d8cea797f621d998089e00fce806321455e2c2771313dae5d177",
+            "start_ns": "1794449991808740000",
+            "end_ns": "1794449991809065000",
+            "value": "9007199254741000",
+            "flags": 0,
+            "refs": [
+              {
+                "source_id": "source-0",
+                "position": "resourceMetrics/1/scopeMetrics/0/metrics/0/dataPoints/0"
+              }
+            ]
+          },
+          {
+            "id": "point-f81544c4932275a546da4f0fe4c734b97bb1ddb94add4a743e64f9ed88bb8b17",
+            "series_id": "metric-584a7c17748755916a682d32bd5a7bd7d2683827ac3ad257525233e3c880147c",
+            "start_ns": "1794449991808759000",
+            "end_ns": "1794449991809065000",
+            "value": "2",
+            "flags": 0,
+            "refs": [
+              {
+                "source_id": "source-0",
+                "position": "resourceMetrics/1/scopeMetrics/0/metrics/1/dataPoints/0"
+              }
+            ]
+          },
+          {
+            "id": "point-1789980e01a58d99fdde921c188d137b086036d4d76eb1fa5040ea18169ee48c",
+            "series_id": "metric-6974a58fa06c98c40ce46c88ac2d65d9d2c974afd9a9100b45b0aaea476558c7",
+            "start_ns": "1794449991808785000",
+            "end_ns": "1794449991809065000",
+            "value": null,
+            "flags": 0,
+            "histogram": {
+              "count": "6",
+              "sum": "20",
+              "min": "0",
+              "max": "8",
+              "bounds": [
+                "1",
+                "5",
+                "10"
+              ],
+              "counts": [
+                "2",
+                "2",
+                "2",
+                "0"
+              ]
+            },
+            "refs": [
+              {
+                "source_id": "source-0",
+                "position": "resourceMetrics/1/scopeMetrics/0/metrics/2/dataPoints/0"
+              }
+            ]
+          },
+          {
+            "id": "point-87714bd914821ef7b1a42261a8a5a6d9312d70afd52064445e04080b3deee49c",
+            "series_id": "metric-5e0bec2b8f7c8b833fcaa19dad9af2f224a81320553478af545072e94a933ac5",
+            "start_ns": "1794449991808810000",
+            "end_ns": "1794449991809065000",
+            "value": null,
+            "flags": 0,
+            "histogram": {
+              "count": "6",
+              "sum": "20",
+              "min": "0",
+              "max": "8",
+              "scale": 3,
+              "zero_count": "2",
+              "zero_threshold": "0",
+              "positive": {
+                "offset": 7,
+                "counts": [
+                  "2",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "2",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0"
+                ]
+              },
+              "negative": {
+                "offset": 0,
+                "counts": [
+                  "0"
+                ]
+              }
+            },
+            "refs": [
+              {
+                "source_id": "source-0",
+                "position": "resourceMetrics/1/scopeMetrics/0/metrics/3/dataPoints/0"
+              }
+            ]
+          }
+        ],
+        "deduplicated_points": 0,
+        "warnings": [
+          "Source producer/export/query identity is declared; no original-publisher authentication or GenAI alias qualification."
+        ]
+      },
+      "selection": {
+        "series_ids": [
+          "metric-584a7c17748755916a682d32bd5a7bd7d2683827ac3ad257525233e3c880147c",
+          "metric-5e0bec2b8f7c8b833fcaa19dad9af2f224a81320553478af545072e94a933ac5",
+          "metric-6974a58fa06c98c40ce46c88ac2d65d9d2c974afd9a9100b45b0aaea476558c7",
+          "metric-da58d2605e61d8cea797f621d998089e00fce806321455e2c2771313dae5d177"
+        ]
+      }
+    },
+    "parser": "metric-history",
+    "schema_version": "0.1.0",
+    "status_counts": {
+      "derived": 4,
+      "first_cumulative_point": 4
+    },
+    "window_policy": "end_timestamp_selection; no clipping, interpolation, histogram quantiles or cross-series sum"
+  }
+}

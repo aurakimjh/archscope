@@ -1,3 +1,4 @@
+import { VisualArtifactLibrary } from "@/components/VisualArtifactLibrary";
 import { Download, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -95,6 +96,7 @@ export function EvidenceBoardPage(): React.JSX.Element {
         </div>
       </div>
 
+      <VisualArtifactLibrary handles={[...new Set(workspace.entries.flatMap(entry => entry.backend_result_handle ? [entry.backend_result_handle] : []))]} />
       {cards.length === 0 ? (
         <Card>
           <CardContent className="px-4 py-6 text-sm text-muted-foreground">

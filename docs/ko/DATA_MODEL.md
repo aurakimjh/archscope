@@ -2314,7 +2314,7 @@ file-exporter basis와 경고를 공개합니다. 영속 baseline 검증은 매�
 ### T-638 메트릭 이력
 
 [정확한 메트릭 이력](METRIC_HISTORY.md)은 모델/normalizer 1.0.0,
-`metrics.history-json` transport와 `metrics_timeseries` payload 0.1.0을 정의합니다.
+`metrics.history-json` transport와 `metrics_timeseries` payload 0.2.0(기존 저장 0.1.0 reader 유지)을 정의합니다.
 중립 snapshot sequence·명시적 query 출처의 Prometheus range matrix·OTLP JSON에서
 정확한 값, resource/scope/schema/속성 식별자와 temporality를 유지합니다.
 Delta/cumulative/reset/gap/overlap과 explicit/exponential bucket은 별도 의미입니다.
@@ -2323,3 +2323,13 @@ Delta/cumulative/reset/gap/overlap과 explicit/exponential bucket은 별도 의�
 수용 검증은 별도입니다. 자동 합산/quantile 계산은 없습니다. R12 baseline 캐시는 새 query
 재분석 결과만 프로세스 내 제한 보관하고 페이지마다 원본/결과 hash와 case binding을
 재검사합니다. 기존의 매번 전체 재분석 설명은 이 범위에서 대체합니다.
+
+## 고정 시각 자료 1.0.0 (T-636)
+
+보고서용 private view는 새 AnalysisResult envelope가 아닙니다. 기존 query의 cell/layout,
+결과 SHA-256/type/payload, 정확한 값·단위·분모·모집단·품질·한계를 고정합니다.
+VisualArtifactSpec에 view hash·실제 query·template/renderer/font/masking 버전·표시 옵션·
+선택적 부모 artifact를 묶고 manifest가 spec/view/PNG/SVG/표/license hash를 보관합니다.
+과거 이미지는 불변이며 고정 의존성 누락 시 원버전 재생성을 거부하고 명시적 업그레이드만
+새 리비전을 만듭니다. 공유 schema는 offline 검증을 위해 embed합니다.
+한도·native/CLI 경계·남은 Office 수용은 [시각 자료 안내](VISUAL_ARTIFACTS.md)를 참고하세요.

@@ -11,3 +11,8 @@ docs/ko/OFFLINE_PACKS.md text eol=lf
 # The shipped notice inventory pins these source lock bytes across platforms.
 apps/engine-native/go.sum text eol=lf
 apps/engine-native/cmd/archscope-app/frontend/package-lock.json text eol=lf
+
+# Visual resources retain the embedded schema/upstream font license bytes.
+apps/engine-native/internal/visuals/assets/* -text whitespace=-blank-at-eol
+# Clipboard TSV evidence intentionally uses CRLF and exact transport bytes.
+docs/review/evidence/2026-11-12-t636/*.tsv -text whitespace=cr-at-eol

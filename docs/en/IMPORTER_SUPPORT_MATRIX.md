@@ -134,7 +134,7 @@ remain separate from local implementation verification.
 ### T-638 metric history
 
 [Exact metric history](METRIC_HISTORY.md) defines MetricHistory model/normalizer
-1.0.0, `metrics.history-json` transport and `metrics_timeseries` payload 0.1.0.
+1.0.0, `metrics.history-json` transport and `metrics_timeseries` payload 0.2.0 (saved 0.1.0 reader retained).
 Neutral snapshot sequences, explicit-provenance Prometheus range matrices and
 OTLP JSON preserve exact values, resource/scope/schema/attribute identity and
 temporality. Delta/cumulative/reset/gap/overlap and explicit/exponential buckets

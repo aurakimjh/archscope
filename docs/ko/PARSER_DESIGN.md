@@ -1007,7 +1007,7 @@ file-exporter basis와 경고를 공개합니다. 영속 baseline 검증은 매�
 ### T-638 메트릭 이력
 
 [정확한 메트릭 이력](METRIC_HISTORY.md)은 모델/normalizer 1.0.0,
-`metrics.history-json` transport와 `metrics_timeseries` payload 0.1.0을 정의합니다.
+`metrics.history-json` transport와 `metrics_timeseries` payload 0.2.0(기존 저장 0.1.0 reader 유지)을 정의합니다.
 중립 snapshot sequence·명시적 query 출처의 Prometheus range matrix·OTLP JSON에서
 정확한 값, resource/scope/schema/속성 식별자와 temporality를 유지합니다.
 Delta/cumulative/reset/gap/overlap과 explicit/exponential bucket은 별도 의미입니다.

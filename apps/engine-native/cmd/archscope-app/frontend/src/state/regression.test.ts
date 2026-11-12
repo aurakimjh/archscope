@@ -3405,6 +3405,10 @@ async function testT631ProviderConsumers(): Promise<void> {
   assert(await pendingStart === null && canceledJob === "late-job", "late Start ID is canceled after unmount/cancel without orphaning worker");
   const declared = { id: "generic:summary", version: "1.0.0", kind: "summary", payload_path: "/summary", schema: "key-value-v1", availability: "available" };
   assert(providerUsable(declared), "known bounded summary schema supported");
+  assert(providerUsable({ ...declared, id: "metrics:points", version: "2.0.0", kind: "detail", schema: "object-rows-v1" }), "compact metric points retain generic detail support");
+  assert(providerUsable({ ...declared, id: "metrics:timeline", version: "2.0.0", kind: "timeline", schema: "timeline-v1" }), "compact metric timeline retains common query support");
+  assert(!providerUsable({ ...declared, id: "metrics:points", version: "2.0.0" }), "metric v2 only enables its declared schema/kind");
+  assert(!providerUsable({ ...declared, version: "2.0.0" }), "unrelated provider v2 remains unsupported");
   for (const mutated of [{ ...declared, version: "99.0.0" }, { ...declared, schema: "script" }, { ...declared, availability: "unknown" }, { ...declared, kind: "timeline" }]) assert(!providerUsable(mutated), "unsupported schema/version/state fails closed");
   assert(resultProblem({ cause: { code: "IMPORT_RESULT_STALE" } }).stale && resultProblem(new Error("IMPORT_RESULT_CORRUPT: changed")).stale, "stale and corrupted results offer snapshot recovery");
   const caps = { handle: "result-a", result_sha256: "digest" } as ResultCapabilities;

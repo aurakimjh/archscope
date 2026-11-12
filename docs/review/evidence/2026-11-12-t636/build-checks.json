@@ -1,0 +1,80 @@
+{
+  "commands": [
+    {
+      "command": "go vet ./...",
+      "exit_code": 0
+    },
+    {
+      "command": "GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go vet ./...",
+      "exit_code": 0
+    },
+    {
+      "command": "GOOS=windows GOARCH=386 CGO_ENABLED=0 go vet ./...",
+      "exit_code": 0
+    },
+    {
+      "command": "wails3 generate bindings -clean=true -ts",
+      "exit_code": 0
+    },
+    {
+      "command": "npm run test:state",
+      "exit_code": 0
+    },
+    {
+      "command": "npm run build (included in wails3 task package)",
+      "exit_code": 0
+    },
+    {
+      "command": "wails3 task package",
+      "exit_code": 0
+    },
+    {
+      "command": "codesign --verify --deep --strict bin/archscope.app",
+      "exit_code": 0
+    },
+    {
+      "command": "Windows production build wrapper: amd64 and 386",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 scripts/build-offline-assets.py --check",
+      "exit_code": 0
+    },
+    {
+      "command": "node scripts/verify-desktop-only.mjs",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 scripts/verify-offline-syscalls.py --engine <Linux CLI> --out <temporary evidence>",
+      "exit_code": 0
+    }
+  ],
+  "binaries": [
+    {
+      "platform": "windows",
+      "architecture": "amd64",
+      "bytes": 35479040,
+      "sha256": "ed3b49a17e7492e9197fbcc8c744e68a44131c3c40255cef7769f38cdbf5aaa0",
+      "pe_machine": "0x8664",
+      "subsystem": 2,
+      "native_execution": false
+    },
+    {
+      "platform": "windows",
+      "architecture": "386",
+      "bytes": 34243072,
+      "sha256": "bf6794e2df7c2d650bf65a387804920729c9dc94f35e2911acf1529e4189d9b0",
+      "pe_machine": "0x14c",
+      "subsystem": 2,
+      "native_execution": false
+    },
+    {
+      "platform": "darwin",
+      "bytes": 32191248,
+      "sha256": "d08c32cdf4bb2fb987f91853ff9249ffcd60913f231792fd80544080e121e5e5",
+      "codesign_verify_deep_strict": "pass, ad hoc signature; not notarization",
+      "native_ui_execution": false
+    }
+  ],
+  "scope": "cross-build/static checks are not native Windows/WebView/Office execution"
+}

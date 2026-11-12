@@ -30,6 +30,9 @@ if (!hasNativeDesktopBridge(window)) {
   root.textContent = navigator.language.startsWith("ko")
     ? "ArchScope 데스크톱 앱을 실행하세요. 브라우저 미리보기는 지원하지 않습니다."
     : "Open the ArchScope desktop app. Browser preview is not supported.";
+} else if (new URLSearchParams(location.search).has("visual-render")) {
+  const token = new URLSearchParams(location.search).get("visual-render") || "";
+  void import("./visualRenderSurface").then(module => module.runVisualRenderSurface(token));
 } else {
   document.addEventListener("securitypolicyviolation", () => {
     void import("./bridge/engine").then(bridge => bridge.recordOfflineRendererViolation()).catch(() => {});

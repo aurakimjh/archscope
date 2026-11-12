@@ -353,6 +353,10 @@ export function CompareVerifiedCaseBaseline(requestJSON: string): $CancellablePr
     return $Call.ByID(2603728285, requestJSON);
 }
 
+export function CompleteVisualRender(token: string, page: number, pngData: string, errorText: string): $CancellablePromise<void> {
+    return $Call.ByID(213230896, token, page, pngData, errorText);
+}
+
 export function ConvertEvidenceJFR(path: string, tool: string, output: string): $CancellablePromise<string> {
     return $Call.ByID(434817255, path, tool, output);
 }
@@ -369,6 +373,10 @@ export function ConvertToCollapsed(req: $models.CollapsedRequest): $CancellableP
     });
 }
 
+export function CopyVisualArtifact(id: string, page: number, kind: string): $CancellablePromise<void> {
+    return $Call.ByID(2095150424, id, page, kind);
+}
+
 /**
  * Case DTOs cross Wails as JSON text: revision/count/byte/clock values never
  * travel through a JavaScript floating point projection as authoritative data.
@@ -379,6 +387,10 @@ export function CreateCase(title: string): $CancellablePromise<string> {
 
 export function DeactivateDataPack(expected: string, scope: string, id: string): $CancellablePromise<void> {
     return $Call.ByID(3477380232, expected, scope, id);
+}
+
+export function DeleteVisualArtifact(id: string): $CancellablePromise<void> {
+    return $Call.ByID(2060215170, id);
 }
 
 export function DescribeEvidenceResult(handle: string): $CancellablePromise<analysis$0.ResultCapabilities> {
@@ -493,6 +505,14 @@ export function ExportProfileSetPprof(handle: string, tickScale: string, path: s
     return $Call.ByID(2580236325, handle, tickScale, path);
 }
 
+export function ExportVisualArtifact(id: string, page: number, format: string, path: string): $CancellablePromise<void> {
+    return $Call.ByID(2462722375, id, page, format, path);
+}
+
+export function ExportVisualReport(handlesJSON: string, idsJSON: string, path: string): $CancellablePromise<void> {
+    return $Call.ByID(2266710143, handlesJSON, idsJSON, path);
+}
+
 export function GetCase(caseID: string): $CancellablePromise<string> {
     return $Call.ByID(4143716909, caseID);
 }
@@ -566,10 +586,22 @@ export function GetProfileSetTree(handle: string): $CancellablePromise<string> {
     return $Call.ByID(4065762134, handle);
 }
 
+export function GetVisualArtifact(id: string, page: number): $CancellablePromise<string> {
+    return $Call.ByID(3830965571, id, page);
+}
+
+export function GetVisualRenderInput(token: string): $CancellablePromise<string> {
+    return $Call.ByID(3486216019, token);
+}
+
 export function ImportEvidence(req: $models.EvidenceImportRequest): $CancellablePromise<analysis$0.JobSnapshot> {
     return $Call.ByID(3697193583, req).then(($result: any) => {
         return $$createType2($result);
     });
+}
+
+export function ImportVisualArtifact(path: string): $CancellablePromise<string> {
+    return $Call.ByID(4018931032, path);
 }
 
 /**
@@ -604,6 +636,10 @@ export function ListEvidenceImporters(): $CancellablePromise<ingestion$0.Importe
 
 export function ListEvidenceImportersForScope(scope: string): $CancellablePromise<string> {
     return $Call.ByID(1075260772, scope);
+}
+
+export function ListVisualArtifacts(): $CancellablePromise<string> {
+    return $Call.ByID(2174090370);
 }
 
 export function LoadEvidenceResult(path: string): $CancellablePromise<analysis$0.ResultView> {
@@ -706,6 +742,10 @@ export function ReleaseEvidenceLease(leaseID: string): $CancellablePromise<void>
     return $Call.ByID(318836909, leaseID);
 }
 
+export function RenderVisual(requestJSON: string): $CancellablePromise<string> {
+    return $Call.ByID(2966183551, requestJSON);
+}
+
 export function ReopenCaseResult(caseID: string, resultID: string): $CancellablePromise<string> {
     return $Call.ByID(2119780979, caseID, resultID);
 }
@@ -740,6 +780,10 @@ export function SelectImporter(id: string, generation: number, importer: string)
     return $Call.ByID(2871975417, id, generation, importer).then(($result: any) => {
         return $$createType2($result);
     });
+}
+
+export function VisualCapabilities(): $CancellablePromise<string> {
+    return $Call.ByID(1348205969);
 }
 
 // Private type creation functions

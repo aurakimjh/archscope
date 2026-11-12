@@ -71,7 +71,7 @@ func desktopAssets(base http.Handler) http.Handler {
 	local := http.StripPrefix("/offline-assets/", http.FileServer(http.FS(resources)))
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if netpolicy.Enabled() {
-			w.Header().Set("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; object-src 'none'; frame-src 'none'; base-uri 'self'; form-action 'none'")
+			w.Header().Set("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; object-src 'none'; frame-src 'none'; base-uri 'self'; form-action 'none'")
 		}
 		if strings.HasPrefix(r.URL.Path, "/offline-assets/") {
 			local.ServeHTTP(w, r)

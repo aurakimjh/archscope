@@ -1,4 +1,5 @@
 export type EvidenceSourceKind =
+  | "visual_artifact"
   | "finding"
   | "chart_selection"
   | "table_row"

@@ -59,6 +59,7 @@ func (s *EngineService) evidence() (*analysis.Service, error) {
 	return service, nil
 }
 func (s *EngineService) closeEvidence() {
+	s.closeVisuals()
 	s.evidenceMu.Lock()
 	service := s.evidenceService
 	caseStore := s.caseService

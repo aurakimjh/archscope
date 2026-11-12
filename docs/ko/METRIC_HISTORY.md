@@ -1,6 +1,6 @@
 # 정확한 메트릭 이력
 
-T-638은 `metrics_timeseries` payload 0.1.0과 MetricHistory 모델/normalizer 1.0.0을
+T-638은 `metrics_timeseries` payload 0.2.0(기존 저장 0.1.0 reader 유지)과 MetricHistory 모델/normalizer 1.0.0을
 추가합니다. 기존 `metrics_snapshot` 가져오기와 저장 reader의 의미는 유지합니다.
 공통 AnalysisResult envelope와 parser/analyzer/exporter 책임 분리도 유지합니다.
 
@@ -36,7 +36,8 @@ rate를 만들지 않습니다. Non-monotonic sum은 음수 변화를 보존하�
 입력 값을 한 번만 사용합니다. 겹친 delta 구간은 모두 계산 불가로 표시합니다.
 
 종료 시각으로 정렬해 계산하면서 원래 좌표와 순서 변경 여부를 유지합니다. 명시적 cadence보다
-긴 구간은 전체 구간 평균이며 보간하지 않습니다. Delta 사이의 누락 구간은 gap으로 표시합니다.
+긴 sum/histogram 구간은 전체 구간 평균이며 보간하지 않습니다. Delta 사이의 누락 구간은 gap으로 표시합니다.
+Range-query gauge는 현재 `step_ns`를 식별자에만 반영하며 빠진 cadence slot은 표시하지 않습니다(R13-03 후속).
 Cadence가 없는 cumulative에 임의 주기를 만들지 않습니다. OTLP의 0/누락 시각은 알 수 없음이며,
 중립 snapshot/range의 Unix epoch 0은 보존합니다. 시각 없는 관측은 상세 표에 남기고 timeline에서
 제외합니다.
@@ -94,3 +95,29 @@ Workspace에서 **메트릭 이력**을 열어 원본 확인 → series 명시 �
 
 화면의 series 식별자는 opaque `identity_json` 문자열로 전달해 큰 숫자 속성이
 JavaScript 표시에서 반올림되지 않게 하며 선택은 backend ID를 사용합니다.
+
+## R13 저장 보완과 남은 한계
+
+0.2.0은 명시적으로 선택한 series와 그 series의 모든 point만 저장합니다. 시간창 밖의
+이전 관측·겹침 문맥은 계산에 필요하므로 유지합니다. 저장 결과의 series 목록도 이 부분집합으로
+제한되며 제외한 series를 선택하려면 원본/모델을 다시 열어야 합니다. 상세 구간·bucket을 표에
+중복 저장하는 대신 point/status와 time/clock/reference만 투영하고 전용 query가 고정 모델에서
+상세 값을 계산합니다. 0.1.0 저장 reader와 원본 JSON 바이트는 그대로 유지합니다.
+
+CLI normalize/merge와 `history-import`는 compact JSON을 써서 자체 입력 한도 안에서 다시
+읽도록 합니다. 결과 한도 초과는 실제 바이트·point/series 수와 series 축소/원본 분할 안내를
+제공합니다. 시간창만 좁혀도 이전 관측 문맥 때문에 모델 크기가 줄지 않을 수 있습니다.
+합성 timed point 100,000개/10 series는 모델 27,670,574바이트, 결과 58,573,608바이트입니다.
+40,000개/4 series 결과는 23,424,243바이트이며 1 series만 고르면 5,857,892바이트입니다.
+Bucket/속성 크기에 따라 한도가 먼저 찰 수 있어 모든 10만 point 입력의 수용을 보장하지 않습니다.
+
+Generic CSV는 현재 summary/availability만 내보내며 **구간 행은 포함하지 않습니다**.
+정확한 구간/bucket은 `history-query` JSON을 사용하세요(R13-06 후속).
+기존 본문의 CSV/HTML/report-pack 지원은 공통 exporter 사용을 뜻하며 전용 구간 CSV를 뜻하지 않습니다.
+
+독립 CONDITIONAL 리뷰는 P2 저장 문제 해소 후 나머지 P3를 후속 큐로 두고 종결하도록 허용했습니다.
+R13-02는 매 페이지 retained model 재해석·검증·계산 비용(메트릭 전용 warm cache 없음),
+R13-04는 좌표가 부족한 수치/형식 오류와 exact 범위 밖 값의 파일 전체 거부,
+R13-05는 다른 export의 동일 값도 별도 보존하며 `conflicting_timestamp`가 될 수 있는 상태,
+R13-07은 검색/페이지 없는 bounded 전체 series 목록입니다. 위 R13-03/06과 함께 후속 작업이며
+완료 기능으로 주장하지 않습니다. 실제 사용자 export와 native WebView/Windows 검증은 별도입니다.

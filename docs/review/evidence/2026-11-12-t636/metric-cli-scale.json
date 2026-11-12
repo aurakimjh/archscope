@@ -1,0 +1,14 @@
+{
+  "synthetic": true,
+  "operation": "actual CLI history-import plus saved result history-query",
+  "source_bytes": 14757834,
+  "saved_bytes": 62074016,
+  "saved_sha256": "91faedf65a9e66372047a6c2df5374b6869fc887fb2a3eb9fce909dd59bee249",
+  "payload_version": "0.2.0",
+  "compact_lines": 1,
+  "query_total": 100000,
+  "returned_rows": 1,
+  "write_seconds": 2.615,
+  "cold_query_seconds": 7.062,
+  "scope": "100k points/10 series; bucket and attribute size can lower capacity; no warm cache claim"
+}

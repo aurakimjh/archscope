@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"encoding/json"
+	history "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/metrichistory"
 	m "github.com/aurakimjh/archscope/apps/engine-native/internal/metricmodel"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/resultcontract"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -28,6 +30,24 @@ func TestT638ActualCLIMetricHistoryRoundtripAndLegacy(t *testing.T) {
 		return out
 	}
 	root := t.TempDir()
+	compactPath := filepath.Join(root, "compact.json")
+	run("metrics", "history-import", "--in", "../../internal/parsers/metrichistory/testdata/snapshots.json", "--out", compactPath)
+	compact, _ := os.ReadFile(compactPath)
+	if strings.Count(string(compact), "\n") != 1 || !strings.Contains(string(compact), `"schema_version":"0.2.0"`) {
+		t.Fatal("result output must stay compact and readable within the same ceiling")
+	}
+	legacyResult := "../../internal/analyzers/metrichistory/testdata/payload-0.1.0.saved.json"
+	legacyBytes, _ := os.ReadFile(legacyResult)
+	legacyDoc, e := resultcontract.Decode(legacyBytes)
+	if e != nil {
+		t.Fatal(e)
+	}
+	legacyCore, e := history.ReadCore(legacyDoc)
+	if e != nil {
+		t.Fatal(e)
+	}
+	legacyQuery, _ := json.Marshal(m.Query{Selection: legacyCore.Selection, Limit: 2})
+	run("metrics", "history-query", "--in", legacyResult, "--query", string(legacyQuery))
 	input := "../../internal/parsers/metrichistory/testdata/snapshots.json"
 	modelPath := filepath.Join(root, "model.json")
 	run("metrics", "history-normalize", "--in", input, "--out", modelPath)

@@ -1,0 +1,8 @@
+=== RUN   TestR1301CompactSelectedStorageAndLegacyReader
+    storage_test.go:81: 40000 points compact bytes=23424243; one of four series bytes=5857892
+--- PASS: TestR1301CompactSelectedStorageAndLegacyReader (0.88s)
+=== RUN   TestR1301AdmittedLargeModelFitsResultCeiling
+    storage_test.go:110: 100000 timed points model bytes=27670574 result bytes=58573608
+--- PASS: TestR1301AdmittedLargeModelFitsResultCeiling (0.88s)
+PASS
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/metrichistory	2.036s
