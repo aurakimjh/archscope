@@ -3,7 +3,10 @@
 package traceimport
 
 import (
+	"fmt"
+	"io"
 	"math"
+	"os"
 	"sort"
 	"strings"
 	"time"
@@ -31,9 +34,33 @@ type Options struct {
 }
 
 func Analyze(path string, opts Options) (models.AnalysisResult, error) {
+	f, guardErr := os.Open(path)
+	if guardErr != nil {
+		return models.AnalysisResult{}, guardErr
+	}
+	raw, guardErr := io.ReadAll(io.LimitReader(f, 64<<20+1))
+	f.Close()
+	if guardErr != nil {
+		return models.AnalysisResult{}, guardErr
+	}
+	if len(raw) > 64<<20 {
+		return models.AnalysisResult{}, fmt.Errorf("TRACE_SOURCE_BUDGET: original exceeds 67108864 bytes; split the original export before analysis")
+	}
+	if traceparser.RequiresLLMNormalization(raw) {
+		return models.AnalysisResult{}, fmt.Errorf("LLMTRACE_SEMANTIC_REQUIRED: normalize the body-free LLM export in Workspace or trace llm-normalize first")
+	}
 	parsed, err := traceparser.ParseFile(path, traceparser.Options{Format: opts.Format})
 	if err != nil && len(parsed.Spans) == 0 {
 		return models.AnalysisResult{}, err
+	}
+	// Recheck decoded keys so a source replacement between the initial guard
+	// and the legacy file parser cannot publish supported LLM attributes.
+	for _, span := range parsed.Spans {
+		for key := range span.Attributes {
+			if traceparser.RequiresLLMNormalization([]byte(key)) {
+				return models.AnalysisResult{}, fmt.Errorf("LLMTRACE_SEMANTIC_REQUIRED: normalize the body-free LLM export first")
+			}
+		}
 	}
 	result := Build(parsed.Spans, path, parsed.Format, opts)
 	result.Metadata.Diagnostics = parsed.Diagnostics

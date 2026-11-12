@@ -25,6 +25,7 @@ func init() {
 	for _, op := range []string{"inspect-source", "normalize-source", "import-source", "query-metric", "open-metrics"} {
 		var input, output, format, captureFile, bindingsFile, signal, cursor string
 		var limit int
+		var seriesIDs []string
 		command := &cobra.Command{Use: op, Args: cobra.NoArgs, RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx, stop := signalContext(cmd.Context())
 			defer stop()
@@ -77,14 +78,19 @@ func init() {
 					}
 					return publish(page)
 				}
-				metric, e := history.Build(ctx, set.Metrics, selection, "explicit inference signal selection")
+				effective, mapping, e := n.EffectiveMetrics(ctx, set)
 				if e != nil {
 					return e
 				}
-				metric.Metadata.Extra["inference_projection"] = map[string]any{"parent_result_sha256": p.Digest(raw), "signals": []string{signal}, "identity_basis": "declared", "aggregation": "none"}
+				selection.SeriesIDs = []string{mapping[selected.SeriesID]}
+				metric, e := history.Build(ctx, effective, selection, "explicit inference signal selection")
+				if e != nil {
+					return e
+				}
+				metric.Metadata.Extra["inference_projection"] = map[string]any{"parent_result_sha256": p.Digest(raw), "signals": []string{signal}, "identity_basis": "declared", "aggregation": "none", "original_selection": m.Selection{SeriesIDs: []string{selected.SeriesID}}, "declared_metadata": n.SelectedDeclarations(set, []string{signal}), "metadata_basis": "original or explicitly declared range interpretation; original core remains unchanged"}
 				return publish(metric)
 			}
-			options := p.Options{Format: format}
+			options := p.Options{Format: format, SeriesIDs: seriesIDs}
 			if captureFile != "" {
 				body, e := readMetricDocument(captureFile, 128<<10)
 				if e != nil {
@@ -122,6 +128,7 @@ func init() {
 				return publish(result)
 			}
 		}}
+		command.Flags().StringSliceVar(&seriesIDs, "retained-series-id", nil, "retain all points of selected original series during normalization")
 		command.Flags().StringVar(&input, "in", "", "original file or saved inference result")
 		command.Flags().StringVar(&output, "out", "-", "new destination or stdout")
 		command.Flags().StringVar(&format, "format", "inference-evidence-json", "nvidia-smi-csv, metric-bindings-json or inference-evidence-json")

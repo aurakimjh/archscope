@@ -1237,3 +1237,7 @@ R4 리뷰 후속은 수치 의미를 유지하며 32 MiB 이하 JSON을 bounded 
 작업 상태는 REVIEW다. 로컬 Go/CLI/bridge/state 검사와 native/cross-build는 독립 승인,
 실제 새 WebView 조작, Windows runtime과 구분한다. generic 화면·입력 탐색·통합 검색은
 T-631/T-633/T-635 범위이며 선택적 producer/Q01–Q04 결정이나 전체 설계 완료를 뜻하지 않는다.
+
+## T-640 구현 경계 (2026-11-12)
+
+제한 importer `trace.llm-json`은 LLMTrace 1.0.0을 기존 trace_import 0.3.0 / llm_core 1.0.0으로 분석한다. 기존 trace 0.2.0 reader는 유지한다. Parent/link·자식 합집합 경과 시간·명시적 논리/시도 accounting·token 경계·lifecycle 집단을 구분하고 본문 제외 정규화를 케이스 복사/색인보다 먼저 적용한다. 정확한 페이지 query/UI와 기존 provider/export를 재사용한다. Q01 제품 JSON adapter는 유지한다. [LLM trace 근거](LLM_TRACE_EVIDENCE.md) 참조. T-639 R16은 untyped range의 명시적 메타데이터와 입력 event ID 생성을 추가하며 1.0/1.1 모델·0.1/0.2 결과 reader를 유지한다. [추론 서빙 근거](INFERENCE_EVIDENCE.md) 참조.

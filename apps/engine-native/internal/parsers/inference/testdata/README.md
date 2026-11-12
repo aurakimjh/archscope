@@ -9,3 +9,9 @@ CC0 합성 fixture입니다. NVIDIA 드라이버나 vLLM을 실제 실행한 출
 - `bindings.json`은 canonical MetricHistory 파일에 붙이는 명시적 계약입니다. `metric-model.json`과 `inference-evidence-set.json`은 정규화 기대값입니다.
 
 공식 참고: [NVIDIA query 문서](https://docs.nvidia.com/deploy/nvidia-smi/index.html), [vLLM 0.8.5 metrics](https://docs.vllm.ai/en/v0.8.5/design/v1/metrics.html). 단위·통계 형식은 이름 접미사로 추정하지 않습니다.
+
+## 명시적 range 메타데이터와 사용자 event 입력 (1.1.0)
+
+`r16-*` 파일은 Prometheus range 원본이 gauge/빈 unit인 상태를 보존하고 signal.declared_metadata로만 unit/kind/temporality/monotonic 및 선택적 start_ns를 선언한다. 원본 series/point ID와 hash를 바꾸지 않고 계산 뷰에서만 적용한다. start_ns가 없으면 cumulative rate는 unavailable이다. 원격 TYPE 확인이나 lifetime 진위를 인증하지 않는다.
+
+`r16-bindings-user-input.json`의 event ID는 빈 문자열이다. 입력 정규화에서만 생성하며 잘못 제공한 ID는 거부한다. 저장 reader는 빈 ID를 고치지 않는다. retained_series_ids sidecar/옵션은 선택한 series의 모든 point를 남기고 signals/quality만 함께 제한한다. 원본 byte 예산을 넘는 파일은 정규화 전에 분할해야 한다. 기존 1.0.0 fixture는 그대로 보존한다. 새 payload는 0.2.0, 기존 0.1.0 reader는 유지한다.

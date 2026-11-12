@@ -1,0 +1,73 @@
+{
+  "id": "diagnostics.llm-trace.v1",
+  "version": "1.0.0",
+  "synthetic": true,
+  "qualification": "Actual OTel Python SDK carrier plus explicitly selected synthetic semantic subsets; no vendor export qualification",
+  "files": [
+    {
+      "file": "LICENSE.txt",
+      "sha256": "d5a2e4b4adabc470a0046f474f2269f944c0e758c0a1099eb1310e6b783d0d47"
+    },
+    {
+      "file": "README.md",
+      "sha256": "15c8c769b016fb58b49ac9d6a14cb73279486d183616e2e5f56297ffbae52094"
+    },
+    {
+      "file": "edge-cases.otlp.json",
+      "sha256": "3a9e5a2afd6142b30d6a401ad01f45a0dbac2a9e91d9bf53dad6e6c4b38a0aeb"
+    },
+    {
+      "file": "edge-set.json",
+      "sha256": "8712c3ece2c25c1abf6e0286230fae555d8e911a22a3302ed737414b1385b33e"
+    },
+    {
+      "file": "genai-options.json",
+      "sha256": "8e78751fa42dfe092f14adc80e012232358e18009bcdc1fac04651a42326df4b"
+    },
+    {
+      "file": "genai-set.json",
+      "sha256": "a5cbf2783509842df513402a5cc330f080a0117440f4c0c4561b945de71bd525"
+    },
+    {
+      "file": "genai-subset.otlp.json",
+      "sha256": "6742fe4d2f966d82c8dc7b9f55d8473f9369a4b20b7a6fb4741c8e8d93cf08ea"
+    },
+    {
+      "file": "generate_sdk.py",
+      "sha256": "5b3ba874e04bbd7c88ebbba1f66a9732123ddcbf7d64b434d5cc364fb8566bbc"
+    },
+    {
+      "file": "llm-trace-set.json",
+      "sha256": "bb5f48193a7915418d8f1c2c6fdd3a71f1ef27a66e271c1e57031169c3020965"
+    },
+    {
+      "file": "llm-trace-set.schema.json",
+      "sha256": "28e95925c62b3f61fa97517984bd24f56842466300f37d8fe7570c2025bb6f2a"
+    },
+    {
+      "file": "neutral-options.json",
+      "sha256": "43830d7098370349c191e4b3fdad7da4ffc4b3ae0ea5c366e8ef750c8a384831"
+    },
+    {
+      "file": "openinference-options.json",
+      "sha256": "61076237999e1246feee793756c251cf6c5df1cf9d89e6ba1f9eec9b92a5ed7d"
+    },
+    {
+      "file": "openinference-set.json",
+      "sha256": "3cb98429422bd28bbf2420206ed84513d39a588c87425eb4fda8ecbbbeca339c"
+    },
+    {
+      "file": "openinference-subset.otlp.json",
+      "sha256": "04e7ff8dbdcc3b2e15d8a865fe5c59573641b0973666c3a2a1dffc69ddb74133"
+    },
+    {
+      "file": "sdk-python-1.38.0.otlp.json",
+      "sha256": "8d5e70205f6848d6ee3c00ad3ea071f0602be72c06b41861c4a2cfb5510ce67f"
+    },
+    {
+      "file": "semantic-profiles.json",
+      "sha256": "8b562ab74568a7adffe949c68ce75bc4910056689fadae430fb88452753cebc3"
+    }
+  ],
+  "schema_sha256": "28e95925c62b3f61fa97517984bd24f56842466300f37d8fe7570c2025bb6f2a"
+}

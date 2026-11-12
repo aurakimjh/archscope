@@ -1,0 +1,4 @@
+{
+  "query": "{__name__=~\"synthetic_output_tokens|synthetic_queue\"}",
+  "step_ns": "1000000000"
+}

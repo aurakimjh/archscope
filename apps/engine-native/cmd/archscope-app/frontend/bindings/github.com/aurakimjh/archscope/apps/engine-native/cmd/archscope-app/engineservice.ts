@@ -403,6 +403,10 @@ export function DescribeInferenceEvidence(handle: string): $CancellablePromise<s
     return $Call.ByID(1830062688, handle);
 }
 
+export function DescribeLLMTrace(handle: string): $CancellablePromise<string> {
+    return $Call.ByID(3012949478, handle);
+}
+
 export function DescribeMetricQuery(handle: string): $CancellablePromise<string> {
     return $Call.ByID(612923626, handle);
 }
@@ -616,6 +620,10 @@ export function InspectInferenceSource(path: string, options: string): $Cancella
     return $Call.ByID(688608261, path, options);
 }
 
+export function InspectLLMTraceSource(path: string, options: string): $CancellablePromise<string> {
+    return $Call.ByID(1159121168, path, options);
+}
+
 /**
  * Sources stay backend-owned; inspection returns bounded inventory only, and
  * normalization writes a new model file for the existing generic import jobs.
@@ -682,6 +690,10 @@ export function MaterializeSystemProfile(handle: string, digest: string, metric:
 
 export function NormalizeInferenceSource(path: string, options: string, expectedSHA: string, output: string): $CancellablePromise<string> {
     return $Call.ByID(3169941220, path, options, expectedSHA, output);
+}
+
+export function NormalizeLLMTraceSource(path: string, options: string, digest: string, output: string): $CancellablePromise<string> {
+    return $Call.ByID(242532899, path, options, digest, output);
 }
 
 export function NormalizeLegacyProfileSet(path: string, format: string): $CancellablePromise<string> {
@@ -756,6 +768,10 @@ export function QueryEvidenceProvider(handle: string, provider: string, offset: 
 
 export function QueryInferenceMetric(handle: string, digest: string, signal: string, cursor: string, limit: number): $CancellablePromise<string> {
     return $Call.ByID(2840542848, handle, digest, signal, cursor, limit);
+}
+
+export function QueryLLMTrace(handle: string, digest: string, query: string): $CancellablePromise<string> {
+    return $Call.ByID(305830369, handle, digest, query);
 }
 
 export function QueryMetricHistory(handle: string, digest: string, requestJSON: string): $CancellablePromise<string> {

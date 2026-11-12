@@ -12,7 +12,8 @@ import (
 	m "github.com/aurakimjh/archscope/apps/engine-native/internal/metricmodel"
 )
 
-const Version = "1.0.0"
+const Version = "1.1.0"
+const LegacyVersion = "1.0.0"
 const MaxBytes = 32 << 20
 const MaxEntities = 1024
 const MaxSignals = 2048
@@ -64,16 +65,17 @@ type Context struct {
 	Warmup           string  `json:"warmup"` // unknown, included, excluded, separate
 }
 type Signal struct {
-	ID                string `json:"id"`
-	SeriesID          string `json:"series_id"`
-	Semantic          string `json:"semantic"`
-	EntityID          string `json:"entity_id"`
-	ContextID         string `json:"context_id,omitempty"`
-	Boundary          string `json:"boundary"`
-	Population        string `json:"population"`
-	Form              string `json:"statistical_form"` // gauge, counter, histogram, summary_quantile, precomputed_rate
-	SourceCalculation string `json:"source_calculation,omitempty"`
-	Conversion        string `json:"conversion"` // identity, mib_to_bytes, milliseconds_to_seconds, percent_to_ratio
+	Declaration       *Declaration `json:"declared_metadata,omitempty"`
+	ID                string       `json:"id"`
+	SeriesID          string       `json:"series_id"`
+	Semantic          string       `json:"semantic"`
+	EntityID          string       `json:"entity_id"`
+	ContextID         string       `json:"context_id,omitempty"`
+	Boundary          string       `json:"boundary"`
+	Population        string       `json:"population"`
+	Form              string       `json:"statistical_form"` // gauge, counter, histogram, summary_quantile, precomputed_rate
+	SourceCalculation string       `json:"source_calculation,omitempty"`
+	Conversion        string       `json:"conversion"` // identity, mib_to_bytes, milliseconds_to_seconds, percent_to_ratio
 }
 
 // Sources describe structured runtime/error/request observations, not copied log bodies.
@@ -132,7 +134,7 @@ func EventID(e Event) string { e.ID = ""; return "inference-event-" + m.Hash(e) 
 func text(s string) bool     { return len(s) <= 1024 && !strings.ContainsAny(s, "\x00\r\n") }
 func known(s string) bool    { return s != "" && s != "unknown" }
 func (s Set) Validate(ctx context.Context) error {
-	if s.Version != Version {
+	if s.Version != Version && s.Version != LegacyVersion {
 		return fmt.Errorf("INFERENCE_VERSION_UNSUPPORTED")
 	}
 	if len(s.Entities) == 0 || len(s.Entities) > MaxEntities || len(s.Signals) > MaxSignals || len(s.Contexts) > 1024 || len(s.Links) > 4096 || len(s.Events) > MaxEvents || len(s.Sources) > 128 || len(s.Quality) > m.MaxPoints {
@@ -217,11 +219,14 @@ func (s Set) Validate(ctx context.Context) error {
 	used := map[string]bool{}
 	signals := map[string]bool{}
 	for _, v := range s.Signals {
+		if v.Declaration != nil && s.Version == LegacyVersion {
+			return fmt.Errorf("INFERENCE_DECLARATION_VERSION_REQUIRED")
+		}
 		if !known(v.ID) || signals[v.ID] || series[v.SeriesID].ID == "" || used[v.SeriesID] || entities[v.EntityID].ID == "" || (v.ContextID != "" && !contexts[v.ContextID]) || !known(v.Population) || !text(v.Population) || !text(v.ID) || !text(v.SourceCalculation) {
 			return fmt.Errorf("INFERENCE_SIGNAL_INVALID: one explicit meaning per series; no duplicated device/pod attribution")
 		}
 		if _, e := Definition(v, series[v.SeriesID], entities[v.EntityID]); e != nil {
-			return e
+			return fmt.Errorf("INFERENCE_SIGNAL_DEFINITION: signal=%s series=%s original_kind=%s original_unit=%q: %w; declare missing range metadata explicitly", v.ID, series[v.SeriesID].Name, series[v.SeriesID].Kind, series[v.SeriesID].Unit, e)
 		}
 		used[v.SeriesID] = true
 		signals[v.ID] = true
@@ -349,6 +354,11 @@ type SemanticDefinition struct {
 
 func Definition(v Signal, series m.Series, entity Entity) (SemanticDefinition, error) {
 	out := SemanticDefinition{Factor: big.NewRat(1, 1)}
+	effective, e := EffectiveSeries(v, series)
+	if e != nil {
+		return out, e
+	}
+	series = effective
 	category := ""
 	switch v.Semantic {
 	case "gpu_utilization", "memory_io_utilization", "sm_activity", "tensor_activity", "dram_activity", "kv_cache_usage":

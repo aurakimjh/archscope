@@ -1,0 +1,675 @@
+{
+  "task": "T-640",
+  "date": "2026-11-12",
+  "base_commit": "a740ed0048c568091ebe0d11379c01c89bcf7f83",
+  "shared_asset_commit": "5c543abb24ea0edacc8db3e027a676848f576272",
+  "status": "REVIEW; implemented and locally verified; independent/native acceptance separate",
+  "scope": "Body-free LLMTrace 1.0.0 / existing trace_import payload 0.3.0, explicit gateway attempts and lifecycle; T-639 R16 remediation",
+  "implementation": [
+    "Limited trace.llm-json (llm-trace), neutral.v1 / pinned GenAI 1.37.0 / explicit OpenInference core subset; actual OTel Python SDK 1.38.0 carrier",
+    "Separate parent/link, duplicate/missing/cyclic graphs, observed child-union elapsed time; no CPU self or causal critical path",
+    "Explicit request namespace/logical/attempt and client-server token authority; no proximity matching or cross-attempt sum; iterative previous-attempt cycle audit",
+    "Exact strings, nullable conflicting/equal/missing token boundaries, lifecycle populations/events, shared resource/scope identity",
+    "No raw names/content/tool arguments/status message/arbitrary attribute fields; normalize before case copies/indexing; no retroactive archive scrub",
+    "Bounded opaque owned CLI/Wails queries, contexts inventory <=20, paged all contexts, separate load/query cancellation scopes on handle change",
+    "Existing common envelope/providers/timeline/generic exports/visual-table/cases reused; legacy trace 0.2.0 saved reader retained; raw facade <=64 MiB and decoded semantic recheck",
+    "Inference model 1.1.0 / result 0.2.0 with original range metrics immutable, explicit declarations and preserved 1.0.0 / 0.1.0 readers"
+  ],
+  "checks": {
+    "git_pull": "Root and shared assets git pull --ff-only at intake and again before finalization; up to date. Independent R16 review commit a740ed0 incorporated.",
+    "full_host_race": {
+      "command": "go test -race -count=1 -json ./...",
+      "packages_passed": 111,
+      "tests_passed": 1575,
+      "scope": "Full host suite before final context-bounding/legacy guard/metadata disclosure additions; final focused, projection and full trace race logs cover those changes",
+      "receipt": "race-summary.json"
+    },
+    "final_focused_race": {
+      "command": "go test -race -count=1 -run 'TestT640|TestLLM|TestR16' ./internal/analysis ./cmd/archscope-app ./internal/analyzers/traceimport ./internal/analyzers/inference ./internal/parsers/inference ./internal/cases",
+      "exit_code": 0,
+      "receipt": "focused-race.txt"
+    },
+    "final_projection_race": {
+      "command": "go test -race -count=1 -run 'TestR16DeclaredWorkspace|TestT640' ./cmd/archscope-app ./internal/analysis",
+      "exit_code": 0,
+      "receipt": "projection-race.txt"
+    },
+    "final_trace_race": {
+      "command": "go test -race -count=1 ./internal/analyzers/traceimport",
+      "exit_code": 0,
+      "receipt": "trace-race.txt"
+    },
+    "vet": {
+      "targets": [
+        "host",
+        "windows/amd64 CGO_ENABLED=0",
+        "windows/386 CGO_ENABLED=0"
+      ],
+      "exit_codes": [
+        0,
+        0,
+        0
+      ]
+    },
+    "frontend": {
+      "binding_generation": "wails3 generate bindings -ts, 184 methods",
+      "production_build": "wails3 task darwin:package runs tsc/vite; exit 0",
+      "state_suite": "npm run test:state; exit 0",
+      "receipts": [
+        "bindings.txt",
+        "package.txt",
+        "frontend-state.txt"
+      ]
+    },
+    "package": {
+      "mac": "wails3 task darwin:package; codesign --verify --deep --strict; exit 0",
+      "windows": [
+        "GOOS=windows GOARCH=amd64 CGO_ENABLED=0 node build/windows/build.mjs -tags production -trimpath -buildvcs=false -ldflags=-w,-s,-H,windowsgui",
+        "GOOS=windows GOARCH=386 CGO_ENABLED=0 node build/windows/build.mjs -tags production -trimpath -buildvcs=false -ldflags=-w,-s,-H,windowsgui"
+      ],
+      "windows_exit_codes": [
+        0,
+        0
+      ],
+      "artifact_fingerprints": {
+        "engine": {
+          "sha256": "79985756dd2a4289abbb64909b7e97ddb8a66814441bcc745f99b98feee540da",
+          "bytes": 33195730
+        },
+        "linux": {
+          "sha256": "c6e32f97ca07b552047037eccea89ca79b383a8578b9deb12a0fefcd562f742a",
+          "bytes": 34414533
+        },
+        "amd64.exe": {
+          "sha256": "14c1c2cd14902fb7cd6186a15f1bf22390d2cf172c52107fc22dbfa4849685fa",
+          "bytes": 37012480
+        },
+        "386.exe": {
+          "sha256": "0678f2e0f535a695f33b800c825d23dcf270feffcc8fcb04827f4f5a6da0aee9",
+          "bytes": 35698688
+        },
+        "mac_app_executable": {
+          "sha256": "bf6e78f3d4bd4a483e82ccf4bdd8ad77633d7aded79944cd00da9533242580d2",
+          "bytes": 33619904
+        }
+      }
+    },
+    "cli": {
+      "commands": 20,
+      "assertions": [
+        "LLM inspect normalize import all query kinds and generic exports",
+        "body marker excluded",
+        "raw legacy path refused",
+        "range originals unchanged",
+        "missing event IDs generated",
+        "declared counter rate 10 and original query retained",
+        "declared metric view original selection and declaration retained",
+        "series selection keeps all predecessor/reset points"
+      ],
+      "receipt": "cli-receipts.json"
+    },
+    "browser": {
+      "receipt": "browser.json",
+      "reproduction": "browser-harness.json",
+      "scope": "Actual final React components, actual CLI DTOs, mock Wails IPC only; final parent-handle transition and cancellation verified",
+      "screenshots": [
+        "browser-spans.png",
+        "browser-contexts.png"
+      ]
+    },
+    "scale": {
+      "shape": "Synthetic deep chain, not all stack/context shapes or guaranteed admission",
+      "spans": [
+        10000,
+        20000
+      ],
+      "model_bytes": [
+        9109710,
+        18229710
+      ],
+      "result_bytes": [
+        17622749,
+        35252749
+      ],
+      "saved_result_validation": true
+    },
+    "offline": {
+      "bundle": "scripts/build-offline-assets.py --check; eight standalone canonical importers",
+      "syscall_observer": "Linux clean install, no sibling checkout, Docker network=none, strace -f -e trace=network",
+      "successful_operations": 28,
+      "expected_jfr_refusal": 1,
+      "inet_syscalls": 0,
+      "positive_control_inet_syscalls": 2,
+      "receipt": "network-summary.json",
+      "desktop_only_guard": "node scripts/verify-desktop-only.mjs --check-server-build; exit 0"
+    },
+    "final_parser_race": {
+      "command": "go test -race -count=1 ./internal/parsers/inference",
+      "exit_code": 0,
+      "receipt": "parser-race.txt",
+      "additional_assertion": "Unknown future binding versions are rejected before a known legacy-to-current declaration upgrade"
+    }
+  },
+  "review_remediation": {
+    "original": "docs/review/done/2026-11-12_claude-code_T-639_implementation-review.ko.md",
+    "original_sha256": "04e67855e472aeb0ba10d51e45077d22750ed6a41367e16e8003518456a2041c",
+    "verdict_preserved": "CONDITIONAL, P2 2 / P3 4",
+    "closure": "T-639 DONE under explicit after-R16-01/02-remediation permission; no self-awarded independent PASS",
+    "findings": {
+      "R16-01": "Explicit declarations on untyped range only; unchanged original identities, declared Workspace/CLI view with original selection and declaration metadata, no rate without known start",
+      "R16-02": "Missing event ID generated at input normalization only; supplied wrong IDs and invalid saved IDs rejected; writable fixture/example",
+      "R16-03": "[N/A], trailing blanks, physical line and actual-row timestamp arity, bounded field/value errors",
+      "R16-04": "retained_series_ids sidecar/options/CLI preserving full predecessor/reset context; input splitting guidance",
+      "R16-05": "Unique 25-frame ~4012-sample 16 MiB worst case documented separately from repeated 20k/24k",
+      "R16-06": "Equal multi-token first/last null/status in new 0.2.0, legacy 0.1.0 semantics and bytes retained"
+    },
+    "legacy_fixture": {
+      "sha256": "1b620b762f96ffa256129ae300d06cf14fd68877cf14c4e364683aebf93e6479",
+      "bytes": 98623
+    }
+  },
+  "gates_preserved": [
+    "Q01 actual Langfuse/LangSmith exports and producer/version",
+    "Q02 selected Apple inputs",
+    "Q03 version-specific vLLM support",
+    "Q04 GenAI metric aliases; trace subset does not unlock them",
+    "T-640 independent review",
+    "Native Wails/Windows/GPU/vLLM/clipboard/Office acceptance"
+  ],
+  "unexecuted": [
+    "No native Windows or Wails/WebView task-specific runtime observation",
+    "No actual Langfuse/LangSmith JSON export or OpenInference library-wide qualification",
+    "No live SDK injection, endpoint access, GPU/vLLM runtime or causal proof",
+    "No arbitrary unknown-vendor privacy detection or retrospective raw-archive sanitization"
+  ],
+  "warnings": [
+    "Host C objects report macOS 27.2 against deployment target 11.0; package/code-sign checks passed, minimum OS runtime is not proven",
+    "Browser warning identifies preview mode; IPC mocked",
+    "Record count does not guarantee admission before model/result byte limits; split source traces",
+    "Archived text check logs normalize trailing blank lines; CLI stdout digests remain hashes of the exact captured output."
+  ],
+  "preservation": {
+    "unstaged": [
+      "docs/en/SYSTEM_HTTP_CAPTURE.md",
+      "docs/ko/SYSTEM_HTTP_CAPTURE.md",
+      "10-line First implementation cycle block in work_status.md"
+    ],
+    "untracked": [
+      "scripts/verify-http-desktop.mjs"
+    ],
+    "local_only_AGENTS": "excluded",
+    "tracker_counts": {
+      "DONE": 222,
+      "TODO": 2,
+      "PENDING": 4,
+      "REVIEW": 4,
+      "IN_PROGRESS": 0,
+      "total": 232
+    },
+    "next": "T-641 then T-642"
+  },
+  "source_index_files": {
+    ".gitattributes": {
+      "sha256": "b31c2bf67cf9f490886be8b0b5903a6784b5b84c73bf8f175f69880f181e4b88",
+      "bytes": 1991
+    },
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/engineservice.ts": {
+      "sha256": "b59e47b65fb5383e4164dc1d0b1dada7b28b08efc4ba89931330d88ad0a042bf",
+      "bytes": 34065
+    },
+    "apps/engine-native/cmd/archscope-app/frontend/src/bridge/inferenceEvidence.ts": {
+      "sha256": "d4a5f2ebf02b1a1614f3bebbbe9de4e5ca3b42cd1f895d65e220528c84c7c936",
+      "bytes": 2333
+    },
+    "apps/engine-native/cmd/archscope-app/frontend/src/bridge/llmTrace.ts": {
+      "sha256": "f45f108eff739f30076455797a5973dfb5ddb99018a22ba0af3c06f5a0b24899",
+      "bytes": 1556
+    },
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/EvidenceResultPanel.tsx": {
+      "sha256": "1b223404f82a3b98b3229ae83f40248c996489f0395796ff97f271c7baa126b7",
+      "bytes": 25820
+    },
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/InferenceEvidence.tsx": {
+      "sha256": "201df5ab07a8743bca35457adabdb57931c9424cbdfc96a83bf275abbf82e5f7",
+      "bytes": 12203
+    },
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/LLMTraceEvidence.tsx": {
+      "sha256": "da25515e81151675f0acefd5f60a135c6617003b7d0b2dc30c4c59d3245af2c8",
+      "bytes": 10252
+    },
+    "apps/engine-native/cmd/archscope-app/inferencesourceservice_test.go": {
+      "sha256": "13b4c58771bfd462418ea58d2ed120e336d230914b00005cb5124593a61f1f0f",
+      "bytes": 6089
+    },
+    "apps/engine-native/cmd/archscope-app/llmtraceservice.go": {
+      "sha256": "2c3a83fd532abf27866b951328f305545de8ac6adbd63b00eccda9bd4ed0b846",
+      "bytes": 2034
+    },
+    "apps/engine-native/cmd/archscope-app/llmtraceservice_test.go": {
+      "sha256": "00418751fb968de903285e33420fa71b7443bf3623fc8218258b450f656d50bf",
+      "bytes": 3019
+    },
+    "apps/engine-native/cmd/archscope-engine/cmd_inference.go": {
+      "sha256": "619fe3b835552a2dc8a4d4db1ded8ba5498307e72c06728d7c661bd43b323e8e",
+      "bytes": 5359
+    },
+    "apps/engine-native/cmd/archscope-engine/cmd_llm_trace.go": {
+      "sha256": "524d916fa74690bbcbc73b284203feac3c0a40af561797f5736939ea48b718c5",
+      "bytes": 3106
+    },
+    "apps/engine-native/cmd/archscope-engine/cmd_trace.go": {
+      "sha256": "f6f6ffb3ab5c4fbfb8e60d7931e03f678ab52e0adcbb9cd04e3348f4bdd9f53e",
+      "bytes": 1594
+    },
+    "apps/engine-native/internal/analysis/inference_evidence.go": {
+      "sha256": "d9e9d9e9373ebf97ff608178d1606c7ed4b8be953388341921394c3eb08cc83c",
+      "bytes": 4007
+    },
+    "apps/engine-native/internal/analysis/llm_trace.go": {
+      "sha256": "e81f4684300b1adb69ab61e4eff6b5168658e345a3f85d88432ec827fa960adf",
+      "bytes": 3079
+    },
+    "apps/engine-native/internal/analysis/llm_trace_test.go": {
+      "sha256": "4e6883356bbf93e3fddf609943e23c43648b9fe4101797ea8eefacd0c7df58bb",
+      "bytes": 2234
+    },
+    "apps/engine-native/internal/analyzers/inference/analyzer.go": {
+      "sha256": "7794a1f5a5c9a40260e8c77133b73f350af606c5b78ab920532fff0e34d1ee60",
+      "bytes": 13959
+    },
+    "apps/engine-native/internal/analyzers/inference/legacy_request_test.go": {
+      "sha256": "31a90af5cba27457837686e3353e7d800e699cc392f9cf10704faeeef1a07e71",
+      "bytes": 553
+    },
+    "apps/engine-native/internal/analyzers/inference/review_r16_test.go": {
+      "sha256": "66d3c9576baddd08d2025429115e074861d3c5775a0a27e2b71a25fdf71fc29b",
+      "bytes": 4692
+    },
+    "apps/engine-native/internal/analyzers/inference/testdata/legacy-0.1.0.json": {
+      "sha256": "1b620b762f96ffa256129ae300d06cf14fd68877cf14c4e364683aebf93e6479",
+      "bytes": 98623
+    },
+    "apps/engine-native/internal/analyzers/traceimport/analyzer.go": {
+      "sha256": "4716292105f7596adce6d2f46507435b93a75732931bb25bbe39daeca0aa2aac",
+      "bytes": 32363
+    },
+    "apps/engine-native/internal/analyzers/traceimport/llm.go": {
+      "sha256": "8760bcdc58906726fdeda5e69b3056a932e61135dc0f482b80240599816952ba",
+      "bytes": 20460
+    },
+    "apps/engine-native/internal/analyzers/traceimport/llm_query.go": {
+      "sha256": "f97bd3e8dbc997c3f56135538f13e57af670c490d436fe5d52b51db8b7f2747b",
+      "bytes": 4062
+    },
+    "apps/engine-native/internal/analyzers/traceimport/llm_test.go": {
+      "sha256": "df53f811e53d63c2db6b8a9d76643bc41505d1e5e0898cb5ae46e092de4cf117",
+      "bytes": 8180
+    },
+    "apps/engine-native/internal/cases/edit.go": {
+      "sha256": "b6a446273e12da762b20a887e1c97eeaa1e0315bc65c775875259792390ade97",
+      "bytes": 16413
+    },
+    "apps/engine-native/internal/cases/llm_test.go": {
+      "sha256": "de3030440e37422c4f8b5a7165e6400fa11c76bc22d9ba8348876e3726e2df4f",
+      "bytes": 1294
+    },
+    "apps/engine-native/internal/cases/source_pages.go": {
+      "sha256": "c726fa8e36ad485c0e86016aef5b6ba7805789d5a88f1774342bd7b9cfdef660",
+      "bytes": 6433
+    },
+    "apps/engine-native/internal/catalog/builtin.go": {
+      "sha256": "a2d1be19ec078efbd15b7178ca1881dc1069cf77bafaae05c9c942e7deca8f56",
+      "bytes": 15693
+    },
+    "apps/engine-native/internal/catalog/contracts/inference-evidence-README.md": {
+      "sha256": "82f40ea1008faa17250b8a058cccb31236b1cdc120bd12ce23fc2a18dd9f7414",
+      "bytes": 2746
+    },
+    "apps/engine-native/internal/catalog/contracts/inference-evidence-r16-bindings-user-input.json": {
+      "sha256": "1ed22ed28251bcb20767844c501ca921a53dc1ab6b5730960394f236c7cf8f2c",
+      "bytes": 9535
+    },
+    "apps/engine-native/internal/catalog/contracts/inference-evidence-r16-declared-set.json": {
+      "sha256": "fd8f514eaeb647f87d3b29f6fd05a7c9f8b119464dd2942864b7d9248862785b",
+      "bytes": 15685
+    },
+    "apps/engine-native/internal/catalog/contracts/inference-evidence-r16-metric-model.json": {
+      "sha256": "a302de27a64eaae772bdba14eced89ba49aa3bc275b46cb39bbd04ff5bf6ce7c",
+      "bytes": 4704
+    },
+    "apps/engine-native/internal/catalog/contracts/inference-evidence-r16-prometheus-query.json": {
+      "sha256": "e65592a30c6ad1dffc566a563d5364ef7275d199ed690e01abb4c9f14775df31",
+      "bytes": 100
+    },
+    "apps/engine-native/internal/catalog/contracts/inference-evidence-r16-prometheus-range.json": {
+      "sha256": "c679d66982a6e68f522386f9c2790414d442844d224b68760747d453221c0a17",
+      "bytes": 674
+    },
+    "apps/engine-native/internal/catalog/contracts/inference-evidence-set.manifest.json": {
+      "sha256": "55c53abe9bd4cfed2820d6399ac3a15872d66819f5cff266dc6d6b28d622b6ac",
+      "bytes": 2612
+    },
+    "apps/engine-native/internal/catalog/contracts/inference-evidence-set.schema.json": {
+      "sha256": "d5401febf0e46afe38b6000fdf2c9feaab0a49472155ce4b422325bcb88ac078",
+      "bytes": 2615
+    },
+    "apps/engine-native/internal/catalog/contracts/llm-trace-LICENSE.txt": {
+      "sha256": "d5a2e4b4adabc470a0046f474f2269f944c0e758c0a1099eb1310e6b783d0d47",
+      "bytes": 156
+    },
+    "apps/engine-native/internal/catalog/contracts/llm-trace-README.md": {
+      "sha256": "15c8c769b016fb58b49ac9d6a14cb73279486d183616e2e5f56297ffbae52094",
+      "bytes": 2604
+    },
+    "apps/engine-native/internal/catalog/contracts/llm-trace-edge-cases.otlp.json": {
+      "sha256": "3a9e5a2afd6142b30d6a401ad01f45a0dbac2a9e91d9bf53dad6e6c4b38a0aeb",
+      "bytes": 18673
+    },
+    "apps/engine-native/internal/catalog/contracts/llm-trace-edge-set.json": {
+      "sha256": "8712c3ece2c25c1abf6e0286230fae555d8e911a22a3302ed737414b1385b33e",
+      "bytes": 14737
+    },
+    "apps/engine-native/internal/catalog/contracts/llm-trace-genai-options.json": {
+      "sha256": "8e78751fa42dfe092f14adc80e012232358e18009bcdc1fac04651a42326df4b",
+      "bytes": 189
+    },
+    "apps/engine-native/internal/catalog/contracts/llm-trace-genai-set.json": {
+      "sha256": "a5cbf2783509842df513402a5cc330f080a0117440f4c0c4561b945de71bd525",
+      "bytes": 2314
+    },
+    "apps/engine-native/internal/catalog/contracts/llm-trace-genai-subset.otlp.json": {
+      "sha256": "6742fe4d2f966d82c8dc7b9f55d8473f9369a4b20b7a6fb4741c8e8d93cf08ea",
+      "bytes": 2122
+    },
+    "apps/engine-native/internal/catalog/contracts/llm-trace-generate_sdk.py": {
+      "sha256": "5b3ba874e04bbd7c88ebbba1f66a9732123ddcbf7d64b434d5cc364fb8566bbc",
+      "bytes": 4356
+    },
+    "apps/engine-native/internal/catalog/contracts/llm-trace-neutral-options.json": {
+      "sha256": "43830d7098370349c191e4b3fdad7da4ffc4b3ae0ea5c366e8ef750c8a384831",
+      "bytes": 167
+    },
+    "apps/engine-native/internal/catalog/contracts/llm-trace-openinference-options.json": {
+      "sha256": "61076237999e1246feee793756c251cf6c5df1cf9d89e6ba1f9eec9b92a5ed7d",
+      "bytes": 200
+    },
+    "apps/engine-native/internal/catalog/contracts/llm-trace-openinference-set.json": {
+      "sha256": "3cb98429422bd28bbf2420206ed84513d39a588c87425eb4fda8ecbbbeca339c",
+      "bytes": 2294
+    },
+    "apps/engine-native/internal/catalog/contracts/llm-trace-openinference-subset.otlp.json": {
+      "sha256": "04e7ff8dbdcc3b2e15d8a865fe5c59573641b0973666c3a2a1dffc69ddb74133",
+      "bytes": 1565
+    },
+    "apps/engine-native/internal/catalog/contracts/llm-trace-sdk-python-1.38.0.otlp.json": {
+      "sha256": "8d5e70205f6848d6ee3c00ad3ea071f0602be72c06b41861c4a2cfb5510ce67f",
+      "bytes": 12237
+    },
+    "apps/engine-native/internal/catalog/contracts/llm-trace-semantic-profiles.json": {
+      "sha256": "8b562ab74568a7adffe949c68ce75bc4910056689fadae430fb88452753cebc3",
+      "bytes": 5101
+    },
+    "apps/engine-native/internal/catalog/contracts/llm-trace-set.json": {
+      "sha256": "bb5f48193a7915418d8f1c2c6fdd3a71f1ef27a66e271c1e57031169c3020965",
+      "bytes": 10178
+    },
+    "apps/engine-native/internal/catalog/contracts/llm-trace-set.manifest.json": {
+      "sha256": "f42aa26ba7ff92d478d189c5636e04a4e5e9464bdc61942e64931921faedbdc9",
+      "bytes": 2459
+    },
+    "apps/engine-native/internal/catalog/contracts/llm-trace-set.schema.json": {
+      "sha256": "28e95925c62b3f61fa97517984bd24f56842466300f37d8fe7570c2025bb6f2a",
+      "bytes": 8322
+    },
+    "apps/engine-native/internal/catalog/contracts_test.go": {
+      "sha256": "a75a4d0623e7741f971ca484574a640f20efc7b18a10dd33bbbdff5707739da4",
+      "bytes": 1579
+    },
+    "apps/engine-native/internal/catalog/llm_trace.go": {
+      "sha256": "614051d5c89df370996aae56e82e761e88ec247e35510aa59c1b0da16fe12e87",
+      "bytes": 9237
+    },
+    "apps/engine-native/internal/distribution/assets/docs/en/INFERENCE_EVIDENCE.md": {
+      "sha256": "9a60dd77a4d7828e2126bd5863c63484723ec208143385e37375f39d043d146c",
+      "bytes": 12622
+    },
+    "apps/engine-native/internal/distribution/assets/docs/en/LLM_TRACE_EVIDENCE.md": {
+      "sha256": "d75a9e5c29a0bb02dc97c50ae85eacc4a11e90a290b55b28cbc7c1cbbe4eafef",
+      "bytes": 8265
+    },
+    "apps/engine-native/internal/distribution/assets/docs/en/SYSTEM_EVIDENCE.md": {
+      "sha256": "9c708b8cf14960d70235331f0ccdd683f03ae81a4e8280846fd4753dae29a4ca",
+      "bytes": 10677
+    },
+    "apps/engine-native/internal/distribution/assets/docs/ko/INFERENCE_EVIDENCE.md": {
+      "sha256": "5b95f80c43b292bfae04748abcb1e576db98cdee4c6210f93619c74f51841b8e",
+      "bytes": 12080
+    },
+    "apps/engine-native/internal/distribution/assets/docs/ko/LLM_TRACE_EVIDENCE.md": {
+      "sha256": "4958bce77765015a8384d9f8f096428e6a2e4caee1dd6f3fa532bb7aac75ed2a",
+      "bytes": 8010
+    },
+    "apps/engine-native/internal/distribution/assets/docs/ko/SYSTEM_EVIDENCE.md": {
+      "sha256": "875583a1260727867bedd55b268307d4eb810ec885df0d678f880fb6a1e06985",
+      "bytes": 11050
+    },
+    "apps/engine-native/internal/distribution/assets/fixtures.sha256": {
+      "sha256": "654cf8f5edfc22b8f9b0d6f50ef0c16b629e24932c1ed924f16686bb6dd51c65",
+      "bytes": 65
+    },
+    "apps/engine-native/internal/distribution/assets/fixtures.zip": {
+      "sha256": "e4fb09c1c460b467ef19279f2399c8ab6fd07c848a0b7b9d3ccfc5a5cc11dd8d",
+      "bytes": 428044
+    },
+    "apps/engine-native/internal/distribution/bundle_test.go": {
+      "sha256": "9edc6ee92779297918501a77db63ff3b72bcaee2253581e6c935e146ec44cd3b",
+      "bytes": 2974
+    },
+    "apps/engine-native/internal/inferencemodel/declaration.go": {
+      "sha256": "f2edf2b0aa0bc60c97d71b2afd943ae63825bfd59f38035a25ff1a802f5936c1",
+      "bytes": 4408
+    },
+    "apps/engine-native/internal/inferencemodel/model.go": {
+      "sha256": "65e6daad9e36a0d7534758f1f67e978567fcd3d9f6aae50200f2d6deeefc1f53",
+      "bytes": 19805
+    },
+    "apps/engine-native/internal/llmmodel/model.go": {
+      "sha256": "b6027c89317e659fe9d68877ee77824ceb038cbe7d31a4b1a89a993792b23937",
+      "bytes": 10233
+    },
+    "apps/engine-native/internal/parsers/inference/source.go": {
+      "sha256": "b5c91aef7a7d48966d4a48d486ae3d7db2c839d0b60cb6816b4f26fc2e3d847a",
+      "bytes": 11076
+    },
+    "apps/engine-native/internal/parsers/inference/source_test.go": {
+      "sha256": "5813aad5a278afff05270a4493bfdf830e0b05781783f49c8fbbc59e0ecdc7b0",
+      "bytes": 5145
+    },
+    "apps/engine-native/internal/parsers/inference/testdata/README.md": {
+      "sha256": "82f40ea1008faa17250b8a058cccb31236b1cdc120bd12ce23fc2a18dd9f7414",
+      "bytes": 2746
+    },
+    "apps/engine-native/internal/parsers/inference/testdata/inference-evidence-set.schema.json": {
+      "sha256": "d5401febf0e46afe38b6000fdf2c9feaab0a49472155ce4b422325bcb88ac078",
+      "bytes": 2615
+    },
+    "apps/engine-native/internal/parsers/inference/testdata/manifest.json": {
+      "sha256": "55c53abe9bd4cfed2820d6399ac3a15872d66819f5cff266dc6d6b28d622b6ac",
+      "bytes": 2612
+    },
+    "apps/engine-native/internal/parsers/inference/testdata/r16-bindings-user-input.json": {
+      "sha256": "1ed22ed28251bcb20767844c501ca921a53dc1ab6b5730960394f236c7cf8f2c",
+      "bytes": 9535
+    },
+    "apps/engine-native/internal/parsers/inference/testdata/r16-declared-set.json": {
+      "sha256": "fd8f514eaeb647f87d3b29f6fd05a7c9f8b119464dd2942864b7d9248862785b",
+      "bytes": 15685
+    },
+    "apps/engine-native/internal/parsers/inference/testdata/r16-metric-model.json": {
+      "sha256": "a302de27a64eaae772bdba14eced89ba49aa3bc275b46cb39bbd04ff5bf6ce7c",
+      "bytes": 4704
+    },
+    "apps/engine-native/internal/parsers/inference/testdata/r16-prometheus-query.json": {
+      "sha256": "e65592a30c6ad1dffc566a563d5364ef7275d199ed690e01abb4c9f14775df31",
+      "bytes": 100
+    },
+    "apps/engine-native/internal/parsers/inference/testdata/r16-prometheus-range.json": {
+      "sha256": "c679d66982a6e68f522386f9c2790414d442844d224b68760747d453221c0a17",
+      "bytes": 674
+    },
+    "apps/engine-native/internal/parsers/traceimport/contracts/llm-semantic-profiles.json": {
+      "sha256": "8b562ab74568a7adffe949c68ce75bc4910056689fadae430fb88452753cebc3",
+      "bytes": 5101
+    },
+    "apps/engine-native/internal/parsers/traceimport/llm.go": {
+      "sha256": "805e24c660d5347b8af21cbc5991a121d2a25542a244e0fd70bd2d929656408e",
+      "bytes": 14219
+    },
+    "apps/engine-native/internal/parsers/traceimport/parser.go": {
+      "sha256": "9f18abf128b187c65cc1c144aa12f48e0207fbba63456e144587ccd135f06af0",
+      "bytes": 41561
+    },
+    "apps/engine-native/scripts/generate-inference-r16-fixtures.go": {
+      "sha256": "25c7787ba8b14da499878c82143dbce29fdbdb1c9953b10959f106aa8a1abef2",
+      "bytes": 2580
+    },
+    "apps/engine-native/scripts/generate-llm-fixtures.go": {
+      "sha256": "ddb9b1d608aa6b03ce9afb337299c3a819e3a2cbe236f21811ac7e4df3bc6933",
+      "bytes": 1111
+    },
+    "docs/en/DATA_MODEL.md": {
+      "sha256": "06dbe75cbdb4305bbfbc2d5867a1d16859a728294e4b51ae06acdf1acb879a20",
+      "bytes": 113572
+    },
+    "docs/en/IMPORTER_SUPPORT_MATRIX.md": {
+      "sha256": "271cde026071af074433439540213484fe178b0a413165ca3a9e8caecc51d5be",
+      "bytes": 13186
+    },
+    "docs/en/INFERENCE_EVIDENCE.md": {
+      "sha256": "9a60dd77a4d7828e2126bd5863c63484723ec208143385e37375f39d043d146c",
+      "bytes": 12622
+    },
+    "docs/en/LLM_TRACE_EVIDENCE.md": {
+      "sha256": "d75a9e5c29a0bb02dc97c50ae85eacc4a11e90a290b55b28cbc7c1cbbe4eafef",
+      "bytes": 8265
+    },
+    "docs/en/LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN.md": {
+      "sha256": "c45bdfe756d695dba51e3f9101cab2b94af50214202ed29b54e87eb804c4823f",
+      "bytes": 32740
+    },
+    "docs/en/PARSER_DESIGN.md": {
+      "sha256": "66c8d1614844d1d11e49d5f55b586a10a43dbc8d428a26a22445def89c0adb7a",
+      "bytes": 62904
+    },
+    "docs/en/SYSTEM_EVIDENCE.md": {
+      "sha256": "9c708b8cf14960d70235331f0ccdd683f03ae81a4e8280846fd4753dae29a4ca",
+      "bytes": 10677
+    },
+    "docs/ko/DATA_MODEL.md": {
+      "sha256": "a4eccfdbce16e647987c9d8da828ad7312ba66867161614347c59ee4760ef28f",
+      "bytes": 123723
+    },
+    "docs/ko/IMPORTER_SUPPORT_MATRIX.md": {
+      "sha256": "8193474c43184f5a52e489dcfa9ba9da1b88b06b85cc8b38c4ad884a116bf5e0",
+      "bytes": 13932
+    },
+    "docs/ko/INFERENCE_EVIDENCE.md": {
+      "sha256": "5b95f80c43b292bfae04748abcb1e576db98cdee4c6210f93619c74f51841b8e",
+      "bytes": 12080
+    },
+    "docs/ko/LLM_TRACE_EVIDENCE.md": {
+      "sha256": "4958bce77765015a8384d9f8f096428e6a2e4caee1dd6f3fa532bb7aac75ed2a",
+      "bytes": 8010
+    },
+    "docs/ko/LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN.md": {
+      "sha256": "37d0bc966474b99274f5d5cdedb19d37208c961790f5caee1df446a1ac08dbf7",
+      "bytes": 134666
+    },
+    "docs/ko/PARSER_DESIGN.md": {
+      "sha256": "810c61ab55e303397362218b372496716ee09be1141ae7492a38c54df885545e",
+      "bytes": 71277
+    },
+    "docs/ko/SYSTEM_EVIDENCE.md": {
+      "sha256": "875583a1260727867bedd55b268307d4eb810ec885df0d678f880fb6a1e06985",
+      "bytes": 11050
+    },
+    "docs/review/README.md": {
+      "sha256": "23e0204e0c0f99c6529fcbe741bc5a4b73efa0186e554ea66b5f048d331a99a0",
+      "bytes": 7224
+    },
+    "docs/review/done/2026-11-12_claude-code_T-639_implementation-review.ko.md": {
+      "sha256": "04e67855e472aeb0ba10d51e45077d22750ed6a41367e16e8003518456a2041c",
+      "bytes": 16233
+    },
+    "scripts/build-offline-assets.py": {
+      "sha256": "4632cc0b5a3fa6dd950a4b8cc9d08c0d534d2b0ac40b036196f73fbc9b5cebe9",
+      "bytes": 3808
+    },
+    "scripts/verify-offline-syscalls.py": {
+      "sha256": "54e740690fb6bcdb73d7277f2bf71d814f6c9177094f76ec3634c99348917470",
+      "bytes": 8772
+    },
+    "work_status.md": {
+      "sha256": "f71f85bfb7f33ddb744e7bf4a0450ec37b2441814eb9c2c6d40b284e9d790715",
+      "bytes": 473080
+    }
+  },
+  "evidence_files": {
+    "bindings.txt": {
+      "sha256": "e8f482aad29a62b824e467d228251d30d819cef1940982c112f70e0301567c48",
+      "bytes": 252
+    },
+    "browser-contexts.png": {
+      "sha256": "b833af8404ff3fef5f95192127063f47c836fbf5921c9f81500677d1e08e95fe",
+      "bytes": 375990
+    },
+    "browser-harness.json": {
+      "sha256": "97e0aeebb954124563305cdf809ba5a2c57c7b8e639937b18c48a4dc800062c0",
+      "bytes": 36938
+    },
+    "browser-spans.png": {
+      "sha256": "1f298abc7d90025bf25650bf364147db556b9cc8817c2b0b2a2c3574682fe00f",
+      "bytes": 475652
+    },
+    "browser.json": {
+      "sha256": "1f1ac78b6bca4036472fbe1402dff265baa48ac3567a6fb39dac6c25da17b0b2",
+      "bytes": 6346
+    },
+    "cli-receipts.json": {
+      "sha256": "e956a06ea814a761700a288be0e3845ced27fb9049a6c003a70f1ef90e870b51",
+      "bytes": 10192
+    },
+    "focused-race.txt": {
+      "sha256": "b5f35b5d986e1a116a354bc13766f05bb09265cc45c7191496c7694ffc307ebd",
+      "bytes": 3987
+    },
+    "frontend-state.txt": {
+      "sha256": "034a4df9c8ce36619d03893d56460260cae9c1ac5f88328b91fafe075d8d7bc6",
+      "bytes": 165
+    },
+    "network-summary.json": {
+      "sha256": "0fb3b43a87b93f4dd7b86d2106d48dc5b19e47cda38a290e49241acd66929354",
+      "bytes": 4430
+    },
+    "package.txt": {
+      "sha256": "eae79f06fec1f14e870ce7fd8c9e0d3bcbbe4f386193be93863d95b1645e357d",
+      "bytes": 8282
+    },
+    "parser-race.txt": {
+      "sha256": "e860d472a929c63735cb51da27a852ccf13cbc4d0efa7a68a34dc330c153ff17",
+      "bytes": 89
+    },
+    "projection-race.txt": {
+      "sha256": "2cfcd75b6c0f6a9e24591f394d0aba481c82706d751320c273c99a0408b67056",
+      "bytes": 3655
+    },
+    "race-summary.json": {
+      "sha256": "6fc80e8608fcfcc3395e81cd3a22fdf0317081105f6b598bf7de9e1d50bd9184",
+      "bytes": 16244
+    },
+    "trace-race.txt": {
+      "sha256": "904d73af17e643392068b4257259a8a4dbcdd3d266d974165e4ff954ddf7bb7b",
+      "bytes": 94
+    }
+  }
+}

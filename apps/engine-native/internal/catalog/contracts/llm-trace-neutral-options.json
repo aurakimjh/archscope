@@ -1,0 +1,7 @@
+{
+  "semantic_profile": "neutral.v1",
+  "trace_namespace": "synthetic-capture-a",
+  "producer": "OTel Python SDK",
+  "producer_version": "1.38.0",
+  "clock": "unix"
+}

@@ -3,6 +3,7 @@ package cases
 import (
 	"context"
 	"encoding/json"
+	traceparser "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/traceimport"
 	"path"
 	"path/filepath"
 	"reflect"
@@ -110,6 +111,9 @@ func (s *Store) Apply(ctx context.Context, edit Edit) (Manifest, error) {
 		}
 		if hash(body) != source.SHA256 {
 			return m, problem("CASE_SOURCE_CHANGED", "source changed during intake")
+		}
+		if traceparser.RequiresLLMNormalization(body) {
+			return m, problem("CASE_LLM_SANITIZED_SOURCE_REQUIRED", "normalize the LLM export with the structural privacy policy before case copy or text indexing")
 		}
 		if e = matchCapture(m, source); e != nil {
 			return m, e

@@ -1,0 +1,46 @@
+{
+  "status": "success",
+  "data": {
+    "resultType": "matrix",
+    "result": [
+      {
+        "metric": {
+          "__name__": "synthetic_output_tokens"
+        },
+        "values": [
+          [
+            1,
+            "100"
+          ],
+          [
+            2,
+            "110"
+          ],
+          [
+            3,
+            "3"
+          ]
+        ]
+      },
+      {
+        "metric": {
+          "__name__": "synthetic_queue"
+        },
+        "values": [
+          [
+            1,
+            "2"
+          ],
+          [
+            2,
+            "0"
+          ],
+          [
+            3,
+            "1"
+          ]
+        ]
+      }
+    ]
+  }
+}

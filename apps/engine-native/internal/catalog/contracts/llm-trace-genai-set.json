@@ -1,0 +1,73 @@
+{
+  "schema_version": "1.0.0",
+  "source": {
+    "sha256": "6742fe4d2f966d82c8dc7b9f55d8473f9369a4b20b7a6fb4741c8e8d93cf08ea",
+    "format": "otlp-json",
+    "producer": "synthetic semantic fixture",
+    "producer_version": "1.0.0",
+    "semantic_profile": "otel-genai.v1.37.0",
+    "trace_namespace": "synthetic-genai-capture",
+    "clock": "unix",
+    "privacy_policy": "llm-structure-only.1.0.0",
+    "omitted_field_count": "2"
+  },
+  "contexts": [
+    {
+      "id": "context-cadc86597d5d821467081c04f577694302dfaade657f07f061e157938becdc8f",
+      "service": "synthetic-app",
+      "instance": "",
+      "host_id": "",
+      "process_pid": "",
+      "container_id": "",
+      "pod_uid": "",
+      "scope_name": "synthetic-instrumentation",
+      "scope_version": "1.0.0",
+      "scope_schema_url": "https://opentelemetry.io/schemas/1.37.0",
+      "resource_schema_url": "https://example.invalid/resource/1",
+      "dropped_resource_attributes": "0",
+      "dropped_scope_attributes": "0"
+    }
+  ],
+  "spans": [
+    {
+      "id": "record-b220e375797bd7273404b64f0a216ad1d94797c6aa1db8b64f388003f8fa8f6d",
+      "source_position": "envelopes/0/resourceSpans/0/scopeSpans/0/spans/0",
+      "trace_id": "00000000000000000000000000000001",
+      "span_id": "000000000000000a",
+      "parent_span_id": "",
+      "context_id": "context-cadc86597d5d821467081c04f577694302dfaade657f07f061e157938becdc8f",
+      "kind": "CLIENT",
+      "role": "llm",
+      "boundary": "client",
+      "population": "unknown",
+      "operation": "chat",
+      "provider": "synthetic-provider",
+      "model": "synthetic-model",
+      "model_revision": "",
+      "tokenizer_revision": "",
+      "token_counting_method": "unknown",
+      "input_tokens": "9007199254740993",
+      "output_tokens": "1",
+      "start_ns": "1000",
+      "end_ns": "2000",
+      "first_token_ns": null,
+      "last_token_ns": null,
+      "status": "OK",
+      "outcome": "success",
+      "error_type": "",
+      "request_namespace": "",
+      "logical_request_id": "",
+      "attempt_id": "",
+      "previous_attempt_id": "",
+      "attempt_kind": "",
+      "route_id": "",
+      "token_authority": "none",
+      "flags": "0",
+      "dropped_attributes": "0",
+      "dropped_events": "0",
+      "dropped_links": "0"
+    }
+  ],
+  "links": [],
+  "events": []
+}

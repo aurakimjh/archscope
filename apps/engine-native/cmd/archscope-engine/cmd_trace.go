@@ -49,5 +49,6 @@ func init() {
 	importCmd.Flags().StringVar(&out, "out", "-", "output path; `-` for stdout")
 
 	group.AddCommand(importCmd)
+ group.AddCommand(llmTraceCommands()...)
 	rootCmd.AddCommand(group)
 }

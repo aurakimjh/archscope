@@ -1,0 +1,122 @@
+task: [darwin:common:go:mod:tidy] go mod tidy
+task: Task "darwin:common:generate:icons" is up to date
+task: [darwin:common:go:mod:tidy] go mod tidy
+task: [darwin:common:install:frontend:deps] npm install
+task: [generate:bindings (BUILD_FLAGS=)] wails3 generate bindings -clean=true -ts
+Wails v3.1.0 › Generate Bindings
+
+up to date, audited 69 packages in 331ms
+
+13 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+npm warn allow-scripts 1 package has install scripts not yet covered by allowScripts:
+npm warn allow-scripts   fsevents@2.3.3 (install: (install scripts present))
+npm warn allow-scripts
+npm warn allow-scripts Run `npm approve-scripts --allow-scripts-pending` to review, or `npm approve-scripts <pkg>` to allow.
+ INFO  Processed: 393 Packages, 3 Services, 184 Methods, 6 Enums, 163 Models, 13 Events in 430.616542ms.
+ INFO  Output directory: /Users/aura/workspace/archscope/apps/engine-native/cmd/archscope-app/frontend/bindings
+task: [build:frontend (DEV=)] npm run build -q
+
+> archscope-frontend@0.3.5 build
+> tsc && vite build --mode production
+
+vite v8.3.7 building client environment for production...
+transforming...
+✓ 2597 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                   0.60 kB │ gzip:   0.33 kB
+dist/assets/index-DieGNQF-.css                   56.16 kB │ gzip:  10.16 kB
+dist/assets/loader-circle-BVAzo21o.js             0.13 kB │ gzip:   0.15 kB
+dist/assets/square-CGxrLEWq.js                    0.13 kB │ gzip:   0.14 kB
+dist/assets/plus-bPn8iqut.js                      0.14 kB │ gzip:   0.14 kB
+dist/assets/x-CwR83Y-N.js                         0.14 kB │ gzip:   0.14 kB
+dist/assets/search-DnpA5KMQ.js                    0.16 kB │ gzip:   0.16 kB
+dist/assets/play-6okQIttT.js                      0.18 kB │ gzip:   0.17 kB
+dist/assets/download-ixpnK1Z1.js                  0.22 kB │ gzip:   0.18 kB
+dist/assets/formatters-CZZLyHNn.js                0.22 kB │ gzip:   0.13 kB
+dist/assets/dialogs-YJ4U0vl7.js                   0.23 kB │ gzip:   0.18 kB
+dist/assets/funnel-CJOEhXHB.js                    0.24 kB │ gzip:   0.20 kB
+dist/assets/triangle-alert-CmGT9tWd.js            0.25 kB │ gzip:   0.20 kB
+dist/assets/chartExport-CKxQRTal.js               0.30 kB │ gzip:   0.25 kB
+dist/assets/save-Bcn95IEg.js                      0.31 kB │ gzip:   0.22 kB
+dist/assets/trash-2-DLW_C5D4.js                   0.31 kB │ gzip:   0.20 kB
+dist/assets/clipboard-plus-Cko-ccqu.js            0.32 kB │ gzip:   0.23 kB
+dist/assets/git-compare-arrows-CwCUx8x0.js        0.36 kB │ gzip:   0.24 kB
+dist/assets/network-s2la0Rtu.js                   0.37 kB │ gzip:   0.23 kB
+dist/assets/file-text-BMorWVPj.js                 0.37 kB │ gzip:   0.24 kB
+dist/assets/earlyTaskEvents-CfHVQGWP.js           0.43 kB │ gzip:   0.24 kB
+dist/assets/visuals-BD7hsKKi.js                   0.59 kB │ gzip:   0.31 kB
+dist/assets/input-_avN5Ivq.js                     0.65 kB │ gzip:   0.41 kB
+dist/assets/MetricCard-D4vMielX.js                0.71 kB │ gzip:   0.43 kB
+dist/assets/rolldown-runtime-XKyaHtl9.js          0.72 kB │ gzip:   0.42 kB
+dist/assets/defaults-CzAfjLIs.js                  0.83 kB │ gzip:   0.39 kB
+dist/assets/card-CWRV9uFF.js                      1.18 kB │ gzip:   0.45 kB
+dist/assets/useRecentFiles-Cjz_2a-K.js            1.32 kB │ gzip:   0.67 kB
+dist/assets/ChartPanel-D0QqwGhE.js                1.48 kB │ gzip:   0.77 kB
+dist/assets/visualRenderSurface-1FQWe000.js       1.78 kB │ gzip:   0.95 kB
+dist/assets/profilerContract-DcEOIIG8.js          2.22 kB │ gzip:   0.87 kB
+dist/assets/RecentFilesPanel-CRHNbg0M.js          2.42 kB │ gzip:   1.19 kB
+dist/assets/resultProviders-qO2QxzAc.js           2.46 kB │ gzip:   1.08 kB
+dist/assets/AnalyzerFeedback-pF5w2IoR.js          2.54 kB │ gzip:   0.91 kB
+dist/assets/CustomCategoriesEditor-DlJK6iqZ.js    3.17 kB │ gzip:   1.26 kB
+dist/assets/evidenceBoard-o3jZepw-.js             3.39 kB │ gzip:   1.56 kB
+dist/assets/analysisWorkspace-DnV7W2dn.js         3.56 kB │ gzip:   1.60 kB
+dist/assets/DiagnosticsPanel-fB8g_Ejh.js          3.88 kB │ gzip:   1.39 kB
+dist/assets/button-BGwSnq_C.js                    4.11 kB │ gzip:   1.84 kB
+dist/assets/ReportDiffPage-2GX8U9tb.js            4.70 kB │ gzip:   1.73 kB
+dist/assets/ExportCenterPage-BjB0N3e8.js          4.92 kB │ gzip:   1.88 kB
+dist/assets/WailsFileDock-DLip89Sl.js             5.20 kB │ gzip:   2.32 kB
+dist/assets/DiffPage-G8sRfFqG.js                  5.89 kB │ gzip:   2.00 kB
+dist/assets/aiInterpretation-DyW5O8Ci.js          5.93 kB │ gzip:   2.08 kB
+dist/assets/engine-B1R523-m.js                    6.18 kB │ gzip:   2.23 kB
+dist/assets/ChartStudioPage-CIsqEeVC.js           7.23 kB │ gzip:   2.63 kB
+dist/assets/react-BDur5s0O.js                     7.53 kB │ gzip:   2.88 kB
+dist/assets/archscope-app-DcUcPhou.js             7.87 kB │ gzip:   2.02 kB
+dist/assets/BrowserCpuProfilePage-KbPVmHpB.js     7.99 kB │ gzip:   2.76 kB
+dist/assets/CanvasFlameGraph-DmgmdHRh.js         10.76 kB │ gzip:   4.37 kB
+dist/assets/ServiceFlowPage-CN5IMtQ5.js          10.98 kB │ gzip:   2.85 kB
+dist/assets/IncidentTimelinePage-DzCvHLmP.js     12.05 kB │ gzip:   3.12 kB
+dist/assets/SettingsPage-Cfepdoa_.js             12.69 kB │ gzip:   4.65 kB
+dist/assets/SloGoldenSignalsPage-BrzkMVm4.js     15.01 kB │ gzip:   3.29 kB
+dist/assets/serviceFlow-CVL_EmeZ.js              15.58 kB │ gzip:   4.10 kB
+dist/assets/TraceImportPage-DMDcXHiL.js          15.66 kB │ gzip:   3.97 kB
+dist/assets/tabs-BguvW2jQ.js                     16.72 kB │ gzip:   6.33 kB
+dist/assets/LighthouseAuditPage-D2Go8ADU.js      17.05 kB │ gzip:   4.37 kB
+dist/assets/incidentTimeline-DYSVnju6.js         20.43 kB │ gzip:   6.37 kB
+dist/assets/AccessLogAnalyzerPage-CRCyV91d.js    20.72 kB │ gzip:   5.17 kB
+dist/assets/ExceptionAnalyzerPage-1OMKnYct.js    21.93 kB │ gzip:   5.51 kB
+dist/assets/JfrAnalyzerPage-CIJT2CTM.js          26.91 kB │ gzip:   5.73 kB
+dist/assets/EvidenceBoardPage-42KXXrLi.js        30.38 kB │ gzip:   9.87 kB
+dist/assets/GcLogAnalyzerPage-Dpv-QOpZ.js        31.69 kB │ gzip:   8.17 kB
+dist/assets/App-CCphwhmc.js                      32.37 kB │ gzip:  10.10 kB
+dist/assets/ThreadDumpAnalyzerPage-DnccWEjb.js   37.77 kB │ gzip:   6.76 kB
+dist/assets/sloGoldenSignals-DEnQ6fuT.js         37.84 kB │ gzip:   8.45 kB
+dist/assets/ProfilerAnalyzerPage-CzdKnngr.js     47.41 kB │ gzip:  12.30 kB
+dist/assets/dist-BW5hPFUk.js                     62.56 kB │ gzip:  16.15 kB
+dist/assets/HelpTip-C_W_LtTb.js                  69.53 kB │ gzip:  24.53 kB
+dist/assets/HttpCorrelationPanel-DEUdLb-y.js     72.48 kB │ gzip:  17.60 kB
+dist/assets/JenniferProfilePage-62aDyyaS.js     108.40 kB │ gzip:  26.98 kB
+dist/assets/AnalysisWorkspacePage-DbjOgf58.js   113.18 kB │ gzip:  31.12 kB
+dist/assets/HttpCapturePage-DJHyI6l4.js         122.22 kB │ gzip:  32.89 kB
+dist/assets/index-DT2k5kl6.js                   336.29 kB │ gzip: 105.75 kB
+dist/assets/echartsCore-CrBGIP-z.js             697.93 kB │ gzip: 235.21 kB
+
+✓ built in 238ms
+task: [darwin:build:native] go build -tags production -trimpath -buildvcs=false -ldflags="-w -s" -o "bin/archscope"
+task: [darwin:create:app:bundle] mkdir -p "bin/archscope.app/Contents/MacOS"
+task: [darwin:create:app:bundle] mkdir -p "bin/archscope.app/Contents/Resources"
+task: [darwin:create:app:bundle] cp build/darwin/icons.icns "bin/archscope.app/Contents/Resources"
+task: [darwin:create:app:bundle] if [ -f build/darwin/Assets.car ]; then
+  cp build/darwin/Assets.car "bin/archscope.app/Contents/Resources"
+fi
+
+task: [darwin:create:app:bundle] cp "bin/archscope" "bin/archscope.app/Contents/MacOS"
+task: [darwin:create:app:bundle] cp build/darwin/Info.plist "bin/archscope.app/Contents"
+task: [darwin:codesign:adhoc] codesign --force --deep --sign - "bin/archscope.app"
+bin/archscope.app: replacing existing signature
+
+Need documentation? Run: ]8;;https://v3.wails.io/getting-started/your-first-app/\wails3 docs]8;;\
+ ♥   If Wails is useful to you or your company, please consider sponsoring the project: ]8;;https://github.com/sponsors/leaanthony\wails3 sponsor]8;;\

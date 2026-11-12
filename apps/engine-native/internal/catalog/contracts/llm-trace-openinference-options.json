@@ -1,0 +1,7 @@
+{
+  "semantic_profile": "openinference.core.v1",
+  "trace_namespace": "synthetic-openinference-capture",
+  "producer": "synthetic semantic fixture",
+  "producer_version": "1.0.0",
+  "clock": "unix"
+}

@@ -1,0 +1,78 @@
+{
+  "resourceSpans": [
+    {
+      "schemaUrl": "https://example.invalid/resource/1",
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "synthetic-app"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "synthetic-instrumentation",
+            "version": "1.0.0"
+          },
+          "schemaUrl": "https://opentelemetry.io/schemas/1.37.0",
+          "spans": [
+            {
+              "traceId": "00000000000000000000000000000001",
+              "spanId": "000000000000000a",
+              "parentSpanId": "",
+              "name": "SYNTHETIC_BODY_MARKER",
+              "kind": 3,
+              "startTimeUnixNano": "1000",
+              "endTimeUnixNano": "2000",
+              "attributes": [
+                {
+                  "key": "gen_ai.operation.name",
+                  "value": {
+                    "stringValue": "chat"
+                  }
+                },
+                {
+                  "key": "gen_ai.provider.name",
+                  "value": {
+                    "stringValue": "synthetic-provider"
+                  }
+                },
+                {
+                  "key": "gen_ai.request.model",
+                  "value": {
+                    "stringValue": "synthetic-model"
+                  }
+                },
+                {
+                  "key": "gen_ai.usage.input_tokens",
+                  "value": {
+                    "intValue": "9007199254740993"
+                  }
+                },
+                {
+                  "key": "gen_ai.usage.output_tokens",
+                  "value": {
+                    "intValue": "1"
+                  }
+                },
+                {
+                  "key": "gen_ai.input.messages",
+                  "value": {
+                    "stringValue": "SYNTHETIC_BODY_MARKER"
+                  }
+                }
+              ],
+              "status": {
+                "code": 1
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

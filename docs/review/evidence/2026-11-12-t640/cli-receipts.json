@@ -1,0 +1,301 @@
+{
+  "scope": "actual local CLI with synthetic fixture and declared metadata; no native GPU/vendor export claim",
+  "commands": [
+    {
+      "args": [
+        "trace",
+        "llm-inspect",
+        "--in",
+        "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/llm-trace-sdk-python-1.38.0.otlp.json",
+        "--options-file",
+        "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/llm-trace-neutral-options.json"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "c5c2790dd1d22463afa6bdd2940ab09234669ec96f173f9e1108cc9800c7d476",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "trace",
+        "llm-normalize",
+        "--in",
+        "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/llm-trace-sdk-python-1.38.0.otlp.json",
+        "--options-file",
+        "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/llm-trace-neutral-options.json",
+        "--out",
+        "/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/archscope-t640-cli-6ba3mmym/llm-model.json"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "evidence",
+        "import",
+        "--in",
+        "/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/archscope-t640-cli-6ba3mmym/llm-model.json",
+        "--importer",
+        "trace.llm-json",
+        "--options",
+        "{}",
+        "--out",
+        "/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/archscope-t640-cli-6ba3mmym/llm-result.json"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "trace",
+        "llm-query",
+        "--in",
+        "/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/archscope-t640-cli-6ba3mmym/llm-result.json",
+        "--query",
+        "{\"kind\": \"spans\", \"limit\": 1}"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "f1149c50eda16f2270ef5a1a67c350a527998ff0e2c79cefbe9f752091673400",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "trace",
+        "llm-query",
+        "--in",
+        "/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/archscope-t640-cli-6ba3mmym/llm-result.json",
+        "--query",
+        "{\"kind\": \"records\", \"limit\": 1}"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "b557762bc84c0caad85380710e6fd59b1c74762e283351ded02c30a16b5cf524",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "trace",
+        "llm-query",
+        "--in",
+        "/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/archscope-t640-cli-6ba3mmym/llm-result.json",
+        "--query",
+        "{\"kind\": \"relations\", \"limit\": 1}"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "b23d68c191652036ce4388fad4454dfe804a71307f4fcf00f01ec5a32a0c9a79",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "trace",
+        "llm-query",
+        "--in",
+        "/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/archscope-t640-cli-6ba3mmym/llm-result.json",
+        "--query",
+        "{\"kind\": \"attempts\", \"limit\": 1}"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "07d0e2f1dc9bfdddb22a88d4b5069e866ee39ea049c30ba5bef9c9ec13bf6b75",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "trace",
+        "llm-query",
+        "--in",
+        "/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/archscope-t640-cli-6ba3mmym/llm-result.json",
+        "--query",
+        "{\"kind\": \"logical_requests\", \"limit\": 1}"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "7b250412f7608c11022d71abba5c1e8a442eae6b581516b9747bb177f27f96a8",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "trace",
+        "llm-query",
+        "--in",
+        "/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/archscope-t640-cli-6ba3mmym/llm-result.json",
+        "--query",
+        "{\"kind\": \"events\", \"limit\": 1}"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "21c8fbc28687d94ac2d9338581f07b6cb4328705ddb3f629e1237d3d74a54cbb",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "trace",
+        "llm-query",
+        "--in",
+        "/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/archscope-t640-cli-6ba3mmym/llm-result.json",
+        "--query",
+        "{\"kind\": \"contexts\", \"limit\": 1}"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "95782b0e61f86b92c743092ab078b3c2964c5d0cbe1ac147cae6eeedc2cc62e4",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "evidence",
+        "export",
+        "--in",
+        "/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/archscope-t640-cli-6ba3mmym/llm-result.json",
+        "--export-format",
+        "json",
+        "--out",
+        "/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/archscope-t640-cli-6ba3mmym/export.json"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "evidence",
+        "export",
+        "--in",
+        "/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/archscope-t640-cli-6ba3mmym/llm-result.json",
+        "--export-format",
+        "html",
+        "--out",
+        "/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/archscope-t640-cli-6ba3mmym/export.html"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "evidence",
+        "export",
+        "--in",
+        "/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/archscope-t640-cli-6ba3mmym/llm-result.json",
+        "--export-format",
+        "csv",
+        "--out",
+        "/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/archscope-t640-cli-6ba3mmym/export.csv"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "evidence",
+        "export",
+        "--in",
+        "/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/archscope-t640-cli-6ba3mmym/llm-result.json",
+        "--export-format",
+        "report-pack",
+        "--out",
+        "/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/archscope-t640-cli-6ba3mmym/export.zip"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "trace",
+        "import",
+        "--in",
+        "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/llm-trace-sdk-python-1.38.0.otlp.json"
+      ],
+      "exit_code": 1,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "archscope-engine: LLMTRACE_SEMANTIC_REQUIRED: normalize the body-free LLM export in Workspace or trace llm-normalize first\n"
+    },
+    {
+      "args": [
+        "inference",
+        "normalize-source",
+        "--in",
+        "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/inference-evidence-r16-metric-model.json",
+        "--format",
+        "metric-bindings-json",
+        "--bindings-file",
+        "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/inference-evidence-r16-bindings-user-input.json",
+        "--out",
+        "/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/archscope-t640-cli-6ba3mmym/declared-model.json"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "evidence",
+        "import",
+        "--in",
+        "/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/archscope-t640-cli-6ba3mmym/declared-model.json",
+        "--importer",
+        "inference.evidence-json",
+        "--options",
+        "{}",
+        "--out",
+        "/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/archscope-t640-cli-6ba3mmym/declared-result.json"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "inference",
+        "query-metric",
+        "--in",
+        "/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/archscope-t640-cli-6ba3mmym/declared-result.json",
+        "--signal-id",
+        "signal-synthetic_output_tokens",
+        "--limit",
+        "1"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "2788f98d8254b835d55f5733dbb6cc85596035f79dd5589c7b1f877113295bb7",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "inference",
+        "open-metrics",
+        "--in",
+        "/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/archscope-t640-cli-6ba3mmym/declared-result.json",
+        "--signal-id",
+        "signal-synthetic_output_tokens",
+        "--out",
+        "/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/archscope-t640-cli-6ba3mmym/declared-view.json"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "inference",
+        "normalize-source",
+        "--in",
+        "/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/archscope-t640-cli-6ba3mmym/declared-model.json",
+        "--retained-series-id",
+        "metric-513f0c6b438a811b3c7fad4c3d80afa4694017df79c5fb844d0c30c8d741fc78",
+        "--out",
+        "/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/archscope-t640-cli-6ba3mmym/retained-model.json"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": ""
+    }
+  ],
+  "assertions": [
+    "LLM inspect normalize import all query kinds and generic exports",
+    "body marker excluded",
+    "raw legacy path refused",
+    "range originals unchanged",
+    "missing event IDs generated",
+    "declared counter rate 10 and original query retained",
+    "declared metric view original selection and declaration retained",
+    "series selection keeps all predecessor/reset points"
+  ]
+}

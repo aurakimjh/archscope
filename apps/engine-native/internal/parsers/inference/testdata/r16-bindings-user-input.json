@@ -1,0 +1,354 @@
+{
+  "contexts": [
+    {
+      "id": "synthetic-context",
+      "engine": "vllm",
+      "engine_version": "unselected; synthetic 0.8.5-name example only",
+      "model": "synthetic-model",
+      "model_revision": "synthetic-revision-a",
+      "dtype": "bfloat16",
+      "quantization": "none",
+      "tokenizer_revision": "synthetic-tokenizer-a",
+      "tensor_parallel": "2",
+      "pipeline_parallel": "1",
+      "data_parallel": "1",
+      "context_length": "4096",
+      "max_sequences": "8",
+      "max_batched_tokens": "8192",
+      "replicas": "1",
+      "cache_configuration": "synthetic-declared-cache",
+      "speculative_configuration": "disabled",
+      "adapter_revision": "none",
+      "workload_id": "synthetic-workload-a",
+      "warmup": "separate"
+    }
+  ],
+  "entities": [
+    {
+      "id": "device-e9239623c181ef122a12663dae9ac88a8b33d4c11081679b7f32753774f41468",
+      "kind": "device",
+      "host_id": "synthetic-host",
+      "boot_id": "synthetic-boot",
+      "vendor": "nvidia",
+      "device_uuid": "GPU-synthetic-a",
+      "pci_bus_id": "00000000:01:00.0"
+    },
+    {
+      "id": "device-f5d83284b1500080eebbe055c00f50957682de0cafa9c43f4ae00802ca04c9a3",
+      "kind": "device",
+      "host_id": "synthetic-host",
+      "boot_id": "synthetic-boot",
+      "vendor": "nvidia",
+      "device_uuid": "GPU-synthetic-b",
+      "pci_bus_id": "00000000:02:00.0"
+    },
+    {
+      "id": "synthetic-mig",
+      "kind": "mig",
+      "host_id": "synthetic-host",
+      "boot_id": "synthetic-boot",
+      "vendor": "nvidia",
+      "device_uuid": "GPU-synthetic-a",
+      "mig_uuid": "MIG-synthetic-1"
+    },
+    {
+      "id": "synthetic-process",
+      "kind": "process",
+      "host_id": "synthetic-host",
+      "boot_id": "synthetic-boot",
+      "pid": "123",
+      "process_start_ns": "0",
+      "pid_namespace": "synthetic-ns",
+      "container_id": "synthetic-container",
+      "pod_uid": "synthetic-pod"
+    },
+    {
+      "id": "synthetic-worker-0",
+      "kind": "worker",
+      "host_id": "synthetic-host",
+      "boot_id": "synthetic-boot",
+      "rank": "0"
+    },
+    {
+      "id": "synthetic-worker-1",
+      "kind": "worker",
+      "host_id": "synthetic-host",
+      "boot_id": "synthetic-boot",
+      "rank": "1"
+    }
+  ],
+  "event_sources": [
+    {
+      "id": "mapping-source",
+      "sha256": "77308670df9eb60e34f3ac6b811fe1fa8dcc4d6f8492022ff4071f2d456d9235",
+      "name": "mapping-observations.jsonl",
+      "format": "explicit-mapping-jsonl.v1",
+      "producer": "synthetic collector",
+      "producer_version": "1.0.0"
+    },
+    {
+      "id": "runtime-source",
+      "sha256": "cb88786c7078960210982f62abf5e25f994be6468b8a487b72134f53e14ff975",
+      "name": "runtime-observations.jsonl",
+      "format": "explicit-runtime-jsonl.v1",
+      "producer": "synthetic collector",
+      "producer_version": "1.0.0"
+    }
+  ],
+  "events": [
+    {
+      "id": "",
+      "kind": "engine_start",
+      "entity_id": "synthetic-worker-0",
+      "context_id": "synthetic-context",
+      "time_ns": "1000000000",
+      "ref": {
+        "source_id": "runtime-source",
+        "position": "line:1"
+      }
+    },
+    {
+      "id": "",
+      "kind": "warmup_start",
+      "entity_id": "synthetic-worker-0",
+      "context_id": "synthetic-context",
+      "time_ns": "2000000000",
+      "ref": {
+        "source_id": "runtime-source",
+        "position": "line:2"
+      }
+    },
+    {
+      "id": "",
+      "kind": "warmup_end",
+      "entity_id": "synthetic-worker-0",
+      "context_id": "synthetic-context",
+      "time_ns": "3000000000",
+      "ref": {
+        "source_id": "runtime-source",
+        "position": "line:3"
+      }
+    },
+    {
+      "id": "",
+      "kind": "cuda_oom",
+      "entity_id": "synthetic-worker-0",
+      "context_id": "synthetic-context",
+      "time_ns": "4000000000",
+      "ref": {
+        "source_id": "runtime-source",
+        "position": "line:4"
+      }
+    },
+    {
+      "id": "",
+      "kind": "framework_oom",
+      "entity_id": "synthetic-worker-0",
+      "context_id": "synthetic-context",
+      "time_ns": "5000000000",
+      "ref": {
+        "source_id": "runtime-source",
+        "position": "line:5"
+      }
+    },
+    {
+      "id": "",
+      "kind": "container_oom",
+      "entity_id": "synthetic-worker-0",
+      "context_id": "synthetic-context",
+      "time_ns": "6000000000",
+      "ref": {
+        "source_id": "runtime-source",
+        "position": "line:6"
+      }
+    },
+    {
+      "id": "",
+      "kind": "host_oom",
+      "entity_id": "synthetic-worker-0",
+      "context_id": "synthetic-context",
+      "time_ns": "7000000000",
+      "ref": {
+        "source_id": "runtime-source",
+        "position": "line:7"
+      }
+    },
+    {
+      "id": "",
+      "kind": "driver_xid",
+      "entity_id": "device-e9239623c181ef122a12663dae9ac88a8b33d4c11081679b7f32753774f41468",
+      "context_id": "synthetic-context",
+      "time_ns": "8000000000",
+      "code": "79",
+      "ref": {
+        "source_id": "runtime-source",
+        "position": "line:8"
+      }
+    },
+    {
+      "id": "",
+      "kind": "device_reset",
+      "entity_id": "device-e9239623c181ef122a12663dae9ac88a8b33d4c11081679b7f32753774f41468",
+      "context_id": "synthetic-context",
+      "time_ns": "9000000000",
+      "ref": {
+        "source_id": "runtime-source",
+        "position": "line:9"
+      }
+    },
+    {
+      "id": "",
+      "kind": "engine_restart",
+      "entity_id": "synthetic-worker-0",
+      "context_id": "synthetic-context",
+      "time_ns": "10000000000",
+      "ref": {
+        "source_id": "runtime-source",
+        "position": "line:10"
+      }
+    },
+    {
+      "id": "",
+      "kind": "recovery",
+      "entity_id": "synthetic-worker-0",
+      "context_id": "synthetic-context",
+      "time_ns": "11000000000",
+      "ref": {
+        "source_id": "runtime-source",
+        "position": "line:11"
+      }
+    },
+    {
+      "id": "",
+      "kind": "request",
+      "entity_id": "synthetic-worker-0",
+      "context_id": "synthetic-context",
+      "time_ns": "5000000000",
+      "request_id": "synthetic-request-3",
+      "boundary": "server",
+      "outcome": "success",
+      "population": "synthetic-warm",
+      "request_start_ns": "1000000000",
+      "first_token_ns": "1200000000",
+      "last_token_ns": "1800000000",
+      "output_tokens": "3",
+      "ref": {
+        "source_id": "runtime-source",
+        "position": "line:12"
+      }
+    },
+    {
+      "id": "",
+      "kind": "request",
+      "entity_id": "synthetic-worker-0",
+      "context_id": "synthetic-context",
+      "time_ns": "5000000000",
+      "request_id": "synthetic-request-1",
+      "boundary": "server",
+      "outcome": "success",
+      "population": "synthetic-warm",
+      "request_start_ns": "1000000000",
+      "first_token_ns": "1200000000",
+      "last_token_ns": "1800000000",
+      "output_tokens": "1",
+      "ref": {
+        "source_id": "runtime-source",
+        "position": "line:13"
+      }
+    },
+    {
+      "id": "",
+      "kind": "request",
+      "entity_id": "synthetic-worker-0",
+      "context_id": "synthetic-context",
+      "time_ns": "5000000000",
+      "request_id": "synthetic-request-0",
+      "boundary": "server",
+      "outcome": "cancelled",
+      "population": "synthetic-warm",
+      "request_start_ns": "1000000000",
+      "output_tokens": "0",
+      "ref": {
+        "source_id": "runtime-source",
+        "position": "line:14"
+      }
+    }
+  ],
+  "links": [
+    {
+      "from": "synthetic-mig",
+      "to": "device-e9239623c181ef122a12663dae9ac88a8b33d4c11081679b7f32753774f41468",
+      "kind": "mig_parent",
+      "ref": {
+        "source_id": "mapping-source",
+        "position": "line:1"
+      }
+    },
+    {
+      "from": "synthetic-worker-0",
+      "to": "synthetic-mig",
+      "kind": "uses_device",
+      "ref": {
+        "source_id": "mapping-source",
+        "position": "line:2"
+      }
+    },
+    {
+      "from": "synthetic-worker-0",
+      "to": "synthetic-process",
+      "kind": "hosted_by",
+      "ref": {
+        "source_id": "mapping-source",
+        "position": "line:3"
+      }
+    },
+    {
+      "from": "synthetic-worker-1",
+      "to": "device-e9239623c181ef122a12663dae9ac88a8b33d4c11081679b7f32753774f41468",
+      "kind": "uses_device",
+      "ref": {
+        "source_id": "mapping-source",
+        "position": "line:4"
+      }
+    }
+  ],
+  "quality": null,
+  "schema_version": "1.1.0",
+  "signals": [
+    {
+      "declared_metadata": {
+        "unit": "tokens",
+        "kind": "sum",
+        "temporality": "cumulative",
+        "monotonic": true,
+        "start_ns": "0"
+      },
+      "id": "signal-synthetic_output_tokens",
+      "series_id": "metric-513f0c6b438a811b3c7fad4c3d80afa4694017df79c5fb844d0c30c8d741fc78",
+      "semantic": "output_tokens",
+      "entity_id": "synthetic-worker-0",
+      "context_id": "synthetic-context",
+      "boundary": "server",
+      "population": "warm",
+      "statistical_form": "counter",
+      "conversion": "identity"
+    },
+    {
+      "declared_metadata": {
+        "unit": "requests",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false
+      },
+      "id": "signal-synthetic_queue",
+      "series_id": "metric-ea4b7f027cdbbf07bb93a15c0a0f0e7b7efb12826f229f88d4e1694d715faa39",
+      "semantic": "queue_requests",
+      "entity_id": "synthetic-worker-0",
+      "context_id": "synthetic-context",
+      "boundary": "server",
+      "population": "warm",
+      "statistical_form": "gauge",
+      "conversion": "identity"
+    }
+  ]
+}

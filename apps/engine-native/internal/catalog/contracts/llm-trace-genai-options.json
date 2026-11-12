@@ -1,0 +1,7 @@
+{
+  "semantic_profile": "otel-genai.v1.37.0",
+  "trace_namespace": "synthetic-genai-capture",
+  "producer": "synthetic semantic fixture",
+  "producer_version": "1.0.0",
+  "clock": "unix"
+}

@@ -1,6 +1,6 @@
 # Offline GPU and inference serving evidence
 
-T-639 adds `inference_serving` 0.1.0 over the neutral InferenceEvidence 1.0.0
+T-639 adds `inference_serving` 0.2.0 over the neutral InferenceEvidence 1.1.0
 contract. The common AnalysisResult envelope and existing MetricHistory readers,
 case persistence, generic providers and visual exports are reused. Source metrics
 are retained **once** in `inference_core.metrics`; signals refer to series IDs,
@@ -135,3 +135,27 @@ clipboard/Office and hosted CI evidence remain separate. Evidence receipts:
 
 Primary definitions: [NVIDIA nvidia-smi](https://docs.nvidia.com/deploy/nvidia-smi/index.html),
 [vLLM 0.8.5 metrics](https://docs.vllm.ai/en/v0.8.5/design/v1/metrics.html).
+
+## R16 input usability and compatibility (2026-11-12)
+
+New results use inference_serving 0.2.0; readers preserve 0.1.0 projection semantics. InferenceEvidence accepts 1.0.0 and 1.1.0; declared_metadata requires 1.1.0. Existing fixture and old result bytes are unchanged.
+
+A Prometheus range model has gauge kind and an empty unit because its response has no TYPE/unit metadata. For these untyped originals only, a binding can explicitly declare metadata:
+
+```json
+{"id":"signal-output","series_id":"<original-series-id>","semantic":"output_tokens","entity_id":"worker-0","boundary":"server","population":"warm","statistical_form":"counter","conversion":"identity","declared_metadata":{"unit":"tokens","kind":"sum","temporality":"cumulative","monotonic":true,"start_ns":"0"}}
+```
+
+Declare the physical unit, counter lifetime and scope from collection evidence. Without start_ns, cumulative rates remain unavailable; names never infer them. Original stored IDs/metrics/hash stay unchanged. Semantic observations and Workspace materialization use a disclosed declared view; the original query keeps source semantics. Gauge declarations use kind gauge, temporality unspecified, monotonic false. Raw range buckets are not assembled into a histogram. Errors identify the signal, source name/kind/unit and failed physical contract.
+
+In input bindings, omit event id or use an empty string. Normalization computes it after validating the fields; a supplied nonmatching ID is rejected. Canonical saved readers remain strict. For example, an event can be written as:
+
+```json
+{"kind":"request","entity_id":"worker-0","context_id":"context-a","time_ns":null,"code":"","request_id":"request-a","boundary":"server","population":"warm","outcome":"success","request_start_ns":"1000000000","first_token_ns":"1200000000","last_token_ns":"1800000000","output_tokens":"3","ref":{"source_id":"declared-runtime-source","position":"line:1"}}
+```
+
+The referenced event source must still be declared with its original hash and metadata, and entity/context must exist. See the bundled r16-bindings-user-input.json for a complete example.
+
+NVIDIA CSV accepts [N/A] and trailing blank rows; timestamp arity counts actual data rows and source references keep physical line numbers. Interior blank rows followed by data are refused. Equal first/last multi-token boundaries yield null TPOT/status in new payloads.
+
+To reduce result size, pass repeated --retained-series-id to normalize-source/import-source, or add retained_series_ids at the top level of bindings JSON. Workspace also accepts that bindings sidecar. Every point of each selected series is retained for predecessor/reset context; original source ledgers and structured events remain. This selection is after input decoding, so inputs exceeding original/model budgets must be split before normalization. Byte limits remain authoritative; no record-count capacity promise.

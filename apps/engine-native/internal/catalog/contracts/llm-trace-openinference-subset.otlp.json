@@ -1,0 +1,60 @@
+{
+  "resourceSpans": [
+    {
+      "schemaUrl": "https://example.invalid/resource/1",
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "synthetic-app"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "synthetic-instrumentation",
+            "version": "1.0.0"
+          },
+          "schemaUrl": "https://opentelemetry.io/schemas/1.37.0",
+          "spans": [
+            {
+              "traceId": "00000000000000000000000000000001",
+              "spanId": "000000000000000b",
+              "parentSpanId": "",
+              "name": "SYNTHETIC_BODY_MARKER",
+              "kind": 1,
+              "startTimeUnixNano": "1000",
+              "endTimeUnixNano": "2000",
+              "attributes": [
+                {
+                  "key": "openinference.span.kind",
+                  "value": {
+                    "stringValue": "RETRIEVER"
+                  }
+                },
+                {
+                  "key": "input.value",
+                  "value": {
+                    "stringValue": "SYNTHETIC_BODY_MARKER"
+                  }
+                },
+                {
+                  "key": "retrieval.documents",
+                  "value": {
+                    "stringValue": "SYNTHETIC_BODY_MARKER"
+                  }
+                }
+              ],
+              "status": {
+                "code": 1
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

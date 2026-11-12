@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	traceparser "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/traceimport"
 	"io"
 	"os"
 	"path"
@@ -81,6 +82,9 @@ func (s *Store) sourcePage(ctx context.Context, caseID, sourceID string, opts De
 		}
 		if hash(raw) != v.SHA256 || strconv.Itoa(len(raw)) != v.Size {
 			return TextPage{}, problem("CASE_HASH_MISMATCH", "source changed; reimport explicitly")
+		}
+		if traceparser.RequiresLLMNormalization(raw) {
+			return TextPage{}, problem("CASE_LLM_SANITIZED_SOURCE_REQUIRED", "normalize the LLM export with the structural privacy policy before case copy or text indexing")
 		}
 		name, basis, skip, e := selectTextEncoding(ctx, raw, opts)
 		if e != nil {

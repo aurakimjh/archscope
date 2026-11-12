@@ -98,3 +98,30 @@ func TestCsvRefusesGuessesAndSourceMutation(t *testing.T) {
 		t.Fatal(e)
 	}
 }
+
+func TestR16CSVUnavailableTrailingBlankAndPhysicalLine(t *testing.T) {
+	var capture p.Capture
+	n.Strict(read(t, "nvidia-capture.json"), &capture)
+	raw := read(t, "nvidia-query.csv")
+	raw = bytes.Replace(raw, []byte("N/A"), []byte("[N/A]"), 1)
+	raw = append(raw, []byte("\n\n   \n")...)
+	s, e := p.ParseBytes(context.Background(), raw, "synthetic.csv", p.Options{Format: "nvidia-smi-csv", Capture: &capture})
+	if e != nil {
+		t.Fatal(e)
+	}
+	if len(s.Metrics.Points) != 21 || len(s.Quality) != 3 {
+		t.Fatal(s.Quality)
+	}
+	bad := bytes.Replace(raw, []byte("75"), []byte("bad-value"), 1)
+	if _, e = p.ParseBytes(context.Background(), bad, "synthetic.csv", p.Options{Format: "nvidia-smi-csv", Capture: &capture}); e == nil || !strings.Contains(e.Error(), "utilization.gpu") || !strings.Contains(e.Error(), "bad-value") {
+		t.Fatal(e)
+	}
+}
+
+func TestR16BindingsRefuseFutureVersionBeforeDeclarationUpgrade(t *testing.T) {
+	raw := read(t, "r16-metric-model.json")
+	bindings := bytes.Replace(read(t, "r16-bindings-user-input.json"), []byte(`"schema_version": "1.1.0"`), []byte(`"schema_version": "9.0.0"`), 1)
+	if _, e := p.ParseBytes(context.Background(), raw, "range.json", p.Options{Format: "metric-bindings-json", Bindings: bindings}); e == nil || !strings.Contains(e.Error(), "INFERENCE_VERSION_UNSUPPORTED") {
+		t.Fatal("future version silently downgraded", e)
+	}
+}

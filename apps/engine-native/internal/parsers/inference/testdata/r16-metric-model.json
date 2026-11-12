@@ -1,0 +1,157 @@
+{
+  "schema_version": "1.0.0",
+  "normalizer": "1.0.0",
+  "sources": [
+    {
+      "id": "source-0",
+      "sha256": "c679d66982a6e68f522386f9c2790414d442844d224b68760747d453221c0a17",
+      "name": "synthetic-range.json",
+      "format": "prometheus-range-json",
+      "producer": "unknown",
+      "producer_version": "",
+      "query": {
+        "query": "{__name__=~\"synthetic_output_tokens|synthetic_queue\"}",
+        "step_ns": "1000000000"
+      }
+    }
+  ],
+  "series": [
+    {
+      "id": "metric-513f0c6b438a811b3c7fad4c3d80afa4694017df79c5fb844d0c30c8d741fc78",
+      "name": "synthetic_output_tokens",
+      "description": "",
+      "unit": "",
+      "kind": "gauge",
+      "temporality": "unspecified",
+      "monotonic": false,
+      "origin": "prometheus-range-json:unknown::query:efd23183aa68e65f54fa6e6fb3c82613aa75004a268fc806b8824b81c3f8ece4",
+      "resource": {},
+      "resource_schema_url": "",
+      "scope": {
+        "name": "",
+        "version": "",
+        "schema_url": "",
+        "attributes": {},
+        "dropped_attributes": "0"
+      },
+      "attributes": {
+        "__name__": "synthetic_output_tokens"
+      },
+      "expected_step_ns": "1000000000"
+    },
+    {
+      "id": "metric-ea4b7f027cdbbf07bb93a15c0a0f0e7b7efb12826f229f88d4e1694d715faa39",
+      "name": "synthetic_queue",
+      "description": "",
+      "unit": "",
+      "kind": "gauge",
+      "temporality": "unspecified",
+      "monotonic": false,
+      "origin": "prometheus-range-json:unknown::query:efd23183aa68e65f54fa6e6fb3c82613aa75004a268fc806b8824b81c3f8ece4",
+      "resource": {},
+      "resource_schema_url": "",
+      "scope": {
+        "name": "",
+        "version": "",
+        "schema_url": "",
+        "attributes": {},
+        "dropped_attributes": "0"
+      },
+      "attributes": {
+        "__name__": "synthetic_queue"
+      },
+      "expected_step_ns": "1000000000"
+    }
+  ],
+  "points": [
+    {
+      "id": "point-ee651e800e97043a6339476e0e5e097d4308ba7a3feb9029c06fa7f589e212de",
+      "series_id": "metric-513f0c6b438a811b3c7fad4c3d80afa4694017df79c5fb844d0c30c8d741fc78",
+      "start_ns": null,
+      "end_ns": "1000000000",
+      "value": "100",
+      "flags": 0,
+      "refs": [
+        {
+          "source_id": "source-0",
+          "position": "data/result/0/values/0"
+        }
+      ]
+    },
+    {
+      "id": "point-b525ec61981e515c104dcb5edb59d80758dbf8ba2228eb5f037343496a1e609b",
+      "series_id": "metric-513f0c6b438a811b3c7fad4c3d80afa4694017df79c5fb844d0c30c8d741fc78",
+      "start_ns": null,
+      "end_ns": "2000000000",
+      "value": "110",
+      "flags": 0,
+      "refs": [
+        {
+          "source_id": "source-0",
+          "position": "data/result/0/values/1"
+        }
+      ]
+    },
+    {
+      "id": "point-e9f572e166a7d17ba4a5c6c7b01382d9ec5d1688af4ca41f0e404b706a723388",
+      "series_id": "metric-513f0c6b438a811b3c7fad4c3d80afa4694017df79c5fb844d0c30c8d741fc78",
+      "start_ns": null,
+      "end_ns": "3000000000",
+      "value": "3",
+      "flags": 0,
+      "refs": [
+        {
+          "source_id": "source-0",
+          "position": "data/result/0/values/2"
+        }
+      ]
+    },
+    {
+      "id": "point-b9c3756dbb7f4b0be2c77736285be071f96de3cab53fff8b80a170c63bfb9700",
+      "series_id": "metric-ea4b7f027cdbbf07bb93a15c0a0f0e7b7efb12826f229f88d4e1694d715faa39",
+      "start_ns": null,
+      "end_ns": "1000000000",
+      "value": "2",
+      "flags": 0,
+      "refs": [
+        {
+          "source_id": "source-0",
+          "position": "data/result/1/values/0"
+        }
+      ]
+    },
+    {
+      "id": "point-c21db46d60fd84fb4608c2f7bf86a748785fd695286fda9bd9456f0c75499882",
+      "series_id": "metric-ea4b7f027cdbbf07bb93a15c0a0f0e7b7efb12826f229f88d4e1694d715faa39",
+      "start_ns": null,
+      "end_ns": "2000000000",
+      "value": "0",
+      "flags": 0,
+      "refs": [
+        {
+          "source_id": "source-0",
+          "position": "data/result/1/values/1"
+        }
+      ]
+    },
+    {
+      "id": "point-0970ee979e084254232832bb224e4463aa58a73ed16c26ab0525948858a4a954",
+      "series_id": "metric-ea4b7f027cdbbf07bb93a15c0a0f0e7b7efb12826f229f88d4e1694d715faa39",
+      "start_ns": null,
+      "end_ns": "3000000000",
+      "value": "1",
+      "flags": 0,
+      "refs": [
+        {
+          "source_id": "source-0",
+          "position": "data/result/1/values/2"
+        }
+      ]
+    }
+  ],
+  "deduplicated_points": 0,
+  "warnings": [
+    "Source producer/export/query identity is declared; no original-publisher authentication or GenAI alias qualification.",
+    "Range-query values retain query-result semantics; no counter type, physical unit, raw-instrument identity or GenAI alias is inferred."
+  ]
+}

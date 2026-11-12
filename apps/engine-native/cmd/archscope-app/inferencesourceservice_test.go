@@ -120,3 +120,57 @@ func TestT639BridgeOriginalOwnershipRefusalsAndSourceBinding(t *testing.T) {
 		t.Fatal("changed source accepted")
 	}
 }
+
+func TestR16DeclaredWorkspaceViewKeepsOriginalAndDeclaration(t *testing.T) {
+	ctx := context.Background()
+	t.Setenv("ARCHSCOPE_STATE_ROOT", t.TempDir())
+	svc := evidenceBridge(t, nil)
+	raw, _ := catalog.Contracts.ReadFile("contracts/inference-evidence-r16-declared-set.json")
+	path := filepath.Join(t.TempDir(), "declared.json")
+	os.WriteFile(path, raw, 0600)
+	job, e := svc.AnalyzeEvidence(EvidenceImportRequest{Path: path, Importer: "inference.evidence-json", OptionsJSON: "{}"})
+	if e != nil {
+		t.Fatal(e)
+	}
+	job, e = svc.evidenceService.Wait(ctx, job.ID, job.Generation)
+	if e != nil || job.State != "completed" {
+		t.Fatal(job, e)
+	}
+	value, e := svc.DescribeInferenceEvidence(ctx, job.ResultHandle)
+	if e != nil {
+		t.Fatal(e)
+	}
+	var inv a.Inventory
+	json.Unmarshal([]byte(value), &inv)
+	signal := "signal-synthetic_output_tokens"
+	value, e = svc.MaterializeInferenceMetrics(ctx, job.ResultHandle, inv.ResultSHA256, `["`+signal+`"]`)
+	if e != nil {
+		t.Fatal(e)
+	}
+	var owned struct {
+		View  analysis.ResultView  `json:"view"`
+		Lease analysis.ResultLease `json:"lease"`
+	}
+	json.Unmarshal([]byte(value), &owned)
+	defer svc.ReleaseEvidenceLease(owned.Lease.ID)
+	_, result, e := svc.evidenceService.Read(owned.View.Handle)
+	if e != nil {
+		t.Fatal(e)
+	}
+	body, _ := json.Marshal(result.Metadata.Extra["inference_projection"])
+	var metadata struct {
+		Original     m.Selection `json:"original_selection"`
+		Declarations map[string]struct {
+			Unit string `json:"unit"`
+		} `json:"declared_metadata"`
+	}
+	json.Unmarshal(body, &metadata)
+	if metadata.Declarations[signal].Unit != "tokens" || len(metadata.Original.SeriesIDs) != 1 {
+		t.Fatal(string(body))
+	}
+	for _, v := range inv.Signals {
+		if v.ID == signal && metadata.Original.SeriesIDs[0] != v.SeriesID {
+			t.Fatal("original identity changed")
+		}
+	}
+}

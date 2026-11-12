@@ -142,3 +142,5 @@ and runnable costs, preserves state labels and can overlap runqueue. State-filte
 projection is a queued follow-up.
 
 Pinned keyed formatter: [bpftrace 0.22 output.cpp](https://github.com/bpftrace/bpftrace/blob/v0.22.0/src/output.cpp).
+
+Unique-frame perf inputs can reach the 16 MiB model limit around 4,012 samples of 25 unique frames each; the 20k/24k repeated-stack checks do not establish that capacity for unique stacks. Use the reported byte limit and split the original time window with perf script --time, then normalize each part.

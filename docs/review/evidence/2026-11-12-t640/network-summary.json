@@ -1,0 +1,244 @@
+{
+  "scope": "Linux CLI process trees only; no desktop/Windows outbound claim",
+  "network": "none",
+  "clean_install": true,
+  "no_sibling_checkout": true,
+  "operations": [
+    {
+      "operation": [
+        "offline",
+        "fixtures"
+      ],
+      "inet_syscalls": 0,
+      "app_denied_attempts": {}
+    },
+    {
+      "operation": [
+        "evidence",
+        "formats"
+      ],
+      "inet_syscalls": 0,
+      "app_denied_attempts": {}
+    },
+    {
+      "operation": [
+        "evidence",
+        "import"
+      ],
+      "inet_syscalls": 0,
+      "app_denied_attempts": {}
+    },
+    {
+      "operation": [
+        "packs",
+        "list"
+      ],
+      "inet_syscalls": 0,
+      "app_denied_attempts": {}
+    },
+    {
+      "operation": [
+        "evidence",
+        "discover"
+      ],
+      "inet_syscalls": 0,
+      "app_denied_attempts": {}
+    },
+    {
+      "operation": [
+        "evidence",
+        "collection-kit"
+      ],
+      "inet_syscalls": 0,
+      "app_denied_attempts": {}
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-inspect"
+      ],
+      "inet_syscalls": 0,
+      "app_denied_attempts": {}
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-normalize"
+      ],
+      "inet_syscalls": 0,
+      "app_denied_attempts": {}
+    },
+    {
+      "operation": [
+        "evidence",
+        "import"
+      ],
+      "inet_syscalls": 0,
+      "app_denied_attempts": {}
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-query"
+      ],
+      "inet_syscalls": 0,
+      "app_denied_attempts": {}
+    },
+    {
+      "operation": [
+        "visual",
+        "create-spec"
+      ],
+      "inet_syscalls": 0,
+      "app_denied_attempts": {}
+    },
+    {
+      "operation": [
+        "visual",
+        "validate"
+      ],
+      "inet_syscalls": 0,
+      "app_denied_attempts": {}
+    },
+    {
+      "operation": [
+        "system",
+        "inspect-source"
+      ],
+      "inet_syscalls": 0,
+      "app_denied_attempts": {}
+    },
+    {
+      "operation": [
+        "system",
+        "normalize-source"
+      ],
+      "inet_syscalls": 0,
+      "app_denied_attempts": {}
+    },
+    {
+      "operation": [
+        "evidence",
+        "import"
+      ],
+      "inet_syscalls": 0,
+      "app_denied_attempts": {}
+    },
+    {
+      "operation": [
+        "system",
+        "project-profile"
+      ],
+      "inet_syscalls": 0,
+      "app_denied_attempts": {}
+    },
+    {
+      "operation": [
+        "profile-set",
+        "tree"
+      ],
+      "inet_syscalls": 0,
+      "app_denied_attempts": {}
+    },
+    {
+      "operation": [
+        "inference",
+        "inspect-source"
+      ],
+      "inet_syscalls": 0,
+      "app_denied_attempts": {}
+    },
+    {
+      "operation": [
+        "inference",
+        "normalize-source"
+      ],
+      "inet_syscalls": 0,
+      "app_denied_attempts": {}
+    },
+    {
+      "operation": [
+        "evidence",
+        "import"
+      ],
+      "inet_syscalls": 0,
+      "app_denied_attempts": {}
+    },
+    {
+      "operation": [
+        "inference",
+        "query-metric"
+      ],
+      "inet_syscalls": 0,
+      "app_denied_attempts": {}
+    },
+    {
+      "operation": [
+        "inference",
+        "open-metrics"
+      ],
+      "inet_syscalls": 0,
+      "app_denied_attempts": {}
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-query"
+      ],
+      "inet_syscalls": 0,
+      "app_denied_attempts": {}
+    },
+    {
+      "operation": [
+        "inference",
+        "import-source"
+      ],
+      "inet_syscalls": 0,
+      "app_denied_attempts": {}
+    },
+    {
+      "operation": [
+        "trace",
+        "llm-inspect"
+      ],
+      "inet_syscalls": 0,
+      "app_denied_attempts": {}
+    },
+    {
+      "operation": [
+        "trace",
+        "llm-normalize"
+      ],
+      "inet_syscalls": 0,
+      "app_denied_attempts": {}
+    },
+    {
+      "operation": [
+        "evidence",
+        "import"
+      ],
+      "inet_syscalls": 0,
+      "app_denied_attempts": {}
+    },
+    {
+      "operation": [
+        "trace",
+        "llm-query"
+      ],
+      "inet_syscalls": 0,
+      "app_denied_attempts": {}
+    },
+    {
+      "operation": [
+        "jfr",
+        "convert"
+      ],
+      "expected_refusal": "OFFLINE_OPERATION_DENIED",
+      "inet_syscalls": 0,
+      "app_denied_attempts": {
+        "converter.jfr": 1
+      }
+    }
+  ],
+  "failed_network_positive_control_inet_syscalls": 2
+}

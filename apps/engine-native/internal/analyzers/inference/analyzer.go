@@ -16,7 +16,8 @@ import (
 )
 
 const ResultType = "inference_serving"
-const PayloadVersion = "0.1.0"
+const PayloadVersion = "0.2.0"
+const LegacyPayloadVersion = "0.1.0"
 
 type Observation struct {
 	SignalID       string  `json:"signal_id"`
@@ -51,7 +52,7 @@ type Request struct {
 	SourceRef    string  `json:"source_ref"`
 }
 
-func request(v n.Event) Request {
+func request(v n.Event, legacy bool) Request {
 	r := Request{v.ID, v.EntityID, v.ContextID, v.RequestID, v.Boundary, v.Population, v.Outcome, nil, "boundary_unavailable", nil, "boundary_or_token_count_unavailable", v.OutputTokens, v.Ref.SourceID + ":" + v.Ref.Position}
 	difference := func(a, b *string) (*big.Int, bool) {
 		x, ok := m.Time(a)
@@ -71,6 +72,8 @@ func request(v n.Event) Request {
 		count, _ := m.Uint(*v.OutputTokens)
 		if count.Cmp(big.NewInt(2)) < 0 {
 			r.TPOTStatus = "at_least_two_output_tokens_required"
+		} else if v.FirstToken != nil && v.LastToken != nil && *v.FirstToken == *v.LastToken && !legacy {
+			r.TPOTStatus = "token_boundaries_not_distinct"
 		} else if span, ok := difference(v.FirstToken, v.LastToken); ok {
 			count.Sub(count, big.NewInt(1))
 			r.TPOT = m.Pointer(m.Text(new(big.Rat).SetFrac(span, count)))
@@ -82,12 +85,16 @@ func request(v n.Event) Request {
 	return r
 }
 func Observations(ctx context.Context, s n.Set) ([]Observation, error) {
-	intervals, e := m.Intervals(ctx, s.Metrics)
+	effective, mapping, e := n.EffectiveMetrics(ctx, s)
+	if e != nil {
+		return nil, e
+	}
+	intervals, e := m.Intervals(ctx, effective)
 	if e != nil {
 		return nil, e
 	}
 	series := map[string]m.Series{}
-	for _, v := range s.Metrics.Series {
+	for _, v := range effective.Series {
 		series[v.ID] = v
 	}
 	entities := map[string]n.Entity{}
@@ -97,8 +104,10 @@ func Observations(ctx context.Context, s n.Set) ([]Observation, error) {
 	signals := map[string]n.Signal{}
 	definitions := map[string]n.SemanticDefinition{}
 	for _, v := range s.Signals {
-		signals[v.SeriesID] = v
-		d, e := n.Definition(v, series[v.SeriesID], entities[v.EntityID])
+		signals[mapping[v.SeriesID]] = v
+		copy := v
+		copy.Declaration = nil
+		d, e := n.Definition(copy, series[mapping[v.SeriesID]], entities[v.EntityID])
 		if e != nil {
 			return nil, e
 		}
@@ -107,6 +116,10 @@ func Observations(ctx context.Context, s n.Set) ([]Observation, error) {
 	quality := map[string]n.Quality{}
 	for _, v := range s.Quality {
 		quality[v.PointID] = v
+	}
+	originalPoints := map[string]string{}
+	for i, p := range effective.Points {
+		originalPoints[p.ID] = s.Metrics.Points[i].ID
 	}
 	rows := []Observation{}
 	for _, v := range intervals {
@@ -119,7 +132,7 @@ func Observations(ctx context.Context, s n.Set) ([]Observation, error) {
 		}
 		d := definitions[signal.ID]
 		refs, _ := json.Marshal(v.Refs)
-		row := Observation{SignalID: signal.ID, PointID: v.PointID, Time: v.End, Raw: v.Value, Unit: d.Unit, Status: v.Status, Gap: v.Gap, Refs: string(refs)}
+		row := Observation{SignalID: signal.ID, PointID: originalPoints[v.PointID], Time: v.End, Raw: v.Value, Unit: d.Unit, Status: v.Status, Gap: v.Gap, Refs: string(refs)}
 		convert := func(value *string) *string {
 			if value == nil {
 				return nil
@@ -165,8 +178,11 @@ func Observations(ctx context.Context, s n.Set) ([]Observation, error) {
 	return rows, nil
 }
 func Build(ctx context.Context, s n.Set, source string) (models.AnalysisResult, error) {
+	return buildInferenceVersion(ctx, s, source, PayloadVersion)
+}
+func buildInferenceVersion(ctx context.Context, s n.Set, source, payload string) (models.AnalysisResult, error) {
 	r := models.New(ResultType, "inference-evidence.v1")
-	r.Metadata.SchemaVersion = PayloadVersion
+	r.Metadata.SchemaVersion = payload
 	r.SourceFiles = []string{source}
 	if e := s.Validate(ctx); e != nil {
 		return r, e
@@ -179,7 +195,7 @@ func Build(ctx context.Context, s n.Set, source string) (models.AnalysisResult, 
 	timeline := []map[string]any{}
 	for _, v := range s.Events {
 		if v.Kind == "request" {
-			requests = append(requests, request(v))
+			requests = append(requests, request(v, payload == LegacyPayloadVersion))
 		}
 		if v.Time != nil {
 			timeline = append(timeline, map[string]any{"time": *m.Timestamp(v.Time), "clock": "unix", "event_id": v.ID, "entity_id": v.EntityID, "kind": v.Kind, "source_ref": v.Ref.SourceID + ":" + v.Ref.Position})
@@ -198,7 +214,7 @@ func Build(ctx context.Context, s n.Set, source string) (models.AnalysisResult, 
 	r.Series = map[string]any{}
 	r.Charts = map[string]any{}
 	r.Metadata.Extra["envelope_schema_version"] = "1.0.0"
-	r.Metadata.Extra["extensions"] = map[string]string{"inference_core": n.Version, "measurement": "1.0.0"}
+	r.Metadata.Extra["extensions"] = map[string]string{"inference_core": s.Version, "measurement": "1.0.0"}
 	r.Metadata.Extra["inference_core"] = s
 	r.Metadata.Extra["identity_basis"] = "declared"
 	r.Metadata.Extra["clock_ids"] = []string{"unix"}
@@ -213,13 +229,13 @@ func Build(ctx context.Context, s n.Set, source string) (models.AnalysisResult, 
 		return r, e
 	}
 	if len(raw) > 64<<20 {
-		return r, fmt.Errorf("INFERENCE_RESULT_BUDGET: %d bytes exceeds 67108864; select fewer original series/events; no silent truncation", len(raw))
+		return r, fmt.Errorf("INFERENCE_RESULT_BUDGET: %d bytes exceeds 67108864; normalize with retained_series_ids or split the original export before normalization; no silent truncation", len(raw))
 	}
 	return r, ctx.Err()
 }
 func ReadCore(r models.AnalysisResult) (n.Set, error) {
 	var s n.Set
-	if r.Type != ResultType || r.Metadata.SchemaVersion != PayloadVersion {
+	if r.Type != ResultType || (r.Metadata.SchemaVersion != PayloadVersion && r.Metadata.SchemaVersion != LegacyPayloadVersion) {
 		return s, fmt.Errorf("INFERENCE_RESULT_VERSION_UNSUPPORTED")
 	}
 	body, e := json.Marshal(r.Metadata.Extra["inference_core"])
@@ -233,7 +249,7 @@ func Validate(r models.AnalysisResult) error {
 	if e != nil {
 		return e
 	}
-	expected, e := Build(context.Background(), s, "")
+	expected, e := buildInferenceVersion(context.Background(), s, "", r.Metadata.SchemaVersion)
 	if e != nil {
 		return e
 	}
@@ -251,7 +267,11 @@ func Validate(r models.AnalysisResult) error {
 	}
 	return nil
 }
-func Descriptor() resultcontract.Descriptor {
+func Descriptor() resultcontract.Descriptor { return inferenceDescriptor(PayloadVersion, "0.2.1") }
+func LegacyDescriptor() resultcontract.Descriptor {
+	return inferenceDescriptor(LegacyPayloadVersion, "0.1.1")
+}
+func inferenceDescriptor(payload, before string) resultcontract.Descriptor {
 	scalars := map[string]resultcontract.ValueSchema{}
 	for _, key := range []string{"entity_count", "signal_count", "observed_point_count", "unmapped_series_count", "event_count", "request_count"} {
 		scalars["/summary/"+key] = resultcontract.ValueSchema{Encodings: []string{"exact_integer_string"}, Kinds: []string{"record_count"}, Units: []string{"count"}, Aggregations: []string{"count"}}
@@ -261,7 +281,7 @@ func Descriptor() resultcontract.Descriptor {
 		providers = append(providers, resultcontract.Provider{ID: "inference:" + key, Version: "1.0.0", Kind: "detail", Path: "/tables/" + key, Schema: "object-rows-v1"})
 	}
 	providers = append(providers, resultcontract.Provider{ID: "inference:timeline", Version: "1.0.0", Kind: "timeline", Path: "/tables/timeline", Schema: "timeline-v1", Time: "time", Clock: "clock", Evidence: "event_id"})
-	return resultcontract.Descriptor{Type: ResultType, Payload: resultcontract.Range{Min: PayloadVersion, Before: "0.1.1"}, Envelope: resultcontract.Range{Min: "1.0.0", Before: "2.0.0"}, Operations: []string{"display", "save", "compute", "json", "csv", "html", "report-pack"}, Extensions: map[string]resultcontract.Range{"inference_core": {Min: n.Version, Before: "1.0.1"}, "measurement": {Min: "1.0.0", Before: "1.1.0"}}, Required: map[string][]string{"save": {"inference_core", "measurement"}, "compute": {"inference_core", "measurement"}}, Scalars: scalars, Providers: providers, ValidatePayload: Validate}
+	return resultcontract.Descriptor{Type: ResultType, Payload: resultcontract.Range{Min: payload, Before: before}, Envelope: resultcontract.Range{Min: "1.0.0", Before: "2.0.0"}, Operations: []string{"display", "save", "compute", "json", "csv", "html", "report-pack"}, Extensions: map[string]resultcontract.Range{"inference_core": {Min: n.LegacyVersion, Before: "1.1.1"}, "measurement": {Min: "1.0.0", Before: "1.1.0"}}, Required: map[string][]string{"save": {"inference_core", "measurement"}, "compute": {"inference_core", "measurement"}}, Scalars: scalars, Providers: providers, ValidatePayload: Validate}
 }
 
 type Inventory struct {

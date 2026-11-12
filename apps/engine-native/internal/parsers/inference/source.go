@@ -36,9 +36,10 @@ type Capture struct {
 	Times    []*string `json:"timestamps_ns"`
 }
 type Options struct {
-	Format   string          `json:"format"`
-	Capture  *Capture        `json:"capture,omitempty"`
-	Bindings json.RawMessage `json:"bindings,omitempty"`
+	Format    string          `json:"format"`
+	Capture   *Capture        `json:"capture,omitempty"`
+	Bindings  json.RawMessage `json:"bindings,omitempty"`
+	SeriesIDs []string        `json:"retained_series_ids,omitempty"`
 }
 
 var slots = make(chan struct{}, 2)
@@ -123,7 +124,11 @@ func ParseBytes(ctx context.Context, original []byte, name string, o Options) (n
 		if o.Capture != nil || len(o.Bindings) != 0 {
 			return empty, fmt.Errorf("INFERENCE_OPTIONS_INVALID")
 		}
-		return n.Decode(ctx, body)
+		set, e := n.Decode(ctx, body)
+		if e != nil {
+			return empty, e
+		}
+		return n.SelectSeries(ctx, set, o.SeriesIDs)
 	case "metric-bindings-json":
 		if o.Capture != nil {
 			return empty, fmt.Errorf("INFERENCE_OPTIONS_INVALID")
@@ -140,16 +145,47 @@ func ParseBytes(ctx context.Context, original []byte, name string, o Options) (n
 			return empty, fmt.Errorf("INFERENCE_BINDING_INVALID: supply manifest without metrics")
 		}
 		var s n.Set
-		if e = n.Strict(o.Bindings, &s); e != nil {
+		retained := o.SeriesIDs
+		if raw, ok := keys["retained_series_ids"]; ok {
+			if len(retained) > 0 {
+				return empty, fmt.Errorf("INFERENCE_SELECTION_DUPLICATE")
+			}
+			if e = n.Strict(raw, &retained); e != nil {
+				return empty, e
+			}
+			delete(keys, "retained_series_ids")
+		}
+		bindingBody, _ := json.Marshal(keys)
+		if e = n.Strict(bindingBody, &s); e != nil {
 			return empty, e
 		}
+		if s.Version != n.Version && s.Version != n.LegacyVersion {
+			return empty, fmt.Errorf("INFERENCE_VERSION_UNSUPPORTED")
+		}
 		s.Metrics = metrics
-		return s, s.Validate(ctx)
+		for i := range s.Events {
+			if s.Events[i].ID == "" {
+				s.Events[i].ID = n.EventID(s.Events[i])
+			}
+		}
+		for _, signal := range s.Signals {
+			if signal.Declaration != nil {
+				s.Version = n.Version
+			}
+		}
+		if e = s.Validate(ctx); e != nil {
+			return empty, e
+		}
+		return n.SelectSeries(ctx, s, retained)
 	case "nvidia-smi-csv":
 		if o.Capture == nil || len(o.Bindings) != 0 {
 			return empty, fmt.Errorf("INFERENCE_CAPTURE_REQUIRED")
 		}
-		return parseCSV(ctx, body, Digest(original), name, *o.Capture)
+		set, e := parseCSV(ctx, body, Digest(original), name, *o.Capture)
+		if e != nil {
+			return empty, e
+		}
+		return n.SelectSeries(ctx, set, o.SeriesIDs)
 	default:
 		return empty, fmt.Errorf("INFERENCE_FORMAT_UNSUPPORTED: select explicit source format")
 	}
@@ -172,8 +208,18 @@ func parseCSV(ctx context.Context, body []byte, digest, name string, c Capture) 
 	scanner := bufio.NewScanner(bytes.NewReader(body))
 	scanner.Buffer(make([]byte, 4096), 1<<20)
 	line := 0
+	dataRow := 0
+	trailingBlank := false
 	for scanner.Scan() {
 		line++
+		if strings.TrimSpace(scanner.Text()) == "" {
+			trailingBlank = true
+			continue
+		}
+		if trailingBlank {
+			return s, fmt.Errorf("INFERENCE_CSV_BLANK_INTERIOR line=%d", line)
+		}
+		dataRow++
 		if e := ctx.Err(); e != nil {
 			return s, e
 		}
@@ -212,10 +258,10 @@ func parseCSV(ctx context.Context, body []byte, digest, name string, c Capture) 
 		}
 		var end *string
 		if len(c.Times) > 0 {
-			if line > len(c.Times) {
+			if dataRow > len(c.Times) {
 				return s, fmt.Errorf("INFERENCE_TIMESTAMP_ARITY")
 			}
-			end = c.Times[line-1]
+			end = c.Times[dataRow-1]
 		}
 		for j, d := range definitions {
 			resource, _ := json.Marshal(map[string]string{"host_id": c.Host, "boot_id": c.Boot, "device_uuid": fields[0], "pci_bus_id": fields[1], "device_name": fields[2]})
@@ -230,7 +276,7 @@ func parseCSV(ctx context.Context, body []byte, digest, name string, c Capture) 
 			value := fields[j+4]
 			status := ""
 			switch value {
-			case "N/A":
+			case "N/A", "[N/A]":
 				status = "not_available"
 			case "[Not Supported]":
 				status = "not_supported"
@@ -238,7 +284,7 @@ func parseCSV(ctx context.Context, body []byte, digest, name string, c Capture) 
 				status = "permission_denied"
 			default:
 				if len(value) > 128 || !number.MatchString(value) {
-					return s, fmt.Errorf("INFERENCE_CSV_VALUE_INVALID line=%d column=%d", line, j+5)
+					return s, fmt.Errorf("INFERENCE_CSV_VALUE_INVALID line=%d column=%d field=%s value=%.128q", line, j+5, d.name, value)
 				}
 				if _, e = m.Number(value); e != nil {
 					return s, e
@@ -259,8 +305,8 @@ func parseCSV(ctx context.Context, body []byte, digest, name string, c Capture) 
 	if e := scanner.Err(); e != nil {
 		return s, e
 	}
-	if line == 0 || len(c.Times) > 0 && len(c.Times) != line {
-		return s, fmt.Errorf("INFERENCE_TIMESTAMP_ARITY: %s rows", strconv.Itoa(line))
+	if dataRow == 0 || len(c.Times) > 0 && len(c.Times) != dataRow {
+		return s, fmt.Errorf("INFERENCE_TIMESTAMP_ARITY: %s rows", strconv.Itoa(dataRow))
 	}
 	return s, s.Validate(ctx)
 }

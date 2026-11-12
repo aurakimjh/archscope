@@ -16,7 +16,10 @@
   ],
   "properties": {
     "schema_version": {
-      "const": "1.0.0"
+      "enum": [
+        "1.0.0",
+        "1.1.0"
+      ]
     },
     "metrics": {
       "type": "object"
@@ -57,7 +60,45 @@
           "population",
           "statistical_form",
           "conversion"
-        ]
+        ],
+        "properties": {
+          "declared_metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "unit",
+              "kind",
+              "temporality",
+              "monotonic"
+            ],
+            "properties": {
+              "unit": {
+                "type": "string"
+              },
+              "kind": {
+                "enum": [
+                  "gauge",
+                  "sum"
+                ]
+              },
+              "temporality": {
+                "enum": [
+                  "unspecified",
+                  "cumulative"
+                ]
+              },
+              "monotonic": {
+                "type": "boolean"
+              },
+              "start_ns": {
+                "type": "string"
+              },
+              "expected_step_ns": {
+                "type": "string"
+              }
+            }
+          }
+        }
       }
     },
     "event_sources": {

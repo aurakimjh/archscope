@@ -1,0 +1,373 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:diagnostics:llm-trace:1.0.0",
+  "title": "Body-free LLMTrace structural model; compiled validator enforces hashes, references, exact uint64s and enums",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "source",
+    "contexts",
+    "spans",
+    "links",
+    "events"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sha256",
+        "format",
+        "producer",
+        "producer_version",
+        "semantic_profile",
+        "trace_namespace",
+        "clock",
+        "privacy_policy",
+        "omitted_field_count"
+      ],
+      "properties": {
+        "sha256": {
+          "type": "string"
+        },
+        "format": {
+          "type": "string"
+        },
+        "producer": {
+          "type": "string"
+        },
+        "producer_version": {
+          "type": "string"
+        },
+        "semantic_profile": {
+          "type": "string"
+        },
+        "trace_namespace": {
+          "type": "string"
+        },
+        "clock": {
+          "type": "string"
+        },
+        "privacy_policy": {
+          "type": "string"
+        },
+        "omitted_field_count": {
+          "type": "string"
+        }
+      }
+    },
+    "contexts": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "service",
+          "instance",
+          "host_id",
+          "process_pid",
+          "container_id",
+          "pod_uid",
+          "scope_name",
+          "scope_version",
+          "scope_schema_url",
+          "resource_schema_url",
+          "dropped_resource_attributes",
+          "dropped_scope_attributes"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "service": {
+            "type": "string"
+          },
+          "instance": {
+            "type": "string"
+          },
+          "host_id": {
+            "type": "string"
+          },
+          "process_pid": {
+            "type": "string"
+          },
+          "container_id": {
+            "type": "string"
+          },
+          "pod_uid": {
+            "type": "string"
+          },
+          "scope_name": {
+            "type": "string"
+          },
+          "scope_version": {
+            "type": "string"
+          },
+          "scope_schema_url": {
+            "type": "string"
+          },
+          "resource_schema_url": {
+            "type": "string"
+          },
+          "dropped_resource_attributes": {
+            "type": "string"
+          },
+          "dropped_scope_attributes": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "spans": {
+      "type": "array",
+      "maxItems": 50000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "source_position",
+          "trace_id",
+          "span_id",
+          "parent_span_id",
+          "context_id",
+          "kind",
+          "role",
+          "boundary",
+          "population",
+          "operation",
+          "provider",
+          "model",
+          "model_revision",
+          "tokenizer_revision",
+          "token_counting_method",
+          "input_tokens",
+          "output_tokens",
+          "start_ns",
+          "end_ns",
+          "first_token_ns",
+          "last_token_ns",
+          "status",
+          "outcome",
+          "error_type",
+          "request_namespace",
+          "logical_request_id",
+          "attempt_id",
+          "previous_attempt_id",
+          "attempt_kind",
+          "route_id",
+          "token_authority",
+          "flags",
+          "dropped_attributes",
+          "dropped_events",
+          "dropped_links"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "source_position": {
+            "type": "string"
+          },
+          "trace_id": {
+            "type": "string"
+          },
+          "span_id": {
+            "type": "string"
+          },
+          "parent_span_id": {
+            "type": "string"
+          },
+          "context_id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "boundary": {
+            "type": "string"
+          },
+          "population": {
+            "type": "string"
+          },
+          "operation": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "model": {
+            "type": "string"
+          },
+          "model_revision": {
+            "type": "string"
+          },
+          "tokenizer_revision": {
+            "type": "string"
+          },
+          "token_counting_method": {
+            "type": "string"
+          },
+          "input_tokens": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "output_tokens": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "start_ns": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "end_ns": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "first_token_ns": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "last_token_ns": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "type": "string"
+          },
+          "outcome": {
+            "type": "string"
+          },
+          "error_type": {
+            "type": "string"
+          },
+          "request_namespace": {
+            "type": "string"
+          },
+          "logical_request_id": {
+            "type": "string"
+          },
+          "attempt_id": {
+            "type": "string"
+          },
+          "previous_attempt_id": {
+            "type": "string"
+          },
+          "attempt_kind": {
+            "type": "string"
+          },
+          "route_id": {
+            "type": "string"
+          },
+          "token_authority": {
+            "type": "string"
+          },
+          "flags": {
+            "type": "string"
+          },
+          "dropped_attributes": {
+            "type": "string"
+          },
+          "dropped_events": {
+            "type": "string"
+          },
+          "dropped_links": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "links": {
+      "type": "array",
+      "maxItems": 100000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "span_record_id",
+          "trace_id",
+          "span_id",
+          "flags",
+          "dropped_attributes",
+          "source_position"
+        ],
+        "properties": {
+          "span_record_id": {
+            "type": "string"
+          },
+          "trace_id": {
+            "type": "string"
+          },
+          "span_id": {
+            "type": "string"
+          },
+          "flags": {
+            "type": "string"
+          },
+          "dropped_attributes": {
+            "type": "string"
+          },
+          "source_position": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "events": {
+      "type": "array",
+      "maxItems": 100000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "span_record_id",
+          "kind",
+          "time_ns",
+          "source_position"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "span_record_id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "time_ns": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "source_position": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

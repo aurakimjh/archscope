@@ -1,0 +1,3 @@
+Wails v3.1.0 › Generate Bindings
+ INFO  Processed: 393 Packages, 3 Services, 184 Methods, 6 Enums, 163 Models, 13 Events in 505.289958ms.
+ INFO  Output directory: /Users/aura/workspace/archscope/apps/engine-native/cmd/archscope-app/frontend/bindings

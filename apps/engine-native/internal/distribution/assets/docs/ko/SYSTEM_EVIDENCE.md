@@ -120,3 +120,5 @@ event 입력만 off-CPU 호출 구조를 갖는다. 현재 off_cpu는 sleeping/r
 함께 보존하고 state label을 남기며 runqueue와 겹칠 수 있다. State별 선택은 후속이다.
 
 고정 keyed formatter: [bpftrace 0.22 output.cpp](https://github.com/bpftrace/bpftrace/blob/v0.22.0/src/output.cpp).
+
+고유 frame이 매번 바뀌는 perf 입력은 sample당 고유 25 frame에서 약 4,012 sample로 모델 16 MiB 제한에 도달할 수 있다. 반복 stack 2만/2.4만 검증을 고유 stack 수용량으로 해석하지 않는다. 오류의 byte 제한을 기준으로 perf script --time으로 원본 시간 구간을 분할한 뒤 각각 정규화한다.

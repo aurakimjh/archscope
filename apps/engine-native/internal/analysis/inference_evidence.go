@@ -89,11 +89,20 @@ func (s *Service) MaterializeInferenceMetrics(ctx context.Context, handle, diges
 		if e != nil {
 			return nil, e
 		}
-		result, e := history.Build(ctx, set.Metrics, selection, "explicit inference signal selection")
+		effective, mapping, e := n.EffectiveMetrics(ctx, set)
 		if e != nil {
 			return nil, e
 		}
-		result.Metadata.Extra["inference_projection"] = map[string]any{"parent_result_sha256": actual, "signals": signals, "identity_basis": "declared", "aggregation": "none"}
+		originalSelection := selection
+		originalSelection.SeriesIDs = append([]string(nil), selection.SeriesIDs...)
+		for i, id := range selection.SeriesIDs {
+			selection.SeriesIDs[i] = mapping[id]
+		}
+		result, e := history.Build(ctx, effective, selection, "explicit inference signal selection")
+		if e != nil {
+			return nil, e
+		}
+		result.Metadata.Extra["inference_projection"] = map[string]any{"parent_result_sha256": actual, "signals": signals, "identity_basis": "declared", "aggregation": "none", "original_selection": originalSelection, "declared_metadata": n.SelectedDeclarations(set, signals), "metadata_basis": "original or explicitly declared range interpretation; original core remains unchanged"}
 		return json.Marshal(result)
 	})
 	if e != nil {

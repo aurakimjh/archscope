@@ -1023,3 +1023,7 @@ analyzer and generic/export consumers remain separate. See
 request formulas, original metric drilldown and unexecuted native acceptance.
 
 SystemEvidence 1.0.0 / system_evidence 0.1.0 saved readers remain supported; new 1.1.0 models deduplicate frames/stacks and 0.2.0 results retain old snapshots unchanged.
+
+## T-640 implementation boundary (2026-11-12)
+
+The limited `trace.llm-json` importer normalizes LLMTrace 1.0.0 into existing trace_import 0.3.0 / llm_core 1.0.0. Legacy trace 0.2.0 remains unchanged. Parent/link, observed child-union durations, explicit logical/attempt accounting, token boundaries and lifecycle populations stay separate. Body-free normalization precedes case copies/indexing. Exact bounded query/UI and existing providers/exports are reused. Q01 vendor JSON adapters stay gated. See [LLM trace evidence](LLM_TRACE_EVIDENCE.md). T-639 R16 adds explicitly declared untyped range metadata and user event-ID normalization, with 1.0/1.1 model and 0.1/0.2 result readers preserved; see [inference evidence](INFERENCE_EVIDENCE.md).

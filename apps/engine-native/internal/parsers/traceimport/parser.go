@@ -414,25 +414,53 @@ type otlpEnvelope struct {
 }
 
 type otlpResourceSpans struct {
+	SchemaURL                   string           `json:"schemaUrl"`
 	Resource                    otlpResource     `json:"resource"`
 	ScopeSpans                  []otlpScopeSpans `json:"scopeSpans"`
 	InstrumentationLibrarySpans []otlpScopeSpans `json:"instrumentationLibrarySpans"`
 }
 
 type otlpResource struct {
+	Dropped    json.Number    `json:"droppedAttributesCount"`
 	Attributes []otlpKeyValue `json:"attributes"`
 }
 
 type otlpScopeSpans struct {
-	Spans []otlpSpan `json:"spans"`
+	SchemaURL string                   `json:"schemaUrl"`
+	Scope     otlpInstrumentationScope `json:"scope"`
+	Spans     []otlpSpan               `json:"spans"`
 }
 
+type otlpInstrumentationScope struct {
+	Name       string         `json:"name"`
+	Version    string         `json:"version"`
+	Attributes []otlpKeyValue `json:"attributes"`
+	Dropped    json.Number    `json:"droppedAttributesCount"`
+}
+type otlpEvent struct {
+	Name       string         `json:"name"`
+	Time       json.Number    `json:"timeUnixNano"`
+	Attributes []otlpKeyValue `json:"attributes"`
+}
+type otlpLink struct {
+	TraceID           string         `json:"traceId"`
+	SpanID            string         `json:"spanId"`
+	Flags             json.Number    `json:"flags"`
+	DroppedAttributes json.Number    `json:"droppedAttributesCount"`
+	Attributes        []otlpKeyValue `json:"attributes"`
+}
 type otlpSpan struct {
+	Flags             json.Number    `json:"flags"`
+	DroppedAttributes json.Number    `json:"droppedAttributesCount"`
+	DroppedEvents     json.Number    `json:"droppedEventsCount"`
+	DroppedLinks      json.Number    `json:"droppedLinksCount"`
+	Events            []otlpEvent    `json:"events"`
+	Links             []otlpLink     `json:"links"`
 	TraceID           string         `json:"traceId"`
 	SpanID            string         `json:"spanId"`
 	ParentSpanID      string         `json:"parentSpanId"`
 	Name              string         `json:"name"`
-	Kind              int            `json:"kind"`
+	Kind              otlpEnum       `json:"kind"`
 	StartTimeUnixNano json.Number    `json:"startTimeUnixNano"`
 	EndTimeUnixNano   json.Number    `json:"endTimeUnixNano"`
 	Attributes        []otlpKeyValue `json:"attributes"`
@@ -440,8 +468,8 @@ type otlpSpan struct {
 }
 
 type otlpStatus struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
+	Code    otlpEnum `json:"code"`
+	Message string   `json:"message"`
 }
 
 type otlpKeyValue struct {
@@ -1298,7 +1326,7 @@ func numberToInt64(v json.Number) int64 {
 	return int64(f)
 }
 
-func otlpKindName(kind int) string {
+func otlpKindName(kind otlpEnum) string {
 	switch kind {
 	case 1:
 		return "INTERNAL"
@@ -1315,7 +1343,7 @@ func otlpKindName(kind int) string {
 	}
 }
 
-func otlpStatusName(code int) string {
+func otlpStatusName(code otlpEnum) string {
 	switch code {
 	case 1:
 		return "OK"
@@ -1468,4 +1496,26 @@ func DecodeOne(r io.Reader) (any, error) {
 	var payload any
 	err := dec.Decode(&payload)
 	return payload, err
+}
+
+// OTLP JSON normally emits integer enums; protobuf JSON fixtures can emit names.
+type otlpEnum int
+
+func (e *otlpEnum) UnmarshalJSON(raw []byte) error {
+	var number int
+	if err := json.Unmarshal(raw, &number); err == nil {
+		*e = otlpEnum(number)
+		return nil
+	}
+	var name string
+	if err := json.Unmarshal(raw, &name); err != nil {
+		return err
+	}
+	values := map[string]int{"SPAN_KIND_UNSPECIFIED": 0, "SPAN_KIND_INTERNAL": 1, "SPAN_KIND_SERVER": 2, "SPAN_KIND_CLIENT": 3, "SPAN_KIND_PRODUCER": 4, "SPAN_KIND_CONSUMER": 5, "STATUS_CODE_UNSET": 0, "STATUS_CODE_OK": 1, "STATUS_CODE_ERROR": 2}
+	value, ok := values[name]
+	if !ok {
+		return fmt.Errorf("unknown OTLP enum %q", name)
+	}
+	*e = otlpEnum(value)
+	return nil
 }

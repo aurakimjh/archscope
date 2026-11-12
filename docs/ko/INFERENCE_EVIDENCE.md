@@ -1,6 +1,6 @@
 # 오프라인 GPU·추론 서빙 근거
 
-T-639는 중립 InferenceEvidence 1.0.0 모델과 `inference_serving` 0.1.0 결과를
+T-639는 중립 InferenceEvidence 1.1.0 모델과 `inference_serving` 0.2.0 결과를
 추가한다. 공통 AnalysisResult, 기존 MetricHistory reader·케이스 저장·provider·
 시각 자료 내보내기를 재사용한다. 원본 메트릭은 `inference_core.metrics`에 한 번만
 저장하고 signal은 series ID, 관측 행은 point ID를 참조한다. 연결되지 않은 series도
@@ -116,3 +116,17 @@ provenance는 별도 64 KiB 한도를 상속한다. 정규화는 2개 동시 호
 
 공식 정의: [NVIDIA nvidia-smi](https://docs.nvidia.com/deploy/nvidia-smi/index.html),
 [vLLM 0.8.5 metrics](https://docs.vllm.ai/en/v0.8.5/design/v1/metrics.html).
+
+## R16 입력 사용성과 호환 (2026-11-12)
+
+새 결과는 inference_serving 0.2.0이며 0.1.0 reader의 기존 projection 의미를 유지한다. InferenceEvidence 1.0.0/1.1.0을 읽고 declared_metadata는 1.1.0에서만 허용한다. 기존 fixture·결과 바이트는 유지한다.
+
+Prometheus range 응답에는 TYPE/unit이 없어 원본 gauge·빈 단위로 저장한다. 이 원본에 한해서 signal.declared_metadata로 unit/kind/temporality/monotonic과 선택적 start_ns·expected_step_ns를 직접 선언한다. 예: unit tokens, kind sum, temporality cumulative, monotonic true, start_ns "0". Gauge는 kind gauge / temporality unspecified / monotonic false다. 선언은 수집 근거로 작성하며 원격 TYPE/lifetime 진위를 인증하지 않는다. 시작 시각이 없으면 누적 rate는 unavailable이다. Raw range bucket을 histogram으로 조립하지 않는다.
+
+원본 저장 metrics·series/point ID·hash는 바꾸지 않는다. 의미 관측과 Workspace 열기는 화면에 공개한 선언 뷰를 사용하고 원본 조회는 원래 의미를 유지한다. 오류에는 signal·원본 이름/kind/unit·불일치 물리 계약을 표시한다.
+
+사용자가 작성하는 bindings의 event id는 생략하거나 빈 문자열로 둔다. 입력 정규화 단계에서만 ID를 생성하고 잘못 제공한 ID는 거부한다. 저장 reader는 빈 ID를 복구하지 않는다. 전체 예는 번들의 r16-bindings-user-input.json을 사용한다. Event의 entity/context와 ref의 source_id·위치는 실제 선언해야 하며 source hash·메타데이터도 필요하다. Request event는 request_start_ns / first_token_ns / last_token_ns / output_tokens를 정확한 문자열로 작성한다.
+
+NVIDIA CSV는 [N/A]와 마지막 빈 줄을 허용한다. Timestamp 수는 실제 데이터 행에 맞추고 참조는 물리 행 번호를 보존한다. 중간 빈 줄 뒤 데이터는 거부한다. 새 payload의 다중 token 동일 first/last는 TPOT null/status다.
+
+결과가 클 때 normalize-source/import-source에 --retained-series-id를 반복하거나 bindings 최상위 retained_series_ids를 지정한다. Workspace도 bindings sidecar를 받는다. 선택 series의 모든 point를 남겨 predecessor/reset context를 유지하고 원본 source ledger·구조 event도 유지한다. 입력 해독 후 선택이므로 원본/모델 자체 byte 제한을 넘는 자료는 정규화 전에 분할해야 한다. 개수만으로 수용량을 보장하지 않는다.

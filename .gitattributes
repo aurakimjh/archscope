@@ -28,3 +28,6 @@ apps/engine-native/internal/catalog/contracts/system-evidence-perf-script.txt wh
 # Synthetic device/serving contracts use manifest-pinned LF bytes.
 apps/engine-native/internal/parsers/inference/testdata/* text eol=lf
 apps/engine-native/internal/analyzers/systemtrace/testdata/*.json text eol=lf
+
+apps/engine-native/internal/analyzers/inference/testdata/*.json text eol=lf
+apps/engine-native/internal/parsers/traceimport/contracts/* text eol=lf

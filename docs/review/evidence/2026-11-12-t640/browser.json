@@ -1,0 +1,168 @@
+{
+  "main": {
+    "scope": "Actual final React components + actual CLI DTOs + synthetic Wails transport; no native execution claim",
+    "namespaceGate": true,
+    "normalizedInspection": true,
+    "spans": 6,
+    "oneAttempt": true,
+    "parentLinkSeparated": true,
+    "lifecycleVisible": true,
+    "selectionClearsPage": true,
+    "canceledLateResultIgnored": true,
+    "calls": [
+      {
+        "object": 0,
+        "name": "main.EngineService.DescribeLLMTrace",
+        "args": [
+          "synthetic-result"
+        ]
+      },
+      {
+        "object": 0,
+        "name": "main.EngineService.InspectLLMTraceSource",
+        "args": [
+          "synthetic-source.json",
+          "{\"semantic_profile\":\"neutral.v1\",\"trace_namespace\":\"synthetic-capture-a\",\"clock\":\"unknown\",\"producer\":\"\",\"producer_version\":\"\"}"
+        ]
+      },
+      {
+        "object": 0,
+        "name": "main.EngineService.QueryLLMTrace",
+        "args": [
+          "synthetic-result",
+          "d806750439f409eeec53ed0d2eb71e3a377dc25aad7bfed5dfde6034f4a38854",
+          "{\"kind\":\"spans\",\"trace_id\":\"\",\"record_id\":\"\",\"request_namespace\":\"\",\"logical_request_id\":\"\",\"cursor\":\"\",\"limit\":25}"
+        ]
+      },
+      {
+        "object": 0,
+        "name": "main.EngineService.QueryLLMTrace",
+        "args": [
+          "synthetic-result",
+          "d806750439f409eeec53ed0d2eb71e3a377dc25aad7bfed5dfde6034f4a38854",
+          "{\"kind\":\"attempts\",\"trace_id\":\"\",\"record_id\":\"\",\"request_namespace\":\"\",\"logical_request_id\":\"\",\"cursor\":\"\",\"limit\":25}"
+        ]
+      },
+      {
+        "object": 0,
+        "name": "main.EngineService.QueryLLMTrace",
+        "args": [
+          "synthetic-result",
+          "d806750439f409eeec53ed0d2eb71e3a377dc25aad7bfed5dfde6034f4a38854",
+          "{\"kind\":\"relations\",\"trace_id\":\"\",\"record_id\":\"\",\"request_namespace\":\"\",\"logical_request_id\":\"\",\"cursor\":\"\",\"limit\":25}"
+        ]
+      },
+      {
+        "object": 0,
+        "name": "main.EngineService.QueryLLMTrace",
+        "args": [
+          "synthetic-result",
+          "d806750439f409eeec53ed0d2eb71e3a377dc25aad7bfed5dfde6034f4a38854",
+          "{\"kind\":\"events\",\"trace_id\":\"\",\"record_id\":\"\",\"request_namespace\":\"\",\"logical_request_id\":\"\",\"cursor\":\"\",\"limit\":25}"
+        ]
+      },
+      {
+        "object": 0,
+        "name": "main.EngineService.QueryLLMTrace",
+        "args": [
+          "synthetic-result",
+          "d806750439f409eeec53ed0d2eb71e3a377dc25aad7bfed5dfde6034f4a38854",
+          "{\"kind\":\"events\",\"trace_id\":\"slow\",\"record_id\":\"\",\"request_namespace\":\"\",\"logical_request_id\":\"\",\"cursor\":\"\",\"limit\":25}"
+        ]
+      },
+      {
+        "object": 10
+      }
+    ]
+  },
+  "parent_and_layout": {
+    "producerFieldsVisible": true,
+    "contextPageVisible": true,
+    "parentHandleChangeLoadsFresh": true,
+    "scopeIdentityPreserved": true,
+    "consoleScope": "actual final React and CLI DTOs; mock IPC only",
+    "calls": [
+      {
+        "object": 0,
+        "name": "main.EngineService.DescribeLLMTrace",
+        "args": [
+          "synthetic-result"
+        ]
+      },
+      {
+        "object": 0,
+        "name": "main.EngineService.InspectLLMTraceSource",
+        "args": [
+          "synthetic-source.json",
+          "{\"semantic_profile\":\"neutral.v1\",\"trace_namespace\":\"synthetic-capture-a\",\"clock\":\"unknown\",\"producer\":\"\",\"producer_version\":\"\"}"
+        ]
+      },
+      {
+        "object": 0,
+        "name": "main.EngineService.QueryLLMTrace",
+        "args": [
+          "synthetic-result",
+          "d806750439f409eeec53ed0d2eb71e3a377dc25aad7bfed5dfde6034f4a38854",
+          "{\"kind\":\"spans\",\"trace_id\":\"\",\"record_id\":\"\",\"request_namespace\":\"\",\"logical_request_id\":\"\",\"cursor\":\"\",\"limit\":25}"
+        ]
+      },
+      {
+        "object": 0,
+        "name": "main.EngineService.QueryLLMTrace",
+        "args": [
+          "synthetic-result",
+          "d806750439f409eeec53ed0d2eb71e3a377dc25aad7bfed5dfde6034f4a38854",
+          "{\"kind\":\"attempts\",\"trace_id\":\"\",\"record_id\":\"\",\"request_namespace\":\"\",\"logical_request_id\":\"\",\"cursor\":\"\",\"limit\":25}"
+        ]
+      },
+      {
+        "object": 0,
+        "name": "main.EngineService.QueryLLMTrace",
+        "args": [
+          "synthetic-result",
+          "d806750439f409eeec53ed0d2eb71e3a377dc25aad7bfed5dfde6034f4a38854",
+          "{\"kind\":\"relations\",\"trace_id\":\"\",\"record_id\":\"\",\"request_namespace\":\"\",\"logical_request_id\":\"\",\"cursor\":\"\",\"limit\":25}"
+        ]
+      },
+      {
+        "object": 0,
+        "name": "main.EngineService.QueryLLMTrace",
+        "args": [
+          "synthetic-result",
+          "d806750439f409eeec53ed0d2eb71e3a377dc25aad7bfed5dfde6034f4a38854",
+          "{\"kind\":\"events\",\"trace_id\":\"\",\"record_id\":\"\",\"request_namespace\":\"\",\"logical_request_id\":\"\",\"cursor\":\"\",\"limit\":25}"
+        ]
+      },
+      {
+        "object": 0,
+        "name": "main.EngineService.QueryLLMTrace",
+        "args": [
+          "synthetic-result",
+          "d806750439f409eeec53ed0d2eb71e3a377dc25aad7bfed5dfde6034f4a38854",
+          "{\"kind\":\"events\",\"trace_id\":\"slow\",\"record_id\":\"\",\"request_namespace\":\"\",\"logical_request_id\":\"\",\"cursor\":\"\",\"limit\":25}"
+        ]
+      },
+      {
+        "object": 10
+      },
+      {
+        "object": 0,
+        "name": "main.EngineService.DescribeLLMTrace",
+        "args": [
+          "synthetic-result-2"
+        ]
+      },
+      {
+        "object": 0,
+        "name": "main.EngineService.QueryLLMTrace",
+        "args": [
+          "synthetic-result-2",
+          "d806750439f409eeec53ed0d2eb71e3a377dc25aad7bfed5dfde6034f4a38854",
+          "{\"kind\":\"contexts\",\"trace_id\":\"\",\"record_id\":\"\",\"request_namespace\":\"\",\"logical_request_id\":\"\",\"cursor\":\"\",\"limit\":25}"
+        ]
+      }
+    ]
+  },
+  "warning": "Wails browser-preview warning; mock IPC, not native Wails/Windows execution",
+  "visual_inspection": "Viewed span screenshot; readable Korean and exact IDs, horizontally scrollable table. Producer fields received visible borders/placeholders; final context screenshot captures the change."
+}
