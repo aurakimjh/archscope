@@ -144,3 +144,5 @@ projection is a queued follow-up.
 Pinned keyed formatter: [bpftrace 0.22 output.cpp](https://github.com/bpftrace/bpftrace/blob/v0.22.0/src/output.cpp).
 
 Unique-frame perf inputs can reach the 16 MiB model limit around 4,012 samples of 25 unique frames each; the 20k/24k repeated-stack checks do not establish that capacity for unique stacks. Use the reported byte limit and split the original time window with perf script --time, then normalize each part.
+
+original_sha256 is declared upstream binary provenance, not a text hash assertion. Optional capture.imported_sha256 is checked against the exact imported file bytes (compressed bytes for gzip) before parsing and on model validation. Mismatch refuses SYSTEM_CAPTURE_IMPORTED_MISMATCH. Existing captures without it retain their identity/bytes.

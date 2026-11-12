@@ -141,3 +141,34 @@ func TestR1501KeyedHistogramAndStableMalformedShape(t *testing.T) {
 		t.Fatal(e)
 	}
 }
+
+func TestR1503SeparateBinaryAndImportedHashes(t *testing.T) {
+	s := load(t, "perf-script.txt", "perf-script", "perf-capture.json")
+	raw, e := os.ReadFile("testdata/perf-script.txt")
+	if e != nil {
+		t.Fatal(e)
+	}
+	capture := s.Capture
+	capture.OriginalSHA256 = strings.Repeat("0", 64)
+	capture.ImportedSHA256 = m.Digest(raw)
+	got, e := p.ParseBytes(context.Background(), raw, p.Options{Format: s.Format, Capture: capture})
+	if e != nil || got.Capture.OriginalSHA256 != capture.OriginalSHA256 {
+		t.Fatal("binary provenance compared to text", e)
+	}
+	capture.ImportedSHA256 = strings.Repeat("1", 64)
+	if _, e = p.ParseBytes(context.Background(), raw, p.Options{Format: s.Format, Capture: capture}); e == nil || !strings.Contains(e.Error(), "SYSTEM_CAPTURE_IMPORTED_MISMATCH") {
+		t.Fatal(e)
+	}
+	var zipped bytes.Buffer
+	z := gzip.NewWriter(&zipped)
+	z.Write(raw)
+	z.Close()
+	capture.ImportedSHA256 = m.Digest(zipped.Bytes())
+	if _, e = p.ParseBytes(context.Background(), zipped.Bytes(), p.Options{Format: s.Format, Capture: capture}); e != nil {
+		t.Fatal(e)
+	}
+	got.Capture.ImportedSHA256 = strings.Repeat("1", 64)
+	if got.Validate(context.Background()) == nil {
+		t.Fatal("saved assertion mismatch accepted")
+	}
+}

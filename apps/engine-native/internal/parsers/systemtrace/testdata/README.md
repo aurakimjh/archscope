@@ -11,3 +11,5 @@ bpftrace-hist.jsonl은 bpftrace v0.22.0의 hist/lhist JSON shape와 비교한 �
 기준 문서: https://raw.githubusercontent.com/torvalds/linux/v6.12/tools/perf/Documentation/perf-script.txt 및 https://github.com/bpftrace/bpftrace/tree/v0.22.0/tests/runtime/outputs .
 
 1.1.0 저장 모델은 frame/stack을 한 번만 저장하고 record는 정수 stack_id로 참조합니다. 1.0.0/결과 0.1.0 reader는 유지합니다. keyed histogram 합성 출력은 bpftrace 0.22.0 src/output.cpp의 JsonOutput::map_hist/key formatter와 대조했으며 실제 BPF attach는 하지 않았습니다. Original_sha256은 수집 binary 등 변환 전 원본의 선언 provenance이며 source_sha256(가져온 text/gzip 실제 byte hash)과 다를 수 있습니다. 두 항목을 같은 assertion으로 사용하지 않습니다.
+
+`original_sha256`은 변환 전 상위 바이너리의 선언된 출처이며 텍스트 해시와 비교하지 않습니다. 선택적인 `imported_sha256`은 실제 가져오는 파일 바이트(압축 파일이면 압축 바이트)의 SHA-256 단언으로, 불일치하면 `SYSTEM_CAPTURE_IMPORTED_MISMATCH`로 거부합니다. 기존 값이 없는 저장 모델은 그대로 읽습니다.

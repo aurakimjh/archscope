@@ -46,6 +46,7 @@ type HistogramDefinition struct {
 	To          *string `json:"to_ns"`
 }
 type Capture struct {
+	ImportedSHA256 string                `json:"imported_sha256,omitempty"`
 	OriginalSHA256 string                `json:"original_sha256,omitempty"`
 	ExportOptions  []string              `json:"export_options,omitempty"`
 	Schema         string                `json:"schema"`
@@ -136,6 +137,9 @@ func bound(s string, n int) bool {
 	return utf8.ValidString(s) && len(s) <= n && !strings.ContainsRune(s, 0)
 }
 func (c Capture) Validate() error {
+	if c.ImportedSHA256 != "" && !hashPattern.MatchString(c.ImportedSHA256) {
+		return fmt.Errorf("SYSTEM_IMPORTED_HASH_INVALID")
+	}
 	if c.OriginalSHA256 != "" && !hashPattern.MatchString(c.OriginalSHA256) {
 		return fmt.Errorf("SYSTEM_ORIGINAL_HASH_INVALID")
 	}
@@ -239,6 +243,9 @@ func (s Set) Validate(ctx context.Context) error {
 	}
 	if e := s.Capture.Validate(); e != nil {
 		return e
+	}
+	if s.Capture.ImportedSHA256 != "" && s.Capture.ImportedSHA256 != s.SourceSHA256 {
+		return fmt.Errorf("SYSTEM_CAPTURE_IMPORTED_MISMATCH: imported_sha256 must match actual input bytes, not the upstream binary")
 	}
 	switch s.Format {
 	case "perf-script":

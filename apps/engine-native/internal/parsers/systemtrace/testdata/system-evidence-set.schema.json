@@ -45,7 +45,17 @@
         "entities",
         "events",
         "histograms"
-      ]
+      ],
+      "properties": {
+        "original_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "imported_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
     },
     "records": {
       "type": "array",

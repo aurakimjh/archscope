@@ -73,6 +73,9 @@ func ParseBytes(ctx context.Context, original []byte, o Options) (m.Set, error) 
 	if e := o.Capture.Validate(); e != nil {
 		return s, e
 	}
+	if o.Capture.ImportedSHA256 != "" && o.Capture.ImportedSHA256 != s.SourceSHA256 {
+		return m.Set{}, fmt.Errorf("SYSTEM_CAPTURE_IMPORTED_MISMATCH: imported_sha256 does not match actual input bytes")
+	}
 	body := original
 	if bytes.HasPrefix(body, []byte{31, 139}) {
 		r, e := gzip.NewReader(bytes.NewReader(body))
