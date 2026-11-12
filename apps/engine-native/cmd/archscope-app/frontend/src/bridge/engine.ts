@@ -529,3 +529,5 @@ export const normalizeGPUExecutionSource = (path: string, options: string, diges
 export const describeGPUExecution = (handle: string): Cancelable<GPUExecutionInventory> => parseAssistance(call<string>("DescribeGPUExecution", handle));
 export const queryGPUExecution = (handle: string, digest: string, query: string): Cancelable<GPUExecutionPage> => parseAssistance(call<string>("QueryGPUExecution", handle, digest, query));
 export const exportGPUExecutionSVG = (handle: string, digest: string, query: string, output: string): Cancelable<string> => call<string>("ExportGPUExecutionSVG", handle, digest, query, output);
+
+export const exportMetricIntervalCSV = (handle: string, digest: string, selection: string, output: string) => call<void>("ExportMetricIntervalCSV", handle, digest, selection, output);

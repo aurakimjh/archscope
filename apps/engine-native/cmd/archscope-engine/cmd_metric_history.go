@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/exporters/metriccsv"
 	"io"
 	"os"
 	"os/signal"
@@ -22,7 +23,7 @@ import (
 
 func metricHistoryCommands() []*cobra.Command {
 	out := []*cobra.Command{}
-	for _, operation := range []string{"history-inspect", "history-normalize", "history-import", "history-query", "history-merge"} {
+	for _, operation := range []string{"history-inspect", "history-normalize", "history-import", "history-query", "history-merge", "history-csv"} {
 		var input, output, format, producer, version, exportID, namespace, queryJSON, selectionJSON string
 		var inputs []string
 		command := &cobra.Command{Use: operation, Args: cobra.NoArgs, RunE: func(cmd *cobra.Command, _ []string) error {
@@ -30,7 +31,7 @@ func metricHistoryCommands() []*cobra.Command {
 			defer stop()
 			var set m.Set
 			var e error
-			if operation == "history-query" {
+			if operation == "history-query" || operation == "history-csv" {
 				body, e := readMetricDocument(input, 64<<20)
 				if e != nil {
 					return e
@@ -45,6 +46,28 @@ func metricHistoryCommands() []*cobra.Command {
 				core, e := analyzer.ReadCore(result)
 				if e != nil {
 					return e
+				}
+				if operation == "history-csv" {
+					selection := core.Selection
+					if selectionJSON != "" {
+						if e = m.Strict([]byte(selectionJSON), &selection); e != nil {
+							return e
+						}
+					}
+					sum := sha256.Sum256(body)
+					csvBody, e := metriccsv.Encode(ctx, core.Model, selection, hex.EncodeToString(sum[:]))
+					if e != nil {
+						return e
+					}
+					if output == "-" {
+						_, e = cmd.OutOrStdout().Write(csvBody)
+						return e
+					}
+					root, e := cases.DefaultRoot()
+					if e != nil {
+						return e
+					}
+					return localfiles.Publish(ctx, output, csvBody, root)
 				}
 				var query m.Query
 				if e = m.Strict([]byte(queryJSON), &query); e != nil {

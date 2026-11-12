@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/csv"
 	"encoding/json"
 	history "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/metrichistory"
 	m "github.com/aurakimjh/archscope/apps/engine-native/internal/metricmodel"
@@ -65,6 +67,20 @@ func TestT638ActualCLIMetricHistoryRoundtripAndLegacy(t *testing.T) {
 	var page m.Page
 	if e = json.Unmarshal(out, &page); e != nil || page.Total != 4 || page.Next == "" || *page.Rows[1].Rate != "7" {
 		t.Fatal(string(out), e)
+	}
+	intervalCSV := filepath.Join(root, "intervals.csv")
+	run("metrics", "history-csv", "--in", saved, "--out", intervalCSV)
+	csvBody, _ := os.ReadFile(intervalCSV)
+	records, err := csv.NewReader(bytes.NewReader(csvBody)).ReadAll()
+	if err != nil || len(records) != 5 || !bytes.Contains(csvBody, []byte("observed_histogram_json")) {
+		t.Fatal("interval CSV", err)
+	}
+	if _, err = exec.Command(executable, "metrics", "history-csv", "--in", saved, "--out", intervalCSV).CombinedOutput(); err == nil {
+		t.Fatal("CSV overwrote file")
+	}
+	legacyCSV := run("metrics", "history-csv", "--in", legacyResult)
+	if !bytes.Contains(legacyCSV, []byte("point_id")) {
+		t.Fatal("legacy CSV unavailable")
 	}
 	for _, format := range []string{"json", "csv", "html", "report-pack"} {
 		run("evidence", "export", "--in", saved, "--export-format", format, "--out", filepath.Join(root, "export."+format))

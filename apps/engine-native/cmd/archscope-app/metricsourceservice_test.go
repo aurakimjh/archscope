@@ -68,6 +68,20 @@ func TestT638MetricWailsNormalizeSavedReadAndQuery(t *testing.T) {
 	if e = json.Unmarshal([]byte(text), &page); e != nil || page.Total != 2 || page.Next == "" {
 		t.Fatal(text, e)
 	}
+	csvPath := filepath.Join(t.TempDir(), "intervals.csv")
+	if e = svc.ExportMetricIntervalCSV(ctx, job.ResultHandle, query.ResultSHA256, string(options), csvPath); e != nil {
+		t.Fatal(e)
+	}
+	csvBody, _ := os.ReadFile(csvPath)
+	if !strings.Contains(string(csvBody), "observed_histogram_json") {
+		t.Fatal("missing interval CSV")
+	}
+	if e = svc.ExportMetricIntervalCSV(ctx, job.ResultHandle, query.ResultSHA256, string(options), csvPath); e == nil {
+		t.Fatal("CSV overwrite")
+	}
+	if e = svc.ExportMetricIntervalCSV(ctx, job.ResultHandle, "stale", string(options), filepath.Join(t.TempDir(), "stale.csv")); e == nil {
+		t.Fatal("stale CSV")
+	}
 	saved, e := svc.GetEvidenceResultJSON(job.ResultHandle)
 	if e != nil {
 		t.Fatal(e)

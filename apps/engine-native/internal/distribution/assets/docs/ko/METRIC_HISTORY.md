@@ -112,14 +112,14 @@ CLI normalize/merge와 `history-import`는 compact JSON을 써서 자체 입력 
 Bucket/속성 크기에 따라 한도가 먼저 찰 수 있어 모든 10만 point 입력의 수용을 보장하지 않습니다.
 
 Generic CSV는 현재 summary/availability만 내보내며 **구간 행은 포함하지 않습니다**.
-정확한 구간/bucket은 `history-query` JSON을 사용하세요(R13-06 후속).
+정확한 구간/bucket은 `history-query` JSON 또는 아래 설명한 R13-06 전용 구간 CSV를 사용하세요.
 기존 본문의 CSV/HTML/report-pack 지원은 공통 exporter 사용을 뜻하며 전용 구간 CSV를 뜻하지 않습니다.
 
 독립 CONDITIONAL 리뷰는 P2 저장 문제 해소 후 나머지 P3를 후속 큐로 두고 종결하도록 허용했습니다.
 R13-02는 아래 설명한 프로세스 내부의 검증된 모델·구간 조회 인덱스로 로컬 수정했습니다.
 R13-04는 좌표가 부족한 수치/형식 오류와 exact 범위 밖 값의 파일 전체 거부,
-R13-05는 다른 export의 동일 값도 별도 보존하며 `conflicting_timestamp`가 될 수 있는 상태,
-R13-07은 검색/페이지 없는 bounded 전체 series 목록입니다. 위 R13-03/06과 함께 후속 작업이며
+R13-03/05/06은 아래 설명한 버전별 gap·동일 관측 판정·전용 CSV로 로컬 수정했습니다.
+R13-07은 검색/페이지 없는 bounded 전체 series 목록으로 남은 후속 작업이며
 완료 기능으로 주장하지 않습니다. 실제 사용자 export와 native WebView/Windows 검증은 별도입니다.
 
 R14-07 정정: 0.2.0 generic 상세/HTML/Report Pack 표는 point ID·status와 time/clock/reference
@@ -156,6 +156,8 @@ Warm 페이지는 이를 재사용해 선택 시계열의 종료 시각 범위�
 neutral·실제 PostgreSQL/Linux·SDK histogram의 기존/인덱스 페이지 바이트 일치,
 100k point warm 재사용, mtime 복원 변조, owner/cleanup, 만료·바이트 퇴출, 동시 반환값
 격리·취소·legacy 저장 바이트 보존을 회귀로 확인합니다. 백엔드 검증이며 native WebView/
-Windows·일반적인 latency/RSS 수용을 뜻하지 않습니다. R13-03/04/05/06/07 후속 큐는 유지합니다.
+Windows·일반적인 latency/RSS 수용을 뜻하지 않습니다. R13-04/07 후속 큐는 유지합니다.
 
 새 원본 가져오기는 normalizer 1.2.0입니다. 같은 종료 시각의 전체 관측 내용(start·flags·histogram·exemplars 포함)이 모두 같으면 `duplicate_observation`, 하나라도 다르면 전체 묶음이 `conflicting_timestamp`입니다. 모든 export와 ref를 보존하며 해당 묶음과 다음 cumulative 관측의 rate를 만들거나 임의 writer를 선택하지 않습니다. 겹치는 delta 묶음도 동일/충돌 상태를 유지하고 파생 계산을 억제합니다. 저장된 1.0.0/1.1.0 결과는 종전 동일 시각 판정을 유지합니다.
+
+R13-06 구간 CSV 1.0.0: **구간 CSV 내보내기** 또는 `metrics history-csv --in saved-result.json --out intervals.csv`로 저장된 선택의 모든 페이지를 내보냅니다. `--selection`으로만 선택을 변경합니다. 정확한 숫자 문자열·분수 rate·관측/파생 histogram JSON·상태·gap·원본 좌표·시계열 식별자·참조 원본 출처를 보존합니다. 종료 시각 [from,to)로 구간 전체를 선택하고 창 밖 선행 문맥도 유지합니다. 없는 scalar는 빈 셀, 없는 histogram은 JSON `null`입니다. name/unit 자유 텍스트의 수식 접두사는 작은따옴표로 이스케이프하며, 스프레드시트에서는 숫자 열을 텍스트로 가져와야 정밀도를 보존합니다. 64 MiB 초과는 전체 거부하며 자르거나 기존/관리 파일을 덮어쓰지 않습니다. 일반 요약 CSV 동작은 그대로입니다.

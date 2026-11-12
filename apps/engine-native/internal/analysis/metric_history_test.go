@@ -49,6 +49,13 @@ func TestT638GenericImportQueryMaterializeCaseAndExports(t *testing.T) {
 	if _, e = s.QueryMetricHistory(ctx, job.ResultHandle, strings.Repeat("a", 64), m.Query{Selection: selection, Limit: 1}); e == nil {
 		t.Fatal("stale digest accepted")
 	}
+	if _, e = s.MetricIntervalCSV(ctx, job.ResultHandle, strings.Repeat("a", 64), selection); e == nil {
+		t.Fatal("CSV stale digest")
+	}
+	csvBody, e := s.MetricIntervalCSV(ctx, job.ResultHandle, inv.ResultSHA256, selection)
+	if e != nil || !strings.Contains(string(csvBody), "refs_json") {
+		t.Fatal("CSV projection", e)
+	}
 	selection.From = page.Rows[0].End
 	view, lease, e := s.MaterializeMetricSelection(ctx, job.ResultHandle, inv.ResultSHA256, selection)
 	if e != nil {

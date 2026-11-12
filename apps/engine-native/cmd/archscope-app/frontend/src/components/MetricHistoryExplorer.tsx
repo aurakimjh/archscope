@@ -1,3 +1,4 @@
+import { Dialogs } from "@wailsio/runtime";
 import { useEffect, useRef, useState } from "react";
 import * as bridge from "@/bridge/engine";
 import { Button } from "@/components/ui/button";
@@ -25,11 +26,23 @@ export function MetricHistoryExplorer({ handle }: { handle: string }): React.JSX
     try { const value = JSON.parse(await bridge.materializeMetricView(handle, inventory.result_sha256, JSON.stringify(selection()))) as { view: { handle: string; type: string }; lease: { id: string } }; if (!scope.current.current(r) || generation !== getWorkspaceGeneration()) { await bridge.releaseEvidenceLease(value.lease.id); return; } addWorkspaceResult({ backendResultHandle: value.view.handle, backendLeaseID: value.lease.id, result: { type: value.view.type, summary: {} }, title: w("Selected metric history", "선택한 메트릭 이력") }); }
     catch (e) { if (scope.current.current(r)) setError(String(e)); } finally { if (scope.current.current(r)) setBusy(false); }
   }
+  async function exportIntervals(): Promise<void> {
+    if (!inventory || !ids.length) return;
+    const r = scope.current.begin(); setBusy(true); setError("");
+    try {
+      const output = await Dialogs.SaveFile({ Title: w("Export exact metric intervals", "정확한 메트릭 구간 내보내기"), Filename: "metric-intervals.csv" });
+      if (!output || !scope.current.current(r)) return;
+      await scope.current.wait(r, bridge.exportMetricIntervalCSV(handle, inventory.result_sha256, JSON.stringify(selection()), output));
+    } catch (e) { if (scope.current.current(r)) setError(String(e)); }
+    finally { if (scope.current.current(r)) setBusy(false); }
+  }
   return <details className="rounded border border-border p-3"><summary>{w("Exact metric intervals and provenance", "정확한 메트릭 구간과 출처")}</summary>
     <p className="text-xs">{w("Time windows select point end times [start, end). Intervals are retained whole. Rates are exact fractions per second; gaps are not interpolated. Missing timestamps, resets and ambiguous points remain explicit. Series are never summed automatically.", "시간창은 관측 종료 시각 [시작, 끝)을 선택하며 구간 전체를 유지합니다. Rate는 초당 정확한 분수이고 gap을 보간하지 않습니다. 시각 누락·reset·모호한 관측을 표시하며 시계열을 자동 합산하지 않습니다.")}</p>
     {inventory && <fieldset disabled={busy} className="space-y-2">{inventory.series.map(series => <div key={series.id}><label><input type="checkbox" checked={ids.includes(series.id)} onChange={e => setIDs(value => e.target.checked ? [...value, series.id] : value.filter(id => id !== series.id))} /> {safeDisplayText(`${series.name} · ${series.unit} · ${series.kind}/${series.temporality}`)}</label><details><summary>{w("Resource / scope / attributes", "Resource / scope / 속성")}</summary><pre className="overflow-auto text-xs">{safeDisplayText(series.identity_json)}</pre></details></div>)}
       <input aria-label={w("Metric window start nanoseconds", "메트릭 시간창 시작 나노초")} value={from} onChange={e => setFrom(e.target.value)} placeholder={w("Inclusive Unix nanoseconds", "포함 시작 Unix 나노초")} /> <input aria-label={w("Metric window end nanoseconds", "메트릭 시간창 끝 나노초")} value={to} onChange={e => setTo(e.target.value)} placeholder={w("Exclusive Unix nanoseconds", "미포함 끝 Unix 나노초")} />
       <Button disabled={!ids.length} onClick={() => void query()}>{w("Query intervals", "구간 조회")}</Button>{" "}<Button variant="outline" disabled={!ids.length} onClick={() => void materialize()}>{w("Add selection as new result", "선택을 새 결과로 추가")}</Button>
+      <Button variant="outline" disabled={!ids.length} onClick={() => void exportIntervals()}>{w("Export interval CSV", "구간 CSV 내보내기")}</Button>
+      <p className="text-xs">{w("CSV preserves exact numeric text. Import numeric columns as text in spreadsheets to avoid rounding. Free-text formula prefixes are escaped with an apostrophe.", "CSV는 정확한 숫자 문자열을 보존합니다. 스프레드시트에서는 숫자 열을 텍스트로 가져와 반올림을 방지하세요. 자유 텍스트의 수식 접두사는 작은따옴표로 이스케이프합니다.")}</p>
       {inventory.warnings.map((warning, i) => <p key={i} className="text-xs">{safeDisplayText(warning)}</p>)}
     </fieldset>}
     {busy && <Button variant="outline" onClick={() => { scope.current.cancel(); setBusy(false); }}>{w("Cancel", "취소")}</Button>}

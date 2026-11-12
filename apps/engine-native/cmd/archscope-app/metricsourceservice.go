@@ -99,3 +99,27 @@ func metricInventoryJSON(value any, failure error) (string, error) {
 	}
 	return caseJSON(object, nil)
 }
+
+// ExportMetricIntervalCSV publishes a new local file; existing/managed paths are refused.
+func (s *EngineService) ExportMetricIntervalCSV(ctx context.Context, handle, digest, selectionJSON, output string) error {
+	roots, err := assistanceRoots()
+	if err != nil {
+		return err
+	}
+	if _, err = localfiles.Preflight(output, roots...); err != nil {
+		return err
+	}
+	var selection m.Selection
+	if err = m.Strict([]byte(selectionJSON), &selection); err != nil {
+		return err
+	}
+	service, err := s.evidence()
+	if err != nil {
+		return err
+	}
+	body, err := service.MetricIntervalCSV(ctx, handle, digest, selection)
+	if err != nil {
+		return err
+	}
+	return localfiles.Publish(ctx, output, body, roots...)
+}

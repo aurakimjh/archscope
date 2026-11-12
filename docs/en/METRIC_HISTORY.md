@@ -1,7 +1,7 @@
 # Exact metric history
 
-T-638 adds `metrics_timeseries` payload 0.2.0 (saved 0.1.0 remains readable) and MetricHistory model / normalizer
-1.0.0. Legacy `metrics_snapshot` import and saved readers retain their semantics.
+T-638 adds `metrics_timeseries` payload 0.2.0 (saved 0.1.0 remains readable) and MetricHistory model
+1.0.0 with explicit normalizer revisions 1.0.0–1.2.0. Legacy `metrics_snapshot` import and saved readers retain their semantics.
 The common AnalysisResult envelope, parser/analyzer/exporter separation and
 backend-owned exact values remain unchanged.
 
@@ -131,7 +131,16 @@ cursors bind result digest and selection/window/page identity. Saved case bytes
 and JSON exports preserve their saved revision. Generic detail/timeline and
 HTML/report-pack work without adding a product-specific result envelope.
 Generic CSV currently exports summary/availability only, **not interval rows**;
-use `history-query` JSON for exact interval/bucket output until R13-06. Metric comparison/SLI
+use **Export interval CSV** or `metrics history-csv --in saved-result.json --out intervals.csv`
+for the dedicated interval projection (CSV 1.0.0). `--selection` overrides the saved
+selection explicitly; otherwise it exports the saved selection, across all pages.
+Exact numeric strings, rational rates, observed/derived histogram JSON, statuses,
+gaps, original coordinates, series identity and referenced source metadata are
+retained. End-time windows keep whole intervals and their predecessor context.
+Missing scalar fields are empty; absent histograms are JSON `null`. Free-text
+name/unit formula prefixes are apostrophe-escaped; import numeric columns as text
+in spreadsheets to preserve precision. Output is bounded to 64 MiB with an explicit
+whole-export refusal; no truncation or overwrite of existing/managed files. Metric comparison/SLI
 policy, automatic source alignment and native UI/Windows acceptance remain separate.
 
 Exact decimal literals are limited to 1,024 characters, exponent ±128 and

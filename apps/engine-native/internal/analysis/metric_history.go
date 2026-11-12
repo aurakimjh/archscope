@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	a "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/metrichistory"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/exporters/metriccsv"
 	m "github.com/aurakimjh/archscope/apps/engine-native/internal/metricmodel"
 	source "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory"
 )
@@ -81,4 +82,14 @@ func (s *Service) MaterializeMetricSelection(ctx context.Context, handle, digest
 		return view, lease, err
 	}
 	return s.LoadOwnedSnapshot(ctx, body)
+}
+
+// MetricIntervalCSV uses the same owned, byte-verified snapshot as metric queries.
+func (s *Service) MetricIntervalCSV(ctx context.Context, handle, digest string, selection m.Selection) ([]byte, error) {
+	if digest == "" {
+		return nil, fmt.Errorf("METRIC_RESULT_STALE")
+	}
+	return withMetric(s, ctx, handle, digest, func(ctx context.Context, prepared *metricSemantic, actual string) ([]byte, error) {
+		return metriccsv.Encode(ctx, prepared.core.Model, selection, actual)
+	})
 }

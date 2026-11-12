@@ -531,6 +531,13 @@ export function ExportJSON(req: $models.ExportJSONRequest): $CancellablePromise<
 }
 
 /**
+ * ExportMetricIntervalCSV publishes a new local file; existing/managed paths are refused.
+ */
+export function ExportMetricIntervalCSV(handle: string, digest: string, selectionJSON: string, output: string): $CancellablePromise<void> {
+    return $Call.ByID(2167619180, handle, digest, selectionJSON, output);
+}
+
+/**
  * ExportPPTX renders `Result` as a slide deck at `Path`.
  */
 export function ExportPPTX(req: $models.ExportPPTXRequest): $CancellablePromise<void> {
