@@ -6,6 +6,7 @@
 
 | 날짜 | 문서 | 대상 | 판정 |
 |---|---|---|---|
+| 2026-11-12 | [T-643 Apple Silicon 증거 어댑터 구현 독립 리뷰](2026-11-12_claude-code_T-643_implementation-review.ko.md) | `d9e62b1` | CONDITIONAL(P2 1/P3 3, P1 없음). R20-01(선택하지 않은 로드 모델이 표시 없이 제외됨)을 먼저 처리한 뒤 DONE 복귀 허용, 나머지는 후속 큐. R19-01 JTL 정확 분포 수정은 독립 입력으로 확인 |
 | 2026-11-12 | [T-642 부하·LLM 벤치마크·JVM 크래시 비교 근거 구현 독립 리뷰](2026-11-12_claude-code_T-642_implementation-review.ko.md) | `efb9c7c` | CONDITIONAL(P2 1/P3 3, P1 없음). R19-01(JTL 5만 행 한도와 백분위 합성 불가)을 먼저 처리한 뒤 DONE 복귀 허용, 나머지는 후속 큐 |
 
 ## 처리 기록
