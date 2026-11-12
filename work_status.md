@@ -3809,7 +3809,7 @@ Record all findings before moving original bytes (SHA-256: `8d4fc9a82b842592feb1
 | Order | Finding | Disposition / dependency |
 |---|---|---|
 | 1 / P2 | R14-01 | Narrow spreadsheet protection to actual formula/numeric/date risks; distinguish HTML/TSV/header behavior and disclose changed-cell counts. Locally fixed and verified: narrow 0.2.0 policy, per-format counts in artifact/bridge/UI, formula-only header treatment and current table reconstruction for old ZIPs. T-636 closure condition satisfied; independent final PASS not claimed. |
-| 2 / P3 | R14-02 | Follow-up before new diff template expansion: pin delta/name ordering and zero-delta policy; label inclusive columns explicitly. Existing strict comparison values remain exact. |
+| 2 / P3 | R14-02 | LOCALLY_FIXED; before new diff template expansion: pin delta/name ordering and zero-delta policy; label inclusive columns explicitly. Existing strict comparison values remain exact. |
 | 3 / P3 | R14-03 | Follow-up: refuse nonzero offset for profile views or bind a validated cursor; currently only cursor controls profile paging. |
 | 4 / P3 | R14-04 | Follow-up: validate required image count ≤5 during spec creation/validation, not only rendering. |
 | 5 / P3 | R14-05 | Follow-up: stronger generator/pixel provenance or deterministic SVG comparison. Correct docs now: checksums detect corruption/partial changes, not authenticated authorship or PNG/view equivalence. |
@@ -4797,3 +4797,10 @@ R13-04 LOCALLY_FIXED: original OTLP/snapshot/range numeric and JSON type errors 
 Exact-range policy remains whole-file refusal, not rounding/dropping/new point status: errors return no partial model and publish no normalized/result file. Saved model/normalizer and payload0.1.0/0.2.0/AnalysisResult contracts are unchanged. Capture semantic diagnostics stay unchanged; their decoder type errors now share the bounded boundary.
 
 Targeted race/parser/model/analyzer/catalog and actual CLI/Wails tests pass:1000 points with index777 invalid, exponent limits/signed overflow/precision/shape/snake_case, nested attributes, deterministic exponential sides, deferred snapshot validation, gzip, cancellation, long private labels/values and no publication. Actual CLI39 operations compare six valid models byte-for-byte with the prior binary and keep saved0.1.0 bytes unchanged. Final verification complete: full race 120 packages/1721 passing test events, zero failures; host/Windows amd64/386 vet, Mac production/signature, both Windows GUI cross-builds, unchanged frontend state tests, embedded resources/notices and desktop-only guards. Network-none76 operations record zero inet calls, including5 diagnostic/no-publication refusals; failed-connect positive control detected. Receipt: docs/review/evidence/2026-11-13-r13-04/local.json. No independent PASS or new native Windows runtime acceptance is asserted. Counts stay228 DONE/3 REVIEW/1 PENDING=232. Next ready task: R14-02.
+
+
+### Review follow-up batch — 2026-11-13
+
+User authorized the21 remaining review follow-ups in listed order, one commit/item and push only after the complete batch. Start git pull --ff-only: already up to date at4b0743d. Existing HTTP docs/verifier and original ten-line tracker block are excluded; native Windows acceptance4 tasks and Q01–Q04 remain separate. Order: R14-02 → R14-03 → R14-04 → R14-05 → R14-06 → R14-07 → R15-03 → R15-04 → R15-05 → R17-05 → R19-02 → R19-03 → R19-04 → R20-02 → R20-03 → R20-04 → R21-02 → R21-04 → R22-03 → R22-01 → R22-02.
+
+R14-02 LOCALLY_FIXED: Exact delta_abs/delta/name ordering, zero-delta policy pinned before paging, target-only frame names and inclusive columns; comparison percentages stay in the exact API. Targeted visual/profile integration tests passed. No new independent PASS; original parent verdicts and existing saved revisions are preserved.

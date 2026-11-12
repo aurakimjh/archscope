@@ -57,3 +57,34 @@ func TestVisualProfileAndProviderFreezeExactSelection(t *testing.T) {
 		t.Fatal("cancellation ignored")
 	}
 }
+
+func TestR1402DiffSelectionPolicyPinned(t *testing.T) {
+	s, _, _ := setup(t, nil)
+	job := importModel(t, s, "duration")
+	ctx := context.Background()
+	empty, e := s.VisualView(ctx, job.ResultHandle, job.ResultHandle, visuals.Query{Kind: "profile_diff", Limit: 25})
+	if e != nil || empty.Total != 0 || empty.Query.Sort != "delta_abs" || empty.Query.OmitZeroDelta == nil || !*empty.Query.OmitZeroDelta {
+		t.Fatal(empty, e)
+	}
+	keep := false
+	for _, order := range []string{"name", "delta", "delta_abs"} {
+		view, e := s.VisualView(ctx, job.ResultHandle, job.ResultHandle, visuals.Query{Kind: "profile_diff", Limit: 25, Sort: order, OmitZeroDelta: &keep})
+		if e != nil || len(view.Rows) == 0 || view.Columns[1] != "Inclusive before" {
+			t.Fatal(view, e)
+		}
+		if order == "name" {
+			for i := 1; i < len(view.Rows); i++ {
+				if view.Rows[i-1][0].Text > view.Rows[i][0].Text {
+					t.Fatal("name order")
+				}
+			}
+		}
+		spec, e := visuals.NewSpec(view, visuals.DefaultPresentation(), "")
+		if e != nil || spec.Query.Sort != order || spec.Query.OmitZeroDelta == nil {
+			t.Fatal(spec, e)
+		}
+	}
+	if _, e = s.VisualView(ctx, job.ResultHandle, job.ResultHandle, visuals.Query{Kind: "profile_diff", Limit: 25, Sort: "bogus"}); e == nil {
+		t.Fatal("unknown sort accepted")
+	}
+}

@@ -129,3 +129,6 @@ byte 한도상 이런 큰 묶음은 약2건까지입니다. R14-07은 R13-06과 
 
 
 R15-06: spreadsheet-text-0.2.1은 0.1·1.5·3.14·12.5 같은 일반 소수를 TSV 숫자로 유지한다. 연도가 있는 dotted date는 보호한다. 과거 0.2.0 receipt는 당시 count로 검증하고 현재 export/descriptor는 0.2.1을 사용하며 보관 byte는 재작성하지 않는다.
+
+
+새 profile_diff는 sort=delta_abs, omit_zero_delta=true가 기본이며 delta(부호 있는 내림차순)와 name을 선택할 수 있습니다. 동률은 프레임 이름·노드 ID로 정하고 페이지 처리 전에 view/spec에 고정합니다. 열 이름에 inclusive를 표시합니다. 백분율·share delta는 정확한 비교 API에 남기고 여섯 열 이미지에는 추가하지 않습니다. 기존 저장 view는 유지합니다.

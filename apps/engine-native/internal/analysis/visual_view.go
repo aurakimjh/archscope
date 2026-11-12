@@ -5,6 +5,8 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"math/big"
+	"sort"
 	"strings"
 
 	profile "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/profile"
@@ -202,16 +204,78 @@ func (s *Service) VisualView(ctx context.Context, handle, target string, q visua
 			return out, fmt.Errorf("VISUAL_RESULT_STALE")
 		}
 		out.Sources = append(out.Sources, visuals.Source{SHA256: bytesDigest(targetBody), Type: targetResult.Type, Payload: targetResult.Metadata.SchemaVersion})
-		out.Columns = []string{"Frame", "Before", "After", "Delta", "Unit", "Reference"}
+		out.Columns = []string{"Frame", "Inclusive before", "Inclusive after", "Inclusive delta", "Unit", "Reference"}
 		names := map[string]string{}
 		if core, err := profile.ReadCore(result); err == nil {
 			for _, frame := range core.Model.Frames {
 				names[frame.ID] = frame.Display
 			}
 		}
+		if core, err := profile.ReadCore(targetResult); err == nil {
+			for _, frame := range core.Model.Frames {
+				if names[frame.ID] == "" {
+					names[frame.ID] = frame.Display
+				}
+			}
+		}
+		order := q.Sort
+		if order == "" {
+			order = "delta_abs"
+		}
+		if order != "delta_abs" && order != "delta" && order != "name" {
+			return out, fmt.Errorf("VISUAL_QUERY_INVALID: diff sort must be delta_abs, delta or name")
+		}
+		omit := true
+		if q.OmitZeroDelta != nil {
+			omit = *q.OmitZeroDelta
+		}
+		out.Query.Sort = order
+		out.Query.OmitZeroDelta = &omit
+		type item struct {
+			row   profilemodel.DiffRow
+			delta *big.Rat
+			name  string
+		}
+		selected := []item{}
+		for _, row := range difference.Rows {
+			n, err := profilemodel.Number(row.Delta)
+			if err != nil {
+				return out, err
+			}
+			if omit && n.Sign() == 0 {
+				continue
+			}
+			name := names[row.FrameID]
+			if name == "" {
+				name = row.FrameID + row.ID
+			}
+			selected = append(selected, item{row, n, name})
+		}
+		sort.SliceStable(selected, func(i, j int) bool {
+			a, b := selected[i], selected[j]
+			if order != "name" {
+				left, right := a.delta, b.delta
+				if order == "delta_abs" {
+					left = new(big.Rat).Abs(left)
+					right = new(big.Rat).Abs(right)
+				}
+				if c := left.Cmp(right); c != 0 {
+					return c > 0
+				}
+			}
+			if a.name != b.name {
+				return a.name < b.name
+			}
+			return a.row.ID < b.row.ID
+		})
+		difference.Rows = make([]profilemodel.DiffRow, len(selected))
+		for i, v := range selected {
+			difference.Rows[i] = v.row
+		}
+		out.Warnings = append(out.Warnings, "Diff values are inclusive. Percent/share_delta remain available from the exact comparison API, not this six-column view.")
 		out.Unit = difference.Metric.Unit
 		out.Population = difference.Population
-		out.ScopeLabel = "Strict comparison of the two saved selections; separate baseline/target populations"
+		out.ScopeLabel = fmt.Sprintf("Strict comparison; separate populations; inclusive; sort=%s; omit_zero_delta=%t", order, omit)
 		out.QualityLabel = fmt.Sprintf("declared identity; quality differences=%d; comparison warnings=%d", len(difference.QualityDifferences), len(difference.Warnings))
 		out.Denominator = "separate source populations; no common denominator"
 		quality, err := json.Marshal(map[string]any{"baseline": difference.Baseline.Quality, "target": difference.Target.Quality, "quality_differences": difference.QualityDifferences, "identity_basis": difference.IdentityBasis, "comparison_mode": difference.ComparisonMode, "baseline_population": difference.Baseline.Population, "target_population": difference.Target.Population, "baseline_capture_policy": difference.Baseline.CapturePolicy, "target_capture_policy": difference.Target.CapturePolicy})

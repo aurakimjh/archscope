@@ -161,3 +161,6 @@ permission, without a new independent PASS.
 
 
 R15-06: spreadsheet-text-0.2.1 leaves ordinary decimal numbers (0.1, 1.5, 3.14, 12.5) numeric in TSV. Dotted dates with a full year still receive protection. Historical 0.2.0 receipts are validated using their original counts; current exports/descriptors use 0.2.1 without rewriting archived bytes.
+
+
+New profile_diff views default to sort=delta_abs and omit_zero_delta=true; delta (descending signed) and name are explicit alternatives. Ties use frame name and node ID. Policies are stored in the view/spec before paging. Columns are explicitly inclusive. Percent/share deltas remain in the exact comparison API; the six-column image does not add them. Saved frozen views remain unchanged.

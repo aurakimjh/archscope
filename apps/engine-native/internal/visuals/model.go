@@ -26,12 +26,14 @@ const MaxExpandedBytes = 192 << 20
 const MaxBundleBytes = 96 << 20
 
 type Query struct {
-	Kind     string              `json:"kind"`
-	Provider string              `json:"provider,omitempty"`
-	Offset   int                 `json:"offset"`
-	Limit    int                 `json:"limit"`
-	Columns  []string            `json:"columns,omitempty"`
-	Profile  *profilemodel.Query `json:"profile,omitempty"`
+	Sort          string              `json:"sort,omitempty"`
+	OmitZeroDelta *bool               `json:"omit_zero_delta,omitempty"`
+	Kind          string              `json:"kind"`
+	Provider      string              `json:"provider,omitempty"`
+	Offset        int                 `json:"offset"`
+	Limit         int                 `json:"limit"`
+	Columns       []string            `json:"columns,omitempty"`
+	Profile       *profilemodel.Query `json:"profile,omitempty"`
 }
 type Presentation struct {
 	Width       int    `json:"width"`
