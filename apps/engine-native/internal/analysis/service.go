@@ -75,6 +75,9 @@ type cleanupRef struct {
 	job  *job
 }
 type Service struct {
+	metricGate       chan struct{}
+	metricCache      []metricCacheEntry
+	metricCharge     int64
 	semanticMu       sync.Mutex
 	semanticCache    []semanticEntry
 	baselineMu       sync.Mutex
@@ -154,7 +157,7 @@ func New(root string, c *ingestion.Catalog, r *resultcontract.Registry) (*Servic
 		return nil, e
 	}
 	ctx, cancel := context.WithCancel(context.Background())
-	service := &Service{slots: make(chan struct{}, 4), root: root, catalog: c, results: r, policy: ingestion.DefaultBudgets(), jobs: map[string]*job{}, stored: map[string]storedRevision{}, leases: map[string]string{}, lockFile: lockFile, ctx: ctx, cancel: cancel}
+	service := &Service{metricGate: make(chan struct{}, 1), slots: make(chan struct{}, 4), root: root, catalog: c, results: r, policy: ingestion.DefaultBudgets(), jobs: map[string]*job{}, stored: map[string]storedRevision{}, leases: map[string]string{}, lockFile: lockFile, ctx: ctx, cancel: cancel}
 	if e = service.initStore(); e != nil {
 		cancel()
 		lockFile.Close()
@@ -339,6 +342,8 @@ func (s *Service) close() {
 	}
 	s.mu.Unlock()
 	s.wait.Wait()
+	s.metricCache = nil
+	s.metricCharge = 0
 	s.baselineMu.Lock()
 	s.baselineCache = nil
 	s.semanticMu.Lock()
@@ -689,34 +694,79 @@ func writeDurable(path string, b []byte) error {
 
 var handlePattern = regexp.MustCompile(`^result-[0-9a-f]{32}$`)
 
-func (s *Service) Read(handle string) ([]byte, models.AnalysisResult, error) {
+// readVerifiedResult returns only owned snapshot bytes. It deliberately hashes
+// every read, including warm metric requests, without decoding the JSON again.
+func (s *Service) readVerifiedResult(ctx context.Context, handle string) ([]byte, string, error) {
 	if !handlePattern.MatchString(handle) {
-		return nil, models.AnalysisResult{}, fmt.Errorf("invalid result handle")
+		return nil, "", fmt.Errorf("invalid result handle")
+	}
+	if e := ctx.Err(); e != nil {
+		return nil, "", e
 	}
 	s.storeMu.Lock()
 	defer s.storeMu.Unlock()
-	if _, ok := s.stored[handle]; !ok {
-		return nil, models.AnalysisResult{}, ingestion.Problem("IMPORT_RESULT_STALE", "reopen a saved case or result file")
+	rev, ok := s.stored[handle]
+	if !ok {
+		return nil, "", ingestion.Problem("IMPORT_RESULT_STALE", "reopen a saved case or result file")
 	}
 	f, e := os.Open(s.resultPathLocked(handle))
 	if e != nil {
 		if os.IsNotExist(e) {
 			e = ingestion.Problem("IMPORT_RESULT_STALE", "result is no longer available; reopen the saved file")
 		}
-		return nil, models.AnalysisResult{}, e
+		return nil, "", e
 	}
 	defer f.Close()
-	body, e := io.ReadAll(io.LimitReader(f, s.policy.DecodedBytes+1))
+	before, e := f.Stat()
 	if e != nil {
-		return nil, models.AnalysisResult{}, e
+		return nil, "", e
+	}
+	if !before.Mode().IsRegular() {
+		return nil, "", ingestion.Problem("IMPORT_RESULT_CORRUPT", "invalid stored result file")
+	}
+	if before.Size() > s.policy.DecodedBytes {
+		return nil, "", fmt.Errorf("stored result exceeds read budget")
+	}
+	stamp, _ := fileChangeStamp(f, before)
+	body := make([]byte, 0, min(before.Size(), s.policy.DecodedBytes))
+	buffer := make([]byte, 64<<10)
+	remaining := s.policy.DecodedBytes + 1
+	for remaining > 0 {
+		if e = ctx.Err(); e != nil {
+			return nil, "", e
+		}
+		n, err := f.Read(buffer[:min(int64(len(buffer)), remaining)])
+		body = append(body, buffer[:n]...)
+		remaining -= int64(n)
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return nil, "", err
+		}
 	}
 	if int64(len(body)) > s.policy.DecodedBytes {
-		return nil, models.AnalysisResult{}, fmt.Errorf("stored result exceeds read budget")
+		return nil, "", fmt.Errorf("stored result exceeds read budget")
 	}
 	sum := sha256.Sum256(body)
-	rev, ok := s.stored[handle]
-	if !ok || rev.hash != hex.EncodeToString(sum[:]) {
-		return nil, models.AnalysisResult{}, ingestion.Problem("IMPORT_RESULT_CORRUPT", "stored revision changed; reopen the saved case snapshot")
+	digest := hex.EncodeToString(sum[:])
+	if digest != rev.hash {
+		return nil, "", ingestion.Problem("IMPORT_RESULT_CORRUPT", "stored revision changed; reopen the saved case snapshot")
+	}
+	after, e := f.Stat()
+	if e != nil {
+		return nil, "", e
+	}
+	afterStamp, _ := fileChangeStamp(f, after)
+	if !os.SameFile(before, after) || before.Size() != after.Size() || before.ModTime() != after.ModTime() || stamp != afterStamp {
+		return nil, "", ingestion.Problem("IMPORT_RESULT_CORRUPT", "stored revision changed during read")
+	}
+	return body, digest, ctx.Err()
+}
+func (s *Service) Read(handle string) ([]byte, models.AnalysisResult, error) {
+	body, _, e := s.readVerifiedResult(context.Background(), handle)
+	if e != nil {
+		return nil, models.AnalysisResult{}, e
 	}
 	r, e := resultcontract.DecodeWithLimits(body, wirejson.ResultLimits(s.policy.DecodedBytes, s.policy.StackDepth))
 	return body, r, e

@@ -139,13 +139,13 @@ numeric attributes exact during JavaScript display. Selection uses backend IDs.
 ## Recorded follow-ups (R13)
 
 The independent CONDITIONAL review permits closure after its P2 payload fix with
-P3 work queued. Queries currently decode/validate/recalculate the retained model
-on each page (no warm metric cache); large models may be slow. Numeric/shape
+P3 work queued. R13-02 now supplies a process-local validated model/interval index
+cache for repeated desktop queries, as described below. Numeric/shape
 errors can lack point coordinates, and out-of-range exact values refuse the
 whole file. Identical observations from different exports remain separate and
 can receive `conflicting_timestamp`, even if values match. The original series
 picker lists the bounded full inventory without search/pagination. These are
-R13-02/04/05/07 follow-ups, not completed features. R13-03 and R13-06 limitations
+R13-04/05/07 follow-ups, not completed features. R13-03 and R13-06 limitations
 are stated above. Native WebView/Windows and real user export acceptance remain
 separate from local unit/CLI and synthetic SDK qualification.
 
@@ -159,3 +159,37 @@ Apple Silicon / Ollama manual capture adapter: [APPLE_SILICON_EVIDENCE.md](APPLE
 
 
 T-645 bounded actual DB/OS snapshot batch: [Manual database and socket snapshots](SYSTEM_DB_SNAPSHOTS.md). Existing MetricHistory transport, exact epochs/gauges and common consumers; other adapters remain fixture-gated.
+
+
+## R13-02 verified warm query index
+
+Desktop metric inventory/detail requests pin their result owner and re-read/hash
+all stored bytes on **every request**, including warm hits. Identical file size or
+restored mtime cannot bypass that check. A supplied digest and each cursor still
+bind the immutable result/selection/window/page-size identity. Removed revisions
+cannot be resurrected by cached data. Ordinary unowned results remain readable
+until explicit cache cleanup, preserving the existing ownership contract.
+
+A cold request validates the registered0.1.0/0.2.0 result and prepares an owned
+interval index once. A warm page reuses that index, binary-searches selected series'
+end-time ranges and copies only the bounded outgoing rows. Derived reset/gap/
+previous-point context, exact fractions, histogram buckets, untimed filtering and
+series/time ordering match the stateless query. Caller mutation of inventory,
+selection, pointers, references or buckets cannot change the cached snapshot.
+Selecting a new result retains the existing immutable materialization path.
+
+The cache admits at most2 entries and192MiB of conservative structural charge
+(twice the core JSON size plus owned interval/index accounting; **not measured RSS**).
+Larger valid preparations run uncached. Expiry is fixed at2 minutes after admission,
+not extended by hits; expired entries are purged on the next access, and shutdown
+clears the cache. Byte/count limits evict least-recently-used entries. Cold preparation
+is serialized with cancellable admission; errors/canceled preparations never enter
+the cache. No cache is persisted or imported from a receipt. CLI invocations remain
+stateless and keep their existing result bytes and query behavior.
+
+Local regression evidence includes stateless/prepared byte-equivalent pages for
+neutral/actual PostgreSQL/Linux/SDK histogram cases,100k-point warm reuse, byte
+tampering with restored mtime, owner/cleanup, lazy expiry/byte eviction, concurrent
+caller isolation, cancellation and unchanged legacy saved bytes. These are backend
+checks, not native WebView/Windows or general latency/RSS acceptance. Remaining
+R13-03/04/05/06/07 follow-ups retain their separate queues.

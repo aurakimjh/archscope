@@ -1,0 +1,5 @@
+=== RUN   TestR1302Metric100kWarmPages
+    metric_cache_test.go:291: points=100000 result_bytes=61469739 cache_charge=162991130 cold=4.160083375s warm3=73.319542ms; every request rehashes bytes; structural charge is not RSS; no latency threshold
+--- PASS: TestR1302Metric100kWarmPages (14.62s)
+PASS
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/analysis	14.995s

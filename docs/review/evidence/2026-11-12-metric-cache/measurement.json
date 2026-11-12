@@ -1,0 +1,11 @@
+{
+  "points": 100000,
+  "result_bytes": 61469739,
+  "cache_structural_charge": 162991130,
+  "cold_seconds": 4.160083375,
+  "warm_three_pages_ms": 73.319542,
+  "page_rows": 25,
+  "every_request_rehashes_result": true,
+  "run": "host go test without race instrumentation",
+  "interpretation": "single local regression measurement; no universal latency/RSS guarantee"
+}

@@ -6,12 +6,12 @@
 
 | 날짜 | 문서 | 대상 | 판정 |
 |---|---|---|---|
-| 2026-11-12 | [T-645 PostgreSQL pg_stat_database·Linux ss -s 스냅샷 구현 독립 리뷰](2026-11-12_claude-code_T-645_implementation-review.ko.md) | `b36d83e` | CONDITIONAL(P3 3, P1·P2 없음, 차단 없음). R22-01 에폭 전이 파생 규칙 불일치, R22-02 불변식 검증 공백, R22-03 reset 이력 없는 DB 문서·수집 도구 공백은 후속 큐. 독립 PostgreSQL 16.14·ss -s 캡처와 T-644 R21 수정은 확인 |
 
 ## 처리 기록
 
 | 날짜 | 문서 | 대상 | 판정·처리 |
 |---|---|---|---|
+| 2026-11-12 | [T-645 DB·OS 스냅샷 구현 독립 리뷰](done/2026-11-12_claude-code_T-645_implementation-review.ko.md) | `b36d83e` | CONDITIONAL(P3 3, P1/P2 없음). 실제 PostgreSQL14 counter delta·ss84 값과 R21-01/03 해소 독립 확인. 작업표 반영 후 원문 보관. 명시적 허용으로 T-645 DONE, R22-03/01/02를 기존 P3 뒤에 대기. 원 CONDITIONAL 유지. |
 | 2026-11-12 | [T-644 CPU/GPU 실행 구현 독립 리뷰](done/2026-11-12_claude-code_T-644_implementation-review.ko.md) | `09413bf` | CONDITIONAL(P2 1/P3 3). R21-01 수정·로컬 검증 완료(원본64MiB 선행 제한 명시, 수동 subset 도구,114.9MB 실제 export 변형→24KiB/20구간, 무시 metadata 예산 분리). R21-03 schema/at_least 문구도 수정. 명시적 허용에 따라 T-644 DONE, R21-02/04 후속 큐, 원 CONDITIONAL 보존. 최종 독립 PASS 아님; evidence/2026-11-12-t645/local.json. 작업표 반영 후 원문 보관. |
 | 2026-11-12 | [T-642 부하·LLM 벤치마크·JVM 크래시 비교 근거 구현 독립 리뷰](done/2026-11-12_claude-code_T-642_implementation-review.ko.md) | `efb9c7c` | CONDITIONAL(P2 1/P3 3, P1 없음). R19-01(JTL 5만 행 한도와 백분위 합성 불가)을 먼저 처리한 뒤 DONE 복귀 허용, R19-01 로컬 수정·검증 완료, T-642 DONE. P3는 후속 큐. 원 CONDITIONAL 유지; evidence/2026-11-12-t643/local.json. |
 | 2026-11-12 | [T-643 Apple Silicon 증거 어댑터 구현 독립 리뷰](done/2026-11-12_claude-code_T-643_implementation-review.ko.md) | `d9e62b1` | CONDITIONAL(P2 1/P3 3, P1 없음). R20-01(선택하지 않은 로드 모델이 표시 없이 제외됨)을 먼저 처리한 뒤 DONE 복귀 허용, 나머지는 후속 큐. 작업표 반영 후 원문 보관. R20-01 수정·로컬 검증 완료(collector1.1.0 선택/제외 개수·selector hash, 실제 multi-load/오타/empty, 기존1.0 보존). 명시적 허용에 따라 T-643 DONE, 원 CONDITIONAL 보존; P3는 후속 큐(다중 로드는 부분 충족). 최종 수정분 독립 PASS 아님. 증빙: evidence/2026-11-12-t644/local.json. R19-01 JTL 분포는 독립 검증됨. |

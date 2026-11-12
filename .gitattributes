@@ -85,3 +85,7 @@ docs/review/evidence/2026-11-12-t645/*.json text eol=lf
 docs/review/evidence/2026-11-12-t645/*.txt text eol=lf
 docs/review/evidence/2026-11-12-t645/*.png -text
 docs/review/evidence/2026-11-12-t645/*.sqlite -text
+
+# Metric-query cache verification uses repository-normalized evidence bytes.
+docs/review/evidence/2026-11-12-metric-cache/*.json text eol=lf
+docs/review/evidence/2026-11-12-metric-cache/*.txt text eol=lf

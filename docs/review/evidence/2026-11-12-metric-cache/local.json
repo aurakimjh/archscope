@@ -1,0 +1,212 @@
+{
+  "task": "R13-02",
+  "parent_task": "T-638",
+  "status": "LOCALLY_FIXED",
+  "parent_status": "DONE (existing conditional closure, not reopened)",
+  "date": "2026-11-12",
+  "next_ready": "R13-04, then R13-03/05/06/07 and existing dependency-ordered review queues",
+  "related_review": {
+    "task": "T-645",
+    "review": "R22",
+    "review_target": "b36d83e",
+    "status": "DONE",
+    "original_verdict": "CONDITIONAL",
+    "findings": "P3x3, no P1/P2 or prerequisite",
+    "closure_permission": "Independent review explicitly permits DONE with findings queued.",
+    "queued_in_order": [
+      "R22-03",
+      "R22-01",
+      "R22-02"
+    ],
+    "original_sha256": "1b9ac84b86142063407a4002470e255f4dfbc58e63d2f9145ef350a49596a1a7",
+    "reviewer_commit": "4ea6826",
+    "independent_review_of_new_cache": false
+  },
+  "head_before_task_commit": "9f0fdc7924d725707cb0f345f008696ff4a604d2",
+  "git_sync": {
+    "initial": "Pulled Windows receipts c83740a; restored exact original10-line tracker block without including HTTP work.",
+    "later": "Merged6317b80 LF attributes, then8060406 Windows T-645 native documentation/receipts. Own SSOT and exact original block reconciled. Tested Go bytes unchanged; Windows receipt scope is pre-cache.",
+    "merge_head": "9f0fdc7924d725707cb0f345f008696ff4a604d2"
+  },
+  "implementation": {
+    "scope": "Repeated desktop metric inventory/query/materialization through the existing Service and Wails API; no result/model schema or new producer adapter.",
+    "identity": "Acquire per-request result lease, re-read/hash all managed snapshot bytes every request, compare stored revision/supplied digest, then cache by validated immutable result bytes and payload version. Size/mtime alone never authorizes a hit.",
+    "index": "Owned model copy and derived intervals, canonical series/time spans and binary-search end-time windows; bounded copied pages preserve exact fractions, histogram buckets, previous/reset/overlap/gap context and untimed filtering.",
+    "isolation": "Caller mutation of original model, inventory, selection, pointers, refs or buckets cannot change the cached evidence. Concurrent pages are private values.",
+    "limits": {
+      "entries": 2,
+      "structural_admission_bytes": 201326592,
+      "charge": "core JSON twice plus conservative owned interval/index accounting, not measured RSS",
+      "expiry_seconds": 120,
+      "expiry_policy": "fixed from admission, not extended on hit; expired entries purged lazily on next access; shutdown clears all",
+      "eviction": "LRU byte/count eviction; larger valid preparations used uncached",
+      "cold_admission": "serialized and cancellable; failures/canceled preparation never cache"
+    },
+    "compatibility": "0.1/0.2 exact saved result readers remain; CLI stays stateless; ordinary revisions remain after owner release until explicit cleanup; removed revisions cannot be resurrected by warm cache.",
+    "shared_read": "Existing Read now factors bounded, context-aware verified-byte reading without changing returned JSON bytes."
+  },
+  "measurement": {
+    "points": 100000,
+    "result_bytes": 61469739,
+    "cache_structural_charge": 162991130,
+    "cold_seconds": 4.160083375,
+    "warm_three_pages_ms": 73.319542,
+    "page_rows": 25,
+    "every_request_rehashes_result": true,
+    "run": "host go test without race instrumentation",
+    "interpretation": "single local regression measurement; no universal latency/RSS guarantee"
+  },
+  "verification": {
+    "full_race": {
+      "passed_packages": 119,
+      "passed_test_events": 1699,
+      "failure_count": 0,
+      "command": "GOWORK=off go test -race -json -p=2 -count=1 -timeout=20m ./..."
+    },
+    "focused": [
+      "prepared/stateless byte-equivalent pages across neutral and actual PostgreSQL/Linux models",
+      "SDK explicit/exponential histogram and nested pointer/ref isolation",
+      "concurrent cache/page immutability",
+      "same-size/restored-mtime stored-byte tampering",
+      "stale result digest and selection/page-size cursor",
+      "fixed expiry, byte/count LRU, canceled cache admission and shutdown",
+      "owned cleanup and unchanged legacy result bytes",
+      "100k-point retained index reused across three pages; no latency threshold"
+    ],
+    "checks_passed": [
+      "host go vet ./...",
+      "Windows amd64/386 go vet ./...",
+      "frontend production build/state tests",
+      "Wails binding generation",
+      "Mac package and strict signature verification",
+      "Windows amd64/386 production GUI cross-builds",
+      "embedded resources match source docs/tools;85 unchanged dependency notices",
+      "desktop-only/server-build refusal",
+      "git diff --check and staged diff check"
+    ],
+    "cli": {
+      "operations": 39,
+      "expected_refusals": 6,
+      "case_snapshot": "byte-identical after cache cleanup",
+      "exact_rate_check": "matched"
+    },
+    "offline": {
+      "operations": 70,
+      "inet_syscalls": 0,
+      "positive_control_failed_connect_inet_syscalls": 2,
+      "scope": "Linux CLI process trees and explicitly invoked manual Python subset helper; no desktop/Windows outbound claim",
+      "expected_JFR_refusals": 1,
+      "explicit_manual_helper_operations": 1,
+      "network": "none",
+      "clean_install": true,
+      "no_sibling_checkout": true
+    }
+  },
+  "boundaries": [
+    "R13-02 is locally remediated/verified; original parent review CONDITIONAL preserved, no new independent PASS.",
+    "R22 findings remain queued with original explicit no-blocker closure; T-645 DONE does not activate other vendors.",
+    "Single local100k synthetic measurement, not a general latency or RSS guarantee.",
+    "No native Windows/WebView acceptance for this new cache; cross-builds/vets and host/backend tests are separate evidence.",
+    "Known host SDK27.2/deployment11.0 linker warnings do not qualify minimum-OS runtime.",
+    "Original HTTP docs/verifier and ten-line tracker block excluded from task index/commit."
+  ],
+  "artifacts": {
+    "/tmp/archscope-r13-cache-engine": "efebb1255ef3b24c81540a71cd7478d48cf21c51d41ec6839194c2013208b5ae",
+    "/tmp/archscope-r13-cache-linux": "a6453ff787307a6c9f9ff6be14ed92355e7d98e81a8acbc123fb70e9c303a343",
+    "/tmp/archscope-r13-cache-amd64.exe": "5df4f4478ac27347cbd5164d6fa93c4e459fd8f10b76dda82cac4624912ce3e8",
+    "/tmp/archscope-r13-cache-386.exe": "ce1260f680f00ebadd64d0343bcce0cf794b05d748c09d9f596b3d9085182f09",
+    "/Users/aura/workspace/archscope/apps/engine-native/cmd/archscope-app/bin/archscope.app/Contents/MacOS/archscope": "3b6bac7ea07e43f86e0144efa8f86816e756b5b0a176dc750bf5801d4c17be84"
+  },
+  "source_index_files": [
+    {
+      "file": ".gitattributes",
+      "sha256": "e898a6035d6a1b55cd8dff282c7b64b642f5dbec8e534568ff8eb6a206df3d41"
+    },
+    {
+      "file": "apps/engine-native/internal/analysis/metric_cache.go",
+      "sha256": "c6643de2f63b1cbdc88b41e49755df113877d79172856519e20f546345834fd4"
+    },
+    {
+      "file": "apps/engine-native/internal/analysis/metric_cache_test.go",
+      "sha256": "b7c0c5561de73a6d1b8cfc1ef0ea1b802be53e44348cecbd3ae27a3ecc7168b0"
+    },
+    {
+      "file": "apps/engine-native/internal/analysis/metric_history.go",
+      "sha256": "db136cbc59662454f8870f71233c2cfd890ae29964b0fea02f3943195f326f40"
+    },
+    {
+      "file": "apps/engine-native/internal/analysis/service.go",
+      "sha256": "ba8f8dc68847ffe936d51006cd8cc11dc656bcc9d2598380cffec7d23fac1fed"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/docs/en/METRIC_HISTORY.md",
+      "sha256": "4c3e9f9cd9dc9336897dae172aa9c6adb1fd57a3bd5170f0bfb5eba9820c91df"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/docs/ko/METRIC_HISTORY.md",
+      "sha256": "d376f0a1a01fe8b0ff9602841f52fcb106fe94e9049489d3bd348c5d34052a70"
+    },
+    {
+      "file": "apps/engine-native/internal/metricmodel/query_index.go",
+      "sha256": "f9445d687985afa8c602f9498179c1d4b2ca40c47a2ccb8388908f6966698733"
+    },
+    {
+      "file": "apps/engine-native/internal/metricmodel/query_index_test.go",
+      "sha256": "0d2c29f0dbf3347bceb824dd48df9f60c9d809d52116a702094b26c40b3a8651"
+    },
+    {
+      "file": "docs/en/METRIC_HISTORY.md",
+      "sha256": "4c3e9f9cd9dc9336897dae172aa9c6adb1fd57a3bd5170f0bfb5eba9820c91df"
+    },
+    {
+      "file": "docs/ko/METRIC_HISTORY.md",
+      "sha256": "d376f0a1a01fe8b0ff9602841f52fcb106fe94e9049489d3bd348c5d34052a70"
+    },
+    {
+      "file": "docs/review/README.md",
+      "sha256": "7e70ae2ab3a13432f686dff9e21377814bbc96619181d46829e9dec5a69396e4"
+    },
+    {
+      "file": "docs/review/done/2026-11-12_claude-code_T-645_implementation-review.ko.md",
+      "sha256": "1b9ac84b86142063407a4002470e255f4dfbc58e63d2f9145ef350a49596a1a7"
+    },
+    {
+      "file": "work_status.md",
+      "sha256": "eff8e35f6b5f6147544441c33889be69bb73fa8595030f2c9ac4036950c6a032"
+    }
+  ],
+  "evidence_files": [
+    {
+      "file": "docs/review/evidence/2026-11-12-metric-cache/100k-measurement.txt",
+      "sha256": "0a9ea1d1662dffc44710d19732605b7cc6beb1bd4b272a4b7615381ab05ec462"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-metric-cache/cache-policy-race.txt",
+      "sha256": "c54bc19b7d349759039237c9dded733b4c48f92d3c521555dd337b971e6f9c31"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-metric-cache/check-receipts.json",
+      "sha256": "530b9df718e182efde9dd8366327cf79853019706a741aca2af67be6a6e6d1be"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-metric-cache/cli-summary.json",
+      "sha256": "dbc6963be3ee2885919e577cd734d6f73949ddf6b2980e1af82412e82f234b9c"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-metric-cache/index-race.txt",
+      "sha256": "68f06607be18b12a8bac9d2f772e28731d0b5dadf8209476846f218fa3c778f4"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-metric-cache/measurement.json",
+      "sha256": "8aac7fd3a80db491d19a23767005803cce395e131fbfd19ebd12fcb0f43e4096"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-metric-cache/offline-summary.json",
+      "sha256": "6447d615b5857ae327052326a0257958b29553d69cd86c9a7bf193d47a2068a9"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-metric-cache/race-summary.json",
+      "sha256": "bed427f5fd34ae4cdb3f3fd7a2db335fc8399dde30ef7583ffd2ed923c344f7f"
+    }
+  ]
+}

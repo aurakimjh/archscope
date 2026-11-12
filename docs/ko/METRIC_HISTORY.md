@@ -116,7 +116,7 @@ Generic CSV는 현재 summary/availability만 내보내며 **구간 행은 포�
 기존 본문의 CSV/HTML/report-pack 지원은 공통 exporter 사용을 뜻하며 전용 구간 CSV를 뜻하지 않습니다.
 
 독립 CONDITIONAL 리뷰는 P2 저장 문제 해소 후 나머지 P3를 후속 큐로 두고 종결하도록 허용했습니다.
-R13-02는 매 페이지 retained model 재해석·검증·계산 비용(메트릭 전용 warm cache 없음),
+R13-02는 아래 설명한 프로세스 내부의 검증된 모델·구간 조회 인덱스로 로컬 수정했습니다.
 R13-04는 좌표가 부족한 수치/형식 오류와 exact 범위 밖 값의 파일 전체 거부,
 R13-05는 다른 export의 동일 값도 별도 보존하며 `conflicting_timestamp`가 될 수 있는 상태,
 R13-07은 검색/페이지 없는 bounded 전체 series 목록입니다. 위 R13-03/06과 함께 후속 작업이며
@@ -130,3 +130,30 @@ Apple Silicon / Ollama 수동 캡처 어댑터: [APPLE_SILICON_EVIDENCE.md](APPL
 
 
 T-645의 실제 DB·OS 첫 검증 배치: [수동 DB·소켓 스냅샷](SYSTEM_DB_SNAPSHOTS.md). 기존 MetricHistory·정확한 epoch/gauge·공통 소비자를 재사용하며 다른 어댑터는 실제 입력 검증 전까지 보류합니다.
+
+
+## R13-02 검증된 반복 조회 인덱스
+
+데스크톱 메트릭 목록·상세 요청은 결과 owner를 유지하고, warm hit를 포함해 **매번 저장
+바이트 전체를 다시 읽고 hash를 확인**합니다. 같은 파일 크기·복원된 mtime으로 검증을
+우회하지 않습니다. 전달된 digest와 cursor는 기존 결과·선택·시간창·페이지 크기에 묶입니다.
+삭제된 revision은 캐시로 되살리지 않습니다. 일반 결과는 lease 해제 후에도 명시적 cleanup
+전까지 읽을 수 있는 기존 소유권 계약을 유지합니다.
+
+Cold 요청에서 등록된0.1.0/0.2.0 결과를 검증하고 독립 소유한 구간 인덱스를 준비합니다.
+Warm 페이지는 이를 재사용해 선택 시계열의 종료 시각 범위를 이진 탐색하고 제한된 반환 행만
+복사합니다. reset/gap/이전 point 맥락, 정확한 분수·histogram bucket·untimed 선택·
+시계열/시각 순서는 stateless 조회와 같습니다. 호출자가 반환 목록·선택·포인터·참조·bucket을
+수정해도 캐시가 바뀌지 않습니다. 새 결과 선택은 기존 불변 materialization 경로를 사용합니다.
+
+최대2개 entry, 보수적 구조 예산192MiB(core JSON의2배와 소유한 구간/인덱스 계산값,
+**실측 RSS 아님**)을 적용합니다. 이를 넘는 유효 준비 결과는 캐시 없이 사용합니다.
+유효 기간은 admission 후 고정2분이며 hit로 연장하지 않습니다. 만료 entry는 다음 접근에
+정리하고 종료 시 전체 해제합니다. 바이트·개수 초과는 LRU로 퇴출합니다. Cold 준비는
+취소 가능한 admission으로 직렬화하며 오류·취소 결과는 저장하지 않습니다. 캐시를
+파일로 저장하거나 receipt에서 가져오지 않습니다. CLI는 기존대로 stateless입니다.
+
+neutral·실제 PostgreSQL/Linux·SDK histogram의 기존/인덱스 페이지 바이트 일치,
+100k point warm 재사용, mtime 복원 변조, owner/cleanup, 만료·바이트 퇴출, 동시 반환값
+격리·취소·legacy 저장 바이트 보존을 회귀로 확인합니다. 백엔드 검증이며 native WebView/
+Windows·일반적인 latency/RSS 수용을 뜻하지 않습니다. R13-03/04/05/06/07 후속 큐는 유지합니다.

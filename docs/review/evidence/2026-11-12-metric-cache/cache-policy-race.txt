@@ -1,0 +1,6 @@
+=== RUN   TestR1302MetricWarmIsolationEpochsAndCachePolicy
+--- PASS: TestR1302MetricWarmIsolationEpochsAndCachePolicy (0.04s)
+=== RUN   TestR1302MetricCacheAdmissionCancellationAndLegacy
+--- PASS: TestR1302MetricCacheAdmissionCancellationAndLegacy (0.14s)
+PASS
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/analysis	1.613s
