@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Dialogs } from "@wailsio/runtime";
 import * as bridge from "@/bridge/engine";
+import { MetricSeriesPicker } from "@/components/MetricSeriesPicker";
+import { metricSelectionBytes, metricSelectionByteLimit } from "@/state/metricSeriesSelection";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n/I18nProvider";
 import { ResultRequestScope, safeDisplayText } from "@/state/resultProviders";
@@ -12,17 +14,19 @@ export function MetricSourceAssistance({ path, disabled, useNormalized }: { path
   const [inventory, setInventory] = useState<bridge.MetricSourceInventory | null>(null);
   const [seriesIDs, setSeriesIDs] = useState<string[]>([]);
   const [busy, setBusy] = useState(false); const [error, setError] = useState("");
+  const selectionBytes = metricSelectionBytes({ series_ids: seriesIDs });
+  const selectionTooLarge = selectionBytes > metricSelectionByteLimit;
   const captureFormat = ["apple-ollama-capture-json", "postgres-stat-database-json", "linux-ss-summary-json"].includes(format);
   const options = `{ "format": ${JSON.stringify(format)}, "producer": ${JSON.stringify(producer)}, "producer_version": ${JSON.stringify(version)}, "query": ${queryProvenance} }`;
   useEffect(() => { requests.current.cancel(); setInventory(null); setSeriesIDs([]); setBusy(false); setError(""); return () => requests.current.cancel(); }, [path, options, disabled]);
   async function inspect(): Promise<void> {
-    const revision = requests.current.begin(); setBusy(true); setError("");
+    const revision = requests.current.begin(); setBusy(true); setError(""); setInventory(null); setSeriesIDs([]);
     try { const value = await requests.current.wait(revision, bridge.inspectMetricSource(path, options)); setInventory(value); }
     catch (e) { if (requests.current.current(revision)) setError(String(e)); }
     finally { if (requests.current.current(revision)) setBusy(false); }
   }
   async function save(): Promise<void> {
-    if (!inventory || seriesIDs.length === 0) return;
+    if (!inventory || seriesIDs.length === 0 || selectionTooLarge) return;
     const revision = requests.current.begin(); setBusy(true); setError("");
     try {
       const output = await Dialogs.SaveFile({ Title: words("Save a new metric model", "새 메트릭 모델 저장"), Filename: "metric-history-set.json" });
@@ -45,9 +49,10 @@ export function MetricSourceAssistance({ path, disabled, useNormalized }: { path
       <Button variant="outline" disabled={!path} onClick={() => void inspect()}>{words("Inspect metric source", "메트릭 원본 확인")}</Button>
       {inventory && <div className="space-y-2">
         <p className="break-all">SHA-256 {inventory.source_sha256} · {inventory.point_count} {words("points", "관측점")}</p>
-        {inventory.series.map(p => <div key={p.id} className="block"><label><input type="checkbox" checked={seriesIDs.includes(p.id)} onChange={e => setSeriesIDs(ids => e.target.checked ? [...ids, p.id] : ids.filter(id => id !== p.id))} /> {safeDisplayText(`${p.name} · ${p.unit} · ${p.kind}/${p.temporality}`)}</label><details><summary>{words("Identity", "식별자")}</summary><pre className="overflow-auto text-xs">{safeDisplayText(p.identity_json)}</pre></details></div>)}
+        <MetricSeriesPicker series={inventory.series} selected={seriesIDs} onChange={setSeriesIDs} />
+        <p role={selectionTooLarge ? "alert" : undefined}>{words("Selection bytes", "선택 크기(byte)")} {selectionBytes} / {metricSelectionByteLimit}{selectionTooLarge && words(" — select fewer series before saving", " — 저장 전에 선택 범위를 줄이세요")}</p>
         {inventory.warnings.map((warning, i) => <p key={i}>{safeDisplayText(warning)}</p>)}
-        <Button disabled={seriesIDs.length === 0} onClick={() => void save()}>{words("Save new model and use selection", "새 모델 저장 후 선택 적용")}</Button>
+        <Button disabled={seriesIDs.length === 0 || selectionTooLarge} onClick={() => void save()}>{words("Save new model and use selection", "새 모델 저장 후 선택 적용")}</Button>
       </div>}
     </fieldset>
     {busy && <Button variant="outline" onClick={() => { requests.current.cancel(); setBusy(false); }}>{words("Cancel", "취소")}</Button>}

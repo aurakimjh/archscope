@@ -1,0 +1,162 @@
+{
+  "date": "2026-11-12",
+  "scope": [
+    "R13-03",
+    "R13-05",
+    "R13-06",
+    "R13-07"
+  ],
+  "base_commit": "ae79e4be9384fd389c7b89065566d81e5e92f5fe",
+  "ordered_commits_before_final_picker_commit": [
+    "5561175",
+    "336f3f9",
+    "c44b0de"
+  ],
+  "shared_assets_commit": "cb5c961b3c692c8a2c4b20d2a9006a0e601951e7",
+  "source_sha256": {
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/engineservice.ts": "752ca63e476da5f00edd8c0aeda3e7d6847aacb45c80a48ba248a6ce8a1ad859",
+    "apps/engine-native/cmd/archscope-app/frontend/src/bridge/engine.ts": "7c9b7c83cb34651359b19405bddbe6a1068cb7b366b81c545c44409cbc9415dd",
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/MetricHistoryExplorer.tsx": "cec7c45cf5d2135ef71cfb03c58cca4bbe2768a44f89fece522a758f6d7be3da",
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/MetricSeriesPicker.tsx": "90d1a162f5a1779f65013fb948a3682fd9fbf65c7de8447dfaece7c6ae375ca4",
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/MetricSourceAssistance.tsx": "25044c566e1f597f7e7533ea9652534b1ecad81353b1817d18b3173123e5f785",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/metricSeriesSelection.ts": "ec63bd5b891eb87783e89b8f0e225b7eec766ca2369ab1b7ca2c03ef39504923",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/regression.test.ts": "180e7936e4974f75f7813f4c85f1f9071f3290c026c649a8a9ea0dcb288f83ce",
+    "apps/engine-native/cmd/archscope-app/metricsourceservice.go": "b30411f52dd82857c7466a79a0cac656dee85190e2dd7adabe66e36e0b7e5ecf",
+    "apps/engine-native/cmd/archscope-app/metricsourceservice_test.go": "f2828f3a75e0da01699c8b1cdb93ecc25d731f002ce953e2236f91ef8380909c",
+    "apps/engine-native/cmd/archscope-engine/cmd_metric_history.go": "c77d7b2b9d96d5f9cd6520139c852ce4b2144e5b893c69e4b2748db650e0c7ee",
+    "apps/engine-native/cmd/archscope-engine/cmd_metric_history_test.go": "fbf38a2b7bf4fe515bbcae6301af04b8a6ab1747eae40f413f2cebfd1f73ebab",
+    "apps/engine-native/internal/analysis/metric_history.go": "bedc89665b992433473c26d57d45d6e8a8d3b6c01733dbc17f45a727856a7bcb",
+    "apps/engine-native/internal/analysis/metric_history_test.go": "6b189fbf6d93b94df23b76d954981705dd4dd42bab41ab67c9163a2bc5a27088",
+    "apps/engine-native/internal/catalog/contracts/metric-history-set.manifest.json": "77e59ba86b7517b3e12d1c3acdcbffb080fdae571760ecfd33cf0b85b287a539",
+    "apps/engine-native/internal/catalog/contracts/metric-history-set.schema.json": "c6532355c2b3fd455c6c0df280d06438f5fa210d21c3b20386c0adc49d1c808f",
+    "apps/engine-native/internal/catalog/system_db_test.go": "df01d329e6877e6d124ff816b91a64419d90830528c4255e559ec82010f14762",
+    "apps/engine-native/internal/distribution/assets/docs/en/METRIC_HISTORY.md": "56982c5d192b51d0b389a18a75cf9c3270b4064ee5cccc0e2bca406db49acbb5",
+    "apps/engine-native/internal/distribution/assets/docs/ko/METRIC_HISTORY.md": "4715a8f5dd8bd18fa737af2c2f74c0267abc2b723e4d6437bb99d8c42a6d7ef9",
+    "apps/engine-native/internal/distribution/assets/fixtures.sha256": "cc3ccd3326c133949f33f39fd1c9da19373e849292cc6c488e6b32e9a1a31b2f",
+    "apps/engine-native/internal/distribution/assets/fixtures.zip": "990371d13f62dd0db22807f0aca5021c3cbef1fcdfebb9bb86690ef4e422eaa1",
+    "apps/engine-native/internal/exporters/metriccsv/exporter.go": "993f5388544690b74a9964de82d3eb260812e60e1ced5949ee18d0a9cfea9ce0",
+    "apps/engine-native/internal/exporters/metriccsv/exporter_test.go": "5d31ec5309d7840e6c204f736634ae475c73bb8eb751d30744f464e988f8d5e4",
+    "apps/engine-native/internal/metricmodel/cadence_test.go": "39061ec4949473d69c41548bbb0cec84a6580475fcfa677cd5925aefef806ae2",
+    "apps/engine-native/internal/metricmodel/interval.go": "4cfd5d799353bddee3fa137de54082d05e4c94fb551754ee0121574194bb765a",
+    "apps/engine-native/internal/metricmodel/model.go": "9854ebba7695f9a044a9533e34c0771482d72436ddd2c608759955f26912a465",
+    "apps/engine-native/internal/metricmodel/observations_test.go": "ca94d30b1d99e148b128847705957999c18b49fdc3e7dac38c05f0beab7bbb14",
+    "apps/engine-native/internal/metricmodel/query.go": "0944a4f81a12805eb4147cbc6cdbcb940a9ea11321576c8e0b1259c70b503abf",
+    "apps/engine-native/internal/parsers/metrichistory/apple_test.go": "8892a4cf6e4bf796b96b3071accfccdee6d252ad244a790daabdb946986ed680",
+    "apps/engine-native/internal/parsers/metrichistory/json.go": "16c1d18a7ca47815e33b175c9bb6150f3f1359ce0d2134fe224c4c2cefc2ff7c",
+    "apps/engine-native/internal/parsers/metrichistory/source.go": "d13c3b955f520db7f1d8919fbfc6a63f9ecafd4f4ace984d98e1df599914d4b5",
+    "docs/en/METRIC_HISTORY.md": "56982c5d192b51d0b389a18a75cf9c3270b4064ee5cccc0e2bca406db49acbb5",
+    "docs/ko/METRIC_HISTORY.md": "4715a8f5dd8bd18fa737af2c2f74c0267abc2b723e4d6437bb99d8c42a6d7ef9"
+  },
+  "contracts": {
+    "model": "1.0.0",
+    "saved_payload_readers": [
+      "0.1.0",
+      "0.2.0"
+    ],
+    "normalizers": {
+      "1.0.0": "original saved interpretation",
+      "1.1.0": "declared gauge cadence gaps",
+      "1.2.0": "same gaps plus equal-time duplicate/conflict cohorts; current parser"
+    },
+    "interval_csv": "1.0.0",
+    "csv_max_bytes": 67108864,
+    "picker_rows_per_page": 50,
+    "ui_selection_utf8_bytes": 61440
+  },
+  "verification": {
+    "race": {
+      "command": "GOWORK=off go test -race -json -p=2 -count=1 -timeout=20m ./...",
+      "passed_packages": 120,
+      "passed_test_events": 1709,
+      "failures": 0
+    },
+    "checks": [
+      "model/parser/analyzer/catalog compatibility and provenance tests",
+      "exact interval CSV, SDK histograms, deterministic output, windows, cancellation and output budget",
+      "actual CLI and Wails export, stale digest and no-overwrite integration tests",
+      "frontend production build and state regression tests with 10k-series inventory",
+      "regenerated Wails bindings:3 services/202 methods",
+      "host and Windows amd64/386 go vet",
+      "Mac production package rebuilt with final embedded resources and strict ad-hoc signature verification",
+      "Windows amd64/386 production GUI cross-builds",
+      "offline resources/current paired docs,85 dependency notices,desktop-only gates",
+      "final embedded-doc distribution tests"
+    ],
+    "actual_cli": {
+      "snapshot_regression_operations": 39,
+      "semantic_operations": 11,
+      "large_inventory_series": 10000,
+      "large_result_bytes": 11400365,
+      "selected_csv_bytes": 1742,
+      "case_recovery": "byte-identical after cache cleanup",
+      "rational_rates": "matched independently",
+      "semantics": "current range gap true, legacy gap false; six duplicate cross-export rows with unavailable rates"
+    },
+    "offline": {
+      "operations": 71,
+      "inet_syscalls": 0,
+      "failed_connect_positive_control_inet_syscalls": 2,
+      "network": "none",
+      "scope": "Linux CLI process trees and explicitly invoked manual Python subset helper; no desktop/Windows outbound claim",
+      "observer_extension": "existing observer plus history-csv on verified saved result"
+    },
+    "browser": {
+      "scope": "actual React, actual CLI 10k-series inventory and page, mocked Wails IPC; desktop guard unchanged",
+      "checks": [
+        "50 visible rows per picker page",
+        "5000 search matches select every matching page",
+        "filter change retains5000 hidden selections",
+        "page2/100 navigation",
+        "source-save passes exact selected ID",
+        "selecting10000 rows disables query/materialize/CSV until narrowed",
+        "exact9007199254740993 displayed",
+        "digest/ID/selection delivered to query and CSV bridge",
+        "canceled late inspection does not restore inventory or selection"
+      ],
+      "observed_console": "dev font decode/favicon404 and browser-preview warnings; no new application exception"
+    }
+  },
+  "artifact_sha256": {
+    "/tmp/archscope-r13-03-tests.log": "ea478f97cfc0f56f4ef705b9bd905336a96acbb99baee8b70bdb5e5c5dd77a55",
+    "/tmp/archscope-r13-05-tests.log": "a64edda8f7fb8b4cd8e4ed191916476c177365d810bf9c8ededafe09cbb5dd38",
+    "/tmp/archscope-r13-05-catalog.log": "9779be6f5ad9c3a6ae6ee7f1fc9c12c3b16e63a980d834efa99af4dd037e1fbe",
+    "/tmp/archscope-r13-06-tests.log": "d243a5bae45b01c7d2e2b839f5ff7b16528a48b83475cef16ebdfcb1ef6ebd2e",
+    "/tmp/archscope-r13-07-frontend.log": "0af5f443ed82d27261edf7cc09e87b59dac85d726df98c3f5eb91dd645009682",
+    "/tmp/archscope-r13-07-state.log": "96ab3e7763edc1082d01e3a18afd8649d6c9bcdb89fb7b8a072303fcc49805cb",
+    "/tmp/archscope-r13-06-bindings.log": "9cbce6de47ba80ff8ccc6b747d4700f520306196e563ea0c64238643532317c5",
+    "/tmp/archscope-r13-final-race.jsonl": "4581daf79c06a1241e7d6d98b7189a7fefe831a1eae7b3c6a857779e9296774c",
+    "/tmp/archscope-r13-final-distribution.log": "d4c5a6a83d692d7d09b54ea43beb03c110321100acd744c166d8adb23ea939b5",
+    "/tmp/archscope-r13-host-vet.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/archscope-r13-amd64-vet.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/archscope-r13-386-vet.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/archscope-r13-mac-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/archscope-r13-mac-sign-final.log": "9610c8522e60378808345cca59e8d7966fdcc73e906e51a3651bedd34e8d5134",
+    "/tmp/archscope-r13-amd64-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/archscope-r13-386-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/archscope-r13-followup-cli/summary.json": "dbc6963be3ee2885919e577cd734d6f73949ddf6b2980e1af82412e82f234b9c",
+    "/tmp/archscope-r13-semantic-cli/summary.json": "1acda38da2c61a48b83cfb3579e8d39df2feda85e852d122b268eea7e931e258",
+    "/tmp/archscope-r13-receipt-offline-evidence/summary.json": "53b4014d4127c6922d28c6031eb1f5b8c91de325e0243db8dd892367a2d3409d",
+    "/tmp/archscope-r13-browser-proof.log": "da68d9ab13bb1774b69eec9c616c7e78e5be350be2e64e3029c17428531ce124",
+    "/tmp/archscope-r13-ui/source.json": "6348dca451f0ece77b9aaf918994a1a39c062ac579ee5420904c45f53e6a4039",
+    "/tmp/archscope-r13-ui/saved.json": "697ac653eb0cdcaea014875c3ed7b44f36535fde54a885b5d8ea3561ce876add",
+    "/tmp/archscope-r13-ui/intervals.csv": "39e360c6be473c53e1d520c6bd4187e5322a66b9e007b9da4b378063330897c1",
+    "/tmp/archscope-r13-ui-data.py": "b1393c62bd6275a534cc0977fd1c7049b03083a9e2a5f156f53a5079ec39dfb1",
+    "/tmp/archscope-r13-browser.py": "01a75c20707f6ff7d2f22ef02919e4a79f0dd15008fe6160807654e72dafc936",
+    "/tmp/archscope-r13-offline.py": "7398101c163f589fad2514a44767156ef97c2b2b211d4a0b4ad6d83e112b8958",
+    "/tmp/archscope-r13-browser-artifacts/r13-followups.png": "903cd3b4f0fa603dc7c38c598a749fde21396147567175da173e6406b0dd1d8e"
+  },
+  "binary_sha256": {
+    "/tmp/archscope-r13-linux": "a2b28df30afd5b07172b6b0cc2967b9d788cd5ec54ec821538c2037e84a4e64b",
+    "/tmp/archscope-r13-amd64.exe": "e99340190237bb2296e5278ecb2e24f85ecc9a8851e27a7746f9cbb633181d37",
+    "/tmp/archscope-r13-386.exe": "01d7a6910c71837ba46fc55204b853968df8d61c02bde8aa5c8c90e9bd05b50a",
+    "/Users/aura/workspace/archscope/apps/engine-native/cmd/archscope-app/bin/archscope.app/Contents/MacOS/archscope": "818309e7266218be661fa24bb9e84dd59adb4e656416320ed8c7cd1a6af6aed6"
+  },
+  "boundaries": [
+    "Local fixes, no new independent PASS; original parent CONDITIONAL and T-638 DONE preserved.",
+    "No native Windows/WebView or general latency/RSS acceptance from browser/mock or cross-build checks.",
+    "R13-04 remains next; numeric/shape coordinate errors and exact-range refusal are not changed.",
+    "Generic AnalysisResult CSV remains summary-only; dedicated interval CSV is explicit.",
+    "HTTP docs/verifier and original ten-line tracker block excluded from all task commits.",
+    "Initial pull already up to date; end fetch showed no remote-only commits. Push occurs only after fourth commit."
+  ]
+}

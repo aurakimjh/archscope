@@ -3441,3 +3441,24 @@ for (const target of [
   { ...r8Description, providers: [{ ...r8CompareProvider, availability: "unavailable", reason: "measurement_absent" }] },
 ]) assert(!comparisonEligibility(r8Description, target, r8CompareProvider.id).allowed, "R8 incompatible target must be disabled");
 assert(!comparisonEligibility({ ...r8Description, compatibility: { allowed: false } }, r8Description, r8CompareProvider.id).allowed, "R8 invalid baseline cannot grant compare");
+
+
+// R13-07: large inventories remain paged, filter actions preserve hidden IDs,
+// and UTF-8 selection budgets match the bounded IPC envelope.
+import { indexMetricSeries, filterMetricSeries, pageMetricSeries, updateMetricSelection, metricSelectionBytes, metricSelectionByteLimit } from "./metricSeriesSelection.js";
+const metricChoices = Array.from({ length: 10000 }, (_, i) => ({ id: `metric-${i.toString().padStart(64, "0")}`, name: `gauge-${i}`, unit: "count", kind: "gauge", temporality: "unspecified", identity_json: JSON.stringify({ worker: i, host: i % 2 ? "Seoul" : "Busan", exact: "9007199254740993" }) }));
+const metricIndex = indexMetricSeries(metricChoices);
+const metricMatches = filterMetricSeries(metricIndex, "SEOUL count");
+assert(metricMatches.length === 5000, "metric search includes exact identity and multiple terms");
+const metricLast = pageMetricSeries(metricMatches, 9999);
+assert(metricLast.rows.length === 50 && metricLast.page === 99 && metricLast.pages === 100, "10k inventory DOM is bounded and pages clamp");
+assert(pageMetricSeries([], 9).rows.length === 0 && pageMetricSeries([], 9).page === 0, "empty filter resets page");
+assert(pageMetricSeries(metricChoices, NaN).page === 0, "nonfinite page clamps");
+let metricChosen = updateMetricSelection([metricChoices[0].id], metricMatches, true);
+assert(metricChosen.length === 5001 && metricChosen.includes(metricChoices[0].id), "filtered select-all includes every page and preserves hidden selection");
+assert(updateMetricSelection(metricChosen, metricMatches, true).length === 5001, "repeated selection is idempotent");
+metricChosen = updateMetricSelection(metricChosen, metricMatches, false);
+assert(metricChosen.length === 1 && metricChosen[0] === metricChoices[0].id, "filtered clear preserves hidden selection");
+assert(metricSelectionBytes({series_ids: metricChoices.map(value => value.id)}) > metricSelectionByteLimit, "large selection exceeds safe IPC size");
+assert(metricSelectionBytes({series_ids: ["한글"]}) === new TextEncoder().encode('{"series_ids":["한글"]}').length, "budget counts UTF-8 bytes");
+assert(filterMetricSeries(metricIndex, "9007199254740993").length === 10000, "exact identity search never rounds large integers");

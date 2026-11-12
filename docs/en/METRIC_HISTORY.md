@@ -155,11 +155,11 @@ The independent CONDITIONAL review permits closure after its P2 payload fix with
 P3 work queued. R13-02 now supplies a process-local validated model/interval index
 cache for repeated desktop queries, as described below. Numeric/shape
 errors can lack point coordinates, and out-of-range exact values refuse the
-whole file. Identical observations from different exports remain separate and
-can receive `conflicting_timestamp`, even if values match. The original series
-picker lists the bounded full inventory without search/pagination. These are
-R13-04/05/07 follow-ups, not completed features. R13-03 and R13-06 limitations
-are stated above. Native WebView/Windows and real user export acceptance remain
+whole file (R13-04 remains pending). R13-03/05 now use explicit normalizer
+revisions for cadence gaps and equal-time observation cohorts, preserving saved
+legacy interpretations. R13-06 adds dedicated interval CSV and R13-07 adds the
+searchable paged picker described here. Native WebView/Windows and real user
+export acceptance remain
 separate from local unit/CLI and synthetic SDK qualification.
 
 R14-07 clarification: 0.2.0 generic detail/HTML/Report Pack tables retain point
@@ -204,8 +204,7 @@ Local regression evidence includes stateless/prepared byte-equivalent pages for
 neutral/actual PostgreSQL/Linux/SDK histogram cases,100k-point warm reuse, byte
 tampering with restored mtime, owner/cleanup, lazy expiry/byte eviction, concurrent
 caller isolation, cancellation and unchanged legacy saved bytes. These are backend
-checks, not native WebView/Windows or general latency/RSS acceptance. Remaining
-R13-03/04/05/06/07 follow-ups retain their separate queues.
+checks, not native WebView/Windows or general latency/RSS acceptance. R13-04 remains the next follow-up after the locally fixed R13-03/05/06/07 batch.
 
 New source imports use normalizer 1.2.0. Equal-time cohorts whose complete
 observation payloads agree (including start, flags, histogram and exemplars) are
@@ -214,3 +213,13 @@ observation payloads agree (including start, flags, histogram and exemplars) are
 next cumulative point produces a derived rate; no writer is selected. Overlapping
 delta cohorts also retain the duplicate/conflict status with derivation suppressed.
 Saved 1.0.0/1.1.0 results keep the original equal-time classification.
+
+R13-07 series selection: source assistance and saved-result exploration search
+name/unit/kind and exact opaque resource/scope/attribute identities. The list renders
+at most 50 series per page; filtered select-all/clear affect every matching page
+and preserve selections outside the filter. Counts expose hidden selections and
+a separate clear-all action resets them. Source/path/options changes and canceled
+inspection cannot retain stale selection. Selection size is counted as UTF-8 JSON;
+above 60 KiB, save/query/materialize/CSV actions require a narrower selection to
+leave room within the 64 KiB query envelope. Inventory remains bounded to 10k
+series; pagination does not imply unbounded inventory or larger result budgets.

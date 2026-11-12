@@ -1,6 +1,6 @@
 # 정확한 메트릭 이력
 
-T-638은 `metrics_timeseries` payload 0.2.0(기존 저장 0.1.0 reader 유지)과 MetricHistory 모델/normalizer 1.0.0을
+T-638은 `metrics_timeseries` payload 0.2.0(기존 저장 0.1.0 reader 유지)과 MetricHistory 모델 1.0.0(명시적 normalizer 1.0.0–1.2.0)을
 추가합니다. 기존 `metrics_snapshot` 가져오기와 저장 reader의 의미는 유지합니다.
 공통 AnalysisResult envelope와 parser/analyzer/exporter 책임 분리도 유지합니다.
 
@@ -119,8 +119,7 @@ Generic CSV는 현재 summary/availability만 내보내며 **구간 행은 포�
 R13-02는 아래 설명한 프로세스 내부의 검증된 모델·구간 조회 인덱스로 로컬 수정했습니다.
 R13-04는 좌표가 부족한 수치/형식 오류와 exact 범위 밖 값의 파일 전체 거부,
 R13-03/05/06은 아래 설명한 버전별 gap·동일 관측 판정·전용 CSV로 로컬 수정했습니다.
-R13-07은 검색/페이지 없는 bounded 전체 series 목록으로 남은 후속 작업이며
-완료 기능으로 주장하지 않습니다. 실제 사용자 export와 native WebView/Windows 검증은 별도입니다.
+R13-07은 아래 설명한 검색·페이지·선택 크기 안내로 로컬 수정했습니다. R13-04는 남은 후속 작업입니다. 실제 사용자 export와 native WebView/Windows 검증은 별도입니다.
 
 R14-07 정정: 0.2.0 generic 상세/HTML/Report Pack 표는 point ID·status와 time/clock/reference
 투영만 담으며 메트릭 이름·단위·값·delta·rate 행은 담지 않습니다. 정확한 값/bucket은 전용
@@ -156,8 +155,10 @@ Warm 페이지는 이를 재사용해 선택 시계열의 종료 시각 범위�
 neutral·실제 PostgreSQL/Linux·SDK histogram의 기존/인덱스 페이지 바이트 일치,
 100k point warm 재사용, mtime 복원 변조, owner/cleanup, 만료·바이트 퇴출, 동시 반환값
 격리·취소·legacy 저장 바이트 보존을 회귀로 확인합니다. 백엔드 검증이며 native WebView/
-Windows·일반적인 latency/RSS 수용을 뜻하지 않습니다. R13-04/07 후속 큐는 유지합니다.
+Windows·일반적인 latency/RSS 수용을 뜻하지 않습니다. R13-04 후속 큐는 유지합니다.
 
 새 원본 가져오기는 normalizer 1.2.0입니다. 같은 종료 시각의 전체 관측 내용(start·flags·histogram·exemplars 포함)이 모두 같으면 `duplicate_observation`, 하나라도 다르면 전체 묶음이 `conflicting_timestamp`입니다. 모든 export와 ref를 보존하며 해당 묶음과 다음 cumulative 관측의 rate를 만들거나 임의 writer를 선택하지 않습니다. 겹치는 delta 묶음도 동일/충돌 상태를 유지하고 파생 계산을 억제합니다. 저장된 1.0.0/1.1.0 결과는 종전 동일 시각 판정을 유지합니다.
 
 R13-06 구간 CSV 1.0.0: **구간 CSV 내보내기** 또는 `metrics history-csv --in saved-result.json --out intervals.csv`로 저장된 선택의 모든 페이지를 내보냅니다. `--selection`으로만 선택을 변경합니다. 정확한 숫자 문자열·분수 rate·관측/파생 histogram JSON·상태·gap·원본 좌표·시계열 식별자·참조 원본 출처를 보존합니다. 종료 시각 [from,to)로 구간 전체를 선택하고 창 밖 선행 문맥도 유지합니다. 없는 scalar는 빈 셀, 없는 histogram은 JSON `null`입니다. name/unit 자유 텍스트의 수식 접두사는 작은따옴표로 이스케이프하며, 스프레드시트에서는 숫자 열을 텍스트로 가져와야 정밀도를 보존합니다. 64 MiB 초과는 전체 거부하며 자르거나 기존/관리 파일을 덮어쓰지 않습니다. 일반 요약 CSV 동작은 그대로입니다.
+
+R13-07: 원본 선택과 저장 결과 탐색 모두 이름·단위·종류 및 정확한 resource/scope/속성 JSON을 검색하고 페이지당 최대 50개를 렌더링합니다. 검색 결과 전체 선택/해제는 모든 일치 페이지에 적용하며 필터 밖 선택은 보존합니다. 전체·검색·선택·숨은 선택 수와 별도 전체 해제를 제공합니다. 원본/path/options 변경과 취소된 검사는 오래된 선택을 남기지 않습니다. 선택 JSON의 UTF-8 크기가 60 KiB를 넘으면 저장·조회·새 결과·CSV 요청 전에 선택을 줄이도록 안내합니다(64 KiB 조회 envelope 여유 확보). 목록 한도는 1만 개이며 페이지 처리가 저장/결과 한도를 늘리지는 않습니다.

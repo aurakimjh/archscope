@@ -1,6 +1,8 @@
 import { Dialogs } from "@wailsio/runtime";
 import { useEffect, useRef, useState } from "react";
 import * as bridge from "@/bridge/engine";
+import { MetricSeriesPicker } from "@/components/MetricSeriesPicker";
+import { metricSelectionBytes, metricSelectionByteLimit } from "@/state/metricSeriesSelection";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n/I18nProvider";
 import { ResultRequestScope, safeDisplayText } from "@/state/resultProviders";
@@ -16,18 +18,20 @@ export function MetricHistoryExplorer({ handle }: { handle: string }): React.JSX
   const key = JSON.stringify([ids, from, to]);
   useEffect(() => { if (!inventory) return; scope.current.cancel(); setPage(null); setBusy(false); }, [key]);
   const selection = (): bridge.MetricSelection => ({ series_ids: ids, ...(from ? { from_ns: from } : {}), ...(to ? { to_ns: to } : {}) });
+  const selectionBytes = metricSelectionBytes(selection());
+  const selectionTooLarge = selectionBytes > metricSelectionByteLimit;
   async function query(cursor = ""): Promise<void> {
-    if (!inventory) return; const r = scope.current.begin(); setBusy(true); setError("");
+    if (!inventory || selectionTooLarge) return; const r = scope.current.begin(); setBusy(true); setError("");
     try { const value = await scope.current.wait(r, bridge.queryMetricHistory(handle, inventory.result_sha256, JSON.stringify({ selection: selection(), cursor, limit: 25 }))); if (value.version !== "1.0.0" || value.result_sha256 !== inventory.result_sha256) throw new Error("stale_metric_query"); setPage(value); }
     catch (e) { if (scope.current.current(r)) setError(String(e)); } finally { if (scope.current.current(r)) setBusy(false); }
   }
   async function materialize(): Promise<void> {
-    if (!inventory) return; const r = scope.current.begin(); const generation = getWorkspaceGeneration(); setBusy(true); setError("");
+    if (!inventory || selectionTooLarge) return; const r = scope.current.begin(); const generation = getWorkspaceGeneration(); setBusy(true); setError("");
     try { const value = JSON.parse(await bridge.materializeMetricView(handle, inventory.result_sha256, JSON.stringify(selection()))) as { view: { handle: string; type: string }; lease: { id: string } }; if (!scope.current.current(r) || generation !== getWorkspaceGeneration()) { await bridge.releaseEvidenceLease(value.lease.id); return; } addWorkspaceResult({ backendResultHandle: value.view.handle, backendLeaseID: value.lease.id, result: { type: value.view.type, summary: {} }, title: w("Selected metric history", "선택한 메트릭 이력") }); }
     catch (e) { if (scope.current.current(r)) setError(String(e)); } finally { if (scope.current.current(r)) setBusy(false); }
   }
   async function exportIntervals(): Promise<void> {
-    if (!inventory || !ids.length) return;
+    if (!inventory || !ids.length || selectionTooLarge) return;
     const r = scope.current.begin(); setBusy(true); setError("");
     try {
       const output = await Dialogs.SaveFile({ Title: w("Export exact metric intervals", "정확한 메트릭 구간 내보내기"), Filename: "metric-intervals.csv" });
@@ -38,10 +42,11 @@ export function MetricHistoryExplorer({ handle }: { handle: string }): React.JSX
   }
   return <details className="rounded border border-border p-3"><summary>{w("Exact metric intervals and provenance", "정확한 메트릭 구간과 출처")}</summary>
     <p className="text-xs">{w("Time windows select point end times [start, end). Intervals are retained whole. Rates are exact fractions per second; gaps are not interpolated. Missing timestamps, resets and ambiguous points remain explicit. Series are never summed automatically.", "시간창은 관측 종료 시각 [시작, 끝)을 선택하며 구간 전체를 유지합니다. Rate는 초당 정확한 분수이고 gap을 보간하지 않습니다. 시각 누락·reset·모호한 관측을 표시하며 시계열을 자동 합산하지 않습니다.")}</p>
-    {inventory && <fieldset disabled={busy} className="space-y-2">{inventory.series.map(series => <div key={series.id}><label><input type="checkbox" checked={ids.includes(series.id)} onChange={e => setIDs(value => e.target.checked ? [...value, series.id] : value.filter(id => id !== series.id))} /> {safeDisplayText(`${series.name} · ${series.unit} · ${series.kind}/${series.temporality}`)}</label><details><summary>{w("Resource / scope / attributes", "Resource / scope / 속성")}</summary><pre className="overflow-auto text-xs">{safeDisplayText(series.identity_json)}</pre></details></div>)}
+    {inventory && <fieldset disabled={busy} className="space-y-2"><MetricSeriesPicker series={inventory.series} selected={ids} onChange={setIDs} />
+      <p role={selectionTooLarge ? "alert" : undefined}>{w("Selection bytes", "선택 크기(byte)")} {selectionBytes} / {metricSelectionByteLimit}{selectionTooLarge && w(" — select fewer series or shorten the window input", " — 선택 범위를 줄이거나 시간창 입력을 줄이세요")}</p>
       <input aria-label={w("Metric window start nanoseconds", "메트릭 시간창 시작 나노초")} value={from} onChange={e => setFrom(e.target.value)} placeholder={w("Inclusive Unix nanoseconds", "포함 시작 Unix 나노초")} /> <input aria-label={w("Metric window end nanoseconds", "메트릭 시간창 끝 나노초")} value={to} onChange={e => setTo(e.target.value)} placeholder={w("Exclusive Unix nanoseconds", "미포함 끝 Unix 나노초")} />
-      <Button disabled={!ids.length} onClick={() => void query()}>{w("Query intervals", "구간 조회")}</Button>{" "}<Button variant="outline" disabled={!ids.length} onClick={() => void materialize()}>{w("Add selection as new result", "선택을 새 결과로 추가")}</Button>
-      <Button variant="outline" disabled={!ids.length} onClick={() => void exportIntervals()}>{w("Export interval CSV", "구간 CSV 내보내기")}</Button>
+      <Button disabled={!ids.length || selectionTooLarge} onClick={() => void query()}>{w("Query intervals", "구간 조회")}</Button>{" "}<Button variant="outline" disabled={!ids.length || selectionTooLarge} onClick={() => void materialize()}>{w("Add selection as new result", "선택을 새 결과로 추가")}</Button>
+      <Button variant="outline" disabled={!ids.length || selectionTooLarge} onClick={() => void exportIntervals()}>{w("Export interval CSV", "구간 CSV 내보내기")}</Button>
       <p className="text-xs">{w("CSV preserves exact numeric text. Import numeric columns as text in spreadsheets to avoid rounding. Free-text formula prefixes are escaped with an apostrophe.", "CSV는 정확한 숫자 문자열을 보존합니다. 스프레드시트에서는 숫자 열을 텍스트로 가져와 반올림을 방지하세요. 자유 텍스트의 수식 접두사는 작은따옴표로 이스케이프합니다.")}</p>
       {inventory.warnings.map((warning, i) => <p key={i} className="text-xs">{safeDisplayText(warning)}</p>)}
     </fieldset>}
