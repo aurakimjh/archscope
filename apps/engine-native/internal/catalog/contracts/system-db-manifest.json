@@ -10,7 +10,11 @@
     },
     {
       "file": "README.md",
-      "sha256": "0440a6bf77fb2a97363d0f7d28dbed0f9fdcc57122e66aba6014681fd8446237"
+      "sha256": "0c851c3b4a2027a96643d9112bbbed97fb0d9473b01ea78c20994f0c62fda919"
+    },
+    {
+      "file": "capture-postgres.py",
+      "sha256": "f06e229770c08649cf4efcc5c0459a3e464a3956d1dca18412608ccbff559604"
     },
     {
       "file": "generate-ss.py",
@@ -41,12 +45,16 @@
       "sha256": "888ce58a21927373b8b1a52bf530844046bef62ae450004ce9eaa45860b41656"
     },
     {
+      "file": "postgres-readonly-unknown-capture.json",
+      "sha256": "e6e1bc8368484871fc3bfd41b1488b5082e07244e744ee545beee907a11edba6"
+    },
+    {
       "file": "postgres-snapshot.sql",
       "sha256": "f8bd978e3b30135f2ec950146606290ba8fcc9c0ed1f3448db155c142fd59ca0"
     },
     {
       "file": "producer-provenance.json",
-      "sha256": "0a3c8bef9fb2dec80e4368c16b959f1e641c652350094bf2ab60d45166dccad1"
+      "sha256": "147b076784d8885b7d6c3539404fb3a0555789474007ced0976069c6188fcd46"
     }
   ]
 }

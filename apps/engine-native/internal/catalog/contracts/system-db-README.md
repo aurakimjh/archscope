@@ -19,3 +19,5 @@ ss 수집에는 주소·포트·프로세스 정보가 없는 summary만 사용�
 ## 경계
 
 두 계약은 collector1.0.0, 원본4MiB,1..256개 순서가 겹치지 않는 읽기 snapshot, ss summary16KiB를 제한합니다. 모델은 기존 MetricHistory1.0.0 규약을 재사용합니다. native WebView/Windows 실행이나 모든 kernel·PostgreSQL 버전은 검증하지 않았습니다. producer-provenance.json과 manifest.json의 SHA-256을 확인하세요. raw source schema는 형태를, compiled importer는 숫자·시각·scope·layout의 의미도 검증합니다.
+
+stats_reset NULL은 reset 이력 미확보이며 같은 postmaster도 crash recovery 중 통계 연속성을 증명하지 못한다. unknown counter의 delta/rate는 억제한다. 누적 관측만 보존하거나, DB 소유자가 별도 허가된 정비 창에 reset 영향을 검토하고 새 epoch를 만든 뒤 수집할 수 있다. 수집기는 reset을 하지 않는다. capture-postgres.py는 libpq 환경/pgpass를 사용하는 별도 명시적 psql 읽기 전용 wrapper 수집기이며 importer가 호출하지 않는다.

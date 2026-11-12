@@ -14,5 +14,6 @@
     "linux-ss-capture.json": "c2aa8d9f0ee25fc7791089dc3c1fad2d5f9203ac6cdeaa96f2c5f8a0841e6fbc",
     "postgres-snapshot.sql": "f8bd978e3b30135f2ec950146606290ba8fcc9c0ed1f3448db155c142fd59ca0",
     "generate-ss.py": "be6405e6ed7fcc95766fbdf76099efd7bf059ae7f1fdc32c81bc7d0c97d806a0"
-  }
+  },
+  "readonly_wrapper_observation": "PostgreSQL16.14 network-none disposable server; shipped capture-postgres.py,3 snapshots/0.5s, no reset or writes; all stats_reset null; server removed after collection."
 }

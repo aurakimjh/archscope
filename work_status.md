@@ -4681,7 +4681,7 @@ Findings recorded before archival, respecting older dependency-ordered P3 work:
 
 | Order | Finding | Priority | Status | Action |
 |---|---|---|---|---|
-| 1 | R22-03 | P3 | TODO | Explain NULL reset/crash-recovery conservatism and permitted maintenance-window options; provide a separate read-only wrapper collector without automatic resets or DB access during import. |
+| 1 | R22-03 | P3 | LOCALLY_FIXED | Explain NULL reset/crash-recovery conservatism and permitted maintenance-window options; provide a separate read-only wrapper collector without automatic resets or DB access during import. |
 | 2 | R22-01 | P3 | TODO | Explicit unknown-to-known epoch transition status/rate policy; preserve prior unknown epoch and saved revisions. |
 | 3 | R22-02 | P3 | TODO | Qualify numbackends>=1 and nondecreasing reset timestamps or disclose/refuse invariant violations explicitly. |
 
@@ -4838,3 +4838,5 @@ R20-04 EVIDENCE_PARTIAL: Actual 12-sample/two-second multi-load capture added; m
 R21-02 LOCALLY_FIXED: Nsight now discloses present/absent coverage for all four supported optional tables; absent never proves zero activity. Selected-name views/virtual tables refused before querying; generated columns remain refused. All optional-table missing/view regressions and catalog passed; legacy saved warnings preserved. No new independent PASS; original parent verdicts and existing saved revisions are preserved.
 
 R21-04 LOCALLY_FIXED: Added shared deterministic overlapping-stream SQLite mutation with independent exact sum77888/union51968 ns, duplicate launch candidates and ambiguous/orphan/valid Chrome flow endpoints. Structural qualification explicitly distinguished from actual CUDA/NCCL. Parser/analyzer/catalog passed. No new independent PASS; original parent verdicts and existing saved revisions are preserved.
+
+R22-03 LOCALLY_FIXED: Documented NULL-reset/crash-recovery conservatism and owner-approved maintenance alternatives. Shipped separate explicit fixed-SQL BEGIN READ ONLY psql wrapper in offline tools; no automatic reset/import-time DB access. Actual disposable network-none PostgreSQL16.14 three-snapshot capture retained unknown epochs and no rates; server removed. Parser/catalog/distribution tests passed. No new independent PASS; original parent verdicts and existing saved revisions are preserved.

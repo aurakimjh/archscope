@@ -94,3 +94,5 @@ runtime acceptance. Independent review remains a separate completion gate.
 
 References: [PostgreSQL16 statistics](https://www.postgresql.org/docs/16/monitoring-stats.html),
 [iproute2-6.1.0 summary implementation](https://github.com/iproute2/iproute2/blob/v6.1.0/misc/ss.c).
+
+A never-reset database with `stats_reset=NULL` retains cumulative observations without delta/rate. The same postmaster lifetime does not prove statistics continuity across backend crash recovery, so no start is inferred. Keep cumulative-only evidence, or have the database owner separately approve a maintenance window and assess reset effects on other monitoring before collecting a new known epoch. There is no automatic reset. The separate `capture-postgres.py --out capture.json --host-id host-a --boot-id boot-a --instance-id db-a --database-tag sample --samples 3` uses libpq environment/pgpass and fixed SQL in `BEGIN READ ONLY`, assembling the capture wrapper. It excludes SQL/connection strings/database names from output; importing never connects to the DB. Collection itself affects observed backends/transactions.

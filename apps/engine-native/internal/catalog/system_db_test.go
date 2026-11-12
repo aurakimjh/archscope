@@ -24,7 +24,7 @@ func TestActualSystemDBCorpusSchemaManifestAndModels(t *testing.T) {
 			SHA  string `json:"sha256"`
 		} `json:"files"`
 	}
-	if e = json.Unmarshal(raw, &manifest); e != nil || manifest.ID != "diagnostics.system-db-snapshots.v1" || len(manifest.Files) != 11 {
+	if e = json.Unmarshal(raw, &manifest); e != nil || manifest.ID != "diagnostics.system-db-snapshots.v1" || len(manifest.Files) != 13 {
 		t.Fatal(manifest, e)
 	}
 	for _, f := range manifest.Files {

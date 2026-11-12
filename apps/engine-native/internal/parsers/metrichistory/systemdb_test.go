@@ -228,3 +228,19 @@ func TestSnapshotCaptureRefusalsAndCancellation(t *testing.T) {
 		}
 	}
 }
+
+func TestR2203ActualReadOnlyWrapperUnknownEpoch(t *testing.T) {
+	set := parse(t, systemDBFixture(t, "postgres-readonly-unknown"), p.Options{})
+	if len(set.Points) != 45 {
+		t.Fatal(len(set.Points))
+	}
+	rows, e := m.Intervals(context.Background(), set)
+	if e != nil {
+		t.Fatal(e)
+	}
+	for _, v := range rows {
+		if v.Delta != nil || v.Rate != nil {
+			t.Fatal("unknown reset fabricated rate", v)
+		}
+	}
+}

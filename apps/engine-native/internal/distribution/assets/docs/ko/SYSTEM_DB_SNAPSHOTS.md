@@ -80,3 +80,5 @@ React/CLI DTO와 mock IPC의 범위이며 native WebView·Windows 실행 증거�
 
 참고: [PostgreSQL16 통계](https://www.postgresql.org/docs/16/monitoring-stats.html),
 [iproute2-6.1.0 summary 구현](https://github.com/iproute2/iproute2/blob/v6.1.0/misc/ss.c).
+
+`stats_reset=NULL`인 reset 이력 없는 DB는 누적값만 남으며 delta/rate가 없습니다. 같은 postmaster 수명도 backend crash recovery 중 통계 연속성을 보증하지 않아 시작을 추정하지 않습니다. 누적 관측을 유지하거나 DB 소유자가 허가된 정비 창에 reset의 다른 모니터링 영향까지 검토한 뒤 새 epoch에서 수집할 수 있습니다. 자동 reset은 없습니다. 별도 `capture-postgres.py --out capture.json --host-id host-a --boot-id boot-a --instance-id db-a --database-tag sample --samples 3`는 libpq 환경/pgpass 연결을 사용해 `BEGIN READ ONLY`로 고정 SQL을 실행하고 wrapper를 조립합니다. SQL/접속 문자열/DB명은 출력하지 않으며 importer는 DB에 접속하지 않습니다. 수집 자체의 backend/transaction 관측 영향은 남습니다.
