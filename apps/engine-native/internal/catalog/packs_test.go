@@ -13,14 +13,19 @@ import (
 )
 
 func TestJobCatalogAndPackProvenanceRemainPinnedAfterDeactivation(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
-	defer cancel()
+	// Catalog setup, selection, deactivation, import and reopen are independent
+	// operations. Keep each bounded without charging it for earlier work.
+	operationContext := func() context.Context {
+		ctx, cancel := context.WithTimeout(t.Context(), 20*time.Second)
+		t.Cleanup(cancel)
+		return ctx
+	}
 	base, registry, e := Builtin()
 	if e != nil {
 		t.Fatal(e)
 	}
 	root := t.TempDir()
-	session, e := OpenPackSession(ctx, root, base)
+	session, e := OpenPackSession(operationContext(), root, base)
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -29,7 +34,7 @@ func TestJobCatalogAndPackProvenanceRemainPinnedAfterDeactivation(t *testing.T) 
 	if e != nil {
 		t.Fatal(e)
 	}
-	rawSnapshot, e := session.Manager.Snapshot(ctx, "")
+	rawSnapshot, e := session.Manager.Snapshot(operationContext(), "")
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -62,6 +67,7 @@ func TestJobCatalogAndPackProvenanceRemainPinnedAfterDeactivation(t *testing.T) 
 	if e != nil {
 		t.Fatal(e)
 	}
+	selectionCtx := operationContext()
 	for {
 		job, e = service.Get(job.ID, job.Generation)
 		if e != nil {
@@ -74,13 +80,13 @@ func TestJobCatalogAndPackProvenanceRemainPinnedAfterDeactivation(t *testing.T) 
 			t.Fatalf("%+v", job)
 		}
 		select {
-		case <-ctx.Done():
-			t.Fatal(ctx.Err())
+		case <-selectionCtx.Done():
+			t.Fatal(selectionCtx.Err())
 		case <-time.After(time.Millisecond):
 		}
 	}
 	state, _ := session.Manager.State()
-	if e = session.Manager.Deactivate(ctx, state.Revision, "application", old.Packs[0].ID); e != nil {
+	if e = session.Manager.Deactivate(operationContext(), state.Revision, "application", old.Packs[0].ID); e != nil {
 		t.Fatal(e)
 	}
 	if job.State == "needs_selection" {
@@ -88,7 +94,7 @@ func TestJobCatalogAndPackProvenanceRemainPinnedAfterDeactivation(t *testing.T) 
 			t.Fatal(e)
 		}
 	}
-	job, e = service.Wait(ctx, job.ID, job.Generation)
+	job, e = service.Wait(operationContext(), job.ID, job.Generation)
 	if e != nil || job.State != "completed" {
 		t.Fatalf("%+v %v", job, e)
 	}
@@ -130,7 +136,7 @@ func TestJobCatalogAndPackProvenanceRemainPinnedAfterDeactivation(t *testing.T) 
 		t.Fatal("old catalog changed")
 	}
 	session.Manager.Close()
-	reopened, e := OpenPackSession(ctx, root, base)
+	reopened, e := OpenPackSession(operationContext(), root, base)
 	if e != nil {
 		t.Fatal(e)
 	}

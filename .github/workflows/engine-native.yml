@@ -115,7 +115,8 @@ jobs:
       - name: go test
         # The analysis package includes cumulative scale/import/export cases;
         # race instrumentation can exceed Go's default ten-minute package limit.
-        run: go test ./... -race -count=1 -timeout 20m
+        # Bound concurrent packages so large fixtures do not starve each other.
+        run: go test ./... -race -count=1 -p 2 -timeout 20m
 
       - name: Windows live-capture E2E
         if: runner.os == 'Windows'

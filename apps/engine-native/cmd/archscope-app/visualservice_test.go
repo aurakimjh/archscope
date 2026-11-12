@@ -90,9 +90,14 @@ func TestT636SeparateRenderSessionSnapshotAndRegeneration(t *testing.T) {
 	req.Presentation.FontSize = 20
 	req.Presentation.RowsPerPage = 5
 	raw, _ := json.Marshal(req)
-	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
-	defer cancel()
-	output, e := svc.RenderVisual(ctx, string(raw))
+	// Snapshot, regeneration and explicit upgrade are separate render sessions.
+	// Give each the same bounded interval instead of reusing an aging deadline.
+	render := func(request string) (string, error) {
+		ctx, cancel := context.WithTimeout(t.Context(), 120*time.Second)
+		defer cancel()
+		return svc.RenderVisual(ctx, request)
+	}
+	output, e := render(string(raw))
 	if e != nil {
 		select {
 		case err := <-errors:
@@ -115,7 +120,7 @@ func TestT636SeparateRenderSessionSnapshotAndRegeneration(t *testing.T) {
 	req.Parent = first.ID
 	req.Presentation = first.Spec.Presentation
 	raw, _ = json.Marshal(req)
-	output, e = svc.RenderVisual(ctx, string(raw))
+	output, e = render(string(raw))
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -129,17 +134,17 @@ func TestT636SeparateRenderSessionSnapshotAndRegeneration(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	if e = svc.CopyVisualArtifact(ctx, first.ID, 0, "image"); e == nil {
+	if e = svc.CopyVisualArtifact(t.Context(), first.ID, 0, "image"); e == nil {
 		t.Fatal("windowless clipboard call succeeded")
 	}
 	req.Presentation.Annotation = "changed annotation"
 	raw, _ = json.Marshal(req)
-	if _, e = svc.RenderVisual(ctx, string(raw)); e == nil || !strings.Contains(e.Error(), "VISUAL_REGEN_SELECTION_CHANGED") {
+	if _, e = render(string(raw)); e == nil || !strings.Contains(e.Error(), "VISUAL_REGEN_SELECTION_CHANGED") {
 		t.Fatal("implicit presentation revision", e)
 	}
 	req.Upgrade = true
 	raw, _ = json.Marshal(req)
-	if _, e = svc.RenderVisual(ctx, string(raw)); e != nil {
+	if _, e = render(string(raw)); e != nil {
 		t.Fatal(e)
 	}
 	after, _, e := store.Read(first.ID)
