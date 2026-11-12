@@ -149,3 +149,11 @@ projections preserved. Current duration fields must be interpreted with their
 boundary/status evidence; this local remediation does not claim that fix.
 
 `diag.llm.first_token_unix_nano`, `diag.llm.last_token_unix_nano`, `diag.llm.first_token`, `diag.llm.last_token`.
+
+New normalization records token_timing_policy=token-boundaries.1.1.0. Contradicting supplied boundaries (outside span or first>last) clear both TTFT/TPOT with token_boundary_order_invalid, regardless of output token count. Missing policy preserves legacy saved projections; equal first/last does not provide distinct TPOT boundaries.
+
+| Semantic profile | TTFT/TPOT capability |
+|---|---|
+| neutral.v1 | Requires explicit diag.llm first/last attributes or events and qualified span/clock/token count |
+| otel-genai.v1.37.0 | Standard GenAI usage fields do not imply timing; explicit diag.llm extension required |
+| openinference.core.v1 | Standard OpenInference spans do not imply timing; explicit diag.llm extension required |

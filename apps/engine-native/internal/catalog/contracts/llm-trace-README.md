@@ -15,3 +15,5 @@ parent와 link, 논리 요청과 시도, client/server 및 lifecycle population�
 근거 규약: https://github.com/open-telemetry/semantic-conventions/blob/v1.37.0/docs/gen-ai/gen-ai-spans.md , https://github.com/open-telemetry/opentelemetry-proto/blob/v1.7.0/opentelemetry/proto/trace/v1/trace.proto , https://github.com/Arize-ai/openinference/blob/main/spec/semantic_conventions.md .
 
 재생성: SDK generator를 고정 의존성 환경에서 실행한 후 workspace app의 scripts/generate-llm-fixtures.go에 이 디렉터리를 지정한다. manifest와 프로젝트의 컴파일 임베드 복사본을 함께 갱신한다. 모델 32 MiB / 결과 64 MiB / 원본 및 확장 각각 64 MiB가 개수 제한보다 먼저 적용된다. 제한 초과 시 원본을 trace 단위로 분할하며 조용히 자르지 않는다.
+
+새 정규화는 source.token_timing_policy=`token-boundaries.1.1.0`을 기록합니다. 제공된 token 경계가 span 또는 서로 모순되면 TTFT·TPOT를 모두 null로 하고 token_boundary_order_invalid로 통일합니다. 필드가 없는 기존 모델·저장 결과는 기존 계산을 유지합니다. GenAI/OpenInference 표준 span에는 token 경계가 자동으로 존재하지 않으며 명시적인 diag.llm 속성·event 확장이 필요합니다.

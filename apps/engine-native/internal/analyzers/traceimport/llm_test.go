@@ -44,6 +44,10 @@ func TestLLMSDKProfilesPrivacyAndCaseGuard(t *testing.T) {
 			}
 			canonical, _ := json.Marshal(s)
 			expected := llmSet(t, tc.expected)
+			if expected.Source.TokenTimingPolicy != "" {
+				t.Fatal("legacy fixture changed")
+			}
+			expected.Source.TokenTimingPolicy = l.TokenTimingPolicy
 			want, _ := json.Marshal(expected)
 			if !bytes.Equal(canonical, want) {
 				t.Fatal("fixture drift")
@@ -280,5 +284,41 @@ func TestLLMLegacyGuardRefusesUninspectedTail(t *testing.T) {
 	f.Close()
 	if _, e = Analyze(path, Options{}); e == nil || !strings.Contains(e.Error(), "TRACE_SOURCE_BUDGET") {
 		t.Fatal("uninspected tail admitted", e)
+	}
+}
+
+func TestR1705ContradictingSuppliedTokenBoundsInvalidateBoth(t *testing.T) {
+	base := llmSet(t, "llm-trace-set.json")
+	base.Spans = base.Spans[:1]
+	base.Events = nil
+	base.Links = nil
+	v := base.Spans[0]
+	v.Parent = ""
+	v.Attempt = ""
+	v.AttemptKind = ""
+	v.PreviousAttempt = ""
+	v.Accounting = "none"
+	v.Start = m.Pointer("1000")
+	v.End = m.Pointer("2000")
+	v.OutputTokens = m.Pointer("3")
+	for _, bounds := range [][2]string{{"900", "1800"}, {"1500", "1200"}, {"1500", "2100"}, {"1500", "900"}, {"2100", "2200"}} {
+		s := base
+		s.Source.TokenTimingPolicy = l.TokenTimingPolicy
+		span := v
+		span.FirstToken = m.Pointer(bounds[0])
+		span.LastToken = m.Pointer(bounds[1])
+		span.ID = l.SpanID(s.Source.SHA256, span)
+		s.Spans = []l.Span{span}
+		result, e := ProjectLLM(context.Background(), s)
+		if e != nil || result.Spans[0].TTFT != nil || result.Spans[0].TPOT != nil || result.Spans[0].TokenStatus != "token_boundary_order_invalid" {
+			t.Fatal(bounds, result, e)
+		}
+		if bounds[0] == "1500" && bounds[1] == "1200" {
+			s.Source.TokenTimingPolicy = ""
+			old, e := ProjectLLM(context.Background(), s)
+			if e != nil || old.Spans[0].TTFT == nil {
+				t.Fatal("legacy saved semantics changed", e)
+			}
+		}
 	}
 }

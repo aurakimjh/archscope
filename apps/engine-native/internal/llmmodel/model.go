@@ -13,21 +13,23 @@ import (
 )
 
 const Version = "1.0.0"
+const TokenTimingPolicy = "token-boundaries.1.1.0"
 const PrivacyVersion = "llm-structure-only.1.0.0"
 const MaxBytes = 32 << 20
 const MaxSpans = 50000
 const MaxRelations = 100000
 
 type Source struct {
-	SHA256          string `json:"sha256"`
-	Format          string `json:"format"`
-	Producer        string `json:"producer"`
-	ProducerVersion string `json:"producer_version"`
-	Profile         string `json:"semantic_profile"`
-	Namespace       string `json:"trace_namespace"`
-	Clock           string `json:"clock"`
-	Privacy         string `json:"privacy_policy"`
-	OmittedFields   string `json:"omitted_field_count"`
+	TokenTimingPolicy string `json:"token_timing_policy,omitempty"`
+	SHA256            string `json:"sha256"`
+	Format            string `json:"format"`
+	Producer          string `json:"producer"`
+	ProducerVersion   string `json:"producer_version"`
+	Profile           string `json:"semantic_profile"`
+	Namespace         string `json:"trace_namespace"`
+	Clock             string `json:"clock"`
+	Privacy           string `json:"privacy_policy"`
+	OmittedFields     string `json:"omitted_field_count"`
 }
 
 // Context is shared rather than repeated in each span. Only technical identity
@@ -149,7 +151,7 @@ func In(s string, values ...string) bool {
 	return false
 }
 func (s Set) Validate(ctx context.Context) error {
-	if s.Version != Version || s.Source.Privacy != PrivacyVersion {
+	if s.Version != Version || s.Source.Privacy != PrivacyVersion || (s.Source.TokenTimingPolicy != "" && s.Source.TokenTimingPolicy != TokenTimingPolicy) {
 		return fmt.Errorf("LLMTRACE_VERSION_UNSUPPORTED")
 	}
 	if !digest.MatchString(s.Source.SHA256) || s.Source.Format != "otlp-json" || s.Source.Namespace == "" || !In(s.Source.Clock, "unix", "unknown") || s.Source.Profile == "" {

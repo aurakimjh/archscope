@@ -184,7 +184,7 @@ func ParseLLMBytes(ctx context.Context, original []byte, o LLMOptions) (l.Set, e
 	if profile.ID == "" {
 		return s, fmt.Errorf("LLMTRACE_PROFILE_UNSUPPORTED")
 	}
-	s.Source = l.Source{SHA256: LLMDigest(original), Format: "otlp-json", Producer: o.Producer, ProducerVersion: o.ProducerVersion, Profile: profile.ID, Namespace: o.Namespace, Clock: o.Clock, Privacy: l.PrivacyVersion, OmittedFields: "0"}
+	s.Source = l.Source{TokenTimingPolicy: l.TokenTimingPolicy, SHA256: LLMDigest(original), Format: "otlp-json", Producer: o.Producer, ProducerVersion: o.ProducerVersion, Profile: profile.ID, Namespace: o.Namespace, Clock: o.Clock, Privacy: l.PrivacyVersion, OmittedFields: "0"}
 	body, e := llmExpanded(original)
 	if e != nil {
 		return s, e

@@ -280,6 +280,18 @@ func ProjectLLM(ctx context.Context, s l.Set) (LLMProjection, error) {
 				}
 			}
 		}
+		if s.Source.TokenTimingPolicy == l.TokenTimingPolicy && s.Source.Clock != "unknown" && !conflict {
+			start, sk := m.Time(v.Start)
+			end, ek := m.Time(v.End)
+			f, fk := m.Time(first)
+			z, zk := m.Time(last)
+			invalid := (fk || zk) && ((sk && ek && start > end) || (fk && sk && f < start) || (fk && ek && f > end) || (zk && sk && z < start) || (zk && ek && z > end) || (fk && zk && f > z))
+			if invalid {
+				r.TTFT = nil
+				r.TPOT = nil
+				r.TokenStatus = "token_boundary_order_invalid"
+			}
+		}
 		out.Spans = append(out.Spans, r)
 	}
 	for _, link := range s.Links {

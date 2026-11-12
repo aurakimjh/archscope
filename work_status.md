@@ -4123,7 +4123,7 @@ fixtures and 115 committed evidence hashes were independently confirmed.
 | 2 / P3 | R17-02 | Expand best-effort raw-carrier markers for Traceloop/Langfuse/OpenInference body fields and show intake caveat. No product-adapter qualification or complete arbitrary-body detection claim. |
 | 3 / P3 | R17-03 | Page only matched output rows; reuse verified graph/model projection by result digest with bounded lifetime/size cache. No cross-owner or stale source reuse. |
 | 4 / P3 | R17-04 | Document measured ~35k-span 32 MiB limit for the reviewed shape and original trace splitting; remove nonexistent selection guidance. |
-| 5 / P3 | R17-05 | Consistently null TTFT/TPOT when supplied boundaries contradict span/each other; document per-profile timing capability and custom event requirement. |
+| 5 / P3 | R17-05 | Consistently null TTFT/TPOT when supplied boundaries contradict span/each other; document per-profile timing capability and custom event requirement.  LOCALLY_FIXED. |
 
 Raw review content is preserved unchanged after this queue is recorded. Native
 Windows/WebView and actual Langfuse/LangSmith exports remain outside its verdict.
@@ -4820,3 +4820,5 @@ R15-03 LOCALLY_FIXED: Separated upstream original_sha256 provenance from optiona
 R15-04 LOCALLY_FIXED: Explicit ignored_tids excludes declared lifetimes from interval costs/profiles while preserving raw observations/coordinates; idle policy documented. Scheduler header waker no longer requires an irrelevant observed-entity declaration; payload/sample targets remain strict. Scheduler/legacy/ignored-policy tests passed; shared schema mirrored. No new independent PASS; original parent verdicts and existing saved revisions are preserved.
 
 R15-05 LOCALLY_FIXED: Added explicit off_cpu/sleeping and off_cpu/runnable projections with distinct identities/capture context; aggregate off_cpu unchanged. Stackless endpoint attribution and runqueue overlap disclosed; exact partition/legacy/projection tests passed. No inferred lock or blocked call tree. No new independent PASS; original parent verdicts and existing saved revisions are preserved.
+
+R17-05 LOCALLY_FIXED: New explicit token-boundaries.1.1.0 policy nulls both TTFT/TPOT for supplied contradictory span/token boundaries; old models without policy keep saved projections. Profile capability/custom event table added. Five contradiction cases, canonical revision/privacy and service integration passed. Shared optional schema mirrored; repaired prior system README/offline mirrors in their own unpublished commits. No new independent PASS; original parent verdicts and existing saved revisions are preserved.

@@ -57,6 +57,9 @@
         },
         "omitted_field_count": {
           "type": "string"
+        },
+        "token_timing_policy": {
+          "const": "token-boundaries.1.1.0"
         }
       }
     },

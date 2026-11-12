@@ -133,3 +133,11 @@ R17-05는 P3 대기 항목입니다. first/last/span 경계 모순 시 TTFT/TPOT
 현재 duration은 boundary/status 근거와 함께 해석하며 이번 수정에서 해결을 주장하지 않습니다.
 
 `diag.llm.first_token_unix_nano`, `diag.llm.last_token_unix_nano`, `diag.llm.first_token`, `diag.llm.last_token`.
+
+새 정규화는 token_timing_policy=token-boundaries.1.1.0을 기록합니다. 제공된 경계가 span 밖이거나 first>last이면 output token 수와 무관하게 TTFT/TPOT를 모두 null로 하고 token_boundary_order_invalid로 통일합니다. 정책 필드가 없는 저장 투영은 과거 계산을 유지하며 first=last는 구분된 TPOT 경계를 제공하지 않습니다.
+
+| 의미 프로파일 | TTFT/TPOT 가능 조건 |
+|---|---|
+| neutral.v1 | 명시적 diag.llm first/last 속성 또는 event와 적격 span/clock/token 수 필요 |
+| otel-genai.v1.37.0 | 표준 GenAI usage로 timing을 추정하지 않으며 명시적 diag.llm 확장 필요 |
+| openinference.core.v1 | 표준 OpenInference span으로 timing을 추정하지 않으며 명시적 diag.llm 확장 필요 |
