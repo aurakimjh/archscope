@@ -132,3 +132,5 @@ R15-06: spreadsheet-text-0.2.1은 0.1·1.5·3.14·12.5 같은 일반 소수를 T
 
 
 새 profile_diff는 sort=delta_abs, omit_zero_delta=true가 기본이며 delta(부호 있는 내림차순)와 name을 선택할 수 있습니다. 동률은 프레임 이름·노드 ID로 정하고 페이지 처리 전에 view/spec에 고정합니다. 열 이름에 inclusive를 표시합니다. 백분율·share delta는 정확한 비교 API에 남기고 여섯 열 이미지에는 추가하지 않습니다. 기존 저장 view는 유지합니다.
+
+프로파일 시각화는 offset=0과 profile.cursor 페이지 처리를 사용합니다. 0이 아닌 offset은 결과 획득 전에 VISUAL_QUERY_INVALID로 거부합니다. diff/provider는 offset을 사용하며 과거 저장 view를 재해석하지 않습니다.

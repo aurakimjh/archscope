@@ -3810,7 +3810,7 @@ Record all findings before moving original bytes (SHA-256: `8d4fc9a82b842592feb1
 |---|---|---|
 | 1 / P2 | R14-01 | Narrow spreadsheet protection to actual formula/numeric/date risks; distinguish HTML/TSV/header behavior and disclose changed-cell counts. Locally fixed and verified: narrow 0.2.0 policy, per-format counts in artifact/bridge/UI, formula-only header treatment and current table reconstruction for old ZIPs. T-636 closure condition satisfied; independent final PASS not claimed. |
 | 2 / P3 | R14-02 | LOCALLY_FIXED; before new diff template expansion: pin delta/name ordering and zero-delta policy; label inclusive columns explicitly. Existing strict comparison values remain exact. |
-| 3 / P3 | R14-03 | Follow-up: refuse nonzero offset for profile views or bind a validated cursor; currently only cursor controls profile paging. |
+| 3 / P3 | R14-03 | LOCALLY_FIXED: refuse nonzero offset for profile views or bind a validated cursor; currently only cursor controls profile paging. |
 | 4 / P3 | R14-04 | Follow-up: validate required image count ≤5 during spec creation/validation, not only rendering. |
 | 5 / P3 | R14-05 | Follow-up: stronger generator/pixel provenance or deterministic SVG comparison. Correct docs now: checksums detect corruption/partial changes, not authenticated authorship or PNG/view equivalence. |
 | 6 / P3 | R14-06 | Follow-up: font subsetting/dedup tradeoff. Document practical 5-page ~33 MB bundles / ~16 artifacts / at most 2 such Report Packs under current byte ceilings. |
@@ -4804,3 +4804,5 @@ Targeted race/parser/model/analyzer/catalog and actual CLI/Wails tests pass:1000
 User authorized the21 remaining review follow-ups in listed order, one commit/item and push only after the complete batch. Start git pull --ff-only: already up to date at4b0743d. Existing HTTP docs/verifier and original ten-line tracker block are excluded; native Windows acceptance4 tasks and Q01–Q04 remain separate. Order: R14-02 → R14-03 → R14-04 → R14-05 → R14-06 → R14-07 → R15-03 → R15-04 → R15-05 → R17-05 → R19-02 → R19-03 → R19-04 → R20-02 → R20-03 → R20-04 → R21-02 → R21-04 → R22-03 → R22-01 → R22-02.
 
 R14-02 LOCALLY_FIXED: Exact delta_abs/delta/name ordering, zero-delta policy pinned before paging, target-only frame names and inclusive columns; comparison percentages stay in the exact API. Targeted visual/profile integration tests passed. No new independent PASS; original parent verdicts and existing saved revisions are preserved.
+
+R14-03 LOCALLY_FIXED: Nonzero profile_top/profile_flamegraph offsets fail explicitly before result acquisition; profile.cursor remains the paging contract; diff/provider offsets and historical views unchanged. Targeted integration tests passed. No new independent PASS; original parent verdicts and existing saved revisions are preserved.

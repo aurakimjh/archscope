@@ -88,3 +88,13 @@ func TestR1402DiffSelectionPolicyPinned(t *testing.T) {
 		t.Fatal("unknown sort accepted")
 	}
 }
+
+func TestR1403ProfileOffsetNeverIgnored(t *testing.T) {
+	s, _, _ := setup(t, nil)
+	job := importModel(t, s, "duration")
+	for _, kind := range []string{"profile_top", "profile_flamegraph"} {
+		if _, e := s.VisualView(context.Background(), job.ResultHandle, "", visuals.Query{Kind: kind, Offset: 5, Limit: 5}); e == nil || !strings.Contains(e.Error(), "profile.cursor") {
+			t.Fatal("offset silently ignored", e)
+		}
+	}
+}

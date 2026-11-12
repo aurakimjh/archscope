@@ -32,6 +32,9 @@ func (s *Service) VisualView(ctx context.Context, handle, target string, q visua
 	if q.Limit < 1 || q.Limit > 100 || q.Offset < 0 || q.Offset > 100_000_000 {
 		return out, fmt.Errorf("VISUAL_QUERY_INVALID: limit 1..100 and nonnegative offset required")
 	}
+	if (q.Kind == "profile_top" || q.Kind == "profile_flamegraph") && q.Offset != 0 {
+		return out, fmt.Errorf("VISUAL_QUERY_INVALID: profile views require offset=0; use profile.cursor")
+	}
 	owner, e := s.AcquireResult(handle)
 	if e != nil {
 		return out, e
