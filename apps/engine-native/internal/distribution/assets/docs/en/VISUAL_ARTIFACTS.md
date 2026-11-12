@@ -168,3 +168,5 @@ New profile_diff views default to sort=delta_abs and omit_zero_delta=true; delta
 Profile visual queries require offset=0 and page through profile.cursor. Nonzero offsets fail VISUAL_QUERY_INVALID before acquiring a result; diff/provider views continue to use offset. Historical saved views are read without reinterpretation.
 
 Spec creation and validation enforce required_images ≤5 before rendering. CLI visual validate returns required_images; over-budget errors include the needed image count and limit.
+
+Supported SVG imports/builds are regenerated deterministically from the frozen view/spec and pinned font and compared byte-for-byte, even if an attacker updates the manifest hashes. Historical unsupported generators retain structural/hash-only validation and cannot authorize new rendering. ZIP checks do not authenticate authorship, and PNG/SVG pixel equivalence is not certified.

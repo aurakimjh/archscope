@@ -136,3 +136,5 @@ R15-06: spreadsheet-text-0.2.1은 0.1·1.5·3.14·12.5 같은 일반 소수를 T
 프로파일 시각화는 offset=0과 profile.cursor 페이지 처리를 사용합니다. 0이 아닌 offset은 결과 획득 전에 VISUAL_QUERY_INVALID로 거부합니다. diff/provider는 offset을 사용하며 과거 저장 view를 재해석하지 않습니다.
 
 명세 생성·검증에서 렌더링 전에 required_images ≤5를 검사합니다. CLI visual validate는 required_images를 반환하고 초과 오류에는 필요한 이미지 수와 상한을 표시합니다.
+
+지원하는 SVG는 고정 view/spec·글꼴로 결정적으로 재생성하여 바이트 단위로 비교하므로 manifest 해시까지 바꾼 SVG 교체도 거부합니다. 미지원 과거 생성기는 구조·해시 검사만 유지하고 새 렌더링을 승인하지 않습니다. ZIP 검사는 작성자를 인증하지 않고 PNG/SVG 픽셀 동등성을 보증하지 않습니다.

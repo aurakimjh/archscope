@@ -178,6 +178,40 @@ func ValidateSVG(body []byte, spec Spec) error {
 	}
 	return nil
 }
+
+// validateCanonicalSVG binds supported generator output to the frozen view. It
+// does not authenticate the author or prove raster/SVG pixel equivalence.
+func validateCanonicalSVG(body []byte, view View, spec Spec, page int) error {
+	if e := ValidateSVG(body, spec); e != nil {
+		return e
+	}
+	if !spec.Reproducible() {
+		return nil
+	}
+	marker := []byte("data:font/ttf;base64,")
+	start := bytes.Index(body, marker)
+	if start < 0 {
+		return fmt.Errorf("VISUAL_SVG_FONT_STYLE")
+	}
+	start += len(marker)
+	end := bytes.IndexByte(body[start:], ')')
+	if end < 0 {
+		return fmt.Errorf("VISUAL_SVG_FONT_STYLE")
+	}
+	font, e := base64.StdEncoding.DecodeString(string(body[start : start+end]))
+	if e != nil {
+		return e
+	}
+	expected, e := SVG(view, spec, page, font)
+	if e != nil {
+		return e
+	}
+	if !bytes.Equal(body, expected) {
+		return fmt.Errorf("VISUAL_SVG_VIEW_MISMATCH: supported SVG must match deterministic frozen view output")
+	}
+	return nil
+}
+
 func BuildArtifact(ctx context.Context, view View, spec Spec, pages []Page, environment string, license []byte) ([]byte, error) {
 	if e := spec.Validate(view, false); e != nil {
 		return nil, e
@@ -193,7 +227,7 @@ func BuildArtifact(ctx context.Context, view View, spec Spec, pages []Page, envi
 		if e := ValidatePNG(page.PNG, spec.Presentation.Width, spec.Presentation.Height); e != nil {
 			return nil, e
 		}
-		if e := ValidateSVG(page.SVG, spec); e != nil {
+		if e := validateCanonicalSVG(page.SVG, view, spec, i); e != nil {
 			return nil, e
 		}
 		files[fmt.Sprintf("image-%02d.png", i+1)] = page.PNG
@@ -205,7 +239,7 @@ func BuildArtifact(ctx context.Context, view View, spec Spec, pages []Page, envi
 	files["table.html"] = []byte(StandaloneHTML(view, spec))
 	files["font-OFL.txt"] = license
 	protection := TableProtection(view)
-	receipt := Receipt{TableProtection: &protection, Version: Version, CreatedAt: time.Now().UTC().Format(time.RFC3339Nano), Spec: spec, Files: map[string]string{}, Pages: len(pages), Environment: environment, Reproducibility: "Exact numeric strings and selected layout inputs are pinned. Raster byte identity is only comparable within the same fixed WebView/platform environment."}
+	receipt := Receipt{TableProtection: &protection, Version: Version, CreatedAt: time.Now().UTC().Format(time.RFC3339Nano), Spec: spec, Files: map[string]string{}, Pages: len(pages), Environment: environment, Reproducibility: "Integrity hashes do not authenticate authorship; supported SVG is regenerated from the frozen view; PNG/SVG pixel equivalence is not verified. Exact numeric strings and selected layout inputs are pinned. Raster byte identity is only comparable within the same fixed WebView/platform environment."}
 	expanded := 0
 	for name, body := range files {
 		receipt.Files[name] = Digest(body)
@@ -318,7 +352,7 @@ func ReadArtifact(body []byte) (Artifact, error) {
 		if e = ValidatePNG(out.Files[fmt.Sprintf("image-%02d.png", i+1)], spec.Presentation.Width, spec.Presentation.Height); e != nil {
 			return out, e
 		}
-		if e = ValidateSVG(out.Files[fmt.Sprintf("image-%02d.svg", i+1)], spec); e != nil {
+		if e = validateCanonicalSVG(out.Files[fmt.Sprintf("image-%02d.svg", i+1)], out.View, spec, i); e != nil {
 			return out, e
 		}
 	}

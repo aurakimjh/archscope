@@ -278,3 +278,29 @@ func TestR1404SpecRejectsTooManyImages(t *testing.T) {
 		t.Fatal(e)
 	}
 }
+
+func TestR1405RehashedSVGStillBindsToView(t *testing.T) {
+	view, spec, _, png := sample(t)
+	font, e := distribution.Assets.ReadFile("assets/fonts/NotoSansKR.ttf")
+	if e != nil {
+		t.Fatal(e)
+	}
+	svg, e := v.SVG(view, spec, 0, font)
+	if e != nil {
+		t.Fatal(e)
+	}
+	original, e := v.BuildArtifact(context.Background(), view, spec, []v.Page{{PNG: png, SVG: svg}}, "synthetic", v.FontLicense)
+	if e != nil {
+		t.Fatal(e)
+	}
+	changed := rewrite(t, original, func(files map[string][]byte) {
+		files["image-01.svg"] = bytes.Replace(files["image-01.svg"], []byte("#ffffff"), []byte("#000000"), 1)
+		var receipt v.Receipt
+		json.Unmarshal(files["manifest.json"], &receipt)
+		receipt.Files["image-01.svg"] = v.Digest(files["image-01.svg"])
+		files["manifest.json"], _ = json.Marshal(receipt)
+	})
+	if _, e = v.ReadArtifact(changed); e == nil || !strings.Contains(e.Error(), "VISUAL_SVG_VIEW_MISMATCH") {
+		t.Fatal("rehashed SVG accepted", e)
+	}
+}
