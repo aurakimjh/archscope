@@ -6,7 +6,7 @@
 
 | 날짜 | 문서 | 대상 | 판정 |
 |---|---|---|---|
-| — | 없음 | — | 원문을 작업표에 기록 후 보관 |
+| 2026-11-12 | [T-640 LLM·gateway·lifecycle trace 근거 구현 독립 리뷰](2026-11-12_claude-code_T-640_implementation-review.ko.md) | `eadc040` | CONDITIONAL(P2 1/P3 4, P1 없음). R17-01(inference 관측의 비정수 rate 소실)을 먼저 처리한 뒤 DONE 복귀 허용, 나머지는 후속 큐 |
 
 ## 처리 기록
 
